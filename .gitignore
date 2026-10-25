@@ -1,0 +1,25 @@
+# Built outputs: everything below is rebuilt by `make`. Git holds scripts, docs JPGs and refs/SOURCES.md only.
+build/
+export/
+renders/
+textures/
+__pycache__/
+*.pyc
+*.blend
+*.blend[0-9]
+*.glb
+*.gltf
+*.bin
+*.fbx
+*.obj
+*.exr
+*.hdr
+*.png
+*.tif
+*.tiff
+*.webp
+# Downloaded references stay local; their sources list is tracked.
+refs/*
+!refs/SOURCES.md
+**/refs/*
+!**/refs/SOURCES.md
