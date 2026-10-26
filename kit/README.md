@@ -244,3 +244,36 @@ Optional `STUDIO_BACKDROP_HEIGHT` extends the procedural wall for upward-facing
 detail cameras on tall props; lighting and the default studio remain unchanged.
 Photo shots may set `background='transparent'` for neutral alpha composition
 when the calibrated camera faces outside the procedural backdrop.
+
+`materials.weathered_wood()` adds seeded rough-sawn pine in a per-timber source
+frame: knots bend growth bands, cut-end checks and ground splash follow their
+causes, and optional nail rows bake metal heads and downward stains.
+`materials.galvanized()` supplies original zinc crystallization. Both retain the
+existing bake-channel interface; source frames are discarded during export.
+
+Studio shots can set `studio_yaw` in degrees to rotate the procedural backdrop,
+lights and reflection flags for a reverse product view; camera and human stay
+in their configured world frames. Existing shots default to zero rotation.
+
+An asset may set `STUDIO=dict(light_scale=2.2, light_center=(.4,0,0))`
+to spread the same studio lighting over a wider assembly. Position, softbox
+size and power scale together, preserving approximate illumination. Defaults
+retain the pilot's original lighting.
+
+For horizontal or angled wood, pass `ground_frame` (a grade-aligned source
+frame) separately from the grain frame. Splash and exposure then follow actual
+height, while cut-end checks and cross-section growth rings follow the timber.
+
+Bake isolation also translates explicit shader Object-coordinate frames with
+their owning module, preserving per-timber grain. Material frames should belong
+to the same isolation root as their geometry; use default Object coordinates
+for a shared finish spanning several independently isolated modules. Modular
+static roots may be listed in `BAKE_POLICY.moving_roots` to prevent neighboring
+parts from projecting onto a reusable post or panel.
+
+`STUDIO.backdrop_half_width` (default 12 m) can widen the seamless for long
+fences or diagonally viewed assemblies, keeping dark world corners out of frame.
+
+Run `blender -b --factory-startup --python-exit-code 1 --python
+kit/test_bake_frames.py` to check preservation of explicit nested timber/parent
+coordinate frames during module isolation, without a GPU bake.
