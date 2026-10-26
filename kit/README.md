@@ -372,3 +372,9 @@ Optional `EEVEE_SHOT` selects a configured final Eevee view (Makefile and
 config must agree); default is `hero_closed`. Delivery docs validate its GLB
 provenance. This lets optional transmission surfaces be omitted in a dry
 preview when screen-space refraction cannot resolve the underlying geometry.
+
+With no studio override, the main entry point calls the default constructor
+without optional keywords, preserving zero-argument reflection-capture wrappers.
+An absent legacy `STUDIO_BACKDROP_HEIGHT` no longer forwards `None`; explicit
+backdrop/scale settings still pass through. `test_export_policy.py` exercises
+both paths through the main entry point without rendering.

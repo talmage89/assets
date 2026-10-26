@@ -41,3 +41,51 @@ material, three 512 maps, 355,384-byte GLB; zero UV overlaps. Stack pitch is
 83.446 mm with the 0.1 mm margin, and 336 radial sections remain at least
 2.509 mm thick. Support-surface tests and the mesh collision/ray tests prove
 physical construction separately from export/reimport serialization.
+
+
+## Phase 2 regression and used-condition calibration
+
+The clean baseline still exports 872 triangles / one 512 set / 355,384 bytes,
+matching the README. A new bake diagnostic found 48,167 black/missed interior
+samples among 8,212,941 covered 4096 samples. Independently rasterized each
+object's UVs: every miss belongs to the weighted base's coarse outer corner
+walls; the orange shell/grip has zero misses. This is not the previously fixed
+neck geometry defect. The inset low corner chords lie behind the high base
+surface beyond the old 2 mm cage. The wear build uses a 5 mm cage and 12 mm
+ray limit, preserving geometry and UV policy. Review its bake report and the
+actual exported base/neck before accepting; no missing pixels are filled.
+Diagnostic: `../build/polish/cone-bake-diagnostic.json`; original report is
+`../build/polish/cone-baseline-bake-report.json`.
+
+First wear source comparisons opened against the moderate campus and severe
+roadside photographs. Rejected the broad tan base dust and parallel marks
+that read as decorative stripes. The severe roadside cone is a useful upper
+limit, not the few-seasons target. Narrowed rubber transfer to one short
+contact patch, reduced base dust and mid-body stacking grime, retained more
+orange saturation, and dulled the plastic. Collar abrasion remains localized
+to film rims and stacking directions. The next pass also tests the measured
+base-corner projection correction without changing any mesh or UV.
+
+Second wear checkpoint accepted after opening both source/exported campus
+and roadside pairs plus the full hero, four orthos and both detail views.
+The 512 atlas preserves visibly worn collar film, low splash and dull scuffed
+PVC; short rubber transfers remain localized instead of wrapping like stripes.
+The base retains its dark material rather than a tan dust coating. The campus
+photo is the moderate-use target; the severe roadside image is only an upper
+limit. Studio color is lighter than outdoor PVC and the small atlas blurs fine
+scratches. Original 20-sided silhouette and foot faceting remain unchanged.
+
+The actual base-corner bake correction passes: 5 mm cage and 12 mm ray reach,
+zero misses in all five channels over an 8,212,941-texel interior mask, zero
+black BaseColor interior samples. This is projection reach, not painted repair
+or new geometry. `make export check` passes at 872 triangles, one material,
+one mesh, 499,956 bytes. Maps stay 512: 224,662 / 83,999 / 143,583 bytes.
+Full final studio/docs generation follows this accepted material checkpoint.
+
+Final Phase 2 `make` exits 0 (`../build/polish/cone-final.log`). Opened all
+eight final Cycles views, Eevee, contact sheet and all three final docs.
+Collar abrasion and low scuffs read at full-frame hero distance; the base
+corner projection holes are absent. Current-GLB hashes match all nine final
+studio metadata records. Geometry/UV/normals/tangents and origin are bytewise
+unchanged by the material/projection update, independently compared to the
+clean baseline GLB. No construction, scale or budget regression remains.

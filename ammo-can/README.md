@@ -22,7 +22,11 @@ gasket in a continuous retainer; the cam reacts against a body-mounted hasp.
 Bent rear leaves support a secured pin and open cover hooks. Wire ends pass
 through actual retaining sleeves. Upper side reinforcements, cover folds and
 cam neck ribs describe the stamped construction. `WEAR` controls exposed-fold
-chips, handling abrasion and low-edge grime. Original stencil bridges and worn
+chips, sparse rack-contact scrapes, rubbed latch steel and low-edge grime.
+At the default `WEAR=.35`, abrasion is visible in the full hero: the cover
+lip, cam grip and bottom lose paint while the broad panel retains its coating.
+The cover mask follows its hinge-local frame; stencil pigment fades and breaks
+where the same contact scratches cross it. Original stencil bridges and worn
 ink are generated using the installed open-license DejaVu font.
 
 The delivery is **2,784 triangles**, inside the 1,000–3,000 budget, in four mesh
@@ -33,8 +37,8 @@ All channels are baked at 4096 before filtering to delivery size. The kit
 isolates the lid, latch and handle during projection, retaining stationary
 contact AO and each part's rest coordinates.
 
-The GLB is **1,869,928 bytes**; delivered PNG sizes are BaseColor **423,548**,
-Normal **376,937**, ORM **847,777** bytes. Atlas coverage is **53.17%**, with
+The GLB is **2,398,092 bytes**; delivered PNG sizes are BaseColor **693,539**,
+Normal **418,129**, ORM **1,064,760** bytes. Atlas coverage is **53.17%**, with
 zero measured overlap/outside/degenerate triangles and density p5/median/p95
 **887/976/980 px/m** at 1024.
 
@@ -78,7 +82,13 @@ Delivery: `export/AmmoCan.glb`, `textures/ship/`. Cycles views are in
 [REVIEW.md](REVIEW.md) records the critiques and final results.
 
 The weakest areas are close-up pressed-edge detail and the small stencil:
-1024 filtering softens both. The reference is newer and darker under different
-lighting; this original finish depicts modest handling wear. Hardware sizes
+1024 filtering softens both. The used-surplus reference is darker under different
+lighting; this original olive finish now shows concentrated fold and rack wear. Hardware sizes
 beyond the published envelope/gauges are authored estimates, and the cam face
 and folded corners are simpler than a formed production part.
+
+Phase 2 used-surplus calibration: `renders/wear-pass3-glb/used_surplus-pair.jpg`
+compares the shipped atlas with an actual used M2A1 (source and rights in
+`refs/SOURCES.md`). The corresponding source pair is under
+`renders/wear-pass3-source/`. The fitted envelope residual is 4.84 px at
+900×600; paint shade and fictional markings intentionally differ.

@@ -14,7 +14,9 @@ class Picket(Builder):
     def wood(self,parent,name,center,size,seed,tip=False,axis=(0,0,1),nails=()):
         center=Vector(center);length=size[2] if tip else max(size)
         f=self.frame(parent,name,center-Vector(axis)*length/2,axis)
-        w=size[0] if tip else min(size[:2]);mat=white_wood(name+' paint',f,parent,w,length,seed,self.wear,nails)
+        w=size[0] if tip else min(size[:2])
+        depth=size[1] if tip else (size[2] if abs(axis[0])>.5 else max(size[:2]))
+        mat=white_wood(name+' paint',f,parent,w,length,seed,self.wear,nails,depth=depth)
         if tip:
             w,h=size[0],size[2]
             # Distinct French Gothic shoulder and pinched throat, original profile.

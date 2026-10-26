@@ -9,7 +9,9 @@ start 2 in / 50.8 mm above grade. Thirteen boards span each 8 ft / 2.4384 m
 post-center bay, with 85.2714 mm interior gaps and equal end gaps. Two actual
 38.1 × 88.9 mm rails sit at Z 254 and 889 mm, carried in galvanized saddles.
 Posts are actual 88.9 mm square, top 1.16 m; pyramid cap top is 1.205 m.
-Paint wear follows edges/cut ends/nails; damp mildew fades upward from grade.
+Paint flakes expose aged cedar at cut tips and rail edges; upward faces chalk.
+Green-black mildew is stronger low on the shaded rail side, with splash dirt
+fading upward from grade. Broad patches survive the shared 1024 atlas.
 
 `Picket_A` and `Picket_B` contain panels and brackets; `Picket_End`, `Picket_Line`
 and `Picket_Corner` contain one post and cap each. Every module origin is on
@@ -37,3 +39,9 @@ rail-face sockets. Keep pickets vertical, caps level and the gate opening level;
 a raked fence requires rebuilding rail/brace joinery and is not obtained by
 rotating or shearing these ready-made panels. Underground posts/footings and
 engine collision/LOD meshes are intentionally omitted.
+
+Accepted used-photo calibration: `renders/wear-pass3-glb/used_pickets-pair.jpg`
+(source counterpart in `renders/wear-pass3-source/`). Final library: 2,936
+triangles, one material, 3,134,324 bytes; 1024² BaseColor / Normal / ORM
+1,180,454 / 876,986 / 812,527 bytes. Fine nail seats and small paint flakes
+remain softer than the source at approximately 208 px/m.

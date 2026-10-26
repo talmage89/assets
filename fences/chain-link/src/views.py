@@ -29,4 +29,4 @@ SHOTS['pieces']['parts']['Chain_BetweenTerminals']={'translation':(0,1,0)}
 SHOTS['posts']['parts']['Chain_Terminal_End']={'translation':(-1.75,-2,0)}
 SHOTS['posts']['hide_assemblies'].append('Chain_BetweenTerminals')
 SHOTS['corner_good']=dict(location=(6.4,-10,3.8),target=(.3,.7,.65),lens=52,aspect=1.9,exposure=-.9)
-SHOTS['corner_rails']=dict(location=(-6.8,9.5,3.7),target=(.3,.6,.55),lens=44,aspect=1.9,studio_yaw=180,exposure=-.9)
+SHOTS['corner_rails']=dict(location=(-6.8,9.5,3.7),target=(.3,.6,.55),lens=44,aspect=1.9,studio_yaw=215,exposure=-.9)

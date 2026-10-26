@@ -117,7 +117,9 @@ def main():
     config=runpy.run_path(a.config)
     studio_options=dict(config.get('STUDIO',{}))
     if 'STUDIO_SCALE' in config:studio_options.setdefault('scale',config['STUDIO_SCALE'])
-    studio_options.setdefault('backdrop_height',config.get('STUDIO_BACKDROP_HEIGHT'))
+    # Preserve zero-argument capture wrappers when no backdrop override exists.
+    if config.get('STUDIO_BACKDROP_HEIGHT') is not None:
+        studio_options.setdefault('backdrop_height',config['STUDIO_BACKDROP_HEIGHT'])
     cam=add_studio(**studio_options)
     bpy.context.view_layer.update()
     studio_rest={ob:ob.matrix_world.copy() for ob in sc.objects if ob.get('studio') and ob!=cam}

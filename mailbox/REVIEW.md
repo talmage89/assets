@@ -47,3 +47,56 @@ penetration at 0.05 mm tolerance and no allowed-contact exclusions. Thirteen
 support tests pass on actual game surfaces. The isolation report records three
 projection groups and eight stationary AO shadows. This uses the merged kit
 features, not a manual bake fallback. No continuous-sweep guarantee is claimed.
+
+
+## Phase 2 combined-kit regression and wear calibration
+
+Clean baseline `make` / `make check` passed: 1,264 triangles, one material,
+1,300,792 bytes. Opened committed/new hero and full Cycles/Eevee contact:
+construction, framing, open Door/raised Flag and hardware agree. The new-looking
+finish is inherited, not an integration regression.
+
+First wear checkpoint: opened `renders/wear-pass1-{source,glb}/used_black_post-pair.jpg`.
+Rejected the exaggerated white roof stripe and the yellow-green curtain across
+the lower shell. The reference has sparse chips and rubbed folds, not wholesale
+crown paint failure or a moss-covered wall. Removed the non-edge crown band,
+narrowed lower fold chips and reduced their coverage. Confined seam dirt to a
+small lower zone in darker neutral dirt. The kit's weathered pine replaces the
+fresh wood, but appeared too pale in the pair: added an age-dependent cooler,
+darker tone through OUT_base while preserving grain, checks, knots and causal
+ground splash from `materials.weathered_wood()`. Correct grain and grade frames
+are separate for the horizontal arm. No geometry or texture-set change.
+First export/check passed (2,591,284 bytes); acceptance waits on the correction.
+
+Opened the first full-frame hero and six-side/detail contact as well: the roof
+stripe is unmistakably wrong from above, and the post foot is still too clean.
+The pine replacement needs more caused dirt near grade, even after darkening
+the wood palette. A further local adjustment amplifies the kit
+`OUT_splash` mask only on the vertical post and mixes a dark damp-earth tone.
+It retains the kit's irregular grade-driven shape; no uniform whole-post grime
+or circular stain is introduced. Review the lower post in the final hero.
+
+Second source pair: the crown stripe and moss curtain are gone, and the pine
+now reads silver-gray. Noticed vertical dirt streaks on the red flag: the lower
+shell-height mask had been evaluated in the flag's hinge-local coordinates.
+Removed that deposit layer from the red signal finish and gave the Door paint
+its actual rest-height offset, so lower-fold deposits remain attached to the
+correct manufactured region. The third bake includes this coordinate correction
+and the already identified stronger road-splashed post foot.
+
+Third checkpoint: opened both refreshed source/exported used-photo pairs and
+all eight hero/orthographic/detail/open-pose probes in `renders/wear-pass3-*`.
+Accepted the sparse fold wear, clear crown, unstriped red flag, silver-gray
+pine and irregular dark splash at the grade contact. The foot now reads at
+full hero size; broad post faces retain gray wood instead of a uniform dirt
+wash. Fine checks/fibers soften in the atlas, and the photographed post has
+more knots; these are explicit close-view limits. `make export check` passed:
+1,264 triangles / one material / 2,082,780 bytes, with three 1024 maps
+BaseColor / Normal / ORM 645,381 / 638,621 / 703,649 bytes. Source/imported motion
+and actual-surface support checks pass. Final docs follow this acceptance.
+
+Final `make` passed (`../build/polish/mailbox-final.log`). Opened the complete
+final contact and all three generated docs JPGs: the silvered post and dirty
+foot read in the full hero, the crown stays clear and the flag has no misplaced
+streaks. All nine Cycles views and the Eevee view record the final GLB hash.
+The accepted JPGs are held for the single end-of-pass image commit.

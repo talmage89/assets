@@ -111,3 +111,32 @@ except ValueError:
 else:
     raise AssertionError('Conflicting scale aliases were silently multiplied')
 print('PASS: scale aliases apply once, legacy framing retained, human stays 1.8 m')
+
+# Exercise the main entry point used by asset-specific reflection captures.
+# Mock only the actual render: constructor dispatch, import and metadata run.
+from unittest.mock import patch
+capture_calls = []
+default_studio = studio.add_studio
+def legacy_capture():
+    capture_calls.append(True)
+    return default_studio()
+probe_config = folder / 'capture-config.py'
+probe_config.write_text("SHOTS={'probe':dict(location=(2,-4,2),target=(0,0,0))}\n")
+sys.argv = ['blender', '--', '--stage', 'final', '--source', str(output),
+            '--config', str(probe_config), '--out', str(folder / 'capture-probe'),
+            '--shots', 'probe', '--engine', 'BLENDER_WORKBENCH', '--width', '64']
+probe_image = folder / 'capture-probe/probe.png'
+probe_image.unlink(missing_ok=True)
+with patch.object(studio, 'add_studio', legacy_capture), patch.object(bpy.ops, 'render') as render_ops:
+    studio.main()
+    render_ops.render.assert_called_once_with(write_still=True)
+assert capture_calls == [True]
+assert not probe_image.exists(), 'Constructor fixture unexpectedly rendered'
+assert json.loads((folder / 'capture-probe/shots.json').read_text())['probe']['stage'] == 'final'
+probe_config.write_text(probe_config.read_text() + 'STUDIO_SCALE=3\nSTUDIO_BACKDROP_HEIGHT=45\n')
+with patch.object(bpy.ops, 'render') as render_ops:
+    studio.main()
+    render_ops.render.assert_called_once_with(write_still=True)
+assert not probe_image.exists(), 'Constructor fixture unexpectedly rendered'
+assert max(v.co.z for v in bpy.data.objects['Studio seamless'].data.vertices) == 45
+print('PASS: default capture wrapper and explicit tall-studio options survive main dispatch')

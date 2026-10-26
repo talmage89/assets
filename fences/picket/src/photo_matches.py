@@ -15,3 +15,7 @@ for x,top,bottom in zip(xs,[(1176,413),(1327,406),(1488,401),(1642,397),(1800,39
  if bottom[1]<1368:landmarks.append(dict(world=(x,-.034925,.0508),pixel=bottom,weight=.6))
 MATCHES={'match_pickets':dict(title='Painted cedar / stock spacing and French Gothic tips',photo=str(PHOTO),crop=(1000,350,1824,1368),location=(-1.5,-2.8,1.7),target=(-.55,0,.65),lens=52,exposure=-1.15,
  hide_assemblies=['Picket_B','Picket_End','Picket_Line','Picket_Corner','Picket_GateBay'],landmarks=landmarks)}
+
+MATCHES['used_pickets']=dict(title='Installed painted wood / peeling tips, chalked rail and low mildew',photo=str(Path(__file__).resolve().parents[2]/'refs/used-picket.jpg'),crop=(1100,950,1550,2000),location=(1.5,-1.2,1.65),target=(-.6,0,.65),lens=55,exposure=-.65,
+ hide_assemblies=['Picket_B','Picket_End','Picket_Line','Picket_Corner','Picket_GateBay'],landmarks=[
+ dict(world=(x,-.034925,z),pixel=pixel,weight=weight) for x,tip,bottom in zip(xs,[(1184,1043),(1238,1051),(1299,1072),(1354,1093),(1423,1114)],[(1159,1811),(1221,1844),(1276,1876),(1331,1911),(1400,1943)]) for z,pixel,weight in [(1.1176,tip,1),(.0508,bottom,.6)]])

@@ -13,7 +13,7 @@ check-construction: build/game-audit.blend
 
 docs: renders/photo-final/.stamp
 renders/photo-final/.stamp: export/MetalTrashCan.glb build/matched-cameras.json
-	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --stage final --source $< --config $(CONFIG) --camera-file build/matched-cameras.json --out renders/photo-final --shots match_front --width 1000 --samples 32
+	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --stage final --source $< --config $(CONFIG) --camera-file build/matched-cameras.json --out renders/photo-final --shots match_front,used_estate --width 1000 --samples 32
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/matched-cameras.json --renders renders/photo-final --out renders/photo-final
 	@touch $@
 

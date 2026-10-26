@@ -22,4 +22,4 @@ for s in SHOTS.values():s.setdefault('exposure',-1.15)
 STUDIO=dict(light_scale=2.2,light_center=(.4,0,0),backdrop_half_width=24,backdrop_color=(.16,.18,.17))
 
 SHOTS["corner_good"]=dict(location=(5.8,-9,3.4),target=(.2,.6,.57),lens=55,aspect=1.9,exposure=-1.15)
-SHOTS["corner_rails"]=dict(location=(-6.2,8.2,3.2),target=(.2,.6,.45),lens=45,aspect=1.9,studio_yaw=180,exposure=-1.15)
+SHOTS["corner_rails"]=dict(location=(-6.2,8.2,3.2),target=(.2,.6,.45),lens=45,aspect=1.9,studio_yaw=215,exposure=-1.15)

@@ -286,3 +286,84 @@ viewing distance. No additional art pass or texture memory is needed. Nothing
 is needed from the lead. A future engine import helper could preserve alpha
 coverage in generated mipmaps; no engine-specific integration is part of this
 asset family.
+
+## Phase 2 combined-kit regression and painted-picket wear
+
+The privacy, painted-picket and chain-link libraries, all module variants and
+all three corner/gate assemblies rebuilt from clean sources on the combined
+kit. `make -C fences` and `make -C fences check` exited 0 (logs in
+`../build/polish/`). Opened each new assembled hero against its committed JPG,
+all studio/Eevee/assembly contact views and all six source/shipped photographic
+pairs. No visible model/material integration regression. Privacy: 2,100 tris /
+9,875,704 bytes; picket: 2,936 / 2,484,624; chain-link: 9,116 / 2,052,076. The
+small PNG compression differences from the latter two README byte counts do
+not change texture sizes/material counts. The reverse assembly views have a
+dark studio corner away from the models; the picket's reverse studio orientation
+is being aligned with its diagonal camera as part of its changed-look pass.
+
+Used-picket reference: TriviaKing's installed, peeling painted fence, CC BY-SA
+3.0, recorded in `refs/SOURCES.md`. Added measured envelope landmarks, explicitly
+retaining the original French Gothic geometry; the reference has plain pointed,
+leaning boards and different site construction. The photographic residual is
+19.45 px at the 450×1050 crop and is separate from the independent camera check.
+
+First wear checkpoint: opened the source and exported pairs in
+`picket/renders/wear-pass1-{source,glb}/used_pickets-pair.jpg`, the GLB hero, and
+all front/side/back/top/paint views. Low green-black mildew and splash now read
+at full-frame scale and are stronger on the slow-drying rear face. The first
+upper flakes were still too thin after the 1024 bake. Enlarged the paint-breakup
+patches along cut ends and exposed rail edges to roughly 2 cm across the grain;
+kept broad vertical faces coated. Cross-section edge masks now require proximity
+to both section limits, using the actual rail thickness/height, so a rail's broad
+face cannot be mistaken for one continuous edge. Source geometry is unchanged.
+
+Second picket wear checkpoint: source and GLB pairs in
+`picket/renders/wear-pass2-{source,glb}/used_pickets-pair.jpg` and the complete
+hero/front/side/rear/top/paint probes were opened. Broad mildew survives the
+bake, and the enlarged top flakes survive as gray patches, but the shipped
+cut tips still look much cleaner than the used photograph. Rejected upper
+wear strength again. Increased flake coverage only inside the existing cut-end
+and manufactured-edge masks, and darkened the revealed aged cedar. Paint
+across the broad board faces and the accepted low mildew remain unchanged.
+Pass2 check passed: 2,936 triangles, one 1024 set, 2,962,696-byte GLB.
+
+Third picket checkpoint: opened both used-photo pairs and all seven exported
+hero/orthographic/paint/reverse probes in `picket/renders/wear-pass3-*`.
+Accepted the now-visible exposed upper cedar and rail-edge paint loss; the
+clean broad faces retain white paint, with graded green-black mildew at the
+feet and stronger on the shaded back. The full hero reads used. The used
+photograph is older and has plainer tips; it calibrates the causes and visible
+scale of wear, not a geometry replica. The 1024 filter still softens small
+flakes/nails, while the broader upper loss and low splash survive.
+`make -C fences/picket export check` passed, 2,936 triangles / one material /
+3,134,324 bytes. Maps BaseColor / Normal / ORM are
+1,180,454 / 876,986 / 812,527 bytes. The reverse probe also verifies the
+215-degree studio orientation removes the dark upper backdrop corner without
+changing any camera or asset geometry. Final assembly verification follows.
+
+Final picket `make` exited 0 (`../build/polish/picket-final.log`). Opened the
+complete final Cycles/Eevee/assembly contact, both assembled corner views and
+all four refreshed source/exported photo pairs. The good-side hero clearly
+shows upper paint loss and a dirty foot; the shaded reverse has stronger
+low mildew and a continuous backdrop. Family `make check`, independent posed
+GLB framing and hash-checked five-image composition all passed; logs are
+`../build/polish/family-{check,framing,docs}.log`. The three changed final JPGs
+were opened and held for the end-of-pass docs commit. Unchanged privacy and
+chain-link hero JPGs retain their original committed bytes.
+
+A final presentation correction applies the same 215-degree studio orientation
+to the chain-link reverse assembly. Its previous 180-degree setting left a dark
+upper background corner away from the model. Full `make -C chain-link` passed;
+opened all refreshed studio/Eevee/assembly views and both photo pairs. The
+reverse background is continuous, with unchanged geometry, materials and
+camera poses. Final independent family framing passes all 42 views, and the
+51-view complete family contact is refreshed. The unchanged privacy and
+chain-link hero JPGs retain their original committed bytes; this correction
+adds no documentation image version. Logs: `../build/polish/chain-backdrop-final.log`
+and `../build/polish/family-framing-final.log`.
+
+Combined-library diagnostic limit: the unchanged chain-link frame bake retains
+19 missed/black interior samples out of 2,886,844 checked at 4096 (normal misses
+zero). This predates polish; the frame and analytical alpha weave have no
+visible artifact in the reviewed final views. No texture fill or geometry
+change was introduced. It remains a small documented coverage diagnostic.

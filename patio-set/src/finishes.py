@@ -36,18 +36,18 @@ def fabric(name,wear,sling=False,closed=False,binding=False):
     if sling:
         seam=n.maximum(n.band(n.math('ABSOLUTE',x),.264,.006,.004),n.band(z,.94,.008,.004))
     else:seam=n.ramp(n.math('ABSOLUTE',n.math('SINE',n.mul(angle,4))),.040,.012)
-    # Direct sun from above/front, never the shaded back or underside.
+    # Exposure accumulated through thin cloth: both sling faces age, upward faces most.
     sun=n.ramp(n.vec('DOT_PRODUCT',c['normal'],(0,-.62,.785)),.05,.85)
-    exposure=n.maximum(c['up'],sun)
+    exposure=n.add(.42,n.mul(n.maximum(c['up'],n.mul(sun,.50)),.58)) if sling else n.add(.18,n.mul(n.maximum(c['up'],n.mul(sun,.42)),.82))
     if closed:
         ridge=n.ramp(n.math('SINE',n.add(n.mul(angle,8),n.mul(n.math('SUBTRACT',z,1.13),1.05))),-.35,.75)
         exposure=ridge
         protected_tie=n.band(z,1.675,.025,.015)
         exposure=n.mul(exposure,n.math('SUBTRACT',1,n.mul(protected_tie,.85)))
     protected=n.maximum(n.mul(seam,.75),n.mul(c['cavity'],.8))
-    fade=n.mul(wear*2.4,exposure,n.math('SUBTRACT',1,protected),n.add(.78,n.mul(n.noise(p,8,2),.22)))
+    fade=n.mul(wear*1.35,exposure,n.math('SUBTRACT',1,protected),n.add(.78,n.mul(n.noise(p,8,2),.22)))
     if binding:fade=n.mul(fade,.5)
-    base=n.mix(fade,base,(.43,.44,.265),True)
+    base=n.mix(fade,base,(.13,.205,.113),True)
     base=n.mix(n.mul(seam,.25),base,(.025,.065,.028),True)
     dirt=n.mul(wear*1.4,c['cavity'],n.ramp(n.noise(p,110,3),.30,.65))
     base=n.mix(dirt,base,(.055,.045,.015),True)
