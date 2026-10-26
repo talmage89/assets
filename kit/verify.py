@@ -104,7 +104,7 @@ def main():
     uv_report=uv.report(meshes,a.size,'UVMap')
     check(uv_report['overlap_fraction']<1e-6,'UV overlap exceeds subpixel tolerance')
     check(uv_report['outside_triangles']==0 and uv_report['degenerate_uv_triangles']==0,'Invalid UV triangles')
-    check(uv_report['coverage']>.35,'Atlas coverage too low')
+    check(uv_report['coverage']>cfg.get('UV_MIN_COVERAGE',.35),'Atlas coverage too low')
     policy=cfg.get('VERIFY_POLICY',{})
     bands=density_bands(cfg,a.size)
     check(bands['p5_min']<uv_report['density_px_m']['5'] and bands['median_min']<uv_report['density_px_m']['50']<bands['median_max'] and uv_report['density_px_m']['95']<bands['p95_max'],'Texel density outside declared priority bands')

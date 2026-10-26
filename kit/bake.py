@@ -11,8 +11,8 @@ from kit.image_io import write_png,linear_to_srgb
 def main():
     p=argparse.ArgumentParser();p.add_argument('--low',required=True);p.add_argument('--high',required=True)
     p.add_argument('--out',required=True);p.add_argument('--asset',required=True)
-    p.add_argument('--config')
     p.add_argument('--size',type=int,default=4096);p.add_argument('--samples',type=int,default=32)
+    p.add_argument('--config')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     bpy.ops.wm.open_mainfile(filepath=str(Path(a.low).resolve()));sc=bpy.context.scene
     cfg=runpy.run_path(a.config) if a.config else {}
@@ -85,7 +85,7 @@ def main():
     mats={m for ob in sources for m in ob.data.materials if m}
     sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=False
     sc.render.bake.use_selected_to_active=True;sc.render.bake.use_clear=True
-    sc.render.bake.cage_extrusion=policy.get('cage_m',.006);sc.render.bake.max_ray_distance=policy.get('ray_distance_m',.018)
+    sc.render.bake.cage_extrusion=policy.get('cage_m',cfg.get('BAKE_CAGE',.006));sc.render.bake.max_ray_distance=policy.get('ray_distance_m',cfg.get('BAKE_RAY',.018))
     sc.render.bake.margin=12;sc.render.bake.margin_type='EXTEND'
     if not sc.world:sc.world=bpy.data.worlds.new('Bake world')
     if hasattr(sc.world,'light_settings'):sc.world.light_settings.distance=policy.get('ao_distance_m',.035)

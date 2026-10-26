@@ -145,6 +145,27 @@ stay ignored and never become textures or committed docs.
 Future tiling/trim and alpha-card policies can extend the material/export
 interface. No speculative road, house or foliage generator is included.
 
+Street-batch extensions: `match-final` compares the baked GLB with the same photo
+calibration as the source. Optional legacy `BAKE_CAGE`/`BAKE_RAY` configure thin shells; explicit
+`BAKE_POLICY.cage_m` / `ray_distance_m` take precedence when present.
+Baked name families may tag `variant_id`, `bake_offset`, and `bake_only` templates;
+export selects config `EXPORT_VARIANT`, restores its placement, and joins a single
+static mesh. Source audits omit parked templates; final checks still inspect the
+actual exported triangles/UVs. `UV_MIN_COVERAGE` declares a shared family's subset
+coverage without relaxing overlap checks.
+
+`prop.py` supplies small-prop plate/rest-frame helpers; `delivery_docs.py` makes
+three final JPGs with GLB-hash checks. `assembly.py` measures declared supports
+on evaluated triangle surfaces (intersections or sampled distance bounds),
+separately from serialization and swept-motion verification. Source previews
+hide parked bake-only templates.
+Photo composition honors EXIF orientation before applying measured crop/pixels;
+calibration landmarks are specified in the upright photographic frame.
+Atlas configurations can set `UV_SMART_ASPECT=False` when source print images
+have different aspect ratios; this prevents material image dimensions from
+distorting the shared square bake UVs. `UV_PACK_SHAPE` is an optional packing
+choice; all independent overlap/outside checks remain enforced.
+
 ## Optional asset policy and moving assemblies
 
 These additions preserve legacy calls and defaults. New assets should declare

@@ -32,7 +32,7 @@ def main():
     for ob in objects:ob.select_set(True)
     bpy.context.view_layer.objects.active=objects[0]
     bpy.ops.object.mode_set(mode='EDIT');bpy.ops.mesh.select_all(action='SELECT')
-    bpy.ops.uv.smart_project(angle_limit=math.radians(66),margin_method='SCALED',island_margin=0,area_weight=0,correct_aspect=True,scale_to_bounds=False)
+    bpy.ops.uv.smart_project(angle_limit=math.radians(66),margin_method='SCALED',island_margin=0,area_weight=0,correct_aspect=config.get('UV_SMART_ASPECT',True),scale_to_bounds=False)
     bpy.ops.uv.average_islands_scale()
     bpy.ops.object.mode_set(mode='OBJECT')
     priorities=config.get('UV_PRIORITY',{})
@@ -45,7 +45,7 @@ def main():
         ob['texel_priority']=priority
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.uv.pack_islands(udim_source='CLOSEST_UDIM',rotate=True,rotate_method='ANY',scale=True,
-                          merge_overlap=False,margin_method='FRACTION',margin=a.margin,pin=False,shape_method='CONCAVE')
+                          merge_overlap=False,margin_method='FRACTION',margin=a.margin,pin=False,shape_method=config.get('UV_PACK_SHAPE','CONCAVE'))
     bpy.ops.object.mode_set(mode='OBJECT')
     # Packing fits the atlas; reduce uniformly if a larger prop exceeds its declared density.
     measured=uv.report(objects,a.size)
