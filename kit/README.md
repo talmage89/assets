@@ -252,3 +252,6 @@ to the same isolation root as their geometry; use default Object coordinates
 for a shared finish spanning several independently isolated modules. Modular
 static roots may be listed in `BAKE_POLICY.moving_roots` to prevent neighboring
 parts from projecting onto a reusable post or panel.
+
+`STUDIO.backdrop_half_width` (default 12 m) can widen the seamless for long
+fences or diagonally viewed assemblies, keeping dark world corners out of frame.
