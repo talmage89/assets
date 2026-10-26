@@ -32,17 +32,18 @@ the reference manufacturer's patented lid. There are no commercial markings.
 One material and one **1024²** BaseColor (sRGB), OpenGL +Y Normal and ORM
 (R occlusion, G roughness, B metallic) atlas serve the complete assembly.
 The exported asset is **4,928 triangles**, inside the 2,000–5,000 budget, in
-four mesh objects. The GLB is **2,795,164 bytes**. Budgeted texture residency is approximately **4 MB** with
+four mesh objects. The GLB is **3,485,008 bytes**. Budgeted texture residency is approximately **4 MB** with
 block compression and mipmaps. Engines may generate distance LODs on import.
 
-The source uses angular zinc crystals, exposure dulling, wet-hem and seam white
-corrosion, and restrained handling dents. `WEAR` controls use-related layers.
+The source uses angular zinc crystals, exposure dulling, broken white oxide
+where rain and folded joints retain water, early rim/seam rust, and dark
+handling and low-skirt grime. Restrained handling dents remain unchanged. `WEAR` controls use-related layers.
 Small pressed beads and grain reside in shader microrelief. Other channels
 use the kit's isolated high-to-low projection and stationary contact AO; the
 normal is baked directly on the matching game shell to avoid projection
 across the 0.65 mm wall. All maps are baked at 4096 before delivery filtering.
 No texture repair, reference projection, downloaded material or HDRI is used.
-Delivered PNG bytes are BaseColor 947,574; Normal 333,714; ORM 1,257,198.
+Delivered PNG bytes are BaseColor 1,274,044; Normal 327,667; ORM 1,626,619.
 The imported atlas covers 56.77%, with zero measured overlap/outside/degenerate
 triangles and density p5/median/p95 of 406/448/471 px/m.
 
@@ -84,5 +85,8 @@ and final delivery evidence.
 
 The weakest areas are the thin pressed beads and zinc grain at close range:
 the shared 1024 atlas softens them, and the restrained dents are simpler than a
-heavily battered real can. The photograph shows a newer, more reflective can;
-this asset intentionally depicts weathered outdoor service.
+heavily battered real can. The construction photograph shows a newer, more reflective can. Outdoor-use
+calibration uses `renders/wear-pass2-glb/used_estate-pair.jpg` and the matching
+source pair; landmark RMS is 18.01 px. Its original lid and handle construction
+differs from the estate photograph, and studio illumination is brighter than
+the shaded outdoor reference.

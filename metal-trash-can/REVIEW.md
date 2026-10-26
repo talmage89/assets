@@ -29,3 +29,45 @@ Baked at 4096/32 samples, OptiX. Projected channels and the separate direct-norm
 Individually opened all ten corrected final Cycles images (closed hero, lifted lid, four orthographic views, lid detail, wire/eye detail, interior, 1.8 m scale), the Eevee hero, the final exported photo render and pair, the refreshed source photo render/pair/overlay, all three docs and the contact sheet. All 12 final metadata records identify the current GLB hash. No black projection band remains. The first Eevee image lacked environment capture and made bare metal almost black; `src/eevee.py` adds an original procedural studio SPHERE capture. Opened the corrected Eevee image: zinc now reads consistently with Cycles without changing any delivered surface or texture.
 
 Final contact sheet: `renders/final/contact.jpg`; exported photo pair: `renders/photo-final/match_front-pair.jpg`. Docs: hero 1600×809 / 67,041 bytes; turnaround 1600×1700 / 194,163; details 1600×2911 / 186,696. The exported comparison preserves proportions, corrugation and weathered zinc but loses some micrograin and pressed-bead sharpness at 1024. Dents and hems remain simpler than a close-up battered real can. Orthographic transparent views lose the bright floor reflections and look darker than the perspective hero; this is lighting, not a material swap. Camera match remains approximate as disclosed above. These are the weakest areas; no unresolved construction or budget failure remains. No lead input needed.
+
+
+## Phase 2 combined-kit regression
+
+The initial clean `make` failed in the existing Eevee reflection-capture wrapper:
+`captured_studio() got an unexpected keyword argument 'backdrop_height'`.
+The shared studio had begun forwarding an absent backdrop override as `None`.
+Kit commit `1c93019` omits that absent keyword, retaining explicit height/scale
+settings and the existing zero-argument hook. The focused main-entry fixture
+checks both paths with rendering mocked and asserts that it creates no image.
+
+Resumed `make` and `make check` both passed after the kit correction (logs
+`../build/polish/metal-regression-repair-{make,check}.log`). The clean baseline
+remains 4,928 triangles / one material / 2,795,168 bytes, versus 2,795,164 in the
+README. Opened the committed/new hero comparison, full final contact including
+the repaired reflected Eevee view, and the original construction photo pair.
+Metal response, lid/handle poses and framing agree; no visual regression remains.
+The requested stronger use-weathering is a separate material-only correction.
+
+First used-weather checkpoint: opened source and exported pairs
+`renders/wear-pass1-{source,glb}/used_estate-pair.jpg`, the full hero and all
+six side/detail probes. The oxide survives the 1024 bake, but rejected its
+excess coverage: the lid and body read almost white and uniformly mottled,
+unlike the used outdoor reference's dull zinc, broken white deposits and
+localized wet-joint rust. Reduced the oxide layer and sparse-spot coverage;
+required retained-rain exposure for cavity oxidation instead of whitening
+every flute. Kept the cause-located rim/seam rust and made handling/low skirt
+dirt darker. The first check passed (4,928 triangles / one material /
+3,678,356 bytes); this is not yet the accepted finish. The used-reference
+camera residual is 18.01 px; its lid/handle construction differs intentionally.
+
+Second used-weather checkpoint: opened both source/exported used-estate pairs,
+the full hero, four orthographic views and lid/handle details. Accepted the
+reduced oxide coverage: zinc still reads gray metallic sheet, with broken
+white deposits, dull exposure response, early orange rim/seam corrosion and
+dark low/handling dirt visible at hero distance. The brighter studio highlights
+and original lid/handle shape differ from the shaded reference; this is not
+a battered replica. All wear stays in the existing 1024 atlas.
+
+`make export check` passes: 4,928 triangles, one material, four movable/static
+mesh parts, 3,485,008 bytes; maps 1,274,044 / 327,667 / 1,626,619 bytes. Final
+full studio/Eevee regeneration follows this accepted material checkpoint.

@@ -11,7 +11,7 @@ def main():
  a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);bpy.ops.wm.read_factory_settings(use_empty=True);hi=a.quality=='high'
  root=G.pivot('MetalTrashCan',(0,0,0));root['static_root']=True
  lid=G.pivot('Lid',(0,0,.714));lid['slide_axis']='Z';lid['range_m']=[0,.6];lid.parent=root
- steel=zinc('Weathered spangled galvanized sheet',a.wear);ls=zinc('Pressed galvanized lid',a.wear,lid=True)
+ steel=zinc('Weathered spangled galvanized sheet',a.wear);ls=zinc('Pressed galvanized lid',a.wear,lid=True);grip=zinc('Handled zinc wire',a.wear,handle=True)
  def add(ob,parent=root):return G.attach(ob,parent,'MetalTrashCan')
  N=96 # Four angular samples per flute; stable structural geometry in both sources.
  def ring(z,r,flute=0):
@@ -68,7 +68,7 @@ def main():
   piv=G.pivot('Handle_'+label,(s*.262,0,.644),'Y',(-95,0) if s>0 else (0,95));piv.parent=root
   # End legs enter retained eyes; the grip bows out 16 mm and hangs below them.
   pts=[(s*.262,-.036,.644),(s*.262,-.049,.644),(s*.274,-.049,.631),(s*.279,-.040,.601),(s*.279,-.028,.591),(s*.279,.028,.591),(s*.279,.040,.601),(s*.274,.049,.631),(s*.262,.049,.644),(s*.262,.036,.644)]
-  add(G.tube(label+' folding wire loop',pts,.003,steel,8 if hi else 6),piv)
+  add(G.tube(label+' folding wire loop',pts,.003,grip,8 if hi else 6),piv)
   for y in (-.044,.044):
    add(G.box(label+' retaining eye folded neck',(s*.250,y,.644),(.009,.008,.008),steel,0))
    # Bent retention eye in XZ plane, with wire passing through its center.
