@@ -112,3 +112,11 @@ export selects config `EXPORT_VARIANT`, restores its placement, and joins a sing
 static mesh. Source audits omit parked templates; final checks still inspect the
 actual exported triangles/UVs. `UV_MIN_COVERAGE` declares a shared family's subset
 coverage without relaxing overlap checks.
+
+`prop.py` supplies small-prop plate/rest-frame helpers; `delivery_docs.py` makes
+three final JPGs with GLB-hash checks. `assembly.py` measures declared supports
+on evaluated triangle surfaces (intersections or sampled distance bounds),
+separately from serialization and swept-motion verification. Source previews
+hide parked bake-only templates.
+Photo composition honors EXIF orientation before applying measured crop/pixels;
+calibration landmarks are specified in the upright photographic frame.

@@ -136,7 +136,7 @@ def main():
         bpy.data.objects['Studio seamless'].hide_render=cam.data.type=='ORTHO'
         for ob in sc.objects:
             if ob.type=='MESH' and 'asset_set' in ob:
-                ob.hide_render=any(ob.name.startswith(prefix) for prefix in shot.get('hide',[]))
+                ob.hide_render=ob.get('bake_only',False) or any(ob.name.startswith(prefix) for prefix in shot.get('hide',[]))
                 ob.hide_render|=ob.get('asset_set') in shot.get('hide_sets',[])
                 parent=ob.parent
                 while parent:

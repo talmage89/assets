@@ -7,7 +7,7 @@ estimate when EXIF/calibration data are absent. Camera residuals remain visible.
 import argparse,json,math,runpy,sys
 from pathlib import Path
 import numpy as np
-from PIL import Image,ImageDraw,ImageFont
+from PIL import Image,ImageDraw,ImageFont,ImageOps
 FONT='/usr/share/fonts/noto/NotoSans-Regular.ttf'
 
 
@@ -82,7 +82,7 @@ def solve(config,out):
 def compose(calibration,renders,out):
     results=json.loads(Path(calibration).read_text());out=Path(out);out.mkdir(parents=True,exist_ok=True)
     for name,data in results.items():
-        photo=Image.open(data['photo']).convert('RGBA').crop(data['crop'])
+        photo=ImageOps.exif_transpose(Image.open(data['photo'])).convert('RGBA').crop(data['crop'])
         render=Image.open(Path(renders)/(name+'.png')).convert('RGBA')
         width=1100;height=round(width*photo.height/photo.width)
         def panel(im):
