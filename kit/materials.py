@@ -339,7 +339,7 @@ def painted_cast(name,color,wear=.35,rim_bands=(),deposits=(),roughness=.48,wear
     ledges=n.maximum(ledges,*rings)
     exposed=n.maximum(c['edge'],n.mul(ledges,.65))
     breakup=n.ramp(n.noise(p,245,4),.51,.67)
-    chips=n.mul(wear,exposed,breakup,2.0)
+    chips=n.math('MULTIPLY',n.mul(wear,exposed,breakup),2.0,clamp=True)
     chalk=n.mul(wear,.16,n.maximum(c['up'],.16),n.ramp(n.noise(p,13,3),.20,.75))
     pale=tuple(v*.73+.13 for v in color)
     base=n.mix(chalk,color,pale,True)
