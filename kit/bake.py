@@ -48,6 +48,7 @@ def main():
         ob.hide_render=False
         for modifier in ob.modifiers:
             if modifier.type=='ARMATURE':modifier.show_render=modifier.show_viewport=False
+    coordinate_frames=bake_groups.referenced_frames(sources,roots) if roots else []
     ghosts=[]
     for ob in sources:
         group=bake_groups.owner(ob,roots)
@@ -60,6 +61,7 @@ def main():
         ghosts.append(ghost)
         ob.parent=None;ob.matrix_world=world
         ob.matrix_world.translation+=spacing[group]
+    bake_groups.translate_frames(coordinate_frames,spacing)
     bpy.context.view_layer.update()
     # Selected-to-active incurs a scene synchronization for every source object.
     # Consolidate objects sharing a coordinate frame, retaining object-space
@@ -123,7 +125,7 @@ def main():
     bake('Normal','NORMAL')
     normal=images['Normal'][:,:,:3];normal[images['Normal'][:,:,3]<.5]=(.5,.5,1)
     write_png(out/f'T_{a.asset}_Normal.png',normal,16)
-    stats['projection_policy']=dict(isolate_moving=bool(roots),moving_roots=roots,target_meshes_by_group=group_counts,stationary_ao_occluders=len(ghosts),offsets_m={k:list(v) for k,v in spacing.items()})
+    stats['projection_policy']=dict(isolate_moving=bool(roots),moving_roots=roots,target_meshes_by_group=group_counts,stationary_ao_occluders=len(ghosts),explicit_coordinate_frames=len(coordinate_frames),offsets_m={k:list(v) for k,v in spacing.items()})
     stats['size']=a.size;stats['samples']=a.samples;stats['device']=sc.cycles.device
     stats['source_meshes']=original_count;stats['bake_frames']=len(sources);stats['source_materials']=len(mats)
     (out/'bake-report.json').write_text(json.dumps(stats,indent=2))

@@ -6,7 +6,7 @@ No downloaded lighting. All temporary scene objects are tagged studio=True.
 import argparse, math, sys, runpy, json, hashlib
 from pathlib import Path
 import bpy
-from mathutils import Vector
+from mathutils import Vector, Matrix
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from kit import model as G, gpu, rig
 
@@ -17,15 +17,16 @@ def studio_mat(name,col,rough):
     return m
 
 
-def add_studio():
+def add_studio(light_scale=1.0, light_center=(0,0,0), backdrop_half_width=12):
     before=set(bpy.context.scene.objects)
     sc=bpy.context.scene
     prof=[(-10,-.002),(2,-.002)]+[(2+1.8*math.sin(i*math.pi/48),1.8-1.8*math.cos(i*math.pi/48)-.002) for i in range(1,25)]+[(3.8,6)]
-    G.loft('Studio seamless',[[(x,y,z) for x in (-12,12)] for y,z in prof],studio_mat('Studio warm gray',(.48,.49,.47),.78),caps=False,closed=False)
+    G.loft('Studio seamless',[[(x,y,z) for x in (-backdrop_half_width,backdrop_half_width)] for y,z in prof],studio_mat('Studio warm gray',(.48,.49,.47),.78),caps=False,closed=False)
     world=bpy.data.worlds.new('Procedural studio world');world.use_nodes=True;sc.world=world
     bg=world.node_tree.nodes['Background'];bg.inputs['Color'].default_value=(.20,.22,.25,1);bg.inputs['Strength'].default_value=.12
     def light(name,loc,target,power,w,h,color):
-        d=bpy.data.lights.new(name,'AREA');d.energy=power;d.shape='RECTANGLE';d.size=w;d.size_y=h;d.color=color
+        loc=Vector(loc)*light_scale+Vector(light_center);target=Vector(target)*light_scale+Vector(light_center)
+        d=bpy.data.lights.new(name,'AREA');d.energy=power*light_scale**2;d.shape='RECTANGLE';d.size=w*light_scale;d.size_y=h*light_scale;d.color=color
         ob=bpy.data.objects.new(name,d);sc.collection.objects.link(ob);ob.location=loc
         ob.rotation_euler=(Vector(target)-ob.location).to_track_quat('-Z','Y').to_euler()
     light('Key softbox',(-4.0,-1.8,3.2),(0,0,.72),1400,1.3,1.8,(1,.96,.90))
@@ -72,7 +73,11 @@ def main():
     else:bpy.ops.wm.open_mainfile(filepath=str(source))
     source_digest=hashlib.sha256(source.read_bytes()).hexdigest()
     sc=bpy.context.scene
-    cam=add_studio();silhouette=human()
+    config=runpy.run_path(a.config)
+    cam=add_studio(**config.get('STUDIO',{}))
+    bpy.context.view_layer.update()
+    studio_rest={ob:ob.matrix_world.copy() for ob in sc.objects if ob.get('studio') and ob!=cam}
+    silhouette=human()
     sc.render.engine=a.engine
     if a.engine=='CYCLES':
         gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True
@@ -105,6 +110,9 @@ def main():
     part_rest={key:bpy.data.objects[key].matrix_basis.copy() for shot in shots.values() for key in shot.get('parts',{}) if key in bpy.data.objects}
     for name in a.shots.split(','):
         shot=shots[name]
+        # Optional per-view studio orientation keeps the seamless behind back views.
+        studio_rotation=Matrix.Rotation(math.radians(shot.get('studio_yaw',0)),4,'Z')
+        for ob,matrix in studio_rest.items():ob.matrix_world=studio_rotation@matrix
         for key,matrix in part_rest.items():bpy.data.objects[key].matrix_basis=matrix
         for key,pose in shot.get('parts',{}).items():
             if 'translation' in pose:bpy.data.objects[key].location+=Vector(pose['translation'])
