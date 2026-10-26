@@ -18,7 +18,7 @@ pressure certification. Dimensions on FH-84 are explicitly reference dimensions.
 | Bottom of traffic flange above grade | FH-84: 1⅝ in | 41.275 mm |
 | Hose outlets | FH-84 nozzle information: two 2½ in NST | Nominal 63.5 mm bore; capped, hidden bore omitted |
 | Forward pumper outlet | FH-84: one 4½ in NST | Nominal 114.3 mm bore; capped, hidden bore omitted |
-| Operating nut | FH-84: standard 1½ pentagon | 38.1 mm across flats |
+| Operating nut | FH-84: standard 1½ pentagon, customer-specific profiles | Authored regular pentagon, 38.1 mm inscribed-circle diameter |
 | Bonnet bolts | FH-84 parts 9/46: eight | Eight heads, washers in source |
 | Traffic flange bolts | FH-84 parts 26/48: eight | Eight heads, washers in source |
 | Width over hose cap nuts | FH-84 8.18 in per side | 415.544 mm total |
