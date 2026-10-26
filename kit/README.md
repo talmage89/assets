@@ -255,3 +255,7 @@ parts from projecting onto a reusable post or panel.
 
 `STUDIO.backdrop_half_width` (default 12 m) can widen the seamless for long
 fences or diagonally viewed assemblies, keeping dark world corners out of frame.
+
+Run `blender -b --factory-startup --python-exit-code 1 --python
+kit/test_bake_frames.py` to check preservation of explicit nested timber/parent
+coordinate frames during module isolation, without a GPU bake.
