@@ -73,6 +73,7 @@ def main():
     source_digest=hashlib.sha256(source.read_bytes()).hexdigest()
     sc=bpy.context.scene
     cam=add_studio()
+    bpy.context.view_layer.update()
     studio_rest={ob:ob.matrix_world.copy() for ob in sc.objects if ob.get('studio') and ob!=cam}
     silhouette=human()
     sc.render.engine=a.engine
