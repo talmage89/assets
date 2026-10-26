@@ -8,4 +8,5 @@ Each asset folder has its own README with renders, dimensions and rebuild steps.
 
 ## Assets
 
-Coming soon.
+- [Gas grill](gas-grill/README.md): three-burner LP grill, six-bone hose and canonical external-tank socket; baked game-ready GLB.
+- [Shared toolkit](kit/README.md): procedural modeling/materials, UV/bake/export, rig verification and imported-GLB studio.
