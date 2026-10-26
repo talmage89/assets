@@ -46,3 +46,20 @@ Added optional compaction for material-override exports, preserving BIN/image
 bytes and remapping all material texture indices. A temporary delivery retained
 byte-identical BIN data and passed reimport/material checks after 10→3 compaction.
 Final corrected GLB review follows the new bake.
+
+Corrected-grid delivery: the handhole is now clean in the exported base close-up.
+The first complete turnaround exposed missed projection strips on the top of
+the arm. Its eight game bend intervals approximate a smooth parabolic source;
+the source rises roughly 2.3 mm above the longest chord before radial faceting,
+exceeding the 1.5 mm cage. Restored the kit's 6 mm cage / 18 mm ray reach.
+The handhole remains isolated so that widening the cage cannot reintroduce
+neighbor projection there. Rebuild and exported top-view review follow.
+
+Widening the cage removed the arm misses but projected nearby optics onto the
+glass. Rejected that delivery. The source and game arm now share eight bend
+intervals plus the straight-end knot; the source adds radial subdivisions but
+keeps its centerline chords aligned. Restored the tight 1.5 mm cage / 6 mm rays.
+This retains 3180 triangles and smooth interpolated pipe normals while keeping
+the close-packed optics free of cross-projection. The exported photo filter
+also now includes the joined StreetLightMesh; source-only part prefixes had
+hidden the entire joined mesh in the first comparison.

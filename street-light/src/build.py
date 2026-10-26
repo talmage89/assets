@@ -133,7 +133,9 @@ def main():
     b.add(G.profile('Mast arm flange',outline,-.064,-.046,zinc,axis='Y',radius=.002 if b.high else 0))
     for xx,zz in [(-.0762,D.ARM_ROOT+.080),(.0762,D.ARM_ROOT+.080),(0,D.ARM_ROOT-.0978)]:b.bolt('Arm flange bolt',(xx,-.065,zz),(0,-1,0),zinc,.010)
     # Bent taper, circular stations perpendicular to the curved centerline.
-    loops=[];steps=32 if b.high else 8;sides=48 if b.high else 16;length=D.ARM_LENGTH-.064
+    # Share bend stations across source/game so a tight bake cage fits the
+    # optical assembly too; source adds radial resolution, not displaced chords.
+    loops=[];steps=8;sides=48 if b.high else 16;length=D.ARM_LENGTH-.064
     for t in sorted(set([j/steps for j in range(steps+1)]+[.88])):
         u=min(t/.88,1);y=-.064-length*t;z=D.ARM_ROOT+D.ARM_RISE*(2*u-u*u);r=.03015+.01985*max((.88-t)/.88,0)
         dy=-length;dz=2*D.ARM_RISE*(1-u)/.88 if t<.88 else 0;norm=math.hypot(dy,dz);ny=-dz/norm;nz=dy/norm
