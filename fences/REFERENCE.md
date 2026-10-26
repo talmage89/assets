@@ -11,7 +11,7 @@ licenses and local files are in [refs/SOURCES.md](refs/SOURCES.md).
 | --- | --- | --- |
 | Privacy height | ProWood installation guide pp1–2 calls for three rails for 6 ft fences | Full 72 in / 1.8288 m pickets, starting 2 in above grade; overall top 74 in / 1.8796 m |
 | Bay | Eastern Wood Fence catalog PTDE346: 96×72 in section and 17 nominal 1×6 pickets | 96 in / 2.4384 m **post center pitch**, not full panel width. 92.5 in / 2.3495 m clear between 4×4 post faces |
-| Boards | Typical nominal 1×6 fence stock; thin pickets vary by supplier | Authored 5/8 in / 15.875 mm thick; 16 full 5.5 in / 139.7 mm boards and one ripped closure, with 1.5 mm dry-season shrink gaps. Ripped closure is divided between both edges for balance |
+| Boards | Typical nominal 1×6 fence stock; thin pickets vary by supplier | Authored 5/8 in / 15.875 mm thick; 15 full 5.5 in / 139.7 mm interior boards and two ripped edge boards, with 1.5 mm dry-season shrink gaps. Ripped closure is divided between both edges for balance |
 | Rails | ProWood pp1–2: three rails at 6 ft; YellaWood end-tag guide: 2×4 actual 1.5×3.5 in | Actual 38.1×88.9 mm, vertical wide face; centers 0.19685, 0.9652, 1.73355 m. Outer rail edge is 4 in from picket ends |
 | Posts | Dressed nominal 4×4 construction, same 1/2 in nominal reduction convention | Actual 88.9 mm square; 1.84 m visible top, low weather-shedding bevel. Below-grade footing omitted from game mesh; origin remains at grade |
 | Rail attachment | MiTek FB/ERB family documents galvanized formed saddles for 2×4 | Original 1 mm galvanized folded saddle carried by the section. Back web touches post; rail rests on bottom seat, clear of back web for screw heads |
@@ -19,7 +19,7 @@ licenses and local files are in [refs/SOURCES.md](refs/SOURCES.md).
 | Wear | ProWood p3 describes UV discoloration, water cycling, raised grain, checking and mildew | Gray/tan sun-faded pine, darker earlywood/knots, end checks, narrow downward nail stains, ground splash/mildew decaying with height. Seeded board variation; no generic rust blobs |
 
 Post pitch includes posts. Rail lengths include deliberate bracket/screw
-clearances. Daylight photo comparisons use cedar fence images for joinery and
+clearances. The Classic Fence Co picture book p36 supplies a direct aged gray/tan dog-ear comparison. Daylight photo comparisons use cedar fence images for joinery and
 camera evidence: their warm new-cedar hue is not a claim about aged pine.
 Photographic landmarks carry installation/measurement uncertainty; camera fit
 residuals are reported rather than hidden.

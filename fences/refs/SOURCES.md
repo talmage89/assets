@@ -16,3 +16,7 @@ Additional web-only specifications (no local download):
 - [Eastern Wood Fence catalog](https://easternwoodfence.com/wp-content/uploads/2025/06/EASTERN-FENCE-06-02-25-CATALOG-WOOD-BLANK.pdf), Eastern Wholesale Fence, ©2025: 6×8 ft pine dog-ear section, 17 nominal 1×6 boards, three rails, galvanized nails; nominal 2×3 rails differ from our authored 2×4 option.
 - [MiTek fence brackets](https://www.mitek-us.com/products/deck-fences/fence-hardware/fb/), MiTek, all rights reserved: formed galvanized post-to-rail bracket construction.
 - [National Hardware gate installation](https://nationalhardwarestorage.blob.core.windows.net/documents/nh_ig_sn12190%5Bv1110%5D.pdf), Spectrum Brands ©2023, all rights reserved: hinge leaves, gate-side latch and stationary strike assembly; original hardware modeled here.
+
+| Local file | URL | Author / license | Used for |
+| --- | --- | --- | --- |
+| classic-fence-photos.pdf | https://classicfenceco.com/wp-content/uploads/2019/04/Classic-Fence-Co-Web-Picture-Book-For-Wood-and-Wire-v-2.pdf | Classic Fence Co, all rights reserved; local reference | Page 36, weathered gray/tan dog-ear timber, raised grain, dark cracks versus newer replacement posts; no texture sampling |
