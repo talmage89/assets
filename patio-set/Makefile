@@ -28,9 +28,9 @@ check: assembly
 docs: assembly
 .PHONY: review-pairs
 renders/review-source/.stamp: export/PatioSet.glb build/lookdev.blend build/matched-cameras.json src/photo_matches.py $(KIT)/photo_match.py
-	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --source build/lookdev.blend --config $(CONFIG) --camera-file build/matched-cameras.json --out renders/review-source --shots sling_chair,used_set --width 1000 --samples 40
+	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --source build/lookdev.blend --config $(CONFIG) --camera-file build/matched-cameras.json --out renders/review-source --shots sling_chair,used_set,used_cafe --width 1000 --samples 40
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/matched-cameras.json --renders renders/review-source --out renders/review-source
-	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --stage final --source export/PatioSet.glb --config $(CONFIG) --camera-file build/matched-cameras.json --out renders/review-glb --shots sling_chair,used_set --width 1000 --samples 40
+	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --stage final --source export/PatioSet.glb --config $(CONFIG) --camera-file build/matched-cameras.json --out renders/review-glb --shots sling_chair,used_set,used_cafe --width 1000 --samples 40
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/matched-cameras.json --renders renders/review-glb --out renders/review-glb
 	@touch $@
 review-pairs: renders/review-source/.stamp

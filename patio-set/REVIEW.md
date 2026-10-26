@@ -165,3 +165,39 @@ repository rules. Library: 14,004 triangles, one material, three shared 2048
 maps, 9,143,676 bytes. Arranged set: 15,040 drawn triangles, 8,945,004 bytes.
 The final default build also regenerates the source and shipped comparisons;
 its review stamp is kept separate from the one final documentation render.
+
+
+## Phase 2 combined-kit regression and fabric correction
+
+Clean `make` / `make check` passed: library 14,004 triangles / one material /
+9,143,696 bytes; dining arrangement 10,096 unique / 15,040 drawn triangles /
+8,945,024 bytes. Opened committed/new hero, all eleven Cycles views, Eevee,
+both source comparison pairs and both GLB pairs. They agree with main's
+committed appearance; the excessive cream fading and two-tone sling are an
+inherited finish flaw, not an integration regression.
+
+Source checkpoint against an actually used green canopy: replaced the cream
+fade target with less-saturated green and reduced exposure strength. Both sling
+faces receive a modest aging baseline; upward seats/canopy tops receive more,
+upright backs less and folds/undersides least. The powder/frame function is
+unchanged. The old white cafe photo is retained as `used_cafe`; it cannot
+calibrate the hue of green dye. The new `used_set` has 17.23 px fitted residual;
+its valance/folds differ from our specified tensioned canopy and are not copied.
+
+Delivered checkpoint: opened `renders/wear-pass1-glb/used_set-pair.jpg`, its
+source pair, full dining hero and the front/side/rear/top/open/furled probe
+contact. Accepted the consistent sage green: bright faces remain green, and
+protected folds keep deeper dye. The single-layer sling no longer looks like
+two fabrics. The used photo has more wrinkles and different outdoor light;
+these comparisons calibrate aged hue/exposure, not an exact product replica.
+Fine weave remains softened by the shared atlas. Frame/canopy construction and
+all source/game support/motion checks are retained.
+
+`make export check` passed: library 8,784,792 bytes / 14,004 triangles /
+one material; dining 8,586,120 bytes / 10,096 unique / 15,040 drawn triangles.
+Maps BaseColor / Normal / ORM: 2,396,736 / 2,549,599 / 2,793,143 bytes at 2048².
+Independent delivered BaseColor measurements give chair-face luminance ratio
+1.03696, canopy 1.06860 and unchanged table top/vertical contrast 2.49673.
+Both exposed/protected fabric samples retain green. The updated check bounds
+fading instead of requiring the former excessive contrast. Final docs follow
+this acceptance; no geometry, material count or texture allocation is added.

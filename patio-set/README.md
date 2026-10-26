@@ -63,10 +63,10 @@ allocation when loading both deliveries in an engine.
 
 | Default delivery measurement | Result |
 | --- | --- |
-| Module library GLB | 9,143,676 bytes |
-| Arranged four-chair GLB | 8,945,004 bytes |
+| Module library GLB | 8,784,792 bytes |
+| Arranged four-chair GLB | 8,586,120 bytes |
 | Arranged unique / drawn triangles | 10,096 / 15,040 |
-| BaseColor / Normal / ORM PNG bytes | 2,709,853 / 2,549,564 / 2,838,943 |
+| BaseColor / Normal / ORM PNG bytes | 2,396,736 / 2,549,599 / 2,793,143 |
 | High-detail source triangles | 43,292 |
 
 Measured file sizes, imported normal/UV checks and texture bytes appear in
@@ -96,7 +96,7 @@ sun; exposed fabric fades against shaded undersides, folds and hems; foot abrasi
 water spots stay on horizontal faces; cavity masks collect a little pollen and
 dirt. Weave/orange-peel noise describes manufacturing, not random whole-object
 weathering. Cleaner or dirtier versions rebuild from the same parameter. The exported
-BaseColor measures 1.59× canopy and 1.72× sling exposure contrast and 2.50×
+BaseColor measures 1.069× canopy and 1.037× upright-sling exposure contrast and 2.50×
 powder-coat top/vertical contrast; these are color measurements, not photo
 radiometry. Mineral rings and corner deposits remain individually subtle.
 
@@ -171,3 +171,15 @@ All model vertices, shaders, textile patterning and weather masks are original.
 Reference images/PDFs remain their authors' copyrighted inspection aids outside
 Git. Studio labels use the installed open-license Noto Sans font. The rifle
 project supplies the workflow standard. No new tools or installation needed.
+
+
+Phase 2 fabric calibration keeps the original green dye on exposed faces,
+with seats/canopy tops most exposed, upright backs less, and undersides/folds
+protected. The thin sling sides differ modestly. The used-green-canopy pair is
+`renders/wear-pass1-glb/used_set-pair.jpg`, with its source counterpart under
+`renders/wear-pass1-source/`; the 17.23 px fit compares the common canopy
+outline, not the photograph's different valance. The former white cafe
+comparison remains available as `used_cafe`, separate from dye calibration.
+`build/weather-check.json` measures delivered BaseColor hue and bounded exposure
+contrast independently of studio lights. Frame weathering and construction are
+unchanged, as are the geometry budgets and one shared 2048² texture set.

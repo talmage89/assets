@@ -33,3 +33,16 @@ MATCHES['used_set']=dict(photo=str(P/'refs/installed-used.jpg'),crop=(0,0,1600,2
  ('Near right table corner',(.762,-.4826,.762),731,1201,2),
  ('Near left table foot',(-.694,-.406,.013),109,1522,2),
  ('Near right table foot',(.694,-.406,.013),704,1522,2)]])
+
+# Preserve the installed cafe comparison; calibrate green dye against a used green set.
+# Estate furniture differs in valance depth and padded seating; only the canopy
+# envelope is fitted here, without changing our authored eight-panel construction.
+MATCHES['used_cafe']=MATCHES['used_set']
+MATCHES['used_set']=dict(photo=str(P/'refs/used-green-set.jpg'),crop=(70,0,1030,390),
+ title='Used green canopy / exposed sage dye and protected folds',
+ location=(.12,-4.7,1.75),target=(0,0,2.18),lens=55,background='alpha',exposure=-.35,
+ hide_assemblies=['Table','Chair','Chaise','Umbrella_Closed'],
+ landmarks=[dict(world=p,pixel=uv) for p,uv in [
+ ((0,0,2.565),(580,7)),((-1.378,0,2.040),(146,178)),
+ ((1.378,0,2.040),(1002,198)),((0,-1.378,2.040),(576,175)),
+ ((-.9744,-.9744,2.040),(286,178)),((.9744,-.9744,2.040),(866,191))]])
