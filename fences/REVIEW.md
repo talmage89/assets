@@ -340,3 +340,24 @@ flakes/nails, while the broader upper loss and low splash survive.
 1,180,454 / 876,986 / 812,527 bytes. The reverse probe also verifies the
 215-degree studio orientation removes the dark upper backdrop corner without
 changing any camera or asset geometry. Final assembly verification follows.
+
+Final picket `make` exited 0 (`../build/polish/picket-final.log`). Opened the
+complete final Cycles/Eevee/assembly contact, both assembled corner views and
+all four refreshed source/exported photo pairs. The good-side hero clearly
+shows upper paint loss and a dirty foot; the shaded reverse has stronger
+low mildew and a continuous backdrop. Family `make check`, independent posed
+GLB framing and hash-checked five-image composition all passed; logs are
+`../build/polish/family-{check,framing,docs}.log`. The three changed final JPGs
+were opened and held for the end-of-pass docs commit. Unchanged privacy and
+chain-link hero JPGs retain their original committed bytes.
+
+A final presentation correction applies the same 215-degree studio orientation
+to the chain-link reverse assembly. Its previous 180-degree setting left a dark
+upper background corner away from the model. Full `make -C chain-link` passed;
+opened all refreshed studio/Eevee/assembly views and both photo pairs. The
+reverse background is continuous, with unchanged geometry, materials and
+camera poses. Final independent family framing passes all 42 views, and the
+51-view complete family contact is refreshed. The unchanged privacy and
+chain-link hero JPGs retain their original committed bytes; this correction
+adds no documentation image version. Logs: `../build/polish/chain-backdrop-final.log`
+and `../build/polish/family-framing-final.log`.
