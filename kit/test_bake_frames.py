@@ -13,6 +13,7 @@ root=G.pivot('Module',(2,-3,.8));root.rotation_euler.z=.42
 frame=G.pivot('Timber frame',(0,0,0));frame.parent=root;frame.location=(.3,.2,.4);frame.rotation_euler.y=.23
 mat=bpy.data.materials.new('Explicit timber');mat.use_nodes=True
 coord=mat.node_tree.nodes.new('ShaderNodeTexCoord');coord.object=frame
+root_coord=mat.node_tree.nodes.new('ShaderNodeTexCoord');root_coord.object=root
 ob=G.box('Board',(.2,.1,.4),(.13,.02,1.8),mat,0);G.attach(ob,root,asset_set='Fixture')
 bpy.context.view_layer.update();before=[frame.matrix_world.inverted()@ob.matrix_world@v.co for v in ob.data.vertices]
 frames=bake_groups.referenced_frames([ob],['Module'])
@@ -20,5 +21,5 @@ world=ob.matrix_world.copy();ob.parent=None;ob.matrix_world=world;ob.matrix_worl
 bake_groups.translate_frames(frames,{'Module':Vector((17.3,0,0))});bpy.context.view_layer.update()
 after=[frame.matrix_world.inverted()@ob.matrix_world@v.co for v in ob.data.vertices]
 error=max((a-b).length for a,b in zip(before,after));assert error<5e-6,error
-assert len(frames)==1
+assert len(frames)==2
 print('PASS: rotated/nested explicit timber coordinates preserved during module isolation; max error',error)
