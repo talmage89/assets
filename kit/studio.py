@@ -17,7 +17,7 @@ def studio_mat(name,col,rough):
     return m
 
 
-def add_studio(scale=1):
+def add_studio(scale=1,backdrop_height=None):
     before=set(bpy.context.scene.objects)
     sc=bpy.context.scene
     prof=[(-10,-.002),(2,-.002)]+[(2+1.8*math.sin(i*math.pi/48),1.8-1.8*math.cos(i*math.pi/48)-.002) for i in range(1,25)]+[(3.8,6)]
@@ -48,6 +48,9 @@ def add_studio(scale=1):
                     for vertex in ob.data.vertices:vertex.co.z+=.002*(scale-1)
             if ob.type=='LIGHT':
                 ob.data.energy*=scale*scale;ob.data.size*=scale;ob.data.size_y*=scale
+    if backdrop_height is not None:
+        for vertex in bpy.data.objects['Studio seamless'].data.vertices:
+            if vertex.co.z>5.9*scale:vertex.co.z=backdrop_height
     return cam
 
 
@@ -82,7 +85,7 @@ def main():
     source_digest=hashlib.sha256(source.read_bytes()).hexdigest()
     sc=bpy.context.scene
     config=runpy.run_path(a.config)
-    cam=add_studio(config.get('STUDIO_SCALE',1));silhouette=human()
+    cam=add_studio(config.get('STUDIO_SCALE',1),config.get('STUDIO_BACKDROP_HEIGHT'));silhouette=human()
     sc.render.engine=a.engine
     if a.engine=='CYCLES':
         gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True

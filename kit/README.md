@@ -240,3 +240,5 @@ the single-material path; normal material/image budgets remain enforced.
 with inverse-square power compensation; the 1.8 m human remains real scale.
 Shot `emission_scale` multiplies/restores authored material emission for day/off
 comparisons without modifying the shipped asset. Defaults preserve prior views.
+Optional `STUDIO_BACKDROP_HEIGHT` extends the procedural wall for upward-facing
+detail cameras on tall props; lighting and the default studio remain unchanged.
