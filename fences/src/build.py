@@ -43,7 +43,7 @@ def timber(parent,name,center,size,seed,high,wear,axis=(0,0,1),nails=(),dog=Fals
     start=center-direction*length/2
     f=frame(parent,name,start,axis)
     mat=M.weathered_wood(name+' pine',f,width=size[0] if dog else min(size[:2]),
-                         length=length,seed=seed,wear=wear,nail_rows=nails)
+                         length=length,seed=seed,wear=wear,nail_rows=nails,ground_frame=parent)
     if dog:
         w,h=size[0],size[2];e=.0185
         pts=[(-w/2,0),(w/2,0),(w/2,h-e),(w/2-e,h),(-w/2+e,h),(-w/2,h-e)]
@@ -94,7 +94,7 @@ def section(name,seed,high,wear):
 
 def postmesh(parent,name,x,seed,high,wear):
     # Low bevel-top profile sheds water and preserves actual dressed section.
-    f=frame(parent,name,(x,0,0));mat=M.weathered_wood(name+' pine',f,POST,POST_TOP,seed,wear)
+    f=frame(parent,name,(x,0,0));mat=M.weathered_wood(name+' pine',f,POST,POST_TOP,seed,wear,ground_frame=parent)
     r=POST/2;c=.005
     loops=[[(x+u,v,z) for u,v in [(-r,-r),(r,-r),(r,r),(-r,r)]] for z in (0,POST_TOP-c)]
     loops.append([(x+u,v,POST_TOP) for u,v in [(-r+c,-r+c),(r-c,-r+c),(r-c,r-c),(-r+c,r-c)]])
@@ -139,7 +139,7 @@ def gate(high,wear):
         pts=[(x0,lo),(x0+bw,lo),(x1,hi),(x1-bw,hi)]
         center=Vector(((x0+x1)/2,0,(lo+hi)/2));length=Vector((x1-x0,0,hi-lo)).length
         f=frame(p,'Gate brace '+str(i),center-Vector((x1-x0,0,hi-lo)).normalized()*length/2,(x1-x0,0,hi-lo))
-        mat=M.weathered_wood('Gate brace '+str(i)+' pine',f,bw,length,920+i,wear)
+        mat=M.weathered_wood('Gate brace '+str(i)+' pine',f,bw,length,920+i,wear,ground_frame=p)
         ob=G.profile('Gate compression brace '+str(i+1),pts,-RAIL_T/2,RAIL_T/2,mat,axis='Y',radius=.0007 if high else 0,segments=2);attach_local(ob,p)
     bpy.context.view_layer.update();reparent_since(before,leaf)
     # Two actual hollow sleeve/pin hinges with bent strap necks.

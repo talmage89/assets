@@ -26,3 +26,4 @@ renders/assembly/.stamp: export/PrivacyAssembly.glb $(CONFIG) $(KIT)/studio.py b
 	@touch $@
 assembly-render: renders/assembly/.stamp
 docs: assembly-render
+all: match-final

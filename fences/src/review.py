@@ -8,10 +8,11 @@ from kit.contact import contact,review_sheet
 def bounded(source,target):
     im=Image.open(source).convert('RGBA');bg=Image.new('RGBA',im.size,(232,233,229,255));bg.alpha_composite(im)
     im=bg.convert('RGB');im.thumbnail((1600,16000))
-    for quality in range(90,39,-3):
-        im.save(target,quality=quality,optimize=True)
-        if Path(target).stat().st_size<200000:return
-    raise RuntimeError('Documentation image too large')
+    while True:
+        for quality in range(90,39,-3):
+            im.save(target,quality=quality,optimize=True)
+            if Path(target).stat().st_size<200000:return
+        im.thumbnail((round(im.width*.9),round(im.height*.9)),Image.Resampling.LANCZOS)
 
 p=argparse.ArgumentParser();p.add_argument('--final',action='store_true');p.add_argument('--renders',required=True);a=p.parse_args();f=Path(a.renders)
 meta=json.loads((f/'shots.json').read_text())

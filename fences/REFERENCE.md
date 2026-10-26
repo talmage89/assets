@@ -1,7 +1,7 @@
 # Fence construction reference
 
-Phase 2 stop point: **wood privacy fence only**. Picket and chain-link research
-below is reserved for the later family members; no unfinished meshes ship.
+Phase 2 stop point: **wood privacy fence only**. White picket and chain-link fences remain for later family members; no
+unfinished meshes ship.
 
 This is an original site-built American dog-ear pressure-treated pine fence,
 not a branded panel replica. References were read on 2026-10-26; authors,
