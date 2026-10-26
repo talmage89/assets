@@ -35,3 +35,52 @@ Individually opened the ten final Cycles views, Eevee hero, both exported photo 
 All 13 final metadata entries identify the current GLB hash. Final contact: `renders/final/contact.jpg`; photo pairs: `renders/photo-final-glb/match_closed-pair.jpg` and `match_latch-pair.jpg`. Docs: hero 1600×750 / 71,097 bytes; turnaround 1600×1700 / 104,403; details 1600×2795 / 182,286. Three JPGs only. The weakest areas are softened small pressed edges/stencils, simpler formed corners and cam edges, and authored hardware estimates beyond the published dimensions/gauges. There is no unresolved assembly or budget failure, and no lead input is needed.
 
 Opened both refreshed matched PNGs and photographic pairs after the backdrop wash: the black patch is gone. A faint lighting transition remains on the comparison backdrop; it does not affect the object or the clean portfolio studio images. The original assembly, calibrated viewpoints and delivered atlas are unchanged. Final render provenance still matches all 13 records. The updated default build and check also run after this presentation-only Makefile change; see `build/ammo-complete.log`.
+
+## Phase 2 combined-kit regression
+
+On `wp/polish`, `make clean`, `make`, and a separate `make check` exited 0
+against the combined kit. The new exported hero and all turnaround, pivot,
+close-up, scale and Eevee views were opened alongside the committed hero;
+there is no visible integration regression. Both original construction photo
+pairs were also opened. Delivery remained 2,784 triangles / 1 material /
+1,869,928 bytes, exactly the README baseline. Logs and the preserved baseline
+hero/contact/GLB are under `../build/polish/`.
+
+The baseline still looks almost unused: broad enamel and especially the cover
+have almost no visible abrasion at hero distance. New references are an actual
+used M2A1 photographed for a surplus sale and Douglas Muth's used ammunition
+box. Their lid lips, corners and carrying attachments lose paint, while broad
+panels carry longer, sparse rack scuffs. The fictional lot stencil should be
+less opaque where those same scuffs cross it. Geometry and pivot surfaces were
+independently compared before/after the material edit and match exactly.
+
+First wear checkpoint: opened `renders/wear-pass1-hero/hero_closed.png` and
+both `renders/wear-pass1-{source,glb}/used_surplus-pair.jpg`. Rejected this pass:
+the lid had chalky noise across half its face, the lower body looked evenly
+corroded, and too many parallel hairlines covered the broad panel. The source
+pair proved these were authored-shader problems rather than projection loss.
+The lid's coordinates are hinge-local, so its Y center is −149.8 mm; the first
+analytic fold mask incorrectly treated Y=0 as its center. Corrected that rest
+frame, narrowed the bottom chip band from 23 to 10 mm, kept paint on the broad
+cam face, and replaced the broad scratch field with three located rack-contact
+tracks and three cover scrapes. The used reference has concentrated edge loss
+and sparse long scrapes, not a white mottled coating. The new camera fit is
+4.84 px RMS at 900×600; the independent projection check passes.
+
+Second wear checkpoint: opened the new hero and both source/shipped pairs in
+`renders/wear-pass2-*`. Accepted the concentrated edge loss and a few legible
+rack scrapes: the lid no longer carries the rejected half-face mottling, the
+bottom band is narrower, and the cam face retains its coating. The fictional
+stencil is faded and locally interrupted. Against the used M2A1 photograph,
+wear now follows the same folds and contact zones. The original olive palette
+is lighter than the photographed dark surplus finish under different lighting;
+this is a wear calibration rather than a paint-color replica. Small chip shapes
+soften after the 1024 filter; edge loss and larger scrapes remain visible in the
+full hero, without allocating geometry or another map.
+
+`make export check` passed after the correction (log
+`../build/polish/ammo-can-wear-pass2-build.log`). Export: 2,784
+triangles, 1 material, 2,467,520 bytes; BaseColor / Normal / ORM
+729,791 / 418,654 / 1,097,409 bytes at 1024².
+The same source contacts, motion sequences, independent UV/normal checks and
+fresh GLB re-import passed. Final docs are generated only after this acceptance.

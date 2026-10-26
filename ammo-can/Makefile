@@ -18,6 +18,6 @@ check-sequence: build/game-audit.blend build/lookdev.blend
 
 docs: renders/photo-final-glb/.stamp
 renders/photo-final-glb/.stamp: export/AmmoCan.glb build/matched-cameras.json src/photo_studio.py ../kit/studio.py
-	$(KIT)/with_gpu.sh $(BP) --python src/photo_studio.py -- --stage final --source export/AmmoCan.glb --config $(CONFIG) --camera-file build/matched-cameras.json --out renders/photo-final-glb --shots match_closed,match_latch --width 1000 --samples 32
+	$(KIT)/with_gpu.sh $(BP) --python src/photo_studio.py -- --stage final --source export/AmmoCan.glb --config $(CONFIG) --camera-file build/matched-cameras.json --out renders/photo-final-glb --shots match_closed,match_latch,used_surplus --width 1000 --samples 32
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/matched-cameras.json --renders renders/photo-final-glb --out renders/photo-final-glb
 	@touch $@
