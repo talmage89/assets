@@ -60,7 +60,16 @@ def main():
     b.add(G.box('Pressed metal floor',(0,0,D.FLOOR-D.GAUGE/2),(D.WIDTH-2*D.GAUGE,D.LENGTH-D.GAUGE,D.GAUGE),enamel(a.wear,floor=True),0))
     # Thin returned door wraps the shell with 1.2 mm radial running clearance.
     outline=arch(r+.002,D.FLOOR-.004,D.SPRING,count)
-    b.add(G.profile('Door stamped face',outline,D.DOOR_Y-.0008,D.DOOR_Y,black,axis='Y'),door)
+    face=G.profile('Door stamped face',outline,D.DOOR_Y-.0008,D.DOOR_Y,black,axis='Y')
+    if b.high:
+        mark=M.print_material('Original 1847 address',Path('build/markings/address.png').resolve(),base=black)
+        face.data.materials.append(mark);uv=face.data.uv_layers.new(name='PrintUV')
+        for polygon in face.data.polygons:
+            polygon.material_index=1 if polygon.normal.y<-.9 else 0
+            for i in polygon.loop_indices:
+                v=face.data.vertices[face.data.loops[i].vertex_index].co
+                uv.data[i].uv=((v.x+r+.002)/(2*(r+.002)),(v.z-(D.FLOOR-.004))/(D.SPRING+r+.002-(D.FLOOR-.004)))
+    b.add(face,door)
     rim_inner=arch(r+.0012,D.FLOOR-.004,D.SPRING,count)
     b.add(G.smooth(G.profile('Door returned edge',outline+list(reversed(rim_inner)),D.DOOR_Y,-D.LENGTH/2+.012,black,axis='Y')),door)
     # Hinge is two coaxial end-pin joints, not intersecting solid cylinders.
@@ -97,11 +106,6 @@ def main():
     for side in [-1,1]:
         for yy in [-.14,.14]:
             b.bolt('Mounting side screw',(side*(r+.001),yy,D.FLOOR-.010),(side,0,0),zinc,.0028)
-    # Original address decal is printed onto the face source, not extra game geometry.
-    if b.high:
-        mark=M.print_material('Original 1847 address',Path('build/markings/address.png').resolve(),base=black)
-        ob=G.plane_uv('Address print',[(-.055,D.DOOR_Y-.00085,D.FLOOR+.025),(.055,D.DOOR_Y-.00085,D.FLOOR+.025),(.055,D.DOOR_Y-.00085,D.FLOOR+.063),(-.055,D.DOOR_Y-.00085,D.FLOOR+.063)],mark)
-        b.add(ob,door);ob['allow_boundary']=True
     # Ground origin is the center of the post's actual footprint.
     for child in b.root.children:
         if child.type=='MESH':

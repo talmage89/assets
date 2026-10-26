@@ -24,4 +24,10 @@ Darkened/glossed the finish to approach the photographed powder coat. Camera
 fit is a construction comparison against a slightly larger modern box, not a
 claim of reproducing the manufacturer's envelope or hardware.
 
-Final GLB review follows bake and reimport.
+First GLB review: motion passed, but the address was a black rectangle. The
+separate source print sheet shadowed the underlying door during AO baking.
+Moved the original print shader/UVs onto the actual stamped front face, removing
+the extra print plane entirely. Rebake required. End-grain ring contrast was
+softened and its phase varied spatially to avoid perfect target rings.
+
+Final corrected GLB review follows bake and reimport.

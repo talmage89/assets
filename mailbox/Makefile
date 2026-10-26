@@ -12,7 +12,7 @@ include ../kit/rules.mk
 .PHONY: check-assembly
 check: check-assembly
 check-assembly: build/game-audit.blend
-	$(BP) --python $(KIT)/assembly.py -- --source $< --config $(CONFIG) --out build/assembly-check.json
+	$(BP) --python $(KIT)/assembly.py -- --source $< --config src/support.py --out build/assembly-check.json
 ifeq ($(FINAL_PIPELINE),1)
 check: check-delivery-motion
 endif
