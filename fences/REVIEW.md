@@ -361,3 +361,9 @@ camera poses. Final independent family framing passes all 42 views, and the
 chain-link hero JPGs retain their original committed bytes; this correction
 adds no documentation image version. Logs: `../build/polish/chain-backdrop-final.log`
 and `../build/polish/family-framing-final.log`.
+
+Combined-library diagnostic limit: the unchanged chain-link frame bake retains
+19 missed/black interior samples out of 2,886,844 checked at 4096 (normal misses
+zero). This predates polish; the frame and analytical alpha weave have no
+visible artifact in the reviewed final views. No texture fill or geometry
+change was introduced. It remains a small documented coverage diagnostic.

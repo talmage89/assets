@@ -71,3 +71,11 @@ a battered replica. All wear stays in the existing 1024 atlas.
 `make export check` passes: 4,928 triangles, one material, four movable/static
 mesh parts, 3,485,008 bytes; maps 1,274,044 / 327,667 / 1,626,619 bytes. Final
 full studio/Eevee regeneration follows this accepted material checkpoint.
+
+Final full `make` exits 0 (`../build/polish/metal-final-resumed.log`; the
+initial launch was interrupted while waiting for the GPU and resumed). Opened
+the ten final Cycles views, corrected captured-reflection Eevee, both final
+construction/used pairs and three docs. Hero-distance low grime and rim rust
+survive; no black flute projection band or missing metallic reflections. The
+studio remains brighter than the outdoor reference and 1024 filtering softens
+fine spangle/dents; these are the remaining visual limits.

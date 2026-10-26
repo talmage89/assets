@@ -201,3 +201,10 @@ Independent delivered BaseColor measurements give chair-face luminance ratio
 Both exposed/protected fabric samples retain green. The updated check bounds
 fading instead of requiring the former excessive contrast. Final docs follow
 this acceptance; no geometry, material count or texture allocation is added.
+
+Final Phase 2 `make` exits 0 (`../build/polish/patio-final.log`). Opened all
+11 final Cycles views, Eevee, three docs and all six refreshed source/GLB
+construction, used-green and cafe pairs. The final hero keeps green dye on
+chairs, chaise and canopy; sag, folds and frame coating wear remain intact.
+Reverse orthos are shadowed, while the independent delivered-BaseColor test
+measures the modest side difference. No new geometry or texture allocation.

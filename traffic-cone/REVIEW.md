@@ -81,3 +81,11 @@ black BaseColor interior samples. This is projection reach, not painted repair
 or new geometry. `make export check` passes at 872 triangles, one material,
 one mesh, 499,956 bytes. Maps stay 512: 224,662 / 83,999 / 143,583 bytes.
 Full final studio/docs generation follows this accepted material checkpoint.
+
+Final Phase 2 `make` exits 0 (`../build/polish/cone-final.log`). Opened all
+eight final Cycles views, Eevee, contact sheet and all three final docs.
+Collar abrasion and low scuffs read at full-frame hero distance; the base
+corner projection holes are absent. Current-GLB hashes match all nine final
+studio metadata records. Geometry/UV/normals/tangents and origin are bytewise
+unchanged by the material/projection update, independently compared to the
+clean baseline GLB. No construction, scale or budget regression remains.

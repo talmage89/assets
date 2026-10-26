@@ -82,8 +82,8 @@ Delivery: `export/AmmoCan.glb`, `textures/ship/`. Cycles views are in
 [REVIEW.md](REVIEW.md) records the critiques and final results.
 
 The weakest areas are close-up pressed-edge detail and the small stencil:
-1024 filtering softens both. The reference is newer and darker under different
-lighting; this original finish depicts modest handling wear. Hardware sizes
+1024 filtering softens both. The used-surplus reference is darker under different
+lighting; this original olive finish now shows concentrated fold and rack wear. Hardware sizes
 beyond the published envelope/gauges are authored estimates, and the cam face
 and folded corners are simpler than a formed production part.
 

@@ -104,3 +104,11 @@ bytes / 2,784 triangles / 1 material; maps BaseColor / Normal / ORM are
 693,539 / 418,129 / 1,064,760 bytes at 1024². The revised
 source/GLB pair paths are `renders/wear-pass3-source/used_surplus-pair.jpg`
 and `renders/wear-pass3-glb/used_surplus-pair.jpg`.
+
+Final corrected `make` passed (log `../build/polish/ammo-can-final-corrected.log`).
+Opened the completed final contact, turnaround and details after the rear-mask
+correction. All ten Cycles views, the Eevee view and all three exported photo
+comparisons name the final GLB SHA-256 in their shot metadata. Independent raw
+accessor comparison to the preserved regression GLB measured zero differences
+in vertices, indices, normals, UVs, tangents and node/pivot transforms. The three
+accepted docs JPGs are held for the single end-of-pass image commit.

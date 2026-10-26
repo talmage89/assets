@@ -94,3 +94,9 @@ more knots; these are explicit close-view limits. `make export check` passed:
 1,264 triangles / one material / 2,082,780 bytes, with three 1024 maps
 BaseColor / Normal / ORM 645,381 / 638,621 / 703,649 bytes. Source/imported motion
 and actual-surface support checks pass. Final docs follow this acceptance.
+
+Final `make` passed (`../build/polish/mailbox-final.log`). Opened the complete
+final contact and all three generated docs JPGs: the silvered post and dirty
+foot read in the full hero, the crown stays clear and the flag has no misplaced
+streaks. All nine Cycles views and the Eevee view record the final GLB hash.
+The accepted JPGs are held for the single end-of-pass image commit.
