@@ -24,14 +24,14 @@ def clone_tree(root,name):
 p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--out',required=True);a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
 source=Path(a.source).resolve();bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source))
 obs=bpy.context.scene.objects
-turn=clone_tree(obs['Section_A'],'Corner_Section');turn.location=(-PITCH,PITCH/2,0);turn.rotation_mode='XYZ';turn.rotation_euler.z=math.pi/2
+turn=clone_tree(obs['Section_A'],'Corner_Section');turn.location=(-PITCH,PITCH/2,0);turn.rotation_mode='XYZ';turn.rotation_euler.z=-math.pi/2
 corner=obs['Post_Corner'];corner.location=(-PITCH,0,0);corner.rotation_mode='XYZ';corner.rotation_euler.z=-math.pi/2
 end=obs['Post_End'];end.location=(-PITCH,PITCH,0);end.rotation_mode='XYZ';end.rotation_euler.z=-math.pi/2
 obs['Gate_Bay'].location=(PITCH+GATE_PITCH/2,0,0)
 bpy.context.view_layer.update()
 # Measure actual transformed sockets against post centers and one another.
 pairs=[('Section_A__L','Post_Corner'),('Section_A__R','Post_Line'),('Section_B__L','Post_Line'),
-       ('Section_B__R','Gate_Bay__L'),('Corner_Section__Section_A__L','Post_Corner'),('Corner_Section__Section_A__R','Post_End')]
+       ('Section_B__R','Gate_Bay__L'),('Corner_Section__Section_A__R','Post_Corner'),('Corner_Section__Section_A__L','Post_End')]
 errors={left+' -> '+right:(obs[left].matrix_world.translation-obs[right].matrix_world.translation).length for left,right in pairs}
 assert max(errors.values())<2e-5,errors
 out=Path(a.out).resolve();out.parent.mkdir(exist_ok=True,parents=True)

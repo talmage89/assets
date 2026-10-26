@@ -20,3 +20,5 @@ Additional web-only specifications (no local download):
 | Local file | URL | Author / license | Used for |
 | --- | --- | --- | --- |
 | classic-fence-photos.pdf | https://classicfenceco.com/wp-content/uploads/2019/04/Classic-Fence-Co-Web-Picture-Book-For-Wood-and-Wire-v-2.pdf | Classic Fence Co, all rights reserved; local reference | Page 36, weathered gray/tan dog-ear timber, raised grain, dark cracks versus newer replacement posts; no texture sampling |
+
+- [Pressure-treated southern yellow pine picket specification](https://www.lowes.com/pd/Severe-Weather-5-8-in-x-5-1-2-in-x-6-ft-Pressure-Treated-Southern-Yellow-Pine-Dog-Ear-Fence-Picket/5013086547), Lowe's / Severe Weather, all rights reserved: actual 0.625×5.5 in×6 ft stock, checked in the product's dimensions table. Viewing/measurement only; no product image downloaded or used in the asset.

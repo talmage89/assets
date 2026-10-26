@@ -1,29 +1,27 @@
 """Only final GLB imagery becomes the three bounded documentation JPGs."""
-import argparse,json,sys
+import argparse,json,sys,hashlib
 from pathlib import Path
-from PIL import Image
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
 from kit.contact import contact,review_sheet
-
-def bounded(source,target):
-    im=Image.open(source).convert('RGBA');bg=Image.new('RGBA',im.size,(232,233,229,255));bg.alpha_composite(im)
-    im=bg.convert('RGB');im.thumbnail((1600,16000))
-    while True:
-        for quality in range(90,39,-3):
-            im.save(target,quality=quality,optimize=True)
-            if Path(target).stat().st_size<200000:return
-        im.thumbnail((round(im.width*.9),round(im.height*.9)),Image.Resampling.LANCZOS)
+from kit.delivery_docs import jpg as bounded
 
 p=argparse.ArgumentParser();p.add_argument('--final',action='store_true');p.add_argument('--renders',required=True);a=p.parse_args();f=Path(a.renders)
 meta=json.loads((f/'shots.json').read_text())
 if a.final:
-    assert all(v['stage']=='final' and v['source'].endswith('.glb') for v in meta.values())
+    digest=hashlib.sha256((ROOT/'fences/export/WoodPrivacy.glb').read_bytes()).hexdigest()
+    assert all(v['stage']=='final' and v['source'].endswith('.glb') and v['source_sha256']==digest for v in meta.values())
+    eevee_meta=json.loads((f.parent/'final-eevee/shots.json').read_text())
+    assert eevee_meta['hero_closed']['source_sha256']==digest
+    assembly_meta=json.loads((f.parent/'assembly/shots.json').read_text())
+    assembly_digest=hashlib.sha256((ROOT/'fences/export/PrivacyAssembly.glb').read_bytes()).hexdigest()
+    assert all(v['source_sha256']==assembly_digest and v['stage']=='final' for v in assembly_meta.values())
+    assert json.loads((ROOT/'fences/export/PrivacyAssembly.json').read_text())['source_sha256']==digest
 paths=[f/(n+'.png') for n in meta if (f/(n+'.png')).exists()]
 eevee=f.parent/'final-eevee/hero_closed.png'
-if eevee.exists():paths.append(eevee)
 assembly=f.parent/'assembly'
 if (assembly/'corner_good.png').exists():paths.extend([assembly/'corner_good.png',assembly/'corner_rails.png'])
-contact(paths,f/'contact.jpg',width=2200,title='Wood privacy kit / exported GLB / Cycles + Eevee last')
+if eevee.exists():paths.append(eevee)
+contact(paths,f/'contact.jpg',width=2200,title='Wood privacy kit / exported GLB / Cycles + Eevee last',captions={str(eevee):'Eevee / exported GLB'})
 if a.final:
     review_sheet([[f/'front.png',f/'back.png'],[f/'side.png',f/'top.png'],[f/'gate.png',f/'gate_back.png'],[f/'posts.png',f/'scale.png']],f/'modules-contact.jpg',width=2000,title='Privacy fence / module views / construction / scale')
     review_sheet([[f/'hero_open.png'],[f/'grain.png',f/'joinery.png',f/'hardware.png']],f/'construction-contact.jpg',width=2200,title='Rail side / original baked pine / physical hardware')

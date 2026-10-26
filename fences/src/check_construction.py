@@ -3,13 +3,16 @@
 Measures actual evaluated source/game surfaces and imported socket transforms.
 Motion uses the kit's solid-surface solver with the latch released first.
 """
-import argparse,json,math,sys
+import argparse,json,math,sys,io
+import numpy as np
+from PIL import Image
 from pathlib import Path
 import bpy
 from mathutils import Vector,Matrix
 HERE=Path(__file__).resolve().parent;sys.path[:0]=[str(HERE),str(HERE.parents[1])]
 from dimensions import *
-from kit import motion
+from kit import motion, assembly
+from kit.gltf import GLB
 
 
 def vertices(ob):
@@ -43,7 +46,7 @@ def source_check(path):
             ev=ob.evaluated_get(bpy.context.evaluated_depsgraph_get());me=ev.to_mesh();me.calc_loop_triangles();tris+=len(me.loop_triangles);ev.to_mesh_clear()
         pieces[name]=dict(triangles=tris,meshes=len(meshes),origin_world_m=list(root.matrix_world.translation))
         if bpy.context.scene.get('quality')=='game':require(tris<=2000,f'{name} exceeds 2k triangles')
-    sections={}
+    sections={};surface_contacts=[]
     for name in ('Section_A','Section_B'):
         root=obs[name];pickets=[obs[f'{name} picket {i+1:02}'] for i in range(17)]
         boxes=[box(ob,root) for ob in pickets]
@@ -56,6 +59,12 @@ def source_check(path):
                 prefix=f'{name} saddle {(-sign):+} {j+1}'
                 web=box(obs[prefix+' web'],root);bottom=box(obs[prefix+' seat'],root)
                 seat.append(rail[0][2]-bottom[1][2])
+                rail_ob=obs[f'{name} rail {j+1}'];seat_ob=obs[prefix+' seat']
+                post_name=('Post_End' if name=='Section_A' and sign<0 else 'Post_Corner' if name=='Section_B' and sign>0 else 'Post_Line')+' timber'
+                for left,right in [(rail_ob,seat_ob),(obs[prefix+' web'],obs[post_name])]:
+                    d,method=assembly.distance(left,right)
+                    surface_contacts.append(dict(parts=[left.name,right.name],distance_m=d,method=method))
+                    require(d<.0002,'Unsupported physical surface '+left.name+' / '+right.name)
                 postweb.append(abs((web[0 if sign<0 else 1][0])-face))
                 screw_gaps.append((rail[0][0]-web[1][0]) if sign<0 else (web[0][0]-rail[1][0]))
         width=boxes[-1][1][0]-boxes[0][0][0]
@@ -84,6 +93,11 @@ def source_check(path):
         brace=box(obs['Gate compression brace '+str(i)],gate_root)
         low=box(obs['Gate rail '+str(i)],gate_root);high=box(obs['Gate rail '+str(i+1)],gate_root)
         brace_contacts += [brace[0][2]-low[1][2],high[0][2]-brace[1][2]]
+        for j in (i,i+1):
+            left=obs['Gate compression brace '+str(i)];right=obs['Gate rail '+str(j)]
+            d,method=assembly.distance(left,right)
+            surface_contacts.append(dict(parts=[left.name,right.name],distance_m=d,method=method))
+            require(d<.0002,'Unsupported brace bearing')
     require(max(abs(x) for x in brace_contacts)<.0002,'brace does not bear on rails')
     # Gate pivot must be coaxial with BOTH stationary pins, from actual vertices.
     axis=gate_root.matrix_world.inverted()@obs['Gate'].matrix_world.translation
@@ -101,7 +115,7 @@ def source_check(path):
     latch.matrix_basis=rest;bpy.context.view_layer.update()
     require(sweep['passed'],'released gate hits fixed geometry')
     return dict(passed=not errors,errors=errors,pieces=pieces,sections=sections,
-        gate=dict(clear_opening_m=open_width,leaf_width_m=gate_width,side_gaps_m=sidegaps,
+        surface_contacts=surface_contacts,gate=dict(clear_opening_m=open_width,leaf_width_m=gate_width,side_gaps_m=sidegaps,
                   brace_to_rail_gaps_m=brace_contacts,hinge_axis_xy_error_m=axis_error,
                   released_gate_sweep=sweep),source=str(path))
 
@@ -118,6 +132,22 @@ def imported_check(path):
     spans={n:(obs[n+'__R'].matrix_world.translation-obs[n+'__L'].matrix_world.translation).length for n in ('Section_A','Section_B','Gate_Bay')}
     for n,value in spans.items():
         if abs(value-(GATE_PITCH if n=='Gate_Bay' else PITCH))>2e-5:errors.append('imported span '+n)
+    # Reusable wooden posts must not contain a neighboring bracket's projected
+    # metal. Sample several interior points of each large body triangle in the
+    # embedded delivered ORM; tiny cap/edge islands are excluded from this gate.
+    glb=GLB(Path(path));orm_index=next(i for i,v in enumerate(glb.json['images']) if 'ORM' in v.get('name',''))
+    orm=np.asarray(Image.open(io.BytesIO(glb.image(orm_index))).convert('RGB'))
+    h,w=orm.shape[:2];metal_samples=[]
+    for name in ('Post_EndMesh','Post_LineMesh','Post_CornerMesh'):
+        ob=obs[name];layer=ob.data.uv_layers.active
+        for face in ob.data.polygons:
+            if face.area<.02:continue
+            coords=[layer.data[i].uv for i in face.loop_indices]
+            for weights in [(1/3,1/3,1/3),(.5,.25,.25),(.25,.5,.25),(.25,.25,.5)]:
+                point=sum((uv*k for uv,k in zip(coords,weights)),Vector((0,0)))
+                metal_samples.append(int(orm[min(h-1,max(0,int((1-point.y)*h))),min(w-1,max(0,int(point.x*w))),2]))
+    post_metal=max(metal_samples,default=255)/255
+    if len(metal_samples)<24 or post_metal>.05:errors.append('Neighboring metal projected onto reusable post bodies')
     # A 90 degree turn uses the same endpoint/socket rule. Transform actual
     # imported picket/frame geometry into the corner pose, then check solids.
     root=obs['Section_A'];root.location=(PITCH,PITCH/2,0);root.rotation_mode='XYZ';root.rotation_euler.z=math.pi/2
@@ -130,6 +160,7 @@ def imported_check(path):
     maximum=max(depths,default=0)
     if maximum>.0003:errors.append('corner overlap')
     return dict(passed=not errors,errors=errors,serialization_only=False,joins=joins,spans_m=spans,corner_max_penetration_m=maximum,
+                post_body_max_metallic=post_metal,post_body_metallic_samples=len(metal_samples),
                 method='Actual imported sockets; measured transformed imported solids at 90 degree corner')
 
 

@@ -84,7 +84,7 @@ def section(name,seed,high,wear):
                nails=tuple(z-GROUND-dz for z in RAILS),dog=True)
     for i,z in enumerate(RAILS):
         timber(p,f'{name} rail {i+1}',(0,0,z),(clear-.014,RAIL_T,RAIL_H),seed*10+i,high,wear,axis=(1,0,0))
-    metal=M.galvanized(name+' zinc',p,wear)
+    metal=M.galvanized(name+' zinc',None,wear)
     brackets(p,-clear/2,1,high,metal);brackets(p,clear/2,-1,high,metal)
     socket(p,'L',(-PITCH/2,0,0),yaw=180);socket(p,'R',(PITCH/2,0,0))
     for side in (-1,1):
@@ -112,7 +112,7 @@ def posts(high,wear):
 
 
 def gate(high,wear):
-    p=root('Gate_Bay',STAGING['Gate_Bay']);metal=M.galvanized('Gate hardware zinc',p,wear)
+    p=root('Gate_Bay',STAGING['Gate_Bay']);metal=M.galvanized('Gate hardware zinc',None,wear)
     for s in (-1,1):postmesh(p,'Gate '+('hinge' if s<0 else 'latch')+' post',s*GATE_PITCH/2,802+s,high,wear)
     socket(p,'L',(-GATE_PITCH/2,0,0),yaw=180);socket(p,'R',(GATE_PITCH/2,0,0))
     leaf=G.pivot('Gate',tuple(Vector(STAGING['Gate_Bay'])+Vector((HINGE_X,HINGE_Y,0))),'Z',(-110,0))

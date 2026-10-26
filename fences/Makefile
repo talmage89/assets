@@ -1,6 +1,7 @@
 ASSET := WoodPrivacy
 MODEL_DEPS := src/build.py src/dimensions.py ../kit/model.py ../kit/materials.py
 FINAL_PIPELINE := 1
+PASS ?= photo
 WEAR := .65
 SHIP_SIZE := 2048
 UV_TARGET_DENSITY := 260
@@ -14,9 +15,7 @@ include ../kit/rules.mk
 check-construction: build/finalized.blend export/WoodPrivacy.glb
 	$(BP) --python src/check_construction.py -- --source build/finalized.blend --glb export/WoodPrivacy.glb --out build/construction-check.json
 check: check-construction
-match-final: export/WoodPrivacy.glb refs build/matched-cameras.json
-	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --stage final --source $< --config $(CONFIG) --camera-file build/matched-cameras.json --out renders/match-final --shots match_rails --width $(WIDTH) --samples $(SAMPLES)
-	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/matched-cameras.json --renders renders/match-final --out renders/match-final
+
 
 .PHONY: assembly-render
 export/PrivacyAssembly.glb: export/WoodPrivacy.glb src/assemble.py
@@ -26,4 +25,7 @@ renders/assembly/.stamp: export/PrivacyAssembly.glb $(CONFIG) $(KIT)/studio.py b
 	@touch $@
 assembly-render: renders/assembly/.stamp
 docs: assembly-render
-all: match-final
+all: match-final match
+
+# Render-only settings deliberately stay outside delivery/UV dependencies.
+renders/final/.stamp renders/assembly/.stamp: src/views.py
