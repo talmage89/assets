@@ -245,3 +245,10 @@ retain the pilot's original lighting.
 For horizontal or angled wood, pass `ground_frame` (a grade-aligned source
 frame) separately from the grain frame. Splash and exposure then follow actual
 height, while cut-end checks and cross-section growth rings follow the timber.
+
+Bake isolation also translates explicit shader Object-coordinate frames with
+their owning module, preserving per-timber grain. Material frames should belong
+to the same isolation root as their geometry; use default Object coordinates
+for a shared finish spanning several independently isolated modules. Modular
+static roots may be listed in `BAKE_POLICY.moving_roots` to prevent neighboring
+parts from projecting onto a reusable post or panel.
