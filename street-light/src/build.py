@@ -104,16 +104,29 @@ def main():
     capz=D.SHAFT_TOP
     b.add(G.lathe('Pole cap',[(capz-.004,r1+.002),(capz+.008,r1+.002),(capz+.014,.017),(capz+.016,0)],zinc,40 if b.high else 16))
     # Curved handhole cover follows the actual taper instead of floating on a flat plane.
-    poly=G.rounded_rectangle(.069,.171,.026,6 if b.high else 3);vs=[]
+    width=.069;height=.171;corner=.026;straight=height/2-corner
+    bends=8 if b.high else 3;columns=12 if b.high else 4
+    lower=[-straight-corner*math.cos(i*math.pi/(2*bends)) for i in range(bends+1)]
+    levels=lower+[0]+[-v for v in reversed(lower)];rows=len(levels);stride=columns+1;layer=rows*stride;vs=[]
     for offset in [.0016,-.0016]:
-        for x,z in poly:
-            zz=z+.54;r=r0+(r1-r0)*(zz-D.SHAFT_BASE)/D.SHAFT_HEIGHT
-            vs.append((x,-math.sqrt(r*r-x*x)-offset,zz))
-    n=len(poly);fs=[tuple(range(n)),tuple(reversed(range(n,2*n)))]+[(i,(i+1)%n,(i+1)%n+n,i+n) for i in range(n)]
-    b.add(G.mesh('Reinforced handhole cover',vs,fs,zinc))
+        for z in levels:
+            distance=max(abs(z)-straight,0);half=width/2-corner+math.sqrt(max(0,corner*corner-distance*distance))
+            for i in range(stride):
+                x=half*(2*i/columns-1);zz=z+.54;r=r0+(r1-r0)*(zz-D.SHAFT_BASE)/D.SHAFT_HEIGHT
+                vs.append((x,-math.sqrt(r*r-x*x)-offset,zz))
+    fs=[]
+    for row in range(rows-1):
+        for column in range(columns):
+            i=row*stride+column;q=(i,i+1,i+stride+1,i+stride)
+            fs += [q,tuple(v+layer for v in reversed(q))]
+    boundary=list(range(stride))+[j*stride+columns for j in range(1,rows)]+[(rows-1)*stride+i for i in range(columns-1,-1,-1)]+[j*stride for j in range(rows-2,0,-1)]
+    for k,i in enumerate(boundary):
+        j=boundary[(k+1)%len(boundary)];fs.append((i,i+layer,j+layer,j))
+    cover=G.pivot('HandholeModule',(0,0,0));cover.parent=b.root
+    b.add(G.mesh('Reinforced handhole cover',vs,fs,zinc),cover)
     for zz in [.475,.605]:
         r=r0+(r1-r0)*(zz-D.SHAFT_BASE)/D.SHAFT_HEIGHT
-        b.bolt('Handhole cover screw',(0,-r-.002,zz),(0,-1,0),zinc,.003)
+        for ob in b.bolt('Handhole cover screw',(0,-r-.0016,zz),(0,-1,0),zinc,.003):G.attach(ob,cover,'StreetLight')
     # PBOT's paired three-bolt flange: welded pole pad and removable arm flange.
     outline=[(-.0762,D.ARM_ROOT-.111125),(.0762,D.ARM_ROOT-.111125),(.1016,D.ARM_ROOT+.111125),(-.1016,D.ARM_ROOT+.111125)]
     b.add(G.profile('Welded pole arm pad',outline,-.046,-.029,zinc,axis='Y',radius=.002 if b.high else 0))

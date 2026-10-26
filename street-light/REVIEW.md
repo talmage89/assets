@@ -34,4 +34,15 @@ include real transparent optics and necessary support geometry. The source lit
 view was too subdued under studio lights; increased the authored glow multiplier
 to 16 for the shipped material, with daytime/photo emission explicitly off.
 
-Final GLB review follows bake, export and reimport.
+First GLB inspection: the lit tiles, glass and shared atlas exported correctly,
+but the base close-up exposed black projection patches at the handhole. The
+cover had been capped with a nonplanar ngon, giving inconsistent triangulation
+across a curved surface. Rebuilt it as an actual curved sheet grid, and isolated
+its bake group from the shaft while retaining rest-position contact AO shadows.
+The grid adds 116 silhouette/support triangles.
+
+The exporter also emitted ten identical texture views referencing three images.
+Added optional compaction for material-override exports, preserving BIN/image
+bytes and remapping all material texture indices. A temporary delivery retained
+byte-identical BIN data and passed reimport/material checks after 10→3 compaction.
+Final corrected GLB review follows the new bake.

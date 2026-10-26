@@ -5,7 +5,7 @@ BUDGETS={'StreetLight':3200}
 BOUNDS={'StreetLight':dict(size=(.38,2.44,7.9561),tolerance=(.003,.03,.003))}
 MATERIAL_OVERRIDES={'LED phosphor emitter':dict(emission_strength=16),'Tempered optical glass':dict(transmission=1,ior=1.5)}
 REQUIRED_NODES=['StreetLight','LightEmitter']
-BAKE_POLICY=dict(cage_m=.0015,ray_distance_m=.006,ao_distance_m=.018)
+BAKE_POLICY=dict(isolate_moving=True,moving_roots=['HandholeModule'],cage_m=.0015,ray_distance_m=.006,ao_distance_m=.018)
 UV_SMART_ASPECT=False
 UV_PRIORITY={'Die-cast':2.0,'Driver':1.7,'Folded':2.2,'LED':2.2,'Tempered':2.2,'Cast heat':1.7,'Photocell':1.5,'Tapered':.35,'Curved':.7}
 UV_DENSITY_BANDS=dict(p5_min=90,median_min=120,median_max=700,p95_max=1700)
