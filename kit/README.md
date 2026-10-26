@@ -68,6 +68,7 @@ cannot certify a GLB.
 `surface()` layers manufacturing, heat, handling, abrasion/chips, rust, grease
 and gravity dust. `wear=0` retains manufacturing while removing use-related
 layers. Handling/cooking/heat ellipses and `heat_height` are local meters.
+`painted_cast()` adds outdoor enamel over sand-cast iron, exposure chalking, ground splash, and sparse rusted chips along configured ledges and edges; bolt deposits use the same gravity tracks.
 `deposits` are `(x,z,width,length)` gravity tracks, optionally with a local face
 direction. Cavities use short-range AO; edge proximity compares beveled and
 geometric normals. Stable pivot-local coordinates keep weathering attached to
