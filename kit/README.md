@@ -220,3 +220,7 @@ An asset may set `STUDIO=dict(light_scale=2.2, light_center=(.4,0,0))`
 to spread the same studio lighting over a wider assembly. Position, softbox
 size and power scale together, preserving approximate illumination. Defaults
 retain the pilot's original lighting.
+
+For horizontal or angled wood, pass `ground_frame` (a grade-aligned source
+frame) separately from the grain frame. Splash and exposure then follow actual
+height, while cut-end checks and cross-section growth rings follow the timber.

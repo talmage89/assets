@@ -484,7 +484,7 @@ def ported_burner(name,wear,burner_z=.770,port_z=.772,pitch=.0118,start=-.209,en
 
 
 def weathered_wood(name, frame, width=.1397, length=1.8288, seed=1,
-                   wear=.65, nail_rows=(), grain_axis='Z'):
+                   wear=.65, nail_rows=(), grain_axis='Z', ground_frame=None):
     """Original rough-sawn pine in a stable timber frame, with caused weathering.
 
     `frame` is a source-only empty: X crosses the board, Z follows the grain,
@@ -496,6 +496,8 @@ def weathered_wood(name, frame, width=.1397, length=1.8288, seed=1,
     rng=random.Random(seed);n=Nodes(name)
     tc=n.node('ShaderNodeTexCoord');tc.object=frame
     x,y,z=n.split(tc.outputs['Object'])
+    ground_tc=n.node('ShaderNodeTexCoord');ground_tc.object=ground_frame or frame
+    ground_height=n.split(ground_tc.outputs['Object'])[2]
     # Meandering growth bands, stretched longitudinal fibers and saw tooth.
     p=n.combine(n.add(n.mul(x,110),seed*13.7),n.add(n.mul(y,110),seed*3.1),n.mul(z,2.4))
     broad=n.noise(p,1,2);fine=n.noise(n.combine(n.add(n.mul(x,800),seed*9.1),n.mul(y,800),n.mul(z,9)),1,2)
@@ -529,9 +531,19 @@ def weathered_wood(name, frame, width=.1397, length=1.8288, seed=1,
     fibers=n.noise(n.combine(n.add(n.mul(x,220),seed*7.9),n.mul(y,220),n.mul(z,4.8)),1,4)
     fiber_mask=n.ramp(fibers,.27,.72)
     base=n.mix(n.mul(fiber_mask,.63),base,(.045,.038,.028),color=True)
-    exposure=n.ramp(z,0,.35)
-    splash=n.mul(n.ramp(z,.29,.015),n.ramp(n.noise(n.combine(n.mul(x,30),n.mul(y,30),n.mul(z,12)),2),.30,.75),wear)
+    exposure=n.ramp(ground_height,.05,.40)
+    splash=n.mul(n.ramp(ground_height,.34,.05),n.ramp(n.noise(n.combine(n.mul(x,30),n.mul(y,30),n.mul(z,12)),2),.30,.75),wear)
     base=n.mix(n.mul(splash,.45),base,(.048,.056,.027),color=True)
+    # Cut faces expose growth rings across the timber, rather than long grain.
+    bpy.context.view_layer.update()
+    from mathutils import Vector
+    axis=frame.matrix_world.to_3x3()@Vector((0,0,1));axis.normalize()
+    geom=n.node('ShaderNodeNewGeometry')
+    end_face=n.ramp(n.math('ABSOLUTE',n.vec('DOT_PRODUCT',geom.outputs['Normal'],tuple(axis))),.55,.96)
+    radius=n.math('SQRT',n.add(n.mul(n.add(x,width*.4),n.add(x,width*.4)),n.mul(n.add(y,width*.7),n.add(y,width*.7))))
+    end_rings=n.ramp(n.math('SINE',n.add(n.mul(radius,420),n.mul(broad,1.1))),.25,.75)
+    end_color=n.mix(n.mul(end_rings,.43),base,(.065,.050,.031),color=True)
+    base=n.mix(end_face,base,end_color,color=True)
     # Water enters cut ends and follows earlywood; checks stay narrow and axial.
     end=n.maximum(n.ramp(z,.09,0),n.ramp(z,length-.08,length))
     cut_checks=n.mul(end,n.ramp(n.noise(n.combine(n.mul(x,1700),n.mul(y,1700),n.mul(z,2.2)),1),.66,.77))
