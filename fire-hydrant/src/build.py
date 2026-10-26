@@ -17,13 +17,16 @@ class Hydrant:
         self.root=G.pivot('FireHydrant',(0,0,0));self.root['static_root']=True
         drips=[dict(x=x,z=.638,width=.004,length=.11,direction=(0,-1,0)) for x in (-.09,.07)]
         bands=[(.056,.002),(.087,.001),(.626,.002),(.651,.002)]
-        self.red=M.painted_cast('Weathered municipal red enamel',(.36,.013,.008),wear,bands,drips,.44)
+        rings=[((0,-.154,.4572),(0,-1,0),.080,.003),
+               ((0,-.183,.4572),(0,-1,0),.064,.003)]
+        for sign in (-1,1):rings.append(((sign*.153,0,.4572),(sign,0,0),.053,.002))
+        self.red=M.painted_cast('Weathered municipal red enamel',(.23,.006,.004),wear,bands,drips,.32,wear_rings=rings)
         self.cream=M.painted_cast('Chalked warm white bonnet enamel',(.69,.67,.57),wear,
                                     [(.653,.002),(.675,.002),(.777,.002)],drips,.49)
         self.black=M.surface('Bituminous ground stub','paint',wear,color=(.011,.014,.012),dust=.5,grime=.3,roughness=.73)
         self.seal=M.surface('Dark cap and bonnet reveals','rubber',wear,color=(.009,.008,.006),roughness=.85)
         self.steel=M.surface('Dull zinc chain and hardware','stainless',wear,color=(.25,.27,.25),roughness=.60,dust=.2,grime=.3)
-        self.nut=M.surface('Wrench polished painted bronze','paint',wear,color=(.49,.47,.39),roughness=.53,grime=.5)
+        self.nut=M.surface('Wrench polished bronze','brass',wear,color=(.24,.17,.075),roughness=.62,grime=.5)
 
     def add(self,ob):return G.attach(ob,self.root,'Hydrant')
 
@@ -31,7 +34,7 @@ class Hydrant:
         if not self.high:
             if name=='Traffic lower flange':profile=[(.041275,.100),(.041275,.165),(.055,.171),(.058,.100)]
             if name=='Traffic upper flange':profile=[(.060,0),(.060,.164),(.066,.171),(.080,.171),(.089,.115),(.100,.104),(.100,0)]
-            if name=='Cast upper barrel':profile=[p for p in profile if p[0] not in (.13,.23)]
+            if name=='Cast upper barrel':profile=[p for p in profile if p[0] not in (.13,.235,.250)]
             if name=='Cast bonnet':profile=[p for p in profile if p[0] not in (.675,.722,.764)]
             if name in ('Breakaway joint shadow','Bonnet gasket reveal','Bonnet thrust collar'):n=16
         ob=G.lathe(name,profile,mat,n or self.n)
@@ -41,7 +44,7 @@ class Hydrant:
                 if rad<.03:continue
                 if 'bonnet' in name:
                     envelope=max(0,math.sin(math.pi*min(1,max(0,(z-.675)/.098))))**.65
-                else:envelope=max(0,math.sin(math.pi*min(1,max(0,(z-.10)/.21))))**.6
+                else:envelope=max(0,math.sin(math.pi*min(1,max(0,(z-.10)/.14))))**.6
                 delta=amplitude*max(0,math.cos(math.atan2(y,x)*ribs))**6*envelope
                 v.co.x*=1+delta/rad;v.co.y*=1+delta/rad
             ob.data.update()
@@ -72,8 +75,8 @@ class Hydrant:
         self.add(self.lathe('Traffic lower flange',[(.041275,.100),(.041275,.163),(.047,.171),(.055,.171),(.058,.162),(.058,.100)],self.red))
         self.add(self.lathe('Breakaway joint shadow',[(.058,0),(.058,.163),(.060,.163),(.060,0)],self.seal))
         self.add(self.lathe('Traffic upper flange',[(.060,0),(.060,.164),(.066,.171),(.080,.171),(.087,.158),(.089,.115),(.100,.104),(.100,0)],self.red))
-        prof=[(.087,.103),(.100,.103),(.13,.102),(.18,.102),(.23,.101),(.28,.100),(.32,.100),(.42,.100),(.52,.101),(.608,.102),(.620,.108),(.626,.138),(.638,.139)]
-        body=self.lathe('Cast upper barrel',prof,self.red,ribs=6,amplitude=.004)
+        prof=[(.087,.103),(.100,.103),(.13,.102),(.18,.102),(.235,.102),(.240,.110),(.250,.112),(.270,.112),(.279,.101),(.32,.100),(.42,.100),(.52,.101),(.608,.102),(.620,.108),(.626,.138),(.638,.139)]
+        body=self.lathe('Cast upper barrel',prof,self.red,ribs=6,amplitude=.0075)
         # Union the three cast nozzle necks into the barrel: no hidden backing faces.
         for label,axis,big in [('Pumper',(0,-1,0),True),('Hose left',(-1,0,0),False),('Hose right',(1,0,0),False)]:
             r=.073 if big else .049
@@ -148,8 +151,15 @@ class Hydrant:
 
     def chains(self):
         for sign in (-1,1):
-            self.chain('Chain hose '+str(sign),G.bezier((sign*.185,-.010,.423),(sign*.192,-.075,.228),(sign*.05,-.145,.247),(0,-.139,.302),24))
-        self.chain('Chain pumper',G.bezier((.012,-.197,.421),(.030,-.209,.349),(-.008,-.146,.296),(0,-.139,.302),20))
+            self.chain('Chain hose '+str(sign),G.bezier((sign*.185,-.010,.423),(sign*.192,-.075,.228),(sign*.05,-.145,.247),(sign*.008,-.139,.302),24))
+        self.chain('Chain pumper',G.bezier((.012,-.197,.421),(.030,-.209,.349),(-.008,-.146,.296),(0,-.150,.310),20))
+        loops=[]
+        for i in range(8):
+            t=i*math.tau/8
+            loops.append([(.010*math.cos(t)+.00165*math.cos(k*math.tau/4)*math.cos(t),
+                           -.139+.00165*math.sin(k*math.tau/4),
+                           .302+.010*math.sin(t)+.00165*math.cos(k*math.tau/4)*math.sin(t)) for k in range(4)])
+        self.add(G.smooth(G.ring_loft('Chain common joining ring',loops,self.steel)))
         # Cap lugs and a common chain anchor hook, no movable parts in this prop.
         for x,y in [(-.185,0),(.185,0),(.012,-.197)]:
             self.add(G.tube('Cap chain forged eye',[(x-.005,y,.431),(x-.006,y-.002,.414),(x+.006,y-.002,.414),(x+.005,y,.431)],.0024,self.red,8 if self.high else 4))
@@ -157,12 +167,12 @@ class Hydrant:
     def casting(self):
         if not self.high:return
         font=bpy.data.fonts.load('/usr/share/fonts/TTF/DejaVuSans-Bold.ttf')
-        for text,z,size in [('BELLFORD',.538,.024),('5 1/4',.503,.022),('WATER WORKS',.405,.017),('H-54',.375,.019),('2021',.340,.017)]:
+        for text,z,size in [('BELLFORD',.545,.036),('5 1/4',.503,.032),('WATER WORKS',.405,.025),('H-54',.365,.028),('2021',.312,.025)]:
             cu=bpy.data.curves.new('Original foundry type','FONT');cu.body=text;cu.font=font;cu.size=size;cu.align_x='CENTER';cu.align_y='CENTER';cu.extrude=.00065;cu.resolution_u=3
             ob=bpy.data.objects.new('Raised casting '+text,cu);bpy.context.collection.objects.link(ob)
             bpy.context.view_layer.objects.active=ob;ob.select_set(True);bpy.ops.object.convert(target='MESH');ob.select_set(False)
             for v in ob.data.vertices:
-                x,y,d=v.co;angle=-x/.102;r=.102+d
+                x,y,d=v.co;radius=.1015 if z>.5 else .1003;angle=-x/radius;r=radius+d
                 v.co=(r*math.sin(angle),r*math.cos(angle),z+y)
             bm=bmesh.new();bm.from_mesh(ob.data)
             bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=1e-7)
