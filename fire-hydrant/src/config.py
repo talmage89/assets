@@ -15,5 +15,5 @@ SHOTS={
 UV_PRIORITY={'Cast upper barrel':1.2,'Pumper cap':1.25,'Cast bonnet':1.1,'Chain':.65}
 UV_DEFAULT_PRIORITY=1
 # Pixels per meter in the delivered 1024 atlas, not scaled grill defaults.
-UV_DENSITY_BANDS=dict(p5_min=280,median_min=550,median_max=900,p95_max=1500)
+UV_DENSITY_BANDS=dict(reference_size=1024,p5_min=280,median_min=550,median_max=900,p95_max=1500)
 REQUIRED_NODES=('FireHydrant',)

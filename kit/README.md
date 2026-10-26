@@ -1,6 +1,7 @@
 # Asset toolkit
 
-A compact Blender 5.2 pipeline, proven on [Field 3](../gas-grill/README.md).
+A compact Blender 5.2 pipeline, proven on [Field 3](../gas-grill/README.md)
+and the [Bellford hydrant](../fire-hydrant/README.md).
 Meters, +Z up, −Y front; deterministic scripted geometry, original material
 nodes and graphics. The read-only rifle project informed the workflow.
 
@@ -20,7 +21,8 @@ nodes and graphics. The read-only rifle project informed the workflow.
 | `audit.py` | Independent source/game topology, count, scale, normals and pivot audit |
 | `repo_check.py`, `install_hook.py` | Git source/type/size/docs constraints, including staged blobs in the worktree-local pre-commit hook |
 | `contact.py`, `fetch_refs.py`, `new_asset.py` | Review sheets, image/PDF-only reference retrieval and safe new-asset scaffold |
-| `rules.mk` | Parameter invalidation and the shared checkpoint/delivery build graph |
+| `rules.mk`, `policy.py` | Parameter invalidation, delivery configuration normalization and shared build graph |
+| `motion.py` | Sampled solid-surface motion clearance on high and game assemblies |
 
 ## Asset interface
 
@@ -38,8 +40,8 @@ the kit. Original high print sheets can be projected onto solid low backing;
 their names belong in `BAKE_DROP_MESHES` to avoid coplanar low duplicates.
 
 An asset stays on checkpoint builds until its Makefile opts into
-`FINAL_PIPELINE := 1`. Then `make` builds refs, high/game sources, UVs, 4096 bake,
-2048 delivery textures, GLB, imported-GLB studio, docs and checks. An asset's
+`FINAL_PIPELINE := 1`. Then `make` builds refs, high/game sources, UVs, configurable bake and
+delivery textures, GLB, imported-GLB studio, docs and checks. An asset's
 `src/review.py --final` creates its sheets/docs. Optional `src/check_fit.py`
 handles an explicitly authorized external fit reference; the generic model,
 baker and exporter never load external assets. `TANK_REFERENCE` is empty by
@@ -57,18 +59,55 @@ make -C gas-grill clean
 ```
 
 Requires installed Blender 5.2, Python/Pillow/NumPy, Noto/DejaVu fonts and flock.
-Small assets may set `SHIP_SIZE`, `UV_TARGET_DENSITY` and `UV_MARGIN` in their Makefile, with delivered pixels/m limits in config `UV_DENSITY_BANDS` (`p5_min`, `median_min`, `median_max`, `p95_max`); the existing 2048/grill defaults remain unchanged.
 No downloaded code, packages or lighting. `rules.mk` sets TMPDIR inside the
 worktree. Every Cycles invocation goes through the GPU wrapper. Source/game
 geometry checks remain separate from delivery verification; a look-dev audit
 cannot certify a GLB.
+
+## Delivery configuration
+
+Use `SHIP_SIZE` for every delivery stage: UV packing/reporting, downsampling,
+embedded GLB textures and verification. Defaults are `SHIP_SIZE=2048`,
+`BAKE_SIZE=4096`, `BAKE_SAMPLES=32`, `UV_TARGET_DENSITY=850` and
+`UV_MARGIN=.0015` (normalized UV units). Legacy `TEX_SIZE` is accepted as an
+input alias; conflicting `SHIP_SIZE` and `TEX_SIZE` values fail immediately.
+New Makefiles should set only `SHIP_SIZE`. The hydrant uses 1024, 810 and .003
+for delivery size, target density and margin; the grill keeps the defaults.
+
+Declare density acceptance in `src/config.py` through one dictionary:
+
+```python
+UV_DENSITY_BANDS = dict(reference_size=2048, p5_min=200,
+                        median_min=450, median_max=900, p95_max=1500)
+```
+
+Limits are pixels/m at `reference_size`, scaled by `SHIP_SIZE/reference_size`.
+Those example values are the compatible defaults. The hydrant declares 1024
+and limits 280 / 550 / 900 / 1500. `UV_TARGET_DENSITY` guides packing; the
+bands independently gate measured density. Resolved limits appear in the
+verification report as `density_bands_px_m`.
+
+For compatibility, older `UV_DENSITY_BANDS` without `reference_size` retain
+absolute delivered pixels/m semantics. Older `VERIFY_POLICY.density_*` fields
+are normalized by the same resolver, with `density_reference_size=2048` by
+default. Mixing both density interfaces raises an error. Both current assets
+use the canonical dictionary; `VERIFY_POLICY` now configures tube checks only.
+
+Changing delivery size, target density or margin invalidates finalize and its
+downstream bake/export/renders. Changing bake size or samples invalidates bake
+and downstream outputs without repacking UVs. Unchanged parameter files keep
+their timestamps. Wear invalidates modeling; studio width, samples, shot list,
+extra arguments and fit-reference path/mtime invalidate studio output.
+`MARKINGS_DEPS` adds shared settings dependencies to graphic generation.
 
 ## Materials and texture policy
 
 `surface()` layers manufacturing, heat, handling, abrasion/chips, rust, grease
 and gravity dust. `wear=0` retains manufacturing while removing use-related
 layers. Handling/cooking/heat ellipses and `heat_height` are local meters.
-`painted_cast()` adds outdoor enamel over sand-cast iron, exposure chalking, ground splash, and sparse rusted chips along configured ledges, circular cap rims and edges; bolt deposits use the same gravity tracks.
+`painted_cast()` adds outdoor enamel over sand-cast iron, exposure chalking,
+ground splash, and sparse rusted chips along configured ledges, circular cap
+rims and edges; bolt deposits use the same gravity tracks.
 `deposits` are `(x,z,width,length)` gravity tracks, optionally with a local face
 direction. Cavities use short-range AO; edge proximity compares beveled and
 geometric normals. Stable pivot-local coordinates keep weathering attached to
@@ -81,8 +120,9 @@ retain their substrate channels. Reference images never enter material nodes.
 The pilot exercises one atlas. The shipped material uses sRGB BaseColor,
 OpenGL +Y Normal and non-color ORM (R AO / G roughness / B metallic). High source
 microstructure and small bevels transfer through the tangent-normal bake.
-A 16-bit 4096 normal intermediate avoids quantization before 2048 filtering.
-Delivery settings participate in build invalidation; static export consolidation preserves each assembly's `asset_set` tag.
+A 16-bit bake normal intermediate avoids quantization before delivery filtering.
+Static export consolidation preserves each assembly's `asset_set` tag, including
+when rebasing onto its parent; configured skin names survive separately.
 Atlas priority and subpixel overlap tolerance are reported, never called exact
 uniform density or zero overlap. Independent normals, normalized weights and
 world bind transforms are checked in the GLB itself.
@@ -106,7 +146,8 @@ Future tiling/trim and alpha-card policies can extend the material/export
 interface. No speculative road, house or foliage generator is included.
 
 Street-batch extensions: `match-final` compares the baked GLB with the same photo
-calibration as the source. Optional `BAKE_CAGE`/`BAKE_RAY` configure thin shells.
+calibration as the source. Optional legacy `BAKE_CAGE`/`BAKE_RAY` configure thin shells; explicit
+`BAKE_POLICY.cage_m` / `ray_distance_m` take precedence when present.
 Baked name families may tag `variant_id`, `bake_offset`, and `bake_only` templates;
 export selects config `EXPORT_VARIANT`, restores its placement, and joins a single
 static mesh. Source audits omit parked templates; final checks still inspect the
@@ -124,3 +165,64 @@ Atlas configurations can set `UV_SMART_ASPECT=False` when source print images
 have different aspect ratios; this prevents material image dimensions from
 distorting the shared square bake UVs. `UV_PACK_SHAPE` is an optional packing
 choice; all independent overlap/outside checks remain enforced.
+
+## Optional asset policy and moving assemblies
+
+These additions preserve legacy calls and defaults. New assets should declare
+policy in their own `src/config.py` / settings module; do not edit kit internals.
+The grill's values live in `gas-grill/src/settings.py` and `src/config.py`.
+
+- Pass `attach(..., asset_set='YourSet')`; `inherit_asset_set=True` instead reads the parent's tag. The legacy default remains `Grill` for existing callers. `bind(..., export_part='CableMesh', modifier_name='Cable skin')` supplies a skin's export name. `EXPORT_SKIN_NAMES={armature_name: mesh_name}` optionally overrides it at export. There is no name-based test for a hose in assembly ownership.
+- `RIG_POSES={armature_name: {'angles': [...], 'lateral': ..., 'twist_step': ..., 'initial_z': (...)}}` configures the studio and verification demonstration. The angle list can have any chain length. `dangling()` also accepts those optional keywords directly; omitted values retain the pilot pose.
+- `VERIFY_POLICY`'s optional `tube` dictionary supplies `rest_points_property`, `radius_m`, radial/plane matching tolerances, minimum ring vertices/count, minimum posed radius, attachment travel and root tolerance. `tubes={armature_name: {...}}` supports different chains within one asset. Existing acceptance bands remain defaults.
+- `combustion(..., geometry={...})` supplies burner lanes and widths, hood spread/thermal/oil heights, bowl drain center/radii/heights and drip sources, channel apex and streak locations. `ported_burner()` accepts tube/port heights, pitch/start/end, port/soot radii and thermal band dimensions. `surface(..., rust_regions={...})` sets low-height, weld and upper-height regions. All values use the part's rest frame in meters; the legacy finish presets remain available.
+- `FIT_CHECK_ARGS` optionally appends arguments to an asset's own `src/check_fit.py`; it is empty by default. The grill uses `--parts-source build/finalized.blend` for component-level clearance measurements.
+
+Example motion/projection policy:
+
+```python
+MOTIONS = [dict(node='Door', axis='Z', range=[0, 100], step=2,
+                tolerance_m=.0005, allow=[
+                    dict(moving='Door hinge sleeve', fixed='Door hinge pin',
+                         reason='Pin in the sleeve bore')])]
+BAKE_POLICY = dict(isolate_moving=True, moving_roots=['Door'],
+                   cage_m=.003, ray_distance_m=.012, ao_distance_m=.035)
+```
+
+`make check-motion` (included in `make check`) sweeps configured rotations in
+degrees or `kind='translation'` ranges/steps in meters, on both game and high
+source. It tests tagged solid meshes, excluding declared boundary-only sheets.
+BVH crossings select candidate surfaces; vertices and edge intervals use nearest
+surface distance and three-ray solid parity to measure penetration. The report
+lists sampled values, tolerance, violations and intended-contact allow-list
+reasons. Missing `MOTIONS` means no sweep. Sampling is explicit, not a continuous
+collision guarantee; choose a step small enough for the narrowest obstruction.
+Wheel axial separation can additionally prove clearance for every angle.
+
+With `BAKE_POLICY.isolate_moving=True`, low/high geometry is matched by owning
+root and translated into separated projection groups. Each lid, door, wheel or
+slider therefore receives only its own source projection and local AO. Static
+geometry stays assembled; independent rest-position shadow copies preserve its
+contact AO. Shadow copies cannot share mutable mesh data with joined sources.
+The bake report records groups, offsets and shadow-copy counts. Omitting this
+policy keeps the original assembled bake. Custom procedural materials should
+use rest/object coordinates, as this library does; raw world-space masks need
+rest-coordinate attributes when using translated isolation.
+
+`SHOTS` entries may add `parts={node: {'translation': (x,y,z)}}` or
+`rotation_degrees`; the studio resets these transforms between views. This
+supports a withdrawn slider or alternate door pose without special node names.
+The legacy `lid` shot angle can target another node/axis using the optional Make
+variable `STUDIO_ARGS := --lid-node YourHatch --lid-axis Z`; defaults remain
+`Lid` / X. Optional fit shots already accept their own `fit_socket` node name.
+
+`compare_textures.py` compares two delivery folders numerically, in RGB byte
+units. The grill accepts maximum channel delta **2/255** and byte-domain RMSE
+**0.02** per map; geometry remains exactly reproducible. GPU texture bytes are
+not promised bit-identical. `make check-texture-repeat` is an opt-in full rebake
+and comparison; normal checks never force that expense on other assets.
+`blender -b --factory-startup --python-exit-code 1 --python kit/test_policy.py`
+runs small solid/hollow collision and non-grill naming/rig compatibility fixtures.
+
+`python3 -m unittest kit.test_delivery` checks density compatibility, alias
+conflicts and staged build invalidation without running a bake.

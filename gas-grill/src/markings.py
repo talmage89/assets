@@ -1,6 +1,7 @@
 """Original fictional silkscreen, gauge and grill scale, generated with Pillow."""
 from pathlib import Path
 import math, random
+from settings import KNOB_GRAPHICS
 from PIL import Image, ImageDraw, ImageFont
 FONT='/usr/share/fonts/noto/NotoSans-Regular.ttf'
 BOLD='/usr/share/fonts/noto/NotoSans-Bold.ttf'
@@ -15,13 +16,16 @@ def generate(out,wear=.35):
     d.text((2310,32),'FIELD 3   /   LP',font=font(28),fill=ink,anchor='ra')
     for x in (430,1200,1970):
         # Knobs occupy the lower circles; the printed arcs stay readable around them.
-        d.arc((x-134,300-161,x+134,300+161),200,340,fill=ink,width=4)
-        for a in range(205,341,15):
-            t=math.radians(a)
-            d.line((x+140*math.cos(t),300+168*math.sin(t),x+155*math.cos(t),300+186*math.sin(t)),fill=ink,width=4)
-        d.text((x,98),'OFF',font=font(24,True),fill=ink,anchor='mm')
-        d.text((x-178,377),'HI',font=font(23),fill=ink,anchor='mm')
-        d.text((x+174,377),'LO',font=font(23),fill=ink,anchor='mm')
+        spec=KNOB_GRAPHICS
+        def dial(degrees,r):
+            a=math.radians(degrees)
+            return x+math.sin(a)*r,300-math.cos(a)*r*1.2
+        # Negative local-Y is counterclockwise in the front view: OFF -> HI -> LO.
+        points=[dial(a,142) for a in range(spec['low'],spec['off']+1)]
+        d.line(points,fill=ink,width=4)
+        for a in range(spec['low'],spec['off']+1,spec['tick_step']):d.line((*dial(a,148),*dial(a,160)),fill=ink,width=4)
+        for name,key in [('OFF','off'),('HI','high'),('LO','low')]:
+            d.text(dial(spec[key],182),name,font=font(24,True),fill=ink,anchor='mm')
         d.text((x,535),'PUSH • TURN',font=font(20),fill=ink,anchor='mm')
     im.save(out/'panel.png')
     im=Image.new('RGBA',(1024,256),(20,27,30,255));d=ImageDraw.Draw(im)

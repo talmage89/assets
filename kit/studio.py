@@ -61,6 +61,7 @@ def human():
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--fit-reference');p.add_argument('--camera-file');p.add_argument('--source',required=True);p.add_argument('--stage',choices=['lookdev','final'],default='lookdev');p.add_argument('--config',required=True);p.add_argument('--out',required=True);p.add_argument('--shots',default='hero_closed,hero_open,controls,front,side');p.add_argument('--engine',choices=['CYCLES','BLENDER_EEVEE','BLENDER_WORKBENCH'],default='CYCLES');p.add_argument('--width',type=int,default=1400);p.add_argument('--samples',type=int,default=64)
+    p.add_argument('--lid-node',default='Lid');p.add_argument('--lid-axis',choices=['X','Y','Z'],default='X')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);source=Path(a.source).resolve()
     if a.stage=='final':
         if source.suffix!='.glb':raise ValueError('Final renders must load the exported GLB')
@@ -98,11 +99,18 @@ def main():
     if a.camera_file:
         shots.update({key:value['shot'] for key,value in json.loads(Path(a.camera_file).read_text()).items()})
     metadata=json.loads((out/'shots.json').read_text()) if (out/'shots.json').exists() else {}
-    lid=bpy.data.objects.get('Lid')
+    lid=bpy.data.objects.get(a.lid_node)
     if lid:lid.rotation_mode='XYZ'
     rest=lid.rotation_euler.copy() if lid else None
+    part_rest={key:bpy.data.objects[key].matrix_basis.copy() for shot in shots.values() for key in shot.get('parts',{}) if key in bpy.data.objects}
     for name in a.shots.split(','):
         shot=shots[name]
+        for key,matrix in part_rest.items():bpy.data.objects[key].matrix_basis=matrix
+        for key,pose in shot.get('parts',{}).items():
+            if 'translation' in pose:bpy.data.objects[key].location+=Vector(pose['translation'])
+            if 'rotation_degrees' in pose:
+                part=bpy.data.objects[key];part.rotation_mode='XYZ'
+                part.rotation_euler.rotate(__import__('mathutils').Euler(tuple(math.radians(v) for v in pose['rotation_degrees'])))
         imported_reference=[]
         if shot.get('fit_reference'):
             reference=Path(a.fit_reference).expanduser() if a.fit_reference else None
@@ -120,8 +128,8 @@ def main():
                 ob.hide_render='collision' in ob.name.lower()
         for arm in [o for o in sc.objects if o.type=='ARMATURE']:
             rig.reset(arm)
-            if shot.get('hose')=='dangling':rig.dangling(arm)
-        if lid:lid.rotation_euler=rest;lid.rotation_euler.x+=math.radians(shot.get('lid',0))
+            if shot.get('hose')=='dangling':rig.dangling(arm,**config.get('RIG_POSES',{}).get(arm.name,{}))
+        if lid:lid.rotation_euler=rest;lid.rotation_euler['XYZ'.index(a.lid_axis)]+=math.radians(shot.get('lid',0))
         for ob in silhouette:ob.hide_render=not shot.get('human',False)
         cam.location=shot['location'];target=Vector(shot['target'])
         cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler()

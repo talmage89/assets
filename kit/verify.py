@@ -8,6 +8,7 @@ from mathutils.kdtree import KDTree
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from kit.gltf import GLB
 from kit import uv,rig
+from kit.policy import density_bands
 
 
 def main():
@@ -104,24 +105,27 @@ def main():
     check(uv_report['overlap_fraction']<1e-6,'UV overlap exceeds subpixel tolerance')
     check(uv_report['outside_triangles']==0 and uv_report['degenerate_uv_triangles']==0,'Invalid UV triangles')
     check(uv_report['coverage']>cfg.get('UV_MIN_COVERAGE',.35),'Atlas coverage too low')
-    ratio=a.size/2048
-    bands=cfg.get('UV_DENSITY_BANDS',dict(p5_min=200*ratio,median_min=450*ratio,median_max=900*ratio,p95_max=1500*ratio))
+    policy=cfg.get('VERIFY_POLICY',{})
+    bands=density_bands(cfg,a.size)
     check(bands['p5_min']<uv_report['density_px_m']['5'] and bands['median_min']<uv_report['density_px_m']['50']<bands['median_max'] and uv_report['density_px_m']['95']<bands['p95_max'],'Texel density outside declared priority bands')
     # Exercise ordinary imported LBS. Attachment must move; manifold stays pinned.
     pose_report={}
     for arm in arms:
-        if 'hose_rest_points_m' not in arm:continue
+        tube=policy.get('tubes',{}).get(arm.name,policy.get('tube',{}))
+        points_property=tube.get('rest_points_property','hose_rest_points_m')
+        if points_property not in arm:continue
         attachment=next((o for o in sc.objects if o.parent==arm and o.parent_type=='BONE' and o.get('socket_kind')),None)
         check(attachment is not None,'Flexible chain has no bone attachment socket')
         if attachment is None:continue
         rest_attachment=attachment.matrix_world.translation.copy()
         root=arm.matrix_world@arm.data.bones[0].head_local
-        rig.dangling(arm);moved=(attachment.matrix_world.translation-rest_attachment).length
+        radius=tube.get('radius_m',.0052)
+        rig.dangling(arm,**cfg.get('RIG_POSES',{}).get(arm.name,{}));moved=(attachment.matrix_world.translation-rest_attachment).length
         root_error=(arm.matrix_world@arm.pose.bones[0].head-root).length
-        check(moved>.15 and root_error<1e-5,'Hose demonstration did not move fitting with pinned root')
+        check(moved>tube.get('minimum_attachment_travel_m',.15) and root_error<tube.get('root_tolerance_m',1e-5),'Hose demonstration did not move fitting with pinned root')
         minimum_radius=1.0;tested_rings=0
-        if 'hose_rest_points_m' in arm:
-            coords=arm['hose_rest_points_m'];centers=[Vector(coords[i:i+3]) for i in range(0,len(coords),3)]
+        if points_property in arm:
+            coords=arm[points_property];centers=[Vector(coords[i:i+3]) for i in range(0,len(coords),3)]
             for ob in meshes:
                 if not any(m.type=='ARMATURE' and m.object==arm for m in ob.modifiers):continue
                 evaluated=ob.evaluated_get(bpy.context.evaluated_depsgraph_get());me=evaluated.to_mesh()
@@ -129,20 +133,20 @@ def main():
                     arm.matrix_world.inverted()@evaluated.matrix_world@me.vertices[vertex.index].co for vertex in ob.data.vertices}
                 for i,center in enumerate(centers):
                     tangent=(centers[min(i+1,len(centers)-1)]-centers[max(i-1,0)]).normalized()
-                    ring=[posed for rest,posed in pairs.items() if abs((Vector(rest)-center).length-.0052)<.00012 and abs((Vector(rest)-center).dot(tangent))<.00015]
-                    if len(ring)<6:continue
+                    ring=[posed for rest,posed in pairs.items() if abs((Vector(rest)-center).length-radius)<tube.get('radial_tolerance_m',.00012) and abs((Vector(rest)-center).dot(tangent))<tube.get('plane_tolerance_m',.00015)]
+                    if len(ring)<tube.get('minimum_ring_vertices',6):continue
                     centroid=sum(ring,Vector())/len(ring)
                     minimum_radius=min(minimum_radius,min((v-centroid).length for v in ring));tested_rings+=1
                 evaluated.to_mesh_clear()
-            check(tested_rings>=40 and minimum_radius>.0036,'Hose cross-sections collapse in the free-hanging pose')
+            check(tested_rings>=tube.get('minimum_rings',40) and minimum_radius>tube.get('minimum_posed_radius_m',.0036),'Hose cross-sections collapse in the free-hanging pose')
         pose_report=dict(attachment_travel_m=moved,manifold_error_m=root_error,tested_hose_rings=tested_rings,
-                         minimum_posed_ring_radius_m=minimum_radius,rest_radius_m=.0052)
+                         minimum_posed_ring_radius_m=minimum_radius,rest_radius_m=radius)
         rig.reset(arm)
     result=dict(passed=not errors,errors=errors,source=str(path),bytes=path.stat().st_size,triangles=triangle_count,
         materials=len(data.get('materials',[])),textures=image_reports,normal_unit_error=raw_normal_error,
         skin_weight_sum_error=raw_weight_error,reimport_weight_error=maximum_weight_error,rigid_last_bone_vertices=rigid_fitting_vertices,max_influences=influences,inverse_bind_error=bind_error,
         rest_vertex_error_m=maximum_vertex_error,socket_matrix_error=socket_error,pose=pose_report,
-        uv={k:v for k,v in uv_report.items() if k!='island_measurements'})
+        density_bands_px_m=bands,uv={k:v for k,v in uv_report.items() if k!='island_measurements'})
     Path(a.out).write_text(json.dumps(result,indent=2));print(json.dumps(result,indent=2))
     if errors:raise RuntimeError('Delivery verification failed')
 

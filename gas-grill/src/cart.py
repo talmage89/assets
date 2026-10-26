@@ -1,6 +1,7 @@
 """Formed-steel open cart: actual gauge, bent wheel legs and folded shelf hardware."""
 import math
 from kit import model as G
+from settings import WHEEL_CENTERS
 
 
 def build_cart(b):
@@ -60,8 +61,8 @@ def build_cart(b):
         pts=[(x-.008,.351),(x-.005,.356),(x+.005,.356),(x+.008,.351)]
         b.profile('Stamped shelf reinforcing channel',pts,-.196,.196,'shelf',axis='Y',radius=.0007)
     # Real axle and recessed black hub caps; plastic spokes connect hub and outer rim.
-    b.cylinder('Solid wheel axle',(.357,-.288,.09),(.357,.288,.09),.0065,'stainless',16)
-    for y in (-.253,.253):
+    b.cylinder('Solid wheel axle',(.357,-.310,.09),(.357,.310,.09),.0065,'stainless',16)
+    for y in WHEEL_CENTERS:
         pivot=G.pivot('Wheel_Front' if y<0 else 'Wheel_Back',(0,0,0),'Y',[0,360]);pivot.parent=b.root
         n=96 if b.high else 32
         profile=[(-.025,.066),(-.025,.074),(-.020,.085),(-.013,.090),(.012,.090),(.021,.083),(.025,.072),(.025,.066)]
@@ -90,8 +91,10 @@ def build_cart(b):
                 'plastic',32 if b.high else 16,axis='Y',parent=pivot)
         if b.high:b.lathe('Tire mold split line',[(-.001,.0892),(-.001,.0898),(.001,.0898),(.001,.0892)],'tire',n,axis='Y',closed=True,parent=pivot)
         pivot.location=(.357,y,.09)
-        b.box('Axle steel mounting ear',(.350,y,.112),(.042,.026,.046),'powder',.003)
-        b.fastener('Axle bracket bolt',(.339,y-.015,.125),(0,-1,0),radius=.004)
+        mount_y=math.copysign(.235,y)
+        b.cylinder('Axle thrust spacer',(.357,math.copysign(.249,y),.09),(.357,math.copysign(.264,y),.09),.009,'stainless',16 if b.high else 6)
+        b.box('Axle steel mounting ear',(.350,mount_y,.112),(.042,.026,.046),'powder',.003)
+        b.fastener('Axle bracket bolt',(.339,mount_y+math.copysign(.014,y),.125),(0,math.copysign(1,y),0),radius=.004)
 
 
 def build_shelves(b):

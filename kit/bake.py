@@ -2,8 +2,9 @@
 import argparse,json,sys,time,runpy
 from pathlib import Path
 import bpy,numpy as np
+from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
-from kit import gpu
+from kit import gpu,bake_groups
 from kit.image_io import write_png,linear_to_srgb
 
 
@@ -14,11 +15,17 @@ def main():
     p.add_argument('--config')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     bpy.ops.wm.open_mainfile(filepath=str(Path(a.low).resolve()));sc=bpy.context.scene
-    copies=[]
+    cfg=runpy.run_path(a.config) if a.config else {}
+    policy=cfg.get('BAKE_POLICY',{});roots=policy.get('moving_roots',[]) if policy.get('isolate_moving',False) else []
+    originals=[o for o in sc.objects if o.type=='MESH' and 'asset_set' in o]
+    spacing=bake_groups.offsets(originals,roots,policy.get('padding_m',.1)) if roots else {}
+    copies=[];group_counts={}
     for ob in list(sc.objects):
         if ob.type!='MESH' or 'asset_set' not in ob:continue
         copy=ob.copy();copy.data=ob.data.copy();copy.name='Bake copy '+ob.name;sc.collection.objects.link(copy)
-        world=ob.matrix_world.copy();copy.parent=None;copy.matrix_world=world;copy.modifiers.clear();copies.append(copy)
+        group=bake_groups.owner(ob,roots);group_counts[group]=group_counts.get(group,0)+1
+        world=ob.matrix_world.copy();world.translation+=spacing.get(group,Vector((0,0,0)))
+        copy.parent=None;copy.matrix_world=world;copy.modifiers.clear();copies.append(copy)
     bpy.ops.object.select_all(action='DESELECT')
     for ob in copies:ob.select_set(True)
     bpy.context.view_layer.objects.active=copies[0];bpy.ops.object.join();target=copies[0];target.name='Atlas bake target'
@@ -41,6 +48,19 @@ def main():
         ob.hide_render=False
         for modifier in ob.modifiers:
             if modifier.type=='ARMATURE':modifier.show_render=modifier.show_viewport=False
+    ghosts=[]
+    for ob in sources:
+        group=bake_groups.owner(ob,roots)
+        if group=='stationary':continue
+        # Keep a rest-position shadow copy for stationary contact AO only.
+        ghost=ob.copy();ghost.data=ob.data.copy();ghost['source_vertex_count']=len(ob.data.vertices)
+        ghost.name='Stationary AO occluder '+ob.name
+        sc.collection.objects.link(ghost);world=ob.matrix_world.copy()
+        ghost.parent=None;ghost.matrix_world=world;ghost.modifiers.clear();ghost.hide_render=True
+        ghosts.append(ghost)
+        ob.parent=None;ob.matrix_world=world
+        ob.matrix_world.translation+=spacing[group]
+    bpy.context.view_layer.update()
     # Selected-to-active incurs a scene synchronization for every source object.
     # Consolidate objects sharing a coordinate frame, retaining object-space
     # material masks, PrintUV, normals and world placement exactly.
@@ -60,15 +80,15 @@ def main():
                     bpy.ops.object.modifier_apply(modifier=modifier.name)
         bpy.context.view_layer.objects.active=members[0];bpy.ops.object.join()
         sources.append(members[0])
+    assert all(len(ob.data.vertices)==ob['source_vertex_count'] for ob in ghosts),'AO shadow geometry changed during source consolidation'
     print('BAKE_SOURCES',original_count,'objects ->',len(sources),'coordinate frames',flush=True)
     mats={m for ob in sources for m in ob.data.materials if m}
     sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=False
     sc.render.bake.use_selected_to_active=True;sc.render.bake.use_clear=True
-    cfg=runpy.run_path(a.config) if a.config else {}
-    sc.render.bake.cage_extrusion=cfg.get('BAKE_CAGE',.006);sc.render.bake.max_ray_distance=cfg.get('BAKE_RAY',.018)
+    sc.render.bake.cage_extrusion=policy.get('cage_m',cfg.get('BAKE_CAGE',.006));sc.render.bake.max_ray_distance=policy.get('ray_distance_m',cfg.get('BAKE_RAY',.018))
     sc.render.bake.margin=12;sc.render.bake.margin_type='EXTEND'
     if not sc.world:sc.world=bpy.data.worlds.new('Bake world')
-    if hasattr(sc.world,'light_settings'):sc.world.light_settings.distance=.035
+    if hasattr(sc.world,'light_settings'):sc.world.light_settings.distance=policy.get('ao_distance_m',.035)
     bpy.ops.object.select_all(action='DESELECT')
     for ob in sources:ob.select_set(True)
     target.select_set(True);bpy.context.view_layer.objects.active=target
@@ -87,6 +107,7 @@ def main():
         route(channel);start=time.time()
         options=dict(type=kind)
         if kind=='NORMAL':options.update(normal_space='TANGENT',normal_r='POS_X',normal_g='POS_Y',normal_b='POS_Z')
+        for ghost in ghosts:ghost.hide_render=kind!='AO'
         bpy.ops.object.bake(**options)
         values=np.empty(a.size*a.size*4,np.float32);image.pixels.foreach_get(values)
         values=np.flipud(values.reshape(a.size,a.size,4)).copy();images[name]=values
@@ -102,6 +123,7 @@ def main():
     bake('Normal','NORMAL')
     normal=images['Normal'][:,:,:3];normal[images['Normal'][:,:,3]<.5]=(.5,.5,1)
     write_png(out/f'T_{a.asset}_Normal.png',normal,16)
+    stats['projection_policy']=dict(isolate_moving=bool(roots),moving_roots=roots,target_meshes_by_group=group_counts,stationary_ao_occluders=len(ghosts),offsets_m={k:list(v) for k,v in spacing.items()})
     stats['size']=a.size;stats['samples']=a.samples;stats['device']=sc.cycles.device
     stats['source_meshes']=original_count;stats['bake_frames']=len(sources);stats['source_materials']=len(mats)
     (out/'bake-report.json').write_text(json.dumps(stats,indent=2))
