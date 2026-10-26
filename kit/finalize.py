@@ -62,6 +62,8 @@ def main():
         for ob in objects:
             for point in ob.data.uv_layers['BakeUV'].data:point.uv=(point.uv-Vector((.5,.5)))*factor+Vector((.5,.5))
         measured=uv.report(objects,a.size)
+    measured['unique_region']=atlas.unique_rect_report(objects,config)
+    if not measured['unique_region']['passed']:raise RuntimeError(str(measured['unique_region']))
     measured['tiling']=atlas.tile_report(tiled,config,a.size)
     if not measured['tiling']['passed']:raise RuntimeError(str(measured['tiling']))
     measured['target_density_px_m']=a.target_density

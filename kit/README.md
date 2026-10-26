@@ -290,3 +290,8 @@ for the no-GPU finalize/export/re-import fixture and negative tile-bounds check.
 `REFS_DIR` defaults to `refs`; family sublibraries may point it at a common
 reference register/cache so independent `make` invocations fetch their cited
 photos and manuals without duplicating downloads.
+
+Reserved-atlas verification also measures the unique region after GLB import,
+rejects any intersection between unique and tile rectangles, and checks the
+embedded tile alpha actually contains both holes and retained wire. The fixture
+includes negative tests for both escaped tiles and a frame invading the tile.

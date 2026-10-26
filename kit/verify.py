@@ -103,6 +103,8 @@ def main():
             check((arm.matrix_world@bone.head_local-Vector(wanted[bone.name]['head'])).length<2e-5,'Re-import joint rest position changed')
     tile_meshes=[o for o in meshes if atlas.tiled_spec(o.name,cfg)]
     uv_report=uv.report([o for o in meshes if o not in tile_meshes],a.size,'UVMap')
+    unique_region=atlas.unique_rect_report([o for o in meshes if o not in tile_meshes],cfg,'UVMap')
+    check(unique_region['passed'],'Invalid unique atlas region: '+str(unique_region['errors']))
     tiles=atlas.tile_report(tile_meshes,cfg,a.size,'UVMap')
     check(tiles['passed'],'Invalid explicitly tiled UVs: '+str(tiles['errors']))
     for ob in tile_meshes:
@@ -112,6 +114,12 @@ def main():
         if spec.get('alpha_cutoff') is not None:
             check(mat.get('alphaMode')=='MASK' and abs(mat.get('alphaCutoff',.5)-spec['alpha_cutoff'])<1e-5,'Tile material is not alpha-tested')
             check(mat.get('doubleSided',False)==spec.get('double_sided',True),'Tile backface policy changed')
+            texture=mat['pbrMetallicRoughness']['baseColorTexture']['index']
+            image_index=data['textures'][texture]['source']
+            rgba=np.asarray(Image.open(io.BytesIO(glb.image(image_index))).convert('RGBA'))
+            x0,y0,x1,y1=spec['rect'];h,w=rgba.shape[:2]
+            alpha=rgba[round((1-y1)*h):round((1-y0)*h),round(x0*w):round(x1*w),3]/255
+            check(bool((alpha<spec['alpha_cutoff']).any()) and bool((alpha>=spec['alpha_cutoff']).any()),'Alpha tile lost its holes or wires')
     check(uv_report['overlap_fraction']<1e-6,'UV overlap exceeds subpixel tolerance')
     check(uv_report['outside_triangles']==0 and uv_report['degenerate_uv_triangles']==0,'Invalid UV triangles')
     check(uv_report['coverage']>cfg.get('UV_MIN_COVERAGE',.35),'Atlas coverage too low')
@@ -156,7 +164,7 @@ def main():
         materials=len(data.get('materials',[])),textures=image_reports,normal_unit_error=raw_normal_error,
         skin_weight_sum_error=raw_weight_error,reimport_weight_error=maximum_weight_error,rigid_last_bone_vertices=rigid_fitting_vertices,max_influences=influences,inverse_bind_error=bind_error,
         rest_vertex_error_m=maximum_vertex_error,socket_matrix_error=socket_error,pose=pose_report,
-        density_bands_px_m=bands,tiling=tiles,uv={k:v for k,v in uv_report.items() if k!='island_measurements'})
+        density_bands_px_m=bands,tiling=tiles,unique_region=unique_region,uv={k:v for k,v in uv_report.items() if k!='island_measurements'})
     Path(a.out).write_text(json.dumps(result,indent=2));print(json.dumps(result,indent=2))
     if errors:raise RuntimeError('Delivery verification failed')
 

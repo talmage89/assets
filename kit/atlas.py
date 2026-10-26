@@ -30,3 +30,18 @@ def tile_report(objects,config,size=2048,layer='BakeUV'):
         if densities and not (spec.get('density_min',0)<=min(densities) and max(densities)<=spec.get('density_max',1e8)):errors.append(ob.name+': tile texel density outside declared band')
         rows.append(dict(object=ob.name,triangles=len(ob.data.loop_triangles),rectangle=spec['rect'],outside=outside,degenerate=invalid,density_min=min(densities,default=0),density_max=max(densities,default=0),overlap_policy='authored reuse within this tile only'))
     return dict(passed=not errors,errors=errors,meshes=rows)
+
+def unique_rect_report(objects,config,layer='BakeUV'):
+    """Keep unique geometry clear of reserved repeating tile texels."""
+    rect=config.get('UV_ATLAS_RECT');errors=[];outside=0
+    if rect is None:return dict(passed=True,errors=[],outside=0,rectangle=None)
+    x0,y0,x1,y1=rect
+    for spec in config.get('TILED_MESHES',{}).values():
+        a,b,c,d=spec['rect']
+        if min(x1,c)>max(x0,a)+1e-7 and min(y1,d)>max(y0,b)+1e-7:errors.append('Unique atlas rectangle intersects a repeating tile')
+    for ob in objects:
+        uv=ob.data.uv_layers.get(layer) or ob.data.uv_layers.active
+        if uv is None:errors.append(ob.name+': missing unique UVs');continue
+        outside+=sum(p.uv.x<x0-1e-6 or p.uv.x>x1+1e-6 or p.uv.y<y0-1e-6 or p.uv.y>y1+1e-6 for p in uv.data)
+    if outside:errors.append('Unique UVs escaped their reserved rectangle')
+    return dict(passed=not errors,errors=errors,outside=outside,rectangle=rect)

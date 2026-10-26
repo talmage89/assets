@@ -37,4 +37,6 @@ args('export',['--source',str(b/'finalized.blend'),'--textures',str(tex),'--asse
 args('verify',['--source',str(b/'fixture.glb'),'--expected',str(b/'export.json'),'--config',str(config),'--out',str(b/'verify.json'),'--size','512']);verify.main()
 o=bpy.data.objects['Sheet_Fabric'];layer=o.data.uv_layers['UVMap'];layer.data[0].uv=(.6,.6)
 assert not atlas.tile_report([o],cfg,512,'UVMap')['passed'],'Tile escaped its reserved region without a failure'
+u=bpy.data.objects['TileFixtureMesh'];u.data.uv_layers['UVMap'].data[0].uv=(.1,.1)
+assert not atlas.unique_rect_report([u],cfg,'UVMap')['passed'],'Unique frame invaded reserved tile without a failure'
 print('PASS: tiled MASK export shares three images; unique UVs checked; escaped tile rejected')
