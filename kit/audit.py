@@ -23,7 +23,7 @@ def main():
     cfg=runpy.run_path(a.config);sc=bpy.context.scene;bpy.context.view_layer.update()
     sets={};errors=[];warnings=[]
     for ob in sc.objects:
-        if ob.type!='MESH' or 'asset_set' not in ob:continue
+        if ob.type!='MESH' or 'asset_set' not in ob or ob.get('bake_only'):continue
         sets.setdefault(ob['asset_set'],[]).append(ob)
     report={'stage':a.stage,'source':a.source,'quality':sc.get('quality'),'sets':{},'errors':errors,'warnings':warnings}
     dg=bpy.context.evaluated_depsgraph_get()
