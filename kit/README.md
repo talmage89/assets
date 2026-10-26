@@ -104,3 +104,11 @@ stay ignored and never become textures or committed docs.
 
 Future tiling/trim and alpha-card policies can extend the material/export
 interface. No speculative road, house or foliage generator is included.
+
+Street-batch extensions: `match-final` compares the baked GLB with the same photo
+calibration as the source. Optional `BAKE_CAGE`/`BAKE_RAY` configure thin shells.
+Baked name families may tag `variant_id`, `bake_offset`, and `bake_only` templates;
+export selects config `EXPORT_VARIANT`, restores its placement, and joins a single
+static mesh. Source audits omit parked templates; final checks still inspect the
+actual exported triangles/UVs. `UV_MIN_COVERAGE` declares a shared family's subset
+coverage without relaxing overlap checks.

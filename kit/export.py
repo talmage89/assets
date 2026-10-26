@@ -1,5 +1,5 @@
 """Consolidate static assemblies, preserve pivots/skin/sockets, embed one PBR atlas."""
-import argparse,json,sys
+import argparse,json,sys,runpy
 from pathlib import Path
 import bpy
 from mathutils import Vector,Matrix
@@ -49,8 +49,20 @@ def moving_parent(ob):
 def main():
     p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--textures',required=True)
     p.add_argument('--asset',required=True);p.add_argument('--out',required=True);p.add_argument('--report',required=True)
+    p.add_argument('--config')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);bpy.ops.wm.open_mainfile(filepath=str(Path(a.source).resolve()))
-    sc=bpy.context.scene;objects=[o for o in sc.objects if o.type=='MESH' and 'asset_set' in o]
+    sc=bpy.context.scene
+    cfg=runpy.run_path(a.config) if a.config else {}
+    variant=cfg.get('EXPORT_VARIANT',0)
+    for ob in list(sc.objects):
+        if 'variant_id' in ob:
+            if ob['variant_id']!=variant:bpy.data.objects.remove(ob,do_unlink=True)
+            else:
+                offset=Vector(ob.get('bake_offset',(0,0,0)))
+                # Manufacturing meshes have already been rebased to assembly coordinates.
+                for v in ob.data.vertices:v.co-=offset
+                ob['bake_only']=False
+    objects=[o for o in sc.objects if o.type=='MESH' and 'asset_set' in o]
     material=atlas_material(a.asset,Path(a.textures).resolve());groups={}
     for ob in objects:
         parent=moving_parent(ob);name=ob.get('export_part',parent.name+'Mesh')

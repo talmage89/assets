@@ -23,7 +23,7 @@ export TMPDIR := $(REPO)/build/tmp
 export ASSETS_GPU_LOCK ?= $(abspath $(REPO)/../.locks/gpu.lock)
 BP := $(BLENDER) -b --factory-startup --python-exit-code 1
 MODEL_DEPS ?= $(filter-out src/config.py src/review.py src/check_fit.py src/markings.py src/photo_matches.py,$(wildcard src/*.py)) $(KIT)/model.py $(KIT)/materials.py $(KIT)/rig.py
-.PHONY: all checkpoint model preview render check check-scene check-repo refs hook-install clean help finalize bake export verify final-render docs check-camera match FORCE
+.PHONY: all checkpoint model preview render check check-scene check-repo refs hook-install clean help finalize bake export verify final-render docs check-camera match match-final FORCE
 .NOTPARALLEL: all checkpoint check final-render
 ifeq ($(FINAL_PIPELINE),1)
 all: refs docs check
@@ -72,6 +72,9 @@ match: model refs $(BUILD)/matched-cameras.json
 	@cp $(BUILD)/matched-cameras.json renders/$(PASS)/matched-cameras.json
 	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --source $(BUILD)/lookdev.blend --config $(CONFIG) --camera-file $(BUILD)/matched-cameras.json --out renders/$(PASS) --shots "$(shell $(PYTHON) -c "import json; print(','.join(json.load(open('$(BUILD)/matched-cameras.json'))))" 2>/dev/null)" --width $(WIDTH) --samples $(SAMPLES)
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration $(BUILD)/matched-cameras.json --renders renders/$(PASS) --out renders/$(PASS)
+match-final: export refs $(BUILD)/matched-cameras.json
+	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --stage final --source export/$(ASSET).glb --config $(CONFIG) --camera-file $(BUILD)/matched-cameras.json --out renders/$(PASS)-glb --shots "$(shell $(PYTHON) -c "import json; print(','.join(json.load(open('$(BUILD)/matched-cameras.json'))))" 2>/dev/null)" --width $(WIDTH) --samples $(SAMPLES)
+	$(PYTHON) $(KIT)/photo_match.py compose --calibration $(BUILD)/matched-cameras.json --renders renders/$(PASS)-glb --out renders/$(PASS)-glb
 
 $(BUILD)/delivery-parameters.txt: FORCE
 	@mkdir -p $(BUILD)
@@ -80,14 +83,14 @@ $(BUILD)/finalized.blend: $(BUILD)/game-audit.blend $(CONFIG) $(KIT)/finalize.py
 	$(BP) --python $(KIT)/finalize.py -- --source $< --config $(CONFIG) --out $@ --report $(BUILD)/uv-report.json --size $(SHIP_SIZE) --target-density $(UV_TARGET_DENSITY) --margin $(UV_MARGIN)
 finalize: $(BUILD)/finalized.blend
 $(BUILD)/baked.stamp: $(BUILD)/finalized.blend $(BUILD)/lookdev.blend $(KIT)/bake.py $(KIT)/image_io.py $(KIT)/gpu.py
-	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/bake.py -- --low $(BUILD)/finalized.blend --high $(BUILD)/lookdev.blend --out textures/bake --asset $(ASSET) --size 4096 --samples $(BAKE_SAMPLES)
+	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/bake.py -- --low $(BUILD)/finalized.blend --high $(BUILD)/lookdev.blend --out textures/bake --asset $(ASSET) --size 4096 --samples $(BAKE_SAMPLES) --config $(CONFIG)
 	@touch $@
 bake: $(BUILD)/baked.stamp
 $(BUILD)/textures.stamp: $(BUILD)/baked.stamp $(KIT)/downsample.py $(KIT)/image_io.py
 	$(PYTHON) $(KIT)/downsample.py --source textures/bake --out textures/ship --asset $(ASSET) --size $(SHIP_SIZE)
 	@touch $@
 export/$(ASSET).glb: $(BUILD)/finalized.blend $(BUILD)/textures.stamp $(KIT)/export.py
-	$(BP) --python $(KIT)/export.py -- --source $(BUILD)/finalized.blend --textures textures/ship --asset $(ASSET) --out $@ --report $(BUILD)/export-report.json
+	$(BP) --python $(KIT)/export.py -- --source $(BUILD)/finalized.blend --textures textures/ship --asset $(ASSET) --out $@ --report $(BUILD)/export-report.json --config $(CONFIG)
 export: export/$(ASSET).glb
 verify: export/$(ASSET).glb
 	$(BP) --python $(KIT)/verify.py -- --source $< --expected $(BUILD)/export-report.json --config $(CONFIG) --out $(BUILD)/delivery-check.json --size $(SHIP_SIZE)
