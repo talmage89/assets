@@ -19,7 +19,7 @@ SHOTS={
 'scale':dict(location=(2,-6,2.6),target=(.3,0,.9),lens=52,aspect=1.65,human=True,parts={n:{'translation':(2.15,0,0)} for n in ('Chain_Start','Chain_Terminal','Chain_Line')},hide_assemblies=HIDE),
 }
 for s in SHOTS.values():s.setdefault('exposure',-.9)
-STUDIO=dict(light_scale=2.4,light_center=(.4,0,0),backdrop_half_width=26,backdrop_color=(.25,.27,.26))
+STUDIO=dict(light_scale=2.4,light_center=(.4,0,0),backdrop_half_width=26,backdrop_color=(.065,.080,.075))
 
 # Inspection-only modules are hidden in the assembled and detail views.
 for name,shot in SHOTS.items():

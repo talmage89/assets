@@ -29,3 +29,30 @@ all: match-final match
 
 # Render-only settings deliberately stay outside delivery/UV dependencies.
 renders/final/.stamp renders/assembly/.stamp: src/views.py
+
+.PHONY: picket chain-link family-deliveries family-check
+picket:
+	$(MAKE) -C picket all
+chain-link: picket
+	$(MAKE) -C chain-link all
+family-deliveries: chain-link
+docs: family-deliveries
+family-check:
+	$(MAKE) -C picket check
+	$(MAKE) -C chain-link check
+check: family-check
+
+# Family images are composed only after privacy and both sublibraries pass.
+docs: verify check-construction
+.PHONY: check-framing
+check-framing:
+	$(BP) --python src/check_framing.py -- --out build/family-framing.json
+# make check remains usable before renders exist; the full build calls this
+# explicitly after final studio outputs from all three libraries are ready.
+check-framing: final-render assembly-render family-deliveries
+docs: check-framing
+.PHONY: family-clean
+family-clean:
+	$(MAKE) -C picket clean
+	$(MAKE) -C chain-link clean
+clean: family-clean

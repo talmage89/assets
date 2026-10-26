@@ -1,5 +1,6 @@
 ASSET := WhitePicket
 MODEL_DEPS := src/build.py src/dimensions.py src/finishes.py ../src/modular.py ../../kit/model.py ../../kit/materials.py
+REFS_DIR := ../refs
 FINAL_PIPELINE := 1
 WEAR := .55
 SHIP_SIZE := 1024
