@@ -212,3 +212,77 @@ comparison would miss: the decagonal cup bore pinched the round rail by
 wire at the inward bar surface instead of carrying it through the bar toward
 the post center. The same low geometry is checked before rebake and again from
 the final GLB; no collision exception masks either problem.
+
+
+## Final chain-link delivery review
+
+Opened the complete exported studio contact (14 Cycles views, Eevee, both
+assembled corner views) and the final GLB/photo pair. Mesh scale, tube gauges,
+round gate frame, terminal bands, top/bottom ties and fork latch read correctly
+at backyard distance. Tangent relief survives the wire tile; close crossings
+remain flatter than actual interwoven round wire, and subpixel alpha coverage
+fades/aliases in the widest views, especially Eevee. This is the weakest part
+of the alpha-card method and is documented rather than disguised with thicker
+wire. The unique metal atlas also filters fine screw/spangle detail.
+
+The pale studio reduced contrast on the thin wire. Changed only the chain-link
+seamless to a darker neutral green-gray and opened the exported assembly preview
+at `chain-link/renders/contrast/corner_good.png`; the fence reads more clearly.
+No mesh, material maps or texture budget changed. Final studio views are
+regenerated with that presentation setting before composing family docs.
+
+All source and delivered tests pass: 9116 triangles in the complete library;
+504 per bay, 492 line post, 876 either terminal, 1544 corner, and a 3312-triangle
+gate prefab made of 1156/876-triangle posts plus a 1280-triangle gate/fork. The
+GLB is 2,052,152 bytes with two materials sharing three 1024² maps. Unique UV
+coverage 20.25%, zero overlaps; p5/median/p95 175/256/271 px/m. Reused fabric is
+840 px/m, alpha-tested/double-sided, with 11.06% covered wire in the field tile.
+110 evaluated support contacts per quality pass, maximum sampled distance
+bound 0.000169 mm; 111 gate and 96 fork poses pass with no allowances. Imported
+corner penetration and all post/gate snap errors measure zero at stored
+precision. A repeated factory-startup game build produces geometry hash
+`1da5a93a51651f2964a3b40a9151ac10feb0ee8dc499458782a9902e057ac22f`.
+
+
+## Batch acceptance — complete family
+
+`make -C fences all check` completed with exit 0. This includes both sublibrary
+builds/checks, fresh opaque-path rebuilds after the additive atlas changes,
+GLB photographic pairs, the privacy construction check, all final Cycles/Eevee
+studio and short corner/gate runs, and repository rules. Final GLB/photo pairs
+were opened for privacy (`renders/photo-glb/match_rails-pair.jpg`), picket
+(`picket/renders/lookdev-glb/match_pickets-pair.jpg`) and chain-link
+(`chain-link/renders/lookdev-glb/match_mesh-pair.jpg`). All 51 studio/assembly
+images were reviewed through the per-type contacts and focused detail views.
+The GLB metadata hashes match the current deliverables. 42 whole-object views
+pass independent vertex-projection framing checks; intentional detail crops
+are excluded from that check.
+
+The five family docs JPGs were generated only after every fix and all framing
+checks. Opened all five: three assembled heroes, one construction sheet and
+one inventory/good-side/rail-side/human-scale sheet. Widths are 1440–1600 px;
+file sizes 58,908–198,511 bytes. No reference photograph enters committed docs.
+Family contact: `renders/family/contact.jpg`; per-type contacts remain in each
+`renders/final/contact.jpg`. All are rendered from exported baked GLBs.
+
+Final GLBs: privacy 9,875,704 bytes / 2,100 tris / 1 material / 2048² set;
+picket 2,484,632 bytes / 2,936 tris / 1 material / 1024² set;
+chain-link 2,052,152 bytes / 9,116 tris / 2 materials / one 1024² set.
+All raw normal errors are below 1.2e-7, re-imported rest vertex error is zero,
+and required socket matrix error is at most 1.2e-7. All unique UV overlaps are
+zero; repeated alpha UVs are checked explicitly. Additional texture memory is
+8 MiB (4 + 4), versus the 16 MiB allowance, for 24 MiB across all three types.
+The README lists all per-piece budgets and the three-module chain gate prefab.
+
+Four `kit.test_delivery` tests pass. The explicit-coordinate bake fixture
+passes (1.43e-6 m max coordinate discrepancy); the no-GPU alpha-atlas fixture
+passes real finalize/export/re-import, negative tests for escaped tile UVs and
+unique UV intrusion, and checks of retained alpha holes and glTF MASK/double-sided policy.
+Defaults remain compatible with the opaque asset path.
+
+Weakest points remain close-up filtered wood/paint detail, simplified Gothic
+shoulders and flattened/subpixel alpha wire. They are accepted at backyard
+viewing distance. No additional art pass or texture memory is needed. Nothing
+is needed from the lead. A future engine import helper could preserve alpha
+coverage in generated mipmaps; no engine-specific integration is part of this
+asset family.
