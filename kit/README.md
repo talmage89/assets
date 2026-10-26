@@ -269,3 +269,7 @@ compatible.
 `STUDIO.backdrop_color` and `backdrop_roughness` optionally tune the procedural
 seamless for pale products; defaults preserve existing renders. These affect
 lighting/reflection context only and never enter the exported asset.
+
+The optional density-reduction pass scales UVs about an explicit 2D center
+vector (Blender 5.2 disallows Vector/scalar subtraction); the picket pipeline
+exercises this path and independently validates the resulting density/overlaps.

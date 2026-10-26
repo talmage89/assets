@@ -2,6 +2,7 @@
 import argparse,json,math,sys,runpy
 from pathlib import Path
 import bpy,bmesh
+from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from kit import uv
 
@@ -53,7 +54,7 @@ def main():
     if median>a.target_density*1.05:
         factor=a.target_density/median
         for ob in objects:
-            for point in ob.data.uv_layers['BakeUV'].data:point.uv=(point.uv-.5)*factor+.5
+            for point in ob.data.uv_layers['BakeUV'].data:point.uv=(point.uv-Vector((.5,.5)))*factor+Vector((.5,.5))
         measured=uv.report(objects,a.size)
     measured['target_density_px_m']=a.target_density
     measured['density_policy']='priority-weighted: exterior/markings above structural and hidden surfaces'
