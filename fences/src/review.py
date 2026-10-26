@@ -25,5 +25,7 @@ contact(paths,f/'contact.jpg',width=2200,title='Wood privacy kit / exported GLB 
 if a.final:
     review_sheet([[f/'front.png',f/'back.png'],[f/'side.png',f/'top.png'],[f/'gate.png',f/'gate_back.png'],[f/'posts.png',f/'scale.png']],f/'modules-contact.jpg',width=2000,title='Privacy fence / module views / construction / scale')
     review_sheet([[f/'hero_open.png'],[f/'grain.png',f/'joinery.png',f/'hardware.png']],f/'construction-contact.jpg',width=2200,title='Rail side / original baked pine / physical hardware')
-    docs=ROOT/'fences/docs';docs.mkdir(exist_ok=True)
-    for src,name in [('../assembly/corner_good.png','privacy-hero'),('construction-contact.jpg','privacy-construction'),('modules-contact.jpg','privacy-modules')]:bounded(f/src,docs/(name+'.jpg'))
+    import sys
+    sys.path.insert(0,str(Path(__file__).resolve().parent))
+    from family_review import compose
+    compose()

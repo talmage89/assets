@@ -4,10 +4,10 @@ from pathlib import Path
 import bpy
 from mathutils import Vector,Matrix
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
-from kit import model as G
+from kit import model as G,atlas
 
 
-def atlas_material(asset,folder):
+def atlas_material(asset,folder,alpha_cutoff=None,double_sided=True):
     material=bpy.data.materials.new(asset);material.use_nodes=True
     nt=material.node_tree;nt.nodes.clear()
     surface=nt.nodes.new('ShaderNodeBsdfPrincipled');surface.name='SURFACE'
@@ -20,6 +20,10 @@ def atlas_material(asset,folder):
         texture.image.colorspace_settings.name='sRGB' if channel=='BaseColor' else 'Non-Color'
         nt.links.new(uv.outputs[0],texture.inputs['Vector']);images[channel]=texture
     nt.links.new(images['BaseColor'].outputs['Color'],surface.inputs['Base Color'])
+    if alpha_cutoff is not None:
+        clip=nt.nodes.new('ShaderNodeMath');clip.operation='GREATER_THAN';clip.inputs[1].default_value=alpha_cutoff
+        nt.links.new(images['BaseColor'].outputs['Alpha'],clip.inputs[0]);nt.links.new(clip.outputs[0],surface.inputs['Alpha'])
+        material.surface_render_method='DITHERED';material.use_backface_culling=not double_sided
     separate=nt.nodes.new('ShaderNodeSeparateColor');nt.links.new(images['ORM'].outputs['Color'],separate.inputs['Color'])
     nt.links.new(separate.outputs['Green'],surface.inputs['Roughness']);nt.links.new(separate.outputs['Blue'],surface.inputs['Metallic'])
     normal=nt.nodes.new('ShaderNodeNormalMap');normal.uv_map='UVMap'
@@ -52,20 +56,20 @@ def main():
     p.add_argument('--variant',help='Override EXPORT_VARIANT for a shared atlas')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);bpy.ops.wm.open_mainfile(filepath=str(Path(a.source).resolve()))
     sc=bpy.context.scene;cfg=runpy.run_path(a.config) if a.config else {}
-    selected=a.variant if a.variant is not None else cfg.get('EXPORT_VARIANT',0)
+    selected=str(a.variant if a.variant is not None else cfg.get('EXPORT_VARIANT',0))
     def tagged_variant(ob):
         while ob:
-            if 'delivery_variant' in ob:return ob['delivery_variant']
+            if 'delivery_variant' in ob:return str(ob['delivery_variant'])
             ob=ob.parent
         return None
     rejected=[ob for ob in sc.objects if tagged_variant(ob) not in (None,selected)]
     for ob in rejected:bpy.data.objects.remove(ob,do_unlink=True)
     for ob in list(sc.objects):
-        if ob.get('delivery_variant')==selected:
+        if 'delivery_variant' in ob and str(ob['delivery_variant'])==selected:
             ob.location-=Vector(ob.get('atlas_staging_offset',(0,0,0)))
             if ob.get('delivery_name'):ob.name=ob['delivery_name']
         if 'variant_id' in ob:
-            if ob['variant_id']!=selected:bpy.data.objects.remove(ob,do_unlink=True)
+            if str(ob['variant_id'])!=selected:bpy.data.objects.remove(ob,do_unlink=True)
             else:
                 offset=Vector(ob.get('bake_offset',(0,0,0)))
                 for v in ob.data.vertices:v.co-=offset
@@ -73,7 +77,7 @@ def main():
     bpy.context.view_layer.update()
     objects=[o for o in sc.objects if o.type=='MESH' and 'asset_set' in o]
     material=atlas_material(a.asset,Path(a.textures).resolve());groups={}
-    overrides=cfg.get('MATERIAL_OVERRIDES',{});palette={}
+    overrides=cfg.get('MATERIAL_OVERRIDES',{});palette={};tile_materials={}
     for prefix,settings in overrides.items():
         extra=material.copy();extra.name=a.asset+' '+prefix
         shader=extra.node_tree.nodes['SURFACE']
@@ -84,14 +88,27 @@ def main():
         shader.inputs['Transmission Weight'].default_value=settings.get('transmission',0)
         shader.inputs['IOR'].default_value=settings.get('ior',1.5)
         palette[prefix]=extra
-    if overrides:
-        # Assign before consolidation: Blender remaps the material slots while
-        # joining, so static glass/emissive faces need no extra mesh objects.
-        for ob in objects:
-            chosen=next((palette[prefix] for prefix in overrides if ob.name.startswith(prefix)),material)
-            ob.data.materials.clear();ob.data.materials.append(chosen)
-            for face in ob.data.polygons:face.material_index=0
+    # Assign each source mesh before joining. Tile policy and uniform shader
+    # overrides compose, even when opaque and tiled members share a static root.
     for ob in objects:
+        prefix=next((prefix for prefix in overrides if ob.name.startswith(prefix)),None)
+        chosen=palette[prefix] if prefix is not None else material
+        spec=atlas.tiled_spec(ob.name,cfg)
+        if spec:
+            key=(prefix,spec.get('alpha_cutoff'),spec.get('double_sided',True))
+            if key not in tile_materials:
+                tiled=chosen.copy()
+                if key[1] is not None:
+                    nt=tiled.node_tree;shader=nt.nodes['SURFACE']
+                    color=shader.inputs['Base Color'].links[0].from_node
+                    clip=nt.nodes.new('ShaderNodeMath');clip.operation='GREATER_THAN';clip.inputs[1].default_value=key[1]
+                    nt.links.new(color.outputs['Alpha'],clip.inputs[0]);nt.links.new(clip.outputs[0],shader.inputs['Alpha'])
+                    tiled.surface_render_method='DITHERED'
+                tiled.use_backface_culling=not key[2]
+                tile_materials[key]=tiled
+            chosen=tile_materials[key]
+        ob.data.materials.clear();ob.data.materials.append(chosen)
+        for face in ob.data.polygons:face.material_index=0
         parent=moving_parent(ob);name=ob.get('export_part',parent.name+'Mesh')
         groups.setdefault((parent,name),[]).append(ob)
     for (parent,name),members in groups.items():
@@ -107,9 +124,6 @@ def main():
             if layer.name!='BakeUV':ob.data.uv_layers.remove(layer)
         ob.data.uv_layers['BakeUV'].name='UVMap'
         ob.data.uv_layers.active=ob.data.uv_layers['UVMap'];ob.data.uv_layers['UVMap'].active_render=True
-        if not overrides:
-            ob.data.materials.clear();ob.data.materials.append(material)
-            for face in ob.data.polygons:face.material_index=0
         for attribute in list(ob.data.color_attributes):ob.data.color_attributes.remove(attribute)
     # Remove empty manufacturing helper frames once their geometry is consolidated.
     keep={o.name for o in sc.objects if o.get('socket_kind') or o.get('static_root') or o.parent is None}
@@ -138,7 +152,7 @@ def main():
         export_apply=False,export_texcoords=True,export_normals=True,export_tangents=True,
         export_materials='EXPORT',export_image_format='AUTO',export_skins=True,export_animations=False,
         export_def_bones=True,export_extras=True,export_cameras=False,export_lights=False)
-    if overrides:
+    if overrides or tile_materials:
         from kit.glb_textures import compact
         report['texture_views']=compact(path,Path(a.report).parent)
     report['bytes']=path.stat().st_size

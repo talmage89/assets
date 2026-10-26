@@ -1,0 +1,32 @@
+"""Nominal residential dimensions and authored fitting gauges, SI meters."""
+import math
+PITCH=3.048
+HEIGHT=1.2192
+GROUND=.0508
+WIRE=.003048
+TILE=PITCH/10
+NORMAL_PITCH=TILE/(4*math.sqrt(2))
+CLEAR_MESH=NORMAL_PITCH-WIRE  # 50.8335 mm; nominal 2 in, +0.034 mm.
+EDGE=.0381
+LINE_OD=.041275
+TERM_OD=.060325
+RAIL_OD=.034925
+RAIL_Z=1.25
+LINE_TOP=1.20
+TERM_TOP=1.27
+CAP_TOP=1.303
+FABRIC_Y=-.034
+LEAF=.9144
+OPENING=LEAF+.09525
+GATE_PITCH=OPENING+TERM_OD
+HINGE_X=-LEAF/2-.022225
+HINGE_Y=-.043
+LATCH_X=LEAF/2+.010
+LATCH_Z=.72
+STAGING={'Chain_Start':(-PITCH/2,0,0),'Chain_EndSection':(PITCH/2,0,0),
+ 'Chain_Terminal':(-PITCH,0,0),'Chain_Line':(0,0,0),'Chain_Corner':(PITCH,0,0),
+ 'Chain_GateBay':(4.1,0,0),'Chain_Section':(0,2.0,0),
+ 'Chain_BetweenTerminals':(0,3.5,0),'Chain_Terminal_End':(2,2,0)}
+TILE_RECT=(16/1024,16/1024,272/1024,320/1024)
+FIELD_RECT=(16/1024,16/1024,272/1024,272/1024)
+EDGE_RECT=(16/1024,288/1024,272/1024,320/1024)

@@ -1,7 +1,6 @@
 # Fence construction reference
 
-Phase 2 stop point: **wood privacy fence only**. White picket and chain-link fences remain for later family members; no
-unfinished meshes ship.
+The family contains privacy pine, painted cedar pickets, and galvanized residential chain-link. Each is built from original geometry and procedural materials; reference imagery supplies measurements and visual critique only.
 
 This is an original site-built American dog-ear pressure-treated pine fence,
 not a branded panel replica. References were read on 2026-10-26; authors,
@@ -30,3 +29,52 @@ Source links: [ProWood installation PDF](https://images.thdstatic.com/catalog/pd
 [MiTek rail saddles](https://www.mitek-us.com/products/deck-fences/fence-hardware/fb/),
 [gate hardware assembly](https://nationalhardwarestorage.blob.core.windows.net/documents/nh_ig_sn12190%5Bv1110%5D.pdf),
 [construction photographs](https://fencerepairofdenver.com/new-fence-photos/).
+
+
+## Painted spaced picket
+
+The [cedar stock specification](https://www.lowes.com/pd/Severe-Weather-Actual-3-5-ft-x-8-ft-White-Cedar-Spaced-Picket-French-Gothic-Wood-Fence-Panel/4222193)
+publishes 42 in height, 5/8 × 3.5 in boards, 13 pickets and approximately
+3.5 in gaps in an 8 ft panel. Our site-built bay uses **96 in post centers**, as
+privacy does, and adjusts equal gaps inside actual 3.5 in posts. The original
+French Gothic silhouette is authored by coordinates, not traced from imagery.
+Two actual 1.5 × 3.5 in backer rails carry the boards. A 2 in ground gap keeps
+cut ends out of soil. Pyramid caps shed water from the 4×4 posts.
+
+[Outdoor Essentials installation manual](https://pdf.lowes.com/productdocuments/4ea6fb5f-8032-4893-8846-2589516e963c/08547284.pdf)
+pp1–3 supports post-center layout, two-rail spaced pickets, hot-dip galvanized
+fasteners and stepped panels on slopes. Paint, caps and the exact rail heights
+are original installation choices. [Installed white timber picket photographs](https://localfence.com/wood-fence-gallery/)
+show two rails and a compression-braced gate; their closer spacing and 4 ft
+height differ from our stock-derived 3.5 ft design. Those differences are
+explicit in the camera comparison. Wear is a few seasons: paint chipped mainly
+at cut ends, edges and nail seats; mildew and splash concentrated near grade.
+
+## Galvanized chain-link
+
+[CLFMI product manual](https://chainlinkinfo.org/wp-content/uploads/2013/04/2010PMJan-2012-Revised1.pdf)
+p2 defines mesh size as the **minimum clear distance perpendicular to parallel
+wires**, not the diagonal of a diamond. Table 3 p4 identifies **2 in / 50.8 mm,
+11 gauge / 3.05 mm** as residential/light-commercial fabric. The mesh repeat
+therefore includes the wire diameter before rotation into its diamond orientation.
+Use 48 in / 1.2192 m fabric and **10 ft / 3.048 m maximum line-post pitch**.
+Knuckled upper/lower edges represent residential fabric; no barbs.
+
+[Home Depot installation guidance](https://www.homedepot.com/c/ah/how-to-install-a-chain-link-fence/9ba683603be9fa5395fab90a8b4786a)
+identifies **1-5/8 in / 41.275 mm line posts**, **2-3/8 in / 60.325 mm terminal
+posts**, three tension bands per 4 ft terminal, tie wire every 24 in along the
+top rail and 12 in down the line post. Our **1-3/8 in / 34.925 mm top rail** and
+walk-gate tubing are common residential sizes, with original hollow cap, eye,
+band, hinge and fork-latch profiles. Thin tube walls and stamped fitting gauges
+are authored estimates; no load rating is claimed. Bottom tension wire and
+terminal tension bars support the fabric. A terminal post ends each run or gate;
+a corner carries two independent terminations.
+
+The [CLFMI installation guide](https://chainlinkinfo.org/chain-link-fence-installation/)
+sets terminals above fabric, lines lower to receive rail eyes, and allows for
+hinges/latch in the gate opening. Our measured gate allowance and exact frame
+clearances are documented in the family README. The exported mesh uses an
+original analytically generated tiling alpha-tested card; galvanized frame and
+fittings are geometry. Installed New Orleans photos supply material/fitting
+comparison; their heights, twisted selvage and commercial setting are not
+silently claimed as our 4 ft residential specification.

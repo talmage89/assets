@@ -287,9 +287,62 @@ Run `blender -b --factory-startup --python-exit-code 1 --python
 kit/test_bake_frames.py` to check preservation of explicit nested timber/parent
 coordinate frames during module isolation, without a GPU bake.
 
+Pine knots use a deterministic sparse branch-whorl population (`pine_knots`):
+clear boards, pin knots and occasional larger branches with tilted resin rings,
+checks and continuous grain diversion. Weathering desaturates the branch wood
+as well as the board. Existing material arguments and seeded board hues remain
+compatible.
+
+`STUDIO.backdrop_color` and `backdrop_roughness` optionally tune the procedural
+seamless for pale products; defaults preserve existing renders. These affect
+lighting/reflection context only and never enter the exported asset.
+
+The optional density-reduction pass scales UVs about an explicit 2D center
+vector (Blender 5.2 disallows Vector/scalar subtraction); the picket pipeline
+exercises this path and independently validates the resulting density/overlaps.
+
+`TILED_MESHES` maps mesh-name globs to reserved `rect=(u0,v0,u1,v1)`, density
+limits and optional `alpha_cutoff`/`double_sided`. These meshes retain authored
+UVs, skip selected-to-active baking, and use the same three atlas images through
+an alpha-tested material. `UV_ATLAS_RECT` reserves a separate square for unique
+geometry. Verification still checks unique-island overlaps, and separately
+rejects tile triangles outside their rectangle, degenerate UVs, wrong density,
+or altered glTF MASK/backface behavior. Repeated tile UVs are reported explicitly.
+`TEXTURE_DEPS` and optional `TEXTURE_POSTPROCESS` let an asset generate its own
+original tile into the shared delivery maps after normal/color downsampling.
+Defaults leave all existing opaque assets on their original one-atlas path.
+Run `blender -b --factory-startup --python-exit-code 1 --python kit/test_atlas.py`
+for the no-GPU finalize/export/re-import fixture and negative tile-bounds check.
+
+`REFS_DIR` defaults to `refs`; family sublibraries may point it at a common
+reference register/cache so independent `make` invocations fetch their cited
+photos and manuals without duplicating downloads.
+
+Reserved-atlas verification also measures the unique region after GLB import,
+rejects any intersection between unique and tile rectangles, and checks the
+embedded tile alpha actually contains both holes and retained wire. The fixture
+includes negative tests for both escaped tiles and a frame invading the tile.
 Density clamping scales UV vectors around an explicit 2D center, including the
 previously unexercised oversized-atlas branch on Blender 5.2.
 
 Exports with material overrides compact identical glTF texture views (same image,
 sampler and extensions); BIN/image bytes are preserved. This makes the shared
 three-map memory allocation explicit across glass and emission materials.
+
+Integration compatibility: `STUDIO.scale` (or `STUDIO_SCALE`) is the canonical
+studio/light scale; `light_scale` is a legacy lighting-only alias, retaining
+unscaled backdrop/flags for existing wide-assembly configurations. Both use one
+light-position/size/power calculation. Equal aliases apply once; contradictory
+explicit values fail. `light_center` offsets the lights after scaling. Backdrop
+height, half-width, color and roughness remain independent controls.
+
+Material assignment occurs per source mesh before consolidation: tiled alpha,
+`MATERIAL_OVERRIDES` and either variant-tag interface compose in one export.
+The export report lists assigned materials only. Alpha and glass/emission exports
+compact identical texture views while preserving the shared three image bytes.
+
+`blender -b --factory-startup --python-exit-code 1 --python
+kit/test_export_policy.py` exercises composed alpha + glass/emission materials,
+both variant-tag interfaces, numeric CLI/config selection, and studio aliases
+without a GPU bake. Variant identifiers compare by their string representation,
+so `--variant 1` also selects numeric `variant_id=1` / `EXPORT_VARIANT=1`.

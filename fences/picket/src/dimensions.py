@@ -1,0 +1,19 @@
+"""Published stock and original installation choices, SI meters."""
+PITCH=2.4384
+POST=.0889
+THICK=.015875
+WIDTH=.0889
+HEIGHT=1.0668
+GROUND=.0508
+RAIL_T=.0381
+RAIL_H=.0889
+RAILS=(.254,.889)
+POST_TOP=1.16
+CAP_TOP=1.205
+OPENING=.9144
+GATE_PITCH=OPENING+POST
+LEAF=.889
+HINGE_X=-OPENING/2+.00635
+HINGE_Y=-.054
+STAGING={'Picket_A':(-PITCH/2,0,0),'Picket_B':(PITCH/2,0,0),
+ 'Picket_End':(-PITCH,0,0),'Picket_Line':(0,0,0),'Picket_Corner':(PITCH,0,0),'Picket_GateBay':(4,0,0)}

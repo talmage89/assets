@@ -483,6 +483,26 @@ def ported_burner(name,wear,burner_z=.770,port_z=.772,pitch=.0118,start=-.209,en
     return result
 
 
+def pine_knots(width,length,seed):
+    """Seeded branch whorls in meters: clear timber, pins and rare large knots.
+
+    Distribution is authored from photographic inspection, not a lumber grade
+    predictor. A board cuts only a few branches out of each tree whorl.
+    """
+    import random
+    r=random.Random(seed*7919+47)
+    if r.random()<.48:return []
+    result=[]
+    for _ in range(1+(r.random()<.22)):
+        whorl=r.uniform(.08,max(.081,length-.07))
+        for _ in range(r.choices((1,2,3),(5,3,1))[0]):
+            rx=.002+r.random()**2.6*min(.024,width*.26)
+            result.append((r.uniform(-width*.55,width*.55),
+                           min(length-.018,max(.018,whorl+r.gauss(0,.045))),
+                           rx,rx*r.uniform(1.2,2.5),r.uniform(-.16,.16),r.random()<.32))
+    return result
+
+
 def weathered_wood(name, frame, width=.1397, length=1.8288, seed=1,
                    wear=.65, nail_rows=(), grain_axis='Z', ground_frame=None):
     """Original rough-sawn pine in a stable timber frame, with caused weathering.
@@ -502,21 +522,29 @@ def weathered_wood(name, frame, width=.1397, length=1.8288, seed=1,
     p=n.combine(n.add(n.mul(x,110),seed*13.7),n.add(n.mul(y,110),seed*3.1),n.mul(z,2.4))
     broad=n.noise(p,1,2);fine=n.noise(n.combine(n.add(n.mul(x,800),seed*9.1),n.mul(y,800),n.mul(z,9)),1,2)
     flow=n.add(n.mul(x,1650),n.mul(broad,13),seed*.73)
-    knot_mask=0;dark_knot=0
+    # Keep the established board hues, independent of the new knot population.
     for _ in range(rng.randint(2,4)):
-        kx=rng.uniform(-width*.37,width*.37);kz=rng.uniform(.12,length-.09)
-        dx=n.math('SUBTRACT',x,kx);dz=n.math('SUBTRACT',z,kz)
-        rx=rng.uniform(.009,.016);rz=rng.uniform(.019,.033)
-        r=n.math('SQRT',n.add(n.mul(dx,dx,1/rx**2),n.mul(dz,dz,1/rz**2)))
-        influence=n.ramp(r,4.8,1.0)
-        # Elliptical rings blend into longitudinal grain around each knot.
-        rings=n.add(n.mul(r,9),n.mul(broad,1.5))
-        flow=n.mix(n.mul(influence,.86),flow,rings)
-        core=n.ramp(n.add(r,n.mul(fine,.17)),1.1,.77)
-        knot_grain=n.noise(n.combine(n.add(n.mul(x,380),seed*2.1),n.mul(y,380),n.mul(z,120)),1,2)
-        knot_rings=n.ramp(n.math('SINE',n.add(n.mul(r,26),n.mul(broad,2))),-.25,.65)
-        dark_knot=n.maximum(dark_knot,n.mul(core,n.add(.23,n.mul(knot_grain,.42),n.mul(knot_rings,.35))))
-        knot_mask=n.maximum(knot_mask,influence)
+        rng.uniform(-width*.37,width*.37);rng.uniform(.12,length-.09)
+        rng.uniform(.009,.016);rng.uniform(.019,.033)
+    knots=pine_knots(width,length,seed)
+    knot_mask=0;dark_knot=0;knot_checks=0
+    for kx,kz,rx,rz,tilt,checked in knots:
+        dz=n.math('SUBTRACT',z,kz)
+        dx=n.add(n.math('SUBTRACT',x,kx),n.mul(dz,tilt))
+        # A continuous stream field diverts longitudinal grain around a branch.
+        denominator=n.add(n.mul(dx,dx),n.mul(dz,dz,(rx/rz)**2),rx**2*.32)
+        diversion=n.mul(n.math('DIVIDE',dx,denominator),rx**2,1650)
+        flow=n.add(flow,diversion)
+        radius=n.math('SQRT',n.add(n.mul(dx,dx,1/rx**2),n.mul(dz,dz,1/rz**2)))
+        r=n.add(radius,n.mul(n.math('SUBTRACT',fine,.5),.21))
+        core=n.ramp(r,.91,.75)
+        resin=n.mul(n.ramp(r,.80,.92),n.ramp(r,1.19,1.04))
+        rings=n.ramp(n.math('SINE',n.add(n.mul(r,28),n.mul(broad,3))),-.3,.7)
+        dark_knot=n.maximum(dark_knot,n.add(n.mul(core,n.add(.36,n.mul(rings,.29))),n.mul(resin,.80)))
+        knot_mask=n.maximum(knot_mask,n.ramp(r,1.3,1.05))
+        if checked:
+            crack=n.mul(n.band(dx,0,.00035,.00045),n.band(dz,rz*.55,rz*1.5,rz*.28))
+            knot_checks=n.maximum(knot_checks,crack)
     waves=n.add(n.mul(n.math('SINE',flow),.5),.5)
     latewood=n.ramp(waves,.67,.93)
     tan_value=rng.uniform(.23,.34);gray_value=rng.uniform(.18,.29)
@@ -526,7 +554,9 @@ def weathered_wood(name, frame, width=.1397, length=1.8288, seed=1,
     fading=min(.90,wear*rng.uniform(.70,1.35))
     base=n.mix(fading,base_tan,gray,color=True)
     base=n.mix(n.add(n.mul(latewood,.16),n.mul(fine,.19),n.mul(broad,.43)),base,(.090,.073,.050),color=True)
-    base=n.mix(n.mul(dark_knot,.95),base,(.038,.027,.016),color=True)
+    # Sun bleaching desaturates branch wood as well as the surrounding board.
+    knot_color=n.mix(fading,(.052,.026,.009),(.075,.073,.064),color=True)
+    base=n.mix(dark_knot,base,knot_color,color=True)
     # Uneven earlywood erosion makes fibrous streaks, not a milled sine pattern.
     fibers=n.noise(n.combine(n.add(n.mul(x,220),seed*7.9),n.mul(y,220),n.mul(z,4.8)),1,4)
     fiber_mask=n.ramp(fibers,.27,.72)
@@ -549,7 +579,7 @@ def weathered_wood(name, frame, width=.1397, length=1.8288, seed=1,
     cut_checks=n.mul(end,n.ramp(n.noise(n.combine(n.mul(x,1700),n.mul(y,1700),n.mul(z,2.2)),1),.66,.77))
     # Longitudinal checking follows repeated surface drying on exposed boards.
     dry_checks=n.mul(n.ramp(n.noise(n.combine(n.add(n.mul(x,720),seed*9.3),n.mul(y,720),n.mul(z,2.8)),1,2),.69,.77),n.add(.25,n.mul(exposure,.75)))
-    checks=n.mul(n.maximum(cut_checks,dry_checks),wear)
+    checks=n.maximum(n.mul(n.maximum(cut_checks,dry_checks),wear),knot_checks)
     base=n.mix(n.mul(checks,.65),base,(.045,.037,.025),color=True)
     metal=0;dents=0;drips=0
     for row in nail_rows:
@@ -563,7 +593,10 @@ def weathered_wood(name, frame, width=.1397, length=1.8288, seed=1,
     rough=n.mix(metal,n.add(.72,n.mul(fine,.16),n.mul(splash,.08)),.53)
     relief=n.add(n.mul(latewood,-.00006),n.mul(fine,.00012),n.mul(fiber_mask,-.00033),n.mul(checks,-.00055),n.mul(dents,.00013))
     for key,val in [('splash',splash),('checks',checks),('knots',knot_mask),('fading',fading)]:n.channel(key,val)
-    return n.finish(base,rough,n.mul(metal,.88),relief)
+    mat=n.finish(base,rough,n.mul(metal,.88),relief)
+    import json
+    mat['pine_knots']=json.dumps(knots)
+    return mat
 
 
 def galvanized(name, frame=None, wear=.35):

@@ -29,6 +29,7 @@ UV_MARGIN ?= .0015
 PASS ?= lookdev
 SHOTS ?= hero_closed,hero_open,controls,front,side
 FINAL_SHOTS ?= hero_closed,hero_open,front,side,back,top,controls,interior,regulator,scale,hose_pose,fit_check
+REFS_DIR ?= refs
 TANK_REFERENCE ?=
 FIT_CHECK_ARGS ?=
 EXPORT_ARGS ?=
@@ -71,7 +72,7 @@ ifeq ($(FINAL_PIPELINE),1)
 check: verify
 endif
 refs:
-	$(PYTHON) $(KIT)/fetch_refs.py refs
+	$(PYTHON) $(KIT)/fetch_refs.py $(REFS_DIR)
 hook-install:
 	$(PYTHON) $(KIT)/install_hook.py
 checkpoint: refs model check-scene check-repo render $(if $(wildcard src/photo_matches.py),match)
@@ -93,20 +94,21 @@ match-final: export refs $(BUILD)/matched-cameras.json
 $(BUILD)/delivery-parameters.txt: FORCE
 	@mkdir -p $(BUILD)
 	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='size=$(SHIP_SIZE) density=$(UV_TARGET_DENSITY) margin=$(UV_MARGIN) export_args=$(EXPORT_ARGS)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
-$(BUILD)/finalized.blend: $(BUILD)/game-audit.blend $(CONFIG) $(KIT)/finalize.py $(KIT)/uv.py $(BUILD)/delivery-parameters.txt
+$(BUILD)/finalized.blend: $(BUILD)/game-audit.blend $(CONFIG) $(KIT)/finalize.py $(KIT)/uv.py $(KIT)/atlas.py $(BUILD)/delivery-parameters.txt
 	$(BP) --python $(KIT)/finalize.py -- --source $< --config $(CONFIG) --out $@ --report $(BUILD)/uv-report.json --size $(SHIP_SIZE) --target-density $(UV_TARGET_DENSITY) --margin $(UV_MARGIN)
 finalize: $(BUILD)/finalized.blend
 $(BUILD)/bake-parameters.txt: FORCE
 	@mkdir -p $(BUILD)
 	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='size=$(BAKE_SIZE) samples=$(BAKE_SAMPLES)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
-$(BUILD)/baked.stamp: $(BUILD)/bake-parameters.txt $(BUILD)/finalized.blend $(BUILD)/lookdev.blend $(KIT)/bake.py $(KIT)/bake_groups.py $(KIT)/image_io.py $(KIT)/gpu.py
+$(BUILD)/baked.stamp: $(BUILD)/bake-parameters.txt $(BUILD)/finalized.blend $(BUILD)/lookdev.blend $(KIT)/bake.py $(KIT)/atlas.py $(KIT)/bake_groups.py $(KIT)/image_io.py $(KIT)/gpu.py
 	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/bake.py -- --low $(BUILD)/finalized.blend --high $(BUILD)/lookdev.blend --out textures/bake --asset $(ASSET) --config $(CONFIG) --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
 	@touch $@
 bake: $(BUILD)/baked.stamp
-$(BUILD)/textures.stamp: $(BUILD)/baked.stamp $(KIT)/downsample.py $(KIT)/image_io.py
+$(BUILD)/textures.stamp: $(BUILD)/baked.stamp $(KIT)/downsample.py $(KIT)/image_io.py $(TEXTURE_DEPS)
 	$(PYTHON) $(KIT)/downsample.py --source textures/bake --out textures/ship --asset $(ASSET) --size $(SHIP_SIZE)
+	$(if $(TEXTURE_POSTPROCESS),$(TEXTURE_POSTPROCESS),@:)
 	@touch $@
-export/$(ASSET).glb: $(BUILD)/finalized.blend $(BUILD)/textures.stamp $(KIT)/export.py $(KIT)/glb_textures.py
+export/$(ASSET).glb: $(BUILD)/finalized.blend $(BUILD)/textures.stamp $(KIT)/export.py $(KIT)/atlas.py $(KIT)/glb_textures.py
 	$(BP) --python $(KIT)/export.py -- --source $(BUILD)/finalized.blend --textures textures/ship --asset $(ASSET) --out $@ --report $(BUILD)/export-report.json --config $(CONFIG) $(EXPORT_ARGS)
 export: export/$(ASSET).glb
 verify: export/$(ASSET).glb

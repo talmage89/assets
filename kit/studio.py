@@ -17,16 +17,24 @@ def studio_mat(name,col,rough):
     return m
 
 
-def add_studio(light_scale=1.0, light_center=(0,0,0), backdrop_half_width=12, scale=1, backdrop_height=None):
+def add_studio(light_scale=None, light_center=(0,0,0), backdrop_half_width=12,
+               backdrop_color=(.48,.49,.47), backdrop_roughness=.78,
+               scale=None, backdrop_height=None):
+    # scale is canonical; light_scale is its lighting-only legacy alias. Preserve
+    # legacy backdrop/flag dimensions when only light_scale was supplied.
+    geometry_scale=1 if scale is None else scale
+    if scale is not None and light_scale is not None and scale!=light_scale:
+        raise ValueError('scale and legacy light_scale disagree')
+    scale=scale if scale is not None else (1 if light_scale is None else light_scale)
     before=set(bpy.context.scene.objects)
     sc=bpy.context.scene
     prof=[(-10,-.002),(2,-.002)]+[(2+1.8*math.sin(i*math.pi/48),1.8-1.8*math.cos(i*math.pi/48)-.002) for i in range(1,25)]+[(3.8,6)]
-    G.loft('Studio seamless',[[(x,y,z) for x in (-backdrop_half_width,backdrop_half_width)] for y,z in prof],studio_mat('Studio warm gray',(.48,.49,.47),.78),caps=False,closed=False)
+    G.loft('Studio seamless',[[(x,y,z) for x in (-backdrop_half_width,backdrop_half_width)] for y,z in prof],studio_mat('Studio warm gray',backdrop_color,backdrop_roughness),caps=False,closed=False)
     world=bpy.data.worlds.new('Procedural studio world');world.use_nodes=True;sc.world=world
     bg=world.node_tree.nodes['Background'];bg.inputs['Color'].default_value=(.20,.22,.25,1);bg.inputs['Strength'].default_value=.12
     def light(name,loc,target,power,w,h,color):
-        loc=Vector(loc)*light_scale+Vector(light_center);target=Vector(target)*light_scale+Vector(light_center)
-        d=bpy.data.lights.new(name,'AREA');d.energy=power*light_scale**2;d.shape='RECTANGLE';d.size=w*light_scale;d.size_y=h*light_scale;d.color=color
+        loc=Vector(loc)*scale+Vector(light_center);target=Vector(target)*scale+Vector(light_center)
+        d=bpy.data.lights.new(name,'AREA');d.energy=power*scale**2;d.shape='RECTANGLE';d.size=w*scale;d.size_y=h*scale;d.color=color
         ob=bpy.data.objects.new(name,d);sc.collection.objects.link(ob);ob.location=loc
         ob.rotation_euler=(Vector(target)-ob.location).to_track_quat('-Z','Y').to_euler()
     light('Key softbox',(-4.0,-1.8,3.2),(0,0,.72),1400,1.3,1.8,(1,.96,.90))
@@ -41,17 +49,14 @@ def add_studio(light_scale=1.0, light_center=(0,0,0), backdrop_half_width=12, sc
     cam=bpy.data.objects.new('Studio camera',bpy.data.cameras.new('Studio camera'));sc.collection.objects.link(cam);sc.camera=cam
     for ob in set(sc.objects)-before:
         ob['studio']=True
-        if scale!=1 and ob.type!='CAMERA':
-            ob.location*=scale
-            if ob.type=='MESH':
-                for vertex in ob.data.vertices:vertex.co*=scale
-                if ob.name=='Studio seamless':
-                    for vertex in ob.data.vertices:vertex.co.z+=.002*(scale-1)
-            if ob.type=='LIGHT':
-                ob.data.energy*=scale*scale;ob.data.size*=scale;ob.data.size_y*=scale
+        if geometry_scale!=1 and ob.type=='MESH':
+            ob.location*=geometry_scale
+            for vertex in ob.data.vertices:vertex.co*=geometry_scale
+            if ob.name=='Studio seamless':
+                for vertex in ob.data.vertices:vertex.co.z+=.002*(geometry_scale-1)
     if backdrop_height is not None:
         for vertex in bpy.data.objects['Studio seamless'].data.vertices:
-            if vertex.co.z>5.9*scale:vertex.co.z=backdrop_height
+            if vertex.co.z>5.9*geometry_scale:vertex.co.z=backdrop_height
     return cam
 
 
@@ -87,7 +92,7 @@ def main():
     sc=bpy.context.scene
     config=runpy.run_path(a.config)
     studio_options=dict(config.get('STUDIO',{}))
-    studio_options.setdefault('scale',config.get('STUDIO_SCALE',1))
+    if 'STUDIO_SCALE' in config:studio_options.setdefault('scale',config['STUDIO_SCALE'])
     studio_options.setdefault('backdrop_height',config.get('STUDIO_BACKDROP_HEIGHT'))
     cam=add_studio(**studio_options)
     bpy.context.view_layer.update()
