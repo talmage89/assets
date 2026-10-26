@@ -105,7 +105,8 @@ def main():
     check(uv_report['outside_triangles']==0 and uv_report['degenerate_uv_triangles']==0,'Invalid UV triangles')
     check(uv_report['coverage']>.35,'Atlas coverage too low')
     ratio=a.size/2048
-    check(200*ratio<uv_report['density_px_m']['5'] and 450*ratio<uv_report['density_px_m']['50']<900*ratio and uv_report['density_px_m']['95']<1500*ratio,'Texel density outside declared priority bands')
+    bands=cfg.get('UV_DENSITY_BANDS',dict(p5_min=200*ratio,median_min=450*ratio,median_max=900*ratio,p95_max=1500*ratio))
+    check(bands['p5_min']<uv_report['density_px_m']['5'] and bands['median_min']<uv_report['density_px_m']['50']<bands['median_max'] and uv_report['density_px_m']['95']<bands['p95_max'],'Texel density outside declared priority bands')
     # Exercise ordinary imported LBS. Attachment must move; manifold stays pinned.
     pose_report={}
     for arm in arms:

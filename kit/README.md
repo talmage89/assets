@@ -57,6 +57,7 @@ make -C gas-grill clean
 ```
 
 Requires installed Blender 5.2, Python/Pillow/NumPy, Noto/DejaVu fonts and flock.
+Small assets may set `SHIP_SIZE`, `UV_TARGET_DENSITY` and `UV_MARGIN` in their Makefile, with delivered pixels/m limits in config `UV_DENSITY_BANDS` (`p5_min`, `median_min`, `median_max`, `p95_max`); the existing 2048/grill defaults remain unchanged.
 No downloaded code, packages or lighting. `rules.mk` sets TMPDIR inside the
 worktree. Every Cycles invocation goes through the GPU wrapper. Source/game
 geometry checks remain separate from delivery verification; a look-dev audit
@@ -67,6 +68,7 @@ cannot certify a GLB.
 `surface()` layers manufacturing, heat, handling, abrasion/chips, rust, grease
 and gravity dust. `wear=0` retains manufacturing while removing use-related
 layers. Handling/cooking/heat ellipses and `heat_height` are local meters.
+`painted_cast()` adds outdoor enamel over sand-cast iron, exposure chalking, ground splash, and sparse rusted chips along configured ledges, circular cap rims and edges; bolt deposits use the same gravity tracks.
 `deposits` are `(x,z,width,length)` gravity tracks, optionally with a local face
 direction. Cavities use short-range AO; edge proximity compares beveled and
 geometric normals. Stable pivot-local coordinates keep weathering attached to
@@ -80,6 +82,7 @@ The pilot exercises one atlas. The shipped material uses sRGB BaseColor,
 OpenGL +Y Normal and non-color ORM (R AO / G roughness / B metallic). High source
 microstructure and small bevels transfer through the tangent-normal bake.
 A 16-bit 4096 normal intermediate avoids quantization before 2048 filtering.
+Delivery settings participate in build invalidation; static export consolidation preserves each assembly's `asset_set` tag.
 Atlas priority and subpixel overlap tolerance are reported, never called exact
 uniform density or zero overlap. Independent normals, normalized weights and
 world bind transforms are checked in the GLB itself.
