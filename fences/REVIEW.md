@@ -107,3 +107,60 @@ Fine resin lines and pin knots soften at the unchanged 233 px/m atlas density.
 Source and GLB checks pass with the original 664-triangle section meshes.
 Final studio images are regenerated from the revised exported textures; family
 docs JPGs are deferred until picket and chain-link are also complete.
+
+
+## Picket pass 1 — construction and source photo match
+
+Opened all four source studio views (`picket/renders/pass1/contact.jpg`) and
+`picket/renders/pass1/match_pickets-pair.jpg` beside the installed white-timber
+photo. Gothic shoulders, pinched throats, spaced-board rhythm and two rails read
+correctly. The authored 42 in stock and adjusted 8 ft center spacing differ from
+the unsurveyed nominal 4 ft photo, so the camera has a 20.8 px RMS and reaches its
+180 mm fitted-lens limit; this is a visual comparison, not a surveyed dimension
+claim. Manufacturer stock dimensions remain the dimensional authority.
+
+Critique: white-on-light-gray studio lost silhouette and looked like plastic;
+paint lacked broad timber relief, and ground mildew was too faint. Adjusted the
+picket studio's seamless to darker neutral gray (a new optional kit parameter),
+added subtle longitudinal raised wood beneath opaque paint, and increased only
+the caused lower wet/splash mask. Kept paint overwhelmingly intact. Increased
+atlas density from the first 160 px/m layout to use the available 1024 set more
+efficiently; stopped that early bake before the change. No additional texture
+memory. Hinges now place both mounting screws over actual gate boards rather
+than the open spaces between them.
+
+Physical preflight measures 80 support contacts per quality, brace bearing,
+914.4 mm clear opening, 12.7 mm side gaps and coaxial hinge pins; released gate
+sweeps through 111 poses without collisions. These are surface measurements,
+separate from GLB serialization. Finalized/exported checks repeat them after bake.
+
+
+## Picket pass 2 — delivered GLB and complete run
+
+Opened the freshly exported photo pair at
+`picket/renders/pass2-glb/match_pickets-pair.jpg`, every final studio view in
+`build/picket-export-review.jpg`, both assembled corner views, and the Eevee
+hero. The darker studio separates white timber without changing its paint;
+subtle ground discoloration now reads in the hero, and bare end chips remain
+restrained. Rear rails, compression brace, black hinge straps and capped post
+silhouettes read as real backyard construction. The gate clears its strike
+with the latch raised. No further art iteration is warranted for this repeated
+street asset.
+
+Weakest: close-up painted grain, screw heads and chips filter softer than the
+photo/source at the 208 px/m shared 1024 atlas. French Gothic shoulders retain
+some angular simplification in the game silhouette. The source photo's larger
+height and unsurveyed spacing leave the explicitly reported 20.8 px camera-fit
+residual; no pixel/color tracing was used. At backyard distance these losses
+are acceptable in exchange for one shared 4 MiB set.
+
+Delivery: 996 triangles per section, 32 per capped post, 848 for the complete
+gate bay (including both posts), 2936 total library. One material, three 1024²
+maps; GLB 2,484,636 bytes. UV coverage 52.48%, zero overlap pairs, density
+p5/median/p95 about 208.34 px/m. Both high/game checks pass **83 distinct support
+contacts** per quality (max sampled distance bound 0.000229 mm), 111 released
+gate poses and 34 latch poses, with no allowances. Imported straight sockets
+coincide and a 90° corner measures zero penetration at 0.3 mm tolerance.
+Serialization verifies zero rest-vertex error and required socket matrices.
+Final per-type contacts remain ignored; family JPG composition is deferred to
+batch completion.
