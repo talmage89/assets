@@ -17,7 +17,7 @@ def studio_mat(name,col,rough):
     return m
 
 
-def add_studio():
+def add_studio(scale=1):
     before=set(bpy.context.scene.objects)
     sc=bpy.context.scene
     prof=[(-10,-.002),(2,-.002)]+[(2+1.8*math.sin(i*math.pi/48),1.8-1.8*math.cos(i*math.pi/48)-.002) for i in range(1,25)]+[(3.8,6)]
@@ -38,7 +38,16 @@ def add_studio():
         flag=G.box('Studio black reflection flag',(sign*1.65,-.1,1.1),(.035,2.1,2.1),studio_mat('Flag black',(.003,.003,.003),.9),0)
         flag.visible_camera=False;flag.visible_shadow=False
     cam=bpy.data.objects.new('Studio camera',bpy.data.cameras.new('Studio camera'));sc.collection.objects.link(cam);sc.camera=cam
-    for ob in set(sc.objects)-before:ob['studio']=True
+    for ob in set(sc.objects)-before:
+        ob['studio']=True
+        if scale!=1 and ob.type!='CAMERA':
+            ob.location*=scale
+            if ob.type=='MESH':
+                for vertex in ob.data.vertices:vertex.co*=scale
+                if ob.name=='Studio seamless':
+                    for vertex in ob.data.vertices:vertex.co.z+=.002*(scale-1)
+            if ob.type=='LIGHT':
+                ob.data.energy*=scale*scale;ob.data.size*=scale;ob.data.size_y*=scale
     return cam
 
 
@@ -72,7 +81,8 @@ def main():
     else:bpy.ops.wm.open_mainfile(filepath=str(source))
     source_digest=hashlib.sha256(source.read_bytes()).hexdigest()
     sc=bpy.context.scene
-    cam=add_studio();silhouette=human()
+    config=runpy.run_path(a.config)
+    cam=add_studio(config.get('STUDIO_SCALE',1));silhouette=human()
     sc.render.engine=a.engine
     if a.engine=='CYCLES':
         gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True
@@ -95,7 +105,7 @@ def main():
     sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=0
     sc.render.image_settings.file_format='PNG';sc.render.image_settings.color_mode='RGBA';sc.render.resolution_percentage=100
     out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
-    config=runpy.run_path(a.config);shots=config['SHOTS'].copy();
+    shots=config['SHOTS'].copy();
     if a.camera_file:
         shots.update({key:value['shot'] for key,value in json.loads(Path(a.camera_file).read_text()).items()})
     metadata=json.loads((out/'shots.json').read_text()) if (out/'shots.json').exists() else {}
@@ -103,8 +113,11 @@ def main():
     if lid:lid.rotation_mode='XYZ'
     rest=lid.rotation_euler.copy() if lid else None
     part_rest={key:bpy.data.objects[key].matrix_basis.copy() for shot in shots.values() for key in shot.get('parts',{}) if key in bpy.data.objects}
+    emissions={m: m.node_tree.nodes.get('SURFACE') or next((n for n in m.node_tree.nodes if n.type=='BSDF_PRINCIPLED'),None) for m in bpy.data.materials if m.use_nodes}
+    emissions={m: (n,n.inputs['Emission Strength'].default_value) for m,n in emissions.items() if n and n.inputs['Emission Strength'].default_value>0}
     for name in a.shots.split(','):
         shot=shots[name]
+        for m,(node,strength) in emissions.items():node.inputs['Emission Strength'].default_value=strength*shot.get('emission_scale',1)
         for key,matrix in part_rest.items():bpy.data.objects[key].matrix_basis=matrix
         for key,pose in shot.get('parts',{}).items():
             if 'translation' in pose:bpy.data.objects[key].location+=Vector(pose['translation'])

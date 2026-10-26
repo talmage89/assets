@@ -64,6 +64,24 @@ def main():
                 ob['bake_only']=False
     objects=[o for o in sc.objects if o.type=='MESH' and 'asset_set' in o]
     material=atlas_material(a.asset,Path(a.textures).resolve());groups={}
+    overrides=cfg.get('MATERIAL_OVERRIDES',{});palette={}
+    for prefix,settings in overrides.items():
+        extra=material.copy();extra.name=a.asset+' '+prefix
+        shader=extra.node_tree.nodes['SURFACE']
+        if settings.get('emission_strength',0):
+            color=shader.inputs['Base Color'].links[0].from_socket
+            extra.node_tree.links.new(color,shader.inputs['Emission Color'])
+            shader.inputs['Emission Strength'].default_value=settings['emission_strength']
+        shader.inputs['Transmission Weight'].default_value=settings.get('transmission',0)
+        shader.inputs['IOR'].default_value=settings.get('ior',1.5)
+        palette[prefix]=extra
+    if overrides:
+        # Assign before consolidation: Blender remaps the material slots while
+        # joining, so static glass/emissive faces need no extra mesh objects.
+        for ob in objects:
+            chosen=next((palette[prefix] for prefix in overrides if ob.name.startswith(prefix)),material)
+            ob.data.materials.clear();ob.data.materials.append(chosen)
+            for face in ob.data.polygons:face.material_index=0
     for ob in objects:
         parent=moving_parent(ob);name=ob.get('export_part',parent.name+'Mesh')
         groups.setdefault((parent,name),[]).append(ob)
@@ -80,8 +98,9 @@ def main():
             if layer.name!='BakeUV':ob.data.uv_layers.remove(layer)
         ob.data.uv_layers['BakeUV'].name='UVMap'
         ob.data.uv_layers.active=ob.data.uv_layers['UVMap'];ob.data.uv_layers['UVMap'].active_render=True
-        ob.data.materials.clear();ob.data.materials.append(material)
-        for face in ob.data.polygons:face.material_index=0
+        if not overrides:
+            ob.data.materials.clear();ob.data.materials.append(material)
+            for face in ob.data.polygons:face.material_index=0
         for attribute in list(ob.data.color_attributes):ob.data.color_attributes.remove(attribute)
     # Remove empty manufacturing helper frames once their geometry is consolidated.
     keep={o.name for o in sc.objects if o.get('socket_kind') or o.get('static_root') or o.parent is None}
@@ -103,7 +122,7 @@ def main():
                 head=list(ob.matrix_world@bone.head_local),tail=list(ob.matrix_world@bone.tail_local),
                 rest_matrix=[list(row) for row in ob.matrix_world@bone.matrix_local]) for bone in ob.data.bones}
     report['triangles']=sum(v['triangles'] for v in report['meshes'].values())
-    report['materials']=[material.name];report['source']=a.source
+    report['materials']=sorted({m.name for ob in sc.objects if ob.type=='MESH' for m in ob.data.materials if m});report['source']=a.source
     path=Path(a.out).resolve();path.parent.mkdir(parents=True,exist_ok=True)
     bpy.ops.object.select_all(action='SELECT')
     bpy.ops.export_scene.gltf(filepath=str(path),export_format='GLB',use_selection=True,export_yup=True,
