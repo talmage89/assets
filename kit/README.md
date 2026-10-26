@@ -227,6 +227,33 @@ runs small solid/hollow collision and non-grill naming/rig compatibility fixture
 `python3 -m unittest kit.test_delivery` checks density compatibility, alias
 conflicts and staged build invalidation without running a bake.
 
+`plane_uv()` maps print corners by vertex identity, preserving intended graphics
+when normal recalculation reverses an open plane's loop winding.
+
+Optional `MATERIAL_OVERRIDES={mesh_prefix: {'emission_strength': 2,
+ 'transmission': 0, 'ior': 1.5}}` preserves emissive/glass faces within static
+consolidation. Emission uses the shared BaseColor atlas; transmission and IOR
+are uniform. All variants reuse the existing three images. No overrides retains
+the single-material path; normal material/image budgets remain enforced.
+
+`STUDIO_SCALE` expands only procedural studio geometry/lights for tall props,
+with inverse-square power compensation; the 1.8 m human remains real scale.
+Shot `emission_scale` multiplies/restores authored material emission for day/off
+comparisons without modifying the shipped asset. Defaults preserve prior views.
+Optional `STUDIO_BACKDROP_HEIGHT` extends the procedural wall for upward-facing
+detail cameras on tall props; lighting and the default studio remain unchanged.
+Photo shots may set `background='transparent'` for neutral alpha composition
+when the calibrated camera faces outside the procedural backdrop.
+
+
+Shared-atlas variants use `EXPORT_ARGS := --variant NAME`. Ancestors tagged
+`delivery_variant` select alternate moving parts; `atlas_staging_offset` and
+`delivery_name` restore the selected part. `SOURCE_BUDGETS` optionally bounds
+a staged multi-variant source separately from the per-export `BUDGETS`.
+`DELIVERY_BOUNDS` optionally verifies the final imported envelope. Reference
+fetching accepts WebP. Bake reports count uncovered interior UV samples and
+black BaseColor samples separately from atlas padding; diagnostics never fill
+missing texels. These additions use the unified `SHIP_SIZE` / density policy.
 `materials.weathered_wood()` adds seeded rough-sawn pine in a per-timber source
 frame: knots bend growth bands, cut-end checks and ground splash follow their
 causes, and optional nail rows bake metal heads and downward stains.
@@ -295,3 +322,21 @@ Reserved-atlas verification also measures the unique region after GLB import,
 rejects any intersection between unique and tile rectangles, and checks the
 embedded tile alpha actually contains both holes and retained wire. The fixture
 includes negative tests for both escaped tiles and a frame invading the tile.
+Density clamping scales UV vectors around an explicit 2D center, including the
+previously unexercised oversized-atlas branch on Blender 5.2.
+
+Exports with material overrides compact identical glTF texture views (same image,
+sampler and extensions); BIN/image bytes are preserved. This makes the shared
+three-map memory allocation explicit across glass and emission materials.
+
+Integration compatibility: `STUDIO.scale` (or `STUDIO_SCALE`) is the canonical
+studio/light scale; `light_scale` is a legacy lighting-only alias, retaining
+unscaled backdrop/flags for existing wide-assembly configurations. Both use one
+light-position/size/power calculation. Equal aliases apply once; contradictory
+explicit values fail. `light_center` offsets the lights after scaling. Backdrop
+height, half-width, color and roughness remain independent controls.
+
+Material assignment occurs per source mesh before consolidation: tiled alpha,
+`MATERIAL_OVERRIDES` and either variant-tag interface compose in one export.
+The export report lists assigned materials only. Alpha and glass/emission exports
+compact identical texture views while preserving the shared three image bytes.

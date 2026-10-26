@@ -178,7 +178,10 @@ def attach(ob, parent, asset_set='Grill', inherit_asset_set=False):
 def plane_uv(name, corners, material):
     ob=mesh(name,corners,[(0,1,2,3)],material)
     uv=ob.data.uv_layers.new(name='PrintUV')
-    for p,co in zip(uv.data,[(0,0),(1,0),(1,1),(0,1)]):p.uv=co
+    corners_uv=[(0,0),(1,0),(1,1),(0,1)]
+    for face in ob.data.polygons:
+        for loop in face.loop_indices:
+            uv.data[loop].uv=corners_uv[ob.data.loops[loop].vertex_index]
     ob['allow_boundary']=True
     return ob
 

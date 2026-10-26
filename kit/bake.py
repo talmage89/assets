@@ -2,6 +2,7 @@
 import argparse,json,sys,time,runpy
 from pathlib import Path
 import bpy,numpy as np
+from PIL import Image,ImageDraw,ImageFilter
 from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from kit import gpu,bake_groups,atlas
@@ -96,6 +97,15 @@ def main():
     bpy.ops.object.select_all(action='DESELECT')
     for ob in sources:ob.select_set(True)
     target.select_set(True);bpy.context.view_layer.objects.active=target
+    # Independently rasterize UV interiors so selected-to-active ray misses
+    # cannot hide in whole-image min/max statistics. Erosion excludes borders
+    # and padding where alpha legitimately changes. Report, do not invent texels.
+    uv_mask=Image.new('L',(a.size,a.size),0);draw=ImageDraw.Draw(uv_mask)
+    target.data.calc_loop_triangles();layer=target.data.uv_layers['BakeUV']
+    for triangle in target.data.loop_triangles:
+        draw.polygon([(float(layer.data[i].uv.x)*a.size,(1-float(layer.data[i].uv.y))*a.size)
+                      for i in triangle.loops],fill=255)
+    interior=np.asarray(uv_mask.filter(ImageFilter.MinFilter(5)))>0
     stats={};images={}
     def route(channel):
         for m in mats:
@@ -116,6 +126,10 @@ def main():
         values=np.empty(a.size*a.size*4,np.float32);image.pixels.foreach_get(values)
         values=np.flipud(values.reshape(a.size,a.size,4)).copy();images[name]=values
         stats[name]=dict(seconds=time.time()-start,min=float(values[:,:,:3].min()),max=float(values[:,:,:3].max()))
+        stats[name]['checked_interior_texels']=int(interior.sum())
+        stats[name]['alpha_missed_interior_texels']=int(np.count_nonzero(interior & (values[:,:,3]<.5)))
+        if name=='BaseColor':
+            stats[name]['black_interior_texels']=int(np.count_nonzero(interior & (values[:,:,:3].max(axis=2)<1e-6)))
         print('BAKED',name,stats[name],flush=True)
     bake('BaseColor','EMIT','base');write_png(out/f'T_{a.asset}_BaseColor.png',linear_to_srgb(images['BaseColor'][:,:,:3]))
     bake('Roughness','EMIT','rough');bake('Metallic','EMIT','metal');bake('AO','AO')

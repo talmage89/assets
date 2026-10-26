@@ -52,33 +52,66 @@ def moving_parent(ob):
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--textures',required=True)
-    p.add_argument('--asset',required=True);p.add_argument('--out',required=True);p.add_argument('--report',required=True)
-    p.add_argument('--config')
+    p.add_argument('--asset',required=True);p.add_argument('--out',required=True);p.add_argument('--report',required=True);p.add_argument('--config')
+    p.add_argument('--variant',help='Override EXPORT_VARIANT for a shared atlas')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);bpy.ops.wm.open_mainfile(filepath=str(Path(a.source).resolve()))
-    sc=bpy.context.scene
-    cfg=runpy.run_path(a.config) if a.config else {}
-    variant=cfg.get('EXPORT_VARIANT',0)
+    sc=bpy.context.scene;cfg=runpy.run_path(a.config) if a.config else {}
+    selected=a.variant if a.variant is not None else cfg.get('EXPORT_VARIANT',0)
+    def tagged_variant(ob):
+        while ob:
+            if 'delivery_variant' in ob:return ob['delivery_variant']
+            ob=ob.parent
+        return None
+    rejected=[ob for ob in sc.objects if tagged_variant(ob) not in (None,selected)]
+    for ob in rejected:bpy.data.objects.remove(ob,do_unlink=True)
     for ob in list(sc.objects):
+        if ob.get('delivery_variant')==selected:
+            ob.location-=Vector(ob.get('atlas_staging_offset',(0,0,0)))
+            if ob.get('delivery_name'):ob.name=ob['delivery_name']
         if 'variant_id' in ob:
-            if ob['variant_id']!=variant:bpy.data.objects.remove(ob,do_unlink=True)
+            if ob['variant_id']!=selected:bpy.data.objects.remove(ob,do_unlink=True)
             else:
                 offset=Vector(ob.get('bake_offset',(0,0,0)))
-                # Manufacturing meshes have already been rebased to assembly coordinates.
                 for v in ob.data.vertices:v.co-=offset
                 ob['bake_only']=False
+    bpy.context.view_layer.update()
     objects=[o for o in sc.objects if o.type=='MESH' and 'asset_set' in o]
     material=atlas_material(a.asset,Path(a.textures).resolve());groups={}
+    overrides=cfg.get('MATERIAL_OVERRIDES',{});palette={};tile_materials={}
+    for prefix,settings in overrides.items():
+        extra=material.copy();extra.name=a.asset+' '+prefix
+        shader=extra.node_tree.nodes['SURFACE']
+        if settings.get('emission_strength',0):
+            color=shader.inputs['Base Color'].links[0].from_socket
+            extra.node_tree.links.new(color,shader.inputs['Emission Color'])
+            shader.inputs['Emission Strength'].default_value=settings['emission_strength']
+        shader.inputs['Transmission Weight'].default_value=settings.get('transmission',0)
+        shader.inputs['IOR'].default_value=settings.get('ior',1.5)
+        palette[prefix]=extra
+    # Assign each source mesh before joining. Tile policy and uniform shader
+    # overrides compose, even when opaque and tiled members share a static root.
     for ob in objects:
+        prefix=next((prefix for prefix in overrides if ob.name.startswith(prefix)),None)
+        chosen=palette[prefix] if prefix is not None else material
+        spec=atlas.tiled_spec(ob.name,cfg)
+        if spec:
+            key=(prefix,spec.get('alpha_cutoff'),spec.get('double_sided',True))
+            if key not in tile_materials:
+                tiled=chosen.copy()
+                if key[1] is not None:
+                    nt=tiled.node_tree;shader=nt.nodes['SURFACE']
+                    color=shader.inputs['Base Color'].links[0].from_node
+                    clip=nt.nodes.new('ShaderNodeMath');clip.operation='GREATER_THAN';clip.inputs[1].default_value=key[1]
+                    nt.links.new(color.outputs['Alpha'],clip.inputs[0]);nt.links.new(clip.outputs[0],shader.inputs['Alpha'])
+                    tiled.surface_render_method='DITHERED'
+                tiled.use_backface_culling=not key[2]
+                tile_materials[key]=tiled
+            chosen=tile_materials[key]
+        ob.data.materials.clear();ob.data.materials.append(chosen)
+        for face in ob.data.polygons:face.material_index=0
         parent=moving_parent(ob);name=ob.get('export_part',parent.name+'Mesh')
         groups.setdefault((parent,name),[]).append(ob)
-    tile_materials={}
     for (parent,name),members in groups.items():
-        spec=atlas.tiled_spec(members[0].name,cfg)
-        chosen=material
-        if spec:
-            key=(spec.get('alpha_cutoff'),spec.get('double_sided',True))
-            if key not in tile_materials:tile_materials[key]=atlas_material(a.asset,Path(a.textures).resolve(),*key)
-            chosen=tile_materials[key]
         asset_set=members[0].get('asset_set',a.asset)
         bpy.ops.object.select_all(action='DESELECT')
         for ob in members:ob.select_set(True)
@@ -91,8 +124,6 @@ def main():
             if layer.name!='BakeUV':ob.data.uv_layers.remove(layer)
         ob.data.uv_layers['BakeUV'].name='UVMap'
         ob.data.uv_layers.active=ob.data.uv_layers['UVMap'];ob.data.uv_layers['UVMap'].active_render=True
-        ob.data.materials.clear();ob.data.materials.append(chosen)
-        for face in ob.data.polygons:face.material_index=0
         for attribute in list(ob.data.color_attributes):ob.data.color_attributes.remove(attribute)
     # Remove empty manufacturing helper frames once their geometry is consolidated.
     keep={o.name for o in sc.objects if o.get('socket_kind') or o.get('static_root') or o.parent is None}
@@ -114,13 +145,16 @@ def main():
                 head=list(ob.matrix_world@bone.head_local),tail=list(ob.matrix_world@bone.tail_local),
                 rest_matrix=[list(row) for row in ob.matrix_world@bone.matrix_local]) for bone in ob.data.bones}
     report['triangles']=sum(v['triangles'] for v in report['meshes'].values())
-    report['materials']=[material.name]+[m.name for m in tile_materials.values()];report['source']=a.source
+    report['materials']=sorted({m.name for ob in sc.objects if ob.type=='MESH' for m in ob.data.materials if m});report['source']=a.source
     path=Path(a.out).resolve();path.parent.mkdir(parents=True,exist_ok=True)
     bpy.ops.object.select_all(action='SELECT')
     bpy.ops.export_scene.gltf(filepath=str(path),export_format='GLB',use_selection=True,export_yup=True,
         export_apply=False,export_texcoords=True,export_normals=True,export_tangents=True,
         export_materials='EXPORT',export_image_format='AUTO',export_skins=True,export_animations=False,
         export_def_bones=True,export_extras=True,export_cameras=False,export_lights=False)
+    if overrides or tile_materials:
+        from kit.glb_textures import compact
+        report['texture_views']=compact(path,Path(a.report).parent)
     report['bytes']=path.stat().st_size
     Path(a.report).write_text(json.dumps(report,indent=2))
     bpy.ops.file.pack_all();bpy.ops.wm.save_as_mainfile(filepath=str(Path(a.report).with_suffix('.blend').resolve()))

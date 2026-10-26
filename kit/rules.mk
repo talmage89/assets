@@ -32,6 +32,7 @@ FINAL_SHOTS ?= hero_closed,hero_open,front,side,back,top,controls,interior,regul
 REFS_DIR ?= refs
 TANK_REFERENCE ?=
 FIT_CHECK_ARGS ?=
+EXPORT_ARGS ?=
 STUDIO_ARGS ?=
 export TMPDIR := $(REPO)/build/tmp
 export ASSETS_GPU_LOCK ?= $(abspath $(REPO)/../.locks/gpu.lock)
@@ -92,7 +93,7 @@ match-final: export refs $(BUILD)/matched-cameras.json
 
 $(BUILD)/delivery-parameters.txt: FORCE
 	@mkdir -p $(BUILD)
-	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='size=$(SHIP_SIZE) density=$(UV_TARGET_DENSITY) margin=$(UV_MARGIN)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
+	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='size=$(SHIP_SIZE) density=$(UV_TARGET_DENSITY) margin=$(UV_MARGIN) export_args=$(EXPORT_ARGS)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
 $(BUILD)/finalized.blend: $(BUILD)/game-audit.blend $(CONFIG) $(KIT)/finalize.py $(KIT)/uv.py $(KIT)/atlas.py $(BUILD)/delivery-parameters.txt
 	$(BP) --python $(KIT)/finalize.py -- --source $< --config $(CONFIG) --out $@ --report $(BUILD)/uv-report.json --size $(SHIP_SIZE) --target-density $(UV_TARGET_DENSITY) --margin $(UV_MARGIN)
 finalize: $(BUILD)/finalized.blend
@@ -107,8 +108,8 @@ $(BUILD)/textures.stamp: $(BUILD)/baked.stamp $(KIT)/downsample.py $(KIT)/image_
 	$(PYTHON) $(KIT)/downsample.py --source textures/bake --out textures/ship --asset $(ASSET) --size $(SHIP_SIZE)
 	$(if $(TEXTURE_POSTPROCESS),$(TEXTURE_POSTPROCESS),@:)
 	@touch $@
-export/$(ASSET).glb: $(BUILD)/finalized.blend $(BUILD)/textures.stamp $(KIT)/export.py $(KIT)/atlas.py
-	$(BP) --python $(KIT)/export.py -- --source $(BUILD)/finalized.blend --textures textures/ship --asset $(ASSET) --out $@ --report $(BUILD)/export-report.json --config $(CONFIG)
+export/$(ASSET).glb: $(BUILD)/finalized.blend $(BUILD)/textures.stamp $(KIT)/export.py $(KIT)/atlas.py $(KIT)/glb_textures.py
+	$(BP) --python $(KIT)/export.py -- --source $(BUILD)/finalized.blend --textures textures/ship --asset $(ASSET) --out $@ --report $(BUILD)/export-report.json --config $(CONFIG) $(EXPORT_ARGS)
 export: export/$(ASSET).glb
 verify: export/$(ASSET).glb
 	$(BP) --python $(KIT)/verify.py -- --source $< --expected $(BUILD)/export-report.json --config $(CONFIG) --out $(BUILD)/delivery-check.json --size $(SHIP_SIZE)
