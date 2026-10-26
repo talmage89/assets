@@ -93,7 +93,7 @@ class Hydrant:
         bm.to_mesh(body.data);bm.free()
         G.smooth(body,48);self.add(body)
         # Eight galvanized, then overpainted flange bolts on each flange.
-        for z,rad,mat,prefix in [(.080,.143,self.red,'Traffic flange'),(.638,.119,self.cream,'Bonnet')]:
+        for z,rad,mat,prefix in [(.088,.143,self.red,'Traffic flange'),(.660,.125,self.cream,'Bonnet')]:
             for i in range(8):
                 t=(i+.5)*math.tau/8
                 self.bolt(prefix+f' bolt {i+1}',rad*math.cos(t),rad*math.sin(t),z,mat)
