@@ -1,0 +1,6 @@
+import argparse
+from pathlib import Path
+from PIL import Image,ImageDraw,ImageFont
+p=argparse.ArgumentParser();p.add_argument('out');p.add_argument('--wear',type=float,default=.4);a=p.parse_args();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
+im=Image.new('RGBA',(1024,354),(0,0,0,0));d=ImageDraw.Draw(im);f=ImageFont.truetype('/usr/share/fonts/TTF/DejaVuSansCondensed-Bold.ttf',230)
+d.text((512,177),'1847',font=f,anchor='mm',fill=(220,221,206,255));im.save(out/'address.png')
