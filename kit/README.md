@@ -215,3 +215,8 @@ existing bake-channel interface; source frames are discarded during export.
 Studio shots can set `studio_yaw` in degrees to rotate the procedural backdrop,
 lights and reflection flags for a reverse product view; camera and human stay
 in their configured world frames. Existing shots default to zero rotation.
+
+An asset may set `STUDIO=dict(light_scale=2.2, light_center=(.4,0,0))`
+to spread the same studio lighting over a wider assembly. Position, softbox
+size and power scale together, preserving approximate illumination. Defaults
+retain the pilot's original lighting.

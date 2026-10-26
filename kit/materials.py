@@ -510,8 +510,10 @@ def weathered_wood(name, frame, width=.1397, length=1.8288, seed=1,
         # Elliptical rings blend into longitudinal grain around each knot.
         rings=n.add(n.mul(r,9),n.mul(broad,1.5))
         flow=n.mix(n.mul(influence,.86),flow,rings)
-        core=n.ramp(n.add(r,n.mul(fine,.23)),.85,.67)
-        dark_knot=n.maximum(dark_knot,n.mul(core,n.add(.57,n.mul(broad,.43))))
+        core=n.ramp(n.add(r,n.mul(fine,.17)),1.1,.77)
+        knot_grain=n.noise(n.combine(n.add(n.mul(x,380),seed*2.1),n.mul(y,380),n.mul(z,120)),1,2)
+        knot_rings=n.ramp(n.math('SINE',n.add(n.mul(r,26),n.mul(broad,2))),-.25,.65)
+        dark_knot=n.maximum(dark_knot,n.mul(core,n.add(.23,n.mul(knot_grain,.42),n.mul(knot_rings,.35))))
         knot_mask=n.maximum(knot_mask,influence)
     waves=n.add(n.mul(n.math('SINE',flow),.5),.5)
     latewood=n.ramp(waves,.67,.93)
@@ -523,12 +525,19 @@ def weathered_wood(name, frame, width=.1397, length=1.8288, seed=1,
     base=n.mix(fading,base_tan,gray,color=True)
     base=n.mix(n.add(n.mul(latewood,.16),n.mul(fine,.19),n.mul(broad,.43)),base,(.090,.073,.050),color=True)
     base=n.mix(n.mul(dark_knot,.95),base,(.038,.027,.016),color=True)
+    # Uneven earlywood erosion makes fibrous streaks, not a milled sine pattern.
+    fibers=n.noise(n.combine(n.add(n.mul(x,220),seed*7.9),n.mul(y,220),n.mul(z,4.8)),1,4)
+    fiber_mask=n.ramp(fibers,.27,.72)
+    base=n.mix(n.mul(fiber_mask,.63),base,(.045,.038,.028),color=True)
     exposure=n.ramp(z,0,.35)
     splash=n.mul(n.ramp(z,.29,.015),n.ramp(n.noise(n.combine(n.mul(x,30),n.mul(y,30),n.mul(z,12)),2),.30,.75),wear)
     base=n.mix(n.mul(splash,.45),base,(.048,.056,.027),color=True)
     # Water enters cut ends and follows earlywood; checks stay narrow and axial.
     end=n.maximum(n.ramp(z,.09,0),n.ramp(z,length-.08,length))
-    checks=n.mul(end,n.ramp(n.noise(n.combine(n.mul(x,1700),n.mul(y,1700),n.mul(z,2.2)),1),.66,.77),wear)
+    cut_checks=n.mul(end,n.ramp(n.noise(n.combine(n.mul(x,1700),n.mul(y,1700),n.mul(z,2.2)),1),.66,.77))
+    # Longitudinal checking follows repeated surface drying on exposed boards.
+    dry_checks=n.mul(n.ramp(n.noise(n.combine(n.add(n.mul(x,720),seed*9.3),n.mul(y,720),n.mul(z,2.8)),1,2),.69,.77),n.add(.25,n.mul(exposure,.75)))
+    checks=n.mul(n.maximum(cut_checks,dry_checks),wear)
     base=n.mix(n.mul(checks,.65),base,(.045,.037,.025),color=True)
     metal=0;dents=0;drips=0
     for row in nail_rows:
@@ -540,7 +549,7 @@ def weathered_wood(name, frame, width=.1397, length=1.8288, seed=1,
     base=n.mix(n.mul(drips,.22*wear),base,(.067,.056,.035),color=True)
     base=n.mix(metal,base,(.27,.29,.28),color=True)
     rough=n.mix(metal,n.add(.72,n.mul(fine,.16),n.mul(splash,.08)),.53)
-    relief=n.add(n.mul(latewood,-.00013),n.mul(fine,.00010),n.mul(checks,-.00025),n.mul(dents,.00013))
+    relief=n.add(n.mul(latewood,-.00006),n.mul(fine,.00012),n.mul(fiber_mask,-.00033),n.mul(checks,-.00055),n.mul(dents,.00013))
     for key,val in [('splash',splash),('checks',checks),('knots',knot_mask),('fading',fading)]:n.channel(key,val)
     return n.finish(base,rough,n.mul(metal,.88),relief)
 

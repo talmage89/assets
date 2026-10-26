@@ -17,7 +17,7 @@ def studio_mat(name,col,rough):
     return m
 
 
-def add_studio():
+def add_studio(light_scale=1.0, light_center=(0,0,0)):
     before=set(bpy.context.scene.objects)
     sc=bpy.context.scene
     prof=[(-10,-.002),(2,-.002)]+[(2+1.8*math.sin(i*math.pi/48),1.8-1.8*math.cos(i*math.pi/48)-.002) for i in range(1,25)]+[(3.8,6)]
@@ -25,7 +25,8 @@ def add_studio():
     world=bpy.data.worlds.new('Procedural studio world');world.use_nodes=True;sc.world=world
     bg=world.node_tree.nodes['Background'];bg.inputs['Color'].default_value=(.20,.22,.25,1);bg.inputs['Strength'].default_value=.12
     def light(name,loc,target,power,w,h,color):
-        d=bpy.data.lights.new(name,'AREA');d.energy=power;d.shape='RECTANGLE';d.size=w;d.size_y=h;d.color=color
+        loc=Vector(loc)*light_scale+Vector(light_center);target=Vector(target)*light_scale+Vector(light_center)
+        d=bpy.data.lights.new(name,'AREA');d.energy=power*light_scale**2;d.shape='RECTANGLE';d.size=w*light_scale;d.size_y=h*light_scale;d.color=color
         ob=bpy.data.objects.new(name,d);sc.collection.objects.link(ob);ob.location=loc
         ob.rotation_euler=(Vector(target)-ob.location).to_track_quat('-Z','Y').to_euler()
     light('Key softbox',(-4.0,-1.8,3.2),(0,0,.72),1400,1.3,1.8,(1,.96,.90))
@@ -72,7 +73,8 @@ def main():
     else:bpy.ops.wm.open_mainfile(filepath=str(source))
     source_digest=hashlib.sha256(source.read_bytes()).hexdigest()
     sc=bpy.context.scene
-    cam=add_studio()
+    config=runpy.run_path(a.config)
+    cam=add_studio(**config.get('STUDIO',{}))
     bpy.context.view_layer.update()
     studio_rest={ob:ob.matrix_world.copy() for ob in sc.objects if ob.get('studio') and ob!=cam}
     silhouette=human()
