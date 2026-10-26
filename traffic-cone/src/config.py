@@ -1,8 +1,9 @@
 TITLE='Waymark / 28-inch traffic cone'
 BUDGETS={'TrafficCone':1000}
 BOUNDS={'TrafficCone':dict(size=(.3556,.3556,.7112),tolerance=(.0001,.0001,.0001))}
-BAKE_CAGE=.002
-BAKE_RAY=.008
+# Reach the high base surface beyond the inset coarse corner chords.
+BAKE_CAGE=.005
+BAKE_RAY=.012
 UV_SMART_ASPECT=False
 UV_DENSITY_BANDS=dict(p5_min=150,median_min=300,median_max=900,p95_max=1400)
 CONTACTS=[('Hollow orange cone and grip','Weighted black base with stacking bore',.0005)]
