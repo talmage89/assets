@@ -84,3 +84,26 @@ pine material match. Classic Fence p36 remains the direct aging reference.
 Final acceptance: preserve the lean geometry and shared texture memory; accept
 close-up filtering and some procedural grain regularity at this repeatable
 fence's intended viewing distance. No white picket or chain-link work is started.
+
+
+## Accepted privacy follow-up — knot population only
+
+The lead accepted construction, sockets and lean geometry, and rejected the
+repeated soft dark ovals. Changed only the shared pine material: approximately
+half of timber draws are clear, remaining branches occur in one or two whorls,
+with strongly skewed sizes, tilted axes, a narrow resin ring and occasional axial
+check. Continuous grain diversion replaces blending a broad oval into the grain.
+UV aging desaturates knots along with their board. All geometry, pivots and
+installation choices are unchanged.
+
+Opened `renders/knots-glb/match_rails-pair.jpg`, rendered from the freshly baked
+export at the existing calibrated camera, beside the Denver construction photo.
+The dots no longer march across every board: Section A has 12 clear pickets and
+8 branch cuts on the other five, with radii 2.0–21.0 mm, some clipped by board
+edges. The wide variation, quiet branches and local grain deflection read as
+wood rather than a spotted decoration. The cedar photo remains warmer and more
+knotty than this aged pine; that material/age distinction was already accepted.
+Fine resin lines and pin knots soften at the unchanged 233 px/m atlas density.
+Source and GLB checks pass with the original 664-triangle section meshes.
+Final studio images are regenerated from the revised exported textures; family
+docs JPGs are deferred until picket and chain-link are also complete.
