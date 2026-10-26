@@ -340,3 +340,9 @@ Material assignment occurs per source mesh before consolidation: tiled alpha,
 `MATERIAL_OVERRIDES` and either variant-tag interface compose in one export.
 The export report lists assigned materials only. Alpha and glass/emission exports
 compact identical texture views while preserving the shared three image bytes.
+
+`blender -b --factory-startup --python-exit-code 1 --python
+kit/test_export_policy.py` exercises composed alpha + glass/emission materials,
+both variant-tag interfaces, numeric CLI/config selection, and studio aliases
+without a GPU bake. Variant identifiers compare by their string representation,
+so `--variant 1` also selects numeric `variant_id=1` / `EXPORT_VARIANT=1`.
