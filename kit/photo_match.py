@@ -65,6 +65,8 @@ def calibrate(match):
     shot=dict(location=location,target=look,lens=math.exp(parameters[5]),aspect=width/height,
               roll=float(parameters[6]),emission_scale=match.get('emission_scale',1),studio_yaw=match.get('studio_yaw',0),lid=match.get('lid',0),hide=match.get('hide',[]),isolate=match.get('isolate',[]),
               hide_sets=match.get('hide_sets',[]),hide_assemblies=match.get('hide_assemblies',[]),exposure=match.get('exposure',-.8),background=match.get('background','light'))
+    for key in ('parts','instances'):
+        if key in match:shot[key]=match[key]
     return dict(shot=shot,crop=match['crop'],photo=match['photo'],title=match['title'],
                 lens_status='estimated from measured landmarks; original EXIF unavailable',
                 residual_rms_pixels=float(np.sqrt(np.mean(errors**2))),residuals_pixels=errors.tolist(),

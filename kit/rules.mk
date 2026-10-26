@@ -28,6 +28,7 @@ UV_TARGET_DENSITY ?= 850
 UV_MARGIN ?= .0015
 PASS ?= lookdev
 SHOTS ?= hero_closed,hero_open,controls,front,side
+EEVEE_SHOT ?= hero_closed
 FINAL_SHOTS ?= hero_closed,hero_open,front,side,back,top,controls,interior,regulator,scale,hose_pose,fit_check
 REFS_DIR ?= refs
 TANK_REFERENCE ?=
@@ -116,10 +117,10 @@ verify: export/$(ASSET).glb
 	@if test -f src/check_fit.py; then $(BP) --python src/check_fit.py -- --grill $< --reference "$(TANK_REFERENCE)" --out $(BUILD)/fit-check.json $(FIT_CHECK_ARGS); fi
 $(BUILD)/studio-parameters.txt: FORCE
 	@mkdir -p $(BUILD)
-	@$(PYTHON) -c "from pathlib import Path; import sys; r=Path(sys.argv[1]).expanduser(); p=Path('$@'); s='width=$(WIDTH) samples=$(SAMPLES) shots=$(FINAL_SHOTS) args=$(STUDIO_ARGS) reference='+sys.argv[1]+' mtime='+str(r.stat().st_mtime_ns if sys.argv[1] and r.is_file() else None); p.write_text(s) if not p.exists() or p.read_text()!=s else None" "$(TANK_REFERENCE)"
+	@$(PYTHON) -c "from pathlib import Path; import sys; r=Path(sys.argv[1]).expanduser(); p=Path('$@'); s='width=$(WIDTH) samples=$(SAMPLES) shots=$(FINAL_SHOTS) eevee=$(EEVEE_SHOT) args=$(STUDIO_ARGS) reference='+sys.argv[1]+' mtime='+str(r.stat().st_mtime_ns if sys.argv[1] and r.is_file() else None); p.write_text(s) if not p.exists() or p.read_text()!=s else None" "$(TANK_REFERENCE)"
 renders/final/.stamp: export/$(ASSET).glb $(CONFIG) $(KIT)/studio.py $(KIT)/rig.py $(BUILD)/studio-parameters.txt
 	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --stage final --source $< --config $(CONFIG) --out renders/final --shots $(FINAL_SHOTS) --width $(WIDTH) --samples $(SAMPLES) --fit-reference "$(TANK_REFERENCE)" $(STUDIO_ARGS)
-	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --stage final --source $< --config $(CONFIG) --out renders/final-eevee --shots hero_closed --engine BLENDER_EEVEE --width $(WIDTH) --samples $(SAMPLES) $(STUDIO_ARGS)
+	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --stage final --source $< --config $(CONFIG) --out renders/final-eevee --shots $(EEVEE_SHOT) --engine BLENDER_EEVEE --width $(WIDTH) --samples $(SAMPLES) $(STUDIO_ARGS)
 	@touch $@
 final-render: renders/final/.stamp
 docs: final-render src/review.py

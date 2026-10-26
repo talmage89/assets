@@ -165,6 +165,8 @@ Atlas configurations can set `UV_SMART_ASPECT=False` when source print images
 have different aspect ratios; this prevents material image dimensions from
 distorting the shared square bake UVs. `UV_PACK_SHAPE` is an optional packing
 choice; all independent overlap/outside checks remain enforced.
+`UV_SMART_ANGLE` optionally narrows the unwrap projection angle for deeply
+folded shells; the existing 66-degree default is unchanged.
 
 ## Optional asset policy and moving assemblies
 
@@ -332,6 +334,17 @@ Exports with material overrides compact identical glTF texture views (same image
 sampler and extensions); BIN/image bytes are preserved. This makes the shared
 three-map memory allocation explicit across glass and emission materials.
 
+Studio shots may declare `instances=[dict(source='Chair', name='Chair_2',
+location=(.5,1,0), rotation_degrees=(0,0,180))]`. Each temporary hierarchy shares
+the imported mesh/atlas data and is deleted after its shot; the verified GLB
+remains a reusable module library. Instance placement is absolute, in meters.
+Photo-match definitions also forward optional `parts` and `instances` to the
+studio so calibrated comparisons can show the same posed, repeated assembly.
+
+`ATLAS_SETS=('Table','Chair',...)` explicitly authorizes one shared bake across
+separately budgeted `asset_set` modules. It must match every source set exactly;
+undeclared multi-set bakes still fail. The exporter continues to use one atlas.
+
 An optional `MATERIAL_OVERRIDES` entry `emission_tint=(1,.12,.008)` multiplies
 the shared atlas for emission only, preserving neutral off-state metals and
 dark perforations without allocating another image. Omission retains the
@@ -354,3 +367,8 @@ kit/test_export_policy.py` exercises composed alpha + glass/emission materials,
 both variant-tag interfaces, numeric CLI/config selection, and studio aliases
 without a GPU bake. Variant identifiers compare by their string representation,
 so `--variant 1` also selects numeric `variant_id=1` / `EXPORT_VARIANT=1`.
+
+Optional `EEVEE_SHOT` selects a configured final Eevee view (Makefile and
+config must agree); default is `hero_closed`. Delivery docs validate its GLB
+provenance. This lets optional transmission surfaces be omitted in a dry
+preview when screen-space refraction cannot resolve the underlying geometry.

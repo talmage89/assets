@@ -35,7 +35,7 @@ def main():
     for ob in objects:ob.select_set(True)
     bpy.context.view_layer.objects.active=objects[0]
     bpy.ops.object.mode_set(mode='EDIT');bpy.ops.mesh.select_all(action='SELECT')
-    bpy.ops.uv.smart_project(angle_limit=math.radians(66),margin_method='SCALED',island_margin=0,area_weight=0,correct_aspect=config.get('UV_SMART_ASPECT',True),scale_to_bounds=False)
+    bpy.ops.uv.smart_project(angle_limit=math.radians(config.get('UV_SMART_ANGLE',66)),margin_method='SCALED',island_margin=0,area_weight=0,correct_aspect=config.get('UV_SMART_ASPECT',True),scale_to_bounds=False)
     bpy.ops.uv.average_islands_scale()
     bpy.ops.object.mode_set(mode='OBJECT')
     priorities=config.get('UV_PRIORITY',{})

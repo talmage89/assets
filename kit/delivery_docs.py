@@ -22,8 +22,9 @@ def main(root):
     digest=meta['hero_closed']['source_sha256']
     for n in names:
         assert meta[n]['stage']=='final' and meta[n]['source'].endswith('.glb') and meta[n]['source_sha256']==digest
-    eevee=folder.parent/'final-eevee/hero_closed.png'
-    assert json.loads((eevee.parent/'shots.json').read_text())['hero_closed']['source_sha256']==digest
+    eevee_name=cfg.get('EEVEE_SHOT','hero_closed')
+    eevee=folder.parent/'final-eevee'/(eevee_name+'.png')
+    assert json.loads((eevee.parent/'shots.json').read_text())[eevee_name]['source_sha256']==digest
     contact([folder/(n+'.png') for n in names]+[eevee],folder/'contact.jpg',width=2400,title=title+' / exported GLB / Eevee last',captions={str(eevee):'Eevee / exported GLB'})
     review_sheet([[folder/'front.png',folder/'side.png'],[folder/'back.png',folder/'top.png']],folder/'turnaround.jpg',width=2000,title=title+' / exported turnaround')
     review_sheet([[folder/'controls.png',folder/'casting.png']],folder/'details.jpg',width=2400,title=title+' / exported details')

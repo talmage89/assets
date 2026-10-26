@@ -77,6 +77,30 @@ def human():
     return obs
 
 
+def display_instances(definitions):
+    """Clone authored modules for a shot, sharing mesh/atlas data unchanged.
+
+    Placement is absolute in Blender meters. This is review-only instancing;
+    the source GLB remains the independently verified reusable module library.
+    """
+    created=[]
+    for row in definitions:
+        source=bpy.data.objects[row['source']]
+        members=[source]+list(source.children_recursive)
+        copies={ob:ob.copy() for ob in members}
+        for ob,copy in copies.items():
+            bpy.context.scene.collection.objects.link(copy)
+            copy.name=row['name']+'__'+ob.name
+            copy.parent=copies.get(ob.parent)
+            copy.matrix_parent_inverse=ob.matrix_parent_inverse.copy()
+            copy.matrix_basis=ob.matrix_basis.copy()
+            created.append(copy)
+        root=copies[source];root.name=row['name']
+        root.location=row.get('location',source.location)
+        root.rotation_euler=tuple(math.radians(v) for v in row.get('rotation_degrees',(0,0,0)))
+    return created
+
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--fit-reference');p.add_argument('--camera-file');p.add_argument('--source',required=True);p.add_argument('--stage',choices=['lookdev','final'],default='lookdev');p.add_argument('--config',required=True);p.add_argument('--out',required=True);p.add_argument('--shots',default='hero_closed,hero_open,controls,front,side');p.add_argument('--engine',choices=['CYCLES','BLENDER_EEVEE','BLENDER_WORKBENCH'],default='CYCLES');p.add_argument('--width',type=int,default=1400);p.add_argument('--samples',type=int,default=64)
     p.add_argument('--lid-node',default='Lid');p.add_argument('--lid-axis',choices=['X','Y','Z'],default='X')
@@ -142,6 +166,7 @@ def main():
             if 'rotation_degrees' in pose:
                 part=bpy.data.objects[key];part.rotation_mode='XYZ'
                 part.rotation_euler.rotate(__import__('mathutils').Euler(tuple(math.radians(v) for v in pose['rotation_degrees'])))
+        instances=display_instances(shot.get('instances',[]))
         imported_reference=[]
         if shot.get('fit_reference'):
             reference=Path(a.fit_reference).expanduser() if a.fit_reference else None
@@ -189,5 +214,6 @@ def main():
         (out/'shots.json').write_text(json.dumps(metadata,indent=2))
         print('RENDERED',sc.render.filepath,flush=True)
         for ob in imported_reference:bpy.data.objects.remove(ob,do_unlink=True)
+        for ob in reversed(instances):bpy.data.objects.remove(ob,do_unlink=True)
 
 if __name__=='__main__':main()

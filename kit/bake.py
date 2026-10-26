@@ -44,9 +44,12 @@ def main():
     for ob in source_objects:sc.collection.objects.link(ob)
     bpy.context.view_layer.update()
     sources=[ob for ob in source_objects if ob.type=='MESH' and 'asset_set' in ob and not atlas.tiled_spec(ob.name,cfg)]
-    if len({ob.get('asset_set') for ob in sources})!=1:raise ValueError('Bake one atlas set at a time')
+    source_sets={ob.get('asset_set') for ob in sources}
+    if len(source_sets)!=1 and source_sets!=set(cfg.get('ATLAS_SETS',())):
+        raise ValueError('Multiple module sets need an exact ATLAS_SETS shared-family declaration')
     for ob in source_objects:
         if ob.type=='MESH' and atlas.tiled_spec(ob.name,cfg):ob.hide_render=True
+
     for ob in sources:
         ob.hide_render=False
         for modifier in ob.modifiers:
