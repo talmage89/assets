@@ -1,7 +1,8 @@
 # Alder / size-1 curbside mailbox
 
 Original black powder-coated galvanized-steel mailbox on a dressed wooden 4×4
-post and half-lap mounting arm. The bent shell is hollow, with a closed rear,
+post and half-lap mounting arm. The pine has silvered grain/checks and a darker,
+road-splashed foot after a few outdoor seasons. The bent shell is hollow, with a closed rear,
 pressed metal floor, returned front door, real hinge bores and an independent
 red signal flag. Small pressed floor dimples and coating wear are baked detail.
 
@@ -20,7 +21,7 @@ choices. There is no underground post tail or concrete block in the export.
 
 ![Turnaround of the exported GLB](docs/turnaround.jpg)
 
-The **1,300,792-byte GLB** uses **1,264 triangles**, **one material**, and three rigid meshes:
+The **2,082,780-byte GLB** uses **1,264 triangles**, **one material**, and three rigid meshes:
 static shell/support, door, flag. One **1024² BaseColor / OpenGL +Y Normal / ORM**
 set, baked at 4096², costs approximately **4 MiB** with BC7/BC5-class compression
 and mipmaps. ORM packs occlusion, roughness and metallic in R/G/B. Engine import
@@ -71,3 +72,15 @@ Needs installed Blender 5.2, Python/Pillow/NumPy and flock. No downloaded assets
 lighting, plugins or packages. The small sheet gauge, rear seam and wood fibers
 soften at street distance, and tiny baked fasteners darken more than the source; the historical shell differs from the modern reference
 product's precise latch/flag construction.
+
+
+Phase 2 used-object comparison: `renders/wear-pass3-glb/used_black_post-pair.jpg`
+(source counterpart under `renders/wear-pass3-source/`). The fitted residual is
+22.49 px at 1100×900; the photograph has a different flag/latch and does not
+establish our dimensions. Pine uses `kit.materials.weathered_wood()` with
+separate timber-grain and grade frames, a silver-gray tone and stronger local
+road splash. Shell chips stay on manufactured folds; Door masks recover hinge
+rest height and the flag excludes lower-shell deposits. The texture set is
+unchanged: BaseColor / Normal / ORM 645,381 / 638,621 / 703,649 bytes at 1024².
+The small fibers/checks soften at street distance; broad silvering and the dirty
+foot remain visible in the full hero.

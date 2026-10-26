@@ -16,3 +16,7 @@ curb setback and nominal 4×4 support recommendation.
 modern assembled size is 8.88 H × 6.92 W × 20.05 D inches, larger than the historic
 shell chosen here; used for construction/material comparison, not substituted
 for historic dimensions. Author and rights as above.
+
+| used-post.jpg | https://images.pexels.com/photos/33782468/pexels-photo-33782468.jpeg?w=1600&auto=compress | Wolfgang Vrede / Pexels license https://www.pexels.com/license/ | Installed weathered mailbox on timber, gray grain and metal handling; https://www.pexels.com/photo/vintage-u-s-mailbox-on-wooden-post-33782468/ |
+
+| used-black-post.jpg | https://townsquare.media/site/45/files/2025/05/attachment-Mailbox-broken.jpg?q=85&w=1200 | Townsquare Media / River Grand Rapids, copyright retained; local reference only (photographer not identified) | Installed worn black mailbox and weathered support; https://rivergrandrapids.com/michigan-mailbox-warning-usps/ |
