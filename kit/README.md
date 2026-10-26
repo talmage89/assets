@@ -259,3 +259,9 @@ fences or diagonally viewed assemblies, keeping dark world corners out of frame.
 Run `blender -b --factory-startup --python-exit-code 1 --python
 kit/test_bake_frames.py` to check preservation of explicit nested timber/parent
 coordinate frames during module isolation, without a GPU bake.
+
+Pine knots use a deterministic sparse branch-whorl population (`pine_knots`):
+clear boards, pin knots and occasional larger branches with tilted resin rings,
+checks and continuous grain diversion. Weathering desaturates the branch wood
+as well as the board. Existing material arguments and seeded board hues remain
+compatible.
