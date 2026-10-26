@@ -101,3 +101,62 @@ stay ignored and never become textures or committed docs.
 
 Future tiling/trim and alpha-card policies can extend the material/export
 interface. No speculative road, house or foliage generator is included.
+
+## Optional asset policy and moving assemblies
+
+These additions preserve legacy calls and defaults. New assets should declare
+policy in their own `src/config.py` / settings module; do not edit kit internals.
+The grill's values live in `gas-grill/src/settings.py` and `src/config.py`.
+
+- Pass `attach(..., asset_set='YourSet')`; `inherit_asset_set=True` instead reads the parent's tag. The legacy default remains `Grill` for existing callers. `bind(..., export_part='CableMesh', modifier_name='Cable skin')` supplies a skin's export name. `EXPORT_SKIN_NAMES={armature_name: mesh_name}` optionally overrides it at export. There is no name-based test for a hose in assembly ownership.
+- `RIG_POSES={armature_name: {'angles': [...], 'lateral': ..., 'twist_step': ..., 'initial_z': (...)}}` configures the studio and verification demonstration. The angle list can have any chain length. `dangling()` also accepts those optional keywords directly; omitted values retain the pilot pose.
+- `VERIFY_POLICY` sets `density_reference_size`, `density_p5_min`, `density_median_min/max` and `density_p95_max`. Its optional `tube` dictionary supplies `rest_points_property`, `radius_m`, radial/plane matching tolerances, minimum ring vertices/count, minimum posed radius, attachment travel and root tolerance. `tubes={armature_name: {...}}` supports different chains within one asset. Existing acceptance bands remain defaults.
+- `combustion(..., geometry={...})` supplies burner lanes and widths, hood spread/thermal/oil heights, bowl drain center/radii/heights and drip sources, channel apex and streak locations. `ported_burner()` accepts tube/port heights, pitch/start/end, port/soot radii and thermal band dimensions. `surface(..., rust_regions={...})` sets low-height, weld and upper-height regions. All values use the part's rest frame in meters; the legacy finish presets remain available.
+- `BAKE_SIZE`, `TEX_SIZE` and `UV_TARGET_DENSITY` are optional Make variables, defaulting to 4096, 2048 and 850. For example a repeated prop can set `TEX_SIZE := 1024` and its own density bands. Rebuild with `make clean && make` when changing atlas sizes/density. `MARKINGS_DEPS` adds shared settings dependencies to graphic generation.
+- `FIT_CHECK_ARGS` optionally appends arguments to an asset's own `src/check_fit.py`; it is empty by default. The grill uses `--parts-source build/finalized.blend` for component-level clearance measurements.
+
+Example motion/projection policy:
+
+```python
+MOTIONS = [dict(node='Door', axis='Z', range=[0, 100], step=2,
+                tolerance_m=.0005, allow=[
+                    dict(moving='Door hinge sleeve', fixed='Door hinge pin',
+                         reason='Pin in the sleeve bore')])]
+BAKE_POLICY = dict(isolate_moving=True, moving_roots=['Door'],
+                   cage_m=.003, ray_distance_m=.012, ao_distance_m=.035)
+```
+
+`make check-motion` (included in `make check`) sweeps configured rotations in
+degrees or `kind='translation'` ranges/steps in meters, on both game and high
+source. It tests tagged solid meshes, excluding declared boundary-only sheets.
+BVH crossings select candidate surfaces; vertices and edge intervals use nearest
+surface distance and three-ray solid parity to measure penetration. The report
+lists sampled values, tolerance, violations and intended-contact allow-list
+reasons. Missing `MOTIONS` means no sweep. Sampling is explicit, not a continuous
+collision guarantee; choose a step small enough for the narrowest obstruction.
+Wheel axial separation can additionally prove clearance for every angle.
+
+With `BAKE_POLICY.isolate_moving=True`, low/high geometry is matched by owning
+root and translated into separated projection groups. Each lid, door, wheel or
+slider therefore receives only its own source projection and local AO. Static
+geometry stays assembled; independent rest-position shadow copies preserve its
+contact AO. Shadow copies cannot share mutable mesh data with joined sources.
+The bake report records groups, offsets and shadow-copy counts. Omitting this
+policy keeps the original assembled bake. Custom procedural materials should
+use rest/object coordinates, as this library does; raw world-space masks need
+rest-coordinate attributes when using translated isolation.
+
+`SHOTS` entries may add `parts={node: {'translation': (x,y,z)}}` or
+`rotation_degrees`; the studio resets these transforms between views. This
+supports a withdrawn slider or alternate door pose without special node names.
+The legacy `lid` shot angle can target another node/axis using the optional Make
+variable `STUDIO_ARGS := --lid-node YourHatch --lid-axis Z`; defaults remain
+`Lid` / X. Optional fit shots already accept their own `fit_socket` node name.
+
+`compare_textures.py` compares two delivery folders numerically, in RGB byte
+units. The grill accepts maximum channel delta **2/255** and byte-domain RMSE
+**0.02** per map; geometry remains exactly reproducible. GPU texture bytes are
+not promised bit-identical. `make check-texture-repeat` is an opt-in full rebake
+and comparison; normal checks never force that expense on other assets.
+`blender -b --factory-startup --python-exit-code 1 --python kit/test_policy.py`
+runs small solid/hollow collision and non-grill naming/rig compatibility fixtures.

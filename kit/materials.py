@@ -190,11 +190,12 @@ def abrasion_mask(n,c,wear,exposure):
 
 
 def surface(name,kind,wear=.35,grime=0,dust=0,heat=0,color=None,zones=None,
-            deposits=None,rust=False,heat_height=None,roughness=None,cook_zones=None,chip_height=None,heat_zones=None,wheel_radius=None):
+            deposits=None,rust=False,heat_height=None,roughness=None,cook_zones=None,chip_height=None,heat_zones=None,wheel_radius=None,rust_regions=None):
     """Build layered PBR with authored wear locations rather than uniform dirt noise.
 
     zones: handling ellipses in object meters; deposits: gravity drip sources.
-    rust=True targets the tank foot ring, equator weld and collar creases.
+    rust_regions optionally defines low_height, weld_band and upper_height;
+    omitted regions retain the legacy cylinder preset.
     heat_height=(center,width) places thermal exposure; otherwise curvature/cavities
     decide where heat residue accumulates. A material can be shared across parts
     with the same pivot/rest frame. `wear=0` suppresses all use-related layers.
@@ -271,9 +272,10 @@ def surface(name,kind,wear=.35,grime=0,dust=0,heat=0,color=None,zones=None,
         rough=n.mix(chips,rough,.62)
         height=n.add(height,n.mul(chips,-35e-6))
     if rust:
-        foot=n.ramp(c['z'],.065,.019)
-        weld=n.band(c['z'],.192,.0018,.004)
-        collar=n.mul(n.ramp(c['z'],.38,.424),c['edge'])
+        regions=rust_regions or {}
+        foot=n.ramp(c['z'],*regions.get('low_height',(.065,.019)))
+        weld=n.band(c['z'],*regions.get('weld_band',(.192,.0018,.004)))
+        collar=n.mul(n.ramp(c['z'],*regions.get('upper_height',(.38,.424))),c['edge'])
         origin=n.maximum(n.mul(foot,n.maximum(c['edge'],c['cavity'],.18)),
                          n.mul(weld,.65),n.mul(collar,.4))
         breakup=n.noise(p,130,5)
@@ -359,36 +361,37 @@ def print_material(name,path,base=None,ink=(.012,.014,.012),rough=.55):
     return n.finish(texture.outputs['Color'],rough,0)
 
 
-def combustion(name,wear,role,burner_x=(-.205,0,.205)):
+def combustion(name,wear,role,burner_x=(-.205,0,.205),geometry=None):
     """Carbon from hot lanes, gravity oil tracks and drain pooling, in meters.
 
     role: hood (hinge-local frame), bowl or channel (asset frame). The caller
     supplies physical burner positions. Noise only breaks those exposure masks.
     """
     n=Nodes(name);c=common(n);p=c['position'];z=c['z']
-    lane=n.maximum(0,*[n.band(c['x'],x,.020,.035) for x in burner_x])
+    g=geometry or {};burner_x=g.get('burner_x',burner_x)
+    lane=n.maximum(0,*[n.band(c['x'],x,g.get('lane_width',.020),g.get('lane_softness',.035)) for x in burner_x])
     breakup=n.ramp(n.noise(n.vec('MULTIPLY',p,(1,1,.55)),55,4),.20,.75)
     manufacture=n.noise(p,1800,3)
     if role=='hood':
-        spread=n.add(.060,n.mul(n.ramp(z,0,.22),.075))
+        spread=n.add(g.get('hood_spread_min',.060),n.mul(n.ramp(z,*g.get('hood_spread_height',(0,.22))),g.get('hood_spread_growth',.075)))
         plumes=n.maximum(0,*[n.ramp(n.math('DIVIDE',n.math('ABSOLUTE',n.math('SUBTRACT',c['x'],x)),spread),1.3,.45) for x in burner_x])
-        thermal_height=n.ramp(z,-.01,.09)
+        thermal_height=n.ramp(z,*g.get('hood_thermal_height',(-.01,.09)))
         exposure=n.maximum(n.mul(plumes,.9,thermal_height),n.mul(thermal_height,.30),n.mul(c['cavity'],.85))
         carbon=n.mul(exposure,wear*2.7,breakup)
         base=n.mix(carbon,(.025,.026,.024),(.0015,.0018,.002),True)
         rough=n.mix(carbon,.70,.94)
-        oil=n.mul(n.band(z,.015,.014,.018),wear,breakup)
+        oil=n.mul(n.band(z,*g.get('hood_oil',(.015,.014,.018))),wear,breakup)
     elif role=='bowl':
-        under=n.mul(lane,n.ramp(z,.80,.73))
-        drain=n.mul(n.ellipse(p,(0,-.024),(.12,.15),(0,1)),n.ramp(z,.76,.70))
+        under=n.mul(lane,n.ramp(z,*g.get('bowl_under_height',(.80,.73))))
+        drain=n.mul(n.ellipse(p,g.get('drain_center',(0,-.024)),g.get('drain_radii',(.12,.15)),(0,1)),n.ramp(z,*g.get('drain_height',(.76,.70))))
         exposure=n.maximum(n.mul(c['cavity'],.85),n.mul(c['up'],.42),under,drain)
         carbon=n.mul(exposure,wear*2.5,breakup)
         base=n.mix(carbon,(.021,.023,.020),(.0012,.0014,.0012),True)
         rough=n.mix(carbon,.73,.93)
-        tracks=drip_mask(n,c,[dict(x=x,z=.887,width=w,length=.19,direction=(0,-1,0)) for x,w in [(-.19,.009),(.07,.006),(.24,.004)]])
+        tracks=drip_mask(n,c,[dict(x=x,z=z0,width=w,length=length,direction=(0,-1,0)) for x,z0,w,length in g.get('bowl_drips',[(-.19,.887,.009,.19),(.07,.887,.006,.19),(.24,.887,.004,.19)])])
         oil=n.mul(n.maximum(drain,tracks,n.mul(c['cavity'],.55)),wear*1.8,breakup)
     elif role=='channel':
-        apex=n.band(z,.841,.0015,.006)
+        apex=n.band(z,*g.get('channel_apex',(.841,.0015,.006)))
         exposure=n.maximum(n.mul(apex,.8),n.mul(lane,.95))
         carbon=n.mul(exposure,wear*2.6,breakup)
         tint=n.mul(exposure,wear,n.ramp(n.noise(p,90,3),.25,.70))
@@ -398,8 +401,8 @@ def combustion(name,wear,role,burner_x=(-.205,0,.205)):
         # Tracks descend the V faces from the apex, varying by channel X.
         warp=n.mul(n.math('SUBTRACT',n.noise(n.vec('MULTIPLY',p,(1,.1,.4)),35,3),.5),.012)
         across=n.add(c['y'],warp)
-        streak=n.maximum(0,*[n.band(across,y,.0025,.003) for y in (-.125,-.045,.062,.157)])
-        oil=n.mul(streak,n.ramp(z,.808,.819),wear*1.8,n.ramp(n.noise(p,220,3),.2,.7))
+        streak=n.maximum(0,*[n.band(across,y,.0025,.003) for y in g.get('channel_streak_y',(-.125,-.045,.062,.157))])
+        oil=n.mul(streak,n.ramp(z,*g.get('channel_oil_height',(.808,.819))),wear*1.8,n.ramp(n.noise(p,220,3),.2,.7))
     else:raise ValueError(role)
     cracks=n.ramp(n.voronoi(p,95,'DISTANCE_TO_EDGE'),.006,.035)
     height=n.add(n.mul(n.math('SUBTRACT',manufacture,.5),22e-6),n.mul(carbon,cracks,190e-6))
@@ -412,7 +415,7 @@ def combustion(name,wear,role,burner_x=(-.205,0,.205)):
     return result
 
 
-def ported_burner(name,wear,burner_z=.770,port_z=.772,pitch=.0118,start=-.209):
+def ported_burner(name,wear,burner_z=.770,port_z=.772,pitch=.0118,start=-.209,end=.218,port_radius=.00075,soot_radius=.0018,thermal_offset=.003,thermal_width=.006,thermal_softness=.004):
     """Dull heat-tinted tube with soot blooms around actual repeated flame ports."""
     n=Nodes(name);c=common(n);p=c['position']
     phase=n.math('FRACT',n.math('DIVIDE',n.math('SUBTRACT',c['y'],start),pitch))
@@ -421,8 +424,8 @@ def ported_burner(name,wear,burner_z=.770,port_z=.772,pitch=.0118,start=-.209):
     d2=n.add(n.mul(dy,dy),n.mul(dz,dz))
     nx=n.split(c['normal'])[0]
     side=n.ramp(n.math('ABSOLUTE',nx),.55,.92)
-    ports=n.mul(n.ramp(d2,.0018**2,.00075**2),side,n.ramp(c['y'],start-.003,start),n.ramp(c['y'],.218,.205))
-    heat=n.mul(n.band(c['z'],burner_z+.003,.006,.004),wear*1.6,n.ramp(n.noise(p,65,3),.25,.7))
+    ports=n.mul(n.ramp(d2,soot_radius**2,port_radius**2),side,n.ramp(c['y'],start-.003,start),n.ramp(c['y'],end,end-.013))
+    heat=n.mul(n.band(c['z'],burner_z+thermal_offset,thermal_width,thermal_softness),wear*1.6,n.ramp(n.noise(p,65,3),.25,.7))
     base=n.mix(heat,(.18,.21,.22),(.13,.085,.035),True)
     soot=n.mul(ports,n.maximum(.70,wear*2))
     base=n.mix(soot,base,(.001,.0012,.0012),True)
