@@ -60,11 +60,12 @@ def main():
         if invalid:errors.append(f'{aset} invalid coordinates or normals: {invalid}')
         if bad_faces:errors.append(f'{aset} zero-area triangle slivers: {bad_faces}')
         is_game=sc.get('quality')=='game'
-        if is_game and tris>cfg['BUDGETS'][aset]:errors.append(f'{aset} triangle budget exceeded: {tris}')
+        source_budget=cfg.get('SOURCE_BUDGETS',cfg['BUDGETS'])[aset]
+        if is_game and tris>source_budget:errors.append(f'{aset} source triangle budget exceeded: {tris}')
         if a.stage=='final':
             if uv_missing:errors.append(f'{aset}: missing UVs')
             if len(materials)>3:errors.append(f'{aset}: material budget exceeded')
-        report['sets'][aset]={'triangles':tris,'budget':cfg['BUDGETS'][aset],
+        report['sets'][aset]={'triangles':tris,'budget':source_budget,'delivery_budget':cfg['BUDGETS'][aset],
                 'budget_enforced':is_game,'geometry_sha256':digest.hexdigest(),'bounds_m':bb,'meshes':len(obs),
                 'materials':sorted(materials),'missing_uv_meshes':len(uv_missing),
                 'largest_parts':sorted(part_counts,reverse=True)[:12]}

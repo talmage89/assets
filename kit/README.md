@@ -245,6 +245,15 @@ detail cameras on tall props; lighting and the default studio remain unchanged.
 Photo shots may set `background='transparent'` for neutral alpha composition
 when the calibrated camera faces outside the procedural backdrop.
 
+
+Shared-atlas variants use `EXPORT_ARGS := --variant NAME`. Ancestors tagged
+`delivery_variant` select alternate moving parts; `atlas_staging_offset` and
+`delivery_name` restore the selected part. `SOURCE_BUDGETS` optionally bounds
+a staged multi-variant source separately from the per-export `BUDGETS`.
+`DELIVERY_BOUNDS` optionally verifies the final imported envelope. Reference
+fetching accepts WebP. Bake reports count uncovered interior UV samples and
+black BaseColor samples separately from atlas padding; diagnostics never fill
+missing texels. These additions use the unified `SHIP_SIZE` / density policy.
 `materials.weathered_wood()` adds seeded rough-sawn pine in a per-timber source
 frame: knots bend growth bands, cut-end checks and ground splash follow their
 causes, and optional nail rows bake metal heads and downward stains.

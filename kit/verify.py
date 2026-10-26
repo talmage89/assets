@@ -94,6 +94,13 @@ def main():
         if ob and name in expected['nodes']:
             error=float(np.max(np.abs(np.array(ob.matrix_world)-np.array(expected['nodes'][name]))));socket_error=max(socket_error,error)
     check(socket_error<2e-5,'Pivot/socket rest transform changed')
+    if cfg.get('DELIVERY_BOUNDS'):
+        points=[ob.matrix_world@Vector(v) for ob in meshes for v in ob.bound_box]
+        lower=[min(p[i] for p in points) for i in range(3)]
+        upper=[max(p[i] for p in points) for i in range(3)]
+        bounds=[b-a for a,b in zip(lower,upper)]
+        spec=cfg['DELIVERY_BOUNDS']
+        check(all(abs(a-b)<=t for a,b,t in zip(bounds,spec['size'],spec['tolerance'])),f'Delivery dimensions outside tolerance: {bounds}')
     arms=[o for o in sc.objects if o.type=='ARMATURE'];check(len(arms)==len(expected['rigs']),'Armature count changed on re-import')
     for arm in arms:
         wanted=expected['rigs'].get(arm.name,{})

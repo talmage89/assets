@@ -48,20 +48,29 @@ def moving_parent(ob):
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--textures',required=True)
-    p.add_argument('--asset',required=True);p.add_argument('--out',required=True);p.add_argument('--report',required=True)
-    p.add_argument('--config')
+    p.add_argument('--asset',required=True);p.add_argument('--out',required=True);p.add_argument('--report',required=True);p.add_argument('--config')
+    p.add_argument('--variant',help='Override EXPORT_VARIANT for a shared atlas')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);bpy.ops.wm.open_mainfile(filepath=str(Path(a.source).resolve()))
-    sc=bpy.context.scene
-    cfg=runpy.run_path(a.config) if a.config else {}
-    variant=cfg.get('EXPORT_VARIANT',0)
+    sc=bpy.context.scene;cfg=runpy.run_path(a.config) if a.config else {}
+    selected=a.variant if a.variant is not None else cfg.get('EXPORT_VARIANT',0)
+    def tagged_variant(ob):
+        while ob:
+            if 'delivery_variant' in ob:return ob['delivery_variant']
+            ob=ob.parent
+        return None
+    rejected=[ob for ob in sc.objects if tagged_variant(ob) not in (None,selected)]
+    for ob in rejected:bpy.data.objects.remove(ob,do_unlink=True)
     for ob in list(sc.objects):
+        if ob.get('delivery_variant')==selected:
+            ob.location-=Vector(ob.get('atlas_staging_offset',(0,0,0)))
+            if ob.get('delivery_name'):ob.name=ob['delivery_name']
         if 'variant_id' in ob:
-            if ob['variant_id']!=variant:bpy.data.objects.remove(ob,do_unlink=True)
+            if ob['variant_id']!=selected:bpy.data.objects.remove(ob,do_unlink=True)
             else:
                 offset=Vector(ob.get('bake_offset',(0,0,0)))
-                # Manufacturing meshes have already been rebased to assembly coordinates.
                 for v in ob.data.vertices:v.co-=offset
                 ob['bake_only']=False
+    bpy.context.view_layer.update()
     objects=[o for o in sc.objects if o.type=='MESH' and 'asset_set' in o]
     material=atlas_material(a.asset,Path(a.textures).resolve());groups={}
     overrides=cfg.get('MATERIAL_OVERRIDES',{});palette={}

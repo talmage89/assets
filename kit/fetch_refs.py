@@ -8,7 +8,7 @@ def fetch(folder):
         cells=[s.strip() for s in line.split('|')]
         if len(cells)<4 or not cells[2].startswith('https://'):continue
         name,url=cells[1:3];path=folder/name
-        if path.name!=name or path.suffix.lower() not in {'.pdf','.jpg','.jpeg','.png'}:raise ValueError(name)
+        if path.name!=name or path.suffix.lower() not in {'.pdf','.jpg','.jpeg','.png','.webp'}:raise ValueError(name)
         if path.exists():continue
         with urllib.request.urlopen(urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0'}),timeout=60) as r:
             mime=r.headers.get('Content-Type','')
