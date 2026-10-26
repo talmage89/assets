@@ -497,9 +497,9 @@ def weathered_wood(name, frame, width=.1397, length=1.8288, seed=1,
     tc=n.node('ShaderNodeTexCoord');tc.object=frame
     x,y,z=n.split(tc.outputs['Object'])
     # Meandering growth bands, stretched longitudinal fibers and saw tooth.
-    p=n.combine(n.mul(x,110),n.mul(y,110),n.mul(z,1.7))
-    broad=n.noise(p,1,2);fine=n.noise(n.combine(n.mul(x,480),n.mul(y,480),n.mul(z,7)),1,2)
-    flow=n.add(n.mul(x,610),n.mul(broad,5),seed*.73)
+    p=n.combine(n.add(n.mul(x,110),seed*13.7),n.add(n.mul(y,110),seed*3.1),n.mul(z,2.4))
+    broad=n.noise(p,1,2);fine=n.noise(n.combine(n.add(n.mul(x,800),seed*9.1),n.mul(y,800),n.mul(z,9)),1,2)
+    flow=n.add(n.mul(x,1650),n.mul(broad,13),seed*.73)
     knot_mask=0;dark_knot=0
     for _ in range(rng.randint(2,4)):
         kx=rng.uniform(-width*.37,width*.37);kz=rng.uniform(.12,length-.09)
@@ -509,18 +509,18 @@ def weathered_wood(name, frame, width=.1397, length=1.8288, seed=1,
         # Elliptical rings blend into longitudinal grain around each knot.
         rings=n.add(n.mul(r,9),n.mul(broad,1.5))
         flow=n.mix(n.mul(influence,.86),flow,rings)
-        core=n.ramp(r,.95,.25)
+        core=n.ramp(r,.78,.55)
         dark_knot=n.maximum(dark_knot,n.mul(core,rng.uniform(.55,.90)))
         knot_mask=n.maximum(knot_mask,influence)
     waves=n.add(n.mul(n.math('SINE',flow),.5),.5)
     latewood=n.ramp(waves,.67,.93)
-    base_tan=(rng.uniform(.26,.36),rng.uniform(.185,.245),rng.uniform(.105,.155))
-    gray=(rng.uniform(.26,.34),rng.uniform(.255,.31),rng.uniform(.22,.27))
+    base_tan=(rng.uniform(.20,.31),rng.uniform(.145,.22),rng.uniform(.085,.145))
+    gray=(rng.uniform(.18,.27),rng.uniform(.175,.255),rng.uniform(.15,.225))
     # Different sapwood/heartwood boards weather differently in the same run.
     fading=min(.90,wear*rng.uniform(.70,1.35))
     base=n.mix(fading,base_tan,gray,color=True)
-    base=n.mix(n.add(n.mul(latewood,.23),n.mul(fine,.13)),base,(.090,.073,.050),color=True)
-    base=n.mix(n.mul(dark_knot,.75),base,(.038,.027,.016),color=True)
+    base=n.mix(n.add(n.mul(latewood,.13),n.mul(fine,.34),n.mul(broad,.12)),base,(.090,.073,.050),color=True)
+    base=n.mix(n.mul(dark_knot,.95),base,(.038,.027,.016),color=True)
     exposure=n.ramp(z,0,.35)
     splash=n.mul(n.ramp(z,.29,.015),n.ramp(n.noise(n.combine(n.mul(x,30),n.mul(y,30),n.mul(z,12)),2),.30,.75),wear)
     base=n.mix(n.mul(splash,.45),base,(.048,.056,.027),color=True)
