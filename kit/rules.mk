@@ -29,6 +29,7 @@ UV_MARGIN ?= .0015
 PASS ?= lookdev
 SHOTS ?= hero_closed,hero_open,controls,front,side
 FINAL_SHOTS ?= hero_closed,hero_open,front,side,back,top,controls,interior,regulator,scale,hose_pose,fit_check
+REFS_DIR ?= refs
 TANK_REFERENCE ?=
 FIT_CHECK_ARGS ?=
 STUDIO_ARGS ?=
@@ -70,7 +71,7 @@ ifeq ($(FINAL_PIPELINE),1)
 check: verify
 endif
 refs:
-	$(PYTHON) $(KIT)/fetch_refs.py refs
+	$(PYTHON) $(KIT)/fetch_refs.py $(REFS_DIR)
 hook-install:
 	$(PYTHON) $(KIT)/install_hook.py
 checkpoint: refs model check-scene check-repo render $(if $(wildcard src/photo_matches.py),match)

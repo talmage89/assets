@@ -286,3 +286,7 @@ original tile into the shared delivery maps after normal/color downsampling.
 Defaults leave all existing opaque assets on their original one-atlas path.
 Run `blender -b --factory-startup --python-exit-code 1 --python kit/test_atlas.py`
 for the no-GPU finalize/export/re-import fixture and negative tile-bounds check.
+
+`REFS_DIR` defaults to `refs`; family sublibraries may point it at a common
+reference register/cache so independent `make` invocations fetch their cited
+photos and manuals without duplicating downloads.
