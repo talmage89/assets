@@ -129,6 +129,9 @@ def main():
         export_apply=False,export_texcoords=True,export_normals=True,export_tangents=True,
         export_materials='EXPORT',export_image_format='AUTO',export_skins=True,export_animations=False,
         export_def_bones=True,export_extras=True,export_cameras=False,export_lights=False)
+    if overrides:
+        from kit.glb_textures import compact
+        report['texture_views']=compact(path,Path(a.report).parent)
     report['bytes']=path.stat().st_size
     Path(a.report).write_text(json.dumps(report,indent=2))
     bpy.ops.file.pack_all();bpy.ops.wm.save_as_mainfile(filepath=str(Path(a.report).with_suffix('.blend').resolve()))

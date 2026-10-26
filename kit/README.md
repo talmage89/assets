@@ -280,3 +280,7 @@ coordinate frames during module isolation, without a GPU bake.
 
 Density clamping scales UV vectors around an explicit 2D center, including the
 previously unexercised oversized-atlas branch on Blender 5.2.
+
+Exports with material overrides compact identical glTF texture views (same image,
+sampler and extensions); BIN/image bytes are preserved. This makes the shared
+three-map memory allocation explicit across glass and emission materials.
