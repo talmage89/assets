@@ -164,14 +164,14 @@ def pivot(name, position, axis=None, limits=None):
     return ob
 
 
-def attach(ob, parent, asset_set='Grill'):
+def attach(ob, parent, asset_set='Grill', inherit_asset_set=False):
     """Bake geometry into the pivot's local frame; leave all child origins on it."""
     apply(ob)
     bpy.context.view_layer.update()
     xf=parent.matrix_world.inverted() @ ob.matrix_world
     ob.data.transform(xf); ob.parent=parent; ob.matrix_parent_inverse=Matrix.Identity(4)
     ob.matrix_basis=Matrix.Identity(4)
-    ob['asset_set']=asset_set; ob['assembly']=parent.name
+    ob['asset_set']=parent.get('asset_set',asset_set) if inherit_asset_set else asset_set; ob['assembly']=parent.name
     return ob
 
 

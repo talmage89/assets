@@ -17,13 +17,16 @@ Only the optional fit-check image loads the owner's external canonical tank.
 
 [REFERENCE.md](REFERENCE.md) records the chosen specification and uncertainty;
 [refs/SOURCES.md](refs/SOURCES.md) credits the photos/manuals. The manufacturer's
-2020 US catalog controls the 2018–2024 envelope; rounded regional dimensions
-are not mixed. Construction gauges are authored manufacturing estimates.
+2020 US catalog supplies the 2018–2024 reference envelope; rounded regional
+dimensions are not mixed. The original design now needs 30 mm more closed depth
+for the outboard wheels and cleared hinge. Construction gauges are authored
+manufacturing estimates.
 
 | Measurement | Reference | Generated |
 | --- | --- | --- |
 | Extended table width | 1320.8 mm / 52 in | 1320.0 mm, −0.8 mm |
-| Closed depth, handle included | 685.8 mm / 27 in | 685.8 mm |
+| Closed depth, handle included | 685.8 mm / 27 in | 715.8 mm; +30 mm for mechanical clearance |
+| Fully open height / depth | 57 in / ≈1448 mm reference height | 1570.2 / 916.7 mm at −104°, connected hose rest pose |
 | Closed height | 1130.3 mm / 44.5 in | 1130.3 mm |
 | Primary cooking area | 424 in² nominal | Two castings: 608 × 451 mm outer frame; 446 mm bar span |
 | Warming rack | 105 in² nominal | 557 × 121 mm perimeter centerlines |
@@ -39,20 +42,23 @@ BaseColor is filtered in linear light; roughness uses RMS filtering.
 
 | Delivery measurement | Result |
 | --- | --- |
-| Exported grill, including hose/fitting/hardware | **19,992 triangles / 20,000** |
-| High-detail source | **170,242 triangles** |
-| GLB | **11,016,792 bytes** |
-| BaseColor / Normal / ORM PNGs | **1,740,046 / 2,922,246 / 4,765,286 bytes** |
+| Exported grill, including hose/fitting/hardware | **19,912 triangles / 20,000** |
+| High-detail source | **171,390 triangles** |
+| GLB | **10,439,228 bytes** |
+| BaseColor / Normal / ORM PNGs | **1,645,778 / 2,693,421 / 4,489,710 bytes** |
 | Used delivery materials / texture sets | **1 / 1** |
-| UV atlas coverage | **49.62%** |
-| UV-area-weighted density p5 / median / p95 | **294 / 559 / 1,176 px/m** at 2048 |
-| UV contacts above numerical threshold | **3**, totaling **0.36 shipped texel²** |
+| UV atlas coverage | **46.45%** |
+| UV-area-weighted density p5 / median / p95 | **279 / 549 / 1,140 px/m** at 2048 |
+| UV contacts above numerical threshold | **3**, totaling **0.34 shipped texel²** |
 
 `build/delivery-check.json` records independent GLB re-import proof; no cylinder
 geometry or texture data is present.
 
 Atlas density is priority-weighted: hood, fascia, worktops, markings and fitting
-receive more space than hidden manifold/frame faces. Tiny subpixel UV contacts
+receive more space than hidden manifold/frame faces. Moving roots are exploded
+into independent projection groups during the bake;
+rest-position shadow copies preserve stationary contact AO. The withdrawn-drawer
+render checks that the cookbox does not project onto it. Tiny subpixel UV contacts
 are measured and reported rather than described as exactly zero overlap.
 Flame ports, screw drives, springs, tiny bevels, tread and material relief are
 high-source detail carried by the normal bake. Print sheets project onto solid
@@ -61,7 +67,8 @@ low metal backing, avoiding coplanar duplicate game surfaces.
 ## Construction and materials
 
 The crowned porcelain shell has an inner wall, wrapping cast caps, reveal,
-overlapping lip and fork hinges with pins/stops. Its inner carbon/flaking follows
+overlapping lip and fork hinges with pins and cast connecting webs. Its inner
+carbon/flaking follows
 heat plumes and cavities. A rounded 4–7 mm cast firebox slopes toward an open
 grease throat; residue follows burner lanes, the sloped floor and drain pool.
 Three hollow stainless source burners have paired flame-port rows, venturi/air
@@ -73,7 +80,10 @@ tents 1/3/5 while retaining the intermediate two.
 
 Two satin-black porcelain iron grate sections have trapezoidal bars, cast frames
 and underside cross ribs. The warming rack has transverse wires, welded ties
-and returned supports. A sliding stamped grease drawer carries its foil cup.
+and returned supports. A hollow formed grease drawer has a 30 × 40 mm outlet
+and two folded hangers
+supporting its foil cup. Hanger-to-tray gap is 0.00 mm; sampled hanger-to-cup
+gap is 0.029 mm. Full fluid/grease routing is not simulated.
 The 2 mm formed C-section cart has cross braces, bolts, molded feet, axle, spokes
 and hub caps. Stainless shelves have folded aprons, return hems, molded ends,
 underside brackets and a hook rail. The inclined fascia has folded returns,
@@ -87,7 +97,14 @@ gravity streaks down the V sides. Changing `WEAR` regenerates source and bake.
 All masks use physical rest-frame placement, cavity/edge/exposure and directed
 tracks; noise breaks those masks or describes manufacturing microstructure.
 
-![Controls, cooking construction and regulator](docs/details.jpg)
+![Controls, cookbox, withdrawn drawer and cup supports](docs/details.jpg)
+
+Both the thermometer and badge are stacked on the lid centerline, each within
+0.001 mm in the orthographic front check (`renders/final/front-centering.jpg`).
+Wheel-to-leg axial gaps are 17.5 / 18.5 mm, invariant through Y rotation.
+`make check` sweeps the lid every 2° from closed to −104°, wheels every 5°,
+knobs every 5° and drawer every 5 mm, with 0.5 mm penetration tolerance and
+explicit hinge/hub contact allowances. Both high and game scenes must pass.
 
 ## Pivots and hose rig
 
@@ -99,9 +116,9 @@ No animation clips are exported; the engine controls the separate parts/skin.
 
 | Node | Blender local axis / range | Location / behavior |
 | --- | --- | --- |
-| `Lid` | X, 0° closed to −104° open | World (−55.5, 266, 902) mm; hood/caps/handle/dial move together |
-| `Knob_1`…`Knob_3` | local Y, 0–270° | Shafts follow the fascia's −12° X inclination; indices rotate with paddles |
-| `Wheel_Front`, `Wheel_Back` | Y, continuous | World X 301.5 / Y ±253 / Z 90 mm; common axle |
+| `Lid` | X, 0° closed to −104° open | World (−55.5, 294, 912) mm; hood/caps/handle/dial move together |
+| `Knob_1`…`Knob_3` | local Y, 0° to −140° | Shafts follow the fascia's −12° X inclination; indices rotate with paddles |
+| `Wheel_Front`, `Wheel_Back` | Y, continuous | World X 301.5 / Y ±290 / Z 90 mm; common axle |
 | `GreaseTray` | local Y translation, −200…0 mm | World (−55.5, −9, 647) mm; drawer/cup/handle slide toward the front |
 | `tank_socket` | Z yaw +50°, fixed | World (451.5, 13, 198) mm; external tank origin/orientation |
 | `regulator_attach` | bone-parented, fixed mating frame | Type 1 mating face; local +Y toward the valve, +Z up in connected rest pose |
@@ -141,8 +158,11 @@ world **(483.597, −13.933, 621.5) mm**, axis **(0.766044, −0.642788, 0)**.
 The coupling's mating face coincides on axis. Its mouth overlaps 10 mm of the
 outlet thread region. A J-hook lifts beneath the collar's side handle lip at
 canonical **(−94, 0, 436) mm**; formed bridge straps connect the spring scale to
-the cart. The lined lower cradle contacts the 105 mm foot-ring radius; its
-mounting plate/bolt seat on the upright's outer face. The separate vessel extends
+the cart. The foot ring narrows above its 105 mm maximum flange radius. The
+retention cradle has approximately 3.1 mm clearance and its pads 3.4–3.5 mm
+clearance at their working height; these restrain swing after small movement,
+and are not zero-clearance supports. The collar hook carries the tank weight.
+The mounting plate/bolt seat on the upright's outer face. The separate vessel extends
 3.1 mm beyond the right table edge; it is excluded from the grill envelope.
 Rest hose clearance to
 the canonical mesh is measured by the optional checker.
@@ -162,7 +182,8 @@ OptiX/CUDA GPU are required. No packages, code, HDRIs or assets are downloaded.
 
 ```sh
 make                          # complete delivery build and checks
-make check                    # source/game + camera + GLB/UV/rig/fit + Git rules
+make check                    # geometry, motion, construction, camera, GLB/UV/rig/fit, Git rules
+make check-texture-repeat     # optional full rebake and numerical texture comparison
 make preview                  # Workbench source review
 make match PASS=photo-review WIDTH=1200 SAMPLES=48
 make WEAR=0.65 PASS=dirtier WIDTH=1000 SAMPLES=32 render
@@ -185,22 +206,36 @@ asset follows the selected US straight grates.
 | `export/GasGrill.glb` | Embedded baked textures, separate pivots, six-bone skin and sockets |
 | `textures/bake/`, `textures/ship/` | 4096 source bake and 2048 delivery set/reports |
 | `build/lookdev.blend`, `build/game-audit.blend`, `build/finalized.blend` | Original high, game tessellation and packed low scenes |
-| `build/*-audit.json`, `uv-report.json`, `delivery-check.json`, `fit-check.json` | Independent counts/topology/scale, UVs, GLB/rig and optional fit proof |
-| `renders/final/contact.jpg` | All 14 Cycles views plus Eevee last |
-| `renders/final/` | Both heroes, turnaround, controls/interior/construction/combustion/regulator, scale, free-hose pose and optional canonical fit; shot metadata with GLB SHA-256 |
+| `build/*-audit.json`, `uv-report.json`, `delivery-check.json`, `fit-check.json`, `motion-*.json`, `construction-check.json` | Independent counts/topology/scale, UVs, GLB/rig and optional fit proof |
+| `renders/final/contact.jpg` | All 16 Cycles views plus Eevee last |
+| `renders/final/` | Both heroes, turnaround, controls/interior/construction/combustion/regulator, scale, free-hose pose, withdrawn drawer/cup-support details and optional canonical fit; shot metadata with GLB SHA-256 |
 | `renders/final-eevee/hero_closed.png` | Eevee render of the same exported GLB |
 | `renders/final-photo/*-pair.jpg` | Last source/photo comparisons, ignored and not used as textures |
 | `docs/` | Five final JPGs, each ≤1600 px wide and ≤200 KB |
 
 ![Exported turnaround](docs/turnaround.jpg)
 
-The weakest area remains close-range microdetail in one 2048 atlas: fine
-brushing, fingerprints, burner ports and tiny graphics soften compared with the
-procedural source. Extreme control/handle close-ups also reveal coarse silhouettes and some
-baked-normal waviness. Carbon breakup remains more regular than incidental
-reference wear. The hose demonstration is a validated pose, not a physics
-simulation. The exact hood/cap profile and straight-grate configuration are
-original variants rather than a manufacturer CAD replica.
+Known limitations retained after owner approval: combustion weathering still
+has procedural mottling and overly uniform grate bars; shipped stainless loses
+source anisotropy, becoming pale in Cycles or granular in Eevee; burner ports
+are subtexel in the atlas. Control/handle close-ups reveal coarse silhouettes
+and baked-normal waviness. The free hose pose still has visible bends/twist and
+about 26% local radius compression; it is a functional demonstration, not a
+physics simulation. These finishes and the hose pose were outside this final
+construction touch-up.
+
+Geometry is deterministic. Cycles GPU maps are numerically reproducible, not
+byte-identical: accepted maximum channel difference is **2/255**, with RGB
+byte-domain RMSE ≤**0.02** per map. `kit/compare_textures.py` passed on two
+current full-size bakes: 53 changed channel values total, maximum difference 1,
+worst RMSE 0.00147 bytes (`build/texture-repeat.json`). The fresh reviewer's
+earlier independent pair also passes (maximum difference 2).
+`make check-texture-repeat` tests an additional full bake when needed.
+Export-preservation checks prove
+serialization; motion/construction reports provide the separate mechanical
+checks. The motion sweeps sample the declared ranges; they are not continuous
+collision detection.
+
 
 Original geometry, shaders, studio and fictional markings are generated here.
 Reference photos/manuals remain their authors' copyrighted measurement aids

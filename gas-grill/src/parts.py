@@ -1,13 +1,14 @@
 """Assembly ownership and small manufacturing details for the Field 3 family."""
 import bpy
 from kit import model as G,materials as M
+from settings import ASSET_SET,COMBUSTION_GEOMETRY,BURNER_GEOMETRY
 
 
 class Build:
     def __init__(self,high,wear,marks):
         self.high=high;self.wear=wear;self.edges=3 if high else 1
         self.circle=64 if high else 24
-        self.root=G.pivot('Grill',(0,0,0));self.root['static_root']=True
+        self.root=G.pivot('Grill',(0,0,0));self.root['static_root']=True;self.root['asset_set']=ASSET_SET
         self.materials={key:M.surface('M_'+key,key,wear) for key in M.FINISHES}
         m=self.materials
         m['tire']=M.surface('M_scuffed_tire','rubber',wear,wheel_radius=(.073,.089),dust=.9)
@@ -15,11 +16,11 @@ class Build:
         m['powder']=M.surface('M_contact_worn_frame','powder',wear,dust=.35,grime=.25,chip_height=(.15,.02),
                 zones=[dict(center=(x,z),radii=(.028,.048)) for x in (-.296,.296) for z in (.055,.315,.72)])
         m['casting']=M.surface('M_coated_casting','powder',wear,color=(.014,.016,.014),dust=.18,roughness=.59,grime=.8,deposits=[dict(x=x,z=.89,width=w,length=.14,direction=(0,-1,0)) for x,w in [(-.19,.007),(.07,.005),(.24,.004)]])
-        m['inside']=M.combustion('M_seasoned_hood_carbon',wear,'hood')
-        m['bowl']=M.combustion('M_grease_carbon_bowl',wear,'bowl')
+        m['inside']=M.combustion('M_seasoned_hood_carbon',wear,'hood',geometry=COMBUSTION_GEOMETRY)
+        m['bowl']=M.combustion('M_grease_carbon_bowl',wear,'bowl',geometry=COMBUSTION_GEOMETRY)
         m['grate']=M.surface('M_satin_black_porcelain_iron','cast_iron',wear,grime=.8,heat=.6,heat_height=(.878,.015),cook_zones=[dict(center=(x,y),radii=(.095,.13),axes=(0,1)) for x,y in [(-.17,-.06),(.14,.045),(.04,-.10)]])
-        m['tent']=M.combustion('M_flame_carbon_heat_channels',wear,'channel')
-        m['burner']=M.ported_burner('M_ported_heat_tinted_burners',wear)
+        m['tent']=M.combustion('M_flame_carbon_heat_channels',wear,'channel',geometry=COMBUSTION_GEOMETRY)
+        m['burner']=M.ported_burner('M_ported_heat_tinted_burners',wear,**BURNER_GEOMETRY)
         m['shelf']=M.surface('M_settled_cart_dust','powder',wear,dust=.95,grime=.12)
         m['stainless_used']=M.surface('M_brushed_worktops','stainless',wear,dust=.12,heat=.35,heat_height=(.867,.018),heat_zones=[dict(center=(x,.03),radii=(.050,.25),axes=(0,1)) for x in (-.34,.34)],
                 zones=[dict(center=(-.47,.03),radii=(.08,.10),axes=(0,1)),dict(center=(.51,-.10),radii=(.07,.05),axes=(0,1))])
@@ -42,7 +43,7 @@ class Build:
         m['dial_print']=M.print_material('M_thermometer_dial',marks/'gauge.png')
         m['scale_print']=M.print_material('M_spring_scale_graphics',marks/'scale.png')
     def mat(self,key):return self.materials[key] if isinstance(key,str) else key
-    def add(self,ob,parent=None,aset='Grill'):
+    def add(self,ob,parent=None,aset=ASSET_SET):
         return G.attach(ob,parent or self.root,aset)
     def box(self,name,center,size,material='powder',radius=.001,parent=None,aset='Grill'):
         if not self.high and (min(size)<.006 or max(size)<.035):radius=0

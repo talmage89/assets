@@ -24,7 +24,7 @@ def build_firebox(b):
     G.bevel(vessel,.0007,b.edges);b.add(vessel)
     # Continuous overlapping lid seat, with a front grease-stained lip.
     b.box('Firebox stained front rim',(0,-.249,.895),(.638,.016,.014),'lip',.002)
-    b.box('Rear exhaust seat',(0,.271,.894),(.638,.015,.013),'casting',.002)
+    b.box('Rear exhaust seat',(0,.271,.892),(.638,.015,.013),'casting',.002)
     for x in (-.321,.321):
         b.box('Cast grate shelf',(x,.014,.870),(.015,.448,.013),'casting',.002)
         for y in (-.164,.158):
@@ -154,19 +154,25 @@ def build_warming_rack(b):
 
 def build_grease_system(b):
     # Drain throat drops into a broad shallow stamped sliding tray and a foil cup.
-    for x in (-.143,.143):
-        b.profile('Grease tray runner',[(x-.010,.680),(x+.004,.680),(x+.004,.650),(x-.010,.650),
-                                      (x-.010,.652),(x+.002,.652),(x+.002,.678),(x-.010,.678)],
-                  -.195,.212,'stainless',axis='Y',radius=.0006)
+    for sign in (-1,1):
+        section=[(sign*x,z) for x,z in [(.115,.644),(.162,.644),(.162,.680),(.160,.680),(.160,.647),(.115,.647)]]
+        b.profile('Grease tray runner',section,-.195,.212,'stainless',axis='Y',radius=.0004)
     before=set(b.root.children)
     loops=[]
     for z,w,d,r in [(.647,.260,.330,.019),(.653,.286,.361,.021),(.667,.298,.373,.024),(.668,.297,.372,.024)]:
         loops.append([(u,v-.009,z) for u,v in G.rounded_rectangle(w,d,r,6 if b.high else 2)])
-    tray=G.loft('Removable stamped grease tray',loops,b.mat('tray'))
+    for z,w,d,r in [(.668,.293,.368,.022),(.649,.256,.326,.017)]:
+        loops.append([(u,v-.009,z) for u,v in G.rounded_rectangle(w,d,r,6 if b.high else 2)])
+    for z in (.649,.647):
+        loops.append([(u,v-.030,z) for u,v in G.rounded_rectangle(.030,.040,.003,6 if b.high else 2)])
+    tray=G.ring_loft('Removable stamped grease tray',loops,b.mat('tray'))
     G.bevel(tray,.0007,b.edges);b.add(tray)
     b.box('Grease tray front fold',(0,-.196,.662),(.297,.003,.018),'tray',.001)
     for x in (-.073,.073):b.box('Grease tray handle standoff',(x,-.204,.658),(.012,.016,.012),'powder',.002)
     b.cylinder('Grease tray pull handle',(-.076,-.214,.658),(.076,-.214,.658),.004,'stainless',16 if b.high else 8)
+    for sign in (-1,1):
+        section=[(sign*x,z) for x,z in [(.103,.647),(.107,.647),(.107,.626),(.088,.626),(.088,.629),(.103,.629)]]
+        b.profile('Catch cup folded hanger',section,-.074,.014,'stainless',axis='Y',radius=.0004)
     # Small foil catch cup beneath outlet; the upper open surface contains residue.
     loops=[]
     for z,w,d in [(.610,.155,.104),(.629,.184,.130),(.630,.187,.133),(.631,.179,.125),(.614,.151,.100)]:
