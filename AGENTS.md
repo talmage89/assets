@@ -18,7 +18,12 @@ asset. Match its rigor and exceed its polish.
 Take pride in this work. Prioritize quality and careful implementation over speed in every step: there is no
 deadline. The goal is an asset a professional would be glad to ship: realistic, optimized and efficient. Look at
 every image you render, compare it honestly against the reference photos, and keep iterating until the differences
-are gone. When something is "good enough", do one more pass.
+are gone.
+
+**Effort is proportionate to the object's importance** (the owner: "apply scrupulosity proportionate to the
+importance of the object"). A grill or a car seen up close earns several critique rounds; a traffic cone or a fence
+post earns one careful pass. Every asset must still read as real at the distance a player sees it, and then you ship
+it and move on.
 
 - **Realism.** Real-world dimensions and proportions from cited sources. Real construction: how parts are stamped,
   cast, molded, welded, fastened and assembled. Real materials: painted steel, porcelain enamel, cast aluminum,
@@ -91,14 +96,22 @@ commit `.blend`, `.glb`, `.gltf`, `.fbx`, `.png`, `.exr`, textures, renders or d
 
   | Kind | Triangles | Shipped textures |
   | --- | --- | --- |
-  | Small item (sign, cone, ammo can) | 1k - 5k | 1024 |
-  | Hero prop (grill, mower) | 8k - 20k | 2048 |
+  | Small or widely repeated item (cone, sign, mailbox, ammo can) | 500 - 3k | 512 - 1024 |
+  | Standard prop (garbage can, hydrant, cooler, chair, street light) | 2k - 8k | 1024 |
+  | Modular piece (fence section, post, gate) | 300 - 2k per piece | one shared set per family |
+  | Hero prop, seen up close (grill, mower, patio heater) | 8k - 20k | 2048 |
   | Car | 40k - 70k | 2048 |
   | House | 30k - 80k | tiling sets + trim sheet |
   | Tree | 10k - 25k | 2048 with alpha cards |
   | Held gun | up to 50k | 2048 |
 
-  The brief may set a different budget. Going over needs a reason in your report.
+  The brief may set a different budget. Going over needs a reason in your report. Aim for the low end when the
+  object will appear many times in a scene; spend triangles only where they change the silhouette.
+- **What costs performance**, so you spend the budget well. Texture memory matters most: after block compression,
+  a three-map 2048 set takes about 16 MB of GPU memory, a 1024 set about 4 MB and a 512 set about 1 MB. Share one
+  set across a family (all the fence pieces, all the street signs) whenever their materials allow. Draw calls come
+  next: one material per asset, and separate objects only for parts that really move. Triangles matter least, since
+  engines generate distance LODs on import, but they still add up across a whole street.
 
 ## Definition of done
 
@@ -126,8 +139,9 @@ An asset is finished when all of these hold, with proof in your report:
   or Eevee previews while modeling and keep Cycles for checkpoints.
 - **Critique against photographs, not memory.** Use the kit's photo-match tool: pick reference photos of the views
   that matter (a 3/4 hero, the most complex area, a close-up), match their camera, and render side-by-side pairs.
-  Do at least three critique passes as a harsh art director: list everything that tells a viewer "this is CG", fix
-  it, and log each pass in the asset's `REVIEW.md`. Lenient self-review is the most common failure.
+  Critique as a harsh art director: list everything that tells a viewer "this is CG", fix it, and log each pass in
+  the asset's `REVIEW.md`. Hero assets get at least three passes, others at least two. Lenient self-review is the
+  most common failure.
 - **Build real construction.** Model how the part is made (wall thickness, hems, bends, castings, fasteners, welds),
   not simplified boxes and plates. The high-detail source can be as detailed as it needs; the game mesh stays in
   budget and carries fine detail in the normal map.
