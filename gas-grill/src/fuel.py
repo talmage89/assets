@@ -43,9 +43,9 @@ def build_fuel(b):
         f=distances[index//sides]/distances[-1]*5
         left=min(4,int(f));blend=max(0,min(1,f-left));blend=blend*blend*(3-2*blend)
         weights.append({names[left]:1-blend,names[left+1]:blend})
-    rig.bind(hose,arm,weights)
+    rig.bind(hose,arm,weights,export_part='HoseAssembly')
     for ob in list(connection.children):
-        rig.bind(ob,arm,[{names[-1]:1.0} for _ in ob.data.vertices])
+        rig.bind(ob,arm,[{names[-1]:1.0} for _ in ob.data.vertices],export_part='HoseAssembly')
     bpy.data.objects.remove(connection,do_unlink=True)
     b.cylinder('Manifold hose union',(.260,-.277,.733),(.260,-.277,.754),.009,'brass',6)
     attach=G.pivot('regulator_attach',(0,0,0));attach.parent=arm

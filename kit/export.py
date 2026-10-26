@@ -1,5 +1,5 @@
 """Consolidate static assemblies, preserve pivots/skin/sockets, embed one PBR atlas."""
-import argparse,json,sys
+import argparse,json,sys,runpy
 from pathlib import Path
 import bpy
 from mathutils import Vector,Matrix
@@ -34,7 +34,7 @@ def atlas_material(asset,folder):
 
 
 def moving_parent(ob):
-    if ob.get('export_part')=='HoseAssembly':return ob.parent
+    if ob.parent and ob.parent.type=='ARMATURE':return ob.parent
     parent=ob.parent
     while parent:
         if 'pivot_axis' in parent or 'slide_axis' in parent:return parent
@@ -48,8 +48,9 @@ def moving_parent(ob):
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--textures',required=True)
-    p.add_argument('--asset',required=True);p.add_argument('--out',required=True);p.add_argument('--report',required=True)
+    p.add_argument('--asset',required=True);p.add_argument('--out',required=True);p.add_argument('--report',required=True);p.add_argument('--config')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);bpy.ops.wm.open_mainfile(filepath=str(Path(a.source).resolve()))
+    cfg=runpy.run_path(a.config) if a.config else {}
     sc=bpy.context.scene;objects=[o for o in sc.objects if o.type=='MESH' and 'asset_set' in o]
     material=atlas_material(a.asset,Path(a.textures).resolve());groups={}
     for ob in objects:
@@ -60,9 +61,9 @@ def main():
         bpy.ops.object.select_all(action='DESELECT')
         for ob in members:ob.select_set(True)
         bpy.context.view_layer.objects.active=members[0];bpy.ops.object.join();ob=members[0]
-        if parent.type=='ARMATURE':ob.name='HoseAssembly'
+        if parent.type=='ARMATURE':ob.name=cfg.get('EXPORT_SKIN_NAMES',{}).get(parent.name,ob.get('export_part','HoseAssembly'))
         else:
-            G.attach(ob,parent,asset_set);ob.name=name
+            G.attach(ob,parent,asset_set=asset_set);ob.name=name
         ob.data.name=ob.name;ob['asset_set']=asset_set
         for layer in list(ob.data.uv_layers):
             if layer.name!='BakeUV':ob.data.uv_layers.remove(layer)

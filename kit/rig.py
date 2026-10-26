@@ -22,7 +22,7 @@ def chain(name,points,parent,prefix='Hose'):
     return arm
 
 
-def bind(ob,arm,weights):
+def bind(ob,arm,weights,export_part='HoseAssembly',modifier_name='Hose skin'):
     """Rebase into armature rest coordinates and bind per-vertex bone weights."""
     bpy.context.view_layer.update()
     transform=arm.matrix_world.inverted()@ob.matrix_world
@@ -38,9 +38,9 @@ def bind(ob,arm,weights):
         total=sum(row.values())
         if total<=0:raise ValueError('Vertex has no retained influences')
         for name,weight in row.items():groups[name].add([index],weight/total,'REPLACE')
-    modifier=ob.modifiers.new('Hose skin','ARMATURE');modifier.object=arm
+    modifier=ob.modifiers.new(modifier_name,'ARMATURE');modifier.object=arm
     modifier.use_deform_preserve_volume=False
-    ob['export_part']='HoseAssembly'
+    ob['export_part']=export_part
     return ob
 
 
@@ -62,22 +62,22 @@ def reset(arm):
     bpy.context.view_layer.update()
 
 
-def dangling(arm):
+def dangling(arm,angles=None,lateral=-.08,twist_step=24,initial_z=(0,-1,0)):
     """A free-hanging demonstration with ordinary glTF linear skinning.
 
     Connected heads preserve chain lengths. The wide shallow S bend keeps the
     fitting above the floor and the hose clear of the cart's front upright.
     """
     reset(arm)
-    previous_z=Vector((0,-1,0))
-    for index,(bone,degrees) in enumerate(zip(arm.pose.bones,[55,28,0,-28,-55,-70])):
+    previous_z=Vector(initial_z)
+    for index,(bone,degrees) in enumerate(zip(arm.pose.bones,angles if angles is not None else [55,28,0,-28,-55,-70])):
         angle=math.radians(degrees)
-        direction=Vector((math.sin(angle),-.08,-math.cos(angle))).normalized()
+        direction=Vector((math.sin(angle),lateral,-math.cos(angle))).normalized()
         z=previous_z-direction*previous_z.dot(direction);z.normalize()
         previous_z=z.copy()
         # A distributed untwist presents the diaphragm outward when stowed;
         # each adjacent pair differs by only 24 degrees of roll.
-        z=Quaternion(direction,math.radians(index*24))@z
+        z=Quaternion(direction,math.radians(index*twist_step))@z
         x=direction.cross(z).normalized()
         rotation=Matrix((x,direction,z)).transposed().to_4x4()
         if 'rest_frames' in arm:

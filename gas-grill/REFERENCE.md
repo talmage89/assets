@@ -17,9 +17,10 @@ Reference files, authors, license status and direct URLs: [SOURCES](refs/SOURCES
 | Feature | Reference | Asset target | Basis / uncertainty |
 | --- | --- | --- | --- |
 | Closed width | 52 in | 1320.8 mm | US catalog p12, extended shelves |
-| Closed depth | 27 in | 685.8 mm | US catalog p12, extremities |
+| Closed depth | 27 in | 715.8 mm authored | Catalog 685.8 mm; +30 mm for outboard wheel/hinge clearance |
 | Closed height | 44.5 in | 1130.3 mm | US catalog p12, hood crown |
-| Open height | 57 in | about 1448 mm | US catalog; hinge stop adjusted to original hood profile |
+| Open height | 57 in / about 1448 mm | 1570.2 mm measured | Original design at −104°, not a match to catalog open envelope |
+| Open depth | Not published here | 916.7 mm measured | Connected hose rest pose, external tank excluded |
 | Primary area | 424 in² | 0.27355 m² | US catalog; 610 × 448.45 mm grate envelope |
 | Warming rack | 105 in² | 557 × 121.62 mm | US area, manufacturer metric width; nominal bounding area |
 | Burner count | 3 | 3 longitudinal tubes + crossover | Catalog + owner/exploded manual |
@@ -49,8 +50,8 @@ places that origin at world (451.5, 13, 198) mm, yaw +50° about Blender Z.
 The canonical tank measures 312.2 mm diameter × 468.0 mm high; collar 175 mm,
 foot ring 210 mm. Its outlet face is (0, −41.9, 423.5) mm, axis −Y. The coupling
 meets the transformed face on axis. The hanger lifts the underside of the
-canonical collar handle lip at (−94, 0, 436) mm; the cradle and rubber pads touch
-the actual foot-ring radius. This supersedes the earlier Worthington dimensions.
+canonical collar handle lip at (−94, 0, 436) mm; the cradle and rubber pads leave approximately 3.1 and 3.4–3.5 mm
+clearance to the narrower ring section at their working height. This supersedes the earlier Worthington dimensions.
 
 One 2048 BaseColor / Normal / ORM set, baked at 4096, and at most 20,000 grill
 triangles include all hose/regulator/hanger geometry. Six connected hose bones
@@ -72,7 +73,7 @@ our former cylinder. These are comparisons, not identical-geometry claims.
 The open reference has regional GBS grates; the US specification retains two
 straight sections. The historical connection photograph shows the scale on the other image side;
 our outside-right spring scale follows this cart's mounting arrangement. The
-extended-table envelope is 1320.0 × 685.8 × 1130.3 mm. Grill-owned hardware
+extended-table envelope is 1320.0 × 715.8 × 1130.3 mm. Grill-owned hardware
 stays within it. Small deviations in nominal cooking area
 reflect the cast perimeter frames and assembly clearance.
 

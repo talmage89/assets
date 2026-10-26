@@ -1,6 +1,7 @@
 """Folded stainless fascia, rigid shaft controls and original silkscreen."""
 import math
 from kit import model as G
+from settings import KNOB_RANGE
 from mathutils import Matrix
 
 
@@ -21,7 +22,7 @@ def build_controls(b):
                 'stainless',64 if b.high else 12,axis='Y',center=(x,0),closed=True,parent=panel)
         if b.high:b.lathe('Control bezel gasket',[(-.006,.025),(-.006,.028),(-.008,.028),(-.008,.025)],
                 'rubber',48 if b.high else 16,axis='Y',center=(x,0),closed=True,parent=panel)
-        knob=G.pivot(f'Knob_{i}',(0,0,0),'Y',[0,270]);knob.parent=panel
+        knob=G.pivot(f'Knob_{i}',(0,0,0),'Y',KNOB_RANGE);knob.parent=panel
         shape=[(0,0),(0,.022),(-.003,.025),(-.010,.027),(-.020,.0265),(-.026,.024),(-.028,.021),(-.028,0)]
         b.lathe('Molded control knob',shape,'plastic',64 if b.high else 16,axis='Y',parent=knob)
         # Small mold seam, center recess and ergonomic tapered thumb paddle.
@@ -36,7 +37,7 @@ def build_controls(b):
                 x0=.026*math.cos(angle);z0=.026*math.sin(angle)
                 b.cylinder('Knob grip mold flute',(x0,-.021,z0),(x0,-.009,z0),.0006,'plastic',8,knob)
         for child in knob.children:child.data.transform(Matrix.Diagonal((1.12,1.04,1.12,1)))
-        knob.location=(x,-.006,0)
+        knob.location=(x,-.010,0)
     b.cylinder('Igniter bezel',(-.285,-.002,.027),(-.285,-.009,.027),.009,'stainless',40 if b.high else 16,panel)
     b.cylinder('Igniter rubber boot',(-.285,-.009,.027),(-.285,-.017,.027),.0067,'rubber',32 if b.high else 12,panel)
     b.cylinder('Igniter push cap',(-.285,-.017,.027),(-.285,-.020,.027),.0057,'plastic',24 if b.high else 12,panel)

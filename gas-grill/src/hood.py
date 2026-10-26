@@ -3,6 +3,7 @@ import math
 import bpy
 from mathutils import Vector
 from kit import model as G
+from settings import HINGE
 
 
 def smoothstep(x):
@@ -15,11 +16,11 @@ def hood_profile(high):
     profile+=G.bezier((-.074,1.121),(-.029,1.134),(.149,1.134),(.205,1.123),count)[1:]
     profile+=G.bezier((.205,1.123),(.261,1.116),(.277,1.042),(.276,.901),count)[1:]
     crown=max(z for _,z in profile)
-    return [(y,.895+(z-.895)*(1.1294-.895)/(crown-.895)) for y,z in profile]
+    return [(y,max(.906,.895+(z-.895)*(1.1294-.895)/(crown-.895))) for y,z in profile]
 
 
 def build_hood(b):
-    hinge=(0,.266,.902)
+    hinge=HINGE
     lid=G.pivot('Lid',hinge,'X',[-104,0]);lid.parent=b.root
     profile=hood_profile(b.high);normals=[]
     for i,p in enumerate(profile):
@@ -49,11 +50,21 @@ def build_hood(b):
     mod.thickness=.0018;mod.offset=-1;mod.material_offset=1;mod.material_offset_rim=1
     G.smooth(shell,36);b.add(shell,lid)
     # Cast caps wrap the edges with a rolled flange and a convex face/rim transition.
-    outline=profile+[(.276,.884),(-.255,.884)]
+    # Clip the cast rear corner to a flat clearance relief. Its edge is
+    # outside the complete fork envelope about the hinge, at every angle.
+    outline=[]
+    for p,q in zip(profile,profile[1:]+profile[:1]):
+        a=p[1]-p[0]-.710;b0=q[1]-q[0]-.710
+        if a>=0:outline.append(p)
+        if (a>=0)!=(b0>=0):
+            t=a/(a-b0);outline.append((p[0]+t*(q[0]-p[0]),p[1]+t*(q[1]-p[1])))
+    # Clamped endpoints form straight runs; avoid zero-area cap triangles.
+    for _ in range(3):
+        outline=[p for i,p in enumerate(outline) if abs((p[0]-outline[i-1][0])*(outline[(i+1)%len(outline)][1]-p[1])-(p[1]-outline[i-1][1])*(outline[(i+1)%len(outline)][0]-p[0]))>1e-12]
     cy,cz=.026,1.006
     for sign in (-1,1):
         rings=[]
-        for scale,x in [(1,.307),(1,.316),(.995,.327),(.976,.334),(.86,.334),(.30,.337),(.015,.337)]:
+        for scale,x in ([(1,.307),(1,.316),(.995,.327),(.976,.334),(.86,.334),(.30,.337),(.015,.337)] if b.high else [(1,.307),(1,.316),(.976,.334),(.015,.337)]):
             rings.append([(sign*x,cy+(y-cy)*scale,cz+(z-cz)*scale) for y,z in outline])
         cap=G.loft('Contoured cast hood end cap',rings,b.mat('casting'))
         G.smooth(cap,34);cap.data.materials.append(b.mat('inside'))
@@ -62,25 +73,25 @@ def build_hood(b):
         # Visible enamel/casting reveal and the overlapping skirt.
         seam=[(sign*.3064,y,z) for y,z in profile]
         b.tube('Porcelain to cap reveal',seam,.0007,'rubber',6 if b.high else 4,lid)
-        b.box('Cast cap overlapping lower skirt',(sign*.323,.011,.889),(.025,.514,.009),'casting',.002,lid)
+        b.box('Cast cap overlapping lower skirt',(sign*.341,-.016,.898),(.012,.452,.009),'casting',.002,lid)
         b.fastener('End cap rear screw',(sign*.339,.215,.928),(sign,0,0),radius=.0035,kind='cross',parent=lid,washer=False)
         # Fixed fork: two stamped steel ears straddle a moving cast hinge lug.
-        ear=[(.237,.872),(.289,.872),(.289,.913),(.276,.929),(.255,.929),(.237,.911)]
-        for x in (sign*.303,sign*.340):
+        ear=[(.247,.872),(.317,.872),(.317,.923),(.304,.939),(.283,.939),(.265,.921)]
+        for x in (sign*.309,sign*.340):
             bracket=G.profile('Rear fork hinge bracket',ear,x-.002,x+.002,b.mat('powder'))
             if b.high:
-                cut=G.cylinder('Hinge bore cutter',(x-.010,.266,.902),(x+.010,.266,.902),.0046,None,24)
+                cut=G.cylinder('Hinge bore cutter',(x-.010,hinge[1],hinge[2]),(x+.010,hinge[1],hinge[2]),.0046,None,24)
                 G.boolean(bracket,cut)
             G.bevel(bracket,.001,b.edges);b.add(bracket)
             b.fastener('Hinge bracket anchor',(x,.252,.883),(sign,0,0),radius=.004)
         b.lathe('Moving cast hinge lug',[(sign*.312,.0048),(sign*.312,.014),
                 (sign*.331,.014),(sign*.331,.0048)],'casting',40 if b.high else 16,
-                axis='X',center=(.266,.902),closed=True,parent=lid)
-        b.cylinder('Hinge shoulder pin',(sign*.296,.266,.902),(sign*.347,.266,.902),.0045,'stainless',24 if b.high else 12)
-        b.fastener('Hinge pin retaining head',(sign*.347,.266,.902),(sign,0,0),radius=.006,kind='socket',washer=False)
-        b.box('Hinge opening stop',(sign*.323,.286,.912),(.021,.008,.016),'powder',.001)
+                axis='X',center=(hinge[1],hinge[2]),closed=True,parent=lid)
+        b.cylinder('Hinge shoulder pin',(sign*.296,hinge[1],hinge[2]),(sign*.347,hinge[1],hinge[2]),.0045,'stainless',24 if b.high else 12)
+        b.fastener('Hinge pin retaining head',(sign*.347,hinge[1],hinge[2]),(sign,0,0),radius=.006,kind='socket',washer=False)
+        b.profile('Hinge moving lug web',[(.220,.965),(.256,.966),(.298,.922),(.288,.920),(.246,.948),(.220,.954)],sign*.323-.009,sign*.323+.009,'casting',radius=.0005,parent=lid)
     # Real front lip rolls over the firebox edge; back gap vents combustion gases.
-    b.box('Enamel rolled front lower hem',(0,-.255,.897),(.610,.006,.006),'enamel',.002,lid)
+    b.box('Enamel rolled front lower hem',(0,-.255,.906),(.610,.006,.006),'enamel',.002,lid)
     b.box('Rear lid vent folded lip',(0,.276,.904),(.602,.005,.009),'enamel',.0015,lid)
     for x in (-.257,.257):
         inside=G.offset_profile(profile[5:-5],-.007)
@@ -139,7 +150,7 @@ def build_badge_and_thermometer(b,lid,profile):
     badge=G.pivot('Hood badge',(0,0,0))
     b.box('Badge stamped backing',(0,0,0),(.142,.0014,.035),'stainless',.003,badge)
     b.add(G.plane_uv('Original maker badge',[(-.068,-.0009,-.014),(.068,-.0009,-.014),(.068,-.0009,.014),(-.068,-.0009,.014)],b.mat('badge_print')),badge)
-    y,z,angle=mount_at(profile,.67);badge.location=(-.16,y,z);badge.rotation_euler.x=angle
+    y,z,angle=mount_at(profile,.45);badge.location=(0,y,z);badge.rotation_euler.x=angle
     bpy.context.view_layer.update();world=badge.matrix_world.copy();badge.parent=lid;badge.matrix_world=world
     gauge=G.pivot('Thermometer',(0,0,0))
     b.lathe('Thermometer rolled bezel',[(0,.021),(.001,.026),(.004,.027),(.007,.026),(.008,.024),(.007,.022)],
@@ -152,5 +163,5 @@ def build_badge_and_thermometer(b,lid,profile):
     b.add(disk,gauge)
     b.profile('Thermometer needle',[(-.0006,-.003),(.0006,-.003),(.0003,.017),(-.0003,.017)],.004,.0045,'red',axis='Z',radius=0,parent=gauge)
     b.cylinder('Needle pivot',(0,0,.0042),(0,0,.0049),.0017,'chrome',12,gauge)
-    y,z,angle=mount_at(profile,.88);gauge.location=(.075,y,z);gauge.rotation_euler.x=angle+math.pi/2
+    y,z,angle=mount_at(profile,.88);gauge.location=(0,y,z);gauge.rotation_euler.x=angle+math.pi/2
     bpy.context.view_layer.update();world=gauge.matrix_world.copy();gauge.parent=lid;gauge.matrix_world=world

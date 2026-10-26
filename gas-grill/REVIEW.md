@@ -344,3 +344,101 @@ Every Cycles operation used OptiX on the GTX 1660 inside the shared flock.
 No tools, installations or approvals are needed from the lead. For future
 assets, keep the explicit source/game/delivery gates, photo residuals and final
 GLB checksums. Extend tiling/alpha policies when those assets actually need them.
+
+## Final targeted touch-up — 2026-10-26
+
+The owner approved the pilot and asked for proportionate effort. This pass fixes
+only the requested construction, reusable kit and documentation issues from
+`.foundry/runs/grill-review.md`; the earlier delivery measurements above are
+historical and are superseded here. Weathering, stainless, burner representation,
+knob shading and the demonstration hose pose remain known limitations in README.
+
+- The thermometer and badge now stack on the lid centerline. Orthographic front
+  measurement: badge X error 0.0000037 mm, thermometer 0.0000009 mm; projected
+  vertical gap 65.99 mm. `front-centering.jpg` overlays the measured axis on the
+  exported-GLB front render. The composition reads as a coherent product header.
+- Wheels move to Y ±290 mm with a longer axle, inboard mounting ears and thrust
+  spacers. Their minimum axial gaps to the legs are 17.50 / 18.50 mm. Y rotation
+  preserves those coordinates, proving leg separation at every angle, beyond
+  the sampled 5° sweep. Only the intended hub/axle bore contact is allowed.
+- The catch cup now has two folded hangers: 0.00 mm sampled tray gap and
+  0.0288 mm cup gap. The hollow pan has a real 30 × 40 mm drain. Underfloor
+  runners clear the drawer through its full 200 mm travel. The pulled-out GLB
+  render exposes the pan floor; its former projected cookbox outline is gone.
+- The hinge axis moves to world (−55.5, 294, 912) mm, with revised fork ears,
+  connecting webs, relieved cap rear corners and cleared lower lips. Both high
+  and game scenes pass 53 lid angles, every 2° from −104° to closed, at 0.5 mm
+  penetration tolerance. No non-allowed penetration is reported. This is a
+  sampled sweep, not continuous collision detection. Wheel, knob and drawer
+  sweeps also pass. Knobs have a 3 mm bezel gap and coherent OFF 0°, HI −25°,
+  LO −140° graphics/range. The obsolete colliding opening-stop cubes are gone.
+- Actual closed envelope is 1320.0 × 715.8 × 1130.3 mm: the clearance changes add
+  30 mm depth relative to the catalog. Fully open at −104°, connected rest hose,
+  excluding the external tank: height 1570.2 mm, depth 916.7 mm. These authored
+  open dimensions exceed the reference open-height callout; README says so.
+  The open hero camera was pulled back to retain the raised handle in frame.
+- The fit checker now samples actual cradle/pad triangles against the canonical
+  tank, instead of subtracting nominal maximum radii. Measured minimum gaps:
+  cradle 3.144 mm; pads 3.400 / 3.505 mm. These restrain swing and do not carry
+  the tank's weight; the collar hook does. The owner GLB remains unchanged.
+
+Kit additions are opt-in/backward compatible: `BAKE_POLICY` separates matching
+high/low moving roots for projection and retains stationary contact AO with
+independent rest-position shadow meshes; `MOTIONS` declares ranges, sample
+spacing, tolerances and intended-contact reasons; naming, skin pose/radius,
+texel-density bands, combustion dimensions and studio node/axis are parameters.
+`kit/README.md` gives the next author examples. A source-consolidation test found
+that Blender joins mutate shared mesh data; AO shadows now own independent mesh
+copies, guarded by an assertion. Two development bakes made before that fix were
+discarded. The fit checker also needed copied names before switching scenes;
+that verification error was fixed before the passing build.
+
+The generic solid checker fails the old audited scene for the reported wheel,
+lid and drawer collisions (`build/motion-regression.json`). Small checked-in
+fixtures pass for penetration, tangency, containment, a hollow cavity, legacy
+asset tags and a non-grill three-bone rig (`kit/test_policy.py`). New declaration
+options retain the original defaults, so existing asset callers do not need edits.
+
+Final game delivery: **19,912 triangles**, **171,390 high-source triangles**,
+one material and one 2048² BaseColor/Normal/ORM set baked at 4096² on OptiX under
+the shared lock. Packed coverage **46.45%**; density p5/median/p95
+**279/549/1140 px/m**. Three numerical contacts total **0.34 shipped texel²**;
+no outside or degenerate UV triangles. Re-import verifies names, hierarchy,
+weights, rest vertices, sockets, normals and the six-bone hose pose.
+
+Reviewed the exported heroes, all views on the contact sheet, orthographic
+centering overlay, withdrawn pan and underside support close-ups. The header,
+axle separation and supported cup fixes are visible. Remaining weaknesses:
+procedural carbon mottling, pale/granular stainless, subtexel burner ports,
+coarse/wavy controls and the hose's stiff twisted demonstration pose. These
+are retained deliberately within the owner's final scope.
+
+Numerical repeat proof on two current 4096→2048 isolated bakes:
+`python3 kit/compare_textures.py --reference build/touchup-repeat-reference
+--candidate gas-grill/textures/ship --out gas-grill/build/texture-repeat.json`
+passes. BaseColor/Normal/ORM changed 8/27/18 channel values, maximum delta 1,
+worst byte-domain RMSE 0.001465. Accepted limits are delta 2 and RMSE 0.02;
+byte identity is not promised. Final GLB **10,439,228 bytes**, delivered PNGs
+**1,645,778 / 2,693,421 / 4,489,710 bytes**.
+
+Accepted build commands and results:
+
+- `make -C gas-grill` — PASS (`build/touchup-camera-make.log`): affected source,
+  packed low mesh, 4096 GPU bake, downsample, GLB, 16 Cycles views, Eevee,
+  contacts/docs and all checks. The open hero now includes the full handle.
+- `make -C gas-grill check` — PASS (`build/touchup-last-check.log`): budgets,
+  bounds, topology/normals, UVs/density, camera calibration, GLB re-import,
+  six-bone skin/weights/pose/sockets, external fit, both motion sweeps,
+  construction measurements and repository rules.
+- `blender -b --factory-startup --python-exit-code 1 --python kit/test_policy.py`
+  — PASS. Numerical repeat comparison — PASS as recorded above.
+- `python3 kit/repo_check.py` and `git diff --check` — PASS. Five final docs JPGs
+  are 1600 px wide and 118–190 KB each; no generated asset/reference is tracked.
+
+All 17 final render records match current GLB SHA-256
+`0bde8373c76eb6fa32504f6be29136f8cebe909475b2428d4b51464fdd92c4f8`.
+Images: `renders/final/contact.jpg` (all), `details-contact.jpg`,
+`rig-contact.jpg`, `turnaround-contact.jpg`, `front-centering.jpg`, individual
+`renders/final/*.png`, and `renders/final-eevee/hero_closed.png`. Final committed
+JPGs: `docs/hero-closed.jpg`, `hero-open.jpg`, `details.jpg`, `rig-fit.jpg`,
+`turnaround.jpg`. No further tools or lead action are needed for this touch-up.
