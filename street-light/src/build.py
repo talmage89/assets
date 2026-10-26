@@ -23,7 +23,7 @@ def finish(wear,kind):
     if kind=='Optical glass':
         mat=n.finish((.94,.97,.95),.025,0,0);s=mat.node_tree.nodes['SURFACE'];s.inputs['Transmission Weight'].default_value=1;s.inputs['IOR'].default_value=1.5;return mat
     if kind=='LED phosphor':
-        mat=n.finish((.82,.74,.54),.3,0,0);s=mat.node_tree.nodes['SURFACE'];s.inputs['Emission Color'].default_value=(.82,.74,.54,1);s.inputs['Emission Strength'].default_value=2;return mat
+        mat=n.finish((.82,.74,.54),.3,0,0);s=mat.node_tree.nodes['SURFACE'];s.inputs['Emission Color'].default_value=(.82,.74,.54,1);s.inputs['Emission Strength'].default_value=16;return mat
     if kind=='Photocell polymer':return n.finish((.015,.020,.021),.42,0,n.mul(grain,4e-6))
     # Corrosion belongs at casting edges, seams and exposed fasteners.
     chips=n.mul(wear,c['edge'],n.ramp(grain,.62,.77),.55)

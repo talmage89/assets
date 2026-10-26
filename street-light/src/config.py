@@ -3,7 +3,7 @@ STUDIO_SCALE=3
 STUDIO_BACKDROP_HEIGHT=45
 BUDGETS={'StreetLight':3200}
 BOUNDS={'StreetLight':dict(size=(.38,2.44,7.9561),tolerance=(.003,.03,.003))}
-MATERIAL_OVERRIDES={'LED phosphor emitter':dict(emission_strength=2),'Tempered optical glass':dict(transmission=1,ior=1.5)}
+MATERIAL_OVERRIDES={'LED phosphor emitter':dict(emission_strength=16),'Tempered optical glass':dict(transmission=1,ior=1.5)}
 REQUIRED_NODES=['StreetLight','LightEmitter']
 BAKE_POLICY=dict(cage_m=.0015,ray_distance_m=.006,ao_distance_m=.018)
 UV_SMART_ASPECT=False
