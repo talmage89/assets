@@ -164,3 +164,51 @@ coincide and a 90° corner measures zero penetration at 0.3 mm tolerance.
 Serialization verifies zero rest-vertex error and required socket matrices.
 Final per-type contacts remain ignored; family JPG composition is deferred to
 batch completion.
+
+
+## Chain-link — careful construction/material pass
+
+Opened every first source preview, the Denver-independent New Orleans mesh
+close-up and its calibrated pair. The initial source preview was black because
+its material looked for UVMap while source cards used BakeUV. Corrected both
+image UV and tangent-normal layer names; final exports always use UVMap. Opened
+the corrected source pair at `chain-link/renders/corrected/match_mesh-pair.jpg`:
+round-wire tangent relief and the subtle over/under displacement now survive.
+The fitted diamond landmarks have 1.7 px RMS on the 340×240 photo crop, lens
+about 139.9 mm. The unsurveyed commercial photo is used for wire/fitting response;
+its fence height and twisted upper selvage do not redefine our 4 ft residential
+knuckled design. Fine loop topology is necessarily approximated by the alpha
+card, and its wire responds less richly than actual round 3D wire up close.
+
+Technical critique caught rotated tension bars (rotation after parenting had
+moved them about the module origin), sleeve/strap intrusion into hinge bores,
+and fork jaws crossing their pin. Corrected authoring transforms, hollow bores,
+bent clamp necks and open fork jaws. Staggered the corner's second band set by
+24 mm; added real downward stamped rail-end lugs instead of floating hollow
+cups. Both high/game sampled gate and fork sweeps now pass without allowances,
+and physical triangle-surface contacts check the fittings separately from GLB
+serialization. Fabric ties are checked against the card support envelope;
+this is not a claim of a continuous 3D wire collision surface.
+
+The prefab gate bay is three budgeted modules (hinge post, latch post and the
+moving gate), each under 2k. Its combined count is reported rather than hidden
+behind the per-module number. Four bay end treatments and two terminal handed
+versions are necessary to keep the fabric on the same side of the frame while
+joining actual tension bars. The corner proof uses a true terminal-to-terminal
+bay; a line-post infill would run through the corner's center.
+
+UV packing initially gave thin 3 m bottom wire the same importance as hardware.
+Reduced its unique UV priority and gave the alpha field a 256² repeat plus a
+256×32 knuckle strip. Unique metal UVs now pass the ordinary non-overlap check;
+explicit repeated fabric UVs pass separate region/density/MASK tests. The two
+materials share three 1024² images, about 4 MiB total. Per-type studio/GLB review
+and exact final budgets follow after the final build.
+
+
+Final imported-corner testing caught two real fit issues that a serialization
+comparison would miss: the decagonal cup bore pinched the round rail by
+0.53 mm, and a straight bottom tension wire crossed its termination bar by
+1.41 mm. Increased the authored cup bore with its wall retained, and ended the
+wire at the inward bar surface instead of carrying it through the bar toward
+the post center. The same low geometry is checked before rebake and again from
+the final GLB; no collision exception masks either problem.

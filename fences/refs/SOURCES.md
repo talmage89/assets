@@ -45,3 +45,5 @@ Additional web-only specifications (no local download):
 | picket-white-03.jpg | https://localfence.com/wp-content/uploads/2024/07/white-picket-fence-03.webp | New Orleans Fence Company, all rights reserved; local reference | Spaced French Gothic tips, capped posts and rear compression brace; original WEBP bytes |
 | chainlink02.jpg | https://localfence.com/wp-content/uploads/2018/08/chainlink02.jpg | New Orleans Fence Company, all rights reserved; local reference | Terminal bands, tension bar, hollow rail connection and zinc response; commercial height / twisted edge differ from residential design |
 | cl_02.jpg | https://localfence.com/wp-content/uploads/2018/08/cl_02.jpg | New Orleans Fence Company, all rights reserved; local reference | Long run mesh transparency and rail/line-post rhythm |
+
+- [Hoffman Fence complete catalog](https://www.hoffmanfence.com/main.pdf), Hoffman Fence, all rights reserved: residential welded gate frames use 1-3/8 in tubing and allow for hinge/latch clearance in the ordered opening. Viewed product specification only; no CAD or imagery enters the model.
