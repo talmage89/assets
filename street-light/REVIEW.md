@@ -63,3 +63,30 @@ This retains 3180 triangles and smooth interpolated pipe normals while keeping
 the close-packed optics free of cross-projection. The exported photo filter
 also now includes the joined StreetLightMesh; source-only part prefixes had
 hidden the entire joined mesh in the first comparison.
+
+Final Cycles review (aligned source, review7): opened the hero, front, side,
+back, top, optics, base, scale and lit views from the new exported GLB. The
+arm's top is continuous zinc, the handhole has no black projection patches,
+and the reflector/glass edges are clean again. The visible bend faceting is
+proportionate to a fixture nearly eight meters above the ground. Tiny anchor
+threads and fasteners are softer than the source at 1024; the shaft's low texel
+density and sparse camera calibration remain the main compromises.
+
+Delivery complete: `make -C street-light all match-final PASS=review7` passed,
+including audits, repository policy, UV/density, normals, independent GLB
+reimport, camera calibration, physical supports and actual optical-material
+checks. Opened the final Eevee, contact sheet, documentation composites and
+exported photograph pair as well. The pair now shows the joined fixture; its
+support arm continues out of frame. The original casting has a more angular
+driver hump and simpler reflector layout than the reference, while retaining
+the measured envelope and plausible construction.
+
+All 11 final-shot metadata records (nine Cycles, one Eevee, one photo match)
+match GLB SHA256 `521d3a1663aa1204e002bcc711ef98f2c52a9711221143b4c25b74370e13a0b5`.
+Delivery is 3180 triangles, three materials, three shared 1024-square images,
+1472732 GLB bytes. UV coverage 37.9366%, zero overlaps, density p5/median/p95
+128/600/775 px/m. All 19 physical support pairs pass on actual
+game surfaces; maximum sampled vertex-to-triangle gap is
+4.76837158e-07 m (an upper bound, not an exact distance).
+Serialization checks prove delivery fidelity separately. No in-use motion.
+The three final JPGs are at most 1600 px wide and 67657 bytes.
