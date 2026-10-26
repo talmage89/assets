@@ -156,7 +156,7 @@ def main():
         sc.view_settings.exposure=shot.get('exposure',.3 if a.engine=='BLENDER_WORKBENCH' else -.8)
         cam.data.clip_start=.01;cam.data.clip_end=100
         sc.render.resolution_x=a.width;sc.render.resolution_y=round(a.width/shot.get('aspect',1.25))
-        sc.render.film_transparent=cam.data.type=='ORTHO'
+        sc.render.film_transparent=cam.data.type=='ORTHO' or shot.get('background')=='transparent'
         bpy.data.objects['Studio seamless'].hide_render=cam.data.type=='ORTHO'
         for ob in sc.objects:
             if ob.type=='MESH' and 'asset_set' in ob:

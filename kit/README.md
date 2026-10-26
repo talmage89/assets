@@ -242,3 +242,5 @@ Shot `emission_scale` multiplies/restores authored material emission for day/off
 comparisons without modifying the shipped asset. Defaults preserve prior views.
 Optional `STUDIO_BACKDROP_HEIGHT` extends the procedural wall for upward-facing
 detail cameras on tall props; lighting and the default studio remain unchanged.
+Photo shots may set `background='transparent'` for neutral alpha composition
+when the calibrated camera faces outside the procedural backdrop.
