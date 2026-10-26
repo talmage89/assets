@@ -56,13 +56,14 @@ def main():
         parent=moving_parent(ob);name=ob.get('export_part',parent.name+'Mesh')
         groups.setdefault((parent,name),[]).append(ob)
     for (parent,name),members in groups.items():
+        asset_set=members[0].get('asset_set',a.asset)
         bpy.ops.object.select_all(action='DESELECT')
         for ob in members:ob.select_set(True)
         bpy.context.view_layer.objects.active=members[0];bpy.ops.object.join();ob=members[0]
         if parent.type=='ARMATURE':ob.name='HoseAssembly'
         else:
-            G.attach(ob,parent);ob.name=name
-        ob.data.name=ob.name;ob['asset_set']=members[0].get('asset_set',a.asset)
+            G.attach(ob,parent,asset_set);ob.name=name
+        ob.data.name=ob.name;ob['asset_set']=asset_set
         for layer in list(ob.data.uv_layers):
             if layer.name!='BakeUV':ob.data.uv_layers.remove(layer)
         ob.data.uv_layers['BakeUV'].name='UVMap'

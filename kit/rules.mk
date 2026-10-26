@@ -73,7 +73,10 @@ match: model refs $(BUILD)/matched-cameras.json
 	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --source $(BUILD)/lookdev.blend --config $(CONFIG) --camera-file $(BUILD)/matched-cameras.json --out renders/$(PASS) --shots "$(shell $(PYTHON) -c "import json; print(','.join(json.load(open('$(BUILD)/matched-cameras.json'))))" 2>/dev/null)" --width $(WIDTH) --samples $(SAMPLES)
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration $(BUILD)/matched-cameras.json --renders renders/$(PASS) --out renders/$(PASS)
 
-$(BUILD)/finalized.blend: $(BUILD)/game-audit.blend $(CONFIG) $(KIT)/finalize.py $(KIT)/uv.py
+$(BUILD)/delivery-parameters.txt: FORCE
+	@mkdir -p $(BUILD)
+	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='size=$(SHIP_SIZE) density=$(UV_TARGET_DENSITY) margin=$(UV_MARGIN)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
+$(BUILD)/finalized.blend: $(BUILD)/game-audit.blend $(CONFIG) $(KIT)/finalize.py $(KIT)/uv.py $(BUILD)/delivery-parameters.txt
 	$(BP) --python $(KIT)/finalize.py -- --source $< --config $(CONFIG) --out $@ --report $(BUILD)/uv-report.json --size $(SHIP_SIZE) --target-density $(UV_TARGET_DENSITY) --margin $(UV_MARGIN)
 finalize: $(BUILD)/finalized.blend
 $(BUILD)/baked.stamp: $(BUILD)/finalized.blend $(BUILD)/lookdev.blend $(KIT)/bake.py $(KIT)/image_io.py $(KIT)/gpu.py
