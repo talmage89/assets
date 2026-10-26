@@ -6,7 +6,7 @@ No downloaded lighting. All temporary scene objects are tagged studio=True.
 import argparse, math, sys, runpy, json, hashlib
 from pathlib import Path
 import bpy
-from mathutils import Vector
+from mathutils import Vector, Matrix
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from kit import model as G, gpu, rig
 
@@ -72,7 +72,9 @@ def main():
     else:bpy.ops.wm.open_mainfile(filepath=str(source))
     source_digest=hashlib.sha256(source.read_bytes()).hexdigest()
     sc=bpy.context.scene
-    cam=add_studio();silhouette=human()
+    cam=add_studio()
+    studio_rest={ob:ob.matrix_world.copy() for ob in sc.objects if ob.get('studio') and ob!=cam}
+    silhouette=human()
     sc.render.engine=a.engine
     if a.engine=='CYCLES':
         gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True
@@ -105,6 +107,9 @@ def main():
     part_rest={key:bpy.data.objects[key].matrix_basis.copy() for shot in shots.values() for key in shot.get('parts',{}) if key in bpy.data.objects}
     for name in a.shots.split(','):
         shot=shots[name]
+        # Optional per-view studio orientation keeps the seamless behind back views.
+        studio_rotation=Matrix.Rotation(math.radians(shot.get('studio_yaw',0)),4,'Z')
+        for ob,matrix in studio_rest.items():ob.matrix_world=studio_rotation@matrix
         for key,matrix in part_rest.items():bpy.data.objects[key].matrix_basis=matrix
         for key,pose in shot.get('parts',{}).items():
             if 'translation' in pose:bpy.data.objects[key].location+=Vector(pose['translation'])

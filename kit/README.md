@@ -211,3 +211,7 @@ frame: knots bend growth bands, cut-end checks and ground splash follow their
 causes, and optional nail rows bake metal heads and downward stains.
 `materials.galvanized()` supplies original zinc crystallization. Both retain the
 existing bake-channel interface; source frames are discarded during export.
+
+Studio shots can set `studio_yaw` in degrees to rotate the procedural backdrop,
+lights and reflection flags for a reverse product view; camera and human stay
+in their configured world frames. Existing shots default to zero rotation.
