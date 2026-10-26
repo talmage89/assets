@@ -9,6 +9,7 @@ BAKE_SAMPLES ?= 16
 WEAR ?= .55
 SHOTS := hero_closed,controls,casting
 FINAL_SHOTS := hero_closed,front,side,back,top,controls,casting,scale
+MODEL_DEPS = src/build.py $(KIT)/model.py $(KIT)/materials.py $(KIT)/prop.py
 include ../kit/rules.mk
 MODEL_DEPS += $(KIT)/prop.py
 .PHONY: photo check-assembly
@@ -19,7 +20,6 @@ all: photo
 check: check-assembly
 check-assembly: build/game-audit.blend
 	$(BP) --python $(KIT)/assembly.py -- --source $< --config $(CONFIG) --out build/assembly-check.json
-MODEL_DEPS := src/build.py $(KIT)/model.py $(KIT)/materials.py $(KIT)/prop.py
 .PHONY: check-stack
 check: check-stack
 check-stack: export/$(ASSET).glb

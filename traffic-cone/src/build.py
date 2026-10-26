@@ -36,7 +36,7 @@ def main():
     a=arguments();b=Build('TrafficCone',a.quality,a.wear);orange=finish(a.wear);black=finish(a.wear,True)
     # Top and bottom open: 2.54 mm-class wall; the grip neck has a real central opening.
     outer=[(.0254,.108),(.034,.108),(.045,.09525),(.050,.094),(.6604,.0254),(.667,.0254),(.682,.0135),(.695,.0135),(.6985,.01905),(.7112,.01905)]
-    inner=[(.7112,.009525),(.695,.009525),(.6604,.02286),(.05,.09146),(.0254,.104)]
+    inner=[(.7112,.009525),(.695,.009525),(.682,.01096),(.667,.02286),(.6604,.02286),(.05,.09146),(.0254,.104)]
     b.add(G.lathe('Hollow orange cone and grip',outer+inner,orange,96 if b.high else 20,closed=True))
     # Equal-angle rings keep the stacking bore circular. Reusing rounded-square
     # corner parameters here would turn the bore into a rounded diamond.
