@@ -4,7 +4,7 @@ from pathlib import Path
 import bpy,numpy as np
 from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
-from kit import gpu,bake_groups
+from kit import gpu,bake_groups,atlas
 from kit.image_io import write_png,linear_to_srgb
 
 
@@ -17,11 +17,11 @@ def main():
     bpy.ops.wm.open_mainfile(filepath=str(Path(a.low).resolve()));sc=bpy.context.scene
     cfg=runpy.run_path(a.config) if a.config else {}
     policy=cfg.get('BAKE_POLICY',{});roots=policy.get('moving_roots',[]) if policy.get('isolate_moving',False) else []
-    originals=[o for o in sc.objects if o.type=='MESH' and 'asset_set' in o]
+    originals=[o for o in sc.objects if o.type=='MESH' and 'asset_set' in o and not atlas.tiled_spec(o.name,cfg)]
     spacing=bake_groups.offsets(originals,roots,policy.get('padding_m',.1)) if roots else {}
     copies=[];group_counts={}
     for ob in list(sc.objects):
-        if ob.type!='MESH' or 'asset_set' not in ob:continue
+        if ob.type!='MESH' or 'asset_set' not in ob or atlas.tiled_spec(ob.name,cfg):continue
         copy=ob.copy();copy.data=ob.data.copy();copy.name='Bake copy '+ob.name;sc.collection.objects.link(copy)
         group=bake_groups.owner(ob,roots);group_counts[group]=group_counts.get(group,0)+1
         world=ob.matrix_world.copy();world.translation+=spacing.get(group,Vector((0,0,0)))
@@ -42,8 +42,10 @@ def main():
     source_objects=[ob for ob in destination.objects if ob]
     for ob in source_objects:sc.collection.objects.link(ob)
     bpy.context.view_layer.update()
-    sources=[ob for ob in source_objects if ob.type=='MESH' and 'asset_set' in ob]
+    sources=[ob for ob in source_objects if ob.type=='MESH' and 'asset_set' in ob and not atlas.tiled_spec(ob.name,cfg)]
     if len({ob.get('asset_set') for ob in sources})!=1:raise ValueError('Bake one atlas set at a time')
+    for ob in source_objects:
+        if ob.type=='MESH' and atlas.tiled_spec(ob.name,cfg):ob.hide_render=True
     for ob in sources:
         ob.hide_render=False
         for modifier in ob.modifiers:

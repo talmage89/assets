@@ -4,10 +4,10 @@ from pathlib import Path
 import bpy
 from mathutils import Vector,Matrix
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
-from kit import model as G
+from kit import model as G,atlas
 
 
-def atlas_material(asset,folder):
+def atlas_material(asset,folder,alpha_cutoff=None,double_sided=True):
     material=bpy.data.materials.new(asset);material.use_nodes=True
     nt=material.node_tree;nt.nodes.clear()
     surface=nt.nodes.new('ShaderNodeBsdfPrincipled');surface.name='SURFACE'
@@ -20,6 +20,10 @@ def atlas_material(asset,folder):
         texture.image.colorspace_settings.name='sRGB' if channel=='BaseColor' else 'Non-Color'
         nt.links.new(uv.outputs[0],texture.inputs['Vector']);images[channel]=texture
     nt.links.new(images['BaseColor'].outputs['Color'],surface.inputs['Base Color'])
+    if alpha_cutoff is not None:
+        clip=nt.nodes.new('ShaderNodeMath');clip.operation='GREATER_THAN';clip.inputs[1].default_value=alpha_cutoff
+        nt.links.new(images['BaseColor'].outputs['Alpha'],clip.inputs[0]);nt.links.new(clip.outputs[0],surface.inputs['Alpha'])
+        material.surface_render_method='DITHERED';material.use_backface_culling=not double_sided
     separate=nt.nodes.new('ShaderNodeSeparateColor');nt.links.new(images['ORM'].outputs['Color'],separate.inputs['Color'])
     nt.links.new(separate.outputs['Green'],surface.inputs['Roughness']);nt.links.new(separate.outputs['Blue'],surface.inputs['Metallic'])
     normal=nt.nodes.new('ShaderNodeNormalMap');normal.uv_map='UVMap'
@@ -67,7 +71,14 @@ def main():
     for ob in objects:
         parent=moving_parent(ob);name=ob.get('export_part',parent.name+'Mesh')
         groups.setdefault((parent,name),[]).append(ob)
+    tile_materials={}
     for (parent,name),members in groups.items():
+        spec=atlas.tiled_spec(members[0].name,cfg)
+        chosen=material
+        if spec:
+            key=(spec.get('alpha_cutoff'),spec.get('double_sided',True))
+            if key not in tile_materials:tile_materials[key]=atlas_material(a.asset,Path(a.textures).resolve(),*key)
+            chosen=tile_materials[key]
         asset_set=members[0].get('asset_set',a.asset)
         bpy.ops.object.select_all(action='DESELECT')
         for ob in members:ob.select_set(True)
@@ -80,7 +91,7 @@ def main():
             if layer.name!='BakeUV':ob.data.uv_layers.remove(layer)
         ob.data.uv_layers['BakeUV'].name='UVMap'
         ob.data.uv_layers.active=ob.data.uv_layers['UVMap'];ob.data.uv_layers['UVMap'].active_render=True
-        ob.data.materials.clear();ob.data.materials.append(material)
+        ob.data.materials.clear();ob.data.materials.append(chosen)
         for face in ob.data.polygons:face.material_index=0
         for attribute in list(ob.data.color_attributes):ob.data.color_attributes.remove(attribute)
     # Remove empty manufacturing helper frames once their geometry is consolidated.
@@ -103,7 +114,7 @@ def main():
                 head=list(ob.matrix_world@bone.head_local),tail=list(ob.matrix_world@bone.tail_local),
                 rest_matrix=[list(row) for row in ob.matrix_world@bone.matrix_local]) for bone in ob.data.bones}
     report['triangles']=sum(v['triangles'] for v in report['meshes'].values())
-    report['materials']=[material.name];report['source']=a.source
+    report['materials']=[material.name]+[m.name for m in tile_materials.values()];report['source']=a.source
     path=Path(a.out).resolve();path.parent.mkdir(parents=True,exist_ok=True)
     bpy.ops.object.select_all(action='SELECT')
     bpy.ops.export_scene.gltf(filepath=str(path),export_format='GLB',use_selection=True,export_yup=True,

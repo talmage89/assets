@@ -4,7 +4,7 @@ from pathlib import Path
 import bpy,bmesh
 from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
-from kit import uv
+from kit import uv,atlas
 
 
 def main():
@@ -29,6 +29,8 @@ def main():
         bm.to_mesh(ob.data);bm.free()
         layer=ob.data.uv_layers.get('BakeUV') or ob.data.uv_layers.new(name='BakeUV')
         ob.data.uv_layers.active=layer;layer.active_render=True
+    tiled=[o for o in objects if atlas.tiled_spec(o.name,config)]
+    objects=[o for o in objects if o not in tiled]
     bpy.ops.object.select_all(action='DESELECT')
     for ob in objects:ob.select_set(True)
     bpy.context.view_layer.objects.active=objects[0]
@@ -48,6 +50,10 @@ def main():
     bpy.ops.uv.pack_islands(udim_source='CLOSEST_UDIM',rotate=True,rotate_method='ANY',scale=True,
                           merge_overlap=False,margin_method='FRACTION',margin=a.margin,pin=False,shape_method=config.get('UV_PACK_SHAPE','CONCAVE'))
     bpy.ops.object.mode_set(mode='OBJECT')
+    if 'UV_ATLAS_RECT' in config:
+        x0,y0,x1,y1=config['UV_ATLAS_RECT']
+        for ob in objects:
+            for point in ob.data.uv_layers['BakeUV'].data:point.uv=(x0+point.uv.x*(x1-x0),y0+point.uv.y*(y1-y0))
     # Packing fits the atlas; reduce uniformly if a larger prop exceeds its declared density.
     measured=uv.report(objects,a.size)
     median=measured['density_px_m']['50']
@@ -56,6 +62,8 @@ def main():
         for ob in objects:
             for point in ob.data.uv_layers['BakeUV'].data:point.uv=(point.uv-Vector((.5,.5)))*factor+Vector((.5,.5))
         measured=uv.report(objects,a.size)
+    measured['tiling']=atlas.tile_report(tiled,config,a.size)
+    if not measured['tiling']['passed']:raise RuntimeError(str(measured['tiling']))
     measured['target_density_px_m']=a.target_density
     measured['density_policy']='priority-weighted: exterior/markings above structural and hidden surfaces'
     if measured['coverage']<.20 or measured['outside_triangles'] or measured['degenerate_uv_triangles'] or measured['overlap_fraction']>1e-5:

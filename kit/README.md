@@ -273,3 +273,16 @@ lighting/reflection context only and never enter the exported asset.
 The optional density-reduction pass scales UVs about an explicit 2D center
 vector (Blender 5.2 disallows Vector/scalar subtraction); the picket pipeline
 exercises this path and independently validates the resulting density/overlaps.
+
+`TILED_MESHES` maps mesh-name globs to reserved `rect=(u0,v0,u1,v1)`, density
+limits and optional `alpha_cutoff`/`double_sided`. These meshes retain authored
+UVs, skip selected-to-active baking, and use the same three atlas images through
+an alpha-tested material. `UV_ATLAS_RECT` reserves a separate square for unique
+geometry. Verification still checks unique-island overlaps, and separately
+rejects tile triangles outside their rectangle, degenerate UVs, wrong density,
+or altered glTF MASK/backface behavior. Repeated tile UVs are reported explicitly.
+`TEXTURE_DEPS` and optional `TEXTURE_POSTPROCESS` let an asset generate its own
+original tile into the shared delivery maps after normal/color downsampling.
+Defaults leave all existing opaque assets on their original one-atlas path.
+Run `blender -b --factory-startup --python-exit-code 1 --python kit/test_atlas.py`
+for the no-GPU finalize/export/re-import fixture and negative tile-bounds check.
