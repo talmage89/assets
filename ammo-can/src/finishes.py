@@ -5,7 +5,7 @@ from kit.materials import Nodes,common
 
 def olive(name,wear=.35,role='body',stamp=None):
  n=Nodes(name);c=common(n);p=c['position'];z=c['z']
- touch=n.ellipse(p,(0,.12),(.050,.045),(0,2)) if role=='body' else n.mul(n.maximum(n.band(z,0,.003,.005),n.band(z,-.11,.012,.010)),n.ramp(n.math('ABSOLUTE',c['y']),.010,.004))
+ touch=0 if role=='body' else n.mul(n.maximum(n.band(z,0,.003,.005),n.band(z,-.11,.012,.010)),n.ramp(n.math('ABSOLUTE',c['y']),.010,.004))
  low=n.ramp(z,.012,.002) if role=='body' else 0
  # Folding, stacking and the ground concentrate abrasion at actual sheet boundaries.
  if role=='body':

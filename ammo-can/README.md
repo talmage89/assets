@@ -37,8 +37,8 @@ All channels are baked at 4096 before filtering to delivery size. The kit
 isolates the lid, latch and handle during projection, retaining stationary
 contact AO and each part's rest coordinates.
 
-The GLB is **2,467,520 bytes**; delivered PNG sizes are BaseColor **729,791**,
-Normal **418,654**, ORM **1,097,409** bytes. Atlas coverage is **53.17%**, with
+The GLB is **2,398,092 bytes**; delivered PNG sizes are BaseColor **693,539**,
+Normal **418,129**, ORM **1,064,760** bytes. Atlas coverage is **53.17%**, with
 zero measured overlap/outside/degenerate triangles and density p5/median/p95
 **887/976/980 px/m** at 1024.
 
@@ -87,8 +87,8 @@ lighting; this original finish depicts modest handling wear. Hardware sizes
 beyond the published envelope/gauges are authored estimates, and the cam face
 and folded corners are simpler than a formed production part.
 
-Phase 2 used-surplus calibration: `renders/wear-pass2-glb/used_surplus-pair.jpg`
+Phase 2 used-surplus calibration: `renders/wear-pass3-glb/used_surplus-pair.jpg`
 compares the shipped atlas with an actual used M2A1 (source and rights in
 `refs/SOURCES.md`). The corresponding source pair is under
-`renders/wear-pass2-source/`. The fitted envelope residual is 4.84 px at
+`renders/wear-pass3-source/`. The fitted envelope residual is 4.84 px at
 900×600; paint shade and fictional markings intentionally differ.

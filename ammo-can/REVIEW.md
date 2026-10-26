@@ -84,3 +84,23 @@ triangles, 1 material, 2,467,520 bytes; BaseColor / Normal / ORM
 729,791 / 418,654 / 1,097,409 bytes at 1024².
 The same source contacts, motion sequences, independent UV/normal checks and
 fresh GLB re-import passed. Final docs are generated only after this acceptance.
+
+The complete final turnaround revealed a defect hidden by the accepted hero:
+the earlier body handling ellipse had become a circular mottled patch on the
+rear wall when amplified for wear. Rejected that patch on the full-view review.
+A rear mid-panel circle is not a defensible handling zone on a can carried by
+its top handle. Removed body handling entirely; broad body abrasion now comes
+only from the authored rack tracks, manufactured edges and ground-contact band.
+The cam/handle retain their own local contact masks. The first docs generation
+was held uncommitted; it cannot be accepted with that rear artifact.
+
+Third wear checkpoint: opened the complete front/rear/top/controls/hero probe
+in `renders/wear-pass3-hero/contact.jpg`, and both refreshed used-photo pairs.
+The circular rear patch is gone. The rear panel retains its coating with only
+fold and bottom wear; lid, cam contact and sparse side scuffs still read at hero
+distance. `make export check` exited 0 after this final material correction;
+log: `../build/polish/ammo-can-wear-pass3-build.log`. Delivery is 2,398,092
+bytes / 2,784 triangles / 1 material; maps BaseColor / Normal / ORM are
+693,539 / 418,129 / 1,064,760 bytes at 1024². The revised
+source/GLB pair paths are `renders/wear-pass3-source/used_surplus-pair.jpg`
+and `renders/wear-pass3-glb/used_surplus-pair.jpg`.
