@@ -47,3 +47,5 @@ Additional web-only specifications (no local download):
 | cl_02.jpg | https://localfence.com/wp-content/uploads/2018/08/cl_02.jpg | New Orleans Fence Company, all rights reserved; local reference | Long run mesh transparency and rail/line-post rhythm |
 
 - [Hoffman Fence complete catalog](https://www.hoffmanfence.com/main.pdf), Hoffman Fence, all rights reserved: residential welded gate frames use 1-3/8 in tubing and allow for hinge/latch clearance in the ordered opening. Viewed product specification only; no CAD or imagery enters the model.
+
+| used-picket.jpg | https://upload.wikimedia.org/wikipedia/commons/b/b7/Classic_Picket_Fence.JPG | TriviaKing / CC BY-SA 3.0 https://creativecommons.org/licenses/by-sa/3.0/ | Installed fence in need of maintenance, peeling/chalking and low dirt; https://commons.wikimedia.org/wiki/File:Classic_Picket_Fence.JPG |

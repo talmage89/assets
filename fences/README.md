@@ -349,7 +349,7 @@ are deliberate limits for frequently instanced backyard pieces.
 | Final library | Triangles | Materials / shared set | Estimated GPU | GLB bytes |
 | --- | ---: | --- | ---: | ---: |
 | Privacy | 2,100 | 1 / 2048² | 16 MiB | 9,875,704 |
-| Painted picket | 2,936 | 1 / 1024² | 4 MiB | 2,484,632 |
+| Painted picket | 2,936 | 1 / 1024² | 4 MiB | 3,134,324 |
 | Chain-link | 9,116 | 2 / 1024², same three images | 4 MiB | 2,052,152 |
 
 | Piece budgets | Sections | Posts | Complete moving gate / prefab |
@@ -366,7 +366,7 @@ is not claimed as a single under-2k piece. Every other modular piece is below
 | Shipped PNG bytes | BaseColor | Normal | ORM |
 | --- | ---: | ---: | ---: |
 | Privacy | 3,822,137 | 2,885,619 | 2,955,917 |
-| Picket | 623,571 | 810,063 | 786,642 |
+| Picket | 1,180,454 | 876,986 | 812,527 |
 | Chain-link | 647,760 (RGBA) | 334,916 | 389,009 |
 
 Unique UV coverage / density p5, median, p95: privacy **50.29% / 233, 233, 490**
@@ -376,3 +376,10 @@ regions at **840 px/m**; the two tile regions use 73,728 texels (7.03% of the
 1024 set), irrespective of how many 10 ft sections are placed. The long bottom
 wire receives deliberately reduced UV priority; tiny metal fittings and painted
 microstructure remain the weakest close-up areas.
+
+Phase 2 picket wear uses broad peeling at cut tips and rail edges, chalked
+upward faces, shaded-side mildew and grade-driven splash. The used-photo pair
+is `picket/renders/wear-pass3-glb/used_pickets-pair.jpg`; the source pair is
+in the corresponding `wear-pass3-source` folder. The 19.45 px fit compares
+aging on different board profiles; the specified French Gothic construction
+and all module geometry, sockets, UVs and texture dimensions are preserved.
