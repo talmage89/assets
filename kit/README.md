@@ -227,6 +227,24 @@ runs small solid/hollow collision and non-grill naming/rig compatibility fixture
 `python3 -m unittest kit.test_delivery` checks density compatibility, alias
 conflicts and staged build invalidation without running a bake.
 
+`plane_uv()` maps print corners by vertex identity, preserving intended graphics
+when normal recalculation reverses an open plane's loop winding.
+
+Optional `MATERIAL_OVERRIDES={mesh_prefix: {'emission_strength': 2,
+ 'transmission': 0, 'ior': 1.5}}` preserves emissive/glass faces within static
+consolidation. Emission uses the shared BaseColor atlas; transmission and IOR
+are uniform. All variants reuse the existing three images. No overrides retains
+the single-material path; normal material/image budgets remain enforced.
+
+`STUDIO_SCALE` expands only procedural studio geometry/lights for tall props,
+with inverse-square power compensation; the 1.8 m human remains real scale.
+Shot `emission_scale` multiplies/restores authored material emission for day/off
+comparisons without modifying the shipped asset. Defaults preserve prior views.
+Optional `STUDIO_BACKDROP_HEIGHT` extends the procedural wall for upward-facing
+detail cameras on tall props; lighting and the default studio remain unchanged.
+Photo shots may set `background='transparent'` for neutral alpha composition
+when the calibrated camera faces outside the procedural backdrop.
+
 `materials.weathered_wood()` adds seeded rough-sawn pine in a per-timber source
 frame: knots bend growth bands, cut-end checks and ground splash follow their
 causes, and optional nail rows bake metal heads and downward stains.
@@ -259,3 +277,10 @@ fences or diagonally viewed assemblies, keeping dark world corners out of frame.
 Run `blender -b --factory-startup --python-exit-code 1 --python
 kit/test_bake_frames.py` to check preservation of explicit nested timber/parent
 coordinate frames during module isolation, without a GPU bake.
+
+Density clamping scales UV vectors around an explicit 2D center, including the
+previously unexercised oversized-atlas branch on Blender 5.2.
+
+Exports with material overrides compact identical glTF texture views (same image,
+sampler and extensions); BIN/image bytes are preserved. This makes the shared
+three-map memory allocation explicit across glass and emission materials.
