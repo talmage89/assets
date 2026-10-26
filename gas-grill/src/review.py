@@ -74,19 +74,30 @@ def final_sheets(folder):
     for name,shot in metadata.items():
         if not shot.get('skipped') and (shot.get('stage')!='final' or not shot.get('source','').endswith('.glb')):
             raise RuntimeError('Final sheets require exported-GLB renders')
+    # Measurement overlay on an unaltered orthographic render, not on a photo.
+    proof=json.loads((ROOT/'gas-grill/build/construction-check.json').read_text())
+    raw=background(Image.open(folder/'front.png'))
+    front=Image.new('RGB',(raw.width,raw.height+100),(231,233,229));front.paste(raw,(0,0));d=ImageDraw.Draw(front)
+    shot=metadata['front'];ppm=front.width/shot['ortho']
+    x=round(front.width/2+(proof['lid_center_x_m']-shot['target'][0])*ppm)
+    d.line((x,20,x,300),fill=(193,76,43),width=2)
+    font=ImageFont.truetype(FONT,20)
+    d.text((40,front.height-81),'Lid centerline / badge and thermometer X error <0.001 mm',font=font,fill=(26,58,40))
+    d.text((40,front.height-48),f"Projected vertical gap: {proof['header']['vertical_gap_m']*1000:.2f} mm",font=font,fill=(26,58,40))
+    front.save(folder/'front-centering.jpg',quality=90,optimize=True)
     names=['hero_closed','hero_open','front','side','back','top','controls','interior',
-           'construction','combustion','regulator','scale','hose_pose','fit_check']
+           'construction','combustion','regulator','scale','hose_pose','fit_check','drawer_open','grease_support']
     paths=[folder/(name+'.png') for name in names if (folder/(name+'.png')).exists()]
     eevee=folder.parent/'final-eevee/hero_closed.png'
     if eevee.exists():paths.append(eevee)
     contact(paths,folder/'contact.jpg',width=2400,title='Cinder Works / Field 3 • exported GLB • Cycles + Eevee last',
             captions={str(folder/'combustion.png'):'combustion / all five tents removed',str(eevee):'Eevee / exported GLB'})
-    review_sheet([[folder/'controls.png',folder/'interior.png'],[folder/'construction.png',folder/'regulator.png']],
-                 folder/'details-contact.jpg',width=2400,title='Baked atlas / controls / cookbox / regulator')
+    review_sheet([[folder/'controls.png',folder/'interior.png'],[folder/'drawer_open.png',folder/'grease_support.png']],
+                 folder/'details-contact.jpg',width=2400,title='Baked atlas / controls / cookbox / withdrawn drawer / cup supports')
     rig_row=[folder/'hose_pose.png']
     if (folder/'fit_check.png').exists():rig_row.append(folder/'fit_check.png')
     review_sheet([rig_row],folder/'rig-contact.jpg',width=2400,title='Six-bone free hose / optional canonical tank fit')
-    review_sheet([[folder/'front.png',folder/'side.png'],[folder/'back.png',folder/'top.png']],
+    review_sheet([[folder/'front-centering.jpg',folder/'side.png'],[folder/'back.png',folder/'top.png']],
                  folder/'turnaround-contact.jpg',width=2400,title='Exported geometry / orthographic turnaround')
     for source,name in [('hero_closed.png','hero-closed'),('hero_open.png','hero-open'),
                          ('details-contact.jpg','details'),('rig-contact.jpg','rig-fit'),('turnaround-contact.jpg','turnaround')]:
