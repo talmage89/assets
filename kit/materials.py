@@ -314,23 +314,33 @@ def surface(name,kind,wear=.35,grime=0,dust=0,heat=0,color=None,zones=None,
     return material
 
 
-def painted_cast(name,color,wear=.35,rim_bands=(),deposits=(),roughness=.48):
+def painted_cast(name,color,wear=.35,rim_bands=(),deposits=(),roughness=.48,wear_rings=()):
     """Outdoor enamel over sand-cast iron, in an assembly's meter rest frame.
 
     rim_bands are (height, half-width) wear-prone ledges, not arbitrary patches.
+    wear_rings are (center, axis, radius, half-width) circular cap/fastener rims;
     deposits are the ordinary gravity-track dictionaries. Sun chalking follows
     exposure, splash follows ground height, and chips/rust follow edges/ledges.
     """
     n=Nodes(name);c=common(n);p=c['position']
     grain=n.noise(p,1050,3)
     casting=n.noise(p,390,3)
-    height=n.add(n.mul(n.math('SUBTRACT',grain,.5),26e-6),
-                 n.mul(n.math('SUBTRACT',casting,.5),45e-6))
+    height=n.add(n.mul(n.math('SUBTRACT',grain,.5),65e-6),
+                 n.mul(n.math('SUBTRACT',casting,.5),135e-6))
     ledges=n.maximum(0,*[n.band(c['z'],z,w,.002) for z,w in rim_bands])
+    rings=[]
+    for center,axis,radius,width in wear_rings:
+        offset=n.vec('SUBTRACT',p,center)
+        axial=n.vec('DOT_PRODUCT',offset,axis)
+        # MULTIPLY combines a unit axis and its scalar axial projection.
+        projection=n.vec('MULTIPLY',axis,n.combine(axial,axial,axial))
+        radial=n.math('SQRT',n.vec('DOT_PRODUCT',n.vec('SUBTRACT',offset,projection),n.vec('SUBTRACT',offset,projection)))
+        rings.append(n.mul(n.band(axial,0,width,.002),n.band(radial,radius,width,.002)))
+    ledges=n.maximum(ledges,*rings)
     exposed=n.maximum(c['edge'],n.mul(ledges,.65))
-    breakup=n.ramp(n.noise(p,245,4),.57,.71)
+    breakup=n.ramp(n.noise(p,245,4),.51,.67)
     chips=n.mul(wear,exposed,breakup,2.0)
-    chalk=n.mul(wear,.30,n.maximum(c['up'],.16),n.ramp(n.noise(p,13,3),.20,.75))
+    chalk=n.mul(wear,.16,n.maximum(c['up'],.16),n.ramp(n.noise(p,13,3),.20,.75))
     pale=tuple(v*.73+.13 for v in color)
     base=n.mix(chalk,color,pale,True)
     base=n.mix(chips,base,(.033,.027,.018),True)
@@ -339,7 +349,7 @@ def painted_cast(name,color,wear=.35,rim_bands=(),deposits=(),roughness=.48):
     base=n.mix(rust,base,rust_color,True)
     trails=drip_mask(n,c,deposits)
     soil=n.mul(wear,n.maximum(n.mul(c['cavity'],.38),n.mul(trails,.22),
-               n.mul(n.ramp(c['z'],.19,.025),.35)),n.ramp(n.noise(p,95,3),.22,.76))
+               n.mul(n.ramp(c['z'],.19,.025),.65)),n.ramp(n.noise(p,95,3),.22,.76))
     base=n.mix(soil,base,(.075,.053,.028),True)
     rough=n.add(roughness,n.mul(chalk,.35),n.mul(n.math('SUBTRACT',grain,.5),.055))
     rough=n.mix(chips,rough,.78);rough=n.mix(soil,rough,.85)
