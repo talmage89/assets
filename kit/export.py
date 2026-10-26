@@ -83,6 +83,11 @@ def main():
         shader=extra.node_tree.nodes['SURFACE']
         if settings.get('emission_strength',0):
             color=shader.inputs['Base Color'].links[0].from_socket
+            if 'emission_tint' in settings:
+                tint=extra.node_tree.nodes.new('ShaderNodeMix');tint.data_type='RGBA';tint.blend_type='MULTIPLY'
+                tint.inputs[0].default_value=1
+                tint.inputs[7].default_value=(*settings['emission_tint'],1)
+                extra.node_tree.links.new(color,tint.inputs[6]);color=tint.outputs[2]
             extra.node_tree.links.new(color,shader.inputs['Emission Color'])
             shader.inputs['Emission Strength'].default_value=settings['emission_strength']
         shader.inputs['Transmission Weight'].default_value=settings.get('transmission',0)

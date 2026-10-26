@@ -11,6 +11,15 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from kit import export, gltf, model as G, studio
 
+# Elevated front-facing print: solid normal recalculation previously reversed
+# this particular open sheet, producing black AO and an inward normal bake.
+printed=G.plane_uv('Front print fixture', [(-.032,-.0531,1.651),(.032,-.0531,1.651),
+    (.032,-.0531,1.811),(-.032,-.0531,1.811)], None)
+assert printed.data.polygons[0].normal.y < -.999
+assert [tuple(printed.data.uv_layers['PrintUV'].data[i].uv) for i in range(4)] == [(0,0),(1,0),(1,1),(0,1)]
+bpy.data.objects.remove(printed,do_unlink=True)
+print('PASS: authored print front and corner UVs survive normal recalculation')
+
 # Reuse the real finalize/export/import fixture and its original image generator.
 runpy.run_path(str(ROOT / 'kit/test_atlas.py'))
 folder = ROOT / 'build/atlas-test'
@@ -46,6 +55,11 @@ config.write_text('\n'.join(k + '=' + repr(v) for k, v in cfg.items()))
 source = folder / 'composed.blend'
 bpy.ops.wm.save_as_mainfile(filepath=str(source))
 for label, extra in [('config', []), ('cli', ['--variant', '1'])]:
+    # Exercise both legacy untinted emission and the additive tint on the
+    # same atlas/alpha/variant fixture; no new textures may be introduced.
+    if label == 'cli':
+        cfg['MATERIAL_OVERRIDES']['Sheet_']['emission_tint']=(1,.12,.008)
+        config.write_text('\n'.join(k + '=' + repr(v) for k, v in cfg.items()))
     output = folder / (label + '.glb');report = folder / (label + '.json')
     sys.argv = ['blender', '--', '--source', str(source), '--textures', str(folder / 'textures'),
                 '--asset', 'TileFixture', '--config', str(config), '--out', str(output),
@@ -61,7 +75,8 @@ for label, extra in [('config', []), ('cli', ['--variant', '1'])]:
     assert len(doc['images']) == len(doc['textures']) == 3
     assert sum(m.get('alphaMode') == 'MASK' for m in doc['materials']) == 1
     tile = next(m for m in doc['materials'] if m.get('alphaMode') == 'MASK')
-    assert tile['doubleSided'] and tile['emissiveFactor'] == [1, 1, 1]
+    expected_tint = (1,.12,.008) if label == 'cli' else (1,1,1)
+    assert tile['doubleSided'] and max(abs(a-b) for a,b in zip(tile['emissiveFactor'],expected_tint)) < 1e-6
     assert tile['extensions']['KHR_materials_emissive_strength']['emissiveStrength'] == 4
     glass = next(m for m in doc['materials'] if 'KHR_materials_transmission' in m.get('extensions', {}))
     assert glass['extensions']['KHR_materials_transmission']['transmissionFactor'] == 1

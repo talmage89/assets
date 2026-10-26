@@ -177,6 +177,11 @@ def attach(ob, parent, asset_set='Grill', inherit_asset_set=False):
 
 def plane_uv(name, corners, material):
     ob=mesh(name,corners,[(0,1,2,3)],material)
+    # A print is an oriented open sheet, so closed-solid normal recalculation
+    # must not reverse its authored front (Cycles normal/AO baking sees it).
+    authored=(Vector(corners[1])-Vector(corners[0])).cross(Vector(corners[2])-Vector(corners[0]))
+    if ob.data.polygons[0].normal.dot(authored)<0:
+        ob.data.polygons[0].flip();ob.data.update()
     uv=ob.data.uv_layers.new(name='PrintUV')
     corners_uv=[(0,0),(1,0),(1,1),(0,1)]
     for face in ob.data.polygons:

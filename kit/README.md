@@ -229,6 +229,9 @@ conflicts and staged build invalidation without running a bake.
 
 `plane_uv()` maps print corners by vertex identity, preserving intended graphics
 when normal recalculation reverses an open plane's loop winding.
+It also restores the authored front normal before mapping: open prints must
+face outward for selected-to-active normal and AO bakes, including elevated
+control panels whose winding the closed-solid normal operator can reverse.
 
 Optional `MATERIAL_OVERRIDES={mesh_prefix: {'emission_strength': 2,
  'transmission': 0, 'ior': 1.5}}` preserves emissive/glass faces within static
@@ -328,6 +331,11 @@ previously unexercised oversized-atlas branch on Blender 5.2.
 Exports with material overrides compact identical glTF texture views (same image,
 sampler and extensions); BIN/image bytes are preserved. This makes the shared
 three-map memory allocation explicit across glass and emission materials.
+
+An optional `MATERIAL_OVERRIDES` entry `emission_tint=(1,.12,.008)` multiplies
+the shared atlas for emission only, preserving neutral off-state metals and
+dark perforations without allocating another image. Omission retains the
+existing untinted emission path.
 
 Integration compatibility: `STUDIO.scale` (or `STUDIO_SCALE`) is the canonical
 studio/light scale; `light_scale` is a legacy lighting-only alias, retaining
