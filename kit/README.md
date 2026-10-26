@@ -120,3 +120,7 @@ separately from serialization and swept-motion verification. Source previews
 hide parked bake-only templates.
 Photo composition honors EXIF orientation before applying measured crop/pixels;
 calibration landmarks are specified in the upright photographic frame.
+Atlas configurations can set `UV_SMART_ASPECT=False` when source print images
+have different aspect ratios; this prevents material image dimensions from
+distorting the shared square bake UVs. `UV_PACK_SHAPE` is an optional packing
+choice; all independent overlap/outside checks remain enforced.
