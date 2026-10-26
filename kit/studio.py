@@ -17,11 +17,12 @@ def studio_mat(name,col,rough):
     return m
 
 
-def add_studio(light_scale=1.0, light_center=(0,0,0), backdrop_half_width=12):
+def add_studio(light_scale=1.0, light_center=(0,0,0), backdrop_half_width=12,
+               backdrop_color=(.48,.49,.47), backdrop_roughness=.78):
     before=set(bpy.context.scene.objects)
     sc=bpy.context.scene
     prof=[(-10,-.002),(2,-.002)]+[(2+1.8*math.sin(i*math.pi/48),1.8-1.8*math.cos(i*math.pi/48)-.002) for i in range(1,25)]+[(3.8,6)]
-    G.loft('Studio seamless',[[(x,y,z) for x in (-backdrop_half_width,backdrop_half_width)] for y,z in prof],studio_mat('Studio warm gray',(.48,.49,.47),.78),caps=False,closed=False)
+    G.loft('Studio seamless',[[(x,y,z) for x in (-backdrop_half_width,backdrop_half_width)] for y,z in prof],studio_mat('Studio warm gray',backdrop_color,backdrop_roughness),caps=False,closed=False)
     world=bpy.data.worlds.new('Procedural studio world');world.use_nodes=True;sc.world=world
     bg=world.node_tree.nodes['Background'];bg.inputs['Color'].default_value=(.20,.22,.25,1);bg.inputs['Strength'].default_value=.12
     def light(name,loc,target,power,w,h,color):

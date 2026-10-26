@@ -265,3 +265,7 @@ clear boards, pin knots and occasional larger branches with tilted resin rings,
 checks and continuous grain diversion. Weathering desaturates the branch wood
 as well as the board. Existing material arguments and seeded board hues remain
 compatible.
+
+`STUDIO.backdrop_color` and `backdrop_roughness` optionally tune the procedural
+seamless for pale products; defaults preserve existing renders. These affect
+lighting/reflection context only and never enter the exported asset.
