@@ -205,3 +205,9 @@ runs small solid/hollow collision and non-grill naming/rig compatibility fixture
 
 `python3 -m unittest kit.test_delivery` checks density compatibility, alias
 conflicts and staged build invalidation without running a bake.
+
+`materials.weathered_wood()` adds seeded rough-sawn pine in a per-timber source
+frame: knots bend growth bands, cut-end checks and ground splash follow their
+causes, and optional nail rows bake metal heads and downward stains.
+`materials.galvanized()` supplies original zinc crystallization. Both retain the
+existing bake-channel interface; source frames are discarded during export.

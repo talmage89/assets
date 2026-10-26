@@ -481,3 +481,73 @@ def ported_burner(name,wear,burner_z=.770,port_z=.772,pitch=.0118,start=-.209,en
     n.channel('ports',ports);n.channel('heat',heat)
     result=n.finish(base,rough,metal,height);result.diffuse_color=(.08,.09,.09,1)
     return result
+
+
+def weathered_wood(name, frame, width=.1397, length=1.8288, seed=1,
+                   wear=.65, nail_rows=(), grain_axis='Z'):
+    """Original rough-sawn pine in a stable timber frame, with caused weathering.
+
+    `frame` is a source-only empty: X crosses the board, Z follows the grain,
+    and Z=0 is its lower cut. Rail frames use their own Z along the timber.
+    Knots deflect the grain; UV fading, wet cut ends, downward fastener stains
+    and ground splash are distinct masks. All outputs retain the bake interface.
+    """
+    import random
+    rng=random.Random(seed);n=Nodes(name)
+    tc=n.node('ShaderNodeTexCoord');tc.object=frame
+    x,y,z=n.split(tc.outputs['Object'])
+    # Meandering growth bands, stretched longitudinal fibers and saw tooth.
+    p=n.combine(n.mul(x,110),n.mul(y,110),n.mul(z,1.7))
+    broad=n.noise(p,1,2);fine=n.noise(n.combine(n.mul(x,480),n.mul(y,480),n.mul(z,7)),1,2)
+    flow=n.add(n.mul(x,610),n.mul(broad,5),seed*.73)
+    knot_mask=0;dark_knot=0
+    for _ in range(rng.randint(2,4)):
+        kx=rng.uniform(-width*.37,width*.37);kz=rng.uniform(.12,length-.09)
+        dx=n.math('SUBTRACT',x,kx);dz=n.math('SUBTRACT',z,kz)
+        r=n.math('SQRT',n.add(n.mul(dx,dx,1/.018**2),n.mul(dz,dz,1/.040**2)))
+        influence=n.ramp(r,4.8,1.0)
+        # Elliptical rings blend into longitudinal grain around each knot.
+        rings=n.add(n.mul(r,9),n.mul(broad,1.5))
+        flow=n.mix(n.mul(influence,.86),flow,rings)
+        core=n.ramp(r,.95,.25)
+        dark_knot=n.maximum(dark_knot,n.mul(core,rng.uniform(.55,.90)))
+        knot_mask=n.maximum(knot_mask,influence)
+    waves=n.add(n.mul(n.math('SINE',flow),.5),.5)
+    latewood=n.ramp(waves,.67,.93)
+    base_tan=(rng.uniform(.26,.36),rng.uniform(.185,.245),rng.uniform(.105,.155))
+    gray=(rng.uniform(.26,.34),rng.uniform(.255,.31),rng.uniform(.22,.27))
+    # Different sapwood/heartwood boards weather differently in the same run.
+    fading=min(.90,wear*rng.uniform(.70,1.35))
+    base=n.mix(fading,base_tan,gray,color=True)
+    base=n.mix(n.add(n.mul(latewood,.23),n.mul(fine,.13)),base,(.090,.073,.050),color=True)
+    base=n.mix(n.mul(dark_knot,.75),base,(.038,.027,.016),color=True)
+    exposure=n.ramp(z,0,.35)
+    splash=n.mul(n.ramp(z,.29,.015),n.ramp(n.noise(n.combine(n.mul(x,30),n.mul(y,30),n.mul(z,12)),2),.30,.75),wear)
+    base=n.mix(n.mul(splash,.45),base,(.048,.056,.027),color=True)
+    # Water enters cut ends and follows earlywood; checks stay narrow and axial.
+    end=n.maximum(n.ramp(z,.09,0),n.ramp(z,length-.08,length))
+    checks=n.mul(end,n.ramp(n.noise(n.combine(n.mul(x,1700),n.mul(y,1700),n.mul(z,2.2)),1),.66,.77),wear)
+    base=n.mix(n.mul(checks,.65),base,(.045,.037,.025),color=True)
+    metal=0;dents=0;drips=0
+    for row in nail_rows:
+        for nx in (-width*.27,width*.27):
+            dot=n.ellipse(tc.outputs['Object'],(nx,row),(.0038,.0038))
+            metal=n.maximum(metal,dot);dents=n.maximum(dents,dot)
+            track=n.mul(n.band(x,nx,.0016,.0025),n.ramp(z,row-.075,row-.005),n.ramp(z,row,row-.008))
+            drips=n.maximum(drips,track)
+    base=n.mix(n.mul(drips,.22*wear),base,(.067,.056,.035),color=True)
+    base=n.mix(metal,base,(.27,.29,.28),color=True)
+    rough=n.mix(metal,n.add(.72,n.mul(fine,.16),n.mul(splash,.08)),.53)
+    relief=n.add(n.mul(latewood,-.00013),n.mul(fine,.00010),n.mul(checks,-.00025),n.mul(dents,.00013))
+    for key,val in [('splash',splash),('checks',checks),('knots',knot_mask),('fading',fading)]:n.channel(key,val)
+    return n.finish(base,rough,n.mul(metal,.88),relief)
+
+
+def galvanized(name, frame=None, wear=.35):
+    """Zinc crystallization and restrained outdoor oxidation, no painted logo."""
+    n=Nodes(name);tc=n.node('ShaderNodeTexCoord');tc.object=frame
+    p=tc.outputs['Object'];cells=n.voronoi(p,520)
+    micro=n.noise(p,2100,2)
+    base=n.mix(cells,(.24,.27,.28),(.47,.50,.51),color=True)
+    rough=n.add(.47,n.mul(micro,.16),wear*.08)
+    return n.finish(base,rough,.88,n.mul(micro,.000012))
