@@ -277,3 +277,6 @@ fences or diagonally viewed assemblies, keeping dark world corners out of frame.
 Run `blender -b --factory-startup --python-exit-code 1 --python
 kit/test_bake_frames.py` to check preservation of explicit nested timber/parent
 coordinate frames during module isolation, without a GPU bake.
+
+Density clamping scales UV vectors around an explicit 2D center, including the
+previously unexercised oversized-atlas branch on Blender 5.2.
