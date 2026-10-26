@@ -12,6 +12,8 @@ Backyard and patio
 - [Gas grill](gas-grill/README.md): three-burner LP grill on an open cart, with a rigged hose and an external-tank socket.
 - [Patio heater](patio-heater/README.md): freestanding propane mushroom heater with a tank door and an emissive emitter.
 - [Lawn mower](lawn-mower/README.md): 21-inch gas push mower; wheels, operator bail and handle fold move.
+- [Storage shed](shed/README.md): 8×10 ft timber shed on skids, with a framed interior, shingle roof and hinged double doors.
+- [Trampoline](trampoline/README.md): 14 ft galvanized frame on W legs, with sewn padding, a woven mat and a safety-net enclosure.
 - [Patio set](patio-set/README.md): table, sling chairs, chaise and a market umbrella, open and furled, on one shared set.
 - [Cooler](cooler/README.md): 47-quart rotomolded cooler with a hinged lid, T-latches and a drain cap.
 - [Kiddie pool](kiddie-pool/README.md): five-foot rigid wading pool with an optional water surface.

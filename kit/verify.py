@@ -118,15 +118,17 @@ def main():
         spec=atlas.tiled_spec(ob.name,cfg)
         primitive=next(p for m in data['meshes'] if m['name']==ob.name for p in m['primitives'])
         mat=data['materials'][primitive['material']]
-        if spec.get('alpha_cutoff') is not None:
-            check(mat.get('alphaMode')=='MASK' and abs(mat.get('alphaCutoff',.5)-spec['alpha_cutoff'])<1e-5,'Tile material is not alpha-tested')
+        if spec.get('alpha_mode')=='BLEND' or spec.get('alpha_cutoff') is not None:
+            if spec.get('alpha_mode')=='BLEND':check(mat.get('alphaMode')=='BLEND','Tile material lost blended alpha coverage')
+            else:check(mat.get('alphaMode')=='MASK' and abs(mat.get('alphaCutoff',.5)-spec['alpha_cutoff'])<1e-5,'Tile material is not alpha-tested')
             check(mat.get('doubleSided',False)==spec.get('double_sided',True),'Tile backface policy changed')
             texture=mat['pbrMetallicRoughness']['baseColorTexture']['index']
             image_index=data['textures'][texture]['source']
             rgba=np.asarray(Image.open(io.BytesIO(glb.image(image_index))).convert('RGBA'))
             x0,y0,x1,y1=spec['rect'];h,w=rgba.shape[:2]
             alpha=rgba[round((1-y1)*h):round((1-y0)*h),round(x0*w):round(x1*w),3]/255
-            check(bool((alpha<spec['alpha_cutoff']).any()) and bool((alpha>=spec['alpha_cutoff']).any()),'Alpha tile lost its holes or wires')
+            threshold=spec.get('alpha_cutoff',.5)
+            check(bool((alpha<threshold).any()) and bool((alpha>=threshold).any()),'Alpha tile lost its holes or wires')
     check(uv_report['overlap_fraction']<1e-6,'UV overlap exceeds subpixel tolerance')
     check(uv_report['outside_triangles']==0 and uv_report['degenerate_uv_triangles']==0,'Invalid UV triangles')
     check(uv_report['coverage']>cfg.get('UV_MIN_COVERAGE',.35),'Atlas coverage too low')

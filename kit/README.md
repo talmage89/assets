@@ -378,3 +378,12 @@ without optional keywords, preserving zero-argument reflection-capture wrappers.
 An absent legacy `STUDIO_BACKDROP_HEIGHT` no longer forwards `None`; explicit
 backdrop/scale settings still pass through. `test_export_policy.py` exercises
 both paths through the main entry point without rendering.
+
+Studio shots may set `human_offset=(x,y,z)` in meters to place the unchanged
+1.8 m scale silhouette beside wide assets. Its position resets between shots;
+existing shots retain the default position.
+
+`TILED_MESHES` may set `alpha_mode='BLEND'` for woven cloth/net coverage that
+needs to survive subpixel minification. It preserves fractional texture alpha,
+while existing `alpha_cutoff` tiles retain MASK behavior. Both policies verify
+embedded holes, retained threads and double-sided state; the images remain shared.

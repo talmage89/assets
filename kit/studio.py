@@ -124,6 +124,7 @@ def main():
     bpy.context.view_layer.update()
     studio_rest={ob:ob.matrix_world.copy() for ob in sc.objects if ob.get('studio') and ob!=cam}
     silhouette=human()
+    human_rest={ob:ob.location.copy() for ob in silhouette}
     sc.render.engine=a.engine
     if a.engine=='CYCLES':
         gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True
@@ -188,7 +189,9 @@ def main():
             rig.reset(arm)
             if shot.get('hose')=='dangling':rig.dangling(arm,**config.get('RIG_POSES',{}).get(arm.name,{}))
         if lid:lid.rotation_euler=rest;lid.rotation_euler['XYZ'.index(a.lid_axis)]+=math.radians(shot.get('lid',0))
-        for ob in silhouette:ob.hide_render=not shot.get('human',False)
+        for ob in silhouette:
+            ob.hide_render=not shot.get('human',False)
+            ob.location=human_rest[ob]+Vector(shot.get('human_offset',(0,0,0)))
         cam.location=shot['location'];target=Vector(shot['target'])
         cam.rotation_euler=(target-cam.location).to_track_quat('-Z','Y').to_euler()
         cam.rotation_euler.rotate_axis('Z',shot.get('roll',0))

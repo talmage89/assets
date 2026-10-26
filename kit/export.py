@@ -7,7 +7,7 @@ ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from kit import model as G,atlas
 
 
-def atlas_material(asset,folder,alpha_cutoff=None,double_sided=True):
+def atlas_material(asset,folder,alpha_cutoff=None,double_sided=True,alpha_mode=None):
     material=bpy.data.materials.new(asset);material.use_nodes=True
     nt=material.node_tree;nt.nodes.clear()
     surface=nt.nodes.new('ShaderNodeBsdfPrincipled');surface.name='SURFACE'
@@ -20,7 +20,10 @@ def atlas_material(asset,folder,alpha_cutoff=None,double_sided=True):
         texture.image.colorspace_settings.name='sRGB' if channel=='BaseColor' else 'Non-Color'
         nt.links.new(uv.outputs[0],texture.inputs['Vector']);images[channel]=texture
     nt.links.new(images['BaseColor'].outputs['Color'],surface.inputs['Base Color'])
-    if alpha_cutoff is not None:
+    if alpha_mode=='BLEND':
+        nt.links.new(images['BaseColor'].outputs['Alpha'],surface.inputs['Alpha'])
+        material.surface_render_method='DITHERED';material.use_backface_culling=not double_sided
+    elif alpha_cutoff is not None:
         clip=nt.nodes.new('ShaderNodeMath');clip.operation='GREATER_THAN';clip.inputs[1].default_value=alpha_cutoff
         nt.links.new(images['BaseColor'].outputs['Alpha'],clip.inputs[0]);nt.links.new(clip.outputs[0],surface.inputs['Alpha'])
         material.surface_render_method='DITHERED';material.use_backface_culling=not double_sided
@@ -100,10 +103,13 @@ def main():
         chosen=palette[prefix] if prefix is not None else material
         spec=atlas.tiled_spec(ob.name,cfg)
         if spec:
-            key=(prefix,spec.get('alpha_cutoff'),spec.get('double_sided',True))
+            key=(prefix,spec.get('alpha_cutoff'),spec.get('double_sided',True),spec.get('alpha_mode'))
             if key not in tile_materials:
                 tiled=chosen.copy()
-                if key[1] is not None:
+                if key[3]=='BLEND':
+                    nt=tiled.node_tree;shader=nt.nodes['SURFACE'];color=shader.inputs['Base Color'].links[0].from_node
+                    nt.links.new(color.outputs['Alpha'],shader.inputs['Alpha']);tiled.surface_render_method='DITHERED'
+                elif key[1] is not None:
                     nt=tiled.node_tree;shader=nt.nodes['SURFACE']
                     color=shader.inputs['Base Color'].links[0].from_node
                     clip=nt.nodes.new('ShaderNodeMath');clip.operation='GREATER_THAN';clip.inputs[1].default_value=key[1]

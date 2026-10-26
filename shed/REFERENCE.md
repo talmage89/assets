@@ -1,0 +1,12 @@
+# Hearthfield 810 / measured design
+
+Original fictional garden shed, not a copy of a kit. Geometry is calculated from dimensions, with no traced photos or imported assets.
+
+- [DIYGardenPlans 8×10 materials](https://diygardenplans.com/shed-shopping-list/Shopping-List-8x10-Gable-005.pdf): 8×10 ft floor, two pressure-treated 4×4×10 skids, 2×6 joists, 3/4 inch floor, 2×4 studs, 5/8 inch T1-11 and 1/2 inch roof deck. Dressed sizes are 88.9 mm skids, 38.1×139.7 mm joists and 38.1×88.9 mm studs.
+- [Construct101](https://www.construct101.com/diy-8x10-gable-shed/): 16 inch wall/floor spacing, 26.5° gable slope, plywood truss gussets, felt, drip edge and shingles. This design uses a 6:12 slope (26.565°), six trusses at approximately 24 inch centers and a shorter seven-foot interior wall.
+- [Shedking](https://www.shedking.net/8x10-gable-shed-plans.html): five-foot double door, 6 ft 5.5 inch high, 2×6 header, 16 inch wall studs, 24 inch trusses. Nominal door class is 1.524×1.9685 m; the modeled header adds a 12 mm bottom fitting margin, making the measured framed opening 1.524×1.9805 m; wall height is 2.1336 m. Roof overhang is an original six-inch choice; window is an original 24×24 inch fixed two-light design.
+- [Advanced Power Cleaning's in-service shed](https://www.advancedpowercleaning.com/projects/advanced-power-cleaning-house-washing-and-shed-restoration-in-richmond-va): photo 11 before cleaning supplies weathering evidence. Different siding and proportions are acknowledged; it calibrates lower-trim algae, gray wood, dark lap edges and traffic wear, not exact color or framing dimensions.
+
+Floor 2.4384×3.048 m, deck elevation 0.24765 m, wall plate 2.38125 m, structural ridge 2.99085 m. All are parameters in `src/dimensions.py`. Asphalt tab width 304.8 mm, course exposure 127.8 mm along slope (twelve courses fitted to this roof); sparse curled ends are original aging choices. No ground, vegetation or stored objects ship.
+
+Three-tab layout follows the [manufacturer installation guide](https://www.gaf.com/en-us/document-library/documents/installation-instructions-%26-guides/royal-sovereign-shingles-english-size-installation-instructions.pdf): nominal 127 mm exposure and half-tab offsets. Three adjacent 304.8 mm tabs share each strip’s granule blend; the small 0.8 mm exposure difference fits the existing roof envelope. Sparse lifted tips remain geometric; slots, course shadows and mineral relief also enter the baked channels.
