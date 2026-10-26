@@ -148,6 +148,12 @@ An asset is finished when all of these hold, with proof in your report:
 - **Weather from causes.** Drive wear, dirt, grease, rust and heat with physically motivated masks (cavity, edges,
   gravity and drips, height, exposure, heat sources, where hands touch), never uniform noise or round blobs. Match
   the age the brief asks for; clean CG surfaces are the second most common failure.
+- **Judge what ships.** Run the photo-matched comparison on the exported GLB with its baked textures as well as on
+  the source: bake loss (blurred detail, lost material response, projection artifacts) only shows there.
+- **Assemblies must work.** No floating or unsupported parts; moving parts clear their neighbors through their whole
+  range (the kit's motion-clearance check); wheels turn freely; contact claims are measured on the actual surfaces.
+  A check that compares the export with the scene proves serialization, not correctness: say which one each check
+  proves, and never report a constant as a measurement.
 - **Docs JPGs only when final.** Every committed image stays in history; commit `docs/` images only when the asset is
   finished.
 - The owner's words, verbatim, are in `~/Code/dev/assets/.foundry/OWNER_LOG.md` (read-only). Later entries win.
