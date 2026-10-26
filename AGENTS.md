@@ -155,8 +155,11 @@ An asset is finished when all of these hold, with proof in your report:
   gravity and drips, height, exposure, heat sources, where hands touch), never uniform noise or round blobs. Match
   the age the brief asks for; clean CG surfaces are the second most common failure. The default wear level is a
   used object, a few seasons old, and its wear must be visible in the hero render at full frame, not only in a
-  close-up: six assets so far shipped wear too subtle to see after the bake. Calibrate it with a photo-matched pair
-  of the exported GLB against a photo of a used one, never a catalog shot.
+  close-up: six assets so far shipped wear too subtle to see after the bake. Visible is not heavy: each effect stays
+  where its cause acts (splash dirt in the bottom few inches, mildew in shade, grooves and under trim, fading on what
+  faces the sun) and keeps the material's own color; a uniform band, overlay or noise wash reads as CG as surely as
+  a clean surface does. Calibrate it with a photo-matched pair of the exported GLB against a photo of a used one,
+  never a catalog shot.
 - **Judge what ships.** Run the photo-matched comparison on the exported GLB with its baked textures as well as on
   the source: bake loss (blurred detail, lost material response, projection artifacts) only shows there.
 - **Assemblies must work.** No floating or unsupported parts; moving parts clear their neighbors through their whole
