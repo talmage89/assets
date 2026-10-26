@@ -147,7 +147,10 @@ An asset is finished when all of these hold, with proof in your report:
   most common failure.
 - **Build real construction.** Model how the part is made (wall thickness, hems, bends, castings, fasteners, welds),
   not simplified boxes and plates. The high-detail source can be as detailed as it needs; the game mesh stays in
-  budget and carries fine detail in the normal map.
+  budget and carries fine detail in the normal map. Three tells recur in review: cables and hoses drawn as taut
+  straight lines through the air (real ones have their true thickness, run along the frame under clips and hang in
+  slack loops), fabric drawn as rigid panels (real fabric sags and creases between its supports, as canopies and
+  bags do), and thin rods drawn as wires (measure their diameter).
 - **Weather from causes.** Drive wear, dirt, grease, rust and heat with physically motivated masks (cavity, edges,
   gravity and drips, height, exposure, heat sources, where hands touch), never uniform noise or round blobs. Match
   the age the brief asks for; clean CG surfaces are the second most common failure. The default wear level is a
