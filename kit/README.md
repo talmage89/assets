@@ -226,3 +226,6 @@ runs small solid/hollow collision and non-grill naming/rig compatibility fixture
 
 `python3 -m unittest kit.test_delivery` checks density compatibility, alias
 conflicts and staged build invalidation without running a bake.
+
+`plane_uv()` maps print corners by vertex identity, preserving intended graphics
+when normal recalculation reverses an open plane's loop winding.
