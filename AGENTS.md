@@ -144,7 +144,9 @@ An asset is finished when all of these hold, with proof in your report:
   that matter (a 3/4 hero, the most complex area, a close-up), match their camera, and render side-by-side pairs.
   Critique as a harsh art director: list everything that tells a viewer "this is CG", fix it, and log each pass in
   the asset's `REVIEW.md`. Hero assets get at least three passes, others at least two. Lenient self-review is the
-  most common failure.
+  most common failure. Begin each pass with color and value: compare the same surface in the render and the photo,
+  allowing for the photo's light, and fix a miss in hue or brightness before anything finer, since it reads as CG at
+  any distance. Measurements and checks prove the build, not the look; only the pairs prove the look.
 - **Build real construction.** Model how the part is made (wall thickness, hems, bends, castings, fasteners, welds),
   not simplified boxes and plates. The high-detail source can be as detailed as it needs; the game mesh stays in
   budget and carries fine detail in the normal map. Three tells recur in review: cables and hoses drawn as taut
