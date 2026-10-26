@@ -160,6 +160,8 @@ class Hydrant:
                            -.139+.00165*math.sin(k*math.tau/4),
                            .302+.010*math.sin(t)+.00165*math.cos(k*math.tau/4)*math.sin(t)) for k in range(4)])
         self.add(G.smooth(G.ring_loft('Chain common joining ring',loops,self.steel)))
+        self.add(G.tube('Chain fixed barrel hook',[(0,-.101,.336),(0,-.141,.300),(0,-.141,.313)],
+                        .0024,self.steel,8 if self.high else 4))
         # Cap lugs and a common chain anchor hook, no movable parts in this prop.
         for x,y in [(-.185,0),(.185,0),(.012,-.197)]:
             self.add(G.tube('Cap chain forged eye',[(x-.005,y,.431),(x-.006,y-.002,.414),(x+.006,y-.002,.414),(x+.005,y,.431)],.0024,self.red,8 if self.high else 4))
@@ -168,7 +170,10 @@ class Hydrant:
         if not self.high:return
         font=bpy.data.fonts.load('/usr/share/fonts/TTF/DejaVuSans-Bold.ttf')
         for text,z,size in [('BELLFORD',.545,.036),('5 1/4',.503,.032),('WATER WORKS',.405,.025),('H-54',.365,.028),('2021',.312,.025)]:
-            cu=bpy.data.curves.new('Original foundry type','FONT');cu.body=text;cu.font=font;cu.size=size;cu.align_x='CENTER';cu.align_y='CENTER';cu.extrude=.00065;cu.resolution_u=3
+            cu=bpy.data.curves.new('Original foundry type','FONT');cu.body=text;cu.font=font;cu.size=size;cu.align_x='CENTER';cu.align_y='CENTER'
+            # A vertical extrusion alone has no sloped normal for a projection
+            # ray to capture. Real cast letter draft/fillets must survive baking.
+            cu.extrude=.0009;cu.bevel_depth=.0012;cu.bevel_resolution=2;cu.resolution_u=3
             ob=bpy.data.objects.new('Raised casting '+text,cu);bpy.context.collection.objects.link(ob)
             bpy.context.view_layer.objects.active=ob;ob.select_set(True);bpy.ops.object.convert(target='MESH');ob.select_set(False)
             for v in ob.data.vertices:
