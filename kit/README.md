@@ -57,6 +57,7 @@ make -C gas-grill clean
 ```
 
 Requires installed Blender 5.2, Python/Pillow/NumPy, Noto/DejaVu fonts and flock.
+Small assets may set `SHIP_SIZE`, `UV_TARGET_DENSITY` and `UV_MARGIN` in their Makefile, with delivered pixels/m limits in config `UV_DENSITY_BANDS` (`p5_min`, `median_min`, `median_max`, `p95_max`); the existing 2048/grill defaults remain unchanged.
 No downloaded code, packages or lighting. `rules.mk` sets TMPDIR inside the
 worktree. Every Cycles invocation goes through the GPU wrapper. Source/game
 geometry checks remain separate from delivery verification; a look-dev audit

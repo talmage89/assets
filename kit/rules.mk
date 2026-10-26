@@ -12,6 +12,9 @@ WEAR ?= 0.35
 SAMPLES ?= 80
 WIDTH ?= 1400
 BAKE_SAMPLES ?= 32
+SHIP_SIZE ?= 2048
+UV_TARGET_DENSITY ?= 850
+UV_MARGIN ?= .0015
 PASS ?= lookdev
 SHOTS ?= hero_closed,hero_open,controls,front,side
 FINAL_SHOTS ?= hero_closed,hero_open,front,side,back,top,controls,interior,regulator,scale,hose_pose,fit_check
@@ -71,20 +74,20 @@ match: model refs $(BUILD)/matched-cameras.json
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration $(BUILD)/matched-cameras.json --renders renders/$(PASS) --out renders/$(PASS)
 
 $(BUILD)/finalized.blend: $(BUILD)/game-audit.blend $(CONFIG) $(KIT)/finalize.py $(KIT)/uv.py
-	$(BP) --python $(KIT)/finalize.py -- --source $< --config $(CONFIG) --out $@ --report $(BUILD)/uv-report.json
+	$(BP) --python $(KIT)/finalize.py -- --source $< --config $(CONFIG) --out $@ --report $(BUILD)/uv-report.json --size $(SHIP_SIZE) --target-density $(UV_TARGET_DENSITY) --margin $(UV_MARGIN)
 finalize: $(BUILD)/finalized.blend
 $(BUILD)/baked.stamp: $(BUILD)/finalized.blend $(BUILD)/lookdev.blend $(KIT)/bake.py $(KIT)/image_io.py $(KIT)/gpu.py
 	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/bake.py -- --low $(BUILD)/finalized.blend --high $(BUILD)/lookdev.blend --out textures/bake --asset $(ASSET) --size 4096 --samples $(BAKE_SAMPLES)
 	@touch $@
 bake: $(BUILD)/baked.stamp
 $(BUILD)/textures.stamp: $(BUILD)/baked.stamp $(KIT)/downsample.py $(KIT)/image_io.py
-	$(PYTHON) $(KIT)/downsample.py --source textures/bake --out textures/ship --asset $(ASSET) --size 2048
+	$(PYTHON) $(KIT)/downsample.py --source textures/bake --out textures/ship --asset $(ASSET) --size $(SHIP_SIZE)
 	@touch $@
 export/$(ASSET).glb: $(BUILD)/finalized.blend $(BUILD)/textures.stamp $(KIT)/export.py
 	$(BP) --python $(KIT)/export.py -- --source $(BUILD)/finalized.blend --textures textures/ship --asset $(ASSET) --out $@ --report $(BUILD)/export-report.json
 export: export/$(ASSET).glb
 verify: export/$(ASSET).glb
-	$(BP) --python $(KIT)/verify.py -- --source $< --expected $(BUILD)/export-report.json --config $(CONFIG) --out $(BUILD)/delivery-check.json
+	$(BP) --python $(KIT)/verify.py -- --source $< --expected $(BUILD)/export-report.json --config $(CONFIG) --out $(BUILD)/delivery-check.json --size $(SHIP_SIZE)
 	@if test -f src/check_fit.py; then $(BP) --python src/check_fit.py -- --grill $< --reference "$(TANK_REFERENCE)" --out $(BUILD)/fit-check.json; fi
 $(BUILD)/studio-parameters.txt: FORCE
 	@mkdir -p $(BUILD)
