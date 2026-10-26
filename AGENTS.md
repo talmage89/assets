@@ -131,6 +131,9 @@ An asset is finished when all of these hold, with proof in your report:
 
 - Work on your own branch in your own worktree. Commit in small, logical steps with clear messages. Never push,
   never touch another worktree, never rewrite history that isn't yours.
+- **Other agents change `kit/` in parallel.** Merge `main` into your branch at the start of each asset, and before
+  adding a kit feature check `git log main -- kit/` and `kit/README.md` on `main` for one that already does the
+  job. Extend what exists instead of building a second version; keep kit changes in their own commits.
 - Put scratch files and temp files in `build/` inside your worktree (`$TMPDIR` points there), never in `/tmp`.
 - There is one GPU (GTX 1660, 6 GB). Run every Cycles bake and render through the kit's GPU lock
   (`flock "$ASSETS_GPU_LOCK" ...`) so agents don't collide. Use Cycles GPU (OptiX or CUDA, enabled by the kit's
