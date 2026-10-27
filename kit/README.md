@@ -597,3 +597,9 @@ inputs and the active material nodes are restored before saving. This prevents
 a tall bark source field from squashing the shipped UVs in a wide reserved
 region. Defaults remain unchanged. `test_uv_target_aspect.py` measures actual
 triangle Jacobians in a non-square region and checks source-image restoration.
+
+`foliage.material()` is the maple's thin-leaf shader moved into the shared kit.
+Keyword-only controls expose gloss/specular, transmission, back color, normal
+strength and glancing coverage for other botanical families. Its original
+maple defaults, node order and socket values are retained; the maple entry
+point remains an import-compatible wrapper. No geometry or atlas code changes.
