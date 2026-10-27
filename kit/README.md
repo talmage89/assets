@@ -633,3 +633,39 @@ cards with different data and also rejects deliberately altered source Wind.
 Botanical compressed-memory estimates read the embedded PNG dimensions; the
 512 fixture reports 1 MiB and 2048 families report 16 MiB for three 8-bpp maps
 with full mip chains, rather than assuming a particular family texture size.
+
+
+## Running all regressions
+
+Use a fresh Blender process for each `bpy` fixture. The three pure-Python test
+modules run with `python3 -m unittest`:
+
+```sh
+python3 -m unittest -v kit.test_delivery kit.test_fonts kit.test_photo_match
+```
+
+Run these separately with `blender -b --factory-startup --python-exit-code 1
+--python kit/<name>.py`: `test_atlas`, `test_bake_coordinates`,
+`test_bake_frames`, `test_blended_atlas`, `test_botanical_delivery`, `test_botany`,
+`test_export_policy`, `test_foliage`, `test_gpu`, `test_policy`, `test_surface_profiles`,
+`test_uv_target_aspect`, and `test_vehicle`.
+
+`test_gpu` mocks device selection but imports `bpy` through the GPU helper, so
+it also needs Blender; it performs no bake and needs no physical GPU.
+
+`test_material_ao` and `test_tiling` perform real GPU bakes: prefix that Blender
+command with `kit/with_gpu.sh`, using the same `ASSETS_GPU_LOCK` as asset builds.
+Keep `TMPDIR` inside the worktree's `build/` directory.
+
+Start each file-backed fixture with its output directory absent: `atlas-test`
+(for the atlas, blended-atlas, botanical-delivery and export-policy fixtures),
+`material-ao-fixture`, `surface-test`, `test-tiling`, `uv-target-aspect`, or
+`vehicle-finalize-test`, respectively, all under `build/`. Run tests sharing
+`atlas-test` serially. Other tests use factory-empty scenes or fresh temporary
+directories and need no generated fixture files.
+
+`test_atlas.py` supplies a coherent shared `config.py` / `finalized.blend` /
+`fixture.glb` for downstream tests. Its small-region case lives separately in
+`build/atlas-test/small-region/` and asserts the shared fixture files remain
+byte-identical. This prevents a variant config from being verified against
+another variant's UVs; BLEND and MASK validation retain their original checks.
