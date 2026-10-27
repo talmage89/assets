@@ -15,7 +15,8 @@ MATCHES={
   dict(world=(.70,0,.60),pixel=(625,366),weight=.18),
  ]),
 }
-# Tight lit/front leaf and bloom regions, in original photographic coordinates.
+# Broad plant populations and one shaded patch, in original photo coordinates.
+# These are display-image diagnostics, not sunlit albedo calibration regions.
 PATCHES={
  'hyd_match_house':dict(crop=MATCHES['hyd_match_house']['crop'],foliage=(105,60,495,325),flower=(105,60,495,325),shade=(275,255,370,321)),
  'hyd_match_bed':dict(crop=MATCHES['hyd_match_bed']['crop'],foliage=(90,80,563,560),flower=(90,80,563,560),shade=(232,328,294,390)),

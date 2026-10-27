@@ -4,7 +4,7 @@ SHIP_SIZE := 2048
 WIDTH ?= 1200
 SAMPLES ?= 40
 PASS ?= checkpoint
-MODEL_DEPS := src/build.py src/growth.py src/hydrangea.py src/hydrangea_atlas.py src/settings.py ../kit/botany.py ../kit/foliage.py textures/ship/.stamp
+MODEL_DEPS := src/build.py src/growth.py src/hydrangea.py src/hydrangea_atlas.py src/materials.py src/settings.py ../kit/botany.py ../kit/foliage.py textures/ship/.stamp
 include ../kit/rules.mk
 .DEFAULT_GOAL := all
 
@@ -29,8 +29,8 @@ check-botany: model
 	$(BP) --python src/check.py -- --source build/lookdev.blend --out build/botanical-check.json
 check: check-botany
 
-build/framed-cameras.json: build/matched-cameras.json ../kit/photo_frame.py
-	$(PYTHON) $(KIT)/photo_frame.py --source $< --out $@ --margin-fraction .08 --vertical-fraction .12
+build/framed-cameras.json: build/matched-cameras.json ../kit/photo_frame.py Makefile
+	$(PYTHON) $(KIT)/photo_frame.py --source $< --out $@ --margin-fraction .20 --vertical-fraction .20
 check-framed-cameras: build/framed-cameras.json
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration $<
 check: check-framed-cameras

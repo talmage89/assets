@@ -17,4 +17,6 @@ for species,folder,source in [('Boxwood',a.boxwood,Path('build/lookdev.blend')),
             im=Image.open(folder/(name+'.png'));bb=im.getchannel('A').getbbox()
             assert bb and bb[0]>1 and bb[1]>1 and bb[2]<im.width-1 and bb[3]<im.height-1,(species,name,bb,im.size)
     report[species]=dict(source_sha256=digest,renders=len(meta),geometry=json.loads((source.parent/'botanical-check.json').read_text()),values=json.loads((folder/'measured-values.json').read_text()))
+materials=report['Boxwood']['geometry']['material_definition_sha256']
+assert len(materials)<=2 and materials==report['Hydrangea']['geometry']['material_definition_sha256'],'family shader definitions differ'
 (a.out/'family-check.json').write_text(json.dumps(report,indent=2));print('Combined source evidence:',a.out/'contact.jpg')

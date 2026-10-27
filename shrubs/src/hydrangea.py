@@ -3,6 +3,7 @@ import math,random
 from mathutils import Vector,Quaternion
 from kit import botany
 from hydrangea_atlas import LEAF_RECTS,FLOWER_RECTS
+from materials import foliage_material
 
 
 def bezier(ctrl,t):
@@ -10,8 +11,7 @@ def bezier(ctrl,t):
 
 
 def generate(images,bark,seed=815):
-    from kit.foliage import material
-    rng=random.Random(seed);mat=material(images['BaseColor'],images['Normal'],images['ORM'],name='Hydrangea thin leaves and sepals',specular=.12,transmission=.15,normal_strength=.90,back_multiplier=(1.12,1.10,1.16,1),back_saturation=.84)
+    rng=random.Random(seed);mat=foliage_material(images)
     cards=botany.Cards();stems=[];heads=[];leaves=[];wood=[];paths=[];terminals=[]
     def add_stem(pts,radius,parent=-1,sides=4):
         i=len(stems);radii=[radius*(1-.79*t/(len(pts)-1)) for t in range(len(pts))]

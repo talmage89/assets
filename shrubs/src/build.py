@@ -7,10 +7,11 @@ ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(Path(__file
 from kit import model as G,botany,foliage
 from settings import *
 from growth import generate,CENTER,BASAL_COUNT
+from materials import foliage_material
 
 
 def wood_material(images):
-    mat=bpy.data.materials.new('Shrub stems and soil');mat.use_nodes=True;n=mat.node_tree.nodes;l=mat.node_tree.links
+    mat=bpy.data.materials.new('Shrubs stems');mat.use_nodes=True;n=mat.node_tree.nodes;l=mat.node_tree.links
     bs=n.get('Principled BSDF');bs.inputs['Specular IOR Level'].default_value=.22
     for channel in ('BaseColor','Normal','ORM'):
         tex=n.new('ShaderNodeTexImage');tex.image=images[channel]
@@ -72,7 +73,7 @@ def main():
         bpy.context.view_layer.update();bpy.ops.file.pack_all();bpy.ops.wm.save_as_mainfile(filepath=str(a.out.resolve()))
         for ob in (core,leaves):ob.data.calc_loop_triangles()
         print('HYDRANGEA',json.dumps({o.name:len(o.data.loop_triangles) for o in (core,leaves)}));return
-    leaf=foliage.material(images['BaseColor'],images['Normal'],images['ORM'],name='Boxwood glossy thin leaves',roughness=.30,specular=.12,transmission=.12,normal_strength=1.0,back_multiplier=(1.18,1.14,1.18,1),back_saturation=.68,edge_fade=(.10,.26))
+    leaf=foliage_material(images)
     bark=wood_material(images);rng=random.Random(a.seed+7);stems,sites=generate(a.seed);wood=[]
     for i,s in enumerate(stems):
         ob=botany.sweep(f'Wood_{i:02}',s['points'],s['radii'],bark,sides=s['sides'],phase=s['phase'])

@@ -10,6 +10,23 @@ from mathutils.bvhtree import BVHTree
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
 
 
+def material_signature(material):
+    """Compare the actual family node definitions across independent scenes."""
+    nodes=list(material.node_tree.nodes);records=[]
+    for node in nodes:
+        inputs=[]
+        for socket in node.inputs:
+            value=getattr(socket,'default_value',None)
+            if value is not None and not isinstance(value,(int,float,bool,str)):
+                value=list(value)
+            inputs.append((socket.identifier,value))
+        records.append(dict(type=node.bl_idname,inputs=inputs,
+            options={k:getattr(node,k) for k in ('operation','blend_type','interpolation_type','space','uv_map') if hasattr(node,k)},
+            image=Path(node.image.filepath).name if getattr(node,'image',None) else None))
+    links=[(nodes.index(l.from_node),l.from_socket.identifier,nodes.index(l.to_node),l.to_socket.identifier) for l in material.node_tree.links]
+    return hashlib.sha256(json.dumps(dict(nodes=records,links=sorted(links)),sort_keys=True).encode()).hexdigest()
+
+
 def parity(bvh,point,direction):
     origin=Vector(point);direction=Vector(direction).normalized();count=0
     for _ in range(100):
@@ -51,6 +68,7 @@ def main():
     assert rooted>=20
     assert 2000<=sum(counts.values())<=6000
     materials={s.material for o in obs for s in o.material_slots};assert len(materials)<=2
+    signatures={m.name:material_signature(m) for m in materials}
     assert list(bpy.data.objects[species].location)==[0,0,0]
     lo=np.min(positions,axis=0);hi=np.max(positions,axis=0);assert abs(lo[2])<1e-5
     leaf=bpy.data.objects['Boxwood leaf cards' if species=='Boxwood' else 'Hydrangea leaf and flower cards'];me=leaf.data
@@ -75,6 +93,7 @@ def main():
         if band:
             pts=np.concatenate(band);size=pts.max(0)-pts.min(0);bands.append(dict(z_interval_m=(j*zmax/12,(j+1)*zmax/12),x_width_m=float(size[0]),y_width_m=float(size[1])))
     rep=dict(passed=True,species=species,scope='source geometry/Wind/normals/tile/plant construction, no bake/GLB proof',triangles=counts,total=sum(counts.values()),materials=len(materials),meshes=len(obs),rooted_stems=rooted,wood_solids=solids,measured_daughter_attachments=attachments,mesh_bounds_m=dict(min=lo.tolist(),max=hi.tolist(),size=(hi-lo).tolist()),retained_foliage_bounds_m=dict(min=leaflo.tolist(),max=leafhi.tolist(),size=(leafhi-leaflo).tolist()),width_by_height_bands=bands,card_density_px_m=dict(min=min(densities),max=max(densities)),geometry_normals_wind_sha256=digest.hexdigest(),source_bytes=a.source.stat().st_size,texture_bytes={c:(ROOT/'shrubs/textures/ship'/f'T_Shrubs_{c}.png').stat().st_size for c in ('BaseColor','Normal','ORM')},texture_memory_MiB_full_mip_BC7_BC5_8bpp_ORM=16)
+    rep['material_definition_sha256']=signatures
     if species=='Hydrangea':
         heads=[]
         for head in graph['heads']:
