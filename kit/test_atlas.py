@@ -40,3 +40,12 @@ assert not atlas.tile_report([o],cfg,512,'UVMap')['passed'],'Tile escaped its re
 u=bpy.data.objects['TileFixtureMesh'];u.data.uv_layers['UVMap'].data[0].uv=(.1,.1)
 assert not atlas.unique_rect_report([u],cfg,'UVMap')['passed'],'Unique frame invaded reserved tile without a failure'
 print('PASS: tiled MASK export shares three images; unique UVs checked; escaped tile rejected')
+
+# A library can reserve most pixels for reused cards while its unique geometry
+# occupies a small explicit region. Exercise the actual smaller-region pack.
+cfg['UV_ATLAS_RECT']=(.28,.28,.55,.55);cfg['UV_MIN_COVERAGE']=.02
+config.write_text('\n'.join(k+'='+repr(v) for k,v in cfg.items()))
+args('finalize',['--source',str(b/'source.blend'),'--config',str(config),'--out',str(b/'small-region.blend'),'--report',str(b/'small-region.json'),'--size','512','--target-density','1000'])
+finalize.main()
+assert .02<json.loads((b/'small-region.json').read_text())['coverage']<.20
+print('PASS: explicit small unique region finalizes without a whole-atlas coverage floor')

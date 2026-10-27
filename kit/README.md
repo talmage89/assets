@@ -619,3 +619,8 @@ unchanged. This lets broad leaves retain curvature without crown-normal shading.
 moved without changing the maple's checks. It measures finalized positions,
 split normals and linear Wind, rejects albedo vertex colors, and reports image
 and geometry memory. Families add their own species/root/budget invariants.
+
+Finalization now honors the existing `UV_MIN_COVERAGE` family declaration, as
+the independent verifier already does. Its absent-setting default stays .20;
+a small unique wood region beside large reused botanical tiles need not cover
+20% of the entire atlas. Overlap, density and reserved-region checks still apply.

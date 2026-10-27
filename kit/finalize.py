@@ -130,7 +130,7 @@ def main():
     if not measured['tiling']['passed']:raise RuntimeError(str(measured['tiling']))
     measured['target_density_px_m']=a.target_density
     measured['density_policy']='priority-weighted: exterior/markings above structural and hidden surfaces'
-    if measured['coverage']<.20 or measured['outside_triangles'] or measured['degenerate_uv_triangles'] or measured['overlap_fraction']>1e-5:
+    if measured['coverage']<config.get('UV_MIN_COVERAGE',.20) or measured['outside_triangles'] or measured['degenerate_uv_triangles'] or measured['overlap_fraction']>1e-5:
         raise RuntimeError('UV validation failed: '+str({k:v for k,v in measured.items() if k!='island_measurements'}))
     Path(a.report).parent.mkdir(parents=True,exist_ok=True);Path(a.report).write_text(json.dumps(measured,indent=2))
     bpy.context.scene['stage']='finalized';bpy.context.scene['atlas_size']=a.size
