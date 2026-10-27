@@ -1,4 +1,260 @@
-# Alder C150 / body-form review gate
+# Alder C150 / detail and look-dev review
+
+**Current gate: source detail and procedural look-dev. Stop before bake.** The
+lead accepted round 3's broad form and requested the three corrections below.
+The older form reviews are retained under the archived record; their earlier
+stop instructions describe those historical gates.
+
+Current evidence: [source contact](renders/lookdev/contact.jpg),
+[used front pair](renders/lookdev/aged_front-pair.jpg),
+[used rear pair](renders/lookdev/aged_rear-pair.jpg),
+[front close-up](renders/lookdev/front_detail.jpg),
+[wheel close-up](renders/lookdev/wheel_detail.jpg),
+[five colors](renders/lookdev/five-colors.jpg) and
+[corrected stripes](renders/lookdev-form/stripes_side.jpg).
+All sixteen source views and the masks are opened in the complete sheets;
+close-ups and both full-size pairs are also inspected individually. Comparison
+photographs remain credited, read-only references, never texture inputs.
+
+## Pass 1 — correct the accepted form and reserve a detail budget
+
+Color/value first: retain neutral clay and dark cavities, comparing reflected
+bands rather than trying to match the white reference paint. Ford's calibrated
+front/rear/profile and the independent Ram comparison establish class language;
+the original grille, lamp signature and sculpting stay distinct.
+
+The lead's flare criticism was correct. The earlier field had its extremum
+inside each panel, making closed elliptical rings. The replacement starts at
+its maximum on the squared arch lip and decays outward through the draw.
+`renders/form-fixes/` first established open arch-following stripes. Current
+`renders/lookdev-form/` repeats the corrected game-sampling clay, orthos, overlay
+and calibrated clay-with-stripes pairs. Surface rays measure 33.28 / 33.24 mm
+of front/rear draw 10 mm above the crown, persisting above 2 mm through
+165 / 180 mm. Those are measured surface differences, not the flare control
+constant. The 893 mm crown and nominal tire/contact dimensions stay fixed.
+
+The lower section now has a broad, monotone tuck instead of a tight reversing
+radius. Cab and bed lower skin edges share 578 mm height. A fixed sill follows
+the lower door's section with a measured reveal, rather than leaving an overly
+large black gap. The headlamp seat now evaluates the same wrap and terminal
+side tangent as the fender, ending 2 mm inboard. Paint closes the upper/lower
+corner around that opening; a dark slab is no longer attached outside it.
+
+Budget was planned before detail in LOOKDEV_PLAN. Flat sheet grids, hood/roof
+rows and the redundant tire profile were reduced first. The first corrected
+form source was 44.4k triangles; the final detailed source is 55,758 versus the
+previous 66,904 before detail. Curvature and silhouette stations retain rows;
+analytic outer normals are independently compared with surface derivatives.
+
+## Pass 2 — reject pale, dirty-looking paint and coordinate errors
+
+Color/value first: `lookdev-01` looked like pale blue metallic plastic. That
+miss was obvious beside the used black-truck photographs' deep tires/cavities
+and dark paint. Do not make the factory tint artificially black to hide a
+lighting or construction error.
+
+The initial studio orientation spread bright reflections across most panels.
+More seriously, a rest-coordinate attribute was captured before Blender updated
+parent transforms. A door's hinge-local coordinates were mistaken for world
+positions, putting road sediment across the entire door. The field looked
+like brushed dirt instead of a painted panel. After attaching and updating the
+dependency graph, the stored positions agree with every actual world-space
+vertex to the recorded precision. `check_detail.py` now checks that on both
+source densities. The striped and finished views separate true surface flow
+from those material errors.
+
+Rebuilt all six original marking/relief sheets, using fictional Alder and Noto
+Sans. Paint now combines a factory tint with an independent contamination
+term; coverage and contamination are exposed separately for the planned shared
+RGBA atlas. Dust keeps its brown/gray hue when the factory color changes.
+Road film also reduces coat weight and raises coat roughness where it sits.
+
+## Pass 3 — reject placeholder construction in the front and wheels
+
+Color/value first: black plastic needs a matte charcoal response, chrome needs
+a shaped environment and hard reflections, and rubber must remain darker than
+the alloy. The first wheel/front close-ups had too much uniform polish and
+optical distortion to pass as photographed manufactured parts.
+
+The new wheels use six split spokes, real barrel depth, six hex lugs and a
+center cap. Rotors and non-spinning calipers are actual separate construction;
+the four corners average 2,910 triangles including the 275/65R18 carcasses.
+Tread blocks, sipes and fictional sidewall type are source height fields, not
+extra triangles. Brake dust accumulates toward the inner wheel/rotor zone with
+fine breakup; the first blotchy barrel version was softened. Knuckles/spindles,
+shock mounts and the spare's cable connection now support what low views reveal.
+Measured hub/spindle and hanger/frame intersections supplement the clearance
+measurements. They do not constitute a full mechanical simulation.
+
+Headlamps now contain reflector cups, two projector optics, emitters and an
+original angular DRL signature. Their sealed backing prevents seeing body
+edges through an empty hole. The protective lens has 2.6 mm thickness without
+a sheet-metal return that refracted the internals into a sawtooth pattern.
+Its terminal tangent is shared with the fender; upper/lower painted corner
+closures remove exposed gaps. Vertical rear lenses, reverse optics and an
+upper brake lamp have unlit and lit construction. The grille's diamond field
+is original generated relief behind two chrome wings. Mirrors have a sail,
+fold pivot, curved housing and separate glass; the nose gained more profile
+stations after the initial housing still read too much like a rounded box. The narrow
+front section also needed its corner radius constrained to the section width;
+an actual section-convexity check now rejects folded profiles.
+
+The interior uses five seats, formed cushions/backrests, a dash/console and
+steering wheel, door cards and a headliner. Early hanging visors looked like
+large slabs in the windshield; they are now stowed under the roof. Rear plate,
+tailgate type and instrument faces were corrected to their viewing directions.
+
+## Pass 4 — use the actual daily-driver photographs and reject hidden spikes
+
+Color/value first: Carbon is compared with used black trucks, rather than
+judging Atlantic blue against white catalog paint. `lookdev-used-01` used the
+studio environment and a large windshield reflection hid too much. The current
+pairs use a procedural sky, gray ground and original distant reflection
+geometry. No photograph/HDRI enters that environment. Black paint keeps dark
+base regions and reflected highlights; it is not raised to gray to imitate
+an outdoor exposure.
+
+The camera fit uses wheel hubs/contacts and a disclosed low-weight roof-height
+anchor for the partly occluded front photograph. Native-image RMS is
+43.84 / 24.73 px, about 12.3 / 7.0 px at the 1500 px comparison render width.
+The independent Blender projection check agrees within 0.003 px. These are
+registration estimates, not evidence that body shapes or materials match.
+The references also have different wheel/trim configurations. The Ford pictures were taken in their model year and cannot substantiate
+five-year aging. Added the matching front photograph of the existing MY2017
+Ram reference: both were taken in September 2022. Its front/rear class fits
+have 18.90 / 21.20 native-pixel RMS, roughly 5.8 / 6.0 px at 1500 px output.
+Physical EXIF focal lengths are available, but crop/sensor framing is not
+calibrated; the estimated cameras and wheel/trim differences remain disclosed.
+
+The close-up found a genuine geometry fault: narrow sheet returns combined with
+an even-offset solidify miter produced nose needles and an approximately 49 mm
+cowl offset from nominal 0.9 mm sheet. The topology audit alone did not catch
+that. Cars now use normal thickness offsets, and a new independent paired-vertex
+measurement bounds every gauge offset. Both source densities pass within 0.02%
+of specified thickness. The cowl/header no longer acquire those spikes.
+
+The Ram pairs rejected the initially clean tire sidewalls and weak rocker
+film. Increased dust value on the exposed sidewall annulus and broadened the
+broken low sediment mask, preserving tread rubber and upper paint. Added
+procedural sunlight for the outdoor condition comparison. The low view also
+rejected the flat unsupported skid: it is now a bent sheet on two measured
+frame supports. Driver controls are on the +X side for the front-facing −Y
+vehicle. Broken low road film and aft-of-wheel splash are visible in the full side/front
+views; tailgate wake streaks and bed drag scuffs have their own causes. The
+upper paint stays its factory color. The dated Ram is the condition authority; the newer Ford photographs are
+retained only as supplemental reflection and class comparisons.
+
+## Pass 5 — tonal range and final source review
+
+Color/value first: the test hero retained dark cavities but clipped a small
+patch on the hood's reflected strip. Lowering exposure alone did not solve the
+source luminance. Wider rim-light diffusers removed that clip in Atlantic;
+white/silver then exposed a further rolloff issue in the five-color check.
+Frit now sits behind smooth outer glass rather than changing its outside
+roughness into a broad white band. The final lighting/exposure is checked with the same rig across all five
+presets. The measurements use opaque-geometry and paint-only masks, excluding
+the floor and background. Display luminance does not measure paint albedo.
+
+The full source checkpoint includes front/rear 3/4, side, front and wheel
+close-ups, lit front, interior, two five-year condition matches, two supplemental Ford matches and five factory colors.
+The paired photographs still look more complex and less orderly than the
+source. The largest remaining CG tells are these:
+
+- Glass/frit and painted window surrounds can form broad bright strips under
+  studio reflections. Factory privacy tint is present, but its response and
+  the seal transitions need delivery-stage scrutiny.
+- Lamp internals remain sparse compared with real molded optical jewelry;
+  the unlit black housings are especially simple. The original signature reads,
+  but does not make the openings production-quality close-ups by itself.
+- The split wheels have real depth, but the alloy close-up is too streaked and
+  shiny compared with the production-wheel photographs; spoke transitions remain regular;
+  shoulder tread has a smooth silhouette and relies on height/normal shading.
+  Fine tread, grille relief, frit and type may lose definition at 2048.
+- Wear reads most strongly on low panels and the tailgate. Upper panels and
+  interior still look unusually even; bed use is less obvious from the low rear
+  hero than in a dedicated bed inspection. Do not call this photo-indistinguishable.
+- Underbody construction is deliberately coarse. Full hinge/steering sweeps,
+  caster/SAI and rolling loaded-tire behavior remain unverified. Static fit
+  checks prove only the stated positions and surfaces.
+
+No bake, UV preparation or GLB has been run. The next gate must implement and
+verify the packed paint decode and GLB fallback, preserve glass/emissive states,
+finish motion validation, and compare the exported/baked result with these source
+pairs. The four-material, shared-three-map 2048 plan is about 16 MiB compressed
+with mips for all five colors together; no delivery allocation is claimed yet.
+
+
+## Measured checkpoint evidence
+
+`make -C cars WIDTH=1500 SAMPLES=80` — **PASS**. Repo-root log:
+`build/cars-lookdev/checkpoint-final.log`. It rebuilds the source gate from
+scripts, runs both-density audits/form/static checks, projects the four calibrated
+cameras, and renders sixteen Cycles OptiX views through the shared GPU lock.
+All sixteen have one current source SHA and one render-recipe SHA. The contact,
+individual close-ups, four pairs and all masks were opened after this build.
+
+`make -C cars form-diagnostics PASS=lookdev-form WIDTH=1200` — **PASS**. Repo-root log:
+`build/cars-lookdev/form-final.log`. This retains separate clay/game-sampling
+orthos, reflection diagnostics, axle-registered side overlay and calibrated
+clay-with-stripes pairs. It is not a paint or baked-asset review.
+
+`make -C cars check` — **PASS** as part of the full checkpoint; source-stage
+geometry and repository checks only. Actual game/high triangles are
+**55,758 / 208,090**, source materials **33**, original source images **6**.
+Current high/game blend sizes are **2,429,036 / 1,046,911 bytes**, ignored build
+outputs. No UV/bake/export/delivery verification is claimed. Body dimensions
+measure **5889.46 × 2029.57 × 1960.88 mm**, wheelbase **3683.00 mm**, track
+**1716.00 mm**, bed floor **1704.34 mm**, sampled door gaps **4.500 mm**, lower
+sill reveal **4.924 mm** and cab/bed gap **16.000 mm**. Lowest actual underbody
+surface is **226.00 mm** above ground.
+
+The source static tests measure 19.00 mm caliper/spoke axial separation,
+caliper-vertex/barrel-surface samples >=15.58 mm, unbroken convex mirror sections,
+normal sheet offsets and actual support intersections. Front skid/differential
+and halfshaft/strut surfaces have zero crossing triangles at the parked pose.
+These are stated geometric tests, not a full motion or continuous clearance proof.
+
+A separate game regeneration and `kit/audit.py` produce the same evaluated
+geometry/transform/triangulation SHA:
+`19bb39bf95566b57eb5163fa18c5069590beb40f3529cafb71b5944db763811a`.
+`build/repeat-check.json` records that limited proof. Independently generated
+original marking/relief PNGs match all six source-sheet byte hashes.
+`kit/test_vehicle.py` — **PASS** for legacy/reduced tire bounds/contact,
+triangle reduction, invalid profile rejection, analytic panel normals and manifold
+gauge. Source and staged repository checks and `git diff --check` pass.
+
+Display-referred tonal measurements, excluding the floor/background:
+
+| Source view | Vehicle luminance P1 / P50 / P99, 0–255 |
+| --- | --- |
+| Front 3/4 | 0.0 / 62.4 / 231.9 |
+| Rear 3/4 | 0.0 / 56.4 / 163.4 |
+| Side | 0.0 / 37.1 / 222.3 |
+| Front detail | 0.0 / 30.5 / 239.9 |
+| Wheel detail | 0.0 / 55.6 / 120.4 |
+| Five-year front match | 0.0 / 83.7 / 216.9 |
+| Five-year rear match | 0.0 / 75.7 / 228.6 |
+
+No paint pixel reaches 255 in any of the sixteen views. Porcelain has one
+paint pixel at 254 (0.00074%). Cavities, wheel wells and underside retain deep
+shadow. Very small chrome glints still clip: 0.124% of front-hero vehicle pixels
+reach 255, versus 0% of its paint. This remains a tonal weakness to watch;
+it is not hidden by counting the bright studio floor. The complete percentiles,
+channel clipping and shadow fractions are in `renders/lookdev/tonal-range.json`.
+These lit-pixel statistics do not establish albedo or final GPU texture memory.
+
+The measured images are under `renders/lookdev/`; corrected form evidence is
+under `renders/lookdev-form/`. No preliminary docs JPG, blend, downloaded
+reference, texture or export is committed. Shared kit changes are additive
+source vehicle finishes and optional reduced tire profiles, with the legacy
+primitive fixture still passing. No additional tool or install is needed.
+The lead's next review should focus on glazing/seal transitions, the sparse
+unlit optics, alloy response, and whether the dated condition pairs show enough
+use before the delivery-stage work begins.
+
+## Archived form-gate record
+
+### Alder C150 / historical body-form review gate
 
 **Stopped before detail, materials, wear, UVs, bake and export.** This is a
 reviewable source checkpoint, not a finished or game-ready delivery claim.
