@@ -48,6 +48,13 @@ handles an explicitly authorized external fit reference; the generic model,
 baker and exporter never load external assets. `TANK_REFERENCE` is empty by
 default. The pilot passes its owner-authorized local path explicitly.
 
+Form-first seeded generators may include `checkpoint_rules.mk` instead. It
+uses the same local temp directory, GPU lock, reference fetcher and repository
+check, but accepts `CHECKPOINT_ARGS`, `CHECKPOINT_CHECK` and `CHECKPOINT_REVIEW`
+for family-specific construction checks and presentation. `make` stops at the
+form checkpoint; it does not imply baked textures or final game readiness.
+The existing prop and tiling delivery graphs are unchanged.
+
 ```sh
 python3 kit/new_asset.py ammo-can --name AmmoCan
 make -C gas-grill
@@ -597,6 +604,11 @@ inputs and the active material nodes are restored before saving. This prevents
 a tall bark source field from squashing the shipped UVs in a wide reserved
 region. Defaults remain unchanged. `test_uv_target_aspect.py` measures actual
 triangle Jacobians in a non-square region and checks source-image restoration.
+
+`flat_bake.py --height-distance` optionally gives the physical meter range of
+an original normalized height field. The default stays .004 m. This lets
+building tiles bake real siding and mortar relief at their declared coverage
+without changing the established terrain bake.
 
 `foliage.material()` is the maple's thin-leaf shader moved into the shared kit.
 Keyword-only controls expose gloss/specular, transmission, back color, normal

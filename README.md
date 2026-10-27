@@ -53,6 +53,10 @@ Ground
 - [Street ground](ground/README.md): modular road, intersection, curb and gutter, sidewalk and curb ramps,
   driveways, lawn, a storm inlet and a manhole, on three seamless tiling sets and one trim and decal atlas.
 
+Houses
+- [Builder colonials](houses/README.md): a seeded generator of two-story houses with attached garages; every
+  seed shares one weathered tiling-and-trim texture family.
+
 Vehicles
 - [Pickup](cars/README.md): full-size crew-cab pickup in five factory colors; doors, hood, tailgate, steering and
   wheels move.

@@ -13,7 +13,10 @@ from kit import gpu
 from kit.image_io import write_png
 
 
-def bake(source, out, name, coverage, size, samples):
+def bake(source, out, name, coverage, size, samples, height_distance=.004):
+    if height_distance <= 0:
+        raise ValueError('Height distance must be positive, in meters')
+    out.mkdir(parents=True, exist_ok=True)
     bpy.ops.wm.read_factory_settings(use_empty=True)
     sc = bpy.context.scene; sc.render.engine = 'CYCLES'; sc.cycles.samples = samples
     gpu.enable(); sc.render.bake.margin = 0
@@ -35,7 +38,7 @@ def bake(source, out, name, coverage, size, samples):
         src.extension = 'REPEAT'; src.interpolation = 'Linear'
         if channel == 'Normal':
             shader = nodes.new('ShaderNodeBsdfPrincipled'); bump = nodes.new('ShaderNodeBump')
-            bump.inputs['Distance'].default_value = .004
+            bump.inputs['Distance'].default_value = height_distance
             links.new(src.outputs['Color'], bump.inputs['Height']); links.new(bump.outputs['Normal'], shader.inputs['Normal'])
             links.new(shader.outputs[0], output.inputs['Surface'])
             bpy.ops.object.bake(type='NORMAL', normal_space='TANGENT', normal_r='POS_X', normal_g='POS_Y', normal_b='POS_Z')
@@ -61,11 +64,12 @@ def bake(source, out, name, coverage, size, samples):
                 raise AssertionError(f'Color-space or UV bake mismatch: mean bias {bias}')
         nodes.remove(src); nodes.remove(shader); bpy.data.images.remove(image)
     out.mkdir(parents=True, exist_ok=True)
-    (out / f'{name}-bake.json').write_text(json.dumps(dict(coverage_m=coverage, samples=samples, channels=report), indent=2))
+    (out / f'{name}-bake.json').write_text(json.dumps(dict(coverage_m=coverage, height_distance_m=height_distance, samples=samples, channels=report), indent=2))
 
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser(); p.add_argument('--source', type=Path, required=True); p.add_argument('--out', type=Path, required=True)
     p.add_argument('--name', required=True); p.add_argument('--coverage', type=float, required=True)
     p.add_argument('--size', type=int, default=4096); p.add_argument('--samples', type=int, default=8)
-    a = p.parse_args(sys.argv[sys.argv.index('--')+1:]); bake(a.source, a.out, a.name, a.coverage, a.size, a.samples)
+    p.add_argument('--height-distance', type=float, default=.004, help='Physical range of the normalized height field, meters')
+    a = p.parse_args(sys.argv[sys.argv.index('--')+1:]); bake(a.source, a.out, a.name, a.coverage, a.size, a.samples, a.height_distance)
