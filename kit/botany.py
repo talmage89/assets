@@ -78,6 +78,36 @@ class Cards:
         self.centers.append(tuple(c));self.widths.append(size)
         self.normal_bends.append(normal_bend);self.clump_blends.append(clump_blend if clump_center is not None else 0)
 
+    def add_grid(self,grid,rect,wind):
+        """Append a supplied curved rectangular alpha patch with physical normals.
+
+        Rows follow texture V; columns follow U. Finite differences retain cup,
+        droop or folds without bending every surface toward a crown. Geometry
+        shape/species and texture outlines remain caller-owned. Existing flat
+        card assembly and its defaults are unchanged.
+        """
+        rows=len(grid);cols=len(grid[0])
+        if rows<2 or cols<2 or any(len(row)!=cols for row in grid):
+            raise ValueError('Alpha patch needs a rectangular grid >=2 by 2')
+        points=[[Vector(p) for p in row] for row in grid];start=len(self.vertices)
+        u0,v0,u1,v1=rect
+        for y,row in enumerate(points):
+            for x,p in enumerate(row):
+                du=row[min(x+1,cols-1)]-row[max(0,x-1)]
+                dv=points[min(y+1,rows-1)][x]-points[max(0,y-1)][x]
+                n=du.cross(dv)
+                if n.length<1e-10:raise ValueError('Degenerate alpha patch tangent')
+                self.vertices.append(tuple(p));self.normals.append(tuple(n.normalized()))
+                self.uvs.append((u0+(u1-u0)*x/(cols-1),v0+(v1-v0)*y/(rows-1)))
+                self.wind.append(wind)
+        for y in range(rows-1):
+            for x in range(cols-1):
+                ids=(start+y*cols+x,start+y*cols+x+1,start+(y+1)*cols+x+1,start+(y+1)*cols+x)
+                self.faces.append(ids)
+                self.centers.append(tuple(sum((Vector(self.vertices[i]) for i in ids),Vector())/4))
+                self.widths.append((points[y][x+1]-points[y][x]).length)
+                self.normal_bends.append(0);self.clump_blends.append(0)
+
     def mesh(self,name,material):
         # Avoid closed-solid normal recalculation: authored winding is intentional.
         me=bpy.data.meshes.new(name);me.from_pydata(self.vertices,[],self.faces);me.update()

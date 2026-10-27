@@ -40,3 +40,16 @@ def normal_fixture():
     print('BOTANY FIXTURE PASSED clump-normal optional compatibility')
 
 normal_fixture()
+
+# A curved alpha patch preserves actual surface tangents and winding.
+def grid_fixture():
+    from mathutils import Vector
+    patch=botany.Cards()
+    patch.add_grid([[(x*.1,y*.1,.02*x*x-.01*y*y) for x in (-1,0,1)] for y in (-1,0,1)],(.25,.5,.5,.75),(0,1,.3,.8))
+    assert len(patch.vertices)==9 and len(patch.faces)==4
+    assert patch.uvs[0]==(.25,.5) and patch.uvs[-1]==(.5,.75)
+    assert all(abs(Vector(n).length-1)<1e-6 and n[2]>.9 for n in patch.normals)
+    assert patch.normals[0]!=patch.normals[-1]
+    assert patch.wind==[(0,1,.3,.8)]*9
+    print('BOTANY FIXTURE PASSED curved alpha grid')
+grid_fixture()

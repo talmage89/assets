@@ -609,3 +609,8 @@ The original 16% horizontal/zero vertical defaults are unchanged. An optional
 `vertical_fraction` adds symmetric top/bottom margins with the camera's pose
 and pixel projection preserved, so biological fits can show the entire object.
 These local comparison canvases never become asset images.
+
+`botany.Cards.add_grid(grid, rect, wind)` adds an authored curved rectangular
+alpha patch with UVs and physical finite-difference normals. Species supply the
+cup/droop/fold geometry; ordinary `Cards.add` and all existing defaults are
+unchanged. This lets broad leaves retain curvature without crown-normal shading.
