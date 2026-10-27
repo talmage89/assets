@@ -4,7 +4,7 @@ Compare delivered accessors and a fresh Blender import against actual finalized
 positions, linear Wind data and authored split normals. Generic kit verification
 separately checks UVs, embedded PBR maps, material policy and budgets.
 """
-import argparse,sys,json,hashlib
+import argparse,sys,json,hashlib,struct
 from pathlib import Path
 import bpy,numpy as np
 from mathutils import Vector
@@ -67,10 +67,11 @@ def main():
         for primitive in mesh['primitives']:
             used.update(primitive['attributes'].values());used.add(primitive['indices'])
     geometry_bytes=sum(raw.accessor(i).nbytes for i in used)
-    texture_mib=3*2048**2*4/3/1024**2
+    image_sizes=[struct.unpack_from('>II',raw.image(i),16) for i in range(len(raw.json['images']))]
+    texture_mib=sum(w*h*4/3 for w,h in image_sizes)/1024**2
     result=dict(passed=not errors,errors=errors,glb_bytes=a.glb.stat().st_size,embedded_texture_bytes=texture_bytes,
                 glb_sha256=hashlib.sha256(a.glb.read_bytes()).hexdigest(),meshes=rows,
-                gpu_mib_bc7_bc5_bc7_full_mips=texture_mib,geometry_accessor_bytes=geometry_bytes,
+                gpu_mib_bc7_bc5_bc7_full_mips=texture_mib,embedded_image_dimensions=image_sizes,geometry_accessor_bytes=geometry_bytes,
                 estimated_total_gpu_mib=texture_mib+geometry_bytes/1024**2,
                 memory_scope='Estimate for 8-bpp BaseColor-alpha, BC5 normal, 8-bpp ORM, full mip chains; PNG and uncompressed runtime sizes differ',
                 scope='Serialization of actual finalized positions, split normals and vertex RGBA wind; appearance established only by GLB photo pairs')

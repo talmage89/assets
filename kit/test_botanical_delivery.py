@@ -85,7 +85,8 @@ sys.argv=['blender','--','--source',str(f/'coincident.blend'),'--textures',str(f
 export.main()
 sys.argv=['blender','--','--source',str(f/'coincident.blend'),'--glb',str(f/'coincident.glb'),'--out',str(f/'coincident-audit.json')]
 botanical_delivery.main()
-assert json.loads((f/'coincident-audit.json').read_text())['passed']
+result=json.loads((f/'coincident-audit.json').read_text());assert result['passed']
+assert result['gpu_mib_bc7_bc5_bc7_full_mips']==1.0 and result['embedded_image_dimensions']==[[512,512]]*3
 bpy.ops.wm.open_mainfile(filepath=str(f/'coincident.blend'))
 bpy.data.objects['Coincident_Fabric'].data.color_attributes['Wind'].data[0].color=(.9,.1,.1,.1)
 bpy.ops.wm.save_as_mainfile(filepath=str(f/'coincident-corrupt.blend'))

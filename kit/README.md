@@ -629,3 +629,7 @@ The botanical audit matches Wind and split normals together among coincident
 source vertices, so opposite blades sharing a petiole may retain independent
 flutter/normals. The tolerances are unchanged. The fixture exports coincident
 cards with different data and also rejects deliberately altered source Wind.
+
+Botanical compressed-memory estimates read the embedded PNG dimensions; the
+512 fixture reports 1 MiB and 2048 families report 16 MiB for three 8-bpp maps
+with full mip chains, rather than assuming a particular family texture size.
