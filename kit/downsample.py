@@ -10,11 +10,23 @@ for channel in ('BaseColor','Normal','ORM'):
     array=read_png(source/f'T_{a.asset}_{channel}.png');h,w,_=array.shape
     if h%a.size or w%a.size:raise ValueError('Downsampling requires an integer ratio')
     factor=h//a.size
-    if channel=='BaseColor':array=srgb_to_linear(array)
+    if channel=='BaseColor':
+        rgb=srgb_to_linear(array[:,:,:3]);fallback=None
+        if array.shape[2]==4:
+            # Coverage is linear. Filter premultiplied albedo to avoid colored
+            # transparent margins contaminating retained leaf/thread texels.
+            fallback=rgb.reshape(a.size,factor,a.size,factor,3).mean(axis=(1,3))
+            array=np.dstack([rgb*array[:,:,3:4],array[:,:,3]])
+        else:array=rgb
     elif channel=='Normal':array=array*2-1
     elif channel=='ORM':array[:,:,1]**=2
-    array=array.reshape(a.size,factor,a.size,factor,3).mean(axis=(1,3))
-    if channel=='BaseColor':array=linear_to_srgb(array)
+    array=array.reshape(a.size,factor,a.size,factor,array.shape[2]).mean(axis=(1,3))
+    if channel=='BaseColor':
+        if array.shape[2]==4:
+            alpha=array[:,:,3:4]
+            rgb=np.where(alpha>1e-8,array[:,:,:3]/np.maximum(alpha,1e-8),fallback)
+            array=np.dstack([linear_to_srgb(rgb),alpha])
+        else:array=linear_to_srgb(array)
     elif channel=='Normal':
         lengths=np.linalg.norm(array,axis=2,keepdims=True);array/=np.maximum(lengths,1e-8)
         array=array*.5+.5

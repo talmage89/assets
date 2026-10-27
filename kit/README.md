@@ -419,3 +419,82 @@ existing shots retain the default position.
 needs to survive subpixel minification. It preserves fractional texture alpha,
 while existing `alpha_cutoff` tiles retain MASK behavior. Both policies verify
 embedded holes, retained threads and double-sided state; the images remain shared.
+
+`botany.py` supplies parameterized, parallel-transport tapered stem sweeps,
+root-section lobes, oriented alpha-card assembly with outward-bent custom
+normals, and explicit normalized `Wind` vertex channels. Species growth rules
+remain in each asset family; these additive helpers do not alter existing builds.
+
+Photo fits may optionally declare `camera_height_m=(height,sigma)` and
+`lens_bounds_mm=(minimum,maximum)`. The height is a residual prior and lens
+bounds are hard limits; reports retain both. These help underdetermined
+biological landmarks avoid implausible below-ground viewpoints. Existing
+rigid-object fits preserve their original unconstrained behavior.
+`botany.fuse_stems()` optionally unions coarse roots/leaders/scaffold wood with
+voxel remeshing, collar relaxation and a caller-chosen decimation budget.
+Use before UV/baking, restore wind attributes afterwards, and independently
+measure the result. Fine twig geometry need not pay for the union resolution.
+`botany.fuse_stems(..., connected_only=True)` optionally keeps the largest coarse
+rooted component before decimation, removing disconnected sub-voxel tip crumbs.
+The default retains every component for backward compatibility. Fine branching
+wood should retain authored low-sided geometry rather than forcing an entire
+twig network through coarse voxel remeshing.
+
+`botany.Cards.add()` optionally accepts `clump_center` and `clump_blend` to
+blend whole-crown and branch-mass radial normals before the usual card bend.
+Defaults preserve the existing whole-crown policy. This gives each branch's
+foliage a lit top and shaded underside without painting light into the atlas.
+
+
+Botanical delivery may opt into `TILED_MESHES[name]['preserve_normals']=True`
+to triangulate alpha cards with Blender's split-normal-preserving modifier.
+`EXPORT_COLOR_DATA={'Wind':'_WIND'}` exports linear RGBA data as a custom glTF
+attribute, without `COLOR_0` multiplying it into albedo. Both are opt-in; ordinary
+assets retain the existing path. `test_botanical_delivery.py` exercises the
+real finalize/export/import path and checks default behavior.
+
+`BAKE_DEPS` and `BAKE_POSTPROCESS` optionally composite a family's own analytic
+tiles into a bake before channel-correct delivery filtering; the default is empty.
+This complements the existing after-filter `TEXTURE_POSTPROCESS` hook.
+
+`STUDIO_SCRIPT` may select a family's final GLB-only presentation renderer when
+the tabletop studio is unsuitable (for example, outdoor trees). It receives
+the same final-source, config, camera/shot, engine, size and sample arguments.
+`UV_UNWRAP_METHOD='ANGLE_BASED'` (or another Blender unwrap method) uses authored
+mesh seams before the existing priority/packing/check path; absent this option,
+Smart UV retains its existing defaults. Species-specific seam construction stays
+in the tree family.
+
+`UV_NORMALIZE_ISLAND_SCALE=True` explicitly normalizes each island from measured
+3D/UV areas, including tiny Boolean patches the native averaging can skip.
+An optional FACE float `UV_PRIORITY_ATTRIBUTE` applies relative regional density
+before packing; the ordinary object-prefix priority still composes with it.
+These options preserve the existing default unwrap/pack path.
+
+Downsampling also accepts RGBA BaseColor: alpha stays linear and color is filtered
+with premultiplied coverage, preserving transparent botanical/cloth edges. RGB
+inputs keep their existing filtering. Tangent normals retain 16-bit bake precision
+until vector filtering to the shipped 8-bit map.
+
+`BAKE_POLICY.material_ao_channel='micro_ao'` optionally multiplies a material's
+original scalar `OUT_micro_ao` visibility into the geometry AO bake before ORM
+packing. Use this for shallow procedural cavities represented by bump rather
+than geometry. The named channel must exist on every baked source material;
+omitting the option retains the existing geometry-only AO path. It adds one
+emission bake, no image or runtime allocation.
+
+Material overrides also accept uniform `specular` (Principled Specular IOR
+Level, default .5). A nondefault value exports `KHR_materials_specular`, allowing
+a matte finish and its `ior` to survive glTF delivery. An IOR override alone may
+be omitted by Blender unless transmission, volume or specular is also exported.
+`test_export_policy.py` checks these actual GLB extensions; the optional cavity
+bake is exercised by `test_material_ao.py` through the GPU lock.
+
+With authored seams and `UV_UNWRAP_METHOD`, `UV_USE_TARGET_ASPECT=True` makes
+the unwrap/averaging/packing operators use the
+actual delivery-region aspect (`UV_ATLAS_RECT`, or the whole square atlas),
+instead of an arbitrary procedural input image's dimensions. Original image
+inputs and the active material nodes are restored before saving. This prevents
+a tall bark source field from squashing the shipped UVs in a wide reserved
+region. Defaults remain unchanged. `test_uv_target_aspect.py` measures actual
+triangle Jacobians in a non-square region and checks source-image restoration.

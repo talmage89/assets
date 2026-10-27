@@ -39,7 +39,9 @@ def calibrate(match):
         uv,depth,_=project(p,points,width,height)
         errors=((uv-target)*weights[:,None]/width).ravel()
         # Small lens prior keeps a noisy short baseline from inventing a telephoto lens.
-        return np.r_[errors,(p[5]-initial[5])*.012,p[6]*.02,np.minimum(depth-.02,0)*10]
+        height_prior=match.get('camera_height_m')
+        prior=[] if height_prior is None else [(p[4]-height_prior[0])/height_prior[1]]
+        return np.r_[errors,(p[5]-initial[5])*.012,p[6]*.02,np.minimum(depth-.02,0)*10,prior]
     damping=.001;cost=np.inf
     for iteration in range(160):
         r=residual(parameters);cost=float(r@r)
@@ -53,7 +55,8 @@ def calibrate(match):
         delta=np.linalg.solve(matrix+damping*np.diag(np.maximum(np.diag(matrix),1e-5)), -jac.T@r)
         candidate=parameters+delta
         candidate[1]=np.clip(candidate[1],-1.54,1.30)
-        candidate[5]=np.clip(candidate[5],math.log(18),math.log(180))
+        lens_bounds=match.get('lens_bounds_mm',(18,180))
+        candidate[5]=np.clip(candidate[5],math.log(lens_bounds[0]),math.log(lens_bounds[1]))
         candidate[6]=np.clip(candidate[6],-.35,.35)
         cr=residual(candidate);new_cost=float(cr@cr)
         if new_cost<cost:
@@ -72,7 +75,8 @@ def calibrate(match):
     return dict(shot=shot,crop=match['crop'],photo=match['photo'],title=match['title'],
                 lens_status='estimated from measured landmarks; original EXIF unavailable',
                 residual_rms_pixels=float(np.sqrt(np.mean(errors**2))),residuals_pixels=errors.tolist(),
-                landmarks_world_m=points.tolist(),projected_pixels=uv.tolist(),measured_pixels=target.tolist())
+                landmarks_world_m=points.tolist(),projected_pixels=uv.tolist(),measured_pixels=target.tolist(),
+                camera_height_prior_m=match.get('camera_height_m'),lens_bounds_mm=match.get('lens_bounds_mm'))
 
 
 def solve(config,out):

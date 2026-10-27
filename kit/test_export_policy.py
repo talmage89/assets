@@ -47,7 +47,7 @@ for value, offset in [('1', 10), ('other', 20)]:
 cfg = runpy.run_path(str(folder / 'config.py'))
 cfg = {k: v for k, v in cfg.items() if not k.startswith('__')}
 cfg.update(EXPORT_VARIANT=1, MATERIAL_OVERRIDES={
-    'Glass': dict(transmission=1, ior=1.45),
+    'Glass': dict(transmission=1, ior=1.45, specular=.24),
     'Sheet_': dict(emission_strength=4),
 })
 config = folder / 'composed-config.py'
@@ -80,6 +80,8 @@ for label, extra in [('config', []), ('cli', ['--variant', '1'])]:
     assert tile['extensions']['KHR_materials_emissive_strength']['emissiveStrength'] == 4
     glass = next(m for m in doc['materials'] if 'KHR_materials_transmission' in m.get('extensions', {}))
     assert glass['extensions']['KHR_materials_transmission']['transmissionFactor'] == 1
+    assert abs(glass['extensions']['KHR_materials_specular']['specularFactor']-.48)<1e-6
+    assert abs(glass['extensions']['KHR_materials_ior']['ior']-1.45)<1e-6
 print('PASS: tile alpha + glass/emission + numeric/config/ancestor variants compose')
 
 

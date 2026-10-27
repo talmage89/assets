@@ -24,20 +24,67 @@ def main():
         bpy.context.view_layer.objects.active=ob
         for modifier in list(ob.modifiers):
             if modifier.type!='ARMATURE':bpy.ops.object.modifier_apply(modifier=modifier.name)
-        bm=bmesh.new();bm.from_mesh(ob.data)
-        bmesh.ops.triangulate(bm,faces=list(bm.faces),quad_method='BEAUTY',ngon_method='BEAUTY')
-        bm.to_mesh(ob.data);bm.free()
+        # Alpha cards can carry authored canopy normals. Blender's triangulate
+        # modifier preserves split normals; BMesh roundtrips may discard them.
+        spec=atlas.tiled_spec(ob.name,config)
+        if spec and spec.get('preserve_normals',False):
+            modifier=ob.modifiers.new('Preserve authored tile normals','TRIANGULATE')
+            modifier.keep_custom_normals=True
+            bpy.ops.object.modifier_apply(modifier=modifier.name)
+        else:
+            bm=bmesh.new();bm.from_mesh(ob.data)
+            bmesh.ops.triangulate(bm,faces=list(bm.faces),quad_method='BEAUTY',ngon_method='BEAUTY')
+            bm.to_mesh(ob.data);bm.free()
         layer=ob.data.uv_layers.get('BakeUV') or ob.data.uv_layers.new(name='BakeUV')
         ob.data.uv_layers.active=layer;layer.active_render=True
     tiled=[o for o in objects if atlas.tiled_spec(o.name,config)]
     objects=[o for o in objects if o not in tiled]
+    aspect_image=None;aspect_sources=[];aspect_helpers=[]
+    if config.get('UV_USE_TARGET_ASPECT',False):
+        if not config.get('UV_UNWRAP_METHOD'):
+            raise ValueError('UV_USE_TARGET_ASPECT requires authored seams and UV_UNWRAP_METHOD')
+        # UV operators otherwise inherit the aspect of an arbitrary look-dev
+        # input image. Use the actual packed delivery region, then restore all
+        # material inputs before saving the finalized scene.
+        x0,y0,x1,y1=config.get('UV_ATLAS_RECT',(0,0,1,1))
+        aspect_image=bpy.data.images.new('UV target region aspect',width=a.size,
+                                        height=max(1,round(a.size*(y1-y0)/(x1-x0))))
+        for mat in {m for ob in objects for m in ob.data.materials if m and m.use_nodes}:
+            nt=mat.node_tree;active=nt.nodes.active
+            for node in nt.nodes:
+                if node.type=='TEX_IMAGE':
+                    aspect_sources.append((node,node.image));node.image=aspect_image
+            helper=nt.nodes.new('ShaderNodeTexImage');helper.image=aspect_image;nt.nodes.active=helper
+            aspect_helpers.append((nt,helper,active))
     bpy.ops.object.select_all(action='DESELECT')
     for ob in objects:ob.select_set(True)
     bpy.context.view_layer.objects.active=objects[0]
     bpy.ops.object.mode_set(mode='EDIT');bpy.ops.mesh.select_all(action='SELECT')
-    bpy.ops.uv.smart_project(angle_limit=math.radians(config.get('UV_SMART_ANGLE',66)),margin_method='SCALED',island_margin=0,area_weight=0,correct_aspect=config.get('UV_SMART_ASPECT',True),scale_to_bounds=False)
+    if config.get('UV_UNWRAP_METHOD'):
+        bpy.ops.uv.unwrap(method=config['UV_UNWRAP_METHOD'],margin=0)
+    else:
+        bpy.ops.uv.smart_project(angle_limit=math.radians(config.get('UV_SMART_ANGLE',66)),margin_method='SCALED',island_margin=0,area_weight=0,correct_aspect=config.get('UV_SMART_ASPECT',True),scale_to_bounds=False)
     bpy.ops.uv.average_islands_scale()
     bpy.ops.object.mode_set(mode='OBJECT')
+    if config.get('UV_NORMALIZE_ISLAND_SCALE',False):
+        # Blender's native average can leave tiny Boolean sliver islands at
+        # arbitrary scale. Normalize from measured areas before priorities.
+        for ob in objects:
+            layer=ob.data.uv_layers['BakeUV'];groups=list(uv.islands(ob))
+            owner={i:k for k,loops in enumerate(groups) for i in loops}
+            areas=[[0.,0.,0.] for _ in groups];ob.data.calc_loop_triangles()
+            attr=ob.data.attributes.get(config.get('UV_PRIORITY_ATTRIBUTE',''))
+            for tri in ob.data.loop_triangles:
+                coords=[tuple(layer.data[i].uv) for i in tri.loops]
+                ua=abs(uv.signed_area(coords));points=[ob.matrix_world@ob.data.vertices[i].co for i in tri.vertices]
+                wa=(points[1]-points[0]).cross(points[2]-points[0]).length*.5
+                row=areas[owner[tri.loops[0]]];row[0]+=ua;row[1]+=wa
+                row[2]+=wa*(attr.data[tri.polygon_index].value if attr else 1.)
+            for loops,(ua,wa,weighted) in zip(groups,areas):
+                if ua<=0 or wa<=0:raise RuntimeError('Cannot normalize zero-area UV island')
+                factor=math.sqrt(wa/ua)*(weighted/wa)
+                center=sum((layer.data[i].uv.copy() for i in loops),Vector((0,0)))/len(loops)
+                for i in loops:layer.data[i].uv=center+(layer.data[i].uv-center)*factor
     priorities=config.get('UV_PRIORITY',{})
     for ob in objects:
         priority=next((v for k,v in priorities.items() if ob.name.startswith(k)),config.get('UV_DEFAULT_PRIORITY',1.0))
@@ -50,6 +97,9 @@ def main():
     bpy.ops.uv.pack_islands(udim_source='CLOSEST_UDIM',rotate=True,rotate_method='ANY',scale=True,
                           merge_overlap=False,margin_method='FRACTION',margin=a.margin,pin=False,shape_method=config.get('UV_PACK_SHAPE','CONCAVE'))
     bpy.ops.object.mode_set(mode='OBJECT')
+    for node,image in aspect_sources:node.image=image
+    for nt,helper,active in aspect_helpers:nt.nodes.remove(helper);nt.nodes.active=active
+    if aspect_image:bpy.data.images.remove(aspect_image)
     if 'UV_ATLAS_RECT' in config:
         x0,y0,x1,y1=config['UV_ATLAS_RECT']
         for ob in objects:

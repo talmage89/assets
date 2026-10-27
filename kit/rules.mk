@@ -4,6 +4,7 @@ BLENDER ?= blender
 PYTHON ?= python3
 KIT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 REPO := $(abspath $(KIT)/..)
+STUDIO_SCRIPT ?= $(KIT)/studio.py
 BUILD := build
 CONFIG ?= src/config.py
 MODEL_SCRIPT ?= src/build.py
@@ -101,8 +102,9 @@ finalize: $(BUILD)/finalized.blend
 $(BUILD)/bake-parameters.txt: FORCE
 	@mkdir -p $(BUILD)
 	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='size=$(BAKE_SIZE) samples=$(BAKE_SAMPLES)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
-$(BUILD)/baked.stamp: $(BUILD)/bake-parameters.txt $(BUILD)/finalized.blend $(BUILD)/lookdev.blend $(KIT)/bake.py $(KIT)/atlas.py $(KIT)/bake_groups.py $(KIT)/image_io.py $(KIT)/gpu.py
+$(BUILD)/baked.stamp: $(BUILD)/bake-parameters.txt $(BUILD)/finalized.blend $(BUILD)/lookdev.blend $(KIT)/bake.py $(KIT)/atlas.py $(KIT)/bake_groups.py $(KIT)/image_io.py $(KIT)/gpu.py $(BAKE_DEPS)
 	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/bake.py -- --low $(BUILD)/finalized.blend --high $(BUILD)/lookdev.blend --out textures/bake --asset $(ASSET) --config $(CONFIG) --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
+	$(if $(BAKE_POSTPROCESS),$(BAKE_POSTPROCESS),@:)
 	@touch $@
 bake: $(BUILD)/baked.stamp
 $(BUILD)/textures.stamp: $(BUILD)/baked.stamp $(KIT)/downsample.py $(KIT)/image_io.py $(TEXTURE_DEPS)
@@ -118,9 +120,9 @@ verify: export/$(ASSET).glb
 $(BUILD)/studio-parameters.txt: FORCE
 	@mkdir -p $(BUILD)
 	@$(PYTHON) -c "from pathlib import Path; import sys; r=Path(sys.argv[1]).expanduser(); p=Path('$@'); s='width=$(WIDTH) samples=$(SAMPLES) shots=$(FINAL_SHOTS) eevee=$(EEVEE_SHOT) args=$(STUDIO_ARGS) reference='+sys.argv[1]+' mtime='+str(r.stat().st_mtime_ns if sys.argv[1] and r.is_file() else None); p.write_text(s) if not p.exists() or p.read_text()!=s else None" "$(TANK_REFERENCE)"
-renders/final/.stamp: export/$(ASSET).glb $(CONFIG) $(KIT)/studio.py $(KIT)/rig.py $(BUILD)/studio-parameters.txt
-	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --stage final --source $< --config $(CONFIG) --out renders/final --shots $(FINAL_SHOTS) --width $(WIDTH) --samples $(SAMPLES) --fit-reference "$(TANK_REFERENCE)" $(STUDIO_ARGS)
-	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --stage final --source $< --config $(CONFIG) --out renders/final-eevee --shots $(EEVEE_SHOT) --engine BLENDER_EEVEE --width $(WIDTH) --samples $(SAMPLES) $(STUDIO_ARGS)
+renders/final/.stamp: export/$(ASSET).glb $(CONFIG) $(STUDIO_SCRIPT) $(KIT)/rig.py $(BUILD)/studio-parameters.txt
+	$(KIT)/with_gpu.sh $(BP) --python $(STUDIO_SCRIPT) -- --stage final --source $< --config $(CONFIG) --out renders/final --shots $(FINAL_SHOTS) --width $(WIDTH) --samples $(SAMPLES) --fit-reference "$(TANK_REFERENCE)" $(STUDIO_ARGS)
+	$(KIT)/with_gpu.sh $(BP) --python $(STUDIO_SCRIPT) -- --stage final --source $< --config $(CONFIG) --out renders/final-eevee --shots $(EEVEE_SHOT) --engine BLENDER_EEVEE --width $(WIDTH) --samples $(SAMPLES) $(STUDIO_ARGS)
 	@touch $@
 final-render: renders/final/.stamp
 docs: final-render src/review.py
