@@ -13,3 +13,13 @@ SHOTS={
 STUDIO=dict(scale=3,light_center=(0,0,0),backdrop_half_width=12)
 # The checkpoint does not certify motion; no swept-motion tests are declared yet.
 MOTIONS=[]
+
+LOOKDEV_SHOTS={
+ 'front_three_quarter':dict(location=(8,-10,3.05),target=(0,-.12,.98),lens=57,aspect=1.6,studio_yaw=-35),
+ 'rear_three_quarter':dict(location=(-8,10,3.05),target=(0,.15,.96),lens=57,aspect=1.6,studio_yaw=145),
+ 'side':dict(location=(12,0,1.10),target=(0,0,1.10),ortho=6.65,aspect=2.0,studio_yaw=-25),
+ 'front_detail':dict(location=(3.4,-6.8,2.25),target=(.12,-2.43,1.01),lens=77,aspect=1.45,studio_yaw=-35),
+ 'wheel_detail':dict(location=(3.2,-3.55,1.05),target=(.87,-1.985,.51),lens=90,aspect=1.2,studio_yaw=-50),
+ 'lamps_lit':dict(location=(3.4,-6.8,2.25),target=(.12,-2.43,1.01),lens=77,aspect=1.45,studio_yaw=-35,lights=True),
+ 'interior':dict(location=(1.9,-2.7,1.88),target=(-.06,-.24,1.13),lens=70,aspect=1.45,studio_yaw=-35),
+}

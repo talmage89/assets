@@ -7,6 +7,7 @@ Reference only: never loaded into a shader, projected, traced or baked. Accessed
 | ford-front.jpg | https://upload.wikimedia.org/wikipedia/commons/7/71/2018_Ford_F-150_Crew_Cab_front_5.26.18.jpg | Kevauto; CC BY-SA 4.0; [source page](https://commons.wikimedia.org/wiki/File:2018_Ford_F-150_Crew_Cab_front_5.26.18.jpg); stance, cab/bed relationship, glass and wheel openings. Comparison only. |
 | ford-rear.jpg | https://upload.wikimedia.org/wikipedia/commons/e/e7/2018_Ford_F-150_Crew_Cab_rear_5.26.18.jpg | Kevauto; CC BY-SA 4.0; [source page](https://commons.wikimedia.org/wiki/File:2018_Ford_F-150_Crew_Cab_rear_5.26.18.jpg); stance, cab/bed relationship, glass and wheel openings. Comparison only. |
 | ram-rear.jpg | https://upload.wikimedia.org/wikipedia/commons/c/c9/2017_Ram_1500_Express_Crew_Cab%2C_rear_left%2C_09-02-2022.jpg | MercurySable99; CC BY-SA 4.0; [source page](https://commons.wikimedia.org/wiki/File:2017_Ram_1500_Express_Crew_Cab%2C_rear_left%2C_09-02-2022.jpg); stance, cab/bed relationship, glass and wheel openings. Comparison only. |
+| ram-front.jpg | https://upload.wikimedia.org/wikipedia/commons/4/47/2017_Ram_1500_Express_Crew_Cab%2C_front_left%2C_09-02-2022.jpg | MercurySable99; CC BY-SA 4.0; [source page](https://commons.wikimedia.org/wiki/File:2017_Ram_1500_Express_Crew_Cab,_front_left,_09-02-2022.jpg); photographed 2 September 2022, MY2017 truck: five-year condition, dried rocker splash, tire dust and paint value. Comparison only. |
 | ford-2017-body.pdf | https://madocumentupload.marketingassociates.com/api/Document/GetFile?v1=4311674&v2=060118100149&v3=60&v4=3f2137473068fd5fc81405c4d6ffa529d55a0aa9f7e934d690b5cef0&v5=False | Ford Motor Company; copyrighted manufacturer body-builder literature, reference only; pp10–16, same-generation chassis track, overhangs, wheel/tire data. Explicitly MY2017, not MY2018. |
 | gm-2018-specs.pdf | https://www.gmupfitter.com/wp-content/uploads/2021/05/2018-gmf-silverado-special-service-police-spec-guide.pdf | General Motors; copyrighted manufacturer literature, reference only; crew short-box class cross-check. |
 | ford-lariat-front.jpg | https://upload.wikimedia.org/wikipedia/commons/0/0a/2018_Ford_F-150_Lariat_Crew_Cab_3.5L_EcoBoost_front_4.22.19.jpg | Kevauto; CC BY-SA 4.0; camera-distance comparison and cab/bed proportions; reference only. |
@@ -24,3 +25,8 @@ and body-point comparisons as well as the existing chassis calibration. The
 Ram rear photograph is a separate construction/design-language check for its
 broad flare and rounded cab. Marked comparisons and their uncertain pixel
 picks stay ignored; no photographic outline is converted into geometry.
+
+Look-dev condition calibration: the MY2017 Ram front/rear photographs were
+taken in September 2022 and show five-year wear. The Ford street photographs
+were taken in the vehicle model year; they remain supplemental construction
+and reflection comparisons and are not evidence of four/five-year aging.

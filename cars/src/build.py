@@ -12,8 +12,8 @@ import body,wheels
 
 
 class Build:
-    def __init__(self,high):
-        self.high=high;self.root=G.pivot('AlderC150',(0,0,0));self.root['static_root']=True
+    def __init__(self,high,wear=.65,detail=True):
+        self.high=high;self.detail=detail;self.wear=wear;self.root=G.pivot('AlderC150',(0,0,0));self.root['static_root']=True
         self.root['asset_set']='Pickup'
         self.m={}
         for key,color in dict(body=(.39,.405,.41),glass=(.065,.086,.095),rubber=(.027,.029,.032),
@@ -22,19 +22,30 @@ class Build:
             bs=m.node_tree.nodes['Principled BSDF'];bs.inputs['Base Color'].default_value=(*color,1)
             bs.inputs['Roughness'].default_value=.43 if key=='body' else .65
             self.m[key]=m
+        self.m['lens']=self.m['glass']
+        if detail:
+            import finishes
+            self.m=finishes.build(wear)
     def add(self,ob,parent=None,category='body'):
         ob['part_category']=category
         ob=G.attach(ob,parent or self.root,asset_set='Pickup')
         if not ob.data.has_custom_normals:G.smooth(ob,35)
+        if self.detail:
+            bpy.context.view_layer.update()
+            rest=ob.data.attributes.new('VehicleRest','FLOAT_VECTOR','POINT')
+            rest.data.foreach_set('vector',[q for v in ob.data.vertices for q in ob.matrix_world@v.co])
         return ob
     def skin(self,name,fn,nu,nv,mat,outward,parent=None,category='body',**kw):
-        factor=1.5 if self.high else .6
+        factor=1.5 if self.high else .40
         # Flat floors/inner walls and glass need no dense redundant sheet grid.
         if not self.high and (name in ['Cab floor','Pickup bed floor','Cab rear lower','Pickup box front'] or category=='glass'):
-            factor=.3
+            factor=.13
         us=kw.pop('us',samples(max(2,round(nu*factor))))
         vs=kw.pop('vs',samples(max(2,round(nv*factor))))
+        even=kw.pop('even_offset',False)
         ob=panel(name,fn,us,vs,mat,outward,**kw)
+        ob.modifiers['Closed sheet gauge'].use_even_offset=even
+        sheet_vertices=len(ob.data.vertices)
         ob=self.add(ob,parent,category)
         # Closing the sheet changes the smoothing fans at its rim. Reseed the
         # authored outer normals AFTER evaluation; pre-modifier split normals
@@ -48,7 +59,7 @@ class Build:
                 n=du.cross(dv).normalized()
                 if n.dot(hint)<0:n.negate()
                 normals.append(to_local@n)
-        count=(len(us)-1)*(len(vs)-1);ob['outer_skin_faces']=count
+        count=(len(us)-1)*(len(vs)-1);ob['outer_skin_faces']=count;ob['sheet_vertex_count']=sheet_vertices
         custom=[(0,0,0)]*len(ob.data.loops)
         for face in ob.data.polygons:
             face.use_smooth=face.index<count
@@ -59,12 +70,17 @@ class Build:
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--out',required=True);p.add_argument('--quality',default='high',choices=['game','high']);p.add_argument('--wear',type=float,default=.65)
+    p=argparse.ArgumentParser();p.add_argument('--out',required=True);p.add_argument('--quality',default='high',choices=['game','high']);p.add_argument('--wear',type=float,default=.65);p.add_argument('--form-only',action='store_true')
     args=p.parse_args(sys.argv[sys.argv.index('--')+1:])
     bpy.ops.wm.read_factory_settings(use_empty=True)
-    b=Build(args.quality=='high');body.build(b);wheels.build(b,S)
+    b=Build(args.quality=='high',args.wear,not args.form_only);body.build(b);wheels.build(b,S)
+    if b.detail:
+        import exterior,interior,underbody
+        exterior.build(b);interior.build(b);underbody.build(b)
+    for material in list(bpy.data.materials):
+        if material.users==0:bpy.data.materials.remove(material)
     sc=bpy.context.scene;sc.unit_settings.system='METRIC';sc.unit_settings.scale_length=1
-    sc['asset']='AlderC150';sc['quality']=args.quality;sc['stage']='body-form checkpoint';sc['seed']=150
+    sc['asset']='AlderC150';sc['quality']=args.quality;sc['stage']='detail and procedural look-dev' if b.detail else 'body-form corrections';sc['seed']=150
     sc['reference_dimensions']=json.dumps(dict(length=S.LENGTH,width=S.WIDTH,height=S.HEIGHT,wheelbase=S.WHEELBASE,track=S.TRACK))
     bpy.context.view_layer.update();Path(args.out).parent.mkdir(parents=True,exist_ok=True)
     bpy.ops.wm.save_as_mainfile(filepath=str(Path(args.out).resolve()))

@@ -47,9 +47,8 @@ def side_base(y,z):
     h=shoulder_z(y)
     if z>S.BELT:
         return .963-.26*(z-S.BELT)-.018*fair((y-.48)/.48)
-    line=1.0  # The lower die line stays straight up to the trimmed arch.
-    return hermite(z,[(.530,.932,.22),(.565,.940,.23),(.650,.960,.16),
-        (.715,.970,.10),(.730,.971,.10*(1-line)),(.750,.972-.006*line,.08*(1-line)),(.820,.975,.075),
+    return hermite(z,[(.530,.935,.17),(.578,.943,.17),(.650,.956,.16),
+        (.720,.967,.13),(.780,.973,.065),(.840,.977,.035),
         (1.000,.9815,0),(h-.065,.974,-.040),
         (h-.012,.985,.32),(h,.987,0),(h+.016,.979,-.30),
         (S.BELT,.963,-.26)])
@@ -57,18 +56,18 @@ def side_base(y,z):
 
 ARCH_HALF=.505
 ARCH_POWER=2.65
-FLARE_DEPTH=.03668
+FLARE_DEPTH=.03580
 
 
 def arch_floor(y,axle,radius=S.ARCH_RADIUS):
     t=abs((y-axle)/ARCH_HALF)
     z=S.ARCH_Z+radius*max(0,1-t**ARCH_POWER)**(1/ARCH_POWER)
-    return max(S.ROCKER,z)
+    return max(S.ROCKER+.013,z)
 
 
 def arch_point(t,axle):
     power=2/ARCH_POWER
-    a0=math.asin(((S.ROCKER-S.ARCH_Z)/S.ARCH_RADIUS)**(1/power))
+    a0=math.asin(((S.ROCKER+.013-S.ARCH_Z)/S.ARCH_RADIUS)**(1/power))
     a=a0+(math.pi-2*a0)*t;c=math.cos(a)
     return axle+ARCH_HALF*math.copysign(abs(c)**power,c),S.ARCH_Z+S.ARCH_RADIUS*math.sin(a)**power
 
@@ -80,7 +79,8 @@ def side_x(y,z,arch=True):
             q=(abs((y-axle)/ARCH_HALF)**ARCH_POWER+abs((z-S.ARCH_Z)/S.ARCH_RADIUS)**ARCH_POWER)**(1/ARCH_POWER)
             # A 12 mm lip and broad, nearly ruled draw with tangent fillets
             # at the authored crease. No collapsed end of an annulus.
-            x+=FLARE_DEPTH*section(q,[(0,1),(1.025,1),(1.455,0),(2,0)],.10)
+            t=min(1,max(-.05,(q-1)/.46))
+            x+=FLARE_DEPTH*(1-t)**2
     return x
 
 
@@ -153,3 +153,18 @@ def backlight(u,v):
 def bilinear(corners,u,v):
     a,b,c,d=corners
     return tuple((1-u)*(1-v)*a[k]+u*(1-v)*b[k]+u*v*c[k]+(1-u)*v*d[k] for k in range(len(a)))
+
+
+def lamp_surface(u,v):
+    """Flush front-to-side lens seat, with the rear tangent on the fender."""
+    z=.899+.274*v
+    if u<=.70:
+        x=.732+.210*u/.70;y=nose_y(x,z)+.004
+    else:
+        t=(u-.70)/.30;x0=.942;y0=nose_y(x0,z)+.004
+        ye=-2.499;xe=side_x(ye,z)-.002
+        e=1e-4;dxdy=(side_x(ye+e,z)-side_x(ye-e,z))/(2*e)
+        dydx=(nose_y(x0+e,z)-nose_y(x0-e,z))/(2*e)
+        p=(x0,y0);a=(x0+.030,y0+.030*dydx);c=(xe-.080*dxdy,ye-.080);d=(xe,ye)
+        x,y=[(1-t)**3*p[k]+3*(1-t)**2*t*a[k]+3*(1-t)*t*t*c[k]+t**3*d[k] for k in range(2)]
+    return x,y,z

@@ -58,12 +58,12 @@ def main():
                 actual=ob.matrix_world.to_3x3()@ob.data.corner_normals[li].vector
                 normal_errors.append(math.degrees(expected.angle(actual)))
     normal_check=dict(samples=len(normal_errors),max_angle_degrees=max(normal_errors))
-    report=dict(surfacing=collect(),stage='body form only',source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),
+    report=dict(surfacing=collect(),stage=bpy.context.scene['stage'],source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),
                 broad_panel_normal_check=normal_check,bounds_m=b,triangles=total,triangles_per_category=categories,triangles_per_mesh=parts,triangles_per_parent=roots,
                 materials=sorted({m.name for ob in obs for m in ob.data.materials if m}),
                 wheel_centers_m=pivots,wheelbase_m=wb,track_m=track,tire_bounds_m=tires,door_seam_distances=gaps,
                 arch_vertical_clearances=arch,bed_floor_bounds_m=floor,cab_bed_y_gap_m=cab_gap,
-                pending=['ground clearance: axle/frame not yet built','continuous rolling tire deformation','all swept-motion clearance',
+                pending=['continuous rolling tire deformation','all swept-motion clearance',
                          'UV, bake, GLB and delivery budgets','paint/glass/light material delivery'])
     errors=[]
     if total>70000:errors.append('Triangle budget')
