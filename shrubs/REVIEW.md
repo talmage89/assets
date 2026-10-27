@@ -428,3 +428,206 @@ same three original 2048 maps, **16 MiB** with full mip chains at BC7/BC5/8-bpp
 ORM. The curved-grid botanical fixture passed default, connected and curved
 card cases; existing maple entry points are unchanged. Bake, unique wood UVs,
 GLB export/re-import and final docs JPGs are deliberately not run at this stop.
+
+## Finishing source correction — 36 heads and layered, curved leaves
+
+**Color/value first:** the first revised source pair (`renders/fix1/`) measures
+bed heads .395 versus .526 photo, house heads .449 versus .372. The former
+bright blue has become dusty lavender/blue with scattered mauve. Bed leaves
+.188 versus .376 are too dark; house .185 versus .101 remains brighter in its
+middle population. These exposure differences are retained. All seven source
+views were opened on `inspection.jpg`, the 1 m view full size, and both full
+photo pairs. This source review does not count as an exported-asset critique.
+
+There are 36 heads over the top and sides, 15 nodding. The first revision is
+still too perched at its top, with coarse smooth sepal ellipses and an exposed
+basal fan. Add leaf pairs close below terminal heads and one more interior low
+tier; keep the outer small leaves physically cupped. Increase only hydrangea
+leaf albedo, reduce sepal albedo further so individual lit heads can be checked
+against .53, and add uneven sepal rims/fine rib relief. Broad blades now vary
+about 8–15 cm; three green tiles and a low yellow tile break the repeated paddle
+surface. Four-triangle blades keep their real normals. True broad-leaf backs
+receive a paler, matte response selected by UV; accepted boxwood tiles remain
+unaffected. No extra triangles or maps are used for veins/teeth/sepal crinkles.
+
+### Delivery setup rejection — stem UV fragmentation
+
+The first finalizer run rejected tiny isolated stem UV faces: unique coverage
+.0097, median 220 px/m. Add longitudinal and cap seams to the existing stems,
+unwrap against the reserved region's actual aspect, and use .0005 packing
+margin. The revised actual pack measures .03525 whole-atlas coverage, median
+419 px/m (p5/p95 395/437), with zero overlaps. Most pixels are deliberately
+reserved for reused cards; a whole-atlas .20 coverage floor was inappropriate.
+The kit now honors the already-existing family `UV_MIN_COVERAGE` setting in
+finalization as well as verification, retaining its .20 default. The real atlas
+fixture passes its previous export and a new small-region packing case.
+
+## Export critique 1 — color holds; reject grade and card-fringe defects
+
+Evidence: `renders/export-pass1/{hero,side,close_1m}.png`, its contact, both
+photo pairs and head-value windows. All were opened; the macro and bed pair
+were inspected full size. This is the actual embedded-map GLB, not the source.
+
+**Color/value first:** house foliage/heads .268/.393 against .101/.372 photo;
+bed .263/.377 against .376/.526. Head-window medians span .205–.516 in hero,
+.215–.508 in the house camera and .240–.464 in the bed. Each is below the .53
+reference median; individual glints are not a .53 pixel clamp. Display values
+remain lighting/specimen comparisons. The matte paler leaf backs are visible
+and the green highlights are now brighter than the shaded flower surfaces.
+
+The new ribs/serration survive export at 1 m and head grain reads at the hero's
+roughly 3 m camera distance. The heads still sit in too obvious an outer ring;
+the top remains a little comb-like. Move six existing daughter terminals inward,
+vary upper stem heights and make heads slightly oblate/uneven. This redistributes
+the same 36 heads/triangles rather than increasing the silhouette budget.
+The white vein network still looks drawn: use a recessed analytic vein field
+with dark secondary grooves instead of bright secondary lines.
+
+Reject two measured delivery defects. The low core-card trial has a corner at
+−.071 m: restore the .25 m interior-center floor while retaining the extra tier.
+The verifier also catches six zero-length normal texels in near-transparent
+core-card fringes. RGBA resizing amplified their color components. Reconstruct
+those card normals in the positive tangent hemisphere and give discarded fringe
+texels flat normals before the ordinary vector downsample. Never waive the
+normal or grade checks. This rejected GLB is retained only in ignored build.
+
+## Export critique 2 — redistribute the blooms; preserve measured relief
+
+Evidence: all five PNGs in `renders/export-pass2/`, its contact, both full pairs,
+hero and 1 m close-up. **Color/value first:** house leaf/head medians .220/.396,
+bed .213/.374. The brightest head-window median is .527 in the 1 m shot; all
+hero/pair window medians remain below .53. Flower saturation in the house pair
+is .313, versus .268 photo: dusty but still somewhat more saturated. None of
+the measured model channels clips. Keep these residuals explicit.
+
+Moving six existing heads inward and lowering some upper terminals replaces
+the empty central rosette with overlapping flowers among foliage. Slightly
+oblate, uneven heads have visible sepal grain at the 3 m hero camera. Opposite
+outer pairs now alternate 90 degrees around the stem instead of both aiming
+outward. The normal-derived recessed veins read at 1 m; the former drawn
+white network is gone. Dark small pockets remain among overlapping tiers;
+paler matte backs and a few low yellow leaves read without a pale overall wash.
+
+The independent GLB verifier now passes normal texture vectors, overlap,
+density and all PBR/alpha checks. The source grade audit still rejects one
+**transparent core-card corner at −4.55 mm**, measured on vertex 2452/face 817,
+not a wood root or a petiole. A square can reach its half-diagonal below its
+center after roll. Set the core-center floor to .265 m (above the .255 m
+half-diagonal), retaining its .36 m size and the same triangle count. Do not
+relax the grade assertion. Final full views and the third export pass follow.
+
+Remaining visual tells: the blades are still tidier and the heads more
+spherical/regular than the photos; the 1 m close-up reveals repeated sepal
+patches and occasional intersections. Keep those as budget limitations, and
+check the complete turnaround/Eevee before final docs.
+
+## Export critique 3 — complete Cycles views; reject washed-out Eevee
+
+**Color/value first:** the final 1600 px Cycles pair retains the boxwood's deep
+green: .348 lit versus .361 photograph (accepted lower-resolution source .351).
+The accepted geometry/normals/Wind hash remains
+`13e52dab7f2043a29e22c190fd068125017a6d78385f9ac1f589fc35acaccc8d`;
+all three lower foliage atlas regions compare byte-identical. The modest
+measurement difference is not an intentional recolor. Hydrangea house leaves /
+heads are .220/.396 versus .101/.372; bed .213/.375 versus .376/.526. Its shaded
+patches are .112/.075 house and .103/.126 bed (model/photo). The darker house
+still has more shaded area than the model; the brighter bed's whole population
+is much brighter. Do not claim a universal photo match.
+
+Every final Cycles view was opened on both inspection sheets, plus both heroes,
+all four full exported photo pairs and the 1 m details. The low skirt, dense
+opposite leaf tiers, visible ribs/serration and uneven sepal clusters survive.
+The .265 m core floor passes the real grade assertion. All 408 outer petiole
+starts are inside their actual parent wood with three agreeing parity rays.
+Thirty-six actual heads measure 16.7–20.9 cm maximum retained extents; the
+largest tips exceed the nominal 20 cm by 9 mm, explicitly retained in README.
+
+Reject the first Eevee boxwood: its selected-green median is .522 versus .312
+Cycles, with pale interior foliage and inadequate occlusion. Keep materials and
+geometry fixed; enable Eevee ray tracing and screen-space ambient occlusion at
+shrub scale. The 1000 px study drops to .339, p5/p95 .193/.562 versus Cycles
+.107/.567. It retains the waxy glints while restoring dark pockets, though its
+shadows are still shallower. Re-render both final Eevee heroes using that setup.
+
+The Wind audit's apparent mismatch is independently diagnosed as a nearest-
+vertex ambiguity: opposite blades meet at a shared petiole position but carry
+different flutter and split normals. The shared audit now matches both data
+fields on one coincident candidate. Its real export/import regression accepts
+that case and rejects a deliberately corrupted mask; tolerances are unchanged.
+Actual family position/Wind errors are zero, maximum normal vector difference
+8.42e-5. This proves serialization, not botanical correctness or appearance.
+
+## Export critique 4 — final presentation and limits
+
+**Color/value first:** all nine hydrangea views have projected head-window
+medians below .53; the maximum is **.527** in the 1 m detail, hero **.425**, house
+**.493**, bed **.463**. These are sampled visible color populations in projected
+windows, which may include neighbors, not isolated object IDs or a pixel clamp.
+No measured model channel clips. The final heads are muted blue/lavender/mauve,
+with paler floret centers, and shade falls below bright green leaf surfaces.
+
+Opened the final family contact (14 presentation Cycles and both Eevee views), all four
+exported pairs, the final Eevee images, both 1 m images and all five docs JPGs.
+The Eevee shadows remain shallower than Cycles but no longer wash out the crown.
+The full turnaround exposes the remaining form limits honestly: hydrangea has
+fewer exposed flowers on its back, some upper heads still show straight necks,
+and its basal fan is visible from low front/back views. These are weaker than
+the best photographed dense beds. Individual blades and florets remain tidier
+than real growth; repeated sprites and card crossings show at 1 m. Boxwood's
+accepted clipped dome remains more regular than the reference's hand shearing.
+No geometry or atlas recolor is applied to that accepted shrub.
+
+The delivery is one ordinary family GLB with two rooted nodes, two materials
+and exactly three shared embedded image identities. Loading the library once
+and instancing the selected root keeps one image allocation in the engine.
+`_WIND` survives raw accessors and fresh import without albedo vertex colors.
+The README distinguishes that portable PBR delivery from the documented engine
+thin-leaf response used by the final renderer; wind deformation/LOD integration
+remain engine responsibilities, not animation supplied by the GLB.
+
+### Final proof
+
+- **`make -C shrubs`: passed; `make -C shrubs check`: passed**, explicit final
+  runs. Source construction/camera checks, actual GLB/UV/PBR verification,
+  botanical serialization, bake-loss and repository checks all pass.
+- **Boxwood 5,588**, **hydrangea 5,908** triangles; **two shared materials**,
+  **three 2048² embedded images**. Family GLB **6,066,148 bytes**. Shipped PNG
+  bytes BaseColor/Normal/ORM **1,052,212 / 3,297,050 / 271,948**.
+- **16 MiB** estimated compressed full-mip texture allocation shared across
+  both species; **1,437,872 bytes** actual geometry accessors, about **17.37 MiB**
+  combined before engine overhead. The shared audit now reads embedded PNG
+  dimensions; its 512 fixture correctly reports 1 MiB instead of assuming 2K.
+- Final unique stem UV coverage **.02946**, density p5/median/p95 **363/386/402
+  px/m**, zero overlaps. Reserved analytic card UV reuse is checked separately.
+- GPU Cycles 4096 bake: **zero missed/black interior texels of 381,594**.
+  Source/export pair display-RGB RMSE **.02179/.02230** boxwood and
+  **.00656/.00634** hydrangea. Global selected-leaf medians differ by at most
+  **.0015**. Every one of **3,670,016 analytic-region pixels per map** is
+  byte-identical in the GLB; wood has real projection and coverage checks.
+- Final GLB SHA-256:
+  `09aa4f0497750215545d657cfa8fd2f4606f6bdc92a5685d76848964ea5fc929`.
+  All **18 Cycles** views (including four photo cameras) and **two Eevee**
+  heroes match that GLB. Four matching source photo-camera renders were also
+  rebuilt, inspected and checked against their actual source hashes.
+- Actual retained foliage spans boxwood **1.035 × 1.004 m**, bottom/top
+  **.060/.867 m**; hydrangea **1.492 × 1.430 m**, bottom/top **.030/1.135 m**.
+  These include actual alpha support; mesh serialization and form checks have
+  separate scopes. Wind/position errors are zero through raw and fresh import.
+- Images: `renders/final/` and `renders/hydrangea-final/` contain hero, full
+  turnaround, `close_1m`, scale, contact and measured photo pairs.
+  `renders/final-eevee/hero.png`, `renders/hydrangea-eevee/hero.png` and
+  **`renders/family-final/contact.jpg`** complete the delivery presentation.
+  Only five final docs JPGs enter Git; all are at most 1600 px wide / 200 KB.
+- `kit/test_atlas.py` passes original stock PBR/re-import checks and the small
+  unique-region case. `kit/test_botanical_delivery.py` passes legacy defaults,
+  authored normal/Wind export, premultiplied alpha, coincident-data matching,
+  deliberate Wind corruption rejection and image-derived memory estimates.
+  No other asset's geometry/material/bake was rebuilt or changed.
+- Privacy scan and manual reference-register review find no private subject
+  identity, home address, listing link, machine path or host name in shrub
+  source/docs. Public author credits remain for reference rights. No reference
+  photographs enter committed docs. `git diff --check` passes.
+
+No further tool or lead approval is needed. The known visual limits are above;
+engine thin-leaf/wind/LOD integration is documented rather than claimed shipped
+as stock glTF animation. Shared kit changes are isolated in their own commits.
