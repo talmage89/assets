@@ -464,3 +464,11 @@ Vehicle tire finishes accept `wear=` for a sidewall dust annulus while keeping
 the tread rubber dark. Road coverage saturates at 0–1. Glass records its privacy
 classification; callers supply the tint explicitly. The dated used-truck
 comparisons in cars calibrate these source effects.
+
+Vehicle finishes accept opt-in `refined=True` on `paint` and `manufactured`.
+This uses dilute aft-of-tire fans, polished clear coat, sparse roughness-only
+wash swirls, rail/corner dust and chrome water-spot rims. Alloy/chrome/steel
+exclude the body road-film layer; alloy retains localized brake dust. Existing
+callers keep their earlier defaults. Rail height and cargo-box bounds are
+caller-supplied physical dimensions (`rail_height`, `cargo_bounds`). `brake_rotor()` provides concentric turned
+steel relief using a wheel-centered object frame with X as its spin axis.
