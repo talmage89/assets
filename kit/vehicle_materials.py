@@ -45,7 +45,7 @@ def daily_road_mask(n,p,y,z,axles,wear):
     return n.mul(n.maximum(*terms),grain,wear)
 
 
-def paint(name,color,wear=.65,axles=(),attribute='VehicleRest',front=None,rear=None,refined=False,rail_height=None):
+def paint(name,color,wear=.65,axles=(),attribute='VehicleRest',front=None,rear=None,refined=False,rail_height=None,metallic=.12,flakes=0):
     n=Nodes(name);p,x,y,z,nx,ny,nz=rest(n,attribute)
     tint=n.node('ShaderNodeRGB',name='Paint tint');tint.outputs[0].default_value=(*color,1)
     film=(daily_road_mask if refined else road_mask)(n,p,y,z,axles,wear)
@@ -71,7 +71,15 @@ def paint(name,color,wear=.65,axles=(),attribute='VehicleRest',front=None,rear=N
         arcs=n.math('SINE',n.mul(n.voronoi(n.vec('MULTIPLY',p,(1,1,1)),8),3200))
         swirls=n.mul(n.ramp(arcs,.92,.99),n.ramp(n.noise(p,30,2),.57,.70),wear,.018)
         rough=n.add(rough,swirls)
-    mat=n.finish(base,rough,.12,height,coat=1)
+    metal=n.node('ShaderNodeValue',name='Paint metallic');metal.outputs[0].default_value=metallic
+    amount=n.node('ShaderNodeValue',name='Paint flakes');amount.outputs[0].default_value=flakes
+    # Metallic flake aggregates alter the under-coat lobe only. The continuous
+    # clear coat stays smooth, with no emission or macroscopic color noise.
+    flake=n.mul(n.ramp(n.voronoi(p,1700),.20,.055),amount.outputs[0],coverage)
+    rough=n.mix(flake,rough,.035);height=n.add(height,n.mul(flake,1.0e-6))
+    metal_response=metal.outputs[0]
+    mat=n.finish(base,rough,metal_response,height,coat=1)
+    n.channel('flake_mask',flake)
     bs=mat.node_tree.nodes['SURFACE'];n.feed(bs.inputs['Coat Weight'],n.math('SUBTRACT',1,n.mul(n.maximum(film,chips),.90)))
     n.feed(bs.inputs['Coat Roughness'],n.add(.035 if refined else .11,n.mul(film,.35)))
     n.channel('road_film',film);n.channel('chips',chips)

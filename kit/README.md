@@ -472,3 +472,9 @@ exclude the body road-film layer; alloy retains localized brake dust. Existing
 callers keep their earlier defaults. Rail height and cargo-box bounds are
 caller-supplied physical dimensions (`rail_height`, `cargo_bounds`). `brake_rotor()` provides concentric turned
 steel relief using a wheel-centered object frame with X as its spin axis.
+
+Vehicle `paint(..., metallic=.12, flakes=0)` exposes named `Paint metallic` and
+`Paint flakes` value nodes. Change those outputs for variants; changing a linked
+Principled socket default has no effect. Optional flake aggregates alter the
+under-coat roughness/height bake channels without extra textures;
+the clear-coat lobe stays continuous. Defaults retain the earlier appearance.
