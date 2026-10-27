@@ -3,7 +3,10 @@ import argparse,hashlib,json,math
 from pathlib import Path
 import numpy as np
 from PIL import Image,ImageDraw,ImageFont
-FONT='/usr/share/fonts/noto/NotoSans-Regular.ttf'
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+from kit.fonts import find_font
+FONT=find_font('Noto Sans', 'Regular')
 
 def panel(path,size):
     im=Image.open(path).convert('RGBA');im.thumbnail(size,Image.Resampling.LANCZOS)

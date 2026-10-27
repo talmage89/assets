@@ -8,7 +8,10 @@ from pathlib import Path
 import numpy as np
 from PIL import Image,ImageDraw,ImageFont,ImageOps
 ROOT=Path(__file__).resolve().parents[1]
-FONT='/usr/share/fonts/noto/NotoSans-Regular.ttf'
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+from kit.fonts import find_font
+FONT=find_font('Noto Sans', 'Regular')
 # Inspected on the 1500 px preview, converted to the original 2100 px frame.
 FRONT=(246*1.4,720*1.4);REAR=(1164*1.4,722*1.4)
 RAKE=[(367*1.4,478*1.4),(529*1.4,367*1.4)]

@@ -2,7 +2,10 @@
 import argparse,math
 from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont
-FONT='/usr/share/fonts/noto/NotoSans-Bold.ttf'
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+from kit.fonts import find_font
+FONT=find_font('Noto Sans', 'Bold')
 
 
 def centered(d,box,text,size,fill,font=FONT):

@@ -3,7 +3,10 @@ import argparse,json
 from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont
 import numpy as np
-FONT='/usr/share/fonts/noto/NotoSans-Regular.ttf'
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+from kit.fonts import find_font
+FONT=find_font('Noto Sans', 'Regular')
 def main():
     p=argparse.ArgumentParser();p.add_argument('--renders',required=True);a=p.parse_args();root=Path(a.renders)
     shots=json.loads((root/'shots.json').read_text());font=ImageFont.truetype(FONT,21);small=ImageFont.truetype(FONT,17)

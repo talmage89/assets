@@ -6,7 +6,10 @@ inspection frame. Original styling differences remain visible, never fitted.
 import argparse,json
 from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont,ImageOps
-FONT='/usr/share/fonts/noto/NotoSans-Regular.ttf'
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+from kit.fonts import find_font
+FONT=find_font('Noto Sans', 'Regular')
 ROOT=Path(__file__).resolve().parents[1]
 PICKS={
  'match_front_stripes':[
