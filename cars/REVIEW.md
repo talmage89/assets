@@ -1,3 +1,168 @@
+# Alder C150 / look-dev round 2
+
+**Current gate: source look-dev only. Stop before UV and bake.**
+The earlier round's evidence and claims below are historical. This round uses
+its calibrated Ram/Ford views, without changing the camera registrations.
+
+## R2 pass 1 — reject an over-bright sky and an underexposed overcast
+
+Color/value first, against the four photographs in
+`renders/lookdev-r2-01/used-pairs-contact.jpg`: removing the tall facade walls
+and reducing coat roughness exposes the sky/ground transition, but the clear
+sky is too blue and much too strong. The windshield is nearly white; Graphite
+looks pale blue. The Ford sky is too weak for its exposure, crushing black
+paint and wheels. These are rejected lighting/exposure results, not a successful
+paint match. Next: reduce the clear sky to .12, retain directional sunlight,
+and increase the overcast illumination/exposure separately.
+
+The same-source studio wheel close-up proves the marbled finish came from the
+low world-height road-film mask: excluding alloy/chrome/steel from that layer
+removes it. The old spokes still look thin and the shoulder is still round.
+The low film now stays in swept envelopes aft of each tire; tailgate center
+streaks are removed and chrome keeps its metal color. Paint retains its factory
+hue instead of carrying an opaque brown noise layer. The old face and mirrors
+remain inadequate in this pass. Seven rendered views and all masks were opened.
+
+## R2 pass 2 — manufactured shape, then reject seams and reflected blocks
+
+Color/value first against `renders/lookdev-r2-02/used-pairs-contact.jpg`: the
+Ram Graphite is darker and no longer pale blue, but still too cool. The Ford
+paint now has a pale upper band and dark lower panels, though the repeated
+parking proxies make reflected blocks too orderly. The glass is smooth but
+still too light relative to the photographed windshield. Next: desaturate only
+the procedural daylight, use irregular fine foliage silhouettes, and tune the
+laminated windshield's transmission tint. Keep the paint tint unchanged.
+
+The taller grille follows the hood edge, and its deep lamellae hold shadow.
+The single projector and 16 mm guide reject the old quad-lamp appearance.
+The lit guide is unmistakable in the same studio exposure. The close-up rejects
+intersecting spoke branches: their bright seams reveal the construction.
+Replace each with one continuous cast Y profile and edge chamfer. Shoulder
+lugs now break the silhouette; retain fine tread/sipes/type for normal baking.
+The rotor gained a stepped hat; next separate its concentric friction finish.
+Tapered painted mirror caps, black cases, support arms and inset glass replace
+the boxes. The topology audit correctly rejected two open bezels (32 boundary
+edges each); add their physical gauge rather than exempting them.
+
+All eleven views, both contacts and every mask were opened. The preliminary
+count was 59,722, before the continuous-spoke savings and bezel gauge. Geometry
+checks are source checks only; none prove texture delivery or a moving assembly.
+
+## R2 pass 3 — reject the glazing, retain the construction improvements
+
+Color/value first against `renders/lookdev-r2-03/used-pairs-contact.jpg`: the
+factory-gray Ram now retains its color with a bright reflected upper band and
+dark lower panels. Carbon reflects a plausible overcast street. The generated
+foliage breaks up the formerly smooth blobs, though the parking proxies remain
+simpler than the photos. A shadow-catching ground removes the floating cutout
+presentation. All sixteen views, all masks, four pairs and five colors were
+opened. The satin/marbled material tells are substantially reduced; the unlit
+optics and the repeated reflected parked forms still look simplified.
+
+The glass is rejected: it is too pale, with serrations along the upper/side
+boundary. Independent probes in `build/cars-lookdev/glass_*.png` separate no
+pane, uniform glass, reflection-only, paired inner normals and tint/sky changes.
+Uniform glass retains the artifact, so frit is not its cause. Flat inner faces
+behind a smooth outer pane create small prisms; pairing the inner normals with
+the outer field removes the serrations. A new measured paired-normal check
+prevents recurrence. A directional sky gradient and calibrated transmission tint
+retain smooth reflected light over a dark interior. A very dark probe was also
+rejected because it hid the cabin. The accepted intermediate probe keeps the
+headrests and cabin mirror visible. These are source probes, never texture input.
+
+The continuous cast spokes remove branch seams and save triangles. The friction
+ring now has concentric turning relief and a separate hat; the stationary
+caliper is visible behind it. Shoulder lugs remain within the nominal tire
+crown. Grille bar-front recess measures 79.00 mm; the hood/surround sampled
+surface gap is 4.75–7.78 mm. The grille field's overly wide diamonds are reduced
+to roughly 29 mm horizontal pitch for the final repeat. No silhouette triangles
+are spent on that repeating detail. Game count is 59,162, with 838 spare.
+
+## R2 pass 4 — close the header and correct highlight rolloff
+
+Color/value first against the final `renders/lookdev/` Ram and Ford pairs:
+retain the gray/black paint's own color, pale horizon band, dark lower panels
+and clear-coat reflections. The tinted windshield is darker than the body and
+still shows the seats/cabin mirror. Its inner normals are now paired with the
+outer field, instead of a smooth entrance and flat faceted exit. Hiding the
+headliner alone did not remove all upper-edge artifacts; hiding the roof did.
+A matte inside roof, an extended headliner and an actual header-trim ribbon
+close the exposed interior header. Surface crossing tests measure zero
+windshield/headliner and windshield/header-trim intersections at both densities.
+
+The initial full-size trial clipped small Porcelain highlights (about 0.13% of
+paint samples). Rejected that lighting: broadened the key, both rim strips and
+overhead card at the same power, reducing reflected source luminance. A five-
+color 1000 px test has zero paint samples at 254 or 255 in every color. The
+full-resolution side view then exposed a separate hot reflection. Its review
+exposure is now −2.8 EV (other studio views −2.0 EV; photo exposures remain
+the calibrated −0.8 EV). The side preview has zero paint pixels at 254 or 255.
+The consistent 1500 px / 80 sample repeat below supplies final tonal values.
+Lit emitters may saturate; paint must retain rolloff. Floor pixels never enter
+the vehicle/paint distributions.
+
+Final game geometry is 59,266 triangles, including 104 for the new header trim;
+the high source is 203,650. No UV, bake or export was run. The material plan is
+unchanged: four delivered surfaces sharing one 2048 three-map set for all five
+colors, about 16 MiB compressed including mips. The source has 33 manufacturing
+materials and six original generated images. Their complexity is not the final
+draw-call count or a delivered texture allocation.
+
+Remaining CG tells: the procedural parked forms and foliage supply less complex
+reflections than the photographed locations; unlit optics are simpler than
+production lamp tooling; the silver wheel faces, glass header and interior remain very orderly.
+Some of the finest chips, wash swirls and tire lettering will be vulnerable to
+the eventual 2048 bake. Do not call this photo-indistinguishable or delivery-ready.
+
+## R2 measured checkpoint
+
+`make -C cars WIDTH=1500 SAMPLES=80` — **PASS**. Root log:
+`build/cars-lookdev/round2-final.log`. `make -C cars check` — **PASS**;
+`build/cars-lookdev/round2-check.log`. These are source-stage budget, manifold,
+scale, rest-position, normal, calibration and static assembly checks. They do
+not certify motion, UVs, baked materials or a GLB. `kit/test_vehicle.py` and
+`python3 -m unittest kit.test_fonts` pass. The portability scan of tracked
+cars text finds no absolute/home/font-directory paths.
+
+All sixteen final Cycles views, every mask and all four pairs were opened;
+front/wheel close-ups and both full-size dated Ram pairs were also inspected
+individually. One source SHA and one render-recipe SHA cover the complete set.
+The review script now rejects mixed recipe hashes as well as mixed sources.
+
+| View | Vehicle display luminance P1 / P50 / P99, 0–255 |
+| --- | --- |
+| Front 3/4 | 0.0 / 48.6 / 233.2 |
+| Rear 3/4 | 0.0 / 45.0 / 129.7 |
+| Side | 0.0 / 18.0 / 191.3 |
+| Front detail | 0.0 / 21.5 / 236.9 |
+| Wheel detail | 0.0 / 48.7 / 125.1 |
+| Five-year front pair | 0.0 / 42.2 / 149.5 |
+| Five-year rear pair | 0.0 / 44.3 / 146.6 |
+
+No studio or factory-color paint pixel reaches 255. Porcelain has one pixel at
+254 (0.000731% of its paint samples). The sunny Ram front pair has one clipped
+paint glint (0.000410%); do not hide it by counting the floor. The lit lamps
+clip 0.3544% of vehicle samples, intentionally in the emitters. Cavities and
+underside retain deep shadow. The complete percentiles/channel statistics are
+in `renders/lookdev/tonal-range.json`; these display statistics do not measure
+albedo. The Ram match remains darker/more neutral than its photograph, and
+its reflection scenery remains less varied. These are remaining look-dev limits.
+
+Final measured counts: **59,266 game / 203,650 high triangles**, **33 source
+materials**, **6 original source images**. High/game source files are
+**2,351,970 / 1,025,142 bytes**, ignored and rebuildable. The planned four
+surfaces and shared BaseColor/Normal/ORM 2048 set remain about **16 MiB** with
+block compression and full mipmaps for all five colors together. No delivered
+GLB size or baked texture allocation is claimed.
+
+Source geometry audit SHA: `802e4a5ce93a2ad1c7c75be7ecce3bd2174505b625bdfe4d77541c8a8ccade3c`.
+No preliminary docs images or generated build outputs were committed. Shared
+kit additions are opt-in daily-driver finishes (caller-supplied rail/cargo
+bounds) and a turned-rotor shader; old defaults remain available. Nothing is
+needed from the lead before this source checkpoint review.
+
+## Earlier round — archived source checkpoint
+
 # Alder C150 / detail and look-dev review
 
 **Current gate: source detail and procedural look-dev. Stop before bake.** The

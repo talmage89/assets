@@ -32,9 +32,13 @@ def build(b):
     hx=[0,.20,.40,.402,.410,.418,.48,.512,.520,.528,.602,.610,.618,.75,.90]
     hu=sorted(set([.5+x/1.8 for x in hx]+[.5-x/1.8 for x in hx]))
     b.skin('Hood outer',hood,32,18,b.m['body'],(0,0,1),hood_p,'hood',us=hu,vs=samples(12 if b.high else 4))
-    b.skin('Roof crown',roof,44,44,b.m['body'],(0,0,1),category='cab',return_depth=.006,
+    roof_skin=b.skin('Roof crown',roof,44,44,b.m['body'],(0,0,1),category='cab',return_depth=.006,
            us=sorted(set(samples(24)+[.015,.025,.04,.07,.93,.96,.975,.985] if b.high else [0,.02,.04,.07,.12,.25,.5,.75,.88,.93,.96,.98,1])),
            vs=sorted(set(samples(36)+[.01,.025,.045,.07,.10,.4719101123595506,.88,.94,.98] if b.high else [0,.025,.07,.15,.3,.4719101123595506,.65,.80,.9,.97,1])))
+    if b.detail:
+        roof_skin.data.materials.append(b.m['interior'])
+        for face in roof_skin.data.polygons:
+            if all(i>=roof_skin['sheet_vertex_count'] for i in face.vertices):face.material_index=1
     b.skin('Windshield',windshield,24,10,b.m['glass'],(0,-1,1),category='glass',gauge=.0048,return_depth=0)
     b.skin('Rear glass',backlight,24,10,b.m['glass'],(0,1,0),category='glass',gauge=.0048,return_depth=0)
     if b.detail:bpy.data.objects['Rear glass'].data.materials[0]=b.m['rear_glass']

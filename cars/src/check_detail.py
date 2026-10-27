@@ -79,6 +79,11 @@ def main():
     for one,two in [('Front formed skid','Front differential')]+[('Front halfshaft '+str(sign),'Front strut_'+str(sign)) for sign in [-1,1]]:
         crossings=len(tree(bpy.data.objects[one]).overlap(tree(bpy.data.objects[two])));clear_pairs.append(dict(parts=[one,two],crossing_triangle_pairs=crossings))
         if crossings:errors.append('Underbody surface interference '+one+' / '+two)
+    glazing_fit=[]
+    for name in ['Cab headliner','Windshield header trim']:
+        crossings=len(tree(bpy.data.objects['Windshield']).overlap(tree(bpy.data.objects[name])))
+        glazing_fit.append(dict(parts=['Windshield',name],crossing_triangle_pairs=crossings))
+        if crossings:errors.append('Interior trim crosses windshield '+name)
     glass=[o for o in obs if o.get('part_category')=='glass'];lamp=[]
     from forms import lamp_surface,side_x
     for sign in [-1,1]:
@@ -126,7 +131,7 @@ def main():
     mats={m.name for o in obs for m in o.data.materials};images={im.name:list(im.size) for im in bpy.data.images if im.source=='FILE' and im.size[0]>0}
     report=dict(source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),quality=bpy.context.scene['quality'],
        sheet_gauge_measurements=gauges,rest_position_max_error_m=max(rest),actual_underbody_ground_clearance_m=clear,
-       wheel_static_clearances=wheels,mirror_section_checks=mirror_sections,door_sill_gaps=sill_gaps,measured_support_intersections=supports,underbody_noninterference=clear_pairs,lamp_wrap_insets=lamp,grille_lamella_recess=recess,hood_surround_shutline=hood_gap,glass_paired_normal_checks=laminate,pivots=pivots,source_materials=sorted(mats),original_source_images=images,
+       wheel_static_clearances=wheels,mirror_section_checks=mirror_sections,door_sill_gaps=sill_gaps,measured_support_intersections=supports,underbody_noninterference=clear_pairs,lamp_wrap_insets=lamp,grille_lamella_recess=recess,hood_surround_shutline=hood_gap,glass_paired_normal_checks=laminate,glazing_trim_noninterference=glazing_fit,pivots=pivots,source_materials=sorted(mats),original_source_images=images,
        passed=not errors,errors=errors,pending=['continuous loaded tire deformation when rolling','kingpin caster/SAI and full wheel steering sweep','doors/hood/tailgate/wiper full assembly sweeps','UV/bake/export/re-import and delivery material verification'])
     Path(a.out).write_text(json.dumps(report,indent=2));print(json.dumps(report,indent=2))
     if errors:raise AssertionError(errors)

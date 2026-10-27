@@ -6,6 +6,7 @@ SAMPLES ?= 64
 WEAR ?= .65
 PASS ?= lookdev
 SHOTS ?= front_three_quarter,rear_three_quarter,side,front_detail,wheel_detail,lamps_lit,interior
+MARKINGS_DEPS := ../kit/fonts.py
 MODEL_DEPS := src/build.py src/body.py src/forms.py src/wheels.py src/pickup_spec.py src/exterior.py src/interior.py src/underbody.py src/detail_helpers.py src/finishes.py ../kit/model.py ../kit/materials.py ../kit/vehicle.py ../kit/vehicle_materials.py
 include ../kit/rules.mk
 

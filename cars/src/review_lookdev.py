@@ -23,6 +23,7 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--renders',required=True);a=p.parse_args();root=Path(a.renders)
     metadata=json.loads((root/'shots.json').read_text());files=[];tonal={}
     if len({s['source_sha256'] for s in metadata.values()})!=1:raise AssertionError('Mixed source revisions in review directory')
+    if len({s['render_recipe_sha256'] for s in metadata.values()})!=1:raise AssertionError('Mixed render recipes in review directory')
     source=Path(next(iter(metadata.values()))['source'])
     if hashlib.sha256(source.read_bytes()).hexdigest()!=next(iter(metadata.values()))['source_sha256']:raise AssertionError('Renders predate current source')
     for name,shot in metadata.items():

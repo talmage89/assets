@@ -4,7 +4,7 @@ import bpy
 from mathutils import Vector
 from kit import model as G
 from kit.vehicle import samples
-from forms import roof,hermite
+from forms import roof,hermite,windshield
 import pickup_spec as S
 from detail_helpers import box,tube,loop,print_quad
 
@@ -73,9 +73,14 @@ def build(b):
             box(b,'Inside latch_'+end+side,(sgn*.861,y-.210,1.233),(.024,.095,.034),b.m['chrome'],'interior',parent,.007)
             box(b,'Lower door pocket_'+end+side,(sgn*.870,y,.827),(.065,w*.71,.098),b.m['plastic'],'interior',parent,.016)
     def lining(u,v):
-        x,y,z=roof(.035+.930*u,.075+.85*v)
+        x,y,z=roof(.020+.960*u,.018+.907*v)
         return x,y,z-.025
     b.skin('Cab headliner',lining,18,14,b.m['headliner'],(0,0,-1),category='interior',gauge=.002,return_depth=0)
+    def header(u,v):
+        a=Vector(windshield(.006+.988*u,1))+Vector((0,.009,-.012))
+        c=Vector(roof(.020+.960*u,.018))-Vector((0,0,.025))
+        return a+(c-a)*v
+    b.skin('Windshield header trim',header,20,2,b.m['interior'],(0,0,-1),category='interior',gauge=.0015,return_depth=0)
     box(b,'Rear cab trim',(0,1.008,1.092),(1.72,.023,.770),b.m['interior'],'interior',radius=.012)
     for x in [-.46,.46]:
         box(b,'Sun visor '+str(x),(x,-.610,1.881),(.400,.180,.025),b.m['headliner'],'interior',radius=.011)

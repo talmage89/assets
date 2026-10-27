@@ -18,14 +18,17 @@ def main():
  # A car-sized diffusion panel lowers reflected source luminance while
  # retaining key power; paint highlights must roll off, not clip.
  for light_name in ['Right rim strip','Left rim strip']:
-  bpy.data.objects[light_name].data.size*=3
+  bpy.data.objects[light_name].data.size*=4.5
+ bpy.data.objects['Key softbox'].data.size*=1.6
+ bpy.data.objects['Key softbox'].data.size_y*=1.2
+ bpy.data.objects['Overhead reflection card'].data.size*=1.5
  if a.camera_file:
   from lighting import outdoor
   outdoor()
  sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True
  sc.cycles.max_bounces=12;sc.cycles.transmission_bounces=8;sc.cycles.transparent_max_bounces=8
  sc.cycles.use_adaptive_sampling=True;sc.cycles.adaptive_threshold=.035
- sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=-1.85
+ sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=-2.0
  sc.render.image_settings.file_format='PNG';sc.render.image_settings.color_mode='RGBA';sc.render.resolution_percentage=100
  config=runpy.run_path(str(Path(__file__).with_name('config.py')));shots=config['LOOKDEV_SHOTS']
  if a.camera_file:
@@ -41,6 +44,10 @@ def main():
  colors={m:m.diffuse_color[:] for m in bpy.data.materials}
  for name in names:
   shot=shots[name];paint=shot.get('paint',a.paint)
+  lighting_description='procedural studio with broadened diffusion panels'
+  if a.camera_file:
+   from lighting import conditions
+   lighting_description=conditions(name)
   for m in bpy.data.materials:
    if m.get('vehicle_paint'):
     m.node_tree.nodes['Paint tint'].outputs[0].default_value=(*S.COLORS[paint],1)
@@ -56,11 +63,11 @@ def main():
   sc.render.resolution_x=a.width;sc.render.resolution_y=round(a.width/shot.get('aspect',1.6))
   sc.render.film_transparent=bool(a.camera_file) or camera.data.type=='ORTHO'
   bpy.data.objects['Studio seamless'].hide_render=sc.render.film_transparent
-  sc.view_settings.exposure=shot.get('exposure',-1.85);sc.render.filepath=str((out/(name+'.png')).resolve())
+  sc.view_settings.exposure=shot.get('exposure',-2.0);sc.render.filepath=str((out/(name+'.png')).resolve())
   bpy.context.view_layer.update();bpy.ops.render.render(write_still=True)
   meta[name]=dict(shot,source=str(source),source_sha256=digest,stage='source detail and procedural look-dev; no bake',
       paint=paint,engine='CYCLES',samples=a.samples,width=sc.render.resolution_x,height=sc.render.resolution_y)
-  meta[name].update(exposure=sc.view_settings.exposure,render_recipe_sha256=recipe,paint_linear_rgb=S.COLORS[paint],lighting='procedural sky and original reflection geometry' if a.camera_file else 'procedural studio with broadened rim diffusers')
+  meta[name].update(exposure=sc.view_settings.exposure,render_recipe_sha256=recipe,paint_linear_rgb=S.COLORS[paint],lighting=lighting_description)
   if a.masks:
    # Independent opaque geometry mask, plus a white paint-material mask.
    # This avoids counting the studio floor as the vehicle's tonal distribution.
