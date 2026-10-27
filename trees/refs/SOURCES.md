@@ -45,3 +45,41 @@ in the OSU portrait frame; they are never read by geometry/texture generators.
 
 | osu-trunk.jpg | https://landscapeplants.oregonstate.edu/sites/plantid7/files/plantimage/acru2152A.jpg | Oregon State University Landscape Plants; photographer unspecified, copyright retained, local study only. | Trunk flare and shallow lower-bole plates; never sampled into textures. |
 | osu-bark.jpg | https://landscapeplants.oregonstate.edu/sites/plantid7/files/plantimage/acru9827.jpg | Oregon State University Landscape Plants; photographer unspecified, copyright retained, local study only. | Bark ridge length and smooth young limbs, form only; slide color is not calibrated. |
+
+## Pin oak structure checkpoint
+
+These are looking/measuring references only. Summer specimens are visually in
+street/lawn-tree scale classes, but none supplies a surveyed height, DBH or age.
+The 25-year age and 15–18 m / 9–11 m / 40–50 cm targets come from the brief.
+The WWU tree is visibly much younger: excluded from mature-tree camera matches.
+OSU's old slide is not an absolute reflectance/color calibration. The finish brief
+additionally uses its empirical sunlit/shaded display values and hue, with explicit
+per-view daylight controls and the photographic-processing limitation retained.
+
+| Local file | Direct image/PDF URL | Author / rights | Used for |
+| --- | --- | --- | --- |
+| oak-osu-summer.jpg | https://landscapeplants.oregonstate.edu/sites/plantid7/files/plantimage/qupa792.jpg | OSU Landscape Plants, Patrick Breen site; photographer unspecified; copyright retained, no open license asserted; local study only. | Open-grown summer pin oak, horizontal foliage tiers and darker undersides; apex partly clipped in photograph. First composition comparison. |
+| oak-osu-branches.jpg | https://landscapeplants.oregonstate.edu/sites/plantid7/files/plantimage/qupa984B.jpg | OSU Landscape Plants; photographer unspecified; copyright retained; local study only. | Leader and branch angles without summer foliage. |
+| oak-osu-bark.jpg | https://landscapeplants.oregonstate.edu/sites/plantid7/files/plantimage/qupa2425.jpg | OSU Landscape Plants; photographer unspecified; copyright retained; local study only. | Shallow longitudinal gray-brown ridges; excludes deeply plated maple treatment. |
+| oak-wwu-summer.jpeg | https://trees.wwu.edu/sites/trees.wwu.edu/files/2025-07/IMG_5887.jpeg | Stephanie Paulantis, 11 July 2025, WWU Trees; copyright retained, no open license asserted; local study only. | Young parking-area pin oak: rejected as full-size form comparator. |
+| oak-wwu-bark.jpeg | https://trees.wwu.edu/sites/trees.wwu.edu/files/2025-07/IMG_5889.jpeg | Stephanie Paulantis, 11 July 2025; copyright retained; local study only. | Smooth young gray-brown bark and dead branch collars. |
+| oak-wwu-leaf.jpeg | https://trees.wwu.edu/sites/trees.wwu.edu/files/2025-07/IMG_5888.jpeg | Stephanie Paulantis, 11 July 2025; copyright retained; local study only. | Deep rounded sinuses, bristle tips, alternate placement and glossy summer upper surfaces. |
+| oak-nw-T3_Summer.jpg | https://www.nwmissouri.edu/arboretum/tree/images/T3_Summer.jpg | Northwest Missouri State University Arboretum, photographer unspecified; all rights reserved; local study only. | Summer fullness; rejected for camera comparison because crown is clipped. |
+| oak-nw-T3_summer08.jpg | https://www.nwmissouri.edu/arboretum/tree/images/T3_summer08.jpg | Northwest Missouri State University Arboretum, photographer unspecified; all rights reserved; local study only. | Summer central-axis and horizontal limb study; older/sparse individual, not target fullness. |
+| oak-stony-summer.png | https://www.stonybrook.edu/arboretum/_images/quercus-palustris-summer.png | Stony Brook University Arboretum; individual photographer unspecified; copyright retained, no open license asserted; local study only. | Summer street/campus planting: fine branching, open tiers, whole trunk and crown top; neighboring crown obscures left edge. Second composition comparison. |
+
+Text sources, consulted online:
+
+- [OSU Landscape Plants: Quercus palustris](https://landscapeplants.oregonstate.edu/plants/quercus-palustris): central stem, pyramidal form, descending lower limbs, alternate glossy leaves 7.5–15 cm, deep U sinuses and 5–7 bristle-tipped lobes.
+- [UConn, Mark H. Brand: pin oak](https://plantdatabase.uconn.edu/detail.php?pid=376): lower pendulous/middle horizontal/upper ascending pattern, fine texture, smooth medium branches and shallow gray-brown trunk ridges.
+- [University of Kentucky pin oak fact sheet](https://horticulture.ca.uky.edu/sites/horticulture.ca.uky.edu/files/Pin%20Oak%20-%20Quercus%20palustris.pdf): slender arching limbs rather than heavy oak scaffolds; street pruning; 3–6 inch leaves and 60–70 ft × 25–40 ft mature species range.
+- [Yale/URI New Haven tree guide](https://uri.yale.edu/sites/default/files/publication/files/uri-guidetonewhavenstrees-web_2.pdf): lower crown retains dead branch residue; young smooth gray-brown bark becomes low ridges/shallow fissures.
+- [Ohio State plant identification](https://u.osu.edu/plants/quercus-palustris/): pin-like shaded dead stubs, branch-angle zones and smooth gray-brown young bark.
+- [NC State Extension pin oak](https://plants.ces.ncsu.edu/plants/quercus-palustris/): urban street use, slim form, deep U-shaped leaf cuts and shallow aged fissures.
+
+
+Pin oak finish: the existing OSU trunk image's left panel is the close bark
+comparison at chest-height scale. The WWU leaf image is used to judge rounded
+sinuses, bristles, upper cuticle sheen, paler backs and transmitted color. Both
+remain looking references only. All composed pairs and marked measurement
+crops stay ignored. The oak generator reads no reference image.

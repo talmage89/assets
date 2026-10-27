@@ -7,19 +7,22 @@ from pathlib import Path
 import numpy as np
 from PIL import Image,ImageFilter
 from kit.image_io import write_png
-from settings import BARK,SEED
+from species import MAPLE
 
 
 def smooth(a,b,x):
     t=np.clip((x-a)/(b-a),0,1);return t*t*(3-2*t)
 
 
-def generate(out):
+def generate(out,species=MAPLE):
+    if species.ARCHITECTURE=="excurrent":
+        from oak_bark import generate as oak_generate
+        return oak_generate(out,species)
     out=Path(out);out.mkdir(parents=True,exist_ok=True)
-    w,h=2048,4096;circ=BARK['field_circumference'];height=BARK['field_height']
-    rng=np.random.default_rng(SEED+725)
+    w,h=2048,4096;circ=species.BARK['field_circumference'];height=species.BARK['field_height']
+    rng=np.random.default_rng(species.SEED+725)
     # Unequal ridge widths are normalized around one closed bole circumference.
-    widths=rng.uniform(*BARK['ridge_width_m'],round(circ/np.mean(BARK['ridge_width_m'])));widths*=circ/widths.sum();bounds=np.r_[0,np.cumsum(widths)]
+    widths=rng.uniform(*species.BARK['ridge_width_m'],round(circ/np.mean(species.BARK['ridge_width_m'])));widths*=circ/widths.sum();bounds=np.r_[0,np.cumsum(widths)]
     x=(np.arange(w,dtype=np.float32)[None,:]+.5)/w*circ
     z=height*(1-(np.arange(h,dtype=np.float32)[:,None]+.5)/h)
     angle=x/circ*np.pi*2
@@ -43,8 +46,14 @@ def generate(out):
         mask=(side>=0)&(side<1)
         edge=np.minimum(side,1-side)*width
         face=smooth(.0005,.0032,edge)
+        breakup=species.BARK.get('ridge_breakup',0)
+        if breakup:
+            # Thin young bark develops discontinuous rhytidome: smooth patches
+            # interrupt fissures, rather than a ruled/fluted whole circumference.
+            continuity=1-breakup+breakup*(.20+.80*smooth(-.14,.16,mottling+.08*np.sin(z*6+i)))
+            face=1-(1-face)*continuity
         levels=[-.30]
-        while levels[-1]<height+.3:levels.append(levels[-1]+rng.uniform(*BARK['plate_length_m']))
+        while levels[-1]<height+.3:levels.append(levels[-1]+rng.uniform(*species.BARK['plate_length_m']))
         levels=np.array(levels);idx=np.searchsorted(levels,z,side='right')-1
         cycle=(z-levels[idx])/(levels[idx+1]-levels[idx])
         # A ragged, oblique plate lip. It stops short on some faces, exposing
@@ -53,9 +62,11 @@ def generate(out):
         lipdist=(z-levels[idx])+tilt*(side-.5)+.003*np.sin(side*5+i)+.0012*np.sin(side*34+i)
         lip=(1-smooth(.001,.005,np.abs(lipdist)))*smooth(.12,.28,side)
         lip*=1-.6*smooth(.65,.90,side)
+        if breakup:lip*=.40
         variation=rng.uniform(.65,1.30,len(levels))[idx]
-        relief=(face*(.0011+.0018*cycle**3)+grain*.0015*face+mottling*.0005-lip*.0013)*(BARK['relief_m']/.003)
+        relief=(face*(.0011+.0018*cycle**3)+grain*.0015*face+mottling*.0005-lip*.0013)*(species.BARK['relief_m']/.003)
         fissure=1-smooth(.0008,.0028,edge)
+        if breakup:fissure*=continuity
         color=variation*(.88+.12*cycle)+grain*.24+mottling*.18
         color=color*(1-fissure*.82)*(1-lip*.55)
         height_map[mask]=relief[mask];face_map[mask]=np.broadcast_to(color,(h,w))[mask]

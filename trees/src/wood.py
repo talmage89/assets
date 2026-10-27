@@ -44,7 +44,30 @@ def living_union(objects,stems,bark):
     bmesh.ops.delete(bm,geom=[e for e in bm.edges if e.is_wire],context='EDGES')
     bmesh.ops.delete(bm,geom=[v for v in bm.verts if not v.link_edges],context='VERTS')
     bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces))
-    if any(not e.is_manifold for e in bm.edges):raise RuntimeError('Wood has unresolved nonmanifold junction')
+    # Boolean welding can leave a microscopic zero-volume triangle or a tiny
+    # closed hole. Resolve only sub-0.1 mm remnants; preserve anatomical parts.
+    boundary={e for e in bm.edges if e.is_boundary}
+    while boundary:
+        edge=boundary.pop();component={edge};stack=[edge]
+        while stack:
+            current=stack.pop()
+            for v in current.verts:
+                for other in v.link_edges:
+                    if other in boundary:boundary.remove(other);component.add(other);stack.append(other)
+        vertices={v for e in component for v in e.verts}
+        if (len(component)==3 and len(vertices)==3 and
+                max((a.co-b.co).length for a in vertices for b in vertices)<.0001):
+            ordered=tuple(sorted(vertices,key=lambda v:v.index))
+            face=bm.faces.get(ordered)
+            if face is not None:
+                bmesh.ops.delete(bm,geom=[face],context='FACES')
+                print('Removed sub-0.1mm zero-volume Boolean membrane')
+            else:
+                bm.faces.new(ordered)
+                print('Repaired closed sub-0.1mm Boolean triangle boundary')
+    bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces))
+    bad=[e for e in bm.edges if not e.is_manifold]
+    if bad:raise RuntimeError('Wood has unresolved nonmanifold junction: '+repr([(len(e.link_faces),round(e.calc_length(),8),list(e.verts[0].co)) for e in bad[:12]]))
     for v in bm.verts:v.co.z-=.002
     bm.to_mesh(ob.data);bm.free();ob.data.update();G.smooth(ob,85)
     ob['wood_union_scope']='Authored curved, tapered, flared sweeps; manifold-unioned caps; no whole-network decimation'

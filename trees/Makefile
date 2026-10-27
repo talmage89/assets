@@ -1,3 +1,7 @@
+SPECIES ?= maple
+ifeq ($(SPECIES),oak)
+include oak.mk
+else
 ASSET := RedMaple
 FINAL_PIPELINE := 1
 SAMPLES ?= 72
@@ -6,8 +10,8 @@ PASS ?= checkpoint
 STUDIO_SCRIPT := src/render.py
 FINAL_SHOTS := hero,front,side,back,top,bark,bark_2m,branchlet,crown_up,scale,root_flare,unions,unions_reverse,unions_upper,unions_upper_reverse,dripline,silhouette,structure,daylight
 EEVEE_SHOT := hero
-MODEL_DEPS := src/build.py src/growth.py src/settings.py src/leaves.py src/bark.py src/bark_source.py src/leaf_material.py src/wood.py src/wood_uv.py ../kit/botany.py ../kit/model.py
-BAKE_DEPS := src/leaves.py src/settings.py
+MODEL_DEPS := src/maple.py src/species.py src/build.py src/growth.py src/settings.py src/leaves.py src/bark.py src/bark_source.py src/leaf_material.py src/wood.py src/wood_uv.py ../kit/botany.py ../kit/model.py
+BAKE_DEPS := src/leaves.py src/settings.py src/maple.py src/species.py
 BAKE_POSTPROCESS = $(PYTHON) src/leaves.py --out textures/bake --composite build/leaf-source
 include ../kit/rules.mk
 .DEFAULT_GOAL := all
@@ -59,3 +63,5 @@ check: check-bake
 check-bark: renders/final/.matched src/bark_evidence.py
 	$(BP) --python src/bark_evidence.py -- --renders renders/final
 check: check-bark
+
+endif

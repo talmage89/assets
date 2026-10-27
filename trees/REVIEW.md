@@ -1,6 +1,6 @@
-> **Current checkpoint: structure round 3, appended below.** Earlier findings
-> are historical. Round-1/2 images remain under `renders/round1-checkpoint/`
-> and `renders/round2-checkpoint/`; current views live in `renders/checkpoint/`.
+> **Current pin oak: final summer delivery, finish pass 5 below.** Earlier
+> findings and checkpoint numbers are historical; final images are under
+> `renders/oak-final/`, with matched source evidence in `renders/oak-final-source/`.
 
 # Red maple / structure checkpoint review
 
@@ -937,3 +937,994 @@ reported. No further asset or tool approval is needed.
 Final explicit **`make -C trees check`: passed**, including budgets, source form,
 bake coverage, GLB/UV/PBR verification, wind/normals and eye-height directional
 density/normal/occlusion checks. `git diff --check` also passes.
+
+# Pin oak / structure checkpoint (new species, leaf look-dev held)
+
+The maple review above is preserved. Its repeated puff/egg/fluting failures
+inform this second species. No oak final delivery or leaf-surface acceptance is
+claimed in this checkpoint.
+
+## Oak pass 1 — reject the sparse conifer impression
+
+Evidence: all three `renders/oak-pass1/{daylight,crown_up,structure}.png`
+opened against OSU's summer pin oak, Stony Brook's summer street planting,
+and the WWU leaf/bark photographs. **Color/value first:** leaves are too dark
+and cool under the prototype response, the bole is plain gray, and the
+blue-sky-lit backs are too pale. The OSU slide's yellow highlights are not a
+color calibration target. Keep the placeholder status explicit.
+
+The form is a pine-like spindle of detached pads surrounding a pole. The
+straight leader is right for this species, but the equal-sized isolated
+foliage pillows are wrong. At 21,142 triangles the retained width was 9.75 m;
+passing width did not justify this appearance. The upward view exposes flat
+prototype blades and fine triangular card-edge artifacts. The lower dead pins
+were accidentally excluded by the shared nominal-radius filter; the rendered
+bare bole revealed the omission. Correct that rather than claiming designed
+stems were delivered geometry.
+
+Actions: distribute branchlets along the actual supporting limb, add near-bole
+foliage, broaden upper lateral reach, increase prototype shoot coverage and
+spend up to 7,800 cards within the same 25k cap. Shade the shallow tier using
+its elliptical dimensions, not a round clump normal field. Keep the shared
+maple algorithm and random sequence unchanged. Retain actual dead pins.
+
+## Oak pass 2 — improved continuity, reject oversized top
+
+Evidence: `renders/oak-pass2/{daylight,crown_up,structure}.png` opened; same
+photographs, plus the same-calibration comparisons recorded below.
+**Color/value first:** crown mids remain dark/cool, with gray-green backs and
+useful deep shadows under the boughs. The wood still needs the oak's subtler
+sheen and shallower fissures rather than the inherited maple roughness.
+
+Foliage now extends down the boughs and tier tops carry separate lighting.
+There are still overly pillowy outer ends and large repeated notches. The
+upward view is more connected and the lower pins are present, but card edges
+and simplified tubes remain visible. The upper lateral formula overshoots the
+leader: actual full-card height is 18.05 m and retained foliage reaches 17.79 m.
+Reject that despite the near-target 10.00 m crown width. Cap upper limb ends
+below the leader and maintain an ascending final tangent. The actual DBH is
+43.1 cm (triangle-plane section/circle fit), not the 45 cm input constant.
+
+The wood has 9,122 triangles, foliage 15,600: 24,722 total, two materials.
+This oak spends 63.1% on foliage; the maple-specific 64% test is not a brief
+requirement. Keep a 60% oak floor while retaining the real 25k cap. All 23 dead
+pins must remain measured in the retained geometry. Final surface/bake work
+remains held.
+
+Pass-2 photo pairs were opened after the three view renders. In both, the model
+has clearer but much more isolated, sausage-shaped bough ends than the
+photographed trees. The crown is still too conifer-like. OSU is the closer
+pyramidal individual; Stony Brook has a broader upper half and irregular twig
+windows. It is also partly occluded by a neighbor and probably older, so its
+full left outline is not treated as a measured silhouette target. Fits retain
+17.2 / 175.3 px RMS residuals at the original photo resolutions; the 80 mm
+upper lens limit is reached in both, showing the underdetermined fit.
+
+## Oak pass 3 — corrected axes; reject residual apex scatter
+
+Evidence: both `renders/oak-pass3/{daylight,crown_up}.png` opened against the
+same photos. **Color/value first:** the old prototype green remains cool/dark,
+with conspicuous pale backs; these views do not clear leaf look development.
+The apex's supporting limb ends were corrected below the leader. A diagnostic
+normal-preserving triangulation does not remove the fine angular lines in the
+up view; it is rejected as a cure and does not enter the asset's build.
+
+The broad upper reach is more plausible, but overall bough ends still look
+rounder and more separate than the reference tiers. Reduce mass-normal emphasis
+from .80 to .60 and widen vertical aprons with bounded scatter. Keep dark
+under-tier recesses. The later source audit correctly rejected a 17.94 m
+full-card envelope against its narrower authored-size tolerance: Gaussian card
+scatter still extended 1.08 m above the 16.7 m leader. Bound that scatter and
+keep upper card centers below the leader; do not relax the tolerance to pass.
+No additional geometry or leaf surface detail is added.
+
+The prototype backs are made neutral green rather than retaining the maple's
+blue-biased multiplier. Flat normals/roughness and quick flat lobes remain.
+Bark controls now give the oak shallower fissures, smooth small limbs and a
+subdued gray sheen. These are source controls, not a finished baked surface.
+
+## Oak pass 4 — complete set inspected; bark rejected
+
+Evidence: **all ten Cycles PNGs** and both photo pairs under
+`renders/oak-pass4/`, plus its contact/review sheet. Every presentation image
+was opened separately, including the eye-height full view, crown-up, silhouette,
+scale, leaf-off structure, lower pins, bark and maple/oak family view.
+
+**Color/value first:** the neutral green prototype no longer has the old cyan
+backface bias; broad foliage retains lit mids and dark tier undersides. It is
+still a flat prototype, without the pin oak's final glossy cuticle, fine veins
+or bristle detail. The paired OSU slide remains form-only. The bark is still
+too cool and its continuous dark fissures resemble ruled planks. **Reject the
+bark**, even at this structure checkpoint: the brief explicitly warned against
+carrying that tell forward. Narrow the gray-brown ridges, lower relief to
+submillimeter scale, reduce contrast and interrupt fissures across smooth
+patches of younger bark. Keep a subdued sheen. The maple branch of that shared
+field code must retain its exact old arithmetic/RNG when breakup is absent.
+
+The family view clearly separates a lower divided, broad maple from the taller,
+central-led oak. The final oak's 16.95 m card-corner height no longer overshoots
+the brief; retained crown top is 16.79 m. The reverse silhouette still has
+large angular tier windows and too much visible central axis. Branch ends
+remain more compact and sausage-like than either photo, especially Stony
+Brook's broader upper crown. These remain structure weaknesses for the lead to
+assess, not an approval claim. The upward view reveals flat repeated sprites,
+angular thin shoot lines and simplified four-sided fine wood; this cannot pass
+as a close botanical view. The low dead pins are visibly present and attached,
+but their ends are faceted. Do not hide that behind the manifold test.
+
+Proof at this pass: 24,722 triangles = 9,122 wood + 15,600 foliage; source/game
+geometry hashes agree. Wood is one sealed connected component, zero nonmanifold
+edges. Measured DBH 0.4311 m, retained crown 9.9938 × 10.0160 m, base 2.5566 m.
+Walking clearance near the bole is conservatively 2.767 m using whole-card
+bounds. Lower/middle/upper authored limb chord angles are −13.1…−11.2° /
++0.25…+0.30° / +9.3…+47.0° from horizontal. Those are centerline angle
+measurements; they do not certify final fused cross-section mechanics.
+
+
+## Oak pass 5 — checkpoint delivered; stop before leaf look-dev
+
+Evidence: `renders/oak-bark-study/bark.png` and **every final image** under
+`renders/oak-checkpoint/`, including both full photo pairs, contact and review
+sheet, opened. The source build, independent game build and all ten GPU Cycles
+views are current. No final docs image is committed.
+
+**Color/value first:** the narrower, interrupted, lower-contrast bark ridges
+are subtler than pass 4's ruled panels, and the base is gray-brown with a mild
+sheen. The surface is still too axially ordered in a macro view; it is not a
+finished photoreal bark approval. Smooth young limbs remain visually distinct
+from the shallow lower-bole furrows. Foliage keeps dark tier undersides, green
+mids and neutral pale backs. In the two transparent comparison renders, selected
+green display-luminance p5/median/p95 is **.043/.187/.501** (OSU camera) and
+**.048/.189/.491** (Stony Brook camera), zero selected-channel clipping. About
+**1.17% / .89%** falls below .02. These are render sanity checks, not calibrated
+albedos or a claim to match the differently lit/scanned photographs.
+
+The single leader, drooping low limbs, level middle limbs, ascending top and
+retained lower pins clearly distinguish the oak from the maple in the family
+view. Tier tops light separately and the undersides keep deep recesses. The
+remaining shape failures are real: overly compact/sausage-like outer bough
+ends, deep angular windows, too much visible axis and a more conifer-like,
+ordered upper crown than the references. Stony Brook has broader shoulders.
+The widest projected band is too close to the lower skirt. The pins are too
+evenly distributed and their ends too faceted. Up close, repeated flat sprites,
+angular thin shoot lines and simplified fine wood remain obvious. These are
+recorded for the lead's structure review, not excused by the passing tests.
+No further structure acceptance or leaf/bark finish acceptance is asserted.
+
+### Checkpoint proof
+
+- `make -C trees SPECIES=oak`: **passed**, references, independent source/game
+  rebuilds, construction checks, camera checks, eight presentation/diagnostic
+  Cycles views, two photo-camera Cycles views, both pairs and both sheets.
+  1200 px width / 40 samples; every Cycles invocation held the shared GPU lock.
+- Source/game geometry digest: `a78aa7146e4ec0f6d60db971951c9fec23a8444260de54182d8cf43684b35060`.
+  One sealed connected wood surface, zero nonmanifold edges, positive measured
+  wood volume 1.6555 m³. Bounds, actual trunk section, alpha support, card
+  normals, all Wind values, UV tile bounds/density, graph attachments, retained
+  dead pins and limb-zone slopes pass. This is source construction proof.
+- **24,722 / 25,000 triangles**, **9,122 wood / 15,600 foliage**; **two materials,
+  two static meshes**, 7,800 cards, 38 live laterals and 23 lower dead pins.
+  No armature or moving parts. Origin at bole center on grade.
+- Measured full card-corner envelope **10.414 × 10.354 × 16.948 m**; retained
+  foliage width **9.994 / 10.016 m**, base/top **2.557 / 16.790 m**. Actual
+  chest-height fitted diameter **0.4311 m**, conservative near-bole whole-card
+  walking clearance **2.767 m**, root reach below 8 cm **0.478 m**.
+- Camera projection agreement **.00020 / .00113 px**. Biological fit residuals
+  remain **17.2 / 175.3 px** at original photo sizes. Both fits reach the 80 mm
+  lens bound, so those lenses are estimates; frame margins give equivalent
+  64.5 mm lenses. OSU has clipped apex tips; Stony Brook has left-side neighbor
+  occlusion. Neither supplies a surveyed age/height/DBH.
+- `renders/oak-checkpoint/shots.json` and `render-check.json`: **all ten current
+  source hashes agree**, SHA-256
+  `6602c4e26fb86d3003056a1e5ec0947cdc57083b442b591a7e6a1398c4ea9062`.
+  The family view also records the actual maple-source hash.
+- Packed oak source **43,736,974 bytes**; original prototype BaseColor-alpha
+  **589,156 bytes**, **2048²**. Flat prototype Normal/ORM and the intermediate
+  analytic bark field are source inputs, not a shipped texture allocation.
+  Planned shared 2048² BC7/BC5/ORM set is **16 MiB with mips**, plus geometry,
+  aimed below about 20 MiB. **No oak GLB, finished atlas, final unique UV pack,
+  re-import or bake-loss certification yet**, as the checkpoint brief requires.
+- Renders: `renders/oak-checkpoint/{daylight,crown_up,silhouette,scale,family,
+  structure,lower_pins,bark,oak_match_osu,oak_match_stony}.png`;
+  `oak_match_{osu,stony}-pair.jpg`, `contact.jpg`, `review-sheet.jpg`.
+- `make -C trees check`: **passed** the maple's source, bake, GLB/UV/PBR,
+  botanical Wind/normal, bark and camera checks after the refactor. Current
+  maple comparison pairs were opened; they retain the accepted appearance.
+- `python3 -m py_compile trees/src/*.py`, `git diff --check`, repository rules:
+  **passed**. No `kit/` file changed; no kit suite was required. Existing
+  `botany` sweeps/cards/Wind, `foliage`, photo matching/framing and shared
+  finalize/bake/export/verify code are reused.
+
+### Maple byte comparison — exact data, disclosed GPU rounding
+
+The pre-edit baseline is preserved locally under `build/maple-baseline/`.
+`compare_maple_source.py` checks **exact source position, triangle, UV, split
+normal and Wind byte arrays and all four packed procedural PNG inputs**:
+identical. The original growth JSON is byte-identical. The final comparison
+also checks all **12 delivered accessor buffers** byte for byte: identical,
+including positions, indices, UVs, normals, tangents and `_WIND`.
+
+Re-exporting the rebuilt finalized mesh with the preserved maps produces the
+**entire original GLB byte for byte**, SHA-256
+`ad060a9aac22b94d5eb021b2fcf60791044daecb04c14fbe03d590037ff8c945`.
+There is no intentional maple geometry, material or source-texel change.
+
+The fresh GPU rebake is not byte-exact. Every changed pixel/channel coordinate
+is recorded in `build/maple-byte-comparison.json`; all differ by exactly one
+8-bit step. Final repeat results:
+
+| Delivered maple map | Changed channels | Max byte delta | Byte-domain RMSE | PNG bytes |
+| --- | ---: | ---: | ---: | ---: |
+| T_RedMaple_BaseColor.png | 3 | 1 | 0.0004229 | 1,398,130 |
+| T_RedMaple_Normal.png | 9 | 1 | 0.0008457 | 2,411,154 |
+| T_RedMaple_ORM.png | 6 | 1 | 0.0006905 | 1,388,798 |
+
+The unchanged **pre-refactor source** GPU control also differs from its own
+baseline: 3 / 10 / 5 channels in BaseColor / Normal / ORM, one byte maximum.
+This demonstrates the same sparse GPU bake rounding without the refactor.
+The new GLB is **7,876,080 bytes**, baseline **7,876,088**;
+PNG compression, embedded image payloads and following buffer offsets account
+for the difference. Current SHA-256:
+`75df16f76446e073ca2b2765169ff7818f595474a7207ee97587506b508e3251`.
+Both delivery texture dimensions and allocation stay unchanged: three 2048²
+maps, 16 MiB compressed textures, about 18.55 MiB including actual geometry.
+The maple remains 23,680 triangles, two materials and two meshes.
+
+Stop here, before oak leaf look-dev, as requested. The lead has the complete
+structure evidence and explicit weaknesses to review. No tools, permission,
+shared-kit feature or contract change is needed to reach this checkpoint.
+
+# Pin oak / structure round 2 — lead rejection of the fir form
+
+The lead accepted species parameterization, maple preservation, dimensions,
+limbed-up trunk and budget, but **rejected the form**. That rejection supersedes
+round 1's qualified checkpoint language. The targets now include 35–45 irregular
+primaries, real secondary forks, long lower/middle reach, a broad continuous
+upper crown and one rounded point. The original checkpoint is archived under
+`renders/oak-round1-checkpoint/`.
+
+## R2-A — new ramifications; reject the hollow crown and excess geometry
+
+Evidence: every `renders/oak-r2-a/{daylight,structure,crown_up}.png` opened
+against the original OSU summer/leaf-off photographs. **Color/value first:**
+the warmer gray-brown wood is closer to the photographs than the old blue-gray
+pole; leafy caps still have dark undersides, but bright sky dominates the
+empty center. A correct palette cannot repair that form.
+
+Forty irregularly spaced primaries now fork into 124 secondaries, with 744
+short live laterals represented by cards. The retained branch reaches approach
+5 m and shorten to 1.5 m near 80% tree height. However, the leaf placement is
+still too distal and the secondary masses too small: a hollow pole is ringed
+by isolated caps, with a separated upper group. Reject this appearance. The
+28,114 triangles are also over budget (14,314 wood / 13,800 foliage).
+
+Actions: lengthen the secondary forks, extend foliage along them, broaden
+supported branch masses and upper overlap, and rebudget economical small-branch
+sweeps instead of dropping anatomical branches. Keep fine live laterals in the
+cards. The numerical union audit identified an isolated 20-micron zero-volume
+triangle at a dead-twig intersection, **not an anatomical hole**. The family wood
+cleanup now removes only a closed sub-0.1 mm membrane or repairs a tiny closed
+triangle boundary, rejecting larger defects. No authored limb is discarded.
+The maple's exact source-array/image comparison passes with that cleanup.
+
+## R2-B — budget and broad-band profile pass; reject the axial sky window
+
+Evidence: every `renders/oak-r2-b/{daylight,structure,crown_up,bark}.png`
+opened. **Color/value first:** lower bark is now neutral gray-brown and young
+limbs are smoother/lighter. Dead pins carry a separate gray attribute through
+the same wood material; they curve downward and carry fine forks, instead of
+being evenly spaced dark rods. Macro bark remains more regular than the photo.
+
+The mesh is 24,310 triangles (12,310 wood / 12,000 foliage). The source envelope
+is 10.750 × 10.768 × 16.881 m. Alpha-supported crown width is 10.352 / 10.433 m;
+its X/Y mean section profile peaks at **34.3%** of crown height and has **.715**
+maximum mean-width/height ratio. These measurements meet the numeric profile
+but do not clear the look: the image still has an enormous axial sky window.
+
+A measured cause was the supposedly irregular angular sequence. Its 7–12 m
+branches clustered around two opposing sectors; only 66 of 1,184 cards in the
+7–9 m band projected within 0.9 m of the daylight camera's centerline. Replace
+that correlated rotation with a random candidate distribution that avoids
+recently occupied angular sectors. Keep irregular internodes and avoid whorls.
+The upper foliage also needs more overlap. One tiny apical limb missed the
+30-degree exit-angle floor because its sideways bow was as large as its reach;
+scale the bow/side offset with short-limb length, rather than relaxing the test.
+
+## R2-C/D/E — reject numeric success without upper continuity
+
+All C/D diagnostic images, D's two photo pairs, and E's complete ten-view set
+were opened. **Color/value first:** the leafy tops and deep undersides have
+useful separation, with no clipped green pixels. However, the direct bark
+close-up still reads cool in open-sky shade, despite warmer albedos. The OSU
+bark photo is medium gray-brown, with small shallow scaly interruptions rather
+than long parallel grooves. This remains a correction, not a passed material.
+
+C's balanced azimuths reduced the enormous center window. Initial retained
+centerline angles now meet all three zones: lower −18.57 to −14.07 degrees,
+middle −4.46 to 11.90, upper 35.04 to 44.64. Yet its 23,992-triangle crown still
+had a separated upper cap. D increased the prototype atlas's coverage and
+allocated 6,375 cards without adding anatomical branches; its 24,738 triangles
+fit. Six fine shoots on the actual leader replaced the old isolated terminal
+mass and three peaks. Its alpha-supported mean section profile peaked at
+29.34% of crown height, with W/H .723. The mean envelope is the right shape;
+the envelope does not measure continuous occupancy.
+
+E lowered upper secondary shoots to overlap the shoulder and shortened dead
+pin exposure. Its 24,536 triangles, 40 primary / 119 secondary limbs and .723
+mean section ratio passed the numbers. But the daylight and silhouette views
+still exposed a distinct upper hat, and the OSU pair showed too much open bole
+through the middle. **Reject E as the final checkpoint.** The cause is the
+abrupt endpoint change from level middle branches to rising upper branches:
+nearby branch roots do not imply nearby leafy growth. Make the outer middle
+shoots rise progressively through the shoulder, preserving the middle limbs'
+level exit angles. Do not close the gap with an unsupported filler volume.
+
+## R2-F/G/H — supported upper overlap; correct the cool bark
+
+F's daylight and bark images and G's daylight/bark images were opened against
+the same photos. **Color/value first:** F's bark was still too dark and cool;
+G raises the diffuse gray-brown and lowers specular response. The ridges now
+read warm neutral at the light-facing edge, with cool ambient shade retained,
+rather than the whole bole looking blue. The flat shallow ridges are closer
+to the OSU bark's scale, but the long parallel organization is still more
+regular than that photograph. No claim of a finished bark bake is made.
+
+Progressively rising middle endpoints joined the upper masses to the shoulder.
+F exposed a middle limb whose *retained first segment* rose 21.83 degrees,
+even though its design tangent was level. This is why the test measures the
+retained sweep. Lower the design tangent slightly through the shoulder; G's
+actual middle maximum is 19.16 degrees. Do not relax the +/-20-degree test.
+G uses broader secondary fans and taller middle masses, retaining the low
+windows. It is 24,490 triangles. The crown still has a sparse collar under its
+upper mass; H extends middle secondaries upward and weights upper leaves
+slightly toward their proximal laterals to make continuous supported growth.
+
+A separate reconstruction of the retained bole sweep measures the exposed main
+pin centerlines after they leave that surface. One retained pin was only
+13.3 cm long, despite a 15 cm minimum *configured horizontal extension*.
+Increase that input to 18 cm; final exposed lengths must be measured again.
+The audit explicitly distinguishes this from a fused-wood surface measurement.
+
+## R2-I — complete ten-view checkpoint resubmission; stop before leaf look-dev
+
+Evidence: H's daylight preview, every final Cycles view and both final photo
+pairs were opened. Final outputs are under `renders/oak-round2-checkpoint/`:
+`daylight`, `crown_up`, `silhouette`, `scale`, `structure`, `lower_pins`, `bark`,
+`family`, `oak_match_osu` and `oak_match_stony`. The two `*-pair.jpg` files,
+`contact.jpg`, `review-sheet.jpg`, `crown-profile.jpg` and
+`osu-profile-measurements.jpg` accompany them. No checkpoint image is committed.
+The source hash recorded in all ten shots and the render check is
+`b3483ec2448d3eb2e89c99135776dad3ad45875435981f467253955f2dfb6184`.
+
+**Color/value first:** the final bole has a medium gray-brown lit surface and
+cool ambient shade; the whole trunk is no longer the uniform blue pole of the
+rejected candidates. The prototype foliage remains flatter and less glossy
+than real summer pin oak. In the OSU source render, selected green display
+luminance p5 / median / p95 is **.054 / .198 / .519**, with **.59%** below .02
+and **zero** clipped green pixels. Stony is .058 / .196 / .507. These are image
+values under the review lighting, not albedo measurements or photo color
+calibration. OSU's aged slide remains a form reference only.
+
+**Form:** the longer curved primaries now fork into visibly spread secondary
+fans, with irregular heights and azimuths rather than whorls. The top is one
+point carried by the leader and is connected to the ascending upper crown;
+the earlier detached cap and three competing peaks are gone. The lower crown
+is broad, with real downward sweeps and windows between its masses. In the
+matched OSU camera, the upper crown now merges into a continuous pyramidal
+oval instead of separate terminal puffs.
+
+**Remaining tells, not hidden by passing measurements:** daylight still shows
+more middle/lower bole and larger sky windows than OSU. Some lower foliage
+masses still finish in compact rounded tufts; card repetition and flat leaves
+are obvious in `crown_up`. The highest outline is narrower/more regular than
+Stony's broad mature crown. Bark's fissures remain too parallel at macro scale,
+and small wood forks show their economical angular sampling. The source-only
+leaf-off diagnostic hides the twig-bearing cards, so it is not a claim that a
+winter pin oak would have only these retained wood paths. The checkpoint is
+submitted for review, not declared a finished/shippable oak.
+
+### Measured crown profile against Oregon State
+
+The source profile clips **actual retained-alpha support hulls on the card
+surfaces** by 141 horizontal planes. Holes within one card's alpha hull are not
+counted as density; this measures an envelope. A five-plane (~0.5 m) mean
+locates the broadest band without selecting a single protruding leaf. No photo
+coordinates enter growth, geometry or textures. Independently marked photo
+margins are used only by the review/chart code.
+
+- Retained crown base/top: **2.560 / 16.766 m**, height **14.206 m**.
+- Global retained X/Y widths: **10.617 / 10.380 m**; global X W/H **.747**.
+- Maximum mean X/Y section width: **10.246 m**, W/H **.721**.
+- Broadest smoothed band: **6.628 m above grade**, **28.63%** of crown height
+  above its base; target 25–35%.
+- OSU photo: widest marked band near **30%**, projected W/H **.723**.
+  Estimated uncertainty is ±20 px on lateral tips/base; the apex is clipped
+  and the lower-left margin partly obscured by a neighbor. This is not a survey.
+- The matched render's robust projected section peak is **27.5%**. Its full
+  projected crown W/H is **.830**, wider than the photo's .723. The perspective
+  camera, different specimens and physical X/Y mean are distinct measurements;
+  the close normalized section curves do not establish an exact photo match.
+
+| Crown height fraction | Source X width (m) | Source Y width (m) | Mean width / maximum | Photo width / maximum |
+| --- | ---: | ---: | ---: | ---: |
+| 10% | 7.958 | 7.668 | .763 | .745 |
+| 20% | 9.174 | 9.422 | .907 | .928 |
+| 30% | 10.407 | 9.599 | .976 | 1.000 |
+| 40% | 9.069 | 9.428 | .903 | .932 |
+| 50% | 8.740 | 9.338 | .882 | .857 |
+| 60% | 8.528 | 8.281 | .820 | .789 |
+| 70% | 6.490 | 7.057 | .661 | .650 |
+| 80% | 5.589 | 5.492 | .541 | .549 |
+| 90% | 3.178 | 3.100 | .306 | .430 |
+
+The profile substantially fixes the narrow fir envelope: widest low and smoothly
+narrowing through the middle/upper crown. The most visible residual envelope
+miss is the uppermost 10%, too narrow relative to the clipped OSU slide.
+Compare the chart and annotated original photograph with the pair; do not
+substitute the numeric pass for the images.
+
+### Measured architecture and budget
+
+All limb reaches, lengths and exit angles below use the **retained sweep
+centerlines**, not config constants or only the denser design curves.
+
+| Measurement | Result |
+| --- | ---: |
+| Complete source envelope, including clear card corners | 10.966 × 10.655 × 16.926 m |
+| Trunk diameter, actual section circle fit at 1.35 m | .4331 m |
+| Lowest whole-card corner within 1 m of bole | 3.118 m |
+| Primary / live secondary limbs | **40 / 119**; **2–4** secondaries each |
+| Fine live laterals in cards | 714 secondary laterals + 6 leader shoots |
+| Irregular primary internodes | .132–.485 m |
+| Primary base profile diameter, including collars | **6.72–11.82 cm** |
+| Primary horizontal reach range | .346–**5.102 m** |
+| Primary retained arclength range | .474–**5.396 m** |
+| Limb at 13.411 m attachment (80.3% of leader height) | **1.509 m** horizontal reach; 1.904 m arclength |
+| Lowest primary endpoint | **2.988 m** above grade |
+| Lower / middle / upper retained exit-angle ranges | **−18.57..−14.07 / −4.62..19.16 / 35.04..44.64 degrees** |
+| Curved main dead pins, with thin side forks | **22** |
+| Exposed retained main-pin centerlines | **15.68–37.07 cm** |
+| Wood / foliage / total triangles | **11,720 / 12,750 / 24,470** |
+| Leaf cards / materials / meshes | **6,375 / 2 / 2** |
+| Connected wood components / nonmanifold edges | **1 / 0** |
+
+Dead-pin exposure is measured beyond a separate reconstruction of the authored
+bole sweep, not as an exposed fused-surface distance. Branch diameters describe
+retained circular profiles including collars, not exact fused cross sections.
+The manifold/positive-volume check independently examines the actual wood.
+
+The source file is **44,056,967 bytes**; its three **2048² prototype leaf PNGs**
+are **743,807 / 16,914 / 16,914 bytes** (BaseColor-alpha / flat Normal / flat
+ORM), plus the original intermediate **2048 × 4096 bark field**. These are
+source-development maps, not the final packed atlas or GPU allocation. There
+is **no oak GLB yet**. The planned compressed three-map 2048² delivery remains
+16 MiB textures plus geometry, targeting about 20 MiB total.
+
+### Proof and scope
+
+- `make -C trees SPECIES=oak`: **passed**, from rebuilt source/game scenes
+  through architecture/topology/alpha/Wind/normal checks, source/game audits,
+  camera verification, repository rules, all ten GPU Cycles views, both pairs,
+  contact/review sheets and the crown profile comparison.
+- The source and game geometry digests are identical:
+  `e86fecfed548bc31037cbb6f28b38da4434aa77832c58eaa485cf30133def328`.
+  This proves the checkpoint does not hide an over-budget high-detail scene;
+  it does not certify future GLB serialization or bake loss.
+- `python3 -m py_compile trees/src/*.py` and `git diff --check`: **passed**.
+- The maple repeat compares all source position/triangle/UV/split-normal/Wind
+  byte arrays and four packed PNG inputs with the accepted source; the exact
+  comparison passes. Its growth JSON is byte-identical. No maple delivery map
+  or GLB was regenerated in this round. The previously disclosed GPU bake
+  rounding and exact preserved-map GLB proof remain as recorded above.
+- No `kit/` file was changed relative to `main`; the main merge was done before
+  this round. Existing kit sweeps/cards/Wind, photo tools and audit helpers are
+  reused. No shared-kit feature, tool installation or contract change is needed.
+
+Stop here, before finished oak leaf look-dev, delivery UVs, baking and GLB.
+
+# Pin oak / leaf, bark and delivery finish
+
+The lead accepted the round-2 architecture. This finish preserves the 40
+primaries, 119 secondaries, one leader and 22 pins. The three requested form
+corrections concern supported inner foliage, drooping lower sprays and the
+root flare. Maple's exact-source baseline is retained throughout.
+
+## Preflight — source candidates, not shipping critique passes
+
+Color/value first: the first new leaf atlas changed the blue-green prototype
+toward olive. Its source OSU-view bright/dark fifth medians were .515/.115
+(photo .649/.119); Stony .506/.120 (photo .494/.080). These are selected-green
+display populations, not equal-light reflectance. Later source candidates
+exposed too much inner wood and silvery reflection. Reduce the mass-normal
+bend .90 to .82, give the backs a matte surface, and move existing cards onto
+inner supported shoots. A four-shoot atlas adds distal alternate blades without
+more cards. Deep U sinuses, five/seven lobes, bristles, pinnate veins, cups and
+cuticle roughness are original equations; no photo pixels enter the generator.
+Source evidence: `oak-finish-source1`, `oak-finish-source2` and
+`oak-finish-source-final` under `renders/`; every generated view was opened.
+
+The first UV attempt failed: the 15 m leader island consumed the atlas and
+left median bark density at 64 px/m, with folded junctions. Shorter leader
+sections recovered coverage; isolating triangulated union patches removes
+internal folds. The finalizer still independently checks the complete pack.
+A stale UV-layer handle in the first preparation script crashed Blender;
+refreshing RNA handles after edit-mode changes fixed it. No failed candidate
+is accepted. No shared-kit code changed.
+
+## Finish pass 1 — exported GLB rejected for weak bark and remaining bare wood
+
+**Color/value first:** `renders/oak-finish-1/` contains five opened GLB detail/
+hero views and both opened full photo pairs. OSU bright/dark fifth medians are
+**.576/.089**, photo **.649/.119**; Stony **.454/.076**, photo **.494/.080**.
+Lit/shaded hues are **80.6/93.2 degrees** in OSU, against **90.6/109.7**.
+The albedo is too yellow, while the photo-camera lighting is short of the
+sunlit target. Correct the authored RGB from (83,102,38) to (77,105,48), then
+match direct light separately in each photographic view. Same albedo in both;
+no emission, painted light or exposure adjustment to the saved images.
+
+The middle is improved but the 5–7 m bole still shows as a shaft. Bring the
+inner shoot population closer to its real primary axis. Lower sprays remain
+compact: distribute those existing cards along descending secondary curves,
+with extension/drop correlated, rather than scattering them around a tuft.
+The flare meets the numeric 1.486× DBH target but **still looks bell-like**:
+its five roots are buried inside the widening bole. Reduce the core flare and
+let shallow buttresses project beyond it, then measure again.
+
+The bark pair fails visibly. Its model/photo patch medians are **.234/.422**
+under different illumination. The source albedo is brown; the shaded camera
+and blue sky also affect the display value. Inspect a key-facing surface next.
+The embedded 2048 map has normal-angle p90 only **3.37 degrees**, cavity AO p10
+**.937**, despite genuinely isotropic **432.6–433.6 px/m**. This is bake loss/
+insufficient authored relief, not a density excuse. Broaden short fissures and
+increase shallow granular/flake relief. Avoid restoring closed cellular walls.
+
+At the overly close .95 m leaf camera, the flat cards and softened veins are
+obvious. Increase blade cup/twist in the normal field and inspect a whole
+cluster at approximately 1.8 m. The 3 m game-distance question is distinct
+from a botanical macro claim. The backlight view has yellow-green transmission
+but remains too flat locally; the limbs stay dark. Root, bark, crown-up, leaf
+cluster, hero, and both pairs were all inspected, including the marked bark pair.
+
+This candidate's checks pass but its appearance does not: **24,238 triangles**,
+**2 materials**, **2048² three-map set**, GLB **8,451,652 bytes**, compressed full
+mip textures **16 MiB**, geometry **2,742,996 bytes**, estimated total
+**18.616 MiB**. Zero UV overlaps, zero degenerate UVs, zero missed/black bake
+interiors of 4,559,883 checked. Raw GLB/fresh-import position and Wind comparisons
+pass. The preserved candidate is local `build/oak-pass1.glb`; passing technical
+checks do not override the rejected surface and crown observations.
+
+## Finish pass 2 — exported color/value passes, root construction still rejected
+
+**Color/value first:** opened all seven views/pairs in `renders/oak-finish-2/`.
+OSU bright/dark fifth medians are **.666/.108**, photo **.649/.119**: deltas
+**+.017/−.011**. Stony **.496/.083**, photo **.494/.080**: **+.002/+.003**.
+Both populations in both pairs meet .03. OSU lit/shaded hues are **91.6/107.6°**,
+photo **90.6/109.7°**. Stony remains greener than its photograph (98.3/111.2°
+versus 82.0/91.6°); do not claim both photographs have identical color balance.
+The explicit photo daylight controls are OSU sun 19 / sky .25 / exposure .80,
+Stony sun 8.3 / sky .25 / exposure .5. These are display-light composition fits,
+not a surveyed common illumination or a calibrated photographic albedo.
+
+The brighter OSU image still has overly broad pale caps despite passing green
+population values. Reduce normal bending .82→.68 to give individual blades
+more independent lighting; keep mass shading and the same card/triangle count.
+The close leaf camera now covers an actual outer cluster from 1.8 m. Its blade
+cups are stronger, but veins still soften excessively; broaden the midrib at
+source resolution. Backlight is visible but too neutral: use a separate thin-leaf
+transmission spectrum, with no emission, to favor yellow-green transmitted light.
+
+The bole is screened above most middle branches; the lowest open tiers remain
+more exposed than OSU. The lower outer sprays are looser, with finer holes and
+a descending edge. The source crown profile peaks at **27.9%**, W/H **.706**;
+40 primaries / 119 secondaries / one leader / 22 pins remain unchanged.
+
+Bark now retains **10.23°** normal-angle p90 and AO p10 **.804**, compared with
+3.37°/.937 in pass 1. It is shallow, irregular and interrupted rather than
+planks or a complete cell mesh. The key-facing comparison is still dark and
+short of photographic fine roughness. Delivered chest-height albedo has median
+sRGB **(.282,.251,.200)**, linear **(.0648,.0513,.0331)**: brown, not blue.
+Raise the gray-brown ridge faces moderately; keep fissures shallow and smooth
+limbs lighter. The sky's cool effect is distinct from those raw map values.
+
+**Reject the root shape again:** numeric grade flare **1.428× DBH** and
+**1.032× at .50 m** are right, but tube roots emerge through abrupt angular
+shelves. Replace the visible tube-root union with five shallow lobes grown into
+the bole sweep, fading over its lower half meter. This is a construction/shape
+correction, not a numeric-budget exception. Reconstruct the same lobed bole
+in the independent pin-exposure probe. The full root view was inspected.
+
+`make -C trees SPECIES=oak check`: passed this candidate's source/game audits,
+architecture, camera, UV/PBR, actual GLB positions/normals/Wind, bake coverage
+and repository gates. **24,560 triangles** (11,810 wood / 12,750 foliage),
+GLB **9,620,444 bytes**, **2 materials**, **18.647 MiB** estimated GPU memory.
+All 4,403,078 checked interior bake texels are covered; UV overlap zero.
+The pass-2 GLB remains local at `build/oak-pass2.glb`.
+
+## Finish pass 3 — exported blade response and continuous buttresses; fix tile borders
+
+**Color/value first:** inspected all five GLB hero/details and both photo pairs
+under `renders/oak-finish-3/`, including the marked bark comparison. OSU
+bright/dark fifth deltas remain **+.017/+.010**; Stony **+.028/+.022**. Both
+still meet .03, although Stony has little headroom. Its final direct/sky light
+will be reduced slightly (7.6/.22) without changing the common authored albedo.
+More independent blade lighting (.68 normal bend), stronger midribs and the
+separate yellow-green transmission spectrum reduce the broad cap/flat backlight
+impression. Deep crown recesses remain. Some mass-level roundness is still
+more orderly than in the photographs.
+
+The bark is now medium gray-brown in the key-facing view rather than the old
+blue pole. Patch median is **.355**, photograph **.422**; this remains a darker,
+cooler display under the model's crown, not an equal-light calibration. Normal
+p90 **10.19°** and AO p10 **.812** survive filtering. Fine photographic grain is
+still richer. Young limb albedo must remain lighter than the revised bole, so
+that specific final setting is raised while retaining its smoother response.
+
+The root shelves are gone. Five shallow lobes are part of the continuous bole
+surface, rather than protruding tubes. Measured grade equivalent diameter
+**.6149 m / 1.418× DBH**; by .50 m it is **1.043×**. Root reach below 8 cm is
+**.3465 m**. The foot remains polygonal in a macro image; its modest extent and
+continuous transition are correct. The mesh is **24,234 triangles** after
+removing the redundant buried-root sweep geometry; accepted live architecture
+and pins are retained. Original root design paths remain in growth metadata to
+preserve the accepted branch random sequence; they are not counted as surfaces.
+
+**A further real defect, caught in atlas inspection:** the first four variants
+have 57/58/4/107 retained border texels. Some complete blades cross the tile
+edge. This can create hard straight edges in the upward view and invalidates a
+claim that every delivered blade retains its whole authored length. Move the
+few affected blade bases inward, reconnect their petioles and assert empty
+borders in every generated tile. Do not enlarge or shrink leaves to hide it.
+Add an actual 3 m cluster inspection alongside the 1.8 m view.
+
+The preparation seam probe and finalizer also used different image aspects.
+The resulting eight residual overlaps cover only **.287 delivered pixels**
+in total and pass the kit tolerance, but they are disclosed, not called zero.
+Use the final target aspect in the probe too before the final clean rebuild.
+The candidate remains local at `build/oak-pass3.glb`. Next is the complete
+clean-built GLB set, with both photographs repeated on source and export.
+
+## Finish pass 4 — full-resolution export: reject the repeated twig fork at 3 m
+
+**Color/value first:** the 1600 px / 72-sample hero and all four turnaround
+views retain olive summer greens, deep recesses and unclipped-looking rolled
+highlights. Bark remains cooler/darker in shade than the photographic patch;
+raw embedded albedo stays gray-brown. The scale, lower pins, roots, backlight,
+family and both 1.8/3 m cluster views were also opened. These thirteen GLB views
+are archived as `renders/oak-finish-4/`, with `build/oak-pass4.glb`.
+
+The continuous shallow buttresses, finer outline and screened upper bole are
+retained. The real 3 m inspection found a failure that the distant hero hid:
+**the same bare four-prong convergence appears repeatedly below leaf clusters**.
+The eight variants varied blades but not enough of the twig topology. Reject
+this result for the explicitly requested 3 m view. The old four-shoot atlas
+will not ship. Replace it with one curved continuation plus two or three side
+shoots attached at staggered nodes, vary their lengths/attachments, and put
+leaves nearer the start of the short laterals. Keep the same physical blades,
+card count, tree geometry and texture allocation. This directly addresses the
+repeating sprig, without disguising it with a different camera.
+
+The technical checks passed this candidate (24,234 triangles; two materials;
+16 MiB textures / 18.615 MiB total estimate; 9,787,644-byte GLB). The source
+comparison and bake-loss sequence was stopped after that visual rejection;
+incomplete pair output from this candidate is not final evidence. No docs JPGs
+were committed. The final photo pairs and complete presentation must be rebuilt
+from the corrected export.
+
+## Finish pass 5 — final exported GLB, source/export pairs and complete delivery
+
+**Color/value first:** all final views were opened individually or on the CG
+contact, with the leaf macro, actual 3 m view, upward backlight, bark pair and
+both source/export photo pairs inspected separately. Source/export both use
+1600 px / 72 samples and the same fitted daylight/camera settings.
+
+| Display population | Export | Source | Photo | Export − photo |
+| --- | ---: | ---: | ---: | ---: |
+| OSU bright fifth | .67027 | .67002 | .64866 | +.02162 |
+| OSU shaded fifth | .12861 | .12944 | .11934 | +.00927 |
+| Stony bright fifth | .50507 | .50312 | .49368 | +.01139 |
+| Stony shaded fifth | .09080 | .09135 | .08012 | +.01068 |
+
+All four values meet .03; maximum source/export difference is **.00195**.
+OSU lit/shaded hues are **86.28/98.14°**, photo **90.62/109.67°**. Stony is
+**89.89/102.36°**, photo **82.04/91.55°**. Hue is closer in the lit crown;
+shade still differs across the different photographs. Same authored albedo in
+both views; OSU sun/sky/exposure **19/.25/.80**, Stony **7.6/.22/.5**.
+This is an explicit display-light fit, not identical illumination or calibrated
+reflectance. Green hero p5/median/p95/p99 is **.0973/.2774/.5710/.6491**,
+with **zero clipped green channels**, **.366%** below .02. Neutral highlights,
+wood and background are outside that selected-green mask.
+
+The staggered 3/4-shoot variants remove the rejected bare pitchfork in the
+actual 3 m export image. No complete blade reaches a tile border. Alternate
+five/seven-lobed leaves retain deep rounded cuts, bristles, brighter pinnate
+ribs and varied cup/twist response; whole blades measure **8.14–12.88 cm**
+including card scaling. The 1.8 m macro still exposes planar construction and
+filter-softened bristles. Backlit blades now glow yellow-green while the limbs
+stay dark. No emission is used. Upper/middle foliage is continuous, with deep
+recesses and small sky holes; low sprays have a ragged descending edge. The
+lowest tiers remain more open/ordered than OSU, with some isolated rounded
+clumps. That visible residual is not cleared by numeric form checks.
+
+Bark export/source patch medians are both **.362**, photograph **.422**.
+Gray-brown albedo is independently read from the embedded map: median linear
+RGB **(.0865,.0742,.0513)**. The cooler shaded display is therefore distinguished
+from a blue albedo. Directional chest-height density **438.68–440.00 px/m**;
+normal angle p10/median/p90 **1.31/4.71/10.19°**, AO p10 **.812**. The scaly
+split/rejoin field survives baking; fine photo grain is still richer and the
+model's bark patch remains darker/cooler under different illumination. Source
+and export bark pairs were opened separately. Five shallow buttresses are now
+continuous with the bole, with grade flare **1.418× DBH**, **1.043× by .50 m**.
+The foot and isolated thin limbs remain visibly economical at macro distances.
+
+### Final build proof
+
+- The oak was rebuilt after `make -C trees SPECIES=oak clean`; a failed seam
+  diagnostic was repaired, then `make -C trees SPECIES=oak` completed. The later
+  sprig correction rebuilt both sources, UVs, 4096 GPU bake/composite, 2048 maps,
+  GLB and the entire final set. **Final `make -C trees SPECIES=oak`: passed.**
+- Explicit **`make -C trees SPECIES=oak check`: passed**; **`make -C trees check`:
+  passed** for maple. Camera, source/game audits, actual architecture/topology,
+  atlas/GLB/PBR, linear Wind, normals, bake and repository checks pass. Same
+  source/game geometry digest is checked independently. All Cycles operations
+  used the shared GPU lock. No shared-kit file changed.
+- **24,234 triangles** = **11,484 wood + 12,750 foliage**, **6,375 cards**, two
+  materials / two static meshes. **40 primaries / 119 secondaries / one leader /
+  22 pins**. Longest reach **5.102 m**, reach near 80% tree height **1.509 m**.
+- Full card envelope **10.771 × 10.610 × 16.931 m**; alpha-supported crown
+  **10.471 × 10.255 m**, base/top **2.504/16.826 m**; actual fitted DBH **.43353 m**.
+  Broadest smoothed mean section at **27.92%**, W/H **.70154**. This preserves
+  the accepted branch architecture; the finer atlas/sprays change the visible
+  alpha envelope slightly from the prototype's .721 section ratio.
+- Shared **2048² BaseColor-alpha / OpenGL +Y Normal / ORM**. PNG bytes
+  **1,747,351 / 3,216,779 / 1,726,833**. **GLB 9,437,096 bytes**.
+  Full-mip compressed textures **16 MiB**, actual geometry **2,741,564 bytes**,
+  estimated combined **18.6146 MiB** before engine overhead.
+- Bake: **zero missed/black interior texels of 4,665,705** checked. Unique UV
+  coverage **29.1067% of the full atlas**, with the lower half reserved for
+  leaf reuse. Zero degenerate/outside UV triangles. **Eight subpixel overlaps**
+  total **.287 delivered pixels** (fraction 2.354e-7), within the independent
+  kit tolerance; not misreported as zero. These persist after aspect matching.
+- GLB/raw accessor/fresh import: position and linear Wind errors **zero**;
+  maximum split-normal vector difference **8.30e-5**. `_WIND` retained without
+  `COLOR_0` albedo multiplication. Origin at trunk base on grade; no rig/moving parts.
+- **15 Cycles + 1 Eevee** hashes match final oak SHA-256
+  `82b2a27bd291f9aae703b66debaf932e839942bba612261f9da39ed062fbab3b`.
+  The family checks the actual imported maple GLB hash as well. Eevee is
+  visibly cooler, paler and flatter than Cycles; it is included honestly.
+- Final images: `renders/oak-final/{hero,front,side,back,top,branchlet,cluster_3m,
+  bark,lower_pins,crown_up,scale,root_flare,family,oak_match_osu,oak_match_stony}.png`;
+  both `oak_match_*-pair.jpg`, `bark-pair.jpg`, `turnaround.jpg`, `details.jpg`,
+  `contact.jpg`, `review-sheet.jpg`; `renders/oak-final-eevee/hero.png`.
+  Source pairs/bark: `renders/oak-final-source/`. All were opened.
+- Final docs only: `docs/oak-hero.jpg` **193,874 bytes**, `oak-details.jpg`
+  **199,786 bytes**, both at most 1600 px wide. Five family docs JPGs total.
+  No photo, private-person/home identifier, generated binary or texture is committed.
+- `python3 -m py_compile trees/src/*.py`, `git diff --check`, repository rules:
+  passed. Kit regressions are not required: no `kit/` file changed.
+
+### Maple preservation repeated on the final shared code
+
+`compare_maple_source.py` passes exact source position/triangle/UV/split-normal/
+Wind byte arrays and all four packed procedural PNG inputs. The growth JSON
+and all 12 final accessors are byte-identical to the preserved original.
+Re-exporting the **latest finalized mesh with the preserved maps** reproduces
+the complete original GLB, SHA-256
+`ad060a9aac22b94d5eb021b2fcf60791044daecb04c14fbe03d590037ff8c945`.
+The fresh GPU bake changes **4 / 8 / 5 channels**, each by one byte, in
+BaseColor / Normal / ORM, with the unchanged-source control's same sparse
+rounding class disclosed. Fresh GLB **7,876,076 bytes**. Reports:
+`build/maple-source-comparison-finish.json`, `build/maple-byte-comparison-finish.json`.
+There is no intentional maple geometry, material or source-image difference.
+
+No tool, permission or kit/contract change is needed. Engine work remains the
+usual foliage shader, Wind, LOD and impostor integration. Remaining visual
+weaknesses are recorded above; no claim of botanical-macro photorealism is made.
+
+# Pin oak / lead-directed bark, lower crown and display-value correction
+
+## Revision pass 6 — exported GLB, reject residual bark regularity and dark Eevee
+
+**Color/value first:** inspected the two photo pairs, Cycles/Eevee heroes,
+chest-height bark and the new raking view from 1 m in `renders/oak-revision-6/`
+and `renders/oak-revision-6-eevee/`. These are the exported, rebaked candidate,
+1100 px / 32 samples, preserved as `build/oak-pass6.glb`.
+OSU median foliage is **.32696 / photo .33543**, pixels above .5 **28.81% /
+25.81%**; bright/shaded fifth deltas **+.02531 / +.00056**. Stony median
+**.22332 / .20975**, above .5 **8.53% / 9.61%**, fifth deltas **−.01100 /
++.00425**. Median and fifths meet .03. The exact original green selector is
+retained for comparability; a second, less selective population includes
+near-neutral green highlights and is separately recorded, never silently
+substituted. Remaining pale caps are concentrated spatially rather than proved
+away by whole-image percentiles. Lower specular (.18), a .48 front roughness
+floor, .32 transmission and reduced shared normal bending (.42) keep more
+individual blade lighting and saturation. Same authored leaf atlas and variants.
+
+Bark patch **.43417 / photo .42210**, median RGB **(.41569,.44314,.39608)** /
+**(.42353,.42745,.37255)**. Red now exceeds blue, but the model still leans
+more green than the photo. The continuous procedural 2–5 cm / 10–40 cm net
+replaces disconnected ticks; raking light reveals physical normal relief at
+1 m. Reject the remaining regular cross seams and soft ridge faces. Next:
+shallow cross-break color contrast, stronger longitudinal hierarchy, warmer
+ridge tops and more chest-height UV density using the same atlas allocation.
+
+The lower 789-card allocation is now **2,127**; inner growth screens the old
+3–5 m pole. Remaining large windows and exposed spokes around 6–8 m still need
+short lateral sprays farther sideways and upward/downward into neighboring
+tiers. Lower primaries now bend in continuous descending arcs; four sides and
+ten stations spend their geometry on curvature. Counts stay **40 / 119 / 22**.
+**24,744 triangles**, two materials; full source, UV, GLB, Wind and bake checks
+pass, including zero UV overlap and zero missing/black bake interior texels.
+
+Eevee's world-only teal fallback is replaced with a captured canopy irradiance
+volume using the actual exported cards. Hue difference is now **.02592 turns**,
+but median Y is **.12950 vs Cycles .27264**: reject the dark result. Its captured
+indirect light needs engine calibration. No image recoloring or albedo swap is
+used. No docs JPGs are updated for this candidate.
+
+## Revision pass 7 — exported value/hue pass; retain breadth and improve ridge grain
+
+**Color/value first:** inspected both exported photo pairs and the Cycles/Eevee
+heroes, bark pair and 1 m raking view in `renders/oak-revision-7/` and its
+`-eevee` folder. The warm-gray bark now measures **.415 / photo .422**, with
+red above blue; the channels and foliage populations are preserved in its
+`color-value-evidence.json`. The calibrated Eevee ambient hemisphere passes
+both hue and value against Cycles, without changing the maps, sun or foliage
+shader. The captured-volume trial remains rejected: it lost thin-leaf indirect
+transport. Eevee uses a documented .18 ambient strength and (1.22,1,.70)
+indirect spectral multiplier to approximate the missing warm canopy/grade
+bounce. The camera still sees the same procedural sky. This is explicit
+presentation-light calibration, not an albedo or image-color correction.
+
+The bark no longer has the conspicuous black transverse symbols. Long fissures
+split/rejoin and the raking image proves relief, but ridge faces remain too
+soft and uniform against OSU's finer roughness. Give the delivered grain more
+relief and variation, and widen the narrow longitudinal fissures modestly.
+The same 2048 atlas now assigns about **649 px/m** to the chest band. A
+micron-wide Boolean triangle initially collapsed under float UV precision;
+its isolated island now has increased UV priority, preserving the unchanged
+mesh. Final packing has zero degenerate or overlapping triangles. The old
+maple median-density ceiling (500) does not describe this deliberate oak
+allocation: declare the oak chest-band ceiling of 750 rather than scaling the
+new detail back out. No kit threshold is changed.
+
+The inner low foliage improves the pole, but some outer lower secondaries
+became too sparsely covered and their breadth fell to **.682** mean W/H.
+Reject this regression even though full width still fits the envelope. Restore
+leaf-bearing secondary extensions, distribute the low allocation equally along
+primary laterals and the inner secondaries, and preserve supported outer sprays.
+Keep the accepted wood architecture and **24,984** triangle total. The candidate
+is retained as `build/oak-pass7.glb`; it is not final and no docs are updated.
+
+## Revision pass 8 — exported measurements pass; spend hidden wood on remaining low windows
+
+**Color/value first:** inspected all six GLB preview views/pairs in
+`renders/oak-revision-8/` and its Eevee hero. Bark **.41368 / photo .42210**,
+RGB **(.41569,.41961,.35294)** / **(.42353,.42745,.37255)**; red minus blue
+**+.06275 / +.05098**. Longitudinal relief is visible in the actual 1 m raking
+view. The source field has more granular faces and narrow, darker longitudinal
+fissures, with cross breaks kept shallower. No blue albedo or isolated symbol
+mask remains. The tree-view bole is dark and warm under the crown.
+
+OSU foliage median **.31430 / .33543**, above .5 **27.90% / 25.81%**;
+bright/shaded fifth deltas **+.02251 / +.00169**. Stony median **.21703 /
+.20975**, above .5 **8.22% / 9.61%**; fifth deltas **−.01440 / +.00815**.
+All median/fifth value limits and the Eevee hue/value limits pass. The explicit
+mask/sampling limits remain recorded; the near-neutral highlight population
+is additional evidence, not substituted for the original mask.
+
+Breadth is restored: measured mean W/H **.72032**, broadest band **30.77%** of
+crown height. **24,984 triangles**, both `make check` species gates pass. The
+primary lower arcs and central screening are improved. Still reject the large
+low side windows compared with the photograph. Recover triangles from axial
+rings in small secondary wood hidden by foliage (four stations to three,
+retaining cross sections), and place the recovered allocation specifically on
+low sprays. Keep all primary curves, upper card allocation, branch counts and
+pin geometry. This addresses the brief's request to take triangles where they
+do not change silhouette, rather than accepting residual windows at the cap.
+The candidate is local `build/oak-pass8.glb`; final docs remain untouched.
+
+
+## Revision pass 9 — final export, measured bark distance and complete replacement finals
+
+**Color/value first:** opened all sixteen Cycles GLB views and the Eevee hero,
+the full contact/turnaround, both final/source photo pairs, bark pairs and the
+actual 3 m leaf inspection. All shipping views are 1600 px / 72 samples. The
+near-final OSU bright fifth missed .03 by .00004 at full resolution; it was not
+rounded into a pass. Further direct/exposure trials were inspected. The final
+OSU light is **sun 11 / sky .25 / exposure 1.05**; Stony remains **7.6 / .22 /
+.5**. Both source and export use those same per-view fits and the same authored
+albedo. The full final comparison now passes with useful headroom.
+
+| Display population | Export | Source | Photograph |
+| --- | ---: | ---: | ---: |
+| OSU median Y | 0.32220 | 0.32308 | 0.33543 |
+| OSU above .5 | 26.29% | 26.40% | 25.81% |
+| OSU bright fifth Y | 0.65935 | 0.65886 | 0.64866 |
+| OSU shaded fifth Y | 0.12382 | 0.12441 | 0.11934 |
+| Stony Brook median Y | 0.21104 | 0.21181 | 0.20975 |
+| Stony Brook above .5 | 9.10% | 9.03% | 9.61% |
+| Stony Brook bright fifth Y | 0.48874 | 0.48791 | 0.49368 |
+| Stony Brook shaded fifth Y | 0.07902 | 0.07904 | 0.08012 |
+
+The original strict green selector is explicit in every result. The looser
+neutral-highlight diagnostic can admit tinted sky/grade and is not called
+segmented foliage. The projected upper half is also recorded: OSU median
+**.38504 / photo .36654**. Its above-.5 share **34.44% / 28.48%** remains more
+concentrated than the photograph even though the whole-crown share is close.
+This is a remaining CG tell, not concealed by the passing whole-crown median.
+The hero's green p5/median/p95/p99 is **.09277/.25781/.53967/.63349**,
+with zero clipped channels and **.152%** below .02. Sheen stays local to blades;
+backlight stays saturated yellow-green, without emission.
+
+Bark patch Y is **.40779 export / .40667 source / .42210 photo**. Median RGB
+is **(.41176,.41176,.34510)** versus **(.42353,.42745,.37255)**. Model red/blue
+**.41176/.34510**, photo **.42353/.37255**: both have red above blue. The
+export/photo Y delta is **−.01432**, within .03. The tree-view trunk is warm and
+dark under the crown, with foliage screening the previous low pole. Continuous
+interlacing ridges replace isolated dark symbols. Brown fissures and irregular
+flat faces survive the bake, with directional density **648.35–650.32 px/m**,
+tangent-normal p10/median/p90 **1.71/6.13/19.94°** and AO p10 **.871**.
+Fine photographic grain is still richer. Source and export bark were inspected.
+
+The raking camera was moved back after checking that the earlier nominal meter
+was measured to the axis. A ray against the delivered wood now measures
+**1.00351 m camera-to-bark surface**. Only that affected view and the revised OSU
+fit were regenerated; the complete set was reverified afterward. The default
+rebuild uses the corrected camera. This is an actual exported-surface distance,
+not a camera-placement constant. The final review enforces .95–1.05 m.
+
+Eevee/Cycles hue difference is **.00578 turns (2.08°)**, median Y difference
+**+.00112**, mean HSV value difference **−.00106**: all meet .05. The documented
+Eevee ambient approximation uses the same maps, sun and leaf shader; no image
+recoloring or leaf albedo swap is used. Its shading remains flatter than Cycles.
+
+The low allocation is now **2,844 cards**, versus 789 before this correction.
+Primaries keep ten-station continuous drooping arcs; hidden secondary axial
+rings recover **1,008 triangles**, of which 840 fund 420 extra low cards.
+All **40 primaries / 119 secondaries / one leader / 22 dead pins** remain.
+Longest reach **5.102 m**, near-80%-height reach **1.509 m**. The alpha-supported
+crown is **10.667 × 10.155 m**, base/top **2.570/16.752 m**; broadest mean
+section at **30.77%**, W/H **.72683**. Near-bole conservative walking clearance
+is **2.581 m**. Lower foliage now forms a connected dark skirt with glimpses
+of wood. Some outer tier gaps remain too orderly; exposed small secondary
+segments are angular in the foliage-hidden diagnostic. Planar cards and softened
+bristles still show in macro views. Bark silhouettes remain smooth because its
+fine relief is normal mapped. These limitations remain visible and disclosed.
+
+### Final revision proof
+
+- **`make -C trees SPECIES=oak`: passed**, including docs and every check.
+  Explicit `make -C trees SPECIES=oak check` and **`make -C trees check`** passed.
+  The source/game digest, actual construction, camera projection, UV, PBR,
+  raw-accessor/fresh-import normals/Wind and repository rules are separate gates.
+- **24,816 triangles = 10,536 wood + 14,280 foliage**, **7,140 cards**, two
+  materials / two static meshes. Source and exported counts agree. Origin is
+  the trunk base on grade; Wind is retained as linear `_WIND`.
+- One **2048² BaseColor-alpha / OpenGL +Y Normal / ORM** set, from 4096 baking.
+  PNG bytes **2,278,961 / 3,890,487 / 1,746,972**. GLB **10,822,788 bytes**.
+  Compressed full-mip texture estimate **16 MiB**, geometry **2,901,792 bytes**,
+  combined **18.7674 MiB** before engine overhead.
+- Unique wood UVs cover **30.2812%** of the full atlas; zero overlap,
+  degenerate or outside triangles. Leaf reuse stays inside its declared region.
+  Bake interior has zero missed/black texels. The JSON records the checked count.
+- The complete final set is **16 Cycles + 1 Eevee**, matching GLB SHA-256
+  `0a554a3dfb3eff604712c794c43d3feeb4353ff6642e2da9ff6a0a12504b23d1`.
+  The family also verifies the actual imported maple hash. Finals and contacts:
+  `renders/oak-final/`; Eevee: `renders/oak-final-eevee/hero.png`;
+  source bake-loss evidence: `renders/oak-final-source/`.
+- Source/export median foliage differences stay below **.0009**; maximum
+  bright/shaded-fifth loss is **.00083**. Bark patch loss is **.00112**.
+- Final docs replace `docs/oak-hero.jpg` (**190,040 bytes**, 1600²) and
+  `docs/oak-details.jpg` (**171,264 bytes**, 719 × 1600) in place. Five family
+  JPGs total. No downloaded photo, texture, binary or private identifier is added.
+- Maple exact source arrays/four source PNGs, growth JSON and all twelve final
+  accessors pass again. Re-export with preserved maps reproduces the original
+  GLB byte for byte (`ad060a9aac22b94d5eb021b2fcf60791044daecb04c14fbe03d590037ff8c945`).
+  Fresh GPU maps differ in **5 / 6 / 5 channels**, each one byte, consistent
+  with the unchanged-source control. Fresh maple GLB **7,876,072 bytes**.
+  Reports: `build/maple-source-comparison-revision.json` and
+  `build/maple-byte-comparison-revision.json`.
+- No kit changes. Early manual previews mistakenly overrode the inherited GPU
+  lock with a worktree-local lock; corrected before the shipping bake/finals.
+  The final bake and every shipping render inherited the shared `ASSETS_GPU_LOCK`.
+  No tools or approval are needed from the lead.

@@ -6,10 +6,10 @@ The common finalizer performs the actual angle-based unwrap and atlas pack.
 """
 import math
 from mathutils import Vector
-from settings import BARK_UV_CUTS
+from species import MAPLE
 
 
-def seams(ob,records,stems):
+def seams(ob,records,stems,species=MAPLE):
     owners=ob.data.attributes.get('GrowthOwner')
     if owners is None:raise RuntimeError('Wood union lost face growth provenance')
     axes={r['index']:[Vector(p) for p in r['points']] for r in records}
@@ -52,7 +52,8 @@ def seams(ob,records,stems):
                 # Compact, undistorted eye-height island between the flare and
                 # unions; no extra vertices or triangles on the source surface.
                 a,b=(ob.data.polygons[i].center.z for i in faces)
-                boundary=any((a-z)*(b-z)<0 for z in BARK_UV_CUTS)
+                boundary=any((a-z)*(b-z)<0 for z in species.BARK_UV_CUTS)
+        if species.ARCHITECTURE=="excurrent" and any(ob.data.polygons[i].area<1e-5 for i in faces):boundary=True
         e.use_seam=boundary
     priority=ob.data.attributes.new(name='BarkUVPriority',type='FLOAT',domain='FACE')
     for f,value in zip(ob.data.polygons,priority.data):
