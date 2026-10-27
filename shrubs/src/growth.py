@@ -1,71 +1,52 @@
-"""Sheared shell supported by multi-stem wood, with uneven pruning and regrowth.
-
-A dense outer skin is deliberate for sheared boxwood. Shallow sector lobes
-encode successive shear bites; independent shoots grow past that surface.
-The +Y low side is shaded/thinner. No mesh is inferred from photo pixels.
-"""
+"""Low-branched sheared Buxus: dome, fine sprig tufts, shaded skirt."""
 import math,random
 from mathutils import Vector
-from settings import SEED,CARD_SIZE,HEIGHT
+from settings import SEED
 
-CENTER=Vector((0,0,.330))
-RADII=Vector((.437,.421,.480))
+CENTER=Vector((0,0,.34))
+BASAL_COUNT=24
 
 
 def surface(direction):
-    d=Vector(direction).normalized();az=math.atan2(d.y,d.x)
-    lobe=1+.062*math.sin(5*az+.4)*(1-d.z*d.z)+.037*math.cos(3*az-4*d.z)+.018*math.sin(11*az+7*d.z)
-    # Pruning leaves a broad lower skirt, not an ellipsoid's tapered foot.
-    horizontal=(1-d.z*d.z)**(-.28) if d.z<0 else 1
-    return CENTER+Vector((d.x*RADII.x*horizontal,d.y*RADII.y*horizontal,d.z*(RADII.z if d.z>=0 else .195)))*lobe
+    d=Vector(direction).normalized();az=math.atan2(d.y,d.x);t=(d.z+1)*.5
+    # A clipped dome is broadest at the skirt, not halfway up an ellipsoid.
+    lobe=1+.035*math.sin(5*az+.4)+.018*math.cos(9*az-5*t)
+    radius=.462*math.sqrt(max(0,1-t**1.70))*lobe
+    return Vector((radius*math.cos(az),radius*.96*math.sin(az),.125+.655*t+.012*math.sin(4*az)*math.sin(math.pi*t)))
 
 
 def generate(seed=SEED):
     rng=random.Random(seed);stems=[];sites=[]
-    # Six basal stems plus a short old central stem, with staggered branches.
-    for i in range(7):
-        a=i*math.tau/7+.22
-        base=Vector((math.cos(a)*.009,math.sin(a)*.009,0))
-        end=Vector((math.cos(a)*.21,math.sin(a)*.21,.49+rng.uniform(-.07,.07)))
-        pts=[base,base.lerp(end,.28)+Vector((0,0,.055)),base.lerp(end,.66),end]
-        stems.append(dict(points=pts,radii=[.013,.011,.008,.004],sides=6,level=1,phase=rng.random(),parent=-1))
-    for i in range(35):
-        az=i*2.3999632297;z=-.57+(i+.5)/35*1.49
-        d=Vector((math.sqrt(1-z*z)*math.cos(az),math.sqrt(1-z*z)*math.sin(az),z));tip=surface(d)
-        parent=min(range(7),key=lambda j:(stems[j]['points'][-1]-tip).length)
-        t=rng.uniform(.48,.92);pp=stems[parent]['points'];x=t*3;j=min(int(x),2);base=pp[j].lerp(pp[j+1],x-j)
-        tip=CENTER+(tip-CENTER)*.82
-        pts=[base,base.lerp(tip,.43)+Vector((0,0,.018)),tip]
-        stems.append(dict(points=pts,radii=[.0050,.0035,.0012],sides=4,level=2,phase=stems[parent]['phase'],parent=parent))
-    # Stratified directions avoid clumps of empty space. Interior copies give
-    # genuine depth behind the clipped outer skin, not an opaque ball underneath.
-    n=600
-    for i in range(n):
-        z=-.83+1.81*(i+.5)/n;az=i*2.3999632297+rng.uniform(-.09,.09)
-        d=Vector((math.sqrt(1-z*z)*math.cos(az),math.sqrt(1-z*z)*math.sin(az),z))
-        p=surface(d)
-        shade=max(0,d.y)*max(0,(.45-p.z)/.3)
-        if rng.random()<shade*.63:continue
-        depth=rng.uniform(.004,.038) if i%6 else rng.uniform(.045,.085)
-        p-=d*depth
-        branch=min(range(7,len(stems)),key=lambda j:(stems[j]['points'][-1]-p).length)
-        sites.append(dict(center=p,direction=d,branch=branch,new=False,old=p.z<.28 and d.y>-.2 and rng.random()<.62))
-    # Unequal 5–15 cm new shoots beyond the last shear; whole branchlets show
-    # their own axis. These are restrained accents, not a uniform spiky halo.
-    for i in range(38):
-        az=rng.random()*math.tau;z=rng.uniform(-.20,.99)
-        d=Vector((math.sqrt(1-z*z)*math.cos(az),math.sqrt(1-z*z)*math.sin(az),z))
-        p=surface(d);extension=rng.uniform(.05,.15)
-        # New shoot card starts just inside shear line and follows outward/up.
-        direction=(d+Vector((0,0,.65))).normalized();p+=direction*(extension*.44-.028)
-        branch=min(range(7,len(stems)),key=lambda j:(stems[j]['points'][-1]-p).length)
-        sites.append(dict(center=p,direction=direction,branch=branch,new=True,old=False,extension=extension))
-    # A small leafy interior grown around the short inner forks screens central
-    # windows without an opaque shell or uniform inner-ball geometry.
-    for i in range(44):
-        z=-.55+1.35*(i+.5)/44;az=i*2.3999632297
-        d=Vector((math.sqrt(1-z*z)*math.cos(az),math.sqrt(1-z*z)*math.sin(az),z))
-        p=CENTER+Vector((d.x*.21,d.y*.20,d.z*.26))
-        branch=min(range(7,len(stems)),key=lambda j:(stems[j]['points'][-1]-p).length)
-        sites.append(dict(center=p,direction=d,branch=branch,new=False,old=False))
+    for i in range(BASAL_COUNT):
+        az=i*math.tau/BASAL_COUNT+.19;reach=rng.uniform(.20,.32);height=rng.uniform(.36,.65)
+        base=Vector((math.cos(az)*rng.uniform(.025,.065),math.sin(az)*rng.uniform(.025,.065),0))
+        end=Vector((math.cos(az)*reach,math.sin(az)*reach,height))
+        pts=[base,base.lerp(end,.32)+Vector((0,0,.025)),end]
+        radius=rng.uniform(.0035,.0053)
+        stems.append(dict(points=pts,radii=[radius,radius*.7,.0015],sides=4,level=1,phase=rng.random(),parent=-1))
+    for i in range(32):
+        parent=i%BASAL_COUNT;pp=stems[parent]['points'];t=rng.uniform(.08,.27)
+        base=pp[0].lerp(pp[1],t*2);az=math.atan2(pp[-1].y,pp[-1].x)+rng.choice((-1,1))*rng.uniform(.25,.65)
+        tip=Vector((math.cos(az)*rng.uniform(.29,.41),math.sin(az)*rng.uniform(.29,.41),rng.uniform(.19,.55)))
+        pts=[base,base.lerp(tip,.53)+Vector((0,0,.018)),tip]
+        stems.append(dict(points=pts,radii=[.0028,.0018,.0008],sides=3,level=2,phase=stems[parent]['phase'],parent=parent))
+    for i in range(635):
+        dz=-.995+1.99*(i+.5)/635;az=i*2.3999632297+rng.uniform(-.065,.065)
+        d=Vector((math.sqrt(1-dz*dz)*math.cos(az),math.sqrt(1-dz*dz)*math.sin(az),dz));p=surface(d)
+        t=(dz+1)*.5;outward=Vector((math.cos(az),math.sin(az),.16+1.1*t)).normalized()
+        shade=max(0,math.sin(az))*max(0,(.30-p.z)/.19)
+        if rng.random()<shade*.40:continue
+        p-=outward*rng.uniform(.0,.032)
+        branch=min(range(len(stems)),key=lambda j:(stems[j]['points'][-1]-p).length)
+        sites.append(dict(center=p,direction=outward,branch=branch,new=False,old=p.z<.25 and p.y>0 and rng.random()<.52))
+    # Slight interior leaf depth screens twig gaps while preserving cavities.
+    for i in range(135):
+        az=rng.random()*math.tau;p=Vector((math.cos(az)*.33,math.sin(az)*.33,rng.uniform(.14,.42)))
+        sites.append(dict(center=p,direction=(p-CENTER).normalized(),branch=i%len(stems),new=False,old=False))
+    for i in range(32):
+        az=rng.random()*math.tau;dz=rng.uniform(-.75,.95)
+        d=Vector((math.sqrt(1-dz*dz)*math.cos(az),math.sqrt(1-dz*dz)*math.sin(az),dz));p=surface(d)
+        direction=Vector((math.cos(az)*.45,math.sin(az)*.45,.95)).normalized();extension=rng.uniform(.05,.11)
+        p+=direction*(extension-.032)
+        sites.append(dict(center=p,direction=direction,branch=i%len(stems),new=True,old=False,extension=extension))
     return stems,sites

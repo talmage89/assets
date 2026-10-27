@@ -6,7 +6,7 @@ from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(Path(__file__).resolve().parent)]
 from kit import gpu
 from kit.studio import human,studio_mat
-from settings import SHOTS
+from settings import SHOTS,HYDRANGEA_SHOTS
 
 
 def setup(engine,samples):
@@ -26,15 +26,15 @@ def setup(engine,samples):
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True);p.add_argument('--out',type=Path,required=True);p.add_argument('--shots');p.add_argument('--camera-file',type=Path);p.add_argument('--width',type=int,default=1200);p.add_argument('--samples',type=int,default=40);p.add_argument('--engine',default='CYCLES');a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
+    p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True);p.add_argument('--species',choices=['boxwood','hydrangea'],default='boxwood');p.add_argument('--out',type=Path,required=True);p.add_argument('--shots');p.add_argument('--camera-file',type=Path);p.add_argument('--width',type=int,default=1200);p.add_argument('--samples',type=int,default=40);p.add_argument('--engine',default='CYCLES');a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
     bpy.ops.wm.open_mainfile(filepath=str(a.source.resolve()));cam,floor,sun,bg=setup(a.engine,a.samples);sc=bpy.context.scene
-    shots={k:v['shot'] for k,v in json.loads(a.camera_file.read_text()).items()} if a.camera_file else SHOTS
+    shots={k:v['shot'] for k,v in json.loads(a.camera_file.read_text()).items()} if a.camera_file else (HYDRANGEA_SHOTS if a.species=='hydrangea' else SHOTS)
     names=a.shots.split(',') if a.shots else list(shots);a.out.mkdir(parents=True,exist_ok=True);path=a.out/'shots.json';meta=json.loads(path.read_text()) if path.exists() else {}
     digest=hashlib.sha256(a.source.read_bytes()).hexdigest()
     for name in names:
         s=shots[name];cam.location=s['location'];cam.rotation_euler=(Vector(s['target'])-cam.location).to_track_quat('-Z','Y').to_euler();cam.rotation_euler.rotate_axis('Z',s.get('roll',0));cam.data.lens=s.get('lens',55)
         sc.render.resolution_x=a.width;sc.render.resolution_y=round(a.width/s.get('aspect',1.25));sc.render.resolution_percentage=100
-        bpy.data.objects['Boxwood leaf cards'].hide_render=s.get('hide_leaves',False)
+        bpy.data.objects['Hydrangea leaf and flower cards' if a.species=='hydrangea' else 'Boxwood leaf cards'].hide_render=s.get('hide_leaves',False)
         sc.render.film_transparent=s.get('background')=='transparent';floor.hide_render=sc.render.film_transparent
         hs=human() if s.get('human') else []
         for ob in hs:ob.location.x+=.18;ob.location.y+=.1

@@ -6,7 +6,7 @@ from PIL import Image,ImageOps
 import colorsys
 ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(Path(__file__).resolve().parent)]
 from kit.contact import contact,review_sheet
-from settings import SHOTS
+from settings import SHOTS,HYDRANGEA_SHOTS
 from photo_matches import MATCHES
 
 
@@ -19,17 +19,24 @@ def population(im):
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--renders',type=Path,required=True);a=p.parse_args();r=a.renders
-    paths=[r/(s+'.png') for s in SHOTS];pairs=[r/(s+'-pair.jpg') for s in MATCHES]
-    contact(paths+pairs,r/'contact.jpg',title='Boxwood / SOURCE look-dev checkpoint / procedural daylight')
-    review_sheet([paths[:2],paths[2:4],[paths[4],paths[5]],[paths[6]]]+[[x] for x in pairs],r/'review-sheet.jpg',width=1800,title='Boxwood / source critique evidence; no final GLB yet')
-    evidence={}
-    for name,m in MATCHES.items():
-        im=ImageOps.exif_transpose(Image.open(m['photo'])).crop(m['crop'])
-        # Tight interior patches exclude the surrounding lawn/ivy and labels.
-        rect=(125,155,510,430) if name=='match_green_velvet' else (90,120,460,320)
-        evidence[name]=dict(model=population(Image.open(r/(name+'.png'))),photo_interior=population(im.crop(rect)),photo_patch_in_crop_px=rect,scope='display-image populations; differing lighting/specimens, not calibrated albedo')
-    digest=hashlib.sha256((ROOT/'shrubs/build/lookdev.blend').read_bytes()).hexdigest();meta=json.loads((r/'shots.json').read_text());assert all(x['source_sha256']==digest for x in meta.values()),'stale source renders'
+    p=argparse.ArgumentParser();p.add_argument('--renders',type=Path,required=True);p.add_argument('--species',choices=['boxwood','hydrangea'],default='boxwood');a=p.parse_args();r=a.renders
+    matches=MATCHES
+    if a.species=='hydrangea':
+        from hydrangea_matches import MATCHES as matches
+    shots=HYDRANGEA_SHOTS if a.species=='hydrangea' else SHOTS
+    label=a.species.title()
+    paths=[r/(s+'.png') for s in shots];pairs=[r/(s+'-pair.jpg') for s in matches]
+    contact(paths+pairs,r/'contact.jpg',title=label+' / SOURCE look-dev checkpoint / procedural daylight')
+    review_sheet([paths[:2],paths[2:4],[paths[4],paths[5]],[paths[6]]]+[[x] for x in pairs],r/'review-sheet.jpg',width=1800,title=label+' / source critique evidence; no final GLB yet')
+    from values import measure,BOX_PATCHES
+    if a.species=='hydrangea':
+        from hydrangea_matches import PATCHES
+        calibration=ROOT/'shrubs/build/hydrangea/framed-cameras.json'
+    else:
+        PATCHES={k:dict(crop=matches[k]['crop'],**v) for k,v in BOX_PATCHES.items()}
+        calibration=ROOT/'shrubs/build/framed-cameras.json'
+    evidence=measure(r,calibration,PATCHES)
+    digest=hashlib.sha256((ROOT/('shrubs/build/hydrangea/lookdev.blend' if a.species=='hydrangea' else 'shrubs/build/lookdev.blend')).read_bytes()).hexdigest();meta=json.loads((r/'shots.json').read_text());assert all(x['source_sha256']==digest for x in meta.values()),'stale source renders'
     (r/'tonal-check.json').write_text(json.dumps(evidence,indent=2));(r/'render-check.json').write_text(json.dumps(dict(passed=True,source_sha256=digest,render_count=len(meta),scope='source checkpoint provenance only, no export proof'),indent=2))
     print(json.dumps(evidence,indent=2))
 

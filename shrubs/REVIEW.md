@@ -198,3 +198,136 @@ Stop here as requested. Hydrangea botany/reference photos are researched but no
 hydrangea geometry is built. Final unique UVs, GPU stem bake, GLB/re-import,
 wind serialization and exported-GLB renders remain held. No tool or permission
 is needed; the lead's review of this boxwood checkpoint is the next decision.
+
+# Lead-directed boxwood correction, then hydrangea
+
+The lead rejected pass 4's appearance. Its whole-crown selected-green median
+was not an adequate test of the pale gray film across the lit front. Prior
+claims that the shell read as boxwood are superseded by this review.
+
+## Boxwood fix 1 — reject sparse shell and over-dark diffuse response
+
+**Color/value first:** spatially matched lit/front patches now include gray-green
+highlights (G/R >1.015, G/B >1.025), rather than excluding low-saturation sheen.
+The rejected checkpoint's front-patch median is .384 versus photo .361;
+brighter-half median .493 versus .440, saturation .435 versus .571. This
+quantifies the lead's visible gray film. The photo is overcast; brightness
+populations are not an illumination/reflectance calibration.
+
+Lowering specular .40→.12 and changing leaf projection removes the film, but
+fix 1 overshoots: patch median .239, brighter-half .323 and saturation .776.
+Do not accept it as "deep green" merely because it is darker. Raise diffuse
+blade values and reduce excess chroma while retaining small sharp highlights.
+
+All seven views, the contact and both pairs in `renders/boxwood-fix1/` were
+opened. Twenty-four 7–11 mm basal stems replace the seven thick leaders; daughters
+branch within the low stem region. The outline is now a dome widest at the
+skirt. Dropping the soil patch makes the stems meet grade cleanly. But shrinking
+the card sprays exposes severe bright windows and visible upright wood.
+Reject the sparse shell. Fill more of each existing tile with short individual
+6–10-leaf sprigs, retaining varied normal/projection angles. This adds density
+without geometry or a solid-ball occluder. Check the next pair before moving on.
+
+## Boxwood fixes 2–4 — restore dense sprig grain; calibrate lit patches
+
+**Color/value first:** fix 2 loses the gray film but is still too dark/chromatic:
+front-patch median .292 versus .361, brighter-half .397 versus .440, saturation
+.787 versus .571. Fix 3's brighter diffuse palette overshoots: .385/.504 and
+saturation .528. Reject that pale candidate rather than accepting the convenient
+whole-crown statistic again. Fix 4 interpolates diffuse color with unchanged
+small-highlight specular: **.351/.468**, saturation **.628**, versus photo
+**.361/.440**, **.571**. Highlight population remains about 6% brighter under the
+procedural directional daylight than this overcast photo, but the broad gray
+film is removed. Display-image populations are not calibrated reflectance.
+
+All fix-2 views and pairs were opened on the contact, with 1 m and primary pair
+also inspected full size. Fix 3/4 use two targeted source views and both pairs;
+all were opened. Each normal tile now contains short distinct 6–10-leaf sprigs
+with mixed projection/cup directions, rather than large blades laid flat across
+one spray. Reusing more tile area strengthens grain without new silhouettes.
+A deeper inner leaf population screens lower windows; move it lower/wider in
+the final source so the source's understory becomes pockets of shade, not grade
+showing through. This modestly raises total triangles from 4,893 to 5,588, still
+inside 6k; no texture/material allocation increases.
+
+The rooted fan now has 24 slender stems plus 32 low daughters; the broadest
+clipped section is at the skirt. The polygonal soil patch is removed. Some
+sprig repetition and a few overly even new shoots remain, to be reassessed in
+the final combined source renders after hydrangea development. No bake is run.
+
+## Hydrangea pass 1 — reject bouquet form and dotted flower caps
+
+**Color/value first:** individual source leaves read lime and too evenly bright;
+flower caps are pale blue. The house reference has substantial medium/dark
+foliage and deep interior pockets. The first sampled house-head patch is .678
+versus .400 photo, but that comparison includes different head exposures; this
+is a diagnostic miss, not a final reflectance target. Initial narrow leaf patch
+coordinates accidentally select deep photo shade despite a "lit" label. Replace
+that invalid label with explicit broad plant-region populations and a separately
+marked shaded patch; do not use it as a sunlit albedo calibration.
+
+Every view, contact and both full pairs in `renders/hydrangea-pass1/` were
+opened. Reject: the plant is a bouquet of long stalks with all heads above its
+sparse body. The clusters are open, overly regular dotted caps. Leaf grids show
+curvature and veins, but the tall straight stem run destroys shrub scale.
+
+The correction spreads the main stems early, lowers outer heads, adds low
+leaf-bearing daughters and opposite nodes, and spends fewer triangles per
+cupped blade so more leaves can fill real stem masses. Smaller, denser florets
+have radial-depth and angle variation. No opaque floral sphere is used. Target
+about 5.5k triangles, two materials, the accepted shared 2048 allocation.
+
+## Hydrangea passes 2–3 — source form, coverage and color corrections
+
+**Color/value first:** the house-camera broad foliage median improves .449→.412
+between passes 2/3, but the photo population is .101; source remains far too
+bright/open relative to that sunlit house specimen's deep mass. Janke's brighter
+bed is a different target: .443→.344 model versus .376 photo. Flower medians
+.627→.599 versus .372 house; .602→.583 versus .526 bed. Different specimens,
+exposures, mass depth and selected regions matter: neither global number proves
+a calibrated albedo match. Reject the evenly bright source response and sparse
+mass against the house photo; do not claim the bed median alone proves realism.
+
+Every view in both contacts, the close-ups and both full pairs were opened.
+The early-fanning stems and low branches remove the bouquet's long bare foot,
+but pass 2 remains skeletal above the middle. Pass 3 adds more opposite leaves
+on physical cupped grids, with varied orientation, and replaces coarse single
+florets with smaller three-floret clusters on the same atlas space. Head grain
+improves, while some heads still have visible gaps and the upper foliage needs
+more interlocking. Two source materials and one family atlas are retained.
+
+Final correction: use the remaining triangle allowance for upper foliage,
+expand/interlock the floret patches around complete heads, add the short leaf
+petiole to the original alpha field, and start that field at the actual shifted
+parent station. This removes the apparent blade/stem gap. Slightly deepen the
+mid-green blade palette. Retain open dark cavities rather than sealing a single
+envelope. Physical stem/leaf organization and final appearance are checked
+separately. Final source renders and values follow below.
+
+## Hydrangea passes 4–5 — reject exposed core cards; measure construction
+
+**Color/value first:** pass 4 has darker leaf pockets but remains too evenly
+lit against the house photo. The corrected stem masses and shaded foliage are
+closer to the brighter foundation-row photo. Never claim both references'
+shadow values are interchangeable; retain both measurements in the final report.
+
+Pass 4's targeted views and pairs were opened. Its new dimension check rejected
+several heads at only 13.7–14.0 cm maximum retained extent. Restore their authored
+radius and enlarge floret patches so actual retained heads fall in the specified
+15–20 cm range. Two comparison renders also clip the plant skirt/left edge;
+those old frames are invalid. Wider symmetric neutral study margins keep the
+same calibrated camera/pixel projection while displaying the whole asset.
+
+The first dense core-card trial (pass 5) hides the blooms and exposes giant
+flat sprays on the outside. Reject it. Restrict those economical branchlets to
+the interior (.32 m centerline reach, .25–.74 m height); keep individually curved
+blades on the visible outside. Replace the trial's broad generic normal waves
+with the actual original blade rib/cup normals rotated with each reused blade.
+The leaf-tile composite only reads our own analytic pixels; no photo is read.
+
+The completed construction audit independently finds all **664** pass-4 curved
+blade petiole starts inside their actual parent stems, with all three ray
+parities agreeing. This is stronger than checking two stored anchor constants.
+The final mixed representation will repeat this check for its retained curved
+leaves and report core sprites separately. All solids, Wind data, actual head
+sizes and source/game agreement remain independent acceptance gates.

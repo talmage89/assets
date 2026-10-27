@@ -42,3 +42,16 @@ noncommercial photographs are local review evidence, never redistributed in docs
 
 All asset pixels and vertices are original scripted output. Rights in references
 do not imply an asset license. No reference images enter the atlas.
+
+## Added hydrangea comparison photographs (2026-10-27)
+
+| File | URL | Author / rights | Used for |
+| --- | --- | --- | --- |
+| hydrangea-ilouque.jpg | https://eit-planttoolbox-prod.s3.amazonaws.com/media/images/Hydrangea_macrophylla--ilouque--CC-BY.jpg | Ilouque, CC BY 4.0 via NC State Plant Toolbox | Ordinary house/garage foundation mophead, sunlit heads and medium green broad leaves over a dark interior; whole-shrub comparison. |
+| hydrangea-oshen.jpg | https://eit-planttoolbox-prod.s3.amazonaws.com/media/images/Hydrangea_macrophylla--Michelle-Oshen--CC-BY-SA.jpg | Michelle Oshen (NC State caption spells Micjhelle), CC BY-SA 4.0 | Enlarged sterile four-sepal florets, opposite serrated veined leaves and immature green heads; close botanical study only. |
+
+The second whole-shrub comparison uses a left-hand section of Jim Janke's
+already-registered summer foundation row. Neighboring plants overlap; the
+crop is not claimed to isolate a surveyed single plant. Camera fits compare
+specimens rather than determining their actual size. Photos remain local and
+are not projected, traced or baked into any asset.

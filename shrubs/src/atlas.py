@@ -26,11 +26,14 @@ def generate(folder,size=4096):
         nm=normal[ya:yb,xa:xb].copy();rm=orm[ya:yb,xa:xb].copy()
         def pixel(x,y):return (round(x*w),round((1-y)*h))
         new=k==6;aged=k==7;lengths=[]
-        # A main axis with two unequal lateral sprays, rather than a ladder.
-        axes=[((.48,.055),(.46+rng.uniform(-.04,.06),.83),6),
-              ((.48,.26),(.17,.65),5),((.48,.40),(.82,.77),5),
-              ((.48,.20),(.14,.34),3),((.48,.55),(.86,.52),3)]
-        if new:axes=axes[:1];axes[0]=((.48,.055),(.50,.84),5)
+        # Each plane holds six short 6–10-leaf sprigs, not one flat spray.
+        axes=[((.23,.06),(.15,.42),rng.randrange(3,6)),
+              ((.48,.12),(.45,.51),rng.randrange(3,6)),
+              ((.75,.14),(.87,.52),rng.randrange(3,6)),
+              ((.21,.51),(.15,.89),rng.randrange(3,6)),
+              ((.49,.52),(.54,.94),rng.randrange(3,6)),
+              ((.74,.52),(.84,.91),rng.randrange(3,6))]
+        if new:axes=[((.48,.10),(.50,.91),5)]
         for base,tip,count in axes:
             draw.line([pixel(*base),pixel(*tip)],fill=(88,78,40,255) if not new else (81,101,42,255),width=max(2,round(w*.006)))
             axis=math.atan2(tip[0]-base[0],tip[1]-base[1])
@@ -39,7 +42,7 @@ def generate(folder,size=4096):
                 ax=base[0]+(tip[0]-base[0])*t;ay=base[1]+(tip[1]-base[1])*t
                 for side in (-1,1):
                     angle=axis+side*rng.uniform(.72,1.40)
-                    length=rng.uniform(*LEAF_LENGTH);scale=length/CARD_SIZE
+                    length=rng.uniform(*LEAF_LENGTH);scale=length/CARD_SIZE*rng.uniform(.66,1.0)
                     # Alternating pairs turn partly out of the shoot plane.
                     width=rng.uniform(.43,1.02)*( .70 if node%2 else 1)
                     ca,sa=math.cos(angle),math.sin(angle)
@@ -66,13 +69,13 @@ def generate(folder,size=4096):
                     rgb=col[None,:]+rib[:,None]*np.array([3,5,1])+fine[:,None]*.7
                     rgba=np.zeros((h,w,4),np.uint8);rgba[ys,xs,:3]=np.clip(rgb,0,255);rgba[ys,xs,3]=255
                     tile.alpha_composite(Image.fromarray(rgba))
-                    tilt_x=rng.uniform(-.28,.28);tilt_y=rng.uniform(-.23,.23)
+                    tilt_x=rng.uniform(-.9,.9);tilt_y=rng.uniform(-.65,.65)
                     sx=.95*x-.12*np.sign(x)*rib+tilt_x
                     sy=.37*(y-.45)+.025*veins+tilt_y
                     nx=-(sx*ca+sy*sa);ny=-(-sx*sa+sy*ca)
                     ns=np.c_[nx,ny,np.ones(len(xs))];ns/=np.linalg.norm(ns,axis=1)[:,None]
                     nm[ys,xs]=np.round((ns*.5+.5)*255).astype(np.uint8)
-                    rm[ys,xs]=np.c_[np.full(len(xs),255),np.full(len(xs),rng.randrange(90,125) if not aged else 153),np.zeros(len(xs))]
+                    rm[ys,xs]=np.c_[np.full(len(xs),255),np.full(len(xs),rng.randrange(58,88) if not aged else 153),np.zeros(len(xs))]
                     lengths.append(length)
         c=np.asarray(tile).copy();alpha=c[:,:,3].copy();occupied=alpha>0
         for _ in range(8):
@@ -82,7 +85,7 @@ def generate(folder,size=4096):
                 c[take,:3]=np.roll(c,(dy,dx),(0,1))[take,:3];nm[take]=np.roll(nm,(dy,dx),(0,1))[take];rm[take]=np.roll(rm,(dy,dx),(0,1))[take];fresh|=take
             occupied=fresh
         c[:,:,3]=alpha;color[ya:yb,xa:xb]=c;normal[ya:yb,xa:xb]=nm;orm[ya:yb,xa:xb]=rm
-        records.append(dict(tile=k,leaves=len(lengths),blade_min_m=min(lengths),blade_max_m=max(lengths),new_growth=new,shaded_old=aged))
+        records.append(dict(tile=k,sprig_leaf_counts=[2*n for _,_,n in axes],leaves=len(lengths),blade_min_m=min(lengths),blade_max_m=max(lengths),new_growth=new,shaded_old=aged))
     # Original longitudinal fine bark field in an opaque strip; soil uses its
     # darkest corner. No source image other than these equations is accepted.
     y,x=np.mgrid[:size//2,:size//4];u=x/size*4;v=y/size*2
@@ -101,8 +104,11 @@ def generate(folder,size=4096):
     orm[size//2-sh:size//2,:sw]=(220,243,0)
     normal[size//2-sh:size//2,:sw,0]=np.clip(128+(grain-.5)*10,0,255)
     normal[size//2-sh:size//2,:sw,1]=np.clip(128+(rng.random((sh,sw))-.5)*10,0,255)
+    from hydrangea_atlas import paint,branchlet_tile
+    hydrangea=paint(color,normal,orm,size)
+    hydrangea[1]=branchlet_tile(color,normal,orm,size)
     for channel,array in [('BaseColor',color),('Normal',normal),('ORM',orm)]:write_png(folder/f'T_Shrubs_{channel}.png',array.astype(np.float32)/255,bits=16 if channel=='Normal' else 8)
-    (folder/'atlas.json').write_text(json.dumps(dict(source_size=size,boxwood=records,reserved_hydrangea_rect=(.25,.5,1,1)),indent=2))
+    (folder/'atlas.json').write_text(json.dumps(dict(source_size=size,boxwood=records,hydrangea=hydrangea),indent=2))
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--size',type=int,default=4096);a=p.parse_args();generate(a.out,a.size)
