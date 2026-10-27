@@ -29,6 +29,10 @@ Street
 - [Metal garbage can](metal-trash-can/README.md): 31-gallon galvanized steel can with its lid.
 - [Ammo can](ammo-can/README.md): .50 caliber steel ammo can with a working latch and lid.
 
+Ground
+- [Street ground](ground/README.md): modular road, intersection, curb and gutter, sidewalk and curb ramps,
+  driveways, lawn, a storm inlet and a manhole, on three seamless tiling sets and one trim and decal atlas.
+
 Toolkit
 - [Shared toolkit](kit/README.md): procedural modeling and materials, UV, bake and export, verification and studio
   renders of the exported GLB.
