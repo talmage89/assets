@@ -7,7 +7,7 @@ WEAR ?= .65
 PASS ?= lookdev
 SHOTS ?= front_three_quarter,rear_three_quarter,side,front_detail,wheel_detail,lamps_lit,interior
 MARKINGS_DEPS := ../kit/fonts.py
-MODEL_DEPS := src/build.py src/body.py src/forms.py src/wheels.py src/pickup_spec.py src/exterior.py src/interior.py src/underbody.py src/detail_helpers.py src/finishes.py ../kit/model.py ../kit/materials.py ../kit/vehicle.py ../kit/vehicle_materials.py
+MODEL_DEPS := src/fascia.py src/build.py src/body.py src/forms.py src/wheels.py src/pickup_spec.py src/exterior.py src/interior.py src/underbody.py src/detail_helpers.py src/finishes.py ../kit/model.py ../kit/materials.py ../kit/vehicle.py ../kit/vehicle_materials.py
 include ../kit/rules.mk
 
 # Source-only review gate. No finalize, UV, bake or export in the default build.
@@ -48,3 +48,10 @@ form-diagnostics: build/form-game.blend refs build/matched-cameras.json
 	$(PYTHON) src/side_overlay.py --renders renders/$(PASS)
 	$(PYTHON) src/compare_form.py --renders renders/$(PASS)
 	$(PYTHON) src/review.py --renders renders/$(PASS)
+
+# The last source look-dev gate: required views, four pairs and surface diagnostics.
+.PHONY: round3 diagnostic
+round3: SHOTS=front_three_quarter,front_detail,lamps_lit,side
+round3: refs model check render match diagnostic review
+diagnostic: model build/used-cameras.json
+	$(KIT)/with_gpu.sh $(BP) --python src/render_diagnostics.py -- --source build/lookdev.blend --out renders/$(PASS) --width $(WIDTH) --samples $(SAMPLES)

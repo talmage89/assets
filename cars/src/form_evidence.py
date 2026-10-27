@@ -45,11 +45,16 @@ def collect():
     rt=tree(['Roof crown']);nearest=rt.find_nearest(wind_top)
     pillars=grid('A pillar_R');pillar_bottom=pillars[0][-1];pillar_top=pillars[-1][-1]
     rake=math.degrees(math.atan2(pillar_top.z-pillar_bottom.z,pillar_top.y-pillar_bottom.y))
-    # Two widely separated actual central fascia vertices establish face rake.
-    low=grid('Lower fascia')[0];lo=min(low,key=lambda p:abs(p.x))
-    high=grid('Nose brow')[0];hi=min(high,key=lambda p:abs(p.x))
+    if 'Fascia shared frame' in bpy.data.objects:
+        fascia=tree(['Fascia shared frame'])
+        lo=fascia.ray_cast(Vector((0,-4,.810)),Vector((0,1,0)),4)[0]
+        hi=fascia.ray_cast(Vector((0,-4,1.285)),Vector((0,1,0)),4)[0]
+        grille=bpy.data.objects['Fascia shared frame']
+    else:
+        low=grid('Lower fascia')[0];lo=min(low,key=lambda p:abs(p.x))
+        high=grid('Nose brow')[0];hi=min(high,key=lambda p:abs(p.x))
+        grille=bpy.data.objects.get('Grille form surround') or bpy.data.objects['Grille envelope']
     face_rake=math.degrees(math.atan2(hi.y-lo.y,hi.z-lo.z))
-    grille=bpy.data.objects.get('Grille form surround') or bpy.data.objects['Grille envelope']
     gpoints=world_points(grille)
     stand=max((lo.y+(p.z-lo.z)*math.tan(math.radians(face_rake)))-p.y for p in gpoints if abs(p.x)<.75)
     lamps=world_points(bpy.data.objects['Headlamp envelope_1'])

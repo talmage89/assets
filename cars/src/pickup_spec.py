@@ -36,6 +36,8 @@ ARCH_RADIUS=.463
 ARCH_Z=.430
 COLORS={
     'Porcelain':(.78,.79,.76), 'Carbon':(.009,.011,.013),
-    'Aluminum':(.46,.48,.49), 'Graphite':(.095,.105,.115),
+    'Aluminum':(.46,.48,.49), 'Graphite':(.160,.153,.141),
     'Atlantic':(.012,.037,.071),
 }
+
+PAINT_METAL={'Porcelain':0,'Carbon':0,'Aluminum':.55,'Graphite':.42,'Atlantic':.12}

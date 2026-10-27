@@ -44,6 +44,11 @@ def main():
         # JPEG conversion only; never used as texture input.
         jpg=Image.new('RGB',im.size,(226,228,225));jpg.paste(im,mask=im.getchannel('A'));jpg.save(root/(name+'.jpg'),quality=94,optimize=True)
     (root/'tonal-range.json').write_text(json.dumps(dict(method='display-referred sRGB luminance, opaque-geometry and paint-only Workbench masks; floor excluded; no albedo inferred from lit pixels',shots=tonal),indent=2))
+    diagnostic=root/'diagnostics.json'
+    if diagnostic.exists():
+        rows=json.loads(diagnostic.read_text())
+        if any(r['source_sha256']!=next(iter(metadata.values()))['source_sha256'] for r in rows.values()):raise AssertionError('Diagnostics predate source')
+        files.extend(root/(name+'.png') for name in rows)
     sheet(files,root/'contact.jpg')
     colors=[p for p in files if p.stem.startswith('paint_')]
     if colors:sheet(colors,root/'five-colors.jpg')

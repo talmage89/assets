@@ -10,36 +10,9 @@ from detail_helpers import box,tube,loop,pivot,print_quad
 
 
 def build(b):
-    # The existing shared seat is the protective clear lens, not an outboard box.
+    from fascia import details
+    details(b)
     for sign,side in [(-1,'L'),(1,'R')]:
-        def back(u,v,sign=sign):
-            p=Vector(lamp_surface(u,v));du=Vector(lamp_surface(u+1e-4,v))-Vector(lamp_surface(u-1e-4,v));dv=Vector((0,0,1));normal=du.cross(dv).normalized()
-            p-=normal*.075
-            return sign*p.x,p.y,p.z
-        b.skin('Headlamp housing back_'+side,back,20,6,b.m['plastic'],(sign,-1,0),category='lamps',gauge=.002,return_depth=.020)
-        for number,z in enumerate([1.072]):
-            x=sign*.817;yf=nose_y(x,z)+.018;yb=yf+.048
-            cup=G.lathe('Headlamp reflector_'+side+str(number),[(yb,.014),(yb,.026),(yf,.062),(yf,.061),(yb+.001,.014)],b.m['chrome'],32 if b.high else 20,axis='Y',center=(x,z),closed=True)
-            b.add(cup,category='lamps')
-            lens=G.lathe('Projector optic_'+side+str(number),[(yf-.004,0),(yf-.001,.043),(yf+.004,.048),(yf+.010,.043),(yf+.013,0)],b.m['lens'],32 if b.high else 20,axis='Y',center=(x,z))
-            b.add(lens,category='lamps')
-            emitter=G.lathe('Projector emitter_'+side+str(number),[(yb-.004,0),(yb-.004,.018),(yb,.018),(yb,0)],b.m['headlight'],16,axis='Y',center=(x,z))
-            b.add(emitter,category='lamps')
-        # Cast optical carrier and low horizontal high-beam reflector pocket.
-        for k in range(3):
-            box(b,'Headlamp lower facet_'+side+str(k),(sign*(.735+.038*k),nose_y(.80,1.0)+.027,.985),(.032,.025,.022),b.m['chrome'],'lamps',radius=.003)
-        # One angular running-light signature, wrapping with the lens seat.
-        uv=[(.08,.90),(.50,.90),(.85,.90),(.92,.83),(.93,.24),(.88,.15),(.40,.15),(.18,.24)]
-        path=[]
-        for a,c in zip(uv,uv[1:]):
-            for t in samples(3)[:-1]:
-                u,v=[a[k]+(c[k]-a[k])*t for k in range(2)];x,y,z=lamp_surface(u,v)
-                path.append((sign*(x-.005),y+.006,z))
-        x,y,z=lamp_surface(*uv[-1]);path.append((sign*(x-.005),y+.006,z))
-        tube(b,'Alder running signature_'+side,path,.008,b.m['drl'],'lamps',sides=6)
-        # The side marker is inside the wrap, behind the same protective lens.
-        x,y,z=lamp_surface(.89,.46)
-        box(b,'Amber side marker_'+side,(sign*(x-.004),y+.005,z),(.010,.035,.070),b.m['amber'],'lamps',radius=.006)
         # Replace the rear block with a housing, curved red optic and internal strip.
         old=bpy.data.objects.get('Taillamp envelope_'+side)
         if old:bpy.data.objects.remove(old,do_unlink=True)
@@ -103,21 +76,6 @@ def build(b):
     for v in plate.data.vertices:v.co.x=-(side_x(v.co.y,v.co.z)+.0013+v.co.x)
     for face in plate.data.polygons:face.flip()
     b.add(plate,flap,'trim')
-    # Three deep stamped lamellae: real recess provides shadow, relief stays
-    # on the back wall and does not spend triangles on fine perforations.
-    grille=bpy.data.objects['Grille form surround'];grille.data.materials[0]=b.m['chrome']
-    old=bpy.data.objects.get('Grille envelope')
-    if old:bpy.data.objects.remove(old,do_unlink=True)
-    print_quad(b,'Alder grille perforation field',[(-.625,-2.743,.850),(.625,-2.743,.850),(.625,-2.710,1.188),(-.625,-2.710,1.188)],b.m['grille'])
-    box(b,'Grille cavity',(0,-2.702,1.025),(1.27,.018,.385),b.m['frame'],'grille',radius=.006)
-    for number,z in enumerate([.908,1.018,1.128]):
-        loops=[]
-        for x in [-.626,-.48,0,.48,.626]:
-            y=nose_y(x,z)+.080
-            loops.append([(x,y+dy,z+dz) for dy,dz in [(0,-.010),(0,.010),(.020,.007),(.020,-.007)]])
-        b.add(G.loft('Alder grille lamella_'+str(number),loops,b.m['chrome']),category='grille')
-    box(b,'Alder grille badge',(0,-2.765,1.018),(.253,.023,.064),b.m['plastic'],'grille',radius=.009)
-    print_quad(b,'Alder front badge',[(-.117,-2.778,.996),(.117,-2.778,.996),(.117,-2.778,1.040),(-.117,-2.778,1.040)],b.m['badge'],'grille')
     # Real US-size plate carriers. The rear carrier sits inside the bumper opening.
     for end,sgn,y,z in [('F',-1,-2.928,.686),('R',1,2.869,.710)]:
         box(b,'Plate recess surround_'+end,(0,y-sgn*.012,z),(.337,.027,.178),b.m['plastic'],'trim',radius=.010)

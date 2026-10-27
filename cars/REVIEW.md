@@ -1,3 +1,138 @@
+# Alder C150 / look-dev round 3
+
+**Current gate: last source look-dev checkpoint. Stop before atlas UVs/bake/export.**
+The wheels/brakes/shoulder tread, DRL output, causal wear and 60k limit remain
+the accepted constraints. Earlier R2 records below are historical.
+
+## R3 pass 1 — diagnose the side and replace the grille-guard architecture
+
+Color/value first: compare the same Ram door patches, rather than changing
+exposure to hide a wrong factory tint. R2's Graphite was both too dark and too
+neutral. Native-photo patches remain analysis only; they never enter materials.
+The first R3 tint is a medium, slightly warm gray. The front and rear photos
+have materially different illumination; a single sun on the visible side in
+both comparisons cannot reproduce them. A linked-metallic-socket bug also
+ignored the old variant defaults. The new named metallic value drives the
+actual Principled input and its bake channel. Shared microscopic roughness/
+height aggregates provide the flake lobe; no albedo noise or extra map is added.
+
+`renders/r3-baseline/` holds the counterfactuals on the unchanged R2 source:
+`plain_aged_rear.png`, `plain_used_rear.png`, `stripes_side.png`. All three were
+opened. Irregular pale/dark blobs disappear when only the parked/foliage proxies
+are hidden; the stripe dome shows continuous fair door and bed surfaces. The
+source paint/wear is retained in the plain views. The smooth conductor replaces
+only paint in the stripe view to isolate geometric normals. Thus the irregular
+blotches were reflection scenery, not dents. Retain the accepted side field.
+A continuous analytic sky/asphalt horizon replaces the proxies in the pairs.
+
+The first new face in `renders/lookdev-r3-01/` has one closed frame containing
+both wide, low lamps and the grille aperture, with a straight hood leading edge.
+It reads as one fascia instead of lamps outside a tubular grille guard. The
+full-width lamellae are recessed; their ends are supported behind the frame.
+The original C guide retains its accepted 16 mm section and powered output.
+All eight views and their masks, the pair contact and individual front views
+were opened. The large upper land, internal webs and actual section now carry
+the architecture. Tighten the corner sweep so the outboard land's actual surface
+width also meets 40–80 mm. Seal the optical wells and move the guide clear of
+the protective lens. Do not alter the accepted wheels or add silhouette trivia.
+
+The preliminary game source is about 57.1k. The audit caught two coincident
+boolean/bevel vertices in the frame (zero-area slivers): weld at 1 micrometer
+before the sweep, rather than relaxing the audit. The second pass measures
+frame lands, section, lamp dimensions and hood setback on actual surfaces.
+
+## R3 pass 2 — reject the broad pale band; match the same gray door patches
+
+Color/value first: `renders/lookdev-r3-02/` and the three small lighting tests
+reject the broad pale band on Graphite. A frame-average gray is insufficient:
+the mid-door and upper-door patches must agree separately. The initial clear
+world made the rear mid-door about 158 display-luma levels against 77 in the
+photo. Simply reducing the whole sky made it 55 and crushed the wheels. The
+rear photograph has a partly obstructed parking-lot horizon and shaded side;
+use a continuous elevation transition into the blue sky instead of adding
+parked boxes and tree blobs again. Keep the common factory tint fixed.
+
+The last small test (`renders/lookdev-r3-light-test3/`) has front mid-door
+RGB 130/139/147 (luma 138), against the photo's 136/141/150 (141). Its rear
+upper door is 97/121/140 (117), against 100/121/143 (118). Rear mid-door is
+still about nine levels too bright, so slightly raise the obstructed horizon's
+lower elevation for the final render. These are median lit-pixel comparisons,
+not albedo measurements; corresponding surface picks and class registration
+have uncertainty. Original paint is linear RGB .160/.153/.141, metallic .42,
+in both Ram views. No photo pixels become texture data.
+
+Correct a stage reset that overwrote the rear sun rotation after selecting its
+lighting. Conditions now run after resetting studio transforms; shot metadata
+records the actual sun ray direction and environment strength. Clear and
+overcast conditions both have a continuous sky/asphalt horizon, with no
+reflected parked/foliage geometry. Source paint still supplies fine highlight
+variation; the side's broad normal field is unchanged.
+
+The final architecture has 500 × 165 mm apertures around 496 × 161 mm lenses,
+60 mm top/bottom/internal lands and approximately 79–80 mm of outboard curved
+land. The frame is 65 mm deep. Actual hood rays/vertices give a straight
+4.500 mm shut line and 7.550 mm minimum fore/aft setback. The center pressing
+ends aft of this boundary. Wide, recessed lamellae span beneath the lamp
+pockets; measured surface intersections check their end mounts against both
+the bars and frame. Both source densities pass the manifold/degeneracy audit.
+The game source is 57,288 triangles; accepted wheels/brakes remain 14,888.
+
+Opened the pair and view contacts for the small tests, plus individual front
+and rear Ram pairs and the new front detail. The broad frame reads as a
+single fascia; the unlit optic facets are still simpler than production lamps.
+The plain horizon removes false dents but is visibly simpler than the real
+street. Retain these limits for the final checkpoint instead of claiming a
+parking-lot reproduction.
+
+## R3 pass 3 — final requested source checkpoint
+
+Color/value first against all four final pairs in `renders/lookdev-r3/`:
+the two Ram mid-door samples now measure 138/141 display luma in front,
+against 141/140 in the photo, and 76/78 in rear, against 77/82. The rear upper
+door is 95/119/139 (luma 115), against 100/121/143 (118). The front upper
+sample remains a little bright (151 versus 142). These are 15 × 15 pixel
+medians at the 1500-pixel render scale, registered to corresponding cropped
+photo positions; they establish the broad hue/value correction, not an exact
+spectral material match. Medium warm Graphite is visibly above the tire value,
+with continuous clear coat and fine under-coat flake variation. The shared
+atlas allocation and all five tint presets remain unchanged.
+
+Opened every final view individually: front three-quarter, front detail,
+lamps lit, side, all four pairs, both plain worlds and side stripes. Also
+opened the full view/pair contacts and all eight geometry/paint masks. The
+stripe diagnostic has continuous bands through both doors and bed, with
+deliberate arch draws bending them around the openings. In the plain worlds
+and final pairs there are no irregular reflected parked-car/foliage patches.
+The fascia carries both lamps within one substantial section; the straight
+hood line and recessed bar shadows read in the front pair and detail. The
+original powered guide is clear at the same exposure as the unlit view.
+
+`make -C cars round3 PASS=lookdev-r3 WIDTH=1500 SAMPLES=64` passed: source
+audits, dimensions/static fits at game and high density, independent camera
+projection, eight requested renders/masks, three diagnostic renders, four
+composed pairs and the tonal review. Both source geometry audits have zero
+errors/warnings. Actual bar-front recess is 79.00 mm. End mounts intersect
+all three bars and the common frame at both densities. Game count is 57,288;
+high source is 189,728. These are source geometry/construction checks,
+not full motion or delivery checks.
+
+The masked hero has paint luma p01/p50/p99 = 10/66/199 on the display's
+0–255 scale; front-detail paint is 9/107/242. Neither studio view has a
+channel at 255. Grille cavities and underbody retain deep shadow. Tiny direct
+sun glints affect 0.002%/0.012% of front/rear pair paint pixels at channel 255;
+there is no broad clipped panel. The side studio view remains deliberately
+dark (paint median 19); the paired/plain horizons are the surface-value proof.
+Full measurements and masks are beside the images in `tonal-range.json`.
+
+Still CG: the horizon is much smoother than real surrounding streets; large
+paint/glass reflections therefore lack their fine scenic structure. Unlit
+headlamp reflector facets are simplified. The plated frame is unusually
+regular, and the studio side is dark. Fine flakes and wear still need the
+next brief's 2048 bake/re-import comparison. Stop here: no atlas unwrap,
+bake, GLB, final docs images or delivery certification in this round.
+
+## Earlier look-dev rounds — archived evidence
+
 # Alder C150 / look-dev round 2
 
 **Current gate: source look-dev only. Stop before UV and bake.**
@@ -122,7 +257,7 @@ the eventual 2048 bake. Do not call this photo-indistinguishable or delivery-rea
 scale, rest-position, normal, calibration and static assembly checks. They do
 not certify motion, UVs, baked materials or a GLB. `kit/test_vehicle.py` and
 `python3 -m unittest kit.test_fonts` pass. The portability scan of tracked
-cars text finds no absolute/home/font-directory paths.
+cars text contains no machine-specific directory paths.
 
 All sixteen final Cycles views, every mask and all four pairs were opened;
 front/wheel close-ups and both full-size dated Ram pairs were also inspected

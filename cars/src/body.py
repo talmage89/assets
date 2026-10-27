@@ -78,7 +78,7 @@ def build(b):
         side_panel('Front fender_'+side,-2.495,fend_end,lambda y:hood_z(.984,y),sign,b.root,'fenders',S.FRONT_AXLE)
         # The headlamp wraps beyond the front face into a genuinely open seat.
         def front_lower(u,v):
-            y=-2.625+.125*u;z=S.ROCKER+(.883-S.ROCKER)*v
+            y=-2.720+.220*u;z=S.ROCKER+(.790-S.ROCKER)*v
             return sign*side_x(y,z),y,z
         b.skin('Front fender lamp seat_'+side,front_lower,6,6,b.m['body'],(sign,0,0),category='fenders')
         def fender_top(u,v):
@@ -215,50 +215,8 @@ def build(b):
     b.skin('Tailgate outer',gate_skin,24,18,b.m['body'],(0,1,0),gate,'tailgate')
     b.skin('Tailgate inner',lambda u,v:((2*u-1)*.852,S.BED_REAR,S.BED_FLOOR+(S.BED_TOP-S.BED_FLOOR)*v),18,7,b.m['bed'],(0,-1,0),gate,'tailgate')
     b.skin('Tailgate top lip',lambda u,v:((2*u-1)*.858,S.BED_REAR+(2.853-S.BED_REAR)*v,S.BED_TOP+.003),24,3,b.m['body'],(0,0,1),gate,'tailgate',gauge=.0012,return_depth=.015)
-    # Original tall grille on the shared 5.7-degree front face. Its upper edge
-    # follows the hood shut line and its lamellae are recessed for real shadow.
-    def front_patch(name,x0,x1,zlo,zhi,mat):
-        def fn(u,v):
-            x=x0+(x1-x0)*u;hi=hood_z(x,nose_y(x))-gap if zhi is None else zhi
-            z=zlo+(hi-zlo)*v
-            return x,nose_y(x,z),z
-        us=sorted(set(samples(30 if b.high else 12)+[(x-x0)/(x1-x0) for sign in [-1,1] for d in [.760,.80,.84,.88,.91,.94,.96,.975] if x0<(x:=sign*d)<x1]))
-        b.skin(name,fn,20,8,mat,(0,-1,0),category='nose',return_depth=.014,us=us,even_offset=False)
-    front_patch('Nose brow',-.984,.984,1.208,None,b.m['body'])
-    front_patch('Lower fascia',-.984,.984,.785,.847,b.m['body'])
-    for sign in [-1,1]:
-        lo,hi=sorted([sign*.690,sign*.984]);front_patch('Headlamp lower seat_'+str(sign),lo,hi,.847,.9245,b.m['body'])
-        lo,hi=sorted([sign*.648,sign*.680]);front_patch('Nose lamp bridge_'+str(sign),lo,hi,.9245,1.208,b.m['body'])
-        def corner_upper(u,v,sign=sign):
-            a=.70+.30*u;x,y,z=lamp_surface(a,1)
-            top=hood_z(x,y)-.0045;z=1.2075+(top-1.2075)*v
-            x,y,z=lamp_surface(a,(z-.929)/.274)
-            return sign*x,y,z
-        b.skin('Upper lamp wrap surround_'+side,corner_upper,20,4,b.m['body'],(sign,-1,0),category='nose',return_depth=.006,even_offset=False)
-        def corner_lower(u,v,sign=sign):
-            a=.70+.30*u;lo=.847+.036*u;z=lo+(.9245-lo)*v
-            x,y,z=lamp_surface(a,(z-.929)/.274)
-            return sign*x,y,z
-        b.skin('Lower lamp wrap surround_'+side,corner_lower,20,4,b.m['body'],(sign,-1,0),category='nose',return_depth=.006,even_offset=False)
-        def lamp(u,v,s=sign):
-            x,y,z=lamp_surface(u,v)
-            return s*x,y,z
-        b.skin('Headlamp envelope_'+str(sign),lamp,32,8,b.m['lens'],(sign,-1,0),category='lamp_forms',gauge=.0026,return_depth=0,
-               us=sorted(set(samples(26 if b.high else 12)+[.70,.80,.9])))
-    # A tall, hood-following surround forms one brow with the lamp corners.
-    # Its lower inner wall reaches the grille 80 mm behind the shut-line face.
-    outline=[(-.635,.809),(.635,.809),(.676,.858),(.676,1.205)]
-    outline += [(x,hood_z(x,nose_y(x))-.0045) for x in [.64,.52,.41,0,-.41,-.52,-.64]]
-    outline += [(-.676,1.205),(-.676,.858)]
-    perimeter=rounded_polygon(outline,[.009]*len(outline),3 if b.high else 2)
-    loops=[]
-    for inset,offset in [(0,0),(.008,-.003),(.025,-.003),(.028,.080)]:
-        loops.append([(x*(1-inset/.69),nose_y(x,z)+offset,1.035+(z-1.035)*(1-inset/.24)) for x,z in perimeter])
-    grille=G.loft('Grille form surround',loops,b.m['body'],caps=False)
-    sol=grille.modifiers.new('Surround gauge','SOLIDIFY');sol.thickness=.002
-    b.add(grille,b.root,'nose')
-    backing=G.profile('Grille envelope',[(x*.94,1.035+(z-1.035)*.85) for x,z in perimeter],-2.744,-2.731,b.m['rubber'],axis='Y')
-    b.add(backing,b.root,'nose')
+    from fascia import build_form
+    build_form(b)
     # Swept formed bumper sections: upper return, beam crown, lower kick. The
     # tiny mid-beam crest retains the established envelope; corners tuck back.
     for end,sgn in [('F',-1),('R',1)]:

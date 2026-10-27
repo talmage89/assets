@@ -85,22 +85,26 @@ def side_x(y,z,arch=True):
 
 
 def nose_y(x,z=1.20):
-    a=abs(x);r=.225
-    corner=0 if a<=.760 else r-math.sqrt(max(0,r*r-(min(a,.984)-.760)**2))
+    a=abs(x);r=.360
+    corner=0 if a<=.780 else r-math.sqrt(max(0,r*r-(min(a,.984)-.780)**2))
     return -2.849+.10*(z-.830)+corner
 
 
+def hood_front_y(x):
+    return nose_y(x,1.305)+.008
+
+
 def hood_z(x,y):
-    t=(y-S.HOOD_FRONT)/(S.HOOD_REAR-S.HOOD_FRONT)
-    base=1.181+.188*t+.008*t*(1-t)+.035*(1-fair((y-S.HOOD_FRONT)/.42))
-    # Two broad raised planes with a crisp 6 mm die radius at the draw edges.
+    # Straight shut line above the fascia. The center pressing blends in aft
+    # of that line instead of continuing forward as a raised beak.
+    fy=hood_front_y(x);t=(y-fy)/(S.HOOD_REAR-fy)
+    base=1.3095+(1.369-1.3095)*t+.008*t*(1-t)
     rise=section(abs(x),[(0,.045),(.410,.042),(.520,.007),(.610,0),(.99,-.009)],.008)
-    return base+rise+.004*(1-(x/.99)**2)
+    return base+(rise+.004*(1-(x/.99)**2))*fair((y-fy)/.30)
 
 
 def hood(u,v):
-    x=(2*u-1)*.900;fy=nose_y(x,hood_z(x,S.HOOD_FRONT))+.0045
-    y=fy+(S.HOOD_REAR-fy)*v
+    x=(2*u-1)*.900;fy=hood_front_y(x);y=fy+(S.HOOD_REAR-fy)*v
     return x,y,hood_z(x,y)
 
 
@@ -156,15 +160,8 @@ def bilinear(corners,u,v):
 
 
 def lamp_surface(u,v):
-    """Flush front-to-side lens seat, with the rear tangent on the fender."""
-    z=.929+.274*v
-    if u<=.70:
-        x=.685+.257*u/.70;y=nose_y(x,z)+.004
-    else:
-        t=(u-.70)/.30;x0=.942;y0=nose_y(x0,z)+.004
-        ye=-2.499;xe=side_x(ye,z)-.002
-        e=1e-4;dxdy=(side_x(ye+e,z)-side_x(ye-e,z))/(2*e)
-        dydx=(nose_y(x0+e,z)-nose_y(x0-e,z))/(2*e)
-        p=(x0,y0);a=(x0+.030,y0+.030*dydx);c=(xe-.080*dxdy,ye-.080);d=(xe,ye)
-        x,y=[(1-t)**3*p[k]+3*(1-t)**2*t*a[k]+3*(1-t)*t*t*c[k]+t**3*d[k] for k in range(2)]
-    return x,y,z
+    """496 x 161 mm lens seated inside a 500 x 165 mm corner aperture."""
+    x=.417+.496*u;r=.016;d=min(x-.417,.913-x)
+    cut=0 if d>=r else r-math.sqrt(max(0,r*r-(r-d)**2))
+    z=1.082+cut+(.161-2*cut)*v
+    return x,nose_y(x,z)+.0075,z

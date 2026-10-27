@@ -40,22 +40,22 @@ def main():
  bpy.context.view_layer.update()
  rest={o:o.matrix_world.copy() for o in sc.objects if o.get('studio') and o!=camera}
  studio_visibility={o:o.hide_render for o in rest}
- recipe=hashlib.sha256(b''.join(p.read_bytes() for p in [Path(__file__),Path(__file__).with_name('config.py'),Path(__file__).with_name('lighting.py'),ROOT/'kit/studio.py'])).hexdigest()
+ recipe=hashlib.sha256(b''.join(p.read_bytes() for p in [Path(__file__),Path(__file__).with_name('config.py'),Path(__file__).with_name('lighting.py'),Path(__file__).with_name('pickup_spec.py'),ROOT/'kit/studio.py'])).hexdigest()
  colors={m:m.diffuse_color[:] for m in bpy.data.materials}
  for name in names:
   shot=shots[name];paint=shot.get('paint',a.paint)
   lighting_description='procedural studio with broadened diffusion panels'
-  if a.camera_file:
-   from lighting import conditions
-   lighting_description=conditions(name)
   for m in bpy.data.materials:
    if m.get('vehicle_paint'):
     m.node_tree.nodes['Paint tint'].outputs[0].default_value=(*S.COLORS[paint],1)
-    m.node_tree.nodes['SURFACE'].inputs['Metallic'].default_value=dict(Porcelain=0,Carbon=0,Aluminum=.55,Graphite=.2,Atlantic=.12)[paint]
+    m.node_tree.nodes['Paint metallic'].outputs[0].default_value=S.PAINT_METAL[paint]
    if m.get('lamp_lit_strength',0)>0:
     m.node_tree.nodes['SURFACE'].inputs['Emission Strength'].default_value=m['lamp_lit_strength'] if shot.get('lights') else 0
   xf=Matrix.Rotation(math.radians(shot.get('studio_yaw',0)),4,'Z')
   for ob,matrix in rest.items():ob.matrix_world=xf@matrix
+  if a.camera_file:
+   from lighting import conditions
+   lighting_description=conditions(name)
   camera.location=shot['location'];camera.rotation_euler=(Vector(shot['target'])-camera.location).to_track_quat('-Z','Y').to_euler()
   camera.rotation_euler.rotate_axis('Z',shot.get('roll',0));camera.data.sensor_fit='HORIZONTAL';camera.data.sensor_width=36
   camera.data.type='ORTHO' if 'ortho' in shot else 'PERSP';camera.data.ortho_scale=shot.get('ortho',6.7);camera.data.lens=shot.get('lens',57)
@@ -67,7 +67,11 @@ def main():
   bpy.context.view_layer.update();bpy.ops.render.render(write_still=True)
   meta[name]=dict(shot,source=str(source),source_sha256=digest,stage='source detail and procedural look-dev; no bake',
       paint=paint,engine='CYCLES',samples=a.samples,width=sc.render.resolution_x,height=sc.render.resolution_y)
-  meta[name].update(exposure=sc.view_settings.exposure,render_recipe_sha256=recipe,paint_linear_rgb=S.COLORS[paint],lighting=lighting_description)
+  meta[name].update(exposure=sc.view_settings.exposure,render_recipe_sha256=recipe,paint_linear_rgb=S.COLORS[paint],paint_metallic=S.PAINT_METAL[paint],lighting=lighting_description)
+  if a.camera_file:
+   sun=bpy.data.objects['Comparison sun']
+   meta[name]['sun_ray_direction']=list(sun.matrix_world.to_quaternion()@Vector((0,0,-1)))
+   meta[name]['environment_strength']=sc.world.node_tree.nodes['Comparison environment'].inputs['Strength'].default_value
   if a.masks:
    # Independent opaque geometry mask, plus a white paint-material mask.
    # This avoids counting the studio floor as the vehicle's tonal distribution.

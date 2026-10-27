@@ -11,7 +11,7 @@ def build(wear):
     images={n:bpy.data.images.load(str(root/(n+'.png')),check_existing=True) for n in ['plate','badge','model','tire_relief','grille','display']}
     images['tire_relief'].colorspace_settings.name='Non-Color'
     axles=(S.FRONT_AXLE,S.REAR_AXLE)
-    m={'body':V.paint('Alder factory paint',S.COLORS['Atlantic'],wear,axles,front=-S.LENGTH/2,rear=2.847,refined=True,rail_height=S.BED_TOP+.003)}
+    m={'body':V.paint('Alder factory paint',S.COLORS['Atlantic'],wear,axles,front=-S.LENGTH/2,rear=2.847,refined=True,rail_height=S.BED_TOP+.003,flakes=.65)}
     for key,col,kind in [
       ('rubber',(.009,.010,.011),'rubber'),('plastic',(.011,.013,.014),'plastic'),
       ('wheel',(.46,.49,.51),'alloy'),('chrome',(.60,.64,.66),'chrome'),

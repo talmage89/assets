@@ -1,19 +1,23 @@
 # Alder C150 / cars family
 
 An original late-2010s full-size crew-cab 4x4 pickup, on 275/65R18 tires.
-**Look-dev round 2 checkpoint. Stopped before UV, bake and export.**
+**Look-dev round 3 checkpoint. Stopped before atlas UVs, bake and export.**
 
-[Contact sheet](renders/lookdev/contact.jpg) ·
-[Front](renders/lookdev/front_three_quarter.jpg) ·
-[Rear](renders/lookdev/rear_three_quarter.jpg) ·
-[Side](renders/lookdev/side.jpg) ·
-[Front detail](renders/lookdev/front_detail.jpg) ·
-[Wheel](renders/lookdev/wheel_detail.jpg) ·
-[Used-truck front pair](renders/lookdev/aged_front-pair.jpg) ·
-[Used-truck rear pair](renders/lookdev/aged_rear-pair.jpg) ·
-[Five paints](renders/lookdev/five-colors.jpg)
+[Contact sheet](renders/lookdev-r3/contact.jpg) ·
+[Front](renders/lookdev-r3/front_three_quarter.jpg) ·
+[Side](renders/lookdev-r3/side.jpg) ·
+[Front detail](renders/lookdev-r3/front_detail.jpg) ·
+[Lamps lit](renders/lookdev-r3/lamps_lit.jpg) ·
+[Four photo pairs](renders/lookdev-r3/used-pairs-contact.jpg) ·
+[Side stripes](renders/lookdev-r3/stripes_side.png) ·
+[Plain sky/ground](renders/lookdev-r3/plain_aged_rear.png)
 
-These are Cycles OptiX renders of the high source, with original procedural
+The accepted round-2 [wheel close-up](renders/lookdev/wheel_detail.jpg),
+[interior](renders/lookdev/interior.jpg) and
+[five paints](renders/lookdev/five-colors.jpg) remain historical evidence;
+the current fascia and Graphite finish are shown in the round-3 views above.
+
+These are Cycles renders of the high source, with original procedural
 finishes and generated markings. The separate game-density source supplies the
 budget and construction measurements. Images remain ignored build outputs;
 there are no committed preliminary docs images or delivery assets.
@@ -42,15 +46,15 @@ data; the sculpting, lamps, grille and badges are original.
 | Lowest underbody surface | 226.00 mm above ground, measured on differential |
 | Full width including mirrors | 2458.72 mm |
 
-The three form corrections preserve those dimensions. Round 2 raises only the
-hood nose by 35 mm over its first 420 mm to meet the taller surround; the body
-envelope, stance and side fields stay fixed. The flare's maximum is
+The form corrections preserve those dimensions. Round 3 terminates the hood's
+center pressing aft of a straight shut line over one broad fascia frame;
+the body envelope, stance and side fields stay fixed. The flare's maximum is
 at the arch boundary and falls into the side, rather than making a closed
 panel-centered bump. Actual surface rays 10 mm above the arch crown measure
 33.28 / 33.24 mm front/rear draw, with more than 2 mm of draw persisting to
 165 / 180 mm above the opening. The broad lower tuck is monotone; cab and bed
-share the 578 mm lower skin boundary. Protective headlamp lenses follow the
-same corner seat and end 2.00 mm inside the fender.
+share the 578 mm lower skin boundary. Protective headlamp lenses now sit in
+the fascia's two upper-corner apertures.
 
 Earlier form evidence: [corrected stripes](renders/lookdev-form/stripes_side.jpg),
 [clay/stripe pairs](renders/lookdev-form/match_front_stripes-pair.jpg),
@@ -68,13 +72,17 @@ measurement checks every paired sheet vertex against its specified gauge.
 
 ## Construction
 
-- Single projector optics and reflector cups sit behind clear, wrapping
+- Single projector optics and reflector cups sit behind clear, wide/low
   polycarbonate lenses and sealed black housings. An original angular running
   signature (16 mm light guide), amber markers, vertical red rear optics, reverse
-  windows and upper brake lamp have an independently rendered [lit state](renders/lookdev/lamps_lit.jpg).
-- A tall hood-following surround and three recessed chrome lamellae sit over
-  an original diamond relief pattern. Actual bar-front recess is 79.00 mm;
-  sampled hood-to-surround surface gaps are 4.75–7.78 mm.
+  windows and upper brake lamp have an independently rendered [lit state](renders/lookdev-r3/lamps_lit.jpg).
+- One closed satin-plated frame holds the grille and both lamps. Actual
+  apertures are 500 × 165 mm around 496 × 161 mm lenses; frame lands measure
+  60 mm internally and about 79–80 mm around the curved outer corners. Its
+  section is 65 mm deep. Three full-span chrome lamellae sit over an original
+  diamond relief pattern. Actual bar-front recess is 79.00 mm;
+  the straight hood-to-frame shut line is 4.500 mm with 7.550 mm minimum
+  fore/aft setback. Surface intersections verify the lamella end supports.
   Formed bumpers carry recovery loops, a recessed fictional plate, rear step
   pads, a hollow 2-inch hitch receiver and chain eyes. Cowl wipers, tapered
   painted mirror caps, black glass cases and inset bezels on substantial
@@ -103,24 +111,24 @@ source hashes and limitations. They do not certify full steering or hinge sweeps
 ## Triangle budget
 
 The allocation was written in [LOOKDEV_PLAN.md](LOOKDEV_PLAN.md) before detail.
-The current game-density source is **59,266 triangles**, with 734 below the
-60k round-2 limit (now enforced by both source budget checks). Each
+The current game-density source is **57,288 triangles**, with 2,712 below the
+60k limit (enforced by both source budget checks). Each
 tire/wheel/brake corner is **3,722 triangles**. The extra underbody allocation carries the spare,
 suspension and actual hub supports. Source objects remain separate for building;
 static batches will be joined during delivery preparation.
 
 | Group | Triangles |
 | --- | ---: |
-| Body panels, bumpers and liners | 26,420 |
+| Body panels, bumpers and liners | 23,800 |
 | Four wheels, tires and brakes | 14,888 |
-| Lamps, grille, mirrors, trim and bed hardware | 7,322 |
+| Lamps, grille, mirrors, trim and bed hardware | 8,068 |
 | Interior | 4,792 |
 | Underbody, including spare | 4,548 |
-| Glass, including protective headlamp covers | 1,296 |
-| **Total** | **59,266** |
+| Glass, including protective headlamp covers | 1,192 |
+| **Total** | **57,288** |
 
-The high source is 203,650 triangles. The current high/game blend files are
-approximately 2.35 / 1.03 MB, ignored and rebuildable; serialization sizes can
+The high source is 189,728 triangles. The current high/game blend files are
+approximately 2.20 / 1.03 MB, ignored and rebuildable; serialization sizes can
 vary. There is no GLB or shipped texture set. Per-mesh/category counts are in
 `build/form-check.json`; the general kit audits check both source densities.
 
@@ -137,7 +145,11 @@ Film reduces clear-coat response where it sits. Default wear is `.65`, calibrate
 as a four- or five-year daily driver, rather than a mud-covered truck.
 
 Porcelain, Carbon, Aluminum, Graphite and Atlantic change one factory tint node
-and the paint's metal response. Clear coat, textured plastic, rubber, chrome,
+and the paint's uniform metal response. Graphite is medium warm gray (linear
+RGB .160/.153/.141, metallic .42). A named linked value now drives the actual
+metallic socket; the earlier socket-default override did not affect it.
+Shared microscopic flake aggregates vary roughness/height, without changing
+the factory albedo or adding a texture. Clear coat, textured plastic, rubber, chrome,
 clear/privacy glass, frit and unlit/lit optics are procedural source shaders.
 
 Delivery is planned as **four surfaces**: coated paint, opaque trim/interior,
@@ -182,15 +194,17 @@ uncertified at this source checkpoint.
 make -C cars                         # refs, source models/checks, Cycles views,
                                     # used-photo pairs, five paints, review sheets
 make -C cars check                   # source geometry, dimensions and static fits
+make -C cars round3 PASS=lookdev-r3 WIDTH=1500 SAMPLES=64
+                                    # last look-dev views, pairs and diagnostics
 make -C cars preview                 # shorter source render pass
 make -C cars form-diagnostics PASS=lookdev-form WIDTH=1200
 ```
 
 All Cycles work uses the shared kit GPU lock; the kit selects the available
 compute backend. The default pipeline
-explicitly excludes finalize, bake and export. The full source checkpoint was
-built with `make -C cars WIDTH=1500 SAMPLES=80`; its repo-root log is
-`build/cars-lookdev/round2-final.log`. Tonal data, geometry/paint masks,
+explicitly excludes finalize, bake and export. The current source checkpoint
+was built with the `round3` command above; its repo-root log is
+`build/cars-r3/round3-final.log`. Tonal data, geometry/paint masks,
 calibration diagnostics, source hashes, PNG originals and JPG/contact derivatives
 sit beside the renders. The five-year Ram camera RMS is 18.90 / 21.20 native photo pixels; Ford
 supplemental RMS is 43.84 / 24.73 px. The independent Blender projection check
@@ -200,17 +214,23 @@ measure camera registration, not design agreement or material realism.
 
 Shared additions are documented in [kit/README.md](../kit/README.md): optional
 reduced tire profiles and vehicle source finishes on the existing Nodes API,
-including opt-in refined daily-driver finishes and a turned-rotor shader.
+including opt-in refined daily-driver finishes, a turned-rotor shader and
+named paint-metallic/flake controls.
 Existing callers keep their defaults. Nothing is baked, exported or published
 by this checkpoint.
 
-## Round 2 evidence and limits
+## Round 3 evidence and limits
 
-Four new photo critique passes are logged at the start of [REVIEW.md](REVIEW.md).
-The final source checkpoint repeats every view and all five paints. Each photo
+New photo critique passes are logged at the start of [REVIEW.md](REVIEW.md).
+The source checkpoint repeats the four requested views, four pairs, a side
+stripe render and two plain sky/ground comparisons. Each photo
 pair has its own documented daylight condition: clear sun for the dated Ram,
-diffuse overcast for the supplemental Ford. Lighting geometry and irregular
-foliage are original generated reflection equipment, excluded from the asset.
+diffuse overcast for the supplemental Ford. The unchanged-source
+[baseline diagnostics](renders/r3-baseline/stripes_side.png) and plain worlds
+isolate the former blotches to reflected parked/foliage proxies. The current
+pairs replace them with continuous procedural sky/asphalt horizons; no side
+surface is resculpted. A rear-specific horizon transition accounts for the
+Ram photo's obstructed low sky. All reflection equipment is excluded from the asset.
 Glass retains smooth reflection over tinted transmission; the interior remains
 visible. Paired inner/outer normals prevent faceted exit refraction, with a
 measured maximum paired-normal deviation below 0.07 degrees at both densities.
@@ -219,6 +239,7 @@ there are no machine-specific font paths in this family.
 
 The synthetic surroundings remain less complex than the photographed parking
 lots and street, and unlit lamp internals remain simpler than production optics.
-The Ram match remains darker/more neutral than its photograph. Fine tread,
+The Ram's mid-door hue/value is substantially closer; its upper reflected band
+is still smoother than the photo. Fine flakes, tread,
 type and sparse wear still need a baked 2048 review. This gate
 certifies source geometry and look-dev only. No UV/bake/GLB claim is made.
