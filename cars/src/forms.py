@@ -1,8 +1,8 @@
-"""Section-station construction, original design. No image sampling.
+"""Original section surfaces in meters; photos never enter the evaluator.
 
-Broad panels are ruled between near-planar sections. Features use explicit
-piecewise-linear controls and short cubic tangent fillets, never additive
-Gaussian/sine displacement. One section field is split into separate panels.
+Fair Hermite sections carry the crown. Arch opening, broad die draw and lip
+all sample one side field; there is no attached annular flare patch. The cab
+header is the tangent continuation of the windscreen into a rolled roof skin.
 """
 import math
 import pickup_spec as S
@@ -12,89 +12,142 @@ def blend(t):
     t=max(0,min(1,t));return t*t*(3-2*t)
 
 
-def section(t, knots, radius=.003):
-    """Linear control stations with C1 cubic tangent joins in a small support band.
+def fair(t):
+    t=max(0,min(1,t));return t*t*t*(10+t*(-15+6*t))
 
-    A radius here is the half-width along the independent coordinate. Straight
-    regions stay exactly straight; curvature occurs only around authored bends.
-    """
-    def line(a,b,x):return a[1]+(b[1]-a[1])*(x-a[0])/(b[0]-a[0])
+
+def hermite(x,stations):
+    """Value and slope controls, with tangent extrapolation at the two ends."""
+    if x<=stations[0][0]:
+        a,v,m=stations[0];return v+(x-a)*m
+    if x>=stations[-1][0]:
+        a,v,m=stations[-1];return v+(x-a)*m
+    for (a,p,m),(b,q,n) in zip(stations,stations[1:]):
+        if x<=b:
+            t=(x-a)/(b-a)
+            return (2*t**3-3*t*t+1)*p+(t**3-2*t*t+t)*(b-a)*m+(-2*t**3+3*t*t)*q+(t**3-t*t)*(b-a)*n
+
+
+def section(t,knots,radius=.003):
+    slopes=[(b[1]-a[1])/(b[0]-a[0]) for a,b in zip(knots,knots[1:])]
     for i in range(1,len(knots)-1):
         a,b,c=knots[i-1:i+2];r=min(radius,(b[0]-a[0])*.35,(c[0]-b[0])*.35)
         if b[0]-r<t<b[0]+r:
-            lo=b[0]-r;hi=b[0]+r;u=(t-lo)/(hi-lo)
-            p=line(a,b,lo);q=line(b,c,hi)
-            m=(b[1]-a[1])/(b[0]-a[0]);n=(c[1]-b[1])/(c[0]-b[0])
-            return (2*u**3-3*u*u+1)*p+(u**3-2*u*u+u)*(hi-lo)*m+(-2*u**3+3*u*u)*q+(u**3-u*u)*(hi-lo)*n
-    for a,b in zip(knots,knots[1:]):
-        if t<=b[0]:return line(a,b,t)
-    return line(knots[-2],knots[-1],t)
+            return hermite(t,[(b[0]-r,b[1]-slopes[i-1]*r,slopes[i-1]),(b[0]+r,b[1]+slopes[i]*r,slopes[i])])
+    for i,(a,b) in enumerate(zip(knots,knots[1:])):
+        if t<=b[0]:return a[1]+slopes[i]*(t-a[0])
+    return knots[-1][1]+slopes[-1]*(t-knots[-1][0])
 
 
-def shoulder_z(y):
-    return 1.335-.075*max(0,min(1,(-y-1.40)/1.40))
+def belt_z(y):return S.BELT-.036*fair((-y-.90)/.50)
+def shoulder_z(y):return 1.332+.132*min(0,y+1.405)
 
 
-def side_x(y,z,arch=False):
+def side_base(y,z):
     h=shoulder_z(y)
-    # The broad side is almost vertical, with a small lower tuck. A 3 mm
-    # tangent fillet defines the pressed shoulder; there is no broad bulge.
-    knots=[(.530,.966),(.590,.968),(.720,.974),(h-.025,.984),
-           (h,.993),(h+.012,.979),(1.411,.964),(1.90,.834),(1.98,.818)]
-    x=section(z,knots,.003)
-    return x
+    if z>S.BELT:
+        return .963-.26*(z-S.BELT)-.018*fair((y-.48)/.48)
+    line=1.0  # The lower die line stays straight up to the trimmed arch.
+    return hermite(z,[(.530,.932,.22),(.565,.940,.23),(.650,.960,.16),
+        (.715,.970,.10),(.730,.971,.10*(1-line)),(.750,.972-.006*line,.08*(1-line)),(.820,.975,.075),
+        (1.000,.9815,0),(h-.065,.974,-.040),
+        (h-.012,.985,.32),(h,.987,0),(h+.016,.979,-.30),
+        (S.BELT,.963,-.26)])
+
+
+ARCH_HALF=.505
+ARCH_POWER=2.65
+FLARE_DEPTH=.03668
 
 
 def arch_floor(y,axle,radius=S.ARCH_RADIUS):
-    d=abs(y-axle)
-    return max(S.ROCKER,S.ARCH_Z+math.sqrt(max(0,radius**2-d*d))) if d<radius else S.ROCKER
+    t=abs((y-axle)/ARCH_HALF)
+    z=S.ARCH_Z+radius*max(0,1-t**ARCH_POWER)**(1/ARCH_POWER)
+    return max(S.ROCKER,z)
 
 
-def nose_y(x):
-    a=abs(x)
-    if a<=.850:return -2.840
-    d=min(.140,a-.850)
-    return -2.700-math.sqrt(max(0,.140**2-d*d))
+def arch_point(t,axle):
+    power=2/ARCH_POWER
+    a0=math.asin(((S.ROCKER-S.ARCH_Z)/S.ARCH_RADIUS)**(1/power))
+    a=a0+(math.pi-2*a0)*t;c=math.cos(a)
+    return axle+ARCH_HALF*math.copysign(abs(c)**power,c),S.ARCH_Z+S.ARCH_RADIUS*math.sin(a)**power
+
+
+def side_x(y,z,arch=True):
+    x=side_base(y,z)
+    if arch:
+        for axle in (S.FRONT_AXLE,S.REAR_AXLE):
+            q=(abs((y-axle)/ARCH_HALF)**ARCH_POWER+abs((z-S.ARCH_Z)/S.ARCH_RADIUS)**ARCH_POWER)**(1/ARCH_POWER)
+            # A 12 mm lip and broad, nearly ruled draw with tangent fillets
+            # at the authored crease. No collapsed end of an annulus.
+            x+=FLARE_DEPTH*section(q,[(0,1),(1.025,1),(1.455,0),(2,0)],.10)
+    return x
+
+
+def nose_y(x,z=1.20):
+    a=abs(x);r=.225
+    corner=0 if a<=.760 else r-math.sqrt(max(0,r*r-(min(a,.984)-.760)**2))
+    return -2.849+.10*(z-.830)+corner
 
 
 def hood_z(x,y):
-    v=(y-S.HOOD_FRONT)/(S.HOOD_REAR-S.HOOD_FRONT)
-    base=1.275+.137*v
-    # Raised center, crisp sides, a small crown on each planar stamping.
-    rise=section(abs(x),[(0,.026),(.455,.026),(.510,.003),(.550,0),(.99,0)],.006)
-    return base+rise
+    t=(y-S.HOOD_FRONT)/(S.HOOD_REAR-S.HOOD_FRONT)
+    base=1.181+.188*t+.008*t*(1-t)
+    # Two broad raised planes with a crisp 6 mm die radius at the draw edges.
+    rise=section(abs(x),[(0,.045),(.410,.042),(.520,.007),(.610,0),(.99,-.009)],.008)
+    return base+rise+.004*(1-(x/.99)**2)
 
 
 def hood(u,v):
-    x=(2*u-1)*.900
-    fy=nose_y(x)+.0045;y=fy+(S.HOOD_REAR-fy)*v
+    x=(2*u-1)*.900;fy=nose_y(x,hood_z(x,S.HOOD_FRONT))+.0045
+    y=fy+(S.HOOD_REAR-fy)*v
     return x,y,hood_z(x,y)
 
 
+def roof_center(y):
+    return hermite(y,[(-.810,1.887,.76),(-.60,1.945,.045),(.03,S.HEIGHT,0),
+                      (.62,1.926,-.09),(.82,1.909,-.12),(.970,1.873,-.38)])
+
+
+def roof_roll_radius(y):return .090-.035*fair((y-.30)/.60)
+
+
+def roof_width(y):
+    drop=.012+roof_roll_radius(y)*.738
+    return .963-.26*(roof_center(y)-drop-S.BELT)-.018*fair((y-.48)/.48)
+
+
+def roof_height(x,y):
+    w=roof_width(y);r=roof_roll_radius(y);start=w-r*.933333;theta0=math.atan(.024/start)
+    a=abs(x)
+    if a<=start:drop=.012*(a/start)**2
+    else:
+        sine=(a-start)/r+math.sin(theta0)
+        # Tangent extrapolation only outside the authored patch for normal
+        # finite differences. Within the skin the circle stays nonsingular.
+        sine=max(-.9999,min(.9999,sine))
+        drop=.012+r*(math.cos(theta0)-math.sqrt(1-sine*sine))
+    return roof_center(y)-drop
+
+
 def roof(u,v):
-    x=(2*u-1)*.835;a=abs(x)
-    # Roof and its rolled shoulders are one surface, flush to the pillar tops.
-    z=S.HEIGHT-.020*(x/.750)**2
-    if a>.750:
-        z-=.029*blend((a-.750)/.085)
-    front=-.725+.022*(a/.835)**8
-    rear=.980-.025*(a/.835)**8
-    y=front+(rear-front)*v
-    z-=.004*(2*v-1)**4*(1-(a/.835)**4)
-    return x,y,z
+    s=2*u-1;front=-.810+.090*s**8;rear=.970-.070*s**8
+    y=front+(rear-front)*v;x=s*roof_width(y)
+    return x,y,roof_height(x,y)
 
 
 def windshield(u,v):
-    x=(2*u-1)*(.906*(1-v)+.802*v)
-    y=-1.409*(1-v)-.706*v-.025*(1-(2*u-1)**2)
-    z=1.433*(1-v)+1.893*v+.006*(1-(2*u-1)**2)
-    return x,y,z
+    s=2*u-1;xt,yt,zt=roof((1+.935*s)/2,0)
+    xb=s*.908;yb=-1.409-.018*(1-s*s);zb=1.399+.006*(1-s*s)
+    # Shared boundary and near-tangent continuation into the header roll.
+    return xb+(xt-xb)*v,yb+(yt-yb)*v,zb+(zt-zb)*v-.002
 
 
 def backlight(u,v):
-    x=(2*u-1)*(.875-.065*v)
-    y=1.019-.064*v+.009*(1-(2*u-1)**2)
-    return x,y,1.465+.426*v
+    s=2*u-1;x=s*(.872-.080*v)
+    y=(1.024+.009*(1-s*s))*(1-v)+(.989-.065*s**8)*v
+    z=1.457+.386*v+.005*(1-s*s)
+    return x,y,z
 
 
 def bilinear(corners,u,v):

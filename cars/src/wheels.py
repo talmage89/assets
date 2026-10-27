@@ -18,7 +18,7 @@ def build(b, dimensions):
             if end=='F':spin.location=(0,0,0)
             spin.parent=parent
             tire=loaded_tire('Tire_'+end+side,pos,S.TIRE_WIDTH,S.TIRE_ASPECT,S.RIM_INCHES,
-                             b.m['rubber'],96 if not b.high else 144,S.HUB_HEIGHT)
+                             b.m['rubber'],80 if not b.high else 144,S.HUB_HEIGHT)
             b.add(tire,spin,'tires')
             rim=S.RIM_INCHES*.0254/2;cx=pos[0]
             # 18x7.5 wheel. Positive offset: mounting face 44 mm outboard of rim center.
@@ -26,7 +26,7 @@ def build(b, dimensions):
                      (.079,rim-.005),(.087,rim+.008),(.098,rim+.006),(.098,rim-.014),
                      (.086,rim-.022),(-.083,rim-.022)]
             wheel=G.lathe('Wheel barrel_'+end+side,[(cx+sign*a,r) for a,r in profile],b.m['wheel'],
-                          64 if not b.high else 96,axis='X',center=(y,S.HUB_HEIGHT),closed=True)
+                          48 if not b.high else 96,axis='X',center=(y,S.HUB_HEIGHT),closed=True)
             b.add(wheel,spin,'wheels')
             hub=G.lathe('Wheel hub_'+end+side,[(cx+sign*.045,0),(cx+sign*.045,.064),
                          (cx+sign*.092,.064),(cx+sign*.106,.049),(cx+sign*.106,0)],b.m['wheel'],32,axis='X',center=(y,S.HUB_HEIGHT))

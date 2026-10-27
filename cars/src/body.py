@@ -1,100 +1,160 @@
-"""Section-built stamped pickup shell, split at real panel reveals.
+"""Shared fair side skins, rolled cab crown and formed front/bumper sections.
 
-Near-planar ruled patches share one cross-section field. Tight shoulder support
-bands are sampled explicitly; arch flares are bounded to their formed lip.
+All independent panels evaluate the same original section fields across their
+4.5 mm reveals. Arches are trimmed boundaries of those fields, not additions.
 """
 import math
+from mathutils import Vector
 from kit import model as G
 from kit.vehicle import samples
 import pickup_spec as S
-from forms import blend,section,side_x,arch_floor,shoulder_z,hood,hood_z,nose_y,roof,windshield,backlight,bilinear
+from forms import (fair,section,side_x,belt_z,arch_floor,arch_point,
+                   shoulder_z,hood,hood_z,nose_y,roof,roof_height,roof_width,
+                   windshield,backlight)
+
+
+def rounded_polygon(points,distances,steps):
+    """Tangent quadratic corner cuts, distances in physical meters in YZ."""
+    out=[]
+    for i,(p,d) in enumerate(zip(points,distances)):
+        a=points[i-1];c=points[(i+1)%len(points)]
+        la=math.dist(a,p);lc=math.dist(c,p);d=min(d,la*.40,lc*.40)
+        q=tuple(p[k]+(a[k]-p[k])*d/la for k in range(2))
+        r=tuple(p[k]+(c[k]-p[k])*d/lc for k in range(2))
+        out.extend(tuple((1-t)**2*q[k]+2*t*(1-t)*p[k]+t*t*r[k] for k in range(2)) for t in samples(steps))
+    return out
 
 
 def build(b):
     gap=S.PANEL_GAP
-    arch_us=[(1-math.cos(math.pi*i/48))/2 for i in range(49)]
-    hood_p=G.pivot('Hood',(0,S.HOOD_REAR,1.420),'X',(-62,0));hood_p.parent=b.root
-    # Explicit transverse supports around the center rise: the large fields stay planar.
-    hx=sorted(set([0,.25,.45,.455-.006,.455,.455+.006,.510-.006,.510,.510+.006,.550-.006,.550,.550+.006,.75,.90]))
+    hood_p=G.pivot('Hood',(0,S.HOOD_REAR,1.408),'X',(-62,0));hood_p.parent=b.root
+    hx=[0,.20,.40,.402,.410,.418,.48,.512,.520,.528,.602,.610,.618,.75,.90]
     hu=sorted(set([.5+x/1.8 for x in hx]+[.5-x/1.8 for x in hx]))
-    b.skin('Hood outer',hood,32,12,b.m['body'],(0,0,1),hood_p,'hood',us=hu)
-    b.skin('Roof crown',roof,32,20,b.m['body'],(0,0,1),category='cab',return_depth=.006)
-    b.skin('Windshield',windshield,20,8,b.m['glass'],(0,-1,1),category='glass',gauge=.0048,return_depth=0)
-    b.skin('Windshield header',lambda u,v:tuple(a+(c-a)*v for a,c in zip(windshield(u,1),roof(u,0))),24,4,b.m['body'],(0,-1,1),category='cab',return_depth=.008)
-    b.skin('Rear glass',backlight,18,8,b.m['glass'],(0,1,0),category='glass',gauge=.0048,return_depth=0)
+    b.skin('Hood outer',hood,32,18,b.m['body'],(0,0,1),hood_p,'hood',us=hu)
+    b.skin('Roof crown',roof,44,44,b.m['body'],(0,0,1),category='cab',return_depth=.006,
+           us=sorted(set(samples(24 if b.high else 16)+[.015,.025,.04,.07,.93,.96,.975,.985])),
+           vs=sorted(set(samples(36 if b.high else 20)+[.01,.025,.045,.07,.10,.4719101123595506,.88,.94,.98])))
+    b.skin('Windshield',windshield,24,10,b.m['glass'],(0,-1,1),category='glass',gauge=.0048,return_depth=0)
+    b.skin('Rear glass',backlight,24,10,b.m['glass'],(0,1,0),category='glass',gauge=.0048,return_depth=0)
 
     def side_panel(name,ya,yb,cap,sign,parent,category,axle=None):
-        def lower(u,v):
-            y=ya+(yb-ya)*u
-            low=arch_floor(y,axle,S.ARCH_RADIUS+.067) if axle is not None else S.ROCKER+.013
-            high=shoulder_z(y)-.027;z=low+(high-low)*v
-            return sign*side_x(y,z,False),y,z
-        lower_us=samples(6)
+        # One continuous skin from the trimmed arch to the belt. The draw field
+        # extends 205 mm into the panel, so all its rows share correct tangents.
+        ys=[ya+(yb-ya)*t for t in samples(6 if axle is not None else 8)]
         if axle is not None:
-            radius=S.ARCH_RADIUS+.067;a0=math.asin((S.ROCKER-S.ARCH_Z)/radius)
-            ys=[axle+radius*math.cos(a0+(math.pi-2*a0)*u) for u in arch_us]
-            lower_us=sorted(set([0,1]+[(y-ya)/(yb-ya) for y in ys if ya<y<yb]))
-        b.skin(name,lower,70 if axle is not None else 6,18,b.m['body'],(sign,0,0),parent,category,
-               us=lower_us,vs=[0,.025,.09,.22,.45,.72,1],return_depth=0 if axle is not None else .012)
-        # Fixed section heights around the character line, shared across panels.
-        # A separate upper quad strip prevents a variable arch grid from moving it.
-        knots=[-.027,-.008,-.003,0,.003,.009,.012,.015]
-        def upper(u,v):
-            y=ya+(yb-ya)*u;h=shoulder_z(y);top=cap(y)
-            z=h+v if v<=.015 else h+.015+(top-h-.015)*(v-.015)/(.10-.015)
+            ys += [arch_point(t,axle)[0] for t in samples(48 if b.high else 28)]
+            ys += [axle+d for d in [-.75,-.68,-.60,.60,.68,.75]]
+        us=sorted(set([0,1]+[(y-ya)/(yb-ya) for y in ys if ya<y<yb]))
+        # Split at a fixed height, keeping both lower styling and the shoulder
+        # independent of the change in arch-boundary parameter spacing.
+        split=lambda y:shoulder_z(y)-.065
+        def lower(u,v):
+            y=ya+(yb-ya)*u;low=arch_floor(y,axle) if axle is not None else S.ROCKER+.013
+            hi=split(y)
+            target=v if v<=1.10 else 1.10+(hi-1.10)*(v-1.10)/.167
+            d=target-low;k=.008
+            lift=0 if d<=-k else (d if d>=k else (d+k)**2/(4*k))
+            z=low+.97*lift+.03*(hi-low)*(target-.530)/(hi-.530)
             return sign*side_x(y,z),y,z
-        b.skin(name+' shoulder',upper,8,12,b.m['body'],(sign,0,0),parent,category,vs=knots+[.035,.065,.10],return_depth=.008)
+        b.skin(name,lower,24,22,b.m['body'],(sign,0,0),parent,category,us=us,
+               vs=[.530,.640,.690,.715,.724,.730,.736,.744,.752,.780,.840,.950,1.00,1.04,1.08,1.10,1.267],return_depth=.012)
+        def upper(u,v):
+            y=ya+(yb-ya)*u;h=shoulder_z(y)
+            z=h+v if v<=.022 else h+.022+(cap(y)-h-.022)*(v-.022)/.078
+            return sign*side_x(y,z),y,z
+        # Fixed physical section stations, rather than an interpolation that
+        # changes station order or clamps the hood cap around its leading edge.
+        vs=[-.065,-.040,-.025,-.018,-.012,-.006,0,.006,.012,.016,.022,.06,.10] if b.high else [-.065,-.025,-.012,-.006,0,.006,.012,.016,.022,.10]
+        b.skin(name+' shoulder',upper,24,20,b.m['body'],(sign,0,0),parent,category,us=samples(12 if b.high else (2 if category=='bed' else 4)),vs=vs,return_depth=.008)
 
     for side,sign in [('L',-1),('R',1)]:
-        yfront=nose_y(.984)
         fend_end=S.DOOR_FRONT-gap/2
-        side_panel('Front fender_'+side,yfront,fend_end,lambda y:hood_z(.984,y),sign,b.root,'fenders',S.FRONT_AXLE)
+        side_panel('Front fender_'+side,-2.495,fend_end,lambda y:hood_z(.984,y),sign,b.root,'fenders',S.FRONT_AXLE)
+        # The headlamp wraps beyond the front face into a genuinely open seat.
+        def front_lower(u,v):
+            y=-2.625+.125*u;z=S.ROCKER+(.883-S.ROCKER)*v
+            return sign*side_x(y,z),y,z
+        b.skin('Front fender lamp seat_'+side,front_lower,6,6,b.m['body'],(sign,0,0),category='fenders')
         def fender_top(u,v):
-            x=.9045+(.984-.9045)*u
-            fy=nose_y(x);y=fy+(S.HOOD_REAR-fy)*v
+            x=.9045+(.984-.9045)*u;fy=nose_y(x,hood_z(x,S.HOOD_FRONT))
+            y=fy+(S.HOOD_REAR-fy)*v
             return sign*x,y,hood_z(x,y)
-        b.skin('Fender shoulder_'+side,fender_top,8,30,b.m['body'],(0,0,1),category='fenders',return_depth=.008)
-        for end,ya,yb,tl,tr in [('F',S.DOOR_FRONT+gap/2,S.DOOR_SPLIT-gap/2,(-.703,1.907),(-.05725,1.907)),
-                              ('R',S.DOOR_SPLIT+gap/2,S.DOOR_REAR,(-.05275,1.907),(.865,1.907))]:
+        b.skin('Fender shoulder_'+side,fender_top,8,34,b.m['body'],(0,0,1),category='fenders',return_depth=.008)
+        for end,ya,yb in [('F',S.DOOR_FRONT+gap/2,S.DOOR_SPLIT-gap/2),('R',S.DOOR_SPLIT+gap/2,S.DOOR_REAR)]:
             pivot=G.pivot('Door_'+end+side,(sign*.944,ya,1.04),'Z',((-72,0) if sign==1 else (0,72)))
             pivot.parent=b.root;pivot['checkpoint_only']=True
-            side_panel('Door skin_'+end+side,ya,yb,lambda y:S.BELT,sign,pivot,'doors')
-            outer=[(ya,S.BELT),(yb,S.BELT),tr,tl]
-            inner=[(ya+.057,S.BELT+.035),(yb-.038,S.BELT+.035),
-                   (tr[0]-.036,tr[1]-.035),(tl[0]+.035,tl[1]-.035)]
-            def loop(quad,r,inset=0):
-                return [(sign*(side_x(y,z,False)-inset),y,z)
-                        for u,v in G.rounded_rectangle(1,1,r,8 if b.high else 5)
-                        for y,z in [bilinear(quad,u+.5,v+.5)]]
-            sash=G.loft('Door sash_'+end+side,[loop(outer,.020,.009),loop(outer,.020),loop(inner,.055),loop(inner,.055,.009)],b.m['body'],caps=False)
+            side_panel('Door skin_'+end+side,ya,yb,belt_z,sign,pivot,'doors')
+            if end=='F':
+                outer=[(ya,belt_z(ya)),(yb,belt_z(yb)),(yb,1.882),(-.560,1.884),(-.775,1.820)]
+                inner=[(ya+.066,belt_z(ya)+.045),(yb-.039,belt_z(yb)+.039),(yb-.039,1.844),(-.548,1.848),(-.746,1.785)]
+                radii=[.035,.025,.035,.080,.090]
+            else:
+                outer=[(ya,S.BELT),(yb,S.BELT),(.878,1.835),(.760,1.879),(ya,1.882)]
+                inner=[(ya+.039,S.BELT+.039),(yb-.049,S.BELT+.043),(.832,1.803),(.736,1.840),(ya+.039,1.844)]
+                radii=[.025,.085,.100,.075,.025]
+            def adjust(poly):
+                return [(y,z+min(0,roof_height(roof_width(y),y)-1.882)*fair((z-1.70)/.10)) if y>-.65 else (y,z) for y,z in poly]
+            outer=adjust(outer);inner=adjust(inner)
+            paths=[rounded_polygon(poly,radii,8 if b.high else 5) for poly in (outer,inner)]
+            dense=[[],[]]
+            for i in range(len(paths[0])):
+                count=max(1,math.ceil(max(math.dist(path[i],path[(i+1)%len(path)]) for path in paths)/.16))
+                for path,result in zip(paths,dense):
+                    p,q=path[i],path[(i+1)%len(path)]
+                    result.extend(tuple(p[k]+(q[k]-p[k])*j/count for k in range(2)) for j in range(count))
+            def loop(poly,inset=0):
+                return [(sign*(side_x(y,z)-inset),y,z) for y,z in poly]
+            outer0=loop(dense[0]);inside=loop(dense[1])
+            sash=G.loft('Door sash_'+end+side,[loop(dense[0],.009),outer0,inside,loop(dense[1],.009)],b.m['body'],caps=False)
             sol=sash.modifiers.new('Sash gauge','SOLIDIFY');sol.thickness=.0009;sol.offset=-1
             G.smooth(sash,35);b.add(sash,pivot,'doors')
-            perimeter=loop(inner,.055,.006)
-            # Plane through the side-glass section; preserve true tumblehome.
-            x0=side_x(0,1.45,False);slope=(side_x(0,1.88,False)-x0)/.43
-            perimeter=[(sign*(x0+slope*(z-1.45)-.006),y,z) for _,y,z in perimeter]
+            # Restore the exposed sash's normal from the same side section as
+            # the door below it; unequal corner loops must not dent reflections.
+            n=len(outer0);custom=[(0,0,0)]*len(sash.data.loops)
+            for face in sash.data.polygons:face.use_smooth=False
+            for face in sash.data.polygons[n:2*n]:
+                face.use_smooth=True
+                for li in face.loop_indices:
+                    p=sash.matrix_world@sash.data.vertices[sash.data.loops[li].vertex_index].co
+                    e=1e-5;dy=(side_x(p.y+e,p.z)-side_x(p.y-e,p.z))/(2*e)
+                    dz=(side_x(p.y,p.z+e)-side_x(p.y,p.z-e))/(2*e)
+                    custom[li]=Vector((sign,-dy,-dz)).normalized()
+            sash.data.normals_split_custom_set(custom)
+            # Glass is planar in its own tumblehome plane. A convex perimeter
+            # does not acquire a fan highlight when solidified.
+            perimeter=loop(dense[1],.006)
+            perimeter=[(sign*(.963-.26*(z-S.BELT)-.006),y,z) for _,y,z in perimeter]
             cy=sum(q[1] for q in perimeter)/len(perimeter);cz=sum(q[2] for q in perimeter)/len(perimeter)
-            verts=[(sign*(x0+slope*(cz-1.45)-.006),cy,cz)]+perimeter;n=len(perimeter)
+            verts=[(sign*(.963-.26*(cz-S.BELT)-.006),cy,cz)]+perimeter;n=len(perimeter)
             gl=G.mesh('Side glass_'+end+side,verts,[(0,i+1,(i+1)%n+1) for i in range(n)],b.m['glass'])
             sol=gl.modifiers.new('Glass thickness','SOLIDIFY');sol.thickness=.0048;sol.offset=-1
             b.add(gl,pivot,'glass')
+        rear_outline=rounded_polygon(outer,radii,8 if b.high else 5)
         def pillar_a(u,v):
-            x,y,z=windshield(1,v)
-            outer_y=(S.DOOR_FRONT)*(1-v)+(-.703)*v
-            outer_z=S.BELT*(1-v)+1.907*v
-            return sign*(x+(side_x(outer_y,outer_z,False)-x)*u),y+(outer_y-y)*u,z+(outer_z-z)*u
-        b.skin('A pillar_'+side,pillar_a,5,24,b.m['body'],(sign,-1,0),category='cab',return_depth=.009)
+            xt,yt,zt=roof((1+.935+.065*u)/2,0)
+            xb,yb,zb=windshield(1,0)
+            xb+=(side_x(S.DOOR_FRONT,belt_z(S.DOOR_FRONT))-xb)*u
+            yb+=(S.DOOR_FRONT-yb)*u;zb+=(belt_z(S.DOOR_FRONT)-zb)*u
+            return sign*(xb+(xt-xb)*v),yb+(yt-yb)*v,zb+(zt-zb)*v
+        b.skin('A pillar_'+side,pillar_a,6,30,b.m['body'],(sign,-1,0),category='cab',return_depth=.009)
         def pillar_c(u,v):
-            z=S.ROCKER+(1.907-S.ROCKER)*v;t=max(0,(z-S.BELT)/(1.907-S.BELT))
-            front=.9265-.057*t;rear=1.025-.068*t
-            y=front+(rear-front)*u
-            return sign*side_x(y,z,False),y,z
-        b.skin('Cab rear corner_'+side,pillar_c,5,24,b.m['body'],(sign,0,0),category='cab')
-        def rocker(u,v):
-            y=S.DOOR_FRONT+(S.DOOR_REAR-S.DOOR_FRONT)*u;z=.538+.026*v
-            return sign*(.932+.021*v),y,z
-        b.skin('Rocker return_'+side,rocker,24,3,b.m['body'],(sign,0,0),category='cab')
-        # Mirrors are coarse silhouette volumes, without glass/hardware detail.
+            z=S.ROCKER+(1.841-S.ROCKER)*v;t=fair((z-S.BELT)/.430)
+            intersections=[]
+            if z>S.BELT:
+                for p,q in zip(rear_outline,rear_outline[1:]+rear_outline[:1]):
+                    if (p[1]-z)*(q[1]-z)<=0 and abs(q[1]-p[1])>1e-8:
+                        intersections.append(p[0]+(q[0]-p[0])*(z-p[1])/(q[1]-p[1]))
+            front=max(intersections)+gap if intersections else .9265
+            rear=1.025-.115*t;y=front+(rear-front)*u
+            return sign*side_x(y,z),y,z
+        b.skin('Cab rear corner_'+side,pillar_c,7,30,b.m['body'],(sign,0,0),category='cab')
+        def roof_rail(u,v):
+            y=-.720+1.620*v;edge=roof_height(roof_width(y),y)
+            z=edge-.025*(1-u)
+            return sign*(side_x(y,z)-.004*(1-fair(u))),y,z
+        b.skin('Cab roof rail_'+side,roof_rail,3,36,b.m['body'],(sign,0,0),category='cab',return_depth=.006)
+        b.skin('Rocker return_'+side,lambda u,v:(sign*(.932+.009*v),S.DOOR_FRONT+(S.DOOR_REAR-S.DOOR_FRONT)*u,.538+.026*v),24,3,b.m['body'],(sign,0,0),category='cab')
+        # Retained coarse mirror block from the earlier gate; detail is deferred.
         stem=G.box('Mirror support_'+side,(sign*1.036,-1.16,1.415),(.230,.125,.065),b.m['rubber'],.015,3)
         b.add(stem,b.root,'mirrors')
         mirror=G.box('Mirror envelope_'+side,(sign*1.13936,-1.19,1.505),(.180,.230,.180),b.m['bumper'],.024,4)
@@ -102,91 +162,99 @@ def build(b):
         side_panel('Bed outer_'+side,S.BED_OUTER_FRONT,2.844,lambda y:S.BED_TOP,sign,b.root,'bed',S.REAR_AXLE)
         def rail(u,v):
             y=S.BED_OUTER_FRONT+(2.844-S.BED_OUTER_FRONT)*v
-            return sign*(.832+(.958-.832)*u),y,S.BED_TOP+.003
+            return sign*(.832+(.963-.832)*u),y,S.BED_TOP+.003
         b.skin('Bed rail_'+side,rail,6,32,b.m['body'],(0,0,1),category='bed',gauge=.0012,return_depth=.016)
         b.skin('Bed inner_'+side,lambda u,v:(sign*.832,S.BED_FRONT+S.BED_LENGTH*u,S.BED_FLOOR+(S.BED_TOP-S.BED_FLOOR)*v),18,5,b.m['bed'],(-sign,0,0),category='bed',return_depth=0)
         tub=G.box('Bed wheelhouse_'+side,(sign*.744,S.REAR_AXLE,1.015),(.203,.99,.22),b.m['bed'],.065,4);b.add(tub,b.root,'bed')
-        def bed_corner(u,v):
-            z=.841+(S.BED_TOP-.841)*v
-            return sign*(.863+(.984-.863)*u),2.847,z
-        b.skin('Bed rear corner_'+side,bed_corner,6,10,b.m['body'],(0,1,0),category='bed')
-        # Vertical taillamp form volumes locate the rear corners; no optics yet.
-        lamp=G.box('Taillamp envelope_'+side,(sign*.922,2.850,1.182),(.122,.034,.395),b.m['glass'],.012,3)
-        b.add(lamp,b.root,'lamp_forms')
+        b.skin('Bed rear corner_'+side,lambda u,v:(sign*(.863+(.982-.863)*u),2.847,.841+(S.BED_TOP-.841)*v),6,12,b.m['body'],(0,1,0),category='bed')
+        lamp=G.box('Taillamp envelope_'+side,(sign*.922,2.850,1.182),(.122,.034,.395),b.m['glass'],.012,3);b.add(lamp,b.root,'lamp_forms')
         for end,axle in [('F',S.FRONT_AXLE),('R',S.REAR_AXLE)]:
-            # Structured annular quad cage: a planar lip and short, fair ramp to
-            # the side. Radial supports replace the old displaced rectangular grid.
-            ri=S.ARCH_RADIUS;ro=ri+.067
-            radial=[ri,ri+.008,ri+.012,ri+.020,ri+.032,ri+.045,ri+.057,ri+.063,ro]
-            def flare(u,r,axle=axle):
-                a0=math.asin((S.ROCKER-S.ARCH_Z)/r);a=a0+(math.pi-2*a0)*u
-                y=axle+r*math.cos(a);z=S.ARCH_Z+r*math.sin(a)
-                base=side_x(y,z,False)
-                t=max(0,min(1,(r-ri-.012)/.055))
-                weight=t**3*(10-15*t+6*t*t)
-                strength=blend((z-S.ROCKER)/.155)
-                x=base+(1-weight)*strength*(S.WIDTH/2-base)
-                return sign*x,y,z
-            b.skin('Arch flare_'+end+side,flare,48,8,b.m['body'],(sign,0,0),category='fenders' if end=='F' else 'bed',us=arch_us,vs=radial,return_depth=0)
-            # Interior liner stays inside the opening and ends at the rocker,
-            # with no vertical black plate protruding below the body silhouette.
-            a0=math.asin((S.ROCKER+.015-S.ARCH_Z)/.478)
             def liner(u,v,axle=axle):
-                a=a0+(math.pi-2*a0)*u
-                return sign*(.650+.325*v),axle+.478*math.cos(a),S.ARCH_Z+.478*math.sin(a)
+                y,z=arch_point(u,axle)
+                return sign*(.650+.325*v),y,z+.014
             b.skin('Wheelwell_'+end+side,liner,48,3,b.m['rubber'],(0,0,-1),category='liners',gauge=.002,return_depth=0)
-            outline=[(axle+.478*math.cos(a0),S.ROCKER+.015)]
-            outline += [(axle+.478*math.cos(a0+(math.pi-2*a0)*i/32),S.ARCH_Z+.478*math.sin(a0+(math.pi-2*a0)*i/32)) for i in range(1,33)]
+            outline=[arch_point(t,axle) for t in samples(40 if b.high else 28)]
             backing=G.profile('Wheelwell inboard_'+end+side,outline,sign*.649-.001,sign*.649+.001,b.m['rubber'],axis='X');b.add(backing,b.root,'liners')
-            lip0=math.asin((S.ROCKER-S.ARCH_Z)/S.ARCH_RADIUS)
             def lip(u,v,axle=axle):
-                a=lip0+(math.pi-2*lip0)*u;y=axle+S.ARCH_RADIUS*math.cos(a);z=S.ARCH_Z+S.ARCH_RADIUS*math.sin(a)
-                base=side_x(y,z,False);x=base+blend((z-S.ROCKER)/.155)*(S.WIDTH/2-base)
-                return sign*(x-.016*v),y,z
-            b.skin('Arch return_'+end+side,lip,48,2,b.m['body'],(sign,0,-1),category='fenders' if end=='F' else 'bed',us=arch_us,return_depth=0)
+                y,z=arch_point(u,axle)
+                return sign*(side_x(y,z)-.018*v),y,z
+            b.skin('Arch return_'+end+side,lip,48,2,b.m['body'],(sign,0,-1),category='fenders' if end=='F' else 'bed',us=samples(48 if b.high else 28),return_depth=0)
     b.skin('Cab rear lower',lambda u,v:((2*u-1)*.932,1.025,S.ROCKER+(1.458-S.ROCKER)*v),18,7,b.m['body'],(0,1,0),category='cab')
-    b.skin('Rear upper',lambda u,v:tuple(a+(c-a)*v for a,c in zip(backlight(u,1),roof(u,1))),24,4,b.m['body'],(0,1,0),category='cab')
-    b.skin('Cowl',lambda u,v:((2*u-1)*.91,S.HOOD_REAR+.0045+.018*v,1.414+.019*v),18,3,b.m['body'],(0,0,1),category='cab')
+    def rear_header(u,v):
+        a=backlight(u,1);c=roof(u,1)
+        return tuple(p+(q-p)*v for p,q in zip(a,c))
+    b.skin('Rear upper',rear_header,28,8,b.m['body'],(0,1,1),category='cab')
+    # Cowl closes the real hood/windscreen transition without a raised glass box.
+    b.skin('Cowl',lambda u,v:tuple(p+(q-p)*v for p,q in zip(hood(u,1),windshield(u,0))),24,4,b.m['body'],(0,0,1),category='cab')
     b.skin('Cab floor',lambda u,v:((2*u-1)*.92,S.DOOR_FRONT+(1.025-S.DOOR_FRONT)*v,.565),18,10,b.m['rubber'],(0,0,1),category='cab',return_depth=0)
     b.skin('Pickup bed floor',lambda u,v:((2*u-1)*.832,S.BED_FRONT+S.BED_LENGTH*v,S.BED_FLOOR),18,20,b.m['bed'],(0,0,1),category='bed')
     b.skin('Pickup box front',lambda u,v:((2*u-1)*.832,S.BED_FRONT,S.BED_FLOOR+(S.BED_TOP-S.BED_FLOOR)*v),18,6,b.m['bed'],(0,1,0),category='bed')
     gate=G.pivot('Tailgate',(0,2.824,S.BED_FLOOR),'X',(-90,0));gate.parent=b.root
-    b.skin('Tailgate outer',lambda u,v:((2*u-1)*.858,2.847,.841+(S.BED_TOP-.841)*v),24,10,b.m['body'],(0,1,0),gate,'tailgate')
+    def gate_skin(u,v):
+        x=(2*u-1)*.858;z=.841+(S.BED_TOP-.841)*v
+        # Broad shallow stamp and upper shoulder, deliberately unbranded.
+        y=2.847-.012*(1-(x/.858)**2)*(1-(2*v-1)**2)+.006*fair((z-1.34)/.07)
+        return x,y,z
+    b.skin('Tailgate outer',gate_skin,24,18,b.m['body'],(0,1,0),gate,'tailgate')
     b.skin('Tailgate inner',lambda u,v:((2*u-1)*.852,S.BED_REAR,S.BED_FLOOR+(S.BED_TOP-S.BED_FLOOR)*v),18,7,b.m['bed'],(0,-1,0),gate,'tailgate')
-    b.skin('Tailgate top lip',lambda u,v:((2*u-1)*.858,S.BED_REAR+(2.847-S.BED_REAR)*v,S.BED_TOP+.003),24,3,b.m['body'],(0,0,1),gate,'tailgate',gauge=.0012,return_depth=.015)
-    # Front frame around the broad grille and independent headlamp volumes.
+    b.skin('Tailgate top lip',lambda u,v:((2*u-1)*.858,S.BED_REAR+(2.853-S.BED_REAR)*v,S.BED_TOP+.003),24,3,b.m['body'],(0,0,1),gate,'tailgate',gauge=.0012,return_depth=.015)
+    # Original chamfered grille opening, on a face raked 5.7 degrees. The grille
+    # surround stands 30 mm proud; pattern, lamps and badges are the next gate.
     def front_patch(name,x0,x1,zlo,zhi,mat):
         def fn(u,v):
-            x=x0+(x1-x0)*u;y=nose_y(x);hi=hood_z(x,y)-.0045 if zhi is None else zhi
-            return x,y,zlo+(hi-zlo)*v
-        b.skin(name,fn,6 if x1-x0<.4 else 18,4,mat,(0,-1,0),category='nose',return_depth=.014)
-    front_patch('Nose brow',-.984,.984,1.245,None,b.m['body'])
-    front_patch('Lower fascia',-.984,.984,.797,.836,b.m['body'])
-    for side in [-1,1]:
-        lo,hi=sorted([side*.60,side*.984]);front_patch('Lower fascia wing_'+str(side),lo,hi,.8405,.967,b.m['body'])
+            x=x0+(x1-x0)*u;hi=hood_z(x,nose_y(x))-gap if zhi is None else zhi
+            z=zlo+(hi-zlo)*v
+            return x,nose_y(x,z),z
+        b.skin(name,fn,20,8,mat,(0,-1,0),category='nose',return_depth=.014)
+    front_patch('Nose brow',-.984,.984,1.178,None,b.m['body'])
+    front_patch('Lower fascia',-.984,.984,.785,.847,b.m['body'])
     for sign in [-1,1]:
-        lo,hi=sorted([sign*.60,sign*.632]);front_patch('Nose lamp bridge_'+str(sign),lo,hi,.967,1.245,b.m['body'])
-        lo,hi=sorted([sign*.924,sign*.984]);front_patch('Nose outer corner_'+str(sign),lo,hi,.967,1.245,b.m['body'])
-        lo,hi=sorted([sign*.632,sign*.924]);front_patch('Headlamp lower seat_'+str(sign),lo,hi,.8405,.967,b.m['body'])
-        b.skin('Headlamp envelope_'+str(sign),lambda u,v,s=sign:(s*(.6365+.283*u),nose_y(s*(.6365+.283*u))+.006, .9715+.269*v),12,5,b.m['wheel'],(0,-1,0),category='lamp_forms',gauge=.003,return_depth=.010)
-    grille=G.box('Grille envelope',(0,-2.829,1.0405),(1.191,.028,.400),b.m['rubber'],.012,3);b.add(grille,b.root,'nose')
-    # Front bumper: thin formed swept beam immediately below the fascia, with
-    # a supporting upper return and a tapered lower valance; rear is a step tray.
+        lo,hi=sorted([sign*.690,sign*.984]);front_patch('Headlamp lower seat_'+str(sign),lo,hi,.847,.895,b.m['body'])
+        lo,hi=sorted([sign*.690,sign*.728]);front_patch('Nose lamp bridge_'+str(sign),lo,hi,.895,1.178,b.m['body'])
+        def lamp(u,v,s=sign):
+            # Last fifth continues longitudinally down the side of the fender.
+            t=min(u/.82,1);x=.732+(.984-.732)*t
+            z=.899+.274*v;y=nose_y(x,z)+.006
+            if u>.82:y+=(-2.499-y)*(u-.82)/.18
+            return s*x,y,z
+        b.skin('Headlamp envelope_'+str(sign),lamp,32,8,b.m['glass'],(sign,-1,0),category='lamp_forms',gauge=.003,return_depth=.010,
+               us=sorted(set(samples(26 if b.high else 18)+[.78,.80,.82,.84,.9])))
+    outline=[(-.675,.828),(.675,.828),(.722,.885),(.722,1.130),(.673,1.182),(-.673,1.182),(-.722,1.130),(-.722,.885)]
+    perimeter=rounded_polygon(outline,[.015]*8,4 if b.high else 3)
+    loops=[]
+    for inset,offset in [(0,0),(.018,-.030),(.050,-.030),(.055,.008)]:
+        loops.append([(x*(1-inset/.73),nose_y(x,z)+offset,1.014+(z-1.014)*(1-inset/.19)) for x,z in perimeter])
+    grille=G.loft('Grille form surround',loops,b.m['body'],caps=False)
+    sol=grille.modifiers.new('Surround gauge','SOLIDIFY');sol.thickness=.002
+    b.add(grille,b.root,'nose')
+    backing=G.profile('Grille envelope',[(x*.93,1.014+(z-1.014)*.80) for x,z in perimeter],-2.835,-2.821,b.m['rubber'],axis='Y')
+    b.add(backing,b.root,'nose')
+    # Swept formed bumper sections: upper return, beam crown, lower kick. The
+    # tiny mid-beam crest retains the established envelope; corners tuck back.
     for end,sgn in [('F',-1),('R',1)]:
-        z0,z1=(.565,.792) if sgn<0 else (.590,.832)
-        wrap=.180 if sgn<0 else .110
-        def bumper(u,v,sgn=sgn,z0=z0,z1=z1,wrap=wrap):
-            x=(2*u-1)*.984
-            y=sgn*(S.LENGTH/2-wrap*max(0,(abs(x)-.825)/.159)**2-.006*(2*v-1)**2)
-            return x,y,z0+(z1-z0)*v
-        b.skin('Bumper_'+end,bumper,36,6,b.m['bumper'],(0,sgn,0),category='bumpers',gauge=.0025,return_depth=.055)
-        def shelf(u,v,sgn=sgn,z1=z1,wrap=wrap):
-            x=(2*u-1)*.984;outer=S.LENGTH/2-wrap*max(0,(abs(x)-.825)/.159)**2-.006
-            inner=-nose_y(x)+.007 if sgn<0 else 2.815
-            return x,sgn*(outer+(inner-outer)*v),z1
-        b.skin('Bumper upper return_'+end,shelf,30,3,b.m['bumper'],(0,0,1),category='bumpers',gauge=.0025,return_depth=0)
+        zs=[.565,.590,.632,.707,.770,.792] if sgn<0 else [.590,.615,.665,.770,.812,.832]
+        def bumper(u,z,sgn=sgn):
+            x=(2*u-1)*.984;a=abs(x)
+            wrap=(.225-math.sqrt(max(0,.225**2-max(0,a-.760)**2))) if sgn<0 else .095*fair((a-.735)/.249)
+            depth=section(z,[(zs[0],.040),(zs[1],.009),(zs[2],0),(zs[3],.006),(zs[4],.032),(zs[5],.050)],.006)
+            # Broad raised end cheeks and shallow center recess change planes.
+            recess=.021*(1-fair((a-.43)/.20))
+            return x,sgn*(S.LENGTH/2-wrap-depth-recess),z
+        us=sorted(set(samples(34 if b.high else 24)+[.09,.12,.18,.28,.72,.82,.88,.91]))
+        # Keep a small physical crest at x=.66, beyond the central recess.
+        if sgn<0:
+            for label,lo,hi in [('left',0,.205),('right',.795,1)]:
+                b.skin('Front bumper '+label,lambda u,z,lo=lo,hi=hi:bumper(lo+(hi-lo)*u,z),16,8,b.m['bumper'],(0,-1,0),category='bumpers',gauge=.0025,return_depth=.040,vs=zs)
+            for label,zs0 in [('lower',[.565,.590,.615]),('upper',[.745,.770,.792])]:
+                b.skin('Front bumper '+label,lambda u,z:bumper(.205+.590*u,z),14,4,b.m['bumper'],(0,-1,0),category='bumpers',gauge=.0025,return_depth=.040,vs=zs0)
+            b.skin('Bumper intake envelope',lambda u,v:((2*u-1)*.650,-2.850,.607+.148*v),12,3,b.m['rubber'],(0,-1,0),category='bumpers',gauge=.003,return_depth=0)
+        else:
+            b.skin('Bumper_'+end,bumper,32,8,b.m['bumper'],(0,sgn,0),category='bumpers',gauge=.0025,return_depth=.045,us=us,vs=zs)
+        def shelf(u,v,sgn=sgn):
+            x,y,z=bumper(u,zs[-1])
+            return x,y-sgn*.075*v,z
+        b.skin('Bumper upper return_'+end,shelf,28,3,b.m['bumper'],(0,0,1),category='bumpers',gauge=.0025,return_depth=0)
     def valance(u,v):
-        x=(2*u-1)*(.956-.020*v)
-        y=-2.927+.173*max(0,(abs(x)-.825)/.159)**2+.032*v
-        return x,y,.565-.110*v
-    b.skin('Lower valance',valance,32,4,b.m['rubber'],(0,-1,0),category='bumpers',gauge=.003,return_depth=.030)
+        x=(2*u-1)*(.950-.040*v);wrap=.205*fair((abs(x)-.735)/.249)
+        return x,-2.895+wrap+.030*v,.565-.110*v
+    b.skin('Lower valance',valance,34,5,b.m['rubber'],(0,-1,0),category='bumpers',gauge=.003,return_depth=.030)
