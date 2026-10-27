@@ -597,3 +597,75 @@ inputs and the active material nodes are restored before saving. This prevents
 a tall bark source field from squashing the shipped UVs in a wide reserved
 region. Defaults remain unchanged. `test_uv_target_aspect.py` measures actual
 triangle Jacobians in a non-square region and checks source-image restoration.
+
+`foliage.material()` is the maple's thin-leaf shader moved into the shared kit.
+Keyword-only controls expose gloss/specular, transmission, back color, normal
+strength and glancing coverage for other botanical families. Its original
+maple defaults, node order and socket values are retained; the maple entry
+point remains an import-compatible wrapper. No geometry or atlas code changes.
+
+`photo_frame.frame()` moves the maple's neutral comparison margins into the kit.
+The original 16% horizontal/zero vertical defaults are unchanged. An optional
+`vertical_fraction` adds symmetric top/bottom margins with the camera's pose
+and pixel projection preserved, so biological fits can show the entire object.
+These local comparison canvases never become asset images.
+
+`botany.Cards.add_grid(grid, rect, wind)` adds an authored curved rectangular
+alpha patch with UVs and physical finite-difference normals. Species supply the
+cup/droop/fold geometry; ordinary `Cards.add` and all existing defaults are
+unchanged. This lets broad leaves retain curvature without crown-normal shading.
+
+`botanical_delivery.py` is the shared raw-accessor/fresh-import botanical audit,
+moved without changing the maple's checks. It measures finalized positions,
+split normals and linear Wind, rejects albedo vertex colors, and reports image
+and geometry memory. Families add their own species/root/budget invariants.
+
+Finalization now honors the existing `UV_MIN_COVERAGE` family declaration, as
+the independent verifier already does. Its absent-setting default stays .20;
+a small unique wood region beside large reused botanical tiles need not cover
+20% of the entire atlas. Overlap, density and reserved-region checks still apply.
+
+The botanical audit matches Wind and split normals together among coincident
+source vertices, so opposite blades sharing a petiole may retain independent
+flutter/normals. The tolerances are unchanged. The fixture exports coincident
+cards with different data and also rejects deliberately altered source Wind.
+
+Botanical compressed-memory estimates read the embedded PNG dimensions; the
+512 fixture reports 1 MiB and 2048 families report 16 MiB for three 8-bpp maps
+with full mip chains, rather than assuming a particular family texture size.
+
+
+## Running all regressions
+
+Use a fresh Blender process for each `bpy` fixture. The three pure-Python test
+modules run with `python3 -m unittest`:
+
+```sh
+python3 -m unittest -v kit.test_delivery kit.test_fonts kit.test_photo_match
+```
+
+Run these separately with `blender -b --factory-startup --python-exit-code 1
+--python kit/<name>.py`: `test_atlas`, `test_bake_coordinates`,
+`test_bake_frames`, `test_blended_atlas`, `test_botanical_delivery`, `test_botany`,
+`test_export_policy`, `test_foliage`, `test_gpu`, `test_policy`, `test_surface_profiles`,
+`test_uv_target_aspect`, and `test_vehicle`.
+
+`test_gpu` mocks device selection but imports `bpy` through the GPU helper, so
+it also needs Blender; it performs no bake and needs no physical GPU.
+
+`test_material_ao` and `test_tiling` perform real GPU bakes: prefix that Blender
+command with `kit/with_gpu.sh`, using the same `ASSETS_GPU_LOCK` as asset builds.
+Keep `TMPDIR` inside the worktree's `build/` directory.
+
+Start each file-backed fixture with its output directory absent: `atlas-test`
+(for the atlas, blended-atlas, botanical-delivery and export-policy fixtures),
+`material-ao-fixture`, `surface-test`, `test-tiling`, `uv-target-aspect`, or
+`vehicle-finalize-test`, respectively, all under `build/`. Run tests sharing
+`atlas-test` serially. Other tests use factory-empty scenes or fresh temporary
+directories and need no generated fixture files.
+
+`test_atlas.py` supplies a coherent shared `config.py` / `finalized.blend` /
+`fixture.glb` for downstream tests. Its small-region case lives separately in
+`build/atlas-test/small-region/` and asserts the shared fixture files remain
+byte-identical. This prevents a variant config from being verified against
+another variant's UVs; BLEND and MASK validation retain their original checks.

@@ -66,3 +66,32 @@ filtered=read_png(dst/'T_RGBA_BaseColor.png')
 assert filtered.shape==(4,4,4)
 assert np.max(np.abs(filtered-np.array([1,0,0,.25])))<1/255
 print('PASS: linear alpha and premultiplied color filtering reject transparent-color contamination')
+
+# Coincident blade vertices may carry different flutter AND split normals.
+# Exercise the shared audit through real export/import, then corrupt one mask.
+from kit import botanical_delivery,model as G
+bpy.ops.wm.open_mainfile(filepath=str(f/'botanical-final.blend'))
+frame=bpy.data.objects['Frame'];frame.name='TileFixtureMesh';frame['export_part']=frame.name
+verts=[(0,-.1,0),(.4,-.1,0),(.4,-.1,.6),(0,-.1,.6)]*2
+ob=G.mesh('Coincident_Fabric',verts,[(0,1,2,3),(4,5,6,7)],bpy.data.materials[0])
+G.attach(ob,bpy.data.objects['TileFixture'],asset_set='TileFixture');ob['export_part']=ob.name;ob['allow_boundary']=True
+uv=ob.data.uv_layers.new(name='BakeUV')
+for face in ob.data.polygons:
+    for li,co in zip(face.loop_indices,[(.01,.01),(.25,.01),(.25,.25),(.01,.25)]):uv.data[li].uv=co
+ob.data.normals_split_custom_set([(0,-.6,.8)]*4+[(0,-.8,.6)]*4)
+botany.wind_attribute(ob,[(.2,.5,.3,.8)]*4+[(.8,.75,.6,.9)]*4)
+bpy.ops.wm.save_as_mainfile(filepath=str(f/'coincident.blend'))
+sys.argv=['blender','--','--source',str(f/'coincident.blend'),'--textures',str(f/'textures'),'--asset','TileFixture','--out',str(f/'coincident.glb'),'--report',str(f/'coincident-export.json'),'--config',str(config)]
+export.main()
+sys.argv=['blender','--','--source',str(f/'coincident.blend'),'--glb',str(f/'coincident.glb'),'--out',str(f/'coincident-audit.json')]
+botanical_delivery.main()
+result=json.loads((f/'coincident-audit.json').read_text());assert result['passed']
+assert result['gpu_mib_bc7_bc5_bc7_full_mips']==1.0 and result['embedded_image_dimensions']==[[512,512]]*3
+bpy.ops.wm.open_mainfile(filepath=str(f/'coincident.blend'))
+bpy.data.objects['Coincident_Fabric'].data.color_attributes['Wind'].data[0].color=(.9,.1,.1,.1)
+bpy.ops.wm.save_as_mainfile(filepath=str(f/'coincident-corrupt.blend'))
+sys.argv=['blender','--','--source',str(f/'coincident-corrupt.blend'),'--glb',str(f/'coincident.glb'),'--out',str(f/'coincident-rejected.json')]
+try:botanical_delivery.main()
+except RuntimeError:pass
+else:raise AssertionError('Changed Wind passed the shared audit')
+print('PASS: coincident vertices retain independent Wind/normals; changed Wind is rejected')

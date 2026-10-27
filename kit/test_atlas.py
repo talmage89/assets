@@ -40,3 +40,17 @@ assert not atlas.tile_report([o],cfg,512,'UVMap')['passed'],'Tile escaped its re
 u=bpy.data.objects['TileFixtureMesh'];u.data.uv_layers['UVMap'].data[0].uv=(.1,.1)
 assert not atlas.unique_rect_report([u],cfg,'UVMap')['passed'],'Unique frame invaded reserved tile without a failure'
 print('PASS: tiled MASK export shares three images; unique UVs checked; escaped tile rejected')
+
+# A library can reserve most pixels for reused cards while its unique geometry
+# occupies a small explicit region. Keep this variant separate: downstream
+# fixtures reuse config.py together with the ORIGINAL finalized.blend.
+shared_names=('config.py','source.blend','finalized.blend','uv.json','fixture.glb','export.json')
+shared_before={name:(b/name).read_bytes() for name in shared_names}
+small=b/'small-region';small.mkdir(exist_ok=True)
+small_cfg=dict(cfg,UV_ATLAS_RECT=(.28,.28,.55,.55),UV_MIN_COVERAGE=.02)
+small_config=small/'config.py';small_config.write_text('\n'.join(k+'='+repr(v) for k,v in small_cfg.items()))
+args('finalize',['--source',str(b/'source.blend'),'--config',str(small_config),'--out',str(small/'finalized.blend'),'--report',str(small/'uv.json'),'--size','512','--target-density','1000'])
+finalize.main()
+assert .02<json.loads((small/'uv.json').read_text())['coverage']<.20
+assert all((b/name).read_bytes()==data for name,data in shared_before.items()),'Small-region case changed the shared atlas fixture'
+print('PASS: explicit small unique region finalizes without changing the shared fixture')

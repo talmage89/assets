@@ -60,6 +60,8 @@ Vehicles
 Trees
 - [Red maple](trees/README.md): 12.5 m open-grown summer red maple with leaf cards, flaky lower bark and wind
   weights.
+- [Foundation shrubs](shrubs/README.md): a sheared boxwood and a blooming bigleaf hydrangea in one GLB on one
+  shared set, with wind weights.
 
 Toolkit
 - [Shared toolkit](kit/README.md): procedural modeling and materials, UV, bake and export, verification and studio
