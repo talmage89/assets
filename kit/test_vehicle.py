@@ -34,4 +34,17 @@ bpy.context.view_layer.update();points=[tire.matrix_world@v.co for v in tire.dat
 assert abs(min(p.z for p in points))<1e-6
 assert abs((max(p.x for p in points)-min(p.x for p in points))-.275)<1e-6
 assert abs(max(p.z for p in points)-.8027)<1e-6
+reduced=loaded_tire('Reduced tire',(.858,0,.39535),.275,.65,18,None,64,.39535,
+                    profile_indices=[0,1,3,4,5,7,9,10,11,13,14])
+G.apply(reduced);bpy.context.view_layer.update()
+ps=[reduced.matrix_world@v.co for v in reduced.data.vertices]
+assert abs(min(p.z for p in ps))<1e-6
+assert abs(max(p.z for p in ps)-.8027)<1e-6
+assert abs(max(p.x for p in ps)-min(p.x for p in ps)-.275)<1e-6
+reduced.data.calc_loop_triangles();tire.data.calc_loop_triangles()
+assert len(reduced.data.loop_triangles)<len(tire.data.loop_triangles)*.6
+for indices in [[],[0,14,3],[1,3,14],[0,3,13]]:
+    try:loaded_tire('Invalid',(0,0,0),.275,.65,18,None,64,.39535,indices)
+    except ValueError:pass
+    else:raise AssertionError('Invalid profile accepted')
 print('VEHICLE FIXTURES PASS: manifold gauge, analytic normals, real tire width/top/contact')

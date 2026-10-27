@@ -403,3 +403,24 @@ closed-gauge manifold/volume, and the tire's actual width, top and ground contac
 `render` and `match` recipes (for example a body-form gate with Workbench clay
 and a separate procedural reflection diagnostic). Default source recipes and
 all delivery/check recipes are unchanged; the asset still includes `rules.mk`.
+
+
+`vehicle.loaded_tire(..., profile_indices=None)` optionally keeps an ordered
+subset of axial/radial stations for a game-density carcass. Retain both beads,
+both maximum-width shoulders and the tread crown when their bounds matter.
+The default profile is unchanged; the fixture also measures the reduced
+profile's width, top/contact and triangle reduction and rejects invalid lists.
+
+`vehicle_materials.py` adds meter-scale source shaders built on `materials.Nodes`:
+`paint`, `manufactured`, `glazing`, `tire` and `lamp`. They expose the existing
+`OUT_base/rough/metal/height` bake channels. Paint has a named `Paint tint` RGB
+node; paint and emissive materials carry review-state properties. Pass a
+`VehicleRest` POINT/FLOAT_VECTOR world-position attribute (after parenting and
+a dependency-graph update), vehicle axle locations and optional front/rear
+bounds. This keeps causal road film attached to hinged panels. Manufactured
+alloy can receive explicit brake-center positions for dust. Glazing adds frit
+and privacy tint; tire height combines analytic blocks/sipes with an optional
+original relief image. These are source look-dev shaders: they do not allocate
+final atlases or silently change existing assets. Shader compilation and rest
+position/fit checks run in the cars source checkpoint; delivery still requires
+UV/bake/export and glass/emission verification.

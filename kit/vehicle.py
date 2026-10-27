@@ -67,7 +67,7 @@ def panel(name, surface, us, vs, material, outward, gauge=.0009, return_depth=.0
 
 
 def loaded_tire(name, center, width, aspect, rim_inches, material, segments=96,
-                loaded_radius=None):
+                loaded_radius=None, profile_indices=None):
     """Closed radial carcass, crowned tread, bulged shoulders, smooth contact load.
 
     ISO size defines nominal radius. A local C1 ground-contact flattening leaves
@@ -81,6 +81,11 @@ def loaded_tire(name, center, width, aspect, rim_inches, material, segments=96,
              (-.25*width,radius-.001),(0,radius),(.25*width,radius-.001),
              (.37*width,radius-.004),(.45*width,radius-.019),(.5*width,radius-.057),
              (.495*width,rim+.075),(.45*width,rim+.018),(.36*width,rim)]
+    if profile_indices is not None:
+        indices=list(profile_indices)
+        if len(indices)<2 or indices!=sorted(set(indices)) or indices[0]!=0 or indices[-1]!=len(profile)-1:
+            raise ValueError('Tire profile indices must retain both beads in order')
+        profile=[profile[i] for i in indices]
     ob=G.lathe(name,profile,material,segments,axis='X',closed=True)
     h=radius if loaded_radius is None else loaded_radius
     for vertex in ob.data.vertices:
