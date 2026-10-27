@@ -35,9 +35,17 @@ def main():
             # glTF +Y up back to Blender +Z up; root transforms are identity.
             pos=np.c_[pos[:,0],-pos[:,2],pos[:,1]];ns=np.c_[ns[:,0],-ns[:,2],ns[:,1]]
             for point,wind,n in zip(pos,w,ns):
-                _,i,d=expected['tree'].find(Vector(point));position_error=max(position_error,d)
-                wind_error=max(wind_error,float(np.max(np.abs(wind-expected['wind'][i]))))
-                normal_error=max(normal_error,min(float(np.linalg.norm(n-e)) for e in expected['normals'][i]))
+                _,nearest,d=expected['tree'].find(Vector(point));position_error=max(position_error,d)
+                candidates=expected['tree'].find_range(Vector(point),max(1e-7,d+1e-7))
+                # Separate blades can share their petiole position but retain
+                # different flutter and split normals. Match both on ONE
+                # candidate; never pick unrelated independent minima.
+                matches=[]
+                for _,i,_ in candidates:
+                    we=float(np.max(np.abs(wind-expected['wind'][i])))
+                    ne=min(float(np.linalg.norm(n-e)) for e in expected['normals'][i])
+                    matches.append((max(we/1e-6,ne/3e-4),we,ne))
+                _,we,ne=min(matches);wind_error=max(wind_error,we);normal_error=max(normal_error,ne)
             count+=len(pos)
         rows[mesh['name']]=dict(delivered_vertices=count,max_position_error_m=position_error,max_wind_error=wind_error,max_normal_vector_error=normal_error)
         if position_error>2e-5 or wind_error>1e-6 or normal_error>3e-4:errors.append(mesh['name']+': botanical serialization changed')
@@ -48,8 +56,9 @@ def main():
         if attr is None:errors.append(ob.name+': importer lost RGBA wind attribute');continue
         error=0
         for v,value in zip(ob.data.vertices,attr.data):
-            _,i,_=expected['tree'].find(ob.matrix_world@v.co)
-            error=max(error,float(np.max(np.abs(np.array(value.color)-expected['wind'][i]))))
+            point=ob.matrix_world@v.co;_,_,distance=expected['tree'].find(point)
+            candidates=expected['tree'].find_range(point,max(1e-7,distance+1e-7))
+            error=max(error,min(float(np.max(np.abs(np.array(value.color)-expected['wind'][i]))) for _,i,_ in candidates))
         rows[ob.name]['reimport_wind_max_error']=error
         if error>1e-6:errors.append(ob.name+': imported wind changed')
     texture_bytes=sum(len(raw.image(i)) for i in range(len(raw.json['images'])))

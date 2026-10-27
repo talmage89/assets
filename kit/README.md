@@ -624,3 +624,8 @@ Finalization now honors the existing `UV_MIN_COVERAGE` family declaration, as
 the independent verifier already does. Its absent-setting default stays .20;
 a small unique wood region beside large reused botanical tiles need not cover
 20% of the entire atlas. Overlap, density and reserved-region checks still apply.
+
+The botanical audit matches Wind and split normals together among coincident
+source vertices, so opposite blades sharing a petiole may retain independent
+flutter/normals. The tolerances are unchanged. The fixture exports coincident
+cards with different data and also rejects deliberately altered source Wind.
