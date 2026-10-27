@@ -19,13 +19,16 @@ def population(im):
 
 
 def main():
+    if '--final' in sys.argv:
+        from final_review import main as final_main
+        sys.argv=[sys.argv[0],'--docs'];final_main();return
     p=argparse.ArgumentParser();p.add_argument('--renders',type=Path,required=True);p.add_argument('--species',choices=['boxwood','hydrangea'],default='boxwood');a=p.parse_args();r=a.renders
     matches=MATCHES
     if a.species=='hydrangea':
         from hydrangea_matches import MATCHES as matches
     shots=HYDRANGEA_SHOTS if a.species=='hydrangea' else SHOTS
     label=a.species.title()
-    paths=[r/(s+'.png') for s in shots];pairs=[r/(s+'-pair.jpg') for s in matches]
+    paths=[r/(s+'.png') for s in ('three_quarter','side','close_1m','scale','base','shaded_side','structure')];pairs=[r/(s+'-pair.jpg') for s in matches]
     contact(paths+pairs,r/'contact.jpg',title=label+' / SOURCE look-dev checkpoint / procedural daylight')
     review_sheet([paths[:2],paths[2:4],[paths[4],paths[5]],[paths[6]]]+[[x] for x in pairs],r/'review-sheet.jpg',width=1800,title=label+' / source critique evidence; no final GLB yet')
     from values import measure,BOX_PATCHES
@@ -36,7 +39,7 @@ def main():
         PATCHES={k:dict(crop=matches[k]['crop'],**v) for k,v in BOX_PATCHES.items()}
         calibration=ROOT/'shrubs/build/framed-cameras.json'
     evidence=measure(r,calibration,PATCHES)
-    digest=hashlib.sha256((ROOT/('shrubs/build/hydrangea/lookdev.blend' if a.species=='hydrangea' else 'shrubs/build/lookdev.blend')).read_bytes()).hexdigest();meta=json.loads((r/'shots.json').read_text());assert all(x['source_sha256']==digest for x in meta.values()),'stale source renders'
+    digest=hashlib.sha256((ROOT/('shrubs/build/hydrangea/lookdev.blend' if a.species=='hydrangea' else 'shrubs/build/boxwood/lookdev.blend')).read_bytes()).hexdigest();meta=json.loads((r/'shots.json').read_text());assert all(x['source_sha256']==digest for x in meta.values()),'stale source renders'
     (r/'tonal-check.json').write_text(json.dumps(evidence,indent=2));(r/'render-check.json').write_text(json.dumps(dict(passed=True,source_sha256=digest,render_count=len(meta),scope='source checkpoint provenance only, no export proof'),indent=2))
     print(json.dumps(evidence,indent=2))
 

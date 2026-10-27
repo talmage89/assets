@@ -106,7 +106,7 @@ def generate(folder,size=4096):
     normal[size//2-sh:size//2,:sw,1]=np.clip(128+(rng.random((sh,sw))-.5)*10,0,255)
     from hydrangea_atlas import paint,branchlet_tile
     hydrangea=paint(color,normal,orm,size)
-    hydrangea[1]=branchlet_tile(color,normal,orm,size)
+    hydrangea[4]=branchlet_tile(color,normal,orm,size)
     for channel,array in [('BaseColor',color),('Normal',normal),('ORM',orm)]:write_png(folder/f'T_Shrubs_{channel}.png',array.astype(np.float32)/255,bits=16 if channel=='Normal' else 8)
     (folder/'atlas.json').write_text(json.dumps(dict(source_size=size,boxwood=records,hydrangea=hydrangea),indent=2))
 

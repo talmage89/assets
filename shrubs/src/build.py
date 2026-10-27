@@ -12,14 +12,18 @@ from materials import foliage_material
 
 def wood_material(images):
     mat=bpy.data.materials.new('Shrubs stems');mat.use_nodes=True;n=mat.node_tree.nodes;l=mat.node_tree.links
-    bs=n.get('Principled BSDF');bs.inputs['Specular IOR Level'].default_value=.22
+    bs=n.get('Principled BSDF');bs.name='SURFACE';n.get('Material Output').name='OUT';bs.inputs['Specular IOR Level'].default_value=.22
     for channel in ('BaseColor','Normal','ORM'):
         tex=n.new('ShaderNodeTexImage');tex.image=images[channel]
-        if channel=='BaseColor':l.new(tex.outputs['Color'],bs.inputs['Base Color'])
+        if channel=='BaseColor':
+            l.new(tex.outputs['Color'],bs.inputs['Base Color'])
+            out=n.new('ShaderNodeMixRGB');out.name='OUT_base';out.inputs[0].default_value=0;l.new(tex.outputs['Color'],out.inputs[1])
         elif channel=='Normal':
             nm=n.new('ShaderNodeNormalMap');nm.inputs['Strength'].default_value=.55;l.new(tex.outputs[0],nm.inputs['Color']);l.new(nm.outputs[0],bs.inputs['Normal'])
         else:
             sep=n.new('ShaderNodeSeparateColor');l.new(tex.outputs[0],sep.inputs[0]);l.new(sep.outputs['Green'],bs.inputs['Roughness'])
+            out=n.new('ShaderNodeMath');out.name='OUT_rough';out.operation='MULTIPLY';out.inputs[1].default_value=1;l.new(sep.outputs['Green'],out.inputs[0])
+            out=n.new('ShaderNodeValue');out.name='OUT_metal';out.outputs[0].default_value=0
     return mat
 
 
@@ -34,9 +38,15 @@ def assign_uv(ob):
 def assemble_wood(wood,stems,name,height):
     # Numerous slender stems emerge independently from a below-grade crown.
     # Clip/cap every actual sweep at grade; no elevated fused trunk pedestal.
-    for ob in wood:
-        bm=bmesh.new();bm.from_mesh(ob.data)
+    for stem,ob in zip(stems,wood):
+        bm=bmesh.new();bm.from_mesh(ob.data);bm.verts.ensure_lookup_table()
+        sides=stem['sides'];last=len(bm.verts)//sides-1
+        for edge in bm.edges:
+            a,b=[v.index for v in edge.verts]
+            edge.seam=(a%sides==b%sides==0) or (a//sides==b//sides and a//sides in (0,last))
         bmesh.ops.bisect_plane(bm,geom=list(bm.verts)+list(bm.edges)+list(bm.faces),dist=1e-7,plane_co=(0,0,.002),plane_no=(0,0,1),clear_inner=True)
+        for edge in bm.edges:
+            if edge.is_boundary:edge.seam=True
         bmesh.ops.holes_fill(bm,edges=[e for e in bm.edges if e.is_boundary],sides=0)
         for v in bm.verts:v.co.z-=.002
         bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces))
@@ -61,7 +71,7 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--species',choices=['boxwood','hydrangea'],default='boxwood');p.add_argument('--quality',default='game');p.add_argument('--wear',type=float,default=.35);p.add_argument('--seed',type=int,default=SEED);a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
     a.out.parent.mkdir(parents=True,exist_ok=True);bpy.ops.wm.read_factory_settings(use_empty=True);sc=bpy.context.scene;sc.unit_settings.system='METRIC';sc['quality']=a.quality;sc['stage']='BOXWOOD SOURCE LOOKDEV / checkpoint'
     root=G.pivot('Hydrangea' if a.species=='hydrangea' else 'Boxwood',(0,0,0));root['static_root']=True
-    images={c:bpy.data.images.load(str((ROOT/'shrubs/textures/ship'/f'T_Shrubs_{c}.png').resolve())) for c in ('BaseColor','Normal','ORM')}
+    images={c:bpy.data.images.load(str((ROOT/'shrubs/textures/analytic'/f'T_Shrubs_{c}.png').resolve())) for c in ('BaseColor','Normal','ORM')}
     for c in ('Normal','ORM'):images[c].colorspace_settings.name='Non-Color'
     if a.species=='hydrangea':
         from hydrangea import generate as generate_hydrangea

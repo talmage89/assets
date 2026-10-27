@@ -10,13 +10,13 @@ rows=[[a.boxwood/(name+'.png'),a.hydrangea/(name+'.png')] for name in ('three_qu
 rows += [[a.boxwood/'match_green_velvet-pair.jpg',a.boxwood/'match_clipped-pair.jpg'],[a.hydrangea/'hyd_match_house-pair.jpg',a.hydrangea/'hyd_match_bed-pair.jpg']]
 review_sheet(rows,a.out/'contact.jpg',width=1800,title='Boxwood (left) / Hydrangea (right) — SOURCE look-dev, before bake')
 report={}
-for species,folder,source in [('Boxwood',a.boxwood,Path('build/lookdev.blend')),('Hydrangea',a.hydrangea,Path('build/hydrangea/lookdev.blend'))]:
+for species,folder,source in [('Boxwood',a.boxwood,Path('build/boxwood/lookdev.blend')),('Hydrangea',a.hydrangea,Path('build/hydrangea/lookdev.blend'))]:
     meta=json.loads((folder/'shots.json').read_text());digest=hashlib.sha256(source.read_bytes()).hexdigest();assert len(meta)==9 and all(x['source_sha256']==digest for x in meta.values())
     for name in meta:
         if 'match_' in name:
             im=Image.open(folder/(name+'.png'));bb=im.getchannel('A').getbbox()
             assert bb and bb[0]>1 and bb[1]>1 and bb[2]<im.width-1 and bb[3]<im.height-1,(species,name,bb,im.size)
-    report[species]=dict(source_sha256=digest,renders=len(meta),geometry=json.loads((source.parent/'botanical-check.json').read_text()),values=json.loads((folder/'measured-values.json').read_text()))
+    report[species]=dict(source_sha256=digest,renders=len(meta),geometry=json.loads((Path('build/botanical-check.json') if species=='Boxwood' else source.parent/'botanical-check.json').read_text()),values=json.loads((folder/'measured-values.json').read_text()))
 materials=report['Boxwood']['geometry']['material_definition_sha256']
 assert len(materials)<=2 and materials==report['Hydrangea']['geometry']['material_definition_sha256'],'family shader definitions differ'
 (a.out/'family-check.json').write_text(json.dumps(report,indent=2));print('Combined source evidence:',a.out/'contact.jpg')

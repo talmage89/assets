@@ -26,3 +26,10 @@ HYDRANGEA_SHOTS={
  'shaded_side':dict(location=(-2.3,2.8,1.80),target=(0,0,.59),lens=55,aspect=1.25),
  'structure':dict(location=(2.25,-3.05,1.85),target=(0,0,.57),lens=55,aspect=1.25,hide_leaves=True),
 }
+
+# Final views use the same daylight/camera as each accepted source hero.
+for shots,height,distance in ((SHOTS,.43,2.7),(HYDRANGEA_SHOTS,.58,3.65)):
+    shots['hero']=dict(shots['three_quarter'])
+    shots['front']=dict(location=(0,-distance,height+.25),target=(0,0,height),lens=55,aspect=1.25)
+    shots['back']=dict(location=(0,distance,height+.25),target=(0,0,height),lens=55,aspect=1.25)
+    shots['top']=dict(location=(0,-.001,distance),target=(0,0,height),lens=48,aspect=1.25)

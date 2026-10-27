@@ -10,7 +10,7 @@ measured generated geometry is reported separately in README/check outputs.
 | Boxwood blades | Parental Korean 12.7–19.1 mm; littleleaf 8.5–25.4 mm (NYBG) | 15–20.5 mm before projection, entire obovate/elliptic, opposite/decussate, slight cup |
 | New boxwood shoots | 3–6 in annual growth, cultivar dependent (Virginia Tech) | Selected 5–15 cm beyond prior shear surface; uneven density |
 | Bigleaf hydrangea | 3–6 ft (NC State), 3–5 ft (Morton); multi-stem, rounded | About 1.2 m × 1.4 m midsummer mophead |
-| Hydrangea leaf/head | 4–8 in leaves, to 8 in clusters (VT Dendrology/Morton) | 10.9–14.7 cm outer blades, roughly 16–20 cm retained heads |
+| Hydrangea leaf/head | 4–8 in leaves, to 8 in clusters (VT Dendrology/Morton) | about 8–15 cm outer blades, roughly 16–20 cm retained heads |
 
 The boxwood is maintained but several weeks past shearing. Small uneven lobes
 are deliberately much shallower than the maple's scaffold masses. The front
@@ -31,6 +31,6 @@ Ilouque's mophead beside a garage is the primary hydrangea form/shadow reference
 Jim Janke's ordinary house bed is the second pair: the crop contains overlapping
 plants, so its mass and camera fit are approximate. OShen's close-up supplies
 serration, venation and sepal-form evidence. The source uses outward-arching
-stems, opposite blades, interior branchlet cards and seventeen nodding/upright
+stems, opposite blades, interior branchlet cards and thirty-six nodding/upright
 heads. The two outdoor photos have very different exposure/shadow populations;
 report both rather than treating one median as a calibrated material value.
