@@ -15,7 +15,8 @@ nodes and graphics. The read-only rifle project informed the workflow.
 | `image_io.py`, `downsample.py` | Original 8/16-bit PNG codec; linear-light color filtering, vector-normal filtering/renormalization and roughness RMS filtering |
 | `export.py` | One embedded PBR atlas; static assembly consolidation; separate pivots, sockets and skin; expected geometry/weight/rest-transform report |
 | `gltf.py`, `verify.py` | Independent raw GLB accessors, normals, textures, weights and inverse-bind checks; fresh Blender import, geometry, pivots, UVs, rig and posed cross-sections |
-| `gpu.py`, `with_gpu.sh` | Shared GPU flock; script-enabled OptiX with CUDA fallback; refuse silent CPU fallback |
+| `fonts.py` | fontconfig family/style discovery; reject missing faces and substitutions |
+| `gpu.py`, `with_gpu.sh` | Shared GPU flock; script-enabled OptiX/CUDA; warned CPU fallback |
 | `studio.py` | Procedural seamless studio, key/fill/rim/negative fill, AgX, configured cameras, moving parts, neutral 1.8 m silhouette; Workbench/Eevee/Cycles; final mode accepts only GLB |
 | `photo_match.py` | Measured-landmark lens/pose fit, independent Blender projection check, same-framing photo pairs and residual overlays |
 | `audit.py` | Independent source/game topology, count, scale, normals and pivot audit |
@@ -58,7 +59,8 @@ make -C gas-grill hook-install
 make -C gas-grill clean
 ```
 
-Requires installed Blender 5.2, Python/Pillow/NumPy, Noto/DejaVu fonts and flock.
+Requires installed Blender 5.2, GNU make, Python/Pillow/NumPy, fontconfig, Noto/DejaVu fonts and flock.
+See the root [build requirements](../README.md#build-requirements) for the font faces and optional reference tools.
 No downloaded code, packages or lighting. `rules.mk` sets TMPDIR inside the
 worktree. Every Cycles invocation goes through the GPU wrapper. Source/game
 geometry checks remain separate from delivery verification; a look-dev audit
