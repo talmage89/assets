@@ -8,7 +8,7 @@ from forms import side_x,arch_floor,hood,roof,windshield,backlight,bilinear,smoo
 
 def build(b):
     gap=S.PANEL_GAP
-    hood_p=G.pivot('Hood',(0,S.HOOD_REAR,1.407),'X',(0,62));hood_p.parent=b.root
+    hood_p=G.pivot('Hood',(0,S.HOOD_REAR,1.407),'X',(-62,0));hood_p.parent=b.root
     b.skin('Hood outer',hood,32,16,b.m['body'],(0,0,1),hood_p,'hood')
     b.skin('Roof crown',roof,32,18,b.m['body'],(0,0,1),category='cab')
     # Windshield and backlight are closed 4.8 mm form surfaces at this stage.
@@ -120,6 +120,12 @@ def build(b):
                 a=math.pi*u;y=axle+.508*math.cos(a);z=S.ARCH_Z+.508*math.sin(a)
                 return sign*(.653+.330*v),y,z
             b.skin('Wheelwell_'+end+side,liner,50,3,b.m['rubber'],(0,0,-1),category='liners',gauge=.002,return_depth=0)
+            # Close the inboard liner: a side view must see a dark wheel well,
+            # never the studio background through the tire-to-arch clearance.
+            outline=[(axle-.508,.280),(axle+.508,.280)]
+            outline += [(axle+.508*math.cos(math.pi*i/32),S.ARCH_Z+.508*math.sin(math.pi*i/32)) for i in range(33)]
+            backing=G.profile('Wheelwell inboard_'+end+side,outline,sign*.649-.001,sign*.649+.001,b.m['rubber'],axis='X')
+            b.add(backing,b.root,'liners')
             # Narrow stamped arch lip turns back into the liner opening.
             a0=math.asin((S.ROCKER-S.ARCH_Z)/S.ARCH_RADIUS)
             def lip(u,v,axle=axle):
@@ -136,7 +142,7 @@ def build(b):
     b.skin('Pickup bed floor',lambda u,v:((2*u-1)*.832,S.BED_FRONT+S.BED_LENGTH*v,S.BED_FLOOR),20,24,b.m['bed'],(0,0,1),category='bed')
     b.skin('Pickup box front',lambda u,v:((2*u-1)*.832,S.BED_FRONT,S.BED_FLOOR+(S.BED_TOP-S.BED_FLOOR)*v),24,8,b.m['bed'],(0,1,0),category='bed')
     # Tailgate is a crowned stamped panel with a separate lower hinge root.
-    gate=G.pivot('Tailgate',(0,2.824,S.BED_FLOOR),'X',(0,90));gate.parent=b.root
+    gate=G.pivot('Tailgate',(0,2.824,S.BED_FLOOR),'X',(-90,0));gate.parent=b.root
     def tailgate(u,v):
         x=(2*u-1)*.858;z=.843+(S.BED_TOP-.843)*v
         y=2.839+.008*(1-(2*u-1)**2)+.006*math.sin(math.pi*v)

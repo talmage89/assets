@@ -7,19 +7,6 @@ def smoothstep(t):
     t=max(0,min(1,t));return t*t*(3-2*t)
 
 
-def hermite(stations,t):
-    """C1 monotone-style profile using centered tangents, clipped at end stations."""
-    if t<=stations[0][0]:return stations[0][1]
-    if t>=stations[-1][0]:return stations[-1][1]
-    for i in range(len(stations)-1):
-        a,x=stations[i];b,y=stations[i+1]
-        if a<=t<=b:
-            h=b-a;u=(t-a)/h
-            prev=stations[max(0,i-1)];nxt=stations[min(len(stations)-1,i+2)]
-            m0=(y-prev[1])/(b-prev[0]);m1=(nxt[1]-x)/(nxt[0]-a)
-            return (2*u**3-3*u*u+1)*x+(u**3-2*u*u+u)*h*m0+(-2*u**3+3*u*u)*y+(u**3-u*u)*h*m1
-
-
 def side_x(y,z):
     # Inward rocker, broad convex door crown, distinct but rounded shoulder.
     if z<=S.BELT:
