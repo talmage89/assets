@@ -490,3 +490,6 @@ a source channel into BaseColor alpha (missing channels default to one).
 The downsampler filters that alpha as linear coverage, independently of sRGB.
 `test_surface_profiles.py` checks four per-face surfaces, three shared images,
 metallic factors, extras and retained/filtered RGBA coverage in an actual GLB.
+`BAKE_SOURCE` optionally selects a generated source blend whose bake channels
+need delivery-specific packing; its default remains `build/lookdev.blend`.
+The reviewed look-dev scene stays an independent source audit input.

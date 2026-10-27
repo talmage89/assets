@@ -14,6 +14,7 @@ SAMPLES ?= 80
 WIDTH ?= 1400
 BAKE_SAMPLES ?= 32
 BAKE_SIZE ?= 4096
+BAKE_SOURCE ?= $(BUILD)/lookdev.blend
 # TEX_SIZE is the older grill spelling. Normalize it once; reject ambiguity.
 ifdef TEX_SIZE
 ifdef SHIP_SIZE
@@ -108,8 +109,8 @@ finalize: $(BUILD)/finalized.blend
 $(BUILD)/bake-parameters.txt: FORCE
 	@mkdir -p $(BUILD)
 	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='size=$(BAKE_SIZE) samples=$(BAKE_SAMPLES)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
-$(BUILD)/baked.stamp: $(BUILD)/bake-parameters.txt $(BUILD)/finalized.blend $(BUILD)/lookdev.blend $(KIT)/bake.py $(KIT)/atlas.py $(KIT)/bake_groups.py $(KIT)/image_io.py $(KIT)/gpu.py
-	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/bake.py -- --low $(BUILD)/finalized.blend --high $(BUILD)/lookdev.blend --out textures/bake --asset $(ASSET) --config $(CONFIG) --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
+$(BUILD)/baked.stamp: $(BUILD)/bake-parameters.txt $(BUILD)/finalized.blend $(BAKE_SOURCE) $(KIT)/bake.py $(KIT)/atlas.py $(KIT)/bake_groups.py $(KIT)/image_io.py $(KIT)/gpu.py
+	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/bake.py -- --low $(BUILD)/finalized.blend --high $(BAKE_SOURCE) --out textures/bake --asset $(ASSET) --config $(CONFIG) --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
 	@touch $@
 bake: $(BUILD)/baked.stamp
 $(BUILD)/textures.stamp: $(BUILD)/baked.stamp $(KIT)/downsample.py $(KIT)/image_io.py $(TEXTURE_DEPS)
@@ -147,6 +148,6 @@ check: check-motion
 .PHONY: check-texture-repeat
 # Opt-in expensive reproducibility test; normal `check` never rebakes other assets.
 check-texture-repeat: $(BUILD)/textures.stamp
-	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/bake.py -- --low $(BUILD)/finalized.blend --high $(BUILD)/lookdev.blend --out $(BUILD)/repeat-bake --asset $(ASSET) --config $(CONFIG) --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
+	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/bake.py -- --low $(BUILD)/finalized.blend --high $(BAKE_SOURCE) --out $(BUILD)/repeat-bake --asset $(ASSET) --config $(CONFIG) --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
 	$(PYTHON) $(KIT)/downsample.py --source $(BUILD)/repeat-bake --out $(BUILD)/repeat-ship --asset $(ASSET) --size $(SHIP_SIZE)
 	$(PYTHON) $(KIT)/compare_textures.py --reference textures/ship --candidate $(BUILD)/repeat-ship --out $(BUILD)/texture-repeat.json $(TEXTURE_COMPARE_ARGS)
