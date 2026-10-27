@@ -414,7 +414,10 @@ profile's width, top/contact and triangle reduction and rejects invalid lists.
 `vehicle_materials.py` adds meter-scale source shaders built on `materials.Nodes`:
 `paint`, `manufactured`, `glazing`, `tire` and `lamp`. They expose the existing
 `OUT_base/rough/metal/height` bake channels. Paint has a named `Paint tint` RGB
-node; paint and emissive materials carry review-state properties. Pass a
+node; paint and emissive materials carry review-state properties. Paint also
+exposes `OUT_paint_coverage` and `OUT_paint_contamination` for an RGBA delivery
+packing (`tint * alpha + RGB`), so changing the factory color need not tint dust
+or stone chips. The standard glTF factor alone does not implement this decode. Pass a
 `VehicleRest` POINT/FLOAT_VECTOR world-position attribute (after parenting and
 a dependency-graph update), vehicle axle locations and optional front/rear
 bounds. This keeps causal road film attached to hinged panels. Manufactured

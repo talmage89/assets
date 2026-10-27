@@ -19,14 +19,14 @@ def rest(n,attribute):
 def road_mask(n,p,y,z,axles,wear):
     """Broken splash fans aft of tires, gravity sediment low on the body."""
     breakup=n.noise(n.vec('MULTIPLY',p,(5,1,8)),9,3)
-    sediment=n.mul(n.ramp(z,.78,.48),n.ramp(breakup,.30,.72),.28)
+    sediment=n.mul(n.ramp(z,.78,.48),n.ramp(breakup,.30,.72),.45)
     fans=[]
     for axle in axles:
         dy=n.math('SUBTRACT',y,axle)
         aft=n.mul(n.ramp(dy,.04,.19),n.ramp(dy,.85,.40))
         ceiling=n.add(.63,n.mul(n.ramp(dy,.8,.08),.25),n.mul(breakup,.08))
         height=n.ramp(z,ceiling,.46) if not hasattr(ceiling,'is_output') else n.ramp(n.math('SUBTRACT',ceiling,z),0,.25)
-        fans.append(n.mul(aft,height,n.ramp(breakup,.36,.71),.65))
+        fans.append(n.mul(aft,height,n.ramp(breakup,.36,.71),1.0))
     return n.mul(n.maximum(sediment,*fans),wear)
 
 
@@ -34,21 +34,25 @@ def paint(name,color,wear=.65,axles=(),attribute='VehicleRest',front=None,rear=N
     n=Nodes(name);p,x,y,z,nx,ny,nz=rest(n,attribute)
     tint=n.node('ShaderNodeRGB',name='Paint tint');tint.outputs[0].default_value=(*color,1)
     film=road_mask(n,p,y,z,axles,wear)
-    wake=0 if rear is None else n.mul(n.ramp(y,rear-.22,rear-.04),n.ramp(z,1.24,.84),n.ramp(n.noise(n.vec('MULTIPLY',p,(4,2,.5)),24,3),.28,.70),wear,.48)
+    wake=0 if rear is None else n.mul(n.ramp(y,rear-.22,rear-.04),n.ramp(z,1.24,.84),n.ramp(n.noise(n.vec('MULTIPLY',p,(4,2,.5)),24,3),.28,.70),wear,.65)
     film=n.maximum(film,wake)
     # Contamination sits above the original hue. A neutral wear atlas can be
     # multiplied by any factory tint; no five-copy texture set is needed.
-    faded=n.mul(n.ramp(nz,.3,.95),wear,.035)
-    base=n.mix(faded,tint.outputs[0],n.mix(.94,tint.outputs[0],(.32,.34,.34),True),True)
-    base=n.mix(film,base,(.075,.065,.051),True)
+    faded=n.mul(n.ramp(nz,.3,.95),wear,.018)
+    contamination=n.mix(faded,(0,0,0),(.32,.34,.34),True)
+    contamination=n.mix(film,contamination,(.075,.065,.051),True)
     front_mask=0 if front is None else n.mul(n.ramp(y,front+.33,front+.03),n.ramp(z,1.11,1.25),n.ramp(ny,-.15,-.8))
     chips=n.mul(front_mask,wear,n.ramp(n.noise(p,670,2),.78,.88))
-    base=n.mix(chips,base,(.10,.11,.115),True)
+    contamination=n.mix(chips,contamination,(.10,.11,.115),True)
+    coverage=n.mul(n.math('SUBTRACT',1,faded),n.math('SUBTRACT',1,film),n.math('SUBTRACT',1,chips))
+    base=n.vec('ADD',n.mix(coverage,(0,0,0),tint.outputs[0],True),contamination)
     peel=n.noise(p,2800,2);height=n.mul(n.math('SUBTRACT',peel,.5),1.6e-6)
     rough=n.add(.24,n.mul(n.noise(p,900,2),.035),n.mul(film,.22))
     mat=n.finish(base,rough,.12,height,coat=1)
-    bs=mat.node_tree.nodes['SURFACE'];bs.inputs['Coat Roughness'].default_value=.11
+    bs=mat.node_tree.nodes['SURFACE'];n.feed(bs.inputs['Coat Weight'],n.math('SUBTRACT',1,n.mul(n.maximum(film,chips),.90)))
+    n.feed(bs.inputs['Coat Roughness'],n.add(.11,n.mul(film,.35)))
     n.channel('road_film',film);n.channel('chips',chips)
+    n.channel('paint_coverage',coverage);n.channel('paint_contamination',contamination)
     mat.diffuse_color=(*color,1);mat['vehicle_paint']=True;return mat
 
 
@@ -66,7 +70,7 @@ def manufactured(name,color,kind='plastic',wear=.65,axles=(),attribute='VehicleR
             r=n.math('SQRT',n.add(n.mul(n.math('SUBTRACT',y,cy),n.math('SUBTRACT',y,cy)),n.mul(n.math('SUBTRACT',z,cz),n.math('SUBTRACT',z,cz))))
             d=n.math('ABSOLUTE',n.math('SUBTRACT',x,cx))
             dust.append(n.mul(n.ramp(r,.060,.110),n.ramp(r,.245,.205),n.ramp(d,.17,.02)))
-        mask=n.mul(n.maximum(*dust),wear,.42,n.ramp(n.noise(p,65,2),.2,.8))
+        mask=n.mul(n.maximum(*dust),wear,.42,n.add(.70,n.mul(n.noise(p,190,2),.3)))
         base=n.mix(mask,base,(.027,.022,.018),True);metal=n.mix(mask,metal,0)
     h=n.mul(n.math('SUBTRACT',fine,.5),18e-6 if kind in ['plastic','fabric','liner'] else .8e-6)
     if kind=='liner':
