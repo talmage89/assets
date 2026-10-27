@@ -84,62 +84,8 @@ def main():
         crossings=len(tree(bpy.data.objects['Windshield']).overlap(tree(bpy.data.objects[name])))
         glazing_fit.append(dict(parts=['Windshield',name],crossing_triangle_pairs=crossings))
         if crossings:errors.append('Interior trim crosses windshield '+name)
-    frame=tree(bpy.data.objects['Fascia shared frame']);fp=points(bpy.data.objects['Fascia shared frame'])
-    for sign in [-1,1]:
-        mount=bpy.data.objects['Grille end mount_'+str(sign)]
-        for part in ['Fascia shared frame']+['Alder grille lamella_'+str(k) for k in range(3)]:
-            crossings=len(tree(mount).overlap(tree(bpy.data.objects[part])))
-            supports.append(dict(parts=[mount.name,part],crossing_triangle_pairs=crossings))
-            if not crossings:errors.append('Unsupported grille assembly '+mount.name+' / '+part)
-    def hit(x,z):return frame.ray_cast(Vector((x,-4,z)),Vector((0,1,0)),4)[0]
-    def transition(a,c,z=None,x=None):
-        # Independent binary search on the actual frame's ray silhouette.
-        initial=hit(a,z) is not None if z is not None else hit(x,a) is not None
-        for _ in range(30):
-            m=(a+c)/2;state=hit(m,z) is not None if z is not None else hit(x,m) is not None
-            if state==initial:a=m
-            else:c=m
-        return (a+c)/2
-    left=transition(.36,.46,z=1.16);right=transition(.88,.965,z=1.16)
-    low=transition(1.035,1.12,x=.665);high=transition(1.20,1.29,x=.665)
-    throat=transition(.30,.39,z=1.16);mouthtop=transition(.98,1.045,x=.665);mouthbottom=transition(.82,.89,x=0)
-    # Surface distance along the curved outboard land, not just its projection.
-    outer=max(p.x for p in fp);arc=0;previous=hit(right+.0002,1.16)
-    for j in range(1,100):
-        q=hit(right+.0002+(outer-right-.0004)*j/99,1.16)
-        if q is not None and previous is not None:arc+=(q-previous).length
-        previous=q
-    lands=dict(top_m=max(p.z for p in fp)-high,bottom_m=mouthbottom-min(p.z for p in fp),inner_web_m=left-throat,lower_lamp_web_m=low-mouthtop,outboard_surface_width_m=arc)
-    for name,width in lands.items():
-        if not .040<=width<=.081:errors.append('Fascia land width '+name)
-    probe=hit(0,1.275);rear=frame.ray_cast(Vector((0,-2,1.275)),Vector((0,-1,0)),2)[0]
-    section_depth=rear.y-probe.y
-    if not .040<=section_depth<=.100:errors.append('Fascia frame has no real section')
-    lamp=[]
-    for sign in [-1,1]:
-        ob=bpy.data.objects['Headlamp envelope_'+str(sign)];ps=points(ob)[:ob['sheet_vertex_count']]
-        width=max(p.x for p in ps)-min(p.x for p in ps);height=max(p.z for p in ps)-min(p.z for p in ps)
-        lamp.append(dict(side=sign,actual_lens_width_m=width,actual_lens_height_m=height))
-        if not .450<=width<=.550 or not .150<=height<=.220:errors.append('Headlamp proportions')
-    # Recess measured against ray-cast front surfaces at each lamella height.
-    recess=[]
-    for ob in obs:
-        if ob.name.startswith('Alder grille lamella_'):
-            ps=points(ob);z=sum(p.z for p in ps)/len(ps)
-            top=hit(0,1.275);bottom=hit(0,.820);slope=(top.y-bottom.y)/(top.z-bottom.z)
-            values=[p.y-(bottom.y+slope*(p.z-bottom.z)) for p in ps if abs(p.x)<.70]
-            recess.append(dict(part=ob.name,min_m=min(values),max_m=max(values)))
-            if not .060<=min(values)<=.100:errors.append('Grille depth '+ob.name)
-    hood=bpy.data.objects['Hood outer'];hp=points(hood)[:hood['sheet_vertex_count']]
-    # First actual vertex row follows the authored leading boundary.
-    nu=sorted(hood.data.polygons[0].vertices)[2];front=hp[:nu]
-    gaps=[frame.find_nearest(p)[3] for p in front if abs(p.x)<.88]
-    hood_gap=dict(samples=len(gaps),min_m=min(gaps),max_m=max(gaps),leading_edge_height_range_m=max(p.z for p in front)-min(p.z for p in front))
-    if min(gaps)<.003 or max(gaps)>.008 or hood_gap['leading_edge_height_range_m']>.0001:errors.append('Hood/fascia straight shut line')
-    # Hood must end behind, rather than projecting ahead of, the fascia face.
-    hood_gap['minimum_fore_aft_setback_m']=min(p.y-hit(p.x,1.285).y-.1*(p.z-1.285) for p in front if abs(p.x)<.88)
-    if hood_gap['minimum_fore_aft_setback_m']<.002:errors.append('Hood overhangs fascia')
-    fascia_measurements=dict(aperture_width_m=right-left,aperture_height_m=high-low,land_widths=lands,actual_section_depth_m=section_depth)
+    from face_measurements import collect as measure_face
+    face_report=measure_face();errors.extend(face_report['errors']);supports.extend(face_report['support_intersections'])
     laminate=[]
     for ob in obs:
         count=ob.get('sheet_vertex_count')
@@ -160,7 +106,7 @@ def main():
     mats={m.name for o in obs for m in o.data.materials};images={im.name:list(im.size) for im in bpy.data.images if im.source=='FILE' and im.size[0]>0}
     report=dict(source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),quality=bpy.context.scene['quality'],
        sheet_gauge_measurements=gauges,rest_position_max_error_m=max(rest),actual_underbody_ground_clearance_m=clear,
-       wheel_static_clearances=wheels,mirror_section_checks=mirror_sections,door_sill_gaps=sill_gaps,measured_support_intersections=supports,underbody_noninterference=clear_pairs,lamp_dimensions=lamp,fascia_measurements=fascia_measurements,grille_lamella_recess=recess,hood_surround_shutline=hood_gap,glass_paired_normal_checks=laminate,glazing_trim_noninterference=glazing_fit,pivots=pivots,source_materials=sorted(mats),original_source_images=images,
+       wheel_static_clearances=wheels,mirror_section_checks=mirror_sections,door_sill_gaps=sill_gaps,measured_support_intersections=supports,underbody_noninterference=clear_pairs,face_measurements=face_report,glass_paired_normal_checks=laminate,glazing_trim_noninterference=glazing_fit,pivots=pivots,source_materials=sorted(mats),original_source_images=images,
        passed=not errors,errors=errors,pending=['continuous loaded tire deformation when rolling','kingpin caster/SAI and full wheel steering sweep','doors/hood/tailgate/wiper full assembly sweeps','UV/bake/export/re-import and delivery material verification'])
     Path(a.out).write_text(json.dumps(report,indent=2));print(json.dumps(report,indent=2))
     if errors:raise AssertionError(errors)

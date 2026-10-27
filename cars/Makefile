@@ -55,3 +55,14 @@ round3: SHOTS=front_three_quarter,front_detail,lamps_lit,side
 round3: refs model check render match diagnostic review
 diagnostic: model build/used-cameras.json
 	$(KIT)/with_gpu.sh $(BP) --python src/render_diagnostics.py -- --source build/lookdev.blend --out renders/$(PASS) --width $(WIDTH) --samples $(SAMPLES)
+
+# Front-face source checkpoint. The prior accepted side/paint views stay archived.
+.PHONY: face face-match
+face: SHOTS=front_three_quarter,front_detail,lamps_lit,face_plan,face_side,face_above
+face: refs model check render face-match review
+build/front-cameras.json: build/used-cameras.json
+	$(PYTHON) -c "import json; from pathlib import Path; r=json.loads(Path('$<').read_text()); Path('$@').write_text(json.dumps({k:r[k] for k in ['used_front','aged_front']},indent=2))"
+face-match: model refs build/front-cameras.json
+	$(BP) --python $(KIT)/photo_match.py -- verify --calibration build/front-cameras.json
+	$(KIT)/with_gpu.sh $(BP) --python src/render_lookdev.py -- --source build/lookdev.blend --out renders/$(PASS) --camera-file build/front-cameras.json --width $(WIDTH) --samples $(SAMPLES) --masks
+	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/front-cameras.json --renders renders/$(PASS) --out renders/$(PASS)

@@ -15,6 +15,7 @@ def build(wear):
     for key,col,kind in [
       ('rubber',(.009,.010,.011),'rubber'),('plastic',(.011,.013,.014),'plastic'),
       ('wheel',(.46,.49,.51),'alloy'),('chrome',(.60,.64,.66),'chrome'),
+      ('dark_chrome',(.085,.098,.108),'chrome'),
       ('bed',(.012,.015,.016),'liner'),('bumper',(.016,.019,.021),'plastic'),
       ('frame',(.008,.009,.010),'plastic'),('brake',(.28,.30,.31),'steel'),
       ('caliper',(.11,.12,.12),'steel'),('cloth',(.065,.073,.079),'fabric'),
@@ -22,6 +23,13 @@ def build(wear):
       ('headliner',(.20,.21,.20),'fabric'),('interior_light',(.10,.12,.13),'plastic')]:
         m[key]=V.manufactured('Alder '+key,col,kind,wear,axles,brake_centers=[(sign*S.TRACK/2,y,S.HUB_HEIGHT) for sign in [-1,1] for y in axles] if key=='wheel' else (),refined=True,cargo_bounds=(.832,S.BED_FRONT,S.BED_REAR,S.BED_FLOOR) if key=='bed' else None)
     m['brake']=V.brake_rotor('Alder turned rotor friction ring')
+    # Satin plated polymer on the grille only; retain every accepted finish.
+    nt=m['dark_chrome'].node_tree
+    # Adjust the linked bake channel as well as the visible BSDF.
+    output=nt.nodes['OUT_rough'];original=output.inputs[0].links[0].from_socket
+    add=nt.nodes.new('ShaderNodeMath');add.operation='ADD';add.inputs[1].default_value=.16
+    nt.links.new(original,add.inputs[0]);nt.links.new(add.outputs[0],output.inputs[0])
+    nt.links.new(add.outputs[0],nt.nodes['SURFACE'].inputs['Roughness'])
     m['tire_L']=V.tire('Alder tire left',images['tire_relief'],-1,wear=wear)
     m['tire_R']=V.tire('Alder tire right',images['tire_relief'],1,wear=wear)
     m['glass']=V.glazing('Alder clear windshield',(.18,.26,.28))

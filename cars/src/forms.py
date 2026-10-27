@@ -85,22 +85,32 @@ def side_x(y,z,arch=True):
 
 
 def nose_y(x,z=1.20):
-    a=abs(x);r=.360
-    corner=0 if a<=.780 else r-math.sqrt(max(0,r*r-(min(a,.984)-.780)**2))
-    return -2.849+.10*(z-.830)+corner
+    # Eight-degree upper face with a continuous 125 mm plan crown. Only the
+    # nose and hood/fender leading boundaries use this; side fields stay fixed.
+    return -2.849+math.tan(math.radians(8))*(z-.795)+.125*(abs(x)/.984)**2.6
 
 
 def hood_front_y(x):
-    return nose_y(x,1.305)+.008
+    return nose_y(x,1.305)+.0045
 
 
 def hood_z(x,y):
     # Straight shut line above the fascia. The center pressing blends in aft
     # of that line instead of continuing forward as a raised beak.
-    fy=hood_front_y(x);t=(y-fy)/(S.HOOD_REAR-fy)
+    # Preserve the accepted hood field aft of the nose/fender joint. Only the
+    # leading strip is reclosed to the deeper front crown.
+    a=abs(x);r=.360
+    corner=0 if a<=.780 else r-math.sqrt(max(0,r*r-(min(a,.984)-.780)**2))
+    fy=-2.849+.10*(1.305-.830)+corner+.008
+    t=(y-fy)/(S.HOOD_REAR-fy)
     base=1.3095+(1.369-1.3095)*t+.008*t*(1-t)
     rise=section(abs(x),[(0,.045),(.410,.042),(.520,.007),(.610,0),(.99,-.009)],.008)
-    return base+(rise+.004*(1-(x/.99)**2))*fair((y-fy)/.30)
+    result=base+(rise+.004*(1-(x/.99)**2))*fair((y-fy)/.30)
+    if y< -2.499:
+        nf=hood_front_y(x);nt=(nf-fy)/(S.HOOD_REAR-fy)
+        at_front=1.3095+(1.369-1.3095)*nt+.008*nt*(1-nt)+(rise+.004*(1-(x/.99)**2))*fair((nf-fy)/.30)
+        result+=(1.3095-at_front)*(1-fair((y-nf)/max(.035,-2.499-nf)))
+    return result
 
 
 def hood(u,v):
@@ -160,8 +170,37 @@ def bilinear(corners,u,v):
 
 
 def lamp_surface(u,v):
-    """496 x 161 mm lens seated inside a 500 x 165 mm corner aperture."""
-    x=.417+.496*u;r=.016;d=min(x-.417,.913-x)
+    """Low optical cover continuing around the fender corner, never a box."""
+    bottom,top=lamp_limits(u)
+    r=.012;d=min(u,1-u)*.420
     cut=0 if d>=r else r-math.sqrt(max(0,r*r-(r-d)**2))
-    z=1.082+cut+(.161-2*cut)*v
-    return x,nose_y(x,z)+.0075,z
+    z=bottom+cut+(top-bottom-2*cut)*v
+    x,y=nose_corner(u,z)
+    return x,y+.003,z
+
+
+def lamp_limits(u):
+    taper=fair((u-.58)/.42)
+    return 1.095+.040*taper,1.249-.032*taper
+
+
+def nose_corner(u,z,inner=.598,bumper=False):
+    """Front crown into a tangent side return; ends at the existing fender."""
+    def fy(x):
+        if not bumper:return nose_y(x,z)
+        depth=section(z,[(.540,.035),(.565,.004),(.580,0),(.665,.006),(.755,.023),(.790,.050)],.009)
+        return -S.LENGTH/2+.0004+.125*(abs(x)/.984)**2.6+depth
+    if u<=.70:
+        x=inner+(.950-inner)*u/.70
+        return x,fy(x)
+    t=(u-.70)/.30;end=-2.499;side=side_x(end,z)
+    ps=[(.950,fy(.950)),(.990,fy(.950)+.015),(side,end-.080),(side,end)]
+    return tuple((1-t)**3*ps[0][k]+3*(1-t)**2*t*ps[1][k]+3*(1-t)*t*t*ps[2][k]+t**3*ps[3][k] for k in range(2))
+
+
+def lamp_point(u,v,depth=0):
+    """Offset into the optical well along its actual plan normal."""
+    x,y,z=lamp_surface(u,v)
+    a=lamp_surface(u-.0001,v);c=lamp_surface(u+.0001,v)
+    dx=c[0]-a[0];dy=c[1]-a[1];length=math.hypot(dx,dy)
+    return x-depth*dy/length,y+depth*dx/length,z

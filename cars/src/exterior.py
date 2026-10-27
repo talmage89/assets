@@ -37,10 +37,8 @@ def build(b):
             offset=sign*(-.022 if y< -1.34 else -.007 if y< -1.28 else 0)
             loops.append([(center+offset+u,y,1.497+v) for u,v in G.rounded_rectangle(w,h,min(.036,w*.45,h*.45),6 if b.high else 3)])
         housing=G.smooth(G.loft('Molded mirror shell_'+side,loops,b.m['bumper']))
-        housing.data.materials.append(b.m['body'])
-        for face in housing.data.polygons:
-            # The painted cap stops short of the black gasket/glass case.
-            if face.index<4*len(loops[0]):face.material_index=1
+        # Keep the accepted taper; a textured black cap avoids a bright box
+        # reflection beside the much darker face.
         b.add(housing,fold,'mirrors');housing['bounds_exclude']=True;housing['housing_sections']=len(loops);housing['section_vertices']=len(loops[0]);G.smooth(housing,65)
         arm=tube(b,'Mirror support arm_'+side,[(sign*1.033,-1.230,1.431),(sign*1.079,-1.217,1.409),(sign*1.117,-1.200,1.414)],.024,b.m['plastic'],'mirrors',fold,sides=8);arm['bounds_exclude']=True
         # Bezel has a real rounded aperture and a short return to the glass.
@@ -77,7 +75,7 @@ def build(b):
     for face in plate.data.polygons:face.flip()
     b.add(plate,flap,'trim')
     # Real US-size plate carriers. The rear carrier sits inside the bumper opening.
-    for end,sgn,y,z in [('F',-1,-2.928,.686),('R',1,2.869,.710)]:
+    for end,sgn,y,z in [('F',-1,-2.901,.672),('R',1,2.869,.710)]:
         box(b,'Plate recess surround_'+end,(0,y-sgn*.012,z),(.337,.027,.178),b.m['plastic'],'trim',radius=.010)
         box(b,'Plate blank_'+end,(0,y,z),(.305,.002,.1524),b.m['wheel'],'trim',radius=.003)
         corners=[(-.150,y+sgn*.0015,z-.074),(.150,y+sgn*.0015,z-.074),(.150,y+sgn*.0015,z+.074),(-.150,y+sgn*.0015,z+.074)]
@@ -85,8 +83,8 @@ def build(b):
         print_quad(b,'Fictional plate_'+end,corners,b.m['plate'])
     for sign in [-1,1]:
         # Forged horizontal recovery loops, supported by the front crossmember.
-        loop(b,'Front tow hook_'+str(sign),(sign*.486,-2.877,.590),(1,0,0),(0,1,0),(.039,.055),.008,b.m['frame'],'trim',segments=16,sides=6)
-        box(b,'Tow hook bracket_'+str(sign),(sign*.486,-2.796,.590),(.065,.104,.040),b.m['frame'],'trim',radius=.003)
+        loop(b,'Front tow hook_'+str(sign),(sign*.486,-2.871,.492),(1,0,0),(0,1,0),(.039,.055),.008,b.m['frame'],'trim',segments=16,sides=6)
+        box(b,'Tow hook bracket_'+str(sign),(sign*.486,-2.796,.492),(.065,.150,.040),b.m['frame'],'trim',radius=.003)
     # Parked wipers lie against points on our windshield, with hinge normals.
     for i,(lo,hi) in enumerate([(.055,.465),(.515,.93)]):
         pts=[]

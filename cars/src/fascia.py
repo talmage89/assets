@@ -1,134 +1,221 @@
-"""A single original molded/plated fascia with inset upper-corner lamps.
+"""Original swept Alder nose: separate grille, wrapped optics and formed bumper.
 
-All openings are cut in one closed frame before its face is swept around the
-nose. Frame land widths are 60–69 mm; its section is 65 mm deep. Dimensions
-and independent surface checks are recorded at the source checkpoint.
+The crown/rake lives in forms.py. This module builds closed manufacturing
+sections rather than bending a perforated plate. Fine mesh/optic detail stays
+in source materials for the eventual normal bake.
 """
 import math
-import bpy,bmesh
 from mathutils import Vector
 from kit import model as G
 from kit.vehicle import samples
-from forms import nose_y,side_x,hood_z,hermite,lamp_surface
+from forms import nose_y,nose_corner,hood_z,lamp_surface,lamp_point,lamp_limits,fair
 from detail_helpers import box,tube,print_quad
 
 TOP=1.305
 BOTTOM=.795
-DEPTH=.065
-LAMP_CENTER=.665
-LAMP_WIDTH=.500
-LAMP_BOTTOM=1.080
-LAMP_TOP=1.245
+DEPTH=.080
 
 
-def rounded(w,h,r,steps):
-    return G.rounded_rectangle(w,h,r,steps)
+def grille_outline(inset,steps):
+    """Matched rounded trapezoid stations, with 70 mm face land."""
+    slope=(.607-.548)/(TOP-BOTTOM)
+    shift=inset*math.sqrt(1+slope*slope)
+    w=.607-inset*slope-shift;bottom=.548+inset*slope-shift
+    z0=BOTTOM+inset;z1=TOP-inset
+    from body import rounded_polygon
+    return rounded_polygon([(-bottom,z0),(bottom,z0),(w,z1),(-w,z1)], [.045]*4,steps)
+
+
+def frame(b):
+    outer=grille_outline(0,5 if b.high else 3)
+    inner=grille_outline(.070,5 if b.high else 3)
+    # Crown stations are essential on the long upper/lower lands. A single
+    # polygon across the width would interpolate a flat chord over the nose.
+    dense=[[],[]]
+    for j in range(len(outer)):
+        count=max(1,math.ceil(max(math.dist(path[j],path[(j+1)%len(path)]) for path in [outer,inner])/.10))
+        for path,dst in zip([outer,inner],dense):
+            a,c=path[j],path[(j+1)%len(path)]
+            dst.extend(tuple(a[k]+(c[k]-a[k])*i/count for k in range(2)) for i in range(count))
+    outer,inner=dense
+    loops=[]
+    for t,depth in [(0,.065),(0,.007),(.07,.001),(.28,-.003),(.76,-.003),(1,.006),(1,.080)]:
+        loop=[]
+        for a,c in zip(outer,inner):
+            x,z=[a[k]+t*(c[k]-a[k]) for k in range(2)]
+            loop.append((x,nose_y(x,z)+depth,z))
+        loops.append(loop)
+    mat=b.m['dark_chrome'] if b.detail else b.m['body']
+    ob=G.smooth(G.ring_loft('Fascia shared frame',loops,mat),75)
+    b.add(ob,category='nose')
 
 
 def build_form(b):
-    steps=5 if b.high else 3
-    outline=[(x,1.050+z) for x,z in rounded(1.968,.510,.035,steps)]
-    mat=b.m['wheel'] if b.detail else b.m['body']
-    frame=G.profile('Fascia shared frame',outline,0,DEPTH,mat,axis='Y')
-    for sign in [-1,1]:
-        hole=[(sign*LAMP_CENTER+x,(LAMP_BOTTOM+LAMP_TOP)/2+z) for x,z in rounded(LAMP_WIDTH,LAMP_TOP-LAMP_BOTTOM,.018,steps)]
-        G.boolean(frame,G.profile('Fascia lamp tool',hole,-.1,DEPTH+.1,mat,axis='Y'))
-    # Wide lower mouth reaches underneath both lamps; the central upper throat
-    # rises between them. A continuous 60 mm web holds all three apertures.
-    mouth=[(-.915,.855),(.915,.855),(.915,1.020),(.355,1.020),(.355,1.245),(-.355,1.245),(-.355,1.020),(-.915,1.020)]
-    from body import rounded_polygon
-    mouth=rounded_polygon(mouth,[.012]*len(mouth),steps)
-    G.boolean(frame,G.profile('Fascia grille tool',mouth,-.1,DEPTH+.1,mat,axis='Y'))
-    G.bevel(frame,.003,3 if b.high else 1);G.apply(frame)
-    # Add curvature stations to the turned corners, not triangles to flat land.
-    bm=bmesh.new();bm.from_mesh(frame.data)
-    for sign in [-1,1]:
-        for x in [.760,.805,.845,.875,.900,.929,.950,.967,.978]:
-            bmesh.ops.bisect_plane(bm,geom=list(bm.verts)+list(bm.edges)+list(bm.faces),dist=1e-7,plane_co=(sign*x,0,0),plane_no=(1,0,0),clear_outer=False,clear_inner=False)
-    bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=1e-6)
-    bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=1e-7)
-    bm.to_mesh(frame.data);bm.free()
-    axial=[v.co.y for v in frame.data.vertices]
-    for v in frame.data.vertices:v.co.y+=nose_y(v.co.x,v.co.z)
-    # Analytic cap normals prevent triangulated boolean caps from denting the
-    # swept front. The actual side walls and bevel keep geometric normals.
-    custom=[(0,0,0)]*len(frame.data.loops)
-    for f in frame.data.polygons:
-        front=all(abs(axial[i])<1e-6 for i in f.vertices);back=all(abs(axial[i]-DEPTH)<1e-6 for i in f.vertices)
-        if front or back:
-            f.use_smooth=True
-            for li in f.loop_indices:
-                p=frame.data.vertices[frame.data.loops[li].vertex_index].co;e=1e-5
-                dx=(nose_y(p.x+e,p.z)-nose_y(p.x-e,p.z))/(2*e)
-                custom[li]=Vector((dx,-1,.1)).normalized()*(1 if front else -1)
-    frame.data.normals_split_custom_set(custom)
-    frame['frame_depth_m']=DEPTH
-    b.add(frame,category='nose')
-    # Painted corner closures continue into the accepted fender field.
+    frame(b)
     for sign,side in [(-1,'L'),(1,'R')]:
-        def cheek(u,v,sign=sign):
-            z=.795+(hood_z(.984,-2.499)-.0045-.795)*v
-            start=nose_y(.984,z)+DEPTH;end=-2.499;y=start+(end-start)*u
-            e=1e-5;slope=(side_x(end+e,z)-side_x(end-e,z))/(2*e)
-            x=hermite(u,[(0,.984,.006),(1,side_x(end,z),slope*(end-start))])
-            return sign*x,y,z
-        b.skin('Fascia body corner_'+side,cheek,8,12,b.m['body'],(sign,0,0),category='nose',gauge=.0009,return_depth=.006)
+        # Two stamped corner fields leave a real optical aperture. Both end
+        # on the accepted fender boundary; no side section is resculpted.
+        for name in ['lower','upper']:
+            def cheek(u,v,name=name,sign=sign):
+                lo,hi=lamp_limits(u)
+                if name=='lower':z=.798+(lo-.002-.798)*v
+                else:
+                    top=1.305+(hood_z(.984,-2.499)-.0045-1.305)*fair((u-.70)/.30)
+                    z=hi+.002+(top-hi-.002)*v
+                # The lower pressing follows the grille's sloping edge, with
+                # a covered mounting overlap, instead of leaving a 40 mm dark
+                # slot beside a rectangular cheek.
+                inner=.548+(z-BOTTOM)*(.607-.548)/(TOP-BOTTOM)-.004 if name=='lower' else .598
+                x,y=nose_corner(u,z,inner=inner)
+                return sign*x,y,z
+            b.skin('Fascia body '+name+'_'+side,cheek,30,6,b.m['body'],(sign,-1,0),category='nose',
+                   gauge=.0009,return_depth=.006,us=samples(30 if b.high else 15))
         def lens(u,v,sign=sign):
             x,y,z=lamp_surface(u,v);return sign*x,y,z
-        b.skin('Headlamp envelope_'+str(sign),lens,28,6,b.m['lens'],(sign,-1,0),category='lamp_forms',gauge=.0026,return_depth=0,
-                   us=sorted(set(samples(24 if b.high else 12)+[.03,.06,.94,.97])))
+        b.skin('Headlamp envelope_'+str(sign),lens,36,6,b.m['lens'],(sign,-1,0),category='lamp_forms',
+               gauge=.0026,return_depth=0,us=sorted(set(samples(36 if b.high else 18)+[.014,.028,.972,.986])))
+    bumper_form(b)
+
+
+def bumper_form(b):
+    """250 mm press-formed beam, plate pocket and a separate textured valance."""
+    # Continuous crown except for the license-plate pocket. The half contours
+    # continue 180 mm around the corners toward the wheel openings.
+    def surface(u,z):
+        sign=1 if u>=.5 else -1
+        x,y=nose_corner(abs(2*u-1),z,inner=0,bumper=True)
+        return sign*x,y,z
+    zs=[.540,.553,.565,.580,.610,.685,.744,.766,.780,.790] if b.high else [.540,.565,.580,.685,.766,.790]
+    # Split only at the actual plate aperture, 346 x 180 mm.
+    edge=.173/.950*.70
+    for name,a,c in [('left',0,(1-edge)/2),('right',(1+edge)/2,1)]:
+        sign=-1 if name=='left' else 1
+        b.skin('Front bumper '+name,lambda u,z,a=a,c=c:surface(a+(c-a)*u,z),26,8,b.m['body'],(sign,-1,0),
+               category='bumpers',gauge=.0025,return_depth=.025,vs=zs,us=samples(26 if b.high else 11))
+    for name,zs0 in [('lower',[.540,.553,.565,.580]),('upper',[.764,.780,.790])]:
+        b.skin('Front bumper '+name,lambda u,z:surface((1-edge)/2+edge*u,z),8,4,b.m['body'],(0,-1,0),
+               category='bumpers',gauge=.0025,return_depth=.035,vs=zs0)
+    # Pressed pocket floor and returns are behind the visible beam, not a
+    # floating plate holder applied to its front.
+    box(b,'Bumper plate pocket',(0,-2.875,.672),(.346,.028,.184),b.m['bumper'],'bumpers',radius=.010)
+    def shelf(u,v):
+        x,y,z=surface(u,.790)
+        a=surface(u-.0001,.790);c=surface(u+.0001,.790)
+        dx=c[0]-a[0];dy=c[1]-a[1];length=math.hypot(dx,dy)
+        return x-.105*v*dy/length,y+.105*v*dx/length,z
+    b.skin('Bumper upper return_F',shelf,48,3,b.m['body'],(0,0,1),category='bumpers',gauge=.0025,return_depth=0)
+    # Mounting ears connect the cosmetic beam skin to the accepted crash beam.
+    # Follow the curved skin at their front edge; a straight box would poke
+    # through its crown. Each is a closed 8 mm plate, twelve game triangles.
+    for sign in [-1,1]:
+        def bracket(u,v,sign=sign):
+            x=.390+.080*u
+            _,front=nose_corner(.70*x/.950,.665,inner=0,bumper=True)
+            return sign*x,front+.0015+(-2.797-front-.0015)*v,.665
+        b.skin('Front bumper beam bracket_'+str(sign),bracket,2,2,b.m['frame'] if b.detail else b.m['bumper'],
+               (0,0,1),category='bumpers',gauge=.008,return_depth=0,us=[0,1],vs=[0,1])
+    # Broad intake and two recovery-hook slots, separated by molded webs.
+    def valance(u,z):
+        x,y,_=surface(u,.540)
+        return x*.98,y+.025+(.540-z)*.25,z
+    for name,a,c in [('left',0,.30),('right',.70,1),('web_L',.325,.37),('web_R',.63,.675)]:
+        sign=-1 if name in ['left','web_L'] else 1
+        b.skin('Lower valance '+name,lambda u,z,a=a,c=c:valance(a+(c-a)*u,z),16,3,b.m['bumper'],(sign,-1,0),
+               category='bumpers',gauge=.003,return_depth=.018,vs=[.440,.452,.525,.535])
+    for name,z0,z1 in [('lower',.440,.458),('upper',.520,.535)]:
+        b.skin('Lower valance '+name,lambda u,v,z0=z0,z1=z1:valance(.30+.40*u,z0+(z1-z0)*v),24,2,b.m['bumper'],(0,-1,0),
+               category='bumpers',gauge=.003,return_depth=.018)
+    box(b,'Valance intake shadow',(0,-2.797,.489),(.685,.008,.080),b.m['frame'],'bumpers',radius=.002)
+    for z in [.475,.499]:
+        box(b,'Valance intake louver_'+str(z),(0,-2.829,z),(.668,.030,.008),b.m['plastic'],'bumpers',radius=.002)
+
+
+def optic(b,name,profile,material,u,sign,segments=24):
+    """Local optical axis follows the protective cover's plan normal."""
+    p=Vector(lamp_surface(u,.5));a=Vector(lamp_surface(u-.001,.5));c=Vector(lamp_surface(u+.001,.5))
+    tangent=(c-a).normalized();tangent.z=0;tangent.normalize();inward=Vector((-tangent.y,tangent.x,0))
+    ob=G.lathe(name,profile,material,segments,axis='Y')
+    for v in ob.data.vertices:
+        q=p+tangent*v.co.x+inward*v.co.y+Vector((0,0,v.co.z));q.x*=sign;v.co=q
+    if sign<0:
+        for face in ob.data.polygons:face.flip()
+    return b.add(ob,category='lamps')
 
 
 def details(b):
     for sign,side in [(-1,'L'),(1,'R')]:
-        # Full-depth sealed optical well, seated inside the common frame.
         def back(u,v,sign=sign):
-            x,y,z=lamp_surface(u,v);return sign*x,y+.062,z
-        b.skin('Headlamp housing back_'+side,back,24,4,b.m['plastic'],(sign,-1,0),category='lamps',gauge=.002,return_depth=0)
-        rings=[]
-        for w,h,r,depth in [(.498,.163,.016,.013),(.498,.163,.016,.075),(.492,.157,.013,.075),(.492,.157,.013,.013)]:
-            rings.append([(sign*(LAMP_CENTER+x),nose_y(LAMP_CENTER+x,(LAMP_BOTTOM+LAMP_TOP)/2+z)+depth,(LAMP_BOTTOM+LAMP_TOP)/2+z) for x,z in rounded(w,h,r,5 if b.high else 3)])
-        b.add(G.ring_loft('Headlamp well walls_'+side,rings,b.m['plastic']),category='lamps')
-        x=sign*.552;z=1.161;yf=nose_y(x,z)+.025;yb=yf+.045
-        b.add(G.lathe('Headlamp reflector_'+side,[(yb,.014),(yb,.025),(yf,.058),(yf,.057),(yb+.001,.014)],b.m['chrome'],32 if b.high else 20,axis='Y',center=(x,z),closed=True),category='lamps')
-        b.add(G.lathe('Projector optic_'+side,[(yf-.004,0),(yf-.001,.041),(yf+.004,.047),(yf+.010,.041),(yf+.013,0)],b.m['lens'],32 if b.high else 20,axis='Y',center=(x,z)),category='lamps')
-        b.add(G.lathe('Projector emitter_'+side,[(yb-.004,0),(yb-.004,.018),(yb,.018),(yb,0)],b.m['headlight'],16,axis='Y',center=(x,z)),category='lamps')
-        for k in range(4):
-            xx=.675+k*.043;zz=1.143
-            box(b,'Headlamp lateral reflector_'+side+str(k),(sign*xx,nose_y(xx,zz)+.029,zz),(.037,.022,.060),b.m['chrome'],'lamps',radius=.005)
-        # Keep the accepted light-guide section and powered state; stretch its
-        # original open angular signature around the new low, wide aperture.
-        uv=[(.08,.85),(.40,.85),(.82,.85),(.94,.75),(.94,.26),(.86,.15),(.35,.15),(.16,.23)]
-        path=[]
-        for a,c in zip(uv,uv[1:]):
-            for t in samples(3)[:-1]:
-                u,v=[a[k]+(c[k]-a[k])*t for k in range(2)];xx,y,zz=lamp_surface(u,v);path.append((sign*xx,y+.016,zz))
-        xx,y,zz=lamp_surface(*uv[-1]);path.append((sign*xx,y+.016,zz))
-        tube(b,'Alder running signature_'+side,path,.008,b.m['drl'],'lamps',sides=6)
-        xx,y,zz=lamp_surface(.96,.50)
-        box(b,'Amber side marker_'+side,(sign*xx,y+.008,zz),(.010,.020,.065),b.m['amber'],'lamps',radius=.003)
-    # Deep lamellae span beneath the two lamp pockets, supported at both ends.
-    for k,z in enumerate([.888,.944,.999]):
+            x,y,z=lamp_point(u,v,.082);return sign*x,y,z
+        b.skin('Headlamp housing back_'+side,back,30,4,b.m['plastic'],(sign,-1,0),category='lamps',gauge=.002,return_depth=0)
+        # Seal all four edges of the curving, tapering lens, with 3 mm gauge.
+        uv=[(u,0) for u in samples(36 if b.high else 18)]+[(1,v) for v in samples(4)[1:]]
+        uv += [(u,1) for u in reversed(samples(36 if b.high else 18)[:-1])]+[(0,v) for v in reversed(samples(4)[1:-1])]
         loops=[]
-        for x in [-.924,-.90,-.875,-.845,-.805,-.760,-.5,0,.5,.760,.805,.845,.875,.90,.924]:
+        for shrink,depth in [(0,.009),(0,.084),(.018,.084),(.018,.009)]:
+            loop=[]
+            for u,v in uv:
+                u=u*(1-shrink*2)+shrink;v=v*(1-shrink*5)+shrink*2.5
+                x,y,z=lamp_point(u,v,depth)
+                loop.append((sign*x,y,z))
+            loops.append(loop)
+        b.add(G.ring_loft('Headlamp well walls_'+side,loops,b.m['plastic']),category='lamps')
+        optic(b,'Headlamp reflector_'+side,[(.076,.014),(.076,.025),(.021,.056),(.020,.055),(.077,.014)],b.m['chrome'],.22,sign,32 if b.high else 20)
+        optic(b,'Projector optic_'+side,[(.010,0),(.013,.037),(.019,.043),(.028,.040),(.031,0)],b.m['lens'],.22,sign,32 if b.high else 20)
+        optic(b,'Projector emitter_'+side,[(.068,0),(.068,.018),(.072,.018),(.072,0)],b.m['headlight'],.22,sign,16)
+        # A broad faceted reflector cup, recessed into the outer optical well.
+        rings=[]
+        for w,h,depth in [(.118,.070,.028),(.058,.030,.074),(.052,.025,.077),(.115,.067,.030)]:
+            ring=[]
+            for dx,dz in G.rounded_rectangle(w,h,.009,3 if b.high else 2):
+                u=.55+dx/.49;x,y,z=lamp_point(u,.5,depth)
+                ring.append((sign*x,y,z+dz))
+            rings.append(ring)
+        b.add(G.ring_loft('Headlamp lateral reflector_'+side,rings,b.m['chrome']),category='lamps')
+        # Retain the accepted 16 mm guide and emission power, following the
+        # new cover's outline instead of putting a rectangular guide in a box.
+        signature=[(.04,.84),(.32,.84),(.65,.84),(.91,.79),(.96,.64),(.96,.30),(.88,.17),(.56,.16),(.18,.16),(.06,.24)]
+        path=[]
+        for a,c in zip(signature,signature[1:]):
+            for t in samples(4 if b.high else 3)[:-1]:
+                u,v=[a[k]+(c[k]-a[k])*t for k in range(2)];x,y,z=lamp_point(u,v,.018);path.append((sign*x,y,z))
+        x,y,z=lamp_point(*signature[-1],.018);path.append((sign*x,y,z))
+        tube(b,'Alder running signature_'+side,path,.008,b.m['drl'],'lamps',sides=6)
+        x,y,z=lamp_point(.91,.50,.017)
+        box(b,'Amber side marker_'+side,(sign*x,y,z),(.010,.026,.036),b.m['amber'],'lamps',radius=.003)
+    # Four dark structural blades cross one full-height central opening. Fine
+    # diamond relief behind them is the original generated normal-map input.
+    for k,z in enumerate([.900,.990,1.080,1.170]):
+        half=.553-(z-.795)*.14
+        loops=[]
+        for x in [-half,-half+.014,-.30,0,.30,half-.014,half]:
             y=nose_y(x,z)+.080
-            loops.append([(x,y+dy,z+dz) for dy,dz in [(0,-.010),(0,.010),(.027,.007),(.027,-.007)]])
-        b.add(G.loft('Alder grille lamella_'+str(k),loops,b.m['chrome']),category='grille')
+            loops.append([(x,y+dy,z+dz) for dy,dz in [(0,-.010),(0,.010),(.030,.008),(.030,-.008)]])
+        b.add(G.loft('Alder grille lamella_'+str(k),loops,b.m['dark_chrome']),category='grille')
     for sign in [-1,1]:
-        x=sign*.916;z=.944
-        box(b,'Grille end mount_'+str(sign),(x,nose_y(x,z)+.074,z),(.030,.044,.162),b.m['frame'],'grille',radius=.002)
-    # The repeating fine perforations remain relief on the original map.
-    for name,x0,x1,z0,z1 in [('lower',-.910,.910,.856,1.019),('upper',-.354,.354,1.018,1.244)]:
-        # Curve/split the field at the same X stations as its surrounding frame.
-        xs=sorted(set([x0,x1]+[s*v for s in [-1,1] for v in [.760,.805,.845,.875,.90] if x0<s*v<x1]))
-        for i,(lo,hi) in enumerate(zip(xs,xs[1:])):
-            corners=[(x,nose_y(x,z)+.116,z) for x,z in [(lo,z0),(hi,z0),(hi,z1),(lo,z1)]]
-            ob=print_quad(b,'Alder grille field_'+name+str(i),corners,b.m['grille'],'grille')
-            uv=ob.data.uv_layers.active
-            for f in ob.data.polygons:
-                for li in f.loop_indices:
-                    p=ob.matrix_world@ob.data.vertices[ob.data.loops[li].vertex_index].co;uv.data[li].uv=((p.x+.915)/1.83,(p.z-.855)/.39)
-        b.skin('Grille cavity_'+name,lambda u,v,x0=x0,x1=x1,z0=z0,z1=z1:(x0+(x1-x0)*u,nose_y(x0+(x1-x0)*u,z0+(z1-z0)*v)+.128,z0+(z1-z0)*v),20,2,b.m['frame'],(0,-1,0),category='grille',gauge=.002,return_depth=0)
-    box(b,'Alder grille badge',(0,nose_y(0,1.135)+.083,1.135),(.253,.023,.064),b.m['plastic'],'grille',radius=.008)
-    y=nose_y(0,1.135)+.069
-    print_quad(b,'Alder front badge',[(-.117,y,1.113),(.117,y,1.113),(.117,y,1.157),(-.117,y,1.157)],b.m['badge'],'grille')
+        # Swept backing rails intersect all blade ends and the surround return.
+        loops=[]
+        for z in [.865,.900,.990,1.080,1.170,1.235]:
+            x=sign*(.553-(z-.795)*.14)
+            loops.append([(x+dx,nose_y(x,z)+dy,z) for dx,dy in [(-.016,.065),(.016,.065),(.016,.110),(-.016,.110)]])
+        b.add(G.loft('Grille end mount_'+str(sign),loops,b.m['frame']),category='grille')
+    # The closed cavity is bounded by the inner return, rather than two
+    # disconnected fields separated by a lamp-sized web.
+    contour=grille_outline(.069,5 if b.high else 3)
+    inner=grille_outline(.071,5 if b.high else 3)
+    loops=[[(x,nose_y(x,z)+d,z) for x,z in path] for path,d in [(contour,.078),(contour,.135),(inner,.135),(inner,.078)]]
+    b.add(G.ring_loft('Grille cavity',loops,b.m['frame']),category='grille')
+    back=G.profile('Grille cavity back',inner,.135,.137,b.m['frame'],axis='Y')
+    for v in back.data.vertices:v.co.y+=nose_y(v.co.x,v.co.z)
+    b.add(back,category='grille')
+    # Slightly smaller field in front of the cavity's black back. A fan is
+    # sufficient at this density; the small crown is smooth across the front.
+    boundary=grille_outline(.072,5 if b.high else 3)
+    vs=[(0,nose_y(0,1.05)+.124,1.05)]+[(x,nose_y(x,z)+.124,z) for x,z in boundary]
+    ob=b.add(G.mesh('Alder grille field',vs,[(0,i+1,(i+1)%len(boundary)+1) for i in range(len(boundary))],b.m['grille']),category='grille')
+    ob['allow_boundary']=True  # Original relief print over the solid cavity back.
+    uv=ob.data.uv_layers.new(name='Original relief')
+    for li,loop in enumerate(ob.data.loops):
+        p=ob.matrix_world@ob.data.vertices[loop.vertex_index].co;uv.data[li].uv=((p.x+.54)/1.08,(p.z-.865)/.37)
+    box(b,'Alder grille badge',(0,nose_y(0,1.080)+.057,1.080),(.205,.027,.052),b.m['plastic'],'grille',radius=.007)
+    y=nose_y(0,1.080)+.042
+    print_quad(b,'Alder front badge',[(-.095,y,1.062),(.095,y,1.062),(.095,y,1.098),(-.095,y,1.098)],b.m['badge'],'grille')

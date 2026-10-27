@@ -47,8 +47,8 @@ def collect():
     rake=math.degrees(math.atan2(pillar_top.z-pillar_bottom.z,pillar_top.y-pillar_bottom.y))
     if 'Fascia shared frame' in bpy.data.objects:
         fascia=tree(['Fascia shared frame'])
-        lo=fascia.ray_cast(Vector((0,-4,.810)),Vector((0,1,0)),4)[0]
-        hi=fascia.ray_cast(Vector((0,-4,1.285)),Vector((0,1,0)),4)[0]
+        lo=fascia.ray_cast(Vector((0,-4,.825)),Vector((0,1,0)),4)[0]
+        hi=fascia.ray_cast(Vector((0,-4,1.275)),Vector((0,1,0)),4)[0]
         grille=bpy.data.objects['Fascia shared frame']
     else:
         low=grid('Lower fascia')[0];lo=min(low,key=lambda p:abs(p.x))

@@ -81,7 +81,7 @@ def main():
         if value['squared_crown_ratio']<.72:errors.append('Arch crown insufficiently squared')
     if form['door_crown_above_820_1200_chord_m']<.004:errors.append('Side crown absent')
     if form['windshield_top_to_roof_surface_m']>.003:errors.append('Raised or detached windshield header')
-    if not 4<=form['grille_face_rake_degrees']<=8:errors.append('Grille face rake')
+    if not 6<=form['grille_face_rake_degrees']<=10:errors.append('Grille face rake')
     if any(value['sash_outboard_of_rail_m']<.0003 for value in form['roof_rail_to_sash_clearances']):
         errors.append('Roof rail coincides with or covers door sash at sampled sections')
     for value in gaps.values():

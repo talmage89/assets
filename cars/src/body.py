@@ -217,9 +217,8 @@ def build(b):
     b.skin('Tailgate top lip',lambda u,v:((2*u-1)*.858,S.BED_REAR+(2.853-S.BED_REAR)*v,S.BED_TOP+.003),24,3,b.m['body'],(0,0,1),gate,'tailgate',gauge=.0012,return_depth=.015)
     from fascia import build_form
     build_form(b)
-    # Swept formed bumper sections: upper return, beam crown, lower kick. The
-    # tiny mid-beam crest retains the established envelope; corners tuck back.
-    for end,sgn in [('F',-1),('R',1)]:
+    # Retain the accepted rear bumper. The front is built with its own nose.
+    for end,sgn in [('R',1)]:
         zs=[.565,.590,.632,.707,.770,.792] if sgn<0 else [.590,.615,.665,.770,.812,.832]
         def bumper(u,z,sgn=sgn):
             x=(2*u-1)*.984;a=abs(x)
@@ -230,25 +229,14 @@ def build(b):
             return x,sgn*(S.LENGTH/2-wrap-depth-recess),z
         us=sorted(set(samples(34 if b.high else 24)+[.09,.12,.18,.28,.72,.82,.88,.91]))
         # Keep a small physical crest at x=.66, beyond the central recess.
-        if sgn<0:
-            for label,lo,hi in [('left',0,.205),('right',.795,1)]:
-                b.skin('Front bumper '+label,lambda u,z,lo=lo,hi=hi:bumper(lo+(hi-lo)*u,z),16,8,b.m['bumper'],(0,-1,0),category='bumpers',gauge=.0025,return_depth=.040,vs=zs)
-            for label,zs0 in [('lower',[.565,.590,.615]),('upper',[.745,.770,.792])]:
-                b.skin('Front bumper '+label,lambda u,z:bumper(.205+.590*u,z),14,4,b.m['bumper'],(0,-1,0),category='bumpers',gauge=.0025,return_depth=.040,vs=zs0)
-            b.skin('Bumper intake envelope',lambda u,v:((2*u-1)*.650,-2.850,.607+.148*v),12,3,b.m['rubber'],(0,-1,0),category='bumpers',gauge=.003,return_depth=0)
+        if not b.detail:
+            b.skin('Bumper_'+end,bumper,32,8,b.m['bumper'],(0,sgn,0),category='bumpers',gauge=.0025,return_depth=.045,us=us,vs=zs)
         else:
-            if not b.detail:
-                b.skin('Bumper_'+end,bumper,32,8,b.m['bumper'],(0,sgn,0),category='bumpers',gauge=.0025,return_depth=.045,us=us,vs=zs)
-            else:
-                for label,lo,hi in [('left',0,.407),('right',.593,1)]:
-                    b.skin('Rear bumper '+label,lambda u,z,lo=lo,hi=hi:bumper(lo+(hi-lo)*u,z),18,6,b.m['chrome'],(0,1,0),category='bumpers',gauge=.0025,return_depth=.045,vs=zs)
-                for label,z0,z1 in [('lower',.590,.615),('upper',.805,.832)]:
-                    b.skin('Rear bumper '+label,lambda u,v,z0=z0,z1=z1:bumper(.407+.186*u,z0+(z1-z0)*v),8,2,b.m['chrome'],(0,1,0),category='bumpers',gauge=.0025,return_depth=.045)
+            for label,lo,hi in [('left',0,.407),('right',.593,1)]:
+                b.skin('Rear bumper '+label,lambda u,z,lo=lo,hi=hi:bumper(lo+(hi-lo)*u,z),18,6,b.m['chrome'],(0,1,0),category='bumpers',gauge=.0025,return_depth=.045,vs=zs)
+            for label,z0,z1 in [('lower',.590,.615),('upper',.805,.832)]:
+                b.skin('Rear bumper '+label,lambda u,v,z0=z0,z1=z1:bumper(.407+.186*u,z0+(z1-z0)*v),8,2,b.m['chrome'],(0,1,0),category='bumpers',gauge=.0025,return_depth=.045)
         def shelf(u,v,sgn=sgn):
             x,y,z=bumper(u,zs[-1])
             return x,y-sgn*.075*v,z
         b.skin('Bumper upper return_'+end,shelf,28,3,b.m['bumper'],(0,0,1),category='bumpers',gauge=.0025,return_depth=0)
-    def valance(u,v):
-        x=(2*u-1)*(.950-.040*v);wrap=.205*fair((abs(x)-.735)/.249)
-        return x,-2.895+wrap+.030*v,.565-.110*v
-    b.skin('Lower valance',valance,34,5,b.m['rubber'],(0,-1,0),category='bumpers',gauge=.003,return_depth=.030)

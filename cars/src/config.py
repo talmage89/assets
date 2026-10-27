@@ -22,4 +22,7 @@ LOOKDEV_SHOTS={
  'wheel_detail':dict(location=(3.2,-3.55,1.05),target=(.87,-1.985,.51),lens=90,aspect=1.2,studio_yaw=-50),
  'lamps_lit':dict(location=(3.4,-6.8,2.25),target=(.12,-2.43,1.01),lens=77,aspect=1.45,studio_yaw=-35,lights=True,paint='Graphite'),
  'interior':dict(location=(1.9,-2.7,1.88),target=(-.06,-.24,1.13),lens=70,aspect=1.45,studio_yaw=-35),
+ 'face_plan':dict(location=(0,-2.40,7),target=(0,-2.40,0),ortho=2.50,aspect=1.45,paint='Graphite',studio_yaw=-35),
+ 'face_side':dict(location=(6,-2.52,1.05),target=(0,-2.52,1.05),ortho=1.45,aspect=1.45,paint='Graphite',studio_yaw=-35),
+ 'face_above':dict(location=(4.4,-3.8,2.8),target=(.18,-2.50,1.03),lens=85,aspect=1.45,paint='Graphite',studio_yaw=-35,exposure=-3.0),
 }
