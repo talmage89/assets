@@ -19,15 +19,15 @@ def rest(n,attribute):
 def road_mask(n,p,y,z,axles,wear):
     """Broken splash fans aft of tires, gravity sediment low on the body."""
     breakup=n.noise(n.vec('MULTIPLY',p,(5,1,8)),9,3)
-    sediment=n.mul(n.ramp(z,.78,.48),n.ramp(breakup,.30,.72),.45)
+    sediment=n.mul(n.ramp(z,.86,.53),n.ramp(breakup,.30,.72),1.35)
     fans=[]
     for axle in axles:
         dy=n.math('SUBTRACT',y,axle)
         aft=n.mul(n.ramp(dy,.04,.19),n.ramp(dy,.85,.40))
         ceiling=n.add(.63,n.mul(n.ramp(dy,.8,.08),.25),n.mul(breakup,.08))
         height=n.ramp(z,ceiling,.46) if not hasattr(ceiling,'is_output') else n.ramp(n.math('SUBTRACT',ceiling,z),0,.25)
-        fans.append(n.mul(aft,height,n.ramp(breakup,.36,.71),1.0))
-    return n.mul(n.maximum(sediment,*fans),wear)
+        fans.append(n.mul(aft,height,n.ramp(breakup,.36,.71),1.15))
+    return n.math('MULTIPLY',n.maximum(sediment,*fans),wear,clamp=True)
 
 
 def paint(name,color,wear=.65,axles=(),attribute='VehicleRest',front=None,rear=None):
@@ -90,13 +90,15 @@ def glazing(name,tint=(.96,.98,.98),privacy=False,axes=(0,2)):
     dots=n.mul(n.ramp(n.math('SINE',n.mul(u,1500)),.8,.96),n.ramp(n.math('SINE',n.mul(w,900)),.8,.96))
     border=n.maximum(edge,n.mul(n.ramp(edge,0,.1),dots))
     base=n.mix(border,tint,(.003,.004,.004),True)
-    mat=n.finish(base,n.mix(border,.025,.42),0)
+    # Frit is printed behind the smooth outer laminate; it changes color and
+    # transmission, not the outside glass roughness.
+    mat=n.finish(base,.025,0)
     bs=mat.node_tree.nodes['SURFACE'];n.feed(bs.inputs['Transmission Weight'],n.math('SUBTRACT',1,border));bs.inputs['IOR'].default_value=1.52;bs.inputs['Specular IOR Level'].default_value=.5
-    mat.diffuse_color=(*tint,1);mat['vehicle_glass']=True
+    mat.diffuse_color=(*tint,1);mat['vehicle_glass']=True;mat['privacy_tint']=bool(privacy)
     return mat
 
 
-def tire(name,lettering=None,sign=1):
+def tire(name,lettering=None,sign=1,wear=.65):
     n=Nodes(name);tc=n.node('ShaderNodeTexCoord');p=tc.outputs['Object'];x,y,z=n.split(p)
     ax=n.math('ABSOLUTE',x);r=n.math('SQRT',n.add(n.mul(y,y),n.mul(z,z)))
     angle=n.math('ARCTAN2',z,y)
@@ -113,8 +115,8 @@ def tire(name,lettering=None,sign=1):
         n.feed(tex.inputs['Vector'],n.combine(n.add(.5,n.mul(y,sign/0.86)),n.add(.5,n.mul(z,1/.86)),0))
         side=n.mul(n.ramp(ax,.105,.125),n.ramp(r,.245,.260),n.ramp(r,.363,.344))
         height=n.add(height,n.mul(tex.outputs['Color'],side,.00065))
-    wear=n.mul(n.ramp(r,.26,.35),n.ramp(ax,.10,.125),.14)
-    base=n.mix(wear,(.009,.010,.011),(.026,.027,.027),True)
+    dust=n.mul(n.ramp(r,.248,.280),n.ramp(r,.400,.370),n.ramp(ax,.102,.126),wear,.70,n.add(.65,n.mul(n.noise(p,140,2),.35)))
+    base=n.mix(dust,(.009,.010,.011),(.110,.102,.088),True)
     mat=n.finish(base,.77,0,height);mat.diffuse_color=(.018,.019,.02,1);return mat
 
 

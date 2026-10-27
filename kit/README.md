@@ -427,3 +427,8 @@ original relief image. These are source look-dev shaders: they do not allocate
 final atlases or silently change existing assets. Shader compilation and rest
 position/fit checks run in the cars source checkpoint; delivery still requires
 UV/bake/export and glass/emission verification.
+
+Vehicle tire finishes accept `wear=` for a sidewall dust annulus while keeping
+the tread rubber dark. Road coverage saturates at 0–1. Glass records its privacy
+classification; callers supply the tint explicitly. The dated used-truck
+comparisons in cars calibrate these source effects.
