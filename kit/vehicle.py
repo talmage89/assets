@@ -47,8 +47,10 @@ def panel(name, surface, us, vs, material, outward, gauge=.0009, return_depth=.0
     analytical=[];eps=1e-5;hint=Vector(outward)
     for v in vs:
         for u in us:
-            du=Vector(surface(u+eps,v))-Vector(surface(u-eps,v))
-            dv=Vector(surface(u,v+eps))-Vector(surface(u,v-eps))
+            # Subtract in Python doubles before packing mathutils float vectors.
+            # Packing absolute meter coordinates first loses tangent precision.
+            du=Vector(tuple(a-b for a,b in zip(surface(u+eps,v),surface(u-eps,v))))
+            dv=Vector(tuple(a-b for a,b in zip(surface(u,v+eps),surface(u,v-eps))))
             normal=du.cross(dv).normalized()
             if normal.dot(hint)<0:normal.negate()
             analytical.append(normal)
