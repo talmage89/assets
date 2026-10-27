@@ -1,3 +1,133 @@
+# Alder C150 / front face to specification
+
+**Current gate: front source checkpoint only. No UV, bake or GLB.**
+All earlier round claims below are archived. The accepted body side fields,
+paints, wheels/brakes, causal wear, glazing and interior stay fixed.
+
+## Face pass 1 — correct the value hierarchy, reject the construction artifacts
+
+Color/value first against both the F-150 and Ram fronts in
+`renders/lookdev-r3/used-pairs-contact.jpg`: the former silver plate dominates
+both faces where the photographs put dark grille cavities, body paint and
+small bright optical/chrome accents. The preliminary `renders/face-pass1/`
+changes that hierarchy with satin dark plating, a tall central grille,
+body-colored bumper and textured black mirror caps. Projector, broad reflector
+and the accepted 16 mm running guide remain in a low, continuous cover.
+
+Rejected the preliminary construction after opening front detail, lit lamps,
+plan and profile: the lamp backs/guides were offset in Y even where the lens
+turns onto the fender, making protruding wedges. Offset along the actual plan
+normal instead. The left bumper's initial tangent faced partly aft and an
+incorrect normal hint turned its edge returns outwards. The top return also
+folded where a fixed Y inset crossed the side tangent. Give each half the
+correct outward hint and inset the shelf along its plan normal. Do not relax
+the manifold, signed-volume, sliver or overall-length audits. Left mirrored
+optics need their winding reversed. Seal the grille cavity behind its field,
+not with a black cap in front of the blades.
+
+## Face pass 2 — photo pairs, true crown stations and surround land widths
+
+Color/value first against both actual new pairs in `renders/face-pass2/`:
+the F-150 comparison now has a dark grille above a separate body-colored beam;
+the unlit projector/reflector and narrow guide are the bright accents. The
+Ram pair retains the accepted medium warm Graphite finish and its existing
+calibrated daylight. Neither pair has the broad silver facade or silver mirror
+boxes. Synthetic surroundings still supply much smoother reflections than
+either photograph; keep that disclosed limit and retain the accepted lighting.
+
+Opened all eight views and their mask sheet, both pairs at full resolution,
+plus the plan, true side profile and elevated side/front close-up. The face
+now sweeps into the fenders; its protective cover follows the corner rather
+than sitting on a box. Four recessed dark blades span one tall opening, with
+an original fine diamond field behind them. The 250 mm body-colored bumper
+has its own top return and a real plate pocket. Below it are the black intake,
+separate molded webs and exposed recovery loops.
+
+The independent rays initially caught a subtle error that the high-angle
+render alone hid: long top/bottom frame edges without intermediate stations
+made planar chords across the crown. Add physical crown stations. The corrected
+rays measure 121 mm of sweep at x=950 mm and 8.00 degrees of rake. Lens front
+projection is 387 x 154 mm, narrowing to 58 mm at the aft edge; its 178 mm
+fore/aft corner return is additional to the frontal width (developed centerline
+553 mm including that return). Do not mislabel the whole developed path as a
+387 mm arc. Hood reveal is 5.04–7.78 mm on 29 actual leading-edge samples.
+
+The source audits pass topology and body scale; 320 accepted mesh parts compare
+exactly in world vertices, polygons, corner normals and material names against
+the takeover build. The measurement rejects 83–88 mm of lower side land on the
+first trapezoid. Inset its sloping sides geometrically to 70 mm instead of
+subtracting 70 mm independently from width and height. Close the dark vertical
+slots beside the lower surround by carrying the painted cheek onto its covered
+mounting edge. These are face corrections; the accepted side fields remain fixed.
+
+## Face pass 3 — measured source checkpoint and final photograph critique
+
+Color/value first against the final F-150 and Ram front pairs in
+`renders/face-checkpoint/`: the surround and grille stay dark, the body-colored
+bumper retains the truck's factory tint, and the optics supply narrow bright
+accents. The former bright silver facade and mirror-cap glare are gone.
+The new grille is taller and more dominant than the Ram's; that is the authored
+Alder design within the requested architecture, not a claim to copy its face.
+The lamps retain their low, original guide outline as they turn onto the fender.
+The corrected lower cheeks meet the surround instead of leaving deep vertical
+slots. Plan/profile/elevated views show the continuous crown, inset grille,
+rearward rake and a separate forward-set bumper.
+
+The final surround has 70.00 mm top/bottom lands and 76.31–76.38 mm of actual
+rounded side-face arc. A slimmer face crown removes the earlier 84 mm arc
+without reducing its real return; measured axial section depth is 74.43 mm.
+Actual sweep at x=950 mm is **120.08 mm** and rake is **7.995°**.
+The grille is **1203.66 mm** wide, **60.95%** of the measured face width.
+Both lamps measure **387.29 × 154.00 mm** in front projection. They taper to
+58.00 mm at their aft edge, return 178.32 mm fore/aft around the corner, and
+have 553.21 mm of developed centerline including that return. The 250.00 mm
+bumper and 5.04–5.34 mm hood reveal also come from actual game surfaces.
+These are source construction measurements, not serialization tests.
+
+Two closed 8 mm mounting ears cost 24 triangles and connect the curved bumper
+skin to the accepted crash beam. BVH crossings check both ends of that support,
+the recovery-loop/bracket/crash-mount connections, and all blade-end/rail/frame
+contacts at game and high density. Neither a constant nor a matching export is
+substituted for a contact measurement. The takeover comparison finds zero
+changes among 320 accepted meshes' world vertices, polygons, corner normals
+and material names. A separate graph comparison finds all 33 original material
+node graphs unchanged; the only added graph is satin dark chrome. Evidence:
+`build/cars-face/preserved.json` and `materials-preserved.json`. The hood/nose
+and fender leading closures are explicitly outside the mesh comparison.
+
+`make -C cars` ran successfully at takeover. The final command is
+`make -C cars face PASS=face-checkpoint WIDTH=1500 SAMPLES=64`, including source
+checks, independent projection checks, six studio/diagnostic views, both front
+pairs, masks and contacts. `make -C cars check` passes as its prerequisite:
+game/high topology have zero errors/warnings; dimensions, normals, source
+budgets, gauge and static fits pass. The repository scan and tracked-car
+portability scan pass. GPU Cycles runs through the kit's flock wrapper.
+
+Final count: **59,142 game / 195,322 high triangles**, **34 source materials**,
+six original source sheets. The high/game blends are **2,259,444 / 1,051,201
+bytes**. The planned four delivery surfaces and one shared 2048 BaseColor /
+Normal / ORM set for all five colors stay unchanged (about 16 MiB compressed
+with mips). No atlas unwrap, bake, GLB, final motion certification or committed
+docs image is part of this checkpoint.
+
+Opened all eight final views individually, both full-resolution photo pairs,
+and the full view/mask contacts. The elevated diagnostic initially clipped
+about 1.03% of paint samples; lowering only that shot from −2 to −3 EV removes
+it. Accepted hero and photographic lighting stay fixed. The final eight-view
+repeat has zero paint or vehicle samples at channel 255. Hero paint display
+luma p01/p50/p99 is 6.23/63.33/192.36; front detail is 7.93/83.14/240.86;
+the elevated diagnostic is 6.00/67.92/242.14. Cavities and underbody retain
+deep shadow. These are masked display values, not albedo measurements.
+`renders/face-checkpoint/tonal-range.json` contains the full distributions.
+One source hash and one recipe hash cover all eight views; both contacts and
+all individual JPGs are beside the source PNGs. All are ignored build outputs.
+
+Remaining tells: the reflection horizon is much smoother than either real
+street; unlit reflector tooling is simplified, the lower painted cheeks are
+restrained, and the closed lamp guides are unusually regular. The tiny tire,
+mesh and paint details still need a baked-2048 inspection. Nothing is needed
+from the lead; no shared kit code changed. Stop here for the bake/GLB brief.
+
 # Alder C150 / look-dev round 3
 
 **Current gate: last source look-dev checkpoint. Stop before atlas UVs/bake/export.**
