@@ -1,3 +1,5 @@
+TYPE ?= builder_colonial
+ifneq ($(TYPE),ranch)
 # Seeded family delivery, with retained construction/source checkpoint targets.
 SAMPLES ?= 64
 SEED ?= 27
@@ -132,3 +134,6 @@ docs: final-render final-seeds final-matches final-source-matches street
 final: refs export check docs
 clean-family-fields:
 	$(PYTHON) -c "import shutil; [shutil.rmtree(p,ignore_errors=True) for p in ('export','textures/source','textures/bake','textures/ship')]"
+
+endif
+include src/ranch_rules.mk

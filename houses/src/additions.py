@@ -8,6 +8,9 @@ def portal(b,o):
     block=next(v for v in b.plan['blocks'] if v.name==o['block'])
     xf,n,length=b.frame(block,o['face']);u,z,w,h=[o[k] for k in ('u','z','w','h')]
     fixed=b.mesh(o['id']+'_Frame',component='secondary_door_frame')
+    ranch_brick=b.plan['spec']['type']=='ranch' and b.plan['spec']['cladding'][block.name][o['face']]=='veneer'
+    original_xf=xf
+    if ranch_brick:xf=lambda v:original_xf((v[0],v[1]-.106,v[2]))
     for s in (-1,1):fixed.box((u+s*(w/2+.045),.043,z+h/2),(.09,.07,h+.1),xf=xf)
     fixed.box((u,.043,z+h+.045),(w+.18,.07,.09),xf=xf)
     fixed.box((u,-.025,z-.008),(w,.28,.016),color=(.25,.26,.24),r=.001,xf=xf)
@@ -29,6 +32,7 @@ def portal(b,o):
             fixed.box((u+w*.36+(i-4.5)*.021,-.17-.009*math.cos(i*1.5),z+h/2),(.023,.018,h-.10),color=(.43,.40,.33),r=.005,xf=xf)
         fixed.box((u,-.42,z+h/2),(w-.06,.012,h-.04),color=(.065,.061,.049),r=0,xf=xf)
     else:
+        if ranch_brick:xf=lambda v:original_xf((v[0],v[1]+.081,v[2]))
         p=xf((u-w/2+.004,-.153,z+.006));pivot=G.pivot('ServiceDoor',p,'Z',(-100,0) if n[0]<0 else (0,100));pivot.parent=b.root
         b.moving['ServiceDoor']=pivot
         me=b.mesh('ServiceDoor_Leaf','ServiceDoor',component='service_door')

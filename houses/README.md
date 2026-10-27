@@ -1,4 +1,7 @@
-# Hearthfield / seeded builder colonial
+# Hearthfield / seeded American houses
+
+The family delivers a builder colonial and a [postwar ranch](#second-type-postwar-ranch).
+The colonial remains the default generator and the subject of the first images below.
 
 An original family of maintained, roughly twenty-year-old American builder
 colonials: two stories, a room over an attached double garage, vinyl lap
@@ -100,7 +103,7 @@ export/
 Load a seed's glTF, retain its imported materials and vertex colors, and
 instantiate its hierarchy. Resolve image URIs relative to the glTF and cache
 textures by their canonical resolved URI plus color-space/sampler settings.
-All houses then refer to the same fifteen image resources; do not bake each
+All colonials then refer to the same fifteen image resources; do not bake each
 house into a separate texture atlas or make per-instance texture copies.
 An importer that packages textures into private resources per scene must be
 configured to retain/reuse these external resources. The build's actual
@@ -141,7 +144,7 @@ periodic material bake, not a whole-house unique-atlas projection bake.
 | Poured foundation | 512² | 2.4384 m / 210 px/m | 1 MiB |
 | Trim atlas | 2048² | 4 m U repeat / 512 px/m | 16 MiB |
 | Glass | Reuses trim | 470 px/m | No extra images |
-| **Whole family** | **15 PNGs / 16,072,463 bytes** | **One shared directory** | **38 MiB** |
+| **Colonial allocation** | **15 PNGs / 16,072,463 bytes** | **One shared directory** | **38 MiB** |
 
 Memory assumes engine BC7 BaseColor, BC5 Normal, BC7 ORM and full mipmaps;
 PNG delivery alone does not apply GPU block compression. The stock Blender
@@ -293,3 +296,251 @@ A renewed Commons search added period context; its more complex architecture
 could not replace the accepted vinyl-house comparison cameras. The house
 numbers are fictional and use installed DejaVu Sans. Every house vertex and
 texture pixel is authored here.
+
+---
+
+## Second type: postwar ranch
+
+A seeded 1955–1975 one-story ranch, maintained through about 55 years of
+service. The accepted source construction, period windows, broad eaves,
+chimneys and causal aging now ship as stock glTF with baked shared maps.
+
+![Ranch seed 12, exported textures in Cycles](docs/ranch-hero.jpg)
+
+![Front, side, rear and top](docs/ranch-turnaround.jpg)
+
+![Eave corner, picture window, entry and chimney](docs/ranch-details.jpg)
+
+![Six ranch seeds, front and rear](docs/ranch-family.jpg)
+
+![Two ranches and a colonial with the library landscape and pickup](docs/ranch-street.jpg)
+
+Every ranch image imports `export/HearthfieldRanch-<seed>.gltf` and its shared
+maps. The street also imports the ground, red maple, pin oak, boxwood/hydrangea
+and pickup families' own exports, for presentation only. It does not change or
+re-export them. [Full contact](renders/ranch/final/contact.jpg),
+[roof sheet](renders/ranch/final/roofs.jpg),
+[1.8 m scale](renders/ranch/final/scale.png),
+[Eevee](renders/ranch/final-eevee/hero.png) and
+[exported photo pairs](renders/ranch/final-matches/pairs.jpg) are local build
+outputs. [Measured eave band](renders/ranch/final/hero-band-measurement.jpg),
+[seed 11 before/after](renders/ranch/revision2/compare/11/before-after.jpg) and
+[seed 13 before/after](renders/ranch/revision2/compare/13/before-after.jpg)
+show the final lighting and weather-sample reduction. [REVIEW.md](REVIEW.md)
+records the delivery critiques and subsequent revision; reference photographs
+never enter the delivered art.
+
+The hero's front-directed sun is about 36° high. Three rendered wall profiles
+measure a median .644 m / 25.3 in shadow band, 43.9 pixels at 1440 px width.
+Band display Y′ is .0469, versus .0384 on shaded side masonry; the complete
+ground shadow stays in frame. These are measured rendered values, not albedo.
+The street camera sits 1.68 m above an actual imported sidewalk surface.
+The closest ranch spans 37.5% of frame width; the colonial and second ranch
+recede along native road, curb, planting-strip and sidewalk modules.
+
+### Parameter and real construction
+
+`generate(seed, overrides=None, house_type='ranch')`, `load(seed, plan,
+'ranch')`, CLI `--type ranch`, or JSON `{"type":"ranch"}` select this type.
+Omitting type still selects `builder_colonial`, with the same colonial RNG
+sequence and byte-checked construction. Ranch plan keys include `main`,
+`garage`, `floor`, `foundation`, `wall_mix`, `brick_color`, `battens`, `shutters`,
+`chimney`, `window_update`, `roof_age`, `aerial`, `shingle_color` and `colors`.
+Invalid bounded plans fail rather than generating unsupported structures.
+
+| Authored feature | Range / construction |
+| --- | --- |
+| Width including garage | 44–60 ft permitted; 48–60 ft seeded |
+| Depth including shallow L | 24–30 ft |
+| Ceiling | 8 ft / 2.4384 m |
+| Finished floor | 8/12/16 in above grade on slab; 24 in on vented crawlspace |
+| Main roof | Side gable or hip; 3/4/5:12 |
+| Clear front eave beyond masonry | 18 in on 11; 24.165 in on 13/16; 27.165 in on 12/14/15 |
+| Picture unit | 9 × 4½ ft; fixed center with operable flanking sashes |
+| Bedroom / bathroom unit | 42 × 40 / 24 × 16 in; 40 / 64 in sill above floor |
+| Brick sash recess | Measured 97.5 mm / 3.84 in |
+| Rowlock / lintel | Measured 8.67° slope / 4 mm steel angle |
+| Modular brick | Three courses per 8 in; actual delivered-map measurement in the value report |
+| Fireplace shaft | 4 × 2 ft, crown, liners, cap and roof-plane-clipped flashing |
+| Entry | Supported slender square or iron columns; landing 28 mm below threshold |
+| Parking | One/two cars, left/right, front/side entry; garage or open carport |
+
+These are original authored dimensions informed by the authorities and period
+photographs in [REFERENCE.md](REFERENCE.md), not surveyed copies of private
+homes. Most roof-datum projections are 27/30 in, allowing for proud brick;
+clear depth above is measured against the actual veneer surface. Continuous
+rectangles have one roof envelope; projecting garages use clipped intersections.
+
+The ranch reuses the family builder, roof envelopes, wall/opening subtraction,
+K gutters, supported downspouts, doors/hardware, rear slider/service leaf,
+weather samples and socket interface. Brick holes have masonry returns,
+individual sloping rowlocks and thin angle heads. The broad chimney has a
+concrete crown, open liners and sheet-metal cap. Window systems include wood
+behind aluminum storms, bronze aluminum, and white/almond replacement vinyl.
+Rear fixtures include the AC condenser, slack wall-routed lines, meters, bibs,
+dryer hood, patio and optional aerial/dish. Shallow rooms and foyer provide
+window/door depth; this remains an exterior asset.
+
+### Shared delivery, materials and memory
+
+Copy ranch glTF/BIN pairs beside the colonial pairs, retaining the same
+`export/textures/` folder. Ranch names use `HearthfieldRanch-<seed>` so seed 14
+can coexist with colonial 14. The sixteen new maps are:
+
+```text
+textures/
+  T_RanchBrick_{red,red_brown,buff,tan}_{BaseColor,Normal,ORM}.png
+  T_RanchRoof_{BaseColor,Normal,ORM}.png
+  T_RanchTrim_ORM.png
+  T_House...                         # fifteen original colonial images
+```
+
+| Allocation, BC7 color/ORM and BC5 normals, full mips | GPU estimate |
+| --- | ---: |
+| Original colonial sets, unchanged | 38 MiB |
+| Four ranch brick triples, 512² | 4 MiB |
+| Two-style ranch roof triple, 1024² | 4 MiB |
+| Ranch trim ORM only, 1024² | 1⅓ MiB |
+| **Whole family: 31 unique PNGs** | **47⅓ MiB** |
+
+The 31 PNGs total 21,823,467 bytes; the six ranch geometry pairs total
+30,545,525 bytes. With both six-seed types, geometry plus shared PNGs totals
+83,184,594 bytes (79.33 MiB), excluding optional metadata. This is a compressed
+GPU allocation estimate; PNGs do not apply engine compression.
+Cache images by their resolved external URI and color space. The actual stock
+Blender multi-import check loads both types and a repeat, retaining canonical
+image datablocks by identity. A ranch uses at most six materials and 16 images;
+glass shares the original trim maps while opaque trim uses the ORM variant.
+No per-house texture copies or custom runtime atlas shader are needed.
+
+The accepted native 512/1024 original manufacturing fields are periodically
+interpolated to 4096 before the Cycles GPU bake, preserving their random brick
+and tab tables. They are not claimed as newly authored 4K detail. BaseColor and
+ORM bake without lighting; physical height creates tangent +Y normals, stored
+at 16 bits before channel-correct filtering to delivery sizes. The trim ORM
+variant derives from the original baked trim. Trim color/normal and glass stay
+shared; no colonial map changes.
+
+Brick measures about 420 px/m, roof 210 px/m and trim 512 px/m. Tiled overlap is
+intentional. Exposed roof course/roll phases resolve into ordinary split UV0
+charts, including wrap boundaries. On the three densest seeds, concealed roof
+gauges and 24 mm eave lips retain metric/style addressing without per-course
+random phase cuts. The checker reports these small exceptions and separately
+audits exposed addressing and actual surface preservation against the source.
+Redundant planar weather samples are dissolved within charts on roofs, upper
+rear/side walls and soffits. Chart boundaries, hard normals, construction,
+front walls and the low wall weather zone are preserved. No geometry surface
+is intentionally moved; actual surface disagreement remains below 2 μm.
+No texture or runtime shader is added.
+
+Mortar recess, flashed fired units, roof age/style, low masonry salts/splash,
+sill runoff, chalked paint, oxidized aluminum and worn walking surfaces retain
+the accepted look. Large causal effects remain normalized RGBA8 `COLOR_0`;
+small relief and roughness live in the common maps. The dish is a closed
+3 mm shell so ordinary backface culling shows it from both sides; the measured
+front/back separation is 2.99978 mm. Newer seed 12 has gray
+architectural shingles; newer 15 has weathered wood. Other proofs have tired
+three-tab roofs, with north-side algae and local granule loss.
+
+### Per-seed budget, doors and sockets
+
+Every delivered seed is below 60k; the six-seed median is **55,113**. Redundant
+weather/UV sampling has been reduced from the previous 60,815 median without
+changing the accepted source construction. Source counts remain 31,192–48,674.
+Do not treat UV seams as new modeled shingle relief. Bytes below are glTF plus
+geometry BIN, excluding shared maps and optional JSON metadata.
+
+<!-- RANCH_BUDGET_BEGIN -->
+| Seed | Wall footprint | Delivered triangles | Materials | glTF + BIN bytes |
+| --- | --- | ---: | ---: | ---: |
+| 11 | 60 × 28 ft | 59,795 | 6 | 5,597,923 |
+| 12 | 60 × 28 ft | 55,228 | 6 | 4,906,874 |
+| 13 | 56 × 28 ft | 59,576 | 6 | 5,693,608 |
+| 14 | 48 × 26 ft | 50,624 | 6 | 4,633,617 |
+| 15 | 52 × 28 ft | 54,998 | 6 | 4,991,063 |
+| 16 | 56 × 28 ft | 53,037 | 6 | 4,722,440 |
+<!-- RANCH_BUDGET_END -->
+
+The fixed shell is consolidated. Moving `FrontDoor` rotates +Z 0–105°;
+`ServiceDoor` rotates −100–0°; `PatioDoor` translates +X 0–.8382 m. Origins sit
+on their hinge/track axes. Garage seeds have four meshes; the carport has
+three, without a service leaf. Actual delivered-source motion checks retain
+all solid components, with no contact exemptions. Imported pivots and socket
+transforms are independently compared with source coordinates.
+
+`Socket_FrontThreshold`, `Socket_Walk` and `Socket_GarageApron` carry over.
+The side-entry apron faces the outer end. The carport apron is an attachment
+datum 130 mm outside the slab edge. The grade origin centers the wall footprint;
+stoop, patio, gutters and splash blocks are attachments. Meters, Blender +Z up,
+−Y front; glTF axis conversion is the same as for the colonial. Engines add
+collision, navigation, distance LODs and interaction; none is silently included.
+
+### Rebuilding and evidence
+
+From `houses/` with the installed dependencies used by the colonial:
+
+```sh
+make TYPE=ranch                         # sources, 4K bake, delivery, checks, finals/docs
+make TYPE=ranch check                   # both type checks, source/UV/import/motion proofs
+make TYPE=ranch export                  # six ranches plus canonical family maps
+make TYPE=ranch RANCH_SEEDS=20,21,22 RANCH_SEED=20 export
+make TYPE=ranch RANCH_SEEDS=20 RANCH_SEED=20 PLAN=build/my-plan.json export
+make TYPE=ranch final-render final-seeds final-matches street
+make TYPE=ranch bake-loss-pairs          # all four photo cameras, five changed seeds
+make TYPE=ranch ranch-checkpoint         # retained source comparison workflow
+make TYPE=ranch clean                    # clears ranch outputs, preserves colonial files
+```
+
+The plan sweep covers 1,000 plans of each type and eighteen negative controls.
+`build/ranch/checks.json` measures construction and source motion. Final
+`build/ranch/delivery/check.json` covers actual converted surfaces, source roof
+addressing, raw glTF attributes and UV density, fresh imports, pivots, image
+reuse, texture loss and the local colonial-byte baseline. The original colonial
+`make check` runs separately. `build/ranch/delivery/values.json` records the four
+photo camera residuals, fixed comparison patches, encoded Y′ and decoded linear
+luminance. `build/ranch/delivery/view-check.json` checks every final bundle and
+shared-image hash and the hero's tonal range.
+
+Fixed exported/photo Y′ patches (sunlit brick / shaded brick / roof) are
+.795/.782, .140/.112 and .775/.758 in the sunny three-quarter, and
+.578/.587, .251/.240 and .665/.683 in the dated oblique. Maximum absolute
+difference is .0281 under their stated light/exposure/tone fits. These are
+display values, not physical albedo. Three courses measure .2032224 m.
+The hero silhouette has Y′ p1/p50/p95/p99 of .015/.348/.519/.668 and no
+clipped-white pixels. All eighteen ranch geometry/metadata files repeat
+byte-for-byte; the independent GPU rebake differs by at most one byte,
+with largest byte-domain RMS .001954. No bit-exact GPU bake is promised.
+
+All five changed seeds have fresh four-camera source/export and photograph
+sheets in `renders/ranch/revision2/bake-loss/<seed>/`. Silhouette-masked mean
+source/export Y′ error is .00257–.00582; the largest per-view p95 is .0244.
+Individual maximum errors reach .269 at isolated small/reflected features;
+the mean is not a bound on every pixel. The fixed seed 12 photo patches above
+remain within .03. Independent old/new weather sampling at both meshes'
+triangle centers gives area-weighted mean maximum-channel linear factor
+errors .0000003–.000440 and worst local .0313. Co-located trim/gauge facets
+are matched separately, with raw nearest errors retained. These are linear
+weather factors, distinct from display Y′. All 31 shared PNGs are byte exact;
+seed 14's delivered glTF/BIN also remains byte exact.
+
+`src/ranch_revision_present.py` makes the revision sheets. Its `compare` scope
+uses the local pre-revision archive at `build/ranch/revision2/before/`;
+`bake-loss` scope rebuilds current source/export comparisons without that archive.
+`src/ranch_weather_compare.py` measures archived versus current game meshes.
+`build/ranch/revision2/weather-comparison.json`, `bake-loss.json` and
+`identity.json` retain the numerical results. The normal `make` regenerates
+the final hero measurement and portfolio views from the current exports.
+
+All six colonial construction/full compact-GLB comparisons remain byte exact;
+its six delivered glTF/BIN pairs, fifteen images and five documentation JPGs
+retain their pre-ranch-delivery hashes. No shared kit change is required.
+
+The weakest features remain the regular manufactured masonry/roof pattern,
+shallow rooms and sparse glass reflections, restrained whole-house age and
+faceted small fittings at extreme close-up. Landscape and distant lawn still
+read as procedural. Photo-camera residuals are type-comparison aids, not survey
+accuracy; the photographs show different plans, colors and landscaping. Full
+interiors, hidden engineering, arbitrary footprints and permit compliance are
+outside the generator. Credits and rights remain in [refs/SOURCES.md](refs/SOURCES.md);
+only direct image URLs identify private-home references, and no reference
+photograph is committed or sampled into an asset.

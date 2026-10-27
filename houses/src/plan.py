@@ -223,7 +223,12 @@ def merge(base, override):
     return base
 
 
-def generate(seed=27, overrides=None):
+def generate(seed=27, overrides=None, house_type=None):
+    selected=house_type or (overrides or {}).get("type", "builder_colonial")
+    if selected=="ranch":
+        from ranch_plan import generate as ranch_generate
+        return ranch_generate(seed,overrides)
+    assert selected=="builder_colonial", "Unsupported house type"
     r=random.Random(seed)
     spec=dict(type='builder_colonial',
         main=dict(width=r.choice([38,40,42])*FT,depth=r.choice([26,28,29])*FT,stories=2,
@@ -291,6 +296,9 @@ def wall_frame(block,face):
 
 
 def openings(plan):
+    if plan["spec"]["type"]=="ranch":
+        from ranch_plan import openings as ranch_openings
+        return ranch_openings(plan)
     result=[];main,garage=plan['blocks'];n=plan['spec']['bays']
     def add(b,face,u,z,w,h,kind='window',role='bedroom',shutters=False):
         o,t,normal,length=wall_frame(b,face)
@@ -341,11 +349,16 @@ def openings(plan):
 
 
 def serialize(plan):
+    if plan['spec']['type']=='ranch':
+        roof=[plan['roof_envelope']] if plan.get('roof_envelope') else roof_blocks(plan['blocks'])
+        return {**plan,'blocks':[asdict(b) for b in plan['blocks']],'porch':asdict(plan['porch']),
+            'roof_envelope':asdict(plan['roof_envelope']) if plan.get('roof_envelope') else None,
+            'openings':openings(plan),'roof_faces':roof_faces(roof),'roof_junctions':roof_junctions(roof)}
     return {**plan,'blocks':[asdict(b) for b in plan['blocks']],
             'porch':asdict(plan['porch']),'openings':openings(plan),
             'roof_faces':roof_faces(roof_blocks(plan['blocks'])),
             'roof_junctions':roof_junctions(roof_blocks(plan['blocks']))}
 
 
-def load(seed,path=None):
-    return generate(seed,json.loads(path.read_text()) if path else None)
+def load(seed,path=None,house_type=None):
+    return generate(seed,json.loads(path.read_text()) if path else None,house_type)

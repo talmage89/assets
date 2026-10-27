@@ -67,14 +67,21 @@ def subdivide(ob,meta):
             if component=='roof':return f.normal.z>.4
             if component in ('wall','foundation') and outward:return f.normal.dot(outward)>.5
             return f.normal.z>-.5
-        edges=[e for e in bm.edges if e.calc_length()>1.05 and any(f.calc_area()>.22 and exposed(f) for f in e.link_faces)]
+        edges=[e for e in bm.edges if e.calc_length()>(.55 if meta['spec']['type']=='ranch' else 1.05) and any(f.calc_area()>.22 and exposed(f) for f in e.link_faces)]
         if not edges:break
         bmesh.ops.subdivide_edges(bm,edges=edges,cuts=1,use_grid_fill=True)
     bmesh.ops.triangulate(bm,faces=bm.faces[:])
     # Partial edge subdivision can leave collinear triangulation slivers.
     # Dissolve their zero-area edges into neighbors, retaining the surface.
     bmesh.ops.dissolve_degenerate(bm,edges=bm.edges[:],dist=1e-7)
-    bmesh.ops.triangulate(bm,faces=bm.faces[:]);bm.to_mesh(ob.data);bm.free();ob.data.update()
+    bmesh.ops.triangulate(bm,faces=bm.faces[:])
+    if meta['spec']['type']=='ranch':
+        # A partially subdivided clipped roof rim can collapse to an exactly
+        # collinear face. It encloses no surface; remove that face, retaining
+        # every nonzero patch. The independent roof-ray audit checks coverage.
+        collapsed=[f for f in bm.faces if len(f.verts)==3 and (f.verts[1].co-f.verts[0].co).cross(f.verts[2].co-f.verts[0].co).length<2e-12]
+        if collapsed:bmesh.ops.delete(bm,geom=collapsed,context='FACES')
+    bm.to_mesh(ob.data);bm.free();ob.data.update()
 
 
 def weather(p,n,role,component,meta,block_name=None,face=None):

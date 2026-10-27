@@ -1,0 +1,38 @@
+[
+  {
+    "seed": 27,
+    "geometry_sha256": "2a28b67eb84ff06a3fec8690d030fff734a1a9f1bb2bfb0e626e5046d91b514a",
+    "triangles": 47750,
+    "glb_sha256": "159b318dcf519c3d3d52c39759a1368730b8ec2cc671dd977438f510fbcc4ec2"
+  },
+  {
+    "seed": 2,
+    "geometry_sha256": "bc4be2cf156284dc18ccfa7dd42987dce2d89e9a78d7e6aaed36e95fd55bd377",
+    "triangles": 48618,
+    "glb_sha256": "d61f000021ae82c99d860df98be36c5b58c936eacb2c45cf7959481cfa1d0a80"
+  },
+  {
+    "seed": 3,
+    "geometry_sha256": "90d29b37150ca9ac88c110ff56f81ce92a589289ac31abcc714be5c7303e66bd",
+    "triangles": 47010,
+    "glb_sha256": "6b502188c4f910c2c26cf69d68441512dd66114114b34b619aa1f4ca3af9fe22"
+  },
+  {
+    "seed": 6,
+    "geometry_sha256": "e44b5ac064826264bd297a5abfe1650e1e78b3b5f3502a145ca492dd2b06fab8",
+    "triangles": 49218,
+    "glb_sha256": "bdacd07bf56ae0bcc8d62cae412bc2981b36186b2c05b5a8d1dba60324cace27"
+  },
+  {
+    "seed": 8,
+    "geometry_sha256": "ffa7b9553e8baa878bca06f913495e916f0ad1342607f0c7e075b95d37096cb8",
+    "triangles": 48090,
+    "glb_sha256": "54c642affb0325ad52beffadc0b8f91e294c4561f543990650b5086bb7363fae"
+  },
+  {
+    "seed": 14,
+    "geometry_sha256": "59c147589eaeba450917936576fb7e54347aa5b29070b407e1ec830b2d09a583",
+    "triangles": 48898,
+    "glb_sha256": "14ae95522004ae588f43bc9a32c8132822930c5972da6d419e9e92795c7be6ce"
+  }
+]

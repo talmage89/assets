@@ -32,19 +32,23 @@ def read_delivery(path):
 
 
 
-def externalize(source,out):
+def externalize(source,out,images_folder=Path('textures/ship'),max_images=15):
     doc,binary=read(source);out.parent.mkdir(parents=True,exist_ok=True)
     folder=out.parent/'textures';folder.mkdir(parents=True,exist_ok=True)
-    known={digest(p):p for p in Path('textures/ship').glob('*.png')}
+    known={digest(p):p for p in sorted(images_folder.glob('*.png'))}
     image_names=[]
     for im in doc['images']:
         view=doc['bufferViews'][im.pop('bufferView')];offset=view.get('byteOffset',0)
         payload=binary[offset:offset+view['byteLength']];key=hashlib.sha256(payload).hexdigest()
         assert key in known, 'Exporter changed a delivered image or emitted an extra image'
-        path=folder/known[key].name
+        named=images_folder/(im.get('name','')+'.png')
+        # Equal normal fields in different named sets still retain stable
+        # canonical URIs; directory traversal order must not choose a color.
+        chosen=named if named.exists() and digest(named)==key else known[key]
+        path=folder/chosen.name
         if not path.exists() or path.read_bytes()!=payload:path.write_bytes(payload)
         im['uri']='textures/'+path.name;image_names.append(path.name)
-    assert 12<=len(set(image_names))<=15
+    assert 12<=len(set(image_names))<=max_images
     # Only geometry views remain. No embedded image payload or dead buffer range.
     used=sorted({a['bufferView'] for a in doc['accessors']});remap={};views=[];output=bytearray()
     for old in used:
@@ -90,6 +94,6 @@ if __name__=='__main__':
         target=folder/image.name;payload=image.read_bytes()
         if not target.exists() or target.read_bytes()!=payload:target.write_bytes(payload)
     rows=[export_house(seed,a.plan) for seed in seeds]
-    images=list(Path('export/textures').glob('*.png'));assert len(images)==15
+    images=list(Path('export/textures').glob('T_House*.png'));assert len(images)==15
     Path('build/family/delivery.json').write_text(json.dumps(dict(rows=rows,shared_png_bytes=sum(p.stat().st_size for p in images),
         total_geometry_bytes=sum(r['gltf_bytes']+r['bin_bytes'] for r in rows),shared_images=len(images)),indent=2))

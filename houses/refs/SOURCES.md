@@ -41,3 +41,57 @@ GAF shingle installation PDF was inspected through the web reader; local retriev
 | File | Direct URL | Author / license | Use |
 | --- | --- | --- | --- |
 | commons-colonial.jpg | https://upload.wikimedia.org/wikipedia/commons/a/a8/Luxury_Home_USA.jpg | Stilfehler (attributed by Commons); public-domain dedication | Commons photograph, circa-1995 suburban house, upstate New York; warm asphalt roof and planted street context only; complex roof/masonry differ from this grammar |
+
+## Postwar ranch research (checkpoint)
+
+Only direct image URLs are retained for private homes. Generic identifiers
+below carry no town, address, owner, listing, coordinates or street labels.
+Photos remain ignored; even the comparison sheets are local review evidence.
+
+| Local file | Direct image/PDF URL | Author / rights | Used for |
+| --- | --- | --- | --- |
+| ranch-summer-ca.jpg | https://upload.wikimedia.org/wikipedia/commons/2/24/HouseII2007.jpg | Mcheath; public domain dedication | Published 1966 California ranch; May leaf-on view, long hip, broad eaves, replacements over Roman-brick plinth. No dimensional survey. |
+| ranch-eaves-ca.jpg | https://upload.wikimedia.org/wikipedia/commons/b/ba/Wideeaves.JPG | Mcheath; public domain dedication | Same 1966 type: deep soffit, simple replacement frames, low masonry. |
+| ranch-summer-west.jpg | https://upload.wikimedia.org/wikipedia/commons/6/65/1950s_Ranch-style_House_California.jpg | Mcheath; public domain dedication | Published mid-1950s California ranch; mature leaf-on landscaping, battens, garage relationship; image uploaded April 2007, capture season not independently established. |
+| ranch-summer-ok.jpg | https://upload.wikimedia.org/wikipedia/commons/5/51/Ranch_Acres_Historic_District.jpg | W. R. Oswald; CC BY-SA 3.0 | Oklahoma, September 2012 leaf-on daylight: low hip, broad chimney, eave shade, wood picture/casement glazing. Stone cladding differs from our modular brick. |
+| ranch-summer-oh.jpg | https://upload.wikimedia.org/wikipedia/commons/c/cc/Etna_east_of_Robinwood%2C_Whitehall.jpg | Nyttend; public domain dedication | Ohio, August 2015: summer street of low hips, small high windows, slender iron posts, utility placement and maintained aging. Exact house years unverified. |
+| ranch-summer-mn.jpg | https://upload.wikimedia.org/wikipedia/commons/d/da/BrickRanch.jpg | Jonathunder; GFDL 1.2 only | Minnesota, April 2011 (spring, **not summer**): brick hue, picture unit, chimney, gutters and updated garage. Supplemental age reference, exact construction date unknown. |
+| ranch-brick-east.jpg | https://upload.wikimedia.org/wikipedia/commons/5/5a/RamblerHouse.JPG | TrustTruth; CC BY-SA 3.0 / GFDL | Snow view; inspected and excluded from summer/photo-match evidence. |
+| ranch-construction-1955.pdf | https://www.govinfo.gov/content/pkg/GOVPUB-A-PURL-gpo18687/pdf/GOVPUB-A-PURL-gpo18687.pdf | USDA Forest Service, Agriculture Handbook 73 (1955); U.S. federal public domain | Foundation/grade separation, 18 in crawl clearance, preferred 8 ft ceilings, hip/gable construction, windows and cornices. |
+
+Published construction/context sources consulted online (no executable or
+asset content downloaded):
+
+- NPS, [Low, Light and Livable: From Modern to Ranch in Arkansas, 1945–1970](https://www.nps.gov/articles/000/low-light-and-livable-from-modern-to-ranch-in-arkansas-1945-1970.htm):
+  regional adaptation, picture windows and wrought-iron posts. Government
+  historical context; no claim that these are dimensions of our house.
+- NPS, [Identifying the 1950s Ranch House Interior as a Cultural Resource](https://www.nps.gov/articles/000/identifying-the-1950s-ranch-house-interior-as-a-cultural-resource.htm):
+  single story, long profile, overhanging eaves and large windows. Federal
+  authorship; individual images may have separate credits; none downloaded.
+- NPS, [2017 Treatment Guidelines, windows discussion](https://www.nps.gov/orgs/1739/upload/treatment-guidelines-2017-part1-preservation-rehabilitation.pdf):
+  wood, aluminum developed in the 1930s, later vinyl replacements, storm
+  windows, and the fixed-center/flanking-operable picture-window lineage.
+- GAF, [R-127 low-slope application](https://www.gaf.com/en-us/document-library/documents/technical-bulletins-%26-notes/r-127-shingle-application-on-low-slopes.pdf):
+  2:12 to below 4:12 requires the low-slope installation assembly. Copyright
+  GAF; dimensional installation reference only, no brand reproduced.
+- Brick Industry Association, [Technical Notes 10, 23 and 23A](https://www.gobrick.com/resources/technical-notes):
+  modular coordination and salt/moisture causes of efflorescence. Copyright BIA.
+- General Shale, [2019 brick catalog, dimensions table](https://brick.com/wp-content/uploads/2025/01/gg-brickcatalog2019_0_0.pdf):
+  modular actual 3⅝ × 2¼ × 7⅝ in versus longer, thinner Roman bricks.
+  Modern dimensional cross-check, not proof of a photographed brick's size.
+
+
+## Ranch form / look revision
+
+| Local file | Direct image URL | Author / rights | Used for |
+| --- | --- | --- | --- |
+| ranch-sun-1960.jpg | https://upload.wikimedia.org/wikipedia/commons/3/3b/Lincoln%2C_Nebraska_1830_Broadmoore_Dr.JPG | Ammodramus; CC0 | Commons-catalogued 1960 Nebraska ranch, October 2013 sunny oblique view. Brick/roof display values and deep eave shade; front planting limits camera accuracy. No surveyed dimensions. |
+| ranch-sun-oblique.jpg | https://upload.wikimedia.org/wikipedia/commons/d/d1/Martin_and_Sherrybrook%2C_Battery_Heights.jpg | Nyttend; public-domain dedication | North Carolina brick ranch in a documented 1956–64 district, October 2020 sunshine, three-quarter roof and end wall. Individual construction year unverified. Causal eave/entry shadows and mixed window updates; not a dimensional survey. |
+
+District dating was checked against the municipal preservation description and
+National Register metadata, which agree on the 1956–64 development period.
+That bounds the type comparison, without attributing an exact year to an
+unidentified home. Only direct image URLs above identify source photographs;
+no private-home name, address, listing or location metadata is retained elsewhere.
+Discarded search candidates are not build inputs. Crops and local comparison
+sheets remain ignored and are never projected onto the generated asset.

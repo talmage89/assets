@@ -174,6 +174,8 @@ class Builder:
         self.root['seed']=plan['seed'];self.root['checkpoint']='form / placeholder materials'
         main=plan['blocks'][0]
         self.door=G.pivot('FrontDoor',(plan['door_x']-.9144/2+.004,main.y0+.153,.514),'Z',(0,105))
+        if plan['spec']['type']=='ranch':
+            self.door.location.z=main.floor+.006
         self.door.parent=self.root
         self.moving={'FrontDoor':self.door}
         for name,p in plan['sockets'].items():
@@ -264,6 +266,9 @@ def shell(b):
 
 
 def window(b,o):
+    if b.plan['spec']['type']=='ranch':
+        from ranch_build import window as ranch_window
+        return ranch_window(b,o)
     block=next(v for v in b.plan['blocks'] if v.name==o['block']);xf,n,length=b.frame(block,o['face'])
     me=b.mesh(o['id'],component='window',opening=json.dumps(o))
     u,z,w,h=o['u'],o['z'],o['w'],o['h']
@@ -347,10 +352,11 @@ def doors(b):
         block=main if o['block']=='Main' else garage
         xf,n,length=b.frame(block,o['face']);u,z,w,h=o['u'],o['z'],o['w'],o['h']
         static=b.mesh(o['id']+'_Jamb',component='door_frame')
+        masonry=b.plan['spec']['type']=='ranch' and b.plan['spec']['cladding'][block.name][o['face']]=='veneer'
         for sign in (-1,1):
-            static.box((u+sign*(w/2+.06),.068,z+h/2),(.12,.11,h+.12),r=.002,xf=xf)
-            static.box((u+sign*(w/2+.012),-.052,z+h/2),(.024,.17,h),r=.001,xf=xf)
-        static.box((u,.069,z+h+.065),(w+.24,.11,.13),r=.002,xf=xf)
+            static.box((u+sign*(w/2+(.031 if masonry else .06)),-.052 if masonry else .068,z+h/2),(.055 if masonry else .12,.05 if masonry else .11,h+.04 if masonry else h+.12),r=.002,xf=xf)
+            static.box((u+sign*(w/2+.012),-.012 if masonry else -.052,z+h/2),(.024,.080 if masonry else .17,h),r=.001,xf=xf)
+        static.box((u,-.052 if masonry else .069,z+h+.025 if masonry else z+h+.065),(w+.055 if masonry else w+.24,.05 if masonry else .11,.05 if masonry else .13),r=.002,xf=xf)
         static.box((u,-.02,z-.005),(w,.30 if o['kind']=='garage' else .24,.01),'Trim',(.40,.41,.38),r=.001,xf=xf)
         if o['kind']=='door':
             me=b.mesh('FrontDoor_Leaf','FrontDoor',component='front_door')
@@ -369,7 +375,7 @@ def doors(b):
             me.tube([door_xf((xx,.041,z+1.01)),door_xf((xx-.075,.041,z+1.01))],.009,color=(.29,.25,.16))
             me.finish()
             # Structural opening remains clear when the leaf swings inward.
-            static.box((u,.032,z+h+.15),(w+.34,.09,.055),r=.002,xf=xf)
+            if not masonry:static.box((u,.032,z+h+.15),(w+.34,.09,.055),r=.002,xf=xf)
         else:
             me=b.mesh('GarageDoor_Closed',component='garage_door',width_m=w,height_m=h)
             c=tuple(v*.94 for v in b.colors['Trim'])
@@ -417,11 +423,14 @@ def exterior_edges(block,faces):
 
 def drain(b,me,a,c,n,block,index):
     """Open gauged K gutter with fall, outlet, two elbows, straps, splash block."""
+    if b.plan['spec']['type']=='ranch':
+        from ranch_drain import drain as ranch_drain
+        return ranch_drain(b,me,a,c,n,block,index)
     a,c=Vector(a),Vector(c);normal=Vector((*n,0));direction=(c-a).normalized()
     # Choose an end whose wall-side pipe is outside every neighboring footprint.
     choices=[]
     for p in (a,c):
-        pipe=p-normal*(block.overhang-.066)
+        pipe=p-normal*(block.overhang-(.125 if b.plan['spec']['type']=='ranch' else .066))
         if abs(n[0])>.5:pipe.y=max(block.y0+.09,min(block.y1-.09,pipe.y))
         else:pipe.x=max(block.x0+.09,min(block.x1-.09,pipe.x))
         if block.name=='Porch':
@@ -440,7 +449,7 @@ def drain(b,me,a,c,n,block,index):
     vs=[p+normal*u+Vector((0,0,z)) for p in ends for u,z in profile];nn=len(profile)
     fs=[(i,(i+1)%nn,(i+1)%nn+nn,i+nn) for i in range(nn)]+[tuple(reversed(range(nn))),tuple(range(nn,nn*2))]
     me.geom(vs,fs)
-    reuse=next((row for row in b.drains if row['block']==block.name and math.dist(row['centerline'][3][:2],pipe[:2])<.16),None)
+    reuse=next((row for row in b.drains if row['block']==block.name and math.dist(row['centerline'][3][:2],pipe[:2])<(.40 if b.plan['spec']['type']=='ranch' else .16)),None)
     if reuse:
         b.drains.append({**reuse,'gutter':[list(a),list(c)],'normal':n,'shared_column_outlet':True})
         return
@@ -465,7 +474,7 @@ def drain(b,me,a,c,n,block,index):
     for z in [v for v in (1.,2.8,4.6) if v<walltop.z-.1]:
         pos=Vector((pipe.x,pipe.y,z))
         me.box(pos,(.092 if abs(wide.x)>.5 else .058,.058 if abs(wide.x)>.5 else .092,.025),r=.001)
-        me.beam(pos,pos-normal*.078,.022,.018,r=.001)
+        me.beam(pos,pos-normal*(.14 if b.plan['spec']['type']=='ranch' else .078),.022,.018,r=.001)
     splash=b.mesh(f'{block.name}_Splash_{index}',component='splash_block')
     mid=outlet+normal*.12;mid.z=.0225
     sx,sy=(.31,.60) if abs(n[1])>.5 else (.60,.31)
@@ -476,10 +485,10 @@ def drain(b,me,a,c,n,block,index):
 
 
 def roofs(b):
-    structural=roof_blocks(b.plan['blocks'])
-    blocks=b.plan['blocks']+[b.plan['porch']]
+    structural=[b.plan['roof_envelope']] if b.plan.get('roof_envelope') else roof_blocks(b.plan['blocks'])
+    blocks=structural+[b.plan['porch']] if b.plan.get('roof_envelope') else b.plan['blocks']+[b.plan['porch']]
     # Porch is below upper windows, with its rear planes terminated at the wall.
-    faces=roof_faces(structural)+roof_faces([b.plan['porch']])
+    faces=roof_faces(structural+[b.plan['porch']]) if b.plan['spec']['type']=='ranch' else roof_faces(structural)+roof_faces([b.plan['porch']])
     for row in faces:
         if row['block']=='Porch':row['polygon']=clip(row['polygon'],0,-1,b.plan['blocks'][0].y0-.012)
     faces=[row for row in faces if row['polygon']]
@@ -511,7 +520,7 @@ def roofs(b):
             if abs(a.z-c.z)<.005:
                 drain(b,gutters,a,c,n,block,index)
         trim.finish();gutters.finish()
-    junctions=roof_junctions(structural)+roof_junctions([b.plan['porch']])
+    junctions=roof_junctions(structural+[b.plan['porch']]) if b.plan['spec']['type']=='ranch' else roof_junctions(structural)+roof_junctions([b.plan['porch']])
     for i,row in enumerate(junctions):
         if row['kind']=='ridge' and row['blocks']==['Cricket','Cricket']:continue
         me=b.mesh('RoofJunction_'+str(i),component=row['kind'])
@@ -623,6 +632,9 @@ def services(b):
 
 
 def build(plan):
+    if plan['spec']['type']=='ranch':
+        from ranch_build import build as ranch_build
+        return ranch_build(plan)
     b=Builder(plan);shell(b);doors(b);porch(b);roofs(b);services(b)
     from additions import build_additions
     build_additions(b)
@@ -666,7 +678,7 @@ def save(b,out,export=True):
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--seed',type=int,default=27);p.add_argument('--plan',type=Path)
+    p=argparse.ArgumentParser();p.add_argument('--seed',type=int,default=27);p.add_argument('--plan',type=Path);p.add_argument('--type',choices=('builder_colonial','ranch'))
     p.add_argument('--out',type=Path,default=Path('build/house.blend'));p.add_argument('--no-export',action='store_true')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);bpy.ops.wm.read_factory_settings(use_empty=True)
-    save(build(load(a.seed,a.plan)),a.out,not a.no_export)
+    save(build(load(a.seed,a.plan,a.type)),a.out,not a.no_export)

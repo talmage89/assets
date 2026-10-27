@@ -20,8 +20,9 @@ from textures import SETS
 from plan import PROOF_SEEDS
 
 
-def check(seed):
-    path=Path(f'export/Hearthfield-{seed}.gltf');source=Path(f'build/family/game-{seed}.blend')
+def check(seed,ranch=False):
+    path=Path(f'export/HearthfieldRanch-{seed}.gltf' if ranch else f'export/Hearthfield-{seed}.gltf')
+    source=Path(f'build/ranch/delivery/game-{seed}.blend' if ranch else f'build/family/game-{seed}.blend')
     physical=source_check(source);meta=json.loads(source.with_suffix('.json').read_text())
     pivots={o.name:tuple(o.matrix_world.translation) for o in bpy.context.scene.objects if o.name in ('FrontDoor','PatioDoor','ServiceDoor') or o.get('socket_kind')}
     source_points=[(tuple(o.matrix_world@v.co),tuple(o.data.color_attributes['Tint'].data[v.index].color[:3]))
@@ -30,7 +31,8 @@ def check(seed):
     for i,(p,c) in enumerate(source_points):source_tree.insert(p,i)
     source_tree.balance()
     raw=read_delivery(path);doc=raw.json;triangles=0;normal_error=0;tint_error=0;position_error=0;uv_zero=0;areas={};points=[]
-    assert len(doc['meshes'])==4 and 5<=len(doc['materials'])<=6 and 12<=len(doc['images'])<=15
+    expected_meshes=3 if ranch and meta['spec']['garage']['kind']=='carport' else 4
+    assert len(doc['meshes'])==expected_meshes and (4 if ranch else 5)<=len(doc['materials'])<=6 and 12<=len(doc['images'])<=(16 if ranch else 15)
     assert all('bufferView' not in im and im['uri'].startswith('textures/') for im in doc['images'])
     assert len(raw.binary)==doc['buffers'][0]['byteLength']
     for p in dependencies(path):assert p.exists() and not p.is_symlink()
@@ -59,7 +61,7 @@ def check(seed):
             assert float(area.min())>1e-12
             uv_zero+=int(np.sum(ua<1e-14))
             role=doc['materials'][prim['material']]['name'].removeprefix('House')
-            size=SETS.get(role,SETS['Trim'])[0]
+            size=1024 if role=='RanchRoof' else 512 if role.startswith('RanchBrick') else SETS.get(role,SETS['Trim'])[0]
             densities=np.sqrt(ua/area)*size
             areas.setdefault(role,[]).extend(zip(map(float,densities),map(float,area)))
             if role in ('Trim','Glass'):
@@ -77,7 +79,7 @@ def check(seed):
     for role,rows in areas.items():
         rows=sorted(rows);v=np.array([r[0] for r in rows]);w=np.cumsum([r[1] for r in rows]);w/=w[-1]
         density[role]=dict(zip(('p10','median','p90'),map(float,np.interp([.1,.5,.9],w,v))))
-        target=SETS.get(role,SETS['Trim'])[0]/SETS.get(role,SETS['Trim'])[1]
+        target=1024/4.8768 if role=='RanchRoof' else 512/1.2192 if role.startswith('RanchBrick') else SETS.get(role,SETS['Trim'])[0]/SETS.get(role,SETS['Trim'])[1]
         if role not in ('Trim','Glass'):assert abs(density[role]['median']/target-1)<.005
     bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(path.resolve()));bpy.context.view_layer.update()
     imported=[tuple(o.matrix_world@v.co) for o in bpy.context.scene.objects if o.type=='MESH' for v in o.data.vertices]
@@ -88,7 +90,7 @@ def check(seed):
     import_reverse_error=max(source_tree.find(p)[2] for p in imported)
     pivot_error=max(math.dist(bpy.data.objects[n].matrix_world.translation,p) for n,p in pivots.items())
     assert max(import_error,import_reverse_error,pivot_error)<2e-5
-    return dict(seed=seed,passed=True,physical=physical,triangles=triangles,materials=len(doc['materials']),meshes=4,
+    return dict(seed=seed,passed=True,physical=physical,triangles=triangles,materials=len(doc['materials']),meshes=expected_meshes,
         primitives=sum(len(m['primitives']) for m in doc['meshes']),gltf_bytes=path.stat().st_size,bin_bytes=len(raw.binary),
         source_to_raw_position_error_m=position_error,source_to_raw_tint_max_error=tint_error,
         normal_length_max_error=normal_error,degenerate_uv_triangles=uv_zero,density_px_m=density,

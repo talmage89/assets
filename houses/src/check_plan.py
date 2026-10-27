@@ -12,7 +12,7 @@ from plan import generate,openings,wall_frame,roof_blocks,roof_faces,roof_juncti
 
 
 def check(plan):
-    windows=openings(plan);main,garage=plan['blocks'];roof=roof_blocks(plan['blocks'])
+    windows=openings(plan);main,garage=plan['blocks'];roof=[plan['roof_envelope']] if plan.get('roof_envelope') else roof_blocks(plan['blocks'])
     faces=roof_faces(roof);junctions=roof_junctions(roof)
     errors=[]
     for o in windows:
@@ -53,6 +53,17 @@ def check(plan):
     porch=plan['porch'];riser=porch.floor/3
     if riser>.19685 or .3048<.254:errors.append('Stair sanity limits')
     if porch.depth<.9144:errors.append('Entry landing too shallow')
+    if plan['spec']['type']=='ranch':
+        if plan['spec']['garage']['kind']=='carport' and any(o['block']=='Garage' for o in windows):errors.append('Closed carport opening')
+        if not any(o.get('style')=='picture' for o in windows):errors.append('Missing picture window')
+        for o in windows:
+            if o['block']=='Main' and o['face']=='front' and o['kind']=='window':
+                soffit=main.eave-main.pitch*main.overhang-.204
+                if o['z']+o['h']+.065>soffit:errors.append('Front casing crosses low soffit')
+                for post in (porch.x0+.14,porch.x1-.14):
+                    if abs((main.x0+o['u'])-post)<o['w']/2+.13:errors.append('Entry post overlaps front window')
+        if errors:raise AssertionError(f"seed {plan['seed']}: "+'; '.join(sorted(set(errors))))
+        return dict(seed=plan['seed'],type='ranch',openings=len(windows),roof_faces=len(faces),roof_samples=samples,valley_min_fall=min(slopes) if slopes else None)
     # The garage room is three shallow interior steps below the main upper
     # floor. Its connection is reserved in the overlap, without interior mesh.
     if (main.upper_floor-garage.upper_floor)/3>.19685 or plan['spec']['garage']['overlap']<3*.254:
@@ -71,6 +82,7 @@ def check(plan):
 def main():
     p=argparse.ArgumentParser();p.add_argument('--count',type=int,default=1000);p.add_argument('--out',type=Path,default=Path('build/plan-sweep.json'));a=p.parse_args()
     rows=[check(generate(seed)) for seed in range(a.count)]
+    ranch_rows=[check(generate(seed,house_type='ranch')) for seed in range(a.count)]
     # Wrong dimensions and unsupported stories must be rejected, not clamped.
     negative=[]
     for override in (dict(main=dict(width=8.0)),dict(garage=dict(stories=1)),dict(main=dict(pitch=.9)),dict(garage=dict(side='rear')),
@@ -78,8 +90,15 @@ def main():
         try:generate(27,override)
         except AssertionError:negative.append(override)
         else:raise AssertionError('Invalid plan accepted')
+    ranch_negative=[]
+    for override in (dict(main=dict(stories=2)),dict(main=dict(pitch=.5)),dict(main=dict(overhang=.2)),dict(main=dict(width=25)),
+                     dict(garage=dict(cars=0)),dict(garage=dict(kind='floating')),dict(garage=dict(entry='rear')),
+                     dict(floor=.9),dict(wall_mix='stucco'),dict(window_update='glass_block'),dict(chimney='unsupported'),dict(colors=dict(door=[1,1,1]))):
+        try:generate(12,override,house_type='ranch')
+        except AssertionError:ranch_negative.append(override)
+        else:raise AssertionError('Invalid ranch plan accepted: '+str(override))
     assert serialize(generate(27))==serialize(generate(27)), 'Plan repeatability'
-    out=dict(passed=True,seeds=a.count,rows=rows,rejected_negative_controls=negative,
+    out=dict(passed=True,seeds=a.count,ranch_rows=ranch_rows,rows=rows,rejected_negative_controls=negative,ranch_rejected_negative_controls=ranch_negative,
              scope='Plan grammar and analytic partitions only; separate actual-surface checks required')
     a.out.parent.mkdir(parents=True,exist_ok=True);a.out.write_text(json.dumps(out,indent=2))
     print('PLAN_SWEEP',a.count,'passed; negative controls',len(negative))

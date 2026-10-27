@@ -180,3 +180,88 @@ stored overlap shadows lower the average. The neutral charcoal shingle map
 averages approximately .10 linear. Red-brown brick and poured concrete have
 separate fields. The photo pairs compare perceived color/value while allowing
 for different exposure, sun direction, landscaping and the authored palette.
+
+---
+
+## Postwar ranch: research and authored grammar
+
+This is a second, original exterior-shell type. The NPS Arkansas 1945–1970
+context supports regional ranch adaptations, picture glazing and iron porch
+posts. The NPS ranch resource study supports a long single story with wide
+eaves. The leaf-on California 1966 and Oklahoma references show low roof/wall
+ratios and strong soffit shade; the Ohio August street adds a third region.
+The Minnesota photograph is spring supplemental evidence, not a summer photo.
+Exact years are not independently known for the Ohio/Minnesota houses. Sources,
+rights and direct image links are in [refs/SOURCES.md](refs/SOURCES.md).
+
+The 1955 USDA *Wood-Frame House Construction*, Handbook 73, recommends at
+least 8 in foundation-wall separation from finish grade, at least 18 in to
+the joist underside in crawl spaces, and prefers 8 ft clear ceilings. These
+are period construction references, not a permit certification. Our slab
+floor elevations of 8/12/16 in and 24 in crawl floor are authored modules;
+the modeled brick can run lower than the protected wood framing. Low-slope
+3:12 roofing assumes the underlayment specified by the shingle manufacturer;
+that concealed membrane is documented rather than given hidden polygons.
+
+| Authored ranch parameter | Range / construction |
+| --- | --- |
+| Overall width, including parking | 44–60 ft permitted; seeded 48–60 ft |
+| Overall depth, including shallow L | 24–30 ft |
+| Principal block | At least 30 ft wide; 24/26/28 ft deep |
+| Garage/carport | 14 ft one-car or 22 ft two-car; rectangular aligned roof or 2 ft shallow projection |
+| Garage entry | Front, or outer-end side entry; never through the house connection |
+| Ceiling / slab floor / crawl floor | 8 ft / 8–16 in / 24 in |
+| Roof | Side gable or hip, 3/4/5:12; most clear brick-face eaves 24–27 in, plainest 18 in |
+| Eave at wall line | Floor + 8 ft ceiling + 10 in roof allowance; fascia is lower at the outer edge |
+| Living picture unit | 9 × 4½ ft; fixed central 44%, operable side units 27% each |
+| Bedroom fronts | 42 × 40 in, sill 40 in above floor |
+| Bedroom ends / kitchen | 48 × 40 in, sill 40 in above floor |
+| Each of two bathroom windows | 24 × 16 in, sill 64 in above floor |
+| Entry and rear slider | Existing 36 × 80 in leaf / 72 × 80 in two-leaf slider |
+| Garage door | Existing raised-panel construction: 9 or 16 ft × 7 ft |
+| Window evolution | Original slim aluminum or wood/storm-frame assembly mixed with later thicker vinyl; no colonial grilles |
+| Brick | Red, red-brown, buff, tan modular courses; no texture copied from the photographs |
+| Stoop | Landing 28 mm below floor; equal rises ≤180 mm; slender 3 in square or paired iron posts |
+| Chimney | 1.2192 × .6096 m / 4 × 2 ft brick shaft, counterflashing, sloped apron, concrete crown, liners and rain hood |
+| Rear | Slider/patio steps, pad-mounted condenser, slack wall-routed lines, electric/gas meters, bibs, dryer hood |
+
+The photograph with Roman-brick plinth and stucco is a **type/proportion**
+reference; the generator intentionally uses modular brick and lap/batten
+wood siding instead. Window sizes, palettes and footprint choices above are
+authored, not dimensions extracted from those photographs. Linear paint
+factors stay ≤.61 in the proof palettes. Brick faces and pale mortar vary
+independently so buff masonry does not tint its mortar orange.
+
+
+### Ranch masonry and source-value revision
+
+Modular coordination uses 8 in length and three courses per 8 in height,
+consistent with BIA Technical Note 10 and the modular sizes cited above.
+Our geometry has a 72 mm veneer-face offset, 97.5 mm measured sash recess,
+sloping individual rowlock bricks, and 4 mm steel lintel angles. The shell's
+hole sides expose the masonry returns rather than applying white casing over
+brick. The returns, angles and sill slopes are separately audited on actual
+mesh surfaces. Most clear roof projections beyond veneer are 24.17 or 27.17
+in; the plain seed has 18 in clear. Nominal roof-datum projections therefore
+include the veneer offset; they are not reported as the clear measurement.
+
+The new sunny North Carolina comparison is a brick ranch from a district
+whose [municipal preservation record](https://raleighnc.gov/planning/services/battery-heights-historic-district) and National Register context date its
+main development to 1956–64. This is a period attribution, not a verified
+individual house year. Its original October 2020 photograph has direct sun,
+a visible end wall and strong shade from broad eaves. A separate Nebraska
+Commons photo is catalogued as a house built in 1960, taken October 2013.
+It is a near-front oblique and supplies unobstructed sun/shade brick and roof
+patches. It supplements the three-quarter pair rather than pretending to be
+one. Photographers, rights and only the direct image URLs appear in SOURCES.
+
+The source measurement tool uses fixed photo patches and projected world-space
+patches on unoccluded brick/roof. It reports encoded-sRGB Rec.709 Y′ and decoded
+linear luminance separately, with the camera exposure stated. A processed
+photograph does not independently identify albedo. Brick body targets are
+linear (.235,.113,.068) red, (.165,.078,.050) red-brown, (.39,.28,.17) buff,
+and (.29,.205,.135) tan before fired-unit variation. Neutral mortar is
+(.33,.305,.257), recessed 9 mm in the original normal field. No photograph
+is opened by the material generator. The material chart's stored values
+allow normalized vertex tint to brighten localized salts without exceeding
+one; physical base brick color remains the chart multiplied by its tint.
