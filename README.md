@@ -64,6 +64,8 @@ Vehicles
 Trees
 - [Red maple](trees/README.md): 12.5 m open-grown summer red maple with leaf cards, flaky lower bark and wind
   weights.
+- [Pin oak](trees/README.md): 17 m street pin oak with drooping lower limbs, lobed leaf cards, ridged bark and
+  wind weights, from the same species-driven generator.
 - [Foundation shrubs](shrubs/README.md): a sheared boxwood and a blooming bigleaf hydrangea in one GLB on one
   shared set, with wind weights.
 
