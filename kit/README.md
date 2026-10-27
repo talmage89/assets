@@ -614,3 +614,8 @@ These local comparison canvases never become asset images.
 alpha patch with UVs and physical finite-difference normals. Species supply the
 cup/droop/fold geometry; ordinary `Cards.add` and all existing defaults are
 unchanged. This lets broad leaves retain curvature without crown-normal shading.
+
+`botanical_delivery.py` is the shared raw-accessor/fresh-import botanical audit,
+moved without changing the maple's checks. It measures finalized positions,
+split normals and linear Wind, rejects albedo vertex colors, and reports image
+and geometry memory. Families add their own species/root/budget invariants.
