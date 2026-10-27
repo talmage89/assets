@@ -41,6 +41,7 @@ def panel(name, surface, us, vs, material, outward, gauge=.0009, return_depth=.0
             inner[i]=len(verts);verts.append(tuple(Vector(verts[i])-n.normalized()*return_depth))
         faces.extend((b,a,inner[a],inner[b]) for a,b in boundary.values())
     ob=G.mesh(name,verts,faces,material)
+    G.smooth(ob,35)
     # The exact derivative is more reliable than an area-weighted vertex average
     # on an irregular grid (for example a panel grid lifted around a wheel arch).
     # Returns retain their geometric normals and remain sharp to the outer skin.
@@ -61,7 +62,6 @@ def panel(name, surface, us, vs, material, outward, gauge=.0009, return_depth=.0
     ob.data.normals_split_custom_set(custom)
     mod=ob.modifiers.new('Closed sheet gauge','SOLIDIFY');mod.thickness=gauge;mod.offset=-1
     mod.use_even_offset=True
-    G.smooth(ob,35)
     ob['sheet_gauge_m']=gauge;ob['edge_return_m']=return_depth
     return ob
 
