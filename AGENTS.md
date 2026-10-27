@@ -92,6 +92,8 @@ commit `.blend`, `.glb`, `.gltf`, `.fbx`, `.png`, `.exr`, textures, renders or d
 - Blender 5.2 headless: `blender -b --factory-startup --python <script> -- <args>`. Scripts run from a clean scene;
   no hand edits to `.blend` files, ever.
 - Deterministic: the same command and seed give the same mesh and textures.
+- Portable: this repository is public. Nothing machine-specific goes into a committed file: no absolute or home
+  paths, host names or this machine's hardware. Find fonts with `kit/fonts.py`, and keep defaults inside the clone.
 - Meters at real scale (model in millimeters if it helps, then convert). Blender +Z up and the asset's front faces
   Blender -Y, which becomes glTF +Y up, +Z forward. Props have their origin at the center of their footprint on the
   ground plane; the brief names any exception (a held item's grip).
