@@ -6,6 +6,7 @@ from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import pickup_spec as S
+from forms import side_x
 
 def points(ob):return [ob.matrix_world@v.co for v in ob.data.vertices]
 def box(obs):
@@ -29,7 +30,7 @@ def main():
         ob.data.calc_loop_triangles();n=len(ob.data.loop_triangles);total+=n;parts[ob.name]=n
         cat=ob['part_category'];categories[cat]=categories.get(cat,0)+n
         parent=ob.parent.name;roots[parent]=roots.get(parent,0)+n
-    b=box(obs);pivots={n:list(bpy.data.objects[n].matrix_world.translation) for n in ['Wheel_FL','Wheel_FR','Wheel_RL','Wheel_RR']}
+    b=box([o for o in obs if not o.get('bounds_exclude')]);pivots={n:list(bpy.data.objects[n].matrix_world.translation) for n in ['Wheel_FL','Wheel_FR','Wheel_RL','Wheel_RR']}
     wb=abs(pivots['Wheel_FL'][1]-pivots['Wheel_RL'][1]);track=abs(pivots['Wheel_FL'][0]-pivots['Wheel_FR'][0])
     tires={n:box([bpy.data.objects[n]]) for n in ['Tire_FL','Tire_FR','Tire_RL','Tire_RR']}
     gaps={side:edge_gap(bpy.data.objects['Door skin_F'+side],bpy.data.objects['Door skin_R'+side]) for side in ['L','R']}
@@ -42,8 +43,22 @@ def main():
     floor=box([bpy.data.objects['Pickup bed floor']])
     cab=box([bpy.data.objects['Cab rear lower']]);bed=box([bpy.data.objects['Bed outer_L']])
     cab_gap=bed['min'][1]-cab['max'][1]
+    # Independent slope check on broad ruled panels, after gauge/attachment.
+    normal_errors=[]
+    for name in ['Front fender_L','Front fender_R','Bed outer_L','Bed outer_R','Door skin_FL','Door skin_FR']:
+        ob=bpy.data.objects[name];sign=1 if name.endswith('R') else -1
+        for face in ob.data.polygons[:ob['outer_skin_faces']]:
+            for li in face.loop_indices:
+                p=ob.matrix_world@ob.data.vertices[ob.data.loops[li].vertex_index].co
+                if not .85<p.z<1.20:continue
+                dz=(side_x(p.y,p.z+1e-5)-side_x(p.y,p.z-1e-5))/2e-5
+                dy=(side_x(p.y+1e-5,p.z)-side_x(p.y-1e-5,p.z))/2e-5
+                expected=Vector((sign,-dy,-dz)).normalized()
+                actual=ob.matrix_world.to_3x3()@ob.data.corner_normals[li].vector
+                normal_errors.append(math.degrees(expected.angle(actual)))
+    normal_check=dict(samples=len(normal_errors),max_angle_degrees=max(normal_errors))
     report=dict(stage='body form only',source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),
-                bounds_m=b,triangles=total,triangles_per_category=categories,triangles_per_mesh=parts,triangles_per_parent=roots,
+                broad_panel_normal_check=normal_check,bounds_m=b,triangles=total,triangles_per_category=categories,triangles_per_mesh=parts,triangles_per_parent=roots,
                 materials=sorted({m.name for ob in obs for m in ob.data.materials if m}),
                 wheel_centers_m=pivots,wheelbase_m=wb,track_m=track,tire_bounds_m=tires,door_seam_distances=gaps,
                 arch_vertical_clearances=arch,bed_floor_bounds_m=floor,cab_bed_y_gap_m=cab_gap,
@@ -51,6 +66,7 @@ def main():
                          'UV, bake, GLB and delivery budgets','paint/glass/light material delivery'])
     errors=[]
     if total>70000:errors.append('Triangle budget')
+    if normal_check['max_angle_degrees']>.1:errors.append('Broad panel shading normal disagrees with slope')
     if abs(wb-S.WHEELBASE)>1e-5 or abs(track-S.TRACK)>1e-5:errors.append('Wheelbase/track')
     if abs(b['size'][1]-S.LENGTH)>.002:errors.append('Length')
     if abs(b['size'][0]-S.WIDTH)>.008:errors.append('Body width')

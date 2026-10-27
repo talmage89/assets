@@ -2,6 +2,7 @@
 import argparse,json,sys
 from pathlib import Path
 import bpy
+from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[2]
 sys.path[:0]=[str(ROOT),str(Path(__file__).resolve().parent)]
 from kit import model as G
@@ -31,8 +32,30 @@ class Build:
         # Flat floors/inner walls and glass need no dense redundant sheet grid.
         if not self.high and (name in ['Cab floor','Pickup bed floor','Cab rear lower','Pickup box front'] or category=='glass'):
             factor=.3
-        ob=panel(name,fn,samples(max(2,round(nu*factor))),samples(max(2,round(nv*factor))),mat,outward,**kw)
-        return self.add(ob,parent,category)
+        us=kw.pop('us',samples(max(2,round(nu*factor))))
+        vs=kw.pop('vs',samples(max(2,round(nv*factor))))
+        ob=panel(name,fn,us,vs,mat,outward,**kw)
+        ob=self.add(ob,parent,category)
+        # Closing the sheet changes the smoothing fans at its rim. Reseed the
+        # authored outer normals AFTER evaluation; pre-modifier split normals
+        # can be re-encoded against a different fan and introduce false dents.
+        normals=[];eps=1e-5;hint=Vector(outward)
+        to_local=ob.matrix_world.to_3x3().transposed()
+        for v in vs:
+            for u in us:
+                du=Vector(tuple(a-c for a,c in zip(fn(u+eps,v),fn(u-eps,v))))
+                dv=Vector(tuple(a-c for a,c in zip(fn(u,v+eps),fn(u,v-eps))))
+                n=du.cross(dv).normalized()
+                if n.dot(hint)<0:n.negate()
+                normals.append(to_local@n)
+        count=(len(us)-1)*(len(vs)-1);ob['outer_skin_faces']=count
+        custom=[(0,0,0)]*len(ob.data.loops)
+        for face in ob.data.polygons:
+            face.use_smooth=face.index<count
+            if face.index<count:
+                for li in face.loop_indices:custom[li]=normals[ob.data.loops[li].vertex_index]
+        ob.data.normals_split_custom_set(custom)
+        return ob
 
 
 def main():
