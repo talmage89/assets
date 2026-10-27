@@ -67,7 +67,7 @@ def panel(name, surface, us, vs, material, outward, gauge=.0009, return_depth=.0
 
 
 def loaded_tire(name, center, width, aspect, rim_inches, material, segments=96,
-                loaded_radius=None, profile_indices=None):
+                loaded_radius=None, profile_indices=None, rolling_radius=None):
     """Closed radial carcass, crowned tread, bulged shoulders, smooth contact load.
 
     ISO size defines nominal radius. A local C1 ground-contact flattening leaves
@@ -86,15 +86,19 @@ def loaded_tire(name, center, width, aspect, rim_inches, material, segments=96,
         if len(indices)<2 or indices!=sorted(set(indices)) or indices[0]!=0 or indices[-1]!=len(profile)-1:
             raise ValueError('Tire profile indices must retain both beads in order')
         profile=[profile[i] for i in indices]
+    if rolling_radius is not None:
+        if not rim<rolling_radius<=radius:raise ValueError('Rolling radius must lie between bead and nominal crown')
+        profile=[(x,rim+(r-rim)*(rolling_radius-rim)/(radius-rim)) for x,r in profile]
     ob=G.lathe(name,profile,material,segments,axis='X',closed=True)
-    h=radius if loaded_radius is None else loaded_radius
-    for vertex in ob.data.vertices:
+    h=rolling_radius if rolling_radius is not None else radius if loaded_radius is None else loaded_radius
+    for vertex in ([] if rolling_radius is not None else ob.data.vertices):
         z=vertex.co.z
         # Smooth maximum(z,-h): exact flat ground below transition; untouched above.
         d=z+h;k=.004
         vertex.co.z=-h+(0 if d<=-k else (d if d>=k else (d+k)**2/(4*k)))
     ob.location=center
     ob['nominal_radius_m']=radius;ob['loaded_radius_m']=h
+    if rolling_radius is not None:ob['rolling_radius_m']=rolling_radius
     ob['tire_size']=f'{round(width*1000)}/{round(aspect*100)}R{rim_inches:g}'
     return ob
 

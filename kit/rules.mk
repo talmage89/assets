@@ -36,6 +36,7 @@ REFS_DIR ?= refs
 TANK_REFERENCE ?=
 FIT_CHECK_ARGS ?=
 EXPORT_ARGS ?=
+FINAL_RENDER_SCRIPT ?= $(KIT)/studio.py
 STUDIO_ARGS ?=
 export TMPDIR := $(REPO)/build/tmp
 export ASSETS_GPU_LOCK ?= $(REPO)/build/locks/gpu.lock
@@ -126,9 +127,9 @@ verify: export/$(ASSET).glb
 $(BUILD)/studio-parameters.txt: FORCE
 	@mkdir -p $(BUILD)
 	@$(PYTHON) -c "from pathlib import Path; import sys; r=Path(sys.argv[1]).expanduser(); p=Path('$@'); s='width=$(WIDTH) samples=$(SAMPLES) shots=$(FINAL_SHOTS) eevee=$(EEVEE_SHOT) args=$(STUDIO_ARGS) reference='+sys.argv[1]+' mtime='+str(r.stat().st_mtime_ns if sys.argv[1] and r.is_file() else None); p.write_text(s) if not p.exists() or p.read_text()!=s else None" "$(TANK_REFERENCE)"
-renders/final/.stamp: export/$(ASSET).glb $(CONFIG) $(KIT)/studio.py $(KIT)/rig.py $(BUILD)/studio-parameters.txt
-	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --stage final --source $< --config $(CONFIG) --out renders/final --shots $(FINAL_SHOTS) --width $(WIDTH) --samples $(SAMPLES) --fit-reference "$(TANK_REFERENCE)" $(STUDIO_ARGS)
-	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --stage final --source $< --config $(CONFIG) --out renders/final-eevee --shots $(EEVEE_SHOT) --engine BLENDER_EEVEE --width $(WIDTH) --samples $(SAMPLES) $(STUDIO_ARGS)
+renders/final/.stamp: export/$(ASSET).glb $(CONFIG) $(FINAL_RENDER_SCRIPT) $(KIT)/rig.py $(BUILD)/studio-parameters.txt
+	$(KIT)/with_gpu.sh $(BP) --python $(FINAL_RENDER_SCRIPT) -- --stage final --source $< --config $(CONFIG) --out renders/final --shots $(FINAL_SHOTS) --width $(WIDTH) --samples $(SAMPLES) --fit-reference "$(TANK_REFERENCE)" $(STUDIO_ARGS)
+	$(KIT)/with_gpu.sh $(BP) --python $(FINAL_RENDER_SCRIPT) -- --stage final --source $< --config $(CONFIG) --out renders/final-eevee --shots $(EEVEE_SHOT) --engine BLENDER_EEVEE --width $(WIDTH) --samples $(SAMPLES) $(STUDIO_ARGS)
 	@touch $@
 final-render: renders/final/.stamp
 docs: final-render src/review.py

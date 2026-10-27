@@ -48,3 +48,13 @@ for indices in [[],[0,14,3],[1,3,14],[0,3,13]]:
     except ValueError:pass
     else:raise AssertionError('Invalid profile accepted')
 print('VEHICLE FIXTURES PASS: manifold gauge, analytic normals, real tire width/top/contact')
+
+from mathutils import Matrix
+rolling=loaded_tire('Rolling approximation',(0,0,.40135),.275,.65,18,None,96,.40135,rolling_radius=.40135)
+G.apply(rolling);bpy.context.view_layer.update()
+for angle in range(0,361,5):
+    rotation=Matrix.Rotation(math.radians(angle),4,'X')
+    ps=[rolling.matrix_world@(rotation@v.co) for v in rolling.data.vertices]
+    assert -1e-6<=min(p.z for p in ps)<.001
+    assert abs(max(p.x for p in ps)-min(p.x for p in ps)-.275)<1e-6
+print('ROLLING TIRE PASS: full revolution keeps contact, width and a circular loaded envelope')

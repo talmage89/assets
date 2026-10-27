@@ -493,3 +493,9 @@ metallic factors, extras and retained/filtered RGBA coverage in an actual GLB.
 `BAKE_SOURCE` optionally selects a generated source blend whose bake channels
 need delivery-specific packing; its default remains `build/lookdev.blend`.
 The reviewed look-dev scene stays an independent source audit input.
+`FINAL_RENDER_SCRIPT` optionally supplies a GLB-only presentation entry point
+with the studio CLI; existing callers keep `kit/studio.py`.
+`vehicle.loaded_tire(..., rolling_radius=r)` optionally uses a circular loaded
+cross-section, compressing the sidewall between bead and crown. The default
+parked flattening is unchanged. The vehicle fixture rotates the rolling tire
+through a full revolution and checks its ground contact and width at each pose.
