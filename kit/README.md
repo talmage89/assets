@@ -499,3 +499,10 @@ with the studio CLI; existing callers keep `kit/studio.py`.
 cross-section, compressing the sidewall between bead and crown. The default
 parked flattening is unchanged. The vehicle fixture rotates the rolling tire
 through a full revolution and checks its ground contact and width at each pose.
+The circular tire option is a mean loaded-envelope approximation, without a
+rotating parked flat spot; it does not simulate carcass deformation.
+
+`finalize.py` carries authored corner normals through edit-mode triangulation
+and UV packing as ordinary corner data, then reseeds the split normals. This
+prevents Blender's smoothing-fan re-encoding from changing analytic panel fields;
+the vehicle regression runs the real finalize path and checks the field afterward.

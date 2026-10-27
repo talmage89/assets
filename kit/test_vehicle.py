@@ -58,3 +58,19 @@ for angle in range(0,361,5):
     assert -1e-6<=min(p.z for p in ps)<.001
     assert abs(max(p.x for p in ps)-min(p.x for p in ps)-.275)<1e-6
 print('ROLLING TIRE PASS: full revolution keeps contact, width and a circular loaded envelope')
+# Exercise the actual finalize/edit-mode path, not only the modeling helper.
+from kit import finalize
+folder=Path(__file__).resolve().parents[1]/'build/vehicle-finalize-test';folder.mkdir(parents=True,exist_ok=True)
+bpy.ops.wm.save_as_mainfile(filepath=str(folder/'source.blend'))
+sys.argv=['blender','--','--source',str(folder/'source.blend'),'--out',str(folder/'final.blend'),
+ '--report',str(folder/'uv.json'),'--size','512','--target-density','850']
+finalize.main();ob=bpy.data.objects['Analytic closed stamping'];errors=[]
+for face in ob.data.polygons:
+ for li in face.loop_indices:
+  p=ob.matrix_world@ob.data.vertices[ob.data.loops[li].vertex_index].co
+  n=ob.data.corner_normals[li].vector
+  if n.x<.5:continue
+  expected=Vector((1,-.08*(p.y+.5),-.20*(p.z-.2))).normalized()
+  if abs(p.x-(1+.04*(p.y+.5)**2+.10*(p.z-.2)**2))<.00001:errors.append((n-expected).length)
+assert errors and max(errors)<.001,max(errors)
+print('FINALIZE NORMAL PASS: analytic corner field survives triangulation and UV editing')
