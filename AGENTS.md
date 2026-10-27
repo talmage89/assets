@@ -25,6 +25,13 @@ importance of the object"). A grill or a car seen up close earns several critiqu
 post earns one careful pass. Every asset must still read as real at the distance a player sees it, and then you ship
 it and move on.
 
+**After phase 2 the owner asked for slightly more rigor:** "things are generally light-toned and slightly lower
+quality, which is good for the assets that they are, but let's just dial up the rigor very slightly for the future
+assets. Try not to do this at the expense of triangles." So every asset gets one more critique pass than before, and
+each hero render's tonal range is checked: real albedos, deep shadow in cavities, under and inside the object, and
+highlights that roll off without clipping, so nothing reads pale or washed out. Put the extra care into form,
+construction, materials and wear. The triangle and texture budgets are unchanged.
+
 - **Realism.** Real-world dimensions and proportions from cited sources. Real construction: how parts are stamped,
   cast, molded, welded, fastened and assembled. Real materials: painted steel, porcelain enamel, cast aluminum,
   stainless, molded plastic, rubber, with appropriate wear, grime and variation. The final hero render should be
@@ -143,7 +150,7 @@ An asset is finished when all of these hold, with proof in your report:
 - **Critique against photographs, not memory.** Use the kit's photo-match tool: pick reference photos of the views
   that matter (a 3/4 hero, the most complex area, a close-up), match their camera, and render side-by-side pairs.
   Critique as a harsh art director: list everything that tells a viewer "this is CG", fix it, and log each pass in
-  the asset's `REVIEW.md`. Hero assets get at least three passes, others at least two. Lenient self-review is the
+  the asset's `REVIEW.md`. Hero assets get at least four passes, others at least three. Lenient self-review is the
   most common failure. Begin each pass with color and value: compare the same surface in the render and the photo,
   allowing for the photo's light, and fix a miss in hue or brightness before anything finer, since it reads as CG at
   any distance. Measurements and checks prove the build, not the look; only the pairs prove the look.
