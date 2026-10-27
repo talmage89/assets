@@ -148,6 +148,9 @@ An asset is finished when all of these hold, with proof in your report:
 - **Other agents change `kit/` in parallel.** Merge `main` into your branch at the start of each asset, and before
   adding a kit feature check `git log main -- kit/` and `kit/README.md` on `main` for one that already does the
   job. Extend what exists instead of building a second version; keep kit changes in their own commits.
+  If you changed `kit/`, run every `kit/test_*.py` from a clean `build/` before you report: Blender for those that
+  import `bpy`, `python3 -m unittest kit.<name>` for the rest, and `kit/with_gpu.sh` for those that bake. Fixtures
+  share `build/` folders, so a test that passes alone can break another.
 - Put scratch files and temp files in `build/` inside your worktree (`$TMPDIR` points there), never in `/tmp`.
 - There is one shared GPU. Run every Cycles bake and render through the kit's GPU lock
   (`flock "$ASSETS_GPU_LOCK" ...`) so agents don't collide. Use Cycles GPU (OptiX or CUDA, enabled by the kit's
