@@ -101,13 +101,20 @@ def main():
                     deviations.append(math.degrees(expected.angle(ob.data.corner_normals[li].vector)))
         laminate.append(dict(part=ob.name,exit_normal_samples=len(deviations),max_paired_normal_deviation_degrees=max(deviations)))
         if max(deviations)>.1:errors.append('Faceted inner glazing '+ob.name)
+    plate_clearance=[]
+    for end in ['F','R']:
+        plate=bpy.data.objects['Fictional plate_'+end]
+        center=sum(points(plate),Vector())/len(plate.data.vertices)
+        distances={name:tree(bpy.data.objects[name+'_'+end]).find_nearest(center)[3] for name in ['Plate recess surround','Plate blank']}
+        plate_clearance.append(dict(end=end,center_distances_m=distances))
+        if min(distances.values())<.0002:errors.append('Coplanar/occluded plate print '+end)
     required=['Fuel_Door','Mirror_L','Mirror_R','Tailgate','Hood','Door_FL','Door_FR','Door_RL','Door_RR','Wiper_0','Wiper_1']
     pivots={n:dict(position_m=list(bpy.data.objects[n].matrix_world.translation),axis=bpy.data.objects[n].get('pivot_axis'),range_degrees=list(bpy.data.objects[n].get('range_degrees',[]))) for n in required}
     mats={m.name for o in obs for m in o.data.materials};images={im.name:list(im.size) for im in bpy.data.images if im.source=='FILE' and im.size[0]>0}
     report=dict(source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),quality=bpy.context.scene['quality'],
        sheet_gauge_measurements=gauges,rest_position_max_error_m=max(rest),actual_underbody_ground_clearance_m=clear,
-       wheel_static_clearances=wheels,mirror_section_checks=mirror_sections,door_sill_gaps=sill_gaps,measured_support_intersections=supports,underbody_noninterference=clear_pairs,face_measurements=face_report,glass_paired_normal_checks=laminate,glazing_trim_noninterference=glazing_fit,pivots=pivots,source_materials=sorted(mats),original_source_images=images,
-       passed=not errors,errors=errors,pending=['continuous loaded tire deformation when rolling','kingpin caster/SAI and full wheel steering sweep','doors/hood/tailgate/wiper full assembly sweeps','UV/bake/export/re-import and delivery material verification'])
+       wheel_static_clearances=wheels,mirror_section_checks=mirror_sections,door_sill_gaps=sill_gaps,measured_support_intersections=supports,underbody_noninterference=clear_pairs,face_measurements=face_report,glass_paired_normal_checks=laminate,glazing_trim_noninterference=glazing_fit,plate_print_clearances=plate_clearance,pivots=pivots,source_materials=sorted(mats),original_source_images=images,
+       passed=not errors,errors=errors,validation_scope='Static construction only; full source sweeps: motion-game/high.json; imported articulation and delivery: car-delivery-check.json',limitations=['Circular loaded tire envelope is an approximation, without carcass squirm'])
     Path(a.out).write_text(json.dumps(report,indent=2));print(json.dumps(report,indent=2))
     if errors:raise AssertionError(errors)
 

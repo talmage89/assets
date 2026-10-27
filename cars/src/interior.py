@@ -48,7 +48,7 @@ def build(b):
     for x in [-.755,-.252,.252,.755]:
         box(b,'Dash vent '+str(x),(x,-.953,1.271),(.095,.020,.076),b.m['plastic'],'interior',radius=.008)
         for z in [1.25,1.267,1.284]:box(b,'Vent vane '+str(x)+str(z),(x,-.939,z),(.080,.007,.004),b.m['interior_light'],'interior',radius=.0005)
-    box(b,'Center console',(0,-.354,.881),(.287,.775,.316),b.m['interior'],'interior',radius=.044)
+    b.add(G.box('Center console',(0,-.354,.881),(.287,.775,.316),b.m['interior'],.044,3 if b.high else 2),category='interior')
     box(b,'Console arm pad',(0,-.124,1.059),(.282,.370,.060),b.m['seat_side'],'interior',radius=.029)
     for y in [-.48,-.635]:
         loop(b,'Cup holder '+str(y),(0,y,1.046),(1,0,0),(0,1,0),(.052,.052),.006,b.m['plastic'],'interior',segments=16,sides=4)
@@ -69,8 +69,8 @@ def build(b):
             parent=bpy.data.objects['Door_'+end+side];y=(ya+yb)/2;w=yb-ya-.105
             outline=[(y+u,1.018+v) for u,v in G.rounded_rectangle(w,.594,.052,3)]
             panel=G.profile('Inner door card_'+end+side,outline,sgn*.900,sgn*.935,b.m['interior'],axis='X');b.add(panel,parent,'interior')
-            box(b,'Door armrest_'+end+side,(sgn*.872,y-.030,1.126),(.072,w*.61,.073),b.m['seat_side'],'interior',parent,.022)
-            box(b,'Inside latch_'+end+side,(sgn*.861,y-.210,1.233),(.024,.095,.034),b.m['chrome'],'interior',parent,.007)
+            box(b,'Door armrest_'+end+side,(sgn*.907,y-.030,1.126),(.072,w*.61,.073),b.m['seat_side'],'interior',parent,.022)
+            box(b,'Inside latch_'+end+side,(sgn*.889,y-.210,1.233),(.024,.095,.034),b.m['chrome'],'interior',parent,.007)
             box(b,'Lower door pocket_'+end+side,(sgn*.870,y,.827),(.065,w*.71,.098),b.m['plastic'],'interior',parent,.016)
     def lining(u,v):
         x,y,z=roof(.020+.960*u,.018+.907*v)

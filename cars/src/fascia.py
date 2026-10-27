@@ -85,14 +85,14 @@ def bumper_form(b):
         sign=1 if u>=.5 else -1
         x,y=nose_corner(abs(2*u-1),z,inner=0,bumper=True)
         return sign*x,y,z
-    zs=[.540,.553,.565,.580,.610,.685,.744,.766,.780,.790] if b.high else [.540,.565,.580,.685,.766,.790]
+    zs=[.540,.548,.565,.580,.610,.685,.744,.766,.784,.788,.790] if b.high else [.540,.548,.565,.580,.685,.766,.784,.790]
     # Split only at the actual plate aperture, 346 x 180 mm.
     edge=.173/.950*.70
     for name,a,c in [('left',0,(1-edge)/2),('right',(1+edge)/2,1)]:
         sign=-1 if name=='left' else 1
         b.skin('Front bumper '+name,lambda u,z,a=a,c=c:surface(a+(c-a)*u,z),26,8,b.m['body'],(sign,-1,0),
                category='bumpers',gauge=.0025,return_depth=.025,vs=zs,us=samples(26 if b.high else 11))
-    for name,zs0 in [('lower',[.540,.553,.565,.580]),('upper',[.764,.780,.790])]:
+    for name,zs0 in [('lower',[.540,.548,.565,.580]),('upper',[.764,.784,.788,.790])]:
         b.skin('Front bumper '+name,lambda u,z:surface((1-edge)/2+edge*u,z),8,4,b.m['body'],(0,-1,0),
                category='bumpers',gauge=.0025,return_depth=.035,vs=zs0)
     # Pressed pocket floor and returns are behind the visible beam, not a
@@ -102,7 +102,8 @@ def bumper_form(b):
         x,y,z=surface(u,.790)
         a=surface(u-.0001,.790);c=surface(u+.0001,.790)
         dx=c[0]-a[0];dy=c[1]-a[1];length=math.hypot(dx,dy)
-        return x-.105*v*dy/length,y+.105*v*dx/length,z
+        width=.075-.057*fair((abs(2*u-1)-.55)/.35)
+        return x-width*v*dy/length,y+width*v*dx/length,z
     b.skin('Bumper upper return_F',shelf,48,3,b.m['body'],(0,0,1),category='bumpers',gauge=.0025,return_depth=0)
     # Mounting ears connect the cosmetic beam skin to the accepted crash beam.
     # Follow the curved skin at their front edge; a straight box would poke
@@ -145,7 +146,8 @@ def optic(b,name,profile,material,u,sign,segments=24):
 def details(b):
     for sign,side in [(-1,'L'),(1,'R')]:
         def back(u,v,sign=sign):
-            x,y,z=lamp_point(u,v,.082);return sign*x,y,z
+            depth=.026+.056*(1-fair((u-.50)/.20))
+            x,y,z=lamp_point(u,v,depth);return sign*x,y,z
         b.skin('Headlamp housing back_'+side,back,30,4,b.m['plastic'],(sign,-1,0),category='lamps',gauge=.002,return_depth=0)
         # Seal all four edges of the curving, tapering lens, with 3 mm gauge.
         uv=[(u,0) for u in samples(36 if b.high else 18)]+[(1,v) for v in samples(4)[1:]]
@@ -155,7 +157,9 @@ def details(b):
             loop=[]
             for u,v in uv:
                 u=u*(1-shrink*2)+shrink;v=v*(1-shrink*5)+shrink*2.5
-                x,y,z=lamp_point(u,v,depth)
+                maximum=.026+.058*(1-fair((u-.50)/.20))
+                actual=depth if depth<.02 else maximum*depth/.084
+                x,y,z=lamp_point(u,v,actual)
                 loop.append((sign*x,y,z))
             loops.append(loop)
         b.add(G.ring_loft('Headlamp well walls_'+side,loops,b.m['plastic']),category='lamps')
@@ -167,7 +171,7 @@ def details(b):
         for w,h,depth in [(.118,.070,.028),(.058,.030,.074),(.052,.025,.077),(.115,.067,.030)]:
             ring=[]
             for dx,dz in G.rounded_rectangle(w,h,.009,3 if b.high else 2):
-                u=.55+dx/.49;x,y,z=lamp_point(u,.5,depth)
+                u=.48+dx/.49;x,y,z=lamp_point(u,.5,depth)
                 ring.append((sign*x,y,z+dz))
             rings.append(ring)
         b.add(G.ring_loft('Headlamp lateral reflector_'+side,rings,b.m['chrome']),category='lamps')
@@ -177,8 +181,8 @@ def details(b):
         path=[]
         for a,c in zip(signature,signature[1:]):
             for t in samples(4 if b.high else 3)[:-1]:
-                u,v=[a[k]+(c[k]-a[k])*t for k in range(2)];x,y,z=lamp_point(u,v,.018);path.append((sign*x,y,z))
-        x,y,z=lamp_point(*signature[-1],.018);path.append((sign*x,y,z))
+                u,v=[a[k]+(c[k]-a[k])*t for k in range(2)];depth=.018-.006*fair((u-.50)/.20);x,y,z=lamp_point(u,v,depth);path.append((sign*x,y,z))
+        u,v=signature[-1];depth=.018-.006*fair((u-.50)/.20);x,y,z=lamp_point(u,v,depth);path.append((sign*x,y,z))
         tube(b,'Alder running signature_'+side,path,.008,b.m['drl'],'lamps',sides=6)
         x,y,z=lamp_point(.91,.50,.017)
         box(b,'Amber side marker_'+side,(sign*x,y,z),(.010,.026,.036),b.m['amber'],'lamps',radius=.003)

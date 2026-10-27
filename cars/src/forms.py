@@ -114,7 +114,7 @@ def hood_z(x,y):
 
 
 def hood(u,v):
-    x=(2*u-1)*.900;fy=hood_front_y(x);y=fy+(S.HOOD_REAR-fy)*v
+    x=(2*u-1)*.900;fy=hood_front_y(x);y=fy+(S.HOOD_REAR-.035-fy)*v
     return x,y,hood_z(x,y)
 
 
@@ -188,7 +188,7 @@ def nose_corner(u,z,inner=.598,bumper=False):
     """Front crown into a tangent side return; ends at the existing fender."""
     def fy(x):
         if not bumper:return nose_y(x,z)
-        depth=section(z,[(.540,.035),(.565,.004),(.580,0),(.665,.006),(.755,.023),(.790,.050)],.009)
+        depth=section(z,[(.540,.035),(.548,.023),(.565,.004),(.580,0),(.665,.006),(.755,.020),(.784,.023),(.788,.026),(.790,.031)],.002)
         return -S.LENGTH/2+.0004+.125*(abs(x)/.984)**2.6+depth
     if u<=.70:
         x=inner+(.950-inner)*u/.70
@@ -201,6 +201,8 @@ def nose_corner(u,z,inner=.598,bumper=False):
 def lamp_point(u,v,depth=0):
     """Offset into the optical well along its actual plan normal."""
     x,y,z=lamp_surface(u,v)
-    a=lamp_surface(u-.0001,v);c=lamp_surface(u+.0001,v)
+    # Offset around the plan curve at a fixed height. Including the rounded
+    # aperture's vertical edge derivative would twist the well's inboard cap.
+    a=nose_corner(u-.0001,z);c=nose_corner(u+.0001,z)
     dx=c[0]-a[0];dy=c[1]-a[1];length=math.hypot(dx,dy)
     return x-depth*dy/length,y+depth*dx/length,z

@@ -17,7 +17,7 @@ def build(b):
         old=bpy.data.objects.get('Taillamp envelope_'+side)
         if old:bpy.data.objects.remove(old,do_unlink=True)
         x=sign*.922
-        box(b,'Taillamp housing_'+side,(x,2.830,1.181),(.133,.066,.415),b.m['plastic'],'lamps',radius=.018)
+        box(b,'Taillamp housing_'+side,(x,2.830,1.181),(.119,.066,.415),b.m['plastic'],'lamps',radius=.018)
         loops=[]
         for y,w,h in [(2.853,.116,.397),(2.871,.115,.391),(2.875,.102,.377)]:
             loops.append([(x+u,y,1.181+v) for u,v in G.rounded_rectangle(w,h,.017,5 if b.high else 3)])
@@ -27,9 +27,9 @@ def build(b):
             box(b,'Rear LED rail_'+side+str(zz),(x,2.862,zz),(.079,.006,.073),b.m['brakelight'],'lamps',radius=.007)
         # Tall molded housing on a substantial door sail, with an actual rear lens.
         door=bpy.data.objects['Door_F'+side]
-        sail=G.profile('Mirror sail_'+side,[(-1.354,1.390),(-1.13,1.39),(-1.14,1.54),(-1.25,1.51)],sign*.959,sign*1.066,b.m['plastic'],axis='X',radius=.004)
+        sail=G.profile('Mirror sail_'+side,[(-1.340,1.360),(-1.250,1.360),(-1.250,1.430),(-1.310,1.440)],sign*.959,sign*.995,b.m['plastic'],axis='X',radius=.004)
         b.add(sail,door,'mirrors');sail['bounds_exclude']=True
-        fold=pivot(b,'Mirror_'+side,(sign*1.041,-1.225,1.461),door,'Z',(-65,0) if sign<0 else (0,65))
+        fold=pivot(b,'Mirror_'+side,(sign*1.114,-1.225,1.431),door,'Z',(-50,0) if sign<0 else (0,50))
         # Tapered aerodynamic cap, separate black glass case and inset bezel.
         center=sign*1.11936;loops=[]
         sections=[(-1.385,.050,.090),(-1.372,.110,.166),(-1.345,.183,.227),(-1.285,.225,.262),(-1.211,.220,.267),(-1.197,.217,.264),(-1.140,.201,.249)]
@@ -40,15 +40,16 @@ def build(b):
         # Keep the accepted taper; a textured black cap avoids a bright box
         # reflection beside the much darker face.
         b.add(housing,fold,'mirrors');housing['bounds_exclude']=True;housing['housing_sections']=len(loops);housing['section_vertices']=len(loops[0]);G.smooth(housing,65)
-        arm=tube(b,'Mirror support arm_'+side,[(sign*1.033,-1.230,1.431),(sign*1.079,-1.217,1.409),(sign*1.117,-1.200,1.414)],.024,b.m['plastic'],'mirrors',fold,sides=8);arm['bounds_exclude']=True
+        arm=tube(b,'Mirror support arm_'+side,[(sign*1.021,-1.230,1.431),(sign*1.079,-1.217,1.409),(sign*1.117,-1.200,1.414)],.024,b.m['plastic'],'mirrors',fold,sides=8);arm['bounds_exclude']=True
+        base=tube(b,'Mirror fixed base_'+side,[(sign*.990,-1.275,1.412),(sign*1.114,-1.225,1.431)],.014,b.m['plastic'],'mirrors',door,sides=6);base['bounds_exclude']=True
         # Bezel has a real rounded aperture and a short return to the glass.
         paths=[]
-        for w,h,y in [(.202,.250,-1.138),(.183,.231,-1.132),(.180,.228,-1.136)]:
+        for w,h,y in [(.202,.242,-1.138),(.183,.225,-1.132),(.180,.222,-1.136)]:
             paths.append([(center+u,y,1.497+v) for u,v in G.rounded_rectangle(w,h,.026,5 if b.high else 3)])
         bezel=G.loft('Mirror glass bezel_'+side,paths,b.m['plastic'],caps=False)
         gauge=bezel.modifiers.new('Bezel gauge','SOLIDIFY');gauge.thickness=.0015;gauge.use_even_offset=False
         b.add(bezel,fold,'mirrors');bezel['bounds_exclude']=True
-        outline=[(center+u,1.497+v) for u,v in G.rounded_rectangle(.179,.227,.025,5 if b.high else 3)]
+        outline=[(center+u,1.497+v) for u,v in G.rounded_rectangle(.179,.221,.025,5 if b.high else 3)]
         glass=G.profile('Mirror glass_'+side,outline,-1.135,-1.133,b.m['mirror'],axis='Y');b.add(glass,fold,'mirrors');glass['bounds_exclude']=True
         # Handles belong to their doors; A bowed stand-off leaves a real grip gap.
         for end,y in [('F',-.287),('R',.704)]:
@@ -76,7 +77,7 @@ def build(b):
     b.add(plate,flap,'trim')
     # Real US-size plate carriers. The rear carrier sits inside the bumper opening.
     for end,sgn,y,z in [('F',-1,-2.901,.672),('R',1,2.869,.710)]:
-        box(b,'Plate recess surround_'+end,(0,y-sgn*.012,z),(.337,.027,.178),b.m['plastic'],'trim',radius=.010)
+        box(b,'Plate recess surround_'+end,(0,y-sgn*.014,z),(.337,.027,.178),b.m['plastic'],'trim',radius=.010)
         box(b,'Plate blank_'+end,(0,y,z),(.305,.002,.1524),b.m['wheel'],'trim',radius=.003)
         corners=[(-.150,y+sgn*.0015,z-.074),(.150,y+sgn*.0015,z-.074),(.150,y+sgn*.0015,z+.074),(-.150,y+sgn*.0015,z+.074)]
         if sgn>0:corners=[corners[i] for i in [1,0,3,2]]
@@ -86,12 +87,12 @@ def build(b):
         loop(b,'Front tow hook_'+str(sign),(sign*.486,-2.871,.492),(1,0,0),(0,1,0),(.039,.055),.008,b.m['frame'],'trim',segments=16,sides=6)
         box(b,'Tow hook bracket_'+str(sign),(sign*.486,-2.796,.492),(.065,.150,.040),b.m['frame'],'trim',radius=.003)
     # Parked wipers lie against points on our windshield, with hinge normals.
-    for i,(lo,hi) in enumerate([(.055,.465),(.515,.93)]):
+    for i,(lo,hi) in enumerate([(.100,.430),(.520,.830)]):
         pts=[]
         for t in samples(6):
-            p=Vector(windshield(lo+(hi-lo)*t,.065));p+=Vector((0,-.003,.004));pts.append(tuple(p))
-        base=Vector(windshield((lo+hi)/2+.10,0))+Vector((0,-.008,.013))
-        root=pivot(b,'Wiper_'+str(i),base,axis='Z',limits=(0,80));root.rotation_euler=Vector((0,-.62,.78)).to_track_quat('Z','Y').to_euler()
+            p=Vector(windshield(lo+(hi-lo)*t,.065));p+=Vector((0,-.0055,.0072));pts.append(tuple(p))
+        base=Vector(windshield(hi+.030,0))+Vector((0,-.008,.013))
+        root=pivot(b,'Wiper_'+str(i),base,axis='Z',limits=(-80,0));root.rotation_euler=Vector((0,-.62,.78)).to_track_quat('Z','Y').to_euler()
         tube(b,'Wiper rubber_'+str(i),pts,.0035,b.m['rubber'],'trim',root,sides=6)
         tube(b,'Wiper spring back_'+str(i),[(x,y-.003,z+.005) for x,y,z in pts],.004,b.m['frame'],'trim',root,sides=6)
         middle=Vector(pts[3])+Vector((0,-.004,.012))

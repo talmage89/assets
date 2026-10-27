@@ -18,9 +18,8 @@ def shoulder_blocks(b,name,pos,spin,material,S):
             angle=math.tau*(k+.25*(side+1))/count;start=len(vertices)
             for depth in [-.007,.002]:
                 for axial,radius,delta in [(.093,S.TIRE_RADIUS-.004,-.074),(.127,S.TIRE_RADIUS-.019,-.056),(.127,S.TIRE_RADIUS-.019,.071),(.093,S.TIRE_RADIUS-.004,.074)]:
-                    t=angle+delta;r=radius+depth;z=r*math.sin(t)
-                    d=z+S.HUB_HEIGHT;soft=.004
-                    z=-S.HUB_HEIGHT+(0 if d<=-soft else d if d>=soft else (d+soft)**2/(4*soft))
+                    t=angle+delta;rim=S.RIM_INCHES*.0254/2
+                    r=radius+depth;r=rim+(r-rim)*(S.HUB_HEIGHT-rim)/(S.TIRE_RADIUS-rim);z=r*math.sin(t)
                     vertices.append((pos[0]+side*axial,pos[1]+r*math.cos(t),pos[2]+z))
             faces.extend(tuple(start+i for i in f) for f in [(3,2,1,0),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)])
     ob=G.mesh(name,vertices,faces,material);b.add(ob,spin,'tires')
@@ -31,15 +30,20 @@ def build(b,S):
         for end,y in [('F',S.FRONT_AXLE),('R',S.REAR_AXLE)]:
             pos=(sign*S.TRACK/2,y,S.HUB_HEIGHT);parent=b.root
             if end=='F':
-                steer=G.pivot('Steer_'+end+side,pos,'Z',(-35,35));steer.parent=b.root
-                steer['checkpoint_only']=True;steer['kingpin_status']='vertical source proxy; caster/SAI delivery verification pending'
+                axis=Vector((-sign*math.tan(math.radians(12)),math.tan(math.radians(6.5)),1)).normalized()
+                ground=Vector((sign*(S.TRACK/2-.040),y-.045,0))
+                kingpin=ground+axis*(S.HUB_HEIGHT/axis.z)
+                steer=G.pivot('Steer_'+end+side,kingpin,'Z',(-35,35));steer.parent=b.root
+                steer.rotation_euler=axis.to_track_quat('Z','Y').to_euler()
+                steer['kingpin_axis_vehicle']=list(axis);steer['kingpin_ground_point']=list(ground)
+                steer['kingpin_status']='authored 12 degree SAI / 6.5 degree caster, 40 mm scrub; measured on exported axis'
                 parent=steer
             spin=G.pivot('Wheel_'+end+side,pos,'X',(-360,360))
-            if end=='F':spin.location=(0,0,0)
-            spin.parent=parent
+            __import__('bpy').context.view_layer.update();world=spin.matrix_world.copy()
+            spin.parent=parent;spin.matrix_world=world
             tire=loaded_tire('Tire_'+end+side,pos,S.TIRE_WIDTH,S.TIRE_ASPECT,S.RIM_INCHES,
                 b.m['tire_'+side] if b.detail else b.m['rubber'],96 if b.high else 64,S.HUB_HEIGHT,
-                profile_indices=None if b.high else [0,1,3,4,5,7,9,10,11,13,14])
+                profile_indices=None if b.high else [0,1,3,4,5,7,9,10,11,13,14],rolling_radius=S.HUB_HEIGHT)
             b.add(tire,spin,'tires')
             if b.detail:shoulder_blocks(b,'Shoulder tread_'+end+side,pos,spin,b.m['tire_'+side],S)
             cx=pos[0];r=S.RIM_INCHES*.0254/2
@@ -76,5 +80,17 @@ def build(b,S):
                     radius=sum(math.hypot(rotor.data.vertices[i].co.y-y,rotor.data.vertices[i].co.z-S.HUB_HEIGHT) for i in f.vertices)/len(f.vertices)
                     if radius<.102:f.material_index=1
                 b.add(rotor,spin,'brakes')
-                caliper=box(b,'Brake caliper_'+end+side,(cx+sign*.030,y+.132,S.HUB_HEIGHT+.035),(.046,.092,.143),b.m['caliper'],'brakes',parent,.012)
+                # Cast U-section: two pad carriers straddle the disc with a
+                # 31 mm open slot; the bridge clears its 161 mm outside radius.
+                profile=[(-.015,.112),(-.015,.181),(.052,.181),(.052,.112),
+                         (.034,.112),(.034,.168),(.003,.168),(.003,.112)]
+                caliper=G.profile('Brake caliper_'+end+side,profile,-.056,.056,b.m['caliper'],axis='Z',radius=.002,segments=2 if b.high else 1)
+                angle=math.atan2(.035,.132)
+                for vertex in caliper.data.vertices:
+                    axial,radial,tangent=vertex.co
+                    vertex.co=(cx+sign*axial,y+radial*math.cos(angle)-tangent*math.sin(angle),
+                               S.HUB_HEIGHT+radial*math.sin(angle)+tangent*math.cos(angle))
+                if sign<0:
+                    for face in caliper.data.polygons:face.flip()
+                caliper=b.add(caliper,parent,'brakes')
                 caliper['wheel_clearance_basis']='Actual axial and radial mesh clearances measured by check_detail.py'

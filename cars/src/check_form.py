@@ -63,8 +63,7 @@ def main():
                 materials=sorted({m.name for ob in obs for m in ob.data.materials if m}),
                 wheel_centers_m=pivots,wheelbase_m=wb,track_m=track,tire_bounds_m=tires,door_seam_distances=gaps,
                 arch_vertical_clearances=arch,bed_floor_bounds_m=floor,cab_bed_y_gap_m=cab_gap,
-                pending=['continuous rolling tire deformation','all swept-motion clearance',
-                         'UV, bake, GLB and delivery budgets','paint/glass/light material delivery'])
+                validation_scope='Static form and source allocation only; motion-game/high.json and car-delivery-check.json validate motion and export')
     errors=[]
     if total>60000:errors.append('Triangle budget')
     if normal_check['max_angle_degrees']>.1:errors.append('Broad panel shading normal disagrees with slope')

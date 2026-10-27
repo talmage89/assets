@@ -28,10 +28,11 @@ def rounded_polygon(points,distances,steps):
 
 def build(b):
     gap=S.PANEL_GAP
-    hood_p=G.pivot('Hood',(0,S.HOOD_REAR,1.408),'X',(-62,0));hood_p.parent=b.root
-    hx=[0,.20,.40,.402,.410,.418,.48,.512,.520,.528,.602,.610,.618,.75,.90]
+    hood_p=G.pivot('Hood',(0,S.HOOD_REAR-.040,1.408),'X',(-62,0));hood_p.parent=b.root
+    hx=([0,.20,.40,.402,.410,.418,.48,.512,.520,.528,.602,.610,.618,.75,.90] if b.high else
+        [0,.402,.410,.418,.512,.520,.528,.602,.610,.618,.90])
     hu=sorted(set([.5+x/1.8 for x in hx]+[.5-x/1.8 for x in hx]))
-    b.skin('Hood outer',hood,32,18,b.m['body'],(0,0,1),hood_p,'hood',us=hu,vs=samples(12 if b.high else 4))
+    b.skin('Hood outer',hood,32,18,b.m['body'],(0,0,1),hood_p,'hood',return_depth=.003,us=hu,vs=samples(12) if b.high else [0,.08,.16,.25,.5,.75,1])
     roof_skin=b.skin('Roof crown',roof,44,44,b.m['body'],(0,0,1),category='cab',return_depth=.006,
            us=sorted(set(samples(24)+[.015,.025,.04,.07,.93,.96,.975,.985] if b.high else [0,.02,.04,.07,.12,.25,.5,.75,.88,.93,.96,.98,1])),
            vs=sorted(set(samples(36)+[.01,.025,.045,.07,.10,.4719101123595506,.88,.94,.98] if b.high else [0,.025,.07,.15,.3,.4719101123595506,.65,.80,.9,.97,1])))
@@ -40,7 +41,8 @@ def build(b):
         for face in roof_skin.data.polygons:
             if all(i>=roof_skin['sheet_vertex_count'] for i in face.vertices):face.material_index=1
     b.skin('Windshield',windshield,24,10,b.m['glass'],(0,-1,1),category='glass',gauge=.0048,return_depth=0)
-    b.skin('Rear glass',backlight,24,10,b.m['glass'],(0,1,0),category='glass',gauge=.0048,return_depth=0)
+    b.skin('Rear glass',backlight,24,10,b.m['glass'],(0,1,0),category='glass',gauge=.0048,return_depth=0,
+           us=samples(36) if b.high else [0,.025,.05,.10,.20,.35,.5,.65,.80,.90,.95,.975,1])
     if b.detail:bpy.data.objects['Rear glass'].data.materials[0]=b.m['rear_glass']
 
     def side_panel(name,ya,yb,cap,sign,parent,category,axle=None):
@@ -88,7 +90,7 @@ def build(b):
         b.skin('Fender shoulder_'+side,fender_top,8,34,b.m['body'],(0,0,1),category='fenders',return_depth=.008)
         for end,ya,yb in [('F',S.DOOR_FRONT+gap/2,S.DOOR_SPLIT-gap/2),('R',S.DOOR_SPLIT+gap/2,S.DOOR_REAR)]:
             pivot=G.pivot('Door_'+end+side,(sign*.944,ya,1.04),'Z',((-72,0) if sign==1 else (0,72)))
-            pivot.parent=b.root;pivot['checkpoint_only']=True
+            pivot.parent=b.root
             side_panel('Door skin_'+end+side,ya,yb,belt_z,sign,pivot,'doors')
             if end=='F':
                 outer=[(ya,belt_z(ya)),(yb,belt_z(yb)),(yb,1.882),(-.560,1.884),(-.775,1.820)]
@@ -130,7 +132,8 @@ def build(b):
             # does not acquire a fan highlight when solidified.
             perimeter=loop(dense[1],.006)
             tilt=.018 if end=='R' else 0
-            perimeter=[(sign*(.963-.26*(z-S.BELT)-.006-tilt*(y-ya)/(yb-ya)),y,z) for _,y,z in perimeter]
+            perimeter=[(sign*(.963-.26*(z-S.BELT)-.009-tilt*(y-ya)/(yb-ya)),y,z) for _,y,z in perimeter]
+            if end=='F':perimeter=[(x,yb-(yb-y)*.985,z) for x,y,z in perimeter]
             cy=sum(q[1] for q in perimeter)/len(perimeter);cz=sum(q[2] for q in perimeter)/len(perimeter)
             verts=[(sign*(.963-.26*(cz-S.BELT)-.006-tilt*(cy-ya)/(yb-ya)),cy,cz)]+perimeter;n=len(perimeter)
             gl=G.mesh('Side glass_'+end+side,verts,[(0,i+1,(i+1)%n+1) for i in range(n)],b.m['glass'])
@@ -188,10 +191,12 @@ def build(b):
         for end,axle in [('F',S.FRONT_AXLE),('R',S.REAR_AXLE)]:
             def liner(u,v,axle=axle):
                 y,z=arch_point(u,axle)
-                return sign*(.650+.325*v),y,z+.014
+                inner=.520 if axle==S.FRONT_AXLE else .650
+                return sign*(inner+(.975-inner)*v),y,z+.014
             b.skin('Wheelwell_'+end+side,liner,48,3,b.m['rubber'],(0,0,-1),category='liners',gauge=.002,return_depth=0)
             outline=[arch_point(t,axle) for t in samples(40 if b.high else 28)]
-            backing=G.profile('Wheelwell inboard_'+end+side,outline,sign*.649-.001,sign*.649+.001,b.m['rubber'],axis='X');b.add(backing,b.root,'liners')
+            inner=.519 if end=='F' else .649
+            backing=G.profile('Wheelwell inboard_'+end+side,outline,sign*inner-.001,sign*inner+.001,b.m['rubber'],axis='X');b.add(backing,b.root,'liners')
             def lip(u,v,axle=axle):
                 y,z=arch_point(u,axle)
                 return sign*(side_x(y,z)-.018*v),y,z
@@ -208,13 +213,13 @@ def build(b):
     b.skin('Pickup box front',lambda u,v:((2*u-1)*.832,S.BED_FRONT,S.BED_FLOOR+(S.BED_TOP-S.BED_FLOOR)*v),18,6,b.m['bed'],(0,1,0),category='bed')
     gate=G.pivot('Tailgate',(0,2.824,S.BED_FLOOR),'X',(-90,0));gate.parent=b.root
     def gate_skin(u,v):
-        x=(2*u-1)*.858;z=.841+(S.BED_TOP-.841)*v
+        x=(2*u-1)*.858;z=.860+(S.BED_TOP-.860)*v
         # Broad shallow stamp and upper shoulder, deliberately unbranded.
         y=2.847-.012*(1-(x/.858)**2)*(1-(2*v-1)**2)+.006*fair((z-1.34)/.07)
         return x,y,z
     b.skin('Tailgate outer',gate_skin,24,18,b.m['body'],(0,1,0),gate,'tailgate')
     b.skin('Tailgate inner',lambda u,v:((2*u-1)*.852,S.BED_REAR,S.BED_FLOOR+(S.BED_TOP-S.BED_FLOOR)*v),18,7,b.m['bed'],(0,-1,0),gate,'tailgate')
-    b.skin('Tailgate top lip',lambda u,v:((2*u-1)*.858,S.BED_REAR+(2.853-S.BED_REAR)*v,S.BED_TOP+.003),24,3,b.m['body'],(0,0,1),gate,'tailgate',gauge=.0012,return_depth=.015)
+    b.skin('Tailgate top lip',lambda u,v:((2*u-1)*(.828+.030*fair((v-.88)/.12)),S.BED_REAR+(2.853-S.BED_REAR)*v,S.BED_TOP+.003),24,3,b.m['body'],(0,0,1),gate,'tailgate',gauge=.0012,return_depth=.015,vs=[0,.88,.94,1])
     from fascia import build_form
     build_form(b)
     # Retain the accepted rear bumper. The front is built with its own nose.

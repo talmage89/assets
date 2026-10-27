@@ -44,7 +44,7 @@ def build(b):
         for end,y in [('F',S.FRONT_AXLE),('R',S.REAR_AXLE)]:
             parent=bpy.data.objects['Steer_F'+('L' if sign<0 else 'R')] if end=='F' else b.root
             tube(b,'Hub bearing spindle_'+end+str(sign),[(sign*.795,y,S.HUB_HEIGHT),(sign*.929,y,S.HUB_HEIGHT)],.040,b.m['caliper'],'underbody',parent,sides=8)
-            tube(b,'Brake carrier_'+end+str(sign),[(sign*.845,y,S.HUB_HEIGHT),(sign*.872,y+.109,S.HUB_HEIGHT+.035)],.014,b.m['caliper'],'underbody',parent,sides=6)
+            tube(b,'Brake carrier_'+end+str(sign),[(sign*.845,y,S.HUB_HEIGHT),(sign*.852,y+.109,S.HUB_HEIGHT+.035)],.014,b.m['caliper'],'underbody',parent,sides=6)
             if end=='F':tube(b,'Steering knuckle_'+str(sign),[(sign*.808,y,.347),(sign*.808,y,.482)],.023,b.m['caliper'],'underbody',parent,sides=8)
     for y,z in [(-2.30,.52),(-1.30,.585),(.42,.585),(1.20,.75),(2.25,.77),(2.70,.65)]:
         box(b,'Frame crossmember '+str(y),(0,y,z),(.87,.090,.095),b.m['frame'],'underbody',radius=.006)
@@ -60,7 +60,7 @@ def build(b):
     bell=G.lathe('Bell housing',[(-1.680,0),(-1.680,.155),(-1.490,.120),(-1.490,0)],b.m['caliper'],24 if b.high else 12,axis='Y',center=(0,.710))
     b.add(bell,category='underbody')
     # Lowest actual axle surface targets the cited provisional 226 mm clearance.
-    pumpkin=G.lathe('Rear differential',[( -.147,0),(-.147,.100),(-.093,.155),(0,.16935),(.093,.155),(.147,.10),(.147,0)],b.m['frame'],32 if b.high else 24,axis='X',center=(S.REAR_AXLE,S.HUB_HEIGHT))
+    pumpkin=G.lathe('Rear differential',[( -.147,0),(-.147,.100),(-.093,.155),(0,S.HUB_HEIGHT-S.GROUND_CLEARANCE_TARGET),(.093,.155),(.147,.10),(.147,0)],b.m['frame'],32 if b.high else 24,axis='X',center=(S.REAR_AXLE,S.HUB_HEIGHT))
     b.add(pumpkin,category='underbody')
     tube(b,'Propeller shaft',[(0,-1.26,.558),(0,1.54,.408)],.039,b.m['frame'],'underbody',sides=12)
     box(b,'Engine casting',(0,-1.934,.929),(.580,.630,.370),b.m['caliper'],'underbody',radius=.042)
