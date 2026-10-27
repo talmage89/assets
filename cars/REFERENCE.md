@@ -13,7 +13,7 @@ names identify references, never the generated vehicle's brand or design.
 | Bed length at floor | Same, 67.1 in | 1704.34 mm |
 | Front/rear track | Ford MY2017 body-builder book p15, 1716 mm each | 1716 mm each |
 | Front overhang | Same book p11, 959 mm / rounded 37.8 in | 960.12 mm from inch conversion |
-| Ground clearance | GM MY2018 4WD crew short-box guide p19, 226 mm at base curb weight | 226 mm eventual underbody target; **not measured or built at this gate** |
+| Ground clearance | GM MY2018 4WD crew short-box guide p19, 226 mm at base curb weight | 226 mm target and measured differential clearance |
 | Tire | Ford MY2017 book p16, 275/65R18 A/T on 18 x 7.5 wheel | ISO nominal 814.7 mm diameter, 275 mm nominal section |
 | Wheel inset | Same book p16, six-spoke 18 x 7.5 wheel, +44 mm | +44 mm mounting-face plane |
 
@@ -39,12 +39,14 @@ construction estimates. They are not claimed manufacturer measurements.
 The roof, hood and side surfaces are analytic equations authored in meters;
 no image outline was traced, projected or converted to mesh.
 
-The tire is lightly flattened 12 mm at the ground. Ford's p16 tire table lists
-a 14.33-inch minimum static loaded radius for this size; this checkpoint's
-395.35 mm hub height represents a deliberately lighter parked load, **not**
-a reproduction of that minimum-load condition. Tire section and contact are
-measured independently in `build/form-check.json`. The static contact patch is
-not yet a rolling deformation solution.
+The shipped tire uses a circular mean loaded envelope: 401.35 mm rolling
+radius, 275 mm section width, and 802.70 mm overall height. A parked 12 mm
+flat spot would rotate through the ground during wheel animation, so the
+radial sidewall compresses toward the bead instead. This represents a light
+load; it does not simulate carcass squirm. Ford's p16 minimum static loaded
+radius of 14.33 inches describes a different load condition. Ground contact,
+width and full-revolution support are independently checked; the accepted
+arch/tire-top clearance remains 90.30 mm.
 
 ## Photographs and the second form gate
 
@@ -71,7 +73,8 @@ is necessary: four near-side points alone poorly constrain camera height.
 The ground anchors represent visible contact centroids, not an invisible
 point directly below an outer hub. Their lateral position has approximately
 20 mm uncertainty; the soft contact shadows have several pixels of picking
-uncertainty. The model's hub height is held fixed at 395.35 mm.
+uncertainty. The early form calibration held hub height at 395.35 mm; final used-truck
+calibrations use the shipped 401.35 mm rolling radius.
 
 The reported few-pixel RMS is for those **five chassis anchors only**. Roof,
 mirror and bumper correspondence is not established to that accuracy; these

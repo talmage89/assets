@@ -1,260 +1,245 @@
 # Alder C150 / cars family
 
-An original late-2010s full-size crew-cab 4x4 pickup, on 275/65R18 tires.
-**Front-face specification checkpoint. Stopped before atlas UVs, bake and export.**
+An original late-2010s crew-cab 4×4 pickup on 275/65R18 all-terrain tires.
+Five factory paints share one baked atlas and four delivery surfaces. The
+body, fictional lamps, grille, badges and markings are generated entirely
+from scripts; reference pixels never enter the asset.
 
-[Contact sheet](renders/face-checkpoint/contact.jpg) ·
-[Front](renders/face-checkpoint/front_three_quarter.jpg) ·
-[Front detail](renders/face-checkpoint/front_detail.jpg) ·
-[Lamps lit](renders/face-checkpoint/lamps_lit.jpg) ·
-[Front photo pairs](renders/face-checkpoint/used-pairs-contact.jpg) ·
-[Plan](renders/face-checkpoint/face_plan.jpg) ·
-[Side profile](renders/face-checkpoint/face_side.jpg) ·
-[Elevated front side](renders/face-checkpoint/face_above.jpg)
+![Alder C150](docs/hero.jpg)
 
-The accepted [side](renders/lookdev-r3/side.jpg),
-[side stripes](renders/lookdev-r3/stripes_side.png),
-[wheel close-up](renders/lookdev/wheel_detail.jpg),
-[interior](renders/lookdev/interior.jpg) and
-[five paints](renders/lookdev/five-colors.jpg) remain historical evidence.
-The new checkpoint changes the front architecture and mirror cap finish.
+[GLB](export/AlderC150.glb) · [Contact sheet](renders/final/contact.jpg) ·
+[Turnaround](renders/final/turnaround.jpg) · [Scale](renders/final/scale.jpg) ·
+[Eevee](renders/final-eevee/hero.jpg) · [Lit lamps](renders/final/lamps_lit.jpg) ·
+[Used-truck pairs](renders/final-pairs/used-pairs-contact.jpg) ·
+[Critique log](REVIEW.md)
 
-These are Cycles renders of the high source, with original procedural
-finishes and generated markings. The separate game-density source supplies the
-budget and construction measurements. Images remain ignored build outputs;
-there are no committed preliminary docs images or delivery assets.
-[REVIEW.md](REVIEW.md) records the rejected passes and remaining weaknesses.
+Every final view starts with a fresh import of the exported GLB and its three
+embedded baked maps. The factory paint/lamp uniforms are decoded by
+[src/delivery_materials.py](src/delivery_materials.py); the high source and its
+procedural manufacturing shaders are never loaded for finals. View metadata,
+GLB hashes, paint/geometry masks and measured tonal ranges accompany the renders.
 
-## Dimensions and form
+## Dimensions and construction
 
-[REFERENCE.md](REFERENCE.md) separates published dimensions from authored
-construction estimates. [refs/SOURCES.md](refs/SOURCES.md) credits the photographs
-and manufacturer documents. The envelope/wheelbase follow the Ford MY2018
-short-bed crew-cab specification, cross-checked against GM and Ford body-builder
-data; the sculpting, lamps, grille and badges are original.
+[REFERENCE.md](REFERENCE.md) distinguishes published dimensions from original
+construction estimates. [refs/SOURCES.md](refs/SOURCES.md) records the authors,
+URLs and reference licenses. The envelope follows Ford's MY2018 short-bed
+SuperCrew specification, cross-checked against GM and Ford body-builder data;
+the design is fictional.
 
-| Measurement | Measured game source |
+| Measurement | Actual game surfaces / pivot centers |
 | --- | ---: |
-| Length | 5888.98 mm; target 5890.26, 1.28 mm tessellation difference |
-| Body width, excluding mirrors | 2029.57 mm; target 2029.46 |
+| Length | 5889.26 mm; 5890.26 mm published target |
+| Body width / full mirror width | 2029.57 / 2458.72 mm |
 | Height | 1960.88 mm |
-| Wheelbase / track | 3683.00 / 1716.00 mm |
+| Wheelbase / front and rear track | 3683.00 / 1716.00 mm |
 | Clear bed floor length | 1704.34 mm |
-| Door seams | 4.500 mm, 14 sampled edge positions per side |
-| Cab / bed separation | 16.000 mm |
-| Lower door-to-sill reveal | 4.924 mm, eight samples per side |
+| Door seams / cab-to-bed gap | 4.500 / 16.000 mm |
+| Lower door-to-sill reveal | 4.924 mm |
 | Tire width / top / ground | 275.00 / 802.70 / 0.00 mm |
 | Arch crown / tire-top clearance | 893.00 / 90.30 mm |
-| Lowest underbody surface | 226.00 mm above ground, measured on differential |
-| Full width including mirrors | 2458.72 mm |
+| Lowest underbody surface | 226.00 mm, differential |
+| Face sweep at x = 950 mm / rearward rake | about 121 mm / 8.00° |
+| Headlamp front projection | 387 × 154 mm, tapering to 58 mm |
+| Lamp corner return / developed centerline | 178 / 553 mm |
 
-The body envelope, stance and accepted side fields stay fixed. The nose now
-has a continuous plan crown and an approximately eight-degree rearward rake.
-The hood's front strip terminates on that crown; its accepted field aft of the
-front/fender joint is retained. Actual game/high surface measurements are in
-`build/detail-check.json` and `build/detail-high-check.json`.
+Analytic side sections share position and normal derivatives across the 4.5 mm
+reveals. Stamped outer panels have 0.9 mm gauge, inward returns and arch lips;
+the separate bed has inner wheelhouses, tie-downs and a lined cargo floor.
+The broad grille occupies about 61% of the face width. Its 70 mm lands have a
+rounded face and a real return; dark blades and original diamond relief sit
+82–84 mm behind it. The surround is **satin dark chrome**, with a dim sky
+reflection along the top. Mirror caps are textured black. The separate 250 mm
+painted bumper has a crisp upper highlight and lower return, a plate pocket,
+and a black valance with recovery hooks and intake below.
 
-The flare's maximum stays at the arch boundary and falls into the side, rather
-than making a panel-centered bump. Actual rays 10 mm above the arch crown
-measure 33.28 / 33.24 mm front/rear draw, with more than 2 mm of draw persisting
-to 165 / 180 mm above the opening. The broad lower tuck remains monotone; cab
-and bed share the 578 mm lower skin boundary.
+Curved lamp covers enclose a projector, broad reflector and original 16 mm
+running guide. Vertical rear optics, reverse windows and a third brake lamp
+have separate lit controls. Six Y spokes, deep barrels, six lugs, rotor hats,
+friction rings and actual U-section calipers sit inside the wheels. Five seats,
+a formed dash, gauges/display, console, door cards and headliner fill the cab.
+Boxed rails, suspension, drivetrain, tank, exhaust and a supported spare fill
+low views. Driver controls are at +X, behind `Door_FR`; side suffixes follow
+the authored coordinate labels.
 
-Earlier form evidence: [corrected stripes](renders/lookdev-form/stripes_side.jpg),
-[clay/stripe pairs](renders/lookdev-form/match_front_stripes-pair.jpg),
-[side overlay](renders/lookdev-form/side-overlay.jpg) and
-[form contact](renders/lookdev-form/contact.jpg) remain separate diagnostics.
-The earlier axle-scaled overlay registration is retained. Its known fixed-envelope
-overhang mismatch and roof-height differences remain documented in REVIEW;
-this detail stage does not refit the dimensions to another photograph.
+The moving meshes needed several functional corrections: a real caliper slot,
+inner wheelhouse steering clearance, rear hood/cowl clearance, tailgate corner
+and rail clearance, true mirror fold bearings and upward wiper sweeps. These
+retain the accepted body fields, factory colors and causal wear. Static support,
+gauge, brake and optical-seat measurements are in `build/detail-check.json`.
 
-The body still uses authored Hermite sections, shared surface derivatives and
-explicit curvature stations. Flat regions have fewer rows; arch edges,
-shoulders and roof rolls retain them. Closed sheet thickness now uses normal
-offsets: even-offset miters produced spikes at sharp, narrow returns. A new
-measurement checks every paired sheet vertex against its specified gauge.
+## Delivery budget
 
-## Construction
+The delivery mesh is **59,838 triangles**, below the 60,000 limit. Detailed
+counts are rebuilt in `build/form-check.json` and `build/export-report.json`.
+Static manufacturing pieces consolidate by their moving parent; doors,
+mirrors, glass, wheels and their fittings stay attached to the proper pivots.
 
-- A full-height central grille occupies about 61% of the front width.
-  Its satin dark chrome surround has 70 mm projected lands, a rounded face
-  and about 74 mm of measured section depth. Four dark blades are recessed
-  about 82–84 mm;
-  an original fine diamond relief field sits behind them. Structural rails
-  intersect the blades and surround at both source densities.
-- Each clear headlamp cover is about 387 × 154 mm in front projection, tapering
-  to 58 mm at its aft edge. The cover curves around the fender: about 178 mm
-  of fore/aft return, 553 mm developed centerline including that return.
-  The front width and developed length are different measurements. A projector,
-  broad reflector cup and the accepted 16 mm original running guide sit in
-  sealed wells offset along the actual surface normal.
-- The upper face sweeps back about 120 mm at the x=950 mm lamp-corner station;
-  surface rays measure about 8.00° of rake. The hood reveal is 5.04–5.34 mm over 29 actual leading-edge vertices.
-- A separate 250 mm body-colored front bumper wraps into the corners and
-  carries the central plate pocket. Two closed mounting ears connect its skin
-  to the accepted crash beam. Surface intersections check that support and
-  the recovery-loop/bracket/crash-mount contacts. Below it a textured black
-  valance has a recessed intake, louvers and recovery-hook slots. The accepted rear step
-  bumper, hitch, cowl wipers, handles, fuel flap and fictional badges remain.
-  Mirror housings retain their tapered sections, black cases, inset glass and
-  substantial arms; their caps now use textured black rather than bright paint.
-  Vertical red rear optics, reverse windows and the upper brake lamp retain
-  the original unlit/lit materials.
-- The lined bed has inner wheelhouses, four supported tie-down loops, a separate
-  tailgate and pull handle. Cargo scuffs follow the floor, rather than covering
-  the whole truck with noise.
-- Each 18 × 7.5-inch wheel has a deep barrel, six continuous cast Y spokes,
-  six hex lugs, center cap, stepped rotor hat, concentric friction ring and
-  stationary caliper. Carcass geometry establishes the real tire size, bulge
-  and parked contact. Tapered shoulder lugs break the silhouette; central tread,
-  sipes and fictional sidewall type are shader height inputs for the later normal bake.
-- Five seats, a formed dash, original gauges/display, steering wheel, console,
-  door cards, headliner and stowed visors form the [interior](renders/lookdev/interior.jpg).
-  Boxed rails, spring packs, shocks, wishbones, knuckles/spindles, axle,
-  drivetrain, tank, exhaust and a suspended spare fill low views. The skid is a formed 4 mm sheet on
-  measured frame supports, and driver controls sit at +X.
-
-Static measurements give **21.20 mm** axial separation between caliper and
-spoke envelopes. Caliper-vertex to barrel-surface samples are at least
-**9.66 mm** apart. Actual bearing/hub and spare-hanger/crossmember surface
-intersections establish those supports; they are intended assembly contacts.
-`build/detail-check.json` and `detail-high-check.json` preserve the measurements,
-source hashes and limitations. They do not certify full steering or hinge sweeps.
-
-## Triangle budget
-
-The allocation was written in [LOOKDEV_PLAN.md](LOOKDEV_PLAN.md) before detail.
-The current game-density source is **59,142 triangles**, with 858 below the
-60k limit (enforced by both source budget checks). Each
-tire/wheel/brake corner is **3,722 triangles**. The extra underbody allocation carries the spare,
-suspension and actual hub supports. Source objects remain separate for building;
-static batches will be joined during delivery preparation.
-
-| Group | Triangles |
+| Source construction group | Triangles |
 | --- | ---: |
-| Body panels, bumpers and liners | 25,206 |
-| Four wheels, tires and brakes | 14,888 |
-| Lamps, grille, mirrors, trim and bed hardware | 8,372 |
-| Interior | 4,792 |
+| Body panels, bumpers and liners | 25,466 |
+| Four wheels, tires and brakes | 15,112 |
+| Lamps, grille, mirrors, trim and bed hardware | 8,412 |
+| Interior | 4,856 |
+| Glazing, including protective headlamp covers | 1,444 |
 | Underbody, including spare | 4,548 |
-| Glass, including protective headlamp covers | 1,336 |
-| **Total** | **59,142** |
+| **Total** | **59,838** |
 
-The high source is 195,322 triangles. The current high/game blend files are
-approximately 2.26 / 1.05 MB, ignored and rebuildable; serialization sizes can
-vary. There is no GLB or shipped texture set. Per-mesh/category counts are in
-`build/form-check.json`; the general kit audits check both source densities.
+The 195,738-triangle high source is used only for baking. The shipped rigid
+mesh allocation is:
 
-## Materials and five colors
+| Exported part | Triangles |
+| --- | ---: |
+| Static body/interior/underbody assembly | 34,608 |
+| Hood / tailgate | 792 / 1,098 |
+| Each front / rear door | 1,792 / 1,584 |
+| Each mirror | 516 |
+| Each spinning wheel/tire/rotor assembly | 3,678 |
+| Each front steering knuckle/caliper assembly | 176 |
+| Fuel door / each wiper | 108 / 192 |
 
-The source uses **34 manufacturing materials** and six original marking/relief
-sheets, generated with Pillow and installed open-license Noto Sans. No reference
-image enters any shader. Meter-scale rest positions keep splash attached to
-moving panels. Dilute road film fans aft of the wheels and stays low on the
-rockers; tailgate-top and bed-corner dust, leading-edge chips, highlight-only
-wash swirls, localized brake dust, chrome water-spot rims and bed scrapes have
-separate masks. The mid-tailgate streaks and all-over chrome film are removed.
-Film reduces clear-coat response where it sits. Default wear is `.65`, calibrated
-as a four- or five-year daily driver, rather than a mud-covered truck.
-
-Porcelain, Carbon, Aluminum, Graphite and Atlantic change one factory tint node
-and the paint's uniform metal response. Graphite is medium warm gray (linear
-RGB .160/.153/.141, metallic .42). A named linked value now drives the actual
-metallic socket; the earlier socket-default override did not affect it.
-Shared microscopic flake aggregates vary roughness/height, without changing
-the factory albedo or adding a texture. Clear coat, textured plastic, rubber, chrome,
-clear/privacy glass, frit and unlit/lit optics are procedural source shaders.
-
-Delivery is planned as **four surfaces**: coated paint, opaque trim/interior,
-glass and lamps. The original brief explicitly permits the fourth surface for
-independent paint tinting. All five colors share one **2048 BaseColor / Normal /
-ORM set**, about **16 MiB compressed with full mipmaps** (three 8-bpp maps),
-about 64 MiB as uncompressed RGBA8 with mips. Five colors do not multiply this
-allocation.
-
-Paint islands reserve BaseColor RGB for absolute contamination and alpha for
-remaining paint coverage: `tint * coverage + contamination`. Both source bake
-channels exist. This preserves brown dust and gray chips across the presets;
-a plain glTF base-color multiply cannot. The delivery gate still needs the
-engine paint decode, coat/glass/emission handling, a GLB fallback and re-import
-verification. This is a material plan, not a shipped shader or memory measurement.
-
-## Coordinates and pivots
-
-Meters, Blender +Z up, front −Y. `AlderC150` sits at the bumper-footprint center
-on the ground. Source pivots retain their names and measured world locations in
-`build/detail-check.json` and the kit audit.
-
-| Nodes | Local axis and authored range |
+| Delivery resource | Budget / actual |
 | --- | --- |
-| `Door_FL`, `Door_RL` | Z, 0…72° |
-| `Door_FR`, `Door_RR` | Z, −72…0° |
-| `Hood` | X, −62…0° |
-| `Tailgate` | X, −90…0° |
-| `Wheel_FL/FR/RL/RR` | X, spin; parked loaded carcass needs rolling deformation |
-| `Steer_FL/FR` | Z, ±35° source proxy; caster/SAI remains a delivery task |
-| `Mirror_L/R` | Z, −65…0° / 0…65°; children of their doors |
-| `Fuel_Door` | Z, 0…95° |
-| `Wiper_0/1` | Tilted local Z, 0…80° |
+| Materials | 4: Paint, Opaque, Glass, Lamps |
+| Textures | One shared 2048² sRGB BaseColor RGBA, linear OpenGL +Y Normal RGB, linear ORM RGB |
+| Bake | 4096², GPU Cycles, 24 samples; linear-light downsample to 2048² |
+| GLB | 11,530,724 bytes, embedded PNGs and moving hierarchy |
+| Raw mesh buffers | 5,389,908 bytes; 30 mesh primitives |
+| Texture GPU estimate | **16 MiB** with three 8-bpp compressed maps and full mip chains |
+| Texture GPU estimate, RGBA8 | 64 MiB with full mip chains |
 
-Calipers follow the front steering node or fixed rear axle; they do not spin.
-Full assembly sweeps, rolling tire behavior and kingpin geometry remain
-uncertified at this source checkpoint.
+The GPU figures describe texture allocation after engine upload, not PNG file
+size or measured renderer residency. The five paints add only uniform values. Raw mesh buffers add about 5.14 MiB
+before engine packing/overhead, for roughly 21.14 MiB with the compressed maps.
+The normal bake carries tread, sipes, lettering, grille relief and manufacturing
+microstructure; no extra geometry is added for these details. UVs have zero
+overlap or outside/degenerate triangles; density is weighted toward exposed
+body panels, optics, wheels and markings, with structural undersides lower.
 
-## Rebuild
+## Paint, wear and factory colors
 
-```sh
-make -C cars                         # refs, source models/checks, Cycles views,
-                                    # used-photo pairs, five paints, review sheets
-make -C cars check                   # source geometry, dimensions and static fits
-make -C cars face PASS=face-checkpoint WIDTH=1500 SAMPLES=64
-                                    # front checkpoint, two pairs, plan/profile
-make -C cars preview                 # shorter source render pass
-make -C cars form-diagnostics PASS=lookdev-form WIDTH=1200
+![Five shared-atlas colors](docs/five-colors.jpg)
+
+The fifth color costs no additional texture set. This delivery uses a **factory
+factor over neutral coverage**, rather than `KHR_materials_variants` or five
+material copies. The shared RGB is a correct Atlantic fallback. Paint-island
+alpha stores remaining neutral paint coverage, so changing a factory tint in
+linear light is:
+
+```glsl
+paint_rgb = max(vec3(0), base.rgb + base.a * (factory_tint - atlantic_tint));
 ```
 
-All Cycles work uses the shared kit GPU lock; the kit selects the available
-compute backend. The default pipeline
-explicitly excludes finalize, bake and export. The current source checkpoint
-was built with the `face` command above; its repo-root log is
-`build/cars-face/checkpoint.log`. Tonal data, geometry/paint masks,
-calibration diagnostics, source hashes, PNG originals and JPG/contact derivatives
-sit beside the renders. The five-year Ram camera RMS is 18.90 / 21.20 native photo pixels; Ford
-supplemental RMS is 43.84 / 24.73 px. The independent Blender projection check
-agrees within 0.003 px. Cropped EXIF framing and class wheel/tire differences
-remain disclosed calibration uncertainties. Those numbers
-measure camera registration, not design agreement or material realism.
+This is equivalent to `factory_tint * coverage + contamination`: brown road
+film and gray chips keep their colors. The five linear tints and metallic
+factors live in the Paint material's GLB extras. [src/paint.glsl](src/paint.glsl)
+contains the engine decode, including coverage-dependent clear coat and lamp
+power. [src/delivery_materials.py](src/delivery_materials.py) implements the
+same delivery operation in Blender for validation and finals.
 
-Shared additions are documented in [kit/README.md](../kit/README.md): optional
-reduced tire profiles and vehicle source finishes on the existing Nodes API,
-including opt-in refined daily-driver finishes, a turned-rotor shader and
-named paint-metallic/flake controls.
-Existing callers keep their defaults. Nothing is baked, exported or published
-by this checkpoint.
+| Preset | Linear tint | Factory metallic factor |
+| --- | --- | ---: |
+| Porcelain | .780 / .790 / .760 | 0 |
+| Carbon | .009 / .011 / .013 | 0 |
+| Aluminum | .460 / .480 / .490 | .55 |
+| Graphite | .160 / .153 / .141 | .42 |
+| Atlantic | .012 / .037 / .071 | .12 |
 
-## Accepted side evidence and checkpoint limits
+The four surfaces share the same three images. Paint has clear coat; Glass
+has transmission/IOR; Lamps has an emission sampler and scalar control.
+Lamp-island alpha stores each emitter's power divided by 80, independently of
+paint coverage. The helper selects unlit or calibrated lit states from those
+embedded values. A stock glTF viewer shows Atlantic with uniform coat and the
+emission fallback; the supplied decoder enables the five paints, localized
+coat contamination and individual lamp powers. No source shader is reconstructed. The Eevee preview uses an explicit thin-sheet
+Fresnel/colored-transparency fallback for the stacked cover and projector panes,
+reading the same embedded tint, roughness and normal maps. Cycles follows their
+nested refraction; the screen-space preview approximates it. The adapter is
+included in the delivery helper, and this difference is recorded in view metadata.
 
-The front critique passes are logged at the start of [REVIEW.md](REVIEW.md).
-The face checkpoint supplies front three-quarter, detail, lit lamps, plan,
-side profile, elevated side/front and the two calibrated front photo pairs.
-The accepted round-3 side evidence contains four pairs, a side stripe render
-and two plain sky/ground comparisons. Each photo
-pair has its own documented daylight condition: clear sun for the dated Ram,
-diffuse overcast for the supplemental Ford. The unchanged-source
-[baseline diagnostics](renders/r3-baseline/stripes_side.png) and plain worlds
-isolate the former blotches to reflected parked/foliage proxies. The current
-pairs replace them with continuous procedural sky/asphalt horizons; no side
-surface is resculpted. A rear-specific horizon transition accounts for the
-Ram photo's obstructed low sky. All reflection equipment is excluded from the asset.
-Glass retains smooth reflection over tinted transmission; the interior remains
-visible. Paired inner/outer normals prevent faceted exit refraction, with a
-measured maximum paired-normal deviation below 0.07 degrees at both densities.
-The matching cameras and their disclosed registration uncertainties are unchanged. Fonts resolve by exact Noto Sans family/style using `kit/fonts.py`;
-there are no machine-specific font paths in this family.
+Default wear `.65` represents a four- or five-year daily driver: dilute road
+film fans behind wheels and stays low, brake dust sits toward wheel interiors,
+stone chips occur at the leading edge, cargo scrapes follow the bed floor,
+dust collects in bed corners and on the tailgate rail, and water-spot rims
+vary chrome roughness. These are separate physically located masks. Baked
+coverage reduces the paint coat where contamination sits. Fine flake response
+is filtered into the undercoat roughness/normal at the shared atlas density.
 
-The synthetic surroundings remain less complex than the photographed parking
-lots and street, and unlit lamp internals remain simpler than production optics.
-The Ram's mid-door hue/value is substantially closer; its upper reflected band
-is still smoother than the photo. Fine flakes, tread,
-type and sparse wear still need a baked 2048 review. This gate
-certifies source geometry and look-dev only. No UV/bake/GLB claim is made.
+## Articulation and clearance
+
+Meters, Blender +Z up, front −Y; glTF +Y up, front +Z. Origin is the bumper
+footprint center on the ground. Ranges below are local-axis rotations from the
+closed/rest transform, expressed in Blender authoring axes. In the GLB,
+local X stays X and local Z becomes Y. Door and wheel assemblies are rigid children of named
+pivots; front calipers steer but never spin.
+
+| Pivot nodes | Local axis | Full range | Clearance sample spacing |
+| --- | --- | --- | --- |
+| `Door_FL`, `Door_RL` | Z | 0…72° | 2° |
+| `Door_FR`, `Door_RR` | Z | −72…0° | 2° |
+| `Hood` | X | −62…0° | 2° |
+| `Tailgate` | X | −90…0° | 2° |
+| `Wheel_FL/FR/RL/RR` | X | full revolution, 0…360° checked | 15° |
+| `Steer_FL/FR` | tilted Z | −35…35° | 1° |
+| `Mirror_L` / `Mirror_R` | Z | −50…0° / 0…50° | 2° |
+| `Fuel_Door` | Z | 0…95° | 2° nominal |
+| `Wiper_0/1` | tilted Z | −80…0° | 2° |
+
+Front door hinge lines pass through `(±.944, −1.40275, 1.040)` m; rear door
+hinges through `(±.944, −.05275, 1.040)` m. Hood hinge is
+`(0, −1.4495, 1.408)` m; tailgate hinge is `(0, 2.824, .905)` m.
+Each front wheel is nested under its kingpin pivot: actual exported axes
+measure 12.00° inward inclination, 6.50° caster, 40.00 mm scrub and 45.00 mm trail.
+Wipers sweep about their own axes normal to the windshield, rather than world Z.
+
+`make check` runs **17 full-range BVH clearance sweeps on both game and high
+assemblies**, with a 0.5 mm tolerance. Only named bearing, CV/ball-joint and
+mirror-hinge interfaces permit intentional contact. Tires/liners and
+rotors/calipers have no collision exemption. These tests establish mechanical
+clearance at the stated angular samples; they are not continuous-time physics.
+
+`build/car-delivery-check.json` independently checks the GLB's parenting,
+kingpin geometry, preserved panel normals, actual atlas contents and every
+sampled rigid articulation against the source transforms. The kit's delivery
+check also compares re-imported vertices/pivot matrices and validates UVs,
+normal vectors, materials, texture sizes and bounds. Serialization agreement
+and mechanical clearance are reported separately.
+
+The circular tire is a **mean loaded-envelope approximation**: 401.35 mm rolling
+radius, without a rotating parked flat spot. A separate fixture checks ground
+support through a full revolution. It does not simulate tire carcass squirm,
+suspension travel or road contact physics.
+
+## Rebuild and evidence
+
+```sh
+make -C cars                    # references, source, UV/bake, GLB, all finals,
+                                # photo pairs, three docs JPGs, and checks
+make -C cars check              # source construction, both motion sweeps,
+                                # re-import and independent car delivery checks
+make -C cars final-render       # GLB Cycles views and Eevee
+make -C cars final-colors final-pairs
+make -C cars docs               # provenance/tone/contact sheets and docs
+make -C cars face PASS=face-checkpoint WIDTH=1500 SAMPLES=64
+                                # archived source face checkpoint
+```
+
+All Cycles work holds the kit's shared GPU lock. The asset builds from clean
+scripts with the repository tools, Blender, NumPy, Pillow and installed Noto
+Sans fonts resolved by `kit/fonts.py`. No downloaded code, models, materials,
+textures or HDRIs are used. Generated blends, GLBs, maps and renders remain
+ignored; only the three final bounded docs JPGs are committed.
+
+The four final photo pairs use the original used-truck camera solver and
+procedural daylight conditions. Ford supplemental RMS is 44.88 / 26.60 native
+pixels; the five-year Ram RMS is 19.57 / 19.83 pixels. These measure class
+camera registration, not design identity. Cropped framing, trim, tire and
+wheelbase differences remain disclosed uncertainties.
+
+![Baked front, wheel and open-driver interior](docs/details.jpg)
+
+The shipping critiques are at the top of [REVIEW.md](REVIEW.md). Reflections
+remain simpler than the photographed street and parking lots; the low-detail
+interior and tiny filtered markings are the weakest close-range areas.
+The shared atlas averages microscopic flakes and limits sidewall-type detail.
+The script source and shader behavior are available for engine integration.

@@ -1,6 +1,135 @@
-# Alder C150 / front face to specification
+# Alder C150 / exported delivery review
 
-**Current gate: front source checkpoint only. No UV, bake or GLB.**
+Finished delivery: 59,838 triangles, four surfaces, one shared 2048 set.
+The source face is accepted; all final images are imported-GLB renders.
+The source checkpoint and earlier critiques below are retained as history.
+
+## Shipping pass 1 — reject bake artifacts before material tuning
+
+Color/value first in all four `renders/ship-pass1-pairs/*-pair.jpg` comparisons:
+Carbon and Graphite retain their intended dark/medium values, but the white
+holes and broken reflections are unacceptable against either the F-150 or Ram.
+Opened the hero, front, wheel and open-driver interior in `renders/ship-pass1/`.
+The grille remains recessed and the new surround gives a dim satin chrome
+reflection; the bumper has its requested crisp top line and lower return.
+
+Rejected this first GLB. Hood projection misses, fractured glass frit, lost
+fictional plate/badge/grille pixels, and damaged corner normals are bake/export
+loss, not a reason to alter the accepted body or wear. Preserve analytic corner
+normals across UV editing, keep original generated glass coordinates and explicit
+PrintUV through source consolidation, and improve the hood/rear-glass projection
+mesh. Preserve unlit lamp colors and encode the individual emitter power in the
+shared BaseColor alpha. First GLB is archived in `build/cars-final/pass1.glb`.
+17 full-range source motion sweeps now pass on game and high assemblies; these
+check actual neighbors rather than comparing constant target dimensions.
+
+## Shipping pass 2 — continuity recovered; reject lost optics and print relief
+
+Color/value first in the four new `renders/ship-pass2-pairs/` comparisons:
+Graphite still separates from the tires by the accepted medium-gray step;
+Carbon retains deep lower-door/underbody values. The reflected horizon remains
+smoother than the photographs, which have trees, cars and pavement variations.
+Opened all six studio views, all four pairs and their masks. The hood misses
+and large glass holes are gone. The satin surround and formed bumper line
+survive the bake. All six baked channels have zero missed eroded-interior texels.
+
+Still reject the plate's mottled black face and the blank grille field.
+Independent rays reveal that the carrier's front and printed face are exactly
+coplanar, so the bake chooses either plastic or print. Move the carrier back
+2 mm and check actual separation. The grille's source UV layer is named
+Original relief, unlike the plates' PrintUV: preserve each object's original
+active UV coordinates as a generic corner attribute before consolidation.
+The unlit/lit lamp views lose some projector/guide clarity, and the tread and
+flake are too subdued at this atlas density. Correct these delivery losses
+before finals; do not replace the accepted source paint, wear or sculpting.
+
+The new imported-GLB articulation test matches all 17 swept poses within
+0.00073 mm. Its first analytic-normal query also included nearby trim at the
+lamp/fender joint; restrict that query to the actual broad side fields rather
+than treating a coincident trim vertex as the same surface derivative.
+
+## Shipping pass 3 — restored delivery details and engine compatibility
+
+Color/value first against all four `renders/ship-pass3-pairs/` photographs:
+Graphite retains its warm medium value and the accepted long sky/ground band;
+Carbon is dark below the shoulder. The low road-film fans remain restrained,
+as in the accepted source, rather than spreading noise over the paint. The
+baked clean Atlantic texels independently measure .01229/.03689/.07036 linear
+against .012/.037/.071. About 1.17% of eroded paint interiors carry more than
+5% contamination; this measurement establishes surviving coverage, not an
+artistic claim that every deposit is visible at every camera distance.
+
+Opened the ten Cycles views, all five factory paints, four photo pairs and
+all geometry/paint masks. The plate now reads, the original grille diamond
+field survives at the back of the cavity, projector/reflector and DRL are
+clean, and the wheel lip no longer carries the false jagged tire projection.
+All 4k channels again have zero missed interior texels. Keep the coating's
+continuous mirror lobe and the filtered mean flake response; this shared 2k
+atlas cannot show individual microscopic flakes or crisp tiny sidewall type.
+The low-detail seat/dash volumes remain the weakest close-up, as expected from
+the accepted interior. No source-body, paint-color or wear redesign is made.
+
+The first Eevee hero has black lamp covers: screen-space tracing cannot follow
+the nested glass paths. Enabling per-material refraction and reducing trace
+thickness did not recover them. Use an explicitly documented thin-sheet
+Fresnel/colored-transparency preview from the GLB's same three maps; inspect
+both the cover and windshield for sorting artifacts. Cycles keeps the full
+transmission material. Final metadata names this engine difference.
+
+This working pass spans a config whitespace cleanup and the Eevee adapter
+revision; its recipe hashes record that and the strict combined-sheet check
+rejects it as a final set. The next pass re-renders every final together under
+one frozen recipe and current GLB hash, rather than rewriting provenance.
+
+## Shipping pass 4 — final GLB, tone, pairs and delivery proof
+
+Color/value first against the four full-size `renders/final-pairs/*-pair.jpg`
+photographs: Carbon keeps dark lower panels and a bright reflected upper band;
+Graphite retains its warm gray base under blue sky reflection, with tires and
+cavities visibly darker. The synthetic horizons remain smoother and simpler
+than the photographed surroundings. The wear stays localized and restrained;
+there is no new uniform dirt wash or bright metal facade. Keep these accepted
+values. Individual microscopic flakes and small sidewall type are filtered at
+this atlas density; do not describe them as crisp visible particles.
+
+Opened the final hero, turnaround, front/wheel/open-driver close-ups, 1.8 m
+scale shot, lit lamps, five-color sheet, Eevee hero, all four pairs and their
+paint/geometry masks. Every view comes from the current 11,530,724-byte GLB,
+with the same recorded render recipe. Cycles images are 1600 px / 96 samples;
+Eevee is 1600 px / 192 samples. The explicitly documented thin-sheet glass
+fallback removes its black covers and transparent sorting seams; its lighting
+and refraction remain an approximation to the Cycles result.
+
+The masked hero paint has display-luminance p5/p50/p95 of
+.0438/.2492/.3603; its p99 is .7876. No paint pixel clips to 255, including
+Porcelain. About 34.7% of the vehicle mask lies below 25/255 display luminance,
+including tire, grille, interior and underbody cavities. These are lit-image
+measurements, not inferred albedos. Front-detail paint p99 is .9456 with zero
+clipped paint pixels, retaining the highlight rolloff.
+
+All six 4096 bake channels have zero missed eroded-interior texels over
+6,151,123 checked pixels. The re-imported atlas has 43.30% coverage, zero
+outside/degenerate/overlapping UV triangles and p5/p50/p95 density of
+69.2/161.2/196.4 px/m. The exported broad side normals remain within .028°
+of the analytic field. Kit re-import vertex error is below .00028 mm.
+
+Source clearance passes all 17 motions / 651 poses at both densities, with
+no unapproved penetration over 0.5 mm. Exported articulation matches the
+source within .00073 mm. Actual kingpin axes retain 12° inclination, 6.5°
+caster, 40 mm scrub and 45 mm trail. This proves sampled mechanical clearance
+and retained kinematics separately; it does not claim continuous physics or
+tire carcass deformation. The tire rolls as a circular loaded-envelope approximation.
+
+The full default build passes. The remaining CG tells are the simple interior
+volumes, filtered tiny lettering/flake, and less complex procedural reflections
+than the photographs. The three final docs JPGs are bounded to 1600 px wide
+and 200 KB and contain only original rendered assets. Repository-source
+portability scan finds no absolute/home paths. No further source look-dev pass
+or additional triangle/texture allocation is made.
+
+## Archived source face checkpoint
+
+**Earlier gate: front source checkpoint only.**
 All earlier round claims below are archived. The accepted body side fields,
 paints, wheels/brakes, causal wear, glazing and interior stay fixed.
 
