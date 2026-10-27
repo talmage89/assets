@@ -13,7 +13,8 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--grill',required=True);p.add_argument('--reference',default='');p.add_argument('--out',required=True);p.add_argument('--parts-source',required=True);a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
     path=Path(a.reference).expanduser()
     if not a.reference or not path.is_file():
-        Path(a.out).write_text(json.dumps(dict(passed=True,skipped='Optional owner cylinder absent; published envelope remains the design basis'),indent=2));return
+        message='SKIP fit check: optional tank absent; pass TANK_REFERENCE=/path/to/propane-tank.glb'
+        Path(a.out).write_text(json.dumps(dict(passed=True,skipped=message),indent=2));print(message);return
     assert not path.resolve().is_relative_to(ROOT)
     sha=hashlib.sha256(path.read_bytes()).hexdigest()
     bpy.ops.wm.read_factory_settings(use_empty=True)
