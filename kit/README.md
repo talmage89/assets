@@ -603,3 +603,9 @@ Keyword-only controls expose gloss/specular, transmission, back color, normal
 strength and glancing coverage for other botanical families. Its original
 maple defaults, node order and socket values are retained; the maple entry
 point remains an import-compatible wrapper. No geometry or atlas code changes.
+
+`photo_frame.frame()` moves the maple's neutral comparison margins into the kit.
+The original 16% horizontal/zero vertical defaults are unchanged. An optional
+`vertical_fraction` adds symmetric top/bottom margins with the camera's pose
+and pixel projection preserved, so biological fits can show the entire object.
+These local comparison canvases never become asset images.
