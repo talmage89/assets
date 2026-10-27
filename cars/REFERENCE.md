@@ -46,13 +46,39 @@ a reproduction of that minimum-load condition. Tire section and contact are
 measured independently in `build/form-check.json`. The static contact patch is
 not yet a rolling deformation solution.
 
-## Photographs
+## Photographs and the second form gate
 
 Sources, authors and licenses are in [refs/SOURCES.md](refs/SOURCES.md).
-The final comparison pair uses Kevauto's April 2019 front/rear photographs of
-a 2018 crew-cab 4x4. Earlier black Ford and gray Ram photos informed proportions,
-body construction and the critique passes. The Ram is a cross-design check,
-not a specification source for the primary envelope. Final photo matching
-fits a lens/pose using inspected wheel, roof and bed landmarks. Shape differences,
-landmark uncertainty and photographic distortion remain in the published
-residuals; calibration is not a photogrammetric reconstruction.
+The previous Kevauto comparisons are superseded by the CarsDirect/Autodata
+2018 XLT SuperCrew 5.5-foot / 145-inch-wheelbase stock front, rear and true
+profile photographs. The source page labels them **4x2**; do not assume the
+photographic ride height is the 4x4 design's specified height. The pictured
+alloy wheels also differ from the authored 18-inch wheels. These are class
+proportion and construction references, not a claim of an identical trim.
+
+The side overlay uses only the two inspected wheel centers and the published
+3683 mm wheelbase to determine scale, translation and a 0.125-degree image
+level correction. No body silhouette participates in that fit. The straight
+A-pillar segment measures approximately **34.4 degrees above horizontal**
+(55.6 from vertical), with roughly +/-1.5 degrees of photographic picking
+uncertainty. The authored outer A-pillar is 35.2 degrees above horizontal.
+`side-rake.jpg` shows the picked segment; `side-overlay.json` records pixels,
+scale, opacity, source hashes and the height/configuration caveat.
+
+Three-quarter calibration fits two visible wheel hub centers, two tread-ground
+contact centroids and one opposite-side tire contact. The opposite-side point
+is necessary: four near-side points alone poorly constrain camera height.
+The ground anchors represent visible contact centroids, not an invisible
+point directly below an outer hub. Their lateral position has approximately
+20 mm uncertainty; the soft contact shadows have several pixels of picking
+uncertainty. The model's hub height is held fixed at 395.35 mm.
+
+The reported few-pixel RMS is for those **five chassis anchors only**. Roof,
+mirror and bumper correspondence is not established to that accuracy; these
+original body shapes are compared visually and in the independently scaled
+side overlay. Thus this improves the former 74 px registration, but does not
+fully satisfy the requested all-body-landmark calibration. Do not treat the
+low chassis residual as proof of a correct body. No roof fitting or body
+warping conceals the visible differences. The symmetric extra image margins
+keep the original truck's full front and rear corners in view; the photograph
+has transparent padding there, not generated photographic content.

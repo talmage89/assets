@@ -1,10 +1,11 @@
 # Alder C150 / cars family
 
 An original full-size late-2010s American pickup: four-door crew cab, short
-bed, 4x4 stance and 275/65R18 all-terrain tire volumes. **Body-form checkpoint
+bed, 4x4 stance and 275/65R18 all-terrain tire volumes. **Second body-form checkpoint
 only. Work stops here for the lead's review.**
 
 [Contact sheet](renders/checkpoint/contact.jpg) ·
+[50% side overlay](renders/checkpoint/side-overlay.jpg) ·
 [Front clay](renders/checkpoint/front_three_quarter.jpg) ·
 [Rear clay](renders/checkpoint/rear_three_quarter.jpg) ·
 [Front photo pair](renders/checkpoint/match_front-pair.jpg) ·
@@ -25,34 +26,51 @@ same-generation Ford body-builder data.
 
 | Measurement | Reference/design target | Actual checkpoint |
 | --- | --- | --- |
-| Length | 5890.26 mm | 5888.90 mm; finite grid misses exact bumper apex by 1.36 mm |
-| Width, mirrors excluded | 2029.46 mm | 2031.83 mm; +2.37 mm at the authored arch stamping |
-| Height | 1960.88 mm | 1960.88 mm |
+| Length | 5890.26 mm | 5890.26 mm |
+| Width, mirrors excluded | 2029.46 mm | 2029.46 mm |
+| Height | 1960.88 mm | 1960.81 mm; crown sampling difference 0.07 mm |
 | Wheelbase | 3683 mm | 3683.00 mm between actual wheel pivots |
 | Front/rear track | 1716 mm | 1716.00 mm |
 | Clear bed floor length | 1704.34 mm | 1704.34 mm |
 | Tire section / top / ground | 275 mm nominal / lightly loaded | 275.00 / 802.70 / 0.00 mm |
-| Front/rear door seam | 4–5 mm, chosen 4.5 | 4.500 mm surface distance, 12 edge samples per side |
+| Front/rear door seam | 4–5 mm, chosen 4.5 | 4.500 mm surface distance, 8 edge samples per side |
 | Cab/bed separation | 16 mm | 16.000 mm at the lower rear wall / outer bed envelope |
-| Tire top to arch crown | Original ride-height design | 119.81 mm vertical difference |
+| Tire top to arch crown | Original ride-height design | 90.30 mm vertical difference |
 | Ground clearance | 226 mm eventual target | Pending axle/frame; no ground-clearance proof claimed |
 
 The orthographic [side](renders/checkpoint/side-dimensions.jpg),
 [front](renders/checkpoint/front-dimensions.jpg) and
 [top](renders/checkpoint/top-dimensions.jpg) sheets show cited target lines.
 `build/form-check.json` supplies actual vertex/surface measurements, per-mesh
-triangle counts and the source hash. The bounding widths above exclude mirrors,
-which are deferred with other details.
+triangle counts and the source hash. The body width excludes coarse mirror envelopes. Full width with mirrors is
+2458.72 mm; diagnostic bounds include those mirrors separately.
 
 ## Construction at this gate
 
-A crowned hood and roof; tapered cab glazing; four separate curved lower door
-skins and rounded stamped sashes; front fenders and narrow turned arch lips;
-an open double-wall pickup box with wheel tubs, floor and front wall; a separate
-tailgate; swept bumper envelopes; dark wheel-well volumes. Outer sheets have
-closed gauge and inward returns. The broad nose is unpierced until the form is
-reviewed; grille, lamps, badges and handles have not been modeled.
+The first form was rejected by the lead. The body now uses section stations,
+near-planar ruled quad patches and small tangent fillets at authored character
+lines. A shared cross-section is split at the door/cab/bed reveals. The hood
+has a flat raised center stamping. Arch flares use separate annular quad grids
+with radial support stations, rather than deforming the door/fender grids.
+The gauge is evaluated before reapplying outer skin normals; the form check
+independently compares broad panel normals against the actual surface slopes.
 
+The straight outer A-pillar is 35.2 degrees above horizontal, compared with
+34.4 +/-1.5 measured in the side photograph. Glass has tumblehome; the roof is
+one crowned skin tied to the front and rear headers. Upper-only dark liners
+stay inside the arches. Bumper upper returns meet the fascia and tailgate;
+the bed has capped rails, a tailgate lip and vertical taillamp form envelopes.
+Simple grille/headlamp envelopes establish the tall upright front face; no
+optics, badges, trim textures or small detail have been added.
+
+The new [side overlay](renders/checkpoint/side-overlay.jpg) uses only axle
+centers to scale a 50% blue orthographic silhouette onto the known 145-inch
+wheelbase photo. [Rake measurement](renders/checkpoint/side-rake.jpg) and
+[REFERENCE.md](REFERENCE.md) disclose the photo's published 4x2 caption and
+other configuration differences. Three-quarter RMS is **5.69 px front / 5.11 px
+rear**, in original reference pixels, on five chassis anchors each. This is
+not an all-body-landmark fit: roof/mirror/bumper accuracy remains weaker than
+requested, and the pairs show the unresolved shape differences.
 Tires have a radial carcass profile, bulged sidewalls, a crowned tread volume
 and a small parked contact patch. Wheels establish the 18-inch barrel/offset
 and spoke volume. Fine tread, lettering, brakes and suspension wait for the
@@ -61,31 +79,33 @@ paint, wear, UVs, bakes and GLB export are also pending.
 
 ## Budget at this gate
 
-The source has **52,540 triangles**, including all four wheels and separate
-sheet gauges. The final budget remains 40k–70k; 17,460 triangles remain below
-the ceiling. The aim is to recover redundant inner sheet sampling as detail
-is added and keep the finished vehicle near the middle of the range.
+The game-density source has **59,740 triangles**; the final ceiling
+remains 70k. 10,260 triangles remain below it. This is a form budget,
+not a completed car budget: hidden sheet surfaces and wheel spoke bevels will
+need further optimization as interior, brakes and underbody are added.
 
 | Part category | Triangles |
 | --- | ---: |
-| Hood | 1,108 |
-| Cab/floor/roof/rails | 5,356 |
-| Glazing volumes | 664 |
-| Front fenders/arch returns | 5,016 |
-| Four door skins/sashes | 4,736 |
-| Bed/rails/tubs/rear corners | 8,944 |
-| Wheel-well liners | 2,016 |
-| Tailgate | 1,464 |
-| Nose envelope | 1,108 |
-| Bumpers/upper returns | 2,128 |
+| Hood | 1,124 |
+| Cab/floor/roof/headers | 4,448 |
+| Glazing volumes | 532 |
+| Front fenders/flares/arch returns | 9,568 |
+| Four door skins/sashes | 4,208 |
+| Coarse mirrors/supports | 976 |
+| Bed/rails/tubs/rear corners/flares | 11,240 |
+| Lamp envelopes | 784 |
+| Wheel-well liners | 1,936 |
+| Tailgate | 1,236 |
+| Nose/grille form | 1,508 |
+| Bumpers/upper returns | 2,180 |
 | Four tires | 11,520 |
 | Four wheel barrels/hubs/spokes | 8,480 |
-| **Total** | **52,540** |
+| **Total** | **59,740** |
 
 Each wheel group is 5,000 triangles including its tire. Each door group is
-1,280 triangles including its glass. The complete per-object table is in the
-form report. The high source contains 182,636 triangles. Ignored high/game blend files are
-1,802,753 / 505,264 bytes at this checkpoint (serialization sizes may vary).
+1,148 including its glass; the per-object table is in `build/form-check.json`.
+The high source has 131,396 triangles. Ignored high/game blend files are
+1,032,264 / 523,235 bytes in this build (serialization sizes may vary).
 Six temporary diagnostic clay materials, **zero texture images**,
 and **no GLB** exist at this checkpoint. These are not final material budgets.
 

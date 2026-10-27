@@ -1,33 +1,30 @@
-"""Inspected 3D/pixel landmarks for comparison, not traced profiles.
+"""Inspected chassis anchors, original 2100x1575 stock frames.
 
-Coordinates are measured at 1500 px and converted to original pixels. Wheel
-hub anchors are on the outer face, not the hidden wheel-center plane. Roof
-anchors are design estimates; full residuals disclose their uncertainty.
+Fit camera pose/lens to two outer wheel hub centers, two visible tread-contact
+centroids, and an opposite-side contact. The opposite-side point constrains
+camera height. Hub height is the model's lightly loaded height, not fitted.
+Contacts are visible surface points (+/-0.92 near side); the hidden
+wheel-center contact is not substituted for the photographed tread shoulder.
+Body styling is judged in the pair and side overlay, never used to force a fit.
+A symmetric 200 px horizontal / 100 px vertical comparison margin keeps the
+original design fully visible. The crop extends beyond the source photo; those
+comparison margins are transparent, never invented photographic content.
+Pixel uncertainty ~3 px preview at hubs, ~5 px at soft contact shadows.
 """
 from pathlib import Path
 import runpy
 S=runpy.run_path(str(Path(__file__).with_name('pickup_spec.py')))
 ROOT=Path(__file__).resolve().parents[1]
-def anchor(p,xy,scale):return dict(world=p,pixel=tuple(v*scale for v in xy))
+F=S['FRONT_AXLE'];R=S['REAR_AXLE'];H=S['HUB_HEIGHT']
+def anchors(world,pixels):
+    return [dict(world=p,pixel=tuple(v*1.4 for v in xy)) for p,xy in zip(world,pixels)]
 MATCHES={
- 'match_front':dict(title='Crew 4x4 / front three-quarter clay',photo=str(ROOT/'refs/ford-lariat-front.jpg'),
-    crop=(0,0,5130,2528),location=(7,-10,1.4),target=(0,0,1),lens=55,background='transparent',
-    landmarks=[anchor((.964,S['FRONT_AXLE'],S['HUB_HEIGHT']),(656,545),5130/1500),
-               anchor((.964,S['REAR_AXLE'],S['HUB_HEIGHT']),(1331,499),5130/1500),
-               anchor((.95,S['FRONT_AXLE'],0),(656,682),5130/1500),
-               anchor((.95,S['REAR_AXLE'],0),(1331,594),5130/1500),
-               anchor((.84,-1.02,1.91),(858,55),5130/1500),
-               anchor((.84,.875,1.91),(1120,65),5130/1500),
-               anchor((.95,1.041,1.44856),(1200,215),5130/1500),
-               anchor((.95,2.844,1.44856),(1425,221),5130/1500)]),
- 'match_rear':dict(title='Crew short bed / rear three-quarter clay',photo=str(ROOT/'refs/ford-lariat-rear.jpg'),
-    crop=(0,0,4886,2699),location=(7,10,1.4),target=(0,0,1),lens=55,background='transparent',
-    landmarks=[anchor((.964,S['FRONT_AXLE'],S['HUB_HEIGHT']),(105,553),4886/1500),
-               anchor((.964,S['REAR_AXLE'],S['HUB_HEIGHT']),(638,620),4886/1500),
-               anchor((.95,S['FRONT_AXLE'],0),(105,655),4886/1500),
-               anchor((.95,S['REAR_AXLE'],0),(638,774),4886/1500),
-               anchor((.84,-1.02,1.91),(330,159),4886/1500),
-               anchor((.84,.875,1.91),(558,92),4886/1500),
-               anchor((.95,2.844,1.44856),(907,222),4886/1500),
-               anchor((-.95,2.844,1.44856),(1435,245),4886/1500)]),
+ 'match_front':dict(title='Crew short bed / front clay',photo=str(ROOT/'refs/stock-front.jpg'),
+    crop=(-200,-100,2300,1675),location=(6,-8,1.5),target=(0,0,1),lens=42,background='transparent',
+    landmarks=anchors([(.964,F,H),(.964,R,H),(.920,F,0),(.920,R,0),(-.858,F,0)],
+                      [(865,848),(1375,724),(841,1016),(1369,844),(230,966)])),
+ 'match_rear':dict(title='Crew short bed / rear clay',photo=str(ROOT/'refs/stock-rear.jpg'),
+    crop=(-200,-100,2300,1675),location=(-6,8,1.5),target=(0,0,1),lens=42,background='transparent',
+    landmarks=anchors([(-.964,F,H),(-.964,R,H),(-.920,F,0),(-.920,R,0),(.858,R,0)],
+                      [(1404,706),(914,790),(1392,808),(890,955),(320,900)])),
 }

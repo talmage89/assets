@@ -47,8 +47,8 @@ def main():
         d.text((22,48),'Dimension lines are cited targets; actual surface measurements: build/form-check.json',font=small,fill=(54,66,75))
         im.save(root/(name+'-dimensions.jpg'),quality=93)
     files=['front_three_quarter.jpg','rear_three_quarter.jpg','side-dimensions.jpg','front-dimensions.jpg','top-dimensions.jpg',
-           'stripes_front.jpg','stripes_side.jpg','match_front-pair.jpg','match_rear-pair.jpg']
-    tilew,tileh=900,600;contact=Image.new('RGB',(tilew*3,tileh*3),(220,224,228));d=ImageDraw.Draw(contact)
+           'stripes_front.jpg','stripes_side.jpg','match_front-pair.jpg','match_rear-pair.jpg','side-overlay.jpg','side-rake.jpg']
+    tilew,tileh=900,600;contact=Image.new('RGB',(tilew*3,tileh*((len(files)+2)//3)),(220,224,228));d=ImageDraw.Draw(contact)
     for i,name in enumerate(files):
         im=Image.open(root/name).convert('RGBA');im.thumbnail((tilew-20,tileh-56),Image.Resampling.LANCZOS)
         x=(i%3)*tilew+(tilew-im.width)//2;y=(i//3)*tileh+46+(tileh-56-im.height)//2

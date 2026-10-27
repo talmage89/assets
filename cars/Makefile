@@ -14,11 +14,14 @@ render: model build/game-audit.blend
 	$(BP) --python src/render_checkpoint.py -- --source build/game-audit.blend --out renders/$(PASS) --width $(WIDTH) --mode clay
 preview: render
 match: model build/game-audit.blend refs $(BUILD)/matched-cameras.json
+	@mkdir -p renders/$(PASS)
+	cp build/matched-cameras.json renders/$(PASS)/matched-cameras.json
 	$(BP) --python src/render_checkpoint.py -- --source build/game-audit.blend --out renders/$(PASS) --width $(WIDTH) --mode match
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/matched-cameras.json --renders renders/$(PASS) --out renders/$(PASS)
 stripes: model build/game-audit.blend
 	$(KIT)/with_gpu.sh $(BP) --python src/render_checkpoint.py -- --source build/game-audit.blend --out renders/$(PASS) --width $(WIDTH) --mode stripes
-dimensions: render check-form
+dimensions: render match stripes check-form
+	$(PYTHON) src/side_overlay.py --renders renders/$(PASS)
 	$(PYTHON) src/review.py --renders renders/$(PASS)
 
 .PHONY: check-form

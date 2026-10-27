@@ -11,6 +11,158 @@ Every rendered view was opened, individually or in a sheet of every view of its
 pass. The comparisons are against the credited photographs, not memory. All
 meshes and shader/light data are original scripts; photos are comparison only.
 
+## Second checkpoint — lead rejection and replacement form
+
+The lead rejected the first checkpoint as a melted 1980s truck. That judgment
+is correct. The previous self-review was too lenient: the dimensional checks
+passed while the body language, greenhouse and striped reflections did not.
+The historical passes below are retained as a record, not as approval.
+
+### Revision pass A — replace the surface method
+
+Color/value first: compare neutral clay with the white reference without
+pretending their different albedos are a match. Keep tires, glazing and cavities
+dark; do not raise exposure to erase the shape defects.
+
+Removed the additive sine/Gaussian hood/side sculpting. The replacement uses
+explicit section stations, near-planar ruled quad patches, short tangent
+fillets and a separate supported shoulder strip. The raised hood center has
+flat fields and crisp transitions. Initial sampling made inverted shoulder
+rows at the hood cap; those spiked badly and were rejected, then corrected.
+Broad door and hood reflections now run without the former sweeping lumps.
+This is not subdivision modeling; the patches evaluate authored sections
+with exact derivatives. The resulting stripes, rather than the method's name,
+are the criterion.
+
+### Revision pass B — compare the greenhouse against a true profile
+
+Color/value first: a 50% blue silhouette is deliberately diagnostic, not paint
+look development. The photograph stays visible under it.
+
+Added the credited 145-inch-wheelbase / 5.5-foot crew-cab profile. Its wheel
+centers alone set the overlay's scale and placement. Measured the straight
+A-pillar segment at 34.4 +/-1.5 degrees above horizontal. Replaced the old
+near-upright windshield with a straight 35.2-degree outer pillar, added side
+glass tumblehome, narrowed and crowned the roof, and connected its front and
+rear edges to headers. No separate roof-rail plate remains.
+
+The overlay exposed an excessively high hood leading edge; lowered that edge
+40 mm while retaining the raised center. The source roof and bed remain higher
+and more square than the photo. The published photo caption is 4x2 and our
+envelope is 4x4, so the overlay exposes that difference rather than fitting it
+away. This caption caveat does not excuse the remaining blunt roof corners or
+high hood/front profile.
+
+### Revision pass C — construction and reflection failures
+
+Color/value first: the procedural stripe dome retains dark cavities and soft
+highlight rolloff. Pale clay alone had concealed these defects.
+
+Removed the black rectangular liner plates below the arches. Liners now end
+inside the upper openings. Replaced arch displacement on a rectangular body
+grid with annular quad patches: a flat inner lip, supported radial transition,
+and a taper into the rocker. Concentrated angular stations at the ends rather
+than increasing all panel grids. Added capped bed rails, the tailgate's top
+lip and upright rear lamp envelopes. Rebuilt the nose around original tall
+grille/headlamp form volumes. The front bumper corners now sweep back 180 mm,
+with an upper return and matching valance, reducing their former detached
+side silhouette; the rear step shelf tucks under the tailgate.
+
+The stripes also exposed a sheet-gauge shading fault: normals encoded before
+closing the sheet could be distorted when its smoothing fans changed. Reseed
+the authored skin normals after gauge evaluation; leave hidden gauge faces
+flat. An independent broad-panel slope comparison now samples 2,736 corners,
+with maximum normal disagreement 0.0198 degrees. This checks the shading
+against the mathematical surface; it does not certify artistic fairness.
+
+The annular flares still compress and curl the stripes where they die into the
+rocker. Increasing their angular sampling from 48 to 64 did not materially
+improve that shape, so reverted the extra triangles. **Those ends remain the
+weakest surface; they are not declared fair or approved.**
+
+### Revision pass D — calibrated pairs and final critique
+
+Color/value first: do not compare gray clay brightness directly with white
+factory paint. This gate judges form; final paint depth, clear coat, tint and
+causal wear remain entirely unapproved. The cavity/tire values remain dark,
+and the final orthographic foreground statistics are saved in
+`renders/checkpoint/tonal-check.json`.
+
+Re-picked the photographed hubs and soft tire contacts at enlarged resolution.
+Two outer hub centers, two visible tread-contact centroids and an opposite-side
+contact now constrain each camera. The opposite-side point fixes the previous
+near-coplanar camera-height ambiguity. Final RMS: **5.69 px front / 5.11 px rear**
+in original reference pixels, versus the former ~74 px. Symmetric transparent
+comparison margins keep the original design's square corners in frame. All
+five residuals and world/pixel coordinates remain in `matched-cameras.json`;
+no landmark was silently removed from the displayed RMS.
+
+This is explicitly a five-chassis-anchor fit. The requested few-pixel fit of
+roof corners, mirror and bumper corners has **not** been achieved. Their exact
+3D correspondence to this original design is uncertain; forcing those estimates
+into the solve would hide rather than resolve the shape differences. The
+independent side overlay is the stronger proportion evidence. The stock images'
+published 4x2 caption and different wheels also limit ride-height comparisons.
+
+Final art-direction critique against both pairs and the side overlay:
+
+- The rake, narrower roof, upright sides and continuous shoulder read much
+  closer to a late-2010s crew cab than the rejected shell.
+- Hood and broad door bands are straight and continuous; the nose and bed no
+  longer use soft global corner displacements. The arch ends and the windshield header still pinch/curl the
+  reflections and deserve another surface correction before final acceptance.
+- The front face and bumper are still too slab-like beside the photograph.
+  Lamp/grille proportions are now established, but the corners lack the
+  convincing transition between front face, fender top and body side.
+- Roof/backlight corners and rear door outlines remain more rectangular than
+  the class reference. The roof is attached, but its edge still reads hard.
+- The hood leading silhouette remains higher and blunter than the side photo.
+  The 4x2/4x4 mismatch explains some height, not all of this shape.
+- The rear box/tailgate is especially plain. Its capped construction is present;
+  subtle stamped shape is weaker than in the reference. Do not conceal this by
+  adding badges, handles or texture detail.
+- Tire-to-arch crown clearance is now 90.30 mm instead of 119.81 mm. Tire fill is
+  more convincing, while parked deformation and simple wheels remain proxies.
+- Underbody is intentionally open at this gate. This makes the low photo pairs
+  less grounded than the real truck; no suspension/frame detail was added to
+  camouflage the body critique.
+
+**Stop at form review again.** This is an improved review candidate, not a claim
+that all of the lead's fairness and camera requirements are satisfied. No
+interior, brakes, final lights/glass/paint, wear, UVs, bakes or export were added.
+
+### Current proof
+
+`make -C cars clean` followed by `make -C cars WIDTH=1600` rebuilt the form
+checkpoint from scripts. `make -C cars check` passes source geometry, dimensions,
+normal slopes, budget, repository rules and Blender camera projection checks.
+Projection agreement under 0.001 px proves calibrator/Blender consistency,
+not photo or body accuracy. Per-object and per-category counts are in
+`build/form-check.json`; the README lists the current 59,740-triangle total.
+Six diagnostic materials, no texture images or GLB. High/game source files
+are approximately 1.03 MB / 0.53 MB; they are ignored, not committed.
+
+Opened every final rendered view in the contact sheet, and separately opened
+the stripes, photo pairs, calibration plots and side overlay. Orthographic
+foreground p5/p50/p95 values (0–255) are side 24/129/158, front 10/53/137 and
+top 30/129/151, with zero bright-clipped pixels in all three masks. These are
+clay diagnostics, not a final paint/hero tonal approval.
+
+Latest evidence: [all views](renders/checkpoint/contact.jpg),
+[side overlay](renders/checkpoint/side-overlay.jpg),
+[rake measurement](renders/checkpoint/side-rake.jpg),
+[front pair](renders/checkpoint/match_front-pair.jpg),
+[rear pair](renders/checkpoint/match_rear-pair.jpg),
+[front stripes](renders/checkpoint/stripes_front.jpg),
+[side stripes](renders/checkpoint/stripes_side.jpg).
+
+No kit files changed in this revision. A later generalization could move
+post-gauge normal restoration into the shared panel helper, after testing
+additional open/closed surfaces. No tool installation or new permission is
+needed. The lead's next decision remains the body form; detail stays stopped.
+
+## Historical first checkpoint (superseded)
+
 ## Pass 1 — reject the first envelope
 
 Color/value first: the dark clay on transparent black was difficult to judge;
