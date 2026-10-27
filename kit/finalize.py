@@ -24,6 +24,13 @@ def main():
         bpy.context.view_layer.objects.active=ob
         for modifier in list(ob.modifiers):
             if modifier.type!='ARMATURE':bpy.ops.object.modifier_apply(modifier=modifier.name)
+        # Edit-mode triangulation/UV operations can re-encode custom split
+        # normals against different smoothing fans. Carry the actual vectors
+        # as ordinary corner data and reseed them after the last edit operation.
+        if ob.data.has_custom_normals:
+            normals=[n.vector.copy() for n in ob.data.corner_normals]
+            saved=ob.data.attributes.new('UV source normals','FLOAT_VECTOR','CORNER')
+            for row,n in zip(saved.data,normals):row.vector=n
         # Alpha cards can carry authored canopy normals. Blender's triangulate
         # modifier preserves split normals; BMesh roundtrips may discard them.
         spec=atlas.tiled_spec(ob.name,config)
@@ -104,6 +111,11 @@ def main():
         x0,y0,x1,y1=config['UV_ATLAS_RECT']
         for ob in objects:
             for point in ob.data.uv_layers['BakeUV'].data:point.uv=(x0+point.uv.x*(x1-x0),y0+point.uv.y*(y1-y0))
+    for ob in objects+tiled:
+        saved=ob.data.attributes.get('UV source normals')
+        if saved:
+            ob.data.normals_split_custom_set([row.vector[:] for row in saved.data])
+            ob.data.attributes.remove(saved)
     # Packing fits the atlas; reduce uniformly if a larger prop exceeds its declared density.
     measured=uv.report(objects,a.size)
     median=measured['density_px_m']['50']

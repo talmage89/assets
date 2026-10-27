@@ -45,6 +45,17 @@ class MakeDelivery(unittest.TestCase):
                 self.assertEqual(result.returncode,0,result.stderr)
                 self.assertEqual(result.stdout.strip(),value or str(ROOT/'build/locks/gpu.lock'))
 
+    def test_final_renderer_alias_and_precedence(self):
+        command=['make','--no-print-directory','-f',str(ROOT/'kit/rules.mk'),
+                 '--eval','print-studio:;@echo $(STUDIO_SCRIPT)','print-studio']
+        for settings,expected in [([],str(ROOT/'kit/studio.py')),
+                                  (['FINAL_RENDER_SCRIPT=car.py'],'car.py'),
+                                  (['STUDIO_SCRIPT=tree.py'],'tree.py'),
+                                  (['FINAL_RENDER_SCRIPT=car.py','STUDIO_SCRIPT=tree.py'],'tree.py')]:
+            result=subprocess.run(command+settings,cwd=ROOT,capture_output=True,text=True)
+            self.assertEqual(result.returncode,0,result.stderr)
+            self.assertEqual(result.stdout.strip(),expected)
+
     def test_aliases_and_invalidation(self):
         scratch=ROOT/'build'
         scratch.mkdir(exist_ok=True)
@@ -87,6 +98,13 @@ export/Fixture.glb: ; @mkdir -p export; touch $@
                 self.assertEqual(make('SHIP_SIZE=1024',setting).returncode,0)
                 self.assertGreater(stamps()[0],before[0])
             self.assertNotEqual(make('SHIP_SIZE=1024','TEX_SIZE=2048').returncode,0)
+            before=stamps();time.sleep(.02)
+            self.assertEqual(make('SHIP_SIZE=1024','UV_TARGET_DENSITY=810',
+                                  'DOWNSAMPLE_ARGS=--alpha-mode independent').returncode,0)
+            after=stamps()
+            self.assertEqual(after[:2],before[:2])
+            self.assertGreater(after[2],before[2])
+
 
 
 if __name__=='__main__':unittest.main()

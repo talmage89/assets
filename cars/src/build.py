@@ -1,0 +1,101 @@
+"""Alder C150 body-form checkpoint, from a clean Blender 5.2 scene."""
+import argparse,json,sys
+from pathlib import Path
+import bpy
+from mathutils import Vector
+ROOT=Path(__file__).resolve().parents[2]
+sys.path[:0]=[str(ROOT),str(Path(__file__).resolve().parent)]
+from kit import model as G
+from kit.vehicle import panel,samples
+import pickup_spec as S
+import body,wheels
+
+
+class Build:
+    def __init__(self,high,wear=.65,detail=True):
+        self.high=high;self.detail=detail;self.wear=wear;self.root=G.pivot('AlderC150',(0,0,0));self.root['static_root']=True
+        self.root['asset_set']='Pickup'
+        self.m={}
+        for key,color in dict(body=(.39,.405,.41),glass=(.065,.086,.095),rubber=(.027,.029,.032),
+                              wheel=(.34,.35,.36),bed=(.12,.13,.14),bumper=(.20,.21,.22)).items():
+            m=bpy.data.materials.new('Clay '+key);m.diffuse_color=(*color,1);m.use_nodes=True
+            bs=m.node_tree.nodes['Principled BSDF'];bs.inputs['Base Color'].default_value=(*color,1)
+            bs.inputs['Roughness'].default_value=.43 if key=='body' else .65
+            self.m[key]=m
+        self.m['lens']=self.m['glass']
+        if detail:
+            import finishes
+            self.m=finishes.build(wear)
+    def add(self,ob,parent=None,category='body'):
+        ob['part_category']=category
+        ob=G.attach(ob,parent or self.root,asset_set='Pickup')
+        if not ob.data.has_custom_normals:G.smooth(ob,35)
+        if self.detail:
+            bpy.context.view_layer.update()
+            rest=ob.data.attributes.new('VehicleRest','FLOAT_VECTOR','POINT')
+            rest.data.foreach_set('vector',[q for v in ob.data.vertices for q in ob.matrix_world@v.co])
+        return ob
+    def skin(self,name,fn,nu,nv,mat,outward,parent=None,category='body',**kw):
+        factor=1.5 if self.high else .40
+        # Flat floors/inner walls and glass need no dense redundant sheet grid.
+        if not self.high and (name in ['Cab floor','Pickup bed floor','Cab rear lower','Pickup box front'] or category=='glass'):
+            factor=.13
+        us=kw.pop('us',samples(max(2,round(nu*factor))))
+        vs=kw.pop('vs',samples(max(2,round(nv*factor))))
+        even=kw.pop('even_offset',False)
+        ob=panel(name,fn,us,vs,mat,outward,**kw)
+        ob.modifiers['Closed sheet gauge'].use_even_offset=even
+        sheet_vertices=len(ob.data.vertices)
+        ob=self.add(ob,parent,category)
+        # Closing the sheet changes the smoothing fans at its rim. Reseed the
+        # authored outer normals AFTER evaluation; pre-modifier split normals
+        # can be re-encoded against a different fan and introduce false dents.
+        normals=[];eps=1e-5;hint=Vector(outward)
+        to_local=ob.matrix_world.to_3x3().transposed()
+        for v in vs:
+            for u in us:
+                du=Vector(tuple(a-c for a,c in zip(fn(u+eps,v),fn(u-eps,v))))
+                dv=Vector(tuple(a-c for a,c in zip(fn(u,v+eps),fn(u,v-eps))))
+                n=du.cross(dv).normalized()
+                if n.dot(hint)<0:n.negate()
+                normals.append(to_local@n)
+        count=(len(us)-1)*(len(vs)-1);ob['outer_skin_faces']=count;ob['sheet_vertex_count']=sheet_vertices
+        custom=[(0,0,0)]*len(ob.data.loops)
+        for face in ob.data.polygons:
+            face.use_smooth=face.index<count
+            if face.index<count:
+                for li in face.loop_indices:custom[li]=normals[ob.data.loops[li].vertex_index]
+        if mat.get('vehicle_glass'):
+            # A smooth entrance with flat exit facets acts as a bank of tiny
+            # prisms. The inner laminate uses the paired outward normal too.
+            for face in ob.data.polygons:
+                if all(i>=sheet_vertices for i in face.vertices):
+                    face.use_smooth=True
+                    for li in face.loop_indices:custom[li]=-normals[ob.data.loops[li].vertex_index-sheet_vertices]
+        ob.data.normals_split_custom_set(custom)
+        return ob
+
+
+def main():
+    p=argparse.ArgumentParser();p.add_argument('--out',required=True);p.add_argument('--quality',default='high',choices=['game','high']);p.add_argument('--wear',type=float,default=.65);p.add_argument('--form-only',action='store_true')
+    args=p.parse_args(sys.argv[sys.argv.index('--')+1:])
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    b=Build(args.quality=='high',args.wear,not args.form_only);body.build(b);wheels.build(b,S)
+    if b.detail:
+        import exterior,interior,underbody
+        exterior.build(b);interior.build(b);underbody.build(b)
+    for material in list(bpy.data.materials):
+        if material.users==0:bpy.data.materials.remove(material)
+    sc=bpy.context.scene;sc.unit_settings.system='METRIC';sc.unit_settings.scale_length=1
+    sc['asset']='AlderC150';sc['quality']=args.quality;sc['stage']='detail and procedural look-dev' if b.detail else 'body-form corrections';sc['seed']=150
+    sc['reference_dimensions']=json.dumps(dict(length=S.LENGTH,width=S.WIDTH,height=S.HEIGHT,wheelbase=S.WHEELBASE,track=S.TRACK))
+    bpy.context.view_layer.update();Path(args.out).parent.mkdir(parents=True,exist_ok=True)
+    bpy.ops.wm.save_as_mainfile(filepath=str(Path(args.out).resolve()))
+    counts={}
+    for ob in sc.objects:
+        if ob.type=='MESH':
+            ob.data.calc_loop_triangles();cat=ob['part_category'];counts[cat]=counts.get(cat,0)+len(ob.data.loop_triangles)
+    print('CHECKPOINT_TRIANGLES',json.dumps(counts),sum(counts.values()),flush=True)
+
+
+if __name__=='__main__':main()

@@ -18,7 +18,7 @@ def main():
     cfg=runpy.run_path(a.config);glb=GLB(path);data=glb.json;errors=[]
     def check(condition,message):
         if not condition:errors.append(message)
-    check(len(data.get('materials',[]))<=3,'Material budget exceeded')
+    check(len(data.get('materials',[]))<=cfg.get('MAX_MATERIALS',3),'Material budget exceeded')
     check(len(data.get('images',[]))==3,'Expected one BaseColor/Normal/ORM set')
     image_reports=[]
     for i in range(len(data.get('images',[]))):

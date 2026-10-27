@@ -1,0 +1,44 @@
+"""Alder C150 crew 4x4: dimensions and original surface controls, all meters.
+
+Published envelopes are separated from design estimates in REFERENCE.md.
+Front is -Y; footprint origin is at bumper-envelope center on the ground.
+"""
+LENGTH=231.9*.0254
+WIDTH=79.9*.0254
+HEIGHT=77.2*.0254
+WHEELBASE=145*.0254
+TRACK=1.716
+GROUND_CLEARANCE_TARGET=.226  # GM MY2018 4WD short-box class cross-check
+FRONT_OVERHANG=37.8*.0254
+FRONT_AXLE=-LENGTH/2+FRONT_OVERHANG
+REAR_AXLE=FRONT_AXLE+WHEELBASE
+TIRE_WIDTH=.275
+TIRE_ASPECT=.65
+RIM_INCHES=18
+TIRE_RADIUS=RIM_INCHES*.0254/2+TIRE_WIDTH*TIRE_ASPECT
+# A circular mean loaded envelope rolls without rotating a flat patch.
+HUB_HEIGHT=TIRE_RADIUS-.006
+PANEL_GAP=.0045
+BED_LENGTH=67.1*.0254
+BED_FRONT=1.095
+BED_REAR=BED_FRONT+BED_LENGTH
+BED_FLOOR=.905
+BED_TOP=1.44856
+CAB_REAR=1.025
+BED_OUTER_FRONT=1.041
+ROCKER=.565
+BELT=1.411
+DOOR_FRONT=-1.405
+DOOR_SPLIT=-.055
+DOOR_REAR=.922
+HOOD_FRONT=-2.8355
+HOOD_REAR=-1.4095
+ARCH_RADIUS=.463
+ARCH_Z=.430
+COLORS={
+    'Porcelain':(.78,.79,.76), 'Carbon':(.009,.011,.013),
+    'Aluminum':(.46,.48,.49), 'Graphite':(.160,.153,.141),
+    'Atlantic':(.012,.037,.071),
+}
+
+PAINT_METAL={'Porcelain':0,'Carbon':0,'Aluminum':.55,'Graphite':.42,'Atlantic':.12}

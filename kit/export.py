@@ -81,6 +81,19 @@ def main():
     objects=[o for o in sc.objects if o.type=='MESH' and 'asset_set' in o]
     material=atlas_material(a.asset,Path(a.textures).resolve());groups={}
     overrides=cfg.get('MATERIAL_OVERRIDES',{});palette={};tile_materials={}
+    surfaces={}
+    for key,settings in cfg.get('DELIVERY_SURFACES',{}).items():
+        extra=material.copy();extra.name=a.asset+' '+key;nt=extra.node_tree;shader=nt.nodes['SURFACE']
+        for socket,value in settings.get('principled',{}).items():shader.inputs[socket].default_value=value
+        for socket,factor in settings.get('factors',{}).items():
+            source=shader.inputs[socket].links[0].from_socket
+            scale=nt.nodes.new('ShaderNodeMath');scale.operation='MULTIPLY';scale.inputs[1].default_value=factor
+            nt.links.new(source,scale.inputs[0]);nt.links.new(scale.outputs[0],shader.inputs[socket])
+        if settings.get('emission_strength'):
+            nt.links.new(shader.inputs['Base Color'].links[0].from_socket,shader.inputs['Emission Color'])
+            shader.inputs['Emission Strength'].default_value=settings['emission_strength']
+        for name,value in settings.get('extras',{}).items():extra[name]=value
+        surfaces[key]=extra
     for prefix,settings in overrides.items():
         extra=material.copy();extra.name=a.asset+' '+prefix
         shader=extra.node_tree.nodes['SURFACE']
@@ -100,6 +113,16 @@ def main():
     # Assign each source mesh before joining. Tile policy and uniform shader
     # overrides compose, even when opaque and tiled members share a static root.
     for ob in objects:
+        if surfaces:
+            original=[cfg['SOURCE_MATERIAL_SURFACES'][m.name] for m in ob.data.materials]
+            assignments=[original[f.material_index] for f in ob.data.polygons]
+            ob.data.materials.clear()
+            for mat in surfaces.values():ob.data.materials.append(mat)
+            indices={key:i for i,key in enumerate(surfaces)}
+            for face,key in zip(ob.data.polygons,assignments):face.material_index=indices[key]
+            parent=moving_parent(ob);name=ob.get('export_part',parent.name+'Mesh')
+            groups.setdefault((parent,name),[]).append(ob)
+            continue
         prefix=next((prefix for prefix in overrides if ob.name.startswith(prefix)),None)
         chosen=palette[prefix] if prefix is not None else material
         spec=atlas.tiled_spec(ob.name,cfg)
@@ -173,7 +196,7 @@ def main():
         export_materials='EXPORT',export_image_format='AUTO',export_skins=True,export_animations=False,
         export_def_bones=True,export_extras=True,export_cameras=False,export_lights=False,
         **(dict(export_attributes=True,export_vertex_color='NONE') if cfg.get('EXPORT_COLOR_DATA') else {}))
-    if overrides or tile_materials:
+    if overrides or tile_materials or surfaces:
         from kit.glb_textures import compact
         report['texture_views']=compact(path,Path(a.report).parent)
     report['bytes']=path.stat().st_size

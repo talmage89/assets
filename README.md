@@ -53,6 +53,10 @@ Ground
 - [Street ground](ground/README.md): modular road, intersection, curb and gutter, sidewalk and curb ramps,
   driveways, lawn, a storm inlet and a manhole, on three seamless tiling sets and one trim and decal atlas.
 
+Vehicles
+- [Pickup](cars/README.md): full-size crew-cab pickup in five factory colors; doors, hood, tailgate, steering and
+  wheels move.
+
 Trees
 - [Red maple](trees/README.md): 12.5 m open-grown summer red maple with leaf cards, flaky lower bark and wind
   weights.

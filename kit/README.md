@@ -420,6 +420,99 @@ needs to survive subpixel minification. It preserves fractional texture alpha,
 while existing `alpha_cutoff` tiles retain MASK behavior. Both policies verify
 embedded holes, retained threads and double-sided state; the images remain shared.
 
+`vehicle.py` adds analytic thin-sheet panels with closed gauge and inward edge
+returns, and an ISO-size radial tire with crowned tread and a smooth parked
+contact patch. Callers supply all shape functions, dimensions and materials;
+no existing asset path changes. Fine tire tread remains a normal-bake concern.
+Returned analytic panels also derive their skin's split normals from surface
+partials. This avoids area-weighted normal ripples where an irregular grid
+flows around a curved opening; return faces retain geometric normals.
+`blender -b --factory-startup --python-exit-code 1 --python kit/test_vehicle.py`
+checks the attached panel's normals against an independent paraboloid normal,
+closed-gauge manifold/volume, and the tire's actual width, top and ground contact.
+
+`CUSTOM_CHECKPOINT=1` lets an asset supply its own `checkpoint`, `preview`,
+`render` and `match` recipes (for example a body-form gate with Workbench clay
+and a separate procedural reflection diagnostic). Default source recipes and
+all delivery/check recipes are unchanged; the asset still includes `rules.mk`.
+
+
+`vehicle.loaded_tire(..., profile_indices=None)` optionally keeps an ordered
+subset of axial/radial stations for a game-density carcass. Retain both beads,
+both maximum-width shoulders and the tread crown when their bounds matter.
+The default profile is unchanged; the fixture also measures the reduced
+profile's width, top/contact and triangle reduction and rejects invalid lists.
+
+`vehicle_materials.py` adds meter-scale source shaders built on `materials.Nodes`:
+`paint`, `manufactured`, `glazing`, `tire` and `lamp`. They expose the existing
+`OUT_base/rough/metal/height` bake channels. Paint has a named `Paint tint` RGB
+node; paint and emissive materials carry review-state properties. Paint also
+exposes `OUT_paint_coverage` and `OUT_paint_contamination` for an RGBA delivery
+packing (`tint * alpha + RGB`), so changing the factory color need not tint dust
+or stone chips. The standard glTF factor alone does not implement this decode. Pass a
+`VehicleRest` POINT/FLOAT_VECTOR world-position attribute (after parenting and
+a dependency-graph update), vehicle axle locations and optional front/rear
+bounds. This keeps causal road film attached to hinged panels. Manufactured
+alloy can receive explicit brake-center positions for dust. Glazing adds frit
+and privacy tint; tire height combines analytic blocks/sipes with an optional
+original relief image. These are source look-dev shaders: they do not allocate
+final atlases or silently change existing assets. Shader compilation and rest
+position/fit checks run in the cars source checkpoint; delivery still requires
+UV/bake/export and glass/emission verification.
+
+Vehicle tire finishes accept `wear=` for a sidewall dust annulus while keeping
+the tread rubber dark. Road coverage saturates at 0–1. Glass records its privacy
+classification; callers supply the tint explicitly. The dated used-truck
+comparisons in cars calibrate these source effects.
+
+Vehicle finishes accept opt-in `refined=True` on `paint` and `manufactured`.
+This uses dilute aft-of-tire fans, polished clear coat, sparse roughness-only
+wash swirls, rail/corner dust and chrome water-spot rims. Alloy/chrome/steel
+exclude the body road-film layer; alloy retains localized brake dust. Existing
+callers keep their earlier defaults. Rail height and cargo-box bounds are
+caller-supplied physical dimensions (`rail_height`, `cargo_bounds`). `brake_rotor()` provides concentric turned
+steel relief using a wheel-centered object frame with X as its spin axis.
+
+Vehicle `paint(..., metallic=.12, flakes=0)` exposes named `Paint metallic` and
+`Paint flakes` value nodes. Change those outputs for variants; changing a linked
+Principled socket default has no effect. Optional flake aggregates alter the
+under-coat roughness/height bake channels without extra textures;
+the clear-coat lobe stays continuous. Defaults retain the earlier appearance.
+
+`DELIVERY_SURFACES` optionally defines uniform Principled settings, metallic/
+roughness factors, emission and extras for a small delivery palette.
+`SOURCE_MATERIAL_SURFACES` maps manufacturing material names to that palette;
+assignment is per face before consolidation, so coated panels can retain
+opaque interior faces. Existing name-prefix overrides remain unchanged.
+`MAX_MATERIALS` explicitly raises the verifier's default three-material limit
+for a brief-authorized palette. `BAKE_BASECOLOR_ALPHA_CHANNEL` optionally packs
+a source channel into BaseColor alpha (missing channels default to one).
+The downsampler filters that alpha as linear coverage, independently of sRGB.
+`test_surface_profiles.py` checks four per-face surfaces, three shared images,
+metallic factors, extras and retained/filtered RGBA coverage in an actual GLB.
+`BAKE_SOURCE` optionally selects a generated source blend whose bake channels
+need delivery-specific packing; its default remains `build/lookdev.blend`.
+The reviewed look-dev scene stays an independent source audit input.
+`FINAL_RENDER_SCRIPT` remains a compatibility alias for `STUDIO_SCRIPT` (see below).
+`vehicle.loaded_tire(..., rolling_radius=r)` optionally uses a circular loaded
+cross-section, compressing the sidewall between bead and crown. The default
+parked flattening is unchanged. The vehicle fixture rotates the rolling tire
+through a full revolution and checks its ground contact and width at each pose.
+The circular tire option is a mean loaded-envelope approximation, without a
+rotating parked flat spot; it does not simulate carcass deformation.
+
+`finalize.py` carries authored corner normals through edit-mode triangulation
+and UV packing as ordinary corner data, then reseeds the split normals. This
+prevents Blender's smoothing-fan re-encoding from changing analytic panel fields;
+the vehicle regression runs the real finalize path and checks the field afterward.
+
+A prepared bake source can opt into
+`BAKE_POLICY['consolidate_attribute_sources']=True` after converting its local,
+generated and UV shader coordinates to mesh attributes. Projection isolation
+then consolidates to one source mesh, avoiding repeated Cycles synchronization
+for every exploded frame. Live Texture Coordinate/UV Map connections are
+rejected; default source-frame grouping remains unchanged.
+
 `botany.py` supplies parameterized, parallel-transport tapered stem sweeps,
 root-section lobes, oriented alpha-card assembly with outward-bent custom
 normals, and explicit normalized `Wind` vertex channels. Species growth rules
@@ -460,6 +553,8 @@ This complements the existing after-filter `TEXTURE_POSTPROCESS` hook.
 `STUDIO_SCRIPT` may select a family's final GLB-only presentation renderer when
 the tabletop studio is unsuitable (for example, outdoor trees). It receives
 the same final-source, config, camera/shot, engine, size and sample arguments.
+`STUDIO_SCRIPT` takes precedence over the `FINAL_RENDER_SCRIPT` compatibility alias;
+omitting both retains `kit/studio.py`.
 `UV_UNWRAP_METHOD='ANGLE_BASED'` (or another Blender unwrap method) uses authored
 mesh seams before the existing priority/packing/check path; absent this option,
 Smart UV retains its existing defaults. Species-specific seam construction stays
@@ -473,7 +568,11 @@ These options preserve the existing default unwrap/pack path.
 
 Downsampling also accepts RGBA BaseColor: alpha stays linear and color is filtered
 with premultiplied coverage, preserving transparent botanical/cloth edges. RGB
-inputs keep their existing filtering. Tangent normals retain 16-bit bake precision
+inputs keep their existing filtering. For independent data stored in BaseColor alpha
+(such as paint-coverage or lamp-power masks), set `DOWNSAMPLE_ARGS := --alpha-mode independent`;
+this filters RGB independently while retaining linear alpha. The same option is
+used by the repeat-texture target. Changing it invalidates filtered textures and
+export without repacking UVs or rebaking. Tangent normals retain 16-bit bake precision
 until vector filtering to the shipped 8-bit map.
 
 `BAKE_POLICY.material_ao_channel='micro_ao'` optionally multiplies a material's

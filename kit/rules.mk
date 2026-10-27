@@ -4,16 +4,19 @@ BLENDER ?= blender
 PYTHON ?= python3
 KIT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 REPO := $(abspath $(KIT)/..)
-STUDIO_SCRIPT ?= $(KIT)/studio.py
+# STUDIO_SCRIPT is canonical; retain the pickup's earlier alias.
+STUDIO_SCRIPT ?= $(if $(FINAL_RENDER_SCRIPT),$(FINAL_RENDER_SCRIPT),$(KIT)/studio.py)
 BUILD := build
 CONFIG ?= src/config.py
 MODEL_SCRIPT ?= src/build.py
 FINAL_PIPELINE ?= 0
+CUSTOM_CHECKPOINT ?= 0
 WEAR ?= 0.35
 SAMPLES ?= 80
 WIDTH ?= 1400
 BAKE_SAMPLES ?= 32
 BAKE_SIZE ?= 4096
+BAKE_SOURCE ?= $(BUILD)/lookdev.blend
 # TEX_SIZE is the older grill spelling. Normalize it once; reject ambiguity.
 ifdef TEX_SIZE
 ifdef SHIP_SIZE
@@ -60,10 +63,12 @@ $(BUILD)/lookdev.blend: $(MODEL_DEPS) $(BUILD)/markings/.stamp $(BUILD)/paramete
 $(BUILD)/game-audit.blend: $(MODEL_DEPS) $(BUILD)/markings/.stamp $(BUILD)/parameters.txt
 	$(BP) --python $(MODEL_SCRIPT) -- --wear $(WEAR) --quality game --out $@
 model: $(BUILD)/lookdev.blend
+ifeq ($(CUSTOM_CHECKPOINT),0)
 preview: model
 	$(BP) --python $(KIT)/studio.py -- --source $(BUILD)/lookdev.blend --config $(CONFIG) --out renders/preview --shots hero_closed,hero_open,controls,front,side --engine BLENDER_WORKBENCH --width 1000 $(STUDIO_ARGS)
 render: model
 	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --source $(BUILD)/lookdev.blend --config $(CONFIG) --out renders/$(PASS) --shots $(SHOTS) --width $(WIDTH) --samples $(SAMPLES) --fit-reference "$(TANK_REFERENCE)" $(STUDIO_ARGS)
+endif
 check-scene: $(BUILD)/game-audit.blend $(BUILD)/lookdev.blend
 	$(BP) --python $(KIT)/audit.py -- --source $(BUILD)/game-audit.blend --config $(CONFIG) --out $(BUILD)/game-audit.json
 	$(BP) --python $(KIT)/audit.py -- --source $(BUILD)/lookdev.blend --config $(CONFIG) --out $(BUILD)/lookdev-audit.json
@@ -77,18 +82,22 @@ refs:
 	$(PYTHON) $(KIT)/fetch_refs.py $(REFS_DIR)
 hook-install:
 	$(PYTHON) $(KIT)/install_hook.py
+ifeq ($(CUSTOM_CHECKPOINT),0)
 checkpoint: refs model check-scene check-repo render $(if $(wildcard src/photo_matches.py),match)
 	@if test -f src/review.py; then $(PYTHON) src/review.py --renders renders/$(PASS); else $(PYTHON) $(KIT)/contact.py --out renders/$(PASS)/contact.jpg renders/$(PASS)/hero_closed.png; fi
+endif
 
 $(BUILD)/matched-cameras.json: src/photo_matches.py $(KIT)/photo_match.py
 	$(PYTHON) $(KIT)/photo_match.py solve --config src/photo_matches.py --out $@
 check-camera: $(BUILD)/matched-cameras.json
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration $(BUILD)/matched-cameras.json
+ifeq ($(CUSTOM_CHECKPOINT),0)
 match: model refs $(BUILD)/matched-cameras.json
 	@mkdir -p renders/$(PASS)
 	@cp $(BUILD)/matched-cameras.json renders/$(PASS)/matched-cameras.json
 	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --source $(BUILD)/lookdev.blend --config $(CONFIG) --camera-file $(BUILD)/matched-cameras.json --out renders/$(PASS) --shots "$(shell $(PYTHON) -c "import json; print(','.join(json.load(open('$(BUILD)/matched-cameras.json'))))" 2>/dev/null)" --width $(WIDTH) --samples $(SAMPLES) $(STUDIO_ARGS)
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration $(BUILD)/matched-cameras.json --renders renders/$(PASS) --out renders/$(PASS)
+endif
 match-final: export refs $(BUILD)/matched-cameras.json
 	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --stage final --source export/$(ASSET).glb --config $(CONFIG) --camera-file $(BUILD)/matched-cameras.json --out renders/$(PASS)-glb --shots "$(shell $(PYTHON) -c "import json; print(','.join(json.load(open('$(BUILD)/matched-cameras.json'))))" 2>/dev/null)" --width $(WIDTH) --samples $(SAMPLES) $(STUDIO_ARGS)
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration $(BUILD)/matched-cameras.json --renders renders/$(PASS)-glb --out renders/$(PASS)-glb
@@ -102,13 +111,16 @@ finalize: $(BUILD)/finalized.blend
 $(BUILD)/bake-parameters.txt: FORCE
 	@mkdir -p $(BUILD)
 	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='size=$(BAKE_SIZE) samples=$(BAKE_SAMPLES)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
-$(BUILD)/baked.stamp: $(BUILD)/bake-parameters.txt $(BUILD)/finalized.blend $(BUILD)/lookdev.blend $(KIT)/bake.py $(KIT)/atlas.py $(KIT)/bake_groups.py $(KIT)/image_io.py $(KIT)/gpu.py $(BAKE_DEPS)
-	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/bake.py -- --low $(BUILD)/finalized.blend --high $(BUILD)/lookdev.blend --out textures/bake --asset $(ASSET) --config $(CONFIG) --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
+$(BUILD)/baked.stamp: $(BUILD)/bake-parameters.txt $(BUILD)/finalized.blend $(BAKE_SOURCE) $(KIT)/bake.py $(KIT)/atlas.py $(KIT)/bake_groups.py $(KIT)/image_io.py $(KIT)/gpu.py $(BAKE_DEPS)
+	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/bake.py -- --low $(BUILD)/finalized.blend --high $(BAKE_SOURCE) --out textures/bake --asset $(ASSET) --config $(CONFIG) --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
 	$(if $(BAKE_POSTPROCESS),$(BAKE_POSTPROCESS),@:)
 	@touch $@
 bake: $(BUILD)/baked.stamp
-$(BUILD)/textures.stamp: $(BUILD)/baked.stamp $(KIT)/downsample.py $(KIT)/image_io.py $(TEXTURE_DEPS)
-	$(PYTHON) $(KIT)/downsample.py --source textures/bake --out textures/ship --asset $(ASSET) --size $(SHIP_SIZE)
+$(BUILD)/texture-parameters.txt: FORCE
+	@mkdir -p $(BUILD)
+	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='downsample_args=$(DOWNSAMPLE_ARGS)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
+$(BUILD)/textures.stamp: $(BUILD)/texture-parameters.txt $(BUILD)/baked.stamp $(KIT)/downsample.py $(KIT)/image_io.py $(TEXTURE_DEPS)
+	$(PYTHON) $(KIT)/downsample.py --source textures/bake --out textures/ship --asset $(ASSET) --size $(SHIP_SIZE) $(DOWNSAMPLE_ARGS)
 	$(if $(TEXTURE_POSTPROCESS),$(TEXTURE_POSTPROCESS),@:)
 	@touch $@
 export/$(ASSET).glb: $(BUILD)/finalized.blend $(BUILD)/textures.stamp $(KIT)/export.py $(KIT)/atlas.py $(KIT)/glb_textures.py
@@ -142,6 +154,6 @@ check: check-motion
 .PHONY: check-texture-repeat
 # Opt-in expensive reproducibility test; normal `check` never rebakes other assets.
 check-texture-repeat: $(BUILD)/textures.stamp
-	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/bake.py -- --low $(BUILD)/finalized.blend --high $(BUILD)/lookdev.blend --out $(BUILD)/repeat-bake --asset $(ASSET) --config $(CONFIG) --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
-	$(PYTHON) $(KIT)/downsample.py --source $(BUILD)/repeat-bake --out $(BUILD)/repeat-ship --asset $(ASSET) --size $(SHIP_SIZE)
+	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/bake.py -- --low $(BUILD)/finalized.blend --high $(BAKE_SOURCE) --out $(BUILD)/repeat-bake --asset $(ASSET) --config $(CONFIG) --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
+	$(PYTHON) $(KIT)/downsample.py --source $(BUILD)/repeat-bake --out $(BUILD)/repeat-ship --asset $(ASSET) --size $(SHIP_SIZE) $(DOWNSAMPLE_ARGS)
 	$(PYTHON) $(KIT)/compare_textures.py --reference textures/ship --candidate $(BUILD)/repeat-ship --out $(BUILD)/texture-repeat.json $(TEXTURE_COMPARE_ARGS)

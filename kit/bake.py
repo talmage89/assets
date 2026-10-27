@@ -9,6 +9,21 @@ from kit import gpu,bake_groups,atlas
 from kit.image_io import write_png,linear_to_srgb
 
 
+def require_attribute_coordinates(materials):
+    """Reject frame-dependent or implicit coordinates before source joining."""
+    visited=set()
+    def visit(tree):
+        if tree in visited:return
+        visited.add(tree)
+        for shader in tree.nodes:
+            if shader.type in {'TEX_COORD','UVMAP'} and any(s.is_linked for s in shader.outputs):
+                raise ValueError('Attribute consolidation requires prepared coordinate attributes: '+tree.name)
+            if shader.type.startswith('TEX_') and 'Vector' in shader.inputs and not shader.inputs['Vector'].is_linked and any(s.is_linked for s in shader.outputs):
+                raise ValueError('Attribute consolidation rejects implicit texture coordinates: '+tree.name)
+            if shader.type=='GROUP' and shader.node_tree:visit(shader.node_tree)
+    for material in materials:visit(material.node_tree)
+
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--low',required=True);p.add_argument('--high',required=True)
     p.add_argument('--out',required=True);p.add_argument('--asset',required=True)
@@ -72,9 +87,16 @@ def main():
     # Selected-to-active incurs a scene synchronization for every source object.
     # Consolidate objects sharing a coordinate frame, retaining object-space
     # material masks, PrintUV, normals and world placement exactly.
+    attribute_sources=policy.get('consolidate_attribute_sources',False)
+    if attribute_sources:
+        # Opt-in prepared sources carry local/generated/UV coordinates in
+        # attributes, so each exploded pair can join one projection mesh.
+        # Refuse any live Texture Coordinate or UV Map lookup: joining would
+        # otherwise change its frame or select another object's UV layer.
+        require_attribute_coordinates({material for ob in sources for material in ob.data.materials if material})
     frames={}
     for ob in sources:
-        key=tuple(round(v,7) for row in ob.matrix_world for v in row)
+        key=('attribute_sources',) if attribute_sources else tuple(round(v,7) for row in ob.matrix_world for v in row)
         frames.setdefault(key,[]).append(ob)
     original_count=len(sources);sources=[]
     for members in frames.values():
@@ -116,7 +138,12 @@ def main():
             if channel is None:nt.links.new(nt.nodes['SURFACE'].outputs['BSDF'],output.inputs['Surface'])
             else:
                 emission=nt.nodes.get('BAKE_EMIT') or nt.nodes.new('ShaderNodeEmission');emission.name='BAKE_EMIT'
-                nt.links.new(nt.nodes['OUT_'+channel].outputs[0],emission.inputs['Color'])
+                source=nt.nodes.get('OUT_'+channel)
+                if source:nt.links.new(source.outputs[0],emission.inputs['Color'])
+                elif channel==cfg.get('BAKE_BASECOLOR_ALPHA_CHANNEL'):
+                    for link in list(emission.inputs['Color'].links):nt.links.remove(link)
+                    emission.inputs['Color'].default_value=(1,1,1,1)
+                else:raise ValueError('Missing bake channel '+channel+' in '+m.name)
                 nt.links.new(emission.outputs[0],output.inputs['Surface'])
     def bake(name,kind,channel=None):
         image=bpy.data.images.new('Bake '+name,a.size,a.size,alpha=True,float_buffer=True)
@@ -134,7 +161,13 @@ def main():
         if name=='BaseColor':
             stats[name]['black_interior_texels']=int(np.count_nonzero(interior & (values[:,:,:3].max(axis=2)<1e-6)))
         print('BAKED',name,stats[name],flush=True)
-    bake('BaseColor','EMIT','base');write_png(out/f'T_{a.asset}_BaseColor.png',linear_to_srgb(images['BaseColor'][:,:,:3]))
+    bake('BaseColor','EMIT','base')
+    base=linear_to_srgb(images['BaseColor'][:,:,:3])
+    if cfg.get('BAKE_BASECOLOR_ALPHA_CHANNEL'):
+        bake('BaseColorAlpha','EMIT',cfg['BAKE_BASECOLOR_ALPHA_CHANNEL'])
+        base=np.concatenate([base,images['BaseColorAlpha'][:,:,:1]],axis=2)
+        images.pop('BaseColorAlpha');bpy.data.images.remove(bpy.data.images['Bake BaseColorAlpha'])
+    write_png(out/f'T_{a.asset}_BaseColor.png',base)
     bake('Roughness','EMIT','rough');bake('Metallic','EMIT','metal');bake('AO','AO')
     if policy.get('material_ao_channel'):
         # Shader-height cavities cannot occlude the geometry-only AO rays.
