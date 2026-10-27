@@ -506,3 +506,10 @@ rotating parked flat spot; it does not simulate carcass deformation.
 and UV packing as ordinary corner data, then reseeds the split normals. This
 prevents Blender's smoothing-fan re-encoding from changing analytic panel fields;
 the vehicle regression runs the real finalize path and checks the field afterward.
+
+A prepared bake source can opt into
+`BAKE_POLICY['consolidate_attribute_sources']=True` after converting its local,
+generated and UV shader coordinates to mesh attributes. Projection isolation
+then consolidates to one source mesh, avoiding repeated Cycles synchronization
+for every exploded frame. Live Texture Coordinate/UV Map connections are
+rejected; default source-frame grouping remains unchanged.
