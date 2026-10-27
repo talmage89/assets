@@ -478,3 +478,15 @@ Vehicle `paint(..., metallic=.12, flakes=0)` exposes named `Paint metallic` and
 Principled socket default has no effect. Optional flake aggregates alter the
 under-coat roughness/height bake channels without extra textures;
 the clear-coat lobe stays continuous. Defaults retain the earlier appearance.
+
+`DELIVERY_SURFACES` optionally defines uniform Principled settings, metallic/
+roughness factors, emission and extras for a small delivery palette.
+`SOURCE_MATERIAL_SURFACES` maps manufacturing material names to that palette;
+assignment is per face before consolidation, so coated panels can retain
+opaque interior faces. Existing name-prefix overrides remain unchanged.
+`MAX_MATERIALS` explicitly raises the verifier's default three-material limit
+for a brief-authorized palette. `BAKE_BASECOLOR_ALPHA_CHANNEL` optionally packs
+a source channel into BaseColor alpha (missing channels default to one).
+The downsampler filters that alpha as linear coverage, independently of sRGB.
+`test_surface_profiles.py` checks four per-face surfaces, three shared images,
+metallic factors, extras and retained/filtered RGBA coverage in an actual GLB.

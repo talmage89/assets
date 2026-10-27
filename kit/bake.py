@@ -116,7 +116,12 @@ def main():
             if channel is None:nt.links.new(nt.nodes['SURFACE'].outputs['BSDF'],output.inputs['Surface'])
             else:
                 emission=nt.nodes.get('BAKE_EMIT') or nt.nodes.new('ShaderNodeEmission');emission.name='BAKE_EMIT'
-                nt.links.new(nt.nodes['OUT_'+channel].outputs[0],emission.inputs['Color'])
+                source=nt.nodes.get('OUT_'+channel)
+                if source:nt.links.new(source.outputs[0],emission.inputs['Color'])
+                elif channel==cfg.get('BAKE_BASECOLOR_ALPHA_CHANNEL'):
+                    for link in list(emission.inputs['Color'].links):nt.links.remove(link)
+                    emission.inputs['Color'].default_value=(1,1,1,1)
+                else:raise ValueError('Missing bake channel '+channel+' in '+m.name)
                 nt.links.new(emission.outputs[0],output.inputs['Surface'])
     def bake(name,kind,channel=None):
         image=bpy.data.images.new('Bake '+name,a.size,a.size,alpha=True,float_buffer=True)
@@ -134,7 +139,13 @@ def main():
         if name=='BaseColor':
             stats[name]['black_interior_texels']=int(np.count_nonzero(interior & (values[:,:,:3].max(axis=2)<1e-6)))
         print('BAKED',name,stats[name],flush=True)
-    bake('BaseColor','EMIT','base');write_png(out/f'T_{a.asset}_BaseColor.png',linear_to_srgb(images['BaseColor'][:,:,:3]))
+    bake('BaseColor','EMIT','base')
+    base=linear_to_srgb(images['BaseColor'][:,:,:3])
+    if cfg.get('BAKE_BASECOLOR_ALPHA_CHANNEL'):
+        bake('BaseColorAlpha','EMIT',cfg['BAKE_BASECOLOR_ALPHA_CHANNEL'])
+        base=np.concatenate([base,images['BaseColorAlpha'][:,:,:1]],axis=2)
+        images.pop('BaseColorAlpha');bpy.data.images.remove(bpy.data.images['Bake BaseColorAlpha'])
+    write_png(out/f'T_{a.asset}_BaseColor.png',base)
     bake('Roughness','EMIT','rough');bake('Metallic','EMIT','metal');bake('AO','AO')
     orm=np.stack([images['AO'][:,:,0],images['Roughness'][:,:,0],images['Metallic'][:,:,0]],axis=2)
     write_png(out/f'T_{a.asset}_ORM.png',orm)
