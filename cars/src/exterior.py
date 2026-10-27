@@ -17,23 +17,26 @@ def build(b):
             p-=normal*.075
             return sign*p.x,p.y,p.z
         b.skin('Headlamp housing back_'+side,back,20,6,b.m['plastic'],(sign,-1,0),category='lamps',gauge=.002,return_depth=.020)
-        for number,z in enumerate([.972,1.096]):
+        for number,z in enumerate([1.072]):
             x=sign*.817;yf=nose_y(x,z)+.018;yb=yf+.048
-            cup=G.lathe('Headlamp reflector_'+side+str(number),[(yb,.014),(yb,.026),(yf,.050),(yf,.049),(yb+.001,.014)],b.m['chrome'],32 if b.high else 20,axis='Y',center=(x,z),closed=True)
+            cup=G.lathe('Headlamp reflector_'+side+str(number),[(yb,.014),(yb,.026),(yf,.062),(yf,.061),(yb+.001,.014)],b.m['chrome'],32 if b.high else 20,axis='Y',center=(x,z),closed=True)
             b.add(cup,category='lamps')
-            lens=G.lathe('Projector optic_'+side+str(number),[(yf-.004,0),(yf-.001,.033),(yf+.004,.038),(yf+.010,.033),(yf+.013,0)],b.m['lens'],32 if b.high else 20,axis='Y',center=(x,z))
+            lens=G.lathe('Projector optic_'+side+str(number),[(yf-.004,0),(yf-.001,.043),(yf+.004,.048),(yf+.010,.043),(yf+.013,0)],b.m['lens'],32 if b.high else 20,axis='Y',center=(x,z))
             b.add(lens,category='lamps')
             emitter=G.lathe('Projector emitter_'+side+str(number),[(yb-.004,0),(yb-.004,.018),(yb,.018),(yb,0)],b.m['headlight'],16,axis='Y',center=(x,z))
             b.add(emitter,category='lamps')
+        # Cast optical carrier and low horizontal high-beam reflector pocket.
+        for k in range(3):
+            box(b,'Headlamp lower facet_'+side+str(k),(sign*(.735+.038*k),nose_y(.80,1.0)+.027,.985),(.032,.025,.022),b.m['chrome'],'lamps',radius=.003)
         # One angular running-light signature, wrapping with the lens seat.
-        uv=[(.06,.91),(.50,.91),(.87,.91),(.93,.87),(.94,.24),(.91,.18),(.61,.18)]
+        uv=[(.08,.90),(.50,.90),(.85,.90),(.92,.83),(.93,.24),(.88,.15),(.40,.15),(.18,.24)]
         path=[]
         for a,c in zip(uv,uv[1:]):
             for t in samples(3)[:-1]:
                 u,v=[a[k]+(c[k]-a[k])*t for k in range(2)];x,y,z=lamp_surface(u,v)
                 path.append((sign*(x-.005),y+.006,z))
         x,y,z=lamp_surface(*uv[-1]);path.append((sign*(x-.005),y+.006,z))
-        tube(b,'Alder running signature_'+side,path,.0042,b.m['drl'],'lamps',sides=6)
+        tube(b,'Alder running signature_'+side,path,.008,b.m['drl'],'lamps',sides=6)
         # The side marker is inside the wrap, behind the same protective lens.
         x,y,z=lamp_surface(.89,.46)
         box(b,'Amber side marker_'+side,(sign*(x-.004),y+.005,z),(.010,.035,.070),b.m['amber'],'lamps',radius=.006)
@@ -54,14 +57,28 @@ def build(b):
         sail=G.profile('Mirror sail_'+side,[(-1.354,1.390),(-1.13,1.39),(-1.14,1.54),(-1.25,1.51)],sign*.959,sign*1.066,b.m['plastic'],axis='X',radius=.004)
         b.add(sail,door,'mirrors');sail['bounds_exclude']=True
         fold=pivot(b,'Mirror_'+side,(sign*1.041,-1.225,1.461),door,'Z',(-65,0) if sign<0 else (0,65))
+        # Tapered aerodynamic cap, separate black glass case and inset bezel.
         center=sign*1.11936;loops=[]
-        for y,w,h in [(-1.337,.050,.095),(-1.329,.110,.183),(-1.313,.166,.246),(-1.283,.210,.290),(-1.205,.220,.300),(-1.137,.203,.277)]:
-            loops.append([(center+u,y,1.495+v) for u,v in G.rounded_rectangle(w,h,min(.038,w*.45,h*.45),6 if b.high else 3)])
-        housing=G.smooth(G.loft('Molded mirror shell_'+side,loops,b.m['bumper']));b.add(housing,fold,'mirrors');housing['bounds_exclude']=True;housing['housing_sections']=len(loops);housing['section_vertices']=len(loops[0]);G.smooth(housing,65)
-        def mirror(u,v,center=center):
-            s,t=2*u-1,2*v-1
-            return center+.086*s,-1.133+.002*(1-s*s-t*t),1.495+.117*t
-        ob=b.skin('Mirror glass_'+side,mirror,8,8,b.m['mirror'],(0,1,0),fold,'mirrors',gauge=.002,return_depth=.002);ob['bounds_exclude']=True
+        sections=[(-1.385,.050,.090),(-1.372,.110,.166),(-1.345,.183,.227),(-1.285,.225,.262),(-1.211,.220,.267),(-1.197,.217,.264),(-1.140,.201,.249)]
+        for y,w,h in sections:
+            offset=sign*(-.022 if y< -1.34 else -.007 if y< -1.28 else 0)
+            loops.append([(center+offset+u,y,1.497+v) for u,v in G.rounded_rectangle(w,h,min(.036,w*.45,h*.45),6 if b.high else 3)])
+        housing=G.smooth(G.loft('Molded mirror shell_'+side,loops,b.m['bumper']))
+        housing.data.materials.append(b.m['body'])
+        for face in housing.data.polygons:
+            # The painted cap stops short of the black gasket/glass case.
+            if face.index<4*len(loops[0]):face.material_index=1
+        b.add(housing,fold,'mirrors');housing['bounds_exclude']=True;housing['housing_sections']=len(loops);housing['section_vertices']=len(loops[0]);G.smooth(housing,65)
+        arm=tube(b,'Mirror support arm_'+side,[(sign*1.033,-1.230,1.431),(sign*1.079,-1.217,1.409),(sign*1.117,-1.200,1.414)],.024,b.m['plastic'],'mirrors',fold,sides=8);arm['bounds_exclude']=True
+        # Bezel has a real rounded aperture and a short return to the glass.
+        paths=[]
+        for w,h,y in [(.202,.250,-1.138),(.183,.231,-1.132),(.180,.228,-1.136)]:
+            paths.append([(center+u,y,1.497+v) for u,v in G.rounded_rectangle(w,h,.026,5 if b.high else 3)])
+        bezel=G.loft('Mirror glass bezel_'+side,paths,b.m['plastic'],caps=False)
+        gauge=bezel.modifiers.new('Bezel gauge','SOLIDIFY');gauge.thickness=.0015;gauge.use_even_offset=False
+        b.add(bezel,fold,'mirrors');bezel['bounds_exclude']=True
+        outline=[(center+u,1.497+v) for u,v in G.rounded_rectangle(.179,.227,.025,5 if b.high else 3)]
+        glass=G.profile('Mirror glass_'+side,outline,-1.135,-1.133,b.m['mirror'],axis='Y');b.add(glass,fold,'mirrors');glass['bounds_exclude']=True
         # Handles belong to their doors; A bowed stand-off leaves a real grip gap.
         for end,y in [('F',-.287),('R',.704)]:
             door=bpy.data.objects['Door_'+end+side];z=1.270;x=side_x(y,z)
@@ -86,20 +103,21 @@ def build(b):
     for v in plate.data.vertices:v.co.x=-(side_x(v.co.y,v.co.z)+.0013+v.co.x)
     for face in plate.data.polygons:face.flip()
     b.add(plate,flap,'trim')
-    # Original two-wing grille. Fine repeating perforations stay shader relief.
+    # Three deep stamped lamellae: real recess provides shadow, relief stays
+    # on the back wall and does not spend triangles on fine perforations.
     grille=bpy.data.objects['Grille form surround'];grille.data.materials[0]=b.m['chrome']
     old=bpy.data.objects.get('Grille envelope')
     if old:bpy.data.objects.remove(old,do_unlink=True)
-    print_quad(b,'Alder grille perforation field',[(-.654,-2.832,.863),(.654,-2.832,.863),(.654,-2.800,1.153),(-.654,-2.800,1.153)],b.m['grille'])
-    box(b,'Grille cavity',(0,-2.801,1.008),(1.31,.018,.302),b.m['frame'],'grille',radius=.006)
-    for number,z in enumerate([.928,1.099]):
+    print_quad(b,'Alder grille perforation field',[(-.625,-2.743,.850),(.625,-2.743,.850),(.625,-2.710,1.188),(-.625,-2.710,1.188)],b.m['grille'])
+    box(b,'Grille cavity',(0,-2.702,1.025),(1.27,.018,.385),b.m['frame'],'grille',radius=.006)
+    for number,z in enumerate([.908,1.018,1.128]):
         loops=[]
-        for x in [-.635,-.48,0,.48,.635]:
-            y=nose_y(x,z)-.012;zz=z+(.014 if number==0 else -.014)*(1-abs(x)/.635)
-            loops.append([(x,y+dy,zz+dz) for dy,dz in [(0,-.007),(0,.007),(.012,.007),(.012,-.007)]])
-        b.add(G.loft('Alder grille wing_'+str(number),loops,b.m['chrome']),category='grille')
-    box(b,'Alder grille badge',(0,-2.856,1.016),(.253,.018,.064),b.m['plastic'],'grille',radius=.009)
-    print_quad(b,'Alder front badge',[(-.117,-2.866,.994),(.117,-2.866,.994),(.117,-2.866,1.038),(-.117,-2.866,1.038)],b.m['badge'],'grille')
+        for x in [-.626,-.48,0,.48,.626]:
+            y=nose_y(x,z)+.080
+            loops.append([(x,y+dy,z+dz) for dy,dz in [(0,-.010),(0,.010),(.020,.007),(.020,-.007)]])
+        b.add(G.loft('Alder grille lamella_'+str(number),loops,b.m['chrome']),category='grille')
+    box(b,'Alder grille badge',(0,-2.765,1.018),(.253,.023,.064),b.m['plastic'],'grille',radius=.009)
+    print_quad(b,'Alder front badge',[(-.117,-2.778,.996),(.117,-2.778,.996),(.117,-2.778,1.040),(-.117,-2.778,1.040)],b.m['badge'],'grille')
     # Real US-size plate carriers. The rear carrier sits inside the bumper opening.
     for end,sgn,y,z in [('F',-1,-2.928,.686),('R',1,2.869,.710)]:
         box(b,'Plate recess surround_'+end,(0,y-sgn*.012,z),(.337,.027,.178),b.m['plastic'],'trim',radius=.010)

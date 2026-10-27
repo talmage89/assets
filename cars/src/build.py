@@ -65,6 +65,13 @@ class Build:
             face.use_smooth=face.index<count
             if face.index<count:
                 for li in face.loop_indices:custom[li]=normals[ob.data.loops[li].vertex_index]
+        if mat.get('vehicle_glass'):
+            # A smooth entrance with flat exit facets acts as a bank of tiny
+            # prisms. The inner laminate uses the paired outward normal too.
+            for face in ob.data.polygons:
+                if all(i>=sheet_vertices for i in face.vertices):
+                    face.use_smooth=True
+                    for li in face.loop_indices:custom[li]=-normals[ob.data.loops[li].vertex_index-sheet_vertices]
         ob.data.normals_split_custom_set(custom)
         return ob
 

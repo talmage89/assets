@@ -1,5 +1,5 @@
 """Checkpoint policy, not a claim of delivery readiness."""
-BUDGETS={'Pickup':70000}
+BUDGETS={'Pickup':60000}
 BOUNDS={'Pickup':dict(size=(2.45872,5.89026,1.96088),tolerance=(.025,.002,.002))}
 SHOTS={
  'front_three_quarter':dict(location=(8,-10,3.6),target=(0,-.10,.98),lens=57,aspect=1.6),

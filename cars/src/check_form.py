@@ -66,7 +66,7 @@ def main():
                 pending=['continuous rolling tire deformation','all swept-motion clearance',
                          'UV, bake, GLB and delivery budgets','paint/glass/light material delivery'])
     errors=[]
-    if total>70000:errors.append('Triangle budget')
+    if total>60000:errors.append('Triangle budget')
     if normal_check['max_angle_degrees']>.1:errors.append('Broad panel shading normal disagrees with slope')
     if abs(wb-S.WHEELBASE)>1e-5 or abs(track-S.TRACK)>1e-5:errors.append('Wheelbase/track')
     if abs(b['size'][1]-S.LENGTH)>.002:errors.append('Length')

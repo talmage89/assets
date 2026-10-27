@@ -92,7 +92,7 @@ def nose_y(x,z=1.20):
 
 def hood_z(x,y):
     t=(y-S.HOOD_FRONT)/(S.HOOD_REAR-S.HOOD_FRONT)
-    base=1.181+.188*t+.008*t*(1-t)
+    base=1.181+.188*t+.008*t*(1-t)+.035*(1-fair((y-S.HOOD_FRONT)/.42))
     # Two broad raised planes with a crisp 6 mm die radius at the draw edges.
     rise=section(abs(x),[(0,.045),(.410,.042),(.520,.007),(.610,0),(.99,-.009)],.008)
     return base+rise+.004*(1-(x/.99)**2)
@@ -157,9 +157,9 @@ def bilinear(corners,u,v):
 
 def lamp_surface(u,v):
     """Flush front-to-side lens seat, with the rear tangent on the fender."""
-    z=.899+.274*v
+    z=.929+.274*v
     if u<=.70:
-        x=.732+.210*u/.70;y=nose_y(x,z)+.004
+        x=.685+.257*u/.70;y=nose_y(x,z)+.004
     else:
         t=(u-.70)/.30;x0=.942;y0=nose_y(x0,z)+.004
         ye=-2.499;xe=side_x(ye,z)-.002

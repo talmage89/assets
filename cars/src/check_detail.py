@@ -37,7 +37,7 @@ def main():
         cx,y,z=bpy.data.objects['Wheel_'+code].matrix_world.translation
         sign=-1 if code[-1]=='L' else 1
         cal=bpy.data.objects['Brake caliper_'+code];cp=points(cal)
-        spokes=[o for o in obs if o.name.startswith('Forged spoke_'+code+'_')]
+        spokes=[o for o in obs if o.name.startswith('Cast spoke_'+code+'_')]
         wheel=tree(bpy.data.objects['Wheel barrel_'+code]);clearance=min(wheel.find_nearest(p)[3] for p in cp)
         spoke_in=min(sign*(p.x-cx) for o in spokes for p in points(o));cal_out=max(sign*(p.x-cx) for p in cp)
         separation=spoke_in-cal_out;axial.append(separation)
@@ -87,12 +87,46 @@ def main():
         inset=[side_x(p.y,p.z)-abs(p.x) for p in terminal]
         lamp.append(dict(side=sign,terminal_samples=len(inset),fender_inset_m=[min(inset),max(inset)]))
         if min(inset)<-.001 or max(inset)>.007:errors.append('Lamp wrap outboard/too recessed')
+    # Fit the ACTUAL outer surround vertices to its face plane, then compare
+    # actual frontmost lamella vertices. This measures recess, not an input.
+    rim=points(bpy.data.objects['Grille form surround']);stride=len(rim)//8
+    # Solidify doubles the original four equally sampled perimeter rings.
+    outer=[p for p in rim[:stride] if abs(p.x)<.65]
+    mz=sum(p.z for p in outer)/len(outer);my=sum(p.y for p in outer)/len(outer)
+    slope=sum((p.z-mz)*(p.y-my) for p in outer)/sum((p.z-mz)**2 for p in outer)
+    recess=[]
+    for ob in obs:
+        if ob.name.startswith('Alder grille lamella_'):
+            values=[p.y-(my+slope*(p.z-mz)) for p in points(ob)]
+            recess.append(dict(part=ob.name,min_m=min(values),max_m=max(values)))
+            if min(values)<.060 or min(values)>.100:errors.append('Grille depth '+ob.name)
+    hood=bpy.data.objects['Hood outer'];hp=points(hood)[:hood['sheet_vertex_count']]
+    # Front rows are the first vertices in the authored skin grid.
+    front_y=min(p.y for p in hp);front=[p for p in hp if p.y<front_y+.007 and abs(p.x)<.63]
+    rv=tree(bpy.data.objects['Grille form surround']);gaps=[rv.find_nearest(p)[3] for p in front]
+    hood_gap=dict(samples=len(gaps),min_m=min(gaps),max_m=max(gaps))
+    if min(gaps)<.002 or max(gaps)>.016:errors.append('Hood/surround shut line')
+    laminate=[]
+    for ob in obs:
+        count=ob.get('sheet_vertex_count')
+        if not count or not any(m.get('vehicle_glass') for m in ob.data.materials):continue
+        front={}
+        for face in ob.data.polygons[:ob['outer_skin_faces']]:
+            for li in face.loop_indices:front[ob.data.loops[li].vertex_index]=ob.data.corner_normals[li].vector.copy()
+        deviations=[]
+        for face in ob.data.polygons:
+            if all(i>=count for i in face.vertices):
+                for li in face.loop_indices:
+                    expected=-front[ob.data.loops[li].vertex_index-count]
+                    deviations.append(math.degrees(expected.angle(ob.data.corner_normals[li].vector)))
+        laminate.append(dict(part=ob.name,exit_normal_samples=len(deviations),max_paired_normal_deviation_degrees=max(deviations)))
+        if max(deviations)>.1:errors.append('Faceted inner glazing '+ob.name)
     required=['Fuel_Door','Mirror_L','Mirror_R','Tailgate','Hood','Door_FL','Door_FR','Door_RL','Door_RR','Wiper_0','Wiper_1']
     pivots={n:dict(position_m=list(bpy.data.objects[n].matrix_world.translation),axis=bpy.data.objects[n].get('pivot_axis'),range_degrees=list(bpy.data.objects[n].get('range_degrees',[]))) for n in required}
     mats={m.name for o in obs for m in o.data.materials};images={im.name:list(im.size) for im in bpy.data.images if im.source=='FILE' and im.size[0]>0}
     report=dict(source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),quality=bpy.context.scene['quality'],
        sheet_gauge_measurements=gauges,rest_position_max_error_m=max(rest),actual_underbody_ground_clearance_m=clear,
-       wheel_static_clearances=wheels,mirror_section_checks=mirror_sections,door_sill_gaps=sill_gaps,measured_support_intersections=supports,underbody_noninterference=clear_pairs,lamp_wrap_insets=lamp,pivots=pivots,source_materials=sorted(mats),original_source_images=images,
+       wheel_static_clearances=wheels,mirror_section_checks=mirror_sections,door_sill_gaps=sill_gaps,measured_support_intersections=supports,underbody_noninterference=clear_pairs,lamp_wrap_insets=lamp,grille_lamella_recess=recess,hood_surround_shutline=hood_gap,glass_paired_normal_checks=laminate,pivots=pivots,source_materials=sorted(mats),original_source_images=images,
        passed=not errors,errors=errors,pending=['continuous loaded tire deformation when rolling','kingpin caster/SAI and full wheel steering sweep','doors/hood/tailgate/wiper full assembly sweeps','UV/bake/export/re-import and delivery material verification'])
     Path(a.out).write_text(json.dumps(report,indent=2));print(json.dumps(report,indent=2))
     if errors:raise AssertionError(errors)

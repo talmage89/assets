@@ -2,7 +2,28 @@
 import math
 from kit import model as G
 from kit.vehicle import loaded_tire
+from mathutils import Vector
 from detail_helpers import box,print_quad
+
+
+def shoulder_blocks(b,name,pos,spin,material,S):
+    """Closed tapered lugs embedded in the carcass at both tread shoulders.
+
+    Fine central blocks/sipes remain height only. The lug crowns stay below
+    the nominal tread crown and use the same parked contact flattening.
+    """
+    vertices=[];faces=[];count=28
+    for side in [-1,1]:
+        for k in range(count):
+            angle=math.tau*(k+.25*(side+1))/count;start=len(vertices)
+            for depth in [-.007,.002]:
+                for axial,radius,delta in [(.093,S.TIRE_RADIUS-.004,-.074),(.127,S.TIRE_RADIUS-.019,-.056),(.127,S.TIRE_RADIUS-.019,.071),(.093,S.TIRE_RADIUS-.004,.074)]:
+                    t=angle+delta;r=radius+depth;z=r*math.sin(t)
+                    d=z+S.HUB_HEIGHT;soft=.004
+                    z=-S.HUB_HEIGHT+(0 if d<=-soft else d if d>=soft else (d+soft)**2/(4*soft))
+                    vertices.append((pos[0]+side*axial,pos[1]+r*math.cos(t),pos[2]+z))
+            faces.extend(tuple(start+i for i in f) for f in [(3,2,1,0),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)])
+    ob=G.mesh(name,vertices,faces,material);b.add(ob,spin,'tires')
 
 
 def build(b,S):
@@ -19,7 +40,9 @@ def build(b,S):
             tire=loaded_tire('Tire_'+end+side,pos,S.TIRE_WIDTH,S.TIRE_ASPECT,S.RIM_INCHES,
                 b.m['tire_'+side] if b.detail else b.m['rubber'],96 if b.high else 64,S.HUB_HEIGHT,
                 profile_indices=None if b.high else [0,1,3,4,5,7,9,10,11,13,14])
-            b.add(tire,spin,'tires');cx=pos[0];r=S.RIM_INCHES*.0254/2
+            b.add(tire,spin,'tires')
+            if b.detail:shoulder_blocks(b,'Shoulder tread_'+end+side,pos,spin,b.m['tire_'+side],S)
+            cx=pos[0];r=S.RIM_INCHES*.0254/2
             profile=[(-.093,r-.020),(-.093,r+.005),(-.081,r+.005),(.084,r-.008),(.099,r+.006),(.103,r-.015)]
             ob=G.lathe('Wheel barrel_'+end+side,[(cx+sign*x,rr) for x,rr in profile],b.m['wheel'],64 if b.high else 40,axis='X',center=(y,S.HUB_HEIGHT),closed=True)
             b.add(ob,spin,'wheels')
@@ -27,16 +50,18 @@ def build(b,S):
             b.add(hub,spin,'wheels')
             for k in range(6):
                 angle=math.tau*k/6+.15
-                for label,stations in [('root',[(.064,.123,.021,0),(.115,.109,.024,0),(.137,.103,.018,0)]),
-                    ('a',[(.112,.110,.011,-.011),(.164,.095,.010,-.018),(.215,.090,.008,-.026)]),
-                    ('b',[(.112,.110,.011,.011),(.164,.095,.010,.018),(.215,.090,.008,.026)])]:
-                    loops=[]
-                    for radial,axial,w,offset in stations:
-                        loops.append([(cx+sign*(axial+dx),y+radial*math.cos(angle)-(offset+tw)*math.sin(angle),S.HUB_HEIGHT+radial*math.sin(angle)+(offset+tw)*math.cos(angle))
-                                      for dx,tw in [(0,-w),(0,w),(-.018,w),(-.018,-w)]])
-                    spoke=G.loft('Forged spoke_'+end+side+f'_{k}_{label}',loops,b.m['wheel'])
-                    if b.high:G.bevel(spoke,.0012,2)
-                    b.add(spoke,spin,'wheels')
+                # A single cast Y-spoke, with one continuous face and small
+                # edge chamfer; overlapping branch strips left bright seams.
+                outline=[(.058,-.024),(.114,-.029),(.211,-.046),(.219,-.022),(.146,-.013),(.130,0),(.146,.013),(.219,.022),(.211,.046),(.114,.029),(.058,.024)]
+                loops=[]
+                for inset,back in [(True,0),(False,-.0018),(False,-.027)]:
+                    ring=[]
+                    for radial,tangent in outline:
+                        if inset:radial=.135+(radial-.135)*.975;tangent*=.94
+                        axial=.145-.20*radial+back
+                        ring.append((cx+sign*axial,y+radial*math.cos(angle)-tangent*math.sin(angle),S.HUB_HEIGHT+radial*math.sin(angle)+tangent*math.cos(angle)))
+                    loops.append(ring)
+                b.add(G.loft('Cast spoke_'+end+side+f'_{k}',loops,b.m['wheel']),spin,'wheels')
                 if b.detail:
                     a=math.tau*k/6;cy=y+.041*math.cos(a);cz=S.HUB_HEIGHT+.041*math.sin(a)
                     lug=G.lathe('Wheel lug_'+end+side+str(k),[(cx+sign*.125,0),(cx+sign*.125,.0088),(cx+sign*.137,.0088),(cx+sign*.140,.0068),(cx+sign*.140,0)],b.m['chrome'],6,axis='X',center=(cy,cz))
@@ -45,7 +70,11 @@ def build(b,S):
                 x=cx+sign*.130
                 print_quad(b,'Alder center cap_'+end+side,[(x,y-sign*.029,S.HUB_HEIGHT-.010),(x,y+sign*.029,S.HUB_HEIGHT-.010),(x,y+sign*.029,S.HUB_HEIGHT+.010),(x,y-sign*.029,S.HUB_HEIGHT+.010)],b.m['badge'],'wheels',spin)
                 # Disc rotates; caliper follows the knuckle but never the wheel.
-                rotor=G.lathe('Brake rotor_'+end+side,[(cx+sign*.008,.061),(cx+sign*.008,.161),(cx+sign*.028,.161),(cx+sign*.028,.061)],b.m['brake'],48 if b.high else 32,axis='X',center=(y,S.HUB_HEIGHT),closed=True)
+                rotor=G.lathe('Brake rotor_'+end+side,[(cx+sign*.008,.061),(cx+sign*.008,.161),(cx+sign*.028,.161),(cx+sign*.028,.104),(cx+sign*.045,.091),(cx+sign*.045,.061)],b.m['brake'],48 if b.high else 32,axis='X',center=(y,S.HUB_HEIGHT),closed=True)
+                rotor.data.materials.append(b.m['caliper'])
+                for f in rotor.data.polygons:
+                    radius=sum(math.hypot(rotor.data.vertices[i].co.y-y,rotor.data.vertices[i].co.z-S.HUB_HEIGHT) for i in f.vertices)/len(f.vertices)
+                    if radius<.102:f.material_index=1
                 b.add(rotor,spin,'brakes')
-                caliper=box(b,'Brake caliper_'+end+side,(cx+sign*.030,y+.132,S.HUB_HEIGHT+.035),(.046,.083,.135),b.m['caliper'],'brakes',parent,.012)
-                caliper['wheel_clearance_basis']='Outboard x extent .053 versus spoke inner extent >=.072; radial barrel gap separately measured'
+                caliper=box(b,'Brake caliper_'+end+side,(cx+sign*.030,y+.132,S.HUB_HEIGHT+.035),(.046,.092,.143),b.m['caliper'],'brakes',parent,.012)
+                caliper['wheel_clearance_basis']='Actual axial and radial mesh clearances measured by check_detail.py'
