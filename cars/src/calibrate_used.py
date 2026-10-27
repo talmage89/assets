@@ -7,6 +7,7 @@ p=argparse.ArgumentParser();p.add_argument('--out',required=True);a=p.parse_args
 results={}
 for name,definition in runpy.run_path(str(Path(__file__).with_name('used_matches.py')))['MATCHES'].items():
     data=calibrate(definition);data['shot']['paint']=definition.get('paint','Carbon')
+    data['photo']=str(Path(data['photo']).relative_to(Path(__file__).resolve().parents[1]))
     for key in ['lens_status','calibration_note']:
         if key in definition:data[key]=definition[key]
     results[name]=data

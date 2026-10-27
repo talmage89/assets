@@ -1,23 +1,30 @@
 ASSET := AlderC150
-FINAL_PIPELINE := 0
+FINAL_PIPELINE := 1
 CUSTOM_CHECKPOINT := 1
-WIDTH ?= 1400
-SAMPLES ?= 64
+WIDTH ?= 1600
+SAMPLES ?= 96
 WEAR ?= .65
 PASS ?= lookdev
+UV_TARGET_DENSITY := 360
+UV_MARGIN := .0008
+BAKE_SAMPLES := 24
+FINAL_SHOTS := hero,front,side,back,top,front_detail,wheel_detail,interior,scale,lamps_lit
+EEVEE_SHOT := hero
 SHOTS ?= front_three_quarter,rear_three_quarter,side,front_detail,wheel_detail,lamps_lit,interior
 MARKINGS_DEPS := ../kit/fonts.py
 MODEL_DEPS := src/fascia.py src/build.py src/body.py src/forms.py src/wheels.py src/pickup_spec.py src/exterior.py src/interior.py src/underbody.py src/detail_helpers.py src/finishes.py ../kit/model.py ../kit/materials.py ../kit/vehicle.py ../kit/vehicle_materials.py
+BAKE_SOURCE := build/bake-source.blend
+FINAL_RENDER_SCRIPT := src/render_final.py
 include ../kit/rules.mk
 
-# Source-only review gate. No finalize, UV, bake or export in the default build.
+# Archived source checkpoints remain available separately from delivery.
 .PHONY: checkpoint render preview match colors review check-form check-detail form-diagnostics
 checkpoint: refs model check render match colors review
 render: model
 	$(KIT)/with_gpu.sh $(BP) --python src/render_lookdev.py -- --source build/lookdev.blend --out renders/$(PASS) --shots $(SHOTS) --width $(WIDTH) --samples $(SAMPLES) --masks
 preview:
 	$(MAKE) render WIDTH=1000 SAMPLES=24 PASS=preview
-build/used-cameras.json: src/used_matches.py src/calibrate_used.py $(KIT)/photo_match.py
+build/used-cameras.json: src/used_matches.py src/calibrate_used.py src/pickup_spec.py $(KIT)/photo_match.py
 	$(PYTHON) src/calibrate_used.py --out $@
 match: model refs build/used-cameras.json
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration build/used-cameras.json
@@ -47,7 +54,7 @@ form-diagnostics: build/form-game.blend refs build/matched-cameras.json
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/matched-cameras.json --renders renders/$(PASS) --out renders/$(PASS)
 	$(PYTHON) src/side_overlay.py --renders renders/$(PASS)
 	$(PYTHON) src/compare_form.py --renders renders/$(PASS)
-	$(PYTHON) src/review.py --renders renders/$(PASS)
+	$(PYTHON) src/review_form.py --renders renders/$(PASS)
 
 # The last source look-dev gate: required views, four pairs and surface diagnostics.
 .PHONY: round3 diagnostic
@@ -66,3 +73,25 @@ face-match: model refs build/front-cameras.json
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration build/front-cameras.json
 	$(KIT)/with_gpu.sh $(BP) --python src/render_lookdev.py -- --source build/lookdev.blend --out renders/$(PASS) --camera-file build/front-cameras.json --width $(WIDTH) --samples $(SAMPLES) --masks
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/front-cameras.json --renders renders/$(PASS) --out renders/$(PASS)
+
+build/bake-source.blend: build/lookdev.blend src/prepare_bake.py
+	$(BP) --python src/prepare_bake.py -- --source $< --out $@
+
+renders/final/.stamp: src/delivery_materials.py src/final_views.py src/lighting.py
+# All presentation targets share the final GLB and shader recipe.
+.PHONY: final-colors final-pairs check-delivery
+.NOTPARALLEL: docs
+renders/final/colors.stamp: export/$(ASSET).glb src/render_final.py src/delivery_materials.py src/final_views.py $(BUILD)/studio-parameters.txt
+	$(KIT)/with_gpu.sh $(BP) --python src/render_final.py -- --source export/$(ASSET).glb --out renders/final --colors --width $(WIDTH) --samples $(SAMPLES)
+	@touch $@
+final-colors: renders/final/colors.stamp
+renders/final-pairs/.stamp: export/$(ASSET).glb build/used-cameras.json src/render_final.py src/delivery_materials.py src/lighting.py src/final_views.py $(BUILD)/studio-parameters.txt
+	$(BP) --python $(KIT)/photo_match.py -- verify --calibration build/used-cameras.json
+	$(KIT)/with_gpu.sh $(BP) --python src/render_final.py -- --source export/$(ASSET).glb --out renders/final-pairs --camera-file build/used-cameras.json --width $(WIDTH) --samples $(SAMPLES)
+	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/used-cameras.json --renders renders/final-pairs --out renders/final-pairs
+	@touch $@
+final-pairs: renders/final-pairs/.stamp
+docs: final-colors final-pairs
+check-delivery: export check-motion
+	$(BP) --python src/check_delivery.py -- --source export/$(ASSET).glb --out build/car-delivery-check.json
+check: check-delivery
