@@ -392,3 +392,6 @@ embedded holes, retained threads and double-sided state; the images remain share
 returns, and an ISO-size radial tire with crowned tread and a smooth parked
 contact patch. Callers supply all shape functions, dimensions and materials;
 no existing asset path changes. Fine tire tread remains a normal-bake concern.
+Returned analytic panels also derive their skin's split normals from surface
+partials. This avoids area-weighted normal ripples where an irregular grid
+flows around a curved opening; return faces retain geometric normals.
