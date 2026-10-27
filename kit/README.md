@@ -398,3 +398,8 @@ flows around a curved opening; return faces retain geometric normals.
 `blender -b --factory-startup --python-exit-code 1 --python kit/test_vehicle.py`
 checks the attached panel's normals against an independent paraboloid normal,
 closed-gauge manifold/volume, and the tire's actual width, top and ground contact.
+
+`CUSTOM_CHECKPOINT=1` lets an asset supply its own `checkpoint`, `preview`,
+`render` and `match` recipes (for example a body-form gate with Workbench clay
+and a separate procedural reflection diagnostic). Default source recipes and
+all delivery/check recipes are unchanged; the asset still includes `rules.mk`.

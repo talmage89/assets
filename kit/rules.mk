@@ -8,6 +8,7 @@ BUILD := build
 CONFIG ?= src/config.py
 MODEL_SCRIPT ?= src/build.py
 FINAL_PIPELINE ?= 0
+CUSTOM_CHECKPOINT ?= 0
 WEAR ?= 0.35
 SAMPLES ?= 80
 WIDTH ?= 1400
@@ -59,10 +60,12 @@ $(BUILD)/lookdev.blend: $(MODEL_DEPS) $(BUILD)/markings/.stamp $(BUILD)/paramete
 $(BUILD)/game-audit.blend: $(MODEL_DEPS) $(BUILD)/markings/.stamp $(BUILD)/parameters.txt
 	$(BP) --python $(MODEL_SCRIPT) -- --wear $(WEAR) --quality game --out $@
 model: $(BUILD)/lookdev.blend
+ifeq ($(CUSTOM_CHECKPOINT),0)
 preview: model
 	$(BP) --python $(KIT)/studio.py -- --source $(BUILD)/lookdev.blend --config $(CONFIG) --out renders/preview --shots hero_closed,hero_open,controls,front,side --engine BLENDER_WORKBENCH --width 1000 $(STUDIO_ARGS)
 render: model
 	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --source $(BUILD)/lookdev.blend --config $(CONFIG) --out renders/$(PASS) --shots $(SHOTS) --width $(WIDTH) --samples $(SAMPLES) --fit-reference "$(TANK_REFERENCE)" $(STUDIO_ARGS)
+endif
 check-scene: $(BUILD)/game-audit.blend $(BUILD)/lookdev.blend
 	$(BP) --python $(KIT)/audit.py -- --source $(BUILD)/game-audit.blend --config $(CONFIG) --out $(BUILD)/game-audit.json
 	$(BP) --python $(KIT)/audit.py -- --source $(BUILD)/lookdev.blend --config $(CONFIG) --out $(BUILD)/lookdev-audit.json
@@ -76,18 +79,22 @@ refs:
 	$(PYTHON) $(KIT)/fetch_refs.py $(REFS_DIR)
 hook-install:
 	$(PYTHON) $(KIT)/install_hook.py
+ifeq ($(CUSTOM_CHECKPOINT),0)
 checkpoint: refs model check-scene check-repo render $(if $(wildcard src/photo_matches.py),match)
 	@if test -f src/review.py; then $(PYTHON) src/review.py --renders renders/$(PASS); else $(PYTHON) $(KIT)/contact.py --out renders/$(PASS)/contact.jpg renders/$(PASS)/hero_closed.png; fi
+endif
 
 $(BUILD)/matched-cameras.json: src/photo_matches.py $(KIT)/photo_match.py
 	$(PYTHON) $(KIT)/photo_match.py solve --config src/photo_matches.py --out $@
 check-camera: $(BUILD)/matched-cameras.json
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration $(BUILD)/matched-cameras.json
+ifeq ($(CUSTOM_CHECKPOINT),0)
 match: model refs $(BUILD)/matched-cameras.json
 	@mkdir -p renders/$(PASS)
 	@cp $(BUILD)/matched-cameras.json renders/$(PASS)/matched-cameras.json
 	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --source $(BUILD)/lookdev.blend --config $(CONFIG) --camera-file $(BUILD)/matched-cameras.json --out renders/$(PASS) --shots "$(shell $(PYTHON) -c "import json; print(','.join(json.load(open('$(BUILD)/matched-cameras.json'))))" 2>/dev/null)" --width $(WIDTH) --samples $(SAMPLES) $(STUDIO_ARGS)
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration $(BUILD)/matched-cameras.json --renders renders/$(PASS) --out renders/$(PASS)
+endif
 match-final: export refs $(BUILD)/matched-cameras.json
 	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/studio.py -- --stage final --source export/$(ASSET).glb --config $(CONFIG) --camera-file $(BUILD)/matched-cameras.json --out renders/$(PASS)-glb --shots "$(shell $(PYTHON) -c "import json; print(','.join(json.load(open('$(BUILD)/matched-cameras.json'))))" 2>/dev/null)" --width $(WIDTH) --samples $(SAMPLES) $(STUDIO_ARGS)
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration $(BUILD)/matched-cameras.json --renders renders/$(PASS)-glb --out renders/$(PASS)-glb
