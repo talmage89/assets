@@ -1,10 +1,12 @@
 """Original fictional lot stencil, drawn with an installed open-license font."""
 import argparse,random
 from pathlib import Path
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+from kit.fonts import find_font
 from PIL import Image,ImageDraw,ImageFont
 p=argparse.ArgumentParser();p.add_argument('out');p.add_argument('--wear',type=float,default=.35);a=p.parse_args();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
-im=Image.new('RGBA',(1200,440));d=ImageDraw.Draw(im);font='/usr/share/fonts/TTF/DejaVuSansCondensed-Bold.ttf'
-if not Path(font).exists():font='/usr/share/fonts/dejavu/DejaVuSansCondensed-Bold.ttf'
+im=Image.new('RGBA',(1200,440));d=ImageDraw.Draw(im);font=find_font('DejaVu Sans', 'Condensed Bold')
 for text,y,size in [('100 CTG .50 CAL',8,102),('LINKED / FIELD',122,88),('LOT ACX-26H-041',224,84),('TYPE A-51',330,76)]:
  f=ImageFont.truetype(font,size);w=d.textlength(text,font=f);x=(1200-w)/2;d.text((x,y),text,font=f,fill=(197,181,85,255))
  for c in text:

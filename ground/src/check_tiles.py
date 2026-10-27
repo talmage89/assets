@@ -4,6 +4,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image,ImageDraw,ImageFont
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+from kit.fonts import find_font
 from kit.image_io import read_png,srgb_to_linear
 from dimensions import ASPHALT_TILE,CONCRETE_TILE,LAWN_TILE
 
@@ -32,7 +33,7 @@ def main():
         sheet=Image.new('RGB',(1536,1600),(235,235,231));draw=ImageDraw.Draw(sheet)
         for y in range(3):
             for x in range(3):sheet.paste(im,(x*512,64+y*512))
-        draw.text((18,17),f'{name} / 3 x 3 / {coverage*3:.3f} m across / no seam overlays',fill=(30,38,31),font=ImageFont.truetype('/usr/share/fonts/noto/NotoSans-Regular.ttf',22))
+        draw.text((18,17),f'{name} / 3 x 3 / {coverage*3:.3f} m across / no seam overlays',fill=(30,38,31),font=ImageFont.truetype(find_font('Noto Sans', 'Regular'),22))
         sheet.save(folder/f'{name}-3x3.jpg',quality=94,optimize=True)
         result['coverage_m']=coverage;result['density_px_m']=a.shape[0]/coverage;report[name]=result
     report['memory']=dict(unique_maps=12,materials=6,compressed_mipmapped_MiB=12*a.shape[0]**2*4/3/2**20,rgba8_mipmapped_MiB=12*a.shape[0]**2*4*4/3/2**20,note='3 maps x 4 sets at 2K; BC7 BaseColor, BC5 Normal, BC7 ORM; 16 MiB per set including mip chain. Foliage MASK and opaque iron share the trim images. Runtime engine compression is not embedded in PNG GLBs.')

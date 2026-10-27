@@ -1,10 +1,13 @@
 """Original standard-shape graphics; deterministic, causally located fading/grime."""
 import argparse,math,random
 from pathlib import Path
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+from kit.fonts import find_font
 import numpy as np
 from PIL import Image,ImageDraw,ImageFont
 PAIRS=[('Aldervale Rd','Juniper Mill Ln'),('Cinderbrook St','Oriole Hollow Dr'),('Wrenfield Ave','Hazel Run Ct'),('Morrow Glen Rd','Foxmeadow Ln')]
-FONT='/usr/share/fonts/TTF/DejaVuSansCondensed-Bold.ttf'
+FONT=find_font('DejaVu Sans', 'Condensed Bold')
 def legend(im,text,box,exact=False):
     f=ImageFont.truetype(FONT,420);bb=f.getbbox(text);mask=Image.new('L',(bb[2]-bb[0]+4,bb[3]-bb[1]+4));d=ImageDraw.Draw(mask);d.text((-bb[0],-bb[1]),text,font=f,fill=255)
     mask=mask.crop(mask.getbbox())

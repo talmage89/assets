@@ -1,11 +1,13 @@
 """Original municipal hot stamp and molded lid relief; never reference pixels."""
 import argparse
 from pathlib import Path
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+from kit.fonts import find_font
 from PIL import Image,ImageDraw,ImageFont
 p=argparse.ArgumentParser();p.add_argument('out');p.add_argument('--wear',type=float,default=.35);a=p.parse_args()
 out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
-FONT='/usr/share/fonts/TTF/DejaVuSans.ttf'
-if not Path(FONT).exists():FONT='/usr/share/fonts/dejavu/DejaVuSans.ttf'
+FONT=find_font('DejaVu Sans', 'Book')
 # Installed open-license font; all layout and text are original.
 for name in ['city','lid']:
  im=Image.new('RGBA',(1536,768),(255,255,255,0));d=ImageDraw.Draw(im)
