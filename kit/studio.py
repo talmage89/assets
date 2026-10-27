@@ -174,7 +174,7 @@ def main():
         if shot.get('fit_reference'):
             reference=Path(a.fit_reference).expanduser() if a.fit_reference else None
             if not reference or not reference.is_file():
-                message='SKIP fit-check render: optional owner tank is absent'
+                message='SKIP fit-check render: optional tank absent; pass TANK_REFERENCE=/path/to/propane-tank.glb'
                 print(message,flush=True);(out/(name+'.png')).unlink(missing_ok=True)
                 metadata[name]={'skipped':message,'source':str(source)}
                 (out/'shots.json').write_text(json.dumps(metadata,indent=2));continue

@@ -6,6 +6,7 @@ strokes wrap in both axes. The same palette serves the upright edging cards.
 import math
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from kit.fonts import find_font
 from kit.image_io import write_png,srgb_to_linear,linear_to_srgb
 
 
@@ -117,7 +118,7 @@ def iron(kind,w,h,field,fine):
         col+=pads[:,:,None]*np.array((.015,.022,.022))
         height+=pads*.00008;rough-=pads*.36;metal[:]=.38;metal+=pads*.12;metal-=rust*.28
         text=Image.new('L',(w,h));d=ImageDraw.Draw(text)
-        font=ImageFont.truetype('/usr/share/fonts/dejavu/DejaVuSansCondensed-Bold.ttf',max(8,round(w*.069)))
+        font=ImageFont.truetype(find_font('DejaVu Sans', 'Condensed Bold'),max(8,round(w*.069)))
         for label,y in [('ALDERVALE',.43),('SANITARY',.55)]:
             d.text((w*.5,h*(y+.04)),label,font=font,fill=240,anchor='mm',stroke_width=0)
         t=np.asarray(text,dtype=np.float32)/255
@@ -146,9 +147,9 @@ def iron(kind,w,h,field,fine):
         height=(fine-.5)*.00030
         if kind=='foundry':
             text=Image.new('L',(w,h));d=ImageDraw.Draw(text)
-            font=ImageFont.truetype('/usr/share/fonts/dejavu/DejaVuSansCondensed-Bold.ttf',max(8,round(w*.115)))
+            font=ImageFont.truetype(find_font('DejaVu Sans', 'Condensed Bold'),max(8,round(w*.115)))
             d.text((w/2,h*.38),'ALDERVALE',font=font,anchor='mm',fill=255)
-            small=ImageFont.truetype('/usr/share/fonts/dejavu/DejaVuSansCondensed-Bold.ttf',max(8,round(w*.050)))
+            small=ImageFont.truetype(find_font('DejaVu Sans', 'Condensed Bold'),max(8,round(w*.050)))
             d.text((w/2,h*.66),'DUMP NO WASTE',font=small,anchor='mm',fill=255)
             d.text((w/2,h*.78),'DRAINS TO STREAM',font=small,anchor='mm',fill=255)
             t=np.asarray(text,dtype=np.float32)/255

@@ -8,8 +8,9 @@ import argparse,json,sys
 from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont,ImageOps
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
+from kit.fonts import find_font
 from kit.contact import contact,review_sheet
-FONT='/usr/share/fonts/noto/NotoSans-Regular.ttf'
+FONT=find_font('Noto Sans', 'Regular')
 
 
 def background(im,color=(231,233,229)):

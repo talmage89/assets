@@ -1,8 +1,11 @@
 """Original fictional labels; installed open-license fonts only."""
 import argparse
 from pathlib import Path
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+from kit.fonts import find_font
 from PIL import Image,ImageDraw,ImageFont
-B='/usr/share/fonts/noto/NotoSans-Bold.ttf';F='/usr/share/fonts/noto/NotoSans-Regular.ttf'
+B=find_font('Noto Sans', 'Bold');F=find_font('Noto Sans', 'Regular')
 def main(out,wear):
     out=Path(out);out.mkdir(parents=True,exist_ok=True)
     for name,size,bg,rows in [('badge',(1024,512),(24,32,29),[('CINDER WORKS',85),('MEADOW 21',100),('140 cc  /  OHV',43)]),('warning',(1024,512),(222,192,76),[('CAUTION',100),('ROTATING BLADE',65),('KEEP HANDS & FEET CLEAR',47),('STOP ENGINE BEFORE SERVICE',37)]),('bag',(1024,320),(45,52,44),[('CINDER WORKS',110),('MEADOW  /  21',58)])]:

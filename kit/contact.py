@@ -1,8 +1,11 @@
 """Captioned contact sheets; source renders remain untouched. No generated assets."""
 import argparse, math
 from pathlib import Path
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+from kit.fonts import find_font
 from PIL import Image,ImageOps,ImageDraw,ImageFont
-FONT='/usr/share/fonts/noto/NotoSans-Regular.ttf'
+FONT=find_font('Noto Sans', 'Regular')
 
 
 def contact(paths,out,width=1600,title='Modeling / look-dev review',captions=None):

@@ -12,7 +12,7 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--grill',required=True);p.add_argument('--reference',default='');p.add_argument('--out',required=True);p.add_argument('--parts-source')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);path=Path(a.reference).expanduser()
     if not a.reference or not path.is_file():
-        message='SKIP canonical fit check: optional owner tank is absent'
+        message='SKIP fit check: optional tank absent; pass TANK_REFERENCE=/path/to/propane-tank.glb'
         Path(a.out).write_text(json.dumps(dict(skipped=message,passed=True),indent=2));print(message);return
     # Reference must remain outside this worktree.
     if path.resolve().is_relative_to(Path(__file__).resolve().parents[2]):raise ValueError('Owner reference must be external')

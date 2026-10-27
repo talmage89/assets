@@ -5,6 +5,7 @@ No cylinder, valve or cylinder markings are generated or imported here.
 import math
 import bpy
 from mathutils import Vector,Matrix
+from kit.fonts import find_font
 from kit import model as G,rig
 from fit_spec import TANK_POSITION,TANK_YAW,TANK_RADIUS,VALVE_FACE,tank_point
 
@@ -136,7 +137,7 @@ def build_regulator(b):
         # Original neutral type stamp, generated from an installed open font.
         curve=bpy.data.curves.new('Regulator identification type','FONT')
         curve.body='R1  LP';curve.size=.0042;curve.align_x='CENTER';curve.extrude=0
-        curve.font=bpy.data.fonts.load('/usr/share/fonts/TTF/DejaVuSans.ttf')
+        curve.font=bpy.data.fonts.load(find_font('DejaVu Sans', 'Book'))
         text=bpy.data.objects.new('Regulator original pressed stamp',curve);bpy.context.collection.objects.link(text)
         text.matrix_world=transform; text.location=transform@Vector((0,-.002,.0121))
         bpy.context.view_layer.objects.active=text;text.select_set(True)

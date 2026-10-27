@@ -8,6 +8,7 @@ from pathlib import Path
 import bpy,bmesh
 from mathutils import Vector,Matrix
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
+from kit.fonts import find_font
 from kit import model as G,materials as M
 
 
@@ -168,7 +169,7 @@ class Hydrant:
 
     def casting(self):
         if not self.high:return
-        font=bpy.data.fonts.load('/usr/share/fonts/TTF/DejaVuSans-Bold.ttf')
+        font=bpy.data.fonts.load(find_font('DejaVu Sans', 'Bold'))
         for text,z,size in [('BELLFORD',.545,.036),('5 1/4',.503,.032),('WATER WORKS',.405,.025),('H-54',.365,.028),('2021',.312,.025)]:
             cu=bpy.data.curves.new('Original foundry type','FONT');cu.body=text;cu.font=font;cu.size=size;cu.align_x='CENTER';cu.align_y='CENTER'
             # A vertical extrusion alone has no sloped normal for a projection

@@ -125,8 +125,8 @@ proves serialization. Sweeps are sampled, not continuous collision proofs.
 
 ## Rebuild and proof
 
-Installed Blender 5.2.2, Python/Pillow/NumPy, Poppler (`pdfimages`), flock and the
-OptiX/CUDA GPU are required. No software, models, shaders, textures or HDRIs are
+Installed Blender 5.2.2, Python/Pillow/NumPy, Poppler (`pdfimages`), flock are required; an
+OptiX/CUDA GPU is recommended (otherwise Cycles warns and uses the CPU). No software, models, shaders, textures or HDRIs are
 downloaded. Only the cited image/PDF references are retrieved.
 
 ```sh

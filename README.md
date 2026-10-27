@@ -6,6 +6,26 @@ of the exported asset. Nothing is downloaded or adapted from existing models or 
 
 Each asset folder has its own README with renders, dimensions and rebuild steps. `kit/` is the shared toolkit.
 
+## Build requirements
+
+- Blender 5.2, GNU make, Python 3, Git, a POSIX shell and `flock` (util-linux).
+- Pillow (`PIL`) and NumPy in the Python environment used by `PYTHON` (default
+  `python3`); Blender supplies its own `bpy`, `bmesh` and `mathutils` modules.
+- fontconfig (`fc-match`), Noto Sans Regular/Bold and DejaVu Sans Book/Bold/
+  Condensed Bold. Font discovery uses family/style names rather than install
+  paths and reports missing faces instead of substituting another font.
+- Poppler's `pdfimages` for the street light, traffic cone and patio set references.
+- An NVIDIA GPU with Cycles OptiX or CUDA support is recommended. If neither
+  device is available, Cycles warns and uses the CPU; baking/rendering is slower.
+  The lock wrapper is used for both paths. `ASSETS_GPU_LOCK` may point to a shared
+  lab lock; its default is `build/locks/gpu.lock` inside this clone.
+
+Run `make` in an asset folder; `BLENDER` and `PYTHON` can select the executables.
+Reference targets retrieve cited images/PDFs and need network access. The optional
+external tank fit check/render skips by default; enable it with
+`make TANK_REFERENCE=/path/to/propane-tank.glb` using the original compatible
+reference, which is not distributed here.
+
 ## Assets
 
 Backyard and patio

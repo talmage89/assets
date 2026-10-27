@@ -1,8 +1,11 @@
 """Fictional original graphics, generated with installed OFL Noto fonts."""
 import argparse,math
 from pathlib import Path
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+from kit.fonts import find_font
 from PIL import Image,ImageDraw,ImageFont
-F='/usr/share/fonts/noto/NotoSans-Regular.ttf';B='/usr/share/fonts/noto/NotoSans-Bold.ttf'
+F=find_font('Noto Sans', 'Regular');B=find_font('Noto Sans', 'Bold')
 def main(out):
     out=Path(out);out.mkdir(parents=True,exist_ok=True)
     im=Image.new('RGBA',(768,1536),(91,100,99,255));d=ImageDraw.Draw(im)
