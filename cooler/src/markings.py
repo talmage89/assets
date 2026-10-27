@@ -4,7 +4,6 @@ import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
 from kit.fonts import find_font
 from PIL import Image,ImageDraw,ImageFont,ImageFilter
-import sys
 out=Path(sys.argv[1]);out.mkdir(parents=True,exist_ok=True)
 im=Image.new('L',(1024,256),0);d=ImageDraw.Draw(im)
 f=find_font('Noto Sans', 'Bold')
