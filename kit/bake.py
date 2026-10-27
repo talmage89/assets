@@ -169,6 +169,12 @@ def main():
         images.pop('BaseColorAlpha');bpy.data.images.remove(bpy.data.images['Bake BaseColorAlpha'])
     write_png(out/f'T_{a.asset}_BaseColor.png',base)
     bake('Roughness','EMIT','rough');bake('Metallic','EMIT','metal');bake('AO','AO')
+    if policy.get('material_ao_channel'):
+        # Shader-height cavities cannot occlude the geometry-only AO rays.
+        # Optional original material visibility multiplies that geometric bake.
+        bake('MaterialAO','EMIT',policy['material_ao_channel'])
+        images['AO'][:,:,:3]*=np.clip(images.pop('MaterialAO')[:,:,:3],0,1)
+        bpy.data.images.remove(bpy.data.images['Bake MaterialAO'])
     orm=np.stack([images['AO'][:,:,0],images['Roughness'][:,:,0],images['Metallic'][:,:,0]],axis=2)
     write_png(out/f'T_{a.asset}_ORM.png',orm)
     # Free intermediate CPU buffers before the large tangent-normal pass.

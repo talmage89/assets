@@ -40,3 +40,15 @@ runpy.run_path(str(ROOT/'kit/downsample.py'),run_name='__main__')
 shipped=read_png(folder/'ship/T_Fixture_BaseColor.png')
 assert shipped.shape==(8,8,4) and abs(float(shipped[:,:,3].mean())-64/255)<1e-6
 print('PASS: four per-face profiles share three textures; metallic factor, RGBA coverage and linear alpha filtering survive')
+
+# A paint-coverage data mask must not weight the paint RGB during filtering.
+from kit.image_io import srgb_to_linear,linear_to_srgb
+source=np.empty((16,16,4),np.float32);source[:]=(0,0,1,0);source[::2,::2]=(1,0,0,1)
+write_png(folder/'T_Fixture_BaseColor.png',source)
+sys.argv=['downsample','--source',str(folder),'--out',str(folder/'independent'),
+          '--asset','Fixture','--size','8','--alpha-mode','independent']
+runpy.run_path(str(ROOT/'kit/downsample.py'),run_name='__main__')
+shipped=read_png(folder/'independent/T_Fixture_BaseColor.png')
+expected=np.r_[linear_to_srgb(np.array([.25,0,.75])),.25]
+assert np.max(np.abs(shipped-expected))<1/255
+print('PASS: non-coverage alpha data leaves RGB filtering independent')

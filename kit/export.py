@@ -108,6 +108,7 @@ def main():
             shader.inputs['Emission Strength'].default_value=settings['emission_strength']
         shader.inputs['Transmission Weight'].default_value=settings.get('transmission',0)
         shader.inputs['IOR'].default_value=settings.get('ior',1.5)
+        shader.inputs['Specular IOR Level'].default_value=settings.get('specular',.5)
         palette[prefix]=extra
     # Assign each source mesh before joining. Tile policy and uniform shader
     # overrides compose, even when opaque and tiled members share a static root.
@@ -158,7 +159,15 @@ def main():
             if layer.name!='BakeUV':ob.data.uv_layers.remove(layer)
         ob.data.uv_layers['BakeUV'].name='UVMap'
         ob.data.uv_layers.active=ob.data.uv_layers['UVMap'];ob.data.uv_layers['UVMap'].active_render=True
-        for attribute in list(ob.data.color_attributes):ob.data.color_attributes.remove(attribute)
+        # Data masks must never become COLOR_0, which glTF multiplies into
+        # albedo. Opt-in named custom attributes retain exact linear channels.
+        color_data=cfg.get('EXPORT_COLOR_DATA',{})
+        for attribute in list(ob.data.color_attributes):
+            if attribute.name in color_data:
+                target=color_data[attribute.name]
+                if not target.startswith('_'):raise ValueError('Custom attribute names must start with _')
+                attribute.name=target
+            else:ob.data.color_attributes.remove(attribute)
     # Remove empty manufacturing helper frames once their geometry is consolidated.
     keep={o.name for o in sc.objects if o.get('socket_kind') or o.get('static_root') or o.parent is None}
     for _ in range(4):
@@ -185,7 +194,8 @@ def main():
     bpy.ops.export_scene.gltf(filepath=str(path),export_format='GLB',use_selection=True,export_yup=True,
         export_apply=False,export_texcoords=True,export_normals=True,export_tangents=True,
         export_materials='EXPORT',export_image_format='AUTO',export_skins=True,export_animations=False,
-        export_def_bones=True,export_extras=True,export_cameras=False,export_lights=False)
+        export_def_bones=True,export_extras=True,export_cameras=False,export_lights=False,
+        **(dict(export_attributes=True,export_vertex_color='NONE') if cfg.get('EXPORT_COLOR_DATA') else {}))
     if overrides or tile_materials or surfaces:
         from kit.glb_textures import compact
         report['texture_views']=compact(path,Path(a.report).parent)

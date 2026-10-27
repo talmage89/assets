@@ -14,6 +14,8 @@ SHOTS ?= front_three_quarter,rear_three_quarter,side,front_detail,wheel_detail,l
 MARKINGS_DEPS := ../kit/fonts.py
 MODEL_DEPS := src/fascia.py src/build.py src/body.py src/forms.py src/wheels.py src/pickup_spec.py src/exterior.py src/interior.py src/underbody.py src/detail_helpers.py src/finishes.py ../kit/model.py ../kit/materials.py ../kit/vehicle.py ../kit/vehicle_materials.py
 BAKE_SOURCE := build/bake-source.blend
+# BaseColor alpha is paint-coverage/lamp-power data, not transparent surface coverage.
+DOWNSAMPLE_ARGS := --alpha-mode independent
 FINAL_RENDER_SCRIPT := src/render_final.py
 include ../kit/rules.mk
 
