@@ -1,0 +1,37 @@
+"""Regression for skew-grid split normals and a ground-supported ISO carcass."""
+import math,sys
+from pathlib import Path
+import bpy,bmesh
+from mathutils import Vector
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+from kit import model as G
+from kit.vehicle import panel,loaded_tire,samples
+
+bpy.ops.wm.read_factory_settings(use_empty=True)
+root=G.pivot('NonVehicleRoot',(.2,-.3,0))
+def surface(u,v):return (1+.04*u*u+.10*v*v,u-.5,v+.2)
+ob=panel('Analytic closed stamping',surface,samples(9),samples(7),None,(1,0,0))
+G.attach(ob,root,asset_set='Fixture')
+bpy.context.view_layer.update()
+mesh=ob.data
+bm=bmesh.new();bm.from_mesh(mesh)
+assert all(e.is_manifold for e in bm.edges)
+assert bm.calc_volume(signed=True)>0
+bm.free()
+errors=[]
+for face in mesh.polygons[:9*7]:
+    for li in face.loop_indices:
+        p=ob.matrix_world@mesh.vertices[mesh.loops[li].vertex_index].co
+        # Independent exact normal of x=1+.04*y_param^2+.10*z_param^2.
+        normal=Vector((1,-.08*(p.y+.5),-.20*(p.z-.2))).normalized()
+        errors.append((mesh.corner_normals[li].vector-normal).length)
+assert max(errors)<.001, max(errors)
+tire=loaded_tire('Tire',(.858,0,.39535),.275,.65,18,None,96,.39535)
+G.apply(tire)
+points=[tire.matrix_world@v.co for v in tire.data.vertices]
+# World transforms must be updated before independent bounds measurements.
+bpy.context.view_layer.update();points=[tire.matrix_world@v.co for v in tire.data.vertices]
+assert abs(min(p.z for p in points))<1e-6
+assert abs((max(p.x for p in points)-min(p.x for p in points))-.275)<1e-6
+assert abs(max(p.z for p in points)-.8027)<1e-6
+print('VEHICLE FIXTURES PASS: manifold gauge, analytic normals, real tire width/top/contact')

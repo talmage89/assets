@@ -395,3 +395,6 @@ no existing asset path changes. Fine tire tread remains a normal-bake concern.
 Returned analytic panels also derive their skin's split normals from surface
 partials. This avoids area-weighted normal ripples where an irregular grid
 flows around a curved opening; return faces retain geometric normals.
+`blender -b --factory-startup --python-exit-code 1 --python kit/test_vehicle.py`
+checks the attached panel's normals against an independent paraboloid normal,
+closed-gauge manifold/volume, and the tire's actual width, top and ground contact.
