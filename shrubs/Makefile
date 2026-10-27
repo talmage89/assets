@@ -30,7 +30,7 @@ check-botany: model
 check: check-botany
 
 build/framed-cameras.json: build/matched-cameras.json ../kit/photo_frame.py Makefile
-	$(PYTHON) $(KIT)/photo_frame.py --source $< --out $@ --margin-fraction .20 --vertical-fraction .20
+	$(PYTHON) $(KIT)/photo_frame.py --source $< --out $@ --margin-fraction .20 --vertical-fraction .36
 check-framed-cameras: build/framed-cameras.json
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration $<
 check: check-framed-cameras

@@ -331,3 +331,100 @@ parities agreeing. This is stronger than checking two stored anchor constants.
 The final mixed representation will repeat this check for its retained curved
 leaves and report core sprites separately. All solids, Wind data, actual head
 sizes and source/game agreement remain independent acceptance gates.
+
+## Hydrangea pass 6 — retain interior depth; consolidate family materials
+
+**Color/value first:** confining six-blade branchlet cards to the interior
+changes the house-camera foliage median from the pale early passes to .249
+versus .101 photo. Its brighter-half population is .353 versus .334; the marked
+low shaded patch is .069 versus .075. The whole-plant median mismatch therefore
+also records too little shaded area, not simply a diffuse-color error. Flowers
+are still .569 versus .372 in this darker house photo. In the brighter bed,
+foliage is .234 versus .376 and flowers .544 versus .526. These conflicting
+exposure/shadow populations are retained, not averaged into an invented albedo
+calibration. There is no channel clipping in the measured model patches.
+
+The three-quarter, 1 m view, both complete pairs and then all seven views on
+the full contact were opened. Deep interlocking leaf masses now replace the
+exposed giant sprays of pass 5; individually curved outer blades keep physical
+leaf shading. Heads read as complete individual masses with nodding variation.
+The actual alpha-supported head extents are 16.7–19.5 cm. The final representation
+uses 5,222 triangles, including 1,116 in wood and 4,106 in foliage/sepals. All
+372 outer petiole starts lie inside their actual parents (three parity rays);
+102 two-plane interior branchlets are explicitly a sprite approximation.
+
+Remaining tells: outer blades repeat one silhouette/vein field too visibly;
+sepal contours are too similar and some heads too evenly spherical. Card
+intersections and a few straight-looking stalk runs remain visible at 1 m.
+The house photograph has more flowering mass and a broader continuous low
+skirt. This is a source look-dev review, not a finished asset claim.
+
+The final family assembly exposed a material-budget issue: the two plants had
+slightly different leaf response graphs. They now use one family foliage
+factory with the boxwood's calibrated response, plus one shared wood factory.
+The cross-species check compares actual node/default/link/image signatures;
+two definitions cover the entire family. Species roughness, normal detail and
+color remain in their shared atlas tiles. Rerender both plants after that
+consolidation. A silhouette-edge check also caught the second boxwood pair's
+clipped bottom skirt; increase neutral framing margins while keeping the
+calibrated camera projection. No bake or export is run.
+
+## Boxwood final correction check — complete source views and pairs
+
+**Color/value first:** with complete comparison framing, the Green Velvet lit
+patch measures **.351 model / .361 photo** median display Y, brighter-half
+**.469 / .440**, saturation **.629 / .571**, hue **108.9° / 102.4°**. The broad
+sage film is removed; highlights remain about 6% too bright, with a slightly
+cooler/more saturated green than the photo. Its low shaded patch is **.296 /
+.245**. The different clipped cultivar is darker/yellower still: lit **.361 /
+.291**, shaded **.318 / .200**. Do not describe those residuals as a perfect
+photo match or a calibrated reflectance measurement. The spatial mask includes
+low-saturation green glints, unlike the rejected whole-crown selection.
+
+All seven daylight views on the final boxwood contact and both pairs were
+opened; the 1 m, base and pairs were also inspected at larger size. Fine sprig
+grain and dark inter-tuft pockets now read at full-shrub distance. The low dome
+is widest in the .158–.238 m height band (1.035 m alpha-supported X width), not
+at mid-height. Retained foliage reaches .060 m above grade, with its top at
+.867 m. Twenty-four slender grade-cut basal stems replace the old seven leaders;
+32 daughter centers lie inside actual parent surfaces. There is no soil polygon.
+
+Remaining tells: the outside is still more regular than the photographed hand
+shearing; its low skirt has a few small see-through windows, and the 1 m view
+reveals repeated fine sprays and planar leaves. The source correction uses
+5,588 triangles (936 wood, 4,652 foliage), within the cap but above the accepted
+old 4,893-triangle candidate. The extra 695 triangles fill low/interior pockets
+and support finer grain without adding material or texture allocation.
+
+## Family checkpoint — final shared-material render audit
+
+**Color/value first:** the common material slightly changes hydrangea's broad
+house foliage/head medians to **.254/.574**, against **.101/.372** photo; its
+marked shaded pocket is **.083/.075** (model/photo). The bed comparison is
+**.237/.376** foliage, **.549/.526** heads and **.181/.126** shade. Its house
+brighter-half foliage is .361 versus .334. Keep the dark-house mass discrepancy
+and repeated blade/sepal forms as unresolved look-dev weaknesses. Boxwood's
+final measurements above use the complete, wider pair canvases.
+
+All eighteen final views were opened on the combined sheet, plus the final
+hydrangea 1 m view and the full photo pairs. No source geometry or texture was
+changed after these renders. The edge check still found five opaque pixels at
+the second boxwood pair's bottom edge with .20 vertical margins. Reject that
+frame, increase vertical margins to .36 and rerender both boxwood pairs. The
+complete-pair check then passes for all four comparisons. The reference pixels
+and fitted camera pose remain unchanged; only neutral study margins expand.
+
+Proof: `make -C shrubs check` passes all checkpoint audits, including actual
+stem solids/attachments, 372 hydrangea petiole starts, normals, Wind, camera
+projections and repository rules. `make -C shrubs match check-framed-cameras
+contact family-contact` passes after the framing correction. Both scenes have
+exactly the same two material node/default/link/image signatures. Each of the
+nine render metadata entries per species agrees with its current packed source
+SHA-256. The combined sheet and `family-check.json` live in
+`renders/family-checkpoint/`; PNGs and sources remain ignored rebuild outputs.
+
+Final counts: boxwood **5,588**, hydrangea **5,222** triangles. Both share the
+same three original 2048 maps, **16 MiB** with full mip chains at BC7/BC5/8-bpp
+ORM. The curved-grid botanical fixture passed default, connected and curved
+card cases; existing maple entry points are unchanged. Bake, unique wood UVs,
+GLB export/re-import and final docs JPGs are deliberately not run at this stop.
