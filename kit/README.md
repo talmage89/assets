@@ -387,3 +387,8 @@ existing shots retain the default position.
 needs to survive subpixel minification. It preserves fractional texture alpha,
 while existing `alpha_cutoff` tiles retain MASK behavior. Both policies verify
 embedded holes, retained threads and double-sided state; the images remain shared.
+
+`vehicle.py` adds analytic thin-sheet panels with closed gauge and inward edge
+returns, and an ISO-size radial tire with crowned tread and a smooth parked
+contact patch. Callers supply all shape functions, dimensions and materials;
+no existing asset path changes. Fine tire tread remains a normal-bake concern.
