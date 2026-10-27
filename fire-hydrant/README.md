@@ -80,7 +80,7 @@ its own pivots, openings and interior surfaces.
 Installed Blender 5.2.2, Python/Pillow/NumPy, DejaVu Sans Bold and flock are the
 only dependencies. No downloaded code, packages, models, textures or lighting
 are used. Procedural area lights make the studio. All Cycles bakes/renders use
-OptiX/CUDA through the shared kit GPU lock; silent CPU fallback is rejected.
+OptiX/CUDA through the shared kit GPU lock, with a warning and CPU fallback if unavailable.
 
 ```sh
 make                         # refs, model, UVs, bake, textures, GLB, studio, docs, checks
