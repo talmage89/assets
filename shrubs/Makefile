@@ -12,10 +12,10 @@ textures/source/.stamp: src/atlas.py src/settings.py
 	@mkdir -p build $(TMPDIR)
 	$(PYTHON) src/atlas.py --out textures/source --size 4096
 	@touch $@
-textures/ship/.stamp: textures/source/.stamp
+textures/ship/.stamp: textures/source/.stamp ../kit/downsample.py ../kit/image_io.py
 	$(PYTHON) $(KIT)/downsample.py --asset Shrubs --source textures/source --out textures/ship --size $(SHIP_SIZE)
 	@touch $@
-checkpoint: refs model check-scene check-repo check-botany render match contact
+checkpoint: refs model check-scene check-repo check-botany check-framed-cameras render match contact
 render: model
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source build/lookdev.blend --out renders/$(PASS) --width $(WIDTH) --samples $(SAMPLES)
 preview: model

@@ -14,7 +14,7 @@ RADII=Vector((.437,.421,.480))
 
 def surface(direction):
     d=Vector(direction).normalized();az=math.atan2(d.y,d.x)
-    lobe=1+.042*math.sin(5*az+.4)*(1-d.z*d.z)+.027*math.cos(3*az-4*d.z)+.018*math.sin(11*az+7*d.z)
+    lobe=1+.062*math.sin(5*az+.4)*(1-d.z*d.z)+.037*math.cos(3*az-4*d.z)+.018*math.sin(11*az+7*d.z)
     # Pruning leaves a broad lower skirt, not an ellipsoid's tapered foot.
     horizontal=(1-d.z*d.z)**(-.28) if d.z<0 else 1
     return CENTER+Vector((d.x*RADII.x*horizontal,d.y*RADII.y*horizontal,d.z*(RADII.z if d.z>=0 else .195)))*lobe
@@ -60,4 +60,12 @@ def generate(seed=SEED):
         direction=(d+Vector((0,0,.65))).normalized();p+=direction*(extension*.44-.028)
         branch=min(range(7,len(stems)),key=lambda j:(stems[j]['points'][-1]-p).length)
         sites.append(dict(center=p,direction=direction,branch=branch,new=True,old=False,extension=extension))
+    # A small leafy interior grown around the short inner forks screens central
+    # windows without an opaque shell or uniform inner-ball geometry.
+    for i in range(44):
+        z=-.55+1.35*(i+.5)/44;az=i*2.3999632297
+        d=Vector((math.sqrt(1-z*z)*math.cos(az),math.sqrt(1-z*z)*math.sin(az),z))
+        p=CENTER+Vector((d.x*.21,d.y*.20,d.z*.26))
+        branch=min(range(7,len(stems)),key=lambda j:(stems[j]['points'][-1]-p).length)
+        sites.append(dict(center=p,direction=d,branch=branch,new=False,old=False))
     return stems,sites

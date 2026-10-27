@@ -28,7 +28,8 @@ def generate(folder,size=4096):
         new=k==6;aged=k==7;lengths=[]
         # A main axis with two unequal lateral sprays, rather than a ladder.
         axes=[((.48,.055),(.46+rng.uniform(-.04,.06),.83),6),
-              ((.48,.26),(.17,.65),5),((.48,.40),(.82,.77),5)]
+              ((.48,.26),(.17,.65),5),((.48,.40),(.82,.77),5),
+              ((.48,.20),(.14,.34),3),((.48,.55),(.86,.52),3)]
         if new:axes=axes[:1];axes[0]=((.48,.055),(.50,.84),5)
         for base,tip,count in axes:
             draw.line([pixel(*base),pixel(*tip)],fill=(88,78,40,255) if not new else (81,101,42,255),width=max(2,round(w*.006)))
@@ -60,7 +61,7 @@ def generate(folder,size=4096):
                     # Color changes between blades, never baked directional light.
                     col=np.array(LEAF_COLOR,float)*rng.uniform(.82,1.15)
                     if new:col=col*.98+np.array([10,15,1])
-                    if aged:col=col*.76+np.array([16,7,0])
+                    if aged:col=np.array([64,56,26]) if rng.random()<.38 else col*.76+np.array([11,4,0])
                     fine=np.sin(x*210+y*27)*np.sin(y*221-x*19)
                     rgb=col[None,:]+rib[:,None]*np.array([3,5,1])+fine[:,None]*.7
                     rgba=np.zeros((h,w,4),np.uint8);rgba[ys,xs,:3]=np.clip(rgb,0,255);rgba[ys,xs,3]=255
@@ -71,7 +72,7 @@ def generate(folder,size=4096):
                     nx=-(sx*ca+sy*sa);ny=-(-sx*sa+sy*ca)
                     ns=np.c_[nx,ny,np.ones(len(xs))];ns/=np.linalg.norm(ns,axis=1)[:,None]
                     nm[ys,xs]=np.round((ns*.5+.5)*255).astype(np.uint8)
-                    rm[ys,xs]=np.c_[np.full(len(xs),255),np.full(len(xs),rng.randrange(118,148) if not aged else 153),np.zeros(len(xs))]
+                    rm[ys,xs]=np.c_[np.full(len(xs),255),np.full(len(xs),rng.randrange(90,125) if not aged else 153),np.zeros(len(xs))]
                     lengths.append(length)
         c=np.asarray(tile).copy();alpha=c[:,:,3].copy();occupied=alpha>0
         for _ in range(8):
@@ -98,8 +99,8 @@ def generate(folder,size=4096):
     soil=np.clip(np.array([35,26,18])+grain[:,:,None]*8+coarse[:,:,None]*3,0,255).astype(np.uint8)
     color[size//2-sh:size//2,:sw,:3]=soil;color[size//2-sh:size//2,:sw,3]=255
     orm[size//2-sh:size//2,:sw]=(220,243,0)
-    normal[size//2-sh:size//2,:sw,0]=np.clip(128+(grain-.5)*43,0,255)
-    normal[size//2-sh:size//2,:sw,1]=np.clip(128+coarse*24,0,255)
+    normal[size//2-sh:size//2,:sw,0]=np.clip(128+(grain-.5)*10,0,255)
+    normal[size//2-sh:size//2,:sw,1]=np.clip(128+(rng.random((sh,sw))-.5)*10,0,255)
     for channel,array in [('BaseColor',color),('Normal',normal),('ORM',orm)]:write_png(folder/f'T_Shrubs_{channel}.png',array.astype(np.float32)/255,bits=16 if channel=='Normal' else 8)
     (folder/'atlas.json').write_text(json.dumps(dict(source_size=size,boxwood=records,reserved_hydrangea_rect=(.25,.5,1,1)),indent=2))
 

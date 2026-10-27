@@ -40,7 +40,7 @@ def main():
         for ob in hs:ob.location.x+=.18;ob.location.y+=.1
         sc.render.filepath=str((a.out/(name+'.png')).resolve());bpy.ops.render.render(write_still=True)
         for ob in hs:bpy.data.objects.remove(ob,do_unlink=True)
-        meta[name]=dict(stage='SOURCE LOOKDEV CHECKPOINT / original atlas filtered to 2048 / no GLB',source_sha256=digest,engine=a.engine,samples=a.samples,shot=s,lighting=dict(sky='procedural',sun_elevation_deg=48,sun_energy=3.5,sky_strength=.45,sky_saturation=.22,exposure=.1))
+        meta[name]=dict(stage='SOURCE LOOKDEV CHECKPOINT / original atlas filtered to 2048 / no GLB',source_sha256=digest,engine=a.engine,samples=a.samples,shot=s,camera_target_distance_m=(Vector(s['target'])-cam.location).length,lighting=dict(sky='procedural',sun_elevation_deg=48,sun_energy=3.5,sky_strength=.45,sky_saturation=.22,exposure=.1))
         path.write_text(json.dumps(meta,indent=2))
 
 if __name__=='__main__':main()
