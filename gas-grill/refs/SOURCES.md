@@ -53,7 +53,7 @@ Publication pages:
 ## Owner-authorized canonical fit reference
 
 Owner decisions #7/#9 supersede the former procedural cylinder specification.
-The separate game asset `../.foundry/shared/propane-tank.glb` is read only,
+The separate owner-provided game asset (selected with `TANK_REFERENCE`) is read only,
 external to this worktree, and is not downloaded or copied by `make refs`.
 Owner-provided game asset; no redistribution license inferred. Authorized only
 for measurement, fit checking and one fit-check render. Its valve outlet,

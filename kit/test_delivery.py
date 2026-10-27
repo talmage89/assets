@@ -32,6 +32,19 @@ class DensityPolicy(unittest.TestCase):
 
 
 class MakeDelivery(unittest.TestCase):
+    def test_gpu_lock_defaults_and_environment_override(self):
+        environment={k:v for k,v in os.environ.items() if k!='ASSETS_GPU_LOCK'}
+        override=str(ROOT/'build/custom-lab.lock')
+        for rules in ('rules.mk','tiling_rules.mk'):
+            for value in (None,override):
+                env=dict(environment)
+                if value is not None:env['ASSETS_GPU_LOCK']=value
+                command=['make','--no-print-directory','-f',str(ROOT/'kit'/rules),
+                         '--eval','print-lock:;@echo $(ASSETS_GPU_LOCK)','print-lock']
+                result=subprocess.run(command,cwd=ROOT,env=env,capture_output=True,text=True)
+                self.assertEqual(result.returncode,0,result.stderr)
+                self.assertEqual(result.stdout.strip(),value or str(ROOT/'build/locks/gpu.lock'))
+
     def test_aliases_and_invalidation(self):
         scratch=ROOT/'build'
         scratch.mkdir(exist_ok=True)

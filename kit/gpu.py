@@ -1,5 +1,6 @@
-"""GPU discovery. Refuse silent CPU fallback and require the flock wrapper."""
+"""Cycles device discovery with an explicit CPU fallback and the flock wrapper."""
 import os
+import warnings
 import bpy
 
 
@@ -16,4 +17,7 @@ def enable():
                 bpy.context.scene.cycles.device='GPU'
                 print('ASSETS_GPU',kind,[d.name for d in devices]);return kind
         except (TypeError,RuntimeError) as e:print('GPU probe:',kind,e)
-    raise RuntimeError('No Cycles OptiX/CUDA device available')
+    bpy.context.scene.cycles.device='CPU'
+    warnings.warn('No Cycles OptiX/CUDA device available; falling back to CPU (slower).',
+                  RuntimeWarning, stacklevel=2)
+    return 'CPU'

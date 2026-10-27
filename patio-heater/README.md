@@ -107,7 +107,7 @@ a short loop to the gas feed in the post. Disconnect the hose before removing
 the tank; no rig or extraction animation is supplied. Lateral foot-ring stops
 have measured slack and require lifting the tank to remove it.
 
-The optional checker imports `../.foundry/shared/propane-tank.glb` read-only,
+The optional checker imports the external tank selected with `TANK_REFERENCE` read-only,
 measures its actual surfaces and hash, and never saves or exports that scene.
 Only `fit_check.png` includes the owner tank, with the door open. All other
 renders and the asset exclude it. `make TANK_REFERENCE=` works without it and

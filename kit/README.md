@@ -15,7 +15,8 @@ nodes and graphics. The read-only rifle project informed the workflow.
 | `image_io.py`, `downsample.py` | Original 8/16-bit PNG codec; linear-light color filtering, vector-normal filtering/renormalization and roughness RMS filtering |
 | `export.py` | One embedded PBR atlas; static assembly consolidation; separate pivots, sockets and skin; expected geometry/weight/rest-transform report |
 | `gltf.py`, `verify.py` | Independent raw GLB accessors, normals, textures, weights and inverse-bind checks; fresh Blender import, geometry, pivots, UVs, rig and posed cross-sections |
-| `gpu.py`, `with_gpu.sh` | Shared GPU flock; script-enabled OptiX with CUDA fallback; refuse silent CPU fallback |
+| `fonts.py` | fontconfig family/style discovery; reject missing faces and substitutions |
+| `gpu.py`, `with_gpu.sh` | Shared GPU flock; script-enabled OptiX/CUDA; warned CPU fallback |
 | `studio.py` | Procedural seamless studio, key/fill/rim/negative fill, AgX, configured cameras, moving parts, neutral 1.8 m silhouette; Workbench/Eevee/Cycles; final mode accepts only GLB |
 | `photo_match.py` | Measured-landmark lens/pose fit, independent Blender projection check, same-framing photo pairs and residual overlays |
 | `audit.py` | Independent source/game topology, count, scale, normals and pivot audit |
@@ -58,7 +59,8 @@ make -C gas-grill hook-install
 make -C gas-grill clean
 ```
 
-Requires installed Blender 5.2, Python/Pillow/NumPy, Noto/DejaVu fonts and flock.
+Requires installed Blender 5.2, GNU make, Python/Pillow/NumPy, fontconfig, Noto/DejaVu fonts and flock.
+See the root [build requirements](../README.md#build-requirements) for the font faces and optional reference tools.
 No downloaded code, packages or lighting. `rules.mk` sets TMPDIR inside the
 worktree. Every Cycles invocation goes through the GPU wrapper. Source/game
 geometry checks remain separate from delivery verification; a look-dev audit
@@ -142,8 +144,8 @@ within 0.05 pixels; photographic residuals remain separate. Estimated lenses
 are not claimed EXIF. Photos are measurement/comparison only; derived pairs
 stay ignored and never become textures or committed docs.
 
-Future tiling/trim and alpha-card policies can extend the material/export
-interface. No speculative road, house or foliage generator is included.
+Tiling terrain now has an explicit opt-in interface described under Tiling
+families below; unique-atlas and reserved-alpha props keep their existing path.
 
 Street-batch extensions: `match-final` compares the baked GLB with the same photo
 calibration as the source. Optional legacy `BAKE_CAGE`/`BAKE_RAY` configure thin shells; explicit
@@ -378,6 +380,36 @@ without optional keywords, preserving zero-argument reflection-capture wrappers.
 An absent legacy `STUDIO_BACKDROP_HEIGHT` no longer forwards `None`; explicit
 backdrop/scale settings still pass through. `test_export_policy.py` exercises
 both paths through the main entry point without rendering.
+
+## Tiling families
+
+`tiling_rules.mk` is an opt-in build graph for authored modular terrain, separate
+from the existing unique-atlas prop graph. A family supplies `textures.py`
+(`source`, `atlas`, `ship`), `build.py`, `assemble.py`, `render.py`, `check.py`,
+`check_tiles.py`, `review.py`, dimensions/views and photo calibration. Declare
+`ASSET`, `ASSEMBLY`, `TILE_NAMES` and `TILE_COVERAGE_<name>` in its Makefile.
+No existing asset opts into this graph implicitly.
+
+`flat_bake.py` bakes original scripted periodic BaseColor/ORM and physical height
+fields onto a flat tile with GPU Cycles, before the existing channel-correct
+4096→2048 filtering. No reference image is accepted by the generator.
+`tiling.material()` binds ordinary stock glTF PBR maps, optional alpha and
+vertex tint; `world_uv()` rephases UVs from placed world coordinates. Export
+preserves authored UVs and compacts identical texture views. `edge_error()`
+compares sampled positions, normals and UV phases from independent imported
+surfaces. Terrain UV repetition is intentional and checked separately from
+accidental coplanar surface overlap. Optional projection callbacks unfold vertical profiles; optional material filters
+preserve authored decal UVs within consolidated meshes. Ground documents its
+intentional construction creases separately from smooth modular boundaries.
+
+Terrain export explicitly marks whether each material consumes vertex tint.
+Blender can emit mesh-wide COLOR_0 on an untinted primitive in a mixed-material
+mesh; this path strips that unused channel (glTF otherwise always multiplies
+it) and compacts identical material variants. Existing unique-atlas exporters
+are unaffected. `test_tiling.py` covers mixed tinted/untinted primitives, embedded
+maps after saving a blend, positive/negative edge checks, and a constant-color
+GPU flat bake. Run it through `with_gpu.sh`; the existing `kit.test_delivery`
+unittests continue to cover the original prop graph.
 
 Studio shots may set `human_offset=(x,y,z)` in meters to place the unchanged
 1.8 m scale silhouette beside wide assets. Its position resets between shots;

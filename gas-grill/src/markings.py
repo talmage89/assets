@@ -1,10 +1,13 @@
 """Original fictional silkscreen, gauge and grill scale, generated with Pillow."""
 from pathlib import Path
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+from kit.fonts import find_font
 import math, random
 from settings import KNOB_GRAPHICS
 from PIL import Image, ImageDraw, ImageFont
-FONT='/usr/share/fonts/noto/NotoSans-Regular.ttf'
-BOLD='/usr/share/fonts/noto/NotoSans-Bold.ttf'
+FONT=find_font('Noto Sans', 'Regular')
+BOLD=find_font('Noto Sans', 'Bold')
 
 
 def generate(out,wear=.35):

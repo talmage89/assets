@@ -7,6 +7,7 @@ import argparse,math,sys,json
 from pathlib import Path
 import bpy,bmesh
 ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(Path(__file__).parent)]
+from kit.fonts import find_font
 from kit import model as G
 from kit.materials import surface
 from finishes import polyethylene
@@ -147,7 +148,7 @@ def main():
   if variant=='recycling':
    # The large identification mark retains a compact molded silhouette in game.
    curve=bpy.data.curves.new('Molded standard recycling symbol','FONT')
-   curve.body='♻';curve.font=bpy.data.fonts.load('/usr/share/fonts/TTF/DejaVuSans.ttf')
+   curve.body='♻';curve.font=bpy.data.fonts.load(find_font('DejaVu Sans', 'Book'))
    curve.size=.38;curve.align_x='CENTER';curve.align_y='CENTER'
    curve.extrude=.0015;curve.bevel_depth=0;curve.bevel_resolution=0;curve.resolution_u=1
    symbol=bpy.data.objects.new('Recycling symbol source relief',curve);bpy.context.collection.objects.link(symbol)

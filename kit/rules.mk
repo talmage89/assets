@@ -37,7 +37,7 @@ FIT_CHECK_ARGS ?=
 EXPORT_ARGS ?=
 STUDIO_ARGS ?=
 export TMPDIR := $(REPO)/build/tmp
-export ASSETS_GPU_LOCK ?= $(abspath $(REPO)/../.locks/gpu.lock)
+export ASSETS_GPU_LOCK ?= $(REPO)/build/locks/gpu.lock
 BP := $(BLENDER) -b --factory-startup --python-exit-code 1
 MODEL_DEPS ?= $(filter-out src/config.py src/review.py src/check_fit.py src/check_construction.py src/markings.py src/photo_matches.py,$(wildcard src/*.py)) $(KIT)/model.py $(KIT)/materials.py $(KIT)/rig.py
 .PHONY: all checkpoint model preview render check check-scene check-repo refs hook-install clean help finalize bake export verify final-render docs check-camera match match-final FORCE

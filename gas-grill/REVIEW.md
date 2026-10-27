@@ -349,7 +349,7 @@ GLB checksums. Extend tiling/alpha policies when those assets actually need them
 
 The owner approved the pilot and asked for proportionate effort. This pass fixes
 only the requested construction, reusable kit and documentation issues from
-`.foundry/runs/grill-review.md`; the earlier delivery measurements above are
+the private grill review (not distributed with this repository); the earlier delivery measurements above are
 historical and are superseded here. Weathering, stainless, burner representation,
 knob shading and the demonstration hose pose remain known limitations in README.
 

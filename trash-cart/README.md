@@ -78,8 +78,8 @@ animation clips are required for engine control.
 | `Wheel_Left` | (−305, 314.925, 127) | X; continuous rotation |
 | `Wheel_Right` | (305, 314.925, 127) | X; continuous rotation |
 
-Installed Blender 5.2.2, Python/Pillow/NumPy, DejaVu Sans, flock and an OptiX or
-CUDA GPU are required. No packages or remote code are installed. References are
+Installed Blender 5.2.2, Python/Pillow/NumPy, DejaVu Sans, flock are required; an OptiX or
+CUDA GPU is recommended (otherwise Cycles warns and uses the CPU). No packages or remote code are installed. References are
 only images/PDFs; studio lighting uses procedural area lights. All Cycles work
 holds `ASSETS_GPU_LOCK`. Scratch files live in ignored `build/` directories.
 
