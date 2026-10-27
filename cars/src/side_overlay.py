@@ -12,6 +12,12 @@ FONT='/usr/share/fonts/noto/NotoSans-Regular.ttf'
 # Inspected on the 1500 px preview, converted to the original 2100 px frame.
 FRONT=(246*1.4,720*1.4);REAR=(1164*1.4,722*1.4)
 RAKE=[(367*1.4,478*1.4),(529*1.4,367*1.4)]
+# Manually inspected upper silhouette at fixed longitudinal image stations,
+# in the same 1500 px inspection frame as the axle picks. +/- 4 px uncertainty.
+# These points measure the result; they never participate in the transform.
+PROFILE=[('hood front',100,504),('hood middle',200,493),('hood rear',300,482),
+         ('roof front',600,348),('roof middle',750,341),('roof rear',900,341),
+         ('rear roof roll',940,350)]
 WB=3.683;HUB=.39535
 
 def main():
@@ -40,4 +46,30 @@ def main():
  scale=float(scale),rotation_degrees=math.degrees(theta),translation_pixels=offset.tolist(),opacity=.5,photo_rake_degrees=angle,
  caveat='Published photo caption is 4x2; model is 4x4. Axles align; nominal suspension/roof-height differences are visible, not fitted away.')
  (out/'side-overlay.json').write_text(json.dumps(report,indent=2));print('SIDE OVERLAY',out/'side-overlay.jpg',report['reference_pixels_per_m'])
+ # Separate marked copy keeps the requested 50% overlay uncluttered. Surface
+ # silhouette heights are read from the actual rendered alpha, not equations.
+ marked=Image.open(out/'side-overlay.jpg').convert('RGB');d=ImageDraw.Draw(marked)
+ mask=np.asarray(warped.getchannel('A'))>200;rows=[];ppm_ref=report['reference_pixels_per_m']
+ for label,x,y in PROFILE:
+  px,py=round(x*1.4),round(y*1.4)
+  ys=np.nonzero(np.any(mask[:,px-1:px+2],axis=1))[0]
+  if not len(ys):continue
+  ry=int(ys[0]);excess=(py-ry)/ppm_ref
+  rows.append(dict(feature=label,photo_pixel=[px,py],render_pixel=[px,ry],height_excess_m=excess,
+                   photographic_pick_uncertainty_pixels=5.6))
+  d.line((px,py,px,ry),fill=(215,80,12),width=3)
+  for yy,col in [(py,(0,90,180)),(ry,(215,80,12))]:d.ellipse((px-5,yy-5,px+5,yy+5),outline=col,width=3)
+  d.text((px-40,min(py,ry)-38),f'{excess*1000:+.0f} mm',font=small,fill=(135,50,8))
+ occupied=np.nonzero(np.any(mask,axis=0))[0]
+ # Outer bumper silhouette picks, not axle-to-body estimates. A photograph is
+ # not perfectly orthographic; the dimensional envelope remains fixed.
+ overhang=dict(photo_front_x=38*1.4,photo_rear_x=1462*1.4,
+               render_front_x=int(occupied[0]),render_rear_x=int(occupied[-1]),
+               front_excess_m=(38*1.4-occupied[0])/ppm_ref,
+               rear_excess_m=(occupied[-1]-1462*1.4)/ppm_ref,
+               photographic_pick_uncertainty_pixels=7.0)
+ report.update(silhouette_heights=rows,bumper_silhouette_excess=overhang)
+ d.text((35,125),'BLUE: photographed outline; ORANGE: rendered outline. Height differences after axle registration; picks +/- 16 mm.',font=small,fill=(135,50,8))
+ marked.save(out/'side-measurements.jpg',quality=94)
+ (out/'side-overlay.json').write_text(json.dumps(report,indent=2))
 if __name__=='__main__':main()

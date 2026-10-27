@@ -1,18 +1,19 @@
 # Alder C150 / cars family
 
 An original full-size late-2010s American pickup: four-door crew cab, short
-bed, 4x4 stance and 275/65R18 all-terrain tire volumes. **Second body-form checkpoint
+bed, 4x4 stance and 275/65R18 all-terrain tire volumes. **Third body-form checkpoint
 only. Work stops here for the lead's review.**
 
 [Contact sheet](renders/checkpoint/contact.jpg) ·
 [50% side overlay](renders/checkpoint/side-overlay.jpg) ·
 [Front clay](renders/checkpoint/front_three_quarter.jpg) ·
 [Rear clay](renders/checkpoint/rear_three_quarter.jpg) ·
-[Front photo pair](renders/checkpoint/match_front-pair.jpg) ·
-[Rear photo pair](renders/checkpoint/match_rear-pair.jpg)
+[Front clay + stripes pair](renders/checkpoint/match_front_stripes-pair.jpg) ·
+[Rear clay + stripes pair](renders/checkpoint/match_rear_stripes-pair.jpg) ·
+[Measured profile](renders/checkpoint/side-measurements.jpg)
 
 All checkpoint renders load `build/game-audit.blend`, with the actual game
-sampling. Clay uses Workbench; the two striped reflection diagnostics use
+sampling. Clay uses Workbench; the striped diagnostics and two calibrated clay-with-stripes pairs use
 Cycles GPU through the shared lock. None is a baked/exported delivery render.
 The images remain ignored build outputs; no preliminary docs JPG is committed.
 
@@ -26,14 +27,14 @@ same-generation Ford body-builder data.
 
 | Measurement | Reference/design target | Actual checkpoint |
 | --- | --- | --- |
-| Length | 5890.26 mm | 5890.26 mm |
-| Width, mirrors excluded | 2029.46 mm | 2029.46 mm |
-| Height | 1960.88 mm | 1960.81 mm; crown sampling difference 0.07 mm |
+| Length | 5890.26 mm | 5889.46 mm (0.80 mm tessellation difference) |
+| Width, mirrors excluded | 2029.46 mm | 2029.51 mm |
+| Height | 1960.88 mm | 1960.88 mm |
 | Wheelbase | 3683 mm | 3683.00 mm between actual wheel pivots |
 | Front/rear track | 1716 mm | 1716.00 mm |
 | Clear bed floor length | 1704.34 mm | 1704.34 mm |
 | Tire section / top / ground | 275 mm nominal / lightly loaded | 275.00 / 802.70 / 0.00 mm |
-| Front/rear door seam | 4–5 mm, chosen 4.5 | 4.500 mm surface distance, 8 edge samples per side |
+| Front/rear door seam | 4–5 mm, chosen 4.5 | 4.500 mm surface distance, 32 edge samples per side |
 | Cab/bed separation | 16 mm | 16.000 mm at the lower rear wall / outer bed envelope |
 | Tire top to arch crown | Original ride-height design | 90.30 mm vertical difference |
 | Ground clearance | 226 mm eventual target | Pending axle/frame; no ground-clearance proof claimed |
@@ -47,30 +48,48 @@ triangle counts and the source hash. The body width excludes coarse mirror envel
 
 ## Construction at this gate
 
-The first form was rejected by the lead. The body now uses section stations,
-near-planar ruled quad patches and small tangent fillets at authored character
-lines. A shared cross-section is split at the door/cab/bed reveals. The hood
-has a flat raised center stamping. Arch flares use separate annular quad grids
-with radial support stations, rather than deforming the door/fender grids.
-The gauge is evaluated before reapplying outer skin normals; the form check
-independently compares broad panel normals against the actual surface slopes.
+The broad side is now a shared Hermite section with a measured **6.26 mm
+vertical crown** over the 820–1200 mm chord. A straight lower die line and a
+supported shoulder cross the panel reveals. Squared arch boundaries trim that
+same surface; broad flares stand **35 mm** out from the adjacent door section
+and draw into the side over **195–225 mm** above the opening. There are no
+separate annular flare skins or height-faded flare ends. Opening width at the
+rocker increased from 886 to 995 mm while its 893 mm crown height stayed fixed.
+This remains an analytic quad surface method, with explicit tangents and
+physical feature stations, rather than a subdivision modifier.
 
-The straight outer A-pillar is 35.2 degrees above horizontal, compared with
-34.4 +/-1.5 measured in the side photograph. Glass has tumblehome; the roof is
-one crowned skin tied to the front and rear headers. Upper-only dark liners
-stay inside the arches. Bumper upper returns meet the fascia and tailgate;
-the bed has capped rails, a tailgate lip and vertical taillamp form envelopes.
-Simple grille/headlamp envelopes establish the tall upright front face; no
-optics, badges, trim textures or small detail have been added.
+The hood leading center is 67 mm lower, with a raised center and lower fender
+tops. The center slopes 7.50 degrees; the front face rakes 5.71 degrees, with
+a 35 mm proud original grille surround and 337 mm of headlamp wrap. The bumper
+uses formed sections around a blocked intake and a separate lower valance.
+The windshield meets the beginning of a rolled header/roof surface, rather
+than a raised bridging block; measured top-edge recess is 1.14 mm. Its outer
+A-pillar is 34.90 degrees above horizontal versus the photograph's 34.4 +/-1.5.
+The roof narrows 15 mm per side toward its rounded back, whose center sits
+88 mm below the unchanged 1961 mm peak. Fixed rails sit behind the separate
+door sashes; three actual surface-ray samples measure 1.64–2.49 mm separation.
 
-The new [side overlay](renders/checkpoint/side-overlay.jpg) uses only axle
-centers to scale a 50% blue orthographic silhouette onto the known 145-inch
-wheelbase photo. [Rake measurement](renders/checkpoint/side-rake.jpg) and
-[REFERENCE.md](REFERENCE.md) disclose the photo's published 4x2 caption and
-other configuration differences. Three-quarter RMS is **5.69 px front / 5.11 px
-rear**, in original reference pixels, on five chassis anchors each. This is
-not an all-body-landmark fit: roof/mirror/bumper accuracy remains weaker than
-requested, and the pairs show the unresolved shape differences.
+[Measured side overlay](renders/checkpoint/side-measurements.jpg) retains the
+original axle-only registration. Hood silhouette excess is now 6 / 11 / 20 mm
+at the three inspected stations, versus 66 / 57 / 52 mm before. Rear roof
+stations improved from 34 / 72 mm high to 0 / 26 mm. Front/middle roof excess
+remains 54 / 37 mm with the specified peak height held. Photo picks have about
+16 mm height uncertainty; the reference caption is 4x2, and this is a 4x4.
+
+The fixed bumper envelope still extends 124 mm at the front and 46 mm at the
+rear beyond that axle-scaled photograph. It was not shortened to hide this
+remaining mismatch. A photograph is not perfectly orthographic, and the
+specified envelope/axles remain the dimensional authority.
+
+Camera RMS remains **5.69 px front / 5.11 px rear** on the same five chassis
+anchors. [Front](renders/checkpoint/match_front_stripes-measurements.jpg) and
+[rear](renders/checkpoint/match_rear_stripes-measurements.jpg) now show separate
+body landmark residuals; those differences never enter the camera fit. They
+are substantially larger than chassis RMS. The marked picks have +/-14 source
+pixel uncertainty and approximate correspondence between different designs.
+[Two-make comparison](renders/checkpoint/class-crosscheck.jpg) records the
+Ford and Ram cross-check; it is explicitly not another registered pair.
+
 Tires have a radial carcass profile, bulged sidewalls, a crowned tread volume
 and a small parked contact patch. Wheels establish the 18-inch barrel/offset
 and spoke volume. Fine tread, lettering, brakes and suspension wait for the
@@ -79,33 +98,34 @@ paint, wear, UVs, bakes and GLB export are also pending.
 
 ## Budget at this gate
 
-The game-density source has **59,740 triangles**; the final ceiling
-remains 70k. 10,260 triangles remain below it. This is a form budget,
-not a completed car budget: hidden sheet surfaces and wheel spoke bevels will
+The game-density source has **66,904 triangles**; the final ceiling
+remains 70k. 3,096 triangles remain below it. This is a form budget,
+not a completed car budget: hidden sheet surfaces, wheel spoke bevels and broad panel sampling will
 need further optimization as interior, brakes and underbody are added.
 
 | Part category | Triangles |
 | --- | ---: |
-| Hood | 1,124 |
-| Cab/floor/roof/headers | 4,448 |
-| Glazing volumes | 532 |
-| Front fenders/flares/arch returns | 9,568 |
-| Four door skins/sashes | 4,208 |
+| Hood | 1,700 |
+| Cab/floor/roof/headers | 8,180 |
+| Glazing volumes | 952 |
+| Front fenders/flares/arch returns | 8,712 |
+| Four door skins/sashes | 7,216 |
 | Coarse mirrors/supports | 976 |
-| Bed/rails/tubs/rear corners/flares | 11,240 |
-| Lamp envelopes | 784 |
-| Wheel-well liners | 1,936 |
-| Tailgate | 1,236 |
-| Nose/grille form | 1,508 |
-| Bumpers/upper returns | 2,180 |
-| Four tires | 11,520 |
-| Four wheel barrels/hubs/spokes | 8,480 |
-| **Total** | **59,740** |
+| Bed/rails/tubs/rear corners/flares | 10,408 |
+| Lamp envelopes | 1,968 |
+| Wheel-well liners | 1,872 |
+| Tailgate | 1,576 |
+| Nose/grille form | 3,300 |
+| Bumpers/upper returns | 3,244 |
+| Four tires | 9,600 |
+| Four wheel barrels/hubs/spokes | 7,200 |
+| **Total** | 66,904 |
 
-Each wheel group is 5,000 triangles including its tire. Each door group is
-1,148 including its glass; the per-object table is in `build/form-check.json`.
-The high source has 131,396 triangles. Ignored high/game blend files are
-1,032,264 / 523,235 bytes in this build (serialization sizes may vary).
+Each wheel group is 4,200 triangles including its tire. Tire/rim circumference
+sampling is 80/48 at game density; dimensions are unchanged. Door and per-object
+counts are in `build/form-check.json`.
+The high source has 163,572 triangles. Ignored high/game blend files are
+1,515,798 / 732,474 bytes in this build (serialization sizes may vary).
 Six temporary diagnostic clay materials, **zero texture images**,
 and **no GLB** exist at this checkpoint. These are not final material budgets.
 
@@ -169,6 +189,7 @@ blender -b --factory-startup --python-exit-code 1 --python kit/test_vehicle.py
 `make` includes the kit rules with `CUSTOM_CHECKPOINT=1`, leaves
 `FINAL_PIPELINE=0`, and never bakes, exports, writes final docs or proceeds to
 detail. Reports: `build/game-audit.json`, `lookdev-audit.json`, `form-check.json`,
-`matched-cameras.json`, and `renders/checkpoint/tonal-check.json`.
+`matched-cameras.json`, `renders/checkpoint/form-comparisons.json`, `side-overlay.json`,
+and `renders/checkpoint/tonal-check.json`.
 Read [REVIEW.md](REVIEW.md) for the critiques, verified commands and remaining
 weaknesses. The lead's next action is the body-form review.

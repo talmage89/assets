@@ -7,6 +7,7 @@ from mathutils.bvhtree import BVHTree
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import pickup_spec as S
 from forms import side_x
+from form_evidence import collect
 
 def points(ob):return [ob.matrix_world@v.co for v in ob.data.vertices]
 def box(obs):
@@ -57,7 +58,7 @@ def main():
                 actual=ob.matrix_world.to_3x3()@ob.data.corner_normals[li].vector
                 normal_errors.append(math.degrees(expected.angle(actual)))
     normal_check=dict(samples=len(normal_errors),max_angle_degrees=max(normal_errors))
-    report=dict(stage='body form only',source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),
+    report=dict(surfacing=collect(),stage='body form only',source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),
                 broad_panel_normal_check=normal_check,bounds_m=b,triangles=total,triangles_per_category=categories,triangles_per_mesh=parts,triangles_per_parent=roots,
                 materials=sorted({m.name for ob in obs for m in ob.data.materials if m}),
                 wheel_centers_m=pivots,wheelbase_m=wb,track_m=track,tire_bounds_m=tires,door_seam_distances=gaps,
@@ -69,8 +70,20 @@ def main():
     if normal_check['max_angle_degrees']>.1:errors.append('Broad panel shading normal disagrees with slope')
     if abs(wb-S.WHEELBASE)>1e-5 or abs(track-S.TRACK)>1e-5:errors.append('Wheelbase/track')
     if abs(b['size'][1]-S.LENGTH)>.002:errors.append('Length')
-    if abs(b['size'][0]-S.WIDTH)>.008:errors.append('Body width')
+    if abs(b['size'][0]-S.WIDTH)>.002:errors.append('Body width')
     if abs(b['size'][2]-S.HEIGHT)>.002:errors.append('Height')
+    if abs(floor['size'][1]-S.BED_LENGTH)>.0005:errors.append('Bed floor length')
+    if abs(cab_gap-.016)>.0005:errors.append('Cab/bed gap')
+    form=report['surfacing']
+    for value in form['arches']:
+        if not .030<=value['measured_flare_depth_above_crown_m']<=.040:errors.append('Broad flare depth')
+        if value['measured_draw_height_above_opening_m']<.150:errors.append('Flare confined to lip')
+        if value['squared_crown_ratio']<.72:errors.append('Arch crown insufficiently squared')
+    if form['door_crown_above_820_1200_chord_m']<.004:errors.append('Side crown absent')
+    if form['windshield_top_to_roof_surface_m']>.003:errors.append('Raised or detached windshield header')
+    if not 4<=form['grille_face_rake_degrees']<=8:errors.append('Grille face rake')
+    if any(value['sash_outboard_of_rail_m']<.0003 for value in form['roof_rail_to_sash_clearances']):
+        errors.append('Roof rail coincides with or covers door sash at sampled sections')
     for value in gaps.values():
         if value['min_m']<.004 or value['max_m']>.0051:errors.append('Door seam gap')
     for value in tires.values():

@@ -28,3 +28,7 @@ MATCHES={
     landmarks=anchors([(-.964,F,H),(-.964,R,H),(-.920,F,0),(-.920,R,0),(.858,R,0)],
                       [(1404,706),(914,790),(1392,808),(890,955),(320,900)])),
 }
+
+# Identical calibration for the combined clay / striped-reflection evidence.
+for name,match in list(MATCHES.items()):
+    MATCHES[name+'_stripes']={**match,'title':match['title'].replace('clay','clay with stripes')}

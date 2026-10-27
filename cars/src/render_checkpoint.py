@@ -12,6 +12,7 @@ ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(Path(__file
 from kit import studio,gpu
 from kit import model as G
 import pickup_spec as S
+from form_evidence import collect
 
 
 def stripe_world(sc):
@@ -19,7 +20,7 @@ def stripe_world(sc):
     n=world.node_tree.nodes;l=world.node_tree.links;n.clear()
     tc=n.new('ShaderNodeTexCoord');sep=n.new('ShaderNodeSeparateXYZ');l.new(tc.outputs['Normal'],sep.inputs[0])
     angle=n.new('ShaderNodeMath');angle.operation='ARCTAN2';l.new(sep.outputs['X'],angle.inputs[0]);l.new(sep.outputs['Z'],angle.inputs[1])
-    mul=n.new('ShaderNodeMath');mul.operation='MULTIPLY';mul.inputs[1].default_value=16;l.new(angle.outputs[0],mul.inputs[0])
+    mul=n.new('ShaderNodeMath');mul.operation='MULTIPLY';mul.inputs[1].default_value=36;l.new(angle.outputs[0],mul.inputs[0])
     sine=n.new('ShaderNodeMath');sine.operation='SINE';l.new(mul.outputs[0],sine.inputs[0])
     ramp=n.new('ShaderNodeValToRGB');ramp.color_ramp.interpolation='CONSTANT'
     ramp.color_ramp.elements[0].position=.47;ramp.color_ramp.elements[0].color=(.008,.008,.008,1)
@@ -28,22 +29,23 @@ def stripe_world(sc):
     l.new(ramp.outputs[0],bg.inputs[0]);out=n.new('ShaderNodeOutputWorld');l.new(bg.outputs[0],out.inputs[0])
     for mat in bpy.data.materials:
         if mat.name=='Clay body':
-            bs=mat.node_tree.nodes.get('Principled BSDF');bs.inputs['Base Color'].default_value=(.24,.26,.28,1)
-            bs.inputs['Metallic'].default_value=.85;bs.inputs['Roughness'].default_value=.12
+            bs=mat.node_tree.nodes.get('Principled BSDF');bs.inputs['Base Color'].default_value=(.30,.32,.34,1)
+            bs.inputs['Metallic'].default_value=.55;bs.inputs['Roughness'].default_value=.085
 
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--out',required=True);p.add_argument('--width',type=int,default=1400)
-    p.add_argument('--mode',choices=['clay','match','stripes'],default='clay');a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
+    p.add_argument('--mode',choices=['clay','match','stripes','match-stripes'],default='clay');a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
     source=Path(a.source).resolve();bpy.ops.wm.open_mainfile(filepath=str(source))
+    form=collect()
     sc=bpy.context.scene;camera=studio.add_studio(scale=3,backdrop_color=(.22,.23,.24))
     config=runpy.run_path(str(Path(__file__).with_name('config.py')))
     shots=config['SHOTS']
-    if a.mode=='match':
-        data=json.loads(Path('build/matched-cameras.json').read_text());shots={k:v['shot'] for k,v in data.items()}
+    if a.mode in ['match','match-stripes']:
+        data=json.loads(Path('build/matched-cameras.json').read_text());shots={k:v['shot'] for k,v in data.items() if k.endswith('_stripes')==(a.mode=='match-stripes')}
     else:shots={k:v for k,v in shots.items() if k.startswith('stripes')==(a.mode=='stripes')}
     out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
-    if a.mode=='stripes':
+    if a.mode in ['stripes','match-stripes']:
         sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=24;sc.cycles.use_denoising=True
         sc.cycles.max_bounces=4
         stripe_world(sc)
@@ -57,7 +59,7 @@ def main():
         sc.display.render_aa='32'
         for ob in sc.objects:
             if ob.name.startswith('Studio black reflection flag'):ob.hide_render=True
-    sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=.5 if a.mode!='stripes' else -.2
+    sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=.5 if a.mode in ['clay','match'] else -.2
     sc.render.image_settings.file_format='PNG';sc.render.image_settings.color_mode='RGBA';sc.render.resolution_percentage=100
     metadata=json.loads((out/'shots.json').read_text()) if (out/'shots.json').exists() else {}
     for name,shot in shots.items():
@@ -76,6 +78,10 @@ def main():
                     roof=(0,0,S.HEIGHT),origin=(0,0,0),left=(-S.WIDTH/2,0,0),right=(S.WIDTH/2,0,0),
                     bed_front=(0,S.BED_FRONT,S.BED_TOP),bed_rear=(0,S.BED_REAR,S.BED_TOP),
                     track_left=(-S.TRACK/2,0,0),track_right=(S.TRACK/2,0,0))
+        landmarks=form['landmarks_world_m']
+        if name.startswith('match_rear'):
+            landmarks={k:([-p[0],p[1],p[2]] if 'arch' in k or 'draw' in k or k=='roof_rear_corner' else p) for k,p in landmarks.items()}
+        points.update(landmarks)
         metadata[name]=dict(shot,source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),stage='body form checkpoint',
                             engine=sc.render.engine,width=sc.render.resolution_x,height=sc.render.resolution_y,points={k:project(p) for k,p in points.items()})
         (out/'shots.json').write_text(json.dumps(metadata,indent=2))

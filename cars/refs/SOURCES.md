@@ -18,3 +18,9 @@ Reference only: never loaded into a shader, projected, traced or baked. Accessed
 
 Ford MY2018 specification sheet: [manufacturer PDF](https://media.ford.com/content/dam/fordmedia/North%20America/US/product/2018/f-150/18_F150.pdf). Ford Motor Company, copyrighted manufacturer literature, reference only; p2 supplies the primary crew short-box envelope. Web-viewed; direct local retrieval returned HTTP 403, so it is cited but not fetched by make.
 Earlier pair source pages: [front](https://commons.wikimedia.org/wiki/File:2018_Ford_F-150_Lariat_Crew_Cab_3.5L_EcoBoost_front_4.22.19.jpg), [rear](https://commons.wikimedia.org/wiki/File:2018_Ford_F-150_Lariat_Crew_Cab_3.5L_EcoBoost_rear_4.22.19.jpg), both Kevauto, CC BY-SA 4.0. Comparison pairs stay ignored and retain photographic trademarks only on the reference side. No trademark is modeled or used as a texture.
+
+Third-form use: the stock front/rear/profile photos supply held-out silhouette
+and body-point comparisons as well as the existing chassis calibration. The
+Ram rear photograph is a separate construction/design-language check for its
+broad flare and rounded cab. Marked comparisons and their uncertain pixel
+picks stay ignored; no photographic outline is converted into geometry.

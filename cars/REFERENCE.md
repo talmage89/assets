@@ -82,3 +82,26 @@ low chassis residual as proof of a correct body. No roof fitting or body
 warping conceals the visible differences. The symmetric extra image margins
 keep the original truck's full front and rear corners in view; the photograph
 has transparent padding there, not generated photographic content.
+
+## Third form gate: authored surfacing and independent measurements
+
+The envelope, chassis, floor and reveal targets above remain authoritative.
+The requested 30–40 mm flare is a design requirement from the form brief,
+not a published manufacturer stamping dimension. Crown, die lines, arch power,
+roof roll and front-face rake are authored original controls, informed by
+looking at both Ford and Ram photographs, without image tracing.
+
+`form_evidence.py` measures the evaluated mesh by surface rays and outer-skin
+vertex rows. `side_overlay.py` registers only the original two axle picks and
+then measures the rendered alpha at separately inspected photographic silhouette
+stations. Photo station uncertainty is +/-5.6 original pixels (about 16 mm).
+Bumper outline picks are +/-7 px (about 20 mm). These estimates do not remove
+perspective or the 4x2/4x4 configuration difference.
+
+`compare_form.py` marks semantic body points on the same calibrated 3/4 pairs,
+with +/-14 source pixel picking uncertainty. Body residuals are reported
+separately and never improve the five-chassis-anchor RMS. Their larger errors
+remain evidence of styling, correspondence and calibration limitations; they
+are not hidden by a new camera fit. `class-crosscheck.jpg` additionally places
+the Ford and Ram photographs beside the original clay and explicitly makes
+no registration claim.

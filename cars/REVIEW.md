@@ -11,7 +11,166 @@ Every rendered view was opened, individually or in a sheet of every view of its
 pass. The comparisons are against the credited photographs, not memory. All
 meshes and shader/light data are original scripts; photos are comparison only.
 
-## Second checkpoint — lead rejection and replacement form
+## Third checkpoint — fresh-eye form review
+
+The second checkpoint's dimensions did not rescue its flat slabs, narrow
+attached flares, blocky header or square rear roof. That rejection was right.
+This round changes the surface construction, not the detail level. Ford stock
+front/rear/profile photographs and the independently credited Ram rear photo
+were opened and compared. The Ram check favors its broad integrated draw and
+rounded rear cab; the Ford check supplies the calibrated cameras/profile and
+crisper shoulder. Grille, lamp openings and sculpting remain authored originals.
+
+### Pass 1 — replace the slab and attached flare (A–C)
+
+Color/value first: neutral gray clay is deliberately darker than the white
+reference. Retain black tires and cavities; compare the surface gradients,
+not the paint brightness. Do not increase exposure to disguise defects.
+
+The first replacement (`renders/round3-a/`) made a broad flare but was rejected:
+its 94,052 triangles were excessive, the shoulder sampling wavered, and formed
+bumper returns folded through themselves. Those folds produced extreme spikes
+in both views and measured bounds. Pass B fixed the bumper but exposed another
+fold where a shoulder support station crossed the sloping hood cap. Pass C
+made the fender shoulder parallel to the hood and removed that inversion.
+These debugging images are not review candidates.
+
+The new body uses a fair Hermite side section and one shared flare field,
+trimmed by a squared opening. The old 67 mm annular lip skin and height fade
+are gone. Physical support rows follow the lower die line; upper ruled fields
+use fewer longitudinal rows. Gauge normals are still restored after evaluation.
+An independently rebuilt previous source supplies the numerical baseline;
+`build/cars-round3/baseline-evidence.json` is ignored diagnostic evidence.
+
+### Pass 2 — measure the front and greenhouse (D–H)
+
+Color/value first: dark glazing remains a solid form proxy. It must not conceal
+a raised header; striped paint surfaces reveal that junction independently.
+The photo's white albedo does not justify making our clay pale.
+
+`renders/round3-d/` through `round3-h/` compare the same axle-calibrated profile
+and unchanged chassis-fitted 3/4 cameras. The hood leading center fell from
+1301 to 1234 mm. Sampled profile excess dropped from 66/57/52 mm to 6/11/20 mm
+at the three hood stations. The grille face now rakes 5.71 degrees, with a
+35 mm proud surround; headlamp form wraps 337 mm around the corner instead
+of the old 28 mm fore/aft span. The formed bumper has a blocked intake and its
+own lower valance. Its envelope stays fixed.
+
+Removed the separate windshield-header bridge. Glass and roof share the start
+of a curved canopy surface; actual top-edge distance to the roof is 1.14 mm,
+versus 52.17 mm before. The outer A-pillar is 34.90 degrees above horizontal,
+inside the photograph's 34.4 +/-1.5 degree estimate. The roof is rolled across
+its width, rounded in plan and about 15 mm narrower per side at the rear.
+Its rear center drops 88 mm below the retained 1961 mm peak, rather than 4 mm.
+Rear roof silhouette excess improves from 34/72 mm to 0/26 mm at the two
+inspected rear stations. Front/middle roof excess remains 54/37 mm. The fixed
+4x4 envelope and the photo's published 4x2 caption are disclosed, not fitted away.
+
+### Pass 3 — reject scalloped reflections and coincident frames (J–M)
+
+Color/value first: increased stripe frequency and lower diagnostic roughness
+make small reflection defects visible. Keep the clay substrate visible and
+highlight rolloff controlled; this is not a paint or clear-coat approval.
+
+The sharper diagnostic rejected the initially narrow flare fillets: their
+bands scalloped above the openings. Broadened the tangent joins and kept the
+lower die line straight through the trimmed arch instead of fading it by
+longitudinal distance. `round3-k/` has smooth broad arch bands and continuous
+lower stripes, without the previous collapsed annular ends. Opening width at
+the rocker is now 995 mm versus 886 mm before; at 80% rise its width/full-width
+ratio is 0.747 versus 0.627. The 893 mm crown and 90.3 mm tire-top gap stay fixed.
+
+Actual surface rays measure approximately 35 mm flare over the same-height
+door section, spread through 195–225 mm above the opening (old draw: 55 mm).
+The door's measured crown is 6.26 mm over its 820–1200 mm vertical chord
+(old side: effectively zero). These are mesh measurements, not the flare/crown
+parameters printed back as results. They establish broad shape, not artistic
+fairness by themselves.
+
+The window-frame artifacts had a construction cause as well as a normal
+cause. Fixed roof rails overlapped the door sash skin. Sparse long sash edges
+also cut across the cab's nonlinear rear taper: one surface ray found the rail
+3 mm outside the sash. Inset the fixed rail, add shared perimeter stations,
+and give returns geometric normals. Three actual ray samples now put the sash
+1.64/2.47/2.49 mm outside the rail. This proves those sections, not whole-door
+motion clearance. The fixed rear cab corner follows the authored door outline
+with its gap, rather than leaving an uncovered wedge.
+
+### Latest judgment and remaining weaknesses
+
+The broad sides now carry a soft crown; the opening is wider and squarer; the
+flare reads as part of the stamping. Hood and rear roof silhouette differences
+are materially smaller in the unchanged overlay. The header no longer stands
+up as a block. The front has a raked face, proud grille opening, corner-wrapped
+lamps and a formed bumper, rather than stacked plain boxes.
+
+The form still falls short of a product photograph. The lamp/fender/brow
+junction is blunt, the front bumper ends remain mechanically coarse, and the
+sash/A-pillar/roof-rail corner reflections are less clean than the broad skins.
+The stripe islands over the convex flares are expected reflection turns;
+small compression where the lower line meets the opening still deserves the
+lead's scrutiny. I do not claim every corner is automotive Class A surfacing.
+The rear gate is restrained and plain; adding badges would not improve its form.
+
+The side photo still ends 124 mm before the fixed front bumper and 46 mm before
+the fixed rear bumper after axle registration (+/-20 mm picking uncertainty).
+Those mismatches remain visible. Changing them would change the envelope or
+axle locations the brief explicitly holds. Photographic perspective/configuration
+uncertainty is not a proof that this discrepancy is harmless.
+
+Camera RMS is still 5.69/5.11 px on five chassis anchors. Marked body landmarks
+in `match_front_stripes-measurements.jpg` and the rear equivalent disclose much
+larger differences (see `form-comparisons.json`). They are held out of the solve
+and carry +/-14 source pixel pick uncertainty and approximate correspondence
+between original designs. Low chassis RMS is not an all-body fit certificate.
+The two-make sheet is explicitly unregistered. No photograph enters Blender,
+a shader, a bake, or the geometry evaluator.
+
+The game source is **66,904 triangles**, leaving only 3,096 below 70k. Tires and
+rim barrels use 80/48 circumferential samples, preserving measured dimensions.
+Further optimization is required before the interior, brakes and underbody
+can fit. Six diagnostic materials, zero textures and no GLB remain intentional
+at this source form gate. No detail, paint, wear, UV, bake or export work follows.
+
+### Third-checkpoint proof and files
+
+- `git merge main` — already up to date at pickup.
+- `make -C cars clean` then `make -C cars WIDTH=1600` — **PASS**, clean scripted form rebuild.
+- `make -C cars check` — **PASS**, source topology, bounds, normals, budget, bed/gaps,
+  measured form features, sampled rail/sash separation, camera projection and
+  repository policy. This does not certify UVs, a GLB or moving-part clearance.
+- Independent game regeneration and kit audit compare actual geometry,
+  triangulation and transforms, separately from `.blend` serialization bytes.
+- `git diff --check` and tracked-file policy are checked before commits.
+
+Current source bounds, per-part counts, hashes, ray measurements and normal
+errors are in `cars/build/form-check.json`. Final checkpoint images are under
+`cars/renders/checkpoint/`: front/rear clay, dimensioned side/front/top, two
+striped views, two clay photo pairs, two clay-with-stripes photo pairs, their
+marked body measurements, the 50% side overlay, measured silhouette sheet,
+two-make comparison, rake sheet and **contact.jpg**. Tone statistics and camera
+calibration overlays sit beside them. Build logs and repeat proof live under
+`build/cars-round3/`. All rendered views were opened individually or in sheets;
+stripes and photographic pairs were also inspected at full size.
+
+Final measured bounds are **5889.46 x 2029.51 x 1960.88 mm**, with 3683.00 mm
+wheelbase, 1716.00 mm track, 1704.34 mm bed floor, 4.500 mm door reveals and
+16.000 mm lower cab/bed separation. Broad-skin normal agreement samples 5,622
+corners with maximum 0.0343 degree disagreement; that checks encoded normals
+against the section slope, not artistic fairness. High/game sources contain
+163,572/66,904 triangles and occupy 1,515,798/732,474 bytes (ignored blends).
+
+The repeat audit matches geometry, transforms and triangulation SHA-256
+`651eddfe492ce66247391afa3816fc27df4109dd8e87bd04ef0f3e6783740626`.
+`repeat-check.json` also verifies all eleven final rendered views and the form
+report refer to the current source hash. Orthographic foreground p5/median/p95
+values are side 24/123/158, front 9/51/143 and top 28/119/155 (0–255), with no
+bright-clipped pixels. These are clay diagnostics, not paint/hero approval.
+
+No shared kit changes, downloaded tools or new permissions are needed. No
+preliminary docs images or generated assets are committed. Stop for form review.
+
+## Historical second checkpoint — superseded by round 3
 
 The lead rejected the first checkpoint as a melted 1980s truck. That judgment
 is correct. The previous self-review was too lenient: the dimensional checks
