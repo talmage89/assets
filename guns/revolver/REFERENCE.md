@@ -45,3 +45,38 @@ a thin polished cylinder stop track, carbon rings on the chamber face and
 forcing-cone/topstrap underside, narrow holster polish at the muzzle, cylinder
 lands and shroud nose, and smoother rubber at the palm/finger contact crests.
 There are no wear shaders or baked textures in this checkpoint.
+
+## Round-two form gauges
+
+The ATF side photograph is used for shape only: its white background clips.
+Manual native-pixel gauges use the cylinder's approximately 118 px projected
+height (about 39.4 mm in our class envelope), approximately **3.0 px/mm**.
+These are visual estimates, with at least ±2 px placement uncertainty and
+additional perspective/class uncertainty; they are not shop dimensions.
+
+| Side photograph gauge | Native pixels | Approximate class estimate | Authored revision |
+| --- | --- | --- | --- |
+| Hammer spur's side thickness | x≈400, y≈137–146 | 3.0 ±0.8 mm | 3.4 mm at the tip; thicker root |
+| Spur below the topstrap | y≈132 versus y≈100 | 10.7 ±1.2 mm | approximately 11 mm, same pivot/pull |
+| Trigger's upper working blade | y≈300, x≈512–531 | 6.3 ±0.8 mm | 6.11 mm measured at Z=10 mm; taper toward toe |
+| Guard's lower band | x≈530, y≈361–370 | 3.0 ±0.8 mm | 2.8 mm nominal, rounded edges |
+
+The oblique `open.jpg` and `target.jpg` show the hammer body nearly filling
+its narrow slot, with a visibly wider thumb spur, and flat transverse guard
+sides. Foreshortening prevents a reliable millimeter width from those views.
+The **7.6 mm hammer body, 8.0 mm slot, approximately 9.8 mm spur and 8.4 mm
+guard width** are original class estimates based on those width ratios, with
+roughly ±1.5 mm photographic uncertainty. Actual source/import rays and cuts
+are in `build/form-metrics.json` and `renders/checkpoint/sections/`; the
+reference uncertainty must not be replaced by those precise mesh numbers.
+
+The wrap-around rubber now has a broad-backed egg section, a narrower finger
+face, a changing palm swell, a curved rear silhouette and a high rounded web.
+The authored butt is domed, rather than cut off on a plane. Its steel seat is
+cut from the actual forging after cage subdivision and before voxel relaxation.
+
+The shroud is bored around the rest-position rod, with a narrower left release
+passage following the accepted crane arc. A fully closed fixed tube would
+trap the rod and prevent that swing. The remaining left-side exposure is
+explicitly recorded as an unresolved difference from the requested enclosure,
+not called accepted merely because the sweep passes.
