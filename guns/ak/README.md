@@ -92,9 +92,25 @@ texture images; that is inspection data, not final draw-call acceptance.
 The final target is one canonical 2048 atlas, approximately 16 MiB compressed
 with mipmaps and consumer texture reuse.
 
-Current source/export triangles: **39,524** gun; **6,400 /4,240** loaded/empty
-magazine; **960 /704** cartridge/fired case. Inspection output sizes and hashes
-are measured by `build/serialization.json`, rather than estimated from sources.
+| Inspection GLB | Triangles | Materials | Bytes |
+| --- | ---: | ---: | ---: |
+| Gun | 39,524 | 8 | 1,943,468 |
+| Loaded magazine | 6,400 | 4 | 143,360 |
+| Empty magazine | 4,240 | 2 | 93,932 |
+| Cartridge | 960 | 2 | 23,452 |
+| Fired case | 704 | 1 | 18,752 |
+
+All five contain zero texture images. The gun has 17 rigid bones, eight sockets
+and 20 clips. A second factory-startup model build produced five byte-identical
+GLBs. These sizes describe the unbaked inspection outputs.
+
+`make` and `make check` passed. The checks evaluated 1,556 source clip poses,
+1,568 imported clearance samples and eleven visual contact/optical assertions.
+The import's maximum posed-surface difference was 0.0000894 mm. Ordinary
+cross-owner clearance uses 0.2 mm tolerance; five named visual joints have
+separate finite overlap bounds, fully reported in `build/check.json`.
+These checks establish visual assembly and serialization, with the functional
+limitations documented below and in the review.
 
 ```sh
 make -C guns/ak                 # references, model, source/import checks, media
@@ -129,7 +145,8 @@ stock's toe and heel. Every site must survive the single 2048 atlas and remain
 visible in the full-frame hero before finish acceptance.
 
 References, authors, licenses, specification discrepancies and direct URLs are
-in [refs/SOURCES.md](refs/SOURCES.md). White balance uses documented neutral
+in [refs/SOURCES.md](refs/SOURCES.md); the measurement plan and uncertainty are
+in [REFERENCE.md](REFERENCE.md). White balance uses documented neutral
 patches in `build/white-balanced/corrections.json`; no reference pixels enter
 asset geometry or materials. This asset adds only two new common modules,
 `ammo762_visual.py` and `interface_v1_6.py`; existing common/kit/other guns are
