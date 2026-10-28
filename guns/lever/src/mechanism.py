@@ -187,8 +187,9 @@ def hammer_inlet():
         cut(ob,tool)
         if name in G.HIGH:
             hi=bpy.data.objects.new('Dense stock inlet',G.HIGH[name].copy());bpy.context.collection.objects.link(hi)
+            hi['boolean_solver']='EXACT'
             tool=bpy.data.objects.new('tool',mesh.copy());bpy.context.collection.objects.link(tool)
-            cut(hi,tool);G.HIGH[name]=hi.data.copy();bpy.data.objects.remove(hi,do_unlink=True)
+            cut(hi,tool);G.triangulate_cuts(hi);M.smooth(hi,42);G.HIGH[name]=hi.data.copy();bpy.data.objects.remove(hi,do_unlink=True)
 
         # Preserve silhouette while paying for the inlet only once. Remove
         # numerical Boolean slivers before reduction, in millimeter space.
@@ -197,5 +198,8 @@ def hammer_inlet():
         bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=.002)
         bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces))
         bm.to_mesh(ob.data);bm.free()
+        if name=='Upper_Tang':
+            tri=ob.modifiers.new('Stable concave machining triangles','TRIANGULATE');tri.ngon_method='CLIP';M.apply(ob)
+            G.dense(ob);G.reduce(ob,480)
         if name=='Stock':G.reduce(ob,5700)
         M.smooth(ob,42)

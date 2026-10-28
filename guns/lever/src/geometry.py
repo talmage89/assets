@@ -82,7 +82,7 @@ def cut(ob, tool, operation='DIFFERENCE'):
     mat = ob.data.materials[0]
     tool.data.materials.clear(); tool.data.materials.append(mat)
     mod = ob.modifiers.new('Machined cavity', 'BOOLEAN')
-    mod.operation = operation; mod.solver = 'MANIFOLD'; mod.object = tool
+    mod.operation = operation; mod.solver = ob.get('boolean_solver','MANIFOLD'); mod.object = tool
     M.apply(ob); bpy.data.objects.remove(tool, do_unlink=True)
     ob.data.materials.clear(); ob.data.materials.append(mat)
     for f in ob.data.polygons: f.material_index = 0
@@ -102,16 +102,44 @@ def subdivide(ob, levels):
     return ob
 
 
+def triangulate_cuts(ob):
+    if ob.get('boolean_solver')!='EXACT':return ob
+    if any(len(p.vertices)>3 for p in ob.data.polygons):
+        mod=ob.modifiers.new('Concave cut tessellation','TRIANGULATE')
+        mod.ngon_method='CLIP';mod.keep_custom_normals=True;M.apply(ob)
+    bm=bmesh.new();bm.from_mesh(ob.data);removed=0
+    while True:
+        # Concave Boolean n-gons occasionally tessellate a dangling triangle
+        # fin: two free edges and one edge with three incident faces. A fin
+        # has no enclosed volume. Remove only this exact topology, never a
+        # boundary of the intended solid or a nontrivial surface patch.
+        fins=[f for f in bm.faces if len(f.verts)==3
+              and sum(e.is_boundary for e in f.edges)==2
+              and any(len(e.link_faces)>2 for e in f.edges)]
+        if not fins:break
+        removed+=len(fins);bmesh.ops.delete(bm,geom=fins,context='FACES')
+    if removed:
+        bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data)
+        ob['numerical_triangle_fins_removed']=ob.get('numerical_triangle_fins_removed',0)+removed
+    bm.free()
+    return ob
+
+
 def dense(ob):
+    triangulate_cuts(ob)
     HIGH[ob.name] = ob.data.copy()
     ob['sculpt_method'] = 'subdivision cage with independent width, comb, belly and section curvature'
 
 
 def reduce(ob, budget):
+    triangulate_cuts(ob)
     count = sum(len(p.vertices)-2 for p in ob.data.polygons)
     if count > budget:
         mod = ob.modifiers.new('Silhouette budget', 'DECIMATE')
-        mod.ratio = budget/count; M.apply(ob)
+        mod.ratio = budget/count
+        mod.use_collapse_triangulate=ob.get('boolean_solver')=='EXACT'
+        M.apply(ob)
+        triangulate_cuts(ob)
     return ob
 
 

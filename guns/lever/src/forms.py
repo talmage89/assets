@@ -126,7 +126,8 @@ def stock_section(y,w,lo,hi,n=48):
     points=[]
     for i in range(n):
         a=math.tau*i/n;c,s=math.cos(a),math.sin(a)
-        power=2.15 if s<0 else 1.95
+        t=max(0,min(1,(y-8)/50));t=t*t*(3-2*t)
+        power=2.15 if s<0 else 1.95+6.05*t
         z=(hi+lo)/2+(hi-lo)/2*math.copysign(abs(s)**(2/power),s)
         x=w*math.copysign(abs(c)**(2/power),c)*(1-.07*max(s,0)**4)
         points.append((x,butt_y(y,z),z))
@@ -135,22 +136,38 @@ def stock_section(y,w,lo,hi,n=48):
 
 def furniture():
     ob=M.loft('Stock', [stock_section(*r) for r in STOCK],MAT['wood'])
+    ob['boolean_solver']='EXACT'
     G.subdivide(ob,3)
+    # Independent clearance avoids coplanar cuts at the steel race's floor.
+    cutbox(ob,(-10.35,-13,38.6),(10.35,67,61),.5)
+    cutbox(ob,(4.5,58,21),(10.8,67,35),.4)
     # Tang inlets are shallow, supported surfaces, not an exposed shelf.
     tangpath=[(-40,20.7),(-25,23.2),(-5,28.7),(14,35.9),(35,42),(65,50)]
     for name,path,width in [('Upper_Tang',tangpath,31.0),
                             ('Lower_Tang',[(-44,-21.3),(-20,-15.3),(0,-9),(26,-3.1),(52,-2),(65,0)],8.0)]:
-        tang=G.sweep(name,path,width,2.0,'blue')
+        if name=='Upper_Tang':path=[(y,z-1.5) for y,z in path]
+        tang=G.sweep(name,path,width,3.5 if name=='Upper_Tang' else 2.0,'blue')
         if name=='Upper_Tang':
+            tang['boolean_solver']='EXACT'
             for v in tang.data.vertices:
-                t=max(0,min(1,(v.co.y-10)/30));v.co.x*=10/31+(1-10/31)*t
-        if name=='Upper_Tang':cutbox(tang,(-10.25,-13,39),(10.25,67,61),.7)
+                t=max(0,min(1,(v.co.y-45)/20));v.co.x*=10/31+(1-10/31)*t
+            # Integral buried fork joins the narrow wrist tongue to both
+            # receiver cheeks below the bolt race and outside the hammer.
+            for lo,hi in [((-4.5,25,32.5),(4.5,34,37.5)),
+                          ((-13,30,31),(13,35,34)),
+                          ((-13,34,31),(-11,66,34)),
+                          ((11,34,31),(13,66,34))]:
+                cut(tang,box('tool',lo,hi,raw=True),'UNION')
+        # Inlet the unrelieved solid, rather than scaling an already hollow
+        # part and accidentally enlarging its internal voids. Offset its own
+        # exterior normals by 0.03 mm for a narrow, physically sensible reveal.
         tool=tang.copy();tool.data=tang.data.copy();bpy.context.collection.objects.link(tool)
-        # Slight enlargement makes an even original reveal around the inset.
-        for v in tool.data.vertices:v.co.x*=1.065
+        tool.data.update()
+        normals=[v.normal.copy() for v in tool.data.vertices]
+        for v,n in zip(tool.data.vertices,normals):v.co+=n*.03
         cut(ob,tool)
-    cutbox(ob,(-10.25,-13,39),(10.25,66,61),1.0)
-    cutbox(ob,(4.5,58,21),(10.8,67,35),.4)
+        if name=='Upper_Tang':cutbox(tang,(-10.25,-13,39),(10.25,67,61),.7)
+    screw('Stock_TangScrew',(0,-15,26.0),2.2,axis='Z')
     G.dense(ob);G.reduce(ob,5700);reg(ob)
     def plate_mesh(name,steps,sides):
         verts=[];faces=[];rings=[]

@@ -24,18 +24,37 @@ def source_hash():
     return hashlib.sha256(b''.join(p.name.encode()+p.read_bytes() for p in paths)).hexdigest()
 
 
-def finish(ob):
-    tri=ob.modifiers.new('Export triangles','TRIANGULATE');tri.keep_custom_normals=True;M.apply(ob)
-    # Resolve only normals opposing triangle winding. Small Boolean patches
-    # cannot carry a broad inherited smooth fan across a machining corner.
+def finish_normals(ob):
     normals=[v.vector.copy() for v in ob.data.corner_normals]
     for f in ob.data.polygons:
         for i in f.loop_indices:
             if ob.name=='Receiver' and abs(f.normal.x)>.94 and f.area>1:
                 normals[i]=__import__('mathutils').Vector((1 if f.normal.x>0 else -1,0,0))
+            if ob.name=='Upper_Tang' and abs(f.normal.z)>.995:
+                normals[i]=__import__('mathutils').Vector((0,0,1 if f.normal.z>0 else -1))
             if normals[i].dot(f.normal)<.08:normals[i]=f.normal.copy()
     ob.data.normals_split_custom_set(normals)
+
+
+def finish(ob):
+    tri=ob.modifiers.new('Export triangles','TRIANGULATE');tri.keep_custom_normals=True
+    if ob.name in ('Upper_Tang','Stock'):tri.ngon_method='CLIP'
+    M.apply(ob);finish_normals(ob)
     ob.data.transform(Matrix.Scale(.001,4));ob.matrix_world=Matrix.Identity(4)
+
+
+def sculpt_normals():
+    # Transfer the original cage's smooth normal field without adding vertices
+    # or textures. This prevents reduction's irregular triangle areas from
+    # making the compound walnut read as a collection of flat shaded patches.
+    for name in ('Stock','Forend'):
+        target=bpy.data.objects[name]
+        high=bpy.data.objects.new('Dense normal reference',G.HIGH[name]);bpy.context.collection.objects.link(high)
+        M.smooth(high,42)
+        mod=target.modifiers.new('Carved source normal field','DATA_TRANSFER');mod.object=high
+        mod.use_loop_data=True;mod.data_types_loops={'CUSTOM_NORMAL'}
+        mod.loop_mapping='POLYINTERP_LNORPROJ';mod.use_max_distance=True;mod.max_distance=.8
+        M.apply(target);bpy.data.objects.remove(high,do_unlink=True)
 
 
 def main():
@@ -43,6 +62,7 @@ def main():
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);out=Path(a.out).resolve();out.parent.mkdir(parents=True,exist_ok=True)
     bpy.ops.wm.read_factory_settings(use_empty=True)
     G.palette();receiver();barrel_magazine();furniture();bands();sights();lever();bolt_lock_carrier();hammer_trigger_gate();hammer_inlet();ammunition()
+    sculpt_normals()
     for ob in G.PARTS:finish(ob)
     arm=W.armature('LeverArmature',{k:tuple(v*.001 for v in pos) for k,pos in HEADS.items()},PARENTS)
     arm['base_interface_version']=interface.VERSION;arm['interface_version']=interface.SUPPLEMENT_VERSION
@@ -61,7 +81,7 @@ def main():
     # the later kit selected-to-active bake. This gate does not bake them.
     old={}
     for name,mesh in G.HIGH.items():
-        ob=bpy.data.objects[name];old[name]=ob.data;mesh.transform(Matrix.Scale(.001,4));ob.data=mesh
+        ob=bpy.data.objects[name];old[name]=ob.data;ob.data=mesh;finish_normals(ob);mesh.transform(Matrix.Scale(.001,4))
         ob.vertex_groups.clear();vg=ob.vertex_groups.new(name=ob['bone']);vg.add(list(range(len(mesh.vertices))),1,'REPLACE')
     bpy.ops.wm.save_as_mainfile(filepath=str(out.parent/'sculpt.blend'))
     for name,mesh in old.items():
