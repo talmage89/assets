@@ -361,6 +361,26 @@ def finalize(o):
   o.data.normals_split_custom_set([(0,0,0)]*len(o.data.loops));M.smooth(o,42)
   wn=o.modifiers.new('Final machined surface normals','WEIGHTED_NORMAL');wn.keep_sharp=True;wn.weight=50;M.apply(o)
  normals=[n.vector.copy() for n in o.data.corner_normals]
+ if o.name=='Frame_Forging':
+  planar={}
+  for f in o.data.polygons:
+   xs=[o.data.vertices[i].co.x for i in f.vertices]
+   if abs(f.normal.x)>.999 and max(xs)-min(xs)<.03:
+    for i in f.vertices:planar[i]=Vector((1 if f.normal.x>0 else -1,0,0))
+  for f in o.data.polygons:
+   for j in f.loop_indices:
+    fixed=planar.get(o.data.loops[j].vertex_index)
+    if fixed is not None and f.normal.dot(fixed)>.7:normals[j]=fixed.copy()
+ if o.name in ('Cylinder_Fluted','Barrel'):
+  for f in o.data.polygons:
+   if abs(f.normal.y)>.9999:
+    for j in f.loop_indices:normals[j]=Vector((0,1 if f.normal.y>0 else -1,0))
+   elif o.name=='Cylinder_Fluted':
+    vs=[o.data.vertices[i].co for i in f.vertices]
+    if all(abs(math.hypot(v.x,v.z-CY)-RADIUS)<.025 for v in vs):
+     for j in f.loop_indices:
+      v=o.data.vertices[o.data.loops[j].vertex_index].co
+      normals[j]=Vector((v.x,0,v.z-CY)).normalized()
  for f in o.data.polygons:
   for j in f.loop_indices:
    if normals[j].dot(f.normal)<.03:normals[j]=f.normal.copy()
