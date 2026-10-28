@@ -79,3 +79,10 @@ count-specific states, interruptible shell insertion, `Socket_SupportHand` and
 `Socket_Shell`. Existing 1.0.0 meanings and the C9 binding above remain valid.
 `common/interface_v1_1.py` checks the added schema; each gun supplies its own
 event schedule and independent intended-state/contact tests.
+
+## Additive 1.2.0 bolt/optic supplement
+
+The [Vesper B24 supplement](bolt/INTERFACE.md) adds manual bolt cycling,
+no-hold-open detachable-magazine states, folding/extending bipod clips and
+`Socket_OpticObjective` for optional magnified rendering. Both the 1.0.0 binding
+and the 1.1.0 tube-loading supplement retain their existing meanings.
