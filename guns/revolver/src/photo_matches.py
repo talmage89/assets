@@ -9,7 +9,7 @@ def match(photo,title,crop,location,target,lens,landmarks):
   location=location,target=target,lens=lens,landmarks=landmarks,background='transparent',exposure=-.25,
   camera_height_m=(.060,.025),lens_bounds_mm=(65,140))
 MATCHES={
- 'right_photo':match('side-atf','Four-inch service class / right; white backdrop balanced',
+ 'right_photo':match('side-atf','Four-inch service class / right; clipped backdrop, form only',
   (150,40,1000,555),(.65,.055,.025),(0,.058,.015),80,[
    L((0,184,61),(931,136)),L((0,178,83),(912,77)),L((0,28,83),(467,92)),
    L((9,38,48.2),(497,175)),L((9,82.2,48.2),(630,175)),

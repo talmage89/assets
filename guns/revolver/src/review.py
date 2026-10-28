@@ -52,7 +52,7 @@ def main():
  dimensions(report)
  beauty=[OUT/'beauty'/(name+'.png') for name in ['hero','side','left','top','front','rake_right','rake_left','open','star','reload','rear','grip','trigger_side','trigger_quarter','sights','aimed']]
  contact(beauty,OUT/'contact-sheet.jpg',width=2000,title='Meridian Six / FORM CHECKPOINT / imported unbaked GLB')
- review_sheet([[OUT/'pairs'/(n+'_photo-pair.jpg')] for n in ['right','left','open']],OUT/'photo-pairs.jpg',title='White-balanced photographic form comparisons')
+ review_sheet([[OUT/'pairs'/(n+'_photo-pair.jpg')] for n in ['right','left','open']],OUT/'photo-pairs.jpg',title='Photographic form comparisons / neutral balance where recoverable')
  review_sheet([[OUT/'source-pairs'/(n+'_photo-pair.jpg')] for n in ['right','left','open']],OUT/'source-photo-pairs.jpg',title='Dense source / same photographic comparisons')
  contact([OUT/'ammo'/(n+'.png') for n in ['cartridge','cartridge_head','case','case_head','speedloader']],OUT/'ammunition.jpg',width=1600,title='Original .357 exterior ammunition and loaded speedloader')
  contact([OUT/'strips'/(clip+'.jpg') for clip in timing],OUT/'clips.jpg',width=2400,title='All clips / uniform 15 Hz samples / true-duration WebP loops beside each strip')

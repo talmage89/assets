@@ -16,11 +16,13 @@ def main():
  for name,patch in PATCHES.items():
   path=BASE/'refs'/(name+'.jpg');im=ImageOps.exif_transpose(Image.open(path)).convert('RGB');x=np.array(im,dtype=float)
   a,b,c,d=patch;p=x[b:d,a:c].reshape(-1,3);neutral=np.median(p,axis=0)
+  clipped=bool(np.any(neutral>=250))
   gain=neutral.mean()/neutral
   corrected=np.clip(x*gain,0,255).round().astype('uint8');Image.fromarray(corrected).save(out/(name+'.png'))
   rows[name]=dict(neutral_patch=patch,neutral_description='white photographic backdrop' if name=='side-atf' else 'light gray paper backdrop' if name in ('left','right') else 'gray foam background' if name=='open' else 'bright neutral table/backdrop; directional blue lighting remains a limitation',
    original_rgb_median=neutral.tolist(),gain=gain.tolist(),corrected_rgb_median=np.median(corrected[b:d,a:c].reshape(-1,3),axis=0).tolist(),
-   note='display-space neutral balance for visual comparison; not recovered albedo')
+   neutral_patch_clipped=clipped,usable_for_material_color=not clipped,
+   note='clipped white cannot establish chromatic balance; form comparison only' if clipped else 'display-space neutral balance for visual comparison; not recovered albedo')
  (out/'whitebalance.json').write_text(json.dumps(rows,indent=2))
  print('WHITE BALANCE',out/'whitebalance.json')
 if __name__=='__main__':main()
