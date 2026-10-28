@@ -69,6 +69,10 @@ Trees
 - [Foundation shrubs](shrubs/README.md): a sheared boxwood and a blooming bigleaf hydrangea in one GLB on one
   shared set, with wind weights.
 
+Held weapons
+- [Guns](guns/README.md): the PD C9 compact 9 mm pistol, the family's pilot, rigged with ten clips on the rifle's
+  frame and sockets, with loaded and empty magazines and a fired case.
+
 Toolkit
 - [Shared toolkit](kit/README.md): procedural modeling and materials, UV, bake and export, verification and studio
   renders of the exported GLB.

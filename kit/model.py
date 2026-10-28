@@ -67,6 +67,34 @@ def rounded_rectangle(w,h,r,n=4):
     return out
 
 
+def fillet_polygon(points, radii, segments=4):
+    """Round authored polygon corners; generalized from the procedural rifle.
+
+    Scalar or per-corner radii, including concave corners. Tangency distances
+    are clamped to 49% of adjacent edges so neighboring rounds cannot cross.
+    """
+    radii=[radii]*len(points) if isinstance(radii,(float,int)) else radii
+    if len(radii)!=len(points):raise ValueError('One radius per polygon corner')
+    output=[]
+    for i,point in enumerate(points):
+        p=Vector(point);a=Vector(points[i-1])-p;b=Vector(points[(i+1)%len(points)])-p
+        la,lb=a.length,b.length
+        if min(la,lb)<1e-9:raise ValueError('Duplicate polygon corner')
+        a.normalize();b.normalize();angle=math.acos(max(-1,min(1,a.dot(b))))
+        radius=radii[i]
+        if radius<=0 or angle<1e-4 or angle>math.pi-1e-4:output.append(tuple(p));continue
+        distance=min(radius/math.tan(angle/2),.49*la,.49*lb)
+        radius=distance*math.tan(angle/2)
+        center=p+(a+b).normalized()*(radius/math.sin(angle/2))
+        start=p+a*distance-center;end=p+b*distance-center
+        alpha=math.atan2(start.y,start.x);beta=math.atan2(end.y,end.x)
+        delta=(beta-alpha+math.pi)%math.tau-math.pi
+        n=max(1,round(segments*abs(delta)/(math.pi/2)))
+        output.extend((center.x+radius*math.cos(alpha+delta*j/n),
+                       center.y+radius*math.sin(alpha+delta*j/n)) for j in range(n+1))
+    return output
+
+
 def profile(name, points, lo, hi, material, axis='X', radius=0, segments=2):
     """Extruded closed polygon. Concave caps use Blender's ngon triangulator."""
     def p(u,v,h):

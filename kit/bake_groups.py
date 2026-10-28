@@ -3,6 +3,9 @@ from mathutils import Vector
 
 
 def owner(ob,roots):
+    # Opt-in virtual roots for rigid skins; static/prop callers are unchanged.
+    key='rigid:'+str(ob.get('bone',''))
+    if key in roots:return key
     while ob:
         if ob.name in roots:return ob.name
         ob=ob.parent

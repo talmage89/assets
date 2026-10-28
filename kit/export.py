@@ -80,6 +80,10 @@ def main():
     bpy.context.view_layer.update()
     objects=[o for o in sc.objects if o.type=='MESH' and 'asset_set' in o]
     material=atlas_material(a.asset,Path(a.textures).resolve());groups={}
+    def group_name(ob,parent):
+        if parent.type=='ARMATURE' and parent.name in cfg.get('EXPORT_SKIN_NAMES',{}):
+            return cfg['EXPORT_SKIN_NAMES'][parent.name]
+        return ob.get('export_part',parent.name+'Mesh')
     overrides=cfg.get('MATERIAL_OVERRIDES',{});palette={};tile_materials={}
     surfaces={}
     for key,settings in cfg.get('DELIVERY_SURFACES',{}).items():
@@ -120,7 +124,7 @@ def main():
             for mat in surfaces.values():ob.data.materials.append(mat)
             indices={key:i for i,key in enumerate(surfaces)}
             for face,key in zip(ob.data.polygons,assignments):face.material_index=indices[key]
-            parent=moving_parent(ob);name=ob.get('export_part',parent.name+'Mesh')
+            parent=moving_parent(ob);name=group_name(ob,parent)
             groups.setdefault((parent,name),[]).append(ob)
             continue
         prefix=next((prefix for prefix in overrides if ob.name.startswith(prefix)),None)
@@ -144,8 +148,24 @@ def main():
             chosen=tile_materials[key]
         ob.data.materials.clear();ob.data.materials.append(chosen)
         for face in ob.data.polygons:face.material_index=0
-        parent=moving_parent(ob);name=ob.get('export_part',parent.name+'Mesh')
+        parent=moving_parent(ob);name=group_name(ob,parent)
         groups.setdefault((parent,name),[]).append(ob)
+    detachments=[]
+    for spec in cfg.get('DETACHABLES',[]):
+        from kit import weapon
+        arm=bpy.data.objects[spec['armature']]
+        weapon.pose(arm,spec.get('clip'),spec.get('frame',0))
+        members=[o for o in objects if o.parent==arm and o.get('bone') in spec['bones']]
+        detached=weapon.detachable(members,arm,spec['bone'],spec['name'])
+        for layer in list(detached.data.uv_layers):
+            if layer.name!='BakeUV':detached.data.uv_layers.remove(layer)
+        detached.data.uv_layers['BakeUV'].name='UVMap'
+        path=Path(a.out).resolve().parent/spec['filename']
+        weapon.export(path,[detached],animations=False)
+        detachments.append(dict(file=spec['filename'],bytes=path.stat().st_size,
+                                clip=spec.get('clip'),frame=spec.get('frame',0),bone=spec['bone']))
+        bpy.data.objects.remove(detached,do_unlink=True)
+        weapon.pose(arm,None,0)
     for (parent,name),members in groups.items():
         asset_set=members[0].get('asset_set',a.asset)
         bpy.ops.object.select_all(action='DESELECT')
@@ -174,7 +194,7 @@ def main():
         for ob in list(sc.objects):
             if ob.type=='EMPTY' and not ob.children and ob.name not in keep and 'pivot_axis' not in ob and 'slide_axis' not in ob:
                 bpy.data.objects.remove(ob,do_unlink=True)
-    bpy.context.view_layer.update();report={'asset':a.asset,'meshes':{},'nodes':{},'rigs':{}}
+    bpy.context.view_layer.update();report={'asset':a.asset,'meshes':{},'nodes':{},'rigs':{},'detachments':detachments}
     for ob in sc.objects:
         if ob.type=='MESH':
             ob.data.calc_loop_triangles()
@@ -191,15 +211,25 @@ def main():
     report['materials']=sorted({m.name for ob in sc.objects if ob.type=='MESH' for m in ob.data.materials if m});report['source']=a.source
     path=Path(a.out).resolve();path.parent.mkdir(parents=True,exist_ok=True)
     bpy.ops.object.select_all(action='SELECT')
+    animations=cfg.get('EXPORT_ANIMATIONS',False)
+    from kit.weapon import animation_options
+    animation_settings=animation_options(animations)
+    animation_settings.setdefault('export_def_bones',True)
     bpy.ops.export_scene.gltf(filepath=str(path),export_format='GLB',use_selection=True,export_yup=True,
         export_apply=False,export_texcoords=True,export_normals=True,export_tangents=True,
-        export_materials='EXPORT',export_image_format='AUTO',export_skins=True,export_animations=False,
-        export_def_bones=True,export_extras=True,export_cameras=False,export_lights=False,
+        export_materials='EXPORT',export_image_format='AUTO',export_skins=True,
+        export_extras=True,export_cameras=False,export_lights=False,**animation_settings,
         **(dict(export_attributes=True,export_vertex_color='NONE') if cfg.get('EXPORT_COLOR_DATA') else {}))
     if overrides or tile_materials or surfaces:
         from kit.glb_textures import compact
         report['texture_views']=compact(path,Path(a.report).parent)
     report['bytes']=path.stat().st_size
+    if animations:
+        from kit.gltf import GLB
+        document=GLB(path).json
+        report['animations']=[act['name'] for act in document.get('animations',[])]
+        wanted=animations.get('clips',[]) if isinstance(animations,dict) else []
+        if wanted and set(wanted)!=set(report['animations']):raise RuntimeError('Animation clip set differs from delivery policy')
     Path(a.report).write_text(json.dumps(report,indent=2))
     bpy.ops.file.pack_all();bpy.ops.wm.save_as_mainfile(filepath=str(Path(a.report).with_suffix('.blend').resolve()))
     print('EXPORTED',path,report['triangles'],'triangles',report['bytes'],'bytes',flush=True)

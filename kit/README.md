@@ -681,3 +681,85 @@ directories and need no generated fixture files.
 `build/atlas-test/small-region/` and asserts the shared fixture files remain
 byte-identical. This prevents a variant config from being verified against
 another variant's UVs; BLEND and MASK validation retain their original checks.
+
+## Held weapons (opt-in)
+
+`weapon.py` generalizes the procedural rifle's grip-centered +Y-forward frame:
+parallel zero-roll bones, rigid binding, scene-root attachment sockets, bone-riding
+magazine sockets, complete endpoint keys and named NLA clips. Geometry, visual
+mechanism paths and timings remain in `guns/src/`; these helpers do not affect
+existing prop rigs or exports. `joined_copy()` consolidates rigid weights while
+preserving the separate source parts for inspection. `export()` writes selected
+objects with named clips and the caller's materials; it does not certify a baked
+asset or replace the existing atlas finalizer/exporter.
+
+`motion.sweep_clips()` tests evaluated rigid skin surfaces through every supplied
+action, with fractional frame steps and explicit contact exceptions. It reuses
+the established BVH / solid-parity penetration method and reports sampling,
+measured penetration and exceptions. Same-bone geometry is a single assembly;
+static assembly construction still needs its own review. Relative-pose caching
+avoids repeating identical tests during holds and whole-asset inspect rotations.
+`model.fillet_polygon()` ports the rifle's clamped polygon corner rounds, including
+concave corners. Existing modeling helpers keep their defaults.
+
+Run `blender -b --factory-startup --python-exit-code 1 --python
+kit/test_weapon.py` for the frame/socket/independent-clip and positive/negative
+collision fixtures, in addition to all existing kit regressions.
+
+### Weapon holds, delivery and verification
+
+`weapon.action()` now keys a **complete** pose at every schedule entry. Omitted
+values carry forward at that boundary; add `weapon.hold(frame)` at the end of a
+hold before the next movement. Scale channels use CONSTANT interpolation by
+default for discrete visibility; pass `discrete=()` to animate scale continuously.
+This corrects the sparse-key hazard without changing existing function arguments.
+All current callers' schedules should still be reviewed for intended hold ends.
+
+`weapon.animation_options()` is shared by both export paths. The established
+`export.py` accepts opt-in `EXPORT_ANIMATIONS=True` or
+`{'clips': ['YourClip', ...]}`; the latter also verifies the exported clip set.
+Static exports remain unchanged. ACTIONS mode with 60-Hz sampling preserves STEP
+channels and samples compound Euler motion for glTF quaternions. Blender's
+NLA_TRACKS mode forces sampling and can lose discrete interpolation; it is not
+the default. Muted, named NLA tracks still organize the source actions.
+`EXPORT_SKIN_NAMES` consolidates the rigid parts into the configured skinned mesh.
+Atlas materials, UVs and animations therefore ship through the same exporter.
+
+Optional `DETACHABLES` entries use `armature`, `bone`, `bones` (part-owner list),
+`name`, `filename`, and optional `clip`/`frame`. Export snapshots evaluated parts
+in the full inverse posed bone frame **after** assigning the atlas material,
+before consolidating the main skin. Zero-scale parts are omitted; source meshes,
+UVs and pose are restored. Loaded/empty variants can share the origin and atlas.
+The lower-level `weapon.detachable()` is also available to family scripts.
+
+`BAKE_POLICY.isolate_rigid_bones=True` adds virtual projection roots `rigid:<bone>`
+for non-Root rigid parts tagged with `bone`. This preserves each part's projection
+and local AO without contaminating it with neighboring moving parts. Existing
+moving-root and assembled-bake defaults are unchanged. Explicit shader reference
+frames shared across bones should be converted to rest-coordinate attributes
+before isolation; default local coordinates and explicit helper frames carrying the same `bone` tag are supported.
+
+`weapon_verify.py` supplies complete affine bone/socket captures, fresh imports,
+bidirectional surface comparisons and winding-versus-normal checks. These measure
+serialization; callers must separately assert intended animation states and real
+contacts. `weapon_presentation.py` supplies socket-axis aimed cameras, uniformly
+timed frame-strip samples and action-aware floor handling. Family-specific
+viewpoints, events and mechanical estimates remain outside the kit.
+
+`motion.sweep_clips()` exceptions may specify `max_penetration_m`. Such pairs are
+still measured and fail above that bound. Legacy skip exceptions remain supported
+for backward compatibility. Required contacts remain a separate surface audit.
+
+Run `test_weapon_roundtrip.py` in Blender for nested pump/lifter rotation and
+translation, explicit holds, STEP states, full socket orientation and rotated
+extraction. Run `test_weapon_delivery.py` **through with_gpu.sh** for a real
+isolated atlas bake, animated atlas export/import, and loaded/empty detachable
+exports with byte-identical embedded maps. Clean `build/weapon-roundtrip` and
+`build/weapon-delivery` before those fixtures. Identical payloads prove canonical
+atlas reuse; an engine still needs a content/atlas-ID texture cache for shared
+GPU allocations. The fixture uses 128 pixels to keep regression cost low.
+
+Checkpoint families may now declare `CHECKPOINT_OUTPUTS` and
+`CHECKPOINT_RENDER_OUTPUTS` as grouped target sets, plus `CHECKPOINT_RENDER_ARGS`.
+Deleting any declared blend/GLB/image regenerates its whole group. The default
+single blend/render-stamp behavior remains compatible with existing families.

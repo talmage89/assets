@@ -34,6 +34,8 @@ def main():
     cfg=runpy.run_path(a.config) if a.config else {}
     policy=cfg.get('BAKE_POLICY',{});roots=policy.get('moving_roots',[]) if policy.get('isolate_moving',False) else []
     originals=[o for o in sc.objects if o.type=='MESH' and 'asset_set' in o and not atlas.tiled_spec(o.name,cfg)]
+    if policy.get('isolate_rigid_bones',False):
+        roots=list(roots)+sorted({'rigid:'+o['bone'] for o in originals if o.get('bone') and o['bone']!='Root'})
     spacing=bake_groups.offsets(originals,roots,policy.get('padding_m',.1)) if roots else {}
     copies=[];group_counts={}
     for ob in list(sc.objects):

@@ -112,6 +112,81 @@ def sweep(config):
     return result
 
 
+def sweep_clips(armature, names, *, step_frames=1, tolerance_m=.0002, allow=()):
+    """Sample complete authored actions on separately bound rigid source parts.
+
+    Uses the same evaluated-solid penetration test as pivot sweeps. Same-bone
+    surfaces form one manufactured assembly and are omitted; every cross-bone
+    pair is checked unless an explicit prefix pair documents intended contact.
+    Includes action endpoints and authored keyframes, even at fractional times.
+    """
+    from kit.weapon import pose, fcurves
+    if step_frames<=0:raise ValueError('step_frames must be positive')
+    meshes=[o for o in bpy.context.scene.objects if o.type=='MESH'
+            and o.parent==armature and 'bone' in o and not o.get('allow_boundary',False)]
+    if not meshes:raise ValueError('No rigid weapon source parts')
+    result=dict(passed=True,method='evaluated skin surfaces; BVH + solid parity / edge intervals',
+                units='meters',step_frames=step_frames,tolerance_m=tolerance_m,clips=[])
+    pairs=[];allowed=[]
+    for i,a in enumerate(meshes):
+        for b in meshes[i+1:]:
+            if a['bone']==b['bone']:continue
+            rule=next((r for r in allow if
+                (a.name.startswith(r['a']) and b.name.startswith(r['b'])) or
+                (b.name.startswith(r['a']) and a.name.startswith(r['b']))),None)
+            if rule:
+                allowed.append(dict(a=a.name,b=b.name,reason=rule['reason'],
+                                    max_penetration_m=rule.get('max_penetration_m')))
+                # Legacy exceptions remain available. New rigid assemblies can
+                # bound an intentional overlap instead of removing its test.
+                if 'max_penetration_m' not in rule:continue
+            pairs.append((a,b,rule))
+    result['allowed_contacts']=allowed;result['cross_bone_pairs']=len(pairs)
+    # Long holds and identical poses in different clips need only one solid test.
+    # Pair-relative bone matrices also avoid repeating an inspect's rigid Root turn.
+    pair_cache={};surface_cache={};tested=0
+    rest_action=armature.animation_data.action if armature.animation_data else None
+    rest_frame=bpy.context.scene.frame_current
+    try:
+        for name in names:
+            action=bpy.data.actions[name];lo,hi=map(float,action.frame_range)
+            count=math.ceil((hi-lo)/step_frames)
+            frames={lo,hi,*[lo+i*step_frames for i in range(count)]}
+            frames.update(float(k.co.x) for fc in fcurves(action) for k in fc.keyframe_points)
+            violations={};maximum=0.0
+            for frame in sorted(frames):
+                pose(armature,name,frame)
+                matrices={b.name:b.matrix.copy() for b in armature.pose.bones}
+                surfaces={}
+                for o in meshes:
+                    key=(o.name,tuple(round(v,9) for row in matrices[o['bone']] for v in row))
+                    if key not in surface_cache:surface_cache[key]=surface(o)
+                    surfaces[o.name]=surface_cache[key]
+                for a,b,rule in pairs:
+                    sa,sb=surfaces[a.name],surfaces[b.name]
+                    limit=rule['max_penetration_m'] if rule else tolerance_m
+                    measure_tolerance=min(tolerance_m,limit)
+                    if any(min(sa['hi'][k],sb['hi'][k])-max(sa['lo'][k],sb['lo'][k])<=measure_tolerance for k in range(3)):continue
+                    ma,mb=matrices[a['bone']],matrices[b['bone']]
+                    relative=ma.inverted_safe()@mb
+                    key=(a.name,b.name,tuple(round(v,8) for row in relative for v in row))
+                    if key not in pair_cache:
+                        pair_cache[key]=penetration(sa,sb,measure_tolerance);tested+=1
+                    depth,crossings=pair_cache[key];maximum=max(maximum,depth)
+                    if depth>limit:
+                        key=(a.name,b.name)
+                        if key not in violations or depth>violations[key]['depth_m']:
+                            violations[key]=dict(a=a.name,b=b.name,frame=frame,depth_m=depth,limit_m=limit,triangle_crossings=crossings)
+            row=dict(clip=name,range_frames=[lo,hi],samples=len(frames),
+                     max_penetration_m=maximum,violations=list(violations.values()))
+            result['clips'].append(row);result['passed'] &= not bool(violations)
+            print('CLIP MOTION',name,len(frames),'samples',maximum,'m',len(violations),'violations',flush=True)
+    finally:
+        pose(armature,rest_action.name if rest_action else None,rest_frame)
+    result['unique_solid_tests']=tested
+    return result
+
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--config',required=True);p.add_argument('--out',required=True)
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);bpy.ops.wm.open_mainfile(filepath=str(Path(a.source).resolve()))
