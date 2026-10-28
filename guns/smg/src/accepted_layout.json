@@ -1,0 +1,22 @@
+{
+  "magazine_loaded": {
+    "non_image_buffer_hash": "2b980dce1baf7f9d8a389cde3cecc3bc3ec8f4f2f62212becce3e3a005247e2a",
+    "structure_hash": "276c2a2953f2d3a40cbe2485059c98d321ed66c7fe132386a7fd0731739c5161"
+  },
+  "magazine_empty": {
+    "non_image_buffer_hash": "948a59c3cb33e5dc704c6f7f6a34f7858fd1238edfcf12eee6b3b62f662a3aa6",
+    "structure_hash": "8ac62567f5cc4dbb5bd3e54f8942f312b409419231113c08c9bfdd638a679aa2"
+  },
+  "smg": {
+    "non_image_buffer_hash": "d4373ec329912f6bac763acf56c79158a7fb69b9c7f023c9c5784da9f9f69a98",
+    "structure_hash": "20d15ea08c25923f60f1e943a4393562b9ef1ef8f3579bfc043b0b8d0065b189"
+  },
+  "cartridge": {
+    "non_image_buffer_hash": "3afdf46aba8fba1264780c22c83af43542ecd24bb26f051e9d83b7e62b5c78cc",
+    "structure_hash": "ca32bf4f4f6672e4c6b1320e2d506dc39a78c7fd7edf90b3c74f3e461ca4494b"
+  },
+  "case": {
+    "non_image_buffer_hash": "4157b56cf995e7200da2d2ea70420fc635dc70c48003b09f15ac73c0be463289",
+    "structure_hash": "e7b62061f7ee0f22e0d99193b51f32cd9e0e45d3b88c9f84573620662cc0e3e9"
+  }
+}
