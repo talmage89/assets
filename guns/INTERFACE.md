@@ -93,3 +93,10 @@ The [Relay 9 supplement](smg/INTERFACE.md) adds a manually locking,
 nonreciprocating charging handle, its full-frame hand socket, select-fire
 states and no-hold-open reload schedules. The 1.0.0 binding and the 1.1.0
 and 1.2.0 supplements retain their existing meanings.
+
+## Additive 1.6.0 rocking-magazine supplement
+
+The [Rill 39 supplement](ak/INTERFACE.md) adds `magazine_rocks_in`, the authored
+front-hook/rock/seat path and a reciprocating charging-handle binding. Existing
+occupancy, socket, effect and select-fire meanings remain unchanged. Versions
+1.4.0 and 1.5.0 are reserved by other family members.

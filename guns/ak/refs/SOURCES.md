@@ -10,6 +10,8 @@ nonfunctional visual proxies, without manufacturing dimensions or tolerances.
 | early.jpg | https://upload.wikimedia.org/wikipedia/commons/4/41/AKM_Izhevsk_1960.jpg | Levvuori / public domain dedication | Independent exterior proportions and construction; early furniture differs. |
 | muzzle.jpg | https://upload.wikimedia.org/wikipedia/commons/7/71/AKM_muzzle_brake.jpg | U.S. Air Force, crop by EH101 / public domain | Slant brake, front sight, cleaning rod and gas block appearance. |
 | weld.jpg | https://upload.wikimedia.org/wikipedia/commons/1/19/AKM_and_MP5K.JPEG | SSGT Stacy L. Pearsall, USAF / public domain | Cheek weld and issued wear; only anonymous gun/comb crop used in comparisons. |
+| ammunition.jpg | https://upload.wikimedia.org/wikipedia/commons/7/7b/Cartridge_7.62x39mm_M43_Steel_CC_BY-SA_4.0_by_Grasyl.jpg | Grasyl / CC BY-SA 4.0 | Inert cartridge's exterior silhouette and lacquered steel appearance, comparison only. |
+| trigger-sharp.jpg | https://upload.wikimedia.org/wikipedia/commons/e/e8/AKM_rifle_Bulgarian_Special_Forces.jpg | Ivan 6 / CC BY-SA 4.0 | Higher-resolution trigger/guard and stamped exterior. Modern stock differs; compare blade only. |
 
 Source pages (titles in URLs identify reference objects, not the fictional asset):
 
