@@ -68,7 +68,7 @@ def lathe(name,pts,mat='steel',bone='Root',axis='Y',center=(0,0),n=48,closed=Fal
  return reg(o,bone) if register else o
 def cut(o,tool,operation='DIFFERENCE'):
  tool.data.materials.clear();tool.data.materials.append(o.data.materials[0])
- if o.name in ('Frame_Forging','Barrel','Hammer_ThumbSpur'):
+ if o.name in ('Frame_Forging','Barrel','Hammer_Body','Hammer_ThumbSpur','Latch_Thumbpiece'):
   modifier=o.modifiers.new('Manifold visual machining','BOOLEAN');modifier.object=tool
   modifier.operation=operation;modifier.solver='MANIFOLD';M.apply(o)
   bpy.data.objects.remove(tool,do_unlink=True)
@@ -93,6 +93,74 @@ def screw(name,x,y,z,r=2.1,mat='steel',bone='Root'):
  o=lathe(name,[(lo,0),(lo,r*.92),(hi-.08*sign,r),(hi,r*.92),(hi,0)],mat,bone,axis='X',center=(y,z),n=24,register=False)
  a,b=sorted((x-sign*.20,x+sign*.4));cutbox(o,(a,y-r-.1,z-.30),(b,y+r+.1,z+.30))
  return reg(o,bone,.10,2)
+def hammer_roof(y):
+ t=max(0,min(1,(8-y)/19))
+ return 65.1+9.0*(3*t*t-2*t*t*t)+3.3*(1-t)**2
+def hammer_width(y):
+ t=max(0,min(1,(8-y)/19))
+ width=3.45+1.25*math.sin(math.pi*t)**.8
+ if y>2:width=min(width,3.65)
+ if t>.90:width*=1-.32*((t-.90)/.10)**2
+ return width
+def checked_pad(name,rows,across,mat,bone,axis='Z',relief=.085):
+ # Original fine pyramids on a curved pad, integrated into its closed mesh.
+ # rows=(length station, half width, upper surface, lower surface).
+ # Four triangles per tooth avoid thousands of tiny Boolean cutter seams.
+ verts=[];faces=[];nr=len(rows);nc=across+1
+ def point(u,v,h):return (u,v,h) if axis=='Z' else (h,u,v)
+ for y,w,top,bottom in rows:
+  for i in range(nc):
+   u=-1+2*i/across;verts.append(point(w*u,y,top-.22*abs(u)**6))
+ for j in range(nr-1):
+  for i in range(across):
+   ids=[j*nc+i,j*nc+i+1,(j+1)*nc+i+1,(j+1)*nc+i]
+   center=sum((Vector(verts[k]) for k in ids),Vector())/4
+   center[2 if axis=='Z' else 0]+=relief if axis=='Z' else -relief
+   k=len(verts);verts.append(tuple(center))
+   faces.extend((ids[t],ids[(t+1)%4],k) for t in range(4))
+ base=len(verts)
+ for y,w,top,bottom in rows:verts.extend([point(-w,y,bottom),point(w,y,bottom)])
+ for j in range(nr-1):
+  a=j*nc;b=(j+1)*nc;c=base+2*j;d=c+2
+  faces.extend([(a,b,d,c),(a+across,c+1,d+1,b+across),(c,d,d+1,c+1)])
+ faces.append(tuple([*range(nc-1,-1,-1),base,base+1]))
+ faces.append(tuple([*( (nr-1)*nc+i for i in range(nc)),base+2*nr-1,base+2*nr-2]))
+ return reg(M.mesh(name,verts,faces,MAT[mat]),bone)
+def sculpted_hammer():
+ # A single closed cage through the hidden body, curved neck and thumb tip.
+ # The roof grid and rounded cheek rails share vertices, so there is no
+ # profile-extrusion cap or Boolean shoulder where the thumb spur emerges.
+ body=[(18,3.45,67.2,65.1),(17.5,3.65,67.9,61.8),
+  (16.5,3.65,68.3,54.6),(15.3,3.65,68.4,46.0),
+  (14,3.65,68.4,44.2),(10,3.65,68.4,44.2),
+  (6,3.65,68.55,45.5),(4,3.55,68.8,49.0)]
+ rows=list(body)
+ for j in range(22):
+  y=3-14*j/21;roof=hammer_roof(y)
+  bottom=(52+3*(3-y)) if y>=0 else roof-(5-3.4*(8-y)/19)
+  width=min(3.65,hammer_width(y)) if y>=0 else hammer_width(y)
+  rows.append((y,width,roof,bottom))
+ n=12;ring=n+9;verts=[];faces=[];teeth=[]
+ for y,w,top,bottom in rows:
+  if y< -9.8:top-=.5*((-9.8-y)/1.2)**2
+  r=min(.8,(top-bottom)*.28);mid=(top+bottom)/2
+  for i in range(n+1):
+   u=-1+2*i/n;verts.append(((w-r*.5)*u,y,top-.14*abs(u)**6))
+  verts.extend([(w,y,top-r),(w+.10,y,mid),(w,y,bottom+r),
+   (w-r*.5,y,bottom),(-w+r*.5,y,bottom),(-w,y,bottom+r),
+   (-w-.10,y,mid),(-w,y,top-r)])
+ for j in range(len(rows)-1):
+  for i in range(ring):
+   q=(i+1)%ring;ids=[j*ring+i,j*ring+q,(j+1)*ring+q,(j+1)*ring+i]
+   if i<n and rows[j][0]<=3:
+    center=sum((Vector(verts[k]) for k in ids),Vector())/4;center.z+=.075
+    k=len(verts);verts.append(tuple(center));faces.extend((ids[t],ids[(t+1)%4],k) for t in range(4));teeth.extend([1]*4)
+   else:faces.append(tuple(ids));teeth.append(0)
+ faces.extend([tuple(range(ring-1,-1,-1)),tuple((len(rows)-1)*ring+i for i in range(ring))])
+ teeth.extend([0,0]);ob=M.mesh('Hammer_Body',verts,faces,MAT['flat'])
+ mark=ob.data.attributes.new('hammer_tooth','INT','FACE')
+ for item,value in zip(mark.data,teeth):item.value=value
+ return reg(ob,'Hammer')
 def frame():
  # Forging volume varies in all three axes: broad recoil shoulder, lower
  # belly, neck and front collar. Machining leaves planar cheek lands.
@@ -121,6 +189,8 @@ def frame():
  shield=lathe('tool',[(32.25,0),(32.25,17),(33.0,18.5),(34.4,19),
   (35.5,18.8),(36.7,17),(37.1,14.8),(37.1,0)],center=(0,CY),n=72,register=False)
  cut(o,shield,'UNION')
+ # A closed molding envelope excludes lockwork slots from the rubber seat.
+ SEATS['Grip']=o.data.copy()
  # 0.45 mm radial running light around the accepted cylinder envelope.
  window=[(y+59.95,z+48.2) for y,z in rounded(45.7,40.3,.65,6)]
  cut(o,profile('tool',window,-30,30,register=False))
@@ -138,11 +208,15 @@ def frame():
   zz=CRANE[2]-8*math.sin(angle)+28.2*math.cos(angle)
   release.extend(Vector((xx+5.65*math.cos(t),zz+5.65*math.sin(t))) for t in [math.tau*k/32 for k in range(32)])
  release=[tuple(release[i]) for i in convex_hull_2d(release)]
- cut(o,profile('tool',release,34.25,37.8,axis='Y',register=False))
+ cut(o,profile('tool',release,35.52,37.8,axis='Y',register=False))
  # The cylinder's center rises 1.1 mm during early swing-out. A left-only
  # underside chamfer clears that arc, while the center/right rail hugs it.
  roof=[(-22,65),(-22,70.9),(0,68.35),(0,65)]
  cut(o,profile('tool',roof,37.1,82.9,axis='Y',register=False))
+ # A shallow tapered sight mortise gives the leaf a seated front tongue.
+ groove=M.loft('tool',[[(x,y,z+78.6) for x,z in rounded(w,2.9,.25,3)]
+  for y,w in [(31,12.1),(36,11.3),(47,9.7),(59,7.5),(65.5,6.1)]],MAT['steel'])
+ cut(o,groove)
  # Hammer/trigger slots and front crane heel pocket are visible machining.
  # Close all unused space behind the hammer. This narrow pocket is the
  # swept *body*, rather than a rectangular trough through the backstrap.
@@ -156,6 +230,8 @@ def frame():
  hull=[tuple(envelope[i]) for i in convex_hull_2d(envelope)]
  cut(o,profile('tool',hull,-4,4,register=False))
  cutbox(o,(-4.1,26,12),(4.1,44,26))
+ bolster=profile('tool',M.fillet_polygon([(79,28),(80,22),(84,18),(90,18.5),(94,25),(94,34)],2.5,8),6.6,9.5,register=False)
+ M.bevel(bolster,.8,4);M.apply(bolster);cut(o,bolster,'UNION')
  cutbox(o,(-22,82.6,18),(6.5,90.0,54.7))
  cutbox(o,(-28,81,CY-3.8),(3.5,98,CY+3.8))
  cut(o,lathe('tool',[(80,0),(80,5.2),(100,5.2),(100,0)],center=(0,BORE),n=48,register=False))
@@ -168,7 +244,14 @@ def frame():
  plate=M.fillet_polygon([(-11,30),(-8,45),(1,51),(9,65),(26,64),
   (33.8,34),(33.8,27.0),(78,27.0),(78,24.7),(57,23.7),(45,23.8),(25,21),(6,17)],
   [2.5,2.5,2.5,2.5,2.5,1.0,.7,.5,.5,.7,.7,1.8,2.5],6)
- cut(o,profile('tool',plate,8.0,12,register=False))
+ # The plate is a patch of the same forging skin. Its curved lower edge must
+ # follow that skin, instead of standing proud as a constant-thickness slab.
+ plate_skin=bpy.data.objects.new('Frame_Sideplate',o.data.copy());bpy.context.collection.objects.link(plate_skin)
+ area=sum(a[0]*b[1]-b[0]*a[1] for a,b in zip(plate,plate[1:]+plate[:1]))
+ plate2=M.offset_profile(plate,.10 if area>0 else -.10)
+ cut(plate_skin,profile('tool',plate2,7.55,12,register=False),'INTERSECT')
+ for v in plate_skin.data.vertices:v.co.x-=.025
+ cut(o,profile('tool',plate,7.50,12,register=False))
  # Blend the crane bearing heel into the same forging. The old separately
  # perched support box made a conspicuous step below the barrel shank.
  heel=box('tool',(-11,90,19),(-4,94,34),register=False)
@@ -180,8 +263,8 @@ def frame():
  # The forging's broad radii are in its loft. Machined pocket lips carry a
  # smaller cutter break so close internal pockets cannot collapse the bevel.
  reg(o,radius=.12,segments=2);reduce(o,5600)
- plate2=[((y-10)*.990+10,(z-40)*.991+40) for y,z in plate]
- profile('Frame_Sideplate',plate2,8.04,8.75,'flat',radius=.24)
+ plate_skin.data.materials.clear();plate_skin.data.materials.append(MAT['steel'])
+ reg(plate_skin,radius=.045,segments=2)
  for y,z in [(-5,35),(9,61)]:screw('Sideplate_Screw',8.88,y,z,1.8)
  screw('Sideplate_ScrewFront',8.88,62,25.2,1.3)
  # Small rear strike seat for the hammer, with a visual firing-pin bushing.
@@ -208,22 +291,28 @@ def barrel():
  # A single machined exterior with real side flats, a rib and a narrow
  # barrel/lug transition. Round the outline before making the longitudinal
  # skin; the small edge radii are geometry, not interpolated knife edges.
- a0=math.acos(.34);a1=math.acos(.96)
+ a0=math.acos(.55);a1=math.acos(.96)
  shoulder=[(10*math.cos(a0+(a1-a0)*i/24),BORE+10*math.sin(a0+(a1-a0)*i/24)) for i in range(25)]
  lower=M.bezier((9.6,57.0),(9.6,55.9),(9.4,54.6),(8.9,53.6),12)
- half=[(3.4,76.4),*shoulder,(9.6,57.0),*lower[1:],(8.9,53.3),
+ # Tangent rib root: a 1.5 mm concave radius, rather than a plank on a tube.
+ rib=M.bezier((3.4,76.4),(3.4,70.6),(3.9,70.4),shoulder[0],16)
+ half=[*rib,*shoulder[1:],(9.6,57.0),*lower[1:],(8.9,53.3),
   (9.5,52.5),(9.5,46.6),(8.5,44.4),(6.2,43.2),(3.9,42.5),(0,42.35)]
- outline=M.fillet_polygon(half+[(-x,z) for x,z in half[-2::-1]],.35,4)
+ perimeter=half+[(-x,z) for x,z in half[-2::-1]]
+ outline=M.fillet_polygon(perimeter,[1.15 if z<53 else .35 for x,z in perimeter],5)
  OUTLINES['Barrel']=outline
  def section(y,inset=0):
   return [(x*(1-inset/12),y,BORE+(z-BORE)*(1-inset/12)) for x,z in outline]
- o=M.loft('Barrel',[section(95.8),section(MUZZLE-.35),section(MUZZLE,.20)],MAT['steel'])
+ o=M.loft('Barrel',[section(95.8),section(MUZZLE-.8),section(MUZZLE,.55)],MAT['steel'])
  # Cone joins inside the exterior; the round bore is a separate cutter. This
  # avoids folded polar caps between the rolled lug nose and the bore rim.
  cone=lathe('tool',[(BREECH,0),(BREECH,6.7),(85,7.8),(96.3,9.6),(96.3,0)],n=96,center=(0,BORE),register=False)
  cut(o,cone,'UNION')
+ # Recessed crown: a clean annular floor behind a rounded protective lip.
  bore=lathe('tool',[(81,0),(81,4.65),(BREECH,4.65),(85,4.52),
-  (MUZZLE-.7,4.52),(MUZZLE,5.0),(MUZZLE+1,5.0),(MUZZLE+1,0)],center=(0,BORE),n=96,register=False)
+  (MUZZLE-1.7,4.52),(MUZZLE-1.45,4.8),(MUZZLE-1.45,7.45),
+  (MUZZLE-1.2,7.7),(MUZZLE-.35,7.7),(MUZZLE,7.95),
+  (MUZZLE+1,7.95),(MUZZLE+1,0)],center=(0,BORE),n=96,register=False)
  cut(o,bore)
  # Elliptical quarter-round: 5 mm axial recession over the lug's bottom
  # 10.65 mm. The upper crown remains at the accepted muzzle station.
@@ -242,9 +331,13 @@ def barrel():
  cut(o,profile('tool',upper+lower,90,MUZZLE+1,axis='Y',register=False))
  reg(o)
  # Pinned ramp is seated in a milled rib pocket.
- ramp=[(166,76.4),(166,77.4),(176,83.0),(180,83.0),(180,76.4)]
- profile('FrontSight_PinnedRamp',M.fillet_polygon(ramp,.45,5),-1.5,1.5,'dark',radius=.16)
- lathe('FrontSight_Pin',[(-3.4,0),(-3.4,.7),(3.4,.7),(3.4,0)],'dark',axis='X',center=(177,77.5),n=16)
+ ramp=[(163.5,76.15),*M.bezier((163.5,76.5),(168,76.8),(174,82.4),(176,83),12),
+  (180,83),(180,76.15)]
+ front=profile('FrontSight_PinnedRamp',M.fillet_polygon(ramp,.35,5),-1.5,1.5,'dark',register=False)
+ for v in front.data.vertices:
+  v.co.x*=1+1.9/1.5*max(0,min(1,(79-v.co.z)/2.6))
+ reg(front,radius=.20)
+ lathe('FrontSight_Pin',[(-2.65,0),(-2.65,.7),(2.65,.7),(2.65,0)],'dark',axis='X',center=(177,77.5),n=16)
 def cylinder():
  star_points=[]
  for j in range(72):
@@ -300,24 +393,35 @@ def cylinder():
   profile('Extractor_Ratchet'+str(i),pts,REAR-2.3,REAR-1.4,'dark','Extractor',axis='Y',radius=.12)
 def crane_controls():
  # Forged yoke has two bored bosses and an offset web, in the front plane.
- outline=M.fillet_polygon([(-12,17),(-3,16),(5,43),(5,50),(1,53),(-4,51),(-9,30)],2.2,8)
+ # The dark hanging rectangle in the old side view was the yoke's lower
+ # web, not an extra accessory. Round its pivot boss and taper the web.
+ outline=M.fillet_polygon([(-11.3,20),(-10.4,17.1),(-7.1,16.9),(-4.9,19.2),
+  (4.6,43),(4.6,50),(1,53),(-4,51),(-8.2,29)],2.1,8)
  o=profile('Crane_Yoke',outline,83.0,88.8,'steel','Crane',axis='Y',register=False)
  cut(o,lathe('tool',[(82,0),(82,3.0),(90,3.0),(90,0)],center=(0,CY),n=32,register=False))
  cut(o,lathe('tool',[(82,0),(82,2.7),(90,2.7),(90,0)],center=(-8,20),n=24,register=False))
  cut(o,lathe('tool',[(82,0),(82,9.85),(90,9.85),(90,0)],center=(0,BORE),n=48,register=False))
- reg(o,'Crane',.45,3)
+ reg(o,'Crane',.85,4)
  lathe('Crane_UpperBearing',[(82.8,1.75),(82.8,4.4),(84.0,4.4),(84.0,1.75)],
   'steel','Crane',center=(0,CY),n=32,closed=True)
  lathe('Crane_Axle',[(70,1.75),(70,3.0),(84,3.0),(84,1.75)],'steel','Crane',center=(0,CY),n=32,closed=True)
  lathe('Crane_Pivot',[(81,0),(81,2.6),(91,2.6),(91,0)],'dark','Root',center=(-8,20),n=24)
  box('Crane_ClosedSeat',(-9.7,88.8,19),(-6.3,90,24),radius=.10)
- # The thumb latch has a broad machined pad, tapered sides, recessed center.
- pts=M.fillet_polygon([(16,49),(16,56.5),(25,58),(30,55),(28,49)],1.6,6)
- o=profile('Latch_Thumbpiece',pts,-11.7,-8.9,'steel','Latch',register=False)
+ # A thumb dish swells out from its recessed stem. Fine teeth occupy the
+ # forward pad; the screw sits on a clear radiused land at its rear.
+ rows=[]
+ for j in range(13):
+  z=49+j*.65;t=j/12
+  width=2.5+3.5*math.sin(math.pi*t)**.65
+  rows.append((z,width,-12.0-.7*math.sin(math.pi*t),-9.0))
+ o=checked_pad('Latch_Thumbpiece',rows,12,'steel','Latch',axis='X',relief=.10)
+ for v in o.data.vertices:v.co.y+=23
  for v in o.data.vertices:
-  if v.co.x< -10:v.co.x-=.55*math.sin((v.co.y-16)/14*math.pi)
- reg(o,'Latch',.35,3)
- screw('Latch_Screw',-12.1,23.3,53.2,1.5,bone='Latch')
+  if v.co.x< -11:
+   distance=math.hypot(v.co.y-19.7,v.co.z-53.2)
+   blend=max(0,min(1,(2.7-distance)/.7));blend=blend*blend*(3-2*blend)
+   v.co.x=v.co.x*(1-blend)-12.48*blend
+ screw('Latch_Screw',-12.45,19.7,53.2,1.5,bone='Latch')
  lathe('Latch_CenterPin',[(31,0),(31,1.6),(35.55,1.6),(35.55,2.6),
   (35.65,2.6),(35.65,1.6),(36.55,1.6),(36.55,0)],'dark','LatchPin',center=(0,CY),n=24)
  # Bolt stop with a wide head and an offset rocker on a supported pin.
@@ -339,37 +443,25 @@ def lockwork_sights():
  back=M.bezier((38.4,-1.9),(26.0,3),(26.0,15),(34.0,21),20)
  pts=[(26,24),(40,24),*front,*toe[1:],*back[1:],(26,22)]
  profile('Trigger_Shoe',pts,-3.5,3.5,'flat','Trigger',radius=.50)
- # Substantial forged body fits an 8 mm slot with .2 mm cheek clearance.
- hammer=M.fillet_polygon([(4,44),(15,44),(18.0,65),(18.0,69),(13.5,69.4),
-  (8,66),(4,61),(0,58)],1.2,6)
- profile('Hammer_Body',hammer,-3.8,3.8,'flat','Hammer',radius=.45)
+ sculpted_hammer()
  box('Hammer_Nose',(-1.3,17.25,66.2),(1.3,18.8,67.8),'flat','Hammer',radius=.20,segments=2)
- loops=[]
- for y,z,w,d in [(8,61.5,3.6,3.3),(3,62.8,4.0,2.9),(-5,64.2,4.9,2.2),(-12,64.5,4.6,1.7)]:
-  loops.append([(x,y,z+dz) for x,dz in rounded(2*w,2*d,.8,4)])
- reg(M.loft('Hammer_ThumbSpur',loops,MAT['flat']),'Hammer')
- # Cut a small original diamond field into the widened thumb face. This
- # is deliberately coarse checkpoint relief; fine pitch transfers by normal.
- spur=PARTS[-1]
- for sign in (-1,1):
-  for offset in (-6,-3,0,3,6):
-   # Diagonal tool bars across the top, seated in the spur's changing slope.
-   vs=[]
-   for x in (-5.2,5.2):
-    y=-5.6+offset+sign*x*.62
-    roof=[(-16,66.0),(-12,66.2),(-5,66.4),(3,65.7),(8,64.8),(12,64.2)]
-    z=next(za+(zb-za)*(y-ya)/(yb-ya) for (ya,za),(yb,zb) in zip(roof,roof[1:]) if ya<=y<=yb)-(.06 if sign<0 else 0)
-    vs.extend([(x,y-.17,z-.23),(x,y+.17,z-.23),(x,y+.17,z+.9),(x,y-.17,z+.9)])
-   tool=M.mesh('tool',vs,[(3,2,1,0),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)],MAT['flat'])
-   cut(spur,tool)
- clean(spur)
  screw('Hammer_PivotHead',8.9,10,48,1.55)
  # Leaf, hinge and adjustment housing visibly sit on the topstrap's recess.
- box('RearSight_Leaf',(-4.2,30,77.4),(4.2,66,79.7),'dark',radius=.40)
- base=box('RearSight_NotchBody',(-7.4,27.4,78.4),(7.4,31.8,83.0),'dark',register=False)
- cutbox(base,(-2.0,26,80.0),(2.0,33,85));reg(base,radius=.15,segments=2)
+ loops=[]
+ for y,w,bottom,top in [(30,5.8,77.20,80.1),(35,5.5,77.20,80.0),
+  (46,4.7,77.20,79.4),(58,3.6,77.20,78.7),(65,2.8,77.20,78.3)]:
+  loops.append([(x,y,z+(bottom+top)/2) for x,z in rounded(w*2,top-bottom,.40,4)])
+ reg(M.loft('RearSight_Leaf',loops,MAT['dark']))
+ blade=[(-7.4,78.7),(-7.4,82.3),(-6.7,83),(-2,83),(-2,80.1),
+  (2,80.1),(2,83),(6.7,83),(7.4,82.3),(7.4,78.7)]
+ base=profile('RearSight_NotchBody',M.fillet_polygon(blade,.16,3),27.4,28.55,'dark',axis='Y',register=False)
+ housing=M.loft('tool',[[(x,y,z+center) for x,z in rounded(w,depth,.55,4)]
+  for y,w,depth,center in [(28.3,14.2,3.6,80.0),(30.0,14.0,3.3,79.95),(33.5,11.5,2.0,79.4)]],MAT['dark'])
+ cutbox(housing,(-2.0,26,80.05),(2.0,35,85));cut(base,housing,'UNION')
+ reg(base,radius=.12,segments=2)
  # Elevation screw is sunk into the leaf, windage screw sits transversely.
- lathe('RearSight_ElevationScrew',[(79.5,0),(79.5,1.7),(80.2,1.7),(80.2,0)],'dark',axis='Z',center=(0,45),n=24)
+ elev=lathe('RearSight_ElevationScrew',[(79.5,0),(79.5,1.7),(80.2,1.7),(80.2,0)],'dark',axis='Z',center=(0,45),n=24,register=False)
+ cutbox(elev,(-2,44.7,80.0),(2,45.3,81));reg(elev,radius=.05,segments=2)
  screw('RearSight_WindageScrew',7.5,29.6,80.6,1.45,'dark')
  lathe('RearSight_Hinge',[(-4.4,0),(-4.4,.8),(4.4,.8),(4.4,0)],'steel',axis='X',center=(62,78),n=20)
 def grips():
@@ -406,11 +498,13 @@ def grips():
   loops.append(loop)
  o=M.loft('Grip_RubberMold',loops,MAT['rubber'])
  sub=o.modifiers.new('Compound service grip subdivision','SUBSURF');sub.levels=2;M.apply(o)
- tool=bpy.data.objects.new('Grip molding tool',SEATS['Frame'].copy());bpy.context.collection.objects.link(tool)
- tool.data.transform(Matrix.Diagonal(Vector((1.015,1.001,1.001,1))))
- cut(o,tool)
  remesh=o.modifiers.new('Finished rubber cavity remesh','REMESH');remesh.mode='VOXEL';remesh.voxel_size=.30;remesh.use_smooth_shade=True;M.apply(o)
  relax=o.modifiers.new('Mold radius relaxation','SMOOTH');relax.factor=.32;relax.iterations=3;M.apply(o);M.smooth(o,70)
+ # Cut after the surface relaxation. Voxelizing an already cut lip produced
+ # the torn, stair-stepped seam seen at the prior checkpoint.
+ tool=bpy.data.objects.new('Grip molding tool',SEATS['Grip'].copy());bpy.context.collection.objects.link(tool)
+ tool.data.transform(Matrix.Diagonal(Vector((1.020,1.003,1.003,1))))
+ cut(o,tool)
  HIGH[o.name]=o.data.copy();reg(o);reduce(o,5400)
  tree=BVHTree.FromPolygons([v.co for v in o.data.vertices],[tuple(f.vertices) for f in o.data.polygons])
  for side in (-1,1):
@@ -445,23 +539,23 @@ def finalize(o):
  clean(o)
  # Budget actual finalized triangles; Boolean cap tessellation can cost more
  # than a pre-triangulation ngon count. Fine hardware relief belongs in bake.
- limits={'Cylinder_Fluted':7700,'Frame_Forging':3700,'Grip_RubberMold':4200,
+ limits={'Cylinder_Fluted':7700,'Frame_Forging':3500,'Grip_RubberMold':4200,
   'Barrel':2200,'Speedloader_Body':1200,'Speedloader_Release':310,'TriggerGuard_ForgedBow':700,
-  'Extractor_Star':750,'Crane_Yoke':850,'Trigger_Shoe':550,'Hammer_Body':500,
-  'Frame_Sideplate':400,'Hammer_ThumbSpur':650,'Latch_Thumbpiece':320,
-  'RearSight_Leaf':180,'RearSight_NotchBody':260,'Crane_PivotSupport':180}
+  'Extractor_Star':750,'Crane_Yoke':850,'Trigger_Shoe':550,'Hammer_Body':1950,
+  'Frame_Sideplate':320,'Hammer_ThumbSpur':1450,'Latch_Thumbpiece':680,
+  'RearSight_Leaf':250,'RearSight_NotchBody':400,'Crane_PivotSupport':180}
  limit=limits.get(o.name,144 if 'Screw' in o.name or 'PivotHead' in o.name else 210)
  if o.name.startswith(('Live','Case','LoaderRound','InsertRound')):limit=1000
  reduce(o,limit)
  tri=o.modifiers.new('Budget triangles','TRIANGULATE');tri.keep_custom_normals=True;M.apply(o)
- if o.name in ('Speedloader_Body','Barrel','Cylinder_Fluted','Frame_Forging','Extractor_Star'):
+ if o.name in ('Speedloader_Body','Barrel','Cylinder_Fluted','Frame_Forging','Frame_Sideplate','Extractor_Star','Latch_Thumbpiece','RearSight_NotchBody'):
   # Reseed the machining fields after QEM, rather than interpolating obsolete
   # Boolean corner normals into wavy cap and pocket highlights.
   o.data.normals_split_custom_set([(0,0,0)]*len(o.data.loops));M.smooth(o,42)
   wn=o.modifiers.new('Final machined surface normals','WEIGHTED_NORMAL');wn.keep_sharp=True;wn.weight=50;M.apply(o)
  normals=[n.vector.copy() for n in o.data.corner_normals]
- if o.name in ('Frame_Forging','Speedloader_Body','Speedloader_Release','Extractor_Star'):
-  axis=0 if o.name=='Frame_Forging' else 1
+ if o.name in ('Frame_Forging','Frame_Sideplate','Speedloader_Body','Speedloader_Release','Extractor_Star'):
+  axis=0 if o.name.startswith('Frame_') else 1
   planar={}
   for f in o.data.polygons:
    xs=[o.data.vertices[i].co[axis] for i in f.vertices]
@@ -550,6 +644,12 @@ def finalize(o):
  for f in o.data.polygons:
   for j in f.loop_indices:
    if normals[j].dot(f.normal)<.03:normals[j]=f.normal.copy()
+ # Fine teeth need their individual facet normals: smoothing all four sides
+ # of a sub-millimeter pyramid averages them back into an invisible roof.
+ if o.name in ('Hammer_Body','Latch_Thumbpiece'):
+  for f in o.data.polygons:
+   if (o.name=='Hammer_Body' and o.data.attributes['hammer_tooth'].data[f.index].value) or (o.name=='Latch_Thumbpiece' and f.normal.x<-.25):
+    for j in f.loop_indices:normals[j]=f.normal.copy()
  o.data.normals_split_custom_set(normals)
  o.data.transform(Matrix.Scale(.001,4));o.matrix_world=Matrix.Identity(4);o.data.update()
  # Meter-space float storage can reverse a microscopic Boolean cap's normal

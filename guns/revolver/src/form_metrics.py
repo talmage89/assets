@@ -41,6 +41,30 @@ def capture(path):
  assert 8.2<guard_width['size_mm']<8.6 and 2.5<guard_gauge['size_mm']<3.1
  assert 6.8<blade_width['size_mm']<7.2 and 5.7<blade_depth['size_mm']<6.5
  assert all(.3<r['gap_mm']<.65 for r in windows),windows
+ # Round-three construction: independent rays establish a recessed crown,
+ # the swing-side passage and an opaque right shroud wall. The existing
+ # sweep separately establishes that the passage actually clears the rod.
+ crown=hit('Barrel',(.006,.190,.061),(0,-1,0))
+ lip=hit('Barrel',(.0086,.190,.061),(0,-1,0))
+ recess=(lip.y-crown.y)*1000
+ assert 1.2<recess<1.7,(crown,lip,recess)
+ release=span('Barrel',(-.004,.120,.049),2)
+ assert 3.3<release['size_mm']<3.8,release
+ rod=hit('Extractor_Rod',(.030,.120,.0482),(-1,0,0),.05)
+ shroud=hit('Barrel',(.030,.120,.0482),(-1,0,0),.05)
+ assert shroud.x>rod.x+.003,(rod,shroud)
+ # Broad solid cheek beside the internal hammer pocket, from both sides.
+ walls=[]
+ for y in (.010,.022,.030):
+  for z in (.050,.058):
+   for side in (-1,1):
+    p=hit('Frame_Forging',(side*.030,y,z),(-side,0,0),.06)
+    assert side*p.x>.0042,(y,z,side,p)
+    walls.append(list(p))
+ plate=hit('Frame_Sideplate',(.030,.022,.050),(-1,0,0),.05)
+ cheek=hit('Frame_Forging',(.030,.030,.050),(-1,0,0),.05)
+ plate_step=abs(plate.x-cheek.x)*1000
+ assert plate_step<.08,(plate,cheek,plate_step)
  parts=[o for o in bpy.context.scene.objects if o.type=='MESH' and 'bone' in o]
  counts={o.get('part_name',o.name):sum(len(f.vertices)-2 for f in o.data.polygons) for o in parts}
  active=[o for o in parts if min(abs(v) for v in arm.pose.bones[o['bone']].matrix.to_scale())>.001]
@@ -49,11 +73,15 @@ def capture(path):
   unloaded_triangles=active_count-sum(counts[o.get('part_name',o.name)] for o in active if o['bone'].startswith('Live')),
   hammer_width=hammer,hammer_slot_width=slot,
   hammer_side_clearance_mm=clearance,guard_width=guard_width,guard_gauge=guard_gauge,
-  trigger_width=blade_width,trigger_depth_at_z10=blade_depth,window_running_gaps=windows)
+  trigger_width=blade_width,trigger_depth_at_z10=blade_depth,window_running_gaps=windows,
+  crown_recess_mm=recess,crown_floor_m=list(crown),crown_lip_m=list(lip),
+  shroud_release=release,right_shroud_first_hit_m=list(shroud),rod_hit_m=list(rod),
+  solid_hammer_cheek_hits_m=walls,sideplate_to_adjacent_cheek_mm=plate_step,
+  sideplate_hit_m=list(plate),adjacent_cheek_hit_m=list(cheek))
 
 def main():
  p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True);p.add_argument('--out',type=Path,required=True)
  a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
  result=dict(passed=True,source=capture(a.source),imported=capture(a.source.with_suffix('.glb')))
- a.out.write_text(json.dumps(result,indent=2));print('ROUND TWO SURFACE GAUGES PASS',result['imported'])
+ a.out.write_text(json.dumps(result,indent=2));print('FORM SURFACE GAUGES PASS',result['imported'])
 if __name__=='__main__':main()

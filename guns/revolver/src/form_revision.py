@@ -14,6 +14,10 @@ CHANGED={'Crane_PivotSupport','Frame_Forging','Barrel','Cylinder_Fluted','Extrac
  'Grip_RubberMold','Grip_ScrewCup','Grip_ScrewCup.001','Grip_Screw','Grip_Screw.001',
  'Hammer_SpurRidge','Hammer_SpurRidge.001','Hammer_SpurRidge.002',
  'Hammer_SpurRidge.003','Hammer_SpurRidge.004'}
+ROUND3_CHANGED={'Frame_Forging','Frame_Sideplate','Barrel','Crane_Yoke',
+ 'Hammer_Body','Hammer_ThumbSpur','FrontSight_PinnedRamp','FrontSight_Pin','RearSight_Leaf',
+ 'RearSight_NotchBody','RearSight_ElevationScrew','Latch_Thumbpiece','Latch_Screw','Grip_RubberMold',
+ 'Grip_Screw','Grip_Screw.001','Grip_ScrewCup','Grip_ScrewCup.001'}
 def cylinder_forward(path):
  bpy.ops.wm.open_mainfile(filepath=str(path.resolve()));o=bpy.data.objects['Cylinder_Fluted'];triangles=set()
  for face in o.data.polygons:
@@ -25,9 +29,11 @@ def cylinder_forward(path):
 
 def main():
  p=argparse.ArgumentParser();p.add_argument('--before',required=True,type=Path);p.add_argument('--after',required=True,type=Path);p.add_argument('--out',required=True,type=Path)
+ p.add_argument('--round',type=int,choices=(2,3),default=2)
  a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);left=snapshot(a.before);right=snapshot(a.after)
  changed=[k for k in left.keys()|right.keys() if left.get(k)!=right.get(k)]
- unexpected=[k for k in changed if not k.startswith('mesh:') or k[5:] not in CHANGED]
+ allowed=ROUND3_CHANGED if a.round==3 else CHANGED
+ unexpected=[k for k in changed if not k.startswith('mesh:') or k[5:] not in allowed]
  result=dict(passed=not unexpected,changed=sorted(changed),unexpected=unexpected,
   unchanged=sorted(k for k in left.keys()&right.keys() if left[k]==right[k]),
   note='Native positions, faces and ownership. Exact bones, socket frames and animation keys. All cylinder triangles forward of the extractor seat (Y > 41.05 mm) are compared independently; chamber floors retain their actual-surface checks.')
