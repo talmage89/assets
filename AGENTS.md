@@ -163,7 +163,9 @@ An asset is finished when all of these hold, with proof in your report:
   the asset's `REVIEW.md`. Hero assets get at least four passes, others at least three. Lenient self-review is the
   most common failure. Begin each pass with color and value: compare the same surface in the render and the photo,
   allowing for the photo's light, and fix a miss in hue or brightness before anything finer, since it reads as CG at
-  any distance. Measurements and checks prove the build, not the look; only the pairs prove the look.
+  any distance. A photo's hue carries its white balance: before measuring a surface, balance the photo on a neutral
+  in its frame (a white backdrop, a gray card, concrete) and say which. Matched to a photo shot in shade, black steel
+  came back slate blue. Measurements and checks prove the build, not the look; only the pairs prove the look.
 - **Build real construction.** Model how the part is made (wall thickness, hems, bends, castings, fasteners, welds),
   not simplified boxes and plates. The high-detail source can be as detailed as it needs; the game mesh stays in
   budget and carries fine detail in the normal map. Three tells recur in review: cables and hoses drawn as taut
