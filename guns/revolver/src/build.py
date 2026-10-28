@@ -149,7 +149,7 @@ def frame():
  envelope=[]
  for angle in range(0,36,2):
   t=math.radians(angle)
-  for y,z in [(4,44),(15,44),(18,65),(18.8,66.2),(18.8,67.8),(18,69),(13.5,73.5),(6.2,73.5),(2.8,66),(0,61)]:
+  for y,z in [(4,44),(15,44),(18,65),(18.8,66.2),(18.8,67.8),(18,69),(13.5,69.4),(8,66),(4,61),(0,58)]:
    yy=10+(y-10)*math.cos(t)-(z-48)*math.sin(t)
    zz=48+(y-10)*math.sin(t)+(z-48)*math.cos(t)
    envelope.extend(Vector((yy+dy,zz+dz)) for dy,dz in [(-.3,-.3),(-.3,.3),(.3,.3),(.3,-.3)])
@@ -340,12 +340,12 @@ def lockwork_sights():
  pts=[(26,24),(40,24),*front,*toe[1:],*back[1:],(26,22)]
  profile('Trigger_Shoe',pts,-3.5,3.5,'flat','Trigger',radius=.50)
  # Substantial forged body fits an 8 mm slot with .2 mm cheek clearance.
- hammer=M.fillet_polygon([(4,44),(15,44),(18.0,65),(18.0,69),(13.5,73.5),
-  (6.2,73.5),(2.8,66),(0,61)],1.2,6)
+ hammer=M.fillet_polygon([(4,44),(15,44),(18.0,65),(18.0,69),(13.5,69.4),
+  (8,66),(4,61),(0,58)],1.2,6)
  profile('Hammer_Body',hammer,-3.8,3.8,'flat','Hammer',radius=.45)
  box('Hammer_Nose',(-1.3,17.25,66.2),(1.3,18.8,67.8),'flat','Hammer',radius=.20,segments=2)
  loops=[]
- for y,z,w,d in [(8,70,3.6,3.3),(3,72,4.1,2.9),(-5,74.5,4.9,2.2),(-12,75.6,4.6,1.7)]:
+ for y,z,w,d in [(8,61.5,3.6,3.3),(3,62.8,4.0,2.9),(-5,64.2,4.9,2.2),(-12,64.5,4.6,1.7)]:
   loops.append([(x,y,z+dz) for x,dz in rounded(2*w,2*d,.8,4)])
  reg(M.loft('Hammer_ThumbSpur',loops,MAT['flat']),'Hammer')
  # Cut a small original diamond field into the widened thumb face. This
@@ -357,7 +357,8 @@ def lockwork_sights():
    vs=[]
    for x in (-5.2,5.2):
     y=-5.6+offset+sign*x*.62
-    z=74.5-(y+5)*.19+2.0-(.06 if sign<0 else 0)
+    roof=[(-16,66.0),(-12,66.2),(-5,66.4),(3,65.7),(8,64.8),(12,64.2)]
+    z=next(za+(zb-za)*(y-ya)/(yb-ya) for (ya,za),(yb,zb) in zip(roof,roof[1:]) if ya<=y<=yb)-(.06 if sign<0 else 0)
     vs.extend([(x,y-.17,z-.23),(x,y+.17,z-.23),(x,y+.17,z+.9),(x,y-.17,z+.9)])
    tool=M.mesh('tool',vs,[(3,2,1,0),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)],MAT['flat'])
    cut(spur,tool)
@@ -453,13 +454,13 @@ def finalize(o):
  if o.name.startswith(('Live','Case','LoaderRound','InsertRound')):limit=1000
  reduce(o,limit)
  tri=o.modifiers.new('Budget triangles','TRIANGULATE');tri.keep_custom_normals=True;M.apply(o)
- if o.name in ('Speedloader_Body','Barrel','Cylinder_Fluted','Frame_Forging'):
+ if o.name in ('Speedloader_Body','Barrel','Cylinder_Fluted','Frame_Forging','Extractor_Star'):
   # Reseed the machining fields after QEM, rather than interpolating obsolete
   # Boolean corner normals into wavy cap and pocket highlights.
   o.data.normals_split_custom_set([(0,0,0)]*len(o.data.loops));M.smooth(o,42)
   wn=o.modifiers.new('Final machined surface normals','WEIGHTED_NORMAL');wn.keep_sharp=True;wn.weight=50;M.apply(o)
  normals=[n.vector.copy() for n in o.data.corner_normals]
- if o.name in ('Frame_Forging','Speedloader_Body','Speedloader_Release'):
+ if o.name in ('Frame_Forging','Speedloader_Body','Speedloader_Release','Extractor_Star'):
   axis=0 if o.name=='Frame_Forging' else 1
   planar={}
   for f in o.data.polygons:
