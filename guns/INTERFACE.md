@@ -86,3 +86,10 @@ The [Vesper B24 supplement](bolt/INTERFACE.md) adds manual bolt cycling,
 no-hold-open detachable-magazine states, folding/extending bipod clips and
 `Socket_OpticObjective` for optional magnified rendering. Both the 1.0.0 binding
 and the 1.1.0 tube-loading supplement retain their existing meanings.
+
+## Additive 1.3.0 manual charging-handle supplement
+
+The [Relay 9 supplement](smg/INTERFACE.md) adds a manually locking,
+nonreciprocating charging handle, its full-frame hand socket, select-fire
+states and no-hold-open reload schedules. The 1.0.0 binding and the 1.1.0
+and 1.2.0 supplements retain their existing meanings.

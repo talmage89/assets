@@ -8,6 +8,7 @@ folder. Shared procedural geometry, rigging, baking and delivery use `kit/`.
 | PD C9 compact 9 mm pistol | Final: baked PBR, rig/clips and standalone magazines/case | [pistol/](pistol/README.md) |
 | PD Hearth 12 pump shotgun | Final: baked PBR, rig/clips, live shell and fired hull | [shotgun/](shotgun/README.md) |
 | PD Vesper B24 bolt-action precision rifle | Final: baked PBR, nine clips, scope/bipod and standalone magazines/case | [bolt/](bolt/README.md) |
+| PD Relay 9 fixed-stock 9 mm submachine gun | Final: baked PBR, 21 clips, magazines, cartridge and case | [smg/](smg/README.md) |
 
 ## Shared conventions
 
@@ -20,6 +21,8 @@ The [1.1.0 tube-loading supplement](shotgun/INTERFACE.md) adds pump support-hand
 and insertion sockets without changing the pistol's 1.0.0 binding.
 The [1.2.0 bolt/optic supplement](bolt/INTERFACE.md) adds manual bolt cycling,
 bipod states and the optional objective-camera frame.
+The [1.3.0 charging-handle supplement](smg/INTERFACE.md) adds manual handle
+locking, a nonreciprocating handle socket and select-fire states.
 
 `common/` contains the guns-only presentation renderer, timed strip generator,
 interface schema/frame checks and photographic camera configuration helpers.
