@@ -39,6 +39,11 @@ There is no silent conversion of a fired case to an empty chamber on firing.
 Reload resets the logical index from 6 to 0 without spinning the geometry
 through a full turn; these are the same physical orientation.
 
+The cylinder stop rocks about its transverse pin, retracting before indexing
+and seating after alignment or crane closure. CockHammer leaves the trigger
+partly rearward (−10°); FireSingle pulls it farther (−15° total), fires and
+resets. The corresponding idle holds preserve those visible control poses.
+
 Cartridges, cases and loader rounds have separate STEP visibility channels.
 The six cases visibly travel with the star until release, then fall away.
 The incoming loader rounds travel on their own guide; f144 hands occupancy to
@@ -57,9 +62,12 @@ canonical six-live demonstration and overwrite its own ammunition bookkeeping.
 | --- | --- |
 | Socket_Cylinder | rides Cylinder; rear axis frame; full affine transform |
 | Socket_Speedloader | rides LoaderGuide; spawn the standalone loaded speedloader |
-| Socket_Round | rides InsertRound; single-round presentation / spawn frame |
+| Socket_Round | rides nonscaling RoundGuide; single-round presentation / spawn frame |
 
-These sockets retain +Y forward, +Z up, +X right in Blender. Cylinder/crane
+The three added socket frames remain nonsingular even when their display
+meshes are hidden. Loader spawn is relevant between loader-enter and loader-clear;
+single-round spawn is relevant during its insertion phase. These sockets retain
++Y forward, +Z up, +X right in Blender. Cylinder/crane
 rotation changes their full orientation. `Socket_Ejection` remains the static
 legacy reference and is inactive for simultaneous revolver extraction. At the
 cases-release event, spawn each fired case using its corresponding Case bone

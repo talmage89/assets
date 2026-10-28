@@ -21,9 +21,13 @@ mouths are open, with a struck primer; fine fictional `PD 357 / 26` headstamp
 relief is reserved for the later normal bake.
 
 The [Marine Corps pistol marksmanship manual](https://www.trngcmd.marines.mil/Portals/207/Docs/wtbn/MCRP%203-01B%20-%20Pistol%20Marksmanship.pdf)
-is a posture reference for a two-handed extended hold. **650 mm behind the
-notch** is an authored adult extension estimate, not a number published by
-that manual or a universal anthropometric measurement. Both sight tops and
+is a posture reference for a two-handed extended hold. Ishigaki, Edagawa and
+Miyao's [1995 pistol-sighting study](https://pubmed.ncbi.nlm.nih.gov/8532455/)
+reports a foresight approximately 80 cm from the eye in eleven marksmen.
+Our front blade is 800 mm ahead of Eye; subtracting our 150 mm sight radius
+puts Eye **650 mm behind the notch**. This applies that published optical
+distance to an authored two-hand posture, not a universal anthropometric
+measurement or a number supplied by the Marine manual. Both sight tops and
 the eye are at Z=83 mm, with the notch floor below the ray and a 3 mm front
 blade inside a 4 mm rear notch. The delivered exact camera is shown against gray.
 
