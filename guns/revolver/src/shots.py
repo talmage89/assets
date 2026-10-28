@@ -15,8 +15,12 @@ SHOTS={
  'rear':dict(location=(.13,-.20,.18),target=(0,.035,.060),lens=75,aspect=1.4),
  'trigger_side':dict(location=(.14,.036,.014),target=(0,.036,.014),lens=75,aspect=1.3),
  'trigger_quarter':dict(location=(.16,.15,.065),target=(0,.038,.012),lens=80,aspect=1.3),
- 'grip':dict(location=(.17,-.14,.03),target=(0,-.012,-.009),lens=72,aspect=1.3),
+ 'grip':dict(location=(.22,-.19,.045),target=(0,-.018,-.012),lens=55,aspect=1.3),
  'sights':dict(location=(.065,-.18,.15),target=(0,.048,.072),lens=70,aspect=1.4),
+ 'grip_left':dict(location=(-.22,-.19,.045),target=(0,-.018,-.012),lens=55,aspect=1.3),
+ 'hammer_cocked':dict(location=(.10,-.09,.11),target=(0,.006,.066),lens=65,aspect=1.3,action='IdleCocked',frame=0),
+ 'recoil_shield':dict(location=(-.14,.19,.11),target=(0,.036,.057),lens=72,aspect=1.3,action='Reload',frame=88),
+ 'lug_front':dict(location=(-.13,.28,.09),target=(0,.15,.056),lens=74,aspect=1.3),
  'aimed':dict(location=(0,0,0),target=(0,1,0),lens=50,aspect=1.6,aimed=True),
  'cartridge':dict(location=(.045,-.055,.03),target=(0,.019,0),lens=65,aspect=1.4),
  'case':dict(location=(.040,.070,.03),target=(0,.018,0),lens=68,aspect=1.4),
@@ -26,7 +30,7 @@ SHOTS={
 }
 for s in SHOTS.values():s.setdefault('action','Idle');s.setdefault('frame',0)
 for n in ('cartridge','case','cartridge_head','case_head','speedloader'):SHOTS[n].pop('action',None)
-DEFAULT_SHOTS='hero,side,left,top,front,rake_right,rake_left,open,star,reload,rear,trigger_side,trigger_quarter,grip,sights,aimed'
+DEFAULT_SHOTS='hero,side,left,top,front,rake_right,rake_left,open,star,reload,rear,trigger_side,trigger_quarter,grip,grip_left,sights,hammer_cocked,recoil_shield,lug_front,aimed'
 STRIP_SHOT=dict(location=(-.38,-.30,.22),target=(-.01,.04,.02),lens=62,aspect=1.25)
 PHOTO_POSES={'right_photo':dict(action='Idle',frame=0),'left_photo':dict(action='Idle',frame=0),
  'open_photo':dict(action='Reload',frame=88)}

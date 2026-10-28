@@ -2,11 +2,12 @@ CHECKPOINT_BLEND := build/revolver.blend
 CHECKPOINT_OUTPUTS := build/revolver.blend build/sculpt.blend build/revolver.glb build/cartridge.glb build/case.glb build/speedloader_loaded.glb build/triangles.json
 CHECKPOINT_DEPS := src/build.py src/clips.py src/parameters.py src/interface.py ../common/magnum357.py ../common/interface_v1_4.py $(wildcard ../../kit/*.py)
 CHECKPOINT_OUT := renders/checkpoint/beauty
-VIEWS := hero side left top front rake_right rake_left open star reload rear trigger_side trigger_quarter grip sights aimed
+VIEWS := hero side left top front rake_right rake_left open star reload rear trigger_side trigger_quarter grip grip_left sights hammer_cocked recoil_shield lug_front aimed
 CHECKPOINT_RENDER_OUTPUTS := $(addprefix $(CHECKPOINT_OUT)/,$(addsuffix .png,$(VIEWS)))
 CHECKPOINT_CHECK = $(BP) --python src/check.py -- --source $(CHECKPOINT_BLEND) --out build/check.json
 CHECKPOINT_REVIEW = $(PYTHON) src/review.py
 include ../../kit/checkpoint_rules.mk
+$(CHECKPOINT_RENDER_OUTPUTS): src/shots.py
 
 .PHONY: match source-match strips sections verify standalones
 build/serialization.json: $(CHECKPOINT_OUTPUTS) src/verify.py src/contacts.py src/semantics.py
@@ -61,3 +62,7 @@ renders/checkpoint/trigger-pairs/.stamp: $(CHECKPOINT_OUTPUTS) build/references/
 .PHONY: triggers
 triggers: renders/checkpoint/trigger-pairs/.stamp
 review: match source-match strips sections triggers
+
+build/form-metrics.json: $(CHECKPOINT_OUTPUTS) src/form_metrics.py
+	$(BP) --python src/form_metrics.py -- --source $(CHECKPOINT_BLEND) --out $@
+check: build/form-metrics.json

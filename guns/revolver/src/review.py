@@ -50,7 +50,7 @@ def main():
    for i in range(im.n_frames):im.seek(i);im.load();duration+=im.info.get('duration',0)
   assert duration==row['duration_ms'],clip
  dimensions(report)
- beauty=[OUT/'beauty'/(name+'.png') for name in ['hero','side','left','top','front','rake_right','rake_left','open','star','reload','rear','grip','trigger_side','trigger_quarter','sights','aimed']]
+ beauty=[OUT/'beauty'/(name+'.png') for name in ['hero','side','left','top','front','rake_right','rake_left','open','star','reload','rear','grip','trigger_side','trigger_quarter','sights','hammer_cocked','recoil_shield','lug_front','grip_left','aimed']]
  contact(beauty,OUT/'contact-sheet.jpg',width=2000,title='Meridian Six / FORM CHECKPOINT / imported unbaked GLB')
  review_sheet([[OUT/'pairs'/(n+'_photo-pair.jpg')] for n in ['right','left','open']],OUT/'photo-pairs.jpg',title='Photographic form comparisons / neutral balance where recoverable')
  review_sheet([[OUT/'source-pairs'/(n+'_photo-pair.jpg')] for n in ['right','left','open']],OUT/'source-photo-pairs.jpg',title='Dense source / same photographic comparisons')
