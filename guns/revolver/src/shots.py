@@ -26,6 +26,7 @@ SHOTS={
  'latch':dict(location=(-.135,-.020,.090),target=(-.010,.023,.053),lens=78,aspect=1.3,action='Reload',frame=88),
  'grip_seam':dict(location=(-.10,-.12,.080),target=(0,-.018,.035),lens=74,aspect=1.3),
  'shank':dict(location=(.15,.17,.030),target=(0,.088,.029),lens=75,aspect=1.3),
+ 'frame_bottom':dict(location=(.12,.15,-.025),target=(0,.063,.023),ortho=.135,aspect=1.4,raking=1),
  'hammer_rest':dict(location=(-.10,-.065,.105),target=(0,-.002,.067),lens=70,aspect=1.3),
  'hammer_top':dict(location=(.035,-.050,.16),target=(0,-.002,.064),lens=75,aspect=1.3,action='IdleCocked',frame=0),
  'aimed':dict(location=(0,0,0),target=(0,1,0),lens=50,aspect=1.6,aimed=True),
@@ -40,7 +41,7 @@ for n in ('cartridge','case','cartridge_head','case_head','speedloader'):SHOTS[n
 DEFAULT_SHOTS='hero,side,left,top,front,rake_right,rake_left,open,star,reload,rear,trigger_side,trigger_quarter,grip,grip_left,sights,hammer_cocked,recoil_shield,lug_front,muzzle,rear_sight,latch,grip_seam,shank,hammer_rest,hammer_top,aimed'
 STRIP_SHOT=dict(location=(-.38,-.30,.22),target=(-.01,.04,.02),lens=62,aspect=1.25)
 PHOTO_POSES={'right_photo':dict(action='Idle',frame=0),'left_photo':dict(action='Idle',frame=0),
- 'open_photo':dict(action='Reload',frame=88)}
+ 'open_photo':dict(action='Reload',frame=88),'used_photo':dict(action='Idle',frame=0)}
 def floor_height(source):return -.07
 def configure_scene(scene,source):
  import bpy

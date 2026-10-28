@@ -16,14 +16,14 @@ ROWS={
   shot=dict(location=(-.13,-.026,.080),target=(0,-.006,.064),ortho=.044,aspect=720/630,roll=.23),
   pose=dict(action='IdleCocked',frame=0)),
 }
-def compose(out):
+def compose(out,renders=None):
  from PIL import Image,ImageDraw,ImageFont
  from kit.fonts import find_font
  font=ImageFont.truetype(find_font('Noto Sans','Regular'),20)
  out.mkdir(parents=True,exist_ok=True)
  for name,row in ROWS.items():
   photo=Image.open(BASE/'build/references'/(row['photo']+'.png')).convert('RGBA').crop(row['crop'])
-  render=Image.open(BASE/'renders/checkpoint/hammer'/(name+'.png')).convert('RGBA')
+  render=Image.open((renders or BASE/'renders/checkpoint/hammer')/(name+'.png')).convert('RGBA')
   w=900;h=round(w*photo.height/photo.width)
   pair=Image.new('RGB',(2*w,h+110),(235,237,233));draw=ImageDraw.Draw(pair)
   for i,im in enumerate((render,photo)):
@@ -35,8 +35,12 @@ def compose(out):
   pair.save(out/(name+'-pair.jpg'),quality=94,optimize=True)
 def main():
  if '--compose' in sys.argv:
-  compose(BASE/'renders/checkpoint/hammer-pairs');return
- import shots,interface
+  p=argparse.ArgumentParser();p.add_argument('--compose',action='store_true');p.add_argument('--renders',type=Path);p.add_argument('--out',type=Path,default=BASE/'renders/checkpoint/hammer-pairs')
+  a=p.parse_args();compose(a.out,a.renders);return
+ import interface
+ source=Path(sys.argv[sys.argv.index('--source')+1])
+ if 'export' in source.parts:import final_shots as shots
+ else:import shots
  from guns.common.render import main as render
  cameras={}
  for name,row in ROWS.items():
@@ -45,4 +49,6 @@ def main():
  path=BASE/'build/hammer-cameras.json';path.write_text(json.dumps(cameras,indent=2))
  sys.argv+=['--camera-file',str(path)]
  render(shots,interface)
+ from presentation import stamp
+ stamp(sys.argv[sys.argv.index("--out")+1])
 if __name__=='__main__':main()

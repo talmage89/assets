@@ -36,3 +36,10 @@ MATCHES={
 MATCHES['open_photo']['lens']=26
 MATCHES['open_photo']['camera_height_m']=(.025,.04)
 MATCHES['open_photo']['lens_bounds_mm']=(25.999,26.001)
+MATCHES['used_photo']=match('used-rubber','Used stainless and handled rubber / gray-paper neutral',
+ (25,75,960,525),(-.65,.04,.30),(0,.065,.015),85,[
+ L((0,184,61),(77,354)),L((0,178,83),(79,326)),
+ L((0,28,83),(484,125)),L((-9,38,48.2),(502,265)),
+ L((-9,82.2,48.2),(365,309)),L((-12,23,53),(563,221)),
+ L((0,39,-7),(537,391)),L((0,-47,-63),(812,437),.4)])
+MATCHES['used_photo']['camera_height_m']=(.20,.12)
