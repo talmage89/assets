@@ -666,3 +666,163 @@ Current form differences, before judging finish:
     dense source has continuous cheeks and fine crossed cuts over its roof.
     The next acceptance is the exported atlas, including projection loss,
     actual wear texels and tonal measurements, not this source scene.
+
+33. **First exported atlas. Color/value first:** the bright studio cards still
+    left the textured grip too dark beside the balanced used-gun photograph;
+    compensating with a reflected near card washed the stainless cheek out.
+    Rejected that presentation (`renders/look/first-delivery/`, the historical
+    first export). Added diffuse bounce fill excluded from glossy transport.
+    The earlier light specular factor alone did not exclude Cycles reflections;
+    the light object's glossy visibility is also required. Corrected the sights
+    to black dielectric coating on steel instead of nearly black metallic
+    reflectance and rebaked. No photographic pixels or presentation overrides
+    enter the shipping material. The 2048 bake retains the curved hammer roof
+    and molded cells, but fine checkering, engraving and headstamp are softer
+    than the dense source. That loss remains visible in the matched pairs.
+34. **Exported gun before lip isolation. Color/value first:** balanced-photo /
+    exported median display luma is frame **129.50 / 108.86**, barrel **151.42 / 159.86**, textured
+    rubber **74.65 / 70.50**, smooth hand contact **97.86 / 80.15**, and sight
+    **64.14 / 69.33**. The neutral is the unclipped matte gray paper above the
+    used gun, native (100,45)–(300,110), linear gains
+    **.98535 / 1.00245 / 1.01997**. This recovers a neutral reference, not albedo
+    or roughness. The frame and smooth rubber remain darker; the barrel is
+    slightly brighter. Our steel's reflection bands are more regular and its
+    fine brushing less varied than the used photograph. Retained neutral steel
+    and dark cavities rather than bleaching the atlas to match one reflection.
+    The baked stop circle, muzzle/cylinder/shroud contact polish and smooth
+    grip regions read at full hero frame. Carbon surrounds the cylinder outlets
+    and hot gap; the open wear hero exposes the regions occluded in the closed
+    hero. Actual shipping UV/texel samples verify their contrast and roughness.
+    The frame-bottom rake shows continuous belly and crane-corner curvature;
+    the muzzle macro shows the rolled lug mouth. Small planar glints remain at
+    the machined shroud opening. Eevee has stronger grazing reflections and
+    visible sampling in deep holes; it uses the identical atlas.
+35. **Final ammunition comparison. Color/value first:** the rear-biased beauty
+    camera hid the lead behind the copper jacket. Its old projected lead patch
+    was therefore invalid. Replaced that measurement with a forward neutral
+    view and explicit camera-to-surface visibility rays at every patch corner.
+    On the unclipped top-left gray paper in the soft-point photograph, gains
+    **.92280 / 1.02777 / .97913**, photo / export medians are brass
+    **161.43 / 121.46**, copper **97.72 / 90.27**, lead **51.50 / 56.04** and
+    primer **62.49 / 45.85**. Copper and lead are close in value; our brass is
+    warmer and darker, and the primer is darker/less brown. The room and head
+    views use different neutral reflected-field levels, with the same exported
+    PBR material. These view values cannot establish measured metal reflectance;
+    the small source lead/primer patches also limit precision. The bright
+    standalone views show wider white card reflections. At macro distance the
+    accepted 24-sided case/rim and 12-sided primer show their economy, and the
+    headstamp is soft. Geometry, rim seating and all ammunition states remain
+    identical to the accepted native baseline.
+
+36. **Grip projection and scale follow-up. Color/value first:** the enlarged
+    grip-seam view revealed a silver sawtooth line not present on the dense
+    rubber. This was steel finish projected into the neighboring low-poly lip,
+    not hand wear. Rejected it. The kit's existing moving-root isolation now
+    separates the stationary grip during all bake channels as well as isolating
+    rigid bones; the shipped geometry, weights and accepted seam are unchanged.
+    The exported close-up now retains dark rubber right to the lip; two actual
+    shipping surface samples have BaseColor luma 38 and metallic 0. A small
+    exposed steel transition at the web remains visible in both dense source
+    and export, and the enlarged lip still shows the game mesh's polygon count.
+    Historical evidence is in `renders/look/before-grip-isolation/`; diagnosis
+    and corrected quick views are `renders/look/seam-source/` and
+    `renders/look/seam-isolated/`. The full final images are regenerated from
+    the corrected atlas. The scale presentation also turns the complete gun
+    broadside beside the 1.8 m silhouette, using an external placement only.
+
+### Final form comparison
+
+The current exported comparison entry points are `renders/final/photo-pairs.jpg`
+(right pair first), `hammer-pairs.jpg`, `beauty/frame_bottom.png`, `shank.png` and
+`muzzle.png`. All were opened at native resolution, along with the dense-source
+pairs, all 21 beauty views, the Eevee hero, seven standalone/comparison views
+and every frame sheet for all 22 clips.
+
+- **Hammer:** the broad rounded tongue and smooth crescent cheeks survive
+  export; no faceted wedge or separate thin horn remains. The underside is more
+  concave and the thumb end more regular than the worn photographic comparator.
+  The source/import side gauges are **6.024 / 3.582 mm**, transverse gauge
+  **9.948 mm**, and extension beyond the documented frame ray **16.023 mm**.
+  Their photo-derived targets remain uncertain oblique estimates, as described
+  in REFERENCE.md. Cocked checkering follows the curved roof; the finest cuts
+  soften in the atlas.
+- **Rear frame:** the small even edge round follows the backstrap curve rather
+  than presenting a broad flat chamfer. The authored cheek land is cleaner and
+  flatter than the photographed forging. The original rear outline is retained.
+- **Belly/front/lug:** the stationary frame is one flowing forging around the
+  accepted moving crane, with its fine seated seam. The guard-front transition
+  has continuous radius; the former separate protruding bolster is gone. Our
+  front corner remains fuller than the photo. The lug nose rolls around the rod
+  passage; its necessary left-side milling still has a small mouth face, but
+  does not project as a separate lower ledge. Crown and swing release are kept.
+- **Window:** the narrowed rolled recoil edge and curved upper shoulders remove
+  the bright shield band and thick rectangular roof gap. Actual central upper /
+  lower light is **.443 / .457 mm**. The left swing relief makes the oblique
+  left gap slightly wider than the right; it is not filled to hide a clearance
+  requirement. The actual forcing-cone gap is still **.200 mm**.
+
+### Final delivery proof
+
+`make -C guns/revolver` and `make -C guns/revolver check` exit 0. Full rebuild
+stages, including model, UVs, isolated 4096 bake, filtered 2048 maps, four GLBs,
+fresh-import audits and final GPU renders, have run through the Make graph.
+The last invocations retain current results and rerun repository/final review
+checks. Logs are `build/revolver-final-build.log` and
+`build/revolver-final-explicit-check.log` at the repository root.
+
+- **Budget:** **39,224 staged**, **30,570 active loaded**, **27,450 unloaded**
+  triangles. This includes all hidden live/fired/incoming alternatives and loader
+  representations, with no budget exclusion. One skinned mesh/material,
+  **32 bones, 22 clips, ten sockets**. Cartridge **520**, case **456**, loaded
+  speedloader **5,398** triangles. The complete staged asset is 510 triangles
+  below its takeover checkpoint and 776 below the brief's ceiling.
+- **Files:** `export/revolver.glb` **10,021,408 bytes**; cartridge **6,353,428**;
+  case **6,350,472**; loaded speedloader **6,559,080**. One canonical 2048
+  BaseColor / OpenGL +Y Normal / ORM set, respectively **765,526 / 2,041,685 /
+  3,522,873 bytes**. All four GLBs embed identical map payloads. Compressed GPU
+  allocation with mipmaps is approximately **16 MiB** when cached by content.
+- **Atlas/bake:** kit finalizer/baker/downsampler/exporter, **4096 / 32 samples**,
+  all six baked channels have **zero missed interior texels**. Actual imported
+  UV coverage **42.061%**; density p5/p50/p95 **2,820 / 4,274 / 4,579 px/m**.
+  No escaped or degenerate UV triangles. Twenty microscopic overlap pairs total
+  **3.4432e-6** of atlas area, below the unchanged **1e-5** kit limit.
+- **Construction correctness:** all **123** source, finalized and reconstructed
+  imported parts closed/manifold, positive-volume and without zero-area faces;
+  tested forging/barrel/cylinder disjoint crossings zero. All **48** actual
+  surface records pass at each stage. Source/finalized **1,842** half-frame
+  samples and imported **1,854** samples pass, maximum penetration
+  **.087853 / .087851 mm**, unchanged **.20 mm** tolerance, no allowed-pair
+  exceptions. Dense hammer Idle/cocking adds **88** samples and all 48 source
+  contacts. This establishes sampled assembly correctness.
+- **Serialization:** reconstructed imported geometry matches every triangle by
+  rigid owner, centroid and all vertex positions, one-to-one; maximum vertex
+  difference **1.666e-8 m**. Separately, **1,842 complete affine/state samples**
+  pass, max position error **6.716e-8 m**, linear-frame error **5.364e-7**.
+  All per-chamber semantics, endpoints, interruption resumes, sockets and fresh
+  standalone spawn frames pass. Independent rebuild **187 entries**, zero
+  differences; round-three baseline **183 unchanged entries**, only the four
+  authorized form objects changed, complete 3,672 forward cylinder triangles
+  preserved. These comparisons prove preservation/serialization, separately
+  from construction correctness.
+- **Look/provenance:** `build/surface-audit.json` passes all causal wear tests
+  on shipping texels. `renders/final/audit.json` verifies **296 current-GLB PNG
+  records**, including all standalone/comparison views, plus four separately
+  checked dense-source photos. All **22** WebPs decode at their real clip
+  durations. GLB and render-recipe hashes are current. Final GLB SHA-256 is
+  `d2359219eaa04c244a449288dd816538be06ef446b0d5c2d3f2bbc228004a731`.
+- **Tone:** hero object luma p1/p50/p99 **2.00 / 59.79 / 244.79** of 255;
+  **0.00381%** clips all channels, **3.475%** lies below luma 15. The gray hero
+  has dark cavities and controlled highlights. These are tonal checks, not
+  proof of photographic equivalence.
+
+Final images are `renders/final/hero-gray.jpg`, `contact-sheet.jpg`,
+`turnaround.jpg`, `details.jpg`, `action.jpg`, `scale-gray.jpg`,
+`eevee/hero.png`, `photo-pairs.jpg`, `hammer-pairs.jpg`,
+`ammo/value-patches.jpg` and `clips.jpg`. Native PNGs and timed WebPs are in
+its named subfolders. Five docs JPGs are generated, largest **181,788 bytes**,
+all at most 1600 pixels wide. They remain **uncommitted pending lead acceptance**.
+
+No kit/common code or other gun asset was changed; the family README gains one
+status row. No installations, accounts or tools are needed from the lead.
+A future general photo-value helper should validate camera visibility as well
+as ray/UV ownership, to catch occluded measurement patches before review.
