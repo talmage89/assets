@@ -42,7 +42,9 @@ and finger envelopes; it does not deliver an anatomical hand animation.
 | IdleTube0–5 | 1.00 s | Count-specific chambered holds |
 | IdleEmpty / IdleOpen / IdleUnchambered1 | 1.00 s | Explicit empty closed/open and loaded-tube/empty-chamber holds |
 
-Fire and Cycle are deliberately separate. For example:
+Initialize the display with the appropriate Idle hold before first drawing the
+gun. The inspection GLB bind pose is a modeling rest pose, not an ammunition
+state. Fire and Cycle are deliberately separate. For example:
 `ready → Fire → spent6 → Cycle → ready5 → Fire5 → spent5`.
 FireLast goes from `last_ready` to `spent0`, then CycleLast reaches
 `empty_closed`. The base `last_ready` meaning remains one chambered live round
@@ -62,7 +64,9 @@ The insertion pushes the existing stack and follower continuously. Opaque tube
 slots reindex at commits; their display meshes are hidden for the preceding
 single frame. The same mask protects manual feeding at f27–28. Occupancy uses
 STEP sampling. This is a declared visual handoff, not cartridge-path physics.
-The carrier round is separately controlled during the bolt push, so it remains
+CarrierGuide and FiredGuide retain motion on nonscaling bones; their display
+children alone have STEP visibility. This avoids losing rotation during a
+zero-scale GLB sample. The carrier round is separately controlled during the bolt push, so it remains
 on the chamber line while the tray lowers. The exported clips include the
 fired-case demonstration trajectory through the top opening.
 

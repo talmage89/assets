@@ -15,6 +15,7 @@ The make fetcher downloads only the image/PDF URLs in this table.
 | open2.jpg | https://upload.wikimedia.org/wikipedia/commons/6/6b/Winch94_Verschluss.JPG | Hmaag; CC0 | Right/top closed bolt, loading gate and rear sight construction. |
 | left2.jpg | https://upload.wikimedia.org/wikipedia/commons/e/e4/Winchester-94-32spl.jpg | Picanox / Waltherppx; CC BY-SA 4.0 | Independent used .32 Special right silhouette and wood/steel structure; not a finish target. |
 | cheek.jpg | https://upload.wikimedia.org/wikipedia/commons/3/3c/Henry_rifle_operation_06_aiming_and_firing.jpg | US National Park Service, Stones River National Battlefield; US government public domain | Shouldered lever-action cheek weld only. Different long-barrel class; no claim that it publishes an eye-distance dimension. |
+| ammo.jpg | https://upload.wikimedia.org/wikipedia/commons/f/fe/30-30.jpg | Boris Barowski; public domain dedication | Center cartridge only: rim, long neck and jacket/lead construction. Rounded soft point differs from our required flat nose; no color/material inference before neutral adaptation. |
 | cartridge-spec.pdf | https://bobp.cip-bobp.org/uploads/tdcc/tab-ii/tabiical-en-page70.pdf | C.I.P.; published standard, no redistribution license stated | Table II .30-30 exterior envelope: 51.80 mm case, 64.77 mm overall, 12.85 mm rim, 10.71 mm body, 8.38 mm mouth. Visual exterior only. |
 | parts.pdf | https://www.winchesterguns.com/content/dam/winchester-repeating-arms/support/parts-and-service/parts/2025/Winchester-Model-94-Parts-List.pdf | Winchester Repeating Arms; copyrighted manufacturer document | Named parts and visible construction. Modern angle-eject/rebound details are distinguished from the older top-ejecting class. No real manufacturing internals are reproduced. |
 | manual.pdf | https://www.1895gunner.com/winchestermanuals/21-WRA-061_Model_94_OM_WEB.pdf | Winchester Repeating Arms; copyrighted primary manual, hosted by an independent archive | External anatomy, sight leaf/elevator, loading cover and illustrated lever/hammer states. Our older half-cock/top-eject visual binding is not the modern manual's rebound/angle-eject binding. |
@@ -54,3 +55,5 @@ White balance, native neutral patches and estimated gains are recorded by
 silver and unclipped paper are estimated neutrals, not a color chart. These
 form comparisons do not establish final bluing/walnut albedo. Only the locally
 generated scripts and this register are tracked; references and pairs are ignored.
+
+- [Boris Barowski cartridge comparison](https://commons.wikimedia.org/wiki/File:30-30.jpg): public domain dedication; center .30-30 only.
