@@ -106,3 +106,40 @@ The former black rectangle below the front frame is the lower crane-yoke web
 and pivot, with the closed-seat hardware behind it. Its actual pivot remains
 unchanged. The reshaped boss/web and integrated right forging bolster replace
 the hanging rectangular outline; the small round bearing projection remains.
+
+## Last hammer and forging revision
+
+The two native hammer crops are separate photographs and estimated viewpoints,
+not two calibrated views of one specimen. Manual comparison gauges on the rest
+crop give approximately 69 px at the tongue root, 47 px near the end, and 208 px
+of exposed sweep (placement uncertainty about 5 px). The cocked crop gives about
+81 px at the root and 45 px near the end; its curved roof is seen more obliquely.
+Their root/tip ratios, about 1.5–1.8, reject the previous nearly wire-thin tip.
+The resting roof's roughly 25 px transverse projection is strongly foreshortened:
+using the approximately 15° estimated view gives a class width around 9–11 mm,
+with at least ±2 mm uncertainty. This is an estimate, not a published width.
+
+Scale and perspective uncertainty put the visual side gauges at approximately
+5–7 mm at the root, 3–4 mm near the end, and 14–18 mm beyond the rear frame.
+They are construction/appearance estimates only. They do not constitute shop
+measurements or certify a replica. No photograph outline is traced into a mesh.
+The one subdivision cage is adjusted against both views and the independent top
+view. The game mesh spends its hammer allocation on curved cheeks and a broad
+rounded tongue; the curved roof's fine crossed cuts transfer through the bake.
+
+`src/form_metrics.py` measures actual triangle hits in source and fresh import:
+about **6.02 mm root, 3.58 mm near-tip, 9.95 mm transverse width and 16.02 mm past
+the frame**. Root and tip gauges are at Y=−4/−7.5 mm; the transverse cut is at
+Y=−5, Z=71 mm. The extension gauge uses the actual rear forging at X=5, Z=66 mm,
+then its Y distance to the actual rear of the hammer. These precise mesh gauges
+must not be confused with the uncertain photographic estimates above.
+
+The rear forging edge has an authored 1.25 mm round, rather than a 3.5 mm broad
+chamfer. A continuous monotone belly flow blends the guard's front into the
+crane-bearing corner; the former separate bolster and heel boxes are gone.
+The crane remains the accepted moving yoke, flush in its relieved seat. The
+lower lug rolls axially and transversely around its open-left rod passage;
+the protected crown remains 1.45 mm recessed. The recoil shield has a narrower
+rolled edge and the window's upper shoulders follow the cylinder radius.
+The accepted forcing-cone gap, central window light and rod release remain
+independent actual-surface gauges, not authored constants reported as measures.

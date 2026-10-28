@@ -29,10 +29,10 @@ def cylinder_forward(path):
 
 def main():
  p=argparse.ArgumentParser();p.add_argument('--before',required=True,type=Path);p.add_argument('--after',required=True,type=Path);p.add_argument('--out',required=True,type=Path)
- p.add_argument('--round',type=int,choices=(2,3),default=2)
+ p.add_argument('--round',type=int,choices=(2,3,4),default=2)
  a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);left=snapshot(a.before);right=snapshot(a.after)
  changed=[k for k in left.keys()|right.keys() if left.get(k)!=right.get(k)]
- allowed=ROUND3_CHANGED if a.round==3 else CHANGED
+ allowed={'Frame_Forging','Frame_Sideplate','Barrel','Hammer_Body'} if a.round==4 else ROUND3_CHANGED if a.round==3 else CHANGED
  unexpected=[k for k in changed if not k.startswith('mesh:') or k[5:] not in allowed]
  result=dict(passed=not unexpected,changed=sorted(changed),unexpected=unexpected,
   unchanged=sorted(k for k in left.keys()&right.keys() if left[k]==right[k]),

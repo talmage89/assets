@@ -30,6 +30,15 @@ def capture(path):
  guard_gauge=span('TriggerGuard_ForgedBow',(0,.040,-.0078),2)
  blade_width=span('Trigger_Shoe',(0,.031,.010),0)
  blade_depth=span('Trigger_Shoe',(0,.031,.010),1)
+ spur_root=span('Hammer_Body',(0,-.004,.070),2)
+ spur_tip=span('Hammer_Body',(0,-.0075,.072),2)
+ spur_width=span('Hammer_Body',(0,-.005,.071),0)
+ frame_spur_gauge=hit('Frame_Forging',(.005,.030,.066),(0,-1,0),.060)
+ spur_rear=min(v.y for v in motion.surface(part('Hammer_Body'))['points'])
+ past_frame=(frame_spur_gauge.y-spur_rear)*1000
+ assert 15<past_frame<25,past_frame
+ assert 5.5<spur_root['size_mm']<7.5 and 3.1<spur_tip['size_mm']<4.2
+ assert 9.0<spur_width['size_mm']<10.4
  windows=[]
  for z,label in [(.0681,'top'),(.02825,'bottom')]:
   d=1 if label=='top' else -1
@@ -72,6 +81,8 @@ def capture(path):
  return dict(passed=True,staged_triangles=sum(counts.values()),active_triangles=active_count,
   unloaded_triangles=active_count-sum(counts[o.get('part_name',o.name)] for o in active if o['bone'].startswith('Live')),
   hammer_width=hammer,hammer_slot_width=slot,
+  spur_root_side_thickness=spur_root,spur_near_tip_side_thickness=spur_tip,spur_transverse_width=spur_width,
+  spur_past_frame_mm=past_frame,spur_frame_gauge_m=list(frame_spur_gauge),
   hammer_side_clearance_mm=clearance,guard_width=guard_width,guard_gauge=guard_gauge,
   trigger_width=blade_width,trigger_depth_at_z10=blade_depth,window_running_gaps=windows,
   crown_recess_mm=recess,crown_floor_m=list(crown),crown_lip_m=list(lip),

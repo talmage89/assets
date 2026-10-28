@@ -578,3 +578,91 @@ some low-poly economy at the enlarged rubber lip, and the less even reflection
 inside the deep ratchet-release well. A future general kit fixture for rounded
 profile normals and fine relief masks would help catch this class of shading
 loss; no shared-tool change is required for the checkpoint.
+
+## Last form revision and look development
+
+The new brief accepts the prior dimensions, rig/22 clips/1.4.0 state contract,
+48 construction records, cylinder and extractor, ammunition, rubber form/seam,
+trigger and guard, sideplate seam, sights/latch and recessed crown. Their
+acceptance is retained. The new native audit limits geometry changes to
+`Frame_Forging`, `Frame_Sideplate`, `Barrel` and `Hammer_Body`; the sideplate is a
+patch of the changed forging skin. Every other native entry remains identical.
+
+26. **Form, first revised cage. Color/value first:** temporary steel remains
+    more reflective and cleaner than the used photos. The new broad tongue and
+    subdivision cheeks remove the wire spur and faceted wedge, but the first
+    belly made a pointed dip above the guard, and the lower crane seat crossed
+    the newly fuller forging. Rejected both (`renders/round4/form1/`). Replaced
+    repeated eased stations with monotone tangent flow; relieved the crane's
+    actual lower envelope. Kept the original yoke, pivot, contacts and tolerance.
+27. **Form, machining cleanup. Color/value first:** white card bands made a
+    small broad edge look worse than its silhouette. The small even rear radius
+    reads correctly; the source's lower nose still had a squared reflection and
+    microscopic split Boolean seams. Rolled it across the width, widened only
+    the mouth's cutter break, welded its sub-4-micron seams and excluded the
+    narrow crane-bearing pocket from the bevel miter. The crown gauge and rod
+    release remain unchanged. Actual closed topology and disjoint-crossing
+    checks pass; no collision exception was added.
+28. **Form, photographic proportions. Color/value first:** neither the blue-lit
+    cocked photo nor the clipped ATF backdrop supplies albedo. Rest/cocked
+    comparisons showed that the first fuller tongue extended too far and had
+    a bulbous tip. Shortened and tapered the same continuous cage. The actual
+    source/import gauges are approximately 6.02/3.58 mm in side thickness,
+    9.95 mm across and 16.02 mm beyond the defined frame gauge. The photographic
+    estimates and their perspective uncertainty are recorded in REFERENCE.md.
+    `renders/round4/final-hammer-pairs/` shows both poses; fine roof cuts are
+    reserved for the normal bake rather than consuming silhouette triangles.
+
+Current form differences, before judging finish:
+
+- **Hammer:** rounded crescent cheeks, thicker rounded tongue and continuous
+  roof replace the horn/wedge. Our underside is more concave and the thumb end
+  more regular than the worn specimen; these are still visible in the pairs.
+  There is no stepped separate spur or faceted cheek cap. Final baked pairs
+  must also retain the curved roof checkering.
+- **Rear frame:** a small continuous round follows the accepted rear curve.
+  Our machined side land is flatter and cleaner than the photographed forging;
+  the former wide planar chamfer is gone.
+- **Bottom/front:** the guard joins the continuous belly into a rounded crane
+  corner, and the stationary forging covers the accepted moving yoke. The lug
+  nose is one compound rolled surface around the rod passage. The real open
+  milling has a small visible mouth face; it no longer has a separately
+  projecting lower block. The original corner remains fuller than the photo.
+- **Window:** the recoil edge is narrower and the upper shoulders wrap the
+  cylinder instead of showing a rectangular dark border. Central upper/lower
+  actual running light remains about .443/.457 mm; the forcing-cone gap remains
+  .200 mm. The left roof keeps its required swing relief, so the oblique left
+  light is slightly broader than the right. No accepted motion is changed.
+
+## Finish critiques
+
+29. **Source pass 1 — `renders/look/pass1/`. Color/value first:** against the
+    gray-paper-balanced used photograph, rubber texture/hand medians were
+    about 20/32 versus 75/98. Rejected the nearly black blank grip and spotless
+    steel. Added original molded cells with distinct smooth hand-contact fields,
+    directional brushed/turned manufacture, fictional engravings and the named
+    stop/holster/carbon sites. Reference pixels never enter the shaders.
+30. **Source pass 2 — `renders/look/pass2/`. Color/value first:** rubber texture
+    was still about 27 versus 75. The raised cells read in the macro but not
+    sufficiently at full frame. Increased their resolved relief and kept the
+    smooth web/finger crests dark. A direct emission-mask inspection in
+    `renders/look/debug/` showed the causal fields were located correctly, but
+    low carbon coverage averaged into gray steel. Raised deposit-core opacity
+    while retaining broken localized haloes. The earlier barrel patch sampled
+    the lower lug; corrected the anatomical patch rather than tuning to it.
+31. **Source pass 3 — `renders/look/pass3/`. Color/value first:** barrel view
+    value was about 163 versus 151, and hand polish about 90 versus 98. Rubber
+    texture remained low; a new near fill also reflected directly in the steel
+    cheek and washed it out. Rejected that lighting. Increased the rubber's
+    actual textured reflectance, left hand contact darker, and moved/reduced
+    the fill. Used-reference comparisons use a neutral room field; hero views
+    retain negative fill and deep cavities. The gray-paper neutral is native
+    (100,45)–(300,110), linear gains .98535/1.00245/1.01997.
+32. **Source pass 4 — `renders/look/pass4/`. Color/value first:** lower fill
+    still made the underside too white and the grip too gray. Reduced it again
+    before delivery rendering; retained the material values and the small
+    dark cavity range. The front-open view now exposes six localized carbon
+    rings; the closed hero shows the stop line and muzzle contact. The hammer's
+    dense source has continuous cheeks and fine crossed cuts over its roof.
+    The next acceptance is the exported atlas, including projection loss,
+    actual wear texels and tonal measurements, not this source scene.

@@ -18,12 +18,12 @@ from parameters import *
 from clips import build_clips
 GENERATOR_HASH=generator_digest()
 PARTS=[];MAT={};HIGH={};SEATS={};OUTLINES={}
-def clean(o):
+def clean(o,dist=.001):
  # Exact Boolean intersections can leave coincident seam vertices and
  # microscopic edges. Clean in mm, before their scale defeats decimation.
  bm=bmesh.new();bm.from_mesh(o.data)
- bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=.001)
- bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=.001)
+ bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=dist)
+ bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=dist)
  bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces))
  bm.to_mesh(o.data);bm.free();o.data.update()
 def materials():
@@ -47,7 +47,7 @@ def reg(ob,bone='Root',radius=0,segments=3):
    weights=bm.edges.layers.float.new('bevel_weight_edge')
    for e in bm.edges:
     clear=min(q.calc_length() for v in e.verts for q in v.link_edges)
-    internal=(any(34<v.co.y<50 and 19<v.co.z<31 and abs(v.co.x)<6.5 for v in e.verts)
+    internal=(any((34<v.co.y<50 and 19<v.co.z<31 and abs(v.co.x)<6.5) or (81<v.co.y<95 and v.co.z<30) for v in e.verts)
       if ob.name=='Frame_Forging' else any(v.co.y<41.5 for v in e.verts))
     e[weights]=1.0 if not internal and clear>.45 and e.calc_face_angle(0)>math.radians(25) else 0.0
    bm.to_mesh(ob.data);bm.free()
@@ -68,7 +68,7 @@ def lathe(name,pts,mat='steel',bone='Root',axis='Y',center=(0,0),n=48,closed=Fal
  return reg(o,bone) if register else o
 def cut(o,tool,operation='DIFFERENCE'):
  tool.data.materials.clear();tool.data.materials.append(o.data.materials[0])
- if o.name in ('Frame_Forging','Barrel','Hammer_Body','Hammer_ThumbSpur','Latch_Thumbpiece'):
+ if o.name in ('Frame_Forging','GripMoldingEnvelope','Barrel','Hammer_Body','Hammer_ThumbSpur','Latch_Thumbpiece'):
   modifier=o.modifiers.new('Manifold visual machining','BOOLEAN');modifier.object=tool
   modifier.operation=operation;modifier.solver='MANIFOLD';M.apply(o)
   bpy.data.objects.remove(tool,do_unlink=True)
@@ -93,15 +93,6 @@ def screw(name,x,y,z,r=2.1,mat='steel',bone='Root'):
  o=lathe(name,[(lo,0),(lo,r*.92),(hi-.08*sign,r),(hi,r*.92),(hi,0)],mat,bone,axis='X',center=(y,z),n=24,register=False)
  a,b=sorted((x-sign*.20,x+sign*.4));cutbox(o,(a,y-r-.1,z-.30),(b,y+r+.1,z+.30))
  return reg(o,bone,.10,2)
-def hammer_roof(y):
- t=max(0,min(1,(8-y)/19))
- return 65.1+9.0*(3*t*t-2*t*t*t)+3.3*(1-t)**2
-def hammer_width(y):
- t=max(0,min(1,(8-y)/19))
- width=3.45+1.25*math.sin(math.pi*t)**.8
- if y>2:width=min(width,3.65)
- if t>.90:width*=1-.32*((t-.90)/.10)**2
- return width
 def checked_pad(name,rows,across,mat,bone,axis='Z',relief=.085):
  # Original fine pyramids on a curved pad, integrated into its closed mesh.
  # rows=(length station, half width, upper surface, lower surface).
@@ -127,48 +118,40 @@ def checked_pad(name,rows,across,mat,bone,axis='Z',relief=.085):
  faces.append(tuple([*( (nr-1)*nc+i for i in range(nc)),base+2*nr-1,base+2*nr-2]))
  return reg(M.mesh(name,verts,faces,MAT[mat]),bone)
 def sculpted_hammer():
- # A single closed cage through the hidden body, curved neck and thumb tip.
- # The roof grid and rounded cheek rails share vertices, so there is no
- # profile-extrusion cap or Boolean shoulder where the thumb spur emerges.
- body=[(18,3.45,67.2,65.1),(17.5,3.65,67.9,61.8),
-  (16.5,3.65,68.3,54.6),(15.3,3.65,68.4,46.0),
-  (14,3.65,68.4,44.2),(10,3.65,68.4,44.2),
-  (6,3.65,68.55,45.5),(4,3.55,68.8,49.0)]
- rows=list(body)
- for j in range(22):
-  y=3-14*j/21;roof=hammer_roof(y)
-  bottom=(52+3*(3-y)) if y>=0 else roof-(5-3.4*(8-y)/19)
-  width=min(3.65,hammer_width(y)) if y>=0 else hammer_width(y)
-  rows.append((y,width,roof,bottom))
- n=12;ring=n+9;verts=[];faces=[];teeth=[]
+ # One subdivision cage: broad crescent cheeks flow through a thick thumb
+ # tongue. The old cage spent most of its triangles on teeth while its
+ # cheek had only three straight rails. Fine checkering now belongs to bake.
+ rows=[(18.05,3.25,67.5,65.2),(17.8,3.68,68.0,62.2),
+  (16.8,3.78,68.4,54.5),(15.3,3.78,68.6,46.0),
+  (14,3.78,68.8,44.2),(10,3.78,69.1,44.2),
+  (6,3.78,69.7,46.0),(4,3.75,70.25,52.5),
+  (2,3.75,71.0,60.6),(0,4.0,71.8,63.8),
+  (-2,4.55,72.8,66.0),(-4,5.0,73.5,67.3),
+  (-6,5.05,74.0,69.0),(-7.5,4.8,74.1,70.5),
+  (-8.5,4.3,73.9,71.0),(-9.0,2.7,73.5,71.5)]
+ loops=[]
  for y,w,top,bottom in rows:
-  if y< -9.8:top-=.5*((-9.8-y)/1.2)**2
-  r=min(.8,(top-bottom)*.28);mid=(top+bottom)/2
-  for i in range(n+1):
-   u=-1+2*i/n;verts.append(((w-r*.5)*u,y,top-.14*abs(u)**6))
-  verts.extend([(w,y,top-r),(w+.10,y,mid),(w,y,bottom+r),
-   (w-r*.5,y,bottom),(-w+r*.5,y,bottom),(-w,y,bottom+r),
-   (-w-.10,y,mid),(-w,y,top-r)])
- for j in range(len(rows)-1):
-  for i in range(ring):
-   q=(i+1)%ring;ids=[j*ring+i,j*ring+q,(j+1)*ring+q,(j+1)*ring+i]
-   if i<n and rows[j][0]<=3:
-    center=sum((Vector(verts[k]) for k in ids),Vector())/4;center.z+=.075
-    k=len(verts);verts.append(tuple(center));faces.extend((ids[t],ids[(t+1)%4],k) for t in range(4));teeth.extend([1]*4)
-   else:faces.append(tuple(ids));teeth.append(0)
- faces.extend([tuple(range(ring-1,-1,-1)),tuple((len(rows)-1)*ring+i for i in range(ring))])
- teeth.extend([0,0]);ob=M.mesh('Hammer_Body',verts,faces,MAT['flat'])
- mark=ob.data.attributes.new('hammer_tooth','INT','FACE')
- for item,value in zip(mark.data,teeth):item.value=value
- return reg(ob,'Hammer')
+  mid=(top+bottom)/2;h=(top-bottom)/2
+  loop=[]
+  for i in range(24):
+   t=i*math.tau/24;c=math.cos(t);s=math.sin(t)
+   loop.append((w*math.copysign(abs(c)**.48,c),y,
+    mid+h*math.copysign(abs(s)**.72,s)))
+  loops.append(loop)
+ ob=M.loft('Hammer_Body',loops,MAT['flat'])
+ sub=ob.modifiers.new('Sculpted crescent cheek continuity','SUBSURF');sub.levels=2;M.apply(ob)
+ M.smooth(ob,180);HIGH[ob.name]=ob.data.copy()
+ reg(ob,'Hammer');reduce(ob,1250)
+ return ob
 def frame():
  # Forging volume varies in all three axes: broad recoil shoulder, lower
  # belly, neck and front collar. Machining leaves planar cheek lands.
  # The spine is one tangent-continuous sweep from the hand web into the
  # horizontal topstrap. Stations are samples of that radius, not facets.
  spine=M.bezier((-22,41),(.5,41),(2.5,77.4),(28,77.4),64)
- bottom=[(-22,25),(-12,15),(-3,12),(16,16),(34,20),(56,22.8),
-  (78,24),(84,22),(87,22),(91,20.5),(94,25.5),(96,43.0)]
+ bottom=[(-22,25),(-12,15),(-3,12),(16,16),(34,20),(50,21.8),
+  (56,21.4),(60,20.4),(64,18.8),(67,17.8),(69,17.8),(73,17.8),
+  (78,17.8),(82,17.2),(86,16.4),(89,16.5),(92,19.0),(94,25.5),(96,43.0)]
  def height(y,rows):
   for (ya,a),(yb,b) in zip(rows,rows[1:]):
    if ya<=y<=yb:
@@ -176,24 +159,59 @@ def frame():
     return a+(b-a)*t
   return rows[-1][1]
  stations=[]
- for y in sorted(set([round(-22+1.5*i,4) for i in range(34)]+[28,34,56,78,82,84,87,90,92,94,95,96])):
+ def flow(y,rows):
+  slopes=[(b-a)/(yb-ya) for (ya,a),(yb,b) in zip(rows,rows[1:])]
+  tangents=[slopes[0]]+[0 if a*b<=0 else 2*a*b/(a+b) for a,b in zip(slopes,slopes[1:])]+[slopes[-1]]
+  for i,((ya,a),(yb,b)) in enumerate(zip(rows,rows[1:])):
+   if ya<=y<=yb:
+    t=(y-ya)/(yb-ya);d=yb-ya
+    return (2*t**3-3*t*t+1)*a+(t**3-2*t*t+t)*d*tangents[i]+(-2*t**3+3*t*t)*b+(t**3-t*t)*d*tangents[i+1]
+  return rows[-1][1]
+ for y in sorted(set([round(-22+1.5*i,4) for i in range(79)]+[28,34,56,64,67,69,73,78,82,84,87,90,92,94,95,96])):
   if y<28:
    for (ya,a),(yb,b) in zip(spine,spine[1:]):
     if ya<=y<=yb:top=a+(b-a)*(y-ya)/(yb-ya);break
   else:top=77.4 if y<=82 else height(y,[(82,77.4),(90,76.5),(96,72)])
-  width=height(y,[(-22,5.2),(-16,8.3),(-8,8.8),(78,8.8),(90,9.7),(96,9.5)])
-  stations.append((y,width,height(y,bottom),top))
- loops=[[(x,y,z+(a+b)/2) for x,z in rounded(2*w,b-a,min(3.5,(b-a)*.23),8)] for y,w,a,b in stations]
+  width=height(y,[(-22,5.2),(-16,8.3),(-8,8.8),(78,8.8),(85,10.8),(90,10.8),(96,9.5)])
+  stations.append((y,width,flow(y,bottom) if y>=34 else height(y,bottom),top))
+ loops=[]
+ for y,w,a,b in stations:
+  # Separate top and lower radii: the rear spine has a small, even round,
+  # while the belly retains the broad forging radius around the crane.
+  points=[]
+  for sx,sz,start in [(1,1,0),(-1,1,90),(-1,-1,180),(1,-1,270)]:
+   r=min(1.25 if sz>0 else 3.5,(b-a)*.23)
+   for i in range(7):
+    t=math.radians(start+90*i/6)
+    points.append((sx*(w-r)+r*math.cos(t),y,(b if sz>0 else a)-sz*r+r*math.sin(t)))
+  loops.append(points)
  o=M.loft('Frame_Forging',loops,MAT['steel'])
  # An uninterrupted large-radius rear contour, not a plate outlined by bevels.
- shield=lathe('tool',[(32.25,0),(32.25,17),(33.0,18.5),(34.4,19),
-  (35.5,18.8),(36.7,17),(37.1,14.8),(37.1,0)],center=(0,CY),n=72,register=False)
+ shield=lathe('tool',[(35.5,0),(35.5,17.6),(35.8,18.6),(36.3,19.25),
+  (37.35,19.25),(37.65,18.95),(37.65,0)],center=(0,CY),n=72,register=False)
  cut(o,shield,'UNION')
  # A closed molding envelope excludes lockwork slots from the rubber seat.
- SEATS['Grip']=o.data.copy()
+ # Keep the accepted rubber molding envelope independent of these upper
+ # frame edits. Its original round-three sections are rebuilt below.
+ old_stations=[]
+ old_bottom=[(-22,25),(-12,15),(-3,12),(16,16),(34,20),(56,22.8),(78,24),(84,22),(87,22),(91,20.5),(94,25.5),(96,43)]
+ for y in sorted(set([round(-22+1.5*i,4) for i in range(34)]+[28,34,56,78,82,84,87,90,92,94,95,96])):
+  top=next((za+(zb-za)*(y-ya)/(yb-ya) for (ya,za),(yb,zb) in zip(spine,spine[1:]) if ya<=y<=yb),77.4 if y<=82 else height(y,[(82,77.4),(90,76.5),(96,72)]))
+  width=height(y,[(-22,5.2),(-16,8.3),(-8,8.8),(78,8.8),(90,9.7),(96,9.5)])
+  low=height(y,old_bottom)
+  old_stations.append([(x,y,z+(low+top)/2) for x,z in rounded(2*width,top-low,min(3.5,(top-low)*.23),8)])
+ mold=M.loft('GripMoldingEnvelope',old_stations,MAT['steel'])
+ old_shield=lathe('tool',[(32.25,0),(32.25,17),(33,18.5),(34.4,19),(35.5,18.8),(36.7,17),(37.1,14.8),(37.1,0)],center=(0,CY),n=72,register=False)
+ cut(mold,old_shield,'UNION');SEATS['Grip']=mold.data.copy();bpy.data.objects.remove(mold,do_unlink=True)
  # 0.45 mm radial running light around the accepted cylinder envelope.
- window=[(y+59.95,z+48.2) for y,z in rounded(45.7,40.3,.65,6)]
- cut(o,profile('tool',window,-30,30,register=False))
+ window=[(y+60.225,z+48.2) for y,z in rounded(45.15,40.3,.65,6)]
+ tool=profile('tool',window,-30,30,register=False)
+ # Closely wrapped upper shoulders follow the cylinder's radial envelope.
+ # The floor stays at its accepted level for the leftward swing.
+ roof_limit=[(-30,-50),(30,-50),(30,48.2)]
+ roof_limit += [(20.15*math.cos(t),48.2+20.15*math.sin(t)) for t in [math.pi*i/64 for i in range(65)]]
+ roof_limit.append((-30,48.2))
+ cut(tool,profile('tool',roof_limit,30,90,axis='Y',register=False),'INTERSECT');cut(o,tool)
  # Raised recoil boss, filleted out of the shield around the firing bushing.
  boss=lathe('tool',[(33.0,0),(33.0,9.2),(34.7,9.2),(35.8,8.8),
   (36.7,7.8),(37.35,6.4),(37.55,4.7),(37.55,0)],center=(0,BORE),n=48,register=False)
@@ -230,9 +248,7 @@ def frame():
  hull=[tuple(envelope[i]) for i in convex_hull_2d(envelope)]
  cut(o,profile('tool',hull,-4,4,register=False))
  cutbox(o,(-4.1,26,12),(4.1,44,26))
- bolster=profile('tool',M.fillet_polygon([(79,28),(80,22),(84,18),(90,18.5),(94,25),(94,34)],2.5,8),6.6,9.5,register=False)
- M.bevel(bolster,.8,4);M.apply(bolster);cut(o,bolster,'UNION')
- cutbox(o,(-22,82.6,18),(6.5,90.0,54.7))
+ cutbox(o,(-22,82.6,12),(6.5,90.0,54.7))
  cutbox(o,(-28,81,CY-3.8),(3.5,98,CY+3.8))
  cut(o,lathe('tool',[(80,0),(80,5.2),(100,5.2),(100,0)],center=(0,BORE),n=48,register=False))
  # Cylinder stop's slot and the center latch pin's actual receiver bore.
@@ -254,8 +270,6 @@ def frame():
  cut(o,profile('tool',plate,7.50,12,register=False))
  # Blend the crane bearing heel into the same forging. The old separately
  # perched support box made a conspicuous step below the barrel shank.
- heel=box('tool',(-11,90,19),(-4,94,34),register=False)
- M.bevel(heel,1.9,5);M.apply(heel);cut(o,heel,'UNION')
  cut(o,lathe('tool',[(89.7,0),(89.7,2.75),(94.5,2.75),(94.5,0)],center=(-8,20),n=24,register=False))
  # Retain the closed pre-bevel machining solid as the rubber molding tool;
  # bevel miter intersections are unsuitable for a subsequent Boolean cutter.
@@ -316,12 +330,13 @@ def barrel():
  cut(o,bore)
  # Elliptical quarter-round: 5 mm axial recession over the lug's bottom
  # 10.65 mm. The upper crown remains at the accepted muzzle station.
- nose=[(MUZZLE-5,30),(MUZZLE+2,30),(MUZZLE+2,53),(MUZZLE,53)]
- nose += [(MUZZLE-5+5*math.cos(j*math.pi/48),53-10.65*math.sin(j*math.pi/48)) for j in range(1,25)]
+ nose=[(MUZZLE-7,30),(MUZZLE+2,30),(MUZZLE+2,55),(MUZZLE,55)]
+ nose += [(MUZZLE-7+7*math.cos(j*math.pi/48),55-12.65*math.sin(j*math.pi/48)) for j in range(1,25)]
  cut(o,profile('tool',nose,-25,25,register=False))
  # Bore around the rod; the narrow upper-left release is the actual swept
  # passage required by the accepted crane arc, rather than the old open hook.
- cut(o,lathe('tool',[(90,0),(90,2.85),(MUZZLE+1,2.85),(MUZZLE+1,0)],center=(0,CY),n=40,register=False))
+ cut(o,lathe('tool',[(90,0),(90,2.85),(MUZZLE-5,2.85),(MUZZLE-3,2.90),
+  (MUZZLE-1,3.10),(MUZZLE+1,3.10),(MUZZLE+1,0)],center=(0,CY),n=40,register=False))
  pts=[]
  for j in range(17):
   theta=math.radians(-j*2.5);x=CRANE[0]+8*math.cos(theta)+28.2*math.sin(theta)
@@ -329,6 +344,13 @@ def barrel():
   pts.append((x,z))
  upper=[(x,z+1.75) for x,z in pts];lower=[(x,z-1.75) for x,z in reversed(pts)]
  cut(o,profile('tool',upper+lower,90,MUZZLE+1,axis='Y',register=False))
+ # Roll the lower nose across its width as well as in side elevation. This
+ # turns the former flat shelf beside the channel into one compound surface.
+ for v in o.data.vertices:
+  if v.co.z<54 and v.co.y>MUZZLE-9 and math.hypot(v.co.x,v.co.z-BORE)>8.30:
+   u=max(0,min(1,(54-v.co.z)/3));u=u*u*(3-2*u)
+   axial=max(0,min(1,(v.co.y-(MUZZLE-9))/5))
+   v.co.y-=(1.2+2.1*(abs(v.co.x)/9.5)**2)*u*axial
  reg(o)
  # Pinned ramp is seated in a milled rib pocket.
  ramp=[(163.5,76.15),*M.bezier((163.5,76.5),(168,76.8),(174,82.4),(176,83),12),
@@ -547,6 +569,7 @@ def finalize(o):
  limit=limits.get(o.name,144 if 'Screw' in o.name or 'PivotHead' in o.name else 210)
  if o.name.startswith(('Live','Case','LoaderRound','InsertRound')):limit=1000
  reduce(o,limit)
+ if o.name=='Barrel':clean(o,dist=.004)
  tri=o.modifiers.new('Budget triangles','TRIANGULATE');tri.keep_custom_normals=True;M.apply(o)
  if o.name in ('Speedloader_Body','Barrel','Cylinder_Fluted','Frame_Forging','Frame_Sideplate','Extractor_Star','Latch_Thumbpiece','RearSight_NotchBody'):
   # Reseed the machining fields after QEM, rather than interpolating obsolete
@@ -567,7 +590,7 @@ def finalize(o):
     fixed=planar.get(o.data.loops[j].vertex_index)
     if fixed is not None and f.normal.dot(fixed)>.7:normals[j]=fixed.copy()
  if o.name=='Frame_Forging':
-  meridian=[(32.25,17),(33.0,18.5),(34.4,19),(35.5,18.8),(36.7,17),(37.1,14.8)]
+  meridian=[(35.5,17.6),(35.8,18.6),(36.3,19.25),(37.35,19.25),(37.65,18.95)]
   def shield_field(v):
    rr=math.hypot(v.x,v.z-CY)
    for i,((ya,ra),(yb,rb)) in enumerate(zip(meridian,meridian[1:])):
@@ -615,11 +638,13 @@ def finalize(o):
     for j,(_,n) in zip(f.loop_indices,values):normals[j]=n
  if o.name=='Barrel':
   for f in o.data.polygons:
-   c=f.center;u=(c.y-(MUZZLE-5))/5;v=(c.z-53)/10.65
-   if c.y>MUZZLE-5.05 and 42.3<c.z<53 and abs(u*u+v*v-1)<.08 and f.normal.y>.25:
+   c=f.center
+   if c.y>MUZZLE-8.5 and 42.3<c.z<52.0 and max(o.data.vertices[i].co.z for i in f.vertices)<52.6 and f.normal.y>.25:
     for j in f.loop_indices:
      p=o.data.vertices[o.data.loops[j].vertex_index].co
-     normals[j]=Vector((0,(p.y-(MUZZLE-5))/25,(p.z-53)/(10.65**2))).normalized()
+     u=max(0,min(1,(54-p.z)/3));u=u*u*(3-2*u)
+     q=p.y-(MUZZLE-7)+(1.2+2.1*(p.x/9.5)**2)*u
+     normals[j]=Vector((q/49*4.2*p.x/9.5**2*u,q/49,(p.z-55)/(12.65**2))).normalized()
  if o.name in ('Cylinder_Fluted','Barrel'):
   for f in o.data.polygons:
    if abs(f.normal.y)>.9999:
@@ -646,9 +671,9 @@ def finalize(o):
    if normals[j].dot(f.normal)<.03:normals[j]=f.normal.copy()
  # Fine teeth need their individual facet normals: smoothing all four sides
  # of a sub-millimeter pyramid averages them back into an invisible roof.
- if o.name in ('Hammer_Body','Latch_Thumbpiece'):
+ if o.name=='Latch_Thumbpiece':
   for f in o.data.polygons:
-   if (o.name=='Hammer_Body' and o.data.attributes['hammer_tooth'].data[f.index].value) or (o.name=='Latch_Thumbpiece' and f.normal.x<-.25):
+   if f.normal.x<-.25:
     for j in f.loop_indices:normals[j]=f.normal.copy()
  o.data.normals_split_custom_set(normals)
  o.data.transform(Matrix.Scale(.001,4));o.matrix_world=Matrix.Identity(4);o.data.update()
@@ -677,12 +702,15 @@ def main():
  bpy.ops.wm.save_as_mainfile(filepath=str(out))
  # Checkpoint retains original named parts to audit actual imported contacts.
  W.export(out.with_suffix('.glb'),[arm,*PARTS,*sockets])
- # Dense grip is retained for the later isolated high-to-low bake.
+ # Dense molded/sculpted sources are retained together for the isolated bake.
+ saved={}
  for name,data in HIGH.items():
-  data.transform(Matrix.Scale(.001,4));ob=bpy.data.objects[name];old=ob.data;ob.data=data
+  data.transform(Matrix.Scale(.001,4));ob=bpy.data.objects[name];saved[name]=ob.data;ob.data=data
   ob.vertex_groups.clear();vg=ob.vertex_groups.new(name=ob['bone']);vg.add(list(range(len(data.vertices))),1,'REPLACE')
-  bpy.ops.wm.save_as_mainfile(filepath=str(out.parent/'sculpt.blend'));ob.data=old
-  ob.vertex_groups.clear();vg=ob.vertex_groups.new(name=ob['bone']);vg.add(list(range(len(old.vertices))),1,'REPLACE')
+ bpy.ops.wm.save_as_mainfile(filepath=str(out.parent/'sculpt.blend'))
+ for name,data in saved.items():
+  ob=bpy.data.objects[name];ob.data=data
+  ob.vertex_groups.clear();vg=ob.vertex_groups.new(name=ob['bone']);vg.add(list(range(len(data.vertices))),1,'REPLACE')
  # Standalones use the same rigid-bone extraction as family delivery.
  W.pose(arm,'Idle',0)
  for name,bone in [('cartridge','Live0'),('case','Case0')]:
