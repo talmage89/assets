@@ -52,7 +52,12 @@ def revolution_normals(ob,profile,counts,base):
         for loop in face.loop_indices:
             vi=ob.data.loops[loop].vertex_index;j=owner[vi]
             prev=section[(j-1)%len(profile)];nex=section[j]
-            normal=(prev+nex).normalized() if prev.dot(nex)>math.cos(math.radians(38)) else section[segment]
+            # The long straight body must not interpolate toward the cone's
+            # normal over its entire 33.5 mm length. That fictitious bend made
+            # a dent-like wave in the fired-case macro. Each straight exterior
+            # segment keeps its own analytic cone normal at both ends.
+            straight_transition=j in (6,7,8,9)
+            normal=(prev+nex).normalized() if not straight_transition and prev.dot(nex)>math.cos(math.radians(38)) else section[segment]
             co=ob.data.vertices[vi].co;dx,dz=co.x-x,co.z-z;radius=math.hypot(dx,dz)
             normals[loop]=(normal.y*dx/radius,normal.x,normal.y*dz/radius)
         face.use_smooth=True
