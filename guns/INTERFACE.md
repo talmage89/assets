@@ -71,3 +71,11 @@ shotgun/bolt-action gun. Preserve imported PBR materials by index; no `Rifle` or
 OpenGL Normal / ORM atlas; separate GLBs repeat identical embedded payloads.
 An engine must reuse textures by canonical atlas ID/content hash to share GPU
 memory: identical GLBs do not make runtime caching automatic.
+
+## Additive 1.1.0 tube-loading supplement
+
+The [Hearth 12 supplement](shotgun/INTERFACE.md) adds tube-magazine capabilities,
+count-specific states, interruptible shell insertion, `Socket_SupportHand` and
+`Socket_Shell`. Existing 1.0.0 meanings and the C9 binding above remain valid.
+`common/interface_v1_1.py` checks the added schema; each gun supplies its own
+event schedule and independent intended-state/contact tests.

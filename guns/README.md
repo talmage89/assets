@@ -6,6 +6,7 @@ folder. Shared procedural geometry, rigging, baking and delivery use `kit/`.
 | Gun | Status | Asset |
 | --- | --- | --- |
 | PD C9 compact 9 mm pistol | Final: baked PBR, rig/clips and standalone magazines/case | [pistol/](pistol/README.md) |
+| PD Hearth 12 pump shotgun | Final: baked PBR, rig/clips, live shell and fired hull | [shotgun/](shotgun/README.md) |
 
 ## Shared conventions
 
@@ -14,6 +15,8 @@ grip origin, Blender +Y forward / +Z up / +X right; glTF −Z forward / +Y up.
 Whole-instance motion is external; internal Root stays identity. Six attachment
 sockets stay at scene root, while Socket_Magazine rides its complete bone frame.
 Each gun owns its capabilities, clip schedules and semantic event/state manifest.
+The [1.1.0 tube-loading supplement](shotgun/INTERFACE.md) adds pump support-hand
+and insertion sockets without changing the pistol's 1.0.0 binding.
 
 `common/` contains the guns-only presentation renderer, timed strip generator,
 interface schema/frame checks and photographic camera configuration helpers.

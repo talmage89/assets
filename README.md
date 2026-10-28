@@ -71,7 +71,8 @@ Trees
 
 Held weapons
 - [Guns](guns/README.md): the PD C9 compact 9 mm pistol, the family's pilot, rigged with ten clips on the rifle's
-  frame and sockets, with loaded and empty magazines and a fired case.
+  frame and sockets, with loaded and empty magazines and a fired case; the PD Hearth 12 pump shotgun in blued steel
+  and walnut, with eighteen clips, a live shell and a fired hull.
 
 Toolkit
 - [Shared toolkit](kit/README.md): procedural modeling and materials, UV, bake and export, verification and studio
