@@ -369,65 +369,65 @@ is unchanged. No motion exception or clearance threshold was relaxed.
 ### Eight regions — current differences from the photographs
 
 These are review findings, not a declaration that the asset is finished.
-Both [dense-source pairs](renders/round3/sculpt-pairs/right_photo-pair.jpg)
-and [baked GLB pairs](renders/round3/atlas-pairs/right_photo-pair.jpg) are required
-evidence. The [eight-region sheet](renders/round3/regions.jpg),
-[source/bake comparison](renders/round3/source-vs-baked.jpg) and
-[actual section cuts](renders/round3/sections/sections.jpg) accompany them.
+Both dense-source pairs (`renders/round3/sculpt-pairs/right_photo-pair.jpg`)
+and baked GLB pairs (`renders/round3/atlas-pairs/right_photo-pair.jpg`) are required
+evidence. The eight-region sheet (`renders/round3/regions.jpg`),
+source/bake comparison (`renders/round3/source-vs-baked.jpg`) and
+actual section cuts (`renders/round3/sections/sections.jpg`) accompany them.
 
-1. **Frame flank and dust cover.** [Region 1](renders/round3/regions/region-1.jpg),
-   [right pair](renders/round3/atlas-pairs/right_photo-pair.jpg), and
-   [open pair](renders/round3/atlas-pairs/open_photo-pair.jpg). The shoulder now
+1. **Frame flank and dust cover.** Region 1 (`renders/round3/regions/region-1.jpg`),
+   right pair (`renders/round3/atlas-pairs/right_photo-pair.jpg`), and
+   open pair (`renders/round3/atlas-pairs/open_photo-pair.jpg`). The shoulder now
    carries a curved highlight beneath the slide; the deeper cover rounds under
    and rises toward the muzzle, flowing into the guard. The source/game cuts
    show changing sections rather than a side-profile extrusion. **Still different:**
    our cover has a fuller belly and broader lower sweep. The retained 27 mm slide
    is deeper than the photographed class sample; this proportion remains visible.
-2. **Beavertail and tang.** [Region 2](renders/round3/regions/region-2.jpg),
-   [left pair](renders/round3/atlas-pairs/left_photo-pair.jpg), and
-   [raking left](renders/round3/atlas/rake_left.png). The rearward hook and palm
+2. **Beavertail and tang.** Region 2 (`renders/round3/regions/region-2.jpg`),
+   left pair (`renders/round3/atlas-pairs/left_photo-pair.jpg`), and
+   raking left (`renders/round3/atlas/rake_left.png`). The rearward hook and palm
    web are a continuous mold, with no stacked lobes or cuff seam. **Still different:**
    the photograph has a more concentrated hook and tighter inner saddle; ours
    retains a broader, softer web radius. It is no longer a short flat tang.
-3. **Trigger guard.** [Region 3](renders/round3/regions/region-3.jpg) and
-   [sections](renders/round3/sections/sections.jpg). The bar has a rounded section,
+3. **Trigger guard.** Region 3 (`renders/round3/regions/region-3.jpg`) and
+   sections (`renders/round3/sections/sections.jpg`). The bar has a rounded section,
    thicker walls and a generous frontstrap root; there is no drilled relief hole.
    Front/bottom center gauges are about 6.72/5.97 mm, versus the photo estimate
    6.9/6.3 ±0.7 mm. **Still different:** the front is more vertical than the
    photographed slight sweep/hook. The aperture stays within the requested class
    range, but is not claimed identical to the photographed opening.
-4. **Trigger.** [Region 4](renders/round3/regions/region-4.jpg) and
-   [grip/guard close-up](renders/round3/atlas/grip_guard.png). The 7 mm shoe has a
+4. **Trigger.** Region 4 (`renders/round3/regions/region-4.jpg`) and
+   grip/guard close-up (`renders/round3/atlas/grip_guard.png`). The 7 mm shoe has a
    curved face, roughly 4.92 mm side thickness near its top, tapering to 2.76 mm
    near its toe, with the blade visibly within the central recess. **Still different:**
    the photo's lower shoe curls back more; ours has a straighter toe. Fine face
    ridges are absent at this gate.
-5. **Controls.** [Region 5](renders/round3/regions/region-5.jpg) and
-   [left pair](renders/round3/atlas-pairs/left_photo-pair.jpg). The rectangular
+5. **Controls.** Region 5 (`renders/round3/regions/region-5.jpg`) and
+   left pair (`renders/round3/atlas-pairs/left_photo-pair.jpg`). The rectangular
    release, molded surround, narrow takedown tabs and thin stamped stop/pad now
    read as their material/construction class. The stem is enclosed, rather than
    displayed as a long flat external plate. **Still weaker:** small softness and
    waviness remain around the release surround's rounded corners. The stop pad's
    outline and original control spacing differ from the reference. This is the
    least polished small molded detail, and is not concealed by a finish claim.
-6. **Slide serrations.** [Region 6](renders/round3/regions/region-6.jpg),
-   [raking right](renders/round3/atlas/rake_right.png), and the side pairs. The
+6. **Slide serrations.** Region 6 (`renders/round3/regions/region-6.jpg`),
+   raking right (`renders/round3/atlas/rake_right.png`), and the side pairs. The
    regular 3 mm-pitch, approximately 1 mm-deep field has radiused lower ends and
    continues into the top bevel. **Still different:** our narrower, more numerous
    grooves are the original C9 pattern; the photo's field is wider/coarser. Tiny
    bright transitions at the shoulder/dovetail intersections remain in close-up.
    They no longer read as separated groups of cooling vents.
-7. **Grip.** [Region 7](renders/round3/regions/region-7.jpg) and the three
-   [dimensioned grip sections](renders/round3/sections/sections.jpg). The accepted
+7. **Grip.** Region 7 (`renders/round3/regions/region-7.jpg`) and the three
+   dimensioned grip sections (`renders/round3/sections/sections.jpg`). The accepted
    rounded section/rake survive, with raised panel rims and the well flare formed
    in the mold. **Still different:** the photo has finger features and a more
    irregular textured panel boundary; ours keeps its smooth frontstrap and
    original panel outline. Fine stipple is deliberately absent. The bare smooth
    panel is conspicuously less realistic than the used photograph.
-8. **Magazine.** [Region 8](renders/round3/regions/region-8.jpg),
-   [loaded](renders/round3/atlas-loaded/mag_standalone.png),
-   [empty](renders/round3/atlas-empty/mag_standalone.png), and
-   [rear spine](renders/round3/atlas-loaded/mag_rear.png). Thin curled steel lips
+8. **Magazine.** Region 8 (`renders/round3/regions/region-8.jpg`),
+   loaded (`renders/round3/atlas-loaded/mag_standalone.png`),
+   empty (`renders/round3/atlas-empty/mag_standalone.png`), and
+   rear spine (`renders/round3/atlas-loaded/mag_rear.png`). Thin curled steel lips
    attach to the shell, the rear U-relief exposes the cartridge head/follower,
    the rear stands higher than the front, the noses stay behind the body's front
    envelope, and the shallower plate has a modest lip. **Still different:** the
@@ -510,17 +510,17 @@ and rear quarters, the aimed view, orthos and every clip strip. All 192 final
 shot metadata records match the SHA-256 of their current source; section JSON
 also records both source hashes. Primary evidence:
 
-- [Contact sheet](renders/round3/contact-sheet.jpg),
-  [sections](renders/round3/sections/sections.jpg),
-  [source/bake](renders/round3/source-vs-baked.jpg),
-  [eight regions](renders/round3/regions.jpg).
-- [Right pair](renders/round3/atlas-pairs/right_photo-pair.jpg),
-  [open pair](renders/round3/atlas-pairs/open_photo-pair.jpg),
-  [left pair](renders/round3/atlas-pairs/left_photo-pair.jpg).
-- [Aimed](renders/round3/atlas/aimed.png),
-  [grip/guard](renders/round3/atlas/grip_guard.png),
-  [loaded magazine](renders/round3/atlas-loaded/mag_standalone.png),
-  [empty magazine](renders/round3/atlas-empty/mag_standalone.png).
+- Contact sheet (`renders/round3/contact-sheet.jpg`),
+  sections (`renders/round3/sections/sections.jpg`),
+  source/bake (`renders/round3/source-vs-baked.jpg`),
+  eight regions (`renders/round3/regions.jpg`).
+- Right pair (`renders/round3/atlas-pairs/right_photo-pair.jpg`),
+  open pair (`renders/round3/atlas-pairs/open_photo-pair.jpg`),
+  left pair (`renders/round3/atlas-pairs/left_photo-pair.jpg`).
+- Aimed (`renders/round3/atlas/aimed.png`),
+  grip/guard (`renders/round3/atlas/grip_guard.png`),
+  loaded magazine (`renders/round3/atlas-loaded/mag_standalone.png`),
+  empty magazine (`renders/round3/atlas-empty/mag_standalone.png`).
 
 Color/value remains the first limitation: sampled slide/frame/grip view luma is
 82/105/44 versus the photo's 102/94/108. Different lighting and the missing
@@ -556,10 +556,10 @@ Fixed, manually picked patches and all medians/channel ratios are in
 `renders/lookdev/pass1/values.json`; the polygon overlays are in
 `value-patches.jpg`. The photo, material and geometry paths remain separate.
 
-[Pass-one sheet](renders/lookdev/pass1/contact-sheet.jpg),
-[right pair](renders/lookdev/pass1/pairs/right_photo-pair.jpg),
-[open pair](renders/lookdev/pass1/pairs/open_photo-pair.jpg),
-[left pair](renders/lookdev/pass1/pairs/left_photo-pair.jpg).
+Pass-one sheet (`renders/lookdev/pass1/contact-sheet.jpg`),
+right pair (`renders/lookdev/pass1/pairs/right_photo-pair.jpg`),
+open pair (`renders/lookdev/pass1/pairs/open_photo-pair.jpg`),
+left pair (`renders/lookdev/pass1/pairs/left_photo-pair.jpg`).
 The grip pattern survives the bake but reads too subdued; the molded lettering
 is nearly lost. The magazine release has a false vertical wear stripe through
 its face because it reused the stop's contact region. Reject that mask. The
@@ -580,7 +580,7 @@ zero missed interior texels on all six bake channels, including material micro-A
 warmer at 1.014:1:0.986. Right/open slide medians remain 56/59 against 106/107;
 those references have a much higher black floor. The grip relief reads at full
 frame and the release's false central stripe is gone. However, the hood still
-looks like a bright plate in the [port close-up](renders/lookdev/pass2/port_hood.png).
+looks like a bright plate in the port close-up (`renders/lookdev/pass2/port_hood.png`).
 An independent UV/texture probe confirms a black top-center albedo (14/15/16
 sRGB), but also finds the side rub mask covers the whole exposed right wall.
 Reject that broad mask: only narrow contact tracks should polish it. The left
@@ -590,10 +590,10 @@ reflection. Increase the slide's dark conductor response and the grip's diffuse
 response modestly; retain the two distinct blacks and deep cavity shadows.
 The markings need a clearer cut edge, without light-colored printed lettering.
 
-[Pass-two sheet](renders/lookdev/pass2/contact-sheet.jpg),
-[right pair](renders/lookdev/pass2/pairs/right_photo-pair.jpg),
-[open pair](renders/lookdev/pass2/pairs/open_photo-pair.jpg),
-[left pair](renders/lookdev/pass2/pairs/left_photo-pair.jpg).
+Pass-two sheet (`renders/lookdev/pass2/contact-sheet.jpg`),
+right pair (`renders/lookdev/pass2/pairs/right_photo-pair.jpg`),
+open pair (`renders/lookdev/pass2/pairs/open_photo-pair.jpg`),
+left pair (`renders/lookdev/pass2/pairs/left_photo-pair.jpg`).
 All nine images completed before the orchestration process was terminated;
 composition resumed against their frozen GLB hash without replacing the render.
 
@@ -610,9 +610,9 @@ left is 84/70/58 (slide/frame/grip) against 76/67/70. Slide hue stays neutral,
 textured grip remains too dark. Reduce the nitride response modestly and raise
 the textured polymer's diffuse response. Do not brighten the smooth frame.
 
-The [hood](renders/lookdev/pass3/port_hood.png) finally reads black with localized
+The hood (`renders/lookdev/pass3/port_hood.png`) finally reads black with localized
 rub tracks, rather than a bright uniform block. The changed strip position also
-restores a dark rear slide top. The [hero](renders/lookdev/pass3/hero.png) retains
+restores a dark rear slide top. The hero (`renders/lookdev/pass3/hero.png`) retains
 visible muzzle/front-edge carry wear and deep cavities. The texture survives
 normal-map downsampling, but the smooth frame still lacks the restrained hand
 polish and fine roughness variation in the used photo. Add these only at the
@@ -620,10 +620,10 @@ thumb/web, grip crowns and bottom contact area. A small lint strand is confined
 to the sheltered upper texture boundary. Molded/engraved text now reads through
 cut edges instead of pale printed letters.
 
-[Pass-three sheet](renders/lookdev/pass3/contact-sheet.jpg),
-[right pair](renders/lookdev/pass3/pairs/right_photo-pair.jpg),
-[open pair](renders/lookdev/pass3/pairs/open_photo-pair.jpg),
-[left pair](renders/lookdev/pass3/pairs/left_photo-pair.jpg).
+Pass-three sheet (`renders/lookdev/pass3/contact-sheet.jpg`),
+right pair (`renders/lookdev/pass3/pairs/right_photo-pair.jpg`),
+open pair (`renders/lookdev/pass3/pairs/open_photo-pair.jpg`),
+left pair (`renders/lookdev/pass3/pairs/left_photo-pair.jpg`).
 The separate Eevee presentation trial exposed a scale-shot setup error: its
 small studio wall occluded the figure below the chest. Enlarge only that shot's
 studio, keep a true 1.8 m silhouette, and hide Cycles-only reflection flags in
@@ -643,11 +643,11 @@ These unresolved view differences remain visible in the pairs. They are not
 claimed to be recovered albedos or exact light matches. No level-remapping of
 the reference or render is used to manufacture a match.
 
-[Pass-four sheet](renders/lookdev/pass4/contact-sheet.jpg),
-[right pair](renders/lookdev/pass4/pairs/right_photo-pair.jpg),
-[open pair](renders/lookdev/pass4/pairs/open_photo-pair.jpg),
-[left pair](renders/lookdev/pass4/pairs/left_photo-pair.jpg),
-[value/hue patch overlays](renders/lookdev/pass4/value-patches.jpg).
+Pass-four sheet (`renders/lookdev/pass4/contact-sheet.jpg`),
+right pair (`renders/lookdev/pass4/pairs/right_photo-pair.jpg`),
+open pair (`renders/lookdev/pass4/pairs/open_photo-pair.jpg`),
+left pair (`renders/lookdev/pass4/pairs/left_photo-pair.jpg`),
+value/hue patch overlays (`renders/lookdev/pass4/value-patches.jpg`).
 The hood's black center and rubbed perimeter now read correctly in the port
 close-up. It still reflects a broad studio card from the rear angle, as does
 the slide top; this view-dependent reflection is distinct from its black baked
@@ -774,18 +774,18 @@ of concurrent GPU exclusion from that earlier manual trial.
 
 Primary final evidence:
 
-- [Hero](renders/final/beauty/hero.png), [contact sheet](renders/final/contact-sheet.jpg),
-  [turnaround](renders/final/turnaround.jpg), [details](renders/final/details.jpg).
-- [Right](renders/final/pairs/right_photo-pair.jpg),
-  [open](renders/final/pairs/open_photo-pair.jpg),
-  [left](renders/final/pairs/left_photo-pair.jpg),
-  [value/hue patches](renders/final/photos/value-patches.jpg).
-- [Aimed](renders/final/beauty/aimed.png), [locked](renders/final/beauty/locked.png),
-  [scale](renders/final/beauty/scale.png), [190 mm guide](renders/final/beauty/hand_frame.png),
-  [Eevee](renders/final/eevee/hero.png), [clips](renders/final/clips.jpg).
-- [Loaded](renders/final/loaded/mag_standalone.png),
-  [empty](renders/final/empty/mag_standalone.png),
-  [case head](renders/final/case/case.png), [case mouth](renders/final/case/case_mouth.png).
+- Hero (`renders/final/beauty/hero.png`), contact sheet (`renders/final/contact-sheet.jpg`),
+  turnaround (`renders/final/turnaround.jpg`), details (`renders/final/details.jpg`).
+- Right (`renders/final/pairs/right_photo-pair.jpg`),
+  open (`renders/final/pairs/open_photo-pair.jpg`),
+  left (`renders/final/pairs/left_photo-pair.jpg`),
+  value/hue patches (`renders/final/photos/value-patches.jpg`).
+- Aimed (`renders/final/beauty/aimed.png`), locked (`renders/final/beauty/locked.png`),
+  scale (`renders/final/beauty/scale.png`), 190 mm guide (`renders/final/beauty/hand_frame.png`),
+  Eevee (`renders/final/eevee/hero.png`), clips (`renders/final/clips.jpg`).
+- Loaded (`renders/final/loaded/mag_standalone.png`),
+  empty (`renders/final/empty/mag_standalone.png`),
+  case head (`renders/final/case/case.png`), case mouth (`renders/final/case/case_mouth.png`).
 
 Five final docs JPGs only: hero 101,369 bytes; turnaround 85,193; details 179,055;
 action 130,290; Eevee 106,791. Every file is at most 1600 px wide and 200 KB.
@@ -814,10 +814,10 @@ mask brightens too much of each land and looks too uniformly machined.
 Rejected that width: retain just the central crest of each raised land.
 
 The frozen shipped-format GLB and its sources are in `build/review/carry-fix1/`;
-[sheet](renders/lookdev/carry-fix1/contact-sheet.jpg),
-[hood](renders/lookdev/carry-fix1/port_hood.png),
-[rear](renders/lookdev/carry-fix1/rear_sights.png),
-[daylight pair](renders/lookdev/carry-fix1/pairs/left_photo-pair.jpg).
+sheet (`renders/lookdev/carry-fix1/contact-sheet.jpg`),
+hood (`renders/lookdev/carry-fix1/port_hood.png`),
+rear (`renders/lookdev/carry-fix1/rear_sights.png`),
+daylight pair (`renders/lookdev/carry-fix1/pairs/left_photo-pair.jpg`).
 Opened the six studio views, three photo pairs and the magazine/case sheet.
 The release now has an edge/pad response rather than round pale stains. The
 frame web retains its dark polymer color; polish follows its bearing normals
@@ -906,15 +906,15 @@ now clean and continuous rather than stippled with pale bake blocks. Its
 view-dependent brightness is consistent with the adjacent slide.
 
 The narrower serration crest survives 4096 → 2048 filtering and the docs
-reduction. In the [hero](renders/final/beauty/hero.png), muzzle corners, the
+reduction. In the hero (`renders/final/beauty/hero.png`), muzzle corners, the
 leading shoulder, sight top and crest lines now read as carried gray steel,
 while groove floors and broad flats stay dark. The
-[daylight pair](renders/final/pairs/left_photo-pair.jpg) is the calibration:
+daylight pair (`renders/final/pairs/left_photo-pair.jpg`) is the calibration:
 its used pistol has the same localized bright shoulder and crest response.
 Our original grooves are narrower/more numerous; their pattern is retained.
-The [port](renders/final/beauty/port_hood.png),
-[rear](renders/final/beauty/rear_sights.png) and
-[top](renders/final/beauty/top.png) show no broad noisy hood perimeter.
+The port (`renders/final/beauty/port_hood.png`),
+rear (`renders/final/beauty/rear_sights.png`) and
+top (`renders/final/beauty/top.png`) show no broad noisy hood perimeter.
 Release wear is concentrated at the steel edge and upper pad. The palm web
 shows a flowing sheen and a one-byte-scale value increase, not round diffuse
 blots. No more surface adjustment followed this pass.
@@ -978,15 +978,15 @@ baseline-byte identity is separate evidence in `build/pistol-touchup-identical.j
 `build/final-provenance.json` passes all **173** current-source image records
 and decoded playback durations. Final evidence:
 
-- [Hero](renders/final/beauty/hero.png),
-  [details](renders/final/details.jpg),
-  [turnaround](renders/final/turnaround.jpg),
-  [contact sheet](renders/final/contact-sheet.jpg).
-- [Right pair](renders/final/pairs/right_photo-pair.jpg),
-  [open pair](renders/final/pairs/open_photo-pair.jpg),
-  [daylight pair](renders/final/pairs/left_photo-pair.jpg),
-  [value patches](renders/final/photos/value-patches.jpg).
-- [Eevee](renders/final/eevee/hero.png), [clips](renders/final/clips.jpg).
+- Hero (`renders/final/beauty/hero.png`),
+  details (`renders/final/details.jpg`),
+  turnaround (`renders/final/turnaround.jpg`),
+  contact sheet (`renders/final/contact-sheet.jpg`).
+- Right pair (`renders/final/pairs/right_photo-pair.jpg`),
+  open pair (`renders/final/pairs/open_photo-pair.jpg`),
+  daylight pair (`renders/final/pairs/left_photo-pair.jpg`),
+  value patches (`renders/final/photos/value-patches.jpg`).
+- Eevee (`renders/final/eevee/hero.png`), clips (`renders/final/clips.jpg`).
 
 Docs JPGs are final only: hero 103,261 bytes; turnaround 86,239; details 181,191;
 action 130,804; Eevee 108,058. Every image is at most 1600 px wide and 200 KB.

@@ -564,13 +564,13 @@ lead accepted round 3's broad form and requested the three corrections below.
 The older form reviews are retained under the archived record; their earlier
 stop instructions describe those historical gates.
 
-Current evidence: [source contact](renders/lookdev/contact.jpg),
-[used front pair](renders/lookdev/aged_front-pair.jpg),
-[used rear pair](renders/lookdev/aged_rear-pair.jpg),
-[front close-up](renders/lookdev/front_detail.jpg),
-[wheel close-up](renders/lookdev/wheel_detail.jpg),
-[five colors](renders/lookdev/five-colors.jpg) and
-[corrected stripes](renders/lookdev-form/stripes_side.jpg).
+Current evidence: source contact (`renders/lookdev/contact.jpg`),
+used front pair (`renders/lookdev/aged_front-pair.jpg`),
+used rear pair (`renders/lookdev/aged_rear-pair.jpg`),
+front close-up (`renders/lookdev/front_detail.jpg`),
+wheel close-up (`renders/lookdev/wheel_detail.jpg`),
+five colors (`renders/lookdev/five-colors.jpg`) and
+corrected stripes (`renders/lookdev-form/stripes_side.jpg`).
 All sixteen source views and the masks are opened in the complete sheets;
 close-ups and both full-size pairs are also inspected individually. Comparison
 photographs remain credited, read-only references, never texture inputs.
@@ -817,10 +817,10 @@ use before the delivery-stage work begins.
 
 **Stopped before detail, materials, wear, UVs, bake and export.** This is a
 reviewable source checkpoint, not a finished or game-ready delivery claim.
-The primary evidence is [the contact sheet](renders/checkpoint/contact.jpg),
-[front pair](renders/checkpoint/match_front-pair.jpg),
-[rear pair](renders/checkpoint/match_rear-pair.jpg), and the
-[striped side](renders/checkpoint/stripes_side.jpg).
+The primary evidence is the contact sheet (`renders/checkpoint/contact.jpg`),
+front pair (`renders/checkpoint/match_front-pair.jpg`),
+rear pair (`renders/checkpoint/match_rear-pair.jpg`), and the
+striped side (`renders/checkpoint/stripes_side.jpg`).
 
 Every rendered view was opened, individually or in a sheet of every view of its
 pass. The comparisons are against the credited photographs, not memory. All
@@ -1122,13 +1122,13 @@ foreground p5/p50/p95 values (0–255) are side 24/129/158, front 10/53/137 and
 top 30/129/151, with zero bright-clipped pixels in all three masks. These are
 clay diagnostics, not a final paint/hero tonal approval.
 
-Latest evidence: [all views](renders/checkpoint/contact.jpg),
-[side overlay](renders/checkpoint/side-overlay.jpg),
-[rake measurement](renders/checkpoint/side-rake.jpg),
-[front pair](renders/checkpoint/match_front-pair.jpg),
-[rear pair](renders/checkpoint/match_rear-pair.jpg),
-[front stripes](renders/checkpoint/stripes_front.jpg),
-[side stripes](renders/checkpoint/stripes_side.jpg).
+Latest evidence: all views (`renders/checkpoint/contact.jpg`),
+side overlay (`renders/checkpoint/side-overlay.jpg`),
+rake measurement (`renders/checkpoint/side-rake.jpg`),
+front pair (`renders/checkpoint/match_front-pair.jpg`),
+rear pair (`renders/checkpoint/match_rear-pair.jpg`),
+front stripes (`renders/checkpoint/stripes_front.jpg`),
+side stripes (`renders/checkpoint/stripes_side.jpg`).
 
 No kit files changed in this revision. A later generalization could move
 post-gauge normal restoration into the shared panel helper, after testing

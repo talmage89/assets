@@ -15,21 +15,21 @@ are retained through final delivery.
 | ![Open action, eye view, shell and fired hull](docs/action.jpg) | ![Eevee, same baked GLB](docs/eevee.jpg) |
 
 All five docs images load exported GLBs with the baked 2048 maps. The
-[full contact sheet](renders/final/contact-sheet.jpg) includes the
-[exact Socket_Eye view / 70 degrees](renders/final/beauty/aimed.png),
-[socket-view alias](renders/final/beauty/aimed_socket.png),
-[raised carrier and shell](renders/final/beauty/open.png),
-[1.8 m silhouette](renders/final/beauty/scale.png),
-[muzzle](renders/final/beauty/muzzle.png),
-[muzzle underside](renders/final/beauty/muzzle_under.png),
-[loading underside](renders/final/beauty/underside.png) and
-[molded pad sides](renders/final/beauty/pad.png).
-Photo pairs: [right](renders/final/pairs/right_photo-pair.jpg),
-[left](renders/final/pairs/left_photo-pair.jpg),
-[open](renders/final/pairs/open_photo-pair.jpg),
-[used bluing and walnut](renders/final/pairs/used_photo-pair.jpg),
-[native-scale hero receiver wear](renders/final/pairs/hero-wear_photo-pair.jpg),
-[sharp wood close-up](renders/final/pairs/wood_photo-pair.jpg).
+full contact sheet (`renders/final/contact-sheet.jpg`) includes the
+exact Socket_Eye view / 70 degrees (`renders/final/beauty/aimed.png`),
+socket-view alias (`renders/final/beauty/aimed_socket.png`),
+raised carrier and shell (`renders/final/beauty/open.png`),
+1.8 m silhouette (`renders/final/beauty/scale.png`),
+muzzle (`renders/final/beauty/muzzle.png`),
+muzzle underside (`renders/final/beauty/muzzle_under.png`),
+loading underside (`renders/final/beauty/underside.png`) and
+molded pad sides (`renders/final/beauty/pad.png`).
+Photo pairs: right (`renders/final/pairs/right_photo-pair.jpg`),
+left (`renders/final/pairs/left_photo-pair.jpg`),
+open (`renders/final/pairs/open_photo-pair.jpg`),
+used bluing and walnut (`renders/final/pairs/used_photo-pair.jpg`),
+native-scale hero receiver wear (`renders/final/pairs/hero-wear_photo-pair.jpg`),
+sharp wood close-up (`renders/final/pairs/wood_photo-pair.jpg`).
 [REVIEW.md](REVIEW.md) records form history and exported finish critiques,
 measured value/hue and remaining photographic differences. The final visible-steel correction
 section supersedes the earlier wear-visibility acceptance.
@@ -132,7 +132,7 @@ barrel underside near the muzzle. The carrying hand thins and smooths the
 receiver flanks slightly; action bars and carrier bearing lands are bright steel.
 Carbon stays at the muzzle and port, rather than washing the receiver.
 
-The [native-scale receiver comparison](renders/final/pairs/hero-wear_photo-pair.jpg)
+The native-scale receiver comparison (`renders/final/pairs/hero-wear_photo-pair.jpg`)
 keeps the hero's actual pixels and resizes the used daylight receiver to the
 same scale. The worn lower port lip measures **128.62/255** display luma against
 **167.04/255** in the photo (previous export: 42.36). Lighting differs; these are

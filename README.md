@@ -20,7 +20,8 @@ Each asset folder has its own README with renders, dimensions and rebuild steps.
   The lock wrapper is used for both paths. `ASSETS_GPU_LOCK` may point to a shared
   lab lock; its default is `build/locks/gpu.lock` inside this clone.
 
-Run `make` in an asset folder; `BLENDER` and `PYTHON` can select the executables.
+Run `make` in an asset folder; `BLENDER` and `PYTHON` can select the executables. Paths under an asset's `renders/` and `build/`
+named in its README are what `make` builds; only `docs/` images are committed.
 Reference targets retrieve cited images/PDFs and need network access. The optional
 external tank fit check/render skips by default; enable it with
 `make TANK_REFERENCE=/path/to/propane-tank.glb` using the original compatible

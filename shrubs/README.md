@@ -172,11 +172,11 @@ The final Eevee shot uses ray tracing and screen-space ambient occlusion;
 its interior shadows remain shallower than Cycles.
 
 Full-resolution evidence:
-[family contact](renders/family-final/contact.jpg),
-[boxwood contact](renders/final/contact.jpg),
-[hydrangea contact](renders/hydrangea-final/contact.jpg),
-[Green Velvet pair](renders/final/match_green_velvet-pair.jpg),
-[hydrangea bed pair](renders/hydrangea-final/hyd_match_bed-pair.jpg).
+family contact (`renders/family-final/contact.jpg`),
+boxwood contact (`renders/final/contact.jpg`),
+hydrangea contact (`renders/hydrangea-final/contact.jpg`),
+Green Velvet pair (`renders/final/match_green_velvet-pair.jpg`),
+hydrangea bed pair (`renders/hydrangea-final/hyd_match_bed-pair.jpg`).
 Each shrub has `hero`, `front`, `side`, `back`, `top`, `close_1m` and `scale`
 PNGs; Eevee heroes are in `renders/final-eevee` and `renders/hydrangea-eevee`.
 

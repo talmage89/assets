@@ -7,10 +7,10 @@ from scripts; reference pixels never enter the asset.
 
 ![Alder C150](docs/hero.jpg)
 
-[GLB](export/AlderC150.glb) · [Contact sheet](renders/final/contact.jpg) ·
-[Turnaround](renders/final/turnaround.jpg) · [Scale](renders/final/scale.jpg) ·
-[Eevee](renders/final-eevee/hero.jpg) · [Lit lamps](renders/final/lamps_lit.jpg) ·
-[Used-truck pairs](renders/final-pairs/used-pairs-contact.jpg) ·
+GLB (`export/AlderC150.glb`) · Contact sheet (`renders/final/contact.jpg`) ·
+Turnaround (`renders/final/turnaround.jpg`) · Scale (`renders/final/scale.jpg`) ·
+Eevee (`renders/final-eevee/hero.jpg`) · Lit lamps (`renders/final/lamps_lit.jpg`) ·
+Used-truck pairs (`renders/final-pairs/used-pairs-contact.jpg`) ·
 [Critique log](REVIEW.md)
 
 Every final view starts with a fresh import of the exported GLB and its three

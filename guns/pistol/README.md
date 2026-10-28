@@ -12,15 +12,15 @@ frame, serrations, cellular grip pattern, controls and markings are our own desi
 | ![Locked action, magazines and fired case](docs/action.jpg) | ![Eevee, same exported GLB](docs/eevee.jpg) |
 
 All images above load the exported GLB with its baked 2048 maps. The
-[full contact sheet](renders/final/contact-sheet.jpg) also includes the
-[aimed view](renders/final/beauty/aimed.png),
-[1.8 m scale shot](renders/final/beauty/scale.png),
-[190 mm hand-length guide](renders/final/beauty/hand_frame.png),
-[markings](renders/final/beauty/markings.png), and the
-[case mouth](renders/final/case/case_mouth.png).
-Photo pairs: [right](renders/final/pairs/right_photo-pair.jpg),
-[open](renders/final/pairs/open_photo-pair.jpg),
-[left](renders/final/pairs/left_photo-pair.jpg).
+full contact sheet (`renders/final/contact-sheet.jpg`) also includes the
+aimed view (`renders/final/beauty/aimed.png`),
+1.8 m scale shot (`renders/final/beauty/scale.png`),
+190 mm hand-length guide (`renders/final/beauty/hand_frame.png`),
+markings (`renders/final/beauty/markings.png`), and the
+case mouth (`renders/final/case/case_mouth.png`).
+Photo pairs: right (`renders/final/pairs/right_photo-pair.jpg`),
+open (`renders/final/pairs/open_photo-pair.jpg`),
+left (`renders/final/pairs/left_photo-pair.jpg`).
 [REVIEW.md](REVIEW.md) records the accepted form and finish critiques, including
 two final carry-correction passes, measured value/hue, remaining differences
 and rebuild/check evidence.
@@ -86,7 +86,7 @@ at Y=44 is about 13.7 × 6.0 mm; the aperture cutter trims its upper surface nea
 Y=50, where the center gauge is 5.96 mm. The opening is measured beside the
 trigger slot at X=5.5 mm; wall gauge is measured at X=0. These are distinct
 physical sections, explicitly recorded in `build/check.json` and the section
-sheet. The photo-pixel gauge is [annotated separately](renders/round3/reference-guard-gauge.jpg).
+sheet. The photo-pixel gauge is annotated separately (`renders/round3/reference-guard-gauge.jpg`).
 
 The 7 mm trigger face carries a recessed safety blade. Actual shoe thickness
 is 4.92 mm at Z=24, 3.62 at Z=17, and 2.76 at Z=7. The magazine release is a
@@ -204,7 +204,7 @@ locked open. Full feeding and cartridge ejection paths are not simulated.
 | `Charge` | 0.60 s | Empty-magazine rack, lock f30; empty/open end |
 | `IdleOpen`, `IdleEmpty` | 1.00 s | Explicit empty/open and empty/closed states |
 
-Frames are at 60 Hz. The [clip sheet](renders/final/clips.jpg), individual
+Frames are at 60 Hz. The clip sheet (`renders/final/clips.jpg`), individual
 `renders/final/strips/<Clip>.jpg` strips and animated WebP loops come from the
 baked GLB in Eevee. Samples are uniformly spaced at 15 Hz; WebP durations retain
 the actual clip length, including short endpoint intervals. Consumers keep the
