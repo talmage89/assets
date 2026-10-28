@@ -104,6 +104,8 @@ def main():
   if not lo<=fm[key]<=hi:errors.append(f'{key}: {fm[key]} outside [{lo}, {hi}]')
  result['measurement_planes']=dict(guard_opening_x_m=.0055,guard_bar_center_gauge_x_m=0,
      guard_front_center_gauge_x_m=0,grip_sections_z_m=[-.036,-.020,-.012])
+ from trigger_check import measure as trigger_measure
+ result['trigger_surfaces']=trigger_measure(arm)
  result['required_contacts']=measure(arm)
  if a.motion:
   allow=[dict(a='Barrel_Tube',b='ChamberRound',reason='chambered round inside the visual chamber',max_penetration_m=.0006),

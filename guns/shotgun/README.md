@@ -30,6 +30,10 @@ open (`renders/final/pairs/open_photo-pair.jpg`),
 used bluing and walnut (`renders/final/pairs/used_photo-pair.jpg`),
 native-scale hero receiver wear (`renders/final/pairs/hero-wear_photo-pair.jpg`),
 sharp wood close-up (`renders/final/pairs/wood_photo-pair.jpg`).
+Trigger pairs: right (`renders/final/trigger-pairs/trigger_right_photo-pair.jpg`)
+and three-quarter (`renders/final/trigger-pairs/trigger_quarter_photo-pair.jpg`).
+Their angles and blade scale are visually estimated; the original guard remains
+different from the photographs.
 [REVIEW.md](REVIEW.md) records form history and exported finish critiques,
 measured value/hue and remaining photographic differences. The final visible-steel correction
 section supersedes the earlier wear-visibility acceptance.
@@ -58,7 +62,7 @@ Makefiles, source/review notes and five final docs JPGs only.
 | --- | --- | --- |
 | Overall length | 977.93 mm / 38.50 in | 38.5–39.5 in |
 | Barrel, breech to crown | 469.90 mm / 18.50 in | 18.5 in |
-| Length of pull | 354.92 mm / 13.97 in | about 14 in |
+| Length of pull | 352.65 mm / 13.88 in | about 14 in |
 | Height / maximum width | 184.25 / 44.55 mm | original utility configuration |
 | Receiver, at source Y 50 | about 35.50 × 63.03 mm | flat sides, rolled crown |
 | Palm station at the origin | about 31.81 × 43.40 mm | compound carved wrist |
@@ -97,6 +101,10 @@ faces are dissolved while the crown's shape is preserved. The lower edge rises
 toward the front. The 100 × 24 mm ejection opening has near-semicircular ends.
 Ports and outer steel edges have modeled radii. The cast guard is a continuous
 rounded bow joined to its plate, with a 4.4 mm bar section in side elevation.
+The corrected 6 mm trigger blade is concave toward the muzzle with a forward
+curl and convex back. Its side depth is about 2.7–2.8 mm through the working
+bow, with rounded lateral edges. A hidden upper rear land rests against the
+existing plate slot; the original pivot and −12° pull remain unchanged.
 The bolt has a relieved rear, visible port cheek and an underside carrier pocket.
 An action slide block joins
 the twin bars to the bolt's underside with actual bearing contact. The tray is a stamped
@@ -284,13 +292,13 @@ representations. Loaded shell and fired hull stay within 600/400 triangles.
 
 | Final output | Triangles | Materials | GLB bytes |
 | --- | ---: | ---: | ---: |
-| Gun, all animated shell representations | 39,929 | 1 | 11,978,608 |
-| Loaded shell | 600 | 1 | 8,290,132 |
-| Fired hull | 394 | 1 | 8,273,668 |
+| Gun, all animated shell representations | 39,829 | 1 | 11,953,276 |
+| Loaded shell | 600 | 1 | 8,270,704 |
+| Fired hull | 394 | 1 | 8,254,240 |
 
 Exact texture hashes, UV density/overlap and round-trip errors are recorded in
-`build/delivery/verify.json`. The inspection gun remains 39,925 triangles; the
-UV-prepared gun is 39,929 after retriangulating microscopic Boolean slivers.
+`build/delivery/verify.json`. The inspection gun remains 39,825 triangles; the
+UV-prepared gun is 39,829 after retriangulating microscopic Boolean slivers.
 All accepted surface dimensions, contacts and motion bounds are retained.
 
 The kit bakes **4096 at 32 samples**, then filters to one **2048 BaseColor /
@@ -298,9 +306,9 @@ OpenGL +Y Normal / ORM** atlas. ORM is R occlusion, G roughness, B metallic.
 
 | Canonical 2048 map | PNG bytes |
 | --- | ---: |
-| `T_Hearth12_BaseColor.png` | 2,095,383 |
-| `T_Hearth12_Normal.png` | 2,847,602 |
-| `T_Hearth12_ORM.png` | 3,302,838 |
+| `T_Hearth12_BaseColor.png` | 2,091,336 |
+| `T_Hearth12_Normal.png` | 2,841,090 |
+| `T_Hearth12_ORM.png` | 3,293,969 |
 
 Explicit rest-position and corner-normal attributes retain the finish fields
 while rigid bones are isolated for projection. Dense carved wood transfers onto
@@ -309,13 +317,13 @@ UVs reserve small independent shell/hull regions, while the gun receives the
 large region. Microscopic Boolean edges are dissolved only on receiver/bolt
 before unwrap; no silhouette or contact threshold is changed. The final checks
 measure the result rather than calling it perfectly uniform or overlap-free.
-The fresh gun import covers 29.54% of the atlas, with 26 microscopic overlap
+The fresh gun import covers 29.26% of the atlas, with 26 microscopic overlap
 pairs totaling a fraction 2.015e-6, below the unchanged 1e-5 limit. Delivered
-gun density is 2,427 px/m median (5th/95th: 973 / 2,625). Furniture receives
-more atlas priority: stock about 2,444 px/m and forend 2,591, while receiver
-markings retain about 1,925. The long barrel, bore and sheltered tube/sleeve
+gun density is 2,415 px/m median (5th/95th: 968 / 2,612). Furniture receives
+more atlas priority: stock about 2,432 px/m and forend 2,579, while receiver
+markings retain about 1,916. The long barrel, bore and sheltered tube/sleeve
 receive less. The complete atlas, including the denser standalone regions,
-covers 34.79%.
+covers 34.50%.
 
 All three GLBs embed byte-identical map payloads. A consumer must cache the
 canonical atlas/content hashes to share the approximately **16 MiB compressed

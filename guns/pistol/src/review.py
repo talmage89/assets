@@ -27,7 +27,7 @@ def sheet(path,items,columns=3,cell=(700,545)):
 
 def provenance():
  rows=[]
- for folder in ('beauty','eevee','photos','loaded','empty','case'):
+ for folder in ('beauty','eevee','photos','trigger-photos','loaded','empty','case'):
   metadata=json.loads((OUT/folder/'shots.json').read_text())
   for name,s in metadata.items():
    source=Path(s['source']);assert source.suffix=='.glb' and source.parent==BASE/'export'
@@ -69,14 +69,14 @@ def main():
  p=argparse.ArgumentParser();p.add_argument('--docs',action='store_true');a=p.parse_args()
  proof=provenance();measure(OUT/'photos',OUT/'beauty')
  beauty=[('Cycles / '+name,OUT/'beauty'/(name+'.png')) for name in
-  ('hero','hero_left','front','side','back','top','rear_sights','grip_texture','port_hood','markings','aimed','locked','scale','hand_frame')]
+  ('hero','hero_left','front','side','back','top','rear_sights','grip_texture','port_hood','markings','aimed','locked','scale','hand_frame','trigger_right','trigger_quarter','trigger_pulled')]
  extra=[('Loaded magazine',OUT/'loaded/mag_standalone.png'),('Loaded / spine',OUT/'loaded/mag_rear.png'),
         ('Empty magazine',OUT/'empty/mag_standalone.png'),('Empty / spine',OUT/'empty/mag_rear.png'),
         ('Fired case',OUT/'case/case.png'),('Case / carbon at mouth',OUT/'case/case_mouth.png'),
         ('Eevee / same exported PBR',OUT/'eevee/hero.png')]
  sheet(OUT/'contact-sheet.jpg',beauty+extra)
  turns=sheet(OUT/'turnaround.jpg',[(n.title(),OUT/'beauty'/(n+'.png')) for n in ('front','side','back','top')],2,(800,640))
- details=sheet(OUT/'details.jpg',[(n.replace('_',' ').title(),OUT/'beauty'/(n+'.png')) for n in ('rear_sights','grip_texture','port_hood','markings')],2,(800,650))
+ details=sheet(OUT/'details.jpg',[(n.replace('_',' ').title(),OUT/'beauty'/(n+'.png')) for n in ('rear_sights','grip_texture','port_hood','markings','trigger_right','trigger_quarter')],2,(800,650))
  actions=sheet(OUT/'action-magazines.jpg',[('Locked open',OUT/'beauty/locked.png'),extra[0],extra[2],extra[4]],2,(800,650))
  clips=[]
  for folder in sorted((OUT/'strips').iterdir()):

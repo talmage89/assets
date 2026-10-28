@@ -990,3 +990,126 @@ and decoded playback durations. Final evidence:
 
 Docs JPGs are final only: hero 103,261 bytes; turnaround 86,239; details 181,191;
 action 130,804; Eevee 108,058. Every image is at most 1600 px wide and 200 KB.
+
+## Trigger direction correction — 2026-10-28
+
+The owner is right. Both authored Bézier boundaries bulged in +Y at mid-height
+and returned toward −Y at the toe; the safety copied that reversed face.
+Earlier wording above about a toe that "curls back" was a mistaken review,
+now superseded. +Y is the muzzle in this family's frame.
+
+### Source passes
+
+1. **Direction and section.** Neutral clay cannot calibrate material color;
+   inspect the dark cavity and highlight bands first. Sharp Commons side and
+   quarter photographs show a broad blade, concave toward the muzzle, with a
+   convex back and forward toe. Rebuilt the 7 mm shoe and its curved safety
+   pocket. The first toe was visibly pointed in `renders/trigger/clay1/`;
+   rejected it and authored a rounded return. The blade uses the unchanged
+   safety pivot and −9° relative motion. Its initial solid hinge land crossed
+   the pin; cut a real bearing bore rather than exempting that collision.
+2. **Bearing and rest stop.** The first small bore retained about .030 mm of
+   actual pin intersection. Enlarged it and extended the hidden hinge land so
+   the bearing surrounds the pin. The unchanged frame had about a 1 mm gap to
+   the old upper trigger. A hidden land on the new shoe now rests against the
+   existing slot end, verified by three opposing surface rays. Its first upper
+   corner cleared by only .021 mm at full pull; lowered that corner, retaining
+   the stop face, and measured .108 mm minimum sampled frame clearance (the lower blade itself clears the guard by 2.462 mm
+at the nearest sampled vertex). No
+   frame vertex, pivot, animation channel or collision threshold changed.
+3. **Photographic camera review.** Initial least-squares camera fits were
+   rejected visually: the unrelated original guard proportions and deeper C9
+   slide drove the camera into implausible angles and a lens bound. The quarter
+   photo shows the underside, not the top. Final trigger comparisons use an
+   explicit visually estimated direction, blade-height scale and optical shift;
+   these are comparison framing estimates, not photographic metrology. The
+   original kit fit remains in `build/trigger-cameras-full.json` as a rejected
+   diagnostic. Source pairs are in `renders/trigger/camera3/`. Their curve and
+   toe now face the same way as the photos. The guard remains our accepted
+   different design; no photo outline is fed into the model.
+
+Actual finalized/imported surface measurements: concavity 1.736 mm at Z=15
+relative to the Z=23/7 chord; rear convexity 1.869 mm; toe at Y=50.000 mm,
+forward of the middle face at Y=47.007 mm. Face width 7.000 mm; safety blade
+width 1.260 mm; actual Y-depth is .901 mm at Z=10 and 1.099 mm at Z=21,
+with a thicker hidden bearing land.
+Rest-stop gaps .0006–.0020 mm; sampled safety bearing gaps .150–.152 mm
+through the pull. These numbers are measured on triangles, not authored
+constants presented as measurements. Full solid sweeps retain their original
+thresholds and 1,110 samples on source, dense and finalized meshes.
+
+`make -C guns/pistol check` passed. A separate current atlas audit also passes
+all new trigger checks on **11,234 actual imported triangles**, matched
+one-to-one to the three trigger parts and frame, maximum vertex matching
+error 1.51e-8 m. These surfaces are reconstructed from the GLB, not copied
+from the source. Source/export state and affine agreement remains separate.
+
+`build/trigger-identity.json` proves 52 nonmodified meshes retain exact vertex
+positions/topology and bindings, while every bone, socket and clip is identical
+to a clean main build. Only `Trigger_Shoe` and `Trigger_SafetyBlade` differ;
+the pivot pin is unchanged. Final triangles **33,588 → 34,122 (+534)**, below
+35k; native triangles 34,154. One material and the same three 2048 maps, baked
+at 4096/32 with zero missed interior texels. Reserved atlas regions and the
+four-file delivery structure are retained. Final image inspection follows.
+
+### Exported correction pass 4 — final images and delivery
+
+**Color/value first.** The accepted blacks stay black; the hero has luma
+0–227.93/255 and zero fully clipped pixels. The first new trigger macro was too
+underlit: the whole-gun key sat behind its concave face. Rejected that lighting
+for the close-up, and added front fill to trigger views only. Hero lights and
+all material functions remain unchanged. The reference's hard flash has a
+brighter black floor; the quarter photograph's white backdrop is the neutral
+cross-check. No albedo is raised to force a match between those different lights.
+
+Opened both final trigger photo pairs, the right/quarter/pulled macros, every
+final still, all three original pairs, all five docs JPGs and all 149 clip samples
+in seven inspection panels (`../../build/pistol-clips-inspect-*.jpg`). The face
+is visibly concave toward the muzzle, the back convex, and the rounded toe curls
+forward in both opposite-facing reference pairs. The blade remains inside its
+pocket through the retained pull; the full-pull macro independently shows guard
+clearance. The side shoe has volume and rounded lateral edges rather than a
+rod section. The original broad mold radii, fine atlas softness and case facets
+remain outside this correction. The macro's bright reflection follows its
+radiused front face; no surface material change was used for this geometry fix.
+
+Completed, exit 0:
+
+```sh
+make -C guns/pistol refs
+make -C guns/pistol export
+make -C guns/pistol check
+make -C guns/pistol render match strips extra review docs
+make -C guns/pistol
+blender -b --factory-startup --python-exit-code 1 --python guns/common/revision_check.py -- --before build/trigger-baseline/pistol/pistol.blend --after guns/pistol/build/pistol.blend --out guns/pistol/build/trigger-identity.json
+```
+
+Final complete Make log: `../../build/pistol-trigger-confirm.log`. It repeats
+native/dense/finalized contacts and 1,110-pose sweeps, imported trigger surfaces,
+raw normals, UVs, intended states, full affine socket frames, detached spawns,
+baked-map identity, image provenance and playback durations. No tolerance or
+exception changed. `build/final-provenance.json` passes **178** current-GLB
+image records. Fresh UVs: 30.22% coverage, 16 microscopic overlap pairs totaling
+4.538e-8, zero escaped/degenerate triangles, 3,274 px/m atlas median.
+
+Final loaded gun: **34,122 triangles**, one material, **8,080,736 bytes**.
+Loaded/empty magazines: 5,256 / 4,416 triangles, 5,396,268 / 5,362,336 bytes;
+case: 384 triangles, 5,204,716 bytes. One shared three-map 2048 atlas, 4096/32
+bake with zero missed interior texels; approximately 16 MiB compressed runtime
+allocation with mipmaps and content sharing. Source rig and all clips remain
+identical to the baseline; other native meshes/normals are exactly unchanged.
+
+Primary evidence:
+
+- `renders/final/trigger-pairs/trigger_right_photo-pair.jpg`
+- `renders/final/trigger-pairs/trigger_quarter_photo-pair.jpg`
+- `renders/final/beauty/trigger_right.png`, `trigger_quarter.png`, `trigger_pulled.png`
+- `renders/final/contact-sheet.jpg`, `details.jpg`, `clips.jpg`
+
+Photo sources and licenses are in `refs/SOURCES.md`: Martin1998cz's sharp Gen4
+right side and original three-quarter photograph, both CC BY-SA 3.0. The camera
+angles and blade-height matching are visual estimates. The original guard
+proportions differ, and the reference textures/light are not reproduced.
+Final docs sizes: hero 103,292; turnaround 86,013; details 185,971; action 130,865;
+Eevee 108,545 bytes, all 1600 px wide and below 200,000 bytes. The details sheet
+now includes both trigger close-ups. No kit change or lead action is needed.

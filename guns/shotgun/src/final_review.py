@@ -55,13 +55,13 @@ def main():
   values['tonal_ranges'][name]=dict(luma_p1_p50_p99=np.percentile(luma,[1,50,99]).round(2).tolist(),
    deep_shadow_fraction=float(np.mean(luma<24)),clipped_fraction=float(np.mean(np.all(rgb>=254,axis=1))))
  (OUT/'photos/values.json').write_text(json.dumps(values,indent=2))
- names=['hero','hero_left','front','side','back','top','receiver','wrist','forend','aimed','open','scale','muzzle','stock','guard','underside','pad','aimed_socket','muzzle_under']
+ names=['hero','hero_left','front','side','back','top','receiver','wrist','forend','aimed','open','scale','muzzle','stock','guard','underside','pad','aimed_socket','muzzle_under','trigger_right','trigger_quarter','trigger_pulled']
  items=[(n,BEAUTY/(n+'.png')) for n in names]
  items += [('Eevee hero',OUT/'eevee/hero.png'),('Loaded shell',OUT/'shell/shell.png'),
   ('Fold crimp',OUT/'shell/shell_crimp.png'),('Fired hull',OUT/'hull/hull.png'),('Struck primer',OUT/'hull/hull_primer.png')]
  sheet(items,OUT/'contact-sheet.jpg',columns=3,width=1800,height=350)
  turn=sheet([(n,BEAUTY/(n+'.png')) for n in ('front','side','back','top')],OUT/'turnaround.jpg',height=470)
- details=sheet([(n,BEAUTY/(n+'.png')) for n in ('receiver','wrist','forend','pad')],OUT/'details.jpg',columns=1,height=560)
+ details=sheet([(n,BEAUTY/(n+'.png')) for n in ('receiver','wrist','forend','pad','trigger_right','trigger_quarter')],OUT/'details.jpg',columns=1,height=560)
  action=sheet([('Shell on the raised carrier',BEAUTY/'open.png'),('Exact Socket_Eye / 70 degrees horizontal',BEAUTY/'aimed.png'),
   ('Loaded shell / fictional headstamp',OUT/'shell/shell.png'),('Fired hull / sooted mouth',OUT/'hull/hull.png')],OUT/'action.jpg',height=480)
  sheet([(n,OUT/'pairs'/(n+'_photo-pair.jpg')) for n in ('right','left','open','used','wood','hero-wear')],OUT/'photo-pairs.jpg',columns=1,height=400)

@@ -1112,3 +1112,142 @@ that was corrected. No external uploads or downloaded code were used.
 Nothing is needed from the lead. No kit change is requested. The useful lesson
 for future reviews is to inspect actual gray-steel core texels and the native
 hero-scale line, rather than accepting a low BaseColor contrast ratio alone.
+
+## Trigger direction correction — 2026-10-28
+
+Cause: both Bézier boundaries bowed toward +Y through the working face, then
+returned toward the grip at the toe. Their curvature was reversed; the owner
+correctly rejected it. +Y is the muzzle in this family's authored frame.
+
+### Correction source passes
+
+1. **Direction and blade section.** Clay has no calibrated material color;
+   judge the dark aperture and edge highlights first. The sharp right-side
+   `stock-sharp.jpg` and independent `daylight-used.jpg` show a thin flat steel
+   blade with a muzzle-facing hollow and forward curl. The first corrected bow
+   had that direction, but shortened surface-measured pull to 346.91 mm and
+   cost 680 triangles versus the accepted 540. Rejected it. Kept the pivot and
+   −12° motion, brought the working bow forward, raised its toe sufficiently
+   to clear the bow when pulled, and used two segments on its small edge radius.
+   The broad blade and its curved silhouette remain geometry, not a round tube.
+2. **Rest stop and receiver clearance.** The 440-triangle revision measured
+   352.65 mm pull and .814 mm sampled lower-blade/guard clearance at full pull.
+   Its hidden rear land meets the existing plate slot end at rest. The first
+   land was too tall: the full firing sweep caught .401 mm of receiver overlap
+   at full pull, above the unchanged .250 mm threshold. Lowered only that land
+   by 1 mm and retained its stop face. No receiver, plate, guard or animation
+   changes or collision exceptions were used. The first development sweep of
+   this last revision was interrupted with exit 143; the completed Make sweeps
+   below supersede that partial run.
+3. **Photographic close-ups and source shape.** Compare value first: the used
+   photo has black steel and bright edge reflections against a gray weathered
+   table. Clay cannot establish that finish. `renders/trigger/source-pairs2/`
+   compares the right side and an additional oblique Commons photograph by
+   Mitch Barrie (`refs/trigger-oblique.png`). Its white table is the neutral
+   check; its edited contrast is not an albedo target. The first oblique
+   camera exaggerated roll and apparent blade size; rejected that framing.
+   The revised view follows the observed receiver angle and foreshortening.
+   The side and oblique silhouettes now curl toward the photographed muzzle.
+   Angles, span and framing are visual estimates; the original guard/furniture
+   differ. No photograph is traced or used by the model or material scripts.
+
+Finalized triangle-surface measurements: 6.000 mm face width; 2.691 / 2.808 /
+2.777 mm side depth at Z=−8 / −15 / −22 mm in the grip frame. The front hollow
+is 2.497 mm deep relative to the upper/lower chord; the back is convex by
+2.571 mm. The toe at Y=92.729 mm is forward of the middle face at 85.465 mm.
+Three opposing stop-face rays measure about .0005 mm contact overlap; the
+complete pulled shoe clears the plate by .396 mm at the nearest sampled
+surface, with .814 mm at the sampled lower blade. These are evaluated mesh
+measurements, not constants repeated as proof. The complete finalized sweep
+passes 3,032 poses without a new exception or a changed tolerance.
+
+The native source falls from 39,925 to **39,825** triangles; the exported gun
+falls from 39,929 to **39,829 (−100)**. Trigger alone: 540 → 440. One material,
+the same three 2048 maps and the same shotgun/shell/hull layout. Fresh 4096/32
+bake: all six channels miss zero interior texels. `build/trigger-identity.json`
+compares a clean main baseline: **75 other meshes have identical vertex
+positions and oriented triangles**, with the rig, sockets and all clip keys
+identical. Polygon ordering is canonicalized for comparison: the bead's cyclic
+corner order changes between builds, while its triangles/winding are the same.
+The existing normal-encoding variation remains (maximum vector delta .000106);
+no other shape is remodeled. Final exported image review follows.
+
+### Exported correction pass 4 and delivery proof
+
+Color/value first: the corrected blade remains dark steel with narrow edge
+reflections, rather than a pale gray strip. The side reference's weathered gray
+table and the oblique reference's white table provide neutral checks; the latter
+has edited contrast and is not used to infer albedo. Existing material scripts
+and whole-gun lighting are unchanged. The final hero's object luma percentiles
+1/50/99 are 1.00 / 51.65 / 171.57 on a 0–255 scale, with deep shadow .303 and
+zero clipped pixels. The added macro fill reveals the face without changing the
+hero's finish.
+
+Opened both final exported-GLB comparisons:
+
+- Right side (`renders/final/trigger-pairs/trigger_right_photo-pair.jpg`), beside
+  Burnyburnout's sharp Commons `Remington 870 Wmaster.jpg` (CC BY-SA 4.0).
+- Three-quarter (`renders/final/trigger-pairs/trigger_quarter_photo-pair.jpg`),
+  beside Mitch Barrie's Commons `Remington 870 Police model (23745298808).png`
+  (CC BY-SA 2.0).
+
+Full URLs, authors, licenses and uses are in `refs/SOURCES.md`. Both pairs show
+the same muzzle-facing concavity and forward toe direction as the photograph.
+The quarter view shows a broad radiused blade, not a wire. Angle and blade-span
+scale are estimated visually and explicitly labeled in the pairs; the fictional
+guard is retained and differs from each reference. These are appearance checks,
+not a claim of exact camera calibration. Source/export comparisons retain the
+same contour; existing atlas softness in extreme wood/engraving close-ups remains.
+
+Completed commands, all exit 0:
+
+```sh
+make -C guns/shotgun refs
+make -C guns/shotgun export
+make -C guns/shotgun check
+make -C guns/shotgun render match strips extra source-match review docs
+python3 kit/repo_check.py
+python3 -m compileall -q guns/common guns/pistol/src guns/shotgun/src
+git diff --check
+```
+
+Fresh GLB verification passes **37 actual-surface contacts** and **3,055
+half-frame motion samples** with maximum overlap .189005 mm under the existing
+policy. The separate 3,032 affine/state checks pass at maximum position error
+1.19267e-7 m. Native and finalized construction sweeps each pass 3,032 poses.
+Imported reconstruction covers all 76 parts / 39,829 triangles, maximum vertex
+delta 6.273e-8 m, and repeats the new trigger surface checks on the actual
+imported triangles. Thus the surface checks establish construction/clearance;
+the reconstruction and affine comparisons separately establish serialization.
+Procedural repeat passes 2,401 entries with zero position/other numeric delta;
+normal-angle maximum .0081018° stays below the unchanged .03° threshold. The
+GLB is not byte-identical between builds because of that existing normal encoding
+variation. No trigger-specific collision exclusion was introduced.
+
+| Final delivery | Triangles | Materials | Bytes |
+| --- | ---: | ---: | ---: |
+| Shotgun | 39,829 | 1 | 11,953,276 |
+| Shell | 600 | 1 | 8,270,704 |
+| Hull | 394 | 1 | 8,254,240 |
+
+The shared 2048 BaseColor / Normal / ORM PNGs are **2,091,336 / 2,841,090 /
+3,293,969 bytes**, baked at 4096/32 with zero missed interior texels in all six
+channels. Imported gun UV coverage is 29.2593%, with 26 microscopic overlap
+pairs totaling fraction 2.01502e-6, no escaped or degenerate triangles, and median
+2,414.58 px/m. Complete-atlas coverage is 34.5031%.
+
+Final provenance passes **433 current-GLB PNG records** and all **18 clips**'
+decoded real durations. Opened the final contact sheet, all 27 beauty/extra
+stills, all five docs, six existing exported pairs, five source pairs, both new
+trigger pairs, and all seventeen clip inspection panels covering 399 samples.
+No new floating part or texture sliding appears. Final stills are in
+`renders/final/beauty/`; the sheet is `renders/final/contact-sheet.jpg`.
+Docs are all 1600 px wide: hero **34,585**, turnaround **52,141**, details
+**190,994**, action **86,911**, Eevee **35,899 bytes**. The details sheet includes
+the new side and quarter trigger macros. Root logs are
+`build/shotgun-trigger-final-check.log` and `build/shotgun-trigger-finals.log`.
+
+Nothing is needed from the lead. No kit changes were made. The family convention
+now requires a muzzle-facing concave front, a forward toe and a photo-pair check
+for each new trigger; actual-surface rest and pull checks guard against a visually
+correct contour that no longer fits its unchanged housing.

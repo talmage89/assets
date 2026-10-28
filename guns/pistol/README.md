@@ -21,6 +21,10 @@ case mouth (`renders/final/case/case_mouth.png`).
 Photo pairs: right (`renders/final/pairs/right_photo-pair.jpg`),
 open (`renders/final/pairs/open_photo-pair.jpg`),
 left (`renders/final/pairs/left_photo-pair.jpg`).
+Trigger close-ups: right (`renders/final/trigger-pairs/trigger_right_photo-pair.jpg`)
+and three-quarter (`renders/final/trigger-pairs/trigger_quarter_photo-pair.jpg`).
+These use visually estimated angles and matched blade scale; the different
+fictional guard is retained.
 [REVIEW.md](REVIEW.md) records the accepted form and finish critiques, including
 two final carry-correction passes, measured value/hue, remaining differences
 and rebuild/check evidence.
@@ -55,7 +59,7 @@ JPGs are committed.
 | Slide section height | 27.00 mm | C9 section choice; deeper than the photo sample |
 | Barrel tube length | 102.00 mm / 4.02 in | 102 mm |
 | Steel sight radius | 152.00 mm | 152 mm |
-| Trigger reach at the shoe's 17 mm section | 73.29 mm | 71.2 mm published trigger distance |
+| Trigger reach at the shoe's 17 mm section | 71.12 mm | 71.2 mm published trigger distance |
 | Mid-grip section | 30.39 × 50.57 mm | brief: about 30 × 50 mm |
 | Grip center-line rake | 21.99° | brief: about 22° |
 | Guard opening, mid-length / height | 33.53 / 27.55 mm | brief: 32–36 / 26–28 mm |
@@ -64,8 +68,8 @@ JPGs are committed.
 
 The [manufacturer specifications](https://eu.glock.com/en/products/pistols/g19)
 supply the 174 mm slide, 152 mm steel sight radius and 71.2 mm trigger-distance
-baseline. The **73.29 mm local reach** includes the new curved palm web; this is longer
-than the published baseline. Our Z=17 mm mesh section is not the manufacturer's
+baseline. The **71.12 mm local reach** is measured on the corrected concave
+trigger face. Our Z=17 mm mesh section is not the manufacturer's
 unpublished gauge procedure, so the values are not claimed directly equivalent. The 184.47 mm length and 31.90 mm overall width are deliberate narrow
 compact choices. This is not a replica. Further class comparisons, photographs,
 authors and licenses are in [refs/SOURCES.md](refs/SOURCES.md).
@@ -89,7 +93,11 @@ physical sections, explicitly recorded in `build/check.json` and the section
 sheet. The photo-pixel gauge is annotated separately (`renders/round3/reference-guard-gauge.jpg`).
 
 The 7 mm trigger face carries a recessed safety blade. Actual shoe thickness
-is 4.92 mm at Z=24, 3.62 at Z=17, and 2.76 at Z=7. The magazine release is a
+is 5.29 mm at Z=24, 3.78 at Z=17, and 2.60 at Z=7. Its front face
+is concave toward the muzzle, its rounded toe curls forward, and its rear face
+is convex toward the grip. The 1.26 mm safety blade runs in a curved pocket,
+with a bored bearing around its unchanged pivot. A hidden upper land rests
+on the existing frame slot end. The magazine release is a
 rounded 9 × 12 mm rectangle within a molded surround. The steel stop is a thin
 bent stamping with a raised serrated pad, its stem enclosed by the molding;
 takedown tabs have rounded seats.
@@ -213,7 +221,7 @@ imported PBR material and resume interrupted reloads at their saved clip/frame;
 
 ## Budget and delivery
 
-The loaded pistol is **33,588 triangles** in the final GLB (33,620 in the
+The loaded pistol is **34,122 triangles** in the final GLB (34,154 in the
 inspection source), below the 35k ceiling. The continuous game frame uses 9,600;
 slide shell 8,972 after finalization. The dense molded frame is a bake source
 only, about 1.19 million triangles. Hidden detail has lower density than sights,
@@ -223,10 +231,10 @@ perfectly uniform or zero.
 
 | Final output | Triangles | Materials | GLB bytes |
 | --- | ---: | ---: | ---: |
-| Pistol, loaded | 33,588 | 1 | 8,012,624 |
-| Loaded magazine | 5,256 | 1 | 5,375,492 |
-| Empty magazine | 4,416 | 1 | 5,341,560 |
-| Fired case | 384 | 1 | 5,183,940 |
+| Pistol, loaded | 34,122 | 1 | 8,080,736 |
+| Loaded magazine | 5,256 | 1 | 5,396,268 |
+| Empty magazine | 4,416 | 1 | 5,362,336 |
+| Fired case | 384 | 1 | 5,204,716 |
 
 Bake: **4096, 32 samples**, filtered to one **2048 BaseColor / OpenGL +Y Normal /
 ORM** set. ORM stores R occlusion, G roughness, B metallic. Explicit rest-position
@@ -294,9 +302,9 @@ than the used reference, and the accepted frame has broader mold radii. The
 close-up. Eevee reflections/shadows differ modestly from Cycles. Repeated GPU
 bakes can differ by one 8-bit channel level in a few texels; native and dense
 geometry hashes match across the clean rebuild. Blender can also change a last
-rounded tangent digit on export; this texture-only refresh explicitly preserves
-the accepted tangent bytes and strictly checks all non-image buffers, as logged
-in [REVIEW.md](REVIEW.md). Camera fits and
+rounded tangent digit on export. The trigger correction independently verifies
+all other native geometry, the rig, sockets and clips against a clean baseline,
+as logged in [REVIEW.md](REVIEW.md). Camera fits and
 material values are visual estimates, not measured manufacturing tolerances or
 photometric material recovery. The 1.8 m silhouette and 190 mm guide are scale
 cues; no human hand-fit claim is made.

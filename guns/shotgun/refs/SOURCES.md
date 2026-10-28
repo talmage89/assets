@@ -40,3 +40,21 @@ The shell is a visual 12-gauge 2¾ in class shell: about 22.4 mm rim, 20.1 mm hu
 the opened hull, not the loaded envelope. These external silhouette estimates
 are not cartridge or chamber manufacturing specifications. Mass is a design
 class target, not a measured or simulated mass of the game mesh.
+
+## Trigger correction photographs — 2026-10-28
+
+| Local file | Direct image/PDF URL | Author / license | Use |
+| --- | --- | --- | --- |
+| trigger-oblique.png | https://upload.wikimedia.org/wikipedia/commons/a/af/Remington_870_Police_model_%2823745298808%29.png | Mitch Barrie, CC BY-SA 2.0; [description](https://commons.wikimedia.org/wiki/File:Remington_870_Police_model_(23745298808).png) | Right rear three-quarter trigger/guard: flat blade width, convex back, forward curl. Furniture and accessories differ and are not modeled. White table is the neutral check; the photographer reports contrast/background editing, so this is shape reference only. |
+| trigger-side.jpg | https://thumb.wikimedia.org/wikipedia/commons/thumb/9/99/Remington870-police-2.jpg/1280px-Remington870-police-2.jpg | Mitch Barrie, CC BY-SA 2.0; [description](https://commons.wikimedia.org/wiki/File:Remington870-police-2.jpg) | Supplemental front three-quarter blade/guard inspection; too few trigger pixels for the primary close-up pair. |
+
+The primary right-side trigger pair uses the full-resolution `stock-sharp.jpg`
+above (Burnyburnout, CC BY-SA 4.0). The gray weathered tabletop supplies the
+neutral check. `daylight-used.jpg` (Everett Walker, CC BY-SA 4.0) independently
+confirms the forward curl in a nearly straight side view; its hazy lighting is
+not a reason to raise the trigger albedo. Only view angle and relative size
+are estimated from these photos; no outlines are extracted or traced.
+
+Exploratory candidate, discarded because the finger obscures the trigger:
+[direct image](https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Remington870-police-3.jpg/1280px-Remington870-police-3.jpg),
+Mitch Barrie, CC BY-SA 2.0. No person or image pixels enter the asset or docs.

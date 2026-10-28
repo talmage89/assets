@@ -255,6 +255,16 @@ def furniture():
         (8,55.25),(8,47.5),(13.5,47.5),(13.5,44.8)]
  profile('Action_SlideBlock',block,155,173,'steel','Forend',axis='Y',radius=.25)
 
+def trigger():
+ # A broad 6 mm blade: +Y-facing hollow, convex grip-side back and forward toe.
+ # The hidden rear land rests on the existing plate slot's Y=23 end wall.
+ front=[(23,15),(34.5,15),(34.5,13)]
+ front+=M.bezier((34.5,13),(27,7),(29,-2),(37.8,-8.0),10)[1:]
+ toe=M.bezier((37.8,-8.0),(38.5,-9.0),(37.0,-9.2),(35.2,-8.0),4)[1:]
+ back=M.bezier((35.2,-8.0),(25.5,-2),(25.8,6),(29.8,11.5),8)[1:]+[(23,13.0)]
+ shoe=profile('Trigger_Shoe',front+toe+back,-3,3,'blue','Trigger',register=False)
+ reg(shoe,'Trigger',radius=.55,segments=2)
+
 def controls():
  # Cast bow: a swept elliptical bar, continuously curved in section and in
  # side elevation. Its ends join the plate, rather than hanging as a bracket.
@@ -269,8 +279,7 @@ def controls():
  cutbox(plate,(-12,27,18),(12,83,25))
  cut(plate,lathe('tool',[(-16,0),(-16,3.8),(16,3.8),(16,0)],axis='X',center=(1,8),n=32,register=False))
  reg(plate,radius=.65,segments=3);reduce(plate,1700)
- trigger=[(y-7,z) for y,z in M.bezier((35,12),(44,7),(45,-2),(40,-10),12)+M.bezier((36,-9),(40,-2),(39,6),(32,10),12)]
- profile('Trigger_Shoe',trigger,-3,3,'blue','Trigger',radius=.7)
+ trigger()
  lathe('Safety_Crossbolt',[(-10,0),(-10,3.5),(-7,3.5),(-7,2.6),(8,2.6),(8,3.5),(10,3.5),(10,0)],
        'dark','Safety',axis='X',center=(1,8),n=32)
  # A raised index ridge can be recognized in silhouette without lettering.

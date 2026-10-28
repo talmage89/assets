@@ -9,6 +9,7 @@ from kit import weapon as W,weapon_verify as V,uv
 from kit.gltf import GLB
 from semantics import check
 from interface import CLIPS
+import trigger_check
 out=BASE/'export'
 bpy.ops.wm.open_mainfile(filepath=str(BASE/'build/delivery/finalized.blend'));arm=bpy.data.objects['PistolArmature']
 uv_report=uv.report([o for o in bpy.context.scene.objects if o.type=='MESH' and o.get('asset_set')],size=2048)
@@ -28,7 +29,9 @@ spawns={}
 for variant,clip in [('loaded','Reload'),('empty','ReloadEmpty')]:
  W.pose(arm,clip,40);visible=[o for o in parts if min(abs(v) for v in arm.pose.bones[o['bone']].matrix.to_scale())>.001]
  spawns[variant]=(V.surface_points(visible),bpy.data.objects['Socket_Magazine'].matrix_world.copy())
+trigger_reference=trigger_check.capture(arm)
 arm=V.import_glb(out/'pistol.glb');states=check(arm);poses=V.compare(arm,expected,position_tolerance_m=2e-5,linear_tolerance=5e-4)
+trigger_surfaces=trigger_check.imported(arm,trigger_reference)
 records={};shared=None
 for name in ('pistol','magazine_loaded','magazine_empty','case'):
  path=out/(name+'.glb');g=GLB(path);normal=V.normal_direction(g)
@@ -49,7 +52,7 @@ for name in ('pistol','magazine_loaded','magazine_empty','case'):
   else:assert tri<=400
  records[name]=record
 assert 25000<=records['pistol']['triangles']<=35000
-result=dict(passed=True,stage='final 2048 PBR delivery',outputs=records,
+result=dict(passed=True,trigger_surfaces=trigger_surfaces,stage='final 2048 PBR delivery',outputs=records,
  uv={k:uv_report[k] for k in ('coverage','outside_triangles','degenerate_uv_triangles','overlap_pairs','overlap_fraction','density_px_m')},
  bake_size=bake_report['size'],bake_samples=bake_report['samples'],missed_interior_texels=0,
  semantic_check=states,affine_samples=len(poses),max_position_delta_m=max(p['position_delta_m'] for p in poses),

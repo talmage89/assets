@@ -221,17 +221,32 @@ def barrel():
         path.append((2.48*math.cos(t),y,38.5+2.48*math.sin(t)))
     reg(M.tube('Recoil_Spring',path,.30,MAT['steel'],sides=4),'RecoilGuide')
 
-def controls():
-    front=M.bezier((44.8,27),(50.4,23),(51.0,13),(46.0,3),12)
-    back=M.bezier((43.8,3.6),(47.5,13),(46.6,22),(40.2,26),12)
-    tr=profile('Trigger_Shoe',front+back,-3.5,3.5,'polymer','Trigger',register=False)
-    # Recess only the front of the shoe; keep a continuous back behind the blade.
-    cutbox(tr,(-.92,39,2.5),(.92,53,24.5));reg(tr,'Trigger',bevel=.48,segments=2)
-    face=M.bezier((49.0,22),(50.6,16),(49.1,9),(46.5,5),10)
-    backface=[(y-.8,z) for y,z in reversed(face)]
+def trigger():
+    # +Y is the muzzle: the working face hollows rearward at mid-height,
+    # then the toe curls FORWARD. Broad 7 mm blade, radiused lateral edges.
+    front=([(44.8,27.5),(55.0,27.5),(55.0,26.3)]
+           +M.bezier((55.0,26.3),(51.5,26.3),(49.2,25),(49.2,23),4)[1:]
+           +M.bezier((49.2,23),(45.8,17),(46.5,9),(50.0,3.5),12)[1:])
+    back=(M.bezier((47.6,3.5),(42.9,11),(42.3,18),(45.0,23),12)
+          +M.bezier((45.0,23),(44,24.8),(42,25.6),(40.2,26),4)[1:])
+    toe=M.bezier((50.0,3.5),(50.8,2.3),(49.4,2.0),(47.6,3.5),6)
+    tr=profile('Trigger_Shoe',front+toe[1:]+back[1:],-3.5,3.5,'polymer','Trigger',register=False)
+    # The hidden upper land meets the existing slot end at rest; pulling
+    # rotates it away from that stop without changing the frame or pivot.
+    # A curved pocket leaves a continuous rear web, including behind the
+    # depressed blade. It opens through the muzzle-facing surface only.
+    pocket=M.bezier((46.5,24.5),(42.0,18),(44.0,10),(47.0,6.0),12)
+    cut(tr,profile('tool',pocket+[(55,6),(55,24.5)],-.92,.92,register=False))
+    reg(tr,'Trigger',bevel=.48,segments=2)
+    face=M.bezier((49.4,22),(47.1,17),(47.7,12),(49.4,7),10)
+    # The hidden hinge land reaches the unchanged safety pivot at Y46.8/Z17.
+    backface=[(y-.9-1.7*math.exp(-((z-17)/2.6)**2),z) for y,z in reversed(face)]
     safety=profile('Trigger_SafetyBlade',face+backface,-.63,.63,'darksteel','TriggerSafety',register=False)
+    cut(safety,lathe('tool',[(-2,0),(-2,.60),(2,.60),(2,0)],axis='X',center=(46.8,17),n=16,register=False))
     reg(safety,'TriggerSafety',bevel=.16,segments=2)
     lathe('Trigger_SafetyPivot',[(-3.5,0),(-3.5,.45),(3.5,.45),(3.5,0)],'darksteel','Trigger',axis='X',center=(46.8,17),n=12)
+def controls():
+    trigger()
     # A thin stamping bends along the flank; the thumb pad stands proud.
     outline=M.fillet_polygon([(4,30.2),(17,30.4),(17,33.6),(13,35.1),(4,34.2)],.8,5)
     st=profile('SlideStop_Lever',outline,-15.9,-14.9,'darksteel','SlideStop',register=False)

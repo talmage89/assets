@@ -6,6 +6,9 @@ FINAL_STAGE=True
 RENDER_STAGE='final exported GLB with baked 2048 PBR maps'
 DEFAULT_SHOTS='hero,hero_left,front,side,back,top,receiver,wrist,forend,aimed,open,scale'
 SHOTS={**FORM_SHOTS,
+ 'trigger_right':dict(location=(.22,.086,-.014),target=(0,.086,-.014),ortho=.065,aspect=1.5,trigger_light=True),
+ 'trigger_quarter':dict(location=(.20,.14,.040),target=(0,.086,-.014),ortho=.060,aspect=1.5,trigger_light=True),
+ 'trigger_pulled':dict(location=(.22,.086,-.014),target=(0,.086,-.014),ortho=.065,aspect=1.5,trigger_light=True,action='Fire',frame=2),
  'hero':dict(location=(1.45,.77,.53),target=(0,.247,-.008),lens=51,aspect=3.0),
  'hero_left':dict(location=(-1.45,.72,.49),target=(0,.247,-.008),lens=51,aspect=3.0),
  'back':dict(location=(0,-1.5,-.010),target=(0,.20,-.010),ortho=.24,aspect=1,rear_light=True),
@@ -146,8 +149,18 @@ def prepare_shot(scene,shot):
    elif ob.name=='Camera fill':
     ob.location=(-.30,.60,-.15);ob.data.energy=3;ob.data.size=.30;ob.data.size_y=.50
    else:ob.data.energy=0
+  if shot.get('trigger_light'):
+   sign=1 if shot['location'][0]>0 else -1
+   if ob.name=='Key softbox':
+    ob.location=(sign*.15,.22,.10);ob.data.energy=2;ob.data.size=.12;ob.data.size_y=.20
+   elif ob.name=='Camera fill':
+    ob.location=(-sign*.16,.12,.04);ob.data.energy=1;ob.data.size=.14;ob.data.size_y=.16
+   elif ob.name=='Right rim strip':
+    ob.location=(-sign*.12,-.01,.10);ob.data.energy=.7;ob.data.size=.06;ob.data.size_y=.15
+   else:ob.data.energy=0
   if isscale:ob.location+=Vector((0,0,1));ob.data.energy*=1.5
   target=Vector((0,.690,.045)) if shot.get('muzzle_under_light') else (Vector((0,-.20,-.035)) if shot.get('rear_light') else (
    Vector((0,.13,.010)) if shot.get('under_light') else (
    Vector((0,.025,0)) if shot.get('shell_light') else Vector((0,.22,1.02 if isscale else 0)))))
+  if shot.get('trigger_light'):target=Vector((0,.086,-.014))
   ob.rotation_euler=(target-ob.location).to_track_quat('-Z','Y').to_euler()

@@ -8,6 +8,7 @@ from kit import weapon as W,motion
 from contacts import part,measure
 from interface import CLIPS
 from form import audit as form_audit
+from trigger_check import measure as trigger_measure
 def geometry(arm):
  W.pose(arm,'Idle',0)
  meshes=[o for o in bpy.context.scene.objects if o.type=='MESH' and o.parent==arm and 'bone' in o and not o.get('bake_only')]
@@ -26,7 +27,7 @@ def geometry(arm):
  count=sum(len(o.data.polygons) for o in meshes)
  assert 30000<=count<=40000,count
  return dict(bounds_m=dict(lo=lo,hi=hi,size=size),barrel_length_m=length,length_of_pull_m=pull,
-  trigger_contact_m=list(trigger[0]),pad_contact_m=list(butt[0]),triangles=count,form=form_audit())
+  trigger_contact_m=list(trigger[0]),pad_contact_m=list(butt[0]),triangles=count,form=form_audit(),trigger_surfaces=trigger_measure(arm))
 def sweep(arm):
  # Every exception has a measured bound. No whole pair is skipped.
  allow=[dict(a='CarrierShell_Head',b='Carrier_Tray',max_penetration_m=.0004,reason='rim bears on the stamped concave cradle'),

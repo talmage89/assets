@@ -22,7 +22,7 @@ BAKED := $(addprefix build/baked/4k/T_Hearth12_,BaseColor.png Normal.png ORM.png
 TEXTURES := $(addprefix textures/T_Hearth12_,BaseColor.png Normal.png ORM.png)
 EXPORTS := export/shotgun.glb export/shell.glb export/hull.glb
 comma := ,
-FINAL_SHOTS := hero,hero_left,front,side,back,top,receiver,wrist,forend,aimed,open,scale,muzzle,stock,guard,underside,pad,aimed_socket,muzzle_under
+FINAL_SHOTS := hero,hero_left,front,side,back,top,receiver,wrist,forend,aimed,open,scale,muzzle,stock,guard,underside,pad,aimed_socket,muzzle_under,trigger_right,trigger_quarter,trigger_pulled
 FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(FINAL_SHOTS)))) renders/final/beauty/shots.json
 EXTRAS := renders/final/shell/shell.png renders/final/shell/shell_crimp.png renders/final/shell/shots.json renders/final/hull/hull.png renders/final/hull/hull_primer.png renders/final/hull/shots.json
 PAIRS := $(foreach v,right left open used wood,renders/final/pairs/$(v)_photo-pair.jpg renders/final/pairs/$(v)_photo-calibration.jpg)
@@ -95,7 +95,11 @@ $(PAIRS) &: $(EXPORTS) $(RENDER_DEPS) src/photo_matches.py build/cameras.json
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/cameras.json --renders renders/final/photos --out renders/final/pairs
 $(WEAR_PAIR) &: $(FINAL_IMAGES) src/wear_review.py src/value_review.py refs/SOURCES.md
 	$(PYTHON) src/wear_review.py
-match: refs $(PAIRS) $(WEAR_PAIR)
+TRIGGER_PAIRS := $(foreach v,right quarter,renders/final/trigger-pairs/trigger_$(v)_photo-pair.jpg)
+$(TRIGGER_PAIRS) &: $(EXPORTS) src/trigger_render.py src/trigger_matches.py ../common/trigger_review.py $(RENDER_DEPS) refs/SOURCES.md
+	$(KIT)/with_gpu.sh $(BP) --python src/trigger_render.py -- --source export/shotgun.glb --out renders/final/trigger-photos --width 1100 --samples $(SAMPLES) --shots trigger_right_photo,trigger_quarter_photo
+	$(PYTHON) src/trigger_render.py --compose --renders renders/final/trigger-photos --out renders/final/trigger-pairs
+match: refs $(PAIRS) $(WEAR_PAIR) $(TRIGGER_PAIRS)
 source-match: build/delivery/high.blend build/cameras.json $(RENDER_DEPS) src/source_render.py
 	$(KIT)/with_gpu.sh $(BP) --python src/source_render.py -- --source build/delivery/high.blend --out renders/final/source-photos --width $(WIDTH) --samples $(SAMPLES) --shots right_photo,left_photo,open_photo,used_photo,wood_photo --camera-file build/cameras.json
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/cameras.json --renders renders/final/source-photos --out renders/final/source-pairs

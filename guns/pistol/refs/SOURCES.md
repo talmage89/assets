@@ -54,3 +54,23 @@ finish calibration: narrow gray muzzle corners, a thin upper shoulder line and
 lighter serration crests against retained dark steel. The broad smooth web
 highlight is used to judge palm polish as sheen following the molding. These
 are visual estimates of contact, not recovered physical albedos or wear widths.
+
+## Trigger direction correction — 2026-10-28
+
+| Local file | Direct image/PDF URL | Author / license | Use |
+| --- | --- | --- | --- |
+| trigger-right.JPG | https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Glock_19_Gen_4_II.JPG/1920px-Glock_19_Gen_4_II.JPG | Martin1998cz, CC BY-SA 3.0; [description](https://commons.wikimedia.org/wiki/File:Glock_19_Gen_4_II.JPG) | Sharp right side: muzzle-facing concavity, forward toe, broad molded shoe and blade safety. Original contour remains fictional. |
+| trigger-left.JPG | https://upload.wikimedia.org/wikipedia/commons/4/44/Glock_19_Gen_4_Pistol_made_in_Austria.JPG | Martin1998cz, CC BY-SA 3.0; [description](https://commons.wikimedia.org/wiki/File:Glock_19_Gen_4_Pistol_made_in_Austria.JPG) | Supplemental full-resolution side close-up: side thickness, edge radii and forward curl. |
+
+The three-quarter trigger pair uses `daylight-quarter.JPG` above (Martin1998cz,
+CC BY-SA 3.0), cropped to the guard. The white backdrop is the neutral check;
+the right-side foam is approximately neutral gray but the flash is much harder.
+No photo contour or pixel enters geometry or materials. Camera landmarks use
+frame/guard features, leaving the trigger an independent shape comparison.
+
+Exploratory photographs inspected, then discarded in favor of the sharper
+paired views above (no contribution to the model):
+
+- [Gen4 side photograph](https://thumb.wikimedia.org/wikipedia/commons/thumb/1/17/Glock_19_Gen_4.JPG/3840px-Glock_19_Gen_4.JPG), Martin1998cz, CC BY-SA 3.0.
+- [Gen4 front-side photograph](https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/Glock_19_Gen_4_front.JPG/3840px-Glock_19_Gen_4_front.JPG), TacticalGuy, CC BY-SA 4.0.
+- [Earlier quarter photograph](https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/Glock_19_01.jpg/1920px-Glock_19_01.jpg), Spike78, CC BY-SA 4.0 (also offered under earlier CC BY-SA versions/GFDL).

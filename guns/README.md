@@ -24,6 +24,15 @@ They accept each gun's manifest and shot table; pistol anatomy, poses, landmarks
 contact policy and construction checks remain in `pistol/src/`. Reusable asset
 primitives belong in `kit/`, rather than in a second weapons toolkit.
 
+### Triggers
+
+The front face is concave and faces the muzzle; the lower tip curls forward.
+The back face is convex toward the grip. Each new gun checks its trigger in a
+photographic pair, including a side view and a three-quarter close-up.
+`common/trigger_review.py` composes comparison-only crops from each gun's own
+framing data. `common/revision_check.py` checks changed triggers against an
+independently rebuilt baseline: all other named meshes, rig, sockets and clips.
+
 ## Rebuild and add a gun
 
 ```sh

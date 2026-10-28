@@ -22,7 +22,7 @@ BAKED := $(addprefix build/baked/4k/T_C9_,BaseColor.png Normal.png ORM.png) buil
 TEXTURES := $(addprefix textures/T_C9_,BaseColor.png Normal.png ORM.png)
 EXPORTS := export/pistol.glb export/magazine_loaded.glb export/magazine_empty.glb export/case.glb
 comma := ,
-FINAL_SHOTS := hero,hero_left,front,side,back,top,rear_sights,grip_texture,port_hood,markings,aimed,locked,scale,hand_frame
+FINAL_SHOTS := hero,hero_left,front,side,back,top,rear_sights,grip_texture,port_hood,markings,aimed,locked,scale,hand_frame,trigger_right,trigger_quarter,trigger_pulled
 FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(FINAL_SHOTS)))) renders/final/beauty/shots.json
 EXTRAS := $(foreach v,loaded empty,renders/final/$(v)/mag_standalone.png renders/final/$(v)/mag_rear.png renders/final/$(v)/shots.json) renders/final/case/case.png renders/final/case/case_mouth.png renders/final/case/shots.json
 PAIRS := $(foreach v,right open left,renders/final/pairs/$(v)_photo-pair.jpg renders/final/pairs/$(v)_photo-calibration.jpg)
@@ -89,7 +89,11 @@ build/cameras.json: src/photo_matches.py refs/SOURCES.md refs/round2-right.jpg r
 $(PAIRS) &: $(EXPORTS) $(RENDER_DEPS) build/cameras.json
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source export/pistol.glb --out renders/final/photos --width $(WIDTH) --samples $(SAMPLES) --shots right_photo,open_photo,left_photo --camera-file build/cameras.json
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/cameras.json --renders renders/final/photos --out renders/final/pairs
-match: refs $(PAIRS)
+TRIGGER_PAIRS := $(foreach v,right quarter,renders/final/trigger-pairs/trigger_$(v)_photo-pair.jpg)
+$(TRIGGER_PAIRS) &: $(EXPORTS) src/trigger_render.py src/trigger_matches.py ../common/trigger_review.py $(RENDER_DEPS) refs/SOURCES.md
+	$(KIT)/with_gpu.sh $(BP) --python src/trigger_render.py -- --source export/pistol.glb --out renders/final/trigger-photos --width 1100 --samples $(SAMPLES) --shots trigger_right_photo,trigger_quarter_photo
+	$(PYTHON) src/trigger_render.py --compose --renders renders/final/trigger-photos --out renders/final/trigger-pairs
+match: refs $(PAIRS) $(TRIGGER_PAIRS)
 $(EXTRAS) &: $(EXPORTS) $(RENDER_DEPS)
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source export/magazine_loaded.glb --out renders/final/loaded --width 1200 --samples $(SAMPLES) --shots mag_standalone,mag_rear
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source export/magazine_empty.glb --out renders/final/empty --width 1200 --samples $(SAMPLES) --shots mag_standalone,mag_rear
