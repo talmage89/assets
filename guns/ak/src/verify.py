@@ -25,10 +25,18 @@ def main():
  raw=GLB(path.with_suffix('.glb'));normal=V.normal_direction(raw)
  assert {x['name'] for x in raw.json['animations']}==set(CLIPS)
  assert len(raw.json['skins'])==1 and not raw.json.get('images')
+ durations={}
+ for animation in raw.json['animations']:
+  duration=max(float(raw.accessor(s['input']).max()) for s in animation['samplers'])
+  assert abs(duration-CLIPS[animation['name']]['frames']/60)<1e-6
+  durations[animation['name']]=duration
+ assert any(s['interpolation']=='STEP' for a in raw.json['animations'] for s in a['samplers'])
  for m in raw.json['meshes']:
   for p in m['primitives']:
    w=raw.accessor(p['attributes']['WEIGHTS_0']);assert np.max(abs(w.sum(axis=1)-1))<1e-6
    assert np.all(np.sum(w>1e-6,axis=1)==1)
+   n=raw.accessor(p['attributes']['NORMAL']);assert np.isfinite(n).all()
+   assert np.max(abs(np.linalg.norm(n,axis=1)-1))<1e-5
  arm=V.import_glb(path.with_suffix('.glb'));affine=V.compare(arm,expected,position_tolerance_m=2e-5,linear_tolerance=5e-4)
  imported_geometry=geometry(arm,True);imported_contacts=contacts(arm);states=semantics(arm)
  motion=sweep(arm,a.step);surface=[]
@@ -36,7 +44,7 @@ def main():
   W.pose(arm,n,f);error=V.surface_delta(target,V.surface_points(meshes(arm)));assert error<2e-5,(n,f,error)
   surface.append(dict(clip=n,frame=f,delta_m=error))
  result=dict(passed=motion['passed'] and not imported_geometry['nonmanifold'] and all(r['passed'] for r in imported_contacts),
-  stage='unbaked form checkpoint',source_geometry=source_geometry,imported_geometry=imported_geometry,
+  stage='unbaked form checkpoint',clip_durations_s=durations,source_geometry=source_geometry,imported_geometry=imported_geometry,
   imported_contacts=imported_contacts,imported_semantics=states,imported_motion=motion,normal_direction=normal,
   affine_samples=len(affine),maximum_position_delta_m=max(r['position_delta_m'] for r in affine),
   maximum_linear_delta=max(r['linear_delta'] for r in affine),surface_samples=surface,standalones={})

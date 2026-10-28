@@ -40,6 +40,16 @@ def contacts(arm):
   rows.append(dict(kind=kind,parts=[a,b],clip=clip,frame=frame,distance_m=d,limit_m=limit,method=method,passed=d<=limit))
  for side,roundname in [(1,'TopRound'),(-1,'SecondRound')]:
   contact('Magazine_FeedLip'+str(side),'Magazine_'+roundname+'_Case',.0004,'visual lip-to-case support')
+  W.pose(arm,'Idle',0)
+  x=side*.00865;z=.070 if side>0 else .0644
+  origin=Vector((x,.120,z+.015));direction=Vector((0,0,-1))
+  lip=motion.surface(part('Magazine_FeedLip'+str(side)))['tree'].ray_cast(origin,direction,.025)
+  case=motion.surface(part('Magazine_'+roundname+'_Case'))['tree'].ray_cast(origin,direction,.025)
+  gap=lip[0].z-case[0].z if lip[0] is not None and case[0] is not None else None
+  rows.append(dict(kind='cartridge lies beneath overhanging formed lip',side=side,
+   lip_point_m=list(lip[0]) if lip[0] is not None else None,
+   cartridge_point_m=list(case[0]) if case[0] is not None else None,
+   vertical_outer_surface_gap_m=gap,passed=gap is not None and -.0002<=gap<=.001))
  contact('Magazine_RearCatch','MagRelease_VisualCatch',.0003,'rear magazine display catch seated')
  contact('ChargingHandle','Carrier_PortCheek',.0003,'integral visual handle seated on carrier')
  contact('Stock_Sculpt','Rear_Insert',.001,'stock neck seated in rear receiver')

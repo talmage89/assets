@@ -6,8 +6,8 @@ from PIL import Image,ImageDraw
 BASE=Path(__file__).resolve().parents[1]
 PATCHES={'museum.jpg':((20,20,350,65),'gray museum backdrop, upper-left unshadowed margin'),
  'early.jpg':((700,65,940,125),'unprinted white cloth away from creases'),
- 'muzzle.jpg':((5,5,80,40),'pale neutral backdrop estimate; mixed daylight uncertain'),
- 'weld.jpg':((1750,1000,1830,1090),'pale garment estimate; uncertain colored fabric, auxiliary silhouette only'),
+ 'muzzle.jpg':((5,5,80,40),'no dependable neutral: sky is colored; identity correction, form only'),
+ 'weld.jpg':((1750,1000,1830,1090),'no dependable neutral: garment is colored; identity correction, cheek-weld geometry only'),
  'ammunition.jpg':((100,100,600,500),'light paper grid cells; brightest half excludes orange printed grid')}
 PATCHES['trigger-sharp.jpg']=((950,1450,1150,1550),'unclipped white display paper; brightest half excludes lettering')
 def main():
@@ -22,10 +22,12 @@ def main():
    lum=patch@np.array([.2126,.7152,.0722]);patch=patch[lum>=np.median(lum)]
   neutral=np.median(patch,axis=0)
   luma=float(neutral@np.array([.2126,.7152,.0722]));gain=luma/np.maximum(neutral,1e-6)
+  if name in ('muzzle.jpg','weld.jpg'):gain=np.ones(3)
   b=np.clip(linear*gain,0,1);b=np.where(b<=.0031308,b*12.92,1.055*b**(1/2.4)-.055)
   balanced=Image.fromarray(np.rint(b*255).astype('uint8'));balanced.save(out/name,quality=98)
   overlay=im.copy();ImageDraw.Draw(overlay).rectangle(rect,outline=(255,60,20),width=3);overlay.thumbnail((1400,1000));overlay.save(out/(Path(name).stem+'-neutral.jpg'))
   report[name]=dict(neutral=description,rectangle=list(rect),linear_gains=gain.tolist(),
+   color_measurements_allowed=name not in ('muzzle.jpg','weld.jpg'),
    limits='estimated neutral, edited exposure and reflection angles remain uncontrolled')
  (out/'corrections.json').write_text(json.dumps(report,indent=2))
  print(json.dumps(report,indent=2))
