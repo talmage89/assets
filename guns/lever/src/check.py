@@ -15,7 +15,7 @@ import interface
 import form_audit
 
 
-def parts():return [o for o in bpy.context.scene.objects if o.type=='MESH' and 'bone' in o and not o.get('check_proxy')]
+def parts():return [o for o in bpy.context.scene.objects if o.type=='MESH' and 'bone' in o and o.parent and o.parent.type=='ARMATURE' and not o.get('check_proxy')]
 def part(name):return bpy.data.objects[name]
 def surface(name):return motion.surface(part(name))
 

@@ -213,6 +213,9 @@ def furniture():
     # Warping only the cage perimeter left a chordal wood cap protruding
     # through the curved steel plate in the first exported macro.
     for v in ob.data.vertices:v.co.y=butt_y(v.co.y,v.co.z)
+    # Keep the uncut carving's normal field. Cut-wall normals at the inlet
+    # must never be projected onto the surrounding walnut's outer crown.
+    G.NORMAL_HIGH['Stock']=ob.data.copy()
     # Budget the OUTER carved surface before machining. Reducing an already
     # inletted stock moved narrow bearing walls away from the metal. Both
     # retained dense wood and game wood receive the same final metal cutters.
@@ -339,10 +342,13 @@ def sights():
             (313,61.1),(313,61.7),(309,61.7),(309,62.2),(305,62.2),(305,62.7),(299,62.7)]
     profile('Rear_Elevator',ladder,-3.7,3.7,'dark',r=.12)
     box('Elevator_ThumbTab',(-8,299,59.4),(3.7,302,60.7),'dark',r=.35)
-    horn=[(-11,63.7),(-11.1,68),(-10.1,72.9),(-8.5,75.8),(-7.8,75.5),
-          (-8.9,72.7),(-9.2,70.3),(-8.0,68.1),(-4.4,66.5),(-1.8,66.5),(-1.8,64.6),
-          (1.8,64.6),(1.8,66.5),(4.4,66.5),(8.0,68.1),(9.2,70.3),
-          (8.9,72.7),(7.8,75.5),(8.5,75.8),(10.1,72.9),(11.1,68),(11,63.7)]
+    # One coin-gauge sheet, filled below a shallow crescent. Its short ears
+    # rise from the blade, rather than forming the old empty U-shaped wire.
+    # Keep the accepted notch shoulders and exact optical frame unchanged.
+    horn=[(-11,59.7),(-11,66.2),(-10.6,68.1),(-9.8,68.7),(-9.1,68.5),
+          (-8.8,67.9),(-7.4,67.1),(-5.3,66.7),(-3.7,66.5),(-.8,66.5),(-.8,65.25),
+          (.8,65.25),(.8,66.5),(3.7,66.5),(5.3,66.7),(7.4,67.1),
+          (8.8,67.9),(9.1,68.5),(9.8,68.7),(10.6,68.1),(11,66.2),(11,59.7)]
     profile('Rear_Buckhorn',horn,282.5,283.6,axis='Y',r=.10)
     screw('Rear_BladeScrew',(0,284.6,62.9),1.1,axis='Y')
     # Original shallow ramp, pinned blade, and rounded brass bead.

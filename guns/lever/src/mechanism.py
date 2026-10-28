@@ -18,19 +18,23 @@ def lever():
     angle=math.radians(12)
     def place(u,v):return (u*math.cos(angle)-v*math.sin(angle)-6,
                            u*math.sin(angle)+v*math.cos(angle)-30.5)
-    def capsule(length,width):
+    def capsule(length,width,outer=False):
         r=width/2;a=length/2-r
-        return [place(a+r*math.cos(t),r*math.sin(t))
+        # The concealed upper rail is relieved beneath the accepted lower
+        # tang. Full 3.3 mm side depth remains on the hand-ridden lower rail;
+        # its outside, never the accepted aperture, supplies the extra depth.
+        def height(t):return r*math.sin(t)-(1.1*max(0,math.sin(t))**2 if outer else 0)
+        return [place(a+r*math.cos(t),height(t))
                 for t in [-math.pi/2+math.pi*i/16 for i in range(17)]]+[
-                place(-a+r*math.cos(t),r*math.sin(t))
+                place(-a+r*math.cos(t),height(t))
                 for t in [math.pi/2+math.pi*i/16 for i in range(17)]]
-    loop=profile('Lever_FingerLoop',capsule(108.4,33.4),-4.1,4.1,raw=True)
+    loop=profile('Lever_FingerLoop',capsule(110.6,35.6,True),-4.1,4.1,raw=True)
     loop['boolean_solver']='EXACT'
     cut(loop,profile('tool',capsule(104,29),-8,8,raw=True))
     # Outer and inner edges are independent curves: the forging thickens
     # organically at the throat instead of showing intersecting tube ends.
-    outer=(M.bezier((124,5),(128,-8),(123,-28),(109,-40),10)+
-           M.bezier((109,-40),(96,-53),(64,-51),(51,-34),12)[1:]+
+    outer=(M.bezier((124,5),(130,-8),(126,-30),(111,-43),10)+
+           M.bezier((111,-43),(96,-58.8),(62,-56.7),(49,-35),12)[1:]+
            M.bezier((51,-34),(44,-25),(42,-20),(35,-20),6)[1:]+
            [(35,-10),(49,-6),(58,-4)]+
            M.bezier((58,-4),(62,-20),(56,-31),(72,-38),8)[1:]+

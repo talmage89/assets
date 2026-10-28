@@ -43,10 +43,26 @@ def measure(arm):
         assert p is not None,(origin,direction)
         return p
     ends=[hit(s*long) for s in (-1,1)];sides=[hit(s*short) for s in (-1,1)]
-    outside=hit(-short,center+short*.030)
+    outside=hit(short,center-short*.030)
     length=(ends[1]-ends[0]).length;width=(sides[1]-sides[0]).length
-    bar=(outside-sides[1]).length
-    assert .101<length<.106 and .027<width<.031 and .0018<bar<.0027,(length,width,bar)
+    bar=(outside-sides[0]).length
+    assert .101<length<.106 and .027<width<.031 and .0030<bar<.0036,(length,width,bar)
+    bow_outer=tree.ray_cast(Vector((0,.085,-.10)),Vector((0,0,1)),.10)[0]
+    bow_inner=tree.ray_cast(Vector((0,.085,-.020)),Vector((0,0,-1)),.10)[0]
+    assert bow_outer is not None and bow_inner is not None
+    bow_depth=bow_inner.z-bow_outer.z
+    assert .012<bow_depth<.016,('Full side-depth forging at the bow',bow_depth)
+    rear=motion.surface(bpy.data.objects['Rear_Buckhorn'])
+    notch_origin=Vector((0,.283,.066))
+    notch=[rear['tree'].ray_cast(notch_origin,Vector((s,0,0)),.02)[0] for s in (-1,1)]
+    floor=rear['tree'].ray_cast(notch_origin,Vector((0,0,-1)),.02)[0]
+    shoulder=rear['tree'].ray_cast(Vector((.0025,.283,.080)),Vector((0,0,-1)),.03)[0]
+    assert all(p is not None for p in notch+[floor,shoulder])
+    sight=dict(height_mm=(rear['hi'].z-rear['lo'].z)*1000,thickness_mm=(rear['hi'].y-rear['lo'].y)*1000,
+      ear_rise_mm=(rear['hi'].z-shoulder.z)*1000,notch_width_mm=(notch[1].x-notch[0].x)*1000,
+      notch_depth_mm=(shoulder.z-floor.z)*1000)
+    assert 8.8<sight['height_mm']<9.2 and 1<sight['thickness_mm']<1.2
+    assert 1.9<sight['ear_rise_mm']<2.4 and 1.4<sight['notch_width_mm']<1.8
     samples=[]
     for frame in (0,13.2258064516,36):
         W.pose(arm,'Cycle',frame)
@@ -88,10 +104,11 @@ def measure(arm):
             thickness=walnut.y-metal.y
             assert .0015<thickness<.005,(x,z,'Wood must remain behind curved steel',thickness)
             cover.append(dict(x_mm=x*1000,z_mm=z*1000,steel_before_wood_mm=thickness*1000))
-    return dict(passed=True,tangs=tongues,tang_screw_radial_wood_clearance_mm=screw_gap*1000,
+    return dict(passed=True,rear_sight=sight,tangs=tongues,tang_screw_radial_wood_clearance_mm=screw_gap*1000,
         butt_plate_cover=cover,hammer_cocked_table_angle_degrees=table_angle,
         lever_inside_length_mm=length*1000,
         lever_inside_width_mm=width*1000,lever_bar_depth_mm=bar*1000,
+        lever_bow_depth_mm=bow_depth*1000,
         lever_transverse_section_mm=(max(p.x for p in points)-min(p.x for p in points))*1000,
         lever_stroke=samples)
 

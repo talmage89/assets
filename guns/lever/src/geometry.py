@@ -11,6 +11,7 @@ from kit import model as M
 
 PARTS = []
 HIGH = {}
+NORMAL_HIGH = {}
 MAT = {}
 
 

@@ -36,8 +36,30 @@ def finish_normals(ob):
                 normals[i]=__import__('mathutils').Vector((1 if f.normal.x>0 else -1,0,0))
             if ob.name=='Upper_Tang' and abs(f.normal.z)>.995:
                 normals[i]=__import__('mathutils').Vector((0,0,1 if f.normal.z>0 else -1))
+            if ob.name=='Rear_Buckhorn' and abs(f.normal.y)>.999:
+                normals[i]=__import__('mathutils').Vector((0,1 if f.normal.y>0 else -1,0))
             if normals[i].dot(f.normal)<.08:normals[i]=f.normal.copy()
     ob.data.normals_split_custom_set(normals)
+
+
+def repair_float_normals(ob):
+    """Check the actual meter-space triangle winding after float conversion.
+
+    A nanometer-wide Boolean sliver can change its normal after millimeter
+    scaling. Do not let an old split normal point through that actual face.
+    """
+    from mathutils import Vector
+    normals=[row.vector.copy() for row in ob.data.corner_normals];count=0
+    for face in ob.data.polygons:
+        if len(face.vertices)!=3:continue
+        a,b,c=[ob.data.vertices[i].co for i in face.vertices]
+        actual=(b-a).cross(c-a)
+        if actual.length<1e-15:continue
+        actual.normalize()
+        for i in face.loop_indices:
+            if normals[i].dot(actual)<.08:normals[i]=actual.copy();count+=1
+    if count:ob.data.normals_split_custom_set(normals)
+    return count
 
 
 def finish(ob):
@@ -45,6 +67,23 @@ def finish(ob):
     if ob.name in ('Upper_Tang','Stock'):tri.ngon_method='CLIP'
     M.apply(ob);finish_normals(ob)
     ob.data.transform(Matrix.Scale(.001,4));ob.matrix_world=Matrix.Identity(4)
+    repair_float_normals(ob)
+
+
+def transfer_carved_normals(target, reference, mapping):
+    # M.apply evaluates and clears the whole modifier stack. Retain the rigid
+    # binding when this also runs on the already-rigged dense stock source.
+    bindings=[(m.name,m.object) for m in target.modifiers if m.type=='ARMATURE']
+    for modifier in list(target.modifiers):
+        if modifier.type=='ARMATURE':target.modifiers.remove(modifier)
+    high=bpy.data.objects.new('Dense normal reference',reference);bpy.context.collection.objects.link(high)
+    M.smooth(high,42)
+    mod=target.modifiers.new('Carved source normal field','DATA_TRANSFER');mod.object=high
+    mod.use_loop_data=True;mod.data_types_loops={'CUSTOM_NORMAL'}
+    mod.loop_mapping=mapping;mod.use_max_distance=True;mod.max_distance=.8
+    M.apply(target);bpy.data.objects.remove(high,do_unlink=True)
+    for name,armature in bindings:
+        modifier=target.modifiers.new(name,'ARMATURE');modifier.object=armature
 
 
 def sculpt_normals():
@@ -53,12 +92,8 @@ def sculpt_normals():
     # making the compound walnut read as a collection of flat shaded patches.
     for name in ('Stock','Forend'):
         target=bpy.data.objects[name]
-        high=bpy.data.objects.new('Dense normal reference',G.HIGH[name]);bpy.context.collection.objects.link(high)
-        M.smooth(high,42)
-        mod=target.modifiers.new('Carved source normal field','DATA_TRANSFER');mod.object=high
-        mod.use_loop_data=True;mod.data_types_loops={'CUSTOM_NORMAL'}
-        mod.loop_mapping='POLYINTERP_LNORPROJ';mod.use_max_distance=True;mod.max_distance=.8
-        M.apply(target);bpy.data.objects.remove(high,do_unlink=True)
+        transfer_carved_normals(target,G.NORMAL_HIGH.get(name,G.HIGH[name]),
+            'POLYINTERP_NEAREST' if name=='Stock' else 'POLYINTERP_LNORPROJ')
 
 
 def main():
@@ -85,7 +120,10 @@ def main():
     # the later kit selected-to-active bake. This gate does not bake them.
     old={}
     for name,mesh in G.HIGH.items():
-        ob=bpy.data.objects[name];old[name]=ob.data;ob.data=mesh;finish_normals(ob);mesh.transform(Matrix.Scale(.001,4))
+        ob=bpy.data.objects[name];old[name]=ob.data;ob.data=mesh
+        if name=='Stock':transfer_carved_normals(ob,G.NORMAL_HIGH[name],'POLYINTERP_NEAREST')
+        mesh=ob.data
+        finish_normals(ob);mesh.transform(Matrix.Scale(.001,4))
         ob.vertex_groups.clear();vg=ob.vertex_groups.new(name=ob['bone']);vg.add(list(range(len(mesh.vertices))),1,'REPLACE')
     bpy.ops.wm.save_as_mainfile(filepath=str(out.parent/'sculpt.blend'))
     for name,mesh in old.items():
