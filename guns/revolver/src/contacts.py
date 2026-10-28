@@ -51,11 +51,14 @@ def measure(arm):
   # same ray reaches the opposing counterbore face on the cylinder.
   from parameters import chamber
   x,y,z=chamber(i);t=math.pi/2+i*math.tau/6
-  origin=Vector(((x+5.3*math.cos(t))*.001,.0378,(z+5.3*math.sin(t))*.001))
+  origin=Vector(((x+5.3*math.cos(t))*.001,.0392,(z+5.3*math.sin(t))*.001))
   rim=ray(case,origin,(0,1,0),.003);seat=ray(cylinder,origin,(0,1,0),.003)
   distance=(rim[0]-seat[0]).length
   assert rim[1].y>.85 and seat[1].y<-.85 and distance<.0001,(i,rim,seat)
-  rows.append(dict(kind='opposing rim / counterbore faces',chamber=i,rim=list(rim[0]),seat=list(seat[0]),gap_m=distance,passed=True))
+  rear=min(p.y for p in cylinder['points']);depth=seat[0].y-rear
+  flush=min(p.y for p in case['points'])-rear
+  assert .0013<depth<.0015 and abs(flush)<.0001,(i,depth,flush)
+  rows.append(dict(kind='opposing rim / counterbore faces',chamber=i,rim=list(rim[0]),seat=list(seat[0]),gap_m=distance,counterbore_depth_m=depth,case_head_flush_error_m=flush,passed=True))
  contact('Crane_Yoke','Crane_ClosedSeat',.00020,'closed crane heel against frame seat')
  contact('Latch_CenterPin','Extractor_LatchHub',.00015,'center latch pin shoulder on star hub')
  contact('Hammer_Body','Hammer_RestSeat',.0007,'hammer against rest seat')

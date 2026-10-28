@@ -27,7 +27,7 @@ OPEN=-80
 EYE=(0,-622,83)
 def chamber(i):
  t=math.pi/2+i*math.tau/6
- return (PITCH*math.cos(t),REAR-1.4,CY+PITCH*math.sin(t))
+ return (round(PITCH*math.cos(t),6),REAR,round(CY+PITCH*math.sin(t),6))
 HEADS={'Root':(0,0,0),'Crane':CRANE,'Cylinder':(0,REAR,CY),
  'Extractor':(0,REAR,CY),'Trigger':(0,31,23),'Hammer':(0,10,48),
  'CylinderStop':(4.7,37,24),'Latch':(-9,23,53),'LatchPin':(0,33,CY),

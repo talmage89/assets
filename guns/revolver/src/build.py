@@ -38,14 +38,15 @@ def reg(ob,bone='Root',radius=0,segments=3):
  clean(ob)
  if radius:
   M.bevel(ob,radius,segments)
-  if ob.name=='Frame_Forging':
+  if ob.name in ('Frame_Forging','Cylinder_Fluted'):
    # Weight only resolved cutter edges. Microscopic Boolean intersections
    # otherwise clamp the entire modifier to zero or make overlapping miters.
    bm=bmesh.new();bm.from_mesh(ob.data)
    weights=bm.edges.layers.float.new('bevel_weight_edge')
    for e in bm.edges:
     clear=min(q.calc_length() for v in e.verts for q in v.link_edges)
-    internal=any(34<v.co.y<50 and 19<v.co.z<31 and abs(v.co.x)<6.5 for v in e.verts)
+    internal=(any(34<v.co.y<50 and 19<v.co.z<31 and abs(v.co.x)<6.5 for v in e.verts)
+      if ob.name=='Frame_Forging' else any(v.co.y<41.5 for v in e.verts))
     e[weights]=1.0 if not internal and clear>.45 and e.calc_face_angle(0)>math.radians(25) else 0.0
    bm.to_mesh(ob.data);bm.free()
    ob.modifiers[-1].limit_method='WEIGHT'
@@ -149,16 +150,15 @@ def frame():
 def barrel():
  # One analytic bored skin, including the rib and full round underlug. This
  # replaces overlapping cylindrical Boolean unions and their broken seams.
- r=10.;lug=8.9;d=BORE-CY
- zi=(r*r-lug*lug-BORE*BORE+CY*CY)/(2*(CY-BORE))
- xi=math.sqrt(r*r-(zi-BORE)**2)
- a=math.atan2(math.sqrt(r*r-3.4**2),3.4);b=math.atan2(zi-BORE,xi)
- c=math.atan2(zi-CY,xi)
+ r=10.;lug=5.7;d=BORE-CY
+ # Common tangents join the barrel and lower shroud. A union of two circles
+ # leaves a pinched waist and a folded polar cap when the lower radius shrinks.
+ a=math.atan2(math.sqrt(r*r-3.4**2),3.4);b=math.asin((lug-r)/d)
  def arc(cx,cz,rr,lo,hi,n):
   return [(cx+rr*math.cos(lo+(hi-lo)*j/n),cz+rr*math.sin(lo+(hi-lo)*j/n)) for j in range(n+1)]
  outline=[(3.4,76.4),*arc(0,BORE,r,a,b,24),
-  *arc(0,CY,lug,c,-math.pi-c,48)[1:],
-  *arc(0,BORE,r,-math.pi-b,-math.pi-a,24)[1:],(-3.4,76.4)]
+  *arc(0,CY,lug,b,-math.pi-b,48),
+  *arc(0,BORE,r,-math.pi-b,-math.pi-a,24),(-3.4,76.4)]
  angles=[math.atan2(z-BORE,x) for x,z in outline]
  def circle(y,rr):return [(rr*math.cos(t),y,BORE+rr*math.sin(t)) for t in angles]
  def section(y,inset=0):
@@ -185,11 +185,11 @@ def cylinder():
  for i in range(6):
   x,y,z=chamber(i)
   # Exterior visual chamber and rim counterbore. No functional throat design.
-  cut(o,lathe('tool',[(REAR-2,0),(REAR-2,5.65),(REAR,5.65),(REAR,4.90),
+  cut(o,lathe('tool',[(REAR-2,0),(REAR-2,5.8),(REAR,5.8),(REAR+.15,5.65),(REAR+1.4,5.65),(REAR+1.4,4.90),
    (FRONT-1.0,4.90),(FRONT,4.55),(FRONT+1,4.55),(FRONT+1,0)],center=(x,z),n=32,register=False))
-  t=math.pi/2+i*math.tau/6
+  t=math.pi/2+math.pi/6+i*math.tau/6
   # Six long scallops have round ends and a shallow concave mill section.
-  fx,fz=25.0*math.cos(t),CY+25.0*math.sin(t)
+  fx,fz=round(25.0*math.cos(t),6),round(CY+25.0*math.sin(t),6)
   flute=lathe('tool',[(REAR+10,0),(REAR+11,3.0),(REAR+14,7.1),
    (FRONT-5,7.1),(FRONT-2,3),(FRONT-1.5,0)],center=(fx,fz),n=32,register=False)
   cut(o,flute)
@@ -201,17 +201,17 @@ def cylinder():
     (-1.4,CY-RADIUS+.9),(-4.8,CY-RADIUS+.10)],42.0,48.0,axis='Y',register=False)
   tool.data.transform(xf);cut(o,tool)
  seat=[(x*1.012,CY+(z-CY)*1.012) for x,z in star_points]
- cut(o,profile('tool',seat,REAR-.2,REAR+1.55,axis='Y',register=False))
+ cut(o,profile('tool',seat,REAR-.2,REAR+2.95,axis='Y',register=False))
  reg(o,'Cylinder',.16,segments=2);reduce(o,9300)
  # Star has genuine scalloped arms around the rims. Its seat is a separate
  # shallow web on the rear face; six open sectors preserve chamber visibility.
- star=profile('Extractor_Star',star_points,REAR,REAR+1.4,'steel','Extractor',axis='Y',register=False)
+ star=profile('Extractor_Star',star_points,REAR+1.4,REAR+2.8,'steel','Extractor',axis='Y',register=False)
  for i in range(6):
   x,_,z=chamber(i)
-  cut(star,lathe('tool',[(37,0),(37,5.1),(41,5.1),(41,0)],center=(x,z),n=32,register=False))
- cut(star,lathe('tool',[(35,0),(35,1.75),(41,1.75),(41,0)],center=(0,CY),n=24,register=False))
+  cut(star,lathe('tool',[(37,0),(37,5.1),(42,5.1),(42,0)],center=(x,z),n=32,register=False))
+ cut(star,lathe('tool',[(35,0),(35,1.75),(42,1.75),(42,0)],center=(0,CY),n=24,register=False))
  reg(star,'Extractor',.10,2)
- lathe('Extractor_LatchHub',[(35.65,1.75),(35.65,3.1),(38.2,3.1),(38.2,1.75)],
+ lathe('Extractor_LatchHub',[(35.65,1.75),(35.65,3.1),(39.6,3.1),(39.6,1.75)],
        'steel','Extractor',center=(0,CY),n=32,closed=True)
  lathe('Extractor_Rod',[(REAR-1.2,0),(REAR-1.2,1.5),(145,1.5),(146,1.3),(146,0)],
        'steel','Extractor',center=(0,CY),n=24)
@@ -339,7 +339,7 @@ def ammunition():
   'dark','LoaderRelease',center=(0,CY),n=36)
  for i in range(6):
   x,_,z=chamber(i)
-  lathe('Speedloader_RimClip'+str(i),[(34.7,3.5),(34.7,4.1),(36.6,4.1),(36.6,3.5)],
+  lathe('Speedloader_RimClip'+str(i),[(34.7,3.5),(34.7,4.1),(38.0,4.1),(38.0,3.5)],
    'steel','LoaderBody',center=(x,z),n=16,closed=True)
 def finalize(o):
  tri=o.modifiers.new('Final triangles','TRIANGULATE');tri.keep_custom_normals=True;M.apply(o)
