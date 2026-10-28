@@ -4,6 +4,18 @@ Viewed 2026-10-28. Images and PDFs are comparison/measurement references only.
 No photograph enters a material, bake, mesh generator or committed image.
 The make fetcher downloads only the image/PDF URLs in this table.
 
+Round-two measurement annotations use the same registered photographs.
+`src/reference_measurements.py` records native endpoints, estimated camera-plane
+lengths and the pivot/belly/throat measurements of the open lever. These are
+comparison-only estimates, never mesh inputs. The open photograph recovers an
+approximately 105 × 32 mm opening and 2.1 mm side depth; the closed oblique
+photograph recovers a smaller opening. The photos do not establish an
+identical lever, and their underdetermined perspective prevents treating them
+as a single manufacturing drawing. The
+open view controls the longer original loop; the closed discrepancy remains
+explicit in REVIEW.md. Transverse 8.2 mm bar width and 1.0 mm hammer checkering
+are authored class estimates, not published manufacturer measurements.
+
 | Local file | Direct image or PDF URL | Author / license | Use and limitation |
 | --- | --- | --- | --- |
 | right.jpg | https://upload.wikimedia.org/wikipedia/commons/4/48/Winchester_Mod_1894.jpg | Hmaag; CC0 | Lower 20-inch carbine, right-side proportions, straight grip, band layout. Upper long rifle excluded from calibration. |

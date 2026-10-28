@@ -23,7 +23,10 @@ SHOTS={
  'raking_left':shot((-.60,-.35,.23),(0,.10,.01),62,2.1,action='Idle',frame=0,raking=True),
  'open':shot((.29,.31,.25),(0,.116,.018),65,1.5,action='Cycle',frame=36),
  'open_left':shot((-.32,.27,.20),(0,.118,.004),65,1.5,action='Cycle',frame=36),
- 'lever_open':shot((.56,.18,.22),(0,.105,-.06),60,1.7,action='Cycle',frame=36),
+ 'lever_open':shot((.64,.18,.22),(0,.105,-.075),60,1.15,action='Cycle',frame=36),
+ 'lever_rest_ortho':shot((1.8,.065,-.072),(0,.065,-.072),ortho=.36,aspect=1.1,action='Cycle',frame=0),
+ 'lever_mid_ortho':shot((1.8,.065,-.072),(0,.065,-.072),ortho=.36,aspect=1.1,action='Cycle',frame=13.2258064516),
+ 'lever_open_ortho':shot((1.8,.065,-.072),(0,.065,-.072),ortho=.36,aspect=1.1,action='Cycle',frame=36),
  'hammer':shot((.18,-.10,.16),(0,.060,.038),78,1.45,action='Idle',frame=0),
  'trigger':shot((.21,.074,-.013),(0,.076,-.012),78,1.5,action='Idle',frame=0),
  'trigger_quarter_view':shot((.18,.0,.07),(0,.079,-.012),78,1.5,action='Idle',frame=0),
@@ -31,6 +34,10 @@ SHOTS={
  'front_sight':shot((.12,.59,.12),(0,.686,.060),85,1.5,action='Idle',frame=0),
  'stock':shot((.40,-.40,.18),(0,-.12,-.02),72,1.7,action='Idle',frame=0),
  'butt_plate':shot((-.16,-.44,.045),(0,-.254,-.050),75,1.4,action='Idle',frame=0),
+ 'butt_plate_profile':shot((.8,-.245,-.050),(0,-.245,-.050),ortho=.145,aspect=1.1,action='Idle',frame=0),
+ 'wrist_under':shot((.14,-.04,-.17),(0,.006,.003),78,1.5,action='Idle',frame=0),
+ 'receiver_raking_right':shot((.34,-.08,.12),(0,.121,.028),70,1.8,action='Idle',frame=0,raking=True),
+ 'receiver_raking_left':shot((-.34,-.08,.12),(0,.121,.028),70,1.8,action='Idle',frame=0,raking=True),
  'forend':shot((.32,.46,.17),(0,.31,.021),70,1.8,action='Idle',frame=0),
  'gate_open':shot((.28,.16,.10),(0,.143,.02),68,1.7,action='Reload',frame=42),
  'aimed':shot((0,-.085,.066),(0,.69,.066),36/(2*__import__('math').tan(__import__('math').radians(35))),1.6,
@@ -41,7 +48,7 @@ SHOTS={
  'headstamp':shot((.008,-.07,.004),(0,0,0),85,1.4,exposure=-1.8,background='transparent'),
 }
 DEFAULT_SHOTS=','.join(n for n in SHOTS if n not in ('cartridge','case','mouth','headstamp'))
-PHOTO_POSES={n:dict(action='Idle',frame=0) for n in ('right_photo','left_photo','trigger_right','trigger_quarter')}
+PHOTO_POSES={n:dict(action='Idle',frame=0) for n in ('right_photo','left_photo','trigger_right','trigger_quarter','hammer_photo')}
 PHOTO_POSES['open_photo']=dict(action='Cycle',frame=36)
 STRIP_SHOT=shot((1.50,-.30,.58),(0,.22,-.03),55,1.6,exposure=.8)
 if os.environ.get('PD_LEVER_DETAIL_STRIP')=='1':

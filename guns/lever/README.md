@@ -15,6 +15,9 @@ Generated inspection files stay ignored. Start with
 `renders/checkpoint/contact-sheet.jpg`, `dimensions.jpg`, `sections.jpg`,
 `regions.jpg`, `photo-pairs.jpg`, `source-pairs.jpg`, `clips.jpg` and
 `clips-detail.jpg`.
+Round-two evidence adds `lever-stroke.jpg`, `hammer-trigger-pairs.jpg`,
+`aimed-pixels.jpg`, three orthographic lever poses, a butt-plate profile,
+an underside wrist view and close raking views of both receiver flanks.
 `renders/checkpoint/views/` contains native stills; `pairs/` and `source-pairs/`
 contain calibrated exported/dense comparisons; `strips/` contains each clip's
 frame strip and real-duration animated WebP. `detail-strips/` adds eleven
@@ -27,12 +30,12 @@ image critiques, region acceptance and remaining differences.
 | --- | --- | --- |
 | Barrel, breech face to crown | 508.00 mm / 20 in | Published carbine class; actual mesh bounds |
 | Overall length | 965.20 mm / 38 in | Published class and independent Smithsonian measurement |
-| Length of pull at finger-height face | About 340.18 mm | Actual trigger/butt surface rays; original stock, about 3 mm shorter than published 13.5-inch class |
-| Closed gun width / height | About 42.54 / 183.92 mm | Evaluated visible mesh bounds |
+| Length of pull at finger-height face | About 340.74 mm | Actual trigger/butt surface rays; original stock, about 3 mm shorter than published 13.5-inch class |
+| Closed gun width / height | About 42.55 / 183.76 mm | Evaluated visible mesh bounds |
 | Capacity | Six in tube, one chambered | Explicit individual rounds, follower and count states |
 | Cartridge case / overall length | 51.80 / 64.77 mm | Published C.I.P. external envelope |
 | Cartridge rim / body / neck diameter | 12.85 / 10.71 / 8.38 mm | C.I.P.; exterior-only visual geometry |
-| Eye behind rear sight / above actual comb | 368.00 / 39.05 mm | Authored ergonomic placement, measured again on actual surfaces |
+| Eye behind rear sight / above actual comb | 368.00 / 39.02 mm | Authored ergonomic placement, measured again on actual surfaces |
 | Notch width | 3.60 mm | Original sight geometry |
 | Target mass | About 3.1 kg | Class planning target; **not a measured mass** |
 
@@ -63,9 +66,11 @@ No reference pixel is used in modeling, a material or a texture.
 The stock and forend are changing compound subdivision cages, with independent
 width, belly, comb, toe and channel curvature. Dense originals live in
 `build/sculpt.blend`; their reduced game copies receive the same machined
-inlets. A nearly flush wrist tongue has a buried fork joining both receiver
-cheeks below the bolt race, plus a slotted stock-retention screw. Actual section cuts compare both at three wrist, two butt and three
-forend stations. The mild crescent plate has curved faces across its entire
+inlets. Flush upper/lower tongues follow the wood's actual surface; a buried
+fork joins both receiver cheeks below the bolt race. The slotted retention
+screw has a continuous shank through bores in both tangs and the wrist.
+Actual section cuts compare both at three wrist, three butt and three
+forend stations. The crescent plate has curved faces across its entire
 surface, seated on the wooden butt, with its shoulder socket on that surface.
 
 The receiver is hollow, with rounded machined corners, top opening, bottom
@@ -75,11 +80,12 @@ magazine is a hollow tube. Both 1.3 mm-gauge bands are fitted to section cuts of
 our actual wood/barrel/tube surfaces. The sights have a barrel dovetail, spring
 leaf, separate stepped elevator and supported front ramp/blade/bead.
 
-The lever uses rounded rectangular forged sections with separate trigger and
-finger openings. It pivots on a dropping link with an actual pin/bore bearing.
-The hammer is a rounded volumetric union with a broad thumb pad; original
-crossed cuts remain in its dense source for the eventual normal bake. The
-trigger is a broad radiused blade: its front concavity faces the muzzle and its
+The lever is one continuous forging, with a sweeping web and a long,
+straight-sided finger opening. Its measured opening is 104 × 29 mm; its
+bar is 2.2 × 8.2 mm. It pivots on a dropping link with a real pin/bore bearing.
+The curved hammer body and returning spur carry a crowned thumb table with
+1.0 mm checkering in the inspection mesh. The
+trigger is a 6 mm wide, 3.7 mm deep radiused blade: its front concavity faces the muzzle and its
 toe returns forward. It is checked against sharp side and oblique photographs.
 
 The bolt, forked locking-block display, cradle carrier, sear support and feed
@@ -130,11 +136,11 @@ the standalone. See the supplement for ownership and interruption details.
 
 | Output | Triangles | Constant materials | GLB bytes |
 | --- | ---: | ---: | ---: |
-| Gun, including every ammunition display and hidden tube slot | 39,768 | 7 | 2,649,528 |
-| Standalone live cartridge | 1,598 | 5 | 58,656 |
-| Standalone fired case | 1,326 | 3 | 47,052 |
+| Gun, including every ammunition display and hidden tube slot | 39,926 | 7 | 2,856,292 |
+| Standalone live cartridge | 1,598 | 5 | 61,728 |
+| Standalone fired case | 1,326 | 3 | 50,124 |
 
-The gun is inside the brief's 30–40k ceiling. Its 118 named inspection meshes
+The gun is inside the brief's 30–40k ceiling. Its 116 named inspection meshes
 remain separate for surface audits; this is not the final draw-call layout.
 There are **zero texture images** at this gate. The final one-atlas target and
 its memory budget remain unchanged. The same static exterior generated twice
@@ -170,7 +176,7 @@ the outer tang bearing lands, and each connected tang component must reach the
 receiver. The sculpted wood also transfers its smooth normal field directly
 to the reduced vertices; this adds no textures or triangles. Raw GLB normal
 seams duplicate corner vertices, so the imported geometry record lists their
-unwelded edges. `build/topology.json` separately proves all 118 geometric solids
+unwelded edges. `build/topology.json` separately proves all 116 geometric solids
 closed after check-only welding at 0.01 micrometers; the delivered normals and
 meshes are untouched.
 
@@ -190,6 +196,8 @@ forend edges; and darker hand oil around the wrist. Walnut fiber must curve
 with its carved volume. Each effect will be judged on a white-balanced used
 reference pair of the baked export at hero scale before final acceptance.
 
-No kit code or existing gun/common module is changed. New common files are
-`ammo_3030.py` (original exterior cartridge/case generator) and
-`interface_v1_5.py` (additive capability/binding validation).
+No kit code or other gun is changed in round two. The shared .30-30 generator
+`ammo_3030.py` now assigns independent analytic normals to the straight body,
+shoulder and neck, removing the false dent-like highlight without adding faces.
+`interface_v1_5.py` and the accepted bone/clip data are unchanged. Only the butt
+socket's position follows the revised plate, as documented in the supplement.

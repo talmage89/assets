@@ -37,8 +37,9 @@ def section_sheet(data):
         d.text((x+15,y+10),row['region']+' / Y %g mm'%row['station_mm'],font=font(21),fill=(20,25,30))
         points=[p for lines in row['parts'].values() for line in lines for p in line]
         lo=[min(p[k] for p in points) for k in (0,1)];hi=[max(p[k] for p in points) for k in (0,1)]
-        scale=min(410/max(hi[0]-lo[0],1),295/max(hi[1]-lo[1],1));cx=(hi[0]+lo[0])/2;cz=(hi[1]+lo[1])/2
-        def xy(p):return x+300+(p[0]-cx)*scale,y+210-(p[1]-cz)*scale
+        scale=min(410/max(hi[0]-lo[0],1),270/max(hi[1]-lo[1],1));cx=(hi[0]+lo[0])/2;cz=(hi[1]+lo[1])/2
+        def xy(p):return x+300+(p[0]-cx)*scale,y+225-(p[1]-cz)*scale
+        for a,b in row.get('uninletted_wood',[]):d.line((*xy(a),*xy(b)),fill=(170,170,160),width=4)
         # Dense source in red under the actual game cuts, exposing reduction loss.
         high=data['sculpt'][i]
         for lines in high['parts'].values():
@@ -49,6 +50,7 @@ def section_sheet(data):
         d.line((a,y+378,b,y+378),fill='black',width=2)
         d.text((x+25,y+393),'%.2f mm wide × %.2f mm high'%(row['width_mm'],row['height_mm']),font=font(18),fill='black')
         d.text((x+22,y+43),'Game outline / dense source in pale red',font=font(15),fill=(80,60,55))
+        if row.get('uninletted_wood'):d.text((x+22,y+63),'Gray: measured wood before inletting',font=font(14),fill=(95,95,85))
     im.save(OUT/'sections.jpg',quality=94,optimize=True)
 
 
@@ -63,6 +65,25 @@ def dimensions(data):
             'Measured width %.2f mm / height %.2f mm'%(size[0]*1000,size[2]*1000)]
     for i,label in enumerate(labels):d.text((30,i*450+405),label,font=font(24),fill=(20,30,40))
     im.save(OUT/'dimensions.jpg',quality=94,optimize=True)
+
+
+def sight_pixels():
+    path=OUT/'views/aimed.png';native=Image.open(path).convert('RGB')
+    cx,cy=native.width//2,native.height//2
+    rect=(cx-55,cy-42,cx+55,cy+42)
+    crop=native.crop(rect)
+    crop.save(OUT/'aimed-native-crop.png')
+    # Integer nearest-neighbor enlargement: every source pixel is an 8x8
+    # square. No rerender, sharpening or changed camera/sight alignment.
+    zoom=crop.resize((crop.width*8,crop.height*8),Image.Resampling.NEAREST)
+    result=Image.new('RGB',(zoom.width,zoom.height+86),(236,236,232));d=ImageDraw.Draw(result)
+    d.text((14,10),'Exact Socket_Eye / native pixels enlarged 8×',font=font(21),fill='black')
+    d.text((14,43),'70° horizontal FOV; crop %s from %d × %d'% (str(rect),native.width,native.height),font=font(17),fill='black')
+    result.paste(zoom,(0,86));result.save(OUT/'aimed-pixels.jpg',quality=97,optimize=True)
+    result.save(OUT/'aimed-pixels.png')
+    (BASE/'build/aimed-crop.json').write_text(json.dumps(dict(source=str(path.relative_to(BASE)),
+        source_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),rectangle=rect,integer_scale=8,
+        filter='NEAREST',changed_camera=False),indent=2))
 
 
 def provenance():
@@ -102,6 +123,13 @@ def main():
     sheet([(p.stem+' / dense source',p) for p in sorted((OUT/'source-pairs').glob('*-pair.jpg'))],OUT/'source-pairs.jpg',columns=1,width=1800,height=550)
     section_sheet(json.loads((BASE/'build/sections.json').read_text()))
     dimensions(json.loads((BASE/'build/check.json').read_text()))
+    sight_pixels()
+    sheet([(n,OUT/'views'/(n+'.png')) for n in ('lever_rest_ortho','lever_mid_ortho','lever_open_ortho')],
+          OUT/'lever-stroke.jpg',columns=3,height=650)
+    sheet([(n,OUT/'pairs'/(n+'-pair.jpg')) for n in ('hammer_photo','trigger_right','trigger_quarter')],
+          OUT/'hammer-trigger-pairs.jpg',columns=1,width=2000,height=650)
+    sheet([(n,OUT/'views'/(n+'.png')) for n in ('receiver_raking_right','receiver_raking_left')],
+          OUT/'raking.jpg',columns=2,height=600)
     timing=json.loads((OUT/'strips/timing.json').read_text())
     sheet([(n,OUT/'strips'/(n+'.jpg')) for n in timing],OUT/'clips.jpg',columns=4,width=2000,height=260)
     detail=json.loads((OUT/'detail-strips/timing.json').read_text())

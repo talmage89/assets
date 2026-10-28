@@ -22,7 +22,7 @@ def extract(ob,y):
 def main():
     base=Path(__file__).resolve().parents[1];results={}
     definitions=[('Wrist',[-35,-5,25],['Stock','Upper_Tang','Lower_Tang']),
-        ('Butt',[-220,-150],['Stock']),('Forend',[250,330,430],['Forend','Magazine_Tube','Barrel']),
+        ('Butt',[-240,-200,-150],['Stock']),('Forend',[250,330,430],['Forend','Magazine_Tube','Barrel']),
         ('Receiver at gate',[148],['Receiver','Loading_Gate','Bolt_Body','Carrier_Cradle']),
         ('Band seats',[432,667],['Forend_Band','Muzzle_Band','Barrel','Magazine_Tube','Forend'])]
     for stage in ('lever','sculpt'):
@@ -35,6 +35,7 @@ def main():
                 rows.append(dict(region=region,station_mm=y,parts=outlines,
                     width_mm=max(p[0] for p in flat)-min(p[0] for p in flat),
                     height_mm=max(p[1] for p in flat)-min(p[1] for p in flat)))
+                if region=='Wrist':rows[-1]['uninletted_wood']=json.loads(bpy.data.objects['Stock']['uninletted_sections_mm'])[str(y)]
         results[stage]=rows
     (base/'build/sections.json').write_text(json.dumps(results,indent=2))
     print('SECTION CUTS',len(results['lever']),'game and dense-source stations')

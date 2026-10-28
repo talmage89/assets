@@ -27,9 +27,9 @@ MATCHES={
         L((0,690,66),(86,97)),L((-18,447,21),(424,134)),
     ]),
  'open_photo':match('receiver',(225,45,880,744),'Open action: lower link, carrier and lever',
-    (-.30,.10,.22),(0,.13,-.025),70,[
+    (-3.0,.10,2.8),(0,.13,-.025),650,[
         L((-15.1,205,48),(250,113),2),L((-15.4,65,29),(664,167),2),
-        L((-15.75,185,5),(309,204)),L((-15.75,70,0),(649,227)),
+        L((-15.75,185,5),(309,204)),L((-15.75,70,3.8),(649,227)),
         L((-10.6,200,56),(268,76)),L((-10.6,72,56),(648,93)),
     ]),
  'trigger_right':match('receiver',(390,180,740,445),'Trigger left side: concavity toward photographed muzzle',
@@ -38,8 +38,24 @@ MATCHES={
         L((-15.75,185,5),(309,204)),L((-15.75,74,15),(646,181)),
     ]),
  'trigger_quarter':match('open',(420,250,1010,520),'Trigger oblique: broad blade, angle/scale estimated',
-    (-.27,-.06,.15),(0,.08,-.01),90,[
-        L((-15.4,65,0),(680,325)),L((-15.75,140,0),(485,287)),
-        L((-15.75,185,5),(365,257)),L((-15.75,74,15),(648,281)),
+    (-1.4,-.3,.55),(0,.08,.02),150,[
+        L((-15.4,65,4),(448,323)),L((-15.75,70,56),(424,193)),
+        L((-10.6,72,56),(414,158)),L((-10.6,195,56),(5,143)),
+        L((-15.75,156,-.5),(174,320)),
     ]),
 }
+
+# The previous oblique fit mislabeled wood points as receiver corners. These
+# native corners belong to the action. Use one action fit for both close-ups.
+MATCHES['trigger_quarter']['crop']=(300,275,785,490)
+MATCHES['trigger_quarter']['lens_bounds_mm']=(45,400)
+MATCHES['hammer_photo']=dict(MATCHES['trigger_quarter'],crop=(350,115,630,280),
+    title='Hammer: curved body, returning spur and fine thumb checkering')
+MATCHES['hammer_photo'].update(lens=380,lens_bounds_mm=(80,900),target=(0,.052,.05))
+MATCHES['lever_rest_photo']=dict(MATCHES['trigger_quarter'],crop=(290,300,790,495),
+    title='Lever at rest: continuous forging and long finger opening')
+MATCHES['open_photo']['lens_bounds_mm']=(80,1400)
+# Coplanar receiver landmarks cannot recover perspective distance. A distant
+# camera is the weak-perspective comparison assumption; it avoids inventing
+# extreme near-camera shortening of the loop below the calibration landmarks.
+# Neither this assumption nor the fitted focal length is recovered EXIF.
