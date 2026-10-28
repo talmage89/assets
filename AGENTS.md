@@ -170,6 +170,11 @@ An asset is finished when all of these hold, with proof in your report:
   straight lines through the air (real ones have their true thickness, run along the frame under clips and hang in
   slack loops), fabric drawn as rigid panels (real fabric sags and creases between its supports, as canopies and
   bags do), and thin rods drawn as wires (measure their diameter).
+  Molded, cast and carved parts (polymer frames, castings, gun stocks) have compound curvature: build their
+  high-detail source as a sculpted form (a subdivision cage with support loops, or a smooth union of rounded shapes,
+  remeshed) and bake it onto the game mesh, rather than extruding a side profile and beveling its edges. An extruded
+  profile can meet every dimension in the side view and still read as a cutout: check these parts in section cuts at
+  several stations and in a three-quarter view under raking light.
 - **Weather from causes.** Drive wear, dirt, grease, rust and heat with physically motivated masks (cavity, edges,
   gravity and drips, height, exposure, heat sources, where hands touch), never uniform noise or round blobs. Match
   the age the brief asks for; clean CG surfaces are the second most common failure. The default wear level is a
