@@ -81,6 +81,13 @@ bead. The checkpoint uses 70° horizontal FOV, zero shift and a gray surround;
 no gun part is hidden. Rear-sight/bead alignment and eye/comb height are measured
 from actual surfaces separately from serialization checks.
 
+Form round two retains every bone frame, clip key, event and socket orientation.
+`Socket_Butt` alone follows the revised curved steel shoulder surface:
+Blender **(0, −249.2064, −50) mm**, 4.2936 mm forward of its previous seat.
+Its meaning remains the shoulder-contact reference. The operating-hand frame
+and exact Eye frame are unchanged. The lever stays in the gun's mid-plane;
+half-frame source/import sweeps also assert its transformed X normal and center.
+
 The checkpoint GLB preserves named rigid parts for independent imported-surface
 audits. Final delivery, after form acceptance, uses the kit's atlas finalizer,
 baker and animated skin exporter, one 2048 BaseColor / OpenGL Normal / ORM set,

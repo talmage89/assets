@@ -1,6 +1,8 @@
 """Carved walnut, machined receiver, barrel, bands and open iron sights."""
 import math
+import json
 import bpy
+import bmesh
 from mathutils import Vector
 from kit import model as M
 import geometry as G
@@ -8,24 +10,49 @@ from geometry import MAT, reg, box, profile, lathe, cut, cutbox, screw
 from dimensions import BORE, BREECH, MUZZLE, TUBE
 
 
+RECEIVER_ROWS=[(65,15.4,4.0,50),(66,15.6,4.0,53),(70,15.75,3.8,56),
+          (90,15.75,3.8,56),(112,15.75,3.8,56),(117,15.75,3.0,56),
+          (124,15.75,0,56),(131,15.75,-.5,56),(166,15.75,-.5,56),
+          (179,15.75,0,56),(185,15.75,3,56),(190,15.75,6.8,56),
+          (193,15.75,8.3,59.5),(196,15.75,9,61.6),
+          (202,15.6,9.5,61.6),(205,15.1,10,60.7)]
+
+
+def receiver_field(point):
+    """Analytic outer forging normal; independent of irregular cut triangles."""
+    def distance(p):
+        x,y,z=p;y=max(65,min(205,y))
+        a,b=next((a,b) for a,b in zip(RECEIVER_ROWS,RECEIVER_ROWS[1:]) if a[0]<=y<=b[0])
+        t=(y-a[0])/(b[0]-a[0]);w,lo,hi=[a[k]+t*(b[k]-a[k]) for k in (1,2,3)]
+        r=2.2+5.8*max(0,min(1,(y-190)/6))
+        qx=abs(x)-(w-r);qz=abs(z-(lo+hi)/2)-((hi-lo)/2-r)
+        return math.hypot(max(qx,0),max(qz,0))+min(max(qx,qz),0)-r
+    p=Vector(point);d=distance(p);epsilon=.01;gradient=[]
+    for k in range(3):
+        a=p.copy();b=p.copy();a[k]+=epsilon;b[k]-=epsilon
+        gradient.append((distance(a)-distance(b))/(2*epsilon))
+    n=Vector(gradient)
+    return d,n.normalized() if n.length else Vector((0,0,1))
+
+
 def receiver():
-    rows=[(65,15.4,.5,50),(66,15.75,0,53),(70,15.75,-.5,56),
-          (90,15.75,-.5,56),(156,15.75,-.5,56),(185,15.75,3,56),
-          (200,15.6,7,55.5),(205,15.1,10,54.5)]
-    loops=[[(x,y,(lo+hi)/2+z) for x,z in M.rounded_rectangle(w*2,hi-lo,2.2,6)] for y,w,lo,hi in rows]
+    # Forging profile: raised rear heel, lower action belly, then a rounded
+    # front ring. The rails themselves stay level with the accepted bolt.
+    rows=RECEIVER_ROWS
+    loops=[[(x,y,(lo+hi)/2+z) for x,z in M.rounded_rectangle(w*2,hi-lo,2.2+5.8*max(0,min(1,(y-190)/6)),6)] for y,w,lo,hi in rows]
     ob=M.loft('Receiver',loops,MAT['blue'])
     # Continuous open top and lower linkage aperture; the long flat cheeks
     # have real thickness and small rolled machining corners.
-    cutbox(ob,(-10.6,33,8),(10.6,196,80),2.3)
+    cutbox(ob,(-10.6,33,8),(10.6,196,80),1.4)
     cutbox(ob,(-10.7,57,-10),(10.7,206,23),1)
     cutbox(ob,(-7.3,29,30),(7.3,85,68),1.0)
     cutbox(ob,(-10.3,28,38.8),(10.3,85,58),.7)
     cut(ob,lathe('tool',[(190,0),(190,12.7),(210,12.7),(210,0)],n=64,raw=True))
     cut(ob,lathe('tool',[(190,0),(190,10.3),(209,10.3),(209,0)],center=(0,TUBE),n=48,raw=True))
-    gate=[(y+148,z+20) for y,z in M.rounded_rectangle(53,13.6,6.3,10)]
+    gate=[(y+147.7,z+20) for y,z in M.rounded_rectangle(51.4,13.6,6.3,10)]
     cut(ob,profile('tool',gate,10,20,raw=True))
     cutbox(ob,(10.5,171,12.5),(12.2,204,27.5),.4)
-    cutbox(ob,(10.5,175,-20),(14.0,185,37),.4)
+    cutbox(ob,(10.4,174.8,-20),(14.2,185.2,37.2),.25)
     cut(ob,lathe('tool',[(14.5,0),(14.5,1.55),(25.5,1.55),(25.5,0)],axis='Z',center=(15.2,122),n=24,raw=True))
     # Side-plate screws and pins are countersunk in the actual cheeks.
     sites=[(74,15,3.15),(92,38,2.55),(148,40,2.65),(185,16,2.5)]
@@ -38,8 +65,22 @@ def receiver():
             lathe('Receiver_Pin',[(lo,0),(lo,1.25),(hi,1.25),(hi,0)],'dark',axis='X',center=(y,z),n=16)
     for y,z,r in sites:
         for side in (-1,1):screw('Receiver_Screw',(side*15.15,y,z),r,direction=side)
-    reg(ob,radius=.42,segments=2)
-    mod=ob.modifiers.new('Coplanar machining faces','DECIMATE');mod.decimate_type='DISSOLVE';mod.angle_limit=math.radians(.1);M.apply(ob)
+    # Exact overlapping machining cuts can retain coincident edge chains.
+    # Weld in millimeter space before bevel/reduction, rather than shipping
+    # thousands of zero-area triangles or allowing a decimator to stall.
+    bm=bmesh.new();bm.from_mesh(ob.data)
+    bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=.001)
+    bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=.001)
+    bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free()
+    # Broad longitudinal rolls are already in the forging's section cage.
+    # Ease only the front/rear end perimeters. Beveling every intersecting
+    # internal machining edge produced zero-area overlapping bevel ribbons.
+    weight=ob.data.attributes.new('bevel_weight_edge','FLOAT','EDGE')
+    for edge in ob.data.edges:
+        ys=[ob.data.vertices[i].co.y for i in edge.vertices]
+        weight.data[edge.index].value=float(all(abs(y-65)<.001 for y in ys) or all(abs(y-205)<.001 for y in ys))
+    bevel=ob.modifiers.new('Forging end rolls','BEVEL');bevel.limit_method='WEIGHT';bevel.width=.18;bevel.segments=2
+    M.apply(ob);reg(ob)
     G.dense(ob);G.reduce(ob,3000)
     # Real pin bore at the lever's front pivot.
     lathe('Lever_PivotPin',[(-8.5,0),(-8.5,2.65),(8.5,2.65),(8.5,0)],'dark','Link',axis='X',center=(124,-1),n=24)
@@ -117,47 +158,84 @@ STOCK=[(-254.2,20.4,-108,8),(-253.5,20.5,-108,8),
 
 
 def butt_y(y,z):
-    # Mild crescent steel plate: heel/toe project, broad middle is relieved.
+    # Shallow carbine crescent. Keep the accepted heel/toe and pull-height
+    # coordinates; the extra shoulder relief acts below finger height.
     t=max(0,min(1,(-230-y)/24.2))
-    return y+t*(3.7*(1-((z+50)/58)**2))
+    extra=5.2*math.sin(math.pi*max(0,min(1,(z+108)/91)))**2 if z < -17 else 0
+    return y+t*(3.7*(1-((z+50)/58)**2)+extra)
 
 
 def stock_section(y,w,lo,hi,n=48):
-    points=[]
-    for i in range(n):
-        a=math.tau*i/n;c,s=math.cos(a),math.sin(a)
-        t=max(0,min(1,(y-8)/50));t=t*t*(3-2*t)
-        power=2.15 if s<0 else 1.95+6.05*t
-        z=(hi+lo)/2+(hi-lo)/2*math.copysign(abs(s)**(2/power),s)
-        x=w*math.copysign(abs(c)**(2/power),c)*(1-.07*max(s,0)**4)
-        points.append((x,butt_y(y,z),z))
-    return points
+    # Broad carved flanks, rounded comb, narrower rounded toe. Four changing
+    # three-dimensional cage arcs replace the pointed ellipse. The lower
+    # side is straighter and narrower than the cheek; no profile extrusion.
+    h=hi-lo;roundness=max(0,min(1,(y+90)/80))
+    side_top=.19+.10*roundness
+    toe_width=.80+.12*roundness
+    half=(M.bezier((0,hi),(.66*w,hi),(w,hi-.045*h),(w,hi-side_top*h),12)+
+          M.bezier((w,hi-side_top*h),(w,hi-.43*h),(toe_width*w,lo+.24*h),(toe_width*w,lo+.14*h),12)[1:]+
+          M.bezier((toe_width*w,lo+.14*h),(.72*w,lo+.015*h),(.27*w,lo),(0,lo),12)[1:])
+    contour=half+[(-x,z) for x,z in reversed(half[1:-1])]
+    return [(x,y,z) for x,z in contour]
+
+
+def inlet_tang(stock,name,upper=True):
+    """Steel top/bottom conforms to the actual uncut subdivided walnut.
+
+    Build the inlaid tongue from surface rays, then cut a 0.03 mm reveal.
+    Topmost metal lies inside the wood's former envelope, including its edges.
+    """
+    from kit.motion import surface
+    tree=surface(stock)['tree'];loops=[]
+    ys=[-44,-43,-40,-35,-25,-15,-5,5,15,25,35,43,50,57,63,66]
+    for y in ys:
+        width=(9.6 if y<=30 else 9.6+(min(65,y)-30)/35*18.4) if upper else 8.0
+        # Round the tongue's aft end in plan, while keeping its bearing lands.
+        if y < -40:width*=max(.08,math.sqrt(max(0,1-((y+40)/4.1)**2)))
+        xs=[-width/2+width*j/8 for j in range(9)];top=[]
+        for x in xs:
+            p=tree.ray_cast(Vector((x,min(y,64),100 if upper else -150)),Vector((0,0,-1 if upper else 1)),300)[0]
+            assert p is not None,(name,x,y)
+            top.append((x,y,p.z+(-.045 if upper else .045)))
+        depth=-3.5 if upper else 2.0
+        loops.append(top+[(x,yy,z+depth) for x,yy,z in reversed(top)])
+    tang=M.loft(name,loops,MAT['blue']);tang['boolean_solver']='EXACT'
+    reg(tang)
+    if not upper:G.dense(tang);G.reduce(tang,300)
+    return tang
 
 
 def furniture():
     ob=M.loft('Stock', [stock_section(*r) for r in STOCK],MAT['wood'])
     ob['boolean_solver']='EXACT'
     G.subdivide(ob,3)
-    # Independent clearance avoids coplanar cuts at the steel race's floor.
-    cutbox(ob,(-10.35,-13,38.6),(10.35,67,61),.5)
-    cutbox(ob,(4.5,58,21),(10.8,67,35),.4)
-    # Tang inlets are shallow, supported surfaces, not an exposed shelf.
-    tangpath=[(-40,20.7),(-25,23.2),(-5,28.7),(14,35.9),(35,42),(65,50)]
-    for name,path,width in [('Upper_Tang',tangpath,31.0),
-                            ('Lower_Tang',[(-44,-21.3),(-20,-15.3),(0,-9),(26,-3.1),(52,-2),(65,0)],8.0)]:
-        if name=='Upper_Tang':path=[(y,z-1.5) for y,z in path]
-        tang=G.sweep(name,path,width,3.5 if name=='Upper_Tang' else 2.0,'blue')
-        if name=='Upper_Tang':
-            tang['boolean_solver']='EXACT'
-            for v in tang.data.vertices:
-                t=max(0,min(1,(v.co.y-45)/20));v.co.x*=10/31+(1-10/31)*t
-            # Integral buried fork joins the narrow wrist tongue to both
-            # receiver cheeks below the bolt race and outside the hammer.
-            for lo,hi in [((-4.5,25,32.5),(4.5,34,37.5)),
+    # Deform the ENTIRE subdivided end cap, including its interior vertices.
+    # Warping only the cage perimeter left a chordal wood cap protruding
+    # through the curved steel plate in the first exported macro.
+    for v in ob.data.vertices:v.co.y=butt_y(v.co.y,v.co.z)
+    # Budget the OUTER carved surface before machining. Reducing an already
+    # inletted stock moved narrow bearing walls away from the metal. Both
+    # retained dense wood and game wood receive the same final metal cutters.
+    carved=ob.copy();carved.data=ob.data.copy();bpy.context.collection.objects.link(carved)
+    carved.name='Dense carved stock';G.reduce(ob,2100)
+    from sections import extract
+    ob['uninletted_sections_mm']=json.dumps({str(y):[[[v/1000 for v in p] for p in line]
+        for line in extract(ob,y)] for y in (-35,-5,25)})
+    def machine(tool):
+        dense_tool=tool.copy();dense_tool.data=tool.data.copy();bpy.context.collection.objects.link(dense_tool)
+        cut(carved,dense_tool);cut(ob,tool)
+    # Fit to unrelieved wood, before the hammer/race clearances are machined.
+    for name,upper in [('Upper_Tang',True),('Lower_Tang',False)]:
+        tang=inlet_tang(ob,name,upper)
+        if upper:
+            # Buried integral fork carries both receiver cheeks; the broad
+            # head follows the wood rather than lying on top of it.
+            for lo,hi in [((-4.4,24.7,32),(4.4,34,37)),
                           ((-13,30,31),(13,35,34)),
                           ((-13,34,31),(-11,66,34)),
                           ((11,34,31),(13,66,34))]:
                 cut(tang,box('tool',lo,hi,raw=True),'UNION')
+        G.reduce(tang,700 if upper else 300)
         # Inlet the unrelieved solid, rather than scaling an already hollow
         # part and accidentally enlarging its internal voids. Offset its own
         # exterior normals by 0.03 mm for a narrow, physically sensible reveal.
@@ -165,10 +243,33 @@ def furniture():
         tool.data.update()
         normals=[v.normal.copy() for v in tool.data.vertices]
         for v,n in zip(tool.data.vertices,normals):v.co+=n*.03
-        cut(ob,tool)
-        if name=='Upper_Tang':cutbox(tang,(-10.25,-13,39),(10.25,67,61),.7)
-    screw('Stock_TangScrew',(0,-15,26.0),2.2,axis='Z')
-    G.dense(ob);G.reduce(ob,5700);reg(ob)
+        # A flush tongue is slightly inside the original wood envelope. Open
+        # its inlet right through that envelope: merely inflating the buried
+        # steel left a 15-micrometer wood skin over the metal (z-fighting).
+        from kit.motion import surface
+        tree=surface(ob)['tree']
+        for v in tool.data.vertices:
+            p=tree.ray_cast(Vector((v.co.x,min(v.co.y,64),100 if upper else -150)),
+                            Vector((0,0,-1 if upper else 1)),300)[0]
+            if p is not None and ((upper and v.co.z>p.z-.9) or (not upper and v.co.z<p.z+.6)):
+                v.co.z+=5 if upper else -5
+        machine(tool)
+        if upper:cutbox(tang,(-10.25,-13,38.52),(10.25,67,61),.7)
+    # Independent clearance avoids coplanar cuts at the steel race's floor.
+    for lo,hi,r in [((-10.35,-13,38.6),(10.35,67,61),.5),((4.5,58,21),(10.8,67,35),.4)]:
+        tool=box('tool',lo,hi,raw=True);M.bevel(tool,r,4);M.apply(tool);machine(tool)
+    from kit.motion import surface
+    tree=surface(ob)['tree']
+    head=surface(bpy.data.objects['Upper_Tang'])['tree'].ray_cast(Vector((0,-15,100)),Vector((0,0,-1)),200)[0]
+    foot=surface(bpy.data.objects['Lower_Tang'])['tree'].ray_cast(Vector((0,-15,-100)),Vector((0,0,1)),200)[0]
+    screw('Stock_TangScrew',(0,-15,head.z-.55),2.2,axis='Z')
+    lathe('Stock_TangScrewShank',[(foot.z,0),(foot.z,1.45),(head.z,1.45),(head.z,0)],axis='Z',center=(0,-15),n=16)
+    bore=lambda:lathe('tool',[(-100,0),(-100,1.50),(100,1.50),(100,0)],axis='Z',center=(0,-15),n=16,raw=True)
+    machine(bore())
+    for name in ('Upper_Tang','Lower_Tang'):
+        tang=bpy.data.objects[name];cut(tang,bore());G.dense(tang)
+    G.HIGH[ob.name]=carved.data.copy();bpy.data.objects.remove(carved,do_unlink=True)
+    reg(ob)
     def plate_mesh(name,steps,sides):
         verts=[];faces=[];rings=[]
         for y in (-254.1,-257.2):
@@ -179,8 +280,10 @@ def furniture():
                 r=j/steps;ring=[]
                 for i in range(sides):
                     a=math.tau*i/sides;c,s=math.cos(a),math.sin(a)
-                    z=-50+r*58*math.copysign(abs(s)**(2/2.1),s)
-                    x=r*20.5*math.copysign(abs(c)**(2/2.1),c)*(1-.07*max(s,0)**4)
+                    outline=stock_section(-254.2,20.4,-108,8)
+                    # Same outline as the stock end: no separate oval disc.
+                    p=outline[i*len(outline)//sides]
+                    x=r*p[0];z=-50+r*(p[2]+50)
                     ring.append(len(verts));verts.append((x,butt_y(y,z),z))
                 disk.append(ring)
             rings.append(disk)
@@ -190,11 +293,16 @@ def furniture():
         a,b=rings[0][-1],rings[1][-1]
         for i in range(sides):faces.append((a[i],a[(i+1)%sides],b[(i+1)%sides],b[i]))
         return M.mesh(name,verts,faces,MAT['blue'])
-    plate=plate_mesh('Butt_Plate',4,48);reg(plate)
-    high=plate_mesh('Dense curved butt plate',12,96);G.HIGH[plate.name]=high.data.copy();bpy.data.objects.remove(high,do_unlink=True)
+    plate=plate_mesh('Butt_Plate',5,72);reg(plate)
     for z in (-9,-88):
         y=butt_y(-256.7,z)
-        screw('Butt_Screw',(0,y,z),2.6,axis='Y',direction=-1)
+        slope=(butt_y(-257.2,z+.01)-butt_y(-257.2,z-.01))/.02
+        angle=-math.degrees(math.atan(slope))
+        tool=lathe('tool',[(y-2,0),(y-2,2.78),(y+.8,2.78),(y+.8,0)],axis='Y',center=(0,z),n=20,raw=True)
+        G.rotate_points(tool,(0,y,z),angle);cut(plate,tool)
+        ob_screw=screw('Butt_Screw',(0,y,z),2.6,axis='Y',direction=-1)
+        G.rotate_points(ob_screw,(0,y,z),angle)
+    G.dense(plate)
     # Forend cage: each section changes in width, fullness and channel roll.
     rows=[(205.2,15.0,0.3,43),(206,15.0,0.3,43),(211,16.2,-.1,43.5),
           (226,18.5,-1.8,43.7),(250,19,-2,43.5),(286,19.2,-2,43.1),
@@ -231,11 +339,11 @@ def sights():
             (313,61.1),(313,61.7),(309,61.7),(309,62.2),(305,62.2),(305,62.7),(299,62.7)]
     profile('Rear_Elevator',ladder,-3.7,3.7,'dark',r=.12)
     box('Elevator_ThumbTab',(-8,299,59.4),(3.7,302,60.7),'dark',r=.35)
-    horn=[(-11,63.7),(-11.5,68),(-10.6,73.6),(-8.4,76),(-7.1,75.3),
-          (-8.2,71.5),(-7.3,68.3),(-4.4,66.5),(-1.8,66.5),(-1.8,64.6),
-          (1.8,64.6),(1.8,66.5),(4.4,66.5),(7.3,68.3),(8.2,71.5),
-          (7.1,75.3),(8.4,76),(10.6,73.6),(11.5,68),(11,63.7)]
-    profile('Rear_Buckhorn',horn,282,284.1,axis='Y',r=.22)
+    horn=[(-11,63.7),(-11.1,68),(-10.1,72.9),(-8.5,75.8),(-7.8,75.5),
+          (-8.9,72.7),(-9.2,70.3),(-8.0,68.1),(-4.4,66.5),(-1.8,66.5),(-1.8,64.6),
+          (1.8,64.6),(1.8,66.5),(4.4,66.5),(8.0,68.1),(9.2,70.3),
+          (8.9,72.7),(7.8,75.5),(8.5,75.8),(10.1,72.9),(11.1,68),(11,63.7)]
+    profile('Rear_Buckhorn',horn,282.5,283.6,axis='Y',r=.10)
     screw('Rear_BladeScrew',(0,284.6,62.9),1.1,axis='Y')
     # Original shallow ramp, pinned blade, and rounded brass bead.
     ramp=[(673,55.6),(698,55.6),(698,61.2),(691,63),(680,62.8),(673,59)]

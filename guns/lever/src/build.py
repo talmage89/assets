@@ -11,7 +11,7 @@ sys.path[:0]=[str(ROOT),str(Path(__file__).parent)]
 from kit import model as M, weapon as W
 from guns.common import ammo_3030
 import geometry as G
-from forms import receiver, barrel_magazine, furniture, sights, bands
+from forms import receiver, receiver_field, barrel_magazine, furniture, sights, bands
 from mechanism import lever, bolt_lock_carrier, hammer_trigger_gate, ammunition, hammer_inlet
 from dimensions import HEADS, PARENTS, SOCKETS, RIDING
 from clips import build_clips
@@ -28,7 +28,11 @@ def finish_normals(ob):
     normals=[v.vector.copy() for v in ob.data.corner_normals]
     for f in ob.data.polygons:
         for i in f.loop_indices:
-            if ob.name=='Receiver' and abs(f.normal.x)>.94 and f.area>1:
+            if ob.name=='Receiver':
+                p=ob.data.vertices[ob.data.loops[i].vertex_index].co
+                distance,normal=receiver_field(p)
+                if abs(distance)<.15 and normal.dot(f.normal)>.3:normals[i]=normal
+            if ob.name in ('Receiver','Lever_FingerLoop') and abs(f.normal.x)>.999:
                 normals[i]=__import__('mathutils').Vector((1 if f.normal.x>0 else -1,0,0))
             if ob.name=='Upper_Tang' and abs(f.normal.z)>.995:
                 normals[i]=__import__('mathutils').Vector((0,0,1 if f.normal.z>0 else -1))

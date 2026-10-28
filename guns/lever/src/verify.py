@@ -65,7 +65,7 @@ def main():
     for name,length in [('cartridge',.06477),('case',.0518)]:
         path=source.parent/(name+'.glb');raw=GLB(path)
         count=sum(len(raw.accessor(p['indices']))//3 for m in raw.json['meshes'] for p in m['primitives'])
-        assert count<1800 and not raw.json.get('skins') and not raw.json.get('animations')
+        assert count<=1600 and not raw.json.get('skins') and not raw.json.get('animations')
         normals=V.normal_direction(raw)
         V.import_glb(path);obs=[o for o in bpy.context.scene.objects if o.type=='MESH']
         assert len(obs)==1 and obs[0].matrix_world.is_identity
@@ -76,6 +76,20 @@ def main():
         assert abs(high[0]-low[0]-.01285)<1e-6
         assert abs(high[2]-low[2]-.01285)<1e-6
         solid=surface(obs[0])
+        # Published exterior stations, independently measured on the actual
+        # imported brass surface. The body, shoulder and neck must each be a
+        # straight taper, with no bulge or dent between the C.I.P. stations.
+        exterior=[]
+        for begin,end,r0,r1,stations in [
+            (.0031,.03660,.005355,.005095,(.0032,.010,.020,.030,.0365)),
+            (.03660,.03969,.005095,.00423,(.0367,.038,.03959)),
+            (.03969,.0518,.00423,.00419,(.040,.045,.0517))]:
+            for y in stations:
+                hit=solid['tree'].ray_cast(Vector((.02,y,0)),Vector((-1,0,0)),.03)[0]
+                assert hit is not None
+                wanted=r0+(r1-r0)*(y-begin)/(end-begin)
+                assert abs(hit.x-wanted)<2e-6,(name,'C.I.P. straight exterior profile',y,hit.x,wanted)
+                exterior.append(dict(y_m=y,radius_m=hit.x,reference_radius_m=wanted))
         primer_hits=[solid['tree'].ray_cast(Vector((x,-.001,0)),Vector((0,1,0)),.003)[0] for x in (0,.0015)]
         assert all(p is not None for p in primer_hits),'Visible primer face'
         dent=primer_hits[0].y-primer_hits[1].y
@@ -83,7 +97,7 @@ def main():
         assert expected_dent,(name,'primer accessibility',dent)
         rear=solid['tree'].ray_cast(Vector((0,.003,0)),Vector((0,-1,0)),.004)[0]
         assert rear is not None and rear.y-primer_hits[0].y>.00003,'Primer dent retains actual solid thickness'
-        standalone[name]=dict(primer_center_and_edge_m=[list(p) for p in primer_hits],primer_dent_m=dent,primer_axial_thickness_m=rear.y-primer_hits[0].y,triangles=count,bytes=path.stat().st_size,dimensions_m=(high-low).tolist(),
+        standalone[name]=dict(cip_exterior_samples=exterior,primer_center_and_edge_m=[list(p) for p in primer_hits],primer_dent_m=dent,primer_axial_thickness_m=rear.y-primer_hits[0].y,triangles=count,bytes=path.stat().st_size,dimensions_m=(high-low).tolist(),
             normal_direction=normals,fresh_import=True)
     result=dict(passed=True,triangles=triangles,bytes=source.with_suffix('.glb').stat().st_size,
         materials=len(GLB(source.with_suffix('.glb')).json['materials']),texture_images=0,

@@ -29,7 +29,7 @@ PARENTS = {'Lever':'Link', 'Sear':'Trigger', 'FiredGuide':'Bolt', 'FiredCase':'F
 SOCKETS = {
     'Socket_Muzzle': (0, MUZZLE, BORE),
     'Socket_Foregrip': (-18, 307, 13),
-    'Socket_Butt': (0, -253.5, -50),
+    'Socket_Butt': (0, -249.2064, -50),
     'Socket_Eye': (0, -85, SIGHT),
     'Socket_Ejection': (0, 114, 68),
     'Socket_MagWell': (16, 147, 20),

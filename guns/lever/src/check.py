@@ -12,6 +12,7 @@ from kit import motion, assembly, weapon as W, model as M
 from guns.common.interface_checks import scene_frame
 from guns.common.interface_v1_5 import manifest
 import interface
+import form_audit
 
 
 def parts():return [o for o in bpy.context.scene.objects if o.type=='MESH' and 'bone' in o and not o.get('check_proxy')]
@@ -168,7 +169,8 @@ def geometry(arm):
         p=trigger['tree'].ray_cast(Vector((0,.12,z)),Vector((0,-1,0)),.10)[0]
         assert p is not None;blade_rows.append(list(p))
     assert blade_rows[0][1]>blade_rows[1][1] and blade_rows[2][1]>blade_rows[1][1], 'Muzzle-facing concavity and forward toe'
-    return dict(triangles=sum(counts.values()),parts=counts,nonmanifold=bad,
+    forms=form_audit.measure(arm)
+    return dict(form_round2=forms,triangles=sum(counts.values()),parts=counts,nonmanifold=bad,
         bounds_m=dict(low=lo,high=hi,size=[b-a for a,b in zip(lo,hi)]),
         barrel_length_m=barrel['hi'].y-barrel['lo'].y,length_of_pull_m=lop,
         eye_position_m=list(eye),eye_above_comb_m=eye.z-comb.z,comb_surface_m=list(comb),
@@ -208,8 +210,19 @@ ALLOW=[
 
 def sweep(arm,clips=None):
     proxies=add_hand_proxies(arm)
-    result=motion.sweep_clips(arm,clips or list(interface.CLIPS),step_frames=.5,tolerance_m=.0002,allow=ALLOW)
-    for ob in proxies:bpy.data.objects.remove(ob,do_unlink=True)
+    errors=[];plane_errors=[]
+    def check_plane(scene,*_):
+        try:plane_errors.append(form_audit.plane(arm))
+        except AssertionError as exc:errors.append(str(exc))
+    bpy.app.handlers.frame_change_post.append(check_plane)
+    try:
+        result=motion.sweep_clips(arm,clips or list(interface.CLIPS),step_frames=.5,tolerance_m=.0002,allow=ALLOW)
+    finally:
+        bpy.app.handlers.frame_change_post.remove(check_plane)
+        for ob in proxies:bpy.data.objects.remove(ob,do_unlink=True)
+    result['lever_midplane']=dict(passed=not errors,samples=len(plane_errors),errors=errors,
+        maximum_normal_vector_error=max(plane_errors,default=0))
+    result['passed']=result['passed'] and not errors
     return result
 
 
@@ -222,6 +235,7 @@ def semantics(arm):
     for name,s in interface.CLIPS.items():
         for f in [0,s['frames'],*s['events'].values()]:
             W.pose(arm,name,f);scene_frame(arm,name,f)
+            form_audit.plane(arm)
             assert abs(part('Socket_Shell').matrix_world.determinant()-1)<1e-5
             checks+=1
         W.pose(arm,name,s['frames']);end=interface.STATES[s['end']]

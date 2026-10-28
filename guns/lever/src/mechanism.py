@@ -1,6 +1,7 @@
 """Visible, deliberately incomplete lever-action internals and controls."""
 import math
 import bpy
+import bmesh
 from mathutils import Vector, Matrix
 from kit import model as M
 import geometry as G
@@ -10,15 +11,55 @@ from guns.common import ammo_3030
 
 
 def lever():
-    # Two apertures distinguish the forward trigger bow and the rear finger
-    # opening; forged flat sections have width as well as an edge radius.
-    G.sweep('Lever_FingerLoop',G.circle_path(10,-27,48,14,48,10),8.2,3.4,bone='Lever',closed=True,section_segments=2)
-    path=M.bezier((52,-16),(49,-43),(109,-47),(116,-13),24)
-    path+=M.bezier((116,-13),(120,-5),(121,-2),(124,-1),7)[1:]
-    bow=G.sweep('Lever_TriggerBow',path,9.5,4.8,bone='Lever',section_segments=2)
-    cut(bow,lathe('tool',[(-8,0),(-8,2.75),(8,2.75),(8,0)],axis='X',center=(124,-1),n=32,raw=True))
-    G.sweep('Lever_Spine',[(-38,-23.5),(-21,-19),(0,-13),(26,-6.3),(52,-5.9),(52,-18.5)],8.2,3.2,bone='Lever')
-    G.sweep('Lever_RearNeck',[(-38,-33),(-38,-23.5)],8.2,3.2,bone='Lever')
+    # One forging with two apertures. The long finger opening has nearly
+    # straight sides and tight rounded ends, rather than an ellipse hung from
+    # a hook. A wide, continuously tapering S web joins it to the pivot.
+    # Dimensions are class estimates from rest/open photographs, in mm.
+    angle=math.radians(12)
+    def place(u,v):return (u*math.cos(angle)-v*math.sin(angle)-6,
+                           u*math.sin(angle)+v*math.cos(angle)-30.5)
+    def capsule(length,width):
+        r=width/2;a=length/2-r
+        return [place(a+r*math.cos(t),r*math.sin(t))
+                for t in [-math.pi/2+math.pi*i/16 for i in range(17)]]+[
+                place(-a+r*math.cos(t),r*math.sin(t))
+                for t in [math.pi/2+math.pi*i/16 for i in range(17)]]
+    loop=profile('Lever_FingerLoop',capsule(108.4,33.4),-4.1,4.1,raw=True)
+    loop['boolean_solver']='EXACT'
+    cut(loop,profile('tool',capsule(104,29),-8,8,raw=True))
+    # Outer and inner edges are independent curves: the forging thickens
+    # organically at the throat instead of showing intersecting tube ends.
+    outer=(M.bezier((124,5),(128,-8),(123,-28),(109,-40),10)+
+           M.bezier((109,-40),(96,-53),(64,-51),(51,-34),12)[1:]+
+           M.bezier((51,-34),(44,-25),(42,-20),(35,-20),6)[1:]+
+           [(35,-10),(49,-6),(58,-4)]+
+           M.bezier((58,-4),(62,-20),(56,-31),(72,-38),8)[1:]+
+           M.bezier((72,-38),(88,-46),(108,-34),(113,-18),10)[1:]+
+           M.bezier((113,-18),(117,-6),(115,0),(118,5),6)[1:])
+    cut(loop,profile('tool',outer,-4.1,4.1,raw=True),'UNION')
+    # Machine the opening last: the broad S throat must join the perimeter,
+    # rather than shortening the finger aperture where the two seeds overlap.
+    cut(loop,profile('tool',capsule(104,29),-8,8,raw=True))
+    cut(loop,lathe('tool',[(-8,0),(-8,2.75),(8,2.75),(8,0)],axis='X',center=(124,-1),n=32,raw=True))
+    reg(loop,'Lever',radius=.38,segments=2)
+    bm=bmesh.new();bm.from_mesh(loop.data)
+    bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=.01)
+    bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=.01)
+    bmesh.ops.dissolve_limit(bm,angle_limit=.005,verts=list(bm.verts),edges=list(bm.edges),use_dissolve_boundaries=False)
+    bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(loop.data);bm.free()
+    # Ease only the actual perimeter, after cleaning Boolean edge chains.
+    # A pre-cleanup bevel clamped to zero; the loop then had knife edges.
+    weight=loop.data.attributes.get('bevel_weight_edge') or loop.data.attributes.new('bevel_weight_edge','FLOAT','EDGE')
+    adjacent={}
+    for f in loop.data.polygons:
+        for i in f.loop_indices:adjacent.setdefault(loop.data.loops[i].edge_index,[]).append(f.normal.x)
+    for e in loop.data.edges:
+        ns=adjacent[e.index]
+        weight.data[e.index].value=float(any(abs(n)>.99 for n in ns) and any(abs(n)<.01 for n in ns))
+    bevel=loop.modifiers.new('Forged perimeter roll','BEVEL');bevel.limit_method='WEIGHT'
+    bevel.width=.28;bevel.segments=3;bevel.use_clamp_overlap=False;M.apply(loop)
+    loop.data.normals_split_custom_set([(0,0,0)]*len(loop.data.loops));M.smooth(loop,42)
+    G.dense(loop)
     hub=lathe('Lever_Hub',[(-5,0),(-5,6.2),(5,6.2),(5,0)],bone='Lever',axis='X',center=(124,-1),n=40,raw=True)
     cut(hub,lathe('tool',[(-6,0),(-6,2.75),(6,2.75),(6,0)],axis='X',center=(124,-1),n=32,raw=True));reg(hub,'Lever')
     box('Lever_LatchLand',(-4,53,-6),(4,60,-3),'dark','Lever',r=.2)
@@ -80,31 +121,55 @@ def hammer_trigger_gate():
     # Forged hammer: a changing compound cage plus thumb-spur volume. A dense
     # union retains rounded shoulders; the low copy pays only for silhouette.
     loops=[]
-    for z,w,cy,d in [(28,7.0,70,12),(30,8,70,13),(35,8,70.5,12),
-                      (42,7.2,71.8,10),(46,7.8,73,11),(50,9.0,74.5,12),
-                      (52,8.5,74,11)]:
+    for z,w,cy,d in [(27.3,6.6,70,10),(28,7.0,70,12),(30,7.4,70,13),
+                      (35,7.5,70.5,12),(40,7.1,71.5,11),
+                      (45,7.5,73,12),(49,8.0,73,12),(51,8,72,11)]:
         loops.append([(x,cy+y,z) for x,y in M.rounded_rectangle(w,d,1.7,5)])
     ob=M.loft('Hammer',loops,MAT['blue']);G.subdivide(ob,2)
-    spur=G.sweep('hammer spur seed',M.bezier((72,43),(72,54),(76,60),(78,62),16),11.0,7.0,'blue')
+    spur=G.sweep('hammer spur seed',M.bezier((73,44),(72,51),(62,53),(53,59.5),20),10.5,4.6,'blue')
     G.PARTS.remove(spur);cut(ob,spur,'UNION')
-    rem=ob.modifiers.new('Forged hammer union','REMESH');rem.mode='VOXEL';rem.voxel_size=.5;M.apply(ob)
+    rem=ob.modifiers.new('Forged hammer union','REMESH');rem.mode='VOXEL';rem.voxel_size=.35;M.apply(ob)
     smooth=ob.modifiers.new('Forging shoulder relaxation','SMOOTH');smooth.factor=.5;smooth.iterations=3;M.apply(ob)
+    # Photo-derived table inclination: roughly 13 degrees in the accepted
+    # 44-degree cocked pose. The rest table therefore returns at -31 degrees.
+    # Keep the curved neck below the table's lowest crowned valley, so it
+    # cannot blank out the middle of the checkering.
+    table_angle=math.radians(-31)
+    def table(u,v):return (58+u*math.cos(table_angle)-v*math.sin(table_angle),
+                          58+u*math.sin(table_angle)+v*math.cos(table_angle))
+    cut(ob,profile('tool',[table(-11.5,-1.4),table(11.5,-1.4),table(11.5,20),table(-11.5,20)],-6.5,6.5,raw=True))
     cut(ob,lathe('tool',[(-8,0),(-8,2.75),(8,2.75),(8,0)],axis='X',center=(70,30),n=32,raw=True))
     cutbox(ob,(-8,79.7,40),(8,90,58),.1)
-    G.dense(ob);G.reduce(ob,1600);reg(ob,'Hammer')
+    G.dense(ob);G.reduce(ob,1400);reg(ob,'Hammer')
     box('Hammer_StrikeLand',(-3.2,78.8,46),(3.2,79.7,50),'dark','Hammer',r=.12)
-    # The thumb pad has actual broad transverse dimensions. Fine crosshatching
-    # belongs to the later normal bake; it is retained on a separate high source.
-    pad=box('Hammer_ThumbPad',(-6.5,72,58),(6.5,82,62),'blue','Hammer',r=1.0)
+    # Curved thumb-spur table with 1 mm checkering. Keep the shallow relief in
+    # this inspection mesh so the requested native macro can actually judge it.
+    # A shared corner grid plus one peak per diamond is a closed heightfield,
+    # not floating decoration. Later the dense field can move into the normal.
+    nx,ny=12,20;verts=[];faces=[]
+    def point(i,j,relief=0):
+        x=-6+i;u=j-ny/2
+        y,z=table(u,-.018*x*x-.006*u*u+relief)
+        return (x,y,z)
+    for j in range(ny+1):
+        for i in range(nx+1):verts.append(point(i,j))
+    for j in range(ny):
+        for i in range(nx):
+            a=j*(nx+1)+i;b=a+1;c=b+nx+1;d=a+nx+1
+            peak=len(verts);verts.append(point(i+.5,j+.5,.24))
+            faces.extend([(a,b,peak),(b,c,peak),(c,d,peak),(d,a,peak)])
+    edge=list(range(nx+1))+[j*(nx+1)+nx for j in range(1,ny+1)]+[
+        ny*(nx+1)+i for i in range(nx-1,-1,-1)]+[j*(nx+1) for j in range(ny-1,0,-1)]
+    bottom=[]
+    for v in edge:
+        x,y,z=verts[v];bottom.append(len(verts));verts.append((x,y+2*math.sin(table_angle),z-2*math.cos(table_angle)))
+    for k,a in enumerate(edge):
+        b=edge[(k+1)%len(edge)];faces.append((a,b,bottom[(k+1)%len(edge)],bottom[k]))
+    faces.append(tuple(reversed(bottom)))
+    pad=reg(M.mesh('Hammer_ThumbPad',verts,faces,MAT['blue']),'Hammer')
+    for f in pad.data.polygons:f.use_smooth=False
     G.dense(pad)
-    hi=bpy.data.objects.new('Dense thumb-pad checkering',G.HIGH[pad.name].copy());bpy.context.collection.objects.link(hi)
-    for angle in (-45,45):
-        for j in range(-9,10):
-            tool=profile('tool',[(j*1.1-.16,62.6),(j*1.1+.16,62.6),(j*1.1,61.75)],-16,16,axis='Y',raw=True)
-            tool.data.transform(Matrix.Translation(Vector((0,77,0)))@Matrix.Rotation(math.radians(angle),4,'Z'))
-            cut(hi,tool)
-    G.HIGH[pad.name]=hi.data.copy();bpy.data.objects.remove(hi,do_unlink=True)
-    pad['high_detail']='original crossed V cuts; retained for the later normal bake'
+    pad['checkering_pitch_mm']=1.0
     lathe('Hammer_PivotPin',[(-4.4,0),(-4.4,2.6),(4.4,2.6),(4.4,0)],'dark',axis='X',center=(70,30),n=24)
     # Visible sear engagement proxy, intentionally omitting working fire-control
     # internals. It establishes a supported pose, not a functioning lock design.
@@ -123,14 +188,14 @@ def hammer_trigger_gate():
     # cross-sections give a broad blade with flat sides, never a wire trigger.
     path=M.bezier((83,0),(90,-3),(89,-7),(87,-10),6)
     path+=M.bezier((87,-10),(83,-18),(82,-24),(86,-30),18)[1:]
-    trigger=G.sweep('Trigger_Blade',path,4.8,2.4,'blue','Trigger')
+    trigger=G.sweep('Trigger_Blade',path,6.0,3.7,'blue','Trigger',section_segments=2)
     cut(trigger,lathe('tool',[(-8,0),(-8,1.85),(8,1.85),(8,0)],axis='X',center=(83,0),n=24,raw=True))
     lathe('Trigger_Hub',[(-3.1,1.85),(-3.1,3.8),(3.1,3.8),(3.1,1.85)],'dark','Trigger',axis='X',center=(83,0),n=24,closed=True)
     lathe('Trigger_Pin',[(-9,0),(-9,1.75),(9,1.75),(9,0)],'dark',axis='X',center=(83,0),n=24)
     # Rear-hinged spring cover. The hinge runs vertically and the nose presses
     # inward; actual reveal remains around the rounded aperture.
-    shape=[(y+148,z+20) for y,z in M.rounded_rectangle(51.8,12.5,5.8,10)]
-    gate=profile('Loading_Gate',shape,14.3,15.25,'blue','LoadingGate',r=.3)
+    shape=[(y+147.7,z+20) for y,z in M.rounded_rectangle(50.2,12.8,6.0,10)]
+    gate=profile('Loading_Gate',shape,14.8,15.70,'blue','LoadingGate',r=.16)
     cut(gate,lathe('tool',[(14,0),(14,.9),(26,.9),(26,0)],axis='Z',center=(15.2,122),n=24,raw=True))
     lathe('Gate_Hinge',[(16,.9),(16,1.4),(24,1.4),(24,.9)],'dark','LoadingGate',axis='Z',center=(15.2,122),n=24,closed=True)
     lathe('Gate_HingePin',[(14.5,0),(14.5,.8),(25.5,.8),(25.5,0)],'dark',axis='Z',center=(15.2,122),n=24)
@@ -165,6 +230,44 @@ def hammer_inlet():
     sharp intersecting boxes. Both the dense and game stock receive this cut.
     """
     import bmesh
+    def remove_machining_crumbs(ob):
+        bm=bmesh.new();bm.from_mesh(ob.data);unseen=set(bm.verts);removed=0
+        while unseen:
+            seed=unseen.pop();group={seed};todo=[seed]
+            while todo:
+                for e in todo.pop().link_edges:
+                    for v in e.verts:
+                        if v in unseen:unseen.remove(v);group.add(v);todo.append(v)
+            faces={f for v in group for f in v.link_faces}
+            span=max(max(v.co[k] for v in group)-min(v.co[k] for v in group) for k in range(3))
+            # The race-floor / swept-pocket intersection can leave a tiny
+            # detached tetrahedron. Remove only these bounded machining chips,
+            # never an unsupported tongue, fork or visible construction part.
+            if len(group)<=4 and len(faces)<=4 and span<1.5 and sum(f.calc_area() for f in faces)<1:
+                removed+=len(faces);bmesh.ops.delete(bm,geom=list(group),context='VERTS')
+        if removed:bm.to_mesh(ob.data);ob['machining_crumb_faces_removed']=removed
+        bm.free()
+    def remove_collinear_slivers(ob):
+        bm=bmesh.new();bm.from_mesh(ob.data)
+        bmesh.ops.triangulate(bm,faces=list(bm.faces),quad_method='BEAUTY',ngon_method='BEAUTY')
+        removed=0
+        for _ in range(64):
+            candidate=None
+            for f in bm.faces:
+                if len(f.verts)!=3 or f.calc_area()>=1e-5:continue
+                a,b=max(f.edges,key=lambda e:e.calc_length()).verts
+                c=next(v for v in f.verts if v not in (a,b));edge=b.co-a.co
+                if edge.length_squared<1e-20:continue
+                t=(c.co-a.co).dot(edge)/edge.length_squared
+                if 0<t<1 and (c.co-(a.co+t*edge)).length<.0001:candidate=c;break
+            if candidate is None:break
+            # Remove a vertex less than .1 micrometer off its opposite edge.
+            # Such ill-conditioned triangles reversed winding after float GLB
+            # conversion. Dissolve/retriangulate their fan, keeping it closed.
+            bmesh.ops.dissolve_verts(bm,verts=[candidate],use_face_split=False,use_boundary_tear=False)
+            bmesh.ops.triangulate(bm,faces=list(bm.faces),quad_method='BEAUTY',ngon_method='BEAUTY');removed+=1
+        bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free()
+        ob['collinear_vertices_dissolved']=removed
     pivot=Vector(HEADS['Hammer']);points=[]
     for ob in G.PARTS:
         if ob['bone']!='Hammer':continue
@@ -181,15 +284,23 @@ def hammer_inlet():
     result=bmesh.ops.convex_hull(bm,input=list(bm.verts),use_existing_faces=False)
     bmesh.ops.delete(bm,geom=list(result.get('geom_interior',[])),context='VERTS')
     mesh=bpy.data.meshes.new('Original hammer clearance envelope');bm.to_mesh(mesh);bm.free()
+    # The margin already includes .35 mm radial and .35 mm transverse relief.
+    # Budget the hidden cutter, rather than decimating its finished bearing
+    # seams afterwards. The unchanged all-clip sweep tests the actual result.
+    envelope=bpy.data.objects.new('Hammer clearance budget',mesh);bpy.context.collection.objects.link(envelope)
+    G.reduce(envelope,180);mesh=envelope.data.copy();bpy.data.objects.remove(envelope,do_unlink=True)
     for name in ('Stock','Upper_Tang'):
         ob=bpy.data.objects[name]
         tool=bpy.data.objects.new('tool',mesh.copy());bpy.context.collection.objects.link(tool)
         cut(ob,tool)
+        if name=='Upper_Tang':remove_machining_crumbs(ob)
         if name in G.HIGH:
             hi=bpy.data.objects.new('Dense stock inlet',G.HIGH[name].copy());bpy.context.collection.objects.link(hi)
             hi['boolean_solver']='EXACT'
             tool=bpy.data.objects.new('tool',mesh.copy());bpy.context.collection.objects.link(tool)
-            cut(hi,tool);G.triangulate_cuts(hi);M.smooth(hi,42);G.HIGH[name]=hi.data.copy();bpy.data.objects.remove(hi,do_unlink=True)
+            cut(hi,tool)
+            if name=='Upper_Tang':remove_machining_crumbs(hi);remove_collinear_slivers(hi)
+            G.triangulate_cuts(hi);M.smooth(hi,42);G.HIGH[name]=hi.data.copy();bpy.data.objects.remove(hi,do_unlink=True)
 
         # Preserve silhouette while paying for the inlet only once. Remove
         # numerical Boolean slivers before reduction, in millimeter space.
@@ -199,7 +310,7 @@ def hammer_inlet():
         bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces))
         bm.to_mesh(ob.data);bm.free()
         if name=='Upper_Tang':
+            remove_collinear_slivers(ob)
             tri=ob.modifiers.new('Stable concave machining triangles','TRIANGULATE');tri.ngon_method='CLIP';M.apply(ob)
-            G.dense(ob);G.reduce(ob,480)
-        if name=='Stock':G.reduce(ob,5700)
+            G.dense(ob)
         M.smooth(ob,42)
