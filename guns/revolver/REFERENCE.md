@@ -73,10 +73,36 @@ reference uncertainty must not be replaced by those precise mesh numbers.
 The wrap-around rubber now has a broad-backed egg section, a narrower finger
 face, a changing palm swell, a curved rear silhouette and a high rounded web.
 The authored butt is domed, rather than cut off on a plane. Its steel seat is
-cut from the actual forging after cage subdivision and before voxel relaxation.
+cut from the actual forging after cage subdivision. Round two cut it before
+voxel relaxation; round three moves the final cavity cut after relaxation to
+retain a clean molded lip.
 
-The shroud is bored around the rest-position rod, with a narrower left release
-passage following the accepted crane arc. A fully closed fixed tube would
-trap the rod and prevent that swing. The remaining left-side exposure is
-explicitly recorded as an unresolved difference from the requested enclosure,
-not called accepted merely because the sweep passes.
+The shroud is bored around the rest-position rod, with a narrow left release
+passage following the accepted crane arc. The round-three brief confirms this
+construction: a closed fixed tube would trap the rod. Independent source/import
+rays now measure the departure passage and prove the right wall hides the rod;
+the unchanged-tolerance animation sweep separately proves swing clearance.
+
+## Round-three machined surfaces
+
+The high-resolution open-cylinder photograph supplies the resting hammer's
+concave root, rising curved thumb roof and thin rounded tip. Its native crop is
+`(2420,320)–(2980,730)`. The target photograph supplies the cocked cheek and roof,
+crop `(1650,720)–(2370,1350)`. Camera directions, roll and scale are visual
+estimates in `src/hammer_review.py`, kept explicit instead of deforming the
+asset to fit a picture. The separate top macro makes the transverse form clear.
+The checkering is original geometry: roughly 0.7 mm longitudinal pitch and
+0.6–0.8 mm transverse pitch over most of the curved roof, with a tapered margin.
+This is a photographic estimate, not a manufacturer pitch specification.
+
+The rest photograph is balanced on its gray foam. The target photograph has
+mixed blue lighting and no dependable backdrop neutral; its presumed uncoated
+hammer cheek supplies a local neutral estimate. Its colors establish no material
+acceptance. The registered side/quarter photographs remain the references for
+the rib root, rolled lower lug nose, flush sideplate seam, contoured latch and
+the sights' tapered bodies. No photograph is traced, projected or textured.
+
+The former black rectangle below the front frame is the lower crane-yoke web
+and pivot, with the closed-seat hardware behind it. Its actual pivot remains
+unchanged. The reshaped boss/web and integrated right forging bolster replace
+the hanging rectangular outline; the small round bearing projection remains.

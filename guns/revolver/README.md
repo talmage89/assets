@@ -25,9 +25,12 @@ The forging has changing rounded sections, machined cheek flats, a separate
 seated sideplate and screws, a closely fitted cylinder window, radiused recoil
 boss, body-sized swept hammer slot and an integrated front crane-bearing heel.
 The barrel has machined side flats, a rib, a rounded lower nose and independently
-bored cone/crown. A narrow left release passage retains the accepted cylinder
-swing; full rod enclosure remains unresolved in [REVIEW.md](REVIEW.md). Front
-and rear sights include their bases, pin, notch, hinge and adjustment heads.
+bored cone/crown. A measured 3.50 mm left release passage retains the accepted
+cylinder swing;
+the right wall hides the rod. The 1.45 mm recessed crown has a protective lip.
+The sideplate follows the forging skin with a fine flush seam. Front and rear
+sights have a flared pinned ramp, thin notch blade, tapered seated tongue,
+rounded backing, hinge and slotted adjustment heads.
 
 The six-chamber cylinder has long round-ended flutes, stop notches and approach
 cuts. Its recessed broad extractor plate fills the chamber webs and bears under
@@ -38,10 +41,13 @@ spur, and correctly concave trigger shoe articulate on their own axes. Only
 visible visual-asset internals are supplied; this is not a working firearm model.
 
 Rubber starts as a three-dimensional subdivision cage with changing horizontal
-sections, palm/backstrap swell and three finger saddles. The fitted cavity is
-voxel remeshed and relaxed; its dense source remains in `build/sculpt.blend`.
-The hammer has coarse original diagonal checkering and a visible nose. Fine
-molded texture, finer checkering, machining, fictional engravings and
+sections, palm/backstrap swell and three finger saddles. The outer mold is
+voxel remeshed and relaxed before the cavity is cut, retaining a clean lip;
+its dense source remains in `build/sculpt.blend`. The hammer body and rising,
+thinning spur are one continuous three-dimensional cage with rounded cheek
+rails, a curved thumb roof, original fine checkering (approximately 0.7 mm
+pitch), and a separate visible nose. Fine molded texture, machining, fictional
+engravings and
 the `PD 357 / 26` headstamp are reserved for the later normal/material bake.
 
 The new `../common/magnum357.py` builds the cartridge and open fired case,
@@ -53,8 +59,9 @@ push release. No existing common module, other gun or kit file is changed.
 
 The measured checkpoint numbers and exact byte sizes are in
 `build/serialization.json`; actual part counts are in `build/triangles.json`.
-Round-two source/import rays in `build/form-metrics.json` measure the hammer
-body/slot, guard band, blade and cylinder-window running light. Photographic
+Round-three source/import rays in `build/form-metrics.json` measure the hammer
+body/slot, guard band, blade, cylinder-window running light, crown recess,
+shroud departure gap, opaque right wall, solid cheeks and flush plate. Photographic
 gauge uncertainty is recorded in [REFERENCE.md](REFERENCE.md).
 The design targets approximately 240 mm overall, a 101.6 mm barrel, six chambers
 and a nominal 1.13 kg unloaded. Mass is metadata, not a measurement from this
@@ -63,13 +70,13 @@ authored visual dimensions and motion estimates.
 
 | Quantity | Measured checkpoint | Published / design anchor |
 | --- | --- | --- |
-| Overall length | 237.30 mm | approximately 240 mm; class catalog 241.3 mm |
+| Overall length | 237.29 mm | approximately 240 mm; class catalog 241.3 mm |
 | Overall width / height | 39.40 / 149.16 mm | original service-grip envelope |
 | Barrel, breech to muzzle | 101.600 mm | 4.00 in / 101.6 mm |
 | Rim recess depth / case-head flush error | 1.400 mm / below 0.001 mm | authored recessed-rim construction |
 | Cylinder diameter / length | 39.40 / 44.20 mm | original six-chamber layout |
-| Grip width / depth / height | 36.22 / 68.99 / 109.14 mm | changing sculpted sections |
-| Bore radius, sixteen actual rays | 4.5200–4.5200 mm | authored 4.52 mm visual bore |
+| Grip width / depth / height | 36.20 / 68.97 / 109.14 mm | changing sculpted sections |
+| Bore radius, sixteen actual rays | 4.5148–4.5194 mm | authored 4.52 mm visual bore |
 | Forcing-cone gap, three actual rays | 0.2000 mm | authored visual 0.20 mm |
 | Eye to rear sight's near edge | 649.40 mm | authored 650 mm center distance |
 | Cartridge length / rim diameter | 40.20 / 11.12 mm | C.I.P. maxima 40.39 / 11.18 mm |
@@ -84,14 +91,14 @@ as a measured result.
 
 | Inspection GLB | Triangles | Bytes |
 | --- | ---: | ---: |
-| Complete rigged revolver staging | 38,818 | 2,314,420 |
+| Complete rigged revolver staging | 39,734 | 2,472,184 |
 | Cartridge | 520 | 18,788 |
 | Fired case | 456 | 15,516 |
 | Loaded speedloader | 5,398 | 163,880 |
 
-The active loaded gun is 30,164 triangles; its unloaded gun geometry is 27,044.
+The active loaded gun is 31,080 triangles; its unloaded gun geometry is 27,960.
 The complete payload also counts every hidden ammunition alternative and
-reload presentation object. It has 124 named inspection meshes, 32 bones,
+reload presentation object. It has 123 named inspection meshes, 32 bones,
 22 clips, 10 sockets, nine quick materials and zero textures.
 
 The complete staged gun stays within **40,000 triangles**, including hidden
@@ -142,10 +149,11 @@ magazine/ejection references are documented explicitly. Added Cylinder,
 Speedloader and Round sockets carry their complete bone frames. Live rounds,
 fired cases, loader rounds and the single insertion round each have separate
 rigid ownership. Source and import tests inspect intermediate frames. A separate comparison
-against the preserved handoff proves unchanged bones, sockets, clip keys,
-ammunition and speedloader, plus all 3,672 cylinder triangles forward of the
-extractor seat. `src/form_revision.py --before <handoff.blend> --after
-build/revolver.blend --out build/form-revision.json` repeats that audit in Blender.
+against the preserved round-two checkpoint proves unchanged bones, sockets,
+clip keys, ammunition, loader, entire cylinder, extractor plate, trigger and
+guard. `src/form_revision.py --round 3 --before <round2.blend> --after
+build/revolver.blend --out build/form-revision3.json` repeats that audit in Blender.
+The default round-two mode retains the earlier handoff comparison.
 
 ## Outputs and rebuilding
 
@@ -158,6 +166,8 @@ build/revolver.blend --out build/form-revision.json` repeats that audit in Blend
 | `renders/checkpoint/beauty/` | Orthos, raking views, open/star/reload, exact eye and macros |
 | `renders/checkpoint/pairs/`, `source-pairs/` | Photo comparisons; neutral balance where recoverable |
 | `renders/checkpoint/trigger-pairs/` | Side and oblique trigger comparisons |
+| `renders/checkpoint/hammer-pairs/` | Resting/cocked hammer photographic comparisons |
+| `renders/checkpoint/beauty/` macros | Muzzle/lug, rear sight, latch, grip seam and crane shank |
 | `renders/checkpoint/sections/` | Dimensioned source/import triangle cuts |
 | `renders/checkpoint/strips/` | Every clip, uniform 15 Hz strips and true-duration WebP loops |
 | `renders/checkpoint/contact-sheet.jpg` | Still-view review sheet |
@@ -169,7 +179,7 @@ GNU make and flock. Downloads are only registered reference images/PDFs.
 make -C guns/revolver                  # complete form checkpoint, no bake
 make -C guns/revolver check            # topology, form gauges, contacts, sweep, round trip, repeat
 make -C guns/revolver render           # imported GLB Cycles stills
-make -C guns/revolver match source-match triggers
+make -C guns/revolver match source-match triggers hammers
 make -C guns/revolver sections strips review
 make -C guns/revolver clean            # generated build and renders only
 ```

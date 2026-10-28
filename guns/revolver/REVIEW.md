@@ -267,7 +267,7 @@ the recorded neutral balances. No finish/albedo acceptance is inferred here.
     and extraction stroke remain unchanged. The final inspection pass is
     `renders/round2/pass6/`, followed by all current checkpoint images.
 
-## Current region evidence and photographic differences
+## Round-two region evidence (historical; superseded below)
 
 The final regenerated evidence is under `renders/checkpoint/`. These are form
 submissions for the lead, not blanket acceptance. All stills use the imported
@@ -397,3 +397,184 @@ reflection, fuller original grip and coarse checkpoint hammer checkering remain
 weaker than the photos. Look development stays held. A useful future kit feature
 would preserve analytic normals on rounded machined outlines without flattening
 curved shoulders, with an exported macro fixture to catch the lost highlights.
+
+
+## Round-three review
+
+The lead now accepts the grip form, trigger, band guard, continuous rear frame
+curve and extractor plate. The lead also corrects the prior enclosure request:
+the left shroud opening is necessary and accepted in principle, provided it
+stays narrow and the right wall hides the rod. The unresolved-enclosure text
+above is the historical round-two finding, not the current requirement.
+
+20. **Initial machined-form pass (`renders/round3/pass1/`).** Color/value first:
+    the inspection steel remains cleaner and its white-card reflections brighter
+    than the used photographs; neither is final albedo. The rib root and recessed
+    crown improved, and moving the grip cavity cut after relaxation removed the
+    torn voxel lip. Rejected the plate's rippled normals and the invisible fine
+    teeth: smooth vertex normals averaged their pyramids into a blank roof.
+    The first sweep also caught 0.269 mm of new spur-root/frame overlap.
+21. **Surface correction (`renders/round3/pass2/`).** Recalculated plate normals
+    and retained its actual planar cheek field; the plate now has a fine seam
+    rather than a beveled step. Narrowed the spur's hidden root to clear the
+    unchanged slot. Fine tooth facet normals reveal the original sub-millimeter
+    field. Joined body and spur into one closed mesh; the triangular internal
+    overlap no longer masquerades as an assembled hammer. The new local crown,
+    passage, right-wall and solid-cheek gauges pass independently of serialization.
+22. **Macro and photographic correction (`renders/round3/pass3/`, hammer pairs).**
+    Color/value still limits the comparison; gray foam balances the rest photo,
+    and the cocked photo's locally neutralized cheek retains mixed blue lighting.
+    Rejected the first cameras' excessive roof visibility and cropped body.
+    Lowered their angles and reframed. The pairs also exposed a shoulder step:
+    raised the thumb roof's root into the rounded body and thinned its tip.
+    The rear sight's thick U block needed a real thin blade/backing distinction,
+    its elevation button needed a slot, and the front pin needed seated ends.
+23. **Final construction correction (`renders/round3/pass4/` and final checkpoint).**
+    Added the tapered shallow topstrap mortise under the sight tongue, rounded
+    the hammer tip's transverse outline, and derived the spur cheek normals
+    from its changing width rather than its tooth tips. The crown has a true
+    recessed annular floor and protective lip. The crane's lower web, which made
+    the dark hanging rectangle, now has a round boss and a tapered web behind
+    the right forging bolster. No pivot, clip or clearance exception changes.
+
+24. **Final hammer/blade cleanup.** The last macro still showed the old raised
+    hammer forehead as a separate block above the spur. Lowered and rounded
+    that upper contour into the continuous roof, retaining the nose and rest
+    contact. Reallocated 100 triangles to the thin notch blade/backing and
+    reseeded its normals after reduction to remove folded-looking highlights.
+
+25. **Continuous hammer cage (`renders/round3/pass7/`).** The joined profile
+    still made a visible shoulder in the cocked photo pair. Replaced it with
+    one closed three-dimensional cage through body, rounded cheek rails, neck,
+    curved thumb roof and thinning tip. The fine roof cells share the cage's
+    perimeter vertices. Their face attribute confines flat tooth normals to the
+    teeth, so the blank neck no longer inherits triangulated tooth shading.
+    The trial passes Idle/CockHammer clearance and source/import gauges, and
+    saves 188 triangles compared with the joined-profile revision. Final full
+    sweeps and all images are regenerated from this cage.
+
+## Current round-three region evidence and remaining photographic differences
+
+All paths below are relative to `renders/checkpoint/`. These images show the
+exported inspection GLB; separately labeled source pairs show the dense grip.
+The temporary materials remain unbaked. The form is submitted for lead review.
+
+1. **Hammer.** `hammer-pairs.jpg`, the two individual `hammer-pairs/` comparisons,
+   `beauty/hammer_rest.png`, `hammer_cocked.png` and `hammer_top.png` show the
+   rounded body, continuous back/up sweep, thinning tip and fine curved-top
+   pyramids. Body and spur are one closed mesh on the original Hammer bone.
+   Our roof is more regular, the visible neck fuller and its tip narrower than the used comparator;
+   its machined cheeks are cleaner and more reflective. The pair cameras are
+   explicitly estimated, with different source viewpoints; no pixel-perfect
+   camera calibration or manufacturer checkering pitch is claimed.
+2. **Frame side / slot / sideplate.** `beauty/star.png`, both rakes, `side.png`,
+   `rear.png` and the frame sections show the continuous accepted back curve,
+   solid side cheeks and internal top/rear hammer opening. The shield's release
+   pocket starts ahead of a solid rear wall. The plate is cut from the forging's
+   own skin, so its lower curved edge follows the frame instead of sitting on
+   a proud slab. The remaining original plate outline is fuller than the photo.
+   The deep ratchet-release well still reflects less evenly than the real steel.
+3. **Barrel / rib / crown / lug / shroud.** `beauty/muzzle.png`, `lug_front.png`,
+   `shank.png`, both side pairs and the shroud section show the blended rib root,
+   deliberate flats, recessed crown and rounded integral lower nose. The narrow
+   swing-side release remains open; the right side hides the rod. The former
+   black rectangular projection was the crane's lower web and pivot. The web is
+   tapered and its boss round, with a blended stationary right bolster; its real
+   small bearing projection remains visible. The reference's lug has a slightly
+   different rolled lower silhouette and the source photograph's reflections
+   reveal machining absent from this checkpoint.
+4. **Sights.** `beauty/rear_sight.png`, `sights.png`, `muzzle.png` and the aimed
+   view show a thin notch blade, radiused backing, tapered forward body seated
+   in a shallow topstrap mortise, slotted elevation/windage heads, and a curved
+   front ramp with flared seated base and flush pin ends. The exact Eye and
+   sight tops are retained. Our blade corners and plain black sight face remain
+   original; the photo's colored insert, witness lines and fine serrations are
+   omitted at this form gate.
+5. **Thumb latch.** `beauty/latch.png`, `open.png` and the open photo pair show
+   the contoured dish and fine thumb teeth, a clear screw land and a radiused
+   backing. It stands proud of the steel side. The original pad outline
+   is rounder than the photo and the teeth are more regular; no stamped logo or
+   trademark is reproduced. Its accepted translation and pin engagement remain.
+6. **Grip seam.** `beauty/grip_seam.png`, `star.png`, both grip macros and the
+   three height sections retain the accepted silhouette, finger saddles and egg
+   sections. The cavity is now cut with an unbroken outer forging envelope after
+   the rubber's voxel relaxation, leaving a clean continuous molded lip instead
+   of a torn edge. Some polygon economy is visible in this enlarged macro;
+   the fine molded texture and parting-line finish are reserved for look-dev.
+7. **Accepted trigger / guard / cylinder / star / ammunition / loader.** Both
+   trigger pairs, `beauty/open.png`, `star.png`, `ammunition.jpg` and all 22 strips
+   retain the accepted forms and motions. The round-three native comparison
+   requires the entire cylinder, extractor plate, trigger and guard to match the
+   round-two checkpoint exactly, as well as the rig, clips, sockets and ammo.
+   Grip topology changes only to repair its cavity seam; the sculpt cage is the
+   same. Fine chamber-face wear, headstamps and material response stay held.
+
+## Round-three proof
+
+- `make -C guns/revolver` completes successfully, including the full rebuild,
+  source/import checks, independent rebuild, comparisons, sections and clips.
+  `make -C guns/revolver check` also passes explicitly on this final generator.
+  Logs are `build/round3-delivery-checkpoint.log` and
+  `build/round3-explicit-check.log` at repository root.
+- **39,734 staged / 31,080 active / 27,960 unloaded triangles**. Every hidden
+  ammunition alternative and reload representation remains counted. This is
+  916 more than the second checkpoint and within the unchanged 40,000 cap.
+  The forging saves 200 triangles and the flush plate saves 80; the final
+  continuous hammer saves 188 versus the joined-profile experiment.
+- Primary regions: forging 3,500; sideplate 320; barrel/lug 2,200; hammer body
+  and integrated spur 1,760 plus nose 108; grip 4,200; latch thumbpiece 674;
+  rear leaf/blade/backing 196/400. Cylinder 6,068, extractor plate 750, trigger
+  550 and guard 700 retain their round-two geometry exactly.
+- Inspection GLB **2,472,184 bytes**, 123 named meshes, nine temporary materials
+  and zero textures. The merged hammer removes one old mesh name. Ammunition
+  and loader GLBs remain 18,788 / 15,516 / 163,880 bytes. No UV/bake acceptance
+  or final material/draw-call claim is made at this checkpoint.
+- The round-three baseline comparison preserves **170 native entries** and
+  reports zero unexpected changes: all bones, sockets, clip keys, ammunition,
+  loader, complete cylinder, extractor plate, trigger and guard. The separate
+  forward-cylinder comparison also retains all 3,672 oriented triangles.
+
+- All 123 source/import parts are closed/manifold, have positive volume and
+  contain no zero-area triangles. Forging, barrel and cylinder have zero
+  disjoint triangle crossings. All 48 independent actual-surface records pass.
+- Full source sweep: **1,842 samples**; fresh-import sweep: **1,854 samples**.
+  Maximum measured penetration is **0.095825 mm**, below the unchanged
+  **0.20 mm** tolerance, with no allowed-pair exceptions. These establish
+  sampled clearance; the separate affine comparison establishes serialization.
+- Independent current rebuild: **187 entries**, zero differences. Full affine
+  comparison: 1,842 poses, maximum position error **0.0000672 mm**, maximum
+  linear-frame error **0.00000054**. All 32 bones, 22 clips, ten sockets,
+  per-chamber semantics, interrupted resumes and endpoint holds pass.
+- Actual source/import rays measure the crown recess at **1.450 mm**, swing-side
+  passage at **3.500 mm**, plate-to-adjacent-cheek step at **0.026 mm**, hammer
+  body at **7.435 mm** in an **8.009 mm** slot (about **0.287 mm** per cheek),
+  and central cylinder-window lights of **0.441/0.454 mm**. Twelve side-cheek
+  rays hit solid steel; the right shroud ray reaches its outer wall before the
+  rod. These are measured triangle surfaces, not repeated design constants.
+
+- `audit.json` passes **295 current-GLB PNG records**, all **22 decoded,
+  correctly timed WebP clips**, three separately labeled dense-source pairs,
+  five standalone views and the section provenance. Current GLB SHA-256:
+  `3f298877e6be350976fb0b3dc604fa15bfabe0944c58be4fe6101d697d58168f`.
+- Reviewed all 27 current beauty views, both hammer pairs, imported/source
+  photo comparisons, both trigger pairs, all 15 sections, ammunition and aimed
+  sheets, plus all 22 clip frame sheets. The longer reload/inspect sheets show
+  the case rise/release, loader handoff, single insertion and full closing arc;
+  short endpoint sheets retain the corresponding hammer/trigger holds.
+- Hero object luminance p1/p50/p99: **9.93 / 52.00 / 246.93** of 255 across
+  282,199 object pixels. **0.0450%** clips all channels; **1.857%** lies in deep
+  shadow. This checks usable tonal range with dark cavities and controlled
+  highlights; it does not accept final steel/rubber albedo or material response.
+
+The review entry points are `contact-sheet.jpg`, `photo-pairs.jpg`,
+`hammer-pairs.jpg`, `sections/sections.jpg`, `aimed-detail.jpg` and the named
+macros above. Per-clip JPG/WebP files remain under `strips/`.
+
+No kit, common module or other gun changes; no tools or installations are needed.
+All generated images and binary assets remain ignored, and no docs JPGs are
+committed before final acceptance. Look development remains held. The remaining
+visual weaknesses are the fuller original hammer neck, rounder latch outline,
+some low-poly economy at the enlarged rubber lip, and the less even reflection
+inside the deep ratchet-release well. A future general kit fixture for rounded
+profile normals and fine relief masks would help catch this class of shading
+loss; no shared-tool change is required for the checkpoint.
