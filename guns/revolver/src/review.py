@@ -28,7 +28,7 @@ def main():
  glb=BASE/'build/revolver.glb';digest=hashlib.sha256(glb.read_bytes()).hexdigest()
  assert report['sha256']==digest
  records=0
- for folder in ['beauty','photos','trigger']:
+ for folder in ['beauty','photos','trigger','hammer']:
   data=json.loads((OUT/folder/'shots.json').read_text())
   for name,row in data.items():
    assert row['sha256']==digest,(folder,name,'stale render');records+=1
@@ -50,10 +50,11 @@ def main():
    for i in range(im.n_frames):im.seek(i);im.load();duration+=im.info.get('duration',0)
   assert duration==row['duration_ms'],clip
  dimensions(report)
- beauty=[OUT/'beauty'/(name+'.png') for name in ['hero','side','left','top','front','rake_right','rake_left','open','star','reload','rear','grip','trigger_side','trigger_quarter','sights','hammer_cocked','recoil_shield','lug_front','grip_left','aimed']]
+ beauty=[OUT/'beauty'/(name+'.png') for name in ['hero','side','left','top','front','rake_right','rake_left','open','star','reload','rear','grip','trigger_side','trigger_quarter','sights','hammer_cocked','recoil_shield','lug_front','grip_left','muzzle','rear_sight','latch','grip_seam','shank','hammer_rest','hammer_top','aimed']]
  contact(beauty,OUT/'contact-sheet.jpg',width=2000,title='Meridian Six / FORM CHECKPOINT / imported unbaked GLB')
  review_sheet([[OUT/'pairs'/(n+'_photo-pair.jpg')] for n in ['right','left','open']],OUT/'photo-pairs.jpg',title='Photographic form comparisons / neutral balance where recoverable')
  review_sheet([[OUT/'source-pairs'/(n+'_photo-pair.jpg')] for n in ['right','left','open']],OUT/'source-photo-pairs.jpg',title='Dense source / same photographic comparisons')
+ review_sheet([[OUT/'hammer-pairs'/(n+'_photo-pair.jpg')] for n in ['hammer_rest','hammer_cocked']],OUT/'hammer-pairs.jpg',title='Rest / cocked hammer photographic comparisons; fixed visual angle estimates')
  contact([OUT/'ammo'/(n+'.png') for n in ['cartridge','cartridge_head','case','case_head','speedloader']],OUT/'ammunition.jpg',width=1600,title='Original .357 exterior ammunition and loaded speedloader')
  contact([OUT/'strips'/(clip+'.jpg') for clip in timing],OUT/'clips.jpg',width=2400,title='All clips / uniform 15 Hz samples / true-duration WebP loops beside each strip')
  # Exact optical frame, with a labeled magnification for blade/notch review.

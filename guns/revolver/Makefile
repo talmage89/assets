@@ -2,7 +2,7 @@ CHECKPOINT_BLEND := build/revolver.blend
 CHECKPOINT_OUTPUTS := build/revolver.blend build/sculpt.blend build/revolver.glb build/cartridge.glb build/case.glb build/speedloader_loaded.glb build/triangles.json
 CHECKPOINT_DEPS := src/build.py src/clips.py src/parameters.py src/interface.py ../common/magnum357.py ../common/interface_v1_4.py $(wildcard ../../kit/*.py)
 CHECKPOINT_OUT := renders/checkpoint/beauty
-VIEWS := hero side left top front rake_right rake_left open star reload rear trigger_side trigger_quarter grip grip_left sights hammer_cocked recoil_shield lug_front aimed
+VIEWS := hero side left top front rake_right rake_left open star reload rear trigger_side trigger_quarter grip grip_left sights hammer_cocked recoil_shield lug_front muzzle rear_sight latch grip_seam shank hammer_rest hammer_top aimed
 CHECKPOINT_RENDER_OUTPUTS := $(addprefix $(CHECKPOINT_OUT)/,$(addsuffix .png,$(VIEWS)))
 CHECKPOINT_CHECK = $(BP) --python src/check.py -- --source $(CHECKPOINT_BLEND) --out build/check.json
 CHECKPOINT_REVIEW = $(PYTHON) src/review.py
@@ -62,6 +62,14 @@ renders/checkpoint/trigger-pairs/.stamp: $(CHECKPOINT_OUTPUTS) build/references/
 .PHONY: triggers
 triggers: renders/checkpoint/trigger-pairs/.stamp
 review: match source-match strips sections triggers
+
+renders/checkpoint/hammer-pairs/.stamp: $(CHECKPOINT_OUTPUTS) build/references/whitebalance.json src/hammer_review.py src/shots.py
+	$(KIT)/with_gpu.sh $(BP) --python src/hammer_review.py -- --source build/revolver.glb --out renders/checkpoint/hammer --width 1100 --samples $(SAMPLES) --shots hammer_rest_photo,hammer_cocked_photo
+	$(PYTHON) src/hammer_review.py --compose
+	touch $@
+.PHONY: hammers
+hammers: renders/checkpoint/hammer-pairs/.stamp
+review: hammers
 
 build/form-metrics.json: $(CHECKPOINT_OUTPUTS) src/form_metrics.py
 	$(BP) --python src/form_metrics.py -- --source $(CHECKPOINT_BLEND) --out $@
