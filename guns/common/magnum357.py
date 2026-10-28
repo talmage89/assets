@@ -19,8 +19,8 @@ def build(name,base,materials,*,fired=False,segments=24):
  # Turned rim and case walls. Fired case has a real annular open mouth.
  profile=[(.0,1.8),(.0,5.56),(1.40,5.56),(1.40,4.78),(32.77,4.76)]
  if fired:profile += [(32.77,4.45),(2.0,4.45),(2.,1.8)]
- else:profile += [(32.77,0)]
- lathe('Case',profile,'brass',closed=fired)
+ else:profile += [(32.77,0),(.25,0),(.25,1.8)]
+ lathe('Case',profile,'brass',n=max(24,segments),closed=True)
  primer=[(.08,0),(-.03,.45),(-.03,1.7),(.25,1.7),(.25,0)] if fired else [(.02,0),(.02,1.7),(.25,1.7),(.25,0)]
  lathe('Primer',primer,'primer',n=12)
  if not fired:
