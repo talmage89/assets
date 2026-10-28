@@ -7,6 +7,7 @@ BASE=Path(__file__).resolve().parents[1];sys.path.insert(0,str(BASE.parents[1]))
 from kit.contact import contact,review_sheet
 from kit.fonts import find_font
 import final_shots
+from ammo_calibration import recipe_digest as ammo_recipe_digest
 from presentation import digest as presentation_digest
 OUT=BASE/'renders/final'
 p=argparse.ArgumentParser();p.add_argument('--docs',action='store_true');a=p.parse_args()
@@ -18,7 +19,19 @@ for folder in ('beauty','eevee','photos','hammer'):
   assert Image.open(OUT/folder/(name+'.png')).size[0]>0
 for folder,name in [('cartridge','cartridge'),('case','case'),('loader','speedloader_loaded')]:
  expected=hashlib.sha256((BASE/'export'/(name+'.glb')).read_bytes()).hexdigest()
- assert all(r['sha256']==expected for r in json.loads((OUT/'ammo'/folder/'shots.json').read_text()).values())
+ data=json.loads((OUT/'ammo'/folder/'shots.json').read_text())
+ assert all(r['sha256']==expected and r['presentation_sha256']==presentation_digest() for r in data.values())
+ records+=len(data)
+ammo_rows=json.loads((OUT/'ammo/calibration/shots.json').read_text())
+cartridge_digest=hashlib.sha256((BASE/'export/cartridge.glb').read_bytes()).hexdigest()
+assert all(r['sha256']==cartridge_digest and r['ammo_calibration_sha256']==ammo_recipe_digest() for r in ammo_rows.values())
+records+=len(ammo_rows)
+ammo_values=json.loads((OUT/'ammo/values.json').read_text())
+assert ammo_values['source_glb_sha256']==cartridge_digest and ammo_values['ammo_calibration_sha256']==ammo_recipe_digest()
+assert all(r['camera_visible_corners']==4 for r in ammo_values['patches'].values())
+high_digest=hashlib.sha256((BASE/'build/delivery/high.blend').read_bytes()).hexdigest()
+source_data=json.loads((OUT/'source-photos/shots.json').read_text())
+assert all(r['sha256']==high_digest and r['presentation_sha256']==presentation_digest() for r in source_data.values())
 timing=json.loads((OUT/'strips/timing.json').read_text())
 for clip,row in timing.items():
  data=json.loads((OUT/'strips'/clip/'shots.json').read_text())
@@ -29,6 +42,8 @@ for clip,row in timing.items():
  assert duration==row['duration_ms'],clip
 raw=Image.open(OUT/'beauty/hero.png').convert('RGBA');bg=Image.new('RGBA',raw.size,(105,108,111,255));bg.alpha_composite(raw)
 bg.convert('RGB').save(OUT/'hero-gray.jpg',quality=95,optimize=True)
+scale=Image.open(OUT/'beauty/scale.png').convert('RGBA');scale_bg=Image.new('RGBA',scale.size,(170,172,171,255));scale_bg.alpha_composite(scale)
+scale_bg.convert('RGB').save(OUT/'scale-gray.jpg',quality=94,optimize=True)
 turn=[OUT/'beauty'/(n+'.png') for n in ('front','side','back','top')]
 details=[OUT/'beauty'/(n+'.png') for n in ('hammer_cocked','sights','grip','muzzle','frame_bottom','grip_seam')]
 actions=[OUT/'beauty'/(n+'.png') for n in ('wear_front','star','reload','aimed')]
@@ -38,7 +53,7 @@ contact(actions,OUT/'action.jpg',width=1600,title='Open cylinder, extraction, lo
 beauty=[OUT/'beauty'/(n+'.png') for n in final_shots.DEFAULT_SHOTS.split(',')]
 if OUT/'beauty/wear_front.png' not in beauty:beauty.insert(2,OUT/'beauty/wear_front.png')
 extras=[OUT/'ammo'/folder/(n+'.png') for folder,n in [('cartridge','cartridge'),('cartridge','cartridge_head'),('case','case'),('case','case_head'),('loader','speedloader')]]
-contact([*beauty,OUT/'eevee/hero.png',*extras],OUT/'contact-sheet.jpg',width=2400,title='Meridian Six / current exported 2048 PBR GLBs / Cycles, scale, Eevee and detachments')
+contact([*beauty,OUT/'eevee/hero.png',*extras,OUT/'ammo/calibration/cartridge_values.png'],OUT/'contact-sheet.jpg',width=2400,title='Meridian Six / current exported 2048 PBR GLBs / Cycles, scale, Eevee and detachments')
 review_sheet([[OUT/'pairs'/(n+'_photo-pair.jpg')] for n in ('right','left','open','used')],OUT/'photo-pairs.jpg',title='Exported baked GLB / photographic comparisons / neutral balance where recoverable')
 review_sheet([[OUT/'hammer-pairs'/(n+'_photo-pair.jpg')] for n in ('hammer_rest','hammer_cocked')],OUT/'hammer-pairs.jpg',title='Rest and cocked / one sculpted crescent / fixed visual camera estimates')
 contact([OUT/'strips'/(n+'.jpg') for n in timing],OUT/'clips.jpg',width=2400,title='All 22 clips / actual-time Eevee playback beside each strip')

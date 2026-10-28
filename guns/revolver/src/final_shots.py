@@ -60,7 +60,11 @@ def prepare_shot(scene,shot):
   if ob.type=='LIGHT' and 'final_location' in ob:ob.data.energy*=.35 if photo else 1
   if photo and ob.name.startswith('Grip fill'):ob.data.energy=26 if ob.name.endswith('-1') else 3
  if shot.get('raking'):scene.objects['Raking inspection strip'].data.energy=1.2
- scale=bool(shot.get('scale'));scene.objects['Presentation placement'].location=(0,0,1.02) if scale else (0,0,0)
+ scale=bool(shot.get('scale'));placement=scene.objects['Presentation placement']
+ placement.location=(.20,0,1.02) if scale else (0,0,0)
+ # Scale photography presents the full side length beside the silhouette.
+ import math
+ placement.rotation_euler.z=math.pi/2 if scale else 0
  scene.objects['Scale fill'].hide_render=not scale
  for ob in scene.objects:
   if ob.get('human_scale'):ob.hide_render=not scale

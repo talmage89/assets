@@ -14,7 +14,10 @@ UV_NORMALIZE_ISLAND_SCALE=True
 UV_PRIORITY={'Hammer_Body':1.25,'Frame_':1.15,'Grip_Rubber':1.2,'Barrel':1.05,
  'RearSight_':1.25,'Cylinder_Fluted':1.2,'Extractor_Rod':.5,'Crane_Axle':.6,
  'Live':.8,'LoaderRound':.75,'Case':.8,'InsertRound':.8,'Speedloader':.75}
-BAKE_POLICY=dict(isolate_rigid_bones=True,consolidate_attribute_sources=True,
+# The accepted grip lip is close to steel. Isolate it for projection so
+# selected-to-active rays cannot copy the frame finish into the rubber.
+BAKE_POLICY=dict(isolate_moving=True,moving_roots=['Grip_RubberMold'],
+ isolate_rigid_bones=True,consolidate_attribute_sources=True,
  cage_m=.00022,ray_distance_m=.0012,ao_distance_m=.008,material_ao_channel='micro_ao')
 DETACHABLES=[
  dict(armature='RevolverArmature',bone='Live0',bones=['Live0'],name='Cartridge',filename='cartridge.glb',clip='Idle',frame=0),

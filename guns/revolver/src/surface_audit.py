@@ -31,6 +31,9 @@ for name,y in [('stop_track_dark',.04373),('stop_track_center',.044),('cylinder_
 for name,y in [('muzzle_holster',.181),('barrel_satin',.145)]:rows[name]=sample(name,(.04,y,.061),(-1,0,0),tree)
 rows['rubber_texture']=sample('rubber texture',(-.08,-.035,-.046),(1,0,0),tree)
 rows['rubber_hand']=sample('rubber hand',(0,.04,-.022),(0,-1,0),tree)
+# Near the accepted upper molding lip: steel must not project into rubber.
+for name,y,z in [('rubber_lip_web',-.020,.038),('rubber_lip_side',-.024,.034)]:
+ rows[name]=sample(name,(-.08,y,z),(1,0,0),tree)
 W.pose(arm,'Reload',88);tree=surface()
 xf=arm.matrix_world@arm.pose.bones['Cylinder'].matrix@arm.pose.bones['Cylinder'].bone.matrix_local.inverted()
 for name,p in [('cylinder_carbon',(.006,.0922,.061)),('cylinder_clean_face',(.0085,.0922,.06292))]:
@@ -39,7 +42,8 @@ rows['topstrap_carbon']=sample('topstrap carbon',(0,.081,.067),(0,0,1),tree)
 for name,row in rows.items():
  rgb=np.array(row['texels']['BaseColor']);row['base_luma_byte']=float(rgb@np.array([.2126,.7152,.0722]))
  row['ao'],row['roughness'],row['metallic']=(np.array(row['texels']['ORM'])/255).tolist()
-checks=dict(stop_track_contrast=rows['cylinder_unworn']['base_luma_byte']-rows['stop_track_dark']['base_luma_byte']>20,
+checks=dict(rubber_lip_finish=all(rows[k]['metallic']<.05 and rows[k]['base_luma_byte']<70 for k in ('rubber_lip_web','rubber_lip_side')),
+ stop_track_contrast=rows['cylinder_unworn']['base_luma_byte']-rows['stop_track_dark']['base_luma_byte']>20,
  carbon_core=rows['cylinder_carbon']['metallic']<.5 and rows['cylinder_clean_face']['base_luma_byte']-rows['cylinder_carbon']['base_luma_byte']>35,
  rubber_hand_polish=rows['rubber_texture']['roughness']-rows['rubber_hand']['roughness']>.1,
  muzzle_polish=rows['barrel_satin']['roughness']-rows['muzzle_holster']['roughness']>.05)

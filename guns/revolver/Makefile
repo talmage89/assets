@@ -120,8 +120,10 @@ renders/final/ammo/.stamp: $(EXPORTS) $(RENDER_DEPS)
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source export/case.glb --out renders/final/ammo/case --width 1200 --samples $(SAMPLES) --shots case,case_head
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source export/speedloader_loaded.glb --out renders/final/ammo/loader --width 1200 --samples $(SAMPLES) --shots speedloader
 	touch $@
-standalones: renders/final/ammo/.stamp
-renders/final/ammo/values.json: renders/final/ammo/.stamp src/ammo_values.py build/references/whitebalance.json
+renders/final/ammo/calibration/shots.json: export/cartridge.glb $(RENDER_DEPS) src/ammo_calibration.py
+	$(KIT)/with_gpu.sh $(BP) --python src/ammo_calibration.py -- --source export/cartridge.glb --out renders/final/ammo/calibration --width 1200 --samples $(SAMPLES)
+standalones: renders/final/ammo/.stamp renders/final/ammo/calibration/shots.json
+renders/final/ammo/values.json: renders/final/ammo/calibration/shots.json renders/final/ammo/.stamp src/ammo_values.py build/references/whitebalance.json
 	$(BP) --python src/ammo_values.py
 review: render match hammers strips standalones renders/final/ammo/values.json
 	$(PYTHON) src/final_review.py
