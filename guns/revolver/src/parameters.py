@@ -22,6 +22,12 @@ GAP=.20
 BREECH=FRONT+GAP
 MUZZLE=BREECH+101.6
 RADIUS=19.7
+FLUTE_RADIUS=7.1
+FLUTE_START=REAR+10
+FLUTE_END=FRONT-1.5
+def flute_axis(i):
+ t=math.pi/2+math.pi/6+i*math.tau/6
+ return round(25*math.cos(t),6),round(CY+25*math.sin(t),6)
 CRANE=(-8,85,20)
 OPEN=-80
 EYE=(0,-622,83)

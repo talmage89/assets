@@ -31,6 +31,13 @@ def measure(arm):
  error=math.hypot(bc.x-cc.x,bc.z-cc.z)
  assert error<.00008,(bc,cc)
  rows.append(dict(kind='chamber / bore coaxial from inner surfaces',barrel_center=list(bc),chamber_center=list(cc),error_m=error,passed=True))
+ radii=[]
+ for i in range(16):
+  angle=i*math.tau/16;direction=(math.cos(angle),0,math.sin(angle))
+  hit=ray(barrel,(0,.100,.061),direction,.006)
+  radii.append(math.hypot(hit[0].x,hit[0].z-.061))
+ assert all(.00444<r<.00454 for r in radii),radii
+ rows.append(dict(kind='bore roundness: sixteen actual radial rays',radii_m=radii,minimum_m=min(radii),maximum_m=max(radii),passed=True))
  for clip,f in [('Idle',0),('Fire',24),('Fire2',24),('FireLast',24),('CockHammer',32)]:
   W.pose(arm,clip,f)
   contact('CylinderStop','Cylinder_Fluted',.00035,'stop seated in bolt notch: '+clip)

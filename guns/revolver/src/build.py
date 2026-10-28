@@ -102,7 +102,7 @@ def frame():
  window=[(y+58.95,z+48.2) for y,z in rounded(47.4,42.0,1.1,6)]
  cut(o,profile('tool',window,-30,30,register=False))
  # Hammer/trigger slots and front crane heel pocket are visible machining.
- cutbox(o,(-4.2,-20,40),(4.2,19,81))
+ cutbox(o,(-4.2,-3,40),(4.2,19,81))
  cutbox(o,(-4.1,26,12),(4.1,44,26))
  cutbox(o,(-22,82.6,18),(6.5,90.0,54.7))
  cutbox(o,(-28,81,CY-3.8),(3.5,98,CY+3.8))
@@ -159,6 +159,13 @@ def barrel():
  outline=[(3.4,76.4),*arc(0,BORE,r,a,b,24),
   *arc(0,CY,lug,b,-math.pi-b,48),
   *arc(0,BORE,r,-math.pi-b,-math.pi-a,24),(-3.4,76.4)]
+ # Keep the bore round through the long straight tangent/rib transitions.
+ # Their endpoint-only polar correspondence otherwise leaves 50-degree chords.
+ original=outline;outline=[]
+ for va,vb in zip(original,original[1:]+original[:1]):
+  span=(math.atan2(va[1]-BORE,va[0])-math.atan2(vb[1]-BORE,vb[0]))%math.tau
+  steps=max(1,math.ceil(span/math.radians(3))) if span>math.radians(6) else 1
+  outline.extend([(va[0]+(vb[0]-va[0])*k/steps,va[1]+(vb[1]-va[1])*k/steps) for k in range(steps)])
  angles=[math.atan2(z-BORE,x) for x,z in outline]
  def circle(y,rr):return [(rr*math.cos(t),y,BORE+rr*math.sin(t)) for t in angles]
  def section(y,inset=0):
@@ -187,11 +194,17 @@ def cylinder():
   # Exterior visual chamber and rim counterbore. No functional throat design.
   cut(o,lathe('tool',[(REAR-2,0),(REAR-2,5.8),(REAR,5.8),(REAR+.15,5.65),(REAR+1.4,5.65),(REAR+1.4,4.90),
    (FRONT-1.0,4.90),(FRONT,4.55),(FRONT+1,4.55),(FRONT+1,0)],center=(x,z),n=32,register=False))
-  t=math.pi/2+math.pi/6+i*math.tau/6
-  # Six long scallops have round ends and a shallow concave mill section.
-  fx,fz=round(25.0*math.cos(t),6),round(CY+25.0*math.sin(t),6)
-  flute=lathe('tool',[(REAR+10,0),(REAR+11,3.0),(REAR+14,7.1),
-   (FRONT-5,7.1),(FRONT-2,3),(FRONT-1.5,0)],center=(fx,fz),n=32,register=False)
+  # A swept round-ended cutter leaves continuous spherical end blends.
+  fx,fz=flute_axis(i);rr=FLUTE_RADIUS
+  cutter=[(FLUTE_START,0)]
+  for j in range(1,9):
+   a=-math.pi/2+j*math.pi/16
+   cutter.append((FLUTE_START+rr+rr*math.sin(a),rr*math.cos(a)))
+  cutter.append((FLUTE_END-rr,rr))
+  for j in range(1,9):
+   a=j*math.pi/16
+   cutter.append((FLUTE_END-rr+rr*math.sin(a),0 if j==8 else rr*math.cos(a)))
+  flute=lathe('tool',cutter,center=(fx,fz),n=32,register=False)
   cut(o,flute)
   # A rectangular stop recess with a shallow approach cut, around each station.
   tool=box('tool',(-1.6,42.0,CY-RADIUS-1),(1.6,48.0,CY-RADIUS+1.4),register=False)
@@ -347,7 +360,7 @@ def finalize(o):
  # Budget actual finalized triangles; Boolean cap tessellation can cost more
  # than a pre-triangulation ngon count. Fine hardware relief belongs in bake.
  limits={'Cylinder_Fluted':7700,'Frame_Forging':2600,'Grip_RubberMold':4000,
-  'Barrel':2800,'Speedloader_Body':1300,'TriggerGuard_ForgedBow':850,
+  'Barrel':2800,'Speedloader_Body':1200,'Speedloader_Release':310,'TriggerGuard_ForgedBow':850,
   'Extractor_Star':650,'Crane_Yoke':850,'Trigger_Shoe':550,'Hammer_Body':400,
   'Frame_Sideplate':400,'Hammer_ThumbSpur':300,'Latch_Thumbpiece':320,
   'RearSight_Leaf':180,'RearSight_NotchBody':260,'Crane_PivotSupport':180}
@@ -361,12 +374,14 @@ def finalize(o):
   o.data.normals_split_custom_set([(0,0,0)]*len(o.data.loops));M.smooth(o,42)
   wn=o.modifiers.new('Final machined surface normals','WEIGHTED_NORMAL');wn.keep_sharp=True;wn.weight=50;M.apply(o)
  normals=[n.vector.copy() for n in o.data.corner_normals]
- if o.name=='Frame_Forging':
+ if o.name in ('Frame_Forging','Speedloader_Body','Speedloader_Release'):
+  axis=0 if o.name=='Frame_Forging' else 1
   planar={}
   for f in o.data.polygons:
-   xs=[o.data.vertices[i].co.x for i in f.vertices]
-   if abs(f.normal.x)>.999 and max(xs)-min(xs)<.03:
-    for i in f.vertices:planar[i]=Vector((1 if f.normal.x>0 else -1,0,0))
+   xs=[o.data.vertices[i].co[axis] for i in f.vertices]
+   if abs(f.normal[axis])>.999 and max(xs)-min(xs)<.03:
+    fixed=Vector((0,0,0));fixed[axis]=1 if f.normal[axis]>0 else -1
+    for i in f.vertices:planar[i]=fixed.copy()
   for f in o.data.polygons:
    for j in f.loop_indices:
     fixed=planar.get(o.data.loops[j].vertex_index)
@@ -377,10 +392,21 @@ def finalize(o):
     for j in f.loop_indices:normals[j]=Vector((0,1 if f.normal.y>0 else -1,0))
    elif o.name=='Cylinder_Fluted':
     vs=[o.data.vertices[i].co for i in f.vertices]
-    if all(abs(math.hypot(v.x,v.z-CY)-RADIUS)<.025 for v in vs):
+    radial=Vector((f.center.x,0,f.center.z-CY)).normalized()
+    if all(abs(math.hypot(v.x,v.z-CY)-RADIUS)<.025 for v in vs) and f.normal.dot(radial)>.95:
      for j in f.loop_indices:
       v=o.data.vertices[o.data.loops[j].vertex_index].co
       normals[j]=Vector((v.x,0,v.z-CY)).normalized()
+    else:
+     for i in range(6):
+      fx,fz=flute_axis(i)
+      def cutter_normal(v):
+       yy=min(max(v.y,FLUTE_START+FLUTE_RADIUS),FLUTE_END-FLUTE_RADIUS)
+       return Vector((fx,yy,fz))-v
+      if all(abs(cutter_normal(v).length-FLUTE_RADIUS)<.13 for v in vs) and f.normal.dot(cutter_normal(f.center).normalized())>.7:
+       for j in f.loop_indices:
+        normals[j]=cutter_normal(o.data.vertices[o.data.loops[j].vertex_index].co).normalized()
+       break
  for f in o.data.polygons:
   for j in f.loop_indices:
    if normals[j].dot(f.normal)<.03:normals[j]=f.normal.copy()
