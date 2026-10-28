@@ -93,6 +93,10 @@ build/oak/studio-parameters.txt: FORCE
 docs: final-render src/oak_final_review.py src/oak_evidence.py
 	$(BP) --python src/oak_final_review.py -- --renders renders/oak-final --docs
 check: verify
+.PHONY: check-bark
+check-bark: final-render src/oak_evidence.py src/oak_final_review.py
+	$(BP) --python src/oak_final_review.py -- --renders renders/oak-final
+check: check-bark
 .PHONY: clean
 clean:
 	$(PYTHON) -c "import shutil; from pathlib import Path; [shutil.rmtree(p,ignore_errors=True) for p in ('build/oak','textures/oak','renders/oak-final','renders/oak-final-eevee')]; Path('export/PinOak.glb').unlink(missing_ok=True)"

@@ -1928,3 +1928,338 @@ fine relief is normal mapped. These limitations remain visible and disclosed.
   lock with a worktree-local lock; corrected before the shipping bake/finals.
   The final bake and every shipping render inherited the shared `ASSETS_GPU_LOCK`.
   No tools or approval are needed from the lead.
+
+# Pin oak / bark-only polish
+
+## Bark pass 1 — exported channels pass, flat plate surface rejected
+
+**Color/value first:** inspected `renders/oak-bark-polish-1/bark-pair.jpg`,
+`bark.png` and the actual 1 m `bark_raking.png`, all from the rebaked 2048-map
+GLB (`build/bark-polish/pass1.glb`). The unchanged marked OSU patch has median
+Y **.42210**, brightest-third median **.51788**, darkest-tenth median
+**.25047**. A fixed **Y < .30** mask selects **11.4266%**. This threshold was
+chosen from the photo before viewing candidates and is identical for both
+images; it is a display-shadow proxy, not semantic segmentation or albedo.
+The old export was **.40921 / .44113 / .32572 / 2.4398%**, respectively.
+
+Candidate 1 measures **.48266 / .52188 / .23193 / 12.7266%**. The three new
+population errors are +.00400 / −.01854 / +.01300, but its median is too light
+and its RGB **(.46275,.49020,.46667)** loses red-above-blue. Reject it.
+The meter-scaled bisector distances make genuine broad channels, but the
+plate faces are excessively smooth and the edges are clean, angular cellular
+outlines. Raking light reveals relief, yet the missing exfoliation/fibers and
+strong cross connections still look artificial against the photograph.
+
+Next: restore a warm middle value, broaden the plate pigment distribution,
+roughen chipped shoulders below the main ridge scale, and give faces shallow
+scaly/fiber relief. Transverse plate ends must be shallower/lighter than the
+longitudinal channels. No geometry, cards or UV edits.
+
+Source and finalized positions/triangles/UVs/authored normals/Wind compare as
+exact byte arrays. All exported accessor bytes also agree except one wood
+tangent component changed by **.000099957** during Blender's MikkTSpace
+recalculation; this is reported separately, not called byte-identical geometry.
+The independent preservation check also verifies the entire leaf region and
+alpha, materials, scene nodes and delivery layout. Maple rebuilt source arrays
+and all four packed PNG inputs are exact; a separate preserved-map re-export
+reproduces the entire current maple GLB byte for byte, SHA-256
+`19cbc7bfc89abc87d664bf6744ec429ec9820a52a25f65e96fd8b1402d748438`.
+
+## Bark pass 2 — exported middle value restored; reject excess dark coverage
+
+**Color/value first:** opened the two exported bark views and the photo pair
+in `renders/oak-bark-polish-2/` (1600 px / 48 samples), candidate saved as
+`build/bark-polish/pass2.glb`. Median **.41843**, RGB
+**(.41961,.42353,.35686)** restore the warm gray-brown middle and red-above-blue.
+But brightest-third **.48315** is .03473 low, darkest-tenth **.20947** is .04100
+low, and the fixed-threshold dark share **18.7310%** is .07304 high. Reject the
+population match, without rounding the narrow ridge-top miss into a pass.
+
+Scaly relief and chipped shoulders are better in raking light, but low-pigment
+whole plates now merge with the fissure population. The broad plate-to-plate
+range looks like dark panels rather than a family of gray ridge tops. Reduce
+that dark tail, retain pale exposed ridge faces, and make the cross breaks
+lighter than the main axial channels. Keep the physical normal relief.
+
+All **12 oak accessors now agree byte for byte**, including tangents; the
+pass-1 tangent recalculation discrepancy does not persist in this candidate.
+Full leaf-region pixels and alpha are exact, with unchanged mesh/material/node
+layout. Maple files remain untouched. The final preservation gate is tightened
+to require exact tangents too.
+
+## Bark pass 3 — exported fissures match; ridge highlights still rejected
+
+**Color/value first:** inspected `renders/oak-bark-polish-3/{bark,bark_raking}.png`
+and its pair. Median **.41451**, RGB **(.41961,.41961,.35294)** retain the old
+warm middle. Darkest-tenth **.24840** and dark share **11.9403%** are close to
+photo **.25047 / 11.4266%**, errors −.00207 / +.00514. Ridge tops remain
+**.46913**, .04875 below the target: reject despite the matching fissures.
+
+The original pair showed a taller stretch of model bark, reducing its displayed
+bole width relative to the photo. The comparison now crops a shorter stretch
+so the bole widths are comparable. **Measurement rectangles are unchanged.**
+This is a visual scale normalization between unsurveyed specimens, not a new
+calibrated camera claim. The more even middle faces remove the rejected black
+panels. Broaden the normal-relief shoulders independently of the dark pigment/AO
+core, and increase only the pale tail of ridge-face pigment. The diagnostic
+export still has the one .000099957 tangent-component rounding difference;
+positions, UVs, authored normals, Wind, indices and layout remain exact.
+
+## Bark pass 4 — exported broader relief; reject dull, uninterrupted faces
+
+**Color/value first:** inspected the fourth exported bark pair and 1 m raking
+view. Median **.41506**, darkest-tenth **.25486** and dark share **10.4527%**
+retain the accepted warm middle and match the photo's fissures. Brightest-third
+**.46886** still fails by −.04901. Increasing only the per-plate pale tail did
+not fix this patch: too few large plate faces land in that tail. The actual
+images, not the intended palette, decide the result. Reject it.
+
+Broader normal-relief shoulders better define the raised ridges in raking
+light. However, the pale faces lack smaller exfoliated areas, and the sparse
+lichen is barely legible. Add subordinate centimeter-scale cork exfoliation,
+with correlated color/height only on ridge faces, and make the existing sparse
+lichen paler. Retain the core channel mask, normal silhouette, UVs and foliage.
+All 12 oak accessors and the entire leaf region/alpha are exact in this export.
+Maple's checks on preserved build/delivery inputs pass; fresh verification
+reports are intentionally outside the preserved-asset hash comparison.
+
+## Bark pass 5 — exported median preserved; reject mottling and marginal highlight miss
+
+**Color/value first:** the fifth exported pair measures median **.40805**, RGB
+**(.41176,.41176,.34510)**, darkest-tenth **.25097**, dark share **9.9933%**.
+The fissure value/share pass, and the old .408 middle is preserved. Ridge tops
+are **.48482**, error −.03306: reject the remaining miss. All twelve oak
+accessors, leaf pixels and alpha remain exact; the fresh maple source data,
+four packed PNGs and growth JSON are exact too.
+
+The new pale centimeter-scale patches look mottled against the photograph,
+not finely exfoliated. Sparse lichen became too broad in combination with that
+field. Reject appearance as well as the numeric miss. Use finer cork detail,
+reduce lichen coverage while retaining pale peaks, and increase the actual
+baked relief. The earlier 4 mm source field at .65 bump strength was too weak
+for the broad channel shoulders. The next authored field has a 5.5 mm main
+depth and .95 source bump strength, with narrower shoulder slopes and a 7 mm
+encoding range. Those are authored inputs, not claimed measured relief.
+The shipped raking view will decide whether the depth reads.
+
+## Bark pass 6 — exported relief reads; finish value calibration
+
+**Color/value first:** opened the sixth pair and 1 m raking export. Median
+**.39435**, RGB **(.39608,.40000,.33333)** are too dark relative to the retained
+.408 middle. Ridge **.46549** still misses; fissure **.23555** passes, but dark
+share **16.2699%** exceeds the photo by .04843. Reject the display calibration.
+
+The raking view now shows raised, flat-topped strips and broad brown channels;
+fine face relief replaces the rejected camouflage-like patches. Normal/AO,
+rather than only pigment outlines, carry the main depth. Silhouette remains
+smooth. Preserve this form and adjust the pigment middle/pale fine-scale tail,
+with a lower bound to keep entire plate faces out of the fissure population.
+No lighting, geometry or UV changes are used for that calibration. The new
+palette/normal field is isolated to oak; rebuilding maple again retains exact
+source arrays and all four packed procedural PNGs.
+
+## Bark pass 7 — exported fissures and median pass; pale cork still too compressed
+
+**Color/value first:** the seventh pair has median **.41314**, RGB
+**(.41569,.41961,.34902)**, fissure **.25406**, dark share **11.9813%**.
+The fissure/share and retained median pass. Ridge-top **.47669** still misses
+by −.04119, so this does not yet clear the new brief. The raking image retains
+the stronger channel/ridge relief and smooth silhouette. Increase the pale
+cork contrast around the middle while retaining the lower pigment bound;
+do not brighten the whole bark or alter the light. Sparse lichen should have
+stronger pale centers with lower coverage, rather than a weak broad wash.
+
+All 12 oak accessor buffers (tangents included), complete leaf region/alpha,
+materials/nodes/layout and 33 protected maple files pass exact comparison.
+
+## Bark pass 8 — exported geometry preservation and maple pipeline proven; reject compressed highlights
+
+**Color/value first:** opened the eighth pair and raking image. Median
+**.41815**, RGB **(.42353,.42353,.35686)**; fissure **.25880** and dark share
+**10.3416%** pass. Ridge-top **.48089** remains .03698 low, and the median is
+just beyond the deliberately stricter retained-middle window (.40779 ± .01).
+Reject both rather than rounding either into acceptance. The pale cork's
+source pigment contrast is being compressed by the bounded color ramp; widening
+only its input tail has little effect on the exported highlights. Give the oak
+a wider ridge/fissure palette with a nonlinear middle-preserving response.
+
+All 12 oak accessors, leaf/alpha pixels and layout remain exact. A **fresh maple
+source rebuild, fresh finalize and export using preserved delivery maps** now
+reproduces the entire baseline GLB, **7,876,084 bytes**, SHA-256
+`19cbc7bfc89abc87d664bf6744ec429ec9820a52a25f65e96fd8b1402d748438`.
+The current maple asset files were never replaced by that isolated proof build.
+
+## Bark pass 9 — exported endpoints pass; reject high median and stark cork
+
+**Color/value first:** the wider palette gives ridge **.54539**, fissure
+**.23104**, dark share **12.4224%**, all within .03 of the photo. But median
+**.44845**, RGB **(.43922,.45490,.41176)** abandon the accepted .408 middle.
+Reject it. The pale cork is too stark in the daylight pair and raking view.
+Reduce the palette expansion and strengthen its middle suppression, lifting
+the brown floor enough to avoid over-darkening the fissures. All twelve oak
+accessors and the protected maple files remain exact. The latest isolated
+maple source/finalize/preserved-map export again reproduces the baseline GLB.
+
+## Bark pass 10 — exported ridge tops match; reject dark floor coverage
+
+**Color/value first:** the tenth daylight pair has ridge **.50838** against
+**.51788**: the pale-top range now matches. Median **.39857**, RGB
+**(.39608,.40392,.35294)**, is at the lower edge of the retained-middle window.
+Fissure **.21367** and dark share **18.9956%** fail. Raise the brown palette
+floor while retaining the ridge endpoint, nonlinear middle and actual relief.
+This also reduces the overly stark pale/dark stipple. All 12 oak accessors,
+leaf/alpha pixels and protected maple files remain exact.
+
+## Bark pass 11 — exported targets pass; proceed to complete finals
+
+**Color/value first:** inspected the eleventh exported pair, daylight bark and
+actual 1 m raking view at 1600 px / 48 samples. Median **.41284** retains .408
+within .01; median RGB **(.41176,.41961,.36863)** keeps red above blue. Ridge
+**.51145 / photo .51788**, fissure **.26192 / .25047**, dark share **12.8894% /
+11.4266%**: errors **−.00643 / +.01145 / +.01463**, all within .03. The brown
+floor reduces the rejected black/pale stipple. Raised gray tops and continuous
+recessed brown channels now read in raking light; the upper young wood stays
+smoother/lighter and silhouette is unchanged. Accept for full-resolution finals.
+Fine cork texture remains coarser/softer than the reference, and the macro
+network retains some procedural organization; the new relief is the meaningful
+improvement, not a claim that equal percentiles prove photographic identity.
+
+Blender's tangent recalculation again changed one near-zero wood component by
+**.000099957**. For this explicitly map-only revision, the optional
+`check_bark_preservation.py --restore-tangent-rounding` retains the original
+self-generated tangent bytes **only after** every non-tangent accessor,
+material/node/layout, leaf/alpha region and protected maple file passes exact
+comparison. It rejects larger or non-tangent changes and verifies that embedded
+image payloads are untouched. The restoration is recorded in
+`build/bark-polish/preservation-restored.json`; a separate default **read-only**
+audit then proves **all twelve accessor buffers exact** in
+`build/bark-polish/preservation-final.json`. No geometry or reference pixels are
+introduced. Full finals are regenerated from the resulting GLB hash.
+
+## Full-set review after pass 11 — reject residual graphic cork, despite passing values
+
+**Color/value first:** all 16 Cycles/one Eevee views and the source/export pairs
+were completed and the checks passed. Export median **.41316**, ridge **.51118**,
+fissure **.26185**, dark share **12.9472%** pass the brief. Source median/ridge/
+fissure/share are **.39886/.51539/.23944/17.5126%**; filtering removes fine dark
+cork and raises the shipped median by .01430. But opening the full source and
+export bark shows excessively graphic mottling on the otherwise improved
+raised ridges. Numeric acceptance does not clear that look. Supersede pass 11's
+acceptance and reduce pigment grain/exfoliation contrast, retaining the same
+height/occlusion fields. The first full-set docs were never committed.
+
+## Bark pass 12 — exported gray plates improve; restore their middle value
+
+**Color/value first:** the quieter exported pair measures **.36942** median,
+**.48456** ridge, **.25037** fissure and **20.4406%** dark share. The albedo no
+longer looks like a camouflage pattern; raking light carries the scaly relief.
+But low-pigment plate faces are too dark and broaden the dark-share population.
+Lift the ridge-pigment middle, keeping the quiet fine variation and actual
+channel relief. No geometry, light, UV, leaf or runtime-material changes.
+
+## Bark pass 13 — exported quiet pigment, reduce dark shoulder coverage
+
+**Color/value first:** the quieter gray-plate export has median **.39719**,
+ridge **.50025**, fissure **.25738**, dark share **17.0457%**. Ridge/fissure values
+pass; dark share remains too large and the old middle is missed narrowly.
+The physical ridges read better without the earlier graphic fine mottling.
+Lift the plate middle slightly and keep brown pigment most concentrated at the
+channel floor, rather than across its whole shoulder. Height and occlusion
+remain unchanged; this is a pigment correction, not a reduction in depth.
+
+## Bark pass 14 — exported quiet ridge faces and channel relief pass together
+
+**Color/value first:** inspected both 1600 px / 48-sample exported views and
+OSU pair. Median **.41481**, RGB **(.41569,.41961,.36863)** retain the warm .408
+middle within .01. Ridge **.50726 / photo .51788**, fissure **.26818 / .25047**,
+dark share **13.1761% / 11.4266%** all pass .03. The stronger brown pigment is
+now concentrated nearer the channel floors. The broad gray faces are quieter,
+with light/shadow carrying scaly relief rather than the rejected graphic fine
+mottling. Raking light still reveals the full unchanged depth field and the
+silhouette remains smooth. Accept this quieter version for replacement finals.
+All twelve oak accessors, leaf/alpha pixels, layout and protected maple files
+pass exact comparison directly, without a tangent restoration in this export.
+Fine photographic grain remains richer, and some cellular organization remains
+visible in a macro view. These limits are retained for the final report.
+
+## Bark pass 15 — final quieter GLB, source/export pairs and complete delivery
+
+**Color/value first:** opened the complete current GLB contact, both export and
+source photo pairs, both bark pairs and raking views, detail/scale/family views
+and the final docs. All final views use 1600 px / 72 samples. Export bark median
+**.41481** versus photo **.42210**, previous accepted **.40779** (drift +.00702).
+RGB **(.41176,.41961,.36863)** versus **(.42353,.42745,.37255)** keeps red above
+blue, differences **+.04314 / +.05098**. The final quiet pigment passes all new
+population limits without the rejected graphic mottling:
+
+| Bark population | Export | Photo | Delta |
+| --- | ---: | ---: | ---: |
+| Brightest-third median | .50671 | .51788 | −.01117 |
+| Darkest-tenth median | .26859 | .25047 | +.01812 |
+| Fixed Y < .30 share | 13.2233% | 11.4266% | +.01797 |
+
+The unchanged rectangles and selector are explicit in the JSON. Dark share is
+a display-shadow proxy, not semantic ground truth. The actual exported-surface
+ray measures **1.003510 m** to the raking camera. Raised flat gray ridges and
+recessed brown channels read in that light, while the silhouette remains exact.
+Shipped normal-angle median / p90 are **8.9708° / 41.4835°**, AO p10 **.65490**,
+measured on 24,000 uniform area samples at chest height. Density remains
+**648.353–650.318 px/m** in every tangent direction. These measure map response,
+not displaced height. Upper wood and thin limbs retain the smooth young response.
+
+Source bark median / ridge / fissure / dark share are
+**.40725 / .50362 / .24788 / 18.0610%**. The shipped median increases **.00756**,
+ridge **.00309**, fissure **.02071**; fine dark coverage loses **4.8377 percentage
+points**. The source's fine dark share does not match the photograph, whereas
+the delivered 2048 maps do. This filtering loss and the remaining coarser/softer
+fine grain are disclosed. The large split/rejoin pattern still has some cellular
+organization in a macro view. The bark is improved, not claimed photographically
+identical merely because population measurements pass. The crown/leaf limits
+from the accepted delivery remain unchanged.
+
+### Final bark-only proof
+
+- **`make -C trees SPECIES=oak`: passed** from regenerated source/game scenes,
+  unchanged geometry/UVs, 4096 GPU bake, 2048 maps, export, all finals/docs and
+  checks. Explicit **`make -C trees SPECIES=oak check`: passed**.
+- All **12 original oak accessor buffers are byte-identical directly**, including
+  tangents, along with material constants, nodes/layout and every leaf-region /
+  alpha pixel. The final export required **no tangent restoration**. Default
+  read-only audit: `build/bark-polish/preservation-final.json`.
+- **24,816 triangles = 10,536 wood + 14,280 foliage**, two materials / two static
+  meshes, origin at grade. Geometry memory **2,901,792 bytes**, compressed full-mip
+  textures **16 MiB**, combined estimate **18.7674 MiB**; allocation unchanged.
+- Three **2048²** maps from 4096 bake. PNG bytes: BaseColor **2,522,466**, Normal
+  **4,264,602**, ORM **2,008,756**. GLB **11,702,192 bytes**. Zero UV overlap,
+  degenerate/outside triangles, and zero missed/black bake interiors among
+  **4,921,201** tested. Raw-accessor/fresh-import position and Wind errors zero;
+  maximum normal vector difference remains below **8.5e-5**.
+- **16 Cycles + one Eevee** views match GLB SHA-256
+  `49ffc243d9888dc82825b8d35f1a208ad795221b48626b9ff2a8258f421ebab3`.
+  Cycles/Eevee hue difference **.00578 turns**, median Y **+.00114**, HSV value
+  **−.00106** pass .05. Hero green p5/median/p95 **.09277/.25780/.53975**, no
+  selected channel clipping; original crown value populations still pass .03.
+- Finals, pairs and contact: `renders/oak-final/`; Eevee
+  `renders/oak-final-eevee/hero.png`; repeated source pairs and bark:
+  `renders/oak-final-source/`. No source scene substitutes for the exported GLB
+  in any final view. Every Cycles invocation inherited the shared GPU lock.
+- Docs replace only `docs/oak-hero.jpg` (**190,281 bytes**) and
+  `docs/oak-details.jpg` (**174,764 bytes**), at most 1600 px wide. The three maple
+  docs JPGs are untouched. No reference photo or generated binary is committed.
+- Maple source/container/input/delivery files remain unchanged (33 protected
+  hashes). An isolated fresh source rebuild has exact position/triangle/UV/
+  normal/Wind arrays, all four packed PNG inputs and growth JSON. Fresh finalize
+  and export with preserved maps reproduce the complete baseline GLB exactly:
+  **7,876,084 bytes**, SHA-256
+  `19cbc7bfc89abc87d664bf6744ec429ec9820a52a25f65e96fd8b1402d748438`.
+  Reports: `maple-final-source-comparison.json`, `maple-growth-comparison.json`,
+  `maple-fresh-finalized-comparison.json` under `build/bark-polish/`.
+- Maple check recipes were run with the six source/delivery build targets marked
+  old (`make -C trees check -o build/lookdev.blend -o build/game-audit.blend
+  -o build/finalized.blend -o build/baked.stamp -o build/textures.stamp
+  -o export/RedMaple.glb`), protecting the requested original files from an
+  incidental GPU rebake. Its checks pass; fresh regeneration is proved separately
+  above. Log: `build/bark-polish/maple-final-check.log`.
+- `python3 -m py_compile trees/src/*.py`, `git diff --check`, repository rules:
+  passed. No `kit/` file changed, so no kit regression suite was required. Nothing
+  is needed from the lead; no tool installation or contract change is requested.

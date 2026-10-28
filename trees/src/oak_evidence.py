@@ -26,7 +26,16 @@ def measure(path,crop=None):
     return row
 def patch(path,box):
     im=Image.open(path).convert('RGB');v=np.asarray(im.crop(box))/255
-    return dict(rectangle_px=list(box),median_display_rgb=np.median(v.reshape(-1,3),axis=0).tolist(),display_luminance_p10_p50_p90=np.percentile(v@np.array([.2126,.7152,.0722]),[10,50,90]).tolist())
+    y=v@np.array([.2126,.7152,.0722])
+    # Fixed before looking at candidates: photo's dark channels cluster below
+    # .30. Use this SAME absolute display threshold for both populations.
+    # A percentile mask per image would force an uninformative equal share.
+    return dict(rectangle_px=list(box),median_display_rgb=np.median(v.reshape(-1,3),axis=0).tolist(),
+                display_luminance_p10_p50_p90=np.percentile(y,[10,50,90]).tolist(),
+                brightest_third_median=float(np.median(y[y>=np.quantile(y,2/3)])),
+                darkest_tenth_median=float(np.median(y[y<=np.quantile(y,.10)])),
+                fissure_fraction=float((y<.30).mean()),fissure_threshold_display_y=.30,
+                segmentation_scope='Fixed display-value proxy; includes other deep shadow and excludes some lit channels. Not semantic ground truth or reflectance.')
 from kit.fonts import find_font
 
 def evidence(renders,source):
@@ -91,17 +100,23 @@ def evidence(renders,source):
         result['bark_display']=dict(model=patch(renders/'bark.png',mb),photo=patch(ROOT/'trees/refs/oak-osu-bark.jpg',pb),scope='OSU left bole panel vs rendered chest-height bole. Different illumination, not albedo calibration.')
         bd=result['bark_display'];bd['median_luminance_delta']=bd['model']['display_luminance_p10_p50_p90'][1]-bd['photo']['display_luminance_p10_p50_p90'][1]
         bd['red_minus_blue']={k:bd[k]['median_display_rgb'][0]-bd[k]['median_display_rgb'][2] for k in ('model','photo')}
+        keys=('brightest_third_median','darkest_tenth_median','fissure_fraction')
+        bd['relief_population_deltas']={key:bd['model'][key]-bd['photo'][key] for key in keys}
+        bd['within_03_relief_populations']=all(abs(d)<=.03 for d in bd['relief_population_deltas'].values())
+        bd['previous_median_delta']=bd['model']['display_luminance_p10_p50_p90'][1]-.40779
+        bd['within_01_previous_median']=abs(bd['previous_median_delta'])<=.01
         bd['within_03_warm']=abs(bd['median_luminance_delta'])<=.03 and bd['red_minus_blue']['model']>=0
         font=ImageFont.truetype(find_font('Noto Sans','Regular'),18)
         canvas=Image.new('RGB',(1000,780),(238,239,236));draw=ImageDraw.Draw(canvas)
-        for i,(path,box,title) in enumerate([(renders/'bark.png',(round(.37*w),round(.13*h),round(.63*w),round(.94*h)),'Original tree / '+result['stage']),(ROOT/'trees/refs/oak-osu-bark.jpg',(5,0,250,400),'Pin oak photograph / OSU')]):
+        for i,(path,box,title) in enumerate([(renders/'bark.png',(round(.37*w),round(.30*h),round(.63*w),round(.80*h)),'Original tree / '+result['stage']),(ROOT/'trees/refs/oak-osu-bark.jpg',(5,0,250,400),'Pin oak photograph / OSU')]):
             image=Image.open(path).convert('RGB');d=ImageDraw.Draw(image);d.rectangle(mb if i==0 else pb,outline=(220,110,40),width=2)
-            image=ImageOps.contain(image.crop(box),(450,620));canvas.paste(image,(i*500+250-image.width//2,55))
+            image=ImageOps.contain(image.crop(box),(450,600));canvas.paste(image,(i*500+250-image.width//2,55))
             row=result['bark_display']['model' if i==0 else 'photo'];v=row['display_luminance_p10_p50_p90'][1]
+            draw.text((i*500+20,665),f"Ridge {row['brightest_third_median']:.3f} / fissure {row['darkest_tenth_median']:.3f} / dark {row['fissure_fraction']:.1%}",font=font,fill=(22,38,29))
             draw.text((i*500+20,15),title,font=font,fill=(22,38,29));draw.text((i*500+20,695),f'Marked patch median display Y {v:.3f}',font=font,fill=(22,38,29))
             rgb=row['median_display_rgb']
             draw.text((i*500+20,720),f'Median channels R {rgb[0]:.3f} / B {rgb[2]:.3f}',font=font,fill=(22,38,29))
-        draw.text((20,740),'Different lighting and specimens; photograph stays local. No reference pixels in the asset.',font=font,fill=(22,38,29))
+        draw.text((20,740),'Dark share: same Y < .30 cutoff. Different lighting; no reference pixels in the asset.',font=font,fill=(22,38,29))
         canvas.save(renders/'bark-pair.jpg',quality=93,optimize=True)
     (renders/'color-value-evidence.json').write_text(json.dumps(result,indent=2));print(json.dumps(result,indent=2))
     return result

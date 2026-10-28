@@ -13,7 +13,7 @@ pipeline; the maple's accepted source data is preserved byte for byte.
 
 The dimensions below are measurements of generated surfaces. The authored ages
 (about 20 / 25 years) are specimen briefs, not surveyed ages of the photographs.
-See [oak delivery](#pin-oak--summer-delivery), [critique](REVIEW.md#pin-oak--lead-directed-bark-lower-crown-and-display-value-correction),
+See [oak delivery](#pin-oak--summer-delivery), [critique](REVIEW.md#pin-oak--bark-only-polish),
 [oak species evidence](OAK_REFERENCE.md) and [reference credits](refs/SOURCES.md).
 
 An original scripted summer **red maple (*Acer rubrum*)**, about 12.5 m tall,
@@ -286,12 +286,12 @@ is at the trunk base on grade; no armature or moving parts.
 | Wood / alpha-card triangles | **10,536 / 14,280** |
 | Total / cap | **24,816 / 25,000** |
 | Branchlet cards / materials / static meshes | **7,140 / 2 / 2** |
-| GLB, embedded textures included | **10,822,788 bytes** |
+| GLB, embedded textures included | **11,702,192 bytes** |
 | BaseColor-alpha / OpenGL +Y Normal / ORM | **2048² each**, from 4096² bake/composite |
 | Full-mip compressed textures / geometry | **16 MiB / 2,901,792 bytes** |
 | Estimated combined GPU memory | **18.767 MiB**, before engine overhead |
 
-PNG storage is **2,278,961 / 3,890,487 / 1,746,972 bytes**. Both materials
+PNG storage is **2,522,466 / 4,264,602 / 2,008,756 bytes**. Both materials
 share these three images; the lower atlas half intentionally reuses eight leaf
 variants. Each species has its own atlas. Bark priority is concentrated at
 chest height: **648–650 px/m** in every tangent direction.
@@ -314,10 +314,11 @@ port `src/leaf_material.py` into the engine; ordinary glTF MASK PBR approximates
 this two-sided/glancing response. The GLB retains linear **_WIND**, using the
 channel convention above. Wind, LODs and impostors remain engine integration.
 
-Original warm gray-brown bark has flat interlacing ridges typically 2–5 cm wide
-and 10–40 cm long. Continuous narrow brown fissures split/rejoin; cross breaks
-have shallower contrast. Eroded edges, granular ridge faces, sparse pale
-lichen and sheltered rain tracks bake into the existing maps. Relief is visible
+Original warm gray-brown bark has flat interlacing ridges nominally 2–5 cm wide
+and 10–40 cm long. Meter-scaled brown channels have finite floors and sloping
+shoulders; the axial fissures split/rejoin and cross breaks stay shallower.
+The authored 5.5 mm relief field, chipped shoulders, fine cork exfoliation,
+sparse pale lichen and sheltered rain tracks bake into the existing maps. Relief is visible
 in the exported [1 m raking view](renders/oak-final/bark_raking.png). Limbs retain
 smoother bark. Matte wood constants specular .06 / IOR 1.45 survive in glTF
 extensions; raw embedded albedo is measured independently of illumination.
@@ -353,15 +354,36 @@ same authored albedo is used in both pairs. OSU sun/sky/exposure is 11/.25/1.05;
 Stony Brook is 7.6/.22/.5. Both source pairs were repeated at
 1600 px / 72 samples; maximum source/export fifth difference is **0.0008**.
 
-The marked bark patch is **0.408 export /
-0.422 photo** median Y. Median RGB is
-**(0.412 / 0.412 / 0.345) / (0.424 / 0.427 / 0.373)**.
-Model red **0.412** exceeds blue
-**0.345**; photo red/blue are
-**0.424 / 0.373**.
-The difference meets .03 without excusing the previous cool pole as sky fill.
-Patch rectangles and raw embedded albedo are recorded in
-`renders/oak-final/color-value-evidence.json`.
+The unchanged marked bark patch is measured in display Y:
+
+| Bark population | Export | OSU photo |
+| --- | ---: | ---: |
+| Median | **.415** | .422 |
+| Ridge tops: median of brightest third | **.507** | .518 |
+| Fissures: median of darkest tenth | **.269** | .250 |
+| Dark-channel proxy: pixels below Y .30 | **13.22%** | 11.43% |
+
+All three new population errors are below .03; the median stays within .01 of
+its previous .408. Median RGB is **(.412,.420,.369)** versus
+**(.424,.427,.373)**: red exceeds blue in both. The same fixed dark cutoff is
+used in both patches, rather than independently forcing each image to have a
+10% dark population. It is a display-shadow proxy, including some other deep
+bark shadow, not semantic segmentation or calibrated reflectance.
+The measurement rectangles and per-channel evidence are recorded in
+`renders/oak-final/color-value-evidence.json`. The pair now displays comparable
+bole widths; its measurement rectangles are unchanged.
+
+Uniform surface-area samples on the embedded chest-height maps give tangent-normal
+median / p90 **8.97° / 41.48°** and occlusion p10 **.655**, versus the old
+6.13° / 19.94° and .871. Directional density remains **648.35–650.32 px/m**.
+These measure retained texture response, not displaced depth; the raking render
+shows the practical relief while the geometry and silhouette remain exact.
+
+The repeated source bark pair measures median / ridge / fissure **.407 / .504 /
+.248**, versus shipped **.415 / .507 / .269**. Its fine dark proxy falls from
+**18.06% to 13.22%** after baking/filtering; the shipped median rises .00756.
+This is visible bake loss of fine cork, not a claim that the source and export
+are pixel-identical. The new values are calibrated on the exported 2048 maps.
 
 ### Rebuild and proof
 
@@ -377,7 +399,9 @@ GPU baking, filtering, export, camera fitting and independent verification.
 No kit file changed. All final Cycles work uses the inherited shared GPU lock.
 The source/game geometry digest, actual construction, camera, raw GLB/fresh
 import positions/normals/Wind, texture/bake coverage and repository checks pass.
-`oak_final_review.py` verifies all **16 Cycles + 1 Eevee** source hashes and the
+`oak_final_review.py` gates ridge/fissure values and dark share within .03, the
+retained median within .01, warm hue and actual 1 m camera distance. It also
+verifies all **16 Cycles + 1 Eevee** source hashes and the
 family's maple hash before replacing the two oak docs JPGs. The family keeps
 five tracked JPGs total; photos and generated binaries remain local rebuild outputs.
 
@@ -394,3 +418,23 @@ mapped, so grazing silhouette edges remain smooth, and its fine-scale richness
 still falls short of the photograph. Some upper highlights remain too concentrated
 (OSU upper-region bright share 34.44% versus 28.48%). Eevee has flatter interior shading. Detailed
 color-first critique and rejected candidates are preserved in [REVIEW.md](REVIEW.md).
+
+
+The bark-only polish keeps the original oak geometry, UVs, normals, tangents,
+Wind, nodes/material constants and every leaf-region/alpha pixel exact.
+`src/check_bark_preservation.py` compares a local pre-edit snapshot; its default
+mode is read-only. An explicit `--restore-tangent-rounding` mode can retain our
+original tangent bytes after all non-tangent/layout/image/maple comparisons
+pass, rejecting changes beyond four components / .00011. Some look-dev candidates showed one component recalculated by .000099957;
+that optional mode was verified without changing image payloads. The final
+quieter export passes all twelve accessor buffers exactly in the default
+read-only audit, without a restoration.
+The snapshot and audit JSONs stay under ignored `build/bark-polish/`.
+
+An isolated fresh maple source rebuild, finalize and preserved-map export also
+reproduces the complete original GLB byte for byte (**7,876,084 bytes**,
+SHA-256 `19cbc7bfc89abc87d664bf6744ec429ec9820a52a25f65e96fd8b1402d748438`).
+Its source arrays, four packed PNG inputs and growth JSON are exact; its existing
+source/delivery files and three docs JPGs remain untouched. Final preservation
+proof is in `build/bark-polish/preservation-final.json` and
+`maple-fresh-finalized-comparison.json` beside it. No kit changes.

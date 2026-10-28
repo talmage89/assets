@@ -17,6 +17,8 @@ assert meta['family']['maple_source_sha256']==hashlib.sha256((ROOT/'trees/export
 values=evidence(r,glb)
 assert all(row['within_03'] for row in values['foliage'].values()),'Foliage value mismatch'
 assert values['bark_display']['within_03_warm'],'Bark brightness/hue mismatch'
+assert values['bark_display']['within_03_relief_populations'],'Bark ridge/fissure values or channel share mismatch'
+assert values['bark_display']['within_01_previous_median'],'Bark median drifted from the accepted .408'
 assert values['engine_comparison']['within_05'],'Eevee mismatch'
 assert .95<=values['raking_camera_surface_distance_m']<=1.05,'Raking view must be 1 m from the delivered bark surface'
 contact([r/(n+'.png') for n in NAMES]+[eevee/'hero.png'],r/'contact.jpg',title='Pin oak / exported GLB and embedded 2048 maps / Cycles and Eevee')

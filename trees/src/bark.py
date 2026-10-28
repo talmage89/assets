@@ -19,6 +19,7 @@ def material(wear=.5,out=None,species=MAPLE):
     n.feed(texture.inputs['Vector'],uv)
     fields=n.node('ShaderNodeSeparateColor');n.feed(fields.inputs[0],texture.outputs['Color'])
     face=n.ramp(fields.outputs['Green'],.12,.80)
+    if species.ARCHITECTURE=='excurrent':face=n.math('POWER',face,species.BARK['ridge_contrast'])
     base=n.mix(face,species.BARK['fissure'],species.BARK['flake'],color=True)
     grain=n.noise(p,species.BARK['grain_frequency'],3)
     young=n.mix(n.mul(grain,.15),species.BARK['young'],species.BARK['mature'],color=True)
@@ -33,17 +34,19 @@ def material(wear=.5,out=None,species=MAPLE):
     if species.ARCHITECTURE=='excurrent':
         # Small pale colonies on sheltered ridge tops, sparse enough to leave
         # the warm bark visible; separate from rain-darkened fissures.
-        lichen=n.mul(n.add(.25,n.mul(north,.75)),n.ramp(z,.18,.6),n.ramp(z,3.8,1.8),n.ramp(n.noise(p,72),.68,.76),face,.65)
+        lichen=n.mul(n.add(.60,n.mul(north,.40)),n.ramp(z,.18,.6),n.ramp(z,3.8,1.8),n.ramp(n.noise(p,72),.68,.75),face,.85)
     base=n.mix(lichen,base,(.035,.038,.024),color=True)
-    if species.ARCHITECTURE=='excurrent':base=n.mix(lichen,base,(.27,.29,.20),color=True)
+    if species.ARCHITECTURE=='excurrent':base=n.mix(lichen,base,(.50,.51,.36),color=True)
     if 'dead' in species.BARK:
         dead=n.node('ShaderNodeAttribute',attribute_name='DeadWood')
         base=n.mix(dead.outputs['Fac'],base,species.BARK['dead'],color=True)
-    relief=n.add(n.mul(fields.outputs['Red'],.005),-.001)
+    relief=n.add(n.mul(fields.outputs['Red'],species.BARK.get('field_range_m',.005)),species.BARK.get('field_floor_m',-.001))
     height=n.add(n.mul(old,relief),n.mul(grain,.00012))
     n.channel('micro_ao',n.mix(old,1,fields.outputs['Blue']))
     n.channel('rain',damp);n.channel('lichen',lichen)
     mat=n.finish(base,n.add(species.BARK.get('roughness',.84),n.mul(grain,.11),n.mul(damp,.03)),0,height)
+    if species.ARCHITECTURE=='excurrent':
+        next(node for node in mat.node_tree.nodes if node.type=='BUMP').inputs['Strength'].default_value=species.BARK['bump_strength']
     mat.node_tree.nodes['SURFACE'].inputs['Specular IOR Level'].default_value=species.BARK.get('specular',.12)
     mat.node_tree.nodes['SURFACE'].inputs['IOR'].default_value=1.45
     return mat

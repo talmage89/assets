@@ -39,9 +39,9 @@ LEAF_PROFILE_3=((0,0),(-.16,.05),(-.40,.23),(-.31,.29),(-.08,.30),(-.08,.36),
 LEAF_PROFILE_5=LEAF_PROFILE_3
 BARK_NAME='Pin oak / shallow gray-brown ridges'
 BARK=dict(old_transition=(9.,2.5),ridge_width_m=(.02,.05),plate_length_m=(.10,.40),
-          grain_frequency=185,relief_m=.0034,ridge_breakup=.85,field_circumference=1.414,field_height=5.5,
+          grain_frequency=185,relief_m=.0055,field_range_m=.007,field_floor_m=-.002,bump_strength=.95,ridge_breakup=.85,field_circumference=1.414,field_height=5.5,
           roughness=.86,specular=.06,young=(.115,.092,.058),mature=(.095,.075,.043),
-          fissure=(.030,.017,.007),flake=(.170,.120,.064),dead=(.060,.055,.045))
+          ridge_contrast=2.7,fissure=(.075,.048,.026),flake=(.235,.170,.100),dead=(.060,.055,.045))
 
 # Irregular internodes, branch-length envelope and true ramification.
 LATERALS=dict(count=40,base_z=4.25,top_z=15.65,
