@@ -188,7 +188,10 @@ def wood(name,part,wear):
  n.feed(pores.inputs['Vector'],n.combine(n.mul(x,680),n.mul(y,140),n.mul(zz,780)));pores.inputs['Scale'].default_value=1
  pore=n.ramp(pores.outputs['Distance'],.28,.10)
  base=n.mix(n.mul(pore,.46),base,(.010,.0032,.0016),True)
- h=n.add(n.mul(late,-.000010),n.mul(pore,-.000026));rough=n.add(.32,n.mul(late,.045),n.mul(pore,.1))
+ # The gas-tube furniture's heat-aged film is duller than the stock's
+ # surviving varnish. A broad white reflection must not erase its stain.
+ upper='Upper' in part
+ h=n.add(n.mul(late,-.000010),n.mul(pore,-.000026));rough=n.add(.46 if upper else .32,n.mul(late,.045),n.mul(pore,.1))
  # The hand wraps the compound surface. Its longitudinal contact shifts
  # with height and side; normal orientation protects the sheltered return.
  # A continuous pressure field has neither an oval stencil nor a straight
@@ -218,7 +221,8 @@ def wood(name,part,wear):
   h=n.add(h,n.mul(dent,-.00040),n.mul(lip,.000035));rough=n.mix(n.maximum(dent,lip),rough,.71)
   base=n.mix(n.mul(dent,.75),base,(.026,.006,.0022),True);base=n.mix(n.mul(lip,.80),base,(.22,.105,.036),True)
   dentmask=n.maximum(dentmask,dent,lip)
- return finish(n,base,rough,0,h,n.maximum(loss,dentmask),.66)
+ if upper:base=n.vec('MULTIPLY',base,(.60,.43,.37))
+ return finish(n,base,rough,0,h,n.maximum(loss,dentmask),.20 if upper else .66)
 
 def grip(name,wear):
  n=Nodes(name);p,x,y,z,nx,ny,nz,u,v,w=inp(n)
