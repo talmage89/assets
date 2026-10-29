@@ -5,9 +5,11 @@ double triggers, extractors, right-swinging top lever, automatic tang safety,
 straight-hand walnut stock and splinter forend. Fictional maker/model:
 **Propane Defense Covey 26**.
 
-**Form and motion checkpoint, before look-dev.** The GLBs use constant
-inspection materials. UVs, normal-map checkering, markings, used finishes,
-baking and final delivery remain held. No docs images are committed at this gate.
+**Form round 4, with baked normals; finish/look-dev remains held.** The gun
+uses one baked 2048 BaseColor / OpenGL Normal / ORM atlas, from a 4096 GPU
+bake of our original dense sources and inspection constants. Checkering, grain,
+markings, used finishes and final delivery acceptance remain held. No docs
+images are committed at this gate.
 Generated image paths below are local build outputs, not hosted README images.
 
 ## Dimensions and design
@@ -16,13 +18,13 @@ Generated image paths below are local build outputs, not hosted README images.
 | --- | ---: | --- |
 | Overall length | 1079.95 mm | brief: about 1080 mm |
 | Barrels, rear face to muzzle | 660.40 mm / 26 in | published 26-inch option |
-| Overall width / height | 54.80 / 175.79 mm | original twin-barrel/straight-stock envelope |
+| Overall width / height | 52.20 / 174.34 mm | corrected fence/side envelope; original straight stock |
 | Front-trigger length of pull | 369.63 mm / 14.55 in | published 365 mm; original stock is 4.63 mm longer |
 | Comb / heel drop | 38.02 / 63.03 mm | published 38 / 63 mm; measured against an actual rib-centerline datum (concave edges rise about 0.22 mm) |
 | Cheek station | 35.00 mm behind comb nose | published range 31.75–38.10 mm |
 | Eye above actual comb | 42.81 mm | actual surface ray; CPSA coin-rule sight picture, derived below |
 | Eye optical pitch | −0.374° | exact line from the socket to the bead |
-| Wrist, wood only at Y = −15 mm | 32.17 × 37.88 mm | sharp top/side photographs; absolute reference scale remains uncertain |
+| Wrist, wood only at Y = −15 mm | 32.20 × 37.89 mm | sharp top/side photographs; absolute reference scale remains uncertain |
 | Splinter wood, overall W × D × L | 34.40 × 24.20 × 172.99 mm | plain field photographs; evaluated mesh dimensions, not published part measurements |
 | Splinter sections at Y = 211 / 320 mm | 34.16 × 22.54 / 28.24 × 16.16 mm | actual triangle-plane cuts, with barrel channels |
 | Ammunition class | 12 gauge, nominal 2¾ in | nominal opened-hull length |
@@ -68,10 +70,13 @@ latch and curved knuckle cups. The stock has real tang inlets and a pitched
 butt plate. Neither furniture piece is a side-profile extrusion.
 
 The action is one closed forging with explicitly planar ground sides and
-shoulders, spherical fence domes, a short upper head and a standing breech
+shoulders, bore-concentric fence rolls, a short upper head and a standing breech
 with visible pin bushings. The table has a narrow visual lug passage over
-a closed lower floor. The rounded underside sweeps into the concentric knuckle;
-the hinge pin ends are small flush circles. Two hollow barrel skins meet on
+a closed lower floor. A single ground side plane continues from the head to
+the bar. The rounded underside and its flush trigger plate share an 8 mm lower
+arris and sweep into the concentric knuckle; the hinge pin ends are thin flush
+circles in the same steel. Rounded-end 6 mm slots clear the 5.4 mm trigger roots
+by 0.30 mm on each side. Two hollow barrel skins meet on
 cut joined flats at the breech, without overlapping outer walls, and have chamber-side rim recesses,
 walls at the muzzle, joined solid top and bottom ribs, lower lumps/hook and a
 two-pad extractor. A swept guard band and separate rear tang surround two tapered flat trigger
@@ -80,7 +85,7 @@ forward. The top lever has a round 11.2 mm boss and a long, narrow tapered tail 
 close above the strap. Its thumbpiece is about 7.1 mm wide and 1.9 mm thick.
 The guard is a 12.4 × 1.63 mm flat band with a swept front return and wrist tang.
 The safety retains its compound thumb surface. Dense forging and thumbpiece
-sources are retained for the later edge/checkering normal bake.
+sources supply this round's normal bake. Checkering remains held.
 
 This is exterior visual construction. Hidden hammers are state only. There is
 no working lockwork, ballistics, pressure design or manufacturing model. Motion
@@ -136,14 +141,14 @@ spawn, visibility and event meanings.
 
 | Inspection output | Triangles | GLB bytes |
 | --- | ---: | ---: |
-| Gun, all staged alternatives | 37,728 | 1,765,484 |
+| Gun, all staged alternatives | 37,822 | 6,175,024 |
 | Shell | 752 | 26,476 |
 | Hull | 480 | 18,160 |
 
-54 named rigid meshes, 17 bones, 19 clips, 14 sockets; 9 temporary inspection materials and **zero texture images**.
+54 named rigid meshes, 17 bones, 19 clips, 14 sockets; 1 atlas material and **three 2048 texture images** (4096 GPU source bake).
 <!-- /CHECKPOINT_STATS -->
 
-All hidden ammunition alternatives count against the 38k round-three gun budget.
+All hidden ammunition alternatives count against the 38k round-four gun budget.
 The shell module is new in `guns/common/shell12_visual.py`; no pump source or
 output is imported. It preserves the pump's original exterior proportions:
 22.4 mm rim, approximately 20.1 mm hull, 57.5 mm loaded length and 69.8 mm fired
@@ -151,23 +156,45 @@ length. Connected hidden joins make each shell a closed manifold skin.
 
 | Local generated path | Contents |
 | --- | --- |
-| `build/sxs.blend`, `build/sxs.glb` | Named form assembly, rigid rig, clips and sockets |
+| `build/sxs.blend`, `build/sxs.glb` | Native source and unbaked diagnostic export; not the rendered delivery |
 | `build/shell.glb`, `build/hull.glb` | Separate head-centered exterior ammunition, +Y toward mouth |
-| `build/sculpt.blend` | Dense furniture/control cages on the same rig for comparison |
+| `export/sxs.glb` | Baked 2048 gun, named rigid parts, rig, clips and sockets |
+| `build/delivery/finalized.blend`, `high.blend`, `uv.json` | Kit UV target, dense bake sources and atlas measurements |
+| `build/baked/4k/`, `textures/` | Isolated 4096 source bake plus assembled-contact AO; delivered three-map 2048 set |
+| `build/delivery/projection-ownership.json` | Independent check that constant albedos project from their own parts |
+| `renders/checkpoint/landmarks/` | Annotated right/top/bottom rakes with measured landmark arrows |
 | `build/check.json`, `import-check.json` | Separate source/import topology, intended-state, contact and half-frame clearance reports |
-| `build/serialization.json`, `repeat.json` | Round-trip affine/surface proof and independent rebuild proof |
+| `build/serialization.json`, `repeat.json` | Baked-export affine/surface/atlas proof and independent native rebuild proof |
 | `renders/checkpoint/contact-sheet.jpg`, `hero-gray.jpg` | Current Cycles inspection views from the exported GLB |
 | `renders/checkpoint/dimensions.jpg`, `sections/sections.jpg` | Measured orthographic and triangle-plane sections |
-| `renders/checkpoint/photo-pairs.jpg`, `source-photo-pairs.jpg` | Eleven export/source comparisons, native residual arrows and photo-outline overlays |
+| `renders/checkpoint/photo-pairs.jpg` | Eleven baked-export comparisons, native residual arrows and photo-outline overlays |
 | `renders/checkpoint/clips.jpg`, `opening.jpg`, `strips/` | All clips, wide opening and correctly timed WebPs |
 | `renders/checkpoint/ammunition.jpg` | Standalone shell and hull inspection |
 
-Planned final delivery: one 2048 BaseColor/OpenGL Normal/ORM gun set, about
-16 MiB with block compression and mipmaps. Standalone shell and hull get
-independent 512 sets, about 1 MiB each, rather than embedding the gun atlas.
-The gun's internal display shells may occupy its atlas; the standalone maps
-derive from the same original finish fields. This is a plan, not a shipped
-texture-memory or baked-delivery claim.
+The current gun embeds one three-map **2048** set, about 16 MiB with block
+compression and mipmaps, and uses one material. At this form gate, 54 named
+rigid meshes remain for independent surface/contact diagnostics. Consolidating
+the delivery skin belongs to final acceptance. The accepted standalone shell
+and hull stay in their unchanged diagnostic GLBs; their own small baked sets
+remain part of the later finish delivery, rather than claiming they share the
+gun's atlas.
+
+The new exterior gauges come from actual exported triangles:
+
+| Quantity | Measured export | Photo / geometry relation |
+| --- | ---: | --- |
+| Right / left fence crown | 57.350 / 57.350 mm Z | barrel top 57.350 mm; neither rises above it |
+| Fence pair width | 51.900 mm | joined tubes at breech 51.900 mm |
+| Largest fitted arc-center offset from actual bore axis | 0.009 / 0.019 mm | chamber axes measured beyond extractor reliefs |
+| Fitted longitudinal roll, right / left | 18.475 / 18.475 mm | photo-scale estimate 18–20 mm, about ±2 mm |
+| Largest sampled head/bar side step | 0.00001 mm | one ground side plane; upper edge radius excluded |
+| Largest plate/bar step at a common seam station | 0.004 mm | lower skin is continuous across the narrow joint |
+| Lower-edge radius from triangle-section circle fits | 7.96 mm | photo estimate about 7–9 mm, at least ±2 mm uncertainty |
+| Front / rear slot width | 6.000 / 6.000 mm | blades 5.400 mm; 0.300 mm clearance each side |
+
+The width/height envelope decreases with the explicitly requested fence
+correction; overall/barrel length, accepted drops and the fitted eye remain.
+See `refs/SOURCES.md` for the photo-scale assumptions and `REVIEW.md` for limits.
 
 ## Rebuild and inspect
 
@@ -177,9 +204,10 @@ flock. No packages, add-ons, models, textures or lighting are downloaded.
 this worktree's `build/`; every Cycles invocation uses the shared GPU lock.
 
 ```sh
-make -C guns/sxs                    # complete form checkpoint; stops before look-dev
+make -C guns/sxs                    # model, kit UV/bake/export, checks and baked evidence
 make -C guns/sxs check              # source/import, contacts, half-frame sweep, repeat
-make -C guns/sxs model              # all four grouped inspection outputs
+make -C guns/sxs model              # native source and unbaked diagnostic GLBs
+make -C guns/sxs export             # one baked 2048 gun atlas through the kit
 make -C guns/sxs sections match     # section cuts and calibrated photo pairs
 make -C guns/sxs strips             # real-duration playback and wide opening
 make -C guns/sxs render review      # current inspection stills and complete evidence
@@ -195,6 +223,6 @@ first checkpoint introduced the shared exterior shell generator and additive
 1.7.0 schema validator, which retain their accepted structure.
 
 The original procedural rifle informs the build/rig/render workflow. All asset
-vertices and inspection materials are generated by our scripts. Reference
+vertices, bake sources and inspection materials are generated by our scripts. Reference
 credits are in `refs/SOURCES.md`; eventual fictional text uses an installed
 open-license font. Nothing is pushed.

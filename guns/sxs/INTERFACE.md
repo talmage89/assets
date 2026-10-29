@@ -74,6 +74,9 @@ the hull at its actual HullR/L bone frame when handing it to external physics;
 the chamber sockets represent extraction, before the manual pull separates it.
 Keep the corresponding internal display hidden after external handoff.
 
-Checkpoint GLBs retain named parts and quick constant materials. Final delivery
-will use the kit atlas/animated-export path: one 2048 gun atlas and independent
-small shell/hull atlases. The checkpoint is not a baked delivery claim.
+The round-four form gun is `export/sxs.glb`, through the kit's atlas and
+animated exporter: one 2048 BaseColor/OpenGL Normal/ORM set with the inspection
+constants and baked source normals. Named rigid parts remain at this review
+gate for independent contact tests. The native `build/sxs.glb` and standalone
+shell/hull GLBs remain diagnostic, unbaked outputs. Final finishes and standalone
+small texture sets remain held; this changes no rig, socket, clip or state meaning.

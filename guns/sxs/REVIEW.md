@@ -1,3 +1,173 @@
+# Covey 26 — form round 4: fences, flats and underside
+
+This round judges the **baked 2048 export**, `export/sxs.glb`. The kit finalizer,
+4096 GPU bake, downsampler and animated exporter supply one BaseColor / OpenGL
+Normal / ORM set. The colors and roughness remain the accepted inspection
+constants: finishes, grain, checkering, markings and used wear are still held.
+A normal bake does not constitute finish acceptance. No docs JPGs are added.
+
+## Current region review
+
+- **Fences.** Replaced the oversized spheres with circular transverse sections
+  continuing the measured bore axes backward, and a short longitudinal roll
+  into the existing shoulder/strap. Each crown meets the tube top line; the
+  pair fits inside the joined breech width. The rear boundary curves inward
+  toward the strap in the top view. The photograph has a subtler, hand-finished
+  shoulder junction and a differently shaped rib extension; ours retains the
+  original plainer shoulders. See the [right pair](renders/checkpoint/pairs/action-pair.jpg),
+  [top pair](renders/checkpoint/pairs/action_top-pair.jpg),
+  [top rake](renders/checkpoint/beauty/action_rake_top.png), and fence sections.
+- **Side and knuckle.** One ground side plane now continues from head to bar.
+  The rounded lower edge sweeps upward into the original hinge axis, and the
+  pin end is a thin flush circle in the same blued inspection steel. The
+  photograph's shallow decorative panel line is not a geometric step and has
+  not been copied. Our plain lower neck is broader through its flat belly;
+  the reference has a slightly narrower sculpted throat. See the
+  [right rake](renders/checkpoint/beauty/action_rake_right.png), left rake,
+  right/left pairs and the bar/knuckle sections.
+- **Underside and plate.** The plate seats into the forging and shares its
+  rounded lower skin. Its curved front joint is a narrow seam. Rounded-end
+  blade slots replace the broad rectangular openings. The guard and its rear
+  wrist tang retain their accepted form. Our joint remains simpler than the
+  photograph's curved plate border, and the forward hook pocket remains more
+  open than the photograph's shallow visible joint. See the
+  [bottom rake](renders/checkpoint/beauty/action_rake_bottom.png),
+  [bottom pair](renders/checkpoint/pairs/action_bottom-pair.jpg), and the new
+  plate and two slot sections. Baked raking light is the appearance evidence;
+  geometry probes alone do not approve the highlight.
+- **Aimed view.** The accepted eye frame, cheek station, drops, lever and safety
+  are retained. The rib is visible between the fences toward the bead, with
+  the crown below the bead line. Its short apparent length is strongly
+  foreshortened by the cited fitted sight picture. The inspection rib is not
+  yet matted. See the exact [Socket_Eye view](renders/checkpoint/beauty/aimed.png).
+  Required sight rays now cover six rib stations from Y=140 to 740 mm as well
+  as the bead, independently against all occupied skins.
+- **Accepted remainder.** Trigger blades, guard band/tang, lever, safety,
+  barrels/ribs/bead, splinter/iron, ammunition, rig, sockets and all 19 clip
+  keys are preserved. Only the action, its pin/cross-pin placement, plate and
+  stock head/inlets change. The stock head is refitted to the continuous side
+  plane; the shortened upper head and wood beside the strap remain. A fresh
+  build of `8a6ff08` confirms 96 of 104 native geometry/normal/rig/socket/clip
+  entries are identical. See `build/preservation.json`. The larger historical
+  region review below remains a record, not current acceptance.
+
+## Round 4 critique passes
+
+19. **Reference relation and first rebuild.** Color/value: retained dark steel
+    and deep cavities; the black-backed macros cannot support a quantitative
+    hue match. At full resolution the old spherical fences clearly stood
+    above and outside the tubes, and the head/bar junction had a side ledge.
+    Replaced them with concentric transverse arcs and an 18.5 mm axial roll;
+    carried one side plane through the forging and extended the flush pin
+    ends to that plane. Checked the first side/top/aimed previews against the
+    native reference crops. The underside still had a raised plate boundary.
+20. **Shared lower construction.** Color/value: judged the broad lower steel
+    highlight before detail. The first plate-seat subtraction left a thin
+    exterior skin and an oversized dark seam. Extended the seat cutter below
+    the outer skin, made the plate and bar share the same 8 mm arris, and
+    made their forward stations follow the curved seam monotonically. Narrow
+    6 mm slots now surround the unchanged 5.4 mm blade roots. Cleared the
+    wood inlets slightly beyond the plate slots to avoid coincident cut walls.
+    Rechecked topology and contacts; no collision allow-list was added.
+21. **Baked export and highlight continuity.** Color/value: the first 4096→2048
+    export retained deep shadows without pale pin disks. Its bottom rake
+    exposed a highlight mismatch at the plate joint and small polygonal
+    transitions. Gave both sides of the seam the same original lower-skin
+    normal field, retaining flat side normals, then rebaked. The fences also
+    follow the actual tubes' slight axis convergence rather than assuming
+    perfectly parallel bore centers. Circle/roll fits are measured from the
+    export; neither the radius nor the center result is echoed from a model
+    constant. Rejected UV charts that folded across the stock's hidden routed
+    inlets; isolated its atlas region and tightened its projection partitions.
+
+22. **Projection loss in the matched export.** Color/value: the top and
+    underside pairs exposed a serrated steel-colored strip on the wood inlet,
+    absent from the intended inspection color. Zero missed texels had only
+    proved that rays hit something, not that they hit the intended part.
+    Rejected the bake. Isolated the stock, action, plate and tang surfaces
+    during material/normal projection, then combined those channels with a
+    separate assembled-contact AO pass through the same kit baker. No
+    geometry, accepted controls or triangle allocation changed. Rechecked the
+    macro pairs and rakes from the new baked export before accepting the bake.
+
+23. **All-part projection ownership.** Color/value: the new forend view still
+    showed a serrated steel-colored fringe at the latch, even after isolating
+    the action/stock joint. Extended projection isolation to all 54 actual
+    named parts, independent of their shared animation bones. The accepted
+    forend, controls and ammunition geometry remain unchanged. Added an
+    independent constant-albedo audit of 48 single-material parts: 5,133,244
+    eroded interior texels pass with zero wrong-color texels at a 0.01 linear
+    RGB tolerance. As a negative control, the same audit rejects the assembled
+    material projection (400,286 wrong-color texels), whose AO channel alone
+    is retained. Reviewed new forend, control, underside and exact-eye previews;
+    the neighboring-material fringes are gone. Tiny facets in the accepted
+    routed latch lip remain geometry, rather than being hidden with a texture.
+
+24. **Final baked-export review.** Color/value: reopened all eleven current
+    photo pairs, the six full-size review pages, exact-eye image, three raw
+    and annotated action rakes, sections and contact sheets. The inspection
+    steel retains dark cavities and a broad rolled underside highlight; the
+    hero has 20.71% deep-shadow pixels and no all-channel clipping. The black
+    macro backgrounds provide no defensible neutral, so their unity balance
+    and form-only comparison remain explicit. The whole-gun pairs retain the
+    white-backdrop balance. Material boundaries at the head, strap and latch
+    are clean in the delivered atlas. The side has no ledge, the pin reads as
+    a flush same-steel circle, the bottom plate is seated, and the narrow slots
+    follow the unchanged blades. Both rear fence edges curve toward the strap;
+    the rib and bead are visible from the unchanged eye frame. The plainer
+    shoulder junction, broader lower throat, simpler plate border and open
+    forward hook pocket remain visible differences from the photographs.
+    Reopened the clip and wide-opening strips and ammunition views; the
+    accepted controls, extraction and manual loading sequence remain intact.
+
+## Round 4 measured proof
+
+`make -C guns/sxs` and the separately invoked `make -C guns/sxs check` both
+complete with exit status 0. The final review audit accepts 294 render records
+from the current exports and 19 correctly timed clip WebPs. Gun stills, rakes
+and photo pairs use the baked `export/sxs.glb`; standalone ammunition retains
+its accepted diagnostic export. No kit or common module changes this round.
+
+| Check | Current result |
+| --- | --- |
+| Gun budget, including hidden ammunition alternatives | 37,822 / 38,000 triangles; 178 spare |
+| Delivery | 6,175,024-byte GLB; one material; three 2048 images, from a 4096 GPU bake |
+| PNG bytes: BaseColor / Normal / ORM | 260,530 / 1,078,947 / 1,596,544 |
+| Geometry and intended states | source and reimport pass; 929 state samples each |
+| Actual surface contact checks | 246 / 246 pass in both source and reimport |
+| Half-frame motion sweep, all 19 clips | 1,715 source / 1,728 imported samples; zero violations; no allowed-contact exceptions |
+| Largest measured motion penetration | 0.113714 mm imported, within the 0.20 mm tolerance |
+| Independent native rebuild | 104 entries identical: positions at 1 nm, normals at five decimal components, exact clip keys/interpolation |
+| Accepted baseline preservation | 96 / 104 native entries identical to a fresh build of `8a6ff08`; changed entries belong to the requested action/head/plate/pin work |
+| UV atlas | no outside or degenerate UV triangles; overlap fraction 0.000001028, within the kit's 0.00001 tolerance |
+| Texel density at 2048, p5 / median / p95 | 1,344 / 2,394 / 2,996 px/m |
+| Projection | zero missed interior texels in all five channels; independent ownership audit and negative control described in pass 23 |
+| Reimport serialization | maximum affine-position error 0.000191 mm; maximum sampled posed-surface error 0.000253 mm |
+
+The exterior gauges in `build/serialization.json` are measured on actual
+exported triangles. Both fence crowns are Z=57.350 mm against the barrels'
+57.350 mm top line. Pair and breech widths are both 51.900 mm. Fitted arc
+centers differ from the measured bore axes by at most 0.009 mm right and
+0.019 mm left. The fitted rolls are 18.475 mm against the photograph's
+18–20 mm estimate. The largest sampled head/bar side step is 0.00001 mm;
+the largest plate/bar step is 0.004 mm. Lower-edge section fits give
+7.96 mm radius against the photograph's 7–9 mm estimate. Each slot is
+6.000 mm around a 5.400 mm blade, giving 0.300 mm on either side. The photo
+scale estimates carry about ±2 mm uncertainty, as recorded in `refs/SOURCES.md`.
+They are visual estimates, not published part dimensions.
+
+The action/right, action/top and action/bottom landmark RMS residuals remain
+61.57 / 41.00 / 81.00 px respectively. These are disclosed camera/form
+comparison residuals, not a dimensional acceptance test; the three-landmark
+bottom fit is particularly limited. Named meshes remain separate for form
+diagnostics. Finish work and eventual skin consolidation remain held, and
+no docs JPGs have been generated or committed.
+
+## Earlier rounds — archival record
+
+The following round-three and earlier claims describe their old unbaked outputs.
+Round four above supersedes them; they are not current delivery claims.
+
 # Covey 26 — form round 3: action
 
 This is a form review, before finish/look-dev. The current inspection GLB has
