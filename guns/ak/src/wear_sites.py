@@ -57,7 +57,9 @@ def main():
             # baseline out of the inferred rubbed-fiber mask; this remains
             # an explicitly thresholded shipping-map observation, not the
             # original procedural wear channel or inverse photo BRDF.
-            threshold=132 if prefixes==('UpperHandguard_Sculpt',) else 115
+            # Approximately the same film-to-fiber fraction in .46→.65
+            # as 115/255 is in .32→.65, before pore/grain variation.
+            threshold=137 if prefixes==('UpperHandguard_Sculpt',) else 115
             worn=(rough>threshold)&valid
             definition=f'GLB: roughness >{threshold}/255 (rubbed fibers/dings); photo: luma >78, R/B <3.1'
         else:
