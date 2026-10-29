@@ -11,7 +11,7 @@ folder. Shared procedural geometry, rigging, baking and delivery use `kit/`.
 | PD Meridian Six .357 revolver | Final: baked PBR, 22 clips with per-chamber state, speedloader, cartridge and case | [revolver/](revolver/README.md) |
 | PD Vesper B24 bolt-action precision rifle | Final: baked PBR, nine clips, scope/bipod and standalone magazines/case | [bolt/](bolt/README.md) |
 | PD Relay 9 fixed-stock 9 mm submachine gun | Final: baked PBR, 21 clips, magazines, cartridge and case | [smg/](smg/README.md) |
-| PD Rill 39 stamped-receiver 7.62×39 rifle | Baked review candidate: 20 clips, canonical PBR and detachables | [ak/](ak/README.md) |
+| PD Rill 39 stamped-receiver 7.62×39 rifle | Final: baked PBR, 20 clips, rock-in magazines, cartridge and case | [ak/](ak/README.md) |
 
 ## Shared conventions
 
@@ -26,8 +26,12 @@ The [1.2.0 bolt/optic supplement](bolt/INTERFACE.md) adds manual bolt cycling,
 bipod states and the optional objective-camera frame.
 The [1.3.0 charging-handle supplement](smg/INTERFACE.md) adds manual handle
 locking, a nonreciprocating handle socket and select-fire states.
+The [1.4.0 swing-out revolver supplement](revolver/INTERFACE.md) adds per-chamber
+cylinder state, a manual swing-out reload and a speedloader.
+The [1.5.0 lever-action supplement](lever/INTERFACE.md) adds a manual lever action,
+gate loading of the tube and a half-cock hammer.
 The [1.6.0 rocking-magazine supplement](ak/INTERFACE.md) adds a rock-in magazine
-path and reciprocating handle binding; versions 1.4/1.5 are reserved separately.
+path and a reciprocating charging-handle binding.
 
 `common/` contains the guns-only presentation renderer, timed strip generator,
 interface schema/frame checks and photographic camera configuration helpers.

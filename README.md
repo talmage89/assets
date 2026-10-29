@@ -78,8 +78,10 @@ Held weapons
   phosphate with a worn receiver, 21 clips, loaded and empty magazines, a cartridge and a fired case; the PD
   Meridian Six .357 revolver in carried stainless steel with a rubber grip, 22 clips with per-chamber state, a
   speedloader, a cartridge and a fired case; the PD Bracken L20 .30-30 lever-action carbine in bluing worn to
-  plum-brown with oiled walnut, 37 clips with tube and gate loading, a cartridge and a fired case.
-  Their standalone magazines and ammunition carry their own 512 or 1024 texture subsets at the guns' density.
+  plum-brown with oiled walnut, 37 clips with tube and gate loading, a cartridge and a fired case; the PD Rill 39
+  7.62×39 stamped-receiver rifle in black enamel with varnished hardwood, 20 clips with a rock-in magazine, loaded and
+  empty magazines, a cartridge and a fired case. The first six guns' standalone magazines and ammunition carry their
+  own 512 or 1024 texture subsets at the guns' density.
 
 Toolkit
 - [Shared toolkit](kit/README.md): procedural modeling and materials, UV, bake and export, verification and studio

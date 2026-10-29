@@ -120,4 +120,3 @@ spawn. It reuses the 1.1.0 tube-loading meanings. The 1.0.0 binding and the
 The [Rill 39 supplement](ak/INTERFACE.md) adds `magazine_rocks_in`, the authored
 front-hook/rock/seat path and a reciprocating charging-handle binding. Existing
 occupancy, socket, effect and select-fire meanings remain unchanged.
-
