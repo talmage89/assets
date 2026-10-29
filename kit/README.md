@@ -14,6 +14,7 @@ nodes and graphics. The read-only rifle project informed the workflow.
 | `bake.py` | GPU Cycles selected-to-active BaseColor, roughness, metallic, AO and tangent +Y normal; joins only equal coordinate frames to preserve object-space materials |
 | `image_io.py`, `downsample.py` | Original 8/16-bit PNG codec; linear-light color filtering, vector-normal filtering/renormalization and roughness RMS filtering |
 | `export.py` | One embedded PBR atlas; static assembly consolidation; separate pivots, sockets and skin; expected geometry/weight/rest-transform report |
+| `detachable_textures.py`, `detachable_verify.py` | Opt-in lossless small atlas subsets, guarded sampling, raw-GLB surface and tangent checks |
 | `gltf.py`, `verify.py` | Independent raw GLB accessors, normals, textures, weights and inverse-bind checks; fresh Blender import, geometry, pivots, UVs, rig and posed cross-sections |
 | `fonts.py` | fontconfig family/style discovery; reject missing faces and substitutions |
 | `gpu.py`, `with_gpu.sh` | Shared GPU flock; script-enabled OptiX/CUDA; warned CPU fallback |
@@ -660,7 +661,7 @@ Run these separately with `blender -b --factory-startup --python-exit-code 1
 --python kit/<name>.py`: `test_atlas`, `test_bake_coordinates`,
 `test_bake_frames`, `test_blended_atlas`, `test_botanical_delivery`, `test_botany`,
 `test_export_policy`, `test_foliage`, `test_gpu`, `test_policy`, `test_surface_profiles`,
-`test_uv_target_aspect`, and `test_vehicle`.
+`test_uv_target_aspect`, `test_vehicle`, and `test_detachable_textures`.
 
 `test_gpu` mocks device selection but imports `bpy` through the GPU helper, so
 it also needs Blender; it performs no bake and needs no physical GPU.
@@ -731,6 +732,52 @@ in the full inverse posed bone frame **after** assigning the atlas material,
 before consolidating the main skin. Zero-scale parts are omitted; source meshes,
 UVs and pose are restored. Loaded/empty variants can share the origin and atlas.
 The lower-level `weapon.detachable()` is also available to family scripts.
+
+An entry may opt into `texture_size=512` or `texture_size=1024`. Its standalone
+GLB then embeds its own BaseColor / OpenGL Normal / ORM set. The main gun keeps
+its original atlas, UVs, materials, rig and clips. Omit the option to retain the
+existing byte-identical canonical-map delivery (and existing regression).
+For already separated, static variant exports, `EXPORT_TEXTURE_SIZE=512` or
+`1024` applies the same operation; animated/skinned scenes reject that option.
+Keep these settings in export-only configuration so they do not invalidate bakes.
+
+`detachable_textures.py` copies the **shipped baked pixels**, with no source
+rebake or resampling. It packs conservative chart rectangles without rotation
+or mirroring. Each UV chart receives an integer-pixel translation and the same
+positive uniform scale, `source_size / texture_size`; tangent orientation and
+handedness are preserved. Float UV storage introduces small rounding errors,
+measured separately by the regression. Request the smallest supported size that
+fits; packing fails rather than reducing density. Material copies preserve
+uniform factors, extensions and independent data in BaseColor alpha.
+
+Each chart retains its original bilinear sampling footprint and two pixels of
+additional dilation from that chart alone. Unused rectangle corners receive
+that chart's padding, never other gun surfaces. Generated maps and `layout.json`
+live beside the export report in `detachables/<GLB stem>/`; the layout records
+source/destination rectangles and independently measured density percentiles.
+
+**Sampling contract:** these standalone GLBs explicitly use `LINEAR` minification
+and magnification, with `CLAMP_TO_EDGE`, and no mipmaps. Two-pixel guards protect
+every level that sampler uses (level zero). No finite atlas gutter can isolate
+multiple islands through a full mip chain ending at 1×1; glTF has no maximum-LOD
+sampler field. Consumers must honor this sampler. An engine that overrides it
+must supply its own LOD clamp/padding policy; unbounded generated mipmaps are
+not supported by this option. At 8-bpp block compression the three base levels
+cost about 0.75 MiB at 512 or 3 MiB at 1024, without inter-file texture caching.
+
+Run `blender -b --factory-startup --python-exit-code 1 --python
+kit/test_detachable_textures.py` in a fresh process (no bake/GPU required).
+It exports the same loaded, empty and tilted detachables both ways, checks main
+GLB byte identity, legacy image bytes, 512/1024 dimensions, bounds, disjoint
+guards, deterministic output, static variants and negative configuration cases.
+`detachable_verify.py` independently reads raw GLB accessors and material texture
+indices, matches oriented geometry and origins, and samples ten identical
+surface points per triangle in linear color, tangent normal and ORM, including
+opaque alpha. Tolerance is 0.25/255 per channel; triangle tangent directions must
+agree within 0.5 degrees after float storage. Its `audit()` also checks delivered
+sampling, chart protection and inverse-mapped samples against the canonical atlas.
+Clean `build/detachable-textures` before this fixture. The existing
+`test_weapon_delivery.py` remains unchanged and still proves canonical reuse.
 
 `BAKE_POLICY.isolate_rigid_bones=True` adds virtual projection roots `rigid:<bone>`
 for non-Root rigid parts tagged with `bone`. This preserves each part's projection
