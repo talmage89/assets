@@ -6,10 +6,9 @@ reciprocating handle and three-position selector share one baked 2048 PBR
 atlas. Maker, model, serial and markings are fictional. Every vertex and texel
 comes from our scripts in Blender 5.2.
 
-The baked candidate is ready for review. These five documentation JPGs are
-generated under `docs/` and deliberately left uncommitted until the lead
-accepts them. The full generated contact sheet is
-`renders/final/contact-sheet.jpg`.
+The renders below are made from the exported GLB with its baked maps. The
+full contact sheet is generated at `renders/final/contact-sheet.jpg` (not
+tracked).
 
 ![Cycles hero of the exported GLB](docs/hero.jpg)
 
