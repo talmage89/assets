@@ -1,5 +1,5 @@
 """Clean-scene scripted checkpoint, rig and five inspection exports."""
-import argparse,hashlib,json,sys
+import argparse,hashlib,json,sys,subprocess
 from pathlib import Path
 import bpy,bmesh
 from mathutils import Matrix
@@ -45,14 +45,14 @@ def finish(ob):
  if 'Handguard_Sculpt' in ob.name:G.hand_normals(ob)
  ob.data.transform(Matrix.Scale(.001,4));ob.matrix_world=Matrix.Identity(4)
 def main():
- p=argparse.ArgumentParser();p.add_argument('--out',default='build/ak.blend')
+ p=argparse.ArgumentParser();p.add_argument('--out',default='build/ak.blend');p.add_argument('--preview',action='store_true')
  a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);out=Path(a.out).resolve();out.parent.mkdir(parents=True,exist_ok=True)
  bpy.ops.wm.read_factory_settings(use_empty=True);G.palette()
- for f in (G.receiver,G.cover,G.furniture,G.guard_controls,G.action_barrel,G.sights,G.magazine):f()
+ for f in (G.receiver,G.cover,G.furniture,G.guard_controls,G.action_barrel,G.sights,G.magazine,G.receiver_sources,G.visible_seating):f()
  for ob in [*G.PARTS,*G.HIGH]:
   if ob.name.startswith('Trigger_'):ob.data.transform(Matrix.Translation((0,20,0)))
   if ob.name.startswith('Hammer_'):ob.data.transform(Matrix.Translation((0,15,4)))
-  if ob.name.removeprefix('HIGH_')=='PistolGrip_Sculpt':
+  if ob.name.removeprefix('HIGH_')=='PistolGrip_Sculpt' or ob.name.startswith('HIGH_GripStrap'):
    for v in ob.data.vertices:v.co.z=52+(v.co.z-40)*.85
   if ob.name.startswith(('Trigger_','TriggerGuard_','Guard_','Release_Housing','MagRelease_','Magazine_RearCatch','Grip_HeelScrew')):
    if ob.name=='Grip_HeelScrew':
@@ -60,10 +60,13 @@ def main():
    else:ob.data.transform(Matrix.Translation((0,0,8)))
  # Flat sheet lands and covered representations do not warrant dense triangles.
  # The first-person sight and control silhouettes retain their full allocation.
- for name,target in [('Receiver_Sheet',1900),('Stock_Sculpt',3000),('TopCover_Pressed',3000),('TopCover_RearCap',300),('Barrel',700),
+ for name,target in [('Receiver_Sheet',1900),('Stock_Sculpt',3000),('TopCover_Pressed',2600),('TopCover_RearCap',180),('Barrel',700),
   ('LowerHandguard_Sculpt',2400),('UpperHandguard_Sculpt',1700),('PistolGrip_Sculpt',2200),
-  ('Magazine_Sheet',2700),('TriggerGuard_Stamping',650),('Buttplate',380),
-  ('Handguard_Retainer221',330),('Handguard_Retainer363',330),('Release_Housing',700)]:
+  ('Magazine_Sheet',2700),('TriggerGuard_Stamping',450),('Buttplate',380),
+  ('Handguard_Retainer221',230),('Handguard_Retainer363',230),('Release_Housing',280),
+  ('Sight_FrontHood',800),('TopCover_ButtonLip',220),('Sight_WindageDrum',360),
+  ('Sight_RearNotch',240),('Sight_LeafSpring',180),('Sight_TangentLeaf',280),
+  ('Sight_SliderBridge',220),('Sight_RodSeat',250),('Receiver_FrontLugSlot',340),('Front_InsertUpperShoulder',220)]:
   G.reduce(bpy.data.objects[name],target)
  for o in G.PARTS:finish(o)
  hc=bpy.data.collections.new('High_Sources');bpy.context.scene.collection.children.link(hc)
@@ -101,5 +104,11 @@ def main():
  (out.parent/'triangles.json').write_text(json.dumps(report,indent=2))
  (out.parent/'interface.json').write_text(json.dumps(dict(version=interface.VERSION,fps=60,
   capabilities=interface.CAPABILITIES,states=interface.STATES,clips=interface.CLIPS,sockets_mm=SOCKETS),indent=2))
+ if not a.preview:
+  # This checkpoint bakes only original geometric relief, never finish/wear.
+  # The child owns the shared GPU lock and exports the textured inspection set.
+  subprocess.run([str(ROOT/'kit/with_gpu.sh'),bpy.app.binary_path,'-b','--factory-startup',
+   '--python-exit-code','1','--python',str(Path(__file__).with_name('form_normals.py')),
+   '--','--source',str(out)],check=True)
  print('R39 TRIANGLES',report['total'],'DETACHABLES',report['standalones'],flush=True)
 if __name__=='__main__':main()

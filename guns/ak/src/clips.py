@@ -4,7 +4,7 @@ No mechanically operative feed, lock, fire-control or gas simulation.
 """
 from kit.weapon import action,hold
 from interface import CLIPS
-SAFE=0;AUTO=-16;SEMI=-26;STROKE=.100
+SAFE=0;AUTO=-10;SEMI=-15;STROKE=.100
 def visibility(value):return dict(scale=(int(value),)*3)
 def selector(angle):return {'Selector':dict(rot_deg=(angle,0,0))}
 def trigger(pulled):return {'Trigger':dict(rot_deg=(-12 if pulled else 0,0,0))}
