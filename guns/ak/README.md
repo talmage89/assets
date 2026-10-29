@@ -5,11 +5,12 @@ Blender 5.2 from scripts. Fixed wooden furniture, a curved 30-round steel
 magazine, reciprocating handle and three-position selector use the family's
 grip frame. The fictional maker/model is **Propane Defense Rill 39**.
 
-This is **form round 2, before look-dev**. Constant inspection finish, separate
+This is **form round 3, before look-dev**. Constant inspection finish, separate
 named meshes, rig, clips and five inspection GLBs are provided. Original fine
-geometry is now baked to one shared 2048 normal for receiver stampings, grip
-ridges, sight graduations and button detail. Final UV packing, furniture bake,
-finish, wear and canonical atlas delivery remain behind the checkpoint. No
+geometry is baked to one shared 2048 normal for receiver stampings, grip
+checkering, sight graduations, button knurl and smooth forging surfaces. Final
+UV packing, furniture bake, finish, wear and canonical atlas delivery remain
+behind the checkpoint. No
 documentation JPGs are committed at this stage.
 
 `renders/checkpoint/contact-sheet.jpg` collects the form evidence.
@@ -23,8 +24,12 @@ Real-duration playback and strips live in `strips/`; `clips.jpg` and numbered
 
 `contacts.jpg` shows isolated source/export seating diagnostics.
 `trigger-measurements.jpg` records sparse photographic observations separately
-from actual mesh measurements. [REVIEW.md](REVIEW.md) links every revised region
-and records the remaining differences from its photograph.
+from actual mesh measurements. `form-observations.jpg` adds the sight estimates,
+with explicit scale assumptions and uncertainty. Fifteen local orthographic
+side/top/front diagnostic views isolate the sights, gas block, cover and grip
+with their seating parts, independently of photo camera fits.
+[REVIEW.md](REVIEW.md) links every revised region and records the remaining
+differences from its photograph.
 
 ## Exterior dimensions and construction
 
@@ -40,9 +45,10 @@ and records the remaining differences from its photograph.
 | Texture reservation | One 2048 BaseColor/OpenGL Normal/ORM set after acceptance |
 
 The U receiver has both skins, bottom bends, deformed guide dimples and
-separate rivet heads. The cover has shallow pressed ribs, a rolled shoulder,
-rear closure and retaining button. Visible inserts, barrel bands, gas tube,
-inclined gas-block neck, bayonet lug and supported cleaning rod describe the
+separate rivet heads. The cover has flat flanks, a low rear longitudinal bead,
+shallow roof-only transverse ribs, a downturned rear closure and retaining
+button. Visible inserts, gas tube, a curved forged gas-block neck/collar,
+bayonet lug and supported cleaning rod describe the
 exterior construction. The brake has a slanted hollow sleeve silhouette.
 
 Stock, handguards and molded grip use supported subdivision cages with
@@ -52,17 +58,46 @@ The magazine has hollow formed sheet, integral ribs, folded spines, a tilted
 floorplate, display catches, curled lips and separate follower/round owners.
 The trigger's concave face faces the muzzle and its rounded tip curls forward.
 
-The rear sight has a rounded forged saddle, front-hinged long leaf, cylindrical
-release buttons and an underlying leaf spring. The front forging has a barrel
-collar, changing tapered sections, open protective ears, post/drum detail and
-a rod seat. Smooth original unions supply the retained high-detail forgings.
+The rear sight has a low saddle with raised front hinge cheeks, an open spring
+channel, a narrow graduated leaf, a wider U-notch crosspiece and a sleeve with
+two knurled cylindrical buttons. The front forging has a rectangular window,
+flush round drum ends and a thin open sheet hood with broad side ears.
+The lower handguard front has a fitted retaining cap; its left-side wire loop
+is the sling attachment. It replaces the former rectangular wire approximation
+of the retainer. The grip has flat checkered side panels and smooth rounded
+front/back straps. All checkering is in the normal map. Original smooth cages
+supply the retained high-detail forgings.
 
-The actual trigger envelope is **21.99 mm tall, 9.31 mm deep and 5.20 mm across**;
-its measured section-center bow is 4.79 mm. Its toe is only 2.10 mm forward of
+The actual trigger envelope is **21.99 mm tall, 8.43 mm deep and 5.16 mm across**;
+its measured section-center bow is 4.92 mm. Its toe is only 2.61 mm forward of
 the pivot. Sparse photo estimates give heights of 22.35/21.60 mm and bows of
 4.98/4.65 mm, with about 20% uncertainty. The guard's actual flat-band section
-is 13.00 ×1.62 mm at the documented cut. Its front forms a folded housing, and
-the release has a curved stamped finger tab.
+is 13.00 ×1.65 mm at the documented cut, with a straight bottom, tight bends
+and vertical front. Its front forms a folded housing, and the release has a
+curved stamped finger tab.
+
+| Round 3 exterior form | Photo estimate | Actual game triangles |
+| --- | ---: | ---: |
+| Rear saddle above barrel, rear/middle | 18 ±4 mm | 14.99 / 16.60 mm |
+| Rear hinge cheek above barrel | 26 ±6 mm | 29.32 mm |
+| Leaf width | 12.9 ±2.1 mm | 13.40 mm |
+| Notch crosspiece width | 27.3 ±4.4 mm | 25.99 mm |
+| Front hood sheet gauge | 1.3 ±0.5 mm | 1.01 mm |
+| Front hood band depth | 12.6 ±2.0 mm | 14.00 mm |
+
+Photo estimates use the [museum side](refs/SOURCES.md), Erik Gregg's Commons
+rear macro and the sharp AKOptions front side/rear photos. They depend on
+explicit visual-scale assumptions; the barrel datum is occluded in the side
+photo. They are not independent caliper measurements. Native points, ratios,
+scale and limitations are in [REFERENCE.md](REFERENCE.md) and
+`build/round3-photo-observations.json`. Actual dimensions come from triangle
+intersections/bounds in `build/form-measurements.json`, including three rear
+saddle stations and a two-surface hood gauge ray.
+
+The dark receiver-side rectangle above the magazine front was the outer end
+of the front-lug cradle bridge, coplanar with the exterior skin. It was an
+exposed interior support, not a marking. Its end now seats within the inner
+receiver wall; the hook/contact surfaces and magazine path are retained.
 
 The hidden bolt-lug and hammer/sear surfaces have **zero render geometry**.
 Their accepted Bolt/Hammer transform bones and timing remain. The source and
@@ -118,27 +153,33 @@ with mipmaps and consumer texture reuse.
 
 | Inspection GLB | Triangles | Materials | Bytes |
 | --- | ---: | ---: | ---: |
-| Gun | 39,718 | 8 | 4,525,920 |
-| Loaded magazine | 6,756 | 4 | 2,551,788 |
-| Empty magazine | 4,596 | 2 | 2,490,440 |
+| Gun | 39,956 | 8 | 6,422,792 |
+| Loaded magazine | 6,756 | 4 | 4,373,224 |
+| Empty magazine | 4,596 | 2 | 4,311,876 |
 | Cartridge | 960 | 2 | 23,452 |
 | Fired case | 704 | 1 | 18,752 |
 
-The gun and both magazines embed the same 2048 normal payload (2,362,654 bytes);
+The gun and both magazines embed the same 2048 normal payload (4,184,091 bytes);
 the cartridge and case contain no images. The normal was baked at 4096 and
-vector-filtered to 2048. Its inspection UV regions reserve space for the five
+vector-filtered to 2048. Its inspection UV regions reserve space for the eight
 projected parts; other surfaces sample a flat normal. This is not a final UV
 overlap/texel-density acceptance. A consumer-compressed BC5 normal with mipmaps
 would use about 5.3 MiB, shared across the three instances. The gun retains
 17 rigid bones, eight sockets and 20 clips.
 
-`make` and `make check` passed. The checks evaluated 1,556 source clip poses,
+`make -C guns/ak model` and `make -C guns/ak check` passed. The checks evaluated 1,556 source clip poses,
 1,568 imported clearance samples and 44 visual contact/visibility groups.
 The import's maximum posed-surface difference was 0.0000894 mm. Ordinary
 cross-owner clearance uses 0.2 mm tolerance; four named visual joints have
 separate finite overlap bounds, fully reported in `build/check.json`.
 These checks establish visual assembly and serialization, with the functional
 limitations documented below and in the review.
+
+Nine additional fixed-surface seating checks cover the new sling/retainer,
+gas forging and rear spring in source and fresh GLB
+(`build/form-measurements.json`).
+The current outer envelope is 881.38 ×65.29 ×246.74 mm; the width includes
+the added left-side sling loop, and the revised hood sets the upper extent.
 
 The front lug's contact is measured throughout the engaged rock-out and rock-in
 phases. The rear catch seats at the holds and is deliberately released during
@@ -185,7 +226,7 @@ References, authors, licenses, specification discrepancies and direct URLs are
 in [refs/SOURCES.md](refs/SOURCES.md); the measurement plan and uncertainty are
 in [REFERENCE.md](REFERENCE.md). White balance uses documented neutral
 patches in `build/white-balanced/corrections.json`; no reference pixels enter
-asset geometry or materials. Round 2 changes no kit or common module. The
+asset geometry or materials. Round 3 changes no kit or common module. The
 initial checkpoint added only two new common modules,
 `ammo762_visual.py` and `interface_v1_6.py`; existing common/kit/other guns are
 unchanged.

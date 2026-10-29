@@ -29,19 +29,67 @@ top. It depicts an earlier receiver variant, so its receiver is excluded.
 The oblique exhibition photograph supplies cover pressing and open front
 ears; reflections, display wires and unrelated furniture are excluded.
 
-Camera matching uses sparse landmarks, never photo contours as mesh input.
-Native RMS is 7.88 px right, 13.89 px left, 0.84 px receiver, 3.19 px local
-museum trigger/guard, 18.91 px sharp trigger, 8.46 px rear side, 9.83 px rear
-above/behind, 3.13 px front, 13.48 px cover side, 13.25 px cover above and
-0.87 px selector. The trigger/guard now uses local guard anchors instead of
-out-of-crop receiver anchors. The sharp trigger reaches its 1400 mm lens
-bound; cover-side reaches its 180 mm bound. These are useful
-comparisons, not exact overlay acceptance. No residual certifies unmeasured
-geometry between the anchors. Rear side uses independent receiver anchors;
-the earlier local saddle fit falsely elevated its camera. The selector crop
-includes its entire blade and uses the receiver corners. The exhibition
-reference is rotated in scratch
-to keep camera roll within the solver's range.
+Round 3 replaces the small muzzle crop with sharp component photographs:
+AKOptions' side/rear tower views, Walter Gurske's installed sight macros,
+Arms of America's side saddle, gas forging, molded grip and sharp cover. Their primary
+parts span at least 600 native pixels, generally 1,300–2,500. The two large
+Commons museum photos cross-check installed construction; glass and small
+local crops keep them auxiliary. The old Commons rear macro independently
+checks leaf/crosspiece relationships. See the native dimensions and credits
+in SOURCES.md. The sharp cover is a modern replacement; it checks pressing and rear/flank
+construction while the accepted cover span stays fixed. Its camera residual
+is retained rather than treated as exact contour acceptance. No image is
+upscaled and then described as sharp evidence.
+
+Camera matching uses sparse landmarks, never contours as a mesh input.
+`src/calibrate.py` retains the kit's projection/verification and fixes yaw and
+elevation for true side/rear component views. Only translation and roll fit
+at a fixed 300 mm lens. The old 3.1 px front fit was not a valid view match:
+a side plate was compared with two separated ears from behind. Round 3's
+constrained side and rear fits have honest residuals of 91.25 and 99.22
+native pixels. Fifteen local orthographic views independently expose width,
+height and section relationships. Residual is framing evidence, never form
+approval.
+
+Other native RMS values are 7.88 px right, 13.89 left, 0.84 receiver, 3.19
+museum trigger/guard, 18.91 sharp trigger, 87.57 isolated rear side, 9.80
+Commons rear macro, 32.64 new rear macro, 13.92 installed front, 46.20 gas
+side, 75.20 grip side, 13.48 cover side, 13.25 old cover above, 88.64 new sharp cover above and 0.87 selector.
+Rear-side reference has its leaf raised; the asset's static leaf is lower.
+That setting difference is retained visibly rather than fitted away by an
+elevated camera. Trigger reaches its 1400 mm lens bound; cover side reaches
+180 mm. Selector is posed at frame 9 of Selector for the lower photographed
+lever position; its safe/auto/semi settings and coverage are unchanged.
+
+Round 3 sparse observations are reproducible in `src/form_observations.py`:
+
+| Region / source | Native observation | Conditional exterior estimate |
+| --- | --- | --- |
+| Saddle rear shoulder / museum.jpg | 39.5 px above inferred barrel top | 18.0 ±4 mm |
+| Hinge cheek / museum.jpg | 57.5 px above inferred barrel top | 26.2 ±6 mm |
+| Leaf / rear-sight.jpg | 205.2 px against 525.6 px saddle baseline | 12.9 ±2.1 mm |
+| Crosspiece / rear-sight.jpg | 435.6 px against same baseline | 27.3 ±4.4 mm |
+| Hood edge / front-behind.jpg | 26 px against 451 px collar width | 1.3 ±0.5 mm |
+| Hood depth / front-side.jpg | 374 px against 267 px drum end | 12.6 ±2.0 mm |
+
+Scale is explicit, not an independent part specification: museum uses the
+accepted 255 mm receiver span /559 px; rear macro assumes a 33 mm saddle
+within the accepted 35 mm receiver; front views assume 23 mm exterior collar
+and 9 mm drum. The installed barrel top is occluded: its line is inferred
+from the accepted barrel/receiver datum. Surface depth, obliquity, paint and
+edge blur limit these estimates. The standalone sharp side photo confirms
+the low stepped shoulder and hinge hump but cannot independently measure a
+height above an absent barrel. These qualifications prevent a model constant
+from being presented as a photo measurement.
+
+Actual triangle measurements are separate: saddle above barrel 14.99/16.60 mm
+at Y195/Y220 and 29.32 mm at the front hinge Y246; leaf 13.40 mm; crosspiece
+25.99 mm; hood depth 14.00 mm; sheet gauge 1.01 mm from two surface-ray hits.
+The gas center section shows one continuous collar/curved neck. The cover
+sections show vertical flanks and roof-only beads. Grip cuts show flat side
+lands and rounded straps; its fine diamond panels are authored high geometry
+projected into the normal. `form-observations.jpg` and `sections.jpg` show the
+two distinct kinds of evidence.
 
 Three sparse trigger observations per photograph give projected blade heights
 22.35/21.60 mm, chord bows 4.98/4.65 mm and depths about 10 mm. Scale assumes a
@@ -49,10 +97,10 @@ Three sparse trigger observations per photograph give projected blade heights
 sharp view. Estimated uncertainty is ±20%: blur, perspective and different
 surface depths dominate. `src/reference_measurements.py` records the points;
 they are not a traced contour or modeling input. The actual game blade is
-21.99 mm tall, 9.31 mm deep and 5.20 mm across, with a 4.79 mm section-center
+21.99 mm tall, 8.43 mm deep and 5.16 mm across, with a 4.92 mm section-center
 bow. A side photo cannot independently resolve guard width and gauge; the
 oblique references support the broad flat band. Its actual cut is
-13.00 ×1.62 mm. See `renders/checkpoint/trigger-measurements.jpg`.
+13.00 ×1.65 mm. See `renders/checkpoint/trigger-measurements.jpg`.
 
 The anonymous cheek-weld crop gives an estimated eye-to-notch distance of
 268 ±35 mm using an assumed 255 mm receiver exterior baseline. The pupil is
@@ -68,6 +116,10 @@ view uses unprinted white cloth; the sharper trigger uses white display
 paper; ammunition uses bright paper-grid cells excluding printed lines. The
 rear-sight macro uses concrete behind the rifle and the exhibition view uses
 its gray display backing, both estimated neutrals.
+Round 3's installed macros use estimated gray weathered wood; the grip uses
+light gray concrete; gas side and the sharp cover use a white backdrop. Tan cardboard in the
+isolated front views and the colored rear-side work surface have no reliable
+neutral, retain identity gains and are form-only.
 These are estimates, not controlled color cards. The muzzle photograph's sky
 and the cheek-weld photograph's garment are not reliable neutrals: they retain
 identity correction and are forbidden for color measurements.
