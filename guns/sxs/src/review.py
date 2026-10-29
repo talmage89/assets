@@ -61,8 +61,8 @@ def main():
  records=stats['imported_contacts']['records']
  measured={r['name']:r['measured_m']*1000 for r in records if r['name'].startswith(('drop at ','eye above','cheek station'))}
  sections={r['title']:r['part_sizes_mm'] for r in sec['game']}
- (OUT/'measurements.json').write_text(json.dumps(dict(glb_sha256=digest,actual_surfaces_mm=measured,sections_mm=sections,eye_m=stats['imported_contacts']['eye_m'],length_of_pull_mm=stats['length_of_pull_mm']),indent=2))
- names=['hero','side','left','top','front','rake_right','rake_left','open','breech','action','action_left','triggers','trigger_quarter','forend','stock','muzzle','top_controls','lumps','aimed']
+ (OUT/'measurements.json').write_text(json.dumps(dict(glb_sha256=digest,actual_surfaces_mm=measured,form_gauges=stats.get('form_gauges'),sections_mm=sections,eye_m=stats['imported_contacts']['eye_m'],length_of_pull_mm=stats['length_of_pull_mm']),indent=2))
+ names=['hero','side','left','top','front','rake_right','rake_left','open','breech','action','action_left','triggers','trigger_quarter','forend','stock','muzzle','top_controls','lumps','aimed','action_rake_right','action_rake_left','action_rake_top','action_rake_bottom']
  beauty=[OUT/'beauty'/(name+'.png') for name in names]
  gray(OUT/'beauty/hero.png').save(OUT/'hero-gray.jpg',quality=94,optimize=True)
  review_sheet([beauty[i:i+2] for i in range(0,len(beauty),2)],OUT/'contact-sheet.jpg',width=2400,title='Covey 26 / FORM CHECKPOINT / imported unbaked GLB')

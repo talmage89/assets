@@ -6,7 +6,9 @@ from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[3];sys.path.insert(0,str(ROOT));sys.path.insert(0,str(Path(__file__).parent))
 from kit import weapon as W,weapon_verify as V
 BASE=Path(__file__).resolve().parents[1]
-CUTS=[('Barrels at breech',1,.117,(0,2),('Barrel_R','Barrel_L','Solid_TopRib','Extractor_Rim_R','Extractor_Rim_L')),
+CUTS=[('Fence domes',1,.108,(0,2),('Action_Body',)),
+ ('Shoulder and head',1,.096,(0,2),('Action_Body','Stock_Walnut','Top_Strap','Top_Lever')),
+ ('Barrels at breech',1,.117,(0,2),('Barrel_R','Barrel_L','Solid_TopRib','Extractor_Rim_R','Extractor_Rim_L')),
  ('Barrels at muzzle',1,.7749,(0,2),('Barrel_R','Barrel_L','Solid_TopRib','Bottom_Rib')),
  ('Action at knuckle',1,.1703,(0,2),('Action_Body','Hinge_Pin','Barrel_Hook','Forend_IronCup_R','Forend_IronCup_L')),
  ('Action at bar',1,.145,(0,2),('Action_Body','Breech_Lumps','Bottom_Rib')),

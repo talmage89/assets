@@ -22,6 +22,12 @@ SHOTS={
  'aimed':dict(location=(0,0,0),target=(0,1,0),lens=45,aspect=1.6,aimed=True),
  'shell':dict(location=(.075,-.09,.065),target=(0,.027,0),lens=65,aspect=1.5),
  'hull':dict(location=(.06,.13,.06),target=(0,.03,0),lens=65,aspect=1.5)}
+SHOTS.update({
+ 'action_rake_right':dict(location=(.40,.10,.08),target=(0,.115,.031),lens=85,aspect=1.5,raking=1),
+ 'action_rake_left':dict(location=(-.40,.10,.08),target=(0,.115,.031),lens=85,aspect=1.5,raking=-1),
+ 'action_rake_top':dict(location=(.025,.045,.35),target=(0,.115,.035),lens=65,aspect=1.5,raking=1),
+ 'action_rake_bottom':dict(location=(.04,.12,-.30),target=(0,.115,.015),lens=65,aspect=1.5,raking=-1),
+})
 for name,shot in SHOTS.items():
  if name not in ('shell','hull'):shot.setdefault('action','Idle');shot.setdefault('frame',0)
 DEFAULT_SHOTS=','.join(n for n in SHOTS if n not in ('shell','hull'))
@@ -79,7 +85,7 @@ def prepare_shot(sc,shot):
   if ob.type=='LIGHT' and 'baseline_energy' in ob:ob.data.energy=ob['baseline_energy']*(.13 if sign else 1)
  strip=sc.objects['Raking strip'];strip.hide_render=not bool(sign)
  if sign:
-  strip.location=(sign*.35,.18,.26);strip.rotation_euler=(Vector((0,.23,.015))-strip.location).to_track_quat('-Z','Y').to_euler()
+  strip.location=(sign*.35,.18,-.20 if shot.get('location',(0,0,0))[2]<0 else .26);strip.rotation_euler=(Vector(shot.get('target',(0,.23,.015)))-strip.location).to_track_quat('-Z','Y').to_euler()
  sc['exact_aim']=bool(shot.get('aimed'));sc.objects['Aim backdrop'].hide_render=not sc['exact_aim']
  sc['photo_extractor_home']=bool(shot.get('extractor_home'))
  sc['photo_open_angle']=shot.get('photo_open_angle',0)

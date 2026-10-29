@@ -7,7 +7,7 @@ CHECKPOINT_REVIEW = $(MAKE) evidence && $(PYTHON) src/review.py
 WIDTH ?= 1440
 SAMPLES ?= 32
 CHECKPOINT_OUT := renders/checkpoint/beauty
-CHECKPOINT_RENDER_OUTPUTS := $(addprefix $(CHECKPOINT_OUT)/,hero.png side.png left.png top.png front.png rake_right.png rake_left.png open.png breech.png action.png action_left.png triggers.png trigger_quarter.png forend.png stock.png muzzle.png top_controls.png lumps.png aimed.png shots.json)
+CHECKPOINT_RENDER_OUTPUTS := $(addprefix $(CHECKPOINT_OUT)/,hero.png side.png left.png top.png front.png rake_right.png rake_left.png open.png breech.png action.png action_left.png triggers.png trigger_quarter.png forend.png stock.png muzzle.png top_controls.png lumps.png aimed.png action_rake_right.png action_rake_left.png action_rake_top.png action_rake_bottom.png shots.json)
 include ../../kit/checkpoint_rules.mk
 
 $(CHECKPOINT_RENDER_OUTPUTS): $(CHECKPOINT_RENDER_DEPS)
@@ -36,7 +36,7 @@ match: model
 	$(PYTHON) src/photo_matches.py
 	$(PYTHON) src/photo_solve.py
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source build/sxs.glb --out renders/checkpoint/photos --camera-file build/cameras.json --shots $(PHOTO_SHOTS) --width $(WIDTH) --samples $(SAMPLES)
-	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/cameras.json --renders renders/checkpoint/photos --out renders/checkpoint/pairs
+	$(PYTHON) src/pair_review.py --renders renders/checkpoint/photos --out renders/checkpoint/pairs
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration build/cameras.json
 strips: model
 	$(PYTHON) src/strips.py
@@ -47,4 +47,4 @@ ammo: model
 source-match: model match
 	$(BP) --python src/prepare_high.py -- > build/prepare-high.log 2>&1
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source build/sculpt.blend --out renders/checkpoint/source-photos --camera-file build/cameras.json --shots $(PHOTO_SHOTS) --width $(WIDTH) --samples $(SAMPLES)
-	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/cameras.json --renders renders/checkpoint/source-photos --out renders/checkpoint/source-pairs
+	$(PYTHON) src/pair_review.py --renders renders/checkpoint/source-photos --out renders/checkpoint/source-pairs
