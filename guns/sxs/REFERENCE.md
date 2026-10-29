@@ -20,3 +20,12 @@ estimates are labeled separately. Photo landmarks calibrate cameras only.
 The form gate includes all staged live/fired/reload alternatives in the
 25–35k budget. Dense changing-section wood cages remain as bake sources.
 Final plan: one 2048 gun atlas; separate small shell and hull atlases.
+
+Look-dev remains held. Its named wear sites will be: broad satin thinning on
+the barrels' carry area, narrow gray-blue muzzle rub, faded handled action
+flats with softer exposed edges, polished thumb contact on the lever, a smooth
+guard underside, flattened checkering diamonds at the wrist/forend grips,
+and compressed pale dents at the stock toe and forend edges. Each effect will
+follow its contact/exposure cause and be judged in two-dimensional masks at
+hero scale. Whole-part hue/value histograms and highlight color must be
+accepted against white-balanced used-gun photographs before baking.
