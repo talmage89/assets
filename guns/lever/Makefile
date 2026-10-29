@@ -57,7 +57,7 @@ $(BAKED) &: build/delivery/high.blend $(PREPARED) src/config.py build/bake-param
 bake: $(BAKED)
 $(TEXTURES) &: $(BAKED) $(KIT)/downsample.py
 	$(PYTHON) $(KIT)/downsample.py --source build/baked/4k --out textures --asset BrackenL20 --size $(SHIP_SIZE)
-$(EXPORTS) $(SUBSET_LAYOUTS) &: $(TEXTURES) $(PREPARED) src/config.py src/cartridge_config.py src/case_config.py $(KIT)/export.py ../../kit/detachable_textures.py ../../kit/gltf.py src/export_config.py
+$(EXPORTS) $(SUBSET_LAYOUTS) &: $(TEXTURES) $(PREPARED) src/config.py src/cartridge_config.py src/case_config.py $(KIT)/export.py ../../kit/detachable_textures.py ../../kit/detachable_clusters.py ../../kit/gltf.py src/export_config.py
 	@mkdir -p export
 	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset BrackenL20 --config src/export_config.py --out export/lever.glb --report build/delivery/export.json
 	$(BP) --python $(KIT)/gltf.py -- --source export/lever.glb --config src/export_config.py

@@ -3,7 +3,7 @@ from pathlib import Path
 import runpy
 _settings=runpy.run_path(str(Path(__file__).with_name("config.py")))
 globals().update({k:v for k,v in _settings.items() if k.isupper()})
-DETACHABLES=[dict(spec,texture_size=1024) for spec in DETACHABLES]
+DETACHABLES=[dict(spec,texture_size=1024,texture_clusters=spec['filename']=='magazine_loaded.glb') for spec in DETACHABLES]
 
 # Branch-point MikkTSpace rounding anchors; exact source signatures are guarded.
 EXPORT_TANGENT_ROUNDING=[{'mesh': 0,

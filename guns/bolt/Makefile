@@ -61,7 +61,7 @@ $(BAKED) &: build/delivery/high.blend $(PREPARED) src/config.py build/bake-param
 bake: $(BAKED)
 $(TEXTURES) &: $(BAKED) ../../kit/downsample.py
 	$(PYTHON) $(KIT)/downsample.py --source build/baked/4k --out textures --asset VesperB24 --size $(SHIP_SIZE)
-$(EXPORTS) $(SUBSET_LAYOUTS) &: $(TEXTURES) $(PREPARED) src/config.py src/case_config.py src/stable_delivery.py ../../kit/export.py ../../kit/weapon.py src/export_config.py ../../kit/detachable_textures.py
+$(EXPORTS) $(SUBSET_LAYOUTS) &: $(TEXTURES) $(PREPARED) src/config.py src/case_config.py src/stable_delivery.py ../../kit/export.py ../../kit/weapon.py src/export_config.py ../../kit/detachable_textures.py ../../kit/detachable_clusters.py
 	@mkdir -p export
 	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset VesperB24 --config src/export_config.py --out export/bolt.glb --report build/delivery/export.json
 	$(BP) --python src/stable_delivery.py -- export/bolt.glb

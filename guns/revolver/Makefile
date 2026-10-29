@@ -57,7 +57,7 @@ $(BAKED) &: build/delivery/high.blend build/delivery/finalized.blend src/config.
 bake: $(BAKED)
 $(TEXTURES) &: $(BAKED) ../../kit/downsample.py
 	$(PYTHON) $(KIT)/downsample.py --source build/baked/4k --out textures --asset MeridianSix --size $(SHIP_SIZE)
-$(EXPORTS) $(SUBSET_LAYOUTS) &: $(TEXTURES) build/delivery/finalized.blend src/config.py ../../kit/export.py ../../kit/weapon.py src/export_config.py ../../kit/detachable_textures.py ../../kit/gltf.py
+$(EXPORTS) $(SUBSET_LAYOUTS) &: $(TEXTURES) build/delivery/finalized.blend src/config.py ../../kit/export.py ../../kit/weapon.py src/export_config.py ../../kit/detachable_textures.py ../../kit/detachable_clusters.py ../../kit/gltf.py
 	@mkdir -p export
 	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset MeridianSix --config src/export_config.py --out export/revolver.glb --report build/delivery/export.json
 	$(BP) --python $(KIT)/gltf.py -- --source export/revolver.glb --config src/export_config.py

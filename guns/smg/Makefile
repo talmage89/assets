@@ -61,7 +61,7 @@ $(BAKED) &: build/delivery/high.blend $(PREPARED) src/config.py build/bake-param
 bake: $(BAKED)
 $(TEXTURES) &: $(BAKED) ../../kit/downsample.py
 	$(PYTHON) $(KIT)/downsample.py --source build/baked/4k --out textures --asset Relay9 --size $(SHIP_SIZE) --alpha-mode independent
-$(EXPORTS) $(SUBSET_LAYOUTS) &: $(TEXTURES) $(PREPARED) src/config.py src/cartridge_config.py src/case_config.py src/export_paint.py ../../kit/export.py src/export_config.py ../../kit/detachable_textures.py ../../kit/gltf.py
+$(EXPORTS) $(SUBSET_LAYOUTS) &: $(TEXTURES) $(PREPARED) src/config.py src/cartridge_config.py src/case_config.py src/export_paint.py ../../kit/export.py src/export_config.py ../../kit/detachable_textures.py ../../kit/detachable_clusters.py ../../kit/gltf.py
 	@mkdir -p export
 	$(BP) --python src/export_paint.py -- --source build/delivery/finalized.blend --textures textures --asset Relay9 --config src/export_config.py --out export/smg.glb --report build/delivery/export.json
 	$(BP) --python $(KIT)/gltf.py -- --source export/smg.glb --config src/export_config.py
