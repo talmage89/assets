@@ -47,6 +47,10 @@ def main():
  for i in range(3):assert Image.open(io.BytesIO(data.image(i))).size==(2048,2048)
  baked=json.loads((BASE/'build/baked/4k/bake-report.json').read_text())
  assert baked['size']==4096 and baked['samples']>=32 and baked['device']=='GPU'
+ for name,digest in baked['source_sha256'].items():
+  assert digest==hashlib.sha256((BASE/'build/delivery'/name).read_bytes()).hexdigest(),'Stale baked source '+name
+ assert 'Stock_Walnut' in baked['projection_policy']['moving_roots']
+ assert 'Stock_Walnut' not in baked['assembled_contact_policy']['moving_roots']
  assert all(baked[c]['alpha_missed_interior_texels']==0 for c in ('BaseColor','Roughness','Metallic','AO','Normal'))
  hashes=sorted(hashlib.sha256(data.image(i)).hexdigest() for i in range(3))
  assert hashes==sorted(hashlib.sha256((BASE/'textures'/('T_Covey26_'+c+'.png')).read_bytes()).hexdigest() for c in ('BaseColor','Normal','ORM'))
