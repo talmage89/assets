@@ -4,6 +4,7 @@ from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont
 ROOT=Path(__file__).resolve().parents[3];sys.path.insert(0,str(ROOT))
 from kit.fonts import find_font
+from shots import DEFAULT_SHOTS,PHOTO_POSES,SHOTS
 BASE=Path(__file__).resolve().parents[1];OUT=BASE/'renders/checkpoint'
 FONT=ImageFont.truetype(find_font('Noto Sans','Regular'),20)
 def panel(path,w,h):
@@ -37,11 +38,19 @@ def main():
   p=OUT/folder/'shots.json'
   if p.exists():meta[folder]=json.loads(p.read_text())
  calibration=json.loads((BASE/'build/cameras.json').read_text())
+ assert set(meta['beauty'])==set(DEFAULT_SHOTS.split(',')),'missing checkpoint beauty'
+ for name,row in meta['beauty'].items():
+  expected=SHOTS[name]
+  if 'diagnostic_prefixes' in expected:
+   assert row.get('diagnostic_prefixes')==expected['diagnostic_prefixes'],('stale orthographic isolation',name)
  for folder in ('photos','source-photos'):
   assert set(meta[folder])==set(calibration),('missing photo view',folder)
   for name,row in meta[folder].items():
    for key in ('location','target','lens','aspect','roll'):
     assert row[key]==calibration[name]['shot'][key],('stale camera',folder,name,key)
+   for key in ('action','frame','diagnostic_prefixes','diagnostic_isolate'):
+    if key in PHOTO_POSES.get(name,{}):
+     assert row.get(key)==PHOTO_POSES[name][key],('stale photo pose',folder,name,key)
  render_records=0
  for folder,data in [*meta.items(),*[(str(p.parent.relative_to(OUT)),json.loads(p.read_text())) for p in (OUT/'strips').glob('*/shots.json')]]:
   for name,row in data.items():
@@ -67,6 +76,7 @@ def main():
  if extras:items.append(('Detachables, ammunition and selector',OUT/'extra-sheet.jpg'))
  if contact_items:items.append(('Actual contact diagnostics / source and GLB',OUT/'contacts.jpg'))
  if (OUT/'trigger-measurements.jpg').exists():items.append(('Photographic trigger observations',OUT/'trigger-measurements.jpg'))
+ if (OUT/'form-observations.jpg').exists():items.append(('Round 3 photographic form observations',OUT/'form-observations.jpg'))
  sheet(items,OUT/'contact-sheet.jpg',cols=2,w=800,h=650)
  (BASE/'build/media.json').write_text(json.dumps(dict(triangles=tri['total'],render_groups=meta,strip_frames=len(frames),verified_render_records=render_records),indent=2))
  print('REVIEW',len(beauty),'beauties',len(pairs),'photo pairs',len(frames),'strip samples;',render_records,'verified source hashes')

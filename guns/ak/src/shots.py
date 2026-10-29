@@ -16,7 +16,7 @@ SHOTS={
  'trigger_side':dict(location=(.25,.032,.026),target=(0,.032,.026),lens=115,aspect=1.2),
  'wood':dict(location=(-.30,.32,.26),target=(0,.29,.075),lens=85,aspect=1.6),
  'grip_stock':dict(location=(-.42,-.40,.23),target=(0,-.155,.025),lens=67,aspect=1.65),
- 'grip_detail':dict(location=(.18,.09,.01),target=(0,-.008,.01),lens=95,aspect=1.1),
+ 'grip_detail':dict(location=(.27,-.12,.04),target=(0,-.010,-.005),lens=85,aspect=1.1),
  'rear_sight':dict(location=(.12,.08,.23),target=(0,.208,.121),lens=80,aspect=1.4),
  'front_sight':dict(location=(.12,.70,.21),target=(0,.55,.115),lens=82,aspect=1.4),
  'front_sight_rear':dict(location=(-.12,.39,.17),target=(0,.552,.106),lens=95,aspect=1.2),
@@ -30,6 +30,15 @@ SHOTS={
  'case':dict(location=(.065,-.085,.04),target=(0,.020,0),lens=82,aspect=1.4),
  'case_mouth':dict(location=(.025,.08,.026),target=(0,.025,0),lens=95,aspect=1.4),
 }
+for name,y,z,scale in [('rear',.22,.106,.095),('front',.552,.096,.10),('gas',.433,.095,.10),('cover',.08,.098,.28),('grip',-.011,.002,.14)]:
+ prefixes={
+  'rear':['Sight_Rear','Sight_Tangent','Sight_Leaf','Sight_Slider','Barrel'],
+  'front':['Sight_Front','Sight_Windage','Sight_Post','Sight_Rod','Barrel','CleaningRod'],
+  'gas':['GasBlock_','Bayonet_Lug','Barrel','CleaningRod'],
+  'cover':['TopCover_','Cover_Return','Cover_RetainingButton'],
+  'grip':['PistolGrip_','Grip_HeelScrew']}[name]
+ for view,loc,roll in [('side',(.8,y,z),0),('top',(0,y,.8),math.pi/2),('front',(0,y+.8,z),0)]:
+  SHOTS[f'{name}_ortho_{view}']=dict(location=loc,target=(0,y,z),ortho=scale,aspect=1.3,roll=roll,diagnostic_prefixes=prefixes)
 STRIP_SHOT=dict(location=(.95,.45,.30),target=(0,.17,-.045),lens=42,aspect=1.25)
 for name,frame in [('selector_safe',0),('selector_auto',18),('selector_semi',36)]:
  SHOTS[name]=dict(SHOTS['controls'],action='Selector',frame=frame)
@@ -40,9 +49,17 @@ SHOTS['rear_catch_seated']=dict(location=(.10,.12,.015),target=(0,.095,.043),len
  diagnostic_isolate=['Magazine_RearCatch','MagRelease_VisualCatch','MagRelease_Paddle','Release_Housing'])
 SHOTS['carrier_seated']=dict(location=(.12,.13,.15),target=(0,.185,.100),lens=100,aspect=1.3,
  diagnostic_isolate=['Carrier_SeatingFace','Front_InsertUpperShoulder','Carrier_Body'])
-PHOTO_POSES={}
-DEFAULT_SHOTS='right,left,side,top,front,raking_right,raking_left,receiver,cover_rear,controls,trigger,trigger_side,wood,grip_stock,grip_detail,rear_sight,front_sight,front_sight_rear,gas_muzzle,open,aimed,magazine'
-RENDER_STAGE='form round 2 / geometric normal bake with constant inspection finish'
+PHOTO_POSES={
+ 'selector_photo':dict(action='Selector',frame=9),
+ 'topcover_sharp':dict(diagnostic_prefixes=['TopCover_','Cover_Return']),
+ 'front_sight_photo':dict(diagnostic_prefixes=['Sight_Front','Sight_Windage','Sight_Post']),
+ 'front_sight_behind':dict(diagnostic_prefixes=['Sight_Front','Sight_Windage','Sight_Post']),
+ 'rear_sight_side':dict(diagnostic_prefixes=['Sight_Rear','Sight_Tangent','Sight_Leaf','Sight_Slider']),
+ 'gas_block_photo':dict(diagnostic_isolate=['GasBlock_Neck','Bayonet_Lug']),
+ 'grip_photo':dict(diagnostic_isolate=['PistolGrip_Sculpt','Grip_HeelScrew'])}
+
+DEFAULT_SHOTS=','.join([f'{region}_ortho_{view}' for region in ('rear','front','gas','cover','grip') for view in ('side','top','front')])+',right,left,side,top,front,raking_right,raking_left,receiver,cover_rear,controls,trigger,trigger_side,wood,grip_stock,grip_detail,rear_sight,front_sight,front_sight_rear,gas_muzzle,open,aimed,magazine'
+RENDER_STAGE='form round 3 / geometric normal bake with constant inspection finish'
 def floor_height(source):
  import bpy
  return min((o.matrix_world@v.co).z for o in bpy.context.scene.objects if o.type=='MESH' and not o.get('bake_only') and not o.get('studio') for v in o.data.vertices)-.001
@@ -58,6 +75,8 @@ def configure_scene(scene,source):
  scene.world.node_tree.nodes['Background'].inputs['Strength'].default_value=.4
 def prepare_shot(scene,shot):
  from mathutils import Vector
+ if shot.get('diagnostic_prefixes'):
+  shot['diagnostic_isolate']=[o.get('part_name',o.name) for o in scene.objects if o.type=='MESH' and any(o.get('part_name',o.name).startswith(p) for p in shot['diagnostic_prefixes'])]
  for ob in scene.objects:
   if ob.type=='MESH' and ob.get('asset_set'):
    ob.hide_render=bool(ob.get('bake_only')) or bool(shot.get('diagnostic_isolate') and ob.get('part_name',ob.name) not in shot['diagnostic_isolate'])

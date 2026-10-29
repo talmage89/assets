@@ -12,7 +12,12 @@ CUTS=[('Receiver at magazine well',1,143,['Receiver_Sheet']),
  ('Magazine',2,-35,['Magazine_Sheet']),
  ('Front sight / collar',1,552,['Sight_FrontTower','Barrel']),
  ('Front sight / drum',2,117,['Sight_FrontTower','Sight_WindageDrum','Sight_FrontHood','Sight_FrontPost']),
- ('Guard flat-band section',1,30,['TriggerGuard_Stamping'])]
+ ('Guard flat-band section',1,30,['TriggerGuard_Stamping']),
+ *[('Rear saddle / '+str(y),1,y,['Sight_RearBlock','Sight_TangentLeaf','Sight_LeafSpring','Barrel']) for y in (195,220,246)],
+ ('Gas forging / middle',2,100,['GasBlock_Neck']),
+ ('Gas forging / center side',0,0,['GasBlock_Neck','Barrel','GasBlock_TubeSeat']),
+ *[('Cover / '+str(y),1,y,['TopCover_Pressed']) for y in (20,100,170)],
+ ('Grip lower side lands',2,-30,['PistolGrip_Sculpt'])]
 def segments(o,axis,station):
  o.data.calc_loop_triangles();p=np.array([tuple(o.matrix_world@v.co) for v in o.data.vertices])*1000
  t=p[np.array([t.vertices for t in o.data.loop_triangles])];d=t[:,:,axis]-station
@@ -23,15 +28,45 @@ def segments(o,axis,station):
   for i,v in zip(idx,hits):out[i].append(v)
  axes=[i for i in range(3) if i!=axis]
  return [[[float(p[k]) for k in axes] for p in line] for line in out if len(line)==2]
+def local_lines(lines,window):
+ """Clip actual intersection segments; never redraw a measured section."""
+ result=[]
+ for a,b in lines:
+  a=np.array(a);delta=np.array(b)-a;lo,hi=0.,1.
+  for k,(minimum,maximum) in enumerate(window):
+   if abs(delta[k])<1e-12:
+    if not minimum<=a[k]<=maximum:hi=-1;break
+   else:
+    u,v=sorted(((minimum-a[k])/delta[k],(maximum-a[k])/delta[k]))
+    lo=max(lo,u);hi=min(hi,v)
+  if lo<=hi:result.append([(a+delta*lo).tolist(),(a+delta*hi).tolist()])
+ return result
+def round3_contacts():
+ from kit import assembly
+ objects={o.get('part_name',o.name):o for o in bpy.context.scene.objects if o.type=='MESH' and o.get('asset_set')}
+ pairs=[('Handguard_SlingLoop','Handguard_SlingMount'),('Handguard_SlingLoop','Handguard_Retainer363'),
+  ('Handguard_SlingMount','Handguard_Retainer363'),('Handguard_Retainer363','LowerHandguard_Sculpt'),
+  ('GasBlock_Neck','Barrel'),('GasBlock_Neck','GasBlock_TubeSeat'),('GasBlock_Neck','Bayonet_Lug'),
+  ('Sight_LeafSpring','Sight_RearBlock'),('Sight_LeafSpring','Sight_TangentLeaf')]
+ rows=[]
+ for a,b in pairs:
+  gap,method=assembly.distance(objects[a],objects[b])
+  rows.append(dict(parts=[a,b],surface_gap_mm=gap*1000,method=method,passed=gap<=.0002))
+ assert all(r['passed'] for r in rows),rows
+ return rows
 def main():
  bpy.ops.wm.open_mainfile(filepath=str(BASE/'build/ak.blend'));W.pose(bpy.data.objects['R39Armature'],'Idle',0);rows=[]
  for title,axis,s,names in CUTS:
   low={n:segments(bpy.data.objects[n],axis,s) for n in names}
   high={n:segments(bpy.data.objects['HIGH_'+n],axis,s) for n in names if bpy.data.objects.get('HIGH_'+n)}
+  window=((400,458),(70,120)) if title=='Gas forging / center side' else None
+  if window:
+   low={n:local_lines(lines,window) for n,lines in low.items()}
+   high={n:local_lines(lines,window) for n,lines in high.items()}
   points=[p for lines in low.values() for line in lines for p in line];assert points,title
   bounds=[[min(p[k] for p in points),max(p[k] for p in points)] for k in range(2)]
   rows.append(dict(title=title,station_mm=s,axis='XYZ'[axis],axes=['XYZ'[k] for k in range(3) if k!=axis],
-   bounds_mm=bounds,dimensions_mm=[b-a for a,b in bounds],low=low,high=high))
+   bounds_mm=bounds,dimensions_mm=[b-a for a,b in bounds],clip_window_mm=window,low=low,high=high))
  (BASE/'build/sections.json').write_text(json.dumps(rows,indent=2))
  # These are measurements on the evaluated game triangles, not a restatement
  # of the generator's control points. Cross-section centers describe the bow.
@@ -49,6 +84,35 @@ def main():
   section_centerline_yz_mm=centerline,maximum_chord_bow_mm=float(bow),
   limit='section-center bow, not a circular radius or mechanical dimension'),
   guard=dict(section_xz_mm=guard['dimensions_mm'],station_y_mm=30))
+ def bounds(name):
+  ob=bpy.data.objects[name];q=np.array([tuple(ob.matrix_world@v.co) for v in ob.data.vertices])*1000
+  return q.min(axis=0),q.max(axis=0)
+ def width(name,axis):
+  a,b=bounds(name);return float(b[axis]-a[axis])
+ def cutbounds(name,axis,station):
+  pts=np.array([p for line in segments(bpy.data.objects[name],axis,station) for p in line])
+  return pts.min(axis=0),pts.max(axis=0)
+ rear=[]
+ for y in (195,220,246):
+  a,b=cutbounds('Sight_RearBlock',1,y);c,d=cutbounds('Barrel',1,y)
+  rear.append(dict(y_mm=y,top_z_mm=float(b[1]),barrel_top_z_mm=float(d[1]),above_barrel_mm=float(b[1]-d[1])))
+ from kit import motion
+ from mathutils import Vector
+ tree=motion.surface(bpy.data.objects['Sight_FrontHood'])['tree']
+ ray=Vector((.02,.552,.126));direction=Vector((-1,0,0))
+ outer=tree.ray_cast(ray,direction,.04)[0]
+ inner=tree.ray_cast(outer+direction*.00001,direction,.04)[0]
+ gauge=(outer-inner).length*1000
+ metrics['round3']=dict(rear=rear,leaf_width_mm=width('Sight_TangentLeaf',0),
+  notch_width_mm=width('Sight_RearNotch',0),rear_block_width_mm=width('Sight_RearBlock',0),
+  hood_depth_mm=width('Sight_FrontHood',1),hood_sheet_mm=gauge,
+  hood_sheet_limit='two triangle intersections along X at Z126 / Y552',
+  windage_drum_diameter_mm=width('Sight_WindageDrum',2),
+  grip_envelope_mm=[width('PistolGrip_Sculpt',k) for k in range(3)])
+ metrics['round3']['source_seating']=round3_contacts()
+ from kit.weapon_verify import import_glb
+ imported=import_glb(BASE/'build/ak.glb');W.pose(imported,'Idle',0)
+ metrics['round3']['imported_seating']=round3_contacts()
  (BASE/'build/form-measurements.json').write_text(json.dumps(metrics,indent=2))
  from PIL import Image,ImageDraw,ImageFont
  from kit.fonts import find_font
