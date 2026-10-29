@@ -90,8 +90,8 @@ back is convex, and its narrowing toe curls forward.
 The magazine is hollow formed sheet with integral ribs, folded spines, curled
 lips, a tilted floorplate, front lug, rear catch and separate follower/round
 owners. Its front hook engages before the magazine rocks into its seated
-pose. Loaded and empty detachables retain identical local frames and atlas
-coordinates. The cartridge and open fired case use brown-olive lacquered-steel exterior
+pose. Loaded and empty detachables retain identical local frames; standalone UVs
+translate the original atlas neighborhoods without reducing texel density. The cartridge and open fired case use brown-olive lacquered-steel exterior
 finishes, a jacket and fictional headstamp.
 
 This is an exterior visual asset. The hidden bolt-lug and hammer/sear owners
@@ -245,23 +245,39 @@ One canonical **2048 BaseColor / OpenGL +Y Normal / ORM** atlas, baked at
 **4096 /32 samples**. ORM is R occlusion, G roughness, B metallic. Opaque
 BaseColor alpha carries a per-surface specular factor through
 `KHR_materials_specular`; it does not control transparency or add a fourth
-image. Consumers must preserve this extension and reuse the canonical image
-hashes across GLBs to share the approximately **16 MiB** compressed allocation
-with mipmaps. Separate GLB imports do not automatically share GPU memory.
+image. Consumers must preserve this extension, including the alpha data in each
+standalone BaseColor map. The rifle costs approximately **16 MiB** with full
+mipmaps at 8-bpp block compression. Each magazine has its own lossless **1024**
+subset (about **4 MiB**); the cartridge and fired case each use **512** (about
+**1 MiB**). No inter-file texture sharing is assumed.
 
 Budget and file sizes are measured from the actual exports and checked in
 `build/delivery/verify.json`:
 
-| Output | Triangles | GLB bytes |
-| --- | ---: | ---: |
-| Rifle | **40,000 / 40,000** | 10,861,788 |
-| Loaded magazine | 6,756 | 7,704,908 |
-| Empty magazine | 4,596 | 7,616,752 |
-| Cartridge | 960 | 7,496,472 |
-| Fired case | 704 | 7,484,152 |
+| Output | Triangles | Maps | GLB bytes |
+| --- | ---: | ---: | ---: |
+| Rifle | **40,000 / 40,000** | 2048 | 10,861,788 |
+| Loaded magazine | 6,756 | 1024 | 1,534,300 |
+| Empty magazine | 4,596 | 1024 | 1,462,396 |
+| Cartridge | 960 | 512 | 164,864 |
+| Fired case | 704 | 512 | 149,668 |
 
-Each output uses one material and the same three embedded images. The rifle
-has 17 bones, eight sockets and 20 clips. Detached magazines deliberately
+Each output uses one material and three embedded images. All four standalone
+sets retain **density ratio 1.000**, the gun’s trilinear mipmapped sampler,
+8 px mip-aligned outer guards and linear-light pull-push background fill.
+Whole atlas regions retain their existing internal margins and texels exactly.
+Loaded magazine: one source cluster → two packed regions; empty: four → five;
+cartridge and case: one → one each. Both magazines fail 512 at full density;
+cluster copying makes 1024 possible with 8 px guards. The ammunition’s cluster
+sets also beat island packing (164,864 versus 184,124 bytes for the cartridge;
+149,668 versus 172,076 for the case). No rebake, scaling or resampling occurs.
+The four GLBs total **30,302,284 → 3,311,228 bytes (89.07% smaller)**.
+[Family delivery results](../DETACHABLES.md) include per-level bleed checks and
+full-size / native 40 px old/new mipmapped pairs in `build/ak-detach/pairs/`
+from the repository root. These diagnostics were reviewed without regenerating
+any final, look render or docs JPG.
+
+The rifle has 17 bones, eight sockets and 20 clips. Detached magazines deliberately
 retain their accepted geometry. The canonical PNGs total **7,440,634 bytes**:
 BaseColor 1,180,823; Normal 2,509,129; ORM 3,750,682. All are 2048 square.
 UV coverage, actual clipped overlap and density percentiles are measured,
@@ -281,12 +297,20 @@ joints retain their finite bounds. A stored pre-round fingerprint also
 preserves all 108 unmodified game meshes and normals, rest bones/sockets,
 and 1,556 sampled affine poses. The cap return is also measured against the
 actual imported wood section at 23 radial rays; its small overhang and sheet
-gauge are plotted in `renders/final/retainer-section.jpg`. The texture-round fingerprint separately proves that all five handed-off
-exports retain byte-identical geometry, normals, UVs, skin weights, rig, clips
-and layout. The wood-edge correction also retains byte-identical derived
-tangents relative to its handoff; these are recorded separately from geometry.
-These preservation checks are
-separate from the actual fit tests. Serialization is separate: affine bone and
+gauge are plotted in `renders/final/retainer-section.jpg`. The texture-round
+fingerprint retains the main rifle’s geometry, normals, UVs,
+skin weights, rig, clips and layout. Its complete GLB SHA-256 remains
+`0fecef4cfc1b77fa9c485272d787cb276625781745a6893fe67ba190b60355a0`
+against `main` at `2b6ac0e`. A separate accepted detachable fingerprint retains
+oriented corner geometry, normals, other attributes and node frames while
+allowing subset UV translations. The independent atlas audit checks inverse
+surface samples, density, guards, sampler and pointwise mip bleed through L3.
+The old/new comparison additionally checks material factors/extensions,
+positive uniform UV transforms and tangent direction, with maximum angular
+delta 0.01283° and UV storage error 0.000123 delivered pixels. Three exact-signature
+tangent anchors restore main’s exporter rounding within one 0.0001 step.
+These preservation checks are separate from the actual fit tests.
+Serialization is separate: affine bone and
 socket frames, posed surfaces, clip durations, weights/normals and full rotated
 magazine spawns are compared independently. Hidden lock/sear geometry is
 proved absent by inventory.
@@ -322,6 +346,7 @@ accepted GLB and writes only into this asset's renders.
 | `export/magazine_loaded.glb`, `magazine_empty.glb` | Detached variants in the complete magazine frame |
 | `export/cartridge.glb`, `case.glb` | Inert standalone ammunition |
 | `textures/T_Rill39_*.png` | Canonical 2048 maps |
+| `build/delivery/detachables/<item>/` | Independent 512/1024 maps and audited cluster layouts |
 | `build/ak.blend` | Named game parts, retained dense sources and accepted rig |
 | `build/delivery/finalized.blend`, `high.blend` | Packed target and procedural dense bake source |
 | `build/check.json`, `build/delivery/*construction.json` | Independent actual-surface contact and motion evidence |
