@@ -240,19 +240,24 @@ a declared visual ownership handoff rather than cartridge-path physics.
 
 ## Budget and delivery
 
-| Output | Triangles | Materials | GLB bytes |
-| --- | ---: | ---: | ---: |
-| Carbine, including all ammunition displays | 39,814 | 1 | 12,212,120 |
-| Live cartridge | 1,598 | 1 | 7,216,192 |
-| Fired case | 1,326 | 1 | 7,197,348 |
+| Output | Triangles | Materials | GLB bytes | Map size | Density ratio |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Carbine, including all ammunition displays | 39,814 | 1 | 12,212,120 | 2048 | — |
+| Live cartridge | 1,598 | 1 | 492,544 | 1024 | 1.000 |
+| Fired case | 1,326 | 1 | 516,876 | 1024 | 1.000 |
 
 The inspection source has 39,832 triangles; only microscopic Boolean cleanup
 removes 18 for delivery. The final asset stays below 40k. One 4096/32-sample
 source bake is filtered to a single **2048 BaseColor / OpenGL +Y Normal / ORM**
-set. ORM is R occlusion, G roughness, B metallic. All three GLBs embed identical
-canonical maps. An engine must reuse them by atlas ID/content hash to share
-approximately **16 MiB compressed memory with mipmaps**; separate GLB imports
-do not automatically share GPU texture allocation.
+set for the gun. ORM is R occlusion, G roughness, B metallic; the gun retains
+approximately **16 MiB compressed memory with mipmaps**. Standalone cartridge
+and case now each embed their own **1024** set, extracted losslessly at the
+original atlas density. Standalone samplers match the gun’s trilinear
+mipmapped sampler, approximately **4 MiB** compressed per item including
+mipmaps and repeat wrapping. Each uses one copied atlas cluster at density
+ratio **1.000**, with an 8 px aligned outer halo and unchanged internal atlas
+texels. Pull-push fills the outside and generated normals are normalized. See
+[delivery details](../DETACHABLES.md) for padding, density and old/new comparisons.
 
 | Canonical 2048 PNG | Bytes |
 | --- | ---: |

@@ -123,7 +123,7 @@ $(BUILD)/textures.stamp: $(BUILD)/texture-parameters.txt $(BUILD)/baked.stamp $(
 	$(PYTHON) $(KIT)/downsample.py --source textures/bake --out textures/ship --asset $(ASSET) --size $(SHIP_SIZE) $(DOWNSAMPLE_ARGS)
 	$(if $(TEXTURE_POSTPROCESS),$(TEXTURE_POSTPROCESS),@:)
 	@touch $@
-export/$(ASSET).glb: $(BUILD)/finalized.blend $(BUILD)/textures.stamp $(KIT)/export.py $(KIT)/atlas.py $(KIT)/glb_textures.py
+export/$(ASSET).glb: $(BUILD)/finalized.blend $(BUILD)/textures.stamp $(KIT)/export.py $(KIT)/atlas.py $(KIT)/glb_textures.py $(KIT)/detachable_textures.py
 	$(BP) --python $(KIT)/export.py -- --source $(BUILD)/finalized.blend --textures textures/ship --asset $(ASSET) --out $@ --report $(BUILD)/export-report.json --config $(CONFIG) $(EXPORT_ARGS)
 export: export/$(ASSET).glb
 verify: export/$(ASSET).glb

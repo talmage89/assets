@@ -1,0 +1,94 @@
+{
+  "magazine_loaded": {
+    "meshes": [
+      {
+        "metadata": {
+          "name": "Magazine"
+        },
+        "primitives": [
+          {
+            "metadata": {
+              "material": 0
+            },
+            "attributes": [
+              "NORMAL",
+              "POSITION"
+            ],
+            "triangles": 5792,
+            "corner_sha256": "51b79e0229a19964a2644a8c8a65f4cea6035a12ba5ac6818b0e7a914274e290"
+          }
+        ]
+      }
+    ],
+    "structure_sha256": "9c8100f1f0fe08acb8b825565fa32bb4da1ac50ebb0b3387bd543bae8625c950"
+  },
+  "magazine_empty": {
+    "meshes": [
+      {
+        "metadata": {
+          "name": "Magazine.001"
+        },
+        "primitives": [
+          {
+            "metadata": {
+              "material": 0
+            },
+            "attributes": [
+              "NORMAL",
+              "POSITION"
+            ],
+            "triangles": 4048,
+            "corner_sha256": "2662058de9a6ccf4baa0e88a8c44b774c8683d9bef3261ee65a28782ef1e3432"
+          }
+        ]
+      }
+    ],
+    "structure_sha256": "9c8100f1f0fe08acb8b825565fa32bb4da1ac50ebb0b3387bd543bae8625c950"
+  },
+  "cartridge": {
+    "meshes": [
+      {
+        "metadata": {
+          "name": "CartridgeRootMesh"
+        },
+        "primitives": [
+          {
+            "metadata": {
+              "material": 0
+            },
+            "attributes": [
+              "NORMAL",
+              "POSITION"
+            ],
+            "triangles": 688,
+            "corner_sha256": "cdd253f2a4d0e00b11ed04dcd24dcf12ff86a56d11184f2fad047bed1630ffa7"
+          }
+        ]
+      }
+    ],
+    "structure_sha256": "562b7f952e678e196dcf5361f97d2be6f9cc7cb42416e3f5b3ba556afdc5ea3b"
+  },
+  "case": {
+    "meshes": [
+      {
+        "metadata": {
+          "name": "CaseRootMesh"
+        },
+        "primitives": [
+          {
+            "metadata": {
+              "material": 0
+            },
+            "attributes": [
+              "NORMAL",
+              "POSITION"
+            ],
+            "triangles": 688,
+            "corner_sha256": "8a28bfb4653d6cc14fcd0770ac0d19d049a0dc6de23311ecb7fbd7493260b0c9"
+          }
+        ]
+      }
+    ],
+    "structure_sha256": "7b6ed995854e41b2c88c3154b3158d62037403f49e2417ca60bb7a358134602b"
+  }
+}

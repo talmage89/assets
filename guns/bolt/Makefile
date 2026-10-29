@@ -21,6 +21,7 @@ MARKS := $(addprefix build/markings/,receiver-left.png receiver-right.png headst
 BAKED := $(addprefix build/baked/4k/T_VesperB24_,BaseColor.png Normal.png ORM.png) build/baked/4k/bake-report.json
 TEXTURES := $(addprefix textures/T_VesperB24_,BaseColor.png Normal.png ORM.png)
 EXPORTS := export/bolt.glb export/magazine_loaded.glb export/magazine_empty.glb export/case.glb
+SUBSET_LAYOUTS := $(addprefix build/delivery/detachables/,magazine_loaded/layout.json magazine_empty/layout.json case/layout.json)
 comma := ,
 FINAL_SHOTS := hero,hero_left,front,side,back,top,bolt_open,deployed,grip,optic,wrist,aimed,scale,crown,bipod_detail,rings,rear_cocked,bottom
 FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(FINAL_SHOTS)))) renders/final/beauty/shots.json renders/final/beauty/aimed-range.exr renders/final/beauty/aimed-range.png renders/final/beauty/scope-integration.json
@@ -60,12 +61,12 @@ $(BAKED) &: build/delivery/high.blend $(PREPARED) src/config.py build/bake-param
 bake: $(BAKED)
 $(TEXTURES) &: $(BAKED) ../../kit/downsample.py
 	$(PYTHON) $(KIT)/downsample.py --source build/baked/4k --out textures --asset VesperB24 --size $(SHIP_SIZE)
-$(EXPORTS) &: $(TEXTURES) $(PREPARED) src/config.py src/case_config.py src/stable_delivery.py ../../kit/export.py ../../kit/weapon.py
+$(EXPORTS) $(SUBSET_LAYOUTS) &: $(TEXTURES) $(PREPARED) src/config.py src/case_config.py src/stable_delivery.py ../../kit/export.py ../../kit/weapon.py src/export_config.py ../../kit/detachable_textures.py ../../kit/detachable_clusters.py
 	@mkdir -p export
-	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset VesperB24 --config src/config.py --out export/bolt.glb --report build/delivery/export.json
+	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset VesperB24 --config src/export_config.py --out export/bolt.glb --report build/delivery/export.json
 	$(BP) --python src/stable_delivery.py -- export/bolt.glb
 	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset VesperB24 --config src/case_config.py --out export/case.glb --report build/delivery/case-export.json
-export: $(EXPORTS)
+export: $(EXPORTS) $(SUBSET_LAYOUTS)
 atlas: $(EXPORTS)
 check-repo:
 	$(PYTHON) $(KIT)/repo_check.py
@@ -74,7 +75,7 @@ verify: $(MODEL)
 check-repeat: $(MODEL)
 	$(BP) --python src/build.py -- --out build/repeat/bolt.blend
 	$(BP) --python src/repeat.py
-check-atlas: $(EXPORTS)
+check-atlas: $(EXPORTS) $(SUBSET_LAYOUTS)
 	$(BP) --python src/check.py -- --source build/delivery/finalized.blend --out build/delivery/construction.json --motion
 	$(BP) --python src/atlas_verify.py
 	$(BP) --python src/check.py -- --source build/delivery/imported-parts.blend --out build/delivery/imported-construction.json --motion

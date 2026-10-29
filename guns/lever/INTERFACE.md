@@ -91,5 +91,6 @@ half-frame source/import sweeps also assert its transformed X normal and center.
 The checkpoint GLB preserves named rigid parts for independent imported-surface
 audits. Final delivery, after form acceptance, uses the kit's atlas finalizer,
 baker and animated skin exporter, one 2048 BaseColor / OpenGL Normal / ORM set,
-and canonical identical maps in the gun, cartridge and case GLBs. No final atlas
-or consolidated draw-call claim is made before that stage.
+with the gun retaining that atlas. Standalone cartridge and case now carry their
+own 1024 subsets at the original density; see [delivery sampling details](../DETACHABLES.md).
+No final atlas or consolidated draw-call claim is made before that stage.

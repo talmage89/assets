@@ -1,0 +1,170 @@
+# Standalone detachable mipmap delivery
+
+All seventeen standalone items now fit **512 or 1024 at density ratio 1.000**.
+The three remaining magazines fit losslessly by moving atlas neighborhoods;
+no 2048, reduced-density export, rebake, rotation, mirroring or resampling is
+needed. Their main gun GLBs remain byte-identical to the original baseline.
+
+## Sampler, atlas clusters, gutters and fill
+
+Every standalone set matches its gun: `minFilter=9987`
+(`LINEAR_MIPMAP_LINEAR`), `magFilter=9729` (`LINEAR`), and repeat wrapping
+(implicit glTF defaults). Retain these imported material samplers.
+
+`texture_clusters=True` / static `EXPORT_TEXTURE_CLUSTERS=True` selects the
+kit’s atlas-neighborhood path. Connected components join islands whose
+**6 px guarded sampling masks touch or overlap** in the original 2048 atlas.
+Internal texels, including the atlas’s existing margins and nonmember texels,
+are **kept exactly as copied**, rather than separately dilating every island.
+Each source region receives one complete protected mip block of original atlas
+halo: **8 px minimum through mip 3**, rounded outward to that grid. Source and
+destination borders share the grid; integer translations preserve mip phase.
+Destination regions and their outer guards are disjoint.
+
+Oversized components split around whole islands, along the atlas’s empty
+margins. A band accepts an island only when its complete vertical extent fits;
+the seam detours around islands crossing the nominal band boundary. Each part
+copies its bounding rectangle and halo. **Source crops can overlap**, retaining
+duplicate nonmember atlas texels at their borders; UVs reference each island
+only in its assigned part. No rectangle edge clips a moved island. Measured
+minimum cross-region island bounding-box separation is 2.45752 px for the loaded
+pistol and 1.47449 px for both bolt magazines, confirming empty margins between
+the assigned islands. `build/clusters/split-audit.json` records the measurements.
+The pistol loaded magazine has one source cluster → two regions; bolt empty
+has five → six, and bolt loaded one → two.
+
+A masked pull-push fills every texel outside the copied regions. RGB averages
+in linear light; alpha/ORM are linear data. Generated normal texels normalize
+before quantization. All copied texels, including original atlas normals in
+margins, remain byte-exact. At deeper unprotected levels the retained atlas
+neighbors and the new set’s tail can still mix, as in the source atlas.
+
+The same path was evaluated for the fourteen accepted items. Eight produce
+smaller files and use it. Six cluster candidates are larger: pistol empty,
+SMG empty/loaded and all three revolver items keep their accepted PNGs and UVs
+exactly. Their existing isolated-island guards remain 6 px for magazines or
+8 px for the revolver, aligned to the mip grid and dilated from their own
+islands; pull-push fills outside. The full pistol export changes only the empty
+magazine’s mesh/material names versus its earlier single-entry staging export
+(+4 JSON padding bytes); its binary payload and all three PNGs are identical.
+`build/clusters/candidate-bytes.json` and `retained.log` record this selection.
+No candidate reduces an accepted 1024 allocation to 512 at full density.
+
+## Per-item results
+
+One material / three maps per item; geometry, normals and origins are unchanged.
+“Atlas clusters” counts connected guarded neighborhoods in the source atlas.
+“Packed regions” counts delivered guarded regions: an accepted island-packed
+map uses one per island, marked **i**. Other region counts are copied atlas
+neighborhoods after any split. “Old bytes” means the original full-atlas GLB; new bytes are
+exact final embedded GLB bytes. Gutter values are minimum outer pixels.
+
+The test builds box-filtered mip chains for the atlas, the new set and the same
+island alone, dilated without limit. At ten common points per triangle it
+measures maximum absolute component error in linear RGBA / encoded normal /
+linear ORM. **Every point, map and level must satisfy new error ≤ atlas error
++ 1/255** (0.00392157). “Excess” below is the worst pointwise new-minus-atlas
+error at each level, rather than a difference of aggregate maxima. Values below
+1e-12 round to zero. The smallest-island two-texel cutoff is mip 0 here; all
+items are deliberately tested through mip 3. The kit’s larger-island fixture
+also tests through mip 6. Base-level surface copying uses 0.25/255 tolerance;
+float UV storage is separately bounded to 0.001 delivered pixels and tangent
+direction to 0.5°. No scaled-item tolerance/test is needed: nothing scales.
+
+| Gun / item | Map | Atlas clusters | Packed regions | Density ratio | Gutter | Old bytes | New bytes | Excess L0 | Excess L1 | Excess L2 | Excess L3 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| pistol/case | 512 | 1 | 1 | 1.000 | 8 | 5,204,740 | 235,932 | 0 | 0 | 0 | 0 |
+| pistol/magazine_empty | 1024 | 5 | 207 i | 1.000 | 6 | 5,362,360 | 991,516 | 0 | 0 | 0 | 0 |
+| pistol/magazine_loaded | 1024 | 1 | 2 | 1.000 | 8 | 5,396,292 | 1,318,548 | 0 | 0 | 0 | 0 |
+| shotgun/hull | 1024 | 1 | 1 | 1.000 | 8 | 8,244,008 | 404,136 | 0 | 0 | 0 | 0 |
+| shotgun/shell | 1024 | 1 | 1 | 1.000 | 8 | 8,260,472 | 364,784 | 0 | 0 | 0 | 0 |
+| bolt/case | 512 | 1 | 1 | 1.000 | 8 | 6,753,080 | 201,584 | 0 | 0 | 0 | 0 |
+| bolt/magazine_empty | 1024 | 5 | 6 | 1.000 | 8 | 6,928,816 | 1,400,092 | 0 | 0 | 0 | 0 |
+| bolt/magazine_loaded | 1024 | 1 | 2 | 1.000 | 8 | 6,997,748 | 1,371,024 | 0 | 0 | 0 | 0 |
+| smg/cartridge | 512 | 1 | 1 | 1.000 | 8 | 7,359,568 | 151,444 | 0 | 0 | 0 | 0 |
+| smg/case | 512 | 1 | 1 | 1.000 | 8 | 7,360,256 | 154,940 | 0 | 0 | 0 | 0 |
+| smg/magazine_empty | 1024 | 7 | 373 i | 1.000 | 6 | 7,476,900 | 1,186,756 | 0 | 0 | 0 | 0 |
+| smg/magazine_loaded | 1024 | 1 | 531 i | 1.000 | 6 | 7,549,888 | 1,318,624 | 0 | 0 | 0 | 0 |
+| revolver/cartridge | 512 | 32 | 36 i | 1.000 | 8 | 6,307,544 | 74,972 | 0 | 0 | 0 | 0 |
+| revolver/case | 512 | 18 | 27 i | 1.000 | 8 | 6,304,652 | 75,764 | 0 | 0 | 0 | 0 |
+| revolver/speedloader_loaded | 1024 | 45 | 392 i | 1.000 | 8 | 6,513,196 | 654,268 | 0 | 0 | 3.3361024e-05 | 0 |
+| lever/cartridge | 1024 | 1 | 1 | 1.000 | 8 | 7,216,192 | 492,544 | 0 | 0 | 0 | 0 |
+| lever/case | 1024 | 1 | 1 | 1.000 | 8 | 7,197,348 | 516,876 | 0 | 0 | 0 | 0 |
+
+Final total: **116,433,060 → 10,913,804 bytes**, **90.63% smaller**. Compared with
+the previous mixed fourteen-mipmapped/three-legacy delivery, 10,960,640 →
+10,913,804 saves 46,836 bytes while completing the sampler/guard correction.
+The unchanged geometric total is **41,024 triangles** and the independent
+base comparison covers **410,240 surface samples**. Six sets are 512 and eleven
+1024: about **50 MiB total** at 8-bpp block compression with full mip chains,
+versus about 272 MiB for seventeen separate 2048 sets. Each magazine costs about
+4 MiB; no inter-file texture deduplication is assumed.
+
+Full density percentiles, per-channel/base errors, per-level atlas/new errors,
+pointwise excesses and sampler records: `build/clusters/proof.json`.
+The largest excess is **0.0000333610** at mip 2 on the unchanged revolver
+speedloader, below 1/255. Cluster-copy excesses are numerical noise below 3e-14.
+
+## Render pairs
+
+All seventeen full-size, native distant and magnified distant comparisons were
+opened and reviewed. Gallery: `build/clusters/pairs/index.html`; contact sheets:
+`distant-contact-1.png`, `distant-contact-2.png`, and `magazines-distant.png` in
+that directory. The three requested magazines are under:
+
+- `pistol/magazine_loaded/full-pair.png`, `distant-pair.png`, `distant-texels.png`
+- `bolt/magazine_empty/full-pair.png`, `distant-pair.png`, `distant-texels.png`
+- `bolt/magazine_loaded/full-pair.png`, `distant-pair.png`, `distant-texels.png`
+
+Left is the original gun atlas; right is the final exported standalone GLB.
+`guns/common/detachable_mip_review.py` uses actual raw GLB triangles, explicit
+linear-light box mip chains, derivative-selected trilinear LOD and repeat
+wrapping. Full coverage is about 570 px; distant coverage about 40 px, rendered
+natively rather than reduced from the full shot. Nearest magnification exposes
+those same distant texels. Per-item provenance includes input/renderer SHA-256,
+LOD range and coverage; `build/clusters/render-provenance.json` was checked
+against the final GLBs.
+
+The magazines retain sidewalls, ribs, witness holes, feed-lip/follower cavities,
+base lips and ammunition response. Deep tail differences are small. Original
+faceting, soft headstamps and the SMG’s strong wear remain. Review notes:
+`build/clusters/visual-review.md`. These are analytic-GGX sampling diagnostics,
+not new photographic studio renders or a temporal/runtime-engine integration
+test. No docs JPG was regenerated or changed.
+
+## Checks and preservation
+
+Every `kit/test_*.py` passed: **23/23** from clean fixture outputs, Blender for
+bpy fixtures, unittest for Python fixtures, and `kit/with_gpu.sh` for the three
+bake fixtures. Commands/results: `build/clusters/kit-tests.json`; logs:
+`build/clusters/kit-logs/`. The extended detachable fixture proves connected
+neighborhoods, an oversized split around intact islands, full atlas-region
+byte copying, overlapping source halos, deterministic maps, main identity,
+base sampling and per-island mip bleed. Prior sampler/background negative
+cases, the dense 6 px fallback and mip-6 fixture still pass.
+
+All six guns passed their complete `make check`: pistol, shotgun, bolt, SMG,
+revolver and lever. Commands/results are in `build/clusters/checks.json`; logs
+are `<gun>-check-final.log` (pistol: `pistol-check.log`). Interrupted intermediate
+bolt/shotgun attempts were repeated to completion. All six `make export` paths
+completed and all six main hashes match the original
+baseline; `build/clusters/exports.json` records the final hashes. The shotgun
+needed one additional exact-signature tangent anchor for a 0.0001 rounding
+change; the existing kit correction guards position/normal/UV/tangent signature
+and rejects a larger delta. No source geometry or canonical map was changed.
+
+The final preservation manifest is `build/clusters/checkpoint.json`: main GLBs,
+canonical PNGs/finalized sources, all 111 tracked docs JPGs, retained maps,
+independent proof, render provenance and check results.
+
+## Prior accepted evidence retained
+
+The original non-mipmapped compact delivery remains documented in
+`build/detachables/`: **116,433,060 → 10,347,156 bytes (91.11% smaller)**, its
+31 old/new Cycles pairs, surface comparison, six gun checks and 23 kit tests.
+Those historical numbers are retained rather than substituted for the final
+mipmapped totals above. The fourteen accepted mipmap proofs and pairs remain
+under `build/mipmaps/`; their six retained sets are unchanged. The earlier
+per-island 70% obstruction remains reproducible in `build/magazine-fit/` and
+was correctly conditional on separate guards per island. Clusters remove that
+cost without weakening the density floor or using a 2048 magazine.

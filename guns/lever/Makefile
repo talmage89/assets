@@ -19,6 +19,7 @@ PREPARED := build/delivery/finalized.blend $(addprefix build/delivery/,lever-uv.
 BAKED := $(addprefix build/baked/4k/T_BrackenL20_,BaseColor.png Normal.png ORM.png) build/baked/4k/bake-report.json
 TEXTURES := $(addprefix textures/T_BrackenL20_,BaseColor.png Normal.png ORM.png)
 EXPORTS := export/lever.glb export/cartridge.glb export/case.glb
+SUBSET_LAYOUTS := $(addprefix build/delivery/detachables/,cartridge/layout.json case/layout.json)
 FINAL_SHOTS := hero,hero_left,right,left,front,back,top,receiver,receiver_left,wrist,wrist_raking,forend,sights,sight_blade,front_sight,stock,butt_plate,open,lever_open,aimed,scale,muzzle
 PHOTO_SHOTS := right_photo,left_photo,open_photo,trigger_right,trigger_quarter,hammer_photo,lever_rest_photo,used_photo,sight_photo
 comma := ,
@@ -56,17 +57,18 @@ $(BAKED) &: build/delivery/high.blend $(PREPARED) src/config.py build/bake-param
 bake: $(BAKED)
 $(TEXTURES) &: $(BAKED) $(KIT)/downsample.py
 	$(PYTHON) $(KIT)/downsample.py --source build/baked/4k --out textures --asset BrackenL20 --size $(SHIP_SIZE)
-$(EXPORTS) &: $(TEXTURES) $(PREPARED) src/config.py src/cartridge_config.py src/case_config.py $(KIT)/export.py
+$(EXPORTS) $(SUBSET_LAYOUTS) &: $(TEXTURES) $(PREPARED) src/config.py src/cartridge_config.py src/case_config.py $(KIT)/export.py ../../kit/detachable_textures.py ../../kit/detachable_clusters.py ../../kit/gltf.py src/export_config.py
 	@mkdir -p export
-	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset BrackenL20 --config src/config.py --out export/lever.glb --report build/delivery/export.json
+	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset BrackenL20 --config src/export_config.py --out export/lever.glb --report build/delivery/export.json
+	$(BP) --python $(KIT)/gltf.py -- --source export/lever.glb --config src/export_config.py
 	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset BrackenL20 --config src/cartridge_config.py --out export/cartridge.glb --report build/delivery/cartridge-export.json
 	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset BrackenL20 --config src/case_config.py --out export/case.glb --report build/delivery/case-export.json
-export: $(EXPORTS)
+export: $(EXPORTS) $(SUBSET_LAYOUTS)
 check-repo:
 	$(PYTHON) $(KIT)/repo_check.py
 verify: $(MODEL)
 	$(BP) --python src/verify.py --
-check-atlas: $(EXPORTS)
+check-atlas: $(EXPORTS) $(SUBSET_LAYOUTS)
 	$(BP) --python src/check.py -- --source build/delivery/finalized.blend --out build/delivery/construction.json --motion
 	$(BP) --python src/atlas_verify.py -- --stage serialization
 	$(BP) --python src/atlas_verify.py -- --stage construction

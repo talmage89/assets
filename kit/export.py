@@ -161,11 +161,26 @@ def main():
             if layer.name!='BakeUV':detached.data.uv_layers.remove(layer)
         detached.data.uv_layers['BakeUV'].name='UVMap'
         path=Path(a.out).resolve().parent/spec['filename']
+        subset=None
+        if 'texture_size' in spec:
+            from kit import detachable_textures
+            subset=detachable_textures.extract([detached],Path(a.textures).resolve(),a.asset,
+                Path(a.report).resolve().parent/'detachables'/path.stem,spec['texture_size'],
+                clusters=spec.get('texture_clusters',False))
         weapon.export(path,[detached],animations=False)
         detachments.append(dict(file=spec['filename'],bytes=path.stat().st_size,
                                 clip=spec.get('clip'),frame=spec.get('frame',0),bone=spec['bone']))
+        if subset is not None:detachments[-1]['textures']=subset
         bpy.data.objects.remove(detached,do_unlink=True)
         weapon.pose(arm,None,0)
+    subset=None
+    if 'EXPORT_TEXTURE_SIZE' in cfg:
+        if cfg.get('EXPORT_ANIMATIONS') or any(o.type=='ARMATURE' for o in sc.objects):
+            raise ValueError('EXPORT_TEXTURE_SIZE is for static standalone exports only')
+        from kit import detachable_textures
+        subset=detachable_textures.extract(objects,Path(a.textures).resolve(),a.asset,
+            Path(a.report).resolve().parent/'detachables'/Path(a.out).stem,
+            cfg['EXPORT_TEXTURE_SIZE'],layer='BakeUV',clusters=cfg.get('EXPORT_TEXTURE_CLUSTERS',False))
     for (parent,name),members in groups.items():
         asset_set=members[0].get('asset_set',a.asset)
         bpy.ops.object.select_all(action='DESELECT')
@@ -223,6 +238,8 @@ def main():
     if overrides or tile_materials or surfaces:
         from kit.glb_textures import compact
         report['texture_views']=compact(path,Path(a.report).parent)
+    if subset is not None:
+        report['textures']=subset
     report['bytes']=path.stat().st_size
     if animations:
         from kit.gltf import GLB

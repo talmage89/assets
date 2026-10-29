@@ -52,9 +52,10 @@ Optional optic capability:
   controls. They do not change gameplay zero or optical power automatically.
 
 Final delivery uses the established kit atlas exporter, one 2048 texture set
-and a second glass material. The rifle, loaded/empty magazines and fired case
-embed byte-identical canonical maps; consumers must cache the atlas/content
-hashes to share runtime texture memory. The direct mesh remains unmagnified;
+and a second glass material. Standalone magazines now carry their own 1024 sets;
+the fired case carries 512, all extracted from the gun's baked atlas at its
+original density. See [delivery sampling details](../DETACHABLES.md).
+The direct mesh remains unmagnified;
 the objective-camera capability above is optional consumer integration.
 
 The Blender demonstration is rebuilt as `renders/final/beauty/aimed.png` by
