@@ -48,53 +48,63 @@ def steel(name,role,wear):
   section=n.node('ShaderNodeAttribute',attribute_name='ReceiverSection').outputs['Vector']
   width,bottom,top=n.split(section)
   side=ramp(n,ax,sub(n,width,.0024),sub(n,width,.0007))
-  # Years of palm contact thin the oxide across the flat, leaving a plum /
-  # brown cast. This is translucent oxide, separate from exposed edge steel.
-  hand=n.mul(interval(n,y,.081,.183,.027),interval(n,z,n.add(bottom,.006),sub(n,top,.006),.008),
-    n.ramp(absolute(n,nx),.7,.95),wear)
-  # Palm/holster pressure reaches the flats, but not the shadow of screw
-  # heads, the gate's recess or either tang junction. These are distance
-  # fields in the original forging frame, never photographic masks.
+  # Oxide belongs to the external forging, including shoulders and ring.
+  # Only actual seats retain blue. Never fade an entire plate perimeter.
+  # Signed distance to the same changing rounded section as receiver_field.
+  # A simple side/top band misses the middle of the R8 front-ring roll.
+  t=n.math('MINIMUM',1,n.maximum(0,n.math('DIVIDE',sub(n,y,.190),.006)))
+  radius=n.add(.0022,n.mul(t,.0058))
+  qx=sub(n,ax,sub(n,width,radius))
+  qz=sub(n,absolute(n,sub(n,z,n.mul(n.add(bottom,top),.5))),
+    sub(n,n.mul(sub(n,top,bottom),.5),radius))
+  outside=n.math('SQRT',n.add(n.math('POWER',n.maximum(qx,0),2),
+    n.math('POWER',n.maximum(qz,0),2)))
+  distance=sub(n,n.add(outside,n.math('MINIMUM',n.maximum(qx,qz),0)),radius)
+  exterior=n.maximum(n.ramp(distance,-.0007,-.0002),n.ramp(ny,.4,.9))
   protected=0
   for cy,cz,r in ((.074,.015,.00315),(.092,.038,.00255),(.148,.040,.00265),(.185,.016,.0025)):
    d=n.math('SQRT',n.add(n.math('POWER',sub(n,y,cy),2),n.math('POWER',sub(n,z,cz),2)))
-   protected=n.maximum(protected,n.mul(n.ramp(d,r+.0030,r+.0003),.52))
+   protected=n.maximum(protected,n.ramp(d,r+.0010,r+.00015))
   cy=n.math('MAXIMUM',.1286,n.math('MINIMUM',y,.1668))
   gate_distance=n.math('SQRT',n.add(n.math('POWER',sub(n,y,cy),2),n.math('POWER',sub(n,z,.020),2)))
-  protected=n.maximum(protected,n.mul(n.ramp(gate_distance,.011,.0068),n.ramp(nx,.65,.95)),
-    n.ramp(y,.087,.068),n.ramp(y,.181,.202))
-  pressure=n.maximum(oval(n,y,z,.123,.032,.066,.040),n.mul(oval(n,y,z,.170,.025,.038,.027),.65))
-  # Repeated cloth/holster travel leaves overlapping axial rubs. The palm
-  # envelope locates thinning; this elongated pressure texture varies it
-  # within that envelope rather than painting a smooth brown vignette.
-  carry=n.noise(n.combine(n.mul(x,220),n.mul(y,65),
-    n.add(n.mul(z,310),n.mul(n.math('SINE',n.mul(y,155)),.28))),1,3)
-  patina=n.mul(hand,sub(n,1,protected),pressure,n.add(.55,n.mul(carry,.65)))
-  # A metal/oxide effective layer: the brown oxide contributes mostly diffuse
-  # color, while steel and the dielectric surface supply a near-neutral
-  # reflection. A fully metallic orange base is copper, not thinned bluing.
-  base=n.mix(patina,base,(.072,.031,.011),True)
-  metal=n.mix(n.ramp(patina,.05,.35),metal,.05)
-  rough=n.mix(patina,rough,n.add(.46,n.mul(sub(n,striae,.5),.10)))
-  # Resolved 0.2-0.4 mm carry striae, elongated along the barrel. Pressure
-  # locates them; they modulate thinning/roughness rather than become wires.
-  scratch=n.mul(patina,n.ramp(striae,.56,.72),.25)
-  base=n.mix(scratch,base,(.10,.093,.084),True)
-  rough=n.add(rough,n.mul(scratch,.13));height=n.add(height,n.mul(scratch,-3e-6))
-  # A few grit tracks follow actual carry travel, tapering before the
-  # protected ends and gate. They are shallow relief, never added mesh.
+  protected=n.maximum(protected,n.mul(n.ramp(gate_distance,.0079,.0066),n.ramp(nx,.65,.95)),
+    n.ramp(y,.0680,.0655))
+  # The carrying palm thins the already continuous oxide. Pressure varies
+  # thickness slightly; it does not decide where the oxide exists.
+  pressure=n.maximum(oval(n,y,z,.123,.028,.060,.026),
+    n.mul(oval(n,y,z,.170,.016,.030,.014),.65))
+  patina=n.mul(exterior,sub(n,1,protected),wear)
+  # Repeated palm/scabbard wipes vary oxide thickness within those contact
+  # sites. Cloth pressure modulates it; unhandled oxide remains continuous.
+  cloth=n.noise(n.combine(n.mul(x,210),n.mul(y,85),n.mul(z,290)),1,3)
+  thinning=n.mul(pressure,n.add(.50,n.mul(n.ramp(cloth,.25,.75),.55)))
+  oxide=n.mix(thinning,(.056,.028,.016),(.110,.073,.053),True)
+  # The exposed rolled shoulders and barrel ring have thinner, burnished
+  # oxide than the flats. Retain a warm gray substrate reflection there;
+  # these are still oxide, distinct from the local bare abrasion patches.
+  shoulder=n.mul(n.ramp(absolute(n,nx),.98,.55),
+    ramp(n,z,sub(n,top,.004),sub(n,top,.001)))
+  burnish=n.maximum(shoulder,n.mul(n.ramp(ny,.10,.85),.65))
+  oxide=n.mix(burnish,oxide,(.145,.135,.130),True)
+  base=n.mix(patina,base,oxide,True)
+  metal=n.mix(patina,metal,n.mix(burnish,.45,.72))
+  rough=n.mix(patina,rough,n.add(n.mix(burnish,.40,.34),n.mul(sub(n,fine,.5),.035)))
+  # Sparse grit marks: one group at the middle carrying palm, another at
+  # the lower scabbard contact. Each has an independent length and slope.
+  # No striae color field or full-plate directional roughness is applied.
   tracks=0
   for cy,cz,length,gauge,slope in ((.107,.030,.014,.00012,.030),
-    (.121,.036,.022,.00010,-.025),(.149,.028,.018,.00014,.018),
-    (.162,.033,.010,.00008,.030),(.101,.020,.008,.00010,-.020),
-    (.176,.037,.009,.00008,.015)):
+    (.121,.033,.022,.00010,-.025),(.149,.028,.018,.00014,.018),
+    (.162,.025,.010,.00008,.030),(.101,.020,.008,.00010,-.020),
+    (.139,.007,.013,.00012,.015),(.162,.009,.009,.00010,-.012),
+    (.114,.011,.017,.00009,.020)):
    line=sub(n,z,n.add(cz,n.mul(sub(n,y,cy),slope)))
    tracks=n.maximum(tracks,n.mul(interval(n,y,cy-length/2,cy+length/2,.0015),
      n.band(line,0,gauge*.40,gauge*.60)))
-  tracks=n.mul(tracks,patina,.45)
+  tracks=n.mul(tracks,patina,n.ramp(absolute(n,nx),.80,.98),.30)
   base=n.mix(tracks,base,(.12,.125,.13),True)
-  metal=n.mix(tracks,metal,.75);rough=n.mix(tracks,rough,.58)
-  height=n.add(height,n.mul(tracks,-8e-6))
+  metal=n.mix(tracks,metal,.75);rough=n.mix(tracks,rough,.47)
+  height=n.add(height,n.mul(tracks,-6e-6))
   lower_width=n.add(.00093,n.mul(interval(n,y,.085,.140,.025),.00028),
     n.mul(n.math('SINE',n.mul(y,97)),.00010),n.mul(sub(n,striae,.5),.00006))
   # A cupped carrying hand reaches around the rear action belly: contact
@@ -156,8 +166,8 @@ def steel(name,role,wear):
  elif role=='dark':base=(.012,.013,.014);rough=.42
  if role in ('receiver','lever','gate','band','barrel','plate'):
   rub=n.ramp(rub,.13,.65)
- bare=(.24,.26,.28) if role=='receiver' else (.12,.135,.145)
- base=n.mix(rub,base,bare,True);rough=n.mix(rub,rough,n.add(.62,n.mul(sub(n,striae,.5),.16)))
+ bare=(.38,.41,.43) if role=='receiver' else (.12,.135,.145)
+ base=n.mix(rub,base,bare,True);rough=n.mix(rub,rough,n.add(.48 if role=='receiver' else .62,n.mul(sub(n,striae,.5),.16)))
  metal=n.mix(rub,metal,1)
  base=n.mix(soot,base,(.0025,.0021,.0018),True);rough=n.mix(soot,rough,.78);metal=n.mix(soot,metal,.05)
  return finish(n,base,rough,metal,height,rub)
