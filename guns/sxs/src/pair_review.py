@@ -63,7 +63,9 @@ def main():
   y=plain.height+82
   for i,v in enumerate(data['vectors']):
    d.text((w+20,y+i*27),f"{i+1}. {v['name']}: {v['length_px']:.1f}px",font=SMALL,fill=(25,36,31))
-  d.text((w+20,y+(len(data['vectors'])+1)*27),'EXIF unavailable; macro review lens fixed at 150 mm.',font=SMALL,fill=(25,36,31))
+  note=('EXIF unavailable; macro review lens fixed at 150 mm.' if name not in ('right','left') else
+   'EXIF unavailable; accepted whole-gun camera retained.')
+  d.text((w+20,y+(len(data['vectors'])+1)*27),note,font=SMALL,fill=(25,36,31))
   sheet.save(out/(name+'-pair.jpg'),quality=94,optimize=True)
  (out/'residuals.json').write_text(json.dumps(report,indent=2))
 def ImageChops_subtract(a,b):
