@@ -13,6 +13,13 @@ for high in [o for o in bpy.data.objects if o.get('bake_only') and o.get('low_ta
  # The archived cage was copied before the reduced mesh's shading pass.
  # Use continuous sculpt normals rather than the cage's inherited flat faces.
  M.smooth(low,45)
+ if low.name=='Forend_Walnut':
+  # Preserve the routed lower land after recomputing source smoothness too.
+  normals=[n.vector.copy() for n in low.data.corner_normals]
+  for face in low.data.polygons:
+   if face.normal.z<-.985 and .205<face.center.y<.275 and face.center.z<.024:
+    for index in face.loop_indices:normals[index]=face.normal.copy()
+  low.data.normals_split_custom_set(normals)
  low.vertex_groups.clear();W.rigid_bind(low,arm,bone)
 bpy.context.scene['stage']='Dense source comparison; original wood/control cages on the same visual rig'
 bpy.ops.wm.save_as_mainfile(filepath=str(BASE/'build/sculpt.blend'))
