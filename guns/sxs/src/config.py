@@ -14,7 +14,7 @@ UV_MIN_COVERAGE=.20
 UV_PRIORITY={'Action_Body':1.4,'Trigger_Plate':1.4,'Top_Lever':1.25,
  'Stock_Walnut':1.1,'Forend_Walnut':1.2,'Barrel_':.8,
  'Live':.5,'Hull':.5,'Insert':.5}
-BAKE_POLICY=dict(isolate_moving=True,
- moving_roots=['Stock_Walnut','Action_Body','Trigger_Plate','Top_Strap','Guard_RearTang'],
- isolate_rigid_bones=True,consolidate_attribute_sources=True,
+# Base contact-AO policy. bake_form.py derives an isolated projection root
+# for every actual named part, independent of the animation's rigid owners.
+BAKE_POLICY=dict(isolate_rigid_bones=True,consolidate_attribute_sources=True,
  cage_m=.0007,ray_distance_m=.003,ao_distance_m=.008)

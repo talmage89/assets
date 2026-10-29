@@ -12,6 +12,7 @@ from semantics import check as semantics
 from contacts import measure,ray
 from form_gauges import measure as form_gauges
 from action_gauges import measure as action_gauges
+from projection_check import measure as projection_ownership
 from kit import uv
 from PIL import Image
 import io
@@ -19,6 +20,8 @@ from interface import CLIPS
 BASE=Path(__file__).resolve().parents[1]
 def main():
  source=BASE/'build/sxs.blend';path=BASE/'export/sxs.glb'
+ ownership=projection_ownership();assert ownership['passed'],[r for r in ownership['records'] if r['wrong_constant_texels']]
+ (BASE/'build/delivery/projection-ownership.json').write_text(json.dumps(ownership,indent=2))
  bpy.ops.wm.open_mainfile(filepath=str(source));arm=next(o for o in bpy.context.scene.objects if o.type=='ARMATURE')
  assert arm['generator_sha256']==generator_digest(),'Stale source generator'
  parts=[o for o in bpy.context.scene.objects if o.type=='MESH' and 'bone' in o]
@@ -49,7 +52,8 @@ def main():
  assert baked['size']==4096 and baked['samples']>=32 and baked['device']=='GPU'
  for name,digest in baked['source_sha256'].items():
   assert digest==hashlib.sha256((BASE/'build/delivery'/name).read_bytes()).hexdigest(),'Stale baked source '+name
- assert 'Stock_Walnut' in baked['projection_policy']['moving_roots']
+ assert set(baked['parts_isolated'])=={o.name for o in parts}
+ assert set(baked['projection_policy']['moving_roots'])==set(baked['parts_isolated'])
  assert 'Stock_Walnut' not in baked['assembled_contact_policy']['moving_roots']
  assert all(baked[c]['alpha_missed_interior_texels']==0 for c in ('BaseColor','Roughness','Metallic','AO','Normal'))
  hashes=sorted(hashlib.sha256(data.image(i)).hexdigest() for i in range(3))
@@ -72,7 +76,7 @@ def main():
   W.pose(arm,clip,f);error=V.surface_delta(target,V.surface_points(imported));assert error<3e-6,(clip,f,error)
   errors.append(dict(clip=clip,frame=f,error_m=error))
  result=dict(passed=True,stage='baked form checkpoint; finish and wear held',uv=imported_uv,bake_size=4096,ship_size=2048,sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
-  triangles=count,materials=len(data.json['materials']),textures=3,glb_bytes=path.stat().st_size,
+  triangles=count,materials=len(data.json['materials']),textures=3,glb_bytes=path.stat().st_size,projection_ownership=ownership,
   bones=len(arm.data.bones),clips=len(CLIPS),sockets=len(sockets),parts=len(parts),bounds_m=bounds,
   dimensions_mm=((np.array(bounds[1])-bounds[0])*1000).tolist(),measured_parts_mm=dims,length_of_pull_mm=pull*1000,
   normals=normals,affine_samples=len(affine),max_position_error_m=max(r['position_delta_m'] for r in affine),
