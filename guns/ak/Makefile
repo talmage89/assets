@@ -20,6 +20,7 @@ MARKS := $(addprefix build/markings/,receiver.png headstamp.png leaf.png)
 BAKED := $(addprefix build/baked/4k/T_Rill39_,BaseColor.png Normal.png ORM.png) build/baked/4k/bake-report.json
 TEXTURES := $(addprefix textures/T_Rill39_,BaseColor.png Normal.png ORM.png)
 EXPORTS := $(addprefix export/,ak.glb magazine_loaded.glb magazine_empty.glb cartridge.glb case.glb)
+SUBSET_LAYOUTS := $(addprefix build/delivery/detachables/,magazine_loaded/layout.json magazine_empty/layout.json cartridge/layout.json case/layout.json)
 comma := ,
 FINAL_SHOTS := hero,hero_right,front,side,back,top,receiver,cover_rear,controls,rear_sight,rear_ortho_side,front_sight,gas_muzzle,gas_ortho_side,retainer,retainer_side,wood,grip_stock,grip_detail,trigger,open,aimed,magazine,scale
 FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(FINAL_SHOTS)))) renders/final/beauty/shots.json
@@ -56,17 +57,18 @@ $(BAKED) &: build/delivery/high.blend $(PREPARED) src/config.py build/bake-param
 bake: $(BAKED)
 $(TEXTURES) &: $(BAKED) ../../kit/downsample.py
 	$(PYTHON) $(KIT)/downsample.py --source build/baked/4k --out textures --asset Rill39 --size $(SHIP_SIZE) --alpha-mode independent
-$(EXPORTS) &: $(TEXTURES) $(PREPARED) src/config.py src/cartridge_config.py src/case_config.py src/export_finish.py ../../kit/export.py
+$(EXPORTS) $(SUBSET_LAYOUTS) &: $(TEXTURES) $(PREPARED) src/config.py src/export_config.py src/cartridge_config.py src/case_config.py src/export_finish.py ../../kit/export.py ../../kit/detachable_textures.py ../../kit/detachable_clusters.py ../../kit/gltf.py
 	@mkdir -p export
-	$(BP) --python src/export_finish.py -- --source build/delivery/finalized.blend --textures textures --asset Rill39 --config src/config.py --out export/ak.glb --report build/delivery/export.json
+	$(BP) --python src/export_finish.py -- --source build/delivery/finalized.blend --textures textures --asset Rill39 --config src/export_config.py --out export/ak.glb --report build/delivery/export.json
+	$(BP) --python $(KIT)/gltf.py -- --source export/ak.glb --config src/export_config.py
 	$(BP) --python src/export_finish.py -- --source build/delivery/finalized.blend --textures textures --asset Rill39 --config src/cartridge_config.py --out export/cartridge.glb --report build/delivery/cartridge-export.json
 	$(BP) --python src/export_finish.py -- --source build/delivery/finalized.blend --textures textures --asset Rill39 --config src/case_config.py --out export/case.glb --report build/delivery/case-export.json
-export: $(EXPORTS)
+export: $(EXPORTS) $(SUBSET_LAYOUTS)
 check-repo:
 	$(PYTHON) $(KIT)/repo_check.py
 verify: $(MODEL)
 	$(BP) --python src/verify.py -- --source build/ak.blend --out build/serialization.json
-check: check-repo verify $(EXPORTS)
+check: check-repo verify $(EXPORTS) $(SUBSET_LAYOUTS)
 	$(PYTHON) src/texture_preservation.py
 	$(BP) --python src/preserve_look.py
 	$(BP) --python src/check.py -- --source build/ak.blend --out build/check.json --motion

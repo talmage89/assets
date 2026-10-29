@@ -7,6 +7,7 @@ from mathutils import Vector
 BASE=Path(__file__).resolve().parents[1];sys.path[:0]=[str(BASE.parents[1]),str(BASE/'src')]
 from kit import uv,weapon as W,weapon_verify as V
 from kit.gltf import GLB
+from kit import detachable_verify as DV
 from interface import CLIPS
 from check import semantics,geometry,meshes
 from delivery import split_imported
@@ -36,11 +37,20 @@ def main():
   path=BASE/'export'/(name+'.glb');g=GLB(path)
   tri=sum(len(g.accessor(p['indices']))//3 for m in g.json['meshes'] for p in m['primitives'])
   assert tri<=limit and len(g.json['materials'])==1 and len(g.json['images'])==3,(name,tri)
-  hashes=sorted(hashlib.sha256(g.image(i)).hexdigest() for i in range(3));assert hashes==canonical
-  for i in range(3):assert Image.open(io.BytesIO(g.image(i))).size==(2048,2048)
+  hashes=sorted(hashlib.sha256(g.image(i)).hexdigest() for i in range(3))
+  subset=None;map_size=2048
+  if name=='ak':assert hashes==canonical
+  else:
+   layout=BASE/'build/delivery/detachables'/name/'layout.json'
+   subset=DV.audit(path,BASE/'textures','Rill39',layout,gun=BASE/'export/ak.glb')
+   subset['mip_bleed']=DV.mip_bleed(path,BASE/'textures','Rill39',layout,gun=BASE/'export/ak.glb')
+   map_size=subset['size'];assert map_size==dict(magazine_loaded=1024,magazine_empty=1024,cartridge=512,case=512)[name]
+   assert subset['padding_px']==8
+  for i in range(3):assert Image.open(io.BytesIO(g.image(i))).size==(map_size,map_size)
   material=g.json['materials'][0];assert material.get('alphaMode','OPAQUE')=='OPAQUE'
   spec=material['extensions']['KHR_materials_specular']['specularTexture']['index']
   assert g.json['textures'][spec]['source']==g.json['textures'][material['pbrMetallicRoughness']['baseColorTexture']['index']]['source']
+  assert Image.open(io.BytesIO(g.image(g.json['textures'][spec]['source']))).mode=='RGBA'
   if name=='ak':
    assert len(g.json['skins'])==1 and {a['name'] for a in g.json['animations']}==set(CLIPS)
    for a in g.json['animations']:
@@ -53,7 +63,8 @@ def main():
     normals=g.accessor(p['attributes']['NORMAL']);assert np.isfinite(normals).all() and np.max(abs(np.linalg.norm(normals,axis=1)-1))<1e-5
     if name=='ak':
      weights=g.accessor(p['attributes']['WEIGHTS_0']);assert np.max(abs(weights.sum(axis=1)-1))<1e-6 and np.all(np.sum(weights>1e-6,axis=1)==1)
-  outputs[name]=dict(triangles=tri,materials=1,images=3,size=2048,bytes=path.stat().st_size,sha256=hashlib.sha256(path.read_bytes()).hexdigest(),image_hashes=hashes,normal_direction=V.normal_direction(g))
+  outputs[name]=dict(triangles=tri,materials=1,images=3,size=map_size,bytes=path.stat().st_size,sha256=hashlib.sha256(path.read_bytes()).hexdigest(),image_hashes=hashes,normal_direction=V.normal_direction(g))
+  if subset is not None:outputs[name]['standalone_textures']=subset
  arm=V.import_glb(BASE/'export/ak.glb');states=semantics(arm)
  imported_uv=uv.report([o for o in bpy.context.scene.objects if o.type=='MESH'],size=2048)
  assert not imported_uv['outside_triangles'] and not imported_uv['degenerate_uv_triangles'] and imported_uv['overlap_fraction']<1e-5

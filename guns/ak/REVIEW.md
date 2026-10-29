@@ -1453,3 +1453,27 @@ No accepted underlying stain/grain field is changed to disguise these. No
 kit/common changes or additional tools are needed. A future generic
 projection-material audit could expose contact cross-talk automatically;
 that separate feature is outside this narrow correction.
+
+## Standalone subset delivery — 2026-10-29
+
+Color/value first: opened each exported old/new loaded magazine, empty magazine,
+cartridge and fired-case pair at 570 px coverage and native 40 px, plus nearest
+magnifications. The dark magazine body, rib wear and cavity values remain
+consistent; the ammunition retains lacquer/jacket colors and primer rims.
+Small deeper-mip filtering shifts appear under nearest magnification (up to
+22/255 in the diagnostic images); no obvious new edge bleed or full-size loss
+was visible. Existing silhouette faceting and soft normal-only headstamps remain.
+These unchanged analytic-GGX diagnostics test actual GLB sampling, rather than
+replace the accepted photographic studio/look review. Gallery/contact sheets:
+`build/ak-detach/pairs/` from the repository root. All twelve pairs/magnifications
+and both contact sheets were opened. No final/look render or docs JPG was rebuilt.
+
+All four sets keep density 1.000, 8 px mip-aligned outer atlas halos, existing
+internal atlas texels, the gun sampler, specular-alpha data and pull-push fill.
+Both magazines require 1024; both ammunition items fit 512. The independent
+old/new comparison covers 130,160 samples, maximum component error 0.00003498,
+maximum UV storage error 0.000122071 px and tangent delta 0.012822°. The maximum
+pointwise bleed excess across L0–L3 is 2.83e-14, below 1/255. Main SHA-256 remains
+`0fecef4cfc1b77fa9c485272d787cb276625781745a6893fe67ba190b60355a0`.
+Three exact-signature kit anchors preserve its observed 0.0001 tangent rounding.
+No geometry, source bake, canonical map, kit or common code was changed.
