@@ -67,6 +67,7 @@ check-repo:
 verify: $(MODEL)
 	$(BP) --python src/verify.py -- --source build/ak.blend --out build/serialization.json
 check: check-repo verify $(EXPORTS)
+	$(PYTHON) src/texture_preservation.py
 	$(BP) --python src/preserve_look.py
 	$(BP) --python src/check.py -- --source build/ak.blend --out build/check.json --motion
 	$(BP) --python src/check.py -- --source build/delivery/finalized.blend --out build/delivery/construction.json --motion
@@ -118,6 +119,7 @@ renders/final/precedent/smg_hero.png: ../smg/export/smg.glb $(RENDER_DEPS)
 look-review: render match source-match build/value-geometry.npz
 	$(PYTHON) src/look_review.py
 	$(PYTHON) src/furniture_review.py
+	$(PYTHON) src/wood_scales.py
 review: look-review
 
 # The asset rebuild is independent of other guns. When the accepted reference
@@ -130,3 +132,19 @@ raw-audit: render
 	cp export/ak.glb build/ak_raw.glb
 	$(KIT)/with_gpu.sh $(BP) --python src/final_render.py -- --source build/ak_raw.glb --out renders/final/raw-check --width $(WIDTH) --samples $(SAMPLES) --shots hero,grip_detail,gas_muzzle,rear_sight
 	$(PYTHON) src/raw_review.py
+
+# A complete independent bake/export, changing only metal abrasion. This is
+# comparison evidence; none of its images enter the shipped atlas or GLBs.
+build/metal-control/high.blend: $(PREPARED) $(MARKS) src/build_high.py src/lookdev.py build/wear-parameters.txt
+	$(BP) --python src/build_high.py -- --wear $(WEAR) --metal-wear 0 --out $@
+build/metal-control/baked/bake-report.json: build/metal-control/high.blend $(PREPARED) src/config.py build/bake-parameters.txt
+	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/bake.py -- --low build/delivery/finalized.blend --high $< --out build/metal-control/baked --asset Rill39 --config src/config.py --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
+build/metal-control/export/ak.glb: build/metal-control/baked/bake-report.json src/export_finish.py
+	$(PYTHON) $(KIT)/downsample.py --source build/metal-control/baked --out build/metal-control/textures --asset Rill39 --size $(SHIP_SIZE) --alpha-mode independent
+	$(BP) --python src/export_finish.py -- --source build/delivery/finalized.blend --textures build/metal-control/textures --asset Rill39 --config src/config.py --out $@ --report build/metal-control/export.json
+renders/final/metal-control/hero.png: build/metal-control/export/ak.glb $(RENDER_DEPS)
+	$(KIT)/with_gpu.sh $(BP) --python src/final_render.py -- --source $< --out renders/final/metal-control --width $(WIDTH) --samples $(SAMPLES) --shots hero
+.PHONY: metal-control
+metal-control: render renders/final/metal-control/hero.png build/value-geometry.npz src/metal_difference.py
+	$(PYTHON) src/metal_difference.py
+review: metal-control

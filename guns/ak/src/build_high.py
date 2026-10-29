@@ -6,6 +6,8 @@ BASE=Path(__file__).resolve().parents[1];sys.path[:0]=[str(BASE.parents[1]),str(
 from kit import weapon as W
 import lookdev
 p=argparse.ArgumentParser();p.add_argument('--wear',type=float,default=1)
+p.add_argument('--metal-wear',type=float,default=1,help='Comparison-only abrasion control; wood/carbon/manufacture stay identical')
+p.add_argument('--out',default='build/delivery/high.blend')
 a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
 bpy.ops.wm.open_mainfile(filepath=str(BASE/'build/delivery/finalized.blend'))
 W.pose(bpy.data.objects['R39Armature'],None,0)
@@ -40,7 +42,7 @@ for name in ('Sight_RearBlock','GasBlock_Neck','Handguard_Retainer363'):
    for i in face.loop_indices:normals[i]=face.normal.copy();count+=1
  ob.data.normals_split_custom_set(normals);planar[name]=count
 print('PLANAR LAND CORNERS',planar,flush=True)
-records=lookdev.assign(a.wear)
+records=lookdev.assign(a.wear,a.metal_wear)
 # Retain each high skin and its fine additive relief in one projection owner.
 # This permits the existing kit's named static isolation without creating a
 # second projection implementation or projecting wood onto a sight cheek.
@@ -53,6 +55,7 @@ for name,extras in groups.items():
  for ob in extras:ob.hide_set(False);ob.select_set(True)
  bpy.context.view_layer.objects.active=target;bpy.ops.object.join()
 bpy.context.scene['stage']='Dense original finish source / immutable rest attributes'
-bpy.ops.wm.save_as_mainfile(filepath=str(BASE/'build/delivery/high.blend'))
-(BASE/'build/delivery/finishes.json').write_text(json.dumps(records,indent=2))
+destination=BASE/a.out;destination.parent.mkdir(parents=True,exist_ok=True)
+bpy.ops.wm.save_as_mainfile(filepath=str(destination))
+destination.with_name('finishes.json').write_text(json.dumps(records,indent=2))
 print('HIGH FINISHES',len(records),flush=True)

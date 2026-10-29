@@ -50,7 +50,9 @@ def main():
  pairs=[(p.stem,p) for p in sorted((OUT/'pairs').glob('*-pair.jpg'))]
  sheet(OUT/'photo-pairs.jpg',pairs,2,(1100,750))
  for i in range(0,len(frames),18):sheet(OUT/'inspection'/f'clips-{i//18:02d}.jpg',frames[i:i+18],3,(410,370))
- sheet(OUT/'contact-sheet.jpg',stills+pairs+[(clip+' / real-speed strip',OUT/'strips'/(clip+'.jpg')) for clip in timing])
+ evidence=[('Metal abrasion / controlled GLB difference',OUT/'metal-wear-proof.jpg'),
+           ('Wood / broad and residual value',OUT/'look-review/wood-two-scale.jpg')]
+ sheet(OUT/'contact-sheet.jpg',stills+pairs+evidence+[(clip+' / real-speed strip',OUT/'strips'/(clip+'.jpg')) for clip in timing])
  panel(OUT/'beauty/hero.png',(1600,1000)).save(OUT/'hero-gray.jpg',quality=96)
  predecessor=OUT/'precedent/smg_hero.png'
  if predecessor.exists():

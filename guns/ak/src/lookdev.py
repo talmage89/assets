@@ -19,6 +19,13 @@ def mn(n,*xs):
  for x in xs[1:]:r=n.math('MINIMUM',r,x)
  return r
 def interval(n,x,a,b,f=.001):return n.mul(n.ramp(x,a-f,a),n.ramp(x,b+f,b))
+def section_value(n,coordinate,stations):
+ """Piecewise linear construction datum used only to locate edge abrasion."""
+ value=stations[0][1]
+ for (a,va),(b,vb) in zip(stations,stations[1:]):
+  t=n.math('MINIMUM',n.math('MAXIMUM',div(n,sub(n,coordinate,a),b-a),0),1)
+  value=n.add(value,n.mul(t,vb-va))
+ return value
 def inp(n):
  p=n.node('ShaderNodeAttribute',attribute_name='FinishPosition').outputs['Vector']
  normal=n.node('ShaderNodeAttribute',attribute_name='FinishNormal').outputs['Vector']
@@ -79,7 +86,7 @@ def metal_rubs(n,p,x,y,z,nx,ny,nz,u,v,w,part):
   mask=n.mul(n.ramp(ab(n,nx),.76,.98),n.ramp(nz,.10,.7),.65)
   sharp=.0004
  elif part=='TopCover_Pressed':
-  bead=rub(n,p,ab(n,sub(n,z,.0965)),y,-.023,.047,.0015,.013)
+  bead=rub(n,p,ab(n,sub(n,z,.0965)),y,-.023,.047,.0027,.013)
   bead=n.mul(bead,n.ramp(ax,.0175,.0183))
   rear=rub(n,p,ab(n,sub(n,y,-.0325)),x,-.016,.009,.0023,.004)
   rear=n.mul(rear,n.ramp(z,.091,.099))
@@ -150,7 +157,7 @@ def metal_rubs(n,p,x,y,z,nx,ny,nz,u,v,w,part):
  core=n.mul(mask,n.ramp(sharp,.00022,.000045),n.ramp(n.noise(p,180,2),.58,.75))
  return mask,core
 
-def steel(name,part,key,wear):
+def steel(name,part,key,wear,metal_wear=1):
  n=Nodes(name);p,x,y,z,nx,ny,nz,u,v,w=inp(n);ax=ab(n,x)
  fine=n.noise(p,4200,2);grain=n.noise(p,1150,2)
  paint=key=='paint' and part!='Magazine_Sheet';bright=key=='steel'
@@ -181,9 +188,14 @@ def steel(name,part,key,wear):
   carbon=n.mul(n.band(y,.408,.002,.003),n.band(z,.106,.006,.003),n.ramp(ax,.006,.009),.80)
  # Continuous, cause-located abrasion supersedes all generic edge chips.
  chipped,core=metal_rubs(n,p,x,y,z,nx,ny,nz,u,v,w,part)
- chipped=n.mul(chipped,wear);core=n.mul(core,wear);rubbed=chipped
+ chipped=n.mul(chipped,wear*metal_wear);core=n.mul(core,wear*metal_wear);rubbed=chipped
  if paint:
-  base=n.mix(chipped,base,(.036,.035,.033),True);rough=n.mix(chipped,rough,.82)
+  base=n.mix(chipped,base,(.110,.108,.101),True);rough=n.mix(chipped,rough,.88)
+  metal=n.mix(chipped,metal,.08);spec=n.mix(chipped,spec,.56)
+ elif part.startswith(('Magazine_Sheet','Magazine_FoldSpine','Magazine_Floorplate','Magazine_FeedLip')):
+  # Pouch contact exposes matte conversion-coated gray before the small
+  # metallic crest. Diffuse value AND gloss identify it at whole-gun scale.
+  base=n.mix(chipped,base,(.180,.176,.165),True);rough=n.mix(chipped,rough,.86)
   metal=n.mix(chipped,metal,.08);spec=n.mix(chipped,spec,.56)
  else:
   # Friction thins the dark oxide smoothly, leaving a warm gray steel land.
@@ -241,32 +253,79 @@ def wood(name,part,wear):
  tone=n.add(.49,n.mul(n.add(-.20,n.mul(n.ramp(year,.06,.65),.40),n.mul(late,-.42)),n.mul(contrast,.75)))
  figure=n.noise(n.combine(n.mul(x,85),n.mul(y,8),n.mul(zz,130)),1,2)
  tone=n.add(tone,n.mul(sub(n,figure,.5),.30))
+ # Slow stain absorption follows curved growth structure in the blank.
+ # 20-80 mm zones carry the larger figure; the accepted 2-6 mm layers
+ # and vessels remain subordinate detail, rather than the entire variation.
+ broad=n.noise(n.combine(n.mul(x,34),n.add(n.mul(y,8),2.7 if stock else 6.2 if upper else 11.4),n.mul(zz,42)),1,1)
+ tone=n.add(tone,n.mul(sub(n,broad,.5),.45 if stock else 1.10 if upper else 1.05))
+ # Wide heartwood/earlywood bands accept different amounts of stain. Their
+ # section follows the same curved blank as the accepted fine layers.
+ heart_phase=n.channel('growth_phase',0.0 if stock else 5.15 if upper else 4.712389)
+ heart_strength=n.channel('growth_strength',.30 if stock else .50 if upper else .55)
+ heart=n.math('SINE',n.add(n.mul(layer,math.tau/(.14 if stock else .060 if upper else .100)),n.mul(sub(n,broad,.5),2.5),heart_phase))
+ tone=n.add(tone,n.mul(heart,heart_strength))
  if stock:low,high=(.0138,.0078,.0058),(.0805,.0495,.0368)
  elif upper:low,high=(.008,.0034,.0025),(.054,.024,.015)
  else:low,high=(.028,.013,.0095),(.180,.081,.057)
  base=n.mix(tone,low,high,True)
+ # Retain the handed-off per-blank hero palette after changing the broad
+ # absorption distribution. These are uniform stain corrections, not wear.
+ if upper:base=n.vec('MULTIPLY',base,(1.16,1.16,1.18))
+ elif not stock:base=n.vec('MULTIPLY',base,(.96,.970,.997))
  pores=n.node('ShaderNodeTexVoronoi',feature='F1',distance='EUCLIDEAN')
  n.feed(pores.inputs['Vector'],n.combine(n.mul(x,1000),n.mul(y,125),n.mul(zz,1250)));pores.inputs['Scale'].default_value=1
  pore=n.ramp(pores.outputs['Distance'],.23,.09)
  base=n.mix(n.mul(pore,.43),base,(.008,.003,.0018),True)
  h=n.add(n.mul(late,-.000012),n.mul(pore,-.000030))
  rough=n.add(.52 if upper else .40,n.mul(late,.035),n.mul(pore,.06))
+ # Oil-darkened dust accumulates at the receiver/wood junction and wrist,
+ # under the comb and at the sheltered rear handguard roots. Contact and
+ # recess distance locate it; slow porosity variation only breaks its edge.
+ if stock:
+  root=n.ramp(y,-.130,-.043)
+  wrist=n.mul(root,n.maximum(n.band(z,.052,.013,.014),n.mul(n.band(z,.079,.003,.006),.55)))
+  cheek=n.mul(n.ramp(z,.052,.076),interval(n,y,-.253,-.105,.023),.55)
+  grime=n.mul(n.maximum(wrist,cheek),n.add(.65,n.mul(broad,.35)),wear)
+ else:
+  root=n.ramp(y,.278 if upper else .260,.245 if upper else .221)
+  recess=n.ramp(z,.101 if upper else .044,.093 if upper else .068)
+  grime=n.mul(n.maximum(n.mul(root,.65),n.mul(recess,.85)),n.add(.50,n.mul(broad,.50)),wear)
+ base=n.mix(grime,base,n.vec('MULTIPLY',base,(.32,.30,.27)),True)
+ rough=n.mix(grime,rough,.56)
  # Only flaked streaks inside actual hand-contact margins lose their film.
  # No graded pale field covers the wrist or handguard's broad flat side.
  if stock:
   bottom=n.add(.039,n.mul(sub(n,y,-.062),.12))
   contact=n.maximum(n.mul(n.band(z,bottom,.0020,.0030),interval(n,y,-.112,-.043,.011)),n.mul(n.band(z,.0845,.0012,.0023),interval(n,y,-.104,-.058,.009),.70))
   edgeknocks=n.maximum(n.mul(n.band(z,.080,.0015,.0020),interval(n,y,-.279,-.249,.005)),n.mul(n.band(z,n.add(-.010,n.mul(sub(n,y,-.250),.40)),.002,.002),interval(n,y,-.276,-.211,.010)))
+  # Toe/heel and comb are exposed, with handling strongest at the wrist.
+  comb=n.mul(n.band(z,.084,.0022,.0030),interval(n,y,-.274,-.051,.010))
+  heeltoe=n.mul(n.ramp(y,-.245,-.280),n.maximum(n.ramp(z,.065,.080),n.ramp(z,.014,-.003)))
   contact=n.maximum(contact,n.mul(edgeknocks,.8))
+  toe_line=section_value(n,y,[(-.282,-.013),(-.250,-.010),(-.210,.001),(-.170,.014),(-.135,.025),(-.108,.032),(-.088,.035),(-.062,.039),(-.035,.041)])
+  toe_rub=n.mul(n.band(z,toe_line,.006,.005),interval(n,y,-.278,-.205,.018))
+  exposed=n.maximum(n.mul(comb,.92),heeltoe,edgeknocks,toe_rub)
  else:
   contact=n.mul(interval(n,y,.251 if upper else .244,.330 if upper else .346,.012),n.maximum(n.band(z,.093 if upper else .058,.0022,.0035),n.mul(n.band(z,.111 if upper else .077,.0014,.0025),.66)))
+  # Lower outside belly and the front lip take knocks and supporting hands.
+  front=n.mul(n.ramp(y,.331 if upper else .347,.344 if upper else .362),n.ramp(ab(n,nx),.28,.75))
+  belly=n.mul(n.ramp(z,.099 if upper else .065,.092 if upper else .050),interval(n,y,.253,.336,.015),n.ramp(ab(n,nx),.25,.65))
+  exposed=n.maximum(front,belly)
  # Long fragments follow fibers; small noise roughens flaked boundaries only.
  flakes=n.add(n.mul(n.noise(n.combine(n.mul(x,650),n.mul(y,85),n.mul(z,730)),1,2),.72),n.mul(n.noise(p,1400,1),.28))
  outside=n.maximum(n.ramp(n.mul(x,nx),.004,.009),n.ramp(n.mul(sub(n,z,.065 if stock else .091 if upper else .084),nz),.010,.020))
- loss=n.mul(n.ramp(contact,.35,.85),n.ramp(flakes,.50,.59),outside,wear)
+ original_loss=n.mul(n.ramp(contact,.35,.85),n.ramp(flakes,.50,.59),outside,wear)
+ # Edge impacts remove fragments of film, with 10-25 mm runs and intact
+ # islands. Keep the accepted smaller hand-contact flakes unchanged.
+ edgefield=n.noise(n.combine(n.mul(x,310),n.mul(y,54),n.mul(z,420)),1,2)
+ edgeflakes=n.ramp(n.add(edgefield,n.mul(sub(n,flakes,.5),.15)),.43,.55)
+ edge_loss=n.mul(n.ramp(exposed,.35,.85),edgeflakes,outside,wear)
+ loss=n.maximum(original_loss,edge_loss)
  # Exposed fibers are the SAME stained wood, slightly lighter/less red.
  raw=n.vec('MULTIPLY',base,(1.08,1.20,1.25))
- base=n.mix(loss,base,raw,True);rough=n.mix(loss,rough,.70);h=n.add(h,n.mul(loss,-.000026))
+ base=n.mix(original_loss,base,raw,True)
+ raw_edge=n.vec('MULTIPLY',base,(2.10,2.22,2.30))
+ base=n.mix(edge_loss,base,raw_edge,True);rough=n.mix(loss,rough,.70);h=n.add(h,n.mul(loss,-.000026))
  # Dents are crushed depressions with dark bottoms. No orange crescent lips.
  dentmask=0
  sites=([(-.276,-.003,.006,.003),(-.272,.079,.005,.003),(-.259,.002,.0035,.0018),(-.250,.079,.004,.0016),(-.264,.023,.0028,.0013)] if stock else [(.245,.053,.004,.0017),(.341,.055,.003,.0016)])
@@ -308,7 +367,7 @@ def ammo(name,key,fired):
  h=n.add(n.mul(sub(n,fine,.5),1e-6),n.mul(stamp,-.00006),n.mul(seal,-.00004))
  return finish(n,base,rough,metal,h)
 
-def assign(wear):
+def assign(wear,metal_wear=1):
  from build import HEADS
  records={}
  for ob in [o for o in bpy.context.scene.objects if o.type=='MESH' and o.get('asset_set')]:
@@ -349,7 +408,7 @@ def assign(wear):
    if key=='wood':mat=wood(name,part,wear)
    elif key=='grip':mat=grip(name,wear)
    elif key in ('case','copper'):mat=ammo(name,key,'Case_Proof'==part or part.startswith('EjectedCase'))
-   else:mat=steel(name,part,key,wear)
+   else:mat=steel(name,part,key,wear,metal_wear)
    ob.data.materials[i]=mat;roles.append(key)
   if part in ('Cartridge_Proof','Case_Proof'):
    assert max(abs(v.x) for v in vertices)<.006 and max(abs(v.z) for v in vertices)<.006
