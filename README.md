@@ -77,7 +77,8 @@ Held weapons
   scope and bipod, nine clips, magazines and a fired case; the PD Relay 9 9 mm submachine gun in black paint over
   phosphate with a worn receiver, 21 clips, loaded and empty magazines, a cartridge and a fired case; the PD
   Meridian Six .357 revolver in carried stainless steel with a rubber grip, 22 clips with per-chamber state, a
-  speedloader, a cartridge and a fired case.
+  speedloader, a cartridge and a fired case; the PD Bracken L20 .30-30 lever-action carbine in bluing worn to
+  plum-brown with oiled walnut, 37 clips with tube and gate loading, a cartridge and a fired case.
 
 Toolkit
 - [Shared toolkit](kit/README.md): procedural modeling and materials, UV, bake and export, verification and studio
