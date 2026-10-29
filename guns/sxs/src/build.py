@@ -137,11 +137,11 @@ def action():
   loops.append(pts)
  # Standing breech is the planar step to the low water table. Small edge
  # radii are retained in the dense source for the later normal-map transfer.
- for y in [115.001,116,122,130,140,150,158,164,170]+[170+12*math.sin(math.pi/2*i/16) for i in range(1,16)]+[181.99]:
+ for y in [115.001,116,122,130,140,148,154,160,166,170]+[170+12*math.sin(math.pi/2*i/16) for i in range(1,16)]+[181.99]:
   w,bot,top=action_section(y)
   if y<170:top=30.2+.8*smoothstep((y-150)/20)
   r=min(4,(top-bot)/3)
-  rb=min(11,(top-bot)*.48) if y<158 else r
+  rb=min(11-7*smoothstep((y-145)/25),(top-bot)*.48) if y<170 else r
   pts=[]
   for x in [-w,-w+r*.15,-w+r*.5,-w+r, -w*.45,0,w*.45,w-r,w-r*.5,w-r*.15,w]:
    dx=max(0,abs(x)-(w-r))
@@ -150,6 +150,15 @@ def action():
   pts += [(w-rb+rb*math.cos(math.pi/2*i/10),y,bot+rb-rb*math.sin(math.pi/2*i/10)) for i in range(1,11)]
   pts += [(-w+rb,y,bot)]
   pts += [(-w+rb-rb*math.sin(math.pi/2*i/10),y,bot+rb-rb*math.cos(math.pi/2*i/10)) for i in range(1,11)]
+  # The exposed neck rolls across its underside, rather than retaining a
+  # broad flat floor between two small corner radii. Blend back to the exact
+  # circular knuckle bearing before the iron's occupied front hemisphere.
+  alpha=smoothstep((y-115)/15)*(1-smoothstep((y-155)/15))
+  ellipse=[(w,y,bot+rb)]
+  ellipse += [(w*math.cos(math.pi/2*i/11),y,bot+rb-rb*math.sin(math.pi/2*i/11)) for i in range(1,11)]
+  ellipse += [(0,y,bot)]
+  ellipse += [(-w*math.sin(math.pi/2*i/10),y,bot+rb-rb*math.cos(math.pi/2*i/10)) for i in range(1,11)]
+  pts[11:]=[tuple(a*(1-alpha)+b*alpha for a,b in zip(old,new)) for old,new in zip(pts[11:],ellipse)]
   loops.append(pts)
  nc=len(loops[0]);vs=[p for loop in loops for p in loop]
  fs=[(j*nc+i,j*nc+(i+1)%nc,(j+1)*nc+(i+1)%nc,(j+1)*nc+i) for j in range(len(loops)-1) for i in range(nc)]
@@ -175,7 +184,10 @@ def action():
  cutbox(body,(-4.4,98,10),(4.4,146,15.1))
  cut(body,lathe('Tool',[(44,0),(44,4.25),(56,4.25),(56,0)],axis='Z',center=(0,94),n=48,raw=True))
  cutbox(body,(-7.4,39,-5),(7.4,78,11))
- reg(body,radius=.28,segments=2);high_copy(body)
+ reg(body,radius=.28,segments=2)
+ # Condition coincident constructive seams before archiving or reduction;
+ # the same 6 micrometer weld is used on the final game surface below.
+ clean(body,dist=.006);canonical_surface(body);high_copy(body)
  HIGH[-1]['source_method']='Closed ruled forging, ground planes and exact spherical fence patches'
  reduce(body,7000)
  lathe('Hinge_Pin',[(-21.5,0),(-21.5,3.85),(-21.25,4.10),(21.25,4.10),(21.5,3.85),(21.5,0)],'dark',axis='X',center=(170,19),n=48)
