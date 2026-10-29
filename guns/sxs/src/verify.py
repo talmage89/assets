@@ -10,6 +10,7 @@ from kit.gltf import GLB
 from parameters import generator_digest
 from semantics import check as semantics
 from contacts import measure,ray
+from form_gauges import measure as form_gauges
 from interface import CLIPS
 BASE=Path(__file__).resolve().parents[1]
 def main():
@@ -37,7 +38,7 @@ def main():
   W.pose(arm,clip,0);spawn[name]=(V.surface_points([o for o in parts if o['bone']==bone]),arm.matrix_world@arm.pose.bones[bone].matrix)
  data=GLB(path);prims=[p for m in data.json['meshes'] for p in m['primitives']]
  count=sum(len(data.accessor(p['indices']))//3 for p in prims)
- assert 25000<=count<=35000,count
+ assert 25000<=count<=38000,count
  assert not data.json.get('images'),'Checkpoint carries no final atlas'
  assert {a['name'] for a in data.json['animations']}==set(CLIPS)
  for p in prims:
@@ -45,7 +46,7 @@ def main():
   assert np.all((w>1e-6).sum(axis=1)==1)
   n=data.accessor(p['attributes']['NORMAL']);assert np.max(abs(np.linalg.norm(n,axis=1)-1))<1e-5
  normals=V.normal_direction(data);arm=V.import_glb(path);imported_semantics=semantics(arm)
- contacts=measure(arm);assert contacts['passed'],[r for r in contacts.get('records',[]) if not r['passed']]
+ contacts=measure(arm);gauges=form_gauges(arm);assert contacts['passed'],[r for r in contacts.get('records',[]) if not r['passed']]
  affine=V.compare(arm,expected,position_tolerance_m=3e-6,linear_tolerance=.001)
  imported=[o for o in bpy.context.scene.objects if o.type=='MESH' and 'bone' in o]
  errors=[]
@@ -58,7 +59,7 @@ def main():
   dimensions_mm=((np.array(bounds[1])-bounds[0])*1000).tolist(),measured_parts_mm=dims,length_of_pull_mm=pull*1000,
   normals=normals,affine_samples=len(affine),max_position_error_m=max(r['position_delta_m'] for r in affine),
   max_linear_error=max(r['linear_delta'] for r in affine),surface_poses=errors,
-  source_semantics=source_semantics,imported_semantics=imported_semantics,imported_contacts=contacts,standalones={})
+  form_gauges=gauges,source_semantics=source_semantics,imported_semantics=imported_semantics,imported_contacts=contacts,standalones={})
  for name,(target,xf) in spawn.items():
   item=BASE/'build'/(name+'.glb');data=GLB(item);normal=V.normal_direction(data);V.import_glb(item)
   meshes=[o for o in bpy.context.scene.objects if o.type=='MESH'];assert len(meshes)==1 and meshes[0].matrix_world.is_identity

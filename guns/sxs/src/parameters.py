@@ -8,7 +8,8 @@ SPACING=25.2
 HINGE=(0,170,19)
 OPEN=-42.0
 LIFT=-10.0
-EYE=(0,-123,67.0)
+# Z is fitted from the actual rib and cited coin rule after geometry creation.
+EYE=(0,-123,0)
 BUTT=-304.6
 HEADS={'Root':(0,0,0),'Barrels':HINGE,'Forend':HINGE,'Extractor':(0,BREECH,BORE),
  'TopLever':(0,94,53),'Safety':(0,5,23),'Trigger':(2.6,64,4),
