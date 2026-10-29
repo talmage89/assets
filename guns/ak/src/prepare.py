@@ -75,7 +75,7 @@ for ob in [o for o in bpy.context.scene.objects if o.type=='MESH' and o.get('ass
 for name in ('Sight_RearBlock','GasBlock_Neck'):
  ob=bpy.data.objects[name];ns=[n.vector.copy() for n in ob.data.corner_normals];count=0
  for f in ob.data.polygons:
-  if abs(f.normal.x)>.999999:
+  if abs(f.normal.x)>.999999 or (name=='Sight_RearBlock' and abs(f.normal.y)<1e-6 and abs(f.normal.x)>.7 and f.area>20e-6):
    for i in f.loop_indices:ns[i]=f.normal.copy();count+=1
  ob.data.normals_split_custom_set(ns);repairs[name+' planar land']=count
 bpy.context.scene['delivery_normal_repairs']=str(repairs)

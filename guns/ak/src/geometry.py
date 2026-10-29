@@ -92,8 +92,9 @@ def retain_manufactured(ob,target,radius=.35):
  closed station loft; no broad smoothing bends its straight diagonal web.
  """
  bm=bmesh.new();bm.from_mesh(ob.data)
- bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=.005)
- bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=.005)
+ clean=.005
+ bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=clean)
+ bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=clean)
  bmesh.ops.dissolve_limit(bm,angle_limit=.0001,verts=list(bm.verts),edges=list(bm.edges),delimit={'MATERIAL'})
  bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free()
  M.bevel(ob,radius,3)
@@ -438,10 +439,17 @@ def sights():
   (226,113),(234,115),(240,121),(244,124),(250,124),(254,118),
   (254,81),(240,79),(226,81),(211,83),(195,84),(188,88)]
  base=profile('Sight_RearBlock',M.fillet_polygon(outline,.6,3),-16.5,16.5,'blue',r=0,register=False)
+ # Retain the accepted narrow upper cheeks and exposed hinge-pin ends.
+ # Their machined chamfers are planes; extending the broad lower side land
+ # all the way to the crown would bury the unchanged +/-14 mm pin.
+ for side in (-1,1):
+  wedge=[(side*x,z) for x,z in [(16.5,113.5),(30,113.5),(30,140),(1.35,140)]]
+  cut(base,profile('Upper cheek machining',wedge,235,260,'blue',axis='Y',r=0,register=False))
  cutbox(base,(-7.8,186,109),(7.8,256,130),r=1)
  cut(base,lathe('Barrel display seat',[(180,0),(180,11.15),(258,11.15),(258,0)],center=(0,85),nseg=40,register=False))
- cut(base,lathe('Piston display clearance',[(180,0),(180,5.7),(222,5.7),(222,0)],center=(0,107),nseg=32,register=False))
- cut(base,lathe('Gas tube exterior seat',[(219,0),(219,10),(258,10),(258,0)],center=(0,107),nseg=40,register=False))
+ # One stepped visual cut avoids coincident end faces between overlapping
+ # clearance tools. The accepted exterior void envelopes are unchanged.
+ cut(base,lathe('Stepped inert display clearance',[(180,0),(180,5.7),(219,5.7),(219,10),(258,10),(258,0)],center=(0,107),nseg=40,register=False))
  # Small visible relief in both hinge cheeks, based on the side photograph.
  cut(base,profile('Hinge cheek relief',M.fillet_polygon([(240,115),(240,119),(242,120.5),(244,119),(244,115)],.8,4),-20,20,r=0,register=False))
  retain_manufactured(base,1560,.30)

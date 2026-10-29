@@ -24,6 +24,10 @@ REGIONS={
  'case':('ammunition.jpg',[[(1235,1300),(1640,1300),(1700,3500),(1195,3500)]],'cartridge',('Cartridge_Case',)),
  'jacket':('ammunition-copper.jpg',[[(1610,631),(1700,637),(1800,654),(1900,677),(2000,708),(2100,745),(2190,774),(2213,788),(2213,807),(2190,823),(2100,851),(2000,878),(1900,897),(1800,911),(1700,919),(1610,922)]],'cartridge',('Cartridge_Jacket',)),
 }
+# Also expose each furniture part separately: the large stock must not hide
+# the smaller upper handguard's reflection/value differences in an aggregate.
+for key,index,prefix in [('stock',0,'Stock_Sculpt'),('lower_handguard',1,'LowerHandguard_Sculpt'),('upper_handguard',2,'UpperHandguard_Sculpt')]:
+ photo,polygons,shot,_=REGIONS['wood'];REGIONS[key]=(photo,[polygons[index]],shot,(prefix,))
 LUMA=np.array([.2126,.7152,.0722])
 def hsv(a):return np.asarray(Image.fromarray(np.uint8(np.clip(a,0,255))).convert('HSV')).astype(float)/255
 

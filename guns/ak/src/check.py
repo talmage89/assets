@@ -31,9 +31,17 @@ def geometry(arm,imported=False):
  inside=sheet.ray_cast(Vector((0,.005,.070)),Vector((1,0,0)),.03)
  outside=sheet.ray_cast(Vector((.030,.005,.070)),Vector((-1,0,0)),.03)
  gauge=(outside[0]-inside[0]).length;assert .0009<gauge<.0011
+ pivot=motion.surface(part('Sight_RearPivot'));saddle=motion.surface(part('Sight_RearBlock'));exposure=[]
+ center=(pivot['lo']+pivot['hi'])/2
+ for side in (-1,1):
+  origin=center+Vector((side*.1,0,0));direction=Vector((-side,0,0))
+  cap=pivot['tree'].ray_cast(origin,direction,.2);land=saddle['tree'].ray_cast(origin,direction,.2)
+  assert cap[0] is not None and land[0] is not None
+  amount=side*(cap[0].x-land[0].x);assert amount>.0003,'Rear hinge-pin end is buried'
+  exposure.append(dict(side=side,exposed_m=amount,pin_surface_m=list(cap[0]),cheek_surface_m=list(land[0]),scope='actual surface rays along pin centerline'))
  return dict(triangles=sum(counts.values()),parts=counts,bounds_m=dict(lo=lo,hi=hi,size=[b-a for a,b in zip(lo,hi)]),
   barrel_length_m=barrel['hi'].y-barrel['lo'].y,eye_above_comb_m=eye.z-comb[0].z if comb[0] else None,
-  measured_receiver_wall_m=gauge,nonmanifold=manifold)
+  measured_receiver_wall_m=gauge,rear_pin_exposure=exposure,nonmanifold=manifold)
 def contacts(arm):
  rows=[]
  def contact(a,b,limit,kind,clip='Idle',frame=0):
