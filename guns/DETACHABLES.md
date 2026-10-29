@@ -2,9 +2,10 @@
 
 Fourteen standalone sets now use the gun’s sampler, protected mip gutters and
 a fully filled background. **Three magazine allocations remain pending**: the
-loaded pistol magazine and both bolt-rifle magazines. The supported option is
-still 512/1024; their 2048 exception has been requested, not applied. Their old
-compact files remain available, but are not claimed as mip-correct deliveries.
+loaded pistol magazine and both bolt-rifle magazines. The supported option remains 512/1024; **2048 is excluded**. The follow-up
+shape-aware fit study reached the explicit 70% stop condition described below.
+Their old compact files remain available, but are not claimed as mip-correct
+deliveries.
 
 ## Sampler, gutters and fill
 
@@ -47,25 +48,25 @@ Pointwise excess is enforced separately, not inferred from these maxima.
 compact, non-mipmapped GLBs. New sizes are exact embedded GLB bytes. Gutter
 values are minimum pixels; the rounded right/top extents are in `layout.json`.
 
-| Gun | Item | Map | Gutter | Atlas bytes | Prior bytes | New bytes | Mip 0 | Mip 1 | Mip 2 | Mip 3 |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | --- | --- | --- | --- |
-| pistol | `case` | 512 | 8 | 5,204,740 | 239,544 | 253,980 | 0 / 0 | 0 / 0.189946 | 0 / 0.346479 | 0 / 0.472156 |
-| pistol | `magazine_empty` | 1024 | 6 | 5,362,360 | 945,428 | 991,512 | 0 / 0 | 0 / 0.221151 | 0 / 0.335126 | 0 / 0.644196 |
-| pistol | `magazine_loaded` | 2048 proposed | pending | 5,396,292 | 1,105,768 | pending | — | — | — | — |
-| shotgun | `hull` | 1024 | 8 | 8,244,008 | 345,992 | 452,248 | 0 / 0 | 0 / 0.19838 | 0 / 0.34371 | 0 / 0.47697 |
-| shotgun | `shell` | 1024 | 8 | 8,260,472 | 362,344 | 420,528 | 0 / 0 | 0 / 0.170537 | 0 / 0.39924 | 0 / 0.600235 |
-| bolt | `case` | 512 | 8 | 6,753,080 | 196,596 | 209,532 | 0 / 0 | 0 / 0.210254 | 0 / 0.418546 | 0 / 0.73438 |
-| bolt | `magazine_empty` | 2048 proposed | pending | 6,928,816 | 1,151,616 | pending | — | — | — | — |
-| bolt | `magazine_loaded` | 2048 proposed | pending | 6,997,748 | 1,373,476 | pending | — | — | — | — |
-| smg | `cartridge` | 512 | 8 | 7,359,568 | 141,404 | 154,220 | 0 / 0 | 0 / 0.158223 | 0 / 0.382461 | 0 / 0.688034 |
-| smg | `case` | 512 | 8 | 7,360,256 | 161,256 | 172,784 | 0 / 0 | 0 / 0.20108 | 0 / 0.418677 | 0 / 0.631851 |
-| smg | `magazine_empty` | 1024 | 6 | 7,476,900 | 1,137,960 | 1,186,756 | 0 / 0 | 0 / 0.241367 | 0 / 0.537232 | 0 / 0.719456 |
-| smg | `magazine_loaded` | 1024 | 6 | 7,549,888 | 1,267,700 | 1,318,624 | 0 / 0 | 0 / 0.241367 | 0 / 0.537232 | 0 / 0.719456 |
-| revolver | `cartridge` | 512 | 8 | 6,307,544 | 58,568 | 74,972 | 0 / 0 | 0 / 0.0313176 | 0 / 0.100991 | 0 / 0.523206 |
-| revolver | `case` | 512 | 8 | 6,304,652 | 64,264 | 75,764 | 0 / 0 | 0 / 0.0215878 | 0 / 0.111398 | 0 / 0.391379 |
-| revolver | `speedloader_loaded` | 1024 | 8 | 6,513,196 | 548,644 | 654,268 | 0 / 0 | 0 / 0.0662934 | 0.000105483 / 0.164486 | 0.00011086 / 0.538116 |
-| lever | `cartridge` | 1024 | 8 | 7,216,192 | 595,532 | 651,104 | 0 / 0 | 0 / 0.282336 | 0 / 0.34198 | 0 / 0.449821 |
-| lever | `case` | 1024 | 8 | 7,197,348 | 651,064 | 713,488 | 0 / 0 | 0 / 0.20259 | 0 / 0.325882 | 0 / 0.562704 |
+| Gun | Item | Map | Density ratio | Gutter | Atlas bytes | Prior bytes | New bytes | Mip 0 | Mip 1 | Mip 2 | Mip 3 |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- | --- | --- |
+| pistol | `case` | 512 | 1.000 | 8 | 5,204,740 | 239,544 | 253,980 | 0 / 0 | 0 / 0.189946 | 0 / 0.346479 | 0 / 0.472156 |
+| pistol | `magazine_empty` | 1024 | 1.000 | 6 | 5,362,360 | 945,428 | 991,512 | 0 / 0 | 0 / 0.221151 | 0 / 0.335126 | 0 / 0.644196 |
+| pistol | `magazine_loaded` | 1024 — blocked | not chosen | pending | 5,396,292 | 1,105,768 | pending | — | — | — | — |
+| shotgun | `hull` | 1024 | 1.000 | 8 | 8,244,008 | 345,992 | 452,248 | 0 / 0 | 0 / 0.19838 | 0 / 0.34371 | 0 / 0.47697 |
+| shotgun | `shell` | 1024 | 1.000 | 8 | 8,260,472 | 362,344 | 420,528 | 0 / 0 | 0 / 0.170537 | 0 / 0.39924 | 0 / 0.600235 |
+| bolt | `case` | 512 | 1.000 | 8 | 6,753,080 | 196,596 | 209,532 | 0 / 0 | 0 / 0.210254 | 0 / 0.418546 | 0 / 0.73438 |
+| bolt | `magazine_empty` | 1024 — blocked | not chosen | pending | 6,928,816 | 1,151,616 | pending | — | — | — | — |
+| bolt | `magazine_loaded` | 1024 — blocked | not chosen | pending | 6,997,748 | 1,373,476 | pending | — | — | — | — |
+| smg | `cartridge` | 512 | 1.000 | 8 | 7,359,568 | 141,404 | 154,220 | 0 / 0 | 0 / 0.158223 | 0 / 0.382461 | 0 / 0.688034 |
+| smg | `case` | 512 | 1.000 | 8 | 7,360,256 | 161,256 | 172,784 | 0 / 0 | 0 / 0.20108 | 0 / 0.418677 | 0 / 0.631851 |
+| smg | `magazine_empty` | 1024 | 1.000 | 6 | 7,476,900 | 1,137,960 | 1,186,756 | 0 / 0 | 0 / 0.241367 | 0 / 0.537232 | 0 / 0.719456 |
+| smg | `magazine_loaded` | 1024 | 1.000 | 6 | 7,549,888 | 1,267,700 | 1,318,624 | 0 / 0 | 0 / 0.241367 | 0 / 0.537232 | 0 / 0.719456 |
+| revolver | `cartridge` | 512 | 1.000 | 8 | 6,307,544 | 58,568 | 74,972 | 0 / 0 | 0 / 0.0313176 | 0 / 0.100991 | 0 / 0.523206 |
+| revolver | `case` | 512 | 1.000 | 8 | 6,304,652 | 64,264 | 75,764 | 0 / 0 | 0 / 0.0215878 | 0 / 0.111398 | 0 / 0.391379 |
+| revolver | `speedloader_loaded` | 1024 | 1.000 | 8 | 6,513,196 | 548,644 | 654,268 | 0 / 0 | 0 / 0.0662934 | 0.000105483 / 0.164486 | 0.00011086 / 0.538116 |
+| lever | `cartridge` | 1024 | 1.000 | 8 | 7,216,192 | 595,532 | 651,104 | 0 / 0 | 0 / 0.282336 | 0 / 0.34198 | 0 / 0.449821 |
+| lever | `case` | 1024 | 1.000 | 8 | 7,197,348 | 651,064 | 713,488 | 0 / 0 | 0 / 0.20259 | 0 / 0.325882 | 0 / 0.562704 |
 
 The fourteen completed items total **97,110,204 → 7,329,780 bytes**
 (92.45% smaller than their original full-atlas deliveries).
@@ -73,29 +74,67 @@ Each has one material, three maps, unchanged triangles and unchanged origins.
 Full per-channel/per-level errors, density and geometry comparisons are in
 `build/mipmaps/proof-partial.json`.
 
-## Allocation exceptions still needed
+## Shape-aware fit study: stopped at the 70% floor
 
-Even with the 6 px fallback, the current nonrotating guarded rectangles need:
+The fourteen accepted sets are unchanged. The three remaining sets must stay
+at 1024; the earlier 2048 proposal is rejected and no such export was made.
 
-| Item | Guarded rectangle area | Available at 1024 | Proposed size |
-| --- | ---: | ---: | ---: |
-| Pistol loaded magazine | 1,107,712 px | 1,048,576 px | 2048 |
-| Bolt empty magazine | 1,582,080 px | 1,048,576 px | 2048 |
-| Bolt loaded magazine | 2,044,800 px | 1,048,576 px | 2048 |
+A prototype packs guarded island masks, rather than rectangles, with integer
+translations only. It considers all 64 integer phases of the 8-pixel mip grid
+and tries height-, occupied-area-, and longest-extent placement orders. Guard
+masks use the exact bilinear footprint plus the accepted 6 px minimum. They
+also reserve the complete mip blocks touched by those guards.
 
-The bolt magazines also exceed 1024 under a conservative count of their
-actual six-pixel guarded footprints, before rectangle waste: at least
-1,200,829 and 1,491,937 texels for disjoint guards, measured in
-`build/mipmaps/area.log`. A different rectangle
-arrangement cannot solve those two. The pistol result is a bound for this
-conservative rectangle packer. Shape-aware packing would be a separate avenue
-for that magazine. No density was reduced to force an item into its old size.
+| Item | Islands | Full-density guarded pixels, before grid rounding | Minimum phase-aware mip-mask pixels | Full-density result |
+| --- | ---: | ---: | ---: | --- |
+| Pistol loaded magazine | 282 | 879,512 | 1,015,360 | Three placement orders failed; this is not an impossibility proof |
+| Bolt empty magazine | 1,223 | 1,287,175 | 1,493,888 | Mask area exceeds 1,048,576 |
+| Bolt loaded magazine | 1,560 | 1,604,189 | 1,875,712 | Mask area exceeds 1,048,576 |
 
-The fired shotgun hull moved from **512 to 1024**, as authorized by the brief.
-All other completed size choices are retained. The empty pistol magazine and
-SMG magazines use the tested 6 px fallback to retain 1024. A three-map set with
-8-bpp block compression and full mip chains costs about 1 MiB at 512, 4 MiB at
-1024, or 16 MiB at 2048. No 2048 standalone option has been added yet.
+At a 0.70 density ratio, the loaded bolt magazine's rasterized 6 px guards
+still occupy **1,147,971 pixels**, before grid rounding or packing waste.
+An independent read of the original finalized Blender UVs confirms a stronger,
+placement- and pixel-phase-independent obstruction:
+
+| Loaded bolt magazine, at 70% density | Pixels |
+| --- | ---: |
+| Conservative minimum for disjoint 6 px guarded bilinear footprints | **1,049,203** |
+| 1024 map capacity | **1,048,576** |
+| Unavoidable excess before packing waste | **627** |
+
+The resulting necessary density upper bound is **0.6995305503**. This is an
+upper bound, not a fitted solution; an actual arrangement could require less.
+It is below the permitted 0.70, so work stopped under the brief's explicit rule.
+No scaled images were generated, and the three magazines were not exported.
+
+The bound is computed from the original source's 1,560 islands / 4,976 triangles.
+For each island, triangle area minus all pairwise intersections gives a
+conservative union-area lower bound. Successive horizontal/vertical dilation
+then gives a lower bound on the area expanded by a 6.5 px square. A bilinear
+footprint plus six pixels of dilation covers that region with unit texel cells;
+taking each island's integer ceiling before summing gives the bound above.
+Axis-projection lengths are measured as unions of intervals, so disconnected
+projections do not inflate the result. A small numerical safety deduction is
+applied before each ceiling. Every coefficient increases monotonically with
+density; this rules out all ratios at or above 0.70, rather than just one raster
+phase or one placement heuristic.
+
+Reproducible working evidence is under `build/magazine-fit/`:
+`mask_pack.py`, `mask-pack.log`, `capture_source.py`, `floor_bound.py`,
+`floor-bound.json`, `exact_source.py`, and `exact-source-area.json`.
+All 23 existing gun/detachable GLBs and all 111 docs JPG hashes were rechecked
+unchanged. Kit source and exporter code were not modified in this fit study.
+The scaled-item comparison, pistol/bolt re-export/checks and three new render
+pairs were therefore not run; the stop condition precedes those steps.
+
+The existing fourteen-item bytes and error table above remains valid. There is
+no completed corrected delivery total for all seventeen. The current mixed
+filesystem total is 10,960,640 bytes, which includes the three unresolved legacy
+files; it must not be reported as a completed mip-correct total.
+
+The fired shotgun hull remains 1024; every other accepted size is unchanged.
+At 8-bpp block compression, three maps with full mips cost about 1 MiB at 512
+or 4 MiB at 1024. No 2048 magazine is proposed or supported.
 
 ## New render proof
 
@@ -139,7 +178,7 @@ All six raw main GLBs match the preserved branch-point baseline byte-for-byte;
 gun checks. The fourteen completed items retain 27,076 triangles and one
 material each, with 270,760 independent base-level surface samples. The worst
 pointwise mip-error excess is 0.0000333611, below the 1/255 tolerance.
- The revolver needed two additional exact-signature MikkTSpace anchors
+The revolver needed two additional exact-signature MikkTSpace anchors
 for one last-decimal tangent component each; the existing kit utility bounds
 each correction to one 0.0001 step. All other main bytes remain untouched.
 An interrupted intermediate revolver check was repeated after the final guards.
@@ -158,5 +197,6 @@ follow-up’s new mip checks. The original density choices and no-rebake policy
 are preserved. Only the explicitly documented hull promotion and pending
 allocation exceptions differ from those choices.
 
-This follow-up is not finished until the three size exceptions are resolved,
-the remaining items are exported/rendered, and pistol/bolt full checks pass.
+This follow-up stopped at the explicit 70% floor. Completing the remaining
+three items requires a change beyond the present fitting constraints; no
+2048, sub-70% density or unapproved guard reduction was used.

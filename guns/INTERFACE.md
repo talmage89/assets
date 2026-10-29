@@ -72,7 +72,7 @@ ORM atlas. Standalone detachables now embed their own 512 or 1024 subsets at the
 same texel density, with unchanged geometry and spawn frames. Rebuilt standalone
 sets inherit the gun’s `LINEAR_MIPMAP_LINEAR` / `LINEAR` sampler and repeat
 wrapping; retain these imported samplers. See [delivery details](DETACHABLES.md)
-for gutters, fill and the three pending allocation exceptions.
+for gutters, fill and the unresolved 1024 capacity limits.
 
 ## Additive 1.1.0 tube-loading supplement
 

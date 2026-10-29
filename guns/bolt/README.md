@@ -244,8 +244,9 @@ The rifle retains its canonical **2048** atlas, approximately **16 MiB compresse
 with mipmaps**. Standalone loaded/empty magazines now carry their own **1024**
 sets; the fired case carries **512**, preserving the original atlas density.
 The case now matches the gun’s trilinear mipmapped sampler, at about 1 MiB
-compressed with mipmaps. Both magazines need wider-gutter allocation
-exceptions and remain pending. See [delivery details](../DETACHABLES.md) for padding,
+compressed with mipmaps. Both magazines remain unresolved at 1024. The
+shape-aware study stopped because the loaded magazine cannot fit at the
+permitted 70% density floor with the retained 6 px guard policy. See [delivery details](../DETACHABLES.md) for padding,
 measurements and old/new comparison evidence.
 The native-scale stock/cap wear comparison is built at
 `renders/final/pairs/hero-wear-pair.jpg`; photographic scale estimates and coating

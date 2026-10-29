@@ -245,7 +245,8 @@ mipmaps** for the gun. Standalone loaded/empty magazines now embed their own
 **1024** sets; the fired case embeds **512**. These are lossless subsets of the
 shipped atlas at its original density. The empty magazine and case now match
 the gun’s trilinear mipmapped sampler, costing about 4 MiB / 1 MiB compressed
-with mipmaps. The loaded magazine’s wider-gutter allocation is pending. See
+with mipmaps. The loaded magazine’s 1024 fitting remains unresolved; the family fit study
+stopped at the loaded bolt magazine’s 70% density floor. See
 [delivery details](../DETACHABLES.md) for migration status, sizes, density and
 old/new comparison evidence. `KHR_materials_specular` retains the .28 dielectric
 specular setting; no extra material or map is required.

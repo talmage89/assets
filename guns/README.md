@@ -35,7 +35,7 @@ primitives belong in `kit/`, rather than in a second weapons toolkit.
 Standalone detachable GLBs now carry their own 512 or 1024 texture subsets,
 with the gun atlases unchanged. [Delivery details](DETACHABLES.md) lists sizes,
 density, mipmapped sampling and the old/new preservation proof, including
-the current allocation exceptions.
+the current capacity limits.
 
 ### Triggers
 
