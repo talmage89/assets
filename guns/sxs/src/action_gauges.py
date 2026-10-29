@@ -16,7 +16,8 @@ def circle(points):
  return center,r,float(np.max(abs(np.linalg.norm(p-center,axis=1)-r)))
 def measure(arm):
  W.pose(arm,'Idle',0);rows={};body=np.array(motion.surface(part('Action_Body'))['points'])
- barrels=np.r_[section('Barrel_R',1,.1155),section('Barrel_L',1,.1155)]
+ barrels=np.r_[np.array(motion.surface(part('Barrel_R'))['points']),np.array(motion.surface(part('Barrel_L'))['points'])]
+ barrels=barrels[abs(barrels[:,1]-.115)<1e-7]
  top=float(barrels[:,2].max());barrel_width=float(np.ptp(barrels[:,0]))
  fences=[]
  for side,name in [(1,'right'),(-1,'left')]:
@@ -50,7 +51,9 @@ def measure(arm):
    fitted_roll_front_y_mm=yc*1000,photo_rounding_estimate_mm=[18,20]))
  rows['fences']=fences
  p=section('Action_Body',1,.1149);p=p[p[:,2]>.0439]
- rows['fence_pair_width_mm']=float(np.ptp(p[:,0])*1000);rows['barrel_breech_width_mm']=barrel_width*1000
+ rows['fence_pair_section_width_mm']=float(np.ptp(p[:,0])*1000)
+ crowns=body[(body[:,1]>.095)&(body[:,1]<.11501)&(body[:,2]>.04399)]
+ rows['fence_pair_width_mm']=float(np.ptp(crowns[:,0])*1000);rows['barrel_breech_width_mm']=barrel_width*1000
  steps=[]
  for side in (-1,1):
   for z in (.016,.020,.024,.0255):

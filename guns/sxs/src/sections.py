@@ -6,12 +6,15 @@ from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[3];sys.path.insert(0,str(ROOT));sys.path.insert(0,str(Path(__file__).parent))
 from kit import weapon as W,weapon_verify as V
 BASE=Path(__file__).resolve().parents[1]
-CUTS=[('Fence domes',1,.108,(0,2),('Action_Body',)),
+CUTS=[('Concentric fence rolls',1,.108,(0,2),('Action_Body',)),
  ('Shoulder and head',1,.096,(0,2),('Action_Body','Stock_Walnut','Top_Strap','Top_Lever')),
  ('Barrels at breech',1,.117,(0,2),('Barrel_R','Barrel_L','Solid_TopRib','Extractor_Rim_R','Extractor_Rim_L')),
  ('Barrels at muzzle',1,.7749,(0,2),('Barrel_R','Barrel_L','Solid_TopRib','Bottom_Rib')),
  ('Action at knuckle',1,.1703,(0,2),('Action_Body','Hinge_Pin','Barrel_Hook','Forend_IronCup_R','Forend_IronCup_L')),
  ('Action at bar',1,.145,(0,2),('Action_Body','Breech_Lumps','Bottom_Rib')),
+ ('Flush plate seam',1,.1005,(0,2),('Action_Body','Trigger_Plate')),
+ ('Front trigger slot',1,.064,(0,2),('Trigger_Plate','Front_Trigger')),
+ ('Rear trigger slot',1,.031,(0,2),('Trigger_Plate','Rear_Trigger')),
  ('Knuckle side section',0,.014,(1,2),('Action_Body','Forend_IronCup_R','Forend_Iron')),
  ('Standing breech',1,.1146,(0,2),('Action_Body','Bushing_R','Bushing_L','PinFace_R','PinFace_L')),
  ('Forend rear',1,.211,(0,2),('Forend_Walnut','Barrel_R','Barrel_L','Forend_Iron','Bottom_Rib')),
@@ -44,7 +47,7 @@ def capture(path,dense=False):
   rows.append(dict(title=title,plane='XYZ'[axis],station_mm=station*1000,axes=['XYZ'[k] for k in projection],parts=parts,part_sizes_mm={name:[max(p[k] for seg in ss for p in seg)-min(p[k] for seg in ss for p in seg) for k in (0,1)] for name,ss in parts.items()},bounds_mm=b,size_mm=[hi-lo for lo,hi in b]))
  return rows
 def main():
- game=BASE/'build/sxs.glb';source=BASE/'build/sxs.blend';out=BASE/'renders/checkpoint/sections';out.mkdir(parents=True,exist_ok=True)
+ game=BASE/'export/sxs.glb';source=BASE/'build/sxs.blend';out=BASE/'renders/checkpoint/sections';out.mkdir(parents=True,exist_ok=True)
  result=dict(source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),glb_sha256=hashlib.sha256(game.read_bytes()).hexdigest(),dense=capture(source,True),game=capture(game))
  (out/'sections.json').write_text(json.dumps(result,indent=2))
  from PIL import Image,ImageDraw,ImageFont
@@ -60,6 +63,27 @@ def main():
   for row,color,width in [(h,(29,145,144),4),(g,(142,63,35),1)]:
    for ss in row['parts'].values():
     for seg in ss:d.line([xy(p) for p in seg],fill=color,width=width)
+  # Review-only arrows identify construction landmarks on the measured
+  # sections. They do not enter the geometry or its acceptance probes.
+  notes={
+   'Concentric fence rolls': [('bore axis',(12.618,44)),('bore axis',(-12.618,44))],
+   'Action at bar': [('ground side',(25.95,20)),('rounded lower arris',(-23,5.8))],
+   'Flush plate seam': [('shared lower skin',(20,1.6))],
+   'Front trigger slot': [('6.0 mm slot / 5.4 mm blade',(5.6,6.5))],
+   'Rear trigger slot': [('6.0 mm slot / 5.4 mm blade',(-5.6,2.8))]}
+  from landmarks import arrow
+  for i,(label,point) in enumerate(notes.get(g['title'],[])):
+   start=(22,111+i*34);d.text(start,label,font=small,fill=(25,75,70))
+   if label!='bore axis':
+    from mathutils import Vector
+    target=Vector(point);nearest=[]
+    for values in g['parts'].values():
+     for a,b in values:
+      a,b=Vector(a),Vector(b);delta=b-a
+      t=max(0,min(1,(target-a).dot(delta)/max(delta.length_squared,1e-20)))
+      nearest.append(a+delta*t)
+    point=min(nearest,key=lambda p:(p-target).length_squared)
+   arrow(d,(220,123+i*34),xy(point),color=(20,115,105))
   d.text((16,598),'teal: dense/source / brown: imported GLB',font=small,fill=(25,36,31))
   d.text((16,625),' / '.join(g['parts']),font=small,fill=(25,36,31));panels.append(im)
   im.save(out/(g['title'].lower().replace(' ','-')+'.jpg'),quality=92,optimize=True)

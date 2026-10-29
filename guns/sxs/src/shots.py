@@ -1,5 +1,6 @@
 """Asset-owned checkpoint cameras, including the exact Eye socket."""
 import math
+FINAL_STAGE=True
 SHOTS={
  'hero':dict(location=(1.50,-.74,.73),target=(0,.23,.005),lens=60,aspect=1.8),
  'side':dict(location=(2,.235,-.018),target=(0,.235,-.018),ortho=1.20,aspect=4),

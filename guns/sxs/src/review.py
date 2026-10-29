@@ -1,7 +1,7 @@
 """Checkpoint evidence sheets, measured orthos and current-source provenance.
 
-Never writes docs images or implies a baked/final delivery. Photographs are
-comparison-only; every rendered view is tied to the current GLB or dense source.
+Never writes docs images or implies final finish acceptance. Photographs are
+comparison-only; current gun renders are tied to the baked 2048 GLB.
 """
 import json,sys,hashlib,math
 from pathlib import Path
@@ -33,13 +33,15 @@ def dimensions(stats):
   im=im.resize((1600,round(im.height*1600/im.width)),Image.Resampling.LANCZOS);sheet.paste(im,(0,y));y+=im.height
  sheet.save(OUT/'dimensions.jpg',quality=92,optimize=True)
 def main():
- digest=sha(BASE/'build/sxs.glb');stats=json.loads((BASE/'build/serialization.json').read_text());assert stats['sha256']==digest
+ from landmarks import main as landmark_rakes
+ landmark_rakes()
+ digest=sha(BASE/'export/sxs.glb');stats=json.loads((BASE/'build/serialization.json').read_text());assert stats['sha256']==digest
  current=0
- for folder,expected in [('beauty',digest),('photos',digest),('source-photos',sha(BASE/'build/sculpt.blend')),
+ for folder,expected in [('beauty',digest),('photos',digest),
   ('shell',sha(BASE/'build/shell.glb')),('hull',sha(BASE/'build/hull.glb')),('opening-wide',digest)]:
   meta=json.loads((OUT/folder/'shots.json').read_text())
   for name,row in meta.items():assert row['sha256']==expected,(folder,name,'stale source');current+=1
-  if folder in ('photos','source-photos'):
+  if folder=='photos':
    calibration=json.loads((BASE/'build/cameras.json').read_text())
    for name,row in meta.items():
     for key in ('location','target','lens','roll','aspect'):
@@ -53,9 +55,9 @@ def main():
    elapsed=0
    for i in range(im.n_frames):im.seek(i);im.load();elapsed+=im.info.get('duration',0)
    assert elapsed==row['duration_ms'],name
- for filename,source in [('check.json','sxs.blend'),('import-check.json','sxs.glb')]:
+ for filename,source in [('check.json',BASE/'build/sxs.blend'),('import-check.json',BASE/'export/sxs.glb')]:
   result=json.loads((BASE/'build'/filename).read_text());assert result['passed'] and result['all_clips']
-  assert result['source_sha256']==sha(BASE/'build'/source),'Stale '+filename
+  assert result['source_sha256']==sha(source),'Stale '+filename
  assert json.loads((BASE/'build/repeat.json').read_text())['passed']
  sec=json.loads((OUT/'sections/sections.json').read_text());assert sec['glb_sha256']==digest and sec['source_sha256']==sha(BASE/'build/sxs.blend')
  records=stats['imported_contacts']['records']
@@ -65,11 +67,10 @@ def main():
  names=['hero','side','left','top','front','rake_right','rake_left','open','breech','action','action_left','triggers','trigger_quarter','forend','stock','muzzle','top_controls','lumps','aimed','action_rake_right','action_rake_left','action_rake_top','action_rake_bottom']
  beauty=[OUT/'beauty'/(name+'.png') for name in names]
  gray(OUT/'beauty/hero.png').save(OUT/'hero-gray.jpg',quality=94,optimize=True)
- review_sheet([beauty[i:i+2] for i in range(0,len(beauty),2)],OUT/'contact-sheet.jpg',width=2400,title='Covey 26 / FORM CHECKPOINT / imported unbaked GLB')
+ review_sheet([beauty[i:i+2] for i in range(0,len(beauty),2)],OUT/'contact-sheet.jpg',width=2400,title='Covey 26 / FORM CHECKPOINT / imported baked 2048 GLB')
  for i in range(0,len(beauty),4):review_sheet([beauty[j:j+2] for j in range(i,min(i+4,len(beauty)),2)],OUT/(f'review-page-{i//4+1}.jpg'),width=2400,title='Current exported form / '+', '.join(names[i:i+4]))
  pairs=[OUT/'pairs'/(name+'-pair.jpg') for name in ('right','left','action','action_left','action_top','action_bottom','open','barrel_flats','forend','forend_side','trigger')]
  review_sheet([[p] for p in pairs],OUT/'photo-pairs.jpg',title='Class photographs / same calibrated framing / see native resolution limits')
- review_sheet([[OUT/'source-pairs'/(name+'-pair.jpg')] for name in ('right','left','action','action_left','action_top','action_bottom','open','barrel_flats','forend','forend_side','trigger')],OUT/'source-photo-pairs.jpg',title='Dense sculpt sources / same photographic comparisons')
  contact([OUT/'strips'/(name+'.jpg') for name in timing],OUT/'clips.jpg',width=2400,title='19 clips / uniform 15 Hz frames / adjacent WebPs play at real durations')
  wide=json.loads((OUT/'opening-wide/shots.json').read_text())
  contact([OUT/'opening-wide'/(name+'.png') for name in wide],OUT/'opening.jpg',width=2000,title='Open / full-gun frame strip / uniform 15 Hz / 1.20 seconds')
@@ -83,7 +84,7 @@ def main():
  lines=['<!-- CHECKPOINT_STATS -->','', '| Inspection output | Triangles | GLB bytes |','| --- | ---: | ---: |',
   f"| Gun, all staged alternatives | {stats['triangles']:,} | {stats['glb_bytes']:,} |"]
  for name,row in stats['standalones'].items():lines.append(f"| {name.title()} | {row['triangles']:,} | {row['bytes']:,} |")
- lines += ['',f"{stats['parts']} named rigid meshes, {stats['bones']} bones, {stats['clips']} clips, {stats['sockets']} sockets; {stats['materials']} temporary inspection materials and **zero texture images**.",'']
+ lines += ['',f"{stats['parts']} named rigid meshes, {stats['bones']} bones, {stats['clips']} clips, {stats['sockets']} sockets; {stats['materials']} atlas material and **three 2048 texture images** (4096 GPU source bake).",'']
  readme.write_text(text[:a]+'\n'.join(lines)+text[b:])
  print('CHECKPOINT REVIEW PASS',current,'current render records;',len(timing),'real-duration clips;',OUT/'contact-sheet.jpg')
 if __name__=='__main__':main()

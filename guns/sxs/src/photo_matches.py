@@ -53,11 +53,11 @@ MATCHES={
   ((0,-304.6,-5),(39,350),.4),((0,-296.2,-117),(52,435),.4)]),
  'action':spec('plain-3',(690,270,1580,780),'Right action / plain 12-gauge boxlock',(.7,.10,.15),(0,.10,.03),[
   ((26.1,115,44),(1040,485),1),((22,70,42),(850,400),1),
-  ((19,70,7),(850,730),1),((21.5,170,19),(1470,630),1),
+  ((19,70,7),(850,730),1),((25.95,170,19),(1470,630),1),
 ]),
  'action_left':spec('plain-4',(300,220,1100,735),'Left action / plain 12-gauge boxlock',(-.7,.10,.15),(0,.10,.03),[
   ((-26.1,115,44),(805,430),1),((-22,70,42),(995,350),1),
-  ((-19,70,7),(1010,680),1),((-21.5,170,19),(400,590),1)]),
+  ((-19,70,7),(1010,680),1),((-25.95,170,19),(400,590),1)]),
  'action_top':spec('plain-2',(110,660,380,1235),'Top / fences and forged lever',(.03,-.07,.7),(0,.075,.045),[
   ((26,115,44),(350,700),1),((-26,115,44),(140,700),1),
   ((0,94,55.5),(240,790),.7),((8,54,50),(240,1020),.7),
@@ -95,23 +95,23 @@ def observed(name,points,location=None,target=None,crop=None):
 observed('action',[
  ('breech crown',(12.6,115,57.35),(1043,311),1),
  ('breech lower corner',(24.0,115,31),(1045,531),1),
- ('hinge pin center',(21.5,170,19),(1421,625),1),
+ ('hinge pin center',(25.95,170,19),(1421,625),1),
  ('front trigger root',(2.6,71,7),(700,755),.7)],
  location=(.9,.1,.13),target=(0,.1,.03),crop=(600,260,1530,820))
 observed('action_left',[
  ('breech crown',(-12.6,115,57.35),(805,270),1),
  ('breech lower corner',(-24,115,31),(803,480),1),
- ('hinge pin center',(-21.5,170,19),(402,580),1)],
+ ('hinge pin center',(-25.95,170,19),(402,580),1)],
  location=(-.9,.1,.13),target=(0,.1,.03))
 observed('action_top',[
- ('breech right corner',(26,115,44),(350,700),1),
- ('breech left corner',(-26,115,44),(141,703),1),
+ ('breech right corner',(25.95,115,44),(350,700),1),
+ ('breech left corner',(-25.95,115,44),(141,703),1),
  ('lever boss center',(0,94,49),(231,800),1),
  ('lever tail',(.6,21,29),(263,1071),.35),
  ('safety center',(0,5,24),(260,1120),.4)],
  location=(.02,-.03,.8),target=(0,.075,.045))
 observed('action_bottom',[
- ('hinge pin center',(-21.5,170,19),(382,337),1),
+ ('hinge pin center',(-25.95,170,19),(382,337),1),
  ('front guard seat',(0,74,7),(268,699),1),
  ('rear guard seat',(0,10,-9),(252,1081),1)],
  location=(-.32,.1,-.70),target=(0,.1,.015))
@@ -127,7 +127,7 @@ observed('open',[
  ('far breech crown',opened((12.6,115,57.35)),(866,169),1),
  ('near breech crown',opened((-12.6,115,57.35)),(864,209),1),
  ('near breech heel',opened((-12.6,115,30.65)),(906,342),1),
- ('hinge pin center',(-21.5,170,19),(723,460),1)],
+ ('hinge pin center',(-25.95,170,19),(723,460),1)],
  location=(-.5,.5,.14),target=(0,.13,.045),crop=(660,130,1070,500))
 for name,row in MATCHES.items():
  if name not in ('left','right'):

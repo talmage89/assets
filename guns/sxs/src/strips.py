@@ -3,4 +3,4 @@ import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[3]))
 import interface
 from guns.common.strips import main
-main(Path(__file__).resolve().parents[1],interface,source='build/sxs.glb')
+main(Path(__file__).resolve().parents[1],interface,source='export/sxs.glb')
