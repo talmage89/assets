@@ -2,8 +2,8 @@
 
 Additive to [1.0.0](../INTERFACE.md), retaining the per-chamber vocabulary of
 the revolver's [1.4.0](../revolver/INTERFACE.md) and the shotgun's shell-guide
-frames in [1.1.0](../shotgun/INTERFACE.md). Versions 1.5.0 and 1.6.0 are reserved
-for the lever-action and stamped-receiver members. No existing meaning changes.
+frames in [1.1.0](../shotgun/INTERFACE.md). The 1.5.0 lever-action and 1.6.0 stamped-receiver supplements retain their
+meanings. No existing meaning changes.
 
 This member declares `break_action`, `barrel_count=2`, `double_triggers`,
 `automatic_safety`, `extractors` and `magazine=false`. It has no ejectors,
@@ -35,11 +35,12 @@ two-shot demonstration must never overwrite its ammunition bookkeeping.
 Every clip has complete boundary keys. Root stays identity. Apply stance,
 recoil and whole-gun inspect motion to the complete scene instance externally.
 Meters, palm origin; Blender +Y forward, +Z up, +X right; glTF −Z forward/+Y up.
-The Eye optical frame points down approximately 0.793 degrees from +Y to
-the bead. Its offset is measured on this mesh as 49.31 mm above the comb; the vertical
-human fit is authored and remains without an anthropometric citation. The
-fore/aft cheek station is 35 mm behind the comb nose, within the cited fitting
-range (see README).
+The Eye optical frame points down approximately 0.374 degrees from +Y to
+the bead. The accepted cheek station remains 35 mm behind the comb nose.
+The vertical location now follows the CPSA sporting coin-rule sight picture:
+eye Z≈60.500 mm, 42.811 mm above the actual comb, derived from the actual rib
+and the bead (see README and refs/SOURCES.md). This is a fitted visual view,
+not an anthropometric measurement or a personal ergonomic fit test.
 All other socket frames retain the gun basis. This is the same optical-frame
 meaning as 1.0.0, with the pitch required by this member's stock and rib.
 

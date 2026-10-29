@@ -1,3 +1,275 @@
+# Covey 26 — form round 3: action
+
+This is a form review, before finish/look-dev. The current inspection GLB has
+constant materials and no texture images. Fine edge-radius/checkering normal
+bakes and used finishes are still held; vertex-normal transfer from our own
+dense sources is not described as a texture bake. No final docs JPGs are committed.
+The accepted stock drops, cheek station, overall/barrel length, trigger blades,
+rig, 19 clip schedules, 1.7.0 meanings and ammunition are retained.
+
+## Current region review
+
+Each entry names what still differs from the photograph. Passing geometry or
+camera checks does not approve the look. Native pairs include unobscured panels,
+a review-only photo outline over the render, and numbered residual arrows.
+Black-background macros have no defensible neutral: unity gains remain explicit.
+The white dealer backdrop supplies the whole-gun comparison balance. Neither
+case color nor bluing is assumed to be neutral, and no finish match is claimed.
+
+- **Fences and standing breech.** Replaced the flat-topped shoulders and melted
+  crown with genuine round dome patches joined into one closed action skin.
+  The barrel ends meet the standing-breech plane, without the former rectangular
+  shoulder under them. The photo's fence roll is less proud and has a more
+  delicate transition into its strap channel. Ours retains about 1.45 mm of
+  fence crown above the tube crown and a broader central land; the reference's
+  exact exterior radius is not independently calibrated. Inspect
+  [right action pair](renders/checkpoint/pairs/action-pair.jpg),
+  [left action pair](renders/checkpoint/pairs/action_left-pair.jpg),
+  [loaded breech](renders/checkpoint/beauty/breech.png), the fence and standing
+  breech sections, and both action raking sides.
+- **Ground faces, bar and knuckle.** The sides and upper shoulders are explicit
+  planes. The bar's lower edge sweeps up, its underside rolls into a narrower
+  neck, and the concentric knuckle continues the same skin. Its cross-pin ends
+  are flush circles. The photo has a more uniform, softer lower neck and more
+  subtle arrises; ours has a stronger shoulder-to-side break and a small front
+  hook pocket. The long underside opening is covered. No render or check
+  relabels that remaining pocket as the photo's shallow plate joint. Inspect
+  [underside pair](renders/checkpoint/pairs/action_bottom-pair.jpg),
+  [right rake](renders/checkpoint/beauty/action_rake_right.png),
+  [left rake](renders/checkpoint/beauty/action_rake_left.png),
+  [bottom rake](renders/checkpoint/beauty/action_rake_bottom.png), and the bar,
+  knuckle, knuckle-side and floor/lump sections.
+- **Short upper body and wood head.** The upper head ends just behind the
+  fences; wood comes forward beside the strap. The strap continues alone
+  along the wrist. The photo has deeper rounded fingers and a less diagonal
+  side seam. Ours uses simpler ground shoulders and a more pronounced diagonal
+  inletting line. Inspect
+  [top pair](renders/checkpoint/pairs/action_top-pair.jpg),
+  [top rake](renders/checkpoint/beauty/action_rake_top.png),
+  [controls](renders/checkpoint/beauty/top_controls.png), and the shoulder/head
+  section. The accepted straight hand, pull and comb/heel drops remain.
+- **Top lever and safety.** The lever is long, narrow and tapered, lying close
+  above the strap on a round boss, below the fence crowns. Its closed tail
+  follows the strap instead of swinging across it. The photo's tail is more
+  pointed and its boss sits a little farther behind the fences. The accepted
+  lever pivot and 25-degree clip travel remain. The safety stays farther back
+  in its original guide/detents; its checkering remains a later normal field.
+  Inspect the top pair, controls, aimed view, and Safety/SafetyOn/Open strips.
+- **Guard and triggers.** The bow is a broad flat band with a swept front
+  return and a rear wrist tang. The photo's rear return curls more sharply
+  and its lower bow is less shallow. Both accepted trigger blades keep their
+  forward-facing concavity, forward toes, pivots, pull direction and barrel
+  assignment. The photo's front blade is longer/more delicate; it was not
+  changed to conceal a framing residual. Inspect
+  [trigger pair](renders/checkpoint/pairs/trigger-pair.jpg),
+  [three-quarter blades](renders/checkpoint/beauty/trigger_quarter.png),
+  underside pair and Fire/FireLeft strips.
+- **Aimed view and rib.** The cited sporting sight picture now derives the eye
+  height from the actual rib and bead, preserving the cheek station and stock
+  drops. A short forward rib leads to the bead between the fences, with the
+  lever/action below. The original dip after the chambers hid that surface;
+  the sighting surface now follows the straight line between its accepted
+  breech/muzzle endpoint heights. Joined flats and the seated valley filler
+  remain. The rib is still broad at the rear; matting is held. Inspect the
+  exact [socket view](renders/checkpoint/beauty/aimed.png), both barrel sections
+  and the top orthographic view. No raised presentation eye substitutes for
+  the socket, and no human mesh/personal fit is certified.
+- **Forend and iron.** Kept the accepted 34.4 × 24.2 × 173 mm envelope. Replaced
+  the sausage side with a flat land, defined lower edge, nearly straight taper
+  and a supported slanted nose. Dense sculpt normals carry the carved surface
+  without increasing the wood budget. Our plan-view nose is more squared off than the photo, the lower profile
+  remains deeper forward of the latch, and the iron wraps less far up the
+  wood. The original inset latch and two bearing cups remain simpler. Inspect
+  [side pair](renders/checkpoint/pairs/forend_side-pair.jpg),
+  [underside pair](renders/checkpoint/pairs/forend-pair.jpg),
+  [forend](renders/checkpoint/beauty/forend.png), both forend sections and reload
+  strips. There is no hand mesh; guide/shell clearance does not prove hand fit.
+- **Open breech, extractor and ammunition.** Loaded above/behind views show
+  the accepted shells in the extractor. The open photographic pose remains
+  an empty, 30-degree comparison; canonical clips still open 42 degrees.
+  The reference's broad upper extension differs from our narrower under-lug
+  construction and cannot be used as a shared camera landmark. Our chamber
+  backs/extractor and its exterior flats remain visibly different construction.
+  Inspect [open pair](renders/checkpoint/pairs/open-pair.jpg),
+  [detached flats](renders/checkpoint/pairs/barrel_flats-pair.jpg), loaded breech,
+  lumps, opening strip and all reload/unload strips. The calibrated open
+  camera is explicitly constrained to the muzzle-side hemisphere; a low-RMS
+  chamber-facing fit was rejected. No clip or ammunition dimension changed.
+
+## Round 3 critique log
+
+12. **Planes and domes.** Color/value: retained dark inspection steel and checked
+    unclipped raking highlights; the black reference has no neutral for a hue
+    claim. The old crown and rounded-box shoulders were visibly melted. The
+    first replacement still produced a curtain at the height-field boundary.
+    Rejected it and rebuilt the domes as real closed spherical patches joined
+    to explicit ground planes, without a smooth union.
+13. **Head, controls and guard.** Color/value: made the underside readable with
+    the existing procedural inspection softbox, without claiming the photo's
+    case-color response. The full-width upper head still extended too far back
+    because its seam depended only on height. Brought its outer upper corners
+    forward, fitted the wood head, lowered/lengthened the narrow lever, added
+    its round boss and refitted the broad guard's front return. The accepted
+    trigger geometry and rig schedules remain.
+14. **Fitted eye and forend.** Color/value: compared the exact socket picture
+    against gray, judging bead and rib visibility. The old vertical offset
+    was unsupported; the primary sporting coin rule supplies a reproducible
+    sight-picture construction. It exposed the rib's longitudinal dip, which
+    was corrected while retaining endpoint sections and valley seats. The
+    forend's round side and nose were replaced by supported flat lands and a
+    defined slanted tip within the accepted envelope.
+15. **Photographic framing.** Color/value: black-backed macros remain form-only;
+    white whole-gun backdrops retain their recorded balance. Re-observed shared
+    breech corners, hinge, lever boss, visible trigger root and guard seats.
+    Held all macro review lenses at 150 mm, bounded the observed view within
+    20 degrees, and rejected an open fit on the wrong side of the breech.
+    Added native-pixel arrows and a separate silhouette overlay to every pair.
+    Sparse low residuals are not form acceptance. The underside remains the
+    least certain comparison; its seat/length differences cannot be explained
+    by one global translation or scale.
+16. **Final raking and reproducibility.** Color/value: checked the actual export's
+    side lands, dark cavities and rolling dome highlights. The underside's
+    lower-radius transition still broke abruptly, so rolled the exposed neck
+    across its section and eased it into the unchanged front bearing. Before
+    reduction, conditioned the constructive seams with the same 6 µm weld
+    used on the game mesh and a 1 µm coordinate grid. Canonical face/corner
+    order makes both reduction and dense-source normal transfer reproducible.
+    Independent builds retain the original strict 1 nm position/five-decimal
+    normal comparison, rather than loosening it to hide variation.
+
+17. **Head-section fit.** Color/value: reviewed the bright wood/metal seam in
+    the top pair before grain or finish could hide it. The stock cage still
+    sampled the narrower unwarped station after the action seam moved forward.
+    Matched the head section at its actual warped station and returned the
+    seam around the strap root. Cleared a small unsupported wood feather at
+    the front well rim instead of filling its resulting boundary triangle.
+    Retested the actual contacts, topology and all clips after rebuilding.
+
+18. **Latch-land normals.** Color/value: the flat underside pair exposed
+    star-shaped dark highlights around the routed latch. The transferred corner
+    normals were choosing an inlet wall for some corners on the exterior land.
+    Preserved the dense lower-land polygon normals and kept the reduced land's
+    own surface normals at the route. The clean underside preview removes the
+    stars without moving vertices, changing the accepted envelope or spending
+    more triangles. The surrounding carved corners retain smooth normals.
+
+## Photographic fit limits
+
+The 150 mm macro lens is a review-camera choice, not recovered EXIF. The
+observed hemisphere and 20-degree view cone prevent arbitrary orbiting, but
+three-point comparisons remain sparse. The left-action fit in particular
+cannot certify the rest of the shape. The open photo's differing extension is
+excluded from calibration. The photo outline is extracted only in the review
+compositor: no contour or image is read by modeling or shaders. Threshold
+lighting holes remain in some outlines; the unobscured photo panels are the
+authoritative visual comparison.
+
+The companion diagnostic fits a 2D similarity correction to the residuals.
+A large remainder demonstrates nonuniform disagreement; it cannot, by itself,
+distinguish a form difference from an uncertain landmark or perspective.
+The region critiques above supply that visual judgment. The underside's
+remaining disagreement is explicitly retained rather than minimized by fitting
+an unshared contour.
+
+## Measured form and source limits
+
+| Quantity | Actual exported surface | Reference basis |
+| --- | ---: | --- |
+| Lever length / thumb width | 78.45 / 7.09 mm | plain top photograph; estimated target 76–82 / 6.5–8 mm |
+| Round lever boss | 11.20 mm | plain top photograph; estimated target 10–12 mm |
+| Lever thickness | 1.89–1.93 mm | plain side photograph; about 1.5–2.1 mm |
+| Lever height above strap, underside gap | 0.67–1.33 mm | plain side photograph; about 0.5–1.5 mm |
+| Guard band width × thickness | 12.40 × 1.63 mm | plain underside/side; about 12–14 × 1.5–2.1 mm |
+| Eye above actual comb | 42.811 mm | CPSA sporting coin-rule construction; see below |
+| Eye above extended actual rib | 3.612 mm | same construction |
+| Forend overall W × D × L | 34.40 × 24.20 × 172.99 mm | accepted nominal 34.4 × 24.2 × 173 mm |
+| Forend rear, Y=211 mm | 34.16 × 22.54 mm | actual triangle-plane intersection |
+| Forend front, Y=320 mm | 28.24 × 16.16 mm | actual triangle-plane intersection |
+| Wrist, Y=-15 mm | 32.17 × 37.88 mm | actual triangle-plane intersection |
+
+Lever and guard reference sizes are explicitly photo-scale estimates, about
+10% uncertain, not published dimensions. Preview pixels, assumed exterior
+scale, native sources and licenses are recorded in [SOURCES.md](refs/SOURCES.md).
+Thickness is measured vertically through the actual lever at three stations;
+the gap is from its underside to the actual strap. Width excludes the boss
+where labeled thumbpiece. These are mesh measurements, not parameter echoes.
+
+At the accepted Y=−123 mm cheek station, the actual comb is Z=17.689 mm.
+The [CPSA handbook](https://www.cpsa.co.uk/userfiles/files/CTSH.pdf), printed p. 4-2,
+sets the sporting sight picture by a pound coin 200 mm ahead of the breech.
+Using the [Royal Mint historical 3.15 mm thickness](https://www.royalmint.com/collect/collector-resources/designs-and-specifications/one-pound-coin-designs/)
+and the actual rib Z=54.492 mm at Y=315 mm, the line to the
+bead center extends back to eye Z=60.500 mm. The local comb drop
+39.199 plus eye-above-rib 3.612 gives
+42.811 mm above the comb. The measured coin-ray error is
+0.000004 mm. This is a cited sight-picture fit, not an anatomical
+claim. The original Brownells cheek station and cited 38/63 mm drops remain.
+
+## Native photographic residuals
+
+| Pair | RMS px | Remainder after 2D similarity px | Interpretation |
+| --- | ---: | ---: | --- |
+| [right](renders/checkpoint/pairs/right-pair.jpg) | 4.11 | 3.89 | accepted whole silhouette; local form |
+| [left](renders/checkpoint/pairs/left-pair.jpg) | 5.60 | 5.30 | class stock/gauge differences; local form |
+| [action](renders/checkpoint/pairs/action-pair.jpg) | 55.73 | 55.03 | fence/breech proportions and original head seam; form |
+| [action_left](renders/checkpoint/pairs/action_left-pair.jpg) | 0.25 | 0.25 | three-point fit only; sparse evidence, not form acceptance |
+| [action_top](renders/checkpoint/pairs/action_top-pair.jpg) | 40.89 | 39.41 | boss station, head corners and tail; form |
+| [action_bottom](renders/checkpoint/pairs/action_bottom-pair.jpg) | 77.20 | 77.02 | guard seats/length; form plus perspective/landmark uncertainty |
+| [open](renders/checkpoint/pairs/open-pair.jpg) | 39.75 | 39.74 | different exterior extension/lug construction; form |
+| [barrel_flats](renders/checkpoint/pairs/barrel_flats-pair.jpg) | 12.51 | 12.49 | original lug/flats dimensions; form |
+| [forend](renders/checkpoint/pairs/forend-pair.jpg) | 2.87 | 2.84 | nose/iron proportions; local form |
+| [forend_side](renders/checkpoint/pairs/forend_side-pair.jpg) | 2.48 | 2.41 | lower profile/nose; local form |
+| [trigger](renders/checkpoint/pairs/trigger-pair.jpg) | 26.14 | 25.41 | guard return and accepted blade differences; form |
+
+No pair has a dominant residual that one additional global translation, scale
+or roll removes. This does not rule out perspective or observation uncertainty,
+especially in the underside. The open pair now crops out the guard and fits
+barrel rim corners and the hinge rather than the unshared extension.
+
+## Current verification
+
+`make -C guns/sxs` passes the complete form build and evidence audit.
+`make -C guns/sxs check` also passes a separate assembly/serialization run.
+The form GLB has **37,728 triangles**, 54 named rigid meshes,
+17 bones, 19 clips and 14 sockets. It is 1,765,484 bytes, with
+9 inspection materials and zero texture images. The source retains dense
+geometry for later normal baking. Normal-map radii/checkering, UV/atlas checks,
+finishes, wear and bake-loss assessment remain outside this form gate.
+
+The separate source/import checks pass topology, intended states, required
+surface contacts and all 19 half-frame sweeps, with no contact allow-list.
+They cover 1,715 / 1,728 samples, with 246 contact records each and
+0.11371 mm maximum penetration against a 0.20 mm visual tolerance. No mesh has
+nonmanifold edges, zero-area triangles or reversed volume. The joined tube
+separating-plane measurement remains a distinct check on the same-bone skins.
+
+Ground-side/shoulder plane probes measure at most 0.000118 mm departure from a
+best-fit plane over their sampled patches. Those measurements establish the
+geometric flats; the raking renders establish the highlight behavior.
+
+Independent fresh builds agree on all 104 geometry/normal/rig/socket/clip
+entries at the original 1 nm position and five-decimal normal comparison.
+Serialization separately compares 1,715 affine samples and event surfaces. Maximum
+affine position error is 0.000191 mm; event-surface displacement is at most
+0.000253 mm. This does not substitute for the contact sweeps.
+
+All current evidence is under `renders/checkpoint/`: `contact-sheet.jpg`,
+`photo-pairs.jpg`, `source-photo-pairs.jpg`, `sections/sections.jpg`,
+`clips.jpg`, `opening.jpg`, `strips/`, `ammunition.jpg`, and the individual
+beauty views linked above. The provenance/timing audit checks hashes and real
+clip durations. The audit confirms 305 current render records and 19 real-duration
+WebPs. Hero luma p1/p50/p99 is 1.07 / 47.87 / 205.59; deep shadows occupy 21.08%
+of the visible hero, with zero all-channel clipping. This is inspection tone,
+not albedo or finish acceptance.
+
+No kit or shared/common source changed. Main was merged before modeling; the
+family interface conflict retained all additive supplements. A general kit
+candidate is deterministic mesh/corner canonicalization before reduction,
+with explicit precision policy and regression fixtures. Nothing is needed
+from the lead beyond reviewing this form gate. No final docs images are added.
+
+## Round 2 record, superseded by the current region review
+
 # Covey 26 — form round 2
 
 Look-dev remains held. All current views are constant-material inspection

@@ -203,3 +203,59 @@ sections. Their exact millimeter agreement with these photos is not proven.
 The eight view-locked macro fits preserve the observed side of each part while
 fitting translation, focal estimate and roll; residuals are retained, not
 minimized by orbiting to a different side.
+
+## Round 3 exterior measurements and fitted sight picture
+
+The accepted dealer originals remain the form references. They contain no ruler
+or EXIF calibration. The following are **photo-scale estimates**, with about
+10% uncertainty, not published part dimensions. Measurements use the preview
+grid recorded in `src/photo_matches.py`; all residuals are reported in native
+pixels. The geometry does not consume the photographs or these outlines.
+
+| Region | Photographic observation and scale assumption | Inferred exterior target |
+| --- | --- | --- |
+| Lever, top (`plain-2.jpg`) | Fence span about 209 preview pixels, normalized to the accepted 54.8 mm exterior envelope: about 3.8 px/mm. Front of boss near Y=780; tail near Y=1071; thumbpiece about 27 px wide. Camera foreshortening and the class's individual fence width limit this estimate. | Length about 76–82 mm; thumbpiece 6.5–8 mm; round boss about 10–12 mm across. |
+| Lever, side (`plain-3.jpg`) | The breech tube's exterior spans about 211 preview pixels; the accepted 26.7 mm exterior supplies an approximate 7.9 px/mm scale. The narrow lever's visible section spans about 12–16 px, with about 4–12 px between its underside and strap. | Thickness about 1.5–2.1 mm; visible seat gap about 0.5–1.5 mm. Perspective, reflections and occlusion prevent submillimeter certainty. |
+| Guard band, underside (`plain-5.jpg`) | Body spans about 200–210 preview pixels; use the same accepted exterior envelope. The broad strip near the front bend spans about 45–50 px across the band. | About 12–14 mm wide. |
+| Guard band, side (`plain-3.jpg`) | Use the same breech-tube normalization. The thin band's exposed edge is roughly 12–16 px, excluding the reflected bright border. | About 1.5–2.1 mm thick. |
+
+These are measurements of the visible asset class, with an explicitly assumed
+scale. They are not copied manufacturing dimensions. The actual exported mesh
+is measured independently in `build/serialization.json` → `form_gauges`.
+The upper boss is round and the tail lies on the strap. Fine-radius and
+thumbpiece-checkering normal bakes remain pending at this form checkpoint. The guard's
+front return now sweeps back into the plate instead of ending as a vertical
+oval. Accepted trigger blades, pivots, direction and assignments are unchanged.
+
+New primary fitting sources, read 2026-10-29:
+
+| Local reference | URL | Author / license | Use |
+| --- | --- | --- | --- |
+| Online PDF; direct download returned 403 | [Primary handbook](https://www.cpsa.co.uk/userfiles/files/CTSH.pdf) | Clay Pigeon Shooting Association; compiled/edited by C. Stewart Meinert; copyright 2005, first edition 2006; local reference only | Printed p. 4-2 (PDF page 48), figures 4-5/4-6: a sporting sight picture has the center of the bead just visible above a pound coin laid on the rib 20 cm ahead of the standing breech. This is a sight-picture rule, not an anthropometric measurement. |
+
+[Royal Mint historical round-pound specifications](https://www.royalmint.com/collect/collector-resources/designs-and-specifications/one-pound-coin-designs/)
+give its thickness as 3.15 mm (Royal Mint, copyright retained; online reference
+only). That is the coin contemporaneous with the 2005
+handbook; the later 12-sided coin has a different thickness and is not used.
+The Brownells cheek station and the published 38/63 mm stock drops remain
+accepted. Brownells also describes a field pupil nearly touching the sighting
+plane; it supplies no numerical pupil radius, so no anatomical dimension is
+invented from that language.
+
+Construction of the visual eye: sample the actual rib at Y=315 mm, 200 mm in
+front of the Y=115 mm standing breech. Raise that point by 3.15 mm. Continue
+the line through the bead center (Y=766, Z=54.7 mm) back to the accepted
+Y=−123 mm cheek station. The evaluated rib yields Z≈54.492 mm at the coin,
+so the eye is Z≈60.500 mm. The actual comb there is Z≈17.689 mm: eye above
+comb ≈42.811 mm. Equivalently, the local comb drop ≈39.199 mm plus the fitted
+eye's ≈3.612 mm above the extended rib gives ≈42.811 mm. The comb-nose drop
+remains ≈38.02 mm; the cheek station is 35 mm farther back on the sloping
+comb. This derivation replaces round 2's unsupported 49.31 mm human offset.
+It represents this visual asset's fitted field view; no human mesh or personal
+fit is certified.
+
+The original rib dipped abruptly beyond the chambers, so the coin rule hid
+its forward surface. Its sighting surface now follows the straight line
+between the accepted breech and muzzle heights. Both endpoint sections, the
+joined tube flats and the seated valley filler are retained. The actual-rib
+coin-ray error and unobstructed bead/forward-rib rays are checked after import.
