@@ -23,12 +23,14 @@ def skin_field(name,loops):
  # reduction. A nearest triangle is only used on the original outer skin;
  # pocket walls, bore and planar end faces keep their independent fields.
  nr=len(loops);nc=len(loops[0]);points=[Vector(p) for row in loops for p in row]
+ area=sum(a[0]*b[2]-b[0]*a[2] for a,b in zip(loops[0],loops[0][1:]+loops[0][:1]))
+ winding=-1 if area>0 else 1
  normals=[];faces=[]
  for j in range(nr):
   for i in range(nc):
    across=Vector(loops[j][(i+1)%nc])-Vector(loops[j][(i-1)%nc])
    along=Vector(loops[min(j+1,nr-1)][i])-Vector(loops[max(j-1,0)][i])
-   normals.append(across.cross(along).normalized())
+   normals.append(across.cross(along).normalized()*winding)
  for j in range(nr-1):
   for i in range(nc):
    a=j*nc+i;b=j*nc+(i+1)%nc;c=b+nc;d=a+nc
@@ -698,12 +700,22 @@ def finalize(o):
   for f in o.data.polygons:
    if o.name=='Frame_Forging':
     if not (f.center.y<28 and f.center.z>40):continue
-    nearest=tree.find_nearest(f.center)
-    if nearest[0] is None or nearest[3]>.15:continue
+    values=[]
+    for j in f.loop_indices:
+     v=o.data.vertices[o.data.loops[j].vertex_index].co
+     p,_,index,distance=tree.find_nearest(v);ids=triangles[index]
+     n=barycentric_transform(p,*[points[k] for k in ids],*[field[k] for k in ids]).normalized()
+     values.append((distance,n))
+    # Classify a complete face from its vertices. A large crown triangle's
+    # centroid can lie below its curved source skin; corner-by-corner
+    # acceptance made triangular discontinuities beside the narrow cut.
+    if all(d<.25 and n.dot(f.normal)>.60 for d,n in values):
+     for j,(_,n) in zip(f.loop_indices,values):normals[j]=n
+    continue
    for j in f.loop_indices:
     v=o.data.vertices[o.data.loops[j].vertex_index].co
     p,_,index,distance=tree.find_nearest(v)
-    if p is None or distance>(.20 if o.name=='Frame_Forging' else .035):continue
+    if p is None or distance>.035:continue
     ids=triangles[index]
     n=barycentric_transform(p,*[points[k] for k in ids],*[field[k] for k in ids]).normalized()
     if n.dot(f.normal)>.70:normals[j]=n
