@@ -33,9 +33,10 @@ def hsv(a):return np.asarray(Image.fromarray(np.uint8(np.clip(a,0,255))).convert
 
 def metrics(a):
  a=np.asarray(a).reshape(-1,3);lum=a@LUMA;mx=a.max(axis=1);mi=a.min(axis=1);sat=(mx-mi)/np.maximum(mx,1)
+ value_percentiles=np.percentile(mx,[10,25,50,75,90])
  bright=a[lum>=np.percentile(lum,90)]
  color=bright.mean(axis=0);s=(color.max()-color.min())/max(color.max(),1)
- return dict(pixels=len(a),median_rgb=np.median(a,axis=0).tolist(),luma_percentiles=np.percentile(lum,[1,5,50,95,99]).tolist(),median_saturation=float(np.median(sat)),brightest_decile_rgb=color.tolist(),brightest_decile_saturation=float(s))
+ return dict(luma_p75=float(np.percentile(lum,75)),value_percentiles=value_percentiles.tolist(),value_p90_p10_over_median=float((value_percentiles[4]-value_percentiles[0])/max(value_percentiles[2],1)),pixels=len(a),median_rgb=np.median(a,axis=0).tolist(),luma_percentiles=np.percentile(lum,[1,5,50,95,99]).tolist(),median_saturation=float(np.median(sat)),brightest_decile_rgb=color.tolist(),brightest_decile_saturation=float(s))
 def polygon_mask(size,polygons):
  m=Image.new('L',size,0);d=ImageDraw.Draw(m)
  for p in polygons:d.polygon(p,fill=255)

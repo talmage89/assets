@@ -51,18 +51,109 @@ def outline_distance(n,y,z,points):
   result=mn(n,result,n.math('SQRT',n.add(n.mul(q,q),n.mul(r,r))))
  return result
 
-def broken(n,p,distance,pressure=1):
- # Millimeter bites along a contact edge, with larger 7-20 mm paint islands.
- warp=n.node('ShaderNodeTexNoise');n.feed(warp.inputs['Vector'],p);warp.inputs['Scale'].default_value=170;warp.inputs['Detail'].default_value=2
- q=n.vec('ADD',p,n.vec('MULTIPLY',n.vec('SUBTRACT',warp.outputs['Color'],(.5,.5,.5)),(.002,.003,.0015)))
- fracture=n.add(n.mul(n.noise(q,135,2),.56),n.mul(n.noise(q,540,2),.32),n.mul(n.noise(q,1650,1),.12))
- threshold=n.add(.46,n.mul(n.maximum(distance,0),105),n.mul(sub(n,1,pressure),.17))
- return n.ramp(sub(n,fracture,threshold),-.018,.018)
+def rub(n,p,distance,along,start,end,width,fade=.006):
+ """Continuous contact stroke with ragged margins and tapered ends.
+
+ Millimeter variation changes its width; it cannot punch periodic holes
+ through the core. Sheltered edges have no stroke and receive no abrasion.
+ """
+ contour=n.mul(sub(n,n.noise(p,680,2),.5),width*.40)
+ widthfield=n.mul(width,n.add(.30,n.mul(n.noise(p,105,2),1.35)))
+ cross=n.ramp(div(n,n.add(distance,contour),widthfield),1,.84)
+ return n.mul(cross,interval(n,along,start,end,fade))
+
+def metal_rubs(n,p,x,y,z,nx,ny,nz,u,v,w,part):
+ """Named exposed sites, rather than a generic every-edge chip field."""
+ ax=ab(n,x);mask=0;sharp=1.
+ outer=n.ramp(ax,.0145,.0167)
+ if part=='Receiver_Sheet':
+  # Magazine entry and lower front corners: connected rubs, black elsewhere.
+  lower=ab(n,sub(n,z,.0525))
+  front=rub(n,p,lower,y,.176,.216,.0038,.009)
+  well=rub(n,p,lower,y,.098,.127,.0019,.006)
+  corner=rub(n,p,ab(n,sub(n,y,.2194)),z,.051,.061,.0022,.004)
+  mask=n.mul(n.maximum(front,well,corner),outer)
+  sharp=mn(n,lower,ab(n,sub(n,y,.2194)))
+ elif part.startswith('Receiver_Rivet') and part.endswith('_2'):
+  # Only the exposed lower front crown, not all twelve rivets.
+  mask=n.mul(n.ramp(ab(n,nx),.76,.98),n.ramp(nz,.10,.7),.65)
+  sharp=.0004
+ elif part=='TopCover_Pressed':
+  bead=rub(n,p,ab(n,sub(n,z,.0965)),y,-.023,.047,.0015,.013)
+  bead=n.mul(bead,n.ramp(ax,.0175,.0183))
+  rear=rub(n,p,ab(n,sub(n,y,-.0325)),x,-.016,.009,.0023,.004)
+  rear=n.mul(rear,n.ramp(z,.091,.099))
+  # One rear roof crest takes the hand; one shorter mid crest takes the sling.
+  rib1=rub(n,p,ab(n,sub(n,y,-.005)),x,-.016,-.007,.0017,.003)
+  rib2=rub(n,p,ab(n,sub(n,y,.075)),x,-.012,-.002,.0011,.004)
+  roof=n.mul(n.maximum(rib1,rib2),n.ramp(nz,.25,.8))
+  mask=n.maximum(bead,rear,roof)
+  sharp=mn(n,ab(n,sub(n,z,.0965)),ab(n,sub(n,y,-.005)),ab(n,sub(n,y,.075)))
+ elif part=='TopCover_RearCap':
+  mask=rub(n,p,box_edge(n,u,v,w),z,.092,.108,.0012,.003)
+  sharp=box_edge(n,u,v,w)
+ elif part=='TriggerGuard_Stamping':
+  sharp=ab(n,sub(n,z,.016))
+  mask=n.mul(rub(n,p,sharp,y,.023,.055,.0014,.008),n.ramp(ax,.0057,.0064))
+ elif part=='Selector_Lever':
+  points=[(-.004,.062),(-.007,.070),(-.002,.077),(.008,.079),(.034,.081),(.054,.096),(.071,.098),(.152,.099),(.1605,.097),(.1605,.083),(.083,.077),(.032,.066),(.007,.060)]
+  sharp=outline_distance(n,y,z,points)
+  mask=rub(n,p,sharp,y,.105,.160,.00065,.011)
+ elif part=='Selector_ThumbFold':
+  sharp=box_edge(n,u,v,w)
+  mask=n.mul(rub(n,p,sharp,y,.150,.157,.0010,.004),n.ramp(x,.023,.026))
+ elif part=='ChargingHandle':
+  sharp=box_edge(n,u,v,w)
+  mask=n.mul(n.ramp(x,.025,.032),n.ramp(nz,.05,.6),.8)
+ elif part.startswith('Carrier_VisualRail'):
+  mask=n.ramp(nz,.4,.9);sharp=.001
+ elif part=='Carrier_PortCheek':
+  sharp=ab(n,sub(n,z,.0965));mask=n.mul(rub(n,p,sharp,y,.090,.156,.00065,.006),n.ramp(x,.013,.016))
+ elif part=='Magazine_Sheet':
+  # Inverse of the authored sweep: axial S and transverse V are stable
+  # attributes. Using world Z alone makes diagonal scratches on curved ribs.
+  mx,mv,ms=n.split(n.node('ShaderNodeAttribute',attribute_name='MagazineCoord').outputs['Vector'])
+  width=.00090
+  a=rub(n,p,ab(n,sub(n,mv,-.022)),ms,.047,.145,width,.018)
+  b=rub(n,p,ab(n,mv),ms,.070,.168,.00068,.022)
+  c=rub(n,p,ab(n,sub(n,mv,.022)),ms,.119,.179,.00075,.016)
+  mask=n.mul(n.maximum(a,b,c),n.ramp(ax,.01325,.01385))
+  sharp=mn(n,ab(n,sub(n,mv,-.022)),ab(n,mv),ab(n,sub(n,mv,.022)))
+ elif part.startswith('Magazine_FoldSpine'):
+  mx,mv,ms=n.split(n.node('ShaderNodeAttribute',attribute_name='MagazineCoord').outputs['Vector'])
+  mask=n.mul(interval(n,ms,.036,.172,.021),n.ramp(ab(n,ny),.15,.65))
+  sharp=.0006
+ elif part=='Magazine_Floorplate':
+  sharp=box_edge(n,u,v,w)
+  mask=n.mul(rub(n,p,sharp,v,.15,.64,.00095,.12),n.ramp(ax,.010,.013))
+ elif part.startswith('Magazine_FeedLip'):
+  sharp=box_edge(n,u,v,w);mask=n.mul(n.ramp(nz,.6,.97),.55)
+ elif part=='GasBlock_Neck':
+  # Smooth gray friction on the collar rims. The diagonal web stays blued.
+  a=rub(n,p,ab(n,sub(n,y,.4062)),x,-.009,.006,.00065,.004)
+  b=rub(n,p,ab(n,sub(n,y,.4507)),z,.078,.093,.00055,.003)
+  mask=n.maximum(n.mul(a,n.ramp(z,.110,.116)),n.mul(b,n.ramp(ax,.009,.011)))
+  sharp=1.
+ elif part=='GasBlock_TubeSeat':
+  sharp=ab(n,sub(n,y,.3455))
+  mask=n.mul(rub(n,p,sharp,x,-.008,.004,.00055,.004),n.ramp(nz,.25,.80))
+ elif part=='Muzzle_SlantBrake':
+  cut=n.add(.588,n.mul(sub(n,z,.085),.70),n.mul(x,.20));sharp=ab(n,sub(n,y,cut))
+  mask=n.mul(rub(n,p,sharp,x,-.007,.005,.00050,.003),n.ramp(nz,.15,.8))
+ elif part in ('Sight_FrontHood','Sight_RearNotch','Sight_SliderButton-1','Sight_SliderButton1'):
+  sharp=box_edge(n,u,v,w)
+  mask=n.mul(rub(n,p,sharp,v,.13,.5,.00028,.10),n.ramp(nz,.1,.8))
+ elif part in ('Buttplate','Handguard_Retainer363'):
+  sharp=box_edge(n,u,v,w)
+  mask=n.mul(rub(n,p,sharp,w,.14,.34,.00055,.12),n.ramp(ab(n,nx),.25,.80))
+ # Bright steel is a tiny high-point subset, never the whole rubbed band.
+ core=n.mul(mask,n.ramp(sharp,.00022,.000045),n.ramp(n.noise(p,180,2),.58,.75))
+ return mask,core
 
 def steel(name,part,key,wear):
  n=Nodes(name);p,x,y,z,nx,ny,nz,u,v,w=inp(n);ax=ab(n,x)
  fine=n.noise(p,4200,2);grain=n.noise(p,1150,2)
- paint=key=='paint';bright=key=='steel'
+ paint=key=='paint' and part!='Magazine_Sheet';bright=key=='steel'
  base=(.0015,.00154,.0015) if paint else ((.25,.26,.27) if bright else (.023,.024,.025))
  metal=0 if paint else 1;spec=.161 if paint else .56
  rough=n.add(.42 if paint else .42 if not bright else .42,n.mul(sub(n,grain,.5),.065))
@@ -72,7 +163,7 @@ def steel(name,part,key,wear):
   base=(.029,.030,.029);metal=.75;spec=.56
   rough=n.add(.53,n.mul(sub(n,grain,.5),.055))
  h=n.mul(sub(n,fine,.5),2e-6 if not paint else 8e-6)
- edge=1.;pressure=1;flat=0;carbon=0;mark=0;microao=1
+ carbon=0;mark=0;microao=1
  if part in ('GasBlock_Neck','Bayonet_Lug','Sight_FrontTower'):
   # Fine forging skin is manufacture, not scattered wear. It survives as
   # shallow normal relief and roughness variation beneath the dark bluing.
@@ -80,72 +171,27 @@ def steel(name,part,key,wear):
   h=n.add(h,n.mul(sub(n,forge,.5),.000050))
   rough=n.add(rough,n.mul(sub(n,forge,.5),.11))
  if part=='Receiver_Sheet':
-  outer=n.ramp(n.mul(x,nx),.013,.016)
-  # Exposed folded edges and well corners, with no broad flank damage.
-  end=mn(n,ab(n,sub(n,y,-.034)),ab(n,sub(n,y,.219)))
-  edge=n.maximum(mn(n,ab(n,sub(n,z,.051)),ab(n,sub(n,z,.0856)),end),sub(n,.016,ax))
-  pressure=n.add(.30,n.mul(n.maximum(n.band(y,.192,.012,.018),n.band(y,-.022,.008,.020),n.band(y,.108,.008,.013)),.70))
   mark=n.mul(text(n,sub(n,1,div(n,sub(n,y,.008),.115)),div(n,sub(n,z,.062),.020),'receiver'),n.ramp(n.mul(nx,-1),.8,.98))
- elif part.startswith('Receiver_Rivet'):
-  # Crown tops rub; sheltered roots remain enamel. Fractures break the cap.
-  edge=n.mul(sub(n,1,n.ramp(ab(n,nx),.65,.97)),.004)
- elif part=='TopCover_Pressed':
-  crest=mn(n,*[ab(n,sub(n,y,a)) for a in (-.005,.075,.150)])
-  roof=n.maximum(crest,sub(n,.098,z),sub(n,.2,nz))
-  bead=n.maximum(ab(n,sub(n,z,.0965)),sub(n,y,.092),sub(n,-.030,y),sub(n,.0178,ax))
-  lip=n.maximum(ab(n,sub(n,z,.086)),sub(n,.0178,ax))
-  edge=mn(n,roof,bead,lip);pressure=.85
- elif part.startswith(('TopCover_Rear','TopCover_Button','Cover_Return')):
-  edge=box_edge(n,u,v,w);pressure=.65
- elif part=='Selector_Lever':
-  pts=[(-.004,.062),(-.007,.070),(-.002,.077),(.008,.079),(.034,.081),(.054,.096),(.071,.098),(.152,.099),(.1605,.097),(.1605,.083),(.083,.077),(.032,.066),(.007,.060)]
-  edge=outline_distance(n,y,z,pts);pressure=.95
- elif part.startswith('Selector_'):
-  edge=box_edge(n,u,v,w,.015);pressure=.65
- elif part=='ChargingHandle':
-  edge=box_edge(n,u,v,w,.010)
-  flat=n.mul(n.ramp(x,.026,.033),n.ramp(nz,.05,.65),.80)
- elif part.startswith('Carrier_VisualRail'):
-  flat=n.ramp(nz,.40,.90)
- elif part=='Carrier_PortCheek':
-  edge=n.maximum(ab(n,sub(n,z,.0965)),sub(n,.013,x));flat=n.mul(n.ramp(nz,.4,.8),.65)
- elif part=='Magazine_Sheet':
-  s=div(n,sub(n,.070,z),.87);center=n.add(.132,n.mul(s,s,1.65),n.mul(s,s,s,3))
-  angle=n.math('ARCTANGENT',n.add(n.mul(s,3.3),n.mul(s,s,9)))
-  vv=div(n,sub(n,y,center),n.math('COSINE',angle))
-  ribs=mn(n,*[ab(n,sub(n,vv,a)) for a in (-.022,-.011,0,.011,.022)])
-  edge=n.maximum(ribs,sub(n,.0125,ax),sub(n,s,.180),sub(n,.018,s))
-  pressure=n.add(.35,n.mul(n.band(s,.11,.025,.040),.65))
- elif part.startswith(('Magazine_Floorplate','Magazine_FoldSpine','Magazine_FeedLip')):
-  edge=box_edge(n,u,v,w,.012);pressure=.8
- elif part=='TriggerGuard_Stamping':
-  edge=n.maximum(sub(n,.0058,ax),sub(n,z,.025));pressure=.55
+ elif part=='Sight_TangentLeaf':
+  mark=n.mul(text(n,div(n,n.add(x,.0067),.0134),div(n,sub(n,y,.188),.063),'leaf'),n.ramp(nz,.8,.98))
  elif part=='Muzzle_SlantBrake':
   cutplane=n.add(.588,n.mul(sub(n,z,.085),.70),n.mul(x,.20))
-  edge=ab(n,sub(n,y,cutplane))
   carbon=n.mul(n.ramp(sub(n,y,cutplane),-.007,-.001),n.maximum(n.ramp(ny,.1,.65),n.ramp(nz,.2,.9)),.95)
- elif part=='GasBlock_TubeSeat':
-  radial=n.math('SQRT',n.add(n.mul(x,x),n.mul(sub(n,z,.107),sub(n,z,.107))))
-  edge=n.maximum(mn(n,ab(n,sub(n,y,.345)),ab(n,sub(n,y,.417))),ab(n,sub(n,radial,.0095)))
  elif part.startswith('GasBlock'):
-  edge=mn(n,ab(n,sub(n,y,.406)),n.maximum(ab(n,sub(n,z,.1155)),sub(n,ax,.008)))
   carbon=n.mul(n.band(y,.408,.002,.003),n.band(z,.106,.006,.003),n.ramp(ax,.006,.009),.80)
- elif part.startswith(('Sight_','Bayonet_','Handguard_Retainer','Handguard_Sling','Buttplate','Butt_Screw')):
-  edge=box_edge(n,u,v,w,.018)
-  pressure=.75
-  if part=='Sight_TangentLeaf':
-   mark=n.mul(text(n,div(n,n.add(x,.0067),.0134),div(n,sub(n,y,.188),.063),'leaf'),n.ramp(nz,.8,.98))
- # Worn conversion coating stays matte gray; rare steel glints are satin.
- chipped=n.mul(broken(n,p,edge,pressure),wear)
- rubbed=n.mul(flat,wear,broken(n,p,0,.95))
- rubbed=n.maximum(rubbed,chipped)
+ # Continuous, cause-located abrasion supersedes all generic edge chips.
+ chipped,core=metal_rubs(n,p,x,y,z,nx,ny,nz,u,v,w,part)
+ chipped=n.mul(chipped,wear);core=n.mul(core,wear);rubbed=chipped
  if paint:
-  base=n.mix(chipped,base,(.058,.055,.048),True);rough=n.mix(chipped,rough,.82);metal=n.mix(chipped,metal,.08);spec=n.mix(chipped,spec,.56)
-  core=n.mul(chipped,n.ramp(edge,.00028,.00005),n.ramp(n.noise(p,330,2),.58,.72))
- else:core=rubbed
- base=n.mix(core,base,(.27,.28,.29),True);rough=n.mix(core,rough,.56 if paint else .46);metal=n.mix(core,metal,1)
+  base=n.mix(chipped,base,(.036,.035,.033),True);rough=n.mix(chipped,rough,.82)
+  metal=n.mix(chipped,metal,.08);spec=n.mix(chipped,spec,.56)
+ else:
+  # Friction thins the dark oxide smoothly, leaving a warm gray steel land.
+  base=n.mix(chipped,base,(.118,.115,.108),True);rough=n.mix(chipped,rough,.54)
+  metal=n.mix(chipped,metal,1)
+ base=n.mix(core,base,(.235,.232,.220),True);rough=n.mix(core,rough,.56);metal=n.mix(core,metal,1)
  # Fine sparse carry scratches are pressure-gated, never a brushed field.
- scratches=n.mul(n.ramp(n.noise(n.vec('MULTIPLY',p,(2600,90,2600)),1,1),.76,.83),n.ramp(edge,.004,.0008),wear)
+ scratches=n.mul(n.ramp(n.noise(n.vec('MULTIPLY',p,(2600,90,2600)),1,1),.76,.83),chipped,wear)
  h=n.add(h,n.mul(scratches,-.000012),n.mul(chipped,-.000016),n.mul(mark,-.00010))
  if part=='Sight_TangentLeaf':base=n.mix(mark,base,(.24,.25,.23),True);metal=n.mix(mark,metal,0);rough=n.mix(mark,rough,.62)
  else:base=n.mix(mark,base,(.010,.011,.010),True)
@@ -164,6 +210,10 @@ def steel(name,part,key,wear):
   h=n.add(h,n.mul(pins,.00012),n.mul(seam,-.00018))
   base=n.mix(n.mul(pins,.45),base,(.055,.057,.056),True);base=n.mix(seam,base,(.0035,.0037,.0035),True)
   microao=n.mul(microao,sub(n,1,n.mul(seam,.35)))
+ if part=='Handguard_Retainer363':
+  radius=n.math('SQRT',n.add(n.mul(x,x),n.mul(sub(n,z,.085),sub(n,z,.085))))
+  rim=n.mul(n.band(radius,.00953,.00030,.00055),n.ramp(ny,.85,.99),n.ramp(y,.367,.368))
+  h=n.add(h,n.mul(rim,.000045))
  if part=='Handguard_SlingMount':
   # The sling eye's pressed mounting plate has a low rivet crown. Its
   # submillimeter relief belongs in the normal, not extra game geometry.
@@ -173,56 +223,63 @@ def steel(name,part,key,wear):
 
 def wood(name,part,wear):
  n=Nodes(name);p,x,y,z,nx,ny,nz,u,v,w=inp(n)
- stock=part=='Stock_Sculpt'
- # A real blank intersects growth layers; annual latewood and individual
- # vessels follow the fibers. Noise only bends the annual-layer phase.
- zz=sub(n,z,n.add(.040,n.mul(y,.10),n.mul(n.math('SINE',n.mul(y,26)),.0045))) if stock else sub(n,z,.073 if 'Lower' in part else .106)
- rx=n.add(x,.028);rz=n.add(n.mul(zz,.83),.038)
+ stock=part=='Stock_Sculpt';upper='Upper' in part
+ # Growth layers intersect the carved blank, with slow longitudinal drift.
+ # Broad earlywood/latewood figure is 2-6 mm across, safely above a 2K texel.
+ # Fine individual vessels are separate; they do not stand in for figure.
+ zz=sub(n,z,n.add(.040,n.mul(y,.085))) if stock else sub(n,z,.073 if not upper else .106)
+ rx=n.add(x,.028 if stock else .024);rz=n.add(n.mul(zz,.83),.038)
  radius=n.math('SQRT',n.add(n.mul(rx,rx),n.mul(rz,rz)))
- arch=n.mul(sub(n,y,-.16 if stock else .285),sub(n,y,-.16 if stock else .285),1.15 if stock else .90)
- phase=n.add(n.mul(n.add(radius,arch),math.tau/.0039),n.mul(n.math('SINE',n.add(n.mul(zz,145),n.mul(y,20))),.65),n.mul(sub(n,n.noise(n.combine(n.mul(x,95),n.mul(y,7),n.mul(zz,135)),1,2),.5),.65))
- year=n.math('FRACT',n.mul(phase,1/math.tau));late=n.ramp(year,.945,.995)
- tone=n.add(.51,n.mul(n.ramp(year,.08,.75),.085),n.mul(late,-.10),n.mul(n.math('SINE',n.mul(radius,550)),.035))
- base=n.mix(tone,(.020,.008,.0060),(.073,.039,.026),True)
+ yy=sub(n,y,-.16 if stock else .285)
+ arch=n.mul(yy,yy,.35 if stock else 2.5)
+ wander=n.add(n.mul(n.math('SINE',n.add(n.mul(zz,125),n.mul(y,13))),.00048),n.mul(sub(n,n.noise(n.combine(n.mul(x,90),n.mul(y,11),n.mul(zz,110)),1,2),.5),.0026))
+ layer=n.add(radius,arch,wander)
+ phase=n.add(n.mul(layer,1/.0047),n.mul(n.math('SINE',n.mul(radius,720)),.38),n.mul(n.math('SINE',n.mul(radius,1730)),.20))
+ year=n.math('FRACT',phase)
+ late=n.ramp(year,.79,.96)
+ contrast=n.add(.42,n.mul(n.noise(n.combine(n.mul(x,65),n.mul(y,19),n.mul(zz,190)),1,2),.58))
+ tone=n.add(.49,n.mul(n.add(-.20,n.mul(n.ramp(year,.06,.65),.40),n.mul(late,-.42)),n.mul(contrast,.75)))
+ figure=n.noise(n.combine(n.mul(x,85),n.mul(y,8),n.mul(zz,130)),1,2)
+ tone=n.add(tone,n.mul(sub(n,figure,.5),.30))
+ if stock:low,high=(.0138,.0078,.0058),(.0805,.0495,.0368)
+ elif upper:low,high=(.008,.0034,.0025),(.054,.024,.015)
+ else:low,high=(.028,.013,.0095),(.180,.081,.057)
+ base=n.mix(tone,low,high,True)
  pores=n.node('ShaderNodeTexVoronoi',feature='F1',distance='EUCLIDEAN')
- n.feed(pores.inputs['Vector'],n.combine(n.mul(x,680),n.mul(y,140),n.mul(zz,780)));pores.inputs['Scale'].default_value=1
- pore=n.ramp(pores.outputs['Distance'],.28,.10)
- base=n.mix(n.mul(pore,.46),base,(.010,.0032,.0016),True)
- # The gas-tube furniture's heat-aged film is duller than the stock's
- # surviving varnish. A broad white reflection must not erase its stain.
- upper='Upper' in part
- h=n.add(n.mul(late,-.000010),n.mul(pore,-.000026));rough=n.add(.46 if upper else .32,n.mul(late,.045),n.mul(pore,.1))
- # The hand wraps the compound surface. Its longitudinal contact shifts
- # with height and side; normal orientation protects the sheltered return.
- # A continuous pressure field has neither an oval stencil nor a straight
- # band boundary. Film loss grades through many millimeters of that field.
- center=n.add(-.073 if stock else .286,n.mul(sub(n,z,.065 if stock else .076),.40),n.mul(x,.32),n.mul(n.math('SINE',n.mul(z,130)),.004))
- distance=div(n,sub(n,y,center),.050 if stock else .066)
- pressure=n.maximum(sub(n,1,n.mul(distance,distance)),0)
- orientation=n.maximum(n.ramp(ab(n,nx),.15,.90),n.mul(n.ramp(n.mul(nz,-1 if not stock and 'Lower' in part else 1),.05,.80),.80))
- pressure=n.mul(pressure,pressure,orientation)
- # Pressure fades with the compound surface, then the coating breaks into
- # merged rubbed fields with surviving varnish islands. No axial band.
- fracture=n.add(n.mul(n.noise(p,190,2),.75),n.mul(n.noise(p,800,2),.25))
- # Coating loss follows continuous contact pressure. Fracture perturbs only
- # the transition, leaving a rubbed core and surviving varnish farther away.
- loss=n.mul(n.math('POWER',pressure,1.25),n.add(.88,n.mul(fracture,.24)),wear,.45 if 'Upper' in part else .88)
- base=n.mix(loss,base,n.mix(tone,(.033,.024,.016),(.077,.065,.040),True),True)
- rough=n.mix(loss,rough,.65);h=n.add(h,n.mul(loss,-.000025))
- # Hand oil darkens the raw fibers slightly but does not draw a stripe.
- base=n.mix(n.mul(pressure,wear,.11),base,(.025,.006,.002),True)
+ n.feed(pores.inputs['Vector'],n.combine(n.mul(x,1000),n.mul(y,125),n.mul(zz,1250)));pores.inputs['Scale'].default_value=1
+ pore=n.ramp(pores.outputs['Distance'],.23,.09)
+ base=n.mix(n.mul(pore,.43),base,(.008,.003,.0018),True)
+ h=n.add(n.mul(late,-.000012),n.mul(pore,-.000030))
+ rough=n.add(.52 if upper else .40,n.mul(late,.035),n.mul(pore,.06))
+ # Only flaked streaks inside actual hand-contact margins lose their film.
+ # No graded pale field covers the wrist or handguard's broad flat side.
+ if stock:
+  bottom=n.add(.039,n.mul(sub(n,y,-.062),.12))
+  contact=n.maximum(n.mul(n.band(z,bottom,.0020,.0030),interval(n,y,-.112,-.043,.011)),n.mul(n.band(z,.0845,.0012,.0023),interval(n,y,-.104,-.058,.009),.70))
+  edgeknocks=n.maximum(n.mul(n.band(z,.080,.0015,.0020),interval(n,y,-.279,-.249,.005)),n.mul(n.band(z,n.add(-.010,n.mul(sub(n,y,-.250),.40)),.002,.002),interval(n,y,-.276,-.211,.010)))
+  contact=n.maximum(contact,n.mul(edgeknocks,.8))
+ else:
+  contact=n.mul(interval(n,y,.251 if upper else .244,.330 if upper else .346,.012),n.maximum(n.band(z,.093 if upper else .058,.0022,.0035),n.mul(n.band(z,.111 if upper else .077,.0014,.0025),.66)))
+ # Long fragments follow fibers; small noise roughens flaked boundaries only.
+ flakes=n.add(n.mul(n.noise(n.combine(n.mul(x,650),n.mul(y,85),n.mul(z,730)),1,2),.72),n.mul(n.noise(p,1400,1),.28))
+ outside=n.maximum(n.ramp(n.mul(x,nx),.004,.009),n.ramp(n.mul(sub(n,z,.065 if stock else .091 if upper else .084),nz),.010,.020))
+ loss=n.mul(n.ramp(contact,.35,.85),n.ramp(flakes,.50,.59),outside,wear)
+ # Exposed fibers are the SAME stained wood, slightly lighter/less red.
+ raw=n.vec('MULTIPLY',base,(1.08,1.20,1.25))
+ base=n.mix(loss,base,raw,True);rough=n.mix(loss,rough,.70);h=n.add(h,n.mul(loss,-.000026))
+ # Dents are crushed depressions with dark bottoms. No orange crescent lips.
  dentmask=0
  sites=([(-.276,-.003,.006,.003),(-.272,.079,.005,.003),(-.259,.002,.0035,.0018),(-.250,.079,.004,.0016),(-.264,.023,.0028,.0013)] if stock else [(.245,.053,.004,.0017),(.341,.055,.003,.0016)])
  for cy,cz,dy,dz in sites:
   a=n.add(div(n,sub(n,y,cy),dy),n.mul(div(n,sub(n,z,cz),dz),.35));b=div(n,sub(n,z,cz),dz)
   radius=n.add(n.math('POWER',ab(n,a),2.6),n.math('POWER',ab(n,b),1.4))
   bowl=n.maximum(sub(n,1,radius),0);dent=n.mul(bowl,bowl,wear,n.ramp(ab(n,nx),.15,.8))
-  lip=n.mul(n.band(radius,.90,.08,.15),n.ramp(b,.1,.8),wear)
-  h=n.add(h,n.mul(dent,-.00040),n.mul(lip,.000035));rough=n.mix(n.maximum(dent,lip),rough,.71)
-  base=n.mix(n.mul(dent,.75),base,(.026,.006,.0022),True);base=n.mix(n.mul(lip,.80),base,(.22,.105,.036),True)
+  lip=n.mul(n.band(radius,.90,.08,.15),n.ramp(b,.1,.8),wear,n.ramp(ab(n,nx),.15,.8))
+  h=n.add(h,n.mul(dent,-.00055),n.mul(lip,.000020));rough=n.mix(n.maximum(dent,lip),rough,.71)
+  base=n.mix(n.mul(dent,.70),base,n.vec('MULTIPLY',base,(.38,.38,.38)),True)
   dentmask=n.maximum(dentmask,dent,lip)
- if upper:base=n.vec('MULTIPLY',base,(.60,.43,.37))
- return finish(n,base,rough,0,h,n.maximum(loss,dentmask),.20 if upper else .66)
+ n.channel('varnish_loss',loss);n.channel('grain',tone)
+ return finish(n,base,rough,0,h,n.maximum(loss,dentmask),.10 if upper else .28)
 
 def grip(name,wear):
  n=Nodes(name);p,x,y,z,nx,ny,nz,u,v,w=inp(n)
@@ -268,6 +325,20 @@ def assign(wear):
    old=ob.data.attributes.get(attr)
    if old:ob.data.attributes.remove(old)
    field=ob.data.attributes.new(attr,'FLOAT_VECTOR',domain);field.data.foreach_set('vector',[a for v in values for a in v])
+  if part.startswith('Magazine_') and ob.get('bone') in ('Magazine','Follower'):
+   coords=[]
+   for point in vertices:
+    a,b=-.04,.24
+    for _ in range(24):
+     t=(a+b)/2;center=.132+1.65*t*t+3*t*t*t;slope=3.3*t+9*t*t
+     error=point.z-.070+.87*t-(point.y-center)*slope
+     if error>0:b=t
+     else:a=t
+    t=(a+b)/2;center=.132+1.65*t*t+3*t*t*t
+    cross=(point.y-center)/math.cos(math.atan(3.3*t+9*t*t))
+    coords.append((point.x,cross,t))
+   field=ob.data.attributes.new('MagazineCoord','FLOAT_VECTOR','POINT')
+   field.data.foreach_set('vector',[a for row in coords for a in row])
   roles=[]
   for i,old in enumerate(list(ob.data.materials)):
    key=old.name.removeprefix('Inspection_').split('.')[0];name='R39_'+part+'_'+str(i)

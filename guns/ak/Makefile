@@ -23,7 +23,7 @@ EXPORTS := $(addprefix export/,ak.glb magazine_loaded.glb magazine_empty.glb car
 comma := ,
 FINAL_SHOTS := hero,hero_right,front,side,back,top,receiver,cover_rear,controls,rear_sight,rear_ortho_side,front_sight,gas_muzzle,gas_ortho_side,retainer,retainer_side,wood,grip_stock,grip_detail,trigger,open,aimed,magazine,scale
 FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(FINAL_SHOTS)))) renders/final/beauty/shots.json
-PHOTO_SHOTS := right_photo,left_photo,receiver_photo,trigger_photo,trigger_sharp,rear_sight_side,rear_sight_photo,rear_sight_sharp,front_sight_photo,front_sight_behind,front_sight_installed,gas_block_photo,grip_photo,trigger_guard,topcover_side,topcover_top,topcover_sharp,selector_photo,used_photo
+PHOTO_SHOTS := right_photo,left_photo,receiver_photo,trigger_photo,trigger_sharp,rear_sight_side,rear_sight_photo,rear_sight_sharp,front_sight_photo,front_sight_behind,front_sight_installed,gas_block_photo,grip_photo,trigger_guard,topcover_side,topcover_top,topcover_sharp,selector_photo,used_photo,retainer_photo
 PAIRS := $(addprefix renders/final/pairs/,$(addsuffix -pair.jpg,$(subst $(comma), ,$(PHOTO_SHOTS))))
 RENDER_DEPS := src/final_render.py src/final_shots.py src/shots.py src/delivery.py ../common/render.py build/render-parameters.txt
 .PHONY: all refs model prepare lookdev bake export check check-repo verify render match source-match strips extra review docs sections clean FORCE
@@ -67,10 +67,12 @@ check-repo:
 verify: $(MODEL)
 	$(BP) --python src/verify.py -- --source build/ak.blend --out build/serialization.json
 check: check-repo verify $(EXPORTS)
+	$(BP) --python src/preserve_look.py
 	$(BP) --python src/check.py -- --source build/ak.blend --out build/check.json --motion
 	$(BP) --python src/check.py -- --source build/delivery/finalized.blend --out build/delivery/construction.json --motion
 	$(BP) --python src/atlas_verify.py
 	$(BP) --python src/check.py -- --source build/delivery/imported-parts.blend --out build/delivery/imported-construction.json --motion
+	$(BP) --python src/retainer_fit.py
 $(FINAL_IMAGES) &: $(EXPORTS) $(RENDER_DEPS)
 	$(KIT)/with_gpu.sh $(BP) --python src/final_render.py -- --source export/ak.glb --out renders/final/beauty --width $(WIDTH) --samples $(SAMPLES) --shots $(FINAL_SHOTS)
 renders/final/eevee/hero.png renders/final/eevee/shots.json &: $(EXPORTS) $(RENDER_DEPS)
@@ -113,8 +115,9 @@ build/value-geometry.npz: build/delivery/imported-parts.blend src/value_geometry
 renders/final/precedent/smg_hero.png: ../smg/export/smg.glb $(RENDER_DEPS)
 	$(KIT)/with_gpu.sh $(BP) --python src/final_render.py -- --source ../smg/export/smg.glb --out renders/final/precedent --width $(WIDTH) --samples $(SAMPLES) --shots smg_hero
 .PHONY: look-review
-look-review: render build/value-geometry.npz
+look-review: render match source-match build/value-geometry.npz
 	$(PYTHON) src/look_review.py
+	$(PYTHON) src/furniture_review.py
 review: look-review
 
 # The asset rebuild is independent of other guns. When the accepted reference

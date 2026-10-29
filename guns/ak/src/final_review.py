@@ -44,12 +44,12 @@ def main():
  sheet(OUT/'turnaround.jpg',[(n,OUT/'beauty'/(n+'.png')) for n in ('front','side','back','top')],2,(800,650))
  sheet(OUT/'details.jpg',[(n,OUT/'beauty'/(n+'.png')) for n in ('receiver','rear_sight','front_sight','gas_muzzle','wood','grip_detail')],2,(800,620))
  sheet(OUT/'form-fixes.jpg',[(n,OUT/'beauty'/(n+'.png')) for n in ('gas_muzzle','gas_ortho_side','front_sight','retainer','retainer_side','rear_ortho_side','cover_rear','rear_sight')],2,(800,620))
- sheet(OUT/'retainer-reference.jpg',[('GLB / capped end, sheet return and riveted sling mount',OUT/'beauty/retainer.png'),('Construction photo / different camera; not a camera-fit pair',BASE/'build/white-balanced/retainer.jpg')],2,(900,760))
- sheet(OUT/'wear-sites.jpg',[(n,OUT/'beauty'/(n+'.png')) for n in ('receiver','open','gas_muzzle','wood','grip_stock','magazine')],2,(800,620))
+ sheet(OUT/'retainer-reference.jpg',[('GLB / flat diaphragm, fitted return and seated sling eye',OUT/'beauty/retainer.png'),('Independent sharp photo / same held oblique-front view',OUT/'pairs/retainer_photo-pair.jpg')],2,(1000,780))
+ sheet(OUT/'wear-sites.jpg',[(n,OUT/'beauty'/(n+'.png')) for n in ('receiver','cover_rear','trigger','controls','open','gas_muzzle','wood','grip_stock','magazine')],3,(800,620))
  sheet(OUT/'action.jpg',[(n,OUT/'beauty'/(n+'.png')) for n in ('open','aimed')]+[(n,OUT/f/(shot+'.png')) for n,f,shot in [('Loaded magazine','loaded','mag_standalone'),('Empty magazine','empty','mag_lips'),('Cartridge','cartridge','cartridge'),('Fired case','case','case_mouth')]],2,(800,600))
  pairs=[(p.stem,p) for p in sorted((OUT/'pairs').glob('*-pair.jpg'))]
  sheet(OUT/'photo-pairs.jpg',pairs,2,(1100,750))
- for i in range(0,len(frames),18):sheet(OUT/'inspection'/f'clips-{i//18:02d}.jpg',frames[i:i+18],3,(410,300))
+ for i in range(0,len(frames),18):sheet(OUT/'inspection'/f'clips-{i//18:02d}.jpg',frames[i:i+18],3,(410,370))
  sheet(OUT/'contact-sheet.jpg',stills+pairs+[(clip+' / real-speed strip',OUT/'strips'/(clip+'.jpg')) for clip in timing])
  panel(OUT/'beauty/hero.png',(1600,1000)).save(OUT/'hero-gray.jpg',quality=96)
  predecessor=OUT/'precedent/smg_hero.png'

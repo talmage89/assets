@@ -53,18 +53,14 @@ def main():
             samples[key]=bilinear(a,np.stack([coords[:,0]*(a.shape[1]-1),(1-coords[:,1])*(a.shape[0]-1)],axis=1)).reshape(*yy.shape,3)
         rough=samples['ORM'][:,:,1];metal=samples['ORM'][:,:,2];color=samples['BaseColor']@LUMA
         if role=='wood':
-            # The upper's heat-aged surviving film starts duller. Keep its
-            # baseline out of the inferred rubbed-fiber mask; this remains
-            # an explicitly thresholded shipping-map observation, not the
-            # original procedural wear channel or inverse photo BRDF.
-            # Approximately the same film-to-fiber fraction in .46→.65
-            # as 115/255 is in .32→.65, before pore/grain variation.
-            threshold=137 if prefixes==('UpperHandguard_Sculpt',) else 115
+            # Shared threshold above every intact film, including the duller
+            # upper. This reads actual shipping roughness, not source masks.
+            threshold=157
             worn=(rough>threshold)&valid
-            definition=f'GLB: roughness >{threshold}/255 (rubbed fibers/dings); photo: luma >78, R/B <3.1'
+            definition=f'GLB: roughness >{threshold}/255 (exposed fibers/dings); photo: luma >78, R/B <3.1'
         else:
-            worn=(((rough>160)&(metal<100))|(color>100))&valid
-            definition='GLB: matte substrate or base luma >100; photo: bright gray, luma >80, saturation <.30'
+            worn=(((rough>160)&(metal<100))|(color>76))&valid
+            definition='GLB: matte substrate or base luma >76; photo: bright gray, luma >80, saturation <.30'
         q=np.stack([yy.ravel(),zz.ravel(),np.ones(yy.size)],axis=1)@H.T
         q=q[:,:2]/q[:,2:];reference=bilinear(photo,q).reshape(*yy.shape,3)
         observed=bilinear(im,xy).reshape(*yy.shape,3)
