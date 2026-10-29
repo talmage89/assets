@@ -226,12 +226,12 @@ is 27,834. Source anatomy is retained for audits; delivery consolidates the rigi
 weights into one skinned mesh and one material.
 
 <!-- OUTPUT_STATS -->
-| Final output | Triangles | Materials | GLB bytes |
-| --- | ---: | ---: | ---: |
-| Complete staged revolver | 39,608 | 1 | 10,000,128 |
-| Cartridge | 520 | 1 | 6,307,540 |
-| Fired case | 456 | 1 | 6,304,648 |
-| Loaded speedloader | 5,398 | 1 | 6,513,192 |
+| Final output | Triangles | Materials | GLB bytes | Map size | Density ratio |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Complete staged revolver | 39,608 | 1 | 10,000,132 | 2048 | — |
+| Cartridge | 520 | 1 | 74,972 | 512 | 1.000 |
+| Fired case | 456 | 1 | 75,764 | 512 | 1.000 |
+| Loaded speedloader | 5,398 | 1 | 654,268 | 1024 | 1.000 |
 
 | Canonical 2048 map | PNG bytes |
 | --- | ---: |
@@ -242,9 +242,14 @@ weights into one skinned mesh and one material.
 
 The kit bakes **4096 at 32 samples**, then filters to one **2048 BaseColor /
 OpenGL +Y Normal / ORM** set. ORM stores R occlusion, G roughness and B metallic.
-Approximate compressed GPU memory with mipmaps is **16 MiB**. All four GLBs
-embed byte-identical canonical map payloads; the consumer must cache textures
-by atlas/content hash to share that allocation across separate imports.
+The gun retains this canonical atlas, approximately **16 MiB compressed with
+mipmaps**. The standalone cartridge and case now embed their own **512** sets;
+the loaded speedloader carries **1024**. These subsets preserve the original
+baked density (ratio **1.000** for each item). Their accepted maps remain
+byte-identical: cluster candidates increased file size. Standalone samplers
+match the gun’s trilinear mipmapped sampler, approximately 1 MiB / 4 MiB compressed with mipmaps. Eight-pixel
+minimum guards align to the mip grid, and the whole background is filled. See
+[delivery details](../DETACHABLES.md) for padding and old/new comparison evidence.
 
 Rest-position/normal attributes keep manufacture and wear attached while the
 kit isolates rigid bones and the stationary grip for projection. The grip is
@@ -287,7 +292,7 @@ and all vertex positions, one-to-one. Dense hammer rest/cocking and source
 contacts receive their own check. Four independent triangle-hit corner-normal
 probes protect the accepted flat cheek from crown shading spillover. Serialization separately compares **1,842
 complete affine/state poses**, sockets, posed surfaces, endpoints and interrupted
-resumes. Standalone dimensions, origins, spawn frames and canonical maps are
+resumes. Standalone dimensions, origins, spawn frames and atlas-mapped surface samples are
 fresh-import checked. An independent rebuild compares all **187 native entries**;
 the revision audit retains **182 unchanged entries**, including the complete
 accepted rig, cylinder, extractor plate, grip, trigger, guard, ammunition and loader.

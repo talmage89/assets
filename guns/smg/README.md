@@ -65,7 +65,7 @@ The curved magazine has a hollow stamped body, formed ribs, witness holes,
 curled feed lips, catch window, tilted slid-on floorplate and separate shaped
 follower. Three staggered cartridges represent the visible stack; thirty hidden
 rounds would add no useful silhouette. Loaded and empty snapshots retain the
-same local origin and canonical atlas coordinates. A cartridge and an open,
+same local origin; their standalone UVs use separate atlas subsets. A cartridge and an open,
 fired case are supplied independently, with round 32-sided visible mouths/rims.
 
 ## Materials and years of carry
@@ -257,20 +257,28 @@ extension over the initial 40k ceiling funds pressed construction, fuller
 lower/guard, rounded trigger, conforming pin surrounds and smoother visible
 ammunition. Fine finish detail adds no game triangles.
 
-| Output | Triangles | Materials | GLB bytes |
-| --- | ---: | ---: | ---: |
-| Gun, all animated display ammunition | 41,540 | 1 | 10,879,252 |
-| Loaded magazine | 5,792 | 1 | 7,549,888 |
-| Empty magazine | 4,048 | 1 | 7,476,900 |
-| Cartridge | 688 | 1 | 7,359,568 |
-| Fired case | 688 | 1 | 7,360,256 |
+| Output | Triangles | Materials | GLB bytes | Map size | Density ratio |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Gun, all animated display ammunition | 41,540 | 1 | 10,879,252 | 2048 | — |
+| Loaded magazine | 5,792 | 1 | 1,318,624 | 1024 | 1.000 |
+| Empty magazine | 4,048 | 1 | 1,186,756 | 1024 | 1.000 |
+| Cartridge | 688 | 1 | 151,444 | 512 | 1.000 |
+| Fired case | 688 | 1 | 154,940 | 512 | 1.000 |
 
 One canonical **2048 BaseColor / OpenGL +Y Normal / ORM** set, baked at 4096
 with 32 GPU Cycles samples. BaseColor is sRGB; ORM is R occlusion, G roughness,
 B metallic. About **16 MiB** with 8-bpp block compression and full mip chains.
 The PNG files total **7,317,144 bytes** (1,140,711 BaseColor,
-2,413,887 Normal, 3,762,546 ORM). Every GLB embeds byte-identical images; engine consumers must reuse textures
-by canonical atlas ID/content hash to share that allocation. Each exported
+2,413,887 Normal, 3,762,546 ORM). The gun retains these canonical images. Standalone loaded/empty magazines now
+embed their own **1024** sets; the cartridge and case embed **512**, all lossless
+subsets at the original atlas density. Standalone samplers match the gun’s
+trilinear mipmapped sampler, approximately 4 MiB / 1 MiB compressed including
+mipmaps, with repeat wrapping and density ratio **1.000** for each item.
+The magazines retain their smaller accepted island-packed maps with 6 px
+aligned guards. Each ammunition item uses one copied atlas cluster with an
+8 px aligned outer halo, preserving its internal atlas texels. Pull-push fills
+the remaining background and generated normals are normalized.
+See [delivery details](../DETACHABLES.md) for padding, density and comparison evidence. Each exported
 object is one mesh/material draw call. The loaded/empty magazines retain their
 accepted held-gun detail rather than separate dropped-prop reductions.
 
@@ -295,9 +303,11 @@ Its thresholds are authored as 2D pressure fields, without run-length fitting.
 It reads no reference image. These two source masks bake into the canonical
 atlas and add no shipped textures. The final wear audit reads actual shipping
 pixels mapped to exterior triangles; source-mask statistics are only design
-previews. `src/finish_review.py` also compares the accepted geometry/UV/skin/
-animation buffers and node/accessor layout with the stored acceptance hashes.
-Exporter-derived tangents are regenerated; the accepted game mesh is unchanged.
+previews. `src/finish_review.py` retains the gun's accepted geometry/UV/skin/
+animation buffers and node/accessor layout. Standalone fingerprints retain the
+original oriented geometry, normals and origins; the atlas audit separately
+checks their repacked UVs and mapped look. Guarded tangent rounding retains the
+main gun's branch-point bytes; the accepted game mesh is unchanged.
 
 ## Rebuild
 
@@ -320,7 +330,7 @@ make -C guns/smg clean           # removes generated artifacts, preserves refere
 | Generated path | Contents |
 | --- | --- |
 | `export/smg.glb` | One skinned mesh, 14 bones, eight sockets, 21 clips, baked PBR |
-| `export/magazine_loaded.glb`, `export/magazine_empty.glb` | Common full-frame origin and atlas |
+| `export/magazine_loaded.glb`, `export/magazine_empty.glb` | Common full-frame origin; independent 1024 sets |
 | `export/cartridge.glb`, `export/case.glb` | Standalone ammunition |
 | `textures/T_Relay9_{BaseColor,Normal,ORM}.png` | Canonical shipped 2048 maps |
 | `build/baked/4k/` | Original 4096 bake and ray-coverage report |

@@ -14,6 +14,7 @@ nodes and graphics. The read-only rifle project informed the workflow.
 | `bake.py` | GPU Cycles selected-to-active BaseColor, roughness, metallic, AO and tangent +Y normal; joins only equal coordinate frames to preserve object-space materials |
 | `image_io.py`, `downsample.py` | Original 8/16-bit PNG codec; linear-light color filtering, vector-normal filtering/renormalization and roughness RMS filtering |
 | `export.py` | One embedded PBR atlas; static assembly consolidation; separate pivots, sockets and skin; expected geometry/weight/rest-transform report |
+| `detachable_textures.py`, `detachable_verify.py` | Opt-in lossless atlas subsets, mip-grid guards/fill, raw-GLB surface and tangent checks |
 | `gltf.py`, `verify.py` | Independent raw GLB accessors, normals, textures, weights and inverse-bind checks; fresh Blender import, geometry, pivots, UVs, rig and posed cross-sections |
 | `fonts.py` | fontconfig family/style discovery; reject missing faces and substitutions |
 | `gpu.py`, `with_gpu.sh` | Shared GPU flock; script-enabled OptiX/CUDA; warned CPU fallback |
@@ -332,6 +333,13 @@ for the no-GPU finalize/export/re-import fixture and negative tile-bounds check.
 reference register/cache so independent `make` invocations fetch their cited
 photos and manuals without duplicating downloads.
 
+`fetch_refs.py refs --only image.jpg other.png` optionally fetches only named
+entries from the existing register. Unknown names fail before any request; the
+ordinary command still fetches every entry and skips existing files. This lets
+a check declare its actual photograph prerequisites without depending on unrelated
+manual URLs. Run `python3 -m unittest kit.test_fetch_refs` for selection, legacy
+cache, MIME and path guards (mocked requests, no network).
+
 Reserved-atlas verification also measures the unique region after GLB import,
 rejects any intersection between unique and tile rectangles, and checks the
 embedded tile alpha actually contains both holes and retained wire. The fixture
@@ -649,18 +657,18 @@ with full mip chains, rather than assuming a particular family texture size.
 
 ## Running all regressions
 
-Use a fresh Blender process for each `bpy` fixture. The three pure-Python test
+Use a fresh Blender process for each `bpy` fixture. The four pure-Python test
 modules run with `python3 -m unittest`:
 
 ```sh
-python3 -m unittest -v kit.test_delivery kit.test_fonts kit.test_photo_match
+python3 -m unittest -v kit.test_delivery kit.test_fonts kit.test_photo_match kit.test_fetch_refs
 ```
 
 Run these separately with `blender -b --factory-startup --python-exit-code 1
 --python kit/<name>.py`: `test_atlas`, `test_bake_coordinates`,
 `test_bake_frames`, `test_blended_atlas`, `test_botanical_delivery`, `test_botany`,
 `test_export_policy`, `test_foliage`, `test_gpu`, `test_policy`, `test_surface_profiles`,
-`test_uv_target_aspect`, and `test_vehicle`.
+`test_uv_target_aspect`, `test_vehicle`, and `test_detachable_textures`.
 
 `test_gpu` mocks device selection but imports `bpy` through the GPU helper, so
 it also needs Blender; it performs no bake and needs no physical GPU.
@@ -731,6 +739,133 @@ in the full inverse posed bone frame **after** assigning the atlas material,
 before consolidating the main skin. Zero-scale parts are omitted; source meshes,
 UVs and pose are restored. Loaded/empty variants can share the origin and atlas.
 The lower-level `weapon.detachable()` is also available to family scripts.
+
+An entry may opt into `texture_size=512` or `texture_size=1024`. Its standalone
+GLB then embeds its own BaseColor / OpenGL Normal / ORM set. The main gun keeps
+its original atlas, UVs, materials, rig and clips. Omit the option to retain the
+existing byte-identical canonical-map delivery (and existing regression).
+For already separated, static variant exports, `EXPORT_TEXTURE_SIZE=512` or
+`1024` applies the same operation; animated/skinned scenes reject that option.
+Keep these settings in export-only configuration so they do not invalidate bakes.
+
+`detachable_textures.py` copies the **shipped baked pixels**, with no source
+rebake or resampling. It packs conservative chart rectangles without rotation
+or mirroring. Each UV chart receives an integer-pixel translation and the same
+positive uniform scale, `source_size / texture_size`; tangent orientation and
+handedness are preserved. Float UV storage introduces small rounding errors,
+measured separately by the regression. Request the smallest supported size that
+fits; packing fails rather than reducing density. Material copies preserve
+uniform factors, extensions and independent data in BaseColor alpha.
+
+For neighborhoods with many nearby islands, an entry may additionally select
+`texture_clusters=True` (or `EXPORT_TEXTURE_CLUSTERS=True` for a static export).
+`detachable_clusters.py` joins islands whose 6-pixel guarded sampling masks
+touch or overlap in the source atlas. It copies each resulting neighborhood's
+whole atlas region, including its existing internal margins and nonmember
+texels. These are **kept exactly as copied**, rather than independently dilating
+each island. Regions receive a full protected mip block of outer atlas halo
+(8 pixels through mip 3), with source and destination borders on that grid.
+Both source and destination origins are integers, and their difference is a
+multiple of the protected mip block, preserving the atlas filtering phase.
+
+An oversized neighborhood is partitioned around **whole islands** along their
+existing empty margins. A band admits only islands whose complete vertical
+extent fits; the seam detours around crossing islands. Each part copies a
+bounding rectangle plus its source halo. These source crops may overlap and
+contain duplicate nonmember charts; the destination rectangles are disjoint.
+No island is cut, rotated, mirrored, resampled or reduced in density. The
+outside background alone uses pull-push and generated-normal normalization;
+original atlas normal texels, including copied margins, remain exact. The layout
+records original component count, final regions, split membership and each
+island's triangles, so overlapping chart boxes cannot confuse verification.
+This option still fails if it cannot fit losslessly. Leave it off to preserve
+an already accepted island-packed map with no file-size or allocation saving.
+
+The guns' seventeen validated standalone sets remain at density ratio **1.000**:
+six 512 and eleven 1024 sets, one material / three maps each. Final embedded
+GLBs total **10,913,804 bytes**, versus **116,433,060 bytes** with their original
+full atlases (90.63% smaller). Eleven use atlas regions; six retain smaller
+accepted island-packed PNGs. Per-item sizes, cluster counts, bytes and bleed
+excesses are in [the guns delivery table](../guns/DETACHABLES.md).
+
+Each chart retains its original bilinear sampling footprint, with **at least
+6 pixels of additional dilation** from that chart alone (the 2048 gun atlas's
+12-at-4096 bake margin is effectively 6). Guards occupy disjoint rectangles
+aligned to the protected box-mip grid. Their right/top extents round up to that
+grid; this contains the bilinear taps at mip 3 even at an unfavorable UV phase,
+where an unaligned 8-pixel rectangle alone can leak. Grid alignment lets the
+minimum match the atlas margin without forcing more items into larger sets.
+The packer prefers 8 pixels, and falls back to 6 only when that retains the
+requested size. At mip 3 the left/bottom guards are 6 or 8 pixels; the right/top
+guards round up to the grid (6–13 or 8–15 pixels). Both policies contain every
+box/bilinear tap through the protected level. Protection extends through
+mip 3 or the level where the item's smallest UV island becomes two texels
+across, whichever is farther. A larger required cutoff increases the grid and
+gutter together. Packing still fails rather than reducing density.
+
+Island dilation plus a masked pull-push fill covers **every** remaining texel,
+including the gaps between guards. Background RGB is filled in linear light. No black background is introduced into the deep mip tail. Generated
+normal pixels are normalized before 8-bit quantization; the islands' copied
+sampling footprints stay byte-exact. Generated maps and `layout.json` live
+beside the export report in `detachables/<GLB stem>/`; the layout records
+source/destination rectangles, guards, mip grid/cutoff and measured density.
+
+**Sampling contract:** standalone exports keep the same exporter sampler as
+the gun. The default is `LINEAR_MIPMAP_LINEAR` (9987) minification and `LINEAR`
+(9729) magnification, with repeat wrapping (implicit glTF defaults). No sampler
+override, engine LOD clamp or mipmap disabling is required. A fully filled mip
+tail still mixes islands after the protected cutoff, as any atlas does; it
+averages this item's surfaces rather than a black unused background. At 8-bpp
+block compression, three maps with their full mip chains cost about **1 MiB at
+512**, **4 MiB at 1024**, or **16 MiB at 2048**, without inter-file caching.
+
+Run `blender -b --factory-startup --python-exit-code 1 --python
+kit/test_detachable_textures.py` in a fresh process (no bake/GPU required).
+It exports the same loaded, empty and tilted detachables both ways, checks main
+GLB byte identity, legacy image bytes, 512/1024 dimensions, bounds, disjoint
+guards, deterministic output, static variants and negative configuration cases.
+A clustered fixture checks full-region byte copying, an oversized neighborhood
+split around intact islands, overlapping source halos, deterministic output,
+base-level sampling and per-island mip bleed. The exporter option also checks
+main GLB identity. No fixture reduces density or resamples a surface.
+A dense 400-island fixture proves the 6-pixel fallback retains 512, density
+and mip-3 isolation; a large-island fixture verifies protection through mip 6.
+`detachable_verify.py` independently reads raw GLB accessors and material texture
+indices, matches oriented geometry and origins, and samples ten identical
+surface points per triangle in linear color, tangent normal and ORM, including
+opaque alpha. Tolerance is 0.25/255 per channel; triangle tangent directions must
+agree within 0.5 degrees after float storage. Its `audit()` also checks delivered
+sampling, disjoint aligned guards, normalized generated normals (unit-length
+error below 0.007 after 8-bit quantization), and inverse-mapped atlas samples.
+Supply `gun=<main GLB>` to compare resolved samplers channel by channel.
+`mip_bleed()` builds box-filtered atlas and standalone mip chains, and compares
+each point/channel to that same island alone, dilated without a gutter limit.
+The reference is independently rasterized from exported accessors and aligned
+to each actual mip grid, so normal intra-island filtering phase is not called
+bleed. RGB is filtered in linear light, alpha/ORM as linear data, and normals as
+encoded vectors (ordinary GPU mip generation). At every tested point and LOD,
+the new maximum channel error must be no more than the atlas error plus
+**1/255**. The test reaches at least mip 3, even when tiny islands make the
+requested two-texel cutoff earlier. Negative fixtures reject both a disabled
+mip sampler and black background/padding while keeping surface texels intact.
+The raw old/new UV transform must agree with the known positive density-preserving
+scale within 0.001 delivered pixel. Resolved triangles (at least one source texel
+of area) additionally retain density within 0.1%; subtexel slivers' ill-conditioned
+area ratios are reported separately, alongside all their surface samples.
+Clean `build/detachable-textures` before this fixture. The existing
+`test_weapon_delivery.py` remains unchanged and still proves canonical reuse.
+
+`gltf.stabilize_tangents(path, anchors)` optionally restores explicitly accepted
+four-decimal tangent rounding at asset-owned corners. Each anchor includes the
+mesh/primitive/vertex index and exact FLOAT position, normal and UV signatures;
+larger changes or mismatched signatures fail before writing. Only the anchored
+tangent bytes can change, bounded to one 0.0001 rounding step. This protects
+byte-preservation reviews from exporter rounding noise without hiding geometry
+changes. The detachable fixture checks exact restoration and negative guards.
+The CLI is `blender -b --factory-startup --python-exit-code 1 --python kit/gltf.py
+-- --source export/asset.glb --config src/export_config.py`; that export-only
+config supplies `EXPORT_TANGENT_ROUNDING`. Existing exports never invoke it
+implicitly, and the GLB reader's behavior is unchanged.
 
 `BAKE_POLICY.isolate_rigid_bones=True` adds virtual projection roots `rigid:<bone>`
 for non-Root rigid parts tagged with `bone`. This preserves each part's projection

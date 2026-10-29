@@ -11,7 +11,7 @@ frame, serrations, cellular grip pattern, controls and markings are our own desi
 | ![Front, side, back and top](docs/turnaround.jpg) | ![Rear sights, grip, hood and markings](docs/details.jpg) |
 | ![Locked action, magazines and fired case](docs/action.jpg) | ![Eevee, same exported GLB](docs/eevee.jpg) |
 
-All images above load the exported GLB with its baked 2048 maps. The
+All images above load exported GLBs with baked maps. The gun retains 2048 maps. The
 full contact sheet (`renders/final/contact-sheet.jpg`) also includes the
 aimed view (`renders/final/beauty/aimed.png`),
 1.8 m scale shot (`renders/final/beauty/scale.png`),
@@ -229,21 +229,30 @@ slide and visible grip. UVs reserve shared family rectangles for the pistol,
 magazine and case; measured density/overlap are reported rather than claimed
 perfectly uniform or zero.
 
-| Final output | Triangles | Materials | GLB bytes |
-| --- | ---: | ---: | ---: |
-| Pistol, loaded | 34,122 | 1 | 8,080,736 |
-| Loaded magazine | 5,256 | 1 | 5,396,268 |
-| Empty magazine | 4,416 | 1 | 5,362,336 |
-| Fired case | 384 | 1 | 5,204,716 |
+| Final output | Triangles | Materials | GLB bytes | Map size | Density ratio |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Pistol, loaded | 34,122 | 1 | 8,080,760 | 2048 | — |
+| Loaded magazine | 5,256 | 1 | 1,318,548 | 1024 | 1.000 |
+| Empty magazine | 4,416 | 1 | 991,516 | 1024 | 1.000 |
+| Fired case | 384 | 1 | 235,932 | 512 | 1.000 |
 
 Bake: **4096, 32 samples**, filtered to one **2048 BaseColor / OpenGL +Y Normal /
 ORM** set. ORM stores R occlusion, G roughness, B metallic. Explicit rest-position
 and normal attributes preserve masks while the kit isolates rigid bones for
 projection. Original micro-AO carries texture-valley shading alongside geometric
 AO. The filtered three-map atlas costs approximately **16 MiB compressed with
-mipmaps**. All four GLBs embed byte-identical atlas payloads; engines must cache
-the canonical textures/hash to share that allocation. Separate file imports do
-not enforce GPU sharing. `KHR_materials_specular` retains the .28 dielectric
+mipmaps** for the gun. Standalone loaded/empty magazines now embed their own
+**1024** sets; the fired case embeds **512**. All three retain density ratio
+**1.000** against the shipped atlas and match
+the gun’s `LINEAR_MIPMAP_LINEAR` / `LINEAR` sampler with repeat wrapping.
+The loaded magazine uses two copied atlas regions; the case uses one. Their
+outer halos are 8 px on the mip grid, retaining the original internal atlas
+texels. The empty magazine keeps its smaller accepted island-packed maps with
+6 px aligned guards. Outside copied regions, pull-push fills the background
+and generated normals are normalized. No surface is rebaked or resampled.
+These cost about 4 MiB per magazine / 1 MiB per case compressed with full mips.
+See [delivery details](../DETACHABLES.md) for all seventeen items’ bytes,
+density, bleed measurements and full/distant pairs. `KHR_materials_specular` retains the .28 dielectric
 specular setting; no extra material or map is required.
 
 The final hood correction replaces broad noisy inset rub bands with narrow
@@ -254,6 +263,11 @@ and 74/75/74 on the front serration crests. Palm-web roughness changes from
 145/255 to 119/255 while median color changes from 19/18/16 to 20/18/17.
 These are surface texels, separate from the photographic view values above.
 `build/surface-audit.json` records actual ray-hit/UV samples and all channels.
+
+The export recipe restores two guarded, numerically unstable rounded tangent
+corners to the branch-point value, as the bolt rifle already does. Exact position,
+normal and UV signatures must match before either corner tangent is restored.
+This keeps the main pistol GLB byte-identical through the detachable revision.
 
 Exact final bytes, density/overlap, normals, image hashes and round-trip errors
 are recorded in `build/delivery/verify.json`. Serialization agreement is separate

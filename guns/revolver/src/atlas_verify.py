@@ -12,6 +12,7 @@ from PIL import Image
 BASE=Path(__file__).resolve().parents[1];sys.path[:0]=[str(BASE.parents[1]),str(BASE/'src')]
 from kit import weapon as W,weapon_verify as V,uv
 from kit.gltf import GLB
+from kit import detachable_verify as DV
 from interface import CLIPS
 from semantics import check
 def named_reference(arm):
@@ -96,8 +97,15 @@ def main():
   path=BASE/'export'/(name+'.glb');g=GLB(path)
   triangles=sum(len(g.accessor(p['indices']))//3 for m in g.json['meshes'] for p in m['primitives'])
   assert triangles<=limit and len(g.json['materials'])==1 and len(g.json['images'])==3
-  hashes=sorted(hashlib.sha256(g.image(i)).hexdigest() for i in range(3));assert hashes==canonical
-  for i in range(3):assert Image.open(io.BytesIO(g.image(i))).size==(2048,2048)
+  hashes=sorted(hashlib.sha256(g.image(i)).hexdigest() for i in range(3))
+  if name=='revolver':
+   assert hashes==canonical
+   subset=None;map_size=2048
+  else:
+   subset=DV.audit(path,BASE/'textures','MeridianSix',BASE/'build/delivery/detachables'/name/'layout.json',gun=BASE/'export/revolver.glb')
+   subset['mip_bleed']=DV.mip_bleed(path,BASE/'textures','MeridianSix',BASE/'build/delivery/detachables'/name/'layout.json',gun=BASE/'export/revolver.glb')
+   map_size=subset['size'];assert map_size=={'cartridge': 512, 'case': 512, 'speedloader_loaded': 1024}[name]
+  for i in range(3):assert Image.open(io.BytesIO(g.image(i))).size==(map_size,map_size)
   if name=='revolver':
    assert {a['name'] for a in g.json['animations']}==set(CLIPS)
    for animation in g.json['animations']:
@@ -106,7 +114,8 @@ def main():
     assert abs(lo)<1e-7 and abs(hi-CLIPS[animation['name']]['frames']/60)<3e-7
    assert len(g.json['skins'])==1
   else:assert not g.json.get('animations') and not g.json.get('skins')
-  records[name]=dict(triangles=triangles,bytes=path.stat().st_size,materials=1,images=3,image_size=2048,image_sha256=hashes,normal_direction=V.normal_direction(g))
+  records[name]=dict(triangles=triangles,bytes=path.stat().st_size,materials=1,images=3,image_size=map_size,image_sha256=hashes,normal_direction=V.normal_direction(g))
+  if subset is not None:records[name]['standalone_textures']=subset
  arm=V.import_glb(BASE/'export/revolver.glb');imported_states=check(arm)
  imported_uv=uv.report([o for o in bpy.context.scene.objects if o.type=='MESH'],size=2048)
  assert not imported_uv['outside_triangles'] and not imported_uv['degenerate_uv_triangles'] and imported_uv['overlap_fraction']<1e-5

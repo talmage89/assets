@@ -31,8 +31,8 @@ use STEP sampling; all movement uses explicit hold boundaries. Feeding is a
 visibility representation, not a cartridge-path simulation. At frame 47 of an
 empty reload, the replacement magazine becomes loaded offscreen. Drop the empty
 standalone at magazine-out, before this substitution. Do not replace the dropped
-magazine with the loaded variant. Loaded/empty exports use the same local origin
-and canonical atlas coordinates.
+magazine with the loaded variant. Loaded/empty exports use the same local origin.
+Standalone UVs are repacked subsets of the gun atlas; retain each imported material.
 
 Transitions commit at clip completion: normal Fire → Idle/Fire/Reload; last-round
 FireLast → ReloadEmpty → Idle; IdleEmpty → Charge → IdleOpen. Supply `last_ready`
@@ -67,10 +67,14 @@ Magazine and MagRelease. Action-specific C9 bones:
 Slide, Barrel, SlideStop; additional visual children remain implementation detail.
 Optional features are discovered through capabilities, never demanded from a
 shotgun/bolt-action gun. Preserve imported PBR materials by index; no `Rifle` or
-`RifleLens` name override. The final delivery contract is one 2048 BaseColor /
-OpenGL Normal / ORM atlas; separate GLBs repeat identical embedded payloads.
-An engine must reuse textures by canonical atlas ID/content hash to share GPU
-memory: identical GLBs do not make runtime caching automatic.
+`RifleLens` name override. Each gun retains one 2048 BaseColor / OpenGL Normal /
+ORM atlas. Standalone detachables now embed their own 512 or 1024 subsets at the
+same texel density, with unchanged geometry and spawn frames. Rebuilt standalone
+sets inherit the gun’s `LINEAR_MIPMAP_LINEAR` / `LINEAR` sampler and repeat
+wrapping; retain these imported samplers. See [delivery details](DETACHABLES.md)
+for cluster copying, gutters, fill and per-item validation. All seventeen fit
+512/1024 losslessly at density ratio 1.000; no 2048 or reduced-density magazine
+is required.
 
 ## Additive 1.1.0 tube-loading supplement
 
@@ -102,11 +106,24 @@ single action, a manual swing-out reload and a speedloader. It has no
 magazine; its magazine sockets are declared inactive. The 1.0.0 binding and the
 1.1.0 to 1.3.0 supplements retain their existing meanings.
 
+## Additive 1.5.0 lever-action supplement
+
+The [Bracken L20 supplement](lever/INTERFACE.md) adds a manual lever action
+with an operating-hand socket, a six-round tube loaded one round at a time
+through a right-side gate, an exposed hammer with a half-cock display, and top
+ejection. Its magazine socket is a fixed tube-mouth frame, not a dropped-magazine
+spawn. It reuses the 1.1.0 tube-loading meanings. The 1.0.0 binding and the
+1.1.0 to 1.4.0 supplements retain their existing meanings.
+
+## Additive 1.6.0 rocking-magazine supplement
+
+The [Rill 39 supplement](ak/INTERFACE.md) adds `magazine_rocks_in`, the authored
+front-hook/rock/seat path and a reciprocating charging-handle binding. Existing
+occupancy, socket, effect and select-fire meanings remain unchanged.
+
 ## Additive 1.7.0 break-action supplement
 
 The [Covey 26 supplement](sxs/INTERFACE.md) adds a two-barrel break action,
 double triggers, extractors, an automatic tang safety and per-barrel chamber
 and internal-hammer states. It reuses 1.4.0's loaded/fired/empty vocabulary
-and 1.1.0's shell insertion frames. It has no magazine. Versions 1.5.0 and
-1.6.0 remain reserved for the lever-action and stamped-receiver supplements;
-all earlier meanings remain unchanged.
+and 1.1.0's shell insertion frames. It has no magazine. All earlier meanings remain unchanged.

@@ -1,0 +1,44 @@
+{
+  "source_main_commit": "2b6ac0e8b21b026f85536ce65e3a9a4470110f8b",
+  "main_sha256": "0fecef4cfc1b77fa9c485272d787cb276625781745a6893fe67ba190b60355a0",
+  "original_glbs": {
+    "magazine_loaded": {
+      "bytes": 7704908,
+      "sha256": "f82cba7bb6c3d87208a96e4ac6ca8cf563ff3128d4650fcd504820287740f1a0"
+    },
+    "magazine_empty": {
+      "bytes": 7616752,
+      "sha256": "a54f405980c6e57194c9ea2ccf2e63b86e9f0c5b818517b693b70a3b7a46e096"
+    },
+    "cartridge": {
+      "bytes": 7496472,
+      "sha256": "98ef782b4dc2c46f8cada61c78c8881dd6a884d5506e75b1419eb865ba7ce49b"
+    },
+    "case": {
+      "bytes": 7484152,
+      "sha256": "95c244a2e22c1a640e7f3fd146244456acac31a638fc155c6d495195c05b4e51"
+    }
+  },
+  "geometry": {
+    "magazine_loaded": {
+      "triangles": 6756,
+      "attributes": "cd56e756569adb39aaa1eacfdee05ea00ece73f8bf05bf7e856cc356821f2701",
+      "structure": "e4f3b4c12f0d13fbfe1da6d33496915b2541be9a126a1b02b06331f4fe8bb59a"
+    },
+    "magazine_empty": {
+      "triangles": 4596,
+      "attributes": "bfeea01fc320f02be0ac1f15791ca87e7de9f270e741016502a54865ee91721f",
+      "structure": "e4f3b4c12f0d13fbfe1da6d33496915b2541be9a126a1b02b06331f4fe8bb59a"
+    },
+    "cartridge": {
+      "triangles": 960,
+      "attributes": "a5fc7a37f3143b283222e22287e46da8b431491f4be340115dc68da5c36a4969",
+      "structure": "606a0424bf32a5ad8ca5deb00744357067d8b1568c76453d50a1008fbb3519e2"
+    },
+    "case": {
+      "triangles": 704,
+      "attributes": "aa567e4e4df76a3e06a60e823ecd5abdedb545fe742c6dbad03dfccb020cd380",
+      "structure": "ac0aeb51c8d88370c36403dba6647a5aefa66af8797e0d71e2a2118993ee3319"
+    }
+  }
+}
