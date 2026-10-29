@@ -55,6 +55,20 @@ MATCHES['hammer_photo'].update(lens=380,lens_bounds_mm=(80,900),target=(0,.052,.
 MATCHES['lever_rest_photo']=dict(MATCHES['trigger_quarter'],crop=(290,300,790,495),
     title='Lever at rest: continuous forging and long finger opening')
 MATCHES['open_photo']['lens_bounds_mm']=(80,1400)
+MATCHES['used_photo']=match('open2',(0,110,1024,400),'Used right action: brown-plum oxide, gray edge rubs and handled walnut',
+    (1.1,-.13,.40),(0,.14,.02),110,[
+        L((15.75,70,56),(374,190),2),L((15.75,190,56),(704,193),2),
+        L((15.75,74,15),(368,275),2),L((15.75,185,16),(685,258),2),
+        L((0,72,56),(371,150)),L((0,200,56),(700,155)),
+        L((0,-15,25),(82,244)),L((15.7,147.7,20),(566,250)),
+    ])
+MATCHES['sight_photo']=match('rear-blade',(100,94,320,224),'Semi-buckhorn blade: ruler photograph, different two-screw mounting',
+    (0,-.1,.065),(0,.283,.065),140,[
+        L((-9.8,283,68.7),(152,110)),L((9.8,283,68.7),(275,115)),
+        L((-.8,283,66.5),(201,124)),L((.8,283,66.5),(221,124)),
+        L((-9,283,59.7),(139,208)),L((9,283,59.7),(279,210)),
+    ])
+MATCHES['sight_photo']['lens_bounds_mm']=(45,900)
 # Coplanar receiver landmarks cannot recover perspective distance. A distant
 # camera is the weak-perspective comparison assumption; it avoids inventing
 # extreme near-camera shortening of the loop below the calibration landmarks.

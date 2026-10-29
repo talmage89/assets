@@ -13,6 +13,8 @@ NEUTRALS={
  'receiver':('polished pivot screw facet on the left plate',(363,100,369,105)),
  'open':('polished cross-pin highlight, estimated silver neutral',(158,243,163,248)),
  'open2':('broad exposed bolt flat, estimated silver neutral',(470,166,570,177)),
+ 'rear-blade':('plain gray photo backdrop beside the steel blade',(20,20,95,85)),
+ 'rear-sheet':('plain gray backdrop above the leaf',(320,35,480,90)),
 }
 
 

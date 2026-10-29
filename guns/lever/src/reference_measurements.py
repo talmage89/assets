@@ -16,7 +16,7 @@ LINES={
  'open_photo':dict(inside_length=((410,489),(393,709)),inside_width=((360,596),(452,604)),
                    bar_side_depth=((349,615),(355,615)),web_depth=((373,400),(391,400))),
  'trigger_quarter':dict(inside_length=((521,409),(753,430)),inside_width=((630,400),(623,442)),
-                        bar_side_depth=((627,447),(627,442)),blade_side_depth=((459,373),(468,373))),
+                        bar_side_depth=((627,447),(627,442)),bow_side_depth=((414,395),(414,414)),blade_side_depth=((459,373),(468,373))),
 }
 
 
@@ -40,7 +40,7 @@ def main():
         for i,(label,pixels) in enumerate(lines.items()):
             points=recover(data,pixels);length=float(np.linalg.norm(points[1]-points[0]))
             rows[label]=dict(native_pixels=pixels,estimated_plane_points_mm=points.tolist(),estimated_length_mm=length)
-            color=('red','lime','cyan','magenta')[i];draw.line((*pixels[0],*pixels[1]),fill=color,width=2)
+            color=('red','lime','cyan','magenta','yellow')[i];draw.line((*pixels[0],*pixels[1]),fill=color,width=2)
             draw.text((pixels[0][0]+8,pixels[0][1]),label+' %.1f mm'%length,font=font,fill=color,stroke_width=1,stroke_fill='black')
         if name=='open_photo':
             points=recover(data,[(511,285),(381,394),(393,485)])
@@ -52,6 +52,11 @@ def main():
         photo.save(out/(name+'-measurements.jpg'),quality=94,optimize=True)
     report['design_choice']='Open view controls the long loop envelope; closed view constrains section and continuity. The smaller recovered closed loop remains a stated difference, not a claimed exact match.'
     report['transverse_bar_width']='8.2 mm authored class estimate; an oblique photograph cannot independently establish this thickness.'
+    closed=report['trigger_quarter'];scale=29/closed['inside_width']['estimated_length_mm']
+    report['accepted_opening_normalization']=dict(reason='Preserve the accepted 104 x 29 mm aperture. Compare bar-to-opening ratios, because the photographed closed loop is smaller.',
+        width_scale=scale,loop_side_depth_mm=closed['bar_side_depth']['estimated_length_mm']*scale,
+        bow_side_depth_mm=closed['bow_side_depth']['estimated_length_mm']*scale,
+        limitation='Perspective/section estimates, not manufacturing measurements; broad visible transverse faces are excluded.')
     report['hammer_checkering']='1.0 mm square pitch, 0.24 mm relief; approximate class detail, not calibrated manufacturer data.'
     native=[(505,189),(580,207)];points=recover(cameras['hammer_photo'],native);forward=points[0]-points[1]
     report['hammer_table']=dict(native_pixels=native,estimated_points_mm=points.tolist(),

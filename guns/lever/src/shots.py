@@ -31,6 +31,8 @@ SHOTS={
  'trigger':shot((.21,.074,-.013),(0,.076,-.012),78,1.5,action='Idle',frame=0),
  'trigger_quarter_view':shot((.18,.0,.07),(0,.079,-.012),78,1.5,action='Idle',frame=0),
  'sights':shot((.14,.19,.19),(0,.297,.064),75,1.7,action='Idle',frame=0),
+ 'sight_blade':shot((0,.09,.065),(0,.283,.065),ortho=.033,aspect=1.7,action='Idle',frame=0),
+ 'wrist_raking':shot((.19,-.10,.125),(0,.035,.030),78,1.5,action='Idle',frame=0,raking=True),
  'front_sight':shot((.12,.59,.12),(0,.686,.060),85,1.5,action='Idle',frame=0),
  'stock':shot((.40,-.40,.18),(0,-.12,-.02),72,1.7,action='Idle',frame=0),
  'butt_plate':shot((-.16,-.44,.045),(0,-.254,-.050),75,1.4,action='Idle',frame=0),
