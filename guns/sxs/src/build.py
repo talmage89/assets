@@ -29,8 +29,10 @@ def action_roof(x,y):
  # Two flat, ground shoulders meet a narrow central strap land. The fence
  # domes are genuine hemisphere surfaces, joined to this ruled forging.
  return 47.2+.12*(y-94)-.82*max(0,abs(x)-6.5)
-def rear_seam(z):
- return 25*smoothstep((z-15)/15)
+def rear_seam(z,x=0):
+ # Forward wood fingers beside the central strap; a shorter upper head
+ # whose rear seam returns gently around the narrow root of the strap.
+ return (15+10*smoothstep((abs(x)-8)/12))*smoothstep((z-15)/15)
 def materials():
  for name,color,metal,rough in [('blue',(.014,.016,.019),.85,.39),
   ('wood',(.065,.025,.010),0,.46),('plate',(.016,.015,.013),0,.56),
@@ -123,7 +125,7 @@ def action():
   w,bot,top=action_section(y);pts=[]
   for x in [-w,-w+4,-18,-12.6,-6.5,0,6.5,12.6,18,w-4,w]:
    z=action_roof(x,y)
-   yy=y+rear_seam(z)*max(0,1-(y-70)/30)
+   yy=y+rear_seam(z,x)*max(0,1-(y-70)/30)
    # Evaluate the plane at the actual station to retain a perfectly ground
    # shoulder after shortening the head beside the top strap.
    if abs(abs(x)-w)<.001 or abs(abs(x)-(w-4))<.001:
@@ -324,10 +326,14 @@ def wood_loop(y,w,bottom,top,n=40,p=2.25):
   x*=1-.16*max(0,s)**4*(1-max(0,min(1,(y-25)/40)))
   z=(top+bottom)/2+(top-bottom)/2*math.copysign(abs(s)**(2/2.15),s)
   yy=y+.075*(-5-z)*max(0,min(1,(-275-y)/24))
-  yy+=rear_seam(z)*smoothstep((y-25)/45)
   blend=max(0,min(1,(y-25)/35));blend=blend*blend*(3-2*blend)
   if blend:
-   hx,hz=head_section(y,t);x=x*(1-blend)+hx*blend;z=z*(1-blend)+hz*blend
+   hx,hz=head_section(y,t)
+   # The seam warps the cage station forward. Match its section at that
+   # actual station rather than retaining the narrower unwarped head.
+   for _ in range(3):hx,hz=head_section(y+rear_seam(hz,hx)*smoothstep((y-25)/45),t)
+   x=x*(1-blend)+hx*blend;z=z*(1-blend)+hz*blend
+  yy+=rear_seam(z,x)*smoothstep((y-25)/45)
   loop.append((x,yy,z))
  return loop
 def wood():
@@ -337,6 +343,9 @@ def wood():
   src=next(p for p in PARTS if p.name==name);tool=src.copy();tool.data=src.data.copy();bpy.context.collection.objects.link(tool);cut(ob,tool)
  body=next(p for p in PARTS if p.name=='Action_Body');tool=body.copy();tool.data=body.data.copy();bpy.context.collection.objects.link(tool);cut(ob,tool)
  for x,y in [(2.6,64),(-2.6,31)]:cutbox(ob,(x-4.1,y-9,-9),(x+4.1,y+12,12))
+ # A small clearance at the front of the head's well removes the unsupported
+ # wood feather that an exactly matching metal-well rim would otherwise leave.
+ cutbox(ob,(-7.6,76.5,8.5),(7.6,79,12))
  high_copy(ob);reduce(ob,6700);reg(ob)
  loops=[]
  for y,s in [(-299,1),(-299.5,1.002),(-303.9,1.001),(-304.6,.996)]:

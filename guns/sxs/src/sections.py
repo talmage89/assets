@@ -20,7 +20,7 @@ CUTS=[('Fence domes',1,.108,(0,2),('Action_Body',)),
  ('Butt stock front',1,-.150,(0,2),('Stock_Walnut',)),
  ('Wrist',1,-.015,(0,2),('Stock_Walnut','Top_Strap','Trigger_Plate')),
  ('Tang inlet',1,.005,(0,2),('Stock_Walnut','Top_Strap','Tang_Safety','Safety_Guide')),
- ('Action floor and lumps',0,0,(1,2),('Action_Body','Breech_Lumps','Barrel_Hook','Hook_Web','Locking_Shoe','Locking_Shoe_Upper','Hinge_Pin'))]
+ ('Action floor and lumps',0,.0000005,(1,2),('Action_Body','Breech_Lumps','Barrel_Hook','Hook_Web','Locking_Shoe','Locking_Shoe_Upper','Hinge_Pin'))]
 def capture(path,dense=False):
  if path.suffix=='.blend':bpy.ops.wm.open_mainfile(filepath=str(path))
  else:V.import_glb(path)
