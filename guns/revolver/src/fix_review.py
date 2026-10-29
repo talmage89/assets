@@ -5,7 +5,7 @@ comparison images read reference pixels; geometry, shaders and exports do not.
 """
 import argparse,json,hashlib,sys
 from pathlib import Path
-from PIL import Image,ImageDraw,ImageFont
+from PIL import Image,ImageDraw,ImageFont,ImageOps
 BASE=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(BASE.parents[1]))
 from kit.fonts import find_font
@@ -16,7 +16,7 @@ ROWS={
  'spur-cocked':('hammer_cocked_photo','target',(1650,720,2370,1350),'Same spur in the accepted cocked pose; crescent body and checker field retained'),
  'lug-front':('muzzle','muzzle-front',(1510,850,2010,1280),'Rounded section, continuous barrel/lug side and head within the rolled nose'),
  'lug-below':('lug_under','quarter',(0,490,1150,1250),'Rounded underside and nose; narrow opening follows the actual leftward departure'),
- 'slot':('rear_slot','rear-top',(170,65,294,174),'Rear crown rounds down; 8.00 mm body cut below the wider 9.92 mm spur'),
+ 'slot':('rear_slot','rear-top',(170,65,294,174),'Curved rear crown; 8.00 mm body cut below 9.92 mm spur; photo original 500 px wide'),
 }
 
 def main():
@@ -44,7 +44,7 @@ def main():
   images=[Image.open(before).convert('RGBA'),Image.open(after).convert('RGBA'),Image.open(reference).convert('RGBA').crop(crop)]
   w,h=700,540;canvas=Image.new('RGB',(w*3,h+140),(235,237,233));d=ImageDraw.Draw(canvas)
   for i,(im,label) in enumerate(zip(images,('Before / 27f07da baked GLB','After / current baked GLB','Reference photograph / form'))):
-   im.thumbnail((w-16,h-16),Image.Resampling.LANCZOS)
+   im=ImageOps.contain(im,(w-16,h-16),Image.Resampling.LANCZOS)
    bg=Image.new('RGBA',im.size,(235,237,233,255));bg.alpha_composite(im)
    canvas.paste(bg.convert('RGB'),(i*w+(w-im.width)//2,60+(h-im.height)//2))
    d.text((i*w+12,14),label,font=font,fill=(25,35,30))

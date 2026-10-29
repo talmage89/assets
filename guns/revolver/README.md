@@ -17,6 +17,8 @@ These images load the exported GLB and its baked 2048 maps. Docs JPGs are
 prepared for the lead's review and left uncommitted as requested. Full-resolution
 evidence is generated at `renders/final/hero-gray.jpg`, `contact-sheet.jpg`,
 `photo-pairs.jpg`, `hammer-pairs.jpg`, `scale-gray.jpg` and `beauty/frame_bottom.png`.
+The four final corrections have before/after/photo evidence in `renders/final/fixes/`,
+with measured photographic gauges and separate front/below lug views.
 [REVIEW.md](REVIEW.md) records form and finish critiques, measured comparisons,
 bake loss, validation and the remaining limitations.
 
@@ -53,8 +55,9 @@ Only sources, notes, Makefiles and accepted docs images belong in git.
 | Forcing-cone gap | .200 mm, three surface rays | accepted visual running gap |
 | Window central upper / lower light | about .443 / .457 mm | actual surfaces, separate from swing relief |
 | Crown recess | 1.450 mm | accepted protected annular floor |
-| Hammer spur root / near-tip thickness | about 6.02 / 3.58 mm | uncertain photographic class gauges, 5–7 / 3–4 mm |
-| Spur width / extension past frame gauge | about 9.95 / 16.02 mm | estimated class 9–11 / 14–18 mm |
+| Hammer spur root / near-tip thickness | about 6.17 / 5.44 mm | corrected broad-end photo estimate 5.53 ±1.0 mm |
+| Exposed rod / knurled head diameter | 5.80 / 6.40 mm | photo estimates 5.74 ±0.6 / 5.94 ±0.7 mm |
+| Spur width / extension past frame gauge | about 9.92 / 16.55 mm | estimated class 9–11 / 14–18 mm |
 | Cartridge length / rim diameter | 40.20 / 11.12 mm | C.I.P. maxima 40.39 / 11.18 mm |
 | Fired assembly length | 32.80 mm | 32.77 mm case body plus primer relief |
 | Unloaded mass | nominal 1.13 kg, unmeasured | published class 1.134–1.151 kg |
@@ -76,9 +79,16 @@ extractor plate and six actual rim-bearing lobes retain their accepted geometry.
 The barrel has side flats, a blended rib, protective recessed crown and a
 compound rolled underlug nose. Its narrow left opening lets the rod depart with
 the cylinder; the right wall hides it. Source/import rays measure the approximately
-3.50 mm release rather than claiming a closed tube. Front and rear sights retain
+6.31 mm shaft release rather than claiming a closed tube. Front and rear sights retain
 the pinned ramp, thin notch blade, tapered seated tongue and slotted adjustments.
 The contoured latch stands on its recessed stem.
+
+The original rod endpoints and 26 mm stroke are retained. Its forward shaft is
+5.8 mm across, with a 6.4 mm knurled head and a smaller sliding journal through
+the original bearings. The narrow release grows only with that diameter. The
+lug has an elliptical underside, tangent barrel-side blend and a rolled nose.
+The rear frame has a transverse crown behind the sight and a body-width cut
+following the actual concave hammer sweep; the raised spur is wider than it.
 
 Hammer cheeks and tongue come from one three-dimensional subdivision cage.
 The fine crossed roof cuts bake over its curvature; the game mesh carries the
@@ -140,10 +150,10 @@ The other ammunition photograph's white cell clips and constrains structure only
 <!-- VIEW_VALUES -->
 | Surface | Median display luma, photo / export (0–255) | Photo R:G:B (G=1) | Export R:G:B (G=1) |
 | --- | ---: | --- | --- |
-| Stainless frame | 129.50 / 108.86 | 1.016:1.000:1.031 | 0.991:1.000:1.009 |
-| Stainless barrel | 151.42 / 159.86 | 1.017:1.000:0.993 | 0.994:1.000:1.006 |
-| Textured rubber | 74.65 / 70.50 | 1.014:1.000:1.068 | 0.972:1.000:0.986 |
-| Smooth hand contact | 97.86 / 79.72 | 0.980:1.000:1.010 | 0.975:1.000:0.975 |
+| Stainless frame | 129.50 / 109.57 | 1.016:1.000:1.031 | 0.982:1.000:1.000 |
+| Stainless barrel | 151.42 / 143.57 | 1.017:1.000:0.993 | 0.986:1.000:1.000 |
+| Textured rubber | 74.65 / 70.29 | 1.014:1.000:1.068 | 0.979:1.000:0.986 |
+| Smooth hand contact | 97.86 / 79.43 | 0.980:1.000:1.010 | 0.975:1.000:0.975 |
 | Black sight face | 64.14 / 69.33 | 1.008:1.000:1.016 | 0.943:1.000:1.036 |
 <!-- /VIEW_VALUES -->
 
@@ -151,7 +161,7 @@ The other ammunition photograph's white cell clips and constrains structure only
 | --- | ---: |
 | Brass case | 161.43 / 121.46 |
 | Copper jacket | 97.72 / 90.27 |
-| Exposed lead | 51.50 / 56.04 |
+| Exposed lead | 51.50 / 56.57 |
 | Primer cup | 62.49 / 45.85 |
 
 The forward ammunition comparison makes the exposed lead camera-visible;
@@ -211,23 +221,23 @@ simulation. Interrupted clips resume the saved clip/frame with the pose held.
 
 The **complete staged payload** counts every hidden live/fired alternative,
 incoming six rounds, loader and single insertion representation. It stays within
-40,000 triangles. Active loaded geometry is 30,570 triangles; unloaded geometry
-is 27,450. Source anatomy is retained for audits; delivery consolidates the rigid
+40,000 triangles. Active loaded geometry is 30,954 triangles; unloaded geometry
+is 27,834. Source anatomy is retained for audits; delivery consolidates the rigid
 weights into one skinned mesh and one material.
 
 <!-- OUTPUT_STATS -->
 | Final output | Triangles | Materials | GLB bytes |
 | --- | ---: | ---: | ---: |
-| Complete staged revolver | 39,224 | 1 | 10,021,408 |
-| Cartridge | 520 | 1 | 6,353,428 |
-| Fired case | 456 | 1 | 6,350,472 |
-| Loaded speedloader | 5,398 | 1 | 6,559,080 |
+| Complete staged revolver | 39,608 | 1 | 10,000,128 |
+| Cartridge | 520 | 1 | 6,307,540 |
+| Fired case | 456 | 1 | 6,304,648 |
+| Loaded speedloader | 5,398 | 1 | 6,513,192 |
 
 | Canonical 2048 map | PNG bytes |
 | --- | ---: |
-| `T_MeridianSix_BaseColor.png` | 765,526 |
-| `T_MeridianSix_Normal.png` | 2,041,685 |
-| `T_MeridianSix_ORM.png` | 3,522,873 |
+| `T_MeridianSix_BaseColor.png` | 775,448 |
+| `T_MeridianSix_Normal.png` | 2,011,117 |
+| `T_MeridianSix_ORM.png` | 3,497,635 |
 <!-- /OUTPUT_STATS -->
 
 The kit bakes **4096 at 32 samples**, then filters to one **2048 BaseColor /
@@ -240,7 +250,7 @@ Rest-position/normal attributes keep manufacture and wear attached while the
 kit isolates rigid bones and the stationary grip for projection. The grip is
 separated only during the bake so rays cannot copy adjacent steel at its lip.
 The dense sculpt carries curvature and fine relief; original micro-AO supplements geometry AO in shallow texture valleys.
-The full atlas covers about **42.1%**, with median density about **4,274 px/m**
+The full atlas covers about **40.9%**, with median density about **4,225 px/m**
 at delivery size. Microscopic overlap remains below the unchanged kit 1e-5
 fraction limit; no escaped or degenerate UV triangles are allowed. Exact density,
 coverage, bytes, normals, embedded hashes and errors are in
@@ -259,6 +269,7 @@ make -C guns/revolver WEAR=.45        # cleaner finish, accepted geometry and ri
 make -C guns/revolver render          # Cycles and Eevee from the exported GLB
 make -C guns/revolver match source-match hammers
 make -C guns/revolver strips          # true-duration Eevee clips
+make -C guns/revolver fix-pairs BEFORE=path/to/preserved/before # optional historical GLB comparison
 make -C guns/revolver form            # optional unbaked checkpoint evidence
 make -C guns/revolver clean           # generated output only; reference cache remains
 ```
@@ -273,12 +284,13 @@ Inspection/finalized parts and reconstructed actual imported parts independently
 repeat all **48 actual-surface records** and half-frame clearance through every
 clip. The imported reconstruction matches each triangle by rigid owner, centroid
 and all vertex positions, one-to-one. Dense hammer rest/cocking and source
-contacts receive their own check. Serialization separately compares **1,842
+contacts receive their own check. Four independent triangle-hit corner-normal
+probes protect the accepted flat cheek from crown shading spillover. Serialization separately compares **1,842
 complete affine/state poses**, sockets, posed surfaces, endpoints and interrupted
 resumes. Standalone dimensions, origins, spawn frames and canonical maps are
 fresh-import checked. An independent rebuild compares all **187 native entries**;
-the revision audit retains **183 unchanged entries**, including the complete
-accepted rig, cylinder, extractor, grip, trigger, guard, ammunition and loader.
+the revision audit retains **182 unchanged entries**, including the complete
+accepted rig, cylinder, extractor plate, grip, trigger, guard, ammunition and loader.
 
 Every 4096 channel requires zero missed interior texels. Actual shipping UV
 samples independently check stop/carbon contrast, muzzle/hand polish and dark
@@ -289,16 +301,17 @@ serialization; the photo pairs and image critiques establish the look.
 
 ## Remaining limitations and credits
 
-The original hammer underside is more concave and its thumb end more regular
-than the worn comparator. Its widths come from oblique photographic estimates.
-The left window keeps its swing relief and therefore shows slightly more light
-at oblique angles. The fuller front forging, original grip and latch outlines
-also differ from the reference products. Fine roof cuts, mold grain, engraving
-and headstamp soften at a single 2048 atlas; extreme ammunition/mouth macros
-show the accepted radial economy. The 3D normals preserve curved cheeks while
-small planar glints remain at the machined shroud opening. Cycles and Eevee
-retain different grazing reflections. Remaining lighting/value residuals are
-recorded with the photographic tables rather than hidden by material overrides.
+The head knurl, roof cuts, mold grain, engraving and headstamp soften at extreme
+macro distance in the one 2048 atlas. The above/behind reference has only 500
+native pixels; its slot comparison constrains form, not fine machining. Rod
+and spur dimensions are oblique photographic estimates with stated uncertainty.
+The accepted hammer underside is more concave and its end more regular than
+the worn comparator. The left window retains its swing relief; the original
+front forging, grip and latch outlines also differ from the reference products.
+Extreme ammunition/mouth macros show the accepted radial economy. A small
+machined lip remains at the necessary open-left shroud passage. Cycles and
+Eevee retain different grazing reflections. Remaining view-value residuals
+are recorded in the photographic tables without material overrides.
 
 Reference authors, licenses and direct sources are in [refs/SOURCES.md](refs/SOURCES.md).
 Photographs are comparison-only. Lettering uses installed Noto Sans (SIL Open
