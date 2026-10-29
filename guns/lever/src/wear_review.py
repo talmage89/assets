@@ -52,7 +52,10 @@ def main():
  polygon=list(zip(xs,tops))+list(reversed(list(zip(xs,bottoms))))
  marked=Image.new('L',photo.size);ImageDraw.Draw(marked).polygon(polygon,fill=255)
  annotated=sample(marked.convert('RGB'),xy)[...,0]>127
- base=data['base'].astype(float);physical=(base@np.array((.2126,.7152,.0722)))>140
+ # Exposed steel is now darker satin. A brightness threshold would shrink
+ # an unchanged contact field simply because its reflectance was corrected.
+ # Inspect the actual scalar factor, independently projected on shipping UVs.
+ base=data['base'].astype(float);physical=data['contact']>.42
  images={'exported_hero':rendered,'white_balanced_photo':photographed};rows={};masks={};threshold=75
  for name,rgb in images.items():
   luma=rgb@np.array((.2126,.7152,.0722));mask=physical if name=='exported_hero' else annotated;masks[name]=mask
@@ -60,10 +63,11 @@ def main():
    thirds_length=[float(p.mean()) for p in np.array_split(mask,3,axis=1)],quarters_height=[float(p.mean()) for p in np.array_split(mask,4,axis=0)],
    components=components(mask),threshold_sensitivity={str(t):float(np.mean(luma>t)) for t in (60,65,70,75,80,85,90)},
    worn_median_rgb=np.median(rgb[mask],axis=0).tolist() if mask.any() else [],
-   mask_method='actual shipped BaseColor >140 luma' if name=='exported_hero' else 'independent observed gray-fillet polygon; native coordinates recorded')
- rows['shipping_base_mask']=dict(worn_share=float(physical.mean()),along_length=physical.mean(0).tolist(),across_height=physical.mean(1).tolist(),components=components(physical),
-  worn_base_rgb=np.median(base[physical],axis=0).tolist() if physical.any() else [],worn_orm=np.median(data['orm'][physical],axis=0).tolist() if physical.any() else [])
- result=dict(scope='Two-dimensional equal physical-grid comparison: actual shipped bare-steel mask versus independently annotated apparent gray fillet. Brightness-only masks are diagnostic, not acceptance. No albedo inversion.',
+   mask_method='actual projected OUT_wear >0.42, independently of steel brightness' if name=='exported_hero' else 'independent observed gray-fillet polygon; native coordinates recorded')
+ rows['contact_factor_mask']=dict(worn_share=float(physical.mean()),along_length=physical.mean(0).tolist(),across_height=physical.mean(1).tolist(),components=components(physical),
+  worn_base_rgb=np.median(base[physical],axis=0).tolist() if physical.any() else [],worn_orm=np.median(data['orm'][physical],axis=0).tolist() if physical.any() else [],
+  factor_threshold=.42,factor_threshold_sensitivity={str(t):float((data['contact']>t).mean()) for t in (.35,.4,.42,.45,.5,.6)})
+ result=dict(scope='Two-dimensional equal physical-grid comparison: shader contact factor projected on delivery UVs versus independently annotated apparent gray fillet; actual shipping RGB/ORM sampled separately. Brightness is not used to classify the darker satin steel. No albedo inversion.',
   grid_step_mm=.5,dimensions_mm=[width*.5,height*.5],photo_quad_native=quad.tolist(),observed_threshold_luma=threshold,
   photo_neutral='Polished pivot-screw facet, native (363,100)-(369,105); estimated reflected silver.',photo_worn_polygon_native=polygon,
   limitations='The photo quadrilateral is an approximate 115 mm class envelope with a different fillet contour; annotation is uncertain about one native pixel. Gray oxide, wear and reflected light cannot establish coating chemistry. Hero sampling and atlas filtering prevent exact scratch-history equivalence.',rows=rows)
@@ -74,7 +78,7 @@ def main():
   for k,a in enumerate((rgb,np.repeat((masks[name]*255)[...,None],3,axis=2))):
    im=Image.fromarray(np.uint8(np.clip(a,0,255)));im=im.transpose(Image.Transpose.FLIP_TOP_BOTTOM).resize((770,104),Image.Resampling.NEAREST)
    canvas.paste(im,(15+j*800,45+k*145))
-  draw.text((15+j*800,155),'Color above; '+('actual shipped gray-steel mask' if j==0 else 'observed gray fillet annotation')+' below',font=font,fill='black')
+  draw.text((15+j*800,155),'Color above; '+('contact factor at delivery UVs' if j==0 else 'observed gray fillet annotation')+' below',font=font,fill='black')
   draw.text((15+j*800,300),'Worn area %.2f%%; %d connected regions'%(rows[name]['worn_share']*100,len(rows[name]['components'])),font=font,fill='black')
   for axis,key in enumerate(('along_length','across_height')):
    values=rows[name][key];x0=20+j*800;y0=370+axis*170
@@ -82,7 +86,7 @@ def main():
    draw.rectangle((x0,y0,x0+755,y0+105),outline=(100,100,100))
    line=[(x0+i*755/max(1,len(values)-1),y0+105-v*105) for i,v in enumerate(values)]
    draw.line(line,fill=(75,95,160),width=2)
- draw.text((15,730),'Actual shipping mask: %.2f%% bare / photographic annotation +/-1 px; all native coordinates and components in wear-2d-values.json'%(physical.mean()*100),font=font,fill='black')
+ draw.text((15,730),'Contact factor >0.42: %.2f%% / photographic annotation +/-1 px; shipping RGB/ORM and threshold sensitivity in JSON'%(physical.mean()*100),font=font,fill='black')
  canvas.save(out/'wear-2d-pair.jpg',quality=94,optimize=True)
  print('2D WEAR',[(n,round(r['worn_share']*100,2)) for n,r in rows.items()],flush=True)
 if __name__=='__main__':main()

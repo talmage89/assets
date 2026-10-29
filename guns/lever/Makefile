@@ -19,7 +19,7 @@ PREPARED := build/delivery/finalized.blend $(addprefix build/delivery/,lever-uv.
 BAKED := $(addprefix build/baked/4k/T_BrackenL20_,BaseColor.png Normal.png ORM.png) build/baked/4k/bake-report.json
 TEXTURES := $(addprefix textures/T_BrackenL20_,BaseColor.png Normal.png ORM.png)
 EXPORTS := export/lever.glb export/cartridge.glb export/case.glb
-FINAL_SHOTS := hero,hero_left,right,left,front,back,top,receiver,receiver_left,wrist,forend,sights,front_sight,stock,butt_plate,open,lever_open,aimed,scale,muzzle
+FINAL_SHOTS := hero,hero_left,right,left,front,back,top,receiver,receiver_left,wrist,wrist_raking,forend,sights,sight_blade,front_sight,stock,butt_plate,open,lever_open,aimed,scale,muzzle
 PHOTO_SHOTS := right_photo,left_photo,open_photo,trigger_right,trigger_quarter,hammer_photo,lever_rest_photo,used_photo,sight_photo
 comma := ,
 FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(FINAL_SHOTS)))) renders/final/beauty/shots.json
@@ -27,7 +27,7 @@ RENDER_DEPS := src/final_render.py src/final_shots.py src/shots.py ../common/ren
 PHOTO_DEPS := build/cameras.json src/white_balance.py src/photo_matches.py
 PAIRS := $(addprefix renders/final/pairs/,$(addsuffix -pair.jpg,$(subst $(comma), ,$(PHOTO_SHOTS))))
 .PHONY: all refs model prepare lookdev bake export check check-repo verify check-atlas repeat render match source-match strips extra review docs clean FORCE checkpoint
-all: refs export check form-review render match source-match strips extra wear-review review docs
+all: refs export check form-review render match source-match strips extra wear-review look-review review docs
 refs:
 	$(PYTHON) $(KIT)/fetch_refs.py refs
 $(MODEL) &: $(addprefix src/,build.py clips.py dimensions.py forms.py geometry.py mechanism.py interface.py) ../common/ammo_3030.py ../common/interface_v1_5.py
@@ -111,8 +111,14 @@ clean:
 renders/form3/form-fixes.jpg renders/form3/lever-stroke.jpg build/final-form-measurements.json &: $(MODEL) build/cameras.json src/form_review.py src/shots.py
 	$(PYTHON) src/form_review.py
 form-review: renders/form3/form-fixes.jpg renders/form3/lever-stroke.jpg build/final-form-measurements.json
-build/review/wear-grid.npz: $(EXPORTS) $(PREPARED) src/wear_sample.py
+build/review/contact-mask.npy: $(EXPORTS) build/delivery/high.blend src/wear_mask.py
+	$(KIT)/with_gpu.sh $(BP) --python src/wear_mask.py
+build/review/wear-grid.npz: $(EXPORTS) $(PREPARED) src/wear_sample.py build/review/contact-mask.npy
 	$(BP) --python src/wear_sample.py
 renders/final/pairs/wear-2d-pair.jpg renders/final/pairs/wear-2d-values.json &: $(FINAL_IMAGES) build/review/wear-grid.npz src/wear_review.py
 	$(PYTHON) src/wear_review.py
 wear-review: renders/final/pairs/wear-2d-pair.jpg renders/final/pairs/wear-2d-values.json
+
+.PHONY: look-review
+look-review: render match src/plate_review.py
+	$(PYTHON) src/plate_review.py $(if $(SHOTGUN_RENDERS),--shotgun-renders $(SHOTGUN_RENDERS),)
