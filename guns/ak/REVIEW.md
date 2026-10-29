@@ -61,15 +61,15 @@ too readily. The lead's round 3 critique supersedes those acceptance claims.
 
 ### Rear sight — highest-weight region
 
-Evidence: [new above/behind](renders/checkpoint/pairs/rear_sight_sharp-pair.jpg),
-[Commons above/behind](renders/checkpoint/pairs/rear_sight_photo-pair.jpg),
-[sharp side](renders/checkpoint/pairs/rear_sight_side-pair.jpg),
-[macro](renders/checkpoint/beauty/rear_sight.png),
-[aimed](renders/checkpoint/beauty/aimed.png),
-[orthographic side](renders/checkpoint/beauty/rear_ortho_side.png),
-[top](renders/checkpoint/beauty/rear_ortho_top.png),
-[front](renders/checkpoint/beauty/rear_ortho_front.png),
-[actual sections](renders/checkpoint/sections.jpg).
+Evidence: new above/behind (`renders/checkpoint/pairs/rear_sight_sharp-pair.jpg`),
+Commons above/behind (`renders/checkpoint/pairs/rear_sight_photo-pair.jpg`),
+sharp side (`renders/checkpoint/pairs/rear_sight_side-pair.jpg`),
+macro (`renders/checkpoint/beauty/rear_sight.png`),
+aimed (`renders/checkpoint/beauty/aimed.png`),
+orthographic side (`renders/checkpoint/beauty/rear_ortho_side.png`),
+top (`renders/checkpoint/beauty/rear_ortho_top.png`),
+front (`renders/checkpoint/beauty/rear_ortho_front.png`),
+actual sections (`renders/checkpoint/sections.jpg`).
 
 Low saddle, sloping front hinge cheeks, spring channel, narrow leaf, wider
 U-notch crosspiece and a sleeve with two cylindrical knurled buttons replace
@@ -87,14 +87,14 @@ relief without the photo's contrasting infill; they are less legible.
 
 ### Front sight
 
-Evidence: [sharp side](renders/checkpoint/pairs/front_sight_photo-pair.jpg),
-[sharp behind](renders/checkpoint/pairs/front_sight_behind-pair.jpg),
-[installed oblique](renders/checkpoint/pairs/front_sight_installed-pair.jpg),
-[macro](renders/checkpoint/beauty/front_sight.png),
-[rear macro](renders/checkpoint/beauty/front_sight_rear.png),
-[orthographic side](renders/checkpoint/beauty/front_ortho_side.png),
-[top](renders/checkpoint/beauty/front_ortho_top.png),
-[front](renders/checkpoint/beauty/front_ortho_front.png), sections above.
+Evidence: sharp side (`renders/checkpoint/pairs/front_sight_photo-pair.jpg`),
+sharp behind (`renders/checkpoint/pairs/front_sight_behind-pair.jpg`),
+installed oblique (`renders/checkpoint/pairs/front_sight_installed-pair.jpg`),
+macro (`renders/checkpoint/beauty/front_sight.png`),
+rear macro (`renders/checkpoint/beauty/front_sight_rear.png`),
+orthographic side (`renders/checkpoint/beauty/front_ortho_side.png`),
+top (`renders/checkpoint/beauty/front_ortho_top.png`),
+front (`renders/checkpoint/beauty/front_ortho_front.png`), sections above.
 
 The lower window has straight rectangular sides and small corner radii.
 Windage ends are flush round discs, with the full circle exposed in side view.
@@ -113,12 +113,12 @@ this larger honest residual replaces the misleading 3.1 px view mismatch.
 
 ### Gas block, handguard retainer and sling loop
 
-Evidence: [sharp side](renders/checkpoint/pairs/gas_block_photo-pair.jpg),
-[gas/muzzle](renders/checkpoint/beauty/gas_muzzle.png),
-[orthographic side](renders/checkpoint/beauty/gas_ortho_side.png),
-[top](renders/checkpoint/beauty/gas_ortho_top.png),
-[front](renders/checkpoint/beauty/gas_ortho_front.png),
-[handguard](renders/checkpoint/beauty/wood.png), sections above.
+Evidence: sharp side (`renders/checkpoint/pairs/gas_block_photo-pair.jpg`),
+gas/muzzle (`renders/checkpoint/beauty/gas_muzzle.png`),
+orthographic side (`renders/checkpoint/beauty/gas_ortho_side.png`),
+top (`renders/checkpoint/beauty/gas_ortho_top.png`),
+front (`renders/checkpoint/beauty/gas_ortho_front.png`),
+handguard (`renders/checkpoint/beauty/wood.png`), sections above.
 
 A continuous rounded collar/curved neck/tube-seat loft replaces the separate
 ball and inclined box. The center cut shows its continuous exterior wall.
@@ -135,14 +135,14 @@ more regular than the installed museum example. No gas path is supplied.
 
 ### Top cover and receiver
 
-Evidence: [cover side](renders/checkpoint/pairs/topcover_side-pair.jpg),
-[above](renders/checkpoint/pairs/topcover_top-pair.jpg),
-[new sharp above](renders/checkpoint/pairs/topcover_sharp-pair.jpg),
-[rear](renders/checkpoint/beauty/cover_rear.png),
-[orthographic side](renders/checkpoint/beauty/cover_ortho_side.png),
-[top](renders/checkpoint/beauty/cover_ortho_top.png),
-[front](renders/checkpoint/beauty/cover_ortho_front.png),
-[receiver pair](renders/checkpoint/pairs/receiver_photo-pair.jpg).
+Evidence: cover side (`renders/checkpoint/pairs/topcover_side-pair.jpg`),
+above (`renders/checkpoint/pairs/topcover_top-pair.jpg`),
+new sharp above (`renders/checkpoint/pairs/topcover_sharp-pair.jpg`),
+rear (`renders/checkpoint/beauty/cover_rear.png`),
+orthographic side (`renders/checkpoint/beauty/cover_ortho_side.png`),
+top (`renders/checkpoint/beauty/cover_ortho_top.png`),
+front (`renders/checkpoint/beauty/cover_ortho_front.png`),
+receiver pair (`renders/checkpoint/pairs/receiver_photo-pair.jpg`).
 
 Vertical flanks replace the tube profile. A low longitudinal bead runs toward
 the rear; shallow transverse beads stop on the roof and barely lift the side
@@ -164,12 +164,12 @@ quiet.
 
 ### Pistol grip and retained furniture
 
-Evidence: [sharp grip side](renders/checkpoint/pairs/grip_photo-pair.jpg),
-[grip macro](renders/checkpoint/beauty/grip_detail.png),
-[orthographic side](renders/checkpoint/beauty/grip_ortho_side.png),
-[top](renders/checkpoint/beauty/grip_ortho_top.png),
-[front](renders/checkpoint/beauty/grip_ortho_front.png),
-[grip/stock](renders/checkpoint/beauty/grip_stock.png), sections above.
+Evidence: sharp grip side (`renders/checkpoint/pairs/grip_photo-pair.jpg`),
+grip macro (`renders/checkpoint/beauty/grip_detail.png`),
+orthographic side (`renders/checkpoint/beauty/grip_ortho_side.png`),
+top (`renders/checkpoint/beauty/grip_ortho_top.png`),
+front (`renders/checkpoint/beauty/grip_ortho_front.png`),
+grip/stock (`renders/checkpoint/beauty/grip_stock.png`), sections above.
 
 Supported molded sections have flat side lands, round front/back straps,
 a narrowed heel and a backward rake. Two bordered diamond-checkered panels
@@ -185,12 +185,12 @@ wood grain and varnish remain for finish review.
 
 ### Trigger, guard, release and selector
 
-Evidence: [sharp trigger](renders/checkpoint/pairs/trigger_sharp-pair.jpg),
-[guard](renders/checkpoint/pairs/trigger_guard-pair.jpg),
-[trigger side](renders/checkpoint/beauty/trigger_side.png),
-[oblique](renders/checkpoint/beauty/trigger.png),
-[selector at photo position](renders/checkpoint/pairs/selector_photo-pair.jpg),
-[detents](renders/checkpoint/selector.jpg).
+Evidence: sharp trigger (`renders/checkpoint/pairs/trigger_sharp-pair.jpg`),
+guard (`renders/checkpoint/pairs/trigger_guard-pair.jpg`),
+trigger side (`renders/checkpoint/beauty/trigger_side.png`),
+oblique (`renders/checkpoint/beauty/trigger.png`),
+selector at photo position (`renders/checkpoint/pairs/selector_photo-pair.jpg`),
+detents (`renders/checkpoint/selector.jpg`).
 
 The blade tapers in width/depth while keeping its accepted height and inner
 curve. Actual envelope is 21.99 ×8.43 ×5.16 mm; section-center bow 4.92 mm.
@@ -206,13 +206,13 @@ photo. The comparison pose does not add a detent or alter any clip.
 
 ### Magazine and ammunition
 
-Evidence: [magazine](renders/checkpoint/beauty/magazine.png),
-[loaded lips](renders/checkpoint/loaded/mag_lips.png),
-[empty lips](renders/checkpoint/empty/mag_lips.png),
-[rocking](renders/checkpoint/rock-in.jpg),
-[contact diagnostics](renders/checkpoint/contacts.jpg),
-[cartridge](renders/checkpoint/cartridge/cartridge.png),
-[case mouth](renders/checkpoint/case/case_mouth.png).
+Evidence: magazine (`renders/checkpoint/beauty/magazine.png`),
+loaded lips (`renders/checkpoint/loaded/mag_lips.png`),
+empty lips (`renders/checkpoint/empty/mag_lips.png`),
+rocking (`renders/checkpoint/rock-in.jpg`),
+contact diagnostics (`renders/checkpoint/contacts.jpg`),
+cartridge (`renders/checkpoint/cartridge/cartridge.png`),
+case mouth (`renders/checkpoint/case/case_mouth.png`).
 
 Accepted geometry, display occupancy and paths are unchanged. Remaining photo
 differences are the rounder original press/floorplate layout, small rib-end
@@ -221,7 +221,7 @@ finish wear remain behind the gate. The fired mouth is open.
 
 ## Measurements and framing limits
 
-[Photo observations](renders/checkpoint/form-observations.jpg) show native
+Photo observations (`renders/checkpoint/form-observations.jpg`) show native
 sparse measurements and explicit scale assumptions. Rear shoulder/hinge
 estimates are 18 ±4 /26 ±6 mm above an inferred, occluded barrel line; leaf
 12.9 ±2.1 mm; crosspiece 27.3 ±4.4 mm; hood sheet 1.3 ±0.5 mm and depth
@@ -1001,7 +1001,7 @@ flakes/dents, retainer and accepted construction remain the baseline. The
 receiver and cover still read new at full frame. Withdraw round 2 pass 6's
 claim that their patches read at that size. Crop visibility is insufficient.
 
-![Handoff native 1600-pixel hero, before this round](build/fullframe-baseline/renders/final/beauty/hero.png)
+Handoff native 1600-pixel hero, before this round (`build/fullframe-baseline/renders/final/beauty/hero.png`, not tracked)
 
 The archived handoff, maps and exports are under `build/fullframe-baseline/`.
 Main was already merged. A separate fingerprint records every non-image
@@ -1123,11 +1123,11 @@ is matte conversion coating; the rare sharp steel subset and smooth gas
 collars retain their previous response. Against the accepted SMG in the same
 studio, each rifle has a distinct contact pattern that survives full framing.
 
-![Final exported GLB at native 1600 pixels](renders/final/beauty/hero.png)
+Final exported GLB at native 1600 pixels (`renders/final/beauty/hero.png`, not tracked)
 
-[Beside the SMG](renders/final/hero-beside-smg.jpg) ·
-[Whole used rifle pair](renders/final/pairs/used_photo-pair.jpg) ·
-[Receiver pair](renders/final/pairs/receiver_photo-pair.jpg)
+Beside the SMG (`renders/final/hero-beside-smg.jpg`) ·
+Whole used rifle pair (`renders/final/pairs/used_photo-pair.jpg`) ·
+Receiver pair (`renders/final/pairs/receiver_photo-pair.jpg`)
 
 Final hero medians remain stock 86/64/53 (saturation .387), lower
 113/70/55 (.513) and upper 89/59/45 (.500), versus the locally balanced
@@ -1160,8 +1160,8 @@ spreads are .509/.521/.583 versus .494/.570/.609; the interior flat stock
 is .300 GLB / .305 dense source / .302 photo. Do not mix those masks with
 physically rectified values or claim either is recovered albedo.
 
-[Wood original/broad/residual chart](renders/final/look-review/wood-two-scale.jpg) ·
-[Native-mask grain/color chart](renders/final/look-review/wood-grain-and-color.jpg)
+Wood original/broad/residual chart (`renders/final/look-review/wood-two-scale.jpg`) ·
+Native-mask grain/color chart (`renders/final/look-review/wood-grain-and-color.jpg`)
 
 **Controlled metal proof:** independently baked 4096/32 metal-off source,
 filtered to 2048 and exported through the same kit path. Only metal abrasion
@@ -1173,9 +1173,9 @@ the separately named x4 image is diagnostic only. No site was added or moved.
 Only the existing rear cover side bead’s transverse reach grows 1.5→2.7 mm;
 the remaining sites keep their authored bounds. Value/gloss do the main work.
 
-[Native on/off proof](renders/final/metal-wear-proof.jpg) ·
-[Raw difference](renders/final/metal-wear-difference.png) ·
-[Site regions](renders/final/metal-wear-regions.png)
+Native on/off proof (`renders/final/metal-wear-proof.jpg`) ·
+Raw difference (`renders/final/metal-wear-difference.png`) ·
+Site regions (`renders/final/metal-wear-regions.png`)
 
 Areas below count visible imported surface pixels with sampled BaseColor RGBA
 or ORM delta >4/255, without dilation or morphology. Regions are native-hero
