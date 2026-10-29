@@ -24,7 +24,9 @@ separately in `source-pairs/`. `look-review/` contains whole-part hue,
 saturation/value distributions, highlight colors and actual 2D worn-area
 masks. `hero-beside-smg.jpg` compares the accepted black-paint precedent under
 the same procedural studio. `REVIEW.md` records rejected iterations, neutrals,
-measurements, limitations and the final critique.
+measurements, limitations and the final critique. The separate
+`wood-grain-and-color.jpg` / `wood-grain-values.json` compare every blank and
+an interior stock-side land; spread is (value p90−p10)/median.
 
 ## Dimensions and construction
 
@@ -56,7 +58,8 @@ forging has circular collars, flat lands and a straight diagonal neck with
 small radii. Its front flange, exterior vent relief and lower pin witnesses
 are retained in the normal map. The lower lug has its own forged outline and
 cutout. The handguard front is capped by a finite-gauge sheet ferrule with a
-rearward return, barrel/rod relief and a supported left sling loop.
+rearward return fitted to the carved section, a planar front diaphragm,
+short barrel surround, rod relief and a supported left sling loop.
 
 The rear sight is a low saddle with planar sides, raised hinge cheeks, a
 spring channel, a narrow leaf and wider notch crosspiece. Its sleeve carries
@@ -89,28 +92,40 @@ checks establish visible assembly, not an operative firearm mechanism.
 Black dielectric enamel covers the stamped receiver, cover and guard, over
 matte gray phosphate with rare satin steel at the most exposed points.
 Bluing on the barrel, gas forging and sights keeps nearly gray reflections.
-The magazine uses gray-black oxidized steel with broken wear on its raised ribs, spines,
-lips and floorplate rims. The wood is muted reddish-brown varnished hardwood;
-annual growth layers intersect a curved blank, with individual longitudinal
-vessels and isolated crushed-fiber dings. The upper handguard has darker stain
-and a duller surviving film, calibrated separately so the stock cannot hide
-its whole-part value. The grip is brown-plum molded
-phenolic with slightly polished straps and checkering peaks.
+The magazine uses gray-black oxidized steel. The stock is brown varnished
+hardwood, the lower handguard a redder blank, and the upper a darker red-brown
+blank with a duller film. Curved growth layers have irregular spacing and
+contrast along each part's long axis; separate vessels provide fine relief.
+The grip retains the accepted brown-plum molded phenolic finish.
 
 Named wear sites:
 
-- Receiver folded edges, well corners, rivet crowns and cover bead crests:
-  interrupted gray phosphate patches with rare satin steel; broad flats
-  retain black enamel.
-- Selector: polished contact edges and thumb fold, with its broad blade dark.
-- Carrier rails and handle: directional satin rubbing where cycling and the
-  hand act. The open-action view exposes the rails hidden in the closed hero.
-- Muzzle and gas socket: matte carbon at the slanted crown and exterior vent
-  region, with the surrounding bluing retained.
-- Handguards and wrist: pressure graded around the compound form, with muted
-  raw fibers and increased roughness; no straight band or oval stencil.
-- Stock toe and heel: isolated angular fiber depressions and small broken
-  varnish lips. They add no geometry or decal material.
+- Receiver lower front corners and magazine-entry edges: a few connected,
+  ragged dark-gray phosphate patches with tapered ends. The broad flanks and
+  upper/rear edges retain enamel. Only the exposed lower-front rivet crown
+  receives a small rub.
+- Cover rear rim and rear side bead: longer gray rubs; one rear roof crest
+  and a shorter middle crest take hand/sling friction. Other crests retain
+  their coating. Satin steel is confined to rare sharp high points.
+- Trigger guard: a worn central stretch of the bottom contact edge, fading
+  toward the bends.
+- Magazine: pouch rubbing along selected raised ribs and folded spines,
+  with smaller floorplate-corner/feed-lip wear. Coordinates follow the
+  curved press rather than drawing diagonal marks across it.
+- Selector blade/tab: restrained friction on the forward exposed edges
+  and the thumb fold; the broad blade stays dark.
+- Carrier rails/charging handle: directional satin contact visible in the
+  open-action view; the closed hero hides the rails.
+- Blued gas block: smooth gray collar-edge rubbing with the diagonal web
+  still dark. Carbon stays at the exterior vent region and muzzle crown.
+- Secondary contacts: narrow rubs on the gas-tube seat and muzzle rim,
+  front hood/rear notch/slider-button peaks, and selected buttplate and
+  front-cap side edges; surrounding finish stays dark.
+- Wrist and handguards: elongated varnish flakes within the hand-contact
+  margins, separated by intact film. Exposed fibers retain the same wood,
+  slightly lighter/less red and more matte; there is no bleached wrist wash.
+- Stock toe/heel and isolated handguard knocks: normal-map depressions with
+  dark crushed-fiber bottoms and small same-color lips, without orange arcs.
 
 `WEAR=0` removes use layers while retaining manufacture and fictional marks.
 Stable position/normal attributes keep each finish attached through the clips
@@ -129,6 +144,24 @@ Cardboard component photos remain form-only. These are estimated neutrals,
 with mixed light, reflected surroundings and photographic editing still
 limiting absolute comparisons. Whole-part distributions and brightest-decile
 RGB are reported separately from authored albedo/BRDF parameters.
+
+Final visible-part medians in the unchanged hero, compared with the locally
+balanced used photograph (8-bit RGB; these include illumination):
+
+| Blank | Hero RGB / saturation | Photo RGB / saturation |
+| --- | --- | --- |
+| Stock | 86/63/52 / .390 | 83/63/51 / .376 |
+| Lower handguard | 113/70/54 / .520 | 107/62/45 / .550 |
+| Upper handguard | 90/58/45 / .505 | 87/52/39 / .544 |
+
+The upper handguard's hero luma p75 is 71.6, against 65.3 in that photograph;
+the former broad pale patch is gone. In the fitted side view, the interior
+stock-side value spread is **.338 shipped / .338 dense source / .302 photo**.
+The corresponding whole-blank spreads are .688/.494 for stock, .760/.570 for
+lower and .234/.609 for upper (GLB/photo); these include curved shading and
+edge wear. The side studio is darker than the mixed-light photograph, as
+the separate color sheet shows. Fine vessels soften, but the long figure
+survives the single 2048 atlas.
 
 ## Frame, rig and clips
 
@@ -179,21 +212,21 @@ Budget and file sizes are measured from the actual exports and checked in
 
 | Output | Triangles | GLB bytes |
 | --- | ---: | ---: |
-| Rifle | **39,650 / 40,000** | 11,073,284 |
-| Loaded magazine | 6,756 | 7,940,880 |
-| Empty magazine | 4,596 | 7,852,724 |
-| Cartridge | 960 | 7,732,444 |
-| Fired case | 704 | 7,720,124 |
+| Rifle | **40,000 / 40,000** | 10,719,868 |
+| Loaded magazine | 6,756 | 7,562,988 |
+| Empty magazine | 4,596 | 7,474,832 |
+| Cartridge | 960 | 7,354,552 |
+| Fired case | 704 | 7,342,232 |
 
 Each output uses one material and the same three embedded images. The rifle
 has 17 bones, eight sockets and 20 clips. Detached magazines deliberately
-retain their accepted geometry. The canonical PNGs total **7,676,643 bytes**:
-BaseColor 1,299,917; Normal 2,539,193; ORM 3,837,533. All are 2048 square.
+retain their accepted geometry. The canonical PNGs total **7,298,715 bytes**:
+BaseColor 1,122,579; Normal 2,499,282; ORM 3,676,854. All are 2048 square.
 UV coverage, actual clipped overlap and density percentiles are measured,
 rather than described as uniform or exactly zero.
-The complete staged atlas covers 40.28%; there are no outside or degenerate
+The complete staged atlas covers 40.25%; there are no outside or degenerate
 UV triangles. One microscopic overlap has a measured area fraction
-0.000000731. Density p5/median/p95 is 1,544/1,883/5,401 px/m; the separate
+0.000000730. Density p5/median/p95 is 1,544/1,880/5,401 px/m; the separate
 small-ammunition regions deliberately have the highest density.
 
 Independent construction checks repeat the **44 accepted contact/visibility
@@ -202,7 +235,13 @@ seats cover the ferrule, sling, gas forging and rear spring. Imported triangles
 are attributed one-to-one by rigid owner, centroid and every vertex before
 those same checks run on them. No source surface substitutes for an imported
 surface. Ordinary clearance tolerance remains 0.2 mm and the same four visual
-joints retain their finite bounds. Serialization is separate: affine bone and
+joints retain their finite bounds. A stored pre-round fingerprint also
+preserves all 108 unmodified game meshes and normals, rest bones/sockets,
+and 1,556 sampled affine poses. The cap return is also measured against the
+actual imported wood section at 23 radial rays; its small overhang and sheet
+gauge are plotted in `renders/final/retainer-section.jpg`. Only the
+requested front cap and its sling-loop endpoints change. This preservation
+check is separate from the actual fit tests. Serialization is separate: affine bone and
 socket frames, posed surfaces, clip durations, weights/normals and full rotated
 magazine spawns are compared independently. Hidden lock/sear geometry is
 proved absent by inventory.
@@ -253,6 +292,10 @@ are broader and less saturated than in the used side photograph. The photographs
 individual scratch histories and variant contours are not copied. A static
 leaf setting differs from the raised isolated side reference; the original
 cover pressing and grip corners also retain small construction differences.
+The retainer follows the preserved broad wood section, so its plate is broader
+than the modern component reference; it retains the rifle's riveted sling eye.
+Small collar/rod-hole silhouette facets remain in the isolated macro. Wood
+edge wear is less extensive than on the older photographed example.
 The closed hero cannot expose hidden carrier rails; the open-action view does.
 Mass, ergonomics and manufacturing tolerances are not certified by these
 visual exterior meshes.

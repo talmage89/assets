@@ -1,4 +1,7 @@
-# Rill 39 — form round 3 review
+# Rill 39 — form and finish review history
+
+The opening sections record the historical form checkpoint; the latest look
+round below supersedes earlier finish acceptance claims.
 
 Form checkpoint, before finish acceptance. Every pair has a matching image in
 `source-pairs/`; the primary stills load the exported GLB. Inspection constants
@@ -697,3 +700,293 @@ all at most 1600 px wide and under 200 KB, and remain **uncommitted for the
 lead's requested review**. Main sheets are `renders/final/form-fixes.jpg`,
 `wear-sites.jpg`, `hero-beside-smg.jpg` and `contact-sheet.jpg`; all were viewed.
 This round changes no kit/common source and requires no additional tool.
+
+
+## Look round 2 — pass 1 (baseline rejected)
+
+**Color and value first:** opened the full-resolution exported hero beside the
+accepted Relay 9 in `renders/final/hero-beside-smg.jpg`, the used whole-gun
+pair, wear-site/form-fix sheets, wrist 2D pair and complete finish report.
+The metal's accepted base values and near-gray reflections stay. The stock
+wrist is an unjustified pale gradient; the upper has a broad bright tail;
+the lower is insufficiently red. At full frame neither handguard nor stock
+has the reference's visible long dark/light figure. Reject the old claim
+that the grain was sufficient after the bake. Keep the local white-cloth
+neutral immediately beneath the receiver, with its mixed-light limitation.
+
+The old wood masks contain solid regions of 1,315.5 and 1,002.5 mm².
+Its smooth pressure field changes the wood across an entire contact area,
+where the photograph shows streaks and small flakes near contact edges.
+Dings have conspicuous orange lips instead of dark crushed depressions.
+Metal wear makes almost every edge a row of beige dashes: reject that
+outline even though its total area is small. Name a few sites and use
+continuous rubbing with dark phosphate beneath enamel; high-point steel
+must be a small subset. Gray brightness is judged against the unchanged
+SMG studio. All accepted geometry/rig/ammunition remain fixed except the
+explicitly requested lower-front retainer.
+
+The retainer is radially pleated in the GLB and oversized at the wood end.
+The new sharp oblique-front component photograph (`retainer-sharp.jpg`)
+shows a flat diaphragm, straight upper shoulders and a short barrel
+surround. It is a construction reference, balanced on its white backdrop;
+its new oxide finish is not the issued-wear color target. Rebuild a fitted
+flat cap and retain its dense source/planar normals before reduction.
+The frozen previous source/export/evidence is in
+`build/look-round2-baseline/`. Main was merged; its additive 1.5 and our
+accepted 1.6 family interface entries were both retained.
+
+
+## Look round 2 — pass 2 (source iteration rejected)
+
+**Color and value first:** opened all seven `renders/round2-pass2/` source
+views at native resolution. The handguards are now redder and the wrist no
+longer fades beige, but the annual layers are excessively regular/high
+contrast: they read as stripes at full frame. Reject this grain. Reduce its
+contrast and vary ring spacing, blank curvature and longitudinal phase;
+retain fine vessels as a separate scale of detail. No photograph enters
+the shader. The flat retainer has lost the radial pleats and follows the
+front wood more closely; its fit still requires actual surface checks.
+
+Opened all seven `round2-pass3-source/` views and all four emission-mask
+views in `round2-mask-source/`. The varied grain is less repetitive, but the
+first hand-contact mask still contains solid narrow bands. Change these to
+elongated flakes inside the named pressure margins, with intact varnish
+between them. The masked metal strokes are continuous instead of short
+beige dashes. Broaden only the receiver's lower-front patches so they read
+at full frame, and vary their width rather than punching equally spaced
+holes through them. Keep the other receiver edges protected. The magazine
+uses inverse sweep coordinates so rubbing follows its actual curved ribs.
+The gas collar now has smooth gray friction with a dark web and no white
+blotches. A sharper same-view retainer pair is being added; its new finish
+remains construction-only evidence.
+
+
+## Look round 2 — pass 3 (per-part calibration and cap fit)
+
+**Color and value first:** opened the seven `round2-pass4-source/` images
+and the independent per-part/flat-side chart. In the same fitted side view,
+the source stock measured 59/44/37 versus 83/63/51; the lower was 70/31/16
+versus 107/62/45, and the upper 78/41/27 versus 87/52/39. The first redder
+lower overshot saturation (.772 versus .550), while the upper was .645
+versus .544. In the unchanged hero, the stock was 78/57/47, lower 83/35/15
+and upper 109/57/37. Distinguish the studio directions rather than claiming
+a side-photo value is an albedo. Correct each blank separately: raise the
+stock moderately, raise/desaturate the lower, and reduce the upper's red.
+
+The interior stock-side value spread, defined as (p90-p10)/median, was .403
+versus .302 in the independent photo polygon. Reduce annual-layer contrast
+another quarter while retaining long curved streaks and individual pores.
+The handguards now show curved figure at full frame rather than an even
+brown panel; their growth-layer curvature is stronger than the stock's.
+The shipping bake must establish whether that survives 2048 filtering.
+
+The cap's front was planar, but its square barrel-surround shoulders were
+wrong in the new pair. Replace that small upper outline with a circular
+surround over the flat wood-fitting diaphragm. Hold the new pair's observed
+oblique-front direction; the free camera fit had flattened it toward a front
+view. Add frontal light for this forward-facing isolated plate because the
+standard side-photo key was behind it. This comparison light applies only
+to the retainer photograph, not the accepted studio or other finishes.
+
+The measured cap/wood and mounting plate/cap contacts already intersected;
+the old sling-loop root missed the narrowed cap by .7559 mm. Seat its two
+endpoints on the revised cap/mount instead of relaxing the .2-mm limit.
+Only this requested retainer assembly may change. A stored accepted-source
+fingerprint independently gates the other 108 meshes, rest bones/sockets
+and all 1,556 half-frame affine poses.
+
+
+## Look round 2 — pass 4 (first shipped bake; retainer rejected)
+
+**Color and value first:** opened all eight `round2-baked/beauty/` GLB
+images and both fitted photo views, then the per-part metrics. The lower
+has lost the earlier excessive orange; the upper is darker than the lower.
+The wrist no longer has a pale front third. In the fitted side view the
+shipped stock/lower/upper medians are 64/48/40, 96/60/46 and 64/41/32;
+the photograph is 83/63/51, 107/62/45 and 87/52/39. Side illumination remains
+darker than that mixed-light photograph; it is not silently renormalized.
+Their median saturations are .376/.515/.492 against .376/.550/.544.
+
+The interior flat stock side retains normalized value spread .338 after the
+2048 bake, against .338 in the dense source and .302 in the independent
+photo land. Coarse long figure survives; individual fine vessels soften in
+extreme macros. The first atlas has zero missed audited interior texels in
+all seven channels and passes the fresh five-export/skin/animation audit.
+These numerical passes do not accept the retainer's appearance.
+
+The receiver now reads as a few gray lower-front/well patches, with the
+remaining edges black. The cover has a rear/bead rub and selected crest
+contact; the magazine has longer narrow pouch rubs rather than a dotted
+outline. Gray gas-collar wear replaces the white blotches. Toe/heel knocks
+are depressed dark wood, without orange crescents. Restrict film loss to
+outward surfaces so sheltered handguard interiors cannot inherit a hand
+contact solely from their coordinates.
+
+The new short retainer collar exposes bad bake rays and a decimated,
+asymmetric circular boundary. Reject it. Add the existing kit's named
+static projection isolation and exact planar target/source normals. Then
+replace bevel-heavy collapse reduction with an efficient explicit low
+skin: preserve round boundaries, and bake the small edge radii from a dense
+source. Keep the 40k cap and actual contact checks. No accepted mesh or
+clearance tolerance may be traded for this repair.
+
+
+## Look round 2 — pass 5 (cap projection and whole-frame comparison)
+
+**Color and value first:** reopened the current exported hero beside the
+regenerated Relay 9 on the same gray studio, plus the orthographic views,
+controls, sights and gas-side macro. The wood now reads as figured brown
+and separately redder handguards at full frame; enamel stays deep black.
+The few exposed patches are gray instead of a beige dotted perimeter. The
+SMG retains a much broader warm phosphate field because its accepted wear
+history is different; no blanket wear is added to imitate that area share.
+
+Opened both isolated-cap attempts and the efficient-cap GLB pair. Named
+isolation alone did not cure the collar: collapsing a bevel-heavy mesh had
+distorted its circular boundary. The explicit game cap preserves a regular
+24-sided collar. The first tiny geometric source bevel still clipped rays
+at its silhouette and made dimples on the adjacent flat land. Replace that
+subtexel source bevel with shallow continuous rolled-edge relief. The next
+pair's broad land is clean; preserve exact planar normals on both target
+and dense source. Only the smallest silhouette segments remain visible in
+this greatly magnified isolated component.
+
+The sharp reference has a deeper collar and a more elevated viewpoint than
+the first fit. Lengthen that visual collar without adding stations, hold
+the observed elevated direction, and spend the last eighteen triangles on
+a rounder rod opening. The finished candidate is **40,000 triangles**.
+This fits the preserved broad wood section rather than copying the modern
+component's smaller plate/integral sling eye. That proportion and assembly
+variation remains explicit in the pair; RMS is camera-framing evidence,
+not contour acceptance. The retained riveted mounting plate and loop stay
+seated. No accepted furniture, rig, clip or clearance bound changes.
+
+A new triangle-surface return audit samples 23 radial rays at Y360 mm and
+plots the actual cap/wood section. It measures the cap's small overhang and
+finite sheet gauge; it does not infer fit from a nominal width or the GLB
+matching its source. The final run repeats it on the freshly imported asset.
+
+
+## Look round 2 — pass 6 (final exported delivery)
+
+**Color and value first:** opened the regenerated full-resolution hero beside
+the same-studio Relay 9, the used whole-gun pair, all twenty exported pairs
+and all twenty dense-source pairs. Opened the complete Cycles/Eevee still
+set, detached magazines/ammunition, finish overview, wood chart, all six
+site-wear pairs and the form/wear/retainer sheets. The accepted metal base
+values, grip and ammunition remain. Near-gray highlight deciles measure
+46.5/46.1/44.9 on enamel, 92.4/92.3/91.2 on the cover and 79.9/79.8/79.4 on
+the magazine. The SMG's wider warm substrate patch remains a different wear
+history; the rifle's few gray rubs no longer make a pale dotted perimeter.
+Hero foreground luma p1/median/p99 is 1/47/155.4, with 25.0% below 24 and
+zero white-clipped foreground. The opposite hero has zero clipping too.
+
+The used photograph is balanced on the unprinted cloth immediately below
+the receiver (760,475–895,550), linear gains .95685/1.02188/.92652. The warm
+upper cloth is excluded. These remain image measurements, not inverse
+albedo estimates. In the unchanged hero the blanks now measure:
+
+| Blank | GLB median RGB / saturation | Photo median RGB / saturation |
+| --- | --- | --- |
+| Stock | 86/63/52 / .390 | 83/63/51 / .376 |
+| Lower handguard | 113/70/54 / .520 | 107/62/45 / .550 |
+| Upper handguard | 90/58/45 / .505 | 87/52/39 / .544 |
+
+Upper hero luma p75 is 71.6 versus photo 65.3, without the old beige field.
+The fitted-side colors remain darker: 64/48/40, 96/60/46 and 64/41/32.
+That lighting mismatch is visible in `wood-grain-and-color.jpg`; it is not
+hidden by exposure normalization. Whole-side value spreads are .688/.494,
+.760/.570 and .234/.609 respectively (GLB/photo). The interior flat stock
+land, excluding wrist, silhouette and lower-edge abrasion, retains
+**.338 shipped / .338 dense / .302 photo**, using (value p90−p10)/median.
+The grain follows each blank's length, with changing spacing and curved
+figure. It is visible at whole-gun size after filtering; fine vessels soften
+in macros. The lower is redder than the stock; the upper has a duller film.
+
+Hand wear is elongated film loss inside contact margins, separated by
+intact varnish. It reveals slightly lighter, less-red matte versions of the
+same wood, with irregular edges. Dents are depressed normals with dark
+crushed-fiber bottoms, without orange crescents. The shipping 2D diagnostic
+now thresholds roughness above 157/255, above intact varnish including the
+upper's dull film; its earlier 115 threshold falsely included intact film.
+Largest connected classified areas are stock 7.25, lower 14.75 and upper
+18.0 mm². Thresholds changed, so these are not a controlled area-ratio
+comparison to the old 1,315.5/1,002.5 fields. The images establish that the
+front third is no longer bleached. The older photographed stock's edge
+abrasion is more extensive than this candidate's.
+
+Finished metal sites, inspected in the GLB:
+
+- **Receiver lower front/well:** tapered ragged phosphate patches at the
+  lower front corners and entry edges; one lower-front rivet crown rub.
+  Upper, rear and most rivet edges remain black. The largest rectified
+  diagnostic patch is 163.25 mm²; these read as patches at full frame.
+- **Cover rear/bead/selected crests:** a longer rear-side bead rub, rear rim
+  friction, one rear crest and a shorter middle crest, with untouched black
+  stretches. Phosphate appears first; a small warm-gray satin steel subset
+  occupies sharp high points.
+- **Guard bottom:** one central contact rub fades before the bends.
+- **Magazine ribs/spines:** long narrow pouch rubs follow three selected
+  curved ridges and folded spines, with restrained floorplate/lip contacts.
+  No periodic holes break the strokes into even dashes.
+- **Selector thumb fold/forward edge:** restrained friction; the broad blade
+  and receiver behind it stay dark.
+- **Handle/rails:** directional satin contact revealed in the open view.
+- **Gas collars:** smooth warm-gray edge rubbing on the blued collars,
+  with the diagonal web dark and carbon restricted to exterior vent causes.
+  The earlier white blotches are absent.
+- **Secondary exposed contacts:** narrow gray lands at the gas-tube seat,
+  muzzle rim, hood/notch/slider peaks and selected buttplate/cap side edges.
+  Their small isolated exposure does not outline the surrounding parts.
+
+The final retainer pair is `pairs/retainer_photo-pair.jpg`; its white-backed
+sharp photograph is form-only. The cap has a flat diaphragm, finite return,
+regular round collar, rod opening and seated riveted eye. Radial pleats and
+the overhanging dish are gone. The imported Y360-mm section's 23 rays measure
+overhang min/median/max .0159/.4547/.5567 mm and return gauge along those
+rays 1.0942/1.1525/1.2803 mm. The section plot retains actual wood and cap
+intersections. Its plate is broader than the compact modern reference because
+the accepted wood is preserved; that reference has an integral eye. Small
+silhouette facets remain in the extreme isolated macro. Camera residual is
+79.7 native pixels, with .00246-pixel independent projection agreement;
+these certify framing calculations, not matching contours.
+
+Final proof, all on the current 40,000-triangle export:
+
+- `make -C guns/ak` — exit 0, log `build/round2-make.log`. Original default
+  4096/32 bake, filtered 2048 maps; all audited interior channels have zero
+  missed texels. An earlier foreground run hit its process timeout during
+  rendering; the detached complete run above succeeded.
+- `make -C guns/ak check` — separate run, exit 0, log `build/round2-check.log`.
+  Repository rules, normals, scale, UVs, all five GLBs, canonical image hashes,
+  17 bones, eight sockets and twenty clips pass. Complete staged UV coverage
+  is 40.2516%, with zero outside/degenerate UV triangles and one microscopic
+  clipped overlap fraction 7.297e-7. Density p5/median/p95 is
+  1,543.8/1,880.5/5,400.9 px/m.
+- Source, finalized and actual imported surfaces each pass the 44 accepted
+  contact groups, nine fixed seats and half-frame clearance sweeps. Ordinary
+  .2-mm tolerance and four finite visual exceptions are unchanged; maximum
+  fixed-seat gap is .09505 mm. The cap section audit passes too. These prove
+  visible assembly. Serialization is separately compared across 1,556 affine
+  samples, with maximum position delta 9.13e-8 m.
+- The accepted fingerprint passes for all 108 unaffected meshes and normals,
+  rest bones/sockets and 1,556 sampled affine poses. Only the requested cap
+  and sling-loop endpoints differ. No accepted geometry was decimated to pay
+  for this change; the cap itself uses 568 triangles.
+- One material, three 2048 images; rifle 10,719,868 bytes. Loaded/empty
+  magazines are 7,562,988/7,474,832 bytes; cartridge/case
+  7,354,552/7,342,232 bytes. Canonical PNGs total 7,298,715 bytes.
+- Provenance validates 362 current render records, including twenty source
+  comparisons and 290 clip frames. All seventeen native frame-inspection
+  pages were opened; playback durations pass for all twenty WebPs. The raw
+  import comparison also passes (hero mean RGB difference .00753/255).
+  Opened `contact-sheet.jpg` and all five docs JPGs: maximum width 1600,
+  largest file 193,548 bytes. The five docs remain **uncommitted** as requested.
+
+Remaining weaknesses are isolated cap facets and reference variant
+proportions, softened fine pores/checkering/marking relief at one-atlas
+density, and the side-photo lighting mismatch. Wood edge wear is less
+extensive than on the older reference. No kit/common changes or extra tools
+are needed. A useful future shared review feature would distinguish coarse
+figure contrast from curved-surface shading automatically; the independent
+flat-side polygon here makes that distinction explicit for this asset.
