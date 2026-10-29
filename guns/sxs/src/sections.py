@@ -6,7 +6,13 @@ from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[3];sys.path.insert(0,str(ROOT));sys.path.insert(0,str(Path(__file__).parent))
 from kit import weapon as W,weapon_verify as V
 BASE=Path(__file__).resolve().parents[1]
-CUTS=[('Concentric fence rolls',1,.108,(0,2),('Action_Body',)),
+CUTS=[('Head 3 mm behind breech',1,.112,(0,2),('Action_Body',)),
+ ('Head 8 mm behind breech',1,.107,(0,2),('Action_Body',)),
+ ('Head 15 mm behind breech',1,.100,(0,2),('Action_Body',)),
+ ('Right bore axis',3,.0126,(1,2),('Action_Body','Top_Strap')),
+ ('Left bore axis',3,-.0126,(1,2),('Action_Body','Top_Strap')),
+ ('Centerline Y94 to Y115',0,.0000005,(1,2),('Action_Body','Top_Strap')),
+ ('Concentric fence rolls',1,.108,(0,2),('Action_Body',)),
  ('Shoulder and head',1,.096,(0,2),('Action_Body','Stock_Walnut','Top_Strap','Top_Lever')),
  ('Barrels at breech',1,.117,(0,2),('Barrel_R','Barrel_L','Solid_TopRib','Extractor_Rim_R','Extractor_Rim_L')),
  ('Barrels at muzzle',1,.7749,(0,2),('Barrel_R','Barrel_L','Solid_TopRib','Bottom_Rib')),
@@ -38,16 +44,24 @@ def capture(path,dense=False):
    for tri in mesh.loop_triangles:
     vs=[ev.matrix_world@mesh.vertices[i].co for i in tri.vertices];hits=[]
     for a,b in zip(vs,vs[1:]+vs[:1]):
-     if (a[axis]-station)*(b[axis]-station)<0:hits.append(a+(b-a)*(station-a[axis])/(b[axis]-a[axis]))
+     if axis==3:
+      sign=1 if station>0 else -1
+      da=a.x-sign*(.0126-(a.y-.115)*1.7/660.4)
+      db=b.x-sign*(.0126-(b.y-.115)*1.7/660.4)
+     else:da=a[axis]-station;db=b[axis]-station
+     if da*db<0:hits.append(a+(b-a)*(-da)/(db-da))
     if len(hits)==2:segments.append([[p[k]*1000 for k in projection] for p in hits])
    ev.to_mesh_clear()
    if segments:parts[name]=segments
   assert parts,title
   pts=[p for ss in parts.values() for seg in ss for p in seg];b=[[min(p[k] for p in pts),max(p[k] for p in pts)] for k in (0,1)]
-  rows.append(dict(title=title,plane='XYZ'[axis],station_mm=station*1000,axes=['XYZ'[k] for k in projection],parts=parts,part_sizes_mm={name:[max(p[k] for seg in ss for p in seg)-min(p[k] for seg in ss for p in seg) for k in (0,1)] for name,ss in parts.items()},bounds_mm=b,size_mm=[hi-lo for lo,hi in b]))
+  rows.append(dict(title=title,plane=('bore-axis vertical' if axis==3 else 'XYZ'[axis]),station_mm=station*1000,axes=['XYZ'[k] for k in projection],parts=parts,part_sizes_mm={name:[max(p[k] for seg in ss for p in seg)-min(p[k] for seg in ss for p in seg) for k in (0,1)] for name,ss in parts.items()},bounds_mm=b,size_mm=[hi-lo for lo,hi in b]))
  return rows
 def main():
- game=BASE/'export/sxs.glb';source=BASE/'build/sxs.blend';out=BASE/'renders/checkpoint/sections';out.mkdir(parents=True,exist_ok=True)
+ import argparse
+ parser=argparse.ArgumentParser();parser.add_argument('--game',default=str(BASE/'export/sxs.glb'));parser.add_argument('--source',default=str(BASE/'build/sxs.blend'));parser.add_argument('--out',default=str(BASE/'renders/checkpoint/sections'))
+ args=parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
+ game=Path(args.game).resolve();source=Path(args.source).resolve();out=Path(args.out).resolve();out.mkdir(parents=True,exist_ok=True)
  result=dict(source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),glb_sha256=hashlib.sha256(game.read_bytes()).hexdigest(),dense=capture(source,True),game=capture(game))
  (out/'sections.json').write_text(json.dumps(result,indent=2))
  from PIL import Image,ImageDraw,ImageFont
@@ -66,6 +80,12 @@ def main():
   # Review-only arrows identify construction landmarks on the measured
   # sections. They do not enter the geometry or its acceptance probes.
   notes={
+   'Head 3 mm behind breech': [('R13.35 front / R6 side',(24,50)),('centerline',(0,49.72))],
+   'Head 8 mm behind breech': [('6 mm join band',(19,51)),('centerline',(0,49.72))],
+   'Head 15 mm behind breech': [('6 mm side return',(24,47)),('centerline',(0,49.72))],
+   'Right bore axis': [('18.5 mm axial roll',(105,55)),('head to strap',(87,47))],
+   'Left bore axis': [('18.5 mm axial roll',(105,55)),('head to strap',(87,47))],
+   'Centerline Y94 to Y115': [('front floor',(111,49.72)),('lever recess',(96,48))],
    'Concentric fence rolls': [('bore axis',(12.618,44)),('bore axis',(-12.618,44))],
    'Action at bar': [('ground side',(25.95,20)),('rounded lower arris',(-23,5.8))],
    'Flush plate seam': [('shared lower skin',(20,1.6))],

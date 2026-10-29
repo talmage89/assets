@@ -14,6 +14,7 @@ BASE=Path(__file__).resolve().parents[1];REF=BASE/'refs';OUT=BASE/'build/referen
 # Native size / inspected preview size. Preview coordinates are observations,
 # never traced outlines or generator inputs.
 GRIDS={**{f'plain-{i}':(1900,round(h*1900/w)) if w>=h else (round(w*1300/h),1300) for i,(w,h) in enumerate([(4767,1549),(4623,1866),(1876,4679),(4252,2615),(4359,2390),(2027,4234),(1899,3454),(4047,1858)])},
+ 'breech':(1500,997),'aimed-film-candidate':(1009,568),
  'field-alt-0':(900,600),'field-alt-11':(900,600),'field-alt-21':(900,600)}
 def px(photo,p):
  w,h=Image.open(REF/(photo+'.jpg')).size;gw,gh=GRIDS[photo]
@@ -129,6 +130,19 @@ observed('open',[
  ('near breech heel',opened((-12.6,115,30.65)),(906,342),1),
  ('hinge pin center',(-25.95,170,19),(723,460),1)],
  location=(-.5,.5,.14),target=(0,.13,.045),crop=(660,130,1070,500))
+# Round-five player references. The film still is a photographic rear view,
+# above the accepted Eye frame; it never calibrates or relocates that socket.
+MATCHES['aimed_reference']=spec('aimed-film-candidate',(210,170,740,440),
+ 'Rear action and rib / photographic frame, elevated camera',(.22,-.28,.23),(0,.18,.04),[
+ ((0,775.4,53),(266,212),1),((12.6,115,57.35),(567,271),1),
+ ((-12.6,115,57.35),(511,303),1),((0,94,49),(576,298),.7),
+ ((0,5,24),(685,374),.4)])
+MATCHES['breech_reference']=spec('breech',(430,270,1020,730),
+ 'Open breech / Commons photographic reference',(.35,-.08,.35),(0,.13,.045),[
+ (opened((12.6,105,44),-42),(789,356),1),
+ (opened((-12.6,105,44),-42),(752,428),1),
+ ((12.6,115,57.35),(665,315),1),((-12.6,115,57.35),(647,378),1),
+ ((0,94,49),(596,305),.5)])
 for name,row in MATCHES.items():
  if name not in ('left','right'):
   row.update(lens=150,lens_bounds_mm=(150,150),locked_view=True)

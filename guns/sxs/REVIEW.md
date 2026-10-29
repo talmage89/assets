@@ -1,3 +1,58 @@
+# Covey 26 — form round 5: head behind the fences
+
+The round-four record below is retained as history. Round five keeps its
+57.350 mm crowns, 51.900 mm pair width, front R13.35 arcs, 18.5 mm crown roll,
+side flats and lower plate construction. The new head is being judged in
+sections 3, 8 and 15 mm behind Y115 and in both bore-axis vertical planes.
+Inspection material values remain unchanged; no finish work or docs JPGs.
+
+## Round 5 image critique passes
+
+25. **First Z49.72 / R6 / 3 mm join trial.** Color/value: inspected the dark
+    steel and broad reflections before assessing the form; the original black
+    macro backdrop has no defensible neutral, so unity white balance remains.
+    The first source previews (`renders/round5/pass1`) remove the 40.64 mm
+    section's two original roof facets. The 49.72 mm center datum fills the
+    head behind the R13.35 front arcs, but the 3 mm join band still produces
+    too narrow a reflection transition. A topology check rejects 24 boundary
+    edges around the unchanged Y115 bushing cuts. These previews are rejected
+    source diagnostics, not the baked delivery.
+26. **6 mm signed-distance join and Y115 topology.** Color/value: the second
+    preview set (`renders/round5/pass2`) retains dark steel and visible cavity
+    shadows. The 6 mm join band reduces the rear reflection break, but a height
+    maximum truncated at a circular patch's end still gives a derivative
+    discontinuity. Replaced it with the zero of a C2 signed-distance union;
+    there is no separate fence mesh. Resolved sub-0.8 mm collinear T-junctions
+    on the Y115 plane by splitting the existing edges at their third vertices.
+    The subsequent head source and game mesh have zero nonmanifold edges.
+27. **Lever clearance and actual centerline datums.** Color/value: viewed the
+    third source set (`renders/round5/pass3`), including aimed, open, breech and
+    both upper rakes. The raised stock trial leaves an unnecessarily exposed
+    lever cutout in the wood. Restore the accepted wood's previous head cage;
+    only the action receives the 0.35 mm allowance for the original 0–25° lever
+    sweep. Its first motion test identifies the stock/lever collision instead
+    of adding a contact exception. Independent surface rays distinguish the
+    action's 49.72 mm notch from the actual rib sighting floor, 55.59 mm, and
+    the accepted boss's 50.30 mm top. Datum clarification is pending before
+    choosing the delivered center fill; neither a constant nor a source
+    preview constitutes acceptance of that requirement.
+
+28. **Restored wood and measured sections.** Color/value: opened the new
+    `renders/round5/datum49` and `datum55` player previews. Both retain the
+    original material constants. The 49.72 mm trial retains the front notch;
+    the 55.59 mm trial fills to the actual rib surface but raises its center
+    outline and leaves the 50.30 mm boss in a deeper recess. Those are distinct
+    outcomes, so the pending datum choice cannot be hidden by camera placement.
+    Opened the Y112/Y107/Y100 and both bore-axis section drawings. The sampled
+    49.72 mm head gives drops 7.63 mm just behind either return, 13.07 mm at
+    either side wood line and 11.20 mm at the center wood line. Its side-return
+    circle fit is R5.994 mm. The sampled bore-axis transition fits are about
+    R19.4 mm rather than the initial 4–8 mm photo inference; they are not
+    claimed to match that estimate. The current quick source check passes
+    246 contact records and manifold topology at 38,822 triangles. The latest
+    opening sweep has zero motion violations; final full source/reimport
+    sweeps and the new bake are still pending the center datum choice.
+
 # Covey 26 — form round 4: fences, flats and underside
 
 This round judges the **baked 2048 export**, `export/sxs.glb`. The kit finalizer,

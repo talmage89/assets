@@ -37,6 +37,8 @@ PHOTO_POSES={name:dict(action='Idle',frame=0) for name in (
  'right','left','action','action_left','action_top','action_bottom','forend','forend_side','trigger')}
 PHOTO_POSES.update({name:dict(action='IdleOpenEmpty',frame=0,extractor_home=True,
  photo_open_angle=-30,pose_note='empty photographic pose, 30-degree opening; canonical clips unchanged') for name in ('open','barrel_flats')})
+PHOTO_POSES['aimed_reference']=dict(action='Idle',frame=0)
+PHOTO_POSES['breech_reference']=dict(action='IdleOpenLoaded',frame=0)
 PHOTO_POSES['barrel_flats'].update(photo_barrel_isolation=True,pose_note='Detached barrel comparison: fixed action and forend omitted to match reference; exported asset unchanged')
 def floor_height(source):return -.15
 def configure_scene(sc,source):

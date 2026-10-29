@@ -12,6 +12,7 @@ from semantics import check as semantics
 from contacts import measure,ray
 from form_gauges import measure as form_gauges
 from action_gauges import measure as action_gauges
+from head_gauges import measure as head_gauges
 from projection_check import measure as projection_ownership
 from kit import uv
 from PIL import Image
@@ -45,7 +46,7 @@ def main():
   W.pose(arm,clip,0);spawn[name]=(V.surface_points([o for o in parts if o['bone']==bone]),arm.matrix_world@arm.pose.bones[bone].matrix)
  data=GLB(path);prims=[p for m in data.json['meshes'] for p in m['primitives']]
  count=sum(len(data.accessor(p['indices']))//3 for p in prims)
- assert 25000<=count<=38000,count
+ assert 25000<=count<=39000,count
  assert len(data.json['materials'])==1 and len(data.json['images'])==3
  for i in range(3):assert Image.open(io.BytesIO(data.image(i))).size==(2048,2048)
  baked=json.loads((BASE/'build/baked/4k/bake-report.json').read_text())
@@ -64,7 +65,7 @@ def main():
   assert np.all((w>1e-6).sum(axis=1)==1)
   n=data.accessor(p['attributes']['NORMAL']);assert np.max(abs(np.linalg.norm(n,axis=1)-1))<1e-5
  normals=V.normal_direction(data);arm=V.import_glb(path);imported_semantics=semantics(arm)
- contacts=measure(arm);gauges=form_gauges(arm);gauges['action_round4']=action_gauges(arm)
+ contacts=measure(arm);gauges=form_gauges(arm);gauges['action_round4']=action_gauges(arm);gauges['head_round5']=head_gauges(arm)
  imported_uv=uv.report([o for o in bpy.context.scene.objects if o.type=='MESH'],size=2048)
  assert not imported_uv['outside_triangles'] and not imported_uv['degenerate_uv_triangles'] and imported_uv['overlap_fraction']<1e-5
  assert 1400<imported_uv['density_px_m']['50']<3000

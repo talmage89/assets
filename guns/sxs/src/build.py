@@ -24,6 +24,11 @@ BOTTOM_RADIUS=8.0
 FENCE_RADIUS=13.35
 FENCE_ROLL=18.5
 SLOT_WIDTH=6.0
+HEAD_TOP=49.72
+HEAD_CENTER_FLOOR=49.72
+HEAD_SIDE_RADIUS=6.0
+HEAD_JOIN_WIDTH=6.0
+HEAD_INNER_OFFSET=.38
 
 def action_section(y):
  """One ground side plane from the stock head through the hinge cheeks."""
@@ -33,9 +38,63 @@ def action_section(y):
   return (ACTION_HALF_WIDTH,7*smoothstep((y-115)/55),30.2)
  return (ACTION_HALF_WIDTH,19-math.sqrt(max(0,144-(y-170)**2)),19+math.sqrt(max(0,144-(y-170)**2)))
 def action_roof(x,y):
- # Two ground shoulders run into the narrow strap; the circular fence
- # sections round over longitudinally into these planes.
- return 47.2+.12*(y-94)-.82*max(0,abs(x)-6.5)
+ """Exterior head: Z49.72 centre, R6 side return, 6 mm C2 join band.
+
+ The accepted R13.35 transverse arc is exact for the first 3 mm behind
+ Y115. The axial crown roll remains 18.5 mm. Past that front band, the
+ inner return advances rearward by .38 mm per mm toward the centre.
+ """
+ w=ACTION_HALF_WIDTH;xx=abs(x);d=max(0,BREECH-y)
+ if y<=85:z=47.2+.12*(y-94)
+ elif y<94:
+  t=(y-85)/9
+  z=(2*t**3-3*t*t+1)*46.12+(t**3-2*t*t+t)*1.08+(-2*t**3+3*t*t)*HEAD_TOP
+ else:z=HEAD_TOP
+ z+=(HEAD_CENTER_FLOOR-HEAD_TOP)*(1-smoothstep(xx/8))*smoothstep((y-85)/9)
+ r=HEAD_SIDE_RADIUS;u=max(0,min(1,(xx-(w-r))/r))
+ z-=r*(1-math.sqrt(max(0,1-u*u)))
+ # All head stations share this one height field. No intersecting dome
+ # mesh or Boolean tangent ring can leave a crease in its upper skin.
+ offset=HEAD_INNER_OFFSET*(12.6-xx)*smoothstep((d-3)/10)
+ axial=max(0,d-offset)
+ if axial<FENCE_ROLL:
+  radius=FENCE_RADIUS*math.sqrt(1-(axial/FENCE_ROLL)**2)
+  dx=xx-barrel_shape(y)[0]
+  arc=BORE+math.sqrt(max(0,radius*radius-dx*dx))
+  k=HEAD_JOIN_WIDTH*smoothstep((d-1)/7)*smoothstep(xx/5)
+  if k<1e-8:
+   if abs(dx)<radius:z=max(z,arc)
+  else:
+   # C2 union of the transverse circular signed distance and the head
+   # height. Solving its zero avoids truncating a circle at q=0, which
+   # would otherwise leave a crease even after smoothing the maximum.
+   base=z;lo=max(base,arc if abs(dx)<radius else base)
+   hi=max(base,BORE+radius)+k
+   for _ in range(22):
+    mid=(lo+hi)*.5;a=mid-base;b=math.hypot(dx,mid-BORE)-radius
+    h=max(0,1-abs(a-b)/k);f=min(a,b)-k*h**3/6
+    if f>0:hi=mid
+    else:lo=mid
+   z=(lo+hi)*.5
+
+ return z
+
+def upper_normals(ob,normals=None):
+ """Differentiate the Z49.72/R6/6 mm field; retain the flat breech face."""
+ normals=normals or [n.vector.copy() for n in ob.data.corner_normals]
+ for face in ob.data.polygons:
+  if face.normal.z<.01:continue
+  for i in face.loop_indices:
+   p=ob.data.vertices[ob.data.loops[i].vertex_index].co
+   if not 70.01<p.y<114.99 or abs(p.z-action_roof(p.x,p.y))>.10:continue
+   if abs(p.x)>ACTION_HALF_WIDTH-.015:n=Vector((math.copysign(1,p.x),0,0))
+   else:
+    e=.003
+    dx=(action_roof(p.x+e,p.y)-action_roof(p.x-e,p.y))/(2*e)
+    dy=(action_roof(p.x,p.y+e)-action_roof(p.x,p.y-e))/(2*e)
+    n=Vector((-dx,-dy,1)).normalized()
+   if n.dot(face.normal)>.4:normals[i]=n
+ return normals
 def lower_loop(y,w,bot,r):
  """Shared transverse skin: plate and bar use exactly the same lower arris."""
  pts=[(w,y,bot+r)]
@@ -91,9 +150,44 @@ def clean(ob,dist=.00003):
   bmesh.ops.delete(bm,geom=flaps,context='FACES')
   loose=[v for v in bm.verts if not v.link_faces]
   if loose:bmesh.ops.delete(bm,geom=loose,context='VERTS')
- boundary=[e for e in bm.edges if e.is_boundary]
- if boundary and len(boundary)==3 and max(e.calc_length() for e in boundary)<.8:
-  bmesh.ops.holes_fill(bm,edges=boundary,sides=0)
+ boundary=set(e for e in bm.edges if e.is_boundary)
+ while boundary:
+  group={boundary.pop()};queue=list(group)
+  while queue:
+   e=queue.pop()
+   for v in e.verts:
+    for adjacent in v.link_edges:
+     if adjacent in boundary:
+      boundary.remove(adjacent);group.add(adjacent);queue.append(adjacent)
+  if len(group)==3 and max(e.calc_length() for e in group)<.8:
+   edge=max(group,key=lambda e:e.calc_length());a,c=[v.co.copy() for v in edge.verts]
+   middle=next(v for e in group for v in e.verts if v not in edge.verts)
+   t=(middle.co-a).dot(c-a)/(c-a).length_squared
+   if 0<t<1 and (middle.co-(a+(c-a)*t)).length<.006:
+    # Close a sub-.8 mm Boolean T-junction on the planar breech by
+    # splitting its long edge at the existing third point, not by
+    # manufacturing a zero-area triangle across three collinear points.
+    from bmesh.utils import edge_split
+    _,vertex=edge_split(edge,edge.verts[0],t);vertex.co=middle.co.copy()
+    bmesh.ops.remove_doubles(bm,verts=[vertex,middle],dist=.006)
+   else:bmesh.ops.holes_fill(bm,edges=list(group),sides=3)
+ for _ in range(64):
+  edges=[e for e in bm.edges if e.is_boundary and e.calc_length()<(1.2 if ob.name in ('Action_Body','HIGH_Action_Body') else .8)
+   and (ob.name in ('Action_Body','HIGH_Action_Body') or all(abs(v.co.y-115)<.01 for v in e.verts))]
+  vertices={v for e in edges for v in e.verts};repair=None
+  for e in edges:
+   a,c=[v.co.copy() for v in e.verts];delta=c-a
+   if delta.length_squared<1e-12:continue
+   for v in vertices-set(e.verts):
+    t=(v.co-a).dot(delta)/delta.length_squared
+    if .001<t<.999 and (v.co-(a+delta*t)).length<.006:
+     repair=e,v,t;break
+   if repair:break
+  if not repair:break
+  e,v,t=repair
+  from bmesh.utils import edge_split
+  _,new=edge_split(e,e.verts[0],t);new.co=v.co.copy()
+  bmesh.ops.remove_doubles(bm,verts=[new,v],dist=.006)
  bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free();ob.data.update()
 def reg(ob,bone='Root',radius=0,segments=3):
  if radius:M.bevel(ob,radius,segments)
@@ -156,10 +250,11 @@ def action():
  # the fences use circular transverse sections and a short axial roll. The knuckle continues the same
  # skin; there is no overlapping cylinder/disc to stand proud of the lands.
  loops=[]
- ys=[70,70.8,74,80,86,90,92,96,99,100,102,103,106,112,114.6,115]
+ ys=[70+i*.5 for i in range(91)]
+ xs=lambda w,y:sorted([w*math.sin(-math.pi/2+math.pi*i/96) for i in range(97)]+[-barrel_shape(y)[0],barrel_shape(y)[0]])
  for y in ys:
   w,bot,top=action_section(y);pts=[]
-  for x in [-w,-w+4,-18,-12.6,-6.5,0,6.5,12.6,18,w-4,w]:
+  for x in xs(w,y):
    z=action_roof(x,y)
    yy=y+rear_seam(z,x)*max(0,1-(y-70)/30)
    # Evaluate the plane at the actual station to retain a perfectly ground
@@ -178,7 +273,7 @@ def action():
   r=min(4,(top-bot)/3)
   rb=min(BOTTOM_RADIUS,(top-bot)*.48)
   pts=[]
-  for x in [-w,-w+r*.15,-w+r*.5,-w+r, -w*.45,0,w*.45,w-r,w-r*.5,w-r*.15,w]:
+  for x in xs(w,y):
    dx=max(0,abs(x)-(w-r))
    z=top-r+math.sqrt(max(0,r*r-dx*dx));pts.append((x,y,z))
   pts += lower_loop(y,w,bot,rb)
@@ -188,19 +283,6 @@ def action():
  center=len(vs);vs.append((0,78,27.5));fs += [(center,(i+1)%nc,i) for i in range(nc)]
  fs += [tuple(range((len(loops)-1)*nc,len(loops)*nc))]
  body=M.mesh('Action_Body',vs,fs,MAT['blue']);clean(body)
- # Circular transverse sections stay centered on each bore. The short
- # elliptical longitudinal roll closes into the ground shoulders. This is
- # a breech continuation, with no radius or width overshoot at its front.
- for x in (-12.6,12.6):
-  rings=[]
-  for j in range(33):
-   a=math.pi/2*j/32
-   y=BREECH-FENCE_ROLL*math.cos(a)
-   radius=max(.01,FENCE_RADIUS*math.sin(a))
-   cx=math.copysign(barrel_shape(y)[0],x)
-   rings.append([(cx+radius*math.cos(t),y,BORE+radius*math.sin(t)) for t in [i*math.tau/96 for i in range(96)]])
-  dome=M.loft('Concentric fence',rings,MAT['blue']);clean(dome)
-  cut(body,dome,'UNION')
  # The narrow visual lug passage opens on the table; its bottom remains
  # closed by the forging so the underside shows the smooth neck in the photo.
  cutbox(body,(-6.4,116,6.3),(6.4,184,33))
@@ -210,7 +292,7 @@ def action():
   lathe('Bushing_'+side,[(114,1),(114,3.35),(114.95,3.35),(114.95,1)],'steel',center=(x,BORE),n=32,closed=True)
   lathe('PinFace_'+side,[(114.6,0),(114.6,.8),(114.85,.8),(114.85,0)],'dark',center=(x,BORE),n=16)
  cutbox(body,(-4.4,98,10),(4.4,146,15.1))
- cut(body,lathe('Tool',[(44,0),(44,4.25),(56,4.25),(56,0)],axis='Z',center=(0,94),n=48,raw=True))
+ cut(body,lathe('Tool',[(44,0),(44,4.25),(48.0,4.25),(48.0,5.9),(56,5.9),(56,0)],axis='Z',center=(0,94),n=48,raw=True))
  cutbox(body,(-7.4,39,-5),(7.4,78,11))
  reg(body,radius=.18,segments=2)
  # Condition coincident constructive seams before archiving or reduction;
@@ -249,9 +331,9 @@ def action():
  cut(body,seat)
  # Keep the archive synchronized after cutting the real plate seat.
  clean(body,dist=.006);canonical_surface(body)
- body.data.normals_split_custom_set(lower_normals(body));high_copy(body)
- HIGH[-1]['source_method']='Closed ruled forging; bore-concentric arcs, short roll, shared plate arris'
- reduce(body,6750)
+ body.data.normals_split_custom_set(upper_normals(body,lower_normals(body)));high_copy(body)
+ HIGH[-1]['source_method']='Single height field: Z49.72, R6 side, 6 mm join, R13.35 / L18.5 fence crowns'
+ reduce(body,7750)
  for x,y in [(2.6,64),(-2.6,31)]:
   outline=[(xx+x,yy+y+3) for xx,yy in M.rounded_rectangle(SLOT_WIDTH,16,.9,6)]
   cut(plate,profile('Blade slot',outline,-8,18,axis='Z',raw=True))
@@ -260,6 +342,31 @@ def action():
  high_copy(plate)
  box('Locking_Shoe',(-4,124,10.4),(4,129.9,11.8),'steel','LockBolt',radius=.10)
  box('Locking_Shoe_Upper',(-4,130,13.2),(4,141.9,14.6),'steel','LockBolt',radius=.10)
+
+def lever_recess_035():
+ """0.35 mm exterior travel clearance for the unchanged 0–25 degree lever.
+
+ Only Y>=68 mm is considered; the accepted rear strap and wrist stay out
+ of this cutter. The convex envelope spans the sampled original lever
+ skin, plus its measured presentation clearance. No moving part changes.
+ """
+ lever=bpy.data.objects['Top_Lever'];points=[];pivot=Vector((0,94,0))
+ for v in lever.data.vertices:
+  p=v.co
+  if p.y<68:continue
+  for angle in range(0,26,5):
+   rot=Matrix.Rotation(math.radians(angle),3,'Z')
+   for dx,dy,dz in [(-.35,-.35,-.35),(-.35,.35,-.35),(.35,-.35,-.35),(.35,.35,-.35),(-.35,-.35,.35),(.35,.35,.35)]:
+    points.append(rot@(p+Vector((dx,dy,dz))-pivot)+pivot)
+ bm=bmesh.new();vertices=[bm.verts.new(p) for p in points]
+ result=bmesh.ops.convex_hull(bm,input=vertices,use_existing_faces=False)
+ bmesh.ops.delete(bm,geom=[v for v in bm.verts if not v.link_faces],context='VERTS')
+ mesh=bpy.data.meshes.new('Lever_035_0_25');bm.to_mesh(mesh);bm.free()
+ template=bpy.data.objects.new('Lever_035_0_25',mesh);bpy.context.collection.objects.link(template)
+ for name in ('Action_Body','HIGH_Action_Body'):
+  tool=template.copy();tool.data=template.data.copy();bpy.context.collection.objects.link(tool)
+  cut(bpy.data.objects[name],tool);clean(bpy.data.objects[name],dist=.006)
+ bpy.data.objects.remove(template,do_unlink=True)
 
 def barrel_shape(y):
  t=(y-BREECH)/(MUZZLE-BREECH)
@@ -491,6 +598,7 @@ def controls():
  for v in ob.data.vertices:v.co.z+=1.2
  high_copy(ob);reduce(ob,1300);reg(ob,'TopLever')
  lathe('Top_LeverSpindle',[(45.5,0),(45.5,4.1),(48.25,4.1),(48.35,5.6),(50.0,5.6),(50.3,5.3),(50.3,0)],'dark','TopLever',axis='Z',center=(0,94),n=48)
+ lever_recess_035()
  # Safety follows the inclined strap, with a broad low thumb land and real
  # guide block below. State-only automatic actuation is in the interface.
  loops=[]
@@ -550,7 +658,7 @@ def finalize(ob):
  if not len(ob.data.vertices):raise AssertionError('Empty manufactured part: '+ob.name)
  # Only silhouette-scale detail survives in the game mesh. In particular,
  # annular-section edge bevels must not consume thousands of hidden triangles.
- allocations={'Stock_Walnut':4200,'Forend_Walnut':2350,'Action_Body':7400,
+ allocations={'Stock_Walnut':4200,'Forend_Walnut':2350,'Action_Body':7750,
   'Barrel_Hook':650,'Breech_Lumps':700,
   'Forend_IronCup_R':500,'Forend_IronCup_L':500,'Trigger_Guard':1100,
   'Butt_Plate':650,'Extractor_Rim_R':350,'Extractor_Rim_L':350,
@@ -564,6 +672,7 @@ def finalize(ob):
  tri=ob.modifiers.new('Explicit game triangles','TRIANGULATE');tri.keep_custom_normals=True
  if ob.name=='Front_Bead':tri.quad_method='FIXED'
  M.apply(ob)
+ if ob.name=='Action_Body':clean(ob,dist=.006)
  if ob.name=='Front_Bead':
   # BMesh may return the same triangles in a different face order. Packed
   # loop-normal bases depend on that order, so canonicalize this symmetric
@@ -577,7 +686,7 @@ def finalize(ob):
  if ob.name in ('Stock_Walnut','Forend_Walnut','Action_Body'):
   high=next(h for h in HIGH if h.get('low_target')==ob.name)
   canonical_surface(ob);canonical_surface(high)
-  if ob.name=='Action_Body':high.data.normals_split_custom_set(lower_normals(high))
+  if ob.name=='Action_Body':high.data.normals_split_custom_set(upper_normals(high,lower_normals(high)))
   if ob.name=='Forend_Walnut':
    # The routed latch intersects the broad lower land. Its wall must not
    # pull the exterior's normals into a star around the cut. Preserve the
@@ -621,23 +730,8 @@ def finalize(ob):
    elif all(114.99<=p.y<=170.001 and abs(abs(p.x)-action_section(p.y)[0])<.015 for p in vs):
     expected=Vector((math.copysign(1,sum(p.x for p in vs)),0,0)).normalized()
     for j in f.loop_indices:normals[j]=expected
-   elif all(70<=p.y<=115 and abs(p.z-action_roof(p.x,p.y))<.015 for p in vs):
-    sign=1 if sum(p.x for p in vs)>0 else -1
-    expected=Vector((sign*.82,-.12,1)).normalized() if all(abs(p.x)>=6.49 for p in vs) else Vector((0,-.12,1)).normalized()
-    if expected.dot(f.normal)>.995:
-     for j in f.loop_indices:normals[j]=expected
-   elif all(p.y<=115.01 for p in vs):
-    for sign in (-1,1):
-     c=Vector((sign*12.6,115,44))
-     def ellipsoid(p):
-      d=p-c;d.x=p.x-sign*barrel_shape(p.y)[0]
-      return (d.x*d.x+d.z*d.z)/FENCE_RADIUS**2+d.y*d.y/FENCE_ROLL**2
-     if all(abs(ellipsoid(p)-1)<.025 for p in vs):
-      for j in f.loop_indices:
-       p=ob.data.vertices[ob.data.loops[j].vertex_index].co;d=p-c;d.x=p.x-sign*barrel_shape(p.y)[0]
-       slope=-sign*1.7/660.4
-       normals[j]=Vector((d.x/FENCE_RADIUS**2,d.y/FENCE_ROLL**2-d.x*slope/FENCE_RADIUS**2,d.z/FENCE_RADIUS**2)).normalized()
  if ob.name in ('Action_Body','Trigger_Plate'):normals=lower_normals(ob,normals)
+ if ob.name=='Action_Body':normals=upper_normals(ob,normals)
  if ob.name=='Front_Bead':
   for j in range(len(normals)):
    p=ob.data.vertices[ob.data.loops[j].vertex_index].co
@@ -686,7 +780,7 @@ def main():
  sc['stage']='Form checkpoint, unbaked constant inspection materials'
  sc['maker']='Propane Defense';sc['model']='Covey 26';sc['interface_version']='1.7.0'
  bpy.ops.wm.save_as_mainfile(filepath=str(out));W.export(out.with_suffix('.glb'),[arm]+PARTS+sockets)
- counts={ob.name:len(ob.data.polygons) for ob in PARTS}
+ counts={ob.name:sum(len(f.vertices)-2 for f in ob.data.polygons) for ob in PARTS}
  report=dict(total=sum(counts.values()),parts=counts,standalones={})
  for name,fired in [('shell',False),('hull',True)]:
   ob=shell('LiveShell' if not fired else 'FiredHull',MAT,fired=fired)

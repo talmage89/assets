@@ -22,7 +22,7 @@ RENDER_DEPS := src/shots.py src/render.py ../common/render.py build/render-param
 SHOTS := hero,side,left,top,front,rake_right,rake_left,open,breech,action,action_left,triggers,trigger_quarter,forend,stock,muzzle,top_controls,lumps,aimed,action_rake_right,action_rake_left,action_rake_top,action_rake_bottom
 comma := ,
 BEAUTY := $(addprefix renders/checkpoint/beauty/,$(addsuffix .png,$(subst $(comma), ,$(SHOTS)))) renders/checkpoint/beauty/shots.json
-PHOTO_SHOTS := right,left,action,action_left,action_top,action_bottom,open,barrel_flats,forend,forend_side,trigger
+PHOTO_SHOTS := right,left,action,action_left,action_top,action_bottom,open,barrel_flats,forend,forend_side,trigger,aimed_reference,breech_reference
 .PHONY: all refs model prepare bake export check check-repo verify repeat render review evidence sections match strips ammo native-photos FORCE clean
 all: refs export check render review
 refs: native-photos

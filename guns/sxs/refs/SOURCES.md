@@ -285,3 +285,34 @@ those axes backward. Front radius and crown do not exceed the breech tubes.
 Side-step probes sample the ground side land below its upper edge radius.
 Plate-step probes extrapolate the immediately adjacent skins to a common seam
 station so that the belly's upward sweep is not counted as a joint step.
+
+
+## Round 5: photographic head measurements and rear views
+
+Commons was searched first for a rear view along a side-by-side rib. No suitable
+closed-action rear view was found there. The existing Commons `breech.jpg`
+remains the second open reference; it is a different sidelock exterior and is
+used for the unity of its upper action and face, not proprietary details.
+
+| Local file | Direct image URL | Author / license | Use |
+| --- | --- | --- | --- |
+| aimed-film-candidate.jpg | https://www.imfdb.org/images/9/9d/Peep_Show_S04E01_07.jpg | Live-action television frame, Channel 4 / Objective Productions, copyright retained; local comparison only, via IMFDB | Rear view over a closed side-by-side action and along its rib, 1009 × 568. The camera is above the rib and to one side; it is not a metric eye-fit reference. The exact Socket_Eye view is shown separately in its pair. Unity balance: no defensible neutral in the frame. No screenshot pixels enter any asset texture. |
+| aimed-bobwhite.jpg | https://content.osgnetworks.tv/gunsandammo/content/photos/cz-bobwhite-g2-04.jpg | Michael Anschuetz / Guns & Ammo, copyright retained | Rejected as aimed-action reference: muzzle/rib only, action outside frame. |
+| aimed-bobwhite-controls.jpg | https://content.osgnetworks.tv/gunsandammo/content/photos/cz-bobwhite-g2-07.jpg | Michael Anschuetz / Guns & Ammo, copyright retained | Rear-oblique supplementary head comparison; angle too high for an eye-level acceptance claim. |
+| aimed-fabarm.jpg | https://www.gunmart.net/images/uploads/access/092025-Screenshot_2025-04-06_at_14.31.00.jpg | Gun Mart, copyright retained | Rejected as head reference: the raised competition rib differs and action lies outside the frame. |
+| aimed-vintage.jpg | https://www.vintageguns.co.uk/images/ImageLib/MVB1.jpg | Vintage Guns, copyright retained | Rejected: an over-under open view. |
+
+The original dealer macros remain at unity white-balance gains because their
+black backdrops contain no defensible neutral. Form is judged before finish;
+none of the following estimates establishes an albedo or a finish match.
+The original tube OD, 26.7 mm, and joined breech width, 51.9 mm, supply the
+assumed scale. Perspective and tangent identification dominate the uncertainty.
+
+| Observation | Measured photo relation | Inferred target |
+| --- | --- | --- |
+| Head just behind the rear fence return, side `plain-3.jpg` | At the recorded 1900-pixel preview grid, crown near (1043,311), head near (932,355): about 44 px drop versus approximately 211 px per 26.7 mm OD. Rearward camera elevation is a further uncertainty. | About 5.6 mm below the crown; allow ±3 mm. |
+| Head at side wood line, `plain-3.jpg` | Upper side wood line near (850,410), about 99 px below that crown; same OD normalization. | About 12.5 mm drop; allow ±3 mm. |
+| Head at center wood line, `plain-3.jpg`, checked against `plain-4.jpg` | Center return beside the lever near (862,378), about 67 px below the crown. The lever occludes the actual centerline, so the adjacent surface supplies a bound. | About 8.5 mm drop; allow ±3.5 mm, including occlusion. |
+| Rear-outline endpoint offset, top `plain-2.jpg` | At the recorded 1300-pixel-high preview, outer ends approximately (150,716)/(345,711), inner returns (222,761)/(255,759). Mean rearward difference 46.5 px; breech span 209 px corresponds to 51.9 mm. | About 11.5 mm inner-behind-outer offset; allow ±3 mm. These are return landmarks on a surface, not a seam to copy. |
+| Head-to-side return radius, side/top macros | Visible return spans roughly 0.17–0.28 of the tube OD; use both the outer profile and the departure from the side plane, not highlight width alone. | Approximately 4.5–7.5 mm, with at least ±2 mm radius uncertainty. |
+| Fence-to-head and head-to-strap transitions, side/top macros | The departure occupies approximately 0.15–0.30 of the OD after allowing for the oblique view. No calibrated section or light is available. | Equivalent local radii approximately 4–8 mm; uncertainty at least ±2 mm. This is a silhouette/profile bound, not a uniquely recovered fillet radius. |

@@ -41,9 +41,6 @@ def measure(arm):
   points=[ray('Action_Body',(side*.08,y,z),(-side,0,0)) for y in (.125,.135,.145) for z in (.017,.021,.024)]
   p=np.array(points);c=p.mean(0);_,_,vh=np.linalg.svd(p-c);distance=abs((p-c)@vh[-1])
   planes[('right' if side>0 else 'left')+' bar']=dict(samples=len(p),max_deviation_mm=float(max(distance)*1000),normal=vh[-1].tolist())
- points=[ray('Action_Body',(x,y,.09),(0,0,-1)) for y in (.096,.098) for x in (.018,.022,.024)]
- p=np.array(points);c=p.mean(0);_,_,vh=np.linalg.svd(p-c);distance=abs((p-c)@vh[-1])
- planes['upper shoulder']=dict(samples=len(p),max_deviation_mm=float(max(distance)*1000),normal=vh[-1].tolist())
  rows['ground_side_planes']=planes
  eye=__import__('bpy').data.objects['Socket_Eye'].matrix_world.translation
  a=ray('Solid_TopRib',(0,.116,.09),(0,0,-1));b=ray('Solid_TopRib',(0,.774,.09),(0,0,-1))
