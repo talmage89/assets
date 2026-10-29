@@ -16,6 +16,7 @@ from kit.image_io import read_png, write_png, srgb_to_linear, linear_to_srgb
 
 CHANNELS = ('BaseColor', 'Normal', 'ORM')
 PADDING = 8
+MIN_PADDING = 6
 
 
 def _pack(rectangles, size):
@@ -164,16 +165,21 @@ def extract(objects, folder, asset, output, size, *, layer='UVMap'):
             if surface > 1e-15 and texels > 1e-15:
                 densities.append(math.sqrt(texels/surface)); areas.append(surface)
     if not islands: raise ValueError('Detachable contains no UV islands')
-    # Align guards to the coarsest protected box-mip grid. An 8px gutter
-    # alone can leak through mip-3 bilinear taps at an unlucky packing phase.
-    # Grid-aligned guard rectangles contain every tap through that level.
+    # Align guards to the coarsest protected box-mip grid. Unaligned gutters
+    # can leak through bilinear mip taps at an unlucky UV phase. Half a block
+    # plus the copied footprint contains every tap when both guard boundaries
+    # are block-aligned; retain at least the canonical 2048 atlas margin (6px).
     last_level = max(3,int(math.floor(math.log2(max(minimum_extent,4)/2))))
     block = 2**last_level
-    padding = max(PADDING,block)
-    rectangles = [tuple(map(int,(i['shape']+2*padding+block-1)//block)) for i in islands]
     target_size = size
-    positions = _pack(rectangles, target_size//block)
-    if positions is not None: positions = [(x*block,y*block) for x,y in positions]
+    # Prefer 8px, but retain the caller's small size with the atlas-equivalent
+    # 6px minimum when grid alignment already supplies the same mip protection.
+    for padding in sorted({max(PADDING,block//2),max(MIN_PADDING,block//2)},reverse=True):
+        rectangles = [tuple(map(int,(i['shape']+2*padding+block-1)//block)) for i in islands]
+        positions = _pack(rectangles,target_size//block)
+        if positions is not None:
+            positions = [(x*block,y*block) for x,y in positions]
+            break
     if positions is None:
         raise ValueError(f'Detachable cannot fit {size} at original density with {padding}px grid-aligned padding')
     result = {c:np.zeros((target_size,target_size,a.shape[2]),np.float32) for c,a in arrays.items()}

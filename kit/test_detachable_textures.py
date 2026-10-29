@@ -95,7 +95,7 @@ for state in ('loaded','empty','tilt'):
     # Legacy path remains byte-identical to canonical source PNGs.
     g=GLB(legacy/(state+'.glb'))
     assert {g.image(i) for i in range(3)} == {p.read_bytes() for p in textures.glob('*.png')}
-    assert records[state]['audit']['padding_px']>=8
+    assert records[state]['audit']['padding_px']>=6
 # Exercise the negative mip checks against the same unmodified surface texels.
 # Append replacement PNG views: original mesh/accessor BIN bytes stay intact.
 import io,struct,copy
@@ -199,9 +199,33 @@ except ValueError:pass
 else:raise AssertionError('Silently reduced texel density')
 layout=D.extract([ob],textures,'SubsetFixture',out/'wide',1024)
 assert layout['size']==1024
-assert layout['protected_mip_level']>=6 and layout['padding_px']>=64
+assert layout['protected_mip_level']>=6 and layout['padding_px']>=32
 W.export(out/'wide.glb',[ob],animations=False)
 records['wide_mips']=V.mip_bleed(out/'wide.glb',textures,'SubsetFixture',out/'wide/layout.json')
 assert records['wide_mips']['maximum_level']>=6
+# Dense disconnected charts: 8px guards cannot fit 512, while 6px guards on
+# the very same mip grid can. Prove the fallback keeps density and mip quality,
+# rather than silently reducing either or forcing a larger allocation.
+bpy.ops.wm.read_factory_settings(use_empty=True)
+vertices=[];faces=[]
+for index in range(400):
+    x=(index%20)*.003;y=(index//20)*.003;start=len(vertices)
+    vertices.extend([(x,y,0),(x+.002,y,0),(x+.002,y+.002,0),(x,y+.002,0)])
+    faces.append(tuple(range(start,start+4)))
+mesh=bpy.data.meshes.new('Dense charts');mesh.from_pydata(vertices,[],faces)
+ob=bpy.data.objects.new('Dense charts',mesh);bpy.context.collection.objects.link(ob)
+layer=mesh.uv_layers.new(name='UVMap')
+for face in mesh.polygons:
+    ox=16+(face.index%20)*80;oy=16+(face.index//20)*80
+    for loop,(x,y) in zip(face.loop_indices,((0,0),(8,0),(8,8),(0,8))):
+        layer.data[loop].uv=((ox+x+.27)/2048,(oy+y+.39)/2048)
+ob.data.materials.append(export.atlas_material('SubsetFixture',textures))
+W.export(out/'dense-legacy.glb',[ob],animations=False)
+layout=D.extract([ob],textures,'SubsetFixture',out/'dense',512)
+assert layout['size']==512 and layout['padding_px']==6 and layout['mip_grid_px']==8
+W.export(out/'dense.glb',[ob],animations=False)
+records['dense_fallback']=dict(comparison=V.compare(out/'dense-legacy.glb',out/'dense.glb'),
+    audit=V.audit(out/'dense.glb',textures,'SubsetFixture',out/'dense/layout.json',gun=out/'dense-legacy.glb'),
+    mip_bleed=V.mip_bleed(out/'dense.glb',textures,'SubsetFixture',out/'dense/layout.json',gun=out/'dense-legacy.glb'))
 (out/'results.json').write_text(json.dumps(records,indent=2))
 print('DETACHABLE TEXTURES PASS: legacy/main bytes, 512/1024, UV bounds, guards, sampled RGBA/normal/ORM, pointwise box mip bleed, inherited samplers, full fill/unit normals, tangent frame, posed origins, determinism and negative cases')

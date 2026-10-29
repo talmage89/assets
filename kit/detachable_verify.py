@@ -163,7 +163,7 @@ def audit(path, canonical_folder, asset, layout_path, *, gun=None):
     atlas_size=layout['source_size'];rectangles=[]
     for row in layout['islands']:
         origin=np.array(row['destination_origin']);shape=np.array(row['shape']);pad=row['padding']
-        assert pad>=8
+        assert pad>=6
         lo=origin-pad;hi=lo+np.array(row.get('guard_shape',shape+2*pad))
         assert np.all(hi>=origin+shape+pad)
         grid=layout.get('mip_grid_px',1)

@@ -14,7 +14,7 @@ nodes and graphics. The read-only rifle project informed the workflow.
 | `bake.py` | GPU Cycles selected-to-active BaseColor, roughness, metallic, AO and tangent +Y normal; joins only equal coordinate frames to preserve object-space materials |
 | `image_io.py`, `downsample.py` | Original 8/16-bit PNG codec; linear-light color filtering, vector-normal filtering/renormalization and roughness RMS filtering |
 | `export.py` | One embedded PBR atlas; static assembly consolidation; separate pivots, sockets and skin; expected geometry/weight/rest-transform report |
-| `detachable_textures.py`, `detachable_verify.py` | Opt-in lossless small atlas subsets, guarded sampling, raw-GLB surface and tangent checks |
+| `detachable_textures.py`, `detachable_verify.py` | Opt-in lossless atlas subsets, mip-grid guards/fill, raw-GLB surface and tangent checks |
 | `gltf.py`, `verify.py` | Independent raw GLB accessors, normals, textures, weights and inverse-bind checks; fresh Blender import, geometry, pivots, UVs, rig and posed cross-sections |
 | `fonts.py` | fontconfig family/style discovery; reject missing faces and substitutions |
 | `gpu.py`, `with_gpu.sh` | Shared GPU flock; script-enabled OptiX/CUDA; warned CPU fallback |
@@ -758,11 +758,16 @@ fits; packing fails rather than reducing density. Material copies preserve
 uniform factors, extensions and independent data in BaseColor alpha.
 
 Each chart retains its original bilinear sampling footprint, with **at least
-8 pixels of additional dilation** from that chart alone (the 2048 gun atlas's
+6 pixels of additional dilation** from that chart alone (the 2048 gun atlas's
 12-at-4096 bake margin is effectively 6). Guards occupy disjoint rectangles
 aligned to the protected box-mip grid. Their right/top extents round up to that
 grid; this contains the bilinear taps at mip 3 even at an unfavorable UV phase,
-where an unaligned 8-pixel rectangle alone can leak. Protection extends through
+where an unaligned 8-pixel rectangle alone can leak. Grid alignment lets the
+minimum match the atlas margin without forcing more items into larger sets.
+The packer prefers 8 pixels, and falls back to 6 only when that retains the
+requested size. At mip 3 the left/bottom guards are 6 or 8 pixels; the right/top
+guards round up to the grid (6–13 or 8–15 pixels). Both policies contain every
+box/bilinear tap through the protected level. Protection extends through
 mip 3 or the level where the item's smallest UV island becomes two texels
 across, whichever is farther. A larger required cutoff increases the grid and
 gutter together. Packing still fails rather than reducing density.
@@ -788,6 +793,8 @@ kit/test_detachable_textures.py` in a fresh process (no bake/GPU required).
 It exports the same loaded, empty and tilted detachables both ways, checks main
 GLB byte identity, legacy image bytes, 512/1024 dimensions, bounds, disjoint
 guards, deterministic output, static variants and negative configuration cases.
+A dense 400-island fixture proves the 6-pixel fallback retains 512, density
+and mip-3 isolation; a large-island fixture verifies protection through mip 6.
 `detachable_verify.py` independently reads raw GLB accessors and material texture
 indices, matches oriented geometry and origins, and samples ten identical
 surface points per triangle in linear color, tangent normal and ORM, including
