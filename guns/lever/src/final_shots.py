@@ -18,10 +18,10 @@ SHOTS={**form.SHOTS,
  'scale':form.shot((3.8,2.7,1.8),(.0,.10,.9),60,1,action='Idle',frame=0,scale=True),
 }
 for name,s in SHOTS.items():
- s.setdefault('exposure',-.4);s['background']='transparent'
+ s.setdefault('exposure',-.15);s['background']='transparent'
 DEFAULT_SHOTS='hero,hero_left,right,left,front,back,top,receiver,wrist,forend,sights,stock,open,aimed,scale,muzzle'
 PHOTO_POSES={**form.PHOTO_POSES,'lever_rest_photo':dict(action='Idle',frame=0),'used_photo':dict(action='Idle',frame=0),'sight_photo':dict(action='Idle',frame=0)}
-for pose in PHOTO_POSES.values():pose['exposure']=-.4
+for pose in PHOTO_POSES.values():pose['exposure']=-.15
 STRIP_SHOT={**form.STRIP_SHOT,'exposure':.0}
 floor_height=form.floor_height
 
@@ -30,23 +30,24 @@ def configure_scene(scene,source):
  # Suppress isolated indirect fireflies from the highly reflective action;
  # direct reflection-card highlights retain their full photographic range.
  scene.cycles.sample_clamp_indirect=2.0
- # Tall neutral cards place a real reflection on the broad blued flats.
- # Their edges roll off on the barrel; they do not bleach the walnut crown.
+ # Match the accepted Hearth 12 studio exactly. The old tall frontal cards
+ # were calibrated to one oxide patch and made every grazing rub look white.
+ # Shader roughness and color are judged in the same light as the precedent.
+ scene.world.node_tree.nodes['Background'].inputs['Color'].default_value=(.25,.25,.25,1)
+ scene.world.node_tree.nodes['Background'].inputs['Strength'].default_value=.15
  lighting={
-  'Key softbox':((-.65,.18,.40),24,.55,1.25),
-  'Camera fill':((.65,.20,.13),22,.55,1.20),
-  'Right rim strip':((.25,.85,.42),8,.12,1.0),
-  'Left rim strip':((-.30,-.30,.38),6,.13,.8),
-  'Overhead reflection card':((0,.22,.85),5,.32,1.0),
-  'Lever top strip':((.05,.20,.8),10,.6,.15),
-  'Lever action fill':((.32,.12,.26),2,.30,.30),
-  'Lever rear edge':((-.24,-.35,.25),6,.3,.5),
+  'Key softbox':((.65,.05,.72),38,.45,1.30),
+  'Camera fill':((-.70,.12,.42),15,.55,1.10),
+  'Right rim strip':((-.18,.90,.50),18,.10,1.0),
+  'Left rim strip':((-.45,-.20,.35),7,.15,.80),
+  'Overhead reflection card':((0,.22,.85),7,.32,1.0),
+  'Lever top strip':((.05,.20,.8),0,.6,.15),
+  'Lever action fill':((.32,.12,.26),0,.30,.30),
+  'Lever rear edge':((-.24,-.35,.25),0,.3,.5),
  }
  for name,(location,power,width,height) in lighting.items():
   ob=scene.objects[name];ob.location=location;ob.data.energy=power;ob.data.size=width;ob.data.size_y=height
-  ob.rotation_euler=(Vector((0,.20,.02))-ob.location).to_track_quat('-Z','Y').to_euler()
- for ob in scene.objects:
-  if ob.name.startswith('Studio black reflection flag'):ob.hide_render=True
+  ob.rotation_euler=(Vector((0,.22,0))-ob.location).to_track_quat('-Z','Y').to_euler()
  if Path(source).suffix=='.blend':
   for ob in scene.objects:
    if ob.name.startswith('Standalone_'):ob.hide_render=True
