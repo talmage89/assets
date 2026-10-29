@@ -348,12 +348,15 @@ def sights():
     # Rounded lobe shoulders, rather than a pair of angular peaks. The
     # independent ruler estimate measures a 2.02 mm notch. Retain its floor,
     # shoulders, sheet gauge and the accepted optical frame.
-    horn=[(-11,59.7),(-11,66.2),(-10.98,67.3),(-10.72,67.96),
-          (-10.28,68.43),(-9.8,68.7),(-9.30,68.63),(-8.94,68.34),
-          (-8.78,67.88),(-7.4,67.1),(-5.3,66.7),(-3.7,66.5),(-1.01,66.5),(-1.01,65.25),
-          (1.01,65.25),(1.01,66.5),(3.7,66.5),(5.3,66.7),(7.4,67.1),
-          (8.78,67.88),(8.94,68.34),(9.30,68.63),(9.8,68.7),(10.28,68.43),
-          (10.72,67.96),(10.98,67.3),(11,66.2),(11,59.7)]
+    # True elliptical lobes: the former hand-placed points still made a
+    # visible peak at native first-person review scale. Below 0.005 mm chord
+    # error at the crest keeps the silhouette round, without extra bevels.
+    angles=[math.pi-i*math.pi/20 for i in range(11)]
+    angles += [math.pi/2-i*(math.pi/2-.95)/4 for i in range(1,5)]
+    lobe=[(-9.75+1.25*math.cos(a),67.35+1.35*math.sin(a)) for a in angles]
+    left=[(-11,59.7),(-11,66.2)]+lobe+[
+          (-7.4,67.1),(-5.3,66.7),(-3.7,66.5),(-1.01,66.5),(-1.01,65.25)]
+    horn=left+[(-x,z) for x,z in reversed(left)]
     blade=profile('Rear_Buckhorn',horn,282.5,283.6,axis='Y',raw=True)
     # Spend silhouette triangles on the lobes; one 0.1 mm gauge bevel is
     # sufficient below the shipping texel size.
