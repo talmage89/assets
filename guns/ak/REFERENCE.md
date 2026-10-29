@@ -112,7 +112,9 @@ above the actual comb surface. See `renders/checkpoint/cheek-weld.jpg`.
 
 `src/reference.py` records native neutral rectangles and linear gains.
 The museum comparison uses its unshadowed gray upper-left backdrop; the early
-view uses unprinted white cloth; the sharper trigger uses white display
+view uses the unprinted cloth immediately below the receiver (760,475)–(895,550),
+whose light matches the gun; the strongly warm upper cloth is excluded.
+The sharper trigger uses white display
 paper; ammunition uses bright paper-grid cells excluding printed lines. The
 rear-sight macro uses concrete behind the rifle and the exhibition view uses
 its gray display backing, both estimated neutrals.
@@ -124,10 +126,14 @@ These are estimates, not controlled color cards. The muzzle photograph's sky
 and the cheek-weld photograph's garment are not reliable neutrals: they retain
 identity correction and are forbidden for color measurements.
 
-Inspection materials are constants and are visibly too pale/regular in some
-views. No wood, paint or wear color has been accepted. The finish stage must
-white-balance its used-object reference before measuring albedo and judge the
-exported baked asset in two dimensions. No reference pixels enter a texture.
+The final candidate uses an original 4K bake filtered to one 2048 PBR atlas.
+Whole visible parts, independent photo polygons, HSV histograms and highlight
+RGB are measured in `renders/final/look-review/`. Two-dimensional wear masks
+retain connected regions and boundaries at a shared estimated physical scale;
+photographic value thresholds are distinguished from the actual shipping
+material masks. `REVIEW.md` records the color-first critiques, rejected masks,
+new neutral, remaining lighting differences and bake loss. No reference pixels
+enter a texture, and no photograph is treated as a direct albedo measurement.
 
 ## Construction scope
 
@@ -135,8 +141,11 @@ Actual surface cuts demonstrate a folded open U receiver, finite handguard
 walls, compound furniture sections and hollow ribbed magazine. The exterior
 has our own contours and press layout. The front sight now has open protective
 ears, a tapered rounded forging, collar and drum sections. The rear sight has
-a smooth forged saddle, long front-hinged leaf, slider/buttons and underlying
-spring. The retained dense originals and geometric normal are our own scripts.
+a planar-sided saddle with small edge radii, long front-hinged leaf,
+slider/buttons and underlying spring. The gas forging has straight diagonal
+lands, circular collars, vent recesses and lower pin witnesses. A finite-gauge
+ferrule caps the front handguard. The retained dense originals and baked normal
+are our own scripts.
 
 The carrier/piston are inert display shapes. Bolt-lug and hammer/sear surfaces
 have zero render geometry in source and fresh GLB; their transform bones and

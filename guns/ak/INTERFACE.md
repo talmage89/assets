@@ -49,6 +49,8 @@ port; the eject event supplies the separate case GLB for game effects. Pause
 retains `{version, clip, frame}` and resumes that same clip and time. Do not
 jump to Idle with the magazine absent. State commits occur at clip completion.
 
-The checkpoint has inspection constants and no UV/texture acceptance. Final
-delivery is reserved for the existing kit atlas exporter, rigid-bone isolation,
-named clips and DETACHABLES, with one canonical 2048 set.
+Final delivery uses the existing kit atlas exporter, rigid-bone isolation,
+named clips and DETACHABLES, with one canonical 2048 set shared by the rifle,
+loaded/empty magazines, cartridge and case. The exported material uses
+`KHR_materials_specular` with its linear factor in opaque BaseColor alpha.
+The finish does not change any state, event, occupancy or socket convention.
