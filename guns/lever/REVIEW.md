@@ -791,7 +791,7 @@ acceptance. The handoff is frozen under `../../build/look-round2/before/`.
    Build the main-branch shotgun in an ignored local snapshot and compare its
    exported hero/receiver under the same cards before setting the final steel.
 
-   ![First critique: rejected Bracken hero beside the approved main-branch Hearth hero](../../build/look-round2/before/hero-shotgun.jpg)
+   First critique: rejected Bracken hero beside the approved main-branch Hearth hero (`../../build/look-round2/before/hero-shotgun.jpg`, not tracked)
 
 2. **Color and value first — source trials, rejected.** The first effective
    oxide/steel blend removes orange conductor reflections but is too pale;
@@ -1018,7 +1018,7 @@ uniform brushed field. This section supersedes round 2's receiver acceptance.
    (470,166)–(570,177), adapted in linear RGB. It is a reflected estimate,
    not a gray card; highlight widths are not used to infer roughness.
 
-   ![First round-three critique: current hero beside accepted Hearth](../../build/look-round3/before/hero-shotgun.jpg)
+   First round-three critique: current hero beside accepted Hearth (`../../build/look-round3/before/hero-shotgun.jpg`, not tracked)
 
 2. **Color and value first — source response trials.** The first continuous
    oxide trial removes the black frame, but its hero bright-decile saturation
