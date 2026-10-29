@@ -32,6 +32,10 @@ They accept each gun's manifest and shot table; pistol anatomy, poses, landmarks
 contact policy and construction checks remain in `pistol/src/`. Reusable asset
 primitives belong in `kit/`, rather than in a second weapons toolkit.
 
+Standalone detachable GLBs now carry their own 512 or 1024 texture subsets,
+with the gun atlases unchanged. [Delivery details](DETACHABLES.md) lists sizes,
+density, sampling and the old/new preservation proof.
+
 ### Triggers
 
 The front face is concave and faces the muzzle; the lower tip curls forward.

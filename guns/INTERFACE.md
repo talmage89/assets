@@ -31,8 +31,8 @@ use STEP sampling; all movement uses explicit hold boundaries. Feeding is a
 visibility representation, not a cartridge-path simulation. At frame 47 of an
 empty reload, the replacement magazine becomes loaded offscreen. Drop the empty
 standalone at magazine-out, before this substitution. Do not replace the dropped
-magazine with the loaded variant. Loaded/empty exports use the same local origin
-and canonical atlas coordinates.
+magazine with the loaded variant. Loaded/empty exports use the same local origin.
+Standalone UVs are repacked subsets of the gun atlas; retain each imported material.
 
 Transitions commit at clip completion: normal Fire → Idle/Fire/Reload; last-round
 FireLast → ReloadEmpty → Idle; IdleEmpty → Charge → IdleOpen. Supply `last_ready`
@@ -67,10 +67,10 @@ Magazine and MagRelease. Action-specific C9 bones:
 Slide, Barrel, SlideStop; additional visual children remain implementation detail.
 Optional features are discovered through capabilities, never demanded from a
 shotgun/bolt-action gun. Preserve imported PBR materials by index; no `Rifle` or
-`RifleLens` name override. The final delivery contract is one 2048 BaseColor /
-OpenGL Normal / ORM atlas; separate GLBs repeat identical embedded payloads.
-An engine must reuse textures by canonical atlas ID/content hash to share GPU
-memory: identical GLBs do not make runtime caching automatic.
+`RifleLens` name override. Each gun retains one 2048 BaseColor / OpenGL Normal /
+ORM atlas. Standalone detachables now embed their own 512 or 1024 subsets at the
+same texel density, with unchanged geometry and spawn frames. Their samplers use
+base-level linear filtering without mipmaps; see [delivery details](DETACHABLES.md).
 
 ## Additive 1.1.0 tube-loading supplement
 

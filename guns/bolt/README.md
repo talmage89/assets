@@ -13,7 +13,7 @@ The finish represents a few seasons of field use.
 | ![Front, side, back and top](docs/turnaround.jpg) | ![Action, optic, grip and comb](docs/details.jpg) |
 | ![Open bolt, exact eye view, bipod and detachables](docs/action.jpg) | ![Eevee, same baked GLB](docs/eevee.jpg) |
 
-These images load the exported GLBs with their baked 2048 maps. `make` builds
+These images load exported GLBs with baked maps; the rifle retains its 2048 atlas. `make` builds
 the full contact sheet at `renders/final/contact-sheet.jpg`, Cycles stills in
 `renders/final/beauty/`, Eevee in `renders/final/eevee/`, calibrated exported
 photo pairs in `renders/final/pairs/`, dense-source comparisons in
@@ -199,18 +199,18 @@ Feeding is an occupancy representation, not a cartridge-path simulation.
 
 Save clip/frame/state to pause and resume an interrupted reload. Spawn detached
 magazines with the complete magazine socket transform before offscreen
-replacement. Loaded/empty variants have the same origin and atlas coordinates.
+replacement. Loaded/empty variants retain the same origin; their standalone UVs use separate subsets.
 Bipod state is orthogonal to ammunition: preserve a consumer bipod layer through
 firing/reload when needed, as documented by the additive supplement.
 
 ## Budget and delivery
 
-| Final output | Triangles | Materials | GLB bytes |
-| --- | ---: | ---: | ---: |
-| Rifle, all animated representations | 48,931 | 2 | 11,090,352 |
-| Loaded magazine | 4,976 | 1 | 6,997,748 |
-| Empty magazine | 3,716 | 1 | 6,928,816 |
-| Fired case | 768 | 1 | 6,753,080 |
+| Final output | Triangles | Materials | GLB bytes  Map size |
+| --- | ---: | ---: | ---:  ---: |
+| Rifle, all animated representations | 48,931 | 2 | 11,090,352 | 2048 |
+| Loaded magazine | 4,976 | 1 | 1,373,476 | 1024 |
+| Empty magazine | 3,716 | 1 | 1,151,616 | 1024 |
+| Fired case | 768 | 1 | 196,596 | 512 |
 
 The rifle stays under 50k, including its loaded magazine and all ammunition
 representations. Detached magazines retain that accepted held-gun geometry,
@@ -240,9 +240,12 @@ round at the delivered magazine and open-port image scales.
 
 The kit bakes at **4096 / 32 samples** and filters to one **2048 BaseColor /
 OpenGL +Y Normal / ORM** atlas. ORM is R occlusion, G roughness, B metallic.
-All four GLBs embed byte-identical maps. Engines must reuse their canonical
-atlas/content hashes to share the approximately **16 MiB compressed allocation
-with mipmaps**; separate GLB imports do not automatically share GPU memory.
+The rifle retains its canonical **2048** atlas, approximately **16 MiB compressed
+with mipmaps**. Standalone loaded/empty magazines now carry their own **1024**
+sets; the fired case carries **512**, preserving the original atlas density.
+Their samplers use base-level linear filtering without mipmaps, approximately
+3 MiB / 0.75 MiB. See [delivery details](../DETACHABLES.md) for padding,
+measurements and old/new comparison evidence.
 The native-scale stock/cap wear comparison is built at
 `renders/final/pairs/hero-wear-pair.jpg`; photographic scale estimates and coating
 differences are labeled. The rifle is one rigidly weighted skin with two material primitives, including

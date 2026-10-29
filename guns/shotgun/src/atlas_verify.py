@@ -15,6 +15,7 @@ BASE=Path(__file__).resolve().parents[1];ROOT=BASE.parents[1]
 sys.path.insert(0,str(ROOT));sys.path.insert(0,str(BASE/'src'))
 from kit import weapon as W,weapon_verify as V,uv,motion
 from kit.gltf import GLB
+from kit import detachable_verify as DV
 from semantics import check
 from contacts import measure
 from check import geometry,sweep
@@ -83,7 +84,7 @@ def main():
  assert b['size']==4096 and b['samples']>=32
  for channel in ('BaseColor','Roughness','Metallic','AO','MaterialAO','Normal'):
   assert b[channel]['alpha_missed_interior_texels']==0,(channel,b[channel])
- records={};payload=None
+ records={}
  for name,limit in [('shotgun',40000),('shell',600),('hull',400)]:
   path=BASE/'export'/(name+'.glb');g=GLB(path)
   tri=sum(len(g.accessor(p['indices']))//3 for m in g.json['meshes'] for p in m['primitives'])
@@ -96,10 +97,13 @@ def main():
   hashes=sorted(hashlib.sha256(g.image(i)).hexdigest() for i in range(3))
   canonical=sorted(hashlib.sha256((BASE/'textures'/('T_Hearth12_'+channel+'.png')).read_bytes()).hexdigest()
                    for channel in ('BaseColor','Normal','ORM'))
-  assert hashes==canonical,'Exported images differ from current canonical delivery textures'
-  if payload is None:payload=hashes
-  assert hashes==payload
-  for i in range(3):assert Image.open(io.BytesIO(g.image(i))).size==(2048,2048)
+  if name=='shotgun':
+   assert hashes==canonical,'Gun images differ from current canonical delivery textures'
+   subset=None;map_size=2048
+  else:
+   subset=DV.audit(path,BASE/'textures','Hearth12',BASE/'build/delivery/detachables'/name/'layout.json')
+   map_size=subset['size'];assert map_size=={'shell': 1024, 'hull': 512}[name]
+  for i in range(3):assert Image.open(io.BytesIO(g.image(i))).size==(map_size,map_size)
   if name=='shotgun':
    assert set(a['name'] for a in g.json['animations'])==set(CLIPS)
    for mesh in g.json['meshes']:
@@ -108,8 +112,9 @@ def main():
      assert np.max(np.abs(weights.sum(axis=1)-1))<1e-6
      assert np.all(np.sum(weights>1e-6,axis=1)==1)
   else:assert not g.json.get('skins') and not g.json.get('animations')
-  records[name]=dict(triangles=tri,bytes=path.stat().st_size,materials=1,images=3,image_size=2048,
+  records[name]=dict(triangles=tri,bytes=path.stat().st_size,materials=1,images=3,image_size=map_size,
    image_sha256=hashes,normal_direction=V.normal_direction(g))
+  if subset is not None:records[name]['standalone_textures']=subset
   if name!='shotgun':
    alignment=[]
    for mesh in g.json['meshes']:
@@ -148,5 +153,5 @@ def main():
   posed_surfaces=surface_rows,imported_diagnostic_reconstruction=diagnostic,
   imported_contacts=imported_contacts,imported_geometry=imported_geometry,imported_motion=imported_motion)
  (BASE/'build/delivery/verify.json').write_text(json.dumps(result,indent=2))
- print('HEARTH ATLAS VERIFIED',len(affine),'affine/state samples; imported contacts and clearance; three shared-map GLBs',flush=True)
+ print('HEARTH ATLAS VERIFIED',len(affine),'affine/state samples; imported contacts and clearance; canonical gun atlas and two standalone texture sets',flush=True)
 if __name__=='__main__':main()

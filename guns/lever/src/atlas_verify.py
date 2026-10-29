@@ -8,6 +8,7 @@ from PIL import Image
 BASE=Path(__file__).resolve().parents[1];sys.path[:0]=[str(BASE.parents[1]),str(BASE/'src')]
 from kit import weapon as W,weapon_verify as V,uv
 from kit.gltf import GLB
+from kit import detachable_verify as DV
 from interface import CLIPS
 from check import geometry,contacts,semantics,sweep,parts
 def named_reference(arm):
@@ -148,8 +149,14 @@ def main():
   path=BASE/'export'/(name+'.glb');g=GLB(path)
   triangles=sum(len(g.accessor(p['indices']))//3 for m in g.json['meshes'] for p in m['primitives'])
   assert triangles<=limit and len(g.json['materials'])==1 and len(g.json['images'])==3
-  assert sorted(hashlib.sha256(g.image(i)).hexdigest() for i in range(3))==canonical
-  for i in range(3):assert Image.open(io.BytesIO(g.image(i))).size==(2048,2048)
+  hashes=sorted(hashlib.sha256(g.image(i)).hexdigest() for i in range(3))
+  if name=='lever':
+   assert hashes==canonical
+   subset=None;map_size=2048
+  else:
+   subset=DV.audit(path,BASE/'textures','BrackenL20',BASE/'build/delivery/detachables'/name/'layout.json')
+   map_size=subset['size'];assert map_size=={'cartridge': 1024, 'case': 1024}[name]
+  for i in range(3):assert Image.open(io.BytesIO(g.image(i))).size==(map_size,map_size)
   normal=V.normal_direction(g)
   for mesh in g.json['meshes']:
    for primitive in mesh['primitives']:
@@ -189,6 +196,7 @@ def main():
    lo,hi=points.min(0),points.max(0);length=.06477 if name=='cartridge' else .0518
    assert abs(hi[1]-length)<1e-6 and -.00005<lo[1]<1e-6 and abs(hi[0]-lo[0]-.01285)<1e-6
    records[name]=dict(triangles=triangles,bytes=path.stat().st_size,materials=1,texture_images=3,normal_direction=normal,dimensions_m=(hi-lo).tolist())
+  if subset is not None:records[name]['standalone_textures']=subset
  result=dict(passed=True,source_identity=stamp,uv=u,exports=records,canonical_sha256=canonical,wood_regions=wood_regions,
   textures={c:dict(bytes=(BASE/'textures'/('T_BrackenL20_'+c+'.png')).stat().st_size,size=[2048,2048]) for c in channels},
   compressed_three_map_mib_with_mips=16,

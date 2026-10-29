@@ -21,6 +21,7 @@ MARKS := $(addprefix build/markings/,slide-left.png slide-right.png frame-left.p
 BAKED := $(addprefix build/baked/4k/T_C9_,BaseColor.png Normal.png ORM.png) build/baked/4k/bake-report.json
 TEXTURES := $(addprefix textures/T_C9_,BaseColor.png Normal.png ORM.png)
 EXPORTS := export/pistol.glb export/magazine_loaded.glb export/magazine_empty.glb export/case.glb
+SUBSET_LAYOUTS := $(addprefix build/delivery/detachables/,magazine_loaded/layout.json magazine_empty/layout.json case/layout.json)
 comma := ,
 FINAL_SHOTS := hero,hero_left,front,side,back,top,rear_sights,grip_texture,port_hood,markings,aimed,locked,scale,hand_frame,trigger_right,trigger_quarter,trigger_pulled
 FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(FINAL_SHOTS)))) renders/final/beauty/shots.json
@@ -59,17 +60,18 @@ $(BAKED) &: build/delivery/high.blend $(PREPARED) src/config.py build/bake-param
 bake: $(BAKED)
 $(TEXTURES) &: $(BAKED) ../../kit/downsample.py
 	$(PYTHON) $(KIT)/downsample.py --source build/baked/4k --out textures --asset C9 --size $(SHIP_SIZE)
-$(EXPORTS) &: $(TEXTURES) $(PREPARED) src/config.py src/case_config.py ../../kit/export.py ../../kit/weapon.py
+$(EXPORTS) $(SUBSET_LAYOUTS) &: $(TEXTURES) $(PREPARED) src/config.py src/case_config.py ../../kit/export.py ../../kit/weapon.py src/export_config.py ../../kit/detachable_textures.py ../../kit/gltf.py
 	@mkdir -p export
-	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset C9 --config src/config.py --out export/pistol.glb --report build/delivery/export.json
+	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset C9 --config src/export_config.py --out export/pistol.glb --report build/delivery/export.json
+	$(BP) --python $(KIT)/gltf.py -- --source export/pistol.glb --config src/export_config.py
 	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset C9 --config src/case_config.py --out export/case.glb --report build/delivery/case-export.json
-export: $(EXPORTS)
+export: $(EXPORTS) $(SUBSET_LAYOUTS)
 atlas: export
 check-repo:
 	$(PYTHON) $(KIT)/repo_check.py
 verify: $(MODEL)
 	$(BP) --python src/verify.py -- --source build/pistol.blend --out build/serialization.json
-check-atlas: $(EXPORTS)
+check-atlas: $(EXPORTS) $(SUBSET_LAYOUTS)
 	$(BP) --python src/check.py -- --source build/delivery/finalized.blend --out build/delivery/construction.json --motion
 	$(BP) --python src/atlas_verify.py
 	$(BP) --python src/surface_audit.py

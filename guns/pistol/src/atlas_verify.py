@@ -7,6 +7,7 @@ from mathutils import Vector
 BASE=Path(__file__).resolve().parents[1];ROOT=BASE.parent.parent;sys.path.insert(0,str(ROOT));sys.path.insert(0,str(BASE/'src'))
 from kit import weapon as W,weapon_verify as V,uv
 from kit.gltf import GLB
+from kit import detachable_verify as DV
 from semantics import check
 from interface import CLIPS
 import trigger_check
@@ -32,17 +33,23 @@ for variant,clip in [('loaded','Reload'),('empty','ReloadEmpty')]:
 trigger_reference=trigger_check.capture(arm)
 arm=V.import_glb(out/'pistol.glb');states=check(arm);poses=V.compare(arm,expected,position_tolerance_m=2e-5,linear_tolerance=5e-4)
 trigger_surfaces=trigger_check.imported(arm,trigger_reference)
-records={};shared=None
+records={}
+canonical={hashlib.sha256((BASE/'textures'/('T_C9_'+c+'.png')).read_bytes()).hexdigest()
+ for c in ('BaseColor','Normal','ORM')}
 for name in ('pistol','magazine_loaded','magazine_empty','case'):
  path=out/(name+'.glb');g=GLB(path);normal=V.normal_direction(g)
  hashes={hashlib.sha256(g.image(i)).hexdigest() for i in range(len(g.json['images']))}
  assert len(g.json['materials'])==1 and len(hashes)==3
- if shared is None:shared=hashes
- assert hashes==shared
+ if name=="pistol":
+  assert hashes==canonical
+  subset=None;map_size=2048
+ else:
+  subset=DV.audit(path,BASE/"textures","C9",BASE/"build/delivery/detachables"/name/"layout.json")
+  map_size=subset["size"];assert map_size=={'magazine_loaded': 1024, 'magazine_empty': 1024, 'case': 512}[name]
  for i in range(3):
-  im=Image.open(io.BytesIO(g.image(i)));assert im.size==(2048,2048)
+  im=Image.open(io.BytesIO(g.image(i)));assert im.size==(map_size,map_size)
  tri=sum(len(g.accessor(p['indices']))//3 for m in g.json['meshes'] for p in m['primitives'])
- record=dict(bytes=path.stat().st_size,triangles=tri,materials=1,images=3,size=2048,image_sha256=sorted(hashes),normal_direction=normal)
+ record=dict(bytes=path.stat().st_size,triangles=tri,materials=1,images=3,size=map_size,image_sha256=sorted(hashes),normal_direction=normal)
  if name!='pistol':
   V.import_glb(path);meshes=[o for o in bpy.context.scene.objects if o.type=='MESH'];assert len(meshes)==1
   if name.startswith('magazine'):
@@ -50,12 +57,13 @@ for name in ('pistol','magazine_loaded','magazine_empty','case'):
    error=V.surface_delta(target,[tuple(spawn@Vector(p)) for p in V.surface_points(meshes)])
    assert error<2e-6,(name,error);record['rotated_spawn_delta_m']=error
   else:assert tri<=400
+ if subset is not None:record['standalone_textures']=subset
  records[name]=record
 assert 25000<=records['pistol']['triangles']<=35000
 result=dict(passed=True,trigger_surfaces=trigger_surfaces,stage='final 2048 PBR delivery',outputs=records,
  uv={k:uv_report[k] for k in ('coverage','outside_triangles','degenerate_uv_triangles','overlap_pairs','overlap_fraction','density_px_m')},
  bake_size=bake_report['size'],bake_samples=bake_report['samples'],missed_interior_texels=0,
  semantic_check=states,affine_samples=len(poses),max_position_delta_m=max(p['position_delta_m'] for p in poses),
- gpu_memory_mib_bc_with_mips=16,runtime_sharing='consumer must cache canonical atlas/hash',
+ gpu_memory_mib_bc_with_mips=16,runtime_sharing='gun atlas; standalone sets use independent base-level LINEAR sampling',
  max_linear_delta=max(p['linear_delta'] for p in poses))
-(BASE/'build/delivery/verify.json').write_text(json.dumps(result,indent=2));print('ATLAS VERIFIED: 1110 intermediate affine/state poses, one material, four fresh imports, shared 2048 image payloads')
+(BASE/'build/delivery/verify.json').write_text(json.dumps(result,indent=2));print('ATLAS VERIFIED: 1110 intermediate affine/state poses, one material, four fresh imports, canonical gun atlas and standalone texture sets')

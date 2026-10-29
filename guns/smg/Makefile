@@ -21,6 +21,7 @@ WEAR_FIELDS := $(addprefix build/markings/,receiver_wear_left.png receiver_wear_
 BAKED := $(addprefix build/baked/4k/T_Relay9_,BaseColor.png Normal.png ORM.png) build/baked/4k/bake-report.json
 TEXTURES := $(addprefix textures/T_Relay9_,BaseColor.png Normal.png ORM.png)
 EXPORTS := $(addprefix export/,smg.glb magazine_loaded.glb magazine_empty.glb cartridge.glb case.glb)
+SUBSET_LAYOUTS := $(addprefix build/delivery/detachables/,magazine_loaded/layout.json magazine_empty/layout.json cartridge/layout.json case/layout.json)
 comma := ,
 FINAL_SHOTS := hero,hero_right,front,side,back,top,receiver,handle,sights,front_sight,lower,aimed,locked,locked_close,port_open,stock,handguard,trigger,scale
 FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(FINAL_SHOTS)))) renders/final/beauty/shots.json
@@ -60,24 +61,30 @@ $(BAKED) &: build/delivery/high.blend $(PREPARED) src/config.py build/bake-param
 bake: $(BAKED)
 $(TEXTURES) &: $(BAKED) ../../kit/downsample.py
 	$(PYTHON) $(KIT)/downsample.py --source build/baked/4k --out textures --asset Relay9 --size $(SHIP_SIZE) --alpha-mode independent
-$(EXPORTS) &: $(TEXTURES) $(PREPARED) src/config.py src/cartridge_config.py src/case_config.py src/export_paint.py ../../kit/export.py
+$(EXPORTS) $(SUBSET_LAYOUTS) &: $(TEXTURES) $(PREPARED) src/config.py src/cartridge_config.py src/case_config.py src/export_paint.py ../../kit/export.py src/export_config.py ../../kit/detachable_textures.py ../../kit/gltf.py
 	@mkdir -p export
-	$(BP) --python src/export_paint.py -- --source build/delivery/finalized.blend --textures textures --asset Relay9 --config src/config.py --out export/smg.glb --report build/delivery/export.json
+	$(BP) --python src/export_paint.py -- --source build/delivery/finalized.blend --textures textures --asset Relay9 --config src/export_config.py --out export/smg.glb --report build/delivery/export.json
+	$(BP) --python $(KIT)/gltf.py -- --source export/smg.glb --config src/export_config.py
 	$(BP) --python src/export_paint.py -- --source build/delivery/finalized.blend --textures textures --asset Relay9 --config src/cartridge_config.py --out export/cartridge.glb --report build/delivery/cartridge-export.json
 	$(BP) --python src/export_paint.py -- --source build/delivery/finalized.blend --textures textures --asset Relay9 --config src/case_config.py --out export/case.glb --report build/delivery/case-export.json
-export: $(EXPORTS)
+export: $(EXPORTS) $(SUBSET_LAYOUTS)
 check-repo:
 	$(PYTHON) $(KIT)/repo_check.py
 verify: $(MODEL)
 	$(BP) --python src/verify.py -- --source build/smg.blend --out build/serialization.json
-check: check-repo verify $(EXPORTS)
+NEUTRAL_REFS := $(addprefix refs/,left.jpg right.jpg navy2.jpg trigger-ref.jpg daylight.jpg)
+$(NEUTRAL_REFS) &: refs/SOURCES.md $(KIT)/fetch_refs.py
+	$(PYTHON) $(KIT)/fetch_refs.py refs --only $(notdir $(NEUTRAL_REFS))
+build/white-balanced/navy2.png: src/white_balance.py refs/SOURCES.md $(NEUTRAL_REFS)
+	$(PYTHON) src/white_balance.py
+check: check-repo verify $(EXPORTS) $(SUBSET_LAYOUTS) build/white-balanced/navy2.png
 	$(BP) --python src/check.py -- --source build/smg.blend --out build/check.json --motion
 	$(BP) --python src/check.py -- --source build/delivery/finalized.blend --out build/delivery/construction.json --motion
 	$(BP) --python src/atlas_verify.py
 	$(BP) --python src/check.py -- --source build/delivery/imported-parts.blend --out build/delivery/imported-construction.json --motion
 	$(BP) --python src/wear_audit.py
 	$(PYTHON) src/finish_review.py --layout-only
-wear-audit: $(EXPORTS)
+wear-audit: $(EXPORTS) build/white-balanced/navy2.png
 	$(BP) --python src/wear_audit.py
 $(FINAL_IMAGES) &: $(EXPORTS) $(RENDER_DEPS)
 	$(KIT)/with_gpu.sh $(BP) --python src/final_render.py -- --source export/smg.glb --out renders/final/beauty --width $(WIDTH) --samples $(SAMPLES) --shots $(FINAL_SHOTS)

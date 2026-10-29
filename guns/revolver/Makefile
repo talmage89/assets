@@ -19,6 +19,7 @@ MODEL := build/revolver.blend build/sculpt.blend build/revolver.glb build/cartri
 BAKED := $(addprefix build/baked/4k/T_MeridianSix_,BaseColor.png Normal.png ORM.png) build/baked/4k/bake-report.json
 TEXTURES := $(addprefix textures/T_MeridianSix_,BaseColor.png Normal.png ORM.png)
 EXPORTS := export/revolver.glb export/cartridge.glb export/case.glb export/speedloader_loaded.glb
+SUBSET_LAYOUTS := $(addprefix build/delivery/detachables/,cartridge/layout.json case/layout.json speedloader_loaded/layout.json)
 MARKS := $(addprefix build/markings/,barrel.png frame.png headstamp.png)
 comma := ,
 FINAL_SHOTS := hero,hero_left,wear_front,side,front,back,top,open,star,reload,sights,grip,muzzle,shank,frame_bottom,hammer_rest,hammer_cocked,hammer_top,grip_seam,aimed,scale,rod_detail,lug_under,rear_slot
@@ -30,7 +31,7 @@ RENDER_DEPS := src/presentation.py src/hammer_review.py src/render.py src/final_
 all: refs export check render match source-match hammers strips standalones review docs
 refs:
 	$(PYTHON) $(KIT)/fetch_refs.py refs
-$(MODEL) &: src/build.py src/parameters.py src/clips.py src/interface.py ../common/magnum357.py $(wildcard ../../kit/*.py)
+$(MODEL) &: src/build.py src/parameters.py src/clips.py src/interface.py ../common/magnum357.py ../../kit/model.py ../../kit/weapon.py ../../kit/rig.py
 	@mkdir -p build $(TMPDIR)
 	$(BP) --python src/build.py -- --out build/revolver.blend
 model: $(MODEL)
@@ -56,10 +57,11 @@ $(BAKED) &: build/delivery/high.blend build/delivery/finalized.blend src/config.
 bake: $(BAKED)
 $(TEXTURES) &: $(BAKED) ../../kit/downsample.py
 	$(PYTHON) $(KIT)/downsample.py --source build/baked/4k --out textures --asset MeridianSix --size $(SHIP_SIZE)
-$(EXPORTS) &: $(TEXTURES) build/delivery/finalized.blend src/config.py ../../kit/export.py ../../kit/weapon.py
+$(EXPORTS) $(SUBSET_LAYOUTS) &: $(TEXTURES) build/delivery/finalized.blend src/config.py ../../kit/export.py ../../kit/weapon.py src/export_config.py ../../kit/detachable_textures.py ../../kit/gltf.py
 	@mkdir -p export
-	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset MeridianSix --config src/config.py --out export/revolver.glb --report build/delivery/export.json
-export: $(EXPORTS)
+	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset MeridianSix --config src/export_config.py --out export/revolver.glb --report build/delivery/export.json
+	$(BP) --python $(KIT)/gltf.py -- --source export/revolver.glb --config src/export_config.py
+export: $(EXPORTS) $(SUBSET_LAYOUTS)
 check-repo:
 	$(PYTHON) $(KIT)/repo_check.py
 build/check.json: $(MODEL) src/check.py src/contacts.py src/semantics.py
@@ -76,7 +78,7 @@ build/repeat.json: build/repeat/revolver.blend $(MODEL) src/repeat.py
 check-repeat: build/repeat.json
 build/delivery/construction.json: build/delivery/finalized.blend src/check.py src/contacts.py src/semantics.py
 	$(BP) --python src/check.py -- --source build/delivery/finalized.blend --out $@
-build/delivery/verify.json build/delivery/imported-parts.blend &: $(EXPORTS) build/delivery/finalized.blend src/atlas_verify.py
+build/delivery/verify.json build/delivery/imported-parts.blend &: $(EXPORTS) $(SUBSET_LAYOUTS) build/delivery/finalized.blend src/atlas_verify.py ../../kit/detachable_verify.py
 	$(BP) --python src/atlas_verify.py
 build/delivery/imported-construction.json: build/delivery/imported-parts.blend src/check.py src/contacts.py src/semantics.py
 	$(BP) --python src/check.py -- --source build/delivery/imported-parts.blend --out $@

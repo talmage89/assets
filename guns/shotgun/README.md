@@ -14,7 +14,7 @@ are retained through final delivery.
 | ![Front, side, back and top](docs/turnaround.jpg) | ![Receiver, checkered wrist, forend and pad](docs/details.jpg) |
 | ![Open action, eye view, shell and fired hull](docs/action.jpg) | ![Eevee, same baked GLB](docs/eevee.jpg) |
 
-All five docs images load exported GLBs with the baked 2048 maps. The
+All five docs images load exported GLBs with baked maps. The gun retains 2048 maps. The
 full contact sheet (`renders/final/contact-sheet.jpg`) includes the
 exact Socket_Eye view / 70 degrees (`renders/final/beauty/aimed.png`),
 socket-view alias (`renders/final/beauty/aimed_socket.png`),
@@ -290,11 +290,11 @@ hull at the ejection event. Normal-speed WebPs and uniform 15-Hz strips are in
 The final gun stays below the brief's 40k ceiling, including all animated shell
 representations. Loaded shell and fired hull stay within 600/400 triangles.
 
-| Final output | Triangles | Materials | GLB bytes |
-| --- | ---: | ---: | ---: |
-| Gun, all animated shell representations | 39,829 | 1 | 11,953,276 |
-| Loaded shell | 600 | 1 | 8,270,704 |
-| Fired hull | 394 | 1 | 8,254,240 |
+| Final output | Triangles | Materials | GLB bytes  Map size |
+| --- | ---: | ---: | ---:  ---: |
+| Gun, all animated shell representations | 39,829 | 1 | 11,943,316 | 2048 |
+| Loaded shell | 600 | 1 | 362,344 | 1024 |
+| Fired hull | 394 | 1 | 345,992 | 512 |
 
 Exact texture hashes, UV density/overlap and round-trip errors are recorded in
 `build/delivery/verify.json`. The inspection gun remains 39,825 triangles; the
@@ -325,9 +325,11 @@ markings retain about 1,916. The long barrel, bore and sheltered tube/sleeve
 receive less. The complete atlas, including the denser standalone regions,
 covers 34.50%.
 
-All three GLBs embed byte-identical map payloads. A consumer must cache the
-canonical atlas/content hashes to share the approximately **16 MiB compressed
-GPU allocation with mipmaps**; separate imports do not enforce runtime sharing.
+The gun retains its canonical **2048** atlas, approximately **16 MiB compressed
+with mipmaps**. The standalone live shell now embeds its own **1024** set and
+the fired hull **512**, preserving the baked atlas density. Their samplers use
+base-level linear filtering without mipmaps, approximately 3 MiB / 0.75 MiB.
+See [delivery details](../DETACHABLES.md) for padding, sizes and old/new comparisons.
 One material/skin draw call represents the gun, with no added draw calls for
 checkering, engravings or wear. The standard shared PBR response uses
 `KHR_materials_specular` at .33 and no extra map.

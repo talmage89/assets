@@ -21,6 +21,7 @@ MARKS := $(addprefix build/markings/,receiver-left.png receiver-right.png headst
 BAKED := $(addprefix build/baked/4k/T_Hearth12_,BaseColor.png Normal.png ORM.png) build/baked/4k/bake-report.json
 TEXTURES := $(addprefix textures/T_Hearth12_,BaseColor.png Normal.png ORM.png)
 EXPORTS := export/shotgun.glb export/shell.glb export/hull.glb
+SUBSET_LAYOUTS := $(addprefix build/delivery/detachables/,shell/layout.json hull/layout.json)
 comma := ,
 FINAL_SHOTS := hero,hero_left,front,side,back,top,receiver,wrist,forend,aimed,open,scale,muzzle,stock,guard,underside,pad,aimed_socket,muzzle_under,trigger_right,trigger_quarter,trigger_pulled
 FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(FINAL_SHOTS)))) renders/final/beauty/shots.json
@@ -60,12 +61,13 @@ $(BAKED) &: build/delivery/high.blend $(PREPARED) src/config.py build/bake-param
 bake: $(BAKED)
 $(TEXTURES) &: $(BAKED) ../../kit/downsample.py
 	$(PYTHON) $(KIT)/downsample.py --source build/baked/4k --out textures --asset Hearth12 --size $(SHIP_SIZE)
-$(EXPORTS) &: $(TEXTURES) $(PREPARED) src/config.py src/shell_config.py src/hull_config.py ../../kit/export.py ../../kit/weapon.py
+$(EXPORTS) $(SUBSET_LAYOUTS) &: $(TEXTURES) $(PREPARED) src/config.py src/shell_config.py src/hull_config.py ../../kit/export.py ../../kit/weapon.py ../../kit/detachable_textures.py
 	@mkdir -p export
 	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset Hearth12 --config src/config.py --out export/shotgun.glb --report build/delivery/export.json
 	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset Hearth12 --config src/shell_config.py --out export/shell.glb --report build/delivery/shell-export.json
 	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset Hearth12 --config src/hull_config.py --out export/hull.glb --report build/delivery/hull-export.json
-export: $(EXPORTS)
+export: $(EXPORTS) $(SUBSET_LAYOUTS) src/rounding_config.py ../../kit/gltf.py
+	$(BP) --python $(KIT)/gltf.py -- --source export/shotgun.glb --config src/rounding_config.py
 atlas: $(EXPORTS)
 check-repo:
 	$(PYTHON) $(KIT)/repo_check.py
@@ -74,7 +76,7 @@ verify: $(MODEL)
 check-repeat: $(MODEL)
 	$(BP) --python src/build.py -- --out build/repeat/shotgun.blend
 	$(BP) --python src/repeat.py -- --reference build/shotgun.glb --repeat build/repeat/shotgun.glb --out build/repeat.json
-check-atlas: $(EXPORTS)
+check-atlas: export $(EXPORTS) $(SUBSET_LAYOUTS)
 	$(BP) --python src/check.py -- --source build/delivery/finalized.blend --out build/delivery/construction.json --motion
 	$(BP) --python src/atlas_verify.py
 	$(BP) --python src/surface_audit.py
