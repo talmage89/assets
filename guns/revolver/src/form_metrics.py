@@ -8,6 +8,8 @@ import argparse,json,sys
 from pathlib import Path
 import bpy
 from mathutils import Vector
+from mathutils.bvhtree import BVHTree
+from mathutils.geometry import barycentric_transform
 ROOT=Path(__file__).resolve().parents[3];sys.path[:0]=[str(ROOT),str(Path(__file__).parent)]
 from kit import weapon as W,weapon_verify as V,motion
 from contacts import part
@@ -97,6 +99,22 @@ def capture(path):
  cheek=hit('Frame_Forging',(.030,.030,.050),(-1,0,0),.05)
  plate_step=abs(plate.x-cheek.x)*1000
  assert plate_step<.08,(plate,cheek,plate_step)
+ # Independent shading regression: an upper-crown normal fix must not
+ # tilt the accepted flat cheek. Interpolate actual evaluated corner normals
+ # at triangle hits, including the checkpoint's fresh GLB import.
+ ob=part('Frame_Forging').evaluated_get(bpy.context.evaluated_depsgraph_get())
+ mesh=ob.to_mesh();mesh.calc_loop_triangles();ts=list(mesh.loop_triangles)
+ points=[ob.matrix_world@v.co for v in mesh.vertices]
+ tree=BVHTree.FromPolygons(points,[t.vertices for t in ts],all_triangles=True)
+ nm=ob.matrix_world.to_3x3().inverted().transposed();cheek_normals=[]
+ for y,z in ((.018,.041),(.016,.039),(.020,.043),(.010,.066)):
+  point,_,index,_=tree.ray_cast(Vector((-.08,y,z)),Vector((1,0,0)),.16)
+  assert point is not None,(y,z)
+  tri=ts[index];field=[(nm@mesh.corner_normals[j].vector).normalized() for j in tri.loops]
+  normal=barycentric_transform(point,*[points[k] for k in tri.vertices],*field).normalized()
+  assert normal.dot(Vector((-1,0,0)))>.999,('flat cheek normal spill',point,normal)
+  cheek_normals.append(dict(point_m=list(point),normal=list(normal)))
+ ob.to_mesh_clear()
  parts=[o for o in bpy.context.scene.objects if o.type=='MESH' and 'bone' in o]
  counts={o.get('part_name',o.name):sum(len(f.vertices)-2 for f in o.data.polygons) for o in parts}
  active=[o for o in parts if min(abs(v) for v in arm.pose.bones[o['bone']].matrix.to_scale())>.001]
@@ -114,6 +132,7 @@ def capture(path):
   head_axial_bounds_mm=head_bounds,closed_shroud_radial_clearance_mm=radial_clearance,
   closed_head_radial_clearance_mm=head_clearance,
   rear_transverse_crown_hits_m=[list(p) for p in rear_crown],rear_transverse_sag_mm=crown_sag,
+  accepted_flat_cheek_normals=cheek_normals,
   solid_hammer_cheek_hits_m=walls,sideplate_to_adjacent_cheek_mm=plate_step,
   sideplate_hit_m=list(plate),adjacent_cheek_hit_m=list(cheek))
 
