@@ -48,7 +48,7 @@ def main():
   W.pose(arm,n,f);error=V.surface_delta(target,V.surface_points(meshes(arm)));assert error<2e-5,(n,f,error)
   surface.append(dict(clip=n,frame=f,delta_m=error))
  result=dict(passed=motion['passed'] and not imported_geometry['nonmanifold'] and all(r['passed'] for r in imported_contacts),
-  stage='form round 2 / geometric normal with inspection constants',texture=texture,clip_durations_s=durations,source_geometry=source_geometry,imported_geometry=imported_geometry,
+  stage='form round 3 / geometric normal with inspection constants',texture=texture,clip_durations_s=durations,source_geometry=source_geometry,imported_geometry=imported_geometry,
   imported_contacts=imported_contacts,imported_semantics=states,imported_motion=motion,normal_direction=normal,
   affine_samples=len(affine),maximum_position_delta_m=max(r['position_delta_m'] for r in affine),
   maximum_linear_delta=max(r['linear_delta'] for r in affine),surface_samples=surface,standalones={})

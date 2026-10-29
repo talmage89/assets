@@ -10,9 +10,12 @@ import bpy,numpy as np
 ROOT=Path(__file__).resolve().parents[3];sys.path[:0]=[str(ROOT),str(Path(__file__).parent)]
 from kit import gpu,weapon as W
 from kit.image_io import write_png
-TARGETS={'Receiver_Sheet':(.02,.55,.98,.98),'PistolGrip_Sculpt':(.02,.02,.49,.52),
- 'Sight_TangentLeaf':(.51,.02,.98,.39),
- 'Sight_SliderButton-1':(.51,.42,.72,.52),'Sight_SliderButton1':(.75,.42,.98,.52)}
+TARGETS={'Receiver_Sheet':(.02,.55,.98,.98),'PistolGrip_Sculpt':(.02,.02,.46,.53),
+ 'Sight_TangentLeaf':(.48,.02,.98,.25),
+ 'Sight_SliderButton-1':(.48,.27,.65,.34),'Sight_SliderButton1':(.67,.27,.84,.34),
+ 'Sight_FrontTower':(.48,.36,.64,.53),'Sight_RearBlock':(.66,.36,.82,.53),
+ 'GasBlock_Neck':(.84,.36,.98,.53)}
+
 def main():
  p=argparse.ArgumentParser();p.add_argument('--source',required=True)
  a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);path=Path(a.source).resolve()
@@ -37,9 +40,11 @@ def main():
    u,v=row.uv;row.uv=(rect[0]+u*(rect[2]-rect[0]),rect[1]+v*(rect[3]-rect[1]))
   sources=[o for o in high if o.get('low_target')==name]
   # A base skin supplies every ray outside the additive relief silhouettes.
-  copy=target.copy();copy.data=target.data.copy();sc.collection.objects.link(copy)
-  copy.parent=None;copy.modifiers.clear();copy.matrix_world=target.matrix_world.copy();copy.hide_render=False
-  sources=[copy,*sources]
+  copy=None
+  if not any(o.name=='HIGH_'+name for o in sources):
+   copy=target.copy();copy.data=target.data.copy();sc.collection.objects.link(copy)
+   copy.parent=None;copy.modifiers.clear();copy.matrix_world=target.matrix_world.copy();copy.hide_render=False
+   sources=[copy,*sources]
   original=list(target.data.materials);material=bpy.data.materials.new('Projection target '+name);material.use_nodes=True
   target.data.materials.clear();target.data.materials.append(material)
   node=material.node_tree.nodes.new('ShaderNodeTexImage');node.image=image;material.node_tree.nodes.active=node
@@ -52,8 +57,9 @@ def main():
   first=False;rows.append(dict(target=name,sources=[o.name for o in sources],rect=rect))
   target.data.materials.clear()
   for m in original:target.data.materials.append(m)
-  bpy.data.objects.remove(copy,do_unlink=True)
-  for ob in sources[1:]:ob.hide_render=True;ob.hide_set(True)
+  if copy:bpy.data.objects.remove(copy,do_unlink=True)
+  for ob in sources:
+   if ob is not copy:ob.hide_render=True;ob.hide_set(True)
  values=np.empty(4096*4096*4,np.float32);image.pixels.foreach_get(values);values=values.reshape(4096,4096,4)
  # Vector-filter exactly 2x down, then renormalize. Work in +Y tangent space.
  vec=values[:,:,:3]*2-1;vec=vec.reshape(2048,2,2048,2,3).mean(axis=(1,3))

@@ -52,7 +52,7 @@ def main():
  for ob in [*G.PARTS,*G.HIGH]:
   if ob.name.startswith('Trigger_'):ob.data.transform(Matrix.Translation((0,20,0)))
   if ob.name.startswith('Hammer_'):ob.data.transform(Matrix.Translation((0,15,4)))
-  if ob.name.removeprefix('HIGH_')=='PistolGrip_Sculpt' or ob.name.startswith('HIGH_GripStrap'):
+  if ob.name.removeprefix('HIGH_')=='PistolGrip_Sculpt' or ob.name.startswith('HIGH_GripCheckering'):
    for v in ob.data.vertices:v.co.z=52+(v.co.z-40)*.85
   if ob.name.startswith(('Trigger_','TriggerGuard_','Guard_','Release_Housing','MagRelease_','Magazine_RearCatch','Grip_HeelScrew')):
    if ob.name=='Grip_HeelScrew':
@@ -60,11 +60,11 @@ def main():
    else:ob.data.transform(Matrix.Translation((0,0,8)))
  # Flat sheet lands and covered representations do not warrant dense triangles.
  # The first-person sight and control silhouettes retain their full allocation.
- for name,target in [('Receiver_Sheet',1900),('Stock_Sculpt',3000),('TopCover_Pressed',2600),('TopCover_RearCap',180),('Barrel',700),
+ for name,target in [('Receiver_Sheet',1900),('Stock_Sculpt',3000),('TopCover_Pressed',1200),('TopCover_RearCap',180),('Barrel',700),
   ('LowerHandguard_Sculpt',2400),('UpperHandguard_Sculpt',1700),('PistolGrip_Sculpt',2200),
   ('Magazine_Sheet',2700),('TriggerGuard_Stamping',450),('Buttplate',380),
   ('Handguard_Retainer221',230),('Handguard_Retainer363',230),('Release_Housing',280),
-  ('Sight_FrontHood',800),('TopCover_ButtonLip',220),('Sight_WindageDrum',360),
+  ('Sight_FrontHood',500),('TopCover_ButtonLip',220),('Sight_WindageDrum',360),
   ('Sight_RearNotch',240),('Sight_LeafSpring',180),('Sight_TangentLeaf',280),
   ('Sight_SliderBridge',220),('Sight_RodSeat',250),('Receiver_FrontLugSlot',340),('Front_InsertUpperShoulder',220)]:
   G.reduce(bpy.data.objects[name],target)

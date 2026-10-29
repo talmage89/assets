@@ -124,38 +124,38 @@ def receiver():
  latch=box('Cover_RetainingButton',(-5.5,-38,92),(5.5,-26,100),'blue',r=1)
 
 def cover():
- # Continuous pressed ribs follow the entire vaulted sheet, not stuck-on wires.
- ys=sorted({-35,-34,-30,-25,-20,175,180,190,*[k+d for k in (-5,75,150) for d in (-7,-5,-3,-1.5,0,1.5,3,5,7)]})
- def rib(y):
-  return 1.5*sum(math.exp(-((y-k)/3.2)**4) for k in (-5,75,150))
- loops=[]
- for y in ys:
-  bump=rib(y);arch=[]
-  for i in range(33):
-   t=math.pi*i/32
-   # A flatter crown and rolled shoulders, with ribs pressed through the roof.
-   arch.append(((18.3+bump)*math.copysign(abs(math.cos(t))**.82,math.cos(t)),y,86+(27+bump)*math.sin(t)**.72))
-  # Outer and inner profile enclose the bent sheet, open underneath.
-  arch += [((17.5+bump)*math.copysign(abs(math.cos(math.pi*i/32))**.82,math.cos(math.pi*i/32)),y,86+(26.2+bump)*math.sin(math.pi*i/32)**.72) for i in range(32,-1,-1)]
-  loops.append(arch)
+ # Flat stamped flanks meet a cylindrical roof at a rolled shoulder. The
+ # transverse beads stop on the roof; the low rear flank has its own long bead.
+ ys=sorted({-35,-34,-31,-27,-23,-18,-12,20,55,94,105,175,180,190,
+  *[k+d for k in (-5,75,150) for d in (-5,-3,-1.4,0,1.4,3,5)]})
+ def section(y,inset=0):
+  rear=max(0,min(1,(y+35)/17));rear=rear*rear*(3-2*rear)
+  height=19.2+8*rear
+  bead=.52*sum(math.exp(-((y-k)/2.6)**4) for k in (-5,75,150))
+  longfade=max(0,min(1,(y+30)/8,(92-y)/9))
+  flank=[]
+  for z in (86,88,89.4,90.5,91.6,93,95):
+   bulge=.65*math.exp(-((z-90.5)/1.05)**2)*longfade
+   flank.append((18.3-inset+bulge,y,z))
+  roof=[]
+  for i in range(1,25):
+   t=math.pi*i/24
+   roof.append(((18.3-inset)*math.cos(t),y,95+(height-9-inset)*math.sin(t)+bead*math.sin(t)**4))
+  return flank+roof+[(-x,y,z) for x,_,z in reversed(flank)]
+ loops=[section(y)+list(reversed(section(y,.8))) for y in ys]
  o=M.loft('TopCover_Pressed',loops,MAT['paint'])
- # Carrier/handle opening on the right. The roof stays above the visible port.
  cutbox(o,(9,45,76),(26,191,98),r=4)
  cutbox(o,(-6,-39,91),(6,-29,101),r=1)
- reg(o,radius=.16,segments=1);reduce(o,3500)
- # The return cap seats inside the sheet. Its edge must not share the outer
- # roof surface: coincident triangles previously caused bright seam flecks.
- cap=[(17.6*math.copysign(abs(math.cos(math.pi*i/32))**.82,math.cos(math.pi*i/32)),86+26.3*math.sin(math.pi*i/32)**.72) for i in range(33)]
- rear=profile('TopCover_RearCap',cap,-35.2,-34.3,'paint',axis='Y',r=.15,register=False)
+ reg(o);reduce(o,1200)
+ cap=[(x*.985,z-.25) for x,_,z in section(-35)]
+ rear=profile('TopCover_RearCap',cap,-35.2,-34.4,'paint',axis='Y',r=.15,register=False)
  cutbox(rear,(-6,-37,91),(6,-32,101),r=.7);reg(rear,radius=.12)
- # Folded rear return surrounds the button opening; a sheet lip, not a seam.
  lip=profile('TopCover_ButtonLip',M.fillet_polygon([(-7,90),(7,90),(7,102),(-7,102)],1.6,5),-35.8,-34.8,'paint',axis='Y',r=.15,register=False)
  cutbox(lip,(-5.9,-37,91.2),(5.9,-33,100.5),r=1);reg(lip,radius=.12)
- # Longitudinal rolled shoulders have real sections rather than thin rods.
  for side in (-1,1):
-  y1=45 if side==1 else -30
-  p=[(side*18.6,85),(side*18.6,88),(side*18.0,89),(side*17.8,88),(side*17.8,85)]
-  reg(M.loft('Cover_Return'+str(side),[[(x,y,z) for x,z in p] for y in (-30,y1 if y1>-30 else 190)],MAT['paint']))
+  y1=45 if side==1 else 190
+  p=[(side*18.6,85),(side*18.6,87),(side*18,88),(side*17.8,87),(side*17.8,85)]
+  reg(M.loft('Cover_Return'+str(side),[[(x,y,z) for x,z in p] for y in (-30,y1)],MAT['paint']))
 
 def furniture():
  # Stock: changing oval/superelliptic sections; rounded comb and fuller toe.
@@ -217,44 +217,57 @@ def furniture():
   bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free()
   # Dense source retained before game reduction.
   sculpt(ob,target,level=0)
- # Molded grip with nonparallel faces, palm swell, round heel and neck.
- rows=[(-79,-18,11.4,15.5),(-78,-18,14.1,17.5),(-74,-18,14.4,18),
-  (-60,-16,14.7,19.0),(-45,-11,15.1,20.5),(-30,-6,15.5,20.8),
-  (-12,-3,15.4,18.2),(-3,-4,14.5,14.5),
-  (12,-8,13.5,15),(20,-8,14.4,17),(34,-8,15.4,18),(38,-8,15.7,18),(39,-8,15.2,17)]
- loops=[]
- for z,y,hw,hd in rows:
-  loops.append([(hw*math.copysign(abs(math.cos(a))**.34,math.cos(a)),
-    y+hd*math.copysign(abs(math.sin(a))**.62,math.sin(a)),z) for a in [math.tau*i/40 for i in range(40)]])
- sculpt(M.loft('PistolGrip_Sculpt',loops,MAT['grip']),2300)
- # Low, wide molded ridges follow the actual compound skin, rather than
- # floating circular wires. The dense source supplies every supporting ray.
+ # Supported molding cage: long planar side lands, rounded straps, a
+ # modest neck and heel flare. Fine pyramids stay in the retained high source.
+ rows=[(-79,-36,13.6,13.8),(-78.4,-36,14.7,14.4),(-75,-35.5,15.0,14.5),
+  (-64,-31.8,15.0,15.0),(-45,-25.5,14.9,16.0),(-25,-19,14.7,17.0),
+  (-5,-12.5,14.4,18.0),(5,-9.8,14.2,18.0),(12,-8.8,14.1,17.0),
+  (18,-9.3,14.8,17.5),(28,-8.7,15.4,21.0),(37,-8,15.7,21.2),
+  (39,-8,15.3,20.5)]
+ loops=[[(x,y+v,z) for x,v in rounded(hw*2,hd*2,7,6)] for z,y,hw,hd in rows]
+ sculpt(M.loft('PistolGrip_Sculpt',loops,MAT['grip']),2200)
  from mathutils.bvhtree import BVHTree
  high=next(o for o in HIGH if o.name=='HIGH_PistolGrip_Sculpt')
- high.data.calc_loop_triangles();tree=BVHTree.FromPolygons([v.co for v in high.data.vertices],[t.vertices for t in high.data.loop_triangles],all_triangles=True)
- for z0,y,hw,hd in rows[3:8]:
-  for sign in (-1,1):
-   loops=[]
-   for dz in (-1.4,-1,-.5,0,.5,1,1.4):
-    ring=[]
-    for x in (-9,-8,-5,0,5,8,9):
-     hit=tree.ray_cast(Vector((x,sign*100,z0+dz)),Vector((0,-sign,0)),200)
-     assert hit[0] is not None
-     height=.32*max(0,1-(dz/1.4)**2)*max(0,1-(abs(x)/9)**6)
-     ring.append((x,hit[0].y+sign*height,z0+dz))
-    loops.append(ring)
-   ob=M.loft('HIGH_GripStrap',loops,MAT['grip'],caps=False,closed=False)
-   if sum(f.normal.y for f in ob.data.polygons)*sign<0:
-    for f in ob.data.polygons:f.flip()
-   M.smooth(ob,80);source(ob,'PistolGrip_Sculpt')
- screw('Grip_HeelScrew',(0,-18,-79),'Z',3)
+ high.data.calc_loop_triangles()
+ tree=BVHTree.FromPolygons([v.co for v in high.data.vertices],[t.vertices for t in high.data.loop_triangles],all_triangles=True)
+ def center(z):
+  for a,b in zip(rows,rows[1:]):
+   if a[0]<=z<=b[0]:return a[1]+(b[1]-a[1])*(z-a[0])/(b[0]-a[0])
+  return rows[0][1]
+ # Two side panels follow the real molded skin. A quiet border and clipped
+ # diamond pyramids are one continuous high-only surface, no floated decals.
+ for sign in (-1,1):
+  vertices=[];faces=[]
+  ny,nz=80,204
+  for j in range(nz+1):
+   z=-71+89*j/nz;cy=center(z)
+   for i in range(ny+1):
+    half=9+3*j/nz;u=half*(-1+2*i/ny);y=cy+u
+    hit=tree.ray_cast(Vector((sign*40,y,z)),Vector((-sign,0,0)),80)
+    assert hit[0] is not None
+    edge=min(half-abs(u),z+71,18-z)
+    # Crossed 60-degree groove families, period chosen from the sharp panel.
+    phase1=((u*.866+z*.5)/1.9)%1;phase2=((u*.866-z*.5)/1.9)%1
+    pyramid=min(1-abs(2*phase1-1),1-abs(2*phase2-1))
+    rim=.16*math.exp(-((edge-.55)/.38)**2)
+    relief=.28*pyramid*max(0,min(1,(edge-1.2)/.65))+rim
+    vertices.append((hit[0].x+sign*relief,y,z))
+  for j in range(nz):
+   for i in range(ny):
+    k=j*(ny+1)+i;faces.append((k,k+1,k+ny+2,k+ny+1) if sign>0 else (k+ny+1,k+ny+2,k+1,k))
+  data=bpy.data.meshes.new('Original molded checkering');data.from_pydata(vertices,[],faces);data.update()
+  ob=bpy.data.objects.new('HIGH_GripCheckering',data);bpy.context.collection.objects.link(ob)
+  ob.data.materials.append(MAT['grip']);source(ob,'PistolGrip_Sculpt')
+ screw('Grip_HeelScrew',(0,-36,-79),'Z',3)
 
 def guard_controls():
  # Broad stamped strip, not a wire loop; 12 mm across, flat blade thickness.
- path=[]
- for q in [((3,40),(6,32),(5,14),(15,8)),((15,8),(25,2),(58,2),(71,7)),
-           ((71,7),(74,12),(73,29),(73,40))]:
-  pts=M.bezier(*q,12);path.extend(pts if not path else pts[1:])
+ # Tight rear bend, straight bottom, vertical front rise into the housing.
+ path=M.bezier((3,40),(3,38),(3,21),(3,16),5)
+ path+=M.bezier((3,16),(3,10),(6,8),(11,8),8)[1:]
+ path += [(23,8),(40,8),(58,8),(67,8)]
+ path+=M.bezier((67,8),(71,8),(73,10),(73,14),8)[1:]
+ path += [(73,25),(73,40)]
  ribbon('TriggerGuard_Stamping',path,13,1.65,edge=.16)
  box('Guard_RearFlange',(-7,-4,40),(7,8,42),'blue',r=.3)
  box('Guard_FrontFlange',(-7,68,40),(7,80,42),'blue',r=.3)
@@ -267,7 +280,16 @@ def guard_controls():
  face=M.bezier((33,42),(26,35),(25,28),(31,23),16)
  toe=M.bezier((31,23),(34,21),(34,20),(30,20),6)
  back=M.bezier(toe[-1],(22,24),(22,35),(28,42),16)
- profile('Trigger_Shoe',face+toe[1:]+back[1:],-2.6,2.6,'blue','Trigger',r=.45)
+ shoe=profile('Trigger_Shoe',face+toe[1:]+back[1:],-2.6,2.6,'blue','Trigger',r=.45)
+ # Preserve the accepted forward finger curve and height while narrowing the
+ # blade toward its toe, both across the face and in the visible side section.
+ for v in shoe.data.vertices:
+  t=max(0,min(1,(v.co.z-20)/22))
+  v.co.x*=.48+.52*t
+  # The finger surface stays fixed; remove thickness from its convex back.
+  if v.co.z<40:
+   nearest=min(face+toe[1:],key=lambda q:abs(q[1]-v.co.z))
+   v.co.y=nearest[0]+(v.co.y-nearest[0])*(.43+.57*t)
  lathe('Trigger_VisualPin',[(-16,0),(-16,2.5),(16,2.5),(16,0)],'blue','Trigger',axis='X',center=(29,45),nseg=20)
  # Hidden hammer/sear has no render mesh. The retained Hammer transform still
  # carries the accepted clip timing; an inventory check proves zero visibility.
@@ -299,21 +321,54 @@ def action_barrel():
  cut(barrel,lathe('Oversize inert display cavity',[(165,0),(165,8),(232,8),(232,0)],center=(0,BORE),register=False))
  reg(barrel)
  # Gas tube and lower retainers; original rounded machined seating envelopes.
- lathe('GasTube',[(221,8),(221,9.8),(345,9.8),(351,8.5),(351,8)],'blue',center=(0,107),closed=True,nseg=32)
+ lathe('GasTube',[(221,8),(221,9.8),(345,9.8),(351,8.5),(351,8)],'blue',center=(0,107),closed=True,nseg=24)
  for y in (221,363):
-  loops=[[(x,yy,z+66) for x,z in rounded(w,h,6,5)] for yy,w,h in [(y-2,43,53),(y,44,54),(y+2,43,53)]]
-  ob=M.loft('Handguard_Retainer'+str(y),loops,MAT['blue'])
-  cutbox(ob,(-18,y-4,43),(18,y+4,91),r=5);reg(ob,radius=.5)
- # Gas block neck leans at about 45 degrees; holes are cosmetic vents.
- lathe('GasBlock_BarrelBand',[(431,7.8),(431,12),(435,13),(445,13),(450,10),(450,7.8)],'blue',center=(0,BORE),closed=True,nseg=32)
- block=profile('GasBlock_Neck',M.fillet_polygon([(429,86),(451,87),(430,115),(411,116),(414,108)],3,6),-9,9,'blue',r=1.2)
- lathe('GasBlock_TubeSeat',[(345,8),(345,10),(416,10),(423,9),(423,8)],'blue',center=(0,107),closed=True,nseg=32)
+  # The narrow steel cap wraps the carved end; unlike the former rectangular
+  # wire, the bottom follows the wood and the top has barrel/rod relief.
+  if y==363:
+   outer=rounded(42,43,11,7);inner=rounded(39,40,10,7)
+   loops=[[(x,yy,z+65) for x,z in ring] for yy,ring in [(y-2,outer),(y+2,outer),(y+2,inner),(y-2,inner)]]
+   ob=M.loft('Handguard_Retainer'+str(y),loops+[loops[0]],MAT['blue'],caps=False)
+   bm=bmesh.new();bm.from_mesh(ob.data)
+   bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=.0001)
+   bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free()
+   reg(ob)
+  else:
+   loops=[[(x,yy,z+66) for x,z in rounded(w,h,6,5)] for yy,w,h in [(y-2,43,53),(y,44,54),(y+2,43,53)]]
+   ob=M.loft('Handguard_Retainer'+str(y),loops,MAT['blue'])
+   cutbox(ob,(-18,y-4,43),(18,y+4,91),r=5);reg(ob,radius=.5)
+ # One continuous forging cage, from tube seat through curved neck to collar.
+ # Its side boundaries follow the sharp photo. There is no union cap/crease
+ # on the sloping crown and no hidden display cavity to break through it.
+ stations=[(406,9.6,97.4,116.6),(415,9.6,97.4,116.6),
+  (422,9.6,96.2,116.6),(425,9.8,92,115.8),(428,10.4,85,112),
+  (430,10.8,76,109),(433,11.5,73.5,105.3),(438,11.5,73.5,100),
+  (443,11.5,73.5,97),(448,11.5,73.5,96.5),(451,10.5,74.5,95.5)]
+ neck=[]
+ for j in range(len(stations)-1):
+  a=Vector(stations[max(0,j-1)]);b=Vector(stations[j]);c=Vector(stations[j+1]);d=Vector(stations[min(len(stations)-1,j+2)])
+  for k in range(4):
+   t=k/4;q=.5*(2*b+(-a+c)*t+(2*a-5*b+4*c-d)*t*t+(-a+3*b-3*c+d)*t*t*t)
+   y,rx,bottom,top=q;zc=(bottom+top)/2;rz=(top-bottom)/2
+   neck.append([(rx*math.cos(angle),y,zc+rz*math.sin(angle)) for angle in [math.tau*i/40 for i in range(40)]])
+ y,rx,bottom,top=stations[-1]
+ neck.append([(rx*math.cos(a),y,(bottom+top)/2+(top-bottom)/2*math.sin(a)) for a in [math.tau*i/40 for i in range(40)]])
+ band=M.loft('GasBlock_Neck',neck,MAT['blue'])
+ soften_forging(band,.35)
+ cut(band,lathe('Barrel exterior clearance',[(419,0),(419,7.8),(455,7.8),(455,0)],'blue',center=(0,BORE),nseg=40,register=False))
+ # The overlapping tube hides this seat's inside in every clip. Keep that
+ # buried display volume solid so no false recess breaks through the neck.
+ soften_forging(band,.26);sculpt(band,1640,level=0)
+ lathe('GasBlock_TubeSeat',[(345,8),(345,9.5),(412,9.5),(417,9.1),(417,8)],'blue',center=(0,107),closed=True,nseg=32)
  for side in (-1,1):
   for y in (383,401):
-   a,b=sorted((side*8.6,side*10.4))
+   a,b=sorted((side*8.6,side*9.55))
    lathe('Gas_Vent'+str(side)+str(y),[(a,0),(a,1.1),(b,1.1),(b,0)],'dark',axis='X',center=(y,107),nseg=12)
- box('Bayonet_Lug',(-7,439,62),(7,452,73),'blue',r=1)
+ box('Bayonet_Lug',(-7,439,62),(7,452,74.8),'blue',r=1)
  cutbox(PARTS[-1],(-2.6,437,60),(2.6,454,67),r=.8)
+ box('Handguard_SlingMount',(-23,359,69),(-18.8,367,78),'blue',r=.5)
+ sling=[(-22,361,75),(-27,361,77),(-30,361,75),(-30,361,61),(-28,361,59),(-23,361,61),(-22,361,64)]
+ reg(M.tube('Handguard_SlingLoop',sling,1.3,MAT['blue'],sides=8))
  # Cleaning rod is supported at two bands, slight tip shoulder.
  lathe('CleaningRod',[(229,0),(229,2),(548,2),(550,2.8),(558,2.8),(558,0)],'blue',center=(0,66),nseg=16)
  # Slanted muzzle sleeve; cut-plane affects both inner and outer forward rings.
@@ -338,80 +393,115 @@ def action_barrel():
  cut(stop,lathe('Piston visual passage',[(182,0),(182,5),(197,5),(197,0)],center=(0,107),register=False));reg(stop,radius=.3)
 
 def sights():
- # The forged rear saddle changes section in all three axes. Its sloping
- # shoulders merge into a barrel collar; the leaf floats above a spring pocket.
+ # Low saddle, stepped upper cheeks at the forward hinge, open spring channel.
+ # Each section changes width, crown and underside, before the continuous union.
  loops=[]
- for z,w,d,y in [(84,27,48,216),(86,30,53,216),(92,31,59,216),
-                 (98,29,63,219),(109,26,65,220),(117,23,65,220),
-                 (120,22,64,220),(121,21,62,220)]:
-  loops.append([(x,y+v,z) for x,v in rounded(w,d,4,5)])
+ # Rear edge clears the accepted carrier's inert seating face by 1 mm.
+ for y,w,bottom,top in [(186,27,93,106),(188,31,88,110),(195,33,84,111),
+  (211,33,83,112),(226,32,81,113),(234,31,80,115),
+  (240,30,79,121),(244,29,79,124),(250,29,79,124),(254,27,81,118)]:
+  sec=M.fillet_polygon([(-w/2,bottom+4),(-w/2+2,bottom),
+   (w/2-2,bottom),(w/2,bottom+4),(w/2,top-7),(w/2-4,top),
+   (-w/2+4,top),(-w/2,top-7)],2,5)
+  loops.append([(x,y,z) for x,z in sec])
  base=M.loft('Sight_RearBlock',loops,MAT['blue'])
- soften_forging(base,.5)
- cutbox(base,(-7.8,189,115),(7.8,248,128),r=1.8)
- for z,r in [(107,7.5),(85,8.2)]:
-  cut(base,lathe('Inert animation clearance',[(180,0),(180,r),(258,r),(258,0)],center=(0,z),register=False))
- M.bevel(base,.35,2);M.apply(base);sculpt(base,1100,level=0)
- # Long leaf, shallow central stiffening channel and front hinge cheeks.
- leaf=profile('Sight_TangentLeaf',M.fillet_polygon([(188,121),(248,119.5),(251,121),(251,123),(188,124)],.55,4),-6.7,6.7,'blue',r=.3,register=False)
- cutbox(leaf,(-.8,192,123),( .8,247,125),r=.3);reg(leaf,radius=.1)
- notch=profile('Sight_RearNotch',M.fillet_polygon([(-9,123),(-9,127.3),(-7,128),(-1.5,128),(-1.5,125),(1.5,125),(1.5,128),(7,128),(9,127.3),(9,123)],.25,3),187.7,190,'blue',axis='Y',r=.2)
- # Cylindrical release buttons nest in a thin slider saddle around the leaf.
- slider=profile('Sight_SliderBridge',M.fillet_polygon([(-8.4,120),(-8.4,125),(8.4,125),(8.4,120),(6.8,120),(6.8,123.5),(-6.8,123.5),(-6.8,120)],.45,4),201,207,'blue',axis='Y',r=.15)
+ soften_forging(base,.38)
+ cutbox(base,(-7.8,186,109),(7.8,256,130),r=1)
+ cut(base,lathe('Barrel display seat',[(180,0),(180,11.15),(258,11.15),(258,0)],center=(0,85),nseg=40,register=False))
+ cut(base,lathe('Piston display clearance',[(180,0),(180,5.7),(222,5.7),(222,0)],center=(0,107),nseg=32,register=False))
+ cut(base,lathe('Gas tube exterior seat',[(219,0),(219,10),(258,10),(258,0)],center=(0,107),nseg=40,register=False))
+ # Small visible relief in both hinge cheeks, based on the side photograph.
+ cut(base,profile('Hinge cheek relief',M.fillet_polygon([(240,115),(240,119),(242,120.5),(244,119),(244,115)],.8,4),-20,20,r=0,register=False))
+ soften_forging(base,.26);sculpt(base,1750,level=0)
+ # Narrow leaf nested between the front cheeks; crosspiece formed at its rear.
+ leaf=profile('Sight_TangentLeaf',M.fillet_polygon([(188,120.5),(248,120.5),(251,121),(251,123),(188,123)],.3,4),-6.7,6.7,'blue',r=.16,register=False)
+ cutbox(leaf,(-.45,193,122.5),(.45,246,124),r=.2);reg(leaf,radius=.08)
+ notch=profile('Sight_RearNotch',M.fillet_polygon([(-13,121),(-13,127.5),(-11,128),(-1.5,128),(-1.5,125.1),
+  (1.5,125.1),(1.5,128),(11,128),(13,127.5),(13,121)],.22,4),187.7,190,'blue',axis='Y',r=.14)
+ # A genuine closed sleeve around the leaf, with two cylindrical releases.
+ slider=profile('Sight_SliderBridge',[(x,z+122) for x,z in rounded(17.6,5.4,.6,4)],201,208,'blue',axis='Y',r=0,register=False)
+ cutbox(slider,(-6.95,200,120.3),(6.95,209,123.25),r=.2);reg(slider,radius=.12)
  for side in (-1,1):
-  a,b=sorted((side*8.2,side*14.2))
-  button=lathe('Sight_SliderButton'+str(side),[(a,0),(a,3.0),(a+.35,3.6),(b-.35,3.6),(b,3.1),(b,0)],'blue',axis='X',center=(204,122.5),nseg=24)
-  # The button's small grooves belong in the source normal, not extra rings.
-  for dy in (-1.5,0,1.5):
-   x=side*14.15
-   detail=box('HIGH_ButtonGroove',(min(x,x+side*.15),203.8+dy,120),(max(x,x+side*.15),204.1+dy,125),'blue',register=False,r=0)
-   source(detail,button.name)
- lathe('Sight_RearPivot',[(-12.5,0),(-12.5,2.1),(-10,2.4),(10,2.4),(12.5,2.1),(12.5,0)],'blue',axis='X',center=(248,121),nseg=24)
- spring=M.bezier((193,116.0),(204,117.8),(225,120),(245,117.8),20)
+  a,b=sorted((side*8.6,side*15.2))
+  button=lathe('Sight_SliderButton'+str(side),[(a,0),(a,3.0),(a+.3,3.35),(b-.3,3.35),(b,3.0),(b,0)],'blue',axis='X',center=(204.5,122),nseg=24)
+  # Small diamond-pyramid ends are high-only; projected onto both end faces.
+  vs=[];fs=[]
+  for j in range(-4,5):
+   for k in range(-4,5):
+    u,v=j*.72,k*.72
+    if u*u+v*v>2.65**2:continue
+    idx=len(vs);x=side*15.2
+    vs.extend([(x,204.5+u+du,122+v+dv) for du,dv in [(-.33,-.33),(.33,-.33),(.33,.33),(-.33,.33)]])
+    vs.append((x+side*.18,204.5+u,122+v))
+    for i in range(4):
+     face=tuple(idx+q for q in (i,(i+1)%4,4))
+     fs.append(face if side>0 else tuple(reversed(face)))
+  mesh=bpy.data.meshes.new('Original button knurl');mesh.from_pydata(vs,[],fs);mesh.update()
+  assert all(f.normal.x*side>0 for f in mesh.polygons),'Button knurl faces must point outward'
+  ob=bpy.data.objects.new('HIGH_ButtonKnurl',mesh);bpy.context.collection.objects.link(ob);source(ob,button.name)
+ lathe('Sight_RearPivot',[(-14,0),(-14,1.8),(-13.5,2),(13.5,2),(14,1.8),(14,0)],'blue',axis='X',center=(248,121),nseg=20)
+ spring=M.bezier((192,111.8),(208,117.3),(229,118.8),(246,115.3),18)
  ribbon('Sight_LeafSpring',spring,9,.8,edge=.12)
- # Etched graduation bars: high only, projected to the original leaf below.
- for y in range(212,247,4):
-  for side in (-1,1):
-   z=124-(y-188)/63
-   ob=box('HIGH_Graduation',(2.5 if side>0 else -6,y,z-.08),(6 if side>0 else -2.5,y+.35,z+.08),'blue',register=False,r=0)
-   source(ob,'Sight_TangentLeaf')
+ # Staggered columns (evens / odds), with an original typeface, no copied marks.
+ for i in range(10):
+  side=-1 if i%2==0 else 1;y=211+i*3.6
+  source(box('HIGH_Graduation',(-6.3,y,122.93),(6.3,y+.22,123.07),'blue',register=False,r=0),'Sight_TangentLeaf')
  from kit.fonts import find_font
  font=bpy.data.fonts.load(find_font('Noto Sans','Regular'))
- for i,y in enumerate(range(213,247,7)):
-  for x in (-3.6,3.6):
-   curve=bpy.data.curves.new('Original tangent numeral','FONT');curve.body=str(1+i*2);curve.size=2.4
-   curve.font=font;curve.align_x='CENTER';curve.extrude=.055;curve.resolution_u=3
-   ob=bpy.data.objects.new('HIGH_SightNumeral',curve);bpy.context.collection.objects.link(ob)
-   ob.location=(x,y,124-(y-188)/63+.03)
-   bpy.context.view_layer.objects.active=ob;ob.select_set(True);bpy.ops.object.convert(target='MESH')
-   ob=bpy.context.object;ob.data.transform(ob.matrix_world);ob.matrix_world=Matrix.Identity(4)
-   source(ob,'Sight_TangentLeaf');ob.select_set(False)
- # Front collar and tower are a single rounded forging. Each Z station changes
- # depth and width rather than extruding a side silhouette.
+ for i in range(10):
+  y=211+i*3.6;x=-3.65 if i%2==0 else 3.65
+  curve=bpy.data.curves.new('Original tangent numeral','FONT');curve.body=str(i+1);curve.size=2.7
+  curve.font=font;curve.align_x='CENTER';curve.extrude=.07;curve.resolution_u=3
+  ob=bpy.data.objects.new('HIGH_SightNumeral',curve);bpy.context.collection.objects.link(ob)
+  ob.location=(x,y+.5,123.02)
+  bpy.ops.object.select_all(action='DESELECT');bpy.context.view_layer.objects.active=ob;ob.select_set(True);bpy.ops.object.convert(target='MESH')
+  ob=bpy.context.object;ob.data.transform(ob.matrix_world);ob.matrix_world=Matrix.Identity(4)
+  source(ob,'Sight_TangentLeaf');ob.select_set(False)
+ # Shallow side rack serrations are sculpt relief, not game triangles.
+ for side in (-1,1):
+  for y in range(211,247,2):
+   a,b=sorted((side*6.6,side*6.95))
+   source(box('HIGH_LeafRack',(a,y,121),(b,y+.55,122.4),'blue',register=False,r=0),'Sight_TangentLeaf')
+ for ob in [*PARTS,*HIGH]:
+  if ob.name.startswith('Sight_Slider') or ob.get('low_target','').startswith('Sight_Slider'):
+   ob.data.transform(Matrix.Translation((0,-9,0)))
+ front_sight()
+
+def front_sight():
+ # Radiused tower changes depth and width. Its window has long straight edges
+ # and small forging radii, while the drum ends sit flush in the side lands.
  loops=[]
- for z,w,d,y in [(84,21,23,552),(88,22,23,552),(94,20,22,552),
-                 (100,17,18,552),(109,15,15,552),(116,17.8,14,552),
-                 (120,18.5,13,552),(122,18,12,552)]:
-  loops.append([(x,y+v,z) for x,v in rounded(w,d,min(3.7,w/4),5)])
+ for z,w,d,y in [(84,21.5,24,552),(89,22,24,552),(94,20.5,22.5,552),
+  (100,17.5,20,552),(108,15.7,18.8,552),(115,16.5,14,552),
+  (120,17,14,552),(122,17,14,552)]:
+  loops.append([(x,y+v,z) for x,v in rounded(w,d,2,5)])
  tower=M.loft('Sight_FrontTower',loops,MAT['blue'])
- collar=lathe('Front collar union',[(543,0),(543,10),(545,11.7),(558,11.7),(562,10),(562,0)],'blue',center=(0,BORE),nseg=40,register=False)
- M.boolean(tower,collar,'UNION')
- soften_forging(tower,.4)
- cut(tower,lathe('Barrel exterior clearance',[(540,0),(540,7.3),(565,7.3),(565,0)],'blue',center=(0,BORE),nseg=40,register=False))
- cutbox(tower,(-14,548,95),(14,556,106),r=2.8)
- M.bevel(tower,.35,2);M.apply(tower);sculpt(tower,1200,level=0)
- # Open protective ears: the upper arc is genuinely absent, with rounded ends.
+ collar=lathe('Front collar union',[(542,0),(542,10),(544,11.7),(560,11.7),(562,10),(562,0)],'blue',center=(0,BORE),nseg=40,register=False)
+ M.boolean(tower,collar,'UNION');soften_forging(tower,.32)
+ cut(tower,lathe('Barrel exterior clearance',[(539,0),(539,7.3),(565,7.3),(565,0)],'blue',center=(0,BORE),nseg=40,register=False))
+ cutbox(tower,(-15,546.7,95.3),(15,557.3,105.3),r=.8)
+ # A shallow circular seat outlines the turned drum at each outside face.
+ cut(tower,lathe('Windage display seat',[(-12,0),(-12,4.6),(12,4.6),(12,0)],'blue',axis='X',center=(552,116.7),nseg=32,register=False))
+ soften_forging(tower,.22);sculpt(tower,1650,level=0)
+ # Thin sheet band: broad side ears, flat top edges, no bevel-shaped hooks.
+ # The lower arc clamps the tower and the upper sector stays open.
  loops=[]
- for i in range(57):
-  a=math.radians(140+260*i/56)
-  loops.append([(r*math.cos(a),y,128+r*math.sin(a)) for r,y in [(9.3,548),(11.2,548),(11.8,549),(11.8,555),(11.2,556),(9.3,556)]])
- reg(M.loft('Sight_FrontHood',loops,MAT['blue']),radius=.25)
- # Decorative thread witness rings carry no operative thread pitch/fit model.
+ def band_curve(a):
+  s=math.sin(a)
+  return Vector((10.3*math.cos(a),126+(3.7 if s>0 else 7.0)*s))
+ for i in range(45):
+  a=math.radians(137+266*i/44)
+  center=band_curve(a);tangent=(band_curve(a+.0001)-band_curve(a-.0001)).normalized()
+  normal=Vector((tangent.y,-tangent.x))
+  inner=center-normal*.5;outer=center+normal*.5
+  # The lower bend tucks inside the drum ends. Offset the section normal
+  # instead of scaling a radius, retaining a constant 1 mm sheet gauge.
+  loops.append([(p.x,y,p.y) for p,y in [(inner,545),(outer,545),(outer,559),(inner,559)]])
+ reg(M.loft('Sight_FrontHood',loops,MAT['blue']),radius=.10,segments=1)
  lathe('Sight_FrontPost',[(117,0),(117,1.8),(120,1.8),(122,1.35),(127.7,.8),(128,.7),(128,0)],'blue',axis='Z',center=(0,552),nseg=20)
  for z in (122.1,123,123.9):
-  lathe('Sight_PostThreadWitness',[(z,1.15),(z,1.55),(z+.3,1.55),(z+.3,1.15)],'blue',axis='Z',center=(0,552),nseg=20,closed=True)
- drum=lathe('Sight_WindageDrum',[(-11,0),(-11,4.1),(-10.3,4.7),(10.3,4.7),(11,4.1),(11,0)],'blue',axis='X',center=(552,117),nseg=28,register=False)
- cutbox(drum,(-12,546,120.5),(12,558,124));cutbox(drum,(-12,546,110),(12,558,113.5));reg(drum,radius=.2)
- # Supported rod seat and a rounded lug below the collar, joined by a saddle.
+  lathe('Sight_PostThreadWitness',[(z,1.15),(z,1.55),(z+.3,1.55),(z+.3,1.15)],'blue',axis='Z',center=(0,552),nseg=16,closed=True)
+ lathe('Sight_WindageDrum',[(-8.42,0),(-8.42,4.3),(-8.2,4.5),(8.2,4.5),(8.42,4.3),(8.42,0)],'blue',axis='X',center=(552,116.7),nseg=32)
  seat=profile('Sight_RodSeat',M.fillet_polygon([(-7,69),(-6,75),(6,75),(7,69),(5,62),(-5,62)],1.2,4),547,559,'blue',axis='Y',r=.5,register=False)
  cut(seat,lathe('Rod seat clearance',[(544,0),(544,2.9),(562,2.9),(562,0)],'blue',center=(0,66),nseg=20,register=False));reg(seat,radius=.3)
 
@@ -494,7 +584,9 @@ def visible_seating():
  lip=profile('Receiver_FrontLugSlot',outer+inner,-5.8,5.8,'blue',r=.12,register=False)
  cutbox(lip,(-1.2,164,61),(1.2,172,74),r=.15);reg(lip)
  for side in (-1,1):
-  a,b=sorted((side*5.6,side*17.5))
+  # Stop the cradle bridge within the 1 mm receiver skin. Its former
+  # coplanar outer cap read as an unexplained dark exterior rectangle.
+  a,b=sorted((side*5.6,side*16.6))
   profile('Receiver_FrontLugBridge'+str(side),M.fillet_polygon([(169,63),(175,63),(177,76),(171,76)],.8,4),a,b,'blue',r=.3)
 
 def hand_normals(ob):
