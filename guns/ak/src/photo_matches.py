@@ -249,6 +249,14 @@ PHOTO_VIEWS['topcover_sharp'] = dict(
                ((0,-.0353,.096),(2605,2222),.8)])
 
 MATCHES = {}
+PHOTO_VIEWS['used_photo']=dict(
+ title='Used exterior / dark reddish varnish, black enamel and ribbed magazine',
+ photo='early.jpg',crop=(0,100,2259,790),location=(3,.1,.2),target=(0,.15,.06),
+ lens=100,lens_bounds_mm=(50,220),exposure=-.3,
+ landmarks=[((.0175,-.035,.086),(612,246),1),
+ ((.0175,-.035,.050),(612,352),1),((.0175,.220,.086),(1270,228),1),
+ ((.0175,.220,.050),(1270,323),1),((0,.595,.085),(2215,275),.5),
+ ((0,-.285,.035),(55,363),.5)])
 for name, description in PHOTO_VIEWS.items():
     row = dict(description)
     row['photo'] = str(BASE / 'build/white-balanced' / row['photo'])

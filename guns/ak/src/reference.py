@@ -5,7 +5,7 @@ import numpy as np
 from PIL import Image,ImageDraw
 BASE=Path(__file__).resolve().parents[1]
 PATCHES={'museum.jpg':((20,20,350,65),'gray museum backdrop, upper-left unshadowed margin'),
- 'early.jpg':((700,65,940,125),'unprinted white cloth away from creases'),
+ 'early.jpg':((760,475,895,550),'unprinted white cloth immediately beneath the receiver, same local light as the gun; upper cloth is strongly warm-lit'),
  'muzzle.jpg':((5,5,80,40),'no dependable neutral: sky is colored; identity correction, form only'),
  'weld.jpg':((1750,1000,1830,1090),'no dependable neutral: garment is colored; identity correction, cheek-weld geometry only'),
  'ammunition.jpg':((100,100,600,500),'light paper grid cells; brightest half excludes orange printed grid')}
@@ -22,6 +22,9 @@ PATCHES.update({
  'gas-sharp.jpg':((2300,300,2500,500),'unprinted white photographic backdrop'),
  'grip-sharp.jpg':((100,300,240,450),'light gray concrete away from rusty fissures')})
 PATCHES['cover-sharp.jpg']=((2400,400,2700,600),'unprinted white photographic backdrop')
+PATCHES['retainer.jpg']=((20,20,80,80),'unprinted white photographic backdrop')
+PATCHES['ammunition-copper.jpg']=((700,80,1500,300),'unprinted white paper above the cartridge, away from ruler and shadow')
+PATCHES['ammunition-green.jpg']=((1190,130,1240,170),'unprinted white label corner; strong mixed flash/ambient light, secondary finish-variation comparison only')
 FORM_ONLY={'muzzle.jpg','weld.jpg','front-side.jpg','front-behind.jpg','rear-side.jpg'}
 def main():
  out=BASE/'build/white-balanced';out.mkdir(parents=True,exist_ok=True);report={}

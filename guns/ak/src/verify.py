@@ -25,10 +25,8 @@ def main():
   spawns[state]=V.surface_points(visible),bpy.data.objects['Socket_Magazine'].matrix_world.copy()
  raw=GLB(path.with_suffix('.glb'));normal=V.normal_direction(raw)
  assert {x['name'] for x in raw.json['animations']}==set(CLIPS)
- assert len(raw.json['skins'])==1 and len(raw.json.get('images',[]))==1
- assert sum('normalTexture' in m for m in raw.json['materials'])==3
- payload=raw.image(0);assert Image.open(io.BytesIO(payload)).size==(2048,2048)
- texture=dict(size=[2048,2048],bytes=len(payload),sha256=hashlib.sha256(payload).hexdigest(),kind='original geometry-only tangent normal')
+ assert len(raw.json['skins'])==1 and not raw.json.get('images')
+ texture=dict(stage='unbaked modeling source; canonical PBR verified separately by atlas_verify.py')
  durations={}
  for animation in raw.json['animations']:
   duration=max(float(raw.accessor(s['input']).max()) for s in animation['samplers'])
@@ -48,7 +46,7 @@ def main():
   W.pose(arm,n,f);error=V.surface_delta(target,V.surface_points(meshes(arm)));assert error<2e-5,(n,f,error)
   surface.append(dict(clip=n,frame=f,delta_m=error))
  result=dict(passed=motion['passed'] and not imported_geometry['nonmanifold'] and all(r['passed'] for r in imported_contacts),
-  stage='form round 3 / geometric normal with inspection constants',texture=texture,clip_durations_s=durations,source_geometry=source_geometry,imported_geometry=imported_geometry,
+  stage='unbaked modeling-source serialization; PBR checked separately',texture=texture,clip_durations_s=durations,source_geometry=source_geometry,imported_geometry=imported_geometry,
   imported_contacts=imported_contacts,imported_semantics=states,imported_motion=motion,normal_direction=normal,
   affine_samples=len(affine),maximum_position_delta_m=max(r['position_delta_m'] for r in affine),
   maximum_linear_delta=max(r['linear_delta'] for r in affine),surface_samples=surface,standalones={})
@@ -60,7 +58,7 @@ def main():
   xyz=V.surface_points(parts);size=(np.max(xyz,axis=0)-np.min(xyz,axis=0)).tolist()
   row=dict(triangles=tri,bytes=f.stat().st_size,dimensions_m=size,normal_direction=norm,fresh_import=True)
   if name.startswith('magazine_'):
-   assert len(r.json.get('images',[]))==1 and r.image(0)==payload,'Detached magazine changed the shared form normal'
+   assert not r.json.get('images'),'Modeling source must remain unbaked'
    target,xf=spawns[name.split('_')[1]];error=V.surface_delta(target,[tuple(xf@Vector(p)) for p in xyz]);assert error<3e-6
    row['full_rotated_spawn_delta_m']=error
   result['standalones'][name]=row
