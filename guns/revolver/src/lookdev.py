@@ -88,6 +88,16 @@ def stainless(name,part,wear):
   cut=n.mul(n.maximum(n.ramp(a,.25,.85),n.ramp(b,.25,.85)),top)
   height=n.add(height,n.mul(cut,-.000075))
   rub=n.mul(top,n.ramp(fine,.30,.65),.55)
+ elif part=='Ejector_Tip':
+  # Original fine diamond knurl on the enlarged thumb head only. The
+  # accepted stainless response is retained; relief transfers to the atlas.
+  angle=n.math('ARCTAN2',sub(n,z,.0482),x)
+  around=n.mul(angle,.0032)
+  a=n.math('SINE',n.mul(n.add(around,y),math.tau/.00065))
+  b=n.math('SINE',n.mul(sub(n,around,y),math.tau/.00065))
+  band=n.mul(interval(n,y,.18035,.1831,.00012),n.ramp(absolute(n,ny),.65,.15))
+  cuts=n.mul(n.maximum(n.ramp(a,.2,.85),n.ramp(b,.2,.85)),band)
+  height=n.add(height,n.mul(cuts,-.000065))
  elif part.startswith(('Trigger_','Latch_')):rub=n.mul(n.ramp(absolute(n,nx),.65,.95),.30)
  rub=n.mul(rub,wear,breakup(n,p))
  base=n.mix(rub,base,(.61,.62,.63),True);rough=n.mix(rub,rough,.235)

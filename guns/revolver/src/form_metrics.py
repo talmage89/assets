@@ -37,7 +37,7 @@ def capture(path):
  spur_rear=min(v.y for v in motion.surface(part('Hammer_Body'))['points'])
  past_frame=(frame_spur_gauge.y-spur_rear)*1000
  assert 15<past_frame<25,past_frame
- assert 5.5<spur_root['size_mm']<7.5 and 3.1<spur_tip['size_mm']<4.2
+ assert 5.5<spur_root['size_mm']<7.5 and 5.0<spur_tip['size_mm']<5.9
  assert 9.0<spur_width['size_mm']<10.4
  windows=[]
  for z,label in [(.0681,'top'),(.02825,'bottom')]:
@@ -58,7 +58,30 @@ def capture(path):
  recess=(lip.y-crown.y)*1000
  assert 1.2<recess<1.7,(crown,lip,recess)
  release=span('Barrel',(-.004,.120,.049),2)
- assert 3.3<release['size_mm']<3.8,release
+ assert 6.0<release['size_mm']<6.7,release
+ shaft=span('Extractor_Rod',(0,.140,.0482),0)
+ head=span('Ejector_Tip',(0,.1815,.0482),0)
+ assert 5.7<shaft['size_mm']<5.9 and 6.3<head['size_mm']<6.5,(shaft,head)
+ rod_points=motion.surface(part('Extractor_Rod'))['points']
+ head_points=motion.surface(part('Ejector_Tip'))['points']
+ rod_bounds=[min(p.y for p in rod_points)*1000,max(p.y for p in rod_points)*1000]
+ head_bounds=[min(p.y for p in head_points)*1000,max(p.y for p in head_points)*1000]
+ assert abs(rod_bounds[0]-36.8)<.01 and abs(rod_bounds[1]-182.5)<.01,rod_bounds
+ assert abs(head_bounds[0]-180)<.01 and abs(head_bounds[1]-183.8)<.01,head_bounds
+ # Radial clearance is measured at the closed shipping surfaces; the full
+ # clip sweep independently checks departure and the unchanged extraction.
+ shroud_inner=hit('Barrel',(0,.140,.0482),(1,0,0))
+ shaft_outer=hit('Extractor_Rod',(.010,.140,.0482),(-1,0,0))
+ radial_clearance=(shroud_inner.x-shaft_outer.x)*1000
+ assert .18<radial_clearance<.35,radial_clearance
+ head_bore=hit('Barrel',(0,.1815,.0482),(1,0,0))
+ head_outer=hit('Ejector_Tip',(.010,.1815,.0482),(-1,0,0))
+ head_clearance=(head_bore.x-head_outer.x)*1000
+ assert .17<head_clearance<.35,head_clearance
+ rear_crown=[hit('Frame_Forging',(x,.016,.090),(0,0,-1),.05)
+  for x in (.0042,.0055,.007)]
+ crown_sag=(rear_crown[0].z-rear_crown[-1].z)*1000
+ assert .65<crown_sag<2.5,(rear_crown,crown_sag)
  rod=hit('Extractor_Rod',(.030,.120,.0482),(-1,0,0),.05)
  shroud=hit('Barrel',(.030,.120,.0482),(-1,0,0),.05)
  assert shroud.x>rod.x+.003,(rod,shroud)
@@ -87,6 +110,10 @@ def capture(path):
   trigger_width=blade_width,trigger_depth_at_z10=blade_depth,window_running_gaps=windows,
   crown_recess_mm=recess,crown_floor_m=list(crown),crown_lip_m=list(lip),
   shroud_release=release,right_shroud_first_hit_m=list(shroud),rod_hit_m=list(rod),
+  exposed_rod_diameter=shaft,ejector_head_diameter=head,rod_axial_bounds_mm=rod_bounds,
+  head_axial_bounds_mm=head_bounds,closed_shroud_radial_clearance_mm=radial_clearance,
+  closed_head_radial_clearance_mm=head_clearance,
+  rear_transverse_crown_hits_m=[list(p) for p in rear_crown],rear_transverse_sag_mm=crown_sag,
   solid_hammer_cheek_hits_m=walls,sideplate_to_adjacent_cheek_mm=plate_step,
   sideplate_hit_m=list(plate),adjacent_cheek_hit_m=list(cheek))
 

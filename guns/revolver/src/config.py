@@ -12,7 +12,7 @@ UV_SMART_ASPECT=False
 UV_PACK_SHAPE='AABB'
 UV_NORMALIZE_ISLAND_SCALE=True
 UV_PRIORITY={'Hammer_Body':1.25,'Frame_':1.15,'Grip_Rubber':1.2,'Barrel':1.05,
- 'RearSight_':1.25,'Cylinder_Fluted':1.2,'Extractor_Rod':.5,'Crane_Axle':.6,
+ 'RearSight_':1.25,'Cylinder_Fluted':1.2,'Extractor_Rod':.5,'Ejector_Tip':1.8,'Crane_Axle':.6,
  'Live':.8,'LoaderRound':.75,'Case':.8,'InsertRound':.8,'Speedloader':.75}
 # The accepted grip lip is close to steel. Isolate it for projection so
 # selected-to-active rays cannot copy the frame finish into the rubber.

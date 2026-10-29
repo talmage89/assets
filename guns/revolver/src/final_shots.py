@@ -9,9 +9,12 @@ SHOTS.update({
  'hero':dict(location=(.32,.37,.20),target=(0,.057,.014),lens=68,aspect=1.4,action='Idle',frame=0,exposure=-.30),
  'hero_left':dict(location=(-.33,.37,.19),target=(0,.057,.014),lens=68,aspect=1.4,action='Idle',frame=0,exposure=-.30),
  'wear_front':dict(location=(-.28,.38,.19),target=(-.012,.055,.014),lens=68,aspect=1.4,action='Reload',frame=88,exposure=-.30),
+ 'rod_detail':dict(location=(-.20,.135,.040),target=(-.0344,.168,.0327),ortho=.044,aspect=1.5,action='Reload',frame=88,exposure=-.30),
+ 'lug_under':dict(location=(.045,.285,.018),target=(0,.177,.052),lens=72,aspect=1.3,roll=3.141592653589793,action='Idle',frame=0,exposure=-.30),
+ 'rear_slot':dict(location=(-.085,-.16,.22),target=(0,.008,.066),ortho=.060,aspect=1.3,action='Idle',frame=0,exposure=-.30),
  'back':dict(location=(0,-.6,.014),target=(0,.06,.014),ortho=.17,aspect=1,action='Idle',frame=0,exposure=-.30),
  'scale':dict(location=(.3,3.6,1.3),target=(.3,0,.9),ortho=2.1,aspect=1,action='Idle',frame=0,scale=True,exposure=-.10)})
-DEFAULT_SHOTS='hero,hero_left,wear_front,side,front,back,top,open,star,reload,sights,grip,muzzle,shank,frame_bottom,hammer_rest,hammer_cocked,hammer_top,grip_seam,aimed,scale'
+DEFAULT_SHOTS='hero,hero_left,wear_front,side,front,back,top,open,star,reload,sights,grip,muzzle,shank,frame_bottom,hammer_rest,hammer_cocked,hammer_top,grip_seam,aimed,scale,rod_detail,lug_under,rear_slot'
 PHOTO_POSES={k:dict(v,exposure=-.30) for k,v in PHOTO_POSES.items()}
 PHOTO_POSES['used_photo']['room_light']=True
 STRIP_SHOT=dict(STRIP_SHOT,exposure=-.30)

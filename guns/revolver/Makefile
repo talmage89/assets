@@ -14,18 +14,19 @@ BAKE_SAMPLES ?= 32
 WIDTH ?= 1600
 SAMPLES ?= 64
 SHIP_SIZE := 2048
+BEFORE ?= ../../build/revolver-last-fixes/before
 MODEL := build/revolver.blend build/sculpt.blend build/revolver.glb build/cartridge.glb build/case.glb build/speedloader_loaded.glb build/triangles.json
 BAKED := $(addprefix build/baked/4k/T_MeridianSix_,BaseColor.png Normal.png ORM.png) build/baked/4k/bake-report.json
 TEXTURES := $(addprefix textures/T_MeridianSix_,BaseColor.png Normal.png ORM.png)
 EXPORTS := export/revolver.glb export/cartridge.glb export/case.glb export/speedloader_loaded.glb
 MARKS := $(addprefix build/markings/,barrel.png frame.png headstamp.png)
 comma := ,
-FINAL_SHOTS := hero,hero_left,wear_front,side,front,back,top,open,star,reload,sights,grip,muzzle,shank,frame_bottom,hammer_rest,hammer_cocked,hammer_top,grip_seam,aimed,scale
+FINAL_SHOTS := hero,hero_left,wear_front,side,front,back,top,open,star,reload,sights,grip,muzzle,shank,frame_bottom,hammer_rest,hammer_cocked,hammer_top,grip_seam,aimed,scale,rod_detail,lug_under,rear_slot
 FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(FINAL_SHOTS)))) renders/final/beauty/shots.json
 PHOTO_SHOTS := right_photo,left_photo,open_photo,used_photo
 PAIRS := $(foreach v,right left open used,renders/final/pairs/$(v)_photo-pair.jpg)
 RENDER_DEPS := src/presentation.py src/hammer_review.py src/render.py src/final_shots.py src/shots.py ../common/render.py build/render-parameters.txt
-.PHONY: all refs model prepare lookdev bake export check check-repo verify check-repeat render match source-match hammers strips standalones review docs form clean FORCE
+.PHONY: all refs model prepare lookdev bake export check check-repo verify check-repeat render match source-match hammers strips standalones review docs fix-pairs form clean FORCE
 all: refs export check render match source-match hammers strips standalones review docs
 refs:
 	$(PYTHON) $(KIT)/fetch_refs.py refs
@@ -127,8 +128,14 @@ renders/final/ammo/values.json: renders/final/ammo/calibration/shots.json render
 	$(BP) --python src/ammo_values.py
 review: render match hammers strips standalones renders/final/ammo/values.json
 	$(PYTHON) src/final_review.py
+	$(PYTHON) src/photo_gauges.py
 docs: review
 	$(PYTHON) src/final_review.py --docs
+# Historical binary evidence is optional and stays ignored. The ordinary
+# from-nothing build never depends on a preserved previous-session artifact.
+fix-pairs: render hammers build/photo-cameras.json
+	$(KIT)/with_gpu.sh $(BP) --python src/fix_render.py -- --source $(BEFORE)/revolver.glb --out $(BEFORE)/matched --width $(WIDTH) --samples $(SAMPLES) --shots rod_detail,muzzle,lug_under,rear_slot
+	$(PYTHON) src/fix_review.py --before $(BEFORE)
 form:
 	$(MAKE) -f src/form_rules.mk
 clean:

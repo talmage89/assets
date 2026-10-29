@@ -143,3 +143,57 @@ the protected crown remains 1.45 mm recessed. The recoil shield has a narrower
 rolled edge and the window's upper shoulders follow the cylinder radius.
 The accepted forcing-cone gap, central window light and rod release remain
 independent actual-surface gauges, not authored constants reported as measures.
+
+## Final four-region correction (supersedes the thin-tip gauges above)
+
+The new gauges use Dmoore5556's sharp [open-cylinder photograph](https://upload.wikimedia.org/wikipedia/commons/e/e0/Smith_%26_Wesson_Model_686_Plus_with_1_round.jpg),
+including the same hammer crop used in the existing rest pair. It is balanced on
+its gray foam, native (80,20)–(500,140), before evaluating color. Color is already
+accepted; these new measurements constrain exterior form only. The blue-lit
+cocked photograph remains a second form view, with no material adjustment.
+
+`src/photo_gauges.py` records the manual native-pixel segments, derives local
+magnification from the existing class-envelope pinhole camera, and writes marked
+photographs and `renders/final/fixes/photo-gauges.json`. That fit uses the cited
+four-inch barrel anchor, frame/cylinder landmarks and the photograph's 26 mm
+EXIF-equivalent lens. Its **84.9 px RMS** and different seven-shot specimen mean
+these are approximate visual estimates with systematic perspective uncertainty,
+not published part dimensions. Repeating arithmetic does not remove that error.
+
+| Visual gauge | Native endpoints (px) | Pixel span / estimated local px per mm | Photo estimate | Authored target |
+| --- | --- | --- | --- | --- |
+| Exposed rod shaft diameter | (1000,874)–(1000,969) | 95 / 16.55 | **5.74 ±0.6 mm** | **5.8 mm** |
+| Knurled front head diameter | (770,865)–(770,961) | 96 / 16.15 | **5.94 ±0.7 mm** | **6.4 mm**, including knurl envelope |
+| Spur thickness near rounded end | (2840,455)–(2880,539) | 93.0 / 16.83 | **5.53 ±1.0 mm** | about **5.5 mm** |
+
+The previous 47-pixel terminal sliver was too close to the rounded end to
+represent the paddle's near-tip thickness. The new segment crosses the broad
+end before its terminal roll. It rejects the old 3.58 mm mesh gauge. No photo
+outline is imported, traced, projected or baked into the asset.
+
+The rod retains its actual Y endpoints (36.8–182.5 mm shaft; 180–183.8 mm head)
+and accepted 26 mm extraction. The smaller sliding journal remains through the
+existing yoke/bearings for its entire stroke; the forward shaft carries the new
+diameter. Its release is nominally **6.3 mm** across the shaft, **6.9 mm** only
+at the head: diameter plus 0.25 mm radial clearance. Independent surface rays
+and the unchanged-tolerance sweep measure the result; the drawing values alone
+do not prove clearance.
+
+Stephen Z's [front/below photograph](https://upload.wikimedia.org/wikipedia/commons/d/df/Flickr_-_~Steve_Z~_-_686-2_Front.jpg),
+Junglecat's [front/below oblique](https://upload.wikimedia.org/wikipedia/commons/7/79/Smith_%26_Wesson_.357_Model_686_Plus_barrel_view.jpg)
+and Spencer Dutch's existing `quarter.jpg` establish the rounded lower section,
+continuous barrel/lug side and rolled nose surrounding the head. The new nose
+uses changing loft sections, rather than a cut-and-warp cap; fine geometry stays
+inside the same single atlas. Junglecat's wood table is unsuitable as a neutral;
+that photo is used for shape only. The original front view has only 500 pixels,
+so the sharper oblique supplies the nose detail.
+
+Stephen Z's [above/behind photograph](https://upload.wikimedia.org/wikipedia/commons/c/cf/Flickr_-_~Steve_Z~_-_686-2_Rear.jpg)
+shows the curved rear crown, body-width slot and wider raised thumb paddle.
+Its neutral gray tabletop is sampled at (20,20)–(120,60); the 500-pixel original
+limits detail. The original longitudinal backstrap curve and lower forging are
+retained. New transverse crown sections remove the broad flat upper land; the
+slot removes only the actual concave hammer section swept through its arc,
+rather than the old convex proxy's unused trough. Before/after comparisons use
+identical cameras and final lighting. Differences in specimen, camera and the
+small reference's resolution remain visible.

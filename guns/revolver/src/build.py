@@ -9,7 +9,7 @@ from pathlib import Path
 import bpy,bmesh
 from mathutils import Matrix,Vector
 from mathutils.bvhtree import BVHTree
-from mathutils.geometry import convex_hull_2d
+from mathutils.geometry import convex_hull_2d,barycentric_transform
 ROOT=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(ROOT));sys.path.insert(0,str(Path(__file__).parent))
 from kit import model as M,weapon as W
@@ -17,7 +17,23 @@ from guns.common import magnum357
 from parameters import *
 from clips import build_clips
 GENERATOR_HASH=generator_digest()
-PARTS=[];MAT={};HIGH={};SEATS={};OUTLINES={}
+PARTS=[];MAT={};HIGH={};SEATS={};OUTLINES={};SKIN_FIELDS={}
+def skin_field(name,loops):
+ # Retain the analytic loft's smooth normals across Boolean machining and
+ # reduction. A nearest triangle is only used on the original outer skin;
+ # pocket walls, bore and planar end faces keep their independent fields.
+ nr=len(loops);nc=len(loops[0]);points=[Vector(p) for row in loops for p in row]
+ normals=[];faces=[]
+ for j in range(nr):
+  for i in range(nc):
+   across=Vector(loops[j][(i+1)%nc])-Vector(loops[j][(i-1)%nc])
+   along=Vector(loops[min(j+1,nr-1)][i])-Vector(loops[max(j-1,0)][i])
+   normals.append(across.cross(along).normalized())
+ for j in range(nr-1):
+  for i in range(nc):
+   a=j*nc+i;b=j*nc+(i+1)%nc;c=b+nc;d=a+nc
+   faces.extend([(a,b,c),(a,c,d)])
+ SKIN_FIELDS[name]=(BVHTree.FromPolygons(points,faces,all_triangles=True),points,faces,normals)
 def clean(o,dist=.001):
  # Exact Boolean intersections can leave coincident seam vertices and
  # microscopic edges. Clean in mm, before their scale defeats decimation.
@@ -47,7 +63,8 @@ def reg(ob,bone='Root',radius=0,segments=3):
    weights=bm.edges.layers.float.new('bevel_weight_edge')
    for e in bm.edges:
     clear=min(q.calc_length() for v in e.verts for q in v.link_edges)
-    internal=(any((34<v.co.y<50 and 19<v.co.z<31 and abs(v.co.x)<6.5) or (81<v.co.y<95 and v.co.z<30) for v in e.verts)
+    internal=(any((34<v.co.y<50 and 19<v.co.z<31 and abs(v.co.x)<6.5) or (81<v.co.y<95 and v.co.z<30)
+      or (v.co.y<22 and v.co.z>42 and abs(v.co.x)<4.3) for v in e.verts)
       if ob.name=='Frame_Forging' else any(v.co.y<41.5 for v in e.verts))
     e[weights]=1.0 if not internal and clear>.45 and e.calc_face_angle(0)>math.radians(25) else 0.0
    bm.to_mesh(ob.data);bm.free()
@@ -79,7 +96,21 @@ def cutbox(o,lo,hi):return cut(o,box('tool',lo,hi,register=False))
 def reduce(o,target):
  n=sum(len(f.vertices)-2 for f in o.data.polygons)
  if n>target:
-  m=o.modifiers.new('Silhouette triangle budget','DECIMATE');m.ratio=target/n;M.apply(o)
+  m=o.modifiers.new('Silhouette triangle budget','DECIMATE');m.ratio=target/n
+  group=None
+  if o.name=='Frame_Forging':
+   # Preserve the accepted rolled recoil shield while the revised upper
+   # crown uses its share of the same frame budget. Remove this temporary
+   # modeling group before the unchanged rigid binding.
+   group=o.vertex_groups.new(name='Accepted shield retention')
+   ids=[v.index for v in o.data.vertices if 35.25<v.co.y<37.85 and abs(v.co.x)>8.9]
+   if ids:group.add(ids,1,'REPLACE')
+   m.vertex_group=group.name;m.invert_vertex_group=True;m.vertex_group_factor=1
+  group_name=group.name if group else None
+  M.apply(o)
+  if group_name:
+   current=o.vertex_groups.get(group_name)
+   if current:o.vertex_groups.remove(current)
  return o
 def rounded(w,h,r,n=6):return M.rounded_rectangle(w,h,r,n)
 def sphere(name,center,size,mat='steel',bone='Root',register=True):
@@ -117,18 +148,19 @@ def checked_pad(name,rows,across,mat,bone,axis='Z',relief=.085):
  faces.append(tuple([*range(nc-1,-1,-1),base,base+1]))
  faces.append(tuple([*( (nr-1)*nc+i for i in range(nc)),base+2*nr-1,base+2*nr-2]))
  return reg(M.mesh(name,verts,faces,MAT[mat]),bone)
-def sculpted_hammer():
- # One subdivision cage: broad crescent cheeks flow through a thick thumb
- # tongue. The old cage spent most of its triangles on teeth while its
- # cheek had only three straight rails. Fine checkering now belongs to bake.
- rows=[(18.05,3.25,67.5,65.2),(17.8,3.68,68.0,62.2),
+def hammer_sections():
+ return [(18.05,3.25,67.5,65.2),(17.8,3.68,68.0,62.2),
   (16.8,3.78,68.4,54.5),(15.3,3.78,68.6,46.0),
   (14,3.78,68.8,44.2),(10,3.78,69.1,44.2),
   (6,3.78,69.7,46.0),(4,3.75,70.25,52.5),
   (2,3.75,71.0,60.6),(0,4.0,71.8,63.8),
   (-2,4.55,72.8,66.0),(-4,5.0,73.5,67.3),
-  (-6,5.05,74.0,69.0),(-7.5,4.8,74.1,70.5),
-  (-8.5,4.3,73.9,71.0),(-9.0,2.7,73.5,71.5)]
+  (-6,5.05,74.0,68.15),(-7.5,4.8,74.1,68.55),
+  (-8.5,4.3,73.9,68.8),(-9.0,2.7,73.5,69.5)]
+def sculpted_hammer():
+ # One subdivision cage: broad crescent cheeks flow through a thick thumb
+ # tongue. Fine checkering belongs to the bake, not silhouette triangles.
+ rows=hammer_sections()
  loops=[]
  for y,w,top,bottom in rows:
   mid=(top+bottom)/2;h=(top-bottom)/2
@@ -184,7 +216,16 @@ def frame():
    for i in range(7):
     t=math.radians(start+90*i/6)
     points.append((sx*(w-r)+r*math.cos(t),y,(b if sz>0 else a)-sz*r+r*math.sin(t)))
+   if sx==1 and sz==1:
+    # Resolve the transverse crown behind the sight instead of spanning
+    # its whole width with one flat face. The longitudinal spine stays put.
+    points.extend((w-r-2*(w-r)*j/12,y,b) for j in range(1,12))
+  crown=max(0,min(1,(28-y)/14));crown=crown*crown*(3-2*crown)
+  upper=max(0,min(1,(b-61)/9));crown*=upper*upper*(3-2*upper)
+  points=[(x,yy,z-3.0*crown*(x/w)**2*max(0,min(1,(z-(b-8))/8))**2)
+   for x,yy,z in points]
   loops.append(points)
+ skin_field('Frame_Forging',loops)
  o=M.loft('Frame_Forging',loops,MAT['steel'])
  # An uninterrupted large-radius rear contour, not a plate outlined by bevels.
  shield=lathe('tool',[(35.5,0),(35.5,17.6),(35.8,18.6),(36.3,19.25),
@@ -238,15 +279,42 @@ def frame():
  # Hammer/trigger slots and front crane heel pocket are visible machining.
  # Close all unused space behind the hammer. This narrow pocket is the
  # swept *body*, rather than a rectangular trough through the backstrap.
- envelope=[]
- for angle in range(0,36,2):
+ rows=hammer_sections()
+ outline=[(y,top) for y,w,top,bottom in rows]+[(y,bottom) for y,w,top,bottom in reversed(rows)]
+ # Include the accepted strike nose in this single section cutter. Separate
+ # overlapping coplanar nose cutters leave microscopic nonmanifold seams.
+ outline[0]=(19.10,68.10);outline[-1]=(19.10,65.90)
+ area=sum(a[0]*b[1]-b[0]*a[1] for a,b in zip(outline,outline[1:]+outline[:1]))
+ outline=M.offset_profile(outline,-.28 if area>0 else .28)
+ # Resolve the concave swept section before cutting the forging. Repeated
+ # overlapping Boolean cuts spent the frame budget on invisible sawteeth.
+ # A convex hull, however, removes the unoccupied backstrap under the tongue.
+ sweeps=[]
+ for angle in range(0,36,1):
   t=math.radians(angle)
-  for y,z in [(4,44),(15,44),(18,65),(18.8,66.2),(18.8,67.8),(18,69),(13.5,69.4),(8,66),(4,61),(0,58)]:
-   yy=10+(y-10)*math.cos(t)-(z-48)*math.sin(t)
-   zz=48+(y-10)*math.sin(t)+(z-48)*math.cos(t)
-   envelope.extend(Vector((yy+dy,zz+dz)) for dy,dz in [(-.3,-.3),(-.3,.3),(.3,.3),(.3,-.3)])
- hull=[tuple(envelope[i]) for i in convex_hull_2d(envelope)]
- cut(o,profile('tool',hull,-4,4,register=False))
+  section=[(10+(y-10)*math.cos(t)-(z-48)*math.sin(t),
+   48+(y-10)*math.sin(t)+(z-48)*math.cos(t)) for y,z in outline]
+  sweeps.append(section)
+ stations=sorted(set(round(y,6) for section in sweeps for y,z in section))
+ lo,hi=stations[0],stations[-1]
+ stations=sorted(set(stations+[lo+(hi-lo)*j/math.ceil((hi-lo)/.20) for j in range(math.ceil((hi-lo)/.20)+1)]))
+ lower=[];upper=[]
+ for y in stations:
+  hits=[]
+  for section in sweeps:
+   for (ya,za),(yb,zb) in zip(section,section[1:]+section[:1]):
+    if abs(yb-ya)>1e-8 and min(ya,yb)-1e-6<=y<=max(ya,yb)+1e-6:
+     hits.append(za+(zb-za)*(y-ya)/(yb-ya))
+  if hits:lower.append((y,min(hits)-.04));upper.append((y,max(hits)+.04))
+ def simplify(points,tolerance=.025):
+  if len(points)<3:return points
+  a,b=Vector(points[0]),Vector(points[-1]);ab=b-a
+  distances=[(Vector(p)-a-ab*max(0,min(1,(Vector(p)-a).dot(ab)/ab.length_squared))).length for p in points[1:-1]]
+  i=max(range(len(distances)),key=distances.__getitem__)+1
+  if distances[i-1]<=tolerance:return [points[0],points[-1]]
+  return simplify(points[:i+1],tolerance)[:-1]+simplify(points[i:],tolerance)
+ swept=simplify(upper)+list(reversed(simplify(lower)))
+ cut(o,profile('tool',swept,-4,4,register=False))
  cutbox(o,(-4.1,26,12),(4.1,44,26))
  cutbox(o,(-22,82.6,12),(6.5,90.0,54.7))
  cutbox(o,(-28,81,CY-3.8),(3.5,98,CY+3.8))
@@ -307,17 +375,31 @@ def barrel():
  # skin; the small edge radii are geometry, not interpolated knife edges.
  a0=math.acos(.55);a1=math.acos(.96)
  shoulder=[(10*math.cos(a0+(a1-a0)*i/24),BORE+10*math.sin(a0+(a1-a0)*i/24)) for i in range(25)]
- lower=M.bezier((9.6,57.0),(9.6,55.9),(9.4,54.6),(8.9,53.6),12)
+ # The lower web is tangent to the barrel flat, then rolls through a broad
+ # elliptical underside. No inset rail, crease or chamfered bottom shelf.
+ lower=M.bezier((9.6,57.0),(9.6,54.0),(8.2,53.5),(8.2,50.2),16)
+ bottom=[(8.2*math.cos(t),50.2-7.85*math.sin(t))
+  for t in [j*math.pi/48 for j in range(1,25)]]
  # Tangent rib root: a 1.5 mm concave radius, rather than a plank on a tube.
  rib=M.bezier((3.4,76.4),(3.4,70.6),(3.9,70.4),shoulder[0],16)
- half=[*rib,*shoulder[1:],(9.6,57.0),*lower[1:],(8.9,53.3),
-  (9.5,52.5),(9.5,46.6),(8.5,44.4),(6.2,43.2),(3.9,42.5),(0,42.35)]
+ half=[*rib,*shoulder[1:],(9.6,57.0),*lower[1:],*bottom]
  perimeter=half+[(-x,z) for x,z in half[-2::-1]]
  outline=M.fillet_polygon(perimeter,[1.15 if z<53 else .35 for x,z in perimeter],5)
  OUTLINES['Barrel']=outline
- def section(y,inset=0):
-  return [(x*(1-inset/12),y,BORE+(z-BORE)*(1-inset/12)) for x,z in outline]
- o=M.loft('Barrel',[section(95.8),section(MUZZLE-.8),section(MUZZLE,.55)],MAT['steel'])
+ loops=[[(x,y,z) for x,z in outline] for y in (95.8,MUZZLE-8)]
+ # The end is a rolled surface in both directions. Deep quarter-elliptic
+ # rounds on the lug meet the small accepted barrel/crown lip continuously.
+ # Each section is authored explicitly; there is no cut-and-warp cap shelf.
+ for j in range(9):
+  t=j*math.pi/16;row=[]
+  for x,z in outline:
+   u=max(0,min(1,(57-z)/5));u=u*u*(3-2*u)
+   axial=.8+6.2*u;inset=(.55+3.0*u)*(1-math.cos(t))
+   center=BORE*(1-u)+CY*u
+   row.append((x*(1-inset/12),MUZZLE-axial+axial*math.sin(t),center+(z-center)*(1-inset/12)))
+  loops.append(row)
+ skin_field('Barrel',loops)
+ o=M.loft('Barrel',loops,MAT['steel'])
  # Cone joins inside the exterior; the round bore is a separate cutter. This
  # avoids folded polar caps between the rolled lug nose and the bore rim.
  cone=lathe('tool',[(BREECH,0),(BREECH,6.7),(85,7.8),(96.3,9.6),(96.3,0)],n=96,center=(0,BORE),register=False)
@@ -328,29 +410,19 @@ def barrel():
   (MUZZLE-1.2,7.7),(MUZZLE-.35,7.7),(MUZZLE,7.95),
   (MUZZLE+1,7.95),(MUZZLE+1,0)],center=(0,BORE),n=96,register=False)
  cut(o,bore)
- # Elliptical quarter-round: 5 mm axial recession over the lug's bottom
- # 10.65 mm. The upper crown remains at the accepted muzzle station.
- nose=[(MUZZLE-7,30),(MUZZLE+2,30),(MUZZLE+2,55),(MUZZLE,55)]
- nose += [(MUZZLE-7+7*math.cos(j*math.pi/48),55-12.65*math.sin(j*math.pi/48)) for j in range(1,25)]
- cut(o,profile('tool',nose,-25,25,register=False))
  # Bore around the rod; the narrow upper-left release is the actual swept
  # passage required by the accepted crane arc, rather than the old open hook.
- cut(o,lathe('tool',[(90,0),(90,2.85),(MUZZLE-5,2.85),(MUZZLE-3,2.90),
-  (MUZZLE-1,3.10),(MUZZLE+1,3.10),(MUZZLE+1,0)],center=(0,CY),n=40,register=False))
+ cut(o,lathe('tool',[(90,0),(90,3.15),(178.0,3.15),(179.5,3.45),
+  (MUZZLE+1,3.45),(MUZZLE+1,0)],center=(0,CY),n=48,register=False))
  pts=[]
  for j in range(17):
   theta=math.radians(-j*2.5);x=CRANE[0]+8*math.cos(theta)+28.2*math.sin(theta)
   z=CRANE[2]-8*math.sin(theta)+28.2*math.cos(theta)
   pts.append((x,z))
- upper=[(x,z+1.75) for x,z in pts];lower=[(x,z-1.75) for x,z in reversed(pts)]
+ upper=[(x,z+3.15) for x,z in pts];lower=[(x,z-3.15) for x,z in reversed(pts)]
  cut(o,profile('tool',upper+lower,90,MUZZLE+1,axis='Y',register=False))
- # Roll the lower nose across its width as well as in side elevation. This
- # turns the former flat shelf beside the channel into one compound surface.
- for v in o.data.vertices:
-  if v.co.z<54 and v.co.y>MUZZLE-9 and math.hypot(v.co.x,v.co.z-BORE)>8.30:
-   u=max(0,min(1,(54-v.co.z)/3));u=u*u*(3-2*u)
-   axial=max(0,min(1,(v.co.y-(MUZZLE-9))/5))
-   v.co.y-=(1.2+2.1*(abs(v.co.x)/9.5)**2)*u*axial
+ upper=[(x,z+3.45) for x,z in pts];lower=[(x,z-3.45) for x,z in reversed(pts)]
+ cut(o,profile('tool',upper+lower,178.0,MUZZLE+1,axis='Y',register=False))
  reg(o)
  # Pinned ramp is seated in a milled rib pocket.
  ramp=[(163.5,76.15),*M.bezier((163.5,76.5),(168,76.8),(174,82.4),(176,83),12),
@@ -404,9 +476,12 @@ def cylinder():
  reg(star,'Extractor',.10,2)
  lathe('Extractor_LatchHub',[(35.65,1.75),(35.65,3.1),(39.6,3.1),(39.6,1.75)],
        'steel','Extractor',center=(0,CY),n=32,closed=True)
- lathe('Extractor_Rod',[(REAR-1.2,0),(REAR-1.2,1.5),(182.0,1.5),(182.5,1.3),(182.5,0)],
+ # Keep the accepted concealed journals and axial endpoints. Only the
+ # exposed forward shaft grows; it still passes through the original yoke.
+ lathe('Extractor_Rod',[(REAR-1.2,0),(REAR-1.2,1.5),(111.0,1.5),
+  (112.0,2.6),(112.7,2.9),(182.0,2.9),(182.5,2.7),(182.5,0)],
        'steel','Extractor',center=(0,CY),n=24)
- lathe('Ejector_Tip',[(180,0),(180,1.65),(183.2,1.65),(183.8,1.4),(183.8,0)],
+ lathe('Ejector_Tip',[(180,0),(180,3.0),(180.3,3.2),(183.2,3.2),(183.8,2.8),(183.8,0)],
        'steel','Extractor',center=(0,CY),n=32)
  for i in range(6):
   t=i*math.tau/6
@@ -562,7 +637,7 @@ def finalize(o):
  # Budget actual finalized triangles; Boolean cap tessellation can cost more
  # than a pre-triangulation ngon count. Fine hardware relief belongs in bake.
  limits={'Cylinder_Fluted':7700,'Frame_Forging':3500,'Grip_RubberMold':4200,
-  'Barrel':2200,'Speedloader_Body':1200,'Speedloader_Release':310,'TriggerGuard_ForgedBow':700,
+  'Barrel':2500,'Speedloader_Body':1200,'Speedloader_Release':310,'TriggerGuard_ForgedBow':700,
   'Extractor_Star':750,'Crane_Yoke':850,'Trigger_Shoe':550,'Hammer_Body':1950,
   'Frame_Sideplate':320,'Hammer_ThumbSpur':1450,'Latch_Thumbpiece':680,
   'RearSight_Leaf':250,'RearSight_NotchBody':400,'Crane_PivotSupport':180}
@@ -618,33 +693,20 @@ def finalize(o):
      if n.dot(f.normal)>.5:normals[j]=n
    if abs(f.normal.y)>.9999:
     for j in f.loop_indices:normals[j]=Vector((0,1 if f.normal.y>0 else -1,0))
- if o.name=='Barrel':
-  outline=[Vector(p) for p in OUTLINES['Barrel']];fields=[]
-  for i,p in enumerate(outline):
-   t0=(p-outline[i-1]).normalized();t1=(outline[(i+1)%len(outline)]-p).normalized()
-   t=(t0+t1).normalized();fields.append(Vector((-t.y,0,t.x)))
-  def outer_field(v):
-   point=Vector((v.x,v.z));best=None
-   for i,a in enumerate(outline):
-    b=outline[(i+1)%len(outline)];ab=b-a
-    u=max(0,min(1,(point-a).dot(ab)/ab.length_squared))
-    distance=(point-(a+ab*u)).length
-    if best is None or distance<best[0]:best=(distance,(fields[i]*(1-u)+fields[(i+1)%len(fields)]*u).normalized())
-   return best
+ if o.name in SKIN_FIELDS:
+  tree,points,triangles,field=SKIN_FIELDS[o.name]
   for f in o.data.polygons:
-   if abs(f.normal.y)>.15:continue
-   values=[outer_field(o.data.vertices[i].co) for i in f.vertices]
-   if all(d<.06 and n.dot(f.normal)>.7 for d,n in values):
-    for j,(_,n) in zip(f.loop_indices,values):normals[j]=n
- if o.name=='Barrel':
-  for f in o.data.polygons:
-   c=f.center
-   if c.y>MUZZLE-8.5 and 42.3<c.z<52.0 and max(o.data.vertices[i].co.z for i in f.vertices)<52.6 and f.normal.y>.25:
-    for j in f.loop_indices:
-     p=o.data.vertices[o.data.loops[j].vertex_index].co
-     u=max(0,min(1,(54-p.z)/3));u=u*u*(3-2*u)
-     q=p.y-(MUZZLE-7)+(1.2+2.1*(p.x/9.5)**2)*u
-     normals[j]=Vector((q/49*4.2*p.x/9.5**2*u,q/49,(p.z-55)/(12.65**2))).normalized()
+   if o.name=='Frame_Forging':
+    if not (f.center.y<28 and f.center.z>40):continue
+    nearest=tree.find_nearest(f.center)
+    if nearest[0] is None or nearest[3]>.15:continue
+   for j in f.loop_indices:
+    v=o.data.vertices[o.data.loops[j].vertex_index].co
+    p,_,index,distance=tree.find_nearest(v)
+    if p is None or distance>(.20 if o.name=='Frame_Forging' else .035):continue
+    ids=triangles[index]
+    n=barycentric_transform(p,*[points[k] for k in ids],*[field[k] for k in ids]).normalized()
+    if n.dot(f.normal)>.70:normals[j]=n
  if o.name in ('Cylinder_Fluted','Barrel'):
   for f in o.data.polygons:
    if abs(f.normal.y)>.9999:
