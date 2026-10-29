@@ -16,7 +16,7 @@ sys.path.insert(0,str(ROOT))
 from kit import export, model as G, weapon as W
 from kit import detachable_textures as D, detachable_verify as V
 from kit.gltf import GLB,stabilize_tangents
-from kit.image_io import write_png
+from kit.image_io import write_png,read_png
 
 # Exercise the opaque-alpha specular idiom used by real deliverables.
 original_material = export.atlas_material
@@ -136,6 +136,15 @@ for state in ('loaded','empty','tilt'):
 repeat=out/'repeat';deliver(opted,repeat)
 for name in ('main','loaded','empty','tilt'):
     assert (small/(name+'.glb')).read_bytes()==(repeat/(name+'.glb')).read_bytes()
+# Explicit exporter option reaches the cluster path without changing main bytes.
+cluster_config={**base,'DETACHABLES':[{**r,'texture_size':1024,'texture_clusters':True}
+                                     for r in base['DETACHABLES']]}
+deliver(cluster_config,out/'cluster-option')
+assert (out/'cluster-option/main.glb').read_bytes()==(legacy/'main.glb').read_bytes()
+for state in ('loaded','empty','tilt'):
+    record=json.loads((out/'cluster-option/detachables'/state/'layout.json').read_text())
+    assert record['packing']=='atlas_clusters'
+    V.compare(legacy/(state+'.glb'),out/'cluster-option'/(state+'.glb'))
 # Static variant path uses exactly the same operation; the gun's low-level
 # weapon.detachable() API and all legacy entries remain unchanged.
 static={**base,'EXPORT_ANIMATIONS':False,'DETACHABLES':[], 'EXPORT_TEXTURE_SIZE':1024}
@@ -227,5 +236,46 @@ W.export(out/'dense.glb',[ob],animations=False)
 records['dense_fallback']=dict(comparison=V.compare(out/'dense-legacy.glb',out/'dense.glb'),
     audit=V.audit(out/'dense.glb',textures,'SubsetFixture',out/'dense/layout.json',gun=out/'dense-legacy.glb'),
     mip_bleed=V.mip_bleed(out/'dense.glb',textures,'SubsetFixture',out/'dense/layout.json',gun=out/'dense-legacy.glb'))
+# Neighboring charts retain their atlas margins as a cluster. This cluster is
+# taller than 1024 and has no horizontal gap through its overlapping y ranges.
+# Split around whole islands, duplicating source halos at the empty-margin seam.
+bpy.ops.wm.read_factory_settings(use_empty=True)
+vertices=[];faces=[]
+for index in range(3):
+    start=len(vertices);x=index*.01
+    vertices.extend([(x,0,0),(x+.005,0,0),(x+.005,.02,0),(x,.02,0)])
+    faces.append(tuple(range(start,start+4)))
+mesh=bpy.data.meshes.new('Atlas neighbors');mesh.from_pydata(vertices,[],faces)
+ob=bpy.data.objects.new('Atlas neighbors',mesh);bpy.context.collection.objects.link(ob)
+layer=mesh.uv_layers.new(name='UVMap')
+for face,(ox,oy,height) in zip(mesh.polygons,((100,100,850),(124,600,850),(100,960,800))):
+    for loop,(x,y) in zip(face.loop_indices,((0,0),(12,0),(12,height),(0,height))):
+        layer.data[loop].uv=((ox+x+.27)/2048,(oy+y+.39)/2048)
+ob.data.materials.append(export.atlas_material('SubsetFixture',textures))
+W.export(out/'cluster-legacy.glb',[ob],animations=False)
+layout=D.extract([ob],textures,'SubsetFixture',out/'clusters',1024,clusters=True)
+assert layout['packing']=='atlas_clusters' and layout['original_cluster_count']==1
+assert len(layout['regions'])==3 and layout['splits']
+W.export(out/'clusters.glb',[ob],animations=False)
+records['clusters']=dict(comparison=V.compare(out/'cluster-legacy.glb',out/'clusters.glb'),
+    audit=V.audit(out/'clusters.glb',textures,'SubsetFixture',out/'clusters/layout.json',gun=out/'cluster-legacy.glb'),
+    mip_bleed=V.mip_bleed(out/'clusters.glb',textures,'SubsetFixture',out/'clusters/layout.json',gun=out/'cluster-legacy.glb'))
+# Every copied region, including nonmember atlas texels and original margins,
+# remains byte-exact; the outside fill is the only generated part.
+images=V.maps(GLB(out/'clusters.glb'))
+for channel,image in images.items():
+    source=read_png(textures/f'T_SubsetFixture_{channel}.png')[::-1]
+    for region in layout['regions']:
+        x,y=region['destination_origin'];ox,oy=region['source_origin'];w,h=region['shape']
+        assert np.max(np.abs(image[::-1][y:y+h,x:x+w]-source[oy:oy+h,ox:ox+w]))<1e-7
+# Repeat extraction from the original UVs proves deterministic cluster packing.
+for row in layout['islands']:
+    offset=np.array(row['destination_origin'])-row['source_origin']
+    for loop in row['loops']:layer.data[loop].uv=(np.array(layer.data[loop].uv)*1024-offset)/2048
+ob.data.materials.clear();ob.data.materials.append(export.atlas_material('SubsetFixture',textures))
+repeat_layout=D.extract([ob],textures,'SubsetFixture',out/'clusters-repeat',1024,clusters=True)
+assert repeat_layout['regions']==layout['regions']
+for channel in D.CHANNELS:
+    assert Path(layout['maps'][channel]).read_bytes()==Path(repeat_layout['maps'][channel]).read_bytes()
 (out/'results.json').write_text(json.dumps(records,indent=2))
 print('DETACHABLE TEXTURES PASS: legacy/main bytes, 512/1024, UV bounds, guards, sampled RGBA/normal/ORM, pointwise box mip bleed, inherited samplers, full fill/unit normals, tangent frame, posed origins, determinism and negative cases')

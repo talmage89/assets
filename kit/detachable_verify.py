@@ -148,6 +148,21 @@ def compare(before, after, *, tolerance=.25/255):
                 tangent_direction_max_delta=tangent_error,tangent_direction_max_angle_degrees=tangent_angle,surface_errors=errors)
 
 
+def _chart_index(pixels, rows, origins, ends):
+    candidates=np.flatnonzero(np.all(pixels.min(axis=0)>=origins-1e-3,axis=1)&
+                              np.all(pixels.max(axis=0)<=ends+1e-3,axis=1))
+    if len(candidates)>1 and 'triangle_pixels' in rows[int(candidates[0])]:
+        # Cluster members may have overlapping bounding boxes. Match the
+        # actual triangle, rather than pretending those boxes are charts.
+        def ordered(a):return a[np.lexsort((a[:,1],a[:,0]))]
+        ordered_pixels=ordered(pixels)
+        candidates=np.array([i for i in candidates if any(
+            np.max(np.abs(ordered(np.asarray(t))-ordered_pixels))<.001
+            for t in rows[int(i)]['triangle_pixels'])],int)
+    assert len(candidates)==1, 'Triangle escaped its protected chart'
+    return int(candidates[0])
+
+
 def audit(path, canonical_folder, asset, layout_path, *, gun=None):
     """Check standalone PNGs, padding, bounds and inverse-mapped atlas samples."""
     g=GLB(Path(path));layout=json.loads(Path(layout_path).read_text());size=layout['size']
@@ -161,11 +176,18 @@ def audit(path, canonical_folder, asset, layout_path, *, gun=None):
         assert all(s.get('minFilter')==9987 and s.get('magFilter')==9729
                    for s in samplers(g).values())
     atlas_size=layout['source_size'];rectangles=[]
-    for row in layout['islands']:
+    clustered=layout.get('packing')=='atlas_clusters'
+    for row in layout.get('regions',layout['islands']):
         origin=np.array(row['destination_origin']);shape=np.array(row['shape']);pad=row['padding']
         assert pad>=6
-        lo=origin-pad;hi=lo+np.array(row.get('guard_shape',shape+2*pad))
-        assert np.all(hi>=origin+shape+pad)
+        if clustered:
+            lo=origin;hi=origin+shape
+            for island in (r for r in layout['islands'] if r['cluster']==len(rectangles)):
+                start=np.array(island['destination_origin'])
+                assert np.all(start>=lo+pad) and np.all(start+island['shape']<=hi-pad)
+        else:
+            lo=origin-pad;hi=lo+np.array(row.get('guard_shape',shape+2*pad))
+            assert np.all(hi>=origin+shape+pad)
         grid=layout.get('mip_grid_px',1)
         assert np.all(lo%grid==0) and np.all(hi%grid==0)
         assert np.all(lo>=0) and np.all(hi<=size)
@@ -181,10 +203,7 @@ def audit(path, canonical_folder, asset, layout_path, *, gun=None):
         points=tri['TEXCOORD_0'].astype(float).copy();points[:,1]=1-points[:,1]
         assert np.all(points>=0) and np.all(points<=1)
         pixels=points*size
-        candidates=np.flatnonzero(np.all(pixels.min(axis=0)>=origins-1e-3,axis=1)&
-                                  np.all(pixels.max(axis=0)<=ends+1e-3,axis=1))
-        assert len(candidates)==1, 'Triangle escaped its protected chart'
-        row=layout['islands'][int(candidates[0])];offset=np.array(row['source_origin'])-row['destination_origin']
+        row=layout['islands'][_chart_index(pixels,layout['islands'],origins,ends)];offset=np.array(row['source_origin'])-row['destination_origin']
         a=(BARYCENTRIC@pixels+offset)/atlas_size;b=BARYCENTRIC@points
         a[:,1]=1-a[:,1];b[:,1]=1-b[:,1]
         source_uv.extend(a);new_uv.extend(b)
@@ -195,8 +214,14 @@ def audit(path, canonical_folder, asset, layout_path, *, gun=None):
                      sample(image,new_uv,color=channel=='BaseColor'))
         errors[channel]=float(delta.max());assert delta.max()<.25/255,(channel,delta.max())
     footprint = _footprint([t['TEXCOORD_0'].astype(float)*size for t in _triangles(g)],(size,size))
-    vectors = images['Normal'][~footprint,:3]*2-1
-    unit_error = float(np.max(np.abs(np.linalg.norm(vectors,axis=1)-1)))
+    generated=~footprint
+    if clustered:
+        # Atlas margins are copied data, not generated normals.
+        generated=np.ones((size,size),bool)
+        for lo,hi in rectangles:
+            generated[size-hi[1]:size-lo[1],lo[0]:hi[0]]=False
+    vectors = images['Normal'][generated,:3]*2-1
+    unit_error = float(np.max(np.abs(np.linalg.norm(vectors,axis=1)-1))) if len(vectors) else 0.
     assert unit_error < .007, ('Generated normal is not unit length',unit_error)
     return dict(size=size,triangles=len(new_uv)//len(BARYCENTRIC),surface_samples=len(new_uv),
                 padding_px=layout['padding_px'],source_density_px_m=layout['source_density_px_m'],
@@ -326,10 +351,13 @@ def mip_bleed(path, canonical_folder, asset, layout_path, *, gun=None,
     ends = origins+shapes; groups = [[] for _ in rows]
     for tri in _triangles(g):
         pixels = tri['TEXCOORD_0'].astype(float)*size
-        candidates = np.flatnonzero(np.all(pixels.min(axis=0)>=origins-1e-3,axis=1)&
-                                    np.all(pixels.max(axis=0)<=ends+1e-3,axis=1))
-        assert len(candidates)==1, 'Triangle escaped protected chart'
-        groups[int(candidates[0])].append(pixels)
+        if layout.get('packing')=='atlas_clusters':
+            bottom=pixels.copy();bottom[:,1]=size-bottom[:,1]
+            starts=np.array([r['destination_origin'] for r in rows])
+            index=_chart_index(bottom,rows,starts,starts+shapes)
+        else:
+            index=_chart_index(pixels,rows,origins,ends)
+        groups[index].append(pixels)
     cutoffs = []
     for triangles in groups:
         extent = np.ptp(np.asarray(triangles).reshape(-1,2),axis=0)

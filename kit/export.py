@@ -165,7 +165,8 @@ def main():
         if 'texture_size' in spec:
             from kit import detachable_textures
             subset=detachable_textures.extract([detached],Path(a.textures).resolve(),a.asset,
-                Path(a.report).resolve().parent/'detachables'/path.stem,spec['texture_size'])
+                Path(a.report).resolve().parent/'detachables'/path.stem,spec['texture_size'],
+                clusters=spec.get('texture_clusters',False))
         weapon.export(path,[detached],animations=False)
         detachments.append(dict(file=spec['filename'],bytes=path.stat().st_size,
                                 clip=spec.get('clip'),frame=spec.get('frame',0),bone=spec['bone']))
@@ -179,7 +180,7 @@ def main():
         from kit import detachable_textures
         subset=detachable_textures.extract(objects,Path(a.textures).resolve(),a.asset,
             Path(a.report).resolve().parent/'detachables'/Path(a.out).stem,
-            cfg['EXPORT_TEXTURE_SIZE'],layer='BakeUV')
+            cfg['EXPORT_TEXTURE_SIZE'],layer='BakeUV',clusters=cfg.get('EXPORT_TEXTURE_CLUSTERS',False))
     for (parent,name),members in groups.items():
         asset_set=members[0].get('asset_set',a.asset)
         bpy.ops.object.select_all(action='DESELECT')

@@ -132,7 +132,7 @@ def _pull_push(values, valid):
     return levels[0][0]
 
 
-def extract(objects, folder, asset, output, size, *, layer='UVMap'):
+def extract(objects, folder, asset, output, size, *, layer='UVMap', clusters=False):
     """Replace copied meshes' atlas UVs/material images with their own map set.
 
     ``size`` is exactly 512 or 1024. Fail rather than reduce source texel
@@ -174,41 +174,48 @@ def extract(objects, folder, asset, output, size, *, layer='UVMap'):
     target_size = size
     # Prefer 8px, but retain the caller's small size with the atlas-equivalent
     # 6px minimum when grid alignment already supplies the same mip protection.
-    for padding in sorted({max(PADDING,block//2),max(MIN_PADDING,block//2)},reverse=True):
-        rectangles = [tuple(map(int,(i['shape']+2*padding+block-1)//block)) for i in islands]
-        positions = _pack(rectangles,target_size//block)
-        if positions is not None:
-            positions = [(x*block,y*block) for x,y in positions]
-            break
-    if positions is None:
-        raise ValueError(f'Detachable cannot fit {size} at original density with {padding}px grid-aligned padding')
-    result = {c:np.zeros((target_size,target_size,a.shape[2]),np.float32) for c,a in arrays.items()}
-    occupied = np.zeros((target_size,target_size),bool)
-    surface = np.zeros_like(occupied)
-    records = []
-    # Calculate footprints before changing any UVs.
-    masks = [_mask(i['ob'].data, i['ob'].data.uv_layers[layer], i['loops'],
-                   i['lo'], i['shape'], source_size) for i in islands]
-    for island, (x,y), mask, rectangle in zip(islands, positions, masks, rectangles):
-        width,height = map(int,island['shape']); ox,oy = map(int,island['lo'])
-        guard_width,guard_height = (v*block for v in rectangle)
-        right = guard_width-width-padding; top = guard_height-height-padding
-        for channel, source in arrays.items():
-            # Match the canonical atlas's repeat sampling on its outer border.
-            patch = source[np.arange(oy,oy+height)%source_size][:,np.arange(ox,ox+width)%source_size]
-            valid = np.pad(mask, ((padding,top),(padding,right)))
-            patch = np.pad(patch, ((padding,top),(padding,right),(0,0)))
-            result[channel][y:y+guard_height,x:x+guard_width] = _dilate(patch, valid)
-        occupied[y:y+guard_height,x:x+guard_width] = True
-        surface[y+padding:y+padding+height,x+padding:x+padding+width] = mask
-        data = island['ob'].data.uv_layers[layer].data
-        offset = np.array((x+padding,y+padding))-island['lo']
-        for i in island['loops']:
-            data[i].uv = (np.array(data[i].uv)*source_size+offset)/target_size
-        records.append(dict(object=island['ob'].name,loops=island['loops'],
-                            source_origin=island['lo'].tolist(),shape=island['shape'].tolist(),
-                            destination_origin=[x+padding,y+padding],padding=padding,
-                            guard_origin=[x,y],guard_shape=[guard_width,guard_height]))
+    cluster_report = None
+    if clusters:
+        from kit import detachable_clusters
+        result,occupied,surface,records,cluster_report = detachable_clusters.copy(
+            islands,arrays,size,block,layer)
+        padding=block
+    else:
+        for padding in sorted({max(PADDING,block//2),max(MIN_PADDING,block//2)},reverse=True):
+            rectangles = [tuple(map(int,(i['shape']+2*padding+block-1)//block)) for i in islands]
+            positions = _pack(rectangles,target_size//block)
+            if positions is not None:
+                positions = [(x*block,y*block) for x,y in positions]
+                break
+        if positions is None:
+            raise ValueError(f'Detachable cannot fit {size} at original density with {padding}px grid-aligned padding')
+        result = {c:np.zeros((target_size,target_size,a.shape[2]),np.float32) for c,a in arrays.items()}
+        occupied = np.zeros((target_size,target_size),bool)
+        surface = np.zeros_like(occupied)
+        records = []
+        # Calculate footprints before changing any UVs.
+        masks = [_mask(i['ob'].data, i['ob'].data.uv_layers[layer], i['loops'],
+                       i['lo'], i['shape'], source_size) for i in islands]
+        for island, (x,y), mask, rectangle in zip(islands, positions, masks, rectangles):
+            width,height = map(int,island['shape']); ox,oy = map(int,island['lo'])
+            guard_width,guard_height = (v*block for v in rectangle)
+            right = guard_width-width-padding; top = guard_height-height-padding
+            for channel, source in arrays.items():
+                # Match the canonical atlas's repeat sampling on its outer border.
+                patch = source[np.arange(oy,oy+height)%source_size][:,np.arange(ox,ox+width)%source_size]
+                valid = np.pad(mask, ((padding,top),(padding,right)))
+                patch = np.pad(patch, ((padding,top),(padding,right),(0,0)))
+                result[channel][y:y+guard_height,x:x+guard_width] = _dilate(patch, valid)
+            occupied[y:y+guard_height,x:x+guard_width] = True
+            surface[y+padding:y+padding+height,x+padding:x+padding+width] = mask
+            data = island['ob'].data.uv_layers[layer].data
+            offset = np.array((x+padding,y+padding))-island['lo']
+            for i in island['loops']:
+                data[i].uv = (np.array(data[i].uv)*source_size+offset)/target_size
+            records.append(dict(object=island['ob'].name,loops=island['loops'],
+                                source_origin=island['lo'].tolist(),shape=island['shape'].tolist(),
+                                destination_origin=[x+padding,y+padding],padding=padding,
+                                guard_origin=[x,y],guard_shape=[guard_width,guard_height]))
     # Pull-push fills the remaining background in linear time, even when a
     # large requested map is mostly empty. Guard rectangles remain untouched.
     for channel,array in result.items():
@@ -269,5 +276,9 @@ def extract(objects, folder, asset, output, size, *, layer='UVMap'):
                   islands=records,maps=paths,
                   sampling='Inherited exporter sampler; mipmaps, grid-aligned island guards, fully dilated background',
                   fill='Island dilation plus background pull-push; generated normals normalized; original footprint unchanged')
+    if cluster_report is not None:
+        report.update(cluster_report)
+        report['packing']='atlas_clusters'
+        report['fill']='Whole atlas regions and their existing margins copied exactly; outside pull-push; generated normals normalized'
     (output/'layout.json').write_text(json.dumps(report,indent=2))
     return report

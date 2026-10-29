@@ -757,6 +757,30 @@ measured separately by the regression. Request the smallest supported size that
 fits; packing fails rather than reducing density. Material copies preserve
 uniform factors, extensions and independent data in BaseColor alpha.
 
+For neighborhoods with many nearby islands, an entry may additionally select
+`texture_clusters=True` (or `EXPORT_TEXTURE_CLUSTERS=True` for a static export).
+`detachable_clusters.py` joins islands whose 6-pixel guarded sampling masks
+touch or overlap in the source atlas. It copies each resulting neighborhood's
+whole atlas region, including its existing internal margins and nonmember
+texels. These are **kept exactly as copied**, rather than independently dilating
+each island. Regions receive a full protected mip block of outer atlas halo
+(8 pixels through mip 3), with source and destination borders on that grid.
+Both source and destination origins are integers, and their difference is a
+multiple of the protected mip block, preserving the atlas filtering phase.
+
+An oversized neighborhood is partitioned around **whole islands** along their
+existing empty margins. A band admits only islands whose complete vertical
+extent fits; the seam detours around crossing islands. Each part copies a
+bounding rectangle plus its source halo. These source crops may overlap and
+contain duplicate nonmember charts; the destination rectangles are disjoint.
+No island is cut, rotated, mirrored, resampled or reduced in density. The
+outside background alone uses pull-push and generated-normal normalization;
+original atlas normal texels, including copied margins, remain exact. The layout
+records original component count, final regions, split membership and each
+island's triangles, so overlapping chart boxes cannot confuse verification.
+This option still fails if it cannot fit losslessly. Leave it off to preserve
+an already accepted island-packed map with no allocation saving.
+
 Each chart retains its original bilinear sampling footprint, with **at least
 6 pixels of additional dilation** from that chart alone (the 2048 gun atlas's
 12-at-4096 bake margin is effectively 6). Guards occupy disjoint rectangles
@@ -793,6 +817,10 @@ kit/test_detachable_textures.py` in a fresh process (no bake/GPU required).
 It exports the same loaded, empty and tilted detachables both ways, checks main
 GLB byte identity, legacy image bytes, 512/1024 dimensions, bounds, disjoint
 guards, deterministic output, static variants and negative configuration cases.
+A clustered fixture checks full-region byte copying, an oversized neighborhood
+split around intact islands, overlapping source halos, deterministic output,
+base-level sampling and per-island mip bleed. The exporter option also checks
+main GLB identity. No fixture reduces density or resamples a surface.
 A dense 400-island fixture proves the 6-pixel fallback retains 512, density
 and mip-3 isolation; a large-island fixture verifies protection through mip 6.
 `detachable_verify.py` independently reads raw GLB accessors and material texture
