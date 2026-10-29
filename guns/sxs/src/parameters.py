@@ -8,11 +8,11 @@ SPACING=25.2
 HINGE=(0,170,19)
 OPEN=-42.0
 LIFT=-10.0
-EYE=(0,-65,65.2)
+EYE=(0,-123,67.0)
 BUTT=-304.6
 HEADS={'Root':(0,0,0),'Barrels':HINGE,'Forend':HINGE,'Extractor':(0,BREECH,BORE),
  'TopLever':(0,94,53),'Safety':(0,5,23),'Trigger':(2.6,64,4),
- 'TriggerRear':(-2.6,43,4),'LockBolt':(0,130,13),
+ 'TriggerRear':(-2.6,31,4),'LockBolt':(0,130,13),
  **{name+side:(x,BREECH,BORE) for side,x in [('R',12.6),('L',-12.6)]
  for name in ('Live','Hull','InsertGuide','Insert')}}
 PARENTS={'Forend':'Barrels','Extractor':'Barrels',

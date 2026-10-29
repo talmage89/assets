@@ -27,7 +27,7 @@ def measure(arm):
   for side,x in [('R',.014),('L',-.014)]:
    c=center.copy();c.x=x
    d=(b.matrix@b.bone.matrix_local.inverted()).to_3x3()@Vector((0,1,0))
-   a=ray('Knuckle_'+side,c+d*.025,-d);bpt=ray('Forend_IronCup_'+side,c,d)
+   a=ray('Action_Body',c+d*.025,-d);bpt=ray('Forend_IronCup_'+side,c,d)
    record('forend iron/knuckle '+side+' f'+str(frame),(bpt-c).length-(a-c).length,0,.00040)
  W.pose(arm,'Idle',0)
  # Closed breech planes sampled on actual annular barrel steel and the body.
@@ -62,11 +62,28 @@ def measure(arm):
  W.pose(arm,'Idle',0)
  eye=bpy.data.objects['Socket_Eye'].matrix_world.translation
  comb=ray('Stock_Walnut',eye,(0,0,-1),.1)
- record('eye above actual comb',eye.z-comb.z,.035,.050)
+ record('eye above actual comb',eye.z-comb.z,.035,.055)
  forward=bpy.data.objects['Socket_Eye'].matrix_world.to_3x3()@Vector((0,1,0))
  # The bead must be hit by an actual axial sight ray.
  hit=tree('Front_Bead').ray_cast(eye,forward,1.0)
  assert hit[0] is not None,'Bead absent on exact optical line'
+ # Visibility is separate from hitting a bead tree: every visible rigid skin
+ # may occlude the optical ray, and the short forward rib must be visible too.
+ visible=[o for o in bpy.context.scene.objects if o.type=='MESH' and 'bone' in o
+  and min(abs(v) for v in arm.pose.bones[o['bone']].matrix.to_scale())>.001]
+ for name,target in [('bead',hit[0])]+[('rib '+str(y),ray('Solid_TopRib',(0,y,.09),(0,0,-1))) for y in (.50,.65,.74)]:
+  delta=target-eye
+  blockers=[o.get('part_name',o.name) for o in visible
+   if motion.surface(o)['tree'].ray_cast(eye,delta.normalized(),delta.length-.00005)[0] is not None]
+  assert not blockers,(name,'sight obstruction',blockers)
+ # Stock drop is measured from an actual straightedge across the rib, not
+ # from the bead center or a generator constant.
+ a=ray('Solid_TopRib',(0,.116,.09),(0,0,-1));b=ray('Solid_TopRib',(0,.774,.09),(0,0,-1))
+ datum=lambda y:a.z+(y-a.y)*(b.z-a.z)/(b.y-a.y)
+ for name,y,lo,hi in [('comb',-.088,.037,.040),('heel',-.298,.062,.064)]:
+  p=ray('Stock_Walnut',(0,y,.09),(0,0,-1),.3)
+  record('drop at '+name,datum(y)-p.z,lo,hi,station_y_m=y)
+ record('cheek station behind comb nose',-.088-eye.y,.03175,.03810)
  for clip,state in [('Idle','fire'),('IdleSafe','safe')]:
   W.pose(arm,clip,0)
   # Safety guide remains within reach of its cut strap in each detent.

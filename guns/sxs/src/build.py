@@ -16,9 +16,8 @@ from parameters import *
 from clips import build_clips
 
 PARTS=[];HIGH=[];MAT={}
-ACTION_STATIONS=[(36,16.6,3,44),(37,16.8,3,44.5),(43,17.5,3.5,46),
- (57,19.8,4,49),(77,22.4,4.8,52.5),(94,24.5,6,55),
- (104,26,7,57.5),(114.5,26.1,7,57.7),(115,26.1,7,57.7)]
+ACTION_STATIONS=[(70,22.0,5,50),(72,22.2,5.2,50.6),(77,22.8,5.5,52),
+ (94,24.8,6,55),(104,27.3,7,57.5),(114.5,27.4,7,57.5),(115,27.4,7,57.5)]
 def action_section(y):
  i=next((i for i in range(len(ACTION_STATIONS)-1) if y<=ACTION_STATIONS[i+1][0]),len(ACTION_STATIONS)-2)
  a,b=ACTION_STATIONS[i:i+2];h=b[0]-a[0];t=max(0,min(1,(y-a[0])/h));values=[]
@@ -33,14 +32,19 @@ def action_section(y):
  return values
 def action_roof(x,y):
  w,_,top=action_section(y)
- arch=math.sqrt(max(.000001,1-(x/w)**2));blend=max(0,min(1,(y-76)/28));blend=blend*blend*(3-2*blend)
- lobe=44+math.sqrt(max(0,13.7**2-(abs(x)-12.6)**2));land=top-3.8
- # A small central strap land joins the rounded fences without a knife valley.
- lobe=.5*(lobe+land+math.sqrt((lobe-land)**2+.30**2))
- # A soft minimum rolls the fence into its top land. A literal min leaves a
- # moving crease across decimated triangles, visible as a sawtooth highlight.
- crown=.5*(top+lobe-math.sqrt((top-lobe)**2+.8**2))
- return (top-7+7*arch)*(1-blend)+crown*blend
+ # Fence shoulders follow the chamber crowns all the way to the side flats.
+ # The central top-strap land is narrow; no full-width flat roof.
+ t=max(0,min(1,(y-94)/17));t=t*t*(3-2*t)
+ u=max(0,min(1,(y-70)/20));u=u*u*(3-2*u)
+ rear=top-8+8*math.sqrt(max(0,1-(x/w)**2))-3*u
+ lobe=44+math.sqrt(max(0,14.8**2-(abs(x)-12.6)**2))
+ land=top-2.6
+ central=math.exp(-(x/6.5)**2)
+ fence=lobe*(1-central)+land*central
+ return rear*(1-t)+fence*t
+def rear_seam(z):
+ # A gently bowed forging end; the wood head wraps it after carving.
+ return -5.0*math.sin(math.pi*max(0,min(1,(z-3)/38)))
 def materials():
  for name,color,metal,rough in [('blue',(.014,.016,.019),.85,.39),
   ('wood',(.065,.025,.010),0,.46),('plate',(.016,.015,.013),0,.56),
@@ -54,6 +58,15 @@ def clean(ob,dist=.00003):
  bm=bmesh.new();bm.from_mesh(ob.data)
  bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=dist)
  bmesh.ops.dissolve_degenerate(bm,dist=dist,edges=list(bm.edges))
+ # A Boolean inlet may leave a folded triangular flap attached along one
+ # edge. Remove only this bounded, topologically identified remnant; closing
+ # its two exposed edges would create a fourth face on the attached edge.
+ flaps=[f for f in bm.faces if len(f.verts)==3 and max(e.calc_length() for e in f.edges)<.6
+  and sum(e.is_boundary for e in f.edges)==2 and any(len(e.link_faces)==3 for e in f.edges)]
+ if flaps:
+  bmesh.ops.delete(bm,geom=flaps,context='FACES')
+  loose=[v for v in bm.verts if not v.link_faces]
+  if loose:bmesh.ops.delete(bm,geom=loose,context='VERTS')
  boundary=[e for e in bm.edges if e.is_boundary]
  if boundary and len(boundary)==3 and max(e.calc_length() for e in boundary)<.5:
   bmesh.ops.holes_fill(bm,edges=boundary,sides=0)
@@ -84,6 +97,7 @@ def reduce(ob,target):
  return ob
 def high_copy(ob):
  h=ob.copy();h.data=ob.data.copy();bpy.context.collection.objects.link(h);h.name='HIGH_'+ob.name
+ [h.pop(k,None) for k in ('bone','asset_set','part_name')]
  h['bake_only']=True;h['low_target']=ob.name;h['source_method']='three-dimensional subdivision cage'
  HIGH.append(h);return h
 def curved_mesh(name,loops,mat,bone,*,level=0,target=None,high=False):
@@ -113,29 +127,51 @@ def screw(name,x,y,z,r=2.4,axis='X',bone='Root',mat='dark'):
  return ob
 
 def action():
- # One rounded forged body with changing width/height and two rounded fences.
+ # Continuous forging: radiused lower edge, planar side lands and crown.
  loops=[]
- for y in sorted({a[0] for a in ACTION_STATIONS}|set(range(38,115,2))):
-  w,bot,top=action_section(y)
-  # Long side lands, a radiused belly and lobed roof. Top tangency flows into
-  # the barrel fences, rather than two round caps perched on a rectangular box.
+ for y in sorted({a[0] for a in ACTION_STATIONS}|set(range(74,115,2))):
+  w,bot,top=action_section(y);pts=[]
+  for i in range(65):
+   theta=math.pi*i/64;x=-w*math.cos(theta)
+   pts.append((x,y,action_roof(x,y)))
+  # Elliptical belly transition gives broad radii without rounding the flats.
+  shoulder=7.0
+  pts += [(w,y,bot+shoulder)]
+  for i in range(1,13):
+   t=math.pi/2*i/12;pts.append((w-shoulder+shoulder*math.cos(t),y,bot+shoulder-shoulder*math.sin(t)))
+  pts += [(-w+shoulder,y,bot)]
+  for i in range(1,13):
+   t=math.pi/2*i/12;pts.append((-w+shoulder-shoulder*math.sin(t),y,bot+shoulder-shoulder*math.cos(t)))
+  fade=max(0,1-(y-70)/20)**2
+  loops.append([(x,yy+rear_seam(z)*fade,z) for x,yy,z in pts])
+ # The bar continues the same side lands and lower radii. The front plane
+ # between the last crown and the first low table loop is the standing breech.
+ for y,w,bot,top in [(115.001,27.4,7,30.2),(125,26.3,7,30.2),(145,24,7.5,29),(157,22.6,8,27),(171,21.5,8,26)]:
   pts=[]
   for i in range(65):
-   x=-w+2*w*i/64
-   z=action_roof(x,y)
-   pts.append((x,y,z))
-  pts += [(w,y,bot+4),(w-1.2,y,bot+1.2),(w-4,y,bot),(-w+4,y,bot),(-w+1.2,y,bot+1.2),(-w,y,bot+4)]
+   x=-w*math.cos(math.pi*i/64);dx=max(0,abs(x)-(w-4.5))
+   z=top-4.5+math.sqrt(max(0,4.5**2-dx**2));pts.append((x,y,z))
+  pts.append((w,y,bot+7))
+  pts += [(w-7+7*math.cos(math.pi/2*i/12),y,bot+7-7*math.sin(math.pi/2*i/12)) for i in range(1,13)]
+  pts.append((-w+7,y,bot))
+  pts += [(-w+7-7*math.sin(math.pi/2*i/12),y,bot+7-7*math.cos(math.pi/2*i/12)) for i in range(1,13)]
   loops.append(pts)
- body=M.loft('Action_Body',loops,MAT['blue'])
- roof_tag=body.data.attributes.new('SXS_Roof','INT','FACE')
- nc=len(loops[0]);surface_faces=(len(loops)-1)*nc
- for f in body.data.polygons:roof_tag.data[f.index].value=int(f.index<surface_faces and f.index%nc<64)
- # The open water table is a shallow continuation with a real central floor
- # slot. It is not a solid rectangular block beneath the barrels.
- bed=M.loft('Table raw',[[(x,y,z+(bot+top)/2) for x,z in M.rounded_rectangle(w*2,top-bot,2.8,8)] for y,w,bot,top in
-  [(113,26.0,7,30.2),(125,25.8,7,30.2),(145,25.1,7,29.5),(156,24.2,7.5,26),(169,22.5,9,24)]],MAT['blue'])
- cut(body,bed,'UNION')
- cutbox(body,(-6.4,116,-8),(6.4,178,32))
+ # The rear interface is a curved surface. A planar ngon cannot cap it;
+ # use a ruled triangle fan, hidden by the fitted wood, before machining.
+ nc=len(loops[0]);vs=[p for loop in loops for p in loop]
+ fs=[(j*nc+i,j*nc+(i+1)%nc,(j+1)*nc+(i+1)%nc,(j+1)*nc+i) for j in range(len(loops)-1) for i in range(nc)]
+ center=len(vs);vs.append((0,70+rear_seam(27.5),27.5))
+ fs += [(center,(i+1)%nc,i) for i in range(nc)]
+ fs += [tuple(range((len(loops)-1)*nc,len(loops)*nc))]
+ body=M.mesh('Action_Body',vs,fs,MAT['blue'])
+ # The knuckle's transverse cheeks belong to the forging, with rolled end
+ # shoulders. They retain the accepted circular bearing radius at x=14 mm.
+ for side in (-1,1):
+  prof=[(6.7,0),(6.7,10.8),(7.9,12),(20.2,12),(21.5,10.7),(21.5,0)]
+  prof=[(side*x,r) for x,r in prof]
+  cut(body,lathe('Knuckle tool',prof,axis='X',center=(170,19),n=64,raw=True),'UNION')
+ cutbox(body,(-6.4,116,-8),(6.4,184,32))
+ cut(body,lathe('Hinge bore',[(-27,0),(-27,4.15),(27,4.15),(27,0)],axis='X',center=(170,19),n=50,raw=True))
  # Two pin bushings, recessed in the standing breech. Their dark centers are
  # visible representations only; no firing-pin geometry or working bores.
  for side,x in [('R',12.6),('L',-12.6)]:
@@ -148,25 +184,21 @@ def action():
  cut(body,lathe('Tool',[(48.9,0),(48.9,4.25),(59,4.25),(59,0)],axis='Z',center=(0,94),n=48,raw=True))
  # Trigger plate wells are relieved through the underside.
  cutbox(body,(-7.4,39,-5),(7.4,78,11))
- reg(body,radius=.65);reduce(body,4300)
- # Hinge pin is continuous; the two knuckle cheeks leave the hook visible.
- lathe('Hinge_Pin',[(-23,0),(-23,4.10),(23,4.10),(23,0)],'steel',axis='X',center=(170,19),n=48)
+ reg(body,radius=.55);high_copy(body);reduce(body,5400)
+ # Flush cross-pin ends: no proud disc or large slotted screw at the hinge.
+ lathe('Hinge_Pin',[(-21.5,0),(-21.5,3.85),(-21.25,4.10),(21.25,4.10),(21.5,3.85),(21.5,0)],'dark',axis='X',center=(170,19),n=48)
  for side in (-1,1):
-  a,b=sorted((side*6.7,side*23))
-  lathe('Knuckle_'+('R' if side>0 else 'L'),[(a,4.15),(a,12),(b,12),(b,4.15)],'blue',axis='X',center=(170,19),n=32,closed=True)
-  screw('Hinge_Head',side*23,170,19,3.2)
- for side in (-1,1):
-  for y,z,r in [(55,26,2.7),(88,19,2.2)]:screw('Action_CrossPin',side*(action_section(y)[0]-.15),y,z,r)
+  for y,z,r in [(79,26,2.7),(102,19,2.2)]:screw('Action_CrossPin',side*(action_section(y)[0]-.15),y,z,r)
  # Top strap and lower tang use compound cages, spanning the wood head.
  curved_mesh('Top_Strap',[rounded_loop(y,w,z-1.7,z+1.7,p=3,n=24) for y,w,z in
-  [(-27,3.4,18.8),(-26,4,18.9),(-10,5.8,18.8),(9,7,23.2),(28,8,38.4),(43,9.2,46)]],
+  [(-27,3.4,18.8),(-26,4,18.9),(-10,5.8,18.8),(9,7,23.2),(28,7.7,32.4),(50,8,42),(72,8.8,50.5)]],
   'blue','Root',level=2,target=950)
  curved_mesh('Trigger_Plate',[rounded_loop(y,w,z-1.4,z+1.4,p=4,n=24) for y,w,z in
   [(-22,3.2,-12),(-20,4,-11.5),(5,6.0,-5.5),(27,9.5,2.5),(48,11,5),(76,9,6.0),(86,6.3,7)]],
   'blue','Root',level=1,target=700)
  # Trigger slots are cut after the plate's compound surface is established.
  plate=PARTS[-1]
- for x,y in [(2.6,64),(-2.6,43)]:cutbox(plate,(x-3.8,y-5,-6),(x+3.8,y+11,9))
+ for x,y in [(2.6,64),(-2.6,31)]:cutbox(plate,(x-3.8,y-5,-6),(x+3.8,y+11,9))
  # Distinct shoe translates out of the bites before the opening swing.
  box('Locking_Shoe',(-4,124,10.4),(4,129.9,11.8),'steel','LockBolt',radius=.10)
  box('Locking_Shoe_Upper',(-4,130,13.2),(4,141.9,14.6),'steel','LockBolt',radius=.10)
@@ -194,16 +226,25 @@ def barrels():
     t=math.tau*i/sides;ring.append(len(vertices));vertices.append((x+r*math.cos(t),y,BORE+r*math.sin(t)))
    rings.append(ring)
   faces=[f for a,b in zip(rings,rings[1:]+rings[:1]) for f in bridge(a,b)]
-  ob=reg(M.mesh('Barrel_'+side,vertices,faces,MAT['blue']),'Barrels');ob['tube_axis_sign']=sign
+  ob=M.mesh('Barrel_'+side,vertices,faces,MAT['blue'])
+  if sign>0:cutbox(ob,(-30,114,20),(0,240,70))
+  else:cutbox(ob,(0,114,20),(30,240,70))
+  reg(ob,'Barrels');ob['tube_axis_sign']=sign
  # A solid top rib has a shallow concave matted face; geometry carries its
  # tapered silhouette. Fine matting remains a later normal-bake field.
  loops=[]
- for y,w,z in [(115,4.4,58.2),(116,4.4,58.2),(185,4.0,58.0),(240,3.7,57.6),
-  (500,3.2,57.2),(774.8,2.8,57.0),(775.4,2.8,57.0)]:
-  lower=BORE+barrel_shape(y)[1]*.58
-  pts=[(-w,y,lower),(-w,y,z-.35),(-w+.4,y,z),(-w*.5,y,z-.18),(0,y,z-.25),
-   (w*.5,y,z-.18),(w-.4,y,z),(w,y,z-.35),(w,y,lower)]
-  loops.append(pts)
+ for y,w in [(115,6.4),(116,6.4),(185,5.8),(240,5.3),(500,4.7),(774.8,4.2),(775.4,4.2)]:
+  x,r=barrel_shape(y);r-=.015
+  t0=math.acos(min(1,(x-.05)/r)) if r>x-.05 else 0
+  t1=math.acos((x-w)/r)
+  edge=[(x-r*math.cos(t0+(t1-t0)*i/12),y,BORE+r*math.sin(t0+(t1-t0)*i/12)) for i in range(13)]
+  z=edge[-1][2]
+  top=[(w-2*w*i/16,y,z-.22*math.sin(math.pi*i/16)**2) for i in range(1,17)]
+  other=[(-xx,yy,zz) for xx,yy,zz in edge[-2::-1]]
+  # Solid valley filler, with an actual soldered-seat curved lower face.
+  loops.append(edge+top+other)
+ # Identical loop cardinality is required despite the vanishing breech valley.
+ assert len({len(p) for p in loops})==1
  reg(M.loft('Solid_TopRib',loops,MAT['blue']),'Barrels')
  lower_loops=[]
  for y,w in [(118,3.5),(185,3.0),(240,2.4),(500,2.2),(775.1,2.1)]:
@@ -248,27 +289,48 @@ def barrels():
  rib=next(o for o in PARTS if o.name=='Bottom_Rib');cutbox(rib,(-2.5,114,29.0),(2.5,155,33.4))
  cutbox(rib,(-3.7,114,29),(3.7,119,34))
  # Brass bead is a round object on a seated foot, not an emissive dot.
- lathe('Bead_Foot',[(56.8,0),(56.8,1),(58.5,1),(58.5,0)],'brass','Barrels',axis='Z',center=(0,766),n=24)
- bpy.ops.mesh.primitive_uv_sphere_add(segments=16,ring_count=8,radius=1.3,location=(0,766,59.8))
+ lathe('Bead_Foot',[(52.1,0),(52.1,1),(53.4,1),(53.4,0)],'brass','Barrels',axis='Z',center=(0,766),n=24)
+ bpy.ops.mesh.primitive_uv_sphere_add(segments=16,ring_count=8,radius=1.3,location=(0,766,54.7))
  ob=bpy.context.object;ob.name='Front_Bead';ob.data.materials.append(MAT['brass'])
  ob.data.transform(ob.matrix_world);ob.matrix_world=Matrix.Identity(4);reg(ob,'Barrels')
 
 STOCK=[(-299,21.3,-117,-5),(-298.4,21.3,-117,-5),(-294,21.8,-115,-4),
- (-275,22.1,-107,-1),(-245,22.0,-91,4),(-210,21.6,-73,9),(-175,20.9,-54,14),
- (-145,19.9,-40,18),(-122,18.8,-31,20),(-106,17.5,-25,20.7),
- (-88,16.2,-21,20.7),(-65,15.2,-18.5,20.2),(-38,14.4,-17.7,19.2),
- (-15,14.5,-17.2,18),(0,15,-17,18),(12,15.8,-12,24),(25,16.3,-4,35),
- (35.5,16.55,3,44),(36.5,16.55,3,44),(37,16.55,3,44)]
+ (-275,22.1,-107,-1),(-245,22.0,-91,4),(-210,21.6,-73,9),(-175,20.9,-54,13),
+ (-145,19.9,-40,16),(-122,18.8,-31,18),(-106,17.5,-25,18.7),
+ (-88,16.2,-21,18.7),(-65,16.2,-19.5,19.0),(-38,16.0,-20.5,19.2),
+ (-15,16.1,-20.5,18.5),(0,16.4,-19,20),(12,17.0,-14,26),(25,17.8,-10,31),
+ (45,19.6,-3,41),(60,22.0,3,50),(70,23.0,4,53),(76,23.0,5,53.5)]
+def head_section(y,theta):
+ yy=max(70,y);w,bot,top=action_section(yy)
+ outline=[(-w*math.cos(math.pi*i/64),action_roof(-w*math.cos(math.pi*i/64),yy)-max(0,70-y)*.45) for i in range(65)]
+ outline += [(w,bot+7)]
+ outline += [(w-7+7*math.cos(math.pi/2*i/12),bot+7-7*math.sin(math.pi/2*i/12)) for i in range(1,13)]
+ outline += [(-w+7,bot)]
+ outline += [(-w+7-7*math.sin(math.pi/2*i/12),bot+7-7*math.cos(math.pi/2*i/12)) for i in range(1,13)]
+ c=Vector((0,(bot+top)/2));d=Vector((math.cos(theta),math.sin(theta)))
+ hits=[]
+ for aa,bb in zip(outline,outline[1:]+outline[:1]):
+  a=Vector(aa)-c;e=Vector(bb)-Vector(aa);den=d.x*e.y-d.y*e.x
+  if abs(den)<1e-8:continue
+  t=(a.x*e.y-a.y*e.x)/den;u=(a.x*d.y-a.y*d.x)/den
+  if t>0 and 0<=u<=1:hits.append(t)
+ assert hits
+ margin=-.35
+ return c+d*(min(hits)+margin)
 def wood_loop(y,w,bottom,top,n=40,p=2.25):
  loop=[]
+ p=p+(4.5-p)*max(0,min(1,(y-25)/40))
  for i in range(n):
   t=math.tau*i/n;c=math.cos(t);s=math.sin(t)
   x=w*math.copysign(abs(c)**(2/p),c)
   # A narrower comb rolls into full cheeks and an oval wrist, independently
   # of the lengthwise silhouette. Butt pitch fades forward.
-  x*=1-.16*max(0,s)**4
+  x*=1-.16*max(0,s)**4*(1-max(0,min(1,(y-25)/40)))
   z=(top+bottom)/2+(top-bottom)/2*math.copysign(abs(s)**(2/2.15),s)
   yy=y+.075*(-5-z)*max(0,min(1,(-275-y)/24))
+  blend=max(0,min(1,(y-25)/35));blend=blend*blend*(3-2*blend)
+  if blend:
+   hx,hz=head_section(y,t);x=x*(1-blend)+hx*blend;z=z*(1-blend)+hz*blend
   loop.append((x,yy,z))
  return loop
 def wood():
@@ -277,7 +339,8 @@ def wood():
  for name in ('Top_Strap','Trigger_Plate'):
   src=next(p for p in PARTS if p.name==name);tool=src.copy();tool.data=src.data.copy();bpy.context.collection.objects.link(tool);cut(ob,tool)
  body=next(p for p in PARTS if p.name=='Action_Body');tool=body.copy();tool.data=body.data.copy();bpy.context.collection.objects.link(tool);cut(ob,tool)
- h=high_copy(ob);subd(h,1);reduce(ob,6700);reg(ob)
+ for x,y in [(2.6,64),(-2.6,31)]:cutbox(ob,(x-4.1,y-9,-9),(x+4.1,y+12,12))
+ high_copy(ob);reduce(ob,6700);reg(ob)
  loops=[]
  for y,s in [(-299,1),(-299.5,1.002),(-303.9,1.001),(-304.6,.996)]:
   loops.append(wood_loop(y,21.3*s,-117,-5,n=64))
@@ -287,52 +350,60 @@ def wood():
   lathe('Butt_Screw',[(y,0),(y,2),(y+.35,2),(y+.35,0)],'dark',center=(0,z),n=20)
  # Slim forend: unequal end tapers, broad lower palms and two real barrel
  # channels. Its dense source supplies compound curvature for later baking.
- stations=[(181,17.1,3,31),(182,18.8,3,32.4),(189,20.7,2,34),
-  (211,21.1,3,34.4),(242,20.5,4,34.7),(279,19.1,5,34.9),
-  (314,17.3,7,34.6),(341,14.5,10,33.4),(355,10.0,16,30.3),
-  (360,6.5,21,28),(361,6.2,21.5,27.6)]
- ob=M.loft('Forend_Walnut',[wood_loop(*r,n=40,p=2.7) for r in stations],MAT['wood']);subd(ob,2)
+ stations=[(181,14.7,12.0,35.5),(182,15.7,12.0,36),
+  (189,17.0,12.0,36.5),(211,17.4,12.6,37),(242,16.8,13.5,37),
+  (279,15.5,14.7,37),(314,13.8,16.2,36.5),(341,10.8,20,35),
+  (351,7.0,25,33.5),(355,2.5,29,32.5),(356,2,29.5,32)]
+ ob=M.loft('Forend_Walnut',[rounded_loop(*r,n=48,p=3.5) for r in stations],MAT['wood']);subd(ob,2)
  for side in (-1,1):
   loops=[]
   for y in (178,240,365):
    x,r=barrel_shape(y);loops.append([(side*x+(r+.25)*math.cos(t),y,BORE+(r+.25)*math.sin(t)) for t in [i*math.tau/64 for i in range(64)]])
   cut(ob,M.loft('Channel tool',loops,MAT['wood']))
  # Iron occupies a real pocket in the lower rear wood.
- cutbox(ob,(-7.2,180,-1),(7.2,227,11.5))
- cutbox(ob,(-3.1,178,29),(3.1,365,36))
+ cutbox(ob,(-7.2,180,10),(7.2,227,18.5))
+ cutbox(ob,(-3.7,178,28),(3.7,365,45))
  cut(ob,lathe('Tool',[(-24,0),(-24,12.25),(24,12.25),(24,0)],axis='X',center=(170,19),n=80,raw=True))
  high_copy(ob);reduce(ob,3300);reg(ob,'Forend')
  # Curved iron cups bear on the shared circular knuckle throughout opening.
  for sign in (-1,1):
-  a,b=sorted((sign*7.2,sign*21.5))
+  a,b=sorted((sign*7.2,sign*17.0))
   arc_solid('Forend_IronCup_'+('R' if sign>0 else 'L'),a,b,12.15,14.3,-50,52,'dark','Forend',n=44)
  curved_mesh('Forend_Iron',[rounded_loop(y,w,bot,top,p=4,n=24) for y,w,bot,top in
-  [(180,6.8,3,11.3),(188,7,3,11.3),(215,6.5,3.5,11.3),(226,5.7,4,11.3)]],
+  [(180,6.8,12.0,18.3),(188,7,12,18.3),(215,6.5,12.7,18.3),(226,5.7,13,18.3)]],
   'dark','Forend',level=1,target=450)
  # An inset oval latch in the underside, fixed for this presentation.
  latch=curved_mesh('Forend_Latch',[rounded_loop(y,w,z-1.5,z+1.5,p=3,n=20) for y,w,z in
-  [(219,2.2,4.6),(221,4,4.2),(235,5.2,4.5),(250,4.6,5.0),(255,2.8,5.6)]],
+  [(219,2.2,14),(221,4,13.7),(235,5.2,14.0),(250,4.6,14.5),(255,2.8,15.1)]],
   'blue','Forend',level=1,target=400)
  # Recess the inset latch into both source and game wood.
  for woodpart in [ob]+[h for h in HIGH if h.get('low_target')=='Forend_Walnut']:
   tool=latch.copy();tool.data=latch.data.copy();bpy.context.collection.objects.link(tool);cut(woodpart,tool)
  # Latch backing reaches the iron through a short web inside the wood.
- box('Latch_Web',(-3,218,3),(3,225,9),'dark','Forend',radius=.6)
+ box('Latch_Web',(-3,218,13),(3,225,18),'dark','Forend',radius=.6)
 
 def controls():
  # Guard is a broad thin steel band with radiused lateral edges, swept along
  # the bow. It joins the lower plate at both ends.
- path=M.bezier((14,-1),(14,-37),(49,-35),(75,-29),24)
- path+=M.bezier((75,-29),(94,-25),(95,-3),(82,4),20)[1:]
+ path=M.bezier((10,-9),(13,-25),(44,-32),(72,-32),24)
+ path+=M.bezier((72,-32),(90,-34),(100,-28),(100,-14),18)[1:]
+ path+=M.bezier((100,-14),(100,-4),(97,3),(94,7),10)[1:]
  loops=[]
  for i,(y,z) in enumerate(path):
   p=Vector(path[max(0,i-1)]);q=Vector(path[min(len(path)-1,i+1)]);d=(q-p).normalized();normal=Vector((-d.y,d.x))
   loop=[]
   # Rounded rectangle section across X; a band, never a round rod.
-  for x,v in M.rounded_rectangle(9.4,2.5,.6,4):loop.append((x,y+v*normal.x,z+v*normal.y))
+  for x,v in M.rounded_rectangle(8.2,2.3,.6,4):loop.append((x,y+v*normal.x,z+v*normal.y))
   loops.append(loop)
- reg(M.loft('Trigger_Guard',loops,MAT['blue']),radius=.08)
- for name,x,y,bone in [('Front_Trigger',2.6,64,'Trigger'),('Rear_Trigger',-2.6,43,'TriggerRear')]:
+ guard=reg(M.loft('Trigger_Guard',loops,MAT['blue']),radius=.08)
+ tang=curved_mesh('Guard_RearTang',[rounded_loop(y,w,z-1.0,z+1.0,p=3,n=20) for y,w,z in
+  [(11,4.1,-9),(0,4.0,-16),(-15,4.0,-20.8),
+   (-38,3.8,-21.0),(-65,3.4,-20.1),(-82,2.9,-21.4),(-88,1.7,-22.8)]],
+  'blue','Root',level=2,target=400)
+ for woodpart in [bpy.data.objects['Stock_Walnut']]+[h for h in HIGH if h.get('low_target')=='Stock_Walnut']:
+  tool=tang.copy();tool.data=tang.data.copy();bpy.context.collection.objects.link(tool);cut(woodpart,tool)
+
+ for name,x,y,bone in [('Front_Trigger',2.6,64,'Trigger'),('Rear_Trigger',-2.6,31,'TriggerRear')]:
   pts=[(y-3,7),(y+7.0,7),(y+7,3)]
   pts+=M.bezier((y+7,3),(y-1,-4),(y,-16),(y+7.1,-23),14)[1:]
   pts+=M.bezier((y+7.1,-23),(y+7.8,-24.4),(y+6,-24.7),(y+4.6,-23),5)[1:]
@@ -343,15 +414,18 @@ def controls():
   for v in ob.data.vertices:
    s=max(0,min(1,(4-v.co.z)/28));v.co.x=x+(v.co.x-x)*(1-.24*s)
   reg(ob,bone,radius=.55,segments=3)
- # Sculpted top lever: thick root, swept neck, flattened curved thumb paddle.
+ # A swept forging: substantial spindle shank and tilted thumbpiece seated
+ # against the strap. Checkering belongs to the later normal map.
  loops=[]
- for y,x,w,z,h in [(96,0,4.7,53,2),(94,0,4.8,53.8,2),(89,-.2,4.3,54.2,1.8),
-  (81,-1.2,3.4,54.7,1.8),(73,-1.8,6.2,55.0,1.8),(63,-1.1,8.4,55.2,1.7),
-  (56,0,7.5,55.0,1.5),(53,0,5.1,54.8,1.0),(52.5,0,4.7,54.8,.8)]:
-  loops.append([(xx+x,yy,zz) for xx,yy,zz in rounded_loop(y,w,z-h,z+h,p=2.8,n=24)])
+ for y,x,w,z,h in [(97,0,4.6,55.4,1.8),(95,0,4.8,55.5,1.8),
+  (89,.3,4.2,54.6,1.8),(81,1.2,3.6,53.2,2.3),
+  (73,3.1,5.2,51.6,2.5),(64,6,7.5,49.7,3.0),
+  (57,7.7,8.3,48.2,3.4),(53,8.5,7.8,47.7,3.3),
+  (50.5,8.7,5.5,46.0,2.6),(50,8.7,4.8,46.0,2.2)]:
+  loops.append([(xx+x,yy,zz) for xx,yy,zz in rounded_loop(y,w,z-h,z+h,p=3.0,n=32)])
  ob=M.loft('Top_Lever',loops,MAT['blue']);subd(ob,2)
- for v in ob.data.vertices:v.co.z+=2.5
- high_copy(ob);reduce(ob,800);reg(ob,'TopLever')
+ for v in ob.data.vertices:v.co.z+=2.15*max(0,min(1,(89-v.co.y)/18))
+ high_copy(ob);reduce(ob,1150);reg(ob,'TopLever')
  lathe('Top_LeverSpindle',[(49.2,0),(49.2,4.1),(56,4.1),(56,0)],'dark','TopLever',axis='Z',center=(0,94),n=32)
  # Safety follows the inclined strap, with a broad low thumb land and real
  # guide block below. State-only automatic actuation is in the interface.
@@ -391,8 +465,8 @@ def finalize(ob):
  if not len(ob.data.vertices):raise AssertionError('Empty manufactured part: '+ob.name)
  # Only silhouette-scale detail survives in the game mesh. In particular,
  # annular-section edge bevels must not consume thousands of hidden triangles.
- allocations={'Stock_Walnut':5200,'Forend_Walnut':2350,'Action_Body':3000,
-  'Barrel_Hook':650,
+ allocations={'Stock_Walnut':4200,'Forend_Walnut':2350,'Action_Body':4800,
+  'Barrel_Hook':650,'Breech_Lumps':700,
   'Forend_IronCup_R':500,'Forend_IronCup_L':500,'Trigger_Guard':1100,
   'Butt_Plate':650,'Extractor_Rim_R':350,'Extractor_Rim_L':350,
   'Front_Trigger':650,'Rear_Trigger':650,'Top_Strap':700,'Tang_Safety':450}
@@ -400,8 +474,18 @@ def finalize(ob):
  if target:reduce(ob,target)
  # Collapse can expose a tiny Boolean corner at the lever bore. Repair only
  # isolated sub-half-millimeter triangular boundaries after the final reduction.
- clean(ob,dist=.0001)
- tri=ob.modifiers.new('Explicit game triangles','TRIANGULATE');tri.keep_custom_normals=True;M.apply(ob)
+ clean(ob,dist=.006)
+ tri=ob.modifiers.new('Explicit game triangles','TRIANGULATE');tri.keep_custom_normals=True
+ if ob.name=='Front_Bead':tri.quad_method='FIXED'
+ M.apply(ob)
+ if ob.name=='Front_Bead':
+  # BMesh may return the same triangles in a different face order. Packed
+  # loop-normal bases depend on that order, so canonicalize this symmetric
+  # sphere before writing its analytic normals.
+  mesh=ob.data;coordinates=[v.co.copy() for v in mesh.vertices];faces=[]
+  for f in mesh.polygons:
+   ids=list(f.vertices);i=ids.index(min(ids));faces.append(ids[i:]+ids[:i])
+  mesh.clear_geometry();mesh.from_pydata(coordinates,[],sorted(faces));mesh.update();M.smooth(ob,45)
  if ob.name=='Action_Body':
   ob.data.normals_split_custom_set([(0,0,0)]*len(ob.data.loops));M.smooth(ob,42)
   m=ob.modifiers.new('Reseed forged and machined fields','WEIGHTED_NORMAL');m.keep_sharp=True;m.weight=40;M.apply(ob)
@@ -411,7 +495,9 @@ def finalize(ob):
   for f in ob.data.polygons:
    for j in f.loop_indices:
     p=ob.data.vertices[ob.data.loops[j].vertex_index].co
-    if abs(f.normal.y)<.2:
+    if abs(f.normal.x)>.98 and all(abs(v.co.x)<.001 for v in [ob.data.vertices[i] for i in f.vertices]):
+     normals[j]=f.normal.copy()
+    elif abs(f.normal.y)<.2:
      x=sign*barrel_shape(p.y)[0];nn=Vector((p.x-x,0,p.z-BORE)).normalized()
      normals[j]=nn if nn.dot(f.normal)>0 else -nn
     elif abs(f.normal.y)>.995:normals[j]=Vector((0,math.copysign(1,f.normal.y),0))
@@ -425,16 +511,23 @@ def finalize(ob):
     for j in f.loop_indices:
      p=ob.data.vertices[ob.data.loops[j].vertex_index].co;dw=(action_section(p.y+.02)[0]-action_section(p.y-.02)[0])/.04
      normals[j]=Vector((math.copysign(1,p.x),-dw,0)).normalized()
-   roof_tag=ob.data.attributes.get('SXS_Roof')
-   if roof_tag and roof_tag.data[f.index].value and abs(f.normal.y)<.95 and f.normal.z>.01:
+   if abs(f.normal.x)>.96 and abs(f.normal.z)<.18 and all(p.y>116 for p in vs):
+    for j in f.loop_indices:
+     p=ob.data.vertices[ob.data.loops[j].vertex_index].co
+     normals[j]=Vector((math.copysign(1,p.x),.045 if p.y<157 else 0,0)).normalized()
+   if abs(f.normal.y)<.95 and f.normal.z>.15 and all(70<=p.y<=115 and abs(p.z-action_roof(p.x,p.y))<.65 for p in vs):
     values=[]
     for j in f.loop_indices:
      p=ob.data.vertices[ob.data.loops[j].vertex_index].co
-     yy=max(36.01,min(114.99,p.y));w=action_section(yy)[0];xx=max(-w+.03,min(w-.03,p.x))
+     yy=max(70.01,min(114.99,p.y));w=action_section(yy)[0];xx=max(-w+.03,min(w-.03,p.x))
      dx=(action_roof(xx+.02,yy)-action_roof(xx-.02,yy))/.04
      dy=(action_roof(xx,yy+.02)-action_roof(xx,yy-.02))/.04
      values.append(Vector((-dx,-dy,1)).normalized())
     for j,n in zip(f.loop_indices,values):normals[j]=n
+ if ob.name=='Front_Bead':
+  for j in range(len(normals)):
+   p=ob.data.vertices[ob.data.loops[j].vertex_index].co
+   normals[j]=(p-Vector((0,766,54.7))).normalized()
  if ob.get('ammo_visual'):
   x,_,z=HEADS[ob['bone']]
   for f in ob.data.polygons:
@@ -465,7 +558,7 @@ def main():
  # The optical frame follows the bead from the cheek-weld eye height. It is
  # a slight downward sightline; the rig and all other sockets keep +Y/+Z.
  eye=next(o for o in sockets if o.name=='Socket_Eye')
- eye.rotation_euler.x=math.atan2(59.8-EYE[2],766-EYE[1])
+ eye.rotation_euler.x=math.atan2(54.7-EYE[2],766-EYE[1])
  arm['generator_sha256']=generator_digest();build_clips(arm);W.pose(arm,'Idle',0)
  sc=bpy.context.scene;sc.unit_settings.system='METRIC';sc.unit_settings.scale_length=1
  sc['stage']='Form checkpoint, unbaked constant inspection materials'
