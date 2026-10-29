@@ -1,7 +1,7 @@
 # Bracken L20 — form, motion and finish review
 
 The opening sections preserve the earlier form checkpoint. The current
-finish critiques and delivery proof are at the end under **Look round 2**;
+finish critiques and delivery proof are at the end under **Look round 3**;
 earlier finish acceptance is historical and was superseded by the lead's
 second-round rejection.
 
@@ -996,3 +996,223 @@ acceptance. The handoff is frozen under `../../build/look-round2/before/`.
   softened fine relief/lettering at 2048, the flash-stock display mismatch
   and different reference illumination; no additional maps or triangles
   are used to conceal them.
+
+## Look round 3 — receiver continuity, sheen and local carry marks
+
+The third look brief accepts the other finishes and all geometry, motion and
+budgets. It rejects the receiver's dark perimeter, orange bright decile and
+uniform brushed field. This section supersedes round 2's receiver acceptance.
+
+1. **Color and value first — baseline beside Hearth.** The whole plate's
+   middle value is close, but the receiver macro's brightest decile is
+   **92/59/37**, saturation **.60**, versus **104/73/57**, **.45**, in the
+   used photograph. Its rolled shoulder is **26/25/26**: the black forging
+   perimeter visibly encloses a brown, wood-like inset. The baseline and
+   accepted main-branch shotgun share exactly the five cards, gray world,
+   exposure and reflection flags. The shotgun has a continuous steel response
+   and locally exposed gray port edges; the Bracken has a diffuse brown field
+   and black shoulders. Preserve the accepted controls, wood and geometry.
+   Extend oxide across the external forging, restrict blue to millimeter-wide
+   seats, and replace the all-over scratch field with individual carry marks.
+   The photo neutral remains the broad exposed bolt flat, native
+   (470,166)–(570,177), adapted in linear RGB. It is a reflected estimate,
+   not a gray card; highlight widths are not used to infer roughness.
+
+   ![First round-three critique: current hero beside accepted Hearth](../../build/look-round3/before/hero-shotgun.jpg)
+
+2. **Color and value first — source response trials.** The first continuous
+   oxide trial removes the black frame, but its hero bright-decile saturation
+   is **.512**, still above the photograph's **.444**. Reject that diffuse
+   response. Three controlled metallic/roughness variants use the same studio:
+   v2 gives hero **74/51/42**, bright decile **75/52/44 / .413**; v3 is too
+   dark (**65/42/34**) and too saturated (**.478**); v4 still exceeds the
+   target (**.463**). V2's gray-brown body is closer, but its shoulder is still
+   paint-like. Thin and burnish the oxide on the exposed rolls, keeping it
+   continuous and distinct from actual bare corner patches. Source5's actual
+   key-reflection shoulder is **133.5/112/101**, with brightest reflection
+   **143/126/117**. Its ring has an arbitrary axial color boundary: reject
+   that boundary and derive ring burnishing from the outward front normal.
+   Restore more of the accepted warm body hue, and vary thickness/roughness
+   with palm pressure, leaving the unhandled field free of brushed striae.
+   Eight separate tapered marks now occupy only the central palm and lower
+   scabbard sites; at hero scale they almost disappear. The macro resolves
+   individual strokes without an all-over parallel texture. Source trials
+   are under `renders/look-round3/`; no trial is a delivery acceptance.
+
+   Source6's wider thinning variation made the body too dark (**68/47/36**)
+   and increased its bright-decile saturation to **.493**. Reject it.
+   Source7 restores hero **72/51/40**, bright decile **79/56/45 / .425**;
+   macro **67/47/37**, bright decile **74/52/42 / .440**. The narrow blue
+   seats no longer form a broad outline, and ring burnishing follows the
+   outward surface rather than an axial painted boundary. Desaturate only
+   the exposed shoulder substrate a final small amount before baking, toward
+   linear **.145/.135/.130**, so its key reflection is gray with a warm cast.
+   The effective oxide flat retains metallic **.45**, roughness **.40**;
+   the thinner exposed rolls reach **.72 / .34**. Bare receiver patches are
+   linear **.38/.41/.43**, metallic **1**, roughness centered on **.48**, set
+   against the Hearth's actual worn edges under identical lighting. Other
+   parts retain every node/default/link. The saved-handoff audit passes for
+   **116 meshes, 26 bones, 37 clips, ten sockets and 117 nonreceiver finishes**.
+   Recheck these source decisions after the 4096-to-2048 bake and GLB export.
+
+3. **Color and value first — first exported candidate, reject the flatness.**
+   The full 4096/32 bake and 2048 export retain the source response. Hero
+   median **71/51/40** is close to the accepted body value; its brightest
+   decile is **79/56/45**, saturation **.425**, below the photograph's
+   native-pixel median saturation **.444** (rounded in the brief to .45).
+   Macro bright decile **75/52/42 / .440** and matched used view **.444**
+   also meet that comparison. The physical key-reflection site gives hero
+   **139/130/125** in its brightest decile, macro **136/127/124**: near-gray
+   sheen, distinct from diffuse brown. The old rolled-shoulder rectangle
+   rises from **26/25/26** to **124/112/106** in the macro. The black frame
+   is gone; no blue survives across the front ring. Gray rub brightness sits
+   below the Hearth's brighter port rim under identical studio lighting.
+
+   Opened the exported hero beside the main-source Hearth, the full macro
+   beside the neutral-adapted used photograph, distributions, reflection
+   polygons and both steel macros (`renders/look-round3/export-review/`).
+   The new plate distribution is too narrow: the native macro still looks
+   evenly coated. Do not accept a passing bright-decile number as proof of
+   the whole look. Vary oxide thickness inside the existing carrying-palm
+   envelope with elongated cloth pressure, retaining oxide outside it.
+   Stronger oxide can be warmer in shadow; thinner contact areas should be
+   lighter and less saturated. Keep the sparse individual scratch sites,
+   narrow blue seats, gray shoulder reflections and accepted bare contour.
+
+   Source8 restores hero **76/53/38**, with luma p10/median/p90
+   **49.23/56.81/69.67**, beside photo **46.10/56.95/72.65**. Its bright
+   decile is **92/69/55 / .411**. Native macro review rejects the strongest
+   cloth smears: their contrast suggests a mottled overlay. Reduce the
+   pressure modulation range without spreading it outside the carrying hand.
+   Source9 retains hero **76/52.5/38**, luma **49.23/56.30/68.81**, bright
+   decile **91/67/53 / .418**. Macro bright decile is **86/64/49 / .430**.
+   The quieter variation remains visible but does not replace the individual
+   scratches with a brushed field. Bake this candidate, preserving all other
+   finishes and the exact lower-fillet contact field.
+
+   The receiver-mask audit catches a remaining structural issue before the
+   second bake is accepted: testing only side/top exposure can miss the
+   middle of the front ring's larger R8 roll. Replace that heuristic with
+   the signed distance to the original changing R2.2–R8 rounded section.
+   The oxide now follows the actual external forging through the whole arc;
+   interior machined walls retain protected blue. Stop the partial second
+   bake and regenerate it from the corrected mask. No geometry, UV, bare
+   lower-fillet field or other material is changed by this correction.
+
+4. **Color and value first — corrected exported candidate.** The final
+   exported GLB retains hero whole-flat **76/53/38**, versus used photo
+   **79/53/36**. Hero luma p10/median/p90 is **49.23/56.59/68.88**, beside
+   **46.10/56.95/72.65**. The brighter decile is **91/68/53**, saturation
+   **.418**, versus photo **104/73/57 / .444**. Macro **86/64/49 / .427**
+   and matched used-view **84/62/48 / .429** also stay below the photograph.
+   Saturation is the median of individual pixel saturations; the saturation
+   of the channel-wise median photograph RGB is .452, explaining the brief's
+   rounded .45. Neither statistic is substituted for the other.
+
+   The fixed oxide shoulder site reflects the key at bright-decile hero
+   **138/128/123**, macro **135/126/123**, and matched used view
+   **201/197/195**. These are gray with a modest warm cast. The original
+   shoulder rectangle is now **124.5/110/102**, rather than **26/25/26**.
+   These two physical polygons are independently recorded: one spans the
+   shoulder roll, the other is centered on the actual key reflection and
+   excludes both bare upper-corner patches. The front ring is oxide-covered
+   across its complete larger radius. Barrel and magazine remain blue-black.
+   The primary used-photo flat patch is **79/57/43**, against **81/54/39**;
+   wrist/forend remain **41/22/12** and **86/51/34**, unchanged from handoff.
+
+   Opened the native exported hero/macro, hero beside Hearth, both steel
+   macros, full used-photograph comparison, HSV plots, reflection polygons
+   and named-site overlay in `renders/look-round3/export2-review/`.
+   The top and front no longer surround the flat in black. Their oxide sheen
+   joins the flat through the rolled surface; gray exposed rubs stay on the
+   cupped bottom and isolated corners. They read as satin beside the Hearth's
+   brighter port edge under the same five cards. The middle palm marks and
+   lower scabbard marks are sparse and individually separated; the other
+   field carries no brushed scratch texture. Quiet variation follows the
+   hand's envelope instead of fading to blue around every edge.
+
+   Remaining look differences: the used photograph has richer fine oxide
+   breakup and incidental damage, while our eight original tracks soften at
+   2048. Its direct shoulder reflection is broader/brighter under different
+   illumination; the studio is held fixed rather than tuning a highlight
+   width to that photo. The accepted wood's regular figure and flash-lit
+   full-stock mismatch remain unchanged. Complete the final views, pairs,
+   wear evidence, strip provenance and required checks for this exact export.
+
+5. **Color and value first — final studio and motion review.** The final
+   hero's object-only luma p1/median/p99 is **0 / 54.85 / 161.78**; **26.98%**
+   lies below 24. Maximum RGB is **238/221/224**, with no channel at 254.
+   The left hero is **0 / 66.62 / 170.93**, **21.77%** below 24, maximum
+   **232/228/227**, again with no clipped channel. The receiver macro also
+   has zero fully clipped pixels. The dark race, bore, loading recess and
+   underside stay deep; the exposed rolls retain gray reflection without
+   washing the body or walnut out.
+
+   Opened the final native studio views, all exported photographic pairs and
+   all nine dense-source pairs. The accepted round ears/notch, finished wrist
+   beside the mortise, graded hand oil, local dings, crown/bore, blued controls
+   and band faces remain intact. Viewed both individual band macros and all
+   five ammunition macros. The still/contact/wear sheets and all five final
+   compressed docs JPGs were also opened. Every **89 distinct** clip image
+   was reviewed across the four `build/final-inspection/clips-*.jpg` pages;
+   final provenance accounts for **696** strip frames and decodes the real
+   durations of all **37** WebPs. No visible texture sliding, unsupported
+   new part or new motion artifact appears. The accepted source/2048 loss in
+   tiny lettering, pores and fine oxide detail remains visible in the pairs.
+
+### Look round 3 — delivery proof
+
+- `make -C guns/lever` and the separate `make -C guns/lever check` both
+  completed with exit **0**. The full build used the kit's GPU lock for
+  baking/rendering, a **4096 / 32-sample** bake and **2048** shipping maps.
+  All six bake channels have **zero** missed interior texels out of
+  **4,110,236** checked. The stock and forend regions remain dielectric,
+  with maximum metallic byte **0** across their complete reserved regions.
+- Final exports: gun **39,814 triangles / 12,212,120 bytes**; live round
+  **1,598 / 7,216,192**; fired case **1,326 / 7,197,348**. Each has one
+  material and embeds the same three-map 2048 atlas. Canonical PNG sizes
+  are BaseColor **1,891,947**, Normal **2,269,287**, ORM **2,933,355 bytes**.
+  The delivered gun SHA-256 is
+  `f6e0357c4bd67db9fd6972514ec34975b1092654c25f9d40c1f46cf5e2173fee`.
+- `build/delivery/verify.json` passes for that exact export: family atlas
+  coverage **32.21%**, no escaped or degenerate UV triangles, three
+  microscopic overlap pairs totaling **2.638e-7** of occupied area, below
+  the **1e-5** policy. Median family density is **2,376 px/m**. Raw delivered
+  corner positions are exact; normal-vector error is **8.53e-5**, UV error
+  **2.98e-8**. Imported topology is **116 closed geometric solids**.
+- Construction checks evaluate **67** actual contact probes and all **37**
+  clips at **5,304** imported half-frame samples, with zero motion-policy
+  violations. The largest measured gap among distance probes is **0.1182 mm**.
+  The existing bounded-contact policy and ownership events are unchanged.
+  Separate serialization checks cover **5,271** affine frames (maximum
+  position error **1.975e-6 m**) and **185** posed surfaces (maximum vertex
+  delta **1.206e-7 m**). Those last comparisons prove delivery fidelity,
+  rather than physical construction or the photographic finish.
+- The optional preservation command,
+  `blender -b --factory-startup --python-exit-code 1 --python guns/lever/src/preserve_receiver.py -- --before build/look-round3/before`,
+  passes against the saved handoff: **116** identical meshes, **26** bones,
+  **37** clips, **10** socket frames, **117** unchanged nonreceiver material
+  graphs and all **five** accepted lower-fillet expressions exact.
+  The baseline is not a dependency of a clean rebuild.
+- `build/final-provenance.json` passes: **735** GLB-derived image records,
+  including **696** strip frames and all **37** decoded real-duration WebPs.
+  Final images are under `renders/final/`; the overview is
+  `contact-sheet.jpg`, gray hero is `hero-gray.jpg`, and the Hearth hero
+  comparison is `look-review/hero-shotgun.jpg`. Receiver evidence is
+  `look-review/receiver-used-closeup.jpg`, `receiver-histograms.jpg`,
+  `reflection-samples.jpg`, `receiver-sites.jpg` and `wear-sites.jpg`;
+  `photos/value-patches.jpg` and `pairs/wear-2d-pair.jpg` retain the native
+  patch and accepted-contour evidence. Source-photo pairs stay separately
+  labeled in `source-pairs/`.
+- All five regenerated docs JPGs remain **uncommitted**, as requested.
+  Each is 1600 pixels wide: hero **37,936 bytes**, turnaround **52,858**,
+  details **183,636**, action **95,210**, Eevee **39,540**. No file exceeds
+  the 200 KB docs limit. No kit, shared gun code or other asset was changed.
+- Final `python3 -m compileall -q guns/lever/src`,
+  `python3 kit/repo_check.py` and `git diff --check` exit **0**; the repository
+  check reports **928 source files, zero errors**.
+
+The remaining weaknesses are the fine oxide breakup, incidental damage and
+2048 detail loss described in passes 4–5. No new tool or permission is
+needed from the lead. The receiver preservation audit is asset-local;
+there is no shared-kit or contract change in this revision.

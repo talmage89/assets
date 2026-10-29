@@ -18,7 +18,7 @@ dense-source pairs in `renders/final/source-pairs/`, and all 37 real-duration
 clip strips/WebPs in `renders/final/strips/`. Five docs JPGs are generated under
 `docs/` and remain uncommitted pending the lead's acceptance.
 
-[REVIEW.md](REVIEW.md) contains the form history, six new finish critiques,
+[REVIEW.md](REVIEW.md) contains the form history and successive finish critiques,
 exported bake reviews, 2D wear evidence, value measurements and limitations.
 [REFERENCE.md](REFERENCE.md) distinguishes published dimensions, photographic
 estimates and original design decisions.
@@ -81,18 +81,26 @@ visual asset, not a functioning reproduction. Every reference/credit is in
 
 ## Materials and years of use
 
-Intact blue steel uses linear `.021/.022/.023` and metallic 1. The receiver's
-hand-ridden flats thin toward brown oxide, with a `.072/.031/.011` diffuse
-endpoint and a dielectric oxide contribution over the gray steel substrate.
-This is a single-atlas metal/rough approximation of oxide over steel, rather
-than an orange conductor. Protected bluing remains around screw seats, in the
-loading recess and beside the tangs. Overlapping axial cloth/holster pressure
-and longitudinal carry scratches modulate thinning and roughness within the
-contact field. Six short tapered grit tracks add shallow local relief, with
-no added geometry.
+Intact blue steel uses linear `.021/.022/.023` and metallic 1. Continuous
+gray-brown oxide covers the receiver's external forging, rolled shoulders and
+front ring. Only narrow screw seats, the loading recess and the rear wood/tang
+joint retain protected blue: approximately 1–2.5 mm, without a plate-wide
+perimeter fade. Palm and cloth pressure vary oxide thickness between linear
+`.056/.028/.016` and `.110/.073/.053`. The effective metallic contribution is
+`.45`, roughness `.40`; thinner oxide on the exposed rolls approaches warm
+gray `.145/.135/.130`, metallic `.72`, roughness `.34`. This is an effective
+single-atlas metal/rough approximation to thin oxide over steel. It preserves
+gray steel sheen while retaining a brown-plum body.
 
-Receiver contact steel uses linear `.24/.26/.28`; other rubs use
-`.12/.135/.145`. Their central roughness is `.62`, with fine directional
+Eight individual tapered grit tracks, 8–22 mm long and 0.08–0.14 mm wide,
+occupy the carrying palm and lower scabbard contact sites. They add shallow
+color/roughness/normal detail, with no added geometry. The unhandled upper and
+end fields have no all-over brushed scratch texture. The marks barely resolve
+at hero scale and read individually in the receiver macro.
+
+Receiver contact steel uses linear `.38/.41/.43` and roughness centered on
+`.48`, calibrated beside the Hearth's worn edges in the same studio. Other
+rubs retain `.12/.135/.145` and central roughness `.62`, with fine directional
 variation. The lever exterior, trigger sides, broad bands and most of the upper
 tang remain blued. The shipped dielectric specular level remains `.16`
 (glTF specular factor `.32`); consumers retain the imported PBR material and
@@ -112,12 +120,13 @@ installed Noto Sans. Ammunition **PD / 30-30** uses installed DejaVu Sans.
 
 | Wear site | Appearance and cause |
 | --- | --- |
-| Receiver flats | Uneven muted brown thinning where the carrying hand and holster reach; fine scratches run lengthwise |
+| Receiver flats | Continuous gray-brown oxide with slightly thinner palm contact; sparse individual tracks in the middle and lower scabbard strip |
+| Receiver shoulders and front ring | Continuous oxide over the rolls; thinner exposed oxide keeps a near-gray, slightly warm steel reflection |
 | Receiver screw seats | Narrow darker surviving bluing in each head's protected shadow; no broad circular stain |
 | Loading-gate recess | Darker blue beside and within the protected aperture, with gray contact only on its lip |
-| Tang junctions | Darker oxide at the inaccessible ends of the side flats |
+| Tang/wood joint | Narrow surviving blue at the inaccessible rear seat, without darkening the full end of the plate |
 | Receiver lower fillet | Accepted cupped carry-contact contour retained exactly; satin gray replaces the former bright response |
-| Other receiver edges | Isolated exposed front/bottom corners and short shoulder rubs, with blue between them |
+| Other receiver edges | Isolated satin-gray front/bottom corner and short shoulder rubs, with continuous oxide between them |
 | Lever | Satin gray inside the finger loop and on the rear bar; exterior and forward bow stay blue |
 | Trigger | Rubbed finger face, with blued sidewalls and back |
 | Barrel bands | Narrow gray rim rubs; the broad sleeve faces stay blue |
@@ -137,8 +146,8 @@ lead. Native rectangles, gains and marked neutrals are rebuilt in
 
 | Used-photo surface | Photo median RGB / luma (0–255) | Exported comparison RGB / luma |
 | --- | --- | --- |
-| Receiver flat | 81/54/39 / 58.73 | 86/54/34 / 59.43 |
-| Handled wrist | 44/23/11 / 26.75 | 41/22/12 / 25.18 |
+| Receiver flat | 81/54/39 / 58.73 | 79/57/43 / 60.67 |
+| Handled wrist | 44/23/11 / 26.75 | 41/22/12 / 25.10 |
 | Forend | 86/51/32 / 57.29 | 86/51/34 / 57.21 |
 
 These are observed display values under estimated comparable views, not
@@ -148,12 +157,20 @@ in `renders/final/look-review/plate-distributions.json` and
 `receiver-histograms.jpg`. The brightest diffuse brown pixels are reported
 separately from a gray steel reflection. Its highlight width/brightness is
 not used to infer roughness from the photograph's different lights.
-The whole-flat hero median is **74/53/39**, versus photo **79/53/36**;
-the matched used-view whole flat is **72/51/35**. Protected bluing leaves a
-darker low-value tail than the photograph. The hero's rolled-shoulder
-reflection is **38/36/35.5**, and the matched view's is **73/73/74**.
-`receiver-used-closeup.jpg` keeps the entire receiver beside the used photo;
-`wear-sites.jpg` exposes the named sites at detail scale. With an optional
+The whole-flat hero median is **76/53/38**, versus photo **79/53/36**;
+the matched used-view whole flat is **70/48/34**. Hero display-luma
+p10/median/p90 is **49.23/56.59/68.88**, versus photo **46.10/56.95/72.65**.
+The hero bright decile is **91/68/53**, median pixel saturation **.418**;
+the photograph is **104/73/57 / .444**. Macro and matched-view bright-decile
+saturations are **.427 / .429**, also below the photo. These distributions
+include narrow protected seats and exclude separate hardware.
+
+A fixed physical shoulder site, away from bare corner rubs, reflects the key
+at **138/128/123** in the hero's bright reflection decile and **135/126/123**
+in the macro. `reflection-samples.jpg` marks this site, the upper flat and
+front ring. `receiver-used-closeup.jpg` keeps the entire receiver beside the
+used photo; `receiver-sites.jpg` names nine physical sites, and `wear-sites.jpg`
+shows the accepted controls, wood and band finishes as well. With an optional
 Hearth render folder, `look-review` also makes `hero-shotgun.jpg` and
 `steel-shotgun.jpg` under this asset's `renders/final/look-review/`.
 
@@ -225,9 +242,9 @@ a declared visual ownership handoff rather than cartridge-path physics.
 
 | Output | Triangles | Materials | GLB bytes |
 | --- | ---: | ---: | ---: |
-| Carbine, including all ammunition displays | 39,814 | 1 | 12,298,660 |
-| Live cartridge | 1,598 | 1 | 7,302,732 |
-| Fired case | 1,326 | 1 | 7,283,888 |
+| Carbine, including all ammunition displays | 39,814 | 1 | 12,212,120 |
+| Live cartridge | 1,598 | 1 | 7,216,192 |
+| Fired case | 1,326 | 1 | 7,197,348 |
 
 The inspection source has 39,832 triangles; only microscopic Boolean cleanup
 removes 18 for delivery. The final asset stays below 40k. One 4096/32-sample
@@ -239,9 +256,9 @@ do not automatically share GPU texture allocation.
 
 | Canonical 2048 PNG | Bytes |
 | --- | ---: |
-| `T_BrackenL20_BaseColor.png` | 1,890,081 |
+| `T_BrackenL20_BaseColor.png` | 1,891,947 |
 | `T_BrackenL20_Normal.png` | 2,269,287 |
-| `T_BrackenL20_ORM.png` | 3,021,758 |
+| `T_BrackenL20_ORM.png` | 2,933,355 |
 
 The prepared gun covers about 27.49% of the atlas. Separate regions protect
 stock and forend UV tips and padding from nearby metal, while the same single
@@ -299,6 +316,10 @@ Raw GLB corner normals agree within 0.0049 degrees, with exact positions and
 UV error below 0.000061 shipping pixels. Blender's imported custom-normal fan
 encoding reaches 0.584 degrees at one narrow inletting cut; that importer loss
 is measured separately from the raw delivered normals.
+The optional `src/preserve_receiver.py --before <saved-handoff>` audit compares
+all 116 accepted meshes, 26 bones, 37 clips, ten sockets, every nonreceiver
+material node/default/link, and the five accepted lower-fillet expressions.
+The saved handoff is review evidence and is never required by `make`.
 See `build/check.json`, `serialization.json`, `delivery/construction.json`,
 `delivery/verify.json`, `final-provenance.json` and `determinism.json`.
 
@@ -306,8 +327,9 @@ See `build/check.json`, `serialization.json`, `delivery/construction.json`,
 
 The rounded sight lobes retain a different mounting from the reference insert; the accepted
 long lever opening, larger hammer mortise and broader thumb table still differ
-from the photographed guns. Wood figure is more regular than real walnut,
-small pores/lettering soften at 2048, and the flat's brightest diffuse areas remain warmer than the photo's.
+from the photographed guns. Wood figure is more regular than real walnut;
+small pores, lettering and the finest carry marks soften at 2048. The used
+photograph retains richer fine oxide breakup and incidental damage.
 Reflected neutrals, approximate cameras and different illumination limit exact
 photographic matching. The rig demonstrates supported visual poses and declared
 handoffs; it supplies neither functional internals nor an anatomical hand.
