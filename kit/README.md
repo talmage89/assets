@@ -333,6 +333,13 @@ for the no-GPU finalize/export/re-import fixture and negative tile-bounds check.
 reference register/cache so independent `make` invocations fetch their cited
 photos and manuals without duplicating downloads.
 
+`fetch_refs.py refs --only image.jpg other.png` optionally fetches only named
+entries from the existing register. Unknown names fail before any request; the
+ordinary command still fetches every entry and skips existing files. This lets
+a check declare its actual photograph prerequisites without depending on unrelated
+manual URLs. Run `python3 -m unittest kit.test_fetch_refs` for selection, legacy
+cache, MIME and path guards (mocked requests, no network).
+
 Reserved-atlas verification also measures the unique region after GLB import,
 rejects any intersection between unique and tile rectangles, and checks the
 embedded tile alpha actually contains both holes and retained wire. The fixture
@@ -650,11 +657,11 @@ with full mip chains, rather than assuming a particular family texture size.
 
 ## Running all regressions
 
-Use a fresh Blender process for each `bpy` fixture. The three pure-Python test
+Use a fresh Blender process for each `bpy` fixture. The four pure-Python test
 modules run with `python3 -m unittest`:
 
 ```sh
-python3 -m unittest -v kit.test_delivery kit.test_fonts kit.test_photo_match
+python3 -m unittest -v kit.test_delivery kit.test_fonts kit.test_photo_match kit.test_fetch_refs
 ```
 
 Run these separately with `blender -b --factory-startup --python-exit-code 1
