@@ -35,8 +35,11 @@ two-shot demonstration must never overwrite its ammunition bookkeeping.
 Every clip has complete boundary keys. Root stays identity. Apply stance,
 recoil and whole-gun inspect motion to the complete scene instance externally.
 Meters, palm origin; Blender +Y forward, +Z up, +X right; glTF −Z forward/+Y up.
-The Eye optical frame points down approximately 0.372 degrees from +Y to
-the bead. Its measured cheek offset is approximately 45.2 mm above the comb.
+The Eye optical frame points down approximately 0.793 degrees from +Y to
+the bead. Its offset is measured on this mesh as 49.31 mm above the comb; the vertical
+human fit is authored and remains without an anthropometric citation. The
+fore/aft cheek station is 35 mm behind the comb nose, within the cited fitting
+range (see README).
 All other socket frames retain the gun basis. This is the same optical-frame
 meaning as 1.0.0, with the pitch required by this member's stock and rib.
 

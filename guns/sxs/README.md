@@ -16,10 +16,15 @@ Generated image paths below are local build outputs, not hosted README images.
 | --- | ---: | --- |
 | Overall length | 1079.95 mm | brief: about 1080 mm |
 | Barrels, rear face to muzzle | 660.40 mm / 26 in | published 26-inch option |
-| Overall width / height | 52.20 / 178.09 mm | original twin-barrel/straight-stock envelope |
+| Overall width / height | 54.80 / 175.71 mm | original twin-barrel/straight-stock envelope |
 | Front-trigger length of pull | 369.63 mm / 14.55 in | published 365 mm; original stock is 4.63 mm longer |
-| Eye above actual comb | about 45.15 mm | ray on our comb; authored cheek-to-eye estimate |
-| Eye optical pitch | −0.372° | exact line from cheek-weld station to the bead |
+| Comb / heel drop | 38.05 / 63.05 mm | published 38 / 63 mm; measured against an actual rib-centerline datum (concave edges rise about 0.22 mm) |
+| Cheek station | 35.00 mm behind comb nose | published range 31.75–38.10 mm |
+| Eye above actual comb | 49.31 mm | actual surface ray; vertical fit remains authored, not a measured human offset |
+| Eye optical pitch | −0.793° | exact line from the socket to the bead |
+| Wrist, wood only at Y = −15 mm | 32.23 × 37.74 mm | sharp top/side photographs; absolute reference scale remains uncertain |
+| Splinter wood, overall W × D × L | 34.40 × 24.19 × 173.01 mm | plain field photographs; evaluated mesh dimensions, not published part measurements |
+| Splinter sections at Y = 211 / 320 mm | 34.39 × 22.53 / 25.90 × 18.68 mm | actual triangle-plane cuts, with barrel channels |
 | Ammunition class | 12 gauge, nominal 2¾ in | nominal opened-hull length |
 | Unloaded mass | target 3.2 kg, **unmeasured** | field-gun design class; no mass simulation |
 
@@ -30,6 +35,15 @@ stock. A straight hand keeps the field silhouette lean and permits shifting
 the hand between triggers. The slightly longer measured pull is a disclosed
 original-design difference. Installed fonts will be found through `kit/fonts.py`
 when original markings are added; no real markings or engraving are copied.
+
+The [primary fitting instructions](https://www.brownells.com/userdocs/learn/076-200-548_Pull___Drop_Gauge.pdf)
+place the cheekbone 1¼–1½ inches behind the comb nose. Our station is 35 mm
+behind the authored nose at Y = −88 mm. That source specifies eye alignment
+relative to the rib, but does **not** measure a human cheek-to-pupil height.
+The eye's 49.31 mm vertical offset is therefore still an original visual fit:
+this part of the requested cited cheek weld remains unresolved. It is not
+being relabeled as an anthropometric measurement. Visibility checks now test
+all occupied surfaces along the bead ray and three forward rib rays.
 
 The local primary side-by-side manual supplies its illustrated exterior parts,
 double-trigger order, forend iron and controls. Direct sources, photographic
@@ -49,13 +63,17 @@ The forend has two barrel channels, a bottom-rib channel, iron pocket, inset
 latch and curved knuckle cups. The stock has real tang inlets and a pitched
 butt plate. Neither furniture piece is a side-profile extrusion.
 
-The action has changing forged sections, round fences, a standing breech with
+The action has changing forged sections, curved rear inletting, round fences, a standing breech with
 visible pin bushings, water-table flats, a floor slot, lug bites, hinge pin and
-seated cross-pin heads. Two hollow barrel skins have chamber-side rim recesses,
+seated cross-pin heads. Its bar tapers into a unioned, concentric knuckle;
+the hinge pin ends are small flush circles. Two hollow barrel skins meet on
+cut joined flats at the breech, without overlapping outer walls, and have chamber-side rim recesses,
 walls at the muzzle, joined solid top and bottom ribs, lower lumps/hook and a
-two-pad extractor. A curved broad-band guard surrounds two tapered flat trigger
+two-pad extractor. A swept guard band and separate rear tang surround two tapered flat trigger
 blades. Their working faces are concave toward the muzzle and their tips curl
-forward. The top lever and safety have compound rounded thumb surfaces.
+forward. The top lever has a thick spindle shank and a swept right-hand thumbpiece.
+The safety retains its compound thumb surface. Dense forging and thumbpiece
+sources are retained for the later edge/checkering normal bake.
 
 This is exterior visual construction. Hidden hammers are state only. There is
 no working lockwork, ballistics, pressure design or manufacturing model. Motion
@@ -66,9 +84,13 @@ angles, guide travel and running gaps are authored visual estimates.
 | Barrels and forend | (0,170,19), X | 0 to −42° |
 | Extractor | (0,115,44), rides Barrels | Y 0 to −10 mm |
 | Top lever | (0,94,53), Z | 0 to +25°, toward the right |
-| Front / rear trigger | (2.6,64,4) / (−2.6,43,4), X | 0 to −13° |
+| Front / rear trigger | (2.6,64,4) / (−2.6,31,4), X | 0 to −13° |
 | Tang safety | guide at (0,5,23) | Y 0 to −5 mm, safe rearward |
 | Visible locking shoes | (0,130,13), Y | 0 to −24 mm, withdrawn before opening |
+
+The rear trigger root moved rearward by 12 mm to fit the photographed blade
+spacing and revised guard. Its owner, pull direction, angle and left-barrel
+assignment are unchanged. The front trigger and accepted pull are unchanged.
 
 The forend rides Barrels, with its own named rigid owner and the same hinge
 axis. Its cups bear on the concentric knuckle throughout the sampled swing.
@@ -91,14 +113,14 @@ Display children use STEP occupancy; guide bones never scale to zero.
 
 No hand mesh ships. The held hulls/shells and complete guide frames provide
 consumer hand-IK targets. An interrupted clip retains its exact frame and
-state and resumes there; no unsafe jump to a closed Idle is promised.
+state and resumes there; no jump to a closed Idle is promised.
 Real-time WebPs and uniform 15-Hz frame strips accompany every clip.
 
 Seven legacy socket names remain. Magazine/mag-well nodes are explicitly
 inactive. SupportHand follows Forend; Shell and ShellL follow the nonscaling
 right/left insertion guides; ChamberR/L follow Extractor; MuzzleR/L follow
-their actual barrels. Eye sits at (0,−65,65.2) mm and points down 0.372° to
-the brass bead; the exact camera renders against gray. The supplement gives
+their actual barrels. Eye sits at (0,−123,67) mm and points down 0.793° to
+the brass bead; the exact 45 mm lens camera renders against gray. The supplement gives
 spawn, visibility and event meanings.
 
 ## Budget and generated files
@@ -107,11 +129,11 @@ spawn, visibility and event meanings.
 
 | Inspection output | Triangles | GLB bytes |
 | --- | ---: | ---: |
-| Gun, all staged alternatives | 33,736 | 1,602,672 |
+| Gun, all staged alternatives | 34,638 | 1,630,020 |
 | Shell | 752 | 26,476 |
 | Hull | 480 | 18,160 |
 
-57 named rigid meshes, 17 bones, 19 clips, 14 sockets; 9 temporary inspection materials and **zero texture images**.
+54 named rigid meshes, 17 bones, 19 clips, 14 sockets; 9 temporary inspection materials and **zero texture images**.
 <!-- /CHECKPOINT_STATS -->
 
 All hidden ammunition alternatives count against the 25–35k gun budget.
@@ -129,7 +151,7 @@ length. Connected hidden joins make each shell a closed manifold skin.
 | `build/serialization.json`, `repeat.json` | Round-trip affine/surface proof and independent rebuild proof |
 | `renders/checkpoint/contact-sheet.jpg`, `hero-gray.jpg` | Current Cycles inspection views from the exported GLB |
 | `renders/checkpoint/dimensions.jpg`, `sections/sections.jpg` | Measured orthographic and triangle-plane sections |
-| `renders/checkpoint/photo-pairs.jpg`, `source-photo-pairs.jpg` | Export/source comparisons; native resolution and fit limits stay explicit |
+| `renders/checkpoint/photo-pairs.jpg`, `source-photo-pairs.jpg` | Eleven export/source comparisons; native resolution and fit limits stay explicit |
 | `renders/checkpoint/clips.jpg`, `opening.jpg`, `strips/` | All clips, wide opening and correctly timed WebPs |
 | `renders/checkpoint/ammunition.jpg` | Standalone shell and hull inspection |
 
@@ -159,8 +181,9 @@ make -C guns/sxs render review      # current inspection stills and complete evi
 Build checks prove budgets, geometry, state, support and serialization within
 their reported sampling. They do not establish photographic form or finish.
 `REVIEW.md` records the image critiques, region acceptance and remaining limits.
-No kit or existing common/gun module is edited. The two new common modules
-are the exterior shell generator and additive 1.7.0 schema validator.
+This round changes only `guns/sxs/`; no kit or common module changed. The
+first checkpoint introduced the shared exterior shell generator and additive
+1.7.0 schema validator, which retain their accepted structure.
 
 The original procedural rifle informs the build/rig/render workflow. All asset
 vertices and inspection materials are generated by our scripts. Reference
