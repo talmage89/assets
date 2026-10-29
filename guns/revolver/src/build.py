@@ -699,7 +699,9 @@ def finalize(o):
   tree,points,triangles,field=SKIN_FIELDS[o.name]
   for f in o.data.polygons:
    if o.name=='Frame_Forging':
-    if not (f.center.y<28 and f.center.z>40):continue
+    # The new field belongs to the curved upper crown only. Preserve
+    # accepted planar cheeks and the lower rear's existing normal field.
+    if not (f.center.y<28 and f.center.z>61 and abs(f.normal.x)<.98):continue
     values=[]
     for j in f.loop_indices:
      v=o.data.vertices[o.data.loops[j].vertex_index].co
