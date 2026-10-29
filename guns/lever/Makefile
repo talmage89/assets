@@ -95,9 +95,9 @@ source-match: build/delivery/high.blend $(RENDER_DEPS) $(PHOTO_DEPS)
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/cameras.json --renders renders/final/source-photos --out renders/final/source-pairs
 strips: $(EXPORTS) $(RENDER_DEPS)
 	$(PYTHON) src/final_strips.py
-extra: $(EXPORTS) $(RENDER_DEPS)
-	$(KIT)/with_gpu.sh $(BP) --python src/final_render.py -- --source export/cartridge.glb --out renders/final/cartridge --width 1100 --samples $(SAMPLES) --shots cartridge,headstamp
-	$(KIT)/with_gpu.sh $(BP) --python src/final_render.py -- --source export/case.glb --out renders/final/case --width 1100 --samples $(SAMPLES) --shots case,mouth,headstamp
+extra: $(EXPORTS) $(RENDER_DEPS) src/ammo_render.py
+	$(KIT)/with_gpu.sh $(BP) --python src/ammo_render.py -- --source export/cartridge.glb --out renders/final/cartridge --width 1100 --samples $(SAMPLES) --shots cartridge,headstamp
+	$(KIT)/with_gpu.sh $(BP) --python src/ammo_render.py -- --source export/case.glb --out renders/final/case --width 1100 --samples $(SAMPLES) --shots case,mouth,headstamp
 review: render match extra
 	$(PYTHON) src/final_review.py
 docs: review
