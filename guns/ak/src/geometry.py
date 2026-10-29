@@ -68,13 +68,16 @@ def source(o,low=None):
  """Retain an authored detail source without adding it to the game mesh."""
  o['bake_only']=True;o['low_target']=low or o.name.removeprefix('HIGH_')
  HIGH.append(o);return o
-def ribbon(name,path,width,gauge,mat='blue',bone='Root',edge=.15):
+def ribbon(name,path,width,gauge,mat='blue',bone='Root',edge=.15,face_steps=1):
  """Flat broad faces with only the thin sheared edges rounded."""
- loops=[]
+ loops=[];section=rounded(width,gauge,edge,2);sampled=[]
+ for a,b in zip(section,section[1:]+section[:1]):
+  count=face_steps if abs(a[0]-b[0])>width*.5 else 1
+  sampled.extend([(a[0]+(b[0]-a[0])*j/count,a[1]+(b[1]-a[1])*j/count) for j in range(count)])
  for i,(y,z) in enumerate(path):
   tangent=(Vector(path[min(i+1,len(path)-1)])-Vector(path[max(0,i-1)])).normalized()
   normal=Vector((-tangent.y,tangent.x))
-  loops.append([(x,y+v*normal.x,z+v*normal.y) for x,v in rounded(width,gauge,edge,2)])
+  loops.append([(x,y+v*normal.x,z+v*normal.y) for x,v in sampled])
  return reg(M.loft(name,loops,MAT[mat]),bone)
 def soften_forging(ob,voxel=.45):
  """Original smooth union with regular surface spacing before machined cuts."""
@@ -440,8 +443,15 @@ def sights():
   assert all(f.normal.x*side>0 for f in mesh.polygons),'Button knurl faces must point outward'
   ob=bpy.data.objects.new('HIGH_ButtonKnurl',mesh);bpy.context.collection.objects.link(ob);source(ob,button.name)
  lathe('Sight_RearPivot',[(-14,0),(-14,1.8),(-13.5,2),(13.5,2),(14,1.8),(14,0)],'blue',axis='X',center=(248,121),nseg=20)
- spring=M.bezier((192,111.8),(208,117.3),(229,118.8),(246,115.3),18)
- ribbon('Sight_LeafSpring',spring,9,.8,edge=.12)
+ spring=M.bezier((192,111.8),(208,122.4),(229,122.4),(246,115.3),18)
+ spring_ob=ribbon('Sight_LeafSpring',spring,9,.8,edge=.12,face_steps=6)
+ # The visible spring has a broad folded heel resting on the saddle's lands;
+ # its narrow raised middle meets the underside of the leaf. Keep the channel
+ # center open above the accepted inert carrier/piston animation envelope.
+ for v in spring_ob.data.vertices:
+  heel=max(0.,1-(v.co.y-192)/4)
+  v.co.x*=1+heel*(19/9-1)
+  v.co.z-=heel*max(0.,abs(v.co.x)-6)*.28
  # Staggered columns (evens / odds), with an original typeface, no copied marks.
  for i in range(10):
   side=-1 if i%2==0 else 1;y=211+i*3.6
