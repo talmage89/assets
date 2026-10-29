@@ -526,10 +526,27 @@ def finalize(ob):
  if ob.name in ('Stock_Walnut','Forend_Walnut','Action_Body'):
   high=next(h for h in HIGH if h.get('low_target')==ob.name)
   canonical_surface(ob);canonical_surface(high)
+  if ob.name=='Forend_Walnut':
+   # The routed latch intersects the broad lower land. Its wall must not
+   # pull the exterior's normals into a star around the cut. Preserve the
+   # dense source's measured land normals on those nearly planar polygons;
+   # retain smooth normals on the carved corners and the slanted nose.
+   hn=[n.vector.copy() for n in high.data.corner_normals]
+   for f in high.data.polygons:
+    vs=[high.data.vertices[i].co for i in f.vertices]
+    if f.normal.z<-.985 and all(198<p.y<335 and p.z<26 for p in vs):
+     for j in f.loop_indices:hn[j]=f.normal.copy()
+   high.data.normals_split_custom_set(hn)
   m=ob.modifiers.new('Original carved surface normals','DATA_TRANSFER');m.object=high
   m.use_loop_data=True;m.data_types_loops={'CUSTOM_NORMAL'};m.loop_mapping='POLYINTERP_NEAREST'
   m.use_max_distance=True;m.max_distance=.8;M.apply(ob)
  normals=[n.vector.copy() for n in ob.data.corner_normals]
+ if ob.name=='Forend_Walnut':
+  for f in ob.data.polygons:
+   if f.normal.z<-.985 and 205<f.center.y<275 and f.center.z<24:
+    # Nearest-face projection at an inlet boundary can choose the routed
+    # wall even when the target corner belongs to the exterior land.
+    for j in f.loop_indices:normals[j]=f.normal.copy()
  if 'tube_axis_sign' in ob:
   sign=ob['tube_axis_sign']
   for f in ob.data.polygons:
