@@ -779,7 +779,14 @@ original atlas normal texels, including copied margins, remain exact. The layout
 records original component count, final regions, split membership and each
 island's triangles, so overlapping chart boxes cannot confuse verification.
 This option still fails if it cannot fit losslessly. Leave it off to preserve
-an already accepted island-packed map with no allocation saving.
+an already accepted island-packed map with no file-size or allocation saving.
+
+The guns' seventeen validated standalone sets remain at density ratio **1.000**:
+six 512 and eleven 1024 sets, one material / three maps each. Final embedded
+GLBs total **10,913,804 bytes**, versus **116,433,060 bytes** with their original
+full atlases (90.63% smaller). Eleven use atlas regions; six retain smaller
+accepted island-packed PNGs. Per-item sizes, cluster counts, bytes and bleed
+excesses are in [the guns delivery table](../guns/DETACHABLES.md).
 
 Each chart retains its original bilinear sampling footprint, with **at least
 6 pixels of additional dilation** from that chart alone (the 2048 gun atlas's
