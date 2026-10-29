@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from kit import export, model as G, weapon as W
 from kit import detachable_textures as D, detachable_verify as V
-from kit.gltf import GLB
+from kit.gltf import GLB,stabilize_tangents
 from kit.image_io import write_png
 
 # Exercise the opaque-alpha specular idiom used by real deliverables.
@@ -43,6 +43,16 @@ for bone,center in [('Root',(0,0,0)),('Magazine',(0,.03,0)),('Round',(0,.035,.01
         for i,loop in enumerate(face.loop_indices):
             x,y = [(0,0),(80,0),(80,100),(0,100)][i]
             uv.data[loop].uv = ((ox+x+.27)/2048,(oy+y+.39)/2048)
+# A skew chart near the far atlas corner exercises glTF's rounded 1-v
+# conversion, unlike axis-aligned box charts. Its storage error is measured
+# in delivered pixels; a fixed normalized-UV threshold depends on map size.
+mesh=bpy.data.meshes.new('Precision patch')
+mesh.from_pydata([(.001,0,0),(0,.003,0),(0,.001,0)],[],[(0,1,2)])
+patch=bpy.data.objects.new('Magazine precision patch',mesh)
+bpy.context.collection.objects.link(patch);patch['asset_set']='SubsetFixture'
+W.rigid_bind(patch,arm,'Magazine');layer=mesh.uv_layers.new(name='BakeUV')
+for i,(u,v) in enumerate(((.8785316944,.8754293323),(.8764206767,.8779888749),(.8923629522,.8780236244))):
+    layer.data[i].uv=(u,1-v)
 W.action(arm,'Loaded',[(0,{}),W.hold(1)])
 W.action(arm,'Empty',[(0,{'Round':dict(scale=(0,0,0))}),W.hold(1)])
 W.action(arm,'Tilt',[(0,{}),(12,{'Magazine':dict(loc=(.01,-.02,.03),rot_deg=(24,32,-13))}),W.hold(15)])
@@ -113,6 +123,28 @@ deliver(static_base,out/'static-legacy')
 deliver({**static_base,'EXPORT_TEXTURE_SIZE':512},out/'static-small')
 V.compare(out/'static-legacy/main.glb',out/'static-small/main.glb')
 V.audit(out/'static-small/main.glb',textures,'SubsetFixture',out/'static-small/detachables/main/layout.json')
+# Guarded last-digit export stabilization must restore only the accepted bytes,
+# and must reject a changed source signature or a larger tangent difference.
+import struct,copy
+original=(out/'static-legacy/main.glb').read_bytes();g=GLB(out/'static-legacy/main.glb')
+primitive=g.json['meshes'][0]['primitives'][0];attributes=primitive['attributes']
+anchor=dict(mesh=0,primitive=0,vertex=0,
+ position=g.accessor(attributes['POSITION'])[0].tolist(),normal=g.accessor(attributes['NORMAL'])[0].tolist(),
+ uv=g.accessor(attributes['TEXCOORD_0'])[0].tolist(),tangent=g.accessor(attributes['TANGENT'])[0].tolist())
+accessor=g.json['accessors'][attributes['TANGENT']];view=g.json['bufferViews'][accessor['bufferView']]
+offset=12
+while struct.unpack_from('<II',original,offset)[1]!=0x004e4942:
+    offset+=8+struct.unpack_from('<I',original,offset)[0]
+component=offset+8+view.get('byteOffset',0)+accessor.get('byteOffset',0)
+payload=bytearray(original);struct.pack_into('<f',payload,component,anchor['tangent'][0]+.0001)
+rounded=out/'rounded.glb';rounded.write_bytes(payload)
+stabilize_tangents(rounded,[anchor]);assert rounded.read_bytes()==original
+for field in ('uv','tangent'):
+    bad=copy.deepcopy(anchor);bad[field][0]+=.01
+    try:stabilize_tangents(rounded,[bad])
+    except ValueError:pass
+    else:raise AssertionError('Unsafe tangent stabilization accepted')
+    assert rounded.read_bytes()==original
 # A single 650px-wide original chart requires 1024, even with a 512 limit.
 bpy.ops.wm.read_factory_settings(use_empty=True)
 mesh=bpy.data.meshes.new('Wide');mesh.from_pydata([(0,0,0),(1,0,0),(1,1,0),(0,1,0)],[],[(0,1,2,3)])

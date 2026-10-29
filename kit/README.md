@@ -776,8 +776,24 @@ surface points per triangle in linear color, tangent normal and ORM, including
 opaque alpha. Tolerance is 0.25/255 per channel; triangle tangent directions must
 agree within 0.5 degrees after float storage. Its `audit()` also checks delivered
 sampling, chart protection and inverse-mapped samples against the canonical atlas.
+The raw old/new UV transform must agree with the known positive density-preserving
+scale within 0.001 delivered pixel. Resolved triangles (at least one source texel
+of area) additionally retain density within 0.1%; subtexel slivers' ill-conditioned
+area ratios are reported separately, alongside all their surface samples.
 Clean `build/detachable-textures` before this fixture. The existing
 `test_weapon_delivery.py` remains unchanged and still proves canonical reuse.
+
+`gltf.stabilize_tangents(path, anchors)` optionally restores explicitly accepted
+four-decimal tangent rounding at asset-owned corners. Each anchor includes the
+mesh/primitive/vertex index and exact FLOAT position, normal and UV signatures;
+larger changes or mismatched signatures fail before writing. Only the anchored
+tangent bytes can change, bounded to one 0.0001 rounding step. This protects
+byte-preservation reviews from exporter rounding noise without hiding geometry
+changes. The detachable fixture checks exact restoration and negative guards.
+The CLI is `blender -b --factory-startup --python-exit-code 1 --python kit/gltf.py
+-- --source export/asset.glb --config src/export_config.py`; that export-only
+config supplies `EXPORT_TANGENT_ROUNDING`. Existing exports never invoke it
+implicitly, and the GLB reader's behavior is unchanged.
 
 `BAKE_POLICY.isolate_rigid_bones=True` adds virtual projection roots `rigid:<bone>`
 for non-Root rigid parts tagged with `bone`. This preserves each part's projection
