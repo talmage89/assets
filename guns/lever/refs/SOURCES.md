@@ -85,3 +85,18 @@ The [seller's measured insert description](https://homesteadparts.com/shop/sight
 gives 0.355-inch overall height and 0.270-inch notch height; different mounting
 construction is explicitly distinguished. Downloaded 2026-10-28. No reference
 pixel enters the asset. Product markings are not reproduced.
+
+## Look round 2 comparison scope
+
+The same white-balanced `open2.jpg` is used for whole receiver-side HSV
+distributions and a separate rolled-shoulder reflection observation. Native
+polygons and hardware exclusions are in `src/plate_review.py`; the broad bare
+bolt flat remains its estimated neutral. No histogram, polygon or photo pixel
+enters modeling, material generation or the bake.
+
+The owner's original PD Hearth 12, rebuilt from repository `main` at
+`ac7739b`, supplies a studio/steel precedent. It was rendered both with its
+accepted lighting and with the old Bracken lighting as a controlled comparison.
+The Bracken final studio now uses the Hearth's five neutral cards, world and
+reflection flags. No shotgun geometry, shader or texture is copied into this
+asset. Its renders and source snapshot remain ignored comparison evidence.

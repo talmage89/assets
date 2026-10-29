@@ -1,4 +1,9 @@
-# Bracken L20 — form and motion review
+# Bracken L20 — form, motion and finish review
+
+The opening sections preserve the earlier form checkpoint. The current
+finish critiques and delivery proof are at the end under **Look round 2**;
+earlier finish acceptance is historical and was superseded by the lead's
+second-round rejection.
 
 This is the requested stop **before look-dev**. Inspection colors are constant;
 the walnut has no grain or dings and the steel has no wear. This review does
@@ -710,7 +715,7 @@ agreement. Real walnut also retains more irregular figure than our source.
     inspected: 67 match the previously reviewed set, and four new raster
     variants were opened separately. There are no visible new motion artifacts.
 
-## Final acceptance proof
+## First finish delivery proof (historical)
 
 - `make -C guns/lever`: **exit 0**. Complete log:
   `../../build/lever-final/make-final.log`.
@@ -764,3 +769,230 @@ thin UV tips/padding as well as eroded interiors, expose stationary projection
 isolation more clearly, and distinguish raw GLB normals from Blender's imported
 custom-normal fan encoding. The existing helpers already support this delivery;
 no shared-code change was necessary.
+
+## Look round 2 — lead rejection and new critiques
+
+The preceding final-look acceptance was too lenient. The lead retained the
+form, all mechanism/interface evidence, lower-fillet contact shape and delivery
+budgets, but rejected copper-like oxide, chrome-like rubs, uniform receiver
+thinning and the straight wrist cuff. This section supersedes the old finish
+acceptance. The handoff is frozen under `../../build/look-round2/before/`.
+
+1. **Color and value first — whole-plate baseline.** Opened the native hero,
+   receiver, used pair, value patches and the finished Hearth 12 docs. The
+   original hero's entire oxide-flat median is **120/79/50**, versus the
+   white-balanced used photograph's **79/53/36**; the bright deciles are
+   **166/121/88** and **104/73/57**. The old favorable rectangle does not
+   establish whole-plate agreement. Copper-colored reflections, a continuous
+   receiver outline, pale lever/trigger/bands and a square-ended wrist stain
+   remain obvious at full frame. The neutral is the same broad exposed bolt
+   flat, native (470,166)-(570,177), adapted in linear RGB. This is an estimated
+   reflective neutral, with uncertain illumination, not an albedo measurement.
+   Build the main-branch shotgun in an ignored local snapshot and compare its
+   exported hero/receiver under the same cards before setting the final steel.
+
+   ![First critique: rejected Bracken hero beside the approved main-branch Hearth hero](../../build/look-round2/before/hero-shotgun.jpg)
+
+2. **Color and value first — source trials, rejected.** The first effective
+   oxide/steel blend removes orange conductor reflections but is too pale;
+   5 mm protected halos look like black spray-painted circles around screws.
+   `renders/look-round2/source1/` records that rejected version. Narrow and
+   reduce those halos. The second source has a too-neutral flat: hero
+   **89/80/76**, used-view **74/66/61**. It loses the photograph's brown diffuse
+   body. The third restores brown diffuse under a dielectric oxide surface
+   with gray substrate, but overshoots value: hero **108/84/69**, used-view
+   **103/80/65**. Darken that diffuse endpoint, retain neutral reflection and
+   desaturate high carry scratches. The whole-plate mask is inset from the
+   exposed fillet and excludes separate hardware. A first photo polygon
+   included a few background pixels along the lower edge; correct its actual
+   native contour before using distributions, rather than thresholding pixels
+   until a statistic agrees. All masks, RGB, HSV and bright-decile distributions
+   are in `src/plate_review.py` and its generated JSON/plots.
+
+   The new sight source has rounded lobe shoulders and a measured 2.02 mm
+   notch, retaining the 1.1 mm sheet and shoulder/floor heights. It reads as
+   one filled sheet in front and oblique views. One 0.1 mm gauge bevel replaces
+   extra subtexel bevel segments to pay for the lobes, reducing the source to
+   **39,744 triangles**. The existing actual-surface form/contact check passes.
+   The finished raking source shows a smooth outer wrist. The sharp interior
+   hammer-mortise lip remains a real cut edge; recheck it after the normal bake.
+   No stock geometry or accepted normal-transfer method is changed.
+
+3. **Color and value first — exported steel and controlled studio.** Opened
+   `renders/look-round2/export1/` beside the independently rebuilt main shotgun,
+   both rendered with identical Bracken cards/cameras. The former copper
+   highlights are now nearly neutral: whole-plate hero bright decile
+   **93/82/78**, versus the handoff's **166/121/88**. However the inner lever
+   rail and grazing upper tang still read too white. The same frontal cards
+   make the accepted Hearth receiver/port and action bars pale too. This is
+   evidence that the two original guns did not actually share their complete
+   light setup. Stop calibrating against those frontal cards. Match the
+   Hearth's five cards, world strength, exposure and black reflection flags
+   exactly, retaining all Bracken cameras and the exact Eye frame. Keep the
+   satin material response and compare again. Baseline hero pairs are in
+   `../../build/look-round2/before/hero-shotgun.jpg`; original Hearth studio
+   renders are in `../../build/look-round2/shotgun-studio/`, and the controlled
+   former-Bracken-light comparison is `shotgun-shared/` beside it.
+
+   The exported `export2/` in the actual Hearth studio fixes the white tang
+   and lever: they now read as satin gray under the same light as its worn
+   port. It also exposes the old diffuse calibration's reliance on frontal
+   light: whole-plate hero **51/37/32**, used-view **48/34/28**, versus the
+   photo's **79/53/36**. The small receiver/wrist/forend rectangles are now
+   **51/31/20**, **24/11/5**, **52/27/11**, below photographic
+   **81/54/39**, **44/23/11**, **86/51/32**. Reject this dark candidate too.
+   Recalibrate oxide diffuse and walnut under the common studio, without
+   increasing conductor saturation, reducing roughness or whitening the rubs.
+   The exported wrist rake retains the smooth outside crown; no pinched fold
+   runs into the wood beside the hammer. Its actual mortise edge remains sharp.
+
+4. **Color and value first — final 2048 candidate.** The final export under
+   the Hearth studio has whole-flat hero median **73/52/37**, against the
+   photo's **79/53/36**. Display-luma p10/median/p90 is
+   **24.71/55.88/62.36**, versus **46.10/56.95/72.65**. The darker low tail
+   comes from the protected ends, screw seats and loading recess; the photo's
+   different plate, reflections and lighting retain a narrower lower tail.
+   Median HSV is **22.59 degrees / .443 / .286**, versus photograph
+   **22.59 / .533 / .310**. The handoff hero was **24.00 / .569 / .471**.
+   The corrected hero has a muted brown body, dark surviving bluing and gray
+   reflections, rather than one smooth copper conductor.
+
+   Distinguish diffuse brightness from reflection: the brightest flat decile
+   is still brown (**91/58/33**); it is not an isolated specular lobe. The
+   independently selected rolled shoulder measures approximately **38/36/35**
+   in the hero and **73/73/74** in the matched used view. The photographed
+   shoulder is **242/229/220** under its different light. This tests reflection
+   color, not highlight width or recovered roughness. Native polygons, HSV
+   distributions and both kinds of highlight samples remain in the JSON.
+   The small receiver/wrist/forend rectangles now measure
+   **86/53/30**, **41/22/12**, **86/51/34**, against photographed
+   **81/54/39**, **44/23/11**, **86/51/32**. Luma is
+   **58.50/25.18/57.21**, versus **58.73/26.75/57.29**.
+
+   Opened the final native hero, receiver, wrist rake, common-studio hero
+   comparison, full macro/photo pair and whole-plate histogram sheet. The
+   tang is satin dark gray; lever contact is on the interior/rear rather than
+   coating the exterior bow; trigger sides remain blue. Gray steel no longer
+   forms a full bright outline around all receiver edges. The accepted lower
+   fillet remains continuous where the carrying hand follows it; its shape
+   is not changed to make the new roughness look quieter. Wrist darkening
+   has a broad form-following fade, with no straight cuff. The outer carving
+   beside the hammer stays smooth in the finished raking view; the mortise
+   lip is an actual machined edge, not a pinched normal fold.
+
+   Hero object luma p1/median/p99 is **0/54.42/158.65** with **29.52%** below
+   24 and zero fully clipped pixels. Fine rollmarks and carry scratches soften
+   at the one 2048 atlas; original walnut figure remains more regular than a
+   real blank. These remain limits, not reasons to increase triangles or maps.
+   Proceed to complete all final sheets, clip provenance and required checks
+   against this exact export; the command results below are recorded only
+   after those stages finish.
+
+5. **Color and value first — native sight silhouette, further correction.**
+   The final material candidate retains the preceding gray steel reflections
+   and brown diffuse body; no color or value change is needed. Native front
+   review nevertheless shows a small peak where the hand-placed ear segments
+   meet. The source/photo sheet makes this visible even though the oblique
+   view seemed rounder. Reject that remaining faceting. Replace only those
+   ear segments with sampled elliptical arcs whose crest chord error is below
+   0.005 mm, keeping the 2.02 mm notch, shoulders, floor, 1.1 mm sheet and
+   optical frame. Spend the triangles saved from subtexel bevels on the actual
+   silhouette. Interrupt the incomplete presentation/check run and regenerate
+   the model, atlas, exports and all required proof from these final arcs.
+
+   Opened the new native exported `export-rounded/sight_blade.png` and
+   `sights.png`: the visible pointed crest is gone. Actual surface rays measure
+   **9.000 mm height, 1.100 mm gauge, 2.200 mm ear rise, 2.020 mm notch width
+   and 1.250 mm notch depth**. Source **39,832**, delivered **39,814** triangles,
+   still 136 below the handoff. The new independent repeat passes, and the
+   optional handoff audit again preserves all 115 other meshes, 26 bones,
+   37 clips, ten sockets and the five accepted lower-fillet expressions.
+   Full-plate hero RGB is **72.5/52/37**, unchanged within atlas filtering.
+
+6. **Color and value first — carry variation after native review.** The
+   preceding export is close in whole-flat median and retains neutral gray
+   reflections, but the native macro still presents the brown thinning as a
+   smooth vignette. A matching median cannot excuse that remaining tell.
+   Replace the weak broad modulation with overlapping axial cloth/holster
+   pressure inside the existing hand-contact envelope. Increase the resolved
+   longitudinal striae and add six short, tapered grit tracks, 8–22 mm long
+   and 0.08–0.14 mm wide. These are shader relief/color/roughness fields in
+   the forging frame, not geometry or photographed textures. Keep screw,
+   gate and tang protection; keep the five accepted lower-fillet expressions
+   exactly. The native source trial in `renders/look-round2/source-carry/`
+   shows the direction of travel and small surviving-blue variations across
+   the flat. Check filtering on the exported single 2048 set before accepting
+   this refinement. No wood, ammunition, geometry, rig or camera is changed.
+
+   The exported native macro in `renders/look-round2/export-carry/` retains
+   the tracks and overlapping thinning after filtering. Whole-flat hero
+   median is **74/53/39**, luma p10/median/p90 **27.02/56.74/64.28**, and
+   median HSV **22.59 degrees / .439 / .290**. The photo remains
+   **79/53/36**, **46.10/56.95/72.65**, **22.59 / .533 / .310**. This
+   retains the previous gray reflections while resolving its smooth flat.
+   Opened the exported hero/macro and the regenerated native turnarounds.
+   Keep this refinement, then rebuild the remaining comparisons and complete
+   the full command/provenance audit. The exact handoff audit still passes.
+
+   The final matched used view now gives receiver **86/54/34**, luma
+   **59.43**, against **81/54/39**, **58.73**. Whole used-view flat is
+   **72/51/35**, not that single rectangle. Its rolled-shoulder reflection
+   is **73/73/74**; the hero's is **38/36/35.5** and the macro's
+   **26/25/26**. Brightest flat deciles remain brown and are explicitly
+   separated from those gray reflections. The full-profile, flash-lit stock
+   remains a large display mismatch (**188/128/119**, luma **140.38**, versus
+   **96/55/35**, **62.20**). Retain it in the sheet and README; do not claim
+   whole-stock photographic agreement from the much closer used wrist and
+   forend patches. Different incident illumination and finish remain limits.
+
+## Round 2 delivery proof
+
+- `make -C guns/lever` and `make -C guns/lever check` both exit **0**.
+  Complete logs are `../../build/look-round2/make-carry.log` and
+  `check-rounded.log` beside it. The latter completed against the current
+  rebaked maps and exports. The independent `make -C guns/lever repeat`
+  also exits **0**, recorded in `repeat-rounded.log`.
+- The handoff preservation audit passes: **115 other meshes, 26 bones,
+  37 clips, ten complete socket frames**, and the five lower-fillet
+  expressions remain exact. The bead's corner-normal roundoff is
+  5.96e-8. No accepted wood, lever, trigger, ammunition or rig geometry changes.
+- Final source **39,832 triangles**; delivered gun **39,814**, one material,
+  three embedded 2048 maps, **12,298,660 bytes**. Cartridge **1,598** /
+  **7,302,732 bytes**; case **1,326** / **7,283,888 bytes**. Canonical PNGs
+  are **1,890,081 / 2,269,287 / 3,021,758 bytes** for BaseColor/Normal/ORM.
+- The 4096/32-sample GPU bake misses **zero** of **4,110,236** checked
+  interior texels in all six channels. Full stock/forend reserved regions
+  contain zero metallic texels. Escaped/degenerate UV triangles are zero;
+  combined family overlap fraction **2.64e-7**, below **1e-5**.
+- Construction passes on the finalized asset and the independently
+  reconstructed imported GLB: **67 contacts**, **37 clips**, **5,304**
+  imported half-frame sweep samples, with the unchanged bounded contact
+  policy. Serialization separately compares **5,271** complete affine
+  frames and **185** event/end surfaces; maximum posed surface delta
+  **1.21e-7 m**. Raw delivered position error is zero, normal-vector error
+  **8.53e-5**, UV error **2.98e-8**. Imported custom-normal fan encoding
+  remains a separately measured **0.584-degree** limit at a narrow cut.
+- The rebuilt 2D scalar contact mask measures **24.67%**, versus photo
+  annotation **27.07%**, with one connected region each and both area-share
+  axes reported. This is the projected factor **>0.42** metric, independent
+  of the corrected darker steel. The historical **25.1% / 27.1%** RGB-mask
+  comparison and unchanged contour are not redefined as that new metric.
+- Final provenance passes for **735** current exported-GLB image records,
+  all **37** decoded real-duration WebPs, **696** strip frames and **87**
+  distinct strip images. Opened all distinct poses in four native inspection
+  pages, all source/export photo pairs, native details/turnarounds, band and
+  ammunition macros, the wear pair, final sheets and all five docs JPGs.
+- Final hero object luma p1/median/p99 is **0 / 54.63 / 158.51**;
+  **29.40%** falls below 24, with **zero** fully clipped pixels. The main-
+  branch Hearth comparison uses the current Bracken cards and cameras from
+  `../../build/look-round2/shotgun-calibration/`. Final hero/steel comparisons,
+  whole-plate histograms, macro/photo and named wear panels are in
+  `renders/final/look-review/`; the final contact sheet is
+  `renders/final/contact-sheet.jpg`.
+- Docs are **1600 px wide**, **37,663–182,703 bytes**, five JPGs, all kept
+  **uncommitted**. Repository check reports **873 source files, zero errors**;
+  Python compilation and `git diff --check` pass. No kit or common/gun module
+  is changed. Remaining visual limits are the regular walnut figure,
+  softened fine relief/lettering at 2048, the flash-stock display mismatch
+  and different reference illumination; no additional maps or triangles
+  are used to conceal them.
