@@ -44,7 +44,8 @@ for name in ('pistol','magazine_loaded','magazine_empty','case'):
   assert hashes==canonical
   subset=None;map_size=2048
  else:
-  subset=DV.audit(path,BASE/"textures","C9",BASE/"build/delivery/detachables"/name/"layout.json")
+  subset=DV.audit(path,BASE/"textures","C9",BASE/"build/delivery/detachables"/name/"layout.json",gun=BASE/'export/pistol.glb')
+  subset['mip_bleed']=DV.mip_bleed(path,BASE/"textures","C9",BASE/"build/delivery/detachables"/name/"layout.json",gun=BASE/'export/pistol.glb')
   map_size=subset["size"];assert map_size=={'magazine_loaded': 1024, 'magazine_empty': 1024, 'case': 512}[name]
  for i in range(3):
   im=Image.open(io.BytesIO(g.image(i)));assert im.size==(map_size,map_size)
@@ -64,6 +65,6 @@ result=dict(passed=True,trigger_surfaces=trigger_surfaces,stage='final 2048 PBR 
  uv={k:uv_report[k] for k in ('coverage','outside_triangles','degenerate_uv_triangles','overlap_pairs','overlap_fraction','density_px_m')},
  bake_size=bake_report['size'],bake_samples=bake_report['samples'],missed_interior_texels=0,
  semantic_check=states,affine_samples=len(poses),max_position_delta_m=max(p['position_delta_m'] for p in poses),
- gpu_memory_mib_bc_with_mips=16,runtime_sharing='gun atlas; standalone sets use independent base-level LINEAR sampling',
+ gpu_memory_mib_bc_with_mips=16,runtime_sharing='gun atlas; standalone sets use independent gun-matched trilinear mip sampling',
  max_linear_delta=max(p['linear_delta'] for p in poses))
 (BASE/'build/delivery/verify.json').write_text(json.dumps(result,indent=2));print('ATLAS VERIFIED: 1110 intermediate affine/state poses, one material, four fresh imports, canonical gun atlas and standalone texture sets')

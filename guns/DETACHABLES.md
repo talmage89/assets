@@ -1,167 +1,162 @@
-# Standalone detachable texture delivery
+# Standalone detachable mipmap delivery
 
-All seventeen standalone GLBs carry their own small baked texture sets. The six
-main gun GLBs are byte-identical to exports built before this change at branch
-point `6bce9cfc0245d03e04c00490d96aed66f8f3fbd0`. Canonical PNGs and
-finalized source blends also retain their exact SHA-256 hashes. No docs JPG was
-regenerated or changed. Baseline builds used each gun’s `make export`; this
-avoided the `all` target’s docs regeneration. Every baseline bake used the shared
-GPU lock. Exports were preserved under `build/detachables/baseline/<gun>/`.
+Fourteen standalone sets now use the gun’s sampler, protected mip gutters and
+a fully filled background. **Three magazine allocations remain pending**: the
+loaded pistol magazine and both bolt-rifle magazines. The supported option is
+still 512/1024; their 2048 exception has been requested, not applied. Their old
+compact files remain available, but are not claimed as mip-correct deliveries.
 
-## Texture policy
+## Sampler, gutters and fill
 
-`DETACHABLES` entries opt into `texture_size=512` or `1024`. Static ammunition
-variants use the equivalent `EXPORT_TEXTURE_SIZE`. Export-only configuration
-keeps these choices outside bake dependencies. The kit copies shipped pixels
-without rebaking or resampling, and translates nonrotated/nonmirrored charts by
-integer pixels with a positive uniform UV scale. Material factors/extensions,
-including the SMG’s opaque alpha specular data, survive unchanged. The original
-canonical-map delivery and its existing kit regression remain unchanged.
+Rebuilt sets inherit the gun’s sampler unchanged: `minFilter=9987`
+(`LINEAR_MIPMAP_LINEAR`), `magFilter=9729` (`LINEAR`), and repeat wrapping
+(implicit glTF defaults). No LOD clamp or mipmap disabling is required.
 
-Charts retain their bilinear sampling footprint plus two pixels of dilation.
-**Standalone samplers use LINEAR base-level filtering without mipmaps, with
-CLAMP_TO_EDGE.** No finite gutter can isolate islands through a mip chain ending
-at 1×1, and glTF has no maximum-LOD field. Importers must honor the sampler;
-forcing generated mipmaps requires an engine-specific LOD/padding policy.
-At 8-bpp compression per map, the three base levels cost about 0.75 MiB at 512
-or 3 MiB at 1024. The ten 1024 and seven 512 sets total about **35.25 MiB**;
-seventeen independent full 2048 allocations with mipmaps would cost 272 MiB.
+The packer prefers 8 px per island. If that does not fit the requested size,
+it tries the atlas-equivalent **6 px minimum**, with the same protection.
+Guard rectangles align to an 8 px mip grid; right/top edges round up, giving
+8–15 px guards for the preferred policy or 6–13 px for the fallback. This
+contains every box/bilinear tap through mip 3. Alignment matters: an unaligned
+8 px trial failed the strict mip-3 comparison. Larger required cutoffs increase
+the grid and minimum guard together; the regression also tests through mip 6.
 
-## Measured standalone outputs
+Every island’s original bilinear footprint stays byte-exact. Integer-pixel
+translation and positive uniform scaling preserve density and tangent frames;
+nothing is rebaked, resampled on the surface, rotated or mirrored. Guards
+dilate only their own island. A masked pull-push fills all remaining texels,
+with RGB in linear light and alpha/ORM as linear data. Generated normal texels
+are normalized before quantization; original island texels are untouched.
 
-Density below is the surface-area-weighted median, in pixels per meter.
-Each item uses one material and three embedded maps. Triangle counts and exact
-oriented positions/normals, origins and material settings are unchanged.
+## Mip error and measured outputs
 
-| Gun | Standalone | Triangles | Old GLB bytes | New GLB bytes | Map size | Atlas density → own set |
-| --- | --- | ---: | ---: | ---: | ---: | ---: |
-| pistol | `case.glb` | 384 | 5,204,740 | 239,544 | 512 | 7,571.67 → 7,571.67 |
-| pistol | `magazine_empty.glb` | 4,416 | 5,362,360 | 945,428 | 1024 | 3,972.74 → 3,972.74 |
-| pistol | `magazine_loaded.glb` | 5,256 | 5,396,292 | 1,105,768 | 1024 | 3,972.74 → 3,972.74 |
-| shotgun | `hull.glb` | 394 | 8,244,008 | 345,992 | 512 | 3,532.51 → 3,532.51 |
-| shotgun | `shell.glb` | 600 | 8,260,472 | 362,344 | 1024 | 5,103.97 → 5,103.97 |
-| bolt | `case.glb` | 768 | 6,753,080 | 196,596 | 512 | 4,083.00 → 4,083.00 |
-| bolt | `magazine_empty.glb` | 3,716 | 6,928,816 | 1,151,616 | 1024 | 2,680.07 → 2,680.07 |
-| bolt | `magazine_loaded.glb` | 4,976 | 6,997,748 | 1,373,476 | 1024 | 2,680.07 → 2,680.07 |
-| smg | `cartridge.glb` | 688 | 7,359,568 | 141,404 | 512 | 7,076.69 → 7,076.69 |
-| smg | `case.glb` | 688 | 7,360,256 | 161,256 | 512 | 6,295.72 → 6,295.72 |
-| smg | `magazine_empty.glb` | 4,048 | 7,476,900 | 1,137,960 | 1024 | 2,376.67 → 2,376.67 |
-| smg | `magazine_loaded.glb` | 5,792 | 7,549,888 | 1,267,700 | 1024 | 2,374.26 → 2,374.26 |
-| revolver | `cartridge.glb` | 520 | 6,307,544 | 58,568 | 512 | 2,938.81 → 2,938.81 |
-| revolver | `case.glb` | 456 | 6,304,652 | 64,264 | 512 | 2,938.83 → 2,938.83 |
-| revolver | `speedloader_loaded.glb` | 5,398 | 6,513,196 | 548,644 | 1024 | 2,755.17 → 2,755.17 |
-| lever | `cartridge.glb` | 1,598 | 7,216,192 | 595,532 | 1024 | 4,942.85 → 4,942.85 |
-| lever | `case.glb` | 1,326 | 7,197,348 | 651,064 | 1024 | 5,749.64 → 5,749.64 |
+`detachable_verify.mip_bleed()` builds box-filtered atlas and standalone chains.
+At ten common points per triangle, each map is compared with the same island
+alone, dilated without a limit. The ideal reference is aligned independently
+to each actual mip grid, so intra-island filtering phase is not counted as
+bleed. Error is the maximum absolute component difference in linear RGBA,
+encoded tangent normal, or linear ORM. **At every point and tested level, the
+new error must be no greater than the atlas error plus 1/255.**
 
-Total standalone GLB bytes: **116,433,060 → 10,347,156** (91.11% smaller).
+The tiny/sliver islands make the requested two-texel cutoff mip 0 for these
+items. The check deliberately extends every sampled surface through **mip 3**
+instead of letting that cutoff make the test vacuous. Table values are
+**new / atlas**, normalized to 0–1; values below 0.000001 round to zero.
+Pointwise excess is enforced separately, not inferred from these maxima.
 
-The smallest supported size fitting the unchanged, guarded chart rectangles is
-chosen. All 512 items fit that size. Each 1024 item exceeds the 512 rectangle
-area budget, except the live shotgun shell, which has a 538-pixel-long guarded
-chart that cannot fit without rotation or density loss. Exact layout dimensions
-and density percentiles are in each `build/delivery/detachables/<name>/layout.json`.
+“Atlas bytes” are the original full-atlas GLBs; “prior bytes” are the accepted
+compact, non-mipmapped GLBs. New sizes are exact embedded GLB bytes. Gutter
+values are minimum pixels; the rounded right/top extents are in `layout.json`.
 
-## Preservation proof
+| Gun | Item | Map | Gutter | Atlas bytes | Prior bytes | New bytes | Mip 0 | Mip 1 | Mip 2 | Mip 3 |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | --- | --- | --- | --- |
+| pistol | `case` | 512 | 8 | 5,204,740 | 239,544 | 253,980 | 0 / 0 | 0 / 0.189946 | 0 / 0.346479 | 0 / 0.472156 |
+| pistol | `magazine_empty` | 1024 | 6 | 5,362,360 | 945,428 | 991,512 | 0 / 0 | 0 / 0.221151 | 0 / 0.335126 | 0 / 0.644196 |
+| pistol | `magazine_loaded` | 2048 proposed | pending | 5,396,292 | 1,105,768 | pending | — | — | — | — |
+| shotgun | `hull` | 1024 | 8 | 8,244,008 | 345,992 | 452,248 | 0 / 0 | 0 / 0.19838 | 0 / 0.34371 | 0 / 0.47697 |
+| shotgun | `shell` | 1024 | 8 | 8,260,472 | 362,344 | 420,528 | 0 / 0 | 0 / 0.170537 | 0 / 0.39924 | 0 / 0.600235 |
+| bolt | `case` | 512 | 8 | 6,753,080 | 196,596 | 209,532 | 0 / 0 | 0 / 0.210254 | 0 / 0.418546 | 0 / 0.73438 |
+| bolt | `magazine_empty` | 2048 proposed | pending | 6,928,816 | 1,151,616 | pending | — | — | — | — |
+| bolt | `magazine_loaded` | 2048 proposed | pending | 6,997,748 | 1,373,476 | pending | — | — | — | — |
+| smg | `cartridge` | 512 | 8 | 7,359,568 | 141,404 | 154,220 | 0 / 0 | 0 / 0.158223 | 0 / 0.382461 | 0 / 0.688034 |
+| smg | `case` | 512 | 8 | 7,360,256 | 161,256 | 172,784 | 0 / 0 | 0 / 0.20108 | 0 / 0.418677 | 0 / 0.631851 |
+| smg | `magazine_empty` | 1024 | 6 | 7,476,900 | 1,137,960 | 1,186,756 | 0 / 0 | 0 / 0.241367 | 0 / 0.537232 | 0 / 0.719456 |
+| smg | `magazine_loaded` | 1024 | 6 | 7,549,888 | 1,267,700 | 1,318,624 | 0 / 0 | 0 / 0.241367 | 0 / 0.537232 | 0 / 0.719456 |
+| revolver | `cartridge` | 512 | 8 | 6,307,544 | 58,568 | 74,972 | 0 / 0 | 0 / 0.0313176 | 0 / 0.100991 | 0 / 0.523206 |
+| revolver | `case` | 512 | 8 | 6,304,652 | 64,264 | 75,764 | 0 / 0 | 0 / 0.0215878 | 0 / 0.111398 | 0 / 0.391379 |
+| revolver | `speedloader_loaded` | 1024 | 8 | 6,513,196 | 548,644 | 654,268 | 0 / 0 | 0 / 0.0662934 | 0.000105483 / 0.164486 | 0.00011086 / 0.538116 |
+| lever | `cartridge` | 1024 | 8 | 7,216,192 | 595,532 | 651,104 | 0 / 0 | 0 / 0.282336 | 0 / 0.34198 | 0 / 0.449821 |
+| lever | `case` | 1024 | 8 | 7,197,348 | 651,064 | 713,488 | 0 / 0 | 0 / 0.20259 | 0 / 0.325882 | 0 / 0.562704 |
 
-`build/detachables/preservation.json` records the complete old/new comparison.
-All six main GLBs match byte for byte, including meshes, rig, clips, sockets,
-materials and maps. Independent raw-accessor checks match all standalone
-oriented triangles and full origin/node frames, then sample ten common surface
-points per triangle: **410,240 surface samples** across all seventeen items.
-Linear color (including alpha), normal and ORM agree within 0.25/255; the
-largest measured normal-channel error is only **0.015564 byte**. The largest
-UV transform error is **0.0001221 delivered pixel**. The maximum triangle tangent
-direction discrepancy from float UV storage is **0.423°**, on microscopic charts.
-Resolved density and subtexel sliver ratios are recorded separately.
+The fourteen completed items total **97,110,204 → 7,329,780 bytes**
+(92.45% smaller than their original full-atlas deliveries).
+Each has one material, three maps, unchanged triangles and unchanged origins.
+Full per-channel/per-level errors, density and geometry comparisons are in
+`build/mipmaps/proof-partial.json`.
 
-The exporter occasionally flips a final four-decimal tangent digit. Guarded
-asset-owned position/normal/UV anchors restore branch-point tangents at nine
-corners in five guns; the bolt retains its existing single-corner guard. The
-kit utility rejects changed signatures or differences above one rounding step.
-No source geometry, UV atlas, rig or baked pixel is changed by those guards.
+## Allocation exceptions still needed
 
-The SMG’s old finish fingerprint included immutable standalone UV buffers.
-Its main-gun fingerprint remains fully enforced. New detachable fingerprints
-were measured from the old baseline, retaining exact oriented triangle data and
-origins while allowing UV-driven vertex ordering/deduplication; the independent
-atlas audit verifies the new mapped look. Its clean check now declares and
-builds the five existing neutral-reference photographs it actually uses.
+Even with the 6 px fallback, the current nonrotating guarded rectangles need:
 
-## Old/new renders
+| Item | Guarded rectangle area | Available at 1024 | Proposed size |
+| --- | ---: | ---: | ---: |
+| Pistol loaded magazine | 1,107,712 px | 1,048,576 px | 2048 |
+| Bolt empty magazine | 1,582,080 px | 1,048,576 px | 2048 |
+| Bolt loaded magazine | 2,044,800 px | 1,048,576 px | 2048 |
 
-All 31 pairs were opened and inspected, from 62 Cycles stills at 1200 pixels
-per item / 32 samples through the shared GPU lock. Cameras, shot settings and
-final studio recipes match on both sides. Current GLB hashes and identical
-shot/stage metadata are checked in `build/detachables/render-provenance.json`.
-The revolver renderer selects its final recipe by an `export` path component;
-its preserved baseline was staged under that component before final comparison.
-The invalid initial form-studio comparisons were discarded.
+The bolt magazines also exceed 1024 under a conservative count of their
+actual six-pixel guarded footprints, before rectangle waste: at least
+1,200,829 and 1,491,937 texels for disjoint guards, measured in
+`build/mipmaps/area.log`. A different rectangle
+arrangement cannot solve those two. The pistol result is a bound for this
+conservative rectangle packer. Shape-aware packing would be a separate avenue
+for that magazine. No density was reduced to force an item into its old size.
 
-Gallery: `build/detachables/pairs/index.html`. Full pairs:
-`build/detachables/pairs/<gun>/<standalone>/<shot>-pair.jpg`.
-Contact pages: `build/detachables/pairs/contact-1.jpg` through `contact-6.jpg`.
-Individual originals/new renders and source hashes remain in the adjacent
-`old/`, `new/` and `shots.json` files. Review notes:
-`build/detachables/visual-review.md`.
+The fired shotgun hull moved from **512 to 1024**, as authorized by the brief.
+All other completed size choices are retained. The empty pistol magazine and
+SMG magazines use the tested 6 px fallback to retain 1024. A three-map set with
+8-bpp block compression and full mip chains costs about 1 MiB at 512, 4 MiB at
+1024, or 16 MiB at 2048. No 2048 standalone option has been added yet.
 
-No new bleed, marking loss, hue/value shift or normal seam was visible. Worst
-full-image RGB byte RMSE is **0.02555**. Existing extreme-macro faceting and
-soft headstamps remain; this revision preserves them. No docs image needs a
-visual revision, and all tracked docs hashes remain unchanged.
+## New render proof
 
-## Checks
+Gallery: `build/mipmaps/pairs/index.html`. Each completed item has
+`<gun>/<item>/full-pair.png`, `distant-pair.png` and `distant-texels.png`.
+Contacts: `build/mipmaps/pairs/contact-*.png`.
 
-All six guns were re-exported through their own `make export`, then checked:
+`guns/common/detachable_mip_review.py` rasterizes the actual raw GLB triangles
+with explicit box mip chains and derivative-selected trilinear LOD. Full
+coverage is about 570 px; distant coverage is measured at about 40 px, rendered
+directly at that scale. The nearest-magnified view exposes those same distant
+texels. This is an analytic-GGX **sampling diagnostic**, not a replacement for
+the accepted Cycles studio photographs or a three.js/Unity/Unreal integration
+test. Per-item provenance records source and renderer SHA-256, coverage and LOD.
 
-| Command | Result |
-| --- | --- |
-| `make -C guns/pistol check` | PASS |
-| `make -C guns/shotgun check` | PASS |
-| `make -C guns/bolt check` | PASS |
-| `make -C guns/smg check` | PASS |
-| `make -C guns/revolver check` | PASS |
-| `make -C guns/lever check` | PASS |
+All completed full/distant pairs and distant texel views were opened. Close
+views retain color/value and normal response; the coarse tail has small
+expected changes from averaging own-surface colors. Existing faceting, soft
+headstamps and the SMG’s strong wear remain. Notes:
+`build/mipmaps/visual-review.md`. No docs JPG was regenerated or revised.
 
-Every `kit/test_*.py` passed from fresh fixture directories; existing scratch
-and baselines were preserved outside those fixtures. `Blender` below means
-`blender -b --factory-startup --python-exit-code 1 --python kit/<test>.py`;
-`GPU` prefixes that with `kit/with_gpu.sh`. Python uses
-`python3 -m unittest -v kit.<test>`.
+## Checks and preservation
 
-| Kit test | Runner | Result |
-| --- | --- | --- |
-| `test_atlas` | Blender | PASS |
-| `test_bake_coordinates` | Blender | PASS |
-| `test_bake_frames` | Blender | PASS |
-| `test_blended_atlas` | Blender | PASS |
-| `test_botanical_delivery` | Blender | PASS |
-| `test_botany` | Blender | PASS |
-| `test_delivery` | Python | PASS |
-| `test_detachable_textures` | Blender | PASS |
-| `test_export_policy` | Blender | PASS |
-| `test_fetch_refs` | Python | PASS |
-| `test_foliage` | Blender | PASS |
-| `test_fonts` | Python | PASS |
-| `test_gpu` | Blender | PASS |
-| `test_material_ao` | GPU | PASS |
-| `test_photo_match` | Python | PASS |
-| `test_policy` | Blender | PASS |
-| `test_surface_profiles` | Blender | PASS |
-| `test_tiling` | GPU | PASS |
-| `test_uv_target_aspect` | Blender | PASS |
-| `test_vehicle` | Blender | PASS |
-| `test_weapon` | Blender | PASS |
-| `test_weapon_delivery` | GPU | PASS |
-| `test_weapon_roundtrip` | Blender | PASS |
+All 23 `kit/test_*.py` pass from clean fixture outputs, with Blender for bpy
+fixtures, unittest for Python fixtures and the shared GPU lock for bake tests.
+`build/mipmaps/kit-tests-six.json` records commands/results; logs are in
+`build/mipmaps/kit-logs-six/`. The detachable test includes sampler and black
+background negative cases, a dense 400-island 512 fallback and a mip-6 fixture.
 
-Exact commands and results: `build/detachables/kit-tests.json` and
-`build/detachables/gun-checks.json`; logs are in `build/detachables/logs/`.
-Repository checks and `git diff --check` pass. Generated GLBs, maps, blends,
-references and review images stay ignored.
+The shotgun, revolver and lever were re-exported through their ordinary
+`make export` and passed `make check`. The SMG check is recorded separately in
+`build/mipmaps/gun-checks-final.json` and also passed. Pistol/bolt full export/check remain
+blocked by the three allocations above. Their unaffected ammunition recipes
+were invoked through make with review-only make fragments under each `build/`;
+`build/mipmaps/ammo-exports.json` records exact commands. The empty pistol
+magazine was exported with a review-only entry subset, independently verified,
+then installed; its main GLB was not replaced by that staging export.
 
-## Remaining limitation
+All six raw main GLBs match the preserved branch-point baseline byte-for-byte;
+`build/mipmaps/checkpoint.json` records hashes, sizes and the four successful
+gun checks. The fourteen completed items retain 27,076 triangles and one
+material each, with 270,760 independent base-level surface samples. The worst
+pointwise mip-error excess is 0.0000333611, below the 1/255 tolerance.
+ The revolver needed two additional exact-signature MikkTSpace anchors
+for one last-decimal tangent component each; the existing kit utility bounds
+each correction to one 0.0001 step. All other main bytes remain untouched.
+An interrupted intermediate revolver check was repeated after the final guards.
+Canonical PNGs, finalized sources and all 111 tracked docs JPGs are hash-checked.
 
-The sampler contract deliberately excludes mipmaps. Engine importers that
-override it need a bounded LOD or a different padding/delivery policy; they
-were not tested here. No additional tools or lead action are needed for the
-GLB sampling contract delivered in this revision.
+## Accepted prior delivery retained
+
+The previous compact delivery measured **116,433,060 → 10,347,156 bytes**,
+a **91.11% reduction**, before this mipmap correction. Its per-item prior sizes
+are retained in the table above. Its original 31 old/new Cycles pairs remain in
+`build/detachables/pairs/`, with their original provenance and visual notes.
+The accepted independent surface comparison covered 410,240 samples across
+all seventeen items, with its six gun checks and 23 kit tests. Those historical
+records remain in `build/detachables/`; they are not substituted for this
+follow-up’s new mip checks. The original density choices and no-rebake policy
+are preserved. Only the explicitly documented hull promotion and pending
+allocation exceptions differ from those choices.
+
+This follow-up is not finished until the three size exceptions are resolved,
+the remaining items are exported/rendered, and pistol/bolt full checks pass.

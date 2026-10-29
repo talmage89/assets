@@ -104,7 +104,8 @@ def main():
    assert hashes==canonical
    subset=None;map_size=2048
   else:
-   subset=DV.audit(path,BASE/'textures','Relay9',BASE/'build/delivery/detachables'/name/'layout.json')
+   subset=DV.audit(path,BASE/'textures','Relay9',BASE/'build/delivery/detachables'/name/'layout.json',gun=BASE/'export/smg.glb')
+   subset['mip_bleed']=DV.mip_bleed(path,BASE/'textures','Relay9',BASE/'build/delivery/detachables'/name/'layout.json',gun=BASE/'export/smg.glb')
    map_size=subset['size'];assert map_size=={'magazine_loaded': 1024, 'magazine_empty': 1024, 'cartridge': 512, 'case': 512}[name]
   for i in range(3):assert Image.open(io.BytesIO(g.image(i))).size==(map_size,map_size)
   if name=='smg':

@@ -205,12 +205,12 @@ firing/reload when needed, as documented by the additive supplement.
 
 ## Budget and delivery
 
-| Final output | Triangles | Materials | GLB bytes  Map size |
-| --- | ---: | ---: | ---:  ---: |
+| Final output | Triangles | Materials | GLB bytes | Map size |
+| --- | ---: | ---: | ---: | ---: |
 | Rifle, all animated representations | 48,931 | 2 | 11,090,352 | 2048 |
 | Loaded magazine | 4,976 | 1 | 1,373,476 | 1024 |
 | Empty magazine | 3,716 | 1 | 1,151,616 | 1024 |
-| Fired case | 768 | 1 | 196,596 | 512 |
+| Fired case | 768 | 1 | 209,532 | 512 |
 
 The rifle stays under 50k, including its loaded magazine and all ammunition
 representations. Detached magazines retain that accepted held-gun geometry,
@@ -243,8 +243,9 @@ OpenGL +Y Normal / ORM** atlas. ORM is R occlusion, G roughness, B metallic.
 The rifle retains its canonical **2048** atlas, approximately **16 MiB compressed
 with mipmaps**. Standalone loaded/empty magazines now carry their own **1024**
 sets; the fired case carries **512**, preserving the original atlas density.
-Their samplers use base-level linear filtering without mipmaps, approximately
-3 MiB / 0.75 MiB. See [delivery details](../DETACHABLES.md) for padding,
+The case now matches the gun’s trilinear mipmapped sampler, at about 1 MiB
+compressed with mipmaps. Both magazines need wider-gutter allocation
+exceptions and remain pending. See [delivery details](../DETACHABLES.md) for padding,
 measurements and old/new comparison evidence.
 The native-scale stock/cap wear comparison is built at
 `renders/final/pairs/hero-wear-pair.jpg`; photographic scale estimates and coating

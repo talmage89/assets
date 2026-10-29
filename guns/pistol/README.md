@@ -229,12 +229,12 @@ slide and visible grip. UVs reserve shared family rectangles for the pistol,
 magazine and case; measured density/overlap are reported rather than claimed
 perfectly uniform or zero.
 
-| Final output | Triangles | Materials | GLB bytes  Map size |
-| --- | ---: | ---: | ---:  ---: |
+| Final output | Triangles | Materials | GLB bytes | Map size |
+| --- | ---: | ---: | ---: | ---: |
 | Pistol, loaded | 34,122 | 1 | 8,080,760 | 2048 |
 | Loaded magazine | 5,256 | 1 | 1,105,768 | 1024 |
-| Empty magazine | 4,416 | 1 | 945,428 | 1024 |
-| Fired case | 384 | 1 | 239,544 | 512 |
+| Empty magazine | 4,416 | 1 | 991,512 | 1024 |
+| Fired case | 384 | 1 | 253,980 | 512 |
 
 Bake: **4096, 32 samples**, filtered to one **2048 BaseColor / OpenGL +Y Normal /
 ORM** set. ORM stores R occlusion, G roughness, B metallic. Explicit rest-position
@@ -243,10 +243,11 @@ projection. Original micro-AO carries texture-valley shading alongside geometric
 AO. The filtered three-map atlas costs approximately **16 MiB compressed with
 mipmaps** for the gun. Standalone loaded/empty magazines now embed their own
 **1024** sets; the fired case embeds **512**. These are lossless subsets of the
-shipped atlas at its original density. Standalone samplers use base-level linear
-filtering without mipmaps; their compressed allocations are approximately
-3 MiB / 0.75 MiB. See [delivery details](../DETACHABLES.md) for sizes, density
-and old/new comparison evidence. `KHR_materials_specular` retains the .28 dielectric
+shipped atlas at its original density. The empty magazine and case now match
+the gun’s trilinear mipmapped sampler, costing about 4 MiB / 1 MiB compressed
+with mipmaps. The loaded magazine’s wider-gutter allocation is pending. See
+[delivery details](../DETACHABLES.md) for migration status, sizes, density and
+old/new comparison evidence. `KHR_materials_specular` retains the .28 dielectric
 specular setting; no extra material or map is required.
 
 The final hood correction replaces broad noisy inset rub bands with narrow

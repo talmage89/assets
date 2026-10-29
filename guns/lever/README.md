@@ -240,11 +240,11 @@ a declared visual ownership handoff rather than cartridge-path physics.
 
 ## Budget and delivery
 
-| Output | Triangles | Materials | GLB bytes  Map size |
-| --- | ---: | ---: | ---:  ---: |
+| Output | Triangles | Materials | GLB bytes | Map size |
+| --- | ---: | ---: | ---: | ---: |
 | Carbine, including all ammunition displays | 39,814 | 1 | 12,212,120 | 2048 |
-| Live cartridge | 1,598 | 1 | 595,532 | 1024 |
-| Fired case | 1,326 | 1 | 651,064 | 1024 |
+| Live cartridge | 1,598 | 1 | 651,104 | 1024 |
+| Fired case | 1,326 | 1 | 713,488 | 1024 |
 
 The inspection source has 39,832 triangles; only microscopic Boolean cleanup
 removes 18 for delivery. The final asset stays below 40k. One 4096/32-sample
@@ -252,8 +252,10 @@ source bake is filtered to a single **2048 BaseColor / OpenGL +Y Normal / ORM**
 set for the gun. ORM is R occlusion, G roughness, B metallic; the gun retains
 approximately **16 MiB compressed memory with mipmaps**. Standalone cartridge
 and case now each embed their own **1024** set, extracted losslessly at the
-original atlas density. Standalone samplers use base-level linear filtering
-without mipmaps, approximately **3 MiB** compressed per item. See
+original atlas density. Standalone samplers match the gun’s trilinear
+mipmapped sampler, approximately **4 MiB** compressed per item including
+mipmaps. Eight-pixel minimum guards align to the mip grid; no empty background
+texels remain. See
 [delivery details](../DETACHABLES.md) for padding, density and old/new comparisons.
 
 | Canonical 2048 PNG | Bytes |

@@ -257,13 +257,13 @@ extension over the initial 40k ceiling funds pressed construction, fuller
 lower/guard, rounded trigger, conforming pin surrounds and smoother visible
 ammunition. Fine finish detail adds no game triangles.
 
-| Output | Triangles | Materials | GLB bytes  Map size |
-| --- | ---: | ---: | ---:  ---: |
+| Output | Triangles | Materials | GLB bytes | Map size |
+| --- | ---: | ---: | ---: | ---: |
 | Gun, all animated display ammunition | 41,540 | 1 | 10,879,252 | 2048 |
-| Loaded magazine | 5,792 | 1 | 1,267,700 | 1024 |
-| Empty magazine | 4,048 | 1 | 1,137,960 | 1024 |
-| Cartridge | 688 | 1 | 141,404 | 512 |
-| Fired case | 688 | 1 | 161,256 | 512 |
+| Loaded magazine | 5,792 | 1 | 1,318,624 | 1024 |
+| Empty magazine | 4,048 | 1 | 1,186,756 | 1024 |
+| Cartridge | 688 | 1 | 154,220 | 512 |
+| Fired case | 688 | 1 | 172,784 | 512 |
 
 One canonical **2048 BaseColor / OpenGL +Y Normal / ORM** set, baked at 4096
 with 32 GPU Cycles samples. BaseColor is sRGB; ORM is R occlusion, G roughness,
@@ -271,8 +271,10 @@ B metallic. About **16 MiB** with 8-bpp block compression and full mip chains.
 The PNG files total **7,317,144 bytes** (1,140,711 BaseColor,
 2,413,887 Normal, 3,762,546 ORM). The gun retains these canonical images. Standalone loaded/empty magazines now
 embed their own **1024** sets; the cartridge and case embed **512**, all lossless
-subsets at the original atlas density. Standalone samplers use base-level linear
-filtering without mipmaps, approximately 3 MiB / 0.75 MiB compressed.
+subsets at the original atlas density. Standalone samplers match the gun’s
+trilinear mipmapped sampler, approximately 4 MiB / 1 MiB compressed including
+mipmaps. Grid-aligned guards use 6 px for magazines and 8 px for ammunition;
+the remaining background is fully filled.
 See [delivery details](../DETACHABLES.md) for padding, density and comparison evidence. Each exported
 object is one mesh/material draw call. The loaded/empty magazines retain their
 accepted held-gun detail rather than separate dropped-prop reductions.

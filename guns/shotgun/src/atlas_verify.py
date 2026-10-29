@@ -101,8 +101,9 @@ def main():
    assert hashes==canonical,'Gun images differ from current canonical delivery textures'
    subset=None;map_size=2048
   else:
-   subset=DV.audit(path,BASE/'textures','Hearth12',BASE/'build/delivery/detachables'/name/'layout.json')
-   map_size=subset['size'];assert map_size=={'shell': 1024, 'hull': 512}[name]
+   subset=DV.audit(path,BASE/'textures','Hearth12',BASE/'build/delivery/detachables'/name/'layout.json',gun=BASE/'export/shotgun.glb')
+   subset['mip_bleed']=DV.mip_bleed(path,BASE/'textures','Hearth12',BASE/'build/delivery/detachables'/name/'layout.json',gun=BASE/'export/shotgun.glb')
+   map_size=subset['size'];assert map_size=={'shell': 1024, 'hull': 1024}[name]
   for i in range(3):assert Image.open(io.BytesIO(g.image(i))).size==(map_size,map_size)
   if name=='shotgun':
    assert set(a['name'] for a in g.json['animations'])==set(CLIPS)

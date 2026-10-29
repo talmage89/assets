@@ -154,7 +154,8 @@ def main():
    assert hashes==canonical
    subset=None;map_size=2048
   else:
-   subset=DV.audit(path,BASE/'textures','BrackenL20',BASE/'build/delivery/detachables'/name/'layout.json')
+   subset=DV.audit(path,BASE/'textures','BrackenL20',BASE/'build/delivery/detachables'/name/'layout.json',gun=BASE/'export/lever.glb')
+   subset['mip_bleed']=DV.mip_bleed(path,BASE/'textures','BrackenL20',BASE/'build/delivery/detachables'/name/'layout.json',gun=BASE/'export/lever.glb')
    map_size=subset['size'];assert map_size=={'cartridge': 1024, 'case': 1024}[name]
   for i in range(3):assert Image.open(io.BytesIO(g.image(i))).size==(map_size,map_size)
   normal=V.normal_direction(g)

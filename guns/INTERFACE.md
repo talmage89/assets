@@ -69,8 +69,10 @@ Optional features are discovered through capabilities, never demanded from a
 shotgun/bolt-action gun. Preserve imported PBR materials by index; no `Rifle` or
 `RifleLens` name override. Each gun retains one 2048 BaseColor / OpenGL Normal /
 ORM atlas. Standalone detachables now embed their own 512 or 1024 subsets at the
-same texel density, with unchanged geometry and spawn frames. Their samplers use
-base-level linear filtering without mipmaps; see [delivery details](DETACHABLES.md).
+same texel density, with unchanged geometry and spawn frames. Rebuilt standalone
+sets inherit the gun’s `LINEAR_MIPMAP_LINEAR` / `LINEAR` sampler and repeat
+wrapping; retain these imported samplers. See [delivery details](DETACHABLES.md)
+for gutters, fill and the three pending allocation exceptions.
 
 ## Additive 1.1.0 tube-loading supplement
 

@@ -290,11 +290,11 @@ hull at the ejection event. Normal-speed WebPs and uniform 15-Hz strips are in
 The final gun stays below the brief's 40k ceiling, including all animated shell
 representations. Loaded shell and fired hull stay within 600/400 triangles.
 
-| Final output | Triangles | Materials | GLB bytes  Map size |
-| --- | ---: | ---: | ---:  ---: |
+| Final output | Triangles | Materials | GLB bytes | Map size |
+| --- | ---: | ---: | ---: | ---: |
 | Gun, all animated shell representations | 39,829 | 1 | 11,943,316 | 2048 |
-| Loaded shell | 600 | 1 | 362,344 | 1024 |
-| Fired hull | 394 | 1 | 345,992 | 512 |
+| Loaded shell | 600 | 1 | 420,528 | 1024 |
+| Fired hull | 394 | 1 | 452,248 | 1024 |
 
 Exact texture hashes, UV density/overlap and round-trip errors are recorded in
 `build/delivery/verify.json`. The inspection gun remains 39,825 triangles; the
@@ -327,8 +327,10 @@ covers 34.50%.
 
 The gun retains its canonical **2048** atlas, approximately **16 MiB compressed
 with mipmaps**. The standalone live shell now embeds its own **1024** set and
-the fired hull **512**, preserving the baked atlas density. Their samplers use
-base-level linear filtering without mipmaps, approximately 3 MiB / 0.75 MiB.
+the fired hull **1024**, preserving the baked atlas density. Both match the
+gun’s trilinear mipmapped sampler, with at least 8 px of grid-aligned island
+gutters and a completely filled background; each costs approximately 4 MiB
+compressed including mipmaps.
 See [delivery details](../DETACHABLES.md) for padding, sizes and old/new comparisons.
 One material/skin draw call represents the gun, with no added draw calls for
 checkering, engravings or wear. The standard shared PBR response uses
