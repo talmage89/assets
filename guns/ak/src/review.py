@@ -33,9 +33,15 @@ def main():
  for start in range(0,len(frames),18):
   ps=frames[start:start+18];sheet([(p.parent.name+' '+p.stem,p) for p in ps],OUT/f'clip-inspection-{start//18:02d}.jpg',cols=3,w=500,h=430)
  tri=json.loads((BASE/'build/triangles.json').read_text());meta={}
- for folder in ('beauty','photos','source-photos','loaded','empty','cartridge','case','selector'):
+ for folder in ('beauty','photos','source-photos','loaded','empty','cartridge','case','selector','contacts','source-contacts'):
   p=OUT/folder/'shots.json'
   if p.exists():meta[folder]=json.loads(p.read_text())
+ calibration=json.loads((BASE/'build/cameras.json').read_text())
+ for folder in ('photos','source-photos'):
+  assert set(meta[folder])==set(calibration),('missing photo view',folder)
+  for name,row in meta[folder].items():
+   for key in ('location','target','lens','aspect','roll'):
+    assert row[key]==calibration[name]['shot'][key],('stale camera',folder,name,key)
  render_records=0
  for folder,data in [*meta.items(),*[(str(p.parent.relative_to(OUT)),json.loads(p.read_text())) for p in (OUT/'strips').glob('*/shots.json')]]:
   for name,row in data.items():
@@ -44,6 +50,8 @@ def main():
    render_records+=1
  extras=[(folder+'/'+p.stem,p) for folder in ('loaded','empty','cartridge','case','selector') for p in sorted((OUT/folder).glob('*.png'))]
  if extras:sheet(extras,OUT/'extra-sheet.jpg',cols=3,w=500,h=420)
+ contact_items=[(folder+'/'+p.stem,p) for folder in ('contacts','source-contacts') for p in sorted((OUT/folder).glob('*.png'))]
+ if contact_items:sheet(contact_items,OUT/'contacts.jpg',cols=2,w=750,h=600)
  # Actual bounds are measured independently in check.py.
  check=json.loads((BASE/'build/check.json').read_text());g=check['geometry'];dims=g['bounds_m']['size']
  s=Image.new('RGB',(1500,1300),(236,236,232));d=ImageDraw.Draw(s)
@@ -57,6 +65,8 @@ def main():
  for label,f in [('Photographic pairs','photo-pairs.jpg'),('Clips at real duration','clips.jpg')]:
   if (OUT/f).exists():items.append((label,OUT/f))
  if extras:items.append(('Detachables, ammunition and selector',OUT/'extra-sheet.jpg'))
+ if contact_items:items.append(('Actual contact diagnostics / source and GLB',OUT/'contacts.jpg'))
+ if (OUT/'trigger-measurements.jpg').exists():items.append(('Photographic trigger observations',OUT/'trigger-measurements.jpg'))
  sheet(items,OUT/'contact-sheet.jpg',cols=2,w=800,h=650)
  (BASE/'build/media.json').write_text(json.dumps(dict(triangles=tri['total'],render_groups=meta,strip_frames=len(frames),verified_render_records=render_records),indent=2))
  print('REVIEW',len(beauty),'beauties',len(pairs),'photo pairs',len(frames),'strip samples;',render_records,'verified source hashes')

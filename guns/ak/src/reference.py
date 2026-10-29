@@ -10,6 +10,8 @@ PATCHES={'museum.jpg':((20,20,350,65),'gray museum backdrop, upper-left unshadow
  'weld.jpg':((1750,1000,1830,1090),'no dependable neutral: garment is colored; identity correction, cheek-weld geometry only'),
  'ammunition.jpg':((100,100,600,500),'light paper grid cells; brightest half excludes orange printed grid')}
 PATCHES['trigger-sharp.jpg']=((950,1450,1150,1550),'unclipped white display paper; brightest half excludes lettering')
+PATCHES['rear-sight.jpg']=((2600,180,2860,380),'gray concrete backdrop at upper right; estimated neutral under flash')
+PATCHES['exhibit.jpg']=((1890,550,1990,650),'gray display backing; glass and flash limit absolute color use')
 def main():
  out=BASE/'build/white-balanced';out.mkdir(parents=True,exist_ok=True);report={}
  for name,(rect,description) in PATCHES.items():
@@ -25,6 +27,7 @@ def main():
   if name in ('muzzle.jpg','weld.jpg'):gain=np.ones(3)
   b=np.clip(linear*gain,0,1);b=np.where(b<=.0031308,b*12.92,1.055*b**(1/2.4)-.055)
   balanced=Image.fromarray(np.rint(b*255).astype('uint8'));balanced.save(out/name,quality=98)
+  if name=='exhibit.jpg':balanced.transpose(Image.Transpose.ROTATE_270).save(out/'exhibit-rotated.jpg',quality=98)
   overlay=im.copy();ImageDraw.Draw(overlay).rectangle(rect,outline=(255,60,20),width=3);overlay.thumbnail((1400,1000));overlay.save(out/(Path(name).stem+'-neutral.jpg'))
   report[name]=dict(neutral=description,rectangle=list(rect),linear_gains=gain.tolist(),
    color_measurements_allowed=name not in ('muzzle.jpg','weld.jpg'),

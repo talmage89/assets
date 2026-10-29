@@ -12,6 +12,8 @@ nonfunctional visual proxies, without manufacturing dimensions or tolerances.
 | weld.jpg | https://upload.wikimedia.org/wikipedia/commons/1/19/AKM_and_MP5K.JPEG | SSGT Stacy L. Pearsall, USAF / public domain | Cheek weld and issued wear; only anonymous gun/comb crop used in comparisons. |
 | ammunition.jpg | https://upload.wikimedia.org/wikipedia/commons/7/7b/Cartridge_7.62x39mm_M43_Steel_CC_BY-SA_4.0_by_Grasyl.jpg | Grasyl / CC BY-SA 4.0 | Inert cartridge's exterior silhouette and lacquered steel appearance, comparison only. |
 | trigger-sharp.jpg | https://upload.wikimedia.org/wikipedia/commons/e/e8/AKM_rifle_Bulgarian_Special_Forces.jpg | Ivan 6 / CC BY-SA 4.0 | Higher-resolution trigger/guard and stamped exterior. Modern stock differs; compare blade only. |
+| rear-sight.jpg | https://upload.wikimedia.org/wikipedia/commons/2/20/AK47-rear-sight.jpg | Erik Gregg / CC BY-SA 2.0 | Sharp above/behind tangent-sight photo: leaf, slider buttons, spring pocket and rounded block. Earlier receiver variant; sight exterior only. |
+| exhibit.jpg | https://upload.wikimedia.org/wikipedia/commons/5/53/AKM_1229368320_o.jpg | Vitaly V. Kuzmin / CC BY-SA 4.0 | Auxiliary oblique exterior/cover and sight check. Multiple variants and display wires; not a source for internal construction. |
 
 Source pages (titles in URLs identify reference objects, not the fictional asset):
 

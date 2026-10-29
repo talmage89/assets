@@ -12,6 +12,7 @@ from kit import weapon as W,motion,assembly
 from interface import CLIPS,transition,interrupt
 import interface
 from guns.common.interface_v1_6 import manifest
+from visual_contacts import audit as visual_audit
 def part(n):return next(o for o in bpy.context.scene.objects if o.type=='MESH' and o.get('part_name',o.name)==n)
 def meshes(arm):return [o for o in bpy.context.scene.objects if o.type=='MESH' and o.parent==arm and 'bone' in o]
 def geometry(arm,imported=False):
@@ -66,7 +67,7 @@ def contacts(arm):
  rear=motion.surface(part('Sight_RearNotch'))['tree'].ray_cast(eye+Vector((.004,0,-.0003)),Vector((0,1,0)),.4)
  rows.append(dict(kind='Eye to actual rear-notch shoulder',distance_m=rear[3] if rear[0] else None,
   passed=bool(rear[0]) and .270<rear[3]<.330))
- return rows
+ return rows+visual_audit(arm,part,meshes)
 def semantics(arm):
  rows=[]
  # Independent expected state assertions at intermediate frames. Compare
@@ -84,6 +85,11 @@ def semantics(arm):
     scale=delta(n).to_scale()
     assert all(math.isfinite(v) for v in scale)
     assert all(min(abs(v),abs(v-1))<1e-5 for v in scale),(clip,f,n,scale)
+   for n in ('TopRound','SecondRound','ThirdRound'):
+    d=delta(n)
+    if d.to_scale().length>1:
+     relative=delta('Magazine').inverted()@d
+     assert max(abs(relative[i][j]-(i==j)) for i in range(4) for j in range(4))<1e-5,(clip,f,n,'round moved relative to its feed lips')
    rows.append((clip,f))
  for clip,f in [('FireLast',12),('Charge',60),('IdleEmpty',30)]:
   W.pose(arm,clip,f);assert delta('BoltCarrier').translation.length<1e-5
@@ -106,8 +112,6 @@ def sweep(arm,step=.5):
  # still measured; no unbounded prefix skip is accepted in this asset.
  allow=[dict(a='Receiver_Sheet',b='Trigger_VisualPin',max_penetration_m=.001,
   reason='solid visual pin crosses its sheet bearing; no functional bearing model'),
-  dict(a='Receiver_Sheet',b='Hammer_VisualPin',max_penetration_m=.0015,
-  reason='solid visual hammer pin crosses the folded sheet'),
   dict(a='Carrier_PortCheek',b='ChargingHandle',max_penetration_m=.0015,
   reason='carrier-fixed forged handle root; identical relative deformation throughout'),
   dict(a='MagRelease_Paddle',b='MagRelease_VisualCatch',max_penetration_m=.0021,

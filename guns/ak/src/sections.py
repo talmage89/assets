@@ -9,7 +9,10 @@ CUTS=[('Receiver at magazine well',1,143,['Receiver_Sheet']),
  ('Receiver at selector',1,5,['Receiver_Sheet']),
  *[(name+' / '+str(y),1,y,[name+'_Sculpt']) for name,ys in [('LowerHandguard',(245,330)),('UpperHandguard',(265,325)),('Stock',(-220,-95))] for y in ys],
  ('Pistol grip',2,-5,['PistolGrip_Sculpt']),
- ('Magazine',2,-35,['Magazine_Sheet'])]
+ ('Magazine',2,-35,['Magazine_Sheet']),
+ ('Front sight / collar',1,552,['Sight_FrontTower','Barrel']),
+ ('Front sight / drum',2,117,['Sight_FrontTower','Sight_WindageDrum','Sight_FrontHood','Sight_FrontPost']),
+ ('Guard flat-band section',1,30,['TriggerGuard_Stamping'])]
 def segments(o,axis,station):
  o.data.calc_loop_triangles();p=np.array([tuple(o.matrix_world@v.co) for v in o.data.vertices])*1000
  t=p[np.array([t.vertices for t in o.data.loop_triangles])];d=t[:,:,axis]-station
@@ -30,10 +33,27 @@ def main():
   rows.append(dict(title=title,station_mm=s,axis='XYZ'[axis],axes=['XYZ'[k] for k in range(3) if k!=axis],
    bounds_mm=bounds,dimensions_mm=[b-a for a,b in bounds],low=low,high=high))
  (BASE/'build/sections.json').write_text(json.dumps(rows,indent=2))
+ # These are measurements on the evaluated game triangles, not a restatement
+ # of the generator's control points. Cross-section centers describe the bow.
+ trigger=bpy.data.objects['Trigger_Shoe']
+ p=np.array([tuple(trigger.matrix_world@v.co) for v in trigger.data.vertices])*1000
+ lo=p.min(axis=0);hi=p.max(axis=0);centerline=[]
+ for z in np.linspace(lo[2]+1,hi[2]-1,18):
+  hits=[v for line in segments(trigger,2,float(z)) for v in line]
+  if hits:centerline.append([float((min(v[1] for v in hits)+max(v[1] for v in hits))/2),float(z)])
+ first,last=np.array(centerline[0]),np.array(centerline[-1]);direction=last-first
+ bow=max(abs(direction[0]*(v[1]-first[1])-direction[1]*(v[0]-first[0]))/np.linalg.norm(direction) for v in centerline)
+ tip=p[p[:,2]<lo[2]+.5].mean(axis=0)
+ guard=next(r for r in rows if r['title']=='Guard flat-band section')
+ metrics=dict(trigger=dict(envelope_mm=(hi-lo).tolist(),low_tip_mm=tip.tolist(),
+  section_centerline_yz_mm=centerline,maximum_chord_bow_mm=float(bow),
+  limit='section-center bow, not a circular radius or mechanical dimension'),
+  guard=dict(section_xz_mm=guard['dimensions_mm'],station_y_mm=30))
+ (BASE/'build/form-measurements.json').write_text(json.dumps(metrics,indent=2))
  from PIL import Image,ImageDraw,ImageFont
  from kit.fonts import find_font
  font=ImageFont.truetype(find_font('Noto Sans','Regular'),20);small=ImageFont.truetype(find_font('Noto Sans','Regular'),16)
- sheet=Image.new('RGB',(1500,1900),(238,238,234));d=ImageDraw.Draw(sheet)
+ sheet=Image.new('RGB',(1500,55+455*((len(rows)+2)//3)),(238,238,234));d=ImageDraw.Draw(sheet)
  d.text((20,12),'Rill 39 / actual game and dense-source section intersections / mm',font=font,fill=(25,35,30))
  for i,r in enumerate(rows):
   x=i%3*500;y=55+i//3*455;b=r['bounds_mm'];ds=r['dimensions_mm'];cx=sum(b[0])/2;cy=sum(b[1])/2
