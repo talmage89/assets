@@ -360,7 +360,7 @@ def handguard_cap(name,body_steps,barrel_steps,rod_steps):
  skirt=M.loft('skirt',rings+[rings[0]],MAT['blue'],caps=False,closed=False)
  bm=bmesh.new();bm.from_mesh(skirt.data);bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=.0001);bmesh.ops.holes_fill(bm,edges=[e for e in bm.edges if e.is_boundary],sides=0);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(skirt.data);bm.free()
  M.boolean(ob,skirt,'UNION')
- collar=lathe('collar',[(365.0,8.9),(365.0,10.15),(368.4,10.15),(368.4,8.9)],'blue',center=(0,85),nseg=barrel_steps,closed=True,register=False);M.boolean(ob,collar,'UNION')
+ collar=lathe('collar',[(365.0,8.9),(365.0,10.15),(372.8,10.15),(372.8,8.9)],'blue',center=(0,85),nseg=barrel_steps,closed=True,register=False);M.boolean(ob,collar,'UNION')
  bm=bmesh.new();bm.from_mesh(ob.data);bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=.0001);bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=.0001);bmesh.ops.dissolve_limit(bm,angle_limit=.0001,verts=list(bm.verts),edges=list(bm.edges),delimit={'MATERIAL'});bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free()
  return ob
 
@@ -379,7 +379,7 @@ def action_barrel():
   if y==363:
    # Efficient game skin preserves regular circular boundaries; tiny
    # edge rounds belong to a separate dense source, not collapse reduction.
-   ob=handguard_cap('Handguard_Retainer363',12,24,8)
+   ob=handguard_cap('Handguard_Retainer363',12,24,12)
    high=handguard_cap('HIGH_Handguard_Retainer363',48,64,24)
    # A subtexel geometric bevel clips projection rays at the exact lip.
    # Keep coincident dense lands; shallow rolled-edge relief is procedural.
