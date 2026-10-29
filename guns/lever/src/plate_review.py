@@ -57,6 +57,7 @@ def describe(rgb):
                     for i,k in enumerate(('hue','saturation','value'))},
         brightest_decile=dict(median_rgb=np.median(high,axis=0).tolist(),
             median_saturation=float(np.median(saturation)),
+            saturation_definition='Median of per-pixel (max(RGB)-min(RGB))/max(RGB); differs slightly from saturation of the channel-wise median RGB.',
             scope='Brightest 10% of whole oxide flat by display luma; not an isolated specular lobe.'),
         hue_scope='Hue is unreliable for near-neutral pixels; include all samples, do not select a favorable hue.')
 
@@ -65,6 +66,24 @@ def annotate(im,poly,holes):
     d.polygon([tuple(p) for p in poly],outline=(240,105,35),width=2)
     for h in holes:d.polygon([tuple(p) for p in h],outline=(240,105,35),width=1)
     return im
+
+def reflection_regions(im, shot):
+    # Independent physical sites, selected by the key/camera geometry. Keep
+    # the central shoulder away from both explicitly bare corner patches.
+    # Angle is measured around the actual R2.2 forging roll, in meters.
+    points=[]
+    for y,a in ((.105,28),(.170,28),(.170,48),(.105,48)):
+        t=np.radians(a)
+        points.append((.01355+.0022*np.cos(t),y,.0538+.0022*np.sin(t)))
+    regions={'key_on_oxide_shoulder':points,
+      'upper_flat':[(.01575,y,z) for y,z in ((.108,.045),(.170,.045),(.170,.050),(.108,.050))],
+      'front_ring':[(.01565,y,z) for y,z in ((.197,.034),(.201,.034),(.201,.046),(.197,.046))]}
+    rows={}
+    for name,points in regions.items():
+        poly=projection(shot,points,im.size).tolist()
+        rgb,_=region(im,poly,[])
+        rows[name]=dict(describe(rgb),polygon=poly,surface_points_m=points)
+    return rows
 
 def main():
     p=argparse.ArgumentParser()
@@ -84,6 +103,7 @@ def main():
         rows[name]=describe(rgb);samples[name]=rgb;paths[name]=path
         marked[name]=annotate(im,poly,holes)
         rows[name].update(polygon=poly,excluded_hardware=holes,render_source_sha256=meta['sha256'])
+        rows[name]['reflection_sites']=reflection_regions(im,meta)
         # The brightest flat pixels can be lit brown diffuse, rather than a
         # specular reflection. Report a separate physical rolled-shoulder
         # highlight, without calling its width an albedo/roughness target.
@@ -101,6 +121,11 @@ def main():
         neutral='Broad bare bolt flat, native (470,166)-(570,177), linear neutral adaptation; reflective estimate, not a gray card.',
         percentile_order=[10,50,90],rows=rows,
         input_sha256={k:hashlib.sha256(v.read_bytes()).hexdigest() for k,v in paths.items()})
+    target=rows['white_balanced_photo']['brightest_decile']['median_saturation']
+    result['bright_decile_comparison']=dict(photo_saturation=target,
+        rendered={k:dict(saturation=rows[k]['brightest_decile']['median_saturation'],
+          at_or_below_photo=rows[k]['brightest_decile']['median_saturation']<=target)
+          for k in ('hero','receiver','used_photo_view')})
     (out/'plate-distributions.json').write_text(json.dumps(result,indent=2))
     # A standalone reproducible plot, suitable for native-resolution review.
     import matplotlib
@@ -124,7 +149,7 @@ def main():
     fig.tight_layout(rect=(0,.05,1,.95));fig.savefig(out/'receiver-histograms.jpg',pil_kwargs={'quality':94});plt.close(fig)
     # Keep the full macro beside the photograph, rather than cropping down
     # to the previously favorable single rectangle.
-    image=Image.new('RGB',(1800,830),(230,230,225));d=ImageDraw.Draw(image)
+    image=Image.new('RGB',(1800,870),(230,230,225));d=ImageDraw.Draw(image)
     d.text((15,10),'Exported receiver / whole white-balanced used action',font=FONT,fill='black')
     for j,im in enumerate((Image.open(beauty/'receiver.png'),photo.crop((338,170,712,288)))):
         im=im.copy()
@@ -136,9 +161,10 @@ def main():
         r=rows[key];d.text((15+j*900,668),'Whole flat median RGB '+str(r['median_rgb']),font=FONT,fill='black')
         d.text((15+j*900,702),'Brightest flat decile RGB '+str(r['brightest_decile']['median_rgb']),font=FONT,fill='black')
         d.text((15+j*900,738),'Rolled shoulder RGB '+str(r['rolled_shoulder_reflection']['median_rgb']),font=FONT,fill='black')
-    d.text((15,783),'Photo cropped and enlarged for inspection; all measurements use original native pixels. Macro angles and illumination differ.',font=FONT,fill='black')
+        d.text((15+j*900,772),'Bright-decile saturation %.3f'%r['brightest_decile']['median_saturation'],font=FONT,fill='black')
+    d.text((15,825),'Photo cropped and enlarged for inspection; all measurements use original native pixels. Macro angles and illumination differ.',font=FONT,fill='black')
     image.save(out/'receiver-used-closeup.jpg',quality=94,optimize=True)
-    sites=[('Flat thinning / screw shadows / protected gate and tangs',beauty/'receiver.png'),
+    sites=[('Continuous oxide / narrow screw seats / sparse palm and scabbard marks',beauty/'receiver.png'),
            ('Inner finger rail / rear bar / rubbed trigger face',beauty/'receiver_left.png'),
            ('Graded hand oil / satin upper tang / finished mortise',beauty/'wrist_raking.png'),
            ('Forend / local wood edge dings',beauty/'forend.png'),
@@ -150,6 +176,46 @@ def main():
                   ('Forward band / blue sleeve and satin rim rubs',bands/'muzzle_band.png')]
     if all(file.exists() for _,file in sites):
         sheet(sites,out/'wear-sites.jpg',columns=2,width=1800,height=580)
+    # Native macro with named physical wear/contact sites and a separate
+    # sampled oxide highlight. The labels never feed a generated texture.
+    macro=Image.open(beauty/'receiver.png').convert('RGBA')
+    meta=json.loads((beauty/'shots.json').read_text())['receiver']
+    marked=panel(beauty/'receiver.png',macro.size);d=ImageDraw.Draw(marked)
+    named=[('1  Continuous shoulder oxide',(.0151,.128,.05535)),
+      ('2  Front ring: continuous oxide',(.01565,.200,.041)),
+      ('3  Screw seat: surviving blue',(.01575,.092,.0410)),
+      ('4  Loading recess: surviving blue',(.01575,.154,.0275)),
+      ('5  Wood/tang joint: narrow blue',(.0154,.0668,.032)),
+      ('6  Sparse carrying-palm tracks',(.01575,.121,.033)),
+      ('7  Sparse lower scabbard tracks',(.01575,.139,.007)),
+      ('8  Cupped lower-fillet satin steel',(.0151,.151,.0021)),
+      ('9  Front-corner satin rub',(.0154,.204,.020))]
+    for i,(label,point) in enumerate(named):
+        xy=projection(meta,[point],macro.size)[0]
+        tx=18 if i%2==0 else macro.width-495
+        ty=20+(i//2)*42
+        d.line([(tx+12,ty+22),tuple(xy)],fill=(210,182,94),width=1)
+        d.ellipse((xy[0]-3,xy[1]-3,xy[0]+3,xy[1]+3),fill=(242,204,91))
+        d.rectangle((tx-4,ty-1,tx+475,ty+28),fill=(40,42,45))
+        d.text((tx,ty),label,font=FONT,fill=(245,239,220))
+    marked.save(out/'receiver-sites.jpg',quality=94,optimize=True)
+    rows['receiver']['named_sites']=[dict(name=n,point_m=p) for n,p in named]
+    reflections=Image.new('RGB',(1800,860),(230,230,225));d=ImageDraw.Draw(reflections)
+    for j,key in enumerate(('hero','receiver')):
+        path=paths[key];im=Image.open(path);overlay=panel(path,im.size)
+        draw=ImageDraw.Draw(overlay)
+        for r in rows[key]['reflection_sites'].values():
+            draw.polygon([tuple(p) for p in r['polygon']],outline=(230,196,80),width=2)
+        overlay.thumbnail((880,590),Image.Resampling.LANCZOS)
+        reflections.paste(overlay,(j*900+(900-overlay.width)//2,45+(590-overlay.height)//2))
+        d.text((j*900+15,10),key+' / physical reflection samples',font=FONT,fill='black')
+        for i,(name,r) in enumerate(rows[key]['reflection_sites'].items()):
+            d.text((j*900+15,655+i*38),name.replace('_',' ')+': '+str(r['median_rgb']),font=FONT,fill='black')
+        d.text((j*900+15,780),'Key reflection bright decile '+str(rows[key]['reflection_sites']['key_on_oxide_shoulder']['brightest_decile']['median_rgb']),font=FONT,fill='black')
+    d.text((15,825),'Fixed surface sites, independent of pixel color. Shoulder excludes bare corner rubs. RGB values use native renders.',font=FONT,fill='black')
+    reflections.save(out/'reflection-samples.jpg',quality=94,optimize=True)
+    # Save after adding the exact physical annotation sites as well.
+    (out/'plate-distributions.json').write_text(json.dumps(result,indent=2))
     if a.shotgun_renders:
         sheet([('Bracken L20 / current exported GLB',beauty/'hero.png'),
                ('Hearth 12 / main exported GLB',a.shotgun_renders/'hero.png')],
