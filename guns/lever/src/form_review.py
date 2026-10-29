@@ -28,7 +28,7 @@ def main():
  report=dict(photo='rear-blade.jpg',author='Homestead Parts',license='copyrighted comparison photograph',ruler_pixels_per_mm=scale,
   native_endpoints=native,ruler_estimates_mm={k:((a[0]-b[0])**2+(a[1]-b[1])**2)**.5/scale for k,(a,b) in native.items() if k!='ruler_one_inch'},
   published_blade_height_mm=.355*25.4,published_notch_height_mm=.270*25.4,
-  adopted_design_mm=dict(height=9,ear_rise=2.2,notch_width=1.6,notch_depth=1.25,sheet_thickness=1.1),
+  adopted_design_mm=dict(height=9,ear_rise=2.2,notch_width=2.02,notch_depth=1.25,sheet_thickness=1.1),
   limits='Ruler/blade perspective differs; photographed insert has different two-screw mounting and rounded ears. Coin gauge is an authored visible construction estimate. The exact Eye frame and notch shoulders remain unchanged.')
  (BASE/'build/final-form-measurements.json').write_text(json.dumps(report,indent=2))
  im=Image.open(BASE/'build/white-balanced/rear-blade.png').convert('RGB');draw=ImageDraw.Draw(im);font=ImageFont.truetype(find_font('Noto Sans','Regular'),12)

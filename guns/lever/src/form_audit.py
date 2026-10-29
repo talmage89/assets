@@ -62,7 +62,7 @@ def measure(arm):
       ear_rise_mm=(rear['hi'].z-shoulder.z)*1000,notch_width_mm=(notch[1].x-notch[0].x)*1000,
       notch_depth_mm=(shoulder.z-floor.z)*1000)
     assert 8.8<sight['height_mm']<9.2 and 1<sight['thickness_mm']<1.2
-    assert 1.9<sight['ear_rise_mm']<2.4 and 1.4<sight['notch_width_mm']<1.8
+    assert 1.9<sight['ear_rise_mm']<2.4 and 1.95<sight['notch_width_mm']<2.10
     samples=[]
     for frame in (0,13.2258064516,36):
         W.pose(arm,'Cycle',frame)

@@ -345,11 +345,19 @@ def sights():
     # One coin-gauge sheet, filled below a shallow crescent. Its short ears
     # rise from the blade, rather than forming the old empty U-shaped wire.
     # Keep the accepted notch shoulders and exact optical frame unchanged.
-    horn=[(-11,59.7),(-11,66.2),(-10.6,68.1),(-9.8,68.7),(-9.1,68.5),
-          (-8.8,67.9),(-7.4,67.1),(-5.3,66.7),(-3.7,66.5),(-.8,66.5),(-.8,65.25),
-          (.8,65.25),(.8,66.5),(3.7,66.5),(5.3,66.7),(7.4,67.1),
-          (8.8,67.9),(9.1,68.5),(9.8,68.7),(10.6,68.1),(11,66.2),(11,59.7)]
-    profile('Rear_Buckhorn',horn,282.5,283.6,axis='Y',r=.10)
+    # Rounded lobe shoulders, rather than a pair of angular peaks. The
+    # independent ruler estimate measures a 2.02 mm notch. Retain its floor,
+    # shoulders, sheet gauge and the accepted optical frame.
+    horn=[(-11,59.7),(-11,66.2),(-10.98,67.3),(-10.72,67.96),
+          (-10.28,68.43),(-9.8,68.7),(-9.30,68.63),(-8.94,68.34),
+          (-8.78,67.88),(-7.4,67.1),(-5.3,66.7),(-3.7,66.5),(-1.01,66.5),(-1.01,65.25),
+          (1.01,65.25),(1.01,66.5),(3.7,66.5),(5.3,66.7),(7.4,67.1),
+          (8.78,67.88),(8.94,68.34),(9.30,68.63),(9.8,68.7),(10.28,68.43),
+          (10.72,67.96),(10.98,67.3),(11,66.2),(11,59.7)]
+    blade=profile('Rear_Buckhorn',horn,282.5,283.6,axis='Y',raw=True)
+    # Spend silhouette triangles on the lobes; one 0.1 mm gauge bevel is
+    # sufficient below the shipping texel size.
+    reg(blade,radius=.10,segments=1)
     screw('Rear_BladeScrew',(0,284.6,62.9),1.1,axis='Y')
     # Original shallow ramp, pinned blade, and rounded brass bead.
     ramp=[(673,55.6),(698,55.6),(698,61.2),(691,63),(680,62.8),(673,59)]
