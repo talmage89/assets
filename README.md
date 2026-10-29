@@ -75,7 +75,9 @@ Held weapons
   frame and sockets, with loaded and empty magazines and a fired case; the PD Hearth 12 pump shotgun in blued steel
   and walnut, with eighteen clips, a live shell and a fired hull; the PD Vesper B24 bolt-action rifle with a variable
   scope and bipod, nine clips, magazines and a fired case; the PD Relay 9 9 mm submachine gun in black paint over
-  phosphate with a worn receiver, 21 clips, loaded and empty magazines, a cartridge and a fired case.
+  phosphate with a worn receiver, 21 clips, loaded and empty magazines, a cartridge and a fired case; the PD
+  Meridian Six .357 revolver in carried stainless steel with a rubber grip, 22 clips with per-chamber state, a
+  speedloader, a cartridge and a fired case.
 
 Toolkit
 - [Shared toolkit](kit/README.md): procedural modeling and materials, UV, bake and export, verification and studio

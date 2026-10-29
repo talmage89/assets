@@ -1,7 +1,7 @@
 # Guns interface 1.4.0 — swing-out revolver supplement
 
 Additive to [1.0.0](../INTERFACE.md) and the shotgun's 1.1.0 supplement.
-Versions 1.2 and 1.3 remain reserved for the bolt rifle and SMG. This binding
+Versions 1.2 and 1.3 are the bolt rifle's and the SMG's supplements. This binding
 is `src/interface.py`; no existing family module or meaning is changed.
 
 The Meridian Six declares a six-chamber cylinder, double and single action,

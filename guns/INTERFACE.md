@@ -93,3 +93,11 @@ The [Relay 9 supplement](smg/INTERFACE.md) adds a manually locking,
 nonreciprocating charging handle, its full-frame hand socket, select-fire
 states and no-hold-open reload schedules. The 1.0.0 binding and the 1.1.0
 and 1.2.0 supplements retain their existing meanings.
+
+## Additive 1.4.0 swing-out revolver supplement
+
+The [Meridian Six supplement](revolver/INTERFACE.md) adds a six-chamber
+cylinder with per-chamber `loaded`, `fired` and `empty` state, double and
+single action, a manual swing-out reload and a speedloader. It has no
+magazine; its magazine sockets are declared inactive. The 1.0.0 binding and the
+1.1.0 to 1.3.0 supplements retain their existing meanings.

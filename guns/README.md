@@ -7,7 +7,7 @@ folder. Shared procedural geometry, rigging, baking and delivery use `kit/`.
 | --- | --- | --- |
 | PD C9 compact 9 mm pistol | Final: baked PBR, rig/clips and standalone magazines/case | [pistol/](pistol/README.md) |
 | PD Hearth 12 pump shotgun | Final: baked PBR, rig/clips, live shell and fired hull | [shotgun/](shotgun/README.md) |
-| PD Meridian Six .357 revolver | Final PBR delivery for review: 22 clips, per-chamber state, cartridge/case and loader | [revolver/](revolver/README.md) |
+| PD Meridian Six .357 revolver | Final: baked PBR, 22 clips with per-chamber state, speedloader, cartridge and case | [revolver/](revolver/README.md) |
 | PD Vesper B24 bolt-action precision rifle | Final: baked PBR, nine clips, scope/bipod and standalone magazines/case | [bolt/](bolt/README.md) |
 | PD Relay 9 fixed-stock 9 mm submachine gun | Final: baked PBR, 21 clips, magazines, cartridge and case | [smg/](smg/README.md) |
 
