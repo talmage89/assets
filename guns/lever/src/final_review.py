@@ -57,6 +57,8 @@ def main():
  meta=json.loads((beauty/'shots.json').read_text());items=[(name,beauty/(name+'.png')) for name in meta]
  items += [('Eevee hero',OUT/'eevee/hero.png')]
  items += [(folder+' / '+name,OUT/folder/(name+'.png')) for folder,names in [('cartridge',['cartridge','headstamp']),('case',['case','mouth','headstamp'])] for name in names]
+ if (OUT/'wear-details/shots.json').exists():
+  items += [(name,OUT/'wear-details'/(name+'.png')) for name in json.loads((OUT/'wear-details/shots.json').read_text())]
  sheet(items,OUT/'contact-sheet.jpg',columns=3,width=1800,height=355)
  turn=sheet([(name,beauty/(name+'.png')) for name in ('front','right','back','top')],OUT/'turnaround.jpg',height=440)
  details=sheet([(name,beauty/(name+'.png')) for name in ('receiver','wrist','forend','sights','butt_plate','muzzle')],OUT/'details.jpg',columns=2,height=480)

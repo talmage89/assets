@@ -141,9 +141,13 @@ def main():
     sites=[('Flat thinning / screw shadows / protected gate and tangs',beauty/'receiver.png'),
            ('Inner finger rail / rear bar / rubbed trigger face',beauty/'receiver_left.png'),
            ('Graded hand oil / satin upper tang / finished mortise',beauty/'wrist_raking.png'),
-           ('Forend rim steel / local wood edge dings',beauty/'forend.png'),
-           ('Muzzle rim / dark bore / forward band rims',beauty/'muzzle.png'),
+           ('Forend / local wood edge dings',beauty/'forend.png'),
+           ('Muzzle rim / dark bore',beauty/'muzzle.png'),
            ('Toe and heel: compressed fibers and broken finish',beauty/'stock.png')]
+    bands=beauty.parent/'wear-details'
+    if (bands/'forend_band.png').exists() and (bands/'muzzle_band.png').exists():
+        sites += [('Forend band / blue sleeve and satin rim rubs',bands/'forend_band.png'),
+                  ('Forward band / blue sleeve and satin rim rubs',bands/'muzzle_band.png')]
     if all(file.exists() for _,file in sites):
         sheet(sites,out/'wear-sites.jpg',columns=2,width=1800,height=580)
     if a.shotgun_renders:

@@ -120,5 +120,11 @@ renders/final/pairs/wear-2d-pair.jpg renders/final/pairs/wear-2d-values.json &: 
 wear-review: renders/final/pairs/wear-2d-pair.jpg renders/final/pairs/wear-2d-values.json
 
 .PHONY: look-review
-look-review: render match src/plate_review.py
+look-review: render match wear-details src/plate_review.py
 	$(PYTHON) src/plate_review.py $(if $(SHOTGUN_RENDERS),--shotgun-renders $(SHOTGUN_RENDERS),)
+
+.PHONY: wear-details
+renders/final/wear-details/forend_band.png renders/final/wear-details/muzzle_band.png renders/final/wear-details/shots.json &: $(EXPORTS) src/wear_render.py $(RENDER_DEPS)
+	$(KIT)/with_gpu.sh $(BP) --python src/wear_render.py -- --source export/lever.glb --out renders/final/wear-details --width $(WIDTH) --samples $(SAMPLES)
+wear-details: renders/final/wear-details/forend_band.png renders/final/wear-details/muzzle_band.png renders/final/wear-details/shots.json
+extra: wear-details
