@@ -453,3 +453,314 @@ only the existing common .30-30 generator receives the analytic-normal fix.
 Nothing is needed to reproduce or inspect this gate. A future kit fixture that
 checks a moving part's invariant plane would make this new lever regression
 check reusable; no kit API was changed during this round.
+
+## Last form corrections and finish authorization
+
+The lead accepted round two's dimensions, mechanism, interfaces, contacts,
+lever opening/S, receiver, tangs, butt sections/plate, hammer/trigger, forend,
+bands, front sight, aimed alignment and ammunition. This continuation changes
+the three requested visible issues, then completes the authorized finish.
+Earlier statements that finish is deferred describe the historical checkpoints.
+
+**Color and value first — last form pass.** The constant dark steel and brown
+wood remain inspection colors. In the old `views/sights.png`, the empty U and
+long ears read as bent wire. A ruler photograph of a real semi-buckhorn sheet
+(`refs/rear-blade.jpg`, Homestead Parts) supplies independent height/ear/notch
+observations. Its gray backdrop is the white-balance neutral. The seller's
+9.017 mm height is distinguished from the ruler's perspective-dependent
+estimate; the blade and ruler are not coplanar. Our actual mesh measures about
+8.98 mm high, 1.10 mm gauge, 2.18 mm ear rise, 1.60 mm notch width and 1.25 mm
+notch depth. The smaller notch is part of this expressly requested sight fix;
+its shoulders and the exact Eye frame retain the accepted bead alignment.
+The blade has one filled, flat face. Assigning true flat face normals removes
+the triangular highlight fan exposed by the first front-on render.
+The ruler-plane estimates are 10.12 mm overall, 1.62 mm ear rise,
+2.02 mm notch width and 1.21 mm notch depth. Our blade therefore has taller
+ears and a narrower notch than that photographed insert, in addition to its
+more angular tips and different mounting. The independent 9.017 mm published
+height controls the overall envelope; estimated perspective prevents treating
+the ruler as a coplanar manufacturing drawing. These remaining differences
+are visible in the pair, rather than being hidden by the measurement table.
+
+The rest photograph's loop is smaller than our accepted opening. Consequently,
+use bar-to-opening ratios as well as the underdetermined camera-plane lengths.
+The 5-pixel loop bar recovers 2.09 mm on that smaller loop; normalized to the
+accepted 29 mm opening it is 3.40 mm. The bow's 19-pixel normal section recovers
+8.00 mm, about 13.0 mm at the same opening normalization. Our lower loop rail is
+3.30 mm deep, transverse width 8.20 mm; actual bow depth is recorded in
+`build/form3-idle.json`. The aperture remains 104 x 29 mm. The deeper upper rail
+initially touched the unchanged lower tang/wood by about .8 mm. Reject that
+trial. Relieve the concealed upper run back to its original 2.2 mm section;
+the hand-ridden lower rail keeps its new depth. No opening, pivot, clip, socket
+or collision allowance is moved to accommodate it.
+
+The wrist's creases came from normal transfer against an already inletted dense
+mesh: cut-wall normals contaminated the outer carving. Preserve the smooth
+**uncut** cage as a separate normal reference and use nearest-surface transfer
+for the stock. Apply that same uncut field to its dense bake source, so baking
+cannot reintroduce the fault. Every stock vertex and triangle stays identical.
+The broad outer flank is now smooth into the seam; the internal mortise retains
+its actual cut walls and the previously accepted hammer clearance.
+
+Rebuilt evidence: `renders/form3/form-fixes.jpg`, `lever-stroke.jpg`,
+`wrist_raking.png`, `sights.png`, `sight_blade.png`, `aimed.png` and the three
+pairs in `renders/form3/pairs/`. Native sight/ruler endpoints and their limits
+are in `build/final-form-measurements.json`; lever endpoints and normalized
+ratios are in `build/photo-measurements.json`.
+
+Remaining differences, judged from those pairs: our sight has short angular
+outer tips, while the photographed insert has rounder outer shoulders and two
+mounting holes. Its mounting window is not ours. Our loop retains the accepted
+longer opening; the rest photo's smaller loop cannot match its crop exactly.
+The S throat is cleaner and higher than that gun's linkage. The wrist seam is
+smooth, but our accepted larger hammer mortise and broader thumb table still
+differ from the used photograph. Those accepted forms are preserved.
+
+## Finish critiques
+
+1. **Source pass 1 — value and hue first.** `renders/lookdev/pass1/` uses the
+   initial procedural source. White-balanced `open2.jpg` uses its broad bare
+   bolt flat, native (470,166)-(570,177), as an estimated silver neutral.
+   `open.jpg` uses its polished cross-pin facet; `receiver.jpg` its silver pivot
+   screw. The right full-gun photo uses unclipped white paper. Neutral names,
+   gains and marked patches are rebuilt under `build/white-balanced/`.
+   None is a calibrated gray card; the reflective neutrals retain environmental
+   uncertainty. The first source receiver flat is **9.34/255** versus **58.73**
+   in the used photo; wrist **70.24** versus **26.75**; forend **94.00** versus
+   **57.29**. Reject the orange, glossy furniture, black receiver flat, broad
+   white top reflections and uniform silver outline. The standalone atlas
+   staging rounds also appeared in the source hero: hide them in source-only
+   presentation, retaining them in the bake atlas.
+2. **Source pass 2 — value and hue first.** `renders/lookdev/pass2/` gives
+   receiver/wrist/forend **37.11 / 40.27 / 50.25**, with the same photographic
+   values **58.73 / 26.75 / 57.29**. Darker walnut and taller neutral reflection
+   cards correct the biggest value errors. The wrist still reads gray because
+   a broad dielectric reflection overwhelms its dark hand staining; the wood
+   needs a lower gloss response. The receiver's lower edge and gate rubs are
+   visible, but the upper rim is too uniformly bright. Break its contact
+   continuity and narrow the gate's exposed core. Keep gray bare steel separate
+   from the brown/plum thinned oxide on the flats.
+3. **Source pass 3 — value and hue first.** `renders/lookdev/pass3/` measures
+   wrist **29.12** versus **26.75**, forend **47.01** versus **57.29**; receiver
+   remains **37.11** versus **58.73**. The lower wood gloss restores a brown
+   wrist. Reject the broad, evenly spaced growth bands: they read as a laminate
+   despite the correct longitudinal direction and separate vessel pores.
+   Reduce annual-layer spacing, reduce its broad tonal swing and retain narrow
+   latewood/vessel structures. Brighten the original walnut diffuse field
+   modestly, preserve hand-darkened wrist placement, and raise only the thinned
+   plum/brown oxide toward the observed receiver value. No reference image or
+   measured photo mask enters those procedural fields.
+4. **Source pass 4 — value and hue first.** `renders/lookdev/pass4/` measures
+   receiver **57.65**, wrist **29.19**, forend **55.86**, beside photographic
+   **58.73 / 26.75 / 57.29**. RGB medians are receiver **83/53/32** versus
+   **81/54/39**, wrist **39/27/22** versus **44/23/11**, forend **84/50/31**
+   versus **86/51/32**. The wrist remains less red/yellow than the estimated
+   photographic neutral permits. This is observed display agreement under
+   estimated lighting, not albedo recovery. The finer growth structure avoids
+   the broad laminate bands; natural walnut's irregular figure remains richer.
+   The named dings are local crushed-fiber bowls with broken pale finish lips;
+   the receiver flat stays thinned brown oxide, distinct from exposed gray
+   steel along its contact edges. Original rollmarks and serial are baked
+   relief, using installed Noto Sans. Proceed to judge the shipped bake.
+
+An independent serialization test caught a pipeline error before delivery:
+applying the dense stock's normal-transfer modifier also cleared its armature
+modifier, so the temporary checkpoint GLB lacked stock skin weights. Preserve
+and restore the rigid armature binding around that operation. This does not
+change geometry, bones, clip keys or socket frames. The failed GLB is not used
+for final delivery; the rebuilt export must pass the raw weight/import checks.
+
+5. **Exported pass 1 — value and hue first.** The first 4096-to-2048 GLB
+   comparison (`renders/lookdev/export1/`) retains receiver/wrist/forend
+   **57.86 / 29.12 / 55.86**, against **58.73 / 26.75 / 57.29**. Pores and
+   fine rollmarks soften, while broad color, grain direction and hand darkening
+   survive. The front bead mistakenly inherited the non-ammunition dark-steel
+   branch: give its existing brass assignment the actual brass shader. Do not
+   alter its accepted mesh or sightline. A raw-normal check also catches one
+   meter-scaled stock sliver and seven UV-preparation corner normals; compare
+   them with the actual meter-space triangle winding and correct only opposed
+   vectors. The low's microscopic cleanup removes 18 triangles, leaving 39,950.
+
+6. **Two-dimensional receiver wear — color/value first.** A brightness-only
+   mask on the brown right/top photo is invalid: it counts bright patina and
+   a little background as exposed steel. Reject that comparison as acceptance.
+   Keep the right/top photograph for brown oxide/wood values. The sharper
+   white-balanced open-left action shows the rubbed gray lower fillet clearly;
+   its pivot-screw facet is the estimated neutral. Compare the actual shipped
+   bare-steel mask with an independent native annotation of that apparent gray
+   fillet, on an approximately 115 x 8 mm grid at 0.5 mm. Native coordinates,
+   uncertain approximately one pixel, remain in the JSON. Neither photo pixels
+   nor annotation enters the asset generator or a shipped texture. Photographic
+   gray response does not prove the finish's chemistry.
+
+   The first proper 2D comparison is frozen under `build/review/wear-before/`:
+   actual bare area **26.90%**, photographed annotation **27.07%**, both one
+   connected region. Similar areas are insufficient: our band sits too low
+   across the fillet and its four repeated width lobes look procedural. Reject
+   that morphology. Move only the contact center 0.85 mm up the lower corner,
+   replace the repeated large sine lobes with a broad carry-pressure field and
+   small boundary variation, and compare both axes again after baking. The
+   intact brown oxide and its calibrated values remain unchanged.
+
+Initial hypothesis, rejected in pass 7: the white point in an early stock
+macro has ordinary wood texels at the initially probed surface:
+BaseColor **63/38/23**, Normal **128/125/255**, ORM **255/122/0** at the actual
+surface hit. Try clamping indirect samples at 2 while retaining direct
+highlights; the fuller seam-neighborhood investigation below supersedes this
+first firefly hypothesis.
+
+7. **Exported 2D wear pass 2 — color/value first.** Brown oxide still retains
+   the calibrated value. The shifted strip covers **29.21%** of the comparison
+   grid against **27.07%** in the annotated photo, but its shape still fails:
+   constant contact height creates a straight ruler stripe. Its first/second
+   height quarters cover **43.80/73.04%**, versus **35.54/72.50%**; agreement
+   in those coarse totals conceals the photo's curving center. Reject it. Give
+   the carrying-hand field a broad downward reach around the pivot and a
+   return onto the side, and slightly reduce its width. This remains an
+   original analytic contact field, never a projected or traced photo mask.
+   Rebuild the complete bake/export and comparisons after this change.
+
+   The first stock-glint diagnosis was incomplete: clamping indirect samples
+   at 2 did not remove it. A new full-scene surface probe finds only Stock at
+   the three tested pixels, excluding a protruding screw or tang. Its 9 x 9
+   texel neighborhood has nonmetallic ORM and ordinary brown walnut, but this
+   samples only one side of the UV seam. Test a fully sampled macro and the
+   neighboring triangles before accepting the diagnosis or image.
+
+   Root cause, established on the actual imported GLB: the neighboring stock
+   triangle at pixel **839,259** samples BaseColor **162/164/167** and metallic
+   **155/255**, although it is walnut. The initially tested brightest pixel
+   lies on the other side of the UV seam and samples valid brown. The affected
+   stock UV triangle is long and subpixel-thin near its tip; polished lever UVs
+   lie only **5.63 shipping pixels** away, inside the six-pixel downsampled bake
+   padding. This is atlas contamination, not a firefly. A 256-sample render
+   confirms that the streak is stable. Reserve separate stock/forend regions
+   within the same one-set atlas. Broader 45- and 18-degree Smart UV attempts
+   fail the unchanged clipped-overlap limit, so retain conservative projection
+   angles; never waive the check to improve packing.
+
+8. **Bake-isolation correction — color/value first.** The reserved regions
+   reveal additional gray contamination from rays encountering neighboring
+   stationary steel. Isolate the two carvings through the kit's existing
+   named-root projection policy, retaining rest-position shader attributes and
+   stationary AO shadow copies. The resulting complete stock and forend
+   regions both have **maximum metallic byte 0**, including all padding and
+   subpixel tips. The new audit makes this a delivery assertion, rather than
+   eroding away the narrow triangles that exposed the defect. No kit code,
+   geometry, rig or triangle budget changes. Regional packing raises stock
+   density to approximately **2,441 px/m**; forend remains **1,934 px/m**.
+   All six 4096/32-sample bake channels hit all **4,143,388** checked interior
+   texels. Render the exported atlas again before accepting this correction.
+
+9. **Exported finish recheck — color/value first.** The corrected stock macro
+   (`../../build/lever-final/glint-corrected/stock.png`) has no white streak at the
+   standard 64 samples. Brown figure and the dark grip survive; toe/heel dings
+   remain local. The revised contact field's actual 2D bare-steel share is
+   **25.11%**, beside **27.07%** in the photo annotation. It now curves around
+   the lower corner instead of following a constant-height ruler line. Across
+   height it rises and falls over nine 0.5 mm rows, versus the photo's nine;
+   the photographic area is slightly fuller near the rear. The native-pixel
+   annotation uncertainty and different original fillet remain explicit. This
+   morphology is substantially closer, and broad material values are retained.
+
+   The stricter delivery audit initially conflated raw delivered normals with
+   Blender's imported custom-normal encoding. Measure both independently:
+   raw FLOAT corner normals differ by at most **8.53e−5** in vector length
+   (about **0.0049 degrees**); positions are exact and UV difference is at most
+   **2.98e−8**, about **0.000061 shipping pixels**. Blender's custom fan
+   re-encoding reaches **0.584 degrees** at a narrow stock inletting cut.
+   Retain the strict raw-normal check; separately bound imported fan error
+   below one degree. This does not waive raw direction/unit-normal tests or
+   the exact one-to-one oriented triangle/UV correspondence. Raking exported
+   views establish that the accepted outer walnut remains visually smooth.
+
+The final calibrated forend patch is **55.79** luma (photo **57.29**); receiver
+and wrist remain **57.86 / 29.12**. The whole-stock flash photograph is not a
+successful display-value match: **140.38** luma versus **64.79** in the neutral
+studio. Its broad glossy reflection and the oil-finish lighting setup differ.
+Keep this discrepancy in the complete patch report rather than presenting the
+three closer primary-used-photo patches as proof of universal photographic
+agreement. Real walnut also retains more irregular figure than our source.
+
+10. **Final studio pass — color and value first.** The final right hero's
+    object-only luma percentiles (1/50/99) are **1.79 / 59.77 / 219.35**;
+    **13.62%** of object pixels are below luma 24. The left hero is
+    **0.93 / 59.14 / 211.07**, with **22.13%** below 24. Neither hero has any
+    channel reaching 254: maximum RGB is **239/241/241** on the right and
+    **238/239/240** on the left. Cavities, the race and underside remain deep;
+    steel highlights roll off. The receiver macro has **0.62%** white-clipped
+    direct specular pixels; that is retained in the tonal report, not hidden.
+    Both source and exported photo pairs have been opened and compared.
+
+    The brass display patch is **206.07** versus photographic **207.04** luma.
+    Copper is **96.92 / 68.57**, and lead **72.16 / 104.14** (export/photo).
+    Different reflection angles and the photographed rounded soft point versus
+    the accepted flat nose limit those comparisons. Its estimated neutral is
+    the exposed lead cap, with native coordinates in the ammunition JSON.
+    The remaining regular wood figure, softened small lettering/pores, taller
+    angular sight tips, narrower notch and bright flash-stock mismatch remain
+    explicit limitations. No claim of identical photographic illumination or
+    recovered albedo is made.
+
+    Final framing now shows the complete toe in the front turnaround, the
+    complete curved butt plate and both screws in its macro, and clear space
+    between the carbine and the 1.8 m scale figure. The aimed camera remains
+    the accepted opaque 70-degree Socket_Eye view. All 37 real-duration WebPs
+    decode to their declared times. All **71 unique** final clip images were
+    inspected: 67 match the previously reviewed set, and four new raster
+    variants were opened separately. There are no visible new motion artifacts.
+
+## Final acceptance proof
+
+- `make -C guns/lever`: **exit 0**. Complete log:
+  `../../build/lever-final/make-final.log`.
+- `make -C guns/lever check`: **exit 0**. Complete log:
+  `../../build/lever-final/check-final.log`.
+- Independent `make -C guns/lever repeat`: **passed**; the report hashes still
+  match all three current inspection GLBs. Vertex, normal, skin and animation
+  accessors match; oriented triangle sets match. Bead index ordering may differ.
+- `src/preserve_final.py`: **passed** against the saved handoff. The 113 other
+  mesh geometries, all **26 bones**, **37 clips** and **10 complete socket
+  frames** compare unchanged; stock vertices and triangles are identical.
+  Bead corner-normal ordering/encoding is excluded from this optional exact
+  historical comparison. Raw delivered normals are checked independently.
+- Source: **39,968 triangles**. Shipped carbine: **39,950 triangles**, one
+  material, **11,804,068 bytes**. Standalone cartridge: **1,598 triangles /
+  6,786,108 bytes**; fired case: **1,326 / 6,767,264 bytes**. No budget increase.
+- One canonical **2048 BaseColor / OpenGL Normal / ORM** set, identically
+  embedded in all three GLBs. PNG bytes: **1,659,560 / 2,286,588 / 2,718,359**.
+  The 4096/32-sample bake hits all **4,143,388** checked interior texels in
+  every channel. Stock/forend regions contain no metallic texels, including
+  narrow UV tips and padding.
+- Gun atlas coverage **27.73%**; complete gun/ammunition family **32.44%**.
+  Zero escaped or degenerate UV triangles. Three microscopic upper-tang overlap
+  pairs total **8.63e−8 UV area**, family fraction **2.66e−7**, below the
+  unchanged **1e−5** limit. Regional densities and full distributions are in
+  `build/delivery/*-uv.json` and `verify.json`.
+- The current GLB's **39,950 actual imported triangles** match the finalized
+  named surfaces one-to-one across **116 closed solids**. Its **67 actual
+  surface contacts** pass, all **37 clips / 5,304 imported clearance samples**
+  pass under the accepted bounded-contact policy, and the mid-plane checks
+  pass. These establish sampled construction/clearance, rather than only
+  serialization. They do not claim continuous-time mechanism physics.
+- Separately, **5,271 complete affine bone/socket samples** and **185 posed
+  event/end surface comparisons** establish serialization. Maximum affine-frame
+  position difference is **1.974 micrometers**; maximum posed-surface difference
+  is **0.121 micrometers**. Raw positions, UVs, unit normals, rigid weights,
+  texture hashes and standalone origins also pass.
+- `build/final-provenance.json` associates **731 GLB-derived images**, including
+  all clip samples, with the current exports. Hero on gray:
+  `renders/final/hero-gray.jpg`; contact sheet: `renders/final/contact-sheet.jpg`.
+  Final photos and pairs: `renders/final/photos/` and `pairs/`; source comparisons:
+  `source-photos/` and `source-pairs/`. Native studio/scale/aimed views:
+  `renders/final/beauty/`; Eevee: `renders/final/eevee/hero.png`.
+- Five final docs JPGs are **1600 px wide**, **38,280–187,668 bytes** each.
+  They were opened and remain **uncommitted**, as requested, for lead acceptance.
+  Scripts compile and repository checks pass; no generated binaries, textures
+  or references are staged. No kit or shared gun module was changed.
+
+No additional tool is needed from the lead. Suggested kit follow-up: validate
+thin UV tips/padding as well as eroded interiors, expose stationary projection
+isolation more clearly, and distinguish raw GLB normals from Blender's imported
+custom-normal fan encoding. The existing helpers already support this delivery;
+no shared-code change was necessary.

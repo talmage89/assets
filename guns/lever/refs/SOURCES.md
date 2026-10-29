@@ -13,7 +13,11 @@ photograph recovers a smaller opening. The photos do not establish an
 identical lever, and their underdetermined perspective prevents treating them
 as a single manufacturing drawing. The
 open view controls the longer original loop; the closed discrepancy remains
-explicit in REVIEW.md. Transverse 8.2 mm bar width and 1.0 mm hammer checkering
+explicit in REVIEW.md. The final form pass keeps that opening and measures the
+closed photo's bar against its opening: approximately 3.3 mm at the lower loop
+and 13 mm at the bow after normalization. Earlier 2.1 mm estimates document the
+thin bar rejected at checkpoint two, rather than the delivered bar.
+Transverse 8.2 mm bar width and 1.0 mm hammer checkering
 are authored class estimates, not published manufacturer measurements.
 
 | Local file | Direct image or PDF URL | Author / license | Use and limitation |
@@ -69,3 +73,15 @@ form comparisons do not establish final bluing/walnut albedo. Only the locally
 generated scripts and this register are tracked; references and pairs are ignored.
 
 - [Boris Barowski cartridge comparison](https://commons.wikimedia.org/wiki/File:30-30.jpg): public domain dedication; center .30-30 only.
+
+## Final form / finish additions
+
+| Local file | Direct image or PDF URL | Author / license | Use and limitation |
+| --- | --- | --- | --- |
+| rear-blade.jpg | https://homesteadparts.com/shop/images/st207b.jpg | Homestead Parts; copyrighted product photograph, comparison only | Front-facing semi-buckhorn steel sheet beside inch ruler. Native ruler scale and ear/notch measurements in `build/final-form-measurements.json`. Different two-screw insert; no reproduction of its screw pattern. |
+| rear-sheet.jpg | https://homesteadparts.com/shop/images/73rearsight.jpg | Homestead Parts; copyrighted product photograph, comparison only | Oblique leaf/elevator construction and coin-gauge blade. No reliable dimensional scale in this image. |
+
+The [seller's measured insert description](https://homesteadparts.com/shop/sight-rear-winchester-vnotch-element-for-semibuckhorn-post64-winchester-94-p-3925.html)
+gives 0.355-inch overall height and 0.270-inch notch height; different mounting
+construction is explicitly distinguished. Downloaded 2026-10-28. No reference
+pixel enters the asset. Product markings are not reproduced.
