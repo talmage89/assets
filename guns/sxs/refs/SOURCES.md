@@ -259,3 +259,29 @@ its forward surface. Its sighting surface now follows the straight line
 between the accepted breech and muzzle heights. Both endpoint sections, the
 joined tube flats and the seated valley filler are retained. The actual-rib
 coin-ray error and unobstructed bead/forward-rib rays are checked after import.
+
+## Round 4: fence roll and underside arris
+
+The same accepted native originals supply this round; no new reference image,
+model, texture or downloaded tool was added. The macro photographs have a black
+backdrop and no defensible neutral patch. They remain at unity white-balance
+gains, and are used for form rather than quantitative hue/finish acceptance.
+The existing whole-gun white-backdrop balance is unchanged.
+
+| Observation | Photo-scale comparison | Inferred target / uncertainty |
+| --- | --- | --- |
+| Fence longitudinal roll, right macro (`plain-3.jpg`) | The breech-to-rear roll occupies about 0.68–0.75 of the visible breech tube's vertical diameter, allowing for the oblique view. Normalize to the accepted 26.7 mm breech tube OD. The earlier preview measures that OD at about 211 px (7.9 px/mm); the roll is roughly 145–155 px after allowing for the projected rear boundary. | Approximately 18–20 mm, about ±2 mm absolute uncertainty from perspective and the tangent boundary. This is not a published part dimension. |
+| Fence longitudinal roll, top (`plain-2.jpg`) | The roll occupies roughly 0.34–0.38 of the transverse breech envelope. The two breech outer landmarks span 209 preview px. Normalize to the required 51.9 mm joined-barrel width rather than the rejected 54.8 mm spherical-fence envelope. | About 18–20 mm, consistent with the side observation. The rear edge returns toward the strap; it does not end in a transverse straight cut. |
+| Underside edge roll (`plain-5.jpg`) | The rounded transition occupies roughly 0.13–0.17 of the receiver's transverse envelope, where the broad underside turns into the side flat. The observed silhouette and transition are used together; highlight width alone is not treated as a physical radius. | About 7–9 mm, with at least ±2 mm uncertainty because the photograph supplies no transverse section or calibrated light. |
+
+The model uses an original 18.5 mm longitudinal roll and an 8 mm lower arris.
+Acceptance numbers are **independent fits to the exported triangles**, not those
+parameters: `build/serialization.json` → `form_gauges.action_round4`. Transverse
+circles are fitted at eight stations; their centers are compared with a bore
+axis fitted from the actual chamber skin at two stations beyond the extractor
+reliefs. The roll length is recovered from the fitted squared radii along Y.
+Both barrel axes converge slightly toward the muzzle, and the fences continue
+those axes backward. Front radius and crown do not exceed the breech tubes.
+Side-step probes sample the ground side land below its upper edge radius.
+Plate-step probes extrapolate the immediately adjacent skins to a common seam
+station so that the belly's upward sweep is not counted as a joint step.

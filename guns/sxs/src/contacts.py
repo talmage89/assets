@@ -76,7 +76,7 @@ def measure(arm):
  # may occlude the optical ray, and the short forward rib must be visible too.
  visible=[o for o in bpy.context.scene.objects if o.type=='MESH' and 'bone' in o
   and min(abs(v) for v in arm.pose.bones[o['bone']].matrix.to_scale())>.001]
- for name,target in [('bead',hit[0])]+[('rib '+str(y),ray('Solid_TopRib',(0,y,.09),(0,0,-1))) for y in (.50,.65,.74)]:
+ for name,target in [('bead',hit[0])]+[('rib '+str(y),ray('Solid_TopRib',(0,y,.09),(0,0,-1))) for y in (.14,.20,.315,.50,.65,.74)]:
   delta=target-eye
   blockers=[o.get('part_name',o.name) for o in visible
    if motion.surface(o)['tree'].ray_cast(eye,delta.normalized(),delta.length-.00005)[0] is not None]
