@@ -35,6 +35,12 @@ manufacturing and carbon remain. `metal-wear-difference.png` is the unamplified
 native-hero RGB difference; `metal-wear-proof.jpg`, `metal-wear-regions.png`
 and `metal-wear-table.md` give actual visible pixel regions, areas and signed
 luma changes for every named site, including honest zeroes for occluded sites.
+`look-review/wood-edge-values.json` and `wood-edge-table.md` compare every
+exposed wood margin with adjacent intact film on the same blank, in the
+shipped BaseColor and native 1600-pixel hero. `wood-edge-colors.jpg` displays
+the measured swatches; `wood-edge-regions.png` locates
+these fixed physical regions. Film breaks into irregular fragments and fades
+along the existing exposed margins; its fibers retain the wood's brown hue.
 
 ## Dimensions and construction
 
@@ -173,9 +179,9 @@ balanced used photograph (8-bit RGB; these include illumination):
 
 | Blank | Hero RGB / saturation | Photo RGB / saturation |
 | --- | --- | --- |
-| Stock | 86/64/53 / .387 | 83/63/51 / .376 |
-| Lower handguard | 113/70/55 / .513 | 107/62/45 / .550 |
-| Upper handguard | 89/59/45 / .500 | 87/52/39 / .544 |
+| Stock | 85/64/53 / .387 | 83/63/51 / .376 |
+| Lower handguard | 112/70/54 / .513 | 107/62/45 / .550 |
+| Upper handguard | 86/56/44 / .500 | 87/52/39 / .544 |
 
 The fitted side view now separates broad value structure from fine grain.
 On a common 0.5 mm physical grid, the same masked 10 mm FWHM Gaussian
@@ -185,15 +191,18 @@ include illumination and section shading; they do not recover albedo.
 
 | Blank | Total GLB / photo | Broad GLB / photo | Fine GLB / photo |
 | --- | ---: | ---: | ---: |
-| Stock | 0.506 / 0.478 | 0.390 / 0.395 | 0.191 / 0.211 |
-| Lower handguard | 0.543 / 0.559 | 0.349 / 0.371 | 0.266 / 0.318 |
-| Upper handguard | 0.546 / 0.590 | 0.324 / 0.292 | 0.390 / 0.431 |
+| Stock | 0.514 / 0.478 | 0.420 / 0.395 | 0.185 / 0.211 |
+| Lower handguard | 0.445 / 0.559 | 0.324 / 0.371 | 0.166 / 0.318 |
+| Upper handguard | 0.595 / 0.590 | 0.370 / 0.292 | 0.389 / 0.431 |
 | Stock interior flat land | 0.279 / 0.287 | 0.206 / 0.186 | 0.154 / 0.164 |
 
 The largest remaining spread difference is the lower handguard’s fine
-residual (.266 versus .318): its small relief softens in the 2048 bake, and
-its section differs from the photograph. Broad absorption, wrist/root grime
-and edge film loss survive at native hero size. The unresampled whole-part
+residual (.166 versus .318). Removing the pale edge strokes changes these
+whole-part image distributions; the accepted grain, broad stain and grime
+sources remain fixed. Small relief still softens in the 2048 bake, and the
+section differs from the photograph. The interior stock land retains its
+previous .279/.206/.154 total/broad/fine spreads. Broad absorption, wrist/root
+grime and edge film loss survive at native hero size. The unresampled whole-part
 and interior-land values remain in `wood-grain-values.json` alongside this
 physically rectified analysis.
 
@@ -246,16 +255,16 @@ Budget and file sizes are measured from the actual exports and checked in
 
 | Output | Triangles | GLB bytes |
 | --- | ---: | ---: |
-| Rifle | **40,000 / 40,000** | 10,864,508 |
-| Loaded magazine | 6,756 | 7,707,628 |
-| Empty magazine | 4,596 | 7,619,472 |
-| Cartridge | 960 | 7,499,192 |
-| Fired case | 704 | 7,486,872 |
+| Rifle | **40,000 / 40,000** | 10,861,788 |
+| Loaded magazine | 6,756 | 7,704,908 |
+| Empty magazine | 4,596 | 7,616,752 |
+| Cartridge | 960 | 7,496,472 |
+| Fired case | 704 | 7,484,152 |
 
 Each output uses one material and the same three embedded images. The rifle
 has 17 bones, eight sockets and 20 clips. Detached magazines deliberately
-retain their accepted geometry. The canonical PNGs total **7,443,357 bytes**:
-BaseColor 1,192,738; Normal 2,506,404; ORM 3,744,215. All are 2048 square.
+retain their accepted geometry. The canonical PNGs total **7,440,634 bytes**:
+BaseColor 1,180,823; Normal 2,509,129; ORM 3,750,682. All are 2048 square.
 UV coverage, actual clipped overlap and density percentiles are measured,
 rather than described as uniform or exactly zero.
 The complete staged atlas covers 40.25%; there are no outside or degenerate
@@ -275,8 +284,9 @@ and 1,556 sampled affine poses. The cap return is also measured against the
 actual imported wood section at 23 radial rays; its small overhang and sheet
 gauge are plotted in `renders/final/retainer-section.jpg`. The texture-round fingerprint separately proves that all five handed-off
 exports retain byte-identical geometry, normals, UVs, skin weights, rig, clips
-and layout. One exporter-derived tangent component differs by
-0.000100002; tangents are recorded separately. These preservation checks are
+and layout. The wood-edge correction also retains byte-identical derived
+tangents relative to its handoff; these are recorded separately from geometry.
+These preservation checks are
 separate from the actual fit tests. Serialization is separate: affine bone and
 socket frames, posed surfaces, clip durations, weights/normals and full rotated
 magazine spawns are compared independently. Hidden lock/sear geometry is
@@ -336,6 +346,10 @@ edge wear is less extensive than on the older photographed example.
 The metal-only control measures 22 neighboring Front_Insert projection pixels
 at the touching lower-front receiver joint. They remain in the shipped bake
 and raw difference, but are excluded from every named-site pixel count.
+Existing stock-to-buttplate/sling-eye projection cross-talk also samples
+adjacent wood: 419 nonwood BaseColor texels follow the corrected wood color
+in this edge round. The source metal shaders and primary wear sites are
+unchanged; `REVIEW.md` records this atlas-level qualification.
 The closed hero cannot expose hidden carrier rails; the open-action view does.
 Mass, ergonomics and manufacturing tolerances are not certified by these
 visual exterior meshes.
