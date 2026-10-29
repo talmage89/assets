@@ -101,3 +101,12 @@ cylinder with per-chamber `loaded`, `fired` and `empty` state, double and
 single action, a manual swing-out reload and a speedloader. It has no
 magazine; its magazine sockets are declared inactive. The 1.0.0 binding and the
 1.1.0 to 1.3.0 supplements retain their existing meanings.
+
+## Additive 1.7.0 break-action supplement
+
+The [Covey 26 supplement](sxs/INTERFACE.md) adds a two-barrel break action,
+double triggers, extractors, an automatic tang safety and per-barrel chamber
+and internal-hammer states. It reuses 1.4.0's loaded/fired/empty vocabulary
+and 1.1.0's shell insertion frames. It has no magazine. Versions 1.5.0 and
+1.6.0 remain reserved for the lever-action and stamped-receiver supplements;
+all earlier meanings remain unchanged.
