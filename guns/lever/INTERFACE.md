@@ -2,7 +2,7 @@
 
 Additive to [1.0.0](../INTERFACE.md), reusing the
 [1.1.0 tube-loading meanings](../shotgun/INTERFACE.md). The bolt rifle's 1.2.0,
-SMG's reserved 1.3.0 and revolver's reserved 1.4.0 are unchanged. The executable
+the SMG's 1.3.0 and the revolver's 1.4.0 supplements are unchanged. The executable
 binding is [src/interface.py](src/interface.py): base version 1.0.0, supplement
 1.5.0, 60 Hz. This is a visual game-asset interface, not a working mechanism.
 

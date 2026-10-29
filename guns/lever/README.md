@@ -16,7 +16,7 @@ and `action.jpg`; native Cycles stills are in `renders/final/beauty/`, Eevee in
 `renders/final/eevee/`, photographic comparisons in `renders/final/pairs/`,
 dense-source pairs in `renders/final/source-pairs/`, and all 37 real-duration
 clip strips/WebPs in `renders/final/strips/`. Five docs JPGs are generated under
-`docs/` and remain uncommitted pending the lead's acceptance.
+`docs/`.
 
 [REVIEW.md](REVIEW.md) contains the form history and successive finish critiques,
 exported bake reviews, 2D wear evidence, value measurements and limitations.

@@ -6,6 +6,7 @@ folder. Shared procedural geometry, rigging, baking and delivery use `kit/`.
 | Gun | Status | Asset |
 | --- | --- | --- |
 | PD C9 compact 9 mm pistol | Final: baked PBR, rig/clips and standalone magazines/case | [pistol/](pistol/README.md) |
+| PD Bracken L20 .30-30 lever-action carbine | Final: baked PBR, 37 clips, tube and gate loading, cartridge and case | [lever/](lever/README.md) |
 | PD Hearth 12 pump shotgun | Final: baked PBR, rig/clips, live shell and fired hull | [shotgun/](shotgun/README.md) |
 | PD Meridian Six .357 revolver | Final: baked PBR, 22 clips with per-chamber state, speedloader, cartridge and case | [revolver/](revolver/README.md) |
 | PD Vesper B24 bolt-action precision rifle | Final: baked PBR, nine clips, scope/bipod and standalone magazines/case | [bolt/](bolt/README.md) |
