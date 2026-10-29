@@ -1,0 +1,27 @@
+{
+  "ak": {
+    "non_image_buffers": "49001bf013a12c98ecdc0aef585921365adcdd6ea49b8d1218bd5b8277eebd66",
+    "structure": "c4585dda5c5d5a9e6fe53dcfe129448910fb07a5f13e24ec2fe330ece7e53abe",
+    "geometry_buffers": "95f05a19907ad03256b3797a84ba804e58b0e637c9fd7c110f6bd0f8744f7f89"
+  },
+  "magazine_loaded": {
+    "non_image_buffers": "134bd06c12901a584e26125b7716e3d789ff0c7d820fcc61d174b3627d8da18a",
+    "structure": "7191169143cd7c4f8e591e46df65846dcea31b25507230d3d1f3c8e1e080ccfc",
+    "geometry_buffers": "134bd06c12901a584e26125b7716e3d789ff0c7d820fcc61d174b3627d8da18a"
+  },
+  "magazine_empty": {
+    "non_image_buffers": "ec5037796f25cb35fa987275c217ef2c46c56238623d8480e193ef52677a0312",
+    "structure": "3865ec9c96c85e588f7f174c73571c3d240e0a6b7b6ae0ad52117f7125fdb30e",
+    "geometry_buffers": "ec5037796f25cb35fa987275c217ef2c46c56238623d8480e193ef52677a0312"
+  },
+  "cartridge": {
+    "non_image_buffers": "eea8c517e482339b5ad56a5f5f7462dbd1e265e60cc4d5e1b7f4926ec56e1b37",
+    "structure": "aa9f0f7a2276507bf1822dd9b089c79e94cfba8df473a6189c4db6766a36a7f4",
+    "geometry_buffers": "38638c171eb7385e418d8f99bd1c0d45f04180b3bda6bbbc1a9105582b23ce84"
+  },
+  "case": {
+    "non_image_buffers": "b46d8c7dfe78c018fc4b5d0cfa7f5b90967631ce7871a089c7a60321bce38c65",
+    "structure": "4e12fbde0e36fb377db4dc76463cbede1f0a2022e52787893c2573ca1e65f79a",
+    "geometry_buffers": "a08e865d69b3440676d87375f1e48074c228c0a9582c84dcf8a9f2c964d1e3bb"
+  }
+}

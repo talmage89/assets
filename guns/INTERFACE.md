@@ -114,3 +114,10 @@ through a right-side gate, an exposed hammer with a half-cock display, and top
 ejection. Its magazine socket is a fixed tube-mouth frame, not a dropped-magazine
 spawn. It reuses the 1.1.0 tube-loading meanings. The 1.0.0 binding and the
 1.1.0 to 1.4.0 supplements retain their existing meanings.
+
+## Additive 1.6.0 rocking-magazine supplement
+
+The [Rill 39 supplement](ak/INTERFACE.md) adds `magazine_rocks_in`, the authored
+front-hook/rock/seat path and a reciprocating charging-handle binding. Existing
+occupancy, socket, effect and select-fire meanings remain unchanged.
+
