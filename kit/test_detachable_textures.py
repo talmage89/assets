@@ -88,13 +88,50 @@ records={}
 for state in ('loaded','empty','tilt'):
     path=small/(state+'.glb');layout=small/'detachables'/state/'layout.json'
     records[state]=dict(comparison=V.compare(legacy/(state+'.glb'),path),
-                        audit=V.audit(path,textures,'SubsetFixture',layout))
+                        audit=V.audit(path,textures,'SubsetFixture',layout,gun=small/'main.glb'),
+                        mip_bleed=V.mip_bleed(path,textures,'SubsetFixture',layout,gun=small/'main.glb'))
     assert records[state]['audit']['size']==512,'Must honor requested size'
     assert path.stat().st_size < (legacy/(state+'.glb')).stat().st_size
     # Legacy path remains byte-identical to canonical source PNGs.
     g=GLB(legacy/(state+'.glb'))
     assert {g.image(i) for i in range(3)} == {p.read_bytes() for p in textures.glob('*.png')}
-    assert records[state]['audit']['padding_px']>=2
+    assert records[state]['audit']['padding_px']>=8
+# Exercise the negative mip checks against the same unmodified surface texels.
+# Append replacement PNG views: original mesh/accessor BIN bytes stay intact.
+import io,struct,copy
+from PIL import Image
+
+def mutated(path,name,*,black_background=False,sampler=False):
+    g=GLB(path);document=copy.deepcopy(g.json);binary=bytearray(g.binary)
+    if sampler:document['samplers'][0]['minFilter']=9729
+    if black_background:
+        size=V.maps(g)['Normal'].shape[0]
+        footprint=V._footprint([t['TEXCOORD_0'].astype(float)*size for t in V._triangles(g)],(size,size))
+        for index,image in enumerate(document['images']):
+            pixels=np.array(Image.open(io.BytesIO(g.image(index))))
+            pixels[~footprint]=0
+            encoded=io.BytesIO();Image.fromarray(pixels).save(encoded,format='PNG')
+            binary.extend(b'\0'*(-len(binary)%4));offset=len(binary);binary.extend(encoded.getvalue())
+            document['bufferViews'][image['bufferView']].update(byteOffset=offset,byteLength=len(encoded.getvalue()))
+    document['buffers'][0]['byteLength']=len(binary)
+    payload=json.dumps(document,separators=(',',':')).encode();payload+=b' '*(-len(payload)%4)
+    binary.extend(b'\0'*(-len(binary)%4))
+    chunks=struct.pack('<II',len(payload),0x4e4f534a)+payload+struct.pack('<II',len(binary),0x004e4942)+binary
+    target=out/name;target.write_bytes(struct.pack('<III',0x46546c67,2,12+len(chunks))+chunks)
+    return target
+
+path=small/'loaded.glb';layout=small/'detachables/loaded/layout.json'
+for name,changes in [('bad-sampler.glb',dict(sampler=True)),
+                     ('black-background.glb',dict(black_background=True))]:
+    broken=mutated(path,name,**changes)
+    try:V.mip_bleed(broken,textures,'SubsetFixture',layout,gun=small/'main.glb')
+    except AssertionError as error:
+        assert ('Sampler differs' if changes.get('sampler') else 'New mip bleed exceeds atlas') in str(error),str(error)
+    else:raise AssertionError('Mip/sampler regression accepted '+name)
+for state in ('loaded','empty','tilt'):
+    images=V.maps(GLB(small/(state+'.glb')))
+    assert np.all(images['BaseColor'][:,:,2]>.09), 'Unfilled background texels'
+    assert V.mip_chain(images['BaseColor'],color=True)[-1][0,0,2]>.005
 # Determinism, including copied texture/material datablock names.
 repeat=out/'repeat';deliver(opted,repeat)
 for name in ('main','loaded','empty','tilt'):
@@ -122,7 +159,8 @@ static_base=dict(EXPORT_ANIMATIONS=False,MATERIAL_OVERRIDES={'':dict(specular=.2
 deliver(static_base,out/'static-legacy')
 deliver({**static_base,'EXPORT_TEXTURE_SIZE':512},out/'static-small')
 V.compare(out/'static-legacy/main.glb',out/'static-small/main.glb')
-V.audit(out/'static-small/main.glb',textures,'SubsetFixture',out/'static-small/detachables/main/layout.json')
+V.audit(out/'static-small/main.glb',textures,'SubsetFixture',out/'static-small/detachables/main/layout.json',gun=out/'static-legacy/main.glb')
+V.mip_bleed(out/'static-small/main.glb',textures,'SubsetFixture',out/'static-small/detachables/main/layout.json',gun=out/'static-legacy/main.glb')
 # Guarded last-digit export stabilization must restore only the accepted bytes,
 # and must reject a changed source signature or a larger tangent difference.
 import struct,copy
@@ -161,5 +199,9 @@ except ValueError:pass
 else:raise AssertionError('Silently reduced texel density')
 layout=D.extract([ob],textures,'SubsetFixture',out/'wide',1024)
 assert layout['size']==1024
+assert layout['protected_mip_level']>=6 and layout['padding_px']>=64
+W.export(out/'wide.glb',[ob],animations=False)
+records['wide_mips']=V.mip_bleed(out/'wide.glb',textures,'SubsetFixture',out/'wide/layout.json')
+assert records['wide_mips']['maximum_level']>=6
 (out/'results.json').write_text(json.dumps(records,indent=2))
-print('DETACHABLE TEXTURES PASS: legacy/main bytes, 512/1024, UV bounds, guards, sampled RGBA/normal/ORM, tangent frame, posed origins, determinism and negative cases')
+print('DETACHABLE TEXTURES PASS: legacy/main bytes, 512/1024, UV bounds, guards, sampled RGBA/normal/ORM, pointwise box mip bleed, inherited samplers, full fill/unit normals, tangent frame, posed origins, determinism and negative cases')

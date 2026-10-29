@@ -757,20 +757,31 @@ measured separately by the regression. Request the smallest supported size that
 fits; packing fails rather than reducing density. Material copies preserve
 uniform factors, extensions and independent data in BaseColor alpha.
 
-Each chart retains its original bilinear sampling footprint and two pixels of
-additional dilation from that chart alone. Unused rectangle corners receive
-that chart's padding, never other gun surfaces. Generated maps and `layout.json`
-live beside the export report in `detachables/<GLB stem>/`; the layout records
-source/destination rectangles and independently measured density percentiles.
+Each chart retains its original bilinear sampling footprint, with **at least
+8 pixels of additional dilation** from that chart alone (the 2048 gun atlas's
+12-at-4096 bake margin is effectively 6). Guards occupy disjoint rectangles
+aligned to the protected box-mip grid. Their right/top extents round up to that
+grid; this contains the bilinear taps at mip 3 even at an unfavorable UV phase,
+where an unaligned 8-pixel rectangle alone can leak. Protection extends through
+mip 3 or the level where the item's smallest UV island becomes two texels
+across, whichever is farther. A larger required cutoff increases the grid and
+gutter together. Packing still fails rather than reducing density.
 
-**Sampling contract:** these standalone GLBs explicitly use `LINEAR` minification
-and magnification, with `CLAMP_TO_EDGE`, and no mipmaps. Two-pixel guards protect
-every level that sampler uses (level zero). No finite atlas gutter can isolate
-multiple islands through a full mip chain ending at 1×1; glTF has no maximum-LOD
-sampler field. Consumers must honor this sampler. An engine that overrides it
-must supply its own LOD clamp/padding policy; unbounded generated mipmaps are
-not supported by this option. At 8-bpp block compression the three base levels
-cost about 0.75 MiB at 512 or 3 MiB at 1024, without inter-file texture caching.
+Island dilation plus a masked pull-push fill covers **every** remaining texel,
+including the gaps between guards. Background RGB is filled in linear light. No black background is introduced into the deep mip tail. Generated
+normal pixels are normalized before 8-bit quantization; the islands' copied
+sampling footprints stay byte-exact. Generated maps and `layout.json` live
+beside the export report in `detachables/<GLB stem>/`; the layout records
+source/destination rectangles, guards, mip grid/cutoff and measured density.
+
+**Sampling contract:** standalone exports keep the same exporter sampler as
+the gun. The default is `LINEAR_MIPMAP_LINEAR` (9987) minification and `LINEAR`
+(9729) magnification, with repeat wrapping (implicit glTF defaults). No sampler
+override, engine LOD clamp or mipmap disabling is required. A fully filled mip
+tail still mixes islands after the protected cutoff, as any atlas does; it
+averages this item's surfaces rather than a black unused background. At 8-bpp
+block compression, three maps with their full mip chains cost about **1 MiB at
+512**, **4 MiB at 1024**, or **16 MiB at 2048**, without inter-file caching.
 
 Run `blender -b --factory-startup --python-exit-code 1 --python
 kit/test_detachable_textures.py` in a fresh process (no bake/GPU required).
@@ -782,7 +793,19 @@ indices, matches oriented geometry and origins, and samples ten identical
 surface points per triangle in linear color, tangent normal and ORM, including
 opaque alpha. Tolerance is 0.25/255 per channel; triangle tangent directions must
 agree within 0.5 degrees after float storage. Its `audit()` also checks delivered
-sampling, chart protection and inverse-mapped samples against the canonical atlas.
+sampling, disjoint aligned guards, normalized generated normals (unit-length
+error below 0.007 after 8-bit quantization), and inverse-mapped atlas samples.
+Supply `gun=<main GLB>` to compare resolved samplers channel by channel.
+`mip_bleed()` builds box-filtered atlas and standalone mip chains, and compares
+each point/channel to that same island alone, dilated without a gutter limit.
+The reference is independently rasterized from exported accessors and aligned
+to each actual mip grid, so normal intra-island filtering phase is not called
+bleed. RGB is filtered in linear light, alpha/ORM as linear data, and normals as
+encoded vectors (ordinary GPU mip generation). At every tested point and LOD,
+the new maximum channel error must be no more than the atlas error plus
+**1/255**. The test reaches at least mip 3, even when tiny islands make the
+requested two-texel cutoff earlier. Negative fixtures reject both a disabled
+mip sampler and black background/padding while keeping surface texels intact.
 The raw old/new UV transform must agree with the known positive density-preserving
 scale within 0.001 delivered pixel. Resolved triangles (at least one source texel
 of area) additionally retain density within 0.1%; subtexel slivers' ill-conditioned

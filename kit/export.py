@@ -167,7 +167,6 @@ def main():
             subset=detachable_textures.extract([detached],Path(a.textures).resolve(),a.asset,
                 Path(a.report).resolve().parent/'detachables'/path.stem,spec['texture_size'])
         weapon.export(path,[detached],animations=False)
-        if subset is not None:detachable_textures.set_sampler(path)
         detachments.append(dict(file=spec['filename'],bytes=path.stat().st_size,
                                 clip=spec.get('clip'),frame=spec.get('frame',0),bone=spec['bone']))
         if subset is not None:detachments[-1]['textures']=subset
@@ -239,7 +238,6 @@ def main():
         from kit.glb_textures import compact
         report['texture_views']=compact(path,Path(a.report).parent)
     if subset is not None:
-        detachable_textures.set_sampler(path)
         report['textures']=subset
     report['bytes']=path.stat().st_size
     if animations:

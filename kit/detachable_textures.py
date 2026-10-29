@@ -2,20 +2,20 @@
 
 All moves are integer source pixels. UV scale is positive and uniform, so
 surface sampling, tangent direction and tangent handedness are preserved.
-No modeling, unwrapping, baking or image resampling takes place here.
+Surface pixels are neither resampled nor rebaked. Background fill is generated
+from those pixels; no modeling or unwrapping takes place here.
 """
 import json
 import math
-import struct
 from pathlib import Path
 
 import numpy as np
 
 from kit import uv
-from kit.image_io import read_png, write_png
+from kit.image_io import read_png, write_png, srgb_to_linear, linear_to_srgb
 
 CHANNELS = ('BaseColor', 'Normal', 'ORM')
-PADDING = 2
+PADDING = 8
 
 
 def _pack(rectangles, size):
@@ -93,7 +93,8 @@ def _mask(mesh, layer, loops, origin, shape, source_size):
 def _dilate(values, valid):
     """Extend only this island's sampling footprint, never other atlas surfaces."""
     # Stable nearest-in-Chebyshev-distance propagation; every map uses identical
-    # ownership. Padding copies normals verbatim (no filtering/renormalization).
+    # ownership. Seeds are never changed. Generated normals are normalized by
+    # the caller, after propagation.
     values = values.copy(); valid = valid.copy()
     height, width = valid.shape
     while not valid.all():
@@ -106,6 +107,28 @@ def _dilate(values, valid):
             valid[ys,xs][fill] = True
         if np.array_equal(old, valid): raise ValueError('Empty island padding seed')
     return values
+
+
+def _pull_push(values, valid):
+    """Fill every hole from neighboring valid texels; never change seed pixels.
+
+    Pull masked means to a 1x1 parent, then push parents into empty children.
+    The caller supplies linear RGB/data (and normalizes generated normals).
+    Power-of-two square atlas sizes make every level exact and deterministic.
+    """
+    levels = [(values.copy(),valid.copy())]
+    while levels[-1][0].shape[0]>1:
+        image,mask = levels[-1]; h,w,c = image.shape
+        count = mask.reshape(h//2,2,w//2,2).sum(axis=(1,3))
+        total = (image*mask[:,:,None]).reshape(h//2,2,w//2,2,c).sum(axis=(1,3))
+        mean = np.divide(total,count[:,:,None],out=np.zeros_like(total),where=count[:,:,None]>0)
+        levels.append((mean,count>0))
+    if not levels[-1][1].all(): raise ValueError('Empty background fill seed')
+    for index in range(len(levels)-2,-1,-1):
+        image,mask = levels[index]
+        parent = levels[index+1][0].repeat(2,axis=0).repeat(2,axis=1)
+        image[~mask] = parent[~mask]
+    return levels[0][0]
 
 
 def extract(objects, folder, asset, output, size, *, layer='UVMap'):
@@ -122,7 +145,7 @@ def extract(objects, folder, asset, output, size, *, layer='UVMap'):
     source_size = arrays['BaseColor'].shape[0]
     if any(a.shape[:2] != (source_size,source_size) for a in arrays.values()):
         raise ValueError('Detachable extraction requires matching square maps')
-    islands = []; densities = []; areas = []
+    islands = []; densities = []; areas = []; minimum_extent = math.inf
     for ob in objects:
         mesh = ob.data; mesh.calc_loop_triangles(); data = mesh.uv_layers[layer]
         for group in uv.islands(ob, layer):
@@ -130,6 +153,7 @@ def extract(objects, folder, asset, output, size, *, layer='UVMap'):
             points = np.array([data.data[i].uv[:] for i in loops])*source_size
             if points.min() < -1e-3 or points.max() > source_size+1e-3:
                 raise ValueError('Detachable UVs must be inside the canonical atlas')
+            minimum_extent = min(minimum_extent,float(np.ptp(points,axis=0).min()))
             lo = np.floor(points.min(axis=0)-1).astype(int)
             hi = np.ceil(points.max(axis=0)+1).astype(int)
             islands.append(dict(ob=ob, loops=loops, lo=lo, shape=hi-lo))
@@ -140,31 +164,61 @@ def extract(objects, folder, asset, output, size, *, layer='UVMap'):
             if surface > 1e-15 and texels > 1e-15:
                 densities.append(math.sqrt(texels/surface)); areas.append(surface)
     if not islands: raise ValueError('Detachable contains no UV islands')
-    rectangles = [tuple(map(int,i['shape']+2*PADDING)) for i in islands]
+    # Align guards to the coarsest protected box-mip grid. An 8px gutter
+    # alone can leak through mip-3 bilinear taps at an unlucky packing phase.
+    # Grid-aligned guard rectangles contain every tap through that level.
+    last_level = max(3,int(math.floor(math.log2(max(minimum_extent,4)/2))))
+    block = 2**last_level
+    padding = max(PADDING,block)
+    rectangles = [tuple(map(int,(i['shape']+2*padding+block-1)//block)) for i in islands]
     target_size = size
-    positions = _pack(rectangles, target_size)
+    positions = _pack(rectangles, target_size//block)
+    if positions is not None: positions = [(x*block,y*block) for x,y in positions]
     if positions is None:
-        raise ValueError(f'Detachable cannot fit {size} at original density with {PADDING}px padding')
+        raise ValueError(f'Detachable cannot fit {size} at original density with {padding}px grid-aligned padding')
     result = {c:np.zeros((target_size,target_size,a.shape[2]),np.float32) for c,a in arrays.items()}
+    occupied = np.zeros((target_size,target_size),bool)
+    surface = np.zeros_like(occupied)
     records = []
     # Calculate footprints before changing any UVs.
     masks = [_mask(i['ob'].data, i['ob'].data.uv_layers[layer], i['loops'],
                    i['lo'], i['shape'], source_size) for i in islands]
-    for island, (x,y), mask in zip(islands, positions, masks):
+    for island, (x,y), mask, rectangle in zip(islands, positions, masks, rectangles):
         width,height = map(int,island['shape']); ox,oy = map(int,island['lo'])
+        guard_width,guard_height = (v*block for v in rectangle)
+        right = guard_width-width-padding; top = guard_height-height-padding
         for channel, source in arrays.items():
             # Match the canonical atlas's repeat sampling on its outer border.
             patch = source[np.arange(oy,oy+height)%source_size][:,np.arange(ox,ox+width)%source_size]
-            valid = np.pad(mask, PADDING)
-            patch = np.pad(patch, ((PADDING,PADDING),(PADDING,PADDING),(0,0)))
-            result[channel][y:y+height+2*PADDING,x:x+width+2*PADDING] = _dilate(patch, valid)
+            valid = np.pad(mask, ((padding,top),(padding,right)))
+            patch = np.pad(patch, ((padding,top),(padding,right),(0,0)))
+            result[channel][y:y+guard_height,x:x+guard_width] = _dilate(patch, valid)
+        occupied[y:y+guard_height,x:x+guard_width] = True
+        surface[y+padding:y+padding+height,x+padding:x+padding+width] = mask
         data = island['ob'].data.uv_layers[layer].data
-        offset = np.array((x+PADDING,y+PADDING))-island['lo']
+        offset = np.array((x+padding,y+padding))-island['lo']
         for i in island['loops']:
             data[i].uv = (np.array(data[i].uv)*source_size+offset)/target_size
         records.append(dict(object=island['ob'].name,loops=island['loops'],
                             source_origin=island['lo'].tolist(),shape=island['shape'].tolist(),
-                            destination_origin=[x+PADDING,y+PADDING],padding=PADDING))
+                            destination_origin=[x+padding,y+padding],padding=padding,
+                            guard_origin=[x,y],guard_shape=[guard_width,guard_height]))
+    # Pull-push fills the remaining background in linear time, even when a
+    # large requested map is mostly empty. Guard rectangles remain untouched.
+    for channel,array in result.items():
+        if channel == 'BaseColor':
+            linear = array.copy(); linear[:,:,:3] = srgb_to_linear(linear[:,:,:3])
+            filled = _pull_push(linear,occupied)
+            array[~occupied,:3] = linear_to_srgb(filled[~occupied,:3])
+            if array.shape[2]>3: array[~occupied,3:] = filled[~occupied,3:]
+        else:
+            array[:] = _pull_push(array,occupied)
+        if channel == 'Normal':
+            generated = array[~surface,:3]*2-1
+            lengths = np.linalg.norm(generated,axis=1,keepdims=True)
+            generated = np.divide(generated,lengths,out=np.zeros_like(generated),where=lengths>1e-12)
+            generated[lengths[:,0]<=1e-12] = (0,0,1)
+            array[~surface,:3] = generated*.5+.5
     output = Path(output); output.mkdir(parents=True, exist_ok=True)
     paths = {}
     for channel,array in result.items():
@@ -205,29 +259,9 @@ def extract(objects, folder, asset, output, size, *, layer='UVMap'):
     report = dict(source_size=source_size,size=target_size,requested_size=size,
                   source_density_px_m=percentiles,density_px_m=new_percentiles,
                   density_ratio_min=float(ratios.min()),density_ratio_max=float(ratios.max()),
-                  padding_px=PADDING,islands=records,maps=paths,
-                  sampling='LINEAR, no mipmaps; 2px guards; do not override sampler')
+                  padding_px=padding,mip_grid_px=block,protected_mip_level=last_level,
+                  islands=records,maps=paths,
+                  sampling='Inherited exporter sampler; mipmaps, grid-aligned island guards, fully dilated background',
+                  fill='Island dilation plus background pull-push; generated normals normalized; original footprint unchanged')
     (output/'layout.json').write_text(json.dumps(report,indent=2))
     return report
-
-
-def set_sampler(path):
-    """Declare base-level bilinear filtering; glTF has no max-LOD sampler field.
-
-    No finite gutter can isolate multiple islands at the 1x1 mip tail. Engines
-    must honor this sampler (or explicitly clamp LOD when generating mipmaps).
-    Mesh/accessor/image/BIN bytes are untouched.
-    """
-    path = Path(path); raw = path.read_bytes(); chunks = []; offset = 12
-    while offset < len(raw):
-        length,kind = struct.unpack_from('<II',raw,offset)
-        payload = raw[offset+8:offset+8+length]; offset += 8+length
-        if kind == 0x4e4f534a:
-            document = json.loads(payload)
-            for sampler in document.get('samplers',[]):
-                sampler.update(minFilter=9729,magFilter=9729,wrapS=33071,wrapT=33071)
-            payload = json.dumps(document,separators=(',',':')).encode()
-            payload += b' '*(-len(payload)%4)
-        chunks.append(struct.pack('<II',len(payload),kind)+payload)
-    payload = b''.join(chunks)
-    path.write_bytes(struct.pack('<III',0x46546c67,2,12+len(payload))+payload)

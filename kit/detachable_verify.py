@@ -26,8 +26,9 @@ def maps(g):
 
 def sample(image, coordinates, *, color=False):
     """glTF top-left UV, repeat wrapping, texel-center bilinear sampling."""
-    image = image.copy()
-    if color: image[:,:,:3] = srgb_to_linear(image[:,:,:3])
+    if color:
+        image = image.copy()
+        image[:,:,:3] = srgb_to_linear(image[:,:,:3])
     height,width,_ = image.shape
     xy = np.asarray(coordinates)*[width,height]-.5
     lo = np.floor(xy).astype(int); fraction = xy-lo
@@ -147,20 +148,26 @@ def compare(before, after, *, tolerance=.25/255):
                 tangent_direction_max_delta=tangent_error,tangent_direction_max_angle_degrees=tangent_angle,surface_errors=errors)
 
 
-def audit(path, canonical_folder, asset, layout_path):
+def audit(path, canonical_folder, asset, layout_path, *, gun=None):
     """Check standalone PNGs, padding, bounds and inverse-mapped atlas samples."""
     g=GLB(Path(path));layout=json.loads(Path(layout_path).read_text());size=layout['size']
     assert size in (512,1024)
     images=maps(g);assert len(g.json['images'])==3
     assert all(image.shape[:2]==(size,size) for image in images.values())
     assert not g.json.get('skins') and not g.json.get('animations')
-    assert all(s['minFilter']==9729 and s['magFilter']==9729 and
-               s['wrapS']==33071 and s['wrapT']==33071 for s in g.json['samplers'])
+    if gun is not None:
+        assert samplers(g)==samplers(GLB(Path(gun))), 'Sampler differs from main gun'
+    else:
+        assert all(s.get('minFilter')==9987 and s.get('magFilter')==9729
+                   for s in samplers(g).values())
     atlas_size=layout['source_size'];rectangles=[]
     for row in layout['islands']:
         origin=np.array(row['destination_origin']);shape=np.array(row['shape']);pad=row['padding']
-        assert pad>=2
-        lo=origin-pad;hi=origin+shape+pad
+        assert pad>=8
+        lo=origin-pad;hi=lo+np.array(row.get('guard_shape',shape+2*pad))
+        assert np.all(hi>=origin+shape+pad)
+        grid=layout.get('mip_grid_px',1)
+        assert np.all(lo%grid==0) and np.all(hi%grid==0)
         assert np.all(lo>=0) and np.all(hi<=size)
         rectangles.append((lo,hi))
     lows=np.array([a for a,b in rectangles]);highs=np.array([b for a,b in rectangles])
@@ -187,7 +194,185 @@ def audit(path, canonical_folder, asset, layout_path):
         delta=np.abs(sample(source,source_uv,color=channel=='BaseColor')-
                      sample(image,new_uv,color=channel=='BaseColor'))
         errors[channel]=float(delta.max());assert delta.max()<.25/255,(channel,delta.max())
+    footprint = _footprint([t['TEXCOORD_0'].astype(float)*size for t in _triangles(g)],(size,size))
+    vectors = images['Normal'][~footprint,:3]*2-1
+    unit_error = float(np.max(np.abs(np.linalg.norm(vectors,axis=1)-1)))
+    assert unit_error < .007, ('Generated normal is not unit length',unit_error)
     return dict(size=size,triangles=len(new_uv)//len(BARYCENTRIC),surface_samples=len(new_uv),
                 padding_px=layout['padding_px'],source_density_px_m=layout['source_density_px_m'],
                 density_px_m=layout['density_px_m'],max_surface_error=errors,
-                sampling=layout['sampling'])
+                sampling=layout['sampling'],filled_texels=int((~footprint).sum()),
+                generated_normal_max_unit_error=unit_error)
+
+
+def samplers(g):
+    """Resolve each material channel's actual sampler, including implicit defaults."""
+    material = g.json['materials'][0]
+    pbr = material['pbrMetallicRoughness']
+    indices = dict(BaseColor=pbr['baseColorTexture']['index'],
+                   Normal=material['normalTexture']['index'],
+                   ORM=pbr['metallicRoughnessTexture']['index'])
+    return {channel:copy.deepcopy(g.json.get('samplers',[])[texture['sampler']])
+            if 'sampler' in texture else {} for channel,index in indices.items()
+            for texture in [g.json['textures'][index]]}
+
+
+def mip_chain(image, *, color=False):
+    """Box-filtered hardware-style mip chain; sRGB RGB averages in linear light.
+
+    Alpha and data channels are linear. Normal mip texels remain the encoded
+    vector averages used by ordinary GPU mip generation; the shader normalizes
+    after lookup. This deliberately does not sharpen or renormalize each mip.
+    """
+    image = image.astype(np.float64).copy()
+    if color: image[:,:,:3] = srgb_to_linear(image[:,:,:3])
+    chain = [image]
+    while min(image.shape[:2]) > 1 and all(n%2 == 0 for n in image.shape[:2]):
+        h,w,c = image.shape
+        image = image.reshape(h//2,2,w//2,2,c).mean(axis=(1,3))
+        chain.append(image)
+    return chain
+
+
+def _footprint(triangles, shape):
+    """Rasterize raw exported triangles, with their conservative bilinear support.
+
+    Independent of Blender mesh loops and the extraction report's ownership.
+    The triangle/square separating-axis test retains even subpixel slivers.
+    """
+    w,h = map(int,shape); mask = np.zeros((h,w),bool)
+    cross = lambda a,b:a[...,0]*b[...,1]-a[...,1]*b[...,0]
+    for points in triangles:
+        lo = np.maximum(np.floor(points.min(axis=0)-.5).astype(int),0)
+        hi = np.minimum(np.ceil(points.max(axis=0)+.5).astype(int),(w,h))
+        if np.any(hi<=lo): continue
+        yy,xx = np.mgrid[lo[1]:hi[1],lo[0]:hi[0]]
+        centers = np.stack((xx+.5,yy+.5),axis=-1)
+        a,b,c = points; determinant = cross(b-a,c-a)
+        if abs(determinant)<1e-15: continue
+        hit = np.ones(xx.shape,bool)
+        for start,end in ((a,b),(b,c),(c,a)):
+            edge = end-start
+            hit &= cross(edge,centers-start)*np.sign(determinant) >= -.5*(abs(edge[0])+abs(edge[1]))-1e-7
+        mask[lo[1]:hi[1],lo[0]:hi[0]] |= hit
+    expanded = np.pad(mask,1)
+    return np.logical_or.reduce([expanded[dy:dy+h,dx:dx+w]
+                                for dy in range(3) for dx in range(3)])
+
+
+def _isolated_patch(pixels, mask, origin, level, *, normal=False):
+    """One island alone, extended without a gutter limit on an aligned canvas.
+
+    The canvas contains every box/bilinear tap at the requested maximum LOD,
+    plus two whole mip blocks on all sides. Its origin is on the *actual*
+    atlas/standalone mip grid, so intra-island phase differences are not bleed.
+    A separate owner wavefront implements the deterministic Chebyshev fill.
+    """
+    block = 2**level; shape = np.array(mask.shape[::-1])
+    low = (np.asarray(origin)//block-2)*block
+    high = ((np.asarray(origin)+shape+block-1)//block+2)*block
+    w,h = map(int,high-low); x,y = map(int,np.asarray(origin)-low)
+    owners = np.full((h,w),-1,np.int32)
+    indices = np.arange(mask.size,dtype=np.int32).reshape(mask.shape)
+    owners[y:y+mask.shape[0],x:x+mask.shape[1]][mask] = indices[mask]
+    seed = owners>=0
+    while np.any(owners<0):
+        previous = owners.copy()
+        # Images here are top-down; extraction operates bottom-up. Reverse
+        # the vertical tie order to describe the same island extension.
+        for dy,dx in ((1,0),(0,-1),(0,1),(-1,0),(1,-1),(1,1),(-1,-1),(-1,1)):
+            target = owners[max(0,dy):h+min(0,dy),max(0,dx):w+min(0,dx)]
+            source = previous[max(0,-dy):h-max(0,dy),max(0,-dx):w-max(0,dx)]
+            hit = (target<0)&(source>=0)
+            target[hit] = source[hit]
+        assert not np.array_equal(previous,owners), 'Empty isolated-island seed'
+    result = pixels.reshape(-1,pixels.shape[-1])[owners].copy()
+    if normal:
+        vectors = result[~seed,:3]*2-1
+        lengths = np.linalg.norm(vectors,axis=1,keepdims=True)
+        vectors = np.divide(vectors,lengths,out=np.zeros_like(vectors),where=lengths>1e-12)
+        vectors[lengths[:,0]<=1e-12] = (0,0,1)
+        # Reference includes the same unavoidable 8-bit padding quantization.
+        result[~seed,:3] = np.floor((vectors*.5+.5)*255+.5)/255
+    return result,low
+
+
+def mip_bleed(path, canonical_folder, asset, layout_path, *, gun=None,
+              tolerance=1/255, minimum_level=3, enforce=True):
+    """Pointwise mip bleed versus an unlimited isolated-island reference.
+
+    Compare every ten-point triangle sample and channel at every integer LOD.
+    Test through the level where the smallest island is two texels, and at
+    least through mip 3, even for subpixel islands. This is stronger than the
+    item's smallest-island cutoff. Error is max absolute channel difference in
+    linear RGBA / encoded tangent normal / linear ORM. The new error may exceed
+    the canonical error by at most one 8-bit step (1/255), *at the same surface
+    point*, never just an aggregate maximum. Different integer packing phases
+    get independently aligned ideal reference chains.
+    """
+    g = GLB(Path(path)); layout = json.loads(Path(layout_path).read_text())
+    size = layout['size']; source_size = layout['source_size']
+    if gun is not None:
+        assert samplers(g)==samplers(GLB(Path(gun))), 'Sampler differs from main gun'
+    actual = maps(g)
+    source = {c:np.asarray(Image.open(Path(canonical_folder)/f'T_{asset}_{c}.png')).astype(float)/255
+              for c in actual}
+    chains = {c:mip_chain(a,color=c=='BaseColor') for c,a in actual.items()}
+    old_chains = {c:mip_chain(a,color=c=='BaseColor') for c,a in source.items()}
+    rows = layout['islands']
+    shapes = np.array([r['shape'] for r in rows],int)
+    origins = np.array([[r['destination_origin'][0],size-r['destination_origin'][1]-r['shape'][1]] for r in rows],int)
+    old_origins = np.array([[r['source_origin'][0],source_size-r['source_origin'][1]-r['shape'][1]] for r in rows],int)
+    ends = origins+shapes; groups = [[] for _ in rows]
+    for tri in _triangles(g):
+        pixels = tri['TEXCOORD_0'].astype(float)*size
+        candidates = np.flatnonzero(np.all(pixels.min(axis=0)>=origins-1e-3,axis=1)&
+                                    np.all(pixels.max(axis=0)<=ends+1e-3,axis=1))
+        assert len(candidates)==1, 'Triangle escaped protected chart'
+        groups[int(candidates[0])].append(pixels)
+    cutoffs = []
+    for triangles in groups:
+        extent = np.ptp(np.asarray(triangles).reshape(-1,2),axis=0)
+        cutoffs.append(max(0,int(np.floor(np.log2(max(float(extent.min()),1e-12)/2)))))
+    limit = max(minimum_level,min(cutoffs))
+    levels = {}; total_samples = 0
+    for index,(triangles,shape,origin,old_origin) in enumerate(zip(groups,shapes,origins,old_origins)):
+        assert triangles, 'Unused island rectangle'
+        relative = np.asarray(triangles)-origin
+        mask = _footprint(relative,shape); assert mask.any()
+        points = (BARYCENTRIC[None,:,:]@np.asarray(triangles)).reshape(-1,2)
+        previous_points = points-origin+old_origin
+        total_samples += len(points)*(limit+1)
+        for channel,atlas in source.items():
+            h,w = mask.shape; ox,oy = old_origin
+            pixels = atlas[np.arange(oy,oy+h)%source_size][:,np.arange(ox,ox+w)%source_size]
+            # Both references use exactly the same island's original pixels.
+            for old,grid_origin,locations,chain in ((True,old_origin,previous_points,old_chains[channel]),
+                                                   (False,origin,points,chains[channel])):
+                isolated,low = _isolated_patch(pixels,mask,grid_origin,limit,normal=channel=='Normal')
+                ideal = mip_chain(isolated,color=channel=='BaseColor')
+                errors = []
+                for level in range(limit+1):
+                    reference = sample(ideal[level],(locations-low)/np.array(isolated.shape[1::-1]))
+                    observed = sample(chain[level],locations/(source_size if old else size))
+                    errors.append(np.max(np.abs(observed-reference),axis=1))
+                if old: baseline_errors = errors
+                else:
+                    for level,(before,after) in enumerate(zip(baseline_errors,errors)):
+                        row = levels.setdefault(str(level),dict(samples=0,atlas=0.,standalone=0.,excess=-1.,channels={}))
+                        metrics = row['channels'].setdefault(channel,dict(atlas=0.,standalone=0.,excess=-1.))
+                        metrics['atlas'] = max(metrics['atlas'],float(before.max()))
+                        metrics['standalone'] = max(metrics['standalone'],float(after.max()))
+                        metrics['excess'] = max(metrics['excess'],float((after-before).max()))
+                        row['atlas'] = max(row['atlas'],metrics['atlas'])
+                        row['standalone'] = max(row['standalone'],metrics['standalone'])
+                        row['excess'] = max(row['excess'],metrics['excess'])
+                        if channel=='BaseColor': row['samples'] += len(points)
+                        if enforce:
+                            assert np.all(after<=before+tolerance),(Path(path).name,index,channel,level,
+                                'New mip bleed exceeds atlas',float((after-before).max()),tolerance)
+    return dict(tolerance=tolerance,metric='pointwise max absolute linear RGBA / encoded normal / ORM',
+                sampler=samplers(g),item_smallest_island_cutoff=min(cutoffs),
+                tested_minimum_level=minimum_level,maximum_level=max(map(int,levels)),
+                samples_across_levels=total_samples,levels=levels,
+                passed=all(r['excess']<=tolerance for r in levels.values()))
