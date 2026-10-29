@@ -66,7 +66,7 @@ def main():
  for name,target in [('Receiver_Sheet',1900),('Stock_Sculpt',3000),('TopCover_Pressed',1200),('TopCover_RearCap',180),('Barrel',700),
   ('LowerHandguard_Sculpt',2400),('UpperHandguard_Sculpt',1700),('PistolGrip_Sculpt',2200),
   ('Magazine_Sheet',2700),('TriggerGuard_Stamping',450),('Buttplate',380),
-  ('Handguard_Retainer221',230),('Handguard_Retainer363',230),('Release_Housing',280),
+  ('Handguard_Retainer221',230),('Handguard_Retainer363',568),('Release_Housing',280),
   ('Sight_FrontHood',500),('TopCover_ButtonLip',220),('Sight_WindageDrum',360),
   ('Sight_RearNotch',240),('Sight_LeafSpring',180),('Sight_TangentLeaf',280),
   ('Sight_SliderBridge',220),('Sight_RodSeat',250),('Receiver_FrontLugSlot',340),('Front_InsertUpperShoulder',220)]:

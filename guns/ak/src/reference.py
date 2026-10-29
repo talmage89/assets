@@ -22,6 +22,7 @@ PATCHES.update({
  'gas-sharp.jpg':((2300,300,2500,500),'unprinted white photographic backdrop'),
  'grip-sharp.jpg':((100,300,240,450),'light gray concrete away from rusty fissures')})
 PATCHES['cover-sharp.jpg']=((2400,400,2700,600),'unprinted white photographic backdrop')
+PATCHES['retainer-sharp.jpg']=((40,40,340,180),'unprinted white backdrop above component; form reference')
 PATCHES['retainer.jpg']=((20,20,80,80),'unprinted white photographic backdrop')
 PATCHES['ammunition-copper.jpg']=((700,80,1500,300),'unprinted white paper above the cartridge, away from ruler and shadow')
 PATCHES['ammunition-green.jpg']=((1190,130,1240,170),'unprinted white label corner; strong mixed flash/ambient light, secondary finish-variation comparison only')

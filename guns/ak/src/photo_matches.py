@@ -257,6 +257,14 @@ PHOTO_VIEWS['used_photo']=dict(
  ((.0175,-.035,.050),(612,352),1),((.0175,.220,.086),(1270,228),1),
  ((.0175,.220,.050),(1270,323),1),((0,.595,.085),(2215,275),.5),
  ((0,-.285,.035),(55,363),.5)])
+PHOTO_VIEWS['retainer_photo']=dict(
+ title='Flat fitted lower-handguard cap / independent oblique-front photograph',
+ photo='retainer-sharp.jpg',crop=(680,460,2760,2650),
+ location=(.012,.70,.25),target=(0,.364,.075),fixed_view=True,lens=100,lens_bounds_mm=(70,180),exposure=-.3,
+ landmarks=[((0,.3652,.085),(1600,1400),1),
+ ((0,.3652,.047),(1600,2380),1),
+ ((.0208,.3652,.084),(850,1410),.7),
+ ((-.0208,.3652,.084),(2210,1410),.7)])
 for name, description in PHOTO_VIEWS.items():
     row = dict(description)
     row['photo'] = str(BASE / 'build/white-balanced' / row['photo'])

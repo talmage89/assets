@@ -32,6 +32,8 @@ nonfunctional visual proxies, without manufacturing dimensions or tolerances.
 
 | retainer.jpg | https://cdn11.bigcommerce.com/s-fzqvov6ut8/images/stencil/original/products/464/1068/AK_lower_handguard_retainer_with_sling_loop__38249.1743554877.jpg?c=1 | KB Tactical Star / copyrighted used-component photograph, comparison only | 450×375 component view: ferrule front plate, rolled cup return, barrel/rod apertures and left sling mounting; no internal mechanism copied. |
 
+| retainer-sharp.jpg | https://cdn11.bigcommerce.com/s-i32t4keptf/images/stencil/original/products/2704/9235/20260311_110202__81215.1773245288.jpg?c=1 | Arms of America / copyrighted product photograph, comparison only | Sharp 3024×3551 oblique front: flat diaphragm, oval lower perimeter fitted to wood, straight upper shoulders, short barrel collar and sling eye. New oxide finish is form-only; white backdrop is the estimated neutral. |
+
 Source pages (titles in URLs identify reference objects, not the fictional asset):
 
 - [Museum photograph](https://commons.wikimedia.org/wiki/File:AKM_automatkarbin,_Ryssland_-_7,62x39mm_-_Arm%C3%A9museum.jpg).

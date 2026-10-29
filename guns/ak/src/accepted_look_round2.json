@@ -1,0 +1,1472 @@
+{
+  "meshes": {
+    "Receiver_Sheet": {
+      "bone": "Root",
+      "vertices": 948,
+      "triangles": 1900,
+      "geometry": "8507e4b7e3d6ea5a715bd46073c57a093c2a12683c518f4b2eeac4110e51a63d",
+      "normals": "db1c1af141536fe3a4224fd03f314b60477abcee01aa31a7cd8db0e1d5f2bcdc"
+    },
+    "Receiver_Rivet-1_0": {
+      "bone": "Root",
+      "vertices": 38,
+      "triangles": 72,
+      "geometry": "55fed962a56ea29c87f01f6fd7fdbbba823b212e9be958b0f9be375423ad7204",
+      "normals": "d485fa349b4d8cbc13b2c4e32be7588a1328c5de4ac6a366b7ac220159c331eb"
+    },
+    "Receiver_Rivet-1_1": {
+      "bone": "Root",
+      "vertices": 38,
+      "triangles": 72,
+      "geometry": "6c376dcb6c4c368acecf38cbd8fea76cbe691da933fcee837a73c19fa528b493",
+      "normals": "aa3649d90318134bd7a08c04ec98bfdede1398a399f924c2a592822e5741a95f"
+    },
+    "Receiver_Rivet-1_2": {
+      "bone": "Root",
+      "vertices": 38,
+      "triangles": 72,
+      "geometry": "3efee9ef1013bfcc22c43dd518c61ba3d583176b5326cf2dc39ad8f6f8cac911",
+      "normals": "3a02c1ec1717a4744bbe0e34e31b922a32e33d56880b8ecc2b41673feafcb9ba"
+    },
+    "Receiver_Rivet-1_3": {
+      "bone": "Root",
+      "vertices": 38,
+      "triangles": 72,
+      "geometry": "201b1d4ed2caab5dc132af1a8aef6893660fdb2166993cb9c1fae157bc2b6d16",
+      "normals": "7c7838b1df50d8a0d55ccb753acfb087a1f7c746a563853e47f465591dbaa2eb"
+    },
+    "Receiver_Rivet-1_4": {
+      "bone": "Root",
+      "vertices": 38,
+      "triangles": 72,
+      "geometry": "6177db271825b19ad155cf232bc766d345483a3d272de8d1f8a886f959cfcc3f",
+      "normals": "c2fa522cd1af6cddd52ceef0747c0f9026ced4e2e03dfcf96d321570b4f42058"
+    },
+    "Receiver_Rivet-1_5": {
+      "bone": "Root",
+      "vertices": 38,
+      "triangles": 72,
+      "geometry": "6bb2bd4a20f282233f2078098e1db5383c69c12881773b009bf30789bb3a5a7f",
+      "normals": "7fd9f72ceab5934ca258eeb58d1b68e51b7f9105f396723e7a87c6045d9d988c"
+    },
+    "Receiver_Rivet1_0": {
+      "bone": "Root",
+      "vertices": 38,
+      "triangles": 72,
+      "geometry": "1f15dfc28cb86ea3eb51c9beba5aad68c0c9d946c2c446facda55e22cc3f8b5d",
+      "normals": "db9caf1d13e1dc567838edf961c63d5e112188493d3216c8a6b906c39b24f970"
+    },
+    "Receiver_Rivet1_1": {
+      "bone": "Root",
+      "vertices": 38,
+      "triangles": 72,
+      "geometry": "dbb8d0f2beb04b1e8c4d12bbd3cb468e5fcd989023971c472be563ca80612ca8",
+      "normals": "a2b96bb5cdbe7a94d68852a1abdc016a75193ddf9c1927122b11be554103371a"
+    },
+    "Receiver_Rivet1_2": {
+      "bone": "Root",
+      "vertices": 38,
+      "triangles": 72,
+      "geometry": "a4f5538a4d5834f64d623c65ff7780ca7112c24fd774047fb1db9766bc502302",
+      "normals": "72ab4064621ee96b9858658b38c50b3bce628db92f8e0f0a81f59aad35bd22e2"
+    },
+    "Receiver_Rivet1_3": {
+      "bone": "Root",
+      "vertices": 38,
+      "triangles": 72,
+      "geometry": "5aa5357cd700592a873d0661fc5fc2425d39186d10e6e4cf3fe49cdd88545623",
+      "normals": "9b8c9b2a6d81176048d485caef0bb97b5faf974ede31d82554b59d749e0850fd"
+    },
+    "Receiver_Rivet1_4": {
+      "bone": "Root",
+      "vertices": 38,
+      "triangles": 72,
+      "geometry": "c77ab0b837af515ed94d0eeac530d4896dbe3f125daec6bb0cfc54ee7e9d8159",
+      "normals": "97b39173031deae2287a3ed7d263aeb779a7a08f9faa6a0c1f9712d78aae4b62"
+    },
+    "Receiver_Rivet1_5": {
+      "bone": "Root",
+      "vertices": 38,
+      "triangles": 72,
+      "geometry": "5483ebbacfd2940ed20db98d5286ee2ec71782ef5cf2c82e703520089e6069c5",
+      "normals": "39a9af33fcaf16b988829c826a8b253c0e9d15be93ab008af302935a7d88fa1b"
+    },
+    "Rear_Insert": {
+      "bone": "Root",
+      "vertices": 56,
+      "triangles": 108,
+      "geometry": "ea474a8f1d1bc5f5810052e2db0240b4025611c528bb0038e4b3a399916e7302",
+      "normals": "c1abcc69d2e9f16ddeb595650ef0f0d0338960756ea414db1c02947c45ded5d7"
+    },
+    "Front_Insert": {
+      "bone": "Root",
+      "vertices": 210,
+      "triangles": 416,
+      "geometry": "7a3e19151433ee93a7821bec8c447f13761eab9491a09d8d6410b860a58a63b6",
+      "normals": "eca4c234896a5a04cac7ac2d55abb7e7f21d78f6e400ba22bd6fda5cf6b5c5dd"
+    },
+    "Carrier_VisualRail-1": {
+      "bone": "Root",
+      "vertices": 56,
+      "triangles": 108,
+      "geometry": "6000ce1e0c0069ae81544c87f9fa04716eb710db78514e775123d490cf0648dd",
+      "normals": "451f0804b5bf9bbc6b0b88ee55192ed19d8875008fa2f96423ebc5c35676cc24"
+    },
+    "Carrier_VisualRail1": {
+      "bone": "Root",
+      "vertices": 56,
+      "triangles": 108,
+      "geometry": "8a0e0ddc6ba76b89472f062cf3e2a2ea43df6b85845b010f3fcc021191c83a70",
+      "normals": "33f816754836dd8279b1a38654667d5bdaf22cf256aae8c322b73fa9e9ea1e41"
+    },
+    "Stock_Tang": {
+      "bone": "Root",
+      "vertices": 56,
+      "triangles": 108,
+      "geometry": "e95bd8045969ce35060e0bc5a9de659e5813e7073dab0a106bf082b43c71bf20",
+      "normals": "2ee24cf3ec8d495096f750eb0abed501b4a20b36effc17b08bbb2560a7f0de01"
+    },
+    "Tang_Screw": {
+      "bone": "Root",
+      "vertices": 89,
+      "triangles": 174,
+      "geometry": "5d51eb6035c1132c5ee51ba454fe3035fa529a8a9620ab7bfbb7ce35bf0a76ae",
+      "normals": "4c6ae2518e33d230d3687280c82f92082985547d9afe628469833efd1341f915"
+    },
+    "Cover_RetainingButton": {
+      "bone": "Root",
+      "vertices": 56,
+      "triangles": 108,
+      "geometry": "2e4c1290636aa3c40abbfc112c2315768ea11d571b39ae5331d5a4957f7fb0d5",
+      "normals": "b383ca85b7ab15f4723f4f50edc48fe04614a1fb19aad316a6d841794db474d7"
+    },
+    "TopCover_Pressed": {
+      "bone": "Root",
+      "vertices": 602,
+      "triangles": 1200,
+      "geometry": "0d1f8aad053587bd515220c225a4cd6bc62b25a65f942f0d90f1fe9e26b73e4b",
+      "normals": "888f5df50023a77f7d9682269c15386788559b8c1474ea2117dd114a517091cb"
+    },
+    "TopCover_RearCap": {
+      "bone": "Root",
+      "vertices": 90,
+      "triangles": 180,
+      "geometry": "840c5bb4d2cf489bbf5de5db14542970839082fd21a23c804677a9fff1fbcf8c",
+      "normals": "7bb08f32cc6faf2c39e9214bfd987480b06f5a9318dd90eb33389e531be734c1"
+    },
+    "TopCover_ButtonLip": {
+      "bone": "Root",
+      "vertices": 110,
+      "triangles": 220,
+      "geometry": "60ea9a7eda159a9c96d4916311b96e390c26e8578a6a85ef5657b3acdfee7cac",
+      "normals": "9286e2a273d7f821dacca02367a601304280b712b236711ee6ef578130bc315c"
+    },
+    "Cover_Return-1": {
+      "bone": "Root",
+      "vertices": 10,
+      "triangles": 16,
+      "geometry": "a2af7a40bf0395785b59accd764e309ef9d5d39c7bb986896839d905ea67e6ea",
+      "normals": "e35730e90d9a2e4cf8eb1a2361572ae64ec344acd6241cc23eadabe808d7d24e"
+    },
+    "Cover_Return1": {
+      "bone": "Root",
+      "vertices": 10,
+      "triangles": 16,
+      "geometry": "d2d126b34b9123c813b7a32682f6859b80868aea7227a80f298ddc1229fe1c1c",
+      "normals": "75e78df1e62497309094600892cd56446284899e98501fabcc39bacb19bd5d28"
+    },
+    "Stock_Sculpt": {
+      "bone": "Root",
+      "vertices": 1502,
+      "triangles": 3000,
+      "geometry": "96190de2fd818d9ac93b334e0847c2586cb618f6d18426ba8ed62db11ded286f",
+      "normals": "eefbd175d044ffea4c347c404f6e3b0d515910c8c5ec17cdba6b3a2f588d8292"
+    },
+    "Buttplate": {
+      "bone": "Root",
+      "vertices": 192,
+      "triangles": 380,
+      "geometry": "d872d63b34377b186690153c33eb761263b85a9881de874a516e00477aa1adfe",
+      "normals": "588081723ba55f2a74632cb97cd5f15ab5788b613109c913a644ef49be596b0c"
+    },
+    "Buttplate_Trap": {
+      "bone": "Root",
+      "vertices": 168,
+      "triangles": 332,
+      "geometry": "e33acc25d4fe043c757752b30ab3586175b8d43e24d8638f8aaa5da9c5cf0099",
+      "normals": "e3b6c0e4acf376c13948a52df292087d92dfc0b11617acb82ceaf0ebedc68b9f"
+    },
+    "Butt_Screw": {
+      "bone": "Root",
+      "vertices": 62,
+      "triangles": 120,
+      "geometry": "b10b38a7ef1fea34b68b76d6ad1a2e2d09e053fd6c86b24a583c2477e0bc3f35",
+      "normals": "7afc0e8954df0ce00374fe348cd90715ceb0ed2cba0da4629c135499d8a1c3ff"
+    },
+    "Butt_Screw.001": {
+      "bone": "Root",
+      "vertices": 62,
+      "triangles": 120,
+      "geometry": "cb372f5d0470b0c24b19eb4dccd2fc78b9965e8ee2cf060408babf537b3ef479",
+      "normals": "1c814dcbf249dcca63b324ebd810b528676ea22719f5cb310dbf214069cfcfd1"
+    },
+    "Stock_SlingEye": {
+      "bone": "Root",
+      "vertices": 48,
+      "triangles": 92,
+      "geometry": "dcfb4f68f2c4317df52b25f4c9f5ae09bde22096aaa0a94de6f412b40289c4ac",
+      "normals": "0cbcb44b81e8333ec2559add54e497fa3ecb49348d7e575a96f7ba2eee72822c"
+    },
+    "LowerHandguard_Sculpt": {
+      "bone": "Root",
+      "vertices": 1202,
+      "triangles": 2400,
+      "geometry": "3b84e6d220f903ee3e1faf8a0da4a074f4352e9411fdfc0e4528db3814a8e45e",
+      "normals": "f81f3549b82b7df2fa2256bb64400121c0f13660a046282c783a5501776b12ca"
+    },
+    "UpperHandguard_Sculpt": {
+      "bone": "Root",
+      "vertices": 852,
+      "triangles": 1700,
+      "geometry": "4762eec9f67b654992cb5afee833b5fbd505a39ca8774f960415003ed8df6dc5",
+      "normals": "e4e9512dc4151950b787e0e383b4c80b884ae84d4367aefed89389930fcadef5"
+    },
+    "PistolGrip_Sculpt": {
+      "bone": "Root",
+      "vertices": 1102,
+      "triangles": 2200,
+      "geometry": "59dcb998c11c5fe08f6725ab263b726fb029f98c4e6170d3601785443dad39dc",
+      "normals": "91be69e68989107ea769077542a6a7e7060d8d28d0a96231bbc49f0e010fca8d"
+    },
+    "Grip_HeelScrew": {
+      "bone": "Root",
+      "vertices": 89,
+      "triangles": 174,
+      "geometry": "cce1077912b3280b705e4fed43d14578d965bf42b944b0ef3b774b0e38525800",
+      "normals": "fa167a922b61a8015a0c3cb938f832c2290b558a8b60d54085c19081c930f88f"
+    },
+    "TriggerGuard_Stamping": {
+      "bone": "Root",
+      "vertices": 227,
+      "triangles": 450,
+      "geometry": "d71d4efd6ff30e0af055b8891b4a1aea88b32a10c9143242fd01ff765c1fa775",
+      "normals": "9959673a77d7fe0a28da3b7a81394a1e79c3957dc8d43ecebccd43e6cdeb94d3"
+    },
+    "Guard_RearFlange": {
+      "bone": "Root",
+      "vertices": 56,
+      "triangles": 108,
+      "geometry": "addd7f9cda78ba2e036629f1c357d5799a0517d33171dbcb8226762ce86a8cfe",
+      "normals": "3cda4009c72c925a51d030352b0fc7087cdd644c1e9d6dfe8775a063a3409242"
+    },
+    "Guard_FrontFlange": {
+      "bone": "Root",
+      "vertices": 56,
+      "triangles": 108,
+      "geometry": "f98743ae4db5ccdf30ab233f61672206e392ffe726d4b7ffc6a5d967c4494a7d",
+      "normals": "07bd9d0a71cf092cded4cc08c41dde622ca1b7d9e9103c8e41c08e729f6a6572"
+    },
+    "Release_Housing": {
+      "bone": "Root",
+      "vertices": 122,
+      "triangles": 252,
+      "geometry": "f27a88f773c4ecb0279c127931aff8270ee2f7c436b3e9bdcff440e2517be9bc",
+      "normals": "ed55fe19d8913834d5167efc670fc5d41488fa9eb2c7822a6bcd86026a71c6c0"
+    },
+    "Trigger_Shoe": {
+      "bone": "Trigger",
+      "vertices": 274,
+      "triangles": 544,
+      "geometry": "bd99a62ca4806ee02ceafab79209b1739886b92d6e8c27136fe14b7dc419ae4b",
+      "normals": "77922e33515e160548e0545eaa8c3db44d8e4f4d6de508c94a306efa4f09a980"
+    },
+    "Trigger_VisualPin": {
+      "bone": "Trigger",
+      "vertices": 42,
+      "triangles": 80,
+      "geometry": "ba626e40e6345ae3efd8592a25baace1e8ac7d154f0ad3207b686bf4e64d191f",
+      "normals": "f5d0406da77c3aaeb364822f39b8c2c6ba83c992ca34cf5cc678aed4b8db5129"
+    },
+    "MagRelease_Paddle": {
+      "bone": "MagRelease",
+      "vertices": 204,
+      "triangles": 404,
+      "geometry": "ebe04bd35c111a372c26edf977fe7cbde44bf81d6e8d64acee7feab145e9eaa1",
+      "normals": "336f038bbfd595db43847cdc617e6879c5183cfd6d0f25bf45f156be5b21bd6e"
+    },
+    "MagRelease_Axle": {
+      "bone": "MagRelease",
+      "vertices": 42,
+      "triangles": 80,
+      "geometry": "940bfa4894d9680d5467fe89cf56ba80fa390f89218f76fbb915a52bf1603c45",
+      "normals": "f4fca56ee2ed281b6a9ed010c925ef2a994446eb07553e9af1a37ada5d26ec74"
+    },
+    "MagRelease_VisualCatch": {
+      "bone": "MagCatch",
+      "vertices": 56,
+      "triangles": 108,
+      "geometry": "cc4de0333025df9fd3b30cfdaa3fd1e7bb8c8fab06c0620125e3e18ee12ab9a4",
+      "normals": "51eaac3e322414dfe87e3157bba1794ef7adffa43090450fb04f9c863740c782"
+    },
+    "Selector_Lever": {
+      "bone": "Selector",
+      "vertices": 240,
+      "triangles": 476,
+      "geometry": "e1e3b5349833703cd8f4ced7cfa82c06c8671a456198f8c113fe05cbd0ffc0e1",
+      "normals": "b3463f21a2ac88a1bbc512d9f6c0823818558fc04572a0d1d012a0856eddab22"
+    },
+    "Selector_Hub": {
+      "bone": "Selector",
+      "vertices": 86,
+      "triangles": 168,
+      "geometry": "e69f71b89cfe8257b5d829a9262f5f0a99c05e6d050ea05bcaaefb20e3666e68",
+      "normals": "28de37a56f74d8f768b717886b0d6b7d4d5d2c1cf5ad121bf3c2f13c8b7221a3"
+    },
+    "Selector_ThumbFold": {
+      "bone": "Selector",
+      "vertices": 64,
+      "triangles": 124,
+      "geometry": "493c8dffbb6e0106b2c083400780e512b3929532d15d8b786bb72fb848bca4df",
+      "normals": "9661996562ed6edf4e1eb098b1b19467f9378fb3c2396bbdd3270e0afa150f87"
+    },
+    "Selector_HubRim": {
+      "bone": "Selector",
+      "vertices": 140,
+      "triangles": 280,
+      "geometry": "9cbb39493eac3b23641de55306777ddb1d2a059dfb49f6a9423e11a21fdcac50",
+      "normals": "0d36b9ba7f9d2fa563d7e823ab18db368910a1c75ec317fc3a94a1a734d64b40"
+    },
+    "Selector_Detent_0": {
+      "bone": "Root",
+      "vertices": 38,
+      "triangles": 72,
+      "geometry": "b4b3bfae6ebe678784e43e100e64d4be693edaa99b261b5e7f685e7b49c282da",
+      "normals": "db890ee09c870f171df65da2ecd16f252e576ae2541644ede35bf0916dd3b1a5"
+    },
+    "Selector_Detent_-10": {
+      "bone": "Root",
+      "vertices": 38,
+      "triangles": 72,
+      "geometry": "09c7fcaaef519615e02b8c78fb9823576b3e21c65058b3242464b8853ead7b87",
+      "normals": "f41967ce6f8d6775a35e3f49904dc6c35183795534c5a904cda254041fb2f04c"
+    },
+    "Selector_Detent_-15": {
+      "bone": "Root",
+      "vertices": 38,
+      "triangles": 72,
+      "geometry": "3639585f17666b9c97c5809a2a889065a5fbf93a0bef446e29aca380b4d2111a",
+      "normals": "2fccd940f22a3e96c696e4d36b119cd580c1cb5cb83c23b29c77119828f45e82"
+    },
+    "Selector_Dimple": {
+      "bone": "Selector",
+      "vertices": 50,
+      "triangles": 96,
+      "geometry": "1bda0be8e139b26b97ca6e47adb4f91c1957f8a4615436364efc0b3743f7eccc",
+      "normals": "7302e679983ac697ba43d46e6c6428be8077557bb94170c98d4199472d148335"
+    },
+    "Barrel": {
+      "bone": "Root",
+      "vertices": 352,
+      "triangles": 700,
+      "geometry": "26a1ac4114a480693e8b41aa3f85c1d7015a1bd102f8a84c1481f8ddaae4446a",
+      "normals": "fd299a649e6afb65549d083e74f00d36341dedbda12cee95b1fca5d2a766e16d"
+    },
+    "GasTube": {
+      "bone": "Root",
+      "vertices": 120,
+      "triangles": 240,
+      "geometry": "27b823343a7fc09237f5c9f8cf7b9ea30e58dcccbbc67a8ff1ff50c6e1bc1f3a",
+      "normals": "17330d35947387d51db159acaa3414c2a8df224c1eb48fe675c64e5f71d62454"
+    },
+    "Handguard_Retainer221": {
+      "bone": "Root",
+      "vertices": 115,
+      "triangles": 230,
+      "geometry": "b2d51071967262cf85ea92548e1f3cf9055f6099fdf5580e514d76f989beb8e8",
+      "normals": "fa93a608929d4942f47809438bd47453852548b6376bbc31a269a0f5259cb99b"
+    },
+    "GasBlock_Neck": {
+      "bone": "Root",
+      "vertices": 740,
+      "triangles": 1480,
+      "geometry": "dc9b121795d3723bed85876a885ede31f1e1cee4a7508bfe903aaff57469cea6",
+      "normals": "48dad887b6d71844d467db7e5e51dc1ae95d4836b7882a79ed86054a69a889e8"
+    },
+    "GasBlock_TubeSeat": {
+      "bone": "Root",
+      "vertices": 160,
+      "triangles": 320,
+      "geometry": "b2ee537562dc68f81be1399d936e024b150ec9c8825a295962293e5cc1b687cb",
+      "normals": "ef41fc57f545f5d666b1d981845cbf636e52b2b7aec16e0745524b646bda949f"
+    },
+    "Gas_Vent-1383": {
+      "bone": "Root",
+      "vertices": 26,
+      "triangles": 48,
+      "geometry": "c9d5844e6862d92e7bcf3300d7b5075a92c5881e92f3b780450c24b6d000820f",
+      "normals": "0961618ec34b4f06f646fbc54bcd3594b7f93f5821a6c84b330a75134c63dbed"
+    },
+    "Gas_Vent-1401": {
+      "bone": "Root",
+      "vertices": 26,
+      "triangles": 48,
+      "geometry": "6e7ce06835f9840adedf890603b55a922b23a196eb6dec97a12ff75021efd624",
+      "normals": "286ad01955488f8383e07fd252d85971cb117d00b53169c1412623b332163f8d"
+    },
+    "Gas_Vent1383": {
+      "bone": "Root",
+      "vertices": 26,
+      "triangles": 48,
+      "geometry": "bc5807e6a1c612363683ae25ba198ac814e2500cc9489e6234c98900bec0704e",
+      "normals": "2e1d0429735f212ab3831e9142ee8ced587a300f272d0bbe52b2536dc81685f4"
+    },
+    "Gas_Vent1401": {
+      "bone": "Root",
+      "vertices": 26,
+      "triangles": 48,
+      "geometry": "253da930e92870e272424b6c301f60113e4cae8cc046ecf1745b60c8d02195f6",
+      "normals": "c8bf2c08148974386815e875f821764dc7e6a57dbfbe9627026abdce2c7f4d48"
+    },
+    "Bayonet_Lug": {
+      "bone": "Root",
+      "vertices": 112,
+      "triangles": 220,
+      "geometry": "ce82113db8265d7018f84b0678386d22ac88089d5ed1472ae00691963b74d19c",
+      "normals": "5c6661ccaca942c3f4eb10a8cfd22e12c4cfd35dd34486a968f7341682c8dc00"
+    },
+    "Handguard_SlingMount": {
+      "bone": "Root",
+      "vertices": 56,
+      "triangles": 108,
+      "geometry": "6fb9d93d8e76562c28b28bdc740eb156b243e29f2e7e15b23ae20c117b0a3d24",
+      "normals": "e33ef9ecf20f1831740aec6ac28d8dca1193b19a0f13cda58b20dbc628e7e034"
+    },
+    "CleaningRod": {
+      "bone": "Root",
+      "vertices": 66,
+      "triangles": 128,
+      "geometry": "86129a5333ae3594e68ca018daf6b3e2d9c57c6050a1b7056c0aa772c8226515",
+      "normals": "ef96e0f73c83d75e157e53fc65b847a93ead061a0527f5eb49e49df15153bfe7"
+    },
+    "Muzzle_SlantBrake": {
+      "bone": "Root",
+      "vertices": 240,
+      "triangles": 480,
+      "geometry": "bb0a072be8d44f12d40791dda8c9c95fec278648ee83dd672a315ef17407a515",
+      "normals": "5511cfa4ca34c7efb08325adff6c633413e595f9477f67853357c56c58e2f516"
+    },
+    "Carrier_Body": {
+      "bone": "BoltCarrier",
+      "vertices": 130,
+      "triangles": 256,
+      "geometry": "adfa9faebf5f1aa2d2cc4bb64111fd3c72840bb7a12d80d277bf38a659d683dd",
+      "normals": "0d46d3a0a296943c7471dd717a2281590ed184a831df4c24b94eebc9dddee472"
+    },
+    "Carrier_PortCheek": {
+      "bone": "BoltCarrier",
+      "vertices": 56,
+      "triangles": 108,
+      "geometry": "f8ee4b1d3535069d8a6e14336d076589d3eca0f33c18608cd6634365230b61c7",
+      "normals": "a80dffb8057df1a1d8dc7e82b94beecec2fa994bb356f4488340d7460d2a1944"
+    },
+    "Carrier_Piston": {
+      "bone": "BoltCarrier",
+      "vertices": 98,
+      "triangles": 192,
+      "geometry": "9fdd7211d2dad3812e2da47add692554e162a6c30f769cc1e20ca37cac4e0263",
+      "normals": "55669c7e3c3417e637209708ab359ba96463b0aa39c2ed71e6ec3d385dc3dfaf"
+    },
+    "ChargingHandle": {
+      "bone": "ChargingHandle",
+      "vertices": 176,
+      "triangles": 348,
+      "geometry": "02c57f18b3cc42a1aa6d9ee62dccebb9907f49b79016b00089fe736a5fac6fac",
+      "normals": "4fd2fe2f8616b7e7e7253b4dbd09701afe0ce4a7fb8669628e7b37ff9c40d775"
+    },
+    "Carrier_SeatingFace": {
+      "bone": "BoltCarrier",
+      "vertices": 50,
+      "triangles": 96,
+      "geometry": "0d3e6d9c9a81c496b6d6010a95347e4e21c44e24e1fc31c5825827cff66f4910",
+      "normals": "8fd8e3e41e6e255b120d2874f89472bbed0db0e53825f00fa9497d1168b9878d"
+    },
+    "Front_InsertUpperShoulder": {
+      "bone": "Root",
+      "vertices": 112,
+      "triangles": 220,
+      "geometry": "c999ebb1ddde0e41a2db7934797ea8194fd465f73a1ff0bfff979e86a192a0e9",
+      "normals": "653c91584303765d693b85a52971b87a03738fde885fbbabcef6315844163637"
+    },
+    "Sight_RearBlock": {
+      "bone": "Root",
+      "vertices": 778,
+      "triangles": 1560,
+      "geometry": "b133bdf7078b0da357124fc15aaee32e5dd2a8946c952bd5d1a6eb51ce795188",
+      "normals": "19a80717201b0080ce3600183874059b32afeffc8e29780f4dc2b170a83b36d3"
+    },
+    "Sight_TangentLeaf": {
+      "bone": "Root",
+      "vertices": 142,
+      "triangles": 280,
+      "geometry": "77382ede7291da833a3f08c3b3405b54d756db3ccba46d1e9742f4c2ed90a699",
+      "normals": "4f18f284fcdd96479dcb5838bcbd31557f5d4f3998c2c0e0c26c9c9cb22d06fb"
+    },
+    "Sight_RearNotch": {
+      "bone": "Root",
+      "vertices": 122,
+      "triangles": 240,
+      "geometry": "10a91c147e5b66684fb515d90c54a10a05efef391c340c2d4d90d7e2b7ff1b6c",
+      "normals": "33210cad9a484357f788a6cc6d0faf1a9b60183971d84b36a0d0e340585b2a4b"
+    },
+    "Sight_SliderBridge": {
+      "bone": "Root",
+      "vertices": 94,
+      "triangles": 188,
+      "geometry": "95190ce05d33aa740080e9110799cf68f61296abb042503ef01ecb82a08ac6f9",
+      "normals": "334d85f0054b37ed06877dd9e5f2b6f4170c462d83d0d3768f1930fbc27bd9e6"
+    },
+    "Sight_SliderButton-1": {
+      "bone": "Root",
+      "vertices": 98,
+      "triangles": 192,
+      "geometry": "9c22d729d14adc1583748415b8a10f4dae8a1aefcc907be2dcc0a60d8fb05619",
+      "normals": "46053fd31770f612df1746fc37d8549f227da3fd08d9ab0458effb880c95dab7"
+    },
+    "Sight_SliderButton1": {
+      "bone": "Root",
+      "vertices": 98,
+      "triangles": 192,
+      "geometry": "05318a52269e538a9b99a1aae563dfeb1c58d85e86c007ce874ce6a1ee35f0a0",
+      "normals": "213e2577b29dcf28bd4af76cb38f72cfed70b4a68d2245cd09f7002145305456"
+    },
+    "Sight_RearPivot": {
+      "bone": "Root",
+      "vertices": 82,
+      "triangles": 160,
+      "geometry": "2c79c66444044030f9274ca5475bd2880dd523fd5cc75a7859995314b1365a45",
+      "normals": "1b4efc75de4369fb1718f3d1caf19be0581b4d00df43a4da2519c344771152ba"
+    },
+    "Sight_LeafSpring": {
+      "bone": "Root",
+      "vertices": 92,
+      "triangles": 180,
+      "geometry": "a0a561685b7c591eaa9c2901a5f06ae2481c345b7deb563796597ad9538c3273",
+      "normals": "76c0356e7bc71fbdd5b18b543b187cf720b75aa19091d30795a62d6c63bf1c0a"
+    },
+    "Sight_FrontTower": {
+      "bone": "Root",
+      "vertices": 821,
+      "triangles": 1650,
+      "geometry": "7f95edf70266a2d391841d4034b7e312685875927f76614f3f3952028c20a0ae",
+      "normals": "17c8690fd1977401872b3063948e20634cde644d7a3274868bc28b7abac411eb"
+    },
+    "Sight_FrontHood": {
+      "bone": "Root",
+      "vertices": 252,
+      "triangles": 500,
+      "geometry": "b51f5b3c2b559c9ea459d7fdc1fbe10e8a92b7d50e7269360b54a5f72f131241",
+      "normals": "78fa6e3a82840c26d6f1a04024152420c1c3578c6cdb55e1d177e795c3597bad"
+    },
+    "Sight_FrontPost": {
+      "bone": "Root",
+      "vertices": 102,
+      "triangles": 200,
+      "geometry": "34c0a28a8ced83d797a9f8693084784794b6a03a55f2bdcf636df314c2854aab",
+      "normals": "054ae97ea452d1bb5e343e0b8e8d9e14f9e4924196389134615f4d5cc2ab043e"
+    },
+    "Sight_PostThreadWitness": {
+      "bone": "Root",
+      "vertices": 64,
+      "triangles": 128,
+      "geometry": "c92090e305df97e042f60dd1b76a1d0ebba9bae89721c3aa31de19200c0a74c5",
+      "normals": "d19f23aa78e01da683a3b5ba2eab890a25c500437dad2d4996fba7fa7d8ef901"
+    },
+    "Sight_PostThreadWitness.001": {
+      "bone": "Root",
+      "vertices": 64,
+      "triangles": 128,
+      "geometry": "42883fd2763543126112cd082b2623d80ca8d5d8413f43d9330aa45aced16d43",
+      "normals": "b7b3152a75fa1d7f27455e2ff954975c920118d6cbc36cf2037acf98b3d33f9a"
+    },
+    "Sight_PostThreadWitness.002": {
+      "bone": "Root",
+      "vertices": 64,
+      "triangles": 128,
+      "geometry": "d47f8def7d347082e126521482642ee268e63408923411f1b828d84bc3fb6e44",
+      "normals": "fb4e430b35f3a28917a8cd2cb1a449b0fac3407200b3fe64862ad76212fc4c15"
+    },
+    "Sight_WindageDrum": {
+      "bone": "Root",
+      "vertices": 130,
+      "triangles": 256,
+      "geometry": "3f09021fa4f902b3e522dc3215ffae5cd59a04c88cdc12cb8d0d6f2657d45c50",
+      "normals": "bf81fa4613eb19f7100f9fe439f924e0dea1e7528f8e2fe92289cf8fc0e5de68"
+    },
+    "Sight_RodSeat": {
+      "bone": "Root",
+      "vertices": 125,
+      "triangles": 250,
+      "geometry": "52350e3700180ff94662c2eba77eea3139987dfe773b3c0eac00f5b3f7e3f125",
+      "normals": "337d643da42848437bfb6f93c688404de7f7c33d92cbe67ff38ec2391893da24"
+    },
+    "Magazine_Sheet": {
+      "bone": "Magazine",
+      "vertices": 1208,
+      "triangles": 2416,
+      "geometry": "0aa9a2a3184ed7f0993a2cbf6fed2252f6fd848a3fbda16b5ce7c769e515cde1",
+      "normals": "697d82f3df6283cbbd9f819b9a90e635713d149806e519b20fc4125c91c62b44"
+    },
+    "Magazine_FoldSpine-1": {
+      "bone": "Magazine",
+      "vertices": 84,
+      "triangles": 164,
+      "geometry": "4b1ef7a15fa16e78a4af8cab88a4c034c48aa3cf362a5296cde39707698c9b4f",
+      "normals": "f5b18abf813723b8c68e3fa7351df8a81fb6ec288eb921b5361094c4fdb17d2b"
+    },
+    "Magazine_FoldSpine1": {
+      "bone": "Magazine",
+      "vertices": 84,
+      "triangles": 164,
+      "geometry": "e88f3d31843b371ff917cc3fc32e644304ab011a9aa3971c5330b40903d730cb",
+      "normals": "365afb712b318068cd6a8f7fc50a641e767ae5ffa7065d8865d7a485a570deae"
+    },
+    "Magazine_Floorplate": {
+      "bone": "Magazine",
+      "vertices": 240,
+      "triangles": 476,
+      "geometry": "eba7d95ef50b8c17de459d3d3f916abbd26104747fbf741067e09b11471abec3",
+      "normals": "515e8985f62a5ac2f065d5100d632788b3eb5d21e100d5df12bdec92ada7061e"
+    },
+    "Magazine_FrontLug": {
+      "bone": "Magazine",
+      "vertices": 234,
+      "triangles": 464,
+      "geometry": "557a1bd0c6dda902bc9649e7623e9947a7f2420534467be1a4235d800b4762db",
+      "normals": "a58cb3fe6788a3e610e2a81b2a7dcca29c6a7b6f91faec8973599d408245234b"
+    },
+    "Magazine_RearCatch": {
+      "bone": "Magazine",
+      "vertices": 56,
+      "triangles": 108,
+      "geometry": "3ea2c56453f6948d36cee103fe0f53a7a24a48c7689cd1f0d2372a7e6d19b9f6",
+      "normals": "22460a0d65a81aebe117f5e94037e5df33e0adbf04a2dacf329b2a2b7abdf798"
+    },
+    "Magazine_FeedLip1": {
+      "bone": "Magazine",
+      "vertices": 176,
+      "triangles": 348,
+      "geometry": "12e7bedde67a5c341a9c1aae3ba8829dc9dd53dd912ca7b4e34f394dc804f405",
+      "normals": "5cbefc4b1eace83344857f73f9bc0bbccb6b5941293e3e0782a88af3ac8502a5"
+    },
+    "Magazine_FeedLip-1": {
+      "bone": "Magazine",
+      "vertices": 176,
+      "triangles": 348,
+      "geometry": "c0022bcd0f5670cc9ed3ecf591085686916d362748a3fd0c3392256ebba6a036",
+      "normals": "5cfea088b1a4236a2530cbe9f683d22ae005669b8ee66b1150f2e960da15f9cd"
+    },
+    "Magazine_TopRound_Case": {
+      "bone": "TopRound",
+      "vertices": 290,
+      "triangles": 576,
+      "geometry": "4d6628d20b6aea9546e38197235d2e7a6f1543e4fe502c8e92bfed40a1e2ae57",
+      "normals": "b53dce1641b39fe5d7d9fb1e3bd3198ee1ff4f5c86e1754ffab4f7d35dcc6f28"
+    },
+    "Magazine_TopRound_Jacket": {
+      "bone": "TopRound",
+      "vertices": 194,
+      "triangles": 384,
+      "geometry": "2ec3ae21d1f3bc6a371481dcb6fa66e902a136a3b5efbdd256fc6a14c47f6455",
+      "normals": "d73625f22742b98ee36460713d1897c3e6cc47614a4ab5f62da6742b998502ab"
+    },
+    "Magazine_SecondRound_Case": {
+      "bone": "SecondRound",
+      "vertices": 218,
+      "triangles": 432,
+      "geometry": "8cca98c2edec42e722e232adad376d057e9d7dde96efcd16281a28cba9d11f49",
+      "normals": "6d4586686eb906bda4f78214a982df1424de778486c90fb3d7846ba466cfaeb7"
+    },
+    "Magazine_SecondRound_Jacket": {
+      "bone": "SecondRound",
+      "vertices": 146,
+      "triangles": 288,
+      "geometry": "7dd16e134191b1fce25f21af68aff430688124e058ee77dc8442652d2fac2637",
+      "normals": "a9e8a98c679b678ec42f9096fafbff55da8ea379276c304748255fbee6f685ef"
+    },
+    "Magazine_ThirdRound_Case": {
+      "bone": "ThirdRound",
+      "vertices": 146,
+      "triangles": 288,
+      "geometry": "b5b00f15458b4d5be710339377e4988f51c3f62fd89f8333420a0daf0aafee35",
+      "normals": "82683341565ae314b5e8099df0499cb533e68123507d30d036022709ce8594b5"
+    },
+    "Magazine_ThirdRound_Jacket": {
+      "bone": "ThirdRound",
+      "vertices": 98,
+      "triangles": 192,
+      "geometry": "5ebb6bb7240c8248c70dda90ed37d2a6bbe1d4276f3732c74f7169210c0de49c",
+      "normals": "f805a64c4ade3841161700e3ebe8138114c93c21da3d304caaf65c0096c5210a"
+    },
+    "Magazine_Follower": {
+      "bone": "Follower",
+      "vertices": 56,
+      "triangles": 108,
+      "geometry": "ec4c10d8014719282e27670cb779654893ad17596f33ae228bb92d5dff7adeae",
+      "normals": "2c1d11d24bd344c4b4f27dedbd9b16aab0a5207ba130b6ccdeb65df68808b9cc"
+    },
+    "ChamberRound_Case": {
+      "bone": "ChamberRound",
+      "vertices": 110,
+      "triangles": 216,
+      "geometry": "7eeb1c3fd567be30ce4f97c7d10d58be72ce5e91f163f777f17251b4730872ff",
+      "normals": "ee138def82757534bcff1dfe9329d2f83c6a4da4cc091e735a4e4a88b36daae8"
+    },
+    "ChamberRound_Jacket": {
+      "bone": "ChamberRound",
+      "vertices": 74,
+      "triangles": 144,
+      "geometry": "80459bc2992ea35e7e9182a969eebd62df07af91aac0a586b962739b23200caa",
+      "normals": "886f5def6496d95092cf3922ebe5c534a0c004cb1f9d354866738be59fb562cb"
+    },
+    "EjectedCase_Case": {
+      "bone": "EjectedCase",
+      "vertices": 178,
+      "triangles": 352,
+      "geometry": "c11dd1da28f06f2dfb4745e246835356d7f1a233f23283a13f838ffd65fb050a",
+      "normals": "7a9b339e0a72590cab9ab4c482641edae2892c6730b55cde08fd4a13057a01ba"
+    },
+    "Receiver_FrontLugSlot": {
+      "bone": "Root",
+      "vertices": 152,
+      "triangles": 296,
+      "geometry": "c797ca21aa4ff41ed52cf61d60c8ac57bf3ca204134f17a530fa56ecd237d72a",
+      "normals": "e613d8acb1bb49277b90d680d4d0b71d6208791959dccefa3895333ac3b02cdc"
+    },
+    "Receiver_FrontLugBridge-1": {
+      "bone": "Root",
+      "vertices": 120,
+      "triangles": 236,
+      "geometry": "f6e4b53ac540930989957fde32a2969c1b5785e9967a3410b39b955fabf6c6a9",
+      "normals": "161360fedd2908d922f00a2483e0bdf2b530ba2c69fae6d9d7235aa2ae7391d8"
+    },
+    "Receiver_FrontLugBridge1": {
+      "bone": "Root",
+      "vertices": 120,
+      "triangles": 236,
+      "geometry": "0fe62699f5b5e0c33e4c3545c9b88872c8be23d25d1270d4189f4adad8f7a287",
+      "normals": "0e2debda899b6305fd940ceab8e360147904a1aa0f988ec49fd21bf5702619e4"
+    }
+  },
+  "bones": {
+    "Root": {
+      "parent": null,
+      "rest": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "BoltCarrier": {
+      "parent": "Root",
+      "rest": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.17000000178813934
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.09300000220537186
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "Bolt": {
+      "parent": "BoltCarrier",
+      "rest": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.17000000178813934
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.08500000089406967
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "ChargingHandle": {
+      "parent": "BoltCarrier",
+      "rest": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.019999999552965164
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.164000004529953
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.09099999815225601
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "Selector": {
+      "parent": "Root",
+      "rest": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.004999999888241291
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0689999982714653
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "Trigger": {
+      "parent": "Root",
+      "rest": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.04899999871850014
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.05299999937415123
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "Hammer": {
+      "parent": "Root",
+      "rest": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.9999999403953552,
+          0.0,
+          0.07000000029802322
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0560000017285347
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "Magazine": {
+      "parent": "Root",
+      "rest": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.16599999368190765
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.06700000166893005
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "Follower": {
+      "parent": "Magazine",
+      "rest": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.12999999523162842
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.052000001072883606
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "TopRound": {
+      "parent": "Magazine",
+      "rest": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.005150000099092722
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.10300000011920929
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.07000000029802322
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "SecondRound": {
+      "parent": "Magazine",
+      "rest": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          -0.005150000099092722
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.10300000011920929
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.06440000236034393
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "ThirdRound": {
+      "parent": "Magazine",
+      "rest": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.005150000099092722
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.10400000214576721
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.058800000697374344
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "MagRelease": {
+      "parent": "Root",
+      "rest": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.08399999141693115
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.04100000113248825
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "MagCatch": {
+      "parent": "Root",
+      "rest": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.09299999475479126
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.04100000113248825
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "ChamberRound": {
+      "parent": "Root",
+      "rest": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.17000000178813934
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.08500000089406967
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "CaseTravel": {
+      "parent": "Root",
+      "rest": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.12600000202655792
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.08500000089406967
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "EjectedCase": {
+      "parent": "CaseTravel",
+      "rest": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.12600000202655792
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.08500000089406967
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    }
+  },
+  "sockets": {
+    "Socket_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.5950000286102295
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.08500000089406967
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Socket_Foregrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        -0.019999999552965164
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.29600000381469727
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.06400000303983688
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Socket_Butt": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        -0.2849999964237213
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.03500000014901161
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Socket_Eye": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        -0.10700000077486038
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.12800000607967377
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Socket_Ejection": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.01899999938905239
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.12600000202655792
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.09399999678134918
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Socket_MagWell": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.13500000536441803
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.03999999910593033
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Socket_Magazine": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.16599999368190765
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.06700000166893005
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Socket_ChargingHandle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.03200000151991844
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.164000004529953
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.09099999815225601
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "affine_samples": 1556,
+  "poses": "3cd8f25d9707d1729c5c1334645300a0995942af37438fdc57b4f75c63f608d8",
+  "allowed_changed_parts": [
+    "Handguard_Retainer363",
+    "Handguard_SlingLoop"
+  ],
+  "scope": "Accepted source meshes/normals, bone/socket frames and sampled animation affine matrices; fit and appearance checked separately."
+}

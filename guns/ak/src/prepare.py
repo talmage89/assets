@@ -72,10 +72,10 @@ for ob in [o for o in bpy.context.scene.objects if o.type=='MESH' and o.get('ass
 # Match the manufactured land normals on the target as well as the dense
 # source. A 20-34 degree smooth-normal lean required a steep compensating
 # tangent map and left triangle diagonals after 2K filtering.
-for name in ('Sight_RearBlock','GasBlock_Neck'):
+for name in ('Sight_RearBlock','GasBlock_Neck','Handguard_Retainer363'):
  ob=bpy.data.objects[name];ns=[n.vector.copy() for n in ob.data.corner_normals];count=0
  for f in ob.data.polygons:
-  if abs(f.normal.x)>.999999 or (name=='Sight_RearBlock' and abs(f.normal.y)<1e-6 and abs(f.normal.x)>.7 and f.area>20e-6):
+  if (name=='Handguard_Retainer363' and abs(f.normal.y)>.999999) or abs(f.normal.x)>.999999 or (name=='Sight_RearBlock' and abs(f.normal.y)<1e-6 and abs(f.normal.x)>.7 and f.area>20e-6):
    for i in f.loop_indices:ns[i]=f.normal.copy();count+=1
  ob.data.normals_split_custom_set(ns);repairs[name+' planar land']=count
 bpy.context.scene['delivery_normal_repairs']=str(repairs)

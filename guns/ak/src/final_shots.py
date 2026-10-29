@@ -26,6 +26,7 @@ from photo_matches import MATCHES
 for name,description in MATCHES.items():
  PHOTO_POSES.setdefault(name,{})
  PHOTO_POSES[name]['daylight']=1 if description['location'][0]>0 else -1
+PHOTO_POSES['retainer_photo']=dict(diagnostic_isolate=['Handguard_Retainer363','Handguard_SlingMount','Handguard_SlingLoop'],daylight=1,front_component=True)
 for shot in PHOTO_POSES.values():shot.setdefault('action','Idle');shot.setdefault('frame',0)
 STRIP_SHOT={**STRIP_SHOT,'exposure':-.15}
 
@@ -105,6 +106,10 @@ def prepare_shot(scene,shot):
    if ob.name=='Key softbox':ob.location=(sign*.8,.22,.62);ob.data.energy=32;ob.data.size=1.2;ob.data.size_y=1.2
    elif ob.name=='Camera fill':ob.location=(-sign*.7,.22,.50);ob.data.energy=10;ob.data.size=1.0;ob.data.size_y=1.3
    else:ob.data.energy=0
+  if shot.get('front_component'):
+   if ob.name=='Key softbox':ob.location=(.15,.78,.32);ob.data.energy=32
+   elif ob.name=='Camera fill':ob.location=(-.20,.70,.20);ob.data.energy=12
+   else:ob.data.energy=0
   if shot.get('shell_light'):
    sign=1 if shot.get('mouth_light') else -1
    if ob.name=='Key softbox':ob.location=(.10,sign*.10,.15);ob.data.energy=.35;ob.data.size=.12;ob.data.size_y=.15
@@ -120,5 +125,5 @@ def prepare_shot(scene,shot):
    elif ob.name=='Camera fill':ob.location=(-.65,-.20,.35);ob.data.energy=5
    else:ob.data.energy=0
   if isscale:ob.location+=Vector((0,0,1));ob.data.energy*=1.5
-  target=Vector((0,.025,0)) if shot.get('shell_light') else Vector((0,.06,1.02 if isscale else .06))
+  target=Vector((0,.364,.075)) if shot.get('front_component') else Vector((0,.025,0)) if shot.get('shell_light') else Vector((0,.06,1.02 if isscale else .06))
   ob.rotation_euler=(target-ob.location).to_track_quat('-Z','Y').to_euler()

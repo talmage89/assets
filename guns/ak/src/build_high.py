@@ -33,10 +33,10 @@ for dense in dst.objects:
 # faint triangular interpolation on a triangulated planar side. Correct only
 # truly axis-planar faces; retain the small radii and curved collars.
 planar={}
-for name in ('Sight_RearBlock','GasBlock_Neck'):
+for name in ('Sight_RearBlock','GasBlock_Neck','Handguard_Retainer363'):
  ob=bpy.data.objects[name];normals=[r.vector.copy() for r in ob.data.corner_normals];count=0
  for face in ob.data.polygons:
-  if abs(face.normal.x)>.999999 or (name=='Sight_RearBlock' and abs(face.normal.y)<1e-6 and abs(face.normal.x)>.7 and face.area>20e-6):
+  if (name=='Handguard_Retainer363' and abs(face.normal.y)>.999999) or abs(face.normal.x)>.999999 or (name=='Sight_RearBlock' and abs(face.normal.y)<1e-6 and abs(face.normal.x)>.7 and face.area>20e-6):
    for i in face.loop_indices:normals[i]=face.normal.copy();count+=1
  ob.data.normals_split_custom_set(normals);planar[name]=count
 print('PLANAR LAND CORNERS',planar,flush=True)

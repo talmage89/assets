@@ -342,6 +342,28 @@ def guard_controls():
   rivet('Selector_Detent_'+str(angle),y,z,1,r=1.1)
  lathe('Selector_Dimple',[(18.9,0),(18.9,1.1),(20.4,1.6),(21.9,1.8),(22.3,0)],'blue','Selector',axis='X',center=(148,85),nseg=16)
 
+def handguard_cap(name,body_steps,barrel_steps,rod_steps):
+ """Exterior cap with a shared front/return contour and regular round holes.
+
+ Game and dense sources use the same surfaces at separate angular density.
+ No collapse reduction may turn the collar into an asymmetric polygon.
+ """
+ n=body_steps
+ outer=[(21.3*math.cos(a),84.3+37.6*math.sin(a)) for a in [math.pi+math.pi*i/n for i in range(n+1)]]
+ outline=outer+[(10.7*math.cos(a),85+10.7*math.sin(a)) for a in [math.pi*i/(barrel_steps//2) for i in range(barrel_steps//2+1)]]
+ ob=profile(name,outline,363.7,365.2,'blue',axis='Y',r=0,register=False)
+ cut(ob,lathe('barrel aperture',[(362,0),(362,8.9),(369,8.9),(369,0)],'blue',center=(0,85),nseg=barrel_steps,register=False))
+ cut(ob,lathe('rod aperture',[(362,0),(362,2.45),(369,2.45),(369,0)],'blue',center=(0,66),nseg=rod_steps,register=False))
+ rings=[]
+ for yy,rx,rz in [(358,21.3,37.6),(364.7,21.3,37.6),(364.7,20.2,36.5),(358,20.2,36.5)]:
+  rings.append([(rx*math.cos(a),yy,84.3+rz*math.sin(a)) for a in [math.pi+math.pi*i/n for i in range(n+1)]])
+ skirt=M.loft('skirt',rings+[rings[0]],MAT['blue'],caps=False,closed=False)
+ bm=bmesh.new();bm.from_mesh(skirt.data);bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=.0001);bmesh.ops.holes_fill(bm,edges=[e for e in bm.edges if e.is_boundary],sides=0);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(skirt.data);bm.free()
+ M.boolean(ob,skirt,'UNION')
+ collar=lathe('collar',[(365.0,8.9),(365.0,10.15),(368.4,10.15),(368.4,8.9)],'blue',center=(0,85),nseg=barrel_steps,closed=True,register=False);M.boolean(ob,collar,'UNION')
+ bm=bmesh.new();bm.from_mesh(ob.data);bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=.0001);bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=.0001);bmesh.ops.dissolve_limit(bm,angle_limit=.0001,verts=list(bm.verts),edges=list(bm.edges),delimit={'MATERIAL'});bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free()
+ return ob
+
 def action_barrel():
  # No barrel chamber/rifling or functional bolt lock. The muzzle has a short
  # dark visual recess; the buried rear barrel is a solid silhouette.
@@ -355,25 +377,22 @@ def action_barrel():
   # The narrow steel cap wraps the carved end; unlike the former rectangular
   # wire, the bottom follows the wood and the top has barrel/rod relief.
   if y==363:
-   # Stamped front diaphragm and a rearward skirt. Its lower half follows
-   # the actual front wood's U section; it covers the end grain completely.
-   outer=[(22.2*math.cos(a),84+38.6*math.sin(a)) for a in [math.pi+math.pi*i/32 for i in range(33)]]
-   outline=outer+[(19.5,88),(-19.5,88)]
-   ob=profile('Handguard_Retainer363',outline,363.7,365.2,'blue',axis='Y',r=.28,register=False)
-   cut(ob,lathe('Ferrule barrel aperture',[(362,0),(362,8.9),(367,8.9),(367,0)],center=(0,85),nseg=32,register=False))
-   cut(ob,lathe('Ferrule rod aperture',[(362,0),(362,2.45),(367,2.45),(367,0)],center=(0,66),nseg=20,register=False))
-   # A finite-gauge U return grips the outer wood, with its front edge
-   # sharing the diaphragm. This is a cup, not a wire around an open end.
-   rings=[]
-   for yy,rx,rz in [(358,22.1,38.6),(364.7,22.1,38.6),(364.7,21,37.5),(358,21,37.5)]:
-    rings.append([(rx*math.cos(a),yy,84.3+rz*math.sin(a)) for a in [math.pi+math.pi*i/32 for i in range(33)]])
-   skirt=M.loft('Ferrule return',rings+[rings[0]],MAT['blue'],caps=False,closed=False)
-   # The open upper ends are the two short sheet-gauge end faces.
-   bm=bmesh.new();bm.from_mesh(skirt.data)
-   bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=.0001)
-   bmesh.ops.holes_fill(bm,edges=[e for e in bm.edges if e.is_boundary],sides=0)
-   bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(skirt.data);bm.free()
-   M.boolean(ob,skirt,'UNION');reg(ob,radius=.18)
+   # Efficient game skin preserves regular circular boundaries; tiny
+   # edge rounds belong to a separate dense source, not collapse reduction.
+   ob=handguard_cap('Handguard_Retainer363',12,24,8)
+   high=handguard_cap('HIGH_Handguard_Retainer363',48,64,24)
+   # A subtexel geometric bevel clips projection rays at the exact lip.
+   # Keep coincident dense lands; shallow rolled-edge relief is procedural.
+   wn=high.modifiers.new('Manufactured cap land normals','WEIGHTED_NORMAL');wn.keep_sharp=True
+   M.smooth(high,48);M.apply(high);source(high,ob.name)
+   reg(ob)
+   for item in (ob,high):
+    normals=[r.vector.copy() for r in item.data.corner_normals]
+    for face in item.data.polygons:
+     if abs(face.normal.y)>.999999:
+      for i in face.loop_indices:normals[i]=face.normal.copy()
+    item.data.normals_split_custom_set(normals)
+
   else:
    loops=[[(x,yy,z+66) for x,z in rounded(w,h,6,5)] for yy,w,h in [(y-2,43,53),(y,44,54),(y+2,43,53)]]
    ob=M.loft('Handguard_Retainer'+str(y),loops,MAT['blue'])
@@ -405,7 +424,7 @@ def action_barrel():
  lug=profile('Bayonet_Lug',[(441.8,73),(451,73),(451,64),(450,62),(444,62),(442,64)],-6.8,6.8,'blue',r=.35)
  cutbox(lug,(-2.6,439,60),(2.6,453,66),r=.6)
  box('Handguard_SlingMount',(-23,359,69),(-18.8,367,78),'blue',r=.5)
- sling=[(-22,361,75),(-27,361,77),(-30,361,75),(-30,361,61),(-28,361,59),(-23,361,61),(-22,361,64)]
+ sling=[(-21.2,361,75),(-27,361,77),(-30,361,75),(-30,361,61),(-28,361,59),(-23,361,61),(-18.8,361,64)]
  reg(M.tube('Handguard_SlingLoop',sling,1.3,MAT['blue'],sides=8))
  # Cleaning rod is supported at two bands, slight tip shoulder.
  lathe('CleaningRod',[(229,0),(229,2),(548,2),(550,2.8),(558,2.8),(558,0)],'blue',center=(0,66),nseg=16)
