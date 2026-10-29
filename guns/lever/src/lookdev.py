@@ -64,8 +64,12 @@ def steel(name,role,wear):
   protected=n.maximum(protected,n.mul(n.ramp(gate_distance,.011,.0068),n.ramp(nx,.65,.95)),
     n.ramp(y,.087,.068),n.ramp(y,.181,.202))
   pressure=n.maximum(oval(n,y,z,.123,.032,.066,.040),n.mul(oval(n,y,z,.170,.025,.038,.027),.65))
-  patina=n.mul(hand,sub(n,1,protected),pressure,
-    n.add(.68,n.mul(n.noise(n.combine(n.mul(x,19),n.mul(y,44),n.mul(z,78)),1,2),.32)))
+  # Repeated cloth/holster travel leaves overlapping axial rubs. The palm
+  # envelope locates thinning; this elongated pressure texture varies it
+  # within that envelope rather than painting a smooth brown vignette.
+  carry=n.noise(n.combine(n.mul(x,220),n.mul(y,65),
+    n.add(n.mul(z,310),n.mul(n.math('SINE',n.mul(y,155)),.28))),1,3)
+  patina=n.mul(hand,sub(n,1,protected),pressure,n.add(.55,n.mul(carry,.65)))
   # A metal/oxide effective layer: the brown oxide contributes mostly diffuse
   # color, while steel and the dielectric surface supply a near-neutral
   # reflection. A fully metallic orange base is copper, not thinned bluing.
@@ -74,9 +78,23 @@ def steel(name,role,wear):
   rough=n.mix(patina,rough,n.add(.46,n.mul(sub(n,striae,.5),.10)))
   # Resolved 0.2-0.4 mm carry striae, elongated along the barrel. Pressure
   # locates them; they modulate thinning/roughness rather than become wires.
-  scratch=n.mul(patina,n.ramp(striae,.64,.78),.12)
+  scratch=n.mul(patina,n.ramp(striae,.56,.72),.25)
   base=n.mix(scratch,base,(.10,.093,.084),True)
   rough=n.add(rough,n.mul(scratch,.13));height=n.add(height,n.mul(scratch,-3e-6))
+  # A few grit tracks follow actual carry travel, tapering before the
+  # protected ends and gate. They are shallow relief, never added mesh.
+  tracks=0
+  for cy,cz,length,gauge,slope in ((.107,.030,.014,.00012,.030),
+    (.121,.036,.022,.00010,-.025),(.149,.028,.018,.00014,.018),
+    (.162,.033,.010,.00008,.030),(.101,.020,.008,.00010,-.020),
+    (.176,.037,.009,.00008,.015)):
+   line=sub(n,z,n.add(cz,n.mul(sub(n,y,cy),slope)))
+   tracks=n.maximum(tracks,n.mul(interval(n,y,cy-length/2,cy+length/2,.0015),
+     n.band(line,0,gauge*.40,gauge*.60)))
+  tracks=n.mul(tracks,patina,.45)
+  base=n.mix(tracks,base,(.12,.125,.13),True)
+  metal=n.mix(tracks,metal,.75);rough=n.mix(tracks,rough,.58)
+  height=n.add(height,n.mul(tracks,-8e-6))
   lower_width=n.add(.00093,n.mul(interval(n,y,.085,.140,.025),.00028),
     n.mul(n.math('SINE',n.mul(y,97)),.00010),n.mul(sub(n,striae,.5),.00006))
   # A cupped carrying hand reaches around the rear action belly: contact
