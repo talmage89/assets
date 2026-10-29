@@ -205,12 +205,12 @@ firing/reload when needed, as documented by the additive supplement.
 
 ## Budget and delivery
 
-| Final output | Triangles | Materials | GLB bytes | Map size |
-| --- | ---: | ---: | ---: | ---: |
-| Rifle, all animated representations | 48,931 | 2 | 11,090,352 | 2048 |
-| Loaded magazine | 4,976 | 1 | 1,373,476 | 1024 |
-| Empty magazine | 3,716 | 1 | 1,151,616 | 1024 |
-| Fired case | 768 | 1 | 209,532 | 512 |
+| Final output | Triangles | Materials | GLB bytes | Map size | Density ratio |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Rifle, all animated representations | 48,931 | 2 | 11,090,352 | 2048 | — |
+| Loaded magazine | 4,976 | 1 | 1,371,024 | 1024 | 1.000 |
+| Empty magazine | 3,716 | 1 | 1,400,092 | 1024 | 1.000 |
+| Fired case | 768 | 1 | 201,584 | 512 | 1.000 |
 
 The rifle stays under 50k, including its loaded magazine and all ammunition
 representations. Detached magazines retain that accepted held-gun geometry,
@@ -243,11 +243,16 @@ OpenGL +Y Normal / ORM** atlas. ORM is R occlusion, G roughness, B metallic.
 The rifle retains its canonical **2048** atlas, approximately **16 MiB compressed
 with mipmaps**. Standalone loaded/empty magazines now carry their own **1024**
 sets; the fired case carries **512**, preserving the original atlas density.
-The case now matches the gun’s trilinear mipmapped sampler, at about 1 MiB
-compressed with mipmaps. Both magazines remain unresolved at 1024. The
-shape-aware study stopped because the loaded magazine cannot fit at the
-permitted 70% density floor with the retained 6 px guard policy. See [delivery details](../DETACHABLES.md) for padding,
-measurements and old/new comparison evidence.
+All three retain density ratio **1.000** and the gun’s trilinear mipmapped
+sampler, with repeat wrapping. The empty magazine uses six copied atlas regions
+(five original clusters, one split); the loaded magazine uses two (one split
+cluster), and the case uses one. Source crops preserve internal atlas texels
+and overlap at split halos; destination regions are disjoint, with 8 px aligned
+outer halos. Every island stays intact. The remaining background uses pull-push,
+with normalized generated normals. No density reduction or resampling is needed.
+Magazines cost about 4 MiB each / the case 1 MiB compressed with full mips.
+See [delivery details](../DETACHABLES.md) for all seventeen items’ sizes, bytes,
+density, per-level bleed and old/new comparisons.
 The native-scale stock/cap wear comparison is built at
 `renders/final/pairs/hero-wear-pair.jpg`; photographic scale estimates and coating
 differences are labeled. The rifle is one rigidly weighted skin with two material primitives, including

@@ -229,12 +229,12 @@ slide and visible grip. UVs reserve shared family rectangles for the pistol,
 magazine and case; measured density/overlap are reported rather than claimed
 perfectly uniform or zero.
 
-| Final output | Triangles | Materials | GLB bytes | Map size |
-| --- | ---: | ---: | ---: | ---: |
-| Pistol, loaded | 34,122 | 1 | 8,080,760 | 2048 |
-| Loaded magazine | 5,256 | 1 | 1,105,768 | 1024 |
-| Empty magazine | 4,416 | 1 | 991,512 | 1024 |
-| Fired case | 384 | 1 | 253,980 | 512 |
+| Final output | Triangles | Materials | GLB bytes | Map size | Density ratio |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Pistol, loaded | 34,122 | 1 | 8,080,760 | 2048 | — |
+| Loaded magazine | 5,256 | 1 | 1,318,548 | 1024 | 1.000 |
+| Empty magazine | 4,416 | 1 | 991,516 | 1024 | 1.000 |
+| Fired case | 384 | 1 | 235,932 | 512 | 1.000 |
 
 Bake: **4096, 32 samples**, filtered to one **2048 BaseColor / OpenGL +Y Normal /
 ORM** set. ORM stores R occlusion, G roughness, B metallic. Explicit rest-position
@@ -242,13 +242,17 @@ and normal attributes preserve masks while the kit isolates rigid bones for
 projection. Original micro-AO carries texture-valley shading alongside geometric
 AO. The filtered three-map atlas costs approximately **16 MiB compressed with
 mipmaps** for the gun. Standalone loaded/empty magazines now embed their own
-**1024** sets; the fired case embeds **512**. These are lossless subsets of the
-shipped atlas at its original density. The empty magazine and case now match
-the gun’s trilinear mipmapped sampler, costing about 4 MiB / 1 MiB compressed
-with mipmaps. The loaded magazine’s 1024 fitting remains unresolved; the family fit study
-stopped at the loaded bolt magazine’s 70% density floor. See
-[delivery details](../DETACHABLES.md) for migration status, sizes, density and
-old/new comparison evidence. `KHR_materials_specular` retains the .28 dielectric
+**1024** sets; the fired case embeds **512**. All three retain density ratio
+**1.000** against the shipped atlas and match
+the gun’s `LINEAR_MIPMAP_LINEAR` / `LINEAR` sampler with repeat wrapping.
+The loaded magazine uses two copied atlas regions; the case uses one. Their
+outer halos are 8 px on the mip grid, retaining the original internal atlas
+texels. The empty magazine keeps its smaller accepted island-packed maps with
+6 px aligned guards. Outside copied regions, pull-push fills the background
+and generated normals are normalized. No surface is rebaked or resampled.
+These cost about 4 MiB per magazine / 1 MiB per case compressed with full mips.
+See [delivery details](../DETACHABLES.md) for all seventeen items’ bytes,
+density, bleed measurements and full/distant pairs. `KHR_materials_specular` retains the .28 dielectric
 specular setting; no extra material or map is required.
 
 The final hood correction replaces broad noisy inset rub bands with narrow

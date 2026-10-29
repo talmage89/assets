@@ -240,11 +240,11 @@ a declared visual ownership handoff rather than cartridge-path physics.
 
 ## Budget and delivery
 
-| Output | Triangles | Materials | GLB bytes | Map size |
-| --- | ---: | ---: | ---: | ---: |
-| Carbine, including all ammunition displays | 39,814 | 1 | 12,212,120 | 2048 |
-| Live cartridge | 1,598 | 1 | 651,104 | 1024 |
-| Fired case | 1,326 | 1 | 713,488 | 1024 |
+| Output | Triangles | Materials | GLB bytes | Map size | Density ratio |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Carbine, including all ammunition displays | 39,814 | 1 | 12,212,120 | 2048 | — |
+| Live cartridge | 1,598 | 1 | 492,544 | 1024 | 1.000 |
+| Fired case | 1,326 | 1 | 516,876 | 1024 | 1.000 |
 
 The inspection source has 39,832 triangles; only microscopic Boolean cleanup
 removes 18 for delivery. The final asset stays below 40k. One 4096/32-sample
@@ -254,8 +254,9 @@ approximately **16 MiB compressed memory with mipmaps**. Standalone cartridge
 and case now each embed their own **1024** set, extracted losslessly at the
 original atlas density. Standalone samplers match the gun’s trilinear
 mipmapped sampler, approximately **4 MiB** compressed per item including
-mipmaps. Eight-pixel minimum guards align to the mip grid; no empty background
-texels remain. See
+mipmaps and repeat wrapping. Each uses one copied atlas cluster at density
+ratio **1.000**, with an 8 px aligned outer halo and unchanged internal atlas
+texels. Pull-push fills the outside and generated normals are normalized. See
 [delivery details](../DETACHABLES.md) for padding, density and old/new comparisons.
 
 | Canonical 2048 PNG | Bytes |
