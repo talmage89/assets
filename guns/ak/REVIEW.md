@@ -990,3 +990,284 @@ extensive than on the older reference. No kit/common changes or extra tools
 are needed. A useful future shared review feature would distinguish coarse
 figure contrast from curved-surface shading automatically; the independent
 flat-side polygon here makes that distinction explicit for this asset.
+
+
+## Full-frame wear round — pass 1 (handoff rejected)
+
+**Color and value first:** opened the handoff's native 1600 ×800 exported
+hero, SMG comparison, used whole-gun and receiver pairs, wear sheet, stock
+macro and wood chart. The wood's median palette, grain direction, original
+flakes/dents, retainer and accepted construction remain the baseline. The
+receiver and cover still read new at full frame. Withdraw round 2 pass 6's
+claim that their patches read at that size. Crop visibility is insufficient.
+
+![Handoff native 1600-pixel hero, before this round](build/fullframe-baseline/renders/final/beauty/hero.png)
+
+The archived handoff, maps and exports are under `build/fullframe-baseline/`.
+Main was already merged. A separate fingerprint records every non-image
+export buffer, including tangents, plus mesh/accessor/node, skin, animation
+and scene structure for all five GLBs. This round permits no geometry change.
+The existing early issued rifle, museum receiver and used-cover photographs
+already provide used construction/finish evidence. Keep the early image's
+unprinted lower cloth neutral and museum's gray backdrop; no downloaded
+reference image becomes a texture.
+
+New physical-scale measurements use normalized masked Gaussian convolution:
+10 mm FWHM (sigma 4.247 mm), sampled at 0.5 mm in the side plane. Fine is
+the residual; all spreads are (p90−p10)/the original median HSV value.
+The same independent photo polygons and actual imported GLB triangle masks
+are used. Rectification, interpolation, different section shapes and lighting
+remain explicit; no exposure normalization or morphology filtering is applied.
+Whole-part broad shading is reported as well as the interior stock land.
+The handoff stock's whole broad spread is .682 versus .395 in the photo;
+its interior land is .264/.186. Similar total spread did not establish
+similar figure. The upper's broad spread is only .121 versus .292. These
+numbers are image-structure observations, not recovered albedo.
+
+## Full-frame wear round — pass 2 (source revisions)
+
+**Color and value first:** the first source preview's gray receiver and
+cover abrasion is readable at native hero size, but the brightened old
+wood flakes form overly continuous bands. Reject that treatment. Preserve
+their original color jump and smaller hand-contact field; give only the
+requested exposed toe/heel/comb and handguard front/lower edges the stronger
+fiber response. The magazine's matte conversion gray still merges with
+the intact oxide's rib reflections; increase its diffuse gray response at
+the same three selected crowns, without extending their runs or adding ribs.
+
+Opened all four pass-2 source views and all four pass-4 source views at native
+resolution, plus the pass-3 hero/stock/handguard views and physical-scale
+chart. The slow stain field now follows curved growth layers; hand/cheek
+oil darkens the wrist, comb-adjacent land and sheltered handguard roots.
+The accepted fine grain and dents remain. The long bright stripe on each
+handguard's middle side is removed by retaining the old flakes' response;
+stronger fiber exposure belongs at actual edges. The stock toe margin follows
+its changing construction section rather than a horizontal stencil. Each
+edge field retains intact stretches. The source previews are diagnostic;
+the exported bake and independent metal-off GLB must decide what ships.
+
+## Full-frame wear round — pass 3 (bake and coarse-scale calibration)
+
+**Color and value first:** opened the first rebaked GLB's native hero,
+matched used side, stock/handguard macros and magazine view. Gray abrasion
+survives the single 2048 atlas: lower-front receiver, cover bead and selected
+magazine crowns can be located without enlarging the hero. The untouched
+flats stay black and the gas collars retain their accepted smooth response.
+The wood retains its brown/red blank relationships; exposed toe and lower
+handguard fibers are visible, without restoring the broad beige wrist.
+
+The first bake still fails the stock's broad distribution. Reject the
+stronger isotropic stain trial too: it produces rounded dark spots. The
+following short-period radial stain overcorrects contrast. Opened all eight
+source whole-gun parameter-study views at their native 1600-pixel width,
+using broad/fine measurements on both the complete stock and the independent
+interior land. The longer radial absorption field follows the same blank
+as the accepted fine layers. Its phase/strength are scalar material choices,
+not reference projections. The selected source has stock total/broad/fine
+.502/.388/.186 versus photo .478/.395/.211; the interior land is
+.274/.201/.154 versus .287/.186/.164. This is a useful coarse-structure
+agreement; the final GLB and per-blank color distributions remain the gate.
+
+The initial byte fingerprint rejected the bake because three regenerated
+rifle tangent components changed by 0.00010002. An accessor-by-accessor audit
+found all positions, normals, UVs, weights, animation and layout byte-identical;
+all four detached exports were completely unchanged outside images. Keep
+strict geometry/rig/layout hashes, with exporter-derived tangents recorded
+separately as in the accepted SMG. This is not a geometric tolerance change.
+
+## Full-frame wear round — pass 4 (remaining lower-handguard mismatch)
+
+**Color and value first:** the first complete regenerated delivery preserves
+the handed-off hero medians: stock 86/64/53, lower 111/68/51 and upper
+89/59/45. All original manufacturing forms, gas-collar gray and original
+smaller varnish flakes remain. The metal-on/off comparison is controlled:
+the wood/grip BaseColor RGBA and ORM samples have maximum difference zero.
+The receiver's two native sites occupy 580/320 pixels, with mean luma
+increases +94.19/+84.70; the rear cover bead is 993 pixels at +99.90.
+The unamplified difference preserves the untouched black fields. Small and
+occluded sites are reported honestly, including the floorplate's mean +2.17
+and hidden rails, rather than claimed visible everywhere.
+
+Opened all twenty-four GLB studio views in native-pixel inspection pages,
+the native metal-off hero/differences, used whole-gun and receiver pairs,
+and two-scale chart. The stock's shipped broad spread .390/.395 and fine
+.190/.211 now agree closely with the photo. Upper .324/.292 is near, but
+the lower's .465/.371 still overshoots. Reject that remaining broad excess
+instead of declaring all three blanks matched. Narrower radial fields and
+stronger figure worsen it. Opened the additional twenty-two lower-only
+source studies: their full gun frame stays fixed, and original resolution
+crops isolate the changed blank.
+
+The remaining contrast is between the lit flank and the protected upper
+margin of the U section. Extend the existing oil/dust field beneath that
+margin, retaining the receiver-side root and growth-dependent variation.
+This makes a more credible used blank than forcing additional figure into
+it. The selected source's total/broad/fine is .568/.364/.290 against
+.559/.371/.318. Restore its accepted hero median with a uniform stain
+correction; keep the gray abrasion, stock and upper wood unchanged, then
+rebake and regenerate the complete delivery before final acceptance.
+
+The controlled atlas also identifies 22 Front_Insert pixels at the touching
+receiver lower-front joint that pick up the adjacent receiver projection.
+They remain in the raw difference and are excluded from every site count;
+the report records their region and +22.96 mean luma separately. They are
+not an independently authored wear site and are not used to inflate areas.
+
+## Full-frame wear round — pass 5 (final exported candidate)
+
+**Color and value first:** opened the final native 1600 ×800 hero and both
+whole-gun and receiver photo pairs. The receiver lower-front and entry patches,
+cover rear bead/rim and selected magazine crowns are visible without a crop.
+The untouched flanks and other stretches of their edges stay black. The gray
+is matte conversion coating; the rare sharp steel subset and smooth gas
+collars retain their previous response. Against the accepted SMG in the same
+studio, each rifle has a distinct contact pattern that survives full framing.
+
+![Final exported GLB at native 1600 pixels](renders/final/beauty/hero.png)
+
+[Beside the SMG](renders/final/hero-beside-smg.jpg) ·
+[Whole used rifle pair](renders/final/pairs/used_photo-pair.jpg) ·
+[Receiver pair](renders/final/pairs/receiver_photo-pair.jpg)
+
+Final hero medians remain stock 86/64/53 (saturation .387), lower
+113/70/55 (.513) and upper 89/59/45 (.500), versus the locally balanced
+photo’s 83/63/51 (.376), 107/62/45 (.550) and 87/52/39 (.544). The neutral
+is still unprinted cloth immediately beneath the receiver, rectangle
+(760,475)–(895,550), linear gains .95685/1.02188/.92652. No camera, light
+or exposure changed. The side camera lights the upper much less than the
+hero and photo; its absolute RGB difference remains visible in the chart.
+
+Broad stain absorption follows the blank’s curved growth structure; oil and
+embedded dust follow wrist/cheek contact and sheltered handguard roots/margins.
+Film loss follows toe, heel, comb and exposed handguard front/lower edges.
+Accepted smaller hand flakes and dents remain; no pale wrist field returns.
+The final lower margin treatment resolves pass 4’s broad excess:
+
+| Blank | Total GLB / photo | Broad GLB / photo | Fine GLB / photo |
+| --- | ---: | ---: | ---: |
+| Stock | 0.506 / 0.478 | 0.390 / 0.395 | 0.191 / 0.211 |
+| Lower handguard | 0.543 / 0.559 | 0.349 / 0.371 | 0.266 / 0.318 |
+| Upper handguard | 0.546 / 0.590 | 0.324 / 0.292 | 0.390 / 0.431 |
+| Stock interior flat land | 0.279 / 0.287 | 0.206 / 0.186 | 0.154 / 0.164 |
+
+The same 0.5 mm grid and masked 10 mm FWHM Gaussian are used on both images.
+Fine is the residual, not an independently stretched image. All spreads use
+(p90−p10)/the original median HSV value. Interpolation, rectification,
+lighting and different original contours limit the agreement. The lower’s
+fine residual is still .052 below the photo; fine vessels and relief soften
+in the 2048 atlas. On the original unresampled masks, stock/lower/upper total
+spreads are .509/.521/.583 versus .494/.570/.609; the interior flat stock
+is .300 GLB / .305 dense source / .302 photo. Do not mix those masks with
+physically rectified values or claim either is recovered albedo.
+
+[Wood original/broad/residual chart](renders/final/look-review/wood-two-scale.jpg) ·
+[Native-mask grain/color chart](renders/final/look-review/wood-grain-and-color.jpg)
+
+**Controlled metal proof:** independently baked 4096/32 metal-off source,
+filtered to 2048 and exported through the same kit path. Only metal abrasion
+is zero; original enamel/oxide/bluing, carbon, manufacturing and wood remain.
+Both native heroes use identical cameras, lighting, settings and alpha.
+Imported geometry/rig/layout match. Wood/grip BaseColor RGBA and ORM samples
+have maximum delta exactly zero. The raw RGB difference is unamplified;
+the separately named x4 image is diagnostic only. No site was added or moved.
+Only the existing rear cover side bead’s transverse reach grows 1.5→2.7 mm;
+the remaining sites keep their authored bounds. Value/gloss do the main work.
+
+[Native on/off proof](renders/final/metal-wear-proof.jpg) ·
+[Raw difference](renders/final/metal-wear-difference.png) ·
+[Site regions](renders/final/metal-wear-regions.png)
+
+Areas below count visible imported surface pixels with sampled BaseColor RGBA
+or ORM delta >4/255, without dilation or morphology. Regions are native-hero
+xyxy bounds, upper-left origin, exclusive maximum. ΔY is signed shipped minus
+control Rec.709 display luma on the 0–255 scale, including the changed gloss.
+Occluded and weak sites are reported without enlarging or spreading wear.
+
+| Site | Hero region xyxy | Area px | Mean ΔY /255 | Pixels abs ΔY ≥8 |
+| --- | --- | ---: | ---: | ---: |
+| Receiver lower front corners | [713, 353, 784, 373] | 580 | +94.19 | 572 |
+| Receiver magazine-entry edge | [833, 349, 889, 360] | 320 | +84.70 | 310 |
+| Lower-front rivet crown | occluded | 0 | hidden | 0 |
+| Cover rear rim | [1046, 254, 1061, 280] | 190 | +99.06 | 188 |
+| Cover rear side bead | [935, 270, 1049, 290] | 993 | +99.90 | 989 |
+| Cover rear roof crest | [1012, 248, 1023, 268] | 106 | +105.01 | 103 |
+| Cover middle roof crest | [901, 256, 914, 272] | 64 | +92.04 | 63 |
+| Trigger guard bottom | [918, 382, 985, 396] | 193 | +91.63 | 193 |
+| Magazine rear raised rib | [779, 370, 861, 554] | 1013 | +47.67 | 720 |
+| Magazine middle raised rib | [733, 395, 826, 564] | 740 | +46.96 | 666 |
+| Magazine forward raised rib | [699, 371, 779, 547] | 496 | +45.66 | 392 |
+| Magazine folded spines | [686, 366, 778, 540] | 191 | +88.04 | 191 |
+| Magazine floorplate corners | [686, 541, 755, 603] | 38 | +2.17 | 0 |
+| Magazine feed lips | occluded | 0 | hidden | 0 |
+| Selector forward edge and fold | occluded | 0 | hidden | 0 |
+| Charging handle and carrier rails | occluded | 0 | hidden | 0 |
+| Gas block collar edges | [358, 295, 427, 367] | 77 | +36.85 | 72 |
+| Gas tube seat and muzzle rim | [121, 357, 135, 370] | 13 | +7.90 | 6 |
+| Hood notch and slider peaks | [730, 247, 753, 262] | 10 | +7.63 | 4 |
+| Buttplate and front cap side edges | [1362, 336, 1368, 372] | 39 | +9.54 | 23 |
+
+Projection qualification: 22 Front_Insert pixels at [719, 368, 759, 373] change by mean +22.97/255 at the touching lower-front receiver joint. Excluded from every site count; retained in the unmasked difference.
+
+**Verification and visual audit:** `make -C guns/ak` and the separate
+`make -C guns/ak check` both exited 0. Logs and job status records are
+`build/fullframe-final-make.log` / `.json` and
+`build/fullframe-final-check.log` / `.json`. The latter explicitly invokes
+`make -C guns/ak check` after the former completes its construction stages.
+Checks establish the 40,000-triangle budget, scale, actual UV overlap/density,
+normals, raw re-import, atlas sharing, accepted rig and clip serialization.
+The separate construction checks repeat 44 contact/visibility groups and nine
+fixed seats on source, finalized and imported surfaces. Sweeps use
+1,556/1,556/1,568 half-frame samples; no violations. Ordinary clearance
+tolerance remains .2 mm and the same four visual joints keep finite bounds.
+Maximum sampled penetration is 1.97104 mm at an accepted bounded visual joint;
+maximum measured fixed-seat surface gap is .09505 mm. Nothing is waived.
+The handed-off texture fingerprint passes all five geometry/rig/layout hashes;
+a final accessor audit finds one regenerated tangent scalar differing by
+0.000100002 (the first candidate in pass 3 had three). No game or dense-source geometry, UV, pivot or schedule changed.
+
+UV coverage is 40.2516%, one overlap fraction 7.2970e−7, no outside or
+degenerate UV triangles, density p5/median/p95 1544/1880/5401 px/m.
+Bake audit: 4096/32, zero missed interior texels. Final rifle uses one material,
+one three-map 2048 set, 17 bones, eight sockets and all 20 clips.
+
+| Export | Triangles | Bytes |
+| --- | ---: | ---: |
+| Rifle | 40,000 | 10,864,508 |
+| Loaded magazine | 6,756 | 7,707,628 |
+| Empty magazine | 4,596 | 7,619,472 |
+| Cartridge | 960 | 7,499,192 |
+| Fired case | 704 | 7,486,872 |
+
+PNG bytes: BaseColor 1,192,738; Normal 2,506,404; ORM 3,744,215; total
+7,443,357. The shared compressed allocation with mipmaps remains 16 MiB.
+Hero luma p1/median/p99 is 1.0/49.0/162.0, with 24.47% below 24 and no
+white clipping. Deep cavities and enamel remain dark. The raw-import versus
+attributed-import audit passes all four views (mean absolute RGB <.008/255);
+that establishes diagnostic naming parity, not photographic realism.
+
+Opened every fresh studio/Eevee/detachable still, all twenty GLB pairs, all
+dense-source comparison views, all seventeen frame-inspection pages (290
+frames), finish histograms and 2D masks, grain/two-scale charts, on/off proof,
+SMG comparison, wear-site sheet, contact sheet and all five docs JPGs. Fresh
+image provenance passes 362 records and actual WebP durations for all clips.
+The final contact sheet is `renders/final/contact-sheet.jpg`; finals load
+exported GLBs, while source comparisons remain clearly labeled separately.
+Docs stay uncommitted: hero 54,799 B, turnaround 79,155 B, details 192,931 B,
+action 172,613 B and Eevee 55,388 B; each ≤1600 pixels wide and <200 KB.
+
+**Remaining weaknesses:** the 22 contact-projection pixels above remain in
+the shipped bake; they are a small projection blemish, not an extra wear
+site. The lower fine residual is weaker and the upper broad residual slightly
+stronger than the photograph. Lighting and shape differences remain, notably
+in the side-camera upper wood and original section contours. Extreme macros
+lose fine grain/checkering/forging relief and the small headstamp, as before.
+The floorplate’s +2.17 mean change does not make that tiny secondary site
+readable at full frame. The requested receiver/cover/magazine patches and
+wood edge losses do read in the native hero; hidden sites are not claimed.
+
+No kit, common module or other gun source changed. No new references were
+needed; existing used photographs and their recorded authors/licenses suffice.
+Nothing is required from the lead to reproduce the result. If another asset
+needs the same control audit, the actual-surface pixel measurement is a useful
+candidate for generalizing into the kit; its current site partitions are
+specific to this accepted rifle.

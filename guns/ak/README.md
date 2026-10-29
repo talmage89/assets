@@ -27,6 +27,14 @@ the same procedural studio. `REVIEW.md` records rejected iterations, neutrals,
 measurements, limitations and the final critique. The separate
 `wood-grain-and-color.jpg` / `wood-grain-values.json` compare every blank and
 an interior stock-side land; spread is (value p90−p10)/median.
+`wood-two-scale.jpg` / `wood-two-scale-values.json` split that signal into
+broad structure (10 mm FWHM Gaussian) and the fine residual, on the same
+physical grid for the GLB and locally balanced photo. The metal-only control
+is independently baked and exported through the same kit path: its wood,
+manufacturing and carbon remain. `metal-wear-difference.png` is the unamplified
+native-hero RGB difference; `metal-wear-proof.jpg`, `metal-wear-regions.png`
+and `metal-wear-table.md` give actual visible pixel regions, areas and signed
+luma changes for every named site, including honest zeroes for occluded sites.
 
 ## Dimensions and construction
 
@@ -101,7 +109,7 @@ The grip retains the accepted brown-plum molded phenolic finish.
 Named wear sites:
 
 - Receiver lower front corners and magazine-entry edges: a few connected,
-  ragged dark-gray phosphate patches with tapered ends. The broad flanks and
+  ragged matte-gray phosphate patches with tapered ends. The broad flanks and
   upper/rear edges retain enamel. Only the exposed lower-front rivet crown
   receives a small rub.
 - Cover rear rim and rear side bead: longer gray rubs; one rear roof crest
@@ -127,6 +135,21 @@ Named wear sites:
 - Stock toe/heel and isolated handguard knocks: normal-map depressions with
   dark crushed-fiber bottoms and small same-color lips, without orange arcs.
 
+Broad stain absorption follows curved growth layers in each blank. Oil and
+embedded dust darken the receiver-side wrist, cheek-contact land and sheltered
+handguard roots. New film loss is confined to exposed toe/heel/comb and
+handguard lower/front margins, retaining intact stretches and the accepted
+smaller hand-contact flakes. The metal sites keep their accepted locations;
+matte substrate value and gloss establish their visibility at native hero
+size, with steel still confined to the sharpest high points.
+
+Intact enamel retains the accepted linear RGB .0015/.00154/.0015 and
+roughness .42. Exposed matte conversion gray is .110/.108/.101, roughness
+.88 and metallic .08 on the painted parts; magazine gray is .180/.176/.165,
+roughness .86 and metallic .08. Rare high-point steel retains its previous
+response. These are authored shader values; the native-hero difference
+measures their actual visible effect after baking and export.
+
 `WEAR=0` removes use layers while retaining manufacture and fictional marks.
 Stable position/normal attributes keep each finish attached through the clips
 and through projection isolation. Named static skins are separated during
@@ -150,18 +173,29 @@ balanced used photograph (8-bit RGB; these include illumination):
 
 | Blank | Hero RGB / saturation | Photo RGB / saturation |
 | --- | --- | --- |
-| Stock | 86/63/52 / .390 | 83/63/51 / .376 |
-| Lower handguard | 113/70/54 / .520 | 107/62/45 / .550 |
-| Upper handguard | 90/58/45 / .505 | 87/52/39 / .544 |
+| Stock | 86/64/53 / .387 | 83/63/51 / .376 |
+| Lower handguard | 113/70/55 / .513 | 107/62/45 / .550 |
+| Upper handguard | 89/59/45 / .500 | 87/52/39 / .544 |
 
-The upper handguard's hero luma p75 is 71.6, against 65.3 in that photograph;
-the former broad pale patch is gone. In the fitted side view, the interior
-stock-side value spread is **.338 shipped / .338 dense source / .302 photo**.
-The corresponding whole-blank spreads are .688/.494 for stock, .760/.570 for
-lower and .234/.609 for upper (GLB/photo); these include curved shading and
-edge wear. The side studio is darker than the mixed-light photograph, as
-the separate color sheet shows. Fine vessels soften, but the long figure
-survives the single 2048 atlas.
+The fitted side view now separates broad value structure from fine grain.
+On a common 0.5 mm physical grid, the same masked 10 mm FWHM Gaussian
+defines the broad signal in both GLB and photograph. Fine is the residual;
+each spread is (p90−p10)/the original median HSV value. These measurements
+include illumination and section shading; they do not recover albedo.
+
+| Blank | Total GLB / photo | Broad GLB / photo | Fine GLB / photo |
+| --- | ---: | ---: | ---: |
+| Stock | 0.506 / 0.478 | 0.390 / 0.395 | 0.191 / 0.211 |
+| Lower handguard | 0.543 / 0.559 | 0.349 / 0.371 | 0.266 / 0.318 |
+| Upper handguard | 0.546 / 0.590 | 0.324 / 0.292 | 0.390 / 0.431 |
+| Stock interior flat land | 0.279 / 0.287 | 0.206 / 0.186 | 0.154 / 0.164 |
+
+The largest remaining spread difference is the lower handguard’s fine
+residual (.266 versus .318): its small relief softens in the 2048 bake, and
+its section differs from the photograph. Broad absorption, wrist/root grime
+and edge film loss survive at native hero size. The unresampled whole-part
+and interior-land values remain in `wood-grain-values.json` alongside this
+physically rectified analysis.
 
 ## Frame, rig and clips
 
@@ -212,16 +246,16 @@ Budget and file sizes are measured from the actual exports and checked in
 
 | Output | Triangles | GLB bytes |
 | --- | ---: | ---: |
-| Rifle | **40,000 / 40,000** | 10,719,868 |
-| Loaded magazine | 6,756 | 7,562,988 |
-| Empty magazine | 4,596 | 7,474,832 |
-| Cartridge | 960 | 7,354,552 |
-| Fired case | 704 | 7,342,232 |
+| Rifle | **40,000 / 40,000** | 10,864,508 |
+| Loaded magazine | 6,756 | 7,707,628 |
+| Empty magazine | 4,596 | 7,619,472 |
+| Cartridge | 960 | 7,499,192 |
+| Fired case | 704 | 7,486,872 |
 
 Each output uses one material and the same three embedded images. The rifle
 has 17 bones, eight sockets and 20 clips. Detached magazines deliberately
-retain their accepted geometry. The canonical PNGs total **7,298,715 bytes**:
-BaseColor 1,122,579; Normal 2,499,282; ORM 3,676,854. All are 2048 square.
+retain their accepted geometry. The canonical PNGs total **7,443,357 bytes**:
+BaseColor 1,192,738; Normal 2,506,404; ORM 3,744,215. All are 2048 square.
 UV coverage, actual clipped overlap and density percentiles are measured,
 rather than described as uniform or exactly zero.
 The complete staged atlas covers 40.25%; there are no outside or degenerate
@@ -239,9 +273,11 @@ joints retain their finite bounds. A stored pre-round fingerprint also
 preserves all 108 unmodified game meshes and normals, rest bones/sockets,
 and 1,556 sampled affine poses. The cap return is also measured against the
 actual imported wood section at 23 radial rays; its small overhang and sheet
-gauge are plotted in `renders/final/retainer-section.jpg`. Only the
-requested front cap and its sling-loop endpoints change. This preservation
-check is separate from the actual fit tests. Serialization is separate: affine bone and
+gauge are plotted in `renders/final/retainer-section.jpg`. The texture-round fingerprint separately proves that all five handed-off
+exports retain byte-identical geometry, normals, UVs, skin weights, rig, clips
+and layout. One exporter-derived tangent component differs by
+0.000100002; tangents are recorded separately. These preservation checks are
+separate from the actual fit tests. Serialization is separate: affine bone and
 socket frames, posed surfaces, clip durations, weights/normals and full rotated
 magazine spawns are compared independently. Hidden lock/sear geometry is
 proved absent by inventory.
@@ -260,6 +296,7 @@ make -C guns/ak render match      # exported Cycles/Eevee stills and photo pairs
 make -C guns/ak source-match      # separately labeled procedural-source photo pairs
 make -C guns/ak strips extra      # real-duration Eevee clips and detachables
 make -C guns/ak look-review       # whole-part histograms and 2D worn masks
+make -C guns/ak metal-control     # independent metal-off bake/GLB, native difference and site table
 make -C guns/ak sections          # measured triangle cuts
 make -C guns/ak precedent         # optional: same-studio SMG comparison, if its export exists
 make -C guns/ak WEAR=.5           # cleaner finish; unchanged shape and rig
@@ -296,6 +333,9 @@ The retainer follows the preserved broad wood section, so its plate is broader
 than the modern component reference; it retains the rifle's riveted sling eye.
 Small collar/rod-hole silhouette facets remain in the isolated macro. Wood
 edge wear is less extensive than on the older photographed example.
+The metal-only control measures 22 neighboring Front_Insert projection pixels
+at the touching lower-front receiver joint. They remain in the shipped bake
+and raw difference, but are excluded from every named-site pixel count.
 The closed hero cannot expose hidden carrier rails; the open-action view does.
 Mass, ergonomics and manufacturing tolerances are not certified by these
 visual exterior meshes.

@@ -135,6 +135,18 @@ material masks. `REVIEW.md` records the color-first critiques, rejected masks,
 new neutral, remaining lighting differences and bake loss. No reference pixels
 enter a texture, and no photograph is treated as a direct albedo measurement.
 
+The full-frame texture round adds a controlled metal-abrasion-off bake and
+export, keeping manufacture, wood and carbon fixed. Native hero differences
+are measured on actual imported surface IDs and changed atlas texels; their
+pixel regions/areas and signed display-luma changes are reported separately
+from authored mask area. Contact-projection texels are explicitly excluded
+from the named-site counts. The wood comparison uses a common 0.5 mm side
+grid, normalized masked Gaussian blur with 10 mm FWHM (sigma 4.247 mm), and
+the fine residual. Total/broad/fine spreads share the original median HSV
+value as denominator. Lighting and original section differences remain in
+these image measurements; physical rectification is an estimate, and the
+unresampled native-mask chart is retained alongside it.
+
 ## Construction scope
 
 Actual surface cuts demonstrate a folded open U receiver, finite handguard

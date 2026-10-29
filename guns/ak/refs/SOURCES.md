@@ -58,3 +58,11 @@ Round 3 scale observations and their limitations are recorded in
 `../REFERENCE.md` and `../src/form_observations.py`. Sharp standalone side/rear
 views are the primary component comparisons. The old 630 px muzzle view and
 small museum crops remain contextual evidence only.
+
+The full-frame wear round reuses `early.jpg` for issued wood, handling grime
+and magazine/receiver wear, `museum.jpg` for the used receiver's gray exposed
+edges and `cover-used.jpg` for the cover's interrupted rim/crest abrasion.
+Their authors/licenses/direct URLs remain the rows above. The early view is
+balanced on the unprinted cloth below the receiver; the museum on its gray
+backdrop. They are compared at whole-gun size as well as in the existing
+matched pairs. No new reference pixels enter any material or bake.
