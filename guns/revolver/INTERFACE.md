@@ -78,6 +78,7 @@ The loader and ammunition GLBs use those documented complete local frames.
 The source keeps named rigid parts for surface audits. Final delivery consolidates
 those weights into one animated skin and one shared 2048 BaseColor / OpenGL
 Normal / ORM atlas through the kit delivery path. The cartridge, fired case
-and loaded speedloader reuse byte-identical canonical maps in their complete
-posed guide frames. Consumers retain imported PBR materials and cache the
-canonical atlas/content hashes across separately loaded GLBs.
+and loaded speedloader retain their complete posed guide frames and now carry
+their own sets: 512 for ammunition and 1024 for the loader, preserving the baked
+atlas's density. Consumers retain imported PBR materials and the
+[standalone sampler contract](../DETACHABLES.md).

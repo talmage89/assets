@@ -58,4 +58,6 @@ at that time. There is no safe jump to Idle while a magazine is absent or the
 handle is locked. Reload state transitions commit at completion. Effects consume
 the manifest's event times, not fixed family durations. Current checkpoint GLBs
 have inspection constants; final delivery will use the existing kit atlas,
-animation and DETACHABLES path, with one shared 2048 set and imported PBR slots.
+animation and DETACHABLES path, with one 2048 gun set and imported PBR slots.
+Standalone magazines now carry 1024 sets; cartridge and case carry 512 sets,
+preserving the gun atlas's density. See [delivery sampling details](../DETACHABLES.md).

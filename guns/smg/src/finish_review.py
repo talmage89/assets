@@ -7,9 +7,38 @@ BASE=Path(__file__).resolve().parents[1];sys.path[:0]=[str(BASE.parents[1]),str(
 from kit.photo_match import project
 from white_balance import stats
 
-def signature(path):
+def signature(path,exclude_uv=False):
     data=path.read_bytes();n=struct.unpack_from('<I',data,12)[0]
     gltf=json.loads(data[20:20+n]);binary=data[20+n+8:]
+    if exclude_uv:
+        # UV repacking can change glTF's vertex deduplication/order. Compare
+        # exact oriented triangle corners, retaining duplicate triangles and
+        # every non-UV/non-tangent attribute, rather than buffer allocation.
+        def accessor(index):
+            a=gltf['accessors'][index];v=gltf['bufferViews'][a['bufferView']]
+            dtype=np.dtype({5120:'i1',5121:'u1',5122:'<i2',5123:'<u2',5125:'<u4',5126:'<f4'}[a['componentType']])
+            width={'SCALAR':1,'VEC2':2,'VEC3':3,'VEC4':4,'MAT4':16}[a['type']]
+            return np.ndarray((a['count'],width),dtype=dtype,buffer=binary,
+                offset=v.get('byteOffset',0)+a.get('byteOffset',0),
+                strides=(v.get('byteStride',width*dtype.itemsize),dtype.itemsize)).copy()
+        meshes=[]
+        for mesh in gltf['meshes']:
+            primitives=[]
+            for primitive in mesh['primitives']:
+                names=sorted(k for k in primitive['attributes'] if not k.startswith('TEXCOORD_') and k!='TANGENT')
+                values=np.concatenate([accessor(primitive['attributes'][k]).astype(np.float64) for k in names],axis=1)
+                corners=values[accessor(primitive['indices']).reshape(-1,3)]
+                rows=[]
+                for triangle in corners:
+                    points=[tuple(p) for p in triangle];start=min(range(3),key=points.__getitem__)
+                    rows.append(tuple(np.roll(triangle,-start,axis=0).reshape(-1)))
+                ordered=np.asarray(sorted(rows),dtype='<f8');ordered[ordered==0]=0
+                metadata={k:v for k,v in primitive.items() if k not in ('attributes','indices')}
+                primitives.append(dict(metadata=metadata,attributes=names,triangles=len(rows),
+                    corner_sha256=hashlib.sha256(ordered.tobytes()).hexdigest()))
+            meshes.append(dict(metadata={k:v for k,v in mesh.items() if k!='primitives'},primitives=primitives))
+        structure={k:gltf[k] for k in ('nodes','skins','animations','scenes') if k in gltf}
+        return dict(meshes=meshes,structure_sha256=hashlib.sha256(json.dumps(structure,sort_keys=True).encode()).hexdigest())
     images={im['bufferView'] for im in gltf['images']}
     # Blender recomputes and rounds tangents on export. The immutable-data
     # fingerprint concerns positions, normals, UVs, skin and animation data.
@@ -31,8 +60,15 @@ def camera(row):
 
 def layout():
     accepted=json.loads((BASE/'src/accepted_layout.json').read_text())
-    signatures={name:signature(BASE/'export'/(name+'.glb')) for name in accepted}
-    assert signatures==accepted,'Accepted geometry, normals, UVs, rig, clips or delivery layout changed'
+    signatures={'smg':signature(BASE/'export/smg.glb')}
+    assert signatures['smg']==accepted['smg'],'Accepted gun geometry, normals, UVs, rig, clips or layout changed'
+    # Standalone UVs now intentionally move to small texture sets. Freeze exact
+    # oriented corners, attributes and node frames against the original exports,
+    # allowing UV-driven vertex ordering; atlas_verify checks their mapped look.
+    geometry=json.loads((BASE/'src/accepted_detachable_geometry.json').read_text())
+    for name,expected in geometry.items():
+        signatures[name]=signature(BASE/'export'/(name+'.glb'),exclude_uv=True)
+        assert signatures[name]==expected,(name,'Accepted standalone geometry, normals, origin or layout changed')
     return signatures
 
 def heroes(beauty):
@@ -70,7 +106,7 @@ def build():
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--layout-only',action='store_true');parser.add_argument('--beauty');args=parser.parse_args()
     if args.layout_only:
-        layout();print('Accepted position / normal / UV / weight / rig / clip / layout bytes: identical in all five exports; tangent data regenerated');sys.exit(0)
+        layout();print('Accepted gun buffers/layout identical; standalone geometry, normals and origins identical; repacked UV look checked by atlas_verify');sys.exit(0)
     row=dict(hero_values=heroes(args.beauty)) if args.beauty else build()
     print(json.dumps({name:{k:dict(luma=v['median_luma_255'],rgb=v['median_rgb_255']) for k,v in patches.items()}
                       for name,patches in row['hero_values'].items()},indent=2))
