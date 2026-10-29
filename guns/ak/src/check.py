@@ -128,8 +128,10 @@ def main():
   arm=import_glb(path)
  else:
   bpy.ops.wm.open_mainfile(filepath=str(path));arm=bpy.data.objects['R39Armature']
+ from sections import round3_contacts
  report=dict(scope='nonfunctional visual assembly; no lock/sear or manufacturing certification',
   contract=manifest(interface),geometry=geometry(arm,path.suffix=='.glb'),contacts=contacts(arm),semantics=semantics(arm))
+ report['fixed_seating']=round3_contacts()
  if a.motion:report['motion']=sweep(arm,a.step)
  g=report['geometry'];report['passed']=not g['nonmanifold'] and 30000<=g['triangles']<=40000 and all(r['passed'] for r in report['contacts']) and report.get('motion',{}).get('passed',True)
  assert abs(g['bounds_m']['size'][1]-.880)<.002,'Exterior envelope misses original design range'

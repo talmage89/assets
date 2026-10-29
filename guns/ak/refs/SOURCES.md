@@ -28,6 +28,8 @@ nonfunctional visual proxies, without manufacturing dimensions or tolerances.
 | cover-sharp.jpg | https://cdn11.bigcommerce.com/s-i32t4keptf/images/stencil/original/products/3757/5123/20221122_170933__81859.1669166722.jpg?c=1 | Arms of America / copyrighted WBP product photograph, comparison only | 3456×3456 original; cover about 2500 native px long. Flat flanks, low longitudinal bead, shallow roof-only ribs and downturned rear. New finish is construction-only evidence. |
 | cover-used.jpg | https://cdn11.bigcommerce.com/s-i32t4keptf/images/stencil/original/products/2858/3487/20210610_180806__84987.1632765727.jpg?c=1 | Arms of America / copyrighted surplus photograph, comparison only | 4032×3024 original; several used stamped covers. Independent pressing/wear check; oblique overlap and focus exclude precise contour metrology. |
 
+| retainer.jpg | https://cdn11.bigcommerce.com/s-fzqvov6ut8/images/stencil/original/products/464/1068/AK_lower_handguard_retainer_with_sling_loop__38249.1743554877.jpg?c=1 | KB Tactical Star / copyrighted used-component photograph, comparison only | 450×375 component view: ferrule front plate, rolled cup return, barrel/rod apertures and left sling mounting; no internal mechanism copied. |
+
 Source pages (titles in URLs identify reference objects, not the fictional asset):
 
 - [Museum photograph](https://commons.wikimedia.org/wiki/File:AKM_automatkarbin,_Ryssland_-_7,62x39mm_-_Arm%C3%A9museum.jpg).

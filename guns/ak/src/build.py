@@ -25,6 +25,9 @@ def finish(ob):
   bm=bmesh.new();bm.from_mesh(ob.data)
   bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=.001)
   bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=.001)
+  # Boolean intersections can leave isolated construction vertices. They
+  # have no surface and must not survive into modeling/serialization audits.
+  bmesh.ops.delete(bm,geom=[v for v in bm.verts if not v.link_faces],context='VERTS')
   bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free()
   if ob.name=='Receiver_Sheet':
    bm=bmesh.new();bm.from_mesh(ob.data)

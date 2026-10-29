@@ -85,6 +85,26 @@ def soften_forging(ob,voxel=.45):
  remesh.voxel_size=voxel;remesh.use_smooth_shade=True;M.apply(ob)
  smooth=ob.modifiers.new('Soft forged shoulder transitions','SMOOTH');smooth.factor=.55;smooth.iterations=3;M.apply(ob)
  return ob
+def retain_manufactured(ob,target,radius=.35):
+ """Keep machined lands planar; round only their actual boundary edges.
+
+ Both parts retain their machined planes directly. The gas forging is one
+ closed station loft; no broad smoothing bends its straight diagonal web.
+ """
+ bm=bmesh.new();bm.from_mesh(ob.data)
+ bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=.005)
+ bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=.005)
+ bmesh.ops.dissolve_limit(bm,angle_limit=.0001,verts=list(bm.verts),edges=list(bm.edges),delimit={'MATERIAL'})
+ bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free()
+ M.bevel(ob,radius,3)
+ wn=ob.modifiers.new('Planar forging lands','WEIGHTED_NORMAL');wn.keep_sharp=True
+ M.smooth(ob,45);M.apply(ob)
+ high=ob.copy();high.data=ob.data.copy();high.name='HIGH_'+ob.name
+ bpy.context.collection.objects.link(high);source(high,ob.name)
+ reduce(ob,target)
+ d=ob.modifiers.new('Dense manufactured normals','DATA_TRANSFER');d.object=high
+ d.use_loop_data=True;d.data_types_loops={'CUSTOM_NORMAL'};d.loop_mapping='POLYINTERP_NEAREST';M.apply(ob)
+ return reg(ob)
 def rivet(n,y,z,side,r=2.4):
  a=side*17.55;b=side*19
  p=[(min(a,b),0),(min(a,b),r*.78),((a+b)/2,r),(max(a,b),r*.78),(max(a,b),0)]
@@ -137,19 +157,24 @@ def cover():
   bead=.52*sum(math.exp(-((y-k)/2.6)**4) for k in (-5,75,150))
   longfade=max(0,min(1,(y+30)/8,(92-y)/9))
   flank=[]
-  for z in (86,88,89.4,90.5,91.6,93,95):
-   bulge=.65*math.exp(-((z-90.5)/1.05)**2)*longfade
+  shoulder=95+5*rear
+  for z0 in (86,90,93,95,96.5,98,100):
+   z=86+(z0-86)*(shoulder-86)/14
+   bulge=1.3*math.exp(-((z-(shoulder-3.5))/1.25)**2)*longfade
    flank.append((18.3-inset+bulge,y,z))
   roof=[]
   for i in range(1,25):
    t=math.pi*i/24
-   roof.append(((18.3-inset)*math.cos(t),y,95+(height-9-inset)*math.sin(t)+bead*math.sin(t)**4))
+   roof.append(((18.3-inset)*math.cos(t),y,shoulder+(86+height-shoulder-inset)*math.sin(t)+bead*math.sin(t)**4))
   return flank+roof+[(-x,y,z) for x,_,z in reversed(flank)]
  loops=[section(y)+list(reversed(section(y,.8))) for y in ys]
  o=M.loft('TopCover_Pressed',loops,MAT['paint'])
  cutbox(o,(9,45,76),(26,191,98),r=4)
  cutbox(o,(-6,-39,91),(6,-29,101),r=1)
- reg(o);reduce(o,1200)
+ reg(o)
+ high=o.copy();high.data=o.data.copy();high.name='HIGH_TopCover_Pressed'
+ bpy.context.collection.objects.link(high);source(high,'TopCover_Pressed')
+ reduce(o,1200)
  cap=[(x*.985,z-.25) for x,_,z in section(-35)]
  rear=profile('TopCover_RearCap',cap,-35.2,-34.4,'paint',axis='Y',r=.15,register=False)
  cutbox(rear,(-6,-37,91),(6,-32,101),r=.7);reg(rear,radius=.12)
@@ -329,46 +354,55 @@ def action_barrel():
   # The narrow steel cap wraps the carved end; unlike the former rectangular
   # wire, the bottom follows the wood and the top has barrel/rod relief.
   if y==363:
-   outer=rounded(42,43,11,7);inner=rounded(39,40,10,7)
-   loops=[[(x,yy,z+65) for x,z in ring] for yy,ring in [(y-2,outer),(y+2,outer),(y+2,inner),(y-2,inner)]]
-   ob=M.loft('Handguard_Retainer'+str(y),loops+[loops[0]],MAT['blue'],caps=False)
-   bm=bmesh.new();bm.from_mesh(ob.data)
+   # Stamped front diaphragm and a rearward skirt. Its lower half follows
+   # the actual front wood's U section; it covers the end grain completely.
+   outer=[(22.2*math.cos(a),84+38.6*math.sin(a)) for a in [math.pi+math.pi*i/32 for i in range(33)]]
+   outline=outer+[(19.5,88),(-19.5,88)]
+   ob=profile('Handguard_Retainer363',outline,363.7,365.2,'blue',axis='Y',r=.28,register=False)
+   cut(ob,lathe('Ferrule barrel aperture',[(362,0),(362,8.9),(367,8.9),(367,0)],center=(0,85),nseg=32,register=False))
+   cut(ob,lathe('Ferrule rod aperture',[(362,0),(362,2.45),(367,2.45),(367,0)],center=(0,66),nseg=20,register=False))
+   # A finite-gauge U return grips the outer wood, with its front edge
+   # sharing the diaphragm. This is a cup, not a wire around an open end.
+   rings=[]
+   for yy,rx,rz in [(358,22.1,38.6),(364.7,22.1,38.6),(364.7,21,37.5),(358,21,37.5)]:
+    rings.append([(rx*math.cos(a),yy,84.3+rz*math.sin(a)) for a in [math.pi+math.pi*i/32 for i in range(33)]])
+   skirt=M.loft('Ferrule return',rings+[rings[0]],MAT['blue'],caps=False,closed=False)
+   # The open upper ends are the two short sheet-gauge end faces.
+   bm=bmesh.new();bm.from_mesh(skirt.data)
    bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=.0001)
-   bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free()
-   reg(ob)
+   bmesh.ops.holes_fill(bm,edges=[e for e in bm.edges if e.is_boundary],sides=0)
+   bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(skirt.data);bm.free()
+   M.boolean(ob,skirt,'UNION');reg(ob,radius=.18)
   else:
    loops=[[(x,yy,z+66) for x,z in rounded(w,h,6,5)] for yy,w,h in [(y-2,43,53),(y,44,54),(y+2,43,53)]]
    ob=M.loft('Handguard_Retainer'+str(y),loops,MAT['blue'])
    cutbox(ob,(-18,y-4,43),(18,y+4,91),r=5);reg(ob,radius=.5)
- # One continuous forging cage, from tube seat through curved neck to collar.
- # Its side boundaries follow the sharp photo. There is no union cap/crease
- # on the sloping crown and no hidden display cavity to break through it.
- stations=[(406,9.6,97.4,116.6),(415,9.6,97.4,116.6),
-  (422,9.6,96.2,116.6),(425,9.8,92,115.8),(428,10.4,85,112),
-  (430,10.8,76,109),(433,11.5,73.5,105.3),(438,11.5,73.5,100),
-  (443,11.5,73.5,97),(448,11.5,73.5,96.5),(451,10.5,74.5,95.5)]
- neck=[]
- for j in range(len(stations)-1):
-  a=Vector(stations[max(0,j-1)]);b=Vector(stations[j]);c=Vector(stations[j+1]);d=Vector(stations[min(len(stations)-1,j+2)])
-  for k in range(4):
-   t=k/4;q=.5*(2*b+(-a+c)*t+(2*a-5*b+4*c-d)*t*t+(-a+3*b-3*c+d)*t*t*t)
-   y,rx,bottom,top=q;zc=(bottom+top)/2;rz=(top-bottom)/2
-   neck.append([(rx*math.cos(angle),y,zc+rz*math.sin(angle)) for angle in [math.tau*i/40 for i in range(40)]])
- y,rx,bottom,top=stations[-1]
- neck.append([(rx*math.cos(a),y,(bottom+top)/2+(top-bottom)/2*math.sin(a)) for a in [math.tau*i/40 for i in range(40)]])
- band=M.loft('GasBlock_Neck',neck,MAT['blue'])
- soften_forging(band,.35)
- cut(band,lathe('Barrel exterior clearance',[(419,0),(419,7.8),(455,7.8),(455,0)],'blue',center=(0,BORE),nseg=40,register=False))
- # The overlapping tube hides this seat's inside in every clip. Keep that
- # buried display volume solid so no false recess breaks through the neck.
- soften_forging(band,.26);sculpt(band,1640,level=0)
+ # A single closed loft, with circular collars, straight diagonal station
+ # boundaries and broad planar lands. Multiple coplanar Boolean unions left
+ # circular seam fans; this exterior is authored as one continuous forging.
+ stations=[(405.8,9.95,97.05,116.95,9.8),(407.2,9.95,97.05,116.95,9.8),
+  (407.6,9.6,97.4,116.6,9.45),(420,9.6,97.4,116.6,9.45),
+  (422,9.6,96.8,116.4,6.8),(424,9.8,93,114.4,3.0),
+  (428,10.8,81.0,110.2,2.2),(431,11.5,73.5,107.1,3.5),
+  (435,11.5,72.5,103.0,5.0),(439,11.5,72.5,99.0,7.8),
+  (444,11.5,72.5,97.0,10.8),(450.6,11.5,72.5,97.0,10.8),
+  (451,11.1,72.9,96.6,10.5)]
+ loops=[]
+ for yy,rx,bottom,top,r in stations:
+  loops.append([(x,yy,(bottom+top)/2+z) for x,z in rounded(rx*2,top-bottom,r,6)])
+ band=M.loft('GasBlock_Neck',loops,MAT['blue'])
+ cut(band,lathe('Barrel exterior clearance',[(400,0),(400,7.8),(455,7.8),(455,0)],'blue',center=(0,BORE),nseg=40,register=False))
+ retain_manufactured(band,1480,.35)
+ # Exterior vent recesses and lower pin witnesses live in the procedural
+ # high finish and project into the normal; they change no silhouette.
  lathe('GasBlock_TubeSeat',[(345,8),(345,9.5),(412,9.5),(417,9.1),(417,8)],'blue',center=(0,107),closed=True,nseg=32)
  for side in (-1,1):
   for y in (383,401):
    a,b=sorted((side*8.6,side*9.55))
    lathe('Gas_Vent'+str(side)+str(y),[(a,0),(a,1.1),(b,1.1),(b,0)],'dark',axis='X',center=(y,107),nseg=12)
- box('Bayonet_Lug',(-7,439,62),(7,452,74.8),'blue',r=1)
- cutbox(PARTS[-1],(-2.6,437,60),(2.6,454,67),r=.8)
+ # Continuation of the forged lower boss, with a broad foot and cutout.
+ lug=profile('Bayonet_Lug',[(441.8,73),(451,73),(451,64),(450,62),(444,62),(442,64)],-6.8,6.8,'blue',r=.35)
+ cutbox(lug,(-2.6,439,60),(2.6,453,66),r=.6)
  box('Handguard_SlingMount',(-23,359,69),(-18.8,367,78),'blue',r=.5)
  sling=[(-22,361,75),(-27,361,77),(-30,361,75),(-30,361,61),(-28,361,59),(-23,361,61),(-22,361,64)]
  reg(M.tube('Handguard_SlingLoop',sling,1.3,MAT['blue'],sides=8))
@@ -398,24 +432,19 @@ def action_barrel():
 def sights():
  # Low saddle, stepped upper cheeks at the forward hinge, open spring channel.
  # Each section changes width, crown and underside, before the continuous union.
- loops=[]
- # Rear edge clears the accepted carrier's inert seating face by 1 mm.
- for y,w,bottom,top in [(186,27,93,106),(188,31,88,110),(195,33,84,111),
-  (211,33,83,112),(226,32,81,113),(234,31,80,115),
-  (240,30,79,121),(244,29,79,124),(250,29,79,124),(254,27,81,118)]:
-  sec=M.fillet_polygon([(-w/2,bottom+4),(-w/2+2,bottom),
-   (w/2-2,bottom),(w/2,bottom+4),(w/2,top-7),(w/2-4,top),
-   (-w/2+4,top),(-w/2,top-7)],2,5)
-  loops.append([(x,y,z) for x,z in sec])
- base=M.loft('Sight_RearBlock',loops,MAT['blue'])
- soften_forging(base,.38)
+ # The machined side land is a plane, including around the hinge. Section
+ # lofts with varying widths made this single broad face a twisted patch.
+ outline=[(186,94),(186,106),(188,110),(195,111),(211,112),
+  (226,113),(234,115),(240,121),(244,124),(250,124),(254,118),
+  (254,81),(240,79),(226,81),(211,83),(195,84),(188,88)]
+ base=profile('Sight_RearBlock',M.fillet_polygon(outline,.6,3),-16.5,16.5,'blue',r=0,register=False)
  cutbox(base,(-7.8,186,109),(7.8,256,130),r=1)
  cut(base,lathe('Barrel display seat',[(180,0),(180,11.15),(258,11.15),(258,0)],center=(0,85),nseg=40,register=False))
  cut(base,lathe('Piston display clearance',[(180,0),(180,5.7),(222,5.7),(222,0)],center=(0,107),nseg=32,register=False))
  cut(base,lathe('Gas tube exterior seat',[(219,0),(219,10),(258,10),(258,0)],center=(0,107),nseg=40,register=False))
  # Small visible relief in both hinge cheeks, based on the side photograph.
  cut(base,profile('Hinge cheek relief',M.fillet_polygon([(240,115),(240,119),(242,120.5),(244,119),(244,115)],.8,4),-20,20,r=0,register=False))
- soften_forging(base,.26);sculpt(base,1750,level=0)
+ retain_manufactured(base,1560,.30)
  # Narrow leaf nested between the front cheeks; crosspiece formed at its rear.
  leaf=profile('Sight_TangentLeaf',M.fillet_polygon([(188,120.5),(248,120.5),(251,121),(251,123),(188,123)],.3,4),-6.7,6.7,'blue',r=.16,register=False)
  cutbox(leaf,(-.45,193,122.5),(.45,246,124),r=.2);reg(leaf,radius=.08)
@@ -461,9 +490,9 @@ def sights():
  for i in range(10):
   y=211+i*3.6;x=-3.65 if i%2==0 else 3.65
   curve=bpy.data.curves.new('Original tangent numeral','FONT');curve.body=str(i+1);curve.size=2.7
-  curve.font=font;curve.align_x='CENTER';curve.extrude=.07;curve.resolution_u=3
+  curve.font=font;curve.align_x='CENTER';curve.extrude=.10;curve.resolution_u=4
   ob=bpy.data.objects.new('HIGH_SightNumeral',curve);bpy.context.collection.objects.link(ob)
-  ob.location=(x,y+.5,123.02)
+  ob.location=(x,y+.5,123.01)
   bpy.ops.object.select_all(action='DESELECT');bpy.context.view_layer.objects.active=ob;ob.select_set(True);bpy.ops.object.convert(target='MESH')
   ob=bpy.context.object;ob.data.transform(ob.matrix_world);ob.matrix_world=Matrix.Identity(4)
   source(ob,'Sight_TangentLeaf');ob.select_set(False)
@@ -511,7 +540,10 @@ def front_sight():
  lathe('Sight_FrontPost',[(117,0),(117,1.8),(120,1.8),(122,1.35),(127.7,.8),(128,.7),(128,0)],'blue',axis='Z',center=(0,552),nseg=20)
  for z in (122.1,123,123.9):
   lathe('Sight_PostThreadWitness',[(z,1.15),(z,1.55),(z+.3,1.55),(z+.3,1.15)],'blue',axis='Z',center=(0,552),nseg=16,closed=True)
- lathe('Sight_WindageDrum',[(-8.42,0),(-8.42,4.3),(-8.2,4.5),(8.2,4.5),(8.42,4.3),(8.42,0)],'blue',axis='X',center=(552,116.7),nseg=32)
+ drum=lathe('Sight_WindageDrum',[(-8.42,0),(-8.42,4.3),(-8.2,4.5),(8.2,4.5),(8.42,4.3),(8.42,0)],'blue',axis='X',center=(552,116.7),nseg=32)
+ # A turned end is a plane, even when the rim shares the smooth barrel.
+ for f in drum.data.polygons:
+  if abs(f.normal.x)>.98:f.use_smooth=False
  seat=profile('Sight_RodSeat',M.fillet_polygon([(-7,69),(-6,75),(6,75),(7,69),(5,62),(-5,62)],1.2,4),547,559,'blue',axis='Y',r=.5,register=False)
  cut(seat,lathe('Rod seat clearance',[(544,0),(544,2.9),(562,2.9),(562,0)],'blue',center=(0,66),nseg=20,register=False));reg(seat,radius=.3)
 
