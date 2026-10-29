@@ -120,6 +120,7 @@ look-review: render match source-match build/value-geometry.npz
 	$(PYTHON) src/look_review.py
 	$(PYTHON) src/furniture_review.py
 	$(PYTHON) src/wood_scales.py
+	$(PYTHON) src/wood_edges.py
 review: look-review
 
 # The asset rebuild is independent of other guns. When the accepted reference

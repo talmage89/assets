@@ -315,16 +315,19 @@ def wood(name,part,wear):
  flakes=n.add(n.mul(n.noise(n.combine(n.mul(x,650),n.mul(y,85),n.mul(z,730)),1,2),.72),n.mul(n.noise(p,1400,1),.28))
  outside=n.maximum(n.ramp(n.mul(x,nx),.004,.009),n.ramp(n.mul(sub(n,z,.065 if stock else .091 if upper else .084),nz),.010,.020))
  original_loss=n.mul(n.ramp(contact,.35,.85),n.ramp(flakes,.50,.59),outside,wear)
- # Edge impacts remove fragments of film, with 10-25 mm runs and intact
- # islands. Keep the accepted smaller hand-contact flakes unchanged.
- edgefield=n.noise(n.combine(n.mul(x,310),n.mul(y,54),n.mul(z,420)),1,2)
- edgeflakes=n.ramp(n.add(edgefield,n.mul(sub(n,flakes,.5),.15)),.43,.55)
+ # Edge impacts break film into irregular flakes, not parallel fiber strokes.
+ # The existing exposure field keeps the sites and their fading end margins;
+ # near-isotropic 5-8 mm fragments and smaller chips break only its boundary.
+ # Keep the accepted smaller hand-contact flakes unchanged.
+ edgefield=n.noise(n.combine(n.mul(x,170),n.mul(y,130),n.mul(z,180)),1,2)
+ chips=n.noise(p,620,2)
+ edgeflakes=n.ramp(n.add(n.mul(edgefield,.78),n.mul(chips,.22)),.43,.55)
  edge_loss=n.mul(n.ramp(exposed,.35,.85),edgeflakes,outside,wear)
  loss=n.maximum(original_loss,edge_loss)
  # Exposed fibers are the SAME stained wood, slightly lighter/less red.
  raw=n.vec('MULTIPLY',base,(1.08,1.20,1.25))
+ raw_edge=n.vec('MULTIPLY',base,(1.18,1.30,1.34))
  base=n.mix(original_loss,base,raw,True)
- raw_edge=n.vec('MULTIPLY',base,(2.10,2.22,2.30))
  base=n.mix(edge_loss,base,raw_edge,True);rough=n.mix(loss,rough,.70);h=n.add(h,n.mul(loss,-.000026))
  # Dents are crushed depressions with dark bottoms. No orange crescent lips.
  dentmask=0
