@@ -1,12 +1,14 @@
 """Gate the texture round against the handed-off exported geometry and rig.
 
-Positions/normals/UV/weights, accessor/node/mesh layout, skin, animations and
-scene structure are byte-hashed. Exporter-derived tangents are recorded
-separately: Blender can round a few regenerated components by 0.0001.
+The rifle retains its original geometry/UV/rig signature and complete GLB hash.
+Detachables retain oriented corner attributes and node frames byte-for-byte;
+their density and inverse atlas surface samples are checked independently by
+atlas_verify. The old/new review also checks UV transforms and tangent direction.
 No baseline is recorded by make.
 """
 from pathlib import Path
 import argparse,hashlib,json,struct
+import numpy as np
 BASE=Path(__file__).resolve().parents[1]
 NAMES=('ak','magazine_loaded','magazine_empty','cartridge','case')
 
@@ -25,6 +27,33 @@ def signature(path):
 
 def geometry_equal(a,b):return all(a[k]==b[k] for k in ('geometry_buffers','structure'))
 
+def detachable_signature(path):
+    """Hash oriented non-UV corners, independent of exporter vertex indexing."""
+    data=path.read_bytes();length=struct.unpack_from('<I',data,12)[0]
+    g=json.loads(data[20:20+length]);binary=data[28+length:]
+    def accessor(index):
+        a=g['accessors'][index];v=g['bufferViews'][a['bufferView']]
+        dtype=np.dtype({5120:'i1',5121:'u1',5122:'<i2',5123:'<u2',5125:'<u4',5126:'<f4'}[a['componentType']])
+        width={'SCALAR':1,'VEC2':2,'VEC3':3,'VEC4':4}[a['type']]
+        return np.ndarray((a['count'],width),dtype,buffer=binary,
+            offset=v.get('byteOffset',0)+a.get('byteOffset',0),
+            strides=(v.get('byteStride',width*dtype.itemsize),dtype.itemsize))
+    triangles=[];schemas=[]
+    for mesh in g['meshes']:
+        for p in mesh['primitives']:
+            assert p.get('mode',4)==4
+            attributes={k:accessor(i) for k,i in sorted(p['attributes'].items())
+                        if k not in ('TEXCOORD_0','TANGENT')}
+            schemas.append([(k,a.dtype.str,a.shape[1]) for k,a in attributes.items()])
+            for indices in accessor(p['indices']).reshape(-1,3):
+                corners=[b''.join(a[i].tobytes() for a in attributes.values()) for i in indices]
+                start=min(range(3),key=corners.__getitem__)
+                triangles.append(b''.join(corners[start:]+corners[:start]))
+    return dict(triangles=len(triangles),
+        attributes=hashlib.sha256(b''.join(sorted(triangles))).hexdigest(),
+        structure=hashlib.sha256(json.dumps(dict(schemas=schemas,
+            nodes=g['nodes'],scenes=g['scenes']),sort_keys=True).encode()).hexdigest())
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--record-from');a=p.parse_args()
     accepted=BASE/'src/accepted_texture_round.json'
@@ -35,7 +64,12 @@ def main():
         accepted.write_text(json.dumps(measured,indent=2)+'\n')
     else:
         expected=json.loads(accepted.read_text())
-        assert all(geometry_equal(measured[n],expected[n]) for n in NAMES),'Geometry, UV, normals, weights, rig, clips or layout changed'
-        (BASE/'build/texture-preservation.json').write_text(json.dumps(dict(passed=True,signatures=measured,scope=__doc__),indent=2))
-        print('TEXTURE ROUND: all five exports have byte-identical geometry, normals, UVs, weights, rig, clips and layout; derived tangents recorded separately')
+        assert geometry_equal(measured['ak'],expected['ak']),'Rifle geometry, UV, normals, weights, rig, clips or layout changed'
+        baseline=json.loads((BASE/'src/accepted_detachable_geometry.json').read_text())
+        assert hashlib.sha256((folder/'ak.glb').read_bytes()).hexdigest()==baseline['main_sha256'],'Main GLB changed'
+        detached={n:detachable_signature(folder/(n+'.glb')) for n in NAMES[1:]}
+        assert detached==baseline['geometry'],'Detachable geometry, normals, attributes or origins changed'
+        (BASE/'build/texture-preservation.json').write_text(json.dumps(dict(passed=True,signatures=measured,
+            detachable_geometry=detached,main_sha256=baseline['main_sha256'],scope=__doc__),indent=2))
+        print('PRESERVED: byte-identical main GLB; detachable oriented geometry, normals, attributes and origins; remapped UVs verified separately')
 if __name__=='__main__':main()
