@@ -79,6 +79,20 @@ def main():
              values='8-bit sRGB BaseColor sampled bilinearly at visible surface UVs; native hero display RGB. Y is Rec.709 display luma; V is max RGB. Hue is HSV hue of median RGB.',
              limits='Visible pixel footprints, not total authored area. Adjacent wood differs in grain, grime, curvature and illumination; ratios are observations, not an inverse BRDF estimate.')
  (out/'wood-edge-values.json').write_text(json.dumps(report,indent=2)+'\n')
+ chart=Image.new('RGB',(1600,160+len(rows)*120),'#ebede9');d=ImageDraw.Draw(chart)
+ d.text((20,12),'Wood film loss / same visible surface samples in shipped BaseColor and native hero',font=font,fill='black')
+ d.text((20,42),'Fixed physical regions; worn ORM G >158, intact G <150. Hue and value include grain, grime and (hero) light.',font=font,fill='black')
+ for k,title in enumerate(('BaseColor worn','BaseColor intact','Hero worn','Hero intact')):
+  d.text((350+k*305,85),title,font=font,fill='black')
+ for i,row in enumerate(rows):
+  yy=122+i*120;d.text((20,yy+8),row['site'],font=font,fill='black')
+  for k,(key,state) in enumerate((('basecolor','worn'),('basecolor','intact'),('hero','worn'),('hero','intact'))):
+   v=row[key][state];x=350+k*305;rgb=tuple(round(c) for c in v['median_rgb'])
+   d.rectangle((x,yy,x+90,yy+55),fill=rgb)
+   d.text((x+100,yy),'/'.join(str(c) for c in rgb),font=font,fill='black')
+   d.text((x+100,yy+25),f"Y {v['median_luma']:.1f}; V {v['median_value']:.1f}",font=font,fill='black')
+   d.text((x,yy+65),f"Hue {v['hue_of_median_degrees']:.1f}°; saturation {v['saturation_of_median']:.3f}",font=font,fill='black')
+ chart.save(out/'wood-edge-colors.jpg',quality=95)
  lines=['| Site | BaseColor worn / intact RGB; V ratio; Δh | Hero worn / intact RGB; V ratio; Δh |',
         '| --- | --- | --- |']
  for row in rows:

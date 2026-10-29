@@ -326,7 +326,7 @@ def wood(name,part,wear):
  loss=n.maximum(original_loss,edge_loss)
  # Exposed fibers are the SAME stained wood, slightly lighter/less red.
  raw=n.vec('MULTIPLY',base,(1.08,1.20,1.25))
- raw_edge=n.vec('MULTIPLY',base,(1.18,1.30,1.34))
+ raw_edge=n.vec('MULTIPLY',base,(1.45,1.60,1.65))
  base=n.mix(original_loss,base,raw,True)
  base=n.mix(edge_loss,base,raw_edge,True);rough=n.mix(loss,rough,.70);h=n.add(h,n.mul(loss,-.000026))
  # Dents are crushed depressions with dark bottoms. No orange crescent lips.
