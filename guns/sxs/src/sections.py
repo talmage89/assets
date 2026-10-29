@@ -8,7 +8,9 @@ from kit import weapon as W,weapon_verify as V
 BASE=Path(__file__).resolve().parents[1]
 CUTS=[('Barrels at breech',1,.117,(0,2),('Barrel_R','Barrel_L','Solid_TopRib','Extractor_Rim_R','Extractor_Rim_L')),
  ('Barrels at muzzle',1,.7749,(0,2),('Barrel_R','Barrel_L','Solid_TopRib','Bottom_Rib')),
- ('Action at knuckle',1,.1703,(0,2),('Action_Body','Knuckle_R','Knuckle_L','Hinge_Pin','Barrel_Hook','Forend_IronCup_R','Forend_IronCup_L')),
+ ('Action at knuckle',1,.1703,(0,2),('Action_Body','Hinge_Pin','Barrel_Hook','Forend_IronCup_R','Forend_IronCup_L')),
+ ('Action at bar',1,.145,(0,2),('Action_Body','Breech_Lumps','Bottom_Rib')),
+ ('Knuckle side section',0,.014,(1,2),('Action_Body','Forend_IronCup_R','Forend_Iron')),
  ('Standing breech',1,.1146,(0,2),('Action_Body','Bushing_R','Bushing_L','PinFace_R','PinFace_L')),
  ('Forend rear',1,.211,(0,2),('Forend_Walnut','Barrel_R','Barrel_L','Forend_Iron','Bottom_Rib')),
  ('Forend front',1,.320,(0,2),('Forend_Walnut','Barrel_R','Barrel_L','Bottom_Rib')),
@@ -25,7 +27,7 @@ def capture(path,dense=False):
  for title,axis,station,projection,names in CUTS:
   parts={}
   for name in names:
-   target='HIGH_'+name if dense and name in ('Stock_Walnut','Forend_Walnut') else name
+   target='HIGH_'+name if dense and name in ('Stock_Walnut','Forend_Walnut','Action_Body','Top_Lever') else name
    ob=next(o for o in bpy.context.scene.objects if o.type=='MESH' and o.get('part_name',o.name)==target) if not dense else bpy.data.objects[target]
    ev=ob.evaluated_get(dg);mesh=ev.to_mesh();mesh.calc_loop_triangles();segments=[]
    for tri in mesh.loop_triangles:
@@ -37,7 +39,7 @@ def capture(path,dense=False):
    if segments:parts[name]=segments
   assert parts,title
   pts=[p for ss in parts.values() for seg in ss for p in seg];b=[[min(p[k] for p in pts),max(p[k] for p in pts)] for k in (0,1)]
-  rows.append(dict(title=title,plane='XYZ'[axis],station_mm=station*1000,axes=['XYZ'[k] for k in projection],parts=parts,bounds_mm=b,size_mm=[hi-lo for lo,hi in b]))
+  rows.append(dict(title=title,plane='XYZ'[axis],station_mm=station*1000,axes=['XYZ'[k] for k in projection],parts=parts,part_sizes_mm={name:[max(p[k] for seg in ss for p in seg)-min(p[k] for seg in ss for p in seg) for k in (0,1)] for name,ss in parts.items()},bounds_mm=b,size_mm=[hi-lo for lo,hi in b]))
  return rows
 def main():
  game=BASE/'build/sxs.glb';source=BASE/'build/sxs.blend';out=BASE/'renders/checkpoint/sections';out.mkdir(parents=True,exist_ok=True)
@@ -51,6 +53,8 @@ def main():
   im=Image.new('RGB',(700,650),(239,240,235));d=ImageDraw.Draw(im);b=g['bounds_mm'];cx=sum(b[0])/2;cy=sum(b[1])/2
   scale=min(600/(b[0][1]-b[0][0]),470/(b[1][1]-b[1][0]));xy=lambda p:(350+(p[0]-cx)*scale,325-(p[1]-cy)*scale)
   d.text((16,12),g['title'],font=font,fill=(25,36,31));d.text((16,45),f"{g['plane']} = {g['station_mm']:g} mm / {' x '.join(f'{v:.2f}' for v in g['size_mm'])} mm",font=small,fill=(25,36,31))
+  for name,values in g['part_sizes_mm'].items():
+   if name in ('Forend_Walnut','Stock_Walnut'):d.text((16,76),name+': '+' x '.join(f'{v:.2f}' for v in values)+' mm',font=small,fill=(25,36,31))
   for row,color,width in [(h,(29,145,144),4),(g,(142,63,35),1)]:
    for ss in row['parts'].values():
     for seg in ss:d.line([xy(p) for p in seg],fill=color,width=width)

@@ -135,7 +135,7 @@ they are receiver/stock/forend comparisons and must not be labeled whole-gun.
 | plain-4.jpg | 4359 × 2390 | left action macro; fences, lever, rear junction >1500 px |
 | plain-5.jpg | 2027 × 4234 | bottom action and guard; receiver width >650 px |
 | plain-6.jpg | 1899 × 3454 | bottom splinter and iron; wood width >650 px |
-| plain-7.jpg | 4047 × 1858 | assembled open, empty; chamber/action region >600 px |
+| plain-7.jpg | 4047 × 1858 | assembled open, empty; action/upper breech region >600 px; raised top extension differs from our under-lug design |
 
 New primary photographic/fitting context:
 
@@ -195,3 +195,11 @@ accepted stock drops. The manufacturer class specification above supplies
 38 / 63 mm drops. The separate [plain imported class listing](https://www.gunsinternational.com/guns-for-sale-online/shotguns/ugartechea-shotguns/ignacio-ugartechea-boxlock-side-by-side--12-ga--27-75--barrels.cfm?gun_id=103275586)
 reports 1¾ / 2½-inch drops and a solid rib taper of 8.5 → 4.5 mm. Its photos
 returned 403 and are not used for acceptance.
+
+Round-2 image-measurement limits: the photographed parts exceed 600 native
+pixels in the selected macros, but they have no ruler or calibrated camera.
+Wrist and splinter measurements reported in the README are evaluated model
+sections. Their exact millimeter agreement with these photos is not proven.
+The eight view-locked macro fits preserve the observed side of each part while
+fitting translation, focal estimate and roll; residuals are retained, not
+minimized by orbiting to a different side.

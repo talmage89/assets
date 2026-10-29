@@ -30,6 +30,11 @@ def measure(arm):
    a=ray('Action_Body',c+d*.025,-d);bpt=ray('Forend_IronCup_'+side,c,d)
    record('forend iron/knuckle '+side+' f'+str(frame),(bpt-c).length-(a-c).length,0,.00040)
  W.pose(arm,'Idle',0)
+ # The two tube skins share a rigid owner, so the cross-bone motion sweep
+ # does not test their mutual overlap. Their actual global X extrema give
+ # an independent separating-plane proof for the complete joined skins.
+ right=motion.surface(part('Barrel_R'))['points'];left=motion.surface(part('Barrel_L'))['points']
+ record('joined tube separating-plane gap',min(p.x for p in right)-max(p.x for p in left),-1e-8,.00002)
  # Closed breech planes sampled on actual annular barrel steel and the body.
  for side,x in [('R',.0126),('L',-.0126)]:
   for dx,dz in [(0,.0122),(.0122,0),(-.0122,0)]:

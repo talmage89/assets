@@ -19,22 +19,28 @@ SHOTS={
  'muzzle':dict(location=(.08,.94,.10),target=(0,.765,.044),lens=70,aspect=1.5),
  'top_controls':dict(location=(.075,-.10,.25),target=(0,.055,.042),lens=75,aspect=1.5),
  'lumps':dict(location=(.16,.08,-.02),target=(0,.145,.048),lens=60,aspect=1.5,action='IdleOpenEmpty',frame=0),
- 'aimed':dict(location=(0,0,0),target=(0,1,0),lens=25.71,aspect=1.6,aimed=True),
+ 'aimed':dict(location=(0,0,0),target=(0,1,0),lens=45,aspect=1.6,aimed=True),
  'shell':dict(location=(.075,-.09,.065),target=(0,.027,0),lens=65,aspect=1.5),
  'hull':dict(location=(.06,.13,.06),target=(0,.03,0),lens=65,aspect=1.5)}
 for name,shot in SHOTS.items():
  if name not in ('shell','hull'):shot.setdefault('action','Idle');shot.setdefault('frame',0)
 DEFAULT_SHOTS=','.join(n for n in SHOTS if n not in ('shell','hull'))
 STRIP_SHOT=dict(location=(.52,-.35,.37),target=(0,.10,.005),lens=55,aspect=1.5)
-PHOTO_POSES={'right':dict(action='IdleOpenLoaded',frame=0),'left':dict(action='Idle',frame=0),
- 'action':dict(action='Idle',frame=0),'open':dict(action='IdleOpenEmpty',frame=0,extractor_home=True,pose_note='empty extractor manually pressed home for the photograph; same physical guide range'),
- 'open_loaded':dict(action='IdleOpenLoaded',frame=0),'trigger':dict(action='Idle',frame=0)}
+PHOTO_POSES={name:dict(action='Idle',frame=0) for name in (
+ 'right','left','action','action_left','action_top','action_bottom','forend','forend_side','trigger')}
+PHOTO_POSES.update({name:dict(action='IdleOpenEmpty',frame=0,extractor_home=True,
+ photo_open_angle=-30,pose_note='empty photographic pose, 30-degree opening; canonical clips unchanged') for name in ('open','barrel_flats')})
+PHOTO_POSES['barrel_flats'].update(photo_barrel_isolation=True,pose_note='Detached barrel comparison: fixed action and forend omitted to match reference; exported asset unchanged')
 def floor_height(source):return -.15
 def configure_scene(sc,source):
  import bpy
  from kit import model as M
  for ob in sc.objects:
   if ob.type=='LIGHT':ob['baseline_energy']=ob.data.energy
+ data=bpy.data.lights.new('Underside inspection softbox','AREA');data.shape='DISK';data.size=.38;data.energy=18
+ ob=bpy.data.objects.new('Underside inspection softbox',data);sc.collection.objects.link(ob)
+ from mathutils import Vector
+ ob.location=(0,.25,-.27);ob.rotation_euler=(Vector((0,.20,.025))-ob.location).to_track_quat('-Z','Y').to_euler();ob.hide_render=True
  data=bpy.data.lights.new('Raking strip','AREA');data.shape='RECTANGLE';data.size=.035;data.size_y=1.2;data.energy=32
  ob=bpy.data.objects.new('Raking strip',data);sc.collection.objects.link(ob);ob.hide_render=True
  m=bpy.data.materials.new('Aim gray card');m.use_nodes=True;nt=m.node_tree;nt.nodes.clear()
@@ -51,6 +57,11 @@ def configure_scene(sc,source):
    for name,basis in frozen.items():arm.pose.bones[name].matrix_basis=basis
    bpy.context.view_layer.update()
    barrel=arm.pose.bones['Barrels'];extractor=arm.pose.bones['Extractor']
+   if scene.get('photo_open_angle'):
+    from mathutils import Matrix
+    rest=barrel.bone.matrix_local
+    barrel.matrix=Matrix.Translation(rest.translation)@Matrix.Rotation(math.radians(scene['photo_open_angle']),4,'X')@Matrix.Translation(-rest.translation)@rest
+    bpy.context.view_layer.update()
    expected=(barrel.matrix@barrel.bone.matrix_local.inverted())@extractor.bone.matrix_local
    extractor.matrix=expected
    bpy.context.view_layer.update()
@@ -59,7 +70,11 @@ def configure_scene(sc,source):
 def prepare_shot(sc,shot):
  import bpy
  from mathutils import Vector
+ for ob in sc.objects:
+  if ob.type=='MESH' and 'bone' in ob:
+   ob.hide_render=bool(shot.get('photo_barrel_isolation')) and ob['bone'] not in ('Barrels','Extractor')
  sign=shot.get('raking',0)
+ sc.objects['Underside inspection softbox'].hide_render=not (shot.get('target',(0,0,0))[2]-shot.get('location',(0,0,0))[2]>.035)
  for ob in sc.objects:
   if ob.type=='LIGHT' and 'baseline_energy' in ob:ob.data.energy=ob['baseline_energy']*(.13 if sign else 1)
  strip=sc.objects['Raking strip'];strip.hide_render=not bool(sign)
@@ -67,3 +82,4 @@ def prepare_shot(sc,shot):
   strip.location=(sign*.35,.18,.26);strip.rotation_euler=(Vector((0,.23,.015))-strip.location).to_track_quat('-Z','Y').to_euler()
  sc['exact_aim']=bool(shot.get('aimed'));sc.objects['Aim backdrop'].hide_render=not sc['exact_aim']
  sc['photo_extractor_home']=bool(shot.get('extractor_home'))
+ sc['photo_open_angle']=shot.get('photo_open_angle',0)

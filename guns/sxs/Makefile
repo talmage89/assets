@@ -12,6 +12,13 @@ include ../../kit/checkpoint_rules.mk
 
 $(CHECKPOINT_RENDER_OUTPUTS): $(CHECKPOINT_RENDER_DEPS)
 
+PHOTO_SHOTS := right,left,action,action_left,action_top,action_bottom,open,barrel_flats,forend,forend_side,trigger
+
+.PHONY: native-photos
+refs: native-photos
+native-photos:
+	$(PYTHON) src/fetch_photos.py
+
 .PHONY: verify sections match strips ammo source-match evidence repeat
 evidence: sections match strips ammo source-match
 review: render
@@ -28,7 +35,7 @@ sections: model
 match: model
 	$(PYTHON) src/photo_matches.py
 	$(PYTHON) src/photo_solve.py
-	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source build/sxs.glb --out renders/checkpoint/photos --camera-file build/cameras.json --shots right,left,action,open,open_loaded,trigger --width $(WIDTH) --samples $(SAMPLES)
+	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source build/sxs.glb --out renders/checkpoint/photos --camera-file build/cameras.json --shots $(PHOTO_SHOTS) --width $(WIDTH) --samples $(SAMPLES)
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/cameras.json --renders renders/checkpoint/photos --out renders/checkpoint/pairs
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration build/cameras.json
 strips: model
@@ -39,5 +46,5 @@ ammo: model
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source build/hull.glb --out renders/checkpoint/hull --shots hull --width 1200 --samples $(SAMPLES)
 source-match: model match
 	$(BP) --python src/prepare_high.py -- > build/prepare-high.log 2>&1
-	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source build/sculpt.blend --out renders/checkpoint/source-photos --camera-file build/cameras.json --shots right,left,action,open,open_loaded,trigger --width $(WIDTH) --samples $(SAMPLES)
+	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source build/sculpt.blend --out renders/checkpoint/source-photos --camera-file build/cameras.json --shots $(PHOTO_SHOTS) --width $(WIDTH) --samples $(SAMPLES)
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/cameras.json --renders renders/checkpoint/source-photos --out renders/checkpoint/source-pairs

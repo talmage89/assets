@@ -58,14 +58,18 @@ def main():
   assert result['source_sha256']==sha(BASE/'build'/source),'Stale '+filename
  assert json.loads((BASE/'build/repeat.json').read_text())['passed']
  sec=json.loads((OUT/'sections/sections.json').read_text());assert sec['glb_sha256']==digest and sec['source_sha256']==sha(BASE/'build/sxs.blend')
+ records=stats['imported_contacts']['records']
+ measured={r['name']:r['measured_m']*1000 for r in records if r['name'].startswith(('drop at ','eye above','cheek station'))}
+ sections={r['title']:r['part_sizes_mm'] for r in sec['game']}
+ (OUT/'measurements.json').write_text(json.dumps(dict(glb_sha256=digest,actual_surfaces_mm=measured,sections_mm=sections,eye_m=stats['imported_contacts']['eye_m'],length_of_pull_mm=stats['length_of_pull_mm']),indent=2))
  names=['hero','side','left','top','front','rake_right','rake_left','open','breech','action','action_left','triggers','trigger_quarter','forend','stock','muzzle','top_controls','lumps','aimed']
  beauty=[OUT/'beauty'/(name+'.png') for name in names]
  gray(OUT/'beauty/hero.png').save(OUT/'hero-gray.jpg',quality=94,optimize=True)
- contact(beauty,OUT/'contact-sheet.jpg',width=2400,title='Covey 26 / FORM CHECKPOINT / imported unbaked GLB')
- for i in range(0,len(beauty),4):contact(beauty[i:i+4],OUT/(f'review-page-{i//4+1}.jpg'),width=2400,title='Current exported form / '+', '.join(names[i:i+4]))
- pairs=[OUT/'pairs'/(name+'-pair.jpg') for name in ('right','left','action','open_loaded','open','trigger')]
+ review_sheet([beauty[i:i+2] for i in range(0,len(beauty),2)],OUT/'contact-sheet.jpg',width=2400,title='Covey 26 / FORM CHECKPOINT / imported unbaked GLB')
+ for i in range(0,len(beauty),4):review_sheet([beauty[j:j+2] for j in range(i,min(i+4,len(beauty)),2)],OUT/(f'review-page-{i//4+1}.jpg'),width=2400,title='Current exported form / '+', '.join(names[i:i+4]))
+ pairs=[OUT/'pairs'/(name+'-pair.jpg') for name in ('right','left','action','action_left','action_top','action_bottom','open','barrel_flats','forend','forend_side','trigger')]
  review_sheet([[p] for p in pairs],OUT/'photo-pairs.jpg',title='Class photographs / same calibrated framing / see native resolution limits')
- review_sheet([[OUT/'source-pairs'/(name+'-pair.jpg')] for name in ('right','left','action','open_loaded','open','trigger')],OUT/'source-photo-pairs.jpg',title='Dense sculpt sources / same photographic comparisons')
+ review_sheet([[OUT/'source-pairs'/(name+'-pair.jpg')] for name in ('right','left','action','action_left','action_top','action_bottom','open','barrel_flats','forend','forend_side','trigger')],OUT/'source-photo-pairs.jpg',title='Dense sculpt sources / same photographic comparisons')
  contact([OUT/'strips'/(name+'.jpg') for name in timing],OUT/'clips.jpg',width=2400,title='19 clips / uniform 15 Hz frames / adjacent WebPs play at real durations')
  wide=json.loads((OUT/'opening-wide/shots.json').read_text())
  contact([OUT/'opening-wide'/(name+'.png') for name in wide],OUT/'opening.jpg',width=2000,title='Open / full-gun frame strip / uniform 15 Hz / 1.20 seconds')
