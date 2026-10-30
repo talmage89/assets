@@ -29,5 +29,6 @@
     "lens": 48,
     "aspect": 2.15,
     "exposure": -0.15
-  }
+  },
+  "engine": "BLENDER_EEVEE"
 }

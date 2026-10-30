@@ -3,12 +3,14 @@
   "output": "docs/motion.gif",
   "sequence": [
     {
-      "clip": "Reload"
+      "clip": "Reload",
+      "start": 12,
+      "end": 213
     }
   ],
   "fps": 20,
   "width": 960,
-  "colors": 256,
+  "colors": 192,
   "samples": 64,
   "background": [
     105,
@@ -29,5 +31,7 @@
     "lens": 54,
     "aspect": 1.55,
     "exposure": -0.3
-  }
+  },
+  "engine": "BLENDER_EEVEE",
+  "output_width": 576
 }

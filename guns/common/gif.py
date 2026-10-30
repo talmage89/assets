@@ -45,6 +45,12 @@ def timeline(spec, clips, source_fps):
     return rows
 
 
+def render_settings(spec):
+    """Only render-affecting settings; palette, surround and delivery size are encoding."""
+    return {**{k: spec[k] for k in ('source','sequence','fps','width','samples','camera')},
+            'engine': spec.get('engine','BLENDER_EEVEE')}
+
+
 def worker(base, spec, out, preview):
     import bpy
     sys.path[:0] = [str(ROOT), str(base/'src')]
@@ -52,6 +58,7 @@ def worker(base, spec, out, preview):
     import interface
     from guns.common.render import main as render
     rows = timeline(spec, interface.CLIPS, interface.FPS)
+    engine = 'BLENDER_WORKBENCH' if preview else spec.get('engine','BLENDER_EEVEE')
     picks = sorted(set([0, *[min(len(rows)-1, round(v*(len(rows)-1)))
                             for v in (.2, .4, .6, .8)], len(rows)-1])) if preview else range(len(rows))
     shots = {f'f{i:04d}': dict(spec['camera'], **rows[i], background='transparent') for i in picks}
@@ -65,6 +72,13 @@ def worker(base, spec, out, preview):
             scene.cycles.seed = 0
             scene.cycles.use_animated_seed = False
             scene.cycles.use_adaptive_sampling = False
+        if scene.render.engine == 'BLENDER_EEVEE':
+            # Screen-traced history varies at isolated pixels and adds moving
+            # noise on otherwise static steel. The accepted studio's area
+            # lights still provide the same direct PBR illumination.
+            scene.eevee.use_raytracing = False
+        scene.render.dither_intensity = 0
+        scene.render.threads_mode = 'FIXED'; scene.render.threads = 1
         scene.render.use_persistent_data = True
         scene.render.use_file_extension = True
         scene.render.image_settings.color_depth = '8'
@@ -75,6 +89,7 @@ def worker(base, spec, out, preview):
                    for n in mat.node_tree.nodes), 'Baked GLB textures required'
 
     config = SimpleNamespace(FINAL_STAGE=True, RENDER_STAGE='README GIF / exported baked GLB',
+        WARMUP_RENDER=engine=='BLENDER_EEVEE',
         DEFAULT_SHOTS=','.join(shots), SHOTS=shots, PHOTO_POSES={},
         floor_height=final_shots.floor_height, configure_scene=configure,
         prepare_shot=final_shots.prepare_shot)
@@ -82,9 +97,10 @@ def worker(base, spec, out, preview):
     source.write_bytes((base/spec['source']).read_bytes())
     sys.argv = [sys.argv[0], '--', '--source', str(source), '--out', str(out/'raw'),
                 '--width', str(spec['width']), '--samples', str(spec['samples']),
-                '--engine', 'BLENDER_WORKBENCH' if preview else 'CYCLES']
+                '--engine', engine]
     render(config, interface)
     (out/'timeline.json').write_text(json.dumps(rows, indent=2))
+    (out/'render-spec.json').write_text(json.dumps(render_settings(spec), indent=2))
 
 
 def first_hold(path, centiseconds):
@@ -106,15 +122,93 @@ def first_hold(path, centiseconds):
     raise ValueError('GIF has no graphic-control extension')
 
 
+def recipe_signature(base, spec):
+    """Fingerprint the recipe and GLB geometry/rig, independently of PNG rounding."""
+    data = (base/spec['source']).read_bytes()
+    length = struct.unpack_from('<I', data, 12)[0]
+    doc = json.loads(data[20:20+length])
+    binary = data[28+length:]
+    image_views = {i['bufferView'] for i in doc.get('images', []) if 'bufferView' in i}
+    h = hashlib.sha256(json.dumps(spec, sort_keys=True).encode())
+    structure = {k:v for k,v in doc.items() if k not in ('buffers','bufferViews')}
+    h.update(json.dumps(structure, sort_keys=True).encode())
+    for i, view in enumerate(doc.get('bufferViews', [])):
+        if i not in image_views:
+            offset = view.get('byteOffset', 0)
+            h.update(binary[offset:offset+view['byteLength']])
+            h.update(json.dumps({k:v for k,v in view.items()
+                                 if k not in ('byteOffset','byteLength')}, sort_keys=True).encode())
+    files = sorted(p for p in (base/'src').glob('*') if p.suffix in ('.py','.json'))
+    for path in files:
+        h.update(('src/'+path.name).encode()+b'\0'+path.read_bytes())
+    for name in ('guns/common/gif.py','guns/common/render.py','kit/studio.py',
+                 'kit/gpu.py','kit/model.py','kit/fonts.py','kit/weapon.py',
+                 'kit/weapon_presentation.py'):
+        h.update(name.encode()+b'\0'+(ROOT/name).read_bytes())
+    return h.hexdigest()
+
+
+def canonicalize(candidate, existing, signature, source_sha256):
+    """Retain committed bytes only for unchanged inputs and measured GPU noise.
+
+    This is an explicit golden-image comparison, not a render cache. Every
+    frame was just rendered and encoded. Geometry, rig, clip or recipe changes
+    invalidate reuse; a substantive pixel change also always replaces the GIF.
+    The newly rendered candidate remains beside the comparison report.
+    """
+    from PIL import Image
+    import numpy as np
+    fresh = candidate.read_bytes()
+    assert fresh[-1:] == b';'
+    comment = json.dumps(dict(generator='guns/common/gif.py', recipe_sha256=signature, source_sha256=source_sha256),
+                         sort_keys=True).encode()
+    extension = b'!\xfe'+b''.join(bytes([len(comment[i:i+255])])+comment[i:i+255]
+                                 for i in range(0,len(comment),255))+b'\0'
+    offset = 13+(3*2**((fresh[10]&7)+1) if fresh[10]&128 else 0)
+    candidate.write_bytes(fresh[:offset]+extension+fresh[offset:])
+    (candidate.parent/'candidate.gif').write_bytes(candidate.read_bytes())
+    result = dict(reused=False, candidate_sha256=hashlib.sha256(candidate.read_bytes()).hexdigest(),
+                  recipe_sha256=signature, shipped_source_sha256=source_sha256, thresholds=dict(mean_rgb_byte_error=.02,
+                  maximum_rgb_byte_error=16, fraction_pixels_over_2=.0001), frames=[])
+    if not existing.exists():
+        return result
+    try:
+        with Image.open(existing) as old, Image.open(candidate) as new:
+            stamp = json.loads(old.info.get('comment', b'{}'))
+            if stamp.get('recipe_sha256') != signature:
+                return result
+            if old.size != new.size or old.n_frames != new.n_frames or old.info.get('loop') != 0:
+                return result
+            for i in range(new.n_frames):
+                old.seek(i); new.seek(i)
+                if old.info['duration'] != new.info['duration']:
+                    return result
+                delta = np.abs(np.asarray(old.convert('RGB')).astype(np.int16)
+                               - np.asarray(new.convert('RGB')).astype(np.int16))
+                row = dict(frame=i, mean=float(delta.mean()), maximum=int(delta.max()),
+                           fraction_over_2=float((delta.max(axis=2)>2).mean()))
+                result['frames'].append(row)
+                if row['mean']>.02 or row['maximum']>16 or row['fraction_over_2']>.0001:
+                    return result
+    except (OSError, ValueError, KeyError):
+        return result
+    candidate.write_bytes(existing.read_bytes())
+    result['reused'] = True
+    result['shipped_source_sha256'] = stamp['source_sha256']
+    return result
+
+
 def encode(base, spec, out):
     from PIL import Image, ImageDraw
     rows = json.loads((out/'timeline.json').read_text())
+    assert json.loads((out/'render-spec.json').read_text()) == render_settings(spec), (
+        'Render configuration changed; render again before encoding')
     source_digest = hashlib.sha256((base/spec['source']).read_bytes()).hexdigest()
     metadata = json.loads((out/'raw/shots.json').read_text())
     assert len(metadata) == len(rows), 'Full final render required; previews cannot be encoded'
     for i, row in enumerate(rows):
         shot = metadata[f'f{i:04d}']
-        assert shot['engine'] == 'CYCLES' and shot['sha256'] == source_digest
+        assert shot['engine'] == spec.get('engine','BLENDER_EEVEE') and shot['sha256'] == source_digest
         assert all(shot[k] == v for k,v in spec['camera'].items()), 'Camera changed since render'
         assert all(shot[k] == v for k,v in row.items()), 'Sampling changed since render'
     frames = out/'frames'; frames.mkdir(exist_ok=True)
@@ -124,7 +218,12 @@ def encode(base, spec, out):
         raw = Image.open(out/'raw'/f'f{i:04d}.png').convert('RGBA')
         bg = Image.new('RGBA', raw.size, (*spec['background'], 255))
         bg.alpha_composite(raw)
-        bg.convert('RGB').save(frames/f'f{i:04d}.png')
+        frame = bg.convert('RGB')
+        width = spec.get('output_width', frame.width)
+        assert 1 <= width <= min(960, frame.width), 'Output width must not upscale the render'
+        if width != frame.width:
+            frame = frame.resize((width, round(frame.height*width/frame.width)), Image.Resampling.LANCZOS)
+        frame.save(frames/f'f{i:04d}.png')
     fps = spec['fps']
     ffmpeg = ['ffmpeg', '-hide_banner', '-loglevel', 'warning', '-y', '-threads', '1',
               '-filter_threads', '1', '-filter_complex_threads', '1']
@@ -137,6 +236,7 @@ def encode(base, spec, out):
         'paletteuse=dither=none:diff_mode=rectangle', '-gifflags', '+offsetting+transdiff',
         '-loop', '0', '-final_delay', str(100//fps), str(candidate)], check=True)
     first_hold(candidate, 50)
+    comparison = canonicalize(candidate, base/spec['output'], recipe_signature(base, spec), source_digest)
     decoded = []
     durations = []
     with Image.open(candidate) as gif:
@@ -176,8 +276,10 @@ def encode(base, spec, out):
         sequence=spec['sequence'], camera=spec['camera'], size=list(size), frames=len(decoded), fps=fps,
         palette_limit=spec['colors'], palette_colors=len(set(tuple(palette[i:i+3]) for i in range(0,len(palette),3))),
         bytes=candidate.stat().st_size, duration_ms=sum(durations), first_hold_ms=500,
-        frame_durations_ms=durations, samples=rows, engine='CYCLES', render_samples=spec['samples'],
-        dither='none', palette='global', ffmpeg_version=subprocess.check_output(['ffmpeg','-version'],text=True).splitlines()[0],
+        frame_durations_ms=durations, samples=rows, engine=spec.get('engine','BLENDER_EEVEE'), render_samples=spec['samples'],
+        dither='none', screen_traced_lighting=False, output_dither=0, host_threads=1, warmup_frames=1 if spec.get('engine','BLENDER_EEVEE')=='BLENDER_EEVEE' else 0,
+        canonical_comparison=comparison,
+        palette='global', ffmpeg_version=subprocess.check_output(['ffmpeg','-version'],text=True).splitlines()[0],
         gif_sha256=hashlib.sha256(candidate.read_bytes()).hexdigest())
     (out/'report.json').write_text(json.dumps(report,indent=2))
     dest = base/spec['output']; dest.parent.mkdir(exist_ok=True)
@@ -200,13 +302,14 @@ def main():
     p.add_argument('--blender', default='blender')
     a = p.parse_args(args)
     base = a.asset.resolve()
+    (ROOT/'build/tmp').mkdir(parents=True,exist_ok=True)
     spec = json.loads((base/'src/gif.json').read_text())
     out = base/'build/gif'; out.mkdir(parents=True,exist_ok=True)
     if a.render:
         worker(base,spec,out,a.preview)
     else:
         if not a.encode_only:
-            cmd = [a.blender, '-b', '--factory-startup',
+            cmd = [a.blender, '-b', '--factory-startup', '-t', '1',
                    '--python-exit-code', '1', '--python', str(Path(__file__).resolve()),
                    '--', '--asset', str(base), '--render', *(['--preview'] if a.preview else [])]
             if not a.preview:

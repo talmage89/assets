@@ -33,8 +33,9 @@ runs through the kit GPU lock. Nothing is installed or downloaded.
 `gif.py` is the shared driver and Blender worker; `gif.mk` adds the opt-in
 Make target after a gun defines `EXPORTS`. Each member owns `src/gif.json`:
 source/output paths relative to its folder, a clip `sequence`, `fps` (20 or 25),
-`width` (at most 960), `colors` (256), Cycles `samples`, RGB background bytes,
-and its camera (`location`, `target`, `lens`, `aspect`, `exposure`). Sequence
+`width` (at most 960), palette `colors`, render `samples`, RGB background bytes,
+and `engine` (default `BLENDER_EEVEE`). Optional `output_width` samples a smaller
+delivery from the full-size render before palette generation. The camera (`location`, `target`, `lens`, `aspect`, `exposure`). Sequence
 entries accept optional `start`/`end` at the manifest's source frame rate.
 Trims must land on GIF sample times. Multiple clips join at the authored time
 boundary, as the lever's separate Fire and Cycle require. No rig or effect
@@ -43,7 +44,7 @@ motion is added by the presentation tool.
 Sampling uses time on half-open clip intervals, including fractional source
 frames; each GIF tick is exactly 4 or 5 centiseconds. A lossless GIF-container
 edit adds 50 centiseconds to the first frame. Decoded delays must exactly equal
-the sampled motion duration plus this hold. Fixed Cycles seed and sample count,
+the sampled motion duration plus this hold. Fixed sample settings, zero output dithering,
 a flat RGB composite, one global ffmpeg palette, no dithering, and ffmpeg
 palette-use rectangle differencing / transparent unchanged pixels avoid
 background noise and local-palette flicker. Output over 450,000 bytes fails;
@@ -65,7 +66,41 @@ python3 -m unittest guns.common.test_gif              # timing, delay, palette a
 ```
 
 Preview frames cannot be encoded. Encoding checks every frame's GLB hash,
-Cycles provenance, camera and sampled time. Re-encoding unchanged final frames
-is byte-identical; a full render uses the same deterministic seed and settings.
+engine provenance, camera and sampled time; a saved render-settings manifest
+rejects stale frames after a clip/rate/studio-resolution change. Re-encoding unchanged final frames
+is byte-identical; the finished guns use Eevee with one discarded first-frame warmup. Two full
+Blender/render/encode runs must reproduce the GIF bytes. The warmup initializes
+Eevee's light/shader cache before recording frame zero. Screen-traced lighting
+is disabled to eliminate history-dependent variation; the same area lights,
+PBR maps, exposure and AgX look supply direct studio illumination. These are
+the studio and maps used by each gun's Eevee docs JPG. Cycles remains available as an explicit `engine='CYCLES'` choice, but GPU/denoising can move isolated pixels
+by 1/255; it does not promise byte-identical fresh GIF renders.
 The shared tool has no finished-gun allow-list: later members supply the same
 small config, their own final studio module and the Make include.
+
+
+### Exact bytes across GPU repeats
+
+A clean checkout includes the committed signature GIF. Every `make gif` still
+renders and encodes the complete clip. GPU arithmetic can move isolated output
+pixels by 1/255, which can change the nearest palette entry and the compressed
+bytes. The tool therefore compares a fresh `build/gif/candidate.gif` against
+the existing GIF before replacing it.
+
+Reuse requires the same complete configuration, asset source scripts, renderer
+recipe and GLB geometry/UV/rig/animation/material structure. Those inputs are
+fingerprinted in a GIF comment, never drawn in the frame. PNG payloads are
+excluded from the geometry fingerprint because fresh GPU bakes can differ in
+rounding; the actual rendered pixels must still pass the comparison. Each
+frame must have the same size and delay, mean RGB byte error at most **0.02**,
+maximum error **16**, and at most **0.01%** of pixels differing by more than
+2 RGB byte levels. A recipe/geometry change or a substantive image change
+always writes the new candidate. Nothing is copied into a texture or used as
+lighting; an unchanged approved GIF is retained whole.
+
+`report.json` records the fresh candidate hash, source hash, recipe fingerprint,
+per-frame difference measurements, whether bytes were retained, and the shipped
+reference's source hash. This is a documented golden-image comparison, not a
+claim that GPU arithmetic itself is bit-exact. Removing the committed GIF
+produces a fresh visually equivalent render, which can differ by rounding;
+retaining it provides exact-byte clean-checkout rebuilds.
