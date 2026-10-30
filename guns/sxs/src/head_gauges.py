@@ -85,7 +85,7 @@ def measure(arm):
    coefficients=np.linalg.lstsq(basis,values,rcond=None)[0]
    error=float(np.sqrt(np.mean((basis@coefficients-values)**2)))
    if coefficients[0]>=coefficients[1]>=coefficients[2]>=0:candidates.append((error,float(end)))
-  error,end=min(candidates);rolls.append(dict(side=side,fitted_length_mm=end,rms_profile_error_mm=error,scope='fit to degree-5 rear return; zero height/slope/curvature endpoint inferred from triangles'))
+  error,end=min(candidates);rolls.append(dict(side=side,fitted_length_mm=end,rms_profile_error_mm=error,scope='degree-5 reference-curve fit to measured subdivision return; equivalent extent, not the source construction'))
  assert min(p.z*1000 for p in line)>=rib-.01
  assert all(abs(r['drop_from_crown_mm']-r['photo_drop_mm'])<=r['photo_uncertainty_mm'] for r in rows),rows
  assert .35<lr<.85,(lr,le)

@@ -5,7 +5,7 @@ double triggers, extractors, right-swinging top lever, automatic tang safety,
 straight-hand walnut stock and splinter forend. Fictional maker/model:
 **Propane Defense Covey 26**.
 
-**Form round 5, with baked normals; finish/look-dev remains held.** The gun
+**Form round 6, with baked normals; finish/look-dev remains held.** The gun
 uses one baked 2048 BaseColor / OpenGL Normal / ORM atlas, from a 4096 GPU
 bake of our original dense sources and inspection constants. Checkering, grain,
 markings, used finishes and final delivery acceptance remain held. No docs
@@ -70,8 +70,8 @@ latch and curved knuckle cups. The stock has real tang inlets and a pitched
 butt plate. Neither furniture piece is a side-profile extrusion.
 
 The action is one closed forging with explicitly planar ground sides and
-R6 side returns, bore-concentric front arcs and degree-5 rear returns, an
-upper head filled to Z55.59 mm and a standing breech
+R6 side returns and one supported subdivision control net for the
+upper head, filled to Z55.59 mm, with bore-concentric front arcs and a standing breech
 with visible pin bushings. The table has a narrow visual lug passage over
 a closed lower floor. A single ground side plane continues from the head to
 the bar. The rounded underside and its flush trigger plate share an 8 mm lower
@@ -149,7 +149,7 @@ spawn, visibility and event meanings.
 54 named rigid meshes, 17 bones, 19 clips, 14 sockets; 1 atlas material and **three 2048 texture images** (4096 GPU source bake).
 <!-- /CHECKPOINT_STATS -->
 
-All hidden ammunition alternatives count against the 39k round-five gun budget.
+All hidden ammunition alternatives count against the 39k round-six gun budget.
 The shell module is new in `guns/common/shell12_visual.py`; no pump source or
 output is imported. It preserves the pump's original exterior proportions:
 22.4 mm rim, approximately 20.1 mm hull, 57.5 mm loaded length and 69.8 mm fired
@@ -164,6 +164,8 @@ length. Connected hidden joins make each shell a closed manifold skin.
 | `build/baked/4k/`, `textures/` | Isolated 4096 source bake plus assembled-contact AO; delivered three-map 2048 set |
 | `build/delivery/projection-ownership.json` | Independent check that constant albedos project from their own parts |
 | `renders/checkpoint/pairs/aimed-pair.jpg`, `open-player-pair.jpg`, `open-breech-pair.jpg` | Exact player views beside rear/action photographs and calibrated comparisons |
+| `renders/checkpoint/reflections/` | All five striped cameras in two directions; source/export sheets, before/after comparisons and native open-head crops |
+| `build/fairness.json` | Dense-source topology, geometric normal-angle maxima with coordinates, and separate intended-edge measurements |
 | `renders/checkpoint/head-raking-comparison.jpg` | Both lighting sides: original dense source beside the baked export |
 | `renders/checkpoint/landmarks/` | Annotated right/top/bottom rakes with measured landmark arrows |
 | `build/check.json`, `import-check.json` | Separate source/import topology, intended-state, contact and half-frame clearance reports |
@@ -208,10 +210,12 @@ Photo-scale estimates and their uncertainty are in `refs/SOURCES.md`.
 | Front / rear slot width | 6.000 / 6.000 mm | blades 5.400 mm; 0.300 mm clearance each side |
 
 The center outline now follows Z55.59; the former Z49.72 notch is superseded.
-The head uses one height field and degree-5 rear returns; there is no separate
-fence-to-head seam. The lever recess is the sole depression in the center
-surface. Its R0.60 construction lip tapers over Y88–92 as its floor joins the
-existing strap. Compare the actual cuts at 3, 8 and 15 mm behind the face,
+The head uses the regular Catmull–Clark limit of one 35 × 18 quad control
+net (324 independent height controls with symmetry). Supported front and side
+loops retain the accepted circles and R6 return; physical curvature variation
+and monotone slopes remove secondary humps. The integral R0.60 recess lip
+shares its boundary vertices with the roof. It has no tangent Boolean join.
+The rear relief stays below the accepted lever through its 0–25° swing. Compare the actual cuts at 3, 8 and 15 mm behind the face,
 both bore-axis cuts, and `head-raking-comparison.jpg`.
 
 Round-five preservation against `f4842bc` finds 101 of 104 entries identical:
@@ -234,13 +238,16 @@ make -C guns/sxs export             # one baked 2048 gun atlas through the kit
 make -C guns/sxs sections match     # section cuts and calibrated photo pairs
 make -C guns/sxs strips             # real-duration playback and wide opening
 make -C guns/sxs render review      # current inspection stills and complete evidence
+make -C guns/sxs reflections        # two band directions, five cameras, source/export
+make -C guns/sxs fairness           # dense adjacent geometric face-normal angles
 ```
 
 Build checks prove budgets, geometry, state, support and serialization within
 their reported sampling. They do not establish photographic form or finish.
 `REVIEW.md` records the image critiques, region acceptance and remaining limits.
-The model uses a 1 µm coordinate grid before reduction, canonical face order,
-and dense original surface normals to make independent rebuilds repeatable.
+The model uses canonical face order and dense original surface normals for
+repeatable rebuilds. Most parts retain the 1 µm coordinate grid; the action
+uses 10 nm so its short roof/lip boundary intervals stay planar.
 This round changes only `guns/sxs/`; no kit or common module changed. The
 first checkpoint introduced the shared exterior shell generator and additive
 1.7.0 schema validator, which retain their accepted structure.

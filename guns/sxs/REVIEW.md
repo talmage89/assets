@@ -1,3 +1,42 @@
+# Covey 26 — form round 6: upper forging fairness (in progress)
+
+Round five's favorable surface judgments are superseded. The accepted
+layout, controls, material constants and rig are retained. Before evidence
+is preserved under `build/round6/before/`; no final docs images are added.
+
+## Round 6 critique passes
+
+33. **Baseline and first shared cage.** Color/value: original dark-steel
+    inspection constants; the black-background dealer macros contain no
+    neutral, so unity balance remains and no finish match is claimed.
+    Opened the original open view, its exact 450 × 300 head crop, the top
+    and open player pairs and both dense/export rakes. The open view plainly
+    has diagonal ridges from both inner fences, wrinkled rear corners and a
+    wavering lip. The side rakes do not reveal them adequately. Added five
+    matched stripe cameras in two perpendicular band orientations. An initial
+    longitude/atan2 environment pinched its stripes at its own poles; rejected
+    that lighting and used parallel latitude bands, without a pole singularity.
+    The first 35 × 18 shared subdivision control net removes the large diagonal
+    ridges but retains small curvature changes near the inner shoulders.
+    Its `pass1` source images are rejected; it also misses the accepted local
+    radii and leaves small Boolean boundary failures. No bake made from it.
+
+34. **One net with curvature regularization.** Color/value: bands are a
+    diagnostic shader; the ordinary inspection values remain unchanged.
+    Opened all ten `pass2/stripes-source` images. The transverse top bands now
+    form continuous wide curves across both fences and the center, without the
+    original diagonal folds. The longitudinal bands reveal extra curvature
+    near the central shoulder departure and the rear corners; the lip still
+    has small tessellation/shading disturbances. Reject for further work.
+    Strengthened the measured front-circle, center-height and profile
+    constraints without adding separate surface patches. Found that the old
+    per-corner roof-normal classification also flattened the last 0.10 mm of
+    the lip before an abrupt shading change. It now classifies entire roof
+    faces, leaving the arc's own normals intact. Increased source resolution
+    and removed tangent-intersection slivers before considering a bake.
+
+---
+
 # Covey 26 — form round 5: head behind the fences
 
 The round-four record below is retained as history. Round five keeps its

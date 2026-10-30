@@ -36,71 +36,23 @@ def action_section(y):
  if y<170:
   return (ACTION_HALF_WIDTH,7*smoothstep((y-115)/55),30.2)
  return (ACTION_HALF_WIDTH,19-math.sqrt(max(0,144-(y-170)**2)),19+math.sqrt(max(0,144-(y-170)**2)))
-def head_base_6(x,y):
- """Z55.59 center, 8 mm center half-width, R6 side, Y85–94 return."""
- xx=abs(x)
- if y<=85:z=47.2+.12*(y-94)
- elif y<94:
-  t=(y-85)/9
-  z=(2*t**3-3*t*t+1)*46.12+(t**3-2*t*t+t)*1.08+(-2*t**3+3*t*t)*HEAD_TOP
- else:z=HEAD_TOP
- z+=(HEAD_CENTER_FLOOR-HEAD_TOP)*(1-smoothstep(xx/8))*smoothstep((y-85)/9)
- r=HEAD_SIDE_RADIUS;u=max(0,min(1,(xx-(ACTION_HALF_WIDTH-r))/r))
- return z-r*(1-math.sqrt(max(0,1-u*u)))
-
-def front_arc_8(x,d):
- """R13.35 concentric front, L18.5 crown curvature, 1 mm join distance."""
- xx=abs(x);base=head_base_6(x,115-d);radius=FENCE_RADIUS*math.sqrt(max(0,1-(d/FENCE_ROLL)**2))
- dx=xx-barrel_shape(115-d)[0];arc=BORE+math.sqrt(max(0,radius*radius-dx*dx))
- lo=max(base,arc if abs(dx)<radius else base);hi=max(base,BORE+radius)+1
- for _ in range(25):
-  mid=(lo+hi)*.5;a=mid-base;b=math.hypot(dx,mid-BORE)-radius
-  h=max(0,1-abs(a-b));f=min(a,b)-h**3/6
-  if f>0:hi=mid
-  else:lo=mid
- return (lo+hi)*.5
-
-_HEAD_PROFILES={}
-def action_roof(x,y):
- """Front 8 mm circles; monotone degree-5 return ending at 18.5 mm on bore.
-
- Rear endpoint shifts .68 mm per transverse mm inward. The last three
- Bezier controls are zero, so height, slope and curvature reach the head
- together. Positive ordered controls prevent secondary rear folds.
- """
- d=max(0,115-y);base=head_base_6(x,y)
- if d<=8:return front_arc_8(x,d)
- key=round(abs(x),6)
- if key not in _HEAD_PROFILES:
-  length=FENCE_ROLL+HEAD_INNER_OFFSET*(12.6-abs(x))-8
-  e=.02;z=front_arc_8(x,8);background=head_base_6(x,107)
-  a=max(0,z-background);slope=(front_arc_8(x,8+e)-front_arc_8(x,8-e))/(2*e)
-  curvature=(front_arc_8(x,8+e)-2*z+front_arc_8(x,8-e))/e**2
-  # Choose the longest interval with ordered positive controls, while
-  # retaining the measured starting derivatives. Clamping a control would
-  # create a tangent break beside the Z55.59 center fill.
-  initial=length;lo=0;hi=length
-  for _ in range(24):
-   trial=(lo+hi)*.5
-   c1=a+slope*trial/5
-   c2=a+2*slope*trial/5+curvature*trial**2/20
-   if a>=c1>=c2>=0:lo=trial
-   else:hi=trial
-  length=max(.00001,lo)
-  c1=a+slope*length/5
-  c2=a+2*slope*length/5+curvature*length**2/20
-  _HEAD_PROFILES[key]=(length,a,c1,c2)
- length,a,c1,c2=_HEAD_PROFILES[key];t=max(0,min(1,(d-8)/length));u=1-t
- return base+a*u**5+5*c1*t*u**4+10*c2*t*t*u**3
+# The head is the limit of one supported quad subdivision cage. All rear
+# returns, both fences and the central fill share its controls.
+from head_surface import height as action_roof, cage as head_cage
+from head_mesh import upper_mesh
 
 def upper_normals(ob,normals=None):
- """Differentiate the Z55.59/R6/degree-5 field; retain the flat breech face."""
+ """Differentiate the single subdivision limit; retain the flat breech face."""
  normals=normals or [n.vector.copy() for n in ob.data.corner_normals]
  for face in ob.data.polygons:
   if face.normal.z<.01:continue
+  # Classify the roof by the entire face. Per-corner distance tests also
+  # caught the last part of the R0.60 lip, flattening it before an abrupt
+  # shading-normal jump on the next arc row.
+  ps=[ob.data.vertices[i].co for i in face.vertices]
+  if not all(70.01<p.y<114.99 and abs(p.z-action_roof(p.x,p.y))<.004 for p in ps):continue
   for i in face.loop_indices:
    p=ob.data.vertices[ob.data.loops[i].vertex_index].co
-   if not 70.01<p.y<114.99 or abs(p.z-action_roof(p.x,p.y))>.10:continue
    if abs(p.x)>ACTION_HALF_WIDTH-.015:n=Vector((math.copysign(1,p.x),0,0))
    else:
     e=.003
@@ -155,6 +107,9 @@ def clean(ob,dist=.00003):
  bm=bmesh.new();bm.from_mesh(ob.data)
  bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=dist)
  bmesh.ops.dissolve_degenerate(bm,dist=dist,edges=list(bm.edges))
+ if ob.name in ('Action_Body','HIGH_Action_Body'):
+  unused=[v for v in bm.verts if not v.link_faces]
+  if unused:bmesh.ops.delete(bm,geom=unused,context='VERTS')
  # A Boolean inlet may leave a folded triangular flap attached along one
  # edge. Remove only this bounded, topologically identified remnant; closing
  # its two exposed edges would create a fourth face on the attached edge.
@@ -202,6 +157,25 @@ def clean(ob,dist=.00003):
   from bmesh.utils import edge_split
   _,new=edge_split(e,e.verts[0],t);new.co=v.co.copy()
   bmesh.ops.remove_doubles(bm,verts=[new,v],dist=.006)
+ # Bevel intersections at the bushing and buried plate/knuckle seats can
+ # leave a complete small planar boundary. Fill only measured closed loops
+ # (not isolated loose edges or collinear T-junctions).
+ remaining={e for e in bm.edges if e.is_boundary} if ob.name in ('Action_Body','HIGH_Action_Body') else set()
+ while remaining:
+  group={remaining.pop()};queue=list(group)
+  while queue:
+   for v in queue.pop().verts:
+    for e in v.link_edges:
+     if e in remaining:remaining.remove(e);group.add(e);queue.append(e)
+  vertices={v for e in group for v in e.verts}
+  if not (3<=len(group)<=12 and len(vertices)==len(group)
+   and all(sum(e in group for e in v.link_edges)==2 for v in vertices)
+   and sum(e.calc_length() for e in group)<14):continue
+  import numpy as np
+  points=np.array([tuple(v.co) for v in vertices]);center=points.mean(0)
+  _,singular,vh=np.linalg.svd(points-center)
+  if singular[1]>.002 and max(abs((points-center)@vh[-1]))<.006:
+   bmesh.ops.holes_fill(bm,edges=list(group),sides=12)
  bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free();ob.data.update()
 def reg(ob,bone='Root',radius=0,segments=3):
  if radius:M.bevel(ob,radius,segments)
@@ -264,8 +238,8 @@ def action():
  # the fences use circular transverse sections and a short axial roll. The knuckle continues the same
  # skin; there is no overlapping cylinder/disc to stand proud of the lands.
  loops=[]
- ys=[70+i*.5 for i in range(91)]
- xs=lambda w,y:sorted([w*math.sin(-math.pi/2+math.pi*i/96) for i in range(97)]+[-barrel_shape(y)[0],barrel_shape(y)[0]])
+ ys=[70+i*.125 for i in range(361)]
+ xs=lambda w,y:sorted([w*math.sin(-math.pi/2+math.pi*i/192) for i in range(193)]+[-barrel_shape(y)[0],barrel_shape(y)[0]])
  for y in ys:
   w,bot,top=action_section(y);pts=[]
   for x in xs(w,y):
@@ -279,6 +253,8 @@ def action():
    pts.append((x,yy,z))
   pts += lower_loop(y,w,bot,BOTTOM_RADIUS)
   loops.append(pts)
+ head_rows=len(loops);roof_columns=len(xs(ACTION_HALF_WIDTH,115))
+ roofloops=[row[:roof_columns] for row in loops]
  # Standing breech is the planar step to the low water table. Small edge
  # radii are retained in the dense source for the later normal-map transfer.
  for y in [115.001,116,122,130,140,148,154,160,166,170]+[170+12*math.sin(math.pi/2*i/16) for i in range(1,16)]+[181.99]:
@@ -293,7 +269,10 @@ def action():
   pts += lower_loop(y,w,bot,rb)
   loops.append(pts)
  nc=len(loops[0]);vs=[p for loop in loops for p in loop]
- fs=[(j*nc+i,j*nc+(i+1)%nc,(j+1)*nc+(i+1)%nc,(j+1)*nc+i) for j in range(len(loops)-1) for i in range(nc)]
+ fs=[(j*nc+i,j*nc+(i+1)%nc,(j+1)*nc+(i+1)%nc,(j+1)*nc+i) for j in range(len(loops)-1) for i in range(nc)
+  if not (j<head_rows-1 and i<roof_columns-1)]
+ roof_vertices,roof_faces=upper_mesh(roofloops);offset=len(vs);vs.extend(roof_vertices)
+ fs.extend(tuple(i+offset for i in f) for f in roof_faces)
  center=len(vs);vs.append((0,78,27.5));fs += [(center,(i+1)%nc,i) for i in range(nc)]
  fs += [tuple(range((len(loops)-1)*nc,len(loops)*nc))]
  body=M.mesh('Action_Body',vs,fs,MAT['blue']);clean(body)
@@ -346,7 +325,12 @@ def action():
  # Keep the archive synchronized after cutting the real plate seat.
  clean(body,dist=.006);canonical_surface(body)
  body.data.normals_split_custom_set(upper_normals(body,lower_normals(body)));high_copy(body)
- HIGH[-1]['source_method']='Single field: Z55.59 center, R6 side, degree-5 rear return, R13.35/L18.5 front crowns'
+ HIGH[-1]['source_method']='One regular Catmull-Clark limit cage, supported front arcs and R6 side; milled R5.90 recess'
+ vs,fs=head_cage();cage=M.mesh('CAGE_Action_Head',vs,fs,MAT['blue'])
+ cage['bake_only']=True;cage['source_method']='Original quad control net for the single upper forging surface'
+ cage.data.transform(Matrix.Scale(.001,4))
+ modifier=cage.modifiers.new('Supported Catmull-Clark control net','SUBSURF');modifier.levels=3;modifier.render_levels=4
+ cage.hide_render=True;cage.hide_set(True)
  # Keep the head dense until the recess and its R0.60 lip are cut;
  # one final reduction avoids Boolean cuts through a sparse rim.
  for x,y in [(2.6,64),(-2.6,31)]:
@@ -357,49 +341,6 @@ def action():
  high_copy(plate)
  box('Locking_Shoe',(-4,124,10.4),(4,129.9,11.8),'steel','LockBolt',radius=.10)
  box('Locking_Shoe_Upper',(-4,130,13.2),(4,141.9,14.6),'steel','LockBolt',radius=.10)
-
-def lever_recess_R590():
- """R5.90 fore wall around R5.60 boss; Y94–78 Bezier flare for 25° swing.
-
- One closed cutter avoids the tangent intersection of a cylinder and a
- separate swept hull. Its floor is Z48 at the boss, falling .22 mm/mm
- rearward. The R0.60 upper lip is integral to this cutter.
- """
- r=5.9
- outline=[(r*math.cos(t),94+r*math.sin(t)) for t in [math.pi*i/64 for i in range(65)]]
- outline+=M.bezier((-r,94),(-r,90),(-7,85),(-8.5,82),18)[1:]
- outline+=[(15,78)]
- outline+=M.bezier((15,78),(10,83),(r,90),(r,94),24)[1:-1]
- # Construct the R0.60 circular lip in each perimeter-normal plane,
- # tangent to the actual head roof. A C1 Y88–92 taper joins the strap.
- profiles=[]
- for i,(x,y) in enumerate(outline):
-  tangent=Vector(outline[(i+1)%len(outline)])-Vector(outline[i-1])
-  n=Vector((tangent.y,-tangent.x)).normalized()
-  radius=.60*smoothstep((y-88)/4)
-  radius=max(.0001,radius)
-  roof=lambda distance:action_roof(x+n.x*distance,y+n.y*distance)
-  derivative=lambda distance:(roof(distance+.003)-roof(distance-.003))/.006
-  lo=0;hi=radius*2
-  for _ in range(22):
-   distance=(lo+hi)*.5;q=derivative(distance)
-   if distance-radius+radius*q/math.sqrt(1+q*q)>0:hi=distance
-   else:lo=distance
-  distance=(lo+hi)*.5;q=derivative(distance)
-  zc=roof(distance)-radius/math.sqrt(1+q*q)
-  end=math.atan2(1,-q)
-  arc=[]
-  for j in range(13):
-   angle=math.pi+(end-math.pi)*j/12
-   offset=radius*(1+math.cos(angle))
-   arc.append((x+n.x*offset,y+n.y*offset,zc+radius*math.sin(angle)))
-  profiles.append([(x,y,48+.22*min(0,y-94)),*arc,(arc[-1][0],arc[-1][1],65)])
- loops=[list(row) for row in zip(*profiles)]
- template=M.loft('Recess R5.90 lip R0.60',loops,MAT['blue']);clean(template)
- for name in ('Action_Body','HIGH_Action_Body'):
-  tool=template.copy();tool.data=template.data.copy();bpy.context.collection.objects.link(tool)
-  target=bpy.data.objects[name];cut(target,tool);clean(target,dist=.006)
- bpy.data.objects.remove(template,do_unlink=True)
 
 def barrel_shape(y):
  t=(y-BREECH)/(MUZZLE-BREECH)
@@ -641,7 +582,7 @@ def controls():
    for v in tool.data.vertices:v.co=rot@(v.co-pivot)+pivot
    cut(target,tool);clean(target,dist=.006)
  lathe('Top_LeverSpindle',[(45.5,0),(45.5,4.1),(48.25,4.1),(48.35,5.6),(50.0,5.6),(50.3,5.3),(50.3,0)],'dark','TopLever',axis='Z',center=(0,94),n=48)
- lever_recess_R590()
+ # The integral recess was built with the head, before any reductions.
  # Safety follows the inclined strap, with a broad low thumb land and real
  # guide block below. State-only automatic actuation is in the interface.
  loops=[]
@@ -684,7 +625,11 @@ def canonical_surface(ob):
  are snapped to a 1 micrometer modeling grid before reduction, preventing
  submicrometer Boolean roundoff from changing equal-cost collapse choices.
  """
- old=ob.data;coords=[tuple(round(x,3) for x in v.co) for v in old.vertices]
+ # The integral roof/lip has short constrained boundary intervals. A
+ # micrometer grid bends those tiny triangles appreciably; keep this one
+ # source/target on a 10 nm grid, with the same canonical ordering.
+ precision=5 if ob.name in ('Action_Body','HIGH_Action_Body') else 3
+ old=ob.data;coords=[tuple(round(x,precision) for x in v.co) for v in old.vertices]
  ordered=sorted(set(coords));indices={p:i for i,p in enumerate(ordered)};mapping={i:indices[p] for i,p in enumerate(coords)};faces=[]
  for f in old.polygons:
   ids=[mapping[i] for i in f.vertices];ids=[v for i,v in enumerate(ids) if v!=ids[i-1]]
@@ -707,7 +652,13 @@ def triangles_006(ob):
  for face in mesh.polygons:
   ids=list(face.vertices)
   if len(ids)==3:faces.append(ids);continue
-  assert len(ids)==4,('Post-repair polygon',ob.name,len(ids))
+  if len(ids)>4:
+   # A split at two existing boundary points can leave a pentagon. Keep
+   # all its boundary intervals, using Blender's concave tessellator.
+   from mathutils.geometry import tessellate_polygon
+   polygon=[points[i] for i in ids]
+   faces.extend(tuple(ids[i] for i in tri) for tri in tessellate_polygon([polygon]))
+   continue
   a,b,c,d=ids
   alternatives=[[(a,b,c),(a,c,d)],[(a,b,d),(b,c,d)]]
   area=lambda triangle:(points[triangle[1]]-points[triangle[0]]).cross(points[triangle[2]]-points[triangle[0]]).length
@@ -828,6 +779,9 @@ def main():
   ob.data.transform(Matrix.Scale(.001,4))
   for c in list(ob.users_collection):c.objects.unlink(ob)
   highcollection.objects.link(ob);ob.hide_render=True;ob.hide_set(True)
+ cage=bpy.data.objects['CAGE_Action_Head']
+ for c in list(cage.users_collection):c.objects.unlink(cage)
+ highcollection.objects.link(cage)
  arm=W.armature('SXSArmature',{k:tuple(v*.001 for v in p) for k,p in HEADS.items()},parents=PARENTS)
  for ob in PARTS:W.rigid_bind(ob,arm,ob['bone'])
  rib=bpy.data.objects['Solid_TopRib']

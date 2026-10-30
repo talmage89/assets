@@ -37,8 +37,10 @@ def main():
  landmark_rakes()
  from player_pairs import main as player_pairs
  player_pairs()
+ from reflection_review import main as reflection_review
+ reflection_records=reflection_review()
  digest=sha(BASE/'export/sxs.glb');stats=json.loads((BASE/'build/serialization.json').read_text());assert stats['sha256']==digest
- current=0
+ current=reflection_records
  for folder,expected in [('beauty',digest),('photos',digest),
   ('dense-rakes',sha(BASE/'build/sculpt.blend')),('shell',sha(BASE/'build/shell.glb')),('hull',sha(BASE/'build/hull.glb')),('opening-wide',digest)]:
   meta=json.loads((OUT/folder/'shots.json').read_text())
@@ -61,6 +63,9 @@ def main():
   result=json.loads((BASE/'build'/filename).read_text());assert result['passed'] and result['all_clips']
   assert result['source_sha256']==sha(source),'Stale '+filename
  assert json.loads((BASE/'build/repeat.json').read_text())['passed']
+ fairness=json.loads((BASE/'build/fairness.json').read_text())
+ assert fairness['passed'],'Dense source topology/normal-angle audit failed'
+ assert fairness['source_sha256']==sha(BASE/'build/sxs.blend'),'Stale dense fairness measurements'
  sec=json.loads((OUT/'sections/sections.json').read_text());assert sec['glb_sha256']==digest and sec['source_sha256']==sha(BASE/'build/sxs.blend')
  records=stats['imported_contacts']['records']
  measured={r['name']:r['measured_m']*1000 for r in records if r['name'].startswith(('drop at ','eye above','cheek station'))}

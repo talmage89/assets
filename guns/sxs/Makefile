@@ -1,4 +1,4 @@
-# Form round five: baked normals and one 2048 atlas; finish and docs held.
+# Form round six: one subdivision head, baked 2048 normals; finish/docs held.
 .DEFAULT_GOAL := all
 .NOTPARALLEL:
 BLENDER ?= blender
@@ -14,7 +14,7 @@ BAKE_SIZE := 4096
 SHIP_SIZE := 2048
 BAKE_SAMPLES ?= 32
 MODEL := build/sxs.blend build/sxs.glb build/shell.glb build/hull.glb
-MODEL_DEPS := src/build.py src/parameters.py src/clips.py src/interface.py ../common/shell12_visual.py ../common/interface_v1_7.py
+MODEL_DEPS := src/build.py src/head_surface.py src/head_mesh.py src/parameters.py src/clips.py src/interface.py ../common/shell12_visual.py ../common/interface_v1_7.py
 PREPARED := build/delivery/finalized.blend build/delivery/high.blend build/delivery/uv.json
 BAKED := $(addprefix build/baked/4k/T_Covey26_,BaseColor.png Normal.png ORM.png) build/baked/4k/bake-report.json
 TEXTURES := $(addprefix textures/T_Covey26_,BaseColor.png Normal.png ORM.png)
@@ -23,7 +23,7 @@ SHOTS := hero,side,left,top,front,rake_right,rake_left,open,breech,action,action
 comma := ,
 BEAUTY := $(addprefix renders/checkpoint/beauty/,$(addsuffix .png,$(subst $(comma), ,$(SHOTS)))) renders/checkpoint/beauty/shots.json
 PHOTO_SHOTS := right,left,action,action_left,action_top,action_bottom,open,barrel_flats,forend,forend_side,trigger,aimed_reference
-.PHONY: all refs model prepare bake export check check-repo verify repeat render review evidence sections match strips ammo native-photos dense-rakes FORCE clean
+.PHONY: all refs model prepare bake export check check-repo verify repeat render review evidence sections match strips ammo native-photos dense-rakes reflections fairness FORCE clean
 all: refs export check render review
 refs: native-photos
 	$(PYTHON) $(KIT)/fetch_refs.py refs
@@ -56,7 +56,7 @@ build/repeat/sxs.blend: $(MODEL_DEPS)
 	$(BP) --python src/build.py -- --out $@ > build/repeat-build.log 2>&1
 repeat: model build/repeat/sxs.blend
 	$(BP) --python src/repeat.py -- --first build/sxs.blend --second build/repeat/sxs.blend --out build/repeat.json > build/repeat.log 2>&1
-check: model check-repo verify repeat
+check: model check-repo verify repeat fairness
 	$(BP) --python src/check.py -- --source build/sxs.blend --out build/check.json > build/check.log 2>&1
 build/render-parameters.txt: FORCE
 	@mkdir -p build
@@ -64,7 +64,7 @@ build/render-parameters.txt: FORCE
 $(BEAUTY) &: export/sxs.glb $(RENDER_DEPS)
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source export/sxs.glb --out renders/checkpoint/beauty --width $(WIDTH) --samples $(SAMPLES) --shots $(SHOTS) > build/render.log 2>&1
 render: $(BEAUTY)
-evidence: sections match strips ammo dense-rakes
+evidence: sections match strips ammo dense-rakes reflections
 review: render evidence
 	$(PYTHON) src/review.py
 sections: export
@@ -89,3 +89,11 @@ clean:
 dense-rakes: model
 	$(BP) --python src/prepare_high.py > build/dense-prepare.log 2>&1
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source-diagnostic --source build/sculpt.blend --out renders/checkpoint/dense-rakes --width $(WIDTH) --samples $(SAMPLES) --shots action_rake_right,action_rake_left > build/dense-rakes.log 2>&1
+
+# Diagnostic materials only. The delivered GLB's tangent normal remains
+# connected; no texture or ordinary inspection constant is changed.
+reflections: export dense-rakes
+	$(KIT)/with_gpu.sh $(BP) --python src/reflections.py -- --source build/sculpt.blend --out renders/checkpoint/reflections/source --width $(WIDTH) --samples $(SAMPLES) > build/reflections-source.log 2>&1
+	$(KIT)/with_gpu.sh $(BP) --python src/reflections.py -- --source export/sxs.glb --out renders/checkpoint/reflections/export --width $(WIDTH) --samples $(SAMPLES) > build/reflections-export.log 2>&1
+fairness: model
+	$(BP) --python src/fairness_gauges.py -- --source build/sxs.blend --out build/fairness.json > build/fairness.log 2>&1

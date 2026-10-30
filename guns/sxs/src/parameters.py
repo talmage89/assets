@@ -30,7 +30,7 @@ RIDING={'Socket_SupportHand':'Forend','Socket_Shell':'InsertGuideR','Socket_Shel
  'Socket_ChamberR':'Extractor','Socket_ChamberL':'Extractor',
  'Socket_MuzzleR':'Barrels','Socket_MuzzleL':'Barrels'}
 def generator_digest():
- here=Path(__file__).parent;paths=[here/n for n in ('build.py','parameters.py','clips.py','interface.py')]
+ here=Path(__file__).parent;paths=[here/n for n in ('build.py','head_surface.py','head_mesh.py','parameters.py','clips.py','interface.py')]
  paths += [here.parents[1]/'common'/n for n in ('shell12_visual.py','interface_v1_7.py')]
  h=hashlib.sha256()
  for p in paths:h.update(p.name.encode()+b'\0'+p.read_bytes())
