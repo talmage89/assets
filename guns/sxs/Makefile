@@ -43,8 +43,8 @@ build/bake-parameters.txt: FORCE
 $(BAKED) &: $(PREPARED) src/config.py src/bake_form.py build/bake-parameters.txt ../../kit/bake.py ../../kit/bake_groups.py
 	$(KIT)/with_gpu.sh $(BP) --python src/bake_form.py -- --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES) > build/bake.log 2>&1
 bake: $(BAKED)
-$(PROJECTED) &: $(BAKED) $(PREPARED) src/ground_planes.py
-	$(BP) --python src/ground_planes.py > build/ground-projection.log 2>&1
+$(PROJECTED) &: $(BAKED) $(PREPARED) src/normal_projection.py
+	$(BP) --python src/normal_projection.py > build/normal-projection.log 2>&1
 $(TEXTURES) &: $(PROJECTED) ../../kit/downsample.py src/ship_normal.py
 	$(PYTHON) $(KIT)/downsample.py --source build/baked/precise4k --out textures --asset Covey26 --size $(SHIP_SIZE)
 	$(PYTHON) src/ship_normal.py

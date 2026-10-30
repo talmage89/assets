@@ -55,11 +55,15 @@ def main():
  assert baked['size']==4096 and baked['samples']>=32 and baked['device']=='GPU'
  for name,digest in baked['source_sha256'].items():
   assert digest==hashlib.sha256((BASE/'build/delivery'/name).read_bytes()).hexdigest(),'Stale baked source '+name
- planes=json.loads((BASE/'build/baked/precise4k/projection-report.json').read_text())
- assert planes['size']==4096 and planes['triangles']>0 and planes['interior_texels']>0
- assert planes['source_sha256']==baked['source_sha256']
- assert planes['gpu_normal_sha256']==hashlib.sha256((BASE/'build/baked/4k/T_Covey26_Normal.png').read_bytes()).hexdigest()
- assert planes['output_normal_sha256']==hashlib.sha256((BASE/'build/baked/precise4k/T_Covey26_Normal.png').read_bytes()).hexdigest()
+ projection=json.loads((BASE/'build/baked/precise4k/projection-report.json').read_text())
+ assert projection['size']==4096 and projection['interior_texels']>0
+ assert set(projection['regions'])=={'0','1','2','3','4'}
+ assert all(r['triangles']>0 and r['texels']>0 for r in projection['regions'].values())
+ assert all(projection['regions'][r]['maximum_projection_distance_mm']<.12 for r in ('1','2','3','4'))
+ assert projection['ground_triangles']==99 and projection['ground_texels']>0
+ assert projection['source_sha256']==baked['source_sha256']
+ assert projection['gpu_normal_sha256']==hashlib.sha256((BASE/'build/baked/4k/T_Covey26_Normal.png').read_bytes()).hexdigest()
+ assert projection['output_normal_sha256']==hashlib.sha256((BASE/'build/baked/precise4k/T_Covey26_Normal.png').read_bytes()).hexdigest()
  assert set(baked['parts_isolated'])=={o.name for o in parts}
  assert set(baked['projection_policy']['moving_roots'])==set(baked['parts_isolated'])
  assert 'Stock_Walnut' not in baked['assembled_contact_policy']['moving_roots']
@@ -84,7 +88,7 @@ def main():
   W.pose(arm,clip,f);error=V.surface_delta(target,V.surface_points(imported));assert error<3e-6,(clip,f,error)
   errors.append(dict(clip=clip,frame=f,error_m=error))
  result=dict(passed=True,stage='baked form checkpoint; finish and wear held',uv=imported_uv,bake_size=4096,ship_size=2048,sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
-  triangles=count,materials=len(data.json['materials']),textures=3,texture_png_bits=png_bits,glb_bytes=path.stat().st_size,projection_ownership=ownership,ground_plane_projection=planes,
+  triangles=count,materials=len(data.json['materials']),textures=3,texture_png_bits=png_bits,glb_bytes=path.stat().st_size,projection_ownership=ownership,action_normal_projection=projection,
   bones=len(arm.data.bones),clips=len(CLIPS),sockets=len(sockets),parts=len(parts),bounds_m=bounds,
   dimensions_mm=((np.array(bounds[1])-bounds[0])*1000).tolist(),measured_parts_mm=dims,length_of_pull_mm=pull*1000,
   normals=normals,affine_samples=len(affine),max_position_error_m=max(r['position_delta_m'] for r in affine),
