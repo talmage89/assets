@@ -1,0 +1,412 @@
+{
+  "accepted_at": "ab206c5",
+  "scope": "Round-two accepted enamel projection controls. Exact one-texel-eroded non-enamel shipping RGBA; no tolerance changes.",
+  "image": "T_Rill39_BaseColor.png",
+  "enamel_aliases": {
+    "Receiver_Sheet": "enamel:stationary",
+    "Receiver_Rivet-1_0": "enamel:stationary",
+    "Receiver_Rivet-1_1": "enamel:stationary",
+    "Receiver_Rivet-1_2": "enamel:stationary",
+    "Receiver_Rivet-1_3": "enamel:stationary",
+    "Receiver_Rivet-1_4": "enamel:stationary",
+    "Receiver_Rivet-1_5": "enamel:stationary",
+    "Receiver_Rivet1_0": "enamel:stationary",
+    "Receiver_Rivet1_1": "enamel:stationary",
+    "Receiver_Rivet1_2": "enamel:stationary",
+    "Receiver_Rivet1_3": "enamel:stationary",
+    "Receiver_Rivet1_4": "enamel:stationary",
+    "Receiver_Rivet1_5": "enamel:stationary",
+    "Front_Insert": "enamel:stationary",
+    "Tang_Screw": "enamel:stationary",
+    "TopCover_Pressed": "enamel:TopCover_Pressed",
+    "TopCover_RearCap": "enamel:stationary",
+    "TopCover_ButtonLip": "enamel:stationary",
+    "Cover_Return-1": "enamel:stationary",
+    "Cover_Return1": "enamel:stationary",
+    "Grip_HeelScrew": "enamel:stationary",
+    "TriggerGuard_Stamping": "enamel:stationary",
+    "Guard_RearFlange": "enamel:stationary",
+    "Guard_FrontFlange": "enamel:stationary",
+    "Release_Housing": "enamel:stationary",
+    "Selector_Lever": "enamel:rigid:Selector",
+    "Selector_Detent_0": "enamel:stationary",
+    "Selector_Detent_-10": "enamel:stationary",
+    "Selector_Detent_-15": "enamel:stationary",
+    "Barrel": "enamel:stationary",
+    "Handguard_Retainer221": "enamel:stationary",
+    "Bayonet_Lug": "enamel:stationary",
+    "Front_InsertUpperShoulder": "enamel:stationary",
+    "Sight_RearBlock": "enamel:Sight_RearBlock",
+    "Sight_TangentLeaf": "enamel:Sight_TangentLeaf",
+    "Sight_SliderBridge": "enamel:stationary",
+    "Sight_FrontTower": "enamel:Sight_FrontTower",
+    "Receiver_FrontLugSlot": "enamel:stationary"
+  },
+  "regions": {
+    "Rear_Insert": {
+      "interior_texels": 15726,
+      "mask_sha256": "2901cb6b332e2b3200766d328a4a2ef1c495d536bc3f5c4722c45632b2f6e052",
+      "rgba_sha256": "1fe698f233daa63cd7546663e5bea91dfaeba32a445ff231fc5665157507601c"
+    },
+    "Carrier_VisualRail-1": {
+      "interior_texels": 3069,
+      "mask_sha256": "7d0a515deea0fabfc6140400a2a69484ef88e86f7546b5a755711d9697a8ed7c",
+      "rgba_sha256": "341cce56af2553f4d4575db0ed5fd3a1c8e4d4962e19faa925cb39cedcd4d62d"
+    },
+    "Carrier_VisualRail1": {
+      "interior_texels": 2397,
+      "mask_sha256": "00cfc288b1f977784a0eb2da38441c893c8a7f0a4e3be8d8a487347c87ba35e1",
+      "rgba_sha256": "06f95c193cfb5e2cfb20d2d61481ab64e49ac4301fa864c6c1e42f8c1d23488f"
+    },
+    "Stock_Tang": {
+      "interior_texels": 3320,
+      "mask_sha256": "08a7e12adc2b6f25df3c3b8a141dd761ba624527c9a7dddd7fe6e09f32b40caa",
+      "rgba_sha256": "9e41f8e5913f2d221c35d39a6e23784057aed45e5c91ba20efcf1a0862fa1774"
+    },
+    "Cover_RetainingButton": {
+      "interior_texels": 1542,
+      "mask_sha256": "9af4d0f81f84e5429e5c9c03c2ae7ca6c3e26694ff8b215376b4ca51f7ab9bff",
+      "rgba_sha256": "b541ec9f13d76e57a3f61f2ff221c7a5605ba324d723321f6b8aee1d4dcce764"
+    },
+    "Stock_Sculpt": {
+      "interior_texels": 126272,
+      "mask_sha256": "45b8eef071d38c82305f5ef852586a94fe2689b53f8c8b4422b8db6021b54d98",
+      "rgba_sha256": "ee6ae7a698376bd4ba8ea9db97e43e56c31d0198a656809f711d9dd91f58cf5e"
+    },
+    "Buttplate": {
+      "interior_texels": 23038,
+      "mask_sha256": "020c32e812d629622f19636d9a2ca5e9ce9ab41b777555e33038d7c589a8dc10",
+      "rgba_sha256": "846a98b1a490eff69a458726974c19632b4f9051b45c5624a033353a89e81dc5"
+    },
+    "Buttplate_Trap": {
+      "interior_texels": 3238,
+      "mask_sha256": "0f5f982cf2f3a508088e20b9d9076fba1e77a4b353842ac3c8cab814cf8ca9fd",
+      "rgba_sha256": "a2f952b5b8e3fc260d121ae3de3c40799768f1519fda8897a3057fc34d512df2"
+    },
+    "Butt_Screw": {
+      "interior_texels": 79,
+      "mask_sha256": "203b299182a6f0d0927adf52f9fb0f6a472c3018fc13b419babb4fc9d1781b62",
+      "rgba_sha256": "1a0c47a193f9b67717f04eb56e04e2833912b25db61df6d45a760be90b8058f1"
+    },
+    "Butt_Screw.001": {
+      "interior_texels": 77,
+      "mask_sha256": "9c18dbddbdcec98e0643b9ae766fc391861f7b05e71f5cc38e82a34e3552900d",
+      "rgba_sha256": "71b6856a3371ebac8b0619e1af9ccee93a962995d33575cd7fc293546ab94d5b"
+    },
+    "Stock_SlingEye": {
+      "interior_texels": 207,
+      "mask_sha256": "43990a0edf4909d54b21bc401d3487843e97d8745e8861b9f50a8b744c4fe35a",
+      "rgba_sha256": "de40a734a87d6ca7d659c82d1a84e35261692356dee5055fc57dc2a22b1fc9bb"
+    },
+    "LowerHandguard_Sculpt": {
+      "interior_texels": 94697,
+      "mask_sha256": "cafe65bdb4bf0e9e415f3c1768592b7553d0964b57566609b91e82e857a6b3d2",
+      "rgba_sha256": "37c5fd1bed35386d02da87291f0ca39855d5553aaeef8588d70ff711b7d024b3"
+    },
+    "UpperHandguard_Sculpt": {
+      "interior_texels": 45717,
+      "mask_sha256": "69a1c40665b40fa7893f27221fb652405e3e19559547194984461ce5999e1480",
+      "rgba_sha256": "abf86418fb38a1f1f5b4094ccea18aa75eec2da38266722fc99a2c65b0092f78"
+    },
+    "PistolGrip_Sculpt": {
+      "interior_texels": 75382,
+      "mask_sha256": "e008bff9342ca0ed3895f054d2c4f6246fa2cc99eb7725777686e3d51f79c0b4",
+      "rgba_sha256": "ce038e8e8c638dc0530fbda967c612742ef117e864f4fedd965ea36c48793d8a"
+    },
+    "Trigger_Shoe": {
+      "interior_texels": 725,
+      "mask_sha256": "59b859aae8d899745f095cf3c72a537982c875abf6d39a4d8fdb3836192d60a8",
+      "rgba_sha256": "f6a7c9cf125a8f64a291dbe454ae9687530fb1481c8c9015c3f3e84936196578"
+    },
+    "Trigger_VisualPin": {
+      "interior_texels": 1100,
+      "mask_sha256": "210897e0a0e3dbde0f6b72122c56153e5cf409e7e189a6f6cc518f0225bf5b45",
+      "rgba_sha256": "85ca6f23a81b4e059ae2bfe53da3154289b6ec6e736b93127e9d66b521afb6d8"
+    },
+    "MagRelease_Paddle": {
+      "interior_texels": 2765,
+      "mask_sha256": "57f6875461bf5e88cbe111b5541afd80035900866c45ed0b076b2d7ace0d751b",
+      "rgba_sha256": "7d4af8950711565f8a17b5379c224636eed762928325e8baa5aff4b30a547b7c"
+    },
+    "MagRelease_Axle": {
+      "interior_texels": 960,
+      "mask_sha256": "681aab28b369c9d475c614aecd7b8808eb585717e651549414ab1c5d53387811",
+      "rgba_sha256": "b6859fea34b1e163a3c18fac644b30ae683a8e1679338563f3f6793b7ecef8db"
+    },
+    "MagRelease_VisualCatch": {
+      "interior_texels": 850,
+      "mask_sha256": "1ccd1fc2a7d2b31e36a97cb6ee18ac856fdab7816987bb4a0d9aaf4de6af0fc0",
+      "rgba_sha256": "f4d19af07733b20c0a8af9f29e632e3ef64e9b4cdda588f5e6441665c601a21e"
+    },
+    "Selector_Hub": {
+      "interior_texels": 1112,
+      "mask_sha256": "576e5dc41dd44dd7e053e5e2c523e748925ff60f904e2d07932019d601fc41cd",
+      "rgba_sha256": "d99787f40e0efbf6e515b8f211718b2a19d4432536be7dd701dc58676639d323"
+    },
+    "Selector_ThumbFold": {
+      "interior_texels": 892,
+      "mask_sha256": "74a4a2656eceea8d41d96328970be8b383a77400d22ccca9ca9fa55c3a522e77",
+      "rgba_sha256": "191c64706e31e984c9adcbf9e5455907d7331353c1a018449075e5a6f5dc9695"
+    },
+    "Selector_HubRim": {
+      "interior_texels": 477,
+      "mask_sha256": "818df02ab046a0ef88013ba59e9934f2992ef487a00ec8571e5925d8f97ab935",
+      "rgba_sha256": "a2657fb5e42b52c89f3fdd9b49558caee9ca8580b175c8379d2d7c64d4689a25"
+    },
+    "Selector_Dimple": {
+      "interior_texels": 55,
+      "mask_sha256": "ddd76b3081a5a18078537eb214b45228796fce2d60c8390ab170b3f0d38c3bf9",
+      "rgba_sha256": "c4adaa629e1da8b792836126bac2e1c6577e1f65dd5153c24a22e4c659eb6f6b"
+    },
+    "GasTube": {
+      "interior_texels": 45616,
+      "mask_sha256": "6a2bc1bb67a20e483090720402dd3ed37e5335fc0dc8f9da2657b29a5513060b",
+      "rgba_sha256": "44b6d8ae9e7074f70838d0a7fbeb304b666ea1f8561eac160559c71fabc24afc"
+    },
+    "Handguard_Retainer363": {
+      "interior_texels": 9882,
+      "mask_sha256": "04874a3e6dfb73897ba1e4cfff1f3629974363d10655f251400a4b4536efb955",
+      "rgba_sha256": "c0f8f6d4e855e8a7f921717d779b8bbdddf777beb755eac5238e4c2d9ba0750f"
+    },
+    "GasBlock_Neck": {
+      "interior_texels": 15843,
+      "mask_sha256": "c1b662d1661c3d45d78c5dfe02e3fd5edf7348472a79874401e1627927fb34b1",
+      "rgba_sha256": "e61222938796112ac4fc0684c02253da26b8e8bf38e3c7a716c614a8921944f9"
+    },
+    "GasBlock_TubeSeat": {
+      "interior_texels": 25477,
+      "mask_sha256": "18c4dfaea8e14c3b8feb437610b98fd8d16163a4b0f2f2610caac595b675b394",
+      "rgba_sha256": "6e869f2523ff5eeb9d81e95dc081cd707e7554cba7188a904316a8ca2b817040"
+    },
+    "Gas_Vent-1383": {
+      "interior_texels": 11,
+      "mask_sha256": "7f952a2f6f9cf51211e9a65a4f7bac5bbb59dbc7525d83d55fd2b0bf4b9ff071",
+      "rgba_sha256": "eb5b631b0f06ef8f6100424ac8033eb5e1becea96d29ca5f17c65f525f8433eb"
+    },
+    "Gas_Vent-1401": {
+      "interior_texels": 11,
+      "mask_sha256": "6a9f5686344af0fbe11ee808b1bc161398147d734ca3e48770dc11b9d61f2eba",
+      "rgba_sha256": "eb5b631b0f06ef8f6100424ac8033eb5e1becea96d29ca5f17c65f525f8433eb"
+    },
+    "Gas_Vent1383": {
+      "interior_texels": 14,
+      "mask_sha256": "0bdfae7899464a0fc77a2532fafc17b97d6aec9a5786878377a440b09498da49",
+      "rgba_sha256": "092537f591fc4a59090f40d90207f7cf48a03aede48a74fad278636abaf9f6ad"
+    },
+    "Gas_Vent1401": {
+      "interior_texels": 13,
+      "mask_sha256": "13a302874f97b25329c0f09361f5639442068c008474dba19a10e405f401321c",
+      "rgba_sha256": "0b963e98e84dd9baa2c72f575bc6141544438900afb42f7472cc2d8c1f7d0e66"
+    },
+    "Handguard_SlingMount": {
+      "interior_texels": 516,
+      "mask_sha256": "686e8bbd3769412bdc969b5d91cdc581de5a94b3ddc87e52e8454d16e1d197e1",
+      "rgba_sha256": "986d305aeef0d1925b3f49aeff55039e12dee4e641669f84657232e6d2968a91"
+    },
+    "Handguard_SlingLoop": {
+      "interior_texels": 171,
+      "mask_sha256": "fa250909466861d2059c8a8cfb3b22df4b76b896387a4da3184bba129b7ddb3d",
+      "rgba_sha256": "f0a73629155606e35a647b5a3d0352ae89b250f8d86539bae1f6a8485dfba99f"
+    },
+    "CleaningRod": {
+      "interior_texels": 6698,
+      "mask_sha256": "041f4ff192af318911c2a6a01e6bb612d5396cbcdb446cb9526238e2aa340618",
+      "rgba_sha256": "30d738646557ddb5d03745fadc8b379b20c665dc23724a4918d4e265d86a5577"
+    },
+    "Muzzle_SlantBrake": {
+      "interior_texels": 6826,
+      "mask_sha256": "6e1ec991599231f9e55d6b7d49740fcdf24181e4973ac3788ddf477b4378b1db",
+      "rgba_sha256": "a55e53d2f08bfa5460689557d0d57e35d7b6a41e6426571afc1c7a23287073f4"
+    },
+    "Carrier_Body": {
+      "interior_texels": 8136,
+      "mask_sha256": "43d84adbbc84e34bb77ecf78dd7fd59ec88eda168ac9088c103ab81b6415c074",
+      "rgba_sha256": "0fd9f801980dfe0151573e71758b6a34472659069aa65d39661cbdb9f3832e12"
+    },
+    "Carrier_PortCheek": {
+      "interior_texels": 4549,
+      "mask_sha256": "3668cd6fadaef3eff416e59f7ace07f3f8ced7d02a3858ed3292921f015bbd2d",
+      "rgba_sha256": "2abe9abade0eb12154f5c440740c9866467039b421dded9704fc73e933018645"
+    },
+    "Carrier_Piston": {
+      "interior_texels": 8877,
+      "mask_sha256": "458158e7ce776959a256d9deb75e59ed1d5e086c41c60ce73be667e98bc25c57",
+      "rgba_sha256": "4e57179c2448cda458f030e67d7495ce05110d9b79d2ada5367494ad6793cb61"
+    },
+    "ChargingHandle": {
+      "interior_texels": 813,
+      "mask_sha256": "9ba89b2474d95ba141985aa96fa56efd613f6cc23c2d907477a8207e5ed70965",
+      "rgba_sha256": "c3e92c0e6c1d1f276c7436b941e3e88eee32e7a96ca64a876c5ecb9fb17c56ab"
+    },
+    "Carrier_SeatingFace": {
+      "interior_texels": 931,
+      "mask_sha256": "f629dec4972771e9084cc9c5980424782637e0e0b332821f6f86f19aa1891c98",
+      "rgba_sha256": "4c6b087fb4c6f44846e5f36c7556d3003b1d0a89d37727b008e323aa95f3690c"
+    },
+    "Sight_RearNotch": {
+      "interior_texels": 4408,
+      "mask_sha256": "9143948e67885c209695844e44cdd7704b6ddca4426654ec8eb2f446df51b92f",
+      "rgba_sha256": "fde0195c44c155fec8abfb881ba3020c80daaf41f52854d73ad9fc99e5ddf50b"
+    },
+    "Sight_SliderButton-1": {
+      "interior_texels": 1535,
+      "mask_sha256": "f85d7d9967cd38d0b674f90d8b4a9f7e3f79e6a36ca845cd8fc3a1948b628a50",
+      "rgba_sha256": "ab46933598b21fba8ad7e18b850bfe18c2b80d82310261ebd4d9684bd15ed885"
+    },
+    "Sight_SliderButton1": {
+      "interior_texels": 1481,
+      "mask_sha256": "7b16f8b09b04b9b9e7d4bb1faf5d3da221f9f61781ca811d149b10fbb9f3b1a8",
+      "rgba_sha256": "c863dfead377690cc63d1ed39dcc41730f3a89a9152699b2ddca0533ca99e416"
+    },
+    "Sight_RearPivot": {
+      "interior_texels": 2837,
+      "mask_sha256": "95132cad08850809c0a569f8f4a3adfded69ad394c491c0620aef4cdf13bd82f",
+      "rgba_sha256": "29f95836aa882906debedc4ed340dce5d33c8695dd7d87fb0a8d5b561ada2281"
+    },
+    "Sight_LeafSpring": {
+      "interior_texels": 10319,
+      "mask_sha256": "f7a6966ae109ac305d4df600a9347eb72bef255116952ae70a0a501c8a4f2a06",
+      "rgba_sha256": "4ca6bc8d678f57385287f9178162e56a191715f0720a08d65a7a6ad0f04ec981"
+    },
+    "Sight_FrontHood": {
+      "interior_texels": 9156,
+      "mask_sha256": "cd40895dbf7261556257077cee59d4af071a8527693db5e90ab386ea75ad6047",
+      "rgba_sha256": "7acbaf3291f01b4a597133fdbb91b8ba357008ce35cf1b2d63df79e515afdd92"
+    },
+    "Sight_FrontPost": {
+      "interior_texels": 689,
+      "mask_sha256": "287182d57977ea46f8c8a798fc2a8d0a4929e974d5e1d537f2c0b46e545c83f0",
+      "rgba_sha256": "e7acc088e097722c35331fe97b83a7540c217cfd92695181b2ed8f5a00a9c40a"
+    },
+    "Sight_PostThreadWitness": {
+      "interior_texels": 6,
+      "mask_sha256": "93dba5ce0b3d4917d8e6a93e7e9d24216570acdd5bd86303b290d5a6831dfa3a",
+      "rgba_sha256": "a0133a0449f5009cae78bd6bb47f26de9ea526ab0871860419bbf08ac0ac4fd0"
+    },
+    "Sight_PostThreadWitness.001": {
+      "interior_texels": 2,
+      "mask_sha256": "9ac5a2181bac188595a35b1a3a2f0a9585a9d52d48f00c1b6447b2ca67f7ccf4",
+      "rgba_sha256": "ca394a15bbed101c631ec1311a5124b3feb29a6dc595761967b16eff65678995"
+    },
+    "Sight_PostThreadWitness.002": {
+      "interior_texels": 4,
+      "mask_sha256": "a86b366589608b48c6c912ec1e758bfaca88c196577602a8abcbda94e85b1eee",
+      "rgba_sha256": "46dac3bf03c7dc1ffa36793e6368e99fa857bca54ccebe00d0b7509e8a5f7d32"
+    },
+    "Sight_WindageDrum": {
+      "interior_texels": 5225,
+      "mask_sha256": "7db24626e5056bcb0374c15575ef36fda63241a2d0518c2c6fec70629a0ebe6b",
+      "rgba_sha256": "2720e508b3b58b5f0c159f64313cd595ddd179d93a01338f3e8fc0ecc82284d0"
+    },
+    "Sight_RodSeat": {
+      "interior_texels": 8801,
+      "mask_sha256": "c6e82b9da33ef8fe59aa747b2d42ce6ab2f38a45edf10f53d9db8ed030761e09",
+      "rgba_sha256": "e89b5d34f9ebeba6f7c16d4533c003c83028ac4fc9a7310118d4f4de45f32f2b"
+    },
+    "Magazine_Sheet": {
+      "interior_texels": 132560,
+      "mask_sha256": "9c63485121fbd9dfa80e050e6ba45722292734352b12df83201f2489183d49b0",
+      "rgba_sha256": "f6be0831944490efcf1fb815407180bd822c19af38141f0c91d5e68458c750a0"
+    },
+    "Magazine_FoldSpine-1": {
+      "interior_texels": 74,
+      "mask_sha256": "9e43018f07d396bc0bc62d3b5a8cccd7cb00708142d69118680cbd59e726cab1",
+      "rgba_sha256": "d59b5a421fb1cc948a887c8e91897de11ceeb44fd1e883b515dc34b548f0b3d5"
+    },
+    "Magazine_Floorplate": {
+      "interior_texels": 8207,
+      "mask_sha256": "73c254c37d92cf9a2f2d6f573b8a152da3d8cc04bae271c6685fc60e2bac0762",
+      "rgba_sha256": "2f65460a0eb449b12314f4d9561e582330c8893f4f300c35947ddc025d888ae4"
+    },
+    "Magazine_FrontLug": {
+      "interior_texels": 582,
+      "mask_sha256": "f473b833093fcc086416b94f936e467b26d29f31e50ec5cd3dec74f68a72f32e",
+      "rgba_sha256": "221b80bd64bc149a57a3782c3ba7b2b5b2d621c5fc16f806d60efa26a8b37a3d"
+    },
+    "Magazine_RearCatch": {
+      "interior_texels": 604,
+      "mask_sha256": "5591d899fd8a626c5d0cf67e8300f94ca863b462f3688476b1f968efa92a75ca",
+      "rgba_sha256": "06d70a7ccf56ece36c09e0d8b494fa67c5424dbf3b87bc02d1cf1b02dd51c00c"
+    },
+    "Magazine_FeedLip1": {
+      "interior_texels": 423,
+      "mask_sha256": "c46f32f30a2d9d14a62f591d15e18eeb52d1b0a82b1b972f8feb0a95b47656b1",
+      "rgba_sha256": "7cd088ef0abcbab25108ff819c8c3f645a52b531ddd34b98fe79864fd6c6d5de"
+    },
+    "Magazine_FeedLip-1": {
+      "interior_texels": 430,
+      "mask_sha256": "7763bd95ab2e415a67c1b088242f47f324f284015e70965b992e3fa4bc8bf0f8",
+      "rgba_sha256": "07b63f600dbd377b5ed86004d65575cf914f432c2a51f33523002c8fa31adb5f"
+    },
+    "Magazine_TopRound_Case": {
+      "interior_texels": 2296,
+      "mask_sha256": "8caef5e0f9f1d8a836c1d60ec4999d9a409cfa9df9b9ff009d638d4db2b6256c",
+      "rgba_sha256": "39243960e70da8210eb0660a4abe322bcf38bff327d05951a23781987349f91d"
+    },
+    "Magazine_TopRound_Jacket": {
+      "interior_texels": 489,
+      "mask_sha256": "46cec44329584ca51da7ab10bf619e98c23ef5e67ccf9f3a84142889eb37f269",
+      "rgba_sha256": "10dd92b73b038531d705544161e780d260cc3ba9465d5e9d634ed2c39b273d1e"
+    },
+    "Magazine_SecondRound_Case": {
+      "interior_texels": 2199,
+      "mask_sha256": "bd074f81f4a640e733713091199e835363ab1f7a85c1f0d4e60bcc3377596761",
+      "rgba_sha256": "924bd267f2b1ad3191fb8fdaec4e1a273b3c0874a32e41cb6737664baffc7f67"
+    },
+    "Magazine_SecondRound_Jacket": {
+      "interior_texels": 494,
+      "mask_sha256": "58a79aad7732b9f1990bc932e8b9a7617d638b6b5d4077bf4c20e7dc2f558027",
+      "rgba_sha256": "d385ba1a52c5b46da332ebefc1f187f06fec3557c466aba6b4141b6879600392"
+    },
+    "Magazine_ThirdRound_Case": {
+      "interior_texels": 2116,
+      "mask_sha256": "42a8b334f970f98fd7d5790b0cbfa3f8535f3b931704b6c2d4d075ba6d07c264",
+      "rgba_sha256": "c8635455e469b83921989528dab1d229978bccaeac7b71d419e2a21c0eb493c9"
+    },
+    "Magazine_ThirdRound_Jacket": {
+      "interior_texels": 400,
+      "mask_sha256": "f79b223c83e75da7f10e0789a35f0345571073926a06756076cf12b856d5936f",
+      "rgba_sha256": "d0c81c66564ce500218232389c63cb729d4bdbb57dc8888dae6350378513038f"
+    },
+    "Magazine_Follower": {
+      "interior_texels": 3796,
+      "mask_sha256": "71c748f08f4eb111f83056a86b8b7f6b1122f8bfb0f8c05a176c74f3191a2576",
+      "rgba_sha256": "00babc759df30cf7ddb3fbaec9d92e95dc07d3504bedd49b8c88d3292314cd88"
+    },
+    "ChamberRound_Case": {
+      "interior_texels": 3344,
+      "mask_sha256": "85be3e03290e4836b5dbcb173c66d449f132de5790f289c15dec89394a942c93",
+      "rgba_sha256": "dbcbd6b7942f84f9d46b591455d7ca83bb86c67acb46624cec7da4f25ddfc4cd"
+    },
+    "ChamberRound_Jacket": {
+      "interior_texels": 756,
+      "mask_sha256": "190a2cad0824047eab578a0119ec89f86b62dcd0cb0abfd6ddfd59fa3c229153",
+      "rgba_sha256": "8826b2455968275301dec7a2114286091fe6f8af401837b18b5b9feb261d1d98"
+    },
+    "EjectedCase_Case": {
+      "interior_texels": 3397,
+      "mask_sha256": "4719a1001c3d7eda21c7321b9754b681f9502356b0c4e7e57ccba4f3150ebc0e",
+      "rgba_sha256": "5c44192d515f5313b3d7e9433100bc029db63b9e43b534f89b016dc0be049b54"
+    },
+    "Receiver_FrontLugBridge-1": {
+      "interior_texels": 1583,
+      "mask_sha256": "ad1733cf5073aaf1a8ad0b38c221935b2db8b762be12bcefc6ce247d9d860cfb",
+      "rgba_sha256": "6fabd9e260004a33dbced33e39eef179b100cc14ec2f351a312cbe7acdb93f1d"
+    },
+    "Receiver_FrontLugBridge1": {
+      "interior_texels": 1595,
+      "mask_sha256": "f06d0e6ee6e21935049dd3d991eec921f59192a9768e2128bd897cab8bf10469",
+      "rgba_sha256": "7206598fb4d31e9ad5fb963f3e4426ef22c242011b26c7be8ed3154b537f4c07"
+    },
+    "Cartridge_Proof": {
+      "interior_texels": 46633,
+      "mask_sha256": "df96fc50adbd99226b41858ea47036eed67dfc3a29c58232c7acbfdb3519d378",
+      "rgba_sha256": "767ba154aa44a304f9a36e3e46a58624a94e7e3c02a693ce601a6e9a2f177867"
+    },
+    "Case_Proof": {
+      "interior_texels": 48707,
+      "mask_sha256": "ba9912e958afb315b199c4b5d97f19f4f49b4c199aef282c60cbc1ebc17d8f10",
+      "rgba_sha256": "db741fea9ba027461180a1ecd565061bc047cb7a5f54a21a06cf00b9ce7451aa"
+    }
+  }
+}

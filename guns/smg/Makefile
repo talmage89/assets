@@ -81,6 +81,7 @@ check: check-repo verify $(EXPORTS) $(SUBSET_LAYOUTS) build/white-balanced/navy2
 	$(BP) --python src/check.py -- --source build/smg.blend --out build/check.json --motion
 	$(BP) --python src/check.py -- --source build/delivery/finalized.blend --out build/delivery/construction.json --motion
 	$(BP) --python src/atlas_verify.py
+	$(BP) --python ../common/paint_projection_check.py -- --asset .
 	$(BP) --python src/check.py -- --source build/delivery/imported-parts.blend --out build/delivery/imported-construction.json --motion
 	$(BP) --python src/wear_audit.py
 	$(PYTHON) src/finish_review.py --layout-only
@@ -134,7 +135,7 @@ include ../common/gif.mk
 
 # Whole receiver distribution from the shipped GLB, with member-owned photo
 # outlines and one physical rig per photo. No reference pixels enter the bake.
+# Diagnostic only: these photos could not calibrate light from nonpaint anchors.
 .PHONY: paint-review
 paint-review: match build/value-surfaces.npz
-	$(PYTHON) src/paint_review.py --check
-review: paint-review
+	$(PYTHON) src/paint_review.py
