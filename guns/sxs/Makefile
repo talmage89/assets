@@ -17,6 +17,7 @@ MODEL := build/sxs.blend build/sxs.glb build/shell.glb build/hull.glb
 MODEL_DEPS := src/build.py src/head_surface.py src/head_mesh.py src/parameters.py src/clips.py src/interface.py ../common/shell12_visual.py ../common/interface_v1_7.py
 PREPARED := build/delivery/finalized.blend build/delivery/high.blend build/delivery/uv.json
 BAKED := $(addprefix build/baked/4k/T_Covey26_,BaseColor.png Normal.png ORM.png) build/baked/4k/bake-report.json
+PROJECTED := $(addprefix build/baked/precise4k/T_Covey26_,BaseColor.png Normal.png ORM.png) build/baked/precise4k/projection-report.json
 TEXTURES := $(addprefix textures/T_Covey26_,BaseColor.png Normal.png ORM.png)
 RENDER_DEPS := src/shots.py src/render.py ../common/render.py build/render-parameters.txt
 SHOTS := hero,side,left,top,front,rake_right,rake_left,open,breech,action,action_left,triggers,trigger_quarter,forend,stock,muzzle,top_controls,lumps,aimed,action_rake_right,action_rake_left,action_rake_top,action_rake_bottom
@@ -42,8 +43,10 @@ build/bake-parameters.txt: FORCE
 $(BAKED) &: $(PREPARED) src/config.py src/bake_form.py build/bake-parameters.txt ../../kit/bake.py ../../kit/bake_groups.py
 	$(KIT)/with_gpu.sh $(BP) --python src/bake_form.py -- --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES) > build/bake.log 2>&1
 bake: $(BAKED)
-$(TEXTURES) &: $(BAKED) ../../kit/downsample.py src/ship_normal.py
-	$(PYTHON) $(KIT)/downsample.py --source build/baked/4k --out textures --asset Covey26 --size $(SHIP_SIZE)
+$(PROJECTED) &: $(BAKED) $(PREPARED) src/ground_planes.py
+	$(BP) --python src/ground_planes.py > build/ground-projection.log 2>&1
+$(TEXTURES) &: $(PROJECTED) ../../kit/downsample.py src/ship_normal.py
+	$(PYTHON) $(KIT)/downsample.py --source build/baked/precise4k --out textures --asset Covey26 --size $(SHIP_SIZE)
 	$(PYTHON) src/ship_normal.py
 export/sxs.glb &: $(TEXTURES) $(PREPARED) src/config.py ../../kit/export.py
 	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset Covey26 --config src/config.py --out $@ --report build/delivery/export.json > build/export.log 2>&1

@@ -11,7 +11,7 @@ ROOT=Path(__file__).resolve().parents[3];sys.path.insert(0,str(ROOT))
 from kit.image_io import read_png,write_png
 BASE=Path(__file__).resolve().parents[1]
 size=2048
-source=BASE/'build/baked/4k/T_Covey26_Normal.png'
+source=BASE/'build/baked/precise4k/T_Covey26_Normal.png'
 normal=read_png(source)*2-1
 assert normal.shape==(4096,4096,3)
 normal=normal.reshape(size,2,size,2,3).mean(axis=(1,3))
