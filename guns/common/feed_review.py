@@ -46,7 +46,11 @@ def compare(base):
         for f in row['frames']:
             for stage in ('before','after'):
                 panels.append(panel(root/stage/clip/f'f{f:04d}.png',f'{stage.upper()}  {clip}  f{f:g}'))
-        sheet(panels,out/(clip+'.jpg'),2)
+        # Keep each before/after pair adjacent, wrapping long reloads before
+        # JPEG's 65,500-pixel dimension limit. Native inspection pages below
+        # retain one pair per row regardless of the full-strip layout.
+        columns=2*max(1,math.ceil(len(row['frames'])*panels[0].height/60000))
+        sheet(panels,out/(clip+'.jpg'),columns)
         for page,start in enumerate(range(0,len(panels),16)):
             sheet(panels[start:start+16],out/clip/f'inspect-{page:02}.jpg',2)
         records[clip]=dict(frames=row['frames'],rate_hz=30,before_sha256=before[clip]['source_sha256'],after_sha256=row['source_sha256'])
