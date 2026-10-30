@@ -68,10 +68,10 @@ def upper_mesh(roofloops):
         points.extend(p[:2] for p in row[1:-1] if not inside(p[:2],hole))
     vs,_,triangles,_,_,_=delaunay_2d_cdt([Vector(p) for p in points],edges,[],0,.000001,False)
     vertices=[(p.x,p.y,height(p.x,p.y)) for p in vs]
-    faces=[]
+    faces=[];regions=[]
     for triangle in triangles:
         c=tuple(sum(vs[i][k] for i in triangle)/len(triangle) for k in (0,1))
-        if inside(c,outer_xy) and not inside(c,hole): faces.append(tuple(triangle))
+        if inside(c,outer_xy) and not inside(c,hole): faces.append(tuple(triangle));regions.append(1)
     # The triangulator can split a boundary segment at an existing roof
     # sample. Recover those points in perimeter order, then interpolate the
     # arc profiles to the same fractions. This creates no T-junctions.
@@ -101,7 +101,9 @@ def upper_mesh(roofloops):
         for i,profile in ring:
             current.append(len(vertices));vertices.append(profile[row])
         faces.extend((previous[i],previous[(i+1)%len(ring)],current[(i+1)%len(ring)],current[i]) for i in range(len(ring)))
+        regions.extend([2]*len(ring))
         previous=current
     center=len(vertices);vertices.append((0,94,48))
     faces.extend((center,previous[i],previous[(i+1)%len(ring)]) for i in range(len(ring)))
-    return vertices,faces
+    regions.extend([3]*len(ring))
+    return vertices,faces,regions

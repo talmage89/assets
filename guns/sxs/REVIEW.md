@@ -35,6 +35,56 @@ is preserved under `build/round6/before/`; no final docs images are added.
     faces, leaving the arc's own normals intact. Increased source resolution
     and removed tangent-intersection slivers before considering a bake.
 
+
+35. **Physical curvature, integral lip and all five source cameras.**
+    Color/value: retained the accepted inspection constants. The neutral
+    black/white bands test form only; the dealer macro has no defensible
+    white-balance neutral. Opened all ten `pass10/stripes-source` images:
+    open, top, exact aimed and both side rakes, each with two perpendicular
+    band directions. The top's bands form continuous curves through the
+    inner shoulders; the open camera no longer shows the long diagonal
+    folds. The right/left rear returns carry continuous bands to the wood
+    boundary. Bands turn at the standing face and external wood joint,
+    which are intentional boundaries. The small fore recess lip no longer
+    ripples. Tight but continuous closed bands around the compound crowns
+    are reflections of continuous curvature, not a separate fence seam.
+
+    A merely C2 control net still permitted secondary humps. Added monotone
+    physical slopes and a penalty on physical curvature variation, retaining
+    the measured profile/radius constraints. Removed the tangent recess
+    Boolean entirely. A constrained triangulation joins the one roof to
+    circular R0.60 lip rows using shared boundary vertices; the rear relief
+    is below the original lever. Source remains manifold with no zero-area
+    polygons. A 1 µm action-coordinate grid distorted the shortest boundary
+    intervals; retaining those intervals at 10 nm removes that quantization.
+    The other parts retain their original precision policy.
+
+    Dense geometric adjacent-face maxima are 3.27/2.94 degrees on the
+    right/left fences, 3.86 at the center, 5.49/5.54 on the right/left rear
+    returns and 7.57 on the lip. These are actual triangulated face normals,
+    not the derivative or transferred shading normals. Intentional breech,
+    wood-joint, recess-floor, bushing and internal spindle-seat edges are
+    separately listed with exact locations; their sharpness is not counted
+    as a smooth blend. This sampling audit supports but does not replace
+    the images. The export/bake-loss comparison remains the next gate.
+
+
+36. **First 2048 bake: rejected rear-return projection.** Color/value:
+    the held dark steel and wood constants survive the 4096-to-2048 bake,
+    with no missed interior texels in the five channels. The ordinary open
+    player's image and its native crop expose several black stripes along
+    the rear returns, absent from the dense source. Reject this export.
+    A passing coverage/constant-color audit cannot detect a wrong normal
+    projected from an adjacent surface of the same steel part.
+
+    The old nearest-source normal transfer did not distinguish the roof from
+    its adjacent end cap after reduction. Added integer face ownership to
+    the constructed roof, lip and floor, and retain it through canonical
+    ordering and triangulation. Roof corners now retain the subdivision
+    limit's normal, including boundary corners; the end cap and lip retain
+    their own normals. The bake and every exported evidence view must be
+    regenerated after this correction. No pixels are manually repaired.
+
 ---
 
 # Covey 26 — form round 5: head behind the fences

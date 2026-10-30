@@ -53,16 +53,25 @@ def main():
     sc.render.resolution_x = a.width
     # Use the export's tangent normal texture without modification. All
     # mesh/material slots receive the same diagnostic reflection response.
+    retained_normal=False; normal_image=None
     for ob in [o for o in sc.objects if o.type == 'MESH' and o.get('bone')]:
         for slot in ob.material_slots:
             mat = slot.material.copy(); slot.material = mat
             bs = next(n for n in mat.node_tree.nodes if n.type == 'BSDF_PRINCIPLED')
             head = ob.get('part_name', ob.name) == 'Action_Body'
+            if head and source.suffix=='.glb':
+                assert bs.inputs['Normal'].is_linked,'Baked head normal is disconnected'
+                normal=bs.inputs['Normal'].links[0].from_node
+                assert normal.type=='NORMAL_MAP' and normal.inputs['Color'].is_linked
+                texture=normal.inputs['Color'].links[0].from_node
+                assert texture.type=='TEX_IMAGE' and tuple(texture.image.size)==(2048,2048)
+                retained_normal=True;normal_image=texture.image.name
             for key, value in [('Base Color', (.6, .6, .6, 1) if head else (.025, .025, .025, 1)),
                                ('Metallic', 1 if head else 0), ('Roughness', .045 if head else .85)]:
                 socket = bs.inputs[key]
                 for link in list(socket.links): mat.node_tree.links.remove(link)
                 socket.default_value = value
+    if source.suffix=='.glb':assert retained_normal
     for ob in sc.objects:
         if ob.type == 'LIGHT' or ob.name.startswith('Icosphere'): ob.hide_render = True
     cam = bpy.data.objects.new('Reflection camera', bpy.data.cameras.new('Reflection camera'))
@@ -82,7 +91,9 @@ def main():
             sc.render.resolution_y = round(a.width/shot.get('aspect', 1.5)); sc.render.filepath = str(out/(name+'-'+orientation+'.png'))
             bpy.context.view_layer.update(); bpy.ops.render.render(write_still=True)
             metadata[name+'-'+orientation] = dict(shot, source=str(source), sha256=hashlib.sha256(source.read_bytes()).hexdigest(),
-                normal_map_retained=source.suffix == '.glb', diagnostic_roughness=.045, environment='parallel bright bands, sin(32*unit_direction.'+('Y' if orientation=='transverse' else 'X')+')')
+                normal_map_retained=retained_normal,normal_image=normal_image,
+                camera_matrix_world=[list(row) for row in cam.matrix_world],resolution=[sc.render.resolution_x,sc.render.resolution_y],
+                diagnostic_roughness=.045, environment='parallel bright bands, sin(32*unit_direction.'+('Y' if orientation=='transverse' else 'X')+')')
     (out/'shots.json').write_text(json.dumps(metadata, indent=2))
 
 if __name__ == '__main__': main()

@@ -44,13 +44,17 @@ from head_mesh import upper_mesh
 def upper_normals(ob,normals=None):
  """Differentiate the single subdivision limit; retain the flat breech face."""
  normals=normals or [n.vector.copy() for n in ob.data.corner_normals]
+ ownership=ob.data.attributes.get('head_region')
  for face in ob.data.polygons:
   if face.normal.z<.01:continue
   # Classify the roof by the entire face. Per-corner distance tests also
   # caught the last part of the R0.60 lip, flattening it before an abrupt
   # shading-normal jump on the next arc row.
   ps=[ob.data.vertices[i].co for i in face.vertices]
-  if not all(70.01<p.y<114.99 and abs(p.z-action_roof(p.x,p.y))<.004 for p in ps):continue
+  if ownership:
+   if ownership.data[face.index].value!=1:continue
+   if any(p.y>114.8 for p in ps) and any(abs(p.z-action_roof(p.x,p.y))>.004 for p in ps):continue
+  elif not all(70.01<p.y<114.99 and abs(p.z-action_roof(p.x,p.y))<.004 for p in ps):continue
   for i in face.loop_indices:
    p=ob.data.vertices[ob.data.loops[i].vertex_index].co
    if abs(p.x)>ACTION_HALF_WIDTH-.015:n=Vector((math.copysign(1,p.x),0,0))
@@ -271,11 +275,20 @@ def action():
  nc=len(loops[0]);vs=[p for loop in loops for p in loop]
  fs=[(j*nc+i,j*nc+(i+1)%nc,(j+1)*nc+(i+1)%nc,(j+1)*nc+i) for j in range(len(loops)-1) for i in range(nc)
   if not (j<head_rows-1 and i<roof_columns-1)]
- roof_vertices,roof_faces=upper_mesh(roofloops);offset=len(vs);vs.extend(roof_vertices)
+ regions=[0]*len(fs)
+ roof_vertices,roof_faces,roof_regions=upper_mesh(roofloops);offset=len(vs);vs.extend(roof_vertices)
  fs.extend(tuple(i+offset for i in f) for f in roof_faces)
- center=len(vs);vs.append((0,78,27.5));fs += [(center,(i+1)%nc,i) for i in range(nc)]
- fs += [tuple(range((len(loops)-1)*nc,len(loops)*nc))]
- body=M.mesh('Action_Body',vs,fs,MAT['blue']);clean(body)
+ regions.extend(roof_regions)
+ center=len(vs);vs.append((0,78,27.5));fs += [(center,(i+1)%nc,i) for i in range(nc)];regions.extend([4]*nc)
+ fs += [tuple(range((len(loops)-1)*nc,len(loops)*nc))];regions.append(0)
+ body=M.mesh('Action_Body',vs,fs,MAT['blue'])
+ # Carry true surface ownership through Boolean, bevel and reduction.
+ # At a rear seam, a nearest-point normal alone can select the orthogonal
+ # end cap for a roof corner, producing dark stripes in the normal bake.
+ labels={tuple(sorted(f)):r for f,r in zip(fs,regions)}
+ ownership=body.data.attributes.new('head_region','INT','FACE')
+ for f in body.data.polygons:ownership.data[f.index].value=labels[tuple(sorted(f.vertices))]
+ clean(body)
  # The narrow visual lug passage opens on the table; its bottom remains
  # closed by the forging so the underside shows the smooth neck in the photo.
  cutbox(body,(-6.4,116,6.3),(6.4,184,33))
@@ -631,11 +644,16 @@ def canonical_surface(ob):
  precision=5 if ob.name in ('Action_Body','HIGH_Action_Body') else 3
  old=ob.data;coords=[tuple(round(x,precision) for x in v.co) for v in old.vertices]
  ordered=sorted(set(coords));indices={p:i for i,p in enumerate(ordered)};mapping={i:indices[p] for i,p in enumerate(coords)};faces=[]
+ ownership=old.attributes.get('head_region')
  for f in old.polygons:
   ids=[mapping[i] for i in f.vertices];ids=[v for i,v in enumerate(ids) if v!=ids[i-1]]
   if len(set(ids))<3:continue
-  k=ids.index(min(ids));faces.append(ids[k:]+ids[:k])
- me=bpy.data.meshes.new(old.name+'_ordered');me.from_pydata(ordered,[],sorted(faces));me.update()
+  k=ids.index(min(ids));faces.append((ids[k:]+ids[:k],ownership.data[f.index].value if ownership else 0))
+ faces.sort(key=lambda pair:pair[0])
+ me=bpy.data.meshes.new(old.name+'_ordered');me.from_pydata(ordered,[],[ids for ids,r in faces]);me.update()
+ if ownership:
+  attribute=me.attributes.new('head_region','INT','FACE')
+  for d,(_,value) in zip(attribute.data,faces):d.value=value
  for mat in old.materials:me.materials.append(mat)
  ob.data=me
  if old.users==0:bpy.data.meshes.remove(old)
@@ -648,22 +666,55 @@ def triangles_006(ob):
  both boundary intervals. Exporter's automatic tessellation may instead
  form an outside sliver. Choose the largest minimum triangle area.
  """
- mesh=ob.data;points=[v.co.copy() for v in mesh.vertices];faces=[]
+ mesh=ob.data;points=[v.co.copy() for v in mesh.vertices];faces=[];labels=[]
+ ownership=mesh.attributes.get('head_region')
  for face in mesh.polygons:
   ids=list(face.vertices)
-  if len(ids)==3:faces.append(ids);continue
+  label=ownership.data[face.index].value if ownership else 0
+  if len(ids)==3:faces.append(ids);labels.append(label);continue
   if len(ids)>4:
    # A split at two existing boundary points can leave a pentagon. Keep
    # all its boundary intervals, using Blender's concave tessellator.
    from mathutils.geometry import tessellate_polygon
    polygon=[points[i] for i in ids]
-   faces.extend(tuple(ids[i] for i in tri) for tri in tessellate_polygon([polygon]))
+   tris=[tuple(ids[i] for i in tri) for tri in tessellate_polygon([polygon])]
+   faces.extend(tris);labels.extend([label]*len(tris))
    continue
   a,b,c,d=ids
   alternatives=[[(a,b,c),(a,c,d)],[(a,b,d),(b,c,d)]]
   area=lambda triangle:(points[triangle[1]]-points[triangle[0]]).cross(points[triangle[2]]-points[triangle[0]]).length
   faces.extend(max(alternatives,key=lambda pair:min(area(triangle) for triangle in pair)))
+  labels.extend([label]*2)
  mesh.clear_geometry();mesh.from_pydata(points,[],faces);mesh.update();M.smooth(ob,42)
+ if ownership:
+  attribute=mesh.attributes.get('head_region') or mesh.attributes.new('head_region','INT','FACE')
+  for d,value in zip(attribute.data,labels):d.value=value
+
+def regional_normals(ob,high,normals):
+ """Interpolate within the original lip/floor/end face, across no seam.
+
+ Nearest-face transfer at a shared vertex may select a different side of
+ the forging. Surface ownership is geometric construction data; it has no
+ relationship to the photograph or the atlas's material/color labels.
+ """
+ from mathutils.bvhtree import BVHTree
+ from mathutils.geometry import barycentric_transform
+ source=high.data;target=ob.data
+ sa=source.attributes['head_region'];ta=target.attributes['head_region']
+ source.calc_loop_triangles();points=[v.co.copy() for v in source.vertices]
+ for region in (2,3,4):
+  triangles=[t for t in source.loop_triangles if sa.data[t.polygon_index].value==region]
+  assert triangles,region
+  tree=BVHTree.FromPolygons(points,[tuple(t.vertices) for t in triangles],all_triangles=True)
+  for face in target.polygons:
+   if ta.data[face.index].value!=region:continue
+   for loop in face.loop_indices:
+    p=target.vertices[target.loops[loop].vertex_index].co
+    hit,_,index,_=tree.find_nearest(p);tri=triangles[index]
+    a,b,c=[points[i] for i in tri.vertices]
+    na,nb,nc=[source.corner_normals[i].vector for i in tri.loops]
+    normals[loop]=barycentric_transform(hit,a,b,c,na,nb,nc).normalized()
+ return normals
 
 def finalize(ob):
  clean(ob)
@@ -715,6 +766,7 @@ def finalize(ob):
   m.use_loop_data=True;m.data_types_loops={'CUSTOM_NORMAL'};m.loop_mapping='POLYINTERP_NEAREST'
   m.use_max_distance=True;m.max_distance=.8;M.apply(ob)
  normals=[n.vector.copy() for n in ob.data.corner_normals]
+ if ob.name=='Action_Body':normals=regional_normals(ob,high,normals)
  if ob.name=='Forend_Walnut':
   for f in ob.data.polygons:
    if f.normal.z<-.985 and 205<f.center.y<275 and f.center.z<24:
