@@ -21,10 +21,11 @@ def main():
  out=BASE/'renders/final';entries=[];manifest={}
  from final_shots import DEFAULT_SHOTS
  from photo_matches import MATCHES
+ from finish_parameters import SITES
  required={'beauty':set(DEFAULT_SHOTS.split(',')),'eevee':{'hero'},'photos':set(MATCHES),'raw-check':{'hero','handguard','barrel_handle','belt'}}
  for n in ('box_loaded','box_empty','cartridge','case','link'):required['detachables/'+n]={n}
  for n in ('ak','smg'):required['precedents/'+n]={n+'_hero'}
- for n in ('receiver','cover','handle','flash','regulator','ports','feet','box','butt'):required['wear/'+n]={'hero','hero_right'}
+ for n in SITES:required['wear/'+n]={'hero','hero_right'}
  for folder,names in required.items():
   metadata=out/folder/'shots.json';assert metadata.exists(),str(metadata)
   assert names<=set(json.loads(metadata.read_text())),(folder,'missing shot metadata')
@@ -43,9 +44,9 @@ def main():
  raw=json.loads((out/'raw-check/raw-comparison.json').read_text())
  assert raw['source_sha256']==hashlib.sha256((BASE/'export/lmg.glb').read_bytes()).hexdigest()
  controls=json.loads((BASE/'build/control-verification.json').read_text())
- assert controls['passed'] and len(controls['controls'])==9
+ assert controls['passed'] and len(controls['controls'])==len(SITES)
  wear=json.loads((out/'look-review/wear-values.json').read_text())
- assert len(wear)==9 and all(set(r)=={'hero','hero_right'} for r in wear.values())
+ assert len(wear)==len(SITES) and all(set(r)=={'hero','hero_right'} for r in wear.values())
  assert all(max(v['changed_area_px'] for v in row.values())>0 for row in wear.values())
  framing=json.loads((BASE/'build/photo-frame-proof.json').read_text())
  assert framing['source_sha256']==hashlib.sha256((BASE/'export/lmg.glb').read_bytes()).hexdigest()
@@ -53,7 +54,7 @@ def main():
   x0,y0,x1,y1=row['projected_bounds_after'];w,h=row['frame'];m=row['minimum_margin_fraction']
   assert x0>=w*m and y0>=h*m and x1<=w*(1-m) and y1<=h*(1-m),(name,'clipped whole-gun photo pair')
 
- for folder in [out/'beauty',out/'eevee',out/'photos',out/'raw-check',*[out/'detachables'/n for n in ('box_loaded','box_empty','cartridge','case','link')],*[out/'precedents'/n for n in ('ak','smg')],*[out/'wear'/n for n in ('receiver','cover','handle','flash','regulator','ports','feet','box','butt')]]:
+ for folder in [out/'beauty',out/'eevee',out/'photos',out/'raw-check',*[out/'detachables'/n for n in ('box_loaded','box_empty','cartridge','case','link')],*[out/'precedents'/n for n in ('ak','smg')],*[out/'wear'/n for n in SITES]]:
   p=folder/'shots.json'
   if not p.exists():continue
   for name,row in json.loads(p.read_text()).items():

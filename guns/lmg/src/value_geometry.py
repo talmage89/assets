@@ -23,12 +23,14 @@ def capture(path,source,pose_key=None):
   ev.to_mesh_clear()
  np.savez_compressed(path,xyz=np.asarray(xyz),uv=np.asarray(uv),ids=np.asarray(ids),names=np.asarray(names),sha256=np.asarray(hashlib.sha256(source.read_bytes()).hexdigest()),pose_key=np.asarray(json.dumps(pose_key,sort_keys=True)))
 
-out=BASE/'build/image-geometry';out.mkdir(parents=True,exist_ok=True)
+source=BASE/(sys.argv[sys.argv.index('--source')+1] if '--source' in sys.argv else 'export/lmg.glb')
+folders=(sys.argv[sys.argv.index('--folders')+1].split(',') if '--folders' in sys.argv else ['renders/final/beauty','renders/final/photos'])
+out=BASE/(sys.argv[sys.argv.index('--out')+1] if '--out' in sys.argv else 'build/image-geometry');out.mkdir(parents=True,exist_ok=True)
 from delivery import split_imported
-V.import_glb(BASE/'export/lmg.glb');split_imported(bpy.context.scene,BASE/'build/delivery/finalized.blend')
+V.import_glb(source);split_imported(bpy.context.scene,BASE/'build/delivery/finalized.blend')
 snapshot=BASE/'build/image-import.blend';bpy.ops.wm.save_as_mainfile(filepath=str(snapshot))
-for folder in ('beauty','photos'):
- meta=BASE/'renders/final'/folder/'shots.json'
+for folder in folders:
+ meta=BASE/folder/'shots.json'
  if not meta.exists():continue
  for name,shot in json.loads(meta.read_text()).items():
   if hashlib.sha256(Path(shot['source']).read_bytes()).hexdigest()!=shot['sha256']:continue
@@ -47,8 +49,8 @@ for folder in ('beauty','photos'):
   if shot.get('inspection_parts'):
    for ob in list(bpy.context.scene.objects):
     if ob.type=='MESH' and not ob.get('part_name',ob.name).startswith(tuple(shot['inspection_parts'])):bpy.data.objects.remove(ob,do_unlink=True)
-  capture(out/(name+'.npz'),BASE/'export/lmg.glb',{k:shot.get(k) for k in ('action','frame','layers','hide_box','inspection_parts','diagnostic_isolate')})
-for name in ('box_loaded','box_empty','cartridge','case','link'):
+  capture(out/(name+'.npz'),source,{k:shot.get(k) for k in ('action','frame','layers','hide_box','inspection_parts','diagnostic_isolate')})
+for name in (() if '--no-detachables' in sys.argv else ('box_loaded','box_empty','cartridge','case','link')):
  V.import_glb(BASE/'export'/(name+'.glb'))
  for ob in bpy.context.scene.objects:
   if ob.type=='MESH':ob['asset_set']='LMG';ob['part_name']=name.title()

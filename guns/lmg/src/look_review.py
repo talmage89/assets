@@ -28,9 +28,16 @@ REGIONS={
  'steel_links':('belt', [[(1005,1510),(1225,1470),(1255,1540),(1080,1605)],[(1100,1710),(1265,1660),(1330,2050),(1150,2100)],[(1740,1428),(1985,1385),(2020,1460),(1790,1545)],[(1805,1640),(2010,1580),(2120,1940),(1890,2020)]], 'ammo_photo', ('Belt_Link',)),
  'copper_green_tip':('belt', [[(914,535),(943,576),(985,710),(1093,934),(945,963),(880,730)],[(1575,440),(1615,480),(1680,645),(1780,860),(1625,904),(1540,630)]], 'ammo_photo', ('Belt_Round',)),
 }
+# Replace the olive-phosphate receiver with a black coated whole receiver.
+REGIONS['paint_receiver']=('paint_receiver', [[(565,475),(1760,754),(1650,1018),(1430,1050),(1120,1018),(600,820),(540,770),(520,645)]], 'paint_receiver_photo', ('Receiver_Sheet','Receiver_Rivet','Receiver_RearDoubler','SideWell_Housing'))
+photo,polys,_,parts=REGIONS['molded_stock'];REGIONS['molded_stock']=(photo,polys,'stock_finish_photo',parts)
+photo,polys,_,parts=REGIONS['molded_box'];REGIONS['molded_box']=(photo,polys,'box_finish_photo',parts)
+REGIONS['molded_handguard']=('ribbed_handguard', [[(180,1260),(240,1200),(400,1180),(2500,1160),(2590,1210),(2660,1310),(2840,1420),(3080,1480),(3210,1480),(3200,2350),(3100,2440),(1060,2450),(970,2480),(890,2410),(880,2060),(860,1870),(790,1800),(650,1750),(260,1750),(170,1700)]], 'handguard_finish_photo', ('Handguard_Sculpt','Handguard_MoldRib'))
 SITES={
  'receiver':('Receiver_','SideWell_Housing'),
  'cover':('FeedCover_','RearSight_Base'),
+ 'cover_top':('FeedCover_',),
+ 'rivets':('Receiver_',),
  'handle':('CarryHandle_Grip',),'flash':('FlashHider',),
  'regulator':('GasRegulator','Regulator_Grip','GasBlock_Web'),
  'ports':('Receiver_','LinkPort_Rim','ChargingGuide'),
@@ -78,10 +85,13 @@ def components(mask):
  return sorted(rows,key=lambda r:r['area_px'],reverse=True)
 def main():
  out=BASE/(sys.argv[sys.argv.index('--out')+1] if '--out' in sys.argv else 'renders/final/look-review');out.mkdir(parents=True,exist_ok=True)
- atlas=np.asarray(Image.open(BASE/'textures/T_Harrow56_BaseColor.png'));orm=np.asarray(Image.open(BASE/'textures/T_Harrow56_ORM.png'));corrections=json.loads((BASE/'build/white-balanced/corrections.json').read_text());meta=json.loads((BASE/'renders/final/beauty/shots.json').read_text());photo_meta=json.loads((BASE/'renders/final/photos/shots.json').read_text());meta.update(photo_meta);cache={};values={};observations=[]
+ root=BASE/(sys.argv[sys.argv.index('--root')+1] if '--root' in sys.argv else 'renders/final')
+ texture_root=BASE/(sys.argv[sys.argv.index('--textures')+1] if '--textures' in sys.argv else 'textures')
+ geometry_root=BASE/(sys.argv[sys.argv.index('--geometry')+1] if '--geometry' in sys.argv else 'build/image-geometry')
+ atlas=np.asarray(Image.open(texture_root/'T_Harrow56_BaseColor.png'));orm=np.asarray(Image.open(texture_root/'T_Harrow56_ORM.png'));corrections=json.loads((BASE/'build/white-balanced/corrections.json').read_text());meta=json.loads((root/'beauty/shots.json').read_text());photo_meta=json.loads((root/'photos/shots.json').read_text());meta.update(photo_meta);cache={};values={};observations=[]
  for role,(photo,polygons,shot,prefixes) in ({} if '--wear-only' in sys.argv else REGIONS).items():
-  im=np.asarray(rgb(BASE/'renders/final'/('photos' if shot in photo_meta else 'beauty')/(shot+'.png')));h,w=im.shape[:2]
-  geo=np.load(BASE/'build/image-geometry'/(shot+'.npz'))
+  im=np.asarray(rgb(root/('photos' if shot in photo_meta else 'beauty')/(shot+'.png')));h,w=im.shape[:2]
+  geo=np.load(geometry_root/(shot+'.npz'))
   assert str(geo['sha256'])==meta[shot]['sha256'],('Stale imported image geometry',shot)
   assert str(geo['pose_key'])==json.dumps({k:meta[shot].get(k) for k in ('action','frame','layers','hide_box','inspection_parts','diagnostic_isolate')},sort_keys=True)
   if shot not in cache:cache[shot]=raster(geo,meta[shot],w,h)
@@ -121,10 +131,10 @@ def main():
   prefixes=SITES[site]
   wear[site]={}
   for shot in ('hero','hero_right'):
-   off=BASE/'renders/final/wear'/site/(shot+'.png')
+   off=root/'wear'/site/(shot+'.png')
    if not off.exists():continue
-   on=BASE/'renders/final/beauty'/(shot+'.png');a=np.asarray(rgb(on),float);b=np.asarray(rgb(off),float);h,w=a.shape[:2]
-   geo=np.load(BASE/'build/image-geometry'/(shot+'.npz'))
+   on=root/'beauty'/(shot+'.png');a=np.asarray(rgb(on),float);b=np.asarray(rgb(off),float);h,w=a.shape[:2]
+   geo=np.load(geometry_root/(shot+'.npz'))
    assert str(geo['sha256'])==meta[shot]['sha256']
    if shot not in cache:cache[shot]=raster(geo,meta[shot],w,h)
    ids,coordinates=cache[shot];selected=[i+1 for i,n in enumerate(geo['names']) if str(n).startswith(prefixes)];region=np.isin(ids,selected)
@@ -142,11 +152,18 @@ def main():
    difference=np.uint8(np.clip(abs(a-b)*6,0,255));difference[~region]=0
    dpath=out/(site+'-'+shot+'-difference.png');Image.fromarray(difference).save(dpath)
    mpath=out/(site+'-'+shot+'-mask.png');Image.fromarray(np.uint8(m)*255).save(mpath)
+   if m.any():
+    bounds=(max(0,int(xs.min())-18),max(0,int(ys.min())-18),min(w,int(xs.max())+19),min(h,int(ys.max())+19))
+    crop_paths=[]
+    for label,img in [('on',Image.fromarray(np.uint8(a))),('off',Image.fromarray(np.uint8(b))),('difference',Image.fromarray(difference))]:
+     cp=out/(site+'-'+shot+'-'+label+'-crop.png');img.crop(bounds).save(cp);crop_paths.append((label+' / native crop',cp))
+    sheet(crop_paths,out/(site+'-'+shot+'-cropped.jpg'),columns=3,cell=(700,480))
+    record['native_crop_bounds']=bounds
    pair=out/(site+'-'+shot+'-on-off.jpg');sheet([('Wear ON / native '+shot,on),('Only '+site+' OFF / same camera',off),('Absolute RGB difference ×6',dpath),('Actual 2D changed area / >=4 RGB',mpath)],pair,columns=2,cell=(800,500));entries.append((site+' / '+shot,pair))
  (out/'wear-values.json').write_text(json.dumps(wear,indent=2))
  if entries:sheet(entries,out/'wear-sites.jpg',columns=3,cell=(600,740))
  if 'hero' in cache:
-  a=np.asarray(rgb(BASE/'renders/final/beauty/hero.png'));ids,_=cache['hero'];foreground=ids>0
+  a=np.asarray(rgb(root/'beauty/hero.png'));ids,_=cache['hero'];foreground=ids>0
   (out/'hero-tones.json').write_text(json.dumps(dict(luma_percentiles=np.percentile(a[foreground]@LUMA,[1,10,50,90,99]).tolist(),clipped_channel_fraction=float((a[foreground]>=255).mean())),indent=2))
  print('WHOLE-PART FINISHES',len(values),'WEAR SITES',len(wear),flush=True)
 if __name__=='__main__':main()

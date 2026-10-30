@@ -14,7 +14,7 @@ from final_shots import PHOTO_POSES
 path=BASE/'build/cameras.json';rows=json.loads(path.read_text());proof={}
 V.import_glb(BASE/'export/lmg.glb');split_imported(bpy.context.scene,BASE/'build/delivery/finalized.blend')
 arm=bpy.data.objects['HarrowArmature']
-for name in ('right_photo','left_photo','belt_photo','used_field_photo','used_right_photo'):
+for name in ('right_photo','left_photo','belt_photo','used_field_photo','used_right_photo','stock_finish_photo','box_finish_photo','handguard_finish_photo'):
     row=rows[name];shot=row['shot'];pose=PHOTO_POSES[name];W.pose(arm,pose['action'],pose['frame'])
     matrices={b.name:b.matrix_basis.copy() for b in arm.pose.bones}
     for bone,(clip,frame) in pose.get('layers',{}).items():W.pose(arm,clip,frame);matrices[bone]=arm.pose.bones[bone].matrix_basis.copy()
@@ -24,6 +24,7 @@ for name in ('right_photo','left_photo','belt_photo','used_field_photo','used_ri
     for ob in bpy.context.scene.objects:
         if ob.type!='MESH' or not ob.get('asset_set'):continue
         if pose.get('hide_box') and ob.name.startswith(('Box_','Belt_')):continue
+        if pose.get('inspection_parts') and not ob.name.startswith(tuple(pose['inspection_parts'])):continue
         ev=ob.evaluated_get(dg);mesh=ev.to_mesh();mesh.calc_loop_triangles()
         points=np.array([tuple(ev.matrix_world@v.co) for v in mesh.vertices]);faces=np.array([t.vertices[:] for t in mesh.loop_triangles]);q=points[faces]
         valid=np.linalg.norm(np.cross(q[:,1]-q[:,0],q[:,2]-q[:,0]),axis=1)>1e-12

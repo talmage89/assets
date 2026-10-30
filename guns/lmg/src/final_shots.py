@@ -64,8 +64,8 @@ def configure_scene(scene,source):
    assert (cam.matrix_world.translation-eye.translation).length<1e-7
    assert ((cam.matrix_world.to_3x3()@Vector((0,0,-1))).normalized()-(eye.to_3x3()@Vector((0,1,0))).normalized()).length<1e-7
  bpy.app.handlers.render_pre.append(gray_socket)
- setup={'Key softbox':((.60,.15,.78),35,.55,1.25),
- 'Camera fill':((-.65,.22,.45),15,.65,1.1),
+ setup={'Key softbox':((.60,.15,.78),18,.55,1.25),
+ 'Camera fill':((-.65,.22,.45),4,.65,1.1),
  'Right rim strip':((-.18,.85,.55),13,.14,1.0),
  'Left rim strip':((-.45,-.20,.35),5,.15,.70),
  'Overhead reflection card':((0,.15,.75),5,.30,.8)}
@@ -100,13 +100,13 @@ def prepare_shot(scene,shot):
  floor=scene.objects['Studio seamless'];floor.scale=(10,10,10) if isscale else (1,1,1);floor.location.z=0 if isscale else scene['source_floor']
  floor.rotation_euler.z=math.pi if isscale else 0
  scene.objects['Scale fill'].hide_render=not isscale
- bg=scene.world.node_tree.nodes['Background'];bg.inputs['Strength'].default_value=2*shot.get('photo_ammo_gain',1) if shot.get('photo_ammo_light') else .8 if shot.get('daylight') else .18
+ bg=scene.world.node_tree.nodes['Background'];bg.inputs['Strength'].default_value=2*shot.get('photo_ammo_gain',1) if shot.get('photo_ammo_light') else .8 if shot.get('daylight') else .045
  for ob in scene.objects:
   if ob.get('human_scale'):ob.hide_render=not isscale
   if ob.get('bake_only') or ob.name in ('Case_Proof','Cartridge_Proof','Link_Proof') or (ob.name.startswith('HIGH_') and not scene.get('dense_source')):ob.hide_render=True
   if ob.name.startswith('Studio black'):ob.hide_render=True
   if ob.type!='LIGHT' or 'final_energy' not in ob:continue
-  ob.location=ob['final_location'];ob.data.energy=ob['final_energy'];ob.data.size,ob.data.size_y=ob['final_size']
+  ob.location=ob['final_location'];ob.data.color=(1,1,1);ob.data.energy=ob['final_energy'];ob.data.size,ob.data.size_y=ob['final_size']
   if shot.get('daylight'):
    sign=shot['daylight']
    if ob.name=='Key softbox':ob.location=(sign*.8,.22,.62);ob.data.energy=32;ob.data.size=1.2;ob.data.size_y=1.2
@@ -141,6 +141,9 @@ def prepare_shot(scene,shot):
   target=Vector((-.06,.17,.13)) if shot.get('photo_ammo_light') else Vector((0,.364,.075)) if shot.get('front_component') else Vector((0,.025,0)) if shot.get('shell_light') else Vector((0,.06,1.02 if isscale else .06))
   ob.rotation_euler=(target-ob.location).to_track_quat('-Z','Y').to_euler()
 
+ from photo_lighting import apply
+ apply(scene,shot)
+
 ACTIVE_LAYERS={}
 
 PHOTO_POSES.update(used_photo=dict(action='Idle',frame=0,daylight=-1,layers={'CarryHandle':('CarryRaise',30)},hide_box=True),used_field_photo=dict(action='BipodDeploy',frame=54,daylight=1,layers={'CarryHandle':('CarryRaise',30)},hide_box=True),ammo_photo=dict(action='Idle',frame=0,daylight=-1))
@@ -149,3 +152,11 @@ PHOTO_POSES['used_right_photo']=dict(action='BipodDeploy',frame=54,daylight=-1,l
 for name,pose in PHOTO_POSES.items():
  pose['exposure']=.45
 PHOTO_POSES['ammo_photo'].update(photo_ammo_light=True,photo_ammo_gain=2.4,exposure=-.15,inspection_parts=['Belt_'])
+
+for name in ("used_photo","used_right_photo"):
+ PHOTO_POSES[name]["light_fit"]=name
+
+PHOTO_POSES['paint_receiver_photo']=dict(action='Idle',frame=0,hide_box=True,exposure=.45,light_fit='paint_receiver_photo',layers={'CarryHandle':('CarryRaise',30)})
+PHOTO_POSES['stock_finish_photo']=dict(action='Idle',frame=0,exposure=.45,inspection_parts=['Stock_Sculpt'],light_fit='stock_finish_photo')
+PHOTO_POSES['box_finish_photo']=dict(action='Idle',frame=0,exposure=.45,inspection_parts=['Box_'],light_fit='box_finish_photo')
+PHOTO_POSES['handguard_finish_photo']=dict(action='Idle',frame=0,exposure=.45,inspection_parts=['Handguard_'],light_fit='handguard_finish_photo')

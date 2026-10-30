@@ -19,11 +19,11 @@ BAKED := $(addprefix build/baked/4k/T_Harrow56_,BaseColor.png Normal.png ORM.png
 TEXTURES := $(addprefix textures/T_Harrow56_,BaseColor.png Normal.png ORM.png)
 EXPORTS := $(addprefix export/,lmg.glb box_loaded.glb box_empty.glb cartridge.glb case.glb link.glb)
 SHOTS := hero,hero_right,side,left,front,back,top,cover_open_full,rear_sight,barrel_handle,front_sight,charging_handle,trigger,furniture,handguard,bipod,belt,box,aimed,aimed_macro,shooter_three_quarter,scale,ammo_pair
-PHOTO_SHOTS := right_photo,left_photo,open_photo,trigger_photo,belt_photo,receiver_photo,cover_detail_photo,tray_detail_photo,sight_detail_photo,box_detail_photo,used_photo,used_field_photo,ammo_photo,used_right_photo
-SITES := receiver cover handle flash regulator ports feet box butt
+PHOTO_SHOTS := right_photo,left_photo,open_photo,trigger_photo,belt_photo,receiver_photo,cover_detail_photo,tray_detail_photo,sight_detail_photo,box_detail_photo,used_photo,used_field_photo,ammo_photo,used_right_photo,paint_receiver_photo,stock_finish_photo,box_finish_photo,handguard_finish_photo
+SITES := receiver cover cover_top rivets handle flash regulator ports feet box butt
 comma := ,
 FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(SHOTS))))
-RENDER_DEPS := src/final_render.py src/final_shots.py src/shots.py src/delivery.py ../common/render.py build/render-parameters.txt
+RENDER_DEPS := src/final_render.py src/final_shots.py src/photo_lighting.py src/shots.py src/delivery.py ../common/render.py build/render-parameters.txt
 .PHONY: all refs model prepare lookdev bake export check render match source-match wear-review precedent extra raw-audit review clean FORCE
 all: refs export check render match source-match wear-review precedent extra raw-audit review
 refs:
@@ -43,7 +43,7 @@ build/bake-parameters.txt: FORCE
 build/render-parameters.txt: FORCE
 	@mkdir -p build $(TMPDIR)
 	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='width=$(WIDTH) samples=$(SAMPLES)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
-build/delivery/high.blend: $(PREPARED) build/markings/receiver.png build/markings/headstamp.png src/lookdev.py src/build_high.py build/bake-parameters.txt
+build/delivery/high.blend: $(PREPARED) build/markings/receiver.png build/markings/headstamp.png src/lookdev.py src/finish_parameters.py src/wear_patterns.py src/build_high.py build/bake-parameters.txt
 	$(BP) --python src/build_high.py -- --wear $(WEAR)
 lookdev: build/delivery/high.blend
 $(BAKED) &: build/delivery/high.blend $(PREPARED) src/config.py
@@ -82,7 +82,7 @@ renders/final/source-photos/shots.json: build/delivery/high.blend build/cameras.
 	$(KIT)/with_gpu.sh $(BP) --python src/source_render.py -- --source build/delivery/high.blend --out renders/final/source-photos --camera-file build/cameras.json --width $(WIDTH) --samples $(SAMPLES) --shots $(PHOTO_SHOTS)
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/cameras.json --renders renders/final/source-photos --out renders/final/source-pairs
 source-match: renders/final/source-photos/shots.json
-build/controls/%/high.blend: $(PREPARED) build/markings/receiver.png build/markings/headstamp.png src/lookdev.py src/build_high.py build/bake-parameters.txt
+build/controls/%/high.blend: $(PREPARED) build/markings/receiver.png build/markings/headstamp.png src/lookdev.py src/finish_parameters.py src/wear_patterns.py src/build_high.py build/bake-parameters.txt
 	$(BP) --python src/build_high.py -- --wear $(WEAR) --omit $* --out $@
 build/controls/%/baked/bake-report.json: build/controls/%/high.blend src/config.py
 	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/bake.py -- --low build/delivery/bake-target.blend --high $< --out build/controls/$*/baked --asset Harrow56 --config src/config.py --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)

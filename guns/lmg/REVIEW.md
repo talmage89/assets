@@ -659,3 +659,55 @@ native standalone boxes. The final contact sheet is
 `renders/final/contact-sheet.jpg`; the measured tables and direct pair links
 are in README. Final presentation audit passes after including the studio
 composite in the index. No docs images are generated.
+
+## Look round 2 — pass 18, baseline and physically plausible inputs (rejected)
+
+Color/value first: opened the two native player/hero images, three-gun panel,
+all twelve finish charts, all eighteen on/off sheets, wear-sites sheet and the
+native used whole/receiver photographs. The reported misses are real visible
+failures. The coating crushes while phosphate and furniture look like primer.
+The receiver target is unpainted olive phosphate and cannot accept black paint.
+Preserved the complete round-1 GLB, maps, renders, geometry observations and
+source shader under `build/look-round2/before/` before changing anything.
+
+Opened the native first source trial beside those photographs. A 2.2% diffuse
+paint input removes the implausible .15% input, but its broad response is too
+bright under the old diffuse comparison lighting. The reference has a narrower
+reflected card, dark flats and brighter high points. Merely increasing albedo
+is rejected. Phosphate now starts dark, with bath/crystal variation and local
+brown heat; the first trial is too dark in the photo setup. None of these
+source previews counts as shipped appearance or acceptance.
+
+## Look round 2 — pass 19, lighting and comparison camera audit (rejected)
+
+Color/value first: opened native `renders/round2-pass2/` hero, receiver and
+whole-gun comparisons. Lower fill improves darks, but cover median remains
+81 against 37; grip 60 against 79; barrel 30 against 53. Reject all three.
+The previous whole-gun camera was below the receiver and the close receiver
+fit used a rear-sight landmark on the wrong part. It changes which surfaces
+are sampled and which reflection family is visible. Re-observe local body
+landmarks and constrain the visible elevation, keeping fit residuals explicit.
+
+Opened the sharp replacement black-coated receiver photograph. White paper
+under the grip's cast shadow is an unclipped neutral estimate. The two gray-
+carpet dealer photographs were inspected and rejected as close surface targets:
+one is olive phosphate, and both have too little regional resolution. The
+old stock and box comparisons used unrelated inspection angles. Fit their
+actual photographed flank/end views before deciding their finish values.
+
+## Look round 2 — pass 20, located wear and revised photo views (rejected)
+
+Color/value first: opened all seven native `renders/round2-pass4/` views. The
+revised hero has narrower satin reflections and darker phosphate; its coat
+still reads too gray. The stock's diffuse photo fit overexposes its edge; the
+box and stock camera optimizations hit a roll/pose limit and are rejected.
+Do not excuse a distribution error with those bad views.
+
+Extended receiver/cover abrasion along exposed lengths, with phosphate first
+and rare bright steel at sharp high points. Added independently switchable
+rivet-head rubs and original finite gear-drag scratches on the handled cover
+top. Their procedural construction reads no reference pixels. The source
+close-up shows the scratches, but full-frame wear still needs measurement and
+baked confirmation. The new grain is too coarse on furniture in these source
+macros; reduce its scale and height before final baking. All accepted forms,
+64 bones, twelve sockets and nineteen clips remain unchanged.
