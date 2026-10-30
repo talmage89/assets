@@ -50,7 +50,7 @@ def main():
     DOCS.mkdir(exist_ok=True)
     shots = {n: checked('beauty', n) for n in (
         'hero', 'front', 'side', 'back', 'top', 'cover_open_full', 'rear_sight',
-        'barrel_handle', 'furniture', 'belt', 'aimed_macro', 'scale')}
+        'barrel_handle', 'furniture', 'belt', 'shooter_three_quarter', 'scale')}
     feed = checked('docs-feed', 'belt_laid')
     eevee = checked('eevee', 'hero', 'BLENDER_EEVEE')
     turnaround = sheet([(n.title(), shots[n]) for n in ('front', 'side', 'back', 'top')], OUT / 'turnaround.jpg')
@@ -62,7 +62,7 @@ def main():
     action = sheet([
         ('Reload / cover open, belt on tray', shots['cover_open_full']),
         ('Reload / belt laid, frame 264', feed),
-        ('Exact eye frame / sight macro', shots['aimed_macro']),
+        ("Shooter's three-quarter view", shots['shooter_three_quarter']),
         ('Scale / 1.8 m silhouette', shots['scale'])], OUT / 'action.jpg', (800, 650))
     all_stills = [(name, checked('beauty', name))
                   for name in json.loads((OUT / 'beauty/shots.json').read_text())]

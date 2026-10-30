@@ -11,12 +11,12 @@ Every vertex, texel and marking comes from our Blender 5.2 scripts.
 
 ![Signature reload from the exported GLB](docs/motion.gif)
 
-`Reload` at real speed: cover opening, box exchange, belt laid on the tray and cover closing.
+`Reload` excerpt at real speed: belt laid on the tray, cover closing and latch seating.
 
 | | |
 | --- | --- |
 | ![Front, side, back and top](docs/turnaround.jpg) | ![Sight, carrying handle, furniture and belt](docs/details.jpg) |
-| ![Open cover, loaded tray, exact eye view and 1.8 m scale](docs/action.jpg) | ![Eevee with the same baked maps](docs/eevee.jpg) |
+| ![Open cover, loaded tray, shooter's three-quarter view and 1.8 m scale](docs/action.jpg) | ![Eevee with the same baked maps](docs/eevee.jpg) |
 
 All images load exported GLBs with their embedded baked maps. `make` creates
 Cycles stills in `renders/final/beauty/`, the feed close-up in `docs-feed/`,
@@ -211,13 +211,14 @@ manifest; `build/interface.json` is generated. Clip endpoints are inclusive.
 Reload releases the latch at frame 18, opens the cover at 60, lifts the belt
 at 88, withdraws the box at 140, seats its replacement at 215, lays the belt
 at 264, closes the cover at 324 and latches at 340. ReloadEmpty finishes its
-handle draw/return at 380/410. The README GIF uses the complete `Reload`,
-with no slowed motion, sampled at 20 Hz and an added 500-ms initial hold.
-Its camera keeps the full cover and box travel visible; the longer manual
-sequence makes the belt/tray relationship clearer than the .20-s Fire.
-Delivery is **480×384, 120 frames, 20 Hz, 189 distinct palette entries and
-392,971 bytes**, with a 6,500-ms total loop. The smaller GIF keeps the complete
-motion; fine link and finish inspection belongs to the action/details JPGs.
+handle draw/return at 380/410. The README GIF shows `Reload` frames 226–346:
+the cover starts open, the belt settles visibly onto the tray, then the cover
+closes and latches. It runs at authored speed, sampled at 20 Hz, with a 500-ms
+initial hold. The camera looks from above and in front of the right side;
+the muzzle and stock end leave the mechanism crop while the cover stays in frame.
+Delivery is **720×496, 40 frames, 20 Hz, 128 distinct palette entries and
+437,964 bytes**, with a 2,500-ms total loop. The complete six-second Reload
+and all other clips remain in the unchanged GLB.
 
 Persist `{version, clip, frame, remaining, phase}` for pause/resume. Never jump
 to Idle while the cover is open or box absent. `src/belt.py` supplies the

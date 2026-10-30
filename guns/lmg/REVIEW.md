@@ -1426,3 +1426,79 @@ asset implementation, material, wear field or other gun implementation is
 changed. Nothing is pushed or merged into main. The one outstanding review
 item is the continuous real-speed visual watch described above; all frame,
 container-timing and headless speed-1 checks are complete.
+
+## Docs correction — larger reload excerpt and shooter's view
+
+The owner accepted `6674824` except for the small full-gun GIF and the dark
+exact-eye macro panel. This pass changes only those presentations and their
+recipes/documentation. No geometry, GLB animation, material, texture or wear
+changes are made.
+
+The GIF camera now looks down from above and slightly forward of the right
+side. The receiver, tray, attached box, cover and latch remain visible; the
+static muzzle and stock end leave the image. The cover's full closing travel
+stays inside the crop. `Reload` remains the selected exported clip, sampled
+without retiming. The presentation selects source frames **[226, 346)**:
+the cover starts open, the belt returns onto the tray, and the cover closes
+and latches. Opening, belt withdrawal and box exchange are omitted from this
+excerpt; the complete six-second Reload remains in the unchanged GLB. The
+loop cuts from the closed cover back to the initial open-cover pose, with no pose jump
+inside the excerpt. It is not a seamless mechanical cycle.
+
+Compression trials followed the requested order: remove outer holds, tighten
+the mechanism crop, then reduce frame rate and palette. The full moving span
+at 720×496 / 25 Hz / 64 colors still encoded to **901,700 bytes**. Focusing
+on belt placement through closing gave **624,911 bytes** at 720×496 / 25 Hz /
+256 colors, or **501,370** with 128 colors. At 20 Hz, 144 colors still gave
+**451,260 bytes**; 128 colors passed. A tighter portrait keeping all cover/box
+travel spent more pixels on moving surfaces and was larger. Trial logs remain
+under the repository-root `build/lmg-docs-fix/` folder.
+
+Final delivery: **720×496, 40 decoded frames, 20 fps, 128 distinct palette
+entries, 437,964 bytes**. Source samples are 226, 229, …, 343 at authored
+60-Hz timing. There is an added **500-ms initial hold**: first frame 550 ms,
+then 39 frames of 50 ms, for a **2,500-ms loop**. The shared tool uses one
+global palette, no dithering and the member's unchanged flat gray studio
+background, lighting, exposure and baked maps. There is no text in the GIF.
+
+Opened all forty decoded frames on native review pages `frames-0000.jpg`,
+`0008`, `0016`, `0024` and `0032` in `build/gif/review/`. Color/value first:
+paint stays black with satin reflections, furniture is grayer, and brass,
+copper and green tips retain the docs JPG colors. No visible palette flicker,
+objectionable paint banding or moving background noise was found. Rounds and
+links remain separate as the belt settles across the tray; cover edges and
+latch travel are readable, with no cover clipping. The box stays visible.
+The loop reset is an explicit cut to the held open-cover pose. The existing
+continuous-visual-playback limitation above remains; frame inspection is not
+described as a live visual watch.
+
+Decoded corner RGB stays exactly **111/114/118** in all forty frames. Against
+the corresponding resized RGB renders, object pixels average **.806 encoded
+channel levels** of absolute quantization error; the largest per-frame 99th
+percentile is **9**. These measurements support the visual inspection. The
+ignored audit is `build/lmg-docs-fix/gif-audit.json` at repository root.
+Fresh `make -C guns/lmg gif` exits zero and retains the first passing delivery
+through the shared tool's canonical comparison: candidate frame mean error
+at most .00000654 levels, maximum component difference 3, and at most
+.00000281 of pixels over two levels. Delivered SHA-256:
+`e281b2bca7a1734d22b7a3b6b8f1063bd3dcdff568975a0b826a4d45e10bc611`.
+
+Replaced the action sheet's dark macro with the existing GLB-rendered
+`renders/final/beauty/shooter_three_quarter.png`, captioned "Shooter's
+three-quarter view". Opened the resulting JPG: the gunner's view now shows
+the receiver, sight, cover and visible feed side in context. No new render
+or material adjustment is involved. `action.jpg` is **1600×1300, 182,164
+bytes**, JPEG quality 91. The other four accepted docs JPGs are byte-identical
+to `6674824`. `python3 guns/lmg/src/docs.py` rebuilds the sheet and refreshes
+the ignored `renders/final/docs-contact-sheet.jpg` and docs report.
+
+Validation: `make -C guns/lmg gif`, `make -C guns/lmg check` and
+`python3 kit/repo_check.py` all exit zero. The check retains the accepted
+atlas verification across **1,529 poses**. Logs are `gif-final.log`,
+`check.log` and `repo-check.log` under root `build/lmg-docs-fix/`.
+All six delivery GLBs and three canonical texture PNGs match the frozen
+handoff hashes in that folder's `frozen-delivery.json`. Budgets remain
+**47,638 triangles, one material, three 2048 maps, 14,579,528 GLB bytes**;
+canonical PNG total remains **10,016,210 bytes**. No kit/common implementation
+changes, merge or push. No new asset flaw found; the presentation tradeoff
+is the shorter Reload excerpt and its loop cut.
