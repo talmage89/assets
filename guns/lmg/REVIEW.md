@@ -1006,3 +1006,269 @@ is 5.122% versus 5.222% apparent photo wear. Actual hero-visible footprint is
 reverse hero). The long return/rail marks are visible, not inferred merely
 from the presence of a shader mask. The complete checks also pass on this
 frozen export, including the 1,529-pose atlas audit.
+
+
+## Look round 2 — pass 37, local cover-profile limitation retained
+
+Color/value first: all twelve canonical native whole-part finishes now pass
+median ±10%, tails ±15%, and every highlight RGB channel ±10%; the original
+field-link cross-check also passes under the accepted ammunition's shared
+rig. Opened the three-way local reflection study. Retained cover FWHM is
+22.9% of the apparent station versus 16.4% in the photo; local P95 is 165
+versus 230. This local profile still misses, despite passing the complete
+cover distribution. Do not call it a full sheen match.
+
+The separately rebuilt physical trial narrows FWHM to 15.7%, but its local
+P95 is only 184 and it breaks complete-cover and carrying-handle tolerances.
+A second mixed-spectrum fit also remains below the local peak and breaks the
+cover distribution. Reject both; preserve the coherent complete-part rig.
+The compared sections are an accepted hemmed sheet crown and a cylindrical
+pressing. Their profiles are construction-dependent observations, not a
+recovered paint BRDF. The final pair retains the mismatch and the actual GLB
+trial, rather than hiding it behind the passing whole-part table. No accepted
+form or material budget is changed to erase this comparison limitation.
+
+## Look round 2 — pass 38, reject filtered polymer and sparse box damage
+
+Color/value first: opened all twelve controlled before/after panels and the
+native polymer close pairs. Complete-part values pass, but the shipped stock
+and grip still look too smooth beside their photographs. A passing histogram
+does not excuse that surface miss. Test an intermediate molding scale of
+1000–1800 cycles/m, 3–10 µm relief and .04–.10 roughness spans. This remains
+well below the rejected 35–80 µm coarse skin; judge the new exported close
+pairs before accepting it. Also test cover roughness .29 against both the
+local reflection profile and complete-part distributions, rather than ending
+the investigation at a lighting-only conflict.
+
+The final pass-15 area audit gives receiver 5.122% / photo 5.222%, cover
+2.200% / 2.157%, top 1.284% / 1.207%, and rivets 69.634% / 67.702%.
+The box, however, has only 11 changed material pixels (0.044%) against
+0.748% apparent photo abrasion, and only 76 changed image pixels. Its old
+X/Y corner intersection missed most of the real rounded returns. Relocate
+the impact mask onto those returns and constrain its height to the bottom
+31.5 mm; do not add a uniform lower dirt band. Stop the in-progress full
+build while these new materials are evaluated; its interrupted run is not
+reported as a successful build.
+
+The separate eleven-control audit passes. Its earlier receiver rejection
+was confined to the link-port rim and padding: 30 BaseColor sampling-footprint
+texels and 29 ORM texels. The largest-change sample's nearest receiver
+surface is 0.151 mm away; all changed rim samples are within the accepted
+4 mm projection range. The audit now measures every changed rim sample's
+distance separately and retains the three-level threshold everywhere else.
+This records a local projection contact, not a claim that the rim's own
+source shader contains the receiver abrasion field.
+
+## Look round 2 — pass 39, measure the assembly frame before weathering
+
+Color/value first: the pass-16 native cover is 25/37/127 versus 28/37/115;
+its complete-part highlight RGB still passes. Roughness .29 narrows the local
+reflection to 18.6% versus 16.4%, but its P95 stays 167 versus 230. The old
+rejected fixture on this finish gives 15.7% and P95 190, still a value miss.
+Fit a new shared physical rig with the actual native local profile included,
+then judge the final native render. Do not count this roughness change alone
+as a resolved sheen match.
+
+Native molding comparisons retain all eight tested finish distributions
+inside their limits. Their small normal signal still filters strongly, so
+test 6–25 µm relief at the same 1000–1800 cycles/m with restrained .04–.10
+roughness spans. This raises the normal signal without restoring the former
+large roughness lumps. Reinspect the actual shipped close pairs.
+
+The first box correction produced no abrasion: an explicit source-attribute
+measurement finds shell FinishPosition Z bounds -.1285 to +.0340 m, including
+the assembly's +43 mm offset. The authored -.1715 m bottom is not the source
+material's rest coordinate. Locate the bottom field at -.100 to -.122 m and
+remeasure its native visible footprint. No geometry or assembly pose changes.
+Also narrow the regulator's finite deposit field toward its photographed
+24.3% apparent area; the previous 40.3% field was unnecessarily broad.
+
+Remove the report's one-encoded-level zero-tail allowance. The black-paint
+reference has clipped P10=0; retain an explicit miss unless the actual render
+also reaches zero. A reduced physical fill produces 0/30/62 against 0/35/68:
+the tail matches but the median fails. Test an intermediate fill, keeping the
+real 2.2% paint unchanged. This is a light reconstruction, never image editing.
+
+## Look round 2 — pass 40, strict receiver tail and finite box footprint
+
+Color/value first: the intermediate physical receiver fill gives native
+0/32/63 against 0/35/68. Highlight RGB is 77.5/79.8/85.7 against
+80.5/82.5/84.3. Every requested limit now passes, including exact equality
+at the clipped zero tail. Publish that fixture; no reflectance or image
+value correction is involved.
+
+The correctly located box field is 1.961% versus 0.748% apparent photo wear,
+which is too broad. Keep its X/Y rounded-corner placement and limit its
+vertical support to the final 8.5 mm, with a 7 mm fade. Rebuild and remeasure
+before accepting it. The source rest-height measurement is retained in
+`build/look-round2/box-source-bounds.log`.
+
+Opened all native pass-17 molding views. The handguard/box retain a fine skin;
+the stock still filters nearly smooth. Retain the small roughness spans and
+add only ±6% fine manufacturing reflectance variation, using the same mold
+grain. It also supplies the render denoiser's albedo guide, preserving the
+nearly subtexel normal signal. This is a fine manufacturing field, not
+unlocated weather or an image overlay. Judge the next exported close pairs.
+
+The reflection fitter's guidance used the sum of every disconnected bright
+band, whereas the native audit measures the largest connected FWHM band.
+That guide penalized the hem's separate top facet as extra satin width.
+Correct the guide to the same connected band, with a small soft boundary for
+optimization. The native measurement and its acceptance rule are unchanged.
+Abandon the old all-band optimization, retain its rejection, and refit.
+
+## Look round 2 — pass 41, stock contact marks and highlight color
+
+Color/value first: opened native pass-18 stock/handguard/box views and exact
+300×200 stock crops beside the native used-stock photograph. The eight
+non-ammunition value distributions pass, but normalized carrying-handle
+highlight color differs by 12.8% in red despite passing per-channel RGB.
+Add the normalized highlight-color check explicitly; the next shared-light
+fit must also pass it. Keep zero-tail equality strict.
+
+The stock's native crop remains much too clean. The photograph's broad face
+has finite gear drags in addition to fine manufacture, rather than a uniform
+pebbled coating. Before modeling those marks, measured the whole-stock
+positive local contrast at the same 11-level threshold: 2.699%, versus
+1.069% in the old heel/toe-only ROI. Preserve the old ROI fraction in the
+observation metadata; the broadened stock-contact site now includes both
+flank drags and heel/toe. Its ±8-level range is .827–18.427%, so this is an
+appearance observation with substantial segmentation uncertainty.
+
+Add separate seeded finite strokes to the two exposed bearing faces, in
+three contact neighborhoods, with 6–14 mm lengths and submillimeter widths.
+They follow gear movement, fracture only inside those strokes, and expose
+lighter stressed polymer rather than bright steel. No photograph drives
+their positions. Keep them inside the existing independently switchable
+butt/stock-contact site and inspect their actual exported close view.
+
+The box's restricted 8.5 mm field is only .292% against .748%. Interpolate
+its supported contact height to the last 15.5 mm, retaining the measured
+rest bottom and corner placement. Rebuild and measure again. Pass 18's
+complete `make check` passed, including 1,529 atlas poses; the changed maps
+require fresh final checks. Its unfinished control rebuild is stopped and
+will be replaced by a consistent final-material set.
+
+## Look round 2 — pass 42, native local peak and full-population refinement
+
+Color/value first: opened the latest native cover trial beside the balanced
+used-receiver photo. Complete cover V is 27/38/129 versus 28/37/115; H is
+174/178/189 versus 175/184/196. Handle V is 17/36/175 versus 16/35/188;
+its highlight RGB and normalized color both pass. The local cover P95 is
+211.6 versus 229.8, now inside 10%. However, native FWHM is 13/70 (18.6%)
+against 12/73 (16.4%): one fewer rendered pixel is needed. Grip median is
+70 versus 79, still below the required 71.1 lower bound, despite its fitted
+guide predicting 76. Do not accept the guide instead of the native image.
+
+Rebuild every linear response on the exact pass-19 export, fit the complete
+visible populations, and include the native connected-band width explicitly
+alongside its smooth optimization guide. Normalize the near-card energy
+parameters to hundredths of a watt so numerical steps resolve these close
+fixtures without clipping. The new physical cards follow the measured front
+crown reflection direction; no image correction or material patch is used.
+
+Opened both native pass-19 hero angles and the stock close-up. Finite bearing
+face drags now show a used stock, rather than a featureless clean molding.
+Actual map footprint is 1.575% against the broadened 2.699% apparent stock
+contrast, within its retained .827–18.427% threshold range. It still has fewer
+fine field marks than that older loose-stock photograph. The box is .875%
+against .748%, with its damage confined to the rounded bottom returns.
+Freeze these material fields for the complete final build; keep the remaining
+fine-molding filtering and photographic segmentation limits explicit.
+
+## Look round 2 — pass 43, isolated light responses and native match
+
+Color/value first: the exact exported GLB now passes complete-cover, grip and
+handle values, highlight RGB and normalized highlight color. Reducing the
+right reflection strip's power by 15% gives cover 27/37/122 versus
+28/37/115; grip 50/76/100 versus 47/79/91; handle 17/35/173 versus
+16/35/188. Their H RGB values are 168.5/172.7/182.9,
+113.9/121.1/126.5 and 188.8/191.9/203.3, respectively. All requested limits
+pass. Native local FWHM is now 12/70 (17.14%) versus 12/73 (16.44%);
+local P95 is 217.05 versus 229.8. Both are inside 10%.
+
+The earlier guide/native grip mismatch exposed a calibration-tool error:
+the first world-only response created a Blender area light at its default
+10 W, then failed to zero that new light. Later area-only samples were
+isolated correctly. Set the newly created light to zero explicitly, add an
+active-light invariant, replace the world sample on the exact final GLB,
+and refit every visible part pixel. Native acceptance was independent and
+correctly caught this error. No material or rendered-image correction is
+used to compensate for it.
+
+Three local-card power trials raised P95 to 222, 227 and 233 but retained
+13 pixels of width; three local-card width trials also retained 13 pixels.
+Inspecting the independent linear responses identifies the excess top-band
+light as the right strip at (.6,.18,.3), rather than the small crown card.
+Native tests at 85%, 75% and 65% of that strip's power all produce 12 pixels.
+Choose 85%: it retains the closest complete-cover highlight values and keeps
+every measured finish inside its bounds. Freeze that actual rendered recipe.
+
+The default presentation audit now rejects failed complete-part finish
+tolerances or a failed native cover profile, instead of merely publishing a
+table of misses. Its stricter color check also covers normalized highlight
+color, and zero-valued tails require exact equality. The source, after and
+pinned-before used-photo frames are refreshed under the same frozen recipe.
+Their other frame metadata is retained only after source hashes and unchanged
+physical recipes are checked. No accepted geometry, pivots, clips or family
+assets change. The final explicit `make check` passes, including all 1,529
+atlas poses; the complete presentation build follows with the refreshed data.
+
+## Look round 2 — pass 44, final exported presentation and delivery audit
+
+Color/value first: reopened the canonical full-resolution hero, shooter's
+three-quarter view and refreshed used-receiver pair, then inspected all 23
+review pages and the contact sheet. Paint now retains a dark body with a
+broad satin reflection; the forward barrel and gas group no longer have the
+old pale primer response. Handguard and stock sit in the dark furniture band
+in the common studio, while their concrete-lit comparisons retain the
+reference's cool illumination. The neutral estimates are recorded, rather
+than interpreting this photographic hue as blue polymer albedo.
+
+All twelve final native whole-part comparisons pass median ±10%, P10/P90
+±15%, highlight RGB ±10% and normalized highlight color ±10%. The largest
+median error is receiver −8.57%; the largest highlight-channel error is
+links +7.23%; the largest normalized-color error is handle +8.10%. Exact
+zero tails remain equal. The cover's local width is 17.14% against 16.44%
+(+4.29%), with P95 217.05 against 229.8 (−5.55%). The earlier physical
+reflection trial remains explicitly rejected. No image correction supplies
+these results.
+
+Opened the remaining native detail frames (front sight, charging handle,
+trigger, furniture, belt, box, aimed macro, scale and ammunition close-up).
+Cavities remain dark; metal highlights roll off, and molded surfaces stay
+visually distinct from the paint. Cover scratches follow longitudinal gear
+motion; edge chips and worn rivet crowns are readable in the hero and clearer
+from the shooter. The on/off sheets retain both hero angles, native crops,
+RGB differences and actual 2-D masks for all eleven sites. Regulator change
+is a small 65-pixel site at full frame, at the scale of its visible face;
+the right port uses the reverse hero to avoid claiming visibility through
+the belt. This pass judges those native frames, not enlarged difference maps
+alone.
+
+The four requested wear fractions remain close to the native photo:
+receiver 5.122% / 5.222%, cover 2.298% / 2.157%, cover top 1.320% / 1.207%,
+rivet lands 69.634% / 67.702%. This is map footprint versus apparent photo
+wear; hero-visible fractions are separately recorded. Fine molding grain is
+quieter after the 2048 bake than in the source. The stock still has fewer
+fine scuffs than the older reference (1.575% versus 2.699% apparent area).
+Port darkness includes inseparable recess shadow; its 54.629% photographic
+appearance is not an absolute physical-carbon target. Do not hide these
+limits behind the passing finish table.
+
+The final `make -C guns/lmg` and separate `make -C guns/lmg check` both exit
+zero. Logs are `build/look-round2/make-final19.log` and
+`build/look-round2/check-final19.log`. Delivery checks include scale, UVs,
+normals, reimport, contacts, motion sweeps, all nineteen clips, 1,529 atlas
+poses, five kit subsets and eleven independent 4096/32-sample controls.
+Zero interior bake misses remain. The presentation audit verifies 98 native
+GLB renders and 273 sheet entries on 23 pages, with final hash
+`d7ec92c1e4a3b0c701c84e334c2e707ea267cc3b94ee1015318c075f70c29d35`.
+
+Evaluated gun triangles remain 47,638, one material, three 2048 maps.
+The GLB is 14,579,528 bytes; canonical PNGs total 10,016,210 bytes.
+The five detachables retain their exact kit subsets and pass mip checks.
+The receiver control's small neighboring rim footprint is measured and
+documented, not dismissed as generic bake noise. Family paint measurements
+use unchanged precedent exports; the separate family decision stays with
+the owner. No docs JPGs or kit/common/family-asset changes are introduced.
