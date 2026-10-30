@@ -171,7 +171,7 @@ def audit(arm):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--source',default='build/lever.blend');p.add_argument('--out',default='build/feed-audit.json');p.add_argument('--dimensions-only',action='store_true')
-    a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
+    a=p.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
     bpy.ops.wm.open_mainfile(filepath=str(Path(a.source).resolve()))
     arm=bpy.data.objects['LeverArmature']
     result=dict(dimensions=dimensions(arm),passed=True) if a.dimensions_only else audit(arm)

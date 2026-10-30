@@ -1216,3 +1216,123 @@ The remaining weaknesses are the fine oxide breakup, incidental damage and
 2048 detail loss described in passes 4–5. No new tool or permission is
 needed from the lead. The receiver preservation audit is asset-local;
 there is no shared-kit or contract change in this revision.
+
+## Visible feeding — audit and correction, 2026-10-29
+
+1. **Color/value first; baseline port and section review.** The existing brown
+   receiver, dark race and walnut are retained as the finish target. The used
+   photo `open2.jpg` uses the exposed bolt flat as its approximate white-balance
+   neutral, as in the accepted finish review. This task changes construction
+   and motion, not a recovered albedo. Preserved the main handoff's source,
+   baked GLB and finalized mesh under `build/feed-before/`; provenance includes
+   their hashes. Rendered all Fire/Cycle/count variants, Chamber, reloads and
+   Inspect from that GLB at 30 Hz, both through the port and with a right-half
+   diagnostic section. No unload clip exists. The section only removes matched
+   imported triangles; its materials, skin and remaining geometry are imported.
+
+   Cycle/Chamber first show a round on the tray at f28 without tube travel.
+   In source, the preceding f27 is blank. The new round's low axis is −20°:
+   head (136.611,31.847), tip (197.474,9.694) mm in the Y/Z plane. The tube head
+   is (210,20). It cannot slide onto that inclined low tray. Presentation snaps
+   through its lift over f34–36. In all insertions the tube is blanked before
+   slot reassignment. Case extraction follows the bolt, but the ejection lift
+   is a whole-case translation rather than an extractor-controlled turn.
+   The old case already cleared the actual local top lip at eject; its flaw
+   was the intervening path, not an invented failed event clearance. The 90 mm
+   draw already had 15 mm behind the old presented rim. No bolt enlargement
+   or shortened ammunition is justified.
+
+2. **Color/value retained; geometry checkpoint and adversarial sweeps.** Opened
+   both `renders/feed/geometry-pass/inspect-*.jpg` pages, covering the revised
+   source-inspection GLB's f12–50 at 30 Hz. The low round now slides from the
+   tube, lifts with the tray, and moves ahead of the bolt; the case turns nose
+   up before flight. The initial camera clipped the outgoing case at f24, so
+   widened both before/after cameras to include the actual event pose.
+
+   Source sweeps caught a receiver web in the transfer path, an unsupported
+   latch stem, forend/latch interference and the tray arm meeting the open
+   loading gate. Corrected those surfaces: a horizontal 68 mm tray on the tube
+   axis, internal receiver/bolt/forend reliefs, two bored metering tips with
+   bearing ears, and a raised arm support. The lift is 16°, with actual head
+   rise 13.554 mm and nose rise 31.407 mm. New open-bolt margin is 18.732 mm.
+   The lever now returns with the bolt, with its remaining lift cam travel
+   following the unchanged open event. The patent citation in SOURCES supplies
+   class ordering; these internal dimensions/timings are authored visual fits.
+
+   Source and raw-GLB contacts independently pass. A false imported handoff
+   failure exposed UV-seam duplicates biasing the audit's PCA axis; end-ring
+   measurements now deduplicate geometric positions. A separate affine failure
+   at Reload f4.5 exposed sparse Euler-to-quaternion interpolation. Temporary
+   export curves now include exact quarter-frame samples as well as fractional
+   pickup keys; the original contact/serialization tolerances remain.
+
+3. **Color/value first; shipped 30-Hz review and contact proof.** The new baked
+   GLB retains the accepted brown/plum receiver, warm walnut and dark barrel;
+   the bolt flat remains the approximate neutral in the used-photo comparison.
+   Opened all 65 native unique-frame inspection pages for the final 2,048 port
+   and section frames (25 clips, 50 strips; 769 distinct images). The baseline
+   inspection and synchronized Cycle comparison expose the original blank tray,
+   sudden inclined round and translated case. The corrected section shows tube
+   travel, tray lift, bolt pickup and progressive chamber entry; the normal port
+   reveals the same round between the receiver lips. ReloadSeveral/ReloadEmpty
+   retain their existing stack throughout each insertion and slot commit. No
+   visible ownership pop or new steel crossing remains at these samples.
+
+   The imported baked mesh independently passes 492 contact assertions, including
+   426 feed/handoff assertions. Maximum distance is 0.14235 mm at the chamber
+   guide; the bolt's actual rim-plane probes retain their 0.025 mm bound. The
+   tray's measured head/nose rise is 13.554/31.407 mm for a 64.770 mm round;
+   the 90.000 mm bolt draw leaves 18.732 mm behind the presented rim. All 37
+   clips pass 10,619 clearance samples, including moving ammunition, half frames
+   and authored intermediate keys, with zero policy violations. These establish
+   construction on reconstructed imported triangles; the separate 5,271 affine
+   comparisons establish serialization (maximum position delta 1.9742 µm).
+
+   At unchanged eject f24 the complete case is 53.579 mm above the receiver.
+   The measured head frame is (6.667,110.651,115.863) mm, quaternion wxyz
+   (.744886,.666786,.015520,.017337), with linear velocity
+   (.200003,−.199981,1.773030) m/s and angular velocity
+   (4.533158,.211163,1.396286) rad/s in the Blender asset frame. The supplement
+   specifies its full matrix and one basis conversion. Event f24 hands physics
+   a visible, already clear case; the demonstration continues outside the gun
+   until hidden at f30. Its departure from the camera precedes that hide.
+
+4. **Color/value first; final photographic and delivery review.** Opened all
+   22 rebuilt beauty views, nine exported photo pairs, nine separately labeled
+   source pairs, form/stroke boards, the five standalone ammunition views,
+   four native clip inspection pages, the final contact sheet and all five
+   docs JPGs. Regenerated every beauty, pair and docs image because the internal
+   geometry repacked the atlas; the open-action images also contain the changed
+   bolt/tray pose. Receiver/photo display medians remain 79/57/43 versus 81/54/39;
+   the bolt flat is the estimated neutral. The hero whole-flat median remains
+   76/53/38 versus 79/53/36 in the balanced used photo. The hero bright-decile
+   saturation is .416 versus .444; it has not become a pale metal wash.
+
+   Native hero object-luma p1/50/99 is 0/54.85/161.86, with 26.96% deep shadow
+   and no clipped pixels; the open-action values are 0/46.88/160.42. Inspected
+   the rerun wear-factor pair: one connected lower-fillet region, 28.70% versus
+   the photo annotation's 27.07%. The accepted analytic field is unchanged;
+   repacked UV filtering changes its sampled boundary. Fine oxide specks and
+   walnut pores remain softer at 2K than in close photographs; different photo
+   lighting still prevents inferring roughness/albedo from display values. These
+   are existing finish limits, not evidence for changing the accepted finish.
+
+   `make -C guns/lever` completed through checks, finals, source/export pairs,
+   37 real-duration overview clips, all 50 feed strips, wear/value review and
+   docs. The separately invoked `check` passed again, and `repeat` proved an
+   independent build identical in vertices, normals, oriented triangles, skin,
+   sockets and clips. The standalone `feed-audit` entry point initially omitted
+   Blender's optional `--` separator handling; fixed that parser and reran it
+   successfully. The same audit had already passed inside source/import checks.
+   Final delivery: 39,800 triangles, one material, 29 bones, 37 clips,
+   21,606,688-byte GLB, one 2048 three-map set. All six 4096 bake channels have
+   zero missed rays among 3,891,368 interior texels; wood has zero metallic
+   contamination. All five docs are 1600 px wide and below 200,000 bytes.
+
+   Evidence: `renders/final/contact-sheet.jpg`, `renders/final/pairs/`,
+   `renders/final/source-pairs/`, `renders/feed/{before,after,comparison}/`,
+   `build/delivery/verify.json`, `build/serialization.json` and
+   `build/feed-audit.json`. This is an authored visual action with cited class
+   ordering, rather than a spring/cam dynamics simulation. Events, state counts
+   and dimensions visible to the game retain their original contract; the
+   supplement documents additive bones and the evaluated case-head handoff.
