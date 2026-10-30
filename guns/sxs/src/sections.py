@@ -92,7 +92,7 @@ def main():
   # sections. They do not enter the geometry or its acceptance probes.
   notes={
    'Head 3 mm behind breech': [('R13.35 front / R6 side',(24,50)),('centerline',(0,55.59))],
-   'Head 8 mm behind breech': [('shared subdivision return',(19,51)),('centerline',(0,55.59))],
+   'Head 8 mm behind breech': [('turned fence / blended return',(19,51)),('centerline',(0,55.59))],
    'Head 15 mm behind breech': [('6 mm side return',(24,47)),('centerline',(0,55.59))],
    'Right bore axis': [('18.5 mm axial roll',(105,55)),('head to strap',(87,47))],
    'Left bore axis': [('18.5 mm axial roll',(105,55)),('head to strap',(87,47))],

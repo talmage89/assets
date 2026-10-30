@@ -37,7 +37,7 @@ def stack(panels,path,title):
 
 def main():
     dest=OUT/'reflections';dest.mkdir(parents=True,exist_ok=True)
-    before=ROOT/'build/round6/before';records=[]
+    before=ROOT/'build/round7/before';records=[]
     expected={'source':hashlib.sha256((BASE/'build/sculpt.blend').read_bytes()).hexdigest(),
               'export':hashlib.sha256((BASE/'export/sxs.glb').read_bytes()).hexdigest()}
     source_rows=None;current_rows={};baseline_rows={};baseline_checks=0
@@ -74,17 +74,17 @@ def main():
                     baseline_checks+=1
                     comparisons[kind].append(pair(crop(previous,view),current,
                         dest/(view+'-before-after-'+kind+'-'+orientation+'.jpg'),
-                        view+' / identical camera and procedural bands',('Before / round 5 / '+kind,'After / round 6 / '+kind)))
+                        view+' / identical camera and procedural bands',('Before / round 6 / '+kind,'After / round 7 / '+kind)))
         stack(panels,dest/('source-export-'+orientation+'.jpg'),'All five views / '+orientation+' / dense source and baked export')
         for kind,images in comparisons.items():
             if images:stack(images,dest/('before-after-'+kind+'-'+orientation+'.jpg'),
-                'Round 5 / round 6 / '+kind+' / '+orientation+' / all five views')
+                'Round 6 / round 7 / '+kind+' / '+orientation+' / all five views')
     # The ordinary player's view crop uses its actual full-resolution PNG.
     current=crop(OUT/'beauty/open.png','open');current.save(dest/'open-head-after.png')
     previous=before/'checkpoint/beauty/open.png'
     if previous.exists():
         old=crop(previous,'open');old.save(dest/'open-head-before.png')
-        pair(old,current,dest/'open-head-before-after.jpg','Open player camera / native 450 x 300 head crops',('Before / round 5','After / round 6 / baked 2048 GLB'))
+        pair(old,current,dest/'open-head-before-after.jpg','Open player camera / native 450 x 300 head crops',('Before / round 6','After / round 7 / baked 2048 GLB'))
     (dest/'audit.json').write_text(json.dumps(dict(passed=True,records=records,
         comparison_only='Fixed pixel crops; no shader, texture, geometry or color edits',
         baseline_available=previous.exists(),baseline_camera_lighting_checks=baseline_checks),indent=2))

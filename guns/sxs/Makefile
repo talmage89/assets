@@ -1,4 +1,4 @@
-# Form round six: one subdivision head, baked 2048 normals; finish/docs held.
+# Form round seven: turned/milled head with distance blends; finish/docs held.
 .DEFAULT_GOAL := all
 .NOTPARALLEL:
 BLENDER ?= blender
@@ -73,12 +73,15 @@ review: render evidence
 	$(PYTHON) src/review.py
 sections: export
 	$(BP) --python src/sections.py -- > build/sections.log 2>&1
+	$(BP) --python src/section_curvature.py -- > build/curvature.log 2>&1
+	$(PYTHON) src/section_curvature.py --plot
 match: verify
+	$(BP) --python src/outline_capture.py > build/outline-capture.log 2>&1
 	$(PYTHON) src/photo_matches.py
 	$(PYTHON) src/photo_solve.py
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source export/sxs.glb --out renders/checkpoint/photos --camera-file build/cameras.json --shots $(PHOTO_SHOTS) --width $(WIDTH) --samples $(SAMPLES) > build/match.log 2>&1
 	$(PYTHON) src/pair_review.py --renders renders/checkpoint/photos --out renders/checkpoint/pairs
-	$(BP) --python $(KIT)/photo_match.py -- verify --calibration build/cameras.json > build/camera-verify.log 2>&1
+	$(BP) --python src/camera_verify.py > build/camera-verify.log 2>&1
 strips: export
 	$(PYTHON) src/strips.py > build/strips.log 2>&1
 	$(BP) --python src/render.py -- --source export/sxs.glb --out renders/checkpoint/opening-wide --width 500 --engine BLENDER_WORKBENCH --strip Open --wide > build/opening-wide.log 2>&1

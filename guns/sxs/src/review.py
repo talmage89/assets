@@ -48,7 +48,8 @@ def main():
   if folder=='photos':
    calibration=json.loads((BASE/'build/cameras.json').read_text())
    for name,row in meta.items():
-    for key in ('location','target','lens','roll','aspect'):
+    for key in ('location','target','lens','roll','aspect','shift_x','shift_y','solved_barrel_angle','solved_lever_angle','solved_safety_shift_mm'):
+     if key not in calibration[name]['shot']:continue
      assert row[key]==calibration[name]['shot'][key],(folder,name,key,'stale camera')
  for p in (OUT/'strips').iterdir():
   if p.is_dir():
@@ -67,6 +68,17 @@ def main():
  assert fairness['passed'],'Dense source topology/normal-angle audit failed'
  assert fairness['source_sha256']==sha(BASE/'build/sxs.blend'),'Stale dense fairness measurements'
  sec=json.loads((OUT/'sections/sections.json').read_text());assert sec['glb_sha256']==digest and sec['source_sha256']==sha(BASE/'build/sxs.blend')
+ curvature=json.loads((OUT/'curvature/sections.json').read_text())
+ assert curvature['source_sha256']==sha(BASE/'build/sxs.blend') and curvature['export_sha256']==digest,'Stale curvature sections'
+ assert len(curvature['dense'])==len(curvature['export'])==18
+ calibration=json.loads((BASE/'build/cameras.json').read_text())
+ acceptance=dict(camera_gate_passed=all(calibration[n]['camera_fit_passed'] for n in ('action_top','open')),
+  outline_gate_passed=all(calibration[n]['outline_gate_passed'] for n in ('action_top','open')),
+  section_sign_changes={kind:[dict(direction=r['direction'],station_mm=r['station_mm'],count=r['sign_change_count']) for r in curvature[kind]] for kind in ('dense','export')},
+  unassigned_dense_section_events=sum(e['construction_feature'].startswith('unassigned') for r in curvature['dense'] for e in r['sign_changes']),
+  scope='Mechanical/build verification is separate. Source bands and named section features require explicit REVIEW.md critique; failed photographic gates remain failed.')
+ (BASE/'build/round7-acceptance.json').write_text(json.dumps(acceptance,indent=2))
+ print('PHOTOGRAPHIC GATES: camera',acceptance['camera_gate_passed'],'outline',acceptance['outline_gate_passed'])
  records=stats['imported_contacts']['records']
  measured={r['name']:r['measured_m']*1000 for r in records if r['name'].startswith(('drop at ','eye above','cheek station'))}
  sections={r['title']:r['part_sizes_mm'] for r in sec['game']}
