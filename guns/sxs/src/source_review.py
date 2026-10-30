@@ -20,7 +20,7 @@ def main():
     font=ImageFont.truetype(find_font('Noto Sans','Regular'),21);rows={}
     for name,row in FINISHES.items():
         shot=row['shot'];s=current[shot];e=export[shot]
-        for key in ('location','target','lens','exposure','aspect','roll','shift_x','shift_y','look_light','look_world','look_world_color','look_paper','look_paper_x','look_reflection_card','look_light_colors'):
+        for key in ('location','target','lens','exposure','aspect','roll','shift_x','shift_y','look_light','look_world','look_world_color','look_paper','look_paper_x','look_reflection_card','look_light_colors','look_strips','look_flags'):
             assert s.get(key)==e.get(key),(name,key)
         labels=np.asarray(Image.open(BASE/'renders/final/cpu-masks'/(shot+'.png')))
         selected=np.isin(labels[:,:,0],[ids[n] for n in row['parts']])&(labels[:,:,3]>250)

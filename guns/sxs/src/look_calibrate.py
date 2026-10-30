@@ -34,7 +34,7 @@ def main():
    shot=dict(location=p[:3].tolist(),target=(p[:3]+forward).tolist(),lens=math.exp(p[3]),roll=float(p[4]),aspect=width/height,exposure=-.15),
    lens_status='View-locked rearward/above comparison; accepted different makers have different wood/controls; not a form solve')
   result['shot'].update(look_light=SHOTS[name]['look_light'],light_target=SHOTS[name].get('light_target',(0,.22,0)),action='Idle',frame=0,background='transparent')
-  for key in ('look_world','look_world_color','look_paper','look_paper_x','look_reflection_card','look_light_colors'):
+  for key in ('look_world','look_world_color','look_paper','look_paper_x','look_reflection_card','look_light_colors','look_strips','look_flags'):
    if key in SHOTS[name]:result['shot'][key]=SHOTS[name][key]
   rows[name]=result
  (BASE/'build/look-cameras.json').write_text(json.dumps(rows,indent=2))

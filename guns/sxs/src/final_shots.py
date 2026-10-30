@@ -126,5 +126,23 @@ def prepare_shot(sc,s):
    else:ob.data.energy=0
   if scale:ob.location+=Vector((0,0,1));ob.data.energy*=1.5
   ob.rotation_euler=(Vector(s.get('light_target',(0,.025,0) if s.get('ammo_light') else (0,.22,1.02 if scale else 0)))-ob.location).to_track_quat('-Z','Y').to_euler()
+ # Optional photographed slit lights and ordinary negative-fill cards. They
+ # affect every surface through the same light transport, never part grading.
+ for ob in sc.objects:
+  if ob.get('photo_auxiliary'):ob.hide_render=True
+ for settings in s.get('look_strips',[]):
+  name='Photo strip '+settings['name'];ob=sc.objects.get(name)
+  if ob is None:
+   data=bpy.data.lights.new(name,'AREA');data.shape='RECTANGLE'
+   ob=bpy.data.objects.new(name,data);sc.collection.objects.link(ob);ob['photo_auxiliary']=True;ob['studio']=True
+  ob.location=settings['location'];ob.data.energy=settings['power'];ob.data.size,ob.data.size_y=settings['size'];ob.data.color=(1,1,1)
+  ob.rotation_euler=(Vector(settings['target'])-ob.location).to_track_quat('-Z','Y').to_euler();ob.hide_render=False
+ for settings in s.get('look_flags',[]):
+  from kit import model as M,studio
+  name='Photo flag '+settings['name'];ob=sc.objects.get(name)
+  if ob is None:
+   mat=studio.studio_mat(name,(.003,.003,.003),.9)
+   ob=M.box(name,settings['location'],settings['size'],mat,0);ob['photo_auxiliary']=True;ob['studio']=True;ob.visible_camera=False
+  ob.location=settings['location'];ob.dimensions=settings['size'];ob.hide_render=False
  sc['exact_aim']=bool(s.get('aimed'));sc.objects['Aim neutral card'].hide_render=not sc['exact_aim']
  if MASK:s['exposure']=0

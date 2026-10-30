@@ -291,3 +291,14 @@ for _name,_note in {
  'barrels_deep_blue':'This second used gun retains blue-black oxide along its tubes. Whole visible barrels are retained, with an estimated rubbed-steel neutral and disclosed narrow photographic cross-section resolution. The native photograph is 2560 pixels wide; no sharper upload was available.',
 }.items():
  FINISHES[_name]['residual_note']=_note
+
+
+# Estimated photographed inner-bow reflection. A physical slit and upper barn
+# door share the same light transport with every control. No part grading.
+SHOTS['look_macro']['look_strips']=[dict(name='inner bow',location=(-.040,.060,-.002),
+ power=.26,size=(.14,.001),target=(.003,.060,-.030))]
+SHOTS['look_macro']['look_flags']=[dict(name='slit upper barn door',
+ location=(-.020,.060,.0065),size=(.001,.18,.040))]
+FINISHES['guard']['residual_note']="The accepted broad inner land and the photograph's thin rounded edge remain distinct. Intact polished blue, satin filed edges and the bright contact core share one estimated rig; the same physical slit/barn door is present in source and export. Any remaining tail or peak miss stays in the whole-part table above."
+FINISHES['barrels']['role']='supplementary older gray-use context'
+FINISHES['barrels_deep_blue']['role']='primary retained rust-blue finish'

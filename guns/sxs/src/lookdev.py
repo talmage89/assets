@@ -62,7 +62,7 @@ def steel(name,role,wear):
                        n.mul(n.ramp(y,.176,.181),n.ramp(ab(n,nx),.3,.9)))
         fade=n.ramp(n.mul(n.maximum(pressure,edge),broken,wear['action_fade']),.48,.82)
         sites['action_fade']=fade
-        base=n.mix(fade,oxide,(.228,.238,.248),True)
+        base=n.mix(fade,oxide,(.26,.27,.28),True)
         rough=n.mix(fade,n.add(.30,n.mul(sub(n,polish,.5),.08)),.39)
         # Fine oxide freckles survive in the colored surface, while wiping
         # pressure smooths the faded flats. No uncaused dirt blanket.
@@ -77,10 +77,11 @@ def steel(name,role,wear):
     elif role=='barrel':
         base=(.0397,.0427,.0430)
         rough=n.add(.24,n.mul(sub(n,polish,.5),.06))
-        # A carrying hand rests beyond the splinter, wrapping both outside
-        # flanks. Long rubs merge at the pressure maximum; there is no cuff.
-        center=n.add(.244,n.mul(nz,.025),n.mul(nx,.010))
-        carry=n.mul(oval(n,y,z,center,.039,.097,.0135),n.ramp(ab(n,nx),.12,.80),
+        # Years of slightly shifted carrying positions beyond the splinter
+        # merge into one long, thin field on the outside flanks; no cuff.
+        center=n.add(.255,n.mul(nz,.025),n.mul(nx,.010))
+        footprints=n.maximum(oval(n,y,z,sub(n,center,.055),.039,.075,.0081),oval(n,y,z,center,.039,.075,.0081),oval(n,y,z,n.add(center,.055),.039,.075,.0081))
+        carry=n.mul(footprints,n.ramp(ab(n,nx),.12,.80),
                     n.ramp(nz,.86,.40),broken,wear['barrel_carry'])
         carry=n.ramp(carry,.23,.79)
         muzzle=n.mul(n.ramp(y,.7667,.7738),n.add(.65,n.mul(n.ramp(ab(n,nx),.20,.85),.35)),broken,wear['muzzles'])
@@ -88,12 +89,12 @@ def steel(name,role,wear):
         sites.update(barrel_carry=carry,muzzles=muzzle)
         rub=n.maximum(carry,muzzle)
         # Hand rubbing thins the oxide; it does not expose fresh white steel.
-        base=n.mix(carry,base,(.15,.17,.19),True)
+        base=n.mix(carry,base,(.155,.16,.165),True)
         base=n.mix(muzzle,base,(.24,.26,.28),True);rough=n.mix(rub,rough,.36)
         bore=n.mul(n.ramp(ny,.90,.2),n.ramp(y,.771,.7754),n.ramp(nz,.1,-.4),.15)
         rough=n.add(rough,bore)
     elif role=='lever':
-        base=(.021,.023,.025)
+        base=(.020,.022,.024)
         # Fine-filed upper thumb land retains satin blue between contact rubs;
         # the protected stem keeps its polished reflection.
         rough=n.mix(n.mul(n.ramp(nz,.50,.95),interval(n,y,.0,.065,.006)),.31,.75)
@@ -104,7 +105,9 @@ def steel(name,role,wear):
         cuts=n.ramp(n.math('PINGPONG',n.add(n.mul(x,.80),n.mul(y,.60)),.000635),.00016,.00006)
         h=n.add(h,n.mul(cuts,interval(n,y,.023,.043,.002),n.ramp(nz,.55,.95),-.000045,sub(n,1,n.mul(rub,.8))))
     elif role=='guard':
-        base=(.020,.022,.024)
+        base=(.035,.037,.039);rough=n.mix(n.ramp(ab(n,nx),.55,.92),.17,.34)
+        # Polished inner bow, satin filed narrow edges; oxide thinning is
+        # progressive, with bright steel confined to pressure maxima.
         # Follow the real formed band's changing width and its continuous
         # inner bow: rear normal +Y, floor +Z, front normal -Y. The former
         # rear interval tested a front-facing normal and missed both curves.
@@ -113,15 +116,16 @@ def steel(name,role,wear):
         front=n.mul(interval(n,y,.079,.106,.010),n.ramp(ny,-.15,-.85),n.ramp(z,.001,-.008))
         pressure=n.maximum(rear,floor,front)
         half_width=n.mul(.0062,n.add(.64,n.mul(n.ramp(y,.013,.038),.36)))
-        contact_edge=sub(n,half_width,.0016)
-        rub=n.ramp(n.mul(pressure,n.band(x,contact_edge,.0008,.0010),n.ramp(ab(n,nx),.95,.45),broken,wear['guard_fingers']),.17,.76)
+        contact_edge=sub(n,half_width,.0019)
+        rub=n.ramp(n.mul(pressure,n.band(x,contact_edge,.0002,.0024),n.ramp(ab(n,nx),.95,.45),broken,wear['guard_fingers']),.17,.76)
+        rub=n.math('POWER',rub,3)
         sites['guard_fingers']=rub
         base=n.mix(rub,base,(.56,.59,.62),True);rough=n.mix(rub,rough,.14)
     elif role=='trigger':
-        base=(.030,.031,.034);rough=n.add(.32,n.mul(sub(n,polish,.5),.07))
+        base=(.027,.0275,.030);rough=n.add(.32,n.mul(sub(n,polish,.5),.07))
         # Intact blued blade flats and polished contact edges.
         edge=n.ramp(ab(n,nx),.98,.70)
-        base=n.mix(edge,base,(.040,.036,.036),True);rough=n.mix(edge,rough,.50)
+        base=n.mix(edge,base,(.034,.032,.032),True);rough=n.mix(edge,rough,.50)
     elif role=='safety':
         base=(.2635,.255,.22);rough=.24
         a=n.math('PINGPONG',n.add(x,y),.00056)
@@ -162,11 +166,13 @@ def wood(name,role,wear):
     low,high=((.025,.008,.0035),(.30,.110,.052)) if role=='stock' else ((.01152,.004032,.002268),(.1064,.03136,.01764))
     base=n.mix(tone,low,high,True)
     base=n.mix(n.mul(late,.16),base,(.010,.0035,.0017),True)
+    # Original 60–190 µm vessel apertures and soft longitudinal fibers.
+    # Closed Voronoi boundaries read as leather on transverse wood.
     cells=n.node('ShaderNodeTexVoronoi',feature='F1',distance='EUCLIDEAN')
-    n.feed(cells.inputs['Vector'],n.combine(n.mul(x,1650),n.mul(y,190),n.mul(zz,1700)));cells.inputs['Scale'].default_value=1
+    n.feed(cells.inputs['Vector'],n.combine(n.mul(x,3200),n.mul(y,200),n.mul(zz,3300)));cells.inputs['Scale'].default_value=1
     col=n.node('ShaderNodeSeparateColor',mode='RGB');n.feed(col.inputs[0],cells.outputs['Color'])
-    pores=n.mul(n.ramp(cells.outputs['Distance'],.36,.11),n.ramp(col.outputs[0],.40,.70))
-    fiber=n.ramp(n.voronoi(n.combine(n.mul(x,1500),n.mul(y,45),n.mul(zz,1700)),1,'DISTANCE_TO_EDGE'),.13,.035)
+    pores=n.mul(n.ramp(cells.outputs['Distance'],.30,.10),n.ramp(col.outputs[0],.40,.70))
+    fiber=n.ramp(n.noise(n.combine(n.mul(x,1400),n.mul(y,40),n.mul(zz,1700)),1,2),.590 if role=='stock' else .52,.36 if role=='stock' else .32)
     base=n.mix(n.mul(fiber,.70 if role=='stock' else .65),base,(.017,.005,.0023),True)
     base=n.mix(n.mul(pores,.70),base,(.006,.0024,.0012),True)
     h=n.add(n.mul(late,-8e-6),n.mul(fiber,-6e-6),n.mul(pores,-28e-6))
@@ -183,17 +189,18 @@ def wood(name,role,wear):
         u,v,_=n.split(check)
         dist=polygon(n,u,v,[(.198,-.035),(.214,-.045),(.312,-.038),(.333,0),(.312,.038),(.214,.045)])
         facing=n.ramp(nz,.50,.05);point_site='forend_points'
-        pressure=n.mul(oval(n,u,v,.265,0,.055,.045),wear[point_site])
+        pressure=n.mul(oval(n,u,ab(n,v),.250,.030,.050,.023),interval(n,u,.207,.320,.003),wear[point_site])
     inside=n.mul(n.ramp(dist,.0016,.0022),facing)
-    cut_u=n.add(n.mul(u,.60),n.mul(v,.80));cut_v=sub(n,n.mul(u,.60),n.mul(v,.80))
+    cut_u=n.add(n.mul(u,.32),n.mul(v,math.sqrt(1-.32**2)));cut_v=sub(n,n.mul(u,.32),n.mul(v,math.sqrt(1-.32**2)))
     a=n.math('PINGPONG',cut_u,.000635)
     b=n.math('PINGPONG',cut_v,.000635)
+    # Unit cutter normals give 20 LPI and an approximately 3:1 diamond.
     # Contact spans the entire grip. Individual cutter points flatten at
     # different rates as grain hardness varies; never polish a solid stripe.
     hardness=n.node('ShaderNodeTexWhiteNoise',noise_dimensions='3D')
     n.feed(hardness.inputs['Vector'],n.combine(n.math('FLOOR',n.math('DIVIDE',cut_u,.00127)),
            n.math('FLOOR',n.math('DIVIDE',cut_v,.00127)),n.add(17.3,n.mul(n.math('LESS_THAN',x,0),31.1)) if role=='stock' else 17.3))
-    selected=n.ramp(sub(n,n.mul(pressure,.35 if role=='stock' else .215),hardness.outputs['Value']),-.04,.04)
+    selected=n.ramp(sub(n,n.mul(pressure,.40 if role=='stock' else .20),hardness.outputs['Value']),-.04,.04)
     pressure=n.mul(n.ramp(pressure,.15,.65),selected)
     # Distance to either cutter: pointed diamond tops become flat under the
     # hands, with their grooves and the unhandled perimeter left intact.
@@ -210,7 +217,7 @@ def wood(name,role,wear):
     rough=n.mix(n.mul(grooves,inside),rough,.78)
     # Cut end-grain absorbs more of the oil stain than the planed lands.
     # This construction response also exists on the unused counterpart.
-    base=n.mix(n.mul(inside,.54 if role=='stock' else .51),base,(.010,.0038,.0018),True)
+    base=n.mix(n.mul(inside,.54 if role=='stock' else .53),base,(.010,.0038,.0018),True)
     worn=n.mul(pressure,inside,n.ramp(shape,.50,.72));sites[point_site]=worn
     base=n.mix(n.mul(worn,.80),base,(.20,.100,.044),True);rough=n.mix(worn,rough,.27 if role=='stock' else .36)
     # Oil finish settles in cut grooves even before use. Preserve it in the

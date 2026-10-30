@@ -94,13 +94,15 @@ def main():
   color=np.array(actual['highlight_rgb'])/np.maximum(photo['highlight_rgb'],1e-5)-1
   passed=abs(errors['median'])<=.10 and max(abs(errors['p10']),abs(errors['p90']))<=.15 and abs(errors['highlight_value'])<=.10 and max(abs(color))<=.10
   result=dict(photo=photo,ours=actual,relative_errors=errors,highlight_rgb_relative_errors=color.tolist(),passed=bool(passed),
+   role=row.get('role','primary finish'),
    photo_source=PHOTOS[row['photo']]['file'],white_balance=balance[row['photo']],parts=row['parts'],
    model_sha256=meta[shot]['sha256'],camera=meta[shot],camera_fit=cameras.get(shot,{}),
    note='Whole visible part masks. Disclosed original designs differ; light is an estimate, not photometric recovery.')
   results[name]=result
   # Context and two unobscured surface crops, with separate binary masks.
   w=1800;h=1360;sheet=Image.new('RGB',(w,h),(230,231,227));d=ImageDraw.Draw(sheet)
-  d.text((18,12),name+' / baked export (left), white-balanced used photograph (right)',font=FONT,fill='black')
+  label=name+(' ['+row['role']+']' if 'role' in row else '')
+  d.text((18,12),label+' / baked export (left), white-balanced used photograph (right)',font=FONT,fill='black')
   x,y=np.nonzero(selected)[1],np.nonzero(selected)[0];rb=(int(x.min()),int(y.min()),int(x.max()+1),int(y.max()+1))
   refbox=row['crop']
   sheet.paste(panel(render,rb,(880,420)),(10,52));sheet.paste(panel(ref,refbox,(880,420)),(910,52))
