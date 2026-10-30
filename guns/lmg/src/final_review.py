@@ -18,7 +18,23 @@ def sheet(entries,path,columns=3,cell=(600,390)):
 
 def main():
  out=BASE/'renders/final';entries=[];manifest={}
- for folder in [out/'beauty',out/'eevee',out/'photos',*[out/'detachables'/n for n in ('box_loaded','box_empty','cartridge','case','link')],*[out/'precedents'/n for n in ('ak','smg')],*[out/'wear'/n for n in ('receiver','cover','handle','flash','regulator','ports','feet','box','butt')]]:
+ from final_shots import DEFAULT_SHOTS
+ from photo_matches import MATCHES
+ required={'beauty':set(DEFAULT_SHOTS.split(',')),'eevee':{'hero'},'photos':set(MATCHES),'raw-check':{'hero','handguard','barrel_handle','belt'}}
+ for n in ('box_loaded','box_empty','cartridge','case','link'):required['detachables/'+n]={n}
+ for n in ('ak','smg'):required['precedents/'+n]={n+'_hero'}
+ for n in ('receiver','cover','handle','flash','regulator','ports','feet','box','butt'):required['wear/'+n]={'hero','hero_right'}
+ for folder,names in required.items():
+  metadata=out/folder/'shots.json';assert metadata.exists(),str(metadata)
+  assert names<=set(json.loads(metadata.read_text())),(folder,'missing shot metadata')
+  for name in names:assert (out/folder/(name+'.png')).exists(),(folder,name)
+ for folder in ('pairs','source-pairs'):
+  for name in MATCHES:assert (out/folder/(name+'-pair.jpg')).exists(),(folder,name)
+ raw=json.loads((out/'raw-check/raw-comparison.json').read_text())
+ assert raw['source_sha256']==hashlib.sha256((BASE/'export/lmg.glb').read_bytes()).hexdigest()
+ assert json.loads((BASE/'build/control-verification.json').read_text())['passed']
+
+ for folder in [out/'beauty',out/'eevee',out/'photos',out/'raw-check',*[out/'detachables'/n for n in ('box_loaded','box_empty','cartridge','case','link')],*[out/'precedents'/n for n in ('ak','smg')],*[out/'wear'/n for n in ('receiver','cover','handle','flash','regulator','ports','feet','box','butt')]]:
   p=folder/'shots.json'
   if not p.exists():continue
   for name,row in json.loads(p.read_text()).items():

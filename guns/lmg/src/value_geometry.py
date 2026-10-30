@@ -44,7 +44,10 @@ for folder in ('beauty','photos'):
   if shot.get('hide_box'):
    for ob in list(bpy.context.scene.objects):
     if ob.name.startswith(('Box_','Belt_')):bpy.data.objects.remove(ob,do_unlink=True)
-  capture(out/(name+'.npz'),BASE/'export/lmg.glb',{k:shot.get(k) for k in ('action','frame','layers','hide_box')})
+  if shot.get('inspection_parts'):
+   for ob in list(bpy.context.scene.objects):
+    if ob.type=='MESH' and not ob.get('part_name',ob.name).startswith(tuple(shot['inspection_parts'])):bpy.data.objects.remove(ob,do_unlink=True)
+  capture(out/(name+'.npz'),BASE/'export/lmg.glb',{k:shot.get(k) for k in ('action','frame','layers','hide_box','inspection_parts','diagnostic_isolate')})
 for name in ('cartridge','case','link'):
  V.import_glb(BASE/'export'/(name+'.glb'))
  for ob in bpy.context.scene.objects:

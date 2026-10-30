@@ -6,7 +6,7 @@ Images/PDFs only, ignored locally. Looking and visual comparison only: never tex
 | --- | --- | --- | --- | --- |
 | right.jpg | https://upload.wikimedia.org/wikipedia/commons/4/4c/FN_MINIMI_Standard_Right.jpg | Manufacturer / photographer Stéphane Moureaux | Commons lists CC BY 2.5; Flickr review CC BY 2.0 | Right exterior, trigger and charging handle; white backdrop neutral. |
 | left.jpg | https://upload.wikimedia.org/wikipedia/commons/3/34/FN_MINIMI_Standard.jpg | koalora; attribution requested to original manufacturer | CC BY 2.0 | Left exterior and furniture; white backdrop neutral. |
-| stock.jpg | https://upload.wikimedia.org/wikipedia/commons/4/47/M249_FN_MINIMI_DM-ST-87-01604_c1.jpg | US Marine Corps | US federal public domain | Fixed polymer stock, shoulder rest and box; light-gray background neutral. |
+| stock.jpg | https://upload.wikimedia.org/wikipedia/commons/4/47/M249_FN_MINIMI_DM-ST-87-01604_c1.jpg | US Marine Corps | US federal public domain | Issued field gun with an earlier tubular stock; paint, barrel and carry finish only. Pale gravel is the estimated neutral; not a fixed-polymer-stock proportion reference. |
 | field.jpg | https://upload.wikimedia.org/wikipedia/commons/c/c6/KMEP_24_2_-_M249_Light_Machine_Gun_Drills_%288596627%29.jpg | Cpl. Paley Fenner / US Marine Corps | US federal public domain | Carried weapon, belt weight and visible use; form only, no reliable neutral. |
 | field2.jpg | https://upload.wikimedia.org/wikipedia/commons/f/f9/KMEP_24_2_-_M249_Light_Machine_Gun_Drills_%288596628%29.jpg | Cpl. Paley Fenner / US Marine Corps | US federal public domain | Carried weapon, box and sling; form only, no reliable neutral. |
 | belt.jpg | https://upload.wikimedia.org/wikipedia/commons/d/d6/Ammunition_Belt_5.56_mm.jpg | Gunnery Sgt. Mark Oliva / US Marine Corps | US federal public domain | Exterior visual relationship of inert display rounds and links; form only. |
@@ -66,7 +66,7 @@ Photo-derived leg lengths are therefore kept separate from published data.
 
 The existing `stock.jpg` is an issued field gun on a cloth pad, not a catalog
 photograph: pale gravel at (2170,110)–(2290,190) is an estimated daylight neutral.
-`belt.jpg` uses the silver-gray receiver flat at (1710,140)–(1790,260), avoiding
+`belt.jpg` uses the gray range background at (60,110)–(240,200), avoiding
 the brass and green tips. Both estimates have illumination/material uncertainty;
 they constrain cast and finish relationships, not calibrated reflectance.
 
@@ -78,3 +78,10 @@ they constrain cast and finish relationships, not calibrated reflectance.
 | --- | --- | --- | --- | --- |
 | used_whole.jpg | https://dygtyjqp7pi0m.cloudfront.net/i/76165/59095137_1.jpg?v=8DE70CE1F99B4D0 | Poulin Auctions product photograph, photographer uncredited | No reuse license stated; comparison only | Used whole gun, cropped above the overprinted sale notice; gray backdrop (800,20)–(1100,90). Earlier furniture differs from the accepted fixed-polymer design. |
 | used_right.jpg | https://dygtyjqp7pi0m.cloudfront.net/i/76165/59095137_2.jpg?v=8DE70CE1F99B4D0 | Poulin Auctions product photograph, photographer uncredited | No reuse license stated; comparison only | Used barrel, bipod and molded furniture finish relationships; gray backdrop (800,20)–(1100,90). |
+
+
+| File | Direct URL | Author | License | Use / neutral |
+| --- | --- | --- | --- | --- |
+| used_stock.jpg | https://cdn11.bigcommerce.com/s-zcp1aelyjn/images/stencil/original/products/1431/5718/_MG_9945__84731.1680624330.JPG | Wet Worx Outfitters, photographer uncredited | No reuse license stated; comparison only | 1728 × 1728 used fixed polymer stock; concrete at (80,80)–(400,300) is the estimated neutral. Whole molding and butt rubbing; different stock contour retained as a photographic difference. |
+| used_box.jpg | https://www.gatewoodsupplyco.com/assets/images/M249_Saw_Ammo_Box_200_Round_556x45mm_Surplus_A1.jpg | Gatewood Supply Co., photographer uncredited | No reuse license stated; comparison only | 2168 × 1632 used molded box and latch; clipped white backdrop, texture/construction only. |
+| used_box2.jpg | https://www.venturesurplus.com/wp-content/uploads/2018/02/Army-M249-200-Round-SAW-Ammo-Box.jpg | Venture Surplus, photographer uncredited | No reuse license stated; comparison only | 768 × 1024 used molded box; white backdrop at (10,880)–(100,980) is clipped. Whole-part value/texture comparison, no residual-cast claim; the gray-balanced handguard remains a second check on this shared black molding finish. |

@@ -24,8 +24,8 @@ SITES := receiver cover handle flash regulator ports feet box butt
 comma := ,
 FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(SHOTS))))
 RENDER_DEPS := src/final_render.py src/final_shots.py src/shots.py src/delivery.py ../common/render.py build/render-parameters.txt
-.PHONY: all refs model prepare lookdev bake export check render match source-match wear-review precedent extra review clean FORCE
-all: refs export check render match source-match wear-review precedent extra review
+.PHONY: all refs model prepare lookdev bake export check render match source-match wear-review precedent extra raw-audit review clean FORCE
+all: refs export check render match source-match wear-review precedent extra raw-audit review
 refs:
 	$(PYTHON) $(KIT)/fetch_refs.py refs
 $(MODEL) &: src/build.py src/geometry.py src/clips.py src/interface.py src/belt.py ../common/ammo556_visual.py
@@ -99,7 +99,10 @@ renders/final/detachables/done.stamp: $(EXPORTS) $(RENDER_DEPS) src/final_extra.
 	$(PYTHON) src/final_extra.py --width 1000 --samples $(SAMPLES)
 	@touch $@
 extra: renders/final/detachables/done.stamp
-review: render match wear-review
+renders/final/raw-check/raw-comparison.json: $(EXPORTS) $(RENDER_DEPS) src/raw_review.py $(FINAL_IMAGES)
+	$(PYTHON) src/raw_review.py --samples $(SAMPLES)
+raw-audit: renders/final/raw-check/raw-comparison.json
+review: render match source-match wear-review precedent extra raw-audit
 	$(BP) --python src/control_verify.py
 	$(BP) --python src/value_geometry.py
 	$(PYTHON) src/look_review.py

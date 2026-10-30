@@ -134,8 +134,8 @@ def polymer(name,part,key,wear,omit):
     rough=n.mix(touch,rough,.36 if site=='handle' else .49 if site=='butt' else .87)
     rubbed=(.016,.017,.015) if site=='butt' else (.032,.033,.030) if site=='box' else (.008,.0085,.008)
     base=n.mix(touch,base,rubbed,True)
-    h=n.mul(sub(n,mold,.5),n.mix(touch,65e-6 if not rubber else 75e-6,8e-6))
-    h=n.add(h,n.mul(sub(n,fine,.5),3e-6))
+    h=n.mul(sub(n,mold,.5),n.mix(touch,240e-6 if not rubber else 160e-6,16e-6))
+    h=n.add(h,n.mul(sub(n,fine,.5),18e-6))
     if part in ('Handguard_Sculpt','PistolGrip_Sculpt'):
         held=n.mul(interval(n,y,.270,.425,.020),n.ramp(ab(n,nx),.5,.95)) if part=='Handguard_Sculpt' else interval(n,z,-.060,.018,.012)
         held=n.mul(held,wear if omit!='all' else 0,n.ramp(n.noise(p,85,2),.30,.75))
@@ -150,21 +150,24 @@ def ammo(name,part,key):
     n=Nodes(name);p,x,y,z,nx,ny,nz,u,v,w=inp(n)
     q=n.node('ShaderNodeAttribute',attribute_name='AmmoPosition').outputs['Vector'];a,b,c=n.split(q)
     tool=n.noise(n.vec('MULTIPLY',q,(3000,32,3000)),1,2)
-    rough=n.add(.33,n.mul(tool,.10));metal=1
+    rough=n.add(.28,n.mul(tool,.24));metal=1
+    draw=n.noise(n.vec('MULTIPLY',q,(7200,180,7200)),1,2)
+    press=n.noise(n.vec('MULTIPLY',q,(800,100,800)),1,2)
     if key=='copper':
-        base=(.47,.165,.058)
-        green=n.ramp(b,.0511,.0515);base=n.mix(green,base,(.010,.105,.029),True)
-        metal=n.mix(green,1,0);rough=n.mix(green,rough,.58)
-        return finish(n,base,rough,metal,n.mul(sub(n,tool,.5),1e-6),.56)
+        base=n.mix(press,(.425,.147,.050),(.49,.178,.066),True)
+        green=n.ramp(n.add(b,n.mul(sub(n,press,.5),.00032)),.0511,.0515);base=n.mix(green,base,(.010,.105,.029),True)
+        metal=n.mix(green,1,0);rough=n.mix(green,n.add(.25,n.mul(draw,.25)),.58)
+        return finish(n,base,rough,metal,n.mul(sub(n,draw,.5),5e-6),.56)
     base=n.mix(tool,(.37,.23,.062),(.50,.325,.105),True)
-    anneal=n.ramp(b,.030,.035);base=n.mix(anneal,base,(.195,.151,.087),True);rough=n.mix(anneal,rough,.53)
+    base=n.mix(n.mul(n.ramp(press,.35,.68),.23),base,(.225,.153,.058),True)
+    anneal=n.mul(n.ramp(n.add(b,n.mul(sub(n,press,.5),.0030)),.030,.035),n.add(.70,n.mul(press,.30)));base=n.mix(anneal,base,(.195,.151,.087),True);rough=n.mix(anneal,rough,.53)
     head=n.ramp(ny,-.60,-.96);r=n.math('SQRT',n.add(n.mul(a,a),n.mul(c,c)))
     stamp=n.mul(text(n,n.add(.5,div(n,a,.0096)),n.add(.5,div(n,c,.0096)),'headstamp'),head)
     primer=n.mul(head,n.ramp(r,.0019,.0016));seal=n.mul(head,n.band(r,.00184,.00008,.00004))
     base=n.mix(primer,base,(.23,.24,.22),True);base=n.mix(seal,base,(.065,.012,.009),True)
     if part in ('Case_Proof','EjectedCase_Case'):
         soot=n.ramp(b,.037,.043);base=n.mix(soot,base,(.018,.015,.008),True);rough=n.mix(soot,rough,.78)
-    h=n.add(n.mul(sub(n,tool,.5),1e-6),n.mul(stamp,-.000045),n.mul(seal,-.000025))
+    h=n.add(n.mul(sub(n,draw,.5),4e-6),n.mul(stamp,-.000045),n.mul(seal,-.000025))
     return finish(n,base,rough,metal,h,.56)
 
 def assign(wear,omit=''):

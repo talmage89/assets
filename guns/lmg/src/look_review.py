@@ -15,17 +15,18 @@ FONT=ImageFont.truetype(find_font('Noto Sans','Regular'),19);SMALL=ImageFont.tru
 LUMA=np.array([.2126,.7152,.0722])
 # Native upright coordinates, whole visible part silhouettes, never tiny patches.
 REGIONS={
- 'paint_receiver':('used_receiver', [[(826,466),(1473,448),(1500,643),(829,688)]], 'hero', ('Receiver_Sheet','Receiver_Rivet','Receiver_RearDoubler','SideWell_Housing')),
- 'paint_cover':('used_receiver', [[(788,327),(1456,319),(1514,390),(797,411)]], 'hero', ('FeedCover_Shell','FeedCover_PressedBead','FeedCover_SidePress')),
- 'barrel_phosphate':('used_right', [[(40,128),(91,134),(107,146),(377,205),(390,220),(372,231),(106,164),(75,158),(43,153)]], 'hero', ('Barrel_Exterior','BarrelSeat','BarrelCollar')),
- 'bipod_phosphate':('used_right', [[(390,344),(413,349),(315,699),(336,708),(335,722),(290,743),(277,734),(277,723),(294,715)]], 'hero', ('Bipod_Channel','Bipod_Extension','Bipod_Foot','Bipod_Yoke')),
- 'molded_handguard':('used_right', [[(543,255),(568,253),(790,300),(824,318),(850,339),(876,353),(866,430),(616,390),(614,345),(592,329),(547,318)]], 'handguard', ('Handguard_Sculpt','Handguard_MoldRib')),
- 'molded_stock':('used_receiver', [[(1210,781),(1340,901),(1440,1090),(1410,1120),(1300,1110),(1190,955),(1140,872)]], 'furniture', ('Stock_Sculpt',)),
- 'molded_box':('used_right', [[(543,255),(568,253),(790,300),(824,318),(850,339),(876,353),(866,430),(616,390),(614,345),(592,329),(547,318)]], 'box', ('Box_Shell','Box_EndRib','Box_MoldRib')),
- 'handle_polymer':('used_receiver', [[(426,70),(765,63),(767,145),(430,148)]], 'barrel_handle', ('CarryHandle_Grip',)),
- 'brass':('belt', [[(945,963),(1093,934),(1113,1084),(1180,1205),(1225,1460),(1005,1502),(985,1200),(966,1095)],[(1115,2135),(1310,2100),(1320,2160),(1150,2200)],[(1625,904),(1775,860),(1815,1020),(1900,1150),(1985,1375),(1740,1420),(1680,1140),(1655,1005)]], 'belt', ('Belt_Round',)),
- 'steel_links':('belt', [[(1005,1510),(1225,1470),(1255,1540),(1080,1605)],[(1100,1710),(1265,1660),(1330,2050),(1150,2100)],[(1740,1428),(1985,1385),(2020,1460),(1790,1545)],[(1805,1640),(2010,1580),(2120,1940),(1890,2020)]], 'belt', ('Belt_Link',)),
- 'copper_green_tip':('belt', [[(914,535),(943,576),(985,710),(1093,934),(945,963),(880,730)],[(1575,440),(1615,480),(1680,645),(1780,860),(1625,904),(1540,630)]], 'belt', ('Belt_Round',)),
+ 'paint_receiver':('used_receiver', [[(414,446),(469,450),(485,509),(807,512),(814,448),(1452,448),(1456,414),(1604,414),(1611,637),(1550,681),(1510,710),(1448,709),(1457,647),(1374,645),(1360,710),(910,723),(841,721),(835,646),(809,646),(797,670),(552,676),(518,645),(514,551),(451,551),(440,656),(423,683),(416,624),(400,541),(359,506)]], 'used_photo', ('Receiver_Sheet','Receiver_Rivet','Receiver_RearDoubler','SideWell_Housing')),
+ 'paint_cover':('used_receiver', [[(788,327),(1456,319),(1514,390),(797,401)],[(488,321),(777,318),(800,349),(798,392),(520,392),(475,375),(457,349)]], 'used_photo', ('FeedCover_Shell','FeedCover_PressedBead','FeedCover_SidePress')),
+ 'barrel_phosphate':('used_right', [[(129,150),(370,204),(377,214),(370,228),(124,173)]], 'used_right_photo', ('Barrel_Exterior','BarrelSeat','BarrelCollar')),
+ 'bipod_phosphate':('used_right', [[(422,367),(441,373),(321,699),(333,705),(334,718),(326,730),(302,734),(280,726),(261,715),(254,702),(258,696),(273,698),(302,708),(301,692)],[(443,373),(452,374),(439,527),(428,607),(437,604),(439,614),(435,621),(429,621),(427,630),(438,637),(439,647),(435,654),(429,656),(430,647),(413,643),(392,635),(386,630),(385,624),(389,619),(409,623),(413,535),(422,444)]], 'used_right_photo', ('Bipod_Channel','Bipod_Extension','Bipod_Foot','Bipod_Yoke')),
+ 'molded_handguard':('used_right', [[(543,255),(568,253),(790,300),(824,318),(850,339),(876,353),(866,430),(616,390),(614,345),(592,329),(547,318)]], 'used_right_photo', ('Handguard_Sculpt','Handguard_MoldRib')),
+ 'molded_stock':('used_stock', [[(176,1066),(374,1026),(558,929),(814,748),(843,694),(830,626),(826,546),(868,469),(978,329),(1084,205),(1602,529),(1638,593),(1580,674),(1455,802),(1326,962),(1248,1037),(1212,1035),(1150,978),(1095,945),(1029,944),(906,992),(782,1079),(604,1230),(410,1450)]], 'furniture', ('Stock_Sculpt',)),
+ 'molded_grip':('used_receiver', [[(1228,737),(1255,733),(1234,752),(1225,778),(1231,809),(1251,840),(1287,884),(1336,953),(1388,1023),(1424,1062),(1425,1077),(1397,1091),(1322,1112),(1247,1126),(1221,1119),(1205,1109),(1202,1090),(1208,1065),(1195,1025),(1168,975),(1134,912),(1114,865),(1103,822),(1120,827),(1154,818),(1195,791),(1214,769)]], 'used_photo', ('PistolGrip_Sculpt','Grip_MoldRib')),
+ 'molded_box':('used_box2', [[(174,235),(366,215),(655,218),(670,370),(676,601),(680,794),(674,875),(641,911),(415,911),(365,892),(226,768),(175,699),(151,625),(149,420)]], 'box', ('Box_Shell','Box_EndRib','Box_MoldRib')),
+ 'handle_polymer':('used_receiver', [[(426,70),(765,63),(767,145),(430,148)]], 'used_photo', ('CarryHandle_Grip',)),
+ 'brass':('belt', [[(945,963),(1093,934),(1113,1084),(1180,1205),(1225,1460),(1005,1502),(985,1200),(966,1095)],[(1115,2135),(1310,2100),(1320,2160),(1150,2200)],[(1625,904),(1775,860),(1815,1020),(1900,1150),(1985,1375),(1740,1420),(1680,1140),(1655,1005)]], 'ammo_photo', ('Belt_Round',)),
+ 'steel_links':('belt', [[(1005,1510),(1225,1470),(1255,1540),(1080,1605)],[(1100,1710),(1265,1660),(1330,2050),(1150,2100)],[(1740,1428),(1985,1385),(2020,1460),(1790,1545)],[(1805,1640),(2010,1580),(2120,1940),(1890,2020)]], 'ammo_photo', ('Belt_Link',)),
+ 'copper_green_tip':('belt', [[(914,535),(943,576),(985,710),(1093,934),(945,963),(880,730)],[(1575,440),(1615,480),(1680,645),(1780,860),(1625,904),(1540,630)]], 'ammo_photo', ('Belt_Round',)),
 }
 SITES={
  'receiver':('Receiver_Sheet','Receiver_RearDoubler','SideWell_Housing'),
@@ -77,12 +78,12 @@ def components(mask):
  return sorted(rows,key=lambda r:r['area_px'],reverse=True)
 def main():
  out=BASE/'renders/final/look-review';out.mkdir(parents=True,exist_ok=True)
- atlas=np.asarray(Image.open(BASE/'textures/T_Harrow56_BaseColor.png'));orm=np.asarray(Image.open(BASE/'textures/T_Harrow56_ORM.png'));corrections=json.loads((BASE/'build/white-balanced/corrections.json').read_text());meta=json.loads((BASE/'renders/final/beauty/shots.json').read_text());cache={};values={}
+ atlas=np.asarray(Image.open(BASE/'textures/T_Harrow56_BaseColor.png'));orm=np.asarray(Image.open(BASE/'textures/T_Harrow56_ORM.png'));corrections=json.loads((BASE/'build/white-balanced/corrections.json').read_text());meta=json.loads((BASE/'renders/final/beauty/shots.json').read_text());photo_meta=json.loads((BASE/'renders/final/photos/shots.json').read_text());meta.update(photo_meta);cache={};values={};observations=[]
  for role,(photo,polygons,shot,prefixes) in ({} if '--wear-only' in sys.argv else REGIONS).items():
-  im=np.asarray(rgb(BASE/'renders/final/beauty'/(shot+'.png')));h,w=im.shape[:2]
+  im=np.asarray(rgb(BASE/'renders/final'/('photos' if shot in photo_meta else 'beauty')/(shot+'.png')));h,w=im.shape[:2]
   geo=np.load(BASE/'build/image-geometry'/(shot+'.npz'))
   assert str(geo['sha256'])==meta[shot]['sha256'],('Stale imported image geometry',shot)
-  assert str(geo['pose_key'])==json.dumps({k:meta[shot].get(k) for k in ('action','frame','layers','hide_box')},sort_keys=True)
+  assert str(geo['pose_key'])==json.dumps({k:meta[shot].get(k) for k in ('action','frame','layers','hide_box','inspection_parts','diagnostic_isolate')},sort_keys=True)
   if shot not in cache:cache[shot]=raster(geo,meta[shot],w,h)
   ids,coords=cache[shot];selected=[i+1 for i,n in enumerate(geo['names']) if str(n).startswith(prefixes)];m=np.isin(ids,selected)
   points=np.stack((coords[:,:,0].ravel()*2048,(1-coords[:,:,1].ravel())*2048),axis=1)
@@ -97,7 +98,10 @@ def main():
   ref=np.asarray(Image.open(BASE/'build/white-balanced'/(photo+'.jpg')).convert('RGB'));pm=polygon_mask((ref.shape[1],ref.shape[0]),polygons)
   pm=np.asarray(Image.fromarray(np.uint8(pm)*255).filter(ImageFilter.MinFilter(3)))>0
   assert m.sum()>10,(role,m.sum())
-  row=dict(render=metrics(im[m]),photo=metrics(ref[pm]),neutral=corrections[photo],photo_source=photo,photo_polygons=polygons,parts=[str(geo['names'][i-1]) for i in selected],sha256=meta[shot]['sha256'])
+  overlay=Image.fromarray(ref.copy());draw=ImageDraw.Draw(overlay)
+  for polygon in polygons:draw.line(polygon+[polygon[0]],fill=(245,55,25),width=max(2,overlay.width//500))
+  overlay_path=out/(role+'-photo-region.png');overlay.save(overlay_path);observations.append((role+' / native whole-part observation',overlay_path))
+  row=dict(render_shot=shot,render=metrics(im[m]),photo=metrics(ref[pm]),neutral=corrections[photo],photo_source=photo,photo_polygons=polygons,parts=[str(geo['names'][i-1]) for i in selected],sha256=meta[shot]['sha256'])
   # Preserve the metric dictionary separately from its reference filename.
   row['photo_source']=photo;row['photo']=metrics(ref[pm])
   row['shipped_basecolor_srgb_median']=np.median(sampled[m,:3],axis=0).tolist()
@@ -105,7 +109,9 @@ def main():
   row['shipped_metallic_median']=float(np.median(sampled_orm[m,2])/255)
   row['shipped_specular_factor_median']=float(np.median(sampled[m,3])/255)
   values[role]=row;chart(role,im,m,ref,pm,row,out/(role+'-histograms.jpg'))
- if values:(out/'finish-values.json').write_text(json.dumps(values,indent=2))
+ if values:
+  (out/'finish-values.json').write_text(json.dumps(values,indent=2))
+  sheet(observations,out/'photographic-regions.jpg',columns=3,cell=(600,480))
  wear={};entries=[]
  for site,prefixes in SITES.items():
   wear[site]={}
