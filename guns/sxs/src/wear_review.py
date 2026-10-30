@@ -14,7 +14,7 @@ BASE=Path(__file__).resolve().parents[1];ROOT=BASE.parents[1]
 sys.path[:0]=[str(ROOT),str(BASE/'src')]
 from wear_reference import SITES
 from look_matches import PHOTOS
-from look_review import native_mask,panel,LUMA
+from look_review import native_mask,preview_mask,panel,LUMA
 from kit.fonts import find_font
 FONT=ImageFont.truetype(find_font('Noto Sans','Regular'),22)
 SMALL=ImageFont.truetype(find_font('Noto Sans','Regular'),16)
@@ -91,6 +91,8 @@ def main():
     assert main_meta['sha256']==variants['main_sha256']
     used=Image.open(a.folder/'beauty/hero.png').convert('RGBA');w,h=used.size
     assert w==a.width
+    mask_meta=json.loads((a.folder/'hero-masks/shots.json').read_text())['hero']
+    assert mask_meta['sha256']==main_meta['sha256'],'Stale exported hero part mask'
     labels=np.asarray(Image.open(a.folder/'hero-masks/hero.png'))
     ids={n:int(i) for i,n in json.loads((BASE/'build/look-part-ids.json').read_text()).items()}
     results={}
@@ -98,7 +100,7 @@ def main():
         variant=variants['sites'][name];folder=out/'off'/name
         if not a.no_render:
             current=json.loads((folder/'shots.json').read_text()) if (folder/'shots.json').exists() else {}
-            valid=current.get('hero',{}).get('sha256')==variant['sha256'] and (folder/'hero.png').exists() and Image.open(folder/'hero.png').width==a.width
+            valid=current.get('hero',{}).get('sha256')==variant['sha256'] and current.get('hero',{}).get('samples_used')==a.samples and current.get('hero',{}).get('renderer_signature')==main_meta.get('renderer_signature') and (folder/'hero.png').exists() and Image.open(folder/'hero.png').width==a.width
             if not valid:
                 with (BASE/'build'/('wear-'+name+'.log')).open('w') as log:
                     subprocess.run([str(ROOT/'kit/with_gpu.sh'),'blender','-b','--factory-startup','--python-exit-code','1',
@@ -109,10 +111,13 @@ def main():
         off=Image.open(folder/'hero.png').convert('RGBA');assert off.size==used.size
         before=np.asarray(off,dtype=float);after=np.asarray(used,dtype=float)
         part=np.isin(labels[:,:,0],[ids[n] for n in row['parts']])&(labels[:,:,3]>250)
-        part=np.asarray(Image.fromarray(np.uint8(part)*255).filter(ImageFilter.MinFilter(3)))>0
         delta=np.max(abs(after[:,:,:3]-before[:,:,:3]),axis=2)
         mask=(delta>=6)&part
         ours=evidence(mask,part,angle=projected_axis(main_meta,w))
+        eroded_part=np.asarray(Image.fromarray(np.uint8(part)*255).filter(ImageFilter.MinFilter(3)))>0
+        ours['one_pixel_erosion_diagnostic']=dict(part_pixels=int(eroded_part.sum()),
+            fraction=float(((delta>=6)&eroded_part).sum()/max(1,int(eroded_part.sum()))))
+        ours['part_area_method']='Complete independent center-sampled visible part, without erosion'
         ours['profile_axis_radians']=projected_axis(main_meta,w)
         ref=Image.open(BASE/'build/look-photos'/(row['photo']+'.png')).convert('RGB')
         native=Image.open(BASE/'build/look-photos'/(row['photo']+'-native.png')).convert('RGB')
@@ -122,11 +127,7 @@ def main():
         threshold=row.get('threshold')
         if threshold:wnative&=(np.asarray(native,dtype=float)@LUMA)>=threshold
         photo=evidence(wnative,pnative)
-        display_mask=Image.fromarray(np.uint8(wnative)*255)
-        if PHOTOS[row['photo']]['angle']:
-            display_mask.thumbnail((1707,10000),Image.Resampling.NEAREST)
-            display_mask=display_mask.rotate(PHOTOS[row['photo']]['angle'],expand=True,resample=Image.Resampling.NEAREST)
-        display_mask=display_mask.resize(ref.size,Image.Resampling.NEAREST)
+        display_mask=preview_mask(Image.fromarray(np.uint8(wnative)*255),row['photo'],ref.size)
         wdisplay=(np.asarray(display_mask)>0)&pm
         geometry=evidence(wdisplay,pm)
         for key in ('along_length','across_height','connectivity_raster_size','worn_regions','remaining_finish'):photo[key]=geometry[key]
@@ -181,5 +182,5 @@ def main():
         d.text((15,1250),'Fraction target: '+('within 20% / 0.5 pp' if r['passed'] else 'MISS; see residual and visual assessment in REVIEW.md'),font=SMALL,fill='black')
         sheet.save(out/(name+'-on-off-pair.jpg'),quality=94,optimize=True)
         print(name,round(ours['fraction']*100,2),round(photo['fraction']*100,2),flush=True)
-    (out/'measurements.json').write_text(json.dumps(dict(method='Actual same-camera image differences of kit-exported site-off GLBs; native balanced photos; independent full visible part denominators; all nine sites',sites=results),indent=2))
+    (out/'measurements.json').write_text(json.dumps(dict(method='Actual same-camera image differences of kit-exported site-off GLBs; native balanced photos; complete center-sampled visible parts without erosion; all nine sites',sites=results),indent=2))
 if __name__=='__main__':main()

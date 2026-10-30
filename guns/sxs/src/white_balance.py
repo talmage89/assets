@@ -31,6 +31,6 @@ def main():
    native_linear_median=patch.tolist(),linear_rgb_gains=gains.tolist(),valid_neutral_pixels=len(valid),
    balanced_neutral_rgb=(linear_to_srgb(patch*gains)*255).tolist(),normalized_size=corrected.size,
    rotated_size=transform_size,rotation_degrees=row['angle'],
-   limitation='Estimated photographic neutral and illumination; display values, not recovered albedo. Muzzle steel can reflect light color.' if name=='muzzle' else 'Uncalibrated studio light; gray paper is an estimated neutral, not a gray card.')
+   limitation='Estimated in-frame neutral and studio illumination; display values are not recovered albedo. Bare metal can reflect surrounding light color.')
  (out/'white-balance.json').write_text(json.dumps(report,indent=2));print('WHITE BALANCE',report)
 if __name__=='__main__':main()

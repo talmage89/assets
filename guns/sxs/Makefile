@@ -8,7 +8,7 @@ REPO := $(abspath ../..)
 BP := $(BLENDER) -b --factory-startup --python-exit-code 1
 export TMPDIR := $(REPO)/build/tmp
 export ASSETS_GPU_LOCK ?= $(REPO)/build/locks/gpu.lock
-WIDTH ?= 1600
+WIDTH ?= 4000
 SAMPLES ?= 48
 BAKE_SIZE := 4096
 SHIP_SIZE := 2048
@@ -25,7 +25,7 @@ comma := ,
 BEAUTY := $(addprefix renders/checkpoint/beauty/,$(addsuffix .png,$(subst $(comma), ,$(SHOTS)))) renders/checkpoint/beauty/shots.json
 PHOTO_SHOTS := right,left,action,action_left,action_top,action_bottom,open,barrel_flats,forend,forend_side,trigger,aimed_reference
 .PHONY: all refs model prepare bake export check check-repo verify repeat render review evidence sections match strips ammo native-photos dense-rakes reflections fairness FORCE clean
-all: refs export check final-render look-pairs source-review wear-review family-review final-review
+all: refs export check final-render look-pairs source-review wear-review wear-detail family-review final-review
 refs: native-photos
 	$(PYTHON) $(KIT)/fetch_refs.py refs
 native-photos:
@@ -50,7 +50,7 @@ bake: $(BAKED)
 $(PROJECTED) &: $(BAKED) $(PREPARED) src/normal_projection.py
 	$(BP) --python src/normal_projection.py > build/normal-projection.log 2>&1
 $(TEXTURES) &: $(PROJECTED) ../../kit/downsample.py src/ship_normal.py
-	$(PYTHON) $(KIT)/downsample.py --source build/baked/precise4k --out textures --asset Covey26 --size $(SHIP_SIZE)
+	$(PYTHON) $(KIT)/downsample.py --source build/baked/precise4k --out textures --asset Covey26 --size $(SHIP_SIZE) --alpha-mode independent
 	$(PYTHON) src/ship_normal.py
 export/sxs.glb export/shell.glb export/hull.glb &: $(TEXTURES) $(PREPARED) src/export_config.py src/config.py ../../kit/export.py ../../kit/detachable_textures.py ../../kit/detachable_verify.py ../../kit/detachable_clusters.py
 	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset Covey26 --config src/export_config.py --out export/sxs.glb --report build/delivery/export.json > build/export.log 2>&1
@@ -115,7 +115,7 @@ fairness: model
 FINAL_SHOTS := hero,hero_left,side,left,front,back,top,shooter_three_quarter,aimed,open,breech,action,wrist,forend,stock,muzzle,top_controls,triggers,scale
 FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(FINAL_SHOTS)))) renders/final/beauty/shots.json
 FINAL_DEPS := src/final_shots.py src/final_render.py ../common/render.py build/render-parameters.txt
-LOOK_SHOTS := look_side,look_macro,look_muzzle,look_safety
+LOOK_SHOTS := look_side,look_macro,look_muzzle,look_safety,look_deep_blue
 LOOK_IMAGES := $(addprefix renders/final/photos/,$(addsuffix .png,$(subst $(comma), ,$(LOOK_SHOTS)))) renders/final/photos/shots.json
 .PHONY: final-render look-pairs wear-review family-review final-review final-masks render
 $(FINAL_IMAGES) &: export/sxs.glb $(FINAL_DEPS)
@@ -131,8 +131,8 @@ build/look-photos/white-balance.json: src/white_balance.py src/look_matches.py r
 	$(PYTHON) src/white_balance.py > build/white-balance.log
 build/look-cameras.json: build/look-photos/white-balance.json src/look_calibrate.py src/look_matches.py
 	$(PYTHON) src/look_calibrate.py > build/look-calibration.log
-$(LOOK_IMAGES) &: export/sxs.glb build/look-cameras.json $(FINAL_DEPS) src/look_matches.py
-	$(KIT)/with_gpu.sh $(BP) --python src/final_render.py -- --source export/sxs.glb --out renders/final/photos --width $(WIDTH) --samples $(SAMPLES) --look --camera-file build/look-cameras.json --shots $(LOOK_SHOTS) > build/look-photos.log 2>&1
+$(LOOK_IMAGES) &: export/sxs.glb build/look-cameras.json $(FINAL_DEPS) src/look_matches.py src/photo_render.py
+	$(PYTHON) src/photo_render.py --source export/sxs.glb --out renders/final/photos --samples $(SAMPLES) > build/look-photos.log 2>&1
 renders/final/cpu-masks/shots.json: $(LOOK_IMAGES) src/part_masks.py
 	$(BP) --python src/part_masks.py -- --source export/sxs.glb --photos renders/final/photos --out renders/final/cpu-masks > build/look-masks.log 2>&1
 renders/final/look-review/values.json: renders/final/cpu-masks/shots.json src/look_review.py src/look_matches.py
@@ -147,7 +147,7 @@ $(CLEAN_BAKED) &: build/delivery/clean.blend $(PREPARED) src/bake_form.py build/
 build/wear/precise4k/projection-report.json: $(CLEAN_BAKED) src/normal_projection.py
 	$(BP) --python src/normal_projection.py -- --high build/delivery/clean.blend --baked build/wear/clean4k --out build/wear/precise4k > build/clean-projection.log 2>&1
 build/wear/clean-textures/texture-report.json: build/wear/precise4k/projection-report.json src/ship_normal.py
-	$(PYTHON) $(KIT)/downsample.py --source build/wear/precise4k --out build/wear/clean-textures --asset Covey26 --size 2048
+	$(PYTHON) $(KIT)/downsample.py --source build/wear/precise4k --out build/wear/clean-textures --asset Covey26 --size 2048 --alpha-mode independent
 	$(PYTHON) src/ship_normal.py --source build/wear/precise4k/T_Covey26_Normal.png --out build/wear/clean-textures
 build/wear/variants.json: export/sxs.glb build/wear/clean-textures/texture-report.json src/wear_variants.py
 	$(BP) --python src/wear_variants.py > build/wear-variants.log 2>&1
@@ -161,5 +161,10 @@ family-review: final-render src/family_review.py
 .PHONY: source-review
 source-review: look-pairs src/source_review.py
 	$(PYTHON) src/source_review.py --width $(WIDTH) --samples $(SAMPLES) > build/source-review.log 2>&1
-final-review: final-render look-pairs source-review wear-review family-review src/final_review.py
+final-review: final-render look-pairs source-review wear-review wear-detail family-review src/final_review.py
 	$(PYTHON) src/final_review.py > build/final-review.log 2>&1
+
+.PHONY: wear-detail
+renders/final/wear-native/measurements.json: renders/final/wear/measurements.json src/wear_detail.py
+	$(PYTHON) src/wear_detail.py --samples $(SAMPLES) > build/wear-detail.log 2>&1
+wear-detail: renders/final/wear-native/measurements.json

@@ -67,7 +67,7 @@ SITES={
     [(108,325),(112,322),(116,324),(117,329),(112,333),(109,334)],
     [(112,203),(119,202),(120,205),(116,207),(112,207)]],
     'Small compressed/damaged finish islands along the heel/toe edge; no overall dirt band.',
-    uncertainty='The reference has one larger edge chip; ours uses several shallower impacts rather than copying its shape.'),
+    uncertainty='The reference has one larger edge chip; ours has one compressed toe impact and two smaller edge impacts, with original shapes.'),
  'forend_edges':row('walnut_forend',[
     [(655,159),(659,157),(662,158),(664,162),(661,165),(656,165)],
     [(670,166),(674,166),(675,169),(671,171),(669,169)],
@@ -75,3 +75,10 @@ SITES={
     'Small finish breaks/dings at the handguard ends and lower edge; checker field is excluded.',
     uncertainty='Shallow dark dents are difficult to separate from pores; annotated obvious impacts only.'),
 }
+# The whole-part outline is corrected from native steel/shadow edges in
+# look_matches.py. A three-pixel gray/bright inner field is the visible rub
+# estimate; its normal-direction boundary band is explicitly uncertain.
+from look_matches import GUARD_EDGE,strip_polygon
+SITES['guard_fingers']['polygons']=[strip_polygon(GUARD_EDGE,2.0,1.0)]
+SITES['guard_fingers']['part_polygons']=FINISHES['guard']['polygons']
+SITES['guard_fingers']['uncertainty']='Revised native annotation excludes cast shadow. The three-pixel inner gray/bright field is an upper estimate because specular light also brightens intact bluing.'

@@ -1,5 +1,5 @@
 """Baked-export studio; identical five-light setup to the finished field guns."""
-import math
+import math,hashlib
 from pathlib import Path
 from shots import SHOTS as FORM,PHOTO_POSES,STRIP_SHOT,floor_height
 FINAL_STAGE=True
@@ -71,12 +71,31 @@ def configure_scene(sc,source):
 def prepare_shot(sc,s):
  import bpy
  from mathutils import Vector
+ s['samples_used']=sc.cycles.samples if sc.render.engine=='CYCLES' else sc.eevee.taa_render_samples
+ h=hashlib.sha256();base=Path(__file__).resolve().parent
+ for path in [base/'final_render.py',base/'final_shots.py',base.parent.parent/'common/render.py']:h.update(path.read_bytes())
+ s['renderer_signature']=h.hexdigest()
  scale=s.get('scale',False);placement=sc.objects['Display placement'];placement.location=(.80,0,1.02) if scale else (0,0,0)
  sc.world.node_tree.nodes['Background'].inputs['Color'].default_value=(*s.get('look_world_color',(.35,.35,.35)),1) if s.get('look_light') else (.25,.25,.25,1)
  sc.world.node_tree.nodes['Background'].inputs['Strength'].default_value=s.get('look_world',1.0) if s.get('look_light') else .15
  sc['photo_comparison']=bool(s.get('look_light'))
  sc.objects['Comparison paper'].active_material.node_tree.nodes['Diffuse BSDF'].inputs['Color'].default_value=(*s.get('look_paper',(.18,.18,.18)),1)
  sc.objects['Comparison paper'].hide_render=not sc['photo_comparison']
+ sc.objects['Comparison paper'].location.x=s.get('look_paper_x',-.06)
+ # An ordinary matte studio card controls the reflected field in the extra
+ # deep-blue photographic view. The same card is used for source and export.
+ reflection=sc.objects.get('Photo matte reflection card')
+ if reflection:reflection.hide_render=True
+ if s.get('look_reflection_card'):
+  from kit import model as M
+  settings=s['look_reflection_card']
+  if reflection is None:
+   mat=sc.objects['Comparison paper'].active_material.copy()
+   reflection=M.box('Photo matte reflection card',settings['location'],settings['size'],mat,0)
+   reflection.visible_camera=False
+  reflection.location=settings['location'];reflection.dimensions=settings['size']
+  reflection.active_material.node_tree.nodes['Diffuse BSDF'].inputs['Color'].default_value=(*settings['color'],1)
+  reflection.hide_render=False
  for ob in sc.objects:
   if ob.name.startswith('Studio black reflection flag'):ob.hide_render=bool(s.get('look_light'))
  sc.camera.data.shift_x=s.get('shift_x',0);sc.camera.data.shift_y=s.get('shift_y',0)
@@ -85,10 +104,13 @@ def prepare_shot(sc,s):
   if ob.get('bake_only'):ob.hide_render=True
   if ob.type!='LIGHT' or 'field_energy' not in ob:continue
   ob.location=ob['field_location'];ob.data.energy=ob['field_energy'];ob.data.size,ob.data.size_y=ob['field_size']
+  ob.data.color=(1,1,1)
   if s.get('look_light'):
    # Matched-photo rig, one neutral key and broad fill. Per-photo settings
    # describe lights, never apply a value correction to a sampled finish.
    light=s['look_light'];index=list(LIGHTS).index(ob.name)
+   colors=s.get('look_light_colors',[(1,1,1)]*len(light))
+   if index<len(colors):ob.data.color=colors[index]
    if index<len(light):
     loc,energy,w,h=light[index];ob.location=loc;ob.data.energy=energy;ob.data.size=w;ob.data.size_y=h
    else:ob.data.energy=0

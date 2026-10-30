@@ -1,54 +1,240 @@
-"""Review-only finish masks and camera landmarks; never imported by asset code.
+"""Review-only native-photo regions and estimated physical light rigs.
 
-Coordinates are on the declared comparison image. Whole-side polygons encompass
-entire visible parts, including their darks/highlights. No measured photo field
-is passed to modeling, shaders, UVs or baking.
+No photographic pixels, outlines or measurements enter asset generation.
+Camera landmarks register views of other makers' guns; accepted form stays.
 """
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[3]
 BASE=Path(__file__).resolve().parents[1]
-PHOTOS={
- 'side':dict(file='look-gray-284.jpg',width=1400,angle=0,neutral=(50,40,300,100),
-             neutral_name='unshadowed neutral gray studio paper above the butt'),
- 'macro':dict(file='look-gray-case.jpg',width=1600,angle=-35,neutral=(40,40,500,300),
-              neutral_name='unshadowed neutral gray studio paper in the native upper-left corner'),
- 'muzzle':dict(file='look-field-12.jpg',width=1280,angle=0,neutral=(220,540,232,548),neutral_in_preview=True,
-               neutral_name='exposed, uncolored steel muzzle chamfer; estimated neutral, not the clipped white cutout'),
-}
-# Normalized macro coordinates are measured after a rigid in-plane -35-degree
-# rotation. The complete transformation and native neutral are in the report.
-FINISHES={
- 'barrels':dict(photo='side',shot='look_side',parts=['Barrel_R','Barrel_L'],
-  polygons=[[(570,125),(1301,120),(1301,141),(570,150)]],crop=(550,105,1310,165)),
- 'case_action':dict(photo='macro',shot='look_macro',parts=['Action_Body','Trigger_Plate','Hinge_Pin'],
-  polygons=[[(631,686),(659,677),(672,743),(742,765),(1037,776),(1031,869),(627,869)],
-            [(660,674),(692,655),(733,647),(743,648),(744,755),(708,762),(676,741)]],crop=(614,635,1045,884)),
- 'top_lever':dict(photo='macro',shot='look_macro',parts=['Top_Lever'],
-  polygons=[[(367,691),(371,679),(393,673),(412,683),(432,696),(562,671),(562,681),(435,707),(413,714),(392,719),(374,711)]],crop=(355,657,575,731)),
- 'safety':dict(photo='macro',shot='look_macro',parts=['Tang_Safety'],
-  polygons=[[(294,742),(302,736),(314,736),(320,741),(310,743)]],crop=(283,726,329,751)),
- 'triggers':dict(photo='macro',shot='look_macro',parts=['Front_Trigger','Rear_Trigger'],
-  polygons=[[(491,896),(503,899),(484,922),(477,950),(484,985),(496,1005),(490,1009),(477,991),(468,952),(475,922)],
-            [(410,911),(420,908),(408,930),(405,957),(414,985),(429,1002),(424,1005),(407,985),(398,957),(400,931)]],crop=(384,886,513,1018)),
- 'guard':dict(photo='macro',shot='look_macro',parts=['Trigger_Guard'],
-  polygons=[[(311,927),(349,909),(480,884),(539,895),(605,913),(628,952),(633,980),(606,1012),(544,1033),(448,1031),(372,1016),(343,987)]],
-  holes=[[(348,931),(372,922),(484,895),(535,901),(587,918),(612,951),(615,980),(594,1000),(542,1017),(454,1016),(389,1003),(364,979)]],crop=(300,875,645,1042)),
- 'walnut_stock':dict(photo='side',shot='look_side',parts=['Stock_Walnut'],
-  polygons=[[(106,195),(352,166),(362,165),(376,177),(402,174),(461,148),(536,132),(539,180),(481,191),(450,205),(408,221),(375,249),(341,242),(333,249),(111,334)]],crop=(92,120,546,348)),
- 'walnut_forend':dict(photo='side',shot='look_side',parts=['Forend_Walnut'],
-  polygons=[[(650,152),(841,147),(847,153),(835,162),(720,177),(651,178)]],crop=(642,139,856,187)),
- 'brass_bead':dict(photo='muzzle',shot='look_muzzle',parts=['Front_Bead'],
-  polygons=[[(327,548),(335,543),(342,544),(348,550),(348,559),(340,566),(331,565),(324,558)]],crop=(312,534,358,576)),
-}
-# A neutral key and soft fill estimate the gray-paper photographs' studio.
-# One light setup serves every finish in a view; measured RGB is never graded.
-PHOTO_LIGHT=[((.65,.24,.78),35,.20,2.0),((.75,.24,-.45),20,.90,1.3),((-.8,.24,.4),5,1.0,1.5)]
-SHOTS={
- 'look_side':dict(location=(2.5,.24,1.05),target=(0,.24,0),lens=82,aspect=1400/407,look_light=PHOTO_LIGHT),
- 'look_macro':dict(location=(.68,.13,.31),target=(0,.105,.025),lens=60,aspect=1600/450,look_light=PHOTO_LIGHT),
- 'look_muzzle':dict(location=(.12,.95,.17),target=(0,.760,.044),lens=65,aspect=1.5,look_light=PHOTO_LIGHT),
-}
-for s in SHOTS.values():s.update(action='Idle',frame=0,exposure=-.15,background='transparent')
+
+PHOTOS={'side': {'file': 'look-gray-284.jpg',
+          'width': 1400,
+          'angle': 0,
+          'neutral': (50, 40, 300, 100),
+          'neutral_name': 'unshadowed neutral gray studio paper above the butt'},
+ 'macro': {'file': 'look-gray-case.jpg',
+           'width': 1600,
+           'angle': -35,
+           'neutral': (40, 40, 500, 300),
+           'neutral_name': 'unshadowed neutral gray studio paper in the native upper-left corner'},
+ 'muzzle': {'file': 'look-field-12.jpg',
+            'width': 1280,
+            'angle': 0,
+            'neutral': (220, 540, 232, 548),
+            'neutral_in_preview': True,
+            'neutral_name': 'exposed, uncolored steel muzzle chamfer; estimated neutral, not the clipped '
+                            'white cutout'},
+ 'controls': {'file': 'look-controls.jpg',
+              'width': 1200,
+              'angle': 0,
+              'neutral': (884, 407, 907, 443),
+              'neutral_name': 'uncolored polished steel safety guide beside the pad; estimated neutral, '
+                              'white cutout clipped'}}
+
+FINISHES={'barrels': {'photo': 'side',
+             'shot': 'look_side',
+             'parts': ['Barrel_R', 'Barrel_L'],
+             'polygons': [[(570, 125), (1301, 120), (1301, 141), (570, 150)]],
+             'crop': (550, 105, 1310, 165)},
+ 'case_action': {'photo': 'macro',
+                 'shot': 'look_macro',
+                 'parts': ['Action_Body', 'Trigger_Plate', 'Hinge_Pin'],
+                 'polygons': [[(631, 686),
+                               (659, 677),
+                               (672, 743),
+                               (742, 765),
+                               (1037, 776),
+                               (1031, 869),
+                               (627, 869)],
+                              [(660, 674),
+                               (692, 655),
+                               (733, 647),
+                               (743, 648),
+                               (744, 755),
+                               (708, 762),
+                               (676, 741)]],
+                 'crop': (614, 635, 1045, 884)},
+ 'top_lever': {'photo': 'macro',
+               'shot': 'look_macro',
+               'parts': ['Top_Lever'],
+               'polygons': [[(367, 691),
+                             (371, 679),
+                             (393, 673),
+                             (412, 683),
+                             (432, 696),
+                             (562, 671),
+                             (562, 681),
+                             (435, 707),
+                             (413, 714),
+                             (392, 719),
+                             (374, 711)]],
+               'crop': (355, 657, 575, 731)},
+ 'safety': {'photo': 'controls',
+            'shot': 'look_safety',
+            'parts': ['Tang_Safety'],
+            'polygons': [[(923, 408),
+                          (950, 409),
+                          (1004, 418),
+                          (1034, 426),
+                          (1049, 435),
+                          (1044, 444),
+                          (1008, 455),
+                          (960, 456),
+                          (929, 450),
+                          (919, 434)]],
+            'crop': (911, 398, 1062, 464)},
+ 'triggers': {'photo': 'macro',
+              'shot': 'look_macro',
+              'parts': ['Front_Trigger', 'Rear_Trigger'],
+              'polygons': [[(536, 896),
+                            (504, 918),
+                            (483, 940),
+                            (473, 967),
+                            (472, 995),
+                            (479, 1026),
+                            (487, 1027),
+                            (482, 998),
+                            (483, 970),
+                            (491, 945),
+                            (505, 923),
+                            (539, 899)],
+                           [(475, 905),
+                            (410, 918),
+                            (379, 933),
+                            (365, 955),
+                            (365, 976),
+                            (373, 995),
+                            (375, 1003),
+                            (365, 999),
+                            (357, 977),
+                            (358, 952),
+                            (366, 935),
+                            (390, 921),
+                            (438, 907)]],
+              'crop': (349, 890, 545, 1033)},
+ 'guard': {'photo': 'macro', 'shot': 'look_macro', 'parts': ['Trigger_Guard'], 'crop': (278, 877, 646, 1048)},
+ 'walnut_stock': {'photo': 'side',
+                  'shot': 'look_side',
+                  'parts': ['Stock_Walnut'],
+                  'polygons': [[(106, 195),
+                                (352, 166),
+                                (362, 165),
+                                (376, 177),
+                                (402, 174),
+                                (461, 148),
+                                (536, 132),
+                                (539, 180),
+                                (481, 191),
+                                (450, 205),
+                                (408, 221),
+                                (375, 249),
+                                (341, 242),
+                                (333, 249),
+                                (111, 334)]],
+                  'crop': (92, 120, 546, 348)},
+ 'walnut_forend': {'photo': 'side',
+                   'shot': 'look_side',
+                   'parts': ['Forend_Walnut'],
+                   'polygons': [[(650, 152), (841, 147), (847, 153), (835, 162), (720, 177), (651, 178)]],
+                   'crop': (642, 139, 856, 187)},
+ 'brass_bead': {'photo': 'muzzle',
+                'shot': 'look_muzzle',
+                'parts': ['Front_Bead'],
+                'polygons': [[(327, 548),
+                              (335, 543),
+                              (342, 544),
+                              (348, 550),
+                              (348, 559),
+                              (340, 566),
+                              (331, 565),
+                              (324, 558)]],
+                'crop': (312, 534, 358, 576)}}
+
+GUARD_EDGE=[(282, 918),
+ (292, 929),
+ (305, 947),
+ (327, 976),
+ (352, 997),
+ (385, 1011),
+ (430, 1022),
+ (480, 1027),
+ (520, 1028),
+ (560, 1024),
+ (599, 1008),
+ (620, 985),
+ (629, 964),
+ (625, 944),
+ (615, 925),
+ (597, 909),
+ (575, 898),
+ (550, 892)]
+
+def strip_polygon(path,outward,inward):
+ import math
+ normals=[]
+ for i,p in enumerate(path):
+  a=path[max(0,i-1)];b=path[min(len(path)-1,i+1)];dx,dy=b[0]-a[0],b[1]-a[1];length=math.hypot(dx,dy)
+  normals.append((-dy/length,dx/length))
+ return [(x+outward*nx,y+outward*ny) for (x,y),(nx,ny) in zip(path,normals)]+[(x-inward*nx,y-inward*ny) for (x,y),(nx,ny) in reversed(list(zip(path,normals)))]
+
+# Native steel/shadow boundary, including the complete dark and bright bow.
+FINISHES['guard']['polygons']=[strip_polygon(GUARD_EDGE,6.0,2.0)]
+
+# Procedural studio lights, shared by all finishes within a photograph.
+SHOTS={'look_side': {'location': (2.5, 0.24, 1.05),
+               'target': (0, 0.24, 0),
+               'lens': 82,
+               'aspect': 3.43980343980344,
+               'look_light': [((0.65, 0.24, 0.24), 33.8, 1.8, 0.3),
+                              ((0.75, 0.24, -0.45), 1, 1.5, 0.65),
+                              ((-0.8, 0.24, 0.4), 2, 1.4, 0.7)],
+               'action': 'Idle',
+               'frame': 0,
+               'exposure': -0.15,
+               'background': 'transparent',
+               'light_target': (0, 0.235, 0),
+               'look_world': 0.4, 'look_light_colors': [(1,.96,.95),(1,1,1),(1,1,1)]},
+ 'look_macro': {'location': (0.68, 0.13, 0.31),
+                'target': (0, 0.105, 0.025),
+                'lens': 60,
+                'aspect': 3.5555555555555554,
+                'look_light': [((0.5, -0.5, 0.12), 30, 0.4, 0.75),
+                               ((0.5, 0.6, 0.12), 24, 0.4, 0.75),
+                               ((0.65, 0.08, 0.6), 12, 1.2, 0.35)],
+                'action': 'Idle',
+                'frame': 0,
+                'exposure': -0.15,
+                'background': 'transparent',
+                'light_target': (0, 0.11, 0.025),
+                'look_world': 0.65},
+ 'look_muzzle': {'location': (0.12, 0.95, 0.17),
+                 'target': (0, 0.76, 0.044),
+                 'lens': 65,
+                 'aspect': 1.5,
+                 'look_light': [((0.1, 0.95, 0.38), 3.0, 0.2, 0.3),
+                                ((-0.14, 0.68, 0.26), 2.5, 0.25, 0.3),
+                                ((0.08, 0.7, -0.1), 0.4, 0.25, 0.25)],
+                 'action': 'Idle',
+                 'frame': 0,
+                 'exposure': -0.15,
+                 'background': 'transparent',
+                 'light_target': (0, 0.76, 0.044),
+                 'look_world': 1.0,
+                 'look_paper': (0.9, 0.9, 0.9),
+                 'look_world_color': (1, 1, 1)},
+ 'look_safety': {'location': (0.025, -0.012, 0.16),
+                 'target': (0, 0.007, 0.025),
+                 'lens': 70,
+                 'aspect': 2.5,
+                 'look_light': [((0.65, 0.24, 0.78), 35, 0.2, 2.0),
+                                ((0.75, 0.24, -0.45), 20, 0.9, 1.3),
+                                ((-0.8, 0.24, 0.4), 5, 1.0, 1.5)],
+                 'action': 'Idle',
+                 'frame': 0,
+                 'exposure': -0.15,
+                 'background': 'transparent',
+                 'light_target': (0, 0.007, 0.025),
+                 'roll': 0.7853981633974483}}
 
 def definitions():
  from guns.common.photo_matches import L
@@ -64,41 +250,44 @@ def definitions():
   landmarks=[L((12.6,115,57.35),(742,649)),L((25.95,170,19),(969,829)),
              L((25.95,75,13),(632,868)),L((25.95,85,42),(633,686))]),
  }
-# The first guard annotation included backdrop/trigger pixels. This follows
-# only the open-ended bow, including its dark outer face and bright inner rim.
-FINISHES['guard']['polygons']=[[(284,917),(292,923),(303,944),(326,976),(352,997),(386,1013),(428,1027),(477,1037),(532,1042),(580,1037),(609,1020),(628,996),(638,967),(634,939),(621,915),(600,898),(572,887),(550,885),
- (550,893),(575,896),(596,907),(614,925),(626,946),(630,966),(623,989),(605,1010),(577,1025),(531,1031),(479,1026),(431,1016),(391,1004),(360,987),(336,965),(314,937),(301,918)]]
-FINISHES['guard'].pop('holes',None)
-FINISHES['guard']['crop']=(278,877,646,1048)
-FINISHES['triggers']['polygons']=[
- [(536,896),(504,918),(483,940),(473,967),(472,995),(479,1026),(487,1027),(482,998),(483,970),(491,945),(505,923),(539,899)],
- [(475,905),(410,918),(379,933),(365,955),(365,976),(373,995),(375,1003),(365,999),(357,977),(358,952),(366,935),(390,921),(438,907)]]
-FINISHES['triggers']['crop']=(349,890,545,1033)
-PHOTOS['controls']=dict(file='look-controls.jpg',width=1200,angle=0,neutral=(884,407,907,443),
- neutral_name='uncolored polished steel safety guide beside the pad; estimated neutral, white cutout clipped')
-FINISHES['safety'].update(photo='controls',shot='look_safety',
- polygons=[[(923,408),(950,409),(1004,418),(1034,426),(1049,435),(1044,444),(1008,455),(960,456),(929,450),(919,434)]],crop=(911,398,1062,464))
-SHOTS['look_safety']=dict(location=(.025,-.012,.16),target=(0,.007,.025),lens=70,aspect=2.5,
- look_light=PHOTO_LIGHT,action='Idle',frame=0,exposure=-.15,background='transparent')
 
-# Each photographer's illumination is estimated as a neutral physical rig.
-# Targets follow the photographed region, rather than the whole-gun origin.
-SHOTS['look_side']['look_light']=[((.65,.24,.78),35,.20,2.0),((.75,.24,-.45),6,.90,1.3),((-.8,.24,.4),5,1.0,1.5)]
-SHOTS['look_side']['light_target']=(0,.235,0)
-SHOTS['look_macro']['look_light']=[((.65,.08,.78),42,.50,1.0),((-.8,.12,.4),5,1.0,1.0)]
-SHOTS['look_macro']['light_target']=(0,.11,.025)
-SHOTS['look_safety']['light_target']=(0,.007,.025)
-SHOTS['look_muzzle']['look_light']=[((.10,.95,.38),3.0,.20,.30),((-.14,.68,.26),2.5,.25,.30),((.08,.70,-.10),.4,.25,.25)]
-SHOTS['look_muzzle']['light_target']=(0,.76,.044)
-SHOTS['look_muzzle']['look_world']=3.0
-# The reference's long rectangular catchlight runs along the gun. The area
-# light's local X follows that axis; exchanging width/height is a physical
-# orientation correction, not an image correction.
-SHOTS['look_side']['look_light']=[((.65,.24,.42),22,1.8,.32),((.75,.24,-.45),6,1.5,.65),((-.8,.24,.4),5,1.4,.7)]
-SHOTS['look_macro']['look_light']=[((.65,.08,.60),32,1.2,.35),((.65,.12,-.30),2,1.0,.65)]
 
-# White seamless on the bead reference is a reflector, not a balance target.
-SHOTS['look_muzzle'].update(look_paper=(.90,.90,.90),look_world_color=(1,1,1),look_world=1.0)
-# A broader key supplies the broad soft oil reflection visible on the stock.
-SHOTS['look_side']['look_light']=[((.65,.24,.24),38,1.8,.60),((.75,.24,-.45),3,1.5,.65),((-.8,.24,.4),3,1.4,.7)]
-SHOTS['look_macro']['look_world']=1.5
+# An additional used field gun retains deep blue over its whole barrel length.
+# Keep the older gray-field comparison above as additional evidence.
+PHOTOS['deep_blue']=dict(file='look-field-4.jpg',width=1400,angle=0,
+ neutral=(875,521,882,524),neutral_in_preview=True,
+ neutral_name='uncolored rubbed steel at the bottom of the guard bow; estimated neutral, clipped white cutout excluded')
+FINISHES['barrels_deep_blue']=dict(photo='deep_blue',shot='look_deep_blue',
+ parts=['Barrel_R','Barrel_L'],polygons=[[(83,444),(835,437),(835,459),(83,460)]],crop=(74,428,846,468))
+SHOTS['look_deep_blue']=dict(location=(-3.0,.24,.62),target=(0,.235,0),lens=82,
+ aspect=850/100,action='Idle',frame=0,exposure=-.15,background='transparent',
+ look_light=[((-.65,.24,.40),10.0,1.8,.05),((-.75,.24,-.20),.5,1.5,.70)],
+ light_target=(0,.35,.04),look_world=.90,look_paper=(.9,.9,.9),look_paper_x=.06,
+ look_reflection_card=dict(location=(-.25,.45,.10),size=(.002,.80,.10),color=(.20,.20,.20)))
+_original_definitions=definitions
+
+def definitions():
+ from guns.common.photo_matches import L
+ rows=_original_definitions()
+ rows['look_deep_blue']=dict(photo=str(BASE/'build/look-photos/deep_blue.png'),crop=(40,405,890,505),
+  title='Used field gun with retained deep bluing / full barrel length',
+  fit_location=(-3.0,.24,.62),fit_target=(0,.235,0),fit_lens=82,
+  landmarks=[L((-12.6,115,57.35),(835,436)),L((-10.9,775.4,54.6),(82,443)),
+   L((0,-299,-5),(1297,497)),L((0,-299,-117),(1290,631)),L((-25.95,170,19),(787,477))])
+ return rows
+
+
+# Material review annotations; never imported by procedural source shaders.
+for _name,_note in {
+ 'barrels':'The photograph has a broad gray lower flank; ours retains deep bluing outside the short carry field. The cyan/yellow overlays locate the missing middle values and wider reflected strip. The retained-blue photograph is a separate check; this gray-field comparison remains a miss.',
+ 'case_action':'Original faded blue/straw/brown oxide survives near fences and the bar; handled flats are silver-gray. Whole-part tolerances are tested above; different oxide placement and the photo engraving remain visible, with no copied pattern.',
+ 'top_lever':"The full accepted narrow leaf and stem are included. The thumb-contact land is bright; protected blued stem remains dark. Passing quantiles do not equate the accepted leaf to the photo maker's rounded paddle.",
+ 'safety':"Dark cut valleys and polished diamond facets both remain in the denominator. The original accepted pad includes its recessed slot; the photo has another maker's unslotted pad. Source/export quantiles below expose any filtered loss of the dark valleys.",
+ 'triggers':"The cyan low decile lies on our broad blade faces, versus the photo's thin, partly shadowed blade profiles. The whole-part median and bright edges are tested separately; preserved accepted blade shape and broad-face illumination leave a low-tail mismatch.",
+ 'guard':"The accepted guard's broad inner land reflects the gray field; the photographed thin rounded edge catches a white strip. The yellow overlay and full histogram show too little bright area. A low-light trial improved this guard but overlit both triggers; the joint rig was rejected.",
+ 'walnut_stock':"The photo's low decile covers its checked wrist and lower butt, with a warmer broad oil highlight. Ours has a smaller straight-hand checker field. Retain every planed land, dark vessel and cut valley in the full-part test; no selected wood patch substitutes for it.",
+ 'walnut_forend':"The whole visible splinter, bare edges and checker field are included. Individual tips survive in our delivered normal; the photo's handled points are broader. Read median and tails together with source/export loss and the separate native 2D wear pair.",
+ 'brass_bead':'The full accepted bead includes its exposed cylindrical stem and shadowed underside; the photo bead sits almost flush on the rib. The cyan overlay identifies this extra dark area. It remains included in P10 rather than masking the stem away.',
+ 'barrels_deep_blue':'This second used gun retains blue-black oxide along its tubes. Whole visible barrels are retained, with an estimated rubbed-steel neutral and disclosed narrow photographic cross-section resolution. The native photograph is 2560 pixels wide; no sharper upload was available.',
+}.items():
+ FINISHES[_name]['residual_note']=_note

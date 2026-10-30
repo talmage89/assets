@@ -1,5 +1,5 @@
 """Three delivered family guns photographed in one unmodified field studio."""
-import argparse,hashlib,json,subprocess,sys
+import argparse,hashlib,json,subprocess,sys,shutil
 from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont
 BASE=Path(__file__).resolve().parents[1];ROOT=BASE.parents[1];sys.path.insert(0,str(ROOT))
@@ -9,20 +9,30 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--width',type=int,default=1600);p.add_argument('--samples',type=int,default=48);a=p.parse_args()
     out=BASE/'renders/final/family';out.mkdir(parents=True,exist_ok=True)
     models={'Covey 26':BASE/'export/sxs.glb','Hearth 12':BASE.parent/'shotgun/export/shotgun.glb','Bracken L20':BASE.parent/'lever/export/lever.glb'}
-    records={}
+    signature=hashlib.sha256()
+    for f in [BASE/'src/final_render.py',BASE/'src/final_shots.py',BASE.parent/'common/render.py']:signature.update(f.read_bytes())
+    signature=signature.hexdigest();records={}
     for name,source in models.items():
         if not source.exists():
             asset=source.parents[1]
             with (BASE/'build'/('family-build-'+asset.name+'.log')).open('w') as log:
                 subprocess.run(['make','-C',str(asset),'export'],cwd=ROOT,stdout=log,stderr=subprocess.STDOUT,check=True)
         digest=hashlib.sha256(source.read_bytes()).hexdigest();folder=out/name.replace(' ','_')
+        primary=BASE/'renders/final/beauty'
+        if name=='Covey 26' and (primary/'shots.json').exists():
+            shared=json.loads((primary/'shots.json').read_text()).get('hero',{})
+            if (shared.get('sha256')==digest and shared.get('samples_used')==a.samples and
+                shared.get('renderer_signature')==signature and Image.open(primary/'hero.png').width==a.width):
+                folder.mkdir(parents=True,exist_ok=True);shutil.copy2(primary/'hero.png',folder/'hero.png')
+                (folder/'shots.json').write_text(json.dumps(dict(hero=shared),indent=2))
         current=json.loads((folder/'shots.json').read_text()) if (folder/'shots.json').exists() else {}
-        valid=current.get('hero',{}).get('sha256')==digest and (folder/'hero.png').exists() and (folder/'hero.png').stat().st_mtime>(BASE/'src/final_shots.py').stat().st_mtime and (folder/'hero.png').exists() and Image.open(folder/'hero.png').width==a.width
+        valid=current.get('hero',{}).get('sha256')==digest and current.get('hero',{}).get('samples_used')==a.samples and (folder/'hero.png').exists() and current.get('hero',{}).get('renderer_signature')==signature and (folder/'hero.png').exists() and Image.open(folder/'hero.png').width==a.width
         if not valid:
             with (BASE/'build'/('family-'+source.stem+'.log')).open('w') as log:
                 subprocess.run([str(ROOT/'kit/with_gpu.sh'),'blender','-b','--factory-startup','--python-exit-code','1','--python',str(BASE/'src/final_render.py'),
                     '--','--source',str(source),'--out',str(folder),'--width',str(a.width),'--samples',str(a.samples),'--shots','hero'],cwd=ROOT,stdout=log,stderr=subprocess.STDOUT,check=True)
         records[name]=json.loads((folder/'shots.json').read_text())['hero']
+        assert records[name]['sha256']==digest and records[name]['renderer_signature']==signature
     first=next(iter(records.values()))
     for r in records.values():
         for key in ('location','target','lens','exposure','aspect','engine'):assert r[key]==first[key]
