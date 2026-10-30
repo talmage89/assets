@@ -46,7 +46,7 @@ def steel(name,part,wear,bright=False,paint=True):
  # changes intact enamel only; all subsequent substrate/wear mixes stay fixed.
  paint=paint and not bright and not part.startswith('Magazine_')
  base=(.022,.023,.024) if paint else (.0015,.00154,.0015)
- rough=n.add(.29 if paint else .42,n.mul(sub(n,micro,.5),.06));metal=0;specular=.4 if paint else .08
+ rough=n.add(.42,n.mul(sub(n,micro,.5),.06));metal=0;specular=.4 if paint else .08
  height=n.add(n.mul(sub(n,micro,.5),30e-6),n.mul(sub(n,n.noise(p,5800,2),.5),1.5e-6))
  # Distance in meters to exposed contact edges. Each part has its own causes.
  edge=1.;flat=0;dust=0;carbon=0;mark=0;rib_phosphate=0;rib_core_edge=0

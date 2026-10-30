@@ -17,10 +17,10 @@
     0.775,
     0.825
   ],
-  "authored_roughness": 0.29,
+  "authored_roughness": 0.42,
   "scope": "Reviewed intact enamel only. Equal 0.05-wide specular interval; geometry/layout baselines and wear source unchanged.",
   "previous_glb_sha256": "55ec8e8ec04f2d7503db7822d9ef409fd7c57266a9a71aeeefa569b278e843ce",
-  "reviewed_glb_sha256": "2c2643de76361b88319d5a42429be5ad7bd93fddc02b34a247649dd41a28744b",
+  "reviewed_glb_sha256": "ebef6a42250e04de592ca4657a3c6522afd5d8d5ecd74de00ebcc23d38aa041e",
   "accepted_wear_masks": {
     "left": "4c619f326c84ac88bef2f2e4d70fd90cf5f088baca61b4c0b32d13e7758ee289",
     "right": "d83a14f4c54fc98734b157e2f1027177d09535ba0f8854e24a72f545c94ae7cf"
@@ -38,6 +38,15 @@
       "actual_handoff_glb_sha256": "290b044c70d6319bbf4418d4f7f21e633ddb12741d1609aa03040b2ddec2b074",
       "reviewed_glb_sha256": "2c2643de76361b88319d5a42429be5ad7bd93fddc02b34a247649dd41a28744b",
       "reason": "Round 2: isolate enamel projection from adjacent accepted finishes; no geometry, UV, rig, clip, wear-mask or authored finish change."
+    },
+    {
+      "previous_manifest_sha256": "fe779730af1428a7576c4cfb30312d15c3f05189dd9268ac1b3d9b26c3b08963",
+      "previous_journal_glb_sha256": "2c2643de76361b88319d5a42429be5ad7bd93fddc02b34a247649dd41a28744b",
+      "actual_handoff_glb_sha256": "c5dfb18ab711c8315163bbb2ee3f0a01e536386807fbc9d5c560c7fe817b0582",
+      "reviewed_glb_sha256": "ebef6a42250e04de592ca4657a3c6522afd5d8d5ecd74de00ebcc23d38aa041e",
+      "previous_authored_roughness": 0.29,
+      "authored_roughness": 0.42,
+      "reason": "Round 3: use the Harrow family's .42 enamel roughness instead of the rejected self-fitted .29; retain base color, specular, wear, all non-enamel finishes and exact geometry/UV/rig/clips/detachables."
     }
   ]
 }

@@ -2129,3 +2129,40 @@ Further parameter changes need an explainable photo/accepted-finish
 calibration. No new software is needed. A shared neutral-clipping audit
 and explicit component-aware photo masks would help future family reviews.
 <!-- ROUND2_DELIVERY_END -->
+
+## Round 3 — family paint ruling and build separation
+
+The owner's ruling supersedes the unresolved photographic approval above.
+The five anchored light fits (1/11, 0/8, 1/8, 1/6 and 0/6 passing anchors)
+cannot calibrate these guns' light. The accepted finish is the Harrow 56's
+family paint in its same five-fixture studio. The failed fits, masks, pairs
+and their original bounds remain diagnostic; they do not choose the paint.
+
+`paint-review` is now a separate opt-in diagnostic that writes its JSON and
+images without `--check`. It is no longer a prerequisite of `review`, `docs`
+or `all`. The explicit Python `--check` retains the original anchor and paint
+assertions. No other anchored-fit gate was in either default graph. All
+construction, motion, geometry, rig, clip, UV, atlas, detachable and preservation
+checks retain their bounds. `check` additionally verifies the accepted enamel
+projection owner partition and exact delivered RGBA on all 73 non-enamel
+interior regions, using `src/accepted_projection.json` recorded from the
+actual `ab206c5` files. This verifies delivered preservation; the round-two
+enamel perturbation pairs remain the causal projection experiment.
+
+The Relay changes only intact enamel central roughness, .29 → .42. Its
+linear base .022/.023/.024 and glTF specular factor .8 (Principled .4)
+already equal the Harrow's. Non-enamel finishes, wear masks, studio, cameras,
+geometry, UVs, rig, clips and detachable geometry remain fixed.
+
+### Reviewed round-three paint baseline
+
+Reason: Round 3: use the Harrow family's .42 enamel roughness instead of the rejected self-fitted .29; retain base color, specular, wear, all non-enamel finishes and exact geometry/UV/rig/clips/detachables.
+
+Old `ab206c5` manifest SHA-256: `fe779730af1428a7576c4cfb30312d15c3f05189dd9268ac1b3d9b26c3b08963`. Its reviewed journal GLB
+SHA-256 is `2c2643de76361b88319d5a42429be5ad7bd93fddc02b34a247649dd41a28744b`. The actual `ab206c5` exported GLB SHA-256 is
+`c5dfb18ab711c8315163bbb2ee3f0a01e536386807fbc9d5c560c7fe817b0582`. The new reviewed GLB SHA-256 is `ebef6a42250e04de592ca4657a3c6522afd5d8d5ecd74de00ebcc23d38aa041e`.
+
+The explicit `src/reviewed_rebaseline.py` step verifies those hashes, their
+prior recording here, the handoff geometry/UV/rig/clip signature and all
+accepted gun/detachable layout checks before updating the paint journal.
+All specular/color/wear bounds and geometry baselines remain unchanged.
