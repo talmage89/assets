@@ -1,4 +1,4 @@
-# Covey 26 — form round 6: upper forging fairness (in progress)
+# Covey 26 — form round 6: upper forging fairness
 
 Round five's favorable surface judgments are superseded. The accepted
 layout, controls, material constants and rig are retained. Before evidence
@@ -84,6 +84,244 @@ is preserved under `build/round6/before/`; no final docs images are added.
     limit's normal, including boundary corners; the end cap and lip retain
     their own normals. The bake and every exported evidence view must be
     regenerated after this correction. No pixels are manually repaired.
+
+
+37. **Precision and the actual high source's ground flats.** Color/value:
+    no inspection constant changed. Opened the corrected ordinary open,
+    aimed, top, breech and both side rakes, then every other beauty view on
+    six review sheets. The false black stripes on the rear end caps are
+    gone. The normal's 8-bit shipping quantization still steps very narrow
+    mirror bands. A 2048 RGB16 trial retains the continuous gradients, so
+    keep the original 4096 bake precision through the same normalized
+    two-by-two vector filter. BaseColor/ORM remain RGB8; it is still one
+    2048 three-map atlas. This costs disk space, not additional triangles
+    or texels, and requires consumer precision/compression validation later.
+
+    The dense source also had a distinct shading error on the genuinely
+    ground constant-X side faces. Actual corner normals departed from the
+    plane by as much as 4.10375 degrees. Give only those planar corners
+    their measured face normal; preserve all roof, lip and end-cap normals.
+    The saved preparation report now reads the corrected normals back and
+    measures 0.30710 degrees after custom-normal storage, rather than reporting
+    the assigned ideal as a measurement. Dense
+    diagnostic preparation applies exactly the same policy as the bake.
+    The narrow-band test remains at roughness 0.045, without denoising;
+    a softer 0.10 trial is not the final fairness evidence.
+
+
+
+38. **Final narrow-band comparison rejects the flat-side bake.**
+    Color/value: identical neutral diagnostic bands at roughness 0.045;
+    no denoising or material-value adjustment. The complete make passed
+    317 current evidence records, but that is provenance, not visual approval.
+    Opened both all-five-view source/export stripe sheets. In both
+    directions the upper crown, center, rear returns and recess follow the
+    dense source closely. The exported ground side flats have speckled
+    interruptions at narrow transverse bands, especially in both rakes.
+    Reject this bake despite the much improved ordinary open view.
+
+    A saved-source read-back confirms the assigned flat normals still
+    depart by 0.307 degrees at corners encoded in a smooth fan shared
+    with neighboring curved faces. A scripted flat-face trial isolates
+    those loop-normal spaces and removes that directional error. Apply
+    this only to actual constant-X ground faces in both the UV target and
+    dense source, preserving the roof, lip and end-cap normals. Use atan2
+    of cross length and dot to measure the tiny residual: acos of a
+    float32 dot alone falsely reports about 0.02 degrees for a parallel
+    vector whose length rounded below one. Re-bake and regenerate the
+    full evidence; no pixel or shader repair is used.
+
+    The first flat-fan trial still fails the transverse rakes. Actual target
+    triangles span a breech-edge-break vertex 1.3 microns inside the ground
+    plane, outside the initial 0.3-micron coordinate bound. Use the model's
+    existing 15-micron ground-side tolerance with its strict face-normal
+    criterion, and include the continuation into the hinge cheek. This
+    selects 3,274 dense and 297 target corners. Read-back maxima are now
+    0.00356 and 0.01577 degrees respectively, over the full selected region.
+    A separate direct PNG/import test confirms the exported RGB16 normal
+    decodes into a float image with maximum channel difference 5.96e-8;
+    bit-depth conversion is not the remaining cause. These checks support
+    the revised projection; the rendered bands must still pass.
+
+
+39. **Connected-map control and precise ground-plane projection.**
+    Color/value: same neutral bands, roughness 0.045 and no denoising.
+    Opened the right transverse control with its normal map disconnected:
+    the side band is clean. The diagnostic is not a delivery image. Then
+    opened all four `math-projection/reflections` rakes with the test normal
+    map connected. Both transverse ground bands are now continuous, and
+    both longitudinal sets retain the smooth upper forging and returns.
+    The former broad speckled breaks are gone. Tiny filtered UV-edge signals
+    remain at the boundaries of the curved bake, not as geometric folds.
+
+    The saved Cycles map deviates up to 0.26 degrees at sampled ground-side
+    texels despite the corrected source/target normals. Decode preserves
+    RGB16, and the kit's temporary mesh join changes selected ground normals
+    by 0.0 degrees. Use an exact geometric projection for these planes:
+    fit each to the original dense source by SVD, evaluate its normal through
+    the actual game mesh's interpolated Mikk tangent basis at each 4096 UV
+    texel, and extend only into unoccupied gutter. This is a scripted bake
+    of our original geometry, with no painted pixels, photo input or shader
+    change. The compound head, recess, returns and every other normal region
+    retain their GPU Cycles bake. The kit still filters and exports the set.
+
+    The two measured plane fits have RMS residuals 0.000318/0.000290 mm;
+    largest residual 0.003410 mm. Projection covers 99 triangles, 89,208
+    interior texels and 15,971 gutter texels. The standalone prototype's 22
+    sampled side texels now deviate at most 0.0155 degrees. Its normal map
+    remains connected. Integrate the fitted-source version, retain the
+    original GPU map for comparison and regenerate every final view.
+
+40. **Reject residual curved-strip projection noise.** Color/value: same
+    narrow neutral bands and unchanged ordinary inspection constants. The
+    plane-only projection cleans the middle of the ground faces, but final
+    full-resolution right/left transverse rakes still show ragged band edges
+    in the curved strip immediately beside them. The earlier pass's favorable
+    ground-plane judgment does not accept that adjacent strip. Reject it.
+
+    Project the complete forging directly from its original dense triangles,
+    interpolating their saved corner normals at the nearest source point
+    within each construction region. Roof, lip, floor and rear cap cannot
+    select each other's normals. Evaluate each result through the target's
+    actual interpolated Mikk basis at 4096, retain RGB16 at 2048 and keep the
+    normal map connected. The SVD-fitted planes remain for the ground sides;
+    all other parts retain their original GPU bake. Opened both prototype
+    transverse rakes: the formerly ragged curved-strip bands are continuous
+    and follow the dense source. This changes no vertex or material value.
+    Projection covers 555,222 interior and 385,031 gutter texels. Worst
+    source distances for roof/lip/floor/rear cap are 0.09731 / 0.02282 /
+    0.00530 / 0.02687 mm; the remaining reduced forging reaches 0.53739 mm.
+    Two independent projections reproduce all three 4096 PNGs and their
+    report byte for byte. Full-camera and ordinary-view regeneration remains
+    the final gate.
+
+41. **Top-view atlas-border audit.** Color/value: unchanged constants and
+    narrow neutral bands. Opened all twenty source/export stripe crops at
+    native resolution. Both side rakes in both directions now retain clean
+    continuous bands. The top view still has small export-only marks near
+    the lip, especially longitudinally, and slight band-edge filtering at
+    the outer rolls. The source is clean there. A passing make and 317
+    current render records do not resolve this last projection defect.
+
+    The gutter blocker used a conservative polygon fill for the action as
+    well as the other parts. It incorrectly protected some pixels outside
+    the action's actual pixel-center occupancy, retaining the original GPU
+    bake inside the shipping filter's footprint. Use the exact action
+    occupancy already computed by the projection; keep conservative
+    protection for every other part. Opened the trial top and open views,
+    both band directions. The distinct export-only spots beside the lip
+    disappear; curved bands remain continuous. Finite 2048 filtering still
+    softens some band edges, and must not be described as pixel-identical
+    to the dense source. The revised gutter covers 436,266 texels, without
+    changing the 555,222 interior texels or any vertex.
+
+42. **Final source, delivery and photographic gate.** Color/value: the
+    original dark-steel and walnut inspection constants remain unchanged.
+    The dealer action macros have no defensible neutral; unity balance is
+    retained and no finish match is claimed. Diagnostic bands remain neutral,
+    roughness 0.045, 32 samples, without denoising. Opened all twenty final
+    stripe images as native head crops, the four complete before/after
+    sheets, and the ordinary open view's native 450 × 300 before/after crop.
+    The old diagonal fence-to-boss folds, rear corner wrinkles and rippled
+    lip are absent. The following records each source and delivery image;
+    transverse/longitudinal names match the PNG filenames.
+
+| View / bands | Dense source observation | Baked 2048 export observation |
+| --- | --- | --- |
+| Open / transverse | Crown loops flow into the shoulders; center and lip have no pinched fold. | Same continuous paths; rear returns have no former black projection stripes. |
+| Open / longitudinal | Bands sweep through the inner shoulders and around the recess without the former diagonal ridge. | Sweep retained; lip and both rear corners remain continuous. |
+| Top / transverse | Nested crown bands widen smoothly into the head; outer returns have no secondary wrinkles. | Bands remain connected; some edges on the outer rolls are softened by 2048 filtering. |
+| Top / longitudinal | Inner-return bands bend continuously into the recess; rim has no ripple. | The isolated lip-border marks from pass 41 are gone; small band-edge filtering remains. |
+| Aimed / transverse | Both crown loops and central recessed-wall bands are continuous; no surrounding fence crease. | Same shoulder and recess pattern; the original bead remains visible. |
+| Aimed / longitudinal | Curved shoulder bands flow toward the recess and down both returns. | Paths retained without a new center seam or abrupt upper-surface turn. |
+| Right rake / transverse | Continuous crown/return loops and a clean broad ground-side band. | Both retained; the ragged curved-strip interruptions from pass 40 are gone. |
+| Right rake / longitudinal | Bands run continuously from the front roll through the rear return. | Same flowing bands through the side radius and rear corner. |
+| Left rake / transverse | Continuous crown/return loops; broad side band has no wrinkle. | Matches the source's continuity; no former speckled break beside the ground plane. |
+| Left rake / longitudinal | Bands run continuously across the return and into the side radius. | Same course, with no rear-corner kink. |
+
+Sharp changes are confined to the standing face, actual wood joint and
+recess boundaries; their separately measured edges are listed below.
+Finite texture filtering is visible at close zoom, so the export is not
+claimed to be pixel-identical to the dense source. It no longer reproduces
+the old cloth folds. Both ordinary rakes, all six beauty-review pages,
+twelve photographic pairs, the exact aimed/open pairs, all 24 sections,
+the clip/opening sheets, ammunition views and contact sheet were inspected.
+The head reads as one forging and the standing face remains one face with
+its bushings. Published-class interpretation and estimated photographic
+cameras remain limitations; these are not precision scan comparisons.
+
+The final `make -C guns/sxs` and subsequent `make -C guns/sxs check` both
+exit 0. The check leaves the GLB's SHA-256 and timestamp unchanged.
+The presentation audit has 317 current render records, all 19 real-duration
+clips, twenty current stripe images and twenty matching baseline
+camera/light comparisons. All ten export stripe images retain their normal
+map. The final GLB SHA-256 is
+`bf3aab8b13e529c7bf6739d19d57cb2c696180308ce4d9e4095eca116106436b`.
+The isolated padding trial and production projection have byte-identical
+BaseColor/Normal/ORM 4096 PNGs. Repository-root `build/round6/` retains the
+before evidence, diagnostic trials, comparison hashes and final build logs.
+No look work, docs JPGs, kit changes or shared/common changes were made.
+
+### Dense geometric normal audit
+
+`build/fairness.json` measures the largest angle between adjacent triangle
+face normals, after triangulating the actual dense action. It records the
+worst edge and both face centers, not just a percentile. No shading normals
+or fitted derivatives enter these numbers.
+
+| Continuous region | Largest angle |
+| --- | ---: |
+| Right / left fence into head | 3.2707° / 2.9363° |
+| Center fill | 3.8643° |
+| Right / left rear return | 5.4898° / 5.5421° |
+| Upper recess lip | 7.5739° |
+
+The intentionally retained boundaries are measured separately: breech arris
+90.7554°, rear wood joint 87.7588°, recess floor/wall 111.8014°, bushing
+counterbore 90.0002°, and the internal lower spindle seat 143.0237°.
+The last is a microscopic internal triangulation edge, not an upper blend;
+it is explicitly retained in the report rather than silently filtered out.
+The dense action has zero nonmanifold edges, zero zero-area faces and positive
+signed volume. The 12° smooth-region test is a tessellation regression bound;
+only the reflection images establish whether the surface looks fair.
+
+
+### Round 6 measured build proof
+
+- `make -C guns/sxs` and `make -C guns/sxs check`: both exit 0 against
+  the final RGB16-normal export.
+- 38,822 total triangles, including staged ammunition; action allocation
+  7,750. One atlas material, three 2048 images; BaseColor/ORM RGB8 and
+  OpenGL normal RGB16. GLB 12,495,908 bytes. Delivered PNGs: BaseColor
+  263,623, Normal 7,289,858, ORM 1,623,793 bytes.
+- Source and imported contacts: 246 actual surface probes each, all pass.
+  All 19 clips at half-frame spacing: 1,715 source and 1,728 imported
+  samples, zero violations, no allowed-contact exceptions. Largest sampled
+  penetration is 0.113714 mm, below the existing 0.20 mm visual tolerance;
+  this is not a claim of zero intersection throughout every assembly.
+- Strict lever sweep: 51 angles, 0–25° at 0.5°, 306 moving/fixed pairs.
+  Minimum actual gap 0.156732 mm source / 0.156731 mm import, zero
+  penetration and triangle crossings. This proves clearance of the unchanged
+  lever and spindle against the new head, original strap and revised inlet.
+- UVs: no outside or degenerate triangles; overlap fraction 0.000001015
+  against the 0.00001 bound. Median density 2,383.4 px/m at 2048.
+  The five 4096 bake channels have zero missed interior texels.
+- Re-import serialization: 1,715 affine samples; maximum position error
+  0.000191 mm and maximum of 100 surface-pose errors 0.000253 mm. These
+  prove serialization, separately from the contact/clearance measurements.
+- Independent native rebuild: 104/104 entries identical. Preservation
+  against round five: 102/104 identical; only the action and its wood inlet
+  change. Moving meshes, strap, rig, sockets and exact clip keys are retained.
+- Repository check: 1,050 sources, zero errors. No kit/common changes.
+
+The README repeats every accepted exterior gauge against its original
+photographic uncertainty. Those uncertainties remain material: this is an
+original measured interpretation, not a scan of a specific gun. The narrow
+mirror response also exposes the delivered texture's finite spatial resolution
+and custom-normal storage; engine compression must be judged again at the
+finish gate. Keeping RGB16 here is a disk/consumer tradeoff, not evidence that
+an arbitrary game importer preserves it. A general optional RGB16 mode in
+the kit downsampler would avoid the local precision-preserving wrapper.
 
 ---
 

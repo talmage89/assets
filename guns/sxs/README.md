@@ -7,7 +7,9 @@ straight-hand walnut stock and splinter forend. Fictional maker/model:
 
 **Form round 6, with baked normals; finish/look-dev remains held.** The gun
 uses one baked 2048 BaseColor / OpenGL Normal / ORM atlas, from a 4096 GPU
-bake of our original dense sources and inspection constants. Checkering, grain,
+bake of our original dense sources and inspection constants. The forging's
+normal projection is evaluated directly from the dense source through the
+game mesh's tangent basis. Checkering, grain,
 markings, used finishes and final delivery acceptance remain held. No docs
 images are committed at this gate.
 Generated image paths below are local build outputs, not hosted README images.
@@ -142,7 +144,7 @@ spawn, visibility and event meanings.
 
 | Inspection output | Triangles | GLB bytes |
 | --- | ---: | ---: |
-| Gun, all staged alternatives | 38,822 | 6,299,240 |
+| Gun, all staged alternatives | 38,822 | 12,495,908 |
 | Shell | 752 | 26,476 |
 | Hull | 480 | 18,160 |
 
@@ -161,7 +163,8 @@ length. Connected hidden joins make each shell a closed manifold skin.
 | `build/shell.glb`, `build/hull.glb` | Separate head-centered exterior ammunition, +Y toward mouth |
 | `export/sxs.glb` | Baked 2048 gun, named rigid parts, rig, clips and sockets |
 | `build/delivery/finalized.blend`, `high.blend`, `uv.json` | Kit UV target, dense bake sources and atlas measurements |
-| `build/baked/4k/`, `textures/` | Isolated 4096 source bake plus assembled-contact AO; delivered three-map 2048 set |
+| `build/baked/4k/`, `build/baked/precise4k/`, `textures/` | Original GPU bake, dense forging normal projection at 4096, delivered three-map 2048 set |
+| `build/baked/precise4k/projection-report.json` | Measured source-plane fits, per-region projection distances, coverage and input/output hashes |
 | `build/delivery/projection-ownership.json` | Independent check that constant albedos project from their own parts |
 | `renders/checkpoint/pairs/aimed-pair.jpg`, `open-player-pair.jpg`, `open-breech-pair.jpg` | Exact player views beside rear/action photographs and calibrated comparisons |
 | `renders/checkpoint/reflections/` | All five striped cameras in two directions; source/export sheets, before/after comparisons and native open-head crops |
@@ -176,9 +179,27 @@ length. Connected hidden joins make each shell a closed manifold skin.
 | `renders/checkpoint/clips.jpg`, `opening.jpg`, `strips/` | All clips, wide opening and correctly timed WebPs |
 | `renders/checkpoint/ammunition.jpg` | Standalone shell and hull inspection |
 
-The current gun embeds one three-map **2048** set, about 16 MiB with block
-compression and mipmaps, and uses one material. At this form gate, 54 named
-rigid meshes remain for independent surface/contact diagnostics. Consolidating
+The current gun embeds one three-map **2048** set and uses one material.
+BaseColor and ORM are RGB8; the tangent normal remains RGB16 after the
+kit's vector box filter. An 8-bit trial stepped the narrow mirror bands, so
+this round retains the original bake precision without adding texels or maps.
+The embedded normal PNG is 7,289,858 bytes; the GLB is 12,495,908 bytes.
+A deterministic 4096 projection computes the forging's normals from its
+original dense triangles in the actual game mesh's Mikk tangent basis.
+Construction ownership keeps roof, lip, floor and end-cap projections separate.
+Two planes fitted to the dense source supply 99 ground-side triangles;
+source-plane RMS residuals are 0.000318/0.000290 mm, maximum 0.003410 mm.
+The operation covers 555,222 interior texels. Maximum nearest-source distances
+are 0.0973 mm on the roof, 0.0229 mm on the lip, 0.0053 mm on the floor,
+0.0269 mm on the rear cap and 0.5374 mm on the remaining reduced forging.
+It replaces selected-to-active directional noise without altering geometry
+or material constants. All other parts retain their GPU normal bake.
+The action uses exact pixel-center occupancy for its gutter; a conservative
+mask protects every other part's occupied atlas area.
+A consumer that block-compresses the maps uses about 16 MiB including mipmaps;
+uncompressed RGB16 normal storage costs more and is importer-dependent.
+At this form gate, 54 named rigid meshes remain for independent surface/contact
+diagnostics. Consolidating
 the delivery skin belongs to final acceptance. The accepted standalone shell
 and hull stay in their unchanged diagnostic GLBs; their own small baked sets
 remain part of the later finish delivery, rather than claiming they share the
@@ -189,24 +210,25 @@ Photo-scale estimates and their uncertainty are in `refs/SOURCES.md`.
 
 | Quantity | Measured export | Photo / geometry relation |
 | --- | ---: | --- |
-| Right / left fence crown | 57.354 / 57.350 mm Z | barrel top 57.350 mm; reduction deviation at most 0.004 mm |
-| Fence pair width | 51.894 mm | joined tubes at breech 51.900 mm |
-| Largest arc-center offset from actual bore axis, right / left | 0.014 / 0.012 mm | outward front-arc fits; axes from actual chamber skin |
-| Axial return length, right / left | 18.51 / 18.52 mm | photo 18–20 mm, about ±2 mm; degree-5 endpoint fit |
-| Drop behind right / left fence return | 7.63 / 7.63 mm | photo 5.6 ±3 mm |
-| Drop at right / left side wood line | 13.07 / 13.07 mm | photo 12.5 ±3 mm |
-| Drop at center wood line | 11.29 mm | photo 8.5 ±3.5 mm; lever occludes actual center |
-| Center fill, outside lever recess | 55.589–55.590 mm Z | owner-specified 55.59 mm; actual rib-floor probe 55.585 mm |
-| Side return radius | 5.994 mm | photo 4.5–7.5 mm, at least ±2 mm |
-| Fence/head equivalent local radius, right / left | 6.63 / 6.65 mm | photo 4–8 mm, at least ±2 mm; Y96.5–102, X±12.6 mm |
-| Upper head/strap equivalent radius, right / left | 5.72 / 5.92 mm | photo 4–8 mm, at least ±2 mm; Y92–94, X±10 mm |
-| Inner return behind outer, right / left | 9.20 / 9.40 mm | photo 11.5 ±3 mm; 0.10 mm height-departure landmarks |
-| Boss radial running clearance | 0.295–0.303 mm | R5.90 fore wall around R5.60 boss; fore semicircle at Z49 |
-| Recess upper lip radius | 0.591 mm | photo roughly 0.25–0.75 mm, at least ±0.25 mm; circle fit error 0.002 mm |
+| Right / left fence crown | 57.348 / 57.339 mm Z | barrel top 57.350 mm; reduction deviation at most 0.011 mm |
+| Fence pair width | 51.895 mm | joined tubes at breech 51.900 mm |
+| Front arc fitted radius, right / left | 13.358 / 13.316 mm | accepted R13.35 front arcs; extrapolated from the exposed sections |
+| Largest arc-center offset from actual bore axis, right / left | 0.027 / 0.019 mm | outward front-arc fits; axes from actual chamber skin |
+| Axial return length, right / left | 18.71 / 18.70 mm | photo 18–20 mm, about ±2 mm; equivalent reference-curve fit to the subdivision return |
+| Drop behind right / left fence return | 7.603 / 7.603 mm | photo 5.6 ±3 mm |
+| Drop at right / left side wood line | 12.958 / 12.950 mm | photo 12.5 ±3 mm |
+| Drop at center wood line | 10.960 mm | photo 8.5 ±3.5 mm; lever occludes actual center |
+| Center fill, outside lever recess | 55.5897–55.5904 mm Z | owner-specified 55.59 mm; actual rib-floor probe 55.585 mm |
+| Side return radius, right / left | 5.893 / 5.896 mm | photo 4.5–7.5 mm, at least ±2 mm |
+| Fence/head equivalent local radius, right / left | 7.182 / 7.182 mm | photo 4–8 mm, at least ±2 mm; Y96.5–102, X±12.6 mm |
+| Upper head/strap equivalent radius, right / left | 7.017 / 6.976 mm | photo 4–8 mm, at least ±2 mm; Y92–94, X±10 mm |
+| Inner return behind outer, right / left | 9.00 / 8.80 mm | photo 11.5 ±3 mm; 0.10 mm height-departure landmarks |
+| Boss radial running clearance | 0.288–0.304 mm | R5.90 fore wall around R5.60 boss; fore semicircle at Z49 |
+| Recess upper lip radius | 0.576 mm | photo roughly 0.25–0.75 mm, at least ±0.25 mm; circle fit error 0.008 mm |
 | Minimum lever-swing gap | 0.157 mm | 0–25°, 0.5° steps; 51 angles, vertex/face and edge/edge surface distances, zero penetration |
-| Largest head/bar side step | 0.00017 mm | one side plane |
-| Largest plate/bar step | 0.002 mm | both skins extrapolated to common seam station |
-| Lower-edge radius | 7.96 mm | photo 7–9 mm, at least ±2 mm |
+| Largest head/bar side step | 0.000194 mm | one side plane |
+| Largest plate/bar step | 0.00294 mm | both skins extrapolated to common seam station |
+| Lower-edge radius | 7.981–8.009 mm | photo 7–9 mm, at least ±2 mm |
 | Front / rear slot width | 6.000 / 6.000 mm | blades 5.400 mm; 0.300 mm clearance each side |
 
 The center outline now follows Z55.59; the former Z49.72 notch is superseded.
@@ -218,9 +240,21 @@ shares its boundary vertices with the roof. It has no tangent Boolean join.
 The rear relief stays below the accepted lever through its 0–25° swing. Compare the actual cuts at 3, 8 and 15 mm behind the face,
 both bore-axis cuts, and `head-raking-comparison.jpg`.
 
-Round-five preservation against `f4842bc` finds 101 of 104 entries identical:
-only the action, stock inlet and strap seat differ. All moving meshes, rig,
-clips and sockets retain their prior geometry and keys. No material constants
+The reflection test uses two perpendicular sets of procedurally generated
+parallel bright bands at roughness 0.045, without denoising. Its five cameras
+are the open player, top, exact aimed and both side rakes. The exported
+normal map remains connected. `reflections/source-export-transverse.jpg`
+and `source-export-longitudinal.jpg` show native head crops for every view;
+`before-after-source-*.jpg` and `before-after-export-*.jpg` compare round five
+with round six under the same cameras and bands. `open-head-before-after.jpg`
+contains the ordinary player's native 450 × 300 crops. The audit verifies
+current source/export hashes, normal-map retention and matching cameras,
+resolution, band environment and diagnostic roughness.
+
+Round-six preservation against `7d0ee67` finds 102 of 104 entries identical:
+only the action and its stock inlet differ. All moving meshes, rig,
+clips and sockets retain their prior geometry and keys. The inlet follows the
+new rear head surface; the original lever and strap are identical. No material constants
 changed. `REVIEW.md` records the image critiques and photographic limits.
 
 ## Rebuild and inspect
