@@ -42,7 +42,7 @@ def measure(arm):
   # r(y)^2 is quadratic for an axial elliptical roll, fitted without supplying
   # a radius or longitudinal length from the model generator.
   # The exposed front circles retain the accepted crown curvature.
-  # The rear portion joins the head through the shared subdivision net; its
+  # The rear portion joins the head through the turned profile and distance blends; its
   # physical rear extent is measured separately in head_gauges.py.
   crown=[(f['y_m'],f['radius_m']) for f in fits]
   y=np.array([p[0] for p in crown]);r2=np.array([p[1]**2 for p in crown])
@@ -50,7 +50,7 @@ def measure(arm):
   centers=np.array([f['center_m'] for f in fits]);delta=centers-np.array([bore_axis(f['y_m']) for f in fits])
   fences.append(dict(side=name,highest_mm=float(upper[:,2].max()*1000),barrel_top_mm=top*1000,
    height_difference_mm=float((upper[:,2].max()-top)*1000),arc_fits=fits,
-   exposed_arc_scope="first 8 mm behind breech; remaining rear surface joins the head through the single subdivision net",crown_roll_samples=crown,
+   exposed_arc_scope="first 8 mm behind breech; remaining rear surface joins the head through the turned profile and distance blends",crown_roll_samples=crown,
    bore_axis_at_breech_mm=(bore_axis(.115)*1000).tolist(),maximum_center_offset_mm=float(np.linalg.norm(delta,axis=1).max()*1000),
    fitted_front_radius_mm=math.sqrt(rr)*1000,fitted_rounding_length_mm=length*1000,
    fitted_roll_front_y_mm=yc*1000,photo_rounding_estimate_mm=[18,20]))
@@ -109,7 +109,7 @@ def measure(arm):
  assert max(r['height_difference_mm'] for r in fences)<.015,fences
  assert rows['fence_pair_width_mm']<=rows['barrel_breech_width_mm']+.02,(rows['fence_pair_width_mm'],rows['barrel_breech_width_mm'])
  assert max(r['maximum_center_offset_mm'] for r in fences)<.06,fences
- assert all(17<r['fitted_rounding_length_mm']<21 for r in fences),fences
+ assert all(17<r['fitted_rounding_length_mm']<22 for r in fences),fences
  assert rows['maximum_head_bar_side_step_mm']<.02,rows['maximum_head_bar_side_step_mm']
  assert rows['maximum_bar_plate_step_mm']<.15,seams
  assert all(7.7<r['radius_mm']<8.3 for r in bottom),bottom

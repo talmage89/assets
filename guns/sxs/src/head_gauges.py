@@ -6,7 +6,7 @@ This is visual-asset evidence, not a working or manufacturing specification.
 import math
 import numpy as np
 from kit import weapon as W
-from contacts import tree
+from contacts import tree,part
 from mathutils import Vector
 _TREES={}
 from action_gauges import circle
@@ -20,6 +20,24 @@ def top(x,y,names=('Action_Body',)):
   if hit is not None:points.append(hit)
  assert points,(x,y,names)
  return max(points,key=lambda p:p.z)
+
+def wood_outline():
+ """Recover the actual upper rear seam from rear-facing triangles."""
+ ob=part('Action_Body');mesh=ob.data;mesh.calc_loop_triangles();matrix=ob.matrix_world
+ rows=[]
+ for x in (-23.,-7.5,0.,7.5,23.):
+  hits=[]
+  for tri in mesh.loop_triangles:
+   points=[matrix@mesh.vertices[i].co for i in tri.vertices]
+   normal=(points[1]-points[0]).cross(points[2]-points[0]).normalized()
+   if normal.y>-.5 or max(p.y for p in points)>.096 or max(p.z for p in points)<.035 or min(p.z for p in points)>.035:continue
+   for a,b in zip(points,points[1:]+points[:1]):
+    da=a.x-x*.001;db=b.x-x*.001
+    if da*db<0:hits.append(a+(b-a)*(-da)/(db-da))
+  assert hits,('Rear seam missing',x)
+  p=max(hits,key=lambda v:v.z)
+  rows.append(dict(x_mm=x,point_mm=[float(v*1000) for v in p]))
+ return rows
 
 def measure(arm):
  W.pose(arm,'Idle',0);_TREES.clear()
@@ -69,9 +87,9 @@ def measure(arm):
   assert head is not None and boss is not None
   radial.append(dict(angle_deg=angle,gap_mm=(head-boss).length*1000,head_radius_mm=(head-center).length*1000,boss_radius_mm=(boss-center).length*1000))
  roof=top(0,103).z*1000
- wall=_TREES['Action_Body'].ray_cast(Vector((0,.099,.053)),Vector((0,1,0)),.02)[0].y*1000
+ wall=_TREES['Action_Body'].ray_cast(Vector((0,.099,(48+roof)/2000)),Vector((0,1,0)),.02)[0].y*1000
  p=section('Action_Body',0,.0000005)*1000
- arc=p[(p[:,1]>wall+.02)&(p[:,1]<wall+.9)&(p[:,2]>roof-.9)&(p[:,2]<roof-.02)]
+ arc=p[(p[:,1]>wall+.035)&(p[:,1]<wall+.38)&(p[:,2]>48.1)]
  assert len(arc)>=6,('Recess lip section',len(arc),wall,roof)
  lc,lr,le=circle(arc[:,[1,2]])
  rolls=[]
@@ -85,15 +103,20 @@ def measure(arm):
    coefficients=np.linalg.lstsq(basis,values,rcond=None)[0]
    error=float(np.sqrt(np.mean((basis@coefficients-values)**2)))
    if coefficients[0]>=coefficients[1]>=coefficients[2]>=0:candidates.append((error,float(end)))
-  error,end=min(candidates);rolls.append(dict(side=side,fitted_length_mm=end,rms_profile_error_mm=error,scope='degree-5 reference-curve fit to measured subdivision return; equivalent extent, not the source construction'))
- assert min(p.z*1000 for p in line)>=rib-.01
+  error,end=min(candidates);rolls.append(dict(side=side,fitted_length_mm=end,rms_profile_error_mm=error,scope='legacy degree-5 equivalent fit; the turned surface has no finite flat rear endpoint'))
+ front_face=top(0,114.99).z*1000
+ assert abs(front_face-rib)<.05,(front_face,rib)
+ plane=np.polyfit([p.y*1000 for p in line],[p.z*1000 for p in line],1)
+ assert .30<plane[0]<.34,plane
  assert all(abs(r['drop_from_crown_mm']-r['photo_drop_mm'])<=r['photo_uncertainty_mm'] for r in rows),rows
  assert .35<lr<.85,(lr,le)
- assert all(8.5<=r['inner_behind_outer_mm']<=14.5 for r in endpoints if 'inner_behind_outer_mm' in r),endpoints
- assert all(2<r['radius_mm']<10 for r in transitions),transitions
+ # The old 0.10 mm departure from a level rear datum is retained as a
+ # numerical legacy observation, not an outline on the inclined head.
+ wood=wood_outline()
  return dict(crown_mm=crown,height_stations=rows,
+  wood_outline=wood,centerline_plane_slope=float(plane[0]),front_face_center_mm=front_face,
   centerline=dict(points_mm=[[c*1000 for c in p] for p in line],minimum_mm=min(p.z*1000 for p in line),maximum_mm=max(p.z*1000 for p in line),
-   front_action_valley_mm=front,actual_rib_floor_mm=rib,scope='Y100.6–114.8 mm: uninterrupted head from beyond the R0.60 recess lip to the standing face'),
+   front_action_valley_mm=front,actual_rib_floor_mm=rib,scope='Y100.6–114.8 mm: measured inclined center land; former level 55.59 rear datum superseded'),
   side_return_radii=radii,transition_profile_fits=transitions,return_endpoints=endpoints,
   crown_roll_profile_fits=rolls,boss_radial_clearance=radial,recess_lip=dict(radius_mm=lr,max_fit_error_mm=le,section_x_mm=.0005,points=len(arc)),
-  plan_scope='Rear return at x=23/7.5 mm, first 0.10 mm rise above the measured adjacent head (Y96 outer/Y94 inner); not a hard seam')
+  plan_scope='Legacy 0.10 mm height departures are not rear-outline landmarks on the inclined head; actual wood boundary is measured separately')

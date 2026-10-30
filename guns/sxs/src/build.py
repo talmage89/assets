@@ -36,13 +36,12 @@ def action_section(y):
  if y<170:
   return (ACTION_HALF_WIDTH,7*smoothstep((y-115)/55),30.2)
  return (ACTION_HALF_WIDTH,19-math.sqrt(max(0,144-(y-170)**2)),19+math.sqrt(max(0,144-(y-170)**2)))
-# The head is the limit of one supported quad subdivision cage. All rear
-# returns, both fences and the central fill share its controls.
-from head_surface import height as action_roof, cage as head_cage
+# Original turned and milled exterior primitives, joined by signed distance.
+from head_surface import height as action_roof, construction as head_construction
 from head_mesh import upper_mesh
 
 def upper_normals(ob,normals=None):
- """Differentiate the single subdivision limit; retain the flat breech face."""
+ """Differentiate the analytic signed-distance zero set; retain the flat breech face."""
  normals=normals or [n.vector.copy() for n in ob.data.corner_normals]
  ownership=ob.data.attributes.get('head_region')
  for face in ob.data.polygons:
@@ -338,12 +337,8 @@ def action():
  # Keep the archive synchronized after cutting the real plate seat.
  clean(body,dist=.006);canonical_surface(body)
  body.data.normals_split_custom_set(upper_normals(body,lower_normals(body)));high_copy(body)
- HIGH[-1]['source_method']='One regular Catmull-Clark limit cage, supported front arcs and R6 side; milled R5.90 recess'
- vs,fs=head_cage();cage=M.mesh('CAGE_Action_Head',vs,fs,MAT['blue'])
- cage['bake_only']=True;cage['source_method']='Original quad control net for the single upper forging surface'
- cage.data.transform(Matrix.Scale(.001,4))
- modifier=cage.modifiers.new('Supported Catmull-Clark control net','SUBSURF');modifier.levels=3;modifier.render_levels=4
- cage.hide_render=True;cage.hide_set(True)
+ HIGH[-1]['source_method']='Turned bore-concentric fences and planar milled roof; compact signed-distance union'
+ body['head_construction']=json.dumps(head_construction(),sort_keys=True)
  # Keep the head dense until the recess and its R0.60 lip are cut;
  # one final reduction avoids Boolean cuts through a sparse rim.
  for x,y in [(2.6,64),(-2.6,31)]:
@@ -831,9 +826,6 @@ def main():
   ob.data.transform(Matrix.Scale(.001,4))
   for c in list(ob.users_collection):c.objects.unlink(ob)
   highcollection.objects.link(ob);ob.hide_render=True;ob.hide_set(True)
- cage=bpy.data.objects['CAGE_Action_Head']
- for c in list(cage.users_collection):c.objects.unlink(cage)
- highcollection.objects.link(cage)
  arm=W.armature('SXSArmature',{k:tuple(v*.001 for v in p) for k,p in HEADS.items()},parents=PARENTS)
  for ob in PARTS:W.rigid_bind(ob,arm,ob['bone'])
  rib=bpy.data.objects['Solid_TopRib']

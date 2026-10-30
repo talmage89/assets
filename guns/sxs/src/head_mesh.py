@@ -1,8 +1,8 @@
-"""Tessellate the one subdivision roof into an integral R0.60 recess lip.
+"""Tessellate the remeshed machined roof into an integral R0.60 recess lip.
 
 The top shares its exact boundary vertices with the lip. No tangent Boolean
 intersection is involved. A constrained 2-D triangulation chooses topology
-only; every roof height comes from the original subdivision control net.
+only; every roof height comes from the original signed-distance zero set.
 """
 import math
 from mathutils import Vector
