@@ -5,6 +5,7 @@ are reindexed at count events. No claim of continuous internal ammunition paths.
 """
 from kit.weapon import action as kit_action,hold,fcurves
 from interface import FPS,CLIPS
+from feed import PITCH
 STROKE=.096
 def action(arm,name,keys,**kw):
  # Keep the shell spawn frame nonsingular while its display mesh is hidden.
@@ -20,9 +21,9 @@ def action(arm,name,keys,**kw):
 def vis(v):return dict(scale=(int(v),)*3)
 def tube(n,hide=False):
  return {**{'Tube'+str(i):vis(i<=n and not hide) for i in range(1,5)},
-         'Follower':dict(loc=(0,(n-4)*.059,0))}
+         'Follower':dict(loc=(0,(n-4)*(PITCH*.001),0))}
 def rest(n=4,chamber=True):
- return {**tube(n),'ChamberShell':vis(chamber),'CarrierShell':vis(False),'InsertShell':vis(False)}
+ return {**tube(n),'ChamberShell':vis(chamber),'CarrierShell':vis(False),'InsertShell':vis(False),'FiredHull':vis(False),'ShellStopR':dict(loc=(.002,0,0))}
 def pump(d):return {'Forend':dict(loc=(0,-d,0)),'Bolt':dict(loc=(0,-d,0))}
 def unlock(v=True):return {'BoltLock':dict(rot_deg=(-9 if v else 0,0,0))}
 def carrier(v,angle=15):return {'Carrier':dict(rot_deg=(angle if v else 0,0,0))}
@@ -49,11 +50,11 @@ def insertion(n,offset=0):
  return [k(0,rest(n)),k(8,carrier(True,20)),k(11,{}),
   k(12,{'InsertShell':{**vis(True),'loc':(0,-.065,-.065),'rot_deg':(20,0,0)}}),
   k(28,{'InsertShell':dict(loc=(0,-.035,0),rot_deg=(0,0,0))}),
-  k(40,{'Follower':dict(loc=(0,(n-4)*.059,0))}),
+  k(40,{'Follower':dict(loc=(0,(n-4)*(PITCH*.001),0))}),
   k(44,{'InsertShell':dict(loc=(0,.015,0),rot_deg=(0,0,0)),
    'ShellStopL':dict(loc=(-.002,0,0)),'ShellStopR':dict(loc=(.002,0,0)),
-   **{'Tube'+str(i):vis(False) for i in range(1,5)},'Follower':dict(loc=(0,(n-4)*.059+.006,0))}),
-  k(59,{'InsertShell':dict(loc=(0,.069,0),rot_deg=(0,0,0)),'Follower':dict(loc=(0,(n-3)*.059,0))}),
+   **{'Tube'+str(i):vis(False) for i in range(1,5)},'Follower':dict(loc=(0,(n-4)*(PITCH*.001)+.006,0))}),
+  k(59,{'InsertShell':dict(loc=(0,.069,0),rot_deg=(0,0,0)),'Follower':dict(loc=(0,(n-3)*(PITCH*.001),0))}),
   k(60,{'InsertShell':vis(False),**tube(n+1)}),
   k(62,{'ShellStopL':dict(loc=(0,0,0)),'ShellStopR':dict(loc=(0,0,0))}),k(66,carrier(False)),k(72,{})]
 def build_clips(arm):
@@ -89,4 +90,6 @@ def build_clips(arm):
   for fc in fcurves(act):
    if fc.data_path=='pose.bones["Follower"].location':
     for key in fc.keyframe_points:key.interpolation='CONSTANT'
+ from feed import animate
+ animate(arm)
  assert set(a.name for a in arm.animation_data.nla_tracks)==set(CLIPS)

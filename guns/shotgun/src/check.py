@@ -26,7 +26,8 @@ def geometry(arm):
  assert .350<pull<.365,pull
  count=sum(len(o.data.polygons) for o in meshes)
  assert 30000<=count<=40000,count
- return dict(bounds_m=dict(lo=lo,hi=hi,size=size),barrel_length_m=length,length_of_pull_m=pull,
+ from feed_audit import dimensions as feed_dimensions
+ return dict(feed_dimensions=feed_dimensions(arm),bounds_m=dict(lo=lo,hi=hi,size=size),barrel_length_m=length,length_of_pull_m=pull,
   trigger_contact_m=list(trigger[0]),pad_contact_m=list(butt[0]),triangles=count,form=form_audit(),trigger_surfaces=trigger_measure(arm))
 def sweep(arm):
  # Every exception has a measured bound. No whole pair is skipped.

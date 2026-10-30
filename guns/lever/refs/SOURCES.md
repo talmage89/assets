@@ -35,6 +35,7 @@ are authored class estimates, not published manufacturer measurements.
 | cartridge-spec.pdf | https://bobp.cip-bobp.org/uploads/tdcc/tab-ii/tabiical-en-page70.pdf | C.I.P.; published standard, no redistribution license stated | Table II .30-30 exterior envelope: 51.80 mm case, 64.77 mm overall, 12.85 mm rim, 10.71 mm body, 8.38 mm mouth. Visual exterior only. |
 | parts.pdf | https://www.winchesterguns.com/content/dam/winchester-repeating-arms/support/parts-and-service/parts/2025/Winchester-Model-94-Parts-List.pdf | Winchester Repeating Arms; copyrighted manufacturer document | Named parts and visible construction. Modern angle-eject/rebound details are distinguished from the older top-ejecting class. No real manufacturing internals are reproduced. |
 | manual.pdf | https://www.1895gunner.com/winchestermanuals/21-WRA-061_Model_94_OM_WEB.pdf | Winchester Repeating Arms; copyrighted primary manual, hosted by an independent archive | External anatomy, sight leaf/elevator, loading cover and illustrated lever/hammer states. Our older half-cock/top-eject visual binding is not the modern manual's rebound/angle-eject binding. |
+| action-patent.pdf | https://patentimages.storage.googleapis.com/9c/3b/e4/acee4622cfa1fe/US524702.pdf | John M. Browning, US524702A, published 1894-08-21; expired US patent / public domain | Primary account of single-round metering, carrier presentation, forward bolt feed, upper extractor and lower ejector. Read for sequence only; no drawing traced or dimensional mechanism copied. |
 
 Description pages and licenses:
 
@@ -100,3 +101,16 @@ accepted lighting and with the old Bracken lighting as a controlled comparison.
 The Bracken final studio now uses the Hearth's five neutral cards, world and
 reflection flags. No shotgun geometry, shader or texture is copied into this
 asset. Its renders and source snapshot remain ignored comparison evidence.
+
+## Visible-feed correction — 2026-10-29
+
+[Browning's primary action description](https://patents.google.com/patent/US524702A/en)
+describes the magazine cutoff retaining the following cartridge, the low carrier
+receiving one cartridge, presentation of its nose before the chamber, and the
+returning breech block driving it forward. It identifies an upper extractor and
+lower ejector. That establishes the ordering used here, rather than a modern
+angle-eject path. The fictional latch tips, internal reliefs, motion angles and
+timing are original visual constructions; the patent supplies no calibrated
+millimeter dimensions for them. The existing C.I.P. exterior envelope remains
+the length/radius reference. No functional cam, spring or fire-control design
+is reproduced.

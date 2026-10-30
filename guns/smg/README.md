@@ -8,6 +8,10 @@ carried for years. Its contours, controls, serial and markings are original.
 
 ![Cycles hero of the exported GLB](docs/hero.jpg)
 
+![Signature motion from the exported GLB](docs/motion.gif)
+
+`ReloadEmpty` at real speed: charging-handle lock, magazine exchange and handle release.
+
 | | |
 | --- | --- |
 | ![Front, side, back and top](docs/turnaround.jpg) | ![Receiver, handle, drum, hood and lower](docs/details.jpg) |
@@ -319,6 +323,7 @@ lock and scratch files stay in the clone's ignored `build/`.
 make -C guns/smg                 # refs → model → UV → look → 4K bake → 2K maps
                                 # → five GLBs → checks → all renders/pairs/strips/docs
 make -C guns/smg check           # source, delivery and imported construction + round trip
+make -C guns/smg gif                # signature motion from the baked GLB, real-speed GIF
 make -C guns/smg render          # Cycles stills and Eevee hero from exported GLB
 make -C guns/smg match source-match
 make -C guns/smg wear-2d         # exported-hero / photo masks, profiles, components

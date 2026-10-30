@@ -58,3 +58,26 @@ are estimated from these photos; no outlines are extracted or traced.
 Exploratory candidate, discarded because the finger obscures the trigger:
 [direct image](https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Remington870-police-3.jpg/1280px-Remington870-police-3.jpg),
 Mitch Barrie, CC BY-SA 2.0. No person or image pixels enter the asset or docs.
+
+## Visible-feed correction — 2026-10-29
+
+The US Navy's *Gunner's Mate*, NAVEDTRA 14110, printed pp.3-27–3-29,
+[M870 operating cycle, online reproduction](https://www.tpub.com/gunners/68.htm),
+is the primary sequence source (US federal training text, public domain;
+Integrated Publishing hosts the reproduction). Read online, not downloaded
+as code or used as a modeling input. Its named stages establish:
+
+| Visible stage | Primary description used |
+| --- | --- |
+| Tube release and following-shell retention | Feeding: the left latch releases the first shell at the end of rear travel; the right latch intercepts the second shell |
+| Carrier lift | Loading: forward slide travel raises the depressed carrier into the returning bolt's path |
+| Bolt feeding | Loading: the advancing bolt picks up the shell and the carrier moves clear |
+| Extraction | Extracting: the claw over the bolt face holds the shell rim during withdrawal |
+| Ejection | Ejecting: the shell base meets the left ejector spring shoulder, turning its front out through the port |
+| Latch reset | Loading: the returning right action bar releases the following shell to the left latch |
+
+The exterior cartridge dimensions remain the original visual envelope above.
+The sequence source publishes no millimeter dimensions for our fictional
+carrier, chamber relief, latch noses or ejector position. Those are original
+visual estimates, corrected against the actual shell surfaces and clearance
+sweeps. No hidden working cam, spring design or firing mechanism is supplied.

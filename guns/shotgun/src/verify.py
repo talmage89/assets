@@ -12,7 +12,8 @@ from check import geometry,sweep
 def main():
  p=argparse.ArgumentParser();p.add_argument('--source',default='build/shotgun.blend');p.add_argument('--out',default='build/serialization.json');a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
  source=Path(a.source).resolve();bpy.ops.wm.open_mainfile(filepath=str(source));arm=bpy.data.objects['ShotgunArmature']
- assert bpy.context.scene.get('generator_sha256')==hashlib.sha256((Path(__file__).parent/'build.py').read_bytes()).hexdigest(),'Stale modeled source'
+ from build import source_hash
+ assert bpy.context.scene.get('generator_sha256')==source_hash(),'Stale modeled source'
  source_states=check(arm);source_contacts=measure(arm);source_geometry=geometry(arm)
  samples=[(c,i*.5) for c,s in CLIPS.items() for i in range(s['frames']*2+1)]
  sockets=[o.name for o in bpy.context.scene.objects if o.name.startswith('Socket_')]

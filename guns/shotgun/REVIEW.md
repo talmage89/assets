@@ -1251,3 +1251,201 @@ Nothing is needed from the lead. No kit changes were made. The family convention
 now requires a muzzle-facing concave front, a forward toe and a photo-pair check
 for each new trigger; actual-surface rest and pull checks guard against a visually
 correct contour that no longer fits its unchanged housing.
+
+## Visible feeding — audit and correction, 2026-10-29
+
+1. **Color/value first; baseline action audit.** The accepted black steel and
+   used walnut remain the finish target. Comparison photos retain their
+   existing daylight neutral treatment; no shade-blue measurement is used to
+   recolor steel. Preserved the handoff's source, finalized mesh and baked GLB
+   under `build/feed-before/`, with hashes. Rendered every Fire variant,
+   reload and Inspect from the exported GLB at 30 Hz through the port and in
+   a diagnostic right-half section. There is no unload clip in this member.
+
+   Fire leaves its live chamber display fixed during withdrawal and hides it
+   at f24: no fired hull exists in the action. A shell appears on the tray at
+   f30, then becomes a chamber display at f44 while the bolt is still rearward.
+   ReloadEmpty substitutes the same discontinuities at f36/f50. Reload tube
+   displays are blanked f44–60. The 59 mm tube pitch leaves 1.500 mm gaps
+   between 57.5 mm shells. The low carrier axis sits 3 mm above the tube.
+   The 96 mm draw already has 5.374 mm behind the old presented rim; shortening
+   a shell or increasing bolt travel would conceal the actual faults.
+   The old cone narrows through the opened hull: measured inner radius at
+   raw chamber station 255 mm is 9.554 mm against the 10.12 mm fired mouth.
+
+2. **Color/value retained; source-inspection GLB checkpoint.** Opened both
+   `renders/feed/geometry-pass/inspect-*.jpg` pages, f18–46 at 30 Hz. The new
+   hull is visibly open, turns nose-first and exits right; the next shell
+   slides out of the tube and rises in the carrier. The left latch retains
+   the first rim and the right catches the following shell. The US Navy's
+   primary text in SOURCES establishes this ordering and forward-stroke lift.
+
+   Half-frame sweeps then found genuine missed surfaces: the newly lowered
+   tray touched the trigger plate, the interceptor touched the sleeve/wood,
+   the raised shell touched an internal receiver web, the returning slide
+   crossed the tray, and the fired mouth started turning too near the port's
+   rounded front. Added concealed reliefs and corrected the final rear-stroke
+   and ejector station. The initial claw was too bulky; its rim land and arm
+   were narrowed instead of adding a collision exclusion. The carrier drops
+   as the bolt takes over. Every new round participates in the same sampled
+   clearance policy as the steel, with no general ammunition exemption.
+
+3. **Color/value first; baked import and every 30-Hz action sample.** The dark
+   receiver, warm walnut and red hull remain the accepted palette; the existing
+   daylight neutral treatment is retained. Opened all 42 native unique-frame
+   pages for 1,168 final port/section frames: 11 clips, 22 strips, 495 distinct
+   images. The 35 baseline pages cover all 420 distinct original images.
+   Synchronized Fire port/section and ReloadEmpty section comparisons show the
+   old fixed chamber display and tray pop beside continuous extraction, right
+   ejection, tube release, tray lift and bolt-driven chamber entry. Inspect's
+   live shell follows the partial rack and returns. Count variants retain the
+   correct remaining shells and follower. No internal ownership pop or new
+   visible steel crossing remains at these samples.
+
+   The original incoming-hand visibility event remains f12 in each tube
+   insertion (offsets 84/156/228/300 in ReloadEmpty). In this handless review
+   a shell therefore first appears below the receiver there; the game binds
+   its hand to Socket_Shell. The first port-loaded shell enters from outside
+   the camera using CarrierGuide. Internal shell transfers preserve coincident
+   head AND nose poses. The closing stroke is brisk: f40–44, or f46–50 in
+   ReloadEmpty, preserving the original carrier-up/chamber event frames.
+
+   Source, raw import, finalized source and fresh baked import pass the same
+   contact policy. The baked import has 318 contact assertions, including 287
+   feed/handoff assertions. Its 18 clips pass 6,375 sampled clearance poses,
+   including moving ammunition and authored intermediate keys; maximum bounded
+   overlap is .189005 mm, with zero policy violations. The 84 mm tray presents
+   the 57.500 mm shell at 16 degrees: head/nose rise 20.049/35.898 mm, and the
+   unchanged 96.000 mm draw leaves 5.465 mm behind the actual inclined rim.
+   Native fractional guide keys are retained through export. The initial
+   whole-frame export failed a half-frame reset probe by 80.3 mm on hidden
+   ShellGuide/InsertShell in ReloadEmpty; preserving those channels fixes the
+   round trip without relaxing the comparison bound.
+
+   These surface measurements establish construction on 83 reconstructed
+   imported parts / 39,980 actual triangles. The one-to-one mapping's maximum
+   vertex delta is 62.74 nm. Separately, all 3,032 affine/state comparisons pass
+   at maximum position delta .74685 micrometers; they establish serialization.
+   At eject f24 every fired-hull surface is 3.887 mm outside the receiver.
+   Head-frame error is 31.7 nm; the measured origin is
+   (24.758,168.710,46.569) mm, quaternion wxyz
+   (.797046,−.034563,−.061296,−.599804), linear velocity
+   (1.400085,.800014,−.130087) m/s and angular velocity
+   (.381142,−1.329158,−5.042308) rad/s in the Blender asset frame. The supplement
+   supplies the complete evaluated matrix and single basis conversion.
+
+   Bake review caught 72 missed texels on the new concealed forend inlet:
+   subdividing its dense source rounded a planar inner wall beyond the cage.
+   Milling it after sculpting reduced this to 13 on an older bar-slot end wall.
+   Milling both bar slots after sculpting fixes those too. All six final 4096/32
+   channels miss zero of 4,829,893 interior texels; the 1 mm cage, 4 mm ray limit
+   and zero-miss requirement remain. The concealed construction fixes alter
+   the atlas layout, so final beauty views, source/export pairs and all docs
+   are regenerated against the new maps.
+
+4. **Color/value first; final photos and delivery.** Reviewed all 22 final
+   beauty views, the Eevee hero, four standalone ammunition views, six existing
+   exported photo/wear pairs, both trigger pairs, five separately labeled dense
+   source pairs, all seventeen overview-clip inspection pages, the contact sheet
+   and all five regenerated docs JPGs. The accepted finish remains dark steel
+   with legible local rubs and warm walnut; no new light band appears at a
+   concealed machining relief. The changed carrier pose is visible in open.png,
+   the underside view and docs/action.jpg. Repacked UVs require all five docs
+   and all source/export pairs to be refreshed, including closed views.
+
+   The earlier raw-daylight value table remains explicitly labeled. Added an
+   independent linear-sRGB neutral cross-check on the unclipped white painted
+   wall beneath the trigger guard: native rectangle (1638,562)–(2106,597),
+   median 238/239/226 adapted to 238/238/238 with luminance preserved. The
+   wall's aging/reflections limit this estimate. Balanced photo versus export
+   luma is 73.73/73.01 for steel, 93.30/91.25 for stock and 64.91/63.93 for
+   forend. Opened value-patches-neutral.jpg, which identifies the patch in
+   yellow. Different photo lighting still prevents a roughness/albedo inversion.
+   Hero object-luma p1/50/99 is 1.00/51.82/171.50, with 30.40% deep shadow and
+   zero clipped-white pixels. Open-action values are 0/22.65/186.55. Fine grain,
+   checkering and headstamps remain softer at shipping resolution than sharp
+   reference macros within the fixed texture budget.
+
+   Full `make -C guns/shotgun` completed through checks, repeat build, source
+   pairs, 18 real-duration overview clips, all 22 feed strips, finals and docs.
+   A prior build process was terminated during the repeat stage; the resumed
+   build completed. A separate `make -C guns/shotgun check` also exits zero,
+   including an independent repeat build. Its 2,859 entries have zero
+   position/other numeric delta and maximum normal-angle delta .005647 degrees
+   against the unchanged .03-degree bound. The earlier full-graph repeat was
+   .008102 degrees. Semantic data differs only within the accepted normal
+   encoding variation; GLB byte identity is not claimed.
+
+   Final gun delivery is 39,980 triangles, one material, 24 bones, 18 clips and
+   a 16,450,172-byte GLB. Shell/hull are 600/394 triangles, one material each,
+   364,784/404,176 bytes with their own 1024 sets. Gun BaseColor/Normal/ORM at
+   2048 are 2,014,545/2,694,891/3,213,788 bytes. Imported gun atlas coverage is
+   28.8373%, median density 2,375.96 px/m, 26 microscopic overlap pairs with
+   fraction 1.98547e-6, and zero escaped/degenerate UV triangles. Whole-atlas
+   coverage is 34.0810%. Final provenance passes 433 current-GLB image records
+   and all 18 decoded playback durations; feed metadata separately covers
+   1,168 current-GLB frames and all 22 decoded durations.
+
+   Docs are 1600 px wide: hero 34,620, turnaround 52,170, details 191,393,
+   action 86,992 and Eevee 36,000 bytes. Evidence is in
+   `renders/final/contact-sheet.jpg`, `renders/final/{pairs,source-pairs}/`,
+   `renders/feed/{before,after,comparison}/`, `build/delivery/verify.json`,
+   `build/serialization.json`, `build/repeat.json` and `build/feed-audit.json`.
+   The supplement documents authored class sequencing and the case's physics
+   continuation frame. Its fast closing phase and explicit incoming-hand
+   display event remain the animation limits described in pass 3.
+
+   Repository-root logs `build/guns-feed/shotgun-make7.log`,
+   `shotgun-final-check3.log` and `shotgun-docs-neutral.log` record the passing
+   full graph, separate check and final `make -C guns/shotgun review docs`.
+   `python3 -m compileall -q guns/common guns/lever/src guns/shotgun/src`,
+   `python3 kit/repo_check.py` (1,023 source files, zero errors) and
+   `git diff --check` also pass.
+
+## README signature GIF — 2026-10-30
+
+Color/value first: compared with `docs/hero.jpg` and `docs/eevee.jpg`.
+Black steel remains dark, the fore-end keeps its reddish brown and the stock
+its muted brown. The receiver's broad edge reflection rolls off smoothly.
+The open fired hull mouth is lighter under direct Eevee than in the Cycles
+detail; its open rim and distinction from the fresh shell remain visible.
+
+Chose **Fire**, which includes the complete pump stroke, extraction, ejection,
+carrier rise and chambering. The right-side quarter crop spends pixels on the
+receiver and ribbed fore-end while retaining stock, trigger guard and paired
+tubes. Inspected all decoded frames, especially 008–015: the open red hull
+leaves the port and falls clear, then the fresh shell rises, tips into line and
+is driven forward by the bolt. No labels or artificial slow motion were added.
+The close crop keeps the muzzle outside the frame; the full hero above it
+provides the complete silhouette.
+
+Camera in meters: location **(0.87, 0.35, 0.32)**, target
+**(0, 0.26, 0.005)**, **48 mm**, aspect **2.15**,
+roll **0 rad**, exposure **-0.15**. Flat background
+RGB **(59, 62, 66)**. Final studio, embedded GLB maps, 64-sample
+Eevee and one discarded initialization render; screen raytracing is disabled.
+
+Frame/palette review: **22 decoded frames**, numbered
+**000–021**, checked in the complete contact sheet and native
+frame pages. No objectionable palette flicker, steel banding or dither noise
+appeared in the sequence. One global palette and no dithering keep the
+background corner exactly constant in every frame. Quantization audit:
+**0.235/255** mean RGB error; worst full-frame 99th
+percentile **4/255**. This measures palette loss,
+not mechanism correctness.
+
+Timing audit: **960×447**, **20 Hz**,
+**254 distinct palette entries** (allocation 256),
+**257,807 bytes**. Source samples at 60 Hz: **Fire 0, 3, …, 63**.
+Motion samples have **50 ms** delays, with **500 ms** added only
+to the first delay; decoded loop duration is **1,600 ms**.
+Two complete `make gif` runs returned identical shipped bytes. The documented
+recipe fingerprint and per-frame numeric comparison retain the approved GIF
+only for negligible GPU rounding; fresh candidates are retained for inspection.
+
+Evidence stays under `build/gif/`: `report.json`, `palette-audit.json`,
+`contact-sheet.jpg`, `review/frames-*.jpg`, full PNGs and `candidate.gif`.
+`playback.html` provides the continuous authored-speed loop. This headless
+review inspected decoded frames and audited real-speed delays; continuous
+visual playback was unavailable in this session. The committed image is
+`docs/motion.gif`; the README names the clip below it.

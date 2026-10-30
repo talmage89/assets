@@ -8,13 +8,16 @@ The finish represents years of carry and firing, with maintained stainless steel
 
 ![Cycles hero of the exported GLB](docs/hero.jpg)
 
+![Signature motion from the exported GLB](docs/motion.gif)
+
+`Reload` (moving span) at real speed: swing-out cylinder, six-case extraction and speedloader reload.
+
 | | |
 | --- | --- |
 | ![Front, side, back and top](docs/turnaround.jpg) | ![Hammer, sights, rubber, muzzle and forging](docs/details.jpg) |
 | ![Open cylinder, extractor, loader and exact Eye](docs/action.jpg) | ![Eevee, the same exported atlas](docs/eevee.jpg) |
 
-These images load the exported GLB and its baked 2048 maps. Docs JPGs are
-prepared for the lead's review and left uncommitted as requested. Full-resolution
+These images load the exported GLB and its baked 2048 maps. The accepted docs JPGs and one signature-motion GIF are committed. Full-resolution
 evidence is generated at `renders/final/hero-gray.jpg`, `contact-sheet.jpg`,
 `photo-pairs.jpg`, `hammer-pairs.jpg`, `scale-gray.jpg` and `beauty/frame_bottom.png`.
 The four final corrections have before/after/photo evidence in `renders/final/fixes/`,
@@ -270,6 +273,7 @@ clone's `build/`. GPU bakes and renders use the kit's shared lock.
 ```sh
 make -C guns/revolver                 # refs, model, atlas, checks, exported finals, clips, docs
 make -C guns/revolver check           # budgets, topology, contacts, UVs, normals, rig and re-import
+make -C guns/revolver gif                # signature motion from the baked GLB, real-speed GIF
 make -C guns/revolver WEAR=.45        # cleaner finish, accepted geometry and rig retained
 make -C guns/revolver render          # Cycles and Eevee from the exported GLB
 make -C guns/revolver match source-match hammers

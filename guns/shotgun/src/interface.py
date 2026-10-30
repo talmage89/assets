@@ -3,7 +3,10 @@ VERSION='1.1.0';FPS=60
 CAPABILITIES=dict(pump_action=True,tube_magazine=True,shell_by_shell_loading=True,
  detachable_magazine=False,last_round_hold_open=False,tube_capacity=4,
  support_hand_socket='Socket_SupportHand',whole_weapon_motion='external only',
- material_binding='retain imported PBR materials',visual_feed='discrete chamber/occluded tube slot handoff')
+ material_binding='retain imported PBR materials',visual_feed='continuous tube/carrier/bolt path; coincident slot indexing',
+ visible_cartridge_feed=True,case_handoff_bone='FiredGuide',
+ case_anchor_blender_m=(0,.2411,.049),case_demo_hide_frame=32,
+ carrier_load_guide='CarrierGuide')
 STATES={'ready':dict(action='closed',magazine='loaded',tube=4,chamber=1),
  'last_ready':dict(action='closed',magazine='empty',tube=0,chamber=1),
  'empty_closed':dict(action='closed',magazine='empty',tube=0,chamber=0),

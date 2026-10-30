@@ -326,8 +326,8 @@ def assign(wear):
  records={}
  for ob in [o for o in bpy.context.scene.objects if o.type=='MESH' and o.get('asset_set')]:
   base=Vector((0,0,0))
-  for prefix,yy,zz in [('TubeShell'+str(i+1),.255+i*.059,.013) for i in range(4)]+[
-    ('ChamberShell',.2411,.049),('CarrierShell',.159,.016),('InsertShell',.185,.013)]:
+  for prefix,yy,zz in [('TubeShell'+str(i+1),.255+i*.0575,.013) for i in range(4)]+[
+    ('ChamberShell',.2411,.049),('CarrierShell',.159,.013),('InsertShell',.185,.013),('FiredHull',.2411,.049)]:
    if ob.name.startswith(prefix):base=Vector((0,yy,zz));break
   position=ob.data.attributes.new('FinishPosition','FLOAT_VECTOR','POINT')
   position.data.foreach_set('vector',[a for v in ob.data.vertices for a in v.co-base])
@@ -349,7 +349,7 @@ def assign(wear):
     role='stock' if ob.name=='Stock' else 'forend';mat=wood(name,role,wear)
    elif key=='rubber':mat=rubber(name,wear)
    elif key in ('brass','primer','hull','mouth','follower'):
-    mat=ammunition(name,key,ob.name=='Standalone_hull',wear)
+    mat=ammunition(name,key,ob.name=='Standalone_hull' or ob.name.startswith('FiredHull'),wear)
    else:
     if ob.name=='Receiver':role='receiver'
     elif ob.name=='Barrel':role='barrel'

@@ -8,7 +8,9 @@ CAPABILITIES=dict(lever_action=True,manual_action=True,tube_magazine=True,
     last_round_hold_open=False,hammer_safe_position='half_cock',
     support_hand_socket='Socket_SupportHand',lever_hand_socket='Socket_LeverHand',
     whole_weapon_motion='external only',material_binding='retain imported PBR materials',
-    visual_feed='discrete chamber ownership; occluded tube-slot reindexing')
+    visual_feed='continuous tube/carrier/bolt path; coincident ownership and tube-slot indexing',
+    visible_cartridge_feed=True,feed_type='tube_carrier',case_handoff_bone='FiredGuide',
+    case_anchor_blender_m=(0,.200,.048),case_demo_hide_frame=30)
 
 
 def ready(n):return 'ready' if n==6 else ('last_ready' if n==0 else 'ready'+str(n))

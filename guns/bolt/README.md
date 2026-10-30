@@ -8,6 +8,10 @@ The finish represents a few seasons of field use.
 
 ![Cycles hero of the exported GLB](docs/hero.jpg)
 
+![Signature motion from the exported GLB](docs/motion.gif)
+
+`Fire` at real speed: bolt lift, fired-case ejection, visible feed and locking.
+
 | | |
 | --- | --- |
 | ![Front, side, back and top](docs/turnaround.jpg) | ![Action, optic, grip and comb](docs/details.jpg) |
@@ -291,6 +295,7 @@ GNU make and flock. No downloaded code, model, material or lighting is used.
 ```sh
 make -C guns/bolt                    # refs through all exports, checks and finals
 make -C guns/bolt check              # source, finalized and imported construction
+make -C guns/bolt gif                # signature motion from the baked GLB, real-speed GIF
 make -C guns/bolt WEAR=.45           # cleaner finish, same geometry and rig
 make -C guns/bolt render match       # final GLB stills and photographic pairs
 make -C guns/bolt strips extra       # clips, detachables, engraving and bag-contact views
