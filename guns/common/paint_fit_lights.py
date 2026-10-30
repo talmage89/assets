@@ -117,5 +117,7 @@ for name,spec in specs.items():
    if a.mixed_light:card['color']=[*(x[-4:-2] if upper[i] else x[-2:]),1.]
    lights.append(card)
   row=dict(world=float(x[0]*energy_scale[0]),color=[*x[-2:],1.],lights=lights,backdrop=spec['backdrop'],diagnostic=dict(objective='unchanged finish anchors and neutral constraints ONLY; receiver excluded',mixed_light=a.mixed_light,anchors=rows,loss=cost,source_sha256=s['sha256'],all_anchors_pass=all(v['within_requested_bounds'] for v in rows.values())))
+  parameters=folder/'diagnostic-parameters.json'
+  if parameters.exists():row['diagnostic']['material_overrides']=json.loads(parameters.read_text())
   results[shot]=row;(base/a.out).write_text(json.dumps(results,indent=2)+'\n')
   print(a.member,shot,restart,'loss',round(cost,3),'anchors',[(k,np.round(v['predicted']['value_p10_p50_p90']).tolist(),v['photo']['value_p10_p50_p90']) for k,v in rows.items()],flush=True)

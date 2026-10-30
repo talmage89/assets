@@ -26,7 +26,7 @@ PATCHES['retainer-sharp.jpg']=((40,40,340,180),'unprinted white backdrop above c
 PATCHES['retainer.jpg']=((20,20,80,80),'unprinted white photographic backdrop')
 PATCHES['ammunition-copper.jpg']=((700,80,1500,300),'unprinted white paper above the cartridge, away from ruler and shadow')
 PATCHES['ammunition-green.jpg']=((1190,130,1240,170),'unprinted white label corner; strong mixed flash/ambient light, secondary finish-variation comparison only')
-PATCHES['studio-polish.jpg']=((2100,400,2500,600),'unprinted white studio backing, unclipped neutral upper margin')
+PATCHES['studio-polish.jpg']=((100,100,400,400),'unprinted white backing at upper left, RGB 245–253; unclipped')
 FORM_ONLY={'muzzle.jpg','weld.jpg','front-side.jpg','front-behind.jpg','rear-side.jpg'}
 def main():
  out=BASE/'build/white-balanced';out.mkdir(parents=True,exist_ok=True);report={}
