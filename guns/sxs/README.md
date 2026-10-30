@@ -5,7 +5,7 @@ double triggers, extractors, right-swinging top lever, automatic tang safety,
 straight-hand walnut stock and splinter forend. Fictional maker/model:
 **Propane Defense Covey 26**.
 
-**Form round 4, with baked normals; finish/look-dev remains held.** The gun
+**Form round 5, with baked normals; finish/look-dev remains held.** The gun
 uses one baked 2048 BaseColor / OpenGL Normal / ORM atlas, from a 4096 GPU
 bake of our original dense sources and inspection constants. Checkering, grain,
 markings, used finishes and final delivery acceptance remain held. No docs
@@ -70,7 +70,8 @@ latch and curved knuckle cups. The stock has real tang inlets and a pitched
 butt plate. Neither furniture piece is a side-profile extrusion.
 
 The action is one closed forging with explicitly planar ground sides and
-shoulders, bore-concentric fence rolls, a short upper head and a standing breech
+R6 side returns, bore-concentric front arcs and degree-5 rear returns, an
+upper head filled to Z55.59 mm and a standing breech
 with visible pin bushings. The table has a narrow visual lug passage over
 a closed lower floor. A single ground side plane continues from the head to
 the bar. The rounded underside and its flush trigger plate share an 8 mm lower
@@ -141,14 +142,14 @@ spawn, visibility and event meanings.
 
 | Inspection output | Triangles | GLB bytes |
 | --- | ---: | ---: |
-| Gun, all staged alternatives | 37,822 | 6,175,024 |
+| Gun, all staged alternatives | 38,822 | 6,299,240 |
 | Shell | 752 | 26,476 |
 | Hull | 480 | 18,160 |
 
 54 named rigid meshes, 17 bones, 19 clips, 14 sockets; 1 atlas material and **three 2048 texture images** (4096 GPU source bake).
 <!-- /CHECKPOINT_STATS -->
 
-All hidden ammunition alternatives count against the 38k round-four gun budget.
+All hidden ammunition alternatives count against the 39k round-five gun budget.
 The shell module is new in `guns/common/shell12_visual.py`; no pump source or
 output is imported. It preserves the pump's original exterior proportions:
 22.4 mm rim, approximately 20.1 mm hull, 57.5 mm loaded length and 69.8 mm fired
@@ -162,12 +163,14 @@ length. Connected hidden joins make each shell a closed manifold skin.
 | `build/delivery/finalized.blend`, `high.blend`, `uv.json` | Kit UV target, dense bake sources and atlas measurements |
 | `build/baked/4k/`, `textures/` | Isolated 4096 source bake plus assembled-contact AO; delivered three-map 2048 set |
 | `build/delivery/projection-ownership.json` | Independent check that constant albedos project from their own parts |
+| `renders/checkpoint/pairs/aimed-pair.jpg`, `open-player-pair.jpg`, `open-breech-pair.jpg` | Exact player views beside rear/action photographs and calibrated comparisons |
+| `renders/checkpoint/head-raking-comparison.jpg` | Both lighting sides: original dense source beside the baked export |
 | `renders/checkpoint/landmarks/` | Annotated right/top/bottom rakes with measured landmark arrows |
 | `build/check.json`, `import-check.json` | Separate source/import topology, intended-state, contact and half-frame clearance reports |
 | `build/serialization.json`, `repeat.json` | Baked-export affine/surface/atlas proof and independent native rebuild proof |
 | `renders/checkpoint/contact-sheet.jpg`, `hero-gray.jpg` | Current Cycles inspection views from the exported GLB |
 | `renders/checkpoint/dimensions.jpg`, `sections/sections.jpg` | Measured orthographic and triangle-plane sections |
-| `renders/checkpoint/photo-pairs.jpg` | Eleven baked-export comparisons, native residual arrows and photo-outline overlays |
+| `renders/checkpoint/photo-pairs.jpg` | Twelve calibrated baked-export comparisons, native residual arrows and photo-outline overlays |
 | `renders/checkpoint/clips.jpg`, `opening.jpg`, `strips/` | All clips, wide opening and correctly timed WebPs |
 | `renders/checkpoint/ammunition.jpg` | Standalone shell and hull inspection |
 
@@ -179,22 +182,42 @@ and hull stay in their unchanged diagnostic GLBs; their own small baked sets
 remain part of the later finish delivery, rather than claiming they share the
 gun's atlas.
 
-The new exterior gauges come from actual exported triangles:
+The exterior gauges below use actual exported triangles, not nominal parameters.
+Photo-scale estimates and their uncertainty are in `refs/SOURCES.md`.
 
 | Quantity | Measured export | Photo / geometry relation |
 | --- | ---: | --- |
-| Right / left fence crown | 57.350 / 57.350 mm Z | barrel top 57.350 mm; neither rises above it |
-| Fence pair width | 51.900 mm | joined tubes at breech 51.900 mm |
-| Largest fitted arc-center offset from actual bore axis | 0.009 / 0.019 mm | chamber axes measured beyond extractor reliefs |
-| Fitted longitudinal roll, right / left | 18.475 / 18.475 mm | photo-scale estimate 18–20 mm, about ±2 mm |
-| Largest sampled head/bar side step | 0.00001 mm | one ground side plane; upper edge radius excluded |
-| Largest plate/bar step at a common seam station | 0.004 mm | lower skin is continuous across the narrow joint |
-| Lower-edge radius from triangle-section circle fits | 7.96 mm | photo estimate about 7–9 mm, at least ±2 mm uncertainty |
+| Right / left fence crown | 57.354 / 57.350 mm Z | barrel top 57.350 mm; reduction deviation at most 0.004 mm |
+| Fence pair width | 51.894 mm | joined tubes at breech 51.900 mm |
+| Largest arc-center offset from actual bore axis, right / left | 0.014 / 0.012 mm | outward front-arc fits; axes from actual chamber skin |
+| Axial return length, right / left | 18.51 / 18.52 mm | photo 18–20 mm, about ±2 mm; degree-5 endpoint fit |
+| Drop behind right / left fence return | 7.63 / 7.63 mm | photo 5.6 ±3 mm |
+| Drop at right / left side wood line | 13.07 / 13.07 mm | photo 12.5 ±3 mm |
+| Drop at center wood line | 11.29 mm | photo 8.5 ±3.5 mm; lever occludes actual center |
+| Center fill, outside lever recess | 55.589–55.590 mm Z | owner-specified 55.59 mm; actual rib-floor probe 55.585 mm |
+| Side return radius | 5.994 mm | photo 4.5–7.5 mm, at least ±2 mm |
+| Fence/head equivalent local radius, right / left | 6.63 / 6.65 mm | photo 4–8 mm, at least ±2 mm; Y96.5–102, X±12.6 mm |
+| Upper head/strap equivalent radius, right / left | 5.72 / 5.92 mm | photo 4–8 mm, at least ±2 mm; Y92–94, X±10 mm |
+| Inner return behind outer, right / left | 9.20 / 9.40 mm | photo 11.5 ±3 mm; 0.10 mm height-departure landmarks |
+| Boss radial running clearance | 0.295–0.303 mm | R5.90 fore wall around R5.60 boss; fore semicircle at Z49 |
+| Recess upper lip radius | 0.591 mm | photo roughly 0.25–0.75 mm, at least ±0.25 mm; circle fit error 0.002 mm |
+| Minimum lever-swing gap | 0.157 mm | 0–25°, 0.5° steps; 51 angles, vertex/face and edge/edge surface distances, zero penetration |
+| Largest head/bar side step | 0.00017 mm | one side plane |
+| Largest plate/bar step | 0.002 mm | both skins extrapolated to common seam station |
+| Lower-edge radius | 7.96 mm | photo 7–9 mm, at least ±2 mm |
 | Front / rear slot width | 6.000 / 6.000 mm | blades 5.400 mm; 0.300 mm clearance each side |
 
-The width/height envelope decreases with the explicitly requested fence
-correction; overall/barrel length, accepted drops and the fitted eye remain.
-See `refs/SOURCES.md` for the photo-scale assumptions and `REVIEW.md` for limits.
+The center outline now follows Z55.59; the former Z49.72 notch is superseded.
+The head uses one height field and degree-5 rear returns; there is no separate
+fence-to-head seam. The lever recess is the sole depression in the center
+surface. Its R0.60 construction lip tapers over Y88–92 as its floor joins the
+existing strap. Compare the actual cuts at 3, 8 and 15 mm behind the face,
+both bore-axis cuts, and `head-raking-comparison.jpg`.
+
+Round-five preservation against `f4842bc` finds 101 of 104 entries identical:
+only the action, stock inlet and strap seat differ. All moving meshes, rig,
+clips and sockets retain their prior geometry and keys. No material constants
+changed. `REVIEW.md` records the image critiques and photographic limits.
 
 ## Rebuild and inspect
 

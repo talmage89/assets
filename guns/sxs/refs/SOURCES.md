@@ -315,4 +315,14 @@ assumed scale. Perspective and tangent identification dominate the uncertainty.
 | Head at center wood line, `plain-3.jpg`, checked against `plain-4.jpg` | Center return beside the lever near (862,378), about 67 px below the crown. The lever occludes the actual centerline, so the adjacent surface supplies a bound. | About 8.5 mm drop; allow ±3.5 mm, including occlusion. |
 | Rear-outline endpoint offset, top `plain-2.jpg` | At the recorded 1300-pixel-high preview, outer ends approximately (150,716)/(345,711), inner returns (222,761)/(255,759). Mean rearward difference 46.5 px; breech span 209 px corresponds to 51.9 mm. | About 11.5 mm inner-behind-outer offset; allow ±3 mm. These are return landmarks on a surface, not a seam to copy. |
 | Head-to-side return radius, side/top macros | Visible return spans roughly 0.17–0.28 of the tube OD; use both the outer profile and the departure from the side plane, not highlight width alone. | Approximately 4.5–7.5 mm, with at least ±2 mm radius uncertainty. |
-| Fence-to-head and head-to-strap transitions, side/top macros | The departure occupies approximately 0.15–0.30 of the OD after allowing for the oblique view. No calibrated section or light is available. | Equivalent local radii approximately 4–8 mm; uncertainty at least ±2 mm. This is a silhouette/profile bound, not a uniquely recovered fillet radius. |
+| Fence-to-head return and upper strap departure, side/top macros | The departure occupies approximately 0.15–0.30 of the OD after allowing for the oblique view. No calibrated section or light is available. The visible upper departure is compared with Y92–94 at X±10 mm; the center wood-line return is separately measured as a height because the lever obscures it. | Equivalent local radii approximately 4–8 mm; uncertainty at least ±2 mm. This is a local profile bound, not one circular radius for the entire changing curve. |
+| Boss recess upper lip, top macro | The narrow edge around the boss is only about 1–3 pixels in the 1300-pixel-high measuring preview, against a 209-pixel breech width. | Sub-millimeter rounding, roughly 0.25–0.75 mm; at least ±0.25 mm uncertainty. The photograph cannot resolve a precise machining radius. |
+
+The delivered Z55.59 center outline follows the owner's explicit rib-floor
+clarification. Z49.72 remains only the adjacent outer head datum. The front
+arc fits use outward rays on each side; an inward ray on the left would hit
+the center fill rather than the exposed circular part. Rear-return offsets
+are measured at X±23 / ±7.5 mm using the first 0.10 mm height departure from
+the adjacent actual head. The resulting outline is a tangent transition,
+not a physical seam. Profile-radius fits state their interval and error;
+a fit across an inflection is not presented as a fillet radius.

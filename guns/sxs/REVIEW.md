@@ -91,6 +91,95 @@ lever range and all 19 clip keys remain unchanged.
     re-render every exported view. No texture pixels are hand repaired.
 
 
+31. **R6 / degree-5 source and 2048 export, both lighting sides.**
+    Color/value: reopened the two dense rakes and both new exported rakes at
+    full resolution. The accepted dark steel keeps cavity shadow and broad
+    highlights; no white balance or material constant changes. The R6 side
+    return and degree-5 fence/head return now carry those highlights without
+    the former small folds. The left side's false diagonal is gone after the
+    planar normal correction; its map probes are approximately (127,128,255).
+    The remaining dark horizontal line under the barrels is the real table
+    recess and its occlusion. The source and imported side-flat normal checks
+    pass the 0.25° bound. The R0.60 construction lip fits R0.583 mm on the source and
+    R0.591 mm on the export, with 0.002 mm maximum profile error. Review the unannotated
+    right/left rakes and `head-raking-comparison.jpg`; the final comparison
+    sheet is regenerated from these same cameras and the current GLB.
+
+
+32. **Z55.59 player pairs, 9.20/9.40 mm returns and five head cuts.**
+    Color/value: opened the new aimed pair, both open player pairs and top
+    pair at full resolution. Constant dark steel has less color variation
+    than the case-colored reference; materials remain held. The macros and
+    rear film frame have no reliable neutral, so unity balance is retained.
+    The exact Eye view now has a Z55.59 head surface between and behind the
+    R13.35 crowns, with the rib/bead still visible. Its photographic comparison
+    is explicitly elevated and oblique; the fitted camera does not replace
+    Socket_Eye. The two open pairs retain the actual player frame. The empty
+    macro comparison exposes one standing face from the table to the crowns;
+    the two small pin bushings remain in that plane. The Commons comparison
+    is labelled for its different camera, opening angle and sidelock exterior.
+    Neither ammunition head in the loaded player frame is being presented as
+    the standing face.
+
+    The top pair includes all four return ends and three centerline markers.
+    Inner-behind-outer offsets are 9.20/9.40 mm, against 11.5±3 mm in the
+    photograph. The added arrows are review-only and do not improve the
+    camera fit; the complete top RMS is about 69 native pixels. The outlines
+    are tangent-return observations at a 0.10 mm height departure, not seams.
+    The image comparison remains less exact than a scan or calibrated part
+    drawing; the photo's lever also hides the center wood-line station.
+
+    Opened the cuts at Y112, Y107 and Y100, both bore-axis cuts and the
+    Y94–115 center cut. The R6 side return and degree-5 axial return meet
+    without the former designed corner. The center cut confines the lower
+    surface to the lever recess; measured uninterrupted head from Y100.6 to
+    the face is Z55.589–55.590. Drops behind each return are 7.63 mm (photo
+    5.6±3), side wood-line drops 13.07 mm (12.5±3), and center wood-line drop
+    11.29 mm (8.5±3.5, occluded). Equivalent local radii are R5.994 at the
+    side, R6.63–6.65 at the fence/head and R5.72–5.92 at the upper strap
+    departure; fitted intervals and errors remain explicit in the gauges.
+    Minor one-to-three-pixel seam signals at the wood inlets remain visible
+    at 1440-pixel magnification. They are outside the fence/head return and
+    are not claimed as finish acceptance.
+
+
+## Round 5 delivered proof
+
+`make -C guns/sxs` and `make -C guns/sxs check` both finish with exit 0.
+The current GLB is **38,822 / 39,000 triangles**, 6,299,240 bytes, one material,
+and three 2048 maps from the 4096 / 32-sample GPU bake. The delivered map files
+are 264,423 / 1,077,331 / 1,612,273 bytes (BaseColor / Normal / ORM).
+All 54 rigid meshes have closed manifold topology and positive volume, with
+no zero-area faces. UV outside/degenerate counts are zero; overlap fraction
+is 0.000000965 and median density about 2,345 px/m. Projection ownership and
+interior-texel coverage pass. No kit or common module changed.
+
+Source/import each pass 246 actual contact probes. Their 19-clip half-frame
+sweeps contain 1,715 / 1,728 samples and no violation at the accepted 0.20 mm
+motion tolerance; maximum penetration is 0.11371 mm. The additional lever
+sweep is stricter: 51 angles at 0.5° spacing through 0–25°, 306 moving/fixed
+pair records, **minimum gap 0.15673 mm**, at 0° between lever and stock, and
+zero penetration. It samples the actual triangle surfaces, including interior
+edge/edge distances; it is not a continuous-angle certificate.
+
+Independent rebuild matches all 104 entries. Preservation against `f4842bc`
+retains 101 entries; only Action_Body, Stock_Walnut and Top_Strap differ.
+Moving geometry, bone rest frames, sockets and exact clip keys are retained.
+Baked export serialization passes 1,715 affine samples plus its actual-surface
+poses. The current presentation audit passes **297 render records** and all
+19 real-duration WebPs, tied to GLB hash `1895379528879f03…`. All gun pairs,
+rakes and player views use this GLB. Dense-source and standalone ammunition
+images are labelled exceptions. The final contact, clip and ammunition sheets
+have been opened. Hero luma p1/p50/p99 is 1.07 / 47.08 / 205.67, with 21.06%
+deep shadow and zero all-channel clipping; this is a range check on the held
+inspection values, not look acceptance.
+
+The photo uncertainty, elevated rear reference, 1–3 px wood-inlet seam signals,
+and right crown's +0.004 mm reduction deviation are disclosed limits. All
+requested dimensions are independently measured in `build/serialization.json`
+and tabulated against the photos in README. No docs JPGs or finish work.
+
+
 # Covey 26 — form round 4: fences, flats and underside
 
 This round judges the **baked 2048 export**, `export/sxs.glb`. The kit finalizer,
