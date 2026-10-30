@@ -779,3 +779,76 @@ The sharp oblique reference shows a fine skin with localized handling marks,
 not large height lumps across every steel part. Exposed phosphate at chips
 needs a predominantly diffuse crystalline response; reduce its metallic mix
 instead of whitening every edge. Keep rare steel at high crests.
+
+## Look round 2 — pass 25, controlled native finish and area audit (rejected)
+
+Color/value first: opened native `round2-final-fit/used_photo.png` and the
+replacement paint-receiver view. The receiver now measures 1/35/66 against
+0/35/68, H 79/82/88 against 81/83/85. The cover's 24/40/128 is within the
+value corridor, but its blue highlight is 171 against 196: still a miss.
+Use a slightly smoother satin cover film (.35), while retaining .42 receiver
+paint and the same real 2.2% base reflectance. The handle's P90 is 155 against
+186; restore an ordinary dielectric F0 through specular factor 1.0. The grip
+73 median against 79 and its three highlight channels are already in range.
+
+The barrel assembly mask included chamber/collar and protected surfaces under
+the shield, while the photo outline included only the complete exposed front
+bay. Retain the assembly numbers as a deliberately non-comparable diagnostic,
+and compare the full bay beyond the authored front-bay split station Y=.545 m.
+This is a geometry/observation correction, not a favorable color patch. Its
+source triangles remain unchanged and its native coverage pair is retained.
+The bipod's first-round median was close to its photo; the global phosphate
+change unnecessarily darkened that separate finish. Restore its original
+.044/.045/.042 bath color instead of forcing a brighter whole-gun light fit.
+
+Opened the new cover coverage pair: 2.144% against 2.157% in the photograph.
+Cover-top damage is 1.320% against 1.207%; rivets 73.822% against 67.702%,
+inside the photo's 59–76% classification sensitivity. Receiver edges remain
+10.502% against 5.222%; narrow those strips before the next canonical bake.
+These are physical on/off-map footprints on the hero's actual visible parts;
+final reports also retain the stricter actual rendered visibility fraction.
+
+
+## Look round 2 — pass 26, native area and light audit
+
+Color/value first: opened all ten native pass-12 GLB hero, shooter, macro and
+finish views. Receiver, box, handguard and stock values and highlight RGB now
+meet the requested limits under their respective physical light rigs. A floor
+card beneath the forward bipod lights its exposed steel without washing the
+painted receiver gray; the former whole-gun lighting solution is rejected.
+The cover's bright tail still spreads too broadly: reduce only the cover film
+roughness from .35 to .33, retaining its real 2.2% paint reflectance.
+
+Opened every pass-12 wear-coverage pair. Cover-edge footprint is 2.172% versus
+2.157%; top scratches 1.320% versus 1.207%; rivet crowns 71.728% versus
+67.702%. Widen receiver strips about 19% from 4.364% toward 5.222%, reduce
+scratch widths 5%, and slightly tighten the fractured rivet crown field.
+The handle's 78.798%, regulator's 100% and butt's 13.407% cover too much
+surface. Confine polish to the handle's upper contact band, carbon to the
+regulator's forward discharge lip, and stock rub to heel/toe returns. Do not
+spread soot to match the dark empty port in a photograph. Its threshold is an
+appearance upper bound, not a carbon label. Narrow muzzle deposit and bottom
+box scuffs. These comparisons use physical atlas changes; final rendered
+visibility remains a separate, stricter measurement.
+
+A newly cited manufacturer's studio photograph supplies the links' primary
+finish target, with an unclipped paper neutral. Retain the old field-belt
+comparison as an explicit secondary diagnostic. The link skin needs dry fine
+roughness rather than a smooth silver reflection: restore .61 plus fine grain
+while retaining the revised real steel reflectance. Cartridge brass and
+copper/green-tip materials stay as accepted.
+
+
+## Look round 2 — pass 27, reject coarse molding relief
+
+Color/value first: opened both native pass-13 heroes and the shooter view.
+Paint and front phosphate stay within a coherent dark material band under
+this shared light. Cover scratches and sharp edge damage are readable in the
+shooter view. However, narrowing handle polish exposes excessive molding
+relief: the highlight becomes a white furry strip. The stock's raking-light
+grain also reads too coarse beside the photographed fine molded skin.
+Reject this regression before final controls. Reduce molding relief to 35 µm,
+handle relief to 20 µm, fine relief to 5 µm and rubbed lands to 8 µm. Retain
+roughness variation and original finite contact fields, rather than using
+height exaggeration to make a grain statistic visible. Rerender the new bake;
+no photograph supplies any texture.

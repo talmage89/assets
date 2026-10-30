@@ -8,6 +8,7 @@ PAINT=(.022,.023,.024)
 PAINT_ROUGH=.42
 PAINT_SPEC=.8
 PHOSPHATE=(.028,.029,.030)
+BIPOD_PHOSPHATE=(.044,.045,.042)
 PHOSPHATE_ROUGH=.57
 PHOSPHATE_METAL=.35
 POLYMER={
@@ -15,7 +16,7 @@ POLYMER={
  'stock':((.009,.0095,.010),.57,.8),
  'grip':((.032,.034,.036),.40,.95),
  'box':((.023,.024,.023),.55,.8),
- 'handle':((.009,.0095,.010),.24,.95),
+ 'handle':((.009,.0095,.010),.24,1.0),
 }
 
 SITES=("receiver","cover","cover_top","rivets","handle","flash","regulator","ports","feet","box","butt")
