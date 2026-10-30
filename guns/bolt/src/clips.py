@@ -1,5 +1,8 @@
 """60 Hz visual schedules. Explicit holds, discrete ammunition, fixed Root."""
-from kit.weapon import action,hold
+from kit.weapon import action as base_action,hold
+def action(arm,name,keys,**kwargs):
+ keys=list(keys);f,values=keys[0];keys[0]=(f,{'CycleCase':dict(scale=(0,0,0)),**values})
+ return base_action(arm,name,keys,**kwargs)
 from interface import FPS
 TRAVEL=.104
 def bolt(lift=0,draw=0):
@@ -43,3 +46,7 @@ def build_clips(arm):
   (170,{'Safety':dict(rot_deg=(0,0,0))}),hold(180)])
  action(arm,'BipodDeploy',[(0,{}),hold(8),(42,bipod(True)),hold(48),(72,bipod(True,.0762)),hold(78)])
  action(arm,'BipodFold',[(0,bipod(True,.0762)),hold(8),(32,bipod(True)),hold(40),(72,bipod()),hold(78)])
+
+ # Authored cartridge paths retain all existing non-ammunition channels.
+ from feed import animate
+ animate(arm)

@@ -133,8 +133,8 @@ spatter paint, wear masks, silver edges, bolt bands and markings are unchanged.
 | Surface / reference | Median display luma, photo / export (0–255) | Photo R:G:B (G=1) | Export R:G:B (G=1) |
 | --- | ---: | --- | --- |
 | Steel, full visible receiver + barrel / corrected right | 41.40 / 38.00 | 0.881:1:1.071 | 1:1:1 |
-| Scope, visible photo bell / diffuse rendered tube | 32.59 / 31.72 | 0.853:1:1.235 | 0.984:1:0.969 |
-| Original olive stock / corrected used field coat | 117.42 / 113.57 | 1.017:1:0.847 | 0.940:1:0.871 |
+| Scope, visible photo bell / diffuse rendered tube | 32.59 / 30.93 | 0.853:1:1.235 | 1:1:0.968 |
+| Original olive stock / corrected used field coat | 117.42 / 113.85 | 1.017:1:0.847 | 0.948:1:0.879 |
 
 These are display measurements under approximate comparable neutral light,
 **not recovered albedos**. The scope row spans different surface normals;
@@ -144,7 +144,7 @@ reflection strip. Photo barrel/receiver medians are 42.43/37.03; the rendered
 patches are 37/55, so local reflection angles still differ. The combined median
 matches the near-black target without copying the remaining photographic cast.
 The stock remains our slightly greener original olive paint; corrected field
-paint is only 3.85 display levels brighter. All seven references' material
+paint is only 3.57 display levels brighter. All seven references' material
 medians, channel ratios and neutral assumptions are in
 `build/white-balanced/measurements.json`. Source patches have explicit native
 coordinates; rendered patch corners are actual triangle BVH hits in
@@ -180,8 +180,12 @@ and its executable binding, [src/interface.py](src/interface.py).
 | Trigger | (0, 26.69, 23) | X, −12° |
 | Safety | (18, 14, 62) | X, 25° |
 | BoltRelease | (−3, 20, 20) | X, 5° inspection press |
-| MagRelease | (0, 51, 25) | X, −12° plus 1.2 mm rearward clearance |
-| Magazine | (0, 100, 46) | Downward removal and handoff tilt |
+| MagRelease | (0, 98, 25) | X, −12° plus 1.2 mm rearward clearance |
+| Magazine | (0, 147, 46) | Downward removal and handoff tilt |
+| TopRound | (0, 107.5, 50.5), child of Magazine | Head follows bolt face; pitched ramp/chamber path |
+| ReserveRound | (3.7, 107.5, 38.7), child of Magazine | −X 3.7 mm / +Z 11.8 mm into feed lips |
+| Follower | (0, 147, 32.5), child of Magazine | +Z 11.8 mm with the stack |
+| CycleCase | (0, 209.5, 65), child of Root | Extraction, rightward pivot and short outward flight |
 | BipodL/R | (±24, 410, 2) | X, −90° fold/deploy |
 | BipodSplayL/R | Same pivot, child of fold | Z, ±15° |
 | BipodExtendL/R | (±24, 510, 2), child of splay | Local +Y, 76.2 mm |
@@ -195,7 +199,13 @@ BipodDeploy and BipodFold**. Fire includes lift/draw/return/lock; FireLast close
 empty with no hold-open. Chambered Reload retains the locked bolt and chamber.
 Empty Reload opens, exchanges the magazine, chambers and locks. Cocking tail
 and shaft move 4 mm. All holds are explicit; ammunition visibility uses STEP.
-Feeding is an occupancy representation, not a cartridge-path simulation.
+Fire and ReloadEmpty show a continuous push-feed path: the bolt pushes the
+head, the nose rises over a modeled ramp and the next round/follower rise under
+the lips. Fire and FireLast extract an open fired case, pivot it out to the right
+and hand off outside the port at eject 64. [The supplement](INTERFACE.md)
+describes the physics-case spawn, unchanged event schedule and the closed-bolt
+reset of the two-round magazine representation. This is authored visual motion,
+not a persistent cartridge dynamics or ammunition-count simulation.
 
 Save clip/frame/state to pause and resume an interrupted reload. Spawn detached
 magazines with the complete magazine socket transform before offscreen
@@ -207,15 +217,17 @@ firing/reload when needed, as documented by the additive supplement.
 
 | Final output | Triangles | Materials | GLB bytes | Map size | Density ratio |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Rifle, all animated representations | 48,931 | 2 | 11,090,352 | 2048 | — |
-| Loaded magazine | 4,976 | 1 | 1,371,024 | 1024 | 1.000 |
-| Empty magazine | 3,716 | 1 | 1,400,092 | 1024 | 1.000 |
-| Fired case | 768 | 1 | 201,584 | 512 | 1.000 |
+| Rifle, all animated representations | 49,769 | 2 | 11,267,180 | 2048 | — |
+| Loaded magazine | 4,988 | 1 | 1,134,900 | 1024 | 1.000 |
+| Empty magazine | 3,728 | 1 | 1,165,896 | 1024 | 1.000 |
+| Fired case | 768 | 1 | 201,536 | 512 | 1.000 |
 
 The rifle stays under 50k, including its loaded magazine and all ammunition
-representations. Detached magazines retain that accepted held-gun geometry,
+representations. The feed/ejection correction adds **838 triangles**
+(48,931 → 49,769); redundant straight receiver/bolt rings recover space for the
+reused 768-triangle fired-case representation and visible feed construction. Detached magazines retain that accepted held-gun geometry,
 rather than a separate dropped-prop reduction; two microscopic Boolean
-triangles disappear during UV preparation (48,933 inspection / 48,931 delivery).
+triangles disappear during UV preparation (49,771 inspection / 49,769 delivery).
 The corrected trigger is a **6.35 mm wide, 3.2 mm deep radiused blade**, with a
 concave front facing +Y (muzzle), convex back and forward-curled toe. Its width
 is a class estimate; photographs and limits are cited in [SOURCES](refs/SOURCES.md).
@@ -224,18 +236,18 @@ Actual source triangle surfaces give **1.473 mm** pulled guard clearance and
 **1.431 mm** minimum across thirteen pull poses; the solid visual pin remains
 engaged. `make trigger-match` builds right-side and oblique exported/source
 photo pairs in `renders/final/trigger-pairs/` and `trigger-source-pairs/`, plus
-rest/pulled inspection views in `renders/final/trigger/`. The trigger uses a
-previously empty atlas strip; all other parts retain their accepted UVs.
+rest/pulled inspection views in `renders/final/trigger/`. The trigger retains its separate atlas strip. The feed correction re-packs
+the affected atlas regions and re-bakes delivery.
 The fired case uses 768 triangles under the revised approximately 800 ceiling,
 with 40 radial segments at its open mouth and 32 at the shoulder. Loaded and
-chambered cartridges retain their accepted geometry; their silhouettes remain
+chambered cartridges retain their lathed profiles; their silhouettes remain
 round at the delivered magazine and open-port image scales.
 
 | Canonical 2048 PNG | Bytes |
 | --- | ---: |
-| `T_VesperB24_BaseColor.png` | 1,397,751 |
-| `T_VesperB24_Normal.png` | 2,178,855 |
-| `T_VesperB24_ORM.png` | 3,130,984 |
+| `T_VesperB24_BaseColor.png` | 1,360,914 |
+| `T_VesperB24_Normal.png` | 2,136,147 |
+| `T_VesperB24_ORM.png` | 3,018,278 |
 
 
 The kit bakes at **4096 / 32 samples** and filters to one **2048 BaseColor /
@@ -244,14 +256,14 @@ The rifle retains its canonical **2048** atlas, approximately **16 MiB compresse
 with mipmaps**. Standalone loaded/empty magazines now carry their own **1024**
 sets; the fired case carries **512**, preserving the original atlas density.
 All three retain density ratio **1.000** and the gun’s trilinear mipmapped
-sampler, with repeat wrapping. The empty magazine uses six copied atlas regions
-(five original clusters, one split); the loaded magazine uses two (one split
-cluster), and the case uses one. Source crops preserve internal atlas texels
+sampler, with repeat wrapping. The empty magazine uses seven copied atlas
+regions, the loaded magazine two, and the case one. Each source cluster fits
+without a split after separating the shell and other magazine charts. Source crops preserve internal atlas texels
 and overlap at split halos; destination regions are disjoint, with 8 px aligned
 outer halos. Every island stays intact. The remaining background uses pull-push,
 with normalized generated normals. No density reduction or resampling is needed.
 Magazines cost about 4 MiB each / the case 1 MiB compressed with full mips.
-See [delivery details](../DETACHABLES.md) for all seventeen items’ sizes, bytes,
+See [delivery details](../DETACHABLES.md) for all twenty-one items’ sizes, bytes,
 density, per-level bleed and old/new comparisons.
 The native-scale stock/cap wear comparison is built at
 `renders/final/pairs/hero-wear-pair.jpg`; photographic scale estimates and coating
@@ -259,11 +271,12 @@ differences are labeled. The rifle is one rigidly weighted skin with two materia
 glass; standalone magazines/case use one material each.
 
 `build/delivery/verify.json` records actual UV coverage, density, overlap,
-embedded image hashes, file sizes and round-trip errors. The imported rifle covers 30.53% of the atlas; the complete prepared atlas,
-including the reserved case, covers 31.98%. Reported clipped-triangle overlap,
-outside triangles and degenerate UV triangles are all zero. Delivered rifle
-density is 1,613 px/m median (5th/95th: 1,064 / 2,680); the small standalone
-case region is denser for its headstamp. These are measured distributions,
+embedded image hashes, file sizes and round-trip errors. The imported rifle covers 29.13% of the atlas; the complete prepared atlas,
+including the reserved case, covers 30.58%. Three float-scale UV intersections
+total a **8.00e−9 imported overlap fraction**, below the unchanged 1e−5 limit; no UV
+triangles lie outside or degenerate. Delivered rifle density is **1,570 px/m median**,
+p5/p95 **1,035 / 2,583**; the standalone case region is denser for its headstamp.
+These are measured distributions,
 not a claim of uniform density. Small control ribs, orange peel, markings and
 wear add no delivery draw calls. Dense sculpt detail
 is projected in isolated rigid-bone groups with explicit rest-coordinate
@@ -281,6 +294,7 @@ make -C guns/bolt check              # source, finalized and imported constructi
 make -C guns/bolt WEAR=.45           # cleaner finish, same geometry and rig
 make -C guns/bolt render match       # final GLB stills and photographic pairs
 make -C guns/bolt strips extra       # clips, detachables, engraving and bag-contact views
+make -C guns/bolt feed-strips         # 30-Hz port and receiver-section cycle evidence
 make -C guns/bolt source-match       # separately labeled dense-source photo pairs
 make -C guns/bolt trigger-match      # side/oblique blade pairs and pulled clearance view
 make -C guns/bolt wear-audit          # actual UV masks and shipping RGB/ORM readings
@@ -294,13 +308,16 @@ Defaults: `BAKE_SIZE=4096`, `BAKE_SAMPLES=32`, `SHIP_SIZE=2048`, `WIDTH=1600`,
 `SAMPLES=64`, `WEAR=.85`. Parameter stamps invalidate the affected stages.
 All Cycles work uses the shared kit GPU lock; scratch stays in `build/`.
 
-The inspection and finalized source repeat all **27 actual-surface contacts**
-and the full **2,195 half-frame pose** clearance sweep. The consolidated fresh
+The inspection and finalized source pass **127 actual-surface assertions**
+(27 existing contacts plus 100 cartridge-path assertions) and **2,373** sampled
+clearance poses, including the authored fractional keys. The actual imported
+GLB passes the same contacts and **2,403** poses, including its float key times. The consolidated fresh
 GLB is decomposed only for auditing: every imported triangle matches a source
 part one-to-one by rigid owner, centroid and all vertices. Contacts and clearance
 then run independently on those actual imported surfaces. Separately, affine
 frames, intended states/holds/transitions, all socket orientations, posed
-surfaces and rotated magazine spawns prove serialization. UV checks keep the
+surfaces and rotated magazine/physics-case spawns prove serialization.
+The standalone fired case matches the animated handoff within **0.000047 mm**. UV checks keep the
 unchanged 1e-5 microscopic-overlap limit and forbid escaped/degenerate triangles.
 Every bake channel must have zero missed interior texels. An independent clean
 factory-startup build checks procedural repeatability. Final provenance checks
@@ -317,6 +334,7 @@ every still/strip's GLB hash and the decoded duration of all nine WebPs.
 | `build/check.json`, `build/delivery/*construction.json` | Independent source/finalized/imported contact and sweep results |
 | `build/serialization.json`, `build/delivery/verify.json` | Affine/state, surfaces, UV, texture and detachables audits |
 | `build/final-provenance.json`, `build/repeat.json` | Current-image identity, real clip timing and independent rebuild |
+| `renders/feed/` | Requested 30-Hz port/section strips and exact-duration playback |
 | `renders/final/` | All required stills, pairs, scale cue, playback and contact sheet |
 
 ## Remaining limitations and credits
@@ -336,3 +354,59 @@ Individual reference authors, licenses, direct image/PDF URLs and uses are in
 [refs/SOURCES.md](refs/SOURCES.md). Photos are only for looking and measuring.
 The workflow follows the owner's read-only rifle project and the finished
 family members; this asset changes no kit, common, pistol or shotgun module.
+
+## Feed geometry correction
+
+The source had its magazine/well too far behind the chamber, plus wrongly
+clocked lugs/raceways and no visible feed ramp or case ejection. Extending the
+104 mm stroke to 147 mm would have concealed that placement error.
+The corrected box/well/catch move 47 mm forward; the cartridge placement moves
+2.5 mm rearward within that box, behind a front binder. The exterior magazine
+envelope is retained. Inner feed lips/stack rise 4.5 mm to meet the bolt face;
+the original front-face chamfer no longer prevents rim pickup.
+The bolt's locked lugs are vertical and its lifted lugs/raceways horizontal,
+clearing the magazine. The new ramp has a relief for the rotating lower lug;
+both actual locking abutments remain present and independently checked.
+
+| Actual source surfaces | Before | Corrected |
+| --- | ---: | ---: |
+| Closed bolt face to magazine head | 146.500 mm | 102.000 mm |
+| Top-round tip to chamber mouth | 75.880 mm | 31.380 mm |
+| Top-round tip to feed ramp | No ramp | 2.880 mm |
+| Head clearance from inner rear wall | 4.000 mm | 1.500 mm |
+| Tip clearance from inner front wall/binder | .477 mm | .278 mm |
+| Usable magazine interior | 75.597 mm | 72.898 mm |
+| Bolt draw | 104.000 mm | 104.000 mm |
+| Open face behind round's head | −42.500 mm | 2.000 mm |
+
+The original chamber representation also sat .500 mm ahead of the bolt face;
+they now coincide. These are evaluated triangle bounds and inner-wall rays,
+not copied authoring constants. The fresh-import construction report repeats
+the same audit on actual GLB triangles.
+The [contact table and final proof](REVIEW.md#measured-cartridge-contacts)
+record the source/imported separations and swept-pose counts.
+
+Class references: [EGW identifies .308 as 700 short action](https://support.egwguns.com/hc/en-us/articles/7758420311963-Is-my-rifle-a-short-or-long-action);
+[MDT publishes 2.870 in / 72.898 mm usable cartridge space with binder](https://mdttac.com/products/308-6-5-creedmoor-mdt-metal-aics-magazine-5-rnd).
+[Beckstrand's primary comparative review, printed p. 60](https://www.legacysports.com/wp-content/uploads/2021/08/GaAAugust2021.pdf)
+gives about 4.125 in / 104.775 mm draw for 700-footprint short actions,
+versus 4.81 in / 122.174 mm for long actions. Keep the existing 104 mm visual
+stroke; it is not short against that class. The reference stroke includes the
+action's lead-in/lug region, and exceeds bare cartridge OAL plus rear clearance.
+[The action manufacturer’s class comparison](https://1934armory.com/news/understanding-remington-700-actions-short-vs-long-and-how-to-choose-the-right-one/)
+gives approximately **8.4 in / 213.36 mm short** and **9.0 in / 228.60 mm long**
+receiver envelopes. These overall receiver lengths are different measurements
+from bolt stroke, magazine length or distance from bolt face to presented head.
+Our fictional receiver is not a dimensionally interchangeable Remington part.
+
+`make -C guns/bolt feed-strips` builds close port and right-wall-section JPGs
+and real-speed WebPs in `renders/feed/`. Fire and ReloadEmpty each retain the
+requested frames 40–125 at 30 Hz. Additional ReloadEmpty 190–245 views show
+its feed at the unchanged frame 219 chamber event. Each folder retains every
+rendered frame and current-GLB hash.
+
+The magazine shell and remaining magazine parts use two guarded atlas panels.
+This prevents the new UV neighborhoods spanning a 1618-pixel tall region and
+keeps both detachable subsets at **1024**, copied losslessly from the delivered
+2048 atlas. No standalone downsampling, sampler clamp or mipmap exception is
+introduced. Packing and mip-bleed audits still use the existing kit limits.

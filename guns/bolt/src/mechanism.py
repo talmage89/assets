@@ -7,7 +7,7 @@ from geometry import *
 def action_barrel():
     # A connected two-surface tube cage preserves the machined cylindrical
     # sections without a decimator collapsing the long internal clearway.
-    stations=[45,45.5,47,81.7,100,172,187,197.8,198,206,206.2,222,223.5,224]
+    stations=[45,45.5,47,100,172,197.8,198,206,206.2,222,223.5,224]
     n=64;vs=[];faces=[];outer=[]
     for inside in (False,True):
         for y in stations:
@@ -15,7 +15,7 @@ def action_barrel():
                 t=math.tau*k/n;c=math.cos(t);s=math.sin(t)
                 r=17.5 if 47<=y<=222 else (17+(min(y-45,224-y)/2)*.5)
                 if inside:
-                    race=max(8.95,min(13.35,4.5/max(abs(c),1e-6)))
+                    race=max(8.95,min(13.35,4.5/max(abs(s),1e-6)))
                     f=max(0,min(1,(y-197.8)/.2))*max(0,min(1,(206.2-y)/.2))
                     r=race+(13.35-race)*f
                 vs.append((r*c,y,65+r*s))
@@ -37,19 +37,22 @@ def action_barrel():
         if count==1:faces.append((a,b,b+total,a+total))
     receiver=M.mesh('Receiver',vs,faces,MAT['steel'])
     roundcut(receiver,(0,100,49),(30,172,91),4)
-    roundcut(receiver,(-13.4,57,40),(13.4,137,60),3)
+    roundcut(receiver,(-13.4,104,40),(13.4,197.65,65),3)
+    # Front lead-in rejoins the chamber after the lug pocket. Preserve the
+    # rear abutment: cutting the entire bottom to the mouth erased its seat.
+    roundcut(receiver,(-7.0,205.3,51.8),(7.0,214,65),.35)
     roundcut(receiver,(14,4,59),(21,21,76),2);reg(receiver)
     # Barrel length is measured chamber face to muzzle, not exposed tube.
     muzzle=(1.210-(1.210-.900)*21/23)*25.4/2
-    barrel=lathe('Barrel',[(210,6.2),(210,15.367),(286.2,15.367),
+    barrel=lathe('Barrel',[(210,8.8),(210,15.367),(286.2,15.367),
         (818.7,muzzle),(819.6,muzzle-.65),(819.6,8.6),(818.2,8.1),
-        (817.5,4.0),(262,4.0),(261,4.55),(254.5,4.55),(249.5,6.2)],
+        (817.5,4.0),(262,4.0),(261,4.55),(254.5,4.55),(249.5,6.2),(214,6.2)],
         closed=True,n=64,raw=True)
     reg(barrel)
     # Recoil lug is supported by the bedding; not an ornamental floating plate.
     lug=box('Recoil_Lug',(-18,220,28),(18,224,68),r=0,raw=True)
     cut(lug,lathe('tool',[(217,0),(217,15.9),(227,15.9),(227,0)],raw=True,n=48));reg(lug,radius=.5)
-    bolt=lathe('Bolt_Body',[(28,0),(28,8.65),(207.5,8.65),(209.5,7.9),(209.5,0)],'bolt','Bolt',n=56)
+    bolt=lathe('Bolt_Body',[(28,0),(28,8.65),(209.5,8.65),(209.5,0)],'bolt','Bolt',n=56)
     cut(bolt,lathe('tool',[(24,0),(24,3.6),(41,3.6),(41,0)],n=32,raw=True))
     # Weld Boolean slivers below the export's useful precision, before normals.
     bm=bmesh.new();bm.from_mesh(bolt.data)
@@ -58,8 +61,8 @@ def action_barrel():
     bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(bolt.data);bm.free();M.smooth(bolt,42)
     # The two visible lugs engage the actual pocket's rear-facing seats.
     for side in (-1,1):
-        x0,x1=sorted((side*8.2,side*12.65))
-        box('Bolt_Lug', (x0,198,61.5),(x1,205,68.5),'bolt','Bolt',r=.18)
+        z0,z1=sorted((65+side*8.2,65+side*12.65))
+        box('Bolt_Lug', (-3.5,198,z0),(3.5,205,z1),'bolt','Bolt',r=.18)
     # A forged collar, swept stem, tapered cylindrical shroud and LOWER tail
     # replace the first checkpoint's ball-shaped rear and square top block.
     lathe('Bolt_HandleCollar',[(28,8.66),(28,10),(30,10.8),(40.5,10.8),(43,9.8),(43,8.66)],
@@ -93,10 +96,10 @@ def action_barrel():
         MAT['steel'],axis='Z')
     reg(tang,radius=.25,segments=3)
     # Steel bottom metal surrounds, rather than fills, the well.
-    plate=box('Bottom_Metal',(-18,-10,15),(18,158,22),raw=True)
+    plate=box('Bottom_Metal',(-18,-10,15),(18,205,22),raw=True)
     M.bevel(plate,2.8,5);freeze(plate)
-    roundcut(plate,(-13.3,54,10),(13.3,137.2,27),2);roundcut(plate,(-6.5,10,10),(6.5,54,28),2)
-    roundcut(plate,(-7.1,45,10),(7.1,59,28),1.2)
+    roundcut(plate,(-13.3,101,10),(13.3,184.2,27),2);roundcut(plate,(-6.5,10,10),(6.5,54,28),2)
+    roundcut(plate,(-7.1,92,10),(7.1,106,28),1.2)
     reg(plate,radius=.65,segments=3)
     # Machined bow with broad flat faces and small rounded section corners.
     outline=(M.bezier((2,18),(2,-10),(2,-12),(20,-12),12)+
@@ -118,7 +121,10 @@ def action_barrel():
     lathe('Safety_PivotPin',[(13,0),(13,1.3),(19,1.3),(19,0)],axis='X',center=(14,62),n=16)
     tube('Safety_Stem',[(17,14,62),(19.2,13,75),(19.2,15,79)],1.7,'steel','Safety',10)
     box('Safety_Pad',(17.7,9,77),(22.7,20,80),'steel','Safety',r=1)
-    for y in (-6,153):screw('Action_Screw',(0,y,15),r=3,direction=-1)
+    for y in (-6,200):screw('Action_Screw',(0,y,15),r=3,direction=-1)
+    for ob in PARTS:
+        if ob['bone']=='MagRelease':
+            for v in ob.data.vertices:v.co.y+=47
     # Sling studs with actual eye holes; bipod uses the forward one.
     for y,z in [(-255,-34.5),(410,22)]:
         stud=lathe('Sling_Stud',[ (z-9,0),(z-9,3.5),(z-4,3.5),(z-3,5),(z,5),(z,0)],
@@ -260,3 +266,16 @@ def bipod():
             path.append((x-3+6*j/48,410+9*math.cos(t),2+9*math.sin(t)))
         tube('Bipod_ReturnSpring',path,.7,'bolt',hinge,6)
         tube('Bipod_SpringTail',[(x,410,-7),(x,420,-7),(x,427,-4.2)],.7,'bolt',bone,6)
+
+
+def feed_details():
+    # Shallow integral-looking ramp, closed prism, no working lock geometry.
+    from feed import RAMP
+    pts=[(181.5,44.0),(205.2,46.8),(214,55.8),*reversed(RAMP)]
+    reg(M.profile('Feed_Ramp',pts,-6.5,6.5,MAT['steel'],axis='X'))
+    # A small push-feed claw and compressed bolt-face plunger. At lift the
+    # claw is on the right; no full-length controlled-feed claw is implied.
+    box('Bolt_Extractor',(-.65,207.8,58.2),(.65,211.0,58.8),'bolt','Bolt',r=0)
+    box('Bolt_Extractor_Hook',(-.65,210.8,58.8),(.65,211.1,59.05),'bolt','Bolt',r=0)
+    lathe('Bolt_Ejector',[(209.1,0),(209.1,.7),(209.5,.7),(209.5,0)],
+          'bolt','Bolt',center=(0,69),n=12)
