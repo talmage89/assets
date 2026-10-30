@@ -12,10 +12,10 @@ def check(arm):
  for clip,spec in CLIPS.items():
   for tick in range(spec['frames']*2+1):
    f=tick*.5;W.pose(arm,clip,f);interface_checks.scene_frame(arm,clip,f)
-   ch=not (clip=='IdleEmpty' or (clip=='Fire' and 64<=f<104) or
-               (clip=='FireLast' and f>=64) or (clip=='ReloadEmpty' and f<219))
+   ch=not (clip=='IdleEmpty' or (clip=='Fire' and 3<=f<104) or
+               (clip=='FireLast' and f>=3) or (clip=='ReloadEmpty' and f<219))
    top=not (clip in ('IdleEmpty','FireLast') or (clip=='ReloadEmpty' and f<116))
-   for name,state in [('ChamberRound',ch),('TopRound',top),('ReserveRound',top)]:
+   for name,state in [('CycleCase',clip in ('Fire','FireLast') and 3<=f<66),('ChamberRound',ch),('TopRound',top and not ((clip=='Fire' and 104<=f<122) or (clip=='ReloadEmpty' and 219<=f<242))),('ReserveRound',top)]:
     assert abs(scale(arm,name)-int(state))<3e-6,(clip,f,name)
    if clip=='Reload':assert abs(delta(arm,'BoltTravel').translation.y)<3e-6,(clip,f,'chambered reload opens bolt')
    if clip=='ReloadEmpty' and 48<=f<=195:

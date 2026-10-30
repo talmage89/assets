@@ -16,7 +16,7 @@ SAMPLES ?= 64
 PASS ?= pass1
 SHIP_SIZE := 2048
 MODEL := build/bolt.blend build/sculpt.blend build/bolt.glb build/magazine_loaded.glb build/magazine_empty.glb build/case.glb build/triangles.json build/interface.json
-PREPARED := build/delivery/finalized.blend $(addprefix build/delivery/,bolt-uv.json magazine-uv.json case-uv.json)
+PREPARED := build/delivery/finalized.blend $(addprefix build/delivery/,bolt-uv.json magazine_shell-uv.json magazine_rest-uv.json case-uv.json)
 MARKS := $(addprefix build/markings/,receiver-left.png receiver-right.png headstamp.png scope.png turret.png)
 BAKED := $(addprefix build/baked/4k/T_VesperB24_,BaseColor.png Normal.png ORM.png) build/baked/4k/bake-report.json
 TEXTURES := $(addprefix textures/T_VesperB24_,BaseColor.png Normal.png ORM.png)
@@ -35,7 +35,7 @@ RENDER_DEPS := src/render.py src/shots.py src/final_shots.py src/scope_integrati
 all: refs export check render match strips extra source-match trigger-match review docs
 refs:
 	$(PYTHON) $(KIT)/fetch_refs.py refs
-$(MODEL) &: src/build.py src/geometry.py src/mechanism.py src/trigger.py src/clips.py src/interface.py ../../kit/model.py ../../kit/weapon.py
+$(MODEL) &: src/build.py src/geometry.py src/mechanism.py src/trigger.py src/clips.py src/feed.py src/animation_sampling.py src/interface.py ../../kit/model.py ../../kit/weapon.py
 	@mkdir -p build $(TMPDIR)
 	$(BP) --python src/build.py -- --out build/bolt.blend
 model: $(MODEL)
@@ -61,10 +61,10 @@ $(BAKED) &: build/delivery/high.blend $(PREPARED) src/config.py build/bake-param
 bake: $(BAKED)
 $(TEXTURES) &: $(BAKED) ../../kit/downsample.py
 	$(PYTHON) $(KIT)/downsample.py --source build/baked/4k --out textures --asset VesperB24 --size $(SHIP_SIZE)
-$(EXPORTS) $(SUBSET_LAYOUTS) &: $(TEXTURES) $(PREPARED) src/config.py src/case_config.py src/stable_delivery.py ../../kit/export.py ../../kit/weapon.py src/export_config.py ../../kit/detachable_textures.py ../../kit/detachable_clusters.py
+$(EXPORTS) $(SUBSET_LAYOUTS) &: $(TEXTURES) $(PREPARED) src/config.py src/case_config.py src/animation_sampling.py ../../kit/export.py ../../kit/weapon.py src/export_config.py ../../kit/detachable_textures.py ../../kit/detachable_clusters.py
 	@mkdir -p export
 	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset VesperB24 --config src/export_config.py --out export/bolt.glb --report build/delivery/export.json
-	$(BP) --python src/stable_delivery.py -- export/bolt.glb
+	$(BP) --python src/animation_sampling.py -- --source build/delivery/finalized.blend --out export/bolt.glb
 	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset VesperB24 --config src/case_config.py --out export/case.glb --report build/delivery/case-export.json
 export: $(EXPORTS) $(SUBSET_LAYOUTS)
 atlas: $(EXPORTS)
@@ -131,6 +131,10 @@ extra: $(EXTRAS) $(DETAIL_IMAGES)
 $(STRIPS) &: $(EXPORTS) $(RENDER_DEPS) src/strips.py src/interface.py ../common/strips.py
 	$(PYTHON) src/strips.py
 strips: $(STRIPS)
+
+.PHONY: feed-strips
+feed-strips: $(EXPORTS) src/feed_strips.py src/cycle_views.py
+	$(PYTHON) src/feed_strips.py
 critique: $(EXPORTS) build/cameras.json
 	$(PYTHON) src/critique.py --pass $(PASS)
 wear-audit: $(EXPORTS) src/wear_mask.py

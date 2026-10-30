@@ -4,7 +4,9 @@ All twenty-one standalone items across seven guns now fit **512 or 1024 at
 density ratio 1.000**. The previously oversized magazines and the Rill 39
 magazines fit losslessly by moving atlas neighborhoods;
 no 2048, reduced-density export, rebake, rotation, mirroring or resampling is
-needed. Their main gun GLBs remain byte-identical to the original baseline.
+needed. The original subset-only exports kept main gun GLBs byte-identical. The later
+[Vesper feed correction](bolt/README.md#feed-geometry-correction) intentionally
+changes its geometry, clips and baked atlas; its subsets retain full density.
 
 ## Sampler, atlas clusters, gutters and fill
 
@@ -31,8 +33,9 @@ only in its assigned part. No rectangle edge clips a moved island. Measured
 minimum cross-region island bounding-box separation is 2.45752 px for the loaded
 pistol and 1.47449 px for both bolt magazines, confirming empty margins between
 the assigned islands. `build/clusters/split-audit.json` records the measurements.
-The pistol loaded magazine has one source cluster → two regions; bolt empty
-has five → six, and bolt loaded one → two.
+In that original subset-only delivery, pistol loaded had one source cluster
+→ two regions; bolt empty five → six and bolt loaded one → two. The later
+Vesper geometry revision uses the updated counts in the table below.
 
 A masked pull-push fills every texel outside the copied regions. RGB averages
 in linear light; alpha/ORM are linear data. Generated normal texels normalize
@@ -53,7 +56,9 @@ No candidate reduces an accepted 1024 allocation to 512 at full density.
 
 ## Per-item results
 
-One material / three maps per item; geometry, normals and origins are unchanged.
+One material / three maps per item. Geometry, normals and origins were unchanged
+by the subset optimization; the later Vesper correction updates its magazine
+construction and spawn frame as documented in its own README.
 “Atlas clusters” counts connected guarded neighborhoods in the source atlas.
 “Packed regions” counts delivered guarded regions: an accepted island-packed
 map uses one per island, marked **i**. Other region counts are copied atlas
@@ -79,9 +84,9 @@ direction to 0.5°. No scaled-item tolerance/test is needed: nothing scales.
 | pistol/magazine_loaded | 1024 | 1 | 2 | 1.000 | 8 | 5,396,292 | 1,318,548 | 0 | 0 | 0 | 0 |
 | shotgun/hull | 1024 | 1 | 1 | 1.000 | 8 | 8,244,008 | 404,136 | 0 | 0 | 0 | 0 |
 | shotgun/shell | 1024 | 1 | 1 | 1.000 | 8 | 8,260,472 | 364,784 | 0 | 0 | 0 | 0 |
-| bolt/case | 512 | 1 | 1 | 1.000 | 8 | 6,753,080 | 201,584 | 0 | 0 | 0 | 0 |
-| bolt/magazine_empty | 1024 | 5 | 6 | 1.000 | 8 | 6,928,816 | 1,400,092 | 0 | 0 | 0 | 0 |
-| bolt/magazine_loaded | 1024 | 1 | 2 | 1.000 | 8 | 6,997,748 | 1,371,024 | 0 | 0 | 0 | 0 |
+| bolt/case | 512 | 1 | 1 | 1.000 | 8 | 6,753,080 | 201,536 | 0 | 0 | 0 | 0 |
+| bolt/magazine_empty | 1024 | 7 | 7 | 1.000 | 8 | 6,928,816 | 1,165,896 | 0 | 0 | 0 | 0 |
+| bolt/magazine_loaded | 1024 | 2 | 2 | 1.000 | 8 | 6,997,748 | 1,134,900 | 0 | 0 | 0 | 0 |
 | smg/cartridge | 512 | 1 | 1 | 1.000 | 8 | 7,359,568 | 151,444 | 0 | 0 | 0 | 0 |
 | smg/case | 512 | 1 | 1 | 1.000 | 8 | 7,360,256 | 154,940 | 0 | 0 | 0 | 0 |
 | smg/magazine_empty | 1024 | 7 | 373 i | 1.000 | 6 | 7,476,900 | 1,186,756 | 0 | 0 | 0 | 0 |
@@ -96,11 +101,12 @@ direction to 0.5°. No scaled-item tolerance/test is needed: nothing scales.
 | ak/cartridge | 512 | 1 | 1 | 1.000 | 8 | 7,496,472 | 164,864 | 0 | 0 | 0 | 0 |
 | ak/case | 512 | 1 | 1 | 1.000 | 8 | 7,484,152 | 149,668 | 0 | 0 | 0 | 0 |
 
-Final total for all twenty-one: **146,735,344 → 14,225,032 bytes**,
-**90.31% smaller**. The Rill 39 contributes **30,302,284 → 3,311,228 bytes**
-(89.07% smaller); the previous seventeen remain at 10,913,804 bytes.
-The unchanged geometric total is **54,040 triangles** and the independent
-base comparisons cover **540,400 surface samples**. Eight sets are 512 and
+Final total for all twenty-one: **146,735,344 → 13,754,664 bytes**,
+**90.63% smaller**. The Rill 39 contributes **30,302,284 → 3,311,228 bytes**
+(89.07% smaller); the other seventeen now total 10,443,436 bytes.
+The current geometric total is **54,064 triangles**, with **540,640** base
+surface samples. The Vesper revision adds twelve triangles per magazine; its
+historical full-atlas byte baseline is retained in the Old bytes column. Eight sets are 512 and
 thirteen 1024: about **60 MiB total** at 8-bpp block compression with full mip
 chains, versus about 336 MiB for twenty-one separate 2048 sets. Each magazine
 costs about 4 MiB; no inter-file texture deduplication is assumed.
@@ -229,3 +235,15 @@ under `build/mipmaps/`; their six retained sets are unchanged. The earlier
 per-island 70% obstruction remains reproducible in `build/magazine-fit/` and
 was correctly conditional on separate guards per island. Clusters remove that
 cost without weakening the density floor or using a 2048 magazine.
+
+## Vesper visible-feed update
+
+The Vesper’s corrected magazine uses two separated atlas panels so every
+source neighborhood fits 1024 at density **1.000**. Its loaded variant has two
+clusters/regions; empty has seven, with no splits. Both retain 8 px guarded
+regions, mipmapped samplers and exact source-atlas copying. The fired case
+remains one 512 region. Repeated base/mip-0–3 proofs are in
+`guns/bolt/build/delivery/verify.json`; excesses are below 3e-14.
+The source gun now depicts extraction, ejection and feeding, with updated
+final/docs images. Earlier preservation manifests and rendered comparisons
+above describe the subset-only delivery before that intentional revision.
