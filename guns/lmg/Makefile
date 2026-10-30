@@ -68,10 +68,11 @@ $(FINAL_IMAGES) &: $(EXPORTS) $(RENDER_DEPS)
 renders/final/eevee/hero.png: $(EXPORTS) $(RENDER_DEPS)
 	$(KIT)/with_gpu.sh $(BP) --python src/final_render.py -- --source export/lmg.glb --out renders/final/eevee --engine BLENDER_EEVEE --width $(WIDTH) --samples 64 --shots hero
 render: $(FINAL_IMAGES) renders/final/eevee/hero.png
-build/cameras.json: src/white_balance.py src/photo_matches.py src/refine_cameras.py refs/SOURCES.md
+build/cameras.json: $(EXPORTS) src/white_balance.py src/photo_matches.py src/refine_cameras.py src/frame_photos.py refs/SOURCES.md
 	$(PYTHON) src/white_balance.py
 	$(PYTHON) $(KIT)/photo_match.py solve --config src/photo_matches.py --out $@
 	$(PYTHON) src/refine_cameras.py
+	$(BP) --python src/frame_photos.py
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration $@
 renders/final/pairs/used_photo-pair.jpg: $(EXPORTS) $(RENDER_DEPS) build/cameras.json
 	$(KIT)/with_gpu.sh $(BP) --python src/final_render.py -- --source export/lmg.glb --out renders/final/photos --camera-file build/cameras.json --width $(WIDTH) --samples $(SAMPLES) --shots $(PHOTO_SHOTS)

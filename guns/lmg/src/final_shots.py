@@ -100,7 +100,7 @@ def prepare_shot(scene,shot):
  floor=scene.objects['Studio seamless'];floor.scale=(10,10,10) if isscale else (1,1,1);floor.location.z=0 if isscale else scene['source_floor']
  floor.rotation_euler.z=math.pi if isscale else 0
  scene.objects['Scale fill'].hide_render=not isscale
- bg=scene.world.node_tree.nodes['Background'];bg.inputs['Strength'].default_value=2 if shot.get('photo_ammo_light') else .8 if shot.get('daylight') else .18
+ bg=scene.world.node_tree.nodes['Background'];bg.inputs['Strength'].default_value=2*shot.get('photo_ammo_gain',1) if shot.get('photo_ammo_light') else .8 if shot.get('daylight') else .18
  for ob in scene.objects:
   if ob.get('human_scale'):ob.hide_render=not isscale
   if ob.get('bake_only') or ob.name in ('Case_Proof','Cartridge_Proof','Link_Proof') or (ob.name.startswith('HIGH_') and not scene.get('dense_source')):ob.hide_render=True
@@ -132,6 +132,7 @@ def prepare_shot(scene,shot):
    if ob.name=='Key softbox':ob.location=(-.22,.02,.32);ob.data.energy=4;ob.data.size=.16;ob.data.size_y=.45
    elif ob.name=='Camera fill':ob.location=(.16,.05,.22);ob.data.energy=1.5;ob.data.size=.22;ob.data.size_y=.35
    else:ob.data.energy=0
+  if shot.get('photo_ammo_light'):ob.data.energy*=shot.get('photo_ammo_gain',1)
   if aimed:
    if ob.name=='Key softbox':ob.location=(.65,-.30,.60);ob.data.energy=14
    elif ob.name=='Camera fill':ob.location=(-.65,-.20,.35);ob.data.energy=5
@@ -147,4 +148,4 @@ PHOTO_POSES.update(used_photo=dict(action='Idle',frame=0,daylight=-1,layers={'Ca
 PHOTO_POSES['used_right_photo']=dict(action='BipodDeploy',frame=54,daylight=-1,layers={'CarryHandle':('CarryRaise',30)},hide_box=True)
 for name,pose in PHOTO_POSES.items():
  pose['exposure']=.45
-PHOTO_POSES['ammo_photo'].update(photo_ammo_light=True,exposure=-.15,inspection_parts=['Belt_'])
+PHOTO_POSES['ammo_photo'].update(photo_ammo_light=True,photo_ammo_gain=2.4,exposure=-.15,inspection_parts=['Belt_'])

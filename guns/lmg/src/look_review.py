@@ -20,9 +20,9 @@ REGIONS={
  'barrel_phosphate':('used_right', [[(129,150),(370,204),(377,214),(370,228),(124,173)]], 'used_right_photo', ('Barrel_Exterior','BarrelSeat','BarrelCollar')),
  'bipod_phosphate':('used_right', [[(422,367),(441,373),(321,699),(333,705),(334,718),(326,730),(302,734),(280,726),(261,715),(254,702),(258,696),(273,698),(302,708),(301,692)],[(443,373),(452,374),(439,527),(428,607),(437,604),(439,614),(435,621),(429,621),(427,630),(438,637),(439,647),(435,654),(429,656),(430,647),(413,643),(392,635),(386,630),(385,624),(389,619),(409,623),(413,535),(422,444)]], 'used_right_photo', ('Bipod_Channel','Bipod_Extension','Bipod_Foot','Bipod_Yoke')),
  'molded_handguard':('used_right', [[(543,255),(568,253),(790,300),(824,318),(850,339),(876,353),(866,430),(616,390),(614,345),(592,329),(547,318)]], 'used_right_photo', ('Handguard_Sculpt','Handguard_MoldRib')),
- 'molded_stock':('used_stock', [[(176,1066),(374,1026),(558,929),(814,748),(843,694),(830,626),(826,546),(868,469),(978,329),(1084,205),(1602,529),(1638,593),(1580,674),(1455,802),(1326,962),(1248,1037),(1212,1035),(1150,978),(1095,945),(1029,944),(906,992),(782,1079),(604,1230),(410,1450)]], 'furniture', ('Stock_Sculpt',)),
+ 'molded_stock':('used_stock', [[(176,1066),(374,1026),(558,929),(814,748),(843,694),(830,626),(826,546),(868,469),(978,329),(1084,205),(1602,529),(1638,593),(1580,674),(1455,802),(1326,962),(1248,1037),(1212,1035),(1150,978),(1095,945),(1029,944),(906,992),(782,1079),(604,1230),(410,1450)]], 'right_photo', ('Stock_Sculpt',)),
  'molded_grip':('used_receiver', [[(1228,737),(1255,733),(1234,752),(1225,778),(1231,809),(1251,840),(1287,884),(1336,953),(1388,1023),(1424,1062),(1425,1077),(1397,1091),(1322,1112),(1247,1126),(1221,1119),(1205,1109),(1202,1090),(1208,1065),(1195,1025),(1168,975),(1134,912),(1114,865),(1103,822),(1120,827),(1154,818),(1195,791),(1214,769)]], 'used_photo', ('PistolGrip_Sculpt','Grip_MoldRib')),
- 'molded_box':('used_box2', [[(174,235),(366,215),(655,218),(670,370),(676,601),(680,794),(674,875),(641,911),(415,911),(365,892),(226,768),(175,699),(151,625),(149,420)]], 'box', ('Box_Shell','Box_EndRib','Box_MoldRib')),
+ 'molded_box':('used_box2', [[(174,235),(366,215),(655,218),(670,370),(676,601),(680,794),(674,875),(641,911),(415,911),(365,892),(226,768),(175,699),(151,625),(149,420)]], 'box_detail_photo', ('Box_Shell','Box_EndRib','Box_MoldRib')),
  'handle_polymer':('used_receiver', [[(426,70),(765,63),(767,145),(430,148)]], 'used_photo', ('CarryHandle_Grip',)),
  'brass':('belt', [[(945,963),(1093,934),(1113,1084),(1180,1205),(1225,1460),(1005,1502),(985,1200),(966,1095)],[(1115,2135),(1310,2100),(1320,2160),(1150,2200)],[(1625,904),(1775,860),(1815,1020),(1900,1150),(1985,1375),(1740,1420),(1680,1140),(1655,1005)]], 'ammo_photo', ('Belt_Round',)),
  'steel_links':('belt', [[(1005,1510),(1225,1470),(1255,1540),(1080,1605)],[(1100,1710),(1265,1660),(1330,2050),(1150,2100)],[(1740,1428),(1985,1385),(2020,1460),(1790,1545)],[(1805,1640),(2010,1580),(2120,1940),(1890,2020)]], 'ammo_photo', ('Belt_Link',)),
@@ -101,7 +101,7 @@ def main():
   overlay=Image.fromarray(ref.copy());draw=ImageDraw.Draw(overlay)
   for polygon in polygons:draw.line(polygon+[polygon[0]],fill=(245,55,25),width=max(2,overlay.width//500))
   overlay_path=out/(role+'-photo-region.png');overlay.save(overlay_path);observations.append((role+' / native whole-part observation',overlay_path))
-  row=dict(render_shot=shot,render=metrics(im[m]),photo=metrics(ref[pm]),neutral=corrections[photo],photo_source=photo,photo_polygons=polygons,parts=[str(geo['names'][i-1]) for i in selected],sha256=meta[shot]['sha256'])
+  row=dict(render_shot=shot,camera_matched_to_this_photo=role not in ('molded_stock','molded_box'),render=metrics(im[m]),photo=metrics(ref[pm]),neutral=corrections[photo],photo_source=photo,photo_polygons=polygons,parts=[str(geo['names'][i-1]) for i in selected],sha256=meta[shot]['sha256'])
   # Preserve the metric dictionary separately from its reference filename.
   row['photo_source']=photo;row['photo']=metrics(ref[pm])
   row['shipped_basecolor_srgb_median']=np.median(sampled[m,:3],axis=0).tolist()
@@ -112,6 +112,8 @@ def main():
  if values:
   (out/'finish-values.json').write_text(json.dumps(values,indent=2))
   sheet(observations,out/'photographic-regions.jpg',columns=3,cell=(600,480))
+ if '--finishes-only' in sys.argv:
+  print('WHOLE-PART FINISHES',len(values),flush=True);return
  wear={};entries=[]
  for site,prefixes in SITES.items():
   wear[site]={}
@@ -122,11 +124,17 @@ def main():
    geo=np.load(BASE/'build/image-geometry'/(shot+'.npz'))
    assert str(geo['sha256'])==meta[shot]['sha256']
    if shot not in cache:cache[shot]=raster(geo,meta[shot],w,h)
-   ids,_=cache[shot];selected=[i+1 for i,n in enumerate(geo['names']) if str(n).startswith(prefixes)];region=np.isin(ids,selected)
+   ids,coordinates=cache[shot];selected=[i+1 for i,n in enumerate(geo['names']) if str(n).startswith(prefixes)];region=np.isin(ids,selected)
    diff=np.max(abs(a-b),axis=2);m=region&(diff>=4)
    # Every changed pixel stays at this site's actual visible surfaces.
    comp=components(m);ys,xs=np.nonzero(m);signed=(a-b)@LUMA
    record=dict(pixel_threshold=4,changed_area_px=int(m.sum()),visible_part_area_px=int(region.sum()),bounds=[int(xs.min()),int(ys.min()),int(xs.max()+1),int(ys.max()+1)] if len(xs) else None,median_signed_luma_change=float(np.median(signed[m])) if m.any() else 0,mean_absolute_luma_change=float(np.mean(abs(signed[m]))) if m.any() else 0,max_rgb_change=float(diff[region].max()) if region.any() else 0,connected_regions=comp,source_on=meta[shot]['sha256'],source_off=json.loads((off.parent/'shots.json').read_text())[shot]['sha256'])
+   if m.any():
+    uv=coordinates[m];points=np.stack((uv[:,0]*2048,(1-uv[:,1])*2048),axis=1)
+    other=BASE/'build/controls'/site/'textures'
+    onbase=bilinear(atlas,points);offbase=bilinear(np.asarray(Image.open(other/'T_Harrow56_BaseColor.png')),points)
+    onorm=bilinear(orm,points);ofform=bilinear(np.asarray(Image.open(other/'T_Harrow56_ORM.png')),points)
+    record['shipped_maps_at_changed_pixels']=dict(basecolor_on_median_rgb=np.median(onbase[:,:3],axis=0).tolist(),basecolor_off_median_rgb=np.median(offbase[:,:3],axis=0).tolist(),roughness_on_off=[float(np.median(q[:,1])/255) for q in (onorm,ofform)],metallic_on_off=[float(np.median(q[:,2])/255) for q in (onorm,ofform)],specular_on_off=[float(np.median(q[:,3])/255) for q in (onbase,offbase)])
    wear[site][shot]=record
    difference=np.uint8(np.clip(abs(a-b)*6,0,255));difference[~region]=0
    dpath=out/(site+'-'+shot+'-difference.png');Image.fromarray(difference).save(dpath)

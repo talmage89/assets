@@ -33,6 +33,11 @@ def main():
  raw=json.loads((out/'raw-check/raw-comparison.json').read_text())
  assert raw['source_sha256']==hashlib.sha256((BASE/'export/lmg.glb').read_bytes()).hexdigest()
  assert json.loads((BASE/'build/control-verification.json').read_text())['passed']
+ framing=json.loads((BASE/'build/photo-frame-proof.json').read_text())
+ assert framing['source_sha256']==hashlib.sha256((BASE/'export/lmg.glb').read_bytes()).hexdigest()
+ for name,row in framing['shots'].items():
+  x0,y0,x1,y1=row['projected_bounds_after'];w,h=row['frame'];m=row['minimum_margin_fraction']
+  assert x0>=w*m and y0>=h*m and x1<=w*(1-m) and y1<=h*(1-m),(name,'clipped whole-gun photo pair')
 
  for folder in [out/'beauty',out/'eevee',out/'photos',out/'raw-check',*[out/'detachables'/n for n in ('box_loaded','box_empty','cartridge','case','link')],*[out/'precedents'/n for n in ('ak','smg')],*[out/'wear'/n for n in ('receiver','cover','handle','flash','regulator','ports','feet','box','butt')]]:
   p=folder/'shots.json'
