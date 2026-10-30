@@ -66,7 +66,9 @@ for step in range(12):
 normal[y0:y1,x0:x1][valid]=f[valid]
 write_png(out/'T_Covey26_Normal.png',normal,16)
 for channel in ('BaseColor','ORM'):
- shutil.copy2(base/('build/baked/4k/T_Covey26_'+channel+'.png'),out/('T_Covey26_'+channel+'.png'))
+ # These are outputs of this stage: retaining the input's old timestamp
+ # would make the grouped Make target perpetually older than this script.
+ shutil.copyfile(base/('build/baked/4k/T_Covey26_'+channel+'.png'),out/('T_Covey26_'+channel+'.png'))
 report=dict(triangles=triangles,interior_texels=int(flat.sum()),gutter_texels=int(valid.sum()-flat.sum()),
  method='Exact tangent projection of fitted original ground planes; curved head retains the GPU Cycles bake',
  source_planes=fits,source_sha256={name:digest(base/'build/delivery'/name) for name in ('finalized.blend','high.blend')},
