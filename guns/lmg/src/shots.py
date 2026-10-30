@@ -14,15 +14,24 @@ SHOTS={
  'charging_handle':dict(location=(.39,.06,.24),target=(.023,.14,.087),lens=70,aspect=1.6),
  'trigger':dict(location=(.30,.038,.027),target=(0,.038,.027),lens=100,aspect=1.35),
  'lower_raking':dict(location=(-.25,.17,.05),target=(0,.018,-.003),lens=65,aspect=1.35),
- 'furniture':dict(location=(.48,-.46,.28),target=(0,-.15,.05),lens=65,aspect=1.5),
- 'handguard':dict(location=(-.25,.51,.13),target=(0,.36,.075),lens=60,aspect=1.5),
+ 'furniture':dict(location=(.60,-.56,.32),target=(0,-.175,.042),lens=55,aspect=1.5),
+ 'handguard':dict(location=(-.44,.56,.18),target=(0,.363,.073),lens=56,aspect=1.5),
  'bipod':dict(location=(-.60,.80,.06),target=(0,.47,-.14),ortho=.60,action='BipodDeploy',frame=84,aspect=1.2),
  'belt':dict(location=(-.32,-.03,.24),target=(-.055,.17,.05),lens=65,aspect=1.25),
- 'box':dict(location=(-.32,.38,.04),target=(0,.164,-.065),lens=70,aspect=1.25),
- 'aimed':dict(location=(0,-.0975,.176),target=(0,1,.176),lens=20,aspect=1.65,aimed=True,action='Idle',frame=0),
+ 'box':dict(location=(-.42,.44,.09),target=(0,.164,-.04),lens=60,aspect=1.25),
+ 'aimed':dict(location=(0,-.1075,.176),target=(0,1,.176),lens=20,aspect=1.65,aimed=True,action='Idle',frame=0),
 }
 DEFAULT_SHOTS=','.join(SHOTS)
-PHOTO_POSES={'right_photo':dict(action='BipodDeploy',frame=54),'left_photo':dict(action='BipodDeploy',frame=54),'open_photo':dict(action='Reload',frame=64),'trigger_photo':dict(action='Idle',frame=0),'belt_photo':dict(action='BipodDeploy',frame=54)}
+PHOTO_POSES={'right_photo':dict(action='BipodDeploy',frame=54),'left_photo':dict(action='BipodDeploy',frame=84),'open_photo':dict(action='Reload',frame=64),'trigger_photo':dict(action='Idle',frame=0),'belt_photo':dict(action='BipodDeploy',frame=54)}
+for key in ('right_photo','left_photo','belt_photo'):
+ PHOTO_POSES[key]['layers']={'CarryHandle':('CarryRaise',30)}
+PHOTO_POSES['open_photo']['layers']={'CarryHandle':('CarryRaise',30),**{bone:('BipodDeploy',54) for bone in ('BipodL','BipodR','BipodSplayL','BipodSplayR')}}
+def prepare_shot(scene,shot):
+ global ACTIVE_LAYERS
+ ACTIVE_LAYERS=shot.get('layers',{})
+ for ob in scene.objects:
+  if ob.type=='MESH' and ob.get('asset_set')=='LMG':
+   ob.hide_render=bool(shot.get('inspection_parts')) and not ob.name.startswith(tuple(shot['inspection_parts']))
 STRIP_SHOT=dict(location=(-.95,.70,.49),target=(0,.19,.045),ortho=1.30,aspect=1.4)
 RENDER_STAGE='unbaked form checkpoint / exported GLB'
 def floor_height(source):return -.50
@@ -51,6 +60,17 @@ SHOTS.update({
  'box_empty':dict(location=(-.33,.33,.18),target=(0,0,-.07),lens=70,aspect=1.25),
 })
 
-SHOTS['cover_open_full']=dict(location=(-.90,-.10,.58),target=(0,.10,.15),lens=40,aspect=1.5,action='Reload',frame=60)
+SHOTS['cover_open_full']=dict(location=(-1.45,.25,.68),target=(0,.17,.15),lens=45,aspect=1.5,action='Reload',frame=60)
+SHOTS['shooter_three_quarter']=dict(location=(-.32,-.43,.34),target=(-.018,.14,.127),lens=40,aspect=1.5,action='Idle',frame=0)
 for i,f in enumerate((0,3,5,6,7,8,12)):
  SHOTS[f'belt_advance_{i:02d}']=dict(location=(-.30,.035,.24),target=(-.035,.17,.111),lens=65,aspect=1.4,action='Fire',frame=f,time_s=f/60)
+
+PHOTO_POSES.update({
+ 'receiver_photo':dict(action='Idle',frame=0,layers={'CarryHandle':('CarryRaise',30)}),
+ 'cover_detail_photo':dict(action='Reload',frame=60,layers={'CarryHandle':('CarryRaise',30)}),
+ 'tray_detail_photo':dict(action='ReloadEmpty',frame=60),
+ 'sight_detail_photo':dict(action='Idle',frame=0,inspection_parts=['RearSight']),
+ 'box_detail_photo':dict(action='Idle',frame=0,inspection_parts=['Box']),
+})
+
+SHOTS['aimed_macro']=dict(SHOTS['aimed'],lens=40)

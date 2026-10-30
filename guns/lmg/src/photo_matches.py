@@ -24,3 +24,37 @@ MATCHES={
    L((6,35,10),(826,549),.4),L((6,78,46),(897,455),.4)])}
 
 MATCHES['belt_photo']=dict(title='Box and hanging belt / early exterior class',photo=str(BASE/'build/white-balanced/box.jpg'),crop=(0,0,2507,1064),location=(-1.5,.8,.9),target=(0,.18,.03),lens=70,lens_bounds_mm=(45,160),landmarks=[L((0,710,105),(60,80)),L((0,536,176),(490,90)),L((0,536,105),(500,260)),L((-24,236,105),(1110,435)),L((0,-21,176),(1590,398)),L((0,-330,47),(2300,755),.35)])
+
+# Region-specific cameras retain the same reference pixels; source geometry is
+# never read from these annotations. Broad field variants are form-only.
+MATCHES['receiver_photo']=dict(MATCHES['right_photo'],title='Right receiver / pressed sheet and rivet landmarks',crop=(460,210,1120,510))
+# Use receiver-local anchors so the crop is not calibrated by the stock.
+MATCHES['receiver_photo']['landmarks']=[
+ L((24,-50,92),(545,398)),L((24,236,105),(1080,300)),
+ L((24,-44,61),(576,491)),L((24,89,111),(698,301)),
+ L((28,185,91),(991,315)),L((28,110,91),(854,335))]
+
+def opened(x,y,z):
+ import math
+ angle=math.radians(-96);dy=y-236;dz=z-127
+ return (x,236+dy*math.cos(angle)-dz*math.sin(angle),127+dy*math.sin(angle)+dz*math.cos(angle))
+MATCHES['cover_detail_photo']=dict(title='Open cover / pressed walls and underside arm',photo=str(BASE/'build/white-balanced/cover_close.jpg'),crop=(600,0,2100,2770),
+ location=(.32,-.36,.34),target=(0,.20,.25),lens=65,lens_bounds_mm=(30,180),
+ landmarks=[L(opened(-28,-50,137),(1630,130)),L(opened(28,-50,137),(1860,235)),
+ L(opened(-28,224,132),(1020,2440)),L(opened(28,224,132),(1240,2510)),
+ L(opened(7,104,137),(1480,1420)),L(opened(7,205,132),(1280,2180))])
+MATCHES['tray_detail_photo']=dict(title='Feed tray / formed plate and cartridge guides',photo=str(BASE/'build/white-balanced/cover_close.jpg'),crop=(580,2160,2020,3384),
+ location=(.26,-.22,.34),target=(0,.16,.118),lens=70,lens_bounds_mm=(25,180),
+ landmarks=[L((-43,134,118),(1100,3120)),L((23,134,118),(1650,2860)),
+ L((-43,205,118),(810,2600)),L((23,205,118),(1360,2460)),
+ L((0,236,127),(1100,2510))])
+MATCHES['sight_detail_photo']=dict(title='Rear sight / thin pierced ears and small aperture',photo=str(BASE/'refs/sight.jpg'),crop=(0,0,2807,2461),
+ location=(.035,-.09,.30),target=(0,-.021,.164),lens=90,lens_bounds_mm=(40,180),
+ landmarks=[L((-15,-35,150),(735,2230)),L((15,-35,150),(2360,2240)),
+ L((-15,-9,181),(825,150)),L((15,-9,181),(2060,170)),
+ L((0,-22.5,176),(1580,1030)),L((-24,-30,159),(430,1540))])
+MATCHES['box_detail_photo']=dict(title='Molded box / rim, ribs, catch and receiver clip',photo=str(BASE/'refs/box_molded.png'),crop=(150,100,830,940),
+ location=(-.38,-.13,.13),target=(0,.164,-.029),lens=90,lens_bounds_mm=(30,180),
+ landmarks=[L((-60,207,38),(230,220)),L((-60,121,38),(415,236)),
+ L((60,121,38),(750,166)),L((48,123,-118),(706,805)),
+ L((-48,205,-118),(280,748)),L((-48,123,-118),(490,877))])

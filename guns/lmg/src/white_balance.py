@@ -3,7 +3,7 @@ from PIL import Image
 import numpy as np,json
 base=Path(__file__).resolve().parents[1];out=base/'build/white-balanced';out.mkdir(exist_ok=True)
 # These are estimated neutrals, not gray-card measurements.
-patches={'right':(1900,750,2070,850),'left':(40,30,230,100),'box':(20,20,220,90),'open':None}
+patches={'right':(1900,750,2070,850),'left':(40,30,230,100),'box':(20,20,220,90),'open':None,'cover_close':(40,40,300,280)}
 rows={}
 for n,patch in patches.items():
  p=base/'refs'/f'{n}.jpg'

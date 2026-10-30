@@ -5,6 +5,10 @@ asset acceptance. No look-dev, production texture delivery or docs JPG is
 claimed. The acceptance marks below mean that the named trait was observed in
 an image; the residual column remains part of each finding.
 
+Passes 1–7 and their measurements are the original checkpoint history.
+**Round 2 is recorded in passes 8–11 below; pass 11 and the current README
+supersede the older budgets, material counts and provisional eye station.**
+
 ## References and color/value discipline
 
 The sharp right and oblique-left exterior photographs are 2,126 pixels across.
@@ -202,3 +206,168 @@ running the full kit suite. This branch keeps that fallback local. The kit is
 unchanged; the only new shared modules are the inert 5.56 display meshes and
 the additive 1.8 schema helper. No other gun folder or existing common module
 was edited.
+
+## Form round 2 — pass 8, first revised surfaces
+
+Color/value first: `renders/round2-pass1/` uses Workbench gray to expose form;
+its dark background and constant clay are not albedo evidence. Opened all six
+native previews beside the right/left crops and the sharp underside/sight
+photographs. The stock is visibly deeper through the toe, the comb has the
+photograph's dip, and the handguard has broad flat sides and a flat lower
+edge. Rejected the initial 58,499-triangle allocation. The handguard ribs spend
+too many triangles on tiny radii; the sight ears also overspend on bevels.
+The rear aperture is now small, but the old camera sits implausibly close.
+The underside arm reads in the cover; the tray is a plate rather than rods.
+The handguard detail and furniture camera clip their subjects and need wider
+framing. The receiver's new embossing produced a nonmanifold Boolean edge;
+this is a failed build, not acceptable topology. Reduced covered/subpixel
+surfaces and removed three box-end display meshes while retaining all 64
+owners and all 19 clips. Every visible cartridge uses the accepted shared mesh;
+its standalone is unchanged. Further pairs and motion checks follow below.
+
+## Form round 2 — pass 9, photographic pairs and sections
+
+Color/value first: the exported one-material inspection palette has deliberately
+uniform response and pale brass. It is visibly unlike the used photographic
+finishes, which remain outside this round. Opened all nine native pass-2 pairs,
+the imported section sheet and the two-link section. The new stock's lower
+edge is substantially closer, but the molded recess needs more depth to read
+under the rake. Rejected the tiny carry-handle rise: its folded arm radius was
+too short to produce the raised silhouette in the photograph. Lengthened the
+outboard arm while retaining its owner, axis and clips. The handguard's broad
+flank and 14-mm rib spacing now read; its front must remain square.
+
+Rejected the rear-sight close-up: the aperture is smaller, but the reference's
+two knobs are on one flank at different longitudinal stations, and its ears
+rise toward their front. Ours put one knob on each flank and used level ears.
+The 234-pixel fit residual was warning of wrong correspondence, not permission
+to accept it. Corrected those external relationships and refitted the camera.
+The close tray pair hid the plate under ammunition although the photo is empty;
+use ReloadEmpty at the same cover angle. The new box pair looks from the wrong
+end and clips its catch; refit against the actual near-end landmarks. The feet
+still read as end blocks: their broad planes rotated vertical on deployment.
+Reoriented the pads at their existing owners, compensating splay, so their
+planes are nearly horizontal in the deployed view. No new rig bones or clips.
+
+The source's full-frame sweep reduced the construction failures to a single
+left rivet touching the tray by 0.50 mm. Moved that rivet down within its pressed
+land, rather than exempting it. The imported sections now show both walls of
+the receiver emboss and a hollow stock at both requested stations. The two
+links' mesh section shows the middle cuff between its neighbor's two cuffs.
+
+## Form round 2 — pass 10, player views and assembly corrections
+
+Color/value first: opened the native Cycles hero, eye view, shooter's oblique,
+stock, handguard, open cover and bipod from `renders/round2-pass3/`, and all
+three new region renders. The one-material quick palette is too uniform and
+its brass too pale for finish acceptance. The stock recess now reads under
+raking light; the toe and butt height still need the final local photo check.
+The sight's smaller aperture no longer fills the receiver width, and the post
+is centered. The 20-mm presentation lens wastes most of the frame at the longer
+eye station; use 40 mm from the same socket without moving the camera.
+
+The deployed pads now show flat upper surfaces and a pressed lip. Their legs
+are still longer than the near leg in the right photograph; shorten the inner
+end by 45 mm and use the fully extended pose for the oblique left photograph.
+The closed cover's lower edge left a 4-mm visual gap over the rear receiver;
+extend its side walls to the receiver top. The region render exposes the old
+box lid's large center cut and unsupported suspension: remove that cut and
+make the suspension a lid-owned component, retaining the Magazine parent and
+spawn frame. The taller, shallower shell better matches the manufacturer's
+box. Two belt/lid contacts remain in the full sweep. Diagnostics locate them
+at the pre-scaled opening edge; explicitly update the edited mesh before the
+Boolean and re-run the complete sweep. No blanket collision exception added.
+
+## Form round 2 — pass 11, final exported evidence
+
+Color/value first: opened the final exported-GLB contact sheet and native
+hero/player/region stills beside the balanced photographic pairs. Inspection
+steel remains dark through its cavities and the highlights roll off without
+clipping: approximate foreground display luma P01/P50/P99 is 0/65.06/226.86,
+with no foreground channel at 255. Uniform roughness and pale brass still
+look synthetic. They are inspection constants, not accepted albedos or wear.
+The clipped white side backdrops cannot calibrate material color; the red
+sight backdrop and field photograph are form-only evidence.
+
+Opened the four new close pairs (cover underside, empty tray, rear sight,
+right receiver) and the molded-box pair, all with landmark arrows. The sharp
+2538 × 3384 cover photo retains more than 600 source pixels across the tray.
+The cover now reads as pressed walls, arm, pawls, latch and sight housing;
+the tray reads as a finite plate with formed lips rather than a rod frame.
+The wider `cover_open_full.png` retains the entire raised assembly. The loose
+sight pair retains the full rim; its 217.4-pixel native RMS and its different
+base/ear contour remain the weakest comparison. This is not an exact replica
+or a finished-form approval. Tiny manufacturing relief awaits the retained
+high-source normal bake; reduced ear surfaces show coarse shading up close.
+
+The side pair's raised carrying handle and deployed bipod now correspond to
+the photographed pose. The right photograph uses the retracted deployed
+legs, the oblique left uses the extended legs. The five stock landmarks are
+within the stated ±8-mm local photographic uncertainty: rear/front comb
+103.51/111.06 mm, butt height 134.00, toe drop 131.00 and lower edge at grip
+42.33. The hollow stock sections and recess read in `sections.jpg` and the
+furniture rake. No shoulder rest is modeled on the selected fixed-polymer
+version. The flat handguard sections measure 65.83 × 62.48 and 63.30 × 60.81
+mm, with approximately 4.5-mm outside corners and 14-mm rib spacing.
+
+Both bipod legs measure 253.36/318.22 mm hinge-to-pad-centroid retracted/
+extended. Their 12 × 9-mm channel sections and 36 × 22-mm pads read in the
+close-up; deployed pad planes are 5° from horizontal. These are actual mesh
+measurements. No individual leg-length specification was found in primary
+class manuals; the retracted near-leg photo estimate is 235–260 mm. The
+rounded box has its rim, end ribs, lid, catch and supported suspension clip;
+the pair residual is 30.6 pixels. Its underside and broad flank are still
+clean and feature-sparse until the later authorized finish stage.
+
+Re-examining the cheek photograph corrected which spectacle lens covers the
+aiming eye. The supported cheek/hand station implies approximately 88.5 mm
+behind the aperture by an affine sight-radius transfer. Adopted **85 ±25 mm**,
+replacing 75 mm. The pupil is hidden; this is an inferred plane, not a direct
+anatomical measurement. `eye-weld.jpg` identifies that limitation. The main
+eye view uses a 20-mm presentation lens from `Socket_Eye`; the separate
+40-mm macro inspects the centered post without changing camera position.
+The shooter's oblique shows the corrected cover, sight, handle and belt.
+
+Opened all nineteen final strip sheets as well as the seven-frame belt
+sequence. The long reloads retain their lift/remove/replace/close order; the
+new box mouth and finite cover clear through the sampled motion. The strips
+are dark Workbench motion evidence, not material judgments. WebP durations
+are verified by metadata; viewing strip sheets does not claim continuous
+collision proof or real-time playback assessment.
+
+Final rebuild: `make -C guns/lmg` passes, logged in the worktree-local
+`build/lmg-round2/make-final14.log`. The subsequent explicit
+`make -C guns/lmg check` passes in
+`build/lmg-round2/check-after-final.log`: 1,529 source and 1,556 fresh-import
+poses, every 60-Hz clip frame plus authored keys/endpoints, zero violations.
+Import includes extra nearly duplicate float key times; there are no skipped
+integer frames. Maximum ordinary penetration is 0.1666 mm under the 0.2-mm
+limit; named splay shoes reach 0.2804 mm under their existing 0.4-mm limit.
+Pair-relative caching only removes duplicate solid tests.
+
+The ready bolt's inert witness seats on a supported fixed witness at all
+ready endpoints with measured zero gap, and separates 79.99998 mm at the
+forward-empty endpoint. This is a visual seat, not an engineered sear.
+Twenty-seven fresh-import contact rows pass, including the negative seat
+check; the lifted-land regression and three belt tests pass. All sixteen
+single cuffs fit their next round at the measured Idle pose within 0.000032
+mm. The fifteen neighboring interleavings and recovered 3/3-mm axial gaps
+are shown by actual imported triangles in `link-interleaving-section.jpg`.
+The accepted belt guide and its 0.087264-mm half-frame spacing bound remain.
+
+Final allocation: **47,640 / 48,000** evaluated scene triangles; **one**
+untextured inspection material; **3,958,128-byte** GLB; 64 bones, twelve
+sockets, nineteen clips. The current README lists triangles by part group
+and all five standalone sizes. Two round owners and three link owners at
+the hidden box end have no mesh; seventeen rounds and sixteen links retain
+one shared mesh each. Fine detail is retained in source geometry for the
+later bake. No cartridge, case or link source shape changed this round.
+
+`build/presentation.json` verifies current GLB hashes for 22 main stills,
+ten pairs, five standalone stills, seven feed frames and nineteen strips.
+The final image index is `renders/checkpoint/contact-sheet.jpg` with four
+`review-page-*.jpg` pages. Stock rulers, eye evidence, twelve imported
+sections, and the two-link section are included. No look-dev or docs JPGs
+were created. Only `guns/lmg/` changed; kit/common code is unchanged. No
+additional tool or approval is needed. The local contact regression remains
+a possible separately tested kit contribution.

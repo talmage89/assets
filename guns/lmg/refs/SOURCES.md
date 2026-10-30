@@ -23,3 +23,37 @@ Images/PDFs only, ignored locally. Looking and visual comparison only: never tex
 | aim_prone.jpg | https://upload.wikimedia.org/wikipedia/commons/5/50/2022_GDF_M249_%281%29.jpg | Staff Sgt. Victor Everhart / US Army | US federal public domain | Candidate cheek-weld and sight relation; form only. |
 
 Public manufacturer [class overview](https://fnherstal.com/en/defence/portable-weapons/fn-minimi-556-mk3/) confirms a 465 mm long-barrel option and a fixed-stock variant. Modern furniture differs from the older fixed-stock photographs. [1988 primary period publication](https://www.benning.army.mil/infantry/magazine/issues/1988/SEP-OCT/pdfs/SEP-OCT1988.pdf) reports a 40.87-inch overall envelope (1038.1 mm); period barrel figure differs from the selected 465 mm class variant. Mass varies by configuration and is not measured by this visual mesh.
+
+
+## Form round 2 additions
+
+These are photographs of real objects, for visual measurement only. Rights-reserved
+photographs stay ignored and are never copied into the asset or final docs.
+
+| File | Direct URL | Author | License | Use / neutral |
+| --- | --- | --- | --- | --- |
+| cover_parts.jpg | https://www.sturmgewehr.com/forums/uploads/monthly_2016_06/5765f377f2a65_M249TopCover1.jpg.9a9c3296ca0973c08470a763c48caa7f.jpg | Forum contributor 762x51, June 2016 | No reuse license stated; comparison only | Exterior pressed cover and sight housing. Cardboard is not a neutral. |
+| cover_tray.jpg | https://www.sturmgewehr.com/forums/uploads/monthly_2016_06/5765f37998dcf_M249TopCover2.jpg.5b41e8b8ed0dc71ee9c2e91dcf950bda.jpg | Forum contributor 762x51, June 2016 | No reuse license stated; comparison only | Underside arm silhouette and formed tray; no operative cam geometry copied. |
+| cover_close.jpg | https://assets.gunspot.com/listing-photos/2023/08/10/13/56/IMG_8432.jpg | Seller photograph; photographer uncredited | No reuse license stated; comparison only | Sharp open cover and tray, 2538 × 3384 original. White backdrop estimated neutral. |
+| sight.jpg | https://cdn11.bigcommerce.com/s-817fb/images/stencil/original/products/4835/60542/IMG_9030__99479.1669820277.jpg?c=2 | BRP Corp product photograph | No reuse license stated; comparison only | 2807 × 2461 rear sight, aperture and thin pierced ears. Red textile is not a neutral. |
+| box_molded.png | https://fnestore.com/images/thumbs/0000724_m249-m249s-200-ammo-box-with-500-m27-links.png | Manufacturer product photograph | Copyright manufacturer; comparison only | Molded bin corner radii, rim, catch and mounting clip. Transparent background; no neutral. |
+| weld.jpg | https://upload.wikimedia.org/wikipedia/commons/7/77/Marine_M249_Fire.jpg | Pfc. Chokechai Vayavananda / US Marine Corps, 20 July 2006 | US federal public domain | Rejected eye-distance candidate: hat hides the entire aiming eye. Useful for hand support only. No color measurement. |
+| weld_fixed.jpg | https://upload.wikimedia.org/wikipedia/commons/5/59/M249_FN_MINIMI_DM-ST-91-11997.jpg | SSGT J. R. Ruark / US Marine Corps, 6 December 1990 | US federal public domain | Rejected cheek candidate: tubular stock and pupil hidden by hat. No measurement transferred. |
+
+| File | Direct URL | Author | License | Use / neutral |
+| --- | --- | --- | --- | --- |
+| weld_brazil.jpg | https://upload.wikimedia.org/wikipedia/commons/6/65/Posi%C3%A7%C3%A3o_de_metralhadora_%2822833358128%29.jpg | manobraescolar DECEx / Brazilian Army | CC0 1.0, Commons Flickr review | Rejected pupil/eye-distance candidate: helmet hides eye. Fixed polymer stock and cheek contour only. |
+| weld_slovenia.jpg | https://upload.wikimedia.org/wikipedia/commons/b/bb/Slovenian_soldier_with_FN_Minimi.jpg | Bruno Toič / Slovenian Ministry of Defence | CC BY 3.0, Commons VRT-reviewed | Rejected cheek candidate: not aiming and an optic. |
+| weld_civilian.jpg | https://cowboystatedaily.imgix.net/machine-gun-3-2-26.jpg?w=3840 | US Marine Corps / James Frank handout, 29 March 2010; distributed by Reuters/Getty | Reuse license not asserted for this distribution; comparison only | Supported fixed-stock cheek weld and iron-sight eye plane. Eyewear hides pupil; ±25 mm. No color or material sample. No identity retained in committed asset files. |
+
+The last image is an official USMC handout (29 March 2010), photographer
+Gunnery Sgt. James Frank; federal public-domain provenance was independently
+confirmed in the Commons record. The downloaded distribution remains comparison
+only. It supplies a visible cheek/hand relationship and an estimated eye plane behind
+spectacles, not a directly measurable pupil. `src/reference_measures.py` records
+the native pixel observations and the limit of the affine sight-radius transfer.
+The published class manual `overview.pdf`, chapter 6, supports the use of a
+consistent cheek station and permits the support hand as a reference. It gives
+no unique anatomical eye relief. Its chapter 4 specifies an adjustable bipod;
+no individual retracted/extended leg length was found in the primary sources.
+Photo-derived leg lengths are therefore kept separate from published data.

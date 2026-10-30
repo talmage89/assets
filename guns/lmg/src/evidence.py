@@ -24,7 +24,7 @@ for group, path in groups.items():
         assert record['sha256'] == hashes[source], (group, name, 'stale GLB')
         assert (path.parent / (name + '.png')).exists(), (group, name, 'missing image')
     counts[group] = len(records)
-assert counts['main'] == 20 and counts['photo_pairs'] == 5 and counts['belt_advance'] == 7
+assert counts['main'] == 22 and counts['photo_pairs'] == 10 and counts['belt_advance'] == 7
 timing = json.loads((out / 'strips/timing.json').read_text())
 assert set(timing) == set(CLIPS)
 for name, record in timing.items():
