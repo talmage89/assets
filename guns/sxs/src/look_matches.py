@@ -259,10 +259,10 @@ PHOTOS['deep_blue']=dict(file='look-field-4.jpg',width=1400,angle=0,
  neutral_name='uncolored rubbed steel at the bottom of the guard bow; estimated neutral, clipped white cutout excluded')
 FINISHES['barrels_deep_blue']=dict(photo='deep_blue',shot='look_deep_blue',
  parts=['Barrel_R','Barrel_L'],polygons=[[(83,444),(835,437),(835,459),(83,460)]],crop=(74,428,846,468))
-SHOTS['look_deep_blue']=dict(location=(-3.0,.24,.62),target=(0,.235,0),lens=82,
+SHOTS['look_deep_blue']=dict(location=(-3.0,.24,.04),target=(0,.235,0),lens=82,
  aspect=850/100,action='Idle',frame=0,exposure=-.15,background='transparent',
  look_light=[((-.65,.24,.40),10.0,1.8,.05),((-.75,.24,-.20),.5,1.5,.70)],
- light_target=(0,.35,.04),look_world=.90,look_paper=(.9,.9,.9),look_paper_x=.06,
+ light_target=(0,.35,.04),look_world=.98,look_paper=(.9,.9,.9),look_paper_x=.06,
  look_reflection_card=dict(location=(-.25,.45,.10),size=(.002,.80,.10),color=(.20,.20,.20)))
 _original_definitions=definitions
 
@@ -271,7 +271,7 @@ def definitions():
  rows=_original_definitions()
  rows['look_deep_blue']=dict(photo=str(BASE/'build/look-photos/deep_blue.png'),crop=(40,405,890,505),
   title='Used field gun with retained deep bluing / full barrel length',
-  fit_location=(-3.0,.24,.62),fit_target=(0,.235,0),fit_lens=82,
+  fit_location=(-3.0,.24,.04),fit_target=(0,.235,0),fit_lens=82,
   landmarks=[L((-12.6,115,57.35),(835,436)),L((-10.9,775.4,54.6),(82,443)),
    L((0,-299,-5),(1297,497)),L((0,-299,-117),(1290,631)),L((-25.95,170,19),(787,477))])
  return rows
@@ -287,7 +287,7 @@ for _name,_note in {
  'guard':"The accepted guard's broad inner land reflects the gray field; the photographed thin rounded edge catches a white strip. The yellow overlay and full histogram show too little bright area. A low-light trial improved this guard but overlit both triggers; the joint rig was rejected.",
  'walnut_stock':"The photo's low decile covers its checked wrist and lower butt, with a warmer broad oil highlight. Ours has a smaller straight-hand checker field. Retain every planed land, dark vessel and cut valley in the full-part test; no selected wood patch substitutes for it.",
  'walnut_forend':"The whole visible splinter, bare edges and checker field are included. Individual tips survive in our delivered normal; the photo's handled points are broader. Read median and tails together with source/export loss and the separate native 2D wear pair.",
- 'brass_bead':'The full accepted bead includes its exposed cylindrical stem and shadowed underside; the photo bead sits almost flush on the rib. The cyan overlay identifies this extra dark area. It remains included in P10 rather than masking the stem away.',
+ 'brass_bead':'The complete round Front_Bead is measured, including its shadowed lower hemisphere. Its separate raised foot remains visible in context; the photographed bead sits almost flush on the rib. No dark bead pixels are omitted. A physical front fill, below the bead center, is identical in source and export.',
  'barrels_deep_blue':'This second used gun retains blue-black oxide along its tubes. Whole visible barrels are retained, with an estimated rubbed-steel neutral and disclosed narrow photographic cross-section resolution. The native photograph is 2560 pixels wide; no sharper upload was available.',
 }.items():
  FINISHES[_name]['residual_note']=_note
@@ -299,6 +299,8 @@ SHOTS['look_macro']['look_strips']=[dict(name='inner bow',location=(-.040,.060,-
  power=.26,size=(.14,.001),target=(.003,.060,-.030))]
 SHOTS['look_macro']['look_flags']=[dict(name='slit upper barn door',
  location=(-.020,.060,.0065),size=(.001,.18,.040))]
+SHOTS['look_muzzle']['look_strips']=[dict(name='muzzle front lower fill',
+ location=(.04,.82,.052),power=.04,size=(.06,.06),target=(0,.766,.0547))]
 FINISHES['guard']['residual_note']="The accepted broad inner land and the photograph's thin rounded edge remain distinct. Intact polished blue, satin filed edges and the bright contact core share one estimated rig; the same physical slit/barn door is present in source and export. Any remaining tail or peak miss stays in the whole-part table above."
 FINISHES['barrels']['role']='supplementary older gray-use context'
 FINISHES['barrels_deep_blue']['role']='primary retained rust-blue finish'
