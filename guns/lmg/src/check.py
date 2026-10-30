@@ -74,9 +74,19 @@ def surface_gap(a,b):
 
 def contacts(arm):
  rows=[]
- for clip,frame,a,b,limit in [('Idle',0,'CoverLatch_Tongue','CoverLatch_Seat',.0003),('Idle',0,'Box_Latch','Box_LatchSeat',.0003),('Idle',0,'Box_Suspension','Box_LatchSeat',.0004),*[('BipodDeploy',84,'Bipod_Detent_'+x,'Bipod_Extension_'+x,.00025) for x in ('L','R')],('Idle',0,'FeedTray_VisualStop','Belt_Round_00',.0003),*[('Idle',0,'FeedPawl_Display_'+str(y),'Belt_Round_01',.0003) for y in (149,182)]]:
+ for clip,frame,a,b,limit in [('Idle',0,'Bolt_ReadyWitness','Sear_VisualWitness',.00005),*[('Idle',0,'Sear_VisualWitness','Receiver_InnerGuide_'+str(side),.00005) for side in (-1,1)],('Idle',0,'CoverLatch_Tongue','CoverLatch_Seat',.0003),('Idle',0,'Box_Latch','Box_LatchSeat',.0003),('Idle',0,'Box_Suspension','Box_LatchSeat',.0004),*[('BipodDeploy',84,'Bipod_Detent_'+x,'Bipod_Extension_'+x,.00025) for x in ('L','R')],('Idle',0,'FeedTray_VisualStop','Belt_Round_00',.0003),*[('Idle',0,'FeedPawl_Display_'+str(y),'Belt_Round_01',.0003) for y in (149,182)]]:
   W.pose(arm,clip,frame);gap,method=surface_gap(bpy.data.objects[a],bpy.data.objects[b])
   rows.append(dict(clip=clip,frame=frame,parts=[a,b],surface_gap_mm=gap*1000,method=method,limit_mm=limit*1000,passed=gap<=limit))
+ # Every ready clip endpoint seats the inert visual witness on its stop.
+ for clip,spec in interface.CLIPS.items():
+  if interface.STATES[spec['end']]['action']!='rear':continue
+  frame=spec['frames'];W.pose(arm,clip,frame)
+  gap,method=surface_gap(bpy.data.objects['Bolt_ReadyWitness'],bpy.data.objects['Sear_VisualWitness'])
+  rows.append(dict(clip=clip,frame=frame,parts=['Bolt_ReadyWitness','Sear_VisualWitness'],surface_gap_mm=gap*1000,method=method,limit_mm=.05,passed=gap<=.00005))
+ W.pose(arm,'FireLast',interface.CLIPS['FireLast']['frames'])
+ gap,_=surface_gap(bpy.data.objects['Bolt_ReadyWitness'],bpy.data.objects['Sear_VisualWitness'])
+ assert gap>.075,('Forward empty pose must leave the ready witness',gap)
+ rows.append(dict(clip='FireLast',frame=interface.CLIPS['FireLast']['frames'],parts=['Bolt_ReadyWitness','Sear_VisualWitness'],surface_gap_mm=gap*1000,required_separation_mm=75,comparison='>',kind='forward-empty negative seating check',passed=gap>.075))
  return rows
 
 def main():
@@ -89,7 +99,7 @@ def main():
  if a.motion:
   # No wildcard waivers. Bounded visual sleeves and intended seats only.
   allow=ALLOW
-  out['motion']=motion.sweep_clips(arm,list(interface.CLIPS),step_frames=2,tolerance_m=.0002,allow=allow)
+  out['motion']=motion.sweep_clips(arm,list(interface.CLIPS),step_frames=1,tolerance_m=.0002,allow=allow)
   out['passed'] &= out['motion']['passed']
  Path(a.out).write_text(json.dumps(out,indent=2));print('CHECK',g,b['max_spacing_error_mm'],c,out['passed'])
  assert out['passed'],'See '+a.out

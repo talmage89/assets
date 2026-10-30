@@ -24,6 +24,7 @@ def main():
   W.pose(arm,n,f);surface[n,f]=V.surface_points(meshes(arm))
  raw=GLB(BASE/'build/lmg.glb');normal=V.normal_direction(raw)
  assert {a['name'] for a in raw.json['animations']}==set(interface.CLIPS)
+ assert len(raw.json['materials'])==1,'One checkpoint material required'
  assert not raw.json.get('images'),'Unbaked checkpoint must not imply final textures'
  durations={}
  for a in raw.json['animations']:
@@ -42,12 +43,12 @@ def main():
  # Different displayed belt owners must actually move their own mesh, not just
  # their bone: this detects shared-deform-data ownership corruption.
  W.pose(arm,'Idle',0);centers=[]
- for i in range(19):
+ for i in range(17):
   o=next(o for o in meshes(arm) if o.name.startswith(f'Belt_Round_{i:02d}'))
   lo,hi=bounds(o);centers.append((lo+hi)/2)
  assert min(np.linalg.norm(b-a) for a,b in zip(centers,centers[1:]))>.010
  fit=contacts(arm)
- swept=motion.sweep_clips(arm,list(interface.CLIPS),step_frames=2,tolerance_m=.0002,allow=ALLOW)
+ swept=motion.sweep_clips(arm,list(interface.CLIPS),step_frames=1,tolerance_m=.0002,allow=ALLOW)
  r=dict(passed=swept['passed'] and all(x['passed'] for x in fit),imported_contacts=fit,imported_motion=swept,scope='Serialization only; geometric fit is separate',
   normal_direction=normal,durations_s=durations,affine_samples=len(affine),
   max_position_delta_m=max(v['position_delta_m'] for v in affine),

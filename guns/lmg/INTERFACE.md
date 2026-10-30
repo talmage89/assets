@@ -52,7 +52,9 @@ the saved time. Never jump to Idle while the cover is open or box is absent.
 advance in display spacings. `src/belt.py` provides a pure-Python solver and
 count masking; apply its poses to BeltRoot, BeltLink00…18 and BeltRound00…18.
 Every round is a child of its link owner. The underlying round and link mesh
-data are reused. All cartridge axes remain parallel to +Y. Equal chord
+data are reused. Seventeen round meshes and sixteen link meshes are retained;
+the last two round owners and last three link owners have no geometry. The
+64-bone rig and 19-clip contract stay intact. All cartridge axes remain parallel to +Y. Equal chord
 lengths keep the rig's center spacing constant at solved frames; interpolation
 error is measured separately. The curve is an authored hanging guide, not a
 physical chain solver or a measured link engineering specification.
@@ -70,14 +72,16 @@ consumer must occlude the box-end recycling region. The authored clips remain
 a finite demonstration; this helper is not a runtime-engine integration test. Source/import spacing evidence records
 its practical limits.
 
-A cartridge/chamber display handoff and ejection event are visual effects;
-no bolt-lug, firing pin, sear or operative feed-cam mesh is provided. Sear
-contact cannot be certified by this asset. Cover/box seating and visible
+A cartridge/chamber display handoff and ejection event are visual effects.
+Two inert rectangular ready witnesses now prove the rearward animation seat
+on evaluated surfaces at every ready clip endpoint. They are not a working
+sear; no bolt lugs, firing pin or operative feed cam is provided. Cover/box seating and visible
 motion are checked separately from export serialization.
 
 ## Delivery gate
 
-Current GLBs in `build/` carry inspection constants, with no textures or
+Current GLBs in `build/` carry one inspection material with the original
+inspection colors in vertex attributes, with no textures or
 production-delivery claim. Final look-dev will use the kit atlas/export path:
 one canonical 2048 set, plus loaded/empty boxes at lossless 1024 and individual
 cartridge/case/link subsets at 512 through `texture_size`. Packing must fail

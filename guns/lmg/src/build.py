@@ -24,7 +24,7 @@ for i in range(COUNT):
  HEADS[f'BeltLink{i:02d}']=(0,145,124);HEADS[f'BeltRound{i:02d}']=(0,145,124)
  PARENTS[f'BeltLink{i:02d}']='BeltRoot';PARENTS[f'BeltRound{i:02d}']=f'BeltLink{i:02d}'
 SOCKETS={'Socket_Muzzle':(0,710,105),'Socket_Foregrip':(-26,344,62),'Socket_Butt':(0,-330,47),
- 'Socket_Eye':(0,-97.5,176),'Socket_Ejection':(26,150,91),'Socket_MagWell':(0,164,53),
+ 'Socket_Eye':(0,-107.5,176),'Socket_Ejection':(26,150,91),'Socket_MagWell':(0,164,53),
  'Socket_Magazine':HEADS['Magazine'],'Socket_ChargingHandle':(49,190,83),
  'Socket_BeltEntry':(0,145,124),'Socket_LinkEjection':(28,200,112),
  'Socket_FeedCover':(0,-40,144),'Socket_BoxMouth':(-55,145,39)}
@@ -36,6 +36,13 @@ def triangulate(o):
  bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=.0001)
  bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=.0001)
  bmesh.ops.delete(bm,geom=[v for v in bm.verts if not v.link_faces],context='VERTS')
+ # The ejection-port Boolean can leave one triangular tangency opening where
+ # it meets the pressed rib. Close that measured three-edge boundary only.
+ if o.name=='Receiver_Sheet':
+  boundary=[e for e in bm.edges if e.is_boundary]
+  if boundary:
+   assert len(boundary)==3,('Unexpected receiver opening',len(boundary))
+   bmesh.ops.holes_fill(bm,edges=boundary,sides=3)
  bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(o.data);bm.free()
  t=o.modifiers.new('Checkpoint triangles','TRIANGULATE');t.keep_custom_normals=True;M.apply(o)
  ns=[n.vector.copy() for n in o.data.corner_normals]
@@ -44,6 +51,30 @@ def triangulate(o):
    if ns[j].dot(f.normal)<.05:ns[j]=f.normal.copy()
  o.data.normals_split_custom_set(ns)
  o.data.transform(Matrix.Scale(.001,4));o.matrix_world=Matrix.Identity(4)
+
+def inspection_palette(parts):
+ """One untextured material; existing part colors are inspection vertex colors.
+
+ This is a form aid, not a finish shader or a substitute for the later atlas.
+ """
+ mat=bpy.data.materials.get('Inspection_Form')
+ if mat is None:
+  mat=bpy.data.materials.new('Inspection_Form');mat.use_nodes=True
+  node=mat.node_tree.nodes.new('ShaderNodeVertexColor');node.layer_name='InspectionColor'
+  bsdf=mat.node_tree.nodes['Principled BSDF']
+  mat.node_tree.links.new(node.outputs['Color'],bsdf.inputs['Base Color'])
+  bsdf.inputs['Roughness'].default_value=.52;bsdf.inputs['Metallic'].default_value=.25
+ seen=set()
+ for ob in parts:
+  if ob.data.as_pointer() in seen:continue
+  seen.add(ob.data.as_pointer())
+  colors=ob.data.color_attributes.new(name='InspectionColor',type='FLOAT_COLOR',domain='CORNER')
+  for face in ob.data.polygons:
+   original=ob.data.materials[face.material_index]
+   color=original.diffuse_color
+   for loop in face.loop_indices:colors.data[loop].color=color
+   face.material_index=0
+  ob.data.materials.clear();ob.data.materials.append(mat)
 
 def ammo():
  base=len(G.PARTS)
@@ -74,23 +105,45 @@ def main():
  bpy.ops.wm.read_factory_settings(use_empty=True);G.palette()
  for f in (G.receiver,G.feed,G.sights_barrel,G.furniture,G.bipod,G.ammo_box,ammo):f()
  for o in G.PARTS:
-  if o.name.startswith('Bipod_Foot_'):o.data.transform(Matrix.Translation((0,10,0)))
   if o.name.startswith('Box_') and o.name not in ('Box_Suspension','Box_Latch','Box_LatchSeat'):
    o.data.transform(Matrix.Translation((0,0,43)))
  # Flat shield lands and covered surfaces do not warrant dense triangles.
  for o in G.PARTS:
-  target={'HeatShield':700,'Stock_Sculpt':2200,'Handguard_Sculpt':2250,
-   'PistolGrip_Sculpt':1600,'Receiver_Sheet':1700,'FlashHider':700,
-   'SideWell_Housing':400,'FeedCover_Shell':850,'Barrel_Exterior':700,
-   'TriggerGuard_Band':500,'CarryHandle_Grip':600,'ChargingHandle_Paddle':500,
-   'FrontSight_Tower':450}.get(o.name)
+  target={'HeatShield':700,'Stock_Sculpt':2400,'Handguard_Sculpt':2050,
+   'PistolGrip_Sculpt':1000,'Receiver_Sheet':1900,'FlashHider':700,
+   'SideWell_Housing':400,'FeedCover_Shell':800,'Barrel_Exterior':520,
+   'TriggerGuard_Band':360,'CarryHandle_Grip':420,'ChargingHandle_Paddle':500,
+   'FrontSight_Tower':360}.get(o.name)
+  # Invisible box-end display owners retain their rig paths without mesh.
+  # On withdrawal, the represented belt ends at round 16; no hidden rounds ship.
+  if (o.name.startswith('Belt_Link_') and int(o.name[-2:])>=16) or (o.name.startswith('Belt_Round_') and int(o.name[-2:])>=17):
+   continue
   if target:G.reduce(o,target)
+  allocation={'Receiver_UpperPress':96,'RearSight_Stem':120,'Receiver_RearDoubler':170,'Receiver_FrontCollar':350,
+   'RearSight_Ear':350,'Box_Lid':650,'Box_LidCatch':140,'Box_AttachmentClip':150,
+   'Box_EndRib':65,'Handguard_MoldRib':70,'FeedCover_SidePress':130,
+   'FeedCover_PressedBead':120,'FeedCover_Fastener':32,'FeedCover_PawlCarrier':100,
+   'FeedTray_FeedLip':130,'FeedTray_Guide':90,'Bipod_Yoke':210,
+   'BarrelSeat':288,'BarrelCollar':288,'GasTube':192,'Trigger_Blade':360,
+   'Buttpad':270,'SideWell_Housing':300,'SideWell_ThumbTab':120}
+  for prefix,limit in sorted(allocation.items(),key=lambda item:-len(item[0])):
+   if o.name.startswith(prefix):
+    # Keep the manufactured source for the authorized later normal bake.
+    h=o.copy();h.data=o.data.copy();h.name='HIGH_'+o.name
+    h['low_target']=o.name;h['bake_only']=True
+    bpy.context.collection.objects.link(h);G.HIGH.append(h)
+    G.reduce(o,limit);break
+ # Remove only the box-end geometry with no visible contribution. All 64 bones remain.
+ for o in list(G.PARTS):
+  if (o.name.startswith('Belt_Link_') and int(o.name[-2:])>=16) or (o.name.startswith('Belt_Round_') and int(o.name[-2:])>=17):
+   G.PARTS.remove(o);bpy.data.objects.remove(o,do_unlink=True)
  # Apply geometric work once per shared block, preserving round/link reuse.
  seen={}
  for o in G.PARTS:
   key=o.data.as_pointer()
   if key in seen:o.data=seen[key]
   else:triangulate(o);seen[key]=o.data
+ inspection_palette(G.PARTS)
  high=bpy.data.collections.new('High_Sources');bpy.context.scene.collection.children.link(high)
  for o in G.HIGH:
   o.data.transform(Matrix.Scale(.001,4))
@@ -127,6 +180,7 @@ def main():
   else:cartridge(G.lathe,name,(0,0,0),'Root',fired=fired,sides=32)
   pieces=G.PARTS[before:]
   for o in pieces:triangulate(o)
+  inspection_palette(pieces)
   ob=W.joined_copy(pieces,name.title());ob.parent=None
   W.export(out.parent/(name+'.glb'),[ob],animations=False)
   report['standalones'][name]=dict(triangles=len(ob.data.polygons),bytes=(out.parent/(name+'.glb')).stat().st_size)

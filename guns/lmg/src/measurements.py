@@ -22,7 +22,7 @@ for o in bpy.context.scene.objects:
  dg=bpy.context.evaluated_depsgraph_get();ev=o.evaluated_get(dg);me=ev.to_mesh();me.calc_loop_triangles()
  vs=[ev.matrix_world@v.co for v in me.vertices];fs=[t.vertices for t in me.loop_triangles]
  if fs:
-  hit=BVHTree.FromPolygons(vs,fs,all_triangles=True).ray_cast(eye,Vector((0,1,0)),.635)
+  hit=BVHTree.FromPolygons(vs,fs,all_triangles=True).ray_cast(eye,Vector((0,1,0)),float(post[1][1]-eye.y+.001))
   if hit[0] is not None:hits.append(dict(part=o.name,distance_mm=hit[3]*1000,hit_mm=[v*1000 for v in hit[0]]))
  ev.to_mesh_clear()
 comb=bpy.data.objects['Stock_Sculpt'];vs,edges,tree=assembly.surface(comb)
@@ -43,5 +43,5 @@ result=dict(exterior=rows,relations_mm=relations,eye_mm=[v*1000 for v in eye],
  eye_behind_actual_rear_rim_mm=(rear[0][1]-eye.y)*1000,
  eye_above_comb_mm=cheek[3]*1000 if cheek[0] is not None else None,
  sight_ray_hits=sorted(hits,key=lambda r:r['distance_mm']),
- limitation='Eye distance is an authored provisional estimate; available aiming candidates use optics or obscure the cheek. Not a measured iron-sight cheek-weld claim.')
+ limitation='Eye is 85 mm behind aperture, transferred from the supported fixed-stock cheek-weld photograph, with approximately 25 mm image/pose uncertainty. Eyewear obscures the pupil; this is a measured photographic station and inferred eye plane, not a precise anatomical fit.')
 (BASE/'build/measurements.json').write_text(json.dumps(result,indent=2));print(json.dumps(result,indent=2))
