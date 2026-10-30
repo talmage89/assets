@@ -12,7 +12,8 @@ def projection(points,shot,width,height):
  az=math.atan2(d[1],d[0]);el=math.atan2(d[2],np.linalg.norm(d[:2]));roll=shot.get('roll',0)
  params=np.array([az,el,*camera,math.log(shot.get('lens',70)),roll])
  if 'ortho' not in shot:return project(params,points,width,height)[:2]
- right=np.cross(d,[0,0,1]);right/=np.linalg.norm(right);up=np.cross(right,d)
+ right=np.cross(d,[0,0,1]);length=np.linalg.norm(right)
+ right=right/length if length>1e-8 else np.array([1.,0.,0.]);up=np.cross(right,d)
  right,up=right*math.cos(roll)+up*math.sin(roll),up*math.cos(roll)-right*math.sin(roll)
  q=points-camera;scale=width/shot['ortho']
  return np.stack([width/2+(q@right)*scale,height/2-(q@up)*scale],axis=1),q@d

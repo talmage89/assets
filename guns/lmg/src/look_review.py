@@ -17,7 +17,7 @@ LUMA=np.array([.2126,.7152,.0722])
 REGIONS={
  'paint_receiver':('used_receiver', [[(414,446),(469,450),(485,509),(807,512),(814,448),(1452,448),(1456,414),(1604,414),(1611,637),(1550,681),(1510,710),(1448,709),(1457,647),(1374,645),(1360,710),(910,723),(841,721),(835,646),(809,646),(797,670),(552,676),(518,645),(514,551),(451,551),(440,656),(423,683),(416,624),(400,541),(359,506)]], 'used_photo', ('Receiver_Sheet','Receiver_Rivet','Receiver_RearDoubler','SideWell_Housing')),
  'paint_cover':('used_receiver', [[(788,327),(1456,319),(1514,390),(797,401)],[(488,321),(777,318),(800,349),(798,392),(520,392),(475,375),(457,349)]], 'used_photo', ('FeedCover_Shell','FeedCover_PressedBead','FeedCover_SidePress')),
- 'barrel_phosphate':('used_right', [[(129,150),(370,204),(377,214),(370,228),(124,173)]], 'used_right_photo', ('Barrel_Exterior','BarrelSeat','BarrelCollar')),
+ 'barrel_phosphate':('used_right', [[(129,150),(370,204),(377,214),(370,228),(124,173)]], 'used_right_photo', ('Barrel_Exterior_Exposed',)),
  'bipod_phosphate':('used_right', [[(422,367),(441,373),(321,699),(333,705),(334,718),(326,730),(302,734),(280,726),(261,715),(254,702),(258,696),(273,698),(302,708),(301,692)],[(443,373),(452,374),(439,527),(428,607),(437,604),(439,614),(435,621),(429,621),(427,630),(438,637),(439,647),(435,654),(429,656),(430,647),(413,643),(392,635),(386,630),(385,624),(389,619),(409,623),(413,535),(422,444)]], 'used_right_photo', ('Bipod_Channel','Bipod_Extension','Bipod_Foot','Bipod_Yoke')),
  'molded_handguard':('used_right', [[(543,255),(568,253),(790,300),(824,318),(850,339),(876,353),(866,430),(616,390),(614,345),(592,329),(547,318)]], 'used_right_photo', ('Handguard_Sculpt','Handguard_MoldRib')),
  'molded_stock':('used_stock', [[(176,1066),(374,1026),(558,929),(814,748),(843,694),(830,626),(826,546),(868,469),(978,329),(1084,205),(1602,529),(1638,593),(1580,674),(1455,802),(1326,962),(1248,1037),(1212,1035),(1150,978),(1095,945),(1029,944),(906,992),(782,1079),(604,1230),(410,1450)]], 'right_photo', ('Stock_Sculpt',)),
@@ -33,6 +33,8 @@ REGIONS['paint_receiver']=('paint_receiver', [[(565,475),(1760,754),(1650,1018),
 photo,polys,_,parts=REGIONS['molded_stock'];REGIONS['molded_stock']=(photo,polys,'stock_finish_photo',parts)
 photo,polys,_,parts=REGIONS['molded_box'];REGIONS['molded_box']=(photo,polys,'box_finish_photo',parts)
 REGIONS['molded_handguard']=('ribbed_handguard', [[(180,1260),(240,1200),(400,1180),(2500,1160),(2590,1210),(2660,1310),(2840,1420),(3080,1480),(3210,1480),(3200,2350),(3100,2440),(1060,2450),(970,2480),(890,2410),(880,2060),(860,1870),(790,1800),(650,1750),(260,1750),(170,1700)]], 'handguard_finish_photo', ('Handguard_Sculpt','Handguard_MoldRib'))
+LEGACY_LINK=REGIONS['steel_links']
+REGIONS['steel_links']=('studio_link', [[(103, 422), (105, 408), (111, 399), (123, 392), (145, 393), (217, 394), (233, 390), (241, 375), (243, 356), (241, 316), (239, 285), (240, 270), (245, 263), (340, 262), (345, 266), (346, 274), (358, 272), (371, 262), (379, 246), (384, 226), (376, 208), (374, 190), (376, 145), (379, 118), (584, 119), (588, 124), (591, 151), (593, 188), (591, 210), (581, 232), (585, 247), (592, 258), (604, 268), (619, 272), (620, 261), (627, 258), (648, 263), (701, 263), (714, 261), (725, 267), (730, 282), (733, 315), (731, 337), (721, 371), (714, 397), (707, 430), (696, 467), (685, 482), (674, 486), (633, 491), (622, 485), (618, 468), (618, 391), (616, 369), (607, 356), (592, 345), (582, 341), (571, 342), (559, 345), (541, 347), (396, 347), (380, 344), (368, 343), (357, 350), (348, 358), (345, 370), (345, 453), (343, 477), (337, 487), (274, 489), (260, 486), (250, 480), (239, 466), (233, 463), (198, 463), (144, 463), (123, 461), (111, 454), (105, 440)]], 'link_finish_photo', ('Belt_Link_00',))
 SITES={
  'receiver':('Receiver_','SideWell_Housing'),
  'cover':('FeedCover_','RearSight_Base'),
@@ -118,7 +120,17 @@ def main():
   row['shipped_roughness_median']=float(np.median(sampled_orm[m,1])/255)
   row['shipped_metallic_median']=float(np.median(sampled_orm[m,2])/255)
   row['shipped_specular_factor_median']=float(np.median(sampled[m,3])/255)
+  if role=='barrel_phosphate':
+   assembly=np.isin(ids,[i+1 for i,n in enumerate(geo['names']) if str(n).startswith(('Barrel_Exterior','BarrelSeat','BarrelCollar'))]);row['full_assembly_diagnostic']=metrics(im[assembly]);row['exposure_note']='Primary comparison is the whole exposed barrel bay beyond the authored front-bay split station Y=.545 m, matching the entire photo outline. Shadowed protected barrel/chamber/collar surfaces absent from that outline remain in full_assembly_diagnostic.'
+   chart('BARREL COVERAGE / assembly includes surfaces absent from photo',im,assembly,ref,pm,dict(render=row['full_assembly_diagnostic'],photo=row['photo'],neutral=row['neutral']),out/'barrel-assembly-diagnostic.jpg')
   values[role]=row;chart(role,im,m,ref,pm,row,out/(role+'-histograms.jpg'))
+ if values and 'steel_links' in values:
+  photo,polys,shot,prefixes=LEGACY_LINK;im=np.asarray(rgb(root/'photos'/(shot+'.png')));h,w=im.shape[:2];geo=np.load(geometry_root/(shot+'.npz'))
+  if shot not in cache:cache[shot]=raster(geo,meta[shot],w,h)
+  ids,_=cache[shot];m=np.isin(ids,[i+1 for i,n in enumerate(geo['names']) if str(n).startswith(prefixes)]);m=np.asarray(Image.fromarray(np.uint8(m)*255).filter(ImageFilter.MinFilter(3)))>0
+  ref=np.asarray(Image.open(BASE/'build/white-balanced'/(photo+'.jpg')).convert('RGB'));pm=polygon_mask((ref.shape[1],ref.shape[0]),polys);pm=np.asarray(Image.fromarray(np.uint8(pm)*255).filter(ImageFilter.MinFilter(3)))>0
+  legacy=dict(render=metrics(im[m]),photo=metrics(ref[pm]),neutral=corrections[photo],sha256=meta[shot]['sha256'],limit='Original range-light comparison retained; studio link photograph is the primary finish target.')
+  (out/'legacy-field-links.json').write_text(json.dumps(legacy,indent=2));chart('LINKS / retained original range-light diagnostic',im,m,ref,pm,legacy,out/'legacy-field-links-histograms.jpg')
  if values:
   (out/'finish-values.json').write_text(json.dumps(values,indent=2))
   sheet(observations,out/'photographic-regions.jpg',columns=3,cell=(600,480))

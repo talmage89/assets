@@ -13,13 +13,14 @@ def capture(path,source,pose_key=None):
   arm=next((o for o in bpy.context.scene.objects if o.type=='ARMATURE'),None)
   if arm and ob.get('bone') and min(abs(v) for v in arm.pose.bones[ob['bone']].matrix.to_scale())<.001:continue
   name=ob.get('part_name',ob.name);ev=ob.evaluated_get(dg);data=ev.to_mesh();data.calc_loop_triangles();layer=data.uv_layers.active
-  ammunition=name.startswith('Belt_Round')
+  ammunition=name.startswith('Belt_Round');barrel=name=='Barrel_Exterior'
   if ammunition:
    base_y=min((ev.matrix_world@v.co).y for v in data.vertices);names.extend([name+'_Case',name+'_Jacket']);case_id=len(names)-1;jacket_id=len(names)
+  elif barrel:names.extend([name+'_Exposed',name+'_Covered']);front_id=len(names)-1;covered_id=len(names)
   else:names.append(name)
   for tri in data.loop_triangles:
    points=[tuple(ev.matrix_world@data.vertices[i].co) for i in tri.vertices]
-   xyz.append(points);uv.append([tuple(layer.data[i].uv) for i in tri.loops]);ids.append((jacket_id if sum(p[1] for p in points)/3-base_y>.0445 else case_id) if ammunition else len(names))
+   xyz.append(points);uv.append([tuple(layer.data[i].uv) for i in tri.loops]);ids.append((jacket_id if sum(p[1] for p in points)/3-base_y>.0445 else case_id) if ammunition else (front_id if sum(p[1] for p in points)/3>=.545 else covered_id) if barrel else len(names))
   ev.to_mesh_clear()
  np.savez_compressed(path,xyz=np.asarray(xyz),uv=np.asarray(uv),ids=np.asarray(ids),names=np.asarray(names),sha256=np.asarray(hashlib.sha256(source.read_bytes()).hexdigest()),pose_key=np.asarray(json.dumps(pose_key,sort_keys=True)))
 
@@ -29,11 +30,16 @@ out=BASE/(sys.argv[sys.argv.index('--out')+1] if '--out' in sys.argv else 'build
 from delivery import split_imported
 V.import_glb(source);split_imported(bpy.context.scene,BASE/'build/delivery/finalized.blend')
 snapshot=BASE/'build/image-import.blend';bpy.ops.wm.save_as_mainfile(filepath=str(snapshot))
+seen=set()
 for folder in folders:
  meta=BASE/folder/'shots.json'
- if not meta.exists():continue
+ assert meta.exists(),('Missing requested render metadata',str(meta))
  for name,shot in json.loads(meta.read_text()).items():
-  if hashlib.sha256(Path(shot['source']).read_bytes()).hexdigest()!=shot['sha256']:continue
+  name=name.split('__')[0]
+  if name in seen:continue
+  seen.add(name)
+  assert Path(shot['source']).resolve()==source.resolve(),(name,'wrong requested GLB')
+  assert hashlib.sha256(source.read_bytes()).hexdigest()==shot['sha256'],(name,'stale render')
   if name in ('scale','aimed','aimed_macro'):continue
   bpy.ops.wm.open_mainfile(filepath=str(snapshot))
   arm=bpy.data.objects['HarrowArmature'];W.pose(arm,shot.get('action','Idle'),shot.get('frame',0))

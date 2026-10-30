@@ -33,6 +33,10 @@ for x in (-.65,-.32):
 def exr(sc,*args):
  sc.render.image_settings.file_format='OPEN_EXR';sc.render.image_settings.color_mode='RGBA';sc.render.image_settings.color_depth='32';sc.render.filepath=str(Path(sc.render.filepath).with_suffix('.exr'))
 B.extend([dict(position=(-.08,.20,.32),size=(.16,.025)),dict(position=(-.16,.20,.40),size=(.20,.04)),dict(position=(-.15,.04,-.19),size=(.35,.30)),dict(position=(-.10,.04,-.12),size=(.15,.14))])
+for x,z in ((.32,.22),(.60,.30),(.32,.30),(.60,.40)):
+ B.append(dict(position=(x,.18,z),size=(.12,.035),target=(0,.16,.145)))
+for x,y,z,size in ((0,.50,-.33,(.5,.4)),(-.18,.50,-.20,(.35,.3)),(.18,.50,-.20,(.35,.3)),(-.12,.62,.23,(.15,.04))):
+ B.append(dict(position=(x,y,z),size=size,target=(0,y,.10)))
 original_prepare=F.prepare_shot
 
 def prepare(scene,shot):
@@ -47,13 +51,18 @@ def prepare(scene,shot):
  b=B[shot['basis_index']]
  if b.get('world'):scene.world.node_tree.nodes['Background'].inputs['Strength'].default_value=1
  else:
-  o=scene.objects['Basis area'];o.data.energy=1;o.data.color=(1,1,1);o.location=b['position'];o.data.size,o.data.size_y=b['size'];o.rotation_euler=(Vector((0,.10,.07))-o.location).to_track_quat('-Z','Y').to_euler()
+  o=scene.objects['Basis area'];o.data.energy=1;o.data.color=(1,1,1);o.location=b['position'];o.data.size,o.data.size_y=b['size'];o.rotation_euler=(Vector(b.get('target',(0,.10,.07)))-o.location).to_track_quat('-Z','Y').to_euler()
  if exr not in bpy.app.handlers.render_pre:bpy.app.handlers.render_pre.append(exr)
 F.prepare_shot=prepare
 matches=camera_shots(BASE/'build/cameras.json');shots={}
 requested=sys.argv[sys.argv.index('--sets')+1].split(',');k=sys.argv.index('--sets');del sys.argv[k:k+2]
+indices=None
+if '--indices' in sys.argv:
+ k=sys.argv.index('--indices');indices={int(v) for v in sys.argv[k+1].split(',')};del sys.argv[k:k+2]
 for name in requested:
- for i,b in enumerate(B):shots[name+'__'+str(i)]=dict(matches[name],**F.PHOTO_POSES[name],basis_index=i)
+ for i,b in enumerate(B):
+  if indices is not None and i not in indices:continue
+  shots[name+'__'+str(i)]=dict(matches[name],**F.PHOTO_POSES[name],basis_index=i)
 F.SHOTS=shots;F.DEFAULT_SHOTS=','.join(shots)
 main(F,interface)
 out=Path(sys.argv[sys.argv.index('--out')+1]);(out/'bases.json').write_text(json.dumps(B,indent=2))

@@ -93,3 +93,9 @@ MATCHES['box_finish_photo']=dict(title='Used molded box / same flank, end and pa
 MATCHES['handguard_finish_photo']=dict(title='Used ribbed molding / matching finish and diffuse concrete studio',photo=str(BASE/'build/white-balanced/ribbed_handguard.jpg'),crop=(80,1070,3300,2530),
  location=(.9,.36,.13),target=(0,.36,.07),lens=85,lens_bounds_mm=(60,160),camera_height_m=(.13,.01),
  landmarks=[L((30,245,99),(220,1200)),L((30,483,96),(3200,1480)),L((30,483,40),(3200,2350)),L((30,270,40),(900,2410))])
+
+# Whole original link under a matching studio camera; the accepted decorative
+# cuff design differs from the real reference, which is finish evidence only.
+MATCHES['link_finish_photo']=dict(title='Blackened steel link / studio paper neutral',photo=str(BASE/'build/white-balanced/studio_link.jpg'),crop=(0,0,906,645),
+ location=(.080,.1625,.169),target=(-.005,.1625,.123),lens=125,lens_bounds_mm=(70,160),
+ landmarks=[L((-8.05,160,127.3),(375,119)),L((-8.05,165,127.3),(591,119)),L((4.75,153,127.3),(240,265)),L((4.75,157,127.3),(344,265)),L((4.75,168,127.3),(621,265)),L((4.75,172,127.3),(731,265)),L((0,153,118.2),(239,487)),L((0,172,118.2),(730,491))])

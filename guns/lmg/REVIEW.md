@@ -953,3 +953,56 @@ input is unchanged. The denser light fit fixes the tail without darkening its
 base color or adjusting the rendered image. Freeze these parameters for the
 canonical before/after run; keep the hem/cylinder highlight-width limitation
 explicit in its profile pair.
+
+
+## Look round 2 — pass 34, reject the field-frame link inconsistency
+
+Color/value first: explicitly measured the retained original field-link
+comparison after fitting accepted brass/copper: links became 97/151/189 versus
+46/102/175, despite matching their separate studio target. This is not a
+coherent explanation of that field frame. Keep the primary studio-link pair,
+and constrain the same field rig with all three finishes together. Do not
+change the accepted ammunition or hide this diagnostic by replacing its photo.
+This is a lighting refinement only; the canonical material bake stays frozen.
+If a conflict remains, retain its numbers and evidence rather than claiming a
+match from the independent studio photograph alone.
+
+
+## Look round 2 — pass 35, align fitting and acceptance masks
+
+Color/value first: native joint-field check is brass 96/172/235 versus
+91/165/251, links 47/107/157 versus 46/102/175, but copper median 203 versus
+177 still fails. The actual complete-part acceptance caught a fitting bug:
+its guidance mask used whole rounds for both case and jacket, while the
+acceptance correctly separates their actual triangles. Correct the guidance
+mask to use the identical case/jacket suffixes, increase its sample density,
+and refit the shared field rig. Never change the acceptance mask to agree
+with the inaccurate prediction. Accepted cartridge materials remain fixed.
+
+Native turnaround review also found the inherited front camera cutting off
+the bottom of the box. Actual imported projected bounds exceeded the frame
+by 63 px. Recenter and enlarge that camera only; keep all accepted geometry,
+poses and Eye optics. Rerender the native front view, then regenerate the canonical studio and
+photographic targets through their normal Make recipes. Correct the review
+projection's exactly-vertical orthographic basis so the top framing can also
+be checked without NaNs. These are presentation/audit changes, not gun changes.
+
+
+## Look round 2 — pass 36, coherent native field rig accepted
+
+Color/value first: opened the corrected native field render. Brass is
+92/167/237 versus 91/165/251, H 248/245/232 versus 253/250/225. Copper/green
+tips are 105/184/246 versus 108/177/255, H 249/245/236 versus 254/252/245.
+Links in that same frame are 47/104/176 versus 46/102/175, H 177/189/189
+versus 188/195/190. All three meet the requested value/highlight limits.
+Accepted cartridge materials were never changed. The primary studio-link
+observation and the original field observation both remain in the final
+before/after report. Freeze this shared rig; regenerate canonical studio and
+photo/source-photo targets through Make so their metadata all records it.
+
+Opened both native receiver on/off sheets and crops. Its material footprint
+is 5.122% versus 5.222% apparent photo wear. Actual hero-visible footprint is
+4.813%; 1,460 receiver pixels change by at least four RGB levels (1,538 in the
+reverse hero). The long return/rail marks are visible, not inferred merely
+from the presence of a shader mask. The complete checks also pass on this
+frozen export, including the 1,529-pose atlas audit.

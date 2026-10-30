@@ -11,9 +11,13 @@ from final_review import sheet,rgb
 # Evidence-based exceptions belong here, not in the acceptance calculation.
 NOTES={
  'paint_receiver':'The replacement photo has clipped black paint in its lower tail. Zero-valued targets are reported in encoded levels, with no relative-error claim. Its railed cover is outside the measured receiver.',
+ 'barrel_phosphate':'Whole exposed barrel bay in front of the gas block. The previous assembly mask included shadowed protected barrel, chamber and collar surfaces absent from the photo outline; full-assembly diagnostics remain in finish-values.json and the separate coverage pair.',
  'paint_cover':'Accepted original cover construction differs from the photographed front cylindrical pressing. Both complete visible cover distributions include those reflection families.',
  'molded_handguard':'The replacement photograph has the ribbed matte finish we build; the former glossy checkered molding is not a valid finish target.',
  'molded_stock':'Concrete neutral is an estimate. The original accepted stock contour differs; the camera now observes the same flank.',
+ 'steel_links':'Primary target is a studio photograph of a blackened-steel link, balanced on unclipped paper. The original field-belt diagnostic remains beside this comparison; its clipped range highlights are not a studio-light target.',
+ 'brass':'Accepted cartridge material is unchanged. The retained field photo clips bright brass highlights; this is an explicit diagnostic, not an assertion of a studio finish match.',
+ 'copper_green_tip':'Accepted copper jacket and green tip remain unchanged. The retained field photo clips its bright copper highlights; highlight clipping limits interpretation of an exact lighting fit.',
  'molded_box':'Paper in a cast shadow is an estimated neutral; the broad white backdrop is clipped. The camera now observes the same flank and end.',
 }
 
@@ -35,14 +39,30 @@ def main():
  before=json.loads((root/'before/look-review/finish-values.json').read_text());after=json.loads((root/'look-review/finish-values.json').read_text());rows={};entries=[]
  for role,a in after.items():
   b=before[role];assert a['photo_source']==b['photo_source'] and a['photo_polygons']==b['photo_polygons'];test=acceptance(a['render'],a['photo']);rows[role]=dict(before=b['render'],after=a['render'],photo=a['photo'],acceptance=test,note=NOTES.get(role,''),before_sha256=b['sha256'],after_sha256=a['sha256'])
-  canvas=Image.new('RGB',(1800,1860),'#e7e9e6');d=ImageDraw.Draw(canvas)
+  canvas=Image.new('RGB',(1800,1980),'#e7e9e6');d=ImageDraw.Draw(canvas)
   d.text((25,12),role+' / controlled before and after / same camera, lights and white-balanced photo',font=FONT,fill='black')
   canvas.paste(Image.open(root/'before/look-review'/(role+'-histograms.jpg')),(0,45));canvas.paste(Image.open(root/'look-review'/(role+'-histograms.jpg')),(0,900))
   status='WITHIN REQUESTED TOLERANCES' if test['passed'] else 'MISSES REMAIN: '+', '.join([label for label,ok in zip(('P10','median','P90'),test['value_pass']) if not ok]+([] if test['highlight_pass'] else ['highlight RGB']))
   d.text((25,1760),status,font=FONT,fill=(35,90,45) if test['passed'] else (150,45,20))
   for i,line in enumerate(textwrap.wrap(NOTES.get(role,'Whole visible parts; accepted ammunition materials remain unchanged.'),155)):d.text((25,1795+i*23),line,font=SMALL,fill='black')
+  if role=='barrel_phosphate':
+   rows[role]['unmatched_assembly_before']=b['full_assembly_diagnostic'];rows[role]['unmatched_assembly_after']=a['full_assembly_diagnostic']
+   d.text((25,1890),'Unmatched full-assembly V10/50/90: before '+str(np.round(b['full_assembly_diagnostic']['value_p10_p50_p90'],1).tolist())+'; after '+str(np.round(a['full_assembly_diagnostic']['value_p10_p50_p90'],1).tolist()),font=SMALL,fill='black')
   path=out/(role+'-before-after.jpg');canvas.save(path,quality=94);entries.append((role,path))
- (out/'finish-comparison.json').write_text(json.dumps(rows,indent=2));sheet(entries,out/'all-finishes.jpg',columns=3,cell=(600,620))
+ (out/'finish-comparison.json').write_text(json.dumps(rows,indent=2))
+ # Keep the original field-link observation alongside the new studio target.
+ fb=json.loads((root/'before/look-review/legacy-field-links.json').read_text())
+ fa=json.loads((root/'look-review/legacy-field-links.json').read_text())
+ field=dict(before=fb['render'],after=fa['render'],photo=fa['photo'],acceptance=acceptance(fa['render'],fa['photo']),before_sha256=fb['sha256'],after_sha256=fa['sha256'],note='One shared field rig constrains brass, copper/green tips and links together. The studio-link observation remains the primary finish pair.')
+ (out/'field-links-comparison.json').write_text(json.dumps(field,indent=2))
+ canvas=Image.new('RGB',(1800,1980),'#e7e9e6');d=ImageDraw.Draw(canvas)
+ d.text((25,12),'Links / retained original field frame / controlled before and after',font=FONT,fill='black')
+ canvas.paste(Image.open(root/'before/look-review/legacy-field-links-histograms.jpg'),(0,45))
+ canvas.paste(Image.open(root/'look-review/legacy-field-links-histograms.jpg'),(0,900))
+ d.text((25,1760),'WITHIN REQUESTED TOLERANCES' if field['acceptance']['passed'] else 'MISSES REMAIN: see field-links-comparison.json',font=FONT,fill='black')
+ for i,line in enumerate(textwrap.wrap(field['note'],155)):d.text((25,1800+i*25),line,font=SMALL,fill='black')
+ path=out/'field-links-before-after.jpg';canvas.save(path,quality=94);entries.append(('Links / original field frame',path))
+ sheet(entries,out/'all-finishes.jpg',columns=3,cell=(600,620))
  # These crops keep the full observed part, with no favorable tiny sample.
  surface=root/'surface-pairs';surface.mkdir(exist_ok=True);surfaces=[]
  for role in ('paint_cover','barrel_phosphate','molded_handguard','molded_grip','molded_stock','molded_box','handle_polymer'):

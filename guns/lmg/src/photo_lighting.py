@@ -19,7 +19,7 @@ def apply(scene,shot):
  for ob in scene.objects:
   if ob.type=='LIGHT':ob.data.energy=0
  background.inputs['Strength'].default_value=fit['world']
- background.inputs['Color'].default_value=(*[.25*c for c in color],1)
+ background.inputs['Color'].default_value=(*[.25*c for c in fit.get('world_color',color)],1)
  for i,card in enumerate(fit['lights']):
   key='Photo reflection card %02d'%i
   ob=scene.objects.get(key)
@@ -27,6 +27,6 @@ def apply(scene,shot):
    data=bpy.data.lights.new(key,'AREA');data.shape='RECTANGLE'
    ob=bpy.data.objects.new(key,data);scene.collection.objects.link(ob)
   ob.hide_render=False;ob.location=card['position'];ob.data.energy=card['power']
-  ob.data.size,ob.data.size_y=card['size'];ob.data.color=color
-  ob.rotation_euler=(Vector((0,.10,.07))-ob.location).to_track_quat('-Z','Y').to_euler()
+  ob.data.size,ob.data.size_y=card['size'];ob.data.color=card.get('color',color)
+  ob.rotation_euler=(Vector(card.get('target',(0,.10,.07)))-ob.location).to_track_quat('-Z','Y').to_euler()
  shot['physical_light_fit']=fit

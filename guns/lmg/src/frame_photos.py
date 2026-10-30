@@ -14,7 +14,7 @@ from final_shots import PHOTO_POSES
 path=BASE/'build/cameras.json';rows=json.loads(path.read_text());proof={}
 V.import_glb(BASE/'export/lmg.glb');split_imported(bpy.context.scene,BASE/'build/delivery/finalized.blend')
 arm=bpy.data.objects['HarrowArmature']
-for name in ('right_photo','left_photo','belt_photo','used_field_photo','used_right_photo','stock_finish_photo','box_finish_photo','handguard_finish_photo'):
+for name in ('right_photo','left_photo','belt_photo','used_field_photo','used_right_photo','stock_finish_photo','box_finish_photo','handguard_finish_photo','link_finish_photo'):
     row=rows[name];shot=row['shot'];pose=PHOTO_POSES[name];W.pose(arm,pose['action'],pose['frame'])
     matrices={b.name:b.matrix_basis.copy() for b in arm.pose.bones}
     for bone,(clip,frame) in pose.get('layers',{}).items():W.pose(arm,clip,frame);matrices[bone]=arm.pose.bones[bone].matrix_basis.copy()

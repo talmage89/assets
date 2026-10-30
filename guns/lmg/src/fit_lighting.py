@@ -5,37 +5,47 @@ import numpy as np
 import OpenImageIO as oiio,PyOpenColorIO as ocio
 from PIL import Image,ImageFilter
 BASE=Path(__file__).resolve().parents[1];sys.path[:0]=[str(BASE.parents[1]),str(BASE/'src')]
-from look_review import REGIONS,metrics,polygon_mask
+from look_review import REGIONS,LEGACY_LINK,metrics,polygon_mask
 from image_masks import raster
 # Whole-view guards stop a favorable barrel fit from washing out the rest.
 REGIONS=dict(REGIONS)
+# The same field frame must explain the accepted cases/jackets and the links.
+REGIONS["field_steel_links"]=LEGACY_LINK
 REGIONS['guard_cover']=('used_right', [[(918,283),(1290,362),(1294,392),(1033,342),(1016,338),(914,313)]], 'used_right_photo', ('FeedCover_Shell','FeedCover_PressedBead','FeedCover_SidePress'))
 REGIONS['guard_grip']=('used_right', [[(1114,503),(1169,516),(1185,592),(1229,658),(1203,680),(1123,684),(1108,660),(1122,625),(1104,555)]], 'used_right_photo', ('PistolGrip_Sculpt','Grip_MoldRib'))
 REGIONS['guard_handle']=('used_right', [[(888,163),(1040,193),(1030,230),(876,201)]], 'used_right_photo', ('CarryHandle_Grip',))
 
-parser=argparse.ArgumentParser();parser.add_argument('--basis',default='build/light-response');parser.add_argument('--initial');parser.add_argument('--geometry',default='build/image-geometry');parser.add_argument('--output',default='build/light-response/fitted-lights.json');args=parser.parse_args();basis=BASE/args.basis;B=json.loads((basis/'bases.json').read_text());meta=json.loads((basis/'shots.json').read_text())
+parser=argparse.ArgumentParser();parser.add_argument('--basis',default='build/light-response');parser.add_argument('--restarts',type=int,default=6);parser.add_argument('--mixed-light',action='store_true');parser.add_argument('--shots');parser.add_argument('--samples-per-part',type=int,default=2200);parser.add_argument('--initial');parser.add_argument('--geometry',default='build/image-geometry');parser.add_argument('--output',default='build/light-response/fitted-lights.json');args=parser.parse_args();basis=BASE/args.basis;B=json.loads((basis/'bases.json').read_text());meta=json.loads((basis/'shots.json').read_text())
 c=ocio.Config.CreateFromFile((basis/'ocio-path.txt').read_text().strip());g=ocio.GroupTransform();g.appendTransform(ocio.LookTransform(src='Linear Rec.709',dst='Linear Rec.709',looks='AgX - Medium High Contrast'));g.appendTransform(ocio.DisplayViewTransform(src='Linear Rec.709',display='sRGB',view='AgX'));proc=c.getProcessor(g).getDefaultCPUProcessor()
-rng=np.random.default_rng(56);results={}
+rng=np.random.default_rng(56);results={};color_count=4 if args.mixed_light else 2
+upper=np.array([not b.get('world') and b['position'][2]>.25 for b in B])
 def read(p):
  p=p if p.exists() else p.with_suffix('.png');f=oiio.ImageInput.open(str(p));a=f.read_image();f.close();return a[:,:,:3]
 for shot in dict.fromkeys(v[2] for v in REGIONS.values()):
- if shot+'__0' not in meta:continue
- regions={k:v for k,v in REGIONS.items() if v[2]==shot};s=meta[shot+'__0'];first=read(basis/(shot+'__0.exr'));h,w=first.shape[:2];geo=np.load(BASE/args.geometry/(shot+'.npz'));ids,_=raster(geo,s,w,h)
+ if shot+'__0' not in meta or (args.shots and shot not in args.shots.split(',')):continue
+ regions={k:v for k,v in REGIONS.items() if v[2]==shot};s=meta[shot+'__0'];first=read(basis/(shot+'__0.exr'));h,w=first.shape[:2];geo=np.load(BASE/args.geometry/(shot+'.npz'));assert str(geo['sha256'])==s['sha256'],(shot,'stale geometry for light fit');ids,_=raster(geo,s,w,h)
  pack=[];targets={};slices={};start=0
  for role,(name,polys,_,prefixes) in regions.items():
-  m=np.isin(ids,[i+1 for i,n in enumerate(geo['names']) if str(n).startswith(prefixes)]);m=np.asarray(Image.fromarray(np.uint8(m)*255).filter(ImageFilter.MinFilter(3)))>0
-  indices=np.flatnonzero(m);indices=rng.choice(indices,min(len(indices),5500),replace=False);pack.extend(indices);slices[role]=slice(start,start+len(indices));start+=len(indices)
-  ref=np.asarray(Image.open(BASE/'build/white-balanced'/(name+'.jpg')).convert('RGB'));pm=polygon_mask((ref.shape[1],ref.shape[0]),polys);targets[role]=metrics(ref[pm])
+  m=np.isin(ids,[i+1 for i,n in enumerate(geo['names']) if str(n).startswith(prefixes)])
+  if role in ('brass','copper_green_tip'):
+   suffix='_Case' if role=='brass' else '_Jacket'
+   m &= np.isin(ids,[i+1 for i,n in enumerate(geo['names']) if str(n).endswith(suffix)])
+  m=np.asarray(Image.fromarray(np.uint8(m)*255).filter(ImageFilter.MinFilter(3)))>0
+  indices=np.flatnonzero(m);indices=rng.choice(indices,min(len(indices),args.samples_per_part),replace=False);pack.extend(indices);slices[role]=slice(start,start+len(indices));start+=len(indices)
+  ref=np.asarray(Image.open(BASE/'build/white-balanced'/(name+'.jpg')).convert('RGB'));pm=polygon_mask((ref.shape[1],ref.shape[0]),polys);pm=np.asarray(Image.fromarray(np.uint8(pm)*255).filter(ImageFilter.MinFilter(3)))>0;targets[role]=metrics(ref[pm])
  data=np.stack([read(basis/(shot+'__'+str(i)+'.exr')).reshape(-1,3)[pack] for i in range(len(B))]);data=np.transpose(data,(1,2,0)).reshape(-1,len(B)).astype(np.float32);gain=2**s.get('exposure',.45)
  def predict(p):
-  rgb=(data@p[:len(B)]).reshape(-1,3)*gain*np.r_[p[-2:],1];rgb=np.ascontiguousarray(rgb,dtype=np.float32);proc.applyRGB(rgb);return np.clip(rgb*255,0,255)
+  if args.mixed_light:
+   rgb=(data[:,upper]@p[:len(B)][upper]).reshape(-1,3)*np.r_[p[-4:-2],1]+(data[:,~upper]@p[:len(B)][~upper]).reshape(-1,3)*np.r_[p[-2:],1];rgb*=gain
+  else:rgb=(data@p[:len(B)]).reshape(-1,3)*gain*np.r_[p[-2:],1]
+  rgb=np.ascontiguousarray(rgb,dtype=np.float32);proc.applyRGB(rgb);return np.clip(rgb*255,0,255)
  def objective(p,report=False):
   rgb=predict(p);loss=0;rows={};residuals=[]
   for role,sl in slices.items():
    a=rgb[sl];v=a.max(1);l=a@np.array((.2126,.7152,.0722));q=np.percentile(v,[10,50,90]);hi=a[l>=np.percentile(l,90)].mean(0);t=targets[role];tq=np.array(t['value_p10_p50_p90']);th=np.array(t['brightest_decile_rgb']);er=(q-tq)/np.maximum(tq,10);eh=(hi-th)/np.maximum(th,20)
    guard=role.startswith('guard_');weight=1
    if guard:
-    residuals.extend([max(0,er[1]-.25)*30,*np.maximum(eh-.25,0)*12])
+    residuals.extend([max(0,er[1]-.20)*30,*np.maximum(eh-.15,0)*30])
    else:
     residuals.extend((er/np.array((.15,.10,.15))*np.sqrt(np.array((1,2,1)))).tolist());residuals.extend((eh/.10*np.sqrt(.65)).tolist())
     residuals.extend((np.maximum(abs(er)-np.array((.14,.09,.14)),0)*80).tolist());residuals.extend((np.maximum(abs(eh)-.09,0)*60).tolist())
@@ -46,21 +56,21 @@ for shot in dict.fromkeys(v[2] for v in REGIONS.values()):
  best=None
  initial=json.loads((BASE/args.initial).read_text()).get(shot) if args.initial else None
  if initial:
-  p=np.zeros(len(B)+2);p[-2:]=initial['color'][:2]
+  p=np.zeros(len(B)+color_count);p[-color_count:]=np.tile(initial['color'][:2],color_count//2)
   for energy,old in zip(initial['energies'],initial['bases']):
    for i,b in enumerate(B):
     if b==old:p[i]=energy;break
   best=(objective(p),p)
- for restart in range(8):
-  p=np.r_[np.zeros(len(B)),.90,.96];p[0]=.08;p[1:]=p[1:];p[1+rng.integers(len(B)-1)]=12
+ for restart in range(args.restarts):
+  p=np.r_[np.zeros(len(B)),np.tile((.90,.96),color_count//2)];p[0]=.08;p[1+rng.integers(len(B)-1)]=12
   if best is not None:
    p=best[1].copy()
-   if restart%2:p=np.maximum(p+rng.normal(0,1,len(p))*np.r_[np.full(len(B),3),.04,.04],0);p[-2:]=np.clip(p[-2:],.65,1.2)
+   if restart%2:p=np.maximum(p+rng.normal(0,1,len(p))*np.r_[np.full(len(B),3),np.full(color_count,.04)],0);p[-color_count:]=np.clip(p[-color_count:],.65,1.2)
   cost=objective(p)
   for step in (15,5,1.5,.5,.15):
-   for iteration in range(22):
+   for iteration in range(10):
     improved=False
-    for k in rng.permutation(len(B)+2):
+    for k in rng.permutation(len(B)+color_count):
      old=p[k];choices=[max(0,old-step),old+step] if k<len(B) else [max(.65,old-.025*step),min(1.2,old+.025*step)]
      for value in choices:
       z=p.copy();z[k]=value;v=objective(z)
@@ -71,14 +81,14 @@ for shot in dict.fromkeys(v[2] for v in REGIONS.values()):
      if v<cost:p=z;cost=v;improved=True
     if not improved:break
   damping=.02
-  for iteration in range(100):
+  for iteration in range(70):
    residual=objective(p,'residual');columns=[]
    for k in range(len(p)):
     step=.003 if k>=len(B) else max(.03,p[k]*.003);z=p.copy();z[k]+=step;columns.append((objective(z,'residual')-residual)/step)
    jac=np.stack(columns,axis=1);normal=jac.T@jac
    try:delta=np.linalg.solve(normal+damping*np.diag(np.maximum(np.diag(normal),1e-4)),-jac.T@residual)
    except np.linalg.LinAlgError:break
-   z=p+delta;z[:len(B)]=np.maximum(z[:len(B)],0);z[-2:]=np.clip(z[-2:],.65,1.2);candidate=objective(z)
+   z=p+delta;z[:len(B)]=np.maximum(z[:len(B)],0);z[-color_count:]=np.clip(z[-color_count:],.65,1.2);candidate=objective(z)
    if candidate<cost:p=z;cost=candidate;damping=max(damping*.5,1e-7)
    else:damping=min(damping*5,1e8)
    if damping>1e7:break
@@ -86,5 +96,6 @@ for shot in dict.fromkeys(v[2] for v in REGIONS.values()):
   print(shot,restart,'loss',round(best[0],2),flush=True)
   if best[0]<.7:break
  cost,p=best;_,rows=objective(p,True);results[shot]=dict(loss=cost,energies=p[:len(B)].tolist(),color=[*p[-2:],1],predictions=rows,bases=B,source_sha256=s['sha256'])
+ if args.mixed_light:results[shot]['light_colors']=[[*p[-4:-2],1] if above else [*p[-2:],1] for above in upper]
  (BASE/args.output).write_text(json.dumps(results,indent=2))
  for role,row in rows.items():print(role,'V',np.round(row['predicted_q']),np.round(row['photo_q']),'H',np.round(row['predicted_h']),np.round(row['photo_h']),flush=True)

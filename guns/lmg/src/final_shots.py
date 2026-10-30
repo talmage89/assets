@@ -9,6 +9,7 @@ DEFAULT_SHOTS='hero,hero_right,side,left,front,back,top,cover_open_full,rear_sig
 SHOTS={**FORM_SHOTS,
  'hero':dict(location=(-1.65,.78,.62),target=(0,.17,-.045),lens=53,aspect=1.85,action='BipodDeploy',frame=84,layers={'CarryHandle':('CarryRaise',30)}),
  'hero_right':dict(location=(1.65,.78,.62),target=(0,.17,-.045),lens=53,aspect=1.85,action='BipodDeploy',frame=84,layers={'CarryHandle':('CarryRaise',30)}),
+ 'front':dict(location=(0,2,.015),target=(0,.13,.015),ortho=.48,aspect=1.15),
  'back':dict(location=(0,-1.3,.035),target=(0,.15,.020),ortho=.36,aspect=1,rear_light=True),
  'scale':dict(location=(3.8,3.6,1.9),target=(.15,.15,.90),lens=62,aspect=1,scale=True,action='Idle',frame=0),
  'smg_hero':dict(location=(-1.16,.57,.45),target=(0,.06,.035),lens=63,aspect=1.85,action='Idle',frame=0),
@@ -160,3 +161,6 @@ PHOTO_POSES['paint_receiver_photo']=dict(action='Idle',frame=0,hide_box=True,exp
 PHOTO_POSES['stock_finish_photo']=dict(action='Idle',frame=0,exposure=.45,inspection_parts=['Stock_Sculpt'],light_fit='stock_finish_photo')
 PHOTO_POSES['box_finish_photo']=dict(action='Idle',frame=0,exposure=.45,inspection_parts=['Box_'],light_fit='box_finish_photo')
 PHOTO_POSES['handguard_finish_photo']=dict(action='Idle',frame=0,exposure=.45,inspection_parts=['Handguard_'],light_fit='handguard_finish_photo')
+
+PHOTO_POSES['link_finish_photo']=dict(action='Idle',frame=0,exposure=.45,daylight=1,inspection_parts=['Belt_Link_00'],light_fit='link_finish_photo')
+PHOTO_POSES['ammo_photo']['light_fit']='ammo_photo'

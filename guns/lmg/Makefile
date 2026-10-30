@@ -19,7 +19,7 @@ BAKED := $(addprefix build/baked/4k/T_Harrow56_,BaseColor.png Normal.png ORM.png
 TEXTURES := $(addprefix textures/T_Harrow56_,BaseColor.png Normal.png ORM.png)
 EXPORTS := $(addprefix export/,lmg.glb box_loaded.glb box_empty.glb cartridge.glb case.glb link.glb)
 SHOTS := hero,hero_right,side,left,front,back,top,cover_open_full,rear_sight,barrel_handle,front_sight,charging_handle,trigger,furniture,handguard,bipod,belt,box,aimed,aimed_macro,shooter_three_quarter,scale,ammo_pair
-PHOTO_SHOTS := right_photo,left_photo,open_photo,trigger_photo,belt_photo,receiver_photo,cover_detail_photo,tray_detail_photo,sight_detail_photo,box_detail_photo,used_photo,used_field_photo,ammo_photo,used_right_photo,paint_receiver_photo,stock_finish_photo,box_finish_photo,handguard_finish_photo
+PHOTO_SHOTS := right_photo,left_photo,open_photo,trigger_photo,belt_photo,receiver_photo,cover_detail_photo,tray_detail_photo,sight_detail_photo,box_detail_photo,used_photo,used_field_photo,ammo_photo,used_right_photo,paint_receiver_photo,stock_finish_photo,box_finish_photo,handguard_finish_photo,link_finish_photo
 SITES := receiver cover cover_top rivets handle flash regulator ports feet box butt
 comma := ,
 FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(SHOTS))))
@@ -129,3 +129,5 @@ family-paint:
 	$(PYTHON) src/family_paint_review.py
 coverage:
 	$(PYTHON) src/wear_coverage.py
+
+finish-report: review

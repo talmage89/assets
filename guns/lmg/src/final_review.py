@@ -22,6 +22,7 @@ def main():
  from final_shots import DEFAULT_SHOTS
  from photo_matches import MATCHES
  from finish_parameters import SITES
+ from light_fits import FITS
  required={'before/beauty':{'hero','hero_right'},'before/photos':set(MATCHES),'beauty':set(DEFAULT_SHOTS.split(',')),'eevee':{'hero'},'photos':set(MATCHES),'raw-check':{'hero','handguard','barrel_handle','belt'}}
  for n in ('box_loaded','box_empty','cartridge','case','link'):required['detachables/'+n]={n}
  for n in ('ak','smg'):required['precedents/'+n]={n+'_hero'}
@@ -31,6 +32,17 @@ def main():
   assert names<=set(json.loads(metadata.read_text())),(folder,'missing shot metadata')
   for name in names:assert (out/folder/(name+'.png')).exists(),(folder,name)
  from image_masks import projection
+ full_frames={}
+ beauty_meta=json.loads((out/'beauty/shots.json').read_text())
+ for name in ('hero','hero_right','front','side','left','back','top','cover_open_full'):
+  geometry=np.load(BASE/'build/image-geometry'/(name+'.npz'))
+  assert str(geometry['sha256'])==beauty_meta[name]['sha256']
+  size=Image.open(out/'beauty'/(name+'.png')).size
+  points,depth=projection(geometry['xyz'].reshape(-1,3),beauty_meta[name],*size)
+  low=points.min(0);high=points.max(0)
+  assert np.isfinite(points).all() and (depth>0).all() and (low>=0).all() and (high<=np.array(size)).all(),(name,'clipped full-object view',low,high,size)
+  full_frames[name]=dict(bounds=[*low.tolist(),*high.tolist()],frame=list(size))
+ (BASE/'build/beauty-frame-proof.json').write_text(json.dumps(full_frames,indent=2))
  for name in ('box_loaded','box_empty','cartridge','case','link'):
   metadata=json.loads((out/'detachables'/name/'shots.json').read_text())[name]
   geometry=np.load(BASE/'build/image-geometry'/(name+'.npz'))
@@ -60,11 +72,17 @@ def main():
   x0,y0,x1,y1=row['projected_bounds_after'];w,h=row['frame'];m=row['minimum_margin_fraction']
   assert x0>=w*m and y0>=h*m and x1<=w*(1-m) and y1<=h*(1-m),(name,'clipped whole-gun photo pair')
 
+ source_metadata=json.loads((out/'source-photos/shots.json').read_text())
+ assert set(MATCHES)<=set(source_metadata)
+ for name,row in source_metadata.items():
+  assert hashlib.sha256(Path(row['source']).read_bytes()).hexdigest()==row['sha256'],('stale dense source',name)
+  if row.get('light_fit') in FITS:assert row.get('physical_light_fit')==FITS[row['light_fit']],('stale dense-source lighting',name)
  for folder in [out/'before/beauty',out/'before/photos',out/'beauty',out/'eevee',out/'photos',out/'raw-check',*[out/'detachables'/n for n in ('box_loaded','box_empty','cartridge','case','link')],*[out/'precedents'/n for n in ('ak','smg')],*[out/'wear'/n for n in SITES]]:
   p=folder/'shots.json'
   if not p.exists():continue
   for name,row in json.loads(p.read_text()).items():
    source=Path(row['source']);assert source.suffix=='.glb'
+   if row.get('light_fit') in FITS:assert row.get('physical_light_fit')==FITS[row['light_fit']],(str(p),name,'stale comparison lighting')
    assert hashlib.sha256(source.read_bytes()).hexdigest()==row['sha256'],str(p)
    image=folder/(name+'.png');assert image.exists()
    entries.append((str(image.relative_to(out)),image));manifest[str(image.relative_to(out))]=dict(source=str(source.relative_to(BASE)) if source.is_relative_to(BASE) else '../'+str(source.relative_to(BASE.parent)),sha256=row['sha256'])
