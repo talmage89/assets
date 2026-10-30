@@ -371,3 +371,291 @@ sections, and the two-link section are included. No look-dev or docs JPGs
 were created. Only `guns/lmg/` changed; kit/common code is unchanged. No
 additional tool or approval is needed. The local contact regression remains
 a possible separately tested kit contribution.
+
+## Look round 1 — pass 12, first baked export (rejected)
+
+Color/value first: opened the native 1600-pixel `renders/look-pass1/hero.png`
+and the handguard close-up beside `used_receiver.jpg`, `used_oblique.jpg`,
+`stock.jpg` and `belt.jpg`. The receiver's black begins from the accepted
+Rill/Relay paint (.0015 linear, roughness .42, specular factor .161), but gray
+rivet heads made an artificial dotted pattern. The gray heat shield was too
+light against the black handguard. Polymer had no legible molding response.
+Rejected this bake as a finish. Paint the receiver rivets and pressed heat
+shield; increase molding relief from 24 to 65 µm at a coarser 2.3-mm scale.
+These are shader/normal changes, with no added game triangles.
+
+The handguard detail exposed circular projection marks beside its molded
+ribs. Isolate the main handguard, its six ribs and the shield in the kit baker.
+The first box scuffs read at the two bottom corners, but the barrel/handle
+and feet remain too uniform to accept before the per-site controls. Cartridge
+cases have a broad bright reflection; check the histogram and actual belt
+photo before accepting that brightness. The first transparent hero also
+needs an opaque neutral background for unambiguous full-frame judgment.
+
+White balance: the new used receiver photograph has an unclipped gray studio
+backdrop at (80,40)–(280,210), with linear RGB gains .9140/.9960/1.1087.
+The issued field photo uses pale gravel, and the belt close-up uses the gray
+range background at its upper left. The earlier clipped catalog whites
+cannot establish color; they remain form comparisons only.
+
+UV preparation exposed submicron slivers in FeedCover_Shell. A 2-µm
+degenerate-edge cleanup in the delivery stage removes 132 triangles there
+(800 → 668); the accepted source stays at 47,640, and delivery is 47,508.
+No other named part's triangle count changes. The round/link reuse, all
+64 bones, twelve sockets and nineteen clips remain. This is the sole form
+cleanup, to be bounded against actual source surfaces in final verification.
+
+The initial all-edge cleanup above was rejected for simplifying 132 triangles
+when only two failed the UV gate. Restricted cleanup to
+the single common shortest edge of the two submicron triangles. The revised
+cover is 798 triangles, not 668; delivery is 47,638 rather than 47,508.
+The final surface comparison, rather than the requested operator tolerance,
+will establish how much this changes the actual surface.
+
+## Look round 1 — pass 13, corrected bake and framing
+
+Color/value first: opened the next gray-background native hero and handguard
+close-up. The black rivets no longer draw a dotted map of the receiver; the
+heat shield now belongs with the painted stamped parts. Independent rib
+projection removes the little circular ghost marks along the handguard.
+The gray barrel and bipod are distinct from paint. The cover's exposed
+underlayer still reads too pale under the studio softboxes; lower it from
+.084 to .062 linear, keep its matte roughness, and retain bright steel only
+on a very small high-point subset. Add spatially varying oil polish inside
+the support-hand contact on the molded handguard, not a general noise wash.
+
+The first deployed hero put a foot on the bottom frame boundary. Lower the
+camera's target by 60 mm while retaining its location and 53-mm lens, so the
+whole deployed silhouette has inspection margin. The right ejection ports
+are physically hidden in the left hero: deliver both full-frame hero angles
+for each independent wear control and state which view actually sees a site.
+No assertion of visible right-port carbon will be based on the left hero.
+
+Preservation audit correction: the first single-precision BVH test reported
+0.125 mm even when querying identical unchanged faces. That was numerical
+loss in the tiny-face BVH, not a measured form change. Replaced it with
+double-precision point-to-triangle distances and re-ran both directions on
+vertices, centroids and edge midpoints. The restricted cleanup's maximum
+sampled surface difference is **0.000324 mm**. Every other part has identical
+triangles and vertex coordinates.
+
+## Look round 1 — pass 14, native studio and baked assembly
+
+Color/value first: opened all 23 exported studio views in the native hero and
+three review sheets, including both sides, the four orthographic directions,
+rear sight, opened cover, handguard, handle, ammunition, aimed and shooter
+views. Paint is now visibly deeper than the polymer. The shield belongs to
+the painted group; the barrel and bipod keep gray phosphate. The cover rubs
+read as a few connected gray lands, with black lengths between sites. The
+box corners show gray scuffing without a uniform pale bottom band. Deep
+receiver and handguard cavities stay dark on the neutral gray background.
+The cartridge highlights remain broad under these studio cards and require
+the forthcoming whole-part histogram check.
+
+The deployed still revealed two tiny black detent witnesses hanging below
+the pads. The measured gap to each supporting extension was 14.8069 mm,
+left over from the accepted leg shortening. Move each former 259-mm witness
+to 363 mm, the next 26-mm station after 285/311/337. Keep its name, owner,
+shape and triangles. Both actual support gaps become zero by triangle-surface
+intersection. These are the only source-form corrections in this look round;
+the delivery-only cover cleanup removes two submicron triangles. No leg
+length, leg profile, hinge, clip or original contact is changed. Two new support
+rows supplement the retained 27 contact rows. Rebuild the bake and every
+exported render after this correction.
+
+Added sharp used whole-gun views with unclipped gray studio backgrounds.
+The earlier clipped white ribbed-handguard image remains useful for molding
+texture and construction, but cannot calibrate a residual color cast. The
+new gray-background images give a second neutral check for black paint,
+molded polymer, barrel and bipod relationships. Their older furniture and
+more exposed receiver finish are explicit photographic differences.
+
+
+## Look round 1 — pass 15, whole-part color and bake loss (rejected texture scale)
+
+Color/value first: opened the native final hero, the reversed hero, the used
+receiver pair, ammunition pair and three-gun studio comparison. The family
+paint blacks agree; the cover and receiver wear reads in a few connected gray
+lands. The older reference receiver has much more exposed gray/green phosphate
+than our black-painted receiver. Its value distribution is consequently
+brighter; matching only that receiver's median would destroy the specified
+black coating and the family's paint relationship. The reference bipod is
+also more exposed and brighter. Record those differences explicitly.
+
+The metallic ammunition highlights are gold/copper and the green tips follow
+the photograph, but the macro is too perfect. Its drawn tooling variation and
+the polymer grain nearly disappear at 2048. Rejected that manufacturing-texture
+scale after opening the handguard and carrying-handle details. Increase the
+mold height input from 65 to 240 µm (160 µm on rubber), retain the same 2.3-mm
+molding scale, and increase the secondary fine relief from 3 to 18 µm. These
+are peak input ranges, not an assertion of measured physical roughness. Hand
+polish still reduces relief inside its original contact site. Add original
+axial draw-roughness variation on the cases and jackets; break the annealed
+neck transition slightly along the forming direction and retain the brass
+beneath it. Do not add triangles or spread any of the nine wear masks.
+
+Found a sharper used fixed-stock photograph on concrete and two used molded
+box photographs. The concrete is the stock photo's estimated neutral. Both
+box photos have clipped white backdrops; they are useful texture/value and
+wear-shape evidence but cannot prove residual highlight cast. Compare the
+stock and box over their own whole visible surfaces, replacing the earlier
+shared-molding proxy crops. The unclipped gray-background handguard/grip
+photographs remain the cross-check on that shared black molding finish.
+Rebuild the canonical bake and every independent wear control after this
+manufacturing change; no former render may count as final evidence.
+
+
+The photographic-mask audit also rejected two earlier numerical comparisons:
+the near-leg outline cut across the background, and the grip polygon included
+a wedge beside its curved back. Inspecting native grid overlays exposed both.
+Replace them with whole visible silhouettes of both legs and the grip, extend
+the receiver and cover observations over their complete visible bodies, and
+exclude the flash hider from the barrel-only sample. The earlier histogram
+numbers are superseded. Save native outline overlays for every final
+photographic observation so this can be judged in two dimensions too.
+
+
+## Look round 1 — pass 16, revised exported texture checkpoint
+
+Color/value first: opened the new native 1600-pixel hero and the handguard,
+carrying-handle and belt details directly from the revised GLB. The molding
+now has a visible fine relief under the raking card, without a pale color
+wash. The cartridge's forming variation remains inside the brass hue rather
+than reading as dirt laid over the belt. Paint and the phosphate underlayer
+retain the family studio relationship established in pass 15. Freeze these
+finishes for the final comparisons and nine complete control bakes.
+
+The close view still has smoother ammunition than the photograph, especially
+the green paint and drawn jacket; the repeated belt instances share the same
+atlas chart. The handguard's tiny seam darks are more apparent under the
+macro's rake than at player distance. Keep those limitations in the final
+report. No extra geometry or additional texture set is added to disguise them.
+The raw, unseparated GLB audit will check that the diagnostic part recovery
+has not changed the final rendered normals or appearance.
+
+
+The final full-gun photo sheets exposed two slightly clipped deployed feet.
+Added a camera-only framing audit using actual fresh-import triangles in each
+photographic pose. Preserve the fitted lens, orientation and roll; translate
+the camera in its image plane and back just enough to retain a 3.5% margin.
+Recompute and expose the landmark RMS after this adjustment. Right, left,
+issued-field and used-right views need a change; the old box/belt view already
+fits. No part, pose, authored key or sight station changes. The used-right
+bounds change from Y 114–802 to 54–725 in its 779-pixel photographic frame.
+Source and GLB comparisons are regenerated with these same final cameras.
+
+The isolated ammunition comparison is also darker than its used photograph
+over the complete case and link surfaces. Increase the procedural cards and
+reflected environment by 2.4× for that diagnostic photo only, retaining its
+camera/background exposure and all frozen material inputs. This is a lighting
+fit; the hero and its three-gun studio lighting are unchanged. Re-render them
+as well after the presentation-code revision so every final is current.
+
+
+Resolved the independent-control footprint check on actual atlas surfaces.
+Receiver wear also reaches the adjoining receiver cap/collar and a few rivet
+heads through the selected-to-active bake; cover wear reaches the touching
+sight base. Those are the same exposed edge neighborhoods, rather than a
+new use mask or a different material pass. Include these physical parts in
+the site's on/off mask and audit their complete guarded charts. The first
+three current controls pass with no unrelated change over three quantized
+levels in any embedded map. The other controls will use the same audit.
+
+A closer neutral inspection found an unclipped strip of the first used-box
+photo's white paper in its cast shadow, native (900,1300)–(1100,1304).
+Its linear RGB gains are 1.08750/1.01133/.91603. Use that whole box for the
+primary value/highlight chart, with the mixed key/fill limitation stated.
+The second box photograph's clipped whites remain texture/wear-shape evidence
+only. Rebalancing changes only this one color-reference image; every camera
+comparison's white-balanced input is byte-identical to its previous version.
+
+
+Opened all fourteen dense-source pairs beside the fourteen baked-export pairs,
+the five standalone stills and four raw-import stills. The same photo cameras
+show no missing mold or material region after the bake. The source has finer
+molding and draw detail; the exported metal retains broader, smoother
+highlights. The standalone loaded/empty box stills clipped the scuffed bottom
+corners slightly. Pull only those two inspection cameras 20% farther from
+their unchanged targets. Add a 3% frame-margin assertion on the actual imported
+triangles of all five standalones. This is a presentation fix; spawn origins,
+geometry, subsets and materials are unchanged.
+
+The unseparated byte-identical GLB comparison records native-image mean
+absolute RGB differences of .00615 (hero), .00354 (handguard), .00303
+(handle/barrel) and .00233 (belt), on the 0–255 scale. The hero's maximum is
+three levels; the handguard has one pixel over four levels (maximum six).
+The other two have no pixel over four levels. These tiny render differences
+do not explain the material character; the named-part reconstruction has not
+substituted a prettier source scene for the shipped mesh.
+
+
+The trial 20% pullback still left only 1.08% below the standalone boxes, so it
+was not accepted as the final framing. Center each on its actual imported
+three-dimensional bounds, retain its viewing direction/lens, and move back
+until every vertex has at least 5% margin. Both boxes finish at 5.07%; the
+cartridge, case and link retain their existing 20.97%, 10.63% and 20.32%
+minimum margins. The final review independently checks the rendered cameras
+against freshly imported triangles, with a 3% lower gate.
+
+
+## Look round 1 — pass 17, final baked delivery
+
+Color/value first: opened the native hero, all 23 studio views, the Eevee
+hero, the fourteen baked and fourteen dense-source photo pairs, the raw-import
+checks, all five standalones and the nine independent full-frame wear pairs.
+The neutral family studio keeps the Harrow's paint black alongside the Rill
+and Relay. Its barrel and bipod are gray, its molding is a separate black,
+and its copper/brass remains warm. The native hero's luminance p1/p10/p50/
+p90/p99 is **1 / 10.93 / 46.43 / 96.57 / 201.16**, with zero clipped foreground
+channels. The finish table in README records every whole-part distribution
+and highlight RGB, including misses rather than only favorable patches.
+
+The nine on/off differences stay where their causes act. Receiver and cover
+show a few gray lands with black lengths between them. The handle changes
+mostly by polish, the three carbon sites darken their discharge neighborhoods,
+the feet have separated pressure/lip scraping, the box has two lower corner
+scuffs, and the butt has a rubbed return. The left hero's one changed port
+pixel is indirect/minor and cannot establish visible port carbon; use the
+reverse hero's 1,619-pixel change. README lists each site's area and ΔY and
+links the complete on/off proof. The worn receiver/cover's base-color and
+roughness samples establish gray phosphate against glossy black enamel.
+
+All nine 4096/32-sample control bakes have zero missed interior texels. Their
+GLB geometry, UVs, normals, skinning, nodes, sockets, 19 clips, material
+settings and samplers are identical; the maximum texture change outside
+the physical site charts plus guards is two quantized levels. The raw import
+image check and six posed triangle comparisons separately bound diagnostic
+part-recovery error. Contact and motion checks separately establish fit.
+
+`make -C guns/lmg` passed in `build/make-final-refined.log` (exit 0), and the
+explicit `make -C guns/lmg check` passed in `build/check-final-refined.log`
+(exit 0). The accepted source has 47,640 triangles; the final GLB has 47,638,
+64 bones, twelve sockets, nineteen clips and one three-map 2048 material.
+It is 12,496,192 bytes; canonical PNGs total 7,932,869 bytes. All five lossless
+subsets, their bytes and their source/spawn comparisons are in README and
+`build/delivery/verify.json`. The 1,529-source / 1,556-import pose sweeps have
+zero violations. All original 27 contacts and both added mark-support
+contacts pass. No clearance waiver was added.
+
+The brighter stripped receiver and polished bipod reference, smoother
+ammunition macro and the small raking-light seam darks on the handguard
+remain the weakest comparisons. The stock's used photograph has broader
+field scuffs than this brief's focused butt rubbing. Do not call these images
+an exact photometric reproduction of one factory variant. This original
+combination keeps the accepted form and the requested coating states.
+
+No docs JPGs, kit changes, common-module edits or other-gun source changes.
+No tool or approval is needed from the lead. A future kit helper that retains
+rigid part attribution through joined weapon export would remove local
+recovery code; the actual-triangle and raw-render checks here show the
+current method's practical error bounds.
+
+
+The final index contains 67 hash-verified native GLB renders and 128 total
+sheet entries, including both sets of fourteen photo pairs, twelve finish
+charts, eighteen on/off sheets, the photographic outlines and the three-gun
+studio composite. Opened all eleven final review pages and both reframed
+native standalone boxes. The final contact sheet is
+`renders/final/contact-sheet.jpg`; the measured tables and direct pair links
+are in README. Final presentation audit passes after including the studio
+composite in the index. No docs images are generated.
