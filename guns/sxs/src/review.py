@@ -40,7 +40,7 @@ def main():
  digest=sha(BASE/'export/sxs.glb');stats=json.loads((BASE/'build/serialization.json').read_text());assert stats['sha256']==digest
  current=0
  for folder,expected in [('beauty',digest),('photos',digest),
-  ('shell',sha(BASE/'build/shell.glb')),('hull',sha(BASE/'build/hull.glb')),('opening-wide',digest)]:
+  ('dense-rakes',sha(BASE/'build/sculpt.blend')),('shell',sha(BASE/'build/shell.glb')),('hull',sha(BASE/'build/hull.glb')),('opening-wide',digest)]:
   meta=json.loads((OUT/folder/'shots.json').read_text())
   for name,row in meta.items():assert row['sha256']==expected,(folder,name,'stale source');current+=1
   if folder=='photos':
@@ -77,6 +77,7 @@ def main():
  wide=json.loads((OUT/'opening-wide/shots.json').read_text())
  contact([OUT/'opening-wide'/(name+'.png') for name in wide],OUT/'opening.jpg',width=2000,title='Open / full-gun frame strip / uniform 15 Hz / 1.20 seconds')
  contact([OUT/'shell/shell.png',OUT/'hull/hull.png'],OUT/'ammunition.jpg',width=1600,title='Shared original 12-gauge exterior / live shell and open fired hull')
+ review_sheet([[OUT/'dense-rakes'/('action_rake_'+side+'.png'),OUT/'beauty'/('action_rake_'+side+'.png')] for side in ('right','left')],OUT/'head-raking-comparison.jpg',width=2400,title='Original dense source (left) / baked 2048 export (right) / identical raking cameras')
  dimensions(stats)
  raw=np.array(Image.open(OUT/'beauty/hero.png').convert('RGBA'));rgb=raw[:,:,:3][raw[:,:,3]>128];lum=rgb@np.array([.2126,.7152,.0722])
  tone=dict(luma_p1_p50_p99=np.percentile(lum,[1,50,99]).tolist(),deep_shadow_fraction=float((lum<15).mean()),

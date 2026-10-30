@@ -23,7 +23,7 @@ SHOTS := hero,side,left,top,front,rake_right,rake_left,open,breech,action,action
 comma := ,
 BEAUTY := $(addprefix renders/checkpoint/beauty/,$(addsuffix .png,$(subst $(comma), ,$(SHOTS)))) renders/checkpoint/beauty/shots.json
 PHOTO_SHOTS := right,left,action,action_left,action_top,action_bottom,open,barrel_flats,forend,forend_side,trigger,aimed_reference,breech_reference
-.PHONY: all refs model prepare bake export check check-repo verify repeat render review evidence sections match strips ammo native-photos FORCE clean
+.PHONY: all refs model prepare bake export check check-repo verify repeat render review evidence sections match strips ammo native-photos dense-rakes FORCE clean
 all: refs export check render review
 refs: native-photos
 	$(PYTHON) $(KIT)/fetch_refs.py refs
@@ -64,12 +64,12 @@ build/render-parameters.txt: FORCE
 $(BEAUTY) &: export/sxs.glb $(RENDER_DEPS)
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source export/sxs.glb --out renders/checkpoint/beauty --width $(WIDTH) --samples $(SAMPLES) --shots $(SHOTS) > build/render.log 2>&1
 render: $(BEAUTY)
-evidence: sections match strips ammo
+evidence: sections match strips ammo dense-rakes
 review: render evidence
 	$(PYTHON) src/review.py
 sections: export
 	$(BP) --python src/sections.py -- > build/sections.log 2>&1
-match: export
+match: verify
 	$(PYTHON) src/photo_matches.py
 	$(PYTHON) src/photo_solve.py
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source export/sxs.glb --out renders/checkpoint/photos --camera-file build/cameras.json --shots $(PHOTO_SHOTS) --width $(WIDTH) --samples $(SAMPLES) > build/match.log 2>&1
@@ -83,3 +83,9 @@ ammo: model
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source build/hull.glb --out renders/checkpoint/hull --shots hull --width 1200 --samples $(SAMPLES) > build/hull-render.log 2>&1
 clean:
 	$(PYTHON) -c "import shutil; [shutil.rmtree(p,ignore_errors=True) for p in ('build','renders','textures','export')]"
+
+# Explicit original-source comparison requested for the new head, kept beside
+# the baked-export rakes; never used as a final gun export or its photo pair.
+dense-rakes: model
+	$(BP) --python src/prepare_high.py > build/dense-prepare.log 2>&1
+	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source-diagnostic --source build/sculpt.blend --out renders/checkpoint/dense-rakes --width $(WIDTH) --samples $(SAMPLES) --shots action_rake_right,action_rake_left > build/dense-rakes.log 2>&1

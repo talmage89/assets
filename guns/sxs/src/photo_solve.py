@@ -52,6 +52,33 @@ def fixed_view(source):
   assert row['barrel_front_hemisphere_m']>.02,'Open camera looks into chambers instead of at exterior flats'
  return row
 
+def append_head_landmarks(rows):
+ """Review-only endpoints at 0.10 mm rise; no influence on camera solve."""
+ base=Path(__file__).resolve().parents[1]
+ stats=json.loads((base/'build/serialization.json').read_text())
+ head=stats['form_gauges']['head_round5'];row=rows['action_top']
+ from photo_matches import px
+ observations={(-1,'outer'):(150,716),(1,'outer'):(345,711),(-1,'inner'):(222,761),(1,'inner'):(255,759)}
+ extras=[]
+ for record in head['return_endpoints']:
+  label=('right' if record['side']>0 else 'left')+' return '+record['end']
+  extras.append((label,record['point_mm'],px('plain-2',observations[record['side'],record['end']])))
+ for y,pixel in [(103,(232,763)),(108,(233,738)),(114.5,(235,709))]:
+  point=min(head['centerline']['points_mm'],key=lambda p:abs(p[1]-y))
+  extras.append((f'centerline Y{y:g}',point,px('plain-2',pixel)))
+ row['camera_fit_rms_pixels']=row['residual_rms_pixels'];row['camera_fit_landmark_count']=len(row['projected_pixels'])
+ row['review_only_landmark_scope']='Four rear-return ends at 0.10 mm rise above adjacent head; three approximate centerline stations; excluded from camera fit'
+ shot=row['shot'];direction=np.array(shot['target'])-shot['location'];direction/=np.linalg.norm(direction)
+ parameters=np.array([math.atan2(direction[1],direction[0]),math.asin(direction[2]),*shot['location'],math.log(shot['lens']),shot['roll']])
+ width=row['crop'][2]-row['crop'][0];height=row['crop'][3]-row['crop'][1]
+ world=np.array([point for name,point,pixel in extras])*.001
+ projected,_,_=project(parameters,world,width,height)
+ for (label,point,pixel),uv,wp in zip(extras,projected,world):
+  measured=(np.array(pixel)-row['crop'][:2]).tolist()
+  row['landmark_names'].append(label);row['landmarks_world_m'].append(wp.tolist());row['projected_pixels'].append(uv.tolist());row['measured_pixels'].append(measured)
+ row['residuals_pixels']=np.linalg.norm(np.array(row['projected_pixels'])-row['measured_pixels'],axis=1).tolist()
+ row['residual_rms_pixels']=float(np.sqrt(np.mean(np.square(row['residuals_pixels']))))
+
 def main():
  rows={}
  for name,source in MATCHES.items():
@@ -79,5 +106,6 @@ def main():
   if not candidates:raise AssertionError((name,'no camera in observed hemisphere'))
   row=min(candidates,key=lambda r:r['residual_rms_pixels']);rows[name]=row
   print(name,'RMS',round(row['residual_rms_pixels'],2),'lens',round(row['shot']['lens'],1),'view cosine',round(row['view_direction_cosine'],3),flush=True)
+ append_head_landmarks(rows)
  (Path(__file__).resolve().parents[1]/'build/cameras.json').write_text(json.dumps(rows,indent=2))
 if __name__=='__main__':main()

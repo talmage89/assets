@@ -12,7 +12,7 @@ for high in [o for o in bpy.data.objects if o.get('bake_only') and o.get('low_ta
  for modifier in list(low.modifiers):low.modifiers.remove(modifier)
  # The archived cage was copied before the reduced mesh's shading pass.
  # Use continuous sculpt normals rather than the cage's inherited flat faces.
- M.smooth(low,45)
+ if low.name!='Action_Body':M.smooth(low,45)
  if low.name=='Forend_Walnut':
   # Preserve the routed lower land after recomputing source smoothness too.
   normals=[n.vector.copy() for n in low.data.corner_normals]

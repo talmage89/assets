@@ -3,6 +3,8 @@ from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[3]));sys.path.insert(0,str(Path(__file__).parent))
 import shots,interface
 from guns.common.render import main
+if '--source-diagnostic' in sys.argv:
+ sys.argv.remove('--source-diagnostic');shots.FINAL_STAGE=False
 if '--wide' in sys.argv:
  sys.argv.remove('--wide')
  shots.STRIP_SHOT=dict(location=(1.50,-.74,.73),target=(0,.20,-.07),lens=55,aspect=1.6)

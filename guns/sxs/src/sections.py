@@ -80,12 +80,12 @@ def main():
   # Review-only arrows identify construction landmarks on the measured
   # sections. They do not enter the geometry or its acceptance probes.
   notes={
-   'Head 3 mm behind breech': [('R13.35 front / R6 side',(24,50)),('centerline',(0,49.72))],
-   'Head 8 mm behind breech': [('6 mm join band',(19,51)),('centerline',(0,49.72))],
-   'Head 15 mm behind breech': [('6 mm side return',(24,47)),('centerline',(0,49.72))],
+   'Head 3 mm behind breech': [('R13.35 front / R6 side',(24,50)),('centerline',(0,55.59))],
+   'Head 8 mm behind breech': [('degree-5 return',(19,51)),('centerline',(0,55.59))],
+   'Head 15 mm behind breech': [('6 mm side return',(24,47)),('centerline',(0,55.59))],
    'Right bore axis': [('18.5 mm axial roll',(105,55)),('head to strap',(87,47))],
    'Left bore axis': [('18.5 mm axial roll',(105,55)),('head to strap',(87,47))],
-   'Centerline Y94 to Y115': [('front floor',(111,49.72)),('lever recess',(96,48))],
+   'Centerline Y94 to Y115': [('front floor',(111,55.59)),('lever recess',(96,48))],
    'Concentric fence rolls': [('bore axis',(12.618,44)),('bore axis',(-12.618,44))],
    'Action at bar': [('ground side',(25.95,20)),('rounded lower arris',(-23,5.8))],
    'Flush plate seam': [('shared lower skin',(20,1.6))],

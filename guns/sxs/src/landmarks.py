@@ -21,17 +21,19 @@ def arrow(draw,start,end,color=(80,238,226)):
 def main():
  out=BASE/'renders/checkpoint/landmarks';out.mkdir(parents=True,exist_ok=True)
  meta=json.loads((BASE/'renders/checkpoint/beauty/shots.json').read_text())
- gauges=json.loads((BASE/'build/serialization.json').read_text())['form_gauges']['action_round4']
+ measured=json.loads((BASE/'build/serialization.json').read_text())['form_gauges']
+ gauges=measured['action_round4'];head=measured['head_round5']
  fence=gauges['fences'][0];radius=np.mean([r['radius_mm'] for r in gauges['bottom_edge_radius']]);slot=gauges['trigger_slots'][0]
  rows={
  'action_rake_right':[
   (f"Fence / barrel crowns: {fence['highest_mm']:.3f} / {fence['barrel_top_mm']:.3f} mm Z",(.0126,.115,.05735),(.20,.16)),
-  ('One ground side plane',(.02595,.115,.022),(.36,.83)),
+  (f"Side-plane step {gauges['maximum_head_bar_side_step_mm']:.4f} mm",(.02595,.115,.022),(.36,.83)),
   ('Flush hinge end / same steel',(.02595,.170,.019),(.68,.73))],
  'action_rake_top':[
   (f"Pair: {gauges['fence_pair_width_mm']:.3f} mm / breech: {gauges['barrel_breech_width_mm']:.3f} mm",(.02595,.115,.044),(.04,.10)),
-  (f"Short rear roll, about {fence['fitted_rounding_length_mm']:.3f} mm",(-.012635,.102,.0535),(.04,.84)),
-  ('Valley returns between fences',(0,.111,.04924),(.57,.84))],
+  (f"Inner return {head['return_endpoints'][0]['inner_behind_outer_mm']:.2f} mm behind outer",tuple(c*.001 for c in head['return_endpoints'][1]['point_mm']),(.04,.78)),
+  (f"Center fill {head['centerline']['minimum_mm']:.3f} mm Z",(0,.111,.05559),(.57,.84)),
+  (f"Recess lip fitted R{head['recess_lip']['radius_mm']:.2f} mm; boss gap {min(r['gap_mm'] for r in head['boss_radial_clearance']):.2f} mm",(0,.1002,.0553),(.04,.92))],
  'action_rake_bottom':[
   (f"Flush plate joint: largest step {gauges['maximum_bar_plate_step_mm']:.3f} mm",(0,.102,.001),(.04,.12)),
   (f'Lower arris: fitted radius {radius:.2f} mm',(.024,.135,.0055),(.50,.83)),
