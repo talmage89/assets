@@ -106,9 +106,28 @@ def materials():
   mat=bpy.data.materials.new('CP_'+name);mat.use_nodes=True;mat.diffuse_color=(*color,1)
   bs=mat.node_tree.nodes['Principled BSDF'];bs.inputs['Base Color'].default_value=(*color,1)
   bs.inputs['Metallic'].default_value=metal;bs.inputs['Roughness'].default_value=rough;MAT[name]=mat
+def stable_weld(bm,distance):
+ """Bounded coordinate-owned weld for the symmetric machined source.
+
+ Blender's remove_doubles may choose either nearby crown sample as owner.
+ A fixed lexicographic owner retains the same coordinates on every run.
+ Greedy radius groups never chain across more than the stated tolerance.
+ """
+ from mathutils.kdtree import KDTree
+ vertices=sorted(bm.verts,key=lambda v:tuple(v.co));tree=KDTree(len(vertices))
+ for i,v in enumerate(vertices):tree.insert(v.co,i)
+ tree.balance();claimed=set();mapping={}
+ for i,v in enumerate(vertices):
+  if i in claimed:continue
+  neighbors=sorted(tree.find_range(v.co,distance),key=lambda row:row[1])
+  for _,j,_ in neighbors:
+   if j>i and j not in claimed:claimed.add(j);mapping[vertices[j]]=v
+ if mapping:bmesh.ops.weld_verts(bm,targetmap=mapping)
+
 def clean(ob,dist=.00003):
  bm=bmesh.new();bm.from_mesh(ob.data)
- bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=dist)
+ if ob.name in ('Action_Body','HIGH_Action_Body'):stable_weld(bm,dist)
+ else:bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=dist)
  bmesh.ops.dissolve_degenerate(bm,dist=dist,edges=list(bm.edges))
  if ob.name in ('Action_Body','HIGH_Action_Body'):
   unused=[v for v in bm.verts if not v.link_faces]
@@ -242,7 +261,7 @@ def action():
  # skin; there is no overlapping cylinder/disc to stand proud of the lands.
  loops=[]
  ys=[70+i*.125 for i in range(361)]
- xs=lambda w,y:sorted([w*math.sin(-math.pi/2+math.pi*i/192) for i in range(193)]+[-barrel_shape(y)[0],barrel_shape(y)[0]])
+ xs=lambda w,y:sorted([w*math.sin(-math.pi/2+math.pi*i/512) for i in range(513)]+[-barrel_shape(y)[0],barrel_shape(y)[0]])
  for y in ys:
   w,bot,top=action_section(y);pts=[]
   for x in xs(w,y):

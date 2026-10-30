@@ -28,4 +28,4 @@ def ground_sides(ob):
     assert before
     after=[angle(ob.data.corner_normals[i].vector,expected) for i,expected in measured]
     return dict(corners=len(before),maximum_before_degrees=max(before),maximum_after_degrees=max(after),
-        policy='Flat loop-normal fans on actual constant-X ground faces; preserve subdivision roof, lip and end-face normals')
+        policy='Flat loop-normal fans on actual constant-X ground faces; preserve turned roof, lip and end-face normals')

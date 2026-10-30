@@ -8,6 +8,8 @@ edges are reported separately. This does not replace reflection inspection.
 import argparse, hashlib, json, math, sys
 from pathlib import Path
 import bpy, bmesh
+import numpy as np
+from mathutils.bvhtree import BVHTree
 from mathutils import Vector
 
 def measure(source):
@@ -40,6 +42,14 @@ def measure(source):
         if name:
             groups[name].append(dict(angle_degrees=angle(a.normal,b.normal), edge_length_mm=e.calc_length()*1000,
                 edge_mm=[[float(v*1000) for v in q.co] for q in e.verts],face_centers_mm=[list(c) for c in centers]))
+    # Read the actual upper source triangles along both bore axes. The
+    # front edge break is deliberately outside this Y95.5–114.8 interval.
+    tree=BVHTree.FromBMesh(bm);crown_profiles=[]
+    for side in (-1,1):
+        ys=np.arange(95.5,114.801,.1)
+        zs=np.array([tree.ray_cast(Vector((side*(12.6+1.7*(115-y)/660.4)*.001,y*.001,.08)),Vector((0,0,-1)),.08)[0].z*1000 for y in ys])
+        slopes=np.diff(zs)/np.diff(ys)
+        crown_profiles.append(dict(side=side,stations_y_mm=ys.tolist(),height_mm=zs.tolist(),minimum_forward_slope=float(slopes.min()),maximum_height_y_mm=float(ys[zs.argmax()]),rear_to_front_monotone=bool(slopes.min()>0)))
     bm.free(); report = {}
     for name, rows in groups.items():
         rows.sort(key=lambda r:r['angle_degrees'],reverse=True)
@@ -47,9 +57,9 @@ def measure(source):
             largest=rows[:10])
     smooth=('right fence/head','left fence/head','center fill','right rear return','left rear return','recess lip')
     passed=all(report[name]['maximum'] and report[name]['maximum']['angle_degrees']<12 for name in smooth)
-    passed=passed and not topology['nonmanifold_edges'] and not topology['zero_area_faces'] and topology['volume_m3']>0
+    passed=passed and all(r['rear_to_front_monotone'] for r in crown_profiles) and not topology['nonmanifold_edges'] and not topology['zero_area_faces'] and topology['volume_m3']>0
     return dict(passed=passed,source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),dense_topology=topology,
-        smooth_region_limit_degrees=12,limit_scope='source tessellation audit, not a photographic fairness certificate',
+        crown_profiles=crown_profiles,smooth_region_limit_degrees=12,limit_scope='source tessellation audit, not a photographic fairness certificate',
         method='geometric normals of adjacent triangulated dense-source faces; sharp edges separately classified by measured location',
         intended_edges=['standing-breech front arris, 0.18 mm edge break', 'external rear wood joint',
             'recess floor/wall below the radiused upper lip', 'firing-pin bushing counterbore steps', 'lower spindle seat'], regions=report)
