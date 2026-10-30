@@ -1,4 +1,4 @@
-"""Original manufactured finishes and nine independently switchable use sites.
+"""Original manufactured finishes and eleven independently switchable use sites.
 
 Coordinates are meter-valued rest attributes. Noise describes molding/tooling,
 or fractures the margins of an already located rub; it cannot spread damage.
@@ -50,14 +50,14 @@ def steel(name,part,key,wear,omit):
     base=F.PAINT if paint else (.16,.164,.155) if bright else F.PHOSPHATE
     rough=F.PAINT_ROUGH if paint else .48 if bright else F.PHOSPHATE_ROUGH
     metal=0 if paint else .95 if bright else F.PHOSPHATE_METAL;spec=F.PAINT_SPEC if paint else .85
-    grain=n.noise(p,1250,2);fine=n.noise(p,4300,2)
+    grain=n.ramp(n.noise(p,800,2),.34,.66);fine=n.noise(p,4300,2)
     rough=n.add(rough,n.mul(sub(n,grain,.5),.075))
-    h=n.mul(sub(n,fine,.5),12e-6 if paint else 22e-6)
+    h=n.mul(sub(n,fine,.5),12e-6) if paint else n.add(n.mul(sub(n,grain,.5),12e-6),n.mul(sub(n,fine,.5),8e-6))
     if not paint and not bright:
         # Conversion-bath crystal/oxide variation, not deposited weather.
-        crystal=n.noise(p,220,3)
-        base=n.mix(crystal,tuple(c*.64 for c in F.PHOSPHATE),tuple(c*1.35 for c in F.PHOSPHATE),True)
-        rough=n.add(rough,n.mul(sub(n,crystal,.5),.20))
+        crystal=n.ramp(n.noise(p,220,3),.34,.66)
+        base=n.mix(crystal,tuple(c*.80 for c in F.PHOSPHATE),tuple(c*1.20 for c in F.PHOSPHATE),True)
+        rough=n.add(rough,n.mul(sub(n,crystal,.5),.10))
     if part.startswith('Bipod_Extension'):
         base=(.25,.27,.29);rough=n.add(.27,n.mul(grain,.12));metal=.95
     # Phosphate's crystal skin, modest machining rings, never broad color noise.
@@ -84,22 +84,22 @@ def steel(name,part,key,wear,omit):
     elif part=='SideWell_Housing':
         abrasion=n.mul(rub(n,p,ab(n,sub(n,y,.132)),z,.067,.089,.0021),active('receiver'))
     elif part=='FeedCover_Shell':
-        rear=rub(n,p,ab(n,sub(n,y,-.051)),x,-.028,.023,.0032,.009)
-        side=rub(n,p,ab(n,sub(n,z,.1415)),y,-.035,.221,.00165,.008)
+        rear=rub(n,p,ab(n,sub(n,y,-.051)),x,-.028,.023,.0006,.009)
+        side=rub(n,p,ab(n,sub(n,z,.1415)),y,-.035,.221,.00035,.008)
         side=n.mul(side,n.ramp(ax,.024,.028))
-        lower=rub(n,p,ab(n,sub(n,z,.121)),y,-.032,.225,.0013,.010)
-        abrasion=n.mul(n.maximum(rear,side,lower),active('cover'))
+        lower=rub(n,p,ab(n,sub(n,z,.121)),y,-.032,.225,.00025,.010)
+        abrasion=n.mul(n.maximum(rear,side,lower),n.ramp(n.noise(n.vec('MULTIPLY',p,(180,65,180)),1,2),.48,.64),active('cover'))
         scuff=n.mul(scratches(n,p,x,y,z,nz),active('cover_top'))
         abrasion=n.maximum(abrasion,scuff)
         sharp=mn(n,ab(n,sub(n,y,-.051)),ab(n,sub(n,z,.145)))
     elif part.startswith('FeedCover_PressedBead'):
-        abrasion=n.mul(interval(n,y,-.020,.172,.014),n.ramp(nz,.35,.85),active('cover'))
+        abrasion=n.mul(interval(n,y,-.020,.172,.014),n.ramp(nz,.75,.95),n.ramp(n.noise(p,240,2),.56,.68),active('cover'))
         sharp=ab(n,sub(n,z,.146))
     elif part.startswith('FeedCover_SidePress'):
-        abrasion=n.mul(rub(n,p,ab(n,sub(n,z,.139)),y,-.018,.110,.0009),active('cover'))
+        abrasion=n.mul(rub(n,p,ab(n,sub(n,z,.139)),y,-.018,.110,.00025),active('cover'))
     elif part.startswith('Receiver_Rivet'):
         radial=n.math('SQRT',n.add(n.mul(sub(n,v,.5),sub(n,v,.5)),n.mul(sub(n,w,.5),sub(n,w,.5))))
-        crown=n.mul(n.ramp(ab(n,nx),.65,.9),n.ramp(n.noise(p,680,2),.28,.55))
+        crown=n.mul(n.ramp(ab(n,nx),.65,.9),n.ramp(n.noise(p,680,2),.40,.62))
         ring=n.mul(n.ramp(radial,.28,.44),n.ramp(ab(n,nx),.3,.7))
         abrasion=n.mul(n.maximum(crown,ring),active('rivets'))
         sharp=n.mul(sub(n,1,n.ramp(radial,.38,.48)),.001)
@@ -109,9 +109,9 @@ def steel(name,part,key,wear,omit):
         broken=n.ramp(n.noise(n.vec('MULTIPLY',p,(280,100,210)),1,2),.36,.53)
         abrasion=n.mul(edge,broken,active('feet'));sharp=.0001
     core=n.mul(abrasion,n.ramp(sharp,.0007,.00015),n.ramp(n.noise(p,180,2),.47,.62),.8)
-    base=n.mix(abrasion,base,(.072,.075,.075),True);rough=n.mix(abrasion,rough,.62)
-    metal=n.mix(abrasion,metal,.55);spec=n.mix(abrasion,spec,.56)
-    base=n.mix(core,base,(.235,.245,.250),True);rough=n.mix(core,rough,.35);metal=n.mix(core,metal,1)
+    base=n.mix(abrasion,base,(.075,.078,.078),True);rough=n.mix(abrasion,rough,.66)
+    metal=n.mix(abrasion,metal,.12);spec=n.mix(abrasion,spec,.56)
+    base=n.mix(core,base,(.50,.52,.53),True);rough=n.mix(core,rough,.35);metal=n.mix(core,metal,1)
     h=n.add(h,n.mul(abrasion,-.000016))
     carbon=0
     if part=='FlashHider':
@@ -137,12 +137,12 @@ def steel(name,part,key,wear,omit):
 
 def polymer(name,part,key,wear,omit):
     n=Nodes(name);p,x,y,z,nx,ny,nz,u,v,w=inp(n)
-    fine=n.noise(p,1100,2);mold=n.noise(p,900,2)
+    fine=n.noise(p,1100,2);mold=n.ramp(n.noise(p,600,2),.34,.66)
     rubber=key=='rubber'
     family='handguard' if part.startswith('Handguard') else 'stock' if part.startswith('Stock') else 'grip' if part.startswith(('PistolGrip','Grip_')) else 'box' if part.startswith('Box') else 'handle'
     color,rgh,spec=F.POLYMER[family]
     base=(.006,.0063,.006) if rubber else color
-    rough=n.add(.78 if rubber else rgh,n.mul(sub(n,mold,.5),.11))
+    rough=n.add(.78 if rubber else rgh,n.mul(sub(n,mold,.5),.22))
     touch=0;site=''
     if part=='CarryHandle_Grip':
         site='handle';touch=n.mul(interval(n,y,.164,.240,.009),n.ramp(nz,-.5,.4))
@@ -151,22 +151,22 @@ def polymer(name,part,key,wear,omit):
         touch=n.mul(n.ramp(y,-.283,-.323),n.maximum(n.ramp(z,.075,.100),n.ramp(z,.004,-.018),n.mul(n.ramp(ab(n,x),.015,.020),.7)))
     elif part=='Box_Shell' or part.startswith(('Box_MoldRib','Box_EndRib','Box_ClipBacking')):
         site='box'
-        bottom=n.ramp(z,-.067,-.111)
-        corners=n.mul(n.ramp(ab(n,x),.028,.050),n.maximum(n.ramp(y,.145,.128),n.ramp(y,.187,.203)))
+        bottom=n.ramp(z,-.085,-.111)
+        corners=n.mul(n.ramp(ab(n,x),.047,.055),n.maximum(n.ramp(y,.132,.125),n.ramp(y,.201,.205)))
         # Sparse cross-direction drag scuffs inside bottom impact corners.
         edge=n.ramp(n.add(n.mul(n.noise(n.vec('MULTIPLY',p,(420,190,120)),1,2),.72),n.mul(mold,.28)),.41,.57)
         touch=n.mul(bottom,corners,edge)
     strength=wear if omit not in ('all',site) else 0;touch=n.mul(touch,strength)
-    rough=n.mix(touch,rough,.23 if site=='handle' else .39 if site=='butt' else .79)
+    rough=n.mix(touch,rough,.18 if site=='handle' else .39 if site=='butt' else .79)
     rubbed=(.020,.021,.021) if site=='butt' else (.043,.044,.041) if site=='box' else (.005,.0055,.006)
     base=n.mix(touch,base,rubbed,True)
-    h=n.mul(sub(n,mold,.5),n.mix(touch,110e-6 if not rubber else 85e-6,16e-6))
+    h=n.mul(sub(n,mold,.5),n.mix(touch,80e-6 if not rubber else 85e-6,16e-6))
     h=n.add(h,n.mul(sub(n,fine,.5),18e-6))
     if part in ('Handguard_Sculpt','PistolGrip_Sculpt'):
         held=n.mul(interval(n,y,.270,.425,.020),n.ramp(ab(n,nx),.5,.95)) if part=='Handguard_Sculpt' else interval(n,z,-.060,.018,.012)
         held=n.mul(held,wear if omit!='all' else 0,n.ramp(n.noise(p,85,2),.30,.75))
-        rough=n.mix(held,rough,.55 if part=='Handguard_Sculpt' else .25)
-        base=n.mix(n.mul(held,.35),base,(.0055,.0063,.007) if part=='Handguard_Sculpt' else (.022,.024,.026),True)
+        rough=n.mix(held,rough,.55 if part=='Handguard_Sculpt' else .34)
+        base=n.mix(n.mul(held,.35),base,(.0055,.0063,.007) if part=='Handguard_Sculpt' else (.030,.032,.034),True)
     # The two mold halves leave a fine parting line around the center plane.
     seam=n.mul(n.band(x,0,.00018,.00012),n.ramp(ab(n,nx),.5,.05))
     h=n.add(h,n.mul(seam,.000055))

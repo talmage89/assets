@@ -711,3 +711,71 @@ close-up shows the scratches, but full-frame wear still needs measurement and
 baked confirmation. The new grain is too coarse on furniture in these source
 macros; reduce its scale and height before final baking. All accepted forms,
 64 bones, twelve sockets and nineteen clips remain unchanged.
+
+## Look round 2 — pass 21, actual 2048 bake and lighting response (rejected)
+
+Color/value first: inspected all ten native `renders/round2-baked1/` images
+against the white-balanced studio references. The barrel and stock are now
+dark in the hero, with deep internal shadow, but the cover's highlight is
+still too sharp and the box and grip need separate response corrections.
+The preliminary baked table has cover 24/47/80 against 28/37/115; the polymer
+box 62/78/91 against 25/47/72. Reject them. The source appearance is not an
+acceptance proxy: baked phosphate and polymer grain lose substantial contrast.
+
+Rendered and inspected six complete twenty-card linear-light diagnostics of
+the actual import. A single physical rig per photograph can recover barrel,
+bipod, stock, box and ribbed-handguard distributions without implausible base
+colors. The overbright whole-gun diagnostic was a misplaced reflecting card,
+not permission to darken the whole gun. Retain fitted area lights, then rerender
+and measure final PNGs rather than accepting the linear predictor.
+
+The cover-top cuts in the shooter view are too long, broad and alike. Shorten
+and vary their finite gear-drag paths; narrow the edge contact lands and break
+the bead exposure. Keep the visible rivet crowns independently switchable.
+The box impact damage occupies too much of its lower corners; constrain it
+to the corner returns instead of a broad rubbed end. Increase the resolvable
+dry-grain relief, preserving the same geometry, maps and draw-call budget.
+
+## Look round 2 — pass 22, reject a numerically favorable partial light fit
+
+Color/value first: inspected all five native `renders/round2-fit1/` images.
+The isolated stock and box are close to their distributions. The whole-gun
+light fit is rejected: it fits the barrel and bipod by putting a large card
+in the receiver's reflection, turning unmeasured paint pale. A favorable
+barrel table cannot accept that whole photograph. The small linear response
+images also bias narrow-barrel and leg tails after mask erosion and separate
+denoising. Refit at delivery resolution without per-card denoising, include
+whole-view coating/polymer guard observations, and verify the rerender.
+No mask, contrast adjustment or reference image may enter the asset.
+
+## Look round 2 — pass 23, measured wear density and grain retention (rejected)
+
+Color/value first: opened all second-bake hero, shooter and surface macros.
+The broad black family is much closer, but surface relief is still too smooth
+in the close views. Delivered handguard tangent-normal samples cluster near
+127.6/127.6/255, with only about 1–2 encoded levels of interior variation.
+Raw noise has far less contrast than its nominal height implies. Normalize
+its original molding/conversion-grain signal before baking; put phosphate
+relief at a wavelength that survives 2048 rather than adding unresolved noise.
+
+Opened the native coverage pairs and independently classified photo overlays.
+The revised cover-top footprint is 1.139% against 1.207% in the photo, and
+rivet crowns 75.742% against 67.702% (photo threshold sensitivity 59–76%).
+Cover edges are still 13.688% against 2.157%; a broad gray rub is not a match
+for intermittent thin chips. Narrow the contact lands and interrupt their
+exposure along the full edge. Exposed phosphate remains the primary substrate;
+reserve realistic high-reflectance steel for the sharp crests. Retain every
+measurement rule and photograph outline while changing the authored masks.
+
+## Look round 2 — pass 24, reject excessive grain contrast
+
+Color/value first: inspected every native third-bake hero, shooter, macro and
+ammunition comparison. The larger grain survives 2048, but phosphate has
+become a coarse gray camouflage and the polymer relief is too deep under
+raking light. This is a visible regression, not an acceptable dry finish.
+Retain normalized fine roughness, reduce phosphate relief to 12 µm and bath
+albedo variation to ±20%, and reduce normalized molding relief to 80 µm.
+The sharp oblique reference shows a fine skin with localized handling marks,
+not large height lumps across every steel part. Exposed phosphate at chips
+needs a predominantly diffuse crystalline response; reduce its metallic mix
+instead of whitening every edge. Keep rare steel at high crests.

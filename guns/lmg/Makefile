@@ -23,7 +23,7 @@ PHOTO_SHOTS := right_photo,left_photo,open_photo,trigger_photo,belt_photo,receiv
 SITES := receiver cover cover_top rivets handle flash regulator ports feet box butt
 comma := ,
 FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(SHOTS))))
-RENDER_DEPS := src/final_render.py src/final_shots.py src/photo_lighting.py src/shots.py src/delivery.py ../common/render.py build/render-parameters.txt
+RENDER_DEPS := src/final_render.py src/final_shots.py src/photo_lighting.py src/light_fits.py src/shots.py src/delivery.py ../common/render.py build/render-parameters.txt
 .PHONY: all refs model prepare lookdev bake export check render match source-match wear-review precedent extra raw-audit review clean FORCE
 all: refs export check render match source-match wear-review precedent extra raw-audit review
 refs:
@@ -103,10 +103,29 @@ extra: renders/final/detachables/done.stamp
 renders/final/raw-check/raw-comparison.json: $(EXPORTS) $(RENDER_DEPS) src/raw_review.py $(FINAL_IMAGES)
 	$(PYTHON) src/raw_review.py --samples $(SAMPLES)
 raw-audit: renders/final/raw-check/raw-comparison.json
-review: render match source-match wear-review precedent extra raw-audit
+review: render match source-match wear-review precedent extra raw-audit before family-paint
 	$(BP) --python src/control_verify.py
 	$(BP) --python src/value_geometry.py
 	$(PYTHON) src/look_review.py
+	$(BP) --python src/value_geometry.py -- --source build/look-round2/before/export/lmg.glb --folders renders/final/before/photos,renders/final/before/beauty --out build/image-before --no-detachables
+	$(PYTHON) src/look_review.py --root renders/final/before --textures build/look-round2/before/textures --geometry build/image-before --out renders/final/before/look-review --finishes-only
+	$(PYTHON) src/wear_coverage.py
+	$(PYTHON) src/finish_report.py
+	$(PYTHON) src/highlight_profile.py
 	$(PYTHON) src/final_review.py
 clean:
 	$(PYTHON) -c "import shutil; [shutil.rmtree(p,ignore_errors=True) for p in ('build','textures','export','renders')]"
+
+.PHONY: baseline before finish-report family-paint coverage
+baseline: $(PREPARED)
+	$(PYTHON) src/baseline.py
+renders/final/before/photos/shots.json: $(PREPARED) $(RENDER_DEPS) build/cameras.json src/baseline.py
+	$(PYTHON) src/baseline.py
+	$(KIT)/with_gpu.sh $(BP) --python src/final_render.py -- --source build/look-round2/before/export/lmg.glb --out renders/final/before/photos --camera-file build/cameras.json --width $(WIDTH) --samples $(SAMPLES) --shots $(PHOTO_SHOTS)
+	$(KIT)/with_gpu.sh $(BP) --python src/final_render.py -- --source build/look-round2/before/export/lmg.glb --out renders/final/before/beauty --width $(WIDTH) --samples $(SAMPLES) --shots hero,hero_right
+	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/cameras.json --renders renders/final/before/photos --out renders/final/before/pairs
+before: renders/final/before/photos/shots.json
+family-paint:
+	$(PYTHON) src/family_paint_review.py
+coverage:
+	$(PYTHON) src/wear_coverage.py

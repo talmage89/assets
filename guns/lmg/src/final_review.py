@@ -22,7 +22,7 @@ def main():
  from final_shots import DEFAULT_SHOTS
  from photo_matches import MATCHES
  from finish_parameters import SITES
- required={'beauty':set(DEFAULT_SHOTS.split(',')),'eevee':{'hero'},'photos':set(MATCHES),'raw-check':{'hero','handguard','barrel_handle','belt'}}
+ required={'before/beauty':{'hero','hero_right'},'before/photos':set(MATCHES),'beauty':set(DEFAULT_SHOTS.split(',')),'eevee':{'hero'},'photos':set(MATCHES),'raw-check':{'hero','handguard','barrel_handle','belt'}}
  for n in ('box_loaded','box_empty','cartridge','case','link'):required['detachables/'+n]={n}
  for n in ('ak','smg'):required['precedents/'+n]={n+'_hero'}
  for n in SITES:required['wear/'+n]={'hero','hero_right'}
@@ -39,8 +39,14 @@ def main():
   pixels,depth=projection(geometry['xyz'].reshape(-1,3),metadata,*size)
   low=pixels.min(0);high=pixels.max(0);margin=np.array(size)*.03
   assert np.all(depth>0) and np.all(low>=margin) and np.all(high<=np.array(size)-margin),(name,'standalone clipping',low,high)
- for folder in ('pairs','source-pairs'):
+ for folder in ('pairs','source-pairs','before/pairs'):
   for name in MATCHES:assert (out/folder/(name+'-pair.jpg')).exists(),(folder,name)
+ comparison=json.loads((out/'look-review/comparison/finish-comparison.json').read_text())
+ assert len(comparison)==12
+ current=hashlib.sha256((BASE/'export/lmg.glb').read_bytes()).hexdigest()
+ assert all(r['after_sha256']==current for r in comparison.values())
+ coverage=json.loads((out/'look-review/coverage/worn-fractions.json').read_text())
+ assert len(coverage)==len(SITES) and all(r['sha256']==current for r in coverage.values())
  raw=json.loads((out/'raw-check/raw-comparison.json').read_text())
  assert raw['source_sha256']==hashlib.sha256((BASE/'export/lmg.glb').read_bytes()).hexdigest()
  controls=json.loads((BASE/'build/control-verification.json').read_text())
@@ -54,7 +60,7 @@ def main():
   x0,y0,x1,y1=row['projected_bounds_after'];w,h=row['frame'];m=row['minimum_margin_fraction']
   assert x0>=w*m and y0>=h*m and x1<=w*(1-m) and y1<=h*(1-m),(name,'clipped whole-gun photo pair')
 
- for folder in [out/'beauty',out/'eevee',out/'photos',out/'raw-check',*[out/'detachables'/n for n in ('box_loaded','box_empty','cartridge','case','link')],*[out/'precedents'/n for n in ('ak','smg')],*[out/'wear'/n for n in SITES]]:
+ for folder in [out/'before/beauty',out/'before/photos',out/'beauty',out/'eevee',out/'photos',out/'raw-check',*[out/'detachables'/n for n in ('box_loaded','box_empty','cartridge','case','link')],*[out/'precedents'/n for n in ('ak','smg')],*[out/'wear'/n for n in SITES]]:
   p=folder/'shots.json'
   if not p.exists():continue
   for name,row in json.loads(p.read_text()).items():
@@ -66,6 +72,8 @@ def main():
  for p in sorted((out/'source-pairs').glob('*-pair.jpg')):entries.append(('Dense source pair / '+p.stem,p))
  if (out/'look-review/finish-values.json').exists():
   for p in sorted((out/'look-review').glob('*.jpg')):entries.append((p.stem,p))
+ for folder in ('before/pairs','look-review/comparison','look-review/coverage','surface-pairs','family-paint'):
+  for p in sorted((out/folder).glob('*.jpg')):entries.append((str(p.relative_to(out)),p))
  hero=out/'beauty/hero.png';ak=out/'precedents/ak/ak_hero.png';smg=out/'precedents/smg/smg_hero.png'
  peer=out/'hero-beside-ak-smg.jpg'
  sheet([('Harrow 56 / same lights and exposure',hero),('Rill 39 / same lights and exposure',ak),('Relay 9 / same lights and exposure',smg)],peer,columns=1,cell=(1600,900))

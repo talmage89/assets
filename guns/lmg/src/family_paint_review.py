@@ -13,7 +13,7 @@ from image_masks import raster
 from PIL import ImageDraw
 
 SPECS={
- 'ak':dict(shot='right_photo',photo='museum.jpg',polygons=[[(580,162),(1136,153),(1137,229),(581,243)]],prefixes=('Receiver_Sheet','Receiver_Rivet','Selector_','TriggerGuard_')),
+ 'ak':dict(shot='right_photo',photo='museum.jpg',polygons=[[(580,162),(1136,153),(1137,229),(581,243)]],prefixes=('Receiver_Sheet','Receiver_Rivet','Selector_')),
  'smg':dict(shot='locked_photo',photo='navy2.png',polygons=[[(1702,218),(2040,186),(2330,183),(2580,174),(2625,197),(2637,350),(1724,395)]],prefixes=('Receiver_Shell','Receiver_FoldSeam','Receiver_SpotWeld')),
 }
 def main():

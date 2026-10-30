@@ -20,7 +20,7 @@ def receiver_parts(shape):
  return receiver,heads
 
 def observed(base,site,offset=0):
- name='used_receiver' if site in ('receiver','cover','cover_top','rivets','handle') else 'used_right' if site in ('flash','regulator','ports','feet') else 'used_box' if site=='box' else 'used_stock'
+ name='used_receiver' if site in ('receiver','cover','cover_top','rivets','handle') else 'used_whole' if site=='ports' else 'used_right' if site in ('flash','regulator','feet') else 'used_box' if site=='box' else 'used_stock'
  image=np.asarray(Image.open(base/'build/white-balanced'/(name+'.jpg')).convert('RGB'));h,w=image.shape[:2];v=image.max(2).astype(float);y,x=np.mgrid[:h,:w];shape=(w,h)
  receiver,heads=receiver_parts(shape) if name=='used_receiver' else (None,None)
  threshold=0;note='';mode='bright'
@@ -53,7 +53,7 @@ def observed(base,site,offset=0):
   part=polygon_mask(shape,[[(397,270),(429,274),(435,300),(400,298)]]);threshold=48;mode='dark';wear=part&(v<threshold+offset)
   note='Apparent dark discharge zone; recess shadow limits independent soot segmentation.'
  elif site=='ports':
-  part=polygon_mask(shape,[[(845,341),(1017,365),(1007,410),(853,395)]]);threshold=32;mode='dark';wear=part&(v<threshold+offset)
+  part=polygon_mask(shape,[[(794,318),(938,290),(951,336),(820,375)]]);threshold=32;mode='dark';wear=part&(v<threshold+offset)
   note='Dark port neighborhood; shadow is inseparable from carbon. Not an absolute carbon-fraction acceptance.'
  elif site=='feet':
   part=polygon_mask(shape,[[(254,695),(273,698),(303,710),(332,706),(334,721),(325,732),(300,734),(278,726),(260,715)],[(385,621),(411,625),(428,632),(438,637),(438,649),(430,656),(411,646),(390,635)]]);threshold=135;wear=part&(v>threshold+offset)

@@ -111,7 +111,7 @@ def main():
   overlay=Image.fromarray(ref.copy());draw=ImageDraw.Draw(overlay)
   for polygon in polygons:draw.line(polygon+[polygon[0]],fill=(245,55,25),width=max(2,overlay.width//500))
   overlay_path=out/(role+'-photo-region.png');overlay.save(overlay_path);observations.append((role+' / native whole-part observation',overlay_path))
-  row=dict(render_shot=shot,camera_matched_to_this_photo=role not in ('molded_stock','molded_box'),render=metrics(im[m]),photo=metrics(ref[pm]),neutral=corrections[photo],photo_source=photo,photo_polygons=polygons,parts=[str(geo['names'][i-1]) for i in selected],sha256=meta[shot]['sha256'])
+  row=dict(render_shot=shot,camera_matched_to_this_photo=True,render=metrics(im[m]),photo=metrics(ref[pm]),neutral=corrections[photo],photo_source=photo,photo_polygons=polygons,parts=[str(geo['names'][i-1]) for i in selected],sha256=meta[shot]['sha256'])
   # Preserve the metric dictionary separately from its reference filename.
   row['photo_source']=photo;row['photo']=metrics(ref[pm])
   row['shipped_basecolor_srgb_median']=np.median(sampled[m,:3],axis=0).tolist()
