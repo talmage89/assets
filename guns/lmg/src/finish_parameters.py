@@ -19,4 +19,14 @@ POLYMER={
  'handle':((.009,.0095,.010),.24,1.0),
 }
 
+# Fine molding skin: cycles/m, relief in meters, roughness span. These are
+# distinct manufacturing finishes, not one exaggerated grain on every molding.
+POLYMER_GRAIN={
+ 'handguard':(2000,4e-6,.12),
+ 'stock':(2000,3e-6,.07),
+ 'grip':(2200,2e-6,.08),
+ 'box':(1800,6e-6,.14),
+ 'handle':(2400,2e-6,.05),
+}
+
 SITES=("receiver","cover","cover_top","rivets","handle","flash","regulator","ports","feet","box","butt")

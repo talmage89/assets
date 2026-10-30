@@ -138,12 +138,14 @@ def steel(name,part,key,wear,omit):
 
 def polymer(name,part,key,wear,omit):
     n=Nodes(name);p,x,y,z,nx,ny,nz,u,v,w=inp(n)
-    fine=n.noise(p,1100,2);mold=n.ramp(n.noise(p,600,2),.34,.66)
     rubber=key=='rubber'
     family='handguard' if part.startswith('Handguard') else 'stock' if part.startswith('Stock') else 'grip' if part.startswith(('PistolGrip','Grip_')) else 'box' if part.startswith('Box') else 'handle'
     color,rgh,spec=F.POLYMER[family]
+    grain_scale,skin,rough_variation=F.POLYMER_GRAIN[family]
+    if rubber:grain_scale,skin,rough_variation=1000,12e-6,.12
+    fine=n.noise(p,4300,2);mold=n.ramp(n.noise(p,grain_scale,2),.34,.66)
     base=(.006,.0063,.006) if rubber else color
-    rough=n.add(.78 if rubber else rgh,n.mul(sub(n,mold,.5),.22))
+    rough=n.add(.78 if rubber else rgh,n.mul(sub(n,mold,.5),rough_variation))
     touch=0;site=''
     if part=='CarryHandle_Grip':
         site='handle';touch=n.mul(interval(n,y,.164,.240,.009),n.ramp(nz,.64,.92))
@@ -161,9 +163,9 @@ def polymer(name,part,key,wear,omit):
     rough=n.mix(touch,rough,.18 if site=='handle' else .39 if site=='butt' else .79)
     rubbed=(.020,.021,.021) if site=='butt' else (.043,.044,.041) if site=='box' else (.005,.0055,.006)
     base=n.mix(touch,base,rubbed,True)
-    skin=20e-6 if family=='handle' else 35e-6 if not rubber else 55e-6
-    h=n.mul(sub(n,mold,.5),n.mix(touch,skin,8e-6))
-    h=n.add(h,n.mul(sub(n,fine,.5),5e-6))
+    polished=min(2e-6,skin*.5)
+    h=n.mul(sub(n,mold,.5),n.mix(touch,skin,polished))
+    h=n.add(h,n.mul(sub(n,fine,.5),1e-6))
     if part in ('Handguard_Sculpt','PistolGrip_Sculpt'):
         held=n.mul(interval(n,y,.270,.425,.020),n.ramp(ab(n,nx),.5,.95)) if part=='Handguard_Sculpt' else interval(n,z,-.060,.018,.012)
         held=n.mul(held,wear if omit!='all' else 0,n.ramp(n.noise(p,85,2),.30,.75))

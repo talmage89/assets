@@ -852,3 +852,104 @@ handle relief to 20 µm, fine relief to 5 µm and rubbed lands to 8 µm. Retain
 roughness variation and original finite contact fields, rather than using
 height exaggeration to make a grain statistic visible. Rerender the new bake;
 no photograph supplies any texture.
+
+
+## Look round 2 — pass 28, native final-bake checkpoint
+
+Color/value first: opened the pass-14 hero, reverse hero and shooter view at
+native resolution beside `used_whole.jpg` and `used_receiver.jpg`. The black
+receiver retains body and broad satin reflection, the front conversion finish
+is dark, and the polymer remains dark rather than mid-gray. Cover scratches
+and worn return lines read in the shooter view. The 35-µm molding / 20-µm
+handle relief reduces the furry reflection; coarse variation is now primarily
+roughness, not deep height. Its final close pairs still need inspection after
+the light fits. The accepted original cover geometry reflects a different
+highlight shape from the reference's cylindrical pressing; this must remain
+an explicit limitation of the reflection-profile comparison.
+
+The intermediate pass-13 `make check` overlapped replacement of its atlas by
+pass 14 and correctly rejected mismatched embedded-image hashes. This was an
+invalid concurrent check, not a reason to relax verification. The complete
+checks are rerun only after the canonical pass-14 export has exited normally.
+
+
+## Look round 2 — pass 29, reject contaminated link observation
+
+Color/value first: the new link photo's initial whole-part highlight statistic
+was 169–172 despite the visibly matte black steel. Opened a native overlay:
+the coarse polygon included white paper outside the curved cuff and lower
+web. That is an invalid observation, not a bright steel target. Refined the
+whole silhouette, including the actual dark necks and excluding background;
+retain the same one-pixel erosion as every other photograph. No image values
+or surface regions are selected by brightness. Both round-one and round-two
+renders will be measured against this same corrected whole-part outline.
+The physical-light fit for links must be rerun with that correction. The
+old field-belt comparison remains separate and unchanged in scope.
+
+
+## Look round 2 — pass 30, reject bright tail and coarse stock skin
+
+Color/value first: opened all eight native final-bake photo renders and the
+160 linear-light basis images on four diagnostic sheets. Eleven of twelve
+finish roles pass their complete native value/highlight tests. The cover's
+26/38/138 against 28/37/115 still fails P90. Its highlight RGB 174/179/183
+against 175/184/196 now passes. The fitter's 2,200-pixel guide sample predicted
+a lower P90; refit the actual full visible cover distribution rather than
+accepting a favorable sample. Leave the real paint reflectance intact.
+
+The stock close-up is still too pebbled beside the native `used_stock.jpg`.
+Its roughness variation, not merely height, causes the coarse orange peel.
+Reduce stock roughness variation from .22 to .07 and source relief from
+35 µm to 5 µm, retaining its fine manufacturing skin. Its central raking-light
+response must be reviewed on the new source and bake. Other moldings retain
+their own accepted texture; no global grain wash is introduced. The field
+ammunition fit now meets the value and highlight tolerances without changing
+brass, copper or green tips. The studio link also passes with the corrected
+whole silhouette; its old field-light diagnostic remains explicit.
+
+
+## Look round 2 — pass 31, fine source-skin and sampling diagnosis
+
+Color/value first: the complete linear-light prediction for the pass-14 cover
+is 26.6/39.3/138.0, agreeing with the native Cycles 26/38/138. The sparse guide
+sample, not denoising or image correction, caused the incorrect P90 forecast.
+Use a denser fit and keep the final complete-part native histogram as the
+acceptance test. Highlight RGB also agrees within two encoded levels.
+
+The native box and handguard close-ups also expose the same overlarge orange
+peel seen on the stock. Replace the shared exaggerated skin with separate
+manufacturing inputs: 1800–2400 cycles/m, 2–6 µm source relief, roughness spans
+.05–.14 (stock .07); rubber 12 µm. Grain becomes a fine microfinish rather
+than large height/roughness lumps. Preview the source before the next full
+bake and eleven controls. This is fine original shader noise, never a photo
+projection or a texture imported from the reference.
+
+
+## Look round 2 — pass 32, source preview and shipped molding skin
+
+Color/value first: opened all four Eevee source previews and all three native
+Cycles GLB molding comparisons. New baked handguard is 40/103/133 versus
+38/102/135, stock 46/105/129 versus 48/111/129, box 25/47/68 versus 25/47/72;
+each highlight RGB passes. Their broad hue is the photographed lighting cast,
+not blue material input. The large orange peel is gone. Fine source grain
+filters at the 2048 atlas density; the source does not justify claiming every
+micrometer of relief survives. The matched GLB images, not source settings,
+judge the remaining skin. The accepted molding contours remain unchanged.
+
+The denser cover fit predicts 27/38/128 versus 28/37/115 and highlight RGB
+173/178/181 versus 175/184/196. Rerender these physical fixtures on the new
+export and measure every visible pixel before freezing the final comparisons.
+
+
+## Look round 2 — pass 33, native cover rig frozen
+
+Color/value first: opened native pass-15 `used_photo.png` and its three complete
+part histogram pairs. Cover is 26/38/128 versus 28/37/115; highlight RGB is
+173/178/181 versus 175/184/196. Grip is 46/75/103 versus 47/79/91, H
+114/120/125 versus 116/122/130. Handle is 16/35/163 versus 16/35/188, H
+193/197/199 versus 181/194/211. Each median, tail and highlight channel now
+passes the requested limits on every visible part pixel. The real 2.2% paint
+input is unchanged. The denser light fit fixes the tail without darkening its
+base color or adjusting the rendered image. Freeze these parameters for the
+canonical before/after run; keep the hem/cylinder highlight-width limitation
+explicit in its profile pair.
