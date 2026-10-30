@@ -87,6 +87,13 @@ def contacts(arm):
  gap,_=surface_gap(bpy.data.objects['Bolt_ReadyWitness'],bpy.data.objects['Sear_VisualWitness'])
  assert gap>.075,('Forward empty pose must leave the ready witness',gap)
  rows.append(dict(clip='FireLast',frame=interface.CLIPS['FireLast']['frames'],parts=['Bolt_ReadyWitness','Sear_VisualWitness'],surface_gap_mm=gap*1000,required_separation_mm=75,comparison='>',kind='forward-empty negative seating check',passed=gap>.075))
+ # Two old marks were left below the shortened leg. Check their real support,
+ # independently of the serialization/clearance tests and operator offsets.
+ W.pose(arm,'BipodDeploy',84)
+ for label in ('L','R'):
+  a='Bipod_DetentWitness_'+label+'259';b='Bipod_Extension_'+label
+  gap,method=surface_gap(bpy.data.objects[a],bpy.data.objects[b])
+  rows.append(dict(clip='BipodDeploy',frame=84,parts=[a,b],surface_gap_mm=gap*1000,method=method,limit_mm=.02,passed=gap<=.00002))
  return rows
 
 def main():

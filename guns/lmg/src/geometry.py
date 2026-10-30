@@ -344,7 +344,11 @@ def bipod():
   reg(M.loft('Bipod_Channel_'+label,loops,MAT['phosphate']),'BipodSplay'+label,r=.45)
   # Telescoping display inner, with relief witnesses and a broad stamped foot.
   box('Bipod_Extension_'+label,(x-3.6,276,31),(x+3.6,384,36),'steel',e,r=.5)
-  for y in (259,285,311,337):box('Bipod_DetentWitness_'+label+str(y),(x-2,y,35.8),(x+2,y+2.2,36.1),'paint',e,r=.15)
+  for y in (259,285,311,337):
+   # The accepted leg shortening left the former first witness below its
+   # extension. Keep its name/binding; move it to the next 26-mm station.
+   station=363 if y==259 else y
+   box('Bipod_DetentWitness_'+label+str(y),(x-2,station,35.8),(x+2,station+2.2,36.1),'paint',e,r=.15)
   # Pad lies nearly horizontal in the deployed pose, rather than presenting
   # its broad face vertically. The fixed 18-degree shoe compensates leg splay.
   loops=[]
