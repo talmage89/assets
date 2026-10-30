@@ -10,7 +10,11 @@ def ground_sides(ob):
     normals=[n.vector.copy() for n in ob.data.corner_normals];before=[];measured=[]
     for face in ob.data.polygons:
         points=[ob.data.vertices[i].co for i in face.vertices]
-        if abs(face.normal.x)>.99999 and all(.07<=p.y<=.170001 and abs(abs(p.x)-.02595)<.0000003 for p in points):
+        # Match the model's existing 0.015 mm ground-side classification.
+        # Reduced triangles can end on the microscopic breech edge break,
+        # 1.3 microns inside the plane; a 0.3-micron bound omitted them.
+        # No longitudinal bound: the same plane continues into the hinge cheek.
+        if abs(face.normal.x)>.99999 and all(abs(abs(p.x)-.02595)<.000015 for p in points):
             expected=Vector((math.copysign(1,face.normal.x),0,0))
             # Isolate the ground plane's loop-normal space from its curved
             # neighbors. Merely assigning +/-X left as much as 0.307 degrees
