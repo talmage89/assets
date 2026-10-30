@@ -143,7 +143,7 @@ def main():
                fraction_difference_percentage_points=(ours['fraction']-photo['fraction'])*100,
                model_sha256=main_meta['sha256'],site_off_sha256=variant['sha256'],
                whole_frame_mean_visible_change=float(delta[part].mean()),maximum_change=float(delta[part].max()),
-               passed=abs(ours['fraction']-photo['fraction'])<=max(.005,photo['fraction']*.20))
+               internal_fraction_band=abs(ours['fraction']-photo['fraction'])<=max(.005,photo['fraction']*.20))
         results[name]=r
         background=Image.new('RGBA',used.size,(160,160,158,255));on=Image.alpha_composite(background,used).convert('RGB');clean=Image.alpha_composite(background,off).convert('RGB')
         Image.fromarray(np.uint8(mask)*255).save(out/(name+'-render-mask.png'))
@@ -179,7 +179,7 @@ def main():
         for i,line in enumerate(lines):d.text((15,1100+25*i),line,font=SMALL,fill='black')
         d.text((15,1190),'Threshold sensitivity (3,4,6,8,12 RGB levels): '+str([round(v*100,2) for v in uncertainty.values()])+'%.',font=SMALL,fill='black')
         d.text((15,1220),'Photo +/- one native boundary pixel: '+str([round(v*100,2) for v in photo_band])+'%. No shader-mask or line-profile acceptance.',font=SMALL,fill='black')
-        d.text((15,1250),'Internal calibration band (20% relative / 0.5 pp): '+('IN' if r['passed'] else 'OUT')+'. Not a visual acceptance test; see REVIEW.md.',font=SMALL,fill='black')
+        d.text((15,1250),'Internal calibration band (20% relative / 0.5 pp): '+('IN' if r['internal_fraction_band'] else 'OUT')+'. Not a visual acceptance test; see REVIEW.md.',font=SMALL,fill='black')
         sheet.save(out/(name+'-on-off-pair.jpg'),quality=94,optimize=True)
         print(name,round(ours['fraction']*100,2),round(photo['fraction']*100,2),flush=True)
     (out/'measurements.json').write_text(json.dumps(dict(method='Actual same-camera image differences of kit-exported site-off GLBs; native balanced photos; complete center-sampled visible parts without erosion; all nine sites',sites=results),indent=2))
