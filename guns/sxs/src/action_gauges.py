@@ -65,6 +65,21 @@ def measure(arm):
    a=ray('Action_Body',(side*.08,.1148,z),(-side,0,0));b=ray('Action_Body',(side*.08,.1152,z),(-side,0,0))
    steps.append(abs(a.x-b.x)*1000)
  rows['maximum_head_bar_side_step_mm']=max(steps)
+ # A physically flat land needs flat shading normals as well. A transferred
+ # standing-face normal at one reduced corner can survive geometric checks
+ # and produce a dark diagonal in the tangent bake.
+ ob=part('Action_Body');matrix=ob.matrix_world;normal_matrix=matrix.to_3x3().inverted().transposed();angles=[]
+ for face in ob.data.polygons:
+  normal=(normal_matrix@face.normal).normalized()
+  points=[matrix@ob.data.vertices[i].co for i in face.vertices]
+  if abs(normal.x)>.99999 and all(.070<=p.y<=.170001 and abs(abs(p.x)-.02595)<.00020 for p in points):
+   expected=Vector((math.copysign(1,normal.x),0,0))
+   for j in face.loop_indices:
+    n=(normal_matrix@ob.data.corner_normals[j].vector).normalized()
+    angles.append(math.degrees(math.acos(max(-1,min(1,n.dot(expected))))))
+ assert angles
+ rows['side_flat_normal_max_degrees']=max(angles)
+ assert max(angles)<.25,rows['side_flat_normal_max_degrees']
  bottom=[]
  for y in (.120,.135,.150):
   p=section('Action_Body',1,y);bottom_z=p[:,2].min()

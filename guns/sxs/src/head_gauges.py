@@ -32,7 +32,7 @@ def measure(arm):
   p=top(x,y,('Action_Body','Top_Strap'));height=p.z*1000
   rows.append(dict(name=label,point_mm=[c*1000 for c in p],top_mm=height,
    drop_from_crown_mm=crown-height,photo_drop_mm=photo,photo_uncertainty_mm=uncertainty))
- line=[top(0,y) for y in np.arange(102,114.81,.25)]
+ line=[top(0,y) for y in np.arange(100.6,114.81,.25)]
  rib=top(0,115.2,('Solid_TopRib',)).z*1000
  front=top(0,114.8).z*1000
  radii=[]
@@ -93,7 +93,7 @@ def measure(arm):
  assert all(2<r['radius_mm']<10 for r in transitions),transitions
  return dict(crown_mm=crown,height_stations=rows,
   centerline=dict(points_mm=[[c*1000 for c in p] for p in line],minimum_mm=min(p.z*1000 for p in line),maximum_mm=max(p.z*1000 for p in line),
-   front_action_valley_mm=front,actual_rib_floor_mm=rib,scope='Y102–114.8 mm: uninterrupted head; rounded fore lip and boss recess lie behind this interval'),
+   front_action_valley_mm=front,actual_rib_floor_mm=rib,scope='Y100.6–114.8 mm: uninterrupted head from beyond the R0.60 recess lip to the standing face'),
   side_return_radii=radii,transition_profile_fits=transitions,return_endpoints=endpoints,
   crown_roll_profile_fits=rolls,boss_radial_clearance=radial,recess_lip=dict(radius_mm=lr,max_fit_error_mm=le,section_x_mm=.0005,points=len(arc)),
   plan_scope='Rear return at x=23/7.5 mm, first 0.10 mm rise above the measured adjacent head (Y96 outer/Y94 inner); not a hard seam')

@@ -784,7 +784,13 @@ def finalize(ob):
  if ob.name=='Action_Body':
   for f in ob.data.polygons:
    vs=[ob.data.vertices[i].co for i in f.vertices]
-   if abs(f.normal.y)>.999:
+   if abs(f.normal.x)>.99999 and all(70<=p.y<=170.001 and abs(abs(p.x)-ACTION_HALF_WIDTH)<.20 for p in vs):
+    # A reduced side triangle can span the microscopic Y115 arris.
+    # Nearest-source transfer may select its orthogonal front face at a
+    # shared corner. Classify the actual face plane before its vertices.
+    expected=Vector((math.copysign(1,f.normal.x),0,0))
+    for j in f.loop_indices:normals[j]=expected
+   elif abs(f.normal.y)>.999:
     for j in f.loop_indices:normals[j]=f.normal.copy()
    elif all(70<=p.y<=115 and abs(abs(p.x)-action_section(p.y)[0])<.015 for p in vs):
     expected=Vector((math.copysign(1,sum(p.x for p in vs)),0,0)).normalized()

@@ -2,7 +2,7 @@
 
 The round-four record below is retained as history. Round five keeps its
 57.350 mm crowns, 51.900 mm pair width, front R13.35 arcs, 18.5 mm crown roll,
-side flats and lower plate construction. The new head is being judged in
+side flats and lower plate construction. The new head is judged in
 sections 3, 8 and 15 mm behind Y115 and in both bore-axis vertical planes.
 Inspection material values remain unchanged; no finish work or docs JPGs.
 
@@ -40,7 +40,7 @@ lever range and all 19 clip keys remain unchanged.
     sweep. Its first motion test identifies the stock/lever collision instead
     of adding a contact exception. Independent surface rays distinguish the
     action's 49.72 mm notch from the actual rib sighting floor, 55.59 mm, and
-    the accepted boss's 50.30 mm top. Datum clarification is pending before
+    the accepted boss's 50.30 mm top. At this trial, datum clarification was pending before
     choosing the delivered center fill; neither a constant nor a source
     preview constitutes acceptance of that requirement.
 
@@ -49,7 +49,7 @@ lever range and all 19 clip keys remain unchanged.
     original material constants. The 49.72 mm trial retains the front notch;
     the 55.59 mm trial fills to the actual rib surface but raises its center
     outline and leaves the 50.30 mm boss in a deeper recess. Those are distinct
-    outcomes, so the pending datum choice cannot be hidden by camera placement.
+    outcomes, so the then-pending datum choice cannot be hidden by camera placement.
     Opened the Y112/Y107/Y100 and both bore-axis section drawings. The sampled
     49.72 mm head gives drops 7.63 mm just behind either return, 13.07 mm at
     either side wood line and 11.20 mm at the center wood line. Its side-return
@@ -58,7 +58,7 @@ lever range and all 19 clip keys remain unchanged.
     claimed to match that estimate. The current quick source check passes
     246 contact records and manifold topology at 38,822 triangles. The latest
     opening sweep has zero motion violations; final full source/reimport
-    sweeps and the new bake are still pending the center datum choice.
+    sweeps and the new bake were pending the center datum choice at this pass.
 
 29. **Z55.59 center and degree-5 rear return, both source rakes.**
     Color/value: opened both full-resolution source rakes and the top/aimed
@@ -74,6 +74,21 @@ lever range and all 19 clip keys remain unchanged.
     rejected for microscopic topology folds: a modifier bevel is replaced
     by a measured-roof-tangent circular R0.60 cutter, tapered over Y88–92.
     This is still source evidence. Baked image acceptance follows below.
+
+
+30. **Both baked rakes and the 0.999 Y corner-normal failure.** Color/value:
+    the 2048 export retains the constant dark steel and unaltered wood values.
+    The right rake carries the R6/degree-5 return without the former small
+    folds. The left rake exposes a dark diagonal absent from the dense left
+    image (`head-raking-comparison.jpg`, trial GLB `38344c7572b5`). Reject
+    that bake. UV probes find green as low as 2/255 on the side-flat normal
+    map, while AO is 255/255 there. One reduced triangle inherited a corner
+    normal approximately (−0.036, +0.999, 0) from the orthogonal standing
+    face. Classify the actual planar face before nearest-source transfer
+    and give its corners the ±X normal. A temporary sharp-edge projection
+    split did not solve this error and is discarded. Add an independent
+    side-flat shading-normal check with a 0.25° bound, then rebake and
+    re-render every exported view. No texture pixels are hand repaired.
 
 
 # Covey 26 — form round 4: fences, flats and underside

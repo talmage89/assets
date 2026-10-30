@@ -50,7 +50,18 @@ def capture(path,dense=False):
       db=b.x-sign*(.0126-(b.y-.115)*1.7/660.4)
      else:da=a[axis]-station;db=b[axis]-station
      if da*db<0:hits.append(a+(b-a)*(-da)/(db-da))
-    if len(hits)==2:segments.append([[p[k]*1000 for k in projection] for p in hits])
+    if len(hits)==2:
+     if title=='Centerline Y94 to Y115':
+      # Clip the actual triangle intersection to the named datum interval.
+      a,b=hits;delta=b-a;lo=0.;hi=1.
+      if abs(delta.y)<1e-12:
+       if not .094<=a.y<=.115:continue
+      else:
+       bounds=sorted(((.094-a.y)/delta.y,(.115-a.y)/delta.y))
+       lo=max(lo,bounds[0]);hi=min(hi,bounds[1])
+       if hi<=lo:continue
+      hits=[a+delta*lo,a+delta*hi]
+     segments.append([[p[k]*1000 for k in projection] for p in hits])
    ev.to_mesh_clear()
    if segments:parts[name]=segments
   assert parts,title
