@@ -95,4 +95,3 @@ def main(base, manifest):
         fcntl.flock(lease,fcntl.LOCK_EX)
         os.environ['ASSETS_GPU_LOCK']=str(base/'build/feed-strip-inner.lock')
         _run(base,manifest)
-
