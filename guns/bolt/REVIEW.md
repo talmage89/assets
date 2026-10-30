@@ -844,3 +844,210 @@ isolated-action photo has limited native resolution; the sharper M24 photo has
 a different chassis and guard. The shipped normal atlas softens fine edge
 response in an extreme macro. No unresolved trigger clearance or construction
 failure remains. No kit change, new tool or lead input is needed.
+
+## Visible feeding and ejection correction
+
+The owner’s real-speed playback exposed an actual geometric mismatch. The
+initial read-only stop audit is `build/feed-preflight/measurements.json`: the
+fully drawn bolt face was 42.500 mm ahead of the magazine head, in both source
+and the freshly imported GLB. The owner then authorized the necessary geometry
+and all affected final/docs images. No accepted binary or outside model is a
+build input. `build/feed-before/` holds the read-only local comparison copy.
+
+**Placement diagnosis.** Inner-wall rays found 75.597 mm of usable magazine
+length, a 71.120 mm cartridge, 4.000 mm behind its head and only .477 mm ahead
+of its tip. Moving that cartridge forward could not fix a 75.880 mm gap to the
+chamber. The published 700-footprint short-action travel is about 104.775 mm,
+close to the source’s 104 mm. The box/well placement was wrong; lengthening
+the bolt to 147 mm was the wrong repair. Source and citation details are in
+README and refs/SOURCES.
+
+The box/well/catch move 47 mm forward, with matching stock and bottom-metal
+inlets. Cartridges move 2.5 mm rearward within the box, giving 1.500 mm rear
+clearance; the front binder establishes the published 72.898 mm usable length.
+Top feed geometry rises 4.5 mm to reach the bolt face. The seated chamber head
+now coincides with the face, correcting its old .500 mm gap. The lift/draw,
+event schedule and state meanings remain as documented. Public magazine/well
+frames move with the corrected geometry and retain their spawn/seat meanings.
+
+1. **First path / construction pass. Color and value:** temporary constant
+   materials and gray Workbench shading are form aids, not a new finish.
+   The first numerical path still floated above the ramp at some samples and
+   collided with the lugs. Rejected those contacts. The original lug clocking
+   put a lug vertically below the lifted bolt, across the magazine. Rotate
+   the closed lugs and their raceways so the lifted lugs clear horizontally.
+   The first all-open bottom cut also erased the lower locking abutment;
+   restore both seats and give the ramp a lug relief.
+2. **Colored receiver section — `renders/review/feed-form3/`. Color and
+   value:** original constant brass/copper against the dark action separates
+   the cartridge from the bolt; these are still unbaked inspection colors.
+   Opened every frame in `build/feed-form3.jpg`. The head follows the face,
+   nose rises into the barrel and the reserve round becomes visible under
+   the lips. The original all-gray port review hid that progression, so
+   the shipping evidence uses the actual colored baked atlas. Independent
+   checks exposed a thin receiver lip intersecting the bullet, and the
+   ramp needed a real closed underside beneath its relief. Correct both.
+3. **Contact and export pass. Color and value:** retain the accepted olive,
+   neutral black action and brass/copper finishes. The ramp envelope must
+   include its exact narrow relief shoulders; uniformly spaced stations
+   missed one by over half a millimeter. Use the actual profile/ramp station
+   intersections, then measure the independent triangle surfaces. The first
+   forced-sampling GLB lost the fractional pickup/pivot boundaries; native
+   sampling alone drifted on older sparse control rotations. Preserve only
+   the native ammo samplers beside the existing sampled control channels.
+   Densify the fast case rotation, keeping its release and handoff frames.
+
+All new contact assertions use evaluated surfaces; all moving ammunition is
+automatically included in the kit’s full cross-bone sweep. The original 27
+contacts and their limits remain. The small visual claw/rim engagement gains
+an explicit .300 mm limit applied to measured penetration, rather than an
+unchecked collision exemption.
+The original .200 mm ordinary clearance threshold is retained.
+
+The two-round magazine remains a canonical capacity representation. Its
+closed-bolt reset is explicit in INTERFACE.md; it is not a persistent five-round
+physics or ammunition-count simulation. Reload stays chambered and locked.
+ReloadEmpty’s requested 40–125 strip cannot show its frame-219 feed, so an
+additional 190–245 port/section pair is supplied at the same 30-Hz rate.
+
+4. **Exported final and photographic pass. Color and value:** the existing
+   white-balanced references and neutral studio lighting remain the comparison.
+   The corrected right-side steel median is 41.40 in the photograph / 38.00
+   in the export; scope 32.59 / 30.93; used olive stock 117.42 / 113.85.
+   These are display patches, not inferred albedos. The new export keeps deep
+   receiver/guard cavities, neutral black metal, an olive stock and distinct
+   brass/copper. The hero's measured p1/p50/p99 are 2/69/177, with 20.52%
+   deep shadow and no clipped pixels (`renders/final/photos/values.json`).
+   The small polished highlights in the open-action macro remain brighter;
+   its clipped fraction is .041%, rather than a blanket claim of no clipping.
+   Reopened the side/profile and open-action photo pairs: the box now sits
+   beneath the action's feed region, with the extended bottom metal and
+   matching stock inlet. The photographic rifles have different bottom metal
+   and magazine systems; they constrain proportions, not this original part's
+   manufacturing fit. The stock's broad color and existing wear still read
+   consistently with the used field reference. Fine engraving/knurl relief
+   remains softer after the 2048 bake than in dense-source pairs.
+
+   The 30-Hz port and receiver-section sheets show the fired case following
+   the bolt, pivoting through the right port, and remaining outside at handoff.
+   The forward head advances with the face, the nose rises, and the next case
+   rises beneath it. All six sheets were opened, covering all 234 rendered
+   poses; the added ReloadEmpty window is needed to judge its actual feed.
+   The section removes only the delivered receiver's right-wall triangles.
+   Opened the full still contact sheet, all five docs JPGs, seven exported
+   photo pairs, dense-source and trigger pair overviews, and all twelve
+   standard clip panels in four overviews. Magazine handoff, chambered Reload,
+   optic view and bipod framing remain intact. The reset of the two proxy
+   rounds is hidden behind the closed bolt and is explicitly documented.
+
+### Measured cartridge contacts
+
+Maximum separation at the asserted intermediate frames, in millimeters.
+Triangle intersection reports zero separation; the independent rim-plane
+measurement additionally proves the feeding head stays on the face. Distance
+methods are recorded per row, including conservative sampled upper bounds.
+
+| Actual surfaces | Source inspection | Fresh imported GLB |
+| --- | ---: | ---: |
+| Fired rim / extractor | .000015 | .000030 |
+| Feeding case head / bolt face surfaces | 0 | 0 |
+| Rim rear plane / bolt face | .000030 | .000075 |
+| Feeding case / retaining lips | .031358 | .031360 |
+| Cartridge / feed ramp | .071826 | .071824 |
+| Case / chamber-mouth guide | .256380 | .256369 |
+| Next case / retaining lips | .033526 | .033526 |
+| Raised follower / next case | .130542 | .130542 |
+
+These contacts prove construction at the sampled poses, independently in the
+source and imported triangles. The separate affine comparison proves
+serialization. All four construction stages pass 27 existing plus 100 new
+assertions. Source/finalized/dense sweeps each evaluate 2,373 poses; actual
+imported sweeps evaluate 2,403, including float key times. No moving-ammunition
+pair gains an unchecked exemption; the unchanged ordinary .200 mm limit and
+explicit bearing/engagement limits apply. This is a visual asset's bounded
+clearance audit, not a machining or
+physical-dynamics certification.
+
+At eject 64 the imported case's nearest point is **6.316585 mm outside** the
+receiver's rightmost point. It continues to 51.674 mm outside at 65.9, before
+the preview hides at 66. The actual standalone case spawn matches its animated
+vertices within **.000047 mm**. Its evaluated position, orientation and linear/
+angular velocities, and the engine conversion formula, are in INTERFACE.md and
+the construction reports. The legacy ejection-effect socket retains its meaning.
+
+### Final build proof
+
+`make -C guns/bolt` and the separately requested `make -C guns/bolt check`
+both exit 0. Logs: `build/feed-make-final.log` and
+`build/feed-check-final.log`. The latter re-prepared/re-baked the atlas after a
+source timestamp change; the final images are regenerated against that export,
+rather than treating the preceding image hashes as current.
+
+| Construction stage | Triangles | Surface assertions | Swept poses | Result |
+| --- | ---: | ---: | ---: | --- |
+| Source inspection | 49,771 | 127 | 2,373 | Pass |
+| UV-finalized | 49,769 | 127 | 2,373 | Pass |
+| Actual fresh-imported triangles | 49,769 | 127 | 2,403 | Pass |
+| Dense source | 1,440,101 | 127 | 2,373 | Pass |
+
+The delivered rifle adds **838 triangles** against 48,931 and retains two
+materials and one 2048 triple-map atlas. Rifle **11,267,180 bytes**; loaded
+magazine **4,988 triangles / 1,134,900 bytes / 1024**; empty magazine **3,728 /
+1,165,896 / 1024**; case **768 / 201,536 / 512**. All detached items have one
+material and retain full atlas density. Canonical BaseColor / Normal / ORM:
+**1,360,914 / 2,136,147 / 3,018,278 bytes**. The three subsets pass lossless
+surface/mip comparisons through level 3 with unchanged limits.
+
+The 4096/32 bake tests **4,225,162 interior texels per channel**, with zero
+misses. Final imported UV coverage is **29.13%**, median density **1,570 px/m**,
+p5/p95 **1,035 / 2,583**. Three float-scale UV intersections total an
+**8.00e−9** overlap fraction; none lie outside or degenerate. Limits are
+unchanged. All **2,195** affine/state comparisons pass, maximum positional
+error **.000766 mm**, maximum linear coefficient error **.000000659**.
+Fresh-import attribution matches **49,769 triangles / 188 parts** one-to-one,
+maximum vertex error **.000065 mm**. The independent repeat reproduces all four
+inspection GLBs byte-for-byte. `build/feed-preservation.json` additionally
+proves **159 unchanged source meshes** and **50,735 unchanged control-pose
+comparisons**, with zero local basis delta, against the saved pre-fix source.
+These serialization/preservation proofs complement the independent construction
+checks; they do not substitute for them. No kit/common/other-gun source changed.
+
+Final presentation regeneration also exits 0:
+
+```sh
+make -C guns/bolt render match strips extra source-match trigger-match docs feed-strips
+python3 -m compileall -q guns/bolt/src
+python3 kit/repo_check.py
+git diff --check
+```
+
+`build/feed-images-final.log` records the render run. Final provenance passes
+**320 current-GLB image records** and all nine standard playback durations.
+The six additional close-up sheets contain **234 current-GLB poses**. Their
+decoded WebPs last **1,417 ms** for each 40–125 window and **917 ms** for each
+190–245 window, with no added terminal hold. `renders/feed/timing.json` and
+each frame folder's `shots.json` retain their source hash, frames, camera and
+section status. All six sheets were reopened after this final regeneration,
+as were all five docs, the still sheet, exported/source pair overviews and
+the twelve standard clip panels. `build/feed-final-audit.json` consolidates the
+final local provenance/timing/size audit. Repository check: **1,011 source files,
+zero errors**.
+
+Updated final sets: `renders/final/beauty/` (including `bolt_open.png` and
+`bottom.png`), `eevee/`, exported/dense `pairs/` and `source-pairs/`, detachables,
+details, trigger views/pairs, and standard `strips/`; complete contact sheet:
+`renders/final/contact-sheet.jpg`. All five docs change: **hero.jpg 48,212**,
+**turnaround.jpg 57,597**, **details.jpg 199,996**, **action.jpg 137,333**,
+**eevee.jpg 51,211 bytes**. Every sheet is 1600 px wide and below 200,000 bytes.
+The magazine/well/bottom-metal/stock-inlet move changes their visible geometry;
+the repacked and rebaked atlas requires current-export renders throughout.
+Cameras and presentation layouts remain the accepted ones. The final rifle
+SHA-256 is `65f83515ace91d99afa379c239a86043e88299c26d6e49ff94ebbca03a082882`.
+
+The remaining deliberate limitation is the two-round canonical magazine
+representation, reset while occluded, with consumer-owned ammunition count
+and physics after eject. Fine baked relief still softens at extreme macro scale;
+the photographic fits and approximate class references do not establish
+manufacturing dimensions. No unresolved feed contact or clearance failure
+remains under the documented visual-asset limits. No new tool, kit change or
+lead input is needed.

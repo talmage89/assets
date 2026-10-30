@@ -139,23 +139,27 @@ distinguishes this plunger/push-feed sequence from a fixed-blade controlled-feed
 action. This asset does not claim the latter's full-length claw.
 
 **Physics-case handoff.** At eject 64, use CycleCase's deformation relative to its bind frame,
-followed by the standalone case's rest anchor. In asset coordinates,
-`spawn = posed_joint_world * inverse(bind_joint_world) * case_anchor`.
+followed by the standalone case's rest anchor. Express both complete hierarchical
+joint transforms relative to the loaded asset root:
+`spawn_asset = posed_joint_asset * inverse(bind_joint_asset) * case_anchor`.
 `case_anchor` is a translation to `(0,.2095,.065)` in Blender, or
 `(0,.065,-.2095)` in glTF, with identity orientation in that asset frame.
 Read the bind frame from the rig, before animation; hidden Idle is not bind
 pose. This avoids assuming the imported joint’s local bone axes.
 The fresh-import audit applies this actual spawn to the standalone case's
 vertices and compares them with the animated case.
-Apply the weapon instance transform to the resulting frame.
+Then `spawn_world = weapon_instance_world * spawn_asset`.
 Hide the animated CycleCase in that consumer when spawning its physics case.
 Do not use the stationary effect socket as a case constraint or spawn pose.
 Socket_Ejection retains its legacy port/effect meaning. `case_handoff` in
 each construction report records the actual origin, quaternion, linear and
 angular velocity, measured by central differences, plus whole-case clearance
 outside the receiver. Source values are about **(25.62,106.64,77.80) mm**,
-**(1.400,−.650,.686) m/s** in Blender right/forward/up coordinates. Convert
-with the asset's usual Blender→glTF frame, then apply the whole-instance frame.
+**(1.400,−.650,.686) m/s** in Blender right/forward/up coordinates at 1× playback.
+Convert vectors with the usual Blender→glTF basis and instance rotation, without
+adding the instance translation. Scale clip-relative linear/angular velocity by
+playback rate; add the moving weapon's point velocity and angular velocity for
+a moving instance. Pose uses the complete instance transform above.
 The authored preview continues outward until it is hidden at 66, wholly
 outside the receiver. Its last visible segment never returns into the gun.
 
