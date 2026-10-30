@@ -74,7 +74,7 @@ the hull at its actual HullR/L bone frame when handing it to external physics;
 the chamber sockets represent extraction, before the manual pull separates it.
 Keep the corresponding internal display hidden after external handoff.
 
-The round-six form gun is `export/sxs.glb`, through the kit's atlas and
+The round-seven form gun is `export/sxs.glb`, through the kit's atlas and
 animated exporter: one 2048 BaseColor/OpenGL Normal/ORM set with the inspection
 constants and baked source normals. Named rigid parts remain at this review
 gate for independent contact tests. The native `build/sxs.glb` and standalone

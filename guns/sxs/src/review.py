@@ -51,6 +51,9 @@ def main():
     for key in ('location','target','lens','roll','aspect','shift_x','shift_y','solved_barrel_angle','solved_lever_angle','solved_safety_shift_mm'):
      if key not in calibration[name]['shot']:continue
      assert row[key]==calibration[name]['shot'][key],(folder,name,key,'stale camera')
+    if 'solved_barrel_angle' in row:
+     row['pose_note']=f"Empty photographic pose: fitted opening {row['solved_barrel_angle']:.5f} deg, lever {row['solved_lever_angle']:.5f} deg, safety shift {row['solved_safety_shift_mm']:g} mm; solved keys override legacy initialization; canonical clips unchanged"
+   (OUT/folder/'shots.json').write_text(json.dumps(meta,indent=2))
  for p in (OUT/'strips').iterdir():
   if p.is_dir():
    for name,row in json.loads((p/'shots.json').read_text()).items():assert row['sha256']==digest,(p,name);current+=1

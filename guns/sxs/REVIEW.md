@@ -1,3 +1,475 @@
+# Covey 26 — form round 7: turned and milled head
+
+Round six's favorable fairness judgments are superseded by the owner's round-seven
+review. Its complete source, export and image baseline is preserved locally in
+`build/round7/before/` at repository root. Main merged cleanly before changes.
+No finish work or docs images are authorized in this round.
+
+## Round 7 critique passes
+
+43. **Baseline and first distance-union source, rejected.** Color/value: the
+    dark inspection constants are unchanged. The black-backed dealer photos
+    have no defensible neutral, so unity balance remains; no hue acceptance.
+    Opened both full-resolution source/export stripe sheets, the ordinary
+    open-head comparison and both requested photo pairs. Longitudinal bands
+    expose small closed islands and saddles; transverse bands expose the
+    two rear-centered cushions. These are present in the source. The old
+    adjacent-face-angle results cannot establish fairness at this wavelength.
+    Replaced all free height controls with original turned fence primitives,
+    ground-side/roof planes, a circular center land and compact distance
+    blends. Opened all ten first source stripe crops. The small cage waves
+    are reduced, but the transverse loops still center behind the breech:
+    reject. The base roof and union flatten the fence's rear fall. The next
+    trial uses one concave turned meridian whose axial slope never returns
+    to zero behind its crown, and a narrower blend support. First actual
+    sections also show the extra inflections; these remain visible in the
+    diagnostics and are not excused by topology or a normal-angle percentile.
+
+44. **Turned fall, center datum and front circles.** Color/value: same held
+    dark-steel constants and unity-balanced black-background references.
+    Opened both band directions from the top and open cameras in source
+    trials 2–4. Trial 2's closed transverse loops still center behind the
+    face. Trial 3 carries the turned meridian to the wood but keeps the
+    level center land; that land rises above the falling fences and adds
+    an unphotographed central ridge. Reject the level rear datum. Trial 4
+    keeps Z55.59 at the front and inclines the cylindrical land rearward
+    at 0.32 mm/mm. Its measured uninterrupted rear land is Z50.982 at
+    Y100.6, a 4.608 mm change from round six. The native top reference shows
+    the strongest fence highlights beside the barrels and a broad fall
+    toward the lever; it does not show the old raised land surrounded by
+    lower cushions. This is photographic form evidence, with uncalibrated
+    light and the camera/outline gate still pending, not a metric height scan.
+
+    That trial's turned meridian is `r(d)=13.35 - 0.5*(sqrt(d*d+12.8*12.8)-12.8)`.
+    Its axial slope and curvature have no secondary reversal. Transverse
+    sections remain circles about the continued bore axes. Restored the
+    constant front roof envelope: the inclined trial roof had intruded into
+    the accepted circular sectors. Independent game-triangle arc fits now
+    put their centers within 0.022 mm of the bores in that trial. Side return remains R6;
+    the unchanged lower construction, bushings, controls and rig remain.
+    All 246 source contact probes and the complete half-frame/lever sweeps
+    pass without adding any contact exception. The source has 38,822 tris.
+
+    The old 18.7 mm finite endpoint/degree-five fit and R7.18 at Y96.5–102
+    describe the rejected leveling-off construction. The new continuing
+    turn fits an equivalent front ellipse length about 20.3–21.2 mm and an
+    equivalent local circle about R124 there. These are observations of
+    different profiles, not new fillet constants. A 0.10 mm rise above a
+    level rear baseline no longer identifies the return on an inclined
+    surface; retain it only as a clearly labeled legacy observation. The
+    actual rear wood boundary is measured from rear-facing triangles.
+    Adjacent-face angles remain a tessellation check, never fairness proof.
+
+
+45. **Export control, reproducibility and blend rejection.** Color/value:
+    unchanged inspection constants; black-background photo comparisons remain
+    form-only. Opened the first baked top/open camera previews and all ten
+    source stripe crops. The continuing front-to-rear turn removes the old
+    small cage islands, but the 1 mm distance support makes the inner valley
+    too tight. Its source triangles turn by about 25 degrees across one
+    coarse transverse interval; the visible narrow converging bands, not
+    that angle by itself, reject the shape. The hard side-envelope clip also
+    leaves a small roof/ground-face crease. Widen the constructive blends.
+
+    A complete independent rebuild initially fails only Action_Body. The
+    dense sources differ at 59 vertices, up to 0.0057 mm: the 0.006 mm weld
+    chooses either of two crown samples 0.0056 mm apart. Retain one fixed
+    coordinate owner with bounded deterministic radius groups. Two fresh
+    builds then match all 104 entries at the unchanged 1 nm position and
+    five-decimal corner-normal tolerances. No test tolerance is relaxed.
+
+    Opened every broad-blend trial-5 stripe crop. A rearward-varying central
+    support introduces extra longitudinal islands, so reject it and keep one
+    constant 3 mm central support. The ordinary rounded intersection also
+    rounds coincident side planes inward: its envelope has no zero on those
+    rays, folds the remesh and breaks the stock Boolean. The 35,023-triangle
+    trial is rejected despite being manifold. The corrected side operation
+    makes its support vanish as the transverse normals become parallel;
+    the same 0.6 mm scale varies continuously along that return. The next
+    source/export, image and contact gates must pass before this is accepted.
+
+    Corrected a separate camera error: comparison crops had been treated as
+    centered optical frames. Retain the original image center through crop
+    shifts and verify it independently in Blender (maximum 0.0042 px
+    disagreement in the two-camera trial). Rigid-only top RMS is 7.989 px,
+    0.488 mm at head depth. The physically valid open fit remains 35.198 px,
+    3.877 mm. Reversed-hemisphere low-error fits, alternate side labels,
+    free-principal-point fits and exterior-rim/joint-pose trials are not
+    acceptance. The open gate and independent outlines remain unresolved;
+    additional verified rigid correspondences remain necessary. Outline
+    observations never influence the camera solve or modeling.
+
+
+46. **Constant joins, tangent sampling and section rejection.** Color/value:
+    held inspection constants, procedural bands only; unity-balanced dealer
+    macros remain form-only. Opened all ten source stripe crops from trials
+    6, 7 and 9, both actual height/curvature plot sheets, and native top/open
+    reference crops with observation grids. The outer union's rearward-varying
+    width creates shallow millimeter waves; reject it and retain constant
+    center/outer supports of 3/1 mm. Uniform-X interpolation flattens the
+    vertical side tangent; replace it with 1,281 transverse-angle samples and
+    0.05 mm Y spacing. This is numerical evaluation of the same zero field,
+    not a height cage. Rebuilt source passes the unchanged strict 104-entry
+    repeat comparison. Its topology is closed and consistently oriented.
+
+    Sections expose a second flaw: the circular center cap makes two shallow
+    troughs beside a center hump. Replace it with a milled inclined land,
+    12 mm flat width, with R2 shoulders buried in the turned fences. The
+    central valley now has one flat bottom. The R6 side/roof return's level
+    rear roof also stops the fence fall before the wood. A shallow 0.10 slope
+    in that roof continues the fall and keeps the old drop observations within
+    their recorded photo uncertainty. Direct field comparisons at 0.10,
+    0.15, 0.20, 0.25 and 0.32 distinguish this effect from lighting.
+
+    The source trial still has broad rear-weighted transverse bands. Reject
+    the long 12.8 mm axial crown scale. A 2 mm crown scale with asymptotic
+    slope 0.30 concentrates the axial turn beside the breech and carries a
+    near-conical fall to the wood. Its behind-return height is close to the
+    previous trial; its equivalent front ellipse length deliberately changes.
+    The photo's strongest front highlight and steady rear darkening motivate
+    the localized crown. This is form evidence, not recovery of a 3D section
+    from specular brightness. Increase transverse source sampling for the
+    tighter manufactured joins; do not loosen the 12-degree mesh regression.
+
+
+47. **Near-conical export rejected; front crown and hollow fall.** Color/value:
+    unchanged inspection constants; black-backed photographs remain at unity
+    balance and supply form evidence only. Opened the complete first 4096/2048
+    source/export stripe sheets and native open before/after crop. That build
+    passes its mechanical checks, but its near-conical fences remain as two
+    raised rails behind the front. Reject it. Preserve that trial locally in
+    `build/round7/near-cone/`. The new turned meridian has zero slope at the
+    face, a short 1.2 mm crown scale, then an eased 2.5 mm hollow fall over a
+    7 mm scale into a 0.30 rear slope. The actual maximum axial slope is now
+    near Y111.35, close to the front highlight in the top photograph. This is
+    a turned profile, not a set of independently placed roof heights.
+
+48. **Buried milled edges and actual sections.** Color/value: same procedural
+    reflection bands and steel constants. A narrow 12 mm flat central land
+    exposes its R2 edges in the valley. A widening wedge also exposes them;
+    actual transverse cuts show extra troughs. Reject both. The final central
+    land is 25.2 mm wide, inclined 0.32 rearward, with its R2 edges buried under
+    the turned crowns. Constant 1.5 mm central and 1 mm outer union supports
+    replace the earlier varying widths. Opened all ten broad-land source
+    stripe crops, both every-5-mm height/curvature sheets, and native photo
+    grids. There are no former small cage islands on the central plane.
+    Nested crown bands concentrate at the front. Long rake bands wrap the
+    outer crown/return; this broad outer blend still needs the photographic
+    registration rather than an automatic fairness claim. Curvature sign
+    reversals remain fully recorded, including intervals spanning a planar
+    land. A midpoint of such an interval is not a localized dent.
+
+    The original recess outline, floor and R0.60 lip remain. No recess-floor
+    lowering was used to accommodate a bad land. The independent build now
+    matches all 104 strict entries. A round-six preservation audit also matches
+    102/104 entries exactly: only Action_Body and its Stock_Walnut inlet differ.
+    Rig, controls, barrels, other furniture, sockets and clips match exactly.
+
+49. **Native camera observations and rejected low-error fit.** Color/value:
+    no neutral or finish claim added. Inspected native top/open crops, observed
+    grids, full pairs, projected curves and independent Workbench camera
+    previews. The top fit uses the actual lever-tip and safety upper surfaces,
+    rather than bone pivots, plus two breech corners and the rigid rib line.
+    Its four-point RMS is 12.392 px / 0.825 mm; rib-line RMS 9.926 px / 0.661 mm.
+    No guessed barrel highlight or head form is fitted.
+
+    Open-rim observations were inspected at native resolution. A seven-point
+    arc, rigid lines, controls and a lower breech corner produce a 4.131 px /
+    0.492 mm free-principal-point trial. Independent projection agrees below
+    0.001 px, but its rendered view shows the chambers and does not establish
+    the photo's exterior-side correspondence. Reject that numerical result as
+    camera acceptance. Refit with an explicit muzzle-side prior, both real
+    safety detents, multiple focal starts and multiple initial view directions.
+    Also inspect the true rounded lever tip and the safety's upper center,
+    rather than points inside their pads. The constrained trials still exceed
+    1 mm. Extending the partial rim down to its bottom roll does not fix this.
+    Do not move accepted parts or fit head landmarks into the camera to hide it.
+
+    Recover actual cap-boundary segments from the triangles for the wood joint.
+    The former fixed-X/photo point pairs and 0.10 mm height departures were
+    not valid outline correspondences. The native joint observations remain
+    separate from rigid fitting. Some exceed 2 mm. The centerline is covered
+    by the reference's different barrel extension, and the old return markers
+    fall on engraving/highlight departures rather than an identifiable edge.
+    These registration gates remain unresolved, not silently waived.
+
+
+## Every-5-mm section audit, round 7
+
+Opened both current plot sheets. Teal is the dense triangle surface; brown is
+the game triangles. Curvature is measured over 0.8 mm at 0.05 mm sample spacing;
+the sign floor stays 0.002/mm. Counts include a sign carried across a nearly
+planar stretch. The JSON retains both ends of that bracket; its midpoint is
+not necessarily a localized inflection. Abrupt recess/floor or rear-cap edges
+are not smoothed away. No source/export count is suppressed.
+
+| Direction / station mm | Dense / export changes | Dense event coordinates mm | Construction interpretation to review |
+| --- | ---: | --- | --- |
+| transverse 85 | 2 / 2 | -10.52, 10.53 | Wood line on either side of the strap. |
+| transverse 90 | 6 / 6 | -10.75, -7.60, -6.37, 8.08, 8.88, 10.75 | Rear land/wood return and recess lip/floor; outer ±10.75 still unregistered. |
+| transverse 95 | 10 / 10 | -19.12, -16.42, -10.32, -7.02, -5.87, 5.88, 7.03, 10.33, 16.43, 19.13 | Outer returns, valley, recess lip; wood-line endpoints. |
+| transverse 100 | 10 / 12 | -19.92, -18.12, -9.95, -4.45, -0.92, 0.93, 4.45, 9.95, 18.13, 19.93 | Outer returns and valley; short recess-front lip. Long central brackets span the plane. |
+| transverse 105 | 6 / 10 | -21.52, -19.95, -9.35, 9.35, 19.95, 21.53 | Outer return pairs and two valley shoulders; no recess intersection. |
+| transverse 110 | 6 / 8 | -23.77, -22.52, -8.25, 8.25, 22.53, 23.78 | Outer return pairs and valley shoulders beside the front turn. |
+| transverse 115 | 2 / 2 | -7.15, 7.15 | Only the two valley shoulders at the front crowns (actual Y114.8). |
+| longitudinal -25 | 2 / 2 | 102.82, 113.55 | Rear wood-edge/plane bracket and front crown roll. |
+| longitudinal -20 | 4 / 16 | 97.70, 105.30, 108.22, 110.52 | Wood/outer-return departure, outer blend and front crown; intermediate reversals remain unregistered. |
+| longitudinal -15 | 4 / 20 | 90.62, 92.70, 95.57, 111.50 | Wood return, outer-blend/plane brackets, front crown roll. |
+| longitudinal -10 | 2 / 4 | 87.82, 111.62 | Wood-line blend and front-crown transition across a nearly planar meridian. |
+| longitudinal -5 | 6 / 10 | 86.77, 90.42, 95.55, 97.17, 103.47, 112.80 | Recess heel, floor/lip, plane-to-crown brackets; long zero-curvature intervals retain both feature ends. |
+| longitudinal 0 | 1 / 1 | 86.27 | Recess rear heel; center land stays planar ahead of the lip. |
+| longitudinal 5 | 6 / 8 | 86.47, 90.27, 95.55, 97.17, 103.45, 112.77 | Recess heel, floor/lip, plane-to-crown brackets; long zero-curvature intervals retain both feature ends. |
+| longitudinal 10 | 2 / 8 | 87.82, 111.62 | Wood-line blend and front-crown transition across a nearly planar meridian. |
+| longitudinal 15 | 4 / 13 | 90.62, 92.70, 95.57, 111.50 | Wood return, outer-blend/plane brackets, front crown roll. |
+| longitudinal 20 | 4 / 12 | 97.70, 105.35, 108.17, 110.57 | Wood/outer-return departure, outer blend and front crown; intermediate reversals remain unregistered. |
+| longitudinal 25 | 2 / 2 | 102.80, 113.55 | Rear wood-edge/plane bracket and front crown roll. |
+
+55 dense events remain without verified photographic attribution in the raw
+report. The interpretation column names the constructive surfaces, not a
+waiver of the requested photo-feature criterion. In particular the outer
+fence/base fillets have additional convex/concave transitions. They cannot be
+certified from an unsolved open pair. Additional game-mesh reversals on the
+nearly planar intervals are triangulation error; that explanation does not
+turn them into photographed features or erase them from the count. **The
+strict section/fairness acceptance is incomplete.**
+
+Plots: [transverse height and curvature](renders/checkpoint/curvature/transverse.png),
+[longitudinal height and curvature](renders/checkpoint/curvature/longitudinal.png).
+Every sample, feature distance and reversal bracket is in the adjacent
+`sections.json`. Source geometric face-angle maxima and monotone bore rays
+remain regression checks only; they are not a replacement for these plots.
+
+## Round-five observations retained or deliberately changed
+
+The README lists the complete current measurements and photographic uncertainty.
+This table makes the departures from the delivered round-six evaluation explicit.
+Values are millimeters except the separately recorded center-plane slope.
+
+| Observation | Before | Current | Change |
+| --- | ---: | ---: | ---: |
+| behind right return drop | 7.60332 | 7.33083 | -0.27249 |
+| behind left return drop | 7.60284 | 7.32887 | -0.27397 |
+| right side wood line drop | 12.95792 | 15.02363 | +2.06571 |
+| left side wood line drop | 12.95019 | 15.02647 | +2.07627 |
+| center wood line drop | 10.96043 | 11.12744 | +0.16701 |
+| center Z at Y100.6 | 55.58974 | 50.98153 | -4.60821 |
+| center Z at Y114.8 | 55.59004 | 55.52625 | -0.06380 |
+| side-return R fit  side -1 | 5.89599 | 6.00426 | +0.10826 |
+| side-return R fit  side 1 | 5.89312 | 6.00462 | +0.11150 |
+| local profile R fit fence to head side -1 | 7.18216 | 233.09967 | +225.91751 |
+| local profile R fit head to strap side -1 | 6.97641 | 4408.21873 | +4401.24232 |
+| local profile R fit fence to head side 1 | 7.18246 | 216.96420 | +209.78174 |
+| local profile R fit head to strap side 1 | 7.01659 | 10232.89378 | +10225.87719 |
+| degree-five length equivalent  side -1 | 18.70000 | 23.11000 | +4.41000 |
+| degree-five length equivalent  side 1 | 18.71000 | 23.14000 | +4.43000 |
+| recess-lip R fit | 0.57552 | 0.58310 | +0.00758 |
+
+The center-plane slope changes from zero to +0.32001 in forward Y. Its front
+face stays Z55.58707 beside the actual Z55.58494 rib floor. A rear level
+Z55.59 land would stand above the falling turned fences; this is the specific
+number that forced the former rear cushions. The top photograph shows a front
+crown highlight and a fall toward the strap, not that raised rear level.
+
+The old R7.18 and R6.98/R7.02 local circles and finite degree-five/ellipse
+endpoints describe the rejected tight leveling-off profile. The new meridian
+has no finite flat rear endpoint. The local strap interval is now nearly a
+plane, making a large circle fit ill-conditioned. The legacy ellipse extrapolates
+its front beyond Y220/231 and its lengths to 122.75/134.00 mm; these are not
+physical roll extents. The old first-0.10-mm departure offsets, 8.8/9.0 mm,
+become 2.7/2.6 mm on the inclined roof and no longer identify the rear outline.
+These obsolete numerical interpretations cannot certify a photographic match.
+
+The front circular radius, crowns, side planes, R6 side construction and R0.60
+lip construction are retained. Small changes in fitted R values and boss gaps
+reflect the changed neighboring surface and reduction. No lever, boss, recess
+outline, floor, moving pivot or canonical sweep was changed. The native
+preservation comparison is explicit. Photograph-based approval of the changed
+profile remains incomplete because its camera/outline gates fail; the
+highlight comparison is the stated form evidence, not an invented metric scan.
+
+## Current rigid calibration and independent outline residuals
+
+Four top points plus the rigid rib line, and seven open arc points plus three
+rigid points and two lines, are fitted. No head or wood-joint observation enters
+the objective. All residuals below are in native reference pixels and image-plane
+millimeters at the measured head or individual point depth, not recovered 3D error.
+
+| Camera | Point RMS px | mm at head | Line RMS px / mm | Free lens mm |
+| --- | ---: | ---: | ---: | ---: |
+| action_top | 12.39206 | 0.82461 | 9.92622 / 0.66052 | 162.081 |
+| open | 24.13641 | 2.46865 | 7.30875 / 0.74753 | 717.381 |
+
+The open solution presses against the 1 mm muzzle-side prior and its fitted
+principal point is far off the published crop. The small opposite-side trial
+remains rejected. This is not a unique calibrated photographic camera; the
+open <1 mm requirement is **not met**. The original-image-center assumption
+for the top view and broad principal-point bounds for the cropped open image
+are recorded explicitly. Neither a lens prior nor head landmarks were used
+to force the reported residual downward.
+
+| View / actual wood joint observation | Native photo x,y | Error px | Error mm | <=2 mm |
+| --- | --- | ---: | ---: | --- |
+| action_top / wood joint curve 1 | 610, 2873 | 34.715 | 2.356 | **no** |
+| action_top / wood joint curve 2 | 650, 2870 | 0.642 | 0.044 | yes |
+| action_top / wood joint curve 3 | 675, 2880 | 13.773 | 0.932 | yes |
+| action_top / wood joint curve 4 | 690, 2915 | 3.439 | 0.233 | yes |
+| action_top / wood joint curve 5 | 702, 2960 | 20.992 | 1.422 | yes |
+| action_top / wood joint curve 6 | 712, 3000 | 48.363 | 3.278 | **no** |
+| action_top / wood joint curve 7 | 1030, 2970 | 12.673 | 0.844 | yes |
+| action_top / wood joint curve 8 | 1033, 2925 | 16.593 | 1.101 | yes |
+| action_top / wood joint curve 9 | 1035, 2890 | 37.028 | 2.450 | **no** |
+| action_top / wood joint curve 10 | 1050, 2868 | 39.170 | 2.590 | **no** |
+| action_top / wood joint curve 11 | 1080, 2852 | 26.988 | 1.784 | yes |
+| action_top / wood joint curve 12 | 1110, 2849 | 7.710 | 0.510 | yes |
+| action_top / wood joint curve 13 | 1150, 2851 | 17.643 | 1.164 | yes |
+| action_top / wood joint curve 14 | 1200, 2870 | 38.791 | 2.556 | **no** |
+| action_top / wood joint curve 15 | 1232, 2901 | 48.316 | 3.293 | **no** |
+| open / wood joint curve 1 | 2258, 865 | 8.999 | 0.919 | yes |
+| open / wood joint curve 2 | 2259, 825 | 19.322 | 1.968 | yes |
+| open / wood joint curve 3 | 2261, 785 | 24.414 | 2.485 | **no** |
+| open / wood joint curve 4 | 2266, 750 | 17.641 | 1.854 | yes |
+| open / wood joint curve 5 | 2277, 724 | 8.540 | 0.897 | yes |
+| open / wood joint curve 6 | 2300, 706 | 9.081 | 0.932 | yes |
+
+Distances are to the projected actual rear-cap segments. No guessed fixed-X
+photo correspondence is assumed. Visibility and the open camera remain limits;
+the table does not silently certify an occluded segment. Smooth returns have
+no identified photographic edge, and the top centerline is partly covered by
+the different barrel extension. Their old engraved/highlight markers cannot
+certify <=2 mm. **The complete outline gate is not met.**
+
+
+50. **Independent projection catches the outline interpolation error.**
+    Color/value: unchanged. Opened the corrected native top/open pairs and all
+    23 current ordinary inspection renders (individual required player views
+    plus five review sheets). The new central plane removes the earlier
+    small islands and the crown highlight is concentrated toward the face.
+    The outer shoulder still carries a broad return highlight; it must not
+    be pronounced fair solely because the source is C2 or the export agrees.
+    The top wood joint differs by as much as 3.29 mm and the open camera still
+    fails. The source/export height curves are close; the game curvature has
+    additional small facet reversals, retained in the count. No look change.
+
+    The fresh Blender projection check found up to 4.68 pixels disagreement
+    for new joint markers. Rigid camera points still agreed. The overlay had
+    interpolated world coordinates with a screen-space segment fraction.
+    Correct it to the perspective-correct fraction using the endpoint depths.
+    The independent check now agrees within 0.004 pixels, including the joint
+    points. No landmark observation, fit target or pass threshold was moved.
+    Re-run the full build after this correction; retain the earlier failed
+    build log rather than calling that run successful. Also remove stale
+    18.5 mm roll and level-center callouts from the construction section sheet.
+
+
+
+51. **Broader constructive outer joins rejected numerically.** Color/value:
+    unchanged; this was a direct field/section study, not a new look pass.
+    Reorder the union so the central plane is added after the turned fences
+    and outer milled envelope, then test constant supports 1–24 mm and smooth
+    rearward-growing supports. The wider joins can remove the two outer
+    convex/concave reversals in each transverse half. A support of
+    `1 + 0.95*(115-Y)` removes them at Y95–114.8 while keeping monotone axial
+    heights and a front crown. It does so by burying the turned sectors:
+    the Y108 fitted-circle center departs from the bore by 3.377 mm, Y110 by
+    1.513 mm, and the side-window circle fit becomes R10.932 rather than R6.
+    The face remains approximately R13.350, but that alone is insufficient
+    to excuse replacing the accepted exposed fences. Reject this candidate
+    rather than trading a sign-count pass for the wrong main surfaces.
+    The retained narrow outer blend, its remaining reflections and its
+    photographic attribution remain an explicit weakness. A body/control-only
+    open camera trial also fails (best about 3.22 mm); discarding the rim
+    observations is not a route to a validated <1 mm camera.
+
+
+52. **Final source/export stripe set and current delivery, not form acceptance.**
+    Color/value: inspection constants remain held. The current hero has luma
+    percentiles 1.07 / 47.22 / 207.00, 21.13% below luma 15 and no all-channel
+    clipping. These are tonal sanity checks, not a finish match. Opened all
+    ten native source/export head panels, both full before/after export sheets,
+    the native ordinary open crop, current player views, all 23 ordinary views,
+    all 12 photo comparisons, both source/export side rakes, all construction
+    sections, both curvature plots, ammunition, clip and final contact sheets.
+    The small round-six central islands and folded-looking ordinary highlights
+    are greatly reduced. The broad outer-return loops remain a form weakness.
+    The bake reproduces the source; that does not certify the source's fairness.
+
+| Image, both source and export | Dense source observation | Baked 2048 observation |
+| --- | --- | --- |
+| Open / longitudinal | Long front-crown bands; central land has no former small islands. Extra oval/S-turn structure remains on the outer return. | Same course; small jagged band edges on the outer return. No new central island. |
+| Top / longitudinal | Front-crown ends turn near the face; long straightening runs flank the plane. Outer return creates secondary converging bands. | Central land stays quiet. Outer bands have small filtering/triangulation deviations; secondary structure remains. |
+| Aimed / longitudinal | Crown loops sit on the front rolls. Outer shoulders and the recess make sharp course changes; the outer feature needs photo registration. | Same crown and shoulder structure, with fine band-edge filtering. |
+| Right rake / longitudinal | Nested closed loops extend along the outer fence/base join, away from the front crown. Not accepted without a matching photographic feature. | Loops are retained; the ground side stays broad and flat. A few boundary artifacts remain at the forward edge. |
+| Left rake / longitudinal | Mirrored extra closed-loop structure at the outer join. Not accepted as automatically fair. | Retains that structure; no return to the round-six small wave field. |
+| Open / transverse | The large loops have moved toward the front crowns. Broad central plane is quiet; lower outer-return course change remains. | Same crown placement and lower return; narrow lip fringe is the real recess edge. |
+| Top / transverse | Front-weighted triangular crown loops, with a flat central band response. Bright short band at recess heel is the cut lip. | Same locations; lip edge is slightly coarser. No rear-centered central cushion loop. |
+| Aimed / transverse | Upper front crown arcs are simple. Lower shoulder/outer-return lobes remain separate reflected features. | Those lobes survive the bake; they require the same photo explanation as the source. |
+| Right rake / transverse | Closed loops are concentrated at the front roll; the outer return fans into the broad side band. | Same paths with slightly softer edges; no new isolated island on the plane. |
+| Left rake / transverse | Front roll carries the nested loops; outer return changes course before the side plane. | Matches the source, including that unregistered return feature. |
+
+The recess lip is photographed and intentionally retained; its narrow bright
+edge is not a fabricated fairness exception. The outer return is a known
+constructive blend, but naming it does not prove the photograph has this exact
+course. The longitudinal outer loops and 55 unregistered dense section events
+remain explicitly unaccepted. **Round seven is incomplete.**
+
+## Current build proof and handoff limits
+
+- `make -C guns/sxs`: exit 0 after correcting the independent outline marker
+  projection; full log `build/round7/make-final-current.log` at repository root.
+- `make -C guns/sxs check`: exit 0; full log
+  `build/round7/check-current.log`. The earlier failed full-build log remains
+  `build/round7/make-current.log`; it is not presented as passing.
+- The final review rerun passes current-source provenance for 317 render records,
+  19 clips and every source/export band image. `build/round7-acceptance.json`
+  remains `full_form_passed: false`, with separate camera, outline and section
+  attribution results. The audit's `passed` covers provenance/mechanical checks.
+- Native and imported checks each pass 246 actual contact probes. All 19 clips
+  are swept at half-frame intervals over 1,161 cross-bone pairs, with no allowed-
+  contact exceptions: 8,672 native and 9,862 imported unique solid tests. Largest
+  measured general penetration is 0.11371 mm native / 0.11371 mm imported, inside
+  the unchanged 0.2 mm tolerance. This is not a zero-intersection claim.
+- Lever sweep: 51 angles from 0 to 25 degrees in 0.5-degree increments; actual
+  triangle vertex/face and interior edge/edge distances. Minimum gap is
+  0.15916034 mm native / 0.15915975 mm imported; maximum penetration 0, no triangle
+  crossings. This is a sampled sweep, not a continuous-angle certificate.
+- Strict repeat comparison: 104/104 entries match at 1 nm positions, five-decimal
+  normal components and exact animation values/interpolation. Preservation
+  against round six: 102/104 entries unchanged; only the head and stock inlet differ.
+- 1,715 affine serialization samples pass. Dense head has zero nonmanifold edges
+  and zero zero-area faces. Adjacent geometric face angles are regression data,
+  not proof of fairness. The normal map projects the dense source through the
+  actual game Mikk basis, with maximum roof/lip/floor/rear distances
+  0.09227 / 0.01469 / 0.01093 / 0.03290 mm. All five bake channels report zero
+  missed interior texels among 5,272,084 tested interior texels per channel.
+- Current import UVs: no outside or degenerate triangles; overlap fraction
+  0.0000013127, median density 2,375.43 px/m over all parts. The separately packed
+  unique region has its own recorded UV report and lower overlap. No UV test
+  threshold was relaxed. The former exact 99-ground-triangle assertion is now
+  a nonzero-coverage check; the new forging has 103 such triangles, with both
+  fitted plane and texel-coverage checks retained.
+- Gun: 38,822 triangles, 54 named meshes, 17 bones, 19 clips, 14 sockets,
+  one material, three 2048 maps. GLB 12,477,444 bytes. BaseColor 262,792 bytes
+  (RGB8), Normal 7,287,012 bytes (RGB16), ORM 1,613,267 bytes (RGB8).
+  Source bake is 4096 / 32 samples on the locked GPU. Shell/hull remain
+  752 / 480 triangles. No kit/common changes, look work, docs JPGs or push.
+
+Current evidence is under `renders/checkpoint/`: `contact-sheet.jpg`,
+`reflections/source-export-{longitudinal,transverse}.jpg`,
+`reflections/before-after-{source,export}-{longitudinal,transverse}.jpg`,
+`reflections/open-head-before-after.jpg`, `beauty/{open,aimed,top,breech}.png`,
+`pairs/{action_top,open,open-player}-pair.jpg`, `head-raking-comparison.jpg`,
+`sections/sections.jpg`, and `curvature/{longitudinal,transverse}.png`.
+
+What remains is substantive: the open camera does not meet 1 mm; actual top
+wood-joint observations reach 3.29 mm; returns and the covered centerline have
+no accepted registration; outer-loop/section attribution is incomplete. Verified
+rigid correspondences for the open photograph are needed before that pair can
+safely drive further head changes. The different raised barrel extension and
+uncertain visible rim must not be used as if they were a shared calibrated part.
+The two free-camera fits are useful diagnostics, not a claim of recovered EXIF.
+No kit feature is needed to hide or waive these failures.
+
+
 # Covey 26 — form round 6: upper forging fairness
 
 Round five's favorable surface judgments are superseded. The accepted

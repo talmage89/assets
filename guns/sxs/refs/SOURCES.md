@@ -326,3 +326,47 @@ are measured at X±23 / ±7.5 mm using the first 0.10 mm height departure from
 the adjacent actual head. The resulting outline is a tangent transition,
 not a physical seam. Profile-radius fits state their interval and error;
 a fit across an inflection is not presented as a fillet radius.
+
+
+## Round 7: construction and calibration limits
+
+The same native dealer photographs remain the references; no new images,
+materials, models or downloaded tools were added. Black-backed macros still
+have no defensible neutral and retain unity balance. This is form work only.
+
+The top photograph's strongest fence highlights occur at the barrel joint,
+then fall into a darker broad head toward the wood/strap. The continuing turned
+profile and inclined center land replace the old rear-centered cushions. Z55.59
+is retained at the front rib floor; the former level rear center is deliberately
+superseded. The old tight Y96.5–102 circle fit described the leveling-off
+construction, rather than a radius that every possible filed head must have.
+Updated triangle measurements, intervals and departures are recorded in README
+and REVIEW; source photographs are neither traced nor read by the generator.
+
+The photographic originals contain no ruler, recovered camera calibration or
+usable EXIF. Camera fits now retain the original image center after applying
+the comparison crop; the original-image-center assumption is explicit. Focal
+length, pose and roll are fitted on rigid observations, independently of every
+head outline observation. A fresh Blender projection checks sensor fit, roll,
+crop shifts and handedness. A low pixel residual does not resolve uncertain
+correspondence or establish physical millimeter accuracy by itself.
+
+The open photograph's raised extension differs from this original under-lug
+exterior and partly hides the barrel datum. Alternate side assignments, free
+principal-point fits, exterior-rim curve fits and joint-pose trials were inspected
+locally. Small fits from a reversed barrel hemisphere were rejected. The final
+camera report retains any failed <1 mm criterion and all independent outline
+residuals; it must not be read as a precision scan comparison. Verified rigid correspondences are still needed before accepting that comparison.
+
+
+Round-seven native observation revision: the open trial uses seven samples of
+one visible cut-rim arc, two points on each fitted rigid rib/breech line, the
+rounded lever end, the safety upper center, and the lower breech corner. Native
+control observations are (2795,595) and (2970,823); earlier preview marks were
+inside the pads. Both safety detents and barrel/lever pose are fitted; these do
+not change canonical clips. Because this published frame is cropped, its
+principal point is also fitted within one original frame outside its bounds.
+An explicit muzzle-side prior rejects the opposite-side numerical solution;
+it is a view interpretation, not recovered EXIF. The present open calibration
+is not accepted. Actual wood-joint curves replace arbitrary fixed-X point pairs.
+Smooth return and occluded centerline observations remain unregistered.
