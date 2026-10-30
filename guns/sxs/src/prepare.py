@@ -39,6 +39,7 @@ def main():
  report=uv.report([o for o in bpy.context.scene.objects if o.type=='MESH'],size=2048)
  assert report['overlap_fraction']<1e-5 and not report['outside_triangles'] and not report['degenerate_uv_triangles']
  (out/'uv.json').write_text(json.dumps(report,indent=2))
+ target_side_normals=ground_sides(bpy.data.objects['Action_Body'])
  bpy.ops.wm.save_as_mainfile(filepath=str(out/'finalized.blend'))
  # Re-open the native source to retrieve our dense mesh datablocks, since the
  # finalizer loads a file and invalidates all Python RNA mesh references.
@@ -59,5 +60,6 @@ def main():
  bpy.context.scene['stage']='Original dense sources; constant form bake, finishes held'
  bpy.ops.wm.save_as_mainfile(filepath=str(out/'high.blend'))
  (out/'prepare.json').write_text(json.dumps(dict(source_sha256=hashlib.sha256((BASE/'build/sxs.blend').read_bytes()).hexdigest(),
-  stage='form normal bake; no finish or wear acceptance',source_ground_side_normals=side_normals),indent=2))
+  stage='form normal bake; no finish or wear acceptance',source_ground_side_normals=side_normals,
+  target_ground_side_normals=target_side_normals),indent=2))
 if __name__=='__main__':main()
