@@ -7,5 +7,5 @@ from guns.common.feed_views import main
 import interface,final_shots
 if __name__=='__main__':
     main(BASE,interface,final_shots,
-         dict(location=(.42,.10,.22),target=(0,.175,.043),lens=60,aspect=1.8,exposure=-.15),
+         dict(location=(.49,.10,.31),target=(0,.175,.080),lens=55,aspect=1.55,exposure=-.15),
          ['Receiver','Magazine_Tube','Barrel','Bolt_Body','Loading_Gate','Forend'])

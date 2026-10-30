@@ -14,7 +14,7 @@ sys.path.insert(0,str(ROOT))
 from kit.fonts import find_font
 
 
-def main(base, manifest):
+def _run(base, manifest):
     p=argparse.ArgumentParser()
     p.add_argument('--before', action='store_true')
     p.add_argument('--clips')
@@ -80,4 +80,16 @@ def main(base, manifest):
                               source_sha256=digest,cutaway=cutaway)
             print('FEED STRIP',gun,name,len(panels),'frames',flush=True)
             (out/'timing.json').write_text(json.dumps(report,indent=2)+'\n')
+
+
+def main(base, manifest):
+    # Like the family's final strip renderer, hold one shared lease for the
+    # short Eevee batch; child guards use a nested worktree-local lease.
+    import fcntl
+    shared=Path(os.environ['ASSETS_GPU_LOCK']);shared.parent.mkdir(parents=True,exist_ok=True)
+    (base/'build').mkdir(exist_ok=True)
+    with shared.open('a') as lease:
+        fcntl.flock(lease,fcntl.LOCK_EX)
+        os.environ['ASSETS_GPU_LOCK']=str(base/'build/feed-strip-inner.lock')
+        _run(base,manifest)
 
