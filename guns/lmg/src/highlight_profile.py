@@ -25,6 +25,7 @@ def main():
  record['local_profile_pass']=bool(abs(render['width_fraction']/reference['width_fraction']-1)<=.10 and abs(render['peak']/reference['peak']-1)<=.10)
  out=root/'surface-pairs';out.mkdir(exist_ok=True);(out/'paint-highlight-width.json').write_text(json.dumps(record,indent=2))
  canvas=Image.new('RGB',(1800,950),'#e7e9e6');d=ImageDraw.Draw(canvas);d.text((25,15),'Paint satin / native reflection profile, source GLB vs gray-balanced studio photo',font=FONT,fill='black')
+ d.text((25,42),'Native width and peak: '+('PASS' if record['local_profile_pass'] else 'MISS; retain measured construction difference'),font=SMALL,fill='black')
  for col,(a,r,label) in enumerate(((im,render,'Exported 2048 GLB'),(photo,reference,'Native photograph'))):
   x0,y0,_,y1=r['bounds'];crop=Image.fromarray(a).crop((max(0,x0-150),max(0,y0-12),x0+150,y1+12));crop.thumbnail((840,390));canvas.paste(crop,(25+900*col,65));q=np.array(r['value_profile']);points=[(35+900*col+i/max(len(q)-1,1)*780,720-v*1.1) for i,v in enumerate(q)];d.line(points,fill=(140,55,25) if col==0 else (25,90,145),width=3)
   d.text((25+900*col,775),label+' FWHM %.1f%% of visible station'%(r['width_fraction']*100),font=FONT,fill='black');d.text((25+900*col,810),'P95 profile value %.1f / native span %d px'%(r['peak'],r['part_span_pixels']),font=SMALL,fill='black')
@@ -48,10 +49,11 @@ def main():
   ref=np.asarray(Image.open(BASE/'build/white-balanced'/(name+'.jpg')).convert('RGB'));pm=polygon_mask((ref.shape[1],ref.shape[0]),polys)
   pm=np.asarray(Image.fromarray(np.uint8(pm)*255).filter(ImageFilter.MinFilter(3)))>0
   r,t=metrics(trial[part]),metrics(ref[pm]);rows[role]=dict(render=r,photo=t,acceptance=acceptance(r,t))
- record['rejected_trial']=dict(profile=tr,whole_parts=rows,sha256=trial_meta['sha256'],limit='Existing-fixture profile trial raises the local peak but fails complete-part finish constraints. Its geometry and materials are identical to the retained rig.')
+ record['rejected_trial']=dict(profile=tr,whole_parts=rows,sha256=trial_meta['sha256'],limit='Earlier existing-fixture profile trial fails complete-part finish constraints. Its geometry and materials are identical to the retained rig.')
  (out/'paint-highlight-width.json').write_text(json.dumps(record,indent=2))
  canvas=Image.new('RGB',(1800,1050),'#e7e9e6');d=ImageDraw.Draw(canvas)
  d.text((25,15),'Cover reflection / retained rig, rejected physical trial and native photograph',font=FONT,fill='black')
+ d.text((25,45),'Retained native width and peak: '+('PASS' if record['local_profile_pass'] else 'MISS'),font=SMALL,fill='black')
  for col,(a,r,label) in enumerate(((im,render,'Retained rig'),(trial,tr,'Rejected profile trial'),(photo,reference,'Native photograph'))):
   xx,y0,_,y1=r['bounds'];crop=Image.fromarray(a).crop((max(0,xx-150),max(0,y0-12),xx+150,y1+12));crop=ImageOps.contain(crop,(550,390));canvas.paste(crop,(25+600*col,80))
   q=np.array(r['value_profile']);d.line([(35+600*col+i/max(len(q)-1,1)*520,750-v) for i,v in enumerate(q)],fill=(30,80,120),width=3)

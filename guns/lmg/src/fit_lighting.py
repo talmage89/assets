@@ -41,10 +41,24 @@ for shot in dict.fromkeys(v[2] for v in REGIONS.values()):
   pack.extend((yy[:,None]*w+np.arange(px-2,px+3)[None,:]).ravel().tolist())
   ref=np.asarray(Image.open(BASE/'build/white-balanced/used_receiver.jpg').convert('RGB'),float)
   def profile_stats(a):
-   v=np.median(a.max(2),axis=1);floor,peak=np.percentile(v,[10,95]);width=np.mean(1/(1+np.exp(np.clip(-(v-(floor+peak)/2)/4,-50,50))))
-   return float(peak),float(width)
+   v=np.median(a.max(2),axis=1);floor,peak=np.percentile(v,[10,95]);threshold=(floor+peak)/2
+   # Guide the same principal connected band as the native FWHM audit.
+   # Summing all disconnected reflections incorrectly penalizes the hem's
+   # separate top facet as though it widened the principal satin band.
+   runs=[];start=None
+   for i,on in enumerate(np.r_[v>=threshold,False]):
+    if on and start is None:start=i
+    if not on and start is not None:runs.append((start,i));start=None
+   lo,hi=max(runs,key=lambda r:r[1]-r[0]) if runs else (0,0)
+   band=v[max(0,lo-2):min(len(v),hi+2)]
+   width=np.sum(1/(1+np.exp(np.clip(-(band-threshold)/4,-50,50))))/len(v)
+   return float(peak),float(width),(hi-lo)/len(v)
   profile_data=(profile_slice,len(yy),profile_stats(ref[320:393,628:633]))
  data=np.stack([read(basis/(shot+'__'+str(i)+'.exr')).reshape(-1,3)[pack] for i in range(len(B))]);data=np.transpose(data,(1,2,0)).reshape(-1,len(B)).astype(np.float32);gain=2**s.get('exposure',.45)
+ # Near-crown cards are much more efficient per watt. Fit hundredths of a
+ # watt there so the same numerical steps resolve them instead of clipping.
+ energy_scale=np.array([.01 if not b.get('world') and max(b['size'])<=.03 else 1 for b in B])
+ data*=energy_scale
  def predict(p):
   if args.mixed_light:
    rgb=(data[:,upper]@p[:len(B)][upper]).reshape(-1,3)*np.r_[p[-4:-2],1]+(data[:,~upper]@p[:len(B)][~upper]).reshape(-1,3)*np.r_[p[-2:],1];rgb*=gain
@@ -60,21 +74,29 @@ for shot in dict.fromkeys(v[2] for v in REGIONS.values()):
    else:
     residuals.extend((er/np.array((.15,.10,.15))*np.sqrt(np.array((1,2,1)))).tolist());residuals.extend((eh/.10*np.sqrt(.65)).tolist())
     residuals.extend((np.maximum(abs(er)-np.array((.14,.09,.14)),0)*80).tolist());residuals.extend((np.maximum(abs(eh)-.09,0)*60).tolist())
+   if not guard:
+    chroma=hi/max(hi.max(),1);target_chroma=th/max(th.max(),1);ce=(chroma-target_chroma)/np.maximum(target_chroma,1e-6)
+    residuals.extend((ce/.10).tolist());residuals.extend((np.maximum(abs(ce)-.09,0)*80).tolist())
    mr=np.median(a,axis=0);mt=np.array(t['median_rgb']);residuals.extend((((mr-mt)/np.maximum(tq[1],10)*np.sqrt(5)) if not guard else np.zeros(3)).tolist())
    rows[role]=dict(predicted_q=q.tolist(),photo_q=tq.tolist(),predicted_h=hi.tolist(),photo_h=th.tolist())
   if profile_data:
-   sl,count,(peak_target,width_target)=profile_data;peak,width=profile_stats(rgb[sl].reshape(count,5,3))
-   residuals.extend([(peak-peak_target)/(peak_target*.10)*2,(width-width_target)/(width_target*.15)*2])
-   rows['cover_reflection_profile']=dict(predicted_peak=peak,photo_peak=peak_target,predicted_soft_width=width,photo_soft_width=width_target)
+   sl,count,(peak_target,width_target,hard_target)=profile_data;peak,width,hard=profile_stats(rgb[sl].reshape(count,5,3))
+   pe=(peak-peak_target)/peak_target;we=(width-width_target)/width_target
+   residuals.extend([pe/.10*2,we/.10*2,max(abs(pe)-.09,0)*80,max(abs(we)-.09,0)*80,max(abs(hard/hard_target-1)-.09,0)*80])
+   rows['cover_reflection_profile']=dict(predicted_peak=peak,photo_peak=peak_target,predicted_soft_width=width,photo_soft_width=width_target,predicted_native_width=hard,photo_native_width=hard_target)
   residuals.extend((p[:len(B)]*.001).tolist());residuals=np.array(residuals);loss=residuals@residuals
   return (float(loss),rows) if report is True else residuals if report=='residual' else float(loss)
  best=None
  initial=json.loads((BASE/args.initial).read_text()).get(shot) if args.initial else None
  if initial:
   p=np.zeros(len(B)+color_count);p[-color_count:]=np.tile(initial['color'][:2],color_count//2)
+  if args.mixed_light and initial.get('light_colors'):
+   for above,target in ((True,slice(-4,-2)),(False,slice(-2,None))):
+    colors=[c[:2] for b,c in zip(initial['bases'],initial['light_colors']) if not b.get('world') and (b['position'][2]>.25)==above]
+    if colors:p[target]=colors[0]
   for energy,old in zip(initial['energies'],initial['bases']):
    for i,b in enumerate(B):
-    if b==old:p[i]=energy;break
+    if b==old:p[i]=energy/energy_scale[i];break
   best=(objective(p),p)
  for restart in range(args.restarts):
   p=np.r_[np.zeros(len(B)),np.tile((.90,.96),color_count//2)];p[0]=.08;p[1+rng.integers(len(B)-1)]=12
@@ -109,8 +131,13 @@ for shot in dict.fromkeys(v[2] for v in REGIONS.values()):
    if damping>1e7:break
   if best is None or cost<best[0]:best=(cost,p.copy())
   print(shot,restart,'loss',round(best[0],2),flush=True)
+  bc,bp=best;_,br=objective(bp,True)
+  progress=dict(loss=bc,energies=(bp[:len(B)]*energy_scale).tolist(),color=[*bp[-2:],1],predictions=br,bases=B,source_sha256=s['sha256'])
+  if args.mixed_light:progress['light_colors']=[[*bp[-4:-2],1] if above else [*bp[-2:],1] for above in upper]
+  path=(BASE/args.output).with_suffix('.progress.json');temp=path.with_suffix('.tmp')
+  temp.write_text(json.dumps({**results,shot:progress},indent=2));temp.replace(path)
   if best[0]<.7:break
- cost,p=best;_,rows=objective(p,True);results[shot]=dict(loss=cost,energies=p[:len(B)].tolist(),color=[*p[-2:],1],predictions=rows,bases=B,source_sha256=s['sha256'])
+ cost,p=best;_,rows=objective(p,True);results[shot]=dict(loss=cost,energies=(p[:len(B)]*energy_scale).tolist(),color=[*p[-2:],1],predictions=rows,bases=B,source_sha256=s['sha256'])
  if args.mixed_light:results[shot]['light_colors']=[[*p[-4:-2],1] if above else [*p[-2:],1] for above in upper]
  (BASE/args.output).write_text(json.dumps(results,indent=2))
  for role,row in rows.items():

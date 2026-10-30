@@ -37,6 +37,10 @@ for x,z in ((.32,.22),(.60,.30),(.32,.30),(.60,.40)):
  B.append(dict(position=(x,.18,z),size=(.12,.035),target=(0,.16,.145)))
 for x,y,z,size in ((0,.50,-.33,(.5,.4)),(-.18,.50,-.20,(.35,.3)),(.18,.50,-.20,(.35,.3)),(-.12,.62,.23,(.15,.04))):
  B.append(dict(position=(x,y,z),size=size,target=(0,y,.10)))
+# Small physical cards near the measured front-crown reflection direction.
+# They let a local lobe change without washing the complete cover or grip.
+for y in (.205941036,.180941030,.230941042):
+ B.append(dict(position=(-.030647019,y,.200168326),size=(.025,.006),target=(-.028261960,.190106541,.142344624)))
 original_prepare=F.prepare_shot
 
 def prepare(scene,shot):
@@ -48,10 +52,14 @@ def prepare(scene,shot):
  scene.world.node_tree.nodes['Background'].inputs['Color'].default_value=(.25,.25,.25,1)
  if 'Basis area' not in scene.objects:
   d=bpy.data.lights.new('Basis area','AREA');d.shape='RECTANGLE';o=bpy.data.objects.new('Basis area',d);scene.collection.objects.link(o)
+ scene.objects['Basis area'].data.energy=0
  b=B[shot['basis_index']]
  if b.get('world'):scene.world.node_tree.nodes['Background'].inputs['Strength'].default_value=1
  else:
   o=scene.objects['Basis area'];o.data.energy=1;o.data.color=(1,1,1);o.location=b['position'];o.data.size,o.data.size_y=b['size'];o.rotation_euler=(Vector(b.get('target',(0,.10,.07)))-o.location).to_track_quat('-Z','Y').to_euler()
+ active=[ob.name for ob in scene.objects if ob.type=='LIGHT' and not ob.hide_render and ob.data.energy>0]
+ assert active==([] if b.get('world') else ['Basis area']),('Contaminated light response',shot['basis_index'],active)
+ shot['basis_fixture_audit']=dict(active_area_lights=active,world_strength=float(scene.world.node_tree.nodes['Background'].inputs['Strength'].default_value))
  if exr not in bpy.app.handlers.render_pre:bpy.app.handlers.render_pre.append(exr)
 F.prepare_shot=prepare
 matches=camera_shots(BASE/'build/cameras.json');shots={}
@@ -64,8 +72,16 @@ for name in requested:
   if indices is not None and i not in indices:continue
   shots[name+'__'+str(i)]=dict(matches[name],**F.PHOTO_POSES[name],basis_index=i)
 F.SHOTS=shots;F.DEFAULT_SHOTS=','.join(shots)
+out=Path(sys.argv[sys.argv.index('--out')+1]);old_meta={}
+if indices is not None and (out/'shots.json').exists():
+ old_meta=json.loads((out/'shots.json').read_text());old_bases=json.loads((out/'bases.json').read_text())
+ assert old_bases==json.loads(json.dumps(B[:len(old_bases)])), 'Existing response bases changed; use a fresh output folder'
 main(F,interface)
-out=Path(sys.argv[sys.argv.index('--out')+1]);(out/'bases.json').write_text(json.dumps(B,indent=2))
+if old_meta:
+ new_meta=json.loads((out/'shots.json').read_text());sha={r['sha256'] for r in new_meta.values()}
+ assert {r['sha256'] for r in old_meta.values()}==sha,'Response batches use different GLBs'
+ old_meta.update(new_meta);(out/'shots.json').write_text(json.dumps(old_meta,indent=2))
+(out/'bases.json').write_text(json.dumps(B,indent=2))
 for p in out.glob('*.png'):
  if p.read_bytes()[:4]==bytes((118,47,49,1)):p.rename(p.with_suffix('.exr'))
 configs=[Path(bpy.utils.resource_path(k))/'datafiles/colormanagement/config.ocio' for k in ('LOCAL','SYSTEM')]

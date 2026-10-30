@@ -56,8 +56,12 @@ def main():
   for name in MATCHES:assert (out/folder/(name+'-pair.jpg')).exists(),(folder,name)
  comparison=json.loads((out/'look-review/comparison/finish-comparison.json').read_text())
  assert len(comparison)==12
+ misses=[name for name,row in comparison.items() if not row['acceptance']['passed']]
+ assert not misses,('Native whole-part finish tolerances failed',misses)
  current=hashlib.sha256((BASE/'export/lmg.glb').read_bytes()).hexdigest()
  assert all(r['after_sha256']==current for r in comparison.values())
+ profile=json.loads((out/'surface-pairs/paint-highlight-width.json').read_text())
+ assert profile['sha256']==current and profile['local_profile_pass'],('Native cover reflection profile failed',profile['render']['width_fraction'],profile['render']['peak'])
  coverage=json.loads((out/'look-review/coverage/worn-fractions.json').read_text())
  assert len(coverage)==len(SITES) and all(r['sha256']==current for r in coverage.values())
  raw=json.loads((out/'raw-check/raw-comparison.json').read_text())

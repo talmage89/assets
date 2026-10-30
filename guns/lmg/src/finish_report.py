@@ -12,7 +12,7 @@ from final_review import sheet,rgb
 NOTES={
  'paint_receiver':'The replacement photo has clipped black paint in its lower tail. Zero-valued targets are reported in encoded levels, with no relative-error claim. Its railed cover is outside the measured receiver.',
  'barrel_phosphate':'Whole exposed barrel bay in front of the gas block. The previous assembly mask included shadowed protected barrel, chamber and collar surfaces absent from the photo outline; full-assembly diagnostics remain in finish-values.json and the separate coverage pair.',
- 'paint_cover':'Accepted original cover construction differs from the photographed front cylindrical pressing. Whole-part values/highlights pass; the local reflection profile remains a separate miss. The surface profile pair includes its measurements and a rejected physical-light trial.',
+ 'paint_cover':'Accepted original cover construction differs from the photographed front cylindrical pressing. The native local reflection profile is measured separately; its surface pair and rebuilt physical trial retain the actual pass/miss measurements.',
  'molded_handguard':'The replacement photograph has the ribbed matte finish we build; the former glossy checkered molding is not a valid finish target.',
  'molded_stock':'Concrete neutral is an estimate. The original accepted stock contour differs; the camera now observes the same flank.',
  'steel_links':'Primary target is a studio photograph of a blackened-steel link, balanced on unclipped paper. The original field-belt diagnostic remains beside this comparison; its clipped range highlights are not a studio-light target.',
@@ -25,9 +25,10 @@ def acceptance(r,p):
  q=np.array(r['value_p10_p50_p90']);t=np.array(p['value_p10_p50_p90']);h=np.array(r['brightest_decile_rgb']);th=np.array(p['brightest_decile_rgb'])
  # A percentage of zero is undefined, so retain the absolute encoded error.
  errors=np.divide(q-t,t,out=np.full(3,np.nan),where=t>0)
- allowed=np.array((.15,.10,.15));passed=np.where(t>0,abs(q-t)<=allowed*t,abs(q-t)<=1)
- he=(h-th)/np.maximum(th,1);hc=h/max(h.max(),1);pc=th/max(th.max(),1)
- return dict(value_relative_errors=[None if not np.isfinite(v) else float(v) for v in errors],value_absolute_errors=(q-t).tolist(),value_pass=passed.tolist(),highlight_rgb_relative_errors=he.tolist(),highlight_value_relative_error=float((h.max()-th.max())/max(th.max(),1)),highlight_chroma_absolute_error=(hc-pc).tolist(),highlight_pass=bool(np.all(abs(he)<=.10)),passed=bool(passed.all() and np.all(abs(he)<=.10)))
+ allowed=np.array((.15,.10,.15));passed=abs(q-t)<=allowed*t
+ he=(h-th)/np.maximum(th,1);hc=h/max(h.max(),1);pc=th/max(th.max(),1);ce=(hc-pc)/np.maximum(pc,1e-6)
+ highlight_ok=bool(np.all(abs(he)<=.10) and np.all(abs(ce)<=.10))
+ return dict(value_relative_errors=[None if not np.isfinite(v) else float(v) for v in errors],value_absolute_errors=(q-t).tolist(),value_pass=passed.tolist(),highlight_rgb_relative_errors=he.tolist(),highlight_value_relative_error=float((h.max()-th.max())/max(th.max(),1)),highlight_chroma_absolute_error=(hc-pc).tolist(),highlight_chroma_relative_errors=ce.tolist(),highlight_chroma_pass=bool(np.all(abs(ce)<=.10)),highlight_pass=highlight_ok,passed=bool(passed.all() and highlight_ok))
 
 def part_crop(root,geometry,role):
  photo,polys,shot,prefixes=REGIONS[role];meta=json.loads((root/'photos/shots.json').read_text())[shot];image=np.asarray(rgb(root/'photos'/(shot+'.png')));h,w=image.shape[:2]
