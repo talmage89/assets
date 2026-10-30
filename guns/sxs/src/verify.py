@@ -61,6 +61,7 @@ def main():
  assert all(r['triangles']>0 and r['texels']>0 for r in projection['regions'].values())
  assert all(projection['regions'][r]['maximum_projection_distance_mm']<.12 for r in ('1','2','3','4'))
  assert projection['ground_triangles']==99 and projection['ground_texels']>0
+ assert projection['gutter_policy']=='Exact action pixel-center occupancy; conservatively block every other part'
  assert projection['source_sha256']==baked['source_sha256']
  assert projection['gpu_normal_sha256']==hashlib.sha256((BASE/'build/baked/4k/T_Covey26_Normal.png').read_bytes()).hexdigest()
  assert projection['output_normal_sha256']==hashlib.sha256((BASE/'build/baked/precise4k/T_Covey26_Normal.png').read_bytes()).hexdigest()

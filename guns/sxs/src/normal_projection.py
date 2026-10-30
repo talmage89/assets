@@ -103,7 +103,11 @@ def main():
     occupied = Image.new('1', (SIZE, SIZE))
     draw = ImageDraw.Draw(occupied)
     for ob in bpy.context.scene.objects:
-        if ob.type != 'MESH' or 'asset_set' not in ob:
+        # The action's occupancy is the exact pixel-center raster below.
+        # PIL's conservative polygon fill includes an extra fringe outside
+        # its islands; blocking that fringe would retain noisy GPU values
+        # inside the 2048 filter footprint. Protect other parts only here.
+        if ob.name == 'Action_Body' or ob.type != 'MESH' or 'asset_set' not in ob:
             continue
         mesh = ob.data
         mesh.calc_loop_triangles()
@@ -184,6 +188,7 @@ def main():
         size=SIZE, regions=counts, source_planes=fits,
         ground_triangles=flat_triangles, ground_texels=flat_texels,
         interior_texels=int(changed.sum()), gutter_texels=int(valid.sum()-changed.sum()),
+        gutter_policy='Exact action pixel-center occupancy; conservatively block every other part',
         source_sha256={name: digest(BASE / 'build/delivery' / name) for name in ('finalized.blend', 'high.blend')},
         gpu_normal_sha256=digest(BASE / 'build/baked/4k/T_Covey26_Normal.png'),
         output_normal_sha256=digest(OUT / 'T_Covey26_Normal.png'))
