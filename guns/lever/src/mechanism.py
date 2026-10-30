@@ -82,12 +82,16 @@ def lever():
 def bolt_lock_carrier():
     ob=box('Bolt_Body',(-9.5,79.5,40),(9.5,200,56),'dark','Bolt',r=0,raw=True)
     # Long underside hammer race, relieved rear, and forward bolt face.
-    cutbox(ob,(-7.8,77,36),(7.8,195,54.6),.6)
+    cutbox(ob,(-7.8,77,36),(7.8,196.5,54.6),.6)
     cutbox(ob,(-10,79,39),(10,87,43),.3)
     cutbox(ob,(-10,173.8,30),(10,185,49.4),.3)
+    # The small forward heel reaches the tilted rim. The original flat
+    # underside passed above it; its face still stops at the original breech.
+    cut(ob,box('tool',(-4,199,36),(4,200,42),raw=True),'UNION')
     reg(ob,'Bolt',radius=.55)
-    box('Bolt_Extractor',(-8.8,178,55.7),(-5.9,198.4,57.0),'dark','Bolt',r=.25)
-    box('Bolt_ExtractorHook',(-8.6,198,49),(-6.2,200,55),'dark','Bolt',r=.15)
+    box('Bolt_Extractor',(-2,178,54.6),(2,201.9,56),'dark','Bolt',r=.15)
+    box('Bolt_ExtractorHook',(-1.5,201.5,54.40),(1.5,202.2,55.6),'dark','Bolt',r=.05)
+    box('Bolt_Ejector',(-1,198.8,41.5),(1,200,43),'dark','Bolt',r=.08)
     lathe('FiringPin_Tail',[(79.7,0),(79.7,.75),(86,.75),(86,0)],'dark','Bolt',center=(0,48),n=24)
     lock=box('Locking_Block',(-10.1,176,-5),(10.1,184,49),'dark','LockingBlock',r=0,raw=True)
     # The block's top bears on an underside recess and its rear on the seat.
@@ -99,25 +103,25 @@ def bolt_lock_carrier():
     for s in (-1,1):
         lo,hi=sorted((s*8.5,s*9.5))
         box('Bolt_LockAbutment',(lo,174,43),(hi,176,49),'steel','Bolt',r=.15)
-    # Top-pose carrier cradle: inverse-rotate the rest geometry. At +20 degrees
-    # the actual trough and cartridge lie horizontally on the chamber axis.
+    # Low tray is on the tube axis. Its raised nose, rather than an entire
+    # horizontal cartridge, is presented to the chamber on the return stroke.
     loops=[]
-    for y in (124.0,125.5,182.0,185.0):
+    for y in (132.0,133.5,198.5,200.0):
         section=[]
-        for i in range(21):
-            a=math.pi+math.pi*i/20
-            section.append((7.1*math.cos(a),y,48+7.1*math.sin(a)))
-        for i in range(20,-1,-1):
-            a=math.pi+math.pi*i/20
-            section.append((6.25*math.cos(a),y,48+6.25*math.sin(a)))
+        for i in range(17):
+            a=math.pi+math.pi*i/16
+            section.append((7.1*math.cos(a),y,20+7.1*math.sin(a)))
+        for i in range(16,-1,-1):
+            a=math.pi+math.pi*i/16
+            section.append((6.30*math.cos(a),y,20+6.30*math.sin(a)))
         loops.append(section)
     tray=M.loft('Carrier_Cradle',loops,MAT['steel'])
-    G.rotate_points(tray,HEADS['Carrier'],-20);reg(tray,'Carrier')
-    arm=G.sweep('Carrier_Arm',[(85,7),(111,12),(153,17)],7.3,3.4,'dark','Carrier')
+    reg(tray,'Carrier')
+    arm=G.sweep('Carrier_Arm',[(85,7),(111,10),(153,12)],7.3,3.4,'dark','Carrier')
     cut(arm,lathe('tool',[(-8,0),(-8,2.5),(8,2.5),(8,0)],axis='X',center=(85,7),n=24,raw=True))
     lathe('Carrier_Hub',[(-3.65,2.5),(-3.65,3.3),(3.65,3.3),(3.65,2.5)],'dark','Carrier',axis='X',center=(85,7),n=24,closed=True)
     # This connecting web is built in rest space and bears against the trough.
-    box('Carrier_Web',(-3.4,144,15),(3.4,155,19.8),'dark','Carrier',r=.5)
+    box('Carrier_Web',(-3.4,144,9.5),(3.4,155,13),'dark','Carrier',r=.3)
     lathe('Carrier_Pin',[(-10,0),(-10,2.4),(10,2.4),(10,0)],'dark',axis='X',center=(85,7),n=24)
 
 
@@ -210,10 +214,13 @@ def ammunition():
     for i in range(6):
         ammo_3030.build('Tube_Round'+str(i+1),HEADS['Tube'+str(i+1)],MAT,G.reg,'Tube'+str(i+1),hidden=True)
     for name,bone in [('Chamber_Live','ChamberRound'),('Carrier_Live','CarrierRound'),('Insert_Live','InsertRound')]:
-        base=(0,125,48) if bone=='CarrierRound' else (HEADS[bone] if bone!='InsertRound' else (0,0,0))
+        base=(0,136,20) if bone=='CarrierRound' else (HEADS[bone] if bone!='InsertRound' else (0,0,0))
         parts=ammo_3030.build(name,base,MAT,G.reg,bone)
-        if bone=='CarrierRound':
-            for ob in parts:G.rotate_points(ob,HEADS['Carrier'],-20)
+        if bone=='ChamberRound':
+            # The seated primer is permanently behind the closed bolt face;
+            # the moving live and fired displays retain their visible primers.
+            primer=next(ob for ob in parts if ob.name.endswith('_Primer'))
+            G.PARTS.remove(primer);parts.remove(primer);bpy.data.objects.remove(primer,do_unlink=True)
         if bone=='InsertRound':
             # InsertGuide supplies the full socket frame; its display child
             # alone uses zero-scale visibility. Rest mesh sits at the guide.
@@ -223,7 +230,22 @@ def ammunition():
     # Follower's rear face touches the final cartridge's flat nose. Spring is
     # omitted inside the opaque tube rather than modeled as wasted geometry.
     y=HEADS['Follower'][1]
-    lathe('Magazine_Follower',[(y,0),(y,6.7),(y+5,6.7),(y+6,6.3),(y+6,0)],'dark','Follower',center=(0,20),n=32)
+    lathe('Magazine_Follower',[(y,0),(y,6.7),(y+5,6.7),(y+6,6.3),(y+6,0)],'dark','Follower',center=(0,20),n=16)
+    # Independent visual retention and cutoff lands, kept inside the cheeks.
+    # They depict the class's one-round metering without copying hidden cams.
+    for side,bone,name,inner,outer in [(-1,'TubeStop','Tube_Stop',4.8,6),
+                                        (1,'TubeCutoff','Tube_Cutoff',5.6,6.5)]:
+        points=[(7.7,213.3),(8.3,213.3),(8.3,208.8),
+                (inner,208.8),(inner,210),(7.7,210)]
+        if side<0:points=[(-x,y) for x,y in reversed(points)]
+        tip=profile(name,points,18.5,21.5,'dark',bone,axis='Z',r=0)
+        cut(tip,lathe('tool',[(18,0),(18,.19),(22,.19),(22,0)],
+                     axis='Z',center=(side*8,213),n=8,raw=True))
+        lo,hi=sorted((side*7.6,side*9.7))
+        for a,b in ((17.5,18.45),(21.55,22.5)):
+            box(name+'_BearingEar',(lo,212.4,a),(hi,213.6,b),'dark',r=0)
+        lathe(name+'_Pivot',[(17.5,0),(17.5,.14),(22.5,.14),(22.5,0)],
+              'dark',axis='Z',center=(side*8,213),n=12)
 
 
 def hammer_inlet():

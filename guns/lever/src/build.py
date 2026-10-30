@@ -19,7 +19,7 @@ import interface
 
 
 def source_hash():
-    names=('build.py','clips.py','dimensions.py','forms.py','geometry.py','mechanism.py','interface.py')
+    names=('build.py','clips.py','dimensions.py','forms.py','geometry.py','mechanism.py','interface.py','feed.py')
     paths=[Path(__file__).parent/name for name in names]+[ROOT/'guns/common/ammo_3030.py',ROOT/'guns/common/interface_v1_5.py']
     return hashlib.sha256(b''.join(p.name.encode()+p.read_bytes() for p in paths)).hexdigest()
 
@@ -132,7 +132,9 @@ def main():
     # Preserve named source parts in the inspection GLB so both source and
     # imported surfaces can be independently audited at this gate. The accepted
     # rig will later use kit/export.py's atlas + EXPORT_SKIN_NAMES path.
-    W.export(out.with_suffix('.glb'),[arm]+G.PARTS+sockets)
+    from guns.common.feed_sampling import export as feed_export
+    from feed import BONES
+    feed_export(out.with_suffix('.glb'),[arm]+G.PARTS+sockets,BONES)
     for fired,name in [(False,'cartridge'),(True,'case')]:
         parts=ammo_3030.build(name,(0,0,0),G.MAT,G.reg,fired=fired,headstamp=True)
         for ob in parts:finish(ob)

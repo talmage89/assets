@@ -259,9 +259,7 @@ def assign(wear=1):
   for prefix,point in [('Chamber_Live',(0,200,48)),('Extracted_Case',(0,200,48)),('Insert_Live',(25,113,20))]:
    if name.startswith(prefix):base=Vector(point)*.001
   if name.startswith('Carrier_Live'):
-   pivot=Vector(HEADS['Carrier'])*.001
-   transform=Matrix.Translation(pivot)@Matrix.Rotation(math.radians(20),4,'X')@Matrix.Translation(-pivot)
-   base=Vector((0,.125,.048))
+   base=Vector((0,.136,.020))
   position.data.foreach_set('vector',[a for v in ob.data.vertices for a in (transform@v.co-base)])
   normal.data.foreach_set('vector',[a for row in ob.data.corner_normals for a in (transform.to_3x3()@row.vector)])
   if name=='Receiver':

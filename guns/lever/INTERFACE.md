@@ -60,21 +60,54 @@ before the corresponding commits. HammerSafe/Cock and Inspect demonstrate the
 canonical full-load state; consumers retaining other counts mask their ammunition
 channels and keep their own count layer.
 
-The insertion pushes the existing stack and follower continuously. Opaque tube
-slots reindex at commits; their display meshes are hidden for the preceding
-single frame. The same mask protects manual feeding at f27–28. Occupancy uses
-STEP sampling. This is a declared visual handoff, not cartridge-path physics.
-CarrierGuide and FiredGuide retain motion on nonscaling bones; their display
-children alone have STEP visibility. This avoids losing rotation during a
-zero-scale GLB sample. The carrier round is separately controlled during the bolt push, so it remains
-on the chamber line while the tray lowers. The exported clips include the
-fired-case demonstration trajectory through the top opening.
+### Visible feeding, additive correction
 
-At eject f24, `Socket_Ejection` is the case **head** frame, matching the standalone
-case's origin and orientation. A physics consumer spawns `case.glb` there and
-hides the FiredCase display from that event onward, avoiding two simultaneous
-representations. The demo retains the scripted case until f34 for visual review.
-The live `cartridge.glb` has the same head-centered +Y-to-mouth convention.
+All event frames, state meanings, clip names/durations and socket bind frames
+remain. `visible_cartridge_feed` and `feed_type=tube_carrier` identify the
+continuous demonstration. No unload clip existed in this member; none is implied
+by Cycle, whose start state contains a fired case.
+
+The first cartridge uses CarrierRound from the retained tube position, through
+the stop (release motion f14–28), onto the horizontal tray, and through its
+16° lift f28–36. TubeStop retracts only for that first rim; TubeCutoff catches
+the following rim before the stop returns. The bolt picks up the inclined rear
+rim after f37 and pushes it against the chamber lead-in through f49. The tray
+drops as the bolt takes control. CarrierRound changes ownership to ChamberRound
+at f50 at the same position and orientation. ReloadEmpty uses the same sequence
+offset by 72 frames. Tube insertion moves the whole existing stack continuously.
+TubeFeedGuide carries travel; STEP child offsets rename occupied slots at a
+commit without a blank frame or physical position jump. STEP scale is used only
+for coincident ownership changes and initial/final occupancy.
+
+`open` f22 still means the bolt is fully rearward. The lever's remaining carrier
+cam travel finishes at f36 (80°); its return now accompanies the bolt's f37–49
+stroke, then seats by f58. This is an additive refinement of the old pose
+interpolation, which held the lever open while the bolt moved home. Loading
+clearance uses 16° rather than the former 20°. The static IdleOpen reference
+retains its legacy 20° presentation; feed/cycle motion uses 16°. TubeStop, TubeCutoff and
+TubeFeedGuide are three added bones; all previous names remain. FiredGuide now
+rides Root, with explicit extraction motion, rather than inheriting Bolt.
+
+The upper claw retains the fired rim during withdrawal. The lower ejector
+tips the case nose upward f19–22, before free flight. At unchanged eject f24,
+the whole case is outside the top opening. Use the added capability
+`case_handoff_bone=FiredGuide`, not the legacy effect socket, for physics:
+
+```text
+case_world = gun_world * armature_world * pose(FiredGuide)
+             * inverse(bind(FiredGuide)) * translate(0, .200, .048)
+```
+
+Those coordinates and the formula are Blender asset coordinates. Convert the
+whole matrix once to the consumer's glTF basis; do not add a second axis flip.
+The head-centered standalone `case.glb` uses that complete frame. Spawn it and
+hide FiredCase from f24 onward. The review-only display continues to f30.
+`Socket_Ejection` retains its legacy effect/reference frame and original bind
+orientation; its former case-head promise is superseded by this explicit
+additive handoff. `build/feed-audit.json` records the measured pose, linear and
+angular velocities in the asset frame. The live cartridge has the same
+head-centered +Y-to-mouth convention. This is authored visual motion, not a
+spring, friction or cartridge-path physics solver.
 
 Eye is the exact aimed camera, on the line through the buckhorn notch and front
 bead. The checkpoint uses 70° horizontal FOV, zero shift and a gray surround;

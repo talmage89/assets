@@ -20,12 +20,15 @@ HEADS = {
     'Magazine': (0, 210, 20), 'CarrierRound': (0, 85, 7),
     'ChamberRound': (0, 200, 48), 'FiredCase': (0, 200, 48),
     'FiredGuide': (0, 200, 48), 'CarrierGuide': (0,85,7),
+    'TubeStop': (-8,213,20), 'TubeCutoff': (8,213,20),
+    'TubeFeedGuide': (0,210,20),
     'InsertGuide': (25, 113, 20), 'InsertRound': (25, 113, 20),
     'LeverHand': (0, 0, -29),
     **{'Tube'+str(i+1): (0, 210+i*TUBE_PITCH, 20) for i in range(CAPACITY)},
 }
-PARENTS = {'Lever':'Link', 'Sear':'Trigger', 'FiredGuide':'Bolt', 'FiredCase':'FiredGuide', 'CarrierRound':'CarrierGuide',
-           'InsertRound': 'InsertGuide', 'LeverHand': 'Lever'}
+PARENTS = {'Lever':'Link', 'Sear':'Trigger', 'FiredCase':'FiredGuide', 'CarrierRound':'CarrierGuide',
+           'InsertRound': 'InsertGuide', 'LeverHand': 'Lever',
+           **{'Tube'+str(i):'TubeFeedGuide' for i in range(1,7)}}
 SOCKETS = {
     'Socket_Muzzle': (0, MUZZLE, BORE),
     'Socket_Foregrip': (-18, 307, 13),

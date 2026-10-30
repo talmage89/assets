@@ -49,6 +49,9 @@ def receiver():
     cutbox(ob,(-10.3,28,38.8),(10.3,85,58),.7)
     cut(ob,lathe('tool',[(190,0),(190,12.7),(210,12.7),(210,0)],n=64,raw=True))
     cut(ob,lathe('tool',[(190,0),(190,10.3),(209,10.3),(209,0)],center=(0,TUBE),n=48,raw=True))
+    # Continuous internal transfer throat between tube and chamber. The old
+    # uncut web crossed both the rising nose and the carrier's front corners.
+    cutbox(ob,(-8,184,22),(8,206,49),.5)
     gate=[(y+147.7,z+20) for y,z in M.rounded_rectangle(51.4,13.6,6.3,10)]
     cut(ob,profile('tool',gate,10,20,raw=True))
     cutbox(ob,(10.5,171,12.5),(12.2,204,27.5),.4)
@@ -94,11 +97,15 @@ def receiver():
 
 def barrel_magazine():
     # The barrel includes a visible bore, chamber counterbore and crown return.
-    lathe('Barrel',[(BREECH,6.45),(BREECH,12.3),(225,12.3),(285,11.6),
+    barrel=lathe('Barrel',[(BREECH,6.45),(BREECH,12.3),(225,12.3),(285,11.6),
           (600,9.9),(706.8,9.2),(708,8.9),(708,4.1),(707.4,3.85),
           (266,3.85),(257,4.5),(252,4.3),(239.7,4.3),(236.6,5.2),
           (203.1,5.46),(201.62,5.6),(201.62,6.45)],n=48,closed=True)
-    lathe('Magazine_Tube',[(204,9.5),(204,10.3),(230,8.1),(694,8.1),(694,7.1),(230,7.1)],center=(0,TUBE),n=48,closed=True)
+    cutbox(barrel,(-2.4,199.5,53.2),(2.4,203,56.5),.12)
+    tube=lathe('Magazine_Tube',[(204,9.5),(204,10.3),(230,8.1),(694,8.1),(694,7.1),(230,7.1)],center=(0,TUBE),n=24,closed=True)
+    for side in (-1,1):
+        lo,hi=sorted((side*7.8,side*10.8))
+        cutbox(tube,(lo,207.5,18),(hi,214,22))
     lathe('Magazine_Cap',[(694,0),(694,8.1),(697,8.3),(698,8.0),(698,0)],center=(0,TUBE),n=48)
     screw('Magazine_CapScrew',(0,698.1,TUBE),1.7,axis='Y')
 
@@ -328,6 +335,15 @@ def furniture():
     fore=M.loft('Forend',loops,MAT['wood']);G.subdivide(fore,2)
     cut(fore,lathe('tool',[(202,0),(202,10.6),(230,8.35),(451,8.35),(451,0)],center=(0,TUBE),n=64,raw=True))
     G.dense(fore);G.reduce(fore,3600);reg(fore)
+    # Small internal latch pockets in both source levels. Budget their hidden
+    # machining together with the carved exterior, retaining the dense source.
+    high=bpy.data.objects.new('Dense forend latch inlet',G.HIGH['Forend'].copy())
+    bpy.context.collection.objects.link(high)
+    for side in (-1,1):
+        lo,hi=sorted((side*7.5,side*12.5))
+        for target in (fore,high):cutbox(target,(lo,207,17.8),(hi,216,22.3),.15)
+    G.HIGH['Forend']=high.data.copy();bpy.data.objects.remove(high,do_unlink=True)
+    G.reduce(fore,3600)
 
 
 def sights():
