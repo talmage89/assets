@@ -6,6 +6,7 @@ ROOT=Path(__file__).resolve().parents[3];sys.path.insert(0,str(ROOT));sys.path.i
 from kit import motion,weapon_verify as V
 from contacts import measure
 from semantics import check as semantics
+from lever_clearance import measure as lever_clearance
 import interface
 ALLOW=[]
 def main():
@@ -27,8 +28,9 @@ def main():
   step_frames=a.step,triangles=count,topology=topology,semantics=semantics(arm))
  try:result['contacts']=measure(arm)
  except AssertionError as e:result['contacts']=dict(passed=False,error=str(e));print('CONTACT ERROR',e,flush=True)
+ if not a.quick:result['lever_swing']=lever_clearance(arm)
  if not a.quick:result['motion']=motion.sweep_clips(arm,a.clips.split(',') if a.clips else interface.CLIPS,step_frames=a.step,tolerance_m=.00020,allow=ALLOW)
- result['passed']=25000<=count<=39000 and result['contacts']['passed'] and all(not r['nonmanifold_edges'] and r['volume_m3']>0 and not r['zero_area_faces'] for r in topology) and result.get('motion',{}).get('passed',True)
+ result['passed']=25000<=count<=39000 and result['contacts']['passed'] and all(not r['nonmanifold_edges'] and r['volume_m3']>0 and not r['zero_area_faces'] for r in topology) and result.get('motion',{}).get('passed',True) and result.get('lever_swing',{}).get('passed',True)
  Path(a.out).parent.mkdir(parents=True,exist_ok=True);Path(a.out).write_text(json.dumps(result,indent=2));print('CHECK',result['passed'],count,flush=True)
  if not result['passed']:raise AssertionError('See '+a.out)
 if __name__=='__main__':main()

@@ -6,6 +6,13 @@ side flats and lower plate construction. The new head is being judged in
 sections 3, 8 and 15 mm behind Y115 and in both bore-axis vertical planes.
 Inspection material values remain unchanged; no finish work or docs JPGs.
 
+The owner has now specified **Z55.59 mm** for the center fill. This
+supersedes the former Z49.72 mm central outline; it does not preserve that
+notch. The standing face now reaches the actual rib floor between the
+R13.35 front arcs. The uninterrupted center surface runs level back to the
+lever recess, whose R5.90 fore wall fits the original R5.60 boss. The 0–25°
+lever range and all 19 clip keys remain unchanged.
+
 ## Round 5 image critique passes
 
 25. **First Z49.72 / R6 / 3 mm join trial.** Color/value: inspected the dark
@@ -52,6 +59,22 @@ Inspection material values remain unchanged; no finish work or docs JPGs.
     246 contact records and manifold topology at 38,822 triangles. The latest
     opening sweep has zero motion violations; final full source/reimport
     sweeps and the new bake are still pending the center datum choice.
+
+29. **Z55.59 center and degree-5 rear return, both source rakes.**
+    Color/value: opened both full-resolution source rakes and the top/aimed
+    previews in `renders/round5/final-source`; the accepted constant steel
+    remains dark, and the black-backdrop macro remains at unity balance.
+    The previous signed-distance field produced small secondary folds near
+    the outer returns. Replaced its rear portion with a monotone degree-5
+    height excess, ending with zero height, slope and curvature; the rear
+    endpoint shifts 0.68 mm per transverse mm inward. In these images the
+    R6 side returns carry broad reflections from either lighting side,
+    without the former wrinkles. The center fill now joins the rib at
+    Z55.59 and the aimed image retains the bead. The recess lip trial is
+    rejected for microscopic topology folds: a modifier bevel is replaced
+    by a measured-roof-tangent circular R0.60 cutter, tapered over Y88–92.
+    This is still source evidence. Baked image acceptance follows below.
+
 
 # Covey 26 — form round 4: fences, flats and underside
 

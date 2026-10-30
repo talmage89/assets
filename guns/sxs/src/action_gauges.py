@@ -31,29 +31,26 @@ def measure(arm):
    bc,br,be=circle(np.array(points)[:,[0,2]]);bore.append((by,bc))
   bore_axis=lambda y:bore[0][1]+(bore[1][1]-bore[0][1])*(y-bore[0][0])/(bore[1][0]-bore[0][0])
   fits=[]
-  for y in (.112,.113,.114):
+  for y in (.108,.110,.112,.114):
    pts=[]
-   for angle in range(45,136,5):
-    t=math.radians(angle);d=(math.cos(t),0,math.sin(t))
+   for angle in range(35,101,5):
+    t=math.radians(angle);d=(side*math.cos(t),0,math.sin(t))
     origin=Vector((side*.0126,float(y),.044))+Vector(d)*.006
     pts.append(ray('Action_Body',origin,d))
    center,r,error=circle(np.array(pts)[:,[0,2]])
    fits.append(dict(y_m=float(y),center_m=center.tolist(),radius_m=r,max_error_m=error))
   # r(y)^2 is quadratic for an axial elliptical roll, fitted without supplying
   # a radius or longitudinal length from the model generator.
-  # Behind the first 3 mm the fence joins the head. Recover the retained
-  # axial crown roll from the exposed crown at nine actual stations.
-  crown=[]
-  for cy in np.arange(.106,.1141,.001):
-   axis=bore_axis(cy)
-   hit=ray('Action_Body',(float(axis[0]),float(cy),.09),(0,0,-1))
-   crown.append((float(cy),float(hit.z-axis[1])))
+  # The exposed front circles retain the accepted crown curvature.
+  # The remaining 10.5 mm joins the head with a degree-5 return; its
+  # physical rear extent is measured separately in head_gauges.py.
+  crown=[(f['y_m'],f['radius_m']) for f in fits]
   y=np.array([p[0] for p in crown]);r2=np.array([p[1]**2 for p in crown])
   a,b,c=np.polyfit(y,r2,2);yc=-b/(2*a);rr=c-b*b/(4*a);length=math.sqrt(-rr/a)
   centers=np.array([f['center_m'] for f in fits]);delta=centers-np.array([bore_axis(f['y_m']) for f in fits])
   fences.append(dict(side=name,highest_mm=float(upper[:,2].max()*1000),barrel_top_mm=top*1000,
    height_difference_mm=float((upper[:,2].max()-top)*1000),arc_fits=fits,
-   exposed_arc_scope="first 3 mm behind breech; remaining rear surface joins the head",crown_roll_samples=crown,
+   exposed_arc_scope="first 8 mm behind breech; remaining rear surface joins the head",crown_roll_samples=crown,
    bore_axis_at_breech_mm=(bore_axis(.115)*1000).tolist(),maximum_center_offset_mm=float(np.linalg.norm(delta,axis=1).max()*1000),
    fitted_front_radius_mm=math.sqrt(rr)*1000,fitted_rounding_length_mm=length*1000,
    fitted_roll_front_y_mm=yc*1000,photo_rounding_estimate_mm=[18,20]))

@@ -25,10 +25,9 @@ FENCE_RADIUS=13.35
 FENCE_ROLL=18.5
 SLOT_WIDTH=6.0
 HEAD_TOP=49.72
-HEAD_CENTER_FLOOR=49.72
+HEAD_CENTER_FLOOR=55.59
 HEAD_SIDE_RADIUS=6.0
-HEAD_JOIN_WIDTH=6.0
-HEAD_INNER_OFFSET=.38
+HEAD_INNER_OFFSET=.68
 
 def action_section(y):
  """One ground side plane from the stock head through the hinge cheeks."""
@@ -37,50 +36,54 @@ def action_section(y):
  if y<170:
   return (ACTION_HALF_WIDTH,7*smoothstep((y-115)/55),30.2)
  return (ACTION_HALF_WIDTH,19-math.sqrt(max(0,144-(y-170)**2)),19+math.sqrt(max(0,144-(y-170)**2)))
-def action_roof(x,y):
- """Exterior head: Z49.72 centre, R6 side return, 6 mm C2 join band.
-
- The accepted R13.35 transverse arc is exact for the first 3 mm behind
- Y115. The axial crown roll remains 18.5 mm. Past that front band, the
- inner return advances rearward by .38 mm per mm toward the centre.
- """
- w=ACTION_HALF_WIDTH;xx=abs(x);d=max(0,BREECH-y)
+def head_base_6(x,y):
+ """Z55.59 center, 8 mm center half-width, R6 side, Y85–94 return."""
+ xx=abs(x)
  if y<=85:z=47.2+.12*(y-94)
  elif y<94:
   t=(y-85)/9
   z=(2*t**3-3*t*t+1)*46.12+(t**3-2*t*t+t)*1.08+(-2*t**3+3*t*t)*HEAD_TOP
  else:z=HEAD_TOP
  z+=(HEAD_CENTER_FLOOR-HEAD_TOP)*(1-smoothstep(xx/8))*smoothstep((y-85)/9)
- r=HEAD_SIDE_RADIUS;u=max(0,min(1,(xx-(w-r))/r))
- z-=r*(1-math.sqrt(max(0,1-u*u)))
- # All head stations share this one height field. No intersecting dome
- # mesh or Boolean tangent ring can leave a crease in its upper skin.
- offset=HEAD_INNER_OFFSET*(12.6-xx)*smoothstep((d-3)/10)
- axial=max(0,d-offset)
- if axial<FENCE_ROLL:
-  radius=FENCE_RADIUS*math.sqrt(1-(axial/FENCE_ROLL)**2)
-  dx=xx-barrel_shape(y)[0]
-  arc=BORE+math.sqrt(max(0,radius*radius-dx*dx))
-  k=HEAD_JOIN_WIDTH*smoothstep((d-1)/7)*smoothstep(xx/5)
-  if k<1e-8:
-   if abs(dx)<radius:z=max(z,arc)
-  else:
-   # C2 union of the transverse circular signed distance and the head
-   # height. Solving its zero avoids truncating a circle at q=0, which
-   # would otherwise leave a crease even after smoothing the maximum.
-   base=z;lo=max(base,arc if abs(dx)<radius else base)
-   hi=max(base,BORE+radius)+k
-   for _ in range(22):
-    mid=(lo+hi)*.5;a=mid-base;b=math.hypot(dx,mid-BORE)-radius
-    h=max(0,1-abs(a-b)/k);f=min(a,b)-k*h**3/6
-    if f>0:hi=mid
-    else:lo=mid
-   z=(lo+hi)*.5
+ r=HEAD_SIDE_RADIUS;u=max(0,min(1,(xx-(ACTION_HALF_WIDTH-r))/r))
+ return z-r*(1-math.sqrt(max(0,1-u*u)))
 
- return z
+def front_arc_8(x,d):
+ """R13.35 concentric front, L18.5 crown curvature, 1 mm join distance."""
+ xx=abs(x);base=head_base_6(x,115-d);radius=FENCE_RADIUS*math.sqrt(max(0,1-(d/FENCE_ROLL)**2))
+ dx=xx-barrel_shape(115-d)[0];arc=BORE+math.sqrt(max(0,radius*radius-dx*dx))
+ lo=max(base,arc if abs(dx)<radius else base);hi=max(base,BORE+radius)+1
+ for _ in range(25):
+  mid=(lo+hi)*.5;a=mid-base;b=math.hypot(dx,mid-BORE)-radius
+  h=max(0,1-abs(a-b));f=min(a,b)-h**3/6
+  if f>0:hi=mid
+  else:lo=mid
+ return (lo+hi)*.5
+
+_HEAD_PROFILES={}
+def action_roof(x,y):
+ """Front 8 mm circles; monotone degree-5 return ending at 18.5 mm on bore.
+
+ Rear endpoint shifts .68 mm per transverse mm inward. The last three
+ Bezier controls are zero, so height, slope and curvature reach the head
+ together. Positive ordered controls prevent secondary rear folds.
+ """
+ d=max(0,115-y);base=head_base_6(x,y)
+ if d<=8:return front_arc_8(x,d)
+ key=round(abs(x),6)
+ if key not in _HEAD_PROFILES:
+  length=FENCE_ROLL+HEAD_INNER_OFFSET*(12.6-abs(x))-8
+  e=.02;z=front_arc_8(x,8);background=head_base_6(x,107)
+  a=max(0,z-background);slope=(front_arc_8(x,8+e)-front_arc_8(x,8-e))/(2*e)
+  curvature=(front_arc_8(x,8+e)-2*z+front_arc_8(x,8-e))/e**2
+  c1=max(0,min(a,a+slope*length/5))
+  c2=max(0,min(c1,a+2*slope*length/5+curvature*length**2/20))
+  _HEAD_PROFILES[key]=(length,a,c1,c2)
+ length,a,c1,c2=_HEAD_PROFILES[key];t=max(0,min(1,(d-8)/length));u=1-t
+ return base+a*u**5+5*c1*t*u**4+10*c2*t*t*u**3
 
 def upper_normals(ob,normals=None):
- """Differentiate the Z49.72/R6/6 mm field; retain the flat breech face."""
+ """Differentiate the Z55.59/R6/degree-5 field; retain the flat breech face."""
  normals=normals or [n.vector.copy() for n in ob.data.corner_normals]
  for face in ob.data.polygons:
   if face.normal.z<.01:continue
@@ -292,7 +295,7 @@ def action():
   lathe('Bushing_'+side,[(114,1),(114,3.35),(114.95,3.35),(114.95,1)],'steel',center=(x,BORE),n=32,closed=True)
   lathe('PinFace_'+side,[(114.6,0),(114.6,.8),(114.85,.8),(114.85,0)],'dark',center=(x,BORE),n=16)
  cutbox(body,(-4.4,98,10),(4.4,146,15.1))
- cut(body,lathe('Tool',[(44,0),(44,4.25),(48.0,4.25),(48.0,5.9),(56,5.9),(56,0)],axis='Z',center=(0,94),n=48,raw=True))
+ cut(body,lathe('Tool',[(44,0),(44,4.35),(56,4.35),(56,0)],axis='Z',center=(0,94),n=48,raw=True))
  cutbox(body,(-7.4,39,-5),(7.4,78,11))
  reg(body,radius=.18,segments=2)
  # Condition coincident constructive seams before archiving or reduction;
@@ -307,7 +310,7 @@ def action():
   [(-27,3.4,18.8),(-26,4,18.9),(-10,5.8,18.8),(9,7,23.2),(28,7.7,31.0),(50,8,38.5),(72,8.8,43.4),(94,8.8,46.1)]],
   'blue','Root',level=2,target=950)
  strap=PARTS[-1]
- cut(strap,lathe('Spindle seat',[(44,0),(44,4.25),(56,4.25),(56,0)],axis='Z',center=(0,94),n=48,raw=True))
+ cut(strap,lathe('Spindle seat',[(44,0),(44,4.35),(56,4.35),(56,0)],axis='Z',center=(0,94),n=48,raw=True))
  # The trigger plate's forward lower skin is identical to the forging's.
  # Seat it before archiving the action source: the only exterior break is
  # a 0.10 mm joint. Its forward seam curves back toward the outer sides.
@@ -332,8 +335,9 @@ def action():
  # Keep the archive synchronized after cutting the real plate seat.
  clean(body,dist=.006);canonical_surface(body)
  body.data.normals_split_custom_set(upper_normals(body,lower_normals(body)));high_copy(body)
- HIGH[-1]['source_method']='Single height field: Z49.72, R6 side, 6 mm join, R13.35 / L18.5 fence crowns'
- reduce(body,7750)
+ HIGH[-1]['source_method']='Single field: Z55.59 center, R6 side, degree-5 rear return, R13.35/L18.5 front crowns'
+ # Keep the head dense until the recess and its R0.60 lip are cut;
+ # one final reduction avoids Boolean cuts through a sparse rim.
  for x,y in [(2.6,64),(-2.6,31)]:
   outline=[(xx+x,yy+y+3) for xx,yy in M.rounded_rectangle(SLOT_WIDTH,16,.9,6)]
   cut(plate,profile('Blade slot',outline,-8,18,axis='Z',raw=True))
@@ -343,29 +347,47 @@ def action():
  box('Locking_Shoe',(-4,124,10.4),(4,129.9,11.8),'steel','LockBolt',radius=.10)
  box('Locking_Shoe_Upper',(-4,130,13.2),(4,141.9,14.6),'steel','LockBolt',radius=.10)
 
-def lever_recess_035():
- """0.35 mm exterior travel clearance for the unchanged 0–25 degree lever.
+def lever_recess_R590():
+ """R5.90 fore wall around R5.60 boss; Y94–78 Bezier flare for 25° swing.
 
- Only Y>=68 mm is considered; the accepted rear strap and wrist stay out
- of this cutter. The convex envelope spans the sampled original lever
- skin, plus its measured presentation clearance. No moving part changes.
+ One closed cutter avoids the tangent intersection of a cylinder and a
+ separate swept hull. Its floor is Z48 at the boss, falling .22 mm/mm
+ rearward. The R0.60 upper lip is cut after this single Boolean.
  """
- lever=bpy.data.objects['Top_Lever'];points=[];pivot=Vector((0,94,0))
- for v in lever.data.vertices:
-  p=v.co
-  if p.y<68:continue
-  for angle in range(0,26,5):
-   rot=Matrix.Rotation(math.radians(angle),3,'Z')
-   for dx,dy,dz in [(-.35,-.35,-.35),(-.35,.35,-.35),(.35,-.35,-.35),(.35,.35,-.35),(-.35,-.35,.35),(.35,.35,.35)]:
-    points.append(rot@(p+Vector((dx,dy,dz))-pivot)+pivot)
- bm=bmesh.new();vertices=[bm.verts.new(p) for p in points]
- result=bmesh.ops.convex_hull(bm,input=vertices,use_existing_faces=False)
- bmesh.ops.delete(bm,geom=[v for v in bm.verts if not v.link_faces],context='VERTS')
- mesh=bpy.data.meshes.new('Lever_035_0_25');bm.to_mesh(mesh);bm.free()
- template=bpy.data.objects.new('Lever_035_0_25',mesh);bpy.context.collection.objects.link(template)
+ r=5.9
+ outline=[(r*math.cos(t),94+r*math.sin(t)) for t in [math.pi*i/64 for i in range(65)]]
+ outline+=M.bezier((-r,94),(-r,90),(-7,85),(-8.5,82),18)[1:]
+ outline+=[(15,78)]
+ outline+=M.bezier((15,78),(10,83),(r,90),(r,94),24)[1:-1]
+ # Construct the R0.60 circular lip in each perimeter-normal plane,
+ # tangent to the actual head roof. A C1 Y88–92 taper joins the strap.
+ profiles=[]
+ for i,(x,y) in enumerate(outline):
+  tangent=Vector(outline[(i+1)%len(outline)])-Vector(outline[i-1])
+  n=Vector((tangent.y,-tangent.x)).normalized()
+  radius=.60*smoothstep((y-88)/4)
+  radius=max(.0001,radius)
+  roof=lambda distance:action_roof(x+n.x*distance,y+n.y*distance)
+  derivative=lambda distance:(roof(distance+.003)-roof(distance-.003))/.006
+  lo=0;hi=radius*2
+  for _ in range(22):
+   distance=(lo+hi)*.5;q=derivative(distance)
+   if distance-radius+radius*q/math.sqrt(1+q*q)>0:hi=distance
+   else:lo=distance
+  distance=(lo+hi)*.5;q=derivative(distance)
+  zc=roof(distance)-radius/math.sqrt(1+q*q)
+  end=math.atan2(1,-q)
+  arc=[]
+  for j in range(13):
+   angle=math.pi+(end-math.pi)*j/12
+   offset=radius*(1+math.cos(angle))
+   arc.append((x+n.x*offset,y+n.y*offset,zc+radius*math.sin(angle)))
+  profiles.append([(x,y,48+.22*min(0,y-94)),*arc,(arc[-1][0],arc[-1][1],65)])
+ loops=[list(row) for row in zip(*profiles)]
+ template=M.loft('Recess R5.90 lip R0.60',loops,MAT['blue']);clean(template)
  for name in ('Action_Body','HIGH_Action_Body'):
   tool=template.copy();tool.data=template.data.copy();bpy.context.collection.objects.link(tool)
-  cut(bpy.data.objects[name],tool);clean(bpy.data.objects[name],dist=.006)
+  target=bpy.data.objects[name];cut(target,tool);clean(target,dist=.006)
  bpy.data.objects.remove(template,do_unlink=True)
 
 def barrel_shape(y):
@@ -597,8 +619,18 @@ def controls():
  ob=M.loft('Top_Lever',loops,MAT['blue']);subd(ob,2)
  for v in ob.data.vertices:v.co.z+=1.2
  high_copy(ob);reduce(ob,1300);reg(ob,'TopLever')
+ # The accepted lever tail had a 0.062 mm visual overlap at Y21. The
+ # new strict separation audit requires a real 0.20 mm local wood seat.
+ for angle in range(7):
+  for target in (bpy.data.objects['Stock_Walnut'],bpy.data.objects['HIGH_Stock_Walnut'],bpy.data.objects['Top_Strap']):
+   if angle>3 and target.name!='Top_Strap':continue
+   tool=ob.copy();tool.data=ob.data.copy();bpy.context.collection.objects.link(tool)
+   for v in tool.data.vertices:v.co+=v.normal*.20
+   pivot=Vector((0,94,0));rot=Matrix.Rotation(math.radians(angle),3,'Z')
+   for v in tool.data.vertices:v.co=rot@(v.co-pivot)+pivot
+   cut(target,tool);clean(target,dist=.006)
  lathe('Top_LeverSpindle',[(45.5,0),(45.5,4.1),(48.25,4.1),(48.35,5.6),(50.0,5.6),(50.3,5.3),(50.3,0)],'dark','TopLever',axis='Z',center=(0,94),n=48)
- lever_recess_035()
+ lever_recess_R590()
  # Safety follows the inclined strap, with a broad low thumb land and real
  # guide block below. State-only automatic actuation is in the interface.
  loops=[]
