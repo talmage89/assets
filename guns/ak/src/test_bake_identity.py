@@ -10,6 +10,7 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import bake_identity as B
+from reviewed_rebaseline import reviewed_record
 
 
 class TextureIdentityTests(unittest.TestCase):
@@ -125,6 +126,33 @@ class ExportIdentityTests(unittest.TestCase):
                 doc = copy.deepcopy(self.doc)
                 doc[collection][0][key] = value
                 self.assertNotEqual(B.export_signature(doc, self.binary), self.reference)
+
+
+class ReviewedChangeTests(unittest.TestCase):
+    def setUp(self):
+        self.old=dict(accepted_glb_sha256='old',export={'exact':'geometry'},
+            block_samples=B.BLOCK,prime=B.PRIME,maximum_component_difference=1,
+            maximum_changed_texels_per_map=B.MAX_CHANGED_TEXELS,
+            maps={'map':dict(decoded_sha256='decoded',png_sha256='png')})
+        self.new=copy.deepcopy(self.old);self.new['accepted_glb_sha256']='new'
+
+    def test_reviewed_change_keeps_old_identity(self):
+        row=reviewed_record(self.old,self.new,'manifest','Reviewed paint correction')
+        self.assertEqual(row['historical_handoff_sha256'],'old')
+        self.assertEqual(row['reviewed_changes'][0]['previous_glb_sha256'],'old')
+        self.assertEqual(row['reviewed_changes'][0]['reviewed_glb_sha256'],'new')
+
+    def test_geometry_cannot_be_rebaselined(self):
+        self.new['export']['exact']='changed'
+        with self.assertRaisesRegex(AssertionError,'Geometry'):
+            reviewed_record(self.old,self.new,'manifest','paint')
+
+    def test_tolerance_cannot_be_rebaselined(self):
+        for key in ('block_samples','prime','maximum_component_difference','maximum_changed_texels_per_map'):
+            with self.subTest(key=key):
+                new=copy.deepcopy(self.new);new[key]+=1
+                with self.assertRaisesRegex(AssertionError,'tolerance'):
+                    reviewed_record(self.old,new,'manifest','paint')
 
 
 if __name__ == '__main__':
