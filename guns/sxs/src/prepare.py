@@ -5,7 +5,7 @@ import bpy
 BASE=Path(__file__).resolve().parents[1];ROOT=BASE.parents[1]
 sys.path.insert(0,str(ROOT));sys.path.insert(0,str(BASE/'src'))
 from kit import finalize,weapon as W
-from normal_sources import ground_sides
+from normal_sources import ground_sides,separate_ground_uv
 
 def main():
  out=BASE/'build/delivery';out.mkdir(parents=True,exist_ok=True)
@@ -30,6 +30,12 @@ def main():
   sys.argv=['blender','--','--source',str(src),'--out',str(dst),'--config',str(cfg),
    '--report',str(out/(group+'-uv.json')),'--size','2048','--target-density','100000','--margin','.002']
   finalize.main()
+  if group=='assembly':
+   proof=separate_ground_uv([o for o in bpy.context.scene.objects if o.type=='MESH' and o.get('asset_set')],rect)
+   (out/'ground-uv.json').write_text(json.dumps(proof,indent=2))
+   report=json.loads((out/(group+'-uv.json')).read_text());report.update(proof['uv'])
+   (out/(group+'-uv.json')).write_text(json.dumps(report,indent=2))
+   bpy.ops.wm.save_as_mainfile(filepath=str(dst))
   master.append((dst,[(o.name,o.data.name) for o in bpy.context.scene.objects if o.type=='MESH']))
  bpy.ops.wm.open_mainfile(filepath=str(out/'unpacked.blend'))
  for path,mapping in master:

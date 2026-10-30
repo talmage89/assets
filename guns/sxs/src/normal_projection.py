@@ -19,8 +19,9 @@ from mathutils.bvhtree import BVHTree
 from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(ROOT))
+sys.path[:0] = [str(ROOT),str(Path(__file__).resolve().parent)]
 from kit.image_io import read_png, write_png
+from normal_sources import is_ground as ground
 
 BASE = Path(__file__).resolve().parents[1]
 SIZE = 4096
@@ -29,11 +30,6 @@ OUT = BASE / 'build/baked/precise4k'
 
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
-def ground(face, points):
-    return (abs(face.normal.x) > .99999
-            and all(abs(abs(p[0]) - .02595) < .000015 for p in points))
 
 
 def dot(a, b):
