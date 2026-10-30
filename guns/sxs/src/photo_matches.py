@@ -107,7 +107,8 @@ observed('action_left',[
 observed('action_top',[
  ('breech right corner',(25.95,115,44),(350,700),1),
  ('breech left corner',(-25.95,115,44),(141,703),1),
- ('lever boss center',(0,94,49),(231,800),1),
+ ('left barrel crown at breech',(-12.6,115,57.35),(190,694),1),
+ ('right barrel crown at breech',(12.6,115,57.35),(298,691),1),
  ('lever tail',(.6,21,29),(263,1071),.35),
  ('safety center',(0,5,24),(260,1120),.4)],
  location=(.02,-.03,.8),target=(0,.075,.045))
@@ -141,3 +142,25 @@ for name,row in MATCHES.items():
  if name not in ('left','right'):
   row.update(lens=150,lens_bounds_mm=(150,150),locked_view=True)
 if __name__=='__main__':prep()
+
+# Round-seven native rigid observations. All are comparison-only; no generator
+# imports this module. Control points are actual upper surfaces, not pivots.
+observed('action_top',[
+ ('breech right corner',(25.95,115,44),(350,700),1),
+ ('breech left corner',(-25.95,115,44),(141,703),1),
+ ('lever tail',(.6,20.529,29.812),(263,1071),1),
+ ('safety center',(0,7,25.567),(260,1120),1)],
+ location=(.02,-.03,.8),target=(0,.075,.045))
+rib_world=[[0,.1152,.05558493733406067],[0,.315,.05449233949184418]]
+line_pixels=np.array([px('plain-2',p) for p in [(241.5,100),(238,300),(234.5,500),(231,660)]])
+a,b=np.linalg.lstsq(np.c_[line_pixels[:,1],np.ones(4)],line_pixels[:,0],rcond=None)[0]
+ys=line_pixels[[0,-1],1]
+MATCHES['action_top']['rigid_lines']=[dict(name='rib centerline',world=rib_world,pixels=np.c_[a*ys+b,ys].tolist())]
+MATCHES['open']['landmarks']=[dict(name='lever tail',world=[.0006,.020529,.029812],pixel=[2795,595],weight=1),
+ dict(name='safety upper center',world=[0,.002,.025567],pixel=[2970,823],weight=1),
+ dict(name='breech lower corner',world=[-.02595,.115,.0302],pixel=[2047,914],weight=1)]
+# Thin outer cut rim, native pixels; earlier shoulder/seam guesses discarded.
+MATCHES['open']['rim_pixels']=[[1833,500],[1843,540],[1858,580],[1875,620],[1890,650],[1907,680],[1922,700]]
+a,b=np.polyfit([600,650,700,750,800],[318,294.5,272,247.5,224],1)
+MATCHES['open']['rigid_lines']=[dict(name='rib centerline',world=rib_world,pixels=[px('plain-7',(xx,float(a*xx+b))) for xx in [600,800]]),
+ dict(name='standing breech side',world=[[-.02595,.115,.031],[-.02595,.115,.044]],pixels=[[2047,800],[2047,890]])]

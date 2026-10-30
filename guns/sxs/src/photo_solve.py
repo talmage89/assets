@@ -9,6 +9,7 @@ import numpy as np
 ROOT=Path(__file__).resolve().parents[3];sys.path.insert(0,str(ROOT))
 from kit.photo_match import calibrate,project
 from photo_matches import MATCHES
+from free_camera import solve as free_camera
 
 def fixed_view(source):
  """Fit shared landmarks inside the visually observed 20-degree view cone.
@@ -53,35 +54,49 @@ def fixed_view(source):
  return row
 
 def append_head_landmarks(rows):
- """Review-only endpoints at 0.10 mm rise; no influence on camera solve."""
+ """Independent rear-joint curves; no guessed point-to-point correspondence.
+
+ Smooth returns are not literal edges. The earlier height-threshold markers
+ and points on engraving cannot certify their position. Occluded centerline
+ stations likewise remain unresolved rather than receiving invented pixels.
+ """
  base=Path(__file__).resolve().parents[1]
- stats=json.loads((base/'build/serialization.json').read_text())
- head=stats['form_gauges']['head_round5'];row=rows['action_top']
- from photo_matches import px
- observations={(-1,'outer'):(150,716),(1,'outer'):(345,711),(-1,'inner'):(222,761),(1,'inner'):(255,759)}
- extras=[]
- for record in head['return_endpoints']:
-  label=('right' if record['side']>0 else 'left')+' return '+record['end']
-  extras.append((label,record['point_mm'],px('plain-2',observations[record['side'],record['end']])))
- for y,pixel in [(103,(232,763)),(108,(233,738)),(114.5,(235,709))]:
-  point=min(head['centerline']['points_mm'],key=lambda p:abs(p[1]-y))
-  extras.append((f'centerline Y{y:g}',point,px('plain-2',pixel)))
- row['camera_fit_rms_pixels']=row['residual_rms_pixels'];row['camera_fit_landmark_count']=len(row['projected_pixels'])
- row['review_only_landmark_scope']='Four rear-return ends at 0.10 mm rise above adjacent head; three approximate centerline stations; excluded from camera fit'
- shot=row['shot'];direction=np.array(shot['target'])-shot['location'];direction/=np.linalg.norm(direction)
- parameters=np.array([math.atan2(direction[1],direction[0]),math.asin(direction[2]),*shot['location'],math.log(shot['lens']),shot['roll']])
- width=row['crop'][2]-row['crop'][0];height=row['crop'][3]-row['crop'][1]
- world=np.array([point for name,point,pixel in extras])*.001
- projected,_,_=project(parameters,world,width,height)
- for (label,point,pixel),uv,wp in zip(extras,projected,world):
-  measured=(np.array(pixel)-row['crop'][:2]).tolist()
-  row['landmark_names'].append(label);row['landmarks_world_m'].append(wp.tolist());row['projected_pixels'].append(uv.tolist());row['measured_pixels'].append(measured)
- row['residuals_pixels']=np.linalg.norm(np.array(row['projected_pixels'])-row['measured_pixels'],axis=1).tolist()
- row['residual_rms_pixels']=float(np.sqrt(np.mean(np.square(row['residuals_pixels']))))
+ data=json.loads((base/'build/head-outlines.json').read_text())
+ import hashlib
+ assert data['source_sha256']==hashlib.sha256((base/'build/sxs.blend').read_bytes()).hexdigest()
+ edges=np.array(data['wood_joint_segments_world_m']);world=edges.reshape((-1,3))
+ observations={'action_top':[[610,2873],[650,2870],[675,2880],[690,2915],[702,2960],[712,3000],
+  [1030,2970],[1033,2925],[1035,2890],[1050,2868],[1080,2852],[1110,2849],[1150,2851],[1200,2870],[1232,2901]],
+  'open':[[2258,865],[2259,825],[2261,785],[2266,750],[2277,724],[2300,706]]}
+ for name,pixels in observations.items():
+  row=rows[name];shot=row['shot'];direction=np.array(shot['target'])-shot['location'];direction/=np.linalg.norm(direction)
+  par=np.r_[math.atan2(direction[1],direction[0]),math.asin(direction[2]),shot['location'],math.log(shot['lens']),shot['roll']]
+  w=row['crop'][2]-row['crop'][0];h=row['crop'][3]-row['crop'][1]
+  projected,depths,_=project(par,world,w,h);projected+=np.array([-shot.get('shift_x',0),shot.get('shift_y',0)])*w
+  a=projected[::2];v=projected[1::2]-a;outlines=[]
+  for index,pixel in enumerate(pixels):
+   measured=np.array(pixel)-row['crop'][:2]
+   t=np.clip(np.sum((measured-a)*v,axis=1)/np.maximum(np.sum(v*v,axis=1),1e-12),0,1)
+   pts=a+t[:,None]*v;errors=np.linalg.norm(pts-measured,axis=1);i=int(errors.argmin());u=t[i]
+   wp=edges[i,0]*(1-u)+edges[i,1]*u;depth=float(depths[2*i]*(1-u)+depths[2*i+1]*u)
+   scale=w*shot['lens']/36/depth*.001;error=float(errors[i])
+   label=f'wood joint curve {index+1}'
+   outlines.append(dict(name=label,kind='wood joint',world_mm=(wp*1000).tolist(),observed_original_pixel=pixel,
+    projected_crop_pixel=pts[i].tolist(),residual_pixels=error,residual_mm=error/scale,within_2mm=error/scale<=2,
+    point_depth_m=depth,pixels_per_mm=scale,measurement='nearest actual rear-cap boundary segment in image plane',
+    observation_status='native hand-observed joint; independent of camera fit; visibility/correspondence review required'))
+   row['landmark_names'].append(label);row['landmarks_world_m'].append(wp.tolist());row['projected_pixels'].append(pts[i].tolist());row['measured_pixels'].append(measured.tolist())
+  row['outline_landmarks']=outlines
+  row['unresolved_outline_features']=['Smooth return has no literal outline edge; old markers fell on engraving/highlight departures',
+   'Top centerline is covered by the reference barrel extension; open centerline/far joint partly occluded']
+  row['outline_gate_passed']=False
+  row['review_only_landmark_scope']='Rigid RMS is unchanged; all head/joint observations are withheld from the camera solve. No <=2 mm acceptance claimed for hidden or unregistered features.'
 
 def main():
  rows={}
  for name,source in MATCHES.items():
+  if name in ('action_top','open'):
+   row=free_camera(source,opened_view=name=='open');rows[name]=row;print(name,'FREE FOCAL RMS',row['camera_fit_rms_pixels'],'px',row['camera_fit_rms_mm'],'mm',flush=True);continue
   if source.get('locked_view'):
    row=fixed_view(source);row['landmark_names']=[r.get('name','landmark '+str(i+1)) for i,r in enumerate(source['landmarks'])];rows[name]=row;print(name,'BOUNDED VIEW RMS',round(row['residual_rms_pixels'],2),flush=True);continue
   x,y,x1,y1=source['crop'];w=x1-x;h=y1-y;candidates=[]

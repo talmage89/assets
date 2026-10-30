@@ -70,6 +70,12 @@ def configure_scene(sc,source):
     rest=barrel.bone.matrix_local
     barrel.matrix=Matrix.Translation(rest.translation)@Matrix.Rotation(math.radians(scene['photo_open_angle']),4,'X')@Matrix.Translation(-rest.translation)@rest
     bpy.context.view_layer.update()
+   from mathutils import Matrix
+   lever=arm.pose.bones['TopLever'];rest=lever.bone.matrix_local
+   lever.matrix=Matrix.Translation(rest.translation)@Matrix.Rotation(math.radians(scene.get('solved_lever_angle',0)),4,'Z')@Matrix.Translation(-rest.translation)@rest
+   safety=arm.pose.bones['Safety'];rest=safety.bone.matrix_local
+   safety.matrix=Matrix.Translation((0,scene.get('solved_safety_shift_mm',0)*.001,0))@rest
+   bpy.context.view_layer.update()
    expected=(barrel.matrix@barrel.bone.matrix_local.inverted())@extractor.bone.matrix_local
    extractor.matrix=expected
    bpy.context.view_layer.update()
@@ -81,6 +87,8 @@ def prepare_shot(sc,shot):
  for ob in sc.objects:
   if ob.type=='MESH' and 'bone' in ob:
    ob.hide_render=bool(shot.get('photo_barrel_isolation')) and ob['bone'] not in ('Barrels','Extractor')
+ sc.camera.data.shift_x=shot.get('shift_x',0)
+ sc.camera.data.shift_y=shot.get('shift_y',0)
  sign=shot.get('raking',0)
  sc.objects['Underside inspection softbox'].hide_render=not (shot.get('target',(0,0,0))[2]-shot.get('location',(0,0,0))[2]>.035)
  for ob in sc.objects:
@@ -90,4 +98,6 @@ def prepare_shot(sc,shot):
   strip.location=(sign*.35,.18,-.20 if shot.get('location',(0,0,0))[2]<0 else .26);strip.rotation_euler=(Vector(shot.get('target',(0,.23,.015)))-strip.location).to_track_quat('-Z','Y').to_euler()
  sc['exact_aim']=bool(shot.get('aimed'));sc.objects['Aim backdrop'].hide_render=not sc['exact_aim']
  sc['photo_extractor_home']=bool(shot.get('extractor_home'))
- sc['photo_open_angle']=shot.get('photo_open_angle',0)
+ sc['photo_open_angle']=shot.get('solved_barrel_angle',shot.get('photo_open_angle',0))
+ sc['solved_lever_angle']=shot.get('solved_lever_angle',0)
+ sc['solved_safety_shift_mm']=shot.get('solved_safety_shift_mm',0)

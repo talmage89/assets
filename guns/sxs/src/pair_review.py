@@ -21,7 +21,7 @@ def diagnostic(row):
  a=p-c;b=q-d;den=(a*a).sum();aa=(a*b).sum()/den;bb=(a[:,0]*b[:,1]-a[:,1]*b[:,0]).sum()/den
  mat=np.array([[aa,-bb],[bb,aa]]);fit=a@mat.T+d
  rms=lambda x:float(np.sqrt(np.mean((x*x).sum(axis=1))))
- total=rms(p-q);local=rms(fit-q);coherent=math.sqrt(max(0,total**2-local**2))
+ count=row.get('camera_fit_landmark_count',len(p));total=rms((p-q)[:count]);local=rms((fit-q)[:count]);coherent=math.sqrt(max(0,total**2-local**2))
  return dict(rms_native_px=total,after_similarity_px=local,coherent_component_px=coherent,
   translation_native_px=(d-c).tolist(),scale=float(math.hypot(aa,bb)),roll_deg=math.degrees(math.atan2(bb,aa)),
   assessment='framing dominant' if coherent>local*1.4 else 'mixed framing/form' if coherent>local*.7 else 'local form/observation dominant',
@@ -63,7 +63,7 @@ def main():
   y=plain.height+82
   for i,v in enumerate(data['vectors']):
    d.text((w+20,y+i*27),f"{i+1}. {v['name']}: {v['length_px']:.1f}px",font=SMALL,fill=(25,36,31))
-  note=('EXIF unavailable; macro review lens fixed at 150 mm.' if name not in ('right','left') else
+  note=(f"Free lens; rigid RMS {row['camera_fit_rms_mm']:.3f} mm at head depth." if 'camera_fit_rms_mm' in row else 'EXIF unavailable; macro review lens fixed at 150 mm.' if name not in ('right','left') else
    'EXIF unavailable; accepted whole-gun camera retained.')
   d.text((w+20,y+(len(data['vectors'])+1)*27),note,font=SMALL,fill=(25,36,31))
   sheet.save(out/(name+'-pair.jpg'),quality=94,optimize=True)
