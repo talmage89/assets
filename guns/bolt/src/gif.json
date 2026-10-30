@@ -1,0 +1,35 @@
+{
+  "source": "export/bolt.glb",
+  "output": "docs/motion.gif",
+  "sequence": [
+    {
+      "clip": "Fire"
+    }
+  ],
+  "fps": 25,
+  "width": 960,
+  "colors": 256,
+  "samples": 64,
+  "background": [
+    59,
+    62,
+    66
+  ],
+  "camera": {
+    "location": [
+      0.68,
+      0.015,
+      0.29
+    ],
+    "target": [
+      0,
+      0.135,
+      0.045
+    ],
+    "lens": 48,
+    "aspect": 2.05,
+    "exposure": -0.15
+  },
+  "engine": "BLENDER_EEVEE",
+  "output_width": 720
+}

@@ -13,24 +13,23 @@ def check(arm):
  for clip,s in I.CLIPS.items():
   for tick in range(s['frames']*2+1):
    f=tick*.5;W.pose(arm,clip,f);scene_frame(arm,clip,f)
-   n=I.STATES[s['start']]['tube'];ch=I.STATES[s['start']]['chamber'];ca=False;ins=False;hidden=False
+   n=I.STATES[s['start']]['tube'];ch=I.STATES[s['start']]['chamber'];ca=False;ins=False;fired=False;first_hidden=False
    if clip.startswith('Fire'):
-    ch=int(f<24 or (clip!='FireLast' and f>=44))
-    ca=clip!='FireLast' and 30<=f<44
+    ch=int(f<2 or (clip!='FireLast' and f>=44));fired=2<=f<32
+    ca=clip!='FireLast' and f<44;first_hidden=clip!='FireLast' and f<30
     if clip!='FireLast' and f>=30:n-=1
     if 2<=f<=8:assert abs(delta(arm,'Trigger').to_quaternion().angle-math.radians(12))<5e-5
-    if 26<=f<=44:assert abs(delta(arm,'Forend').translation.y+.096)<2e-6,(clip,f,'pump hold')
+    if 26<=f<=30:assert abs(delta(arm,'Forend').translation.y+.096)<2e-6,(clip,f,'pump hold')
    elif clip=='ReloadEmpty':
-    ch=int(f>=50);ca=36<=f<50
+    ch=int(f>=50);ca=20<=f<50
     n=sum(f>=v for v in (144,216,288,360))
     for start in (84,156,228,300):
      if start+12<=f<start+60:ins=True
-     if start+44<=f<start+60:hidden=True
-    if 26<=f<=50:assert abs(delta(arm,'Bolt').translation.y+.096)<2e-6,(clip,f,'empty hold')
+    if 26<=f<=36:assert abs(delta(arm,'Bolt').translation.y+.096)<2e-6,(clip,f,'empty hold')
    elif clip.startswith('Reload'):
-    n=I.STATES[s['start']]['tube']+int(f>=60);ins=12<=f<60;hidden=44<=f<60
-   expected={'ChamberShell':ch,'CarrierShell':ca,'InsertShell':ins,
-     **{'Tube'+str(k):k<=n and not hidden for k in range(1,5)}}
+    n=I.STATES[s['start']]['tube']+int(f>=60);ins=12<=f<60
+   expected={'ChamberShell':ch,'CarrierShell':ca,'InsertShell':ins,'FiredHull':fired,
+     **{'Tube'+str(k):k<=n and not (k==1 and first_hidden) for k in range(1,5)}}
    for name,v in expected.items():assert abs(visible(arm,name)-int(v))<2e-5,(clip,f,name,visible(arm,name),v)
    # Riding hand frame follows the complete deformation, not just its position.
    hand=bpy.data.objects['Socket_SupportHand'].matrix_world

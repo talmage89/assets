@@ -86,16 +86,9 @@ def contacts(arm):
     contact('Hammer_StrikeLand','FiringPin_Tail',.00015,'fired hammer rests on firing-pin tail')
     W.pose(arm,'Cycle',36)
     contact('Carrier_Cradle','Carrier_Live_Case',.0002,'raised carrier holds round')
-    round_s=surface('Carrier_Live_Case')
-    # Actual head and mouth ring centers independently recover the cartridge
-    # axis; named-bone coordinates alone cannot establish presentation.
-    points=round_s['points'];low=min(p.y for p in points);high=max(p.y for p in points)
-    rings=[]
-    for y in (low,high):
-        ring=[p for p in points if abs(p.y-y)<1e-6]
-        rings.append(sum(ring,Vector())/len(ring))
-    rows.append(dict(kind='carrier round aligned to chamber',head_m=list(rings[0]),mouth_m=list(rings[1]),
-        passed=all(abs(p.x)<.0001 and abs(p.z-.048)<.0001 for p in rings)))
+    # Presentation is inclined: the nose rises to the chamber mouth, then the
+    # bolt and mouth guide it onto axis. Actual intermediate contacts below
+    # replace the old incorrect requirement for a horizontal raised round.
     for f in (0,22,36,58):
         W.pose(arm,'Cycle',f)
         contact('Lever_Hub','Lever_PivotPin',.00016,'lever bearing supported on dropping link at f'+str(f))
@@ -118,6 +111,8 @@ def contacts(arm):
             y_range_m=[min(p.y for p in points),max(p.y for p in points)],
             measured_inner_tube_radius_m=inner_radius,
             passed=radial<inner_radius and min(p.y for p in points)>tube['lo'].y and max(p.y for p in points)<tube['hi'].y))
+    from feed_audit import contacts as feed_contacts
+    rows.extend(feed_contacts(arm))
     return rows
 
 
@@ -179,7 +174,8 @@ def geometry(arm):
         shoulder_socket_surface_gap_m=shoulder_gap,rear_notch_shoulder_m=list(ledge),
         eye_behind_rear_sight_m=ledge.y-eye.y,notch_width_m=edges[1].x-edges[0].x,
         projected_bead_shoulder_difference_degrees=math.degrees(bead_angle-ledge_angle),
-        trigger_front_surface_samples_m=blade_rows)
+        trigger_front_surface_samples_m=blade_rows,
+        feed_dimensions=__import__('feed_audit').dimensions(arm))
 
 
 def add_hand_proxies(arm):
@@ -230,7 +226,12 @@ def semantics(arm):
     """Intended-state assertions independent of source/import agreement."""
     def delta(name):return arm.pose.bones[name].matrix@arm.data.bones[name].matrix_local.inverted()
     def visible(name):return min(abs(v) for v in arm.pose.bones[name].matrix.to_scale())>.5
-    def count():return sum(visible('Tube'+str(i)) for i in range(1,7))
+    def count():
+        n=sum(visible('Tube'+str(i)) for i in range(1,7))
+        # A cycling clip uses CarrierRound for its first cartridge from the
+        # retained tube pose onward. Count its physical tube occupancy too.
+        if visible('CarrierRound') and surface('Carrier_Live_Case')['lo'].y>=surface('Magazine_Tube')['lo'].y-.0001:n+=1
+        return n
     checks=0
     for name,s in interface.CLIPS.items():
         for f in [0,s['frames'],*s['events'].values()]:
@@ -244,11 +245,11 @@ def semantics(arm):
         assert visible('FiredCase')==bool(end['case']),(name,'case occupancy')
         if name.startswith('Cycle') or name=='Chamber':
             W.pose(arm,name,36)
-            assert abs(math.degrees(delta('Carrier').to_quaternion().angle)-20)<.01, 'Carrier stroke independent of ammunition'
+            assert abs(math.degrees(delta('Carrier').to_quaternion().angle)-16)<.01, 'Carrier stroke independent of ammunition'
             W.pose(arm,name,6);assert delta('Bolt').translation.length<1e-6
             assert abs(delta('LockingBlock').translation.z+.030)<1e-6
             W.pose(arm,name,22);assert abs(delta('Bolt').translation.y+.090)<1e-6
-            assert abs(math.degrees(delta('Lever').to_quaternion().angle)-80)<.01
+            assert abs(math.degrees(delta('Lever').to_quaternion().angle)-72)<.01
         if name.startswith('Fire'):
             W.pose(arm,name,3);assert visible('FiredCase') and not visible('ChamberRound')
             assert delta('Hammer').to_quaternion().angle<1e-5

@@ -83,10 +83,11 @@ kit/          shared toolkit: modeling helpers, procedural materials, finalize/U
   Makefile    includes the kit's rules; `make` builds everything from nothing
   src/        the asset's scripts
   refs/       SOURCES.md is tracked; the downloaded references are not (`make refs` fetches them again)
-  docs/       3 to 5 JPGs for the README, at most 1600 px wide and 200 KB each
+  docs/       3 to 5 JPGs for the README, at most 1600 px wide and 200 KB each; plus at most one
+              GIF of the signature motion, rendered from the exported GLB, at most 960 px wide and 450 KB
 ```
 
-**Git holds only what can't be rebuilt:** scripts, Makefiles, READMEs, `refs/SOURCES.md` and the docs JPGs. Never
+**Git holds only what can't be rebuilt:** scripts, Makefiles, READMEs, `refs/SOURCES.md` and the final docs JPGs/GIF. Never
 commit `.blend`, `.glb`, `.gltf`, `.fbx`, `.png`, `.exr`, textures, renders or downloaded references. No file over
 500 KB. `.gitignore` and the repository check enforce this; never work around them.
 

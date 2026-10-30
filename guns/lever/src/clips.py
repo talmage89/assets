@@ -28,6 +28,7 @@ def tube(n):
 def rest(n=6,live=True,case=False,hammer=44):
     return {**tube(n),'ChamberRound':vis(live),'FiredCase':vis(case),
             'CarrierRound':vis(False),'InsertRound':vis(False),
+            'TubeCutoff':dict(rot_deg=(0,0,38)),
             'Hammer':dict(rot_deg=(hammer,0,0))}
 def action_pose(lever=0,draw=0,lock=0,carrier=0,link=0):
     return {'Lever':dict(rot_deg=(lever-link,0,0)), 'Bolt':dict(loc=(0,-draw,0)),
@@ -72,7 +73,7 @@ def cycle(n,last=False,empty=False):
 
 
 def insertion(n,offset=0,live=True):
-    keys=[(0,rest(n,live)),hold(4),(8,{'Carrier':dict(rot_deg=(20,0,0))}),
+    keys=[(0,rest(n,live)),hold(4),(8,{'Carrier':dict(rot_deg=(16,0,0))}),
           (10,{'LoadingGate':dict(rot_deg=(0,0,28))}),hold(11),
           (12,{'InsertRound':vis(True),'InsertGuide':dict(loc=(.002,.002,0),rot_deg=(0,0,30))}),
           (28,{'InsertGuide':dict(loc=(-.002,.009,0),rot_deg=(0,0,24)),
@@ -93,9 +94,9 @@ def insertion(n,offset=0,live=True):
             pose.setdefault('Follower',{}).setdefault('loc',(0,(n-6)*TUBE_PITCH*.001,0))
         if f==58:
             for i in range(1,7):pose['Tube'+str(i)]['loc']=(0,0,0)
-        if f==57:
-            for i in range(1,7):pose['Tube'+str(i)]['scale']=(0,0,0)
     keyed={f:p for f,p in keys}
+    for f,angle in ((50,0),(54,-38),(58,-38),(60,0)):
+        keyed.setdefault(f,{})['TubeStop']=dict(rot_deg=(0,0,angle))
     path=[(12,.002,.002,30),(28,-.002,.009,24),(32,-.002,.019,24),(42,-.014,.038,11.5),
           (48,-.022,.067,3),(57,-.025,.097,0)]
     for f in range(12,58):
@@ -149,4 +150,6 @@ def build_clips(arm):
         for fc in fcurves(act):
             if fc.data_path=='pose.bones["Follower"].location' and (act.name.startswith('Cycle') or act.name=='Chamber'):
                 for k in fc.keyframe_points:k.interpolation='CONSTANT'
+    from feed import animate
+    animate(arm)
     assert set(t.name for t in arm.animation_data.nla_tracks)==set(CLIPS)

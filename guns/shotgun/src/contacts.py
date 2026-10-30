@@ -9,7 +9,7 @@ def measure(arm):
  def contact(a,b,limit,kind,clip,frame):
   W.pose(arm,clip,frame);d,method=assembly.distance(part(a),part(b))
   rows.append(dict(kind=kind,parts=[a,b],clip=clip,frame=frame,distance_m=d,limit_m=limit,method=method,passed=d<=limit))
- for f in (30,35.5,40,43):contact('CarrierShell_Head','Carrier_Tray',.0004,'carrier supports rim','Fire',f)
+ for f in (30,35.5,38,40):contact('CarrierShell_Head','Carrier_Tray',.0004,'carrier supports rim','Fire',f)
  for f in (30,40):
   W.pose(arm,'Fire',f);b=arm.pose.bones['Carrier'];xf=b.matrix@b.bone.matrix_local.inverted()
   up=xf.to_3x3()@Vector((0,0,1));origin=xf@Vector((.004,.1597,.010))
@@ -19,8 +19,8 @@ def measure(arm):
   distance=rim['tree'].find_nearest(hit[0])[3];assert distance<.0004,(f,distance)
   rows.append(dict(kind='upward cradle face under rim',clip='Fire',frame=f,point=list(hit[0]),
    normal=list(hit[1]),rim_distance_m=distance,passed=True))
- for f in (0,34,60):
-  for s in ('L','R'):contact('ShellStop_Tip_ShellStop'+s,'TubeShell1_Head',.00018,'retained tube rim','Fire',f)
+ for f in (44,60):
+  contact('ShellStop_Tip_ShellStopL','TubeShell1_Head',.00018,'retained tube rim','Fire',f)
  for clip,f in [('Idle',0),('Fire',60),('FireLast',66),('ReloadEmpty',78)]:
   contact('Bolt_Lock','Barrel_LockSeat',.00018,'battery engagement',clip,f)
  for clip,f in [('Idle',0),('Fire',18),('Fire',26),('Fire',50),('ReloadEmpty',26),('Inspect',106)]:
@@ -43,12 +43,9 @@ def measure(arm):
   samples.append(None if hit[0] is None else dict(point=list(hit[0]),normal=list(hit[1]),lock_distance_m=lock['tree'].find_nearest(hit[0])[3]))
  assert all(s and s['normal'][2]<-.8 and s['lock_distance_m']<.00018 for s in samples),samples
  rows.append(dict(kind='opposing battery faces',samples=samples,passed=True))
- left=motion.surface(part('ShellStop_Tip_ShellStopL'));right=motion.surface(part('ShellStop_Tip_ShellStopR'))
- gap=min(abs(p.x) for p in left['points'])+min(abs(p.x) for p in right['points'])
- rim=motion.surface(part('TubeShell1_Head'));diameter=rim['hi'].x-rim['lo'].x
- assert gap<diameter-.002,(gap,diameter)
- rows.append(dict(kind='rim retention aperture',gap_m=gap,rim_diameter_m=diameter,passed=True))
- for side in (-1,1):
+ # The latches alternate; the right interceptor is retracted in battery.
+ rim=motion.surface(part('TubeShell1_Head'))
+ for side in (-1,):
   tip=motion.surface(part('ShellStop_Tip_ShellStop'+('L' if side<0 else 'R')))
   hit=rim['tree'].ray_cast(Vector((side*.010,.253,.013)),Vector((0,1,0)),.005)
   assert hit[0] is not None and hit[1].y<-.8,hit
@@ -70,6 +67,8 @@ def measure(arm):
   if h[0] is not None:hits.append((h[3],o.get('part_name',o.name)))
  assert hits and min(hits)[1]=='Bead',sorted(hits)[:5]
  rows.append(dict(kind='actual Eye ray first reaches bead',hit=min(hits)[1],distance_m=min(hits)[0],passed=True))
+ from feed_audit import contacts as feed_contacts
+ rows.extend(feed_contacts(arm))
  W.pose(arm,None,0)
  assert all(r['passed'] for r in rows),rows
  return rows

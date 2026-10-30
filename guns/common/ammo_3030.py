@@ -75,6 +75,10 @@ def build(name, base, palette, register, bone='Root', *, fired=False, hidden=Fal
              (51.8,3.88),(50.8,3.87),(4.0,4.85),(3.8,2.08)]
     counts=[n,n,n,n,8 if hidden else 16,8 if hidden else 16,n,n,n,40 if fired and not hidden else n,
             40 if fired and not hidden else n,24 if not hidden else 8,8 if hidden else 16,n]
+    if hidden:
+        # The live tube display's mouth is occupied by its bullet. Retain its
+        # complete exterior and closed shell, but reduce the unseen inner wall.
+        counts[10:]=[4]*4
     case=revolved(name+'_Case',profile,counts,palette['brass'],base);register(case,bone)
     revolution_normals(case,profile,counts,base)
     x,y,z=base
