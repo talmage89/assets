@@ -1,0 +1,32 @@
+{
+  "studio_receiver": {
+    "shot": "right_photo",
+    "photo": "museum.jpg",
+    "neutral": "museum.jpg",
+    "polygons": [
+      [
+        [
+          580,
+          162
+        ],
+        [
+          1136,
+          153
+        ],
+        [
+          1137,
+          229
+        ],
+        [
+          581,
+          243
+        ]
+      ]
+    ],
+    "prefixes": [
+      "Receiver_Sheet",
+      "Receiver_Rivet",
+      "Selector_"
+    ]
+  }
+}

@@ -1438,3 +1438,242 @@ Evidence stays under `build/gif/`: `report.json`, `palette-audit.json`,
 review inspected decoded frames and audited real-speed delays; continuous
 visual playback was unavailable in this session. The committed image is
 `docs/motion.gif`; the README names the clip below it.
+
+
+## Family paint correction — pass 1: accepted export and reference audit
+
+**Color and value first:** opened the accepted exported locked view, issued
+photograph and existing studio quarter reference. The inherited issued target
+is V10/50/90 **4/8/64 against 0/15/143**, highlight RGB
+**90/84/75 against 174/168/160**. It is an exhibition photograph, not studio
+lighting. Retain it as an explicit diagnostic and use `right.jpg` as the primary
+studio receiver comparison. The latter's unclipped pale-gray backdrop
+(1300,100)–(1500,350) is neutral; the issued comparison retains the brightest
+15% of the upper gun's white selector legend (2270,535)–(2330,565).
+The independent complete receiver polygon excludes the polymer/tube; it is
+fixed before fitting. Its studio target is V **2/21/42**, highlight
+**52.63/54.46/49.62**. Different wear histories remain visible in the pair.
+Accepted exports/maps were archived in root `build/family-paint/before/smg/`.
+
+## Family paint correction — pass 2: reject old-light material compensation
+
+**Color and value first:** opened the whole-receiver studio crop and both
+reference photos. The initial LMG paint (.022/.023/.024, factor .8, roughness
+.42) under the old photo lights gives V **37/57/82**, highlight **94/89/82**.
+A .20-factor/.32-roughness diagnostic remains **30/46/71**, highlight
+**93/87/79**. Neither matches the dark studio distribution; the accepted warm
+phosphate patch is also more extensive than on the studio specimen. Keep
+that wear rather than changing its area to fit a histogram. Restore physical
+dielectric reflection and calibrate one whole-scene light rig per photograph.
+The subsequent paint keeps 2.2–2.4% diffuse reflectance and tries .29 roughness
+for the studio's tighter satin reflection. Magazine oxide keeps its old inputs;
+all substrate, steel, polymer and ammunition mixes and every wear field stay.
+
+
+### Pass 3 spatial audit — reject the first numerical match
+
+**Color and value first:** the first fresh exported whole-part fit passed its
+percentile/highlight bounds, but opening the pairs exposed a reflection on the
+wrong flat. Do not accept numerical agreement alone. The studio observation
+also mistakenly omitted the receiver's rolled roof behind the cocking tube.
+Corrected the complete visible-part outline, including that roof and excluding
+the occluding rear-sight base, before refitting. The studio target is now
+V **2/24/46**, highlight RGB **59.77/61.03/57.93**. The previous 2/21/42
+selection above is retained as rejected evidence, not the final target.
+
+Added broad upper/lower value guards, divided at physical Z109 mm and located
+on the reference with the existing calibrated projection. Narrow physical
+cards are sampled along the actual crown reflection directions. There is still
+one whole-scene physical rig for each photograph; no image grading, per-part
+light linking or changed paint/wear is involved. The issued comparison retains
+the inherited full-part polygon and method so its original numbers remain
+comparable. Model and photographic pressings differ; spatial guards are
+reported separately from the required complete-part distribution.
+
+
+### Paint-role scope correction
+
+**Color and value first:** the .29/.42/.55 roughness and 3.5%-albedo diagnostics
+were inspected as physical-light response studies. The broader and lighter
+alternatives did not improve the complete-part/spatial fit; retain 2.2–2.4%
+diffuse enamel, .29 central roughness and .8 specular factor for the next actual
+bake. The current full-part .29 GLB measures V **2/23/40** against **2/24/46**,
+highlight **64.12/62.50/62.87** against **59.77/61.03/57.93**. The retained
+issued diagnostic is **0/15/150** against **0/15/143**, highlight
+**170.86/166.72/162.06** against **173.68/167.95/159.84**. All requested full-part
+bounds pass; the broad upper/lower spatial medians remain a weaker match and
+are not certified by that pass. The original pressing/camera alignment and
+accepted wear differ from this cleaner studio specimen.
+
+The role audit caught a separate scope fault in the prototypes: `steel()` also
+serves `darksteel` slots. Restrict the new BRDF to the explicit inspection
+`paint` role (plus the already-painted handle pad), still excluding Magazine_*
+parts. Barrel, post, rear sight hardware, releases and other dark steel retain
+their old inputs. Bright steel, magazine oxide, polymer, ammunition, every wear
+field and the entire rig/layout stay fixed. Repeat the actual bake/export and
+photographic gates after this correction; the prototype figures above are not
+the final delivery proof. Pure-alpha pixel cohorts alone could not establish
+this scope because old paint and old dark steel shared the same alpha factor.
+
+
+### Reviewed paint baseline and first clean build
+
+The actual role-corrected export is
+`168665169a6df2961cfc3d1442f6dc6b656a7e05c7cf2a9e22257496c4a2f3b5`,
+replacing the handed-off fresh bake
+`55ec8e8ec04f2d7503db7822d9ef409fd7c57266a9a71aeeefa569b278e843ce`.
+The older historical acceptance was
+`11e9649956b6b2e16d608bcc60e10d38c729b8b0afb4808201f143207656242a`.
+`src/accepted_paint.json` deliberately records the reviewed change and its
+old/new identities. The old specular interval .14–.19 moves to .775–.825:
+its width stays .05. The new intact-paint RGB median is pinned at 41/42/43
+with a one-byte component bound. Geometry/layout/detachable baselines and
+all motion/contact tolerances remain unchanged.
+
+Both original receiver fracture arrays remain byte-identical after clean
+regeneration: left
+`4c619f326c84ac88bef2f2e4d70fd90cf5f088baca61b4c0b32d13e7758ee289`, right
+`d83a14f4c54fc98734b157e2f1027177d09535ba0f8854e24a72f545c94ae7cf`.
+The source-role correction changes only the intact enamel path; polymer,
+ammunition and all weathering functions remain identical. The first empty
+build's `make export` and separate `make check` both pass; full command/status
+records are root `build/family-paint/smg-clean1-*.json`.
+
+### Whole-photo lighting anchor and limits
+
+The final optional fit also observes the complete unchanged studio handguard
+as an illumination anchor. This prevents claiming that a favorable paint
+histogram alone recovers the photograph's light. With the original handguard
+material frozen, the best sampled estimate remains roughly 17 median V against
+71 in that edited studio photo. Upper/lower receiver medians also remain a
+weaker spatial match than the whole-part values. The final recipe retains the
+best constrained whole-part fit, not a claim that these secondary observations
+pass. The photographic pressing, camera residual and accepted wear differ;
+no polymer, wear or geometry input is changed to hide that mismatch. These
+limits remain in the final audit's `height_guards` and
+`unchanged_finish_anchors` fields. Whole-receiver acceptance is tested again on
+the second clean, role-corrected export; there is no image-space correction.
+
+### Final GIF review — unchanged signature motion
+
+**Color and value first:** opened all nine decoded GIF pages in
+`build/gif/review/frames-*.jpg`, every frame **000–069** in order. The intact
+paint remains charcoal under the unchanged studio, with a tighter satin line;
+the accepted warm phosphate ribbon, black polymer and dark oxide magazine stay
+distinct. Frames 000–023 retract and lock the handle; 024–033 withdraw the
+magazine, 034–048 return/seat it, and 049–069 release and settle the action.
+The magazine briefly crosses the lower image edge at maximum withdrawal,
+as in the original accepted camera/clip. No new flash, missing part or paint
+palette jump appears. Fine surface detail is softer in the GIF than the JPGs.
+The review uses decoded frames and measured delays, not interactive playback.
+
+`make gif` passes: **960×519**, **70 frames**, **20 Hz**, **249 palette colors**,
+**306,046 bytes**, **4,000 ms** including the unchanged 500-ms first-frame hold.
+The `ReloadEmpty` samples 0,3,…,207 and `src/gif.json` remain identical.
+GIF SHA-256: `2cf5d434e60a71f67c1288d834195e3ec5c8b372c3a3dba0b1d4a271cf8c739f`.
+
+### Final exported paint and docs critique
+
+**Color and value first:** opened the two full histogram pairs, controlled
+before/after triptychs and native final hero. The actual second clean export
+measures studio V10/50/90 **2/23/40** against **2/24/46**, highlight RGB
+**65.27/64.32/63.26** against **59.77/61.03/57.93**. The issued diagnostic is
+**0/15/150** against **0/15/143**, highlight **170.81/166.67/162.00** against
+**173.68/167.95/159.84**. All requested full-part bounds pass, including
+highlight value, every RGB channel and normalized color. Source preview
+measures studio **2/22/40**, **65.27/64.34/63.27**, and issued **0/15/149**,
+**171.05/166.95/162.28**: broad response survives baking.
+
+Holding the final physical lights/camera fixed, the old GLB measures studio
+**0/2/18**, **31.83/30.52/28.81**, and issued **0/4/91**,
+**112.83/107.72/101.81**. This is distinct from the inherited old-light result
+4/8/64, 90/84/75. Complete polygons include the accepted wear; neither a paint
+threshold nor an altered wear field selects a favorable subset.
+
+The spatial weakness remains clear in the pair: upper/lower receiver medians
+are **11/27** versus **30/16**. The unchanged handguard anchor is **16** versus
+**71**. These are failed secondary observations, not a fully recovered studio
+or spatial photo match. Different accepted pressing geometry, camera residual,
+wear and other frozen finishes limit the fit. The physical rig is an estimated
+comparison condition; no image grading or local light linking is used.
+
+Opened every final docs JPG at native size. `hero.jpg` has charcoal paint,
+a distinct warm worn ribbon and deep handle/port shadows; the reflection
+remains smoother than the photograph. `turnaround.jpg` retains the original
+rolled profile, deep muzzle and black magazine. `details.jpg` preserves the
+accepted ribbon lobes, exposed edges and molded lower; the drum/hood faceting
+and softened microtexture remain existing limits. `action.jpg` retains the
+locked handle and sight channel, black oxide magazine and brass/copper
+separation; the soft normal-only headstamp remains weak. `eevee.jpg` agrees
+with the Cycles finish order and keeps cavity depth.
+
+Hero luma P1/50/99 is **2.79/53.72/185.07**, with **18.49%** below 24;
+reverse is **1.00/39.72/185.79**, **23.75%** below 24. Neither clips white.
+The new .29 paint reflects a narrower satin line than the Rill's .42; both
+read in the same charcoal family beside the unchanged Harrow in
+`../lmg/renders/final/hero-beside-ak-smg.jpg`, opened for this review.
+
+### Final artifact inventory
+
+| Docs file | Pixels | Bytes |
+| --- | --- | ---: |
+| `docs/action.jpg` | 1244×1400 | 154,477 |
+| `docs/details.jpg` | 1204×1400 | 193,527 |
+| `docs/eevee.jpg` | 1600×800 | 67,268 |
+| `docs/hero.jpg` | 1600×800 | 65,523 |
+| `docs/motion.gif` | 960×519 | 306,046 |
+| `docs/turnaround.jpg` | 1600×1300 | 82,697 |
+
+All five JPGs and all seventy GIF frames were opened; the observations above
+refer to these final files. The generated final contact sheet is
+`renders/final/contact-sheet.jpg`, with Cycles/Eevee stills, exported/photo
+pairs and motion strips. Current full GLB SHA-256: `290b044c70d6319bbf4418d4f7f21e633ddb12741d1609aa03040b2ddec2b074`.
+
+Opened all 36 non-clip final renders on six indexed pages, all sixteen clip
+pages (`inspection/clips-00.jpg`–`clips-15.jpg`, 288 samples), all four final
+photo pairs and four source companions, and the contact sheet. Paint stays
+stable across the motion samples. Also opened the rejected broad-roughness and
+lighter-albedo response sheets, and both final unit-card response sheets;
+these +4 EV unit-card diagnostics are labeled and never accept the shipping
+BRDF. The whole-part match and the failed spatial/handguard anchors remain
+visible together rather than silently dropping the unfavorable observations.
+
+The UV-interior scope audit is root
+`build/family-paint/smg-scope-part-deltas.json`. Original same-bone projection
+contacts carry changed paint onto nominally nonpaint low surfaces: chamber
+seat 41 texels, barrel 2,298, handle hinge 10, front post 25, rear base 448,
+clamp ears 35/34, rear bearing 183, handguard 281 and lower molding 21,084
+BaseColor texels change by more than one byte. These are not proof of a source
+polymer/darksteel change; the source role audit preserves those shader inputs.
+They are an existing projection limitation, so this report does not claim
+pixel-identical other-finish atlases. Geometry, UVs and the bake isolation
+layout were not changed to conceal it.
+
+### Two clean-build checks and preservation proof
+
+Cycle 1: `make -C guns/smg clean`, `make -C guns/smg export` (**0**, 319.52 s),
+then `make -C guns/smg check` (**0**, 360.50 s). Passing reports, actual export,
+textures and comparison evidence are archived in root
+`build/family-paint/smg-clean1/`; command/status records are
+`smg-clean1-*.json`. Cycle 2 independently removed all generated asset outputs,
+then ran the requested default `make -C guns/smg` (**0**, 1,315.71 s) and
+separate `make -C guns/smg check` (**0**, 236.70 s). Both cycles bake **4096 /
+32 samples**, ship **2048**, and report zero missed interior bake texels.
+All Cycles work used the shared GPU lock. `make gif` also returns zero.
+
+The original geometry/layout signatures and every geometry/motion/contact
+bound remain unchanged. Source, finalized and freshly imported construction,
+actual-surface clearances, gun UV/weights/rig/clips identity, standalone
+oriented geometry/normals/origins, inverse atlas samples, full density and
+protected-mip bleed all pass. Identity proves preservation; construction and
+clearance tests independently prove assembly behavior. The two clean bakes
+have identical BaseColor; only **13 Normal and 8 ORM texels** differ, by at
+most one byte/channel. The final gun stays **41,540 triangles / one material /
+three 2048 maps / 10,984,144 bytes**. The accepted fracture-array hashes are
+also enforced exactly by `wear_audit.py`. No kit code changed.
+
+The deliberate paint acceptance uses the same .05-wide specular interval at
+its new center, plus the new one-byte RGB-median pin. Neither a geometry
+signature nor a tolerance was relaxed. Final `python3 kit/repo_check.py`
+passes with zero errors; `git diff --check` passes. Shared photographic-bound
+unit tests pass (three), as do the rifle's bake/rebaseline tests (18).

@@ -1,5 +1,6 @@
 """Final GLB-only neutral studio; exact Eye camera and real 1.8 m scale."""
 import math
+from pathlib import Path
 from shots import SHOTS as FORM_SHOTS,floor_height,STRIP_SHOT
 FINAL_STAGE=True
 RENDER_STAGE='final exported GLB with canonical baked 2048 PBR maps'
@@ -19,6 +20,8 @@ PHOTO_POSES={'right_photo':dict(daylight=1),'left_photo':dict(daylight=-1),
  'locked_photo':dict(daylight=-1,action='ReloadEmpty',frame=90,hide_detached_mag=True),'trigger_photo':dict(daylight=-1),
  'used_photo':dict(daylight=-1)}
 for shot in PHOTO_POSES.values():shot.setdefault('action','Idle');shot.setdefault('frame',0)
+for _name in ['left_photo', 'locked_photo']:
+ PHOTO_POSES[_name]['paint_photo']=_name
 STRIP_SHOT={**STRIP_SHOT,'exposure':-.15}
 
 def configure_scene(scene,source):
@@ -105,3 +108,10 @@ def prepare_shot(scene,shot):
   if isscale:ob.location+=Vector((0,0,1));ob.data.energy*=1.5
   target=Vector((0,.025,0)) if shot.get('shell_light') else Vector((0,.06,1.02 if isscale else .06))
   ob.rotation_euler=(target-ob.location).to_track_quat('-Z','Y').to_euler()
+
+# Comparison-only physical lighting; accepted hero/GIF studio stays fixed.
+_prepare_paint_base=prepare_shot
+def prepare_shot(scene,shot):
+ _prepare_paint_base(scene,shot)
+ from guns.common.paint_review import apply_lights
+ apply_lights(scene,shot,Path(__file__).resolve().parents[1])

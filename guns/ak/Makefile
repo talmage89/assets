@@ -26,7 +26,7 @@ FINAL_SHOTS := hero,hero_right,front,side,back,top,receiver,cover_rear,controls,
 FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(FINAL_SHOTS)))) renders/final/beauty/shots.json
 PHOTO_SHOTS := right_photo,left_photo,receiver_photo,trigger_photo,trigger_sharp,rear_sight_side,rear_sight_photo,rear_sight_sharp,front_sight_photo,front_sight_behind,front_sight_installed,gas_block_photo,grip_photo,trigger_guard,topcover_side,topcover_top,topcover_sharp,selector_photo,used_photo,retainer_photo
 PAIRS := $(addprefix renders/final/pairs/,$(addsuffix -pair.jpg,$(subst $(comma), ,$(PHOTO_SHOTS))))
-RENDER_DEPS := src/final_render.py src/final_shots.py src/shots.py src/delivery.py ../common/render.py build/render-parameters.txt
+RENDER_DEPS := src/final_render.py src/final_shots.py src/shots.py src/paint_lights.json ../common/paint_review.py src/delivery.py ../common/render.py build/render-parameters.txt
 .PHONY: all refs model prepare lookdev bake export check check-repo check-bake-identity verify render match source-match strips extra review docs sections clean FORCE
 all: refs export check render match source-match strips extra raw-audit review docs
 refs:
@@ -155,3 +155,10 @@ metal-control: render renders/final/metal-control/hero.png build/value-geometry.
 review: metal-control
 
 include ../common/gif.mk
+
+# Whole receiver distribution from the shipped GLB, with member-owned photo
+# outlines and one physical rig per photo. No reference pixels enter the bake.
+.PHONY: paint-review
+paint-review: match build/value-geometry.npz
+	$(PYTHON) src/paint_review.py --check
+review: paint-review

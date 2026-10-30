@@ -1,0 +1,34 @@
+{
+  "previous_authored_linear_rgb": [
+    0.0015,
+    0.00154,
+    0.0015
+  ],
+  "authored_linear_rgb": [
+    0.022,
+    0.023,
+    0.024
+  ],
+  "previous_shipping_specular_factor_bounds": [
+    0.14,
+    0.19
+  ],
+  "shipping_specular_factor_bounds": [
+    0.775,
+    0.825
+  ],
+  "authored_roughness": 0.29,
+  "scope": "Reviewed intact enamel only. Equal 0.05-wide specular interval; geometry/layout baselines and wear source unchanged.",
+  "previous_glb_sha256": "55ec8e8ec04f2d7503db7822d9ef409fd7c57266a9a71aeeefa569b278e843ce",
+  "reviewed_glb_sha256": "168665169a6df2961cfc3d1442f6dc6b656a7e05c7cf2a9e22257496c4a2f3b5",
+  "accepted_wear_masks": {
+    "left": "4c619f326c84ac88bef2f2e4d70fd90cf5f088baca61b4c0b32d13e7758ee289",
+    "right": "d83a14f4c54fc98734b157e2f1027177d09535ba0f8854e24a72f545c94ae7cf"
+  },
+  "shipping_basecolor_rgb_255": [
+    41,
+    42,
+    43
+  ],
+  "maximum_median_basecolor_component_delta": 1
+}

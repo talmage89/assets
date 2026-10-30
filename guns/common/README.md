@@ -149,3 +149,8 @@ creates an explicitly labeled shader diagnostic for material selection. The
 fitter records those overrides. Such a render cannot pass the final paint
 acceptance audit: chosen inputs must first be authored, rebaked, exported and
 rendered from the unmodified shipping GLB.
+
+The receiver audit can also report broad height regions and unchanged-finish
+lighting anchors. These retain independent spatial evidence: a whole-part
+histogram pass does not imply that either diagnostic matches. Both the failed
+spatial observations and the main requested bounds remain in the JSON.

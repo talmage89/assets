@@ -1683,3 +1683,172 @@ cycles' logs, export/texture snapshots, reports and inspection pages are in
 under `build/ak-check/`; `shared-seeded-comparison.json` records the fixed-input
 experiment. A prior run whose logging parent terminated without a captured
 make status is archived as `final-1/` and is not counted as successful validation.
+
+
+## Family paint correction — pass 1: accepted export diagnosis
+
+**Color and value first:** opened the museum reference and the accepted exported
+receiver at full frame and in a complete-part crop. The previous .0015-linear
+paint crushes the folds and under-selector surfaces. The inherited whole-part
+comparison is V10/50/90 **2/29/33 against 24/53/76**, highlight RGB
+**48/49/48 against 93/93/96**. The museum's upper-left gray backdrop remains
+the estimated neutral, not the gun's nominal black. All accepted exports and
+canonical maps were archived under root `build/family-paint/before/ak/` before
+changing the shader. Geometry/UV/rig and detachable baselines remain fixed.
+
+## Family paint correction — pass 2: reject diffuse/specular compensation
+
+**Color and value first:** opened the complete-part pair and native hero of
+`renders/paint-pass1/`. LMG reflectance .022/.023/.024, factor .8 and roughness
+.42 under the old two-card photographic rig give V **20/105/115**, highlight
+**115/115/116**. The receiver is gray and nearly flat across its flank;
+reject it as a photo match. A lower-factor (.20), .34-roughness diagnostic
+returns **13/66/70**, highlight **76/76/76**: the shadow tail remains too dark
+while the highlight is too weak. This is a lighting/distribution fault that
+one favorable median cannot accept. Retain realistic 2.2–2.4% diffuse paint
+and the LMG dielectric response for physical-light calibration. No wear field,
+wood, phenolic, bluing, magazine oxide or ammunition input is revised.
+
+
+## Family paint correction — pass 3: reviewed exported bake
+
+**Color and value first:** opened the complete exported receiver/photo pair and
+native hero. Paint is linear RGB **.022/.023/.024**, roughness **.42**, glTF
+specular factor **.8**; the existing fine grain, substrate and wear mixes stay.
+A single whole-scene physical card recipe matches the museum photograph; the
+hero/GIF studio and every camera stay fixed. The exported whole receiver is
+V10/50/90 **24/53/71** against **24/53/76**, highlight RGB
+**96.00/94.14/96.56** against **92.57/93.13/96.42**. Median, tails, highlight
+value, every highlight channel and normalized highlight color pass the stated
+10%/15% bounds. This constrains appearance under an estimated studio; it does
+not recover an absolute BRDF. The rendered paint is smoother than the heavily
+used photograph; its individual scratch history is preserved rather than copied.
+
+Explicit reviewed baseline change, reason: **Reviewed realistic receiver enamel; unchanged wear and exact non-image export data.**
+
+- Historical accepted GLB: `0fecef4cfc1b77fa9c485272d787cb276625781745a6893fe67ba190b60355a0`.
+- Reviewed new GLB: `2396ed61fba8b60db0cef52d747e9b4bdcf1bc309949e85e2dac65b614b92b1e`.
+- Previous checksum manifest SHA-256: `0e04b4bfd33fe9c2f0a9226c23b34cc9f5aad2a5c2c579c515b359ca36e9b443`.
+
+The separate `src/reviewed_rebaseline.py` command records this reviewed bake.
+Normal `bake_identity.py --record-from` still refuses replacement. Exact
+non-image bytes (including tangents) and JSON semantics match the historical
+manifest before acceptance. All geometry/detachable acceptance JSONs stay
+unchanged. The per-component 1/255 and 128 changed-texel limits remain exact.
+The old map hashes remain in the new manifest's reviewed-change history.
+
+### Material scope and original projection contacts
+
+The source AST audit changes only `steel()`'s intact paint constants. Wood,
+phenolic, ammunition, bluing, oxide, all abrasion/core/carbon fields and their
+mixes remain identical. A true per-part UV-interior comparison is recorded in
+root `build/family-paint/ak-scope-part-deltas.json`; an alpha-only cohort is
+insufficient because older paint and other dark surfaces can share a factor.
+
+Existing same-bone projection contacts follow the changed paint: 3,264 rear
+insert texels, 160 retaining-button, 52 selector-hub, 330 thumb-fold, seven hub
+rim, six dimple, 212/236 front-cradle bridge and 58 stock-root texels differ by
+more than one byte in BaseColor RGBA. Maximum is 36/37/38 RGB and 163 alpha,
+the intact paint change. These source finishes were not reauthored; they are
+cross-projection at the same accepted overlapping/nearby surfaces. Small AO
+differences occur on the insert/selector contact; metallic is unchanged and
+all normal differences are at most one byte. The report distinguishes those
+pixels from a false claim of byte-identical nonpaint atlases. No geometry, UV
+layout, wear region or tolerance is changed to conceal this limitation.
+
+## Family paint correction — pass 4: final presentation and motion
+
+**Color and value first:** opened all five final docs JPGs at native size.
+`hero.jpg` retains deep port/trigger cavities, warm brown wood and a readable
+charcoal receiver; the long cover reflection rolls off without clipping.
+`turnaround.jpg` shows the same silhouettes and a brighter upper paint land.
+`details.jpg` preserves the accepted edge abrasion and brown grip; the cover
+still has smoother grain and a more continuous worn edge than the photograph.
+`action.jpg` retains dark open-receiver depth and the oxide/copper/lacquer
+separation on the detachables. `eevee.jpg` shows the same material ordering;
+its low-frequency lighting response agrees with the Cycles hero.
+
+Opened all 77 non-clip final renders on the thirteen indexed pages under
+root `build/family-paint/ak-image-review/`. Source/photo companions show the
+expected fine-detail loss after the 2K bake; broad paint response survives.
+Wood and phenolic remain the accepted authored finishes, including their
+existing smoothness and atlas filtering limits. This round does not claim
+that matching three histogram quantiles reproduces the photograph's scratches.
+
+Opened every decoded GIF frame, indices **000–069**, in order on all nine
+`build/gif/review/frames-*.jpg` pages. Frames 000–013 unseat the magazine,
+014–023 withdraw it, 024–041 return it, 042–055 rock it home, and 056–069
+retain the charging/settling phase. The receiver paint and surrounding wood
+stay stable, the magazine stays within frame, and no new palette flash or
+missing moving part appears. These are decoded-frame inspections plus the
+measured delay audit, not a claim of interactive playback. The unchanged
+`ReloadEmpty` samples 0,3,…,207 and camera produce **820×443 / 70 frames /
+20 Hz / 4,000 ms / 253 palette entries / 439,106 bytes**.
+
+Opened all seventeen `renders/final/inspection/clips-00.jpg` through `clips-16.jpg`
+pages (290 rendered clip samples), the twenty final/photo pairs and twenty
+dense-source/photo companions on ten indexed pair pages, and the final contact
+sheet. No new changing-paint flash or omitted part appears across the clips.
+The source receiver measures V **23/52/71**, highlight **96.01/94.17/96.58**;
+the shipped bake measures **24/53/71**, **96.00/94.14/96.56**. Both pass,
+so the broad match survives the bake despite softened relief.
+
+The controlled three-column comparison is
+`renders/final/paint-review/studio_receiver-before-after.jpg`: the old GLB
+under the final light/camera has **1/8/30**, highlight **57.65/55.96/56.88**;
+the new one has **24/53/71**, **96.00/94.14/96.56**. This separates the paint
+change from the inherited diagnostic's older lighting (2/29/33). Opened the
+three final exported heroes together in the untouched LMG studio at
+`../lmg/renders/final/hero-beside-ak-smg.jpg`. The paints share charcoal
+reflectance and dielectric highlights; the different accepted wear histories
+and the Relay's tighter satin sheen remain visible.
+
+### Final artifact inventory
+
+| Docs file | Pixels | Bytes |
+| --- | --- | ---: |
+| `docs/action.jpg` | 1244×1400 | 177,512 |
+| `docs/details.jpg` | 1204×1400 | 195,451 |
+| `docs/eevee.jpg` | 1600×800 | 55,508 |
+| `docs/hero.jpg` | 1600×800 | 54,625 |
+| `docs/motion.gif` | 820×443 | 439,106 |
+| `docs/turnaround.jpg` | 1600×1300 | 79,018 |
+
+All five JPGs and all seventy GIF frames were opened; the observations above
+refer to these final files. The generated final contact sheet is
+`renders/final/contact-sheet.jpg`, with Cycles/Eevee stills, exported/photo
+pairs and motion strips. Current full GLB SHA-256: `d15138e8b0bac7b78ab1421523d7320575d948776e4b2933eaf4f789d3906cff`.
+
+### Two clean-build checks and preservation proof
+
+Cycle 1 removed the asset's `build/`, textures, export and renders, then ran
+`make -C guns/ak export` and `make -C guns/ak check`: both returned zero.
+Logs are root `build/family-paint/ak-clean1-export.log` and
+`ak-clean1-check.log`; the passing reports/identities were archived in
+`ak-clean1/`. Cycle 2 again ran `make clean`, then the requested default
+`make -C guns/ak` (**0**, 1,931.98 s) and separate
+`make -C guns/ak check` (**0**, 370.55 s). Command/status records and full logs
+are `ak-clean2-{clean,make,check}.{json,log}` in the same root evidence folder.
+Both cycles baked **4096 at 32 samples**, shipped **2048**, and reported zero
+missed interior bake texels. All Cycles work used the shared GPU lock.
+
+The final check proves exact original rifle non-image buffers and normalized
+JSON semantics, including tangents, geometry, normals, UVs, weights, rig and
+clips. Non-image SHA-256 remains
+`6cdc4cfed27f3688ac9d443701e25bd7a7ab676e2d9c73de2ccaf3d3f6881872`;
+normalized JSON remains
+`d04b55cc1c7a4731c160e88446c8c006e30d78780fe22f92ef28928734df9f4d`.
+Final decoded maps differ from the deliberately reviewed bake at **0 BaseColor,
+29 Normal and 8 ORM texels**, maximum **one byte/channel**. The original
+128-texel/1-byte limits are unchanged. This proves serialization/preservation;
+the unchanged construction/motion tests separately prove actual assembled
+clearances. Detachable oriented geometry/normals/origins remain exact;
+inverse atlas samples, full density and protected-mip bleed pass independently.
+The actual gun stays **40,000 triangles / one material / three 2048 maps /
+10,839,212 bytes**. No kit code changed.
+
+`make gif` returns zero. The normal baseline replacement refusal is still
+exercised and recorded in `normal-baseline-refusal.json`; only the separate
+reviewed acceptance command can replace the checksum journal. The 18 bake
+identity/rebaseline tests and three shared paint-bound tests pass. Final
+`python3 kit/repo_check.py` passes with zero errors; `git diff --check` passes.

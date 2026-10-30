@@ -28,7 +28,7 @@ FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(com
 EXTRAS := renders/final/loaded/mag_standalone.png renders/final/loaded/mag_lips.png renders/final/empty/mag_standalone.png renders/final/empty/mag_lips.png renders/final/cartridge/cartridge.png renders/final/case/case.png renders/final/case/case_mouth.png
 PHOTO_SHOTS := right_photo,left_photo,locked_photo,trigger_photo
 PAIRS := $(addprefix renders/final/pairs/,$(addsuffix -pair.jpg,$(subst $(comma), ,$(PHOTO_SHOTS))))
-RENDER_DEPS := src/final_render.py src/final_shots.py src/shots.py ../common/render.py build/render-parameters.txt
+RENDER_DEPS := src/final_render.py src/final_shots.py src/shots.py src/paint_lights.json ../common/paint_review.py ../common/render.py build/render-parameters.txt
 .PHONY: all refs model prepare lookdev bake export check check-repo verify render match source-match strips extra review docs sections clean FORCE wear-audit
 all: refs export check render match source-match strips extra review docs
 refs:
@@ -131,3 +131,10 @@ wear-2d: $(FINAL_IMAGES) build/value-surfaces.npz
 	$(PYTHON) src/wear_2d_review.py
 
 include ../common/gif.mk
+
+# Whole receiver distribution from the shipped GLB, with member-owned photo
+# outlines and one physical rig per photo. No reference pixels enter the bake.
+.PHONY: paint-review
+paint-review: match build/value-surfaces.npz
+	$(PYTHON) src/paint_review.py --check
+review: paint-review

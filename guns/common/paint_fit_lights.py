@@ -32,7 +32,12 @@ for name,spec in specs.items():
         arr=f.read_image();f.close();return arr[:,:,:3]
     first=read(0);h,w=first.shape[:2];mask,_=masks(base,spec,s,w,h)
     indices=np.flatnonzero(mask);indices=rng.choice(indices,min(9000,len(indices)),replace=False)
-    data=np.stack([read(i).reshape(-1,3)[indices] for i in range(len(bases))],axis=-1).astype(np.float32)
+    main_count=len(indices);anchors=[];all_indices=list(indices)
+    for anchor in spec.get('anchors',[]):
+        am,_=masks(base,anchor,s,w,h);ai=np.flatnonzero(am);ai=rng.choice(ai,min(4500,len(ai)),replace=False)
+        begin=len(all_indices);all_indices.extend(ai.tolist())
+        ref,rm=reference(base,anchor);anchors.append((slice(begin,len(all_indices)),metrics(ref[rm])))
+    data=np.stack([read(i).reshape(-1,3)[all_indices] for i in range(len(bases))],axis=-1).astype(np.float32)
     photo,pm=reference(base,spec);target=metrics(photo[pm]);tq=np.asarray(target['value_p10_p50_p90']);th=np.asarray(target['highlight_rgb'])
     guards=[]
     if spec.get('height_guards'):
@@ -48,8 +53,8 @@ for name,spec in specs.items():
         proc.applyRGB(rgb)
         return np.clip(rgb*255,0,255)
     def objective(params,report=False):
-        rgb=predict(params);v=rgb.max(1);lum=rgb@LUMA
-        q=np.percentile(v,(10,50,90));hi=rgb[lum>=np.percentile(lum,90)].mean(0)
+        rgb=predict(params);main=rgb[:main_count];v=main.max(1);lum=main@LUMA
+        q=np.percentile(v,(10,50,90));hi=main[lum>=np.percentile(lum,90)].mean(0)
         er=(q-tq)/np.maximum(tq,1);eh=(hi-th)/np.maximum(th,1)
         residual=np.r_[er/np.array((.15,.10,.15)),eh/.1,
             np.maximum(abs(er)-np.array((.13,.08,.13)),0)*200,
@@ -61,6 +66,11 @@ for name,spec in specs.items():
         for selected,goal in guards:
             measured=np.percentile(v[selected],(10,50,90))
             residual=np.r_[residual,(measured-goal)/np.maximum(goal,10)/.20]
+        for sl,goal in anchors:
+            ar=rgb[sl];med=np.median(ar.max(1));al=ar@LUMA;ah=ar[al>=np.percentile(al,90)].mean(0)
+            target=goal['value_p10_p50_p90'][1]
+            residual=np.r_[residual,(med-target)/max(target,10)/.15,
+                np.maximum(ah/np.asarray(goal['highlight_rgb'])-1.20,0)*30]
         return (float(residual@residual),q.tolist(),hi.tolist()) if report else residual
     best=None
     if a.initial:
@@ -109,8 +119,9 @@ for name,spec in specs.items():
         row=dict(world=float(x[0]),color=color,lights=[dict(b,power=float(power)) for b,power in zip(bases[1:],x[1:-2]) if power>.00001],diagnostic=dict(predicted_value=q,predicted_highlight=hi,photo_value=tq.tolist(),photo_highlight=th.tolist(),loss=cost,source_sha256=s['sha256']))
         parameters=folder/'diagnostic-parameters.json'
         if parameters.exists():row['diagnostic']['material_overrides']=json.loads(parameters.read_text())
-        pred=predict(x).max(1)
+        prediction=predict(x);pred=prediction[:main_count].max(1)
         row['diagnostic']['height_guards']=[dict(predicted_value=np.percentile(pred[selected],(10,50,90)).tolist(),photo_value=goal.tolist()) for selected,goal in guards]
+        row['diagnostic']['anchors']=[dict(predicted=metrics(prediction[sl]),photo=goal) for sl,goal in anchors]
         result[shot]=row;(base/a.out).write_text(json.dumps(result,indent=2)+'\n')
         print(a.member,shot,restart,round(cost,3),np.round(q,1),np.round(hi,1),flush=True)
         if cost<.4:break

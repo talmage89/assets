@@ -139,6 +139,12 @@ def audit(base, folder, out, preview=False):
                 selected=mask&(height>=guard.get('z_min',-1))&(height<guard.get('z_max',1))
                 ref,rm=reference(base,dict(spec,polygons=guard['polygons']))
                 row['height_guards'].append(dict(render=metrics(rgb[selected]),photo=metrics(ref[rm])))
+        if spec.get('anchors'):
+            row['unchanged_finish_anchors']=[]
+            for anchor in spec['anchors']:
+                selected,_=masks(base,anchor,shot,rgb.shape[1],rgb.shape[0])
+                ref,rm=reference(base,anchor)
+                row['unchanged_finish_anchors'].append(dict(render=metrics(rgb[selected]),photo=metrics(ref[rm]),observation=anchor))
         rows[name] = row
         canvas = Image.new('RGB',(1800,850),'#e7e9e6'); draw = ImageDraw.Draw(canvas)
         draw.text((25,15), base.name.upper()+' / '+name+' / '+('SOURCE PREVIEW' if preview else 'EXPORTED GLB'),font=font,fill='black')

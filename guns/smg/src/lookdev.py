@@ -39,10 +39,14 @@ def textfield(n,y,z,nx,name,cy,cz,w,h):
  u=n.add(.5,div(n,sub(n,y,cy),w));u=sub(n,1,u)
  v=n.add(.5,div(n,sub(n,z,cz),h))
  return n.mul(tex(n,u,v,name),n.ramp(n.mul(nx,-1),.75,.98))
-def steel(name,part,wear,bright=False):
+def steel(name,part,wear,bright=False,paint=True):
  n=Nodes(name);p,x,y,z,nx,ny,nz,u,v,w=inp(n)
  micro=n.noise(p,1700,2);tool=n.noise(n.vec('MULTIPLY',p,(2100,27,2100)),1,2)
- base=(.0015,.00154,.0015);rough=n.add(.42,n.mul(sub(n,micro,.5),.06));metal=0;specular=.08
+ # Magazines keep their accepted black oxide/edge response. This revision
+ # changes intact enamel only; all subsequent substrate/wear mixes stay fixed.
+ paint=paint and not bright and not part.startswith('Magazine_')
+ base=(.022,.023,.024) if paint else (.0015,.00154,.0015)
+ rough=n.add(.29 if paint else .42,n.mul(sub(n,micro,.5),.06));metal=0;specular=.4 if paint else .08
  height=n.add(n.mul(sub(n,micro,.5),30e-6),n.mul(sub(n,n.noise(p,5800,2),.5),1.5e-6))
  # Distance in meters to exposed contact edges. Each part has its own causes.
  edge=1.;flat=0;dust=0;carbon=0;mark=0;rib_phosphate=0;rib_core_edge=0
@@ -223,7 +227,7 @@ def assign(wear):
    elif key=='rubber':
     n=Nodes(name);p,x,y,z,nx,ny,nz,u,v,w=inp(n);groove=n.ramp(n.math('SINE',n.mul(z,math.tau/.003)),.6,.95)
     mat=finish(n,(.0025,.0027,.0025),.78,0,n.mul(groove,-.00011))
-   else:mat=steel(name,ob.name,wear,bright=key=='steel' or ob.name=='Handle_Stem')
+   else:mat=steel(name,ob.name,wear,bright=key=='steel' or ob.name=='Handle_Stem',paint=key=='paint')
    ob.data.materials[i]=mat;roles.append(key)
   records[ob.name]=roles
  bpy.context.scene['finish_wear']=wear;return records

@@ -27,9 +27,10 @@ def masks(meta,width,height):
         if not keep.any():continue
         weights*=d[:,:,None];zbuffer[sl][keep]=d[keep];owner[sl][keep]=parts[i]
         position[sl][keep]=(weights@tri[i])[keep];texcoord[sl][keep]=(weights@uv[i])[keep]
-    bc=np.asarray(Image.open(BASE/'textures/T_Relay9_BaseColor.png').convert('RGB'))
+    bc=np.asarray(Image.open(BASE/'textures/T_Relay9_BaseColor.png').convert('RGBA'))
     tx=np.clip((texcoord[:,:,0]*bc.shape[1]).astype(int),0,bc.shape[1]-1);ty=np.clip(((1-texcoord[:,:,1])*bc.shape[0]).astype(int),0,bc.shape[0]-1)
-    intact=bc[ty,tx].max(-1)<18
+    # Paint-only reflection factor in opaque alpha; exposed substrate retains .56.
+    intact=bc[ty,tx,3]>190
     regions=dict(paint_upper_flank=(owner==names.index('Receiver_Shell'))&(position[:,:,2]>.112)&intact,
                  stock=owner==names.index('Stock_Mold'),
                  grip=np.isin(owner,[i for i,name in enumerate(names) if name=='Lower_Mold' or name.startswith('Grip_TexturePanel')])&(position[:,:,2]<.025)&(position[:,:,1]<.040))

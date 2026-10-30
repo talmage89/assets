@@ -28,6 +28,8 @@ for name,description in MATCHES.items():
  PHOTO_POSES[name]['daylight']=1 if description['location'][0]>0 else -1
 PHOTO_POSES['retainer_photo']=dict(diagnostic_isolate=['Handguard_Retainer363','Handguard_SlingMount','Handguard_SlingLoop'],daylight=1,front_component=True)
 for shot in PHOTO_POSES.values():shot.setdefault('action','Idle');shot.setdefault('frame',0)
+for _name in ['right_photo']:
+ PHOTO_POSES[_name]['paint_photo']=_name
 STRIP_SHOT={**STRIP_SHOT,'exposure':-.15}
 
 def configure_scene(scene,source):
@@ -127,3 +129,10 @@ def prepare_shot(scene,shot):
   if isscale:ob.location+=Vector((0,0,1));ob.data.energy*=1.5
   target=Vector((0,.364,.075)) if shot.get('front_component') else Vector((0,.025,0)) if shot.get('shell_light') else Vector((0,.06,1.02 if isscale else .06))
   ob.rotation_euler=(target-ob.location).to_track_quat('-Z','Y').to_euler()
+
+# Comparison-only physical lighting; accepted hero/GIF studio stays fixed.
+_prepare_paint_base=prepare_shot
+def prepare_shot(scene,shot):
+ _prepare_paint_base(scene,shot)
+ from guns.common.paint_review import apply_lights
+ apply_lights(scene,shot,Path(__file__).resolve().parents[1])
