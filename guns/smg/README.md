@@ -6,6 +6,11 @@ curved steel magazine, rigid moving parts and 21 clips share one baked 2048
 PBR atlas. The fictional **Propane Defense Relay 9** represents an issued gun
 carried for years. Its contours, controls, serial and markings are original.
 
+**Round 2 review build:** studio and projection corrections are verified;
+photographic paint acceptance is unresolved, and the upper receiver still
+reads silver. The images retain the handoff paint parameters. The default
+`make` stops at the independent nonpaint-anchor gate. See [REVIEW.md](REVIEW.md).
+
 ![Cycles hero of the exported GLB](docs/hero.jpg)
 
 ![Signature motion from the exported GLB](docs/motion.gif)
@@ -17,7 +22,7 @@ carried for years. Its contours, controls, serial and markings are original.
 | ![Front, side, back and top](docs/turnaround.jpg) | ![Receiver, handle, drum, hood and lower](docs/details.jpg) |
 | ![Locked handle, exact eye view and ammunition](docs/action.jpg) | ![Eevee with the same baked maps](docs/eevee.jpg) |
 
-These images load the exported GLBs and their baked maps. `make` creates the
+These images load the exported GLBs and their baked maps. The presentation tools create the
 full contact sheet at `renders/final/contact-sheet.jpg`, Cycles stills in
 `renders/final/beauty/`, Eevee in `renders/final/eevee/`, photographic comparisons
 in `renders/final/pairs/`, dense-source comparisons in `renders/final/source-pairs/`,
@@ -95,7 +100,10 @@ This factor occupies the **opaque BaseColor image's alpha**, shared by
 `KHR_materials_specular`; it does not control transparency. Export/import must
 support that extension. RGB remains sRGB and alpha is linear data; downsampling
 uses `--alpha-mode independent`. There is still one material and three images.
-The accepted hero/GIF studio and cameras stay fixed. Photographic comparisons
+The hero/GIF cameras, exposure and clips stay fixed. The studio now matches
+the Harrow: key **18 W**, fill **4 W**, rims **13/5 W**, overhead card **5 W**,
+with identical fixture positions/sizes and world color **.25/.25/.25**, strength **.045**.
+Photographic comparisons
 use one physical whole-scene card rig per reference, with no image correction
 or per-part light linking. Blued/bare steel, magazine oxide, polymer and every
 accepted wear field retain their prior authored inputs.
@@ -146,41 +154,50 @@ other regions governs this revision. The outdoor photograph independently gives
 paint 41.14 and magazine 41.34. All channel ratios remain in REVIEW.md. These
 are observed surface values, not recovered albedos; exact exposure/reflection
 agreement remains a limitation. Both final hero sides are measured under the
-unchanged studio lights, with their surface polygons and medians in generated
+Harrow studio lights, with their surface polygons and medians in generated
 `renders/final/finish-values.json` and the current REVIEW.md entry.
 
-The current complete-part paint audit is `renders/final/paint-review/`.
-It includes the entire visible painted receiver and its accepted wear, with
-one-pixel erosion of raster/antialias boundaries. `src/paint_review.json` fixes
-the independent photo outlines; `src/paint_lights.json` records the physical
-lights. `make paint-review` enforces median ±10%, P10/P90 ±15%, and brightest-
-luminance-decile value, RGB and normalized color ±10%. A zero photographic
-tail requires exact zero. The studio image includes the rolled receiver roof;
-the occluding rear-sight base is excluded. The inherited issued comparison is
-retained separately, with its original observation and neutral.
+**Photographic paint acceptance is unresolved.** The first-round passing pairs
+fitted illumination to the receiver itself and are superseded. The current
+studio test uses the original upload `studio-original.jpg`: the later
+`right.jpg` has a substituted background and cannot supply a physical neutral.
+White balance uses the actual gray table `(1300,970)–(1480,1080)`. Light is
+fitted only to handguard, lower molding, grip, magazine, exposed barrel and
+backing, including upper/lower handguard guards. The issued diagnostic keeps
+its white selector legend neutral and fits the unchanged handguard, lower
+cheek, grip and exposed barrel. No paint observation enters either objective.
+Explicit photo-mask holes exclude the separate metal fasteners, selector
+lever and red control ink from polymer measurements, matching the render's
+object-ID selection. The magazine's bright stripe remains in its anchor.
+The issued frame is also tested with a separately constrained elevated side
+camera. Its larger landmark residual remains explicit; the original form
+camera is preserved. All six anchors are retained in both camera tests.
 
-| Complete receiver / 8-bit V10/50/90 | Before, final lights | After | Balanced photo |
-| --- | --- | --- | --- |
-| Studio quarter | 0/2/18 | **2/23/40** | 2/24/46 |
-| Issued diagnostic | 0/4/91 | **0/15/150** | 0/15/143 |
+The independent anchors still disagree. Every failed anchor and complete
+receiver result remains in `renders/final/paint-review/` and
+[REVIEW.md](REVIEW.md); no anchor was dropped to obtain a pass. These pairs do
+not verify a new sheen, so the accepted **.29** roughness and **.8** glTF
+specular factor are retained. `make paint-review` rejects an unexplained light
+before testing the unchanged paint tolerances: median ±10%, tails ±15%, and
+highlight value/RGB/normalized color ±10%. This is a review build with a failing
+photographic gate, not a declaration that the paint is verified.
+The accepted barrel shader is very dark dielectric oxide. The issued photo's
+bright muzzle is not explained by that finish under the tested whole-scene
+rigs; the clean studio specimen also lacks this asset's broad upper wear.
+Neither accepted finish nor wear is changed to force agreement.
 
-Studio highlight RGB is **65.27/64.32/63.26** against **59.77/61.03/57.93**;
-issued is **170.81/166.67/162.00** against **173.68/167.95/159.84**. All requested
-full-part bounds pass. The studio backdrop `(1300,100)–(1500,350)` is the
-neutral for the primary pair; the issued comparison retains its brightest
-15% white selector legend `(2270,535)–(2330,565)`. Before/after triptychs in
-`paint-review/*-before-after.jpg` hold the final lights/camera fixed. The
-inherited old-light issued result was 4/8/64, highlight 90/84/75. Source
-companions and both complete histograms are retained beside the export audit.
-The three current heroes share the untouched LMG studio in
-`../lmg/renders/final/hero-beside-ak-smg.jpg`.
+The same-studio family comparison is
+`../lmg/renders/final/hero-beside-ak-smg.jpg`. Receiver flat and upper-land
+measurements are kept separately, with visible masks, so a dark lower strip
+cannot conceal the brighter rolled/worn upper land.
 
-
-Broad upper/lower spatial distributions are also reported: whole-part agreement
-does not establish identical reflection placement on different pressings. The
-cleaner studio specimen and the issued photo have different wear histories.
-The fixed studio/whole-part values and remaining spatial differences are in
-[REVIEW.md](REVIEW.md); the old patch-based paint-ordering tables are historical.
+Enamel projection is isolated inside each original rigid bake group. A second
+4096 control bake changing only enamel RGB produces **zero** changed BaseColor
+texels on the lower molding, barrel, handguard and handle hinge. The previous
+paint round affected **21,084** lower-molding and **2,298** barrel texels.
+Repairing that old contamination changes the delivered maps; it does not mean
+paint still reaches those parts. Geometry, UVs, rig, clips and wear masks stay
+unchanged.
 
 Receiver wear is reviewed in **two dimensions**, using the exported GLB's
 hero pixels and the independently white-balanced photo. The comparison is
@@ -211,7 +228,7 @@ The current paint uses roughness **.29**, linear RGB **.022/.023/.024** and
 shipping specular factor **.8**. The old supplemental crown-highlight
 measurements remain diagnostic in `pairs/paint-highlight-pair.jpg`; the
 4–6-mm target is withdrawn because it depends on source lighting. Every final
-hero retains the existing studio lights and cameras. Actual surface values
+hero uses the Harrow's five-fixture studio and the existing gun camera. Actual surface values
 and shipping-map material measurements are recorded in REVIEW.md and the
 reports under `renders/final/` and `build/delivery/`.
 
@@ -279,11 +296,11 @@ ammunition. Fine finish detail adds no game triangles.
 
 | Output | Triangles | Materials | GLB bytes | Map size | Density ratio |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Gun, all animated display ammunition | 41,540 | 1 | 10,984,144 | 2048 | — |
-| Loaded magazine | 5,792 | 1 | 1,318,624 | 1024 | 1.000 |
+| Gun, all animated display ammunition | 41,540 | 1 | 10,670,292 | 2048 | — |
+| Loaded magazine | 5,792 | 1 | 1,318,592 | 1024 | 1.000 |
 | Empty magazine | 4,048 | 1 | 1,186,756 | 1024 | 1.000 |
-| Cartridge | 688 | 1 | 151,444 | 512 | 1.000 |
-| Fired case | 688 | 1 | 154,940 | 512 | 1.000 |
+| Cartridge | 688 | 1 | 151,380 | 512 | 1.000 |
+| Fired case | 688 | 1 | 154,664 | 512 | 1.000 |
 
 One canonical **2048 BaseColor / OpenGL +Y Normal / ORM** set, baked at 4096
 with 32 GPU Cycles samples. BaseColor is sRGB; ORM is R occlusion, G roughness,

@@ -6,6 +6,11 @@ reciprocating handle and three-position selector share one baked 2048 PBR
 atlas. Maker, model, serial and markings are fictional. Every vertex and texel
 comes from our scripts in Blender 5.2.
 
+**Round 2 review build:** studio and projection corrections are verified;
+photographic paint acceptance is unresolved. The images below retain the
+handoff paint parameters. The default `make` stops at the independent
+nonpaint-anchor gate. See the current round 2 results in [REVIEW.md](REVIEW.md).
+
 The renders below are made from the exported GLB with its baked maps. The
 full contact sheet is generated at `renders/final/contact-sheet.jpg` (not
 tracked).
@@ -160,15 +165,37 @@ roughness .86 and metallic .08. Rare high-point steel retains its previous
 response. These are authored shader values; the native-hero difference
 measures their actual visible effect after baking and export.
 
-The complete visible painted receiver, including accepted wear, is measured
-under one physical photographic rig against the white-balanced museum view.
-V P10/median/P90 is **24/53/71** against **24/53/76**; mean RGB in the brightest
-luminance decile is **96.00/94.14/96.56** against **92.57/93.13/96.42**.
-The median passes ±10%, tails ±15%, and highlight value/channels/normalized
-color ±10%. The existing gray backdrop supplies the estimated neutral.
-`make paint-review` rebuilds the complete-part pair and numeric checks in
-`renders/final/paint-review/`. No image correction or per-part light linking
-supplies these values; the hero/GIF lights and cameras remain fixed.
+The round 2 studio uses the Harrow's exact five fixtures: key **18 W**, camera
+fill **4 W**, rims **13/5 W**, and overhead card **5 W**, with the Harrow's
+positions and dimensions. Neutral world is **.25/.25/.25**, strength **.045**. Cameras,
+backdrop, exposure **−.15**, and the GIF clip/camera retain their previous
+values. Wood, phenolic, magazine oxide and bare steel keep their accepted
+shader inputs.
+
+**Photographic paint acceptance is unresolved.** The former passing pair fitted
+the light to the paint itself and is superseded. The studio independent test
+uses the unprinted white backing in `studio-polish.jpg` as its white-balance
+neutral `(100,100)–(400,400)`, RGB 245–253, and fits only the stock, both handguards, phenolic, magazine, exposed
+barrel and backing, with spatial guards on the wood. Receiver statistics never
+enter that objective. The unchanged finishes do not yet agree under one fitted
+rig. A second test holds the elevated direction observed in `early.jpg` and
+fits its stock, both wood handguards, magazine, barrel and three white-cloth
+regions. Its photographed wooden grip is a different material from this
+asset's phenolic grip. The cloth is white-balanced on an unprinted patch;
+separate warm/cool light groups still fail the retained anchors. Both failed
+calibrations and the paint disagreement remain visible in
+`renders/final/paint-review/` and [REVIEW.md](REVIEW.md). Those images cannot
+justify a new sheen, so the accepted **.42 / .8** roughness/specular inputs are
+retained. This is a review build, not a claim that the photographic gate passed.
+`make paint-review` rejects a failed independent calibration before testing
+paint median ±10%, tails ±15%, and highlight value/RGB/color ±10%.
+
+Enamel is projected separately within each original rigid bake group. A
+second 4096 bake changing only enamel's base color proves **zero** changed
+BaseColor texels on the rear insert and barrel, versus the previous 3,264
+insert texels affected by the paint change. This measures source attribution;
+texture changes caused by repairing an old wrong projection are a different
+quantity. Geometry, UVs, rig, clips and wear masks are unchanged.
 
 `WEAR=0` removes use layers while retaining manufacture and fictional marks.
 Stable position/normal attributes keep each finish attached through the clips
@@ -267,16 +294,16 @@ subset (about **4 MiB**); the cartridge and fired case each use **512** (about
 **1 MiB**). No inter-file texture sharing is assumed.
 
 Budget and file sizes are measured from the actual exports and checked in
-`build/delivery/verify.json`. The sizes below describe the final reviewed paint rebuild;
+`build/delivery/verify.json`. The sizes below describe the round 2 projection-corrected review build;
 fresh GPU rounding can change PNG compression and GLB byte counts slightly:
 
 | Output | Triangles | Maps | GLB bytes |
 | --- | ---: | ---: | ---: |
-| Rifle | **40,000 / 40,000** | 2048 | 10,839,212 |
-| Loaded magazine | 6,756 | 1024 | 1,534,304 |
-| Empty magazine | 4,596 | 1024 | 1,462,400 |
-| Cartridge | 960 | 512 | 164,864 |
-| Fired case | 704 | 512 | 149,672 |
+| Rifle | **40,000 / 40,000** | 2048 | 10,554,408 |
+| Loaded magazine | 6,756 | 1024 | 1,537,124 |
+| Empty magazine | 4,596 | 1024 | 1,464,896 |
+| Cartridge | 960 | 512 | 164,772 |
+| Fired case | 704 | 512 | 150,184 |
 
 Each output uses one material and three embedded images. All four standalone
 sets retain **density ratio 1.000**, the gun’s trilinear mipmapped sampler,
@@ -284,18 +311,19 @@ sets retain **density ratio 1.000**, the gun’s trilinear mipmapped sampler,
 Whole atlas regions retain their existing internal margins and texels exactly.
 Loaded magazine: one source cluster → two packed regions; empty: four → five;
 cartridge and case: one → one each. Both magazines fail 512 at full density;
-cluster copying makes 1024 possible with 8 px guards. The ammunition’s cluster
+cluster copying makes 1024 possible with 8 px guards. The original detachable audit’s ammunition cluster
 sets also beat island packing (164,864 versus 184,124 bytes for the cartridge;
 149,672 versus 172,076 for the case). No rebake, scaling or resampling occurs.
-The four GLBs total **30,302,284 → 3,311,240 bytes (89.07% smaller)**.
+The original audit totaled **30,302,284 → 3,311,240 bytes (89.07% smaller)**;
+the current four rebuilt subsets total **3,316,976 bytes**.
 [Family delivery results](../DETACHABLES.md) include per-level bleed checks and
 full-size / native 40 px old/new mipmapped pairs in `build/ak-detach/pairs/`
 from the repository root. Those subset-only diagnostics describe the earlier handoff. This paint
 round rebuilds the copied subsets, finals and docs from the new 4K bake.
 
 The rifle has 17 bones, eight sockets and 20 clips. Detached magazines deliberately
-retain their accepted geometry. The canonical PNGs total **7,418,058 bytes**:
-BaseColor 1,158,235; Normal 2,509,125; ORM 3,750,698. All are 2048 square.
+retain their accepted geometry. The canonical PNGs total **7,133,253 bytes**:
+BaseColor 1,141,429; Normal 2,464,719; ORM 3,527,105. All are 2048 square.
 UV coverage, actual clipped overlap and density percentiles are measured,
 rather than described as uniform or exactly zero.
 The complete staged atlas covers 40.25%; there are no outside or degenerate
@@ -325,7 +353,7 @@ buffer length are excluded from that fingerprint. Materials, samplers,
 accessors, UVs, skin, nodes, sockets and clips remain exact.
 
 Every decoded pixel of all three maps, including opaque specular alpha and
-unused atlas space, is checked against the reviewed paint bake: **at most 1/255
+unused atlas space, is checked against the reviewed projection-corrected bake: **at most 1/255
 per component and 128 changed texels per map**. `src/accepted_bake.json`
 contains validation checksums, not reference images. Its reviewed-change
 history keeps the old GLB/map hashes; `src/reviewed_rebaseline.py` is the

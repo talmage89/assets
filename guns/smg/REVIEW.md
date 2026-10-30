@@ -1,5 +1,10 @@
 # Relay 9 — form and final finish review
 
+**Current round 2 status: photographic paint acceptance is unresolved.**
+Studio/projection work and preservation checks are recorded at the end.
+Historical passing paint fits below are superseded because they fitted the
+receiver itself. The current independent calibrations are rejected.
+
 The accepted form history below is retained. Later final-look entries supersede
 the checkpoint material and delivery restrictions.
 
@@ -1715,7 +1720,10 @@ Reason (explicit reviewed command): Round 2: isolate enamel projection from adja
 
 The actual `f95dac1` GLB SHA-256 is `290b044c70d6319bbf4418d4f7f21e633ddb12741d1609aa03040b2ddec2b074`. Its tracked acceptance journal records `168665169a6df2961cfc3d1442f6dc6b656a7e05c7cf2a9e22257496c4a2f3b5` (the earlier reviewed bake, with bounded sparse GPU rounding accepted at handoff). The old manifest SHA-256 is `82afa5c72949d9b4e7037534bf2f88c643f6c658f90463532bd5d8ce917bcab6`. The reviewed projection-corrected GLB is `2c2643de76361b88319d5a42429be5ad7bd93fddc02b34a247649dd41a28744b`. The actual handoff and the earlier journal hash are separate facts.
 
-This acceptance records the projection correction only. It does **not** approve the unresolved photographic paint fit. The original exact non-image/JSON geometry signatures and 1-byte / 128-texel bake limits are unchanged.
+This acceptance records the projection correction only. It does **not** approve the unresolved photographic paint fit. The SMG’s exact accepted geometry/layout signatures, wear-mask hashes,
+specular interval and 1-byte median BaseColor bound are unchanged. The
+1-byte / 128-texel full-image rounding journal belongs to the AK; this SMG
+manifest does not claim that full-image test.
 
 ### Reference and basis investigation
 
@@ -1742,3 +1750,382 @@ Fixed-light trials (.02–.58 roughness, .2–.8 glTF specular factors) do not p
 the complete receiver tests. The clean studio specimen also lacks the accepted
 asset's broad worn upper field, leaving a large upper-tail/highlight difference.
 Round 2 therefore retains the authored .022/.023/.024, .29 and .8 inputs.
+
+### Actual handoff and current shipping-map hashes
+
+These are hashes of the actual `f95dac1` files, not the older reviewed journal. The current files include the reviewed projection repair. PNG byte hashes describe compression; decoded hashes describe texels.
+
+| Map | f95dac1 PNG SHA-256 | f95dac1 decoded SHA-256 | Current decoded SHA-256 |
+| --- | --- | --- | --- |
+| T_Relay9_BaseColor | `7628aeffb8294fb274c3e91fd95ecac4b9019df3777ec8b8eca13bda1b717b4d` | `783183861ed890c8601fc00870d0339966448dcb92e3230ec0252f6157e33569` | `ad9a7bb32edbd58c1a17002871e77363fd70ebd564c6f63434bf8fb1fdbc40a5` |
+| T_Relay9_Normal | `b00a609eb439bea711e55e9480cab42c574704a98fdda66a396bbe1220e6ee95` | `a31fb7d79488ed2d53f70556cff7879ac6f71364ddb105e6572ad71c89650536` | `1e688581e3c6a9d094fd93f3217935b00bf5829f7a2e9f5cd5edc656bfb81fba` |
+| T_Relay9_ORM | `df322ebfb23b8dc5881d69223b6daf461640f27fcf643dca58e6870be531138d` | `84acf8aacf8c1d27237222aba2e304d05da0657b685bbca321acc448fe534bf8` | `3be771e61c6aee4fc467674bb8ff27d9b604f7a9563b335b27128059ce5ec196` |
+
+Current actual GLB SHA-256: `c5dfb18ab711c8315163bbb2ee3f0a01e536386807fbc9d5c560c7fe817b0582`. Sparse bounded GPU rounding can make this differ from the explicitly reviewed bake; the original byte/texel limits remain unchanged.
+
+
+<!-- ROUND2_PAIRS_START -->
+## Paint round 2 — pass 2: independent pairs remain rejected
+
+**Color and value first:** the fresh GLB/photo pairs fail visibly. The held-out
+receiver measurements below are observations, never light-fitting inputs.
+No new sheen is accepted. Authored enamel remains linear .022/.023/.024,
+roughness .29, Principled specular .4 / glTF factor .8, dielectric.
+The source shaders, all other finishes and all wear masks retain the handoff inputs.
+
+In `pairs/paint_studio_photo-pair.jpg`, handguard median is much closer
+than in the circular handoff fit, but bright polymer highlights remain wrong;
+the receiver and muzzle still look silver beside the black photographed gun.
+The clean specimen lacks the accepted broad worn upper field. Whole-receiver
+tails retain that wear; an intact dark patch cannot stand in for the assembly.
+Both issued comparisons remain: the inherited `locked_photo` camera, and the
+new `paint_issued_photo` observed-direction test (60.4 px landmark RMS).
+The latter shows more of the grip but is still a camera hypothesis, not
+form approval. Both retain all six nonpaint anchors. Their fresh images are
+severely overlit, while the reference receiver has black paint between wear.
+The accepted barrel is very dark dielectric oxide (linear approximately
+.0015, roughness .42, glTF specular factor .16 plus carbon), while the
+photographed muzzle is bright. The tested rigs cannot raise it sufficiently
+without bleaching other surfaces. This diagnoses an unresolved reference /
+accepted-finish / illumination conflict; it does not prove a new paint BRDF.
+No barrel or polymer input is changed.
+
+Studio WB uses actual gray table `(1300,970)–(1480,1080)`, observed RGB
+152/155/159, gains 1.038932/.995225/.940897. Issued WB uses the brightest
+white selector-legend pixels `(2270,535)–(2330,565)`, RGB 243/243/236,
+gains .995370/.995370/1.063568. The red cloth is not a neutral or exposure
+anchor. Its albedo and backing plane are explicit comparison assumptions.
+
+The light objective contains only unchanged-finish anchors and neutral
+constraints. All active card energies are nonnegative; every card illuminates
+the whole scene. There is no light linking, per-part gain or image grading.
+The broad-only basis (world + 16 cards), nonpaint-derived reflection cards,
+corrected backing plane and native 1600-pixel responses were also tested.
+The last observed-direction native basis has 27 entries.
+All these fits remain rejected. Unit responses were opened in normalized
+contact pages; the normalization is for inspecting those diagnostics only.
+The actual pairs below are fresh Cycles renders at 1600 px / 64 samples.
+Their values, rather than lower-resolution optimizer predictions, govern review.
+
+The same strict full comparison bands are applied to nonpaint anchors as a
+conservative calibration gate. Paint bounds remain median ±10%, P10/P90 ±15%,
+and highlight value, RGB and normalized color ±10%. Zero photo tails require
+zero. The failed independent gate stops `make paint-review` before any claim
+of paint acceptance. No tolerance or geometry check has been weakened.
+
+### studio_receiver — `paint_studio_photo`
+
+GLB source SHA-256: `c5dfb18ab711c8315163bbb2ee3f0a01e536386807fbc9d5c560c7fe817b0582`. Independent light accepted: **no**.
+Pair: `renders/final/pairs/paint_studio_photo-pair.jpg`; full paint and every anchor’s
+error/color data: `renders/final/paint-review/finish-values.json`.
+Histogram: `renders/final/paint-review/studio_receiver-histograms.jpg`.
+
+| Held-out paint | Render | Balanced photo |
+| --- | --- | --- |
+| V P10/median/P90 | 21.0/44.0/113.0 | 8.0/14.0/24.0 |
+| Brightest-decile RGB | 160.6/164.7/161.6 | 32.3/32.1/27.5 |
+| Highlight V | 164.7 | 32.3 |
+| Highlight normalized RGB | 0.975/1.000/0.981 | 1.000/0.993/0.849 |
+
+| Independent anchor | Render V P10/median/P90 | Photo V P10/median/P90 | Render highlight RGB | Photo highlight RGB | All bounds pass |
+| --- | --- | --- | --- | --- | --- |
+| handguard | 27.0/35.0/70.0 | 25.0/38.0/53.0 | 142.0/145.4/143.9 | 68.6/70.4/65.7 | no |
+| lower | 20.0/25.0/41.0 | 15.0/23.0/30.0 | 39.7/43.3/41.3 | 40.6/42.3/38.2 | no |
+| grip | 26.0/29.0/37.0 | 23.0/27.0/35.0 | 52.6/56.1/54.9 | 32.9/38.0/39.0 | no |
+| magazine | 18.0/37.0/255.0 | 25.0/34.0/211.0 | 255.0/255.0/255.0 | 198.8/209.1/204.1 | no |
+| barrel | 22.0/44.0/113.0 | 31.0/47.0/107.0 | 113.3/119.2/116.5 | 134.4/123.4/104.1 | no |
+| neutral_backdrop | 151.0/165.0/176.0 | 156.0/161.0/171.0 | 175.1/178.9/176.0 | 172.2/168.5/162.6 | yes |
+| handguard_upper | 33.0/47.0/67.0 | 37.0/43.0/54.0 | 65.1/70.4/67.4 | 67.8/78.3/81.6 | no |
+| handguard_lower | 26.0/29.0/37.0 | 24.0/30.0/39.0 | 66.7/69.9/70.0 | 38.2/41.1/40.9 | no |
+
+### issued_diagnostic — `locked_photo`
+
+GLB source SHA-256: `c5dfb18ab711c8315163bbb2ee3f0a01e536386807fbc9d5c560c7fe817b0582`. Independent light accepted: **no**.
+Pair: `renders/final/pairs/locked_photo-pair.jpg`; full paint and every anchor’s
+error/color data: `renders/final/paint-review/finish-values.json`.
+Histogram: `renders/final/paint-review/issued_diagnostic-histograms.jpg`.
+
+| Held-out paint | Render | Balanced photo |
+| --- | --- | --- |
+| V P10/median/P90 | 46.0/216.0/243.0 | 0.0/15.0/143.0 |
+| Brightest-decile RGB | 245.7/246.7/245.8 | 173.7/168.0/159.8 |
+| Highlight V | 246.7 | 173.7 |
+| Highlight normalized RGB | 0.996/1.000/0.996 | 1.000/0.967/0.920 |
+
+| Independent anchor | Render V P10/median/P90 | Photo V P10/median/P90 | Render highlight RGB | Photo highlight RGB | All bounds pass |
+| --- | --- | --- | --- | --- | --- |
+| handguard | 24.0/129.0/219.0 | 18.0/146.0/188.0 | 234.2/236.6/235.0 | 194.3/202.0/203.7 | no |
+| handguard_upper | 81.0/157.0/192.0 | 140.0/161.0/191.0 | 193.6/198.3/195.0 | 189.7/196.4/196.9 | no |
+| handguard_lower | 24.0/53.0/117.0 | 12.0/47.0/137.0 | 153.6/153.5/150.2 | 147.1/147.5/145.2 | no |
+| lower_cheek | 69.0/75.0/82.0 | 56.0/72.0/88.0 | 77.3/83.1/80.0 | 91.7/93.4/96.1 | no |
+| grip | 81.0/134.0/170.0 | 90.0/140.0/181.0 | 167.1/172.6/169.2 | 167.2/182.2/185.7 | yes |
+| barrel | 122.0/192.0/233.0 | 199.0/212.0/237.0 | 237.6/238.2/237.2 | 240.2/237.0/232.9 | no |
+
+### issued_observed_camera — `paint_issued_photo`
+
+GLB source SHA-256: `c5dfb18ab711c8315163bbb2ee3f0a01e536386807fbc9d5c560c7fe817b0582`. Independent light accepted: **no**.
+Pair: `renders/final/pairs/paint_issued_photo-pair.jpg`; full paint and every anchor’s
+error/color data: `renders/final/paint-review/finish-values.json`.
+Histogram: `renders/final/paint-review/issued_observed_camera-histograms.jpg`.
+
+| Held-out paint | Render | Balanced photo |
+| --- | --- | --- |
+| V P10/median/P90 | 2.0/159.0/251.0 | 0.0/15.0/143.0 |
+| Brightest-decile RGB | 253.5/252.6/252.4 | 173.7/168.0/159.8 |
+| Highlight V | 253.5 | 173.7 |
+| Highlight normalized RGB | 1.000/0.997/0.996 | 1.000/0.967/0.920 |
+
+| Independent anchor | Render V P10/median/P90 | Photo V P10/median/P90 | Render highlight RGB | Photo highlight RGB | All bounds pass |
+| --- | --- | --- | --- | --- | --- |
+| handguard | 33.0/102.0/230.0 | 18.0/146.0/188.0 | 243.2/243.0/243.0 | 194.3/202.0/203.7 | no |
+| handguard_upper | 157.0/203.0/231.0 | 140.0/161.0/191.0 | 237.7/237.5/237.5 | 189.7/196.4/196.9 | no |
+| handguard_lower | 29.0/61.0/80.0 | 12.0/47.0/137.0 | 80.3/70.4/71.6 | 147.1/147.5/145.2 | no |
+| lower_cheek | 81.2/95.0/104.0 | 56.0/72.0/88.0 | 104.9/104.9/105.0 | 91.7/93.4/96.1 | no |
+| grip | 55.0/86.0/115.0 | 90.0/140.0/181.0 | 118.2/118.3/118.2 | 167.2/182.2/185.7 | no |
+| barrel | 17.0/154.0/249.0 | 199.0/212.0/237.0 | 251.6/250.8/251.1 | 240.2/237.0/232.9 | no |
+
+The dense-source pairs are also rendered separately in `source-pairs/`
+and labeled source audits are written to `source-paint-review/`. The source
+is not substituted for the shipped GLB. Roughness/specular trial grids are
+explicit shader diagnostics, not rebaked acceptance evidence. None establishes
+a valid new sheen under an accepted independent light. A better confirmed
+coating reference or a resolved physical calibration is still needed.
+<!-- ROUND2_PAIRS_END -->
+
+
+<!-- ROUND2_NOTES_START -->
+### Component-region correction and final failed refits
+
+A final outline audit found that the studio lower-polymer photo region
+included the selector lever, push pin and red control ink, while the
+render object-ID mask excluded separate components. Explicit holes now
+exclude those different materials. The handguard photo mask likewise
+excludes its metal fastener, consistently in both studio and issued views.
+All eight studio and all six issued anchor roles are retained; the
+magazine’s real bright stripe remains unchanged. No RGB-based selection
+or tolerance change is involved. Outlines were opened at native scale in
+root `build/paint-round2/smg-lower-exclusions.jpg` and the full anchor view.
+The lower mask loses 8,429 audited pixels belonging to those components:
+its median stays 23; P90 changes 33 → 30, and highlight V
+50.8 → 42.3. That is a material-region correction, not a passing fit.
+
+All three current rigs were refitted with those corrected regions and
+remain rejected. An additional native 1600 px / 32 sample basis uses the
+world, 16 broad fixtures and 20 reflection cards derived only from visible
+nonpaint geometry, at .35 m. Its magazine P90 prediction is
+20.7 versus 211; its independent anchors still fail.
+Its normalized unit-response sheet was opened, and it was not copied as an
+accepted rig. Full refit predictions are root
+`build/paint-round2/smg-component-refits.json` and this gun’s
+`build/paint-components-*.json`. The tables above use fresh full-resolution
+renders of the refitted, rejected rigs, not those optimizer predictions.
+
+### Dense source and exported GLB both retain the failed look
+
+| Pair | Source V P10/median/P90 | GLB V P10/median/P90 | Source highlight RGB | GLB highlight RGB |
+| --- | --- | --- | --- | --- |
+| studio_receiver | 21.0/44.0/111.0 | 21.0/44.0/113.0 | 157.7/161.8/158.6 | 160.6/164.7/161.6 |
+| issued_diagnostic | 45.0/216.0/243.0 | 46.0/216.0/243.0 | 245.9/246.8/245.9 | 245.7/246.7/245.8 |
+| issued_observed_camera | 2.0/158.0/251.0 | 2.0/159.0/251.0 | 253.4/252.5/252.3 | 253.5/252.6/252.4 |
+
+These labeled source previews use the same held, rejected whole-scene
+photo rig. They are not substituted for game delivery. Their failure already
+exists before baking; it cannot be attributed solely to lost bake detail.
+
+### Hero tonal range
+
+Measured on nontransparent gun pixels in the actual PNGs. This is an overall
+tonal audit, separate from receiver-only photographic/family masks.
+
+| Hero | Luma P1/median/P99 | Fraction below 24 | Fraction all RGB ≥254 |
+| --- | --- | ---: | ---: |
+| hero | 0.0/36.7/160.0 | 27.78% | 0.0000% |
+| hero_right | 0.0/22.0/155.8 | 59.43% | 0.0000% |
+
+The visible cavity shadows remain deep and hero highlights do not clip.
+That does not waive the unresolved receiver value or photographic fit.
+<!-- ROUND2_NOTES_END -->
+
+<!-- ROUND2_DELIVERY_START -->
+## Paint round 2 — pass 3: studio, projection and delivery review
+
+**Color and value first:** this is a review build, with a failed photographic
+calibration gate. No new paint sheen is verified. The studio matches the
+Harrow’s five fixtures exactly: key 18 W, fill 4 W, rims 13/5 W and overhead
+card 5 W, including positions, dimensions, white color and directions.
+Neutral world is .25/.25/.25 at strength .045. Existing exposure, backdrop,
+all existing cameras and GIF camera/clip stay exact. A prepared-scene check
+also proves that a colored photo rig cannot tint a subsequent ordinary shot.
+Both configurations already initialized neutral world color; the new reset
+repairs photo-order carryover, not an ordinary hero’s initial color. The
+hero value change comes from 35/15 → 18/4 W and world .18 → .045.
+
+Opened all 22 beauty/Eevee stills, including lower and barrel close-ups.
+`docs/hero.jpg` remains unacceptable as a black-painted family gun: the
+rolled upper field is conspicuously silver above a dark flat and black
+polymer. `docs/turnaround.jpg` confirms that this is broad upper response,
+not one isolated specular pixel. `docs/details.jpg` shows the same gray
+upper, retained phosphate/steel wear, and deep ejection/slot cavities.
+The stock, lower and handguard retain a dry black polymer appearance.
+`docs/action.jpg` keeps the oxide magazine black with edge glints; the
+existing 9 mm brass/copper remains bright. `docs/eevee.jpg` repeats the
+silver upper problem. All five actual docs JPGs were opened. None of those
+other accepted finish inputs was changed.
+
+`beauty/projection_lower.png`, `beauty/projection_barrel.png`, ordinary
+details and the hero were inspected. The lower stays black through the
+receiver joint and grip transition; the exposed barrel is oxide-dark with
+separate brighter crown/ring detail. No pale enamel patch was visible on
+the polymer or barrel. The barrel’s disagreement with the bright issued
+photo remains in the failed photographic pairs; this is not called a
+successful barrel calibration.
+
+Every decoded GIF frame 0–69 was opened at native delivery width. Handle
+draw/lock/release and the magazine handoff retain their timing; the detached
+magazine intentionally crosses the frame edge. Black polymer and magazine
+remain stable, but the receiver upper stays silver throughout. No palette
+flashing was seen. After the final rerun, 68 frames were byte-identical in
+RGB to the viewed frames; changed frames 19/25 were reopened in pages
+0016/0024. All 288 additional strip thumbnails were opened in inspection pages.
+
+### Family measurements: explicit fixed surface regions
+
+V means the maximum sRGB channel, 0–255. Masks are projected from actual
+imported triangles and eroded one pixel, not chosen by pixel brightness.
+The named bounds below are in the accepted Blender frame, in millimeters.
+Visible mask overlays and all statistics are in root
+`build/paint-round2/family-values/`; the three-gun image is
+`guns/lmg/renders/final/hero-beside-ak-smg.jpg`. Its per-gun PNG metadata
+pins the actual current GLB hashes. The Harrow export/source is unchanged.
+
+| Region | Y bounds (mm) | Z bounds (mm) |
+| --- | --- | --- |
+| flat / Receiver_Shell | -20.0 to 170.0 | 92.5 to 99.5 |
+| upper_land / Receiver_Shell | 10.0 to 140.0 | 114.0 to 124.0 |
+| whole_receiver / Receiver_Shell | all to all | all to all |
+
+| Image and region | f95dac1 V P10/median/P90 | Round 2 V P10/median/P90 |
+| --- | --- | --- |
+| docs / flat | 59/66/73 | 38/45/55 |
+| docs / upper_land | 126/141/161 | 95/116/154 |
+| docs / whole_receiver | 54/89/148 | 34/66/132 |
+| family / flat | 36/44/54 | 36/44/54 |
+| family / upper_land | 96/116/154 | 96/116/154 |
+| family / whole_receiver | 34/65/132 | 33/65/132 |
+
+The supplied handoff crops use different, unspecified pixel regions:
+Relay docs **66/117/155**, family **49/94/143**.
+Those observations are retained; they are not silently substituted for the
+fixed geometry masks above. The supplied Harrow targets are median **58**
+in its own hero and **66** in the family image. My annotated Harrow flat
+(`Receiver_Sheet`, Y −20…210, Z 80…91 mm) measures **17/53/57**, before
+and now. That region difference is reported rather than used to waive the
+supplied 66 target.
+
+Own-docs flat median **45** is **-22.4%** from 58; family
+flat **44** is **-33.3%** from 66. The ±20% family requirement
+is therefore not claimed as met.
+The upper land’s **116** median is an additional visible failure, despite
+the lower narrow flat being within 20% of my darker Harrow mask. A whole
+receiver median of 65/66 does not excuse that upper field or the supplied
+flat-side target.
+
+### Projection and preservation
+
+The wrapper partitions each original rigid/named projection owner into
+enamel and non-enamel sources and delegates to the unchanged kit bake.
+Target geometry, UVs and source shapes stay fixed. Assembled ghosts retain
+contact AO. A second 4096/32-sample bake changes only enamel diffuse RGB;
+the delivered 2048 interior masks then measure causal leakage.
+
+| Nonpaint region | Changed BaseColor texels before | After control bake | Maximum channel delta after |
+| --- | ---: | ---: | ---: |
+| Lower_Mold | 21,084 | 0 | 0 |
+| Barrel | 2,298 | 0 | 0 |
+| Handguard_Mold | not supplied | 0 | 0 |
+| Handle_Hinge | not supplied | 0 | 0 |
+
+All **73** non-enamel named interior regions on this gun have exactly
+zero BaseColor channel change. Reports are root
+`build/paint-round2/smg-projection-control-deltas.json`.
+The old/new texture repair delta is a different quantity from this causal
+enamel-only perturbation; repairing an old wrong projection can change
+a nonpaint texel without continuing to project paint onto it.
+
+Direct comparison with the actual f95dac1 exports proves exact positions,
+normals, UVs, weights and oriented triangle corners for this gun and all
+four detachables. The gun’s original rig/clip/layout checks remain exact;
+the SMG retains its existing tangent-rounding convention. Both existing
+photo-camera sets (20 Rill / 4 Relay), all existing final shot definitions
+(57 / 31), strip cameras and both GIF configurations remain exact.
+Reports: root `exact-uv-identity.json`, `preservation-proof.json` and
+`presentation-identity.json` under `build/paint-round2/`. Those prove
+preservation/serialization. The unchanged actual-surface construction and
+motion-clearance checks separately test assembly correctness.
+
+### Build/check results and file inventory
+
+Two independent clean builds removed this gun’s build, textures, exports
+and renders. Each rebaked 4096 at 32 samples and regenerated all detachable
+subsets through the kit path. Each separate `check` returned **0**:
+
+| Clean cycle | Export/build | Separate check |
+| --- | --- | --- |
+| 1 | `make export`: 0 | `make check`: 0 |
+| 2 | default `make`: 2, newly added diagnostic PNG absent from its already parsed shot list | `make check`: 0 |
+
+The stable full default build was then rerun and returned **2 at the strict
+independent nonpaint photographic gate**. All preceding construction, UV,
+budget, atlas, rig, motion and re-import checks passed. The missing-view
+dependency issue was resolved; it is not confused with the later material
+calibration rejection. Logs and command/status JSON are root
+`build/paint-round2/smg-clean-checks.json`, `smg-final-make.log` and
+`smg-final-presentation.json`. The direct final photographic gate returns 1.
+The normal baseline replacement refusal still fails closed and leaves its
+manifest unchanged. No geometry check or tolerance was weakened.
+
+All seven bake channels report zero missed interior rays. The 18 AK
+baseline/rebaseline tests and three shared paint-bound tests pass.
+No kit code changed. All Cycles bakes/renders and GPU motion renders used
+the shared kit GPU lock. `python3 kit/repo_check.py` reports zero errors;
+`git diff --check` passes.
+
+Current gun: **41,540 triangles, one material, three 2048 maps,
+10,670,292 GLB bytes**. Map PNG bytes: BaseColor.png 1,106,978, Normal.png 2,321,064, ORM.png 3,680,142.
+Standalone budgets, every decoded texture hash and actual source hashes
+are in root `build/paint-round2/inventory.json`. The reviewed projection
+baseline and actual f95dac1 old hashes are recorded above; this presentation
+work does not approve the paint.
+
+| Docs file | Pixels | Bytes |
+| --- | --- | ---: |
+| `docs/action.jpg` | 1244×1400 | 155,265 |
+| `docs/details.jpg` | 1204×1400 | 184,640 |
+| `docs/eevee.jpg` | 1600×800 | 65,028 |
+| `docs/hero.jpg` | 1600×800 | 63,750 |
+| `docs/motion.gif` | 960×519 | 277,016 |
+| `docs/turnaround.jpg` | 1600×1300 | 81,237 |
+
+GIF SHA-256: `2d2fb1c68903a29cf9642616ea701b1a2cc7a843988c52a638a177f0e50d642a`. `make gif` returned **0**.
+Each signature has 70 frames at 20 fps, unchanged ReloadEmpty/camera,
+a 500 ms first-frame hold and 4000 ms decoded duration. All five JPGs and
+all final decoded GIF frames were reviewed; repeat-rounding frames were
+explicitly reopened and the remaining RGB hashes proved unchanged.
+
+Final contact sheet: `renders/final/contact-sheet.jpg`. 330 render records
+are verified against their actual source files in `build/provenance.json`.
+All six contact-sheet inspection pages were opened. The bright rolled roof,
+broad inherited wear and failed issued-photo reflections remain visible;
+the contact sheet does not establish paint acceptance.
+Photo pairs are in `pairs/`, source pairs in `source-pairs/`, stills in
+`beauty/` and `eevee/`, and motion inspection sheets in `inspection/`, all
+under `renders/final/`. The explicit `python3 src/final_review.py --docs`
+step prepared these review JPGs after the failed gate; it does not turn
+that failure into acceptance.
+
+**Still unresolved:** a valid independent light calibration and verified
+paint sheen. The dark flat and brighter upper response are both reported.
+Further parameter changes need an explainable photo/accepted-finish
+calibration. No new software is needed. A shared neutral-clipping audit
+and explicit component-aware photo masks would help future family reviews.
+<!-- ROUND2_DELIVERY_END -->
