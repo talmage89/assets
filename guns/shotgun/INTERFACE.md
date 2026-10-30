@@ -58,6 +58,10 @@ is the actual loaded shell length, 57.5 mm, replacing 59 mm and its 1.5 mm gaps.
 The low tray now shares the tube's axis instead of sitting 3 mm above it.
 Counts change only at the original commit events. STEP scale marks coincident
 ownership changes, initial/final occupancy and the live/fired change at shot f2.
+The incoming-hand display starts at each unchanged insertion_begin f12;
+without the consumer’s hand mesh this appears as a shell below the receiver.
+Socket_Shell supplies that insertion frame. CarrierGuide supplies the first
+port-loaded shell’s frame in ReloadEmpty.
 
 The fired hull is a distinct, open 69.8 mm representation. The right extractor
 draws its rim with the bolt; the left receiver ejector turns its nose out first.

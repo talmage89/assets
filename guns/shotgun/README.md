@@ -42,7 +42,7 @@ section supersedes the earlier wear-visibility acceptance.
 
 | Path | Contents |
 | --- | --- |
-| `export/shotgun.glb` | One rigid skin, 20 bones, eighteen clips, nine sockets and one PBR material |
+| `export/shotgun.glb` | One rigid skin, 24 bones, eighteen clips, nine sockets and one PBR material |
 | `export/shell.glb`, `export/hull.glb` | Head-centered standalone live shell and fired hull, +Y toward the mouth |
 | `textures/` | Canonical `T_Hearth12_BaseColor`, `T_Hearth12_Normal`, `T_Hearth12_ORM`, all 2048 |
 | `build/baked/4k/` | 4096 bake intermediates and measured ray-coverage report |
@@ -108,13 +108,14 @@ existing plate slot; the original pivot and −12° pull remain unchanged.
 The bolt has a relieved rear, visible port cheek and an underside carrier pocket.
 An action slide block joins
 the twin bars to the bolt's underside with actual bearing contact. The tray is a stamped
-concave cradle with a central opening. Shell stops bear on the tube shell's
-rim; the measured aperture is 18.60 mm against the 22.40 mm rim. The forend's
+concave cradle with a central opening. The left stop retains the first rim;
+the right interceptor holds the following rim at a separate forward station.
+The forend's
 two bearing rings remain supported by the magazine tube through the stroke.
 The longer, slimmer forend retains those bearings and its 96 mm stroke. Its fine
 paired grooves cover most of the length; the nose tapers onto the sleeve. The
 tube, ring and cap extend 50 mm forward to provide room for this longer wood.
-Capacity and the shell stops' positions remain four shells and the same rim seat.
+Capacity remains four shells; the left rim seat remains at the tube mouth.
 
 The stock has a nearly straight comb, a short semi-pistol grip with a carved
 oblique end flat, and a pitched recoil pad approximately one inch thick. The
@@ -187,12 +188,19 @@ render surface patches. The sharp wood close-up is a structure comparison only.
 These are view/light comparisons, not recovered albedos. The gray-coated utility
 photo remains a form reference only. Final numerical values and patch
 overlays are in `renders/final/photos/values.json` and `value-patches.jpg`.
+A separate linear-sRGB balance uses the unclipped white painted wall beneath
+the trigger guard (native rectangle 1638,562–2106,597), preserving its luminance.
+The wall median becomes 238/238/238. Aging and reflected light limit this neutral
+estimate. `value-patches-neutral.jpg` marks it in yellow; no photo pixels enter
+the asset. Balanced photo/export lumas are 73.73/73.01 for steel, 93.30/91.25
+for stock and 64.91/63.93 for forend. The table below retains the earlier raw
+daylight measurements explicitly for comparison.
 
 | Surface | Median luma, photo / export (0–255) | Photo R:G:B (G=1) | Export R:G:B (G=1) |
 | --- | ---: | --- | --- |
 | Blued receiver | 73.37 / 73.01 | 0.920:1.000:1.000 | 0.932:1.000:1.014 |
 | Walnut stock | 92.94 / 91.25 | 1.178:1.000:0.956 | 1.193:1.000:0.943 |
-| Walnut forend | 64.68 / 63.81 | 1.768:1.000:0.839 | 1.597:1.000:0.895 |
+| Walnut forend | 64.68 / 63.93 | 1.768:1.000:0.839 | 1.597:1.000:0.895 |
 
 The second outdoor photograph supplies a wider light/hue cross-check: steel
 150.18 with .914:1:1.166, wood 126.58 with 1.588:1:.763. Reflected sky raises
@@ -216,7 +224,7 @@ consumer. The [1.1.0 additive supplement](INTERFACE.md) preserves the family's
 | Socket_SupportHand | (−19, 428, −9) | complete frame riding Forend |
 | Socket_Butt | (0, −260.73, −53) | shoulder reference on pitched pad |
 | Socket_Eye | (0, −25, 64.6) | bore-aligned cheek-weld sightline |
-| Socket_Ejection | (18, 172, 47) | in the port at ejection |
+| Socket_Ejection | (18, 172, 47) | fixed legacy effect/reference frame |
 | Socket_MagWell | (0, 162, −2) | underside loading entry |
 | Socket_Magazine | (0, 255, 13) | fixed tube mouth; no dropped magazine |
 | Socket_Shell | (0, 185, 13) | nonsingular insertion-guide frame |
@@ -236,9 +244,9 @@ No stock or steel mesh is hidden for the view. `build/check.json` records the ac
 comb intersection, eye height and stock clearance. The shoulder socket was moved
 onto the pitched pad, with its surface distance checked in source and import.
 
-Twenty rigid bones drive the forend/bars, bolt, unlocking block, carrier,
+Twenty-four rigid bones drive the forend/bars, bolt, unlocking block, carrier,
 trigger, crossbolt, release, shell stops, follower and shell display states.
-The forend and bolt travel **96 mm**; the carrier presents at **15°**, and folds
+The forend and bolt travel **96 mm**; the carrier presents at **16°**, and folds
 to **20°** during insertion. Trigger motion is 12°, safety travel 3 mm, release
 9°. These are authored visual estimates, not manufacturer mechanical limits.
 The nonscaling ShellGuide carries the shell socket; its display child alone
@@ -252,15 +260,16 @@ Translations and rotations use that frame; all rotation axes below are +X.
 | Forend, sleeve, bars and slide block | (0, 430, 13) | Y: 0 to −96 mm |
 | Bolt body and cheek | (0, 171, 49) | Y: 0 to −96 mm |
 | Bolt lock, child of bolt | (0, 205, 53) | 0 to −9° |
-| Carrier and its presented shell | (0, 85, 4) | 0 to +15°, +20° for loading |
+| Carrier | (0, 85, 4) | 0 to +16°, +20° for loading |
 | Trigger | (0, 84, −4) | 0 to −12° |
 | Safety | (0, 56, −8) | X: 0 to +3 mm |
 | Action release | (−12.8, 100, −3) | 0 to +9° |
 | Left / right shell stops | (∓12.5, 240, 13) | outward X: 0 to 2 mm |
-| Magazine follower | (0, 491, 13) | count-dependent Y: −236 to 0 mm |
+| Magazine follower | (0, 485, 13) | count-dependent Y: −230 to 0 mm; 3.4 mm interception travel |
 
-The four tube display slots start at (0, 255 + 59i, 13), i = 0…3.
-They and the chamber shell use STEP occupancy. ShellGuide supplies the insertion
+The four tube display slots start at (0, 255 + 57.5i, 13), i = 0…3.
+They share continuous TubeFeedGuide travel and STEP slot offsets at commits.
+ShellGuide supplies the insertion
 path independently of display scale; event and interruption semantics are in
 the interface supplement.
 
@@ -280,10 +289,55 @@ All eighteen clips have complete hold boundaries and independent initial poses.
 Each reload declares committed count events and hand-clear interruption phases.
 In-flight interruption pauses/resumes the same clip and frame. Safe phases
 name the matching count-specific Idle. The gun has no last-round hold-open.
-Feeding uses a discrete carrier/chamber handoff and hidden tube-slot reindexing;
-it is not a continuous cartridge-path simulation. The consumer spawns the fired
-hull at the ejection event. Normal-speed WebPs and uniform 15-Hz strips are in
+Feeding follows a continuous authored path with coincident carrier/chamber
+ownership changes. The consumer spawns the fired hull at the ejection event
+using FiredGuide's complete frame, as the supplement documents. Normal-speed
+WebPs and uniform 15-Hz overview strips are in
 `renders/final/strips/`; `timing.json` records their real durations.
+
+### Visible feed audit
+
+The old 96 mm bolt draw had enough room: 5.37 mm behind the presented rim.
+The 57.5 mm shell nevertheless appeared on the tray at f30 and disappeared into
+the chamber display at f44 while the bolt was still back. ReloadEmpty did the
+same at f36/f50. There was no fired hull in the action: the chambered live
+shell stayed still during withdrawal, then vanished at eject f24. Reloads hid
+the complete tube stack for f44–60. Tube pitch was 59 mm, leaving 1.5 mm gaps;
+the low carrier axis was 3 mm above the tube. No unload clip exists.
+
+The corrected 84 mm low tray shares the tube's 13 mm delivery-frame axis. Its 16°
+lift raises the head 20.05 mm and nose 35.90 mm; the bolt still has 5.47 mm
+behind the presented rear rim. The actual loaded shell length now supplies
+57.5 mm tube spacing. The right latch has a 3.4 mm forward interception seat;
+the left retains its original seat. Concealed sleeve/wood reliefs clear it.
+An internal receiver feed throat, tray clearance in the trigger plate and
+underside slide-block pocket clear the rising shell without changing the
+gun's external length or barrel dimensions. The chamber's internal 10.2 mm
+radius continues past the 69.8 mm open hull before the cone narrows; the old
+cone intersected the fired mouth. A right extractor claw and left receiver
+ejector now draw and turn a distinct fired hull out of the port.
+
+The [US Navy's primary sequence](refs/SOURCES.md#visible-feed-correction--2026-10-29)
+establishes the alternating latches, forward-stroke carrier lift, bolt feed,
+extractor and nose-first ejection. Internal dimensions and timing remain our
+visual estimates. The [supplement](INTERFACE.md#visible-feeding-additive-correction)
+documents every refined phase and the additive physics handoff, with all
+existing event frames and state meanings retained.
+
+Every Fire variant, reload and Inspect now has **30-Hz port and cutaway strips
+from the exported GLB**, before/after, under `renders/feed/before/` and
+`renders/feed/after/`, plus real-speed WebPs and native inspection pages.
+Synchronized before-left/after-right comparisons are in
+`renders/feed/comparison/`, including `Fire-port.jpg` and `Fire-cutaway.jpg`.
+`build/feed-audit.json` records measured dimensions, intermediate triangle
+contacts, continuous slot handoffs and eject pose/velocities. Those checks also
+run on reconstructed actual delivery triangles: **318** contact assertions,
+including **287** feed/handoff assertions. The actual bolt rear-plane error
+stays below 0.0001 mm, and ownership handoffs differ by at most 0.025 mm
+across a 0.001-frame interval. At eject f24 the entire hull clears the receiver
+by **3.887 mm**. Moving rounds participate in **6,375** clearance samples across
+all 18 clips, with zero policy violations. Fractional path keys and STEP slot
+offsets survive export through the shared feed sampler.
 
 ## Budget and delivery
 
@@ -292,23 +346,24 @@ representations. Loaded shell and fired hull stay within 600/400 triangles.
 
 | Final output | Triangles | Materials | GLB bytes | Map size | Density ratio |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Gun, all animated shell representations | 39,829 | 1 | 11,943,316 | 2048 | — |
+| Gun, all animated shell representations | 39,980 | 1 | 16,450,172 | 2048 | — |
 | Loaded shell | 600 | 1 | 364,784 | 1024 | 1.000 |
-| Fired hull | 394 | 1 | 404,136 | 1024 | 1.000 |
+| Fired hull | 394 | 1 | 404,176 | 1024 | 1.000 |
 
 Exact texture hashes, UV density/overlap and round-trip errors are recorded in
-`build/delivery/verify.json`. The inspection gun remains 39,825 triangles; the
-UV-prepared gun is 39,829 after retriangulating microscopic Boolean slivers.
-All accepted surface dimensions, contacts and motion bounds are retained.
+`build/delivery/verify.json`. The inspection gun remains 39,976 triangles; the
+UV-prepared gun is 39,980 after retriangulating microscopic Boolean slivers.
+External dimensions and the existing clearance policy are retained; the feed
+construction corrections are described above.
 
 The kit bakes **4096 at 32 samples**, then filters to one **2048 BaseColor /
 OpenGL +Y Normal / ORM** atlas. ORM is R occlusion, G roughness, B metallic.
 
 | Canonical 2048 map | PNG bytes |
 | --- | ---: |
-| `T_Hearth12_BaseColor.png` | 2,091,336 |
-| `T_Hearth12_Normal.png` | 2,841,090 |
-| `T_Hearth12_ORM.png` | 3,293,969 |
+| `T_Hearth12_BaseColor.png` | 2,014,545 |
+| `T_Hearth12_Normal.png` | 2,694,891 |
+| `T_Hearth12_ORM.png` | 3,213,788 |
 
 Explicit rest-position and corner-normal attributes retain the finish fields
 while rigid bones are isolated for projection. Dense carved wood transfers onto
@@ -317,13 +372,13 @@ UVs reserve small independent shell/hull regions, while the gun receives the
 large region. Microscopic Boolean edges are dissolved only on receiver/bolt
 before unwrap; no silhouette or contact threshold is changed. The final checks
 measure the result rather than calling it perfectly uniform or overlap-free.
-The fresh gun import covers 29.26% of the atlas, with 26 microscopic overlap
-pairs totaling a fraction 2.015e-6, below the unchanged 1e-5 limit. Delivered
-gun density is 2,415 px/m median (5th/95th: 968 / 2,612). Furniture receives
-more atlas priority: stock about 2,432 px/m and forend 2,579, while receiver
-markings retain about 1,916. The long barrel, bore and sheltered tube/sleeve
+The fresh gun import covers 28.84% of the atlas, with 26 microscopic overlap
+pairs totaling a fraction 1.985e-6, below the unchanged 1e-5 limit. Delivered
+gun density is 2,376 px/m median (5th/95th: 954 / 2,576). Furniture receives
+more atlas priority: stock about 2,397 px/m and forend 2,542, while receiver
+markings retain about 1,888. The long barrel, bore and sheltered tube/sleeve
 receive less. The complete atlas, including the denser standalone regions,
-covers 34.50%.
+covers 34.08%.
 
 The gun retains its canonical **2048** atlas, approximately **16 MiB compressed
 with mipmaps**. The standalone live shell now embeds its own **1024** set and
@@ -346,6 +401,8 @@ GNU make and flock. No downloaded code, model, texture or lighting is used.
 ```sh
 make -C guns/shotgun                   # refs through final docs and checks
 make -C guns/shotgun check             # inspection + baked delivery + independent repeat
+make -C guns/shotgun feed-audit        # actual feed surfaces and ejection handoff
+make -C guns/shotgun feed-strips       # 30-Hz port/cutaway from the baked GLB
 make -C guns/shotgun WEAR=.45          # cleaner finish, same accepted mechanism
 make -C guns/shotgun render            # Cycles finals and Eevee hero from GLB
 make -C guns/shotgun match             # five calibrated pairs + native hero-wear pair
@@ -364,7 +421,7 @@ All GPU jobs use the kit lock; scratch files stay in the worktree's `build/`.
 The asset graph calls the existing kit finalizer, baker, channel-correct
 filter and animated exporter. No pistol, bolt or kit source is modified.
 
-Inspection and finalized parts independently repeat all **37 actual-surface
+Inspection and finalized parts independently repeat all **318 actual-surface
 contacts** and half-frame clearance samples through every clip. The fresh
 consolidated delivery is decomposed only for auditing: each imported triangle
 matches a source part by rigid owner, centroid and all vertex positions, with
@@ -375,9 +432,10 @@ serialization tests. The standalone shells get their own fresh imports,
 external dimensions, origins, normals and map-identity checks.
 
 UV checks retain the kit's 1e-5 microscopic-overlap limit and require no escaped
-or degenerate UV triangles. Every 4096 bake channel must have zero missed interior
-texels. Embedded PNGs must match the current canonical texture files. A separate
-ray-hit audit measures finish/wear texels and physical density. Review provenance
+or degenerate UV triangles. All six final 4096 bake channels have zero missed
+rays among **4,829,893** checked interior texels. Embedded PNGs must match the
+current canonical texture files. A separate ray-hit audit measures finish/wear
+texels and physical density. Review provenance
 requires every final view/strip to cite the current exported GLB hash and checks
 the decoded real duration of every animated WebP. These build checks do not
 establish photographic quality; the pairs and exported critiques do that.
@@ -393,8 +451,8 @@ subtle figure remain less rich than the sharp source photograph at macro scale. 
 utility stock differs from the field-stock references; its accepted silhouette
 residuals are in REVIEW.md.
 Eevee and Cycles produce different grazing reflections and cavity shadows.
-Feeding is an explicit visibility/ownership representation, not a continuous
-cartridge-path simulation. Manufacturing dimensions, eye/cheek ergonomics,
+Feeding is authored visual motion with coincident ownership changes, rather
+than spring/friction physics. Manufacturing dimensions, eye/cheek ergonomics,
 mass and coating chemistry are not certified by this visual game asset.
 
 Photographs and published measurements: Wikimedia Commons, manufacturer
