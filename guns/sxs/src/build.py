@@ -696,6 +696,24 @@ def canonical_surface(ob):
  if old.users==0:bpy.data.meshes.remove(old)
  M.smooth(ob,42)
 
+def triangles_006(ob):
+ """Explicit diagonals for the post-reduction .006 mm T-junction repairs.
+
+ A quad with three nearly collinear points needs the diagonal that retains
+ both boundary intervals. Exporter's automatic tessellation may instead
+ form an outside sliver. Choose the largest minimum triangle area.
+ """
+ mesh=ob.data;points=[v.co.copy() for v in mesh.vertices];faces=[]
+ for face in mesh.polygons:
+  ids=list(face.vertices)
+  if len(ids)==3:faces.append(ids);continue
+  assert len(ids)==4,('Post-repair polygon',ob.name,len(ids))
+  a,b,c,d=ids
+  alternatives=[[(a,b,c),(a,c,d)],[(a,b,d),(b,c,d)]]
+  area=lambda triangle:(points[triangle[1]]-points[triangle[0]]).cross(points[triangle[2]]-points[triangle[0]]).length
+  faces.extend(max(alternatives,key=lambda pair:min(area(triangle) for triangle in pair)))
+ mesh.clear_geometry();mesh.from_pydata(points,[],faces);mesh.update();M.smooth(ob,42)
+
 def finalize(ob):
  clean(ob)
  if not len(ob.data.vertices):raise AssertionError('Empty manufactured part: '+ob.name)
@@ -729,6 +747,7 @@ def finalize(ob):
  if ob.name in ('Stock_Walnut','Forend_Walnut','Action_Body'):
   high=next(h for h in HIGH if h.get('low_target')==ob.name)
   canonical_surface(ob);canonical_surface(high)
+  if ob.name=='Action_Body':triangles_006(ob)
   if ob.name=='Action_Body':high.data.normals_split_custom_set(upper_normals(high,lower_normals(high)))
   if ob.name=='Forend_Walnut':
    # The routed latch intersects the broad lower land. Its wall must not
