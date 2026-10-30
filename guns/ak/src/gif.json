@@ -1,0 +1,33 @@
+{
+  "source": "export/ak.glb",
+  "output": "docs/motion.gif",
+  "sequence": [
+    {
+      "clip": "ReloadEmpty"
+    }
+  ],
+  "fps": 20,
+  "width": 960,
+  "colors": 256,
+  "samples": 64,
+  "background": [
+    108,
+    111,
+    114
+  ],
+  "camera": {
+    "location": [
+      1.12,
+      0.53,
+      0.38
+    ],
+    "target": [
+      0,
+      0.16,
+      -0.04
+    ],
+    "lens": 49,
+    "aspect": 1.85,
+    "exposure": -0.15
+  }
+}

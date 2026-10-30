@@ -1,0 +1,33 @@
+{
+  "source": "export/pistol.glb",
+  "output": "docs/motion.gif",
+  "sequence": [
+    {
+      "clip": "ReloadEmpty"
+    }
+  ],
+  "fps": 20,
+  "width": 960,
+  "colors": 256,
+  "samples": 64,
+  "background": [
+    67,
+    70,
+    73
+  ],
+  "camera": {
+    "location": [
+      0.37,
+      0.21,
+      0.15
+    ],
+    "target": [
+      0,
+      0.025,
+      -0.008
+    ],
+    "lens": 48,
+    "aspect": 1.5,
+    "exposure": -0.15
+  }
+}

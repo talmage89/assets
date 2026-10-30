@@ -129,3 +129,5 @@ review: $(RESPONSE)
 .PHONY: wear-2d
 wear-2d: $(FINAL_IMAGES) build/value-surfaces.npz
 	$(PYTHON) src/wear_2d_review.py
+
+include ../common/gif.mk

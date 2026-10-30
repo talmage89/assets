@@ -133,3 +133,5 @@ sections: $(MODEL)
 	$(PYTHON) src/section_sheet.py
 clean:
 	$(PYTHON) -c "import shutil; [shutil.rmtree(p,ignore_errors=True) for p in ('build','textures','export','renders')]"
+
+include ../common/gif.mk
