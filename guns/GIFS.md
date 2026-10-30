@@ -19,8 +19,8 @@ half-open clip intervals, so the endpoint is not counted twice.
 | [shotgun](./shotgun/docs/motion.gif) | `Fire` | 960×447 | 22 | 20 | 254 | 257,807 | 1,600 |
 | [revolver](./revolver/docs/motion.gif) | `Reload` | 576×371 | 67 | 20 | 187 | 433,393 | 3,850 |
 | [bolt](./bolt/docs/motion.gif) | `Fire` | 720×351 | 55 | 25 | 254 | 434,764 | 2,700 |
-| [ak](./ak/docs/motion.gif) | `ReloadEmpty` | 820×443 | 70 | 20 | 252 | 427,451 | 4,000 |
-| [smg](./smg/docs/motion.gif) | `ReloadEmpty` | 960×519 | 70 | 20 | 249 | 300,968 | 4,000 |
+| [ak](./ak/docs/motion.gif) | `ReloadEmpty` | 820×443 | 70 | 20 | 253 | 439,106 | 4,000 |
+| [smg](./smg/docs/motion.gif) | `ReloadEmpty` | 960×519 | 70 | 20 | 249 | 306,046 | 4,000 |
 | [lmg](./lmg/docs/motion.gif) | `Reload` 226–346 | 720×533 | 40 | 20 | 52 | 447,836 | 2,500 |
 
 All palettes allocate at most 256 entries, including transparency for unchanged
@@ -135,3 +135,9 @@ palettes show no objectionable steel bands or dither noise in the reviewed
 sequences. Continuous visual playback was unavailable in this headless session;
 the authored-speed delays were audited and each local `playback.html` opens
 the actual looping GIF for that remaining visual check.
+
+The Rill 39 and Relay 9 receiver-paint refresh rebaked their maps at 4096 and
+regenerated both loops with `make gif` from the final exported GLBs. Their
+clip samples, cameras, lighting, palettes' allocations and output dimensions
+remain unchanged; both sets of seventy decoded frames were inspected in order.
+The member `REVIEW.md` files record the new paint and frame observations.
