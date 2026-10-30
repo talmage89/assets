@@ -3,7 +3,8 @@ VERSION='1.0.0'
 SUPPLEMENT_VERSION='1.2.0'
 FPS=60
 CAPABILITIES=dict(bolt_action=True,detachable_magazine=True,last_round_hold_open=False,
-    bipod=True,magnified_optic=True,whole_weapon_motion='external only',magazine_capacity=5)
+    bipod=True,magnified_optic=True,whole_weapon_motion='external only',magazine_capacity=5,
+    visible_cartridge_feed=True,feed_type='push',case_handoff_bone='CycleCase')
 STATES={name:dict(action=action,magazine=mag,chamber=rounds) for name,action,mag,rounds in [
     ('ready','locked','loaded',1),('last_ready','locked','empty',1),('empty_closed','locked','empty',0),
     ('empty_open','open','empty',0),('cycling','moving','loaded',0),('last_cycling','moving','empty',0),

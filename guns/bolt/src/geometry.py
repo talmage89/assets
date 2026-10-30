@@ -152,10 +152,10 @@ def sculpt_stock():
     # The channel and its rounded lands are already sculpted into the sections.
     # A smooth minimum blends the cylindrical floor into the broad shoulders;
     # it does not rely on a bevel clamped by tiny voxel/Boolean boundary edges.
-    roundcut(ob,(-13.3,55,-70),(13.3,137.2,60),2)
+    roundcut(ob,(-13.3,102,-70),(13.3,184.2,60),2)
     cutbox(ob,(-7,20,10),(7,40,53))
-    cutbox(ob,(-7.2,9,9),(7.2,59,28))
-    cutbox(ob,(-6,52,23),(6,60,32))
+    cutbox(ob,(-7.2,9,9),(7.2,106,28))
+    cutbox(ob,(-6,99,23),(6,107,32))
     roundcut(ob,(-8.8,-12.3,48.1),(8.8,55.3,64),3)
     # Smooth tang pocket and radiused handle notch, with no high thin shoulder.
     cut(ob,lathe('Rounded bolt notch tool',[(4,0),(4,16.5),(40,16.5),(40,0)],
@@ -163,7 +163,7 @@ def sculpt_stock():
     roundcut(ob,(14,4,57),(22,22,82),3)
     roundcut(ob,(8,97,50),(39,175,90),4)
     # Only the plate's shallow inlet is removed: never cut away the grip below it.
-    roundcut(ob,(-18.2,-11.1,14.7),(18.2,158.2,22.2),2.8)
+    roundcut(ob,(-18.2,-11.1,14.7),(18.2,205.2,22.2),2.8)
     edge=ob.modifiers.new('Rounded channel lands','BEVEL');edge.width=2.0
     edge.segments=4;edge.limit_method='ANGLE';edge.angle_limit=math.radians(38);M.apply(ob)
     # Re-voxel the finished mold to heal Boolean junctions before reduction.
@@ -278,7 +278,7 @@ def magazine():
             x0,x1=sorted((side*10.2,side*12.1))
             roundcut(body,(x0,y-1.6,-10.1),(x1,y+1.6,30.1),.8)
     cutbox(body,(-14,58,37),(14,62,50))
-    cutbox(body,(-5,front-2,41),(5,front+2,50))
+    cutbox(body,(-7,front-3,35),(7,front+2,50))
     roundcut(body,(-5.2,56,19.8),(5.2,60,23.5),.4)
     reg(body,'Magazine')
     floor=box('Magazine_Floorplate',(-13.5,56.8,bottom),(13.5,front+1.2,bottom+4.2),'steel',raw=True)
@@ -290,12 +290,13 @@ def magazine():
         outer=[(side*(6.69*math.cos(th*i/12)),39+6.69*math.sin(th*i/12)) for i in range(13)]
         inner=[(side*(6.04*math.cos(th*i/12)),39+6.04*math.sin(th*i/12)) for i in range(13)]
         pts=[(side*12.3,35),(side*12.3,39),*outer,*reversed(inner),(side*11.3,38),(side*11.3,35)]
-        reg(M.profile('Magazine_FeedLip',pts,61,95,MAT['steel'],axis='Y'), 'Magazine',.12)
-    box('Magazine_Follower',(-5.3,62,17),(5.3,133.6,21.15),'alloy','Follower',r=1)
+        reg(M.profile('Magazine_FeedLip',pts,61,72,MAT['steel'],axis='Y'), 'Magazine',.12)
+    box('Magazine_Follower',(-5.3,62,17.05),(5.3,131.5,21.20),'alloy','Follower',r=.6)
     # Two representative rounds; capacity is semantic, not five hidden meshes.
     ammunition('Magazine_TopRound',(0,63,39),'TopRound',24)
     ammunition('Magazine_ReserveRound',(3.7,63,27.2),'ReserveRound',18)
-    ammunition('ChamberRound',(0,210,65),'ChamberRound',20)
+    ammunition('ChamberRound',(0,209.5,65),'ChamberRound',20)
+    ammunition('CycleCase',(0,209.5,65),'CycleCase',fired=True)
     # Feed height is just below the closed bolt, so the retained top round reads
     # through the port. Bone frames/sockets and the catch's accepted pose stay put.
     for ob in PARTS[start:]:
@@ -303,3 +304,19 @@ def magazine():
             for v in ob.data.vertices:v.co.z+=7
     # The catch tooth engages an actual shoulder on the removable shell.
     box('Magazine_CatchShoulder',(-5.2,56.2,26),(5.2,59.1,26.8),'steel','Magazine',r=.12)
+
+
+def correct_feed_box():
+    """Move the complete seated box, keep its outside dimensions and catch."""
+    from feed import MAG_SHIFT,ROUND_SHIFT,FEED_RISE
+    for ob in PARTS:
+        bone=ob['bone']
+        if bone not in ('Magazine','Follower','TopRound','ReserveRound'):continue
+        shift=ROUND_SHIFT if bone in ('TopRound','ReserveRound') else MAG_SHIFT
+        for v in ob.data.vertices:
+            v.co.y+=shift
+            if bone in ('Follower','TopRound','ReserveRound') or ob.name.startswith('Magazine_FeedLip'):
+                v.co.z+=FEED_RISE
+                if ob.name.startswith('Magazine_FeedLip') and v.co.z<.1+35+7+FEED_RISE:v.co.z-=.7
+    # Front binder leaves the cited 72.898 mm usable interior length.
+    box('Magazine_Binder',(-11.3,178.898,-8),(11.3,181.597,42),'steel','Magazine',r=0)

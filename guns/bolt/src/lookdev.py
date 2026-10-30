@@ -201,7 +201,7 @@ def assign(wear):
    if key=='stock':mat=stock(name,wear)
    elif key=='rubber':mat=rubber(name,ob.name.startswith('Bipod'),wear)
    elif key in ('brass','copper') or 'Primer' in ob.name:
-    role='primer' if 'Primer' in ob.name else key;mat=ammo(name,role,ob.name=='Case_Proof',wear)
+    role='primer' if 'Primer' in ob.name else key;mat=ammo(name,role,ob.name=='Case_Proof' or ob.name.startswith('CycleCase'),wear)
    elif key=='alloy':
     role='body' if ob.name=='Scope_Body' else ob['bone'] if 'bone' in ob else 'other'
     mat=alloy(name,role,wear)

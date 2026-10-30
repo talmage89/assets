@@ -118,3 +118,41 @@ Clipped backdrop whites do not establish an illuminant: the profile uses its
 gray mounting ring, and the left reference's residual cast stays unconstrained.
 Generated corrections and marked measurement proofs live in ignored
 `build/white-balanced/`; photographs never become material inputs.
+
+## Visible action cycle correction
+
+- [MDT's five-round metal AICS specification](https://mdttac.com/products/308-6-5-creedmoor-mdt-metal-aics-magazine-5-rnd),
+  MDT, copyright retained, accessed 2026-10-29: 3.055 in outside length,
+  2.870 in / 72.898 mm maximum cartridge envelope with front binder, 2.52 in
+  rear height. The manufacturer explicitly describes the binder holding the
+  tips behind the feed ramp. This is usable cartridge space, not an outside
+  length or a nominal .308 OAL. Our new binder gives that actual interior span.
+- [Short/long classification](https://support.egwguns.com/hc/en-us/articles/7758420311963-Is-my-rifle-a-short-or-long-action),
+  Evolution Gun Works (mount manufacturer), copyright retained: .308 is in the
+  Remington 700 short-action group. Vesper uses that class, rather than claiming
+  the long-action M24 receiver whose external photos informed its furniture.
+  C.I.P.'s existing cartridge reference supplies the 71.12 mm cartridge length.
+- [Light But Loaded](https://www.legacysports.com/wp-content/uploads/2021/08/GaAAugust2021.pdf),
+  Tom Beckstrand, photos Mark Fingar, Guns & Ammo August 2021, pp. 58–64;
+  copyright retained; hosted by the reviewed rifle's importer. Primary
+  first-person comparative review, PDF page 2 / printed p. 60: approximately
+  4.125 in / 104.775 mm rearward travel for the 700-footprint short-action
+  class, 4.81 in / 122.174 mm for long actions. This corrects the initial
+  suggestion that 146.5 mm draw would be an appropriate repair. The published
+  values are class comparisons, not a drawing of our fictional receiver.
+- [Winchester Model 70 manufacturer's explanation](https://www.winchesterguns.com/support/owners-manuals/model-70.html):
+  push feed pushes from the case base, the extractor snaps over the rim at
+  chambering; plunger ejector versus fixed-blade controlled-feed ejector.
+  This identifies the visual sequence, not dimensions of a real mechanism.
+  The Vesper now depicts a small rotating bolt-head claw and plunger, with
+  pivoting ejection after the case mouth clears the front port bridge.
+
+| Local file | Direct PDF URL | Author / license | Use |
+| --- | --- | --- | --- |
+| bolt_travel.pdf | https://www.legacysports.com/wp-content/uploads/2021/08/GaAAugust2021.pdf | Tom Beckstrand / Mark Fingar, Guns & Ammo, 2021; copyright retained, manufacturer-hosted | Published comparative short/long-action bolt travel; page 2. Reference only. |
+
+- [Action length comparison from an action manufacturer](https://1934armory.com/news/understanding-remington-700-actions-short-vs-long-and-how-to-choose-the-right-one/),
+  1934 Armory, copyright retained, accessed 2026-10-29: approximate receiver
+  envelopes 8.4 in / 213.36 mm short and 9.0 in / 228.60 mm long; .308 belongs
+  to the short-action cartridge family. Overall receiver length is not bolt
+  stroke. The Vesper's original exterior is not an interchangeable footprint.

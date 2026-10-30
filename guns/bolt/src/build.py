@@ -6,24 +6,24 @@ from mathutils import Matrix
 ROOT=Path(__file__).resolve().parents[3];sys.path[:0]=[str(ROOT),str(Path(__file__).parent)]
 from kit import weapon as W,model as M
 import geometry as G
-from mechanism import action_barrel,optic,bipod
+from mechanism import action_barrel,optic,bipod,feed_details
 from clips import build_clips
 import interface
 
 HEADS={'Root':(0,0,0),'BoltTravel':(0,18,65),'Bolt':(0,18,65),
  'CockingPiece':(0,-22,65),'Trigger':(0,26.69,23),'Safety':(18,14,62),
- 'BoltRelease':(-3,20,20),'MagRelease':(0,51,25),'Magazine':(0,100,46),
- 'Follower':(0,100,21),'TopRound':(0,63,39),'ReserveRound':(3.7,63,27.2),
- 'ChamberRound':(0,210,65),'PowerRing':(0,-74,113),'Diopter':(0,-115,113),
+ 'BoltRelease':(-3,20,20),'MagRelease':(0,98,25),'Magazine':(0,147,46),
+ 'Follower':(0,147,32.5),'TopRound':(0,107.5,50.5),'ReserveRound':(3.7,107.5,38.7),
+ 'ChamberRound':(0,209.5,65),'CycleCase':(0,209.5,65),'PowerRing':(0,-74,113),'Diopter':(0,-115,113),
  'Elevation':(0,62,129),'Windage':(16.5,62,113),'Parallax':(-16.5,62,113),
  'Reticle':(0,-108,113),'BipodL':(-24,410,2),'BipodR':(24,410,2),
  'BipodSplayL':(-24,410,2),'BipodSplayR':(24,410,2),
  'BipodExtendL':(-24,510,2),'BipodExtendR':(24,510,2)}
 SOCKETS={'Socket_Muzzle':(0,819.6,65),'Socket_Foregrip':(-22,290,26),
  'Socket_Butt':(0,-310,20),'Socket_Eye':(0,-213.9,113),
- 'Socket_Ejection':(14,130,68),'Socket_MagWell':(0,100,17),
+ 'Socket_Ejection':(14,130,68),'Socket_MagWell':(0,147,17),
  'Socket_Magazine':HEADS['Magazine'],'Socket_OpticObjective':(0,232,113)}
-PARENTS={'Bolt':'BoltTravel','CockingPiece':'BoltTravel','ChamberRound':'BoltTravel','Follower':'Magazine',
+PARENTS={'Bolt':'BoltTravel','CockingPiece':'BoltTravel','Follower':'Magazine',
  'TopRound':'Magazine','ReserveRound':'Magazine','BipodSplayL':'BipodL','BipodSplayR':'BipodR',
  'BipodExtendL':'BipodSplayL','BipodExtendR':'BipodSplayR'}
 
@@ -40,7 +40,7 @@ def finish(ob):
 def main():
  p=argparse.ArgumentParser();p.add_argument('--out',default='build/bolt.blend')
  a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);out=Path(a.out).resolve();out.parent.mkdir(parents=True,exist_ok=True)
- bpy.ops.wm.read_factory_settings(use_empty=True);G.palette();G.sculpt_stock();action_barrel();G.magazine();optic();bipod()
+ bpy.ops.wm.read_factory_settings(use_empty=True);G.palette();G.sculpt_stock();action_barrel();G.magazine();G.correct_feed_box();feed_details();optic();bipod()
  for ob in G.PARTS:finish(ob)
  arm=W.armature('B24Armature',{k:tuple(v*.001 for v in h) for k,h in HEADS.items()},PARENTS)
  arm['base_interface_version']=interface.VERSION;arm['interface_version']=interface.SUPPLEMENT_VERSION
@@ -63,7 +63,8 @@ def main():
   vg=ob.vertex_groups.new(name=ob['bone']);vg.add(list(range(len(mesh.vertices))),1,'REPLACE')
  joined=W.joined_copy(G.PARTS,'VesperB24');joined.parent=arm
  mod=joined.modifiers.new('Rigid weapon skin','ARMATURE');mod.object=arm
- W.export(out.with_suffix('.glb'),[arm,joined]+sockets);bpy.data.objects.remove(joined,do_unlink=True)
+ from animation_sampling import export as export_animation
+ export_animation(out.with_suffix('.glb'),[arm,joined]+sockets);bpy.data.objects.remove(joined,do_unlink=True)
  magparts=[o for o in G.PARTS if o['bone'] in ('Magazine','Follower','TopRound','ReserveRound')]
  for state,clip in [('loaded','Idle'),('empty','IdleEmpty')]:
   W.pose(arm,clip,0);mag=W.detachable(magparts,arm,'Magazine','Magazine')
