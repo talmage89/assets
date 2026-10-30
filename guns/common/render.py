@@ -56,7 +56,7 @@ def main(config,manifest):
   for i,(f,t) in enumerate(presentation.strip_samples(CLIPS[a.strip]['frames'],fps=FPS)):
    name=f'{a.strip}_{i:03d}';names.append(name)
    shots[name]=dict(config.STRIP_SHOT,action=a.strip,frame=f,time_s=t)
- for name in names:
+ for render_index,name in enumerate(names):
   s=shots[name]
   if hasattr(config,'prepare_shot'):config.prepare_shot(sc,s)
   if arm:presentation.pose(arm,s.get('action'),s.get('frame',0),floor=floor)
@@ -68,7 +68,11 @@ def main(config,manifest):
   cam.data.clip_start=.001;cam.data.clip_end=20
   sc.render.resolution_x=a.width;sc.render.resolution_y=round(a.width/s.get('aspect',1.35))
   sc.render.film_transparent=('ortho' in s or s.get('background')=='transparent' or bool(s.get('action')));floor.hide_render=sc.render.film_transparent
-  sc.render.filepath=str((out/(name+'.png')).resolve());bpy.context.view_layer.update();bpy.ops.render.render(write_still=True)
+  sc.render.filepath=str((out/(name+'.png')).resolve());bpy.context.view_layer.update()
+  # Optional first-frame warmup for deterministic real-time studio playback.
+  # Eevee's initial light/shader cache can otherwise shift a few 8-bit pixels.
+  if getattr(config,'WARMUP_RENDER',False) and render_index==0:bpy.ops.render.render(write_still=False)
+  bpy.ops.render.render(write_still=True)
   metadata[name]=dict(s,source=str(source),sha256=hashlib.sha256(source.read_bytes()).hexdigest(),engine=a.engine,
     stage=getattr(config,'RENDER_STAGE','neutral baked atlas integration' if baked else 'unbaked form checkpoint'))
  (out/'shots.json').write_text(json.dumps(metadata,indent=2))

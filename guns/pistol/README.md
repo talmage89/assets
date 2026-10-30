@@ -6,6 +6,10 @@ frame, serrations, cellular grip pattern, controls and markings are our own desi
 
 ![Cycles hero of the exported GLB](docs/hero.jpg)
 
+![Signature motion from the exported GLB](docs/motion.gif)
+
+`ReloadEmpty` at real speed: magazine exchange, slide release and return to battery.
+
 | | |
 | --- | --- |
 | ![Front, side, back and top](docs/turnaround.jpg) | ![Rear sights, grip, hood and markings](docs/details.jpg) |
@@ -46,7 +50,7 @@ and rebuild/check evidence.
 
 Everything in `build/`, `textures/`, `export/`, `renders/` and downloaded `refs/`
 is rebuilt and ignored. Only scripts, source notes, Makefiles and five final docs
-JPGs are committed.
+JPGs and one signature-motion GIF are committed.
 
 ## Dimensions and construction
 
@@ -281,6 +285,7 @@ GNU make and flock. No downloaded code, asset, texture or lighting is used.
 ```sh
 make -C guns/pistol                     # everything, including final GLB renders and docs
 make -C guns/pistol check               # budgets, scale, UVs, normals, contacts, motion, re-import
+make -C guns/pistol gif                # signature motion from the baked GLB, real-speed GIF
 make -C guns check                      # every gun in this worktree
 make -C guns/pistol WEAR=.40            # cleaner carry finish, same geometry and rig
 make -C guns/pistol render              # Cycles finals and Eevee hero, exported GLB only

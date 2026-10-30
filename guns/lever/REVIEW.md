@@ -1346,3 +1346,53 @@ there is no shared-kit or contract change in this revision.
    ordering, rather than a spring/cam dynamics simulation. Events, state counts
    and dimensions visible to the game retain their original contract; the
    supplement documents additive bones and the evaluated case-head handoff.
+
+## README signature GIF — 2026-10-30
+
+Color/value first: compared with `docs/hero.jpg` and `docs/eevee.jpg`.
+Warm brown wood, dark barrel and the brighter worn receiver remain distinct;
+the highlights do not turn the steel into pale gray plastic. Direct Eevee
+lighting differs from Cycles in the deepest recesses, with the original maps,
+lights and AgX look retained.
+
+Chose **Fire → Cycle**. In this asset Fire drops the hammer and Cycle contains
+the actual manual feed/ejection; joining the two at their authored boundary
+shows the complete mechanism without changing either GLB clip. Two lower
+camera trials hid most of the fresh cartridge behind the receiver wall; the
+final high right quarter and 0.4-radian roll expose the top opening while
+keeping the lever stroke clear. Inspected every decoded frame: the case clears
+the top, the fresh cartridge rises on the carrier and travels into the chamber,
+then the bolt and lever close. Frames 016–023 show the live round clearly.
+Stock and muzzle ends are cropped deliberately; wood furniture, receiver,
+tube and lever still identify the carbine.
+
+Camera in meters: location **(0.48, -0.05, 0.83)**, target
+**(0, 0.16, 0.035)**, **43 mm**, aspect **1.9**,
+roll **0.4 rad**, exposure **-0.15**. Flat background
+RGB **(65, 67, 70)**. Final studio, embedded GLB maps, 64-sample
+Eevee and one discarded initialization render; screen raytracing is disabled.
+
+Frame/palette review: **26 decoded frames**, numbered
+**000–025**, checked in the complete contact sheet and native
+frame pages. No objectionable palette flicker, steel banding or dither noise
+appeared in the sequence. One global palette and no dithering keep the
+background corner exactly constant in every frame. Quantization audit:
+**0.126/255** mean RGB error; worst full-frame 99th
+percentile **3/255**. This measures palette loss,
+not mechanism correctness.
+
+Timing audit: **960×505**, **20 Hz**,
+**254 distinct palette entries** (allocation 256),
+**141,408 bytes**. Source samples at 60 Hz: **Fire 0, 3, …, 15; Cycle 0, 3, …, 57**.
+Motion samples have **50 ms** delays, with **500 ms** added only
+to the first delay; decoded loop duration is **1,800 ms**.
+Two complete `make gif` runs returned identical shipped bytes. The documented
+recipe fingerprint and per-frame numeric comparison retain the approved GIF
+only for negligible GPU rounding; fresh candidates are retained for inspection.
+
+Evidence stays under `build/gif/`: `report.json`, `palette-audit.json`,
+`contact-sheet.jpg`, `review/frames-*.jpg`, full PNGs and `candidate.gif`.
+`playback.html` provides the continuous authored-speed loop. This headless
+review inspected decoded frames and audited real-speed delays; continuous
+visual playback was unavailable in this session. The committed image is
+`docs/motion.gif`; the README names the clip below it.

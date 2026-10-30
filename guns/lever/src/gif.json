@@ -1,0 +1,38 @@
+{
+  "source": "export/lever.glb",
+  "output": "docs/motion.gif",
+  "sequence": [
+    {
+      "clip": "Fire"
+    },
+    {
+      "clip": "Cycle"
+    }
+  ],
+  "fps": 20,
+  "width": 960,
+  "colors": 256,
+  "samples": 64,
+  "background": [
+    65,
+    67,
+    70
+  ],
+  "camera": {
+    "location": [
+      0.48,
+      -0.05,
+      0.83
+    ],
+    "target": [
+      0,
+      0.16,
+      0.035
+    ],
+    "lens": 43,
+    "aspect": 1.9,
+    "exposure": -0.15,
+    "roll": 0.4
+  },
+  "engine": "BLENDER_EEVEE"
+}

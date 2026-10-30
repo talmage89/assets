@@ -1052,3 +1052,56 @@ render is regenerated; no interrupted result counts as final evidence.
     retains a small machined lip. These are visible and documented, not hidden
     by material overrides. Nothing is needed from the lead beyond reviewing
     the requested images; there is no new kit dependency or kit-change request.
+
+## README signature GIF — 2026-10-30
+
+Color/value first: compared with `docs/hero.jpg` and `docs/eevee.jpg`.
+The stainless remains bright neutral metal with dark chamber bores, distinct
+brass and a low-value rubber grip. Broad silver transitions remain smooth;
+the flat surround is deliberately quieter than the still's floor gradient.
+Eevee cavity response differs from the Cycles hero, without a material override.
+
+Chose **Reload** for the swing-out crane, extractor travel, falling cases,
+speedloader and cylinder closure. The left/rear quarter shows the chamber
+mouths and extractor while leaving room for all six cases and the loader.
+Inspected every decoded frame and the native extraction/loader pages. Cases
+clear the cylinder, the extractor returns, fresh rounds enter together and
+the cylinder closes; none of these events was trimmed. Only static margins
+were removed (source 12 through the half-open endpoint 213).
+
+The 960-pixel version exceeded 1 MB. Tightening the presentation and removing
+static margins still exceeded budget; the final delivery is 576 pixels with
+a 192-entry palette, preserving 20 Hz. The mechanism reads at native size,
+but fine stainless wear and the smallest case details are softer than the
+hero. This is the weakest resolution of the seven, an explicit budget tradeoff.
+
+Camera in meters: location **(-0.42, -0.35, 0.26)**, target
+**(0, 0.055, 0.02)**, **54 mm**, aspect **1.55**,
+roll **0 rad**, exposure **-0.3**. Flat background
+RGB **(105, 108, 111)**. Final studio, embedded GLB maps, 64-sample
+Eevee and one discarded initialization render; screen raytracing is disabled.
+
+Frame/palette review: **67 decoded frames**, numbered
+**000–066**, checked in the complete contact sheet and native
+frame pages. No objectionable palette flicker, steel banding or dither noise
+appeared in the sequence. One global palette and no dithering keep the
+background corner exactly constant in every frame. Quantization audit:
+**0.117/255** mean RGB error; worst full-frame 99th
+percentile **3/255**. This measures palette loss,
+not mechanism correctness.
+
+Timing audit: **576×371**, **20 Hz**,
+**187 distinct palette entries** (allocation 192),
+**433,393 bytes**. Source samples at 60 Hz: **Reload 12, 15, …, 210**.
+Motion samples have **50 ms** delays, with **500 ms** added only
+to the first delay; decoded loop duration is **3,850 ms**.
+Two complete `make gif` runs returned identical shipped bytes. The documented
+recipe fingerprint and per-frame numeric comparison retain the approved GIF
+only for negligible GPU rounding; fresh candidates are retained for inspection.
+
+Evidence stays under `build/gif/`: `report.json`, `palette-audit.json`,
+`contact-sheet.jpg`, `review/frames-*.jpg`, full PNGs and `candidate.gif`.
+`playback.html` provides the continuous authored-speed loop. This headless
+review inspected decoded frames and audited real-speed delays; continuous
+visual playback was unavailable in this session. The committed image is
+`docs/motion.gif`; the README names the clip below it.

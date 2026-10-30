@@ -138,3 +138,5 @@ renders/final/wear-details/forend_band.png renders/final/wear-details/muzzle_ban
 	$(KIT)/with_gpu.sh $(BP) --python src/wear_render.py -- --source export/lever.glb --out renders/final/wear-details --width $(WIDTH) --samples $(SAMPLES)
 wear-details: renders/final/wear-details/forend_band.png renders/final/wear-details/muzzle_band.png renders/final/wear-details/shots.json
 extra: wear-details
+
+include ../common/gif.mk

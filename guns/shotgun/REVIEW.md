@@ -1401,3 +1401,51 @@ correct contour that no longer fits its unchanged housing.
    `python3 -m compileall -q guns/common guns/lever/src guns/shotgun/src`,
    `python3 kit/repo_check.py` (1,023 source files, zero errors) and
    `git diff --check` also pass.
+
+## README signature GIF — 2026-10-30
+
+Color/value first: compared with `docs/hero.jpg` and `docs/eevee.jpg`.
+Black steel remains dark, the fore-end keeps its reddish brown and the stock
+its muted brown. The receiver's broad edge reflection rolls off smoothly.
+The open fired hull mouth is lighter under direct Eevee than in the Cycles
+detail; its open rim and distinction from the fresh shell remain visible.
+
+Chose **Fire**, which includes the complete pump stroke, extraction, ejection,
+carrier rise and chambering. The right-side quarter crop spends pixels on the
+receiver and ribbed fore-end while retaining stock, trigger guard and paired
+tubes. Inspected all decoded frames, especially 008–015: the open red hull
+leaves the port and falls clear, then the fresh shell rises, tips into line and
+is driven forward by the bolt. No labels or artificial slow motion were added.
+The close crop keeps the muzzle outside the frame; the full hero above it
+provides the complete silhouette.
+
+Camera in meters: location **(0.87, 0.35, 0.32)**, target
+**(0, 0.26, 0.005)**, **48 mm**, aspect **2.15**,
+roll **0 rad**, exposure **-0.15**. Flat background
+RGB **(59, 62, 66)**. Final studio, embedded GLB maps, 64-sample
+Eevee and one discarded initialization render; screen raytracing is disabled.
+
+Frame/palette review: **22 decoded frames**, numbered
+**000–021**, checked in the complete contact sheet and native
+frame pages. No objectionable palette flicker, steel banding or dither noise
+appeared in the sequence. One global palette and no dithering keep the
+background corner exactly constant in every frame. Quantization audit:
+**0.235/255** mean RGB error; worst full-frame 99th
+percentile **4/255**. This measures palette loss,
+not mechanism correctness.
+
+Timing audit: **960×447**, **20 Hz**,
+**254 distinct palette entries** (allocation 256),
+**257,807 bytes**. Source samples at 60 Hz: **Fire 0, 3, …, 63**.
+Motion samples have **50 ms** delays, with **500 ms** added only
+to the first delay; decoded loop duration is **1,600 ms**.
+Two complete `make gif` runs returned identical shipped bytes. The documented
+recipe fingerprint and per-frame numeric comparison retain the approved GIF
+only for negligible GPU rounding; fresh candidates are retained for inspection.
+
+Evidence stays under `build/gif/`: `report.json`, `palette-audit.json`,
+`contact-sheet.jpg`, `review/frames-*.jpg`, full PNGs and `candidate.gif`.
+`playback.html` provides the continuous authored-speed loop. This headless
+review inspected decoded frames and audited real-speed delays; continuous
+visual playback was unavailable in this session. The committed image is
+`docs/motion.gif`; the README names the clip below it.

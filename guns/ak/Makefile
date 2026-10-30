@@ -151,3 +151,5 @@ renders/final/metal-control/hero.png: build/metal-control/export/ak.glb $(RENDER
 metal-control: render renders/final/metal-control/hero.png build/value-geometry.npz src/metal_difference.py
 	$(PYTHON) src/metal_difference.py
 review: metal-control
+
+include ../common/gif.mk

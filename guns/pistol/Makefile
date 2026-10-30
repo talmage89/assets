@@ -114,3 +114,5 @@ sections: $(EXPORTS) build/sculpt.blend src/sections.py
 	$(BP) --python src/sections.py -- --source export/pistol.glb --high build/sculpt.blend --out renders/final/sections
 clean:
 	$(PYTHON) -c "import shutil; [shutil.rmtree(p,ignore_errors=True) for p in ('build','textures','export','renders')]"
+
+include ../common/gif.mk
