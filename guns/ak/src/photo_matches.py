@@ -257,6 +257,17 @@ PHOTO_VIEWS['used_photo']=dict(
  ((.0175,-.035,.050),(612,352),1),((.0175,.220,.086),(1270,228),1),
  ((.0175,.220,.050),(1270,323),1),((0,.595,.085),(2215,275),.5),
  ((0,-.285,.035),(55,363),.5)])
+# Sparse planar landmarks admitted the old under-gun camera. Keep that form
+# camera; report this observed elevated direction's larger residual explicitly.
+PHOTO_VIEWS['paint_studio_photo']=dict(
+ title='Independent current studio photograph / paint and unchanged finishes',
+ photo='studio-polish.jpg',crop=(100,650,3980,1900),
+ location=(3,.15,.35),target=(0,.10,.075),fixed_view=True,lens=100,
+ lens_bounds_mm=(50,350),exposure=-.3,
+ landmarks=[((.0175,-.035,.086),(1235,965),1),
+ ((.0175,-.035,.05),(1235,1120),1),((.0175,.220,.086),(2348,940),1),
+ ((.0175,.220,.05),(2348,1083),1),((0,.595,.085),(3900,990),.5),
+ ((0,-.285,.035),(190,1215),.5)])
 PHOTO_VIEWS['retainer_photo']=dict(
  title='Flat fitted lower-handguard cap / independent oblique-front photograph',
  photo='retainer-sharp.jpg',crop=(680,460,2760,2650),
@@ -271,3 +282,8 @@ for name, description in PHOTO_VIEWS.items():
     row['landmarks'] = [dict(world=world, pixel=pixel, weight=weight)
                         for world, pixel, weight in row['landmarks']]
     MATCHES[name] = row
+
+# Separate paint comparison; existing form/studio/GIF cameras stay unchanged.
+MATCHES['paint_used_photo']=dict(MATCHES['used_photo'],
+ title='Used paint / constrained elevated side view and unchanged finish anchors',
+ location=(3,.10,.40),target=(0,.15,.06),fixed_view=True)

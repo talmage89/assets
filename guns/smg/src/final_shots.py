@@ -6,6 +6,8 @@ FINAL_STAGE=True
 RENDER_STAGE='final exported GLB with canonical baked 2048 PBR maps'
 DEFAULT_SHOTS='hero,hero_right,front,side,back,top,receiver,handle,sights,front_sight,lower,aimed,locked,scale'
 SHOTS={**FORM_SHOTS,
+ 'projection_lower':dict(location=(-.24,.16,.09),target=(0,.045,.044),lens=80,aspect=1.4),
+ 'projection_barrel':dict(location=(-.17,.57,.18),target=(0,.386,.095),lens=80,aspect=1.4),
  'hero':dict(location=(-1.16,.57,.45),target=(0,.06,.035),lens=63,aspect=2),
  'hero_right':dict(location=(1.2,.61,.49),target=(0,.06,.035),lens=63,aspect=2),
  'back':dict(location=(0,-1.3,.035),target=(0,.06,.035),ortho=.30,aspect=1,rear_light=True),
@@ -20,7 +22,9 @@ PHOTO_POSES={'right_photo':dict(daylight=1),'left_photo':dict(daylight=-1),
  'locked_photo':dict(daylight=-1,action='ReloadEmpty',frame=90,hide_detached_mag=True),'trigger_photo':dict(daylight=-1),
  'used_photo':dict(daylight=-1)}
 for shot in PHOTO_POSES.values():shot.setdefault('action','Idle');shot.setdefault('frame',0)
-for _name in ['left_photo', 'locked_photo']:
+PHOTO_POSES['paint_issued_photo']=dict(daylight=-1,action='ReloadEmpty',frame=90,hide_detached_mag=True,paint_photo='paint_issued_photo')
+PHOTO_POSES['paint_studio_photo']=dict(daylight=-1,action='Idle',frame=0)
+for _name in ['paint_studio_photo', 'locked_photo']:
  PHOTO_POSES[_name]['paint_photo']=_name
 STRIP_SHOT={**STRIP_SHOT,'exposure':-.15}
 
@@ -53,8 +57,8 @@ def configure_scene(scene,source):
    assert (cam.matrix_world.translation-eye.translation).length<1e-7
    assert ((cam.matrix_world.to_3x3()@Vector((0,0,-1))).normalized()-(eye.to_3x3()@Vector((0,1,0))).normalized()).length<1e-7
  bpy.app.handlers.render_pre.append(gray_socket)
- setup={'Key softbox':((.60,.15,.78),35,.55,1.25),
- 'Camera fill':((-.65,.22,.45),15,.65,1.1),
+ setup={'Key softbox':((.60,.15,.78),18,.55,1.25),
+ 'Camera fill':((-.65,.22,.45),4,.65,1.1),
  'Right rim strip':((-.18,.85,.55),13,.14,1.0),
  'Left rim strip':((-.45,-.20,.35),5,.15,.70),
  'Overhead reflection card':((0,.15,.75),5,.30,.8)}
@@ -79,7 +83,7 @@ def prepare_shot(scene,shot):
  floor=scene.objects['Studio seamless'];floor.scale=(10,10,10) if isscale else (1,1,1);floor.location.z=0 if isscale else scene['source_floor']
  floor.rotation_euler.z=math.pi if isscale else 0
  scene.objects['Scale fill'].hide_render=not isscale
- bg=scene.world.node_tree.nodes['Background'];bg.inputs['Strength'].default_value=.8 if shot.get('daylight') else .18
+ bg=scene.world.node_tree.nodes['Background'];bg.inputs['Strength'].default_value=.8 if shot.get('daylight') else .045
  for ob in scene.objects:
   if ob.get('human_scale'):ob.hide_render=not isscale
   if ob.get('bake_only') or ob.name in ('Case_Proof','Cartridge_Proof') or ob.name.startswith('HIGH_'):ob.hide_render=True
@@ -109,7 +113,7 @@ def prepare_shot(scene,shot):
   target=Vector((0,.025,0)) if shot.get('shell_light') else Vector((0,.06,1.02 if isscale else .06))
   ob.rotation_euler=(target-ob.location).to_track_quat('-Z','Y').to_euler()
 
-# Comparison-only physical lighting; accepted hero/GIF studio stays fixed.
+# Photo light rigs apply only to their calibrated views; the family studio serves heroes and GIFs.
 _prepare_paint_base=prepare_shot
 def prepare_shot(scene,shot):
  _prepare_paint_base(scene,shot)

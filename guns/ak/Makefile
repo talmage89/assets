@@ -22,9 +22,9 @@ TEXTURES := $(addprefix textures/T_Rill39_,BaseColor.png Normal.png ORM.png)
 EXPORTS := $(addprefix export/,ak.glb magazine_loaded.glb magazine_empty.glb cartridge.glb case.glb)
 SUBSET_LAYOUTS := $(addprefix build/delivery/detachables/,magazine_loaded/layout.json magazine_empty/layout.json cartridge/layout.json case/layout.json)
 comma := ,
-FINAL_SHOTS := hero,hero_right,front,side,back,top,receiver,cover_rear,controls,rear_sight,rear_ortho_side,front_sight,gas_muzzle,gas_ortho_side,retainer,retainer_side,wood,grip_stock,grip_detail,trigger,open,aimed,magazine,scale
+FINAL_SHOTS := hero,hero_right,front,side,back,top,receiver,cover_rear,controls,rear_sight,rear_ortho_side,front_sight,gas_muzzle,gas_ortho_side,retainer,retainer_side,wood,grip_stock,grip_detail,trigger,open,aimed,magazine,scale,projection_insert
 FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(FINAL_SHOTS)))) renders/final/beauty/shots.json
-PHOTO_SHOTS := right_photo,left_photo,receiver_photo,trigger_photo,trigger_sharp,rear_sight_side,rear_sight_photo,rear_sight_sharp,front_sight_photo,front_sight_behind,front_sight_installed,gas_block_photo,grip_photo,trigger_guard,topcover_side,topcover_top,topcover_sharp,selector_photo,used_photo,retainer_photo
+PHOTO_SHOTS := paint_studio_photo,paint_used_photo,right_photo,left_photo,receiver_photo,trigger_photo,trigger_sharp,rear_sight_side,rear_sight_photo,rear_sight_sharp,front_sight_photo,front_sight_behind,front_sight_installed,gas_block_photo,grip_photo,trigger_guard,topcover_side,topcover_top,topcover_sharp,selector_photo,used_photo,retainer_photo
 PAIRS := $(addprefix renders/final/pairs/,$(addsuffix -pair.jpg,$(subst $(comma), ,$(PHOTO_SHOTS))))
 RENDER_DEPS := src/final_render.py src/final_shots.py src/shots.py src/paint_lights.json ../common/paint_review.py src/delivery.py ../common/render.py build/render-parameters.txt
 .PHONY: all refs model prepare lookdev bake export check check-repo check-bake-identity verify render match source-match strips extra review docs sections clean FORCE
@@ -83,7 +83,7 @@ $(FINAL_IMAGES) &: $(EXPORTS) $(RENDER_DEPS)
 renders/final/eevee/hero.png renders/final/eevee/shots.json &: $(EXPORTS) $(RENDER_DEPS)
 	$(KIT)/with_gpu.sh $(BP) --python src/final_render.py -- --source export/ak.glb --out renders/final/eevee --engine BLENDER_EEVEE --width $(WIDTH) --samples 64 --shots hero
 render: $(FINAL_IMAGES) renders/final/eevee/hero.png
-build/cameras.json: src/calibrate.py src/photo_matches.py src/reference.py refs/SOURCES.md
+build/cameras.json: src/calibrate.py src/photo_matches.py src/reference.py ../common/photo_matches.py refs/SOURCES.md
 	$(PYTHON) src/reference.py
 	$(PYTHON) src/calibrate.py
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration $@

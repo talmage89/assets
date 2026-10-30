@@ -1,25 +1,25 @@
 {
   "studio_receiver": {
-    "shot": "right_photo",
-    "photo": "museum.jpg",
-    "neutral": "museum.jpg",
+    "shot": "paint_studio_photo",
+    "photo": "studio-polish.jpg",
+    "neutral": "studio-polish.jpg",
     "polygons": [
       [
         [
-          580,
-          162
+          1235,
+          965
         ],
         [
-          1136,
-          153
+          2348,
+          940
         ],
         [
-          1137,
-          229
+          2348,
+          1083
         ],
         [
-          581,
-          243
+          1235,
+          1120
         ]
       ]
     ],
@@ -27,6 +27,799 @@
       "Receiver_Sheet",
       "Receiver_Rivet",
       "Selector_"
-    ]
+    ],
+    "anchors": [
+      {
+        "role": "stock_wood",
+        "photo": "studio-polish.jpg",
+        "prefixes": [
+          "Stock_Sculpt"
+        ],
+        "polygons": [
+          [
+            [
+              206,
+              1021
+            ],
+            [
+              773,
+              1009
+            ],
+            [
+              1024,
+              1034
+            ],
+            [
+              1210,
+              971
+            ],
+            [
+              1217,
+              1105
+            ],
+            [
+              745,
+              1314
+            ],
+            [
+              204,
+              1404
+            ]
+          ]
+        ],
+        "outer_surface": true
+      },
+      {
+        "role": "lower_wood",
+        "photo": "studio-polish.jpg",
+        "prefixes": [
+          "LowerHandguard_Sculpt"
+        ],
+        "polygons": [
+          [
+            [
+              2374,
+              934
+            ],
+            [
+              2980,
+              932
+            ],
+            [
+              2980,
+              1030
+            ],
+            [
+              2725,
+              1070
+            ],
+            [
+              2425,
+              1093
+            ],
+            [
+              2375,
+              1061
+            ]
+          ]
+        ],
+        "outer_surface": true
+      },
+      {
+        "role": "upper_wood",
+        "photo": "studio-polish.jpg",
+        "prefixes": [
+          "UpperHandguard_Sculpt"
+        ],
+        "polygons": [
+          [
+            [
+              2573,
+              830
+            ],
+            [
+              2973,
+              836
+            ],
+            [
+              2973,
+              895
+            ],
+            [
+              2574,
+              895
+            ]
+          ]
+        ],
+        "outer_surface": true
+      },
+      {
+        "role": "phenolic",
+        "photo": "studio-polish.jpg",
+        "prefixes": [
+          "PistolGrip_Sculpt"
+        ],
+        "polygons": [
+          [
+            [
+              1330,
+              1145
+            ],
+            [
+              1534,
+              1140
+            ],
+            [
+              1543,
+              1200
+            ],
+            [
+              1472,
+              1261
+            ],
+            [
+              1380,
+              1525
+            ],
+            [
+              1321,
+              1549
+            ],
+            [
+              1278,
+              1526
+            ],
+            [
+              1286,
+              1434
+            ],
+            [
+              1358,
+              1234
+            ]
+          ]
+        ],
+        "outer_surface": true
+      },
+      {
+        "role": "magazine",
+        "photo": "studio-polish.jpg",
+        "prefixes": [
+          "Magazine_Sheet",
+          "Magazine_Fold"
+        ],
+        "polygons": [
+          [
+            [
+              1954,
+              1132
+            ],
+            [
+              2135,
+              1120
+            ],
+            [
+              2185,
+              1282
+            ],
+            [
+              2260,
+              1428
+            ],
+            [
+              2484,
+              1661
+            ],
+            [
+              2370,
+              1810
+            ],
+            [
+              2205,
+              1684
+            ],
+            [
+              2075,
+              1468
+            ],
+            [
+              2002,
+              1282
+            ]
+          ]
+        ]
+      },
+      {
+        "role": "barrel",
+        "photo": "studio-polish.jpg",
+        "prefixes": [
+          "Barrel"
+        ],
+        "polygons": [
+          [
+            [
+              3340,
+              975
+            ],
+            [
+              3690,
+              976
+            ],
+            [
+              3690,
+              998
+            ],
+            [
+              3340,
+              997
+            ]
+          ]
+        ],
+        "bounds": {
+          "y_min": 0.455,
+          "y_max": 0.535
+        }
+      },
+      {
+        "role": "neutral_backdrop",
+        "photo": "studio-polish.jpg",
+        "polygons": [
+          [
+            [
+              3300,
+              1600
+            ],
+            [
+              3600,
+              1600
+            ],
+            [
+              3600,
+              1750
+            ],
+            [
+              3300,
+              1750
+            ]
+          ]
+        ],
+        "render_polygons": [
+          [
+            [
+              0.825,
+              0.76
+            ],
+            [
+              0.9,
+              0.76
+            ],
+            [
+              0.9,
+              0.88
+            ],
+            [
+              0.825,
+              0.88
+            ]
+          ]
+        ]
+      },
+      {
+        "role": "stock_upper",
+        "photo": "studio-polish.jpg",
+        "prefixes": [
+          "Stock_Sculpt"
+        ],
+        "bounds": {
+          "y_min": -0.235,
+          "y_max": -0.175,
+          "z_min": 0.06,
+          "z_max": 0.075
+        },
+        "polygons": [
+          [
+            [
+              410,
+              1044
+            ],
+            [
+              681,
+              1040
+            ],
+            [
+              683,
+              1097
+            ],
+            [
+              414,
+              1109
+            ]
+          ]
+        ],
+        "outer_surface": true
+      },
+      {
+        "role": "stock_lower",
+        "photo": "studio-polish.jpg",
+        "prefixes": [
+          "Stock_Sculpt"
+        ],
+        "bounds": {
+          "y_min": -0.235,
+          "y_max": -0.175,
+          "z_min": 0.018,
+          "z_max": 0.043
+        },
+        "polygons": [
+          [
+            [
+              414,
+              1174
+            ],
+            [
+              685,
+              1136
+            ],
+            [
+              686,
+              1231
+            ],
+            [
+              416,
+              1283
+            ]
+          ]
+        ],
+        "outer_surface": true
+      },
+      {
+        "role": "lower_wood_upper",
+        "photo": "studio-polish.jpg",
+        "prefixes": [
+          "LowerHandguard_Sculpt"
+        ],
+        "bounds": {
+          "y_min": 0.245,
+          "y_max": 0.33,
+          "z_min": 0.066,
+          "z_max": 0.078
+        },
+        "polygons": [
+          [
+            [
+              2450,
+              941
+            ],
+            [
+              2850,
+              938
+            ],
+            [
+              2850,
+              983
+            ],
+            [
+              2450,
+              996
+            ]
+          ]
+        ],
+        "outer_surface": true
+      },
+      {
+        "role": "lower_wood_lower",
+        "photo": "studio-polish.jpg",
+        "prefixes": [
+          "LowerHandguard_Sculpt"
+        ],
+        "bounds": {
+          "y_min": 0.245,
+          "y_max": 0.33,
+          "z_min": 0.045,
+          "z_max": 0.06
+        },
+        "polygons": [
+          [
+            [
+              2455,
+              1034
+            ],
+            [
+              2850,
+              1011
+            ],
+            [
+              2850,
+              1052
+            ],
+            [
+              2456,
+              1091
+            ]
+          ]
+        ],
+        "outer_surface": true
+      }
+    ],
+    "backdrop": {
+      "albedo": 0.8,
+      "distance": 0.028,
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "point": [
+        -0.028,
+        0,
+        0
+      ]
+    }
+  },
+  "used_observed_camera": {
+    "shot": "paint_used_photo",
+    "photo": "early.jpg",
+    "neutral": "early.jpg",
+    "polygons": [
+      [
+        [
+          615,
+          248
+        ],
+        [
+          1262,
+          232
+        ],
+        [
+          1260,
+          320
+        ],
+        [
+          615,
+          350
+        ]
+      ]
+    ],
+    "prefixes": [
+      "Receiver_Sheet",
+      "Receiver_Rivet",
+      "Selector_"
+    ],
+    "anchors": [
+      {
+        "role": "stock_wood",
+        "photo": "early.jpg",
+        "prefixes": [
+          "Stock_Sculpt"
+        ],
+        "polygons": [
+          [
+            [
+              52,
+              264
+            ],
+            [
+              408,
+              266
+            ],
+            [
+              488,
+              284
+            ],
+            [
+              606,
+              254
+            ],
+            [
+              603,
+              348
+            ],
+            [
+              357,
+              431
+            ],
+            [
+              57,
+              491
+            ]
+          ]
+        ],
+        "outer_surface": true
+      },
+      {
+        "role": "lower_wood",
+        "photo": "early.jpg",
+        "prefixes": [
+          "LowerHandguard_Sculpt"
+        ],
+        "polygons": [
+          [
+            [
+              1273,
+              236
+            ],
+            [
+              1650,
+              237
+            ],
+            [
+              1654,
+              312
+            ],
+            [
+              1301,
+              341
+            ],
+            [
+              1273,
+              315
+            ]
+          ]
+        ],
+        "outer_surface": true
+      },
+      {
+        "role": "upper_wood",
+        "photo": "early.jpg",
+        "prefixes": [
+          "UpperHandguard_Sculpt"
+        ],
+        "polygons": [
+          [
+            [
+              1408,
+              157
+            ],
+            [
+              1651,
+              161
+            ],
+            [
+              1653,
+              214
+            ],
+            [
+              1410,
+              213
+            ]
+          ]
+        ],
+        "outer_surface": true
+      },
+      {
+        "role": "magazine",
+        "photo": "early.jpg",
+        "prefixes": [
+          "Magazine_Sheet",
+          "Magazine_Fold"
+        ],
+        "polygons": [
+          [
+            [
+              976,
+              340
+            ],
+            [
+              1132,
+              335
+            ],
+            [
+              1140,
+              413
+            ],
+            [
+              1176,
+              499
+            ],
+            [
+              1261,
+              613
+            ],
+            [
+              1336,
+              651
+            ],
+            [
+              1263,
+              748
+            ],
+            [
+              1191,
+              710
+            ],
+            [
+              1094,
+              602
+            ],
+            [
+              1026,
+              483
+            ]
+          ]
+        ]
+      },
+      {
+        "role": "barrel",
+        "photo": "early.jpg",
+        "prefixes": [
+          "Barrel"
+        ],
+        "polygons": [
+          [
+            [
+              1930,
+              253
+            ],
+            [
+              2080,
+              253
+            ],
+            [
+              2080,
+              274
+            ],
+            [
+              1930,
+              275
+            ]
+          ]
+        ],
+        "bounds": {
+          "y_min": 0.476,
+          "y_max": 0.534
+        }
+      },
+      {
+        "role": "neutral_backdrop",
+        "photo": "early.jpg",
+        "polygons": [
+          [
+            [
+              760,
+              475
+            ],
+            [
+              895,
+              475
+            ],
+            [
+              895,
+              550
+            ],
+            [
+              760,
+              550
+            ]
+          ]
+        ],
+        "render_polygons": [
+          [
+            [
+              0.35,
+              0.55
+            ],
+            [
+              0.4,
+              0.55
+            ],
+            [
+              0.4,
+              0.65
+            ],
+            [
+              0.35,
+              0.65
+            ]
+          ]
+        ]
+      },
+      {
+        "role": "neutral_upper_cloth",
+        "photo": "early.jpg",
+        "polygons": [
+          [
+            [
+              1450,
+              110
+            ],
+            [
+              1570,
+              110
+            ],
+            [
+              1570,
+              140
+            ],
+            [
+              1450,
+              140
+            ]
+          ]
+        ],
+        "render_polygons": [
+          [
+            [
+              0.6418769366976538,
+              0.014492753623188406
+            ],
+            [
+              0.6949977866312528,
+              0.014492753623188406
+            ],
+            [
+              0.6949977866312528,
+              0.057971014492753624
+            ],
+            [
+              0.6418769366976538,
+              0.057971014492753624
+            ]
+          ]
+        ]
+      },
+      {
+        "role": "neutral_lower_cloth",
+        "photo": "early.jpg",
+        "polygons": [
+          [
+            [
+              400,
+              540
+            ],
+            [
+              530,
+              540
+            ],
+            [
+              530,
+              580
+            ],
+            [
+              400,
+              580
+            ]
+          ]
+        ],
+        "render_polygons": [
+          [
+            [
+              0.17706949977866313,
+              0.6376811594202898
+            ],
+            [
+              0.23461708720672864,
+              0.6376811594202898
+            ],
+            [
+              0.23461708720672864,
+              0.6956521739130435
+            ],
+            [
+              0.17706949977866313,
+              0.6956521739130435
+            ]
+          ]
+        ],
+        "region_correction": "Original candidate overlapped the olive sling and was rejected on visual inspection; this polygon is unprinted cloth to its right."
+      }
+    ],
+    "backdrop": {
+      "albedo": 0.8,
+      "distance": 0.028,
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "point": [
+        -0.028,
+        0,
+        0
+      ]
+    },
+    "excluded_incompatible_finishes": {
+      "grip": "Reference has wooden grip; asset has molded phenolic. These are different materials, not interchangeable light anchors."
+    },
+    "neutral_method": "White balance on local cloth under receiver; all three unprinted white cloth regions independently constrain spatial warm/cool light colors and energies."
   }
 }

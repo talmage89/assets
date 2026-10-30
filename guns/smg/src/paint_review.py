@@ -7,4 +7,6 @@ from guns.common.paint_review import audit
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--renders',default='renders/final/photos');p.add_argument('--out',default='renders/final/paint-review');p.add_argument('--preview',action='store_true');p.add_argument('--check',action='store_true');a=p.parse_args()
  rows=audit(BASE,BASE/a.renders,BASE/a.out,a.preview)
- if a.check:assert rows and all(r['within_requested_bounds'] for r in rows.values()),'Receiver paint outside photographic bounds'
+ if a.check:
+  assert rows and all(r.get('light_fit_within_requested_bounds',False) for r in rows.values()),'Independent nonpaint light anchors outside photographic bounds'
+  assert all(r['within_requested_bounds'] for r in rows.values()),'Receiver paint outside photographic bounds'

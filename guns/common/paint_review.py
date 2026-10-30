@@ -2,11 +2,12 @@
 
 Observations select complete visible receivers independently of image color.
 Nothing in this module supplies a texture or modeling input. Camera/light
-recipes remain member-owned; hero and animation studios are untouched.
+recipes remain member-owned. Unfitted shots use the Harrow's neutral world.
 """
 import hashlib
 import json
 import math
+from functools import lru_cache
 from pathlib import Path
 
 import numpy as np
@@ -86,11 +87,73 @@ def raster(geo, shot, width, height):
     return owner, uv
 
 
+@lru_cache(maxsize=12)
+def cached_raster(base, recipe, width, height, positions=False, outer=False):
+    geo=geometry(Path(base))
+    if positions:geo['uv']=geo['xyz'][:,:,[1,2]]
+    if outer:
+        # Compare the photographed outside of a U-shaped molding. Its visible
+        # inner channel is a different surface and can otherwise occupy the
+        # same object-ID/height band as the exterior photo region.
+        tri=geo['xyz'];normal=np.cross(tri[:,1]-tri[:,0],tri[:,2]-tri[:,0])
+        eligible=normal[:,0]*tri.mean(1)[:,0]>1e-12
+        geo['ids']=np.where(eligible,geo['ids'],0)
+    return raster(geo,json.loads(recipe),width,height)
+
+
 def masks(base, spec, shot, width, height):
+    if 'render_polygons' in spec:
+        mask=Image.new('L',(width,height));draw=ImageDraw.Draw(mask)
+        for p in spec['render_polygons']:
+            draw.polygon([(x*width,y*height) for x,y in p],fill=255)
+        return erode(np.asarray(mask)>0),None
     geo = geometry(base)
-    ids, uv = raster(geo, shot, width, height)
+    # Camera-only key: light recipes can contain diagnostic metadata.
+    recipe=json.dumps({k:shot[k] for k in ('location','target','lens','roll') if k in shot},sort_keys=True)
+    ids, uv = cached_raster(str(base),recipe,width,height)
     selected = [i+1 for i, n in enumerate(geo['names']) if str(n).startswith(tuple(spec['prefixes']))]
-    return erode(np.isin(ids, selected)), uv
+    mask=np.isin(ids,selected)
+    if spec.get('outer_surface'):
+        mask &= cached_raster(str(base),recipe,width,height,False,True)[0]>0
+    if spec.get('bounds'):
+        positions=cached_raster(str(base),recipe,width,height,True)[1]
+        for axis,index in (('y',0),('z',1)):
+            mask &= positions[:,:,index]>=spec['bounds'].get(axis+'_min',-math.inf)
+            mask &= positions[:,:,index]<spec['bounds'].get(axis+'_max',math.inf)
+    return erode(mask), uv
+
+
+def photographic_backdrop(scene,shot,description=None):
+    """Comparison-only neutral card behind the asset, illuminated by the fit.
+
+    Its assumed reflectance and distance are explicit, never a painted image
+    or a camera-ray emission. No backdrop is included in game delivery.
+    """
+    import bpy
+    from mathutils import Vector
+    key='Photographic neutral backing'
+    ob=scene.objects.get(key)
+    if not description:
+        if ob:ob.hide_render=True
+        return
+    if ob is None:
+        mesh=bpy.data.meshes.new(key)
+        mesh.from_pydata([(-2,-2,0),(2,-2,0),(2,2,0),(-2,2,0)],[],[(0,1,2,3)])
+        ob=bpy.data.objects.new(key,mesh);scene.collection.objects.link(ob);ob['studio']=True
+        mat=bpy.data.materials.new(key);mat.use_nodes=True
+        ob.data.materials.append(mat)
+    ob.hide_render=False
+    target=Vector((0,.10,.06));direction=(Vector(shot['location'])-Vector(shot['target'])).normalized()
+    ob.location=target-direction*description['distance']
+    ob.rotation_euler=direction.to_track_quat('Z','Y').to_euler()
+    if description.get('horizontal'):
+        ob.location=(0,.10,description['height']);ob.rotation_euler=(0,0,0)
+    if description.get('normal'):
+        ob.location=description['point']
+        ob.rotation_euler=Vector(description['normal']).to_track_quat('Z','Y').to_euler()
+    bs=ob.data.materials[0].node_tree.nodes.get('Principled BSDF')
+    value=description['albedo'];bs.inputs['Base Color'].default_value=(*(value if isinstance(value,list) else [value]*3),1)
+    bs.inputs['Roughness'].default_value=.95;bs.inputs['Specular IOR Level'].default_value=.2
 
 
 def reference(base, spec):
@@ -144,7 +207,9 @@ def audit(base, folder, out, preview=False):
             for anchor in spec['anchors']:
                 selected,_=masks(base,anchor,shot,rgb.shape[1],rgb.shape[0])
                 ref,rm=reference(base,anchor)
-                row['unchanged_finish_anchors'].append(dict(render=metrics(rgb[selected]),photo=metrics(ref[rm]),observation=anchor))
+                ar,ap=metrics(rgb[selected]),metrics(ref[rm]);ae,passed_anchor=comparison(ar,ap)
+                row['unchanged_finish_anchors'].append(dict(render=ar,photo=ap,relative_errors=ae,within_requested_bounds=passed_anchor,observation=anchor))
+            row['light_fit_within_requested_bounds']=all(a['within_requested_bounds'] for a in row['unchanged_finish_anchors'])
         rows[name] = row
         canvas = Image.new('RGB',(1800,850),'#e7e9e6'); draw = ImageDraw.Draw(canvas)
         draw.text((25,15), base.name.upper()+' / '+name+' / '+('SOURCE PREVIEW' if preview else 'EXPORTED GLB'),font=font,fill='black')
@@ -166,18 +231,22 @@ def apply_lights(scene, shot, base):
     """One physical, whole-scene rig per photograph; never applies to heroes."""
     import bpy
     from mathutils import Vector
+    # Harrow's ordinary studio is neutral, including after a colored photo
+    # rig. Reset every shot so its appearance never depends on render order.
+    bg = scene.world.node_tree.nodes['Background']
+    bg.inputs['Color'].default_value = (.25,.25,.25,1)
     for ob in scene.objects:
         if ob.type == 'LIGHT' and ob.name.startswith('Paint photographic card'):
             ob.data.energy = 0
     path = Path(base) / 'src/paint_lights.json'
     fits = json.loads(path.read_text()) if path.exists() else {}
     fit = fits.get(shot.get('paint_photo'))
+    photographic_backdrop(scene,shot,fit.get('backdrop') if fit else None)
     if not fit:
         return
     for ob in scene.objects:
         if ob.type == 'LIGHT':
             ob.data.energy = 0
-    bg = scene.world.node_tree.nodes['Background']
     bg.inputs['Strength'].default_value = fit['world']
     bg.inputs['Color'].default_value = (*[.25*c for c in fit['color']],1)
     for i, card in enumerate(fit['lights']):
@@ -187,6 +256,6 @@ def apply_lights(scene, shot, base):
             data=bpy.data.lights.new(key,'AREA');data.shape='RECTANGLE'
             ob=bpy.data.objects.new(key,data);scene.collection.objects.link(ob)
         ob.hide_render=False;ob.location=card['position'];ob.data.energy=card['power']
-        ob.data.size,ob.data.size_y=card['size'];ob.data.color=fit['color']
+        ob.data.size,ob.data.size_y=card['size'];ob.data.color=card.get('color',fit['color'])
         ob.rotation_euler=(Vector(card.get('target',(0,.10,.09)))-ob.location).to_track_quat('-Z','Y').to_euler()
     shot['physical_paint_photo_lights'] = fit

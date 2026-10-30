@@ -44,3 +44,14 @@ MATCHES={
    ((-2.9,72,44),(2154,978),1),((-2.9,56.75,27.5),(2188,1070),1),
    ((-2.9,49.625,26.375),(2226,1070),1),((0,65.98,8.72),(2177,1159),1)]]),
 }
+
+# Original staged photograph; preserve the inherited form-comparison camera.
+MATCHES["paint_studio_photo"]=dict(MATCHES["left_photo"],
+ title="Original staged photo / independent nonpaint light anchors",photo=str(BASE/"refs/studio-original.jpg"))
+
+# Independent paint camera: observed near-side view; historical form cameras stay intact.
+MATCHES["paint_issued_photo"]=dict(MATCHES["locked_photo"],
+ title="Issued paint / constrained observed side view",fixed_view=True,
+ location=(-3.,.70,.50),target=(0,.10,.09),lens=300,lens_bounds_mm=(300,300))
+MATCHES["paint_issued_photo"]["landmarks"]=[dict(r,world=[r['world'][0],.3625,r['world'][2]])
+ if abs(r['world'][1]-.3405)<1e-6 else dict(r) for r in MATCHES["paint_issued_photo"]["landmarks"]]
