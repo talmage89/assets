@@ -223,7 +223,44 @@
             ]
           ]
         ],
-        "outer_surface": true
+        "outer_surface": true,
+        "excluded_polygons": [
+          [
+            [
+              335,
+              478
+            ],
+            [
+              331,
+              489
+            ],
+            [
+              320,
+              493
+            ],
+            [
+              309,
+              489
+            ],
+            [
+              305,
+              478
+            ],
+            [
+              309,
+              467
+            ],
+            [
+              320,
+              463
+            ],
+            [
+              331,
+              467
+            ]
+          ]
+        ],
+        "exclusion_reason": "Separate metal handguard fastener, absent from the rendered Handguard_Mold object-ID mask; no polymer highlight is selected by color."
       },
       {
         "role": "lower",
@@ -277,7 +314,150 @@
         ],
         "bounds": {
           "z_min": 0.045
-        }
+        },
+        "excluded_polygons": [
+          [
+            [
+              1031,
+              582
+            ],
+            [
+              1036,
+              563
+            ],
+            [
+              1055,
+              549
+            ],
+            [
+              1076,
+              548
+            ],
+            [
+              1102,
+              524
+            ],
+            [
+              1114,
+              522
+            ],
+            [
+              1119,
+              530
+            ],
+            [
+              1118,
+              541
+            ],
+            [
+              1105,
+              551
+            ],
+            [
+              1086,
+              566
+            ],
+            [
+              1091,
+              583
+            ],
+            [
+              1083,
+              608
+            ],
+            [
+              1072,
+              626
+            ],
+            [
+              1058,
+              632
+            ],
+            [
+              1046,
+              624
+            ],
+            [
+              1044,
+              608
+            ],
+            [
+              1034,
+              601
+            ]
+          ],
+          [
+            [
+              922,
+              647
+            ],
+            [
+              916,
+              663
+            ],
+            [
+              900,
+              669
+            ],
+            [
+              884,
+              663
+            ],
+            [
+              878,
+              647
+            ],
+            [
+              884,
+              631
+            ],
+            [
+              900,
+              625
+            ],
+            [
+              916,
+              631
+            ]
+          ],
+          [
+            [
+              1122,
+              586
+            ],
+            [
+              1145,
+              586
+            ],
+            [
+              1145,
+              612
+            ],
+            [
+              1122,
+              612
+            ]
+          ],
+          [
+            [
+              1093,
+              621
+            ],
+            [
+              1125,
+              621
+            ],
+            [
+              1125,
+              649
+            ],
+            [
+              1093,
+              649
+            ]
+          ]
+        ],
+        "exclusion_reason": "Separate selector lever and front push pin, plus red control ink; the anchor measures polymer rather than those different materials. All lower-molding area outside these explicit components is retained."
       },
       {
         "role": "grip",
@@ -484,7 +664,44 @@
             ]
           ]
         ],
-        "outer_surface": true
+        "outer_surface": true,
+        "excluded_polygons": [
+          [
+            [
+              335,
+              478
+            ],
+            [
+              331,
+              489
+            ],
+            [
+              320,
+              493
+            ],
+            [
+              309,
+              489
+            ],
+            [
+              305,
+              478
+            ],
+            [
+              309,
+              467
+            ],
+            [
+              320,
+              463
+            ],
+            [
+              331,
+              467
+            ]
+          ]
+        ],
+        "exclusion_reason": "Separate metal handguard fastener, absent from the rendered Handguard_Mold object-ID mask; no polymer highlight is selected by color."
       },
       {
         "role": "handguard_lower",
@@ -518,7 +735,44 @@
             ]
           ]
         ],
-        "outer_surface": true
+        "outer_surface": true,
+        "excluded_polygons": [
+          [
+            [
+              335,
+              478
+            ],
+            [
+              331,
+              489
+            ],
+            [
+              320,
+              493
+            ],
+            [
+              309,
+              489
+            ],
+            [
+              305,
+              478
+            ],
+            [
+              309,
+              467
+            ],
+            [
+              320,
+              463
+            ],
+            [
+              331,
+              467
+            ]
+          ]
+        ],
+        "exclusion_reason": "Separate metal handguard fastener, absent from the rendered Handguard_Mold object-ID mask; no polymer highlight is selected by color."
       }
     ],
     "backdrop": {
@@ -631,7 +885,44 @@
             ]
           ]
         ],
-        "outer_surface": true
+        "outer_surface": true,
+        "excluded_polygons": [
+          [
+            [
+              937,
+              289
+            ],
+            [
+              930,
+              307
+            ],
+            [
+              912,
+              314
+            ],
+            [
+              894,
+              307
+            ],
+            [
+              887,
+              289
+            ],
+            [
+              894,
+              271
+            ],
+            [
+              912,
+              264
+            ],
+            [
+              930,
+              271
+            ]
+          ]
+        ],
+        "exclusion_reason": "Separate metal handguard fastener, absent from the rendered Handguard_Mold object-ID mask; no polymer highlight is selected by color."
       },
       {
         "role": "handguard_upper",
@@ -665,7 +956,44 @@
             ]
           ]
         ],
-        "outer_surface": true
+        "outer_surface": true,
+        "excluded_polygons": [
+          [
+            [
+              937,
+              289
+            ],
+            [
+              930,
+              307
+            ],
+            [
+              912,
+              314
+            ],
+            [
+              894,
+              307
+            ],
+            [
+              887,
+              289
+            ],
+            [
+              894,
+              271
+            ],
+            [
+              912,
+              264
+            ],
+            [
+              930,
+              271
+            ]
+          ]
+        ],
+        "exclusion_reason": "Separate metal handguard fastener, absent from the rendered Handguard_Mold object-ID mask; no polymer highlight is selected by color."
       },
       {
         "role": "handguard_lower",
@@ -699,7 +1027,44 @@
             ]
           ]
         ],
-        "outer_surface": true
+        "outer_surface": true,
+        "excluded_polygons": [
+          [
+            [
+              937,
+              289
+            ],
+            [
+              930,
+              307
+            ],
+            [
+              912,
+              314
+            ],
+            [
+              894,
+              307
+            ],
+            [
+              887,
+              289
+            ],
+            [
+              894,
+              271
+            ],
+            [
+              912,
+              264
+            ],
+            [
+              930,
+              271
+            ]
+          ]
+        ],
+        "exclusion_reason": "Separate metal handguard fastener, absent from the rendered Handguard_Mold object-ID mask; no polymer highlight is selected by color."
       },
       {
         "role": "lower_cheek",
@@ -902,7 +1267,44 @@
             ]
           ]
         ],
-        "outer_surface": true
+        "outer_surface": true,
+        "excluded_polygons": [
+          [
+            [
+              937,
+              289
+            ],
+            [
+              930,
+              307
+            ],
+            [
+              912,
+              314
+            ],
+            [
+              894,
+              307
+            ],
+            [
+              887,
+              289
+            ],
+            [
+              894,
+              271
+            ],
+            [
+              912,
+              264
+            ],
+            [
+              930,
+              271
+            ]
+          ]
+        ],
+        "exclusion_reason": "Separate metal handguard fastener, absent from the rendered Handguard_Mold object-ID mask; no polymer highlight is selected by color."
       },
       {
         "role": "handguard_upper",
@@ -936,7 +1338,44 @@
             ]
           ]
         ],
-        "outer_surface": true
+        "outer_surface": true,
+        "excluded_polygons": [
+          [
+            [
+              937,
+              289
+            ],
+            [
+              930,
+              307
+            ],
+            [
+              912,
+              314
+            ],
+            [
+              894,
+              307
+            ],
+            [
+              887,
+              289
+            ],
+            [
+              894,
+              271
+            ],
+            [
+              912,
+              264
+            ],
+            [
+              930,
+              271
+            ]
+          ]
+        ],
+        "exclusion_reason": "Separate metal handguard fastener, absent from the rendered Handguard_Mold object-ID mask; no polymer highlight is selected by color."
       },
       {
         "role": "handguard_lower",
@@ -970,7 +1409,44 @@
             ]
           ]
         ],
-        "outer_surface": true
+        "outer_surface": true,
+        "excluded_polygons": [
+          [
+            [
+              937,
+              289
+            ],
+            [
+              930,
+              307
+            ],
+            [
+              912,
+              314
+            ],
+            [
+              894,
+              307
+            ],
+            [
+              887,
+              289
+            ],
+            [
+              894,
+              271
+            ],
+            [
+              912,
+              264
+            ],
+            [
+              930,
+              271
+            ]
+          ]
+        ],
+        "exclusion_reason": "Separate metal handguard fastener, absent from the rendered Handguard_Mold object-ID mask; no polymer highlight is selected by color."
       },
       {
         "role": "lower_cheek",

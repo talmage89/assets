@@ -162,6 +162,11 @@ def reference(base, spec):
     draw = ImageDraw.Draw(mask)
     for polygon in spec['polygons']:
         draw.polygon([tuple(p) for p in polygon], fill=255)
+    # A separate lever, fastener or ink can occlude a photographed material.
+    # Object-ID masks exclude those components in the render; explicitly
+    # outlined holes make the reference describe the same material.
+    for polygon in spec.get('excluded_polygons', []):
+        draw.polygon([tuple(p) for p in polygon], fill=0)
     return photo, erode(np.asarray(mask) > 0)
 
 

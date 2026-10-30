@@ -177,6 +177,13 @@ The receiver audit can also report broad height regions and unchanged-finish
 lighting anchors. These retain independent spatial evidence: a whole-part
 histogram pass does not imply that either diagnostic matches. Both the failed
 spatial observations and the main requested bounds remain in the JSON.
+Reference anchors can specify `excluded_polygons` for separately identified
+components that the corresponding render object-ID mask does not contain.
+The Relay's polymer anchors exclude metal fasteners, the selector lever and
+red control ink. These holes are drawn from component boundaries, never RGB
+thresholds. The magazine's real bright stripe remains measured. All anchor
+roles and all comparison tolerances are retained after the region correction;
+the corrected fits still fail.
 
 `paint_trials.py` renders fixed-light roughness/specular grids, labeled
 `REVIEW ONLY`. Its partial-film estimate is diagnostic. It cannot accept a
