@@ -137,12 +137,6 @@ MATCHES['aimed_reference']=spec('aimed-film-candidate',(210,170,740,440),
  ((0,775.4,53),(266,212),1),((12.6,115,57.35),(567,271),1),
  ((-12.6,115,57.35),(511,303),1),((0,94,49),(576,298),.7),
  ((0,5,24),(685,374),.4)])
-MATCHES['breech_reference']=spec('breech',(430,270,1020,730),
- 'Open breech / Commons photographic reference',(.35,-.08,.35),(0,.13,.045),[
- (opened((12.6,105,44),-42),(789,356),1),
- (opened((-12.6,105,44),-42),(752,428),1),
- ((12.6,115,57.35),(665,315),1),((-12.6,115,57.35),(647,378),1),
- ((0,94,49),(596,305),.5)])
 for name,row in MATCHES.items():
  if name not in ('left','right'):
   row.update(lens=150,lens_bounds_mm=(150,150),locked_view=True)

@@ -20,7 +20,20 @@ def main():
   ('aimed-pair','aimed','aimed_reference','Exact Socket_Eye / accepted 45 mm camera'),
   ('open-player-pair','open','open','Exact open player view / accepted camera'),
   ('open-breech-pair','open','breech_reference','Exact open player view / Commons comparison')]:
-  assert meta[player]['sha256']==digest and photos[reference]['sha256']==digest
+  assert meta[player]['sha256']==digest
+  if reference=='breech_reference':
+   raw=Image.open(OUT/'beauty'/(player+'.png')).convert('RGBA')
+   photo=Image.open(BASE/'refs/breech.jpg').convert('RGB').crop((860,500,2100,1530))
+   sheet=Image.new('RGB',(2400,1080),(238,239,236));draw=ImageDraw.Draw(sheet)
+   draw.text((18,12),label,font=FONT,fill=(22,38,29))
+   for im,x in [(raw,0),(photo,1200)]:
+    panel=Image.new('RGBA',(1200,920),(88,91,95,255));im=ImageOps.contain(im,(1200,920),Image.Resampling.LANCZOS).convert('RGBA')
+    panel.alpha_composite(im,((1200-im.width)//2,(920-im.height)//2));sheet.paste(panel.convert('RGB'),(x,65))
+   draw.text((18,1010),'Player open view / Commons reference: different camera, sidelock exterior and opening angle; compare the single standing face and upper corners.',font=SMALL,fill=(35,49,41))
+   sheet.save(OUT/'pairs'/(filename+'.jpg'),quality=94,optimize=True)
+   records.append(dict(pair=filename,player_shot=player,photo='refs/breech.jpg',source_sha256=digest,photo_sha256=hashlib.sha256((BASE/'refs/breech.jpg').read_bytes()).hexdigest()))
+   continue
+  assert photos[reference]['sha256']==digest
   raw=Image.open(OUT/'beauty'/(player+'.png')).convert('RGBA')
   row=calibration[reference];photo=Image.open(row['photo']).convert('RGB').crop(row['crop'])
   matched=Image.open(OUT/'pairs'/(reference+'-pair.jpg')).convert('RGB')

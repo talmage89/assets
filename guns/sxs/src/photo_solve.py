@@ -21,7 +21,7 @@ def fixed_view(source):
  points=np.array([r['world'] for r in source['landmarks']]);target=np.array([r['pixel'] for r in source['landmarks']])-[x,y]
  weights=np.sqrt(np.array([r['weight'] for r in source['landmarks']]))
  direction=np.array(source['target'])-source['location'];direction/=np.linalg.norm(direction)
- az=math.atan2(direction[1],direction[0]);el=math.asin(direction[2]);initial=np.array([az,el,*source['location'],0.0]);p=initial.copy()
+ az=math.atan2(direction[1],direction[0]);el=math.asin(direction[2]);initial=np.array([az,el,*source['location'],source.get('roll',0.0)]);p=initial.copy()
  def projection(q):return project(np.array([*q[:5],math.log(150),q[5]]),points,w,h)
  def residual(q):
   uv,depth,_=projection(q)

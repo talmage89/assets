@@ -71,7 +71,7 @@ def main():
  gray(OUT/'beauty/hero.png').save(OUT/'hero-gray.jpg',quality=94,optimize=True)
  review_sheet([beauty[i:i+2] for i in range(0,len(beauty),2)],OUT/'contact-sheet.jpg',width=2400,title='Covey 26 / FORM CHECKPOINT / imported baked 2048 GLB')
  for i in range(0,len(beauty),4):review_sheet([beauty[j:j+2] for j in range(i,min(i+4,len(beauty)),2)],OUT/(f'review-page-{i//4+1}.jpg'),width=2400,title='Current exported form / '+', '.join(names[i:i+4]))
- pairs=[OUT/'pairs'/(name+'-pair.jpg') for name in ('right','left','action','action_left','action_top','action_bottom','open','barrel_flats','forend','forend_side','trigger','aimed_reference','breech_reference')]
+ pairs=[OUT/'pairs'/(name+'-pair.jpg') for name in ('right','left','action','action_left','action_top','action_bottom','open','barrel_flats','forend','forend_side','trigger','aimed_reference')]
  review_sheet([[p] for p in pairs],OUT/'photo-pairs.jpg',title='Class photographs / same calibrated framing / see native resolution limits')
  contact([OUT/'strips'/(name+'.jpg') for name in timing],OUT/'clips.jpg',width=2400,title='19 clips / uniform 15 Hz frames / adjacent WebPs play at real durations')
  wide=json.loads((OUT/'opening-wide/shots.json').read_text())
