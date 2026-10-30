@@ -3,7 +3,9 @@ import sys
 from pathlib import Path
 import bpy
 ROOT=Path(__file__).resolve().parents[3];sys.path.insert(0,str(ROOT))
+sys.path.insert(0,str(Path(__file__).parent))
 from kit import weapon as W,model as M
+from normal_sources import ground_sides
 BASE=Path(__file__).resolve().parents[1]
 bpy.ops.wm.open_mainfile(filepath=str(BASE/'build/sxs.blend'))
 arm=next(o for o in bpy.context.scene.objects if o.type=='ARMATURE');W.pose(arm,'Idle',0)
@@ -13,6 +15,7 @@ for high in [o for o in bpy.data.objects if o.get('bake_only') and o.get('low_ta
  # The archived cage was copied before the reduced mesh's shading pass.
  # Use continuous sculpt normals rather than the cage's inherited flat faces.
  if low.name!='Action_Body':M.smooth(low,45)
+ else:ground_sides(low)
  if low.name=='Forend_Walnut':
   # Preserve the routed lower land after recomputing source smoothness too.
   normals=[n.vector.copy() for n in low.data.corner_normals]

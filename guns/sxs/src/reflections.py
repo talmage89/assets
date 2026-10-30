@@ -39,6 +39,7 @@ def world_bands(sc, orientation):
 def main():
     p = argparse.ArgumentParser(); p.add_argument('--source', required=True); p.add_argument('--out', required=True)
     p.add_argument('--width', type=int, default=1440); p.add_argument('--samples', type=int, default=32)
+    p.add_argument('--roughness', type=float, default=.045)
     p.add_argument('--views', default=','.join(VIEWS)); p.add_argument('--orientations', default='transverse,longitudinal')
     a = p.parse_args(sys.argv[sys.argv.index('--') + 1:]); source = Path(a.source).resolve()
     out = Path(a.out).resolve(); out.mkdir(parents=True, exist_ok=True)
@@ -67,7 +68,7 @@ def main():
                 assert texture.type=='TEX_IMAGE' and tuple(texture.image.size)==(2048,2048)
                 retained_normal=True;normal_image=texture.image.name
             for key, value in [('Base Color', (.6, .6, .6, 1) if head else (.025, .025, .025, 1)),
-                               ('Metallic', 1 if head else 0), ('Roughness', .045 if head else .85)]:
+                               ('Metallic', 1 if head else 0), ('Roughness', a.roughness if head else .85)]:
                 socket = bs.inputs[key]
                 for link in list(socket.links): mat.node_tree.links.remove(link)
                 socket.default_value = value
@@ -93,7 +94,7 @@ def main():
             metadata[name+'-'+orientation] = dict(shot, source=str(source), sha256=hashlib.sha256(source.read_bytes()).hexdigest(),
                 normal_map_retained=retained_normal,normal_image=normal_image,
                 camera_matrix_world=[list(row) for row in cam.matrix_world],resolution=[sc.render.resolution_x,sc.render.resolution_y],
-                diagnostic_roughness=.045, environment='parallel bright bands, sin(32*unit_direction.'+('Y' if orientation=='transverse' else 'X')+')')
+                diagnostic_roughness=a.roughness, environment='parallel bright bands, sin(32*unit_direction.'+('Y' if orientation=='transverse' else 'X')+')')
     (out/'shots.json').write_text(json.dumps(metadata, indent=2))
 
 if __name__ == '__main__': main()

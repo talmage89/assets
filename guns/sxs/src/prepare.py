@@ -5,6 +5,7 @@ import bpy
 BASE=Path(__file__).resolve().parents[1];ROOT=BASE.parents[1]
 sys.path.insert(0,str(ROOT));sys.path.insert(0,str(BASE/'src'))
 from kit import finalize,weapon as W
+from normal_sources import ground_sides
 
 def main():
  out=BASE/'build/delivery';out.mkdir(parents=True,exist_ok=True)
@@ -47,6 +48,7 @@ def main():
   low=bpy.data.objects[high['low_target']];low.data=high.data.copy()
   low.vertex_groups.clear();g=low.vertex_groups.new(name=low['bone']);g.add(list(range(len(low.data.vertices))),1,'REPLACE')
   bpy.data.objects.remove(high,do_unlink=True)
+ side_normals=ground_sides(bpy.data.objects['Action_Body'])
  # Kit bake channel interface, entirely original constant inspection values.
  for mat in {m for ob in bpy.context.scene.objects if ob.type=='MESH' for m in ob.data.materials}:
   nt=mat.node_tree;bs=nt.nodes.get('Principled BSDF');bs.name='SURFACE'
@@ -57,5 +59,5 @@ def main():
  bpy.context.scene['stage']='Original dense sources; constant form bake, finishes held'
  bpy.ops.wm.save_as_mainfile(filepath=str(out/'high.blend'))
  (out/'prepare.json').write_text(json.dumps(dict(source_sha256=hashlib.sha256((BASE/'build/sxs.blend').read_bytes()).hexdigest(),
-  stage='form normal bake; no finish or wear acceptance'),indent=2))
+  stage='form normal bake; no finish or wear acceptance',source_ground_side_normals=side_normals),indent=2))
 if __name__=='__main__':main()

@@ -49,6 +49,8 @@ def main():
  assert 25000<=count<=39000,count
  assert len(data.json['materials'])==1 and len(data.json['images'])==3
  for i in range(3):assert Image.open(io.BytesIO(data.image(i))).size==(2048,2048)
+ png_bits=[data.image(i)[24] for i in range(3)]
+ assert sorted(png_bits)==[8,8,16],png_bits
  baked=json.loads((BASE/'build/baked/4k/bake-report.json').read_text())
  assert baked['size']==4096 and baked['samples']>=32 and baked['device']=='GPU'
  for name,digest in baked['source_sha256'].items():
@@ -77,7 +79,7 @@ def main():
   W.pose(arm,clip,f);error=V.surface_delta(target,V.surface_points(imported));assert error<3e-6,(clip,f,error)
   errors.append(dict(clip=clip,frame=f,error_m=error))
  result=dict(passed=True,stage='baked form checkpoint; finish and wear held',uv=imported_uv,bake_size=4096,ship_size=2048,sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
-  triangles=count,materials=len(data.json['materials']),textures=3,glb_bytes=path.stat().st_size,projection_ownership=ownership,
+  triangles=count,materials=len(data.json['materials']),textures=3,texture_png_bits=png_bits,glb_bytes=path.stat().st_size,projection_ownership=ownership,
   bones=len(arm.data.bones),clips=len(CLIPS),sockets=len(sockets),parts=len(parts),bounds_m=bounds,
   dimensions_mm=((np.array(bounds[1])-bounds[0])*1000).tolist(),measured_parts_mm=dims,length_of_pull_mm=pull*1000,
   normals=normals,affine_samples=len(affine),max_position_error_m=max(r['position_delta_m'] for r in affine),

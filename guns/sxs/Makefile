@@ -33,7 +33,7 @@ $(MODEL) &: $(MODEL_DEPS) ../../kit/model.py ../../kit/weapon.py
 	@mkdir -p build $(TMPDIR)
 	$(BP) --python src/build.py -- --out build/sxs.blend > build/model.log 2>&1
 model: $(MODEL)
-$(PREPARED) &: $(MODEL) src/prepare.py src/config.py ../../kit/finalize.py ../../kit/uv.py
+$(PREPARED) &: $(MODEL) src/prepare.py src/normal_sources.py src/config.py ../../kit/finalize.py ../../kit/uv.py
 	$(BP) --python src/prepare.py > build/prepare.log 2>&1
 prepare: $(PREPARED)
 build/bake-parameters.txt: FORCE
@@ -42,8 +42,9 @@ build/bake-parameters.txt: FORCE
 $(BAKED) &: $(PREPARED) src/config.py src/bake_form.py build/bake-parameters.txt ../../kit/bake.py ../../kit/bake_groups.py
 	$(KIT)/with_gpu.sh $(BP) --python src/bake_form.py -- --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES) > build/bake.log 2>&1
 bake: $(BAKED)
-$(TEXTURES) &: $(BAKED) ../../kit/downsample.py
+$(TEXTURES) &: $(BAKED) ../../kit/downsample.py src/ship_normal.py
 	$(PYTHON) $(KIT)/downsample.py --source build/baked/4k --out textures --asset Covey26 --size $(SHIP_SIZE)
+	$(PYTHON) src/ship_normal.py
 export/sxs.glb &: $(TEXTURES) $(PREPARED) src/config.py ../../kit/export.py
 	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset Covey26 --config src/config.py --out $@ --report build/delivery/export.json > build/export.log 2>&1
 export: export/sxs.glb
