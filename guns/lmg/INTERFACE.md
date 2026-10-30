@@ -90,4 +90,5 @@ Loaded/empty boxes embed lossless 1024 subsets; cartridge, fired case and
 link use 512. The kit's texture-size path moves original atlas neighborhoods
 without reducing density or resampling. All retain the main gun's trilinear
 mipmapped sampler. See the local README and family DETACHABLES contract.
-These look-round outputs remain for review; no docs JPGs are provided yet.
+The finished README shows exported-GLB docs JPGs and the real-speed Reload GIF;
+the generated comparison and validation evidence remains local and ignored.

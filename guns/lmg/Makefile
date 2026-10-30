@@ -136,3 +136,12 @@ finish-report: review
 renders/final/reflection-trial/used_photo.png: $(EXPORTS) build/cameras.json src/reflection_trial.py $(RENDER_DEPS)
 	$(KIT)/with_gpu.sh $(BP) --python src/reflection_trial.py -- --source export/lmg.glb --out renders/final/reflection-trial --camera-file build/cameras.json --width $(WIDTH) --samples $(SAMPLES) --shots used_photo
 reflection-trial: renders/final/reflection-trial/used_photo.png
+
+.PHONY: docs
+all: docs
+renders/final/docs-feed/belt_laid.png: $(EXPORTS) $(RENDER_DEPS) src/docs_render.py
+	$(KIT)/with_gpu.sh $(BP) --python src/docs_render.py -- --source export/lmg.glb --out renders/final/docs-feed --width $(WIDTH) --samples $(SAMPLES) --shots belt_laid
+docs: review renders/final/docs-feed/belt_laid.png src/docs.py
+	$(PYTHON) src/docs.py
+
+include ../common/gif.mk

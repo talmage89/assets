@@ -1272,3 +1272,157 @@ The receiver control's small neighboring rim footprint is measured and
 documented, not dismissed as generic bake noise. Family paint measurements
 use unchanged precedent exports; the separate family decision stays with
 the owner. No docs JPGs or kit/common/family-asset changes are introduced.
+
+## Finals and README — 2026-10-30, composition review
+
+Merged main into `wp/guns-lmg` before this round. The accepted form, materials,
+wear, 64-bone rig, 19 clips, contacts, clearance and texture delivery are frozen.
+Saved hashes of all six exported GLBs and the three canonical maps before
+running the final build; the documentation scripts introduce only cameras,
+sheets and JPG encoding. No kit or common implementation is changed.
+
+Color/value first: opened both exported hero engines, the open-cover view,
+loaded belt close-up and the existing calibrated used-receiver / black-paint
+pairs. The gray studio neutral is shared with the final docs. The photographic
+pairs retain their own recorded gray-backdrop / shadow-paper neutral estimates;
+no new photographic white balance or material adjustment is introduced.
+Black paint stays dark, distinct from the grayer furniture; tray and receiver
+cavities remain deep. Broad highlights retain rolloff. Brass, copper and green
+tips remain distinct. The fine molding filtering and stock-scuff limitations
+accepted in look round 2 are retained, rather than silently changed here.
+
+The action JPG combines the full open-cover pose with a new closer Cycles
+view of Reload frame 264: the cover underside is in frame and the rounds and
+links rest on the tray before closing. The other panels give the exact Eye
+macro and the existing 1.8-m scale silhouette. Turnaround is front/side/back/top;
+details are rear sight, barrel/carrying handle, molded furniture and belt.
+All panels are hash-checked renders of the actual baked GLB. The separate
+`renders/final/docs-contact-sheet.jpg` includes all 23 final beauty stills,
+the Eevee hero and the new loaded-tray view.
+
+The first GIF framing clipped the raised cover, so it was rejected in clay.
+The wider framing retained the complete gun and motion, but the full 960-pixel
+encode was 1,263,756 bytes; even 640 pixels was 708,992. Both were rejected,
+not committed. A tighter receiver/feed camera spends pixels on the cover,
+links, belt and box rather than the static muzzle and butt. Its six framing
+poses were opened together to confirm cover and withdrawn-box clearance from
+the image boundaries. Static muzzle/stock ends may leave this intentional
+mechanism crop; moving cover, belt and box must remain inside it.
+
+Reload is preferred over Fire: six seconds expose the cover opening, belt
+withdrawal, box exchange, laid-belt pause and closing; the .20-s firing clip
+would make those relationships much harder to read. No animation edits,
+retiming or added hand/effect motion are used. Compression trials preserve
+all 120 samples at 20 Hz; the shared tool adds its standard first-frame hold.
+
+## Finals — delivered GIF frame and palette review
+
+The tighter portrait trial was also rejected: at 576×703 with 256 allocated
+colors it cost 1,290,055 bytes. More of the animated cover and box occupied the
+image. Return to the landscape camera, retaining the entire gun and the full
+moving envelope, and ship a 480×384 encode with a 192-entry allocation.
+`make -C guns/lmg gif` passes with **392,971 bytes**, **120 frames at 20 Hz**
+and **189 distinct palette entries**. Source samples are Reload 0, 3, …, 357;
+550 ms on the first frame and 50 ms on each remaining frame give **6,500 ms**.
+No motion, rate or clip span was removed. The source GLB SHA-256 remains
+`d7ec92c1e4a3b0c701c84e334c2e707ea267cc3b94ee1015318c075f70c29d35`.
+
+Opened all fifteen native decoded-frame pages, indices 000–119, frame by frame.
+The latch release is small but present. The cover opens smoothly to its hold;
+the belt lifts and withdraws before the box moves down; the replacement seats;
+the belt returns across the tray, pauses laid, and the cover closes before the
+latch settles. No part pops across a clip join: this is one complete Reload.
+The foreground mask (more than eight encoded levels from the flat background)
+retains at least 27 pixels of image margin. The train's
+gold and green accents make withdrawal and laying legible at delivery size;
+individual link construction is clearer in the docs close-ups. Fine detail is
+softer in this small GIF, an explicit tradeoff for retaining the full motion.
+
+Color/value first: compared the decoded sequence with the Cycles and Eevee
+docs. Paint retains a black body and satin highlight, the stock remains grayer,
+and brass/copper/green tips retain their hue. There is no visible palette
+switch, objectionable paint banding or moving gray-background noise in the
+frame pages. Every decoded corner is exactly RGB **111/114/118** throughout.
+The member's accepted opaque camera background supplies that gray; the shared
+tool's fallback composite is behind it. There is one global palette and no
+dithering. Against the corresponding resized RGB renders, object pixels have
+mean absolute channel error **.929 encoded levels**, and the largest per-frame
+99th-percentile channel error is **8**. Two fixed handguard/stock patches have
+mean temporal channel standard deviation **.017 / .031 levels**, with maximum
+range 4; their unquantized values are .016 / .032. These numbers support the
+frame review rather than replace it.
+
+The actual GIF was decoded at speed 1 by headless mpv: exit zero after 6.614 s,
+including process startup, consistent with the exact 6.500-s container timing.
+**Continuous visual playback could not be watched in this headless environment.**
+There is no display or visual browser tool. Do not describe the timing audit
+or frame pages as a real-speed visual watch. The actual looping file is linked
+by `build/gif/playback.html`; that continuous visual check remains for the lead.
+The numerical/frame audit is `build/finals-lmg/gif-audit.json` at repository
+root; per-gun provenance is `build/gif/report.json`.
+
+Two complete `make -C guns/lmg gif` runs pass with identical delivered bytes:
+`b8d7b51c14f2c7201f9bc471a9cbc0485895e04c5e1b640a30f16fe13da16566`.
+The shared tool freshly rendered and encoded the second candidate, checked
+its unchanged recipe/geometry signature, and compared all 120 decoded frames.
+This time every decoded component was identical: maximum frame mean, maximum
+component difference and fraction over two levels are all zero. Its explicit
+canonical-byte comparison retained the first delivery. The first/repeat
+reports and logs remain under the root `build/finals-lmg/` folder.
+
+## Finals — build, final JPG review and preservation proof
+
+The complete presentation rebuild and the final default build including the
+new docs target both exit zero. The separate `make -C guns/lmg check` exits
+zero. Logs at repository root: `build/finals-lmg/make.log`,
+`make-with-docs.log` and `check.log`. The refreshed final presentation audit
+passes **98 GLB-verified native renders / 273 entries / 23 pages**, all twelve
+finish tolerances and the cover reflection profile (17.14% versus 16.44%).
+The accepted atlas, contact, clearance, nineteen clips and five subset checks
+remain in that delivery. `python3 -m unittest guns.common.test_gif` passes
+all four fixtures. `python3 kit/repo_check.py` passes with zero errors.
+
+Opened every refreshed review page 01–23 and the contact index, then reopened
+all five final docs JPGs. Color/value first: paint remains black with restrained
+satin reflections; molded furniture retains its own grayer values; recesses
+and cover/tray cavities remain dark. Highlights roll off. The new action
+close-up exposes the loaded tray and cover underside without clipping the
+raised cover. The exact Eye macro and scale panel remain the accepted views.
+The JPG compression introduces no objectionable new contour or tonal artifact.
+No new form, material, wear, bake or motion flaw was found. The existing fine
+molding filtering, quieter stock scuffs, estimated neutrals and variant
+construction differences remain explicitly documented.
+
+| Final docs file | Pixels | Bytes |
+| --- | --- | ---: |
+| hero.jpg | 1600×865 | 93,093 |
+| turnaround.jpg | 1600×1040 | 112,306 |
+| action.jpg | 1600×1300 | 193,818 |
+| details.jpg | 1600×1200 | 199,491 |
+| eevee.jpg | 1600×865 | 94,676 |
+| motion.gif | 480×384 | 392,971 |
+
+`build/docs-report.json` records JPG encoding settings, hashes and GLB/engine/
+pose provenance. `renders/final/docs-contact-sheet.jpg` gathers the 25 studio
+stills including the loaded-tray addition; `renders/final/contact-sheet.jpg`
+retains the complete accepted comparison index. These generated paths stay
+ignored. The README has the hero/GIF and four-sheet gallery, dimensions with
+sources, construction/parts, measured finishes and wear, rig/socket tables,
+all nineteen clip durations, belt integration, budgets/detachables, rebuild
+commands and credits/limitations. All local README and family-index targets
+resolve, with generated evidence named as paths rather than broken links.
+
+All six GLBs and three canonical PNGs remain **byte-identical** to the saved
+handoff hashes in root `build/finals-lmg/accepted-files.json`. Main allocation
+is unchanged: **47,638 triangles, one material, three 2048 maps, 14,579,528 GLB
+bytes**, canonical PNG total **10,016,210 bytes**. Raw GLB JSON independently
+shows **one skinned body plus 33 rigid belt nodes**, three unique meshes and
+one skin. The README records that instance inventory; one material does not
+imply one engine draw. Each standalone is one mesh node / one material.
+
+Only presentation scripts, the opt-in shared GIF target/config, docs and
+member/family documentation change. No kit/common implementation, accepted
+asset implementation, material, wear field or other gun implementation is
+changed. Nothing is pushed or merged into main. The one outstanding review
+item is the continuous real-speed visual watch described above; all frame,
+container-timing and headless speed-1 checks are complete.
