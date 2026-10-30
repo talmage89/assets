@@ -16,12 +16,15 @@ BASE=Path(__file__).resolve().parents[1]
 FONT=ImageFont.truetype(find_font('Noto Sans','Regular'),20)
 SMALL=ImageFont.truetype(find_font('Noto Sans','Regular'),16)
 def diagnostic(row):
- p=np.array(row['projected_pixels']);q=np.array(row['measured_pixels']);c=p.mean(0);d=q.mean(0)
- # Least-squares translation/scale/roll correction in the review image only.
- a=p-c;b=q-d;den=(a*a).sum();aa=(a*b).sum()/den;bb=(a[:,0]*b[:,1]-a[:,1]*b[:,0]).sum()/den
+ p=np.array(row['projected_pixels']);q=np.array(row['measured_pixels'])
+ count=row.get('camera_fit_landmark_count',len(p));rigid=p[:count];observed=q[:count]
+ c=rigid.mean(0);d=observed.mean(0)
+ # Similarity statistics use the rigid calibration points only. Joint curves
+ # remain in the separate residual vectors; they never refit framing.
+ a=rigid-c;b=observed-d;den=(a*a).sum();aa=(a*b).sum()/den;bb=(a[:,0]*b[:,1]-a[:,1]*b[:,0]).sum()/den
  mat=np.array([[aa,-bb],[bb,aa]]);fit=a@mat.T+d
  rms=lambda x:float(np.sqrt(np.mean((x*x).sum(axis=1))))
- count=row.get('camera_fit_landmark_count',len(p));total=rms((p-q)[:count]);local=rms((fit-q)[:count]);coherent=math.sqrt(max(0,total**2-local**2))
+ total=rms(rigid-observed);local=rms(fit-observed);coherent=math.sqrt(max(0,total**2-local**2))
  return dict(rms_native_px=total,after_similarity_px=local,coherent_component_px=coherent,
   translation_native_px=(d-c).tolist(),scale=float(math.hypot(aa,bb)),roll_deg=math.degrees(math.atan2(bb,aa)),
   assessment='framing dominant' if coherent>local*1.4 else 'mixed framing/form' if coherent>local*.7 else 'local form/observation dominant',

@@ -78,7 +78,9 @@ def append_head_landmarks(rows):
    measured=np.array(pixel)-row['crop'][:2]
    t=np.clip(np.sum((measured-a)*v,axis=1)/np.maximum(np.sum(v*v,axis=1),1e-12),0,1)
    pts=a+t[:,None]*v;errors=np.linalg.norm(pts-measured,axis=1);i=int(errors.argmin());u=t[i]
-   wp=edges[i,0]*(1-u)+edges[i,1]*u;depth=float(depths[2*i]*(1-u)+depths[2*i+1]*u)
+   # Perspective-correct world fraction corresponding to image fraction u.
+   da,db=depths[2*i:2*i+2];lam=float(u*da/((1-u)*db+u*da))
+   wp=edges[i,0]*(1-lam)+edges[i,1]*lam;depth=float(da*(1-lam)+db*lam)
    scale=w*shot['lens']/36/depth*.001;error=float(errors[i])
    label=f'wood joint curve {index+1}'
    outlines.append(dict(name=label,kind='wood joint',world_mm=(wp*1000).tolist(),observed_original_pixel=pixel,

@@ -77,6 +77,7 @@ def main():
   section_sign_changes={kind:[dict(direction=r['direction'],station_mm=r['station_mm'],count=r['sign_change_count']) for r in curvature[kind]] for kind in ('dense','export')},
   unassigned_dense_section_events=sum(e['construction_feature'].startswith('unassigned') for r in curvature['dense'] for e in r['sign_changes']),
   scope='Mechanical/build verification is separate. Source bands and named section features require explicit REVIEW.md critique; failed photographic gates remain failed.')
+ acceptance['full_form_passed']=bool(acceptance['camera_gate_passed'] and acceptance['outline_gate_passed'] and acceptance['unassigned_dense_section_events']==0)
  (BASE/'build/round7-acceptance.json').write_text(json.dumps(acceptance,indent=2))
  print('PHOTOGRAPHIC GATES: camera',acceptance['camera_gate_passed'],'outline',acceptance['outline_gate_passed'])
  records=stats['imported_contacts']['records']
@@ -99,7 +100,7 @@ def main():
  raw=np.array(Image.open(OUT/'beauty/hero.png').convert('RGBA'));rgb=raw[:,:,:3][raw[:,:,3]>128];lum=rgb@np.array([.2126,.7152,.0722])
  tone=dict(luma_p1_p50_p99=np.percentile(lum,[1,50,99]).tolist(),deep_shadow_fraction=float((lum<15).mean()),
   all_channel_clipped_fraction=float(np.all(rgb==255,axis=1).mean()),scope='inspection constants; no albedo/finish acceptance')
- (OUT/'audit.json').write_text(json.dumps(dict(passed=True,source_sha256=digest,current_render_records=current,clips=len(timing),hero_tone=tone),indent=2))
+ (OUT/'audit.json').write_text(json.dumps(dict(passed=True,scope='fresh export evidence and mechanical checks; form acceptance remains separate in build/round7-acceptance.json',source_sha256=digest,current_render_records=current,clips=len(timing),hero_tone=tone),indent=2))
  readme=BASE/'README.md';text=readme.read_text();a=text.index('<!-- CHECKPOINT_STATS -->');b=text.index('<!-- /CHECKPOINT_STATS -->')
  lines=['<!-- CHECKPOINT_STATS -->','', '| Inspection output | Triangles | GLB bytes |','| --- | ---: | ---: |',
   f"| Gun, all staged alternatives | {stats['triangles']:,} | {stats['glb_bytes']:,} |"]
