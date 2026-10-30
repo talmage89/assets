@@ -76,8 +76,19 @@ def action_roof(x,y):
   e=.02;z=front_arc_8(x,8);background=head_base_6(x,107)
   a=max(0,z-background);slope=(front_arc_8(x,8+e)-front_arc_8(x,8-e))/(2*e)
   curvature=(front_arc_8(x,8+e)-2*z+front_arc_8(x,8-e))/e**2
-  c1=max(0,min(a,a+slope*length/5))
-  c2=max(0,min(c1,a+2*slope*length/5+curvature*length**2/20))
+  # Choose the longest interval with ordered positive controls, while
+  # retaining the measured starting derivatives. Clamping a control would
+  # create a tangent break beside the Z55.59 center fill.
+  initial=length;lo=0;hi=length
+  for _ in range(24):
+   trial=(lo+hi)*.5
+   c1=a+slope*trial/5
+   c2=a+2*slope*trial/5+curvature*trial**2/20
+   if a>=c1>=c2>=0:lo=trial
+   else:hi=trial
+  length=max(.00001,lo)
+  c1=a+slope*length/5
+  c2=a+2*slope*length/5+curvature*length**2/20
   _HEAD_PROFILES[key]=(length,a,c1,c2)
  length,a,c1,c2=_HEAD_PROFILES[key];t=max(0,min(1,(d-8)/length));u=1-t
  return base+a*u**5+5*c1*t*u**4+10*c2*t*t*u**3
@@ -352,7 +363,7 @@ def lever_recess_R590():
 
  One closed cutter avoids the tangent intersection of a cylinder and a
  separate swept hull. Its floor is Z48 at the boss, falling .22 mm/mm
- rearward. The R0.60 upper lip is cut after this single Boolean.
+ rearward. The R0.60 upper lip is integral to this cutter.
  """
  r=5.9
  outline=[(r*math.cos(t),94+r*math.sin(t)) for t in [math.pi*i/64 for i in range(65)]]
