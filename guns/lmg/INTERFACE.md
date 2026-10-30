@@ -78,12 +78,16 @@ on evaluated surfaces at every ready clip endpoint. They are not a working
 sear; no bolt lugs, firing pin or operative feed cam is provided. Cover/box seating and visible
 motion are checked separately from export serialization.
 
-## Delivery gate
+## Baked delivery
 
-Current GLBs in `build/` carry one inspection material with the original
-inspection colors in vertex attributes, with no textures or
-production-delivery claim. Final look-dev will use the kit atlas/export path:
-one canonical 2048 set, plus loaded/empty boxes at lossless 1024 and individual
-cartridge/case/link subsets at 512 through `texture_size`. Packing must fail
-rather than lower density. See [DETACHABLES](../DETACHABLES.md). This checkpoint
-does not claim those not-yet-baked subsets exist.
+The main GLB now carries one canonical 2048 BaseColor / OpenGL +Y Normal /
+ORM set, baked at 4096. Its opaque BaseColor alpha retains the per-surface
+specular factor through KHR_materials_specular. Keep that extension and each
+imported material/sampler. The accepted 64 bones, twelve sockets, nineteen
+clips and complete box spawn frame remain.
+
+Loaded/empty boxes embed lossless 1024 subsets; cartridge, fired case and
+link use 512. The kit's texture-size path moves original atlas neighborhoods
+without reducing density or resampling. All retain the main gun's trilinear
+mipmapped sampler. See the local README and family DETACHABLES contract.
+These look-round outputs remain for review; no docs JPGs are provided yet.

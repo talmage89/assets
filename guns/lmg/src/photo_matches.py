@@ -58,3 +58,10 @@ MATCHES['box_detail_photo']=dict(title='Molded box / rim, ribs, catch and receiv
  landmarks=[L((-60,207,38),(230,220)),L((-60,121,38),(415,236)),
  L((60,121,38),(750,166)),L((48,123,-118),(706,805)),
  L((-48,205,-118),(280,748)),L((-48,123,-118),(490,877))])
+
+# Issued finishes. These camera observations are comparison-only.
+MATCHES['used_photo']=dict(title='Used receiver / gray-balanced backdrop',photo=str(BASE/'build/white-balanced/used_receiver.jpg'),crop=(0,0,1800,1174),location=(-1.0,.1,.29),target=(0,.10,.090),lens=100,lens_bounds_mm=(50,180),landmarks=[L((-24,-50,120),(1480,450)),L((-24,236,120),(490,440)),L((-24,-50,54),(1430,690)),L((-24,236,54),(510,694)),L((0,47,22),(1000,858)),L((0,-21,176),(1350,300))])
+MATCHES['used_field_photo']=dict(title='Issued field finish / gravel neutral',photo=str(BASE/'build/white-balanced/stock.jpg'),crop=(0,0,2567,1314),location=(1.4,.35,.68),target=(0,.18,.06),lens=85,lens_bounds_mm=(45,180),landmarks=[L((0,710,105),(2510,256)),L((0,536,105),(1950,320)),L((0,536,176),(1920,200)),L((24,236,105),(1290,420)),L((24,-50,92),(550,560)),L((0,-21,176),(640,363))])
+MATCHES['ammo_photo']=dict(title='Carried brass / copper / green tip / black steel links',photo=str(BASE/'build/white-balanced/belt.jpg'),crop=(0,0,3504,2336),location=(-.16,.28,.19),target=(-.05,.16,.11),lens=80,lens_bounds_mm=(30,180),landmarks=[L((-45,145,124),(1370,1900)),L((-45,202,124),(1110,440)),L((-70,145,110),(2200,1900)),L((-70,202,110),(1900,400))])
+
+MATCHES['used_right_photo']=dict(title='Used whole gun / unclipped gray backdrop',photo=str(BASE/'build/white-balanced/used_right.jpg'),crop=(0,0,1800,779),location=(-1.8,.4,.65),target=(0,.18,.06),lens=100,lens_bounds_mm=(60,180),landmarks=[L((0,710,105),(62,148)),L((0,536,176),(414,188)),L((0,536,105),(398,236)),L((-24,236,105),(874,392)),L((-24,-50,92),(1415,452)),L((0,-21,176),(1240,338)),L((0,-330,47),(1738,590),.3)])

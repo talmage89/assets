@@ -57,3 +57,24 @@ consistent cheek station and permits the support hand as a reference. It gives
 no unique anatomical eye relief. Its chapter 4 specifies an adjustable bipod;
 no individual retracted/extended leg length was found in the primary sources.
 Photo-derived leg lengths are therefore kept separate from published data.
+
+## Look round 1 additions
+
+| File | Direct URL | Author | License | Use / neutral |
+| --- | --- | --- | --- | --- |
+| used_oblique.jpg | https://assets.gunspot.com/listing-photos/2023/08/10/13/59/IMG_8439.jpg | Seller photograph; photographer uncredited | No reuse license stated; local comparison only | 3492 × 2619 used exterior: handguard, carrying handle, gas collar and bipod finish. White backdrop at native (2900,2200)–(3250,2450), inspected for clipping. |
+
+The existing `stock.jpg` is an issued field gun on a cloth pad, not a catalog
+photograph: pale gravel at (2170,110)–(2290,190) is an estimated daylight neutral.
+`belt.jpg` uses the silver-gray receiver flat at (1710,140)–(1790,260), avoiding
+the brass and green tips. Both estimates have illumination/material uncertainty;
+they constrain cast and finish relationships, not calibrated reflectance.
+
+| File | Direct URL | Author | License | Use / neutral |
+| --- | --- | --- | --- | --- |
+| used_receiver.jpg | https://dygtyjqp7pi0m.cloudfront.net/i/76165/59095137_4.jpg?v=8DE70CE1F99B4D0 | Poulin Auctions product photograph, photographer uncredited | No reuse license stated; comparison only | 1800 × 1174 issued receiver, cover and polished handle. Unclipped gray studio backdrop (80,40)–(280,210), assumed neutral. |
+
+| File | Direct URL | Author | License | Use / neutral |
+| --- | --- | --- | --- | --- |
+| used_whole.jpg | https://dygtyjqp7pi0m.cloudfront.net/i/76165/59095137_1.jpg?v=8DE70CE1F99B4D0 | Poulin Auctions product photograph, photographer uncredited | No reuse license stated; comparison only | Used whole gun, cropped above the overprinted sale notice; gray backdrop (800,20)–(1100,90). Earlier furniture differs from the accepted fixed-polymer design. |
+| used_right.jpg | https://dygtyjqp7pi0m.cloudfront.net/i/76165/59095137_2.jpg?v=8DE70CE1F99B4D0 | Poulin Auctions product photograph, photographer uncredited | No reuse license stated; comparison only | Used barrel, bipod and molded furniture finish relationships; gray backdrop (800,20)–(1100,90). |

@@ -3,7 +3,7 @@ from PIL import Image
 import numpy as np,json
 base=Path(__file__).resolve().parents[1];out=base/'build/white-balanced';out.mkdir(exist_ok=True)
 # These are estimated neutrals, not gray-card measurements.
-patches={'right':(1900,750,2070,850),'left':(40,30,230,100),'box':(20,20,220,90),'open':None,'cover_close':(40,40,300,280)}
+patches={'right':(1900,750,2070,850),'left':(40,30,230,100),'box':(20,20,220,90),'open':None,'cover_close':(40,40,300,280),'used_receiver':(80,40,280,210),'used_oblique':(2900,2200,3250,2450),'stock':(2170,110,2290,190),'belt':(60,110,240,200),'used_whole':(800,20,1100,90),'used_right':(800,20,1100,90)}
 rows={}
 for n,patch in patches.items():
  p=base/'refs'/f'{n}.jpg'
@@ -16,6 +16,6 @@ for n,patch in patches.items():
  else:g=np.ones(3);clipped=False
  y=np.clip(x*g,0,1);rgb=np.where(y<=.0031308,y*12.92,1.055*y**(1/2.4)-.055)
  Image.fromarray(np.uint8(np.clip(rgb,0,1)*255+.5)).save(out/f'{n}.jpg',quality=97)
- rows[n]=dict(neutral_patch=patch,gains=g.tolist(),clipped_neutral=clipped,limit=('No trustworthy neutral; form-only, no color measurement' if patch is None else 'Estimated backdrop; clipped patches cannot constrain residual cast'))
+ rows[n]=dict(neutral_patch=patch,gains=g.tolist(),clipped_neutral=clipped,limit=('No trustworthy neutral; form-only, no color measurement' if patch is None else 'Estimated gray studio backdrop' if n in ('used_receiver','used_whole','used_right') else 'Estimated pale gravel neutral' if n=='stock' else 'Gray range background in upper left' if n=='belt' else 'Estimated backdrop; clipped patches cannot constrain residual cast'))
 (out/'corrections.json').write_text(json.dumps(rows,indent=2))
 print(rows)
