@@ -105,7 +105,7 @@ def steel(name,role,wear):
         cuts=n.ramp(n.math('PINGPONG',n.add(n.mul(x,.80),n.mul(y,.60)),.000635),.00016,.00006)
         h=n.add(h,n.mul(cuts,interval(n,y,.023,.043,.002),n.ramp(nz,.55,.95),-.000045,sub(n,1,n.mul(rub,.8))))
     elif role=='guard':
-        base=(.035,.037,.039);rough=n.mix(n.ramp(ab(n,nx),.55,.92),.17,.34)
+        base=(.016,.018,.020);rough=n.mix(n.ramp(ab(n,nx),.55,.92),.17,.34)
         # Polished inner bow, satin filed narrow edges; oxide thinning is
         # progressive, with bright steel confined to pressure maxima.
         # Follow the real formed band's changing width and its continuous
@@ -114,10 +114,10 @@ def steel(name,role,wear):
         rear=n.mul(interval(n,y,.008,.040,.012),n.ramp(ny,.15,.85),n.ramp(z,-.007,-.015))
         floor=n.mul(interval(n,y,.016,.101,.012),n.ramp(nz,-.20,.65),n.ramp(z,-.017,-.027))
         front=n.mul(interval(n,y,.079,.106,.010),n.ramp(ny,-.15,-.85),n.ramp(z,.001,-.008))
-        pressure=n.maximum(rear,floor,front)
+        pressure=n.maximum(n.mul(rear,1.5),floor,n.mul(front,1.3))
         half_width=n.mul(.0062,n.add(.64,n.mul(n.ramp(y,.013,.038),.36)))
         contact_edge=sub(n,half_width,.0019)
-        rub=n.ramp(n.mul(pressure,n.band(x,contact_edge,.0002,.0024),n.ramp(ab(n,nx),.95,.45),broken,wear['guard_fingers']),.17,.76)
+        rub=n.ramp(n.mul(pressure,n.band(x,contact_edge,.0013,.0028),n.ramp(ab(n,nx),.95,.45),broken,wear['guard_fingers']),.17,.76)
         rub=n.math('POWER',rub,3)
         sites['guard_fingers']=rub
         base=n.mix(rub,base,(.56,.59,.62),True);rough=n.mix(rub,rough,.14)
@@ -189,7 +189,7 @@ def wood(name,role,wear):
         u,v,_=n.split(check)
         dist=polygon(n,u,v,[(.198,-.035),(.214,-.045),(.312,-.038),(.333,0),(.312,.038),(.214,.045)])
         facing=n.ramp(nz,.50,.05);point_site='forend_points'
-        pressure=n.mul(oval(n,u,ab(n,v),.250,.030,.050,.023),interval(n,u,.207,.320,.003),wear[point_site])
+        pressure=n.mul(oval(n,u,ab(n,v),.250,.033,.062,.010),interval(n,u,.207,.320,.003),wear[point_site])
     inside=n.mul(n.ramp(dist,.0016,.0022),facing)
     cut_u=n.add(n.mul(u,.32),n.mul(v,math.sqrt(1-.32**2)));cut_v=sub(n,n.mul(u,.32),n.mul(v,math.sqrt(1-.32**2)))
     a=n.math('PINGPONG',cut_u,.000635)
@@ -200,7 +200,7 @@ def wood(name,role,wear):
     hardness=n.node('ShaderNodeTexWhiteNoise',noise_dimensions='3D')
     n.feed(hardness.inputs['Vector'],n.combine(n.math('FLOOR',n.math('DIVIDE',cut_u,.00127)),
            n.math('FLOOR',n.math('DIVIDE',cut_v,.00127)),n.add(17.3,n.mul(n.math('LESS_THAN',x,0),31.1)) if role=='stock' else 17.3))
-    selected=n.ramp(sub(n,n.mul(pressure,.40 if role=='stock' else .20),hardness.outputs['Value']),-.04,.04)
+    selected=n.ramp(sub(n,n.mul(pressure,.40 if role=='stock' else .52),hardness.outputs['Value']),-.04,.04)
     pressure=n.mul(n.ramp(pressure,.15,.65),selected)
     # Distance to either cutter: pointed diamond tops become flat under the
     # hands, with their grooves and the unhandled perimeter left intact.
