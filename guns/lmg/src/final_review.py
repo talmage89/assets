@@ -24,6 +24,7 @@ def main():
  from finish_parameters import SITES
  from light_fits import FITS
  required={'before/beauty':{'hero','hero_right'},'before/photos':set(MATCHES),'beauty':set(DEFAULT_SHOTS.split(',')),'eevee':{'hero'},'photos':set(MATCHES),'raw-check':{'hero','handguard','barrel_handle','belt'}}
+ required['reflection-trial']={'used_photo'}
  for n in ('box_loaded','box_empty','cartridge','case','link'):required['detachables/'+n]={n}
  for n in ('ak','smg'):required['precedents/'+n]={n+'_hero'}
  for n in SITES:required['wear/'+n]={'hero','hero_right'}
@@ -77,11 +78,14 @@ def main():
  for name,row in source_metadata.items():
   assert hashlib.sha256(Path(row['source']).read_bytes()).hexdigest()==row['sha256'],('stale dense source',name)
   if row.get('light_fit') in FITS:assert row.get('physical_light_fit')==FITS[row['light_fit']],('stale dense-source lighting',name)
- for folder in [out/'before/beauty',out/'before/photos',out/'beauty',out/'eevee',out/'photos',out/'raw-check',*[out/'detachables'/n for n in ('box_loaded','box_empty','cartridge','case','link')],*[out/'precedents'/n for n in ('ak','smg')],*[out/'wear'/n for n in SITES]]:
+ for folder in [out/'before/beauty',out/'before/photos',out/'beauty',out/'eevee',out/'photos',out/'raw-check',out/'reflection-trial',*[out/'detachables'/n for n in ('box_loaded','box_empty','cartridge','case','link')],*[out/'precedents'/n for n in ('ak','smg')],*[out/'wear'/n for n in SITES]]:
   p=folder/'shots.json'
   if not p.exists():continue
   for name,row in json.loads(p.read_text()).items():
    source=Path(row['source']);assert source.suffix=='.glb'
+   if row.get('light_fit')=='cover_profile_trial':
+    from reflection_trial import TRIAL
+    assert row.get('physical_light_fit')==TRIAL,('stale reflection trial',name)
    if row.get('light_fit') in FITS:assert row.get('physical_light_fit')==FITS[row['light_fit']],(str(p),name,'stale comparison lighting')
    assert hashlib.sha256(source.read_bytes()).hexdigest()==row['sha256'],str(p)
    image=folder/(name+'.png');assert image.exists()

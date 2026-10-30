@@ -12,7 +12,7 @@ from final_review import sheet,rgb
 NOTES={
  'paint_receiver':'The replacement photo has clipped black paint in its lower tail. Zero-valued targets are reported in encoded levels, with no relative-error claim. Its railed cover is outside the measured receiver.',
  'barrel_phosphate':'Whole exposed barrel bay in front of the gas block. The previous assembly mask included shadowed protected barrel, chamber and collar surfaces absent from the photo outline; full-assembly diagnostics remain in finish-values.json and the separate coverage pair.',
- 'paint_cover':'Accepted original cover construction differs from the photographed front cylindrical pressing. Both complete visible cover distributions include those reflection families.',
+ 'paint_cover':'Accepted original cover construction differs from the photographed front cylindrical pressing. Whole-part values/highlights pass; the local reflection profile remains a separate miss. The surface profile pair includes its measurements and a rejected physical-light trial.',
  'molded_handguard':'The replacement photograph has the ribbed matte finish we build; the former glossy checkered molding is not a valid finish target.',
  'molded_stock':'Concrete neutral is an estimate. The original accepted stock contour differs; the camera now observes the same flank.',
  'steel_links':'Primary target is a studio photograph of a blackened-steel link, balanced on unclipped paper. The original field-belt diagnostic remains beside this comparison; its clipped range highlights are not a studio-light target.',
@@ -35,14 +35,14 @@ def part_crop(root,geometry,role):
  return image,m
 
 def main():
- root=BASE/'renders/final';out=root/'look-review/comparison';out.mkdir(parents=True,exist_ok=True)
+ root=BASE/'renders/final';geometry=BASE/(sys.argv[sys.argv.index('--geometry')+1] if '--geometry' in sys.argv else 'build/image-geometry');out=root/'look-review/comparison';out.mkdir(parents=True,exist_ok=True)
  before=json.loads((root/'before/look-review/finish-values.json').read_text());after=json.loads((root/'look-review/finish-values.json').read_text());rows={};entries=[]
  for role,a in after.items():
   b=before[role];assert a['photo_source']==b['photo_source'] and a['photo_polygons']==b['photo_polygons'];test=acceptance(a['render'],a['photo']);rows[role]=dict(before=b['render'],after=a['render'],photo=a['photo'],acceptance=test,note=NOTES.get(role,''),before_sha256=b['sha256'],after_sha256=a['sha256'])
   canvas=Image.new('RGB',(1800,1980),'#e7e9e6');d=ImageDraw.Draw(canvas)
   d.text((25,12),role+' / controlled before and after / same camera, lights and white-balanced photo',font=FONT,fill='black')
   canvas.paste(Image.open(root/'before/look-review'/(role+'-histograms.jpg')),(0,45));canvas.paste(Image.open(root/'look-review'/(role+'-histograms.jpg')),(0,900))
-  status='WITHIN REQUESTED TOLERANCES' if test['passed'] else 'MISSES REMAIN: '+', '.join([label for label,ok in zip(('P10','median','P90'),test['value_pass']) if not ok]+([] if test['highlight_pass'] else ['highlight RGB']))
+  status='WHOLE-PART VALUE / HIGHLIGHT TOLERANCES PASS' if test['passed'] else 'MISSES REMAIN: '+', '.join([label for label,ok in zip(('P10','median','P90'),test['value_pass']) if not ok]+([] if test['highlight_pass'] else ['highlight RGB']))
   d.text((25,1760),status,font=FONT,fill=(35,90,45) if test['passed'] else (150,45,20))
   for i,line in enumerate(textwrap.wrap(NOTES.get(role,'Whole visible parts; accepted ammunition materials remain unchanged.'),155)):d.text((25,1795+i*23),line,font=SMALL,fill='black')
   if role=='barrel_phosphate':
@@ -66,7 +66,7 @@ def main():
  # These crops keep the full observed part, with no favorable tiny sample.
  surface=root/'surface-pairs';surface.mkdir(exist_ok=True);surfaces=[]
  for role in ('paint_cover','barrel_phosphate','molded_handguard','molded_grip','molded_stock','molded_box','handle_polymer'):
-  im,m=part_crop(root,BASE/'build/image-geometry',role);name,polys,_,_=REGIONS[role];photo=np.asarray(Image.open(BASE/'build/white-balanced'/(name+'.jpg')).convert('RGB'));pm=polygon_mask((photo.shape[1],photo.shape[0]),polys)
+  im,m=part_crop(root,geometry,role);name,polys,_,_=REGIONS[role];photo=np.asarray(Image.open(BASE/'build/white-balanced'/(name+'.jpg')).convert('RGB'));pm=polygon_mask((photo.shape[1],photo.shape[0]),polys)
   canvas=Image.new('RGB',(1800,950),'#e7e9e6');d=ImageDraw.Draw(canvas);d.text((25,15),role+' / shipped surface and photographic construction, whole-part close pair',font=FONT,fill='black')
   for col,(a,p) in enumerate(((im,m),(photo,pm))):
    crop=mask_crop(a,p);canvas.paste(crop,(25+900*col,65));ys,xs=np.nonzero(p);cx=int(np.median(xs));cy=int(np.median(ys));bounds=(max(0,cx-220),max(0,cy-140),min(a.shape[1],cx+220),min(a.shape[0],cy+140));detail=Image.fromarray(a).crop(bounds);detail=ImageOps.contain(detail,(840,390),Image.Resampling.LANCZOS);canvas.paste(detail,(25+900*col,480));d.text((25+900*col,900),('Actual 2048 GLB' if col==0 else 'White-balanced native photograph')+' / center crop, no sharpening',font=SMALL,fill='black')

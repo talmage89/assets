@@ -6,7 +6,7 @@ import OpenImageIO as oiio,PyOpenColorIO as ocio
 from PIL import Image,ImageFilter
 BASE=Path(__file__).resolve().parents[1];sys.path[:0]=[str(BASE.parents[1]),str(BASE/'src')]
 from look_review import REGIONS,LEGACY_LINK,metrics,polygon_mask
-from image_masks import raster
+from image_masks import raster,projection
 # Whole-view guards stop a favorable barrel fit from washing out the rest.
 REGIONS=dict(REGIONS)
 # The same field frame must explain the accepted cases/jackets and the links.
@@ -15,7 +15,7 @@ REGIONS['guard_cover']=('used_right', [[(918,283),(1290,362),(1294,392),(1033,34
 REGIONS['guard_grip']=('used_right', [[(1114,503),(1169,516),(1185,592),(1229,658),(1203,680),(1123,684),(1108,660),(1122,625),(1104,555)]], 'used_right_photo', ('PistolGrip_Sculpt','Grip_MoldRib'))
 REGIONS['guard_handle']=('used_right', [[(888,163),(1040,193),(1030,230),(876,201)]], 'used_right_photo', ('CarryHandle_Grip',))
 
-parser=argparse.ArgumentParser();parser.add_argument('--basis',default='build/light-response');parser.add_argument('--restarts',type=int,default=6);parser.add_argument('--mixed-light',action='store_true');parser.add_argument('--shots');parser.add_argument('--samples-per-part',type=int,default=2200);parser.add_argument('--initial');parser.add_argument('--geometry',default='build/image-geometry');parser.add_argument('--output',default='build/light-response/fitted-lights.json');args=parser.parse_args();basis=BASE/args.basis;B=json.loads((basis/'bases.json').read_text());meta=json.loads((basis/'shots.json').read_text())
+parser=argparse.ArgumentParser();parser.add_argument('--basis',default='build/light-response');parser.add_argument('--restarts',type=int,default=6);parser.add_argument('--cover-profile',action='store_true');parser.add_argument('--mixed-light',action='store_true');parser.add_argument('--shots');parser.add_argument('--samples-per-part',type=int,default=2200);parser.add_argument('--initial');parser.add_argument('--geometry',default='build/image-geometry');parser.add_argument('--output',default='build/light-response/fitted-lights.json');args=parser.parse_args();basis=BASE/args.basis;B=json.loads((basis/'bases.json').read_text());meta=json.loads((basis/'shots.json').read_text())
 c=ocio.Config.CreateFromFile((basis/'ocio-path.txt').read_text().strip());g=ocio.GroupTransform();g.appendTransform(ocio.LookTransform(src='Linear Rec.709',dst='Linear Rec.709',looks='AgX - Medium High Contrast'));g.appendTransform(ocio.DisplayViewTransform(src='Linear Rec.709',display='sRGB',view='AgX'));proc=c.getProcessor(g).getDefaultCPUProcessor()
 rng=np.random.default_rng(56);results={};color_count=4 if args.mixed_light else 2
 upper=np.array([not b.get('world') and b['position'][2]>.25 for b in B])
@@ -33,6 +33,17 @@ for shot in dict.fromkeys(v[2] for v in REGIONS.values()):
   m=np.asarray(Image.fromarray(np.uint8(m)*255).filter(ImageFilter.MinFilter(3)))>0
   indices=np.flatnonzero(m);indices=rng.choice(indices,min(len(indices),args.samples_per_part),replace=False);pack.extend(indices);slices[role]=slice(start,start+len(indices));start+=len(indices)
   ref=np.asarray(Image.open(BASE/'build/white-balanced'/(name+'.jpg')).convert('RGB'));pm=polygon_mask((ref.shape[1],ref.shape[0]),polys);pm=np.asarray(Image.fromarray(np.uint8(pm)*255).filter(ImageFilter.MinFilter(3)))>0;targets[role]=metrics(ref[pm])
+ profile_data=None
+ if args.cover_profile and shot=='used_photo':
+  point,_=projection(np.array([[-.03,.190,.137]]),s,w,h);px=int(point[0,0])
+  shell=np.isin(ids,[i+1 for i,n in enumerate(geo['names']) if str(n)=='FeedCover_Shell']);ys=np.flatnonzero(shell[:,px]);yy=np.arange(ys.min(),ys.max()+1)
+  profile_slice=slice(len(pack),len(pack)+len(yy)*5)
+  pack.extend((yy[:,None]*w+np.arange(px-2,px+3)[None,:]).ravel().tolist())
+  ref=np.asarray(Image.open(BASE/'build/white-balanced/used_receiver.jpg').convert('RGB'),float)
+  def profile_stats(a):
+   v=np.median(a.max(2),axis=1);floor,peak=np.percentile(v,[10,95]);width=np.mean(1/(1+np.exp(np.clip(-(v-(floor+peak)/2)/4,-50,50))))
+   return float(peak),float(width)
+  profile_data=(profile_slice,len(yy),profile_stats(ref[320:393,628:633]))
  data=np.stack([read(basis/(shot+'__'+str(i)+'.exr')).reshape(-1,3)[pack] for i in range(len(B))]);data=np.transpose(data,(1,2,0)).reshape(-1,len(B)).astype(np.float32);gain=2**s.get('exposure',.45)
  def predict(p):
   if args.mixed_light:
@@ -51,6 +62,10 @@ for shot in dict.fromkeys(v[2] for v in REGIONS.values()):
     residuals.extend((np.maximum(abs(er)-np.array((.14,.09,.14)),0)*80).tolist());residuals.extend((np.maximum(abs(eh)-.09,0)*60).tolist())
    mr=np.median(a,axis=0);mt=np.array(t['median_rgb']);residuals.extend((((mr-mt)/np.maximum(tq[1],10)*np.sqrt(5)) if not guard else np.zeros(3)).tolist())
    rows[role]=dict(predicted_q=q.tolist(),photo_q=tq.tolist(),predicted_h=hi.tolist(),photo_h=th.tolist())
+  if profile_data:
+   sl,count,(peak_target,width_target)=profile_data;peak,width=profile_stats(rgb[sl].reshape(count,5,3))
+   residuals.extend([(peak-peak_target)/(peak_target*.10)*2,(width-width_target)/(width_target*.15)*2])
+   rows['cover_reflection_profile']=dict(predicted_peak=peak,photo_peak=peak_target,predicted_soft_width=width,photo_soft_width=width_target)
   residuals.extend((p[:len(B)]*.001).tolist());residuals=np.array(residuals);loss=residuals@residuals
   return (float(loss),rows) if report is True else residuals if report=='residual' else float(loss)
  best=None
@@ -98,4 +113,6 @@ for shot in dict.fromkeys(v[2] for v in REGIONS.values()):
  cost,p=best;_,rows=objective(p,True);results[shot]=dict(loss=cost,energies=p[:len(B)].tolist(),color=[*p[-2:],1],predictions=rows,bases=B,source_sha256=s['sha256'])
  if args.mixed_light:results[shot]['light_colors']=[[*p[-4:-2],1] if above else [*p[-2:],1] for above in upper]
  (BASE/args.output).write_text(json.dumps(results,indent=2))
- for role,row in rows.items():print(role,'V',np.round(row['predicted_q']),np.round(row['photo_q']),'H',np.round(row['predicted_h']),np.round(row['photo_h']),flush=True)
+ for role,row in rows.items():
+  if 'predicted_q' in row:print(role,'V',np.round(row['predicted_q']),np.round(row['photo_q']),'H',np.round(row['predicted_h']),np.round(row['photo_h']),flush=True)
+  else:print(role,row,flush=True)

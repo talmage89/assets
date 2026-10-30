@@ -29,7 +29,7 @@ folders=(sys.argv[sys.argv.index('--folders')+1].split(',') if '--folders' in sy
 out=BASE/(sys.argv[sys.argv.index('--out')+1] if '--out' in sys.argv else 'build/image-geometry');out.mkdir(parents=True,exist_ok=True)
 from delivery import split_imported
 V.import_glb(source);split_imported(bpy.context.scene,BASE/'build/delivery/finalized.blend')
-snapshot=BASE/'build/image-import.blend';bpy.ops.wm.save_as_mainfile(filepath=str(snapshot))
+snapshot=out/'imported-parts.blend';bpy.ops.wm.save_as_mainfile(filepath=str(snapshot))
 seen=set()
 for folder in folders:
  meta=BASE/folder/'shots.json'

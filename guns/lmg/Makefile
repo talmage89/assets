@@ -103,7 +103,7 @@ extra: renders/final/detachables/done.stamp
 renders/final/raw-check/raw-comparison.json: $(EXPORTS) $(RENDER_DEPS) src/raw_review.py $(FINAL_IMAGES)
 	$(PYTHON) src/raw_review.py --samples $(SAMPLES)
 raw-audit: renders/final/raw-check/raw-comparison.json
-review: render match source-match wear-review precedent extra raw-audit before family-paint
+review: render match source-match wear-review precedent extra raw-audit before family-paint reflection-trial
 	$(BP) --python src/control_verify.py
 	$(BP) --python src/value_geometry.py
 	$(PYTHON) src/look_review.py
@@ -131,3 +131,8 @@ coverage:
 	$(PYTHON) src/wear_coverage.py
 
 finish-report: review
+
+.PHONY: reflection-trial
+renders/final/reflection-trial/used_photo.png: $(EXPORTS) build/cameras.json src/reflection_trial.py $(RENDER_DEPS)
+	$(KIT)/with_gpu.sh $(BP) --python src/reflection_trial.py -- --source export/lmg.glb --out renders/final/reflection-trial --camera-file build/cameras.json --width $(WIDTH) --samples $(SAMPLES) --shots used_photo
+reflection-trial: renders/final/reflection-trial/used_photo.png
