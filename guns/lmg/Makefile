@@ -82,7 +82,7 @@ renders/final/source-photos/shots.json: build/delivery/high.blend build/cameras.
 	$(KIT)/with_gpu.sh $(BP) --python src/source_render.py -- --source build/delivery/high.blend --out renders/final/source-photos --camera-file build/cameras.json --width $(WIDTH) --samples $(SAMPLES) --shots $(PHOTO_SHOTS)
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/cameras.json --renders renders/final/source-photos --out renders/final/source-pairs
 source-match: renders/final/source-photos/shots.json
-build/controls/%/high.blend: $(PREPARED) build/markings/receiver.png src/lookdev.py src/build_high.py build/bake-parameters.txt
+build/controls/%/high.blend: $(PREPARED) build/markings/receiver.png build/markings/headstamp.png src/lookdev.py src/build_high.py build/bake-parameters.txt
 	$(BP) --python src/build_high.py -- --wear $(WEAR) --omit $* --out $@
 build/controls/%/baked/bake-report.json: build/controls/%/high.blend src/config.py
 	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/bake.py -- --low build/delivery/bake-target.blend --high $< --out build/controls/$*/baked --asset Harrow56 --config src/config.py --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
@@ -96,7 +96,7 @@ wear-review: $(addprefix renders/final/wear/,$(addsuffix /hero.png,$(SITES)))
 renders/final/precedents/ak/shots.json renders/final/precedents/smg/shots.json &: $(EXPORTS) $(RENDER_DEPS) src/precedents.py $(wildcard ../ak/export/ak.glb ../smg/export/smg.glb)
 	$(PYTHON) src/precedents.py --width $(WIDTH) --samples $(SAMPLES)
 precedent: renders/final/precedents/ak/shots.json renders/final/precedents/smg/shots.json
-renders/final/detachables/done.stamp: $(EXPORTS) $(RENDER_DEPS) src/final_extra.py
+renders/final/detachables/done.stamp: $(EXPORTS) $(RENDER_DEPS) src/final_extra.py src/detachable_cameras.py src/image_masks.py
 	$(PYTHON) src/final_extra.py --width 1000 --samples $(SAMPLES)
 	@touch $@
 extra: renders/final/detachables/done.stamp

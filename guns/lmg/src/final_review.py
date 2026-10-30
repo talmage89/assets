@@ -1,5 +1,5 @@
 """Original comparison sheets and a GLB-hash-checked image manifest, no docs."""
-import hashlib,json,sys
+import hashlib,json,sys,math
 import numpy as np
 from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont,ImageOps
@@ -44,6 +44,9 @@ def main():
  assert raw['source_sha256']==hashlib.sha256((BASE/'export/lmg.glb').read_bytes()).hexdigest()
  controls=json.loads((BASE/'build/control-verification.json').read_text())
  assert controls['passed'] and len(controls['controls'])==9
+ wear=json.loads((out/'look-review/wear-values.json').read_text())
+ assert len(wear)==9 and all(set(r)=={'hero','hero_right'} for r in wear.values())
+ assert all(max(v['changed_area_px'] for v in row.values())>0 for row in wear.values())
  framing=json.loads((BASE/'build/photo-frame-proof.json').read_text())
  assert framing['source_sha256']==hashlib.sha256((BASE/'export/lmg.glb').read_bytes()).hexdigest()
  for name,row in framing['shots'].items():
@@ -62,11 +65,12 @@ def main():
  for p in sorted((out/'source-pairs').glob('*-pair.jpg')):entries.append(('Dense source pair / '+p.stem,p))
  if (out/'look-review/finish-values.json').exists():
   for p in sorted((out/'look-review').glob('*.jpg')):entries.append((p.stem,p))
+ hero=out/'beauty/hero.png';ak=out/'precedents/ak/ak_hero.png';smg=out/'precedents/smg/smg_hero.png'
+ peer=out/'hero-beside-ak-smg.jpg'
+ sheet([('Harrow 56 / same lights and exposure',hero),('Rill 39 / same lights and exposure',ak),('Relay 9 / same lights and exposure',smg)],peer,columns=1,cell=(1600,900))
+ entries.append(('Three guns / identical studio lights and exposure',peer))
  for i in range(0,len(entries),12):sheet(entries[i:i+12],out/f'review-page-{i//12+1:02d}.jpg')
  sheet(entries,out/'contact-sheet.jpg',columns=4,cell=(420,280))
- hero=out/'beauty/hero.png';ak=out/'precedents/ak/ak_hero.png';smg=out/'precedents/smg/smg_hero.png'
- if all(p.exists() for p in (hero,ak,smg)):
-  sheet([('Harrow 56 / same lights and exposure',hero),('Rill 39 / same lights and exposure',ak),('Relay 9 / same lights and exposure',smg)],out/'hero-beside-ak-smg.jpg',columns=1,cell=(1600,900))
- (BASE/'build/final-presentation.json').write_text(json.dumps(dict(images=manifest,count=len(manifest),no_docs=True),indent=2))
+ (BASE/'build/final-presentation.json').write_text(json.dumps(dict(images=manifest,count=len(manifest),sheet_entries=len(entries),review_pages=math.ceil(len(entries)/12),no_docs=True),indent=2))
  print('FINAL PRESENTATION',len(manifest),'GLB-verified renders',len(entries),'sheet entries')
 if __name__=='__main__':main()

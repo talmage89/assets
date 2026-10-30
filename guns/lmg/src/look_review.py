@@ -32,8 +32,8 @@ SITES={
  'receiver':('Receiver_','SideWell_Housing'),
  'cover':('FeedCover_','RearSight_Base'),
  'handle':('CarryHandle_Grip',),'flash':('FlashHider',),
- 'regulator':('GasRegulator','Regulator_Grip'),
- 'ports':('Receiver_Sheet','LinkPort_Rim','ChargingGuide'),
+ 'regulator':('GasRegulator','Regulator_Grip','GasBlock_Web'),
+ 'ports':('Receiver_','LinkPort_Rim','ChargingGuide'),
  'feet':('Bipod_Foot',),'box':('Box_Shell','Box_MoldRib','Box_EndRib','Box_ClipBacking'),
  'butt':('Buttpad','Stock_Sculpt'),
 }
@@ -77,7 +77,7 @@ def components(mask):
   rows.append(dict(area_px=len(xs),bounds=[int(min(xs)),int(min(ys)),int(max(xs)+1),int(max(ys)+1)]))
  return sorted(rows,key=lambda r:r['area_px'],reverse=True)
 def main():
- out=BASE/'renders/final/look-review';out.mkdir(parents=True,exist_ok=True)
+ out=BASE/(sys.argv[sys.argv.index('--out')+1] if '--out' in sys.argv else 'renders/final/look-review');out.mkdir(parents=True,exist_ok=True)
  atlas=np.asarray(Image.open(BASE/'textures/T_Harrow56_BaseColor.png'));orm=np.asarray(Image.open(BASE/'textures/T_Harrow56_ORM.png'));corrections=json.loads((BASE/'build/white-balanced/corrections.json').read_text());meta=json.loads((BASE/'renders/final/beauty/shots.json').read_text());photo_meta=json.loads((BASE/'renders/final/photos/shots.json').read_text());meta.update(photo_meta);cache={};values={};observations=[]
  for role,(photo,polygons,shot,prefixes) in ({} if '--wear-only' in sys.argv else REGIONS).items():
   im=np.asarray(rgb(BASE/'renders/final'/('photos' if shot in photo_meta else 'beauty')/(shot+'.png')));h,w=im.shape[:2]
@@ -115,7 +115,10 @@ def main():
  if '--finishes-only' in sys.argv:
   print('WHOLE-PART FINISHES',len(values),flush=True);return
  wear={};entries=[]
- for site,prefixes in SITES.items():
+ selected_sites=sys.argv[sys.argv.index('--sites')+1].split(',') if '--sites' in sys.argv else list(SITES)
+ assert set(selected_sites)<=set(SITES)
+ for site in selected_sites:
+  prefixes=SITES[site]
   wear[site]={}
   for shot in ('hero','hero_right'):
    off=BASE/'renders/final/wear'/site/(shot+'.png')
