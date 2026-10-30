@@ -55,9 +55,38 @@ def export(path,objects,bones):
     from kit import weapon as W
     path=Path(path);native=path.with_name(path.stem+'-native-sampling.glb')
     W.export(path,objects)
+    densify(bones)
     W.export(native,objects,animations={'force_sampling':False})
     report=merge(path,native,bones)
     path.with_suffix('.sampling.json').write_text(json.dumps(report,indent=2)+'\n')
+
+
+def densify(bones):
+    """Retain native boundaries, with exact quarter-frame affine checkpoints.
+
+    A sparse Euler segment becomes quaternion interpolation in glTF. Blender's
+    importer linearly evaluates quaternion components, so that segment alone
+    need not reproduce intermediate source angles. Subdivide its original
+    component curves without changing their evaluated values or STEP meaning.
+    This operates on the temporary export scene, after saving modeled source.
+    """
+    import bpy,bisect
+    from kit import weapon as W
+    for action in bpy.data.actions:
+        curves=[fc for fc in W.fcurves(action) if any(
+            fc.data_path.startswith('pose.bones["'+n+'"]') for n in bones)]
+        if not curves:continue
+        begin=min(k.co.x for fc in curves for k in fc.keyframe_points)
+        end=max(k.co.x for fc in curves for k in fc.keyframe_points)
+        frames=[i/4 for i in range(int(np.ceil(begin*4)),int(np.floor(end*4))+1)]
+        for fc in curves:
+            keys=list(fc.keyframe_points);times=[float(k.co.x) for k in keys]
+            existing={round(t,5) for t in times}
+            samples=[(f,float(fc.evaluate(f)),keys[max(0,bisect.bisect_right(times,f)-1)].interpolation)
+                     for f in frames if round(f,5) not in existing]
+            for f,value,interpolation in samples:
+                key=fc.keyframe_points.insert(f,value,options={'FAST'});key.interpolation=interpolation
+            fc.update()
 
 if __name__=='__main__':
     import argparse,bpy
@@ -69,6 +98,7 @@ if __name__=='__main__':
     joined=W.joined_copy(parts,'AnimationSampling');joined.parent=arm
     mod=joined.modifiers.new('Rigid sampling skin','ARMATURE');mod.object=arm
     native=Path(a.source).parent/'native-feed-sampling.glb'
+    densify(set(a.bones.split(',')))
     W.export(native,[arm,joined],animations={'force_sampling':False})
     report=merge(Path(a.out),native,set(a.bones.split(',')))
     (Path(a.source).parent/'feed-sampling.json').write_text(json.dumps(report,indent=2)+'\n')

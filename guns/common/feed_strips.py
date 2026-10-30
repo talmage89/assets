@@ -80,6 +80,9 @@ def _run(base, manifest):
                               source_sha256=digest,cutaway=cutaway)
             print('FEED STRIP',gun,name,len(panels),'frames',flush=True)
             (out/'timing.json').write_text(json.dumps(report,indent=2)+'\n')
+    from guns.common.feed_review import inspect,compare
+    inspect(base,'before' if a.before else 'after')
+    if not a.before and (base/'renders/feed/before/timing.json').exists() and not a.clips:compare(base)
 
 
 def main(base, manifest):
