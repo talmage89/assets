@@ -370,3 +370,45 @@ An explicit muzzle-side prior rejects the opposite-side numerical solution;
 it is a view interpretation, not recovered EXIF. The present open calibration
 is not accepted. Actual wood-joint curves replace arbitrary fixed-X point pairs.
 Smooth return and occluded centerline observations remain unregistered.
+
+
+## Look round 1 — used studio finishes (2026-10-30)
+
+Photos remain comparison-only. No image, contour, histogram or annotation is
+consumed by the asset's material, modeling or baking scripts. All authors retain
+copyright; files are ignored and not redistributed. Gray studio paper is the
+primary neutral, with its native rectangles and linear RGB gains recorded by
+`src/white_balance.py`. Clipped white cutouts are excluded as neutrals. Bare
+steel is an explicitly estimated neutral for the supplementary bead and safety
+photos; their reflected-light uncertainty is retained. The black-background
+Spanish case-color photo is qualitative only. No decoration or real mark is copied.
+
+| Local file | Direct image URL | Author / license | Use |
+| --- | --- | --- | --- |
+| look-case.jpg | https://www.sportarm.com/wp-content/uploads/160126004L2-4-Boxlock-1050x700.jpg | Sportarm, copyright retained; local comparison only | Qualitative rust bluing and case-color palette only; black backdrop, no neutral. |
+| look-field.jpg | https://griffinhowe.com/wp-content/uploads/2024/07/HOL147167-10-scaled.jpg | Griffin & Howe, copyright retained; local comparison only | Used boxlock: oil walnut, checkering, bright triggers, blued guard; clipped white cutout is not a neutral. |
+| look-field-2.jpg | https://griffinhowe.com/wp-content/uploads/2024/07/HOL147167-2-scaled.jpg | Griffin & Howe, copyright retained; local comparison only | Used field finish and construction context; clipped cutout excluded from hue acceptance. |
+| look-field-3.jpg | https://griffinhowe.com/wp-content/uploads/2024/07/HOL147167-3-scaled.jpg | Griffin & Howe, copyright retained; local comparison only | Used field finish and construction context; clipped cutout excluded from hue acceptance. |
+| look-field-4.jpg | https://griffinhowe.com/wp-content/uploads/2024/07/HOL147167-4-scaled.jpg | Griffin & Howe, copyright retained; local comparison only | Used field finish and construction context; clipped cutout excluded from hue acceptance. |
+| look-field-5.jpg | https://griffinhowe.com/wp-content/uploads/2024/07/HOL147167-5-scaled.jpg | Griffin & Howe, copyright retained; local comparison only | Used field finish and construction context; clipped cutout excluded from hue acceptance. |
+| look-field-6.jpg | https://griffinhowe.com/wp-content/uploads/2024/07/HOL147167-6-scaled.jpg | Griffin & Howe, copyright retained; local comparison only | Used field finish and construction context; clipped cutout excluded from hue acceptance. |
+| look-field-7.jpg | https://griffinhowe.com/wp-content/uploads/2024/07/HOL147167-7-scaled.jpg | Griffin & Howe, copyright retained; local comparison only | Used field finish and construction context; clipped cutout excluded from hue acceptance. |
+| look-field-8.jpg | https://griffinhowe.com/wp-content/uploads/2024/07/HOL147167-8-scaled.jpg | Griffin & Howe, copyright retained; local comparison only | Used field finish and construction context; clipped cutout excluded from hue acceptance. |
+| look-field-9.jpg | https://griffinhowe.com/wp-content/uploads/2024/07/HOL147167-9-scaled.jpg | Griffin & Howe, copyright retained; local comparison only | Used field finish and construction context; clipped cutout excluded from hue acceptance. |
+| look-field-11.jpg | https://griffinhowe.com/wp-content/uploads/2024/07/HOL147167-11-scaled.jpg | Griffin & Howe, copyright retained; local comparison only | Used field finish and construction context; clipped cutout excluded from hue acceptance. |
+| look-field-12.jpg | https://griffinhowe.com/wp-content/uploads/2024/07/HOL147167-12-scaled.jpg | Griffin & Howe, copyright retained; local comparison only | Supplementary installed brass bead and muzzle wear; balance on exposed uncolored muzzle chamfer. |
+| look-field-13.jpg | https://griffinhowe.com/wp-content/uploads/2024/07/HOL147167-13-scaled.jpg | Griffin & Howe, copyright retained; local comparison only | Used field finish and construction context; clipped cutout excluded from hue acceptance. |
+| look-field-14.jpg | https://griffinhowe.com/wp-content/uploads/2024/07/HOL147167-14-scaled.jpg | Griffin & Howe, copyright retained; local comparison only | Oil walnut, grain direction, checkering and construction context; clipped cutout excluded from hue acceptance. Case/luggage views are rejected candidates. |
+| look-field-15.jpg | https://griffinhowe.com/wp-content/uploads/2024/07/HOL147167-15-scaled.jpg | Griffin & Howe, copyright retained; local comparison only | Oil walnut, grain direction, checkering and construction context; clipped cutout excluded from hue acceptance. Case/luggage views are rejected candidates. |
+| look-gray-case.jpg | https://image.invaluable.com/housePhotos/maynardsfineart/20/770620/H0759-L387082283_original.JPG | Maynards Fine Art, copyright retained; local comparison only | Primary sharp used case, controls, bluing and checkering; balance on unshadowed gray paper. |
+| look-gray-field.jpg | https://image.invaluable.com/housePhotos/maynardsfineart/90/781690/H0759-L404385046_original.JPG | Maynards Fine Art, copyright retained; local comparison only | Supplementary used field finishes on neutral gray studio paper; no engraving copied. |
+| look-gray-used.jpg | https://image.invaluable.com/housePhotos/maynardsfineart/20/770620/H0759-L387082254_original.JPG | Maynards Fine Art, copyright retained; local comparison only | Supplementary used field finishes on neutral gray studio paper; no engraving copied. |
+| look-gray-plain.jpg | https://image.invaluable.com/housePhotos/maynardsfineart/83/676483/H0759-L218871816_original.jpg | Maynards Fine Art, copyright retained; local comparison only | Supplementary used field finishes on neutral gray studio paper; no engraving copied. |
+| look-gray-284.jpg | https://image.invaluable.com/housePhotos/maynardsfineart/20/770620/H0759-L387082284_original.JPG | Maynards Fine Art, copyright retained; local comparison only | Primary complete used field gun, entire walnut stock and forend, barrels and wear; gray paper neutral. 5977 x 1738. |
+| look-gray-285.jpg | https://image.invaluable.com/housePhotos/maynardsfineart/20/770620/H0759-L387082285_original.JPG | Maynards Fine Art, copyright retained; local comparison only | Alternate studio views/candidates. 286/287/305 have substantially older gray/brown barrels; not the finish target. |
+| look-gray-286.jpg | https://image.invaluable.com/housePhotos/maynardsfineart/20/770620/H0759-L387082286_original.JPG | Maynards Fine Art, copyright retained; local comparison only | Alternate studio views/candidates. 286/287/305 have substantially older gray/brown barrels; not the finish target. |
+| look-gray-287.jpg | https://image.invaluable.com/housePhotos/maynardsfineart/20/770620/H0759-L387082287_original.JPG | Maynards Fine Art, copyright retained; local comparison only | Alternate studio views/candidates. 286/287/305 have substantially older gray/brown barrels; not the finish target. |
+| look-gray-288.jpg | https://image.invaluable.com/housePhotos/maynardsfineart/20/770620/H0759-L387082288_original.JPG | Maynards Fine Art, copyright retained; local comparison only | Alternate studio views/candidates. 286/287/305 have substantially older gray/brown barrels; not the finish target. |
+| look-gray-305.jpg | https://image.invaluable.com/housePhotos/maynardsfineart/20/770620/H0759-L387082305_original.JPG | Maynards Fine Art, copyright retained; local comparison only | Alternate studio views/candidates. 286/287/305 have substantially older gray/brown barrels; not the finish target. |
+| look-controls.jpg | https://cdn4.volusion.store/jbkag-abfzx/v/vspfiles/photos/TWBLE12B286-5.jpg?v-cache=1747240817 | Connecticut Precision Outfitters, copyright retained; local comparison only | Supplementary polished checkered safety pad; estimated uncolored steel-guide neutral. Decorated action is excluded from our plain-field design. |
+| look-controls-alt.jpg | https://cdn4.volusion.store/jbkag-abfzx/v/vspfiles/photos/DBLKNE12G495-4.jpg?v-cache=1747228809 | Connecticut Precision Outfitters, copyright retained; local comparison only | Rejected control candidate: underside rather than tang. No asset input. |

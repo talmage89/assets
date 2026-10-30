@@ -1,4 +1,4 @@
-# Form round seven: turned/milled head with distance blends; finish/docs held.
+# Covey 26 look round one: accepted form, procedural field finishes; no docs.
 .DEFAULT_GOAL := all
 .NOTPARALLEL:
 BLENDER ?= blender
@@ -8,24 +8,24 @@ REPO := $(abspath ../..)
 BP := $(BLENDER) -b --factory-startup --python-exit-code 1
 export TMPDIR := $(REPO)/build/tmp
 export ASSETS_GPU_LOCK ?= $(REPO)/build/locks/gpu.lock
-WIDTH ?= 1440
-SAMPLES ?= 32
+WIDTH ?= 1600
+SAMPLES ?= 48
 BAKE_SIZE := 4096
 SHIP_SIZE := 2048
 BAKE_SAMPLES ?= 32
 MODEL := build/sxs.blend build/sxs.glb build/shell.glb build/hull.glb
 MODEL_DEPS := src/build.py src/head_surface.py src/head_mesh.py src/parameters.py src/clips.py src/interface.py ../common/shell12_visual.py ../common/interface_v1_7.py
-PREPARED := build/delivery/finalized.blend build/delivery/high.blend build/delivery/uv.json
-BAKED := $(addprefix build/baked/4k/T_Covey26_,BaseColor.png Normal.png ORM.png) build/baked/4k/bake-report.json
+PREPARED := build/delivery/finalized.blend build/delivery/dense.blend build/delivery/uv.json
+BAKED := $(addprefix build/baked/4k/T_Covey26_,BaseColor.png Normal.png ORM.png) build/baked/4k/bake-report.json build/baked/4k/projection-owner.png
 PROJECTED := $(addprefix build/baked/precise4k/T_Covey26_,BaseColor.png Normal.png ORM.png) build/baked/precise4k/projection-report.json
-TEXTURES := $(addprefix textures/T_Covey26_,BaseColor.png Normal.png ORM.png)
+TEXTURES := $(addprefix textures/T_Covey26_,BaseColor.png Normal.png ORM.png) textures/texture-report.json
 RENDER_DEPS := src/shots.py src/render.py ../common/render.py build/render-parameters.txt
 SHOTS := hero,side,left,top,front,rake_right,rake_left,open,breech,action,action_left,triggers,trigger_quarter,forend,stock,muzzle,top_controls,lumps,aimed,action_rake_right,action_rake_left,action_rake_top,action_rake_bottom
 comma := ,
 BEAUTY := $(addprefix renders/checkpoint/beauty/,$(addsuffix .png,$(subst $(comma), ,$(SHOTS)))) renders/checkpoint/beauty/shots.json
 PHOTO_SHOTS := right,left,action,action_left,action_top,action_bottom,open,barrel_flats,forend,forend_side,trigger,aimed_reference
 .PHONY: all refs model prepare bake export check check-repo verify repeat render review evidence sections match strips ammo native-photos dense-rakes reflections fairness FORCE clean
-all: refs export check render review
+all: refs export check final-render look-pairs source-review wear-review family-review final-review
 refs: native-photos
 	$(PYTHON) $(KIT)/fetch_refs.py refs
 native-photos:
@@ -40,7 +40,11 @@ prepare: $(PREPARED)
 build/bake-parameters.txt: FORCE
 	@mkdir -p build $(TMPDIR)
 	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='size=$(BAKE_SIZE) samples=$(BAKE_SAMPLES) ship=$(SHIP_SIZE)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
-$(BAKED) &: $(PREPARED) src/config.py src/bake_form.py build/bake-parameters.txt ../../kit/bake.py ../../kit/bake_groups.py
+build/markings/headstamp.png: src/markings.py ../../kit/fonts.py
+	$(PYTHON) src/markings.py
+build/delivery/high.blend: $(PREPARED) src/lookdev.py src/build_high.py build/markings/headstamp.png
+	$(BP) --python src/build_high.py > build/high.log 2>&1
+$(BAKED) &: build/delivery/high.blend $(PREPARED) src/config.py src/bake_form.py build/bake-parameters.txt ../../kit/bake.py ../../kit/bake_groups.py
 	$(KIT)/with_gpu.sh $(BP) --python src/bake_form.py -- --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES) > build/bake.log 2>&1
 bake: $(BAKED)
 $(PROJECTED) &: $(BAKED) $(PREPARED) src/normal_projection.py
@@ -48,12 +52,13 @@ $(PROJECTED) &: $(BAKED) $(PREPARED) src/normal_projection.py
 $(TEXTURES) &: $(PROJECTED) ../../kit/downsample.py src/ship_normal.py
 	$(PYTHON) $(KIT)/downsample.py --source build/baked/precise4k --out textures --asset Covey26 --size $(SHIP_SIZE)
 	$(PYTHON) src/ship_normal.py
-export/sxs.glb &: $(TEXTURES) $(PREPARED) src/config.py ../../kit/export.py
-	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset Covey26 --config src/config.py --out $@ --report build/delivery/export.json > build/export.log 2>&1
-export: export/sxs.glb
+export/sxs.glb export/shell.glb export/hull.glb &: $(TEXTURES) $(PREPARED) src/export_config.py src/config.py ../../kit/export.py ../../kit/detachable_textures.py ../../kit/detachable_verify.py ../../kit/detachable_clusters.py
+	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset Covey26 --config src/export_config.py --out export/sxs.glb --report build/delivery/export.json > build/export.log 2>&1
+export: export/sxs.glb export/shell.glb export/hull.glb
 check-repo:
 	$(PYTHON) $(KIT)/repo_check.py
 verify: export
+	$(BP) --python src/delivery_audit.py > build/detachable-proof.log 2>&1
 	$(BP) --python src/verify.py -- > build/verify.log 2>&1
 	$(BP) --python src/check.py -- --source export/sxs.glb --out build/import-check.json > build/import-check.log 2>&1
 build/repeat/sxs.blend: $(MODEL_DEPS)
@@ -67,9 +72,9 @@ build/render-parameters.txt: FORCE
 	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='width=$(WIDTH) samples=$(SAMPLES)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
 $(BEAUTY) &: export/sxs.glb $(RENDER_DEPS)
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source export/sxs.glb --out renders/checkpoint/beauty --width $(WIDTH) --samples $(SAMPLES) --shots $(SHOTS) > build/render.log 2>&1
-render: $(BEAUTY)
+form-render: $(BEAUTY)
 evidence: sections match strips ammo dense-rakes reflections
-review: render evidence
+review: form-render evidence
 	$(PYTHON) src/review.py
 sections: export
 	$(BP) --python src/sections.py -- > build/sections.log 2>&1
@@ -104,3 +109,57 @@ reflections: export dense-rakes
 	$(KIT)/with_gpu.sh $(BP) --python src/reflections.py -- --source export/sxs.glb --out renders/checkpoint/reflections/export --width $(WIDTH) --samples $(SAMPLES) > build/reflections-export.log 2>&1
 fairness: model
 	$(BP) --python src/fairness_gauges.py -- --source build/sxs.blend --out build/fairness.json > build/fairness.log 2>&1
+
+# Look round one: all final evidence is imported from the baked GLB. Historical
+# form diagnostics remain available explicitly; no docs generation is invoked.
+FINAL_SHOTS := hero,hero_left,side,left,front,back,top,shooter_three_quarter,aimed,open,breech,action,wrist,forend,stock,muzzle,top_controls,triggers,scale
+FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(FINAL_SHOTS)))) renders/final/beauty/shots.json
+FINAL_DEPS := src/final_shots.py src/final_render.py ../common/render.py build/render-parameters.txt
+LOOK_SHOTS := look_side,look_macro,look_muzzle,look_safety
+LOOK_IMAGES := $(addprefix renders/final/photos/,$(addsuffix .png,$(subst $(comma), ,$(LOOK_SHOTS)))) renders/final/photos/shots.json
+.PHONY: final-render look-pairs wear-review family-review final-review final-masks render
+$(FINAL_IMAGES) &: export/sxs.glb $(FINAL_DEPS)
+	$(KIT)/with_gpu.sh $(BP) --python src/final_render.py -- --source export/sxs.glb --out renders/final/beauty --width $(WIDTH) --samples $(SAMPLES) --shots $(FINAL_SHOTS) > build/final-render.log 2>&1
+renders/final/eevee/hero.png renders/final/eevee/shots.json &: export/sxs.glb $(FINAL_DEPS)
+	$(KIT)/with_gpu.sh $(BP) --python src/final_render.py -- --source export/sxs.glb --out renders/final/eevee --width $(WIDTH) --samples 32 --engine BLENDER_EEVEE --shots hero > build/eevee.log 2>&1
+renders/final/shell/shell.png renders/final/shell/shots.json &: export/shell.glb $(FINAL_DEPS)
+	$(KIT)/with_gpu.sh $(BP) --python src/final_render.py -- --source export/shell.glb --out renders/final/shell --width 1100 --samples $(SAMPLES) --shots shell > build/final-shell.log 2>&1
+renders/final/hull/hull.png renders/final/hull/shots.json &: export/hull.glb $(FINAL_DEPS)
+	$(KIT)/with_gpu.sh $(BP) --python src/final_render.py -- --source export/hull.glb --out renders/final/hull --width 1100 --samples $(SAMPLES) --shots hull > build/final-hull.log 2>&1
+final-render render: $(FINAL_IMAGES) renders/final/eevee/hero.png renders/final/shell/shell.png renders/final/hull/hull.png
+build/look-photos/white-balance.json: src/white_balance.py src/look_matches.py refs/SOURCES.md
+	$(PYTHON) src/white_balance.py > build/white-balance.log
+build/look-cameras.json: build/look-photos/white-balance.json src/look_calibrate.py src/look_matches.py
+	$(PYTHON) src/look_calibrate.py > build/look-calibration.log
+$(LOOK_IMAGES) &: export/sxs.glb build/look-cameras.json $(FINAL_DEPS) src/look_matches.py
+	$(KIT)/with_gpu.sh $(BP) --python src/final_render.py -- --source export/sxs.glb --out renders/final/photos --width $(WIDTH) --samples $(SAMPLES) --look --camera-file build/look-cameras.json --shots $(LOOK_SHOTS) > build/look-photos.log 2>&1
+renders/final/cpu-masks/shots.json: $(LOOK_IMAGES) src/part_masks.py
+	$(BP) --python src/part_masks.py -- --source export/sxs.glb --photos renders/final/photos --out renders/final/cpu-masks > build/look-masks.log 2>&1
+renders/final/look-review/values.json: renders/final/cpu-masks/shots.json src/look_review.py src/look_matches.py
+	$(PYTHON) src/look_review.py --folder renders/final > build/look-values.log
+look-pairs: renders/final/look-review/values.json
+	$(BP) --python $(KIT)/photo_match.py -- verify --calibration build/look-cameras.json > build/look-camera-verify.log 2>&1
+build/delivery/clean.blend: $(PREPARED) src/lookdev.py src/build_high.py build/markings/headstamp.png
+	$(BP) --python src/build_high.py -- --wear 0 --out build/delivery/clean.blend > build/clean-high.log 2>&1
+CLEAN_BAKED := $(addprefix build/wear/clean4k/T_Covey26_,BaseColor.png Normal.png ORM.png) build/wear/clean4k/bake-report.json build/wear/clean4k/projection-owner.png
+$(CLEAN_BAKED) &: build/delivery/clean.blend $(PREPARED) src/bake_form.py build/bake-parameters.txt
+	$(KIT)/with_gpu.sh $(BP) --python src/bake_form.py -- --high build/delivery/clean.blend --out build/wear/clean4k --size 4096 --samples $(BAKE_SAMPLES) > build/clean-bake.log 2>&1
+build/wear/precise4k/projection-report.json: $(CLEAN_BAKED) src/normal_projection.py
+	$(BP) --python src/normal_projection.py -- --high build/delivery/clean.blend --baked build/wear/clean4k --out build/wear/precise4k > build/clean-projection.log 2>&1
+build/wear/clean-textures/texture-report.json: build/wear/precise4k/projection-report.json src/ship_normal.py
+	$(PYTHON) $(KIT)/downsample.py --source build/wear/precise4k --out build/wear/clean-textures --asset Covey26 --size 2048
+	$(PYTHON) src/ship_normal.py --source build/wear/precise4k/T_Covey26_Normal.png --out build/wear/clean-textures
+build/wear/variants.json: export/sxs.glb build/wear/clean-textures/texture-report.json src/wear_variants.py
+	$(BP) --python src/wear_variants.py > build/wear-variants.log 2>&1
+renders/final/hero-masks/shots.json: $(FINAL_IMAGES) src/part_masks.py
+	$(BP) --python src/part_masks.py -- --source export/sxs.glb --photos renders/final/beauty --out renders/final/hero-masks --shots hero > build/hero-masks.log 2>&1
+renders/final/wear/measurements.json: build/wear/variants.json $(FINAL_IMAGES) renders/final/hero-masks/shots.json src/wear_review.py src/wear_reference.py $(FINAL_DEPS)
+	$(PYTHON) src/wear_review.py --width $(WIDTH) --samples $(SAMPLES) > build/wear-review.log 2>&1
+wear-review: renders/final/wear/measurements.json
+family-review: final-render src/family_review.py
+	$(PYTHON) src/family_review.py --width $(WIDTH) --samples $(SAMPLES) > build/family-review.log 2>&1
+.PHONY: source-review
+source-review: look-pairs src/source_review.py
+	$(PYTHON) src/source_review.py --width $(WIDTH) --samples $(SAMPLES) > build/source-review.log 2>&1
+final-review: final-render look-pairs source-review wear-review family-review src/final_review.py
+	$(PYTHON) src/final_review.py > build/final-review.log 2>&1
