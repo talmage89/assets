@@ -77,7 +77,9 @@ at f50 at the same position and orientation. ReloadEmpty uses the same sequence
 offset by 72 frames. Tube insertion moves the whole existing stack continuously.
 TubeFeedGuide carries travel; STEP child offsets rename occupied slots at a
 commit without a blank frame or physical position jump. STEP scale is used only
-for coincident ownership changes and initial/final occupancy.
+for coincident ownership changes and initial/final occupancy. The incoming-hand
+display still begins at insertion f12; consumers bind their hand/held round to
+InsertGuide. Handless review strips show that declared display entry explicitly.
 
 `open` f22 still means the bolt is fully rearward. The lever's remaining carrier
 cam travel finishes at f36 (80°); its return now accompanies the bolt's f37–49

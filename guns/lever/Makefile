@@ -28,7 +28,7 @@ RENDER_DEPS := src/final_render.py src/final_shots.py src/shots.py ../common/ren
 PHOTO_DEPS := build/cameras.json src/white_balance.py src/photo_matches.py
 PAIRS := $(addprefix renders/final/pairs/,$(addsuffix -pair.jpg,$(subst $(comma), ,$(PHOTO_SHOTS))))
 .PHONY: all refs model prepare lookdev bake export check check-repo verify check-atlas repeat render match source-match strips extra review docs clean FORCE checkpoint
-all: refs export check form-review render match source-match strips feed-strips extra wear-review look-review review docs
+all: refs export feed-audit check form-review render match source-match strips feed-strips extra wear-review look-review review docs
 refs:
 	$(PYTHON) $(KIT)/fetch_refs.py refs
 $(MODEL) &: $(addprefix src/,build.py clips.py dimensions.py forms.py geometry.py mechanism.py interface.py feed.py) ../common/feed_sampling.py ../common/ammo_3030.py ../common/interface_v1_5.py

@@ -1276,11 +1276,14 @@ there is no shared-kit or contract change in this revision.
    travel, tray lift, bolt pickup and progressive chamber entry; the normal port
    reveals the same round between the receiver lips. ReloadSeveral/ReloadEmpty
    retain their existing stack throughout each insertion and slot commit. No
-   visible ownership pop or new steel crossing remains at these samples.
+   internal ownership pop or new steel crossing remains at these samples.
+   The incoming-hand display still begins at each insertion's f12. Without
+   an avatar hand it visibly appears beside the loading gate; the consumer
+   binds its held round to InsertGuide. That declared entry is retained.
 
    The imported baked mesh independently passes 492 contact assertions, including
-   426 feed/handoff assertions. Maximum distance is 0.14235 mm at the chamber
-   guide; the bolt's actual rim-plane probes retain their 0.025 mm bound. The
+   426 feed/handoff assertions. The chamber-guide gap reaches 0.14235 mm;
+   the bolt's actual rim-plane probes retain their 0.025 mm bound. The
    tray's measured head/nose rise is 13.554/31.407 mm for a 64.770 mm round;
    the 90.000 mm bolt draw leaves 18.732 mm behind the presented rim. All 37
    clips pass 10,619 clearance samples, including moving ammunition, half frames
@@ -1309,9 +1312,9 @@ there is no shared-kit or contract change in this revision.
    saturation is .416 versus .444; it has not become a pale metal wash.
 
    Native hero object-luma p1/50/99 is 0/54.85/161.86, with 26.96% deep shadow
-   and no clipped pixels; the open-action values are 0/46.88/160.42. Inspected
-   the rerun wear-factor pair: one connected lower-fillet region, 28.70% versus
-   the photo annotation's 27.07%. The accepted analytic field is unchanged;
+   and no clipped-white pixels; the open-action values are 0/46.88/160.42.
+   Inspected the rerun wear-factor pair: one connected lower-fillet region,
+   28.70% versus the photo annotation's 27.07%. The accepted analytic field is unchanged;
    repacked UV filtering changes its sampled boundary. Fine oxide specks and
    walnut pores remain softer at 2K than in close photographs; different photo
    lighting still prevents inferring roughness/albedo from display values. These
@@ -1324,6 +1327,13 @@ there is no shared-kit or contract change in this revision.
    sockets and clips. The standalone `feed-audit` entry point initially omitted
    Blender's optional `--` separator handling; fixed that parser and reran it
    successfully. The same audit had already passed inside source/import checks.
+   A final standalone `make -C guns/lever check` exits zero through 124 closed
+   imported geometric solids. Repository-root logs are
+   `build/guns-feed/lever-make4.log`, `lever-final-check-clean.log` and
+   `lever-feed-audit-final.log`. The final compileall, repository check (1,023
+   source files, zero errors) and `git diff --check` pass. Direct comparison
+   with main also confirms identical states, clip specifications, event frames
+   and FPS for both corrected members.
    Final delivery: 39,800 triangles, one material, 29 bones, 37 clips,
    21,606,688-byte GLB, one 2048 three-map set. All six 4096 bake channels have
    zero missed rays among 3,891,368 interior texels; wood has zero metallic

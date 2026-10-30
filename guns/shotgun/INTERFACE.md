@@ -31,8 +31,8 @@ from ReloadEmpty can retain its chambered shell and any committed tube count.
 ### Visible feeding, additive correction
 
 All existing events, states, clip names/durations and socket bind frames remain.
-`visible_cartridge_feed` and `feed_type=tube_carrier` advertise the revised
-demonstration. Four added bones are CarrierGuide, FiredGuide, FiredHull and
+`visible_cartridge_feed` advertises the revised demonstration. Four added
+bones are CarrierGuide, FiredGuide, FiredHull and
 TubeFeedGuide. CarrierShell now rides CarrierGuide, and the tube displays ride
 TubeFeedGuide. Existing bone names remain. There is no unload clip in this
 member; Fire cycles a fired hull, not a live-round unload.

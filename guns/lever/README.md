@@ -180,8 +180,8 @@ luma **62.20**. It is retained in the value sheet, rather than averaged into
 the primary used-view patches. Different incident light and the photographed
 stock finish prevent treating that comparison as a recovered wood albedo.
 
-Brass, copper jacket, lead cap and primer retain their original materials and
-geometry. Standalone ammunition also retains its accepted original studio
+Visible brass, copper jacket, lead cap and primer surfaces retain their original
+materials and geometry. Standalone ammunition also retains its accepted studio
 cards and exposure. The fired case has its struck primer, open mouth and localized soot.
 The complete metal display measurements remain in
 `renders/final/pairs/ammunition-values.json`, including mismatches caused by
@@ -368,10 +368,9 @@ Raw GLB corner normals agree within 0.0049 degrees, with exact positions and
 UV error below 0.000061 shipping pixels. Blender's imported custom-normal fan
 encoding reaches 0.584 degrees at one narrow inletting cut; that importer loss
 is measured separately from the raw delivered normals.
-The optional `src/preserve_receiver.py --before <saved-handoff>` audit compares
-all 116 accepted meshes, 26 bones, 37 clips, ten sockets, every nonreceiver
-material node/default/link, and the five accepted lower-fillet expressions.
-The saved handoff is review evidence and is never required by `make`.
+The earlier finish-only preservation evidence, including the pre-feed
+116-mesh/26-bone comparison and five lower-fillet expressions, is archived in
+REVIEW.md. The saved handoff remains optional review evidence.
 See `build/check.json`, `serialization.json`, `delivery/construction.json`,
 `delivery/verify.json`, `final-provenance.json` and `determinism.json`.
 
