@@ -2,11 +2,11 @@
 from pathlib import Path
 SHOTS={
  'hero':dict(location=(-1.30,1.05,.68),target=(0,.15,.045),lens=50,aspect=1.85),
- 'raking_right':dict(location=(1.05,.86,.40),target=(0,.17,.07),lens=60,aspect=1.85),
+ 'raking_right':dict(location=(1.30,.90,.55),target=(0,.17,.04),lens=46,aspect=1.85),
  'side':dict(location=(2,.19,.085),target=(0,.19,.085),ortho=1.18,aspect=2.7),
  'left':dict(location=(-2,.19,.085),target=(0,.19,.085),ortho=1.18,aspect=2.7),
  'top':dict(location=(0,.19,2),target=(0,.19,.06),ortho=1.18,aspect=2.7,roll=1.5707963267948966),
- 'front':dict(location=(0,2,.08),target=(0,.13,.08),ortho=.39,aspect=1.15),
+ 'front':dict(location=(0,2,.08),target=(0,.13,.08),ortho=.44,aspect=1.15),
  'cover_open':dict(location=(-.38,.025,.50),target=(-.012,.13,.16),lens=55,action='Reload',frame=64,aspect=1.35),
  'rear_sight':dict(location=(.18,-.23,.29),target=(0,-.012,.157),lens=75,aspect=1.35),
  'barrel_handle':dict(location=(-.36,.52,.32),target=(.015,.295,.133),lens=65,aspect=1.6),
@@ -22,8 +22,8 @@ SHOTS={
  'aimed':dict(location=(0,-.0975,.176),target=(0,1,.176),lens=20,aspect=1.65,aimed=True,action='Idle',frame=0),
 }
 DEFAULT_SHOTS=','.join(SHOTS)
-PHOTO_POSES={'right_photo':dict(action='BipodDeploy',frame=84),'left_photo':dict(action='BipodDeploy',frame=84),'open_photo':dict(action='Reload',frame=64),'trigger_photo':dict(action='Idle',frame=0),'belt_photo':dict(action='BipodDeploy',frame=84)}
-STRIP_SHOT=dict(location=(-.95,.70,.49),target=(0,.14,.01),lens=56,aspect=1.4)
+PHOTO_POSES={'right_photo':dict(action='BipodDeploy',frame=54),'left_photo':dict(action='BipodDeploy',frame=54),'open_photo':dict(action='Reload',frame=64),'trigger_photo':dict(action='Idle',frame=0),'belt_photo':dict(action='BipodDeploy',frame=54)}
+STRIP_SHOT=dict(location=(-.95,.70,.49),target=(0,.19,.045),ortho=1.30,aspect=1.4)
 RENDER_STAGE='unbaked form checkpoint / exported GLB'
 def floor_height(source):return -.50
 # Every posed view must request Idle: the rest rig stores all reusable belt
@@ -50,3 +50,7 @@ SHOTS.update({
  'box_loaded':dict(location=(-.33,.33,.18),target=(0,0,-.07),lens=70,aspect=1.25),
  'box_empty':dict(location=(-.33,.33,.18),target=(0,0,-.07),lens=70,aspect=1.25),
 })
+
+SHOTS['cover_open_full']=dict(location=(-.90,-.10,.58),target=(0,.10,.15),lens=40,aspect=1.5,action='Reload',frame=60)
+for i,f in enumerate((0,3,5,6,7,8,12)):
+ SHOTS[f'belt_advance_{i:02d}']=dict(location=(-.30,.035,.24),target=(-.035,.17,.111),lens=65,aspect=1.4,action='Fire',frame=f,time_s=f/60)

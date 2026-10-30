@@ -7,9 +7,11 @@ from kit.fonts import find_font
 BASE=Path(__file__).resolve().parents[1]
 def main():
  out=BASE/'renders/checkpoint';out.mkdir(parents=True,exist_ok=True)
- paths=list(sorted(out.glob('*.png')))+list(sorted((out/'pairs').glob('*-pair.jpg')))
+ paths=[p for p in sorted(out.glob('*.png')) if not p.stem.endswith('-dimensions')]+list(sorted((out/'pairs').glob('*-pair.jpg')))
  paths+=list(sorted((out/'detachables').glob('*/*.png')))
  if (out/'sections.jpg').exists():paths.append(out/'sections.jpg')
+ if (out/'belt-advance.jpg').exists():paths.append(out/'belt-advance.jpg')
+ if (out/'orthographic-dimensions.jpg').exists():paths.append(out/'orthographic-dimensions.jpg')
  font=ImageFont.truetype(find_font('Noto Sans','Regular'),18)
  pages=[]
  for k in range(0,len(paths),12):
