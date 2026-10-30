@@ -32,10 +32,10 @@ CLIPS := Idle Fire FireLast Reload ReloadEmpty Inspect IdleEmpty IdleOpen IdleTu
 STRIPS := $(addprefix renders/final/strips/,$(addsuffix .jpg,$(CLIPS))) $(addprefix renders/final/strips/,$(addsuffix .webp,$(CLIPS))) renders/final/strips/timing.json
 RENDER_DEPS := src/render.py src/shots.py src/final_shots.py ../common/render.py build/render-parameters.txt
 .PHONY: all refs model prepare lookdev bake export atlas check check-repo verify check-atlas check-repeat render match source-match strips shells extra orthos atlas-views review docs critique wear-audit sections clean FORCE
-all: refs export check render match strips extra source-match review docs
+all: refs export feed-audit check render match strips feed-strips extra source-match review docs
 refs:
 	$(PYTHON) $(KIT)/fetch_refs.py refs
-$(MODEL) &: src/build.py src/clips.py src/interface.py ../../kit/model.py ../../kit/weapon.py
+$(MODEL) &: src/build.py src/clips.py src/feed.py src/interface.py ../common/feed_sampling.py ../../kit/model.py ../../kit/weapon.py
 	@mkdir -p build $(TMPDIR)
 	$(BP) --python src/build.py -- --out build/shotgun.blend
 model: $(MODEL)
@@ -64,6 +64,7 @@ $(TEXTURES) &: $(BAKED) ../../kit/downsample.py
 $(EXPORTS) $(SUBSET_LAYOUTS) &: $(TEXTURES) $(PREPARED) src/config.py src/shell_config.py src/hull_config.py ../../kit/export.py ../../kit/weapon.py ../../kit/detachable_textures.py ../../kit/detachable_clusters.py
 	@mkdir -p export
 	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset Hearth12 --config src/config.py --out export/shotgun.glb --report build/delivery/export.json
+	$(BP) --python ../common/feed_sampling.py -- --source build/delivery/finalized.blend --out export/shotgun.glb --bones Carrier,CarrierGuide,CarrierShell,ChamberShell,FiredGuide,FiredHull,ShellGuide,InsertShell,Follower,TubeFeedGuide,Tube1,Tube2,Tube3,Tube4
 	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset Hearth12 --config src/shell_config.py --out export/shell.glb --report build/delivery/shell-export.json
 	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset Hearth12 --config src/hull_config.py --out export/hull.glb --report build/delivery/hull-export.json
 export: $(EXPORTS) $(SUBSET_LAYOUTS) src/rounding_config.py ../../kit/gltf.py
@@ -112,6 +113,13 @@ extra shells: $(EXTRAS)
 $(STRIPS) &: $(EXPORTS) $(RENDER_DEPS) src/strips.py src/interface.py ../common/strips.py
 	$(PYTHON) src/strips.py
 strips: $(STRIPS)
+.PHONY: feed-strips feed-before-strips feed-audit
+feed-strips: $(EXPORTS) src/cycle_views.py src/feed_strips.py ../common/feed_views.py ../common/feed_strips.py
+	$(PYTHON) src/feed_strips.py
+feed-before-strips:
+	$(PYTHON) src/feed_strips.py --before
+feed-audit: model
+	$(BP) --python src/feed_audit.py
 critique: $(EXPORTS) build/cameras.json
 	$(PYTHON) src/critique.py --pass $(PASS)
 wear-audit: $(EXPORTS) src/wear_mask.py

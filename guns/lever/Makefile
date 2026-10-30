@@ -28,10 +28,10 @@ RENDER_DEPS := src/final_render.py src/final_shots.py src/shots.py ../common/ren
 PHOTO_DEPS := build/cameras.json src/white_balance.py src/photo_matches.py
 PAIRS := $(addprefix renders/final/pairs/,$(addsuffix -pair.jpg,$(subst $(comma), ,$(PHOTO_SHOTS))))
 .PHONY: all refs model prepare lookdev bake export check check-repo verify check-atlas repeat render match source-match strips extra review docs clean FORCE checkpoint
-all: refs export check form-review render match source-match strips extra wear-review look-review review docs
+all: refs export feed-audit check form-review render match source-match strips feed-strips extra wear-review look-review review docs
 refs:
 	$(PYTHON) $(KIT)/fetch_refs.py refs
-$(MODEL) &: $(addprefix src/,build.py clips.py dimensions.py forms.py geometry.py mechanism.py interface.py) ../common/ammo_3030.py ../common/interface_v1_5.py
+$(MODEL) &: $(addprefix src/,build.py clips.py dimensions.py forms.py geometry.py mechanism.py interface.py feed.py) ../common/feed_sampling.py ../common/ammo_3030.py ../common/interface_v1_5.py
 	@mkdir -p build $(TMPDIR)
 	$(BP) --python src/build.py -- --out build/lever.blend
 model: $(MODEL)
@@ -60,6 +60,7 @@ $(TEXTURES) &: $(BAKED) $(KIT)/downsample.py
 $(EXPORTS) $(SUBSET_LAYOUTS) &: $(TEXTURES) $(PREPARED) src/config.py src/cartridge_config.py src/case_config.py $(KIT)/export.py ../../kit/detachable_textures.py ../../kit/detachable_clusters.py ../../kit/gltf.py src/export_config.py
 	@mkdir -p export
 	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset BrackenL20 --config src/export_config.py --out export/lever.glb --report build/delivery/export.json
+	$(BP) --python ../common/feed_sampling.py -- --source build/delivery/finalized.blend --out export/lever.glb --bones Lever,Link,Carrier,CarrierGuide,CarrierRound,FiredGuide,FiredCase,ChamberRound,Follower,TubeFeedGuide,Tube1,Tube2,Tube3,Tube4,Tube5,Tube6
 	$(BP) --python $(KIT)/gltf.py -- --source export/lever.glb --config src/export_config.py
 	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset BrackenL20 --config src/cartridge_config.py --out export/cartridge.glb --report build/delivery/cartridge-export.json
 	$(BP) --python $(KIT)/export.py -- --source build/delivery/finalized.blend --textures textures --asset BrackenL20 --config src/case_config.py --out export/case.glb --report build/delivery/case-export.json
@@ -97,6 +98,13 @@ source-match: build/delivery/high.blend $(RENDER_DEPS) $(PHOTO_DEPS)
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/cameras.json --renders renders/final/source-photos --out renders/final/source-pairs
 strips: $(EXPORTS) $(RENDER_DEPS)
 	$(PYTHON) src/final_strips.py
+.PHONY: feed-strips feed-before-strips feed-audit
+feed-strips: $(EXPORTS) src/cycle_views.py src/feed_strips.py ../common/feed_views.py ../common/feed_strips.py
+	$(PYTHON) src/feed_strips.py
+feed-before-strips:
+	$(PYTHON) src/feed_strips.py --before
+feed-audit: model
+	$(BP) --python src/feed_audit.py
 extra: $(EXPORTS) $(RENDER_DEPS) src/ammo_render.py
 	$(KIT)/with_gpu.sh $(BP) --python src/ammo_render.py -- --source export/cartridge.glb --out renders/final/cartridge --width 1100 --samples $(SAMPLES) --shots cartridge,headstamp
 	$(KIT)/with_gpu.sh $(BP) --python src/ammo_render.py -- --source export/case.glb --out renders/final/case --width 1100 --samples $(SAMPLES) --shots case,mouth,headstamp

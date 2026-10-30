@@ -160,13 +160,13 @@ not used to infer roughness from the photograph's different lights.
 The whole-flat hero median is **76/53/38**, versus photo **79/53/36**;
 the matched used-view whole flat is **70/48/34**. Hero display-luma
 p10/median/p90 is **49.23/56.59/68.88**, versus photo **46.10/56.95/72.65**.
-The hero bright decile is **91/68/53**, median pixel saturation **.418**;
+The hero bright decile is **91/68/53**, median pixel saturation **.416**;
 the photograph is **104/73/57 / .444**. Macro and matched-view bright-decile
-saturations are **.427 / .429**, also below the photo. These distributions
+saturations are **.425 / .429**, also below the photo. These distributions
 include narrow protected seats and exclude separate hardware.
 
 A fixed physical shoulder site, away from bare corner rubs, reflects the key
-at **138/128/123** in the hero's bright reflection decile and **135/126/123**
+at **138/127/123** in the hero's bright reflection decile and **134/127/123**
 in the macro. `reflection-samples.jpg` marks this site, the upper flat and
 front ring. `receiver-used-closeup.jpg` keeps the entire receiver beside the
 used photo; `receiver-sites.jpg` names nine physical sites, and `wear-sites.jpg`
@@ -180,8 +180,8 @@ luma **62.20**. It is retained in the value sheet, rather than averaged into
 the primary used-view patches. Different incident light and the photographed
 stock finish prevent treating that comparison as a recovered wood albedo.
 
-Brass, copper jacket, lead cap and primer retain their original materials and
-geometry. Standalone ammunition also retains its accepted original studio
+Visible brass, copper jacket, lead cap and primer surfaces retain their original
+materials and geometry. Standalone ammunition also retains its accepted studio
 cards and exposure. The fired case has its struck primer, open mouth and localized soot.
 The complete metal display measurements remain in
 `renders/final/pairs/ammunition-values.json`, including mismatches caused by
@@ -201,6 +201,9 @@ and connected components. The photo uses the same independent native gray-
 fillet annotation and approximate 115 × 8 mm physical envelope. The original
 25.1% / 27.1% color-mask comparison remains historical evidence in REVIEW.md;
 new scalar-factor measurements are distinguished from that earlier metric.
+After the feed geometry repack, the factor grid measures **28.70%** against
+**27.07%** in the photo annotation, with one connected region each. UV filtering
+changes the sampled boundary; the underlying physical contact expressions remain.
 The diagnostic mask is never embedded or shipped as an additional texture.
 
 ## Frame, rig and consumer binding
@@ -209,7 +212,8 @@ The [1.5.0 additive supplement](INTERFACE.md) preserves the family 1.0.0 contrac
 and reuses 1.1.0 tube-loading/interruption meanings. Meters, grip origin,
 Blender +Y forward / +Z up / +X right; glTF −Z forward / +Y up. Internal Root
 remains identity. Whole-instance stance/recoil and hand IK belong to the
-consumer. All 26 bones, 37 clips and ten complete socket frames are retained.
+consumer. All existing names remain; three additive bones bring the rig to
+29 bones, with 37 clips and ten complete socket frames.
 
 | Part | Rest pivot or travel, Blender mm | Visual range |
 | --- | --- | --- |
@@ -217,7 +221,7 @@ consumer. All 26 bones, 37 clips and ten complete socket frames are retained.
 | Lower link | X at (0,195,5) | 0–20 degrees |
 | Bolt | Y translation | 90 mm rearward |
 | Locking block | Z translation | 30 mm down |
-| Carrier | X at (0,85,7) | 0–20 degrees |
+| Carrier | X at (0,85,7) | 0–16 degrees feeding/loading; legacy IdleOpen reference 20 degrees |
 | Hammer | X at (0,70,30) | Fired 0, half-cock 12, cocked 44, overtravel 90 degrees |
 | Trigger | X at (0,83,0) | 0 to −12 degrees |
 | Loading cover | Z at (15.2,122,20) | 0–28 degrees inward |
@@ -232,9 +236,47 @@ executable binding is [src/interface.py](src/interface.py).
 
 The gun exports as one rigidly weighted skin/material primitive. Cartridge and
 case export unskinned at their head-centered origins, +Y toward the mouth.
-At eject, the ejection socket equals the case head frame; consumers can spawn
-the standalone case and hide the demonstration representation. Feeding remains
-a declared visual ownership handoff rather than cartridge-path physics.
+At eject, consumers use the supplement's FiredGuide case-head matrix to spawn
+the standalone case and hide the demonstration representation. Socket_Ejection
+retains its legacy effect frame. Feeding now has a continuous authored path,
+with coincident ownership changes rather than blanked tube displays.
+
+### Visible feed audit
+
+The original 90 mm bolt draw was sufficient, with 15 mm behind the presented
+rim. Its low tray was wrong: the cartridge was inclined −20°, its head 11.85 mm
+above the tube axis, and it appeared on the tray at f28 without leaving the
+tube. The lift occurred over f34–36 rather than the declared full lift interval.
+Reloads blanked tube displays before reindexing. The old case translated upward
+without turning about the extractor. No live-round unload clip exists.
+
+The corrected 68 mm tray is horizontal on the 20 mm tube axis. The 64.77 mm
+cartridge travels from the metering stop onto it, then rises 16°: head lift
+13.55 mm, nose lift 31.41 mm. The open bolt has 18.73 mm behind the actual
+inclined rear-rim plane. Stop/cutoff tips, extractor/ejector contacts, an internal
+receiver throat and concealed forend pockets make that path clear. The bolt
+underside pocket and feed heel support the push. Outer barrel length, overall
+length, ammunition dimensions and all events remain. Fine hidden ammunition
+interior rings pay for the added parts within the original triangle ceiling.
+
+The [primary action sequence](refs/SOURCES.md#visible-feed-correction--2026-10-29)
+and [additive clip/handoff details](INTERFACE.md#visible-feeding-additive-correction)
+distinguish class evidence from our authored geometry/timing. Independent
+triangle-surface checks cover the stops, rising tray, bolt contact, chamber
+lead-in and extraction at intermediate frames, repeated on imported GLB
+triangles: **492** contact assertions, including **426** feed/handoff assertions,
+pass on the baked import. Moving ammunition participates in **10,619**
+clearance samples across all 37 clips, with zero policy violations.
+Native fractional pickup/quarter-frame path keys and STEP indexing survive the
+GLB round trip; uniform 60-Hz export alone blurred those boundaries.
+
+All action, reload and inspection clips have **30-Hz exported-GLB port and
+cutaway strips**, with real-speed WebPs under `renders/feed/before/` and
+`renders/feed/after/`. Full frames, renderer/GLB hashes, decoded durations and
+native inspection pages accompany them. Synchronized comparisons are under
+`renders/feed/comparison/` (for example `Cycle-port.jpg` and `Cycle-cutaway.jpg`);
+each adjacent pair uses the same source frame, before on the left. `build/feed-audit.json` contains the
+actual contact measurements and physics continuation pose/velocities.
 
 ![Open action, exact aimed view, live cartridge and fired case](docs/action.jpg)
 
@@ -242,11 +284,11 @@ a declared visual ownership handoff rather than cartridge-path physics.
 
 | Output | Triangles | Materials | GLB bytes | Map size | Density ratio |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Carbine, including all ammunition displays | 39,814 | 1 | 12,212,120 | 2048 | — |
-| Live cartridge | 1,598 | 1 | 492,544 | 1024 | 1.000 |
+| Carbine, including all ammunition displays | 39,800 | 1 | 21,606,688 | 2048 | — |
+| Live cartridge | 1,598 | 1 | 492,548 | 1024 | 1.000 |
 | Fired case | 1,326 | 1 | 516,876 | 1024 | 1.000 |
 
-The inspection source has 39,832 triangles; only microscopic Boolean cleanup
+The inspection source has 39,818 triangles; only microscopic Boolean cleanup
 removes 18 for delivery. The final asset stays below 40k. One 4096/32-sample
 source bake is filtered to a single **2048 BaseColor / OpenGL +Y Normal / ORM**
 set for the gun. ORM is R occlusion, G roughness, B metallic; the gun retains
@@ -261,19 +303,22 @@ texels. Pull-push fills the outside and generated normals are normalized. See
 
 | Canonical 2048 PNG | Bytes |
 | --- | ---: |
-| `T_BrackenL20_BaseColor.png` | 1,891,947 |
-| `T_BrackenL20_Normal.png` | 2,269,287 |
-| `T_BrackenL20_ORM.png` | 2,933,355 |
+| `T_BrackenL20_BaseColor.png` | 1,863,923 |
+| `T_BrackenL20_Normal.png` | 2,243,006 |
+| `T_BrackenL20_ORM.png` | 2,890,375 |
 
-The prepared gun covers about 27.49% of the atlas. Separate regions protect
+The prepared gun covers about 26.23% of the atlas (30.94% with both standalones). Separate regions protect
 stock and forend UV tips and padding from nearby metal, while the same single
 set still serves the gun and ammunition. Median regional shipping densities
-are approximately 2,293 px/m for metal, 2,441 for stock and 1,934 for forend.
+are approximately 2,185 px/m for metal, 2,441 for stock and 1,937 for forend.
 Escaped and degenerate UV triangles are zero; microscopic clipped overlap
-fraction is approximately 3.09e−7, below the unchanged 1e−5 limit. All six bake
-channels miss zero of 4,110,236 checked interior texels. The complete wood
+fraction is approximately 2.50e−7, below the unchanged 1e−5 limit. All six bake
+channels miss zero of 3,891,368 checked interior texels. The complete wood
 regions, including subpixel tips and padding, contain zero metallic texels.
 The generated delivery audit retains full distributions, hashes and sizes.
+The larger GLB includes dense intermediate animation samples that preserve
+fractional pickup and reload boundaries; texture memory and draw calls remain
+within the original budgets.
 
 ![Exported GLB in Eevee with the same atlas](docs/eevee.jpg)
 
@@ -285,6 +330,8 @@ GNU make and flock. No downloaded code, models, materials or lighting are used.
 ```sh
 make -C guns/lever                    # refs through bake, exports, checks and finals
 make -C guns/lever check              # source/finalized/imported construction and motion
+make -C guns/lever feed-audit          # source dimensions, contacts and case handoff
+make -C guns/lever feed-strips         # 30-Hz port and cutaway, exported baked GLB
 make -C guns/lever form-review        # final sight/lever pairs, wrist rake and stroke
 make -C guns/lever render match       # exported GLB stills and photographic pairs
 make -C guns/lever source-match       # separately labeled dense-source comparisons
@@ -304,7 +351,7 @@ shared lease while its per-clip guards use a nested local lock. Scratch stays
 under `build/`.
 `checkpoint.mk` retains the earlier untextured inspection graph.
 
-The 67 actual-surface contacts, tang bearing lands, through-wrist bore,
+The original construction probes plus intermediate feed contacts, tang bearing lands, through-wrist bore,
 plate/wood cover, sight rays and trigger direction establish construction.
 All 37 clips are swept at half frames, with fixed hand envelopes and the same
 bounded contact policy. The lever's mid-plane is tested at each sampled pose.
@@ -321,10 +368,9 @@ Raw GLB corner normals agree within 0.0049 degrees, with exact positions and
 UV error below 0.000061 shipping pixels. Blender's imported custom-normal fan
 encoding reaches 0.584 degrees at one narrow inletting cut; that importer loss
 is measured separately from the raw delivered normals.
-The optional `src/preserve_receiver.py --before <saved-handoff>` audit compares
-all 116 accepted meshes, 26 bones, 37 clips, ten sockets, every nonreceiver
-material node/default/link, and the five accepted lower-fillet expressions.
-The saved handoff is review evidence and is never required by `make`.
+The earlier finish-only preservation evidence, including the pre-feed
+116-mesh/26-bone comparison and five lower-fillet expressions, is archived in
+REVIEW.md. The saved handoff remains optional review evidence.
 See `build/check.json`, `serialization.json`, `delivery/construction.json`,
 `delivery/verify.json`, `final-provenance.json` and `determinism.json`.
 
