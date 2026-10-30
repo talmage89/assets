@@ -740,6 +740,13 @@ before consolidating the main skin. Zero-scale parts are omitted; source meshes,
 UVs and pose are restored. Loaded/empty variants can share the origin and atlas.
 The lower-level `weapon.detachable()` is also available to family scripts.
 
+Standalone subsets preserve each source PNG's 8- or 16-bit channel precision.
+RGB16 normal texels and copied atlas halos therefore remain exact through
+both island and cluster packing. The independent GLB sampler reads RGB16
+without Pillow's implicit eight-bit conversion. The detachable fixture covers
+both packers, posed variants and unchanged main GLBs at both precisions.
+`image_io.read_png` also accepts embedded PNG bytes from that same codec.
+
 An entry may opt into `texture_size=512` or `texture_size=1024`. Its standalone
 GLB then embeds its own BaseColor / OpenGL Normal / ORM set. The main gun keeps
 its original atlas, UVs, materials, rig and clips. Omit the option to retain the

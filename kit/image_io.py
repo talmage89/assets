@@ -15,7 +15,9 @@ def write_png(path,array,bits=8):
 
 
 def read_png(path):
-    data=Path(path).read_bytes();offset=8;compressed=[]
+    # Embedded GLB PNGs use the same lossless codec as file-backed atlases.
+    data=path if isinstance(path,(bytes,bytearray)) else Path(path).read_bytes()
+    offset=8;compressed=[]
     while offset<len(data):
         size=struct.unpack_from('>I',data,offset)[0];tag=data[offset+4:offset+8];payload=data[offset+8:offset+8+size];offset+=size+12
         if tag==b'IHDR':w,h,bits,kind,_,_,interlace=struct.unpack('>IIBBBBB',payload)
