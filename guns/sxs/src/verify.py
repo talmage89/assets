@@ -21,7 +21,7 @@ from interface import CLIPS
 BASE=Path(__file__).resolve().parents[1]
 def main():
  source=BASE/'build/sxs.blend';path=BASE/'export/sxs.glb'
- ownership=projection_ownership();assert ownership['passed'],[r for r in ownership['records'] if r['wrong_constant_texels']]
+ ownership=projection_ownership();assert ownership['passed'],[r for r in ownership['records'] if r['wrong_owner_texels']]
  (BASE/'build/delivery/projection-ownership.json').write_text(json.dumps(ownership,indent=2))
  bpy.ops.wm.open_mainfile(filepath=str(source));arm=next(o for o in bpy.context.scene.objects if o.type=='ARMATURE')
  assert arm['generator_sha256']==generator_digest(),'Stale source generator'
@@ -88,7 +88,7 @@ def main():
  for (clip,f),target in targets.items():
   W.pose(arm,clip,f);error=V.surface_delta(target,V.surface_points(imported));assert error<3e-6,(clip,f,error)
   errors.append(dict(clip=clip,frame=f,error_m=error))
- result=dict(passed=True,stage='baked form checkpoint; finish and wear held',uv=imported_uv,bake_size=4096,ship_size=2048,sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+ result=dict(passed=True,stage='look round one baked export; geometric and serialization checks are separate from photographic look acceptance',uv=imported_uv,bake_size=4096,ship_size=2048,sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
   triangles=count,materials=len(data.json['materials']),textures=3,texture_png_bits=png_bits,glb_bytes=path.stat().st_size,projection_ownership=ownership,action_normal_projection=projection,
   bones=len(arm.data.bones),clips=len(CLIPS),sockets=len(sockets),parts=len(parts),bounds_m=bounds,
   dimensions_mm=((np.array(bounds[1])-bounds[0])*1000).tolist(),measured_parts_mm=dims,length_of_pull_mm=pull*1000,
@@ -96,7 +96,7 @@ def main():
   max_linear_error=max(r['linear_delta'] for r in affine),surface_poses=errors,
   form_gauges=gauges,source_semantics=source_semantics,imported_semantics=imported_semantics,imported_contacts=contacts,standalones={})
  for name,(target,xf) in spawn.items():
-  item=BASE/'build'/(name+'.glb');data=GLB(item);normal=V.normal_direction(data);V.import_glb(item)
+  item=BASE/'export'/(name+'.glb');data=GLB(item);normal=V.normal_direction(data);V.import_glb(item)
   meshes=[o for o in bpy.context.scene.objects if o.type=='MESH'];assert len(meshes)==1 and meshes[0].matrix_world.is_identity
   vertices=V.surface_points(meshes);error=V.surface_delta(target,[xf@Vector(v) for v in vertices]);assert error<3e-6,(name,error)
   p=np.array(vertices);size=(p.max(axis=0)-p.min(axis=0))*1000

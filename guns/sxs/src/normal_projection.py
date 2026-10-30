@@ -7,6 +7,7 @@ Construction ownership prevents projection across roof/lip/floor/end boundaries.
 The actual ground planes are fitted by SVD. No painted or photo-derived pixels.
 """
 import hashlib
+import argparse
 import json
 import shutil
 import sys
@@ -43,8 +44,8 @@ def unit(v):
     return v / np.maximum(np.linalg.norm(v, axis=1, keepdims=True), 1e-15)
 
 
-def dense_sources():
-    bpy.ops.wm.open_mainfile(filepath=str(BASE / 'build/delivery/high.blend'))
+def dense_sources(high):
+    bpy.ops.wm.open_mainfile(filepath=str(high))
     mesh = bpy.data.objects['Action_Body'].data
     mesh.calc_loop_triangles()
     points = [v.co.copy() for v in mesh.vertices]
@@ -95,10 +96,17 @@ def source_normals(points, region):
 
 
 def main():
+    global OUT
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--high',type=Path,default=BASE/'build/delivery/high.blend')
+    parser.add_argument('--baked',type=Path,default=BASE/'build/baked/4k')
+    parser.add_argument('--out',type=Path,default=OUT)
+    args=parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
+    OUT=args.out
     OUT.mkdir(parents=True, exist_ok=True)
-    planes, fits, regions = dense_sources()
+    planes, fits, regions = dense_sources(args.high)
     bpy.ops.wm.open_mainfile(filepath=str(BASE / 'build/delivery/finalized.blend'))
-    normal = read_png(BASE / 'build/baked/4k/T_Covey26_Normal.png')
+    normal = read_png(args.baked/'T_Covey26_Normal.png')
     changed = np.zeros((SIZE, SIZE), bool)
     occupied = Image.new('1', (SIZE, SIZE))
     draw = ImageDraw.Draw(occupied)
@@ -182,15 +190,15 @@ def main():
     normal[y0:y1, x0:x1][valid] = patch[valid]
     write_png(OUT / 'T_Covey26_Normal.png', normal, 16)
     for channel in ('BaseColor', 'ORM'):
-        shutil.copyfile(BASE / f'build/baked/4k/T_Covey26_{channel}.png', OUT / f'T_Covey26_{channel}.png')
+        shutil.copyfile(args.baked/f'T_Covey26_{channel}.png', OUT / f'T_Covey26_{channel}.png')
     report = dict(
         method='Dense original forging, ownership-constrained closest-surface normal projection through actual Mikk tangent basis',
         size=SIZE, regions=counts, source_planes=fits,
         ground_triangles=flat_triangles, ground_texels=flat_texels,
         interior_texels=int(changed.sum()), gutter_texels=int(valid.sum()-changed.sum()),
         gutter_policy='Exact action pixel-center occupancy; conservatively block every other part',
-        source_sha256={name: digest(BASE / 'build/delivery' / name) for name in ('finalized.blend', 'high.blend')},
-        gpu_normal_sha256=digest(BASE / 'build/baked/4k/T_Covey26_Normal.png'),
+        source_sha256={'finalized.blend':digest(BASE/'build/delivery/finalized.blend'),'high.blend':digest(args.high)},
+        gpu_normal_sha256=digest(args.baked/'T_Covey26_Normal.png'),
         output_normal_sha256=digest(OUT / 'T_Covey26_Normal.png'))
     (OUT / 'projection-report.json').write_text(json.dumps(report, indent=2))
     print('DENSE ACTION NORMAL PROJECTION', report)
