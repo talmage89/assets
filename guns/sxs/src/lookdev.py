@@ -28,11 +28,12 @@ def inputs(n):
     p=n.node('ShaderNodeAttribute',attribute_name='FinishPosition').outputs['Vector']
     normal=n.node('ShaderNodeAttribute',attribute_name='FinishNormal').outputs['Vector']
     return p,*n.split(p),*n.split(normal)
-def finish(n,base,rough,metal,height=0,ao=1,sites=None):
+def finish(n,base,rough,metal,height=0,ao=1,sites=None,spec=.45):
     for site in SITES:n.channel(site,(sites or {}).get(site,0))
     n.channel('micro_ao',ao)
+    n.channel('specular_factor',n.mul(spec,2))
     mat=n.finish(base,rough,metal,height,bump=1)
-    mat.node_tree.nodes['SURFACE'].inputs['Specular IOR Level'].default_value=.33
+    n.feed(mat.node_tree.nodes['SURFACE'].inputs['Specular IOR Level'],spec)
     return mat
 
 def steel(name,role,wear):
@@ -48,7 +49,7 @@ def steel(name,role,wear):
         warp=n.noise(p,75,3)
         warped=n.vec('ADD',p,n.vec('MULTIPLY',n.combine(warp,n.noise(p,96,2),n.noise(p,57,3)),(.013,.013,.013)))
         flow=n.noise(warped,180,3)
-        blue=(.012,.020,.030);straw=(.050,.040,.024);brown=(.028,.018,.010)
+        blue=(.10,.13,.16);straw=(.18,.16,.12);brown=(.14,.10,.075)
         oxide=n.mix(n.ramp(flow,.29,.48),brown,straw,True)
         oxide=n.mix(n.ramp(flow,.48,.66),oxide,blue,True)
         # Flats handled during carrying and wiping lose color first. Fence
@@ -56,13 +57,13 @@ def steel(name,role,wear):
         flats=n.mul(n.ramp(ab(n,nx),.75,.97),interval(n,y,.071,.155,.012))
         lower=n.mul(n.ramp(nz,-.20,-.88),interval(n,y,.076,.163,.012),.80)
         crest=n.mul(n.ramp(z,.044,.055),n.ramp(ab(n,nx),.7,.15),.30)
-        pressure=n.maximum(n.mul(flats,.74),lower,crest)
+        pressure=n.maximum(n.mul(flats,.68),lower,crest)
         edge=n.maximum(n.mul(n.band(ax,.0257,.00045,.0011),n.ramp(z,.015,.007)),
                        n.mul(n.ramp(y,.176,.181),n.ramp(ab(n,nx),.3,.9)))
-        fade=n.ramp(n.mul(n.maximum(pressure,edge),broken,wear['action_fade']),.36,.82)
+        fade=n.ramp(n.mul(n.maximum(pressure,edge),broken,wear['action_fade']),.48,.82)
         sites['action_fade']=fade
-        base=n.mix(fade,oxide,(.20,.21,.22),True)
-        rough=n.mix(fade,n.add(.42,n.mul(sub(n,polish,.5),.08)),.46)
+        base=n.mix(fade,oxide,(.228,.238,.248),True)
+        rough=n.mix(fade,n.add(.30,n.mul(sub(n,polish,.5),.08)),.39)
         # Fine oxide freckles survive in the colored surface, while wiping
         # pressure smooths the faded flats. No uncaused dirt blanket.
         speck=n.mul(n.ramp(n.noise(p,2200,2),.46,.70),sub(n,1,n.mul(fade,.8)))
@@ -75,44 +76,61 @@ def steel(name,role,wear):
         base=n.mix(face,base,(.24,.25,.26),True);rough=n.mix(face,rough,.31)
     elif role=='barrel':
         base=(.0397,.0427,.0430)
-        rough=n.add(.34,n.mul(sub(n,polish,.5),.06))
+        rough=n.add(.24,n.mul(sub(n,polish,.5),.06))
         # A carrying hand rests beyond the splinter, wrapping both outside
         # flanks. Long rubs merge at the pressure maximum; there is no cuff.
         center=n.add(.244,n.mul(nz,.025),n.mul(nx,.010))
-        carry=n.mul(oval(n,y,z,center,.045,.088,.016),n.ramp(ab(n,nx),.12,.80),
+        carry=n.mul(oval(n,y,z,center,.039,.097,.0135),n.ramp(ab(n,nx),.12,.80),
                     n.ramp(nz,.86,.40),broken,wear['barrel_carry'])
         carry=n.ramp(carry,.23,.79)
-        muzzle=n.mul(n.ramp(y,.7715,.7752),n.add(.65,n.mul(n.ramp(ab(n,nx),.20,.85),.35)),broken,wear['muzzles'])
+        muzzle=n.mul(n.ramp(y,.7667,.7738),n.add(.65,n.mul(n.ramp(ab(n,nx),.20,.85),.35)),broken,wear['muzzles'])
         muzzle=n.ramp(muzzle,.16,.76)
         sites.update(barrel_carry=carry,muzzles=muzzle)
         rub=n.maximum(carry,muzzle)
-        base=n.mix(rub,base,(.24,.26,.28),True);rough=n.mix(rub,rough,.36)
+        # Hand rubbing thins the oxide; it does not expose fresh white steel.
+        base=n.mix(carry,base,(.15,.17,.19),True)
+        base=n.mix(muzzle,base,(.24,.26,.28),True);rough=n.mix(rub,rough,.36)
         bore=n.mul(n.ramp(ny,.90,.2),n.ramp(y,.771,.7754),n.ramp(nz,.1,-.4),.15)
         rough=n.add(rough,bore)
     elif role=='lever':
-        touch=n.mul(interval(n,y,.014,.048,.004),n.ramp(nz,-.20,.40),n.ramp(x,-.006,-.003),broken,wear['lever_thumb'])
+        base=(.021,.023,.025)
+        # Fine-filed upper thumb land retains satin blue between contact rubs;
+        # the protected stem keeps its polished reflection.
+        rough=n.mix(n.mul(n.ramp(nz,.50,.95),interval(n,y,.0,.065,.006)),.31,.75)
+        touch=n.mul(interval(n,y,.020,.042,.004),n.ramp(nz,-.20,.40),n.ramp(x,-.006,-.003),broken,wear['lever_thumb'])
         rub=n.ramp(touch,.17,.70);sites['lever_thumb']=rub
-        base=n.mix(rub,base,(.56,.59,.62),True);rough=n.mix(rub,rough,.31)
+        base=n.mix(rub,base,(.56,.59,.62),True);rough=n.mix(rub,rough,.19)
         # Small original thumb-file cuts, cut normal only, not triangles.
         cuts=n.ramp(n.math('PINGPONG',n.add(n.mul(x,.80),n.mul(y,.60)),.000635),.00016,.00006)
         h=n.add(h,n.mul(cuts,interval(n,y,.023,.043,.002),n.ramp(nz,.55,.95),-.000045,sub(n,1,n.mul(rub,.8))))
     elif role=='guard':
-        pressure=n.maximum(n.mul(interval(n,y,.019,.054,.009),n.ramp(ny,.35,-.85),n.ramp(z,-.028,-.010)),
-                           n.mul(interval(n,y,.025,.086,.011),n.ramp(nz,-.1,.75),n.ramp(z,-.021,-.031)))
-        rub=n.ramp(n.mul(pressure,broken,wear['guard_fingers']),.17,.76)
+        base=(.020,.022,.024)
+        # Follow the real formed band's changing width and its continuous
+        # inner bow: rear normal +Y, floor +Z, front normal -Y. The former
+        # rear interval tested a front-facing normal and missed both curves.
+        rear=n.mul(interval(n,y,.008,.040,.012),n.ramp(ny,.15,.85),n.ramp(z,-.007,-.015))
+        floor=n.mul(interval(n,y,.016,.101,.012),n.ramp(nz,-.20,.65),n.ramp(z,-.017,-.027))
+        front=n.mul(interval(n,y,.079,.106,.010),n.ramp(ny,-.15,-.85),n.ramp(z,.001,-.008))
+        pressure=n.maximum(rear,floor,front)
+        half_width=n.mul(.0062,n.add(.64,n.mul(n.ramp(y,.013,.038),.36)))
+        contact_edge=sub(n,half_width,.0016)
+        rub=n.ramp(n.mul(pressure,n.band(x,contact_edge,.0008,.0010),n.ramp(ab(n,nx),.95,.45),broken,wear['guard_fingers']),.17,.76)
         sites['guard_fingers']=rub
-        base=n.mix(rub,base,(.56,.59,.62),True);rough=n.mix(rub,rough,.43)
+        base=n.mix(rub,base,(.56,.59,.62),True);rough=n.mix(rub,rough,.14)
     elif role=='trigger':
-        base=(.025,.027,.029);rough=n.add(.32,n.mul(sub(n,polish,.5),.07))
+        base=(.030,.031,.034);rough=n.add(.32,n.mul(sub(n,polish,.5),.07))
         # Intact blued blade flats and polished contact edges.
         edge=n.ramp(ab(n,nx),.98,.70)
-        base=n.mix(edge,base,(.12,.125,.13),True);rough=n.mix(edge,rough,.24)
+        base=n.mix(edge,base,(.040,.036,.036),True);rough=n.mix(edge,rough,.50)
     elif role=='safety':
-        base=(.24,.25,.26);rough=.32
-        cuts=n.maximum(n.ramp(n.math('PINGPONG',n.add(x,y),.00056),.00014,.00005),
-                       n.ramp(n.math('PINGPONG',sub(n,x,y),.00056),.00014,.00005))
-        h=n.add(h,n.mul(cuts,n.ramp(nz,.5,.95),-.00012))
-        base=n.mix(n.mul(cuts,n.ramp(nz,.5,.95),.55),base,(.025,.027,.029),True)
+        base=(.2635,.255,.22);rough=.24
+        a=n.math('PINGPONG',n.add(x,y),.00056)
+        b=n.math('PINGPONG',sub(n,x,y),.00056)
+        shape=n.math('DIVIDE',n.math('MINIMUM',a,b),.00056)
+        field=n.ramp(nz,.5,.95);cavity=n.mul(n.ramp(shape,.42,.10),field)
+        h=n.add(h,n.mul(sub(n,shape,1),field,.00018))
+        base=n.mix(n.mul(cavity,.94),base,(.008,.009,.010),True)
+        rough=n.mix(cavity,rough,.45)
     elif role=='rib':
         rough=.49
         # Fine longitudinal matting; no change to the accepted rib surface.
@@ -140,35 +158,43 @@ def wood(name,role,wear):
     phase=n.mul(n.add(radius,arch,figure),math.tau/.0039)
     phase=n.add(phase,n.mul(n.math('SINE',n.mul(radius,420)),.75),n.mul(n.math('SINE',n.mul(radius,1140)),.35))
     year=n.math('FRACT',n.mul(phase,1/math.tau));late=n.ramp(year,.88,.99)
-    tone=n.add(.48,n.mul(n.ramp(year,.1,.63),.09),n.mul(n.ramp(year,.65,.96),-.085))
-    low,high=((.022,.008,.0035),(.155,.063,.034)) if role=='stock' else ((.012,.0042,.0021),(.070,.028,.014))
+    tone=n.add(.42,n.mul(n.ramp(year,.1,.63),.20),n.mul(n.ramp(year,.65,.96),-.20))
+    low,high=((.025,.008,.0035),(.30,.110,.052)) if role=='stock' else ((.01152,.004032,.002268),(.1064,.03136,.01764))
     base=n.mix(tone,low,high,True)
     base=n.mix(n.mul(late,.16),base,(.010,.0035,.0017),True)
     cells=n.node('ShaderNodeTexVoronoi',feature='F1',distance='EUCLIDEAN')
     n.feed(cells.inputs['Vector'],n.combine(n.mul(x,1650),n.mul(y,190),n.mul(zz,1700)));cells.inputs['Scale'].default_value=1
     col=n.node('ShaderNodeSeparateColor',mode='RGB');n.feed(col.inputs[0],cells.outputs['Color'])
-    pores=n.mul(n.ramp(cells.outputs['Distance'],.29,.11),n.ramp(col.outputs[0],.40,.70))
-    fiber=n.ramp(n.voronoi(n.combine(n.mul(x,1500),n.mul(y,85),n.mul(zz,1700)),1,'DISTANCE_TO_EDGE'),.13,.035)
-    base=n.mix(n.mul(fiber,.28),base,(.017,.005,.0023),True)
+    pores=n.mul(n.ramp(cells.outputs['Distance'],.36,.11),n.ramp(col.outputs[0],.40,.70))
+    fiber=n.ramp(n.voronoi(n.combine(n.mul(x,1500),n.mul(y,45),n.mul(zz,1700)),1,'DISTANCE_TO_EDGE'),.13,.035)
+    base=n.mix(n.mul(fiber,.70 if role=='stock' else .65),base,(.017,.005,.0023),True)
     base=n.mix(n.mul(pores,.70),base,(.006,.0024,.0012),True)
     h=n.add(n.mul(late,-8e-6),n.mul(fiber,-6e-6),n.mul(pores,-28e-6))
-    rough=n.add(.34 if role=='stock' else .43,n.mul(pores,.10),n.mul(late,.025));ao=n.mix(pores,1,.87)
+    rough=n.add(.29 if role=='stock' else .40,n.mul(pores,.10),n.mul(late,.025));ao=n.mix(pores,1,.87)
     if role=='stock':
         # Paired original pointed panels; cutter directions have unit length,
         # so perpendicular pitch is exactly 25.4 / 20 = 1.27 mm on the side.
         dist=polygon(n,y,z,[(-.088,-.006),(-.069,-.018),(-.012,-.016),(.023,.003),(.011,.021),(-.043,.017)])
         facing=n.mul(n.ramp(ab(n,nx),.50,.88),n.ramp(ab(n,x),.010,.014))
         u,v=y,z;point_site='wrist_points'
-        pressure=n.mul(oval(n,y,z,-.027,.000,.041,.016),wear[point_site])
+        pressure=n.mul(oval(n,y,z,-.027,.000,.055,.019),wear[point_site])
     else:
         check=n.node('ShaderNodeAttribute',attribute_name='CheckPosition').outputs['Vector']
         u,v,_=n.split(check)
         dist=polygon(n,u,v,[(.198,-.035),(.214,-.045),(.312,-.038),(.333,0),(.312,.038),(.214,.045)])
         facing=n.ramp(nz,.50,.05);point_site='forend_points'
-        pressure=n.mul(oval(n,u,v,.265,0,.045,.043),wear[point_site])
+        pressure=n.mul(oval(n,u,v,.265,0,.055,.045),wear[point_site])
     inside=n.mul(n.ramp(dist,.0016,.0022),facing)
-    a=n.math('PINGPONG',n.add(n.mul(u,.60),n.mul(v,.80)),.000635)
-    b=n.math('PINGPONG',sub(n,n.mul(u,.60),n.mul(v,.80)),.000635)
+    cut_u=n.add(n.mul(u,.60),n.mul(v,.80));cut_v=sub(n,n.mul(u,.60),n.mul(v,.80))
+    a=n.math('PINGPONG',cut_u,.000635)
+    b=n.math('PINGPONG',cut_v,.000635)
+    # Contact spans the entire grip. Individual cutter points flatten at
+    # different rates as grain hardness varies; never polish a solid stripe.
+    hardness=n.node('ShaderNodeTexWhiteNoise',noise_dimensions='3D')
+    n.feed(hardness.inputs['Vector'],n.combine(n.math('FLOOR',n.math('DIVIDE',cut_u,.00127)),
+           n.math('FLOOR',n.math('DIVIDE',cut_v,.00127)),n.add(17.3,n.mul(n.math('LESS_THAN',x,0),31.1)) if role=='stock' else 17.3))
+    selected=n.ramp(sub(n,n.mul(pressure,.35 if role=='stock' else .215),hardness.outputs['Value']),-.04,.04)
+    pressure=n.mul(n.ramp(pressure,.15,.65),selected)
     # Distance to either cutter: pointed diamond tops become flat under the
     # hands, with their grooves and the unhandled perimeter left intact.
     peak=n.math('MINIMUM',a,b);shape=n.math('DIVIDE',peak,.000635)
@@ -179,25 +205,26 @@ def wood(name,role,wear):
     border=n.mul(n.maximum(n.band(dist,.00050,.00017,.00018),n.band(dist,.00125,.00012,.00014)),facing)
     h=n.add(h,height,n.mul(border,-.00022))
     relief=n.maximum(n.mul(grooves,inside),border)
-    base=n.mix(n.mul(relief,.78),base,(.010,.0038,.0018),True)
-    ao=n.mix(relief,ao,.70);rough=n.mix(inside,rough,.50)
-    worn=n.mul(pressure,inside,n.ramp(shape,.38,.70));sites[point_site]=worn
-    base=n.mix(n.mul(worn,.80),base,(.20,.100,.044),True);rough=n.mix(worn,rough,.20)
-    # Palm oil settles into surviving grooves while the flattened tips polish.
-    # This causal pressure field remains legible after the game-frame filter.
-    oil=n.mul(pressure,inside)
-    base=n.mix(n.mul(oil,grooves,.45),base,(.006,.0022,.0011),True)
-    rough=n.mix(n.mul(oil,sub(n,1,grooves)),rough,.27)
+    base=n.mix(n.mul(relief,.78 if role=='stock' else .92),base,(.010,.0038,.0018),True)
+    ao=n.mix(relief,ao,.70);rough=n.mix(inside,rough,.50 if role=='stock' else .65)
+    rough=n.mix(n.mul(grooves,inside),rough,.78)
+    # Cut end-grain absorbs more of the oil stain than the planed lands.
+    # This construction response also exists on the unused counterpart.
+    base=n.mix(n.mul(inside,.54 if role=='stock' else .51),base,(.010,.0038,.0018),True)
+    worn=n.mul(pressure,inside,n.ramp(shape,.50,.72));sites[point_site]=worn
+    base=n.mix(n.mul(worn,.80),base,(.20,.100,.044),True);rough=n.mix(worn,rough,.27 if role=='stock' else .36)
+    # Oil finish settles in cut grooves even before use. Preserve it in the
+    # clean counterpart; only flattened point tops change in the wear proof.
+    oil=inside
+    base=n.mix(n.mul(oil,grooves,.15),base,(.006,.0022,.0011),True)
     # Deliberately irregular bowls, concentrated at toe/heel and wood edges.
     # There is no overall noise wash and no change to silhouette geometry.
     if role=='stock':
-        site='stock_toe';dents=[(-.294,-.109,.008,.0034),(-.287,-.108,.0035,.0018),
-          (-.276,-.101,.0045,.0021),(-.293,-.096,.0029,.0036),(-.283,-.111,.0040,.0015),
-          (-.266,-.095,.0031,.0014),(-.291,-.010,.004,.0022),(-.292,-.082,.006,.0025),
-          (-.284,-.090,.005,.0023),(-.282,-.098,.006,.00065)]
+        site='stock_toe';dents=[(-.292,-.106,.0205,.0087),
+          (-.276,-.097,.005,.0018),(-.294,-.011,.003,.0015)]
     else:
-        site='forend_edges';dents=[(.344,.029,.0084,.0014),(.336,.023,.0056,.0010),
-          (.351,.033,.0038,.0023),(.189,.020,.0045,.0029),(.194,.014,.0040,.0023)]
+        site='forend_edges';dents=[(.344,.029,.010296,.001716),(.336,.023,.006864,.001232),
+          (.351,.033,.004653,.002816),(.189,.020,.005522,.003575),(.194,.014,.004906,.002816)]
     all_dents=0
     for cy,cz,wy,wz in dents:
         u0=n.add(n.math('DIVIDE',sub(n,y,cy),wy),n.mul(n.math('DIVIDE',sub(n,z,cz),wz),.31))
@@ -205,13 +232,23 @@ def wood(name,role,wear):
         u0=n.add(u0,n.mul(sub(n,n.noise(p,1450,2),.5),.36))
         r=n.add(n.math('POWER',ab(n,u0),1.5),n.math('POWER',ab(n,v0),1.4))
         dent=n.mul(n.math('MAXIMUM',sub(n,1,r),0),n.ramp(ab(n,nx),.10,.75),wear[site])
-        lip=n.mul(n.band(r,.90,.09,.15),n.ramp(v0,-.1,.75),n.ramp(ab(n,nx),.10,.75),wear[site])
+        # A short torn lip on one impact quadrant, interrupted by fibers.
+        # A full bright upper arc reads as a stamped crescent.
+        fracture=n.ramp(n.noise(n.combine(n.mul(y,2800),n.mul(z,5100),n.mul(x,350)),1,2),.42,.63)
+        lip=n.mul(n.band(r,.90,.06,.09),n.ramp(v0,.12,.60),n.ramp(u0,-.05,.35),fracture,n.ramp(ab(n,nx),.10,.75),wear[site])
         all_dents=n.maximum(all_dents,dent,lip)
-        h=n.add(h,n.mul(dent,dent,-.00018),n.mul(lip,.000035))
-        base=n.mix(n.mul(dent,.36),base,(.011,.0048,.0025),True)
-        base=n.mix(n.mul(lip,.65),base,(.12,.062,.028),True);rough=n.mix(n.maximum(dent,lip),rough,.63)
+        h=n.add(h,n.mul(dent,dent,-.00018),n.mul(lip,.000020))
+        base=n.mix(n.mul(dent,.75),base,(.011,.0048,.0025),True)
+        base=n.mix(n.mul(lip,.65),base,(.25,.14,.068),True);rough=n.mix(n.maximum(dent,lip),rough,.63)
     sites[site]=all_dents
-    return finish(n,base,rough,0,h,ao,sites)
+    # Exposed cut wood is porous; cavities lose reflected visibility. Oil on
+    # the flat lands and flattened tips retains its soft Fresnel sheen.
+    # This is effective reflection visibility, not a different wood albedo.
+    spec=n.mix(inside,.49 if role=='stock' else .45,.16)
+    spec=n.mix(n.mul(relief,.94),spec,.012)
+    spec=n.mix(pores,spec,.10)
+    spec=n.mix(worn,spec,.33)
+    return finish(n,base,rough,0,h,ao,sites,spec)
 
 def ammo(name,role,fired):
     n=Nodes(name);p,x,y,z,nx,ny,nz=inputs(n);fine=n.noise(p,6500,2)
@@ -279,7 +316,7 @@ def assign(amount=1,disabled=()):
             elif key=='wood':role='stock' if ob.name=='Stock_Walnut' else 'forend';mat=wood(name,role,wear)
             elif key=='plate':role='butt';mat=plate(name)
             elif key=='brass':
-                role='bead';n=Nodes(name);mat=finish(n,(.62,.50,.24),.24,1)
+                role='bead';n=Nodes(name);mat=finish(n,(.62,.50,.26),.31,1)
             else:
                 if ob.name in ('Action_Body','Trigger_Plate','Top_Strap','Hinge_Pin'):role='case'
                 elif ob.name.startswith('Barrel_') and ob.name in ('Barrel_R','Barrel_L'):role='barrel'

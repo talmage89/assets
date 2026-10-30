@@ -69,7 +69,21 @@ def main():
  assert set(baked['projection_policy']['moving_roots'])==set(baked['parts_isolated'])
  assert 'Stock_Walnut' not in baked['assembled_contact_policy']['moving_roots']
  assert all(baked[c]['alpha_missed_interior_texels']==0 for c in ('BaseColor','Roughness','Metallic','AO','Normal'))
+ assert baked['specular_alpha_policy'].startswith('Isolated named-part projection')
+ assert baked['specular_alpha_projection']['alpha_missed_owner_covered_texels']==0
  hashes=sorted(hashlib.sha256(data.image(i)).hexdigest() for i in range(3))
+ material=data.json['materials'][0]
+ assert material.get('alphaMode','OPAQUE')=='OPAQUE'
+ specular=material['extensions']['KHR_materials_specular']
+ specular_image=data.json['textures'][specular['specularTexture']['index']]['source']
+ color_image=data.json['textures'][material['pbrMetallicRoughness']['baseColorTexture']['index']]['source']
+ assert specular_image==color_image,'Specular data must reuse BaseColor alpha'
+ from kit.image_io import read_png
+ color_data=read_png(BASE/'textures/T_Covey26_BaseColor.png')
+ assert color_data.shape==(2048,2048,4)
+ alpha=color_data[:,:,3]
+ assert .97<float(alpha.max())<.99,'Missing reflection factor, or owner witness leaked into delivery'
+ assert np.count_nonzero((alpha>.02)&(alpha<.35))>500,'Missing porous/cavity reflection data'
  assert hashes==sorted(hashlib.sha256((BASE/'textures'/('T_Covey26_'+c+'.png')).read_bytes()).hexdigest() for c in ('BaseColor','Normal','ORM'))
  assert {a['name'] for a in data.json['animations']}==set(CLIPS)
  for p in prims:
@@ -80,7 +94,14 @@ def main():
  contacts=measure(arm);gauges=form_gauges(arm);gauges['action_round4']=action_gauges(arm);gauges['head_round5']=head_gauges(arm)
  imported_uv=uv.report([o for o in bpy.context.scene.objects if o.type=='MESH'],size=2048)
  assert not imported_uv['outside_triangles'] and not imported_uv['degenerate_uv_triangles'] and imported_uv['overlap_fraction']<1e-5
- assert 1400<imported_uv['density_px_m']['50']<3000
+ assert imported_uv['density_px_m']['50']>1400
+ # Atlas priorities deliberately raise the checker/safety density. Compare
+ # actual imported charts, rather than rejecting a denser median at 3000.
+ detail_density={}
+ for name,pitch in [('Stock_Walnut',.00127),('Forend_Walnut',.00127),('Tang_Safety',.00112/2**.5)]:
+  values=[r['density_px_m'] for r in imported_uv['island_measurements'] if r['object']==name]
+  median=float(np.median(values));assert median*pitch>=3,(name,median,pitch)
+  detail_density[name]=dict(measured_median_texels_per_m=median,design_cutter_pitch_m=pitch,texels_per_pitch=median*pitch)
  assert contacts['passed'],[r for r in contacts.get('records',[]) if not r['passed']]
  affine=V.compare(arm,expected,position_tolerance_m=3e-6,linear_tolerance=.001)
  imported=[o for o in bpy.context.scene.objects if o.type=='MESH' and 'bone' in o]
@@ -89,7 +110,7 @@ def main():
   W.pose(arm,clip,f);error=V.surface_delta(target,V.surface_points(imported));assert error<3e-6,(clip,f,error)
   errors.append(dict(clip=clip,frame=f,error_m=error))
  result=dict(passed=True,stage='look round one baked export; geometric and serialization checks are separate from photographic look acceptance',uv=imported_uv,bake_size=4096,ship_size=2048,sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
-  triangles=count,materials=len(data.json['materials']),textures=3,texture_png_bits=png_bits,glb_bytes=path.stat().st_size,projection_ownership=ownership,action_normal_projection=projection,
+  triangles=count,materials=len(data.json['materials']),textures=3,texture_png_bits=png_bits,glb_bytes=path.stat().st_size,projection_ownership=ownership,action_normal_projection=projection,detail_density=detail_density,
   bones=len(arm.data.bones),clips=len(CLIPS),sockets=len(sockets),parts=len(parts),bounds_m=bounds,
   dimensions_mm=((np.array(bounds[1])-bounds[0])*1000).tolist(),measured_parts_mm=dims,length_of_pull_mm=pull*1000,
   normals=normals,affine_samples=len(affine),max_position_error_m=max(r['position_delta_m'] for r in affine),

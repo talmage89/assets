@@ -25,7 +25,7 @@ def main():
     bpy.data.objects.remove(ob,do_unlink=True)
   src=out/(group+'-source.blend');bpy.ops.wm.save_as_mainfile(filepath=str(src))
   cfg=out/(group+'-uv.py')
-  cfg.write_text('from pathlib import Path\nimport runpy\nglobals().update(runpy.run_path('+repr(str(BASE/'src/config.py'))+'))\nUV_ATLAS_RECT='+repr(rect)+'\nUV_MIN_COVERAGE=.005\n'+("UV_SMART_ANGLE=20\n" if group=='stock' else ''))
+  cfg.write_text('from pathlib import Path\nimport runpy\nglobals().update(runpy.run_path('+repr(str(BASE/'src/config.py'))+'))\nUV_ATLAS_RECT='+repr(rect)+'\nUV_MIN_COVERAGE=.005\n'+("UV_SMART_ANGLE=40\n" if group=='stock' else ''))
   dst=out/(group+'-uv.blend')
   sys.argv=['blender','--','--source',str(src),'--out',str(dst),'--config',str(cfg),
    '--report',str(out/(group+'-uv.json')),'--size','2048','--target-density','100000','--margin','.002']
