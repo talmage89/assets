@@ -9,6 +9,10 @@ are retained through final delivery.
 
 ![Cycles hero of the exported GLB](docs/hero.jpg)
 
+![Signature motion from the exported GLB](docs/motion.gif)
+
+`Fire` at real speed: pump stroke, fired-hull ejection and the next shell feeding.
+
 | | |
 | --- | --- |
 | ![Front, side, back and top](docs/turnaround.jpg) | ![Receiver, checkered wrist, forend and pad](docs/details.jpg) |
@@ -53,7 +57,7 @@ section supersedes the earlier wear-visibility acceptance.
 | `refs/SOURCES.md` | Specification/photo authors, licenses and individual uses |
 
 Generated files and downloaded references remain ignored. Git contains scripts,
-Makefiles, source/review notes and five final docs JPGs only.
+Makefiles, source/review notes and five final docs JPGs plus one signature-motion GIF.
 
 ## Dimensions and baseline
 
@@ -401,6 +405,7 @@ GNU make and flock. No downloaded code, model, texture or lighting is used.
 ```sh
 make -C guns/shotgun                   # refs through final docs and checks
 make -C guns/shotgun check             # inspection + baked delivery + independent repeat
+make -C guns/shotgun gif                # signature motion from the baked GLB, real-speed GIF
 make -C guns/shotgun feed-audit        # actual feed surfaces and ejection handoff
 make -C guns/shotgun feed-strips       # 30-Hz port/cutaway from the baked GLB
 make -C guns/shotgun WEAR=.45          # cleaner finish, same accepted mechanism

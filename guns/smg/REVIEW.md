@@ -1389,3 +1389,52 @@ physical sizes and both profiles), `wear-2d-values.json` (complete tables),
 PNGs, JSON, GLBs and textures remain ignored. Final repository and Python
 syntax checks pass; only scripts, README/review text and final docs JPGs are
 committed.
+
+## README signature GIF — 2026-10-30
+
+Color/value first: compared with `docs/hero.jpg` and `docs/eevee.jpg`.
+Painted steel remains black, the polymer is a quieter gray-black, and the
+warm worn strip across the receiver keeps its accepted color. Broad highlights
+roll off without making the gun pale. Direct Eevee has less indirect cavity
+light than the Cycles hero; baked maps, studio and AgX response are retained.
+
+Chose **ReloadEmpty** for the nonreciprocating charging handle's draw/lock,
+magazine exchange and final release/slap. Fire would show much less external
+motion. The left-side quarter keeps the handle visible and leaves room under
+the mag well, with the complete silhouette recognizable. Inspected every
+decoded frame and the native handle/magazine pages: the handle locks before
+the exchange, the replacement magazine seats, then the handle releases near
+the end. Brass is small at the magazine top but distinct before insertion;
+this reload contains no fired-case ejection. The final 960-pixel version fits
+without trimming, a frame-rate reduction or a palette reduction.
+
+Camera in meters: location **(-0.92, 0.48, 0.35)**, target
+**(0, 0.08, -0.02)**, **50 mm**, aspect **1.85**,
+roll **0 rad**, exposure **-0.15**. Flat background
+RGB **(108, 111, 114)**. Final studio, embedded GLB maps, 64-sample
+Eevee and one discarded initialization render; screen raytracing is disabled.
+
+Frame/palette review: **70 decoded frames**, numbered
+**000–069**, checked in the complete contact sheet and native
+frame pages. No objectionable palette flicker, steel banding or dither noise
+appeared in the sequence. One global palette and no dithering keep the
+background corner exactly constant in every frame. Quantization audit:
+**0.051/255** mean RGB error; worst full-frame 99th
+percentile **1/255**. This measures palette loss,
+not mechanism correctness.
+
+Timing audit: **960×519**, **20 Hz**,
+**249 distinct palette entries** (allocation 256),
+**300,968 bytes**. Source samples at 60 Hz: **ReloadEmpty 0, 3, …, 207**.
+Motion samples have **50 ms** delays, with **500 ms** added only
+to the first delay; decoded loop duration is **4,000 ms**.
+Two complete `make gif` runs returned identical shipped bytes. The documented
+recipe fingerprint and per-frame numeric comparison retain the approved GIF
+only for negligible GPU rounding; fresh candidates are retained for inspection.
+
+Evidence stays under `build/gif/`: `report.json`, `palette-audit.json`,
+`contact-sheet.jpg`, `review/frames-*.jpg`, full PNGs and `candidate.gif`.
+`playback.html` provides the continuous authored-speed loop. This headless
+review inspected decoded frames and audited real-speed delays; continuous
+visual playback was unavailable in this session. The committed image is
+`docs/motion.gif`; the README names the clip below it.

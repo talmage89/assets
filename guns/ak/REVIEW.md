@@ -1477,3 +1477,57 @@ pointwise bleed excess across L0–L3 is 2.83e-14, below 1/255. Main SHA-256 rem
 `0fecef4cfc1b77fa9c485272d787cb276625781745a6893fe67ba190b60355a0`.
 Three exact-signature kit anchors preserve its observed 0.0001 tangent rounding.
 No geometry, source bake, canonical map, kit or common code was changed.
+
+## README signature GIF — 2026-10-30
+
+Color/value first: compared with `docs/hero.jpg` and `docs/eevee.jpg`.
+The receiver stays black with worn bright edges; stock/handguard keep their
+dark brown grain and the grip its warmer reddish tone. The neutral gray
+surround does not introduce a color cast. Direct Eevee loses some Cycles
+cavity bounce while preserving the original atlas, lights and AgX response.
+
+Chose **ReloadEmpty**: the curved magazine rocks out and back onto its front
+hook, then the right-side charging handle moves. The right quarter shows
+these different pivot and slide paths with the whole rifle recognizable.
+Inspected every decoded frame and the native insertion/charging pages.
+The loaded magazine's top rounds can be seen before seating; this reload
+does not contain fired-case ejection. The tight whole-rifle view needed an
+820-pixel delivery after 960 and 880 exceeded budget; 20 Hz and the full
+palette allocation remain. No rig, mesh or motion schedule was changed.
+
+Validation limitation: `make check` reaches the historical exact-main-GLB SHA
+gate and fails after a fresh GPU bake. The fresh GLB is 32 bytes smaller;
+geometry/UV/rig preservation passes. All remaining source, finalized,
+re-imported construction/motion, atlas and retainer-fit checks were run and
+pass separately. The baseline and strict checksum gate were left intact.
+
+Camera in meters: location **(1.12, 0.53, 0.38)**, target
+**(0, 0.16, -0.04)**, **49 mm**, aspect **1.85**,
+roll **0 rad**, exposure **-0.15**. Flat background
+RGB **(108, 111, 114)**. Final studio, embedded GLB maps, 64-sample
+Eevee and one discarded initialization render; screen raytracing is disabled.
+
+Frame/palette review: **70 decoded frames**, numbered
+**000–069**, checked in the complete contact sheet and native
+frame pages. No objectionable palette flicker, steel banding or dither noise
+appeared in the sequence. One global palette and no dithering keep the
+background corner exactly constant in every frame. Quantization audit:
+**0.101/255** mean RGB error; worst full-frame 99th
+percentile **2/255**. This measures palette loss,
+not mechanism correctness.
+
+Timing audit: **820×443**, **20 Hz**,
+**252 distinct palette entries** (allocation 256),
+**427,451 bytes**. Source samples at 60 Hz: **ReloadEmpty 0, 3, …, 207**.
+Motion samples have **50 ms** delays, with **500 ms** added only
+to the first delay; decoded loop duration is **4,000 ms**.
+Two complete `make gif` runs returned identical shipped bytes. The documented
+recipe fingerprint and per-frame numeric comparison retain the approved GIF
+only for negligible GPU rounding; fresh candidates are retained for inspection.
+
+Evidence stays under `build/gif/`: `report.json`, `palette-audit.json`,
+`contact-sheet.jpg`, `review/frames-*.jpg`, full PNGs and `candidate.gif`.
+`playback.html` provides the continuous authored-speed loop. This headless
+review inspected decoded frames and audited real-speed delays; continuous
+visual playback was unavailable in this session. The committed image is
+`docs/motion.gif`; the README names the clip below it.

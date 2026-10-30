@@ -35,6 +35,10 @@ path and a reciprocating charging-handle binding.
 
 `common/` contains the guns-only presentation renderer, timed strip generator,
 interface schema/frame checks and photographic camera configuration helpers.
+Each finished gun also has one real-speed exported-GLB GIF under its hero.
+[GIF clips, cameras and delivery sizes](GIFS.md) are listed together.
+`make -C guns/<gun> gif` rebuilds it; [the shared tool](common/README.md#one-signature-motion-gif)
+accepts a member-owned clip sequence and camera for later guns.
 They accept each gun's manifest and shot table; pistol anatomy, poses, landmarks,
 contact policy and construction checks remain in `pistol/src/`. Reusable asset
 primitives belong in `kit/`, rather than in a second weapons toolkit.

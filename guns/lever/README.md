@@ -10,6 +10,10 @@ are fictional and original.
 
 ![Exported Bracken L20 with its baked 2048 atlas, Cycles](docs/hero.jpg)
 
+![Signature motion from the exported GLB](docs/motion.gif)
+
+`Fire` → `Cycle` at real speed: hammer fall, lever stroke, top ejection and the next round feeding.
+
 The final renders load the exported GLBs with their baked maps. `make` builds
 `renders/final/hero-gray.jpg`, `contact-sheet.jpg`, `turnaround.jpg`, `details.jpg`
 and `action.jpg`; native Cycles stills are in `renders/final/beauty/`, Eevee in
@@ -330,6 +334,7 @@ GNU make and flock. No downloaded code, models, materials or lighting are used.
 ```sh
 make -C guns/lever                    # refs through bake, exports, checks and finals
 make -C guns/lever check              # source/finalized/imported construction and motion
+make -C guns/lever gif                # signature motion from the baked GLB, real-speed GIF
 make -C guns/lever feed-audit          # source dimensions, contacts and case handoff
 make -C guns/lever feed-strips         # 30-Hz port and cutaway, exported baked GLB
 make -C guns/lever form-review        # final sight/lever pairs, wrist rake and stroke

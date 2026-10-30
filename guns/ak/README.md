@@ -12,6 +12,10 @@ tracked).
 
 ![Cycles hero of the exported GLB](docs/hero.jpg)
 
+![Signature motion from the exported GLB](docs/motion.gif)
+
+`ReloadEmpty` at real speed: front-hook magazine engagement, rock-in seating and charging stroke.
+
 | | |
 | --- | --- |
 | ![Front, side, back and top](docs/turnaround.jpg) | ![Forgings, sights, ferrule and furniture](docs/details.jpg) |
@@ -324,6 +328,7 @@ inside this worktree's `build/`. No packages or downloaded code are installed.
 ```sh
 make -C guns/ak                   # refs through exports, checks, finals and docs
 make -C guns/ak check             # source/finalized/imported construction and delivery
+make -C guns/ak gif                # signature motion from the baked GLB, real-speed GIF
 make -C guns/ak export            # original 4K bake, 2K filtering and five GLBs
 make -C guns/ak render match      # exported Cycles/Eevee stills and photo pairs
 make -C guns/ak source-match      # separately labeled procedural-source photo pairs

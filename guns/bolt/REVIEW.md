@@ -1051,3 +1051,55 @@ the photographic fits and approximate class references do not establish
 manufacturing dimensions. No unresolved feed contact or clearance failure
 remains under the documented visual-asset limits. No new tool, kit change or
 lead input is needed.
+
+## README signature GIF — 2026-10-30
+
+Color/value first: compared with `docs/hero.jpg` and `docs/eevee.jpg`.
+The green stock keeps its subdued olive, the scope and barrel remain black,
+and the brass stands out against the dark port. The broad scope highlight
+and stock texture show no visible stepped palette bands. Eevee's direct
+response has less cavity bounce than the Cycles hero; the original studio,
+maps, exposure and AgX look remain.
+
+Chose **Fire**, including bolt lift, rearward extraction, case ejection,
+fresh-round presentation, chambering and lock. The high right-side crop
+centers the receiver beneath the scope. Inspected every decoded frame and
+the native ejection/feed pages: the case pivots clear at source 64.8 (GIF 027),
+and the fresh cartridge remains visible through the forward stroke.
+25 Hz captures that brief case flight at real speed. Scope, stock, trigger
+guard and receiver identify the rifle despite the deliberate end crops.
+
+Full 960-pixel and 760-pixel encodes exceeded the budget. The 720-pixel delivery
+keeps the entire clip, 25 Hz and the full palette allocation; small markings
+are softer, but feeding and extraction remain distinct.
+
+Camera in meters: location **(0.68, 0.015, 0.29)**, target
+**(0, 0.135, 0.045)**, **48 mm**, aspect **2.05**,
+roll **0 rad**, exposure **-0.15**. Flat background
+RGB **(59, 62, 66)**. Final studio, embedded GLB maps, 64-sample
+Eevee and one discarded initialization render; screen raytracing is disabled.
+
+Frame/palette review: **55 decoded frames**, numbered
+**000–054**, checked in the complete contact sheet and native
+frame pages. No objectionable palette flicker, steel banding or dither noise
+appeared in the sequence. One global palette and no dithering keep the
+background corner exactly constant in every frame. Quantization audit:
+**0.367/255** mean RGB error; worst full-frame 99th
+percentile **4/255**. This measures palette loss,
+not mechanism correctness.
+
+Timing audit: **720×351**, **25 Hz**,
+**254 distinct palette entries** (allocation 256),
+**434,764 bytes**. Source samples at 60 Hz: **Fire 0, 2.4, …, 129.6**.
+Motion samples have **40 ms** delays, with **500 ms** added only
+to the first delay; decoded loop duration is **2,700 ms**.
+Two complete `make gif` runs returned identical shipped bytes. The documented
+recipe fingerprint and per-frame numeric comparison retain the approved GIF
+only for negligible GPU rounding; fresh candidates are retained for inspection.
+
+Evidence stays under `build/gif/`: `report.json`, `palette-audit.json`,
+`contact-sheet.jpg`, `review/frames-*.jpg`, full PNGs and `candidate.gif`.
+`playback.html` provides the continuous authored-speed loop. This headless
+review inspected decoded frames and audited real-speed delays; continuous
+visual playback was unavailable in this session. The committed image is
+`docs/motion.gif`; the README names the clip below it.
