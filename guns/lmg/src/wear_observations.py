@@ -23,7 +23,7 @@ def observed(base,site,offset=0):
  name='used_receiver' if site in ('receiver','cover','cover_top','rivets','handle') else 'used_whole' if site=='ports' else 'used_right' if site in ('flash','regulator','feet') else 'used_box' if site=='box' else 'used_stock'
  image=np.asarray(Image.open(base/'build/white-balanced'/(name+'.jpg')).convert('RGB'));h,w=image.shape[:2];v=image.max(2).astype(float);y,x=np.mgrid[:h,:w];shape=(w,h)
  receiver,heads=receiver_parts(shape) if name=='used_receiver' else (None,None)
- threshold=0;note='';mode='bright'
+ threshold=0;note='';mode='bright';extra={}
  if site=='receiver':
   part=receiver&~heads
   # Only exposed rails/returns, not the olive receiver's unpainted flats.
@@ -65,7 +65,9 @@ def observed(base,site,offset=0):
  else:
   part=polygon_mask(shape,REGIONS['molded_stock'][1]);med=np.asarray(Image.fromarray(np.uint8(v)).filter(ImageFilter.MedianFilter(21)),float);threshold=11
   # Native butt is at upper-right in this loose-stock photograph.
-  roi=(x>1180)|(y<440);wear=part&roi&((v-med)>threshold+offset)
-  note='Fine rubbed heel/toe contrast on butt-end returns; broad old field scuffs are outside this named shoulder-contact site.'
+  roi=(x>1180)|(y<440);heel=part&roi&((v-med)>threshold+offset)
+  extra['previous_heel_only_fraction']=float(heel.sum()/part.sum())
+  wear=part&((v-med)>threshold+offset)
+  note='Stock contact includes heel/toe and exposed flank gear drags. Positive local contrast also contains molding/highlight uncertainty; the previous heel-only fraction remains separately recorded.'
  assert part.sum()>20,(site,'bad photographic observation')
- return image,part,wear,dict(photo=name,threshold=threshold,threshold_offset=offset,classification=mode,limit=note)
+ return image,part,wear,dict(photo=name,threshold=threshold,threshold_offset=offset,classification=mode,limit=note,**extra)

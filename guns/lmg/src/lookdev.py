@@ -10,7 +10,7 @@ import bpy
 from mathutils import Vector
 from kit.materials import Nodes
 import finish_parameters as F
-from wear_patterns import scratches
+from wear_patterns import scratches,stock_scuffs
 BASE=Path(__file__).resolve().parents[1]
 SITES=F.SITES
 def sub(n,a,b):return n.math('SUBTRACT',a,b)
@@ -49,7 +49,7 @@ def steel(name,part,key,wear,omit):
     phosphate_color=F.BIPOD_PHOSPHATE if part.startswith('Bipod_') else F.PHOSPHATE
     bright=key=='steel' and not part.startswith('Bipod_Extension')
     base=F.PAINT if paint else (.16,.164,.155) if bright else phosphate_color
-    rough=(.33 if part.startswith('FeedCover_') else F.PAINT_ROUGH) if paint else .48 if bright else F.PHOSPHATE_ROUGH
+    rough=(.29 if part.startswith('FeedCover_') else F.PAINT_ROUGH) if paint else .48 if bright else F.PHOSPHATE_ROUGH
     metal=0 if paint else .95 if bright else F.PHOSPHATE_METAL;spec=F.PAINT_SPEC if paint else .85
     grain=n.ramp(n.noise(p,800,2),.34,.66);fine=n.noise(p,4300,2)
     rough=n.add(rough,n.mul(sub(n,grain,.5),.075))
@@ -119,7 +119,7 @@ def steel(name,part,key,wear,omit):
         # Carbon at the lip and downstream of the five actual slots.
         carbon=n.mul(n.ramp(y,.687,.704),n.add(.70,n.mul(n.noise(p,310,2),.30)),active('flash'))
     elif part.startswith(('GasRegulator','Regulator_Grip')):
-        carbon=n.mul(n.ramp(y,.5515,.5555),n.add(.75,n.mul(grain,.25)),active('regulator'))
+        carbon=n.mul(n.ramp(y,.5535,.5575),n.add(.75,n.mul(grain,.25)),active('regulator'))
     elif part in ('Receiver_Sheet','LinkPort_Rim','ChargingGuide'):
         around=n.mul(interval(n,y,.105,.217,.010),interval(n,z,.089,.119,.007),n.ramp(x,.021,.025))
         bottom=n.mul(interval(n,y,.124,.187,.008),n.ramp(z,.064,.053))
@@ -145,6 +145,10 @@ def polymer(name,part,key,wear,omit):
     if rubber:grain_scale,skin,rough_variation=1000,12e-6,.12
     fine=n.noise(p,4300,2);mold=n.ramp(n.noise(p,grain_scale,2),.34,.66)
     base=(.006,.0063,.006) if rubber else color
+    # Fine mold-skin reflectance variation also survives in the albedo guide;
+    # otherwise the denoiser erases the nearly subtexel normal-only signal.
+    # This is a +/-6% manufacturing microfinish, not a broad weather overlay.
+    base=n.mix(mold,tuple(c*.94 for c in base),tuple(c*1.06 for c in base),True)
     rough=n.add(.78 if rubber else rgh,n.mul(sub(n,mold,.5),rough_variation))
     touch=0;site=''
     if part=='CarryHandle_Grip':
@@ -154,8 +158,10 @@ def polymer(name,part,key,wear,omit):
         touch=n.mul(n.ramp(y,-.311,-.323),n.maximum(n.ramp(z,.095,.105),n.ramp(z,-.015,-.023)))
     elif part=='Box_Shell' or part.startswith(('Box_MoldRib','Box_EndRib','Box_ClipBacking')):
         site='box'
-        bottom=n.ramp(z,-.105,-.140)
-        corners=n.mul(n.ramp(ab(n,x),.047,.055),n.maximum(n.ramp(y,.132,.125),n.ramp(y,.201,.205)))
+        # Rest FinishPosition includes the Magazine assembly's +43 mm offset;
+        # the measured shell bottom is -.1285 m, not authored -.1715 m.
+        bottom=n.ramp(z,-.113,-.126)
+        corners=n.mul(n.ramp(ab(n,x),.035,.048),n.maximum(n.ramp(y,.145,.132),n.ramp(y,.186,.200)))
         # Sparse cross-direction drag scuffs inside bottom impact corners.
         edge=n.ramp(n.add(n.mul(n.noise(n.vec('MULTIPLY',p,(420,190,120)),1,2),.72),n.mul(mold,.28)),.43,.59)
         touch=n.mul(bottom,corners,edge)
@@ -174,6 +180,10 @@ def polymer(name,part,key,wear,omit):
     # The two mold halves leave a fine parting line around the center plane.
     seam=n.mul(n.band(x,0,.00018,.00012),n.ramp(ab(n,nx),.5,.05))
     h=n.add(h,n.mul(seam,.000055))
+    if part=='Stock_Sculpt':
+        scuff=n.mul(stock_scuffs(n,p,x,y,z,nx),wear if omit not in ('butt','all') else 0)
+        base=n.mix(scuff,base,(.026,.027,.028),True);rough=n.mix(scuff,rough,.65)
+        h=n.add(h,n.mul(scuff,-8e-6));touch=n.maximum(touch,scuff)
     return finish(n,base,rough,0,h,spec,touch)
 
 def ammo(name,part,key):
