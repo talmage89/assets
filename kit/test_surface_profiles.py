@@ -41,6 +41,24 @@ shipped=read_png(folder/'ship/T_Fixture_BaseColor.png')
 assert shipped.shape==(8,8,4) and abs(float(shipped[:,:,3].mean())-64/255)<1e-6
 print('PASS: four per-face profiles share three textures; metallic factor, RGBA coverage and linear alpha filtering survive')
 
+# An explicit opaque data policy reuses alpha for specular, not coverage.
+config.write_text('OPAQUE_SPECULAR_FROM_BASECOLOR_ALPHA=True\n')
+sys.argv=['blender','--','--source',str(source),'--textures',str(folder),'--asset','Fixture',
+          '--out',str(folder/'specular.glb'),'--report',str(folder/'specular.json'),'--config',str(config)]
+export.main();specular=GLB(folder/'specular.glb');doc=specular.json
+assert len(doc['materials'])==1 and len(doc['images'])==3
+mat=doc['materials'][0];assert mat.get('alphaMode','OPAQUE')=='OPAQUE'
+extension=mat['extensions']['KHR_materials_specular']
+color_index=doc['textures'][mat['pbrMetallicRoughness']['baseColorTexture']['index']]['source']
+specular_index=doc['textures'][extension['specularTexture']['index']]['source']
+assert color_index==specular_index and abs(extension.get('specularFactor',1)-1)<1e-6
+color_view=doc['textures'][mat['pbrMetallicRoughness']['baseColorTexture']['index']]
+specular_view=doc['textures'][extension['specularTexture']['index']]
+assert color_view.get('sampler')==specular_view.get('sampler')
+rgba=np.asarray(Image.open(io.BytesIO(specular.image(specular_index))).convert('RGBA'))
+assert (rgba[:,:,3]==64).all(),np.unique(rgba[:,:,3])
+print('PASS: opaque linear alpha supplies actual glTF specular factor through the same three-image atlas')
+
 # A paint-coverage data mask must not weight the paint RGB during filtering.
 from kit.image_io import srgb_to_linear,linear_to_srgb
 source=np.empty((16,16,4),np.float32);source[:]=(0,0,1,0);source[::2,::2]=(1,0,0,1)

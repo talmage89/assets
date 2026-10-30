@@ -604,6 +604,16 @@ be omitted by Blender unless transmission, volume or specular is also exported.
 `test_export_policy.py` checks these actual GLB extensions; the optional cavity
 bake is exercised by `test_material_ao.py` through the GPU lock.
 
+`OPAQUE_SPECULAR_FROM_BASECOLOR_ALPHA=True` instead reads glTF's specular
+factor from the BaseColor image's linear alpha channel. It exports
+`KHR_materials_specular` pointing at that same image, with no additional image,
+material or draw call; coverage stays OPAQUE. Bake a source factor in [0,1]
+with `BAKE_BASECOLOR_ALPHA_CHANNEL`, and use the downsampler's
+`--alpha-mode independent` because these are data, not coverage. Principled's
+source IOR level is half this factor. `test_surface_profiles.py` checks the
+actual extension, image reuse, alpha values and opaque mode in a GLB. The
+default preserves all existing material behavior.
+
 With authored seams and `UV_UNWRAP_METHOD`, `UV_USE_TARGET_ASPECT=True` makes
 the unwrap/averaging/packing operators use the
 actual delivery-region aspect (`UV_ATLAS_RECT`, or the whole square atlas),
