@@ -138,8 +138,16 @@ The [manufacturer's action explanation](https://www.winchesterguns.com/support/o
 distinguishes this plunger/push-feed sequence from a fixed-blade controlled-feed
 action. This asset does not claim the latter's full-length claw.
 
-**Physics-case handoff.** At eject 64, sample CycleCase's complete evaluated
-frame relative to the weapon instance and use it for the standalone case.
+**Physics-case handoff.** At eject 64, use CycleCase's deformation relative to its bind frame,
+followed by the standalone case's rest anchor. In asset coordinates,
+`spawn = posed_joint_world * inverse(bind_joint_world) * case_anchor`.
+`case_anchor` is a translation to `(0,.2095,.065)` in Blender, or
+`(0,.065,-.2095)` in glTF, with identity orientation in that asset frame.
+Read the bind frame from the rig, before animation; hidden Idle is not bind
+pose. This avoids assuming the imported joint’s local bone axes.
+The fresh-import audit applies this actual spawn to the standalone case's
+vertices and compares them with the animated case.
+Apply the weapon instance transform to the resulting frame.
 Hide the animated CycleCase in that consumer when spawning its physics case.
 Do not use the stationary effect socket as a case constraint or spawn pose.
 Socket_Ejection retains its legacy port/effect meaning. `case_handoff` in

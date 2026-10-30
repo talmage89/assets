@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 sys.path[:0]=[str(Path(__file__).resolve().parents[3]),str(Path(__file__).parent)]
 import bpy
-from mathutils import Vector
+from mathutils import Vector,Matrix
 from kit import motion,assembly,weapon as W
 from trigger_check import gap
 
@@ -82,12 +82,17 @@ def contacts(arm):
     W.pose(arm,None,0)
     return rows
 
+def case_frame(arm,f=64):
+    """Standalone case frame in asset coordinates, independent of bone axes."""
+    W.pose(arm,'Fire',f);b=arm.pose.bones['CycleCase']
+    d=arm.matrix_world@b.matrix@b.bone.matrix_local.inverted()@arm.matrix_world.inverted()
+    return d@Matrix.Translation((0,.2095,.065))
+
 def handoff(arm):
     """Measure an engine's case spawn frame and velocity from evaluated keys."""
     def frame(f):
-        W.pose(arm,'Fire',f);b=arm.pose.bones['CycleCase']
-        d=arm.matrix_world@b.matrix@b.bone.matrix_local.inverted()@arm.matrix_world.inverted()
-        return d@Vector((0,.2095,.065)),d.to_quaternion()
+        m=case_frame(arm,f)
+        return m.translation,m.to_quaternion()
     p0,q0=frame(63.99);p1,q1=frame(64.01);p,q=frame(64)
     velocity=(p1-p0)/(.02/60);dq=q1@q0.inverted()
     if dq.w<0:dq.negate()
@@ -95,6 +100,7 @@ def handoff(arm):
     case=motion.surface(bpy.data.objects['CycleCase_Case'])
     receiver=motion.surface(bpy.data.objects['Receiver'])
     row=dict(event_frame=64,origin_m=list(p),rotation_wxyz=list(q),
+        spawn_matrix_asset_frame=[list(r) for r in case_frame(arm)],
         linear_velocity_m_s=list(velocity),angular_velocity_rad_s=list(angular),
         case_min_right_m=case['lo'].x,receiver_max_right_m=receiver['hi'].x,
         outside_clearance_m=case['lo'].x-receiver['hi'].x,

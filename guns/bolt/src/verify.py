@@ -9,6 +9,7 @@ from kit.gltf import GLB
 from interface import CLIPS
 from semantics import check
 from optical import passage
+from feed_audit import case_frame
 def main():
  p=argparse.ArgumentParser();p.add_argument('--source',default='build/bolt.blend');p.add_argument('--out',default='build/serialization.json')
  a=p.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else []);source=Path(a.source).resolve();data=GLB(source.with_suffix('.glb'))
@@ -25,6 +26,8 @@ def main():
   W.pose(arm,clip,frame)
   visible=[o for o in magparts if min(abs(x) for x in arm.pose.bones[o['bone']].matrix.to_scale())>.001]
   detached[state]=(V.surface_points(visible),bpy.data.objects['Socket_Magazine'].matrix_world.copy())
+ case_spawn=case_frame(arm)
+ case_points=V.surface_points([o for o in parts if o.name.startswith('CycleCase_')])
  count=sum(len(data.accessor(p['indices']))//3 for m in data.json['meshes'] for p in m['primitives'])
  assert 40000<=count<=50000,count
  assert {x['name'] for x in data.json['animations']}==set(CLIPS)
@@ -54,7 +57,10 @@ def main():
   V.import_glb(path);mesh=[o for o in bpy.context.scene.objects if o.type=='MESH'];points=V.surface_points(mesh)
   lo=np.min(points,axis=0);hi=np.max(points,axis=0)
   row=dict(triangles=tri,bytes=path.stat().st_size,size_m=(hi-lo).tolist(),normal_direction=n,fresh_import=True)
-  if name=='case':assert tri<=800,tri
+  if name=='case':
+   assert tri<=800,tri
+   error=V.surface_delta(case_points,[tuple(case_spawn@Vector(v)) for v in points])
+   assert error<2e-6,('case physics spawn',error);row['physics_handoff_spawn_error_m']=error
   else:
    target,spawn=detached[name.split('_')[1]];error=V.surface_delta(target,[tuple(spawn@Vector(v)) for v in points])
    assert error<2e-6,(name,error);row['rotated_spawn_error_m']=error

@@ -12,6 +12,7 @@ from kit import detachable_verify as DV
 from interface import CLIPS
 from semantics import check
 from optical import passage
+from feed_audit import case_frame
 def named_reference(arm):
  W.pose(arm,None,0);records=[];templates={};trees={}
  for ob in bpy.context.scene.objects:
@@ -122,6 +123,9 @@ def main():
   W.pose(arm,c,frame);error=V.surface_delta(points,V.surface_points(meshes));assert error<2e-6,(c,frame,error)
   surface_rows.append(dict(clip=c,frame=frame,delta_m=error))
  diagnostic=restore_diagnostics(arm,reference)
+ case_spawn=case_frame(arm)
+ case_points=V.surface_points([o for o in bpy.context.scene.objects if o.type=='MESH' and o.name.startswith('CycleCase_')])
+ W.pose(arm,None,0)
  optical=passage([o for o in bpy.context.scene.objects if o.type=='MESH'],bpy.data.objects['Socket_Eye'].matrix_world.translation)
  bpy.ops.wm.save_as_mainfile(filepath=str(BASE/'build/delivery/imported-parts.blend'))
  for name in ('magazine_loaded','magazine_empty','case'):
@@ -132,7 +136,11 @@ def main():
    target,spawn=spawns[name.split('_')[1]]
    error=V.surface_delta(target,[tuple(spawn@Vector(v)) for v in points]);assert error<2e-6,(name,error)
    records[name]['rotated_spawn_delta_m']=error
-  else:assert max(abs((hi-lo)-np.array((.01201,.05118,.01201))))<.001
+  else:
+   assert max(abs((hi-lo)-np.array((.01201,.05118,.01201))))<.001
+   error=V.surface_delta(case_points,[tuple(case_spawn@Vector(v)) for v in points])
+   assert error<2e-6,('actual GLB case physics spawn',error)
+   records[name]['physics_handoff_spawn_error_m']=error
  keys=('coverage','outside_triangles','degenerate_uv_triangles','overlap_pairs','overlap_fraction','density_px_m')
  result=dict(passed=True,outputs=records,uv={k:u[k] for k in keys},imported_uv={k:imported_uv[k] for k in keys},
   source_states=source_states,imported_states=imported_states,optical_passage=optical,

@@ -1,6 +1,6 @@
 """Prepare the accepted game mesh and one reserved atlas through kit.finalize.
 
-Pack explicit rifle, magazine and case rectangles through the established
+Pack explicit rifle, two magazine panels and case rectangles through the established
 finalizer, merge only generated mesh data, then use the kit baker/exporter.
 """
 import sys
@@ -40,10 +40,16 @@ for ob in [o for o in bpy.context.scene.objects if o.type=='MESH']:
  bm=bmesh.new();bm.from_mesh(ob.data);bmesh.ops.dissolve_degenerate(bm,dist=.000002,edges=list(bm.edges));bm.to_mesh(ob.data);bm.free()
  ob.data.normals_split_custom_set([r.vector[:] for r in ob.data.attributes['Delivery normals'].data]);ob.data.attributes.remove(ob.data.attributes['Delivery normals'])
 unpacked=out/'unpacked.blend';bpy.ops.wm.save_as_mainfile(filepath=str(unpacked))
-regions={'bolt':(.01,.01,.79,.99),'magazine':(.81,.20,.99,.99),'case':(.81,.01,.99,.18)}
+# A guarded gap keeps the shell and other magazine charts in separate
+# neighborhoods, each small enough for a lossless 1024 standalone subset.
+regions={'bolt':(.01,.01,.79,.99),
+         'magazine_shell':(.81,.20,.99,.67),
+         'magazine_rest':(.81,.69,.99,.99),
+         'case':(.81,.01,.99,.18)}
 def group(o):
  if o.name.startswith('Case_Proof'):return 'case'
- return 'magazine' if o.get('bone') in ('Magazine','TopRound','ReserveRound','Follower') else 'bolt'
+ if o.name=='Magazine_Shell':return 'magazine_shell'
+ return 'magazine_rest' if o.get('bone') in ('Magazine','TopRound','ReserveRound','Follower') else 'bolt'
 master=[]
 def args(values):sys.argv=['blender','--',*map(str,values)]
 for name,rect in regions.items():
@@ -51,7 +57,7 @@ for name,rect in regions.items():
  for ob in list(bpy.context.scene.objects):
   if ob.type=='MESH' and group(ob)!=name:bpy.data.objects.remove(ob,do_unlink=True)
  src=out/(name+'-source.blend');bpy.ops.wm.save_as_mainfile(filepath=str(src))
- cfg=out/(name+'-uv.py');cfg.write_text('UV_ATLAS_RECT='+repr(rect)+'\nUV_MIN_COVERAGE=.005\nUV_PACK_SHAPE="AABB"\nUV_SMART_ANGLE='+str(12 if name=='magazine' else 30)+'\nUV_PRIORITY={"Stock_Mold":1.25,"Receiver":1.5,"Scope_Body":1.15,"Turret_":1.45,"Bolt_":1.25,"Barrel":.72,"Bipod_":.85,"Reticle_":2.0,"Lens_":.45}\n')
+ cfg=out/(name+'-uv.py');cfg.write_text('UV_ATLAS_RECT='+repr(rect)+'\nUV_MIN_COVERAGE=.005\nUV_PACK_SHAPE="AABB"\nUV_SMART_ANGLE='+str(12 if name.startswith('magazine') else 30)+'\nUV_PRIORITY={"Stock_Mold":1.25,"Receiver":1.5,"Scope_Body":1.15,"Turret_":1.45,"Bolt_":1.25,"Barrel":.72,"Bipod_":.85,"Reticle_":2.0,"Lens_":.45}\n')
  dst=out/(name+'-uv.blend')
  args(['--source',src,'--config',cfg,'--out',dst,'--report',out/(name+'-uv.json'),'--size',2048,'--target-density',100000,'--margin',.002]);finalize.main()
  mapping=[(o.name,o.data.name) for o in bpy.context.scene.objects if o.type=='MESH' and 'asset_set' in o]
