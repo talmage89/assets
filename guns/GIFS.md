@@ -21,7 +21,7 @@ half-open clip intervals, so the endpoint is not counted twice.
 | [bolt](./bolt/docs/motion.gif) | `Fire` | 720×351 | 55 | 25 | 254 | 434,764 | 2,700 |
 | [ak](./ak/docs/motion.gif) | `ReloadEmpty` | 820×443 | 70 | 20 | 252 | 427,451 | 4,000 |
 | [smg](./smg/docs/motion.gif) | `ReloadEmpty` | 960×519 | 70 | 20 | 249 | 300,968 | 4,000 |
-| [lmg](./lmg/docs/motion.gif) | `Reload` 226–346 | 720×496 | 40 | 20 | 128 | 437,964 | 2,500 |
+| [lmg](./lmg/docs/motion.gif) | `Reload` 226–346 | 720×533 | 40 | 20 | 52 | 447,836 | 2,500 |
 
 All palettes allocate at most 256 entries, including transparency for unchanged
 pixels. ffmpeg uses one palette for the entire clip, no dithering, difference
@@ -51,10 +51,10 @@ retain their full moving spans and full palette allocations. Those eight guns
 retain their selected frame rates. Fine revolver surface detail is softer at its
 smaller delivery size; the extractor, cases and loader remain readable.
 The Harrow uses a focused Reload excerpt, starting with the cover open and
-showing belt placement, cover closing and latch seating. Trimming the outer
-holds and reframing the full reload still exceeded the byte limit. The final
-right-side crop uses 720 pixels, 20 Hz and 128 colors; it keeps the cover's
-travel visible while the static muzzle and stock end leave the image. Its
+showing belt placement, cover closing and latch seating. Its camera and framing
+match the action JPG's upper-right loaded-tray panel, with no added roll.
+The final uses 720 pixels, 20 Hz and a 52-color global octree palette,
+retaining the small green tips as well as brass and dark paint. Its
 500-ms opening hold and two seconds of authored motion give a 2,500-ms loop.
 The complete six-second clip remains in the GLB.
 
@@ -72,7 +72,7 @@ action crops spend pixels on the feed/ejection area.
 | bolt | (0.68, 0.015, 0.29) | (0, 0.135, 0.045) | 48 | 2.05 | 0 | -0.15 |
 | ak | (1.12, 0.53, 0.38) | (0, 0.16, -0.04) | 49 | 1.85 | 0 | -0.15 |
 | smg | (-0.92, 0.48, 0.35) | (0, 0.08, -0.02) | 50 | 1.85 | 0 | -0.15 |
-| lmg | (2.189065, 0.660338, 2.015548) | (−0.021001, 0.184324, 0.043489) | 115.2 | 1.45 | 0.6 | -0.15 |
+| lmg | (−0.70, −0.08, 0.58) | (−0.015, 0.14, 0.24) | 48 | 1.35 | 0 | -0.15 |
 
 The pistol's `ReloadEmpty` shows magazine exchange and slide release; its short
 Fire would hide most of the mechanism. The revolver's `Reload` shows the crane,
@@ -83,8 +83,9 @@ feed and ejection. The lever keeps its original separate `Fire` → `Cycle`
 sequence: combining the presentation does not alter either exported clip.
 The Harrow retains `Reload`, selecting the belt-laying and cover-closing
 phase so its tray, rounds, links and latch have more screen space. Its
-right-side view looks down across the tray. The complete reload's opening,
-withdrawal and box exchange remain available in the exported animation.
+loaded-tray panel view shows the rounds across the tray with the gun level.
+The complete reload's opening, withdrawal and box exchange remain available
+in the exported animation.
 
 Each `src/gif.json` is the camera/sequence source of truth. Each gun's
 `build/gif/report.json` records the source GLB hash, every sampled source frame,
@@ -122,11 +123,11 @@ accepted bake. The [AK investigation](ak/REVIEW.md#fresh-build-check--2026-10-30
 records the byte/texel measurements, tolerance and full command results.
 The accepted docs JPGs and GIF remain unchanged.
 
-Harrow docs correction on `wp/guns-lmg` (2026-10-30): the original 480-pixel
-full-gun loop was too small to show the feed assembly clearly. The current
-720-pixel excerpt replaces it. Its frame, palette, clipping and preservation
-checks are recorded in [the LMG review](lmg/REVIEW.md#docs-correction--larger-reload-excerpt-and-shooters-view).
-The earlier full-loop evidence remains historical in that review.
+Harrow camera correction on `wp/guns-lmg` (2026-10-30): the current GIF uses
+the accepted action panel's level camera and framing. The span stays unchanged.
+Its frame, palette, clipping and preservation checks are recorded in
+[the LMG review](lmg/REVIEW.md#gif-camera-correction--accepted-loaded-tray-panel).
+The earlier full-loop and diagonal-camera evidence remains historical there.
 
 All decoded frames were inspected, with native pages for feed, ejection,
 extraction and charging. Background corners remain exactly constant; global

@@ -214,11 +214,12 @@ at 264, closes the cover at 324 and latches at 340. ReloadEmpty finishes its
 handle draw/return at 380/410. The README GIF shows `Reload` frames 226–346:
 the cover starts open, the belt settles visibly onto the tray, then the cover
 closes and latches. It runs at authored speed, sampled at 20 Hz, with a 500-ms
-initial hold. The camera looks from above and in front of the right side;
-the muzzle and stock end leave the mechanism crop while the cover stays in frame.
-Delivery is **720×496, 40 frames, 20 Hz, 128 distinct palette entries and
-437,964 bytes**, with a 2,500-ms total loop. The complete six-second Reload
-and all other clips remain in the unchanged GLB.
+initial hold. The camera and framing match the action sheet's upper-right
+loaded-tray panel, with no added roll. The cover's full travel stays in frame.
+Delivery is **720×533, 40 frames, 20 Hz, 52 distinct palette entries and
+447,836 bytes**, with a 2,500-ms total loop. An octree global palette retains
+the small green tips alongside brass and black paint. The complete six-second
+Reload and all other clips remain in the unchanged GLB.
 
 Persist `{version, clip, frame, remaining, phase}` for pause/resume. Never jump
 to Idle while the cover is open or box absent. `src/belt.py` supplies the

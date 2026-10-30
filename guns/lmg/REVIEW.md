@@ -1502,3 +1502,93 @@ handoff hashes in that folder's `frozen-delivery.json`. Budgets remain
 canonical PNG total remains **10,016,210 bytes**. No kit/common implementation
 changes, merge or push. No new asset flaw found; the presentation tradeoff
 is the shorter Reload excerpt and its loop cut.
+
+## GIF camera correction — accepted loaded-tray panel
+
+The owner accepted `action.jpg` in `8978757`, but rejected the diagonal GIF
+camera and the small tray in that composition. The current GIF replaces that
+camera with the **exact camera and framing** of `docs-feed/belt_laid`, the
+action JPG's upper-right "Reload / belt laid, frame 264" panel. Location is
+**(−.70, −.08, .58) m**, target **(−.015, .14, .24) m**, lens **48 mm**,
+aspect **1.35**, exposure **−.15**, with **zero roll**. Compared those values
+directly against the accepted render's `shots.json`; every camera value
+matches. This section supersedes the prior diagonal-camera presentation.
+
+The gun reads level in the panel's familiar perspective. The cover, tray,
+links, rounds and upper box occupy the image; the static barrel and butt
+continue outside the sides, as in that panel. The box's bottom remains outside
+the panel framing. Kept that framing rather than adding another crop: the
+raised cover already leaves only about 29 delivery pixels above it, and a
+narrower horizontal crop enlarged to 720 pixels would also enlarge the moving
+cover. The full cover travel stays visible. No camera roll, pose modification,
+material override, texture change or grading is added.
+
+The span remains **Reload [226, 346)**, including belt placement, cover
+closing and latch seating at authored speed. No further trim, time scaling or
+motion join. Still **40 frames at 20 fps**, source 226, 229, …, 343, with
+**500 ms added to the first frame**: 550 ms first, 39×50 ms after, total
+**2,500 ms**. The existing closed-to-open loop cut remains intentional.
+
+Started compression with the fixed trimmed span, exact panel framing and a
+full palette. At 25 Hz / 256 entries the GIF was **1,829,602 bytes at 960×711**
+and **1,203,073 at 720×533**. At 20 Hz / 256 it was **1,044,149**. The
+existing ffmpeg palette generator passed at 40 entries / 441,220 bytes, but
+its palette lost the small green tips; rejected that delivery. Palette crops
+also distorted neutral highlights, and lossless ImageMagick optimization
+did not improve size. None of those trials supplies final pixels or a final
+palette.
+
+Added an optional **`palette_quantizer: "octree"`** to the existing shared
+GIF encoder. It generates one palette with Pillow FASTOCTREE from **all full
+RGB frames**, with one transparent entry, then uses the existing ffmpeg
+no-dither palette application, difference rectangles and timing checks.
+This gives the small green/copper accents palette entries alongside the
+brass and gray/black paint. No installed dependency is added; other members
+keep the ffmpeg palette-generator default. The report records the quantizer.
+Octree trials before the provenance comment were 488,539 bytes at 64 entries,
+457,747 at 54, and 447,627 at 52. The final commented delivery is
+**720×533, 40 frames, 20 fps, 52 distinct palette entries, 447,836 bytes**.
+
+Opened **every decoded frame** on `build/gif/review/frames-0000.jpg`,
+`0008`, `0016`, `0024` and `0032`, and reopened individual belt/tray and cover
+frames. Color/value first: black paint stays black, brass stays warm, the
+green tips remain green, and cavities remain dark. The palette is visibly
+coarser than the JPGs in fine highlight gradients; it avoids the discarded
+40-color palette's lost tip color and the palette-crop trials' tinted
+highlights. No distracting paint banding or palette flicker was found in the
+frame sequence. The belt's separate rounds and links are clearer than in the
+diagonal view, and its travel onto the tray is easy to follow. The cover and
+latch stay visible through closing and seating; no cover clipping or in-span
+pose jump. The upper box stays in the accepted panel crop. No new asset flaw
+found. This is a frame inspection; the previously recorded headless
+continuous-playback limitation remains.
+
+All forty frames have constant gray top corners, RGB **110/113/117** after
+quantization. Against resized unquantized RGB frames, object mean absolute
+channel error is **2.318 levels**, with maximum per-frame 99th percentile
+**15**. These support the visual review rather than replace it. Audit and
+trial evidence: repository-root `build/lmg-camera-fix/`; per-gun render,
+palette, frame and provenance evidence: `build/gif/`. The all-frame contact
+sheet is `build/gif/contact-sheet.jpg`.
+
+`make -C guns/lmg gif`, `make -C guns/lmg check` and
+`python3 kit/repo_check.py` exit zero. The asset check verifies **1,529 poses**.
+The four shared GIF tests also pass, including low-palette octree accent and
+background preservation, exact delays, byte repeatability and invalid-mode
+rejection. Logs are `gif-final.log`, `check.log`, `repo-check.log` and
+`gif-tests.log` under repository-root `build/lmg-camera-fix/`.
+
+The second full `make -C guns/lmg gif` also exits zero; all forty freshly
+decoded frames are identical to the first final delivery (maximum frame mean,
+component difference and fraction over two levels all zero). The shared tool
+retains its canonical bytes. Repeat log: `gif-repeat.log` in that same folder.
+Delivered SHA-256:
+`f89ccf33e10d26c87d77a81e585d353ef5ce16799ff1e9de126aaace66996ef5`.
+
+All **six GLBs, three canonical texture PNGs and five accepted docs JPGs**
+match their frozen hashes in `build/lmg-camera-fix/frozen.json`. The accepted
+action JPG remains 1600×1300 / 182,164 bytes. Asset budgets remain **47,638
+triangles, one material, three 2048 maps, 14,579,528 GLB bytes**, canonical
+PNG total **10,016,210 bytes**. No kit, model, material, wear or animation
+change. No merge or push. The only presentation compromises are palette
+quantization, the accepted partial-box crop and the existing loop cut.
