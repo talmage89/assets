@@ -40,11 +40,12 @@ contact policy and construction checks remain in `pistol/src/`. Reusable asset
 primitives belong in `kit/`, rather than in a second weapons toolkit.
 
 Standalone detachable GLBs now carry their own 512 or 1024 texture subsets,
-with the gun atlases unchanged. [Delivery details](DETACHABLES.md) lists sizes,
+with full density relative to each gun atlas. The Vesper feed correction
+intentionally re-bakes its atlas while retaining the same texture allocation. [Delivery details](DETACHABLES.md) lists sizes,
 density, cluster counts, mipmapped sampling and the old/new preservation proof.
 All twenty-one across seven guns retain density ratio 1.000 at 512/1024 and
-total **14,225,032 bytes** versus 146,735,344 bytes with full atlases
-(90.31% smaller). Eight sets are 512 and thirteen are 1024; about 60 MiB
+total **13,754,664 bytes** versus 146,735,344 bytes with full atlases
+(90.63% smaller). Eight sets are 512 and thirteen are 1024; about 60 MiB
 compressed with full mip chains, without inter-file deduplication.
 
 ### Triggers

@@ -26,8 +26,9 @@ apply stance/recoil to the complete loaded instance. Blender +Y forward, +Z up,
 automatic hold-open and no chamber event. `ReloadEmpty` is supplied despite the
 base contract only requiring it for hold-open guns. It starts closed/empty,
 opens manually, exchanges the magazine, then closes and locks. Chambered Reload
-holds the bolt locked and retains the chamber occupancy throughout. Feeding is
-a STEP visibility representation; no cartridge-path physics is claimed.
+holds the bolt locked and retains the chamber occupancy throughout. Fire and ReloadEmpty now depict continuous push feeding and the next round
+rising under the lips. The paths are authored visual animation, with actual
+surface contacts and sampled clearance checks; they do not provide dynamics.
 
 All movement has explicit hold boundaries. Save `{version, clip, frame, state}`
 to pause and resume at exactly that clip/time. Drop the empty magazine at the
@@ -111,3 +112,84 @@ These fields implement the original asset's aperture and eye-relief convention;
 they are not a real product's optical specification. PowerRing animation
 remains visual; the consumer updates the secondary camera field. `scope-integration.json` records the actual socket
 positions, power, field, range dimensions and receiving slot for each render.
+
+## Visible feed and ejection (additive visual binding)
+
+All nine names, durations, event frames, state meanings, Root behavior and
+existing socket paths are retained. No new ammo state or event is required.
+`visible_cartridge_feed`, `feed_type="push"` and `case_handoff_bone="CycleCase"`
+are additive capabilities. `CycleCase` is a new visual child of Root.
+
+The seated magazine, catch and their bone/socket rest frames move **47 mm
+forward** to correct the source geometry. Socket_Magazine still carries the
+full detachable spawn frame; Socket_MagWell still locates the seated well.
+These coordinate changes follow the geometry and retain their public meanings.
+ChamberRound now belongs to Root; it is the seated live representation, rather
+than a cartridge tied permanently to bolt travel. It is replaced by the open,
+struck-primer CycleCase at shot 3. FireLast gains the same visible ejection
+without gaining a feed or chamber event. Reload remains locked and chambered.
+
+**Push-feed sequence.** A small rotating bolt-head extractor retains the fired
+rim. The bolt-face plunger is compressed beneath it; the case pivots when its
+mouth clears the front port bridge, rather than waiting to strike a fixed
+receiver ejector. Extraction follows the bolt from frame 46, pivot starts
+61.6, release is 63, and the existing eject event remains **64**.
+The [manufacturer's action explanation](https://www.winchesterguns.com/support/owners-manuals/model-70.html)
+distinguishes this plunger/push-feed sequence from a fixed-blade controlled-feed
+action. This asset does not claim the latter's full-length claw.
+
+**Physics-case handoff.** At eject 64, use CycleCase's deformation relative to its bind frame,
+followed by the standalone case's rest anchor. Express both complete hierarchical
+joint transforms relative to the loaded asset root:
+`spawn_asset = posed_joint_asset * inverse(bind_joint_asset) * case_anchor`.
+`case_anchor` is a translation to `(0,.2095,.065)` in Blender, or
+`(0,.065,-.2095)` in glTF, with identity orientation in that asset frame.
+Read the bind frame from the rig, before animation; hidden Idle is not bind
+pose. This avoids assuming the imported joint’s local bone axes.
+The fresh-import audit applies this actual spawn to the standalone case's
+vertices and compares them with the animated case.
+Then `spawn_world = weapon_instance_world * spawn_asset`.
+Hide the animated CycleCase in that consumer when spawning its physics case.
+Do not use the stationary effect socket as a case constraint or spawn pose.
+Socket_Ejection retains its legacy port/effect meaning. `case_handoff` in
+each construction report records the actual origin, quaternion, linear and
+angular velocity, measured by central differences, plus whole-case clearance
+outside the receiver. Source values are about **(25.62,106.64,77.80) mm**,
+**(1.400,−.650,.686) m/s** in Blender right/forward/up coordinates at 1× playback.
+Convert vectors with the usual Blender→glTF basis and instance rotation, without
+adding the instance translation. Scale clip-relative linear/angular velocity by
+playback rate; add the moving weapon's point velocity and angular velocity for
+a moving instance. Pose uses the complete instance transform above.
+The authored preview continues outward until it is hidden at 66, wholly
+outside the receiver. Its last visible segment never returns into the gun.
+
+**Feed.** Fire's forward stroke remains 76–104; ReloadEmpty's remains 195–219.
+Pickup is explicitly keyed when the bolt face reaches the presented rim,
+at approximately 76.538 / 195.462. TopRound then travels with the bolt face,
+pitches over the ramp, enters the chamber lead-in and settles on axis.
+The extractor snaps over the rim at the seat, as appropriate to push feed.
+At the existing chamber event the seated TopRound hands off to ChamberRound
+at the same position. ReserveRound and Follower rise one 11.8 mm pitch as
+clearance becomes available, with the next rim under both lips.
+
+Only two magazine rounds represent a five-round capacity. The closed bolt
+occludes a canonical representation reset at lock 122 / 242 so existing
+ready→ready clip transitions remain exact. The game still owns ammunition
+count; the animated stack is not a persistent five-cartridge simulation.
+Pause/resume retains the full clip/time exactly, including these moving rounds.
+
+`make feed-strips` produces 30-Hz port and receiver-section strips from the
+exported GLB in `renders/feed/`: both requested 40–125 windows, plus
+ReloadEmpty 190–245. The latter shows its actual feed; the unchanged 40–125
+schedule covers opening, removal and offscreen replacement, not chambering.
+Section views remove only the imported receiver's right-wall triangles.
+The barrel, stock, magazine, materials, skin and animation remain imported data.
+
+Fractional pickup and the short ejection pivot retain their actual key times
+in glTF. The established forced 60-Hz export rounded them away; a fully native
+export introduced interpolation drift on older sparse controls. The asset
+therefore retains the established rig samplers and copies only the five
+ammunition bones' native samplers into the same GLB. The pivot and ballistic
+segment are keyed at tenth-frame intervals; the regular feed at quarter frames
+plus exact pickup. Meshes, images, skin and other control channels are retained.
+Fresh-import affine/contact/sweep checks judge this delivered result.

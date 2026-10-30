@@ -9,6 +9,7 @@ from contacts import measure
 from interface import CLIPS
 from optical import passage
 from trigger_check import measure as trigger_measure
+from feed_audit import dimensions as feed_dimensions, contacts as feed_contacts, handoff
 
 def main():
  p=argparse.ArgumentParser();p.add_argument('--motion',action='store_true');p.add_argument('--source',default='build/bolt.blend');p.add_argument('--out',default='build/check.json');p.add_argument('--dense',action='store_true')
@@ -30,6 +31,9 @@ def main():
   length_of_pull_m=lop,materials=len({m.name for o in parts for m in o.data.materials}),nonmanifold=bad,
   contacts=measure(arm),bones=list(arm.data.bones.keys()),clips=list(CLIPS))
  result['trigger_blade']=trigger_measure(arm)
+ result['feed_dimensions']=feed_dimensions(arm)
+ result['feed_contacts']=feed_contacts(arm)
+ result['case_handoff']=handoff(arm)
  # An actual sight ray must meet coated ocular glass before any stock/action.
  eye=bpy.data.objects['Socket_Eye'].matrix_world.translation;hits=[]
  for o in parts:
@@ -110,9 +114,12 @@ def main():
  if not .339<=lop<=.350:errors.append('pull length')
  if bad:errors.append('nonmanifold solids')
  if not all(r['passed'] for r in result['contacts']):errors.append('required contacts')
+ if not all(r['passed'] for r in result['feed_contacts']):errors.append('cartridge path contacts')
+ if not result['case_handoff']['passed']:errors.append('case handoff inside receiver')
  if a.motion:
   # Intentional visual joint overlaps are still measured, with finite bounds.
   allow=[dict(a='ChamberRound',b='Barrel',reason='visual chamber surrounds case',max_penetration_m=.0003),
+         dict(a='CycleCase',b='Bolt_Extractor',reason='small visual claw lip retains and pivots the case rim',max_penetration_m=.0003),
          dict(a='Trigger_Shoe',b='Trigger_Pin',reason='solid visual pin inside trigger bearing',max_penetration_m=.0019),
          dict(a='Safety_PivotPin',b='Safety_Stem',reason='visual pin seats in safety bearing',max_penetration_m=.0014),
          dict(a='Bipod_ReturnSpring',b='Bipod_SpringTail',reason='connected return coil/tail at visual splay joint; spring deformation not simulated',max_penetration_m=.00075)]
