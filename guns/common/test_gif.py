@@ -89,6 +89,29 @@ class MotionGIF(unittest.TestCase):
             encode(base,spec,out)
             self.assertNotEqual(before,(base/'docs/motion.gif').read_bytes())
             self.assertFalse(json.loads((out/'report.json').read_text())['canonical_comparison']['reused'])
+            # Low-color global octree encoding must retain a tiny colored accent
+            # in every frame, keep the flat surround, and reproduce its bytes.
+            for i in range(len(rows)):
+                path=out/'raw'/f'f{i:04d}.png'
+                accent=Image.open(path).convert('RGBA')
+                accent.putpixel((2,2),(40,120,75,255));accent.save(path)
+            spec.update(palette_quantizer='octree',colors=32)
+            encode(base,spec,out);octree=(base/'docs/motion.gif').read_bytes()
+            report=json.loads((out/'report.json').read_text())
+            self.assertEqual(report['palette_quantizer'],'octree')
+            self.assertEqual(report['frame_durations_ms'],[550,50,50,50])
+            self.assertLessEqual(report['palette_colors'],32)
+            with Image.open(base/'docs/motion.gif') as im:
+                for i in range(im.n_frames):
+                    im.seek(i);rgb=im.convert('RGB')
+                    self.assertEqual(rgb.getpixel((2,2)),(40,120,75))
+                    self.assertEqual(rgb.getpixel((119,79)),(67,70,73))
+            encode(base,spec,out)
+            self.assertEqual(octree,(base/'docs/motion.gif').read_bytes())
+            spec['palette_quantizer']='invalid'
+            with self.assertRaisesRegex(ValueError,'Unknown palette quantizer'):
+                encode(base,spec,out)
+            spec.pop('palette_quantizer');spec['colors']=256
             spec['output_width']=60
             encode(base,spec,out)
             resized=json.loads((out/'report.json').read_text())

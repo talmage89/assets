@@ -35,7 +35,12 @@ Make target after a gun defines `EXPORTS`. Each member owns `src/gif.json`:
 source/output paths relative to its folder, a clip `sequence`, `fps` (20 or 25),
 `width` (at most 960), palette `colors`, render `samples`, RGB background bytes,
 and `engine` (default `BLENDER_EEVEE`). Optional `output_width` samples a smaller
-delivery from the full-size render before palette generation. The camera (`location`, `target`, `lens`, `aspect`, `exposure`). Sequence
+delivery from the full-size render before palette generation. Optional
+`palette_quantizer: "octree"` uses Pillow's deterministic fast octree over all
+RGB frames to retain small colored details at low palette counts. It still
+uses one global palette, reserves transparency, and uses ffmpeg's unchanged
+no-dither encoding. The default remains ffmpeg palette generation. The camera
+(`location`, `target`, `lens`, `aspect`, `exposure`). Sequence
 entries accept optional `start`/`end` at the manifest's source frame rate.
 Trims must land on GIF sample times. Multiple clips join at the authored time
 boundary, as the lever's separate Fire and Cycle require. No rig or effect
@@ -45,7 +50,7 @@ Sampling uses time on half-open clip intervals, including fractional source
 frames; each GIF tick is exactly 4 or 5 centiseconds. A lossless GIF-container
 edit adds 50 centiseconds to the first frame. Decoded delays must exactly equal
 the sampled motion duration plus this hold. Fixed sample settings, zero output dithering,
-a flat RGB composite, one global ffmpeg palette, no dithering, and ffmpeg
+a flat RGB composite, one global palette, no dithering, and ffmpeg
 palette-use rectangle differencing / transparent unchanged pixels avoid
 background noise and local-palette flicker. Output over 450,000 bytes fails;
 tighten the crop or trim a static span before reducing rate or palette.

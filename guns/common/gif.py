@@ -1,7 +1,7 @@
 """Reproducible, real-speed README GIFs from exported gun GLBs.
 
 Ordinary Python drives Blender under the shared GPU lock, composites a flat
-studio background, then uses ffmpeg's global palette and difference rectangles.
+studio background, then encodes a global palette with ffmpeg difference rectangles.
 The Blender worker reuses common.render and the member's final_shots recipe.
 A member supplies src/gif.json and includes ../common/gif.mk in its Makefile.
 No source geometry, material overrides, text or artificial slow motion is used.
@@ -228,9 +228,29 @@ def encode(base, spec, out):
     ffmpeg = ['ffmpeg', '-hide_banner', '-loglevel', 'warning', '-y', '-threads', '1',
               '-filter_threads', '1', '-filter_complex_threads', '1']
     input_args = ['-framerate', str(fps), '-i', str(frames/'f%04d.png')]
-    subprocess.run([*ffmpeg, *input_args, '-vf',
-        f"palettegen=max_colors={spec['colors']}:stats_mode=full:reserve_transparent=1",
-        '-frames:v', '1', '-update', '1', str(out/'palette.png')], check=True)
+    quantizer = spec.get('palette_quantizer', 'ffmpeg')
+    if quantizer == 'octree':
+        # A single palette from every RGB frame, including rare colored details.
+        # Keep one entry transparent for ffmpeg's unchanged-pixel differencing.
+        width, height = frame.size
+        strip = Image.new('RGB', (width, height*len(rows)))
+        for i in range(len(rows)):
+            with Image.open(frames/f'f{i:04d}.png') as rgb:
+                strip.paste(rgb, (0, i*height))
+        count = spec['colors']
+        assert 2 <= count <= 256, 'Palette must allow color and transparency'
+        colors = strip.quantize(count-1, method=Image.Quantize.FASTOCTREE,
+                                dither=Image.Dither.NONE).getpalette()
+        palette = Image.new('RGBA', (16, 16))
+        palette.putdata([(*colors[i*3:i*3+3], 255) for i in range(count-1)] +
+                        [(0, 255, 0, 0)]*(257-count))
+        palette.save(out/'palette.png')
+    elif quantizer == 'ffmpeg':
+        subprocess.run([*ffmpeg, *input_args, '-vf',
+            f"palettegen=max_colors={spec['colors']}:stats_mode=full:reserve_transparent=1",
+            '-frames:v', '1', '-update', '1', str(out/'palette.png')], check=True)
+    else:
+        raise ValueError(f'Unknown palette quantizer: {quantizer}')
     candidate = out/'motion.gif'
     subprocess.run([*ffmpeg, *input_args, '-i', str(out/'palette.png'), '-lavfi',
         'paletteuse=dither=none:diff_mode=rectangle', '-gifflags', '+offsetting+transdiff',
@@ -279,7 +299,8 @@ def encode(base, spec, out):
         frame_durations_ms=durations, samples=rows, engine=spec.get('engine','BLENDER_EEVEE'), render_samples=spec['samples'],
         dither='none', screen_traced_lighting=False, output_dither=0, host_threads=1, warmup_frames=1 if spec.get('engine','BLENDER_EEVEE')=='BLENDER_EEVEE' else 0,
         canonical_comparison=comparison,
-        palette='global', ffmpeg_version=subprocess.check_output(['ffmpeg','-version'],text=True).splitlines()[0],
+        palette='global', palette_quantizer=quantizer,
+        ffmpeg_version=subprocess.check_output(['ffmpeg','-version'],text=True).splitlines()[0],
         gif_sha256=hashlib.sha256(candidate.read_bytes()).hexdigest())
     (out/'report.json').write_text(json.dumps(report,indent=2))
     dest = base/spec['output']; dest.parent.mkdir(exist_ok=True)

@@ -12,6 +12,7 @@ folder. Shared procedural geometry, rigging, baking and delivery use `kit/`.
 | PD Vesper B24 bolt-action precision rifle | Final: baked PBR, nine clips, scope/bipod and standalone magazines/case | [bolt/](bolt/README.md) |
 | PD Relay 9 fixed-stock 9 mm submachine gun | Final: baked PBR, 21 clips, magazines, cartridge and case | [smg/](smg/README.md) |
 | PD Rill 39 stamped-receiver 7.62×39 rifle | Final: baked PBR, 20 clips, rock-in magazines, cartridge and case | [ak/](ak/README.md) |
+| PD Harrow 56 belt-fed 5.56×45 light machine gun | Final: baked PBR, 19 clips, count-aware belt, boxes, cartridge, case and link | [lmg/](lmg/README.md) |
 
 ## Shared conventions
 
@@ -32,6 +33,8 @@ The [1.5.0 lever-action supplement](lever/INTERFACE.md) adds a manual lever acti
 gate loading of the tube and a half-cock hammer.
 The [1.6.0 rocking-magazine supplement](ak/INTERFACE.md) adds a rock-in magazine
 path and a reciprocating charging-handle binding.
+The [1.8.0 belt-feed supplement](lmg/INTERFACE.md) adds open-bolt belt states,
+feed-cover and box sockets, count-aware rounds/links and a detachable box.
 
 `common/` contains the guns-only presentation renderer, timed strip generator,
 interface schema/frame checks and photographic camera configuration helpers.
@@ -51,6 +54,11 @@ All twenty-one across seven guns retain density ratio 1.000 at 512/1024 and
 total **13,754,664 bytes** versus 146,735,344 bytes with full atlases
 (90.63% smaller). Eight sets are 512 and thirteen are 1024; about 60 MiB
 compressed with full mip chains, without inter-file deduplication.
+The Harrow adds five full-density subsets: two 1024 boxes and three 512
+ammunition/link items, totaling **4,285,960 bytes**. Its
+[delivery table](lmg/README.md#budget-detachables-and-validation) records the
+individual allocations; the twenty-one-item comparison above retains its
+original seven-gun scope.
 
 ### Triggers
 
