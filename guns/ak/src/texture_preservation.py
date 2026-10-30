@@ -1,6 +1,8 @@
 """Gate the texture round against the handed-off exported geometry and rig.
 
-The rifle retains its original geometry/UV/rig signature and complete GLB hash.
+The rifle retains exact geometry/UV/rig/clip data and JSON semantics. Its
+decoded maps allow at most 1/255 per channel at 128 texels per map versus the
+accepted historical bake; PNG compression and buffer allocation are incidental.
 Detachables retain oriented corner attributes and node frames byte-for-byte;
 their density and inverse atlas surface samples are checked independently by
 atlas_verify. The old/new review also checks UV transforms and tangent direction.
@@ -9,6 +11,7 @@ No baseline is recorded by make.
 from pathlib import Path
 import argparse,hashlib,json,struct
 import numpy as np
+from bake_identity import verify as verify_bake
 BASE=Path(__file__).resolve().parents[1]
 NAMES=('ak','magazine_loaded','magazine_empty','cartridge','case')
 
@@ -66,10 +69,14 @@ def main():
         expected=json.loads(accepted.read_text())
         assert geometry_equal(measured['ak'],expected['ak']),'Rifle geometry, UV, normals, weights, rig, clips or layout changed'
         baseline=json.loads((BASE/'src/accepted_detachable_geometry.json').read_text())
-        assert hashlib.sha256((folder/'ak.glb').read_bytes()).hexdigest()==baseline['main_sha256'],'Main GLB changed'
+        bake=json.loads((BASE/'src/accepted_bake.json').read_text())
+        assert bake['accepted_glb_sha256']==baseline['main_sha256'],'Bake reference is not the accepted handoff'
+        textures=verify_bake(folder/'ak.glb',bake)
+        main_sha256=hashlib.sha256((folder/'ak.glb').read_bytes()).hexdigest()
         detached={n:detachable_signature(folder/(n+'.glb')) for n in NAMES[1:]}
         assert detached==baseline['geometry'],'Detachable geometry, normals, attributes or origins changed'
         (BASE/'build/texture-preservation.json').write_text(json.dumps(dict(passed=True,signatures=measured,
-            detachable_geometry=detached,main_sha256=baseline['main_sha256'],scope=__doc__),indent=2))
-        print('PRESERVED: byte-identical main GLB; detachable oriented geometry, normals, attributes and origins; remapped UVs verified separately')
+            detachable_geometry=detached,main_sha256=main_sha256,accepted_main_sha256=baseline['main_sha256'],
+            decoded_textures=textures,scope=__doc__),indent=2))
+        print('PRESERVED: exact rifle non-image data/JSON semantics; accepted decoded maps within sparse 1/255 rounding; detachable oriented geometry, normals, attributes and origins; remapped UVs verified separately')
 if __name__=='__main__':main()
