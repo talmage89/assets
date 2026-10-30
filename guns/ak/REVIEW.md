@@ -1852,3 +1852,65 @@ exercised and recorded in `normal-baseline-refusal.json`; only the separate
 reviewed acceptance command can replace the checksum journal. The 18 bake
 identity/rebaseline tests and three shared paint-bound tests pass. Final
 `python3 kit/repo_check.py` passes with zero errors; `git diff --check` passes.
+
+
+## Paint round 2 — pass 1: reject the circular light fit
+
+**Color and value first:** the f95dac1 docs hero is gray rather than black.
+Opened the original docs heroes, the Harrow hero, both neutral-balanced studio
+photos, the anchor outlines and all four initial Harrow-lit previews per gun
+in root `build/paint-round2/studio-ak/`. The five area fixtures now use
+the Harrow locations, sizes and energies (18/4/13/5/5 W), and its .045 world
+strength. Camera, exposure, backdrop color and GIF camera are retained.
+The inherited studio's 35/15 W key/fill is rejected.
+
+The photographic light objective now contains only independently selected
+unchanged finishes and a physically illuminated neutral backing. Receiver
+pixels, tails, median, highlight and height guards never enter that objective.
+The first independent fit fails multiple anchors; its old paint-only match
+is not material evidence. Expanded card bases, surface-matched region checks
+and fresh Cycles comparisons are required before accepting any sheen.
+
+The source-attribution control now perturbs only the enamel's diffuse RGB,
+using the same 4096/32-sample kit bake and 2048 downsample. The corrected
+projection gives **zero** changed BaseColor interior texels on the nominal
+nonpaint surfaces (including the Relay lower/barrel and Rill rear insert).
+The full per-part control deltas are in root `build/paint-round2/ak-projection-control-deltas.json`. Repaired texels can differ from the old
+contaminated bake; that repair delta is reported separately from paint leakage.
+
+Inspecting the unit-world basis found an unintended default area light at
+the origin on its first frame. That basis is rejected and rerendered with
+zero area-light energy. Every subsequent response render asserts its exact
+active fixture set and records the world strength. The older lighting fits
+are investigation evidence only, never accepted material measurements.
+
+## Round 2 reviewed projection baseline
+
+Reason (explicit reviewed command): Round 2: isolate enamel projection from adjacent accepted finishes; no geometry, UV, rig, clip, wear-mask or authored finish change.
+
+The actual `f95dac1` GLB SHA-256 is `d15138e8b0bac7b78ab1421523d7320575d948776e4b2933eaf4f789d3906cff`. Its tracked acceptance journal records `2396ed61fba8b60db0cef52d747e9b4bdcf1bc309949e85e2dac65b614b92b1e` (the earlier reviewed bake, with bounded sparse GPU rounding accepted at handoff). The old manifest SHA-256 is `9dea96d24ac3d6d683739a314aeffbed939c2e938006be623641914bafb84020`. The reviewed projection-corrected GLB is `451c086a0b20f661d9a198bb1952cf105eb9a72224ad4de0033c8435b7d45b50`. The actual handoff and the earlier journal hash are separate facts.
+
+This acceptance records the projection correction only. It does **not** approve the unresolved photographic paint fit. The original exact non-image/JSON geometry signatures and 1-byte / 128-texel bake limits are unchanged.
+
+### Reference and basis investigation
+
+The newer 4000-pixel studio image is of a Polish 1971 museum specimen. Its
+furniture/finish response must not be assumed identical merely because it is
+an AKM. The photographed coating chemistry is not documented in the image
+metadata; the failed pair is retained as a test, not material acceptance.
+White balance uses unprinted white backing `(2100,400)–(2500,600)`. Earlier
+trials used the older museum image (edited levels) and the early cloth view
+(mixed warm/cool light); neither produced an acceptable independent fit.
+The inherited sparse-landmark right-photo calibration put the camera below
+the gun. That camera is preserved for historical form comparisons. A separate
+paint-only calibration holds the observed elevated side direction and reports
+its larger residual rather than treating the unconstrained fit as truth.
+
+The broad-card and geometry-derived reflection-card bases all light the whole
+scene. The corrected studio backing lies beside the far side of the gun,
+rather than under its upright footprint. No light linking, per-part gain,
+image grading, reference texture or painted-pixel objective is used. Despite
+these corrections the stock/phenolic and wood spatial guards still disagree.
+The rig is explicitly **rejected**. Gloss trials from roughness .02 through .58
+and glTF factors .2 through .8 do not establish an accepted sheen under it.
+Consequently no authored paint or other finish input was changed in round 2.

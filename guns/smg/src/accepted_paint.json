@@ -20,7 +20,7 @@
   "authored_roughness": 0.29,
   "scope": "Reviewed intact enamel only. Equal 0.05-wide specular interval; geometry/layout baselines and wear source unchanged.",
   "previous_glb_sha256": "55ec8e8ec04f2d7503db7822d9ef409fd7c57266a9a71aeeefa569b278e843ce",
-  "reviewed_glb_sha256": "168665169a6df2961cfc3d1442f6dc6b656a7e05c7cf2a9e22257496c4a2f3b5",
+  "reviewed_glb_sha256": "2c2643de76361b88319d5a42429be5ad7bd93fddc02b34a247649dd41a28744b",
   "accepted_wear_masks": {
     "left": "4c619f326c84ac88bef2f2e4d70fd90cf5f088baca61b4c0b32d13e7758ee289",
     "right": "d83a14f4c54fc98734b157e2f1027177d09535ba0f8854e24a72f545c94ae7cf"
@@ -30,5 +30,14 @@
     42,
     43
   ],
-  "maximum_median_basecolor_component_delta": 1
+  "maximum_median_basecolor_component_delta": 1,
+  "reviewed_changes": [
+    {
+      "previous_manifest_sha256": "82afa5c72949d9b4e7037534bf2f88c643f6c658f90463532bd5d8ce917bcab6",
+      "previous_journal_glb_sha256": "168665169a6df2961cfc3d1442f6dc6b656a7e05c7cf2a9e22257496c4a2f3b5",
+      "actual_handoff_glb_sha256": "290b044c70d6319bbf4418d4f7f21e633ddb12741d1609aa03040b2ddec2b074",
+      "reviewed_glb_sha256": "2c2643de76361b88319d5a42429be5ad7bd93fddc02b34a247649dd41a28744b",
+      "reason": "Round 2: isolate enamel projection from adjacent accepted finishes; no geometry, UV, rig, clip, wear-mask or authored finish change."
+    }
+  ]
 }

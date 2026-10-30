@@ -1677,3 +1677,68 @@ its new center, plus the new one-byte RGB-median pin. Neither a geometry
 signature nor a tolerance was relaxed. Final `python3 kit/repo_check.py`
 passes with zero errors; `git diff --check` passes. Shared photographic-bound
 unit tests pass (three), as do the rifle's bake/rebaseline tests (18).
+
+
+## Paint round 2 — pass 1: reject the circular light fit
+
+**Color and value first:** the f95dac1 docs hero is gray rather than black.
+Opened the original docs heroes, the Harrow hero, both neutral-balanced studio
+photos, the anchor outlines and all four initial Harrow-lit previews per gun
+in root `build/paint-round2/studio-smg/`. The five area fixtures now use
+the Harrow locations, sizes and energies (18/4/13/5/5 W), and its .045 world
+strength. Camera, exposure, backdrop color and GIF camera are retained.
+The inherited studio's 35/15 W key/fill is rejected.
+
+The photographic light objective now contains only independently selected
+unchanged finishes and a physically illuminated neutral backing. Receiver
+pixels, tails, median, highlight and height guards never enter that objective.
+The first independent fit fails multiple anchors; its old paint-only match
+is not material evidence. Expanded card bases, surface-matched region checks
+and fresh Cycles comparisons are required before accepting any sheen.
+
+The source-attribution control now perturbs only the enamel's diffuse RGB,
+using the same 4096/32-sample kit bake and 2048 downsample. The corrected
+projection gives **zero** changed BaseColor interior texels on the nominal
+nonpaint surfaces (including the Relay lower/barrel and Rill rear insert).
+The full per-part control deltas are in root `build/paint-round2/smg-projection-control-deltas.json`. Repaired texels can differ from the old
+contaminated bake; that repair delta is reported separately from paint leakage.
+
+Inspecting the unit-world basis found an unintended default area light at
+the origin on its first frame. That basis is rejected and rerendered with
+zero area-light energy. Every subsequent response render asserts its exact
+active fixture set and records the world strength. The older lighting fits
+are investigation evidence only, never accepted material measurements.
+
+## Round 2 reviewed projection baseline
+
+Reason (explicit reviewed command): Round 2: isolate enamel projection from adjacent accepted finishes; no geometry, UV, rig, clip, wear-mask or authored finish change.
+
+The actual `f95dac1` GLB SHA-256 is `290b044c70d6319bbf4418d4f7f21e633ddb12741d1609aa03040b2ddec2b074`. Its tracked acceptance journal records `168665169a6df2961cfc3d1442f6dc6b656a7e05c7cf2a9e22257496c4a2f3b5` (the earlier reviewed bake, with bounded sparse GPU rounding accepted at handoff). The old manifest SHA-256 is `82afa5c72949d9b4e7037534bf2f88c643f6c658f90463532bd5d8ce917bcab6`. The reviewed projection-corrected GLB is `2c2643de76361b88319d5a42429be5ad7bd93fddc02b34a247649dd41a28744b`. The actual handoff and the earlier journal hash are separate facts.
+
+This acceptance records the projection correction only. It does **not** approve the unresolved photographic paint fit. The original exact non-image/JSON geometry signatures and 1-byte / 128-texel bake limits are unchanged.
+
+### Reference and basis investigation
+
+The old gray-background quarter image is digitally isolated. Its original
+Commons upload retains the real gray table and colored cloth, so the physical
+neutral is now the table `(1300,970)–(1480,1080)`. The inherited form camera is
+preserved; a separate paint shot uses the original photo's same pixel geometry.
+A candidate fixed-stock studio image was rejected because its clipped/possibly
+isolated white backing cannot constrain illumination.
+
+The table/cloth in both selected views lies behind a gun laid on its side.
+Correcting the backing plane substantially improves the issued handguard fit,
+but does not produce a complete accepted calibration. The red cloth is not
+treated as a neutral; the issued white-balance constraint remains the brightest
+selector-legend pixels. Original source-array wear and all other finishes are
+retained. Outside-surface anchor masks exclude the handguard's inner channel;
+all eight studio and all six issued anchors remain in the objective. The grip
+photo polygon was inset to remove yellow flag slivers, rather than treating
+those pixels as polymer color.
+
+All light cards affect the whole scene. No receiver observation enters the
+light objective. The fits are explicitly **rejected**; no new sheen is claimed.
+Fixed-light trials (.02–.58 roughness, .2–.8 glTF specular factors) do not pass
+the complete receiver tests. The clean studio specimen also lacks the accepted
+asset's broad worn upper field, leaving a large upper-tail/highlight difference.
+Round 2 therefore retains the authored .022/.023/.024, .29 and .8 inputs.
