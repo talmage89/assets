@@ -32,11 +32,18 @@ def link(mesh,material,name='DisplayLink',spacing=12.8):
    for j in range(n):fs.append(tuple(start+v for v in (a*m+j,a*m+j+1,b*m+j+1,b*m+j)))
   fs.extend([(start,start+m,start+2*m,start+3*m),
              (start+n,start+3*m+n,start+2*m+n,start+m+n)])
- # Two narrow webs leave the neighboring cuff's axial band clear, even
- # as the cosmetic chain bends. All geometry remains an inert visual proxy.
- for ya,yb in ((12,15),(20,23)):
+ # Diagonal formed webs join the actual cuff ends. The earlier horizontal
+ # strips sat above the open arcs and visibly floated in the standalone view.
+ # Ends enter their supporting axial bands; finite width/thickness overlaps
+ # the cuff skin. This remains an inert visual proxy, not a working link.
+ radius=5.425;z=radius*math.sin(math.radians(145))
+ main_x=radius*math.cos(math.radians(145))
+ other_x=-spacing+radius*math.cos(math.radians(395))
+ for ya,yb in ((11.8,15.2),(23.2,19.8)):
+  dx,dy=other_x-main_x,yb-ya;length=math.hypot(dx,dy)
+  ux,uy=dy/length*.38,-dx/length*.38
   k=len(vs)
-  vs += [(x,y,z) for x,y,z in [(-spacing+2.2,ya,6.3),(-2.2,ya,6.3),(-2.2,yb,6.3),(-spacing+2.2,yb,6.3),
-                               (-spacing+2.2,ya,7.1),(-2.2,ya,7.1),(-2.2,yb,7.1),(-spacing+2.2,yb,7.1)]]
+  vs += [(x+sign*ux,y+sign*uy,z+height) for height in (-.38,.38)
+         for x,y,sign in ((main_x,ya,-1),(other_x,yb,-1),(other_x,yb,1),(main_x,ya,1))]
   fs += [tuple(k+i for i in f) for f in [(0,3,2,1),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)]]
  return mesh(name,vs,fs,material)
