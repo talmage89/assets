@@ -32,12 +32,15 @@ def smooth_min(a, b, radius):
 
 
 def turned_radius(d):
-    # One concave turned profile: its curvature decreases continuously from
-    # the accepted front crown into a conical fall. It never flattens again
-    # behind the crown, which would create the rejected rear cushion.
-    b=2.0;k=.3
-    root=np.sqrt(d*d+b*b)
-    return FENCE_RADIUS-k*(root-b),-k*d/root,-k*b*b/root**3
+    # A short turned crown rolls from the front datum into a hollow fall.
+    # Its steepest axial slope occurs at the crown, then eases toward the
+    # milled rear lands. The former continuously steepening cone kept two
+    # raised rails far behind the front highlight seen in the photographs.
+    rear=.30;fall=2.5;scale=7.0;crown=1.2
+    e=np.exp(-d/scale);bead=np.exp(-d/crown);front=rear+fall/scale
+    return (FENCE_RADIUS-rear*d-fall*(1-e)+crown*front*(1-bead),
+            -rear-fall/scale*e+front*bead,
+            fall/scale**2*e-front/crown*bead)
 
 
 def turned_distance(axial, radial):
@@ -63,12 +66,10 @@ def raw_field(x,y,z):
     base=np.hypot(np.maximum(u,0),np.maximum(v,0))+np.minimum(np.maximum(u,v),0)-SIDE_RADIUS
     rear=(z-(46.4+.65*(y-85.2)))/math.sqrt(1+.65**2)
     base=-smooth_min(-base,-rear,2.0)
-    # A milled central land, tangent to the rib floor at the front.
-    # Its axis falls 0.32 mm per rearward mm. Holding the original rear
-    # land at the front datum creates a raised ridge between lower fences.
-    # A six-millimeter half-width flat and R2 shoulders stay buried in the
-    # turned fences. A circular central cap would add two false troughs.
-    u=np.abs(x)-6.0
+    # A broad milled roof runs under both turned crowns. Its edges are
+    # buried beneath the fences, so the only visible central transition is
+    # the filed valley. A narrow strip exposes its own rounded edges there.
+    u=np.abs(x)-12.6
     v=(z-(CENTER_TOP+.32*(y-115)))/math.sqrt(1+.32**2)+2.0
     land=np.hypot(np.maximum(u,0),np.maximum(v,0))+np.minimum(np.maximum(u,v),0)-2.0
     land_rear=(z-(46.4+.85*(y-85.2)))/math.sqrt(1+.85**2)
@@ -155,9 +156,9 @@ def height(x,y):
 
 def construction():
     return dict(method='zero set of compact C2 signed-distance union; remeshed in XY',
-        fences='turned concave meridian about continued bore axes',
-        fence_radius_mm=FENCE_RADIUS,profile_asymptotic_slope=.3,profile_scale_mm=2.0,
-        side_return_mm=SIDE_RADIUS,rear_roof_slope=ROOF_SLOPE,central_land_flat_half_width_mm=6.0,central_land_edge_radius_mm=2.0,central_land_rearward_slope=.32,
+        fences='turned front crowns with an eased hollow fall about continued bore axes',
+        fence_radius_mm=FENCE_RADIUS,profile_asymptotic_slope=.3,profile_eased_fall_mm=2.5,profile_scale_mm=7.0,front_crown_roll_scale_mm=1.2,
+        side_return_mm=SIDE_RADIUS,rear_roof_slope=ROOF_SLOPE,central_land_flat_half_width_mm=12.6,central_land_edge_radius_mm=2.0,central_land_rearward_slope=.32,
         central_union_support_mm=CENTER_BLEND,outer_union_support_mm=OUTER_BLEND,
         side_intersection_support_mm=SIDE_INTERSECTION_BLEND,resampling_y_step_mm=.05,
         transverse_angle_samples=GRID_U_SAMPLES,maximum_x_step_mm=25.95*math.sin(math.pi/(GRID_U_SAMPLES-1)),

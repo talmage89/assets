@@ -31,7 +31,7 @@ def measure(arm):
    bc,br,be=circle(np.array(points)[:,[0,2]]);bore.append((by,bc))
   bore_axis=lambda y:bore[0][1]+(bore[1][1]-bore[0][1])*(y-bore[0][0])/(bore[1][0]-bore[0][0])
   fits=[]
-  for y in (.108,.110,.112,.114):
+  for y in (.108,.110,.112,.114,.1148):
    pts=[]
    for angle in range(35,101,5):
     t=math.radians(angle);d=(side*math.cos(t),0,math.sin(t))
@@ -46,29 +46,25 @@ def measure(arm):
   # physical rear extent is measured separately in head_gauges.py.
   crown=[(f['y_m'],f['radius_m']) for f in fits]
   y=np.array([p[0] for p in crown]);r2=np.array([p[1]**2 for p in crown])
-  a,b,c=np.polyfit(y,r2,2);yc=-b/(2*a);rr=c-b*b/(4*a);length=math.sqrt(-rr/a)
-  # Fit the actual continuing meridian as well. The legacy ellipse above
-  # extrapolates its crown beyond the breech for a near-conical surface;
-  # it is retained for round-five comparison, never called a physical R.
-  face_y=ray('Action_Body',(0,.14,.052),(0,-1,0)).y
-  d=(face_y-y)*1000;measured=np.sqrt(r2)*1000;q=np.array([measured[-1],.25,3.])
-  def meridian(q):return q[0]-q[1]*(np.hypot(d,q[2])-q[2])
-  damping=.001
-  for _ in range(100):
-   residual=meridian(q)-measured
-   jac=np.stack([(meridian(q+np.eye(3)[i]*.00001)-meridian(q))/.00001 for i in range(3)],axis=1)
-   delta_q=np.linalg.solve(jac.T@jac+damping*np.eye(3),-jac.T@residual)
-   trial=q+delta_q;trial=np.maximum(trial,[1,.001,.001])
-   if np.sum((meridian(trial)-measured)**2)<residual@residual:q=trial;damping=max(1e-12,damping*.3)
-   else:damping*=5
-  turned_fit=dict(front_radius_mm=float(q[0]),asymptotic_slope=float(q[1]),axial_scale_mm=float(q[2]),maximum_fit_error_mm=float(max(abs(meridian(q)-measured))),measured_face_y_mm=float(face_y*1000),scope='three-parameter meridian fit to four independently fitted transverse circles')
+  a,b,c=np.polyfit(y,r2,2);yc=-b/(2*a);rr=c-b*b/(4*a)
+  ellipse_valid=bool(a<0 and rr>0);length=math.sqrt(-rr/a) if ellipse_valid else None
+  # Direct profile measurements keep the new crown and hollow fall
+  # independent of any analytic meridian supplied by the generator.
+  profile_y=np.arange(.0955,.114801,.0001)
+  profile_z=np.array([ray('Action_Body',(float(bore_axis(yy)[0]),float(yy),.09),(0,0,-1)).z for yy in profile_y])
+  slopes=np.diff(profile_z)/np.diff(profile_y);i=int(np.argmax(slopes))
+  observation=dict(front_section_y_mm=fits[-1]['y_m']*1000,
+   front_section_radius_mm=fits[-1]['radius_m']*1000,
+   maximum_forward_slope=float(slopes[i]),maximum_slope_y_mm=float((profile_y[i]+profile_y[i+1])*500),
+   minimum_forward_slope=float(slopes.min()),profile_y_mm=(profile_y*1000).tolist(),profile_z_mm=(profile_z*1000).tolist(),
+   scope='direct game-triangle rays along measured bore axes; no meridian parameters supplied')
   centers=np.array([f['center_m'] for f in fits]);delta=centers-np.array([bore_axis(f['y_m']) for f in fits])
   fences.append(dict(side=name,highest_mm=float(upper[:,2].max()*1000),barrel_top_mm=top*1000,
    height_difference_mm=float((upper[:,2].max()-top)*1000),arc_fits=fits,
    exposed_arc_scope="first 8 mm behind breech; remaining rear surface joins the head through the turned profile and distance blends",crown_roll_samples=crown,
    bore_axis_at_breech_mm=(bore_axis(.115)*1000).tolist(),maximum_center_offset_mm=float(np.linalg.norm(delta,axis=1).max()*1000),
-   fitted_front_radius_mm=math.sqrt(rr)*1000,fitted_rounding_length_mm=length*1000,
-   fitted_roll_front_y_mm=yc*1000,ellipse_scope='legacy extrapolation; not a physical front radius or rear endpoint for the continuing turn',turned_meridian_fit=turned_fit,photo_rounding_estimate_mm=[18,20]))
+   fitted_front_radius_mm=math.sqrt(rr)*1000 if rr>0 else None,fitted_rounding_length_mm=length*1000 if length is not None else None,ellipse_valid=ellipse_valid,
+   fitted_roll_front_y_mm=yc*1000,ellipse_scope='legacy extrapolation; not a physical front radius or rear endpoint for the continuing turn',meridian_observation=observation,photo_rounding_estimate_mm=[18,20]))
  rows['fences']=fences
  p=section('Action_Body',1,.1149);p=p[p[:,2]>.0439]
  rows['fence_pair_section_width_mm']=float(np.ptp(p[:,0])*1000)
@@ -121,13 +117,14 @@ def measure(arm):
   slots.append(dict(blade=name,slot_width_mm=(b.x-a.x)*1000,blade_width_mm=blade_width*1000,
    clearance_each_side_mm=((b.x-a.x)-blade_width)*500))
  rows['trigger_slots']=slots
- assert max(r['height_difference_mm'] for r in fences)<.015,fences
+ assert max(abs(r['height_difference_mm']) for r in fences)<.015,fences
  assert rows['fence_pair_width_mm']<=rows['barrel_breech_width_mm']+.02,(rows['fence_pair_width_mm'],rows['barrel_breech_width_mm'])
  assert max(r['maximum_center_offset_mm'] for r in fences)<.06,fences
  # The old 18–20 mm equivalent ellipse described a long axial crown.
  # Round seven localizes that crown to avoid the observed rear cushion;
  # retain the measured equivalent length, without asserting the old shape.
- assert all(math.isfinite(r['fitted_rounding_length_mm']) and r['fitted_rounding_length_mm']>0 for r in fences),fences
+ # A non-elliptical continuing profile may have no real ellipse fit.
+ assert all(r['meridian_observation']['front_section_radius_mm']>0 for r in fences),fences
  assert rows['maximum_head_bar_side_step_mm']<.02,rows['maximum_head_bar_side_step_mm']
  assert rows['maximum_bar_plate_step_mm']<.15,seams
  assert all(7.7<r['radius_mm']<8.3 for r in bottom),bottom
