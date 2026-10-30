@@ -1,5 +1,6 @@
 """Original comparison sheets and a GLB-hash-checked image manifest, no docs."""
 import hashlib,json,sys
+import numpy as np
 from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont,ImageOps
 BASE=Path(__file__).resolve().parents[1];sys.path.insert(0,str(BASE.parents[1]))
@@ -28,11 +29,21 @@ def main():
   metadata=out/folder/'shots.json';assert metadata.exists(),str(metadata)
   assert names<=set(json.loads(metadata.read_text())),(folder,'missing shot metadata')
   for name in names:assert (out/folder/(name+'.png')).exists(),(folder,name)
+ from image_masks import projection
+ for name in ('box_loaded','box_empty','cartridge','case','link'):
+  metadata=json.loads((out/'detachables'/name/'shots.json').read_text())[name]
+  geometry=np.load(BASE/'build/image-geometry'/(name+'.npz'))
+  assert str(geometry['sha256'])==metadata['sha256']
+  size=Image.open(out/'detachables'/name/(name+'.png')).size
+  pixels,depth=projection(geometry['xyz'].reshape(-1,3),metadata,*size)
+  low=pixels.min(0);high=pixels.max(0);margin=np.array(size)*.03
+  assert np.all(depth>0) and np.all(low>=margin) and np.all(high<=np.array(size)-margin),(name,'standalone clipping',low,high)
  for folder in ('pairs','source-pairs'):
   for name in MATCHES:assert (out/folder/(name+'-pair.jpg')).exists(),(folder,name)
  raw=json.loads((out/'raw-check/raw-comparison.json').read_text())
  assert raw['source_sha256']==hashlib.sha256((BASE/'export/lmg.glb').read_bytes()).hexdigest()
- assert json.loads((BASE/'build/control-verification.json').read_text())['passed']
+ controls=json.loads((BASE/'build/control-verification.json').read_text())
+ assert controls['passed'] and len(controls['controls'])==9
  framing=json.loads((BASE/'build/photo-frame-proof.json').read_text())
  assert framing['source_sha256']==hashlib.sha256((BASE/'export/lmg.glb').read_bytes()).hexdigest()
  for name,row in framing['shots'].items():
