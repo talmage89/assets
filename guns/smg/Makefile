@@ -56,8 +56,8 @@ build/render-parameters.txt: FORCE
 build/delivery/high.blend: $(PREPARED) $(MARKS) $(WEAR_FIELDS) src/build_high.py src/high_ammo.py ../common/ammo9_bake.py src/lookdev.py build/wear-parameters.txt
 	$(BP) --python src/build_high.py -- --wear $(WEAR)
 lookdev: build/delivery/high.blend
-$(BAKED) &: build/delivery/high.blend $(PREPARED) src/config.py build/bake-parameters.txt ../../kit/bake.py ../../kit/bake_groups.py
-	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/bake.py -- --low build/delivery/finalized.blend --high build/delivery/high.blend --out build/baked/4k --asset Relay9 --config src/config.py --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
+$(BAKED) &: build/delivery/high.blend $(PREPARED) src/config.py ../common/paint_projection.py build/bake-parameters.txt ../../kit/bake.py ../../kit/bake_groups.py
+	$(KIT)/with_gpu.sh $(BP) --python ../common/paint_projection.py -- --low build/delivery/finalized.blend --high build/delivery/high.blend --out build/baked/4k --asset Relay9 --config src/config.py --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
 bake: $(BAKED)
 $(TEXTURES) &: $(BAKED) ../../kit/downsample.py
 	$(PYTHON) $(KIT)/downsample.py --source build/baked/4k --out textures --asset Relay9 --size $(SHIP_SIZE) --alpha-mode independent
