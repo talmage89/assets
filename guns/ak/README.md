@@ -256,7 +256,8 @@ subset (about **4 MiB**); the cartridge and fired case each use **512** (about
 **1 MiB**). No inter-file texture sharing is assumed.
 
 Budget and file sizes are measured from the actual exports and checked in
-`build/delivery/verify.json`:
+`build/delivery/verify.json`. The sizes below describe the accepted bake;
+fresh GPU rounding can change PNG compression and GLB byte counts slightly:
 
 | Output | Triangles | Maps | GLB bytes |
 | --- | ---: | ---: | ---: |
@@ -303,9 +304,30 @@ and 1,556 sampled affine poses. The cap return is also measured against the
 actual imported wood section at 23 radial rays; its small overhang and sheet
 gauge are plotted in `renders/final/retainer-section.jpg`. The texture-round
 fingerprint retains the main rifle’s geometry, normals, UVs,
-skin weights, rig, clips and layout. Its complete GLB SHA-256 remains
+skin weights, rig, clips and layout. The historical accepted GLB SHA-256 is
 `0fecef4cfc1b77fa9c485272d787cb276625781745a6893fe67ba190b60355a0`
-against `main` at `2b6ac0e`. A separate accepted detachable fingerprint retains
+against `main` at `2b6ac0e`. A fresh GPU bake can differ at a few quantization
+boundaries even with fixed saved inputs and seed 0. The check therefore
+compares **every non-image buffer byte, including tangents**, and the complete
+JSON semantics exactly; only buffer offsets, embedded PNG lengths and total
+buffer length are excluded from that fingerprint. Materials, samplers,
+accessors, UVs, skin, nodes, sockets and clips remain exact.
+
+Every decoded pixel of all three maps, including opaque specular alpha and
+unused atlas space, is checked against that historical bake: **at most 1/255
+per component and 128 changed texels per map**. `src/accepted_bake.json`
+contains validation checksums, not reference images. Three modular moments
+per 1024 channel samples locate at most two one-level differences per block;
+an in-memory comparison copy must then match the accepted full-image SHA-256.
+An ambiguous or unrecoverable block fails closed. A checksum collision cannot
+bypass the full-image digest. No shipped texel is corrected or reused, and
+ordinary builds cannot record a new baseline. The regression tests reject
+two-level changes, excessive changed texels, checksum collisions, missing
+alpha, and changes to non-image data or JSON semantics. Measurements are in
+`build/texture-preservation.json`; construction and fresh re-import checks
+remain separate proofs.
+
+A separate accepted detachable fingerprint retains
 oriented corner geometry, normals, other attributes and node frames while
 allowing subset UV translations. The independent atlas audit checks inverse
 surface samples, density, guards, sampler and pointwise mip bleed through L3.

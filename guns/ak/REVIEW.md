@@ -1531,3 +1531,155 @@ Evidence stays under `build/gif/`: `report.json`, `palette-audit.json`,
 review inspected decoded frames and audited real-speed delays; continuous
 visual playback was unavailable in this session. The committed image is
 `docs/motion.gif`; the README names the clip below it.
+
+## Fresh-build check — 2026-10-30
+
+**Color/value first:** the accepted historical GLB and freshly rebuilt GLBs
+retain the same black enamel, gray abrasion and brown/red-brown furniture.
+The native hero and grip close-up use the same cameras, lights, pose and color
+management. The first successful clean build's native render audit finds
+maximum RGB difference 1/255 and identical alpha; hero mean absolute RGB
+difference is .0000707/255,
+grip .0000311/255, and both 99th percentiles are zero. This is accepted-look
+preservation, separate from photographic realism. Existing projection and fine
+relief limitations remain.
+
+**Cause:** all 266 non-image buffer views, including tangents, match the
+accepted export byte-for-byte. JSON differences are restricted to image byte
+lengths, relocated buffer offsets and total buffer length. The original failed
+GLB's JSON chunk is still 142,904 bytes. Its PNGs total 7,440,606 bytes versus
+7,440,634 accepted (-28); four-byte image alignment adds another -4, fully
+explaining the 32-byte smaller GLB. These PNGs contain real one-level decoded
+sample differences, rather than timestamp or metadata changes.
+
+The table gives per-channel maximum integer difference, followed by the count
+of texels with any changed channel. Shipping data is 8-bit; BaseColor includes
+its independent specular alpha. Reference is the historical accepted GLB,
+except the last row, which compares the two clean discovery rebuilds directly.
+
+| Comparison | Rebuilt GLB bytes | BaseColor RGBA max; texels | Normal RGB max; texels | ORM RGB max; texels |
+| --- | ---: | --- | --- | --- |
+| Original failing output | 10861756 | [0, 1, 1, 0]; 2 | [1, 1, 0]; 31 | [0, 1, 0]; 17 |
+| Clean discovery A | 10861788 | [0, 1, 1, 1]; 3 | [1, 1, 0]; 30 | [0, 1, 0]; 11 |
+| Clean discovery B | 10861780 | [0, 1, 0, 0]; 1 | [1, 1, 0]; 41 | [0, 1, 0]; 14 |
+| Discovery A versus B | 10861780 | [0, 0, 1, 1]; 2 | [1, 1, 0]; 35 | [0, 1, 0]; 13 |
+
+The clean discovery commands regenerated model, UVs, dense source, all 4096/32
+bakes, 2048 shipping maps and exports from empty asset build/textures/export
+folders. Dense mesh/attribute fields and shader graphs match exactly. A
+separate repeated bake uses the same saved low/high files, Blender seed 0,
+animated seeding disabled and Python hash seed 0, under the shared GPU lock.
+It still changes 4/46/11 shipping texels (BaseColor/Normal/ORM), at most 1/255.
+At 4096, 10,240 normal texels differ by at most one 16-bit unit (1/65535);
+BaseColor and ORM differ at 8 and 53 texels by at most one 8-bit unit. AO and
+metallic remain identical in that experiment. The variation is within the GPU
+bake and its numerical quantization, not a changing scene or unfixed seed.
+
+**Fix and scope:** the original acceptance records remain unchanged. The new
+319,830-byte checksum-only manifest was recorded exclusively from the archived
+GLB matching historical SHA-256
+`0fecef4cfc1b77fa9c485272d787cb276625781745a6893fe67ba190b60355a0`.
+A fresh bake cannot be blessed by the recording command, and ordinary make
+never records a baseline. This manifest is validation metadata, not an image
+payload or a dependency on an external binary.
+
+The replacement gate preserves every non-image byte and the complete JSON
+semantics exactly, including materials, samplers, accessors, nodes, weights,
+rig, sockets, clips and tangents. Only physical buffer allocation is normalized.
+All decoded map samples, including unused atlas space and specular alpha, must
+match the accepted bake within 1/255 per component and 128 changed texels per
+map. Three modular moments per 1024 samples locate at most two one-level
+changes per channel block. The corrected **in-memory comparison copy** must
+then match the accepted full-image SHA-256. Unrecoverable patterns and checksum
+collisions fail closed. No shipping pixel is corrected, cached or replaced.
+Across the measured six-bake support union, the largest block contains two
+potentially changing normal components; color and ORM blocks contain one.
+
+Fifteen regression tests cover exact pixels, all channels including alpha,
+signed one-level changes, two changes in a block, PNG re-encoding, lost alpha
+or dimensions, two-level changes, excessive changed texels, zero-moment
+collisions rejected by the full SHA, nonaccepted recording inputs, exact
+non-image data, and exact JSON semantics. Existing source preservation,
+construction/motion, canonical-map, subset/mip, re-import and raw-import audits
+remain in place. These distinguish baseline preservation and serialization
+from actual surface fit.
+
+The GPU remains numerically non-byte-exact; the declared decoded bound is the
+intended exception. Larger changes, including new backend differences beyond
+that bound, fail. No kit, common module, asset generator or accepted docs image
+is changed. No additional tool or lead action is needed.
+
+**Clean command proof:** two complete default builds, each followed by a
+separate check, start with clean tracked files. Before each default build,
+`guns/ak/build/`, `textures/`, `export/` and `renders/` are removed. Both use
+unchanged defaults: 4096 bake, 32 samples, 2048 shipping atlas, 1600-wide studio
+renders at 64 samples, and the shared GPU lock. References are already cached.
+Generated docs are archived and the accepted docs restored before each
+standalone check. All six committed docs files remain byte-identical to the
+original main revision.
+
+| Clean cycle / local log folder | `make -C guns/ak` | `make -C guns/ak check` |
+| --- | --- | --- |
+| A: `build/ak-check/final-2/` | exit 0; 4938.11 s | exit 0; 367.10 s |
+| B: `build/ak-check/final-3/` | exit 0; 2993.01 s | exit 0; 587.70 s |
+
+Both commands in each cycle run all 15 new regression tests successfully.
+`python3 kit/repo_check.py` then passes: 1,045 source files, zero errors.
+No kit files changed, so the kit fixture suite is not rerun for this asset-local
+check change. `git diff --check` passes.
+
+The final decoded comparisons use the same per-channel-max / changed-texel
+notation as the discovery table. All 266 non-image buffer views remain exact.
+
+| Comparison | Rebuilt GLB bytes | BaseColor RGBA max; texels | Normal RGB max; texels | ORM RGB max; texels |
+| --- | ---: | --- | --- | --- |
+| Accepted versus clean A | 10861800 | [0, 1, 1, 0]; 2 | [1, 1, 0]; 30 | [0, 1, 0]; 15 |
+| Accepted versus clean B | 10861804 | [0, 1, 0, 0]; 1 | [1, 1, 0]; 38 | [0, 1, 0]; 15 |
+| Clean A versus B | 10861804 | [0, 0, 1, 0]; 1 | [1, 1, 0]; 30 | [0, 1, 0]; 14 |
+
+The final source, finalized and re-imported construction audits each measure
+44 contacts and nine fixed seats, with zero motion violations. The retainer
+check measures 23 rays on actual imported triangles. Serialization samples
+1,556 affine poses with maximum position delta 9.133e-8 m; that is an export
+comparison, separate from the construction proof. Imported UV coverage is
+37.7915%, overlap fraction 7.771e-7, no outside or degenerate UV triangles,
+and median density 1,875.67 px/m. Canonical decoded-map, detachable surface,
+normal/tangent, sampler, guard and mip checks also pass.
+
+Final measured budgets (three maps and one material per output):
+
+| Output | Triangles | Map size | GLB bytes |
+| --- | ---: | ---: | ---: |
+| ak | 40000 | 2048 | 10861804 |
+| magazine_loaded | 6756 | 1024 | 1534312 |
+| magazine_empty | 4596 | 1024 | 1462416 |
+| cartridge | 960 | 512 | 164864 |
+| case | 704 | 512 | 149676 |
+
+The final rifle's BaseColor/Normal/ORM PNGs are 1,180,817 / 2,509,145 /
+3,750,685 bytes. These are freshly generated files, not restored accepted PNGs.
+
+**Final image audit:** reviewed the 24 studio views, Eevee hero, 20 exported
+photo pairs, 20 source photo pairs, seven detachable renders, four raw-import
+views and the independently baked metal-control comparison. The first cycle's
+290 motion frames were opened in full. In the second cycle, 262 frames are
+pixel-identical to those reviewed frames; all 28 changed frames were opened
+again and differ by at most one channel level. No visible change was found.
+Against the historical accepted GLB, the second cycle's hero/grip mean absolute
+RGB differences are .0000585/.0000294 on the 0–255 scale; maximum 1, 99th
+percentile 0, identical alpha. Cameras, lights, pose and color settings match.
+This proves preservation of the accepted look; it does not improve its existing
+photographic-match limitations.
+
+Current render paths are `guns/ak/renders/final/beauty/`, `eevee/`, `pairs/`,
+`source-pairs/`, `strips/`, `raw-check/comparison.jpg`, `metal-wear-proof.jpg`
+and `guns/ak/renders/final/contact-sheet.jpg`. The first successful cycle's
+renders are retained under `build/ak-check/final-2/renders/final/`. Both
+cycles' logs, export/texture snapshots, reports and inspection pages are in
+`build/ak-check/final-2/` and `final-3/`. Full byte/pixel differences are
+`accepted-v-initial.json`, `accepted-v-discovery1.json`,
+`accepted-v-discovery2.json`, `discovery1-v-discovery2.json`,
+`accepted-v-final2.json`, `accepted-v-final3.json` and `final2-v-final3.json`
+under `build/ak-check/`; `shared-seeded-comparison.json` records the fixed-input
+experiment. A prior run whose logging parent terminated without a captured
+make status is archived as `final-1/` and is not counted as successful validation.

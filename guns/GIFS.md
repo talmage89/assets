@@ -100,6 +100,14 @@ shared GIF tests, four repository-policy tests and repository/staged checks.
 Detailed local evidence is in `build/docs-gifs/`, including
 `verified-thread-gifs.json`, `kit-suite/results.json` and the per-gun check logs.
 
+AK follow-up on `wp/guns-ak-check` (2026-10-30): the failure above is resolved.
+Two clean default builds and their separate checks now pass. Only sparse GPU
+bake rounding differed; exact non-image GLB data and JSON semantics remain
+protected, with decoded texture differences bounded against the historical
+accepted bake. The [AK investigation](ak/REVIEW.md#fresh-build-check--2026-10-30)
+records the byte/texel measurements, tolerance and full command results.
+The accepted docs JPGs and GIF remain unchanged.
+
 All decoded frames were inspected, with native pages for feed, ejection,
 extraction and charging. Background corners remain exactly constant; global
 palettes show no objectionable steel bands or dither noise in the reviewed
