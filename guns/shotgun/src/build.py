@@ -12,18 +12,23 @@ ROOT=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(ROOT));sys.path.insert(0,str(Path(__file__).parent))
 from kit import model as M, weapon as W
 from clips import build_clips
-GENERATOR_HASH=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+from feed import PITCH,BONES
+def source_hash():
+ return hashlib.sha256(b''.join((Path(__file__).parent/n).read_bytes() for n in ('build.py','clips.py','feed.py','interface.py'))).hexdigest()
+GENERATOR_HASH=source_hash()
 
 PARTS=[]; HIGH=[]; MAT={}
 GRIP=Vector((0,-55,16))
 BORE=65.; TUBE=29.; BREECH=186.1; MUZZLE=656.; PAD=-322.
 HEADS={'Root':(0,-50,0),'Forend':(0,375,29),'Bolt':(0,116,65),
- 'BoltLock':(0,150,69),'Carrier':(0,30,20),'CarrierShell':(0,104,32),
+ 'BoltLock':(0,150,69),'Carrier':(0,30,20),'CarrierShell':(0,104,29),
+ 'CarrierGuide':(0,104,29),'FiredGuide':(0,BREECH,BORE),'FiredHull':(0,BREECH,BORE),
+ 'TubeFeedGuide':(0,200,29),
  'Trigger':(0,29,12),'Safety':(0,1,8),'ActionRelease':(-12.8,45,13),
  'ShellStopL':(-12.5,185,29),'ShellStopR':(12.5,185,29),
- 'Follower':(0,436,29),'ChamberShell':(0,BREECH,BORE),
+ 'Follower':(0,200+4*PITCH,29),'ChamberShell':(0,BREECH,BORE),
  'InsertShell':(0,130,29),'ShellGuide':(0,130,29),'Magazine':(0,200,29),
- **{'Tube'+str(i+1):(0,200+i*59,29) for i in range(4)}}
+ **{'Tube'+str(i+1):(0,200+i*PITCH,29) for i in range(4)}}
 SOCKETS={'Socket_Muzzle':(0,MUZZLE,BORE),'Socket_Foregrip':(-19,373,7),
  'Socket_Butt':(0,PAD+.11*57,-37),'Socket_Eye':(0,-80,80.6),
  'Socket_Ejection':(18,117,63),'Socket_MagWell':(0,107,14),
@@ -118,6 +123,8 @@ def receiver():
  # the loading opening into the tube; there is no solid web in the shell path.
  for y,z,r in [(180,BORE,12.85),(152,TUBE,12.65)]:
   cut(o,lathe('tool',[(y,0),(y,r),(200,r),(200,0)],center=(0,z),n=64,register=False))
+ # Internal ramp clearance for the inclined hull before it reaches the bore.
+ cutbox(o,(-11.4,143,40),(11.4,184,65))
  reg(o,radius=.65,segments=3)
  # Preserve the crown: unconstrained QEM collapse can move a Boolean bevel
  # junction millimeters off this shallow roof. Dissolve only coplanar faces.
@@ -137,18 +144,20 @@ def receiver():
        'dark',center=(0,BORE),n=32,closed=True)
  ext=PARTS[-1]
  cut(ext,lathe('tool',[(184,0),(184,11.35),(188,11.35),(188,0)],center=(0,BORE),n=48,register=False))
+ cutbox(ext,(10.2,185.8,63),(12.8,189,67))
 
 def barrel_tube():
  # Cylinder bore, chamber-side visual counterbore, rolled crown highlight.
  points=[(BREECH,12.45),(226,12.45),(248,11.8),(649,11.25),(655.5,11.25),
-  (656,10.9),(656,9.65),(655.4,9.25),(260,9.25),(246,10.1),(189.2,10.1),(189.2,11.35),(BREECH,11.35)]
+  (656,10.9),(656,9.65),(655.4,9.25),(270,9.25),(256.4,10.2),(189.2,10.2),(189.2,11.35),(BREECH,11.35)]
  # Keep 96 sides at the visible muzzle. Half-density hidden bore rings pay for
  # the receiver's preserved crown without reducing its silhouette resolution.
  shell_surface('Barrel',[(a,r,96 if i<=6 else 48) for i,(a,r) in enumerate(points)]+[(points[0][0],points[0][1],96)],(0,0,BORE),'blue','Root')
+ cutbox(PARTS[-1],(10.2,185.8,63),(12.8,189,67))
  tube=lathe('Magazine_Tube',[(190,11.5),(190,12.5),(534,12.5),(534,11.5)],center=(0,TUBE),n=64,closed=True)
  for s in (-1,1):
   a,b=sorted((s*10,s*16))
-  cutbox(tube,(a,189,23.5),(b,200,34.5))
+  cutbox(tube,(a,189,23.5),(b,205 if s>0 else 200,34.5))
  # The welded barrel lug wraps the tube; the cap bears against its front face.
  lathe('Barrel_Ring',[(524,12.65),(524,15.8),(534,15.8),(534,12.65)],center=(0,TUBE),n=64,closed=True)
  box('Ring_Bridge',(-6.5,525,43),(6.5,533,54),'blue',radius=2,segments=4)
@@ -236,13 +245,18 @@ def furniture():
  wood=M.loft('Forend_Wood',loops,MAT['wood']);subd(wood,1)
  for yy,zz,rr in [(290,TUBE,14.1),(290,BORE,14.5)]:
   cut(wood,lathe('tool',[(yy,0),(yy,rr),(525,rr),(525,0)],center=(0,zz),n=64,register=False))
- for s in (-1,1):
-  a,b=sorted((s*11.8,s*13.8));cutbox(wood,(a,290,41.7),(b,322,45.3))
  M.smooth(wood,42)
  h=high_copy(wood,'Forend');subd(h,1);h['source_method']='subdivided radial cage with compound tapers and paired grooves'
+ # Mill the bar and interceptor inlets after sculpting both surfaces.
+ # Subdividing these narrow cavities rounded away their planar end walls.
+ for target in (wood,h):
+  for s in (-1,1):
+   a,b=sorted((s*11.8,s*13.8));cutbox(target,(a,290,41.7),(b,322,45.3))
+  cutbox(target,(9.9,290,23),(16.4,305,35.5));M.smooth(target,42)
  reduce(wood,7600);reg(wood,'Forend')
  # Continuous hollow action sleeve with bearing rings. The wood has a real bore.
  lathe('Forend_Sleeve',[(299,12.65),(299,14),(513,14),(513,12.65)],'dark','Forend',center=(0,TUBE),n=48,closed=True)
+ cutbox(PARTS[-1],(9.9,298,23),(16.4,305,35.5))
  for y in (315,456):
   lathe('Forend_Bearing',[(y,12.58),(y,12.65),(y+6,12.65),(y+6,12.58)],'steel','Forend',center=(0,TUBE),n=48,closed=True)
  # Two action bars are supported by the sleeve and enter the receiver channels.
@@ -253,7 +267,8 @@ def furniture():
  # Its upper land and the actual bolt bearing face are independently audited.
  block=[(-13.5,44.8),(-13.5,47.5),(-8,47.5),(-8,55.25),
         (8,55.25),(8,47.5),(13.5,47.5),(13.5,44.8)]
- profile('Action_SlideBlock',block,155,173,'steel','Forend',axis='Y',radius=.25)
+ slide=profile('Action_SlideBlock',block,155,173,'steel','Forend',axis='Y',register=False)
+ cutbox(slide,(-10.8,154,42),(10.8,174,52));reg(slide,'Forend',radius=.25)
 
 def trigger():
  # A broad 6 mm blade: +Y-facing hollow, convex grip-side back and forward toe.
@@ -276,7 +291,7 @@ def controls():
   loops.append([tuple(Vector((5.3*math.cos(a*math.tau/12),y,z))+transverse*(2.2*math.sin(a*math.tau/12))) for a in range(12)])
  cut(plate,M.loft('raw_guard',loops,MAT['dark']),'UNION')
  cutbox(plate,(-4,23,1),(4,47,22))
- cutbox(plate,(-12,27,18),(12,83,25))
+ cutbox(plate,(-12,27,16),(12,83,25))
  cut(plate,lathe('tool',[(-16,0),(-16,3.8),(16,3.8),(16,0)],axis='X',center=(1,8),n=32,register=False))
  reg(plate,radius=.65,segments=3);reduce(plate,1700)
  trigger()
@@ -302,28 +317,36 @@ def mechanism():
  # Visible extractor on the right; no detailed hidden fire-control engineering.
  profile('Bolt_Extractor',M.fillet_polygon([(172,59),(185.9,59),(186.1,62),(181,67),(173,67)],.8,4),
   10.7,12.2,'steel','Bolt',radius=.25)
+ box('Extractor_ClawArm',(12,183,64),(12.6,187.7,66),'steel','Bolt',radius=0)
+ box('Extractor_Claw',(10.95,187.5,64),(12.6,187.7,66),'steel','Bolt',radius=0)
+ box('Ejector_Spring',(-14.2,74,63.5),(-11.4,96,66.5),'dark',radius=0)
+ box('Ejector_Shoulder',(-11.4,95,64),(-10.5,96,66),'steel',radius=0)
  box('Bolt_Lock',(-6.9,160.5,74), (6.9,176.5,77.8),'steel','BoltLock',radius=.18)
  # Stamped carrier: concave bed and real turned-up sides, not a flat floating plate.
- inner=[(x,32-math.sqrt(11.2**2-x*x)) for x in (-10.4,-9.7,-7,-4,0,4,7,9.7,10.4)]
+ inner=[(x,29-math.sqrt(11.2**2-x*x)) for x in (-10.4,-9.7,-7,-4,0,4,7,9.7,10.4)]
  section=inner+[(x,z-.9) for x,z in reversed(inner)]
  carrier=M.loft('Carrier_Tray',[[(x,y,z) for x,z in section] for y in (54,55,137,138)],MAT['steel'])
- cutbox(carrier,(-2.7,70,18),(2.7,126,24));reg(carrier,'Carrier',radius=.3)
+ cutbox(carrier,(-2.7,70,14),(2.7,126,24));reg(carrier,'Carrier',radius=.3)
  for side in (-1,1):
   x0,x1=sorted((side*10,side*11.8))
-  ob=profile('Carrier_Arm',M.fillet_polygon([(29,19),(56,19),(60,22),(32,23)],1,4),x0,x1,'steel','Carrier',register=False)
+  ob=profile('Carrier_Arm',M.fillet_polygon([(29,19),(56,19),(60,24),(32,23)],1,4),x0,x1,'steel','Carrier',register=False)
   cut(ob,lathe('tool',[(-14,0),(-14,2.8),(14,2.8),(14,0)],axis='X',center=(30,20),n=24,register=False));reg(ob,'Carrier',radius=.2)
  lathe('Carrier_Pivot',[(-13.5,0),(-13.5,2.7),(13.5,2.7),(13.5,0)],'dark',axis='X',center=(30,20),n=24)
  # Retaining tips bear on the rim's rear face, below its upper quadrant.
  for side,bone in [(-1,'ShellStopL'),(1,'ShellStopR')]:
   x0,x1=sorted((side*11.2,side*13.1))
-  profile('ShellStop_Arm_'+bone,[(170,24),(199.9,24),(199.9,34),(192,34),(170,29)],x0,x1,'dark',bone,radius=.2)
-  x0,x1=sorted((side*9.3,side*11.2))
-  box('ShellStop_Tip_'+bone,(x0,198.8,26.5),(x1,200,31.5),'steel',bone,radius=.08)
- lathe('Magazine_Follower',[(436,0),(436,10.9),(443,10.9),(443,0)],'follower','Follower',center=(0,TUBE),n=24)
- for i in range(4):shell('TubeShell'+str(i+1),(0,200+i*59,TUBE),'Tube'+str(i+1),n=16)
+  end=203.3 if side>0 else 199.9
+  profile('ShellStop_Arm_'+bone,[(170,24),(end,24),(end,34),(end-7.9,34),(170,29)],x0,x1,'dark',bone,radius=.2)
+  x0,x1=sorted((side*(10.3 if side>0 else 9.3),side*(11.8 if side>0 else 11.2)))
+  rear=203.4 if side>0 else 200
+  box('ShellStop_Tip_'+bone,(x0,rear-1.2,26.5),(x1,rear,31.5),'steel',bone,radius=.08)
+ y=200+4*PITCH
+ lathe('Magazine_Follower',[(y,0),(y,10.9),(y+7,10.9),(y+7,0)],'follower','Follower',center=(0,TUBE),n=24)
+ for i in range(4):shell('TubeShell'+str(i+1),(0,200+i*PITCH,TUBE),'Tube'+str(i+1),n=16,hidden=True)
  shell('ChamberShell',(0,BREECH,BORE),'ChamberShell',n=16)
- shell('CarrierShell',(0,104,32),'CarrierShell',n=16)
+ shell('CarrierShell',(0,104,29),'CarrierShell',n=16)
  shell('InsertShell',(0,130,29),'InsertShell',n=16)
+ shell('FiredHull',(0,BREECH,BORE),'FiredHull',fired=True,n=28)
 
 def bridge(a,b):
  """Join different ring counts without spending hidden subdivision rings."""
@@ -349,10 +372,10 @@ def shell_surface(name,specs,base,mat,bone,warp=None,cap_last=False):
  if cap_last:faces.append(tuple(reversed(rings[-1])))
  ob=reg(M.mesh(name,vertices,faces,MAT[mat]),bone);ob['shell_surface']=True;ob['shell_axis']=(x,z)
  return ob
-def shell(name,base,bone='Root',fired=False,n=32):
+def shell(name,base,bone='Root',fired=False,n=32,hidden=False):
  # Exterior gets 28/32 sides. Sparse primer/inner rings and absent hidden
  # backing disks pay for them; the rim still has its actual turned step.
- n=28 if fired else n;pn=12 if fired else 16
+ n=28 if fired else n;pn=12 if fired else (8 if hidden else 16)
  shell_surface(name+'_Head',[(0,2.7,pn),(0,11.2,n),(1.4,11.2,n),(1.8,10.1,n),(10.5,10.1,n)],base,'brass',bone)
  primer=[(.12,0,pn),(.12,2.7,pn),(0,2.7,pn)]
  if fired:primer=[(.75,0,pn),(.15,.65,pn),(.12,2.7,pn)]
@@ -368,7 +391,8 @@ def shell(name,base,bone='Root',fired=False,n=32):
   shell_surface(name+'_Hull',[(10.5,10.05,n),(57.5,9.8,n),(57.5,9.3,n)],base,'hull',bone)
   # Six folds sink toward a small genuine center opening. Smooth compound
   # petals replace the old triangles meeting at a single flat center vertex.
-  ob=shell_surface(name+'_Crimp',[(57.25,9.3,24),(56.95,7.3,24),(56.35,4.8,24),(55.7,.65,24),(55.1,.6,16)],base,'hull',bone,
+  cn=12 if hidden else 24
+  ob=shell_surface(name+'_Crimp',[(57.25,9.3,cn),(56.95,7.3,cn),(56.35,4.8,cn),(55.7,.65,cn),(55.1,.6,8 if hidden else 16)],base,'hull',bone,
    lambda k,t: .35*math.cos(6*t) if k==1 else .6*math.cos(6*t) if k==2 else .14*math.cos(6*t) if k==3 else 0)
   ob['fold_surface']=True;M.smooth(ob,85)
 
@@ -427,7 +451,7 @@ def main():
   h.data.transform(Matrix.Scale(.001,4)@Matrix.Translation(-GRIP))
   for c in list(h.users_collection):c.objects.unlink(h)
   highcollection.objects.link(h);h.hide_render=True;h.hide_set(True)
- parents={'BoltLock':'Bolt','CarrierShell':'Carrier','InsertShell':'ShellGuide',**{'Tube'+str(i):'Magazine' for i in range(1,5)}}
+ parents={'BoltLock':'Bolt','CarrierShell':'CarrierGuide','FiredHull':'FiredGuide','InsertShell':'ShellGuide',**{'Tube'+str(i):'TubeFeedGuide' for i in range(1,5)}}
  arm=W.armature('ShotgunArmature',{k:P(v) for k,v in HEADS.items()},parents=parents)
  for o in PARTS:W.rigid_bind(o,arm,o['bone'])
  sockets=W.sockets(arm,{k:P(v) for k,v in SOCKETS.items()},
@@ -440,7 +464,8 @@ def main():
  bpy.ops.wm.save_as_mainfile(filepath=str(out))
  # Separate checkpoint meshes preserve independent named surface tests after
  # import. Final atlas export will consolidate; these are temporary draw calls.
- W.export(out.with_suffix('.glb'),[arm]+PARTS+sockets)
+ from guns.common.feed_sampling import export as feed_export
+ feed_export(out.with_suffix('.glb'),[arm]+PARTS+sockets,BONES)
  counts={o.name:len(o.data.polygons) for o in PARTS}
  report={'total':sum(counts.values()),'parts':counts,'high_sources':{h.name:sum(len(f.vertices)-2 for f in h.data.polygons) for h in HIGH},'standalones':{}}
  old=list(PARTS)
