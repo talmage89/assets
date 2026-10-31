@@ -756,7 +756,10 @@ def build(b):
             b.add(G.profile('Wheelwell inboard_'+end+side,outline,sign*.559,sign*.561,b.m['rubber'],axis='X'),category='liners')
     fascia(b,front=True,master_tree=tree,surface_map=surface_map);fascia(b,front=False,master_tree=tree,surface_map=surface_map)
     # Only a cavity closure is supplied at this gate, not an interior or drivetrain.
-    floor=G.box('Form cavity closure',(0,.05,.235),(1.62,3.95,.025),b.m['rubber'],0);b.add(floor,category='closure')
+    # This temporary blackout is inside the wheel wells and tucked end skins.
+    # A full-width, long rectangle projected behind the curved lower tail and
+    # looked like a diffuser plate. It is not the later underbody assembly.
+    floor=G.box('Form cavity closure',(0,-.05,.260),(1.10,3.55,.018),b.m['rubber'],0);b.add(floor,category='closure')
     handles(b)
     from sedan_character import mirrors
     mirrors(b)
