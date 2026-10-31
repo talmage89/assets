@@ -30,6 +30,10 @@ def check_plan(plan):
     for d in [b for b in blocks if b.name.startswith('Dormer')]:
         if d.height(d.cx,d.cy)>m.height(d.cx,m.cy)-.10:errors.append('Dormer ridge higher than parent')
         if d.y0-m.y0<.49:errors.append('Dormer at wall face')
+    lower=sorted(m.x0+o['u'] for o in holes if o['block']=='Main' and o['face']=='front' and o['kind']=='window')
+    if s['dormers']:
+        bays=lower if s['dormers']==2 else [sum(lower[:2])/2,plan['door_x'],sum(lower[2:])/2]
+        if any(abs(a-c)>1e-6 for a,c in zip(plan['dormer_centers'],bays)):errors.append('Dormers not centered over facade bays')
     soffit=m.eave-m.pitch*m.overhang-.151
     for o in holes:
         if o['block']=='Main' and o['face']=='front' and o['z']<m.upper_floor and o['z']+o['h']+.11>soffit:errors.append('First-floor head intersects eave')

@@ -94,7 +94,7 @@ def generate(seed,overrides=None):
             blocks.append(bridge)
         blocks.append(garage)
     # Two dormers correspond to two side bays; three use a five-bay facade.
-    centers=[main.x0+main.width*f for f in ((.25,.75) if s['dormers']==2 else (.20,.50,.80))] if s['dormers'] else []
+    centers=[main.x0+main.width*f for f in ((.25,.75) if s['dormers']==2 else (.21,.50,.79))] if s['dormers'] else []
     for j,x in enumerate(centers):
         width=4.5*FT;y0=main.y0+.50;dormer_eave=main.upper_floor+1.72
         # Back boundary is buried in the parent slope; exact union clips the surplus.
