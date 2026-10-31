@@ -8,7 +8,15 @@ import numpy as np
 from PIL import Image
 
 from kit.gltf import GLB
-from kit.image_io import srgb_to_linear
+from kit.image_io import srgb_to_linear,read_png
+
+
+def _image(source):
+    """Retain numerical RGB16; Pillow converts RGB PNGs to eight bits."""
+    data=source if isinstance(source,bytes) else Path(source).read_bytes()
+    if data[24]==16:
+        return read_png(data).astype(float)
+    return np.array(Image.open(io.BytesIO(data))).astype(float)/255
 
 
 def maps(g):
@@ -19,8 +27,7 @@ def maps(g):
                    Normal=material['normalTexture']['index'],
                    ORM=pbr['metallicRoughnessTexture']['index'])
     assert material['occlusionTexture']['index'] == indices['ORM']
-    return {channel:np.array(Image.open(io.BytesIO(g.image(
-        g.json['textures'][index]['source'])))).astype(float)/255
+    return {channel:_image(g.image(g.json['textures'][index]['source']))
         for channel,index in indices.items()}
 
 
@@ -209,7 +216,7 @@ def audit(path, canonical_folder, asset, layout_path, *, gun=None):
         source_uv.extend(a);new_uv.extend(b)
     errors={}
     for channel,image in images.items():
-        source=np.array(Image.open(Path(canonical_folder)/f'T_{asset}_{channel}.png')).astype(float)/255
+        source=_image(Path(canonical_folder)/f'T_{asset}_{channel}.png')
         delta=np.abs(sample(source,source_uv,color=channel=='BaseColor')-
                      sample(image,new_uv,color=channel=='BaseColor'))
         errors[channel]=float(delta.max());assert delta.max()<.25/255,(channel,delta.max())
@@ -340,7 +347,7 @@ def mip_bleed(path, canonical_folder, asset, layout_path, *, gun=None,
     if gun is not None:
         assert samplers(g)==samplers(GLB(Path(gun))), 'Sampler differs from main gun'
     actual = maps(g)
-    source = {c:np.asarray(Image.open(Path(canonical_folder)/f'T_{asset}_{c}.png')).astype(float)/255
+    source = {c:_image(Path(canonical_folder)/f'T_{asset}_{c}.png')
               for c in actual}
     chains = {c:mip_chain(a,color=c=='BaseColor') for c,a in actual.items()}
     old_chains = {c:mip_chain(a,color=c=='BaseColor') for c,a in source.items()}

@@ -1,7 +1,7 @@
 # Finished-gun signature GIFs
 
 One loop under each finished gun's README hero, rendered from its exported GLB
-with the embedded baked maps. The side-by-side is not included.
+with the embedded baked maps. All nine finished family members are included.
 Run `make -C guns/<gun> gif`; the shared implementation and configuration
 interface are documented in [common/README.md](common/README.md#one-signature-motion-gif).
 
@@ -22,6 +22,7 @@ half-open clip intervals, so the endpoint is not counted twice.
 | [ak](./ak/docs/motion.gif) | `ReloadEmpty` | 820×443 | 70 | 20 | 253 | 439,106 | 4,000 |
 | [smg](./smg/docs/motion.gif) | `ReloadEmpty` | 960×519 | 70 | 20 | 250 | 284,287 | 4,000 |
 | [lmg](./lmg/docs/motion.gif) | `Reload` 226–346 | 720×533 | 40 | 20 | 52 | 447,836 | 2,500 |
+| [sxs](./sxs/docs/motion.gif) | `Open` → `Unload` → `Reload` → `Close` excerpts | 720×410 | 53 | 20 | 192 | 438,071 | 3,150 |
 
 All palettes allocate at most 256 entries, including transparency for unchanged
 pixels. ffmpeg uses one palette for the entire clip, no dithering, difference
@@ -42,6 +43,11 @@ every sample advances by 50 ms (40 ms for bolt), with the extra 500 ms on index
 | ak | 000–069 | ReloadEmpty 0, 3, …, 207 |
 | smg | 000–069 | ReloadEmpty 0, 3, …, 207 |
 | lmg | 000–039 | Reload 226, 229, …, 343; belt placement through latch seating |
+| sxs / Open | 000–009 | 39, 42, …, 66; lever already swung, barrels dropping and hulls raised |
+| sxs / Unload | 010–022 | 15, 18, …, 51; both hulls drawn axially clear before the handoff |
+| sxs / Reload right | 023–028 | 30, 33, …, 45; first insertion to its seated transform |
+| sxs / Reload left | 029–035 | 93, 96, …, 111; second insertion and seated handoff |
+| sxs / Close | 036–052 | 18, 21, …, 66; extractor home, barrels closed and lever returned |
 
 All renders start at 960 pixels wide. The revolver's complete 960-pixel reload
 exceeded 1 MB: after a tighter composition and removal of static margins, it
@@ -73,6 +79,7 @@ action crops spend pixels on the feed/ejection area.
 | ak | (1.12, 0.53, 0.38) | (0, 0.16, -0.04) | 49 | 1.85 | 0 | -0.15 |
 | smg | (-0.92, 0.48, 0.35) | (0, 0.08, -0.02) | 50 | 1.85 | 0 | -0.15 |
 | lmg | (−0.70, −0.08, 0.58) | (−0.015, 0.14, 0.24) | 48 | 1.35 | 0 | -0.15 |
+| sxs | (0.38, −0.26, 0.27) | (0, 0.135, 0.025) | 58 | 1.756098 | 0.377408 | -0.15 |
 
 The pistol's `ReloadEmpty` shows magazine exchange and slide release; its short
 Fire would hide most of the mechanism. The revolver's `Reload` shows the crane,
@@ -141,3 +148,33 @@ regenerated both loops with `make gif` from the final exported GLBs. Their
 clip samples, cameras, lighting, palettes' allocations and output dimensions
 remain unchanged; both sets of seventy decoded frames were inspected in order.
 The member `REVIEW.md` files record the new paint and frame observations.
+
+## Covey 26 oil finish and final loop
+
+The Covey uses the same final five-light studio and baked GLB as its JPGs.
+`Open` starts with the lever swung and retains the barrel drop and extractor
+lift. Two `Reload` seating excerpts omit the air approach/hand-clear interval;
+`Close` retains extractor return, barrel closure and the returning top lever.
+The manual `Unload` excerpt draws both hull mouths clear of the chambers
+before the first shell enters. All 19 full clips, states and handoffs remain
+in the GLB; the excerpts omit the external hand's air travel. No hand mesh ships.
+
+The level camera is slightly above the breech. Roll levels the gun's +Y axis;
+vertical shift **+0.1013889** selects the crop without changing a gun transform.
+The 960-wide render ships at 720×410, with the receiver underside, lever,
+forend iron and rising shells inside the frame. The first 60-frame correction
+was 496,804 bytes. Trimming the approach/opening spans and removing 70 pixels of unused top
+margin preceded any palette reduction. A level 54-frame view was 451,650
+bytes; trimming one more opening sample fits all four phases in 53 frames.
+The accepted 20 Hz and 192-color allocation are both retained.
+The final global **192-color octree palette** preserves gold heads, red hulls,
+brown oil walnut and blue-black steel at **438,071 bytes**. There is no text
+overlay or dithering, and the flat gray surround is constant through every frame.
+
+All 53 decoded frames were opened in order on the seven native-width pages in
+`guns/sxs/build/gif/review/`. The shell approaches and both seating changes,
+manual hull withdrawal, raised rims, extractor return, complete closing stroke, lever return, crop
+clearance, material colors and highlight gradients were reviewed. The gun's
+[review journal](sxs/REVIEW.md) records the trials, decoded delays, numeric color
+comparison and final `make gif` verification. [src/gif.json](sxs/src/gif.json) and the generated
+report remain the exact camera/sequence and provenance sources of truth.

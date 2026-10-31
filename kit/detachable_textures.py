@@ -142,7 +142,9 @@ def extract(objects, folder, asset, output, size, *, layer='UVMap', clusters=Fal
     """
     if type(size) is not int or size not in (512,1024):
         raise ValueError('texture_size must be 512 or 1024')
-    arrays = {c: read_png(Path(folder)/f'T_{asset}_{c}.png')[::-1] for c in CHANNELS}
+    files = {c:Path(folder)/f'T_{asset}_{c}.png' for c in CHANNELS}
+    arrays = {c: read_png(path)[::-1] for c,path in files.items()}
+    bits = {c:path.read_bytes()[24] for c,path in files.items()}
     source_size = arrays['BaseColor'].shape[0]
     if any(a.shape[:2] != (source_size,source_size) for a in arrays.values()):
         raise ValueError('Detachable extraction requires matching square maps')
@@ -235,7 +237,8 @@ def extract(objects, folder, asset, output, size, *, layer='UVMap', clusters=Fal
     output = Path(output); output.mkdir(parents=True, exist_ok=True)
     paths = {}
     for channel,array in result.items():
-        path = output/f'T_{asset}_{output.name}_{channel}.png'; write_png(path,array[::-1]);paths[channel]=str(path)
+        path = output/f'T_{asset}_{output.name}_{channel}.png'
+        write_png(path,array[::-1],bits[channel]);paths[channel]=str(path)
     # Copy materials as well as mesh data. Preserve factors, extensions, alpha
     # masks/data and all links; change only the three image datablocks.
     import bpy
@@ -273,7 +276,7 @@ def extract(objects, folder, asset, output, size, *, layer='UVMap', clusters=Fal
                   source_density_px_m=percentiles,density_px_m=new_percentiles,
                   density_ratio_min=float(ratios.min()),density_ratio_max=float(ratios.max()),
                   padding_px=padding,mip_grid_px=block,protected_mip_level=last_level,
-                  islands=records,maps=paths,
+                  islands=records,maps=paths,bits_per_channel=bits,
                   sampling='Inherited exporter sampler; mipmaps, grid-aligned island guards, fully dilated background',
                   fill='Island dilation plus background pull-push; generated normals normalized; original footprint unchanged')
     if cluster_report is not None:

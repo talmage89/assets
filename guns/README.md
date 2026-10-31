@@ -13,6 +13,7 @@ folder. Shared procedural geometry, rigging, baking and delivery use `kit/`.
 | PD Relay 9 fixed-stock 9 mm submachine gun | Final: baked PBR, 21 clips, magazines, cartridge and case | [smg/](smg/README.md) |
 | PD Rill 39 stamped-receiver 7.62×39 rifle | Final: baked PBR, 20 clips, rock-in magazines, cartridge and case | [ak/](ak/README.md) |
 | PD Harrow 56 belt-fed 5.56×45 light machine gun | Final: baked PBR, 19 clips, count-aware belt, boxes, cartridge, case and link | [lmg/](lmg/README.md) |
+| PD Covey 26 side-by-side 12-gauge shotgun | Final: oil walnut, baked PBR, 19 clips, extractors, live shell and fired hull | [sxs/](sxs/README.md) |
 
 ## Shared conventions
 

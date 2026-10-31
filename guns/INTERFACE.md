@@ -120,3 +120,10 @@ spawn. It reuses the 1.1.0 tube-loading meanings. The 1.0.0 binding and the
 The [Rill 39 supplement](ak/INTERFACE.md) adds `magazine_rocks_in`, the authored
 front-hook/rock/seat path and a reciprocating charging-handle binding. Existing
 occupancy, socket, effect and select-fire meanings remain unchanged.
+
+## Additive 1.7.0 break-action supplement
+
+The [Covey 26 supplement](sxs/INTERFACE.md) adds a two-barrel break action,
+double triggers, extractors, an automatic tang safety and per-barrel chamber
+and internal-hammer states. It reuses 1.4.0's loaded/fired/empty vocabulary
+and 1.1.0's shell insertion frames. It has no magazine. All earlier meanings remain unchanged.

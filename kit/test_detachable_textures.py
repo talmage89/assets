@@ -57,6 +57,7 @@ W.action(arm,'Loaded',[(0,{}),W.hold(1)])
 W.action(arm,'Empty',[(0,{'Round':dict(scale=(0,0,0))}),W.hold(1)])
 W.action(arm,'Tilt',[(0,{}),(12,{'Magazine':dict(loc=(.01,-.02,.03),rot_deg=(24,32,-13))}),W.hold(15)])
 bpy.ops.wm.save_as_mainfile(filepath=str(out/'source.blend'))
+rigged_source_bytes=(out/'source.blend').read_bytes()
 # High frequency changes catch even one-texel errors. Independent alpha tests
 # opaque specular data preservation, not just RGB.
 y,x = np.mgrid[:2048,:2048];textures = out/'textures'
@@ -277,5 +278,35 @@ repeat_layout=D.extract([ob],textures,'SubsetFixture',out/'clusters-repeat',1024
 assert repeat_layout['regions']==layout['regions']
 for channel in D.CHANNELS:
     assert Path(layout['maps'][channel]).read_bytes()==Path(repeat_layout['maps'][channel]).read_bytes()
+# RGB16 normals must retain every original precision step in both packers.
+# The earlier RGB8 fixtures still prove byte preservation for existing callers.
+y16,x16=np.mgrid[:2048,:2048]
+n16=np.stack((.25*np.sin(x16*.7),.25*np.cos(y16*.6),np.ones_like(x16)),axis=-1)
+n16/=np.linalg.norm(n16,axis=-1,keepdims=True)
+write_png(textures/'T_SubsetFixture_Normal.png',n16*.5+.5,16)
+(out/'source.blend').write_bytes(rigged_source_bytes)
+legacy16=out/'precision16-legacy';deliver(base,legacy16)
+for clustered in (False,True):
+    folder=out/('precision16-clusters' if clustered else 'precision16-islands')
+    settings={**base,'DETACHABLES':[{**row,'texture_size':512,'texture_clusters':clustered} for row in base['DETACHABLES']]}
+    deliver(settings,folder)
+    assert (folder/'main.glb').read_bytes()==(legacy16/'main.glb').read_bytes()
+    for state in ('loaded','empty','tilt'):
+        path=folder/(state+'.glb');layout=folder/'detachables'/state/'layout.json'
+        data=GLB(path)
+        assert sorted(data.image(i)[24] for i in range(3))==[8,8,16]
+        records[folder.name+'-'+state]=dict(
+            comparison=V.compare(legacy16/(state+'.glb'),path),
+            audit=V.audit(path,textures,'SubsetFixture',layout,gun=folder/'main.glb'),
+            mip_bleed=V.mip_bleed(path,textures,'SubsetFixture',layout,gun=folder/'main.glb'))
+        report=json.loads(layout.read_text())
+        assert report['bits_per_channel']==dict(BaseColor=8,Normal=16,ORM=8)
+        if clustered:
+            image=V.maps(data)['Normal'][::-1]
+            source=read_png(textures/'T_SubsetFixture_Normal.png')[::-1]
+            for region in report['regions']:
+                x,y=region['destination_origin'];ox,oy=region['source_origin'];w,h=region['shape']
+                assert np.array_equal(image[y:y+h,x:x+w],source[oy:oy+h,ox:ox+w].astype(float))
+
 (out/'results.json').write_text(json.dumps(records,indent=2))
 print('DETACHABLE TEXTURES PASS: legacy/main bytes, 512/1024, UV bounds, guards, sampled RGBA/normal/ORM, pointwise box mip bleed, inherited samplers, full fill/unit normals, tangent frame, posed origins, determinism and negative cases')

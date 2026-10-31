@@ -7,7 +7,8 @@ ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from kit import model as G,atlas
 
 
-def atlas_material(asset,folder,alpha_cutoff=None,double_sided=True,alpha_mode=None):
+def atlas_material(asset,folder,alpha_cutoff=None,double_sided=True,alpha_mode=None,
+                   opaque_specular_from_alpha=False):
     material=bpy.data.materials.new(asset);material.use_nodes=True
     nt=material.node_tree;nt.nodes.clear()
     surface=nt.nodes.new('ShaderNodeBsdfPrincipled');surface.name='SURFACE'
@@ -20,6 +21,16 @@ def atlas_material(asset,folder,alpha_cutoff=None,double_sided=True,alpha_mode=N
         texture.image.colorspace_settings.name='sRGB' if channel=='BaseColor' else 'Non-Color'
         nt.links.new(uv.outputs[0],texture.inputs['Vector']);images[channel]=texture
     nt.links.new(images['BaseColor'].outputs['Color'],surface.inputs['Base Color'])
+    if opaque_specular_from_alpha:
+        if alpha_cutoff is not None or alpha_mode=='BLEND':
+            raise ValueError('Opaque specular data cannot also supply coverage alpha')
+        # glTF's scalar factor is twice Principled's IOR level. Alpha remains
+        # linear data in the sRGB image, and the material remains OPAQUE.
+        factor=nt.nodes.new('ShaderNodeMath');factor.operation='MULTIPLY'
+        factor.inputs[1].default_value=.5
+        factor.label='Opaque BaseColor alpha: glTF specular factor / 2'
+        nt.links.new(images['BaseColor'].outputs['Alpha'],factor.inputs[0])
+        nt.links.new(factor.outputs[0],surface.inputs['Specular IOR Level'])
     if alpha_mode=='BLEND':
         nt.links.new(images['BaseColor'].outputs['Alpha'],surface.inputs['Alpha'])
         material.surface_render_method='DITHERED';material.use_backface_culling=not double_sided
@@ -79,7 +90,8 @@ def main():
                 ob['bake_only']=False
     bpy.context.view_layer.update()
     objects=[o for o in sc.objects if o.type=='MESH' and 'asset_set' in o]
-    material=atlas_material(a.asset,Path(a.textures).resolve());groups={}
+    options={'opaque_specular_from_alpha':True} if cfg.get('OPAQUE_SPECULAR_FROM_BASECOLOR_ALPHA') else {}
+    material=atlas_material(a.asset,Path(a.textures).resolve(),**options);groups={}
     def group_name(ob,parent):
         if parent.type=='ARMATURE' and parent.name in cfg.get('EXPORT_SKIN_NAMES',{}):
             return cfg['EXPORT_SKIN_NAMES'][parent.name]
