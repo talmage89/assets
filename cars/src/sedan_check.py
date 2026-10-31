@@ -50,10 +50,10 @@ def main():
         if hit is None:raise ValueError(('No section hit',y,z))
         return hit.x
     profiles=[]
-    for name,y in [('front_axle',S.FRONT_AXLE),('b_pillar',S.DOOR_SPLIT),('rear_axle',S.REAR_AXLE)]:
+    for name,y in [('front_axle',S.FRONT_AXLE),('b_pillar',S.DOOR_SPLIT+.035),('rear_axle',S.REAR_AXLE)]:
         segments=plane_cut(skins,y);record=dict(name=name,y_m=y,segments_xz_m=segments)
         if name=='b_pillar':
-            lo,hi=1.040,1.340;xl,xh=side(y,lo),side(y,hi)
+            lo,hi=1.100,1.340;xl,xh=side(y,lo),side(y,hi)
             record.update(tumblehome_degrees=math.degrees(math.atan2(xl-xh,hi-lo)),tumblehome_samples_m=[[xl,lo],[xh,hi]])
         profiles.append(record)
     wheels={n:list(bpy.data.objects['Wheel_'+n].matrix_world.translation) for n in ['FL','FR','RL','RR']}
@@ -76,7 +76,7 @@ def main():
         ps=points(front);back=max(p.y for p in ps);selected=[p for p in ps if p.y>back-.012 and .42<p.z<.85]
         ds=[rt.find_nearest(p)[3] for p in selected]
         seams[side_name]=dict(samples=len(ds),min_m=min(ds),max_m=max(ds))
-    report=dict(stage='source form only',source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),quality=bpy.context.scene['quality'],
+    report=dict(surface_cage=json.loads(bpy.data.objects[S.NAME]['surface_cage']),stage='source form only',source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),quality=bpy.context.scene['quality'],
        triangles=sum(parts.values()),triangles_per_category=categories,triangles_per_mesh=parts,triangles_per_parent=parents,
        materials=sorted({m.name for o in obs for m in o.data.materials if m}),image_textures=len([im for im in bpy.data.images if im.users and im.source=='FILE']),bounds_m=bounds(obs),
        wheel_centers_m=wheels,wheelbase_m=wheelbase,tracks_m=tracks,arches=arches,sections=profiles,
@@ -142,12 +142,14 @@ def main():
     report.update(end_measurements=curves,lamps=lamps,
         overhangs_m=dict(front=wheels['FL'][1]-report['bounds_m']['min'][1],rear=report['bounds_m']['max'][1]-wheels['RL'][1]))
     errors=[]
+    if any(abs(value-target)>.0008 for value,target in zip(report['bounds_m']['size'],[1.850,4.900,1.449])):errors.append('Accepted envelope changed')
+    if any(row['min_m']<.0043 or row['max_m']>.0048 for row in seams.values()):errors.append('Physical door reveal')
     if report['quality']=='game' and report['triangles']>55000:errors.append('Form allocation above 55k')
     if abs(wheelbase-S.WHEELBASE)>1e-5:errors.append('Wheelbase')
     if any(abs(tracks[e]-getattr(S,'FRONT_TRACK' if e=='F' else 'REAR_TRACK'))>1e-5 for e in tracks):errors.append('Track')
     if not 20<=profiles[1]['tumblehome_degrees']<=26:errors.append('Tumblehome')
     if any(not .030<=row['tire_to_arch_m']<=.050 for row in arches):errors.append('Arch crown clearance')
-    if crown<.003:errors.append('Door crown absent')
+    if crown>-.002:errors.append('Requested shallow door concavity absent')
     f,r=curves['front'],curves['rear']
     ranges={
       'front bumper height':(f['bumper_leading_m'][2],.45,.55),
