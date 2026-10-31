@@ -8,13 +8,23 @@ import bpy
 from mathutils import Vector
 HERE=Path(__file__).resolve().parent;sys.path[:0]=[str(HERE.parents[1]),str(HERE)]
 from render import setup,human
-from ranch_render import reflection_scenery
+from cape_reflections import scenery as reflection_scenery
+
+
+def recipe_sha(extra=()):
+    paths=[HERE/name for name in ('cape_render.py','cape_reflections.py','render.py','ranch_render.py')]+list(extra)
+    return hashlib.sha256(b''.join(p.name.encode()+p.read_bytes() for p in paths)).hexdigest()
 
 
 def views(meta):
     m=meta['blocks'][0];lo,hi=map(Vector,meta['bounds']);w=hi.x-lo.x;cx=(hi.x+lo.x)/2;cy=(hi.y+lo.y)/2;z=3.0
     x=meta['door_x'];y=m['y0'];d=next((v for v in meta['blocks'] if v['name'].startswith('Dormer')),None)
     dx=(d['x0']+d['x1'])/2 if d else (m['x0']+m['x1'])/2;dy=d['y0'] if d else m['y0'];dz=d['floor']+1.4 if d else m['eave']+1.0
+    wallx=m['x0']+(m['x1']-m['x0'])*.39
+    sill=next(o for o in meta['openings'] if o['block']=='Main' and o['face']=='front' and o['kind']=='window')
+    sx=m['x0']+sill['u'];sz=sill['z']
+    bridge=next((b for b in meta['blocks'] if b['name']=='Breezeway'),None)
+    bx=(bridge['x0']+bridge['x1'])/2 if bridge else x;by=bridge['y0'] if bridge else y
     return dict(hero=dict(location=(cx+w*.85,cy-w*1.45-9,3.2),target=(cx,cy,2.8),lens=45,aspect=1.65),
         front=dict(location=(cx,-60,3.8),target=(cx,0,3.8),ortho=max(14,w+2),aspect=max(1.65,(w+2)/8.0)),
         rear=dict(location=(cx,60,3.8),target=(cx,0,3.8),ortho=max(14,w+2),aspect=max(1.65,(w+2)/8.0)),
@@ -23,7 +33,12 @@ def views(meta):
         dormer=dict(location=(dx+2.4,dy-5.5,dz+1.2),target=(dx,dy+.25,dz),lens=52,aspect=1.25),
         eave=dict(location=(m['x1']+1.9,y-2.9,2.0),target=(m['x1']-.12,y-.03,m['eave']+.12),lens=46,aspect=1.25),
         entry=dict(location=(x+1.7,y-5.6,2.0),target=(x,y-.3,m['floor']+1.1),lens=46,aspect=1.2),
-        scale=dict(location=(x+3,y-10,2.3),target=(x,y-.5,m['floor']+1),lens=45,aspect=1.5,human=True))
+        scale=dict(location=(x+3,y-10,2.3),target=(x,y-.5,m['floor']+1),lens=45,aspect=1.5,human=True),
+        siding=dict(location=(wallx+.65,y-3.2,1.75),target=(wallx,y,1.7),lens=58,aspect=1.25),
+        foundation=dict(location=(x+1.7,y-4.0,1.1),target=(x,y-.35,.55),lens=48,aspect=1.5),
+        peeling=dict(location=(sx+.38,y-1.28,sz+.45),target=(sx,y,sz+.03),lens=58,aspect=1.4),
+        tired=dict(location=(m['x0']+2.6,m['y1']+5.2,m['eave']+4.5),target=(m['x0']+2,m['y1']-1.0,m['eave']+m['pitch']),lens=55,aspect=1.4),
+        connector=dict(location=(bx+(-3.2 if bx<(m['x0']+m['x1'])/2 else 3.2),by-4.6,2.2),target=(bx,by+.7,1.35),lens=45,aspect=1.4))
 
 
 def load_context(path,offset):
@@ -54,7 +69,7 @@ def render(source,out,names,width=1200,samples=32,camera_file=None,types=False):
         context.append(load_context(colonial if colonial.exists() else Path('build/lookdev.blend'),22))
         shots=dict(types=dict(location=(0,-80,15),target=(0,0,3.6),ortho=68,aspect=3.3))
     if camera_file:shots={n:d['shot'] for n,d in json.loads(camera_file.read_text()).items()}
-    figures=human((meta['door_x']-.28,meta['blocks'][0]['y0']-.55,meta['blocks'][0]['floor']-.028))
+    figures=human((meta['door_x']+1.5,meta['blocks'][0]['y0']-.55,0))
     out.mkdir(parents=True,exist_ok=True);reports=json.loads((out/'provenance.json').read_text()) if (out/'provenance.json').exists() else {}
     for name in names.split(','):
         shot=shots[name];camera.location=shot['location'];camera.rotation_euler=(Vector(shot['target'])-camera.location).to_track_quat('-Z','Y').to_euler();camera.rotation_euler.rotate_axis('Z',shot.get('roll',0))
@@ -66,9 +81,9 @@ def render(source,out,names,width=1200,samples=32,camera_file=None,types=False):
         # Controlled daylight: enough front sun to read roof/cheek construction,
         # restrained sky fill preserves the low eave and entry cavities.
         bpy.data.objects['Afternoon sun'].rotation_euler=Vector((.5,.8,-1)).to_track_quat('-Z','Y').to_euler()
-        next(n for n in sc.world.node_tree.nodes if n.type=='BACKGROUND').inputs['Strength'].default_value=.055
+        next(n for n in sc.world.node_tree.nodes if n.type=='BACKGROUND').inputs['Strength'].default_value=.12
         sc.render.filepath=str((out/(name+'.png')).resolve());bpy.ops.render.render(write_still=True)
-        reports[name]=dict(source=str(source),source_sha256=digest,material_sha256=mats,seed=meta['seed'],engine='CYCLES',stage=meta['stage'],camera=shot,context=context)
+        reports[name]=dict(source=str(source),source_sha256=digest,material_sha256=mats,render_recipe_sha256=recipe_sha(),seed=meta['seed'],engine='CYCLES',stage=meta['stage'],camera=shot,context=context,lighting=dict(sun_direction=(.5,.8,-1),sky_strength=.12,exposure_ev=sc.view_settings.exposure))
         if name=='hero':tonal(out/'hero.png',camera)
     (out/'provenance.json').write_text(json.dumps(reports,indent=2))
 

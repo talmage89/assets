@@ -26,4 +26,15 @@ def main(root):
         check()
     print('CAPE_CONTACT',root/'contact.jpg',root/'family.jpg')
 
-if __name__=='__main__':main(Path(sys.argv[1]) if len(sys.argv)>1 else Path('renders/cape/checkpoint'))
+
+def lookdev(root):
+    sheet([(f'Seed {seed} / {view}',root/'seeds'/str(seed)/(view+'.png')) for seed in range(31,37) for view in ('front','rear')],root/'family.jpg',cell=(800,430))
+    sheet([(name,root/(name+'.png')) for name in ('hero','back','roof','dormer','eave','entry','scale','foundation','peeling')]+[(f'{seed} / {view}',root/'seeds'/str(seed)/(view+'.png')) for seed in (32,35) for view in ('hero','connector')]+[('Three types / same scale',root/'comparison/types.png')],root/'contact.jpg',cell=(800,520))
+    sheet([(f"{seed} / {kind}",root/'seeds'/str(seed)/'siding.png') for seed,kind in ((31,'vinyl'),(32,'stained cedar'),(33,'cement shingles'),(34,'aluminum'),(35,'painted clapboard, red'),(36,'painted clapboard, white'))]+[('Painted cedar / authored control',root/'painted_cedar/siding.png'),('Tired roof / north plane',root/'seeds/32/tired.png'),('Lifted paint / sill',root/'peeling.png')],root/'materials.jpg',cell=(800,620))
+    pairs=Path('renders/cape/lookdev/values')
+    names=('cedar','wood','roof','vinyl','aluminum','cement','concrete','trim','brick','glass')
+    sheet([(name,pairs/(name+'-pair.jpg')) for name in names],pairs/'pairs.jpg',cols=2,cell=(800,460))
+
+if __name__=='__main__':
+    root=Path(sys.argv[1]) if len(sys.argv)>1 else Path('renders/cape/checkpoint')
+    lookdev(root) if 'lookdev' in root.parts else main(root)

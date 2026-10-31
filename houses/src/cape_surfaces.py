@@ -32,13 +32,17 @@ def shingle_tile(folder):
             for j,(a,b) in enumerate(zip(edges,edges[1:])):
                 butt=rng.uniform(-.003,.003) if kind=='cedar' else 0
                 v=np.mod(z+butt,exposure)/exposure;key=np.minimum(x-a,b-x)
-                tone=rng.uniform(.18,1.40) if kind=='cedar' else rng.uniform(.91,1.01)
+                tone=rng.uniform(.90,1.07) if kind=='cedar' else rng.uniform(.91,1.01)
                 units.append(dict(kind=kind,row=r,width_m=float(b-a),exposure_m=exposure,butt_offset_m=butt))
                 for period in (-1.2192,0,1.2192):
                     aa,bb=a+period,b+period;select=(row==r)&(x>=aa)&(x<bb);key=np.minimum(x-aa,bb-x)
                     grain=np.sin(x*2791+np.sin(z*38)*.7)+.5*np.sin(x*5731+z*27)
                     relief=(.006 if kind=='cedar' else .004)*(1-v)-np.exp(-(key/.0018)**2)*.0025+grain*(.00023 if kind=='cedar' else .00013)
-                    shade=1-(.82 if kind=='cedar' else .34)*np.exp(-v/(.12 if kind=='cedar' else .045))-.30*np.exp(-(key/.0018)**2)
+                    # The thin upper end is shaded by the next course's butt.
+                    # Contrast belongs within every shingle, not in alternating
+                    # nearly black and pale units across the whole elevation.
+                    shadow_span=.30+.035*np.sin(x*37+np.sin(z*23)) if kind=='cedar' else .045
+                    shade=1-(.92 if kind=='cedar' else .34)*np.exp(-(1-v)/shadow_span)-.30*np.exp(-(key/.0018)**2)
                     color[select]=(shade*tone*(1+grain*.018))[select];height[select]=relief[select]
         colors.append(np.stack([color]*3,2));heights.append(height)
     # Image rows run down; UV V runs up. Cedar is the lower half of the atlas.
@@ -100,8 +104,8 @@ def layer(mat,role,meta):
                 base=n.vec('MULTIPLY',n.node('ShaderNodeVertexColor',layer_name='Tint').outputs['Color'],field)
             else:
                 field=n.vec('MAXIMUM',n.vec('ADD',n.vec('MULTIPLY',field,(1.65,1.65,1.65)),(-.32,-.32,-.32)),(.025,.025,.025))
-                field=n.math('MAXIMUM',n.math('POWER',field,1.6),.065)
-                field=n.math('MAXIMUM',n.math('DIVIDE',n.math('POWER',field,2),1.58),.075)
+                field=n.math('MAXIMUM',n.math('POWER',field,1.75),.065)
+                field=n.math('MAXIMUM',n.math('DIVIDE',n.math('POWER',field,2),1.58),.10)
                 field=n.math('MINIMUM',field,1.45)
                 base=n.vec('MULTIPLY',n.node('ShaderNodeVertexColor',layer_name='Tint').outputs['Color'],field)
                 # High/sunny wall bleaches silver; sheltered courses stay brown.
@@ -128,10 +132,11 @@ def layer(mat,role,meta):
             wood=1 if role=='Siding' and (skin=='wood' or skin=='cedar' and meta['spec'].get('cedar_finish')=='painted') else attr(n,'CapeWood','Fac') if role=='Trim' else 0
             wet=n.ramp(n.math('ABSOLUTE',n.math('SUBTRACT',z,attr(n,'CapeWet','Fac'))),.13,.018)
             flake=n.noise(n.vec('MULTIPLY',rest,(1,1,1.7)),22,2)
-            peel=n.mul(wood,old,n.maximum(n.mul(low,.85),wet),n.ramp(flake,.57,.67))
+            low_wet=n.mul(low,n.add(.28,n.mul(site,.72)))
+            peel=n.mul(wood,old,n.maximum(n.mul(low_wet,.85),wet),n.ramp(flake,.57,.67))
             # Bare gray wood, with a lighter raised surviving film edge.
             base=n.mix(peel,base,(.245,.231,.194),color=True)
-            rim=n.mul(wood,old,n.maximum(low,wet),n.band(flake,.615,.024,.008))
+            rim=n.mul(wood,old,n.maximum(low_wet,wet),n.band(flake,.615,.024,.008))
             base=n.mix(n.mul(rim,.43),base,(.61,.59,.52),color=True)
             height=n.add(height,n.mul(peel,-.0006),n.mul(rim,.00065))
             chalk=n.mul(sun,.17,breakup,wood)
@@ -151,22 +156,22 @@ def layer(mat,role,meta):
             base=n.mix(rust,base,(.18,.065,.025),color=True)
     if role=='Shingles':
         uv=n.node('ShaderNodeTexCoord').outputs['UV'];ru,rv,_=n.split(uv)
-        row=n.math('FLOOR',n.mul(rv,34));tab=n.math('FLOOR',n.add(n.mul(ru,24),n.mul(row,.37)))
+        row=n.math('FLOOR',n.mul(rv,17));tab=n.math('FLOOR',n.add(n.mul(ru,24),n.mul(row,.37)))
         granule=n.noise(n.combine(tab,row,0),1,0)
         variation=n.add(.62,n.mul(granule,1.15))
         base=n.vec('MULTIPLY',base,n.combine(variation,variation,variation))
         mineral=n.ramp(n.noise(rest,550,0),.30,.70)
-        mineral=n.add(.25,n.mul(mineral,1.60))
+        mineral=n.add(.65,n.mul(mineral,.60))
         base=n.vec('MULTIPLY',base,n.combine(mineral,mineral,mineral))
-        streak=n.noise(n.combine(n.add(n.mul(x,.7),meta['seed']*.173),n.mul(y,.30),n.mul(z,.10)),2,3)
+        streak=n.noise(n.combine(n.add(n.mul(x,.7),meta['seed']*.173),n.mul(y,.08),n.mul(z,.025)),2,3)
         streak=n.ramp(streak,.43,.68)
         # Broad granule depletion follows water paths, exposing dark asphalt.
         depleted=n.mul(old,n.ramp(streak,.55,.9),.28)
         base=n.mix(depleted,base,(.008,.007,.005),color=True)
         algae=n.mul(old,north,n.add(.18,n.mul(streak,.69)))
         base=n.vec('MULTIPLY',base,n.combine(n.add(1,n.mul(algae,-.75)),n.add(1,n.mul(algae,-.72)),n.add(1,n.mul(algae,-.66))))
-        loss=n.mul(old,n.ramp(streak,.35,.85),n.ramp(fine,.46,.7),.24)
-        base=n.mix(loss,base,(.042,.034,.021),color=True)
+        loss=n.mul(old,n.ramp(streak,.10,.75),n.ramp(fine,.43,.60))
+        base=n.mix(loss,base,(.012,.011,.009),color=True)
         cheek=0
         for d in meta['blocks']:
             if not d['name'].startswith('Dormer'):continue
@@ -177,7 +182,7 @@ def layer(mat,role,meta):
         base=n.mix(n.mul(moss,.67),base,(.055,.076,.021),color=True)
         height=n.mul(moss,.0035);rough=.93
     if role=='Glass':
-        p.inputs['Base Color'].default_value=(.96,.98,.96,1);p.inputs['Roughness'].default_value=.025
+        p.inputs['Base Color'].default_value=(.96,.98,.96,1);p.inputs['Roughness'].default_value=.010
         p.inputs['IOR'].default_value=1.52;p.inputs['Transmission Weight'].default_value=1
         return
     n.feed(p.inputs['Base Color'],n.channel('base',base));n.feed(p.inputs['Roughness'],n.channel('rough',rough))

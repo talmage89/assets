@@ -22,6 +22,8 @@ def prepare(source,out):
     meta=json.loads(source.with_suffix('.json').read_text())
     from cape_age import add
     add(meta);mats=materials(Path('textures/source'))
+    from ranch_lookdev import roof_material
+    mats['Shingles']=roof_material(out.parent/'materials'/'roof',meta['spec']['roof_age'])
     skin=meta['spec']['siding'];preview=out.parent/'materials'/'shingles'
     if skin in ('cedar','cement'):
         shingle_tile(preview);mats['Siding']=tiling.material('CapeShingle',preview,tint=True)
@@ -73,7 +75,7 @@ def prepare(source,out):
                     uv.data[li].uv=(u,(strip+.04+(p[axes[1]]-lo)/max(.5,(hi-lo)/.92))/8)
                 elif role=='Shingles' and abs(n.z)>.3:
                     xy=(p.x,p.y/max(.2,abs(n.z))) if abs(n.y)>=abs(n.x) else (p.y,p.x/max(.2,abs(n.z)))
-                    uv.data[li].uv=(xy[0]/4.8768,xy[1]/4.8768)
+                    uv.data[li].uv=(xy[0]/4.8768,xy[1]/2.4384)
                 elif role=='Siding' and skin in ('cedar','cement'):
                     # Preview uses half-tile addressing; ordinary split charts wait
                     # for delivery, just as the ranch's source roof did.
@@ -88,7 +90,9 @@ def prepare(source,out):
             role=vr[v.index];p=world[v.index];c=Vector(attr.data[v.index].color[:3])
             if role in ('Glass','Veneer'):c=Vector((1,1,1))
             if role=='Concrete':c=Vector((.82,.81,.78))
-            if role=='Shingles':c=Vector(dict(green_black=(.61,.65,.53),warm_charcoal=(.72,.72,.67),weathered_wood=(.94,.84,.66),dark_brown=(.75,.61,.44))[meta['spec']['shingle_color']])
+            if role=='Shingles':
+                c=Vector(dict(green_black=(.61,.65,.53),warm_charcoal=(.72,.72,.67),weathered_wood=(.94,.84,.66),dark_brown=(.75,.61,.44))[meta['spec']['shingle_color']])
+                c=Vector((c.x*.98,c.y/.965,c.z*.98/.90))*(.105/.17)
             low=min(.6096,block['floor']-.0762) if block['floor']>=.4 else max(.04,block['floor']-.205)
             if block['name'].startswith('Dormer') or block['name']=='RearShed':
                 main=meta['blocks'][0];low=main['eave']+main['pitch']*min(p.y-main['y0'],main['y1']-p.y)
