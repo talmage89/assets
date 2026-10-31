@@ -1,6 +1,7 @@
 # Hearthfield / seeded American houses
 
-The family delivers a builder colonial and a [postwar ranch](#second-type-postwar-ranch).
+The family delivers a builder colonial and a [postwar ranch](#second-type-postwar-ranch),
+with a [postwar Cape form checkpoint](#third-type-postwar-cape-form-checkpoint).
 The colonial remains the default generator and the subject of the first images below.
 
 An original family of maintained, roughly twenty-year-old American builder
@@ -544,3 +545,154 @@ interiors, hidden engineering, arbitrary footprints and permit compliance are
 outside the generator. Credits and rights remain in [refs/SOURCES.md](refs/SOURCES.md);
 only direct image URLs identify private-home references, and no reference
 photograph is committed or sampled into an asset.
+
+---
+
+## Third type: postwar Cape form checkpoint
+
+**Source/form checkpoint, before bake.** The 1940–1955 one-and-a-half-story
+Cape is the third type. Existing colonial and ranch deliveries remain accepted
+and byte-preserved. The Cape currently has original quick material fields and
+diagnostic untextured construction GLBs; it is not a finished game delivery.
+No Cape portfolio JPG is committed before that later gate.
+
+After building, inspect `renders/cape/checkpoint/contact.jpg` and
+`family.jpg`; the hero is `hero.png`, construction details are
+`dormer.png`, `eave.png` and `entry.png`, the rear addition is `back.png`,
+and `comparison/types.png` shows Cape/ranch/colonial in one meter-scale
+orthographic view. The two photographic pairs are
+`renders/cape/matches/{cape_dormers,cape_plain}-pair.jpg` and `pairs.jpg`.
+All Cape views use the source blend, as appropriate to this requested gate.
+The type comparison loads the accepted neighboring types' exports read-only;
+it can use their source builds as a fresh-clone fallback.
+
+### Parameterization and construction
+
+Use `generate(seed, overrides=None, house_type='cape')`, `load(seed, plan,
+'cape')`, CLI `--type cape`, or JSON `{"type":"cape"}`. Omitting type still
+selects the original colonial and consumes exactly its original RNG sequence.
+The new type has its own local seeded RNG. Geometry is original scripted
+construction, with no imported model, copied plan or photo texture.
+
+Inputs cover the small principal width/depth, steep pitch, independent tight
+eave/rake, floor/foundation, front dormer count and rear shed, side addition,
+parking arrangement, door offset and hood, siding, paint, window update,
+storms, shutters, returns, chimney and roof age. `main`, `garage`, `colors`,
+`dormers`, `rear_shed`, `wing`, `floor`, `foundation`, `door_offset`, `hood`,
+`siding`, `window_update`, `storms`, `shutters`, `returns`, `chimney`,
+`roof_age` and `shingle_color` are override keys. Dimensions are meters,
+pitch is rise/run, color triples are linear factors. Unsupported dimensions
+and combinations fail the plan check. An authored override is built by the
+sweep in addition to the six proof seeds.
+
+The main box is 24–34 × 24–32 ft with an 8:12–12:12 side gable. The eave sits
+about 10–11 ft above grade; lower window casings clear the actual soffit by
+59–143 mm in the proofs. Its independent eave/rake bounds are 4–12 / 0–6 in.
+The roof dominates the front, unlike the ranch's shallow roof or the colonial's
+two full wall stories. Two front dormers center over the side bays; three
+center over the two paired window groups and entry. Shallow boxes steepen
+as necessary to keep attic/dormer headroom below the parent ridge.
+
+Dormers have 4 ft 6 in bodies, 28 × 40 in double-hung windows and real wedge
+cheeks. The shared analytic roof envelope clips their penetrations, while
+parent roofing continues underneath their trim skirts. Rear shed additions
+retain original roof above and below. Their two rear-falling slopes join at
+a pitch break, rather than a level drainage trough. Low side wings/enclosed
+porches, a detached 12 × 20 ft one-car garage or an 8 ft breezeway connection
+remain subordinate to the main box. Wing and parking occupy opposite sides.
+
+The type reuses indexed skins/primitives, planar roof clipping, perimeter
+trim extraction, rounded K-gutter/drain construction, openings, hung sashes,
+picture glazing, door leaves, service equipment, chimney crown/flashing and
+socket creation. The complex three-dormer forms omit tiny internal sash/track
+bevels that belong in the later normal map. Casings and visible silhouettes
+retain their geometry. Cedar and cement shingles get quick original fields;
+wood/vinyl/aluminum currently reuse the family's lap field. That approximation
+is explicit source-stage work, not a finished material equivalence claim.
+
+Front and back doors remain separate moving leaves: `FrontDoor`, +Z 0–105°,
+and `ServiceDoor`, +Z −100–0°, each with its real hinge. The garage sectional
+leaf is closed, as on the existing types. `Socket_FrontThreshold`,
+`Socket_Walk`, `Socket_Driveway` and optional `Socket_GarageApron` carry
+per-seed coordinates. Grade origin centers the permanent ground footprint;
+roof projection, rear stoop and splash blocks are outside that datum.
+
+### Six proof seeds and measured budgets
+
+Triangles include the quick-field source's localized weather samples, with
+all garage/wing geometry included. Bounds are the actual complete construction
+envelope, including roof, chimney and attachments. Diagnostic GLB bytes below
+refer to the **untextured construction**, which has fewer triangles than the
+quick-field source and three meshes: fixed shell plus two moving leaves.
+
+| Seed / palette | Main box, ft (m) | Complete bounds W × D × H, m | Source triangles | Form GLB bytes |
+| --- | --- | --- | ---: | ---: |
+| 31 / gray | 24 × 30 (7.3152 × 9.1440) | 15.0518 × 17.8981 × 6.8676 | 33,640 | 2,625,776 |
+| 32 / pale yellow | 30 × 26 (9.1440 × 7.9248) | 19.3190 × 11.6498 × 6.5882 | 43,380 | 3,081,984 |
+| 33 / sage | 32 × 26 (9.7536 × 7.9248) | 10.5833 × 11.6498 × 6.7406 | 32,634 | 2,674,836 |
+| 34 / Cape blue | 32 × 28 (9.7536 × 8.5344) | 21.1478 × 17.2885 × 6.8422 | 37,780 | 2,927,376 |
+| 35 / barn red | 32 × 28 (9.7536 × 8.5344) | 17.3294 × 11.6994 × 6.6898 | 41,400 | 2,923,544 |
+| 36 / warm white | 28 × 24 (8.5344 × 7.3152) | 8.9064 × 10.4802 × 7.7999 | 40,546 | 3,375,280 |
+
+All six fall inside the preferred 30–45k range and use at most six material
+roles. Seeds 31/34 have detached garages; 32/35 have breezeways; 33/36 have
+none. Front dormers are 2/3/0/2/3/2; 33/35/36 have rear sheds. Seed 32 adds an
+enclosed porch; 34 a side wing. Siding choices span vinyl, cedar, cement,
+aluminum and wood. Windows include 6-over-6, 8-over-8, 1-over-1 and separate
+aluminum storms. Proof main pitches are 9/10/10/10/10/11:12, with 6–10 in
+eaves and 0–6 in rakes. The broader seeded grammar also exercises 8 and 12:12.
+
+The existing family remains **47⅓ MiB / 31 images** under the established
+BC7 BaseColor, BC5 Normal, BC7 ORM/full-mip estimate. The proposal adds **one
+512² two-region wall-shingle triple**, shared by cedar and asbestos-cement:
+**+1 MiB**, planned family **48⅓ MiB / 34 images**. Both regions cover
+1.2192 × .6096 m at about 420 px/m. Distinct small cedar units and large cement
+shingles need joints the lap field does not contain. All paints, roofs,
+chimney brick, concrete, trim and aluminum reuse existing fields. No shared
+map changes and no per-seed texture sets are planned. Current preview images
+stay in `build/cape/materials/`; nothing new is published to `export/textures/`.
+
+### Rebuild and scope of proof
+
+```sh
+make TYPE=cape                         # complete source form gate; stops before bake
+make TYPE=cape check                   # six built sources, motions, plans, bytes, repo
+make TYPE=cape render matches review   # current Cycles views and photographic sheets
+make TYPE=cape CAPE_SEED=32             # use another proof seed for the hero
+blender -b --factory-startup --python-exit-code 1 --python src/build.py -- \
+  --type cape --seed 44 --out build/cape/custom.blend
+# Add --plan build/my-cape.json for a caller-authored plan.
+```
+
+The six-seed photographic presentation uses fixed seeds 36 and 33 for its
+type comparisons. A custom modeling seed/plan can be built independently;
+changing its plan does not make it a copy of either photographed house.
+The full default gate uses GPU-locked Cycles, 1440 px/48 samples for main
+views and 1200 px seed portraits. No bake target is enabled for this type.
+
+`build/cape/plan-sweep.json` covers 1,000 plans **per type** and rejects nine
+new invalid Cape controls. `checks.json` separates real source-surface tests
+from compact-GLB/import tests. The six houses have 31,517 sampled roof hits,
+zero missing surfaces, maximum height error below 4.5 μm, measured pitches,
+tight eave/rake extents, dormer-skirt contact, clear openings/services, stair
+rises and downspout supports. All 342 sampled front/back door poses pass
+without contact exemptions. Repeat GLB bytes and the authored-plan override
+also pass. These observations do not certify engineering or a finished UV/bake.
+
+`build/cape/regression/comparison.json` matches **all twelve** accepted
+colonial/ranch construction vertex/name/count digests and **complete compact
+GLB bytes** to the pre-Cape fixture. All **77 existing export/map/docs files**
+retain their hashes. Defaults do not enter the Cape paths. No kit file changed.
+`build/cape/view-check.json` verifies 22 current Cycles views against their
+actual source/map/context hashes. The hero has deep recesses, p1/p50/p95/p99
+Y′ .056/.339/.684/.692 and zero clipped-white pixels. The pairs retain their
+18.25 / 19.26 px type-fit residuals; [REFERENCE.md](REFERENCE.md) documents
+neutral patches, published facts, authored dimensions and limitations.
+
+[REVIEW.md](REVIEW.md) records four form critiques and the corrected dormer
+flashing, skirt roofing, dormer height and hood support. Still weak: regular
+quick siding/roof manufacture, shallow rooms, sparse reflections and much too
+little visible 75-year wear. Proper cedar/cement surfaces, chalk/peeling paint,
+storm oxidation, final UV charts, 4K bake/filter, export/Eevee checks and baked
+photo pairs belong to the next stage. No finished Cape game-readiness or
+photorealistic material claim is made at this form checkpoint.

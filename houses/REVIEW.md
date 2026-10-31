@@ -1153,3 +1153,154 @@ Remaining CG tells: overly regular manufacture in masonry and roofs, shallow
 room layers and simple reflections, filtered fine granules, sparse landscape
 and a flat distant horizon. They are existing limitations, not hidden by the
 triangle reduction. Nothing is needed from the lead to finish this revision.
+
+---
+
+## Cape form — pass 1: first roof and dormer assembly
+
+Evidence: `renders/cape/pass1/hero.png`, opened beside the New York spring
+and New Jersey leaf-on photographs, the Massachusetts summer renovation
+views and the Illinois preservation photographs. This is a **source form
+checkpoint**, not a new baked delivery or a replacement for either accepted
+type above.
+
+**Color and value first.** The roof remains dark relative to the trim and
+walls; the raw photographs have different white balances and much richer
+landscape reflections. Do not infer albedo from them. The inherited lap and
+roof fields are enough to judge volume, not an accepted 75-year material look.
+White casing is the neutral to use for later color comparisons. Keep real
+paint factors below the accepted family ceiling rather than brightening the
+whole scene to hide the missing age.
+
+Reject the exposed stair-step fins behind the dormers. Step flashing continued
+past the actual cheek/parent-roof intersection. End each course where the cheek
+ends, so its top beds into siding instead of standing in the air. The early
+sill also fell into the parent roof. Place the window and its header in the
+actual dormer wall space and add an upward interior roof ray, rather than
+calling a hole in the roof a usable room. The principal side gable is steep
+and dominant; the tight rake is already a different construction from the
+ranch's broad boxed overhang.
+
+## Cape form — pass 2: complete six-house set and contact rejection
+
+Evidence: all seven main views, twelve front/rear seed portraits, same-scale
+three-type comparison and the contact/family sheets under `renders/cape/pass2/`.
+Every view was opened on the sheets; dormer, eave, entry, roof, rear and scale
+were also inspected at full size against the photographs.
+
+**Color and value first.** White/gray/yellow/sage/blue/red remain restrained,
+with deep roof/entry shadows and no paper-white trim. The quick cement and
+cedar fields are still too regular and the shared roof is too clean. This is
+not evidence of finished material age. The upper shadowed rooms remain simple
+and gray-blue compared with real foliage/interior reflections.
+
+Reject the narrow black open strip around the dormer bases. The envelope had
+cut the parent roofing to the dormer **roof** footprint, including its overhang,
+leaving no roof below the projecting trim skirts. Cut to the cheek-wall
+footprint and retain parent roofing beneath the skirts. A separate actual
+surface ray must find that roof there; this is not a check exemption.
+
+The entry hood also exposed its interior intersection and unsupported-looking
+triangle. Close its front with a painted-board pediment and supported ceiling,
+then close the remaining face-band/beam slot. The brackets and portico posts
+must bear into a beam and landing. Preserve the small stoop and equal rises;
+do not turn a modest starter-house entrance into a full-width porch.
+
+Six plans read as separate homes: two/three/no front dormers, rear shed
+additions, low wings/enclosed-porch additions, detached and breezeway garages,
+newer glazing and retained storms. Parking and wings stay on opposite sides.
+Four-window fronts need enough width for real half-sash shutters. Very small
+sash bevels on the most complex three-dormer assemblies are deferred to the
+normal map, keeping casing silhouettes and all measured dimensions. This
+brings every quick-field source into the preferred 30–45k range.
+
+## Cape form — pass 3: photographic dormer proportion correction
+
+Evidence: `renders/cape/matches/cape_dormers-pair.jpg` and
+`cape_plain-pair.jpg`, first before the final dormer reduction, then refreshed.
+Comparison photographs remain inspection-only. Summer regional context and
+the dated spring supplemental view are distinguished in SOURCES.
+
+**Color and value first.** Normalize the review copies on white-painted
+exterior casing/door stiles. The spring photograph's linear RGB gains are
+1.070/.988/.950; the leaf-on photograph's are 1.000/.962/1.041. Preserve their
+mean linear RGB and exposure. The asset has a different authored palette;
+these corrections do not establish physical reflectance. Its siding/roof
+are smoother and its reflections much simpler than either real house.
+
+Reject the overly tall dormer fronts in the first pair. They stand too high
+above the low eave, making the half story resemble an applied second facade.
+Lower the dormer bearing by 430 mm, move its face 100 mm toward the eave and
+use a 28 × 40 in hung window. Keep a 4 ft 6 in body, real wedge cheeks and a
+steep independent roof. This leaves the main roof as the dominant front mass,
+with smaller punctures sitting below its ridge. The two-dormer centers align
+with the side bays. The three-dormer rhythm is exactly centered on the entry
+and the paired window-group centers, with equal spacing.
+
+The unpierced variant's large plain roof and low wall compare credibly with
+the New Jersey type. Its offset entry and picture window are later alterations;
+its raised basement and hood differ from the photographed low floor and bare
+entry. Those are authored variants. The dormer photograph has projecting bays,
+shutters upstairs, an altered porch and an end chimney; the hero keeps simpler
+windows, a stoop hood and central chimney. Do not stretch the model into a
+copy of the private photographed home. Fits remain approximate: 18.25 / 19.26
+px RMS, estimated 83.5 / 100 mm lenses, the second at its upper bound.
+Independent Blender projection differs by less than .0008 px.
+
+## Cape form — pass 4: current checkpoint and preservation gate
+
+Evidence: current `renders/cape/checkpoint/hero.png`, rear, overhead, dormer,
+eave/rake, entry and 1.8 m scale views; all twelve independent seed portraits;
+`comparison/types.png`; both current pairs and the contact/family/pair sheets.
+All were reopened, with the main details, rear, scale and type comparison at
+full size. No docs JPG is published at this gate.
+
+**Color and value first.** Current hero silhouette display Y′ is p1 .056,
+p50 .339, p95 .684, p99 .692, with zero clipped-white pixels. The roof remains
+substantially darker than the trim, with deep shade in cheeks, eaves and the
+entry. The six paints retain their individual colors. The back is deliberately
+in shade; simple reflection scenery is still much poorer than a real yard.
+These are rendered display statistics, not albedo measurements or final
+weathering approval.
+
+The reduced dormers now sit within the roof rather than dominating it. Their
+cheeks are wedges cut by the parent plane, with metal terminating at actual
+intersections. Roofing under the skirt is continuous. The zero-rake hero's
+edge is nearly flush, and the six proofs include 0, 3, 4 and 6 in rakes with
+6–10 in eaves. The eave sits just above first-floor heads: actual source
+casing/soffit clearances measure 58.7–143.4 mm. The entry pediment, brackets,
+posts, face band and landing now read as a supported assembly. The rear shed
+looks like a later addition, with a strip of original roof above and below it;
+its transverse pitch break drains across the joint, unlike a level valley.
+Basement windows now have actual holes and open wells even at the lower floor
+height. Service stand-offs and line connections have physical wall supports.
+
+Source tests measure 31,517 roof probes across the six houses with zero
+misses, maximum height disagreement below 4.5 μm, plus 945 wall-opening/service
+probes. Dormer-skirt contact, actual roof pitch, eave/rake extent, window-head
+clearance, downspout support and equal stair rises are measured on the mesh.
+Both moving leaves pass all sampled solid-clearance poses, without exemptions.
+Separate raw-GLB/fresh-import checks prove serialization and pivot/socket
+retention; they do not certify construction or baked materials. The repeated
+first seed gives identical complete compact diagnostic GLB bytes. An authored
+JSON-equivalent override is also built and audited.
+
+The 1,000-plan sweep covers all three types, with nine new invalid Cape
+controls rejected. All twelve accepted colonial/ranch construction digests
+and full compact GLB hashes match the pre-Cape fixture. Their 77 existing
+export/map/docs files retain their exact bytes. The small opt-in family
+changes preserve the legacy RNG and default geometry path; no kit file changes.
+
+Current sources use at most six roles and stay in the 30–45k preference.
+Cedar/cement preview addressing still needs ordinary split charts and a real
+4K bake/filter during delivery. One shared 512-square two-region triple is
+planned, adding 1 MiB to 47⅓ MiB, for 48⅓ MiB with BC7/BC5/full mips. The
+accepted shared maps are untouched and no new map is published to `export/`.
+
+Stop before the bake as requested. Remaining weaknesses: very regular source
+shingles/siding, overly clean and unworn trim, simplified original/replacement
+frame differences, shallow window rooms and sparse reflections. Cedar grain,
+cement joints, paint chalk/peeling, storm oxidation and stronger cause-driven
+75-year wear need the next look-dev stage. There is no finished Cape texture
+or UV certification, baked-asset photographic comparison, playable interior or
+final game delivery claim. No tool or kit feature is needed for this checkpoint.

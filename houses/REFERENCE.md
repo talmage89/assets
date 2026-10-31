@@ -265,3 +265,79 @@ and (.29,.205,.135) tan before fired-unit variation. Neutral mortar is
 is opened by the material generator. The material chart's stored values
 allow normalized vertex tint to brighten localized salts without exceeding
 one; physical base brick color remains the chart multiplied by its tint.
+
+---
+
+## Postwar Cape: form checkpoint
+
+The Cape is an original bounded exterior grammar, with a small 1940–1955
+principal box and later owner additions. The [NPS suburban history](https://www.nps.gov/subjects/nationalregister/upload/NRB46_Suburbs_part1_508.pdf)
+(p. 66), [PHMC field guide](https://www.phmc.state.pa.us/portal/communities/pa-suburbs/field-guide/cape-cod.html)
+and NCHRP Report 723 (p. 100, registered in SOURCES) support the half story,
+steep side gable, centered three/five-bay facade, small dormers, wood sash,
+clapboard/shingles and detached or covered-connected garage. The Illinois
+preservation survey supplies Midwest examples dated about 1946 and 1946–47,
+as well as earlier elongated Capes. Its leaf-on photographs have no verified
+capture season. A Massachusetts renovation publication dates its original
+house to the 1950s; the summer leaf-on photos show later alterations.
+The New Jersey and New York Commons houses have unverified individual years.
+The New York April view is supplemental spring evidence, never called summer.
+
+The circa-1940 NARA drawing, NAID 5928284, explicitly labels **8 ft first-floor
+and 7 ft 6 in upper ceilings** and wood siding. Its irregular long plan is
+not reproduced. The 1955 USDA Handbook 73 supplies period frame, cornice,
+flashing, sash and foundation construction vocabulary. Modern manufacturer
+10:12/12:12 Cape terminology is an additional dimensional comparator, not
+evidence of postwar specifications. No source establishes surveyed dimensions
+for the photographed homes; the following dimensions are authored bounds
+from the brief, tested against those photographic proportions.
+
+| Authored Cape feature | Dimension / construction |
+| --- | --- |
+| Principal box | 24–34 ft wide × 24–32 ft deep; one floor and an attic half story |
+| Main roof | Street-parallel side gable, 8:12–12:12; shallow combinations steepen to keep dormer ridges below the parent ridge |
+| Ceiling / upper floor | 8 ft / finished floor + 8 ft ceiling + 254 mm floor zone; full interiors not modeled |
+| First floor | 18, 24 or 30 in above grade; basement or crawlspace |
+| Main bearing eave | Floor + 8 ft + 203.2 mm: about 10 ft 2 in to 11 ft 2 in above grade; outer soffit is lower along the steep overhang |
+| Eave / rake projection | Independent 4–12 in / 0–6 in bounded inputs; proofs use 6–10 in / 0–6 in |
+| Front dormers | None, two or three; 4 ft 6 in body, 500 mm setback from front wall, parent pitch + .08 up to 12:12 |
+| Dormer windows | 28 × 40 in double hung; sill 550 mm above attic floor; bearing 1.72 m above that floor |
+| Lower windows | 30 × 54 in, sill 29 in above finished floor; 36 × 54 in rear bedroom, 48 × 40 in kitchen |
+| Attic end / rear shed windows | 30 × 40 in; under the parent roof / in the later rear wall |
+| Shutters | Each exactly half its associated sash opening width; separate applied trim |
+| Window systems | 6-over-6 / 8-over-8 painted originals, 1-over-1 replacements; separate 3 mm aluminum storm glazing on some seeds |
+| Rear shed | Most of main width, 520 mm inset each side, 480 mm setback from rear wall; 2:12 slope ties in below ridge |
+| Side addition | 10 ft enclosed-porch or 12 ft wing width × 14 ft depth, 5:12 roof; opposite the parking connection |
+| Garage / breezeway | 12 × 20 ft one-car; 9 × 7 ft closed door; 8 ft covered connection or 10 ft separation for detached option |
+| Entry | 36 × 80 in moving leaf, front hinge +Z 0–105°; 28 mm threshold rise above landing |
+| Back door | 34 × 80 in moving leaf, existing rear-door hinge −100–0° |
+| Stoop | 1.75 m front / 1.45 m rear width, 1.02 m landing, 280 mm treads; 3 or 4 equal rises in proofs |
+| Hood / portico | 4.8 ft × 2.2 ft / 6 ft × 4 ft roof, 8:12, brackets or 89 mm posts, closed painted pediment |
+
+Front dormers center over side bays; on five-bay houses the outer dormers
+center over the paired window groups and the middle over the entry. Main
+roof surfaces continue beneath dormer trim skirts, with the actual opening
+cut inside the cheek walls. The rear shed joins two surfaces falling toward
+the rear: their level transverse intersection is a **pitch break**, not a
+level valley trough. Actual drainage falls across that line. All other
+retained valleys have positive longitudinal fall. The low-slope shed assumes
+an appropriate concealed underlayment assembly; this form gate does not model
+or certify roofing-system engineering.
+
+Inspection copies are balanced on neutral white exterior casing/door stiles.
+The recorded linear RGB gains are about 1.070/.988/.950 for the spring
+reference and 1.000/.962/1.041 for the leaf-on reference; exposure is retained.
+The fitted lenses are estimates: 83.5 mm / 18.25 px RMS and 100 mm / 19.26 px
+RMS on the stated crops. The second reaches its lens bound. Planting obscures
+floor anchors, and photographed plans differ. Independent Blender projection
+agrees within .0008 px. These are framing/type comparisons, not surveys or
+inverse measurements of paint reflectance.
+
+Real paint factors are authored linear targets: white (.61,.60,.55), gray
+(.27,.275,.26), pale ochre (.49,.42,.24), sage (.25,.30,.21), Cape blue
+(.16,.235,.28), barn red (.235,.051,.034); trim is at most .64. Quick shared
+fields and low splash/shade masks support form review only. Cedar and
+asbestos-cement joints have an original preview field; their final look,
+paint failure, oxidation and stronger causal service age remain for look-dev.
+No photographic pixels enter any map. Source URLs, authors and rights are
+in [refs/SOURCES.md](refs/SOURCES.md).
