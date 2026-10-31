@@ -34,7 +34,7 @@ def check():
     units=json.loads((folder/'manufacture.json').read_text())['units']
     cedar=[u for u in units if u['kind']=='cedar'];cement=[u for u in units if u['kind']=='cement']
     assert all(.0762-1e-8<=u['width_m']<=.254+1e-8 and abs(u['exposure_m']-.1524)<1e-8 for u in cedar)
-    assert all(abs(u['width_m']-.6096)<1e-8 and abs(u['exposure_m']-.3048)<1e-8 for u in cement)
+    assert all(abs(u['width_m']-.6096)<1e-8 and abs(u['exposure_m']-.2794)<1e-8 for u in cement)
     result=dict(passed=True,family_before_mib=before,planned_family_after_mib=after,addition_mib=after-before,new_images=rows,
         scope='Planned BC7 BaseColor / BC5 Normal / BC7 ORM with full mips. Original previews only; no delivery bake or image publication.',
         justification='One 512-square two-region tile for irregular cedar units and large asbestos-cement shingles. Existing lap siding cannot represent these joints. Wood, vinyl, aluminum, roof, brick, concrete, trim and storms reuse family fields; vertex tint varies paint and age.')

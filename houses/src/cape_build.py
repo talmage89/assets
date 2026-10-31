@@ -19,7 +19,12 @@ class CapeMesh(Mesh):
     def box(self,p,s,role='Trim',color=None,r=.0015,xf=None):
         # Sub-40 mm sash/track/metal bevels belong in the later normal map.
         # Keep the casing/sill silhouette and shared construction dimensions.
-        if self.builder.plan['spec']['dormers']==3 and self.props.get('component') in ('window','storm_window') and min(s)<.040:r=0
+        if self.builder.plan['spec']['siding'] not in ('cement','vinyl') and self.props.get('component') in ('window','storm_window') and min(s)<.040:r=0
+        if (self.builder.plan['spec']['dormers']==3 and self.builder.plan['spec']['siding'] in ('wood','cedar') or self.builder.plan['spec']['siding']=='aluminum') and self.props.get('component')=='window' and role=='Trim' and self.props.get('opening') and json.loads(self.props['opening'])['face']!='front' and min(s)<.070:r=0
+        if self.props.get('component')=='window' and abs(p[1]-.091)<1e-6 and abs(s[1]-.19)<1e-6 and abs(s[2]-.041)<1e-6:
+            # Keep the supporting sill block below its sloping weather surface.
+            # Its former flat top concealed that surface and the lifted film.
+            p=(p[0],p[1],p[2]-.016)
         if self.props.get('component')=='window' and role=='Trim' and abs(p[1]+.28)<1e-6:
             # A real dark room behind the curtains, rather than a 290 mm box.
             p=(p[0],-1.15,p[2])
@@ -55,6 +60,7 @@ def shell(b):
             xf,n,length=b.frame(block,face)
             me=b.mesh(block.name+'_'+face+'_Wall',component='wall',block=block.name,face=face)
             base=b.mesh(block.name+'_'+face+'_Foundation',component='foundation',block=block.name,face=face)
+            foundation_intervals=[]
             for poly,adjoining in wall_sections(b,block,face):
                 if dorm:
                     # Exact planar intersections form the cheek's wedge.
@@ -74,22 +80,29 @@ def shell(b):
                 if not dorm:pieces=[q for p in pieces if (q:=clip(p,0,1,-foundation_top(block)))]
                 for part in pieces:me.prism([xf((u,.012,z)) for u,z in part],(-n[0],-n[1],0),.165,'Siding')
                 if not adjoining and not dorm:
-                    lo=min(v[0] for v in poly);hi=max(v[0] for v in poly);top=foundation_top(block)
-                    pieces=[[(lo,0),(hi,0),(hi,top),(lo,top)]]
-                    for u,z,w,h in basement_holes(b,block,face):
-                        pieces=[p for v in pieces for p in subtract(v,[(1,0,-u+w/2),(-1,0,u+w/2),(0,1,-z),(0,-1,z+h)])]
-                    for p in pieces:base.prism([xf((u,-.024,z)) for u,z in p],(-n[0],-n[1],0),.18,'Concrete')
-                    base.box(((lo+hi)/2,-.016,top-min(.044,top)/2),(hi-lo,.024,min(.044,top)),'Concrete',r=.001,xf=xf)
+                    foundation_intervals.append((min(v[0] for v in poly),max(v[0] for v in poly)))
+            # Several clipped roof/wall sections can share a ground interval.
+            # Build their union once, rather than overlapping foundation solids.
+            merged=[]
+            for lo,hi in sorted(foundation_intervals):
+                if merged and lo<=merged[-1][1]+1e-6:merged[-1]=(merged[-1][0],max(hi,merged[-1][1]))
+                else:merged.append((lo,hi))
+            for lo,hi in merged:
+                top=foundation_top(block);pieces=[[(lo,0),(hi,0),(hi,top),(lo,top)]]
+                for u,z,w,h in basement_holes(b,block,face):
+                    pieces=[p for v in pieces for p in subtract(v,[(1,0,-u+w/2),(-1,0,u+w/2),(0,1,-z),(0,-1,z+h)])]
+                for p in pieces:base.prism([xf((u,-.024,z)) for u,z in p],(-n[0],-n[1],0),.18,'Concrete')
+                base.box(((lo+hi)/2,-.016,top-min(.044,top)/2),(hi-lo,.024,min(.044,top)),'Concrete',r=.001,xf=xf)
             me.finish();base.finish()
         trim=b.mesh(block.name+'_Corners',component='corner_posts',block=block.name)
         for x in (block.x0,block.x1):
             for y in (block.y0,block.y1):
-                if any(v is not block and v.name not in ('RearShed',) and not v.name.startswith('Dormer') and v.contains(x,y,.001) for v in b.plan['blocks']):continue
+                if any(v is not block and v.name not in ('RearShed',) and not v.name.startswith('Dormer') and not (block.name.startswith('Dormer') and v.name=='Main') and v.contains(x,y,.001) for v in b.plan['blocks']):continue
                 bottom=main.height(x,y)-.01 if dorm else foundation_top(block)+.012;top=block.height(x,y)-.145
                 if top-bottom<.05:continue
                 sx=-1 if x==block.x0 else 1;sy=-1 if y==block.y0 else 1
-                trim.box((x+sx*.020,y-sy*.034,(bottom+top)/2),(.032,.089,top-bottom),r=.001)
-                trim.box((x-sx*.034,y+sy*.020,(bottom+top)/2),(.089,.032,top-bottom),r=.001)
+                trim.box((x+sx*.020,y-sy*.034,(bottom+top)/2),(.032,.089,top-bottom),r=0 if block.name.startswith('Dormer') else .001)
+                trim.box((x-sx*.034,y+sy*.020,(bottom+top)/2),(.089,.032,top-bottom),r=0 if block.name.startswith('Dormer') else .001)
         trim.finish()
         if not dorm:
             # Sloped water table bridges the siding/foundation at the real floor.
