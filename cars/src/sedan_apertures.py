@@ -7,7 +7,7 @@ all gauge rims are constructed after cutting. No volume unions or thin booleans.
 """
 import bpy,bmesh
 from mathutils import Vector
-from mathutils.geometry import barycentric_transform,convex_hull_2d
+from mathutils.geometry import barycentric_transform,convex_hull_2d,delaunay_2d_cdt
 from mathutils.kdtree import KDTree
 from kit import model as G
 
@@ -41,6 +41,43 @@ def outline(lamp,surface):
 
 def bounds(poly):
     return min(p.x for p in poly),max(p.x for p in poly),min(p.y for p in poly),max(p.y for p in poly)
+
+
+def regularize_blank(ob,surface,front):
+    """Triangulate a tapered lens in the parent's injective parameter chart.
+
+    Closest-point projection of a Cartesian grid can fold its last tiny cells
+    over the shoulder. A chart triangulation has one disk topology even at the
+    narrow tip. All authored guide rows remain actual vertex samples.
+    """
+    from mathutils.bvhtree import BVHTree
+    raw=list(ob['aperture_samples']);guides=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
+    uv=[surface_uv(p,surface)[0].to_2d() for p in guides]
+    coords,_,faces,*_=delaunay_2d_cdt(uv,[],[],0,1e-6)
+    if 'uv_tree' not in surface:
+        surface['uv_tree']=BVHTree.FromPolygons(surface['uvs'],surface['triangles'],all_triangles=True)
+    ps=[]
+    for q in coords:
+        hit,_,fi,_=surface['uv_tree'].find_nearest(Vector((q.x,q.y,0)));a,b,c=surface['triangles'][fi]
+        uvs=surface['uvs'];points=surface['points'];normals=surface['normals']
+        p=barycentric_transform(hit,uvs[a],uvs[b],uvs[c],points[a],points[b],points[c])
+        n=barycentric_transform(hit,uvs[a],uvs[b],uvs[c],normals[a],normals[b],normals[c]).normalized()
+        ps.append(p+n*.004)
+    inverse=ob.matrix_world.inverted();old=ob.data
+    mesh=bpy.data.meshes.new(old.name+' chart disk');mesh.from_pydata([inverse@p for p in ps],[],faces);mesh.update()
+    for mat in old.materials:mesh.materials.append(mat)
+    ob.data=mesh
+    if old.users==0:bpy.data.meshes.remove(old)
+    center=sum((ps[i] for i in faces[0]),Vector())/len(faces[0])
+    hint=Vector((center.x,-1 if front else 1,0))
+    if ob.data.polygons[0].normal.dot(hint)<0:
+        for face in ob.data.polygons:face.flip()
+    sol=ob.modifiers.new('Chart lens gauge','SOLIDIFY');sol.thickness=.0015;sol.offset=-1;sol.use_even_offset=False;G.apply(ob)
+    kd=KDTree(len(ps))
+    for i,p in enumerate(ps):kd.insert(p,i)
+    kd.balance();snapped=[kd.find(p)[0].copy() for p in guides]
+    ob['aperture_samples']=[v for p in snapped for v in p]
+    ob['chart_disk_topology']=True
 
 
 def difference(polygon,region):
@@ -102,7 +139,7 @@ def cut_mesh(ob,cutters,surface):
     ob['lamp_apertures_cut']=True
 
 
-def carve(front,lamps,surface):
+def carve(front,lamps,surface,recess=.010):
     cutters=[region for lamp in lamps for region in outline(lamp,surface)]
     for ob in list(bpy.context.scene.objects):
         if ob.type!='MESH' or ob.get('part_category') not in ['body','doors','fascia','pillars']:continue
@@ -111,11 +148,11 @@ def carve(front,lamps,surface):
     for lamp in lamps:
         matrix=lamp.matrix_world.copy();inverse=matrix.inverted()
         for v in lamp.data.vertices:
-            p=matrix@v.co;_,n=surface_uv(p,surface);v.co=inverse@(p-n*.010)
+            p=matrix@v.co;_,n=surface_uv(p,surface);v.co=inverse@(p-n*recess)
         raw=list(lamp['aperture_samples']);guides=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)];moved=[]
         actual=KDTree(len(lamp.data.vertices))
         for i,v in enumerate(lamp.data.vertices):actual.insert(matrix@v.co,i)
         actual.balance()
         for p in guides:
-            _,n=surface_uv(p,surface);moved.append(actual.find(p-n*.010)[0].copy())
-        lamp['aperture_samples']=[c for p in moved for c in p];lamp['opening_recess_m']=.006
+            _,n=surface_uv(p,surface);moved.append(actual.find(p-n*recess)[0].copy())
+        lamp['aperture_samples']=[c for p in moved for c in p];lamp['opening_recess_m']=recess-.004

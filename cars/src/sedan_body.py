@@ -125,7 +125,31 @@ def hood_draw_x(y):
 
 def side_width(y):
     # 28 mm die swell over each wheel, carried by the same section as the doors.
-    return .89995+.028*sum(math.exp(-((y-a)/.48)**2) for a in [S.FRONT_AXLE,S.REAR_AXLE])
+    return .89790+.028*sum(math.exp(-((y-a)/.48)**2) for a in [S.FRONT_AXLE,S.REAR_AXLE])
+
+
+def shoulder_height(y):
+    return .920+.018*y
+
+
+def character_height(y):
+    return .430+.100*(y-S.DOOR_FRONT)/(S.DOOR_REAR-S.DOOR_FRONT)
+
+
+def side_draw(y,z):
+    """Progressive door crown, shallow die hollow and recessed sill return.
+
+    These are die controls. Independent mesh sections measure the result.
+    """
+    def positive(q,r=.006):return .5*(q+math.sqrt(q*q+r*r))
+    h=shoulder_height(y);line=character_height(y)
+    d=positive(h-z);dl=h-line
+    tail=positive(d-dl,.012);c=d-tail
+    lower=-.065*c-.235*c*c-.120*tail
+    lower-=.0040*math.exp(-((z-line-.043)/.030)**2)
+    lower-=.50*positive(.275-z,.008)
+    upper=-.37*positive(z-h)-.12*positive(z-h)**2
+    return lower+upper
 
 
 def body_section(y,w,belt,top):
@@ -139,21 +163,23 @@ def body_section(y,w,belt,top):
         # Use the same three-dimensional door section at every station. There
         # are no door-specific bulges or width tweaks at the panel cut lines.
         if i>=7:
-            h=belt-.020
-            line=.345+.040*(y+.2)
-            zs=[belt,h,h-.022,h-.060,min(.660,h-.13),.505,line+.018,line,.255,.218]
-            dx=[-.007,0,-.002,-.014,-.033,-.044,-.038,-.039,-.075,-.100]
+            h=shoulder_height(physical);line=character_height(physical)
+            zs=[belt,h+.017,h,h-.023,h-.085,.690,line+.050,line+.012,line-.020,.235]
             z=zs[i-7]
             t=max(0,(i-8)/8)
             yy=physical*(1-.30*t)
             width_here=side_width(yy)
-            x=width_here+dx[i-7]
+            x=width_here+side_draw(physical,z)
         # Accepted header adjustment follows the windshield's rake.
         header=math.exp(-((y+.14)/.25)**2)*max(0,min(1,(z-1.03)/.28))
         yy=(physical if i<=8 else yy)-.106*header;z-=.058*header
         if 1.3<y<2.07:
             z+=.060*math.exp(-((y-1.66)/.24)**2)*max(0,1-(abs(x)/.72)**4)
+        if y>.85:
+            t=max(0,min(1,(y-.85)/.70));lift=.068*t*t*(3-2*t)
+            z+=lift*max(0,min(1,(z-.82)/.25))
         result.append((x,yy,z))
+    result.insert(-1,(side_width(physical)+side_draw(physical,character_height(physical)-.055),physical*.73,character_height(physical)-.055))
     return result
 
 
@@ -170,7 +196,7 @@ FRONT_ROWS=[
  (-2.150,.794,-1.865),(-1.965,.830,-1.745),(-1.760,.869,-1.610),
  (-1.540,.911,-1.465),(-1.340,.949,-1.325)]
 REAR_ROWS=[
- (1.990,1.018,1.990),(2.120,1.025,2.005),(2.240,1.032,2.020),
+ (1.950,1.018,1.950),(2.120,1.025,2.005),(2.240,1.032,2.020),
  (2.355,1.044,2.030),(2.380,1.045,2.035),(2.394,1.031,2.040),
  (2.407,.969,2.045),(2.425,.865,2.055),(2.443,.755,2.065),
  (2.454,.625,2.075),(2.450,.575,2.085),(2.401,.460,2.095),
@@ -194,7 +220,7 @@ def end_section(row,front):
         y=yc+(tangent-yc)*turn
         if front:
             top=.770+.185*(y+2.245)-.031*(x/.80)**2
-        else:top=1.020+.052*(y-1.970)-.030*(x/.70)**2
+        else:top=deck_height(x,y)
         wall=zc-.004*(x/w)**2
         z=wall*(1-topness)+top*topness
         result.append((x,y,z))
@@ -207,12 +233,19 @@ def end_section(row,front):
         z=outer_z*(1-fractions[j])+bottom*fractions[j]
         x=side_width(y)+offsets[j]
         result.append((x,y,z))
+    a,c=Vector(result[-2]),Vector(result[-1]);result.insert(-1,tuple(a.lerp(c,.15)))
     return result
 
 
 def hood_height(x,y):
     # Convex shallow crown with an outward slope change at the two draw lines.
-    return .770+.170*(y+2.245)-.024*(x/.80)**2-.065*max(0,abs(x)-hood_draw_x(y))
+    crown=.038*math.exp(-((abs(x)-.875)/.055)**2)*math.exp(-((y+1.57)/.66)**4)
+    return .770+.170*(y+2.245)-.024*(x/.80)**2-.065*max(0,abs(x)-hood_draw_x(y))+crown
+
+
+def deck_height(x,y):
+    lip=.031*math.exp(-((y-2.360)/.070)**2)
+    return 1.080+.020*(y-1.970)-.032*(x/.70)**2+lip
 
 
 def crease_rows(half,hood,backlight=False):
@@ -242,14 +275,15 @@ def section_field(p):
     """
     x,y,z=p
     def positive(q,r=.006):return .5*(q+math.sqrt(q*q+r*r))
-    h=.948+.037*y
-    d=positive(h-z)
-    lower=-.050*(1-math.exp(-d/.10))+.010*(d/.61)**2-.43*positive(d-.61,.010)
-    upper=-.42*positive(z-h)-.12*positive(z-h)**2
-    bumper=.055*math.exp(-((y+2.20)/.60)**2-((z-.50)/.16)**2)+.057*math.exp(-((y-2.20)/.60)**2-((z-.60)/.20)**2)
-    width=side_width(y)+lower+upper+bumper
-    ft,rt=-1.800,1.950
-    fd=max(.20,2.4485+ft-face_depth(z,True))
+    bumper=.055*math.exp(-((y+2.20)/.60)**2-((z-.50)/.16)**2)+.060*math.exp(-((y-2.20)/.60)**2-((z-.60)/.20)**2)
+    # Preserve the held end waterlines while the door section changes. The
+    # C2 station blend runs outside the door panels and through the fenders.
+    t=max(0,min(1,(abs(y)-1.50)/.45));t=t*t*t*(10-15*t+6*t*t)
+    h=.948+.037*y;d=positive(h-z)
+    old=-.050*(1-math.exp(-d/.10))+.010*(d/.61)**2-.43*positive(d-.61,.010)-.42*positive(z-h)-.12*positive(z-h)**2
+    width=side_width(y)+(1-t)*side_draw(y,z)+t*old+bumper
+    ft,rt=-1.800,1.940
+    fd=max(.20,2.4505+ft-face_depth(z,True))
     rd=max(.20,2.4505-rt-face_depth(z,False))
     a=max(0,ft-y)/fd;c=max(0,y-rt)/rd
     q=(x/width)**2+a**3+c**3-1
@@ -258,18 +292,18 @@ def section_field(p):
     # The crown rolls down into the same side waterline. C∞ smooth maximum
     # avoids the derivative step of the previous polynomial rounded union.
     if y< -1.08:top=z-hood_height(x,y)
-    elif y>1.90:top=z-(1.020+.052*(y-1.970)-.030*(x/.70)**2)
+    elif y>1.90:top=z-deck_height(x,y)
     else:top=-2
-    r=.008 if y<0 else .002
+    r=.012 if y<0 else .014
     m=max(wall,top)
     return m+r*math.log(math.exp((wall-m)/r)+math.exp((top-m)/r))
 
 
 def fit_control_net(ob):
-    # Two regular refinements give the section fit enough degrees of freedom
+    # Three regular refinements give the section fit enough degrees of freedom
     # at the broad plan turns. It is still an all-quad CONTROL mesh; subdivision
     # that defines the final surface happens after this fit, without projection.
-    sub=ob.modifiers.new('Refine section-fit controls','SUBSURF');sub.levels=2;G.apply(ob)
+    sub=ob.modifiers.new('Refine section-fit controls','SUBSURF');sub.levels=3;G.apply(ob)
     parameter_u=[0.]*len(ob.data.vertices)
     for loop in ob.data.loops:parameter_u[loop.vertex_index]=ob.data.uv_layers.active.data[loop.index].uv.x
     center_u=(ob['grid_width']-1)/2
@@ -291,7 +325,7 @@ def fit_control_net(ob):
 
 
 def master(level):
-    n=19;verts=[];faces=[];labels=[]
+    n=20;verts=[];faces=[];labels=[]
     rows=[];kinds=[]
     for row in FRONT_ROWS:
         rows.append(crease_rows(end_section(row,True),row[1]>.74));kinds.append(('front',row[0]))
@@ -361,7 +395,7 @@ def tessellate(parent,high=False):
     tree=BVHTree.FromPolygons(uvs,ts,all_triangles=True)
     width=int(parent['grid_width']);rows=int(parent['grid_rows'])
     step=.25 if high else .5
-    us=sorted(set([i*step for i in range(round((width-1)/step)+1)]+[u+d for u in [8,28] for d in [-.75,-.25,.25,.75]]))
+    us=sorted(set([i*step for i in range(round((width-1)/step)+1)]+[u+d for u in [(width-1)/2-10,(width-1)/2+10] for d in [-.75,-.25,.25,.75]]))
     vs=sorted(set(list(range(rows))+[j+.5 for j in range(rows-1) if high or j in [2,3,4,5,6] or j>=rows-15]))
     # Keep the actual parent extrema, so regular sampling cannot miss a narrow
     # shoulder maximum or a bumper tangent and silently shrink the envelope.
@@ -377,8 +411,12 @@ def tessellate(parent,high=False):
         return barycentric_transform(hit,uvs[a],uvs[c],uvs[d],mesh.vertices[a].co,mesh.vertices[c].co,mesh.vertices[d].co),mesh.loop_triangles[fi].polygon_index
     # Spend the extra transverse samples on the rear turn, not across every
     # door. One stitched transition uses triangles; the parent stays all quads.
-    extra=[u for k in range(3) for u in [29.25+k*.5,6.75-k*.5]]
-    grids=[sorted(set(us+extra)) if not high and v>=rows-15 else us for v in vs]
+    center=(width-1)/2
+    extra=[center+sign*d for sign in [-1,1] for d in [6.25,6.75,7.25,7.75,8.25]]
+    coarse=sorted(set([float(i) for i in range(width)] + [center+d for d in [-16.5,-15.5,15.5,16.5]]+[u+d for u in [(width-1)/2-10,(width-1)/2+10] for d in [-.75,-.25,.25,.75]]+[min(us),max(us)]))
+    # Broad central canopy needs fewer chords than a tight bumper turn.
+    coarse=[u for u in coarse if abs(u-center)>=5 or abs(u-center)%2<1e-7]
+    grids=[(sorted(set(us+extra)) if v>=rows-15 or v<8 else us if v<13 else coarse) if not high else us for v in vs]
     vertices=[];chart=[];offsets=[]
     for v,columns in zip(vs,grids):
         offsets.append(len(vertices))
@@ -393,6 +431,33 @@ def tessellate(parent,high=False):
                 faces.append((a0+i,a0+i+1,b0+j+1,b0+j));i+=1;j+=1
             elif na<nb:faces.append((a0+i,a0+i+1,b0+j));i+=1
             else:faces.append((a0+i,b0+j+1,b0+j));j+=1
+    if not high:
+        # Refine the actual lower rear plan turn in BOTH chart directions.
+        # Adjacent polygons share inserted midpoints, so there are no T cracks.
+        selected=set();edges={}
+        for fi,face in enumerate(faces):
+            p=sum((vertices[i] for i in face),Vector())/len(face)
+            if len(face)==4 and 1.76<p.y<1.99 and .35<p.z<.55 and abs(p.x)>.80:
+                selected.add(fi)
+                for a,b in zip(face,face[1:]+face[:1]):edges[tuple(sorted((a,b)))]=None
+        for edge in edges:
+            a,b=edge;u=(chart[a][0]+chart[b][0])/2;v=(chart[a][1]+chart[b][1])/2
+            edges[edge]=len(vertices);vertices.append(sample(u,v)[0]);chart.append((u,v))
+        refined=[]
+        for fi,face in enumerate(faces):
+            if fi in selected:
+                u=sum(chart[i][0] for i in face)/4;v=sum(chart[i][1] for i in face)/4
+                ci=len(vertices);vertices.append(sample(u,v)[0]);chart.append((u,v))
+                for i,a in enumerate(face):
+                    b=face[(i+1)%4];c=face[i-1]
+                    refined.append((a,edges[tuple(sorted((a,b)))],ci,edges[tuple(sorted((c,a)))]))
+            else:
+                polygon=[]
+                for a,b in zip(face,face[1:]+face[:1]):
+                    polygon.append(a);mid=edges.get(tuple(sorted((a,b))))
+                    if mid is not None:polygon.append(mid)
+                refined.append(tuple(polygon))
+        faces=refined
     ob=G.mesh('Fair game surface samples',vertices,faces)
     for mat in mesh.materials:ob.data.materials.append(mat)
     for face in ob.data.polygons:
@@ -567,7 +632,7 @@ def build(b):
         for y in [line-S.PANEL_GAP/2,line+S.PANEL_GAP/2]:
             bmesh.ops.bisect_plane(bm,geom=list(bm.verts)+list(bm.edges)+list(bm.faces),
                 dist=1e-8,plane_co=(0,y,0),plane_no=(0,1,0),clear_inner=False,clear_outer=False)
-    for axis,line in [(0,-.615),(0,.615),(2,.690)]:
+    for axis,line in [(0,-.615),(0,.615),(2,.620)]:
         for offset in [-S.PANEL_GAP/2,S.PANEL_GAP/2]:
             co=[0.,0.,0.];no=[0.,0.,0.];co[axis]=line+offset;no[axis]=1.
             bmesh.ops.bisect_plane(bm,geom=list(bm.verts)+list(bm.edges)+list(bm.faces),dist=1e-8,plane_co=co,plane_no=no,clear_inner=False,clear_outer=False)
@@ -576,8 +641,8 @@ def build(b):
         label=names[f.material_index]
         if label in ['Trunk','Rear molded fascia']:
             p=f.calc_center_median();suffix='R' if p.x>0 else 'L'
-            if abs(p.z-.690)<S.PANEL_GAP/2-1e-7 or (p.z>.690 and abs(abs(p.x)-.615)<S.PANEL_GAP/2-1e-7):discard.append(f);continue
-            label=('Trunk' if abs(p.x)<.615 else 'Rear quarter_'+suffix) if p.z>.690 else 'Rear molded fascia'
+            if abs(p.z-.620)<S.PANEL_GAP/2-1e-7 or (p.z>.620 and abs(abs(p.x)-.615)<S.PANEL_GAP/2-1e-7):discard.append(f);continue
+            label=('Trunk' if abs(p.x)<.615 else 'Rear quarter_'+suffix) if p.z>.620 else 'Rear molded fascia'
             f.material_index=names.index(label)
         elif label.startswith(('Door F','Door R','Front fender','Rear quarter')):
             p=f.calc_center_median();suffix='R' if p.x>0 else 'L'
@@ -624,7 +689,7 @@ def build(b):
         for i in boundary:
             p=verts[i];inside=centroids[i]
             if any(abs(abs(p.y-line)-S.PANEL_GAP/2)<2e-6 for line in cuts):continue
-            if p.y>1.80 and (abs(abs(abs(p.x)-.615)-S.PANEL_GAP/2)<2e-6 or abs(abs(p.z-.690)-S.PANEL_GAP/2)<2e-6):continue
+            if p.y>1.80 and (abs(abs(abs(p.x)-.615)-S.PANEL_GAP/2)<2e-6 or abs(abs(p.z-.620)-S.PANEL_GAP/2)<2e-6):continue
             if inside:
                 tangent=(sum(inside,Vector())/len(inside)-p)
                 n=normals[used[i]];tangent-=n*tangent.dot(n)
@@ -669,7 +734,9 @@ def build(b):
     for side,sign in [('L',-1),('R',1)]:
         for end,axle in [('F',S.FRONT_AXLE),('R',S.REAR_AXLE)]:
             loops=[]
-            angles=[-.31+(math.pi+.62)*i/48 for i in range(49)]
+            segments=48 if b.high else 24
+            angles=[-.31+(math.pi+.62)*i/segments for i in range(segments+1)]
+            count=len(angles)
             for depth in [0,.018]:
                 ring=[]
                 for a in angles:
@@ -678,18 +745,21 @@ def build(b):
                     x=abs(hit.x) if hit else .89
                     ring.append((sign*(x-depth),y,z))
                 loops.append(ring)
-            ob=G.mesh('Arch flange_'+end+side,loops[0]+loops[1],[(i,i+1,50+i,49+i) for i in range(48)],b.m['body'])
+            ob=G.mesh('Arch flange_'+end+side,loops[0]+loops[1],[(i,i+1,count+i+1,count+i) for i in range(count-1)],b.m['body'])
             sol=ob.modifiers.new('Arch hem gauge','SOLIDIFY');sol.thickness=.001;sol.offset=-1;G.apply(ob);b.add(ob,category='arches')
             # Dark well, following the same real opening; interior detail deferred.
-            verts=[(sign*x,axle+(S.ARCH_RADIUS+.012)*math.cos(a),S.HUB_HEIGHT+(S.ARCH_RADIUS+.012)*math.sin(a)) for x in [.56,.88] for a in angles]
-            fs=[(i,i+1,50+i,49+i) for i in range(48)]
+            inner_angles=angles[::2] if b.high else angles;count=len(inner_angles)
+            verts=[(sign*x,axle+(S.ARCH_RADIUS+.012)*math.cos(a),S.HUB_HEIGHT+(S.ARCH_RADIUS+.012)*math.sin(a)) for x in [.56,.88] for a in inner_angles]
+            fs=[(i,i+1,count+i+1,count+i) for i in range(count-1)]
             ob=G.mesh('Wheelwell_'+end+side,verts,fs,b.m['rubber']);sol=ob.modifiers.new('Liner thickness','SOLIDIFY');sol.thickness=.002;G.apply(ob);b.add(ob,category='liners')
-            outline=[(axle+(S.ARCH_RADIUS+.012)*math.cos(a),S.HUB_HEIGHT+(S.ARCH_RADIUS+.012)*math.sin(a)) for a in angles]
+            outline=[(axle+(S.ARCH_RADIUS+.012)*math.cos(a),S.HUB_HEIGHT+(S.ARCH_RADIUS+.012)*math.sin(a)) for a in inner_angles]
             b.add(G.profile('Wheelwell inboard_'+end+side,outline,sign*.559,sign*.561,b.m['rubber'],axis='X'),category='liners')
     fascia(b,front=True,master_tree=tree,surface_map=surface_map);fascia(b,front=False,master_tree=tree,surface_map=surface_map)
     # Only a cavity closure is supplied at this gate, not an interior or drivetrain.
     floor=G.box('Form cavity closure',(0,.05,.235),(1.62,3.95,.025),b.m['rubber'],0);b.add(floor,category='closure')
     handles(b)
+    from sedan_character import mirrors
+    mirrors(b)
     # Boolean aperture cuts can change the rim smoothing fans again. Reapply the
     # pre-cut master field to every exposed outer corner, with flat gauge edges.
     for ob in bpy.context.scene.objects:
@@ -749,7 +819,10 @@ def form_blank(name,rows,material,master_tree,front):
             if n.dot(Vector((hit.x,-.8 if front else .8,0)))<0:n.negate()
             offset=.0025 if front and abs(hit.x)<.25 else .004
             v.co=hit+n*offset
-    bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=1e-6)
+    # Projection at a tapered optical tip can collapse neighboring sample
+    # rows onto a 30-micron edge. Weld below optical manufacturing tolerance
+    # before closing the gauge; a six-face edge is not a valid lens blank.
+    bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=.00010)
     bmesh.ops.triangulate(bm,faces=list(bm.faces))
     bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=1e-7)
     bad=[f for f in bm.faces if f.calc_area()<1e-11]
@@ -782,13 +855,13 @@ def lamp_volume(b,front,sign,material,master_tree):
     # A 630 mm surface envelope including a 230 mm fender return. The top
     # follows the curved hood edge; the aperture tapers at its rear tip.
     if front:
-        path=[(.555,0,.681,.170),(.60,0,.688,.168),(.69,0,.703,.163),
-              (.77,0,.717,.140),(.845,0,.742,.128),(.880,-2.045,.765,.110),
-              (.902,-1.945,.788,.075),(.912,-1.760,.806,.035)]
+        path=[(.570,0,.699,.150),(.60,0,.717,.145),(.69,0,.744,.125),
+              (.77,0,.772,.110),(.845,-1.940,.798,.090),(.880,-1.840,.824,.075),
+              (.902,-1.730,.847,.050),(.912,-1.650,.868,.022)]
     else:
-        path=[(.400,0,.912,.134),(.53,0,.915,.130),(.66,0,.914,.120),
-              (.78,0,.914,.115),(.852,0,.914,.105),(.886,2.110,.920,.090),
-              (.910,1.990,.940,.065),(.919,1.890,.954,.030)]
+        path=[(.300,0,1.015,.035),(.48,0,1.003,.070),(.66,0,.988,.125),
+              (.78,0,1.003,.120),(.852,0,1.014,.075),(.886,2.110,1.008,.070),
+              (.910,1.965,1.015,.047),(.919,1.820,1.022,.018)]
     path=[(x,locator_y_guess(x,z,front) if y==0 else y,z,h) for x,y,z,h in path]
     dense=[]
     for index,(a,c) in enumerate(zip(path,path[1:])):
@@ -818,15 +891,15 @@ def fascia(b,front,master_tree,surface_map):
     """Compound molding sampled across crown and vertical support sections."""
     sign=-1 if front else 1
     ob=bpy.data.objects['Front molded fascia' if front else 'Rear molded fascia']
-    openings=([('Low wide grille',(0,-2.43,.517),(1.32,.34,.232),.024),
-               ('Lower intake',(0,-2.41,.290),(1.44,.32,.100),.020),
-               ('DRL pocket L',(-.743,-2.34,.404),(.160,.30,.105),.025),
-               ('DRL pocket R',(.743,-2.34,.404),(.160,.30,.105),.025)] if front else
-              [('Diffuser',(0,2.43,.325),(1.45,.32,.140),.026),('Plate pocket',(0,2.43,.815),(.35,.23,.18),.022)])
-    for name,center,size,radius in openings:
-        # Form locators, like the lamp blanks below. Cutting detailed wells into
-        # thin high-density shells belongs to the next construction stage.
-        rows=[];nu=12 if size[0]>1 else 8;r=radius*.7
+    openings=([('Low wide grille',(0,-2.43,.640),(1.28,.34,.210),.018,.064),
+               ('Lower intake',(0,-2.41,.325),(1.40,.32,.150),.018,.060),
+               ('DRL pocket L',(-.760,-2.34,.465),(.160,.30,.180),.022,.050),
+               ('DRL pocket R',(.760,-2.34,.465),(.160,.30,.180),.022,.050)] if front else
+              [('Diffuser',(0,2.43,.282),(1.46,.32,.135),.025,.011),
+               ('Plate pocket',(0,2.43,.890),(.44,.23,.170),.018,.026)])
+    from sedan_character import well,bars
+    for name,center,size,radius,depth in openings:
+        rows=[];nu=16 if size[0]>1 else 8;r=radius*.7
         for j in range(5):
             zz=(j/4-.5)*(size[2]-.010);dz=max(0,abs(zz)-((size[2]-.010)/2-r))
             cut=r-math.sqrt(max(0,r*r-dz*dz));half=(size[0]-.010)/2-cut;z=center[2]+zz
@@ -834,11 +907,17 @@ def fascia(b,front,master_tree,surface_map):
             rows.append([(center[0]+(2*i/nu-1)*half,locator_y_guess(center[0]+(2*i/nu-1)*half,z,front),z) for i in range(nu+1)])
         backing=form_blank(name+' opening',rows,b.m['rubber'],master_tree,front)
         b.add(backing,category='openings')
+        ps=well(b,backing,surface_map,depth,front)
+        if name in ['Low wide grille','Lower intake']:bars(b,backing,ps,front)
+        if not b.high:
+            dec=backing.modifiers.new('Hidden pocket bed allocation','DECIMATE');dec.ratio=.20;G.apply(backing)
     # Optical envelopes sit behind actual projected skin apertures. Their
     # reflectors, emitters and optical seats remain a later detail stage.
     lamps=[]
+    from sedan_apertures import regularize_blank
     for side,sgn in [('L',-1),('R',1)]:
         for lamp in lamp_volume(b,front,sgn,b.m['glass'],master_tree):
+            regularize_blank(lamp,surface_map,front)
             b.add(lamp,bpy.data.objects['Trunk'] if lamp.get('lamp_piece')=='lid' else None,category='openings');lamps.append(lamp)
     from sedan_apertures import carve
     carve(front,lamps,surface_map)
@@ -848,5 +927,5 @@ def handles(b):
     for side,sign in [('L',-1),('R',1)]:
         for end,y in [('F',-.02),('R',1.08)]:
             # Recess proxy only; full handle and latch construction is deferred.
-            pocket=G.box('Handle opening_'+end+side,(sign*.911,y+S.CORE_SHIFT,.945 if end=='F' else .995),(.006,.155,.032),b.m['rubber'],.010,3)
+            pocket=G.box('Handle opening_'+end+side,(sign*.911,y+S.CORE_SHIFT,.945 if end=='F' else .995),(.006,.155,.032),b.m['rubber'],.010,1)
             b.add(pocket,bpy.data.objects['Door_'+end+side],category='openings')
