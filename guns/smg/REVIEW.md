@@ -2166,3 +2166,192 @@ The explicit `src/reviewed_rebaseline.py` step verifies those hashes, their
 prior recording here, the handoff geometry/UV/rig/clip signature and all
 accepted gun/detachable layout checks before updating the paint journal.
 All specular/color/wear bounds and geometry baselines remain unchanged.
+
+### Critique pass 1 — first clean .42 exported hero
+
+Color/value first: opened `build/paint-round3/clean1-preview/hero.png` and
+its neutral-gray composite `hero.jpg`, beside the archived `ab206c5` hero
+and family image. The unchanged round-two masks measure flat-side
+P10/median/P90 **46/54/64** and upper-land **95/111/127** on the exported
+PNG. The lower flat now reads charcoal and sits near the Harrow's family
+median 53. The broad upper land still reads light gray/silver. Its median
+is over twice 53; this remains a visible family-check miss at .42.
+No further paint, light or wear adjustment is made, per the owner's ruling.
+
+The slot, magazine well and trigger opening retain deep shadows; the upper
+highlight rolls off below clipping. The warm worn substrate remains visible
+as the same irregular rubbed field, with dark enamel islands. Polymer keeps
+its black molded response and the magazine its very dark oxide. The inherited
+dark muzzle and upper worn-field response remain weaker visual matches to
+some photos; these accepted finishes are not changed. This preview uses the
+first clean exported GLB, not the dense source. Final measurements below use
+the second clean build's delivered docs and actual composed family JPEG.
+
+### Final clean delivery baseline
+
+Reason: Round 3 final clean delivery: record the second independent .42 bake; only sparse GPU bake rounding differs from the first reviewed .42 bake, with all original finish and geometry bounds retained.
+
+The original `ab206c5` actual GLB remains `c5dfb18ab711c8315163bbb2ee3f0a01e536386807fbc9d5c560c7fe817b0582` and its old manifest
+remains `fe779730af1428a7576c4cfb30312d15c3f05189dd9268ac1b3d9b26c3b08963`.
+The intermediate reviewed GLB is `ebef6a42250e04de592ca4657a3c6522afd5d8d5ecd74de00ebcc23d38aa041e`, with manifest
+`95e1d1208b4412c4b68d57d764f9c228df846a9beff34b7da5061ee1a504704a`. The final reviewed GLB is `2ba999917d96d5317d00cc67af9fdd55c457835d0397c9bb11e37b419928b0fc`. The same explicit hash-guarded
+step records the final delivery while retaining the original handoff in
+`reviewed_changes`. It does not change the .42 paint or any tolerance.
+
+### GIF inspection — final clean exported GLB
+
+`make -C guns/smg gif` returned **0** using the final GLB
+`2ba999917d96d5317d00cc67af9fdd55c457835d0397c9bb11e37b419928b0fc`.
+Opened every decoded frame 0–69 on
+`build/paint-round3/smg-gif-inspection/page-00.jpg` through `page-08.jpg`.
+Color/value first: the receiver's upper land remains light gray/silver,
+while lower flats, polymer and magazine remain dark. The wear field stays
+warm gray-brown; its shape is unchanged. No palette flashing or new coating
+spill is visible. The slot and well remain deeply shaded. Handle draw/lock,
+magazine removal and insertion, then handle release stay readable; the
+removed magazine crosses the lower frame edge as in the accepted camera.
+No clip or camera edit is made. Sequential frames were inspected; timing
+is verified from decoded delays rather than a claim of continuous playback.
+
+The delivered GIF is **960×519**, **284,287 bytes**, 70 frames at 20 fps.
+Frame 0 is 550 ms (including the 500-ms hold); the rest are 50 ms, totaling
+4,000 ms. GIF SHA-256:
+`b03adb424ff39350b3c553b9eb6bbe0a2745a0e48ffd9a94107498e3b5e0a7a4`.
+Its camera/sequence JSON is byte-identical to `ab206c5`.
+
+### Critique pass 2 — final clean Cycles views
+
+Color/value first: opened all 21 final Cycles views on
+`build/paint-round3/smg-stills/page-0.jpg` through `page-3.jpg`.
+The flat painted side is charcoal; the upper land remains conspicuously
+lighter. Highlights on bends are broad and roll off, and the port, slot,
+well and trigger opening retain deep shadow. The family image still shows
+this broad upper gray field beside the Harrow and Rill. This is an explicit
+family-check miss, not a reason to tune beyond the requested .42 paint.
+
+The worn field stays warm gray-brown, with the accepted ragged paint islands
+and crest nicks. Polymer remains dark and subdued, including the complete
+receiver/lower joint and compound grip/guard. The exposed barrel remains
+oxide-black with a brighter separate ring. `projection_lower` and
+`projection_barrel` show no visible enamel contamination. The accepted
+non-enamel projection hashes pass exactly after both independent clean bakes.
+The broad upper sheen, inherited coarse wear at small hood/drum features,
+and very dark muzzle relative to the issued photograph remain limitations;
+no geometry, finish, wear, light or camera adjustment is made to hide them.
+
+### Final family measurements and delivered images
+
+Color/value first: opened the five final docs JPGs, all six contact-sheet
+inspection pages, the fresh GLB and dense-source photographic pairs, and
+all 288 clip-strip frames (`inspection/clips-00.jpg` through `clips-15.jpg`).
+The Eevee hero retains the same dark polymer and deep openings as Cycles.
+The upper receiver is still silver; the rejected photographic rigs still
+produce grossly bright fields and disagreeing nonpaint finishes. Those
+images are retained diagnostics, not a second paint decision. No further
+parameter, camera, light, wear or geometry change is made.
+
+The unchanged round-two geometry masks select `Receiver_Shell`, eroded one
+pixel: flat Y −20…170 mm / Z 92.5…99.5 mm; upper land Y 10…140 mm /
+Z 114…124 mm. V is max(sRGB RGB), 0–255; no brightness-based selection.
+The primary method remains the round-two one: docs hero JPG and per-gun
+family PNG panels with their actual exported-GLB hash metadata.
+
+| Region and view | ab206c5 V P10/median/P90 | Final V P10/median/P90 |
+| --- | --- | --- |
+| flat / docs | 38/45/55 | 47/55/65 |
+| upper_land / docs | 95/116/154 | 95/111/128 |
+| flat / family | 36/44/54 | 46/54/64 |
+| upper_land / family | 96/116/154 | 95/111/127 |
+
+The Harrow family receiver stays **53** by the same mask. The unchanged
+Rill flat is **53** in its hero and **52** in the family PNG. Relay hero
+flat **55** is +3.8% from both Harrow 53 and Rill hero 53; family flat
+**54** is +1.9% from Harrow 53 and +3.8% from Rill family 52. Both pass
+the requested ±20%. Upper land **111** in both views is +109.4% from
+Harrow 53 (and Rill hero 53), and +113.5% from Rill family 52. **Both
+upper-land checks fail, and the silver upper field remains visible at .42.**
+
+The actual composed family JPEG was independently checked with these same
+masks after panel placement/resizing. Its Relay flat is **45 → 55**, upper
+land **116 → 111**. Harrow is 53.5 and Rill 53 in that JPEG, unchanged;
+JPEG/resizing shifts the narrow flat by one value compared with the
+round-two PNG-panel method. This does not change either pass/fail result
+or substitute a new target for the requested Harrow 53. All measurements
+and mask overlays: root `build/paint-round3/round2-mask-values/` and
+`build/paint-round3/family-values/`. Both before and after overlays were
+opened; the family JPEG retains the accepted Harrow panel.
+
+Images: `docs/hero.jpg`; `../lmg/renders/final/hero-beside-ak-smg.jpg`;
+its Relay panel `../lmg/renders/final/precedents/smg/smg_hero.png`.
+The final contact sheet is `renders/final/contact-sheet.jpg`; studio,
+Eevee, pairs and dense-source pairs are respectively under `beauty/`,
+`eevee/`, `pairs/` and `source-pairs/` in the same final folder.
+
+| Docs file | Pixels | Bytes |
+| --- | --- | ---: |
+| `docs/action.jpg` | 1244×1400 | 152,808 |
+| `docs/details.jpg` | 1204×1400 | 178,926 |
+| `docs/eevee.jpg` | 1600×800 | 62,455 |
+| `docs/hero.jpg` | 1600×800 | 61,217 |
+| `docs/motion.gif` | 960×519 | 284,287 |
+| `docs/turnaround.jpg` | 1600×1300 | 79,542 |
+
+All five JPGs are at most 1600 px wide and below 200,000 bytes; the GIF is
+at most 960 px wide and below 450,000 bytes. All were opened after
+regeneration. The GIF frame audit is recorded above.
+
+### Build, preservation and baseline proof
+
+Both independent clean exports baked **4096 /32 samples**, with zero missed
+interior rays on all seven channels, downsampled to one three-map **2048**
+set and regenerated all four detachables through the kit path. The two
+explicit `make -C guns/smg check` runs returned **0**, logged as
+`smg-clean1-confirm-check.log` and `smg-clean2-check.log` under root
+`build/paint-round3/`. The second clean default `make -C guns/smg` returned
+**0** (`smg-make.log`), including all its original validation and docs
+stages. `make -C guns/smg paint-review` returned **0** and wrote all three
+failed photographic comparisons (`smg-diagnostic.log`). The subsequent
+`python3 src/final_review.py --docs` returned **0**, refreshing the contact
+sheet with those diagnostic histograms. Provenance verifies **330** render
+records against actual source files; **288** additional strip frames and
+their decoded playback durations pass. `make gif` returned **0**.
+
+The first unattended supervisor ended with status 143 before recording its
+child Make status, although all seven validation reports passed. The direct
+first-clean check was repeated to capture its exit 0 before archiving that
+build and starting the independent second build. This process interruption
+is not reported as a passing command; the separately captured runs above
+are the proof. Long GPU waits remained under the shared lock. No lock,
+geometry check or tolerance was bypassed.
+
+Exact old/new Relay positions, normals, UVs, weights and oriented triangle
+corners on all five GLBs are in `exact-uv-identity.json`; rig, clips and
+layout retain the existing exact baselines and tangent convention. The
+accepted wear-mask hashes pass twice. Both current projection checks prove
+exact accepted enamel owners and **73/73 unchanged non-enamel RGBA
+interior regions**, including lower, barrel, handguard and handle hinge.
+These establish preservation/serialization; the original actual-surface
+construction and sampled clearance checks separately establish assembly.
+The source audit confirms every old presentation/geometry/rig/clip script
+is unchanged. No kit code changed.
+
+The final `src/accepted_paint.json` SHA-256 is
+`2e02805a29fd7eb70c9dba862177457ab9f33c2ee2e9521e059c9f8528d8da65`.
+The original ab206c5 manifest, journal GLB, actual handoff GLB, first reviewed
+.42 bake and final reviewed GLB hashes are all recorded above and retained
+in `reviewed_changes`; the baseline has not been silently overwritten.
+The explicit wrong-manifest negative test returned 1 without changing it.
+The projection negative control also rejects assigning Rill Rear_Insert to
+enamel. Neither guard is invoked to replace a baseline during normal make.
+
+Current main gun: **41,540 triangles**, **one material**,
+**three 2048 maps**, **10,595,628 GLB bytes**. PNG bytes:
+T_Relay9_BaseColor.png: 1,106,988, T_Relay9_Normal.png: 2,321,072, T_Relay9_ORM.png: 3,605,463.
+Full image/export hashes and all standalone sizes are in root
+`build/paint-round3/inventory.json`; current delivery sizes are also in the
+README. The finish is the requested family paint; its remaining upper-land
+family mismatch is reported above. No new software or lead action is needed.
+
+Final `python3 kit/repo_check.py` returned **0** (**1,140 source files,
+zero errors**), and `git diff --check` passed. The changes stay on
+`wp/guns-family-paint`; no merge or push is performed.

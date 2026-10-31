@@ -2249,3 +2249,81 @@ Further parameter changes need an explainable photo/accepted-finish
 calibration. No new software is needed. A shared neutral-clipping audit
 and explicit component-aware photo masks would help future family reviews.
 <!-- ROUND2_DELIVERY_END -->
+
+## Round 3 — family paint ruling and build separation
+
+The owner's ruling supersedes the unresolved photographic approval above.
+The five anchored light fits (1/11, 0/8, 1/8, 1/6 and 0/6 passing anchors)
+cannot calibrate these guns' light. The accepted finish is the Harrow 56's
+family paint in its same five-fixture studio. The failed fits, masks, pairs
+and their original bounds remain diagnostic; they do not choose the paint.
+
+`paint-review` is now a separate opt-in diagnostic that writes its JSON and
+images without `--check`. It is no longer a prerequisite of `review`, `docs`
+or `all`. The explicit Python `--check` retains the original anchor and paint
+assertions. No other anchored-fit gate was in either default graph. All
+construction, motion, geometry, rig, clip, UV, atlas, detachable and preservation
+checks retain their bounds. `check` additionally verifies the accepted enamel
+projection owner partition and exact delivered RGBA on all 73 non-enamel
+interior regions, using `src/accepted_projection.json` recorded from the
+actual `ab206c5` files. This verifies delivered preservation; the round-two
+enamel perturbation pairs remain the causal projection experiment.
+
+The Rill's paint, source, baked maps and exported GLB are retained. Only
+the build graph, projection preservation check and explanatory text change.
+
+### Build-only image review
+
+Color/value first: opened all 26 beauty/Eevee views on
+`build/paint-round3/ak-stills/page-0.jpg` through `page-4.jpg` as the default
+build refreshed its stale presentation dependencies. Receiver flats remain
+charcoal with controlled reflections on the cover bends. Wood retains its
+brown and red-brown blanks; phenolic remains plum-brown. The barrel and
+magazine retain their nearly gray/black oxide response. The slot and underside
+are dark. The rear-insert close-up has no visible enamel spill. The inherited
+edge-wear bands and wood-grain character are unchanged and are accepted for
+this task; no form, material, camera or light tuning is performed.
+
+The actual exported GLB remains SHA-256
+`3b3bcdfc3e23d1f957954fb7070e1413952639bfbbfa7fc80e20ab1995d4f396`,
+exactly equal to the saved `ab206c5` handoff. Its accepted bake manifest and
+all paint/bake sources are unchanged. The default build invokes no Rill bake.
+
+The completed default build's seven contact-sheet inspection pages, all
+source pairs (`build/paint-round3/ak-inspection/pairs-05.jpg` through
+`pairs-10.jpg`), raw-export views and all 290 strip frames
+(`renders/final/inspection/clips-00.jpg` through `clips-16.jpg`) were opened.
+The ordinary studio retains the accepted tones and stable motion. The rejected
+photo rigs still show their known silver hotspot/green-pink casts and cannot
+calibrate the paint. Those comparisons remain diagnostics under the ruling.
+No look adjustment is made. The Rill's committed docs JPGs/GIF are retained
+exactly from `ab206c5`; only this build-only review and README explanation
+change. Its default `make` now returns **0**; the strict photo gate is absent
+from that graph, rather than its tolerances being relaxed.
+
+### Final build and preservation proof
+
+`make -C guns/ak` returned **0** (`build/paint-round3/ak-make.log`).
+The final direct `make -C guns/ak check` returned **0** in a dedicated
+terminal (`build/paint-round3/ak-final-check.log`), including all 18 accepted
+baseline tests, geometry, UV, normals, rig, clips, atlas, re-import, actual
+construction/clearance and retainer-fit checks. All **73/73 non-enamel RGBA
+interior regions** and the accepted enamel owner partition are exact.
+
+Earlier long-lived supervisors ended with status 143, including one after
+its child had written passing validation reports. Those interrupted shell
+commands are not counted as passes; the separately captured direct exit 0
+above is the proof. No tolerance, GPU lock or geometry check was bypassed.
+
+The unchanged main GLB has **40,000 triangles**, **one material**, a
+**three-map 2048 set** and **10,554,408 bytes**. Its byte-identical handoff
+hash above proves preservation of the complete exported asset; the source
+audit in `build/paint-round3/source-preservation.json` separately confirms
+that every original Rill source file is unchanged. The accepted bake and
+reviewed baseline were not replaced. No kit code changed and no new software
+or lead action is needed.
+
+The separate `make -C guns/ak paint-review` returned **0** while recording
+both failed photo comparisons; their reports and images remain in
+`renders/final/paint-review/`. Final `python3 kit/repo_check.py` returned
+**0** (**1,140 source files, zero errors**), and `git diff --check` passed.

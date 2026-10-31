@@ -6,10 +6,9 @@ curved steel magazine, rigid moving parts and 21 clips share one baked 2048
 PBR atlas. The fictional **Propane Defense Relay 9** represents an issued gun
 carried for years. Its contours, controls, serial and markings are original.
 
-**Round 2 review build:** studio and projection corrections are verified;
-photographic paint acceptance is unresolved, and the upper receiver still
-reads silver. The images retain the handoff paint parameters. The default
-`make` stops at the independent nonpaint-anchor gate. See [REVIEW.md](REVIEW.md).
+The receiver carries the family's Harrow 56 paint and studio. Its own photos
+couldn't calibrate the light; the rejected fits remain as diagnostics in
+[REVIEW.md](REVIEW.md) and `renders/final/paint-review/`.
 
 ![Cycles hero of the exported GLB](docs/hero.jpg)
 
@@ -83,7 +82,7 @@ Stamped steel has **black paint over gray phosphate**, with a soft satin
 response and fine substrate texture in the normal/roughness maps. Intact
 paint remains dielectric; exposed phosphate and bright steel have their own
 response. The paint's linear base is **.022/.023/.024**, central roughness
-**.29**: a 2.2–2.4% diffuse black reflector. Polymer keeps its accepted black: `.012/.013/.012`, roughness `.78`, reducing
+**.42**: a 2.2–2.4% diffuse black reflector. Polymer keeps its accepted black: `.012/.013/.012`, roughness `.78`, reducing
 to `.48` on handled areas. The receiver's upper-land phosphate uses
 `.058/.049/.0375`; the accepted
 secondary edge phosphate retains `.060/.064/.061`. Both use metallic `.08`
@@ -157,30 +156,13 @@ agreement remains a limitation. Both final hero sides are measured under the
 Harrow studio lights, with their surface polygons and medians in generated
 `renders/final/finish-values.json` and the current REVIEW.md entry.
 
-**Photographic paint acceptance is unresolved.** The first-round passing pairs
-fitted illumination to the receiver itself and are superseded. The current
-studio test uses the original upload `studio-original.jpg`: the later
-`right.jpg` has a substituted background and cannot supply a physical neutral.
-White balance uses the actual gray table `(1300,970)–(1480,1080)`. Light is
-fitted only to handguard, lower molding, grip, magazine, exposed barrel and
-backing, including upper/lower handguard guards. The issued diagnostic keeps
-its white selector legend neutral and fits the unchanged handguard, lower
-cheek, grip and exposed barrel. No paint observation enters either objective.
-Explicit photo-mask holes exclude the separate metal fasteners, selector
-lever and red control ink from polymer measurements, matching the render's
-object-ID selection. The magazine's bright stripe remains in its anchor.
-The issued frame is also tested with a separately constrained elevated side
-camera. Its larger landmark residual remains explicit; the original form
-camera is preserved. All six anchors are retained in both camera tests.
+The receiver carries the family's paint, taken from the Harrow 56: the
+photos of this gun couldn't calibrate the light from unchanged finishes.
+Their pairs and anchored fits remain diagnostic in `renders/final/paint-review/`
+and [REVIEW.md](REVIEW.md). `make paint-review` writes those reports and images
+without gating the default build; `src/paint_review.py --check` retains the
+original photographic tolerances for explicit investigation.
 
-The independent anchors still disagree. Every failed anchor and complete
-receiver result remains in `renders/final/paint-review/` and
-[REVIEW.md](REVIEW.md); no anchor was dropped to obtain a pass. These pairs do
-not verify a new sheen, so the accepted **.29** roughness and **.8** glTF
-specular factor are retained. `make paint-review` rejects an unexplained light
-before testing the unchanged paint tolerances: median ±10%, tails ±15%, and
-highlight value/RGB/normalized color ±10%. This is a review build with a failing
-photographic gate, not a declaration that the paint is verified.
 The accepted barrel shader is very dark dielectric oxide. The issued photo's
 bright muzzle is not explained by that finish under the tested whole-scene
 rigs; the clean studio specimen also lacks this asset's broad upper wear.
@@ -224,7 +206,7 @@ common physical scale. `chips-native-4x-pair.png` preserves the photo's higher
 native pixel density explicitly. Their former 1D acceptance tables are
 superseded by the 2D masks and component dimensions.
 
-The current paint uses roughness **.29**, linear RGB **.022/.023/.024** and
+The current paint uses roughness **.42**, linear RGB **.022/.023/.024** and
 shipping specular factor **.8**. The old supplemental crown-highlight
 measurements remain diagnostic in `pairs/paint-highlight-pair.jpg`; the
 4–6-mm target is withdrawn because it depends on source lighting. Every final
@@ -296,17 +278,17 @@ ammunition. Fine finish detail adds no game triangles.
 
 | Output | Triangles | Materials | GLB bytes | Map size | Density ratio |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Gun, all animated display ammunition | 41,540 | 1 | 10,670,292 | 2048 | — |
-| Loaded magazine | 5,792 | 1 | 1,318,592 | 1024 | 1.000 |
+| Gun, all animated display ammunition | 41,540 | 1 | 10,595,628 | 2048 | — |
+| Loaded magazine | 5,792 | 1 | 1,318,588 | 1024 | 1.000 |
 | Empty magazine | 4,048 | 1 | 1,186,756 | 1024 | 1.000 |
 | Cartridge | 688 | 1 | 151,380 | 512 | 1.000 |
-| Fired case | 688 | 1 | 154,664 | 512 | 1.000 |
+| Fired case | 688 | 1 | 154,668 | 512 | 1.000 |
 
 One canonical **2048 BaseColor / OpenGL +Y Normal / ORM** set, baked at 4096
 with 32 GPU Cycles samples. BaseColor is sRGB; ORM is R occlusion, G roughness,
 B metallic. About **16 MiB** with 8-bpp block compression and full mip chains.
-The PNG files total **7,422,033 bytes** (1,158,449 BaseColor,
-2,413,853 Normal, 3,849,731 ORM). The gun retains these canonical images. Standalone loaded/empty magazines now
+The PNG files total **7,033,523 bytes** (1,106,988 BaseColor,
+2,321,072 Normal, 3,605,463 ORM). The gun retains these canonical images. Standalone loaded/empty magazines now
 embed their own **1024** sets; the cartridge and case embed **512**, all lossless
 subsets at the original atlas density. Standalone samplers match the gun’s
 trilinear mipmapped sampler, approximately 4 MiB / 1 MiB compressed including

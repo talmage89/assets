@@ -20,7 +20,7 @@ half-open clip intervals, so the endpoint is not counted twice.
 | [revolver](./revolver/docs/motion.gif) | `Reload` | 576×371 | 67 | 20 | 187 | 433,393 | 3,850 |
 | [bolt](./bolt/docs/motion.gif) | `Fire` | 720×351 | 55 | 25 | 254 | 434,764 | 2,700 |
 | [ak](./ak/docs/motion.gif) | `ReloadEmpty` | 820×443 | 70 | 20 | 253 | 439,106 | 4,000 |
-| [smg](./smg/docs/motion.gif) | `ReloadEmpty` | 960×519 | 70 | 20 | 249 | 306,046 | 4,000 |
+| [smg](./smg/docs/motion.gif) | `ReloadEmpty` | 960×519 | 70 | 20 | 250 | 284,287 | 4,000 |
 | [lmg](./lmg/docs/motion.gif) | `Reload` 226–346 | 720×533 | 40 | 20 | 52 | 447,836 | 2,500 |
 
 All palettes allocate at most 256 entries, including transparency for unchanged

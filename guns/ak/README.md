@@ -6,10 +6,9 @@ reciprocating handle and three-position selector share one baked 2048 PBR
 atlas. Maker, model, serial and markings are fictional. Every vertex and texel
 comes from our scripts in Blender 5.2.
 
-**Round 2 review build:** studio and projection corrections are verified;
-photographic paint acceptance is unresolved. The images below retain the
-handoff paint parameters. The default `make` stops at the independent
-nonpaint-anchor gate. See the current round 2 results in [REVIEW.md](REVIEW.md).
+The receiver carries the family's Harrow 56 paint and studio. Its own photos
+couldn't calibrate the light; the rejected fits remain as diagnostics in
+[REVIEW.md](REVIEW.md) and `renders/final/paint-review/`.
 
 The renders below are made from the exported GLB with its baked maps. The
 full contact sheet is generated at `renders/final/contact-sheet.jpg` (not
@@ -172,23 +171,11 @@ backdrop, exposure **−.15**, and the GIF clip/camera retain their previous
 values. Wood, phenolic, magazine oxide and bare steel keep their accepted
 shader inputs.
 
-**Photographic paint acceptance is unresolved.** The former passing pair fitted
-the light to the paint itself and is superseded. The studio independent test
-uses the unprinted white backing in `studio-polish.jpg` as its white-balance
-neutral `(100,100)–(400,400)`, RGB 245–253, and fits only the stock, both handguards, phenolic, magazine, exposed
-barrel and backing, with spatial guards on the wood. Receiver statistics never
-enter that objective. The unchanged finishes do not yet agree under one fitted
-rig. A second test holds the elevated direction observed in `early.jpg` and
-fits its stock, both wood handguards, magazine, barrel and three white-cloth
-regions. Its photographed wooden grip is a different material from this
-asset's phenolic grip. The cloth is white-balanced on an unprinted patch;
-separate warm/cool light groups still fail the retained anchors. Both failed
-calibrations and the paint disagreement remain visible in
-`renders/final/paint-review/` and [REVIEW.md](REVIEW.md). Those images cannot
-justify a new sheen, so the accepted **.42 / .8** roughness/specular inputs are
-retained. This is a review build, not a claim that the photographic gate passed.
-`make paint-review` rejects a failed independent calibration before testing
-paint median ±10%, tails ±15%, and highlight value/RGB/color ±10%.
+The receiver carries the family's paint, taken from the Harrow 56. Its own
+photos couldn't calibrate the light; the pairs and anchored fits remain
+diagnostic in `renders/final/paint-review/` and [REVIEW.md](REVIEW.md).
+`make paint-review` writes reports and images without gating the default build;
+`src/paint_review.py --check` retains the original photographic tolerances.
 
 Enamel is projected separately within each original rigid bake group. A
 second 4096 bake changing only enamel's base color proves **zero** changed
