@@ -11,12 +11,13 @@ SHOTS={**FORM,
  'shooter_three_quarter':dict(location=(.25,-.19,.17),target=(0,.10,.045),lens=47,aspect=1.6),
  'wrist':dict(location=(.25,-.13,.080),target=(0,-.025,.004),lens=72,aspect=1.5),
  'scale':dict(location=(3.8,3.6,1.9),target=(.15,.15,.90),lens=62,aspect=1,scale=True),
+ 'open_side':dict(location=(2,.15,-.14),target=(0,.15,-.14),ortho=1.15,aspect=2.1,action='IdleOpenSpent',frame=0),
 }
 for name,s in SHOTS.items():
  s['exposure']=-.15;s['background']='transparent'
  if name not in ('shell','hull'):s.setdefault('action','Idle');s.setdefault('frame',0)
  else:s['ammo_light']=True
-DEFAULT_SHOTS='hero,hero_left,side,left,front,back,top,shooter_three_quarter,aimed,open,breech,action,wrist,forend,stock,muzzle,top_controls,triggers,scale'
+DEFAULT_SHOTS='hero,hero_left,side,left,front,back,top,shooter_three_quarter,aimed,open,breech,open_side,action,wrist,forend,stock,muzzle,top_controls,triggers,scale'
 LIGHTS={
  'Key softbox':((.65,.05,.72),38,.45,1.30),
  'Camera fill':((-.70,.12,.42),15,.55,1.1),

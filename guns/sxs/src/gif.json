@@ -4,22 +4,27 @@
   "sequence": [
     {
       "clip": "Open",
-      "start": 24,
+      "start": 39,
       "end": 69
     },
     {
+      "clip": "Unload",
+      "start": 15,
+      "end": 54
+    },
+    {
       "clip": "Reload",
-      "start": 27,
+      "start": 30,
       "end": 48
     },
     {
       "clip": "Reload",
-      "start": 90,
+      "start": 93,
       "end": 114
     },
     {
       "clip": "Close",
-      "start": 0,
+      "start": 18,
       "end": 69
     }
   ],
@@ -41,13 +46,13 @@
     "target": [
       0,
       0.135,
-      0.065
+      0.025
     ],
-    "lens": 70,
-    "aspect": 2.25,
+    "lens": 58,
+    "aspect": 1.7560975609756098,
     "exposure": -0.15,
-    "roll": 0.34921603557053343,
-    "shift_y": 0.027604166666666666
+    "roll": 0.37740773203997435,
+    "shift_y": 0.10138888888888889
   },
   "engine": "BLENDER_EEVEE",
   "output_width": 720,

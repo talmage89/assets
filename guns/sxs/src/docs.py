@@ -50,19 +50,25 @@ def main():
     DOCS.mkdir(exist_ok=True)
     shots = {n: checked('beauty', n) for n in (
         'hero', 'front', 'side', 'back', 'top', 'open', 'breech', 'action',
-        'stock', 'forend', 'top_controls', 'muzzle', 'aimed', 'scale')}
+        'stock', 'forend', 'top_controls', 'muzzle', 'aimed', 'scale', 'open_side')}
     eevee = checked('eevee', 'hero', 'BLENDER_EEVEE')
     turnaround = sheet([(n.title(), shots[n]) for n in ('front', 'side', 'back', 'top')], OUT / 'docs-turnaround.jpg')
     details = sheet([(label, shots[n]) for label, n in (
         ('Faded case colors and rust-blued barrels', 'action'),
         ('Oil walnut and worn wrist checkering', 'stock'),
         ('Splinter forend and cut borders', 'forend'),
-        ('Top lever and automatic tang safety', 'top_controls'))], OUT / 'docs-details.jpg', (800, 600))
-    action = sheet([
+        ('Top lever and automatic tang safety', 'top_controls'))], OUT / 'docs-details.png', (800, 600))
+    action_top = sheet([
         ('Open / extractors raised, fired hulls retained', shots['open']),
-        ('Open / live shells on the extractor', shots['breech']),
-        ('Exact eye socket / rib and bead', shots['aimed']),
-        ('Scale / 1.8 m silhouette', shots['scale'])], OUT / 'docs-action.jpg', (800, 650))
+        ('Open / live shells on the extractor', shots['breech'])],
+        OUT / 'docs-action-top.png', (800, 600))
+    action_bottom = sheet([('Side / barrels at the full 42-degree opening', shots['open_side'])],
+        OUT / 'docs-action-bottom.png', (1600, 600), columns=1)
+    action = OUT / 'docs-action.png'
+    action_image = Image.new('RGB', (1600, 1200))
+    action_image.paste(Image.open(action_top), (0, 0))
+    action_image.paste(Image.open(action_bottom), (0, 600))
+    action_image.save(action, quality=94, optimize=True)
     all_stills = [(name, checked('beauty', name))
                   for name in json.loads((OUT / 'beauty/shots.json').read_text())]
     sheet([*all_stills, ('Eevee hero', eevee)],

@@ -9,14 +9,14 @@ markings are fictional; every vertex and texel comes from our Blender scripts.
 
 ![Cycles hero of the exported Covey 26](docs/hero.jpg)
 
-![Opening, reloading and closing the exported gun](docs/motion.gif)
+![Opening, manually unloading, reloading and closing the exported gun](docs/motion.gif)
 
-`Open` → `Reload` → `Close` excerpts at real speed: hull extraction, two shells inserted, then closure.
+`Open` → `Unload` → `Reload` → `Close` excerpts at real speed: spent hulls drawn clear, two shells inserted, then closure.
 
 | | |
 | --- | --- |
 | ![Front, side, back and top](docs/turnaround.jpg) | ![Action, oil walnut, forend and controls](docs/details.jpg) |
-| ![Raised extractors, loaded breech, exact eye and human scale](docs/action.jpg) | ![Eevee with the same baked maps](docs/eevee.jpg) |
+| ![Raised extractors with fired hulls, live shells and the full opening in side view](docs/action.jpg) | ![Eevee with the same baked maps](docs/eevee.jpg) |
 
 All five JPGs and the GIF load the exported GLB with its embedded baked
 textures. `make` also generates the full-resolution studio stills and a
@@ -97,9 +97,10 @@ lever and guard retain protected blue and bright hand-contact surfaces.
 Safety facets are polished with dark cuts; trigger faces stay blued, with
 brighter edges. The bead is brass.
 
-The planed walnut has domain-warped, uneven growth bands, narrower longitudinal
-streaks and slow brown drift into the wrist. Fine vessels retain depth with
-subdued color. Oil-land roughness starts at **.40 on the stock / .46 on the
+The planed walnut has domain-warped, uneven growth bands, narrow irregular
+longitudinal vessel lines and slow brown drift into the wrist. The lines follow
+the bent billet, with faint roughness and normal relief sized for the shipped
+atlas. Oil-land roughness starts at **.40 on the stock / .46 on the
 forend**, broadening the reflection without a lacquer coat. The accepted
 cut-wood substrate, checker pitch, borders, worn point tops and nine causal
 wear fields are preserved. Oil reflection remains on lands and flattened tips;
@@ -121,8 +122,8 @@ No photograph or measurement supplies an asset texel.
 | Tang safety | 39.0/68.9/151.9 | 35.9/75.4/147.3 | 206.8 / 200.6 | 208.2/206.8/202.0 / 206.0/199.8/192.5 |
 | Triggers | 17.1/25.4/65.0 | 6.1/24.5/61.1 | 111.9 / 110.9 | 112.5/111.4/114.7 / 115.6/109.6/110.2 |
 | Trigger guard | 10.4/52.9/173.5 | 11.0/51.3/170.0 | 232.0 / 238.6 | 230.7/232.3/233.5 / 240.5/238.4/234.9 |
-| Oil walnut stock | 71.7/110.9/172.5 | 63.7/111.7/176.8 | 185.1 / 201.6 | 206.8/180.2/169.6 / 228.5/196.5/173.3 |
-| Oil walnut forend | 37.5/62.1/111.3 | 35.8/57.3/103.5 | 125.6 / 125.9 | 158.1/118.6/100.4 / 158.9/118.9/98.6 |
+| Oil walnut stock | 64.7/106.9/168.9 | 63.7/111.7/176.8 | 185.2 / 201.6 | 207.9/180.1/168.8 / 228.5/196.5/173.3 |
+| Oil walnut forend | 37.5/62.1/106.7 | 35.8/57.3/103.5 | 126.5 / 125.9 | 159.2/119.3/100.7 / 158.9/118.9/98.6 |
 | Brass bead | 58.6/176.6/222.5 | 68.5/160.8/246.7 | 242.6 / 254.0 | 247.7/242.2/230.8 / 254.9/253.7/254.1 |
 
 The stock and forend pass median ±10%, P10/P90 ±15%, and highlight value and
@@ -196,9 +197,9 @@ gun until manually pulled clear: these are extractors, without ejectors.
 | Safety / SafetyOn | .50 each | Fire / safe detents |
 | Inspect | 3.00 | Loaded opening and closing, ending safe |
 
-The README loop joins excerpts of the three named clips; the manual `Unload`
-phase between spent extraction and an empty reload is omitted from this
-presentation. Opening begins with the lever swung; the two reload seating
+The README loop joins excerpts of `Open`, `Unload`, `Reload` and `Close`.
+The hulls travel axially clear of the chambers before the manual handoff.
+Opening begins with the lever swung; the two reload seating
 excerpts also omit the air approach and hand-clear gap. All complete clips
 remain in the GLB. Each has complete boundary
 keys; shell ownership changes use STEP visibility at a coincident seated
@@ -220,13 +221,13 @@ matches the pump's class. See [detachable delivery](../DETACHABLES.md).
 
 | Output | Triangles | Materials | Three-map pixels | GLB bytes |
 | --- | ---: | ---: | ---: | ---: |
-| Gun, including staged ammunition | 38,822 | 1 | 2048 | 19,369,020 |
-| Live shell | 752 | 1 | 512 | 624,492 |
-| Fired hull | 480 | 1 | 512 | 742,316 |
+| Gun, including staged ammunition | 38,822 | 1 | 2048 | 20,358,788 |
+| Live shell | 752 | 1 | 512 | 624,480 |
+| Fired hull | 480 | 1 | 512 | 749,380 |
 
 The accepted **38,822 / 39,000** allocation includes hidden staged ammunition
 alternatives. Its extra construction detail above the original 35k planning
-target was accepted with the form. No triangle was added for the oil finish.
+target was accepted with the form. No triangle was added for the oil finish or grain.
 The 54 named rigid mesh nodes retain one shared material; material count does
 not imply that an importer batches them into a single draw call.
 
@@ -236,9 +237,9 @@ ORM is R occlusion / G roughness / B metallic.
 
 | Canonical 2048 PNG | Storage | Bytes |
 | --- | --- | ---: |
-| `T_Covey26_BaseColor.png` | RGBA8 | 3,236,682 |
-| `T_Covey26_Normal.png` | RGB16 | 10,542,965 |
-| `T_Covey26_ORM.png` | RGB8 | 2,612,523 |
+| `T_Covey26_BaseColor.png` | RGBA8 | 3,799,458 |
+| `T_Covey26_Normal.png` | RGB16 | 10,717,528 |
+| `T_Covey26_ORM.png` | RGB8 | 2,864,954 |
 
 **Why the normal ships RGB16:** reducing it to eight bits introduced visible
 stepped reflection bands across the turned, hollow-falling action head.

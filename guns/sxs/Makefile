@@ -112,7 +112,7 @@ fairness: model
 
 # Final evidence is imported from the baked GLB; the source comparisons are
 # labeled diagnostics. Historical form evidence remains available explicitly.
-FINAL_SHOTS := hero,hero_left,side,left,front,back,top,shooter_three_quarter,aimed,open,breech,action,wrist,forend,stock,muzzle,top_controls,triggers,scale
+FINAL_SHOTS := hero,hero_left,side,left,front,back,top,shooter_three_quarter,aimed,open,breech,open_side,action,wrist,forend,stock,muzzle,top_controls,triggers,scale
 FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(FINAL_SHOTS)))) renders/final/beauty/shots.json
 FINAL_DEPS := src/final_shots.py src/final_render.py ../common/render.py build/render-parameters.txt
 LOOK_SHOTS := look_side,look_macro,look_muzzle,look_safety,look_deep_blue

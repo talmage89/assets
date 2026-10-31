@@ -1,3 +1,227 @@
+# Covey 26 — fine walnut grain, manual unload and action presentation
+
+This round takes over `ae64e31` on `wp/guns-sxs`. `git merge main` reported
+already up to date. The accepted form, 19 complete clips, rig, checkering,
+nine wear causes, nonwood finishes and oil sheen/hue are retained. No kit or
+common implementation changed. The previous finish round below is archival.
+
+## Final-round critique pass
+
+1. **Color/value first; resolve grain in the compressed delivery.** The
+   photographic neutral remains the unshadowed gray studio paper above the
+   butt in `look-gray-284.jpg`. White-balance gains, full-part masks,
+   calibrated cameras and physical lights are unchanged. The exact handoff
+   exports, maps, pairs and docs remain in repository
+   `build/grain-final/before/`. Before, the broad figure reads as brushed or
+   blurred streaks in the details JPG. The photo carries finer, straighter
+   dark lines over the whole stock, including its light lands.
+
+   The corrected material overlays narrow, irregular vessel lines on that
+   figure. Its source-only `GrainSection` attribute derives from the existing
+   stock cage and forend sections. A seamless circular domain carries each
+   strand along the corresponding section as the wood bends and tapers.
+   Random cell spacing and independently varying darkness avoid a periodic stripe;
+   there is no fleck mask. Neutral RGB multiplication preserves the hue.
+   Stock UV/surface density is **3.230 px/mm**, forend **4.452 px/mm**. The
+   line thresholds target approximately **0.3–0.6 mm** at the visible lands,
+   about one to two stock texels, rather than relying on the old 60–190
+   micrometer pores alone. Width varies with section shape and projection;
+   these are design targets, while the density is measured from the atlas.
+   Added line relief is capped at **5 micrometers**, with faint roughness variation.
+   Oil-land bases remain **.40/.46** and the specular network is unchanged.
+
+   Rejected trials are retained in `renders/grain/`: `trial-radial` stretched
+   lines into broad lower-butt arcs and missed highlight red (205.08 versus
+   the 205.66 lower bound); `trial-transverse` removed those arcs but still
+   missed red at 205.36. `trial-fine-soft` passed its numbers but lost too
+   much fine contrast in the actual compressed JPG. Wider, darker lines in
+   `trial-cellular` survived JPEG but exposed cellular patches on the curved
+   wrist. Section-aligned `trial-flow-low` fixed their flow, but red at
+   205.09 still missed. `trial-flow-uniform` passed but kept each strand too even along its length.
+   The delivered field varies individual strands gradually over centimeters
+   and adds neutral 1.08 stock-only value
+   compensation before the unchanged checker/wear network. Neither a light
+   rig nor a tolerance was changed to accept it.
+
+   The exported 2048 maps pass every requested wood gate, using the original
+   full-part denominator at native photographic camera scale. L10/50/90 and
+   H below are encoded Rec.709 luma; H is the brightest 5% mean.
+
+| Part / stage | L10 / median / L90 | H value | H RGB |
+| --- | --- | ---: | --- |
+| Stock, Before | 71.67/110.94/172.45 | 185.07 | 206.75/180.18/169.59 |
+| Stock, After | 64.71/106.88/168.89 | 185.18 | 207.92/180.08/168.78 |
+| Stock, Balanced photo | 63.74/111.65/176.76 | 201.61 | 228.51/196.47/173.27 |
+| Forend, Before | 37.45/62.08/111.28 | 125.65 | 158.05/118.56/100.45 |
+| Forend, After | 37.45/62.13/106.66 | 126.47 | 159.23/119.33/100.65 |
+| Forend, Balanced photo | 35.76/57.28/103.45 | 125.95 | 158.95/118.90/98.59 |
+
+Stock relative errors, L10/median/L90/H: +1.52%/-4.27%/-4.46%/-8.15%; H RGB: -9.01%/-8.34%/-2.59%.
+
+Forend relative errors, L10/median/L90/H: +4.73%/+8.47%/+3.10%/+0.41%; H RGB: +0.18%/+0.36%/+2.09%.
+
+Both pass median ±10%, tails ±15%, and highlight value plus every channel
+±10%. Final full pairs are
+`renders/final/look-review/walnut_{stock,forend}-pair.jpg`.
+
+The details layout and framing are retained. Native before/after butt and wrist
+crops are generated from the actual compressed docs JPGs by `src/grain_review.py`:
+`renders/grain/comparison/{butt,wrist}-{before,after}.jpg` and
+`{butt,wrist}-before-after.jpg` (before left, after right). Source boxes are fixed
+at (824,235,1290,574) and (1008,790,1475,1176). From the repository root:
+
+```sh
+python3 guns/sxs/src/grain_review.py --before build/grain-final/before
+```
+
+Preservation is independently measured in repository
+`build/grain-final/preservation.json`: **559/559 accessors exact**, with exact
+node/mesh/skin/animation/material/texture-view/sampler JSON. Nonwood occupied
+interiors have one changed BaseColor component at one RGB8 code, 365 changed
+normal components at at most one RGB16 code, and exact roughness/metallic
+components. Contact AO is measured separately because wood
+relief affects contact rays. `source-preservation.json` independently proves
+exact ASTs for steel, ammo, plate, finish and checker substrate, plus the exact
+wood checker/cut/border/pressure/wear tail. No nonwood shader or wear cause was
+retuned.
+
+## GIF: visible manual withdrawal and level action framing
+
+The sequence now includes `Unload`: both hull mouths are visibly clear of the
+chambers at its last sampled frame, before a live shell enters. The external
+hand's air travel is trimmed; no hand mesh or clip was added to the game asset.
+The accepted 19 complete clips and their events are unchanged.
+
+| Phase | Source range, end exclusive | Sampled source frames | GIF indices | Frames |
+| --- | --- | --- | --- | ---: |
+| Open | 39–69 | 39,42,…,66 | 000–009 | 10 |
+| Unload | 15–54 | 15,18,…,51 | 010–022 | 13 |
+| Reload right | 30–48 | 30,33,…,45 | 023–028 | 6 |
+| Reload left | 93–114 | 93,96,…,111 | 029–035 | 7 |
+| Close | 18–69 | 18,21,…,66 | 036–052 | 17 |
+
+Source clock is 60 Hz; delivery is **53 frames, 20 Hz, 720×410,
+192 distinct global palette entries, 438,071 bytes**. Motion lasts 2,650 ms;
+the first frame's extra 500 ms gives a **3,150-ms loop**. Decoded delays are
+550 ms then 52×50 ms. The final source GLB is the same one as the JPGs.
+
+Trimming preceded crop/quality changes: the 60-frame correction was 496,804
+bytes. Shorter approach/opening excerpts and a tighter crop retained the full
+manual draw, both insertions and complete close. The level 54-frame version
+was 451,650 bytes; one more opening sample was removed. The accepted 20 Hz and
+192-color allocation are retained, with no new palette reduction or dithering.
+
+The camera remains slightly above the gun, with the closed bore's perspective
+projection leveled. A 58-mm lens, roll 0.377407732 rad, target (0,.135,.025) m,
+aspect 720/410 and vertical shift +.101388889 keep the breech, lever, receiver
+underside and forend iron inside the image. Actual exported surface extrema
+through the selected poses measure **23.68 px below / 33.37 px above** the
+critical parts at delivery width (`build/grain-final/fit-gif-final.log`, repository
+root). The complete roots, source geometry and animations compare exactly.
+
+Opened all 53 decoded frames, in order, on the seven native-width review pages
+`build/gif/review/frames-{0000,0008,0016,0024,0032,0040,0048}.jpg`. Checked the
+raised rims, both hull mouths clearing, both seated handoffs, extractor return,
+full barrel close, lever return, margins and loop cut. Compared gold heads,
+red hulls, brown walnut, case steel and deep bluing with the unquantized frames
+and docs. No objectionable contour bands at delivery width; ordinary palette
+quantization remains under pixel inspection. Worst per-frame foreground mean
+RGB errors are **2.694/2.024/2.827 codes**; the worst per-frame P95 of maximum
+channel error is **8 codes**. Top background corners remain constant. Exact
+samples, delays, provenance and fingerprint are in `build/gif/report.json`;
+color measurements are in repository `build/grain-final/gif-color-error.json`.
+
+## Action sheet and final documentation
+
+`action.jpg` now contains only the open action: raised extractors with fired
+hulls, live shells resting on the extractor, and the full 42-degree opening
+in side view. The eye-socket and 1.8 m scale shots remain in
+`renders/final/beauty/{aimed,scale}.png` and the contact sheets. The README's
+caption names the three action views. Hero, turnaround, details layout and
+Eevee cameras are retained. Details/action sheets use lossless intermediates
+before their final JPEG encoding, preserving fine lines within the byte limit.
+
+All five actual JPGs were opened at their delivered sizes. The butt and wrist
+before/after crops above are from the final compressed details JPG, rather
+than source shader previews. The broad, soft oil reflection is retained.
+The identical whole-visible-stock mask on the two docs hero JPGs measures a
+**−0.13-degree median hue change** and **−.013 saturation change**. This is a
+relative audit including checkering and reflections; the same camera and exact
+geometry define both masks (`build/grain-final/hero-hue.json`, repository root).
+
+| File | Pixels | Bytes |
+| --- | --- | ---: |
+| `docs/hero.jpg` | 1600×572 | 42,698 |
+| `docs/turnaround.jpg` | 1600×1040 | 72,026 |
+| `docs/details.jpg` | 1600×1200 | 185,522 |
+| `docs/action.jpg` | 1600×1200 | 160,829 |
+| `docs/eevee.jpg` | 1600×572 | 43,288 |
+
+Full Cycles views are in `renders/final/beauty/`, Eevee in
+`renders/final/eevee/hero.png`. Studio-only contact:
+`renders/final/docs-contact-sheet.jpg`; full studio/material/wear/family contact:
+`renders/final/contact-sheet.jpg`. Image provenance is checked against the
+current exported GLB before docs generation.
+
+## Final proof and remaining limitations
+
+The final frozen source completed the following exact commands, all exit 0:
+
+```sh
+make -C guns/sxs
+make -C guns/sxs check
+make -C guns/sxs gif
+python3 kit/repo_check.py
+```
+
+Repository-root logs are `build/grain-final/{make,check,gif,repo}-final.log`;
+`build/grain-final/proof.json` records each command and its exit code. Earlier
+interrupted iterations are not counted as completed validation. The repository
+check reports **1,219 source files, zero errors**. The second fresh GIF render
+matches all 53 decoded candidate frames exactly, and the tool preserves the
+same final bytes. Approved JPG and GIF hashes match the post-build outputs.
+
+The gun has **38,822 / 39,000 triangles**, **54 rigid meshes**, **17 bones**,
+**19 clips**, **one material** and **three 2048 maps**, baked at 4096. The GLB
+is **20,358,788 bytes**; BaseColor/Normal/ORM PNGs are
+**3,799,458 / 10,717,528 / 2,864,954 bytes**. The accepted RGB16 normal
+exception is retained. Standalone live shell / fired hull remain **752 / 480
+triangles**, one 512 set each, **624,480 / 749,380 GLB bytes**.
+
+`build/serialization.json` passes export budgets, real-scale dimensions,
+normals, UV bounds and density, part ownership and re-import. UV overlap is
+**0.00012470%**, with zero outside or degenerate triangles. Its 1,715 affine
+samples have a maximum position error of **0.000191 mm**: this proves export
+consistency. Physical assembly is separately checked on evaluated surfaces:
+source and fresh-import checks both pass topology, 929 semantic samples,
+246 contact measurements and all clips at half-frame intervals. There are
+1,715 source / 1,728 fresh-import motion samples; maximum measured penetration
+is **0.113714 mm**, below the unchanged **0.2 mm** tolerance. The fresh-import
+lever swing has **0.159160 mm** minimum clearance and zero penetration.
+`build/repeat.json` passes all **104** entries without differences; the dense
+action fairness audit also passes. These checks establish construction and
+serialization; the photographed pairs and delivered-image review establish
+the appearance.
+
+All nine wear-site fraction bands pass. The largest change from the accepted
+on/off measurements is **0.12146 percentage points**, without changing a wear
+expression (`build/grain-final/wear-preservation.json`, repository root).
+The actual ungraded hero foreground has luma P1/P50/P99 of
+**0 / 54.57 / 214.50**, **13.537%** below value 8, zero fully clipped pixels,
+and **0.0004144%** with any channel clipped. Cavities retain deep shadow and
+oil/metal highlights retain their rolloff.
+
+Remaining limitations: the previously accepted trigger low-decile mismatch
+remains **17.07 versus 6.07** in the balanced photo. Ordinary 192-color GIF
+quantization remains visible under pixel inspection. The grain is an original
+procedural approximation, with its smallest vessels filtered by the 2048
+atlas; the requested larger fine lines survive the actual JPG. No kit changes,
+new tools or lead decisions are needed. This branch is committed for review;
+it has not been merged or pushed.
+
+
+# Previous oil-finish round at ae64e31
+
 # Covey 26 — oil walnut and final presentation
 
 This round begins at `6f45ac3`; `main` merged cleanly in `04a61b2`.

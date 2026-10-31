@@ -208,8 +208,39 @@ def wood(name,role,wear):
     fiber=n.ramp(n.noise(n.combine(n.mul(x,1400),n.mul(y,40),n.mul(zz,1700)),1,2),.590 if role=='stock' else .52,.36 if role=='stock' else .32)
     base=n.mix(n.mul(fiber,.16),base,(.017,.007,.0038),True)
     base=n.mix(n.mul(pores,.20),base,(.010,.0045,.0025),True)
+    # Longitudinal vessel/ring lines in the bent billet, over the broad figure.
+    # Random cell edges give unequal spacing, rather than a periodic stripe.
+    # At the shipped ~3.2 px/mm density these ~0.3–0.6 mm apertures retain
+    # 1–2 texels; the old 60–190 µm pores alone filter into soft streaks.
+    # Very slow axial variation keeps the lines straight and continuous while
+    # their contrast changes along the wood. No speckle mask interrupts them.
+    # Developed section direction carries the fine strands along the changing
+    # stock/forend sections. Sampling a fixed 3D volume made cellular patches
+    # where the wrist tapered through it. A circular domain is seamless and
+    # keeps the same strand on the corresponding section all along the wood.
+    section=n.node('ShaderNodeAttribute',attribute_name='GrainSection').outputs['Vector']
+    unit=n.node('ShaderNodeVectorMath',operation='NORMALIZE');n.feed(unit.inputs[0],section)
+    gx,gz,_=n.split(unit.outputs['Vector'])
+    frequency=26.25 if role=='stock' else 15.75
+    vessels=n.node('ShaderNodeTexVoronoi',feature='DISTANCE_TO_EDGE')
+    n.feed(vessels.inputs['Vector'],n.combine(n.mul(gx,frequency),n.mul(y,1.25),n.mul(gz,frequency)))
+    vessels.inputs['Scale'].default_value=1
+    line=n.ramp(vessels.outputs['Distance'],.24,.035)
+    # Independent strand contrast fades gradually over centimeters. Keeping
+    # one darkness for the full length made otherwise irregular lines look
+    # like pinstripes. This modulates lines only, never scattered flecks.
+    strength=n.add(.15,n.mul(n.noise(n.combine(n.mul(gx,35),n.mul(y,35),n.mul(gz,35)),1,2),1.4))
+    line=n.math('MINIMUM',n.mul(line,strength),1)
+    # Neutral multiplication preserves the accepted walnut hue. Light lands
+    # compensate the narrow dark vessels without moving the oil sheen.
+    land=1.38 if role=='stock' else 1.24
+    vessel=.32 if role=='stock' else .38
+    base=n.mix(line,n.vec('MULTIPLY',base,(land,land,land)),
+                    n.vec('MULTIPLY',base,(vessel,vessel,vessel)),True)
+    if role=='stock':base=n.vec('MULTIPLY',base,(1.08,1.08,1.08))
     h=n.add(n.mul(late,-8e-6),n.mul(fiber,-6e-6),n.mul(pores,-28e-6))
-    rough=n.add(.40 if role=='stock' else .46,n.mul(pores,.10),n.mul(sub(n,drift,.5),.045));ao=n.mix(pores,1,.87)
+    h=n.add(h,n.mul(line,-5e-6))
+    rough=n.add(.40 if role=='stock' else .46,n.mul(pores,.10),n.mul(sub(n,drift,.5),.045),n.mul(sub(n,line,.18),.014));ao=n.mix(pores,1,.87)
     if role=='stock':
         # Paired original pointed panels; cutter directions have unit length,
         # so perpendicular pitch is exactly 25.4 / 20 = 1.27 mm on the side.
@@ -335,6 +366,25 @@ def assign(amount=1,disabled=()):
             old=ob.data.attributes.get(name)
             if old:ob.data.attributes.remove(old)
             attr=ob.data.attributes.new(name,'FLOAT_VECTOR',domain);attr.data.foreach_set('vector',[a for row in data for a in row])
+        if ob.name in ('Stock_Walnut','Forend_Walnut'):
+            # Section dimensions are the original modeling cage, not a photo
+            # fit. This is a source-only material attribute; no mesh/UV changes.
+            from build import STOCK
+            sections=STOCK if ob.name=='Stock_Walnut' else [
+                (181.5,17.2,12.0,36.2),(211,17.2,12.6,36.2),
+                (242,16.4,14.8,36.2),(279,15.35,17.3,36.2),
+                (314,14.3,19.6,36.2),(340,13.53,21.43,36.2),
+                (354.5,11.5,32.3,36.2)]
+            values=[]
+            for vertex in ob.data.vertices:
+                xx,yy,zz=(v*1000 for v in vertex.co)
+                a,b=next(((a,b) for a,b in zip(sections,sections[1:]) if a[0]<=yy<=b[0]),
+                         (sections[0],sections[1]) if yy<sections[0][0] else (sections[-2],sections[-1]))
+                t=max(0,min(1,(yy-a[0])/(b[0]-a[0])))
+                w,bot,top=(a[i]+t*(b[i]-a[i]) for i in (1,2,3))
+                values.extend((xx/w,(zz-(bot+top)/2)/((top-bot)/2),0))
+            attr=ob.data.attributes.new('GrainSection','FLOAT_VECTOR','POINT')
+            attr.data.foreach_set('vector',values)
         if ob.name=='Forend_Walnut':
             attr=ob.data.attributes.new('CheckPosition','FLOAT_VECTOR','POINT');values=[]
             # Developed lower section, around its 1.6-mm bottom corners and
