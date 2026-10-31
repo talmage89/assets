@@ -78,10 +78,13 @@ def main():
   high=BASE/f'build/delivery/off-{site}.blend';metadata=json.loads(high.with_suffix('.json').read_text())
   assert metadata['wear']==1 and metadata['disabled']==site,(site,'Counterfactual disabled the wrong cause')
   assert metadata['source_sha256']==json.loads((BASE/'build/delivery/high.json').read_text())['source_sha256']
+  high_digest=hashlib.sha256(high.read_bytes()).hexdigest()
+  projection=json.loads((out/f'off-{site}/precise4k/projection-report.json').read_text())
+  assert projection['source_sha256']['high.blend']==high_digest,(site,'Stale counterfactual projection')
   folder=out/f'off-{site}/textures'
   counterfactual[site]={c:read_png(folder/f'T_Covey26_{c}.png') for c in used}
   provenance[site]=dict(disabled_cause=site,retained_other_causes=True,
-   high_sha256=hashlib.sha256(high.read_bytes()).hexdigest(),
+   high_sha256=high_digest,projection_sha256=hashlib.sha256((out/f'off-{site}/precise4k/projection-report.json').read_bytes()).hexdigest(),
    texture_sha256={c:hashlib.sha256((folder/f'T_Covey26_{c}.png').read_bytes()).hexdigest() for c in used})
  cfg=out/'evidence-export.py';cfg.write_text('import runpy\nglobals().update(runpy.run_path('+repr(str(BASE/'src/export_config.py'))+'))\nDETACHABLES=[]\n')
  reference=fingerprint(BASE/'export/sxs.glb');rows={}
@@ -107,6 +110,17 @@ def main():
  interior=partmap>0
  for dy,dx in ((0,1),(0,-1),(1,0),(-1,0),(1,1),(1,-1),(-1,1),(-1,-1)):
   interior&=partmap==np.roll(partmap,(dy,dx),axis=(0,1))
+ # A single-cause bake must also preserve every other part's surface data.
+ # The exported counterfactual copies only this forend's guarded atlas support,
+ # but this separate check catches an accidental all-clean source upstream.
+ for site,channels_by_name in counterfactual.items():
+  unchanged=interior&~regions[site];errors={}
+  for c in used:
+   channels=slice(1,3) if c=='ORM' else slice(None)
+   delta=np.max(abs(used[c][:,:,channels]-channels_by_name[c][:,:,channels]),axis=2)
+   errors[c]=float(delta[unchanged].max())
+   assert errors[c]<2/255,(site,c,'Single-cause bake changed another part',errors[c])
+  rows[site]['maximum_change_other_part_interiors']=errors
  for c in used:
   channels=slice(1,3) if c=='ORM' else slice(None)
   delta=np.max(abs(used[c][:,:,channels]-clean[c][:,:,channels]),axis=2);outside[c]=float(delta[(~all_regions)&interior].max())
