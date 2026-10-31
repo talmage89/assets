@@ -48,6 +48,7 @@ geometry, a shader or a texture. Paired comparison images remain ignored.
 | sedan-camry-front.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019TOC020003.jpg&width=1600 | CarsDirect / Autodata copyrighted stock photo, reference only; MY2019 SE front three-quarter, lamp sweep and fascia construction. Source page: https://www.carsdirect.com/toyota/camry/2019/pictures . |
 | sedan-camry-rear.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019TOC020004.jpg&width=1600 | CarsDirect / Autodata copyrighted stock photo, reference only; MY2019 SE rear three-quarter, deck/quarters and calibration. Same source page. |
 | sedan-camry-side.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019TOC020005.jpg&width=1600 | CarsDirect / Autodata copyrighted stock photograph, reference only; MY2019 SE profile, independent wheelbase-scaled overlay and silhouette measurements. Same source page. |
+| sedan-camry-front-ortho.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019TOC020014.jpg&width=1600 | CarsDirect / Autodata copyrighted stock photo, reference only; near-frontal class construction cross-check, not used as an orthographic section measurement. Same Camry source page. |
 
 Honda's [MY2019 US specifications](https://hondanews.com/en-US/releases/release-a8bcd9c102224d06ba836e803e27878d-2019-honda-accord-specifications-features)
 and [Canadian manufacturer metric specification](https://hondanews.ca/en-CA/releases/release-4f32a27ba2ad7509bfa642e1160157a6-2019-honda-accord-specifications)
