@@ -1,9 +1,9 @@
-"""Site-off evidence GLBs from two independent kit bakes on identical UVs.
+"""Site-off evidence GLBs from independent kit bakes on identical UVs.
 
-The clean bake preserves all manufacture and removes use. Each site owns a
-separate part or a disjoint physical region of a part. Integer texel masks copy
-that region from the clean bake into the used atlas; no values are painted or
-resampled. The normal map keeps RGB16. All variants use the kit exporter.
+Seven disjoint causal fields use the all-clean bake. The forend's fracture
+and point-wear fields overlap; each uses its own single-cause-off source
+and bake, retaining the other cause. Integer texel copies preserve all
+untouched used pixels. RGB16 normals and every GLB accessor are retained.
 """
 import argparse,hashlib,json,sys
 from pathlib import Path
@@ -27,8 +27,6 @@ def domain(site,y):
  if site=='muzzles':return y>=.65
  if site=='wrist_points':return y>-.15
  if site=='stock_toe':return y<=-.15
- if site=='forend_points':return (y>.201)&(y<.326)
- if site=='forend_edges':return (y<=.201)|(y>=.326)
  return np.ones(y.shape,bool)
 
 def masks():
@@ -75,12 +73,23 @@ def main():
  out=a.out.resolve();out.mkdir(parents=True,exist_ok=True);regions,partmap=masks()
  used={c:read_png(BASE/f'textures/T_Covey26_{c}.png') for c in ('BaseColor','Normal','ORM')}
  clean={c:read_png(out/f'clean-textures/T_Covey26_{c}.png') for c in used}
+ counterfactual={};provenance={}
+ for site in ('forend_edges','forend_points'):
+  high=BASE/f'build/delivery/off-{site}.blend';metadata=json.loads(high.with_suffix('.json').read_text())
+  assert metadata['wear']==1 and metadata['disabled']==site,(site,'Counterfactual disabled the wrong cause')
+  assert metadata['source_sha256']==json.loads((BASE/'build/delivery/high.json').read_text())['source_sha256']
+  folder=out/f'off-{site}/textures'
+  counterfactual[site]={c:read_png(folder/f'T_Covey26_{c}.png') for c in used}
+  provenance[site]=dict(disabled_cause=site,retained_other_causes=True,
+   high_sha256=hashlib.sha256(high.read_bytes()).hexdigest(),
+   texture_sha256={c:hashlib.sha256((folder/f'T_Covey26_{c}.png').read_bytes()).hexdigest() for c in used})
  cfg=out/'evidence-export.py';cfg.write_text('import runpy\nglobals().update(runpy.run_path('+repr(str(BASE/'src/export_config.py'))+'))\nDETACHABLES=[]\n')
  reference=fingerprint(BASE/'export/sxs.glb');rows={}
  for site,region in regions.items():
   folder=out/'textures'/site;folder.mkdir(parents=True,exist_ok=True)
   for c,array in used.items():
-   result=array.copy();result[region]=clean[c][region]
+   result=array.copy();result[region]=counterfactual.get(site,clean)[c][region]
+   assert np.array_equal(result[~region],array[~region]),(site,c,'Untouched used pixels changed')
    write_png(folder/f'T_Covey26_{c}.png',result,16 if c=='Normal' else 8)
   Image.fromarray(np.uint8(region)*255).save(out/(site+'-atlas-region.png'))
   path=out/'export'/(site+'-off.glb');path.parent.mkdir(exist_ok=True)
@@ -92,7 +101,8 @@ def main():
   if not current:export.main()
   actual=fingerprint(path);assert actual==reference,(site,'geometry/UV/weights/animations changed')
   rows[site]=dict(glb=str(path),sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
-   region_texels=int(region.sum()),parts=SITES[site],exact_accessor_preservation=True)
+   region_texels=int(region.sum()),parts=SITES[site],exact_accessor_preservation=True,
+   bake_source=provenance.get(site,dict(disabled_cause='all use',disjoint_domain=True)))
  all_regions=np.logical_or.reduce(list(regions.values()));outside={};edge_outliers={}
  interior=partmap>0
  for dy,dx in ((0,1),(0,-1),(1,0),(-1,0),(1,1),(1,-1),(-1,1),(-1,-1)):
@@ -111,7 +121,7 @@ def main():
  (out/'variants.json').write_text(json.dumps(dict(sites=rows,main_sha256=hashlib.sha256((BASE/'export/sxs.glb').read_bytes()).hexdigest(),
   boundary_note='One-pixel UV boundaries have bounded filtering differences between independent bakes. Actual count and maximum are retained. Every untouched site-off texel still comes byte-exactly from the used maps.',
   contact_ao_note='Outside-site AO can change through the source bump and Monte Carlo contact rays; outside-site assertions compare BaseColor, normal, roughness and metallic. Site-off maps retain all untouched used pixels.',
-  method='Two kit 4096 bakes, same UVs; disjoint causal site domains; integer 2048 texel copying; 6-pixel guarded support; all GLB accessors exact',
+  method='Used and all-clean kit 4096 bakes plus two single-cause-off forend bakes; same UVs; integer 2048 texel copying; 6-pixel guarded support; all GLB accessors exact',
   maximum_change_outside_site_interiors=outside,boundary_filtering_differences=edge_outliers),indent=2))
  print('WEAR VARIANTS',len(rows),'exact accessor preservation')
 if __name__=='__main__':main()

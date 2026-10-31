@@ -200,7 +200,7 @@ def wood(name,role,wear):
     hardness=n.node('ShaderNodeTexWhiteNoise',noise_dimensions='3D')
     n.feed(hardness.inputs['Vector'],n.combine(n.math('FLOOR',n.math('DIVIDE',cut_u,.00127)),
            n.math('FLOOR',n.math('DIVIDE',cut_v,.00127)),n.add(17.3,n.mul(n.math('LESS_THAN',x,0),31.1)) if role=='stock' else 17.3))
-    selected=n.ramp(sub(n,n.mul(pressure,.40 if role=='stock' else .52),hardness.outputs['Value']),-.04,.04)
+    selected=n.ramp(sub(n,n.mul(pressure,.40 if role=='stock' else .50),hardness.outputs['Value']),-.04,.04)
     pressure=n.mul(n.ramp(pressure,.15,.65),selected)
     # Distance to either cutter: pointed diamond tops become flat under the
     # hands, with their grooves and the unhandled perimeter left intact.
@@ -227,11 +227,10 @@ def wood(name,role,wear):
     # Deliberately irregular bowls, concentrated at toe/heel and wood edges.
     # There is no overall noise wash and no change to silhouette geometry.
     if role=='stock':
-        site='stock_toe';dents=[(-.292,-.106,.0205,.0087),
+        site='stock_toe';dents=[(-.292,-.106,.0121,.0051),
           (-.276,-.097,.005,.0018),(-.294,-.011,.003,.0015)]
     else:
-        site='forend_edges';dents=[(.344,.029,.010296,.001716),(.336,.023,.006864,.001232),
-          (.351,.033,.004653,.002816),(.189,.020,.005522,.003575),(.194,.014,.004906,.002816)]
+        site='forend_edges';dents=[(.286,.0310,.0022,.0013),(.346,.0310,.0010,.0005),(.193,.0305,.0010,.0005)]
     all_dents=0
     for cy,cz,wy,wz in dents:
         u0=n.add(n.math('DIVIDE',sub(n,y,cy),wy),n.mul(n.math('DIVIDE',sub(n,z,cz),wz),.31))

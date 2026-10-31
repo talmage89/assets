@@ -149,7 +149,24 @@ build/wear/precise4k/projection-report.json: $(CLEAN_BAKED) src/normal_projectio
 build/wear/clean-textures/texture-report.json: build/wear/precise4k/projection-report.json src/ship_normal.py
 	$(PYTHON) $(KIT)/downsample.py --source build/wear/precise4k --out build/wear/clean-textures --asset Covey26 --size 2048 --alpha-mode independent
 	$(PYTHON) src/ship_normal.py --source build/wear/precise4k/T_Covey26_Normal.png --out build/wear/clean-textures
-build/wear/variants.json: export/sxs.glb build/wear/clean-textures/texture-report.json src/wear_variants.py
+# The wood-edge fractures overlap the hand-flattened point field. Bake each
+# cause off independently; an all-clean UV crop cannot separate those causes.
+FORE_CAUSES := forend_edges forend_points
+FORE_HIGH := $(foreach cause,$(FORE_CAUSES),build/delivery/off-$(cause).blend)
+FORE_BAKED := $(foreach cause,$(FORE_CAUSES),build/wear/off-$(cause)/4k/bake-report.json)
+FORE_PROJECTED := $(foreach cause,$(FORE_CAUSES),build/wear/off-$(cause)/precise4k/projection-report.json)
+FORE_TEXTURES := $(foreach cause,$(FORE_CAUSES),build/wear/off-$(cause)/textures/texture-report.json)
+.SECONDARY: $(FORE_HIGH) $(FORE_BAKED) $(FORE_PROJECTED) $(FORE_TEXTURES)
+build/delivery/off-%.blend: $(PREPARED) src/lookdev.py src/build_high.py build/markings/headstamp.png
+	$(BP) --python src/build_high.py -- --disable $* --out $@ > build/off-$*-high.log 2>&1
+build/wear/off-%/4k/bake-report.json: build/delivery/off-%.blend $(PREPARED) src/bake_form.py build/bake-parameters.txt
+	$(KIT)/with_gpu.sh $(BP) --python src/bake_form.py -- --high build/delivery/off-$*.blend --out build/wear/off-$*/4k --size 4096 --samples $(BAKE_SAMPLES) > build/off-$*-bake.log 2>&1
+build/wear/off-%/precise4k/projection-report.json: build/wear/off-%/4k/bake-report.json src/normal_projection.py
+	$(BP) --python src/normal_projection.py -- --high build/delivery/off-$*.blend --baked build/wear/off-$*/4k --out build/wear/off-$*/precise4k > build/off-$*-projection.log 2>&1
+build/wear/off-%/textures/texture-report.json: build/wear/off-%/precise4k/projection-report.json src/ship_normal.py
+	$(PYTHON) $(KIT)/downsample.py --source build/wear/off-$*/precise4k --out build/wear/off-$*/textures --asset Covey26 --size 2048 --alpha-mode independent
+	$(PYTHON) src/ship_normal.py --source build/wear/off-$*/precise4k/T_Covey26_Normal.png --out build/wear/off-$*/textures
+build/wear/variants.json: export/sxs.glb build/wear/clean-textures/texture-report.json $(FORE_TEXTURES) src/wear_variants.py
 	$(BP) --python src/wear_variants.py > build/wear-variants.log 2>&1
 renders/final/hero-masks/shots.json: $(FINAL_IMAGES) src/part_masks.py
 	$(BP) --python src/part_masks.py -- --source export/sxs.glb --photos renders/final/beauty --out renders/final/hero-masks --shots hero > build/hero-masks.log 2>&1
