@@ -70,6 +70,8 @@ def source_check(source):
         ob.data.calc_loop_triangles();tri+=len(ob.data.loop_triangles);tiny+=sum(t.area<1e-12 for t in ob.data.loop_triangles)
         if any(not all(math.isfinite(c) for c in v.co) for v in ob.data.vertices):errors.append('Nonfinite vertices')
     if tiny:errors.append(f'{tiny} degenerate triangles')
+    material_count=len({ob.data.materials[p.material_index].as_pointer() for ob in obs for p in ob.data.polygons})
+    if material_count>6:errors.append('More than six used materials')
     if not 0<tri<=80000 or tri!=meta['triangles']:errors.append('Budget/report mismatch')
     roof=surface([o for o in obs if o.get('component')=='roof']);walls=surface([o for o in obs if o.get('component')=='wall']);services=surface([o for o in obs if o.get('component')=='services'])
     parts=roof_parts(plan);points=[p for b in parts for p in b.domain()];x0=min(x for x,y in points);x1=max(x for x,y in points);y0=min(y for x,y in points);y1=max(y for x,y in points)
@@ -130,7 +132,7 @@ def source_check(source):
     hit=steps.ray_cast(Vector((doorx,y-.5,4)),Vector((0,0,-1)),5)[0]
     if hit is None:errors.append('No landing surface')
     else:
-        tops.append(hit.z);count=math.ceil((main.floor-.028)/.19)
+        tops.append(hit.z);count=math.ceil((main.floor-.010)/.19)
         for j in range(count-1):
             hit=steps.ray_cast(Vector((doorx,y-1.02-(j+.5)*.28,4)),Vector((0,0,-1)),5)[0]
             if hit is None:errors.append('Missing tread')
@@ -143,7 +145,13 @@ def source_check(source):
     if not .2032-1e-5<=concrete_top<=.6096+1e-5:errors.append('Foundation exposure outside 8–24 inches')
     if abs(siding_bottom-concrete_top)>1e-5:errors.append('Siding covers foundation')
     if not .06<main.floor-concrete_top<.17:errors.append('Foundation does not meet sill/floor structure')
-    if tops and abs(tops[0]-(main.floor-.028))>1e-5:errors.append('Stoop/threshold mismatch')
+    if tops and abs(tops[0]-(main.floor-.010))>1e-5:errors.append('Stoop/threshold mismatch')
+    threshold=surface([o for o in obs if o.get('component')=='door_frame'])
+    # Probe inside the threshold's rounded leading edge, where the flat
+    # underside actually bears on the concrete landing.
+    threshold_bottom=threshold.ray_cast(Vector((doorx,y-.08,0)),Vector((0,0,1)),2)[0]
+    threshold_gap=abs(threshold_bottom.z-tops[0]) if threshold_bottom is not None and tops else None
+    if threshold_gap is None or threshold_gap>1e-5:errors.append('Landing does not bear on threshold underside')
     from cape_build import basement_holes
     from types import SimpleNamespace
     vent_probes=0
@@ -164,7 +172,7 @@ def source_check(source):
     observed_pitch=max(abs(n.y/n.z) for n in normals)
     if abs(observed_pitch-main.pitch)>1e-4:errors.append('Measured roof pitch mismatch')
     result=dict(passed=not errors,errors=errors,triangles=tri,tiny_triangles=tiny,roof_samples=samples,roof_missing=missing,roof_max_error_m=error,opening_probes=len(meta['openings'])*9,front_eave_m=eave,rake_m=rake,dormer_interior=cheek,dormer_skirt_contact_max_m=max(skirt_gaps) if skirt_gaps else 0,window_head_soffit_clearances_m=header_clearances,stoop_tread_tops_m=tops,stoop_risers_m=risers,downspout_support_max_m=max(support_dist) if support_dist else 0,measured_pitch=observed_pitch,scope='Actual source roof/holes/services/dormer interior; no bake, UV or delivery certification')
-    result.update(foundation_exposure_m=concrete_top,foundation_to_floor_m=main.floor-concrete_top,siding_bottom_m=siding_bottom,foundation_opening_probes=vent_probes,threshold_to_stoop_m=main.floor-tops[0] if tops else None)
+    result.update(materials=material_count,foundation_exposure_m=concrete_top,foundation_to_floor_m=main.floor-concrete_top,siding_bottom_m=siding_bottom,foundation_opening_probes=vent_probes,threshold_to_stoop_m=main.floor-tops[0] if tops else None,landing_threshold_contact_error_m=threshold_gap)
     source.with_suffix('.check.json').write_text(json.dumps(result,indent=2))
     if errors:raise AssertionError(str(source)+': '+'; '.join(errors))
     return result

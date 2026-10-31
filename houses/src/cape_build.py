@@ -23,8 +23,17 @@ class CapeMesh(Mesh):
         if self.props.get('component')=='window' and role=='Trim' and abs(p[1]+.28)<1e-6:
             # A real dark room behind the curtains, rather than a 290 mm box.
             p=(p[0],-1.15,p[2])
+            color=(.008,.008,.007)
             for sign in (-1,1):
                 super().box((p[0]+sign*(s[0]/2),-.66,p[2]),(.018,.96,s[2]),role,(.035,.033,.027),0,xf)
+            # A few low furniture silhouettes interrupt the empty dark box.
+            # Their top is about chair-back height above the first-floor datum.
+            sill=p[2]-s[2]/2
+            opening=json.loads(self.props['opening']);room=next(v for v in self.builder.plan['blocks'] if v.name==opening['block']);ground=room.floor
+            super().box((p[0],-.66,ground-.012),(s[0]+.03,.98,.024),role,(.012,.011,.009),0,xf)
+            super().box((p[0]+.16,-.66,sill+.20),(.22,.022,.22),role,(.025,.022,.018),0,xf)
+            for sign in (-1,1):super().box((p[0]+.16+sign*.10,-.66,(ground+sill+.31)/2),(.025,.025,sill+.31-ground),role,(.018,.016,.013),0,xf)
+            super().box((p[0]+.16,-.55,ground+.44),(.25,.30,.025),role,(.025,.022,.018),0,xf)
         return super().box(p,s,role,color,r,xf)
 
 
@@ -202,7 +211,7 @@ def roofs(b):
 
 
 def landing(b,rear=False):
-    m=b.plan['blocks'][0];s=b.plan['spec'];floor=m.floor;top=floor-.028
+    m=b.plan['blocks'][0];s=b.plan['spec'];floor=m.floor;top=floor-.010
     opening=next(o for o in b.openings if o['kind']=='service') if rear else None
     x=m.x0+opening['u'] if rear else b.plan['door_x'];y=m.y1 if rear else m.y0;direction=1 if rear else -1
     me=b.mesh('Rear_Stoop' if rear else 'Porch_Concrete',component='rear_landing' if rear else 'porch_steps')
@@ -278,7 +287,7 @@ def storms(b):
 def breezeway(b):
     bridge=next((v for v in b.plan['blocks'] if v.name=='Breezeway'),None)
     if not bridge:return
-    me=b.mesh('Breezeway_Structure',component='breezeway')
+    me=b.mesh('Breezeway_Structure',component='breezeway',block=bridge.name)
     me.box((bridge.cx,bridge.cy,.0508),(bridge.width,bridge.depth,.1016),'Concrete',r=.003)
     for x in (bridge.x0+.07,bridge.x1-.07):
         for y in (bridge.y0+.06,bridge.y1-.06):me.box((x,y,(bridge.eave-.19+.1016)/2),(.089,.089,bridge.eave-.19-.1016),r=.001)

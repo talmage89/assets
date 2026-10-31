@@ -33,9 +33,10 @@ def main(a):
     assert repeat['geometry_sha256']==original['geometry_sha256']
     assert hashlib.sha256((a.out/'repeat.glb').read_bytes()).hexdigest()==first['serialization']['sha256']
     # Exercise caller JSON-equivalent controls independently of the six proofs.
-    authored=generate(34,dict(main=dict(pitch=1.,rake=.0508),hood='portico',rear_shed=True,chimney='ridge',garage=dict(kind='none'),siding='cedar'),house_type='cape')
+    authored=generate(34,dict(main=dict(pitch=1.,rake=.0508),hood='portico',rear_shed=True,chimney='ridge',garage=dict(kind='none'),siding='cedar',cedar_finish='painted',colors=dict(siding=(.61,.60,.55))),house_type='cape')
     check_plan(authored);bpy.ops.wm.read_factory_settings(use_empty=True);path=a.out/'authored.blend';save(build(authored),path);extra=source_check(path);extra_serial=delivery_check(path)
-    (a.out/'checks.json').write_text(json.dumps(dict(passed=True,rows=rows,repeat_geometry_sha256=repeat['geometry_sha256'],authored=extra,authored_serialization=extra_serial),indent=2))
+    painted=a.out/'authored-lookdev.blend';prepare(path,painted);painted_check=source_check(painted)
+    (a.out/'checks.json').write_text(json.dumps(dict(passed=True,rows=rows,repeat_geometry_sha256=repeat['geometry_sha256'],authored=extra,authored_serialization=extra_serial,authored_painted_cedar=painted_check),indent=2))
     print('CAPE_SWEEP',len(rows),'sources, surfaces, serializations, motion and repeat passed')
 
 if __name__=='__main__':

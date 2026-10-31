@@ -53,10 +53,16 @@ def generate(seed,overrides=None):
         garage=dict(kind=('none','detached','breezeway','none','detached','breezeway')[i],side='left' if i%2 else 'right'),
         door_offset=i==3,hood=('hood','none','portico','hood','none','portico')[i],returns=bool(i%2),
         siding=('wood','vinyl','cedar','cement','aluminum','wood')[i],
+        cedar_finish='painted' if (seed//6)%2==0 else 'stained',
         window_update=('six_over_six','one_over_one','eight_over_eight','six_over_six','one_over_one','six_over_six')[i],
         storms=i in (0,2,3),shutters=i!=3,chimney=('ridge','gable','gable','gable',None,'gable')[i],
-        roof_age='newer' if i in (1,4) else 'tired',shingle_color=('warm_charcoal','weathered_wood','dark_brown')[i%3],
+        roof_age='newer' if i in (1,4) else 'tired',shingle_color=('green_black','weathered_wood','dark_brown','warm_charcoal','weathered_wood','dark_brown')[i],
         colors=copy.deepcopy(PALETTES[i]),rear_landing='stoop')
+    if i==2:
+        spec['colors'].update(name='weathered cedar / warm white',siding=(.18,.145,.10))
+        if spec['cedar_finish']=='painted':
+            palette=PALETTES[0 if (seed//12)%2 else 1]
+            spec['colors'].update(name='painted cedar / '+palette['name'],siding=palette['siding'])
     if spec['dormers']==3:spec['main']['width']=max(spec['main']['width'],30*FT)
     if spec['main']['pitch']*spec['main']['depth']/2<3.25 and (spec['dormers'] or spec['rear_shed']):spec['main']['pitch']=min(1,math.ceil(3.25/(spec['main']['depth']/2)*12)/12)
     if overrides:merge(spec,copy.deepcopy(overrides))
@@ -67,9 +73,11 @@ def generate(seed,overrides=None):
     assert .4572<=s['floor']<=.762 and s['foundation'] in ('basement','crawlspace')
     assert s['dormers'] in (0,2,3) and s['wing'] in ('none','wing','porch')
     assert s['siding'] in ('wood','cedar','vinyl','aluminum','cement')
+    assert s['cedar_finish'] in ('stained','painted')
     assert g['kind'] in ('none','detached','breezeway') and g['side'] in ('left','right')
     assert s['hood'] in ('none','hood','portico') and s['chimney'] in (None,'ridge','gable')
     assert s['window_update'] in ('six_over_six','eight_over_eight','one_over_one') and s['roof_age'] in ('newer','tired')
+    assert s['shingle_color'] in ('green_black','warm_charcoal','weathered_wood','dark_brown')
     assert all(isinstance(s[k],bool) for k in ('rear_shed','returns','door_offset','storms','shutters'))
     assert all(len(s['colors'][k])==3 and all(math.isfinite(v) and 0<=v<=.7 for v in s['colors'][k]) for k in ('siding','trim','shutter','door'))
     floor=s['floor'];plate=floor+8*FT
@@ -112,9 +120,9 @@ def generate(seed,overrides=None):
     porch=None
     if s['hood']!='none':
         width=(6 if s['hood']=='portico' else 4.8)*FT;dep=(4 if s['hood']=='portico' else 2.2)*FT
-        porch=CapeBlock('Porch',door_x-width/2,door_x+width/2,main.y0-dep,main.y0+.10,0,floor-.028,floor+2.20,floor+2.34,'gable',8/12,'Y',.0762,1,0,floor+2.2,.0508)
+        porch=CapeBlock('Porch',door_x-width/2,door_x+width/2,main.y0-dep,main.y0+.10,0,floor-.010,floor+2.20,floor+2.34,'gable',8/12,'Y',.0762,1,0,floor+2.2,.0508)
     # Origin uses permanent ground footprint: house/additions/garage and entry steps.
-    count=math.ceil((floor-.028)/.19);front=main.y0-1.02-(count-1)*.28
+    count=math.ceil((floor-.010)/.19);front=main.y0-1.02-(count-1)*.28
     ground=[b for b in blocks if not b.name.startswith('Dormer') and b.name!='RearShed']
     cx=(min(b.x0 for b in ground)+max(b.x1 for b in ground))/2;cy=(min(front,min(b.y0 for b in ground))+max(b.y1 for b in ground))/2
     for b in blocks+([porch] if porch else []):b.x0-=cx;b.x1-=cx;b.y0-=cy;b.y1-=cy

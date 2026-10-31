@@ -1,4 +1,4 @@
-"""Quick source fields for the form gate; no bake or delivery-map writes.
+"""Cape source look-development; no bake or delivery-map writes.
 
 All accepted shared maps remain read-only. Cedar and cement use an original
 small two-region preview tile, planned as one additional 512-square set.
@@ -6,45 +6,25 @@ small two-region preview tile, planned as one additional 512-square set.
 import json
 import math
 from pathlib import Path
+import sys
+HERE=Path(__file__).resolve().parent;sys.path[:0]=[str(HERE.parents[1]),str(HERE)]
 import bpy
 import bmesh
-import numpy as np
 from mathutils import Vector
 from kit import tiling
-from kit.image_io import write_png,linear_to_srgb
 from lookdev import materials
 from textures import SETS
-
-
-def shingle_preview(folder):
-    folder.mkdir(parents=True,exist_ok=True);size=512
-    if (folder/'T_CapeShingle_BaseColor.png').exists():return
-    yy,xx=np.mgrid[:size,:size];u=xx/size;v=yy/size
-    h=np.zeros((size,size));value=np.ones_like(h)*.8
-    for low,kind in ((0,'cedar'),(.5,'cement')):
-        rows=5 if kind=='cedar' else 2
-        r=np.floor((v-low)*2*rows).astype(int);inside=(v>=low)&(v<low+.5)
-        phase=(r%2)*.5;count=7 if kind=='cedar' else 2
-        unit=np.floor(u*count+phase);local=(u*count+phase)%1;fy=((v-low)*2*rows)%1
-        rng=.5+.5*np.sin(unit*127.1+r*311.7)
-        height=.003*(1-fy)-.001*(local<.035)
-        grain=np.sin(u*2*math.pi*119+np.sin(v*19)*.55)*.06 if kind=='cedar' else np.sin(u*2*math.pi*117)*.015
-        col=(.91+rng*.09+grain)*(1-.17*np.exp(-fy/.07))
-        h[inside]=height[inside];value[inside]=col[inside]
-    dx=(np.roll(h,-1,1)-np.roll(h,1,1))/(2*1.2192/size);dy=(np.roll(h,-1,0)-np.roll(h,1,0))/(2*1.2192/size)
-    n=np.stack((-dx,-dy,np.ones_like(h)),2);n/=np.linalg.norm(n,axis=2,keepdims=True)
-    rgb=np.stack([value]*3,2)
-    write_png(folder/'T_CapeShingle_BaseColor.png',np.rint(np.clip(linear_to_srgb(rgb),0,1)*255).astype(np.uint8))
-    write_png(folder/'T_CapeShingle_Normal.png',np.rint((n*.5+.5)*255).astype(np.uint8))
-    orm=np.zeros((size,size,3),np.uint8);orm[:,:,0]=255;orm[:,:,1]=212;write_png(folder/'T_CapeShingle_ORM.png',orm)
+from cape_surfaces import shingle_tile,layer
 
 
 def prepare(source,out):
     bpy.ops.wm.open_mainfile(filepath=str(source.resolve()));bpy.context.view_layer.update()
-    meta=json.loads(source.with_suffix('.json').read_text());mats=materials(Path('textures/source'))
+    meta=json.loads(source.with_suffix('.json').read_text())
+    from cape_age import add
+    add(meta);mats=materials(Path('textures/source'))
     skin=meta['spec']['siding'];preview=out.parent/'materials'/'shingles'
     if skin in ('cedar','cement'):
-        shingle_preview(preview);mats['Siding']=tiling.material('CapeShingle',preview,tint=True)
+        shingle_tile(preview);mats['Siding']=tiling.material('CapeShingle',preview,tint=True)
         ns=mats['Siding'].node_tree.nodes;ls=mats['Siding'].node_tree.links
         coord=ns.new('ShaderNodeTexCoord');sep=ns.new('ShaderNodeSeparateXYZ');ls.new(coord.outputs['UV'],sep.inputs[0])
         fract=ns.new('ShaderNodeMath');fract.operation='FRACT';ls.new(sep.outputs['Y'],fract.inputs[0])
@@ -57,7 +37,7 @@ def prepare(source,out):
     for socket in ('Base Color','Roughness'):
         for link in list(p.inputs[socket].links):nodes.links.remove(link)
     p.inputs['Base Color'].default_value=(.95,.97,.95,1);p.inputs['Roughness'].default_value=.035
-    total=0;before_total=0;weathered=0;added=0
+    total=0;before_total=0;used_roles=set()
     for ob in list(bpy.context.scene.objects):
         if ob.type!='MESH' or not ob.get('asset_set'):continue
         me=ob.data;me.calc_loop_triangles();before_total+=len(me.loop_triangles)
@@ -65,14 +45,19 @@ def prepare(source,out):
         if ob.get('component') in ('wall','foundation','roof'):
             bm=bmesh.new();bm.from_mesh(me);block=next((v for v in meta['blocks'] if v['name']==ob.get('block')),meta['blocks'][0])
             levels=[block['floor']-.12,block['floor']+.06,block['floor']+.24,block['floor']+.40] if ob.get('component')!='roof' else [block['eave']+.35,block['eave']+.90,block['eave']+1.7,block['eave']+2.4]
+            if meta['spec']['dormers']==3:levels=levels[::2]
+            if meta['spec']['dormers']==3 and ob.get('component')=='wall':levels=levels[:1]
             for z in levels:bmesh.ops.bisect_plane(bm,geom=list(bm.verts)+list(bm.edges)+list(bm.faces),dist=1e-6,plane_co=(0,0,z),plane_no=(0,0,1))
             bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=1e-7);bmesh.ops.triangulate(bm,faces=list(bm.faces));bm.to_mesh(me);bm.free();me.update()
         roles=[m.name.replace('House_','') for m in me.materials]
         for i,role in enumerate(roles):me.materials[i]=mats[role]
         attr=me.color_attributes['Tint'];uv=me.uv_layers.active;world=[ob.matrix_world@v.co for v in me.vertices]
-        comp=ob.get('component');block=next((v for v in meta['blocks'] if v['name']==ob.get('block')),meta['blocks'][0]);vr={};normal={}
+        comp=ob.get('component');opening=next((o for o in meta['openings'] if ob.name.startswith(o['id'])),None)
+        block_name=ob.get('block') or (opening['block'] if opening else 'Main')
+        block=next((v for v in meta['blocks'] if v['name']==block_name),meta['blocks'][0]);vr={};normal={}
         for poly in me.polygons:
             role=roles[poly.material_index];n=(ob.matrix_world.to_3x3()@poly.normal).normalized()
+            used_roles.add(role)
             for vi in poly.vertices:
                 vr[vi]=role
                 if vi not in normal or n.z>.4 or abs(n.z)<.3:normal[vi]=n
@@ -92,23 +77,60 @@ def prepare(source,out):
                 elif role=='Siding' and skin in ('cedar','cement'):
                     # Preview uses half-tile addressing; ordinary split charts wait
                     # for delivery, just as the ranch's source roof did.
-                    uv.data[li].uv=(p[axes[0]]/1.2192, p[axes[1]]/.6096)
+                    uv.data[li].uv=(p[axes[0]]/1.2192, p[axes[1]]/(.762 if skin=='cedar' else .6096))
+                elif role=='Siding' and skin=='wood':uv.data[li].uv=(p[axes[0]],p[axes[1]])
                 else:uv.data[li].uv=(p[axes[0]]/SETS.get(role,SETS['Trim'])[1],p[axes[1]]/SETS.get(role,SETS['Trim'])[1])
+        rest=me.attributes.new(name='CapeRest',type='FLOAT_VECTOR',domain='POINT')
+        context=me.attributes.new(name='CapeContext',type='FLOAT_VECTOR',domain='POINT')
+        fasteners=me.attributes.new(name='CapeFasteners',type='FLOAT_VECTOR',domain='POINT')
+        fields={key:me.attributes.new(name='Cape'+key,type='FLOAT',domain='POINT') for key in ('Water','Wet','Wood','Oxide','Rust','Cheek','GutterAxis')}
         for v in me.vertices:
-            role=vr[v.index];p=world[v.index];n=normal[v.index];c=Vector(attr.data[v.index].color[:3]);amount=0;algae=0
+            role=vr[v.index];p=world[v.index];c=Vector(attr.data[v.index].color[:3])
             if role in ('Glass','Veneer'):c=Vector((1,1,1))
             if role=='Concrete':c=Vector((.82,.81,.78))
-            if role=='Shingles':c=Vector(dict(warm_charcoal=(.82,.79,.70),weathered_wood=(1.,.86,.65),dark_brown=(.76,.63,.48))[meta['spec']['shingle_color']])
-            if role in ('Siding','Concrete'):
-                low=max(0,block['floor']-.205) if role=='Siding' else 0
-                ripple=.05*math.sin(p.x*8.7+p.y*4.9)+.025*math.sin(p.x*21.3-p.y*7.1)
-                amount=.32*max(0,min(1,(low+.32+ripple-p.z)/.25))
-                algae=max(0,n.y)*.17*max(0,1-abs(p.z-low-.14)/.5)
-            if role=='Shingles' and comp=='roof' and meta['spec']['roof_age']=='tired':
-                algae=max(0,n.y)*.30*(.3+.7*(.5+.5*math.sin(p.x*4.7+.3*math.sin(p.y*3)))**4)
-            factor=Vector((1-amount*.55-algae*.55,1-amount*.65-algae*.4,1-amount*.77-algae*.65));c*=factor
-            attr.data[v.index].color=(*c,1);weathered+=amount>.02 or algae>.02
+            if role=='Shingles':c=Vector(dict(green_black=(.61,.65,.53),warm_charcoal=(.72,.72,.67),weathered_wood=(.94,.84,.66),dark_brown=(.75,.61,.44))[meta['spec']['shingle_color']])
+            low=min(.6096,block['floor']-.0762) if block['floor']>=.4 else max(.04,block['floor']-.205)
+            if block['name'].startswith('Dormer') or block['name']=='RearShed':
+                main=meta['blocks'][0];low=main['eave']+main['pitch']*min(p.y-main['y0'],main['y1']-p.y)
+            shade_eave=block['eave']
+            face=ob.get('face',opening['face'] if opening else None)
+            gable_end=face in (('left','right') if block['ridge_axis']=='X' else ('front','back'))
+            if block['roof']=='gable' and gable_end and comp in ('wall','window','storm_window'):
+                distance=min(p.y-block['y0'],block['y1']-p.y) if block['ridge_axis']=='X' else min(p.x-block['x0'],block['x1']-p.x)
+                shade_eave+=block['pitch']*distance
+            rest.data[v.index].vector=p;context.data[v.index].vector=(low,shade_eave,1 if meta['spec']['roof_age']=='tired' else .15)
+            water=math.exp(-((p.x-meta['door_x'])/1.2)**2)*math.exp(-((p.y-meta['blocks'][0]['y0'])/.6)**2)
+            rust=0
+            for d in meta['drains']:
+                q=Vector(d['centerline'][3]);water=max(water,math.exp(-((p.x-q.x)**2+(p.y-q.y)**2)/.28))
+                for q in map(Vector,d['gutter']):
+                    below=q.z-p.z
+                    if 0<below<.65:rust=max(rust,math.exp(-((p.x-q.x)**2+(p.y-q.y)**2)/.018)*math.exp(-below/.32)*.6)
+            fasteners.data[v.index].vector=(0,0,-10)
+            wet=opening['z'] if comp=='window' and opening else -10
+            external=True
+            if opening:
+                from plan import wall_frame
+                from types import SimpleNamespace
+                origin,t,outward,length=wall_frame(SimpleNamespace(**block,width=block['x1']-block['x0'],depth=block['y1']-block['y0']),opening['face'])
+                external=(p.x-origin[0])*outward[0]+(p.y-origin[1])*outward[1]>-.045
+                fasteners.data[v.index].vector=(origin[0]+opening['u'] if abs(outward[1])>.5 else origin[1]+opening['u'],opening['w']/2-.012,opening['z']+opening['h']-.012)
+            wood=role=='Trim' and comp in ('window','corner_posts','water_table','eave_rake_soffit','porch_structure','door_frame') and max(c)>.3 and external
+            cheek=0
+            for d in meta['blocks']:
+                if d['name'].startswith('Dormer'):
+                    cheek=max(cheek,math.exp(-min((p.x-d['x0'])**2,(p.x-d['x1'])**2)/.06)*max(0,min(1,(p.y-d['y0']+.1)/.2))*max(0,min(1,(d['y1']+.15-p.y)/.3)))
+            if comp in ('drainage','eave_rake_soffit') and block['name'] in ('Main','Wing','Garage'):rust=1
+            for key,value in dict(Water=water,Wet=wet,Wood=float(wood),Oxide=float(comp=='storm_window'),Rust=rust,Cheek=cheek,GutterAxis=float(block['ridge_axis']=='X')).items():fields[key].data[v.index].value=value
+            attr.data[v.index].color=(*c,1)
         me.calc_loop_triangles();total+=len(me.loop_triangles)
-    meta.update(triangles=total,stage='Cape form checkpoint / original quick fields / no bake',source_triangles=before_total,weathered_vertices=weathered,preview_siding_set=skin in ('cedar','cement'))
+    for role,mat in mats.items():layer(mat,role,meta)
+    meta.update(triangles=total,stage='Cape source look-development checkpoint / original causal fields / no bake',source_triangles=before_total,preview_siding_set=skin in ('cedar','cement'),materials=len(used_roles),material_roles=sorted(used_roles),wear_method='meter-scale rest attributes and procedural source nodes; delivery transfer pending')
     out.parent.mkdir(parents=True,exist_ok=True);out.with_suffix('.json').write_text(json.dumps(meta,indent=2));bpy.ops.wm.save_as_mainfile(filepath=str(out.resolve()))
-    print('CAPE_SOURCE',meta['seed'],total,weathered);return meta
+    print('CAPE_SOURCE',meta['seed'],total);return meta
+
+
+if __name__=='__main__':
+    import sys
+    for seed in map(int,sys.argv[sys.argv.index('--')+1:] or range(31,37)):
+        prepare(Path(f'build/cape/form-{seed}.blend'),Path(f'build/cape/house-{seed}.blend'))
