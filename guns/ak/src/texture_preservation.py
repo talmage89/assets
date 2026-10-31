@@ -2,7 +2,7 @@
 
 The rifle retains exact geometry/UV/rig/clip data and JSON semantics. Its
 decoded maps allow at most 1/255 per channel at 128 texels per map versus the
-accepted historical bake; PNG compression and buffer allocation are incidental.
+reviewed accepted bake; PNG compression and buffer allocation are incidental.
 Detachables retain oriented corner attributes and node frames byte-for-byte;
 their density and inverse atlas surface samples are checked independently by
 atlas_verify. The old/new review also checks UV transforms and tangent direction.
@@ -70,7 +70,7 @@ def main():
         assert geometry_equal(measured['ak'],expected['ak']),'Rifle geometry, UV, normals, weights, rig, clips or layout changed'
         baseline=json.loads((BASE/'src/accepted_detachable_geometry.json').read_text())
         bake=json.loads((BASE/'src/accepted_bake.json').read_text())
-        assert bake['accepted_glb_sha256']==baseline['main_sha256'],'Bake reference is not the accepted handoff'
+        assert bake.get('historical_handoff_sha256',bake['accepted_glb_sha256'])==baseline['main_sha256'],'Bake reference is not descended from the accepted handoff'
         textures=verify_bake(folder/'ak.glb',bake)
         main_sha256=hashlib.sha256((folder/'ak.glb').read_bytes()).hexdigest()
         detached={n:detachable_signature(folder/(n+'.glb')) for n in NAMES[1:]}

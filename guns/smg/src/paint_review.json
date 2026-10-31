@@ -1,0 +1,1557 @@
+{
+  "studio_receiver": {
+    "shot": "paint_studio_photo",
+    "photo": "studio-original.png",
+    "neutral": "studio-original.jpg",
+    "polygons": [
+      [
+        [
+          768,
+          397
+        ],
+        [
+          912,
+          377
+        ],
+        [
+          1067,
+          374
+        ],
+        [
+          1067,
+          397
+        ],
+        [
+          1157,
+          397
+        ],
+        [
+          1169,
+          376
+        ],
+        [
+          1176,
+          375
+        ],
+        [
+          1189,
+          408
+        ],
+        [
+          1201,
+          468
+        ],
+        [
+          1206,
+          511
+        ],
+        [
+          1170,
+          520
+        ],
+        [
+          917,
+          532
+        ],
+        [
+          883,
+          539
+        ],
+        [
+          878,
+          523
+        ],
+        [
+          797,
+          548
+        ],
+        [
+          791,
+          508
+        ]
+      ]
+    ],
+    "prefixes": [
+      "Receiver_Shell",
+      "Receiver_FoldSeam",
+      "Receiver_SpotWeld"
+    ],
+    "height_guards": [
+      {
+        "z_min": 0.109,
+        "polygons": [
+          [
+            [
+              768,
+              397
+            ],
+            [
+              912,
+              377
+            ],
+            [
+              1067,
+              374
+            ],
+            [
+              1067,
+              397
+            ],
+            [
+              1157,
+              397
+            ],
+            [
+              1169,
+              376
+            ],
+            [
+              1176,
+              375
+            ],
+            [
+              1189,
+              408
+            ],
+            [
+              1194,
+              443
+            ],
+            [
+              783,
+              465
+            ]
+          ]
+        ]
+      },
+      {
+        "z_max": 0.109,
+        "polygons": [
+          [
+            [
+              783,
+              465
+            ],
+            [
+              1194,
+              443
+            ],
+            [
+              1201,
+              468
+            ],
+            [
+              1206,
+              511
+            ],
+            [
+              1170,
+              520
+            ],
+            [
+              917,
+              532
+            ],
+            [
+              883,
+              539
+            ],
+            [
+              878,
+              523
+            ],
+            [
+              797,
+              548
+            ],
+            [
+              791,
+              508
+            ]
+          ]
+        ]
+      }
+    ],
+    "anchors": [
+      {
+        "role": "handguard",
+        "photo": "studio-original.png",
+        "prefixes": [
+          "Handguard_Mold"
+        ],
+        "polygons": [
+          [
+            [
+              286,
+              451
+            ],
+            [
+              723,
+              426
+            ],
+            [
+              766,
+              437
+            ],
+            [
+              781,
+              462
+            ],
+            [
+              788,
+              528
+            ],
+            [
+              781,
+              565
+            ],
+            [
+              755,
+              585
+            ],
+            [
+              299,
+              568
+            ],
+            [
+              280,
+              550
+            ],
+            [
+              276,
+              483
+            ]
+          ]
+        ],
+        "outer_surface": true,
+        "excluded_polygons": [
+          [
+            [
+              335,
+              478
+            ],
+            [
+              331,
+              489
+            ],
+            [
+              320,
+              493
+            ],
+            [
+              309,
+              489
+            ],
+            [
+              305,
+              478
+            ],
+            [
+              309,
+              467
+            ],
+            [
+              320,
+              463
+            ],
+            [
+              331,
+              467
+            ]
+          ]
+        ],
+        "exclusion_reason": "Separate metal handguard fastener, absent from the rendered Handguard_Mold object-ID mask; no polymer highlight is selected by color."
+      },
+      {
+        "role": "lower",
+        "photo": "studio-original.png",
+        "prefixes": [
+          "Lower_Mold"
+        ],
+        "polygons": [
+          [
+            [
+              925,
+              550
+            ],
+            [
+              1154,
+              517
+            ],
+            [
+              1182,
+              530
+            ],
+            [
+              1174,
+              595
+            ],
+            [
+              1132,
+              647
+            ],
+            [
+              1032,
+              664
+            ],
+            [
+              1005,
+              649
+            ],
+            [
+              886,
+              680
+            ],
+            [
+              875,
+              644
+            ],
+            [
+              869,
+              578
+            ]
+          ]
+        ],
+        "bounds": {
+          "z_min": 0.045
+        },
+        "excluded_polygons": [
+          [
+            [
+              1031,
+              582
+            ],
+            [
+              1036,
+              563
+            ],
+            [
+              1055,
+              549
+            ],
+            [
+              1076,
+              548
+            ],
+            [
+              1102,
+              524
+            ],
+            [
+              1114,
+              522
+            ],
+            [
+              1119,
+              530
+            ],
+            [
+              1118,
+              541
+            ],
+            [
+              1105,
+              551
+            ],
+            [
+              1086,
+              566
+            ],
+            [
+              1091,
+              583
+            ],
+            [
+              1083,
+              608
+            ],
+            [
+              1072,
+              626
+            ],
+            [
+              1058,
+              632
+            ],
+            [
+              1046,
+              624
+            ],
+            [
+              1044,
+              608
+            ],
+            [
+              1034,
+              601
+            ]
+          ],
+          [
+            [
+              922,
+              647
+            ],
+            [
+              916,
+              663
+            ],
+            [
+              900,
+              669
+            ],
+            [
+              884,
+              663
+            ],
+            [
+              878,
+              647
+            ],
+            [
+              884,
+              631
+            ],
+            [
+              900,
+              625
+            ],
+            [
+              916,
+              631
+            ]
+          ],
+          [
+            [
+              1122,
+              586
+            ],
+            [
+              1145,
+              586
+            ],
+            [
+              1145,
+              612
+            ],
+            [
+              1122,
+              612
+            ]
+          ],
+          [
+            [
+              1093,
+              621
+            ],
+            [
+              1125,
+              621
+            ],
+            [
+              1125,
+              649
+            ],
+            [
+              1093,
+              649
+            ]
+          ]
+        ],
+        "exclusion_reason": "Separate selector lever and front push pin, plus red control ink; the anchor measures polymer rather than those different materials. All lower-molding area outside these explicit components is retained."
+      },
+      {
+        "role": "grip",
+        "photo": "studio-original.png",
+        "prefixes": [
+          "Lower_Mold",
+          "Grip_TexturePanel"
+        ],
+        "polygons": [
+          [
+            [
+              1107,
+              694
+            ],
+            [
+              1161,
+              679
+            ],
+            [
+              1198,
+              811
+            ],
+            [
+              1177,
+              850
+            ],
+            [
+              1146,
+              862
+            ],
+            [
+              1111,
+              832
+            ],
+            [
+              1108,
+              787
+            ],
+            [
+              1090,
+              746
+            ]
+          ]
+        ],
+        "bounds": {
+          "y_min": -0.04,
+          "y_max": -0.005,
+          "z_min": -0.075,
+          "z_max": -0.005
+        },
+        "outer_surface": true
+      },
+      {
+        "role": "magazine",
+        "photo": "studio-original.png",
+        "prefixes": [
+          "Magazine_Body"
+        ],
+        "polygons": [
+          [
+            [
+              799,
+              685
+            ],
+            [
+              865,
+              678
+            ],
+            [
+              862,
+              741
+            ],
+            [
+              817,
+              950
+            ],
+            [
+              773,
+              1050
+            ],
+            [
+              741,
+              1096
+            ],
+            [
+              650,
+              1084
+            ],
+            [
+              697,
+              994
+            ],
+            [
+              746,
+              854
+            ]
+          ]
+        ]
+      },
+      {
+        "role": "barrel",
+        "photo": "studio-original.png",
+        "prefixes": [
+          "Barrel"
+        ],
+        "polygons": [
+          [
+            [
+              88,
+              506
+            ],
+            [
+              185,
+              505
+            ],
+            [
+              185,
+              539
+            ],
+            [
+              87,
+              547
+            ]
+          ]
+        ],
+        "bounds": {
+          "y_min": 0.3765,
+          "y_max": 0.4001
+        }
+      },
+      {
+        "role": "neutral_backdrop",
+        "photo": "studio-original.png",
+        "polygons": [
+          [
+            [
+              1050,
+              970
+            ],
+            [
+              1220,
+              970
+            ],
+            [
+              1220,
+              1060
+            ],
+            [
+              1050,
+              1060
+            ]
+          ]
+        ],
+        "render_polygons": [
+          [
+            [
+              0.81,
+              0.84
+            ],
+            [
+              0.94,
+              0.84
+            ],
+            [
+              0.94,
+              0.94
+            ],
+            [
+              0.81,
+              0.94
+            ]
+          ]
+        ]
+      },
+      {
+        "role": "handguard_upper",
+        "photo": "studio-original.png",
+        "prefixes": [
+          "Handguard_Mold"
+        ],
+        "bounds": {
+          "z_min": 0.094,
+          "z_max": 0.107,
+          "y_min": 0.21,
+          "y_max": 0.31
+        },
+        "polygons": [
+          [
+            [
+              345,
+              463
+            ],
+            [
+              682,
+              449
+            ],
+            [
+              705,
+              483
+            ],
+            [
+              347,
+              501
+            ]
+          ]
+        ],
+        "outer_surface": true,
+        "excluded_polygons": [
+          [
+            [
+              335,
+              478
+            ],
+            [
+              331,
+              489
+            ],
+            [
+              320,
+              493
+            ],
+            [
+              309,
+              489
+            ],
+            [
+              305,
+              478
+            ],
+            [
+              309,
+              467
+            ],
+            [
+              320,
+              463
+            ],
+            [
+              331,
+              467
+            ]
+          ]
+        ],
+        "exclusion_reason": "Separate metal handguard fastener, absent from the rendered Handguard_Mold object-ID mask; no polymer highlight is selected by color."
+      },
+      {
+        "role": "handguard_lower",
+        "photo": "studio-original.png",
+        "prefixes": [
+          "Handguard_Mold"
+        ],
+        "bounds": {
+          "z_min": 0.074,
+          "z_max": 0.086,
+          "y_min": 0.21,
+          "y_max": 0.31
+        },
+        "polygons": [
+          [
+            [
+              345,
+              528
+            ],
+            [
+              710,
+              512
+            ],
+            [
+              721,
+              551
+            ],
+            [
+              351,
+              557
+            ]
+          ]
+        ],
+        "outer_surface": true,
+        "excluded_polygons": [
+          [
+            [
+              335,
+              478
+            ],
+            [
+              331,
+              489
+            ],
+            [
+              320,
+              493
+            ],
+            [
+              309,
+              489
+            ],
+            [
+              305,
+              478
+            ],
+            [
+              309,
+              467
+            ],
+            [
+              320,
+              463
+            ],
+            [
+              331,
+              467
+            ]
+          ]
+        ],
+        "exclusion_reason": "Separate metal handguard fastener, absent from the rendered Handguard_Mold object-ID mask; no polymer highlight is selected by color."
+      }
+    ],
+    "backdrop": {
+      "albedo": 0.35,
+      "distance": 0.028,
+      "normal": [
+        -1,
+        0,
+        0
+      ],
+      "point": [
+        0.028,
+        0,
+        0
+      ]
+    }
+  },
+  "issued_diagnostic": {
+    "shot": "locked_photo",
+    "photo": "navy2.png",
+    "neutral": "navy2.jpg",
+    "polygons": [
+      [
+        [
+          1702,
+          218
+        ],
+        [
+          2040,
+          186
+        ],
+        [
+          2330,
+          183
+        ],
+        [
+          2580,
+          174
+        ],
+        [
+          2625,
+          197
+        ],
+        [
+          2637,
+          350
+        ],
+        [
+          1724,
+          395
+        ]
+      ]
+    ],
+    "prefixes": [
+      "Receiver_Shell",
+      "Receiver_FoldSeam",
+      "Receiver_SpotWeld"
+    ],
+    "backdrop": {
+      "albedo": [
+        0.4,
+        0.018,
+        0.035
+      ],
+      "distance": 0.028,
+      "normal": [
+        -1,
+        0,
+        0
+      ],
+      "point": [
+        0.028,
+        0,
+        0
+      ]
+    },
+    "anchors": [
+      {
+        "role": "handguard",
+        "photo": "navy2.png",
+        "prefixes": [
+          "Handguard_Mold"
+        ],
+        "bounds": {},
+        "polygons": [
+          [
+            [
+              915,
+              257
+            ],
+            [
+              1670,
+              229
+            ],
+            [
+              1684,
+              275
+            ],
+            [
+              1688,
+              495
+            ],
+            [
+              1643,
+              525
+            ],
+            [
+              913,
+              479
+            ]
+          ]
+        ],
+        "outer_surface": true,
+        "excluded_polygons": [
+          [
+            [
+              937,
+              289
+            ],
+            [
+              930,
+              307
+            ],
+            [
+              912,
+              314
+            ],
+            [
+              894,
+              307
+            ],
+            [
+              887,
+              289
+            ],
+            [
+              894,
+              271
+            ],
+            [
+              912,
+              264
+            ],
+            [
+              930,
+              271
+            ]
+          ]
+        ],
+        "exclusion_reason": "Separate metal handguard fastener, absent from the rendered Handguard_Mold object-ID mask; no polymer highlight is selected by color."
+      },
+      {
+        "role": "handguard_upper",
+        "photo": "navy2.png",
+        "prefixes": [
+          "Handguard_Mold"
+        ],
+        "bounds": {
+          "z_min": 0.094,
+          "z_max": 0.107,
+          "y_min": 0.21,
+          "y_max": 0.31
+        },
+        "polygons": [
+          [
+            [
+              1050,
+              265
+            ],
+            [
+              1560,
+              240
+            ],
+            [
+              1570,
+              335
+            ],
+            [
+              1055,
+              358
+            ]
+          ]
+        ],
+        "outer_surface": true,
+        "excluded_polygons": [
+          [
+            [
+              937,
+              289
+            ],
+            [
+              930,
+              307
+            ],
+            [
+              912,
+              314
+            ],
+            [
+              894,
+              307
+            ],
+            [
+              887,
+              289
+            ],
+            [
+              894,
+              271
+            ],
+            [
+              912,
+              264
+            ],
+            [
+              930,
+              271
+            ]
+          ]
+        ],
+        "exclusion_reason": "Separate metal handguard fastener, absent from the rendered Handguard_Mold object-ID mask; no polymer highlight is selected by color."
+      },
+      {
+        "role": "handguard_lower",
+        "photo": "navy2.png",
+        "prefixes": [
+          "Handguard_Mold"
+        ],
+        "bounds": {
+          "z_min": 0.074,
+          "z_max": 0.086,
+          "y_min": 0.21,
+          "y_max": 0.31
+        },
+        "polygons": [
+          [
+            [
+              1055,
+              417
+            ],
+            [
+              1570,
+              390
+            ],
+            [
+              1573,
+              478
+            ],
+            [
+              1060,
+              488
+            ]
+          ]
+        ],
+        "outer_surface": true,
+        "excluded_polygons": [
+          [
+            [
+              937,
+              289
+            ],
+            [
+              930,
+              307
+            ],
+            [
+              912,
+              314
+            ],
+            [
+              894,
+              307
+            ],
+            [
+              887,
+              289
+            ],
+            [
+              894,
+              271
+            ],
+            [
+              912,
+              264
+            ],
+            [
+              930,
+              271
+            ]
+          ]
+        ],
+        "exclusion_reason": "Separate metal handguard fastener, absent from the rendered Handguard_Mold object-ID mask; no polymer highlight is selected by color."
+      },
+      {
+        "role": "lower_cheek",
+        "photo": "navy2.png",
+        "prefixes": [
+          "Lower_Mold"
+        ],
+        "bounds": {
+          "y_min": 0.037,
+          "y_max": 0.06,
+          "z_min": 0.054,
+          "z_max": 0.065
+        },
+        "polygons": [
+          [
+            [
+              2030,
+              480
+            ],
+            [
+              2130,
+              473
+            ],
+            [
+              2130,
+              560
+            ],
+            [
+              2030,
+              565
+            ]
+          ]
+        ]
+      },
+      {
+        "role": "grip",
+        "photo": "navy2.png",
+        "prefixes": [
+          "Lower_Mold",
+          "Grip_TexturePanel"
+        ],
+        "bounds": {
+          "y_min": -0.04,
+          "y_max": -0.005,
+          "z_min": -0.05,
+          "z_max": -0.01
+        },
+        "polygons": [
+          [
+            [
+              2360,
+              665
+            ],
+            [
+              2450,
+              654
+            ],
+            [
+              2570,
+              813
+            ],
+            [
+              2488,
+              856
+            ],
+            [
+              2415,
+              770
+            ]
+          ]
+        ],
+        "outer_surface": true
+      },
+      {
+        "role": "barrel",
+        "photo": "navy2.png",
+        "prefixes": [
+          "Barrel"
+        ],
+        "bounds": {
+          "y_min": 0.3765,
+          "y_max": 0.4001
+        },
+        "polygons": [
+          [
+            [
+              625,
+              360
+            ],
+            [
+              737,
+              351
+            ],
+            [
+              742,
+              394
+            ],
+            [
+              625,
+              407
+            ]
+          ]
+        ]
+      }
+    ],
+    "neutral_method": "White-balance on the recorded white selector legend; constrain light RGB gains to .95\u20131.05. The red cloth is not a neutral or an exposure anchor."
+  },
+  "issued_observed_camera": {
+    "shot": "paint_issued_photo",
+    "photo": "navy2.png",
+    "neutral": "navy2.jpg",
+    "polygons": [
+      [
+        [
+          1702,
+          218
+        ],
+        [
+          2040,
+          186
+        ],
+        [
+          2330,
+          183
+        ],
+        [
+          2580,
+          174
+        ],
+        [
+          2625,
+          197
+        ],
+        [
+          2637,
+          350
+        ],
+        [
+          1724,
+          395
+        ]
+      ]
+    ],
+    "prefixes": [
+      "Receiver_Shell",
+      "Receiver_FoldSeam",
+      "Receiver_SpotWeld"
+    ],
+    "backdrop": {
+      "albedo": [
+        0.4,
+        0.018,
+        0.035
+      ],
+      "distance": 0.028,
+      "normal": [
+        -1,
+        0,
+        0
+      ],
+      "point": [
+        0.028,
+        0,
+        0
+      ]
+    },
+    "anchors": [
+      {
+        "role": "handguard",
+        "photo": "navy2.png",
+        "prefixes": [
+          "Handguard_Mold"
+        ],
+        "bounds": {},
+        "polygons": [
+          [
+            [
+              915,
+              257
+            ],
+            [
+              1670,
+              229
+            ],
+            [
+              1684,
+              275
+            ],
+            [
+              1688,
+              495
+            ],
+            [
+              1643,
+              525
+            ],
+            [
+              913,
+              479
+            ]
+          ]
+        ],
+        "outer_surface": true,
+        "excluded_polygons": [
+          [
+            [
+              937,
+              289
+            ],
+            [
+              930,
+              307
+            ],
+            [
+              912,
+              314
+            ],
+            [
+              894,
+              307
+            ],
+            [
+              887,
+              289
+            ],
+            [
+              894,
+              271
+            ],
+            [
+              912,
+              264
+            ],
+            [
+              930,
+              271
+            ]
+          ]
+        ],
+        "exclusion_reason": "Separate metal handguard fastener, absent from the rendered Handguard_Mold object-ID mask; no polymer highlight is selected by color."
+      },
+      {
+        "role": "handguard_upper",
+        "photo": "navy2.png",
+        "prefixes": [
+          "Handguard_Mold"
+        ],
+        "bounds": {
+          "z_min": 0.094,
+          "z_max": 0.107,
+          "y_min": 0.21,
+          "y_max": 0.31
+        },
+        "polygons": [
+          [
+            [
+              1050,
+              265
+            ],
+            [
+              1560,
+              240
+            ],
+            [
+              1570,
+              335
+            ],
+            [
+              1055,
+              358
+            ]
+          ]
+        ],
+        "outer_surface": true,
+        "excluded_polygons": [
+          [
+            [
+              937,
+              289
+            ],
+            [
+              930,
+              307
+            ],
+            [
+              912,
+              314
+            ],
+            [
+              894,
+              307
+            ],
+            [
+              887,
+              289
+            ],
+            [
+              894,
+              271
+            ],
+            [
+              912,
+              264
+            ],
+            [
+              930,
+              271
+            ]
+          ]
+        ],
+        "exclusion_reason": "Separate metal handguard fastener, absent from the rendered Handguard_Mold object-ID mask; no polymer highlight is selected by color."
+      },
+      {
+        "role": "handguard_lower",
+        "photo": "navy2.png",
+        "prefixes": [
+          "Handguard_Mold"
+        ],
+        "bounds": {
+          "z_min": 0.074,
+          "z_max": 0.086,
+          "y_min": 0.21,
+          "y_max": 0.31
+        },
+        "polygons": [
+          [
+            [
+              1055,
+              417
+            ],
+            [
+              1570,
+              390
+            ],
+            [
+              1573,
+              478
+            ],
+            [
+              1060,
+              488
+            ]
+          ]
+        ],
+        "outer_surface": true,
+        "excluded_polygons": [
+          [
+            [
+              937,
+              289
+            ],
+            [
+              930,
+              307
+            ],
+            [
+              912,
+              314
+            ],
+            [
+              894,
+              307
+            ],
+            [
+              887,
+              289
+            ],
+            [
+              894,
+              271
+            ],
+            [
+              912,
+              264
+            ],
+            [
+              930,
+              271
+            ]
+          ]
+        ],
+        "exclusion_reason": "Separate metal handguard fastener, absent from the rendered Handguard_Mold object-ID mask; no polymer highlight is selected by color."
+      },
+      {
+        "role": "lower_cheek",
+        "photo": "navy2.png",
+        "prefixes": [
+          "Lower_Mold"
+        ],
+        "bounds": {
+          "y_min": 0.037,
+          "y_max": 0.06,
+          "z_min": 0.054,
+          "z_max": 0.065
+        },
+        "polygons": [
+          [
+            [
+              2030,
+              480
+            ],
+            [
+              2130,
+              473
+            ],
+            [
+              2130,
+              560
+            ],
+            [
+              2030,
+              565
+            ]
+          ]
+        ]
+      },
+      {
+        "role": "grip",
+        "photo": "navy2.png",
+        "prefixes": [
+          "Lower_Mold",
+          "Grip_TexturePanel"
+        ],
+        "bounds": {
+          "y_min": -0.04,
+          "y_max": -0.005,
+          "z_min": -0.05,
+          "z_max": -0.01
+        },
+        "polygons": [
+          [
+            [
+              2360,
+              665
+            ],
+            [
+              2450,
+              654
+            ],
+            [
+              2570,
+              813
+            ],
+            [
+              2488,
+              856
+            ],
+            [
+              2415,
+              770
+            ]
+          ]
+        ],
+        "outer_surface": true
+      },
+      {
+        "role": "barrel",
+        "photo": "navy2.png",
+        "prefixes": [
+          "Barrel"
+        ],
+        "bounds": {
+          "y_min": 0.3765,
+          "y_max": 0.4001
+        },
+        "polygons": [
+          [
+            [
+              625,
+              360
+            ],
+            [
+              737,
+              351
+            ],
+            [
+              742,
+              394
+            ],
+            [
+              625,
+              407
+            ]
+          ]
+        ]
+      }
+    ],
+    "neutral_method": "White-balance on the recorded white selector legend; constrain light RGB gains to .95\u20131.05. The red cloth is not a neutral or an exposure anchor."
+  }
+}

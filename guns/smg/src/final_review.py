@@ -47,6 +47,7 @@ def main():
  sheet(OUT/'details.jpg',[(n,OUT/'beauty'/(n+'.png')) for n in ('receiver','handle','sights','front_sight','lower','trigger')],2,(800,620))
  sheet(OUT/'action.jpg',[(n,OUT/'beauty'/(n+'.png')) for n in ('locked','aimed')]+[(n,OUT/f/(shot+'.png')) for n,f,shot in [('Loaded magazine','loaded','mag_standalone'),('Empty magazine','empty','mag_lips'),('Cartridge','cartridge','cartridge'),('Fired case','case','case_mouth')]],2,(800,600))
  pairs=[(n,p) for p in sorted((OUT/'pairs').glob('*-pair.jpg')) for n in [p.stem]]
+ pairs += [(p.stem,p) for p in sorted((OUT/'paint-review').glob('*-histograms.jpg'))]
  sheet(OUT/'photo-pairs.jpg',pairs,1,(2200,1250))
  sheet(OUT/'contact-sheet.jpg',stills+pairs)
  inspection=OUT/'inspection';inspection.mkdir(exist_ok=True)

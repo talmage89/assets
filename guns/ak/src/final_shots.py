@@ -14,6 +14,7 @@ SHOTS={**FORM_SHOTS,
  'scale':dict(location=(3.8,3.6,1.9),target=(.15,.15,.90),lens=62,aspect=1,scale=True),
  'retainer':dict(location=(-.13,.52,.14),target=(0,.363,.066),lens=95,aspect=1.4),
  'retainer_side':dict(location=(-.22,.398,.10),target=(0,.363,.068),lens=100,aspect=1.2,daylight=-1),
+ 'projection_insert':dict(location=(-.25,-.20,.17),target=(0,-.018,.070),lens=80,aspect=1.4),
 }
 for name,shot in SHOTS.items():
  shot['exposure']=-.15
@@ -28,6 +29,8 @@ for name,description in MATCHES.items():
  PHOTO_POSES[name]['daylight']=1 if description['location'][0]>0 else -1
 PHOTO_POSES['retainer_photo']=dict(diagnostic_isolate=['Handguard_Retainer363','Handguard_SlingMount','Handguard_SlingLoop'],daylight=1,front_component=True)
 for shot in PHOTO_POSES.values():shot.setdefault('action','Idle');shot.setdefault('frame',0)
+for _name in ['paint_studio_photo','paint_used_photo']:
+ PHOTO_POSES[_name]['paint_photo']=_name
 STRIP_SHOT={**STRIP_SHOT,'exposure':-.15}
 
 def configure_scene(scene,source):
@@ -63,8 +66,8 @@ def configure_scene(scene,source):
    assert (cam.matrix_world.translation-eye.translation).length<1e-7
    assert ((cam.matrix_world.to_3x3()@Vector((0,0,-1))).normalized()-(eye.to_3x3()@Vector((0,1,0))).normalized()).length<1e-7
  bpy.app.handlers.render_pre.append(gray_socket)
- setup={'Key softbox':((.60,.15,.78),35,.55,1.25),
- 'Camera fill':((-.65,.22,.45),15,.65,1.1),
+ setup={'Key softbox':((.60,.15,.78),18,.55,1.25),
+ 'Camera fill':((-.65,.22,.45),4,.65,1.1),
  'Right rim strip':((-.18,.85,.55),13,.14,1.0),
  'Left rim strip':((-.45,-.20,.35),5,.15,.70),
  'Overhead reflection card':((0,.15,.75),5,.30,.8)}
@@ -94,7 +97,7 @@ def prepare_shot(scene,shot):
  floor=scene.objects['Studio seamless'];floor.scale=(10,10,10) if isscale else (1,1,1);floor.location.z=0 if isscale else scene['source_floor']
  floor.rotation_euler.z=math.pi if isscale else 0
  scene.objects['Scale fill'].hide_render=not isscale
- bg=scene.world.node_tree.nodes['Background'];bg.inputs['Strength'].default_value=.8 if shot.get('daylight') else .18
+ bg=scene.world.node_tree.nodes['Background'];bg.inputs['Strength'].default_value=.8 if shot.get('daylight') else .045
  for ob in scene.objects:
   if ob.get('human_scale'):ob.hide_render=not isscale
   if ob.get('bake_only') or ob.name in ('Case_Proof','Cartridge_Proof') or (ob.name.startswith('HIGH_') and not scene.get('dense_source')):ob.hide_render=True
@@ -127,3 +130,10 @@ def prepare_shot(scene,shot):
   if isscale:ob.location+=Vector((0,0,1));ob.data.energy*=1.5
   target=Vector((0,.364,.075)) if shot.get('front_component') else Vector((0,.025,0)) if shot.get('shell_light') else Vector((0,.06,1.02 if isscale else .06))
   ob.rotation_euler=(target-ob.location).to_track_quat('-Z','Y').to_euler()
+
+# Photo light rigs apply only to their calibrated views; the family studio serves heroes and GIFs.
+_prepare_paint_base=prepare_shot
+def prepare_shot(scene,shot):
+ _prepare_paint_base(scene,shot)
+ from guns.common.paint_review import apply_lights
+ apply_lights(scene,shot,Path(__file__).resolve().parents[1])

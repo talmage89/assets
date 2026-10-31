@@ -19,6 +19,9 @@
 - `photo_matches.L(world_mm, pixel, weight)` defines measured landmarks;
   `camera_shots(path)` loads the kit's solved photo configurations. Each gun owns
   landmarks and photographic action selection. Photographs never enter modeling.
+  `constrained(match)` retains an observed view direction and a 300 mm lens,
+  fitting framing and roll while reporting all landmark residuals. A camera
+  residual is not an acceptance test for the unchanged gun geometry.
 
 These are stable entry points for subsequent guns. Mechanical schedules, anatomy
 and dimensions never belong in the shared renderer or schema checker.
@@ -109,3 +112,85 @@ reference's source hash. This is a documented golden-image comparison, not a
 claim that GPU arithmetic itself is bit-exact. Removing the committed GIF
 produces a fresh visually equivalent render, which can differ by rounding;
 retaining it provides exact-byte clean-checkout rebuilds.
+
+### Stamped receiver paint comparisons
+
+AK and SMG own their complete receiver outlines in `src/paint_review.json` and
+physical photographic card recipes in `src/paint_lights.json`. `make paint-review`
+uses the existing independently checked delivery surfaces to rasterize complete
+visible receivers, including accepted wear. It checks V P10/median/P90 against
+15%/10%/15%, and brightest-luminance-decile RGB, value and normalized color
+against 10%. Zero reference tails require exact zero. References are balanced
+by each member's existing neutral script before sampling; no photograph enters
+a material, UV, bake or export. Round 2 gives both members the Harrow studio; their cameras and GIF clips stay fixed.
+
+The SMG additionally compares broad upper and lower lands, preventing a
+whole-part statistical fit from placing the reflection on the wrong land.
+These spatial observations remain explicit rather than substituting a patch
+for the whole receiver. `src/paint_review.py --renders <folder> --out <folder>`
+also audits archived before exports, and `--preview` labels dense-source work.
+
+Optional refitting uses installed OpenImageIO/PyOpenColorIO and NumPy:
+
+```sh
+kit/with_gpu.sh blender -b --factory-startup --python-exit-code 1 \
+  --python guns/common/paint_light_response.py -- --member smg \
+  --sets paint_studio_photo,locked_photo --source guns/smg/export/smg.glb \
+  --out guns/smg/build/paint-light-response --width 1100 --samples 32
+python3 guns/common/paint_fit_lights.py smg
+```
+
+Unit-energy scene-linear EXRs guide nonnegative area-card energy fitting.
+The objective samples ONLY the member-owned `anchors`: neutral backing and
+unchanged finishes. No receiver pixel, statistic, height guard or highlight
+enters it. Every basis render audits its active fixtures; the world-only
+response has no area light. Numerical energy units are conditioned by measured
+nonpaint response, then converted back to physical watts. White-balanced color
+gains default to .95–1.05. The optional `--mixed-light` fit has two physical
+color groups, above and below .25 m: R .5–2.5, G .65–2, B 1. The used Rill
+test constrains this broader range with three white cloth regions in the same
+photograph. It supplies no per-part color adjustment. Final acceptance requires a fresh GLB render and
+rejects failed independent anchors before testing the unchanged paint bounds.
+The SMG also samples narrow cards along measured crown reflection directions.
+Each photograph gets one physical rig illuminating the entire gun; there is
+no light linking, per-part gain or image correction. Review the fitted light
+placement and rerender at full resolution before copying a reviewed recipe
+into `src/`. Optional fitting dependencies are not needed for normal builds.
+
+`--broad-only` uses the world and sixteen fixed broad cards.
+`--nonpaint-studio` adds reflection cards inferred only from visible nonpaint
+geometry, .35 m from the surfaces. It excludes close cards and all
+receiver-derived cards. `--append` and `--indices` support audited batches;
+source hashes and the existing basis order must agree. Both smaller bases
+were tested after the unrestricted diagnostic basis failed. All round 2
+recipes currently committed in the members are explicitly **rejected**
+calibrations. Their fresh pairs expose the disagreement; they do not verify
+new paint parameters, and the default builds stop at the photographic gate.
+
+`paint_light_response.py --paint-roughness <value>` or `--paint-albedo <value>`
+creates an explicitly labeled shader diagnostic for material selection. The
+fitter records those overrides. Such a render cannot pass the final paint
+acceptance audit: chosen inputs must first be authored, rebaked, exported and
+rendered from the unmodified shipping GLB.
+
+The receiver audit can also report broad height regions and unchanged-finish
+lighting anchors. These retain independent spatial evidence: a whole-part
+histogram pass does not imply that either diagnostic matches. Both the failed
+spatial observations and the main requested bounds remain in the JSON.
+Reference anchors can specify `excluded_polygons` for separately identified
+components that the corresponding render object-ID mask does not contain.
+The Relay's polymer anchors exclude metal fasteners, the selector lever and
+red control ink. These holes are drawn from component boundaries, never RGB
+thresholds. The magazine's real bright stripe remains measured. All anchor
+roles and all comparison tolerances are retained after the region correction;
+the corrected fits still fail.
+
+`paint_trials.py` renders fixed-light roughness/specular grids, labeled
+`REVIEW ONLY`. Its partial-film estimate is diagnostic. It cannot accept a
+material or replace the required authored, baked and exported comparison.
+
+`paint_projection.py` splits each existing rigid/named bake group by enamel
+ownership and delegates baking to the kit. Nonpaint stays in its original
+group; assembled ghosts preserve contact AO. No mesh or UV is modified. A
+paint-only control bake tests nonpaint source attribution separately from
+old/new map differences. No shared kit code changed in this round.
