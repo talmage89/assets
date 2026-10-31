@@ -412,3 +412,44 @@ Spanish case-color photo is qualitative only. No decoration or real mark is copi
 | look-gray-305.jpg | https://image.invaluable.com/housePhotos/maynardsfineart/20/770620/H0759-L387082305_original.JPG | Maynards Fine Art, copyright retained; local comparison only | Alternate studio views/candidates. 286/287/305 have substantially older gray/brown barrels; not the finish target. |
 | look-controls.jpg | https://cdn4.volusion.store/jbkag-abfzx/v/vspfiles/photos/TWBLE12B286-5.jpg?v-cache=1747240817 | Connecticut Precision Outfitters, copyright retained; local comparison only | Supplementary polished checkered safety pad; estimated uncolored steel-guide neutral. Decorated action is excluded from our plain-field design. |
 | look-controls-alt.jpg | https://cdn4.volusion.store/jbkag-abfzx/v/vspfiles/photos/DBLKNE12G495-4.jpg?v-cache=1747228809 | Connecticut Precision Outfitters, copyright retained; local comparison only | Rejected control candidate: underside rather than tang. No asset input. |
+
+
+The look round's additional deep-blue barrel pair uses `look-field-4.jpg`
+(already credited in the table). It retains dark bluing along the complete
+barrel length, unlike the broad gray lower-flank field in the older gray-paper
+comparison. Both comparisons are retained. Balance the white-cutout image on
+the uncolored rubbed steel at the lower guard bow, normalized coordinates
+(875,521)–(882,524) at 1400 pixels wide. This is an estimated metallic neutral;
+the clipped white background is excluded. No photograph supplies asset pixels.
+
+
+## Walnut vessel scale
+
+Read online, no image or texture download: Richter, H. G. and Dallwitz,
+M. J., *Commercial timbers* (2000 onwards),
+[Juglans regia / nigra](https://www-archiv.fdm.uni-hamburg.de/b-online/wood/english/jugjureg.htm),
+copyright retained, textual measurements for local design reference. Its
+75–135–210 µm tangential vessel range constrains the original procedural pore
+apertures. Barbaros Yaman, *Agrociencia* 42 (2008), 357–365,
+[quantitative Juglans regia vessel study](https://www.scielo.org.mx/scielo.php?pid=S1405-31952008000300010&script=sci_arttext),
+copyright retained, reports mean tangential diameter 135.3 µm. The PDF download
+timed out and is not a rebuild dependency. No microscopy pixels enter shaders.
+Fine pores follow the grain axis. A closed cell-boundary network is rejected
+by the field-stock photograph `look-field-13.jpg`.
+
+
+## Native damage annotation correction
+
+`look-gray-284.jpg` contains a fitted metal stock inlay and a slotted forend
+screw. Neither is damage. The stock heel/toe annotation excludes the inlay:
+1,787 / 668,631 native pixels, 0.2673%. Former forend marks also selected
+intact grain and are withdrawn as damage measurements.
+
+The complete forend in `look-gray-used.jpg` supplies the replacement edge
+reference: a definite fractured barrel-facing wood rim beside the forward
+checker point, 384 / 234,155 native pixels, 0.1640%. Author and direct image URL
+are registered above (Maynards Fine Art; copyright retained; local review
+only). Its upper-left gray studio paper, native rectangle (40,40)–(500,300),
+is the neutral; linear RGB gains (.94134,1.01711,1.01711). The fitted latch,
+intact grain, fine ambiguous scratches and screw heads are excluded from the
+wear annotation. These are review masks only, never modeling or texture data.

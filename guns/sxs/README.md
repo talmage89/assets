@@ -5,11 +5,42 @@ An original script-built visual game asset: a fictional Propane Defense
 extractors, a top lever, automatic tang safety, straight-hand stock and splinter
 forend. No working lockwork, pressure design or manufacturing model is supplied.
 
-**Form round 7. Finish, wear, markings, checkering and docs JPGs remain held.**
-The head now uses turned surfaces and milled lands with distance blends, with
-its dense source baked onto the game mesh. The camera and outline gate remains
-separate from a passing build. See [REVIEW.md](REVIEW.md) for the image critique,
-failed comparisons and exact acceptance limits.
+**Look round one.** The accepted round-seven form, 38,822 triangles, rig,
+contacts and 19 clips are retained. Original procedural rust bluing,
+faded color-case steel, oil walnut, 20-LPI checkering and localized years of
+field wear are baked at 4096 and delivered in one 2048 set. The shell and
+fired hull use their own lossless 512 subsets. No docs JPGs are generated.
+
+This is an image review, with quantitative misses kept visible. Passing
+geometry, UV, rig and delivery checks does not establish a photographic look
+match. [REVIEW.md](REVIEW.md) records the rejected trials, native-photo
+neutrals, whole-part values and visible wear evidence.
+
+The action is faded color case-hardened because the sharp used gray-paper
+field-gun photographs show retained blue/straw/brown oxide around the fences
+and knuckle, with handled silver-gray flats. The pattern is original domain-
+warped procedural oxide, never a photographed pattern. The barrels and lever
+are blued; the safety is polished, checkered steel; the triggers have blued
+faces and brighter edges; the guard has an inner finger-contact rub. Plain
+walnut growth follows the wrist and forend, with longitudinal vessels, cut
+borders and worn cutter points. The bead is polished brass. Bare wood appears
+only at local impact lips.
+
+Generated review artifacts, all from exported GLBs unless labeled source:
+
+| Local path after `make` | Evidence |
+| --- | --- |
+| `renders/final/hero-gray.png` | Cycles, full 4000-pixel frame on neutral gray |
+| `renders/final/contact-sheet.jpg` | 22 studio/ammo views, finish/wear/native pairs and family comparison |
+| `renders/final/turnaround.jpg` | Front, side, back, opposite side and top |
+| `renders/final/player-views.jpg` | Shooter's three-quarter, exact Eye, open and breech |
+| `renders/final/details.jpg` | Action, wood, controls, muzzles and triggers |
+| `renders/final/finish-contact.jpg` | Whole-part masks, quantile locations and native balanced-photo values |
+| `renders/final/wear-contact.jpg` | Nine actual site-off exports, full frame, enlarged crops, differences, masks, two profiles and connected regions |
+| `renders/final/family/three-guns.jpg` | Covey, Hearth pump and Bracken lever carbine in the exact same studio/camera |
+| `renders/final/wear-native-contact.jpg` | 4000-pixel exported hero differences, 2D masks, profiles and connected regions at matched part scale |
+| `renders/final/source/` | Procedural source / photo / shipped export, with bake-loss numbers |
+
 
 ## Dimensions and design
 
@@ -34,8 +65,9 @@ offer the boxlock, double triggers, extractors, 26-inch barrels and splinter
 forend together. Their 38/63 mm comb/heel-drop baseline informs the original
 stock. A straight hand keeps the field silhouette lean and permits shifting
 the hand between triggers. The slightly longer measured pull is a disclosed
-original-design difference. Installed fonts will be found through `kit/fonts.py`
-when original markings are added; no real markings or engraving are copied.
+original-design difference. The original ammunition headstamp reads `P D`, `FIELD` and `12`, rasterized
+from installed Noto Sans through `kit/fonts.py`; no real markings or engraving
+are copied.
 
 The [primary cheek-station instructions](https://www.brownells.com/userdocs/learn/076-200-548_Pull___Drop_Gauge.pdf)
 place the cheekbone 1¼–1½ inches behind the comb nose. The accepted station
@@ -76,7 +108,7 @@ falls 0.32 mm per rearward mm. The former level rear datum stood above the
 falling fences. The photo's strongest front highlight and broad rearward fall
 motivate this departure and the new turned meridian; brightness is not treated
 as a metric height scan. The uncalibrated black-backed macros retain unity
-balance. Finish constants are held.
+balance. The form references establish no finish values; the new balanced studio photographs above supply the finish comparison.
 
 | Quantity | Current evaluated export | Round-six baseline / reference |
 | --- | ---: | --- |
@@ -128,14 +160,15 @@ checks the pinhole projection, roll and crop shifts.
 | action_top | 12.392 / 0.825 | 9.926 / 0.661 | 162.08 |
 | open | 24.136 / 2.469 | 7.309 / 0.748 | 717.38 |
 
-**Open camera and complete outline gates fail.** The top wood-joint observations
-reach 3.293 mm; open-joint errors remain conditional on its failed calibration.
+**Accepted for this look brief:** the owner explicitly retained the open solve
+at 2.469 mm and the top wood-line residuals reaching 3.293 mm. The original
+failed precision gates remain archival measurements, not a request to move the accepted form.
 No <=2 mm result is claimed for unregistered returns or hidden centerline stations.
 
 <!-- /CAMERA_RESULTS -->
 
-The requested <1 mm camera and <=2 mm outline gates remain separate from
-`make check`. The native wood-joint observations are compared to actual boundary
+The archival <1 mm camera and <=2 mm outline thresholds remain separate from
+`make check`; the owner accepted these different-makers' residuals for this round. The native wood-joint observations are compared to actual boundary
 segments rather than arbitrary fixed-X point correspondences. Smooth return
 landmarks and occluded centerline stations remain unregistered; no precision
 acceptance is claimed for them. All trials, residuals and assumptions are in
@@ -197,23 +230,41 @@ angles, 0.5° apart. It is not a continuous-angle certificate.
 
 | Inspection output | Triangles | GLB bytes |
 | --- | ---: | ---: |
-| Gun, all staged alternatives | 38,822 | 12,477,444 |
-| Shell | 752 | 26,476 |
-| Hull | 480 | 18,160 |
+| Gun, all staged alternatives | 38,822 | 19,674,244 |
+| Shell | 752 | 624,480 |
+| Hull | 480 | 744,848 |
 
 54 named rigid meshes, 17 bones, 19 clips, 14 sockets; 1 atlas material and **three 2048 texture images** (4096 GPU source bake).
 <!-- /CHECKPOINT_STATS -->
 
 The gun stays within 39,000 triangles, including staged ammunition alternatives.
-One 4096 GPU bake ships at 2048 through the kit finalizer/downsampler/exporter.
-BaseColor and ORM are RGB8; the normal retains RGB16 precision through a
+Isolated-surface and assembled-contact GPU passes bake at 4096 and ship at 2048 through the kit finalizer/downsampler/exporter.
+BaseColor is RGBA8 with opaque specular data in alpha; ORM is RGB8; the normal retains RGB16 precision through a
 normalized vector filter. About 16 MiB with ordinary block compression and
 mipmaps; actual uncompressed importer storage depends on format handling.
 Other parts retain their GPU normal bake. The forging's dense normals are
 projected through its actual Mikk tangent basis, with construction ownership
 and exact occupied-texel padding. No photo or painted repair is used.
-Standalone shell/hull diagnostic exports retain their accepted dimensions;
-small baked standalone sets belong to the later finish gate.
+`export/shell.glb` and `export/hull.glb` retain head-centered origins, +Y
+pointing toward the mouth, and the accepted exterior dimensions. The kit's
+`texture_size=512` / `texture_clusters=True` path copies guarded integer atlas
+neighborhoods, retaining exact RGB16 normal precision, sample density, tangent
+frames, material factors and L0–L3 mip behavior. Full-atlas snapshots and the
+independent comparison are in `build/delivery/detachable-proof.json`.
+
+Wear proof uses the used and all-clean bakes plus two independently baked
+forend counterfactuals: edge fractures and worn checker points overlap, so
+each must be disabled alone. These evidence-only sets are never shipped.
+
+The same three PNG images carry color, OpenGL tangent normals and ORM. Opaque
+BaseColor alpha supplies effective dielectric reflection through
+`KHR_materials_specular`: oil on the flat wood lands retains sheen, while open
+pores and cut checker cavities lose reflected visibility. Alpha is data, not
+coverage, and is filtered independently of RGB. The extension references the
+same image and sampler; it adds a glTF texture view, not another texture image.
+The target importer must support `KHR_materials_specular` to preserve this
+reflection response; normal-map compression should be checked for reflection
+banding. The source script never reads a photograph. `build/look-photos/` is review-only.
 
 ```sh
 make -C guns/sxs
@@ -224,7 +275,10 @@ make -C guns/sxs reflections
 
 Requires installed Blender 5.2, Python/Pillow/NumPy/Matplotlib, GNU make and
 flock. All scratch stays in `build/`; every Cycles bake/render uses the shared
-GPU lock. No kit/shared-common changes, downloaded code or final docs images.
+GPU lock. Shared kit changes preserve 16-bit detachable map precision and optionally
+reuse opaque BaseColor alpha for specular data. Both retain previous defaults;
+all 24 kit test modules run together from a fresh build. Shared gun modeling
+code is unchanged. No downloaded code or final docs images.
 Reference URLs, authors, licenses and uncertainty remain in
 [refs/SOURCES.md](refs/SOURCES.md). Full commands, measured build proof and
 remaining weaknesses are in [REVIEW.md](REVIEW.md).

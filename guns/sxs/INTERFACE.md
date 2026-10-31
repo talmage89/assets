@@ -74,9 +74,19 @@ the hull at its actual HullR/L bone frame when handing it to external physics;
 the chamber sockets represent extraction, before the manual pull separates it.
 Keep the corresponding internal display hidden after external handoff.
 
-The round-seven form gun is `export/sxs.glb`, through the kit's atlas and
-animated exporter: one 2048 BaseColor/OpenGL Normal/ORM set with the inspection
-constants and baked source normals. Named rigid parts remain at this review
-gate for independent contact tests. The native `build/sxs.glb` and standalone
-shell/hull GLBs remain diagnostic, unbaked outputs. Final finishes and standalone
-small texture sets remain held; this changes no rig, socket, clip or state meaning.
+The look-round-one delivery is `export/sxs.glb`: one material and three 2048
+images, baked at 4096 through the kit. BaseColor's opaque alpha contains
+`KHR_materials_specular` data; the same image supplies color and effective
+reflection strength. Normal retains OpenGL +Y and RGB16 precision; ORM remains
+R occlusion / G roughness / B metallic. The original 54 named rigid meshes are
+retained for the independent surface-contact audit. Geometry, pivots, skin,
+sockets, state meanings and all 19 clips are unchanged.
+
+The delivered `export/shell.glb` and `export/hull.glb` each use a lossless 512
+atlas subset, with integer UV remapping, guarded mip footprints, exact source
+pixel precision and the same material/sampler semantics. The main gun retains
+its 2048 atlas and UVs. The standalone shell is sampled from LiveR / Idle f0;
+the fired hull from HullR / IdleSpent f0. The kit comparison verifies oriented
+geometry, tangents, density, sampled channels and material factors against
+full-atlas snapshots. `build/sxs.glb`, `build/shell.glb` and `build/hull.glb`
+remain native unbaked form diagnostics. No interface version changes.

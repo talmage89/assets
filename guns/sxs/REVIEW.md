@@ -1,3 +1,796 @@
+# Covey 26 — look round one delivery
+
+The owner accepted round seven's form, cameras and 38,822-triangle allocation
+for this look brief. The archival failed form gates below remain measurements;
+they are no longer requests to redesign that accepted geometry. Main merged
+cleanly at the start. No vertex, clip, pivot or contact policy has changed.
+
+## Look critique passes
+
+1. **Rejected first source finishes. Color and value:** the 1200-pixel Cycles
+   source hero and action/wrist/forend close-ups in `renders/look1/pass1/source/`
+   showed walnut too light and case oxide chalky straw. Native studio photographs
+   `look-field.jpg` and `look-field-13.jpg` show a darker oil-finished brown and
+   subdued case colors. Their clipped white background cannot supply a white
+   balance; these first observations are qualitative, not a numeric match.
+   Reduce walnut diffuse values and specular (.28 to .16, matching the lever),
+   mute blue/straw/brown oxide, and lower the smooth dent bowls from .40 to .18 mm.
+   Break their edges procedurally and reduce their pale lips: the first forend
+   dents looked punched. The accepted silhouette geometry is untouched.
+
+2. **Rejected first baked export. Color and value:** the white-balanced gray-paper
+   whole-gun and macro references supersede the clipped-cutout color guess.
+   Neutral rectangles and linear gains are in `build/look-photos/white-balance.json`.
+   `renders/look1/pass2c/look-review/` measures whole parts on the actual export:
+   barrel median 20.9 versus 59.3, case 58.9 versus 118.5, stock 57.6 versus
+   111.7. These are substantial misses. The first free macro fit also crossed
+   the gun and hid the controls: reject its lower RMS. Lock the observed rearward,
+   above hemisphere and disclose the remaining 33-pixel inter-maker residual.
+   The carry mask was too far ahead of the balance; move it toward the forend.
+   Checkering retains a 1.27-mm perpendicular pitch (20 LPI), but its hand-polished
+   points need actual exported on/off evidence. The first isolated material
+   projection was audited with constants; replace that dependent color test with
+   an independent 54-part ownership witness, removed from the shipped color map.
+
+3. **Rejected light and surface trial. Color and value:** the pass-three front
+   fill made the action's whole-side median 225.9 instead of the photo's 118.5.
+   That is a reflected softbox, not evidence to lower steel albedo arbitrarily.
+   Remove the frontal macro fill, aim the lights at each photographed region,
+   and retain the paper as a diffuse lighting check. In `renders/look1/pass3b/`,
+   paper agrees approximately but the flat remains too bright (141.7), the
+   stock too matte/dark (64.4 versus 111.7) and the forend too even (P90 66.8
+   versus 103.5). The upper case oxide still reads like clean blue/straw
+   camouflage and the walnut's annual rings look drawn. Reject both. Reduce
+   ring contrast, restore the pump's .33 dielectric specular level and a .34
+   stock oil roughness, retain open pores, and add fine oxide freckles only
+   where case oxide survives handling. Use a darker oxidized gray on faded
+   flats. Let the thumb-pressure mask reach the lever's rounded rim instead of
+   stopping on its top plane. No accepted geometry changes. This pass's exact
+   GLB/high source and hashes are retained under repository `build/look1/pass3/`.
+
+
+4. **Rejected 2048 wear visibility and small-surface bake. Color and value:**
+   the long softbox now runs along the gun, restoring a plausible oil highlight.
+   Whole-stock P10 is 65.1 against 63.7, but median/P90 remain 86.9/120.4
+   against 111.7/176.8; case flats are too uniform and bright at 162.9 against
+   118.5. The forend stays too pale/even (75.4/80.4/84.4 versus
+   35.8/57.3/103.5). Do not accept these as a match. Source and baked hero,
+   open/aimed/shooter views, turnaround and all close-ups were opened.
+   The safety's fine cuts alias to cloudy bumps at only 1.695 texels/mm;
+   forend cutters have only 2.034 texels/mm. Increase their UV priority within
+   the same atlas, without adding a triangle. Broaden the forend's developed
+   checker panel up its outer cheeks; the old panel sat too low in the accepted
+   section to read from the hero. Add an original, font-generated shell
+   headstamp and more ammunition texels: the unmarked head looked unfinished.
+
+   The actual site-off exports preserve **every GLB accessor**. Full-frame
+   image-difference masks expose failures the node masks could not: wrist and
+   forend point wear both measure **0%** above six RGB levels. Reject. The
+   carry field measures 17.22% versus 13.39%, action fade 72.74% versus 57.28%,
+   thumb 10.34% versus 30.20%, guard 46.47% versus 66.08%, toe 0.15% versus
+   0.57%, forend impacts 1.49% versus 3.45%. Narrow the carry field, retain
+   oxide islands between handled action fields, extend thumb and finger
+   pressure through their rounded contact surfaces, polish the flattened
+   checker tops more visibly, and enlarge the local shallow impacts. The
+   reference annotations and reflection uncertainty remain visible; masks are
+   measurements for review, never inputs to textures. Correct the review's
+   profile axes for the macro's rigid image rotation and enlarge native crops
+   explicitly for display. Original native masks and counts remain saved.
+   Pass-four artifacts and source snapshot are retained in `renders/look1/pass4/`
+   and repository `build/look1/pass4/` respectively. No form or rig changes.
+
+
+5. **Rejected excessive polish fields; correct the photographic denominator.
+   Color and value:** stock median 112.3 versus 111.7 is close, but its low/high
+   spread is still too narrow; the paper is now 183 rather than the photo's
+   approximately 154. Match that exposure before making finer color claims.
+   The forend's 107.8/116.7/129.2 versus 35.8/57.3/103.5 is a clear miss.
+   Source/photo/export pairs show nearly identical source and export values
+   (forend mean absolute RGB difference only 1.58/1.76/1.79), so this is **not**
+   further bake loss to excuse. The hand-pressure roughness override polished
+   almost the whole forend. Remove that continuous gloss field, leave rough
+   grime in grooves, and polish flattened tips only. Narrow the peak pressure
+   footprints at wrist and forend: actual exported differences reached 5.40%
+   and 40.56%, versus 1.64% and 5.90%. Dings remain too small/faint at full frame;
+   brighten only the fractured bare-wood lips, not the surrounding wood.
+
+   The new rearward hero exposes the long narrow accepted lever and the wrist;
+   the accepted aimed/open cameras are untouched. Its thumb field is now too
+   broad (44.03% versus 30.20%), so narrow it along the leaf. The barrel carry
+   patch is still high/broad (17.79% versus 13.39%); lower it onto the carrying
+   flank and reduce its length. Extend muzzle thinning slightly along the tube
+   so it remains visible from this whole-gun angle. The source field finishes
+   use a physical .45 dielectric specular level for oil, with one shared atlas;
+   no per-part exposure or image grading is allowed. The same-studio three-gun
+   view shows bluing consistent with the pump and warm walnut within the lever's
+   range; our case action remains a distinct used silver-gray finish.
+
+   A native-pixel inspection found a real annotation error: the previous guard
+   polygon included some cast shadow and missed the brightest inner edge.
+   The steel/shadow transition is visible in repository
+   `build/look1/guard-mask-boundary.jpg` and the native scan profiles. Replace
+   it with the measured inner-edge path plus the visible 8-pixel steel width;
+   the rubbed inner gray/bright field is about 3 pixels wide. Its reference
+   worn fraction changes from the invalid 66.08% to approximately 35%, and its
+   whole-part highlight from 199 to approximately 239. This forces a **smaller**
+   guard rub, not an acceptance of the 76.38% export. Retain the one-native-pixel
+   boundary sensitivity and the warning that a highlight is not uniquely wear.
+   Original and revised evidence remain archived. No geometry changed.
+
+   The denser layout raised the measured global UV median to 3056 texels/m;
+   the former arbitrary `<3000` assertion rejected an improvement. Replace
+   that cap with a measured minimum of three texels per designed cutter pitch
+   on stock, forend and safety. All scale, UV overlap, normals, rig, contacts,
+   serialization and exact-precision detachable audits pass. Seven boundary
+   texels on hook/lump UV boundaries differ between clean and used color bakes
+   after filtering; source interiors remain unchanged. They are recorded as
+   bounded one-pixel UV-edge differences, not counted as physical weather.
+   Site-off outputs retain every untouched used texel exactly. Pass-five
+   artifacts/source are archived under `renders/look1/pass5/` and repository
+   `build/look1/pass5/`.
+
+
+6. **Resolve reflection visibility, then remeasure. Color and value:** the
+   pass-six source and export both made the checkered forend too pale
+   (median 85.0 versus 57.3). A source-only zero-specular diagnostic changed
+   that to 41.0; it isolated reflected visibility in the grooves rather than
+   a missing dark base color or lost bake detail. Preserve oil sheen on flat
+   wood and point tops, suppress reflected visibility in cut grooves and
+   vessels, and bake this scalar into the existing opaque BaseColor alpha.
+   The kit exporter explicitly opts into KHR_materials_specular with the same
+   BaseColor image/sampler. No extra image, material or texture resolution is
+   introduced. A clean fresh archive ran all 24 kit modules sequentially:
+   `build/kit-specular-suite/build/results/results.json`, 24 passed.
+   Pass-six hero retains deep cavity shadow and no clipped surface highlights;
+   its foreground median is approximately 75, P99 199, and about 9% below 8/255.
+   That tonal range is useful, but does not prove the photographic match.
+
+7. **Reject repeated impacts and compressed control highlights. Color and
+   value:** pass-seven export medians are barrel 42.6/59.3, case 135.6/118.5,
+   lever 72.9/55.3, safety 65.3/75.4, triggers 29.7/24.5, guard 27.8/51.3,
+   stock 103.3/111.7 and forend 58.7/57.3 (ours/photo). The forend's median
+   improvement is real, but P10 53.2/35.8 still misses: the native/source/export
+   pair shows the photo's deeper grooves. Small source/export RGB differences
+   (about 1 code value in wood) show this is mainly source response. The
+   safety's diamonds read after the new scalar map and larger UV allocation;
+   their source/export difference remains about 16 codes because subpixel
+   facets filter at 2048. Do not claim a lossless material bake.
+
+   Trigger and guard highlights remain too subdued compared with the native
+   photograph. Darken intact bluing on their broad flats, polish the contact
+   edges, and allocate more UV area to the blades and lever. The guard's
+   original normal-direction pressure gate did not narrow its broad inner
+   land; use a physical X strip on that land. Actual pass-seven worn fractions
+   are carry 12.08/13.39%, muzzle .40/.72%, case 66.69/57.28%, lever
+   33.58/30.20%, guard 48.34/35.23%, wrist 2.79/1.64%, forend points
+   10.55/5.90%, toe .48/.57%, and forend edges 3.93/3.45%. Narrow the latter
+   pressure fields, reduce case fade, and lengthen only the muzzle end field.
+
+   The toe and forend dings have repeated pale upper crescents: this is a CG
+   tell despite their approximately correct area. Replace the toe's ten bowls
+   with three impacts and break each thin raised lip into one torn quadrant,
+   interrupted along fibers. Keep shallow compressed wood and unbroken finish
+   around it. This changes normal/color only; accepted geometry is untouched.
+
+   Eighteen BaseColor and seventeen roughness/metallic chart-boundary texels
+   differ between the independent used/clean bakes. BaseColor/roughness/metallic
+   **interiors outside the site domains are identical**; normal interior delta
+   is at most one 16-bit code value. Remove the arbitrary global edge-count
+   cap and instead retain all boundary coordinates/counts/amplitudes, with
+   exceptions restricted to the measured one-pixel boundary. The strict
+   interior assertion remains. Every untouched site-off texel remains exactly
+   the used texel. These edges are not counted as physical wear.
+
+   Quick lighting probes initially reused calibration-file light settings,
+   which override the module defaults. Correct the probe camera copies and
+   regenerate the calibration through Make before final comparisons; do not
+   infer material behavior from a light change that was never applied.
+
+
+8. **Keep the action; reject matching by washed-out fill. Color and value:**
+   pass eight's action passes every requested gate: P10/median/P90/highlight
+   67.8/113.7/147.0/203.7, versus 61.1/118.5/157.9/205.2. The newly resolved
+   source/export control edges are visible. The remaining photographic misses
+   are still real. Native-scale side diagnosis (5977 pixels, matching the
+   reference width) changes forend P10 from 54.5 to 45.6 and median from 58.9
+   to 63.2: filtering was part of the earlier compression, but does not explain
+   the entire miss. Use native-scale finish comparisons, retain the delivered
+   2048 maps, and retain the ordinary 1600-pixel game-frame hero.
+
+   Checkering needs both form and response: freshly cut grain absorbs more oil
+   stain than planed lands; its grooves lose reflected visibility. Increase
+   warm flat-land walnut response only within a real walnut range, darken the
+   absorbing cut field, and retain individual worn point tops. Keep all of
+   that original; no image supplies a texel. The safety's upper facets need a
+   slightly brighter polished response, with dark oxide in the cuts.
+
+   Pass-eight visible wear fractions are carry 13.37/13.39%, muzzle .69/.72%,
+   case 63.68/57.28%, lever 33.58/30.20%, guard 49.67/35.23%, wrist
+   1.41/1.64%, forend points 6.19/5.90%, toe .29/.57% and forend edges
+   .87/3.45%. Fractions alone conceal the checker problem: the forend's actual
+   image change is one merged field, whereas bright tips in the photograph
+   remain separate. Oil changes in connected grooves were being counted as
+   point wear. Retain oil finishing in both used and unused counterparts;
+   remove the broad pressure-dependent oil roughness override. Change only
+   flattened tips in the wear counterfactual, then inspect native 2D masks as
+   well as the filtered game frame. Add a native 4000-pixel hero proof at the
+   same camera/lights, with common 800-pixel part rasters, connected worn and
+   surviving regions, and both profiles. This supplements the full 1600-frame
+   proof rather than replacing it.
+
+   A physical X strip still reaches the guard's entire outer side face. Add a
+   normal gate that rejects that protected broad side while retaining the
+   inner land and its rounded contact edge. The three toe impacts look less
+   manufactured, but the forend's short torn lips lost too much full-frame
+   contrast. Increase shallow compressed-wood contrast and modestly enlarge
+   the impact footprints; do not restore the repeated pale crescents.
+
+   Several side-light trials are rejected explicitly: stronger uniform room
+   light raises the barrel median but also lifts its P10 and washes the wood;
+   broad low frontal fill improves the median at the expense of excessive P90
+   and pale walnut. Keep all three finishes in the same light-fitting objective
+   and include the photographed neutral paper. A fixed-material, neutral-light
+   coordinate search in `build/look1/fit-side-lights.py` tests key power/height,
+   fill and world strength together. This is camera/studio estimation only;
+   it never changes material pixels, asset geometry or per-part exposure.
+
+
+9. **Reject a statistical polish stripe. Color and value:** pass nine keeps the
+   case steel inside every photographic tolerance, but stock/forend low tails
+   and the lever's median still miss. Increasing annual-ring contrast produced
+   exhibition-like zebra bands in the source; reject that trial and retain
+   moderate plain-walnut figure with longitudinal open vessels. The old narrow
+   hand ovals approximately matched worn fractions while creating connected
+   polished stripes. Broaden each oval to the actual hand footprint, select
+   individual cutter tips with deterministic per-diamond hardness, and keep
+   permanent oil and cavity response identical in used/unused counterparts.
+   These changes affect shader height and material response only.
+
+10. **Resolve the delivered cutter pitch. Color and value:** keep the oil-walnut
+    lands warm and the freshly cut field darker; brighter diffuse walnut alone
+    cannot recover a filtered groove. Stock unwrap angle trials at 30/40/55
+    degrees and assembly trials at 40/55/66 identify a denser valid layout.
+    Keep 40-degree stock / 55-degree assembly, 1,396 islands, 45.08% occupied
+    coverage and 0.000144% measured overlap. Concave packing adds negligible
+    coverage and is rejected. Measured median shipped texels per perpendicular
+    cutter pitch are 4.10 stock, 6.27 forend and 10.06 safety. No triangle or
+    accepted vertex moves. Rebuild the used and unused 4096 bakes on these same
+    UVs before judging them.
+
+    The macro guard reflects a dark field on its broad accepted inner land.
+    A small low studio strip can match the guard's quantiles, but washes out
+    the neighboring trigger edges. Two physical black baffles still fail the
+    joint fit; reject all these control-light trials, rather than calling an
+    isolated guard improvement a matched action. Guard normals and signed
+    volume were checked independently and are outward: this is not a reversed
+    face repair. The extra retained-blue barrel photograph uses a narrow
+    neutral key, fill and matte reflection card, identically for source and
+    exported comparisons; it supplements the sharper gray-paper whole gun.
+    Its original unscaled WordPress upload is unavailable (404), so retain
+    the downloaded 2560-pixel photo and disclose its limited cross-section
+    resolution. No imagined higher-resolution source is claimed.
+
+
+11. **Reject a material-projection leak and excessive point density. Color and
+    value:** the pass-eleven exported action and lever meet every requested
+    histogram/color tolerance. Safety low tail 43.9/35.9, stock 76.9/63.7,
+    forend median 66.2/57.3 and guard median 27.9/51.3 still miss (ours/photo).
+    Source/export pairs show these are mostly source response, with measurable
+    filtering loss in the safety and forend. Source-tested corrections retain
+    plain warm walnut, deepen longitudinal grain, reduce checker-field response
+    and lower the safety's polished steel response. A .31 brass-bead roughness
+    improves its shadowed lower tail without raising its median beyond 10%.
+    A .24 barrel polish produces a crisper reflected strip. The taller .18-m
+    reflection card blocked the blue-view key: reject it and keep the .10-m
+    card, with the direct key path clear. A slight warm side key is fitted to
+    barrel, stock and forend highlights together; all parts share it and the
+    paper's measured color is retained. No per-part grading.
+
+    The used/unused audit correctly rejects 48/255 reflection-factor leakage
+    onto the forend latch, iron and web. Their RGB, normals, roughness and
+    metallic are unchanged. The assembled scalar projection had selected
+    neighboring wooden cutter tips. Capture reflection in the kit's already
+    isolated named-part scene instead, retaining the independent first-pass
+    owner witness. Only AO comes from assembled contact groups. The strict
+    outside-site material assertion is retained, including alpha.
+
+    A clearly marked interim calibration under repository
+    `build/look1/interim-wear/` uses the actual site-off GLBs and preserves all
+    their accessors; it is not accepted delivery evidence while that audit
+    fails. Its nine visible fractions are 12.45/13.39 carry, .68/.72 muzzle,
+    63.06/57.28 case, 32.84/30.20 thumb, 47.90/35.23 guard,
+    4.82/1.64 wrist, 33.45/5.90 forend points, .46/.57 toe and
+    3.04/3.45 forend edges. The broad hand fields now cover plausible contact
+    areas, but far too many diamond tips flatten and their filtered changes
+    still merge. Reduce per-point hardness selection, not the hand footprint,
+    then inspect both final native 2D fields. Narrow the guard's physical inner
+    contact strip, reduce case fade/lever pressure extent and adjust the toe
+    and edge impact sizes modestly. All accepted geometry remains unchanged.
+
+
+12. **Correct the area measurement and the bow's contact path. Color and
+    value:** pass twelve's retained-blue barrel pair, safety, top lever and
+    brass bead pass every requested gate. Walnut reaches its main value ranges,
+    with small highlight residuals; shared side key 33.8 W improves the forend's
+    entire histogram without changing its albedo. The action remains slightly
+    low after reducing the faded area. Increase only the handled gray response
+    within a realistic oxidized-steel range. Keep the macro's common neutral
+    three-light setup; its 6% light trial pushed the lever median to the upper
+    tolerance without quite matching the action. Do not accept that joint fit.
+
+    The corrected isolated scalar capture passes all 10,642,945 owner-covered
+    texels with zero misses. The nine used/site-off exports preserve every
+    accessor. Outside-site interiors measure RGB/alpha 0, normal one 16-bit
+    code and roughness/metallic one 8-bit code, with zero boundary outliers.
+    `make -C guns/sxs` completes successfully in `build/look1/make-pass12.log`.
+    That build success does not establish wear acceptance.
+
+    The native 2D pair exposes a measurement error: one-pixel erosion removes
+    much of the thin guard from the 1600-pixel denominator. Use **complete
+    visible-part masks without erosion** for area, retaining the former
+    erosion result only as a diagnostic. The sealed pass-twelve 4000-pixel
+    fractions with complete masks are carry 11.36/13.39%, muzzle .87/.72%,
+    case 57.69/57.28%, thumb 27.13/30.20%, guard 14.68/35.23%,
+    wrist .99/1.64%, forend points 3.04/5.90%, toe .55/.57% and
+    forend edges 3.57/3.45%. Archive the earlier 1600 measurements rather than
+    presenting their different denominators as matching area.
+
+    The bow's rub is also visibly a short bottom strip. Its former rear normal
+    gate faces the wrong way, the front curve lies outside the intervals, and
+    a fixed X strip misses the narrower rear band. Follow the actual formed
+    width, select the rear +Y / floor +Z / front -Y inner surfaces and retain
+    the dark outer face. Match a continuous C-shaped rub, not a brighter bottom
+    line. Increase individual worn-tip selection within the unchanged hand
+    footprints; native masks already resolve separate tips, but too few of
+    them. Adjust carry/muzzle extent and thumb contact length against complete
+    part area. No accepted vertex, pivot or clip changes.
+
+    The primary hero and wear proof now use 4000 pixels so that the guard and
+    checker tips are resolved for photographic acceptance. The old 1600 outputs
+    remain archived as filtering diagnostics. The shipped maps remain 2048,
+    and source/export pairs still expose their actual filtering loss. Reuse
+    byte-identical 4000-pixel on/off images for the native 2D layout, checking
+    source SHA, renderer signature, camera, sample count and resolution; never
+    upscale an image to manufacture native evidence.
+
+
+13. **Reject closed pore cells in grazing light. Color and value:** the new
+    4000-pixel exported close-ups retain deep blue-black tubes, warm walnut
+    and silver-gray handled case fields, without a pale overall wash. The
+    guard's continuous inner C-shaped rub is now visible around both curves;
+    area acceptance awaits its complete-part exported on/off proof.
+    The walnut fails a closer photographic comparison: on front-facing wood
+    and the comb, the elongated Voronoi boundary network closes into coarse
+    cells and reads like embossed leather. `look-field-13.jpg` instead shows
+    fine open pores and longitudinal dark streaks. The gray-paper wrist macro
+    confirms the direction; its neutral balance is unchanged. Reject the
+    closed network. Test longitudinal soft fiber bundles and smaller vessel
+    apertures, retaining annual growth, oil response, cutter pitch/borders and
+    all original contact wear. Published walnut vessel measurements in the
+    reference register constrain the new pore diameter; they do not supply
+    texture pixels. No geometry is changed. This source-only trial is not
+    delivery acceptance; its baked export must be judged again.
+
+
+    The sealed pass-thirteen build completes with exit 0. Complete visible-part
+    wear fractions, ours/photo: carry 13.42/13.39%, muzzle .74/.72%,
+    action 58.07/57.28%, thumb 29.47/30.20%, guard 24.74/35.23%,
+    wrist 1.65/1.64%, forend points 5.06/5.90%, toe .54/.57%,
+    forend edges 3.57/3.45%. These counts do not override the 2D sheets:
+    the carry field is too oval and short; the forend's bright tips sit too
+    far down the cheek, whereas the photo concentrates them on the upper,
+    rear gripping flank. The guard is now one continuous C, but too narrow.
+    Its largest connected worn region occupies about 24% of the part, against
+    the photo's 35%; the native boundary uncertainty remains 19–51%.
+    Keep the original pressure causes, revise their footprints, and do not
+    accept matching area alone. Exact source/export and all render evidence
+    are preserved under repository `build/look1/pass13/` and
+    `renders/look1/pass13/`.
+
+14. **Repair filtering and cutter construction before the next bake. Color
+    and value:** pass thirteen passes all requested gates for walnut, safety,
+    lever and bead. The action median is still 104.9/118.5, the guard
+    34.8/51.3, and the retained-blue barrel P90 is 100.0/86.4 (ours/photo).
+    Source tests increase handled case gray within an oxidized-steel range;
+    median reaches 108.2 while its protected oxide and highlights stay in
+    range. A slightly warmer, lower-value barrel rub reduces its cool upper
+    tail without changing the intact blue shared with the pump. The revised
+    longitudinal wood source reaches stock 71.7/111.3/175.1/193.0 and
+    forend 33.7/62.6/108.5/122.5 (P10/median/P90/highlight). These are
+    source diagnostics, not accepted exported measurements.
+
+    The source/export macro also exposes a bright zipper at the action's
+    constant-X land boundary. Turning off the normal map removes it. At 26
+    affected ground-side samples, the delivered filtered normal deviates as
+    much as 37.18 degrees; separating the original ground-side UV charts and
+    projecting the same dense source reduces that to .00966 degrees. The
+    preview removes the vertical zipper. Repack at unchanged texture size,
+    retain all vertices/triangles and normal fans, and verify the rebaked
+    export again. This is a UV/filtering repair, not a head-form change.
+
+    Native photographic checker crops show elongated diamonds along the
+    grain, approximately 3:1, not the current nearly square 1.33:1 cuts.
+    Change the original cutter normals to (.32, ±sqrt(1−.32²)); they remain
+    unit length, so perpendicular pitch remains exactly 1.27 mm / 20 LPI.
+    Move forend pressure toward the upper cheeks and rear grip while retaining
+    individual point hardness and dark unhandled grooves. Keep stock-toe and
+    forend impact sites local. The open view's headstamp is too soft: increase
+    ammunition UV priority from 1.2 to 2.0 and use heavier original open-font
+    lettering. Trial ammunition density rises from 1708 to 2545 texels/m;
+    the forend retains 5.66 texels per cutter pitch and stock keeps its own
+    unchanged region. Each final detachable must still pass the lossless
+    512-subset audit.
+
+    Reflection trials remain diagnostics. A physically placed opposite-side
+    strip can brighten the inner guard without washing out the triggers or
+    lever, but a broad strip overlights too much of its land. Narrow its
+    angular footprint and inspect all controls together; no selective image
+    grading or per-part exposure is allowed. Final light settings and any
+    remaining miss will be recorded with the actual exported pairs.
+
+
+    The useful guard correction is its intact surface, not more fill. The
+    former .285 roughness spread the reflected slit over too much of the
+    broad inner land. Uniform .18 polished blue gives source P10/median/P90/
+    highlight 7.1/55.9/170.1/237.0, versus 11.0/51.3/170.0/238.6 in
+    the photograph. A .17 inner polish with .25 on the narrow filed outer
+    faces gives 8.1/54.4/161.8/237.6; only P10 still misses. Preserve the
+    inner polish and test .34 on the filed edges in the actual next export.
+    Base blue stays .035/.037/.039 linear; pressure maxima reach bare steel,
+    with cubic progressive thinning in the surrounding rub. The 0.26 W,
+    140 × 1 mm reflected slit and its upper barn door are explicit camera
+    metadata, identically present in source and export. Lowering the door's
+    bottom to −13.5 mm stops the unwanted trigger reflection. The rejected
+    extra front card brightens the triggers and is not retained.
+
+    Source triggers reach 16.1/23.9/64.2/109.9 against photo
+    6.1/24.5/61.1/110.9: their low-decile mismatch remains clearly localized
+    to broad protected blade faces in the cyan overlay. The other values
+    match. Do not force their real blued-steel color toward zero to imitate
+    a different maker's thin, partly shadowed profiles. The lever's slightly
+    darker protected blue gives source 18.6/57.7/187.6/227.4 with its
+    bright pressure field retained. All of these are pre-bake source results.
+
+    The carry field now merges three overlapping carrying positions into a
+    long, thin rub rather than one oval; a source on/off pair confirms that
+    structure. Reduce its vertical half-width from 9 to 8.1 mm after the
+    source total barrel-use fraction measures 15.64% including the muzzle.
+    Worn forend points move to the upper/rear gripping cheeks, and the
+    original 3:1 diamonds now read as short longitudinal tips rather than
+    round sparkles. Final worn fractions still require the independent
+    4096 bakes and actual 2048 site-off exports. No accepted vertex, pivot,
+    clip, original form camera or contact tolerance changes.
+
+
+15. **Reject fraction-only guard and forend matches. Color and value:** the
+    pass-fourteen exported case action, lever, safety, guard, stock and forend
+    meet every requested value and highlight-color gate. The retained-blue
+    barrel still misses its median (35.6/29.0), and the bead its low decile
+    (55.4/68.5). A camera check reveals that the barrel photograph is almost
+    side-on; the old above-side camera exposes too much of the second tube.
+    A near-level comparison improves rigid-landmark RMS from 7.01 to 5.74
+    pixels. With neutral room strength .98, the actual export measures
+    15.6/28.9/94.4/145.9 versus 17.0/29.0/86.4/153.5, and its highlight
+    RGB 142.7/146.7/146.9 versus 155.3/153.3/149.8. Every gate passes.
+    This is a review camera/light correction; original accepted form cameras
+    and the shared studio are unchanged. The alternative 5.47-pixel camera
+    retains a larger upper-tail miss and is rejected.
+
+    A small physical fill ahead of the muzzles, below the bead center, lifts
+    its shadowed lower hemisphere without changing brass color. At .04 W the
+    actual export reaches 58.6/176.6/222.5/242.6 versus
+    68.5/160.8/246.7/254.0, highlight RGB 247.7/242.2/230.8 versus
+    254.9/253.7/254.1. These all meet the stated tolerances, though median
+    and low tail remain near their limits. Larger fill overlights the median;
+    a below-barrel fill is blocked and has little effect. Keep the accepted
+    raised foot and round bead. Correct a review annotation: the measured
+    Front_Bead mask contains the round bead only; its separate foot appears
+    in context but was never part of that denominator.
+
+    The three camera-side trigger-shade trials lower P10 only to roughly
+    13–14 against 6.1 while losing the matching median/highlight and the
+    guard low tail. Reject them. The original broad blade faces remain
+    fully measured; no near-zero steel color or selectively omitted dark
+    pixels are justified. The source/export pair localizes this remaining
+    low-tail mismatch. A passing median alone does not accept that finish.
+
+    Complete-part on/off export fractions are carry 13.81/13.39%, muzzle
+    .74/.72%, case 59.13/57.28%, thumb 29.51/30.20%, guard
+    23.05/35.23%, wrist 1.68/1.64%, forend points 5.49/5.90%, toe
+    .55/.57% and forend edges 3.69/3.45%. The carry now reads as one
+    long thin field, with a similar length and one connected worn region;
+    accept its placement rather than only its area. Muzzle thinning remains
+    confined to the end rim. Toe and forend impacts remain a few local,
+    original compressed bowls and broken lips, with intact surrounding oil.
+
+    Reject the guard and forend pressure distribution. The inner bow has
+    too little actual material change along its rear curve, despite a bright
+    reflection already present in the unused polished blue. Broaden the
+    physical contact field and test rear/front pressure through the bends.
+    The source baseline independently measures 22.37%, close to the exported
+    23.05%; this is a source pressure problem. The forend tips spread too
+    far down the cheek even though their area nearly matches. Concentrate
+    contact in a narrower upper hand field and increase the selected-tip
+    density there, retaining dark grooves and unhandled borders. The first
+    narrow-field source trial measures 5.26%; its more concentrated 2D
+    structure is useful, but only the next baked export can establish the
+    final area, visibility and filtered shape.
+
+
+    The wider guard trial reaches source 33.95% against photo 35.23%,
+    but its P10/median rise to 19.1/59.4 against 11.0/51.3. Reject the
+    finish despite improved area. A deeper protected blue, .020/.022/.024
+    linear, with a 1.3-mm contact core and stronger pressure around the two
+    bends, gives 33.23% and 12.9/53.6/167.0/233.6. Keep its complete C
+    structure and lower protected blue modestly to .016/.018/.020 for the
+    next full bake; no pure-black color is introduced. The bright core stays
+    real steel. The forend's 10-mm vertical hand-field trial at .55 point
+    selection reaches 6.24%; use .52 between the measured .48 and .55
+    trials, retaining separate elongated tips and the intact cut valleys.
+    These are source diagnoses. Final acceptance requires fresh exported
+    values and all nine actual on/off images after the next bake.
+
+
+    The completed fresh kit archive ran every one of its 24 test modules
+    successfully. Current kit source hashes still equal that archive. The
+    GPU-selection fixture requires Blender indirectly through `kit.gpu`;
+    an additional system-Python invocation fails at the missing `bpy` import,
+    before running a test. Its correct Blender invocation in the clean suite
+    ran all four cases successfully. No package installation or kit change
+    is needed. Full commands and results are retained in
+    `build/kit-specular-suite/build/results/results.json` at repository root.
+
+
+16. **Color and value, then audit what is actually damage:** pass fifteen's
+    exported retained bluing, case, lever, safety, guard, stock, forend and
+    bead meet every requested finish gate. The triggers retain their
+    disclosed P10 miss; other trigger values still match. The more complete
+    guard contact field measures 37.41/35.23%, with a continuous inner bow;
+    the forend tips measure 6.39/5.90%, now concentrated higher on the cheek.
+    These improvements do not excuse erroneous photographic annotations.
+
+    The native lower-stock crop exposes a fitted metal inlay, mistakenly
+    included in the former toe-damage mask. Exclude it. Actual chipped and
+    compressed heel/toe edges occupy **0.2673%**, not 0.5728%, of the full
+    visible stock (1,787 of 668,631 native pixels). Cross-view inspection
+    also identifies a slotted forend screw in a former ding polygon; the
+    other polygons select intact grain rather than clear impact damage.
+    Reject that entire 3.45% forend-edge target. Keep the old masks and their
+    failed interpretation in the archived rounds; never call hardware wear.
+
+    The existing sharper `look-gray-used.jpg` shows a definite fractured
+    barrel-facing wood rim beside the forward checker point. The complete
+    visible wooden forend, excluding its fitted latch, supplies the new
+    denominator. Only the unambiguous fracture is counted: **0.1640%**,
+    384 of 234,155 native pixels. Balance its upper-left neutral gray
+    studio paper, native rectangle (40,40)–(500,300), linear gains
+    (.94134,1.01711,1.01711). No photographic pixel enters a material.
+
+    Rebuild the original impacts at these lower densities: reduce the large
+    toe bowl; replace oversized end bowls with small original fractures at
+    the barrel-facing rim and ends. The first source trial puts them so high
+    the barrel hides every changed pixel: 0% is rejected. Move the impacts
+    slightly onto the visible upper cheek, retaining their edge cause.
+
+    A proposed height partition would require an artificial unhandled gap
+    in the hand field. Reject it. The fracture and point fields can physically
+    overlap. Two additional 4096 kit bakes disable just one forend cause each;
+    use that whole-part counterfactual for its evidence export, keeping the
+    other cause active. The other seven fields retain disjoint all-clean
+    regions. Integer atlas copying preserves every untouched used texel;
+    every GLB accessor must still match. These extra textures are evidence
+    only; one 2048 set ships. Preserve every accepted vertex, original rig,
+    clip, pivot, form camera and triangle. Both source trials and the fresh
+    baked export require inspection; the old area agreement is withdrawn.
+
+    The revised 4000-pixel source on/off trial measures 0.15336% visible
+    forend impacts, 0.29089% toe impacts and 5.42820% forend point wear.
+    The fractures now interrupt a few upper-edge fibers instead of forming
+    broad pale bowls; the toe has three small local compressed/chipped sites.
+    Opened all three side-by-side crops and their difference fields. This
+    is still source evidence; the shipped-map footprint must be measured
+    independently after the 4096-to-2048 reduction.
+
+
+17. **Color and value on the fresh export:** eight of nine primary finishes
+    satisfy all requested whole-part luma and highlight-RGB gates. The stock
+    is 72.49/109.45/175.30/192.81 versus 63.74/111.65/176.76/201.61;
+    the forend is 37.52/62.29/107.70/122.06 versus
+    35.76/57.28/103.45/125.95 (P10/median/P90/highlight, 0–255).
+    The trigger P10 remains 17.07 versus 6.07; its median, upper tail and
+    highlight agree. The cyan quantile overlay locates the miss on our broad
+    accepted blade faces versus the photograph's thin shadowed profiles.
+    Source and export both miss: mean source/export RGB difference is only
+    about 1.1 levels. Keep the actual low-tail failure visible; do not claim
+    a ninth pass or lower real steel reflectivity to pure black.
+
+    Opened every fresh studio view, including both heroes, turnaround,
+    shooter, aimed, open, breech, wood/metal details and scale, plus Eevee
+    and both ammunition renders. On gray the barrels remain deep blue-black,
+    the underside and bow retain dark cavities, and highlights roll across
+    the turned fences and oil wood. Original 20-LPI cuts, borders, flattened
+    tops and dark valleys survive. The macro source/photo/export pairs show
+    the real limits: our walnut's fine grain is stronger and more regular
+    than the photographed stock, case mottle has different placement and
+    stronger blue islands, and the safety cuts/headstamp soften at delivery
+    resolution. Passing histograms do not erase those visual differences.
+    The bead/safety/deep-blue metallic neutrals are estimates; their lighting
+    and small photographic cross-sections make them weaker evidence than the
+    gray-paper action and whole-stock pairs. The older gray-barrel pair
+    remains an explicit contextual miss, not a match for retained rust blue.
+
+    The complete 4096 used bake and separate `make check` passed. Final
+    causal wear evidence is still being rebuilt at this journal checkpoint;
+    its final fractions and 2D review are recorded below when complete.
+
+
+18. **Color and value, then final causal wear review:** the complete build
+    retains the eight primary finish passes and the disclosed trigger P10
+    failure. The actual foreground hero has P1/P50/P99 luma
+    0.00/57.40/214.84, 13.43% below eight, zero all-channel clipping and
+    0.000414% with any channel at 254 or above. Dark cavities remain deep;
+    neither this tonal check nor successful delivery checks substitutes for
+    the photograph pairs.
+
+    Opened all nine full-frame/crop/difference pairs and all nine native 2D
+    pairs. The carry field is one elongated gray area around the balance,
+    with protected blue along the rest of the tubes. Muzzle wear is confined
+    to narrow gray end rims. Handled action flats form a broad faded field,
+    leaving oxide around the returns; the accepted head and the photo's
+    separate plates/fences divide that field differently. The lever has a
+    merged bright thumb-contact land and a dark neck. The guard now has one
+    continuous rubbed inner bow, with small separate edge fragments; its
+    accepted broad flat land projects a thicker lower strip than the photo's
+    thin rounded band. The intact outside margins stay dark. These are 2D
+    structural observations, not acceptance by equal region counts.
+
+    The wrist and upper forend hand fields contain distinct polished cutter
+    tops, not uniform pale overlays, with their grooves and borders intact.
+    Their connected-region counts differ from the native photographs, whose
+    projected tip sizes and stock forms also differ. Forend point wear is
+    6.07/5.90%; the broad-hand field survives the bake without being replaced
+    by a few isolated bright dots. Toe/heel damage is three small localized
+    compressed/chipped edge sites, 0.29132/0.26726%. Forend edge damage is
+    three small original fiber fractures, largest near the upper rim,
+    0.16143/0.16399%; the photo's single clear rim chip remains the independent
+    reference. Neither fitted hardware nor intact grain is counted. These
+    impacts are minor in the 4000-pixel whole-gun hero, as their very small
+    photographic area requires; do not imply they are conspicuous in a
+    contact-sheet thumbnail. Native boundaries and RGB thresholds remain
+    sensitivity bands, not precise physical surface-area measurements.
+
+    Both overlapping forend causes use their own single-cause-off 4096 kit
+    bake, preserving the other cause. Source flags and projection hashes are
+    checked. All nine evidence GLBs preserve every geometry, UV, skin and
+    animation accessor. Independent other-part interior comparisons stay
+    within one 8-bit color/roughness/metallic code and approximately one RGB16
+    normal code. Every untouched pixel in the actual evidence exports is
+    copied exactly from the used maps. The all-clean/used comparison retains
+    five color and two ORM chart-boundary outliers, with coordinates and
+    maxima in `build/wear/variants.json`; no occupied interior exception is
+    hidden. Contact AO is assembled and can legitimately differ outside use.
+
+    Opened the current 51-panel contact sheet and three-gun studio comparison.
+    The exact same lights, camera, exposure and scale show compatible deep
+    black bluing across Covey, Hearth and Bracken. Covey's walnut is warmer,
+    more amber and more strongly grained than Hearth's muted stock, closer
+    to Bracken's brown wood. It is not an exact family walnut color match;
+    the balanced used-stock pair remains its finish target. All three actual
+    export hashes and unchanged studio settings are retained.
+
+## Final build proof and scope
+
+`make -C guns/sxs` completed with exit 0, including all renders and evidence.
+The separately invoked `make -C guns/sxs check` also completed with exit 0.
+Root-local transcripts: `build/look1/make-pass16.log` and
+`build/look1/check-pass16.log`, with their corresponding `*-result.json` files.
+The source and fresh-import checks cover topology, dimensions, UVs, normals,
+19 clips, actual-surface contacts, motion clearances, sight visibility and the
+51-angle lever sweep. Deterministic rebuild agrees on all 104 recorded entries.
+The 1,715 affine samples separately establish serialization fidelity.
+`python3 kit/repo_check.py` reports 1,111 source files and zero errors.
+
+No accepted form vertex, pivot, clip or original form camera changed. The
+bake-revealed repair separates 103 ground-side UV faces from the curved
+returns: 44 joined ground boundaries become zero, with the geometry hash
+unchanged. Correct named-part projection prevents neighboring steel/wood from
+contaminating one another, including the reflection scalar. RGB16 shipped
+normals retain continuous forging reflections. Higher ammunition UV priority
+and a bolder installed-font headstamp improve the small delivery maps; these
+are UV, shader and marking changes, not alterations to the accepted shell.
+The open 2.469-mm and top wood-line 3.293-mm residuals remain as accepted.
+
+Shell: 752 triangles, 624,480 bytes, three lossless 512 PNG subsets.
+Fired hull: 480 triangles, 744,848 bytes, the same layout and RGB16 normal
+precision. `texture_size=512` and `texture_clusters=True` use the kit path.
+Independent oriented-geometry, tangent-frame, material, density and L0–L3
+pointwise mip audits pass against full-atlas snapshots. Exact copied texels
+are lossless; the hull's float32 UV serialization still has a maximum
+3.05176e-5-pixel transform roundoff and about 1.20e-6 sampled normal difference.
+That roundoff is disclosed, not labeled literally zero surface error.
+
+Shared kit work, in separate commits: preserve RGB16 precision through
+lossless detachable clustering and its comparison; optionally carry opaque
+`KHR_materials_specular` data in existing BaseColor alpha, reusing the same
+image and sampler. Previous defaults remain. Every `kit/test_*.py` module ran
+sequentially from a fresh build, all 24 exit 0; GPU fixtures used
+`kit/with_gpu.sh`. The runner and exact commands/results are at repository
+`build/kit-specular-suite/run-tests.py` and
+`build/kit-specular-suite/build/results/results.json`. Current kit source
+hashes equal that tested archive. No shared gun modeling file changed.
+
+No docs JPGs or GIF were generated or committed. Render outputs, bakes, GLBs
+and downloaded references remain ignored. Nothing is pushed. No additional
+tool is needed. A future general kit API for multiple isolated scalar captures
+would remove this asset's dependence on the existing bake scene/node names.
+The primary remaining weaknesses are the trigger low tail, stronger original
+wood/case texture character, small-photo metallic neutral uncertainty, and
+normal/headstamp filtering at the fixed delivery resolutions. Importers must
+support `KHR_materials_specular` and should check their own normal compression.
+
+
+## Whole-part finish values
+
+Generated local pairs are in `renders/final/look-review/`; artifacts are rebuilt, not committed.
+
+Actual exported GLB SHA256: `97d981c13569411e1c3a72fc299a4aa28699af082fbcefd4ba01dc273f8b4d5b`. Values are Rec.709 display luma in 0–255; the highlight is the mean of the brightest 5%. Every row is ours / balanced native photograph. One-pixel AA boundaries are excluded from rendered finish samples; complete visible-part denominators are retained for wear. No per-part exposure, normalization or grading.
+
+| Finish and pair | P10 | Median | P90 | Highlight | Highlight RGB | Gates |
+| --- | ---: | ---: | ---: | ---: | --- | --- |
+| Retained rust blue (`barrels_deep_blue-pair.jpg`) | 15.6 / 17.0 | 28.9 / 29.0 | 94.4 / 86.4 | 145.9 / 153.5 | (142.7,146.7,146.9) / (155.3,153.3,149.8) | all |
+| Faded case action (`case_action-pair.jpg`) | 66.6 / 61.1 | 108.6 / 118.5 | 144.6 / 157.9 | 203.5 / 205.2 | (205.2,203.5,199.1) / (210.8,204.4,196.9) | all |
+| Blued top lever (`top_lever-pair.jpg`) | 18.8 / 20.1 | 60.6 / 55.3 | 187.6 / 188.1 | 229.6 / 246.2 | (228.3,229.8,230.8) / (244.6,246.9,243.9) | all |
+| Safety steel (`safety-pair.jpg`) | 39.0 / 35.9 | 68.8 / 75.4 | 152.1 / 147.3 | 206.8 / 200.6 | (208.2,206.8,202.1) / (206.0,199.8,192.5) | all |
+| Blued triggers (`triggers-pair.jpg`) | 17.1 / 6.1 | 25.7 / 24.5 | 65.0 / 61.1 | 111.9 / 110.9 | (112.6,111.4,114.8) / (115.6,109.6,110.2) | p10 +181.3% |
+| Blued guard (`guard-pair.jpg`) | 10.4 / 11.0 | 52.9 / 51.3 | 173.5 / 170.0 | 232.0 / 238.6 | (230.8,232.3,233.5) / (240.5,238.4,234.9) | all |
+| Walnut stock (`walnut_stock-pair.jpg`) | 72.5 / 63.7 | 109.5 / 111.7 | 175.3 / 176.8 | 192.8 / 201.6 | (206.5,189.6,183.8) / (228.5,196.5,173.3) | all |
+| Walnut forend (`walnut_forend-pair.jpg`) | 37.5 / 35.8 | 62.3 / 57.3 | 107.7 / 103.5 | 122.1 / 125.9 | (159.6,113.7,94.4) / (158.9,118.9,98.6) | all |
+| Brass bead (`brass_bead-pair.jpg`) | 58.6 / 68.5 | 176.6 / 160.8 | 222.5 / 246.7 | 242.6 / 254.0 | (247.7,242.2,230.8) / (254.9,253.7,254.1) | all |
+| Older gray-barrel context (`barrels-pair.jpg`) | 7.0 / 14.1 | 35.4 / 59.3 | 174.8 / 132.4 | 194.2 / 203.1 | (193.6,194.4,194.4) / (206.4,202.8,197.3) | p10 -50.5%; median -40.3%; p90 +32.1% |
+
+## Visible wear fractions and 2D evidence
+
+Full-frame and cropped on/off pairs: `renders/final/wear/<site>-on-off-pair.jpg`. Native 2D pairs: `renders/final/wear-native/`.
+
+Complete projected named-part area; worn pixels change by at least 6 RGB levels between the actual used and site-off GLBs. Every site-off export preserves all accessors. The photographs use independent native annotations; reflection/threshold and one-pixel boundary uncertainty remain in each pair. Counts describe 8-connected worn and remaining regions at a common 800-pixel longest-part scale; they are evidence, never an acceptance gate.
+
+| Site and full-frame on/off pair | Ours % | Photo % | Delta pp | Native 2D pair | Worn regions ours/photo | Remaining regions ours/photo |
+| --- | ---: | ---: | ---: | --- | ---: | ---: |
+| `barrel_carry` | 13.82 | 13.39 | +0.43 | `barrel_carry-native-2d-pair.jpg` | 1/1 | 8/1 |
+| `muzzles` | 0.74 | 0.72 | +0.02 | `muzzles-native-2d-pair.jpg` | 3/1 | 2/2 |
+| `action_fade` | 59.24 | 57.28 | +1.96 | `action_fade-native-2d-pair.jpg` | 14/5 | 29/1 |
+| `lever_thumb` | 29.51 | 30.20 | -0.69 | `lever_thumb-native-2d-pair.jpg` | 1/2 | 1/11 |
+| `guard_fingers` | 37.41 | 35.23 | +2.18 | `guard_fingers-native-2d-pair.jpg` | 10/1 | 5/74 |
+| `wrist_points` | 1.68 | 1.64 | +0.04 | `wrist_points-native-2d-pair.jpg` | 159/555 | 8/1 |
+| `forend_points` | 6.07 | 5.90 | +0.17 | `forend_points-native-2d-pair.jpg` | 99/219 | 1/4 |
+| `stock_toe` | 0.29 | 0.27 | +0.02 | `stock_toe-native-2d-pair.jpg` | 3/2 | 9/2 |
+| `forend_edges` | 0.16 | 0.16 | -0.00 | `forend_edges-native-2d-pair.jpg` | 3/1 | 1/1 |
+
+## Actual delivered files
+
+| File | Bytes |
+| --- | ---: |
+| `export/shell.glb` | 624,480 |
+| `export/hull.glb` | 744,848 |
+| `export/sxs.glb` | 19,674,244 |
+| `textures/T_Covey26_BaseColor.png` | 3,450,993 |
+| `textures/T_Covey26_Normal.png` | 10,590,347 |
+| `textures/T_Covey26_ORM.png` | 2,656,055 |
+
+38,822 triangles; 54 named parts, 17 bones, 19 clips, 14 sockets; 1 atlas material; three 2048 images, PNG channel precision [8, 16, 8].
+Fresh imported UV coverage is 43.4285%; overlap fraction is 0.0000012470,
+with no degenerate or out-of-bounds triangles. Measured density P5/50/P95 is
+1,034.4 / 3,226.5 / 4,561.8 texels per meter. Median delivered texels per
+construction pitch: wrist 4.102, forend 5.693, safety 9.067. The checker cutter
+pitch is the original 1.27 mm (20 LPI).
+
+The 1,715 serialization samples have a maximum position error of
+1.90828e-7 m; this is export fidelity, separate from the actual assembly checks.
+
+
+
+---
+
 # Covey 26 — form round 7: turned and milled head
 
 Round six's favorable fairness judgments are superseded by the owner's round-seven
