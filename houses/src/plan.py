@@ -122,7 +122,7 @@ def roof_faces(blocks):
             for other in blocks:
                 if other is block: continue
                 o=other.overhang
-                cuts=[(1,0,-other.x0+o),(-1,0,other.x1+o),
+                cuts=other.occlusion_constraints() if hasattr(other,'occlusion_constraints') else other.constraints() if hasattr(other,'constraints') else [(1,0,-other.x0+o),(-1,0,other.x1+o),
                       (0,1,-other.y0+o),(0,-1,other.y1+o)]
                 cuts += [(p[0]-plane[0],p[1]-plane[1],p[2]-plane[2]) for p in other.planes()]
                 parts=[part for v in parts for part in subtract(v,cuts)]
@@ -158,7 +158,7 @@ def roof_junctions(blocks, visible=True):
                     constraints=[]
                     for block,plane in ((b,p),(c,q)):
                         o=block.overhang
-                        constraints += [(1,0,-block.x0+o),(-1,0,block.x1+o),
+                        constraints += block.constraints() if hasattr(block,'constraints') else [(1,0,-block.x0+o),(-1,0,block.x1+o),
                                         (0,1,-block.y0+o),(0,-1,block.y1+o)]
                         constraints += [(r[0]-plane[0],r[1]-plane[1],r[2]-plane[2]) for r in block.planes()]
                     segment=line_segment(p,q,constraints)
@@ -176,7 +176,8 @@ def visible_line(segment,blocks,owners):
     for other in blocks:
         if other in owners:continue
         o=other.overhang
-        for axis,lo,hi in ((0,other.x0-o,other.x1+o),(1,other.y0-o,other.y1+o)):
+        domain=other.domain() if hasattr(other,'constraints') else [(other.x0-o,other.y0-o),(other.x1+o,other.y1+o)]
+        for axis,lo,hi in ((0,domain[0][0],domain[-1][0] if len(domain)==2 else domain[1][0]),(1,domain[0][1],domain[-1][1])):
             if abs(t[axis])>EPS:cuts.update([(lo-a[axis])/t[axis],(hi-a[axis])/t[axis]])
         for p in other.planes():
             d=p[0]*t[0]+p[1]*t[1]-t[2]
@@ -185,7 +186,7 @@ def visible_line(segment,blocks,owners):
     for lo,hi in zip(cuts,cuts[1:]):
         if hi-lo<EPS:continue
         mid=[a[k]+t[k]*(lo+hi)/2 for k in range(3)]
-        hidden=any(other not in owners and other.contains(*mid[:2],other.overhang) and other.height(*mid[:2])>mid[2]+1e-6 for other in blocks)
+        hidden=any(other not in owners and (other.covers(*mid[:2]) if hasattr(other,'covers') else other.contains(*mid[:2],other.overhang)) and other.height(*mid[:2])>mid[2]+1e-6 for other in blocks)
         if not hidden:result.append([[a[k]+t[k]*v for k in range(3)] for v in (lo,hi)])
     return result
 
@@ -225,6 +226,9 @@ def merge(base, override):
 
 def generate(seed=27, overrides=None, house_type=None):
     selected=house_type or (overrides or {}).get("type", "builder_colonial")
+    if selected=="cape":
+        from cape_plan import generate as cape_generate
+        return cape_generate(seed,overrides)
     if selected=="ranch":
         from ranch_plan import generate as ranch_generate
         return ranch_generate(seed,overrides)
@@ -296,6 +300,9 @@ def wall_frame(block,face):
 
 
 def openings(plan):
+    if plan["spec"]["type"]=="cape":
+        from cape_plan import openings as cape_openings
+        return cape_openings(plan)
     if plan["spec"]["type"]=="ranch":
         from ranch_plan import openings as ranch_openings
         return ranch_openings(plan)
@@ -349,6 +356,9 @@ def openings(plan):
 
 
 def serialize(plan):
+    if plan['spec']['type']=='cape':
+        from cape_plan import serialize as cape_serialize
+        return cape_serialize(plan)
     if plan['spec']['type']=='ranch':
         roof=[plan['roof_envelope']] if plan.get('roof_envelope') else roof_blocks(plan['blocks'])
         return {**plan,'blocks':[asdict(b) for b in plan['blocks']],'porch':asdict(plan['porch']),

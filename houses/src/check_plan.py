@@ -12,6 +12,9 @@ from plan import generate,openings,wall_frame,roof_blocks,roof_faces,roof_juncti
 
 
 def check(plan):
+    if plan['spec']['type']=='cape':
+        from cape_check import check_plan
+        return check_plan(plan)
     windows=openings(plan);main,garage=plan['blocks'];roof=[plan['roof_envelope']] if plan.get('roof_envelope') else roof_blocks(plan['blocks'])
     faces=roof_faces(roof);junctions=roof_junctions(roof)
     errors=[]
@@ -83,6 +86,12 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--count',type=int,default=1000);p.add_argument('--out',type=Path,default=Path('build/plan-sweep.json'));a=p.parse_args()
     rows=[check(generate(seed)) for seed in range(a.count)]
     ranch_rows=[check(generate(seed,house_type='ranch')) for seed in range(a.count)]
+    cape_rows=[check(generate(seed,house_type='cape')) for seed in range(a.count)]
+    cape_negative=[]
+    for override in (dict(main=dict(width=6)),dict(main=dict(stories=2)),dict(main=dict(pitch=.5)),dict(main=dict(rake=.3)),dict(dormers=1),dict(garage=dict(kind='carport')),dict(siding='stone'),dict(window_update='casement'),dict(colors=dict(siding=[1,1,1]))):
+        try:check(generate(31,override,house_type='cape'))
+        except AssertionError:cape_negative.append(override)
+        else:raise AssertionError('Invalid Cape accepted '+str(override))
     # Wrong dimensions and unsupported stories must be rejected, not clamped.
     negative=[]
     for override in (dict(main=dict(width=8.0)),dict(garage=dict(stories=1)),dict(main=dict(pitch=.9)),dict(garage=dict(side='rear')),
@@ -98,7 +107,7 @@ def main():
         except AssertionError:ranch_negative.append(override)
         else:raise AssertionError('Invalid ranch plan accepted: '+str(override))
     assert serialize(generate(27))==serialize(generate(27)), 'Plan repeatability'
-    out=dict(passed=True,seeds=a.count,ranch_rows=ranch_rows,rows=rows,rejected_negative_controls=negative,ranch_rejected_negative_controls=ranch_negative,
+    out=dict(passed=True,cape_rows=cape_rows,cape_rejected_negative_controls=cape_negative,seeds=a.count,ranch_rows=ranch_rows,rows=rows,rejected_negative_controls=negative,ranch_rejected_negative_controls=ranch_negative,
              scope='Plan grammar and analytic partitions only; separate actual-surface checks required')
     a.out.parent.mkdir(parents=True,exist_ok=True);a.out.write_text(json.dumps(out,indent=2))
     print('PLAN_SWEEP',a.count,'passed; negative controls',len(negative))
