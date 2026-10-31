@@ -341,3 +341,38 @@ asbestos-cement joints have an original preview field; their final look,
 paint failure, oxidation and stronger causal service age remain for look-dev.
 No photographic pixels enter any map. Source URLs, authors and rights are
 in [refs/SOURCES.md](refs/SOURCES.md).
+## Cape source look-development measurements
+
+The used-surface photographs and their rights are recorded under “Cape source
+look-development” in `refs/SOURCES.md`. The white-painted Cape supplies paint,
+asphalt, trim, chimney and glazing comparisons; the stained-shingle Cape
+supplies cedar. Their historic construction dates are not postwar evidence.
+The accepted regional postwar/type research above remains the form basis.
+Supplemental vinyl, aluminum and cement photographs identify their materials
+explicitly; their buildings are not claimed to be Capes. The cement photo has
+diamond units, so it is a paint/chalk comparator rather than a unit-layout copy.
+
+`src/cape_values.py` states the assumed neutral in each frame, native pixel
+coordinates, linear chromatic gains and fixed material-only ROIs. Paint casing
+is assumed neutral; it is not a calibrated gray card. White balance preserves
+mean linear RGB, without fitting photographic exposure. Measurements report
+encoded Rec.709 Y′ median/p10/p90 and ratios of the median R, G and B channels.
+Source comparisons record their light, EV, camera balance and any auxiliary
+white/pale-gray paint control. These conditional display comparisons do not
+recover physical albedo from JPEGs. Glass values also depend on the modeled
+reflection environment; its original procedural proxies are never baked or
+exported with the house.
+
+The roof patch is a wide clear strip above the dormers rather than a close
+granule macro. Old roofs use the family's existing three-tab atlas and course
+addressing, with localized granule loss; replacements use its architectural
+region. Roof preview copies are checked byte-for-byte against the existing
+family source maps. Neither the measured photographs nor their cropped pairs
+are material-generator inputs.
+
+The new two-region tile uses 152.4 mm cedar exposure, complete widths bounded
+to 76.2–254 mm, periodic staggered keyways and ±3 mm butt offsets. Cement is
+304.8 × 609.6 mm with straight butts. `manufacture.json` beside the source
+preview records generated units. Painted cedar keeps its paint film; stained
+cedar has exposure-driven silvering. The material field and UV layout are
+authored, not traced or sampled from a photograph.

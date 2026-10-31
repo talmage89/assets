@@ -129,3 +129,27 @@ copies and survey crops. `build/cape/photo-neutral.json` records the neutral
 patches and linear RGB gains. Neither original nor derived photograph enters
 an asset map. The two camera fits retain design differences and residuals;
 they are not surveys of private buildings.
+
+## Cape source look-development: used surfaces
+
+Every file below is an inspection-only Commons photograph. Historic Capes
+are material/aging comparators, not evidence for a postwar construction date.
+Only the direct image URL identifies any home. Review crops and pairs remain
+ignored; no photograph is read by a material or texture generator.
+
+| Local file | Direct image URL | Author / rights | Used for |
+| --- | --- | --- | --- |
+| cape-used-white.jpg | https://upload.wikimedia.org/wikipedia/commons/9/9b/Pratt-Faxon_House.jpg | Sswonk; CC BY-SA 3.0 | Used white-painted clapboard Cape and tired gray-brown asphalt roof; autumn, not summer evidence. White door casing neutral. |
+| cape-used-brown.jpg | https://upload.wikimedia.org/wikipedia/commons/1/14/242_Phinneys_Lane%2C_Centerville_MA.jpg | John Phelan; CC BY-SA 3.0 | Used cedar-shingle Cape, November 2012; variable silver/brown, deep butts and sheltered staining. White attic casing neutral. |
+| cape-used-shingle.jpg | https://upload.wikimedia.org/wikipedia/commons/0/06/375_Cedar_St%2C_West_Barnstable_MA.jpg | John Phelan; CC BY-SA 3.0 | Used shingled Cape, November 2012; upper-gable bleaching, keyways and tight roof edges. Shape/material inspection only. |
+| cape-used-cedar.jpg | https://upload.wikimedia.org/wikipedia/commons/b/b0/Todd_House%2C_Eastport%2C_Maine_2012.jpg | Ken Gallager at English Wikipedia; CC BY-SA 3.0 | Maintained yellow clapboard Cape, leaf-on; exposed foundation and basement glazing, sash/curtain depth. The generic local filename is not a claim of cedar siding. |
+| cape-used-metal.jpg | https://upload.wikimedia.org/wikipedia/commons/4/48/House_with_aluminum_siding%2C_South_Side%2C_2022-08-17%2C_01.jpg | Cbaile19; CC0 | Used aluminum siding, August 2022; oxidation, fastener/rust sites, course highlights. Supplemental non-Cape material comparator, white corner-board neutral. |
+| cape-used-cement.jpg | https://upload.wikimedia.org/wikipedia/commons/3/35/House_with_asbestos-cement_siding%2C_McKeesport%2C_2023-06-25%2C_01.jpg | Cbaile19; CC0 | Used painted cement shingles, June 2023. Diamond unit differs from this brief's straight-butt 12 × 24 in units. Chalk/paint comparison only; concrete sidewalk neutral. |
+| cape-used-vinyl.jpg | https://upload.wikimedia.org/wikipedia/commons/a/a9/Vinyl-siding.jpg | Peter Rockwood; CC BY-SA 4.0 | Vinyl profile and receiving trims, August 2011; inspection only. |
+| cape-used-vinyl-houses.jpg | https://upload.wikimedia.org/wikipedia/commons/7/7c/Houses_with_vinyl_siding%2C_South_Side%2C_2022-08-17%2C_01.jpg | Cbaile19; CC0 | Used gray vinyl, August 2022; supplemental non-Cape material comparator, white window-casing neutral. |
+
+`src/cape_values.py` records all neutral boxes, chromatic linear-RGB gains,
+fixed material ROIs, median encoded Rec.709 luma, p10/p90 tails and median
+R:G:B ratios. These are display comparisons, not measured reflectance from an
+uncalibrated JPEG. Auxiliary finish comparisons state their paint controls;
+they do not pretend that a white aluminum photograph measures blue paint.

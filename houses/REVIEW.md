@@ -1304,3 +1304,212 @@ cement joints, paint chalk/peeling, storm oxidation and stronger cause-driven
 75-year wear need the next look-dev stage. There is no finished Cape texture
 or UV certification, baked-asset photographic comparison, playable interior or
 final game delivery claim. No tool or kit feature is needed for this checkpoint.
+
+## Cape look-development, before bake
+
+### Pass 1 — exposed structure and first age fields
+
+Color and value first: compared the source white paint and gray-green roof
+against used Cape photographs, balancing the white-painted door casing in the
+white Cape and the attic casing in the cedar Cape. The initial source is too
+uniform at street distance. Its siding retains the vinyl normal scale, and
+the first peeling field wrongly affects interior fabric. The storm glazing
+also needs a darker room behind its reflected sky. Images:
+`renders/cape/lookdev/pass1/` (hero, entry, foundation and sill).
+
+Raised the exposed concrete datum to 15–24 inches across these proofs, below
+the floor framing and water table. Rear basement glazing/wells remain real
+openings; the crawlspace has four framed louvered vent openings. The initial landing
+was 28 mm below the threshold; the final contact correction is recorded below. Both connectors now have posts, roof beams,
+a sided waist wall and a diagonally framed lattice back. Accepted roof and
+opening geometry stays in the shared construction path. Deepened the window
+backs to 1.15 m, with dark return walls. Fixed the interior/exterior paint mask
+and gave wood its own 101.6 mm course period and staggered board-end joints.
+
+### Pass 2 — inspect all elevations and diagnose the flat shingle fields
+
+Color and value first: the first six-seed front/rear sheet distinguishes the
+paint palettes, but the brown cedar and sage cement read as flat panels.
+That is a failure, regardless of the dimensions in a report. Pixel inspection
+found a preview-map encoding error: integer 0–255 input to the toolkit's
+0–1 PNG writer clamped every map to white, including metallic. Corrected the
+writer inputs and the opposite image-row/UV-V orientation of the half atlas.
+Neither correction touches an accepted colonial/ranch map. Images:
+`renders/cape/lookdev/pass2/`, including the initial family sheet.
+
+The isolated sill now has dark room depth and sky reflection, but the paint
+loss is too finely stippled and the room fabric has little construction detail.
+Enlarged the peeling islands, limited them by the actual sill datum and added
+sparse lifted film edges. Added a few curled asphalt tabs, attached uphill to
+the original continuous roof. Their first placement is too regular in places;
+the final pass must judge their value against the surrounding shingles.
+
+### Pass 3 — distinct manufacture, exposure and comparison patches
+
+Color and value first: the corrected cedar is too warm and too even beside
+the neutral-balanced used cedar photograph. Increased silvering on exposed
+upper/sunny areas while retaining brown under eaves. Strengthened actual
+course/keyway contrast, retaining individual unit color rather than overlaying
+a gray wash. Painted wood needs darker narrow course breaks to match the
+photograph's low tail. Cement now shows the large, straight-butt units and
+fine vertical face striations. Images: `renders/cape/lookdev/pass3/` and
+`pass3b/` (including the encoding/orientation correction).
+
+The shaded roof view is too dark to judge moss. Increased procedural sky fill
+from .055 to .12 for every checkpoint view, retaining the same sun and EV.
+The north-plane algae follows gravity; moss is confined to low courses and
+dormer-cheek drainage. Added east-facing shade to the wall mildew mask where
+the review sun leaves that wall in shade. Fixed physical patch cameras and
+photographic ROIs before the numerical comparison; exposure and any auxiliary
+paint control are recorded separately from the six proof palettes.
+
+### Pass 4 — reject the striped roof, compare complete material ranges
+
+Color and value first: the first fixed-patch render matches wood and cement
+medians, but cedar lacks the photograph's dark-butts/light-faces range. The
+initial roof has too little granular variation. A large full-house render
+then exposes the opposite error in the first correction: too many narrow,
+uniform, full-length dark stripes. That roof reads as a synthetic striped
+sheet. Replaced it with broader, irregular gravity paths, reduced front-plane
+granule-depletion contrast, and separated fine mineral variation from organic
+algae. Strong algae remains on shaded planes; the sunlit face keeps shingle
+color. The intermediate rejected view is retained locally in the render log.
+
+The cedar comparison now uses an unobstructed lower-gable patch; the earlier
+patch included foreground twigs. Measurements read native photo pixels rather
+than a 1200-pixel reduction. The neutral and both coordinate frames are saved.
+The updated-lap comparator is now a photograph explicitly catalogued as vinyl,
+not an uncertain substrate inferred from the blue Cape. Auxiliary white/pale
+gray paint controls and independent photographic exposure fits are explicit.
+
+Expanded inspection to the family's concrete, trim, masonry and glazing.
+The plinth comparison needs cloudy neutral light, rather than a hard blue
+water-table shadow. The first brick crop incorrectly includes lettering and
+the first glass crop includes a muntin: both are rejected as material-only
+ROIs. The source brick is too orange for the aged chimney photograph; desaturate
+its fired face toward the older brown-gray, retaining the mortar. The dark room
+back still receives too much light, so deepen its value as well as its distance.
+
+### Pass 5 — construction contact, manufacture bounds and glazing context
+
+Color and value first: all five siding finishes, the asphalt, trim and brick
+now meet the fixed-patch tolerances. The concrete crop initially included a
+foreground dark post/well; replaced it with bare concrete. The glass crop now
+excludes a muntin. These are material-only crops, with their native-resolution
+coordinates, not dark fixture pixels counted as a material's low tail.
+
+The glass comparison exposes a context bug: reflection scenery hidden from
+transmission rays disappears behind the storm/sash interfaces and leaves an
+implausibly uniform sky. Added original low leafy reflection proxies visible
+through those optical paths. They are procedural modeled lighting cards, never
+exported or baked into the glass. Their prescribed neighboring-crown radiance
+is separate from the house material. The comparison uses stated diffuse
+daylight and neutral camera balance; window values remain view-dependent.
+
+Corrected periodic cedar partitioning so every complete unit really remains
+3–10 inches wide, including units crossing the tile seam. The five courses
+have staggered keyways and slightly uneven butts; manufacture metadata records
+the actual generated widths. Storm oxide reduces metallic response rather
+than merely lightening a metallic surface. Dormer window wear uses its own
+block's sill/eave context, rather than the main wall's datums.
+
+The threshold close-up also exposed an 18 mm unsupported gap below the metal
+threshold. Raised the landing to its actual flat underside (10 mm below the
+threshold top), retained equal safe rises, and added an independent upward
+surface probe inside the threshold's rounded edge. Both front and rear stoops
+use the corrected landing datum. Six proof roofs and building footprints keep
+the accepted geometry; only the requested foundation/landing and connector
+fixes, room depth and sparse age relief differ from the form checkpoint.
+
+### Pass 6 — reject statistical success when the elevation fails
+
+Color and value first: the first complete 1600-pixel round exposes a serious
+cedar failure. Its patch passes the histogram tolerances, but nearly black
+whole shingles alternate with pale units across the house. That is a
+checkerboard, not the photographed wall. Rejected it. Restricted unit-to-unit
+absorption variation and moved the dark range into each course's sheltered
+upper end, below the next course's butt. Retained exposed lower faces and
+exposure-driven brown-to-silver color. The revised elevation is visibly cedar
+without the mosaic. Evidence: `renders/cape/lookdev/cedar-correction/` and
+`correction2/` through `correction4/`. Its rejected material pair and measurements
+remain in `renders/cape/lookdev/rejected-mosaic/`; they are not acceptance evidence.
+
+The initial asphalt pair also compares a granule macro with many photographic
+courses. Replaced the source ROI with a wide clear upper-roof strip, above the
+dormers. A stronger continuous overlap shadow passes its histogram, but the
+whole roof then reads as ribbed sheet material. Rejected that correction too.
+Reuse the family's existing ranch roof atlas/addressing: three-tab on old roofs,
+architectural on new ones. Confine exposed dark asphalt to fine granule-loss
+paths inside the broader runoff field, with separate north-plane algae and low
+moss. This adds no roof texture allocation. The accepted shared images remain
+unchanged; the source atlas copy is generated in the Cape's ignored build folder.
+
+Opened the hero, entry, scale, foundation, peeling sill, dormer, rake, rear,
+first two seeds' front/rear/material views and seed 32's dedicated connector
+view individually. The exposed plinth reads below the water table, the stoop
+supports the threshold, and the connector has a visible slab, posts, beams,
+rear waist wall and diagonal lattice. It no longer reads as a blank rectangle.
+The following pass judges the regenerated complete set, not these superseded
+frames. Fine cement texture, perfectly straight trim and sparse room contents
+remain weaker than the photographs.
+
+### Pass 7 — whole-sheet wear must retain its cause
+
+Color and value first: the regenerated 36-view set and all ten material
+comparisons pass their median, tail and hue checks. Nevertheless the bare
+front roof of seed 33 reveals broad blotches, and the red wood house has
+too even a low peeling band. Numerical success does not accept either pattern.
+Stretch roof loss/algae masks much farther along the slope's runoff direction,
+retaining irregular cross-slope paths. Reduce low peeling away from actual
+stoop and downspout wet sites; preserve the sill-specific water damage.
+The upper wall paint and every material's own color stay intact.
+
+All 34 house views, both connector close-ups and the same-scale three-type
+comparison were opened individually. Cedar/cement/wood/lap construction reads
+at elevation size; the authored painted-cedar close-up is distinct as well.
+The roof and low-course changes require another complete source/provenance
+refresh before the acceptance images and final measurement table are reported.
+
+### Pass 8 — current checkpoint, source evidence only
+
+Color and value first: reopened the current hero, complete family/material/contact
+sheets, detail images and ten neutral-balanced pairs. All ten fixed-ROI tests
+pass: maximum absolute median error 9.29%, p10/p90 error 13.88%, and hue-ratio
+error 7.61%. The README records every source/photo median and R:G:B pair.
+The hero's silhouette Y′ is p1 .0934, p50 .3920, p95 .7261, p99 .7339;
+no white clipping. Roof, shaded cheeks, entry and room backs retain deep values.
+These are conditional display measurements; neutral paint controls and glass
+reflection lighting are stated separately from the six proof palettes.
+
+The bare roof now carries long irregular runoff paths. Granule loss stays
+asphalt-colored; shaded-plane algae and lower-course/cheek moss remain separate.
+Low red/white paint loss is strongest beside stoops and drains, with gray wood
+and lifted surviving film at sills. It no longer makes the same white band
+across every lower course. Cedar has narrow staggered keyways, sheltered upper
+ends and exposed faces, without alternating black whole units. The large cement
+courses, finer wood clapboard and smoother updated lap are distinguishable at
+the family sheet's size.
+
+Both 32/35 connectors are open passages with supported roofs, slab floors,
+sided waist back walls and diagonal lattice. The hero, entry, foundation and
+1.8 m scale view show an exposed concrete plinth below the sill trim. Actual
+source exposure is 24/21/24/21/15/15 inches. Upward threshold-contact probes
+have maximum numerical residual below 0.001 mm; the landing bears on the
+threshold underside rather than leaving the previous gap. Basement openings
+and wells, or the crawlspace's four louvered openings, remain real holes.
+
+`make TYPE=cape WIDTH=1600 SAMPLES=48` finishes with 36 current Cycles house/type
+camera views plus ten material renders, current source/map/recipe hashes, six
+source/motion/import audits and the repeated construction bytes. Triangles are
+35,092 / 42,016 / 34,518 / 40,768 / 39,602 / 43,330; the painted-cedar authored
+control is 43,790. The family remains 47⅓ MiB delivered, with a planned +1 MiB
+512-square cedar/cement triple. The reused roof source triple is byte-identical
+to the ranch's. No existing export, shared delivery image or portfolio JPG changed.
+
+Remaining CG tells: perfectly straight trim and large roof planes; very regular
+grain/face striations at close range; a few obviously planar lifted paint flakes
+and curled tabs; simple repeated curtains and sparse room dressing. Street glass
+is much improved, but its reflection scenery remains a presentation proxy rather
+than a complete neighborhood. The new fine wear has not yet survived a 4K
+bake/filter or engine import, so this is not final game-asset acceptance. Stop
+before the bake. No kit change or additional tool is needed for this checkpoint.

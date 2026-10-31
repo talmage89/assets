@@ -1,7 +1,7 @@
 # Hearthfield / seeded American houses
 
 The family delivers a builder colonial and a [postwar ranch](#second-type-postwar-ranch),
-with a [postwar Cape form checkpoint](#third-type-postwar-cape-form-checkpoint).
+with a [postwar Cape look-development checkpoint](#third-type-postwar-cape-look-development-checkpoint).
 The colonial remains the default generator and the subject of the first images below.
 
 An original family of maintained, roughly twenty-year-old American builder
@@ -548,23 +548,23 @@ photograph is committed or sampled into an asset.
 
 ---
 
-## Third type: postwar Cape form checkpoint
+## Third type: postwar Cape look-development checkpoint
 
-**Source/form checkpoint, before bake.** The 1940–1955 one-and-a-half-story
+**Source look-development checkpoint, before bake.** The 1940–1955 one-and-a-half-story
 Cape is the third type. Existing colonial and ranch deliveries remain accepted
-and byte-preserved. The Cape currently has original quick material fields and
+and byte-preserved. The Cape has distinct siding manufacture and causal age fields, plus
 diagnostic untextured construction GLBs; it is not a finished game delivery.
 No Cape portfolio JPG is committed before that later gate.
 
-After building, inspect `renders/cape/checkpoint/contact.jpg` and
-`family.jpg`; the hero is `hero.png`, construction details are
-`dormer.png`, `eave.png` and `entry.png`, the rear addition is `back.png`,
-and `comparison/types.png` shows Cape/ranch/colonial in one meter-scale
-orthographic view. The two photographic pairs are
-`renders/cape/matches/{cape_dormers,cape_plain}-pair.jpg` and `pairs.jpg`.
-All Cape views use the source blend, as appropriate to this requested gate.
-The type comparison loads the accepted neighboring types' exports read-only;
-it can use their source builds as a fresh-clone fallback.
+After building, inspect `renders/cape/lookdev/checkpoint/contact.jpg`,
+`family.jpg` and `materials.jpg`. The hero, entry, scale and foundation views
+show the exposed plinth and threshold. Seeds 32 and 35 have their own
+three-quarter connector views. The same-scale family comparison remains
+`comparison/types.png`. Quantitative used-house material pairs and measurements
+are in `renders/cape/lookdev/values/`; photographic type-camera pairs remain
+in `renders/cape/matches/`. Every Cape view is a Cycles source render. The
+neighboring accepted types are loaded read-only from their exports, with a
+source fallback on a fresh clone. No Cape bake or final exported-PBR claim.
 
 ### Parameterization and construction
 
@@ -579,7 +579,7 @@ eave/rake, floor/foundation, front dormer count and rear shed, side addition,
 parking arrangement, door offset and hood, siding, paint, window update,
 storms, shutters, returns, chimney and roof age. `main`, `garage`, `colors`,
 `dormers`, `rear_shed`, `wing`, `floor`, `foundation`, `door_offset`, `hood`,
-`siding`, `window_update`, `storms`, `shutters`, `returns`, `chimney`,
+`siding`, `cedar_finish`, `window_update`, `storms`, `shutters`, `returns`, `chimney`,
 `roof_age` and `shingle_color` are override keys. Dimensions are meters,
 pitch is rise/run, color triples are linear factors. Unsupported dimensions
 and combinations fail the plan check. An authored override is built by the
@@ -606,9 +606,30 @@ trim extraction, rounded K-gutter/drain construction, openings, hung sashes,
 picture glazing, door leaves, service equipment, chimney crown/flashing and
 socket creation. The complex three-dormer forms omit tiny internal sash/track
 bevels that belong in the later normal map. Casings and visible silhouettes
-retain their geometry. Cedar and cement shingles get quick original fields;
-wood/vinyl/aluminum currently reuse the family's lap field. That approximation
-is explicit source-stage work, not a finished material equivalence claim.
+retain their geometry. Foundations expose 15–24 inches in these proofs, below
+the first-floor framing and a sloped water table. Basement seeds have actual
+rear openings and wells; the crawlspace has four framed louvered vents.
+Breezeways have posts, beams, a sided waist back wall and lattice above.
+
+Siding uses five distinct source finishes: 4-inch painted clapboard with
+staggered butt joints; 6-inch cedar with random 3–10-inch widths and slightly
+uneven butts; straight-butt 12 × 24-inch striated cement shingles; updated
+vinyl; and oxidized aluminum. Other cedar seeds alternate stained and white/gray
+painted finishes; `cedar_finish` can override that choice. Exposed upper/sunny cedar turns silver while
+sheltered areas remain brown. Seed 32 is now stained cedar, rather than the
+form gate's temporary yellow field. Both wood seeds retain their red/white
+paints. Shader wear follows ground splash, stoop/downspout runoff, shaded
+low/eave surfaces, sunny chalking, sill/corner-foot peeling and metal fasteners.
+Sparse lifted film and curled asphalt tabs carry silhouette relief. Fine
+manufacture and weather transfer to delivery maps is pending the bake gate.
+
+Windows retain the accepted sash/storm forms, with dark 1.15 m room backs,
+return walls and floors, small furniture silhouettes, varied curtains/blind heights and clear sky/eave reflections.
+The new roof colors include green-black, brown and charcoal/weathered gray;
+newer roofs stay quieter than the old shaded, algae- and moss-bearing planes.
+Roofs reuse the family's existing ranch atlas and course addressing: three-tab
+for older roofs, architectural for replacements. Its three preview PNGs are
+byte-identical to the family's originals and consume no additional allocation.
 
 Front and back doors remain separate moving leaves: `FrontDoor`, +Z 0–105°,
 and `ServiceDoor`, +Z −100–0°, each with its real hinge. The garage sectional
@@ -619,20 +640,20 @@ roof projection, rear stoop and splash blocks are outside that datum.
 
 ### Six proof seeds and measured budgets
 
-Triangles include the quick-field source's localized weather samples, with
+Triangles include localized source weather samples and sparse lifted wear, with
 all garage/wing geometry included. Bounds are the actual complete construction
 envelope, including roof, chimney and attachments. Diagnostic GLB bytes below
 refer to the **untextured construction**, which has fewer triangles than the
-quick-field source and three meshes: fixed shell plus two moving leaves.
+look-dev source and three meshes: fixed shell plus two moving leaves.
 
 | Seed / palette | Main box, ft (m) | Complete bounds W × D × H, m | Source triangles | Form GLB bytes |
 | --- | --- | --- | ---: | ---: |
-| 31 / gray | 24 × 30 (7.3152 × 9.1440) | 15.0518 × 17.8981 × 6.8676 | 33,640 | 2,625,776 |
-| 32 / pale yellow | 30 × 26 (9.1440 × 7.9248) | 19.3190 × 11.6498 × 6.5882 | 43,380 | 3,081,984 |
-| 33 / sage | 32 × 26 (9.7536 × 7.9248) | 10.5833 × 11.6498 × 6.7406 | 32,634 | 2,674,836 |
-| 34 / Cape blue | 32 × 28 (9.7536 × 8.5344) | 21.1478 × 17.2885 × 6.8422 | 37,780 | 2,927,376 |
-| 35 / barn red | 32 × 28 (9.7536 × 8.5344) | 17.3294 × 11.6994 × 6.6898 | 41,400 | 2,923,544 |
-| 36 / warm white | 28 × 24 (8.5344 × 7.3152) | 8.9064 × 10.4802 × 7.7999 | 40,546 | 3,375,280 |
+| 31 / gray | 24 × 30 (7.3152 × 9.1440) | 15.0518 × 17.8981 × 6.8676 | 35,092 | 2,741,336 |
+| 32 / silver-brown cedar | 30 × 26 (9.1440 × 7.9248) | 19.3190 × 11.6498 × 6.5882 | 42,016 | 3,328,536 |
+| 33 / sage | 32 × 26 (9.7536 × 7.9248) | 10.5833 × 11.6498 × 6.7406 | 34,518 | 2,815,956 |
+| 34 / Cape blue | 32 × 28 (9.7536 × 8.5344) | 21.1478 × 17.2885 × 6.8422 | 40,768 | 3,286,488 |
+| 35 / barn red | 32 × 28 (9.7536 × 8.5344) | 17.3294 × 11.6994 × 6.6898 | 39,602 | 3,115,208 |
+| 36 / warm white | 28 × 24 (8.5344 × 7.3152) | 8.9064 × 10.4802 × 7.7999 | 43,330 | 3,552,544 |
 
 All six fall inside the preferred 30–45k range and use at most six material
 roles. Seeds 31/34 have detached garages; 32/35 have breezeways; 33/36 have
@@ -645,20 +666,59 @@ eaves and 0–6 in rakes. The broader seeded grammar also exercises 8 and 12:12.
 The existing family remains **47⅓ MiB / 31 images** under the established
 BC7 BaseColor, BC5 Normal, BC7 ORM/full-mip estimate. The proposal adds **one
 512² two-region wall-shingle triple**, shared by cedar and asbestos-cement:
-**+1 MiB**, planned family **48⅓ MiB / 34 images**. Both regions cover
-1.2192 × .6096 m at about 420 px/m. Distinct small cedar units and large cement
-shingles need joints the lap field does not contain. All paints, roofs,
-chimney brick, concrete, trim and aluminum reuse existing fields. No shared
+**+1 MiB**, planned family **48⅓ MiB / 34 images**. The cedar region covers
+1.2192 × .7620 m; cement covers 1.2192 × .6096 m. The 512 × 256 regions have
+420 px/m horizontally and 336 / 420 px/m vertically. Distinct small cedar units and large cement
+shingles need joints the lap field does not contain. Paint, asphalt, chimney brick, concrete, trim and aluminum reuse family
+fields, with original source manufacture/wear nodes layered over them. No shared
 map changes and no per-seed texture sets are planned. Current preview images
 stay in `build/cape/materials/`; nothing new is published to `export/textures/`.
+
+### Measured source appearance
+
+Fixed-ROI Cycles pixels versus native-resolution, neutral-balanced used-house
+photographs. Values below are encoded Rec.709 Y′, not inferred physical albedo.
+R:G:B uses the median channels with G = 1. Every median is within 10%, both
+p10/p90 tails within 15%, and both hue ratios within 10%. Actual largest
+errors are **9.29% median, 13.88% tail and 7.61% hue ratio**.
+
+| Material | Median source / photo | R:G:B source / photo | Largest tail error |
+| --- | ---: | --- | ---: |
+| Painted clapboard | 0.635 / 0.630 | 0.963:1:1.012 / 1.031:1:0.969 | 3.37% |
+| Stained cedar | 0.225 / 0.214 | 0.966:1:0.983 / 1.011:1:0.992 | 7.70% |
+| Tired asphalt | 0.376 / 0.405 | 1.021:1:0.938 / 1.073:1:0.994 | 10.49% |
+| Vinyl control | 0.741 / 0.802 | 0.968:1:1.021 / 0.999:1:0.995 | 12.14% |
+| Aluminum control | 0.852 / 0.939 | 0.982:1:1.009 / 0.966:1:0.988 | 13.88% |
+| Cement-shingle control | 0.722 / 0.761 | 0.973:1:1.011 / 1.028:1:1.050 | 9.04% |
+| Concrete | 0.527 / 0.546 | 1.037:1:0.918 / 0.964:1:0.989 | 8.47% |
+| Painted trim | 0.615 / 0.649 | 0.956:1:1.025 / 1.000:1:1.000 | 12.53% |
+| Chimney brick | 0.348 / 0.377 | 1.140:1:1.023 / 1.222:1:1.047 | 13.23% |
+| Glazing / dark room | 0.075 / 0.070 | 1.000:1:1.000 / 1.024:1:1.046 | 11.44% |
+
+Wood, roof, trim, brick and glass use the white-painted Cape's door casing as
+neutral. Cedar uses white attic-window casing; vinyl uses white upper-window
+casing; aluminum uses a white corner board; cement uses the concrete sidewalk;
+the plinth comparison uses white window casing. These are assumed neutrals,
+not gray cards. Coordinates, native photo hashes, linear white-balance gains,
+source/recipe hashes, EV and light are saved in `build/cape/material-photos.json`
+and `renders/cape/lookdev/values/{patches,values}.json`.
+
+The primary wood/cedar/roof comparisons retain proof-seed paint. Supplemental
+vinyl/aluminum/cement comparisons use explicit white or pale-gray paint
+controls of those finishes; they do not measure every proof palette. Glass
+is conditional on the stated original modeled reflection environment. The
+cement photograph has diamond units and measures paint/chalk, not the authored
+12 × 24-inch layout. Sources and limitations are in [REFERENCE.md](REFERENCE.md)
+and [refs/SOURCES.md](refs/SOURCES.md). `values/pairs.jpg` assembles all ten;
+`cedar-pair.jpg`, `wood-pair.jpg` and `roof-pair.jpg` are the required Cape pairs.
 
 ### Rebuild and scope of proof
 
 ```sh
-make TYPE=cape                         # complete source form gate; stops before bake
+make TYPE=cape WIDTH=1600 SAMPLES=48   # current look-dev gate; stops before bake
 make TYPE=cape check                   # six built sources, motions, plans, bytes, repo
-make TYPE=cape render matches review   # current Cycles views and photographic sheets
-make TYPE=cape CAPE_SEED=32             # use another proof seed for the hero
+make TYPE=cape lookdev-review          # current Cycles views, values and photo pairs
+make TYPE=cape cape-checkpoint          # retained earlier form presentation
 blender -b --factory-startup --python-exit-code 1 --python src/build.py -- \
   --type cape --seed 44 --out build/cape/custom.blend
 # Add --plan build/my-cape.json for a caller-authored plan.
@@ -667,8 +727,8 @@ blender -b --factory-startup --python-exit-code 1 --python src/build.py -- \
 The six-seed photographic presentation uses fixed seeds 36 and 33 for its
 type comparisons. A custom modeling seed/plan can be built independently;
 changing its plan does not make it a copy of either photographed house.
-The full default gate uses GPU-locked Cycles, 1440 px/48 samples for main
-views and 1200 px seed portraits. No bake target is enabled for this type.
+The default gate uses GPU-locked Cycles; the reviewed run uses 1600 px/48
+samples for main views and 1400 px seed portraits. No bake target is enabled for this type.
 
 `build/cape/plan-sweep.json` covers 1,000 plans **per type** and rejects nine
 new invalid Cape controls. `checks.json` separates real source-surface tests
@@ -683,16 +743,17 @@ also pass. These observations do not certify engineering or a finished UV/bake.
 colonial/ranch construction vertex/name/count digests and **complete compact
 GLB bytes** to the pre-Cape fixture. All **77 existing export/map/docs files**
 retain their hashes. Defaults do not enter the Cape paths. No kit file changed.
-`build/cape/view-check.json` verifies 22 current Cycles views against their
-actual source/map/context hashes. The hero has deep recesses, p1/p50/p95/p99
-Y′ .056/.339/.684/.692 and zero clipped-white pixels. The pairs retain their
-18.25 / 19.26 px type-fit residuals; [REFERENCE.md](REFERENCE.md) documents
-neutral patches, published facts, authored dimensions and limitations.
+`build/cape/lookdev-check.json` checks 36 current Cycles views (34 house views
+and two photographic camera fits), their source/map
+hashes and material median/tail/hue tolerances. Photo-neutral patches, gains,
+ROIs and actual pixel statistics are recorded by `src/cape_values.py`.
+These compare rendered appearance in stated light/exposure, not physical
+reflectance inferred from JPEGs. Auxiliary white/pale-gray siding controls are
+explicit, separate from the proof palettes. [REFERENCE.md](REFERENCE.md)
+distinguishes construction evidence, authored dimensions and visual references.
 
-[REVIEW.md](REVIEW.md) records four form critiques and the corrected dormer
-flashing, skirt roofing, dormer height and hood support. Still weak: regular
-quick siding/roof manufacture, shallow rooms, sparse reflections and much too
-little visible 75-year wear. Proper cedar/cement surfaces, chalk/peeling paint,
-storm oxidation, final UV charts, 4K bake/filter, export/Eevee checks and baked
-photo pairs belong to the next stage. No finished Cape game-readiness or
-photorealistic material claim is made at this form checkpoint.
+[REVIEW.md](REVIEW.md) records the four form critiques and the source look-dev
+iterations. Remaining limits include regular tiled manufacture at close range,
+simple room contents and the need to preserve fine wear through delivery.
+Final UV charts, the 4K bake/filter, export/Eevee checks and baked photo pairs
+remain for the next gate. No finished Cape game-readiness claim is made.
