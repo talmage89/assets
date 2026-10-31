@@ -1542,8 +1542,8 @@ nearly planar intervals are triangulation error; that explanation does not
 turn them into photographed features or erase them from the count. **The
 strict section/fairness acceptance is incomplete.**
 
-Plots: [transverse height and curvature](renders/checkpoint/curvature/transverse.png),
-[longitudinal height and curvature](renders/checkpoint/curvature/longitudinal.png).
+Plots: transverse height and curvature (`renders/checkpoint/curvature/transverse.png`),
+longitudinal height and curvature (`renders/checkpoint/curvature/longitudinal.png`).
 Every sample, feature distance and reversal bracket is in the adjacent
 `sections.json`. Source geometric face-angle maxima and monotone bore rays
 remain regression checks only; they are not a replacement for these plots.
@@ -2304,16 +2304,16 @@ A normal bake does not constitute finish acceptance. No docs JPGs are added.
   pair fits inside the joined breech width. The rear boundary curves inward
   toward the strap in the top view. The photograph has a subtler, hand-finished
   shoulder junction and a differently shaped rib extension; ours retains the
-  original plainer shoulders. See the [right pair](renders/checkpoint/pairs/action-pair.jpg),
-  [top pair](renders/checkpoint/pairs/action_top-pair.jpg),
-  [top rake](renders/checkpoint/beauty/action_rake_top.png), and fence sections.
+  original plainer shoulders. See the right pair (`renders/checkpoint/pairs/action-pair.jpg`),
+  top pair (`renders/checkpoint/pairs/action_top-pair.jpg`),
+  top rake (`renders/checkpoint/beauty/action_rake_top.png`), and fence sections.
 - **Side and knuckle.** One ground side plane now continues from head to bar.
   The rounded lower edge sweeps upward into the original hinge axis, and the
   pin end is a thin flush circle in the same blued inspection steel. The
   photograph's shallow decorative panel line is not a geometric step and has
   not been copied. Our plain lower neck is broader through its flat belly;
   the reference has a slightly narrower sculpted throat. See the
-  [right rake](renders/checkpoint/beauty/action_rake_right.png), left rake,
+  right rake (`renders/checkpoint/beauty/action_rake_right.png`), left rake,
   right/left pairs and the bar/knuckle sections.
 - **Underside and plate.** The plate seats into the forging and shares its
   rounded lower skin. Its curved front joint is a narrow seam. Rounded-end
@@ -2321,15 +2321,15 @@ A normal bake does not constitute finish acceptance. No docs JPGs are added.
   wrist tang retain their accepted form. Our joint remains simpler than the
   photograph's curved plate border, and the forward hook pocket remains more
   open than the photograph's shallow visible joint. See the
-  [bottom rake](renders/checkpoint/beauty/action_rake_bottom.png),
-  [bottom pair](renders/checkpoint/pairs/action_bottom-pair.jpg), and the new
+  bottom rake (`renders/checkpoint/beauty/action_rake_bottom.png`),
+  bottom pair (`renders/checkpoint/pairs/action_bottom-pair.jpg`), and the new
   plate and two slot sections. Baked raking light is the appearance evidence;
   geometry probes alone do not approve the highlight.
 - **Aimed view.** The accepted eye frame, cheek station, drops, lever and safety
   are retained. The rib is visible between the fences toward the bead, with
   the crown below the bead line. Its short apparent length is strongly
   foreshortened by the cited fitted sight picture. The inspection rib is not
-  yet matted. See the exact [Socket_Eye view](renders/checkpoint/beauty/aimed.png).
+  yet matted. See the exact Socket_Eye view (`renders/checkpoint/beauty/aimed.png`).
   Required sight rays now cover six rib stations from Y=140 to 740 mm as well
   as the bead, independently against all occupied skins.
 - **Accepted remainder.** Trigger blades, guard band/tang, lever, safety,
@@ -2483,9 +2483,9 @@ case color nor bluing is assumed to be neutral, and no finish match is claimed.
   delicate transition into its strap channel. Ours retains about 1.45 mm of
   fence crown above the tube crown and a broader central land; the reference's
   exact exterior radius is not independently calibrated. Inspect
-  [right action pair](renders/checkpoint/pairs/action-pair.jpg),
-  [left action pair](renders/checkpoint/pairs/action_left-pair.jpg),
-  [loaded breech](renders/checkpoint/beauty/breech.png), the fence and standing
+  right action pair (`renders/checkpoint/pairs/action-pair.jpg`),
+  left action pair (`renders/checkpoint/pairs/action_left-pair.jpg`),
+  loaded breech (`renders/checkpoint/beauty/breech.png`), the fence and standing
   breech sections, and both action raking sides.
 - **Ground faces, bar and knuckle.** The sides and upper shoulders are explicit
   planes. The bar's lower edge sweeps up, its underside rolls into a narrower
@@ -2494,19 +2494,19 @@ case color nor bluing is assumed to be neutral, and no finish match is claimed.
   subtle arrises; ours has a stronger shoulder-to-side break and a small front
   hook pocket. The long underside opening is covered. No render or check
   relabels that remaining pocket as the photo's shallow plate joint. Inspect
-  [underside pair](renders/checkpoint/pairs/action_bottom-pair.jpg),
-  [right rake](renders/checkpoint/beauty/action_rake_right.png),
-  [left rake](renders/checkpoint/beauty/action_rake_left.png),
-  [bottom rake](renders/checkpoint/beauty/action_rake_bottom.png), and the bar,
+  underside pair (`renders/checkpoint/pairs/action_bottom-pair.jpg`),
+  right rake (`renders/checkpoint/beauty/action_rake_right.png`),
+  left rake (`renders/checkpoint/beauty/action_rake_left.png`),
+  bottom rake (`renders/checkpoint/beauty/action_rake_bottom.png`), and the bar,
   knuckle, knuckle-side and floor/lump sections.
 - **Short upper body and wood head.** The upper head ends just behind the
   fences; wood comes forward beside the strap. The strap continues alone
   along the wrist. The photo has deeper rounded fingers and a less diagonal
   side seam. Ours uses simpler ground shoulders and a more pronounced diagonal
   inletting line. Inspect
-  [top pair](renders/checkpoint/pairs/action_top-pair.jpg),
-  [top rake](renders/checkpoint/beauty/action_rake_top.png),
-  [controls](renders/checkpoint/beauty/top_controls.png), and the shoulder/head
+  top pair (`renders/checkpoint/pairs/action_top-pair.jpg`),
+  top rake (`renders/checkpoint/beauty/action_rake_top.png`),
+  controls (`renders/checkpoint/beauty/top_controls.png`), and the shoulder/head
   section. The accepted straight hand, pull and comb/heel drops remain.
 - **Top lever and safety.** The lever is long, narrow and tapered, lying close
   above the strap on a round boss, below the fence crowns. Its closed tail
@@ -2521,8 +2521,8 @@ case color nor bluing is assumed to be neutral, and no finish match is claimed.
   forward-facing concavity, forward toes, pivots, pull direction and barrel
   assignment. The photo's front blade is longer/more delicate; it was not
   changed to conceal a framing residual. Inspect
-  [trigger pair](renders/checkpoint/pairs/trigger-pair.jpg),
-  [three-quarter blades](renders/checkpoint/beauty/trigger_quarter.png),
+  trigger pair (`renders/checkpoint/pairs/trigger-pair.jpg`),
+  three-quarter blades (`renders/checkpoint/beauty/trigger_quarter.png`),
   underside pair and Fire/FireLeft strips.
 - **Aimed view and rib.** The cited sporting sight picture now derives the eye
   height from the actual rib and bead, preserving the cheek station and stock
@@ -2531,7 +2531,7 @@ case color nor bluing is assumed to be neutral, and no finish match is claimed.
   the sighting surface now follows the straight line between its accepted
   breech/muzzle endpoint heights. Joined flats and the seated valley filler
   remain. The rib is still broad at the rear; matting is held. Inspect the
-  exact [socket view](renders/checkpoint/beauty/aimed.png), both barrel sections
+  exact socket view (`renders/checkpoint/beauty/aimed.png`), both barrel sections
   and the top orthographic view. No raised presentation eye substitutes for
   the socket, and no human mesh/personal fit is certified.
 - **Forend and iron.** Kept the accepted 34.4 × 24.2 × 173 mm envelope. Replaced
@@ -2540,9 +2540,9 @@ case color nor bluing is assumed to be neutral, and no finish match is claimed.
   without increasing the wood budget. Our plan-view nose is more squared off than the photo, the lower profile
   remains deeper forward of the latch, and the iron wraps less far up the
   wood. The original inset latch and two bearing cups remain simpler. Inspect
-  [side pair](renders/checkpoint/pairs/forend_side-pair.jpg),
-  [underside pair](renders/checkpoint/pairs/forend-pair.jpg),
-  [forend](renders/checkpoint/beauty/forend.png), both forend sections and reload
+  side pair (`renders/checkpoint/pairs/forend_side-pair.jpg`),
+  underside pair (`renders/checkpoint/pairs/forend-pair.jpg`),
+  forend (`renders/checkpoint/beauty/forend.png`), both forend sections and reload
   strips. There is no hand mesh; guide/shell clearance does not prove hand fit.
 - **Open breech, extractor and ammunition.** Loaded above/behind views show
   the accepted shells in the extractor. The open photographic pose remains
@@ -2550,8 +2550,8 @@ case color nor bluing is assumed to be neutral, and no finish match is claimed.
   The reference's broad upper extension differs from our narrower under-lug
   construction and cannot be used as a shared camera landmark. Our chamber
   backs/extractor and its exterior flats remain visibly different construction.
-  Inspect [open pair](renders/checkpoint/pairs/open-pair.jpg),
-  [detached flats](renders/checkpoint/pairs/barrel_flats-pair.jpg), loaded breech,
+  Inspect open pair (`renders/checkpoint/pairs/open-pair.jpg`),
+  detached flats (`renders/checkpoint/pairs/barrel_flats-pair.jpg`), loaded breech,
   lumps, opening strip and all reload/unload strips. The calibrated open
   camera is explicitly constrained to the muzzle-side hemisphere; a low-RMS
   chamber-facing fit was rejected. No clip or ammunition dimension changed.
@@ -2669,17 +2669,17 @@ claim. The original Brownells cheek station and cited 38/63 mm drops remain.
 
 | Pair | RMS px | Remainder after 2D similarity px | Interpretation |
 | --- | ---: | ---: | --- |
-| [right](renders/checkpoint/pairs/right-pair.jpg) | 4.11 | 3.89 | accepted whole silhouette; local form |
-| [left](renders/checkpoint/pairs/left-pair.jpg) | 5.60 | 5.30 | class stock/gauge differences; local form |
-| [action](renders/checkpoint/pairs/action-pair.jpg) | 55.73 | 55.03 | fence/breech proportions and original head seam; form |
-| [action_left](renders/checkpoint/pairs/action_left-pair.jpg) | 0.25 | 0.25 | three-point fit only; sparse evidence, not form acceptance |
-| [action_top](renders/checkpoint/pairs/action_top-pair.jpg) | 40.89 | 39.41 | boss station, head corners and tail; form |
-| [action_bottom](renders/checkpoint/pairs/action_bottom-pair.jpg) | 77.20 | 77.02 | guard seats/length; form plus perspective/landmark uncertainty |
-| [open](renders/checkpoint/pairs/open-pair.jpg) | 39.75 | 39.74 | different exterior extension/lug construction; form |
-| [barrel_flats](renders/checkpoint/pairs/barrel_flats-pair.jpg) | 12.51 | 12.49 | original lug/flats dimensions; form |
-| [forend](renders/checkpoint/pairs/forend-pair.jpg) | 2.87 | 2.84 | nose/iron proportions; local form |
-| [forend_side](renders/checkpoint/pairs/forend_side-pair.jpg) | 2.48 | 2.41 | lower profile/nose; local form |
-| [trigger](renders/checkpoint/pairs/trigger-pair.jpg) | 26.14 | 25.41 | guard return and accepted blade differences; form |
+| right (`renders/checkpoint/pairs/right-pair.jpg`) | 4.11 | 3.89 | accepted whole silhouette; local form |
+| left (`renders/checkpoint/pairs/left-pair.jpg`) | 5.60 | 5.30 | class stock/gauge differences; local form |
+| action (`renders/checkpoint/pairs/action-pair.jpg`) | 55.73 | 55.03 | fence/breech proportions and original head seam; form |
+| action_left (`renders/checkpoint/pairs/action_left-pair.jpg`) | 0.25 | 0.25 | three-point fit only; sparse evidence, not form acceptance |
+| action_top (`renders/checkpoint/pairs/action_top-pair.jpg`) | 40.89 | 39.41 | boss station, head corners and tail; form |
+| action_bottom (`renders/checkpoint/pairs/action_bottom-pair.jpg`) | 77.20 | 77.02 | guard seats/length; form plus perspective/landmark uncertainty |
+| open (`renders/checkpoint/pairs/open-pair.jpg`) | 39.75 | 39.74 | different exterior extension/lug construction; form |
+| barrel_flats (`renders/checkpoint/pairs/barrel_flats-pair.jpg`) | 12.51 | 12.49 | original lug/flats dimensions; form |
+| forend (`renders/checkpoint/pairs/forend-pair.jpg`) | 2.87 | 2.84 | nose/iron proportions; local form |
+| forend_side (`renders/checkpoint/pairs/forend_side-pair.jpg`) | 2.48 | 2.41 | lower profile/nose; local form |
+| trigger (`renders/checkpoint/pairs/trigger-pair.jpg`) | 26.14 | 25.41 | guard return and accepted blade differences; form |
 
 No pair has a dominant residual that one additional global translation, scale
 or roll removes. This does not rule out perspective or observation uncertainty,
