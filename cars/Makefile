@@ -1,3 +1,7 @@
+BODY ?= pickup
+ifeq ($(BODY),sedan)
+include sedan.mk
+else ifeq ($(BODY),pickup)
 ASSET := AlderC150
 FINAL_PIPELINE := 1
 CUSTOM_CHECKPOINT := 1
@@ -97,3 +101,10 @@ docs: final-colors final-pairs
 check-delivery: export check-motion
 	$(BP) --python src/check_delivery.py -- --source export/$(ASSET).glb --out build/car-delivery-check.json
 check: check-delivery
+else
+$(error BODY must be pickup or sedan)
+endif
+
+.PHONY: sedan
+sedan:
+	$(MAKE) BODY=sedan
