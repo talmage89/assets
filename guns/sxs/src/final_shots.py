@@ -3,7 +3,7 @@ import math,hashlib
 from pathlib import Path
 from shots import SHOTS as FORM,PHOTO_POSES,STRIP_SHOT,floor_height
 FINAL_STAGE=True
-RENDER_STAGE='look round one: exported GLB and baked 2048 PBR'
+RENDER_STAGE='final exported GLB / baked 2048 PBR'
 SHOTS={**FORM,
  'hero':dict(location=(1.70,-.15,.50),target=(0,.235,-.008),lens=51,aspect=2.8),
  'hero_left':dict(location=(-1.70,-.15,.50),target=(0,.235,-.008),lens=51,aspect=2.8),
@@ -97,7 +97,7 @@ def prepare_shot(sc,s):
   reflection.active_material.node_tree.nodes['Diffuse BSDF'].inputs['Color'].default_value=(*settings['color'],1)
   reflection.hide_render=False
  for ob in sc.objects:
-  if ob.name.startswith('Studio black reflection flag'):ob.hide_render=bool(s.get('look_light'))
+  if ob.name.startswith('Studio black reflection flag'):ob.hide_render=bool(s.get('look_light')) or sc.render.engine!='CYCLES'
  sc.camera.data.shift_x=s.get('shift_x',0);sc.camera.data.shift_y=s.get('shift_y',0)
  for ob in sc.objects:
   if ob.get('human_scale'):ob.hide_render=not scale

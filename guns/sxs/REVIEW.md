@@ -148,6 +148,146 @@ Optional snapshot comparison, from the repository root:
 `python3 guns/sxs/src/finish_compare.py --before build/walnut-final/before`.
 The saved handoff is local review input, never a dependency of the rebuilt asset.
 
+## Final exported renders and documentation
+
+The complete default build re-rendered the final GLB, embedded maps and all
+source/export photographic and wear evidence. Final wood gates reproduce the
+export probe above. Both complete walnut pairs, the identical-camera hero
+before/after, all studio views, five delivery JPGs, nine wear pairs, standalone
+shell/hull and contact sheets were opened. Color/value first: the stock now
+reads browner with a lower, broader oil reflection; protected blue steel stays
+dark, action recesses remain deep, and the case highlights roll off. The
+photograph still has richer small pore contrast and incidental small marks.
+Our broad figure remains more conspicuous than the photograph in the lower
+butt; the regular peppered flecks and narrow lacquer stripe are gone.
+
+The hero's foreground encoded luma P1/P50/P99 is **0 / 56.703 / 214.575**.
+All-channel clipping is zero; any-channel values at least 254 occupy
+0.0004144% of foreground, and 13.473% is below eight. These diagnose the
+tonal range, not photographic equivalence. The Eevee view uses the same
+textures and material extension. A presentation bug had re-enabled the
+camera-hidden black reflection cards in Eevee/Workbench; they now remain
+hidden there. Cycles and the calibrated photographic light rigs are unchanged.
+
+`src/docs.py` checks render attribution against the current GLB hash before
+making the five JPGs. The action sheet shows raised extractors with fired
+hulls, the loaded breech from the opposite side, the exact eye and a 1.8 m
+silhouette. Details cover the action, walnut, forend and controls. Each delivery
+JPG was reviewed at its final dimensions, after compression.
+
+| Final docs file | Pixels | Bytes |
+| --- | --- | ---: |
+| `docs/hero.jpg` | 1600 × 572 | 39,508 |
+| `docs/turnaround.jpg` | 1600 × 1040 | 70,331 |
+| `docs/action.jpg` | 1600 × 1300 | 166,297 |
+| `docs/details.jpg` | 1600 × 1200 | 194,009 |
+| `docs/eevee.jpg` | 1600 × 572 | 40,191 |
+| `docs/motion.gif` | 720 × 320 | 447,475 |
+
+Full Cycles stills: `renders/final/beauty/`; Eevee:
+`renders/final/eevee/hero.png`. `renders/final/contact-sheet.jpg` contains
+all 51 studio, ammunition, material, wear and family panels;
+`renders/final/docs-contact-sheet.jpg` contains the 20 main-gun studio/Eevee
+views. Before/after evidence is
+`renders/walnut/comparison/{walnut_stock,walnut_forend}-before-after.jpg`
+and `hero-before-after.jpg`, with exact measurements in `values.json`.
+
+The rewritten README leads with the hero and captioned motion, then the four
+remaining JPGs. It documents sourced real dimensions and their limits,
+construction, measured materials, nine wear causes, the rig and 14 sockets,
+all 19 clips, detachable subsets, triangle/map/file budgets, RGB16 normals,
+rebuild steps, evidence paths, credits and remaining limits. Family README
+and GIF tables now include the ninth finished gun.
+
+## Signature GIF: trim, crop, then palette
+
+The unmodified shared tool loads the same exported GLB. The slightly elevated
+camera levels the closed gun and spends the crop on the breech, extractor
+and shells. Background is flat gray, with no text or dithering. Source clip
+ranges are half-open 60-Hz frames:
+
+| Clip | Source range | Decoded GIF indices | What remains |
+| --- | --- | --- | --- |
+| Open | 24–69 | 0–14 | Lever already swung; barrel drop and complete extractor lift |
+| Reload | 27–48 | 15–21 | Right shell insertion and seating |
+| Reload | 90–114 | 22–29 | Left shell insertion and seated handoff |
+| Close | 0–69 | 30–52 | Extractor return, barrel closure and lever locking |
+
+The manual Unload phase and the reload's air approach/hand-clear gap are cuts
+between excerpts, explicitly described in the README. The full 19 clips and
+their boundary states remain untouched. Both insertion strokes and the
+closing stroke remain at real speed. Source samples advance by three frames.
+The loop has **53 frames, 20 fps, 192 global octree colors**, **447,475 bytes**,
+and **3,150 ms** total duration: 550 ms first frame and 52 × 50 ms afterward.
+The first delay includes the shared tool's extra 500 ms hold.
+
+The first 108-frame 25-fps, 256-color 960-wide loop was 1,369,312 bytes.
+Trimming the static reload tail and cropping to 720 × 400 came first
+(1,005,920 bytes). Only then were lower palettes and 20 fps tried. The
+80-frame 96-color trial was still 565,165 bytes; removing the reload's air
+intervals retained both seatings in 53 frames. A further vertical crop to
+720 × 320 left the 128-color ffmpeg trial at 473,099 bytes. Its 112-color
+444,678-byte version fit but shifted shaded brass toward pink: reject.
+Low 48/64-color trials also showed visible wood contour steps. Octree better
+preserved the rare gold tones; 112/128/144/176-color trials fit, but **192**
+retained smoother walnut/bluing gradients within the limit. These prototypes
+remain ignored build files; only the final loop is committed.
+
+All 53 decoded frames were opened in order on the seven native-width pages
+`build/gif/review/frames-{0000,0008,0016,0024,0032,0040,0048}.jpg`.
+Checked rim/extractor lift, both shell insertions, seating visibility changes,
+extractor return, barrel and lever closure, crop clearance and the loop cut.
+Compared the wood, blue-black barrels, case steel, red hulls and brass against
+the final JPGs and unquantized frames. No objectionable contour bands remain
+at delivery width; ordinary GIF quantization remains visible under pixel
+inspection. Against the unquantized foreground, the worst frame's mean
+absolute RGB errors are **2.7045 / 1.9329 / 2.6211 codes**, and the worst
+per-frame 95th percentile of maximum-channel error is **8 codes**. The decoded
+surround is a constant **107/110/113**, one code below its 108/111/114 input.
+Repository `build/walnut-final/gif-color-error.json` retains the counts.
+
+The final fresh `make gif` reproduced the accepted bytes and all 53 decoded
+reference frames exactly. `build/gif/report.json` records source attribution,
+samples, delays and palette. Final GIF SHA-256:
+`d2cfec4b0fa53ef213534a91d178fb1812429daa7228a20ed026388ed008e7f1`.
+
+## Final build proof and limits
+
+All requested commands completed with exit status zero:
+
+```sh
+make -C guns/sxs
+make -C guns/sxs check
+make -C guns/sxs gif
+python3 kit/repo_check.py
+```
+
+The full default build used 4096/32-sample GPU bakes and 4000-wide/48-sample
+Cycles finals through the kit lock. Logs are in repository
+`build/walnut-final/{make-final,check-final,gif-final-octree,repo-check}.log`.
+The repository check reports **1,218 source files, zero errors**. Source and
+fresh-import assembly/contact and half-frame clearance probes, the independent
+51-angle lever sweep, deterministic rebuild, fairness gauges, attribution,
+and standalone surface/density/L0–L3 checks all pass. Serialization separately
+passes **1,715 affine samples**, maximum position error **0.000000190828 m**.
+UV overlap is **0.00012470%**, with zero outside/degenerate UV triangles;
+median density is **3,226.50 px/m**. These are measurements, not substitutes
+for the appearance review above.
+
+Gun: **38,822 triangles, one material, three 2048 maps, 19,369,020 GLB bytes**.
+BaseColor RGBA8 / Normal RGB16 / ORM RGB8 PNG bytes are
+**3,236,682 / 10,542,965 / 2,612,523**. RGB16 avoids the eight-bit reflection
+steps previously observed across the rounded hollow action head; its size
+cost and importer requirements are explicit in the README. Shell/hull remain
+**752 / 480 triangles**, each one material and three 512 maps, at
+**624,492 / 742,316 GLB bytes**. Rig, clips and sockets remain **17 / 19 / 14**.
+
+Remaining limits are disclosed rather than silently redesigned: accepted
+trigger P10 miss, different-maker camera/wood-line residuals, inferred visual
+eye fit rather than measured human anatomy, and fine pore/safety/headstamp
+detail softened by the 2048 bake. No kit/common file changed and no tool or
+approval is needed from the lead. No contract change is proposed.
+
 ---
 
 # Covey 26 — look round one delivery

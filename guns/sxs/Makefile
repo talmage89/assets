@@ -1,4 +1,4 @@
-# Covey 26 look round one: accepted form, procedural field finishes; no docs.
+# Covey 26: accepted form, baked field finishes and final presentation.
 .DEFAULT_GOAL := all
 .NOTPARALLEL:
 BLENDER ?= blender
@@ -110,8 +110,8 @@ reflections: export dense-rakes
 fairness: model
 	$(BP) --python src/fairness_gauges.py -- --source build/sxs.blend --out build/fairness.json > build/fairness.log 2>&1
 
-# Look round one: all final evidence is imported from the baked GLB. Historical
-# form diagnostics remain available explicitly; no docs generation is invoked.
+# Final evidence is imported from the baked GLB; the source comparisons are
+# labeled diagnostics. Historical form evidence remains available explicitly.
 FINAL_SHOTS := hero,hero_left,side,left,front,back,top,shooter_three_quarter,aimed,open,breech,action,wrist,forend,stock,muzzle,top_controls,triggers,scale
 FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(FINAL_SHOTS)))) renders/final/beauty/shots.json
 FINAL_DEPS := src/final_shots.py src/final_render.py ../common/render.py build/render-parameters.txt
@@ -185,3 +185,12 @@ final-review: final-render look-pairs source-review wear-review wear-detail fami
 renders/final/wear-native/measurements.json: renders/final/wear/measurements.json src/wear_detail.py
 	$(PYTHON) src/wear_detail.py --samples $(SAMPLES) > build/wear-detail.log 2>&1
 wear-detail: renders/final/wear-native/measurements.json
+
+# Signature loop uses the shared exported-GLB tool.
+EXPORTS := export/sxs.glb export/shell.glb export/hull.glb
+include ../common/gif.mk
+
+.PHONY: docs
+all: docs
+docs: final-review src/docs.py
+	$(PYTHON) src/docs.py

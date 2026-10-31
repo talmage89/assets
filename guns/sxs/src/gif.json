@@ -1,0 +1,55 @@
+{
+  "source": "export/sxs.glb",
+  "output": "docs/motion.gif",
+  "sequence": [
+    {
+      "clip": "Open",
+      "start": 24,
+      "end": 69
+    },
+    {
+      "clip": "Reload",
+      "start": 27,
+      "end": 48
+    },
+    {
+      "clip": "Reload",
+      "start": 90,
+      "end": 114
+    },
+    {
+      "clip": "Close",
+      "start": 0,
+      "end": 69
+    }
+  ],
+  "fps": 20,
+  "width": 960,
+  "colors": 192,
+  "samples": 64,
+  "background": [
+    108,
+    111,
+    114
+  ],
+  "camera": {
+    "location": [
+      0.38,
+      -0.26,
+      0.27
+    ],
+    "target": [
+      0,
+      0.135,
+      0.065
+    ],
+    "lens": 70,
+    "aspect": 2.25,
+    "exposure": -0.15,
+    "roll": 0.34921603557053343,
+    "shift_y": 0.027604166666666666
+  },
+  "engine": "BLENDER_EEVEE",
+  "output_width": 720,
+  "palette_quantizer": "octree"
+}

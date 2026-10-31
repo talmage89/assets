@@ -74,7 +74,7 @@ the hull at its actual HullR/L bone frame when handing it to external physics;
 the chamber sockets represent extraction, before the manual pull separates it.
 Keep the corresponding internal display hidden after external handoff.
 
-The look-round-one delivery is `export/sxs.glb`: one material and three 2048
+The final delivery is `export/sxs.glb`: one material and three 2048
 images, baked at 4096 through the kit. BaseColor's opaque alpha contains
 `KHR_materials_specular` data; the same image supplies color and effective
 reflection strength. Normal retains OpenGL +Y and RGB16 precision; ORM remains
