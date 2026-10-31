@@ -1,3 +1,214 @@
+# Sedan form round 3 — one fair parent
+
+This source checkpoint supersedes round 2's surface judgement. The earlier
+claim that its broad stripes were fair was too lenient: the hood pooled,
+fascia corners zigzagged, and the rear still read as a box. Its measured end
+numbers and accepted package remain targets, not evidence of fairness.
+No sedan delivery, material, wear or motion approval is implied here.
+
+## Pass 1 — reject the first pole-free sheet
+
+Color/value first against the silver Accord front, black Camry rear and Camry
+profile: neutral gray clay must retain dark glass, wells and intake locators.
+The stock photographs' white backgrounds are the balance neutral, with unit
+RGB gains. Their silver/black paint is not treated as the clay's albedo.
+Opened the three rejected round-2 stripe images and rear clay at full size,
+the raw photographs, and the complete first replacement views.
+
+Evidence: `renders/sedan-r3-pass1/`, `sedan-r3-pass2/`, `sedan-r3-pass4/`
+and `build/sedan-round3/all-previews-0.jpg` through `all-previews-3.jpg`.
+The sheets include every rendered intermediate, not selected successes.
+
+- **Package/stance:** the envelope, wheelbase, tracks, 235/45R18 rolling
+  envelope and 40 mm arch gaps remain fixed. Early mesh bounds show that
+  subdivision rounding can still lose millimeters; recipe constants are not
+  reported as measured geometry.
+- **Hood:** removing post-subdivision end projection immediately improves the
+  broad crown. The first edge/corner distribution still produces a false
+  ridge and a knot where the fascia rows enter the fender. Reject it.
+- **Front:** a single rectangular sheet can fold over the nose without cap
+  poles, but nearly parallel longitudinal and cross rows create an unstable
+  chart near the corner. Its bands still change direction abruptly.
+- **Doors:** the requested concave run below the widest shoulder is present,
+  but game reduction and changing row spacing leave waves. A few broad bright
+  bands do not excuse those waves.
+- **Rear/deck:** the first corner tangent lies too far aft; measured rear plan
+  sweep is only about 70 mm. The deck still meets an almost flat tail face.
+  There is a visible pinched transition at the quarter's top.
+- **Canopy/wheels:** the accepted side profile/rake and wheel package should
+  not be altered to rescue the ends. Their plain glazing and wheels are form
+  proxies; they cannot conceal a wrong stamping.
+
+Action: fit one continuous waterline/cover section family to the **control
+net**, before final Catmull-Clark evaluation. Spread the end-to-side chart
+through the quarters and retain a regular quad sheet. No evaluated vertex
+projection, separate end volume, cap grid or analytic replacement normal is
+used. The exported game-stage normals come from the evaluated parent itself.
+
+## Pass 2 — reject collapsed reflections and damaged boundaries
+
+Color/value first: striped diagnostics use a neutral substrate and procedural
+black/white latitude or azimuth bands. Keep the deep values and highlight
+rolloff; do not brighten the clay to imitate the silver photograph. Viewed
+all pass-5 through pass-13 renders in their sheets, with the significant hood,
+front/rear stripe and plan views also opened individually against both makes.
+
+- **Hood/front:** a fair shallow crown and supported paired draw lines remove
+  the leading dent. Piecewise fascia controls still concentrate curvature at
+  their joins. Replace them with smooth positive-curvature center sections;
+  the accepted height, rake, tuck and plan measurements still have to pass.
+- **Side/arches:** the broad swells now read over each wheel. QEM reduction
+  treats a shallow door as almost planar and removes the vertices that carry
+  the changing reflected normal. Its large polygon-shaped highlights are
+  unacceptable even while position error and the triangle budget pass.
+- **Panel cuts:** a planar boundary dissolve cuts chords across curved hood
+  and deck corners. The resulting triangular holes are visible in plan. The
+  first replacement reduction is rejected rather than hidden with dark glass.
+- **Rear/canopy:** a height-only rule mistakes low backlight corners for the
+  body side and moves them outward. Protect the complete accepted canopy
+  chart, not merely points above a height. Refit its transverse crown without
+  changing its center/side silhouette. This removes the false corner humps.
+- **Construction:** trim wheel openings on the open fair sheet, then close
+  the gauge. Split point-touching sheet fans before Solidify; a four-face edge
+  along a gauge rim is a real topology error, not a tolerable audit exception.
+
+Action: resample the evaluated parent on a feature-aligned quad grid, retain
+its extrema and normals, then make physical panel cuts. Exact 4.5 mm door cuts
+replace station-dependent setbacks. Trunk side/bottom reveals align with its
+split lamp pieces. The final reduction does not collapse a whole door into
+large triangles. Source evaluation uses one CPU thread: an independent threaded
+run exposed last-bit vertex/normal differences and one changed locator triangle.
+
+## Pass 3 — both makes, curvature and the driver's hood view
+
+Color/value first against the four calibrated neutral/striped pairs in
+`renders/sedan-round3/`: the original clay's doors were too dark to judge well.
+The balanced Workbench studio makes their gradient readable without changing
+the body albedo or lifting the cavities. White photographic studio backgrounds
+remain the neutral reference, with unit gains. No paint or used-car wear match
+is claimed. Opened the complete contact and both makes' front/rear pairs.
+
+- **Hood:** all three transverse sections remain convex, with localized
+  curvature concentration at the two intended draw lines rather than pools
+  or alternating dents. The driver's-eye reflection strip is continuous.
+  It isolates the actual hood at a plausible eye because this form gate has
+  no interior or transparent glazing. No smoothing shader replaces the mesh.
+- **Front:** its measured plan sweep remains about 317 mm at x=850 mm. The
+  turn under each lamp flows into the fender, with a roughly 386 mm local plan
+  radius. The fascia is still plain beside both production photographs: the
+  grille/intake/DRL locators lack the later molded seats and optical detail.
+- **Doors:** the shoulder is the widest part of the section. A shallow concave
+  run leads to the rising lower character line and recessed rocker. Horizontal
+  and vertical bands now run across the four doors without the old repeated
+  waves. The 7.8 mm mid-door chord deficit is a section
+  measurement, not an artistic fairness certificate.
+- **Fenders/wheels:** same-height mesh rays measure
+  33.9 / 29.9 mm front/rear swell over the door.
+  The swells blend into the body; they are not attached annular flare strips.
+  The unchanged tires retain 40 mm crown clearance and actual inward arch hems.
+- **Rear:** the local three-point radius is 305.1 mm, within 250–400 mm.
+  The tail is convex across its width, with a shallow upper lean and a lower
+  tuck. The crowned deck rolls into the quarter without the old corner humps.
+  Its trailing edge is sharper, and the lower reveal gives the lid a coherent
+  cut through the upper tail panel. Its broad plain lands remain less resolved
+  than the Accord and Camry, even though their section is no longer a box.
+- **Canopy:** the original six-light profile, fast windshield and tumblehome
+  stay. The roof/pillar/window corners remain unusually regular compared with
+  the photographic trim. This is still the least natural part of the upper form.
+
+The plots sample five body stations plus three across each cover, on both the
+unseparated parent and actual game skin. Cuts/part boundaries split derivative
+runs; inward gauge faces and flat rims are excluded from an outer-skin curvature
+measurement. Shaded zones explicitly mark the rocker, lower draw, shoulder,
+bumper roll and deck edge. There is no unclassified sign reversal in those
+sampled runs, and no hood/deck reversal away from cuts. This finite sampling
+and the stripe views support one another; neither proves global Class A fairness.
+
+## Pass 4 — actual apertures and the reproducible checkpoint
+
+Color/value first: the inherited lamp locators sat on painted skin, so they
+could hide an uncut face. The final cut gives them a real dark edge and recess,
+without painting fake gaps into the material. The first projected polygon had
+jagged rims and too many fragments; reject it. Fair the authored locator outline
+in the parent's chart, offset it in the tangent plane, clip the already fair
+skin, and close its gauge afterwards. The final local cuts preserve the parent
+curvature and stay within the unchanged triangle budget. The complete new clay
+views are in `renders/sedan-apertures3/`; finals are rebuilt in `sedan-round3/`.
+
+All six lamp pieces now sit behind actual apertures. Eighteen center rays pass
+through the lamp footprint without finding painted skin in the tested interval.
+The black grille/intake/plate/handle locators remain form proxies; there are no
+optical internals, grille wells or finished fittings at this gate.
+
+## Pass 5 — inspect the lowest corner at both densities
+
+Color/value first: retain the same reflection contrast while comparing the
+1200 px dense-source and game views in `renders/sedan-density-check/`,
+`sedan-density-game/`, `sedan-density-game3/` and `sedan-density-game4/`.
+The dense source is cleaner at the lowest rear corner; the game grid still
+shows small grazing-angle ripples. Additional longitudinal samples alone do
+not fix them. Concentrate transverse samples in the corner as well, funded
+by simpler temporary dark locator grids. The extra columns stop at the rear
+chart, using a stitched transition instead of wasting them across all doors.
+
+A hidden-gauge dissolve across the thin doors is rejected: its inner chords
+cross the 0.9 mm outer sheet and give negative volumes despite closed topology.
+Keep the steel backs unchanged. Restrict the reduction to the molded fascias,
+with a construction-appropriate 3 mm nominal wall. Centroid and edge-midpoint
+probes reject any reduced back that comes within 0.4 mm of the outer skin.
+Earlier rear-back reductions fail that probe and are rejected. The final
+front/rear back probes retain at least 2.20 / 1.77 mm inward depth at the tested
+points, and both reductions pass. The source audits remain positive and closed.
+The dense/game corner comparison is stricter evidence than the eleven sampled section checks.
+
+The final hood and door runs are substantially cleaner than round 2. Fine
+ripple remains at the fascia corners under grazing bands, most visibly at
+the lowest rear corner. The plain fascia and regular upper window corners remain weaker than the photos.
+The underside's band convergence appears at both densities; the small adjacent
+game-mesh ripple is not dismissed as the same effect. This checkpoint is not
+a claim that every reflection has reached production Class A surfacing.
+
+Opened every final JPG in `build/sedan-round3/review-verified-0.jpg` through
+`review-verified-4.jpg`, with the clay three-quarter views, rear stripes and
+curvature plots also inspected at full size. All twenty render metadata entries
+match the final source hash. Front/rear clay foreground 1st/99th-percentile
+luma is about 8/151 and 6/128; no foreground channel clips at 255. Cavities stay
+dark, and the body gradients remain visible. These are clay tonal checks,
+not final paint albedo validation.
+
+Proof from the final scripted build:
+
+- `make -C cars BODY=sedan WIDTH=1600 SAMPLES=40` and `make ... check` pass:
+  both density audits, positive closed source gauges, normals, no zero-area
+  triangles, budget, accepted envelope, all 23 end ranges, swells/corner radius,
+  real lamp openings, independent camera projection and repository rules.
+- `make ... fairness` passes both parent and game sections. Raw positions,
+  normals and signed curvature remain in `build/sedan/curvature.json` and
+  `parent-curvature.json`; the paired plots are in the render folder.
+- The control sheet is one connected component with 29,376 quads and
+  valence four at every interior vertex. The final subdivision is evaluated
+  after fitting; no post-evaluation end projection remains.
+- Independent one-thread regeneration matches all 94 meshes' positions,
+  polygons, normals, transforms, material names and parents exactly.
+- Fresh pickup generation matches all 454 source meshes. A single-thread
+  re-export matches all 150 accessors, maps and graph, and the complete
+  11,530,736-byte GLB retains SHA-256
+  `f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
+
+The overlay still has a roughly −94 mm deck/spoiler difference, +33 mm hood
+lead, −21 mm hood middle and −9 mm cowl; front/peak roof are +14 mm and aft roof
+−12 mm. Pick uncertainty is ±16.5 mm, with residual near-profile perspective.
+The roughly 1040 mm original lip follows the held spec rather than the higher Camry SE
+spoiler. The four chassis camera RMS values stay 5.76 / 5.30 / 11.07 / 8.76 native
+pixels. They do not certify the body silhouette or identical styling.
+
+Remaining weaknesses are the plain fascia/pocket treatment, regular window and
+C-pillar corners, grazing ripple at the fascia corners (worst at the lower
+rear), and the deck/spoiler mismatch. Fine trim, optics, interior, underbody, real paint/wear and moving-part clearance remain later work; none is
+claimed done. No kit changes, no sedan GLB and no committed checkpoint images.
+The later detail pass must replace the temporary locator allocation to stay
+inside 55k. The source checkpoint stops here.
+
 # Sedan form round 2 — the ends
 
 This gate supersedes the sedan form judgement at `402318a`. It is source clay,

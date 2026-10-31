@@ -172,3 +172,37 @@ measure the resulting dimensions, including the centerline profile. The side
 overlay's +14 mm roof-front holdout meets the requested approximate 20 mm target;
 its −96 mm deck mismatch remains visible because the Camry SE spoiler sits above
 the brief's 1000–1050 mm tail-lip height. It is not suppressed by warping the photo.
+
+
+
+
+## Round 3 surface construction and measurement
+
+The round-2 end-volume projection is historical. The current body is a single
+regular quad control sheet spanning both ends and the accepted canopy. Original
+waterline, centerline and cover sections fit the control vertices before final
+Catmull-Clark evaluation. The evaluated surface is never projected onto separate
+end volumes. No photograph is loaded by the model generator.
+
+The rear 250–400 mm corner-radius target and 20–35 mm wheel swells come from
+the round-3 brief. `sedan_shaping.py` measures a local circle through actual
+x=800/850/880 mm bumper-height rays, and compares actual fender/door rays at
+z=760 mm. A local circle is not a constant-radius claim for the whole quarter.
+The concave door run and crisp support lines are authored original styling.
+The 3 mm molded fascia wall is an authored construction estimate; the steel
+skin and glazing retain their earlier gauge estimates.
+
+The regular game chart retains parent extrema, positions and normals before
+panel separation. World-space door cuts, trunk reveals and projected lamp
+apertures are made afterwards; holes are independently ray-checked. Cover
+curvature is sampled on both parent and game at three transverse stations each,
+with five body sections as a separate check. Cut gaps split derivative runs.
+Rocker, lower draw, shoulder and bumper/deck transition zones are explicit in
+the JSON/plots. No smoothing curve is fitted to the resulting measurements.
+
+The four cited stock photographs and Camry profile remain the two-make visual
+basis, with the same chassis-only camera registrations. Their neutral white
+backdrops supply unit-gain white balance. The held-out silhouette differences,
+including the lower original deck versus the photographed spoiler, remain
+visible. These comparisons and finite curvature samples are not a global
+Class A or final material/delivery certification.

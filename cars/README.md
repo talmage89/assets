@@ -249,163 +249,149 @@ The script source and shader behavior are available for engine integration.
 
 ## Alder S240 — sedan form checkpoint
 
-An original 2018–2022 FWD midsize sedan, compared against the Camry and Accord.
-**Round 2, source form only:** sculpted body, six-light glazing, shared-family
-wheels and 235/45R18 tires, real panel reveals and arch returns, and dark blanks
-for lamps, grille, intakes, handles and diffuser. Optical construction, interior,
-underbody, paint/wear, UVs, bake and sedan GLB remain later stages. No sedan docs
-images are committed at this gate.
+An original 2018–2022 FWD midsize sedan, compared with the Camry and Accord.
+**Round 3 is a source form checkpoint.** It stops before optical internals,
+interior, underbody, paint/wear, UVs, baking, motion certification and sedan GLB.
+The accepted pickup delivery path remains separate and byte-preserved.
 
-`src/build.py --body pickup|sedan` selects the family body. The default pickup
-path is unchanged. The sedan uses one connected Catmull-Clark section cage;
-a rounded elliptical fascia volume fairs both ends before panel separation.
-Radial projection preserves the ordering of the cap rows. Top crown, upper rake,
-bumper tangent and lower tuck belong to that same surface. Evaluated normals
-transfer across the panel reveals after closing the sheet gauge. This is a
-sculpted three-dimensional surface, not an extruded side outline with bevels.
+### A continuous subdivision surface
 
-The cabin, door cuts and axles translate together 90 mm forward to correct the
-old overhang allocation. The accepted windshield rake, side-window profile,
-tracks, tire dimensions and 40 mm arch gaps remain. The requested header change
-follows the windshield direction. The central backlight extends rearward to
-leave a short deck; the quarter-window side profile remains. The B-pillar has
-its black applique, and the tucked lower doors sit over a recessed rocker.
-Rear lamp blanks now split between the decklid and quarter panels.
+The outer body is one connected, regular all-quad control sheet, folded over
+both ends with its border underneath. It has **29,376 control quads**,
+one component and valence four at every interior vertex. The authored sections
+fit the control vertices before Catmull-Clark evaluation. No evaluated vertex
+is projected onto an end volume; there are no cap patches or corner poles.
+The accepted canopy profile and rake are protected during fitting.
 
-### Dimensions and measured end specifications
+The control sections carry the shoulder, shallow concave lower door run,
+rocker tuck, wheel swells, crowned hood and deck. Narrow hood supports follow
+the two draw lines from the lamps toward the A-pillar bases. A sharper rear
+trailing roll supplies the deck lip. The game grid samples the evaluated parent
+in its parameter chart, with the parent's normals and actual extrema retained;
+it does not collapse broad curved doors into a few flat triangles. Extra
+corner samples come from reducing temporary locator grids and unseen fascia
+backs. The latter retain the outer skin and cut rims, with centroid/edge depth
+probes rejecting reductions that approach the outer skin within 0.4 mm.
 
-[REFERENCE.md](REFERENCE.md) gives the manufacturer table, sources and uncertainty.
-The [MY2019 Toyota eBrochure](https://cdn.dealereprocess.org/cdn/brochures/toyota/2019-camry.pdf)
-and [MY2019 Honda specification](https://hondanews.ca/en-CA/releases/release-4f32a27ba2ad7509bfa642e1160157a6-2019-honda-accord-specifications)
-provide the class basis. The [Toyota UK metric brochure](https://www.toyota.co.uk/content/dam/toyota/nmsc/united-kingdom/brochure-archive/camry/camry-jun-21.pdf)
-explicitly gives 975 / 1085 mm overhangs on its 4885 / 2825 mm envelope.
-Our extra 10 mm in length minus wheelbase goes behind the rear axle, giving
-975 / 1095 mm targets. The front number is 25 mm beyond the rough 860–950 mm
-photo range, but follows the coherent manufacturer dimensions.
+Panel separation follows evaluation. Door reveals are actual 4.5 mm cuts in
+world space. Hood, deck and fascia boundaries retain the parent's curvature.
+The trunk's upper tail panel has a real bottom reveal and side cuts aligned
+with the split rear lamps. Lamp outlines are projected into the parent chart,
+cut through the painted skin, and backed by recessed form locators. Eighteen
+independent rays check that no painted skin remains over the lamp centers.
+Wheel openings are trimmed from that same skin before sheet closing, with
+18 mm inward arch returns. Steel sheet gauge is 0.9 mm, molded fascia gauge
+is 3.0 mm, and glazing is 4.8 mm.
+These are construction estimates, not manufacturer stamping drawings.
 
-| Quantity | Actual evaluated game source |
+### Measured dimensions and form
+
+[REFERENCE.md](REFERENCE.md) and [refs/SOURCES.md](refs/SOURCES.md) retain the
+Toyota/Honda manufacturer dimensions, photograph authors and uncertainty.
+The fictional envelope is 4900 × 1850 × 1449 mm on a 2830 mm wheelbase. Its
+975 / 1095 mm overhang allocation follows the cited Toyota metric basis.
+
+| Quantity | Actual game surfaces / pivots |
 | --- | ---: |
-| Length × width × height | 4900.0 × 1850.0 × 1449.2 mm |
+| Length × width × height | 4900.3 × 1850.0 × 1449.4 mm |
 | Wheelbase; front / rear track | 2830.0; 1590.0 / 1600.0 mm |
-| Front / rear overhang, full mesh bounds | 974.7 / 1095.3 mm |
-| Tire width / loaded diameter; arch gap | 235.0 / 660.7 mm; 40.0 mm on all four |
-| Windshield rake / B-section tumblehome | 61.48° / 24.14° from vertical |
-| Door reveals, 40 sampled points | 4.497–4.502 mm |
+| Front / rear overhang | 975.2 / 1095.1 mm |
+| Tire width / loaded diameter / crown gap | 235.0 / 660.7 / 40.0 mm |
+| Windshield rake / B-section tumblehome | 61.75° / 23.73° from vertical |
+| Door reveals, 28 surface samples | 4.5–4.5 mm |
+| Fender swell at z=760 mm, front / rear | 33.9 / 29.9 mm over the same-height door |
+| Local rear corner plan radius | 305.1 mm, circle through x=800/850/880 mm |
 | Ground clearance | 145 mm target; underbody measurement deferred |
 
-End measurements below come from actual mesh rays, cuts and retained aperture
-vertices. The checker verifies that aperture samples still lie on their actual
-mesh after adaptive refinement; it does not report design controls as measurements.
-Plan sweep is measured at x=850 mm, at each bumper's measured leading height.
-The section proof is `renders/sedan-round2/section-centerline.jpg`.
+All end numbers below come from actual mesh rays, plane cuts and retained
+locator vertices. The radius is a finite-span local estimate; the whole corner
+does not have one constant radius. The B-section is sampled 35 mm aft of the
+physical door seam, so rays pass through glass rather than its open reveal.
 
 | Front specification | Actual | Requested |
 | --- | ---: | ---: |
-| Plan sweep | 314.3 mm | 250–350 mm |
-| Bumper leading height | 484.0 mm | 450–550 mm |
-| Upper face rake from vertical | 35.22° | 30–45° |
-| Hood edge setback / height | 185.2 / 746.4 mm | 150–250 / 720–800 mm |
-| Chin tuck / height | 119.0 / 189.2 mm | 100–150 / 150–200 mm |
-| Hood rise / cowl height | 10.47° / 964.6 mm | 8–12° / 950–1000 mm |
-| Hood transverse crown, x=±800 mm at y=−1650 mm | 30.3 mm | 20–40 mm |
-| Headlamp developed length | 696.3–696.4 mm | 600–700 mm |
-| Headlamp maximum height / corner return | 146.6–146.6 / 224.9–225.0 mm | 120–180 / 200–300 mm |
-
-The hood has two soft longitudinal draws that move outward into the A-pillar
-feet, and a curved leading reveal following the lamps' upper outline. The wide
-trapezoidal grille, black lower intake and corner pockets are conformed locators
-in the molded fascia. Their wells and optics are intentionally deferred.
+| Bumper-height sweep at x=850 mm | 317.3 mm | 250–350 mm |
+| Bumper leading height / upper rake | 502.0 mm / 35.80° | 450–550 mm / 30–45° |
+| Hood edge setback / height | 183.9 / 757.0 mm | 150–250 / 720–800 mm |
+| Chin tuck / height | 123.5 / 177.2 mm | 100–150 / 150–200 mm |
+| Hood rise / cowl height | 10.02° / 966.2 mm | 8–12° / 950–1000 mm |
+| Transverse hood crown at y=−1650 mm | 31.7 mm | 20–40 mm |
+| Lamp developed length / maximum height | 675.0–675.3 / 128.8–129.3 mm | 600–700 / 120–180 mm |
+| Lamp return into the side | 216.7–217.7 mm | 200–300 mm |
 
 | Rear specification | Actual | Requested |
 | --- | ---: | ---: |
-| Plan sweep | 237.9 mm | 150–250 mm |
-| Deck trailing lip height | 1042.7 mm | 1000–1050 mm |
-| Upper panel lean from vertical | 11.47° | 5–15° |
-| Bumper rearmost height | 602.0 mm | 550–650 mm |
-| Lower tuck / diffuser height | 175.8 / 300.0 mm | 150–200 / 250–350 mm |
-| Deck length / rise / transverse crown | 372.7 mm / 5.00° / 22.1 mm | 350–450 mm / rising / crowned |
+| Bumper-height sweep at x=850 mm | 244.7 mm | 150–250 mm |
+| Deck trailing lip height | 1040.3 mm | 1000–1050 mm |
+| Upper tail lean / bumper tangent height | 11.19° / 600.0 mm | 5–15° / 550–650 mm |
+| Lower tuck / diffuser height | 177.6 / 300.0 mm | 150–200 / 250–350 mm |
+| Deck length / rise / transverse crown | 385.0 mm / 3.19° / 22.0 mm | 350–450 mm / rising / crowned |
 
-The tail's upper edge lies forward of the bumper tangent; below it the diffuser
-recedes farther forward. This is the conventional outward bumper relationship
-visible in both makes. The brief's phrase “tucks forward … to the rearmost point”
-is directionally ambiguous; the cut and coordinates make the chosen relationship
-explicit. The lip is the highest crisp edge of the tail beyond the backlight.
+### Budget and proof
 
-### Allocation and later delivery
-
-The game source is **46,972 triangles**, close to the accepted 46.9k
-plan; the separate high source is **373,984**. Denser aperture cells are used
-only where their chords would otherwise enter the painted body. The game body's
-interior reduction retains seam vertices and transfers the original smooth field.
+The game source is **53,636 triangles**, within 40–55k; the high source
+is **108,168**. There are four diagnostic clay materials and **zero image
+textures**. Generated game/high source files are about
+1.11 / 2.15 MB; neither is committed. The later one-set 2048² BaseColor /
+OpenGL Normal / ORM plan remains 16 MiB with three 8-bpp compressed maps and full mip chains. The form locators
+are temporary allocation that must be replaced during detail, not added to.
 
 | Form parent / assembly | Triangles |
 | --- | ---: |
-| Static body, glass, fascia, liners and locators | 30,308 |
-| Hood / trunk, including lid lamp blanks | 876 / 1,144 |
-| Front door L / R | 1,312 / 1,312 |
-| Rear door L / R | 1,200 / 1,204 |
-| Wheel and tire, each | 2,404 |
-| **Total** | **46,972** |
-
-Every mesh and construction category is listed in `build/sedan/form-check.json`.
-There are four clay materials and **zero image textures**. The planned shared
-2048² BaseColor / OpenGL Normal / ORM set remains **16 MiB** at three 8-bpp
-compressed maps with full mips (64 MiB at RGBA8). No new paint sets are created.
-Common-family texel sharing, five neutral-atlas paint factors, frit, lamps/lit
-state, interior method and causal wear remain the later-stage family methods.
-Source game/high files are about 1.0 / 6.8 MB, ignored and rebuildable.
-
-Four door pivots, hood/trunk pivots and the family's wheel spin/steer hierarchy
-are provisional form roots. Their eventual hinges, ownership and full-range
-clearance remain later work. The 45–55k final aim and 70k ceiling still apply;
-replace temporary locators and remove redundant hidden sheet faces as detail is
-introduced, rather than treating this checkpoint as free extra geometry.
-
-### Rebuild and evidence
+| Static body, glass, fascia, liners and locators | 34,828 |
+| Hood / trunk including its lamp blanks | 1,136 / 1,960 |
+| Front door L / R | 1,316 / 1,316 |
+| Rear door L / R | 1,732 / 1,732 |
+| Each wheel and tire | 2,404 |
+| **Total** | **53,636** |
 
 ```sh
 make -C cars BODY=sedan WIDTH=1600 SAMPLES=40
 make -C cars BODY=sedan check
-make -C cars BODY=sedan review
+make -C cars BODY=sedan fairness
 make -C cars                         # accepted pickup delivery path
 ```
 
-`sedan.mk` defaults to `renders/sedan-round2/`. The **27-view contact sheet** is
-`contact.jpg`: clay front/rear three-quarter views; dimensioned side/front/top;
-wheelbase-registered side overlay; both stripe directions on both ends; front
-axle, B-pillar, rear axle and centerline cuts; photographic tumblehome estimate;
-and front/rear comparisons against both makes, in neutral clay and striped clay.
-The four residual overlays expose the camera fits rather than hiding their error.
+The default evidence folder is `renders/sedan-round3/`. Its **32-view contact**
+is `contact.jpg`: front/rear clay; dimensioned side/front/plan; the axle-only
+side overlay; horizontal and vertical reflection bands from both ends and the
+side; the driver's-eye hood reflection; section cuts; curvature plots; and
+four calibrated pairs against both makes in both neutral and striped clay.
+The hood-only diagnostic uses an eye at (340, −600, 1240) mm; other meshes are
+hidden because the form gate has no interior or transparent optical glazing.
 
-| Camera | Chassis-fit RMS, native pixels |
-| --- | ---: |
-| Accord front / Camry rear | 5.76 / 5.30 |
-| Camry front / Accord rear | 11.07 / 8.76 |
+`curvature-body.jpg` and `curvature-hood-deck.jpg` plot five body stations and
+three transverse stations on each cover. The equivalent parent plots are in
+`parent/`. Geometry and signed normal-derived curvature are both retained in
+JSON. Physical cuts split derivative runs; shaded bands identify the rocker,
+lower draw, shoulder and bumper/deck construction transitions. Neither parent
+nor game has an unclassified sign reversal in the sampled runs. These finite
+sections support the stripe review; they are not a global Class A certificate.
 
-Blender's independent projection agrees within 0.003 px. These are registrations
-from wheel hubs/contact points, not fits of the body silhouette. White studio
-backgrounds provide the neutral balance. Photo tumblehome is an estimate with
-±4.5° uncertainty. The side overlay holds out all body landmarks: the roof-front
-station is about **+14 mm**, the hood lead **+33 mm**, and the worst sampled
-station is the deck at **−96 mm**, with ±16.5 mm picking uncertainty and residual
-perspective. The 1043 mm lip follows the brief; it does not match the Camry SE's
-higher spoiler silhouette. The full coordinate/pixel record is beside the overlay.
+`make check` passes both source-density topology/normal/sliver audits, the
+budget, envelope, all 23 end requirements, corner radius, fender swells,
+actual lamp openings, camera projection and repository policy. Source builds
+use one CPU thread to make subdivision and tangent reductions reproducible;
+Cycles views use the shared GPU lock. An independent regeneration matches all
+94 mesh arrays, normals, polygons, transforms, materials and parents exactly.
+No sedan UV, bake, GLB or motion certification is claimed. **No kit changes.**
 
-`make check` passes game/high topology, normals, slivers, 3 mm envelope tolerance,
-budget, all 23 numeric end requirements, physical sections, camera projection and
-repository policy. It does not certify sedan UVs, motion, baking or export.
-All Cycles views use the kit GPU lock. **No kit changes.**
+Camera RMS remains 5.76 / 5.30 / 11.07 / 8.76 native pixels for Accord front,
+Camry rear, Camry front and Accord rear. These are chassis registrations,
+not silhouette fits. The neutral white stock backdrops supply white balance
+(unit gains). The held-out side overlay is worst at the Camry spoiler/deck,
+about −94 mm; hood lead +33 mm, hood middle −21 mm, cowl −9 mm, front/peak roof
++14 mm and aft roof −12 mm, with ±16.5 mm pick uncertainty and residual perspective.
+The original roughly 1040 mm lip follows the brief rather than the photographed spoiler.
 
-The pickup preservation check was rerun: **454 source meshes and all 150 GLB
-accessors are identical**, as are the embedded maps and delivery graph. The
-entire independently re-exported pickup GLB is byte-identical, 11,530,736 bytes,
-SHA-256 `f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
-This reuses the accepted finalized source/maps and makes no new GPU rebake claim.
-Evidence: `build/sedan/pickup-preserved.json`. The sedan also has an independent
-exact-array regeneration check in `build/sedan/repeat-check.json`.
+The pickup check retains all 454 source meshes and all 150 GLB accessors,
+embedded maps and graph. A single-thread independent re-export is byte-identical:
+11,530,736 bytes, SHA-256
+`f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
+Evidence: `build/sedan/pickup-preserved.json` and `repeat-check.json`.
 
-[REVIEW.md](REVIEW.md) records the rejected rounds and two current regional
-critiques. Remaining weaknesses are the unusually regular window corners, the
-simpler fascia/pocket sculpting beside production photos, and tightly gathering
-reflections at the lamp/shoulder and lower corner transitions. The deck remains
-lower than the photographed Camry. This checkpoint stops before detail.
+[REVIEW.md](REVIEW.md) records the regional critiques and rejected approaches.
+The plain fascia lands and pocket locators remain much simpler than production
+cars, and the window/C-pillar corners remain regular. The rear cover is lower
+than the Camry SE spoiler. Fine grazing-angle ripple remains at the fascia
+corners, most visibly at the lowest rear corner. This checkpoint stops at form.
