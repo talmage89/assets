@@ -1,3 +1,163 @@
+# Sedan form round 4 — character and construction
+
+This is the requested source form checkpoint. No sedan delivery, optics,
+interior, paint, wear, UV, bake or motion approval is implied. The accepted
+pickup generator and delivery branch remain independent.
+
+## Pass 1 — reject a dressed-up flat tail and thin lamps
+
+Color/value first: the four manufacturer-class stock photos use the white
+studio background as the neutral (unit RGB gains). Silver and black paint
+are not clay-albedo targets. Opened the four raw photos, the previous round's
+handoff images, every new clay/stripe preview and all four calibrated neutral
+pairs in `renders/sedan-r4-pass2/`. Earlier lighting/allocation experiments
+are in `sedan-r4-pass1/` and `sedan-r4-pass1c/`. Cycles lighting initially
+washed out the clay and reflected a white card over the whole windshield;
+reject that presentation, lower the exposure and suppress the diagnostic
+opaque window's specular response. No paint-match claim.
+
+- **Side:** the broad wall is now a crown, and there is a clear shoulder-to-
+  sill gradient. The low die hollow/crease is still too broad: a 36 mm normal
+  interval turns only about 3.5–5.5 degrees. The actual front lower door is
+  about 87 mm inside its shoulder, beyond the requested 50–80 mm. The three
+  section rays are stricter evidence than the brighter door highlight.
+- **Front:** the blank painted wall has gone; the upper grille, lower intake
+  and corner pockets are real skin cuts with inward returns. Reject the
+  headlamp's doubled-back guide near x=840 mm: its inflated 803 mm path is
+  not a long, fair lamp. Correct that guide and keep the outer tip rising.
+  The fender ridge is too low in two sections (5–10 mm), and the hood's
+  corners still look too busy. The narrow central opening/bar treatment is
+  more resolved than round 3 but remains generic beside both production cars.
+- **Rear:** the raised deck helps the profile but the lip still reads too
+  shelf-like at its ends. Lamp outlines are rectangular in rear projection;
+  the dark form blank cannot stand in for the eventual original optic graphic.
+  The plate pocket adds depth, but the lower painted expanse is too plain.
+  Move the bumper top to 620 mm and keep the diffuser inside the molding.
+- **Stripes:** broad doors are smoother and carry a real gradient. Reject the
+  remaining lower-rear tooth. Extra samples from round 3 were concentrated at
+  the side tangent, rather than the tighter front/rear plan turn. Fit a finer
+  regular control net before subdivision, and place game samples at the turn.
+  Keep the same procedural reflection-band diagnostic; do not hide the tooth
+  with material roughness or a different light pattern.
+- **Mirrors/package:** both mirrors are now visible and supported by stalks.
+  Their oval housings still look like form proxies. The accepted tires,
+  tracks, arch gaps, roof peak, rake and tumblehome remain the package basis.
+
+Actions: support the lower die line before the long sill return; shorten its
+broad transition; retain a slight concave run; reduce hidden well/liner
+allocation to fund the silhouette. Raise the fender crown, remove the lamp
+backtracking, and check the same actual end numbers again. The first 61k
+allocation and the 55,418-triangle support experiment are rejected. No budget
+limit has been raised.
+
+## Pass 2 — final character, with the remaining misses explicit
+
+Color/value first against all four final Camry/Accord clay and striped pairs:
+the photographic white studio backdrops remain the neutral, with unit RGB
+gains. Neutral clay is not a paint-albedo match to the silver Accord or black
+Camry. Cycles hero foreground p1/p99 luma is
+0/238 front and
+0/225 rear; no opaque foreground channel reaches 255.
+Cavities remain deep, and the raking side retains a shoulder-to-sill gradient.
+Opened every final view in the 37-view contact, all eight paired comparisons,
+the sections and curvature plots; front/rear clay and key pairs were also
+opened at full size. Rejected intermediate views are retained in the six
+`build/sedan-round4/all-intermediates-*.jpg` review pages.
+
+- **Side:** actual mid-front-door / B / mid-rear-door shoulders are 910 / 921 /
+  932 mm high. Upper inward lean is 20.2–21.2 degrees; lower lean progresses
+  from 4.6 just below the shoulder to 16.3 / 15.3 / 13.1 degrees low on the door.
+  Lower-edge insets are 80.4 / 75.0 / 70.1 mm, then 40.9 / 45.4 / 49.7 mm
+  more sill tuck. The soft crease turns 11.2 / 10.7 / 9.7 degrees over the
+  recorded 80 mm interval; 50 mm chords find 1.7–1.8 mm inward hollows. These
+  sections replace the broad chord that incorrectly called the old wall fair.
+  The low line and shoulder now carry separate value bands. A small abrupt
+  grazing-band change at the front lower-door/sill junction still reads CG.
+- **Fenders:** same-height wheel/door rays measure 33.3 / 28.2 mm swells.
+  Crown rises are 19.0 and 14.8 mm behind the lamp, but only 3.9 mm close to
+  the A-pillar (y=−1.10 m). That last crown blend still misses 10–30 mm and
+  weakens the hood's recess there. It is printed in the report, not gated away
+  by selecting only the successful stations.
+- **Face:** the grille, lower intake and corner pockets are actual openings,
+  with inward returns and broad original blades. Mouth-to-bed rays measure
+  64–67 / 60–62 / 50–52 mm; eighteen separate axial rays find no painted skin
+  across their centers (including the rear pockets). The rising headlamp
+  paths are monotone at 746 mm, about 110 mm tall, with 268–292 mm returns.
+  The top follows the shut-line arc, and the fender ridge separates from the
+  hood. The simple parallel bars and small regular corner pockets still look
+  generic and cheaper than both photographed production faces. Optical
+  internals and their lit response remain later work.
+- **Rear:** the tapered wings now extend across the lid cut and corner rather
+  than two rectangles. The deck is 366 mm long; its crest is 1111 mm, with a
+  measured 21.3 mm kick over the extrapolated adjacent deck. All fixed tail
+  and quarter areas retain the same parent; there is no separate tail patch.
+  The 303.4 mm local plan circle retains the approximately 305 mm draw. The
+  lower fascia seam is at 620 mm, and the molded diffuser is 11–14 mm behind
+  its mouth, within the fascia outline. The broad painted bumper remains too
+  plain beside both photos. The last rear clay revealed that the old temporary
+  cavity closure, not the recessed diffuser bed, still projected as a flat
+  plate underneath. Its box is now inboard of the wheel wells and forward of
+  the tucked tail, with 127.5 mm actual axial tire clearance.
+- **Profile/overlay:** the first final candidate still missed the C-pillar by
+  111 mm even though its deck had risen. Reject that partial correction and
+  raise the C-pillar control stations themselves. Final held-out deviations
+  are −32.9 mm C-pillar and −35.3 mm deck; every recorded upper silhouette
+  holdout is within 35.3 mm, with ±16.5 mm pick uncertainty. The lower-end
+  request is not met: bumper tangents are +132.9 mm nose / +78.2 mm tail in
+  the unchanged wheel-center-only orthographic overlay. Lower nose/chin are
+  +41.2 / +25.9 mm; lower tail/under-tail +41.2 / +2.9 mm. The accepted 4900 mm
+  envelope and 975 / 1095 mm overhangs remain held. Near-profile perspective
+  is an uncertainty; it is not used as a pass flag, nor is the outline fitted
+  or warped to hide the miss.
+- **Stripes/fairness:** refining only the plan tangent did not remove the
+  lower-rear tooth. Screen rays identified it on actual fascia around y=1.9 m,
+  forward of that region. Local game-chart refinement in both directions
+  removes the large zigzag while coarser central-canopy chords fund it. The
+  front's painted corner bands are more coherent after the real cut openings.
+  Fine grazing waviness remains at the lower rear; this is not a global
+  Class A claim. Both parent and game checks retain every raw sign crossing.
+  Documented zones cover the die hollow, rocker/shoulder, fender-crown/hood
+  transition and lower fascia roll, including the parent's z=371 mm roll.
+  None of those plots is substituted for the photographic/stripe critique.
+- **Mirrors/greenhouse:** 250 × 204 × 157 mm housings span 2110 mm and are now
+  visible in front and rear three-quarters. Stalks seat on the front doors.
+  The oval caps/panes and regular window corners remain obvious form proxies.
+  The six-light layout, roof peak, windshield rake, tumblehome, tires, tracks
+  and 40 mm arch gaps remain the held package.
+
+The original grid projection at the tapered rear-lamp tips produced tiny folded
+cells and non-manifold six-face edges. A 0.1 mm weld was insufficient. Replace
+the optical blank topology with a constrained triangulation in the continuous
+parent chart before gauge closing. Both source densities then pass closed,
+positive-volume audits. This is a construction fix, not a loosened audit.
+Recess normals also exclude flat gauge rims: their tangent normals initially
+gave an invalid negative diffuser-depth result. Independent outward smooth
+skin normals give the 11–14 mm bed recess; separate rays still prove the holes.
+
+Final proof: `make -C cars BODY=sedan WIDTH=1600 SAMPLES=40`, `make -C cars
+BODY=sedan check` and `make -C cars BODY=sedan fairness` pass. Actual game source
+is **52,628 triangles**, with five diagnostic clay materials and zero
+image textures. Both densities, real openings/depths, end ranges, sections,
+source scale/normals, calibrated camera projection and repository checks pass.
+There are 22 rendered views with one source hash and a 37-view contact at
+`renders/sedan-round4/contact.jpg`. The final two source blends and all generated
+images remain ignored; no checkpoint docs JPGs are committed.
+
+Independent one-thread regeneration matches all 112 meshes' positions,
+polygons, corner normals, transforms, materials and parents exactly. Fresh
+pickup generation matches all 454 meshes; all 150 re-exported accessors,
+embedded maps and graph match, and the complete 11,530,736-byte GLB retains
+SHA-256 `f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
+This last check proves serialization/byte preservation; the sedan rays and
+closed-surface tests prove its source construction. Full mechanical clearance,
+UV/bake, finish/wear and sedan GLB validation remain deferred. No kit changes.
+
+The most important remaining issue for the next form decision is the raw
+lower-bumper overlay miss while keeping the accepted envelope/tangents. The
+near-A-pillar crown, plain fascia lands, mirror proxies and fine grazing bands
+also remain weaker than desired. This checkpoint stops here.
+
+
 # Sedan form round 3 — one fair parent
 
 This source checkpoint supersedes round 2's surface judgement. The earlier

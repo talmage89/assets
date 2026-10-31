@@ -206,3 +206,47 @@ backdrops supply unit-gain white balance. The held-out silhouette differences,
 including the lower original deck versus the photographed spoiler, remain
 visible. These comparisons and finite curvature samples are not a global
 Class A or final material/delivery certification.
+
+## Round 4 character, construction and measurement
+
+The source remains one fitted regular quad sheet, subdivided before any cuts.
+Round 4 adds progressive door sections and a supported lower die line, raised
+fender crowns, original rising headlamp blades and tapered rear wings, actual
+molding wells, a 21.3 mm integrated deck kick and door-mounted mirrors. The
+C-pillar controls are raised independently of the held windshield/header.
+The deck crest is now 1110.8 mm rather than round 2's 1000–1050 mm range:
+this intentionally follows the later round-4 instruction to raise it onto the
+overlay. Other round-2 end range checks remain active.
+
+The original mirror housing is 250 mm outboard × 204 mm fore/aft × 157 mm
+high, with 2110 mm across the assembled pair. Ford's manufacturer-authored
+[MY2020 Mondeo brochure](https://www.ford.ie/content/dam/guxeu/uk/documents/feature-pdfs/FT-Mondeo.pdf)
+provides the class cross-check: 2121 mm including mirrors, 1852 mm body.
+These dimensions do not imply the mirror styling was copied. Housing and
+molding construction dimensions are original estimates; see the source register.
+
+`sedan_character_check.py` measures actual game cuts and rays, parent-derived
+corner-normal angles, the shallow hollow's 50 mm chords and the crease's 80 mm
+normal interval. Recess rays use only outward smooth skin normals; flat gauge
+rims cannot define a recess normal. Separate paint-clearance rays establish
+that each well is a real hole. The integrated lip is measured above a linear
+extrapolation of two adjacent actual deck samples. Chart triangulation gives
+each optical blank one disk topology before gauge closing, avoiding folds at
+thin projected tips. Static construction and serialization are separate:
+the sedan tests are source construction checks; the preserved pickup GLB
+comparison proves serialization/byte identity.
+
+The final local rear circle is 303.4 mm at x=800/850/880 mm, about the held
+305 mm draw. Front circle probes move to z=570 mm, above the newly cut corner
+pocket; its old z=502 mm probes are now holes. Wheel swells retain the earlier
+same-height z=760 mm door-reference method. Curvature reports retain all raw
+sign crossings and mark the actual construction-line zones, including the
+fender-crown/hood draw transition and lower fascia roll.
+
+The original wheel-center-only orthographic overlay is kept. Added lower-end
+holdouts are independently inspected silhouette picks; their points and
+±4-preview-pixel uncertainty are in `side-overlay.json`. The C-pillar/deck
+now meet the approximate 40 mm request. The lower bumper tangents still miss
+it (+132.9 / +78.2 mm); near-profile perspective is unresolved, and accepted
+envelope/overhangs are not changed to fit that photograph. This limitation is
+reported, not hidden in the camera calibration or softened by a pass flag.

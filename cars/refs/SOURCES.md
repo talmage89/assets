@@ -56,3 +56,5 @@ are web-viewed, not fetched as build inputs. Honda Motor Co. / Honda Canada,
 copyrighted specification literature. Envelope, front/rear track and explicitly
 no-load/full-load clearance. The LX photograph's 225/50R17 differs from our chosen
 235/45R18 package; its diameter is similar but wheel style is not copied.
+
+Ford Motor Company [MY2020 Mondeo brochure](https://www.ford.ie/content/dam/guxeu/uk/documents/feature-pdfs/FT-Mondeo.pdf), copyrighted manufacturer literature, reference only. Web-viewed 2026-10-31; direct local retrieval timed out, so it is not a build dependency. Dimensions table: 2121 mm including mirrors versus 1852 mm body. Class cross-check for original 2110 mm S240 mirror span; housing dimensions remain original construction estimates.
