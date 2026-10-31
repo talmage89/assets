@@ -136,6 +136,7 @@ def main():
     calibration=out/'clay-cameras.json';calibration.write_text(json.dumps(clay,indent=2));compose(calibration,out,out)
     names=['front_three_quarter.jpg','rear_three_quarter.jpg','side-dimensions.jpg','front-dimensions.jpg','top-dimensions.jpg','side-overlay.jpg',
        'stripes_horizontal.jpg','stripes_vertical.jpg','stripes_rear_horizontal.jpg','stripes_rear_vertical.jpg',
+       'stripes_side_horizontal.jpg','stripes_side_vertical.jpg','stripes_hood_driver.jpg','curvature-body.jpg','curvature-hood-deck.jpg',
        'section-front_axle.jpg','section-b_pillar.jpg','section-rear_axle.jpg','section-centerline.jpg','photo-tumblehome.jpg']
     names += [name+'-pair.jpg' for name in cameras]
     names += [name+'_clay-pair.jpg' for name in cameras]

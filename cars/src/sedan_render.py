@@ -17,8 +17,11 @@ SHOTS={
  'top':dict(location=(0,0,10),target=(0,0,0),ortho=5.7,aspect=1.8,roll=math.pi/2),
  'stripes_horizontal':dict(location=(7,-8,2.7),target=(0,0,.76),lens=58,aspect=1.65,direction='horizontal'),
  'stripes_rear_horizontal':dict(location=(-7,8,2.7),target=(0,.15,.76),lens=58,aspect=1.65,direction='horizontal'),
- 'stripes_rear_vertical':dict(location=(-8,3,2.6),target=(0,.15,.76),lens=58,aspect=1.65,direction='vertical'),
- 'stripes_vertical':dict(location=(8,-3,2.6),target=(0,0,.76),lens=58,aspect=1.65,direction='vertical'),
+ 'stripes_rear_vertical':dict(location=(-7,8,2.7),target=(0,.15,.76),lens=58,aspect=1.65,direction='vertical'),
+ 'stripes_vertical':dict(location=(7,-8,2.7),target=(0,0,.76),lens=58,aspect=1.65,direction='vertical'),
+ 'stripes_side_horizontal':dict(location=(10,0,1.0),target=(0,0,.74),ortho=5.7,aspect=2,direction='horizontal'),
+ 'stripes_side_vertical':dict(location=(10,0,1.0),target=(0,0,.74),ortho=5.7,aspect=2,direction='vertical'),
+ 'stripes_hood_driver':dict(location=(.34,-.60,1.24),target=(.06,-1.70,.85),lens=38,aspect=1.6,direction='vertical',only=['Hood outer']),
 }
 
 
@@ -49,10 +52,11 @@ def stripes(sc,direction):
 def main():
     p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--out',required=True)
     p.add_argument('--width',type=int,default=1400);p.add_argument('--samples',type=int,default=32)
-    p.add_argument('--mode',choices=['clay','stripes','pairs','comparisons'],default='clay');p.add_argument('--cameras',default='build/sedan/cameras.json')
+    p.add_argument('--mode',choices=['clay','stripes','pairs','comparisons'],default='clay');p.add_argument('--cameras',default='build/sedan/cameras.json');p.add_argument('--shots',default='')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);source=Path(a.source).resolve();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     shots={n:s for n,s in SHOTS.items() if n.startswith('stripes')==(a.mode=='stripes')}
     if a.mode in ['pairs','comparisons']:shots={n+('_clay' if a.mode=='comparisons' else ''):r['shot'] for n,r in json.loads(Path(a.cameras).read_text()).items()}
+    if a.shots:shots={n:s for n,s in shots.items() if n in a.shots.split(',')}
     metadata={}
     if (out/'shots.json').exists():metadata=json.loads((out/'shots.json').read_text())
     for name,shot in shots.items():
@@ -65,12 +69,16 @@ def main():
                 if ob.get('studio') and ob.type in ['MESH','LIGHT']:ob.hide_render=True
         else:
             sc.render.engine='BLENDER_WORKBENCH';sh=sc.display.shading
-            sh.light='STUDIO';sh.studiolight_rotate_z=.35;sh.color_type='MATERIAL';sh.show_shadows=True
+            sh.light='STUDIO';sh.studio_light='studio.sl';sh.studiolight_rotate_z=0;sh.color_type='MATERIAL';sh.show_shadows=True
             sh.show_cavity=True;sh.cavity_type='BOTH';sh.curvature_ridge_factor=1.0;sh.curvature_valley_factor=1.0
             sh.show_specular_highlight=True;sh.background_type='VIEWPORT';sh.background_color=(.22,.23,.24);sh.show_object_outline=False
             sc.display.render_aa='32'
             for ob in sc.objects:
                 if ob.name.startswith('Studio black reflection flag'):ob.hide_render=True
+        for hidden in shot.get('hide',[]):bpy.data.objects[hidden].hide_render=True
+        if shot.get('only'):
+            for ob in sc.objects:
+                if ob.type=='MESH' and ob.name not in shot['only']:ob.hide_render=True
         camera.location=shot['location'];camera.rotation_euler=(Vector(shot['target'])-camera.location).to_track_quat('-Z','Y').to_euler();camera.rotation_euler.rotate_axis('Z',shot.get('roll',0))
         camera.data.type='ORTHO' if 'ortho' in shot else 'PERSP';camera.data.sensor_width=36;camera.data.sensor_fit='HORIZONTAL'
         camera.data.lens=shot.get('lens',58);camera.data.ortho_scale=shot.get('ortho',5.7);camera.data.clip_start=.02;camera.data.clip_end=100

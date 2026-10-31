@@ -32,9 +32,9 @@ def face_depth(z,front):
     return k*q*q/max(.16,1+b*q)
 
 
-def plan_sweep(x,front):
-    # Quadratic curvature across the WHOLE face; the old fourth power left a
-    # straight central plank and concentrated every reflection at its corners.
+def locator_plan_guess(x,front):
+    # Initial guesses for dark locators only. The control net is fitted by
+    # section_field; these guesses never constrain painted body geometry.
     return (.360 if front else .235)*(x/.925)**2
 
 
@@ -362,7 +362,7 @@ def tessellate(parent,high=False):
     width=int(parent['grid_width']);rows=int(parent['grid_rows'])
     step=.25 if high else .5
     us=sorted(set([i*step for i in range(round((width-1)/step)+1)]+[u+d for u in [8,28] for d in [-.75,-.25,.25,.75]]))
-    vs=sorted(set(list(range(rows))+[j+.5 for j in range(rows-1) if high or j in [2,3,4,5,6] or j>rows-6]))
+    vs=sorted(set(list(range(rows))+[j+.5 for j in range(rows-1) if high or j in [2,3,4,5,6] or j>=rows-15]))
     # Keep the actual parent extrema, so regular sampling cannot miss a narrow
     # shoulder maximum or a bumper tangent and silently shrink the envelope.
     for axis in range(3):
@@ -375,15 +375,31 @@ def tessellate(parent,high=False):
     def sample(u,v):
         p=Vector((u,v,0));hit,_,fi,_=tree.find_nearest(p);a,c,d=ts[fi]
         return barycentric_transform(hit,uvs[a],uvs[c],uvs[d],mesh.vertices[a].co,mesh.vertices[c].co,mesh.vertices[d].co),mesh.loop_triangles[fi].polygon_index
-    vertices=[sample(u,v)[0] for v in vs for u in us];nu=len(us)
-    faces=[(j*nu+i,j*nu+i+1,(j+1)*nu+i+1,(j+1)*nu+i) for j in range(len(vs)-1) for i in range(nu-1)]
+    # Spend the extra transverse samples on the rear turn, not across every
+    # door. One stitched transition uses triangles; the parent stays all quads.
+    extra=[u for k in range(3) for u in [29.25+k*.5,6.75-k*.5]]
+    grids=[sorted(set(us+extra)) if not high and v>=rows-15 else us for v in vs]
+    vertices=[];chart=[];offsets=[]
+    for v,columns in zip(vs,grids):
+        offsets.append(len(vertices))
+        for u in columns:vertices.append(sample(u,v)[0]);chart.append((u,v))
+    faces=[]
+    for row,(aa,bb) in enumerate(zip(grids,grids[1:])):
+        i=j=0;a0,b0=offsets[row:row+2]
+        while i<len(aa)-1 or j<len(bb)-1:
+            na=aa[i+1] if i<len(aa)-1 else math.inf
+            nb=bb[j+1] if j<len(bb)-1 else math.inf
+            if abs(na-nb)<1e-8:
+                faces.append((a0+i,a0+i+1,b0+j+1,b0+j));i+=1;j+=1
+            elif na<nb:faces.append((a0+i,a0+i+1,b0+j));i+=1
+            else:faces.append((a0+i,b0+j+1,b0+j));j+=1
     ob=G.mesh('Fair game surface samples',vertices,faces)
     for mat in mesh.materials:ob.data.materials.append(mat)
-    for j in range(len(vs)-1):
-        for i in range(nu-1):
-            _,fi=sample((us[i]+us[i+1])/2,(vs[j]+vs[j+1])/2)
-            f=ob.data.polygons[j*(nu-1)+i];f.material_index=mesh.polygons[fi].material_index;f.use_smooth=True
-    return ob
+    for face in ob.data.polygons:
+        u=sum(chart[i][0] for i in face.vertices)/len(face.vertices)
+        v=sum(chart[i][1] for i in face.vertices)/len(face.vertices)
+        _,fi=sample(u,v);face.material_index=mesh.polygons[fi].material_index;face.use_smooth=True
+    return ob,uvs
 
 
 def conform_edges(bm):
@@ -497,6 +513,41 @@ def closeable_sheet(ob):
     ob['point_fans_split']=splits
 
 
+
+def simplify_inner_gauge(ob,tree):
+    """Reduce unseen gauge backs without touching exposed skin or cut rims.
+
+    Only edges whose entire vertex fans face inward are eligible. This saves
+    the doubled tessellation of the thickness backs for exterior reflections.
+    """
+    bm=bmesh.new();bm.from_mesh(ob.data);bm.normal_update()
+    matrix=ob.matrix_world;inverse_normal=matrix.to_3x3().transposed()
+    inward=set()
+    for f in bm.faces:
+        _,n,_,_=tree.find_nearest(matrix@f.calc_center_median())
+        if f.normal.dot(inverse_normal@n)<-.7:inward.add(f)
+    bm.verts.index_update()
+    pure={v for v in bm.verts if v.link_faces and all(f in inward for f in v.link_faces)}
+    edges=[e for e in bm.edges if all(v in pure for v in e.verts) and len(e.link_faces)==2]
+    bmesh.ops.dissolve_limit(bm,angle_limit=math.radians(2),verts=sorted(pure,key=lambda v:v.index),edges=edges,use_dissolve_boundaries=False,delimit={'MATERIAL'})
+    # Curved inner chords must stay inside the painted sheet. Concave regions
+    # can cross a sub-millimeter gauge despite small dihedral angles; reject
+    # the whole reduction if centroid/edge probes lose 0.4 mm of inward depth.
+    maximum=-1.
+    for loops in bm.calc_loop_triangles():
+        center=sum((loop.vert.co for loop in loops),Vector())/3
+        _,n,_,_=tree.find_nearest(matrix@center)
+        if loops[0].face.normal.dot(inverse_normal@n)>-.7:continue
+        ps=[loop.vert.co for loop in loops]
+        for q in [center]+[(a+c)/2 for a,c in zip(ps,ps[1:]+ps[:1])]:
+            q=matrix@q;hit,n,_,_=tree.find_nearest(q)
+            maximum=max(maximum,(q-hit).dot(n))
+    ob['inner_gauge_probe_depth_m']=-maximum
+    ob['inner_gauge_reduced']=maximum<=-.0004
+    if ob['inner_gauge_reduced']:bm.to_mesh(ob.data)
+    bm.free();ob.data.update()
+
+
 def build(b):
     source,names=master(2)
     b.root['surface_cage']=source['cage_report']
@@ -508,7 +559,8 @@ def build(b):
     parent_normals=[v.normal.copy() for v in source.data.vertices]
     parent_triangles=[tuple(t.vertices) for t in source.data.loop_triangles]
     parent_tree=BVHTree.FromPolygons(parent_points,parent_triangles,all_triangles=True)
-    dense=source;source=tessellate(dense,b.high);bpy.data.objects.remove(dense,do_unlink=True)
+    dense=source;source,parent_uvs=tessellate(dense,b.high);bpy.data.objects.remove(dense,do_unlink=True)
+    surface_map=dict(tree=parent_tree,points=parent_points,normals=parent_normals,triangles=parent_triangles,uvs=parent_uvs)
     bm=bmesh.new();bm.from_mesh(source.data)
     cuts=[S.DOOR_FRONT,S.DOOR_SPLIT,S.DOOR_REAR]
     for line in cuts:
@@ -589,7 +641,7 @@ def build(b):
                 trim_arch(ob,axle,128 if b.high else 64)
                 if not ob.data.polygons:raise ValueError(('Arch trim discarded panel',name,end))
         closeable_sheet(ob)
-        gauge=ob.modifiers.new('Sheet gauge','SOLIDIFY');gauge.thickness=.0048 if glass else .0009;gauge.offset=-1;gauge.use_even_offset=False
+        gauge=ob.modifiers.new('Sheet gauge','SOLIDIFY');gauge.thickness=.0048 if glass else .003 if 'fascia' in name else .0009;gauge.offset=-1;gauge.use_even_offset=False
         G.apply(ob)
         category='glass' if glass else 'pillars' if dark or name.startswith('Greenhouse') else 'doors' if name.startswith('Door') else 'fascia' if 'fascia' in name else 'body'
         # Retain the continuous master normals after the sheet closing changes
@@ -634,7 +686,7 @@ def build(b):
             ob=G.mesh('Wheelwell_'+end+side,verts,fs,b.m['rubber']);sol=ob.modifiers.new('Liner thickness','SOLIDIFY');sol.thickness=.002;G.apply(ob);b.add(ob,category='liners')
             outline=[(axle+(S.ARCH_RADIUS+.012)*math.cos(a),S.HUB_HEIGHT+(S.ARCH_RADIUS+.012)*math.sin(a)) for a in angles]
             b.add(G.profile('Wheelwell inboard_'+end+side,outline,sign*.559,sign*.561,b.m['rubber'],axis='X'),category='liners')
-    fascia(b,front=True,master_tree=tree);fascia(b,front=False,master_tree=tree)
+    fascia(b,front=True,master_tree=tree,surface_map=surface_map);fascia(b,front=False,master_tree=tree,surface_map=surface_map)
     # Only a cavity closure is supplied at this gate, not an interior or drivetrain.
     floor=G.box('Form cavity closure',(0,.05,.235),(1.62,3.95,.025),b.m['rubber'],0);b.add(floor,category='closure')
     handles(b)
@@ -646,6 +698,7 @@ def build(b):
         if material is None:raise ValueError(('Missing form material',ob.name,len(ob.data.vertices),len(ob.data.polygons)))
         ob.data.materials.clear();ob.data.materials.append(material)
         for face in ob.data.polygons:face.material_index=0
+        if not b.high and ob.get('part_category')=='fascia':simplify_inner_gauge(ob,tree)
         G.smooth(ob,35);custom=[];inverse=ob.matrix_world.to_3x3().transposed()
         for face in ob.data.polygons:
             center=ob.matrix_world@face.center;_,n,_,_=tree.find_nearest(center)
@@ -659,9 +712,9 @@ def build(b):
         ob.data.normals_split_custom_set(custom)
 
 
-def face_y(x,z,front):
+def locator_y_guess(x,z,front):
     sign=-1 if front else 1
-    return sign*(S.LENGTH/2+END_ALLOWANCE[front]-plan_sweep(x,front)-face_depth(z,front))
+    return sign*(S.LENGTH/2+END_ALLOWANCE[front]-locator_plan_guess(x,front)-face_depth(z,front))
 
 
 def form_blank(name,rows,material,master_tree,front):
@@ -736,13 +789,13 @@ def lamp_volume(b,front,sign,material,master_tree):
         path=[(.400,0,.912,.134),(.53,0,.915,.130),(.66,0,.914,.120),
               (.78,0,.914,.115),(.852,0,.914,.105),(.886,2.110,.920,.090),
               (.910,1.990,.940,.065),(.919,1.890,.954,.030)]
-    path=[(x,face_y(x,z,front) if y==0 else y,z,h) for x,y,z,h in path]
+    path=[(x,locator_y_guess(x,z,front) if y==0 else y,z,h) for x,y,z,h in path]
     dense=[]
     for index,(a,c) in enumerate(zip(path,path[1:])):
         ts=[0,.25,.5,.75] if index>=3 else [0,.5]
         dense.extend([tuple(a[k]+(c[k]-a[k])*t for k in range(4)) for t in ts])
     dense.append(path[-1])
-    rows=[[(sign*x,y,z+h*(v-.5)) for x,y,z,h in dense] for v in [i/8 for i in range(9)]]
+    rows=[[(sign*x,y,z+h*(v-.5)) for x,y,z,h in dense] for v in [i/4 for i in range(5)]]
     if front:return [form_blank('Headlamp opening'+str(sign),rows,material,master_tree,front)]
     cut=.615
     # Insert a sample at either side of the physical lid reveal.
@@ -761,7 +814,7 @@ def lamp_volume(b,front,sign,material,master_tree):
     return paths
 
 
-def fascia(b,front,master_tree):
+def fascia(b,front,master_tree,surface_map):
     """Compound molding sampled across crown and vertical support sections."""
     sign=-1 if front else 1
     ob=bpy.data.objects['Front molded fascia' if front else 'Rear molded fascia']
@@ -773,21 +826,22 @@ def fascia(b,front,master_tree):
     for name,center,size,radius in openings:
         # Form locators, like the lamp blanks below. Cutting detailed wells into
         # thin high-density shells belongs to the next construction stage.
-        rows=[];nu=24 if size[0]>1 else 12;r=radius*.7
-        for j in range(9):
-            zz=(j/8-.5)*(size[2]-.010);dz=max(0,abs(zz)-((size[2]-.010)/2-r))
+        rows=[];nu=12 if size[0]>1 else 8;r=radius*.7
+        for j in range(5):
+            zz=(j/4-.5)*(size[2]-.010);dz=max(0,abs(zz)-((size[2]-.010)/2-r))
             cut=r-math.sqrt(max(0,r*r-dz*dz));half=(size[0]-.010)/2-cut;z=center[2]+zz
-            if name=='Low wide grille':half-=.155*(j/8)
-            rows.append([(center[0]+(2*i/nu-1)*half,face_y(center[0]+(2*i/nu-1)*half,z,front),z) for i in range(nu+1)])
+            if name=='Low wide grille':half-=.155*(j/4)
+            rows.append([(center[0]+(2*i/nu-1)*half,locator_y_guess(center[0]+(2*i/nu-1)*half,z,front),z) for i in range(nu+1)])
         backing=form_blank(name+' opening',rows,b.m['rubber'],master_tree,front)
         b.add(backing,category='openings')
-    # Conforming lamp blanks establish the aperture outline at this form gate.
-    # Full optical seats belong with the later lamp construction. Swept boolean
-    # subtraction was unstable at the inner corner on the high source; a failed
-    # cut must never silently discard an entire quarter or fender.
+    # Optical envelopes sit behind actual projected skin apertures. Their
+    # reflectors, emitters and optical seats remain a later detail stage.
+    lamps=[]
     for side,sgn in [('L',-1),('R',1)]:
         for lamp in lamp_volume(b,front,sgn,b.m['glass'],master_tree):
-            b.add(lamp,bpy.data.objects['Trunk'] if lamp.get('lamp_piece')=='lid' else None,category='openings')
+            b.add(lamp,bpy.data.objects['Trunk'] if lamp.get('lamp_piece')=='lid' else None,category='openings');lamps.append(lamp)
+    from sedan_apertures import carve
+    carve(front,lamps,surface_map)
 
 
 def handles(b):
