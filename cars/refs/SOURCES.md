@@ -30,3 +30,28 @@ Look-dev condition calibration: the MY2017 Ram front/rear photographs were
 taken in September 2022 and show five-year wear. The Ford street photographs
 were taken in the vehicle model year; they remain supplemental construction
 and reflection comparisons and are not evidence of four/five-year aging.
+
+
+# Sedan form reference register — accessed 2026-10-30
+
+Photographs are viewed and measured only. No photographic pixel or outline enters
+geometry, a shader or a texture. Paired comparison images remain ignored.
+
+| Local file | Direct image/PDF URL | Author / license / use |
+| --- | --- | --- |
+| sedan-camry-specs.pdf | https://cdn.dealereprocess.org/cdn/brochures/toyota/2019-camry.pdf | Toyota Motor Sales USA; copyrighted MY2019 manufacturer eBrochure, archived by Dealer eProcess; specification table, SE dimensions/track/clearance and 235/45R18. Reference only. |
+| sedan-camry-uk-2021.pdf | https://www.toyota.co.uk/content/dam/toyota/nmsc/united-kingdom/brochure-archive/camry/camry-jun-21.pdf | Toyota GB; copyrighted June 2021 manufacturer brochure; independent metric envelope/145 mm clearance cross-check. Different market, not substituted for US trim. |
+| sedan-toyota-2020.pdf | https://media.toyota.ca/content/dam/media-toyota/general/unassigned/20145/20-camry-brochure-en.pdf | Toyota Canada; copyrighted MY2020 manufacturer brochure; same-generation tire/package comparison only, not the US envelope source. |
+| sedan-accord-front.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019HOC010107.jpg&width=1600 | CarsDirect / Autodata copyrighted stock photo, reference only; MY2019 LX front three-quarter, roof/hood/stance and calibration. Source page: https://www.carsdirect.com/honda/accord/2019/pictures . |
+| sedan-accord-rear.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019HOC010108.jpg&width=1600 | CarsDirect / Autodata copyrighted stock photo, reference only; MY2019 LX rear three-quarter; greenhouse, short deck and shoulder. Same source page. |
+| sedan-accord-side.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_CC_A8A495_2019HOC010072.jpg&width=1600 | CarsDirect / Autodata copyrighted stock photo, reference only; colorized front three-quarter despite gallery profile caption. NOT used as a side elevation. |
+| sedan-camry-front.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019TOC020003.jpg&width=1600 | CarsDirect / Autodata copyrighted stock photo, reference only; MY2019 SE front three-quarter, lamp sweep and fascia construction. Source page: https://www.carsdirect.com/toyota/camry/2019/pictures . |
+| sedan-camry-rear.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019TOC020004.jpg&width=1600 | CarsDirect / Autodata copyrighted stock photo, reference only; MY2019 SE rear three-quarter, deck/quarters and calibration. Same source page. |
+| sedan-camry-side.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019TOC020005.jpg&width=1600 | CarsDirect / Autodata copyrighted stock photograph, reference only; MY2019 SE profile, independent wheelbase-scaled overlay and silhouette measurements. Same source page. |
+
+Honda's [MY2019 US specifications](https://hondanews.com/en-US/releases/release-a8bcd9c102224d06ba836e803e27878d-2019-honda-accord-specifications-features)
+and [Canadian manufacturer metric specification](https://hondanews.ca/en-CA/releases/release-4f32a27ba2ad7509bfa642e1160157a6-2019-honda-accord-specifications)
+are web-viewed, not fetched as build inputs. Honda Motor Co. / Honda Canada,
+copyrighted specification literature. Envelope, front/rear track and explicitly
+no-load/full-load clearance. The LX photograph's 225/50R17 differs from our chosen
+235/45R18 package; its diameter is similar but wheel style is not copied.

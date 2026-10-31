@@ -108,3 +108,51 @@ remain evidence of styling, correspondence and calibration limitations; they
 are not hidden by a new camera fit. `class-crosscheck.jpg` additionally places
 the Ford and Ram photographs beside the original clay and explicitly makes
 no registration claim.
+
+
+# Alder S240 — original 2018–2022 midsize sedan / form gate
+
+The sedan combines the class envelope below with its own six-light greenhouse,
+swept narrow lamp openings and low grille. It is not a reproduction of either
+reference. All values in the design column are original targets; actual surface
+measurements are rebuilt in `build/sedan/form-check.json`.
+
+| Quantity | Toyota MY2019 Camry SE, US manufacturer eBrochure | Honda MY2019 Accord LX, manufacturer metric sheet | S240 target |
+| --- | ---: | ---: | ---: |
+| Length | 192.7 in = 4894.58 mm | 4882 mm | 4900 mm |
+| Wheelbase | 111.2 in = 2824.48 mm | 2830 mm | 2830 mm |
+| Body width | 72.4 in = 1838.96 mm | 1862 mm | 1850 mm |
+| Height, unloaded | 56.9 in = 1445.26 mm | 1450 mm | 1450 mm |
+| Front track | 62.2 in = 1579.88 mm | 1600 mm | 1590 mm |
+| Rear track | 62.6 in = 1590.04 mm | 1610 mm | 1600 mm |
+| Clearance | 5.7 in = 144.78 mm | 149 mm no load / 125 mm full load | 145 mm underbody target; underbody deferred |
+| Tire | P235/45R18 | 225/50R17 LX | 235/45R18 |
+
+[Toyota's manufacturer-authored eBrochure, archived PDF](https://cdn.dealereprocess.org/cdn/brochures/toyota/2019-camry.pdf),
+EXTERIOR DIMENSIONS table and SE wheel/tire specifications, supplies the US
+comparison. Decimal-inch conversion has rounding uncertainty; it does not claim
+submillimeter manufacturer precision. [Honda Canada specification](https://hondanews.ca/en-CA/releases/release-4f32a27ba2ad7509bfa642e1160157a6-2019-honda-accord-specifications)
+supplies the metric cross-check; the [US sheet](https://hondanews.com/en-US/releases/release-a8bcd9c102224d06ba836e803e27878d-2019-honda-accord-specifications-features)
+agrees within published rounding. UK 2021 Camry brochure gives 4885 / 2825 /
+1840 / 1445 mm and 145 mm clearance; it is an explicitly different-market check.
+
+The 1065 mm front and 1005 mm rear overhangs follow the requested original
+front-longer stance. They are not Camry dimensions: the UK sheet has 975 / 1085 mm,
+so the independent Camry side overlay must retain the resulting axle-registered
+nose/tail discrepancy. A photograph is not stretched to hide it.
+
+Six lights leave a fixed triangular quarter pane in the C-pillar, reducing the
+rear door's upper sash length under the fast roof. 22.5-degree section tumblehome,
+4.5 mm nominal shut lines, 0.9 mm sheet gauge, 4.8 mm glazing and 18 mm arch
+returns are authored construction estimates, not manufacturer stamping drawings.
+The nominal tire diameter is 668.7 mm; the circular mean loaded envelope has
+330.35 mm radius and 660.70 mm height, with a planned 40 mm arch crown gap.
+This is the pickup's rolling-envelope method, not a carcass simulation.
+
+The sculpted supported cage is authored in three dimensions; subdivision occurs
+before any panel or glazing separation. The profile photo is used only in an
+external, wheel-center-only similarity transform after rendering. No outline is
+traced or fitted into the cage. The two 3/4 camera fits use chassis landmarks;
+body correspondence remains an independent visual judgment and held-out report.
+The stock backgrounds are neutral white: comparison white balance uses that
+backdrop, not the warm/cool reflected paint. Clay is neutral gray by design.
