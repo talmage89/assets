@@ -257,6 +257,9 @@ def definitions():
 PHOTOS['deep_blue']=dict(file='look-field-4.jpg',width=1400,angle=0,
  neutral=(875,521,882,524),neutral_in_preview=True,
  neutral_name='uncolored rubbed steel at the bottom of the guard bow; estimated neutral, clipped white cutout excluded')
+PHOTOS['wear_forend']=dict(file='look-gray-used.jpg',width=1600,angle=-35,
+ neutral=(40,40,500,300),
+ neutral_name='unshadowed neutral gray studio paper in the native upper-left corner')
 FINISHES['barrels_deep_blue']=dict(photo='deep_blue',shot='look_deep_blue',
  parts=['Barrel_R','Barrel_L'],polygons=[[(83,444),(835,437),(835,459),(83,460)]],crop=(74,428,846,468))
 SHOTS['look_deep_blue']=dict(location=(-3.0,.24,.04),target=(0,.235,0),lens=82,

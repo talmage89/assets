@@ -62,12 +62,10 @@ SITES={
     threshold=70,
     uncertainty='Whole-gun point resolution is limited. Native pixels are used; the boundary/threshold sensitivity is retained.'),
  'stock_toe':row('walnut_stock',[
-    [(170,308),(176,304),(181,303),(185,298),(190,299),(190,302),
-     (185,306),(180,309),(174,312),(170,313)],
     [(108,325),(112,322),(116,324),(117,329),(112,333),(109,334)],
     [(112,203),(119,202),(120,205),(116,207),(112,207)]],
     'Small compressed/damaged finish islands along the heel/toe edge; no overall dirt band.',
-    uncertainty='The reference has one larger edge chip; ours has one compressed toe impact and two smaller edge impacts, with original shapes.'),
+    uncertainty='The fitted metal stock inlay is excluded. Only actual heel/toe edge damage enters this annotation; its native one-pixel boundary band remains explicit.'),
  'forend_edges':row('walnut_forend',[
     [(655,159),(659,157),(662,158),(664,162),(661,165),(656,165)],
     [(670,166),(674,166),(675,169),(671,171),(669,169)],
@@ -82,3 +80,16 @@ from look_matches import GUARD_EDGE,strip_polygon
 SITES['guard_fingers']['polygons']=[strip_polygon(GUARD_EDGE,2.0,1.0)]
 SITES['guard_fingers']['part_polygons']=FINISHES['guard']['polygons']
 SITES['guard_fingers']['uncertainty']='Revised native annotation excludes cast shadow. The three-pixel inner gray/bright field is an upper estimate because specular light also brightens intact bluing.'
+
+# The former side-view marks included a slotted forend screw and intact grain.
+# This sharper view shows a definite fractured barrel-facing wood rim. Keep
+# every visible wooden surface in the denominator, excluding the fitted latch.
+SITES['forend_edges']=dict(photo='wear_forend',parts=['Forend_Walnut'],
+ part_polygons=[[(729,747),(960,739),(1170,744),(1327,749),(1402,757),
+  (1441,766),(1462,777),(1469,785),(1465,792),(1454,796),(1404,799),
+  (1243,806),(1161,809),(1149,804),(1135,802),(1123,805),(1116,810),
+  (995,815),(832,821),(740,822),(731,812)]],
+ polygons=[[(1167,741),(1174,742),(1178,746),(1180,750),(1177,753),
+  (1171,750),(1168,745)]],
+ description='A definite fractured wood rim beside the forward checker point; intact grain, the screw and the fitted latch are excluded.',
+ uncertainty='Only the unambiguous rim fracture is counted. Fine scratches and dark grain are not called impact damage. Other makers have different panel outlines; native boundary sensitivity remains explicit.')
