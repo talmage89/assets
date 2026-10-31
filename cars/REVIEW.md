@@ -1,3 +1,133 @@
+# Sedan form round 2 — the ends
+
+This gate supersedes the sedan form judgement at `402318a`. It is source clay,
+not a finished car or a sedan GLB. The original critique and pickup history are
+retained below. The accepted cabin/chassis package moves forward together by
+90 mm to correct the overhang allocation; its doors, tracks and tire clearances
+retain their dimensions. Only the requested front roof transition changes.
+
+## Pass 1 — reject the first rebuilt ends
+
+Evidence: `renders/sedan-r2-pass1/` through `sedan-r2-pass4/`, compared directly
+with the Accord front and Camry rear stock photographs and the Camry profile.
+White balance reference: white photographic studio background, unit RGB gains.
+These are neutral clay tests; no factory-paint color claim is made.
+
+- **Color/value first:** the dark glass and intake blanks give useful cavity
+  contrast, but the body still has a chalky, simple reflection beside the silver
+  Accord. Clay is appropriate here; a material change cannot repair the form.
+- **Proportions and stance:** shifting the axles and cabin together corrects the
+  wrong front-longer allocation. Tires still fill the arches with the accepted
+  40 mm crown gap. The first nose loses too much length to subdivision rounding;
+  measuring only the recipe would miss roughly 60 mm of lost overall length.
+- **Hood and front panels:** the broader plan arc is better, but an inverted
+  shoulder row and tightly clustered end support loops make a knot at the lamp
+  corner. The upper face is still too soft in one pass; the lamp is 742 mm long,
+  only 118 mm tall and returns just 89 mm. Reject against the requested envelope.
+- **Front highlight flow:** the stripe fans remain conspicuous. Relaxing the
+  cage alone does not solve them. The cap/side chart must be made fair, rather
+  than approving the good center section and ignoring the corners.
+- **Rear panels:** the reverse taper is gone, but the actual sweep is 442 mm at
+  x=850 mm, almost twice the requested rear sweep. The deck measures only 318 mm;
+  the upper panel leans 18 degrees. The center section alone flatters the result.
+- **Side panels/wheels:** the lower draw rises correctly and the wheel package
+  is retained. The rear quarter still lacks a broad, continuous haunch; its tight
+  corner turns interrupt the reflection instead of blending into the quarter.
+- **Roof:** the front overlay holdout remains above the Camry. Correct it along
+  the accepted windshield direction so the rake does not drift.
+
+Action: a rounded elliptical fascia volume constrains the unified subdivided
+cage. A radial projection from inside that volume replaces nearest projection,
+which folded adjacent rows over the hood/fascia junction. The profile, top crown
+and underside tuck become one smooth surface before panel separation. Restore
+normals from this same continuous sculpt, and split rear lamps at the lid cut.
+
+## Pass 2 — final source checkpoint, both makes and both ends
+
+Evidence: every view in `renders/sedan-round2/contact.jpg`, with the full-sized
+clay/striped pairs, orthographic plan, side overlay and four actual section cuts
+opened for review. Front and rear are each compared with both the Accord and
+Camry, in the same calibrated framing. Backdrops are the white-balance neutral
+(unit gains); the photographs' silver and black paint are not treated as clay.
+
+- **Color/value first:** neutral clay has deep glass/intake/wheelwell shadows,
+  rather than the first checkpoint's pale blocks. Opaque foreground luminance
+  p1/p50/p99 is 4/43/158 front and 3/29/102 rear (8-bit display values); no channel
+  clips. The rear clay is still quite dark beside the silver Accord. Its side
+  curvature is easier to judge in the complementary striped view. This gate
+  supplies no paint/albedo or used-car wear claim.
+- **Proportions/stance:** actual full bounds are 4900 × 1850 × 1449 mm, with
+  2830 mm wheelbase and 975 / 1095 mm overhangs. The previous front-longer mistake
+  is removed. Both references still look more detailed and visually lighter
+  around the sills; that is partly their narrower trim and real cavity openings.
+  The regular greenhouse corners remain a visible procedural tell.
+- **Front plan and fascia:** the 314 mm sweep now runs across the face and turns
+  continuously into the fenders. It no longer presents a straight plank with
+  corner radii. The centerline tangent is at 484 mm; the upper face rakes 35.2°
+  to a 746 mm hood edge set back 185 mm. The 189 mm chin tucks 119 mm. Compared
+  with both photos, the fictional fascia still has too much uninterrupted plain
+  land between its lamp and grille locators. It needs richer molded pocket
+  construction at the later detail stage; the optics will not fix a wrong contour.
+- **Hood/fenders:** the hood rises 10.5° to a 965 mm cowl, with 31 mm cross crown.
+  The soft paired draws move outward toward the A-pillar feet. The leading reveal
+  now follows the end arc. Broad bands are fair across the hood and fascia;
+  highlights still gather tightly at the lamp/shoulder junction compared with
+  the Accord's gentler draw. The form locators originally let paint poke through
+  their chords. Local conforming subdivision removes those white tears without
+  changing the body's sculpt or floating the whole lamp farther off the body.
+- **Lamps/grille:** each headlamp measures about 696 mm along the actual sampled
+  surface, 147 mm maximum aperture height and 225 mm return into the side. Their
+  upper outline follows the hood reveal. The grille is a broad trapezoid above
+  the black lower intake, with separate corner pockets. These remain dark
+  locators, visibly simpler than real lenses and deep grille seats in the photos.
+- **Cabin/roof:** the requested header adjustment follows the accepted rake,
+  measured at 61.48° from vertical. B-pillar tumblehome measures 24.14°, within
+  the requested class band and the photo estimate's uncertainty. The roof-front
+  overlay holdout is now +14 mm, down from about +49 mm; peak +14 mm, rear roof
+  −12 mm. The fixed quarter pane and accepted side-glass outline remain.
+- **Side panels/highlight flow:** the shoulder is legible through the handles
+  in both three-quarter views; the lower draw rises rearward. Door panels keep
+  a broad outward crown and tuck into the rocker. The rear haunch has a broad
+  reflection over the wheel instead of a separate swollen corner. The small
+  lower corner transitions still gather the bands more tightly than production
+  surfacing. The gross cap crumples are removed; this is not a claim that every
+  highlight now matches an OEM stamping.
+- **Rear plan/panel:** 238 mm sweep, 11.5° upper lean and a 602 mm bumper tangent
+  replace the square vertical tail. The lower fascia recedes 176 mm to the
+  diffuser at 300 mm. The wrap blends into the quarter without the old reverse
+  taper. Its broad plain tail land still looks less resolved than both makes'
+  sculpted plate recesses; that weakness remains visible in clay.
+- **Deck/lamps:** actual center deck length is 373 mm, rising 5° to a 1043 mm lip,
+  with 22 mm transverse crown. Lamps wrap from quarter to lid, with a real
+  separated cut and correct parent ownership for the lid blanks. The lip is
+  crisp in section but subtler in the clay rear view than the Camry SE spoiler.
+- **Wheels/arches:** all four retain 40 mm crown clearance and the 235 mm tire
+  width; tires sit close to the shoulders with actual inward arch flanges. Wheel
+  and tire geometry is the accepted family method, 2404 triangles per corner.
+  The sportier Camry wheels and Accord's smaller package should not be used to
+  rescale this accepted tire choice.
+- **Overlay limits:** worst sampled vertical difference is −96 mm at the Camry
+  deck/spoiler; hood lead +33 mm, hood middle −21 mm, cowl −9 mm. Picks carry
+  ±16.5 mm uncertainty and the near-profile photo retains perspective. The
+  1043 mm original lip follows this brief's 1000–1050 mm spec, so the higher
+  photographed spoiler is not silently adopted. The nose still differs in
+  silhouette despite the corrected package; the 975 mm published front reference
+  is 25 mm outside the brief's rough 860–950 mm photo estimate.
+
+Proof: full `make BODY=sedan WIDTH=1600 SAMPLES=40` passes from scripts through
+both-density audits, all 23 numeric end checks, independent Blender camera
+projection, all renders/pairs and repository policy. Camera RMS, native pixels:
+Accord front 5.76, Camry rear 5.30, Camry front 11.07, Accord rear 8.76. These fit
+chassis anchors, not body shape; the extra two fits have visibly larger residuals.
+All retained lamp samples are measured on the actual mesh (zero distance).
+Game: 46,972 triangles; high: 373,984; four diagnostic materials, zero maps.
+The planned 2048 set remains 16 MiB compressed with full mips. Independent sedan
+regeneration matches all 94 meshes exactly. Fresh pickup generation and re-export
+retain all 454 source meshes, 150 GLB accessors, maps and graph; the complete
+11,530,736-byte GLB retains SHA-256
+`f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
+No kit changes and no sedan detail/delivery work beyond this checkpoint.
+
 # Alder S240 sedan — source form checkpoint
 
 The C150 pickup below remains accepted. This section is the second body type's

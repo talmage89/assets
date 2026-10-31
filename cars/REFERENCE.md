@@ -136,10 +136,15 @@ supplies the metric cross-check; the [US sheet](https://hondanews.com/en-US/rele
 agrees within published rounding. UK 2021 Camry brochure gives 4885 / 2825 /
 1840 / 1445 mm and 145 mm clearance; it is an explicitly different-market check.
 
-The 1065 mm front and 1005 mm rear overhangs follow the requested original
-front-longer stance. They are not Camry dimensions: the UK sheet has 975 / 1085 mm,
-so the independent Camry side overlay must retain the resulting axle-registered
-nose/tail discrepancy. A photograph is not stretched to hide it.
+Round 2 corrects the original front-longer allocation: **975 mm front and
+1095 mm rear** on the original 4900 mm length / 2830 mm wheelbase. The
+[Toyota UK June 2021 brochure](https://www.toyota.co.uk/content/dam/toyota/nmsc/united-kingdom/brochure-archive/camry/camry-jun-21.pdf)
+provides explicit 975 / 1085 mm overhangs on its 4885 / 2825 mm envelope. Our
+10 mm extra length minus wheelbase goes at the rear. The 975 mm front is 25 mm
+outside the brief's rough photographic 860–950 mm range; the coherent published
+metric basis takes precedence over that approximate range. Cabin, door stations
+and axles translate together 90 mm forward. This is a coordinate relocation of
+the accepted package, not a wheelbase or track change.
 
 Six lights leave a fixed triangular quarter pane in the C-pillar, reducing the
 rear door's upper sash length under the fast roof. 22.5-degree section tumblehome,
@@ -152,7 +157,18 @@ This is the pickup's rolling-envelope method, not a carcass simulation.
 The sculpted supported cage is authored in three dimensions; subdivision occurs
 before any panel or glazing separation. The profile photo is used only in an
 external, wheel-center-only similarity transform after rendering. No outline is
-traced or fitted into the cage. The two 3/4 camera fits use chassis landmarks;
+traced or fitted into the cage. The four 3/4 camera fits use chassis landmarks;
 body correspondence remains an independent visual judgment and held-out report.
 The stock backgrounds are neutral white: comparison white balance uses that
 backdrop, not the warm/cool reflected paint. Clay is neutral gray by design.
+
+
+Round 2's end-volume controls are original construction estimates constrained by
+the requested dimensional ranges, checked against both makes. A continuous
+elliptical plan loft, a rounded crowned top and a tucked lower face fair the
+unified supported subdivision cage before separation. No photo is read by the
+model generator. Mesh cuts/rays and actual aperture vertices independently
+measure the resulting dimensions, including the centerline profile. The side
+overlay's +14 mm roof-front holdout meets the requested approximate 20 mm target;
+its −96 mm deck mismatch remains visible because the Camry SE spoiler sits above
+the brief's 1000–1050 mm tail-lip height. It is not suppressed by warping the photo.
