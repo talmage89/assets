@@ -28,12 +28,28 @@ def side_overlay(out,shots):
     for x,y in [pf,pr]:d.ellipse((x-7,y-7,x+7,y+7),outline=(20,80,180),width=3)
     save(im,out/'side-overlay.jpg')
     ppm=np.linalg.norm(w)/2.82448;mask=np.array(warped.getchannel('A'))>200;measure=[]
-    for label,x,y in [('hood lead',70,440),('hood mid',170,409),('cowl',330,385),('roof front',550,286),('roof peak',670,273),('roof aft',800,284),('deck',1090,349)]:
+    for label,x,y in [('hood lead',70,440),('hood mid',170,409),('cowl',330,385),('roof front',550,286),('roof peak',670,273),('roof aft',800,284),('C-pillar',965,313),('deck',1090,349)]:
         xx,yy=round(x*1.75),round(y*1.75);ys=np.nonzero(np.any(mask[:,xx-1:xx+2],axis=1))[0]
         if len(ys):measure.append(dict(feature=label,render_minus_photo_height_m=(yy-int(ys[0]))/ppm,photo_pixel=[xx,yy],pick_uncertainty_m=4*1.75/ppm))
     record=dict(method='Two inspected wheel centers only; similarity transform, no outline fit',reference='refs/sedan-camry-side.jpg',wheelbase_reference_m=2.82448,
        original_pixels_per_m=ppm,rotation_degrees=math.degrees(theta),scale=scale,offset_pixels=offset.tolist(),silhouette_differences=measure,
        caveat='Corrected front/rear overhangs; OEM metric front reference 975 mm. Reference is near-profile with residual perspective; outline picks +/-4 preview pixels.')
+    # Held-out photographic lower-end picks at four elevations. Only chassis
+    # registration is fitted; these are comparisons, never cage constraints.
+    ends=[]
+    for label,x,y,front in [('nose under lamps',45,467,True),('nose bumper',34,500,True),('nose lower',34,540,True),('nose chin',28,560,True),('tail upper bumper',1170,456,False),('tail lower bumper',1169,487,False),('tail lower',1166,523,False),('tail under',1161,535,False)]:
+        yy=round(y*1.75);xx=x*1.75
+        xs=np.nonzero(np.any(mask[yy-1:yy+2,:],axis=0))[0]
+        if len(xs):
+            rx=int(xs[0] if front else xs[-1]);ends.append(dict(feature=label,render_minus_photo_outward_m=(xx-rx if front else rx-xx)/ppm,photo_pixel=[xx,yy],pick_uncertainty_m=7/ppm))
+    for row in ends:
+        x,y=row['photo_pixel'];dx=row['render_minus_photo_outward_m']*ppm
+        rx=x-dx if row['feature'].startswith('nose') else x+dx
+        d.ellipse((x-4,y-4,x+4,y+4),fill=(210,60,25));d.line((x,y,rx,y),fill=(210,60,25),width=3)
+    save(im,out/'side-overlay.jpg')
+    record['lower_end_holdouts']=ends
+    record['maximum_absolute_top_deviation_m']=max(abs(r['render_minus_photo_height_m']) for r in measure)
+    record['maximum_absolute_lower_end_deviation_m']=max(abs(r['render_minus_photo_outward_m']) for r in ends)
     (out/'side-overlay.json').write_text(json.dumps(record,indent=2))
 
 def sections(out,report,photo_angle):
@@ -55,7 +71,9 @@ def sections(out,report,photo_angle):
             d.text((30,105),f"Mesh {record['tumblehome_degrees']:.2f} deg / class photo estimate {photo_angle:.2f} deg (+/-4.5)",font=font(21),fill=(120,60,35))
             d.text((30,135),'Green: requested 20-25 deg range. Orange: measured evaluated section.',font=font(18),fill=(55,70,75))
         else:
-            d.text((30,105),'The axle station cuts hood/deck; full-height side glass exists at the B-pillar.',font=font(18),fill=(55,70,75))
+            caption=('Door section: progressive lower crown, die hollow and recessed sill.' if record['name'].startswith('mid_') else
+                     'The axle station cuts hood/deck; full-height side glass exists at the B-pillar.')
+            d.text((30,105),caption,font=font(18),fill=(55,70,75))
         save(im,out/('section-'+record['name']+'.jpg'))
 
 def centerline(out,report):
@@ -101,7 +119,7 @@ def photo_section(out,cameras):
     (out/'photo-tumblehome.json').write_text(json.dumps(row,indent=2));return angle
 
 def dimensioned(out,shots,report):
-    for name in ['side','front','top']:
+    for name in ['side','front','rear','top']:
         im=rgb(out/(name+'.png'));d=ImageDraw.Draw(im);points=shots[name]['points'];w,h=im.size
         def line(a,b,y,text):
             x1,x2=sorted((points[a][0],points[b][0]));d.line((x1,y,x2,y),fill=(25,83,113),width=2)
@@ -117,7 +135,7 @@ def dimensioned(out,shots,report):
         if name=='top':
             f,r=report['end_measurements']['front'],report['end_measurements']['rear']
             d.text((25,h-80),f"Actual bumper-height sweep at x=850 mm: front {f['plan_sweep_at_850mm_m']*1000:.0f} / rear {r['plan_sweep_at_850mm_m']*1000:.0f} mm",font=font(18),fill=(25,83,113))
-        if name=='front':line('left','right',h-28,'1850 mm body / class 1839-1862 mm')
+        if name in ['front','rear']:line('left','right',h-28,'1850 mm body / class 1839-1862 mm')
         save(im,out/(name+'-dimensions.jpg'))
 
 def main():
@@ -134,10 +152,12 @@ def main():
     from kit.photo_match import compose
     clay={name+'_clay':dict(data,title=data['title'].replace('clay with stripes','neutral clay')) for name,data in cameras.items()}
     calibration=out/'clay-cameras.json';calibration.write_text(json.dumps(clay,indent=2));compose(calibration,out,out)
-    names=['front_three_quarter.jpg','rear_three_quarter.jpg','side-dimensions.jpg','front-dimensions.jpg','top-dimensions.jpg','side-overlay.jpg',
+    front,rear=[rgb(out/(name+'-dimensions.jpg')) for name in ['front','rear']]
+    pair=Image.new('RGB',(front.width+rear.width,max(front.height,rear.height)),(229,231,232));pair.paste(front,(0,0));pair.paste(rear,(front.width,0));save(pair,out/'front-rear.jpg')
+    names=['front_three_quarter.jpg','rear_three_quarter.jpg','side-dimensions.jpg','front-dimensions.jpg','rear-dimensions.jpg','front-rear.jpg','top-dimensions.jpg','side_raking.jpg','side-overlay.jpg',
        'stripes_horizontal.jpg','stripes_vertical.jpg','stripes_rear_horizontal.jpg','stripes_rear_vertical.jpg',
        'stripes_side_horizontal.jpg','stripes_side_vertical.jpg','stripes_hood_driver.jpg','curvature-body.jpg','curvature-hood-deck.jpg',
-       'section-front_axle.jpg','section-b_pillar.jpg','section-rear_axle.jpg','section-centerline.jpg','photo-tumblehome.jpg']
+       'section-front_axle.jpg','section-b_pillar.jpg','section-rear_axle.jpg','section-mid_front_door.jpg','section-mid_rear_door.jpg','section-centerline.jpg','photo-tumblehome.jpg']
     names += [name+'-pair.jpg' for name in cameras]
     names += [name+'_clay-pair.jpg' for name in cameras]
     names += [name+'-calibration.jpg' for name in cameras]

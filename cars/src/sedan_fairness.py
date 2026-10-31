@@ -36,6 +36,10 @@ def field(obs):
         a,b,c=triangles[fi]
         n=barycentric_transform(p,points[a],points[b],points[c],normals[a],normals[b],normals[c]).normalized()
         return p,n,parts[fi]
+    def nearest_normal(point):
+        p,_,fi,_=tree.find_nearest(Vector(point));a,b,c=triangles[fi]
+        return barycentric_transform(p,points[a],points[b],points[c],normals[a],normals[b],normals[c]).normalized()
+    ray.nearest_normal=nearest_normal
     return ray
 
 
@@ -65,8 +69,11 @@ def measure(ray,name,kind,station,lo,hi,count=401):
             row['curvature_m_inv']=((b['slope']-a['slope'])/(b['t']-a['t'])/(1+row['slope']**2)**1.5) if b['t']>a['t'] else 0.
         for a,b in zip(run,run[1:]):
             if a['curvature_m_inv']*b['curvature_m_inv']<0:crossings.append((a['t']+b['t'])/2)
-    zones=([dict(name='rocker return',range=[.24,.30]),dict(name='lower die line / rocker roll',range=[.28+.04*station,.46+.04*station]),dict(name='shoulder / belt roll',range=[.87+.037*station,1.04+.037*station])] if kind=='side' else [])
-    if kind=='side' and station<-1.8:zones=[dict(name='lower fascia / intake roll',range=[.28,.37])]
+    from sedan_body import shoulder_height,character_height
+    h=shoulder_height(station);line=character_height(station)
+    zones=([dict(name='recessed sill and rocker upper blend',range=[.23,line-.02]),dict(name='lower die hollow and crease',range=[line-.045,line+.115]),dict(name='shoulder / belt roll',range=[h-.045,h+.13])] if kind=='side' else
+           [dict(name='fender crown / hood draw transition',range=[-.80,-.64]),dict(name='fender crown / hood draw transition',range=[.64,.80])] if station<0 else [])
+    if kind=='side' and station<-1.8:zones=[dict(name='lower fascia / intake roll',range=[.28,.39])]
     if kind=='side' and station>1.8:zones=[dict(name='bumper upper roll',range=[.69,.80]),dict(name='tail / deck roll',range=[.91,1.05])]
     unexplained=[t for t in crossings if not any(z['range'][0]<=t<=z['range'][1] for z in zones)]
     return dict(name=name,kind=kind,station_y_m=station,samples=samples,raw_sign_crossings=crossings,character_line_zones=zones,unexplained_sign_crossings=unexplained,
@@ -82,7 +89,7 @@ def main():
         for ob in list(bpy.context.scene.objects):bpy.data.objects.remove(ob,do_unlink=True)
         master,_=sedan_body.master(2);obs=[master]
     ray=field(obs);sections=[]
-    for y in [-2.10,-.65,-.15,.65,2.20]:sections.append(measure(ray,f'Body y={y:+.3f}', 'side',y,.26,min(1.30,.948+.037*y+.075)))
+    for y in [-2.10,-.47,.145,.685,2.20]:sections.append(measure(ray,f'Body y={y:+.3f}', 'side',y,.26,min(1.30,.948+.037*y+.075)))
     for y in [-2.05,-1.65,-1.25]:sections.append(measure(ray,f'Hood y={y:+.2f}','top',y,-.80,.80))
     for y in [2.05,2.15,2.25]:sections.append(measure(ray,f'Deck y={y:+.2f}','top',y,-.65,.65))
     coverage=all(len(r['samples'])>=(300 if r['kind']=='top' else 100) for r in sections)

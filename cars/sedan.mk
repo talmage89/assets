@@ -11,10 +11,10 @@ export TMPDIR := $(REPO)/build/tmp
 export ASSETS_GPU_LOCK ?= $(REPO)/build/locks/gpu.lock
 WIDTH ?= 1600
 SAMPLES ?= 40
-PASS ?= sedan-round3
+PASS ?= sedan-round4
 OUT := renders/$(PASS)
-SDEPS := sedan.mk src/build.py src/sedan_body.py src/sedan_apertures.py src/sedan_spec.py src/forms.py src/wheels.py src/detail_helpers.py ../kit/model.py ../kit/vehicle.py
-CLAY := front_three_quarter rear_three_quarter side front top
+SDEPS := sedan.mk src/build.py src/sedan_body.py src/sedan_apertures.py src/sedan_character.py src/sedan_spec.py src/forms.py src/wheels.py src/detail_helpers.py ../kit/model.py ../kit/vehicle.py
+CLAY := front_three_quarter rear_three_quarter side front rear top side_raking
 STRIPES := stripes_horizontal stripes_vertical stripes_rear_horizontal stripes_rear_vertical stripes_side_horizontal stripes_side_vertical stripes_hood_driver
 PAIRS := accord_front camry_rear camry_front accord_rear
 COMPARISONS := $(addsuffix _clay,$(PAIRS))
@@ -39,7 +39,9 @@ build/sedan/form-check.json: build/sedan/game.blend src/sedan_check.py
 	$(BP) --python src/sedan_check.py -- --source $< --out $@
 build/sedan/shaping-check.json: build/sedan/game.blend src/sedan_shaping.py src/sedan_check.py
 	$(BP) --python src/sedan_shaping.py -- --source $< --out $@
-check: model refs build/sedan/cameras.json build/sedan/form-check.json build/sedan/shaping-check.json
+build/sedan/character-check.json: build/sedan/game.blend src/sedan_character_check.py src/sedan_fairness.py
+	$(BP) --python src/sedan_character_check.py -- --source $< --out $@
+check: model refs build/sedan/cameras.json build/sedan/form-check.json build/sedan/shaping-check.json build/sedan/character-check.json
 	$(BP) --python $(KIT)/audit.py -- --source build/sedan/game.blend --config src/sedan_config.py --out build/sedan/game-audit.json
 	$(BP) --python $(KIT)/audit.py -- --source build/sedan/high.blend --config src/sedan_config.py --out build/sedan/high-audit.json
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration build/sedan/cameras.json

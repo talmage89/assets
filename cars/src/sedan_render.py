@@ -14,6 +14,8 @@ SHOTS={
  'rear_three_quarter':dict(location=(-7,9,2.9),target=(0,.15,.73),lens=58,aspect=1.65),
  'side':dict(location=(10,0,.74),target=(0,0,.74),ortho=5.7,aspect=2),
  'front':dict(location=(0,-10,.76),target=(0,0,.76),ortho=2.55,aspect=1.25),
+ 'rear':dict(location=(0,10,.76),target=(0,0,.76),ortho=2.55,aspect=1.25),
+ 'side_raking':dict(location=(10,-.25,1.20),target=(0,0,.75),ortho=5.7,aspect=2,raking=True),
  'top':dict(location=(0,0,10),target=(0,0,0),ortho=5.7,aspect=1.8,roll=math.pi/2),
  'stripes_horizontal':dict(location=(7,-8,2.7),target=(0,0,.76),lens=58,aspect=1.65,direction='horizontal'),
  'stripes_rear_horizontal':dict(location=(-7,8,2.7),target=(0,.15,.76),lens=58,aspect=1.65,direction='horizontal'),
@@ -67,6 +69,23 @@ def main():
             stripes(sc,shot.get('direction','horizontal'));sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=4
             for ob in sc.objects:
                 if ob.get('studio') and ob.type in ['MESH','LIGHT']:ob.hide_render=True
+        elif shot.get('raking') or name in ['front_three_quarter','rear_three_quarter']:
+            sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=5
+            for mat in bpy.data.materials:
+                bs=mat.node_tree.nodes.get('Principled BSDF') if mat.use_nodes else None
+                if bs:
+                    value={'Clay body':.24,'Clay rubber':.009,'Clay glass':.018,'Clay bumper':.035}.get(mat.name)
+                    if value is not None:bs.inputs['Base Color'].default_value=(value,value,value,1)
+                    bs.inputs['Roughness'].default_value=.31 if mat.name=='Clay body' else .36
+                    if mat.name=='Clay glass':bs.inputs['Specular IOR Level'].default_value=.06
+            if shot.get('raking'):
+                for ob in sc.objects:
+                    if ob.type=='LIGHT':ob.hide_render=True
+                sun=bpy.data.lights.new('Low sun along stamped side','SUN');sun.energy=5.0;sun.angle=.035
+                ob=bpy.data.objects.new('Low sun along stamped side',sun);sc.collection.objects.link(ob)
+                direction=Vector((-.25,1,-.18));ob.rotation_euler=direction.to_track_quat('-Z','Y').to_euler()
+                sc.world.node_tree.nodes['Background'].inputs['Strength'].default_value=.65
+                sc.world.node_tree.nodes['Background'].inputs['Color'].default_value=(.15,.15,.15,1)
         else:
             sc.render.engine='BLENDER_WORKBENCH';sh=sc.display.shading
             sh.light='STUDIO';sh.studio_light='studio.sl';sh.studiolight_rotate_z=0;sh.color_type='MATERIAL';sh.show_shadows=True
@@ -82,7 +101,7 @@ def main():
         camera.location=shot['location'];camera.rotation_euler=(Vector(shot['target'])-camera.location).to_track_quat('-Z','Y').to_euler();camera.rotation_euler.rotate_axis('Z',shot.get('roll',0))
         camera.data.type='ORTHO' if 'ortho' in shot else 'PERSP';camera.data.sensor_width=36;camera.data.sensor_fit='HORIZONTAL'
         camera.data.lens=shot.get('lens',58);camera.data.ortho_scale=shot.get('ortho',5.7);camera.data.clip_start=.02;camera.data.clip_end=100
-        sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=-.2 if stripe else .25
+        sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=.25 if shot.get('raking') else -.2 if stripe else -.85 if sc.render.engine=='CYCLES' else .25
         sc.render.resolution_x=a.width;sc.render.resolution_y=round(a.width/shot.get('aspect',1.65));sc.render.resolution_percentage=100
         sc.render.image_settings.file_format='PNG';sc.render.image_settings.color_mode='RGBA';sc.render.film_transparent=True
         bpy.data.objects['Studio seamless'].hide_render=True

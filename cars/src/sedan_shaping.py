@@ -22,7 +22,10 @@ def main():
     def side(y,z):return tree.ray_cast(Vector((2,y,z)),Vector((-1,0,0)),4)[0]
     def end(x,z,front):return tree.ray_cast(Vector((x,-4 if front else 4,z)),Vector((0,1 if front else -1,0)),5)[0]
     report=dict(source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),scope='Actual mesh rays; three-point local circle radius at x=800/850/880 mm')
-    for front,z in [(True,.502),(False,.600)]:
+    # The real front corner-pocket aperture crosses the former z=502 mm
+    # probes. Sample the intact skin immediately above it; rear stays at the
+    # held bumper-height waterline and the original three X stations.
+    for front,z in [(True,.570),(False,.600)]:
         ps=[end(x,z,front) for x in [.80,.85,.88]]
         if any(p is None for p in ps):raise ValueError('Missing corner surface')
         aa,b,c=ps;area=(b-aa).cross(c-aa).length/2
@@ -50,7 +53,7 @@ def main():
     report['lamp_opening_rays']=dict(method='From 20 mm outside the actual backing, 35 mm inward; painted skin must be absent',samples=openings)
     errors=[]
     if len(openings)!=6:errors.append('Expected two front and four split rear lamp pieces')
-    if not .250<=report['rear']['plan_radius_m']<=.400:errors.append('Rear corner radius')
+    if not .300<=report['rear']['plan_radius_m']<=.310:errors.append('Rear corner radius')
     for name,row in report['fender_swell_m'].items():
         if not .020<=row['outward_m']<=.035:errors.append(name+' die swell')
     if any(s['paint_hit_m'] is not None for samples in openings.values() for s in samples):errors.append('Paint remains over a lamp opening')
