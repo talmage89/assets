@@ -20,11 +20,21 @@ class CapeMesh(Mesh):
         # Sub-40 mm sash/track/metal bevels belong in the later normal map.
         # Keep the casing/sill silhouette and shared construction dimensions.
         if self.builder.plan['spec']['dormers']==3 and self.props.get('component') in ('window','storm_window') and min(s)<.040:r=0
+        if self.props.get('component')=='window' and role=='Trim' and abs(p[1]+.28)<1e-6:
+            # A real dark room behind the curtains, rather than a 290 mm box.
+            p=(p[0],-1.15,p[2])
+            for sign in (-1,1):
+                super().box((p[0]+sign*(s[0]/2),-.66,p[2]),(.018,.96,s[2]),role,(.035,.033,.027),0,xf)
         return super().box(p,s,role,color,r,xf)
 
 
 class CapeBuilder(Builder):
     def mesh(self,name,part='Static',**props):return CapeMesh(self,name,part,**props)
+
+
+def foundation_top(block):
+    """Exposed concrete datum, below the floor; garage remains a slab."""
+    return min(.6096,block.floor-.0762) if block.floor>=.40 else max(.04,block.floor-.205)
 
 
 def shell(b):
@@ -52,9 +62,10 @@ def shell(b):
                 for opening in [o for o in b.openings if o['block']==block.name and o['face']==face]:
                     o=opening;cuts=[(1,0,-o['u']+o['w']/2),(-1,0,o['u']+o['w']/2),(0,1,-o['z']),(0,-1,o['z']+o['h'])]
                     pieces=[p for v in pieces for p in subtract(v,cuts)]
+                if not dorm:pieces=[q for p in pieces if (q:=clip(p,0,1,-foundation_top(block)))]
                 for part in pieces:me.prism([xf((u,.012,z)) for u,z in part],(-n[0],-n[1],0),.165,'Siding')
                 if not adjoining and not dorm:
-                    lo=min(v[0] for v in poly);hi=max(v[0] for v in poly);top=max(.04,block.floor-.205)
+                    lo=min(v[0] for v in poly);hi=max(v[0] for v in poly);top=foundation_top(block)
                     pieces=[[(lo,0),(hi,0),(hi,top),(lo,top)]]
                     for u,z,w,h in basement_holes(b,block,face):
                         pieces=[p for v in pieces for p in subtract(v,[(1,0,-u+w/2),(-1,0,u+w/2),(0,1,-z),(0,-1,z+h)])]
@@ -65,7 +76,7 @@ def shell(b):
         for x in (block.x0,block.x1):
             for y in (block.y0,block.y1):
                 if any(v is not block and v.name not in ('RearShed',) and not v.name.startswith('Dormer') and v.contains(x,y,.001) for v in b.plan['blocks']):continue
-                bottom=main.height(x,y)-.01 if dorm else max(.02,block.floor-.205);top=block.height(x,y)-.145
+                bottom=main.height(x,y)-.01 if dorm else foundation_top(block)+.012;top=block.height(x,y)-.145
                 if top-bottom<.05:continue
                 sx=-1 if x==block.x0 else 1;sy=-1 if y==block.y0 else 1
                 trim.box((x+sx*.020,y-sy*.034,(bottom+top)/2),(.032,.089,top-bottom),r=.001)
@@ -75,7 +86,7 @@ def shell(b):
             # Sloped water table bridges the siding/foundation at the real floor.
             water=b.mesh(block.name+'_WaterTable',component='water_table',block=block.name)
             for face in ('front','back','left','right'):
-                xf,n,length=b.frame(block,face);z=max(.02,block.floor-.205)
+                xf,n,length=b.frame(block,face);z=foundation_top(block)
                 for poly,adj in wall_sections(b,block,face):
                     if adj:continue
                     lo=min(v[0] for v in poly);hi=max(v[0] for v in poly)
@@ -84,19 +95,28 @@ def shell(b):
 
 
 def basement_holes(b,block,face):
-    if b.plan['spec']['foundation']!='basement' or block.name!='Main' or face in ('front',):return []
-    length=block.width if face=='back' else block.depth;top=block.floor-.205
+    if block.name!='Main':return []
+    if b.plan['spec']['foundation']=='crawlspace':
+        return [(block.width*f,.13,.40,.18) for f in (.15,.85)] if face in ('front','back') else []
+    length=block.width if face=='back' else block.depth;top=foundation_top(block)
     if top<.18:return []
     # Keep the exposed wells in the rear quarters, clear of chimney and additions.
     if face!='back':return []
-    return [(length*f,.075,.70,min(.30,top-.09)) for f in (.10,.90)]
+    return [(length*f,.075,.70,min(.30,top-.12)) for f in (.10,.90)]
 
 
 def basement(b):
     m=b.plan['blocks'][0]
-    for face in ('back',):
+    for face in ('front','back'):
         xf,n,length=b.frame(m,face)
         for i,(u,z,w,h) in enumerate(basement_holes(b,m,face)):
+            if b.plan['spec']['foundation']=='crawlspace':
+                me=b.mesh('CrawlVent_'+face+str(i),component='crawl_vent',allow_boundary=True)
+                me.box((u,-.055,z+h/2),(w-.025,.012,h-.025),color=(.012,.015,.011),r=0,xf=xf)
+                for sign in (-1,1):me.box((u+sign*(w/2-.014),-.010,z+h/2),(.028,.045,h+.04),color=(.14,.16,.13),r=0,xf=xf)
+                for zz in (z-.008,z+h+.008):me.box((u,-.010,zz),(w+.02,.045,.024),color=(.14,.16,.13),r=0,xf=xf)
+                for k in range(5):me.box((u,.008,z+.018+k*(h-.036)/4),(w-.04,.024,.011),color=(.18,.20,.16),r=0,xf=xf)
+                me.finish();continue
             me=b.mesh('BasementWindow_'+str(i),component='basement_window')
             for sign in (-1,1):me.box((u+sign*(w/2-.018),-.035,z+h/2),(.036,.055,h),r=.001,xf=xf)
             for zz in (z+.018,z+h-.018):me.box((u,-.035,zz),(w,.055,.036),r=.001,xf=xf)
@@ -131,6 +151,12 @@ def roofs(b):
             # pipes on the house/additions use the existing rounded K system.
             if level and block.name in ('Main','Wing','Garage'):
                 drain(b,gutters,a,c,n,block,index)
+                # Concealed steel hangers at 3 ft centers, fixed to the fascia.
+                axis=0 if abs(c.x-a.x)>abs(c.y-a.y) else 1
+                lo,hi=sorted((a[axis],c[axis]))
+                for k in range(math.ceil(lo/.9144),math.ceil(hi/.9144)):
+                    t=(k*.9144-a[axis])/(c[axis]-a[axis]);q=a.lerp(c,t)
+                    gutters.beam(q-normal*.02+Vector((0,0,-.025)),q+normal*.12+Vector((0,0,-.038)),.016,.003,color=(.24,.25,.22),r=0)
             if b.plan['spec']['returns'] and block.name=='Main' and not level:
                 low=min((a,c),key=lambda p:p.z)
                 # Short boxed cornice return, supported against the gable.
@@ -245,6 +271,7 @@ def storms(b):
         for sign in (-1,1):me.box((u+sign*(w/2-.012),.070,z+h/2),(.024,.024,h),color=c,r=.001,xf=xf)
         for zz in (z+.012,z+h/2,z+h-.012):me.box((u,.070,zz),(w-.024,.024,.024),color=c,r=.001,xf=xf)
         for j in range(2):me.box((u,.058,z+(j+.5)*h/2),(w-.05,.003,h/2-.035),'Glass',(1,1,1),0,xf)
+        for sign in (-1,1):me.tube([xf((u+sign*(w/2-.012),.081,z+h-.012)),xf((u+sign*(w/2-.012),.084,z+h-.012))],.0025,color=(.21,.22,.20),sides=6)
         me.finish()
 
 
@@ -257,6 +284,20 @@ def breezeway(b):
         for y in (bridge.y0+.06,bridge.y1-.06):me.box((x,y,(bridge.eave-.19+.1016)/2),(.089,.089,bridge.eave-.19-.1016),r=.001)
     for y in (bridge.y0+.06,bridge.y1-.06):me.box((bridge.cx,y,bridge.eave-.23),(bridge.width,.10,.18),r=.001)
     me.finish()
+    # The open connector has an actual back screen, not a solid anonymous box.
+    back=b.mesh('Breezeway_BackWall',component='breezeway_back',block=bridge.name)
+    back.box((bridge.cx,bridge.y1-.045,.55),(bridge.width-.16,.065,.90),'Siding',r=.001)
+    for zz in (1.04,bridge.eave-.33):back.box((bridge.cx,bridge.y1-.04,zz),(bridge.width-.12,.065,.070),r=.001)
+    # 19 x 38 mm lattice strips, 160 mm centers, clipped to a framed opening.
+    lo,hi=bridge.x0+.09,bridge.x1-.09;z0,z1=1.08,bridge.eave-.37
+    for slope in (-1,1):
+        for k in range(-18,20):
+            intercept=z0+k*.16
+            ts=[(x,intercept+slope*(x-lo)) for x in (lo,hi)]
+            for zz in (z0,z1):ts.append((lo+(zz-intercept)/slope,zz))
+            pts=sorted({(round(x,8),round(z,8)) for x,z in ts if lo-1e-7<=x<=hi+1e-7 and z0-1e-7<=z<=z1+1e-7})
+            if len(pts)==2:back.beam((pts[0][0],bridge.y1-.02-slope*.011,pts[0][1]),(pts[1][0],bridge.y1-.02-slope*.011,pts[1][1]),.025,.019,color=(.25,.245,.21),r=0)
+    back.finish()
 
 
 def chimney(b):

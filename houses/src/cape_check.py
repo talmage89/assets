@@ -137,6 +137,23 @@ def source_check(source):
             else:tops.append(hit.z)
     risers=[a-c for a,c in zip(sorted(tops,reverse=True),sorted(tops,reverse=True)[1:]+[0])]
     if risers and (max(risers)>.191 or max(risers)-min(risers)>.001):errors.append('Unequal or tall risers')
+    foundation=surface([o for o in obs if o.get('component')=='foundation' and o.get('block')=='Main'])
+    siding_bottom=min((ob.matrix_world@v.co).z for ob in obs if ob.get('component')=='wall' and ob.get('block')=='Main' for v in ob.data.vertices)
+    concrete_top=max((ob.matrix_world@v.co).z for ob in obs if ob.get('component')=='foundation' and ob.get('block')=='Main' for v in ob.data.vertices)
+    if not .2032-1e-5<=concrete_top<=.6096+1e-5:errors.append('Foundation exposure outside 8–24 inches')
+    if abs(siding_bottom-concrete_top)>1e-5:errors.append('Siding covers foundation')
+    if not .06<main.floor-concrete_top<.17:errors.append('Foundation does not meet sill/floor structure')
+    if tops and abs(tops[0]-(main.floor-.028))>1e-5:errors.append('Stoop/threshold mismatch')
+    from cape_build import basement_holes
+    from types import SimpleNamespace
+    vent_probes=0
+    for face in ('front','back'):
+        origin,t,n,l=wall_frame(main,face);normal=Vector((*n,0))
+        for u,z,w,h in basement_holes(SimpleNamespace(plan=plan),main,face):
+            p=Vector((origin[0]+t[0]*u,origin[1]+t[1]*u,z+h/2))+normal*.25
+            if foundation.ray_cast(p,-normal,.6)[0] is not None:errors.append('Foundation opening blocked')
+            vent_probes+=1
+    if not vent_probes:errors.append('Missing basement/crawl opening')
     supports=surface([o for o in obs if o.get('component') in ('wall','corner_posts')])
     support_dist=[]
     for d in meta['drains']:
@@ -147,6 +164,7 @@ def source_check(source):
     observed_pitch=max(abs(n.y/n.z) for n in normals)
     if abs(observed_pitch-main.pitch)>1e-4:errors.append('Measured roof pitch mismatch')
     result=dict(passed=not errors,errors=errors,triangles=tri,tiny_triangles=tiny,roof_samples=samples,roof_missing=missing,roof_max_error_m=error,opening_probes=len(meta['openings'])*9,front_eave_m=eave,rake_m=rake,dormer_interior=cheek,dormer_skirt_contact_max_m=max(skirt_gaps) if skirt_gaps else 0,window_head_soffit_clearances_m=header_clearances,stoop_tread_tops_m=tops,stoop_risers_m=risers,downspout_support_max_m=max(support_dist) if support_dist else 0,measured_pitch=observed_pitch,scope='Actual source roof/holes/services/dormer interior; no bake, UV or delivery certification')
+    result.update(foundation_exposure_m=concrete_top,foundation_to_floor_m=main.floor-concrete_top,siding_bottom_m=siding_bottom,foundation_opening_probes=vent_probes,threshold_to_stoop_m=main.floor-tops[0] if tops else None)
     source.with_suffix('.check.json').write_text(json.dumps(result,indent=2))
     if errors:raise AssertionError(str(source)+': '+'; '.join(errors))
     return result
