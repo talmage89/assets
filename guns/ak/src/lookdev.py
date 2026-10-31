@@ -161,8 +161,8 @@ def steel(name,part,key,wear,metal_wear=1):
  n=Nodes(name);p,x,y,z,nx,ny,nz,u,v,w=inp(n);ax=ab(n,x)
  fine=n.noise(p,4200,2);grain=n.noise(p,1150,2)
  paint=key=='paint' and part!='Magazine_Sheet';bright=key=='steel'
- base=(.0015,.00154,.0015) if paint else ((.25,.26,.27) if bright else (.023,.024,.025))
- metal=0 if paint else 1;spec=.161 if paint else .56
+ base=(.022,.023,.024) if paint else ((.25,.26,.27) if bright else (.023,.024,.025))
+ metal=0 if paint else 1;spec=.8 if paint else .56
  rough=n.add(.42 if paint else .42 if not bright else .42,n.mul(sub(n,grain,.5),.065))
  if part=='Magazine_Sheet':
   # The used ribbed magazine is gray-black oxide on steel, visibly lighter

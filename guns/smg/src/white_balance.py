@@ -4,6 +4,7 @@ import json,numpy as np
 from PIL import Image,ImageDraw
 BASE=Path(__file__).resolve().parents[1]
 NEUTRALS={
+ 'studio-original.jpg':((1300,970,1480,1080),'actual neutral gray table, lower right away from the gun shadow; original upload',0),
  'left.jpg':((596,224,605,237),'white safe-selector S legend, brightest paint pixels; edited image, auxiliary',85),
  'right.jpg':((1300,100,1500,350),'unclipped pale gray studio backdrop; auxiliary',0),
  'navy2.jpg':((2270,535,2330,565),'white selector legend on upper gun; brightest paint pixels, estimated neutral',85),

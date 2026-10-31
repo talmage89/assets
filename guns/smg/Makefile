@@ -23,12 +23,12 @@ TEXTURES := $(addprefix textures/T_Relay9_,BaseColor.png Normal.png ORM.png)
 EXPORTS := $(addprefix export/,smg.glb magazine_loaded.glb magazine_empty.glb cartridge.glb case.glb)
 SUBSET_LAYOUTS := $(addprefix build/delivery/detachables/,magazine_loaded/layout.json magazine_empty/layout.json cartridge/layout.json case/layout.json)
 comma := ,
-FINAL_SHOTS := hero,hero_right,front,side,back,top,receiver,handle,sights,front_sight,lower,aimed,locked,locked_close,port_open,stock,handguard,trigger,scale
+FINAL_SHOTS := hero,hero_right,front,side,back,top,receiver,handle,sights,front_sight,lower,aimed,locked,locked_close,port_open,stock,handguard,trigger,scale,projection_lower,projection_barrel
 FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(FINAL_SHOTS)))) renders/final/beauty/shots.json
 EXTRAS := renders/final/loaded/mag_standalone.png renders/final/loaded/mag_lips.png renders/final/empty/mag_standalone.png renders/final/empty/mag_lips.png renders/final/cartridge/cartridge.png renders/final/case/case.png renders/final/case/case_mouth.png
-PHOTO_SHOTS := right_photo,left_photo,locked_photo,trigger_photo
+PHOTO_SHOTS := paint_studio_photo,paint_issued_photo,right_photo,left_photo,locked_photo,trigger_photo
 PAIRS := $(addprefix renders/final/pairs/,$(addsuffix -pair.jpg,$(subst $(comma), ,$(PHOTO_SHOTS))))
-RENDER_DEPS := src/final_render.py src/final_shots.py src/shots.py ../common/render.py build/render-parameters.txt
+RENDER_DEPS := src/final_render.py src/final_shots.py src/shots.py src/paint_lights.json ../common/paint_review.py ../common/render.py build/render-parameters.txt
 .PHONY: all refs model prepare lookdev bake export check check-repo verify render match source-match strips extra review docs sections clean FORCE wear-audit
 all: refs export check render match source-match strips extra review docs
 refs:
@@ -56,8 +56,8 @@ build/render-parameters.txt: FORCE
 build/delivery/high.blend: $(PREPARED) $(MARKS) $(WEAR_FIELDS) src/build_high.py src/high_ammo.py ../common/ammo9_bake.py src/lookdev.py build/wear-parameters.txt
 	$(BP) --python src/build_high.py -- --wear $(WEAR)
 lookdev: build/delivery/high.blend
-$(BAKED) &: build/delivery/high.blend $(PREPARED) src/config.py build/bake-parameters.txt ../../kit/bake.py ../../kit/bake_groups.py
-	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/bake.py -- --low build/delivery/finalized.blend --high build/delivery/high.blend --out build/baked/4k --asset Relay9 --config src/config.py --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
+$(BAKED) &: build/delivery/high.blend $(PREPARED) src/config.py ../common/paint_projection.py build/bake-parameters.txt ../../kit/bake.py ../../kit/bake_groups.py
+	$(KIT)/with_gpu.sh $(BP) --python ../common/paint_projection.py -- --low build/delivery/finalized.blend --high build/delivery/high.blend --out build/baked/4k --asset Relay9 --config src/config.py --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
 bake: $(BAKED)
 $(TEXTURES) &: $(BAKED) ../../kit/downsample.py
 	$(PYTHON) $(KIT)/downsample.py --source build/baked/4k --out textures --asset Relay9 --size $(SHIP_SIZE) --alpha-mode independent
@@ -72,7 +72,7 @@ check-repo:
 	$(PYTHON) $(KIT)/repo_check.py
 verify: $(MODEL)
 	$(BP) --python src/verify.py -- --source build/smg.blend --out build/serialization.json
-NEUTRAL_REFS := $(addprefix refs/,left.jpg right.jpg navy2.jpg trigger-ref.jpg daylight.jpg)
+NEUTRAL_REFS := $(addprefix refs/,left.jpg right.jpg navy2.jpg trigger-ref.jpg daylight.jpg studio-original.jpg)
 $(NEUTRAL_REFS) &: refs/SOURCES.md $(KIT)/fetch_refs.py
 	$(PYTHON) $(KIT)/fetch_refs.py refs --only $(notdir $(NEUTRAL_REFS))
 build/white-balanced/navy2.png: src/white_balance.py refs/SOURCES.md $(NEUTRAL_REFS)
@@ -81,6 +81,7 @@ check: check-repo verify $(EXPORTS) $(SUBSET_LAYOUTS) build/white-balanced/navy2
 	$(BP) --python src/check.py -- --source build/smg.blend --out build/check.json --motion
 	$(BP) --python src/check.py -- --source build/delivery/finalized.blend --out build/delivery/construction.json --motion
 	$(BP) --python src/atlas_verify.py
+	$(BP) --python ../common/paint_projection_check.py -- --asset .
 	$(BP) --python src/check.py -- --source build/delivery/imported-parts.blend --out build/delivery/imported-construction.json --motion
 	$(BP) --python src/wear_audit.py
 	$(PYTHON) src/finish_review.py --layout-only
@@ -91,7 +92,7 @@ $(FINAL_IMAGES) &: $(EXPORTS) $(RENDER_DEPS)
 renders/final/eevee/hero.png renders/final/eevee/shots.json &: $(EXPORTS) $(RENDER_DEPS)
 	$(KIT)/with_gpu.sh $(BP) --python src/final_render.py -- --source export/smg.glb --out renders/final/eevee --engine BLENDER_EEVEE --width $(WIDTH) --samples 64 --shots hero
 render: $(FINAL_IMAGES) renders/final/eevee/hero.png
-build/cameras.json: src/photo_matches.py src/photo_calibration.py src/white_balance.py refs/SOURCES.md
+build/cameras.json: src/photo_matches.py src/photo_calibration.py src/white_balance.py ../common/photo_matches.py refs/SOURCES.md
 	$(PYTHON) src/photo_calibration.py
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration $@
 $(PAIRS) &: $(EXPORTS) $(RENDER_DEPS) build/cameras.json
@@ -131,3 +132,10 @@ wear-2d: $(FINAL_IMAGES) build/value-surfaces.npz
 	$(PYTHON) src/wear_2d_review.py
 
 include ../common/gif.mk
+
+# Whole receiver distribution from the shipped GLB, with member-owned photo
+# outlines and one physical rig per photo. No reference pixels enter the bake.
+# Diagnostic only: these photos could not calibrate light from nonpaint anchors.
+.PHONY: paint-review
+paint-review: match build/value-surfaces.npz
+	$(PYTHON) src/paint_review.py

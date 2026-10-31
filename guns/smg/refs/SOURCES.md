@@ -68,3 +68,9 @@ records the region, thresholds, half-mm binning, chip/gap lengths and observed
 gray/bright area split. The independent seeded procedural pattern uses those
 statistics as a target; neither the reference pixels nor its chip outlines
 enter the asset. Mixed light and the envelope scale limit the measurement.
+
+| Local file | Direct image URL | Author / license | Use |
+| --- | --- | --- | --- |
+| studio-original.jpg | https://upload.wikimedia.org/wikipedia/commons/archive/5/50/20130307182802%21Heckler_%26_Koch_MP5.jpg | Samuli Silvennoinen / CC BY-SA 3.0, original 2012 upload | Original staged photograph underlying right.jpg, before substituted backdrop and later levels edits. Neutral on the actual gray table at lower right; unchanged handguard, lower, grip, magazine and barrel anchor the light. The colored cloth is background context, not a neutral. |
+
+| studio-fixed.jpg | https://grendelammo.com/wp-content/uploads/2022/06/5-MP5A2-013-RIGHT-JULY-2016.jpg | GrendelAmmo / copyright retained; photographer unstated | Alternative studio photograph considered for paint review. Rejected as a calibration source: backing is clipped and may be digitally isolated, so it supplies no reliable neutral radiance. No pixels enter the asset. |

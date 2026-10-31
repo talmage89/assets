@@ -6,6 +6,10 @@ curved steel magazine, rigid moving parts and 21 clips share one baked 2048
 PBR atlas. The fictional **Propane Defense Relay 9** represents an issued gun
 carried for years. Its contours, controls, serial and markings are original.
 
+The receiver carries the family's Harrow 56 paint and studio. Its own photos
+couldn't calibrate the light; the rejected fits remain as diagnostics in
+[REVIEW.md](REVIEW.md) and `renders/final/paint-review/`.
+
 ![Cycles hero of the exported GLB](docs/hero.jpg)
 
 ![Signature motion from the exported GLB](docs/motion.gif)
@@ -17,7 +21,7 @@ carried for years. Its contours, controls, serial and markings are original.
 | ![Front, side, back and top](docs/turnaround.jpg) | ![Receiver, handle, drum, hood and lower](docs/details.jpg) |
 | ![Locked handle, exact eye view and ammunition](docs/action.jpg) | ![Eevee with the same baked maps](docs/eevee.jpg) |
 
-These images load the exported GLBs and their baked maps. `make` creates the
+These images load the exported GLBs and their baked maps. The presentation tools create the
 full contact sheet at `renders/final/contact-sheet.jpg`, Cycles stills in
 `renders/final/beauty/`, Eevee in `renders/final/eevee/`, photographic comparisons
 in `renders/final/pairs/`, dense-source comparisons in `renders/final/source-pairs/`,
@@ -77,8 +81,8 @@ fired case are supplied independently, with round 32-sided visible mouths/rims.
 Stamped steel has **black paint over gray phosphate**, with a soft satin
 response and fine substrate texture in the normal/roughness maps. Intact
 paint remains dielectric; exposed phosphate and bright steel have their own
-response. The paint's linear base is `.0015/.00154/.0015`, central roughness
-`.42`. Polymer is the grayer black: `.012/.013/.012`, roughness `.78`, reducing
+response. The paint's linear base is **.022/.023/.024**, central roughness
+**.42**: a 2.2–2.4% diffuse black reflector. Polymer keeps its accepted black: `.012/.013/.012`, roughness `.78`, reducing
 to `.48` on handled areas. The receiver's upper-land phosphate uses
 `.058/.049/.0375`; the accepted
 secondary edge phosphate retains `.060/.064/.061`. Both use metallic `.08`
@@ -88,14 +92,20 @@ white-balanced issued photograph. Rare steel flecks are
 metallic `1`, roughness `.58`. These are authored PBR inputs; photographic
 display values and actual shipped-map measurements are recorded separately.
 
-Intact paint uses Principled specular level `.08` (glTF factor `.16`), while
-polymer, phosphate and steel retain the previous delivery factor `.56`.
+Intact paint uses Principled specular level **.4** (glTF factor **.8**), while
+polymer, exposed phosphate and bright steel retain factor `.56`. Blued steel
+and magazine oxide keep their prior `.16` intact-surface factor.
 This factor occupies the **opaque BaseColor image's alpha**, shared by
 `KHR_materials_specular`; it does not control transparency. Export/import must
 support that extension. RGB remains sRGB and alpha is linear data; downsampling
 uses `--alpha-mode independent`. There is still one material and three images.
-The paint's roughness/albedo alone could not correct the upper-flank value:
-lower roughness concentrates the large fill-card reflection and raises its peak.
+The hero/GIF cameras, exposure and clips stay fixed. The studio now matches
+the Harrow: key **18 W**, fill **4 W**, rims **13/5 W**, overhead card **5 W**,
+with identical fixture positions/sizes and world color **.25/.25/.25**, strength **.045**.
+Photographic comparisons
+use one physical whole-scene card rig per reference, with no image correction
+or per-part light linking. Blued/bare steel, magazine oxide, polymer and every
+accepted wear field retain their prior authored inputs.
 
 The receiver has **one rubbed upper strip**, between the top crest and the
 upper side rib. Forward of the support-hand/well station it merges into a gray
@@ -143,28 +153,33 @@ other regions governs this revision. The outdoor photograph independently gives
 paint 41.14 and magazine 41.34. All channel ratios remain in REVIEW.md. These
 are observed surface values, not recovered albedos; exact exposure/reflection
 agreement remains a limitation. Both final hero sides are measured under the
-unchanged studio lights, with their surface polygons and medians in generated
+Harrow studio lights, with their surface polygons and medians in generated
 `renders/final/finish-values.json` and the current REVIEW.md entry.
 
-| Final hero surface | Left median luma | Right median luma |
-| --- | ---: | ---: |
-| Intact paint, lower flat strip | 13.00 | 2.00 |
-| Upper-flank patch | 86.13 | 42.03 |
-| Grip patch | 46.72 | 33.72 |
-| Polymer lower | 55.72 | 41.72 |
-| Polymer stock | 56.72 | 41.72 |
-| Polymer handguard | 36.72 | 24.72 |
+The receiver carries the family's paint, taken from the Harrow 56: the
+photos of this gun couldn't calibrate the light from unchanged finishes.
+Their pairs and anchored fits remain diagnostic in `renders/final/paint-review/`
+and [REVIEW.md](REVIEW.md). `make paint-review` writes those reports and images
+without gating the default build; `src/paint_review.py --check` retains the
+original photographic tolerances for explicit investigation.
 
-The upper-flank patch now includes the rubbed field; it is a mixed-finish
-measurement. Intact paint is measured separately by excluding exposed texels.
+The accepted barrel shader is very dark dielectric oxide. The issued photo's
+bright muzzle is not explained by that finish under the tested whole-scene
+rigs; the clean studio specimen also lacks this asset's broad upper wear.
+Neither accepted finish nor wear is changed to force agreement.
 
-Whole visible-region medians in the left hero are **paint upper receiver 39.00,
-stock 53.72, grip 43.72**. These are independently rasterized from actual
-finalized triangles, with exposed paint chips excluded; they supersede the
-lower flat strip as the full-frame paint-value test. Rebuildable sampling masks
-and method are in `renders/final/paint-value-regions.jpg` and
-`paint-value-values.json`. The receiver is darker than both polymer regions
-and the lead's approximately 47-luma bolt-rifle receiver benchmark.
+The same-studio family comparison is
+`../lmg/renders/final/hero-beside-ak-smg.jpg`. Receiver flat and upper-land
+measurements are kept separately, with visible masks, so a dark lower strip
+cannot conceal the brighter rolled/worn upper land.
+
+Enamel projection is isolated inside each original rigid bake group. A second
+4096 control bake changing only enamel RGB produces **zero** changed BaseColor
+texels on the lower molding, barrel, handguard and handle hinge. The previous
+paint round affected **21,084** lower-molding and **2,298** barrel texels.
+Repairing that old contamination changes the delivered maps; it does not mean
+paint still reaches those parts. Geometry, UVs, rig, clips and wear masks stay
+unchanged.
 
 Receiver wear is reviewed in **two dimensions**, using the exported GLB's
 hero pixels and the independently white-balanced photo. The comparison is
@@ -191,11 +206,11 @@ common physical scale. `chips-native-4x-pair.png` preserves the photo's higher
 native pixel density explicitly. Their former 1D acceptance tables are
 superseded by the 2D masks and component dimensions.
 
-The accepted paint remains roughness **.42**, linear albedo **.0015** and
-shipping specular factor **.161**. The old supplemental crown-highlight
+The current paint uses roughness **.42**, linear RGB **.022/.023/.024** and
+shipping specular factor **.8**. The old supplemental crown-highlight
 measurements remain diagnostic in `pairs/paint-highlight-pair.jpg`; the
 4–6-mm target is withdrawn because it depends on source lighting. Every final
-hero retains the existing studio lights and cameras. Actual surface values
+hero uses the Harrow's five-fixture studio and the existing gun camera. Actual surface values
 and shipping-map material measurements are recorded in REVIEW.md and the
 reports under `renders/final/` and `build/delivery/`.
 
@@ -263,17 +278,17 @@ ammunition. Fine finish detail adds no game triangles.
 
 | Output | Triangles | Materials | GLB bytes | Map size | Density ratio |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Gun, all animated display ammunition | 41,540 | 1 | 10,879,252 | 2048 | — |
-| Loaded magazine | 5,792 | 1 | 1,318,624 | 1024 | 1.000 |
+| Gun, all animated display ammunition | 41,540 | 1 | 10,595,628 | 2048 | — |
+| Loaded magazine | 5,792 | 1 | 1,318,588 | 1024 | 1.000 |
 | Empty magazine | 4,048 | 1 | 1,186,756 | 1024 | 1.000 |
-| Cartridge | 688 | 1 | 151,444 | 512 | 1.000 |
-| Fired case | 688 | 1 | 154,940 | 512 | 1.000 |
+| Cartridge | 688 | 1 | 151,380 | 512 | 1.000 |
+| Fired case | 688 | 1 | 154,668 | 512 | 1.000 |
 
 One canonical **2048 BaseColor / OpenGL +Y Normal / ORM** set, baked at 4096
 with 32 GPU Cycles samples. BaseColor is sRGB; ORM is R occlusion, G roughness,
 B metallic. About **16 MiB** with 8-bpp block compression and full mip chains.
-The PNG files total **7,317,144 bytes** (1,140,711 BaseColor,
-2,413,887 Normal, 3,762,546 ORM). The gun retains these canonical images. Standalone loaded/empty magazines now
+The PNG files total **7,033,523 bytes** (1,106,988 BaseColor,
+2,321,072 Normal, 3,605,463 ORM). The gun retains these canonical images. Standalone loaded/empty magazines now
 embed their own **1024** sets; the cartridge and case embed **512**, all lossless
 subsets at the original atlas density. Standalone samplers match the gun’s
 trilinear mipmapped sampler, approximately 4 MiB / 1 MiB compressed including
@@ -344,7 +359,9 @@ make -C guns/smg clean           # removes generated artifacts, preserves refere
 | `build/delivery/imported-parts.blend` | Actual imported triangles reconstructed by rigid owner for independent checks |
 | `renders/final/` | Stills, photo/source pairs, native wear pair, real-speed clips, inspection sheets |
 
-The shared kit and other guns are unchanged. The SMG's original new common
+This paint round leaves the shared kit unchanged. AK and SMG share the
+receiver photographic audit and optional physical-light fitting tools in
+`guns/common/`. The SMG's original new common
 modules remain [ammo9_visual.py](../common/ammo9_visual.py) and
 [interface_v1_3.py](../common/interface_v1_3.py). Look-dev adds
 [ammo9_bake.py](../common/ammo9_bake.py), a dense bake-only revolution of those

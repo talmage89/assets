@@ -48,6 +48,7 @@ def main():
  sheet(OUT/'wear-sites.jpg',[(n,OUT/'beauty'/(n+'.png')) for n in ('receiver','cover_rear','trigger','controls','open','gas_muzzle','wood','grip_stock','magazine')],3,(800,620))
  sheet(OUT/'action.jpg',[(n,OUT/'beauty'/(n+'.png')) for n in ('open','aimed')]+[(n,OUT/f/(shot+'.png')) for n,f,shot in [('Loaded magazine','loaded','mag_standalone'),('Empty magazine','empty','mag_lips'),('Cartridge','cartridge','cartridge'),('Fired case','case','case_mouth')]],2,(800,600))
  pairs=[(p.stem,p) for p in sorted((OUT/'pairs').glob('*-pair.jpg'))]
+ pairs += [(p.stem,p) for p in sorted((OUT/'paint-review').glob('*-histograms.jpg'))]
  sheet(OUT/'photo-pairs.jpg',pairs,2,(1100,750))
  for i in range(0,len(frames),18):sheet(OUT/'inspection'/f'clips-{i//18:02d}.jpg',frames[i:i+18],3,(410,370))
  evidence=[('Metal abrasion / controlled GLB difference',OUT/'metal-wear-proof.jpg'),

@@ -66,3 +66,7 @@ Their authors/licenses/direct URLs remain the rows above. The early view is
 balanced on the unprinted cloth below the receiver; the museum on its gray
 backdrop. They are compared at whole-gun size as well as in the existing
 matched pairs. No new reference pixels enter any material or bake.
+
+| Local file | Direct image URL | Author / license | Use |
+| --- | --- | --- | --- |
+| studio-polish.jpg | https://upload.wikimedia.org/wikipedia/commons/8/84/Polish_AKM_1971%2C_AM.016072%2C_01.jpg | Swedish Army Museum / CC BY 4.0; photograph credited to Torkel Edenborg in metadata | Independent 4000-pixel studio photograph of a 1971 Polish museum rifle, used to test paint with unchanged wood, phenolic, steel and magazine anchors; neutral on unprinted white backing. No image pixels enter the asset. |

@@ -22,12 +22,12 @@ TEXTURES := $(addprefix textures/T_Rill39_,BaseColor.png Normal.png ORM.png)
 EXPORTS := $(addprefix export/,ak.glb magazine_loaded.glb magazine_empty.glb cartridge.glb case.glb)
 SUBSET_LAYOUTS := $(addprefix build/delivery/detachables/,magazine_loaded/layout.json magazine_empty/layout.json cartridge/layout.json case/layout.json)
 comma := ,
-FINAL_SHOTS := hero,hero_right,front,side,back,top,receiver,cover_rear,controls,rear_sight,rear_ortho_side,front_sight,gas_muzzle,gas_ortho_side,retainer,retainer_side,wood,grip_stock,grip_detail,trigger,open,aimed,magazine,scale
+FINAL_SHOTS := hero,hero_right,front,side,back,top,receiver,cover_rear,controls,rear_sight,rear_ortho_side,front_sight,gas_muzzle,gas_ortho_side,retainer,retainer_side,wood,grip_stock,grip_detail,trigger,open,aimed,magazine,scale,projection_insert
 FINAL_IMAGES := $(addprefix renders/final/beauty/,$(addsuffix .png,$(subst $(comma), ,$(FINAL_SHOTS)))) renders/final/beauty/shots.json
-PHOTO_SHOTS := right_photo,left_photo,receiver_photo,trigger_photo,trigger_sharp,rear_sight_side,rear_sight_photo,rear_sight_sharp,front_sight_photo,front_sight_behind,front_sight_installed,gas_block_photo,grip_photo,trigger_guard,topcover_side,topcover_top,topcover_sharp,selector_photo,used_photo,retainer_photo
+PHOTO_SHOTS := paint_studio_photo,paint_used_photo,right_photo,left_photo,receiver_photo,trigger_photo,trigger_sharp,rear_sight_side,rear_sight_photo,rear_sight_sharp,front_sight_photo,front_sight_behind,front_sight_installed,gas_block_photo,grip_photo,trigger_guard,topcover_side,topcover_top,topcover_sharp,selector_photo,used_photo,retainer_photo
 PAIRS := $(addprefix renders/final/pairs/,$(addsuffix -pair.jpg,$(subst $(comma), ,$(PHOTO_SHOTS))))
-RENDER_DEPS := src/final_render.py src/final_shots.py src/shots.py src/delivery.py ../common/render.py build/render-parameters.txt
-.PHONY: all refs model prepare lookdev bake export check check-repo verify render match source-match strips extra review docs sections clean FORCE
+RENDER_DEPS := src/final_render.py src/final_shots.py src/shots.py src/paint_lights.json ../common/paint_review.py src/delivery.py ../common/render.py build/render-parameters.txt
+.PHONY: all refs model prepare lookdev bake export check check-repo check-bake-identity verify render match source-match strips extra review docs sections clean FORCE
 all: refs export check render match source-match strips extra raw-audit review docs
 refs:
 	$(PYTHON) $(KIT)/fetch_refs.py refs
@@ -52,8 +52,8 @@ build/render-parameters.txt: FORCE
 build/delivery/high.blend: $(PREPARED) $(MARKS) src/build_high.py src/lookdev.py build/wear-parameters.txt
 	$(BP) --python src/build_high.py -- --wear $(WEAR)
 lookdev: build/delivery/high.blend
-$(BAKED) &: build/delivery/high.blend $(PREPARED) src/config.py build/bake-parameters.txt ../../kit/bake.py ../../kit/bake_groups.py
-	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/bake.py -- --low build/delivery/finalized.blend --high build/delivery/high.blend --out build/baked/4k --asset Rill39 --config src/config.py --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
+$(BAKED) &: build/delivery/high.blend $(PREPARED) src/config.py ../common/paint_projection.py build/bake-parameters.txt ../../kit/bake.py ../../kit/bake_groups.py
+	$(KIT)/with_gpu.sh $(BP) --python ../common/paint_projection.py -- --low build/delivery/finalized.blend --high build/delivery/high.blend --out build/baked/4k --asset Rill39 --config src/config.py --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
 bake: $(BAKED)
 $(TEXTURES) &: $(BAKED) ../../kit/downsample.py
 	$(PYTHON) $(KIT)/downsample.py --source build/baked/4k --out textures --asset Rill39 --size $(SHIP_SIZE) --alpha-mode independent
@@ -68,12 +68,15 @@ check-repo:
 	$(PYTHON) $(KIT)/repo_check.py
 verify: $(MODEL)
 	$(BP) --python src/verify.py -- --source build/ak.blend --out build/serialization.json
-check: check-repo verify $(EXPORTS) $(SUBSET_LAYOUTS)
+check-bake-identity:
+	$(PYTHON) -m unittest discover -s src -p test_bake_identity.py
+check: check-repo check-bake-identity verify $(EXPORTS) $(SUBSET_LAYOUTS)
 	$(PYTHON) src/texture_preservation.py
 	$(BP) --python src/preserve_look.py
 	$(BP) --python src/check.py -- --source build/ak.blend --out build/check.json --motion
 	$(BP) --python src/check.py -- --source build/delivery/finalized.blend --out build/delivery/construction.json --motion
 	$(BP) --python src/atlas_verify.py
+	$(BP) --python ../common/paint_projection_check.py -- --asset .
 	$(BP) --python src/check.py -- --source build/delivery/imported-parts.blend --out build/delivery/imported-construction.json --motion
 	$(BP) --python src/retainer_fit.py
 $(FINAL_IMAGES) &: $(EXPORTS) $(RENDER_DEPS)
@@ -81,7 +84,7 @@ $(FINAL_IMAGES) &: $(EXPORTS) $(RENDER_DEPS)
 renders/final/eevee/hero.png renders/final/eevee/shots.json &: $(EXPORTS) $(RENDER_DEPS)
 	$(KIT)/with_gpu.sh $(BP) --python src/final_render.py -- --source export/ak.glb --out renders/final/eevee --engine BLENDER_EEVEE --width $(WIDTH) --samples 64 --shots hero
 render: $(FINAL_IMAGES) renders/final/eevee/hero.png
-build/cameras.json: src/calibrate.py src/photo_matches.py src/reference.py refs/SOURCES.md
+build/cameras.json: src/calibrate.py src/photo_matches.py src/reference.py ../common/photo_matches.py refs/SOURCES.md
 	$(PYTHON) src/reference.py
 	$(PYTHON) src/calibrate.py
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration $@
@@ -140,8 +143,8 @@ raw-audit: render
 # comparison evidence; none of its images enter the shipped atlas or GLBs.
 build/metal-control/high.blend: $(PREPARED) $(MARKS) src/build_high.py src/lookdev.py build/wear-parameters.txt
 	$(BP) --python src/build_high.py -- --wear $(WEAR) --metal-wear 0 --out $@
-build/metal-control/baked/bake-report.json: build/metal-control/high.blend $(PREPARED) src/config.py build/bake-parameters.txt
-	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/bake.py -- --low build/delivery/finalized.blend --high $< --out build/metal-control/baked --asset Rill39 --config src/config.py --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
+build/metal-control/baked/bake-report.json: build/metal-control/high.blend $(PREPARED) src/config.py ../common/paint_projection.py build/bake-parameters.txt
+	$(KIT)/with_gpu.sh $(BP) --python ../common/paint_projection.py -- --low build/delivery/finalized.blend --high $< --out build/metal-control/baked --asset Rill39 --config src/config.py --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
 build/metal-control/export/ak.glb: build/metal-control/baked/bake-report.json src/export_finish.py
 	$(PYTHON) $(KIT)/downsample.py --source build/metal-control/baked --out build/metal-control/textures --asset Rill39 --size $(SHIP_SIZE) --alpha-mode independent
 	$(BP) --python src/export_finish.py -- --source build/delivery/finalized.blend --textures build/metal-control/textures --asset Rill39 --config src/config.py --out $@ --report build/metal-control/export.json
@@ -153,3 +156,10 @@ metal-control: render renders/final/metal-control/hero.png build/value-geometry.
 review: metal-control
 
 include ../common/gif.mk
+
+# Whole receiver distribution from the shipped GLB, with member-owned photo
+# outlines and one physical rig per photo. No reference pixels enter the bake.
+# Diagnostic only: these photos could not calibrate light from nonpaint anchors.
+.PHONY: paint-review
+paint-review: match build/value-geometry.npz
+	$(PYTHON) src/paint_review.py

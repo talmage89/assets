@@ -3,11 +3,12 @@ import sys,json
 from pathlib import Path
 BASE=Path(__file__).resolve().parents[1];sys.path[:0]=[str(BASE.parents[1]),str(BASE/'src')]
 from kit.photo_match import calibrate
+from guns.common.photo_matches import constrained
 from photo_matches import MATCHES
 from white_balance import build
 balanced=build();rows={}
-for name in ('right_photo','left_photo','locked_photo','trigger_photo'):
+for name in ('right_photo','left_photo','locked_photo','trigger_photo','paint_studio_photo','paint_issued_photo'):
  definition=dict(MATCHES[name]);definition['photo']=balanced[Path(definition['photo']).name]['output']
- rows[name]=calibrate(definition)
+ rows[name]=constrained(definition) if definition.get('fixed_view') else calibrate(definition)
 # A second locked view of the same daylight-issued gun supplies wear comparison.
 (BASE/'build/cameras.json').write_text(json.dumps(rows,indent=2))

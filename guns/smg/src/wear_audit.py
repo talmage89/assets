@@ -1,6 +1,6 @@
 """Measure actual shipped texels mapped to exterior receiver triangles."""
 from pathlib import Path
-import sys,json,numpy as np
+import sys,json,hashlib,numpy as np
 import bpy
 from PIL import Image,ImageDraw,ImageFilter
 sys.path.insert(0,str(Path(__file__).resolve().parent))
@@ -27,15 +27,23 @@ base=np.asarray(Image.open(BASE/'textures/T_Relay9_BaseColor.png')).astype(float
 orm=np.asarray(Image.open(BASE/'textures/T_Relay9_ORM.png')).astype(float)
 lum=base[:,:,:3]@np.array((.2126,.7152,.0722))
 bright=covered&(lum>110)&(orm[:,:,2]>150)
-phosphate=covered&(lum>40)&~bright
-intact=covered&(lum<25)&(orm[:,:,2]<20)
+phosphate=covered&(lum>40)&~bright&(base[:,:,3]<190)
+# Opaque specular alpha distinguishes the revised enamel from unchanged
+# phosphate/steel independently of its brighter diffuse RGB.
+intact=covered&(base[:,:,3]>190)&(orm[:,:,2]<20)
 rows={}
 for name,mask in [('receiver_exterior',covered),('intact_paint',intact),('bright_steel',bright),('gray_phosphate',phosphate)]:
  if not mask.any():
   rows[name]=dict(texels=0,median_basecolor_rgb_255=None,median_orm_rgb_255=None);continue
  rows[name]=dict(texels=int(mask.sum()),median_basecolor_rgb_255=np.median(base[mask,:3],axis=0).round(2).tolist(),median_orm_rgb_255=np.median(orm[mask,:3],axis=0).round(2).tolist())
  rows[name]['median_specular_factor']=float(np.median(base[mask,3])/255)
-assert .14<rows['intact_paint']['median_specular_factor']<.19
+accepted=json.loads((BASE/'src/accepted_paint.json').read_text())
+for side,expected in accepted['accepted_wear_masks'].items():
+ mask=Image.open(BASE/'build/markings'/('receiver_wear_'+side+'.png')).convert('RGB')
+ assert hashlib.sha256(mask.tobytes()).hexdigest()==expected, ('Accepted wear changed',side)
+lo,hi=accepted['shipping_specular_factor_bounds']
+assert lo<rows['intact_paint']['median_specular_factor']<hi
+assert np.max(np.abs(np.array(rows['intact_paint']['median_basecolor_rgb_255'])-accepted['shipping_basecolor_rgb_255']))<=accepted['maximum_median_basecolor_component_delta']
 rows['rib_crests']=[]
 for z in (.0861,.0891,.1027,.1059):
  mask=bright&(np.abs(positions[:,:,2]-z)<.0015)&(np.abs(positions[:,:,0])>.0185)

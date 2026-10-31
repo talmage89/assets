@@ -247,3 +247,25 @@ remains one 512 region. Repeated base/mip-0–3 proofs are in
 The source gun now depicts extraction, ejection and feeding, with updated
 final/docs images. Earlier preservation manifests and rendered comparisons
 above describe the subset-only delivery before that intentional revision.
+
+## Rill 39 and Relay 9 reviewed paint refresh
+
+Both canonical sets were freshly baked at 4096 and shipped at 2048 after
+raising intact receiver enamel to linear RGB .022/.023/.024. The kit's existing
+subset path regenerated all four detachables per gun. Every output still uses
+one material and three maps; geometry, UV layout, rig, sockets and clips retain
+their original exact baselines. Density remains 1.000, with the same mipmapped
+samplers and guarded regions. Earlier subset-only preservation claims above
+describe that historical handoff, before this intentional receiver-paint bake.
+
+| Family | Main GLB bytes / triangles | Loaded / empty magazine bytes (1024) | Cartridge / case bytes (512) |
+| --- | --- | --- | --- |
+| Rill 39 | 10,839,212 / 40,000 | 1,534,304 / 1,462,400 | 164,864 / 149,672 |
+| Relay 9 | 10,984,144 / 41,540 | 1,318,624 / 1,186,756 | 151,444 / 154,940 |
+
+The member reviews record the deliberate look-baseline changes, accepted GPU
+rounding, unchanged authored wear/other finishes, and existing projection
+contacts where neighboring low surfaces receive changed receiver paint. These
+are not claims of byte-identical nonpaint atlases. Fresh export/import, copied
+atlas samples, geometry/layout identity and per-mip bleed remain checked. No kit
+code changed. Final presentation and GIFs were regenerated from the exports.
