@@ -33,11 +33,12 @@ def side_overlay(out,shots):
         if len(ys):measure.append(dict(feature=label,render_minus_photo_height_m=(yy-int(ys[0]))/ppm,photo_pixel=[xx,yy],pick_uncertainty_m=4*1.75/ppm))
     record=dict(method='Two inspected wheel centers only; similarity transform, no outline fit',reference='refs/sedan-camry-side.jpg',wheelbase_reference_m=2.82448,
        original_pixels_per_m=ppm,rotation_degrees=math.degrees(theta),scale=scale,offset_pixels=offset.tolist(),silhouette_differences=measure,
-       caveat='Original front-longer overhang allocation differs from Camry. Reference is near-profile with residual perspective; outline picks +/-4 preview pixels.')
+       caveat='Corrected front/rear overhangs; OEM metric front reference 975 mm. Reference is near-profile with residual perspective; outline picks +/-4 preview pixels.')
     (out/'side-overlay.json').write_text(json.dumps(record,indent=2))
 
 def sections(out,report,photo_angle):
     for record in report['sections']:
+        if record['name']=='centerline':continue
         im=Image.new('RGB',(1000,850),(240,241,239));d=ImageDraw.Draw(im);scale=365
         def project(p):return (500+p[0]*scale,745-p[1]*scale)
         for z in [0,.25,.5,.75,1,1.25,1.5]:
@@ -57,11 +58,31 @@ def sections(out,report,photo_angle):
             d.text((30,105),'The axle station cuts hood/deck; full-height side glass exists at the B-pillar.',font=font(18),fill=(55,70,75))
         save(im,out/('section-'+record['name']+'.jpg'))
 
+def centerline(out,report):
+    record=next(r for r in report['sections'] if r['name']=='centerline')
+    im=Image.new('RGB',(1700,750),(240,241,239));d=ImageDraw.Draw(im);scale=305
+    def project(p):return (850+p[0]*scale,640-p[1]*scale)
+    for z in [0,.25,.5,.75,1,1.25,1.5]:
+        a,b=project([-2.55,z]),project([2.55,z]);d.line((*a,*b),fill=(215,219,217));d.text((15,a[1]-12),f'{z:.2f} m',font=font(16),fill=(70,85,80))
+    for a,b in record['segments_yz_m']:d.line((*project(a),*project(b)),fill=(35,64,81),width=2)
+    f,r=report['end_measurements']['front'],report['end_measurements']['rear']
+    marks=[('Bumper',f['bumper_leading_m']),('Hood edge',f['hood_edge_m']),('Chin',f['chin_m']),('Cowl',f['cowl_m']),
+           ('Deck lip',r['deck_trailing_edge_m']),('Rear bumper',r['bumper_rearmost_m']),('Diffuser',r['diffuser_m'])]
+    for i,(name,p) in enumerate(marks):
+        xy=project([p[1],p[2]]);d.ellipse((xy[0]-4,xy[1]-4,xy[0]+4,xy[1]+4),fill=(205,70,30))
+        text=f'{name}: y {p[1]*1000:.0f}, z {p[2]*1000:.0f} mm'
+        xx=75 if i<4 else 1130;yy=90+(i if i<4 else i-4)*38
+        d.line((*xy,xx,yy+12),fill=(175,155,130),width=1);d.text((xx,yy),text,font=font(18),fill=(110,60,35))
+    d.text((30,20),'CENTERLINE / ACTUAL MESH CUT / FRONT LEFT',font=font(28),fill=(30,43,50))
+    d.text((70,690),f"Front face {f['upper_face_degrees_from_vertical']:.1f} deg / hood rise {f['hood_rise_degrees']:.1f} deg / rear lean {r['upper_panel_degrees_from_vertical']:.1f} deg / deck {r['deck_length_m']*1000:.0f} mm",font=font(23),fill=(35,64,81))
+    save(im,out/'section-centerline.jpg')
+
+
 def photo_section(out,cameras):
     data=cameras['accord_front'];shot=data['shot'];cam=np.array(shot['location']);fw=np.array(shot['target'])-cam;fw/=np.linalg.norm(fw)
     right=np.cross(fw,[0,0,1]);right/=np.linalg.norm(right);up=np.cross(right,fw);roll=shot['roll']
     right,up=right*np.cos(roll)+up*np.sin(roll),up*np.cos(roll)-right*np.sin(roll)
-    def unproject(xy,y=.2):
+    def unproject(xy,y=S.DOOR_SPLIT):
         uv=np.array(xy)*1.75-np.array(data['crop'][:2]);w=data['crop'][2]-data['crop'][0];h=data['crop'][3]-data['crop'][1];f=w*shot['lens']/36
         ray=fw+(uv[0]-w/2)/f*right-(uv[1]-h/2)/f*up
         return cam+ray*(y-cam[1])/ray[1]
@@ -71,7 +92,7 @@ def photo_section(out,cameras):
     d.line((*xy[0],*xy[1]),fill=(230,65,15),width=5)
     for x,y in xy:d.ellipse((x-8,y-8,x+8,y+8),outline=(230,65,15),width=4)
     d.text((35,35),f'B-PILLAR SECTION ESTIMATE / {angle:.2f} deg from vertical, +/-4.5 deg',font=font(29),fill=(40,50,55))
-    d.text((35,80),'Calibrated rays intersect y=0.20 m. Assumes locally upright B-pillar; picks +/-4 preview pixels.',font=font(22),fill=(40,50,55))
+    d.text((35,80),f'Calibrated rays intersect y={S.DOOR_SPLIT:.2f} m. Assumes locally upright B-pillar; picks +/-4 preview pixels.',font=font(22),fill=(40,50,55))
     d.text((35,117),'White balance: neutral white backdrop (unit RGB gains). This is an estimate, not an OEM section drawing.',font=font(21),fill=(40,50,55))
     save(im,out/'photo-tumblehome.jpg')
     row=dict(estimate_degrees=angle,uncertainty_degrees=4.5,photo_pixels_original=xy,backprojected_points_m=[upper.tolist(),lower.tolist()],
@@ -91,7 +112,11 @@ def dimensioned(out,shots,report):
         if name in ['side','top']:line('front','rear',h-28,'4900 mm length / class 4882-4895 mm')
         if name=='side':
             line('front_axle','rear_axle',h-78,'2830 mm wheelbase / Honda 2830, Toyota 2824.48 mm')
-            d.text((w-260,h//2),f"Roof {report['bounds_m']['size'][2]*1000:.1f} mm",font=font(19),fill=(25,83,113))
+            d.text((w-290,h//2),f"Roof {report['bounds_m']['size'][2]*1000:.1f} mm",font=font(19),fill=(25,83,113))
+            d.text((25,h-115),f"Measured overhangs {report['overhangs_m']['front']*1000:.0f} / {report['overhangs_m']['rear']*1000:.0f} mm (front / rear)",font=font(18),fill=(25,83,113))
+        if name=='top':
+            f,r=report['end_measurements']['front'],report['end_measurements']['rear']
+            d.text((25,h-80),f"Actual bumper-height sweep at x=850 mm: front {f['plan_sweep_at_850mm_m']*1000:.0f} / rear {r['plan_sweep_at_850mm_m']*1000:.0f} mm",font=font(18),fill=(25,83,113))
         if name=='front':line('left','right',h-28,'1850 mm body / class 1839-1862 mm')
         save(im,out/(name+'-dimensions.jpg'))
 
@@ -105,10 +130,16 @@ def main():
         tone[name]=dict(display_luma_p1_p50_p99=np.percentile(luma,[1,50,99]).tolist(),channel_255_fraction=float(np.mean(cols.max(axis=1)==255)),deep_shadow_below_25=float(np.mean(luma<25)))
         save(rgb(path),out/(name+'.jpg'))
     (out/'tonal-range.json').write_text(json.dumps(dict(scope='Opaque foreground only; neutral source clay, no factory-paint albedo claim',views=tone),indent=2))
-    angle=photo_section(out,cameras);sections(out,report,angle);dimensioned(out,shots,report);side_overlay(out,shots)
+    angle=photo_section(out,cameras);sections(out,report,angle);centerline(out,report);dimensioned(out,shots,report);side_overlay(out,shots)
+    from kit.photo_match import compose
+    clay={name+'_clay':dict(data,title=data['title'].replace('clay with stripes','neutral clay')) for name,data in cameras.items()}
+    calibration=out/'clay-cameras.json';calibration.write_text(json.dumps(clay,indent=2));compose(calibration,out,out)
     names=['front_three_quarter.jpg','rear_three_quarter.jpg','side-dimensions.jpg','front-dimensions.jpg','top-dimensions.jpg','side-overlay.jpg',
-       'stripes_horizontal.jpg','stripes_vertical.jpg','section-front_axle.jpg','section-b_pillar.jpg','section-rear_axle.jpg','photo-tumblehome.jpg',
-       'accord_front-pair.jpg','camry_rear-pair.jpg','accord_front-calibration.jpg','camry_rear-calibration.jpg']
+       'stripes_horizontal.jpg','stripes_vertical.jpg','stripes_rear_horizontal.jpg','stripes_rear_vertical.jpg',
+       'section-front_axle.jpg','section-b_pillar.jpg','section-rear_axle.jpg','section-centerline.jpg','photo-tumblehome.jpg']
+    names += [name+'-pair.jpg' for name in cameras]
+    names += [name+'_clay-pair.jpg' for name in cameras]
+    names += [name+'-calibration.jpg' for name in cameras]
     tw,th=800,530;canvas=Image.new('RGB',(3*tw,math.ceil(len(names)/3)*th),(229,231,232));d=ImageDraw.Draw(canvas)
     for i,name in enumerate(names):
         im=Image.open(out/name).convert('RGB');im.thumbnail((tw-20,th-55),Image.Resampling.LANCZOS);x=(i%3)*tw;y=(i//3)*th

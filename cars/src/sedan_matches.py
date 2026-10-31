@@ -20,4 +20,12 @@ MATCHES={
     crop=(-100,-80,2200,1655),location=(-7,10,2),target=(0,0,.7),lens=58,background='transparent',
     landmarks=anchors([(-.895,F,H),(-.900,R,H),(-.88,F,0),(-.885,R,0),(.800,R,0)],
        [(1120,505),(708,588),(1116,601),(704,700),(223,678)],[1,1,1,1,1])),
+ 'camry_front':dict(title='Alder S240 / Camry class front / clay with stripes',photo=str(ROOT/'refs/sedan-camry-front.jpg'),
+    crop=(-100,-80,2200,1655),location=(7,-10,2),target=(0,0,.7),lens=58,background='transparent',
+    landmarks=anchors([(.895,F,H),(.900,R,H),(.88,F,0),(.885,R,0),(-.795,F,0)],
+       [(697,596),(1108,500),(697,700),(1105,595),(194,678)],[1,1,1,1,.25])),
+ 'accord_rear':dict(title='Alder S240 / Accord class rear / clay with stripes',photo=str(ROOT/'refs/sedan-accord-rear.jpg'),
+    crop=(-100,-80,2200,1655),location=(-7,10,2),target=(0,0,.7),lens=58,background='transparent',
+    landmarks=anchors([(-.895,F,H),(-.900,R,H),(-.88,F,0),(-.885,R,0),(.800,R,0)],
+       [(1121,508),(711,596),(1119,600),(707,704),(207,680)],[1,1,1,1,1])),
 }

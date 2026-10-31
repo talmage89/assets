@@ -9,12 +9,13 @@ export TMPDIR := $(REPO)/build/tmp
 export ASSETS_GPU_LOCK ?= $(REPO)/build/locks/gpu.lock
 WIDTH ?= 1600
 SAMPLES ?= 40
-PASS ?= sedan-form
+PASS ?= sedan-round2
 OUT := renders/$(PASS)
 SDEPS := src/build.py src/sedan_body.py src/sedan_spec.py src/forms.py src/wheels.py src/detail_helpers.py ../kit/model.py ../kit/vehicle.py
 CLAY := front_three_quarter rear_three_quarter side front top
-STRIPES := stripes_horizontal stripes_vertical
-PAIRS := accord_front camry_rear
+STRIPES := stripes_horizontal stripes_vertical stripes_rear_horizontal stripes_rear_vertical
+PAIRS := accord_front camry_rear camry_front accord_rear
+COMPARISONS := $(addsuffix _clay,$(PAIRS))
 .NOTPARALLEL:
 .PHONY: all model refs check render review FORCE
 all: refs model check render review
@@ -45,7 +46,9 @@ $(addprefix $(OUT)/,$(addsuffix .png,$(STRIPES))) &: build/sedan/game.blend buil
 	$(KIT)/with_gpu.sh $(BP) --python src/sedan_render.py -- --source build/sedan/game.blend --out $(OUT) --width $(WIDTH) --samples $(SAMPLES) --mode stripes
 $(addprefix $(OUT)/,$(addsuffix .png,$(PAIRS))) &: build/sedan/game.blend build/sedan/form-check.json build/sedan/cameras.json src/sedan_render.py build/sedan/parameters.txt
 	$(KIT)/with_gpu.sh $(BP) --python src/sedan_render.py -- --source build/sedan/game.blend --out $(OUT) --width $(WIDTH) --samples $(SAMPLES) --mode pairs --cameras build/sedan/cameras.json
-render: $(addprefix $(OUT)/,$(addsuffix .png,$(CLAY) $(STRIPES) $(PAIRS)))
+$(addprefix $(OUT)/,$(addsuffix .png,$(COMPARISONS))) &: build/sedan/game.blend build/sedan/form-check.json build/sedan/cameras.json src/sedan_render.py build/sedan/parameters.txt
+	$(KIT)/with_gpu.sh $(BP) --python src/sedan_render.py -- --source build/sedan/game.blend --out $(OUT) --width $(WIDTH) --samples $(SAMPLES) --mode comparisons --cameras build/sedan/cameras.json
+render: $(addprefix $(OUT)/,$(addsuffix .png,$(CLAY) $(STRIPES) $(PAIRS) $(COMPARISONS)))
 review: render
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/sedan/cameras.json --renders $(OUT) --out $(OUT)
 	$(PYTHON) src/sedan_review.py --renders $(OUT) --report build/sedan/form-check.json --cameras build/sedan/cameras.json

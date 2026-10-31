@@ -16,6 +16,8 @@ SHOTS={
  'front':dict(location=(0,-10,.76),target=(0,0,.76),ortho=2.55,aspect=1.25),
  'top':dict(location=(0,0,10),target=(0,0,0),ortho=5.7,aspect=1.8,roll=math.pi/2),
  'stripes_horizontal':dict(location=(7,-8,2.7),target=(0,0,.76),lens=58,aspect=1.65,direction='horizontal'),
+ 'stripes_rear_horizontal':dict(location=(-7,8,2.7),target=(0,.15,.76),lens=58,aspect=1.65,direction='horizontal'),
+ 'stripes_rear_vertical':dict(location=(-8,3,2.6),target=(0,.15,.76),lens=58,aspect=1.65,direction='vertical'),
  'stripes_vertical':dict(location=(8,-3,2.6),target=(0,0,.76),lens=58,aspect=1.65,direction='vertical'),
 }
 
@@ -47,16 +49,16 @@ def stripes(sc,direction):
 def main():
     p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--out',required=True)
     p.add_argument('--width',type=int,default=1400);p.add_argument('--samples',type=int,default=32)
-    p.add_argument('--mode',choices=['clay','stripes','pairs'],default='clay');p.add_argument('--cameras',default='build/sedan/cameras.json')
+    p.add_argument('--mode',choices=['clay','stripes','pairs','comparisons'],default='clay');p.add_argument('--cameras',default='build/sedan/cameras.json')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);source=Path(a.source).resolve();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     shots={n:s for n,s in SHOTS.items() if n.startswith('stripes')==(a.mode=='stripes')}
-    if a.mode=='pairs':shots={n:r['shot'] for n,r in json.loads(Path(a.cameras).read_text()).items()}
+    if a.mode in ['pairs','comparisons']:shots={n+('_clay' if a.mode=='comparisons' else ''):r['shot'] for n,r in json.loads(Path(a.cameras).read_text()).items()}
     metadata={}
     if (out/'shots.json').exists():metadata=json.loads((out/'shots.json').read_text())
     for name,shot in shots.items():
         bpy.ops.wm.open_mainfile(filepath=str(source));sc=bpy.context.scene
         camera=studio.add_studio(scale=2.5,backdrop_color=(.2,.21,.22))
-        stripe=a.mode!='clay'
+        stripe=a.mode in ['stripes','pairs']
         if stripe:
             stripes(sc,shot.get('direction','horizontal'));sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=4
             for ob in sc.objects:
