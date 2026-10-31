@@ -200,6 +200,7 @@ def landing(b,rear=False):
         # Painted-board front pediment and a supported underside ceiling.
         me.prism([(p.x0,p.y0-.012,p.eave-.14),(p.x1,p.y0-.012,p.eave-.14),(p.cx,p.y0-.012,p.height(p.cx,p.y0)-.14)],(0,1,0),.018)
         me.box((p.cx,p.cy,beam_z+.05),(p.width-.12,p.depth,.018),r=0)
+        me.box((p.cx,p.y0+.015,p.eave-.19),(p.width,.060,.10),r=.001)
         me.finish()
 
 
