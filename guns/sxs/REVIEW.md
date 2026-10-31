@@ -1,3 +1,155 @@
+# Covey 26 — oil walnut and final presentation
+
+This round begins at `6f45ac3`; `main` merged cleanly in `04a61b2`.
+The accepted form, rig, all 19 clips, contacts, clearance policy, other finishes,
+checker construction, nine wear causes and detachable delivery are retained.
+The trigger P10 miss remains explicit. No kit or common implementation changes.
+The earlier look-round journal below is archival; this section records the
+walnut correction and final presentation.
+
+## Oil-finish critique passes
+
+1. **Color and value before sheen.** Opened the accepted stock/forend pairs
+   and full hero. The neutral is the same unshadowed gray studio paper above
+   the butt in `look-gray-284.jpg`, not its highlights; native rectangle,
+   linear gains and untouched balanced original remain in
+   `build/look-photos/white-balance.json`. The stock already passes numerical
+   gates: L10/50/90/H = 72.49/109.45/175.30/192.81, photo
+   63.74/111.65/176.76/201.61. Its highlight RGB is
+   206.52/189.65/183.78 against 228.51/196.47/173.27.
+   Forend is 37.52/62.29/107.70/122.06 against
+   35.76/57.28/103.45/125.95. These do not excuse a lacquer-like white line,
+   orange cast, closely repeated growth stripes and peppered butt flecks.
+   The photo instead has a broad low oil reflection, darker irregular streaks
+   and gradual brown drift into the wrist.
+
+   `renders/walnut/before/{walnut_stock-pair,walnut_forend-pair,hero}.jpg`
+   retains the handoff. Exact exports, maps, cameras and all original pair
+   measurements were sealed in repository `build/walnut-final/before/`
+   before editing. No photograph enters asset generation.
+
+2. **Color and value on source trials; reject flat and coarse figure.**
+   `renders/walnut/pass1/` removes the peppered grain and broadens the sheen,
+   but its stock source median is 122.41, low tail 78.86 and H 178.63:
+   too light below, too dim in the highlight, too plain. Forend source median
+   66.15 also misses. The next trials add variable-width domain-warped growth,
+   irregular longitudinal streaks and slow brown drift, with a separate fine
+   fiber scale. Pass two still has stock low tail 77.41 and over-broad dark
+   ribbons. Retain the accepted cut-wood substrate under the original checker
+   field, keeping cutter normals, pitch, borders, worn tips and all cause
+   masks unchanged. This isolates the planed oil lands from accepted cutter
+   response. The helper is the former substrate expressions verbatim.
+
+   Pass four source L10/50/90/H = 71.70/113.24/169.73/181.57 is closer in
+   color/value but the highlight red is 202.36, outside 10% of the photo.
+   Pass five adds narrower irregular fibers and reduces the wide dark waves;
+   source median 108.05 and median RGB 150/99/71 approach the photo's
+   155/103/71, but H red 200.60 still fails. Reject a statistical near-match.
+   Increase the warm diffuse response within the varied walnut field rather
+   than sharpening the white stripe or changing the photographic light rig.
+   All trial source renders were opened beside the same balanced photo.
+   Their diagnostics are explicitly source-only and do not establish delivery
+   acceptance. Final acceptance is on the exported GLB below.
+
+   Later source trials retain the same lighting. Pass six fixes the median
+   (112.88) but barely misses the stock low-tail and highlight-red bounds.
+   Increasing diffuse RGB together makes the wood browner rather than simply
+   more red; slow wrist darkening supplies low-tail margin. Pass nine source
+   L10/50/90/H is 71.20/110.73/172.10/184.81, H RGB
+   206.24/180.00/169.30, median RGB 157/101/70 versus photo 155/103/71.
+   The forend is 31.95/62.86/111.22/127.36, H RGB
+   159.97/120.29/101.39. Both source gates pass. A final .01 increase in the
+   stock's high-end linear red adds highlight margin before the full bake.
+   Plain-stock roughness is .40 instead of .29; planed forend is .46 instead
+   of .40. The accepted checker substrate and cutter/wear expressions remain
+   exact. The source grain has broader, irregular dark streaks and narrower
+   broken fibers, without the former regular flecks.
+
+   One early default-build attempt was deliberately interrupted during its
+   bake for this source correction. It is not counted as completed validation;
+   the final unmodified default command and separate check are recorded below.
+
+
+
+3. **Color/value and oil sheen on the shipped maps.** The independent export
+   probe (`renders/walnut/export-check/`) loads `export/sxs.glb`, SHA-256
+   `f688fb1c422c536fe2803e366dfd59d4802962349d4732ed93b7de05cd1f4b8b`,
+   at native photographic scale with the unchanged calibrated camera/lights.
+   Stock L10/50/90/H is **71.67/110.94/172.45/185.07**, H RGB
+   **206.75/180.18/169.59**; forend **37.45/62.08/111.28/125.65**,
+   H RGB **158.05/118.56/100.45**. Both pass every required gate, including
+   the highlight's individual channels. The paper neutral and full-part
+   denominators are unchanged. Opened both exported crops beside the photo:
+   the reflection is broader and lower, the body is browner, and broad uneven
+   streaks with fine broken fibers replace the dense pinstripes and flecks.
+   The photo retains richer fine pore contrast and incidental small marks;
+   those do not justify changing the accepted checkering or nine wear causes.
+   Final full pairs, exact same-camera before/after hero, and their numbers
+   are indexed below after the complete presentation build.
+
+   Preservation is measured independently in repository
+   `build/walnut-final/preservation.json`: **559/559 accessors exact**, with
+   identical node, mesh, skin, animation, material, texture-view and sampler
+   JSON. Nonwood occupied interiors have **exact BaseColor RGBA**; 354 normal
+   components differ by at most one RGB16 code, and one ORM component differs
+   by one RGB8 code. Contact AO is deliberately measured separately because
+   changed wood microgeometry affects rays. Source AST/tail comparison also
+   confirms unchanged steel/ammo/butt shaders and checker/wear expressions.
+
+
+   Standalone preservation also passes the kit's original .25/255 surface
+   comparison against the accepted 512 GLBs. Shell/hull BaseColor and ORM
+   samples are exact; normal maxima are 0.0000078695 / 0.0000090485. Geometry,
+   origins, density and tangent frames are unchanged. Encoded GLB sizes differ
+   through PNG rounding/unused neighborhood data, not a subset policy change.
+   Their independent current full-atlas, density and L0–L3 checks also pass.
+
+   At the fixed butt station 35% toward the wrist, an 11-column median and
+   11-row smoothing measure the reflection's contiguous half-prominence width:
+   **66 → 75 px**, **22 → 25%** of the local wood height. Peak luma falls
+   **197.39 → 182.03**. This is a same-camera display-profile comparison,
+   not inverse roughness recovery; `build/walnut-final/highlight-profile.json`
+   retains the exact station, baseline and thresholds. The full before/after
+   stock, forend and hero are in `renders/walnut/comparison/`.
+
+
+## Wear preservation after the oil bake
+
+Every wear expression and the cutter/wear network remain exact; no site,
+pressure footprint, selected-point hardness, impact, threshold or annotation
+was retuned. The nine independent on/off pairs retain their accepted placement
+and 2D structure: long carry field, narrow muzzle rims, faded flats, thumb land,
+continuous inner guard rub, distinct upper-hand checker tips, and the same
+small toe and upper-forend fractures. All nine full/crop/difference pairs were
+opened. Whole-frame image fractions are not mathematical constants: the revised
+wood affects its background response and reflected/contact light.
+
+| Site | Handoff % | Final % | Photo % |
+| --- | ---: | ---: | ---: |
+| barrel_carry | 13.8220 | 13.7891 | 13.3889 |
+| muzzles | 0.7395 | 0.7388 | 0.7184 |
+| action_fade | 59.2379 | 59.2218 | 57.2777 |
+| lever_thumb | 29.5142 | 29.6761 | 30.1996 |
+| guard_fingers | 37.4095 | 37.4296 | 35.2263 |
+| wrist_points | 1.6766 | 1.6877 | 1.6366 |
+| forend_points | 6.0659 | 6.0578 | 5.8999 |
+| stock_toe | 0.2913 | 0.2973 | 0.2673 |
+| forend_edges | 0.1614 | 0.1372 | 0.1640 |
+
+The largest before/after difference is **0.16194 percentage points** at the
+lever. Every final six-code fraction remains inside its handoff's existing
+four-to-eight-code sensitivity interval (`build/walnut-final/wear-preservation.json`).
+This reports the existing uncertainty; it neither adds a new acceptance gate
+nor replaces the rendered 2D review. The small forend fracture is 0.1372%
+versus 0.1614% before, within both the accepted threshold interval and the
+photograph's native boundary band. Its source cause is unchanged.
+
+Optional snapshot comparison, from the repository root:
+`python3 guns/sxs/src/finish_compare.py --before build/walnut-final/before`.
+The saved handoff is local review input, never a dependency of the rebuilt asset.
+
+---
+
 # Covey 26 — look round one delivery
 
 The owner accepted round seven's form, cameras and 38,822-triangle allocation

@@ -149,13 +149,8 @@ def polygon(n,u,v,points):
         ds.append(n.math('DIVIDE',sub(n,n.mul(c-a,sub(n,v,b)),n.mul(d-b,sub(n,u,a))),math.hypot(c-a,d-b)))
     return minimum(n,*ds)
 
-def wood(name,role,wear):
-    n=Nodes(name);p,x,y,z,nx,ny,nz=inputs(n);sites={}
-    if role=='stock':
-        axis=n.add(n.mul(y,.105),n.mul(n.maximum(n.add(y,.080),0),.27))
-        zz=sub(n,z,axis);rx=n.add(x,.041);rz=n.add(n.mul(zz,.8),.040)
-        arch=n.mul(n.math('MINIMUM',n.add(y,.075),0),n.math('MINIMUM',n.add(y,.075),0),.16)
-    else:zz=sub(n,z,.026);rx=n.add(x,.034);rz=n.add(n.mul(zz,.82),.024);arch=n.mul(sub(n,y,.265),sub(n,y,.265),.27)
+def checker_substrate(n,role,p,x,y,zz,rx,rz,arch):
+    """Accepted cut-wood colors and relief; kept under the unchanged cutters."""
     radius=n.math('SQRT',n.add(n.mul(rx,rx),n.mul(rz,rz)))
     figure=n.add(n.mul(n.math('SINE',n.add(n.mul(zz,105),n.mul(y,12))),.00030),
                  n.mul(n.math('SINE',n.add(n.mul(x,155),n.mul(y,22))),.00018))
@@ -166,8 +161,6 @@ def wood(name,role,wear):
     low,high=((.025,.008,.0035),(.30,.110,.052)) if role=='stock' else ((.01152,.004032,.002268),(.1064,.03136,.01764))
     base=n.mix(tone,low,high,True)
     base=n.mix(n.mul(late,.16),base,(.010,.0035,.0017),True)
-    # Original 60–190 µm vessel apertures and soft longitudinal fibers.
-    # Closed Voronoi boundaries read as leather on transverse wood.
     cells=n.node('ShaderNodeTexVoronoi',feature='F1',distance='EUCLIDEAN')
     n.feed(cells.inputs['Vector'],n.combine(n.mul(x,3200),n.mul(y,200),n.mul(zz,3300)));cells.inputs['Scale'].default_value=1
     col=n.node('ShaderNodeSeparateColor',mode='RGB');n.feed(col.inputs[0],cells.outputs['Color'])
@@ -176,7 +169,47 @@ def wood(name,role,wear):
     base=n.mix(n.mul(fiber,.70 if role=='stock' else .65),base,(.017,.005,.0023),True)
     base=n.mix(n.mul(pores,.70),base,(.006,.0024,.0012),True)
     h=n.add(n.mul(late,-8e-6),n.mul(fiber,-6e-6),n.mul(pores,-28e-6))
-    rough=n.add(.29 if role=='stock' else .40,n.mul(pores,.10),n.mul(late,.025));ao=n.mix(pores,1,.87)
+    return base,h
+
+def wood(name,role,wear):
+    n=Nodes(name);p,x,y,z,nx,ny,nz=inputs(n);sites={}
+    if role=='stock':
+        axis=n.add(n.mul(y,.105),n.mul(n.maximum(n.add(y,.080),0),.27))
+        zz=sub(n,z,axis);rx=n.add(x,.041);rz=n.add(n.mul(zz,.8),.040)
+        arch=n.mul(n.math('MINIMUM',n.add(y,.075),0),n.math('MINIMUM',n.add(y,.075),0),.16)
+    else:zz=sub(n,z,.026);rx=n.add(x,.034);rz=n.add(n.mul(zz,.82),.024);arch=n.mul(sub(n,y,.265),sub(n,y,.265),.27)
+    radius=n.math('SQRT',n.add(n.mul(rx,rx),n.mul(rz,rz)))
+    # Uneven growth bands follow the stock's bent longitudinal fiber axis.
+    # Domain warping changes both width and direction; no repeating ring clock.
+    drift=n.noise(n.combine(n.mul(x,19),n.mul(y,7),n.mul(zz,24)),1,2)
+    sweep=n.noise(n.combine(n.mul(x,38),n.mul(y,5),n.mul(zz,47)),1,2)
+    cross=n.add(n.mul(radius,210),n.mul(sub(n,sweep,.5),1.8),n.mul(arch,160))
+    growth=n.noise(n.combine(cross,n.mul(y,4),n.mul(x,7)),1,2)
+    streak=n.noise(n.combine(n.mul(x,220),n.mul(y,7),
+                  n.add(n.mul(zz,270),n.mul(sub(n,sweep,.5),3.0))),1,2)
+    late=n.ramp(growth,.57,.76)
+    tone=n.add(.11,n.mul(n.ramp(growth,.30,.68),.60),n.mul(sub(n,drift,.5),.60))
+    low,high=((.020,.009,.0048),(.460,.170,.075)) if role=='stock' else ((.01152,.0048,.0028),(.085,.030,.0165))
+    base=n.mix(tone,low,high,True)
+    base=n.mix(n.mul(late,.25),base,(.015,.0065,.0035),True)
+    base=n.mix(n.mul(n.ramp(streak,.40,.69),.50),base,(.016,.007,.0038),True)
+    thread=n.noise(n.combine(n.add(n.mul(x,750),n.mul(sweep,2)),n.mul(y,18),
+                   n.add(n.mul(zz,1000),n.mul(sweep,5))),1,2)
+    base=n.mix(n.mul(n.ramp(thread,.35,.65),.30),base,(.020,.009,.005),True)
+    # Slow brown drift into the wrist follows dense, angled grain, not wear.
+    wrist=n.mul(n.ramp(y,-.18,-.045),.40) if role=='stock' else 0
+    base=n.mix(wrist,base,(.019,.008,.0045),True)
+    # Original 60–190 µm vessel apertures and soft longitudinal fibers.
+    # Pores retain depth but subdued color: no peppered dark flecks.
+    cells=n.node('ShaderNodeTexVoronoi',feature='F1',distance='EUCLIDEAN')
+    n.feed(cells.inputs['Vector'],n.combine(n.mul(x,3200),n.mul(y,200),n.mul(zz,3300)));cells.inputs['Scale'].default_value=1
+    col=n.node('ShaderNodeSeparateColor',mode='RGB');n.feed(col.inputs[0],cells.outputs['Color'])
+    pores=n.mul(n.ramp(cells.outputs['Distance'],.30,.10),n.ramp(col.outputs[0],.40,.70))
+    fiber=n.ramp(n.noise(n.combine(n.mul(x,1400),n.mul(y,40),n.mul(zz,1700)),1,2),.590 if role=='stock' else .52,.36 if role=='stock' else .32)
+    base=n.mix(n.mul(fiber,.16),base,(.017,.007,.0038),True)
+    base=n.mix(n.mul(pores,.20),base,(.010,.0045,.0025),True)
+    h=n.add(n.mul(late,-8e-6),n.mul(fiber,-6e-6),n.mul(pores,-28e-6))
+    rough=n.add(.40 if role=='stock' else .46,n.mul(pores,.10),n.mul(sub(n,drift,.5),.045));ao=n.mix(pores,1,.87)
     if role=='stock':
         # Paired original pointed panels; cutter directions have unit length,
         # so perpendicular pitch is exactly 25.4 / 20 = 1.27 mm on the side.
@@ -191,6 +224,8 @@ def wood(name,role,wear):
         facing=n.ramp(nz,.50,.05);point_site='forend_points'
         pressure=n.mul(oval(n,u,ab(n,v),.250,.033,.062,.010),interval(n,u,.207,.320,.003),wear[point_site])
     inside=n.mul(n.ramp(dist,.0016,.0022),facing)
+    cut_base,cut_height=checker_substrate(n,role,p,x,y,zz,rx,rz,arch)
+    base=n.mix(inside,base,cut_base,True);h=n.mix(inside,h,cut_height)
     cut_u=n.add(n.mul(u,.32),n.mul(v,math.sqrt(1-.32**2)));cut_v=sub(n,n.mul(u,.32),n.mul(v,math.sqrt(1-.32**2)))
     a=n.math('PINGPONG',cut_u,.000635)
     b=n.math('PINGPONG',cut_v,.000635)
