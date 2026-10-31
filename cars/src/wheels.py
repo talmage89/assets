@@ -28,7 +28,8 @@ def shoulder_blocks(b,name,pos,spin,material,S):
 def build(b,S):
     for side,sign in [('L',-1),('R',1)]:
         for end,y in [('F',S.FRONT_AXLE),('R',S.REAR_AXLE)]:
-            pos=(sign*S.TRACK/2,y,S.HUB_HEIGHT);parent=b.root
+            track=getattr(S,'FRONT_TRACK' if end=='F' else 'REAR_TRACK',S.TRACK)
+            pos=(sign*track/2,y,S.HUB_HEIGHT);parent=b.root
             if end=='F':
                 axis=Vector((-sign*math.tan(math.radians(12)),math.tan(math.radians(6.5)),1)).normalized()
                 ground=Vector((sign*(S.TRACK/2-.040),y-.045,0))
@@ -94,3 +95,18 @@ def build(b,S):
                     for face in caliper.data.polygons:face.flip()
                 caliper=b.add(caliper,parent,'brakes')
                 caliper['wheel_clearance_basis']='Actual axial and radial mesh clearances measured by check_detail.py'
+    # Sedan's narrower tire/rim package reuses the accepted cast-wheel method.
+    # The pickup has no override, retaining every authored array exactly.
+    axial=getattr(S,'WHEEL_AXIAL_SCALE',1)
+    if axial!=1:
+        import bpy
+        from mathutils import Matrix
+        bpy.context.view_layer.update()
+        for ob in bpy.context.scene.objects:
+            if ob.type!='MESH' or ob.get('part_category') not in ['wheels','brakes']:continue
+            ancestor=ob.parent
+            while ancestor and not ancestor.name.startswith(('Wheel_','Steer_')):ancestor=ancestor.parent
+            if ancestor is None:continue
+            center=ancestor.matrix_world.translation
+            xf=Matrix.Translation(center)@Matrix.Diagonal((axial,1,1,1))@Matrix.Translation(-center)
+            ob.data.transform(ob.matrix_world.inverted()@xf@ob.matrix_world)
