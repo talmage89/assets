@@ -43,6 +43,11 @@ def generate(seed=101,overrides=None):
         dict(lot=(160,160),store=(64,48,22),count=4,canopy_y=-39,angle=0,yaw=-90,brand='latchline',wall='smooth_cmu',sign='monument'),
         dict(lot=(160,160),store=(66,50,25),count=3,canopy_y=-40,angle=30,yaw=180,brand='rillway',wall='eifs',sign='pylon')]
  d=copy.deepcopy(specs[k]);d['seed']=seed
+ if seed not in PROOF_SEEDS:
+  width,depth,front=d['store'];width=max(56,width+rng.choice((-2,0,2)));depth=rng.choice((46,48,50))
+  front=min(front,d['lot'][1]/2-depth-4)
+  d['store']=(width,depth,front);d['brand']=rng.choice(tuple(BRANDS))
+  d['yaw']=rng.choice((-90,0,90,180));d['sign']=rng.choice(('monument','pylon'))
  if overrides:
   if set(overrides)-{'brand','wall','sign','yaw','cooler','store','count','angle','canopy_y','lot'}:raise ValueError('Unsupported station control')
   d.update(copy.deepcopy(overrides))
@@ -60,7 +65,7 @@ def generate(seed=101,overrides=None):
   x,y=rotate(local,angle);islands.append(dict(center=(x,y+can['center'][1]),angle=angle,index=i+1))
  W,D=(v*FT for v in d['lot']);walk=7*FT;parking_depth=18*FT
  # Entrances remain on the two local street edges; the front opening varies with canopy.
- front_drive=(W/2-24*FT,-D/2)
+ front_drive=(((count-1)/2*pitch+12*FT) if angle==0 else W/2-24*FT,-D/2)
  side_drive=(-W/2,(-12 if angle==0 else -13)*FT)
  result=dict(seed=seed,stage='form checkpoint: quick materials; no bake',lot=(W,D),yaw=d['yaw'],brand=d['brand'],
     building=asdict(b),canopy=can,islands=islands,sign=d['sign'],
