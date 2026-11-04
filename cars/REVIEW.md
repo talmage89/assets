@@ -2598,6 +2598,10 @@ parent while its vertices still belong to the exposed end sheet. The cutter
 therefore skipped those triangles. Test the actual vertices as well as the
 center; other side/roof branches continue to fail the end rays. The revised
 source close-up has a continuous upper grille mouth and no painted teeth.
+An independent 5 mm ray grid across the actual mouth, inset 8 mm from its rim,
+finds 52 painted occlusions in 8,069 samples on the old game source and zero
+on both corrected source densities. This tests the physical opening, whereas
+the GLB verifier tests serialization. The new check is in `make check`.
 This fixes the cut classification without moving the parent, loosening a
 construction tolerance, or changing any pivot/range. The revised game source
 is 59,932 triangles, four fewer than the first delivery candidate.

@@ -40,6 +40,11 @@ build/sedan/detail-high-audit.json: build/sedan/detail-high.blend $(SEDAN_CONFIG
 build/sedan/detail-check.json: build/sedan/detail-game.blend src/sedan_detail_check.py
 	$(BP) --python src/sedan_detail_check.py -- --source $< --out $@
 check-detail: build/sedan/detail-audit.json build/sedan/detail-high-audit.json build/sedan/detail-check.json
+build/sedan/aperture-game.json: build/sedan/detail-game.blend src/sedan_aperture_check.py
+	$(BP) --python src/sedan_aperture_check.py -- --source $< --out $@
+build/sedan/aperture-high.json: build/sedan/detail-high.blend src/sedan_aperture_check.py
+	$(BP) --python src/sedan_aperture_check.py -- --source $< --out $@
+check-detail: build/sedan/aperture-game.json build/sedan/aperture-high.json
 build/sedan/motion-game.json: build/sedan/detail-game.blend $(SEDAN_CONFIG)
 	$(BP) --python $(KIT)/motion.py -- --source $< --config $(SEDAN_CONFIG) --out $@
 build/sedan/motion-high.json: build/sedan/detail-high.blend $(SEDAN_CONFIG)
