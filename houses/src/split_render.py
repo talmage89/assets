@@ -55,6 +55,8 @@ def views(meta):
     if meta['spec']['kind']=='foyer':sx=m['x0']+(m['x1']-m['x0'])*.35
     old_sash=next(o for o in meta['openings'] if o['kind']=='window' and o['face']=='front' and o['block']==wing['name'] and o['z']>=lv['upper']+.4)
     sill_x=wing['x0']+old_sash['u'];sill_z=old_sash['z']
+    top_y=(meta['bounds'][0][1]+meta['bounds'][1][1])/2
+    top_width=max(width+2,(meta['bounds'][1][1]-meta['bounds'][0][1]+2)*1.2)
     return dict(
         hero=dict(location=(cx+side*width*.74,y-width*1.30,6.2),target=(cx,0,2.1),lens=43,aspect=1.65),
         front=dict(location=(cx,-70,6.2),target=(cx,0,2.7),ortho=width,aspect=max(1.7,width/9)),
@@ -69,6 +71,7 @@ def views(meta):
         garage_half=dict(location=(gx+2.7,gy-6.5,2.0),target=(gx,gy,meta['driveway']['back_z']+1.2),lens=44,aspect=1.5,garage_progress=.5),
         garage_open=dict(location=(gx+2.7,gy-6.5,2.0),target=(gx,gy,meta['driveway']['back_z']+1.2),lens=44,aspect=1.5,garage_progress=1),
         roof=dict(location=(cx+12,-15,26),target=(cx,0,2.5),lens=42,aspect=1.5),
+        top=dict(location=(cx,top_y,65),target=(cx+.001,top_y,0),ortho=top_width,aspect=1.2),
         scale=dict(location=(door+3,y-11,2.8),target=(door,y-.3,lv['living']+1.0),lens=43,aspect=1.5,human=True),
         siding=dict(location=(sx+1.1,wing['y0']-3.2,lv['upper']+.80),target=(sx,wing['y0'],lv['upper']+.55),lens=60,aspect=1.3),
         veneer_face=dict(location=(vx+1.2,vy-3.5,vz+.6),target=(vx,vy,vz),lens=60,aspect=1.4),
@@ -84,7 +87,13 @@ def render(source,out,names='hero',width=1200,samples=32,camera_file=None,types=
     if types:
         from split_context import ensure
         context_paths=ensure()
-    bpy.ops.wm.open_mainfile(filepath=str(source.resolve()));meta=json.loads(source.with_suffix('.json').read_text())
+    if source.suffix=='.gltf':
+        bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
+        from delivery_io import bundle_hash
+        digest=bundle_hash(source)
+    else:
+        bpy.ops.wm.open_mainfile(filepath=str(source.resolve()));digest=hashlib.sha256(source.read_bytes()).hexdigest()
+    meta=json.loads(source.with_suffix('.json').read_text())
     maps={str(Path(bpy.path.abspath(i.filepath)).resolve()):hashlib.sha256(Path(bpy.path.abspath(i.filepath)).read_bytes()).hexdigest() for i in bpy.data.images if i.filepath and Path(bpy.path.abspath(i.filepath)).is_file()}
     if clay:
         finish=simple('Neutral construction clay',(.36,.36,.34));dark=simple('Clay opening depth',(.012,.014,.014))
@@ -114,7 +123,7 @@ def render(source,out,names='hero',width=1200,samples=32,camera_file=None,types=
         bpy.data.objects['Afternoon sun'].rotation_euler=Vector((.5,.8,-1)).to_track_quat('-Z','Y').to_euler()
         next(n for n in sc.world.node_tree.nodes if n.type=='BACKGROUND').inputs['Strength'].default_value=.12
         sc.render.filepath=str((out/(name+'.png')).resolve());bpy.ops.render.render(write_still=True)
-        reports[name]=dict(source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),metadata_sha256=hashlib.sha256(source.with_suffix('.json').read_bytes()).hexdigest(),map_sha256=maps,recipe_sha256=recipe_sha(),image_sha256=hashlib.sha256((out/(name+'.png')).read_bytes()).hexdigest(),width=width,samples=samples,camera=shot,context=context,stage=meta['stage'],engine=engine,clay=clay)
+        reports[name]=dict(source=str(source),source_sha256=digest,metadata_sha256=hashlib.sha256(source.with_suffix('.json').read_bytes()).hexdigest(),map_sha256=maps,recipe_sha256=recipe_sha(),image_sha256=hashlib.sha256((out/(name+'.png')).read_bytes()).hexdigest(),width=width,samples=samples,camera=shot,context=context,stage=meta['stage'],engine=engine,clay=clay)
         if name=='hero':tonal(out/'hero.png',camera)
     (out/'provenance.json').write_text(json.dumps(reports,indent=2))
 

@@ -31,7 +31,8 @@ for name in ('wood','aluminum','concrete','trim','glass'):
 
 
 def prepare():
-    fetch('refs',list(dict.fromkeys(s['file'] for s in PHOTOS.values() if s['file']!='split-side-fit.jpg')))
+    local={'split-builder-used-pa.jpg','split-builder-used-oh.jpg','split-oh-side-b.jpg','split-used-bay.jpg','split-foyer-used-pa.webp','split-side-fit.jpg'}
+    fetch('refs',list(dict.fromkeys(s['file'] for s in PHOTOS.values() if s['file'] not in local)))
     records={}
     for name,s in PHOTOS.items():
         path=Path('refs')/s['file'];im=ImageOps.exif_transpose(Image.open(path)).convert('RGB');scale=1
@@ -58,7 +59,7 @@ def measure(folder):
         passed=abs(errors['median'])<=.10 and max(abs(errors['p10']),abs(errors['p90']))<=.15 and max(map(abs,hue))<=.10
         records[name]=dict(passed=passed,source=actual,photo=ref,relative_errors=errors,hue_relative_errors=hue,render=s,reference=photos[name])
         photo=Image.open(photos[name]['balanced']).crop(photos[name]['box']);render=im.crop((x0,y0,x1,y1));canvas=Image.new('RGB',(1200,650),(234,235,230));draw=ImageDraw.Draw(canvas)
-        for i,(label,patch) in enumerate((('Used-surface photograph / stated neutral',photo),('Split source / Cycles / unedited pixels',render))):
+        for i,(label,patch) in enumerate((('Used-surface photograph / stated neutral',photo),('Split '+('export' if s['source'].endswith('.gltf') else 'source')+' / Cycles / unedited pixels',render))):
             # Same physical sample framing is declared by each case. No color
             # normalization or pixel selection is applied to rendered images.
             patch=ImageOps.contain(patch,(590,550),Image.Resampling.LANCZOS);canvas.paste(patch,(i*600+(600-patch.width)//2,50+(550-patch.height)//2));draw.text((i*600+8,15),label,fill=(20,25,22))

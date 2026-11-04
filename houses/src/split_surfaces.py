@@ -11,6 +11,28 @@ from cape_surfaces import layer as cape_layer,attr
 BRICK_BODY={51:(1.06,.68,.245),53:(.67,.59,.36),54:(1.00,1.0,.93),55:(2.30,2.35,1.06),56:(1.55,1.95,1.05)}
 
 
+def brick_factor(n,meta,u,v):
+    def minimum(a,b):return n.math('MINIMUM',a,b)
+    # Analytic joint locator is the original modular Cape bond.
+    zz=n.mul(v,.2032/3*8);row=n.math('FLOOR',n.math('DIVIDE',zz,.2032/3))
+    parity=n.mul(n.math('FRACT',n.math('DIVIDE',row,2)),2)
+    uu=n.add(n.mul(u,.6096),n.mul(parity,.1016))
+    # Shader MODULO truncates negative U; FRACT gives the periodic
+    # positive cell coordinate on both sides of the asset origin.
+    xx=n.mul(n.math('FRACT',n.math('DIVIDE',uu,.2032)),.2032)
+    yy=n.mul(n.math('FRACT',n.math('DIVIDE',zz,.2032/3)),.2032/3)
+    edge=minimum(minimum(xx,n.add(.2032,n.mul(xx,-1))),minimum(yy,n.add(.2032/3,n.mul(yy,-1))))
+    body=n.ramp(edge,.003,.008)
+    factors=BRICK_BODY[51+(meta['seed']-51)%6]
+    altered=factors
+    if (meta['seed']-51)%6==3:
+        fired=n.node('ShaderNodeTexWhiteNoise');n.feed(fired.inputs['Vector'],n.combine(n.math('FLOOR',n.math('DIVIDE',uu,.2032)),row,0));unit=fired.outputs['Value']
+        tone=n.mix(n.ramp(unit,0,.55),(.08,.095,.065),(.65,.74,.46),color=True)
+        tone=n.mix(n.ramp(unit,.55,1),tone,(1.50,1.70,1.00),color=True)
+        altered=tone
+    return n.mix(body,(1,1,1),altered,color=True)
+
+
 def layer(mat,role,meta):
     cape_layer(mat,role,meta,roof_shade=True,lap_exposure_m=.2032 if meta['spec']['siding']=='aluminum' else None)
     n=Nodes.__new__(Nodes);n.mat=mat;n.nt=mat.node_tree;p=n.nt.nodes.get('Principled BSDF')
@@ -62,24 +84,8 @@ def layer(mat,role,meta):
     if role=='Veneer':
         uv=n.node('ShaderNodeTexCoord').outputs['UV'];u,v,_=n.split(uv)
         if meta['spec']['veneer']=='brick':
-            # Analytic joint locator is the original modular Cape bond.
-            zz=n.mul(v,.2032/3*8);row=n.math('FLOOR',n.math('DIVIDE',zz,.2032/3))
-            parity=n.mul(n.math('FRACT',n.math('DIVIDE',row,2)),2)
-            uu=n.add(n.mul(u,.6096),n.mul(parity,.1016))
-            # Shader MODULO truncates negative U; FRACT gives the periodic
-            # positive cell coordinate on both sides of the asset origin.
-            xx=n.mul(n.math('FRACT',n.math('DIVIDE',uu,.2032)),.2032)
-            yy=n.mul(n.math('FRACT',n.math('DIVIDE',zz,.2032/3)),.2032/3)
-            edge=minimum(minimum(xx,n.add(.2032,n.mul(xx,-1))),minimum(yy,n.add(.2032/3,n.mul(yy,-1))))
-            body=n.ramp(edge,.003,.008)
-            factors=BRICK_BODY[51+(meta['seed']-51)%6]
-            altered=n.vec('MULTIPLY',base,factors)
-            if (meta['seed']-51)%6==3:
-                fired=n.node('ShaderNodeTexWhiteNoise');n.feed(fired.inputs['Vector'],n.combine(n.math('FLOOR',n.math('DIVIDE',uu,.2032)),row,0));unit=fired.outputs['Value']
-                tone=n.mix(n.ramp(unit,0,.55),(.08,.095,.065),(.65,.74,.46),color=True)
-                tone=n.mix(n.ramp(unit,.55,1),tone,(1.50,1.70,1.00),color=True)
-                altered=n.vec('MULTIPLY',base,tone)
-            base=n.mix(body,base,altered,color=True)
+            factor=n.channel('split_brick_factor',brick_factor(n,meta,u,v))
+            base=n.vec('MULTIPLY',base,factor)
         # Rain-darkened bodies and broken, chalky salt fronts remain localized.
         low=n.ramp(n.add(z,-meta['spec']['site_grade_m']),.38,.035)
         moisture=n.mul(n.maximum(n.mul(low,.68),wet),n.add(.38,n.mul(breakup,.62)))

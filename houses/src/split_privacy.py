@@ -7,7 +7,7 @@ from pathlib import Path
 
 def audit():
     # These listing CDNs use property/listing numbers in their image paths.
-    forbidden = re.compile(r'https://[^\s|]*(?:cdn-redfin\.com|rdcpix\.com)[^\s|]*')
+    forbidden = re.compile(r'https://[^\s|]*(?:redfin\.com|rdcpix\.com|realtor\.com)[^\s|]*|\b(?:PABK\d{7}|m\d{10})\b')
     revision = '965da63..HEAD'
     patch = subprocess.check_output(['git', 'log', '-p', revision], text=True)
     assert not forbidden.search(patch), 'Listing identifier remains in branch patches'

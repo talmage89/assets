@@ -7,11 +7,11 @@ KIT := $(abspath ../kit)
 BP := $(BLENDER) -b --factory-startup --python-exit-code 1
 export TMPDIR := $(abspath ../build/tmp)
 export ASSETS_GPU_LOCK ?= $(abspath ../build/locks/gpu.lock)
-WIDTH ?= 1440
-SAMPLES ?= 40
+WIDTH ?= 1600
+SAMPLES ?= 48
 SEED ?= 51
 SEEDS ?= 51,52,53,54,55,56
-SPLIT_SOURCE := $(filter-out src/split_checkpoint.py src/split_render.py src/split_present.py src/split_photo_matches.py src/split_photo_audit.py src/split_pair_refs.py src/split_values.py src/split_value_render.py,$(wildcard src/*.py))
+SPLIT_SOURCE := src/split_build.py src/split_plan.py src/split_check.py src/split_sweep.py src/split_lookdev.py src/split_surfaces.py src/split_fields.py src/split_motion.py src/build.py src/plan.py src/check_mesh.py src/glb_budget.py src/additions.py src/lookdev.py src/textures.py src/ranch_build.py src/ranch_drain.py src/ranch_lookdev.py src/ranch_fields.py src/cape_build.py src/cape_lookdev.py src/cape_surfaces.py src/cape_age.py src/cape_profile.py src/cape_masonry.py $(KIT)/model.py $(KIT)/tiling.py $(KIT)/materials.py
 SPLIT_RENDER := src/split_checkpoint.py src/split_render.py src/render.py src/cape_render.py src/cape_reflections.py src/ranch_render.py src/split_context.py
 SPLIT_ROOT := renders/split/lookdev/checkpoint
 comma := ,
@@ -40,7 +40,6 @@ build/split/regression/comparison.json: $(SPLIT_SOURCE) src/split_baseline.json 
 	$(BP) --python src/split_regression.py --
 regression: build/split/regression/comparison.json
 check: model build/split/plan-sweep.json regression
-	$(PYTHON) src/split_present.py --check-only
 	$(PYTHON) $(KIT)/repo_check.py
 build/split/cameras-look.json: src/split_photo_matches.py src/split_plan.py $(KIT)/photo_match.py build/split/pair-references.json
 	$(PYTHON) $(KIT)/photo_match.py solve --config src/split_photo_matches.py --out $@
@@ -68,4 +67,5 @@ values: $(SPLIT_ROOT)/values.stamp
 review: render matches values
 	$(PYTHON) src/split_present.py
 split-checkpoint: refs model check review
+include src/split_delivery.mk
 endif

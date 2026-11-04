@@ -58,7 +58,7 @@ def material_mask(path,camera,wanted):
     Image.fromarray(mask).save(path);return int((mask>0).sum())
 
 
-def render(folder,names,width=600,samples=24):
+def render(folder,names,width=600,samples=24,final=False):
     folder.mkdir(parents=True,exist_ok=True);records=json.loads((folder/'patches.json').read_text()) if (folder/'patches.json').exists() else {}
     refs=json.loads(Path('build/split/material-photos.json').read_text())
     for name in names:
@@ -66,14 +66,19 @@ def render(folder,names,width=600,samples=24):
             from split_context import cape_control
             cape_control(34 if name=='aluminum' else 36)
             from cape_value_render import render as retained_cape
-            retained_cape(folder,width,samples,[name])
+            retained_cape(folder,width,samples,[name],final=final)
             row=json.loads((folder/'patches.json').read_text())[name];row['recipe_sha256']=recipe();row['map_sha256']=row['material_sha256']
             row['reuse_control']='Accepted Cape white aluminum / original 4 in profile. The split wide blue 8 in profile is separately measured as blue_lap.' if name=='aluminum' else 'Accepted Cape glass / identical IOR 1.52, roughness .010, clear white tint, no normal. Reflection distribution depends on room and scenery; split street/bay views are separately reviewed.'
             row['image_sha256']=hashlib.sha256((folder/(name+'.png')).read_bytes()).hexdigest()
             records[name]=row;(folder/'patches.json').write_text(json.dumps(records,indent=2));continue
-        case=CASES[name];source=Path(f"build/split/house-{case['seed']}.blend");bpy.ops.wm.open_mainfile(filepath=str(source.resolve()));meta=json.loads(source.with_suffix('.json').read_text())
+        case=CASES[name];source=Path(f"export/HearthfieldSplit-{case['seed']}.gltf" if final else f"build/split/house-{case['seed']}.blend")
+        if final:
+            bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
+        else:bpy.ops.wm.open_mainfile(filepath=str(source.resolve()))
+        meta=json.loads(source.with_suffix('.json').read_text())
         m=meta['blocks'][0];wing=next((b for b in meta['blocks'] if b['name']=='Wing'),m);role=case['role']
         wanted={'Veneer':'SplitStone' if meta['spec']['veneer']=='stone' else 'SplitBrick','Siding':'SplitPaintedBoards' if meta['spec']['siding']=='battens' else 'HouseSiding','Shingles':'RanchRoof','Trim':'HouseTrim','Concrete':'HouseConcrete','Glass':'HouseGlass'}[role]
+        if final:wanted={'SplitBrick':'SplitStone','HouseConcrete':'CapeConcrete'}.get(wanted,wanted)
         if case.get('paint'):
             for ob in bpy.context.scene.objects:
                 if ob.type!='MESH' or not ob.get('asset_set'):continue
@@ -122,11 +127,12 @@ def render(folder,names,width=600,samples=24):
             bpy.data.objects['Afternoon sun'].data.energy=.35;bpy.data.objects['Afternoon sun'].data.angle=.6
         sc.render.filepath=str((folder/(name+'.png')).resolve());bpy.ops.render.render(write_still=True)
         count=material_mask(folder/(name+'-mask.png'),camera,wanted)
-        records[name]=dict(seed=case['seed'],source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),metadata_sha256=hashlib.sha256(source.with_suffix('.json').read_bytes()).hexdigest(),recipe_sha256=recipe(),target_m=list(target),normal=list(normal),span_m=span,box=[width*.12,sc.render.resolution_y*.12,width*.88,sc.render.resolution_y*.88],material=wanted,material_pixels=count,mask='Independent first-hit triangle/material IDs',paint_control=case.get('paint'),exposure_ev=case['exposure'],white_balance_kelvin=6500,sky_strength=1 if case.get('overcast') else case.get('sky',.12),sun_energy=.35 if case.get('overcast') else 3.7,engine='CYCLES',stage='Source checkpoint before bake')
+        from delivery_io import bundle_hash
+        records[name]=dict(seed=case['seed'],source=str(source),source_sha256=bundle_hash(source) if final else hashlib.sha256(source.read_bytes()).hexdigest(),metadata_sha256=hashlib.sha256(source.with_suffix('.json').read_bytes()).hexdigest(),recipe_sha256=recipe(),target_m=list(target),normal=list(normal),span_m=span,box=[width*.12,sc.render.resolution_y*.12,width*.88,sc.render.resolution_y*.88],material=wanted,material_pixels=count,mask='Independent first-hit triangle/material IDs',paint_control=case.get('paint'),exposure_ev=case['exposure'],white_balance_kelvin=6500,sky_strength=1 if case.get('overcast') else case.get('sky',.12),sun_energy=.35 if case.get('overcast') else 3.7,engine='CYCLES',stage='Exported baked delivery' if final else 'Source checkpoint before bake')
         records[name]['map_sha256']={str(Path(bpy.path.abspath(im.filepath)).resolve()):hashlib.sha256(Path(bpy.path.abspath(im.filepath)).read_bytes()).hexdigest() for im in bpy.data.images if im.filepath and Path(bpy.path.abspath(im.filepath)).is_file()}
         records[name].update(sun_direction=sun_direction,reflection_phase=case.get('reflection_phase'),image_sha256=hashlib.sha256((folder/(name+'.png')).read_bytes()).hexdigest())
         (folder/'patches.json').write_text(json.dumps(records,indent=2))
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,default=Path('renders/split/lookdev/values'));p.add_argument('--names',default=','.join(CASES));p.add_argument('--width',type=int,default=600);p.add_argument('--samples',type=int,default=24);a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);render(a.out,a.names.split(','),a.width,a.samples)
+    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,default=Path('renders/split/lookdev/values'));p.add_argument('--names',default=','.join(CASES));p.add_argument('--width',type=int,default=600);p.add_argument('--samples',type=int,default=24);p.add_argument('--final',action='store_true');a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);render(a.out,a.names.split(','),a.width,a.samples,a.final)
