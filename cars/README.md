@@ -1,6 +1,6 @@
 # Cars family — Alder C150, S240 and X220
 
-The C150 pickup is delivered. The [S240 sedan](#alder-s240--sedan-form-checkpoint) is a source form checkpoint. The [X220 SUV](SUV.md) has articulated detail, a five-seat cabin, AWD underbody and five-color source look development at 64,996 triangles. `BODY=sedan` and `BODY=suv` select their isolated pipelines; SUV UVs, baking and export remain later stages.
+The C150 pickup is delivered. The [S240 sedan](#alder-s240--sedan-form-checkpoint) is a source form checkpoint. The [X220 SUV](SUV.md) has articulated detail, a five-seat cabin, AWD underbody, fair optical surfaces and an open chevron grille at 64,972 triangles. `BODY=sedan` and `BODY=suv` select their isolated pipelines; SUV UVs, baking and export remain later stages.
 
 An original late-2010s crew-cab 4×4 pickup on 275/65R18 all-terrain tires.
 Five factory paints share one baked atlas and four delivery surfaces. The

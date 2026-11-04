@@ -38,6 +38,222 @@ softbox studio and separate estimated sun/sky comparison lighting. The grille
 is genuinely five ribs on an opaque bed, not merely a bad reflection; replace
 it with an open, deep patterned face and a distinct lower intake.
 
+## Surface pass 2 — reject the first softbox set
+
+Color/value first: use the inherited neutral anchors, and retain Graphite's
+linear luminance (old .1536218; revised .140/.1555/.175 gives .1536126).
+The first actual softbox set is darker and more contrasty than the earlier
+overcast comparison. It is a surface diagnostic, not a new paint-value target.
+Opened every frame in `suv-surface-control`, `suv-surface-high-control`,
+`suv-surface-pass2`, and the two no-canopy/no-bump ablations. Disabling paint
+bump barely changes the broad shapes: peel does not cause those waves.
+
+The retained POINT field removes face-to-face normal disagreement at the
+front fascia and lower rear quarter: the first audit's 76.65 / 11.10 degree
+maxima become zero at common outside vertices. This measures continuity only,
+not positional fairness. The full softbox views remain necessary. The new
+quarter highlight is coherent. Ray-picking the old visible arch spike hits
+`Arch cladding_RR quarter` at (0.855,1.813,.295) m; its constant-width miss
+fallback was the physical cause, rather than a wheelwell or shadow artifact.
+The corrected continuation retains the original silhouette elsewhere.
+
+Reject this first repaired set. The hood still has angular reflection steps,
+and the denser original source has the same broad draw-bank turn. A diagnostic
+implicit-field normal copy measures .20 / 1.51 / 2.61 degree median/p95/max
+departure from the original hood field; compare its actual studio pixels
+before choosing a repair. The small fuel flap also shades as flat triangles:
+its non-planar cap had no continuous quarter normal field. Capture that field
+for the formed cap. The new explicit optical roles must survive material-slot
+collapse and must not make optical backs eligible for concealed-skin removal;
+both implementation hazards were caught before checkpoint acceptance.
+
+The new upper grille has sixteen mirrored chevron blades in dark chrome, two
+support rails and the retained badge; eighteen straight black lower fins are
+visually distinct. It replaces 560 old rib/web triangles with 560 real open
+triangles, leaving the deep bed and surround. It is much more intentional than
+the former radiator, but the first close-up is too angular at blade bends.
+Check whether a softer manufactured edge can read within the same allocation.
+Still CG here: hood reflection steps, triangular fuel flap, and very regular
+optical jewelry/arch facets. These frames are rejected progress, not finals.
+
+## Surface pass 3 — reject the clear-sky and uniform-cloud comparisons
+
+Color/value first: front asphalt and the rear sign still supply the same
+neutral balance. The clear scattering-sky trial (`suv-daylight-pass2`) gives
+front mid-door 116.6 versus 88.1 and glass 52.9 versus 158.8. Its rear view was
+occluded by an accidentally retained studio cove and is invalid; no rear
+measurement from that frame is accepted. Removing the cove and adding diffuse
+cloud cover (`suv-daylight-pass3`) raises front glass to 154.2, but also raises
+the door to 135.7 and rear door/cladding to 197.5/78.7 versus 135.3/27.4.
+Opened both whole frames and annotated pairs. Reject the uniform bright dome.
+
+The photos' low horizon is wooded, while the inclined glass sees brighter sky
+above it. Add original smooth closed canopy masses that cast shade and obstruct
+the low horizon, separate from the clean softbox studio. They are schematic
+lighting geometry, not copies of photographic foliage. Lower comparison
+exposure and judge again; do not alter the four accepted paint values to
+compensate for an over-bright environment. Direct solar direction/height remain
+uncertain because both photos have very soft contact shadows, not crisp
+shadow endpoints. The numerical sun settings are estimates with ±20° angular
+uncertainty, not shadow-derived precision that the photographs cannot support.
+
+The implicit-normal hood experiment changes little in the actual softbox
+pixels and is rejected as a repair. Keep the accepted parent. Refine twenty
+game hood cells ranked by their parent-normal interpolation error instead;
+this adds actual samples where a broad reflected edge steps, without refitting
+the sculpting. Full closed glazing can simplify legally where the old open
+windshield could not; retain both optical surfaces and use those savings.
+Validate the outside/reverse provenance against the parent hemisphere after
+closed-volume winding correction, then keep one field through all later cuts.
+Still CG in these rejected comparisons: overly uniform reflected surroundings,
+regular wheel/optic jewelry, and the stepped hood highlight at game density.
+
+## Surface pass 4 — optical geometry, then the sampled studio edge
+
+Color/value first: the wooded-horizon trial (`suv-surface-pass5`) gives front
+mid/low door 100.7/94.8 against 88.1/76.6, front glass 150.1 against 158.8,
+rear door 135.2 against 135.3, rear quarter 138.2 against 152.6, rear cladding
+31.0 against 27.4 and rear glass 167.4 against 127.5. Opened all seven actual
+studio/comparison frames. Lower front exposure by .3 EV. Reduce the excessive
+blue in the trial Graphite while retaining its exact .1536218 linear luminance:
+final factor .150/.1540545/.160 is neutral to slightly cool. Calibrate the
+front solar-control and rear privacy reflection amplitudes separately, keeping
+IOR, transmission tint and glass roughness. Check those changes in both stages,
+not solely at the selected patches. Road-film masks remain unchanged.
+
+The optical trials exposed a geometry cause beneath the normal-transfer fault.
+The steel-chart hull projects into crossed or almost-collinear pane triangles.
+Backlight fans connect distant lower-border stations; rear-side top-edge fans
+also have three almost-collinear border vertices. Their geometric normals turn
+against the intended pane even when a continuous optical normal is supplied.
+The retained bad-face report in `build/suv-surfaces/bad-optic.log` records the
+actual world positions, areas, face normals and optical normals. This is a cut/
+triangulation fault, not orange peel, opacity, a bake or a reason to relax the
+normal check.
+
+Use each pane's original generated ordered guide border, its own injective
+YZ/XZ chart and smooth sag. An inward 26 mm collar connects each curved border
+segment to a nearby interior sample, eliminating the three-border-vertex fans.
+Both real 4.8 mm laminate surfaces share the optical parameter field. Keep the
+authored collar through the game allocation instead of dissolving it back into
+long fans. The windshield retains its parent shape and now has its real reverse
+surface; its legal closed reduction funds the optical collar and twenty extra
+hood sample cells. No implicit-normal-only hood substitution ships.
+
+The collared game source passes the unchanged solid and optical checks at
+**64,896 triangles**. Full game sweeps pass all 413 poses with no violation.
+The detailed cabin, underbody, wheels and pivot contracts still require the
+explicit old/new preservation comparison before reporting. Final renders are
+the next gate: regular optics/wheel silhouettes and schematic distant foliage
+remain possible CG tells even with these checks passing.
+
+Before freezing the grille, an actual support probe finds no badge/grille
+triangle contact and a 20.25 mm minimum badge-vertex distance. Its two straight
+support rails also chord across the bowed blade field. Replace those rails
+with six-section curved carriers and add the required badge stem. The planned
+76 extra triangles are construction, funded by the remaining reserve; the
+badge must sit on the grille rather than float in front of it.
+
+The taller opaque rear-tree trial made the chosen glass patch 32.8/255, so it
+is rejected too. The November photograph has a sparse/bare wooded horizon;
+aggregate porous canopy coverage preserves bright gaps without the original
+serrated polygon shapes. At -.6 EV it gives rear door/quarter/cladding/glass
+151.1/156.1/39.7/153.2. Lower rear exposure another .35 EV and correct the rear
+molding's excessive film: the old aft-wheel mask continued uniformly across
+the protected center face. Attenuate that layer on the rear-facing center,
+retaining the side wakes, sill gradient, loading wear and every paint mask.
+The trial Specular IOR Level changes have little effect on fully transmissive
+Cycles glass and will be removed; retain physical IOR 1.52 and the family glass
+response rather than promising an unverified coating calibration.
+
+## Surface pass 5 — frozen source, full studio crops and matched daylight
+
+Color/value first: the final Graphite factor is .150/.1540545/.160, with
+linear luminance .15362178 versus the inherited .1536218. The four other
+paint factors and all metallic factors remain unchanged. Front photo balance
+uses the foreground asphalt (linear gains .8834/.9907/1.1647); rear balance
+uses the unprinted white sign (1.0173/1.0173/.9672). These are available scene
+neutrals, not calibrated cards. Final median display-luma samples, out of 255:
+
+| View / patch | Render | Balanced photo | Difference |
+| --- | ---: | ---: | ---: |
+| Front / mid-door | 87.4 | 88.1 | -0.7 |
+| Front / low door | 82.4 | 76.6 | +5.8 |
+| Front / cladding | 33.2 | 37.4 | -4.2 |
+| Front / glass | 137.2 | 158.8 | -21.6 |
+| Rear / mid-door | 135.9 | 135.3 | +0.6 |
+| Rear / quarter | 141.2 | 152.6 | -11.4 |
+| Rear / cladding | 27.6 | 27.4 | +0.2 |
+| Rear / glass | 137.9 | 127.5 | +10.4 |
+
+Actual boxes, RGB samples, balance gains and lighting are in
+`renders/suv-surfaces/pair-measurements.json`; annotated picks accompany each
+pair. The pairs use the calibrated cameras, procedural scattering sky, diffuse
+cloud coverage, estimated broad sun lobe and asphalt-gray ground. Front solar
+elevation/azimuth are 48/-40 degrees; rear 34/145 degrees, each with roughly
+20 degrees of directional uncertainty. Smooth original canopy volumes supply
+the wooded horizon; the rear canopy is porous. This matches diffuse light
+structure, not either photograph's detailed reflected environment. The front
+glass still reads too neutral and dim; the rear quarter is too dark and the
+chosen rear glass patch too bright. A matching door sample does not make the
+whole render photographically matched. Paint wear remains unchanged; only the
+protected rear-facing cladding film is attenuated, as the previous pass found.
+
+Opened the final 1600-pixel face, lamp and rear-quarter views, all ten full-size
+color views, both used pairs, all eight curvature/both-stripe pages and every
+before/after region. The lens now carries one coherent softbox reflection
+rather than the earlier serrated shards. Fender and lower grille reflections
+continue across their surface instead of choosing unrelated cap normals. The
+hood's accepted broad draw-bank turn remains; local sampling reduces its
+piecewise steps without changing the parent. Rear gate/quarter highlights are
+coherent, the fuel flap no longer shades as a triangle fan, and the trailing
+arch spike is gone in the actual front three-quarter crop. Historical lighting,
+old mesh under the same softboxes, and repaired mesh are shown separately:
+most of the dramatic old lens/hood mottling was the reflected environment.
+
+The diagnostics now include all 492 tagged meshes: glass, lamps, grille,
+arches, wheels and visible interior/underbody, not only painted panels. Mean
+curvature uses actual triangle positions, with boundaries/gauge exclusions
+gray; stripes replace every measured material with the same reflective shader
+and preserve its mesh and normals. Their limitations remain visible: fine
+cut-border curvature noise near the rear quarter and small polygonal steps
+at some stamped transitions. Continuous authored normals are not evidence that
+the geometric curvature is everywhere smooth. Arch molding, projector rings,
+mirror/roof details and wheels still show economical facets close up; the
+accepted detail was not expanded to disguise these limits. Schematic horizon
+reflections and a sparse cabin are further CG tells in the used pairs.
+
+Tonal masks retain deep zero-level cavity shadows. Paint p99 luma spans
+223.6–247.9 across the ten studio color views. Nine have zero clipped sampled
+paint channels; Aluminum rear has 0.133% at the brightest specular return.
+That small residual is recorded rather than calling the whole set unclipped.
+The face, lamp, rear-quarter and both daylight views have no clipped sampled
+channels. Numeric tone masks are in `tonal-ranges.json`.
+
+The open chevrons, distinct lower fins, bowed carriers and badge stem now
+measure actual contact: 16 badge/stem crossings, 16 stem/carrier crossings,
+and positive intersections at all sixteen blade/carrier joints. The rebuildable
+`suv_grille_check.py` fails if those supports disappear. This proves engagement,
+not structural load capacity. Final allocation is **64,972 triangles / 492
+meshes / 35 source materials**, 24 triangles below the accepted source; high
+is 167,002 / 500. There is still no SUV bake or GLB. The one-2048-set / 16 MiB
+delivery plan remains reserved, not delivered.
+
+`make BODY=suv detail`, `make BODY=suv check`,
+`make BODY=suv check-detail-repeat` and
+`make BODY=suv surfaces WIDTH=1600 SAMPLES=48` pass. The last command produced
+41 inspection frames plus sheets/crops/pairs under `renders/suv-surfaces/`.
+The final source hash is
+`01b2a4699150989d1b84ad8ff09e36d78c553561211d2ca869af1c1623c0a1ef`.
+Independent preservation compares 267 accepted mesh geometries and all thirteen
+pivot contracts exactly. Both unchanged 413-pose sweeps pass (826 total), at
+0.4315 mm game / 0.2069 mm high maximum measured penetration and 0.5 mm tolerance.
+Side-laminate entrance/exit normal mismatch is at most 0.060 degrees at both
+densities. Repeated generation agrees exactly on positions, polygons, corner
+normals, matrices, parents and material names. Pickup bytes/hash are unchanged.
+These prove geometry, sampled clearance, source repeat and preservation; they
+do not prove final UVs, bake quality or exported appearance. Stop at this gate.
+
 # X220 SUV — detail and look development
 
 ## Detail pass 1 — form fixes and inherited-work audit
