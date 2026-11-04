@@ -2908,3 +2908,238 @@ Pickup regeneration matches 472 objects / 454 meshes; its re-export matches
 all 150 GLB accessors, embedded maps and all **11,530,720 bytes**. No shared
 family implementation, sedan module or kit file changed. Stop at this source
 form checkpoint: no hatch detail, interior, UV, bake or GLB phase was started.
+
+
+## H120 detail and look checkpoint
+
+### Detail pass 1 — reject underexposure and the inherited inner package
+
+Color and value first: the four-year white hatchback photographs (Elise240SX,
+2022-08-06, `refs/hatch-used-*.jpg`) show white paint around mid/high display
+values, dark but legible cabins, and dark used tires. The initial studio in
+`renders/hatch-detail-pass1/` is too dark to judge any of those. Its metallic
+coat reflects the lamps, but this does not establish a daylight match. The
+white siding in the front reference and gray garage door mullion in the rear
+are the proposed neutrals; their explicit patch gains are measured later.
+
+The first optical housing used a nearest-normal field that admitted the inner
+laminate at the boundary; the resulting reversed offsets stuck black geometry
+above the hood. Use only the authored outer lens triangles for that field.
+The first cargo opening proves the five-seat package, load well and parcel
+cover, but also exposes floating tether ends and the backlight seal left in
+the body hierarchy. Remove the unneeded tethers and carry the seal with the
+gate. Cabin, firewall and floor corners copied from the longer sedan intrude
+into the front wheel envelopes. The solid sweeps correctly reject those;
+reshape those hidden corners instead of suppressing collision pairs.
+
+### Detail pass 2 — reject streaked road film and concealed hardware outside
+
+Color and value first: `renders/hatch-detail-pass2/` has a readable blue coat
+but still excessively black glass and dark wheel pockets. The procedural
+studio is an appearance diagnostic, not the reference daylight. The first
+matched cameras were also rejected: four coplanar wheel anchors admitted a
+camera below ground and a reflected pose. Correct the near-side sign and add
+a stated 1.50 m height prior; keep the resulting 9–10 px native residual visible.
+`hatch-detail-pass4/` accidentally selected Graphite through a renderer default;
+that is diagnostic failure evidence, not a white-paint comparison.
+
+`renders/hatch-detail-pass5/` finally compares white with white. It rejects the
+illumination: the car and asphalt remain far too dim. Increase sky/sun together
+before tuning paint albedo. It also rejects the inherited broad film fan: the
+rockers look streaked and much dirtier than the photographed daily driver.
+Shorten the tire wakes, lower their ceiling and use fine variation only in
+deposit density. Preserve the clean paint's own hue.
+
+The close face identifies an exposed straight crash beam through the curved
+nose, not a new styling problem. Give its ends the fascia's plan curvature.
+The hinge leaves also break through the lower door skins: the accepted form's
+provisional pivots are too far outboard for real hardware. Move the hinge axis
+inward, use 2 mm fixed leaves and preserve the world skin position. An actual
+bored roof sleeve replaces the gate leaf drawn through its pin. Inner
+wheelhouse returns clear the steering tire while their outer lips remain held.
+The resulting twelve game sweeps pass at 0.5 mm tolerance, 2 degree closure,
+10 degree wheel and 1 degree steering increments. These are sampled solid
+clearance tests; they do not by themselves prove every fixed support contact.
+
+
+### Detail pass 3 — matched daylight, fair reflections and supported hardware
+
+Color and value first: `renders/hatch-detail-pass6/` replaces the rejected dim
+white comparison with diffuse procedural sky/sun and asphalt. White paint now
+sits in the photograph's value range; the sky is desaturated before any paint
+hue adjustment. The front reference's white siding and the rear reference's
+gray garage mullion are the stated white-balance assumptions, rather than an
+unqualified claim that the photograph records true albedo. Glass stays dark,
+with seats visible, and tire sidewalls remain darker than the paint. The new
+short road-film fans stay below the door field and behind their originating
+wheels. The former tall streaked overlay is rejected.
+
+The game/high comparison exposes a small shoulder scallop near the rear cut.
+Add 48 interior edge samples on each rear quarter, projecting only those new
+samples onto our own dense accepted surface. Give the hood and front fenders
+32 each for their narrow crown reflections. This adds 384 body triangles;
+retained samples and exterior cut outlines are held. The largest new-sample
+projection is 1.011 mm on the front left fender. Tight lamp-corner reflection
+jogs remain a weakness, not a reason to refit the accepted package.
+
+The full source close-ups show legible original tire relief, projector/guide
+layers and a fictional dealer insert. Game spokes still need their high-source
+chamfers in the normal map. The through-glass camera exposes a white softbox
+reflection over the dash; move the studio around that inspection view before
+judging cabin visibility. Do not brighten or frost the glass to reveal it.
+Cargo trim and the shelf are deliberately simple, with no floating tethers.
+
+Solid sweeps found a small fixed front pane needed ahead of the moving window,
+a buried spoiler mounting foot, and a gas-spring casing clipping the closed
+backlight. Split the tiny forward glazing sail without changing its outer
+surface; seat the spoiler's hidden foot; place the gate ball brackets against
+the actual perimeter segments with cabin-side stand-off. Formed door leaves
+and welded pads replace unsupported hinge tubes. Check 42 actual support
+contacts independently of the motion sweeps, and evaluate both moving spring
+ends every degree. All source motions now pass on game and high meshes,
+including the supplemental coupled high spring sweeps.
+
+
+### Detail pass 4 — reject the first exported bake
+
+Color and value first: `renders/hatch-bake-review/` is the first actual imported
+H120 GLB, not the procedural source. Its blue paint and dark glass retain the
+broad source values, but a thin red line above the grille and stray colored
+strokes on trim are impossible material contamination. The first 5° UV pack
+has 16,012 charts and only 37.1% useful area. Its narrow island gaps cannot
+support the baker's broad padding. The original source close-ups stay clean;
+this is bake loss rather than a new form defect. Reject these images as final
+evidence and repack with broader charts, wider gutters and marking priorities.
+
+The same first export makes the door-glass softbox reflection wavy and the
+wheel chamfer highlights ragged. Do not accept partwise ray coverage as a
+visual proof of a smooth reflection. Smooth glazing needs no high-source
+geometric normal, and the game skins already carry the accepted parent normal
+field. Restrict projected geometric detail to hardware, wheels, tread, cabin
+and underbody where it has a cause. Keep the exact procedural tire sidewall
+normal for the original raised lettering. Neutralize tangent normals on the
+smooth glazing, and leave chart-edge normals with the direct bake.
+
+The cabin remains legible through the dark pane, but the inspection light
+reflects across the cluster. Rotate the inspection studio so the opening
+reveals the dash; keep the photograph pairs free of every studio light. The
+coarse headrests, simple cargo trim and low-detail underside remain visible
+limitations. The lamp lit/unlit state and promotional insert do survive the
+first bake, although text and the tire's small relief lose resolution.
+
+
+### Detail pass 5 — correct the neutral, preserve the measured limits
+
+Color and value first: the annotated front comparison exposes a reference
+measurement mistake. The first purported siding neutral at x50–180/y80–100
+on the 1200-wide image reaches vegetation (median RGB121/128/100). Reject
+its magenta white balance and all front residuals derived from it. A clean
+siding patch between the two windows, x120–220/y12–42, measures RGB166/171/171
+and gives linear gains 1.0453/0.9788/0.9788. The rear neutral remains the gray
+garage mullion with gains 1.0416/0.9689/0.9923. This correction changes the
+front comparison without changing the rendered lighting or factory tint.
+
+`renders/hatch-source-tuned/` uses the longer but strictly low wheel wakes,
+with a slightly broken upper edge. The current direct source front paint
+patches are 6.4/7.8 display levels darker than the corrected reference; its
+low-film patches are 4.2/0.6 darker. Rear paint is 5.0/1.4 brighter, with lower
+film 9.0/7.9 brighter. This is a materially closer low-body gradient than the
+previous nearly clean rear rockers; the film remains caused by tire spray,
+not a whole-car color overlay. The rear side-glass and backlight residuals
+remain +38.2/−41.9: different reflected surroundings, viewing angles and the
+privacy package are unresolved. Report those rather than tuning white paint
+to conceal a glass/environment mismatch.
+
+The revised atlas uses broader 35° charts, higher marking/tire priorities and
+three-pixel bake padding. The first broad-chart repair has eighteen chart splits and 39.9%
+coverage; float32 re-import then catches one collapsed subpixel altitude.
+The revised guard logs 47 UV repairs/splits and yields zero overlaps with
+40.5% coverage. Three submicron cut slivers retain their geometry with representable
+UV altitudes. Smooth glazing keeps a neutral tangent map over its authored
+vertex normals, and projected tread detail is confined to the crown. Final
+imported images, not this source comparison or the rejected first bake, are
+the next visual decision.
+
+
+### Detail pass 6 — final bake survives; correct the studio's clipped highlights
+
+Color and value first: the imported 2048 bake now preserves the deep black
+optical cavities, clear dark glass, original dealer insert and restrained
+dirt. The source/GLB daylight pairs use the corrected neutral patches and
+the same procedural sky/sun. The first final studio heroes nevertheless clip
+1.68% / 2.20% of asset color channels at 254 or above, with p99 luma255.
+Reject that exposure as a tonal proof. `renders/hatch-tonal-study/` re-renders
+the actual GLB one stop lower: p99 is 248.9 on both heroes and no checked
+channel clips. Adopt −2.5 exposure for the whole-car heroes, five factory
+colors, scale and the inherited whole-car mechanism poses. Keep the daylight
+photograph recipe unchanged, and keep separate exposure for close inspection.
+This is a physical re-render, not a remap of clipped PNGs.
+
+The wheel close-up at `renders/hatch-checkpoint/wheel.png` retains ALDER
+TOURING and the original size lettering after a faint dust deposit on the
+raised type. The normal relief alone had faded below legibility in the first
+bake. Broader charts and smaller padding remove the red line above the grille
+and colored trim strokes. Neutral glass normals restore smooth reflections.
+Spoke chamfers remain soft at 2048 and the tire's shoulder facets still show
+in this extreme close-up; neither the vertex-normal check nor ray coverage
+is used to claim otherwise.
+
+The eye-height view now exposes the dash and steering wheel through the dark
+pane by moving the studio reflection, without making the glass milky. Cluster
+and screen detail remains small and dark, and the cabin's regular headrests
+and cargo trim remain simplified. The lower gate stamping, fine hood-corner
+reflections and regular door/window cuts still read more deliberately modeled
+than the reference car. The static low-detail suspension is not a complete
+kinematic steering linkage. These remain limitations for the checkpoint.
+
+
+### Detail pass 7 — checkpoint review and explicit remaining limits
+
+Color and value first: all 58 current native views were opened via the seven
+review pages, with the wheel, glass/cabin and annotated pairs also inspected
+at native size. The two 1400-pixel Cycles heroes have asset luma p1/median/p99
+0.8/46.3/249.1 front and 0.0/45.7/248.9 rear, with zero channels at 254 or
+above. Other factory-color Cycles heroes have at most 0.0013% of channel samples
+at 254 or above; these are isolated near-white samples rather than broad
+clipped reflection patches. White,
+black, gray, silver and blue now occupy distinct plausible value ranges,
+rather than five pale versions. The Eevee fallback has a tiny 0.078% clipped
+channel fraction and darker glass; it remains a less faithful secondary view.
+
+Correctly balanced exported white paint differs from the selected reference
+patches by −6.4/−7.8 front and +5.0/+1.4 rear. Low-film patches differ by
+−4.1/−0.7 front and +9.0/+7.9 rear. The rear side-glass/backlight remain
++38.2/−47.7, and the front tire sidewall +11.1. Those are substantial remaining
+appearance differences; the gray procedural horizon does not reproduce the
+photographed surroundings or the reference's glazing package. RGB medians,
+patch ranges and neutral gains remain in `pair-values.json`, rather than
+claiming that display luma measures intrinsic albedo. The current source
+pairs are separately rebuilt under `renders/hatch-source-pairs/`.
+
+The original cascade vanes, surround, badge and dealer insert read clearly;
+the fine secondary lattice loses contrast in the atlas. Projector/guide layers
+and lamp on/off state survive. Tire lettering survives the final bake, but
+shoulder facets, thin inner-arch return glints and soft spoke chamfers remain
+visible at the extreme wheel close-up. Small hood/lamp-corner highlight jogs,
+regular door/window cuts and the crowded rear shoulder still betray the model.
+The cabin's small graphics and regular headrests/cargo trim are weaker than the
+exterior. Upper gate-frame and suspension/steering supports are simplified
+proxies, not a fully detailed or fully coupled mechanical assembly.
+
+`make -C cars BODY=hatch` and `make -C cars BODY=hatch check` pass. The clean
+source-only copy also passes its rebuild/check; all 484 objects / 455 meshes
+and every atlas UV match exactly. Independent GPU bakes differ by at most
+one 8-bit level at 1/115/4 BaseColor/Normal/ORM pixels. Both source densities'
+twelve kit motion sweeps pass, as do 42 support pairs and the one-degree
+coupled gas-support checks. UV overlap/outside/degenerate counts are zero,
+including re-import. The actual GLB is 8,256,940 bytes, 59,989 triangles,
+21 meshes / 36 material primitives, four family surfaces and three 2048 maps
+(about 16 MiB compressed with mips). Re-import position error is 0.386 μm.
+
+Every indexed checkpoint view has GLB hash
+`c0e0adb268eb3d5de7ac3fa71cf93834633d72c4699bd64a6b4911ea4e253c45`
+and one current render-recipe hash. Sixteen legacy form views formerly in the
+same folder were preserved under `renders/hatch-checkpoint-form-archive/`,
+so they cannot masquerade as current detail views. Pickup source and full
+GLB bytes remain identical. No kit/shared family implementation changed, and
+no hatch docs images are committed. Stop at this requested checkpoint.

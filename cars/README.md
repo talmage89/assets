@@ -1,6 +1,6 @@
-# Cars family — Alder C150 and S240
+# Cars family — Alder C150, S240 and H120
 
-The C150 pickup is delivered. The [S240 sedan](#alder-s240--sedan-form-checkpoint) is a source form checkpoint; `BODY=sedan` stops before detail and delivery.
+The C150 pickup is delivered. The [S240 sedan](#alder-s240--sedan-form-checkpoint) is a source form checkpoint on this branch. The [H120 hatchback](HATCH.md) has reached its detail and look checkpoint, with an independent baked export.
 
 An original late-2010s crew-cab 4×4 pickup on 275/65R18 all-terrain tires.
 Five factory paints share one baked atlas and four delivery surfaces. The
@@ -390,31 +390,41 @@ These are recorded limitations, not final paint or delivery approval. No kit
 changes were needed.
 
 
-## Alder H120 — compact hatchback form round 4
+## Alder H120 — detail and look checkpoint
 
-The third body is an original late-2010s five-door hatch in isolated
-`hatch_*.py` modules: **4363 × 1796 × 1451 mm**, **2650 mm wheelbase**, and
-**225/40R18** form wheels. Corolla and i30/Elantra GT references establish the
-class; the accepted short rear package and main greenhouse remain preserved. The
-lowest windshield/cowl corners are locally refaired; HATCH.md quantifies that
-change separately from the preserved main glass.
+The third body retains its accepted compact five-door package: **4363 × 1796 ×
+1451 mm**, **2650 mm wheelbase**, and **225/40R18** tires. Original projector
+lamps, a gloss-black cascade/diamond grille, Alder badges and a Willow Motor Co.
+dealer insert accompany the four-door cabin, cargo well and FWD underbody.
+Four doors, hood, liftgate, wheel spin and front kingpins have measured pivots
+and sampled clearance checks. Five factory paints share one H120 atlas.
 
-[H120 checkpoint report](HATCH.md) gives measured sections, gate/crease numbers,
-per-part budgets, rebuild commands, pickup preservation and remaining weaknesses.
-[REVIEW.md](REVIEW.md) records the critiques. Rebuild from the repository root
-with `make -C cars BODY=hatch`; the default cars build remains the pickup.
+[H120 checkpoint report](HATCH.md) records the parts, budget, materials, motion
+ranges, matched-daylight measurements and rebuild commands. The [accepted form
+report](HATCH_FORM.md) retains its profile overlays, gloss clay, sections and
+whole-body curvature maps; `make -C cars BODY=hatch STAGE=form` rebuilds that
+separate graph. [REVIEW.md](REVIEW.md#h120-detail-and-look-checkpoint) records
+the detail critiques.
 
-[Gloss front](renders/hatch-round4/gloss_front_three_quarter.jpg),
-[gloss rear](renders/hatch-round4/gloss_rear_three_quarter.jpg), and the
-[round-four contact sheet](renders/hatch-round4/round4-contact.jpg) are generated
-locally. The checkpoint includes whole-game-body curvature maps beside stripes,
-all calibrated gloss/photo pairs and same-camera round-three comparisons.
+[Color sheet](renders/hatch-checkpoint/five-colors.jpg),
+[detail views](renders/hatch-checkpoint/details-contact.jpg),
+[motion poses](renders/hatch-checkpoint/motion-sweeps.jpg), and
+[checkpoint contact sheet](renders/hatch-checkpoint/contact-sheet.jpg). These
+are generated local review artifacts. No hatch documentation JPGs are committed
+at this checkpoint.
 
-Round four repairs control-sheet folds and physical game-triangle sampling at
-the hood crowns, bounds the gate recess with a crisp upper crease and retains
-its lower lip. Gloss clay under a procedural sky/ground reveals the accepted
-side lines. The form is **46,737 triangles**; with the unchanged 12,500 future
-allowance, the plan is **59,237 against 59,343**. Pickup source and GLB remain
-identical. No shared family implementation, sedan module or kit file changed.
-This is a source-form checkpoint; no hatch interior, detail, UV, bake, export
-or final documentation images were added.
+**59,989 triangles**, including **3,600 cabin**, **260 cargo**, **1,792
+underbody**, and **1,912 hinge/support** triangles. Four family delivery surfaces
+use one 2048 BaseColor / OpenGL Normal / ORM set, approximately **16 MiB** with
+block compression and full mipmaps. The pickup's source and full GLB bytes
+remain identical; shared family implementation, sedan modules and `kit/` are
+unchanged in this detail round.
+
+```sh
+make -C cars BODY=hatch
+make -C cars BODY=hatch check
+```
+
+The default cars build remains the pickup. The remaining weaknesses and
+source-versus-export comparison are disclosed in HATCH.md; this is the
+requested review checkpoint, not a new final gallery.

@@ -91,5 +91,6 @@ Photo source galleries: https://www.carsdirect.com/toyota/corolla-hatchback/2019
 | --- | --- | --- | --- |
 | hatch-used-front.jpg | https://upload.wikimedia.org/wikipedia/commons/b/ba/2018_Hyundai_Elantra_GT_GL_in_Polar_White%2C_Front_Left%2C_08-06-2022.jpg | Elise240SX, CC BY-SA 4.0; photographed 2022-08-06 | Four-year daily-driver front; paint, glass, alloy, rockers; lighting estimated from diffuse contact shadows |
 | hatch-used-rear.jpg | https://upload.wikimedia.org/wikipedia/commons/b/b9/2018_Hyundai_Elantra_GT_GL_in_Polar_White%2C_Rear_Left%2C_08-06-2022.jpg | Elise240SX, CC BY-SA 4.0; photographed 2022-08-06 | Same four-year class rear; glass, cargo cover, wiper, lower film |
+| hatch-color-report.pdf | https://www.axalta.com/content/dam/New%20Axalta%20Corporate%20Website/Public/Documents/US/axalta-global-automotive-color-popularity_2025.pdf | Axalta Coating Systems, 2025 report; copyright retained, reference only | North American new-build color proportions; five selected colors normalized, not a used-fleet claim |
 
 Only visual comparison and camera measurements; never texture, lighting or geometry input.

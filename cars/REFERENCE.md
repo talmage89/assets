@@ -407,3 +407,52 @@ plane, cylinder and sphere checks validate the implementation. Open cut edges
 are gray because their neighborhoods are incomplete. Maps accompany matching
 stripe views; neither a scalar curvature threshold nor the section measurements
 substitutes for the photographic comparisons.
+
+
+### H120 detail: dated daily-driver photographs and matched daylight
+
+Two Commons photographs by Elise240SX show a MY2018 white compact hatchback
+on 2022-08-06, four years after its model year. They are the front/rear daily-
+driver look references, registered as `hatch-used-front.jpg` and
+`hatch-used-rear.jpg` in [refs/SOURCES.md](refs/SOURCES.md), under CC BY-SA 4.0.
+The original H120 remains a distinct design; these photographs supply no mesh
+or texture pixels. Tire lettering, dealer insert and every marking are drawn
+by our scripts with installed Noto fonts.
+
+The front white exterior siding (x120–220, y12–42) and rear gray garage-door
+mullion (x210–216, y65–125), measured on 1200-pixel-wide review copies, are the
+neutral assumptions. `hatch_pair_measure.py` computes channel gains in linear
+light, then measures annotated display-value patches on the balanced photo
+and the corresponding projected H120 surfaces. They are neither measured
+albedos nor inferred roughness values. Different panel shapes, reflections
+and patch extents limit the comparison. HATCH.md reports the actual results.
+
+Four wheel hub/contact anchors constrain each pinhole camera without fitting
+the body outline. A 1.50 ± 0.15 m camera-height prior resolves the otherwise
+admissible below-ground/reflected pose. Native residuals remain approximately
+9.24 / 9.76 px front/rear; estimated lenses are 88.7 / 71.2 mm. The new pair
+cameras serve appearance review, and do not replace the accepted round-four
+profile cameras or overlays.
+
+The photographs show diffuse daylight, without a distinct hard cast shadow.
+Mirror undersides, wheel contact shade and broad panel gradients guide an
+estimated 24° solar elevation, with ±15° uncertainty; azimuth is −130° front
+and +140° rear in the original car's authoring frame. A broad 18° weak sun
+and a procedural multiple-scattering sky dominate the comparisons. Desaturated
+sky and asphalt-gray ground replace all studio lights and black cards. This
+is a stated lighting approximation, not a unique reconstruction of the sky
+or surrounding buildings. No HDRI is downloaded or used.
+
+The five factory colors use the existing family coating/decoder method.
+Axalta's 2025 North American production shares (white31, gray21, black19,
+blue10, silver8) are normalized across these five selected colors only. They
+are a factory-spawn proxy, not a census of four-year-old cars on American roads.
+The manufacturer's report is registered in SOURCES.md and fetched by `make refs`.
+
+The detailed H120 retains the accepted exterior package. The underbody's
+actual lowest authored surface measures 146.5 mm above ground. The 18 × 7.5
+alloy has a 190.5 mm bead-seat width, 5 × 114.3 mm stud circle and 225/40R18
+sidewall/rolling envelope. The front steering geometry is our original
+15° steering-axis inclination / 6.5° caster / −20 mm scrub construction,
+validated through its full ±35° sweep; these are design choices, not claimed
+manufacturer suspension dimensions.
