@@ -11,7 +11,7 @@ CAPE_SEED ?= $(if $(SEED),$(SEED),36)
 CAPE_SEEDS ?= 31,32,33,34,35,36
 WIDTH ?= 1440
 SAMPLES ?= 48
-CAPE_SOURCE_DEPS := src/cape_plan.py src/cape_build.py src/cape_check.py src/cape_lookdev.py src/cape_surfaces.py src/cape_age.py src/cape_sweep.py src/build.py src/plan.py src/ranch_build.py src/ranch_drain.py src/ranch_lookdev.py src/ranch_fields.py src/additions.py src/lookdev.py src/textures.py src/check_mesh.py src/glb_budget.py $(KIT)/model.py $(KIT)/tiling.py $(KIT)/materials.py
+CAPE_SOURCE_DEPS := src/cape_plan.py src/cape_build.py src/cape_check.py src/cape_lookdev.py src/cape_surfaces.py src/cape_shingle_fields.py src/cape_age.py src/cape_profile.py src/cape_sweep.py src/build.py src/plan.py src/ranch_build.py src/ranch_drain.py src/ranch_lookdev.py src/ranch_fields.py src/additions.py src/lookdev.py src/textures.py src/check_mesh.py src/glb_budget.py $(KIT)/model.py $(KIT)/tiling.py $(KIT)/materials.py
 CAPE_RENDER_DEPS := src/cape_render.py src/cape_reflections.py src/render.py src/ranch_render.py
 comma := ,
 CAPE_IDS := $(subst $(comma), ,$(CAPE_SEEDS))
@@ -34,7 +34,7 @@ refs:
 	$(PYTHON) src/cape_refs.py
 build/cape/plan-sweep.json: src/plan.py src/cape_plan.py src/cape_check.py src/check_plan.py src/ranch_plan.py
 	$(PYTHON) src/check_plan.py --count 1000 --out $@
-build/cape/regression/comparison.json: src/plan.py src/build.py src/ranch_build.py src/cape_regression.py src/cape_baseline.json
+build/cape/regression/comparison.json: src/plan.py src/build.py src/ranch_build.py src/cape_regression.py src/regression_payload.py src/cape_baseline.json
 	$(BP) --python src/cape_regression.py --
 check: model build/cape/plan-sweep.json build/cape/regression/comparison.json
 	$(PYTHON) src/cape_memory.py
@@ -64,15 +64,15 @@ CAPE_LOOK_ROOT := renders/cape/lookdev/checkpoint
 CAPE_LOOK_VIEWS := $(addprefix $(CAPE_LOOK_ROOT)/,$(addsuffix .png,hero back roof dormer eave entry scale foundation peeling)) $(foreach seed,$(CAPE_IDS),$(foreach view,front rear siding,$(CAPE_LOOK_ROOT)/seeds/$(seed)/$(view).png)) $(foreach seed,32 35,$(CAPE_LOOK_ROOT)/seeds/$(seed)/hero.png $(CAPE_LOOK_ROOT)/seeds/$(seed)/connector.png) $(CAPE_LOOK_ROOT)/seeds/32/tired.png $(CAPE_LOOK_ROOT)/comparison/types.png $(CAPE_LOOK_ROOT)/painted_cedar/siding.png
 CAPE_VALUE_ROOT := renders/cape/lookdev/values
 CAPE_VALUE_IMAGES := $(addprefix $(CAPE_VALUE_ROOT)/,$(addsuffix .png,wood cedar roof vinyl aluminum cement concrete trim brick glass))
-CAPE_PHOTO_FITS := $(addprefix refs/cape-used-white-,$(addsuffix -balanced.jpg,wood roof trim brick glass)) refs/cape-northeast-spring-concrete-balanced.jpg refs/cape-used-brown-cedar-balanced.jpg refs/cape-used-metal-aluminum-balanced.jpg refs/cape-used-cement-cement-balanced.jpg refs/cape-used-vinyl-houses-vinyl-balanced.jpg
-CAPE_VALUE_REFS := $(addprefix refs/,$(addsuffix .jpg,cape-used-white cape-used-brown cape-used-metal cape-used-cement cape-used-vinyl-houses cape-northeast-spring))
+CAPE_PHOTO_FITS := $(addprefix refs/cape-used-white-,$(addsuffix -balanced.jpg,wood roof trim brick glass)) refs/cape-northeast-spring-concrete-balanced.jpg refs/cape-used-brown-cedar-balanced.jpg refs/cape-used-metal-aluminum-balanced.jpg refs/cape-used-striated-cement-balanced.jpg refs/cape-used-vinyl-houses-vinyl-balanced.jpg
+CAPE_VALUE_REFS := $(addprefix refs/,$(addsuffix .jpg,cape-used-white cape-used-brown cape-used-metal cape-used-striated cape-used-vinyl-houses cape-northeast-spring))
 .PHONY: cape-lookdev lookdev-render lookdev-values lookdev-review cape-context
 cape-context: build/cape/shared-source.stamp
 	$(BP) --python src/cape_context.py --
 $(CAPE_VALUE_REFS):
 	$(PYTHON) $(KIT)/fetch_refs.py refs --only $(@F)
 build/cape/material-photos.json $(CAPE_PHOTO_FITS) &: src/cape_values.py refs/SOURCES.md $(CAPE_VALUE_REFS)
-	$(PYTHON) $(KIT)/fetch_refs.py refs --only cape-used-white.jpg cape-used-brown.jpg cape-used-metal.jpg cape-used-cement.jpg cape-used-vinyl-houses.jpg cape-northeast-spring.jpg
+	$(PYTHON) $(KIT)/fetch_refs.py refs --only cape-used-white.jpg cape-used-brown.jpg cape-used-metal.jpg cape-used-striated.jpg cape-used-vinyl-houses.jpg cape-northeast-spring.jpg
 	$(PYTHON) src/cape_values.py --prepare
 $(CAPE_LOOK_VIEWS) &: $(CAPE_MODELS) $(CAPE_RENDER_DEPS) src/cape_checkpoint_render.py build/cape/render-parameters.txt | cape-context
 	$(KIT)/with_gpu.sh $(BP) --python src/cape_checkpoint_render.py -- --out $(CAPE_LOOK_ROOT) --width $(WIDTH) --samples $(SAMPLES)
@@ -89,4 +89,5 @@ lookdev-review: lookdev-render lookdev-values matches
 	$(PYTHON) src/cape_present.py $(CAPE_LOOK_ROOT)
 	$(PYTHON) src/cape_lookdev_check.py
 cape-lookdev: refs model check lookdev-review
+include src/cape_delivery.mk
 endif

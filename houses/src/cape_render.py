@@ -1,4 +1,4 @@
-"""Cape source checkpoint in GPU Cycles; no portfolio docs or bake claims."""
+"""Cape source and delivered-file views in GPU Cycles and Eevee."""
 import argparse
 import hashlib
 import json
@@ -25,7 +25,7 @@ def views(meta):
     sx=m['x0']+sill['u'];sz=sill['z']
     bridge=next((b for b in meta['blocks'] if b['name']=='Breezeway'),None)
     bx=(bridge['x0']+bridge['x1'])/2 if bridge else x;by=bridge['y0'] if bridge else y
-    return dict(hero=dict(location=(cx+w*.85,cy-w*1.45-9,3.2),target=(cx,cy,2.8),lens=45,aspect=1.65),
+    shots=dict(hero=dict(location=(cx+w*.85,cy-w*1.45-9,4.4),target=(cx,cy,2.65),lens=45,aspect=1.65),
         front=dict(location=(cx,-60,3.8),target=(cx,0,3.8),ortho=max(14,w+2),aspect=max(1.65,(w+2)/8.0)),
         rear=dict(location=(cx,60,3.8),target=(cx,0,3.8),ortho=max(14,w+2),aspect=max(1.65,(w+2)/8.0)),
         back=dict(location=(cx-w*.6,cy+w*1.25+9,7.5),target=(cx,cy,2.9),lens=43,aspect=1.65),
@@ -36,9 +36,20 @@ def views(meta):
         scale=dict(location=(x+3,y-10,2.3),target=(x,y-.5,m['floor']+1),lens=45,aspect=1.5,human=True),
         siding=dict(location=(wallx+.65,y-3.2,1.75),target=(wallx,y,1.7),lens=58,aspect=1.25),
         foundation=dict(location=(x+1.7,y-4.0,1.1),target=(x,y-.35,.55),lens=48,aspect=1.5),
+        concrete=dict(location=(m['x0']+1.02,y-4,.19),target=(m['x0']+1.02,y,.19),ortho=1.22,aspect=3.6),
         peeling=dict(location=(sx+.38,y-1.28,sz+.45),target=(sx,y,sz+.03),lens=58,aspect=1.4),
         tired=dict(location=(m['x0']+2.6,m['y1']+5.2,m['eave']+4.5),target=(m['x0']+2,m['y1']-1.0,m['eave']+m['pitch']),lens=55,aspect=1.4),
-        connector=dict(location=(bx+(-3.2 if bx<(m['x0']+m['x1'])/2 else 3.2),by-4.6,2.2),target=(bx,by+.7,1.35),lens=45,aspect=1.4))
+        connector=dict(location=(bx+(-3.2 if bx<(m['x0']+m['x1'])/2 else 3.2),by-4.6,2.2),target=(bx,by+.7,1.35),lens=45,aspect=1.4),
+        side=dict(location=(60,cy,4),target=(cx,cy,3.7),ortho=max(14,hi.y-lo.y+2),aspect=1.65),
+        top=dict(location=(cx,cy,65),target=(cx+.001,cy,0),ortho=max(14,w+2,hi.y-lo.y+2),aspect=1.2))
+    chimney=bpy.data.objects.get('Brick_Chimney')
+    if chimney:
+        pts=[chimney.matrix_world@v.co for v in chimney.data.vertices]
+        target=Vector(tuple((min(p[k] for p in pts)+max(p[k] for p in pts))/2 for k in range(3)))
+        target.z=max(p.z for p in pts)-.5
+        shots['chimney']=dict(location=tuple(target+Vector((2,-3,1.4))),target=tuple(target),lens=52,aspect=1.25)
+    elif meta.get('chimney_camera'):shots['chimney']=meta['chimney_camera']
+    return shots
 
 
 def load_context(path,offset):
@@ -57,10 +68,15 @@ def load_context(path,offset):
     return dict(path=str(path),sha256=bundle_hash(path) if path.suffix=='.gltf' else hashlib.sha256(path.read_bytes()).hexdigest(),offset_m=offset)
 
 
-def render(source,out,names,width=1200,samples=32,camera_file=None,types=False):
-    bpy.ops.wm.open_mainfile(filepath=str(source.resolve()));meta=json.loads(source.with_suffix('.json').read_text());digest=hashlib.sha256(source.read_bytes()).hexdigest()
+def render(source,out,names,width=1200,samples=32,camera_file=None,types=False,engine='CYCLES'):
+    from delivery_io import bundle_hash
+    if source.suffix=='.gltf':
+        bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source.resolve()));digest=bundle_hash(source)
+    else:
+        bpy.ops.wm.open_mainfile(filepath=str(source.resolve()));digest=hashlib.sha256(source.read_bytes()).hexdigest()
+    meta=json.loads(source.with_suffix('.json').read_text())
     mats={bpy.path.abspath(im.filepath):hashlib.sha256(Path(bpy.path.abspath(im.filepath)).read_bytes()).hexdigest() for im in bpy.data.images if im.filepath and Path(bpy.path.abspath(im.filepath)).is_file()}
-    camera=setup('CYCLES',samples);reflection_scenery(meta);shots=views(meta);context=[]
+    camera=setup(engine,samples);reflection_scenery(meta);shots=views(meta);context=[]
     if types:
         # Equal meters and one shared orthographic projection. Context loaded
         # read-only from accepted family exports, or source fallback on a clone.
@@ -83,7 +99,7 @@ def render(source,out,names,width=1200,samples=32,camera_file=None,types=False):
         bpy.data.objects['Afternoon sun'].rotation_euler=Vector((.5,.8,-1)).to_track_quat('-Z','Y').to_euler()
         next(n for n in sc.world.node_tree.nodes if n.type=='BACKGROUND').inputs['Strength'].default_value=.12
         sc.render.filepath=str((out/(name+'.png')).resolve());bpy.ops.render.render(write_still=True)
-        reports[name]=dict(source=str(source),source_sha256=digest,material_sha256=mats,render_recipe_sha256=recipe_sha(),seed=meta['seed'],engine='CYCLES',stage=meta['stage'],camera=shot,context=context,lighting=dict(sun_direction=(.5,.8,-1),sky_strength=.12,exposure_ev=sc.view_settings.exposure))
+        reports[name]=dict(source=str(source),source_sha256=digest,metadata_sha256=hashlib.sha256(source.with_suffix('.json').read_bytes()).hexdigest(),material_sha256=mats,render_recipe_sha256=recipe_sha(),seed=meta['seed'],engine=engine,stage=meta['stage'],camera=shot,context=context,lighting=dict(sun_direction=(.5,.8,-1),sky_strength=.12,exposure_ev=sc.view_settings.exposure))
         if name=='hero':tonal(out/'hero.png',camera)
     (out/'provenance.json').write_text(json.dumps(reports,indent=2))
 
