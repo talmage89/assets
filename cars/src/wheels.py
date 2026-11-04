@@ -43,7 +43,8 @@ def build(b,S):
             __import__('bpy').context.view_layer.update();world=spin.matrix_world.copy()
             spin.parent=parent;spin.matrix_world=world
             tire=loaded_tire('Tire_'+end+side,pos,S.TIRE_WIDTH,S.TIRE_ASPECT,S.RIM_INCHES,
-                b.m['tire_'+side] if b.detail else b.m['rubber'],96 if b.high else 64,S.HUB_HEIGHT,
+                b.m['tire_'+side] if b.detail else b.m['rubber'],
+                getattr(S,'TIRE_SEGMENTS_HIGH',96) if b.high else getattr(S,'TIRE_SEGMENTS_GAME',64),S.HUB_HEIGHT,
                 profile_indices=None if b.high else [0,1,3,4,5,7,9,10,11,13,14],rolling_radius=S.HUB_HEIGHT)
             b.add(tire,spin,'tires')
             if b.detail:shoulder_blocks(b,'Shoulder tread_'+end+side,pos,spin,b.m['tire_'+side],S)
