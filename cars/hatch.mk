@@ -11,15 +11,15 @@ BP := $(BLENDER) -t 1 -b --factory-startup --python-exit-code 1
 RP := $(BLENDER) -b --factory-startup --python-exit-code 1
 export TMPDIR := $(REPO)/build/tmp
 export ASSETS_GPU_LOCK ?= $(REPO)/build/locks/gpu.lock
-WIDTH ?= 1400
-SAMPLES ?= 48
+WIDTH ?= 2000
+SAMPLES ?= 96
 WEAR ?= .65
 PASS ?= hatch-checkpoint
 OUT := renders/$(PASS)
 HD := build/hatch-detail
 HC := src/hatch_detail_config.py
 FORMDEPS := src/hatch_build.py src/hatch_body.py src/hatch_apertures.py src/hatch_character.py src/hatch_spec.py src/build.py src/wheels.py
-DETAILDEPS := src/hatch_shoulder_surface.py src/hatch_fuel_surface.py src/hatch_reference_surface.py src/hatch_hidden_allocation.py src/hatch_optical_surfaces.py src/hatch_surface_normals.py src/hatch_running_surfaces.py src/hatch_grille.py src/hatch_detail.py src/hatch_exterior.py src/hatch_finishes.py src/hatch_hardware.py src/hatch_interior.py src/hatch_mechanisms.py src/hatch_surface_detail.py src/hatch_underbody.py src/finishes.py src/detail_helpers.py ../kit/vehicle_materials.py
+DETAILDEPS := src/hatch_gate_surface.py src/hatch_shoulder_surface.py src/hatch_fuel_surface.py src/hatch_reference_surface.py src/hatch_hidden_allocation.py src/hatch_optical_surfaces.py src/hatch_surface_normals.py src/hatch_running_surfaces.py src/hatch_grille.py src/hatch_detail.py src/hatch_exterior.py src/hatch_finishes.py src/hatch_hardware.py src/hatch_interior.py src/hatch_mechanisms.py src/hatch_surface_detail.py src/hatch_underbody.py src/finishes.py src/detail_helpers.py ../kit/vehicle_materials.py
 RENDERDEPS := src/hatch_lookdev.py src/hatch_colors.py src/hatch_views.py src/delivery_materials.py src/lighting.py ../kit/studio.py ../kit/gpu.py
 PAIRDEPS := $(RENDERDEPS) src/hatch_lighting.py
 empty :=
@@ -35,8 +35,9 @@ BAKEMAPS := $(foreach c,$(HATCH_CHANNELS),textures/hatch/bake/T_AlderH120_$(c).p
 SHIPMAPS := $(foreach c,$(HATCH_CHANNELS),textures/hatch/ship/T_AlderH120_$(c).png)
 .NOTPARALLEL:
 .DELETE_ON_ERROR:
-.PHONY: all refs model check render review FORCE
-all: refs model check render review eevee source-pairs
+.PHONY: all refs model check render review checkpoint FORCE
+all: refs model check gallery final-review source-pairs
+checkpoint: refs model check render review eevee source-pairs surface-proofs source-surface-proofs
 RENDER_SOURCE ?= export/AlderH120.glb
 $(HD)/wear.txt: FORCE
 	@mkdir -p $(HD) $(TMPDIR)
@@ -147,15 +148,44 @@ $(OUT)/surface-proofs/.stamp: export/AlderH120.glb src/hatch_surface_proofs.py s
 	$(KIT)/with_gpu.sh $(RP) --python src/hatch_surface_proofs.py -- --source $< --out $(OUT)/surface-proofs --mode horizontal --width $(WIDTH) --samples 32
 	$(KIT)/with_gpu.sh $(RP) --python src/hatch_surface_proofs.py -- --source $< --out $(OUT)/surface-proofs --mode vertical --width $(WIDTH) --samples 32
 	@touch $@
-all: surface-proofs
+
 source-surface-proofs: renders/hatch-source-surface-proofs/.stamp
 renders/hatch-source-surface-proofs/.stamp: $(HD)/game.blend src/hatch_surface_proofs.py src/hatch_curvature_map.py src/hatch_views.py $(HD)/parameters.txt
 	$(BP) --python src/hatch_surface_proofs.py -- --source $< --out renders/hatch-source-surface-proofs --mode curvature --width $(WIDTH)
 	$(KIT)/with_gpu.sh $(RP) --python src/hatch_surface_proofs.py -- --source $< --out renders/hatch-source-surface-proofs --mode horizontal --width $(WIDTH) --samples 32
 	$(KIT)/with_gpu.sh $(RP) --python src/hatch_surface_proofs.py -- --source $< --out renders/hatch-source-surface-proofs --mode vertical --width $(WIDTH) --samples 32
 	@touch $@
-all: source-surface-proofs
+
 surface-compare: render
 	$(PYTHON) src/hatch_surface_review.py --before renders/hatch-surfaces-before --after $(OUT)
 
+endif
+
+# Delivery uses the pickup's gallery recipe; checkpoints stay explicitly opt-in.
+ifeq ($(STAGE),form)
+else
+FINAL := renders/hatch-final
+FINALVIEWS := hero rear front side back top face lamp wheel rear_quarter gate plate cargo scale
+GALLERYDEPS := src/hatch_gallery.py src/hatch_final_views.py src/delivery_materials.py src/hatch_lookdev.py src/hatch_lighting.py $(KIT)/studio.py
+FINALIMAGES := $(foreach n,$(FINALVIEWS),$(FINAL)/$(n).png $(FINAL)/$(n)-mask.png)
+FINALCOLORS := $(foreach c,$(COLORS),$(FINAL)/paint_$(c).png $(FINAL)/paint_$(c)-mask.png)
+.PHONY: gallery final-review docs final-pairs
+$(FINAL)/.stamp $(FINALIMAGES) $(FINALCOLORS) &: export/AlderH120.glb $(GALLERYDEPS) $(HD)/parameters.txt
+	$(KIT)/with_gpu.sh $(RP) --python src/hatch_gallery.py -- --source $< --out $(FINAL) --width $(WIDTH) --samples $(SAMPLES) --shots $(subst $(space),$(comma),$(FINALVIEWS))
+	$(KIT)/with_gpu.sh $(RP) --python src/hatch_gallery.py -- --source $< --out $(FINAL) --width $(WIDTH) --samples $(SAMPLES) --colors
+	@touch $(FINAL)/.stamp
+renders/hatch-final-eevee/.stamp: export/AlderH120.glb $(GALLERYDEPS) $(HD)/parameters.txt
+	$(KIT)/with_gpu.sh $(RP) --python src/hatch_gallery.py -- --source $< --out renders/hatch-final-eevee --width $(WIDTH) --samples 192 --shots hero --engine BLENDER_EEVEE
+	@touch $@
+renders/hatch-final-pairs/.stamp: export/AlderH120.glb $(HD)/used-cameras.json $(GALLERYDEPS) $(HD)/parameters.txt
+	$(KIT)/with_gpu.sh $(RP) --python src/hatch_gallery.py -- --source $< --out renders/hatch-final-pairs --width $(WIDTH) --samples $(SAMPLES) --camera-file $(HD)/used-cameras.json
+	$(PYTHON) $(KIT)/photo_match.py compose --calibration $(HD)/used-cameras.json --renders renders/hatch-final-pairs --out renders/hatch-final-pairs
+	$(PYTHON) src/hatch_pair_measure.py --renders renders/hatch-final-pairs
+	@touch $@
+final-pairs: renders/hatch-final-pairs/.stamp
+gallery: $(FINAL)/.stamp $(FINALIMAGES) $(FINALCOLORS) renders/hatch-final-eevee/.stamp final-pairs
+final-review: gallery source-pairs src/hatch_delivery_review.py
+	$(PYTHON) src/hatch_delivery_review.py --renders $(FINAL)
+docs: final-review
+	$(PYTHON) src/hatch_delivery_review.py --renders $(FINAL) --docs
 endif
