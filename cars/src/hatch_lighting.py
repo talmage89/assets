@@ -8,7 +8,7 @@ import bpy
 from mathutils import Vector
 from kit import studio,model as G
 CONDITIONS={'front':dict(elevation=24,azimuth=-130,energy=3.25,sky=.225),
-            'rear':dict(elevation=24,azimuth=140,energy=3.25,sky=.225)}
+            'rear':dict(elevation=24,azimuth=140,energy=3.25,sky=.230)}
 
 def setup():
     sc=bpy.context.scene
@@ -38,4 +38,4 @@ def conditions(name):
     sc.world.node_tree.nodes['H120 sky strength'].inputs['Strength'].default_value=c['sky']
     e,a=math.radians(c['elevation']),math.radians(c['azimuth']);towards=Vector((math.cos(e)*math.cos(a),math.cos(e)*math.sin(a),math.sin(e)))
     ob=bpy.data.objects['H120 diffuse sun'];ob.data.energy=c['energy'];ob.rotation_euler=(-towards).to_track_quat('-Z','Y').to_euler()
-    return dict(method='Procedural multiple-scattering sky, diffuse sun, asphalt-gray ground; rear view includes an estimated plain gray facade',sun_elevation_degrees=c['elevation'],sun_azimuth_degrees=c['azimuth'],uncertainty_degrees=15,facade=(dict(center_m=[3.4,-6.3,3],size_m=[4,.20,6],yaw_degrees=28,linear_albedo=[.95,.96,.96],camera_visible=False) if 'rear' in name else None),estimate='No distinct hard shadows: mirror underside and tire contact constrain weak diffuse light, not a unique solar fit')
+    return dict(method='Procedural multiple-scattering sky, diffuse sun, asphalt-gray ground; rear view includes an estimated plain gray facade',sun_elevation_degrees=c['elevation'],sun_azimuth_degrees=c['azimuth'],sun_energy=c['energy'],sky_strength=c['sky'],uncertainty_degrees=15,facade=(dict(center_m=[3.4,-6.3,3],size_m=[4,.20,6],yaw_degrees=28,linear_albedo=[.95,.96,.96],camera_visible=False) if 'rear' in name else None),estimate='No distinct hard shadows: mirror underside and tire contact constrain weak diffuse light, not a unique solar fit')
