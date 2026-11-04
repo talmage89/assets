@@ -31,8 +31,16 @@ def main():
             # positions solely for the geometric diagnostic, never the export.
             for ob in sc.objects:
                 if ob.type!='MESH':continue
+                # Consolidation retains the active source object's custom
+                # properties. Its per-part face count is invalid on a joined
+                # mesh and must never mask the rest of the exported assembly.
+                for key in ['outer_skin_faces','lens_outer_faces']:
+                    if key in ob:del ob[key]
+                role=ob.data.attributes.get('hatch_outer_skin')
+                if role:ob.data.attributes.remove(role)
                 bm=bmesh.new();bm.from_mesh(ob.data);bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=1e-7);bm.to_mesh(ob.data);bm.free()
         report=C.apply();report.update(source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),stage='imported GLB' if final else 'procedural source')
+        report['selection']='All exported faces, including gauge; inherited per-part counts discarded' if final else 'Authored outer roles where available; all auxiliary faces otherwise'
         (out/'curvature.json').write_text(json.dumps(report,indent=2))
         sc.render.engine='BLENDER_WORKBENCH';sh=sc.display.shading;sh.light='FLAT';sh.color_type='VERTEX';sh.show_shadows=False;sh.show_cavity=False;sh.show_specular_highlight=False;sh.show_object_outline=False
         sc.display.render_aa='32';sc.world=bpy.data.worlds.new('H120 diagnostic');sc.world.color=(.04,.04,.04)
