@@ -10,7 +10,7 @@ SHOTS={
  'grille':dict(location=(.50,-3.4,.85),target=(0,-2.10,.585),lens=85,aspect=1.6,studio_yaw=-35),
  'cargo':dict(location=(-1.1,3.5,1.42),target=(0,1.45,.80),lens=42,aspect=1.5,studio_yaw=145,exposure=-1.3,parts={'Liftgate':('X',82)}),
  'mirror':dict(location=(1.80,-2.20,1.25),target=(.97,-.85,1.00),lens=100,aspect=1.5,studio_yaw=-35,paint='Graphite'),
- 'interior_glass':dict(location=(1.70,.25,1.55),target=(.15,-.40,.75),lens=42,aspect=1.5,studio_yaw=-90,paint='Graphite',exposure=-1.3),
+ 'interior_glass':dict(location=(1.70,.25,1.55),target=(.15,-.40,.75),lens=42,aspect=1.5,studio_yaw=45,paint='Graphite',exposure=-.8),
  'underbody':dict(location=(3.8,5.3,.15),target=(0,1.0,.25),lens=60,aspect=1.65,studio_yaw=145,exposure=-1.3),
  'underbody_layout':dict(location=(2.8,3.8,-2.2),target=(0,0,.25),lens=35,aspect=1.65,studio_yaw=145,exposure=-1.3,underside=True),
  'opened_front':dict(location=(5.8,-7,2.9),target=(0,-.10,.90),lens=55,aspect=1.65,studio_yaw=-35,

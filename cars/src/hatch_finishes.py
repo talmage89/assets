@@ -128,6 +128,11 @@ def build(wear):
             sign=-1 if side=='L' else 1
             n.feed(embossed.inputs['Vector'],n.combine(n.add(.5,n.mul(y,sign*1.26)),n.add(.5,n.mul(z,1.26)),0))
             coverage=n.mul(n.ramp(n.math('ABSOLUTE',x),.093,.108),n.ramp(radius,.241,.248),n.ramp(radius,.307,.297))
+            # Raised molded type catches a little pale road dust. This faint
+            # deposit also survives minification when the relief is subtexel.
+            glyph=n.mul(coverage,embossed.outputs['Color'])
+            rubber=nt.nodes['OUT_base'].inputs[0].links[0].from_socket
+            n.feed(nt.nodes['OUT_base'].inputs[0],n.vec('ADD',rubber,n.mix(n.mul(glyph,wear),(0,0,0),(.020,.018,.014),True)))
             old=nt.nodes['OUT_height'].inputs[0].links[0].from_socket
-            n.feed(nt.nodes['OUT_height'].inputs[0],n.add(old,n.mul(coverage,embossed.outputs['Color'],.0005)))
+            n.feed(nt.nodes['OUT_height'].inputs[0],n.add(old,n.mul(glyph,.0005)))
     return m

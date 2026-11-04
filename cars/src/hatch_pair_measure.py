@@ -27,7 +27,9 @@ def measure(folder):
         ref=np.asarray(reference,dtype=float)/255;lin=linear(ref)
         x0,y0,x1,y1=spec['neutral'];neutral=np.median(lin[y0:y1,x0:x1],axis=(0,1));gains=neutral.mean()/neutral
         balanced=np.clip(display(lin*gains),0,1)*255
-        render=np.asarray(Image.open(folder/(name+'.png')).convert('RGB'),dtype=float)
+        rendered_image=Image.open(folder/(name+'.png')).convert('RGBA')
+        background=Image.new('RGBA',rendered_image.size,(235,237,238,255))
+        render=np.asarray(Image.alpha_composite(background,rendered_image).convert('RGB'),dtype=float)
         shot=meta[name];points=shot['appearance_points'];rows=[]
         left=Image.fromarray(render.astype('uint8'));right=Image.fromarray(balanced.astype('uint8'));ld=ImageDraw.Draw(left);rd=ImageDraw.Draw(right)
         for label,rect in spec['patches'].items():
