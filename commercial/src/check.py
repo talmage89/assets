@@ -120,10 +120,14 @@ def run(seed,motions=False):
  access_measurement=dict(ramp_height_samples_m=ramp,level_landing_height_samples_m=landing,scope='Source ray heights along the actual ramp and level top landing; width/run are authored plan dimensions, not a permit audit.')
  # Raw glTF geometry does not depend on Blender's importer.
  g=GLB(source.with_suffix('.glb'));raw_tri=0;normal_error=0;degenerate_uv=0
+ mesh_counts=[]
  for me in g.json['meshes']:
+  count=0
   for pr in me['primitives']:
-   raw_tri+=len(g.accessor(pr['indices']))//3
+   count+=len(g.accessor(pr['indices']))//3
    n=g.accessor(pr['attributes']['NORMAL']);normal_error=max(normal_error,float(np.max(abs(np.linalg.norm(n,axis=1)-1))))
+  mesh_counts.append(count)
+ raw_tri=sum(mesh_counts[n['mesh']] for n in g.json['nodes'] if 'mesh' in n)
  assert raw_tri==p['total_triangles'],(raw_tri,p['total_triangles'])
  assert normal_error<1e-5,'Non-unit raw normals'
  bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source.with_suffix('.glb').resolve()));bpy.context.view_layer.update()

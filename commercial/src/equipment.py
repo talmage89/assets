@@ -70,13 +70,13 @@ def dispenser(name,p,yaw,brand,index=1):
  r['make']='Cairn Metering';r['model']='M3';r['grades']='87 / 89 / 93, separate products; one hose per face'
  # 44 in class body, formed lower hydraulic cabinet, independent top/electronics.
  box('Dispenser plinth',(0,0,.055),(1.07,.61,.11),'Trim',r,.015,2)
- box('Hydraulic cabinet',(0,0,.57),(1.04,.56,1.0),'White',r,.026,2)
+ box('Hydraulic cabinet',(0,0,.57),(1.04,.56,1.0),'White',r,.026,1)
  for s in (-1,1):
   yy=s*.29
   panel('Hydraulic access panel',0,yy,.56,.965,.90,'Primary',r,.015)
   cylinder('Panel lock',(0,yy,.93),(0,yy+s*.014,.93),.018,'Metal',r,10)
- box('Electronics enclosure',(0,0,1.56),(1.10,.62,1.06),'Trim',r,.045,3)
- box('Dispenser crown',(0,0,2.15),(1.19,.67,.18),'Primary',r,.024,2)
+ box('Electronics enclosure',(0,0,1.56),(1.10,.62,1.06),'Trim',r,.045,2)
+ box('Dispenser crown',(0,0,2.15),(1.19,.67,.18),'Primary',r,.024,1)
  for s in (-1,1):
   # UI local frame: +180 for the back; common analytic construction.
   f=root(name+('_front' if s<0 else '_rear'),(0,s*.322,0),0 if s<0 else 180,'Dispenser',r)
@@ -107,15 +107,13 @@ def dispenser(name,p,yaw,brand,index=1):
   panel('Spout docking pocket',-.57,-.11,1.61,.12,.12,'Black',f,.07)
   noz=nozzle(name+('_NozzleA' if s<0 else '_NozzleB'),(-.49,-.14,1.27),f)
   # Curb hose: 30 mm OD. A gravity loop clears the island, with metal breakaway.
-  pts=G.bezier((-.57,-.06,2.10),(-.74,-.10,1.94),(-1.01,-.14,.57),(-.94,-.15,.46),12)
-  pts+=G.bezier((-.94,-.15,.46),(-.81,-.16,.21),(-.57,-.14,.62),(-.525,-.14,1.015),12)[1:]
+  pts=G.bezier((-.57,-.06,2.10),(-.74,-.10,1.94),(-1.01,-.14,.57),(-.94,-.15,.46),20)
+  pts+=G.bezier((-.94,-.15,.46),(-.81,-.16,.21),(-.57,-.14,.62),(-.525,-.14,1.015),28)[1:]
   hose=tube('30 mm curb hose',pts,.015,'Rubber',f,8);hose['hose_radius_m']=.015
   hose['centerline_m']=[v for p in pts for v in p]
   cylinder('Breakaway coupling',(-.57,-.06,2.10),(-.57,-.06,2.01),.027,'Metal',f,12)
-  cylinder('Retraction reel',(-.43,.02,2.10),(-.43,-.07,2.10),.072,'Black',f,16)
-  tether=pts[6]
-  tube('Retraction tether',[(-.43,-.08,2.10),tether],.0025,'Metal',f,6)
-  cylinder('Hose retriever clamp',(tether[0],tether[1],tether[2]-.022),(tether[0],tether[1],tether[2]+.022),.023,'Metal',f,10)
+  # Stored slack hose, without the former unsupported wire/reel proxy.
+  # The crown bulkhead and nozzle swivel support the two ends.
   panel('Safety plate',.16,.016,.77,.42,.22,'White',f,.012)
   ring=[(-.005+.044*math.cos(i*math.tau/24),.005,.77+.044*math.sin(i*math.tau/24)) for i in range(25)]
   tube('No smoking red ring',ring,.004,'Red',f,6)
@@ -164,6 +162,13 @@ def canopy(spec,brand):
   rounded_slab('Raised curb island',(0,0,.01),c['island'][0],c['island'][1],c['island'][2],.40,'Concrete',island)
   box('Column base plate',(0,.92,.19),(.52,.52,.055),'Metal',island,.008)
   box('Square canopy column',(0,.92,(clear+.20)/2),(c['column'],c['column'],clear-.20),'White',island,.009,2)
+  # Brake-formed four-piece painted aluminum wrap with folded base skirt,
+  # a gasketed vertical closure and the brand's narrow identity band.
+  box('Column base skirt',(0,.92,.30),(.40,.40,.20),'Trim',island,.008)
+  box('Column skirt drip',(0,.92,.407),(.425,.425,.025),'Metal',island,.003)
+  box('Column brand band',(0,.92,1.48),(.3636,.3636,.24),'Primary',island,.003)
+  box('Column band reveal',(0,.92,1.35),(.365,.365,.025),'Accent',island,.001)
+  box('Column closure seam',(.1785,.92,2.42),(.002,.009,3.86),'Trim',island,0)
   for xx in (-.20,.20):
    for yy in (.72,1.12):cylinder('Column anchor',(xx,yy,.215),(xx,yy,.245),.022,'Metal',island,6)
   # Downpipe sits on the column face, with straps touching it.
@@ -188,17 +193,23 @@ def price_sign(kind,p,brand):
  box('Sign foundation',(0,0,.12),(w+.34,.80,.24),'Concrete',r,.025)
  if pylon:
   for xx in (-.75,.75):box('Pylon steel upright',(xx,0,base/2),( .24,.28,base),'Trim',r,.008)
- else:box('Monument masonry base',(0,0,.29),(w,.68,.58),'Wall',r,.008)
+ else:
+  box('Monument masonry base',(0,0,.29),(w,.68,.58),'Wall',r,.008)
+  box('Monument masonry cap',(0,0,.59),(w+.12,.80,.09),'Concrete',r,.012)
+  for xx in (-w/2+.13,w/2-.13):box('Monument masonry end pier',(xx,0,.36),(.26,.73,.60),'Wall',r,.005)
  box('Price cabinet',(0,0,base+h/2),(w,.42,h),'Trim',r,.025,2)
+ for side in (-1,1):
+  for xx in (-w/2+.035,w/2-.035):box('Sign extruded jamb',(xx,side*.23,base+h/2),(.075,.055,h+.04),'Metal',r,.006)
+  for zz in (base+.015,base+h-.015):box('Sign extruded rail',(0,side*.23,zz),(w-.08,.055,.075),'Metal',r,.006)
  for s in (-1,1):
   f=root('PriceFace',(0,s*.225,base),0 if s<0 else 180,'PriceSign',r)
   panel('Price display face',0,0,h/2,w-.10,h-.10,'Black',f,.020)
   brand_sign('Price brand',(0,-.025,h-.51),w-.10,.88,brand,f)
   for i,(grade,price) in enumerate(zip(('REGULAR','PLUS','PREMIUM'),FUEL_PRICES)):
-   z=h-1.17-i*.57
+   z=h-1.17-i*.53
    text('Price grade',grade,(-w*.43,-.012,z),.14,'White',f,'LEFT')
    led_digits('LED price',f'{price:.3f}',(w*.22,-.014,z),.34,f)
-  text('Price legal','CASH / CREDIT  •  PER GALLON',(0,-.012,.23),.09,'White',f)
+  text('Price legal','CASH / CREDIT  •  PER GALLON',(0,-.012,.30),.062,'White',f)
  return r
 
 

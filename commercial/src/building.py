@@ -47,13 +47,7 @@ def storefront(name,x,y,width,parent,door=False):
  box(name+' crossbar',(x,y,transom),(width-.10,.105,.042),'Trim',parent,.002)
  panel(name+' lower glass',x,y,bottom+(transom-bottom)/2,width-.12,transom-bottom-.07,'Glass',parent,.006)
  panel(name+' upper glass',x,y,(head+transom)/2,width-.12,head-transom-.07,'Glass',parent,.006)
- # Deep window bay: floor, ceiling, interior partition and separate small shelves.
- box(name+' ceiling',(x,y+.9,2.92),(width,1.8,.06),'White',parent,0)
- box(name+' interior floor',(x,y+1.1,.141),(width,2.2,.04),'Concrete',parent,0)
- box(name+' interior back',(x,y+2.2,1.55),(width,.06,2.8),'Inside',parent,0)
- for zz in (.65,1.05,1.45):
-  box(name+' shelf',(x,y+1.65,zz),(width*.78,.42,.035),'Trim',parent,.001)
-  for i in range(5):box(name+' stock',(x-width*.32+i*width*.16,y+1.67,zz+.12),(.11,.12,.20),'Accent' if i%2 else 'White',parent,.002)
+ # The shared open retail volume supplies depth, shelves and ceiling lights.
 
 
 def rooftop_unit(name,p,parent,size=(2.0,1.3,1.2)):
@@ -64,11 +58,12 @@ def rooftop_unit(name,p,parent,size=(2.0,1.3,1.2)):
  # Open louvered condenser side, backed by a dark plenum, not pasted stripes.
  panel(name+' plenum',x,y-d/2-.003,z+.24+h*.5,w-.15,h-.20,'Black',parent)
  for i in range(12):box(name+' louver',(x,y-d/2-.026,z+.36+i*(h-.28)/12),(w-.16,.056,.022),'Metal',parent,.002)
- for xx in (-w*.26,w*.26):
-  cylinder(name+' fan dark',(x+xx,y,z+.27+h),(x+xx,y,z+.285+h),.34,'Black',parent,24)
+ fan_radius=min(.34,d*.34,w*.20);fan_centers=(-w*.26,w*.26) if w>1.4 else (0,)
+ for xx in fan_centers:
+  cylinder(name+' fan dark',(x+xx,y,z+.27+h),(x+xx,y,z+.285+h),fan_radius,'Black',parent,24)
   for j in range(7):
    # Bar grille, silhouette only; finer mesh belongs in trim normals.
-   yy=(j-3)*.085;half=math.sqrt(max(.001,.33**2-yy**2))
+   yy=(j-3)*fan_radius/3.5;half=math.sqrt(max(.0001,(fan_radius*.97)**2-yy**2))
    cylinder(name+' grille',(x+xx-half,y+yy,z+.30+h),(x+xx+half,y+yy,z+.30+h),.007,'Metal',parent,6)
  box(name+' disconnect',(x+w/2+.04,y,z+.6),(.07,.28,.38),'Trim',parent,.004)
  tube(name+' conduit',[(x+w/2+.08,y,z+.5),(x+w/2+.15,y,z+.28),(x+w/2+.26,y,z+.05)],.016,'Metal',parent,8)
@@ -95,16 +90,39 @@ def retail_shell(spec,brand):
  for side in (-1,1):
   for i in range(nb):
    x=side*(entryw/2+(i+.5)*bay)
-   storefront('Storefront',x,fy-.025,bay,r)
+   storefront('Storefront',x,fy-.025,bay-.18,r)
    if i in (0,nb-1):
     panel('Fictional window poster',x,fy+.012,1.52,min(.58,bay*.55),.74,'Accent',r,.004)
     text('Poster offer','FRESH\nCOFFEE' if i==0 else 'DAILY\nGOODS',(x,fy-.002,1.52),.095,'Light',r)
  storefront('Entry',0,fy-.045,entryw,r,True)
+ # Express the masonry skeleton between aluminum window assemblies. Short
+ # split-face bases and precast caps distinguish the base from the sign band.
+ piers=[side*(entryw/2+(i*bay if i else .16)) for side in (-1,1) for i in range(nb+1)]
+ for xx in piers:
+  box('Front masonry pilaster',(xx,fy-.075,1.56),(.26,.35,2.82),'Wall',r,.006)
+  box('Pilaster precast foot',(xx,fy-.13,.48),(.32,.42,.65),'Wall',r,.006)
+  box('Pilaster water table',(xx,fy-.15,.83),(.35,.46,.075),'Concrete',r,.005)
+  box('Pilaster capital',(xx,fy-.12,2.83),(.34,.44,.12),'Concrete',r,.005)
+ # The front CMU seed uses the same split-face lower three courses; side
+ # wainscot is a true shallow veneer return with a sloped precast water table.
+ if 'cmu' in b['wall']:
+  for side in (-1,1):
+   box('Split-face wainscot',(side*(w/2+.018),0,.46),(.045,d,.61),'Wall',r,.003)
+   box('Wainscot water table',(side*(w/2+.03),0,.795),(.10,d,.06),'Concrete',r,.003)
+  doorx=-w*.28
+  for lo,hi in ((-w/2,doorx-.53),(doorx+.53,w/2)):
+   box('Rear split-face wainscot',((lo+hi)/2,d/2+.018,.46),(hi-lo,.045,.61),'Wall',r,.003)
+ # A cantilevered folded-metal canopy over the entrance, held by wall brackets.
+ box('Entry metal canopy',(0,fy-.76,2.99),(4.55,1.68,.11),'Trim',r,.008)
+ box('Entry canopy standing seam',(0,fy-.76,3.055),(4.60,1.72,.020),'Metal',r,.003)
+ box('Entry canopy fascia',(0,fy-1.60,2.93),(4.60,.055,.20),'Primary',r,.004)
+ for xx in (-1.65,1.65):
+  beam('Entry canopy bracket',(xx,fy-.12,2.55),(xx,fy-1.40,2.90),.045,.045,'Metal',r)
+  box('Entry canopy wall plate',(xx,fy-.10,2.63),(.13,.035,.45),'Metal',r,.003)
  # Shallow foyer, with full-width threshold and door clearance, no fake solid hole.
  box('Threshold',(0,fy-.02,.1524),(2.02,.25,.016),'Metal',r,.002)
  box('Foyer floor',(0,fy+1.4,.136),(entryw,2.8,.034),'Concrete',r,0)
- box('Foyer rear',(0,fy+3,1.55),(entryw,.08,2.8),'Inside',r,0)
- for xx in (-1.02,1.02):box('Foyer cheek',(xx,fy+1.5,1.55),(.08,3,2.8),'Inside',r,0)
+ retail_interior(w,d,fy,r)
  # Integral sign band and masonry soldier/control courses; no applied wall boxes.
  for zz in (2.96,4.12):box('Facade belt',(0,fy-.12,zz),(w,.075,.13),'Concrete',r,.004)
  brand_sign('Store brand',(0,fy-.10,3.55),min(7.4,w*.42),.83,brand,r)
@@ -117,6 +135,8 @@ def retail_shell(spec,brand):
  for xx in (-w/2+.1016,w/2-.1016):
   box('Coping horizontal',(xx,0,b['parapet']+.018),(.30,d-.14,.036),'Trim',r,.003)
   for off in (-.142,.142):box('Coping folded hem',(xx+off,0,b['parapet']-.025),(.016,d-.14,.065),'Trim',r,.002)
+ for xx in [i*2.4384-w/2+.20 for i in range(int(w/2.4384)+1)]:
+  for yy in (-d/2+.1016,d/2-.1016):box('Coping standing joint',(xx,yy,b['parapet']+.041),(.022,.306,.020),'Metal',r,.001)
  # Roof drainage on the rear: scupper boxes through parapet with supported pipes.
  for xx in (-w*.35,w*.35):
   for side in (-1,1):box('Scupper sleeve jamb',(xx+side*.15,d/2-.07,roof+.09),(.012,.36,.17),'Metal',r,.001)
@@ -144,6 +164,7 @@ def retail_shell(spec,brand):
   cylinder('Meter housing',(xx+.10,yy,1.8),(xx+.18,yy,1.8),.14,'Metal',r,20)
   cylinder('Conduit',(xx,yy,.08),(xx,yy,.62),.025,'Metal',r,10)
  box('Service disconnect',(xx,2.65,1.3),(.16,.34,.60),'Trim',r,.004)
+ services(w,d,r)
  if b['cooler']:
   box('Walk-in cooler insulated box',(w/2+1.25,d*.19,1.6),(2.50,3.7,3.10),'White',r,.025)
   for yy in (-1.5,-.5,.5,1.5):box('Cooler panel seam',(w/2+2.505,d*.19+yy,1.6),(.012,.012,3.0),'Metal',r,0)
@@ -152,3 +173,67 @@ def retail_shell(spec,brand):
  socket('Socket_StoreEntry',(0,fy-.17,.1524),r,'pedestrian_entry')
  socket('Socket_StoreWalk',(0,fy,0),r,'retail_frontage_grade')
  return r
+
+
+def retail_interior(w,d,fy,parent):
+ """A visible retail fit-out, not a playable store. Simple stock silhouettes
+ and original printed package fronts give depth through the continuous glass."""
+ box('Retail ceiling',(0,fy+4.0,3.02),(w-.42,8,.055),'White',parent,0)
+ box('Retail floor',(0,fy+4.0,.145),(w-.42,8,.015),'Concrete',parent,0)
+ box('Retail rear partition',(0,fy+8.0,1.55),(w-.42,.06,2.8),'Inside',parent,0)
+ for xx in (-w*.32,0,w*.32):
+  for yy in (fy+1.9,fy+5.3):
+   box('Ceiling light housing',(xx,yy,2.98),(1.20,.32,.055),'Trim',parent,0)
+   box('Ceiling light diffuser',(xx,yy,2.945),(1.12,.27,.014),'Lamp',parent,0)
+ for xx in (-w*.29,w*.29):
+  box('Gondola spine',(xx,fy+4.1,1.02),(.055,3.1,1.65),'White',parent,0)
+  for zz in (.36,.73,1.10,1.47):
+   box('Gondola shelf',(xx,fy+4.1,zz),(.85,3.1,.035),'White',parent,0)
+   for j in range(12):
+    for side in (-1,1):
+     ob=box('Packaged groceries',(xx+side*.24,fy+2.72+j*.25,zz+.14),(.20,.19,.25),'Accent' if j%3 else 'White',parent,0)
+     ob['package']=j%6
+ # Front-facing snack run, held back from the glass and the entry aisle.
+ for xx in (-w*.31,w*.31):
+  for zz in (.42,.84,1.26):
+   box('Window gondola shelf',(xx,fy+1.8,zz),(2.8,.50,.035),'White',parent,0)
+   for j in range(11):
+    ob=box('Product front',(xx-1.23+j*.245,fy+1.83,zz+.16),(.19,.13,.28),'White',parent,0);ob['package']=j%6
+ box('Checkout counter',(2.1,fy+2.15,.68),(1.5,.66,1.05),'Primary',parent,.012)
+ box('Checkout worktop',(2.1,fy+2.15,1.22),(1.62,.75,.045),'Trim',parent,.004)
+ box('Checkout register',(2.1,fy+2.28,1.40),(.38,.26,.30),'Black',parent,.006)
+ for i in range(7):
+  xx=(i-3)*.72
+  frame('Cooler door',xx,fy+7.0,1.40,.70,2.42,'Trim',parent,.036,.06)
+  panel('Cooler glass',xx,fy+7.02,1.40,.62,2.32,'Glass',parent,.005)
+  box('Cooler interior', (xx,fy+7.30,1.40),(.65,.035,2.32),'Inside',parent,0)
+  cylinder('Cooler pull',(xx+.25,fy+6.94,.85),(xx+.25,fy+6.94,1.60),.009,'Metal',parent,8)
+  for zz in (.45,.85,1.25,1.65,2.05):
+   box('Cooler shelf',(xx,fy+7.20,zz),(.63,.32,.025),'White',parent,0)
+   for j in range(4):
+    ob=box('Cooler product',(xx-.22+j*.145,fy+7.18,zz+.12),(.10,.10,.21),'White',parent,0);ob['package']=(i+j)%6
+
+
+def services(w,d,parent):
+ """Exterior wall packs, sealed electrical raceways and connected gas set."""
+ for side in (-1,1):
+  for yy in (-d*.27,d*.28):
+   f=root('SideWallPack',(side*(w/2+.03),yy,2.95),90 if side>0 else -90,parent=parent)
+   box('Wall pack casting',(0,-.06,0),(.27,.16,.32),'Trim',f,.025,2)
+   box('Wall pack lens',(0,-.15,-.08),(.23,.035,.13),'Lamp',f,.008)
+ rear=root('Rear services',(0,d/2+.018,0),180,parent=parent)
+ for xx in (-w*.28,w*.28):
+  box('Rear wall pack',(xx,-.08,2.95),(.28,.18,.32),'Trim',rear,.022,2)
+  box('Rear wall pack lens',(xx,-.18,2.88),(.23,.028,.13),'Lamp',rear,.007)
+ # Feed and branch conduits physically enter their weatherproof boxes.
+ for yy in (1.52,2.05):
+  tube('Service mast conduit',[(w/2+.16,yy,1.94),(w/2+.16,yy,3.46),(w/2+.04,yy,3.57)],.025,'Metal',parent,10)
+  box('Conduit strap',(w/2+.14,yy,2.60),(.10,.10,.025),'Metal',parent,.002)
+ tube('Disconnect feeder',[(w/2+.15,2.05,1.10),(w/2+.18,2.05,.77),(w/2+.18,2.65,.77),(w/2+.13,2.65,1.05)],.022,'Metal',parent,10)
+ gas=root('Gas service',(-w*.18,d/2+.30,0),parent=parent)
+ box('Gas meter body',(0,0,.65),(.42,.24,.48),'Metal',gas,.06,3)
+ box('Gas register',(0,.138,.73),(.24,.04,.16),'White',gas,.008)
+ for xx in (-.27,.27):
+  tube('Gas riser',[(xx,0,.02),(xx,0,.92),(xx*.55,0,.98),(xx*.55,0,.86)],.022,'Metal',gas,10)
+ cylinder('Gas regulator',(-.27,0,.99),(-.27,0,1.10),.075,'Metal',gas,16)
+ tube('Gas building feed',[(.27,0,.02),(.27,.18,.02),(.27,.18,.32)],.022,'Metal',gas,10)

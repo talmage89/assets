@@ -12,8 +12,10 @@ from equipment import canopy,dispenser,trash,price_sign,ice,propane,air,lightpol
 from siteworks import site
 
 
-def build(seed,out,overrides=None):
+def build(seed,out,overrides=None,look=False):
  bpy.ops.wm.read_factory_settings(use_empty=True)
+ import geometry
+ geometry.SHARED_GRAPHICS=look
  reset_prints();p=generate(seed,overrides);brand=BRANDS[p['brand']];palette(brand,p['building']['wall_color'])
  retail_shell(p['building'],brand);can=canopy(p['canopy'],brand);site(p)
  c=p['canopy'];b=p['building']
@@ -29,6 +31,10 @@ def build(seed,out,overrides=None):
  air((p['lot'][0]/2-2.1,-5,0))
  dumpster_enclosure((-p['lot'][0]/2+3.0,p['lot'][1]/2-3.1,0))
  for i,(x,y) in enumerate(((-p['lot'][0]/2+1.0,3.0),(p['lot'][0]/2-1.0,-p['lot'][1]/2+1.0))):lightpole('LightPole_'+str(i),(x,y,0))
+ if look:
+  from age import add
+  from surfaces import apply
+  add(p);apply(p)
  # Quarter-turn the complete property onto a different corner, retaining local origins.
  world=root('Station_'+str(seed),yaw=p['yaw'],kind='Station')
  for ob in list(bpy.context.scene.objects):
@@ -39,9 +45,14 @@ def build(seed,out,overrides=None):
  p['hoses']=[dict(name=o.name,centerline_m=[list(o.matrix_world@Vector(o['centerline_m'][i:i+3])) for i in range(0,len(o['centerline_m']),3)],radius_m=o['hose_radius_m']) for o in bpy.context.scene.objects if o.get('hose_radius_m')]
  print('Built modules; finalizing',seed,flush=True)
  finalize();bpy.context.view_layer.update()
+ from landscape import plant
+ p['landscape']=plant(p,world);bpy.context.view_layer.update()
  bpy.ops.wm.save_as_mainfile(filepath=str(out.resolve()),compress=True)
  # Stock exporter, no materials replaced or joined across reusable modules.
- bpy.ops.export_scene.gltf(filepath=str(out.with_suffix('.glb').resolve()),export_format='GLB',export_extras=True,export_apply=False,export_yup=True,export_texcoords=True,export_normals=True,export_tangents=False,export_materials='EXPORT',export_cameras=False,export_lights=False)
+ if look:
+  from kit.tiling import export
+  export(out.with_suffix('.glb'))
+ else:bpy.ops.export_scene.gltf(filepath=str(out.with_suffix('.glb').resolve()),export_format='GLB',export_extras=True,export_apply=False,export_yup=True,export_texcoords=True,export_normals=True,export_tangents=False,export_materials='EXPORT',export_cameras=False,export_lights=False)
  meshes=[o for o in bpy.context.scene.objects if o.type=='MESH'];counts={}
  for ob in meshes:
   owner=ob.parent
@@ -59,6 +70,6 @@ def build(seed,out,overrides=None):
  return p
 
 if __name__=='__main__':
- a=argparse.ArgumentParser();a.add_argument('--out',type=Path,default=Path('build/station-101.blend'));a.add_argument('--seeds',default=','.join(map(str,PROOF_SEEDS)));a.add_argument('--plan',type=Path);a=a.parse_args(sys.argv[sys.argv.index('--')+1:])
+ a=argparse.ArgumentParser();a.add_argument('--out',type=Path,default=Path('build/station-101.blend'));a.add_argument('--seeds',default=','.join(map(str,PROOF_SEEDS)));a.add_argument('--plan',type=Path);a.add_argument('--look',action='store_true');a=a.parse_args(sys.argv[sys.argv.index('--')+1:])
  seeds=list(map(int,a.seeds.split(',')))
- for seed in seeds:build(seed,a.out.parent/f'station-{seed}.blend',json.loads(a.plan.read_text()) if a.plan else None)
+ for seed in seeds:build(seed,a.out.parent/f'station-{seed}.blend',json.loads(a.plan.read_text()) if a.plan else None,a.look)

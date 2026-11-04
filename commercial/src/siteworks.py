@@ -14,6 +14,15 @@ def strip(name,a,b,width,mat,parent,z=.002):
  ax,ay=a;bx,by=b;dx,dy=bx-ax,by-ay;length=math.hypot(dx,dy)
  if length<1e-6:return
  nx,ny=-dy/length*width/2,dx/length*width/2
+ if 'parking stripe' in name or 'stall boundary' in name or 'hatching' in name:
+  # Sparse short missing chips and longitudinal road abrasion belong to
+  # traffic paint, not an opaque sheet on the asphalt. Keep the stripe width.
+  count=max(1,math.ceil(length/.24));verts=[];faces=[]
+  for i in range(count):
+   if (i+int(abs(ax)*17+abs(ay)*11))%19==7:continue
+   t0=i/count;t1=min(1,(i+.96)/count);s=len(verts)
+   verts.extend(((ax+dx*t0+nx,ay+dy*t0+ny,z),(ax+dx*t0-nx,ay+dy*t0-ny,z),(ax+dx*t1-nx,ay+dy*t1-ny,z),(ax+dx*t1+nx,ay+dy*t1+ny,z)));faces.append((s,s+1,s+2,s+3))
+  return mesh(name,verts,faces,mat,parent,False)
  return mesh(name,[(ax+nx,ay+ny,z),(ax-nx,ay-ny,z),(bx-nx,by-ny,z),(bx+nx,by+ny,z)],[(0,1,2,3)],mat,parent,False)
 
 
@@ -158,16 +167,8 @@ def site(p):
  box('East planting curb',(W/2-1.4,.5,.0375),(.10,D-1,.075),'Concrete',r,.008)
  box('Rear planting curb',((rear_start+W/2-1.4)/2,D/2-1.4,.0375),(W/2-1.4-rear_start,.10,.075),'Concrete',r,.008)
  box('Landscape strip end',(rear_start,D/2-.7,.0375),(.10,1.4,.075),'Concrete',r,.008)
- rng=random.Random(p['seed'])
- for axis in ('rear','east'):
-  for i in range(12):
-   xx=-W/2+2+i*(W-4)/11 if axis=='rear' else W/2-.65
-   yy=D/2-.65 if axis=='rear' else -D/2+2+i*(D-4)/11
-   # Avoid cooler/service yard region, leaving room behind the shell.
-   if axis=='rear' and (abs(xx-bx)<bw/2+1 or xx<rear_start+.3):continue
-   for j in range(4):
-    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1,radius=1,location=(xx+rng.uniform(-.28,.28),yy+rng.uniform(-.28,.28),.38+rng.uniform(-.1,.1)))
-    ob=bpy.context.object;ob.name='Low shrub form';ob.scale=(.40,.35,.30);ob.data.materials.append(M['Green']);own(ob,r)
+ # The stock family is instanced after consolidation (landscape.py). The bed
+ # receives its own generated shredded-bark finish from the equipment sheet.
  # Tank pad at southeast edge, reachable from entrance without crossing footpath.
  tank=root('TankPad',(W/2-4.2,-D/2+6.0,0),kind='TankPad')
  flat('Tank service pad',(-2.3,2.3,-2.0,2.0),'Concrete',tank,.006)

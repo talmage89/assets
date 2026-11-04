@@ -9,7 +9,7 @@ from mathutils import Vector, Matrix
 from kit import model as G
 from kit.fonts import find_font
 
-M={}
+M={};SHARED_GRAPHICS=False
 
 
 def material(name,color,rough=.65,metal=0,transmission=0,emission=0):
@@ -67,7 +67,7 @@ def tube(name,pts,r,mat,parent,sides=10):return own(G.smooth(G.tube(name,pts,r,M
 def cylinder(name,a,b,r,mat,parent,n=16):return own(G.smooth(G.cylinder(name,a,b,r,M.get(mat,mat),n)),parent)
 
 
-def panel(name,x,y,z,w,h,mat,parent,thick=.012):return box(name,(x,y,z),(w,thick,h),mat,parent,.004)
+def panel(name,x,y,z,w,h,mat,parent,thick=.012):return box(name,(x,y,z),(w,thick,h),mat,parent,0 if min(w,h)<.30 else .004)
 
 
 def frame(name,x,y,z,w,h,mat,parent,bar=.045,depth=.10):
@@ -87,6 +87,7 @@ def beam(name,a,b,w,d,mat,parent):
 
 
 def mark(name,p,height,brand,parent):
+ if SHARED_GRAPHICS:return text(name,'@'+('rillway' if brand['mark']=='three_piers' else 'latchline'),p,height,'Logo',parent)
  x,y,z=p;h=height
  if brand['mark']=='three_piers':
   for i,fac in enumerate((.68,1,.81)):
@@ -195,6 +196,9 @@ PRINTS={};PRINT_OBS=[];PRINT_CANVAS=None;PRINT_CURSOR=[4,4,0]
 
 
 def text(name,string,p,size,mat,parent,align='CENTER',yaw=0):
+ if SHARED_GRAPHICS:
+  from surfaces import shared_text
+  return shared_text(name,string,p,size,mat,parent,align,yaw)
  from PIL import Image,ImageDraw,ImageFont
  global PRINT_CANVAS
  if PRINT_CANVAS is None:PRINT_CANVAS=Image.new('RGBA',(2048,2048),(255,255,255,0))
