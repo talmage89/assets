@@ -349,8 +349,7 @@ asphalt, trim, chimney and glazing comparisons; the stained-shingle Cape
 supplies cedar. Their historic construction dates are not postwar evidence.
 The accepted regional postwar/type research above remains the form basis.
 Supplemental vinyl, aluminum and cement photographs identify their materials
-explicitly; their buildings are not claimed to be Capes. The cement photo has
-diamond units, so it is a paint/chalk comparator rather than a unit-layout copy.
+explicitly; their buildings are not claimed to be Capes. The current cement comparison uses straight-butt, striated, used shingles. The older diamond-product photograph is retained only as historical research and is not used in the finish measurements.
 
 `src/cape_values.py` states the assumed neutral in each frame, native pixel
 coordinates, linear chromatic gains and fixed material-only ROIs. Paint casing
@@ -372,7 +371,53 @@ are material-generator inputs.
 
 The new two-region tile uses 152.4 mm cedar exposure, complete widths bounded
 to 76.2–254 mm, periodic staggered keyways and ±3 mm butt offsets. Cement is
-304.8 × 609.6 mm with straight butts. `manufacture.json` beside the source
+304.8 × 609.6 mm nominal with 279.4 mm (11 in) exposure and straight butts. `manufacture.json` beside the source
 preview records generated units. Painted cedar keeps its paint film; stained
 cedar has exposure-driven silvering. The material field and UV layout are
 authored, not traced or sampled from a photograph.
+
+
+## Cape delivered finish evidence
+
+The straight-striated replacement product photograph establishes nominal
+12 × 24 in dimensions and 11 in exposure. The used straight-striated photograph
+shows staggered joints, face nails, butt shadows, and localized lower-wall
+biological staining. Its clean upper paint face is the assumed neutral; the
+clean face ROI measures paint response while the full pair retains the staining.
+Two exposed nail heads per unit and a 4.37 mm butt projection are authored.
+Depth, striation and unit layout are generated without tracing photographs.
+The supplemental sill photograph demonstrates water-site paint loss, long
+grain-following flakes and checked surrounding paint. Its teal paint is not
+a hue target for the asset's off-white film. Credits and direct image URLs
+are in `refs/SOURCES.md`; these inspection photographs are never committed.
+
+Wood and vinyl shadow comparisons use equal course counts, established by
+vertical-derivative autocorrelation in the fixed photo crops: 2.941 and 7.944
+courses (aluminum: 6.211). The corresponding delivered physical crops contain
+the same counts. The shadow-profile report folds scanlines at that period,
+and reports the dark/lit ratio and midpoint-threshold width. Its illumination
+is conditional, not a purported geometric measurement of a photographic lap.
+Actual exported geometry is independently ray-measured: wood is about 14 mm
+proud at the butt, updated vinyl/aluminum 10.5 mm, cement 4.37 mm.
+
+Cedar's nine native photographic lower-face samples exclude upper overlap
+shadows and keyways; export/source samples use independent material rays and
+the authored unit boundaries, with the same lower-face rule. This measures
+unit-to-unit value spread separately from the much darker overlap shadows.
+The number of sampled shingles differs because the original photograph has
+limited resolution; these are conditional distributions, not a population
+survey of cedar products. The manufactured periodic field still repeats.
+
+The six delivered seeds share canonical existing maps plus two rectangular
+512 × 256 shingle color/normal pairs, cropped exactly from the filtered 4K
+packed bake, and two separately baked 256² masonry color/normal pairs.
+Splitting removes mixed-material deep mips and thousands of chart triangles
+while retaining the same 1 MiB addition. Constant shingle ORM channels use their authored scalar parameters, eliminating the old packed bake's few mixed boundary texels, freeing ⅓ MiB for the Cape-only masonry fields at the original texel densities. Brick head/bed joints have millimeter-scale irregularity and 1.8 mm recess; concrete manufacturing adds bugholes and aggregate, with low height-driven mineral deposits. No existing family map changes. Macro weather is baked to RGBA8
+vertex colors; high-frequency manufacture is carried by the texture fields.
+Source/export material pairs use identical lights, cameras, paint controls
+and exposure, with numerical bake loss reported separately from photo error.
+The aluminum white-paint control is separately baked because chalk is additive;
+multiplying the accepted blue seed cannot correctly recover white chalk. It
+shares all eleven image URIs and does not change any of the six main palettes.
+No curled roof tabs ship; the authorized alternative retains granule loss,
+algae runoff and shaded moss without isolated block-like tab geometry.

@@ -1513,3 +1513,227 @@ is much improved, but its reflection scenery remains a presentation proxy rather
 than a complete neighborhood. The new fine wear has not yet survived a 4K
 bake/filter or engine import, so this is not final game-asset acceptance. Stop
 before the bake. No kit change or additional tool is needed for this checkpoint.
+
+
+## Cape delivery — pass 1: reject fine-color aliasing and concealed sill wear
+
+Color and value first. Inspected the first delivered-PBR hero, sill and
+foundation in `renders/cape/finish/export-pass1/`, together with the ten
+neutral-balanced source material crops. The concrete hue correction reaches
+R:G:B .956:1:.985, versus .964:1:.989; the revised chimney is .370 versus
+.377 Y-prime, with R:G:B 1.270:1:1.034 versus 1.222:1:1.047. These are
+conditional display values, not albedos. Retain the stated casing neutrals.
+The broad concrete statistical crop includes trim and a cast shadow; reject
+it as a material-only ROI and restore the small bare-plinth measurement.
+Use a separate wide construction view for form lines and plugs.
+
+The first exported roof has broad polygonal patches: per-granule and per-tab
+source noise evaluated at isolated vertices has aliased into macro color.
+Reject that transfer. Evaluate fine manufacturing at its mean for vertex
+baking and retain the actual shared roof tile's granules and unit variation.
+Keep the long runoff, shaded algae and drainage-site moss as macro fields.
+The exported sill has lost the fine source peeling. Surface inspection also
+finds that the flat supporting sill block conceals its sloping weather face
+and the lifted-film geometry. Lower the supporting block below that face,
+then put long bare-gray patches and curled surviving film on the actual
+nose and sash-joint surface. No floating paint rectangles are accepted.
+
+## Cape delivery — pass 2: compare equivalent scales; reject seam overhead
+
+Color and value first. The first corrected cedar retains the photograph's
+median (.217 versus .214) but has much too little range: its 10th percentile
+is 51% too high and its 90th is 40% too low. Reject this statistical result.
+The new units need their own browner/grayer absorption and a few lighter
+silver faces, with sheltered dark upper ends. Re-author that distribution,
+without using photographic pixels as a material input. The cement comparison
+now uses the used straight-butt striated photograph; the dimensioned 12 × 24
+in replacement photograph separately establishes manufacture. Paint statistics
+exclude the used photograph's localized lower biological deposit; the full
+comparison retains that deposit and its course/joint construction.
+
+Photographic derivative autocorrelation measures 2.941 wood courses,
+7.944 vinyl courses and 6.211 aluminum courses in the fixed native crops.
+Set the rendered crops to those same physical course counts before judging
+shadow width/darkness. Move the paint samples clear of the window shadow.
+The new geometry has 14 mm wood, 10.5 mm updated-lap and 4.37 mm cement
+projection; independent surface rays will measure the delivered result.
+
+The packed two-region wall atlas creates thousands of chart-cut triangles:
+the first cedar export is 53,731 and remains 51,469 after cautious reduction.
+Reject it. Split the already baked/filterered pixels into two 512 × 256
+periodic triples. This keeps the same combined 1 MiB allocation and texel
+density, avoids mixed cedar/cement deep mips, and removes the atlas seam
+cuts without reducing construction or adding materials. Original colonial
+and ranch images are unchanged. Foundation interval unions remove redundant
+overlapping solids; the six actual source surface and motion sweeps still pass.
+
+## Cape delivery — pass 3: reject scratches and open dormer corners
+
+Color and value first. The source material suite now meets the stated median,
+tail and hue limits, including the wider per-unit cedar distribution. Aluminum
+passes after removing the cloud field: the exposed faces are evenly dulled,
+window-corner runoff is cleaner, and dirt is trapped immediately under each lap.
+The pale white aluminum comparison is a separately baked paint control; it does
+not replace the accepted blue seed. The roof export no longer has aliased broad
+polygonal blotches after transferring macro weather separately from granules.
+
+Inspect the exported hero and the dormer, sill, plinth and chimney close-ups.
+The sill still looks scratched: too many thin gray slivers, with angular white
+chips. Widen the long water-site losses to 6–14 mm, roll the surviving film
+across five smooth cross-sections, and retain bare gray grain underneath.
+The dormer cheek tips are exposed at the front corners: the original corner
+skip incorrectly treats the parent main block as an adjoining wall. Restore
+the actual two-leg corner boards. Do not hide these defects by changing cameras.
+The entry view proves the stoop but not the shallow foundation's construction;
+add a dedicated low, wide plinth view for form seams and tie plugs. Remove
+sub-70 mm rear aluminum casing bevels to fund the course dirt sampling within
+45k; keep the front casing profiles and both door leaves. Keep the roof's
+granule loss and omit the unconvincing isolated curled tabs, as authorized.
+
+## Cape delivery — pass 4: inspect filtered detail, not only its statistics
+
+Color and value first. On the fresh 5.2.3 export, nine material comparisons
+pass. The aged roof median is .3641 versus .4050, just outside 10%; its low
+and high tails pass. The source roof is .376. Retain the controlled roof
+palette and the existing causal weather, apply the bounded chart-interpolation
+contrast correction, and record a .02 EV comparison adjustment for both source
+and export. The material controls and primary palettes remain explicit.
+Reject trial maps with exaggerated tab values or coarse black stippling:
+their manufactured pattern is less convincing, irrespective of histogram fit.
+No trial map is published, and no image allocation is added.
+
+The revised cement face now carries resolved striation, but its joints and
+face nails are still too easily confused with the face grooves. Deepen the
+joint's occlusion and nail-head contrast, keeping physical width, 4.37 mm butt
+projection and half-unit stagger unchanged. In the exported sill close-up,
+straight four-point gray losses still look cut with a knife. Replace them
+with ragged eight-point grain-long losses. Curl three films per nine losses,
+using compound curved film surfaces; the saved repeated films fund the richer
+outlines without adding triangles. Check the water sites and grain direction
+again against the used sill photograph. The dedicated plinth view shows a
+vertical form seam and a tie plug; it also honestly exposes the remaining
+low-resolution, smooth concrete response.
+
+The full old-type rebuild has twelve byte-exact BIN payloads. The Blender
+patch update changes only twelve exporter labels, six form-provenance hashes,
+and one-byte samples in eight independently rebaked maps. Preserve the accepted
+canonical files and record every difference in the rebuild audit. Historical
+construction comparisons normalize only that exporter label, with the raw
+hash retained; no changed geometry or material payload is ignored.
+
+
+## Cape delivery — pass 5: final masonry, sill and bake loss
+
+Color and value first. All ten freshly exported material pairs pass the
+stated median (10%), p10/p90 (15%) and hue-ratio (10%) limits, after balancing
+the photographs on their documented assumed neutrals. The delivered concrete
+is .5322 versus .5456 Y-prime, R:G:B .964:1:.978 versus .964:1:.989;
+brick is .3629 versus .3775, 1.253:1:1.034 versus 1.222:1:1.047.
+The first extra concrete aggregate field was too contrasty in the wide
+foundation view, resembling exposed stone. Halve that color modulation;
+retain the original form seams, plugs, pores and low mineral/splash masks.
+The corrected hero has a neutral gray plinth and restrained aggregate.
+
+The final sill replaces the pass-4 trial with five twenty-point ragged,
+grain-long bare losses and two compound-curved films per window. The actual
+support-surface measurements put bare wood about .149 mm above the sloped
+sill, and lifted film .111–1.991 mm above it. The nose and sash-joint losses
+read as worn wood instead of scattered gray spots. The thin white film edges
+catch light; repeated manufacture is still visible at extreme close range.
+The old isolated roof boxes remain omitted.
+
+Inspect all ten source/export image pairs. Absolute median bake changes
+range from zero to .0152 Y-prime. The roof's .0146 median loss understates
+its visible loss of fine granule contrast and the coarser vertex-interpolated
+weather; retain that limitation explicitly. Cement striation, two face nails,
+half-unit joints and 4.37 mm butts survive the filter. Cedar keeps per-unit
+brown/gray absorption, splits and uneven butts; its grain is still more
+regular than the photographic fibers. Shipping lower-face CV is .247,
+compared with the limited nine-unit photographic CV .204.
+
+Equal-course lap comparisons show wood shadow fractions .156 export / .167
+photo, vinyl .125 / .211, aluminum .188 / .263. Dark/lit ratios are .559 / .689,
+.723 / .798, and .934 / .682 respectively. Thus vinyl's shadow is narrower,
+and aluminum's lighter than these photographs, despite actual measured
+14 mm wood and 10.5 mm updated-lap projections. Record the illumination and
+profile differences; do not claim a statistical paint match proves identical
+shadow appearance. These profiles are measured at the same physical scale.
+
+Constant dielectric shingle roughness channels free one third MiB for two
+256-square Cape-only masonry color/normal pairs. The original 31 shared PNGs
+remain byte exact. The whole family has 39 PNGs and stays at 48⅓ MiB, with
+no extra masonry geometry. Final geometry is 36,383–44,716 triangles: the
+added true lap surfaces and water-site paint construction spend the earlier
+checkpoint's spare triangles while staying within the delivery's 30–45k.
+
+
+## Cape delivery — pass 6: all six seeds and final studio views
+
+Color and value first. Inspect all fifteen final Cycles views, the Eevee hero,
+and all twenty-three seed views from the current exports. The hero's masked
+Y-prime p1/median/p95 are .089/.372/.741, with no white clipping. Eaves,
+entries, roof intersections and open connectors retain deep shade. Rear views
+are deliberately shaded but still show the raised foundations and openings.
+The main six palettes remain vinyl gray, brown/gray cedar, green cement,
+blue aluminum, red clapboard and warm-white clapboard. The white paint
+material comparisons are labeled controls, not replacements for those seeds.
+
+On the six-seed front/rear sheet, cement courses and half-unit vertical joints
+are visible; the close-up resolves striation and paired face nails. Cedar now
+reads as separate units at street distance, with occasional irregular butts
+and cuts, although its small periodic field remains apparent at close range.
+Aluminum has exposed-face dulling, vertical washing at window sites and lap
+dirt; there is no cloud-noise chalk field. Wood/vinyl carry real lap relief.
+The sill close-up shows long gray wood losses at the nose and sash joint,
+with thin lifted surviving paint. Concrete is still softer and more periodic
+than a detailed photograph, especially on the wide stoop.
+
+Dormer cheeks have complete corner boards and cast clear shadows onto the
+parent roof. The eave/rake view shows their construction; entry includes the
+stoop and exposed plinth, chimney includes irregular shallow masonry joints,
+cap, flue tiles and supported rain cover. The 1.8 m scale figure has its feet
+at grade. The 32/35 connector views retain open supported passages rather
+than filled-in addition walls. No isolated curled roof-tab boxes remain.
+Eevee preserves the form and shade but loses some Cycles reflection/interior
+response in the glass; record that renderer difference.
+
+All six exports have three meshes and five or six PBR materials. Actual
+source/game surface displacement remains below 2 micrometers after chart
+conversion and reduction. The raw-accessor and fresh-import checks report
+zero position mismatch; this proves serialization separately from the
+construction rays and 342 clearance poses. All 77 accepted older-type files
+remain byte-identical. The full rebuild audit separately explains the
+Blender patch's exporter-label and one-byte bake differences.
+
+
+## Cape delivery — pass 7: fitted pairs and street composition
+
+Color and value first. Inspect the two fitted export/photo comparisons and
+their source renders, retaining the photographs' documented casing neutrals
+and the six original paint choices. The primary roof is darker and its fine
+granules less raised than the photograph; the material crop passes its stated
+conditional value limits, which does not make the full roof photographic.
+Large roof planes and periodic manufacture remain visible CG tells. The
+photographic porch, additions and landscaping differ from the original asset;
+the camera-fit residuals remain explicit rather than claiming a surveyed copy.
+
+The street uses four different delivered Capes at sidewalk eye height, with
+the nearest spanning 35.2% of frame width and the others receding. Lawn stays
+in low bands around the sidewalk and lots; the camera looks along the road
+and three-quarter to the fronts. Ground, RedMaple, PinOak, Shrubs and AlderC150
+are loaded from their own immutable exports, with hashes checked before and
+after rendering. Their geometry/maps are never re-exported or baked into a
+house. The pickup bears on its delivered driveway instances. The lawn and
+foliage retain a visibly procedural presentation character; these are reused
+family assets, and this task makes no claim to improve them.
+
+Inspect the supplemental crawlspace close-up as well as the poured-plinth
+view: the former shows 8 × 16 in coursing through the parging and a louvered
+vent, the latter form seams and tie plugs. Both retain cool-neutral concrete,
+low deposits and splash dirt. The relief is intentionally shallow; the
+256-square field's softness remains a close-view limitation. All required
+views import delivered maps, with source renders used only for the separate
+bake-loss comparisons. Five final Cape JPGs pass the current-source/map/camera provenance gates,
+with the older ten docs unchanged. Whole-house mean absolute Y-prime bake
+loss is .0107 / .0168 (dormered / plain), with p95 .0429 / .0650 on the
+common opaque asset mask; ground/context pixels are excluded.
