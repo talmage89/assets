@@ -80,14 +80,7 @@ Reference only; images are never loaded by the model or used as asset textures.
 
 Photo source galleries: https://www.carsdirect.com/toyota/corolla-hatchback/2019/pictures and https://www.carsdirect.com/hyundai/elantra-gt/2019/pictures . Neutral white backdrops provide the comparison white balance. Stock profile views retain small perspective; the wheel centers alone register overlays.
 
-### hatch-hyundai-drawing.pdf
-- URL: https://www.hyundai.com/content/dam/hyundai/ma/fr/data/marketing/brochure/product/i30/hyundai-ft-new-i30-juillet2018-4f.pdf
-- Author: Hyundai Motor Company, Morocco, July 2018
-- License: Manufacturer copyright; reference only, not redistributed.
-- Used for: Wheelbase-registered side elevation; viewing and measurement only.
-
-### hatch-corolla-drawing.pdf
-- URL: https://www.toyotaalbania.al/content/modelspdfs/535-corolla-hatchback-2019-al-2.pdf?t=1741271340
-- Author: Toyota Motor Europe / Toyota Albania, Corolla 2019 brochure
-- License: Manufacturer copyright; reference only, not redistributed.
-- Used for: Wheelbase-registered side elevation; viewing and measurement only.
+| Local file | Direct image/PDF URL | Author / license / use |
+| --- | --- | --- |
+| hatch-hyundai-drawing.pdf | https://www.hyundai.com/content/dam/hyundai/ma/fr/data/marketing/brochure/product/i30/hyundai-ft-new-i30-juillet2018-4f.pdf | Hyundai Motor Company / Global Engines Morocco, July 2018; manufacturer copyright, reference only. Page 2 illustrated side/rear/front elevations and dimensions; perspective illustration is not a metrology drawing. |
+| hatch-corolla-drawing.pdf | https://www.toyotaalbania.al/content/modelspdfs/535-corolla-hatchback-2019-al-2.pdf?t=1741271340 | Toyota Motor Europe / Toyota Albania, MY2019; manufacturer copyright, reference only. Pages 46–47 specifications and illustrated elevations. Raster illustration retains perspective; numerical dimensions take precedence. |

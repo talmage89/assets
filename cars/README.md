@@ -388,3 +388,25 @@ bars, regular glazing corners and oval mirror housings still read as form
 proxies beside the photos. The fender crown fades too early near the A-pillar.
 These are recorded limitations, not final paint or delivery approval. No kit
 changes were needed.
+
+
+## Alder H120 — compact hatchback form checkpoint
+
+The third body is an original late-2010s five-door hatch, built in isolated
+`hatch_*.py` modules. Its measured package is **4361 × 1794 × 1451 mm**, with a
+**2650 mm wheelbase** and **225/40R18** form wheels. Toyota Corolla and Hyundai
+i30/Elantra GT references establish the class; the short rear package, level
+roof, split lamps and bumper plate pocket are documented in
+[REFERENCE.md](REFERENCE.md#alder-h120-compact-five-door-hatchback-source-form-checkpoint).
+
+[H120 checkpoint report](HATCH.md) contains the measured sections, face/rear
+numbers, per-part budgets, reproducible commands, pickup preservation proof
+and remaining form misses. [REVIEW.md](REVIEW.md#alder-h120--compact-hatchback-form-checkpoint-in-progress)
+records the critique passes. Rebuild with `make -C cars BODY=hatch` from the
+repository root; the default `cars/` build remains the pickup.
+
+The [front clay](renders/hatch-checkpoint/front_three_quarter.jpg),
+[rear clay](renders/hatch-checkpoint/rear_three_quarter.jpg) and
+[complete contact sheet](renders/hatch-checkpoint/contact.jpg) are generated
+locally. This is a source-form review, before UVs, textures, GLB, interior,
+motion validation or paint. Checkpoint images are not committed.

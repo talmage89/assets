@@ -2007,3 +2007,207 @@ split normals, loaded ISO tires, their geometry/normal fixture, and an opt-in
 custom checkpoint recipe switch. Existing asset defaults remain unchanged.
 No tools or installs are needed. The lead is needed to review the form, with
 particular attention to the greenhouse and front-corner highlight pinching.
+
+## Alder H120 — compact hatchback form checkpoint (in progress)
+
+### Hatch pass 1 — package and four calibrated pairs
+
+Evidence: `renders/hatch-pass3/`, including Corolla and Hyundai front/rear
+three-quarter clay and striped pairs. Earlier `hatch-pass1` and `hatch-pass2`
+clay turnarounds were rejected during construction: their high rear control
+rows folded into fins at the glass/quarter junction. They are not candidates.
+
+Color/value first: both stock-photo sets use a neutral white studio background;
+the unobstructed white background is the neutral reference (unit RGB gains).
+Silver metallic paint is lighter than the diagnostic gray clay. Judge the
+position/width of gradients and the shadows, not absolute silver brightness.
+Opaque dark glass is a deliberate form proxy; it does not excuse bad pillars.
+
+- Profile/greenhouse: the roof is appropriately level and the rear overhang
+  short, but rectangular quarter glazing and a broad rear glass make it read
+  like an older small wagon. The rear glass is 1.62 m wide near its base,
+  plainly wider than either photograph. Narrow the aperture on the fair sheet,
+  taper the quarter-window termination and raise the rear belt slightly.
+- Side: the shoulder and lower die line are visible at full-frame scale. The
+  three door sections have progressive crown and a local hollow. Front lower
+  edge inset is 81.4 mm, and sill return only 33.9 mm; correct those small but
+  real section misses. The door cut arrangement is still too rectilinear.
+- Front: the long rising lamps and recessed grille follow the family, but the
+  painted band and tiny corner pockets read cheap/older. Increase the pockets
+  and grille height. Hood highlights are clean across the broad center;
+  compressed stripes at the fender/cowl corner need further scrutiny.
+- Rear: the gate is upright, but the huge backlight and short lamps give the
+  rear a featureless appearance. Split lamps and bumper plate pocket are real
+  apertures. The quarter-to-glass strip is pinched; lower bumper corner bands
+  also curl. Remove the projected lower tails and inspect the corrected parent.
+- Mirrors: correct small door-mounted envelope, but the front cap's highlights
+  form a conspicuous cross. It needs a fuller rounded wedge and smoother fans.
+- Wheels/arches: 40 mm tire-top clearance, with inward hems. End fascia pieces
+  still intrude into the lower arch silhouette; trim all adjacent skins with
+  the same opening, not just the metal fenders.
+
+Camera residuals are 3.59/2.95 px (Corolla front/rear) and 5.02/7.81 px
+(Hyundai front/rear), in 2100-pixel-wide reference images. These are five
+chassis-anchor residuals, not body-fit errors. Every anchor and residual remains
+in `build/hatch/cameras.json`. Stripe and clay pairs were inspected together.
+Source curvature has no unexplained reversal at the eleven sampled sections;
+that does not establish fairness between those stations, particularly at the
+D-pillar and bumper corner where the reflection test is stricter.
+
+### Hatch pass 2 — sections, aperture construction and rear glazing
+
+Evidence: `renders/hatch-pass4/` through `hatch-pass6/`, compared with the same
+Corolla and Hyundai photographs and the four pass-3 calibrated pairs. White
+studio backgrounds remain the neutral reference; no colored shade is sampled
+as a paint albedo. The broad side now has a shoulder highlight and a descending
+value gradient. The diagnostic glass remains intentionally opaque.
+
+- Profile: hood lead, windshield rake and overhangs meet their dimensional
+  targets. The level roof reads closer to the Hyundai than the Corolla. The
+  rear spoiler still has an overly square end in the side silhouette.
+- Side: the rocker correction brings the front-door lower inset below 80 mm
+  and the further sill tuck above 40 mm. The soft die crease rises rearward,
+  with a measurable shallow hollow above it. The door shut lines remain too
+  vertical and regular compared with both photographs; this is a form weakness,
+  not a missing handle that later detail will cure.
+- Face: taller grille and corner wells now have depth. Their beds are behind
+  actual holes; axial rays confirm that painted faces do not cover them.
+  The upper grille still looks conventional and the narrow lamp tips need
+  careful reflection inspection. Hood center bands stay calm.
+- Rear: narrowing the glass fixes the excessive broad backlight, but the first
+  taper leaves too much painted D-pillar. The lower bumper corners have tight
+  stripe curls. A cut routine was accidentally retaining diagonal gauge rims
+  as outer paint; tracking the actual outer face count fixes that construction
+  error. This is a topology repair, not evidence of visual fairness.
+- Wheels: arch trims now include adjacent fascia sheets. Tire/arch top gap is
+  40 mm. Wheel detail is deliberately limited to the existing family form wheel.
+- Mirrors: subdivision rounds the housing silhouette, but the nose still has
+  an over-regular four-way highlight. It remains weaker than the reference's
+  smooth, asymmetric molded cap.
+
+### Hatch pass 3 — complete evidence set and failures retained
+
+Evidence: all 22 renders and 41 review images in `renders/hatch-pass10/`.
+All four Corolla/Hyundai front/rear clay and striped pairs were inspected.
+The clay studio renders are too light relative to the dark Workbench pairs;
+the next pair set therefore uses the same Cycles clay response as the studio
+views. The white photographic backdrop remains the neutral; silver paint is
+not treated as a target gray value. Deep openings are visible, not filled with
+ambient gray, and the upper highlights retain shape.
+
+- Profile: the raw wheelbase-registered orthographic overlays miss the requested
+  40 mm envelope. Worst sampled deviations are 160 mm at the Corolla backlight
+  and 113 mm at the Hyundai chin. Hood-middle differences are −81/−72 mm.
+  Both photos show finite perspective; the manufacturer brochure illustrations
+  are also not exact engineering outlines. Keep these errors visible. Do not
+  shorten the numerically sourced package to force a photographic fit.
+- Greenhouse: roof/glass proportions are less wagon-like, but the severely
+  clipped quarter pane leaves a conspicuous painted patch. Retain a small rear
+  quarter pane, as on the Hyundai, and widen the bottom of the rear glass while
+  keeping its top narrow. This is the last glazing revision before review.
+- Side: the actual three sections pass the requested lean, inset, sill and
+  crease ranges. The simple shut-line layout still looks older/cheaper than
+  either reference. Low sun reveals the broad lower-door crown rather than a
+  flat plate, though the rocker termination is too abrupt.
+- Front: the upper lamp sweep and fender crowns read correctly at distance;
+  close views still reveal fender/cowl compression. The front-corner pockets
+  have depth but could have more coherent transitions into the arch.
+- Rear: high-frequency D-pillar wrinkles remain visible even in neutral clay.
+  Denser rear sampling improves the stripe contour but does not eliminate the
+  underlying problem. An uncut parent comparison isolates the extra sampling
+  error. Inspection also finds a discontinuous fitting-ray origin at the
+  side/end transition; replace that switch with a smooth blend in the control
+  fit. Recheck sections and reflections after this structural change.
+- Assembly/topology: two tiny, disconnected lower-door scraps fail the solid
+  audit. They are outside the door stamping, below the rocker, not functional
+  geometry. Remove disconnected door islands before closing the gauge; retain
+  and report the removed area. The resulting pass-11 game solid audit passes.
+- Mirrors and spoiler: both are dimensionally plausible, but their cap/end
+  highlights still read more regular than molded automotive plastic. No badges,
+  trim or paint are being added to distract from those weaknesses.
+
+The parent and sampled game curvature checks pass at the eleven nominated
+sections. Those finite tests did not catch the D-pillar between stations.
+The reflection views and photograph pairs remain the deciding evidence.
+
+### Hatch pass 4 — checkpoint handoff, form limitations explicit
+
+Evidence: `renders/hatch-checkpoint/contact.jpg`, all 22 final renders and
+all four calibrated Corolla/Hyundai front/rear clay and striped pairs, plus
+the two unregistered rear comparisons and both raw side overlays. Every final
+render and both parent/game curvature reports identify the same game source.
+All rendered views were opened, including the seven reflection views and the
+independent uncut-parent plots. The final geometry is in source commit
+`2479d35`; this documentation records its review, not a later detail pass.
+
+Color/value first: neutral remains the unobstructed white photographic studio
+backdrop, with unit RGB gains. Neutral clay now uses the same Cycles response
+for the four calibrated pairs and studio three-quarters. The opaque-foreground
+display-luma median/p99 is 157.2/239.1 front and 164.2/228.9 rear; no foreground
+channel reaches 255. Deep-shadow fractions below luma 25 are 10.2% and 8.6%.
+Cavities stay dark and bright panels retain gradients. This is a clay tonal
+check, not certification of real paint albedo or glass transmission.
+
+- Profile: the level roof, short tail and steep glass now read as a compact
+  hatch rather than a sedan deck or fastback. It still has a more rectangular,
+  older greenhouse than either photo. The raw overlay **does not meet 40 mm
+  everywhere**: worst 157.5 mm at the Corolla backlight, 113.3 mm at the Hyundai
+  chin. Front bumper deviations are +107.8/+105.1 mm; rear bumper +62.2/+80.3 mm.
+  Hood-middle differences are −80.8/−72.1 mm, roof peak +2.1/−6.2 mm. The two
+  rear profiles genuinely differ, and finite camera perspective is also
+  present; neither is claimed to explain away every discrepancy. Numerical
+  length, wheelbase and overhangs remain held.
+- Body side: three sections meet the requested shoulder, inward lean,
+  progressive lower crown, hollow, crease turn and sill tuck. The raking view
+  carries a readable shoulder-to-lower-door gradient. Vertical door cuts and
+  the abrupt lower front-door termination remain conspicuously procedural;
+  both photographs have more carefully resolved frame and sill transitions.
+  Fender swell is 29.6/29.0 mm at the measured above-arch peaks. Its blending
+  and highlight continuity still deserve examination between the sampled cuts.
+- Face: actual crown rises are 14.95/21.61/10.12 mm at the three stations.
+  A stronger local crown experiment was rejected when the **parent** curvature
+  test found extra hood reversals; it was not excused by expanding the allowed
+  crease zones. The final control fit restores the broad hood's calm curvature.
+  The 691 mm lamps rise at their outer ends, and grille/intake/pockets have real
+  depth. The grille's simple trapezoid and the pocket-to-arch junction still
+  look older/cheaper than the references. Lamp corners remain too angular.
+- Rear: the glass is now 1173/1411 mm top/base, closer to the Hyundai's broad
+  base; the projected pillar band is 145 mm. Removing the invented painted
+  patch shut line and smoothing the fitting transition removes the most
+  obvious D-pillar creases in clay. The remaining broad pillar bulge still
+  compresses stripes more than the reference's calm quarter turn. Fine lower
+  bumper-corner zigzags and the exhaust-cutout transition remain visible in
+  grazing reflections. The gate's large unarticulated painted area is still
+  too plain; adding a badge is not a substitute for resolving its form.
+- Mirrors/greenhouse: the rounded superelliptic caps remove the four-way
+  diamond highlight. The measured 234 × 141 × 126 mm housings and 2039 mm total
+  span are plausible. Their rear faces and the spoiler's square end still
+  look regular. The small quarter pane avoids the earlier painted rectangle,
+  but the side-window corners need more automotive shaping in a later form
+  revision. Opaque glass is a stage proxy and must not conceal future interior
+  or window-attachment work.
+- Wheels/assembly: all four top gaps are 40 mm; tire/arch outboard extrema
+  differ by only ±2.5 mm. The source solid audits pass at both densities after
+  removing hidden disconnected door scraps. No moving-part clearance claim
+  is made: these are closed form assemblies with provisional pivot groups.
+- Budget: 53,384 triangles is within the 55k limit but too near it for the
+  future interior/detail allowance. Rear sampling costs real triangles.
+  Reduce hidden gauge backs and fixed-body overhead before adding those stages;
+  do not silently raise the final budget.
+
+`make -C cars BODY=hatch` completes the source build, checks, rendering and
+41-image review. `make -C cars BODY=hatch check` covers both closed-solid audits,
+measured proportions/sections/depths, all eleven game and parent curvature
+stations, Blender camera projection agreement (under 0.0011 px), and repository
+rules. Independent one-thread regeneration matches **all 131 objects and 118
+meshes exactly**, including corner normals and transforms. The default pickup
+comparison matches 472 objects / 454 meshes, all 150 GLB accessors, embedded
+maps and graph, and the whole 11,530,720-byte GLB. Details and reproducible scope
+are in [HATCH.md](HATCH.md).
+
+The source checks pass; the pictures still show the limitations above.
+This is the requested stop before detail, not final surface or delivery
+approval. No kit change or additional installed tool is needed. A useful future
+kit improvement would be a portable adaptive surface-sampling error report
+that compares both positions and normals; the tight rear turn showed why
+triangle count or sampled curvature alone is insufficient.
