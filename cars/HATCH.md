@@ -258,8 +258,8 @@ source exactly, as do all 455 meshes' atlas UV arrays. Independent GPU bakes
 differ by at most one 8-bit channel level: 1 BaseColor pixel, 115 Normal pixels
 and 4 ORM pixels out of 4,194,304 per image. This is quantization-level
 variation, not a claim of byte-identical GPU textures. Raw evidence is
-`build/hatch-detail/clean-rebuild-comparison.json`. A missing shipped BaseColor
-map was also removed in that scratch tree and successfully regenerated,
+`build/hatch-detail/clean-rebuild-comparison.json`. A shipped BaseColor
+map was deliberately removed from that scratch tree and successfully regenerated,
 re-exported and re-verified from the declared atlas dependencies.
 
 All checkpoint views use the imported GLB and baked images, with family paint
