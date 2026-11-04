@@ -60,6 +60,13 @@ def run(seed,motions=False):
    roof_samples.append(sr((x,-b['depth']/2+offset,10),(0,0,-1))[2])
  assert max(abs(v-(b['roof']+.0225)) for v in roof_samples)<2e-5,'Roof membrane height'
  cap=sr((0,-b['depth']/2,10),(0,0,-1))[2]
+ right=sr((b['width']/2+1,0,2.6),(-1,0,0))[0];left=sr((-b['width']/2-1,0,2.6),(1,0,0))[0]
+ front=sr((b['width']*.43,-b['depth']/2-1,3.2),(0,1,0))[1];rear=sr((0,b['depth']/2+1,2.6),(0,-1,0))[1]
+ shell=dict(width_m=right-left,depth_m=rear-front,scope='Rays on actual outside masonry planes, excluding coping and projected storefront equipment')
+ assert abs(shell['width_m']-b['width'])<2e-5 and abs(shell['depth_m']-b['depth'])<2e-5,'Wall shell overhangs its footprint/slab'
+ for xx in (-b['width']*.35,b['width']*.35):
+  start=store.matrix_world@Vector((xx,b['depth']/2-.30,b['roof']+.09));direction=store.matrix_world.to_3x3()@Vector((0,1,0))
+  assert roof.ray_cast(start,direction,.8)[0] is None,'Blocked scupper passage'
  # Top-down canopy clearance probe away from columns, lights and seams.
  can=bpy.data.objects['Canopy'];ctree=surface(meshes_under(can));ci=can.matrix_world.inverted()
  pos=can.matrix_world@Vector((c['pitch']*.34,-1.12,0));vec=can.matrix_world.to_3x3()@Vector((0,0,1))
@@ -134,7 +141,7 @@ def run(seed,motions=False):
  assert all(v<=6000 for k,v in counts.items() if k.startswith('Dispenser_'))
  assert counts['PriceSign']<=5000
  result=dict(seed=seed,passed=True,source_triangle_count=p['total_triangles'],raw_glb_triangle_count=raw_tri,materials_quick=source_mats,raw_glb_materials=len(g.json['materials']),
-  roof_height_samples_m=roof_samples,parapet_cap_top_m=cap,actual_canopy_clearance_m=clear,actual_islands=island_measurements,
+  roof_height_samples_m=roof_samples,parapet_cap_top_m=cap,actual_store_shell=shell,actual_canopy_clearance_m=clear,actual_islands=island_measurements,
   fascia_top_m=fascia_top,hoses=hose_rows,normal_unit_max_error=normal_error,
   import_position_max_error_m=maxerr,pivot_socket_matrix_max_error=node_error,motion=motion,
   ground_interface=ground,accessible_approach=access_measurement,scope='source surface/ray and sampled motion construction proof; separate raw/accessor/import serialization proof. No final UV/bake certification.')

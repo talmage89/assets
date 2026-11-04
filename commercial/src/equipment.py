@@ -2,6 +2,8 @@
 import math
 from geometry import *
 
+FUEL_PRICES=(3.459,3.759,4.059)
+
 
 def bollard(name,p,parent=None,color='Yellow',height=1.067):
  r=root(name,p,kind='Bollard',parent=parent);r['reusable_module']=True
@@ -80,8 +82,9 @@ def dispenser(name,p,yaw,brand,index=1):
   f=root(name+('_front' if s<0 else '_rear'),(0,s*.322,0),0 if s<0 else 180,'Dispenser',r)
   panel('Face insert',0,-.003,1.57,.93,.93,'White',f,.016)
   panel('Sale and volume display',.08,-.016,1.91,.61,.23,'Black',f)
-  text('Sale digits','24.67',(.16,-.024,1.955),.074,'Lamp',f)
-  text('Volume digits','7.234',(.16,-.024,1.87),.064,'Lamp',f)
+  volume=7.234
+  text('Sale digits',f'{FUEL_PRICES[0]*volume:.2f}',(.16,-.024,1.955),.074,'Lamp',f)
+  text('Volume digits',f'{volume:.3f}',(.16,-.024,1.87),.064,'Lamp',f)
   text('Sale labels','$\nGAL',(-.18,-.024,1.91),.044,'White',f)
   panel('Payment screen',-.045,-.024,1.58,.35,.25,'Black',f,.025)
   text('Screen instruction','PAY AT PUMP',(-.045,-.041,1.60),.033,'Lamp',f)
@@ -90,11 +93,13 @@ def dispenser(name,p,yaw,brand,index=1):
   panel('Card slot',.30,-.057,1.62,.13,.025,'Black',f,.01)
   panel('Receipt slot',.29,-.052,1.40,.14,.021,'Black',f,.012)
   for row in range(3):
-   for col in range(3):box('Keypad',(.26+col*.031,-.062,1.54-row*.032),(.023,.009,.022),'Metal',f,.002)
+   for col in range(3):box('Keypad',(.26+col*.031,-.062,1.54-row*.032),(.023,.009,.022),'Metal',f,0)
   for i,grade in enumerate(('87','89','93')):
    x=-.25+i*.25
    panel('Grade button',x,-.03,1.20,.19,.145,'Yellow',f,.025)
    text('Grade number',grade,(x,-.047,1.20),.078,'Black',f)
+   box('Grade unit-price lens',(x,-.03,1.34),(.20,.010,.065),'Black',f,0)
+   text('Grade unit price',f'{FUEL_PRICES[i]:.3f}',(x,-.037,1.34),.032,'Lamp',f)
   text('Dispenser number',str(index),(0,-.015,2.15),.13,'Light',f)
   # A real holster has a dark opening and a retaining lip.
   panel('Nozzle holster',-.49,-.06,1.29,.18,.36,'Black',f,.10)
@@ -118,6 +123,8 @@ def dispenser(name,p,yaw,brand,index=1):
   box('Cigarette pictogram',(-.005,.005,.76),(.045,.004,.009),'Black',f,0)
   text('Safety instructions','NO SMOKING\nSTOP ENGINE',(.19,.008,.77),.035,'Red',f)
   text('Fictional dispenser maker','CAIRN  M3',(.15,.020,.28),.041,'White',f)
+  mark('Fuel brand mark',(-.25,.020,.49),.15,brand,f)
+  text('Fuel brand name',brand['name'],(.12,.020,.49),.060,'Light',f)
  return r
 
 
@@ -187,10 +194,10 @@ def price_sign(kind,p,brand):
   f=root('PriceFace',(0,s*.225,base),0 if s<0 else 180,'PriceSign',r)
   panel('Price display face',0,0,h/2,w-.10,h-.10,'Black',f,.020)
   brand_sign('Price brand',(0,-.025,h-.51),w-.10,.88,brand,f)
-  for i,(grade,price) in enumerate((('REGULAR','3.459'),('PLUS','3.759'),('PREMIUM','4.059'))):
+  for i,(grade,price) in enumerate(zip(('REGULAR','PLUS','PREMIUM'),FUEL_PRICES)):
    z=h-1.17-i*.57
    text('Price grade',grade,(-w*.43,-.012,z),.14,'White',f,'LEFT')
-   led_digits('LED price',price,(w*.22,-.014,z),.34,f)
+   led_digits('LED price',f'{price:.3f}',(w*.22,-.014,z),.34,f)
   text('Price legal','CASH / CREDIT  •  PER GALLON',(0,-.012,.23),.09,'White',f)
  return r
 
@@ -241,7 +248,7 @@ def propane(p):
   for z in [i*.15+.05 for i in range(9)]:box('Gate wire',(.45,0,z),(.88,.008,.008),'Metal',pv,0)
   panel('Cage hazard',.45,-.025,1.05,.44,.36,'White',pv,.012)
   text('Cage warning','PROPANE\nFLAMMABLE',(.45,-.034,1.05),.052,'Red',pv)
- for zz in (.105,.805):
+ for zz in (.0975,.7975):
   for xx in (-.66,-.22,.22,.66):tank('Original 20lb cylinder',(xx,0,zz),r)
  text('Cage header','CYLINDER EXCHANGE',(0,-.45,1.64),.10,'White',r)
  return r

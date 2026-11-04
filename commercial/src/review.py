@@ -32,6 +32,7 @@ def circulation(out):
   b=p['building'];poly(rect((b['center_x'],b['front']+b['depth']/2),b['width'],b['depth'],0),'#d2c9b4')
   poly(rect((b['center_x'],(p['parking_front']+b['front']-p['walk'])/2),b['width'],p['parking_depth'],0),'#b7bdc0')
   for island in p['islands']:poly(rect(island['center'],p['canopy']['island'][0],p['canopy']['island'][1],p['canopy']['angle']),'#ebebe4')
+  poly(rect(p['sign_center'],(2.9 if p['sign']=='pylon' else 3.6)+.34,.80,p['sign_yaw']),'#6b4868')
   route=path(p);d.line([xy((x,y)) for x,y,yaw in route],fill='#fee788',width=4)
   for x,y,yaw in route[::45]:poly(rect((x,y),2.14,5.7,yaw),None,'#d84328')
   for drive in p['driveways']:

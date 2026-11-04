@@ -74,6 +74,7 @@ def traffic(p):
  # Occupied parking row is an obstruction, not empty painted bays in this proof.
  obstacles.append(('occupied_parking',rect((b['center_x'],(p['parking_front']+b['front']-p['walk'])/2),b['width'],p['parking_depth'],0)))
  obstacles.append(('store',rect((b['center_x'],b['front']+b['depth']/2),b['width'],b['depth'],0)))
+ obstacles.append(('price_sign',rect(p['sign_center'],(2.9 if p['sign']=='pylon' else 3.6)+.34,.80,p['sign_yaw'])))
  gaps=[];fail=[];entrance_fail=[]
  for i,(x,y,angle) in enumerate(path(p)):
   car=rect((x,y),2.14,5.70,angle)
@@ -86,7 +87,7 @@ def traffic(p):
 
 def main():
  for i in range(1000):generate(i)
- invalid=[dict(brand='shell'),dict(count=5),dict(store=(90,80,20)),dict(angle=44),dict(lot=(50,50)),dict(yaw=45),dict(wall='vinyl')]
+ invalid=[dict(brand='shell'),dict(count=5),dict(store=(90,80,20)),dict(angle=44),dict(lot=(50,50)),dict(yaw=45),dict(wall='vinyl'),dict(sign_placement='roof')]
  for bad in invalid:
   try:generate(101,bad)
   except (AssertionError,ValueError):pass

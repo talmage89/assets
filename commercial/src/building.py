@@ -81,11 +81,12 @@ def retail_shell(spec,brand):
  box('Store slab edge',(0,0,.0762),(w,d,.1524),'Concrete',r,.01)
  # Door and windows occupy an actual common storefront hole, with masonry piers.
  sw=w-4.0;entryw=1.98
- wall_with_openings('Front',w,b['parapet'],[(0,sw,.20,2.68)],r,fy)
+ wall_with_openings('Front',w,b['parapet'],[(0,sw,.20,2.68)],r,fy+.1016)
  for side in (-1,1):box('Side wall',(side*(w/2-.1016),0,b['parapet']/2),(.2032,d-.2032,b['parapet']),'Wall',r,.004)
  # Back service door cut, built in a rotated local wall frame.
- back=root('Store_BackWall',(0,d/2,0),180,parent=r,kind='Store')
- wall_with_openings('Rear',w,b['parapet'],[(w*.28,1.016,.1524,2.134)],back)
+ back=root('Store_BackWall',(0,d/2-.1016,0),180,parent=r,kind='Store')
+ drains=[(xx,.312,b['roof']+.005,.17) for xx in (-w*.35,w*.35)]
+ wall_with_openings('Rear',w,b['parapet'],[(w*.28,1.016,.1524,2.134),*drains],back)
  dp=hinge('ServiceDoor',(w*.28-.495,-.13,.158),back,(-100,0))
  box('Steel service leaf',(.495,0,1.055),(.984,.045,2.10),'Trim',dp,.004)
  box('Service panic bar',(.50,-.06,1.04),(.68,.035,.035),'Metal',dp,.003)
@@ -110,18 +111,26 @@ def retail_shell(spec,brand):
  text('Store descriptor','FOOD  •  COFFEE  •  EVERYDAY',(0,fy-.159,2.96),.115,'Trim',r)
  # Parapet rises above the real roof; return and folded coping protect both skins.
  roof=b['roof'];box('Roof membrane',(0,0,roof),(w-.40,d-.40,.045),'Roof',r,0)
- for yy in (-d/2,d/2):
+ for yy in (-d/2+.1016,d/2-.1016):
   box('Coping horizontal',(0,yy,b['parapet']+.018),(w+.085,.30,.036),'Trim',r,.003)
   for off in (-.142,.142):box('Coping folded hem',(0,yy+off,b['parapet']-.025),(w+.085,.016,.065),'Trim',r,.002)
- for xx in (-w/2,w/2):
+ for xx in (-w/2+.1016,w/2-.1016):
   box('Coping horizontal',(xx,0,b['parapet']+.018),(.30,d-.14,.036),'Trim',r,.003)
   for off in (-.142,.142):box('Coping folded hem',(xx+off,0,b['parapet']-.025),(.016,d-.14,.065),'Trim',r,.002)
  # Roof drainage on the rear: scupper boxes through parapet with supported pipes.
  for xx in (-w*.35,w*.35):
-  box('Scupper throat',(xx,d/2,roof+.07),(.30,.26,.17),'Black',r,.003)
-  box('Conductor head',(xx,d/2+.15,roof-.10),(.35,.25,.30),'Metal',r,.006)
-  box('Downpipe',(xx,d/2+.25,roof/2),(.10,.08,roof-.32),'Metal',r,.004)
-  for zz in (.50,2.0,3.4):box('Downpipe strap',(xx,d/2+.225,zz),(.17,.25,.025),'Trim',r,.002)
+  for side in (-1,1):box('Scupper sleeve jamb',(xx+side*.15,d/2-.07,roof+.09),(.012,.36,.17),'Metal',r,.001)
+  for zz in (.011,.169):box('Scupper sleeve sill',(xx,d/2-.07,roof+zz),(.288,.36,.012),'Metal',r,.001)
+  def section(width,depth,z):return [(xx+x,d/2+.15+y,z) for x,y in ((-width/2,-depth/2),(width/2,-depth/2),(width/2,depth/2),(-width/2,depth/2))]
+  loops=[section(.12,.10,roof-.25),section(.35,.25,roof-.01),section(.33,.23,roof-.01),section(.10,.08,roof-.25)]
+  own(G.ring_loft('Open conductor hopper',loops,M['Metal']),r)
+  loops=[section(.10,.08,.16),section(.10,.08,roof-.25),section(.09,.07,roof-.25),section(.09,.07,.16)]
+  own(G.ring_loft('Hollow downpipe',loops,M['Metal']),r)
+  for zz in (.50,2.0,3.4):
+   box('Downpipe strap front',(xx,d/2+.195,zz),(.12,.010,.025),'Trim',r,.001)
+   for side in (-1,1):
+    box('Downpipe strap return',(xx+side*.055,d/2+.10,zz),(.010,.19,.025),'Trim',r,.001)
+    box('Downpipe wall anchor',(xx+side*.055,d/2+.005,zz),(.025,.012,.06),'Trim',r,.001)
   box('Splash block',(xx,d/2+.43,.04),(.35,.70,.08),'Concrete',r,.015)
  for i in (-1,1):rooftop_unit('Roof unit',(i*w*.23,1,roof+.0225),r)
  # Roof vent boots and a pipe above their roof-mounted seals.
@@ -141,5 +150,5 @@ def retail_shell(spec,brand):
   box('Cooler folded roof',(w/2+1.25,d*.19,3.18),(2.58,3.78,.055),'Metal',r,.005)
   rooftop_unit('Cooler condenser',(w/2+1.25,d*.19,3.2),r,(1.1,.75,.65))
  socket('Socket_StoreEntry',(0,fy-.17,.1524),r,'pedestrian_entry')
- socket('Socket_StoreWalk',(0,fy-2.134,0),r,'terrain_snap')
+ socket('Socket_StoreWalk',(0,fy,0),r,'retail_frontage_grade')
  return r

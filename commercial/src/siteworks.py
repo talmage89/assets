@@ -151,15 +151,20 @@ def site(p):
  text('Accessible sign message','RESERVED',(0,-.044,2.12),.048,'Green',sg)
  text('Accessible sign message','VAN ACCESSIBLE',(0,-.044,1.67),.032,'Green',sg)
  # Low shrubs on rear and side property lines; original loose leaf masses.
+ # Continuous beds, with actual low curb edging, replace isolated soil pads.
+ rear_start=-W/2+5.5
+ flat('East landscape strip',(W/2-1.4,W/2,-D/2+1,D/2),'Soil',r,.012)
+ flat('Rear landscape strip',(rear_start,W/2-1.4,D/2-1.4,D/2),'Soil',r,.012)
+ box('East planting curb',(W/2-1.4,.5,.0375),(.10,D-1,.075),'Concrete',r,.008)
+ box('Rear planting curb',((rear_start+W/2-1.4)/2,D/2-1.4,.0375),(W/2-1.4-rear_start,.10,.075),'Concrete',r,.008)
+ box('Landscape strip end',(rear_start,D/2-.7,.0375),(.10,1.4,.075),'Concrete',r,.008)
  rng=random.Random(p['seed'])
  for axis in ('rear','east'):
   for i in range(12):
    xx=-W/2+2+i*(W-4)/11 if axis=='rear' else W/2-.65
    yy=D/2-.65 if axis=='rear' else -D/2+2+i*(D-4)/11
    # Avoid cooler/service yard region, leaving room behind the shell.
-   if axis=='rear' and abs(xx-bx)<bw/2+1:continue
-   if axis=='east' and b['front']<yy<b['front']+b['depth']:continue
-   rounded_slab('Landscape bed',(xx,yy,.01),1.25,1.25,.10,.20,'Soil',r)
+   if axis=='rear' and (abs(xx-bx)<bw/2+1 or xx<rear_start+.3):continue
    for j in range(4):
     bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1,radius=1,location=(xx+rng.uniform(-.28,.28),yy+rng.uniform(-.28,.28),.38+rng.uniform(-.1,.1)))
     ob=bpy.context.object;ob.name='Low shrub form';ob.scale=(.40,.35,.30);ob.data.materials.append(M['Green']);own(ob,r)

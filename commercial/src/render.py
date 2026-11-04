@@ -107,6 +107,21 @@ def tone(path,camera,assets):
  path.with_suffix('.tone.json').write_text(json.dumps(result,indent=2));mask.save(path.with_suffix('.mask.png'))
 
 
+def frame_property(camera,assets):
+ """Fit actual exported vertices, including public interfaces, inside 4% margins."""
+ from bpy_extras.object_utils import world_to_camera_view
+ points=[ob.matrix_world@v.co for ob in assets if ob.type=='MESH' for v in ob.data.vertices]
+ for _ in range(4):
+  bpy.context.view_layer.update()
+  uv=[world_to_camera_view(bpy.context.scene,camera,p) for p in points]
+  assert min(p.z for p in uv)>0,'Property behind above-view camera'
+  lo=[min(p[k] for p in uv) for k in (0,1)];hi=[max(p[k] for p in uv) for k in (0,1)]
+  factor=max((.5-min(lo))/.46,(max(hi)-.5)/.46)
+  if factor<=1.00001:return dict(min_uv=lo,max_uv=hi,required_margin=.04,vertices=len(points))
+  camera.data.lens/=factor*1.01
+ raise AssertionError('Whole-property framing did not converge')
+
+
 def render(source,out,names,width,samples,camera_file=None,engine='CYCLES'):
  bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
  assets=set(bpy.context.scene.objects);meta=json.loads(source.with_suffix('.json').read_text())
@@ -120,7 +135,7 @@ def render(source,out,names,width,samples,camera_file=None,engine='CYCLES'):
  if camera_file:shots={k:d['shot'] for k,d in json.loads(camera_file.read_text()).items()}
  out.mkdir(parents=True,exist_ok=True);records={}
  for name in names:
-  shot=shots[name];camera.location=shot['location'];camera.rotation_euler=(Vector(shot['target'])-camera.location).to_track_quat('-Z','Y').to_euler();camera.rotation_euler.rotate_axis('Z',shot.get('roll',0))
+  shot=dict(shots[name]);camera.location=shot['location'];camera.rotation_euler=(Vector(shot['target'])-camera.location).to_track_quat('-Z','Y').to_euler();camera.rotation_euler.rotate_axis('Z',shot.get('roll',0))
   eye=None
   if name in ('hero','street') and camera_file is None:
    bpy.context.view_layer.update();hit,point,_,_,surface,_=bpy.context.scene.ray_cast(bpy.context.evaluated_depsgraph_get(),Vector((camera.location.x,camera.location.y,1000)),Vector((0,0,-1)))
@@ -134,13 +149,16 @@ def render(source,out,names,width,samples,camera_file=None,engine='CYCLES'):
     ob=bpy.data.objects.get(n)
     if ob:ob.rotation_mode='XYZ';ob.rotation_euler.z=math.radians(-65 if n=='Entry_Left' else 65)
   sc=bpy.context.scene;sc.render.resolution_x=width;sc.render.resolution_y=round(width/shot.get('aspect',1.5));sc.render.resolution_percentage=100;sc.render.film_transparent=shot.get('background')=='transparent'
+  framing=None
+  if name=='above':
+   framing=frame_property(camera,assets);shot['lens']=float(camera.data.lens)
   bg=next(n for n in sc.world.node_tree.nodes if n.type=='BACKGROUND');bg.inputs['Strength'].default_value=shot.get('sky_strength',.13)
   sc.world.node_tree.nodes['Ambient balance'].inputs[0].default_value=shot.get('neutral_ambient',0)
   sun=bpy.data.objects['Sun'];sun.rotation_euler=Vector(shot.get('sun_direction',(.5,.7,-1))).to_track_quat('-Z','Y').to_euler()
   sc.view_settings.exposure=shot.get('exposure',-.15)
   path=out/(name+'.png');sc.render.filepath=str(path.resolve());bpy.ops.render.render(write_still=True)
   if name=='hero':tone(path,camera,assets)
-  records[name]=dict(source=str(source),sha256=sha(source),image_sha256=sha(path),camera=shot,eye_measurement=eye,width=width,samples=samples,engine=engine,stage=meta['stage'],context=ctx,recipe_sha256=recipe())
+  records[name]=dict(source=str(source),sha256=sha(source),image_sha256=sha(path),camera=shot,eye_measurement=eye,framing_measurement=framing,width=width,samples=samples,engine=engine,stage=meta['stage'],context=ctx,recipe_sha256=recipe())
  for row in ctx:
   if bundle(HERE.parents[1]/row['source'])!=row:raise AssertionError('Presentation changed a context export')
  old=json.loads((out/'provenance.json').read_text()) if (out/'provenance.json').exists() else {};old.update(records)

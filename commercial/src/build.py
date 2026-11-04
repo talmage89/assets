@@ -21,7 +21,7 @@ def build(seed,out,overrides=None):
   x,y=island['center'];u,v=rotate((0,-.96),island['angle'])
   dispenser('Dispenser_'+str(island['index']),(x+u,y+v,.1624),island['angle']+90,brand,island['index'])
   u,v=rotate((0,1.95),island['angle']);trash('TrashWasher_'+str(island['index']),(x+u,y+v,.1624),island['angle'])
- price_sign(p['sign'],(*p['sign_center'],0),brand)
+ sign=price_sign(p['sign'],(*p['sign_center'],0),brand);sign.rotation_euler.z=math.radians(p['sign_yaw'])
  fy=b['front'];ice((3.5,fy-.53,.1524));propane((-4.0,fy-.53,.1524))
  for i,xx in enumerate((-6.4,-2.5,1.95,6.5)):
   # Door/accessible aisle keep-out leaves a continuous pedestrian approach.

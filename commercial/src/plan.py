@@ -42,14 +42,14 @@ def generate(seed=101,overrides=None):
         dict(lot=(140,150),store=(56,48,20),count=2,canopy_y=-36,angle=90,yaw=90,brand='latchline',wall='brick',sign='pylon'),
         dict(lot=(160,160),store=(64,48,22),count=4,canopy_y=-39,angle=0,yaw=-90,brand='latchline',wall='smooth_cmu',sign='monument'),
         dict(lot=(160,160),store=(66,50,25),count=3,canopy_y=-40,angle=30,yaw=180,brand='rillway',wall='eifs',sign='pylon')]
- d=copy.deepcopy(specs[k]);d['seed']=seed
+ d=copy.deepcopy(specs[k]);d['seed']=seed;d['sign_placement']=('corner','south','west','corner')[k]
  if seed not in PROOF_SEEDS:
   width,depth,front=d['store'];width=max(56,width+rng.choice((-2,0,2)));depth=rng.choice((46,48,50))
   front=min(front,d['lot'][1]/2-depth-4)
   d['store']=(width,depth,front);d['brand']=rng.choice(tuple(BRANDS))
   d['yaw']=rng.choice((-90,0,90,180));d['sign']=rng.choice(('monument','pylon'))
  if overrides:
-  if set(overrides)-{'brand','wall','sign','yaw','cooler','store','count','angle','canopy_y','lot'}:raise ValueError('Unsupported station control')
+  if set(overrides)-{'brand','wall','sign','sign_placement','yaw','cooler','store','count','angle','canopy_y','lot'}:raise ValueError('Unsupported station control')
   d.update(copy.deepcopy(overrides))
  b=BuildingSpec(width=d['store'][0]*FT,depth=d['store'][1]*FT,front=d['store'][2]*FT,
                 center_x=(2 if k==2 else 0)*FT,wall=d['wall'],cooler=d.get('cooler',k%2==0),
@@ -67,9 +67,11 @@ def generate(seed=101,overrides=None):
  # Entrances remain on the two local street edges; the front opening varies with canopy.
  front_drive=(((count-1)/2*pitch+12*FT) if angle==0 else W/2-24*FT,-D/2)
  side_drive=(-W/2,(-12 if angle==0 else -13)*FT)
+ placements={'corner':(-W/2+14*FT,-D/2+14*FT),'south':(W/2-12*FT,-D/2+9*FT),'west':(-W/2+10*FT,-D/2+26*FT)}
+ if d['sign_placement'] not in placements:raise ValueError('Unknown sign placement')
  result=dict(seed=seed,stage='form checkpoint: quick materials; no bake',lot=(W,D),yaw=d['yaw'],brand=d['brand'],
     building=asdict(b),canopy=can,islands=islands,sign=d['sign'],
-    sign_center=(-W/2+14*FT,-D/2+14*FT),driveways=[dict(edge='south',center=front_drive,width=24*FT),dict(edge='west',center=side_drive,width=24*FT)],
+    sign_placement=d['sign_placement'],sign_center=placements[d['sign_placement']],sign_yaw=90 if d['sign_placement']=='west' else 0,driveways=[dict(edge='south',center=front_drive,width=24*FT),dict(edge='west',center=side_drive,width=24*FT)],
     walk=walk,access=dict(center_x=b.center_x-1.15,width=5*FT,run=6*FT,landing_depth=6*FT),parking_depth=parking_depth,parking_front=b.front-walk-parking_depth,
     stalls=5 if b.width>19 else 4)
  validate(result);return result
@@ -80,6 +82,7 @@ def validate(p):
  assert p['brand'] in BRANDS,'Unknown brand'
  assert b['wall'] in ('split_cmu','smooth_cmu','brick','eifs'),'Unknown wall'
  assert p['sign'] in ('pylon','monument'),'Unknown sign'
+ assert abs(p['sign_center'][0])+2<W/2 and abs(p['sign_center'][1])+2<D/2,'Sign foundation outside lot'
  assert p['yaw'] in (-90,0,90,180),'Corner yaw must be a quarter turn'
  assert 120*FT<=W<=160*FT and 120*FT<=D<=160*FT,'Lot bounds'
  assert 2500*FT**2<=b['width']*b['depth']<=4000*FT**2,'Store area'
