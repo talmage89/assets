@@ -38,7 +38,9 @@ for _code in ['FL','FR','RL','RR']:
 for _code in ['FL','FR']:
     _sign=-1 if _code.endswith('L') else 1
     MOTIONS.append(dict(node='Steer_'+_code,axis='Z',range=[-35,35],step=1,tolerance_m=.0005,
-        allow=[dict(moving='S240 bearing front'+str(_sign),fixed='S240 halfshaft '+str(_sign),reason='Articulated CV joint inside the hub bearing')]))
+        allow=[dict(moving='S240 bearing front'+str(_sign),fixed='S240 halfshaft '+str(_sign),reason='Articulated CV joint inside the hub bearing'),
+               dict(moving='S240 bearing front'+str(_sign),fixed='S240 front lower arm '+str(_sign),reason='Lower ball joint centered on the measured kingpin axis, represented by the composite knuckle housing'),
+               dict(moving='S240 bearing front'+str(_sign),fixed='S240 front damper '+str(_sign),reason='Coaxial strut / knuckle clamp at the steering axis; composite bearing housing')]))
 BAKE_POLICY=dict(isolate_moving=True,moving_roots=REQUIRED_NODES[1:]+[
  'Windshield','Backlight','Headlamp opening-1','Headlamp opening1','Tire_FL','Tire_FR','Tire_RL','Tire_RR'],
  cage_m=.008,ray_distance_m=.022,ao_distance_m=.030,consolidate_attribute_sources=True)
@@ -61,3 +63,8 @@ if _counts.exists():BAKE_POLICY['moving_roots']=sorted(_json.loads(_counts.read_
 BAKE_POLICY.update(cage_m=.014,ray_distance_m=.040)
 UV_PRIORITY['S240 upper light']=2.5
 UV_PRIORITY['S240 lower light']=2.5
+
+# Dense image sampling belongs to the visible sheet, not its hidden gauge back.
+UV_PRIORITY_ATTRIBUTE='S240UVWeight'
+UV_PRIORITY['Alder center cap']=3.0
+UV_PRIORITY['Tire_']=1.6

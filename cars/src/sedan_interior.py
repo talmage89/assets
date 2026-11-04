@@ -25,7 +25,7 @@ def build(b):
             tube(b,'S240 bolster piping '+side+str(sign),[(x+sign*.16,-.055,.49),(x+sign*.17,.02,.67),(x+sign*.145,.14,.93)],.0014,b.m['seat_side'],'interior',sides=4)
         cushion('S240 front headrest '+side,x,.29,.25,.12,1.055,1.205,b.m['cloth'])
         box(b,'S240 seat buckle '+side,(x+(.255 if x<0 else -.255),.0,.43),(.025,.038,.045),b.m['plastic'],'interior',radius=.004)
-    cushion('S240 rear bench',0,.94,1.32,.47,.36,.465,b.m['cloth'])
+    cushion('S240 rear bench',0,.94,1.32,.47,.382,.465,b.m['cloth'])
     rings=[[(u,y+v,z) for u,v in G.rounded_rectangle(w,.12,.035,2 if not b.high else 4)]
            for z,y,w in [(.44,1.17,1.37),(.72,1.24,1.32),(1.01,1.33,1.22)]]
     b.add(G.smooth(G.loft('S240 rear backrest',rings,b.m['cloth'])),category='interior')

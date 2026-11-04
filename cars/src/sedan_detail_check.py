@@ -12,7 +12,7 @@ def mechanical_measurements():
     """Dimensions read from actual hinge/wheel surfaces, not spec constants."""
     from sedan_check import mesh_tree
     from kit.motion import inside
-    hinges={};wheels={}
+    hinges={};wheels={};mirrors={};anchors={}
     def radial(p,c,a):return ((p-c)-a*(p-c).dot(a)).length
     for code in ['FL','FR','RL','RR']:
         parent=bpy.data.objects['Door_'+code];axis=Vector(parent['hinge_axis_vehicle']).normalized();origin=parent.matrix_world.translation
@@ -44,9 +44,48 @@ def mechanical_measurements():
         circles=[]
         for ob in studs:
             ps=points(ob);cy=sum(p.y for p in ps)/len(ps);cz=sum(p.z for p in ps)/len(ps);circles.append(2*math.hypot(cy-hub.y,cz-hub.z))
-        wheels[code]=dict(rim_mesh_width_m=max(p.x for p in barrel)-min(p.x for p in barrel),tire_bead_width_m=max(p.x for p in beads)-min(p.x for p in beads),
+        center=bpy.data.objects['Wheel center_'+code];cp=points(center);axis=Vector((1,0,0));radii=[radial(p,hub,axis) for p in cp];smallest=min(r for r in radii if r>1e-5);bores=[]
+        for edge in center.data.edges:
+            a,d=[cp[i] for i in edge.vertices]
+            if max(radial(a,hub,axis),radial(d,hub,axis))>smallest+1e-5 or min(radial(a,hub,axis),radial(d,hub,axis))<1e-5:continue
+            av=(a-hub)-axis*(a-hub).dot(axis);dv=(d-a)-axis*(d-a).dot(axis);t=max(0,min(1,-av.dot(dv)/max(dv.length_squared,1e-15)));bores.append((av+dv*t).length)
+        bearing=bpy.data.objects['S240 bearing '+('front' if code.startswith('F') else 'rear')+str(sign)];bp=points(bearing);br=max(radial(p,hub,axis) for p in bp)
+        hub_x=[sign*(p.x-hub.x) for p,r in zip(cp,radii) if abs(r-smallest)<1e-5];bearing_x=[sign*(p.x-hub.x) for p in bp]
+        engagement=min(max(hub_x),max(bearing_x))-max(min(hub_x),min(bearing_x))
+        wheels[code]=dict(minimum_hub_bore_diameter_m=2*min(bores),bearing_outside_diameter_m=2*br,minimum_hub_radial_running_clearance_m=min(bores)-br,measured_axial_engagement_m=engagement,rim_mesh_width_m=max(p.x for p in barrel)-min(p.x for p in barrel),tire_bead_width_m=max(p.x for p in beads)-min(p.x for p in beads),
             cap_recess_from_outer_lip_m=max(sign*(p.x-hub.x) for p in barrel)-max(sign*(p.x-hub.x) for p in cap),stud_count=len(studs),measured_pitch_circle_diameters_m=circles)
-    return dict(hinges=hinges,wheels=wheels)
+    from kit.motion import surface,penetration
+    body=[o for o in bpy.context.scene.objects if o.type=='MESH' and o.get('part_category') in ['body','doors','pillars','fascia']]
+    body_tree=mesh_tree(body)
+    for side in ['L','R']:
+        cap=bpy.data.objects['Mirror housing_'+side];stem=bpy.data.objects['Mirror stalk_'+side];cap_surface=surface(cap)
+        depths=[penetration(cap_surface,surface(ob),.0005)[0] for ob in body]
+        tip=sum(points(stem)[-8:],Vector())/8
+        mirrors[side]=dict(bounds_m=bounds([cap]),minimum_vertex_clearance_to_body_m=min(body_tree.find_nearest(p)[3] for p in points(cap)),
+            maximum_closed_body_penetration_m=max(depths),actual_stem_tip_m=list(tip),stem_tip_inside_cap=inside(mesh_tree([cap]),tip))
+    lid=mesh_tree([bpy.data.objects['Trunk outer']]);tub=mesh_tree([bpy.data.objects['S240 trunk tub']])
+    for side in ['L','R']:
+        ps=points(bpy.data.objects['S240 trunk gooseneck '+side]);tip=sum(ps[-8:],Vector())/8;root=sum(ps[:8],Vector())/8
+        bearing=mesh_tree([bpy.data.objects['S240 trunk hinge bearing '+side]]);support=bpy.data.objects['S240 trunk bearing support '+side]
+        anchors['trunk '+side]=dict(lid_tip_distance_m=lid.find_nearest(tip)[3],root_inside_bearing=inside(bearing,root),
+            support_contacts_bearing=any(inside(bearing,p) for p in points(support)),support_contacts_tub=any(inside(tub,p) for p in points(support)))
+    floor=mesh_tree([bpy.data.objects['S240 stamped floor']]);tank=mesh_tree([bpy.data.objects['S240 fuel tank']])
+    def centers(ob):
+        ob.data.calc_loop_triangles();ps=points(ob)
+        return [sum((ps[i] for i in t.vertices),Vector())/3 for t in ob.data.loop_triangles]
+    for y in [.56,.88]:
+        strap=bpy.data.objects['S240 tank strap '+str(y)];ps=centers(strap)
+        anchors['tank strap '+str(y)]=dict(tank_contact_distance_m=min(tank.find_nearest(p)[3] for p in ps),floor_contact_distance_m=min(floor.find_nearest(p)[3] for p in ps))
+    support=mesh_tree([bpy.data.objects[n] for n in ['S240 stamped floor','S240 trunk tub']]);muffler=mesh_tree([bpy.data.objects['S240 rear muffler']])
+    for y in [1.62,1.96]:
+        ps=points(bpy.data.objects['S240 exhaust hanger '+str(y)]);root=sum(ps[:6],Vector())/6;tip=sum(ps[-6:],Vector())/6
+        anchors['exhaust '+str(y)]=dict(floor_tip_distance_m=support.find_nearest(tip)[3],root_inside_muffler=inside(muffler,root))
+    for label,end,axle in [('front','F',S.FRONT_AXLE),('rear','R',S.REAR_AXLE)]:
+        for sign in [-1,1]:
+            ob=bpy.data.objects['S240 '+label+' damper '+str(sign)];ps=points(ob);tip=sum(ps[:8],Vector())/8
+            house=mesh_tree([bpy.data.objects['Wheelwell_'+end+('L' if sign<0 else 'R')]])
+            anchors[label+' upper damper '+str(sign)]=dict(wheelhouse_contact_distance_m=house.find_nearest(tip)[3])
+    return dict(hinges=hinges,wheels=wheels,mirrors=mirrors,measured_anchors=anchors)
 
 
 def main():
@@ -123,6 +162,10 @@ def main():
     mechanical=mechanical_measurements()
     errors=[]
     if any(r["radial_running_clearance_m"]<.00018 or r["barrel_axis_offset_m"]>1e-5 or r["pin_axis_dot"]<.9999 or not r["moving_leaf_anchor_inside_barrel"] or r["moving_leaf_skin_tip_distance_m"]>.0015 or not r["fixed_leaf_contacts_pin"] for r in mechanical["hinges"].values()):errors.append("Door hinge running clearance or attachment")
+    if any(r['maximum_closed_body_penetration_m']>.0005 or not r['stem_tip_inside_cap'] for r in mechanical['mirrors'].values()):errors.append('Mirror body clearance or stem contact')
+    for name,row in mechanical['measured_anchors'].items():
+        if any((v>.0015 if key.endswith('_m') else not v) for key,v in row.items()):errors.append('Unsupported anchor: '+name)
+    if any(r['minimum_hub_radial_running_clearance_m']<.00018 or r['measured_axial_engagement_m']<.025 for r in mechanical['wheels'].values()):errors.append('Wheel journal running clearance or engagement')
     if support_contacts:errors.append('Evaluated telescoping support collision')
     if rest_errors:errors.append('Rest coordinates disagree with actual closed geometry')
     if sum(counts.values())>60000:errors.append('Triangle budget')

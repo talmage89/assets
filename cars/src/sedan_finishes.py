@@ -15,15 +15,15 @@ def paint(wear):
                 (S.FRONT_AXLE,S.REAR_AXLE),refined=True,flakes=.65)
     n=Nodes.__new__(Nodes);n.mat=mat;n.nt=mat.node_tree
     p,x,y,z,nx,ny,nz=V.rest(n,'VehicleRest')
-    streaks=n.noise(n.vec('MULTIPLY',p,(1,1,.12)),35,3)
-    grain=n.add(.30,n.mul(n.ramp(streaks,.27,.70),.70))
-    ceiling=n.add(.43,n.mul(n.noise(p,7,2),.13))
-    fans=[n.mul(n.ramp(n.math('SUBTRACT',ceiling,z),0,.20),.85)]
+    streaks=n.noise(n.vec('MULTIPLY',p,(1,1,.55)),35,3)
+    grain=n.add(.45,n.mul(n.ramp(streaks,.27,.70),.55))
+    ceiling=n.add(.34,n.mul(n.noise(p,7,2),.12))
+    fans=[n.mul(n.ramp(n.math('SUBTRACT',ceiling,z),0,.22),.45)]
     for axle in [S.FRONT_AXLE,S.REAR_AXLE]:
         dy=n.math('SUBTRACT',y,axle+.25)
         aft=n.mul(n.ramp(dy,0,.12),n.ramp(dy,2.0,.65))
-        ceiling=n.add(.73,n.mul(dy,-.10))
-        fans.append(n.mul(aft,n.ramp(n.math('SUBTRACT',ceiling,z),0,.23),1.25))
+        ceiling=n.add(.64,n.mul(dy,-.10))
+        fans.append(n.mul(aft,n.ramp(n.math('SUBTRACT',ceiling,z),0,.23),.85))
     film=n.mul(n.maximum(*fans),grain,wear)
     # Cavity residue follows actual shut-line locations, never a panel-wide wash.
     gaps=n.maximum(*[n.band(y,v,.002,.007) for v in [S.DOOR_FRONT,S.DOOR_SPLIT,S.DOOR_REAR]])
@@ -34,7 +34,7 @@ def paint(wear):
     chips=n.mul(n.maximum(leading,edges),n.ramp(n.noise(p,780,2),.78,.86),wear)
     coverage=n.mul(n.math('SUBTRACT',1,film),n.math('SUBTRACT',1,grime),n.math('SUBTRACT',1,chips))
     tint=n.nt.nodes['Paint tint'].outputs[0]
-    dirt=n.mix(film,(0,0,0),(.38,.34,.28),True)
+    dirt=n.mix(film,(0,0,0),(.16,.14,.11),True)
     dirt=n.mix(grime,dirt,(.008,.007,.006),True)
     dirt=n.mix(chips,dirt,(.105,.110,.113),True)
     base=n.vec('ADD',n.mix(coverage,(0,0,0),tint,True),dirt)
@@ -49,9 +49,25 @@ def paint(wear):
     return mat
 
 
+def dirty_lower_glass(mat,wear):
+    """A faint broken residue at the lower edge; clear main viewing area."""
+    n=Nodes.__new__(Nodes);n.mat=mat;n.nt=mat.node_tree
+    coord=n.node('ShaderNodeTexCoord');p=coord.outputs['Generated'];_,_,z=n.split(p)
+    dust=n.mul(n.ramp(z,.10,.018),n.add(.35,n.mul(n.noise(n.vec('MULTIPLY',p,(2,4,.3)),24,2),.65)),wear,.18)
+    base=n.nt.nodes['OUT_base'].inputs[0].links[0].from_socket
+    rough=n.nt.nodes['OUT_rough'].inputs[0].links[0].from_socket
+    n.feed(n.nt.nodes['OUT_base'].inputs[0],n.mix(dust,base,(.045,.040,.030),True))
+    n.feed(n.nt.nodes['OUT_rough'].inputs[0],n.add(rough,n.mul(dust,.35)))
+    return mat
+
+
 def build(wear):
     from finishes import build as family_finishes
     m=family_finishes(0)
+    # Reuse the family's responses with sedan axle locations for causal splash.
+    for key,color,kind in [('rubber',(.009,.010,.011),'rubber'),('plastic',(.011,.013,.014),'plastic'),('bumper',(.016,.019,.021),'plastic'),('frame',(.008,.009,.010),'plastic')]:
+        name=m[key].name;bpy.data.materials.remove(m[key])
+        m[key]=V.manufactured(name,color,kind,wear*.8,(S.FRONT_AXLE,S.REAR_AXLE),refined=True)
     bpy.data.materials.remove(m['body'])
     m['body']=paint(wear)
     m['wheel']=V.manufactured('S240 cast alloy',(.43,.46,.48),'alloy',wear,
@@ -61,6 +77,7 @@ def build(wear):
     m['side_glass']=V.glazing('S240 front door glass',(.56,.65,.66),axes=(1,2))
     m['privacy']=V.glazing('S240 rear door glass',(.28,.36,.38),True,axes=(1,2))
     m['rear_glass']=V.glazing('S240 backlight',(.32,.40,.42),True)
+    for key in ['glass','side_glass','privacy','rear_glass']:dirty_lower_glass(m[key],wear)
     m['rear_cover']=V.lamp('S240 red lamp cover',(.55,.010,.006),0,1)
     m['rear_cover'].node_tree.nodes['OUT_rough'].inputs[0].links[0].from_socket.default_value=.045
     from pathlib import Path

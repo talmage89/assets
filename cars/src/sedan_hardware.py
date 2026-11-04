@@ -31,6 +31,12 @@ def passenger_wheels(b):
                     shift=.039*max(0,min(1,(.211-radial)/(.211-.058)))
                 else:shift=.039
                 p.x-=sign*shift;v.co=inverse@p
+        old=bpy.data.objects['Wheel center_'+code];bpy.data.objects.remove(old,do_unlink=True)
+        count=32 if b.high else 16
+        bore=.0352/math.cos(math.pi/count)
+        profile=[(.029,bore),(.029,.065),(.079,.065),(.090,.052),(.090,0),(.086,0),(.086,bore)]
+        hub=G.lathe('Wheel center_'+code,[(cx+sign*x,r) for x,r in profile],b.m['wheel'],count,axis='X',center=(y,S.HUB_HEIGHT),closed=True)
+        b.add(hub,parent,'wheels')
         tire=bpy.data.objects['Tire_'+code]
         # 190.5 mm nominal bead seating width for the 7.5 inch rim;
         # preserve the accepted 235 mm sidewall envelope and rolling radius.
@@ -42,7 +48,11 @@ def passenger_wheels(b):
         for k in range(5):
             angle=math.tau*k/5;cy=y+.05715*math.cos(angle);cz=S.HUB_HEIGHT+.05715*math.sin(angle)
             profile=[(.090,0),(.090,.011),(.102,.011),(.105,.0087),(.105,0)] if b.high else [(.090,0),(.090,.011),(.105,.011),(.105,0)]
-            lug=G.lathe('S240 wheel stud '+code+str(k),[(cx+sign*x*axial,r) for x,r in profile],b.m['chrome'],6,axis='X',center=(cy,cz))
+            if b.high:
+                lug=G.lathe('S240 wheel stud '+code+str(k),[(cx+sign*x*axial,r) for x,r in profile],b.m['chrome'],6,axis='X',center=(cy,cz))
+            else:
+                outline=[(cy+.011*math.cos(math.tau*j/6),cz+.011*math.sin(math.tau*j/6)) for j in range(6)]
+                lug=G.profile('S240 wheel stud '+code+str(k),outline,min(cx+sign*.090,cx+sign*.105),max(cx+sign*.090,cx+sign*.105),b.m['chrome'],axis='X')
             b.add(lug,parent,'wheels')
         if not b.high:
             old=bpy.data.objects['Brake rotor_'+code];bpy.data.objects.remove(old,do_unlink=True)

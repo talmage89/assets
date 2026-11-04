@@ -85,6 +85,9 @@ def main():
             p=ob.matrix_world@v.co
             if abs(p.x)>.83:
                 p.x*=.795/.875;v.co=ob.matrix_world.inverted()@p
+    for ob in bpy.context.scene.objects:
+        if ob.name.startswith('Wheelwell'):
+            ob.data.materials.clear();ob.data.materials.append(b.m['frame'])
     for ob in list(bpy.context.scene.objects):
         if ob.name.startswith(('Wheel_','Steer_')):bpy.data.objects.remove(ob,do_unlink=True)
     import wheels,sedan_exterior,sedan_interior,sedan_underbody,sedan_hardware
@@ -112,6 +115,11 @@ def main():
     bpy.context.view_layer.update()
     for ob in bpy.context.scene.objects:
         if ob.type!='MESH' or ob.get('asset_set')!='Sedan':continue
+        weight=ob.data.attributes.new('S240UVWeight','FLOAT','FACE')
+        roles=ob.data.attributes.get('sheet_role');outer=ob.get('lens_outer_faces')
+        for face in ob.data.polygons:
+            role=roles.data[face.index].value if roles else (0 if outer is None or face.index<outer else 1)
+            weight.data[face.index].value=1.0 if role==0 else .35 if role==2 else .25
         rest=ob.data.attributes.get('VehicleRest') or ob.data.attributes.new('VehicleRest','FLOAT_VECTOR','POINT')
         rest.data.foreach_set('vector',[q for v in ob.data.vertices for q in ob.matrix_world@v.co])
     if b.high:

@@ -151,9 +151,15 @@ def trim(b):
             inverse=ob.matrix_world.inverted()
             positions=[ob.matrix_world@v.co for v in ob.data.vertices]
             lo=min(abs(p.x) for p in positions);hi=max(abs(p.x) for p in positions)
-            target=.925 if ob==cap else .935
             for v,p in zip(ob.data.vertices,positions):
-                p.x=sign*(target+(abs(p.x)-lo)*(hi-target)/(hi-lo));v.co=inverse@p
+                fraction=(abs(p.x)-lo)/(hi-lo)
+                p.z=.990+(p.z-.990)*.65
+                t=max(0,min(1,(p.z-.950)/.085));t=t*t*(3-2*t)
+                target=.925-.055*t
+                hit=tree.ray_cast(Vector((sign*2,p.y,p.z)),Vector((-sign,0,0)),4)[0]
+                if hit is not None:target=max(target,abs(hit.x)+.008)
+                if ob!=cap:target+=.005
+                p.x=sign*(target+fraction*(hi-target));v.co=inverse@p
         G.smooth(cap,70)
         old=bpy.data.objects['Mirror stalk_'+side];bpy.data.objects.remove(old,do_unlink=True)
         p,n=side_point(sign,-.925,.925)
@@ -239,7 +245,12 @@ def hinges(b):
             door['pivot_axis']='CUSTOM'
             door['hinge_axis_vehicle']=list(Vector((sign*.14,0,1)).normalized())
         # Gooseneck is carried by the trunk pivot at its actual forward axis.
-        tube(b,'S240 trunk gooseneck '+side,[(sign*.48,1.72,1.01),(sign*.48,1.63,.74),(sign*.48,2.10,.74),(sign*.48,2.13,1.03)],.012,b.m['frame'],'hinges',bpy.data.objects['Trunk'],sides=8)
+        lid=mesh_tree([bpy.data.objects['Trunk outer']])
+        contact=lid.ray_cast(Vector((sign*.48,2.13,.7)),Vector((0,0,1)),1)[0]
+        if contact is None:raise ValueError('Gooseneck misses the actual lid underside')
+        contact.z+=.0003
+        tube(b,'S240 trunk gooseneck '+side,[(sign*.48,1.72,1.01),(sign*.48,1.63,.74),(sign*.48,2.10,.74),contact],.012,b.m['frame'],'hinges',bpy.data.objects['Trunk'],sides=8)
+        box(b,'S240 trunk bearing support '+side,(sign*.509,1.72,.8125),(.024,.050,.395),b.m['frame'],'hinges',radius=0)
         box(b,'S240 trunk hinge bearing '+side,(sign*.48,1.72,1.01),(.05,.055,.035),b.m['frame'],'hinges',radius=.005)
     repivot(bpy.data.objects['Trunk'],(0,1.72,1.01),(0,72))
     repivot(bpy.data.objects['Hood'],(0,-1.080,.977),(-62,0))
