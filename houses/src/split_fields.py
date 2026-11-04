@@ -53,8 +53,16 @@ def stone(folder,n=512):
     color=(unit*body[:,:,None]+mortar*(1-body[:,:,None]))*np.array((1.20,1.0,.85))
     slopes=rng.uniform(-.035,.035,(len(sites),2))
     facet=slopes[nearest,0]*(x-cx)+slopes[nearest,1]*(y-cy)
-    fracture=noise(n,26,geology);cleavage=noise(n,67,geology)
-    height=body*(.018+facet+.013*(fracture-.5)+.007*(cleavage-.5))+.00065*(fine-.5)
+    # Intersect shallow cleavage planes inside each individual stone. Broad
+    # interpolated height noise makes pillow-like lumps instead of rock.
+    cuts=geology.uniform(-.065,.065,(len(sites),4,2));offsets=geology.uniform(0,.012,(len(sites),4))
+    fracture=np.full((n,n),np.inf)
+    for k in range(4):
+        plane=offsets[nearest,k]+cuts[nearest,k,0]*(x-cx)+cuts[nearest,k,1]*(y-cy)
+        fracture=np.minimum(fracture,plane)
+    fracture-=offsets.min(axis=1)[nearest]
+    cleavage=noise(n,67,geology)
+    height=body*np.clip(.018+facet+.65*fracture+.0012*(cleavage-.5),.005,.040)+.00030*(fine-.5)
     # The original rowlock/coping brick occupies a small guarded strip in
     # the same pair. Stone walls and their brick cap remain one material.
     brick_height=round(n*52/512);stone_height=round(n*436/512);guard=round(n*6/512)
