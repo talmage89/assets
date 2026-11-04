@@ -42,7 +42,7 @@ def snap(value,step):
  return target if abs(value-target)<2e-7 else value
 
 
-def resolve(ob,newer,optimize=False):
+def resolve(ob,newer,optimize=False,absolute_area_tolerance=0,use_polygons=False):
  me=ob.data
  # Intersections in the source weather grid leave sub-micrometer slivers.
  # Dissolve their zero-length/collinear edges before adding chart cuts;
@@ -62,8 +62,8 @@ def resolve(ob,newer,optimize=False):
   bm.to_mesh(me);bm.free();me.update()
  me.calc_loop_triangles();uv=me.uv_layers.active;colors=me.color_attributes['Tint'];normals=[n.vector.copy() for n in me.corner_normals]
  verts=[];faces=[];uvs=[];tints=[];norm=[];materials=[];source_count=len(me.loop_triangles);source_area=sum(t.area for t in me.loop_triangles);seams=0
- for tri in (me.polygons if uniform else me.loop_triangles):
-  ids=list(tri.vertices);lis=list(tri.loop_indices if uniform else tri.loops);count=len(ids);tc=[np.array(uv.data[i].uv,dtype='float64') for i in lis]
+ for tri in (me.polygons if uniform or use_polygons else me.loop_triangles):
+  ids=list(tri.vertices);lis=list(tri.loop_indices if uniform or use_polygons else tri.loops);count=len(ids);tc=[np.array(uv.data[i].uv,dtype='float64') for i in lis]
   roof=me.materials[tri.material_index].name=='RanchRoof'
   if roof:
    tc=[np.array((snap(a[0],1),snap(a[1],1/17))) for a in tc]
@@ -133,5 +133,8 @@ def resolve(ob,newer,optimize=False):
   mesh.normals_split_custom_set(saved);mesh.attributes.remove(mesh.attributes['_ChartNormal'])
  mesh.calc_loop_triangles();delivery_area=sum(t.area for t in mesh.loop_triangles)
  error=abs(delivery_area-source_area)/max(source_area,1e-12)
- assert error<1e-4,('Chart conversion changed surface area',ob.name,error)
- return dict(source_triangles=source_count,delivery_triangles=len(mesh.loop_triangles),split_charts=seams,surface_area_relative_error=error)
+ absolute_error=abs(delivery_area-source_area)
+ assert error<1e-4 or absolute_error<=absolute_area_tolerance,('Chart conversion changed surface area',ob.name,error)
+ result=dict(source_triangles=source_count,delivery_triangles=len(mesh.loop_triangles),split_charts=seams,surface_area_relative_error=error)
+ if absolute_area_tolerance:result.update(surface_area_absolute_error_m2=absolute_error,absolute_area_tolerance_m2=absolute_area_tolerance)
+ return result

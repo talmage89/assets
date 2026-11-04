@@ -1,5 +1,5 @@
 TYPE ?= builder_colonial
-ifneq ($(TYPE),ranch)
+ifeq ($(filter ranch cape,$(TYPE)),)
 # Seeded family delivery, with retained construction/source checkpoint targets.
 SAMPLES ?= 64
 SEED ?= 27
@@ -137,3 +137,5 @@ clean-family-fields:
 
 endif
 include src/ranch_rules.mk
+
+include src/cape_rules.mk
