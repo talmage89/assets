@@ -20,6 +20,27 @@ def well(b,blank,surface,depth,front):
     rings=[[p-n*d for p,n in zip(loop,normals)] for d in [.002,depth]]
     # Cut before adding the well, so its return can never be mistaken for skin.
     carve(front,[blank],surface,recess=depth)
+    if blank.name=='Plate pocket opening':
+        # Cut only the aperture. The surrounding convex sheet is never pushed.
+        # Its bed is a plane parallel to the gate's tangent at the mouth center.
+        center=sum(ps,Vector())/len(ps);hit,_,_,_=surface['tree'].find_nearest(center)
+        _,n=surface_uv(hit,surface);plane=hit-n*depth
+        def flat(p):
+            q=p.copy();q.y=plane.y-(n.x*(q.x-plane.x)+n.z*(q.z-plane.z))/n.y
+            return q
+        bed=[flat(p) for p in ps];matrix=blank.matrix_world.copy();inverse=matrix.inverted()
+        # Rebuild the bed as a closed plane, so no inherited curved normals or
+        # reduction can restore the former soft pocket.
+        verts=bed+[q-n*.0015 for q in bed]
+        fs=[(j*nu+i,j*nu+i+1,(j+1)*nu+i+1,(j+1)*nu+i) for j in range(nv-1) for i in range(nu-1)]
+        fs+= [tuple(nu*nv+i for i in reversed(f)) for f in fs.copy()]
+        fs += [(a,c,nu*nv+c,nu*nv+a) for a,c in zip(indices,indices[1:]+indices[:1])]
+        mesh=bpy.data.meshes.new('Planar plate bed');mesh.from_pydata([inverse@q for q in verts],[],fs);mesh.update()
+        old=blank.data;blank.data=mesh;blank.data.materials.append(b.m['rubber'])
+        if old.users==0:bpy.data.meshes.remove(old)
+        blank['aperture_samples']=[q for p in bed for q in p]
+        rings[1]=[bed[i] for i in indices]
+        blank['bed_plane_normal']=list(n)
     ob=G.loft(blank.name+' molded return',rings,b.m['rubber'],caps=False)
     sol=ob.modifiers.new('Molded return gauge','SOLIDIFY');sol.thickness=.002;sol.offset=-1;G.apply(ob)
     b.add(ob,category='openings')
@@ -47,30 +68,26 @@ def mirrors(b):
     """Door-corner rounded wedge, compound nose and planar rear glazing."""
     # X/Z outline is deliberately asymmetric: a low inner heel, rounded crown,
     # and an aft optical plane. Several shaped sections make the compound cap.
-    outline=[(.7985,1.164),(.857,1.135),(.995,1.139),(1.049,1.166),
-             (1.0585,1.234),(1.035,1.279),(.970,1.295),(.868,1.282),(.810,1.231)]
-    profile=G.fillet_polygon(outline,.012,3)
+    # Evenly distributed elliptical sections replace the rounded-polygon cage
+    # and QEM collapse, whose long fans made the front surface visibly faceted.
+    count=64 if b.high else 48;steps=20 if b.high else 12
+    def rounded(q):return math.copysign(abs(q)**.78,q)
+    profile=[(.9285+.130*rounded(math.cos(math.tau*i/count)),1.215+.080*rounded(math.sin(math.tau*i/count))) for i in range(count)]
     for side,sgn in [('L',-1),('R',1)]:
         parent=bpy.data.objects['Door_F'+side];rings=[]
-        for yy,scale,dx in [(-.714,.06,-.015),(-.707,.40,-.010),(-.686,.76,-.004),
-                            (-.652,.95,0),(-.607,1,0),(-.588,.995,0),(-.584,.96,0)]:
-            rings.append([(sgn*(.9285+(x-.9285)*scale+dx),yy,1.215+(z-1.215)*scale) for x,z in profile])
-        # Preserve the specified envelope on the crown ring after corner rounds.
-        xs=[p[0] for p in rings[4]];zs=[p[2] for p in rings[4]]
-        xmin,xmax=min(xs),max(xs);zmin,zmax=min(zs),max(zs)
-        for ring in rings:
-            for i,(x,y,z) in enumerate(ring):
-                x=sgn*(.7985+(abs(x)-min(abs(xmin),abs(xmax)))*.260/(xmax-xmin))
-                z=1.135+(z-zmin)*.160/(zmax-zmin);ring[i]=(x,y,z)
-        housing=G.loft('Mirror housing_'+side,rings,b.m['body'])
-        sub=housing.modifiers.new('Molded cap fairing','SUBSURF');sub.levels=1;G.apply(housing)
-        for axis,lo,hi in [(0,-1.0585 if sgn<0 else .7985,-.7985 if sgn<0 else 1.0585),(1,-.714,-.584),(2,1.135,1.295)]:
-            aa=min(v.co[axis] for v in housing.data.vertices);cc=max(v.co[axis] for v in housing.data.vertices)
-            for v in housing.data.vertices:v.co[axis]=lo+(v.co[axis]-aa)*(hi-lo)/(cc-aa)
-        if not b.high:
-            dec=housing.modifiers.new('Cap silhouette allocation','DECIMATE');dec.ratio=.67;G.apply(housing)
+        for j in range(1,steps+1):
+            a=(math.pi/2)*j/steps;r=math.sin(a);y=-.714+.126*(1-math.cos(a))
+            # The inner heel draws toward the door; crown and outboard end
+            # remain elliptical instead of planar segments of a polygon.
+            rings.append([(sgn*(.9285+(x-.9285)*r-.018*(1-r)),y,1.215+(z-1.215)*r) for x,z in profile])
+        rings.append([(sgn*x,-.584,1.215+(z-1.215)*.97) for x,z in profile])
+        verts=[(sgn*(.9285-.018),-.714,1.215)]+[q for ring in rings for q in ring]
+        fs=[(0,1+(i+1)%count,1+i) for i in range(count)]
+        fs += [(1+j*count+i,1+j*count+(i+1)%count,1+(j+1)*count+(i+1)%count,1+(j+1)*count+i) for j in range(len(rings)-1) for i in range(count)]
+        fs.append(tuple(reversed(range(1+(len(rings)-1)*count,len(verts)))))
+        housing=G.mesh('Mirror housing_'+side,verts,fs,b.m['body'])
         b.add(housing,parent,category='mirrors');G.smooth(housing,80)
-        rear=rings[-1];center=Vector((sgn*.9285,-.583,1.215))
+        rear=rings[-1][::1 if b.high else 2];center=Vector((sgn*.9285,-.583,1.215))
         border=[(center.x+(x-center.x)*.86,-.581,center.z+(z-center.z)*.80) for x,y,z in rear]
         pane=G.loft('Mirror pane_'+side,[[(x,-.585,z) for x,y,z in border],border],b.m['glass'])
         b.add(pane,parent,category='mirrors')

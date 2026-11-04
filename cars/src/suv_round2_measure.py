@@ -82,7 +82,7 @@ def measure(obs):
         rails[side]=samples
     result['rails']=rails
     spoiler=by_name['Liftgate spoiler'];ss=points(spoiler);roots=[]
-    for i in range(0,len(ss),6):
+    for i in range(0,len(ss),int(spoiler.get("section_vertices",6))):
         q=ss[i];hit=roof.ray_cast(Vector((q.x,q.y,3)),Vector((0,0,-1)),3)[0]
         if hit is not None:roots.append(q.z-hit.z)
     result['spoiler_root']=dict(minimum_signed_gap_m=min(roots),maximum_signed_gap_m=max(roots),samples=len(roots),scope='Actual first vertices of the authored closed cross sections against the roof; negative means seated overlap')

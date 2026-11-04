@@ -89,7 +89,7 @@ def lamps(b,front,sign,material,tree):
             else:
                 theta=math.radians(21+55*u)
                 top=1.166+.023*math.sin(math.pi*u)-.060*smoothstep(.78,1,u)
-                height=(.074+.103*smoothstep(0,.55,u))*(1-.87*smoothstep(.78,1,u))
+                height=1.0434*(.074+.103*smoothstep(0,.55,u))*(1-.87*smoothstep(.78,1,u))
             hit,normal=radial_point(tree,theta,top-height*(1-v),front,sign)
             row.append(hit+normal*.004)
         rows.append(row)
@@ -145,8 +145,19 @@ def grille_lip(b,blank,surface):
 
 def rear_garnish(b,tree):
     """The parent gate carries the transverse crease; add its badge seat."""
-    # The earlier separate narrow bridge read as a tube in grazing light.
-    # Keep the stamped shoulder itself as Alder's lamp-to-lamp treatment.
+    # Broad molded brow with a flat lower return, not a round tube. The gate
+    # beneath remains one convex stamping and turns inward above this land.
+    rings=[]
+    for i in range(25):
+        x=-.60+1.20*i/24;t=abs(x)/.60;fade=1-.8*t**8
+        ring=[]
+        for z,proud in [(1.035,.002),(1.040,.011),(1.067,.013),(1.079,.002)]:
+            z=1.057+(z-1.057)*fade
+            p,n,_,_=tree.ray_cast(Vector((x,3,z)),Vector((0,-1,0)),2)
+            ring.append(p+n*proud*fade)
+        rings.append(ring)
+    ob=G.loft('Liftgate sculpted garnish',rings,b.m['body'])
+    b.add(ob,bpy.data.objects['Liftgate'],category='openings')
     badge_land(b,tree)
 
 

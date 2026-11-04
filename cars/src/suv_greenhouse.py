@@ -40,7 +40,7 @@ def build(b,tree,surface):
  # Roof-hinged backlight: 1160 mm top / 1490 mm base guides before projection.
  rows=[];nu=18
  for j in range(7):
-  v=j/6;half=.745*(1-v)+.580*v;y=2.12*(1-v)+1.92*v;z=1.295*(1-v)+1.590*v
+  v=j/6;half=.7510*(1-v)+.580*v;y=2.12*(1-v)+1.92*v;z=1.295*(1-v)+1.590*v
   row=[]
   for i in range(nu+1):
    u=i/nu;x=(2*u-1)*half;zz=z-.012*(x/half)**2

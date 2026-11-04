@@ -83,11 +83,16 @@ def character_height(y):return .505+.058*(y-S.DOOR_FRONT)/(S.DOOR_REAR-S.DOOR_FR
 
 
 def side_draw(y,z):
-    def pos(q,r=.0025):return .5*(q+math.sqrt(q*q+r*r))
+    def pos(q,r=.0075):return .5*(q+math.sqrt(q*q+r*r))
     h=shoulder_height(y);line=character_height(y)
     d=pos(h-z);tail=pos(d-(h-line),.010);c=d-tail
     flare=.0235*math.exp(-((z-.780)/.090)**2)*sum(math.exp(-((y-a)/.40)**2) for a in [S.FRONT_AXLE,S.REAR_AXLE])
-    return flare-.066*c-.215*c*c-.15*tail-.0048*math.exp(-((z-line-.040)/.028)**2)-.45*pos(.315-z,.008)-.285*pos(z-h)-.10*pos(z-h)**2
+    # The door draw terminates into each wheel arch. Carrying its narrow
+    # die hollow around the bumper made alternating concave corner ripples.
+    die=smoothstep(-1.90,-1.55,y)*(1-smoothstep(1.50,1.86,y))
+    drawn=-.066*c-.215*c*c-.15*tail-.0048*math.exp(-((z-line-.040)/.028)**2)
+    fair_end=-.066*d-.215*d*d
+    return flare+die*drawn+(1-die)*fair_end-.45*pos(.315-z,.008)-.285*pos(z-h)-.10*pos(z-h)**2
 
 
 def body_section(y,w,belt,top):
@@ -99,7 +104,7 @@ def body_section(y,w,belt,top):
        (edge-.027,y,top-.029),(edge,y,top-.050),
        ((edge+w+side_draw(y,belt))/2,y,(top-.050+belt)/2),
        (w+side_draw(y,belt+.016),y,belt+.016)]
-    for z in [belt,h+.017,h,h-.023,h-.085,.790,line+.050,line+.012,line-.020,.270]:
+    for z in [belt,h+.010,h,h-.010,h-.085,.790,line+.050,line+.012,line-.020,.270]:
         result.append((w+side_draw(y,z),y*(1-.12*max(0,(len(result)-8)/8)),z))
     result.insert(-1,(w+side_draw(y,line-.055),y*.90,line-.055))
     return result
@@ -162,10 +167,12 @@ def end_section(row,front):
 def hood_height(x,y):
     """Broad raised center, two supported draw lines and crowned fender tops."""
     ax=abs(x);ridge=hood_draw_x(y)
-    along=math.exp(-((y+1.64)/.68)**4)*(1-smoothstep(-1.32,-1.075,y))
-    raised=.023*(1-smoothstep(ridge-.040,ridge+.035,ax))*along
-    crown=.026*math.exp(-((ax-.837)/.066)**2)*math.exp(-((y+1.55)/.72)**4)*(1-smoothstep(-1.27,-1.075,y))
-    return .978+.108*(y+2.19)-.027*(x/.80)**2-.035*positive(ax-ridge,.012)+crown+raised
+    # Draw banks fade before the rolled nose; the former narrow fender crown
+    # intersected that roll and made a real concave pocket above each lamp.
+    along=smoothstep(-2.18,-1.91,y)*(1-smoothstep(-1.32,-1.075,y))
+    raised=.029*(1-smoothstep(ridge-.055,ridge+.055,ax))*along
+    crown=.008*math.exp(-((ax-.83)/.15)**2)*along
+    return .978+.108*(y+2.19)-.027*(x/.80)**2-.035*positive(ax-ridge,.020)+crown+raised
 
 
 def crease_rows(half,hood,backlight=False):
@@ -184,18 +191,20 @@ def section_field(p):
     """Single continuous implicit draw used only to fit the quad control net."""
     from forms import hermite
     x,y,z=p;w=side_width(y)+side_draw(y,z)
-    ft=-1.60;rt=1.60+.12*smoothstep(1.10,1.20,z)
+    ft=-1.60;rt=1.60+.12*smoothstep(1.02,1.24,z)
     # A ridge above the corner pockets folds down into the bumper, while
     # the gate has a broad plate surround and horizontal upper shoulder.
     front_relief=.032*math.exp(-((abs(x)-.73)/.18)**4-((z-(.720+.15*(.73-abs(x))))/.060)**2)
-    gate_land=.014*math.exp(-((z-1.09)/.035)**2)*math.exp(-(x/.70)**8)
-    plate_width=.34+.40*(1.06-z)
-    plate_sculpt=.022*(1-smoothstep(plate_width-.060,plate_width+.060,abs(x)))*smoothstep(.680,.755,z)*(1-smoothstep(1.020,1.110,z))
-    bumper_crease=.014*math.exp(-((z-.665)/.033)**2)
+    # One convex gate, with a monotone inward turn below the lamps. The
+    # plate is cut AFTER evaluation; no displacement surrounds its mouth.
+    gate_turn=-.016*smoothstep(1.035,1.145,z)
+    bumper_crease=.007*math.exp(-((z-.675)/.060)**2)*(1-smoothstep(.50,.78,abs(x)))
     fd=max(.25,2.2945+ft-face_depth(z,True)+front_relief)
-    rd=max(.25,2.3005-rt-face_depth(z,False)+gate_land-plate_sculpt-bumper_crease)
+    rd=max(.25,2.3005-rt-face_depth(z,False)+gate_turn-bumper_crease)
     a=max(0,ft-y)/fd;c=max(0,y-rt)/rd
-    power=4+4*math.exp(-((z-.66)/.17)**4)*smoothstep(.8,1.4,y)-2*smoothstep(1.12,1.24,z)
+    # Broad C2 transition instead of a fourth-power bell with abrupt curvature
+    # reversals at the bumper corner; keep its accepted maximum plan fullness.
+    power=4+4*math.exp(-((z-.66)/.195)**2)*smoothstep(.8,1.4,y)*(1-smoothstep(1.12,1.24,z))-2*smoothstep(1.02,1.24,z)
     q=(abs(x)/w)**power+a**3+c**3-1
     g=math.sqrt((power*(abs(x)/w)**(power-1)/w)**2+(3*a*a/fd if y<ft else 3*c*c/rd)**2)
     wall=q/max(1,g)
@@ -213,14 +222,44 @@ def fit_control_net(ob):
     sub=ob.modifiers.new('Refine section-fit controls','SUBSURF');sub.levels=2;G.apply(ob)
     for v in ob.data.vertices:
         p=v.co
-        side=smoothstep(-1.45,-1.05,p.y)*(1-smoothstep(1.45,1.85,p.y))*smoothstep(.74,.84,abs(p.x))
-        center=Vector((0,max(-1.45,min(1.45,p.y)),.650)).lerp(Vector((0,p.y,p.z)),side)
+        # A single radial chart has no switch between two projection centers.
+        # The former blend bunched/turned quads at the rear side transition.
+        center=Vector((0,max(-1.45,min(1.45,p.y)),.650))
         direction=p-center;lo,hi=0.,2.
         for _ in range(32):
             t=(lo+hi)/2
             if section_field(center+direction*t)>0:hi=t
             else:lo=t
         v.co=center+direction*((lo+hi)/2)
+    # The folded chart used to bunch into near-zero quads where end rows met
+    # side rows. Fair their PARAMETER SPACING, not their evaluated normals.
+    # Tangential relaxation and projection act on controls before Catmull-Clark;
+    # every interior vertex still has four quad neighbors and no cut exists yet.
+    neighbors=[[] for _ in ob.data.vertices]
+    for edge in ob.data.edges:
+        i,j=edge.vertices;neighbors[i].append(j);neighbors[j].append(i)
+    active=[]
+    for v in ob.data.vertices:
+        p=v.co
+        w=smoothstep(.68,.79,abs(p.x))*smoothstep(1.65,1.88,abs(p.y))*(1-smoothstep(1.26,1.40,p.z))
+        # The underside chart turns farther inboard than the visible corner.
+        # Include that return too: otherwise tiny reversed quads at X610/Z314
+        # survive and the high-density gauge joins three faces along one edge.
+        w=max(w,smoothstep(.48,.60,abs(p.x))*smoothstep(1.85,2.04,p.y)*(1-smoothstep(.34,.48,p.z)))
+        if w>.001 and len(neighbors[v.index])==4:active.append((v.index,w))
+    gradients={}
+    for iteration in range(160):
+        updates=[]
+        for i,w in active:
+            p=ob.data.vertices[i].co
+            q=p.lerp(sum((ob.data.vertices[j].co for j in neighbors[i]),Vector())/4,.60*w)
+            if iteration%4==0:
+                eps=.00015
+                gradients[i]=Vector(tuple((section_field(q+Vector(tuple(eps if j==k else 0 for j in range(3))))-section_field(q-Vector(tuple(eps if j==k else 0 for j in range(3)))))/(2*eps) for k in range(3)))
+            grad=gradients[i];q-=grad*(section_field(q)/max(.01,grad.length_squared))
+            updates.append((i,q))
+        for i,q in updates:ob.data.vertices[i].co=q
+
     ob.data.update()
 
 
@@ -733,9 +772,17 @@ def build(b):
     for ob in bpy.context.scene.objects:
         if ob.type!='MESH' or ob.get('part_category') not in ['body','doors','glass','pillars','fascia','cladding']:continue
         if ob.get('part_category')=='cladding' and 'lower bumper cladding' not in ob.name:continue
-        if not b.high and ob.get('skin_face_provenance') and ob.get('part_category')!='glass':simplify_inner_gauge(ob,parent_tree)
+        if not b.high and ob.get('skin_face_provenance'):
+            from suv_optimize import reduce_gauge
+            ob.data.calc_loop_triangles();raw_count=len(ob.data.loop_triangles)
+            simplify_inner_gauge(ob,parent_tree)
+            reduce_gauge(ob)
+            ob.data.calc_loop_triangles();ob['gauge_total_saved']=raw_count-len(ob.data.loop_triangles);ob['gauge_raw_triangles']=raw_count
         material=next((m for m in ob.data.materials if m),None)
         if material is None:raise ValueError(('Missing form material',ob.name,len(ob.data.vertices),len(ob.data.polygons)))
+        if ob.get('skin_face_provenance'):
+            role=ob.data.attributes.get('skin_face_role') or ob.data.attributes.new(name='skin_face_role',type='INT',domain='FACE')
+            for face in ob.data.polygons:role.data[face.index].value=face.material_index
         ob.data.materials.clear();ob.data.materials.append(material)
         for face in ob.data.polygons:face.material_index=0
 
@@ -873,7 +920,10 @@ def fascia(b,front,master_tree,surface_map):
             top=ps[-(nu+1)+(nu//2)]
             b.add(G.box('Plate lamp',(top.x,top.y+.002,top.z-.004),(.11,.022,.014),b.m['bumper'],.003,2),bpy.data.objects['Liftgate'],category='openings')
         if not b.high:
-            dec=blank.modifiers.new('Hidden bed allocation','DECIMATE');dec.ratio=.3;G.apply(blank)
+            dec=blank.modifiers.new('Hidden bed allocation','DECIMATE')
+            if name=='Plate pocket':dec.decimate_type='DISSOLVE';dec.angle_limit=.0001
+            else:dec.ratio=.3
+            G.apply(blank)
     lamps=[]
     optical_surface=dict(surface_map,polar=True,front=front)
     from suv_apertures import regularize_blank,carve

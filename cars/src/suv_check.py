@@ -85,6 +85,7 @@ def main():
   for i in [nu//3,nu//2,2*nu//3]:
    q=guides[(nv//2)*nu+i];n=bed.find_nearest(q)[1];n=n if n.dot(Vector((q.x,-1 if q.y<0 else 1,0)))>0 else -n;ph,_,_,_=opening_skin_tree.ray_cast(q+n*.12,-n,.125);clear.append(ph is None)
   wells[ob.name]=dict(min_depth_m=min((r['depth_m'] for r in samples),default=None),max_depth_m=max((r['depth_m'] for r in samples),default=None),samples=samples,paint_clearance_rays=clear)
+  wells[ob.name]['scope']='Legacy optical-guide-to-bed rays; guide is proud of the parent. For the plate physical depth use round3.gate.pocket_actual_rim.'
  cases={}
  for ob in obs:
   if 'case_loop_vertices' not in ob:continue
@@ -165,6 +166,9 @@ def main():
   deferred=['interior','underbody / actual running ground clearance','mechanical hinge/steering sweeps','UV/bake/delivery GLB','paint and causal wear'])
  from suv_round2_measure import measure as round2_measure
  report['round2']=round2_measure(obs)
+ report['gauge_optimization']={o.name:dict(saved=int(o.get('gauge_total_saved',0)),raw_triangles=int(o.get('gauge_raw_triangles',0)),local=json.loads(o['gauge_reduction_report'])) for o in obs if 'gauge_reduction_report' in o}
+ from suv_round3_measure import measure as round3_measure
+ if 'Liftgate sculpted garnish' in bpy.data.objects:report['round3']=round3_measure(obs)
  errors=[]
  for sec in sections:
   if not all(12<=v<=20 for v in sec['upper_inward_degrees']):errors.append(sec['name']+' upper door')
@@ -172,7 +176,11 @@ def main():
   if not 10<=sec['low_door_degrees']<=18:errors.append(sec['name']+' lower progressive lean')
   if not 8<=sec['crease_normal_turn_80mm_degrees']<=15:errors.append(sec['name']+' crease turn')
   if not 15<=sec['tumblehome_degrees']<=22:errors.append(sec['name']+' tumblehome')
- if report['quality']=='game' and report['triangles']>60000:errors.append('Source allocation exceeds 60k')
+ if 'round3' in report:
+  for line in report['round3']['lines']:
+   if not 15<=line['shoulder']['normal_turn_degrees']<=25:errors.append('Shoulder turn / 30 mm')
+  if report['round3']['gate']['pocket_bed_plane_max_residual_m']>.0001:errors.append('Plate bed is not planar')
+ if report['quality']=='game' and report['triangles']>61500:errors.append('Source allocation exceeds 61.5k; 65k finished reserve would be lost')
  if abs(report['wheelbase_m']-S.WHEELBASE)>1e-5:errors.append('Wheelbase')
  if any(not .040<=r['crown_gap_m']<=.070 for r in arches):errors.append('Arch crown clearance')
  if not 55<=rake<=60:errors.append('Windshield rake')

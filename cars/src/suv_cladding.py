@@ -55,22 +55,29 @@ def build(b,tree):
    z=(.306 if front else .368)+.055*j/3
    rows.append([(x,locator_y_guess(x,z,front),z) for x in [-.46+i*.92/16 for i in range(17)]])
   skid=form_blank(('Chin' if front else 'Rear')+' skid finish',rows,b.m['bumper'],tree,front);b.add(skid,category='cladding')
- # Molded upper/lower skin with downward end caps: seated across the roof end.
- # It is a closed section, not a thin board suspended over the backlight.
- rings=[];count=25
+ # Molded roof continuation. A thick tapered section closes onto the gate;
+ # the downturned end returns lie outside the backlight's upper corners.
+ rings=[];count=33
  for i in range(count):
   u=2*i/(count-1)-1;x=.755*u;end=abs(u)**8
-  crown=.018*u*u;front=1.755-.075*end;rear=2.025-.115*abs(u)**4
+  front=1.735-.075*end;rear=2.025-.115*abs(u)**4
   p=tree.ray_cast(Vector((x,front,3)),Vector((0,0,-1)),3)[0]
-  root=p.z if p else 1.620-crown
-  top=1.644-crown-.052*end
-  rings.append([(x,front,root-.004),(x,front+.045,root+.009),
-    (x,rear-.035,top+.009),(x,rear,top-.004),(x,rear-.012,top-.023),
-    (x,front+.115,root-.015)])
- spoiler=G.loft('Liftgate spoiler',rings,b.m['body']);b.add(spoiler,bpy.data.objects['Liftgate'],category='spoiler')
- # The stop-light blank is integrated into the aft molded section.
+  root=p.z;top=root-.018;drop=.080*end
+  # Smoothly rounded leading seat, crowned roof continuation, 80 mm trailing
+  # section and a deep outboard return. The bottom front intersects the gate.
+  section=[(front,root-.004),(front+.025,root+.001),
+    (rear-.080,top+.003),(rear-.018,top-.004),
+    (rear,top-.019),(rear-.005,top-.072-drop),
+    (rear-.030,top-.084-drop),(front+.055,root-.110-drop),
+    (front-.015,root-.095-drop)]
+  rings.append([(x,y,z) for y,z in G.fillet_polygon(section,.006,3)])
+ spoiler=G.loft('Liftgate spoiler',rings,b.m['body']);spoiler['section_vertices']=len(rings[0])
+ b.add(spoiler,bpy.data.objects['Liftgate'],category='spoiler')
+ # The stop lamp is recessed into the aft face, inside its thick molded edge.
  rings=[]
- for i in range(17):
-  x=-.25+.5*i/16;y=2.025-.115*(abs(x)/.755)**4;z=1.644-.018*(x/.755)**2
-  rings.append([(x,y-.008,z-.015),(x,y+.001,z-.015),(x,y+.001,z-.003),(x,y-.008,z-.003)])
+ for i in range(25):
+  x=-.25+.5*i/24;u=x/.755;y=2.025-.115*abs(u)**4
+  p=tree.ray_cast(Vector((x,1.735-.075*abs(u)**8,3)),Vector((0,0,-1)),3)[0]
+  z=p.z-.018
+  rings.append([(x,y-.005,z-.050),(x,y-.001,z-.050),(x,y-.001,z-.031),(x,y-.005,z-.031)])
  b.add(G.loft('Spoiler brake lamp',rings,b.m['glass']),bpy.data.objects['Liftgate'],category='spoiler')
