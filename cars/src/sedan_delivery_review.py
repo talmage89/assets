@@ -25,6 +25,19 @@ def diagnostic_sheet(folder):
         draw.text((15,h+44),'Fixed H scale [1/m]: purple -20 / blue -5 / cyan -1 / green 0 / yellow +1 / orange +5 / red +20; gray: boundary and gauge',font=font,fill=(30,35,35))
         canvas.save(folder/(name+'-comparison.jpg'),quality=93,optimize=True)
 
+def bake_loss():
+    """Measure delivered appearance loss separately from photographic error."""
+    source=ROOT/'renders/sedan-source-pairs';baked=ROOT/'renders/sedan-used-pairs'
+    sp=json.loads((source/'appearance-patches.json').read_text());bp=json.loads((baked/'appearance-patches.json').read_text())
+    sm=json.loads((source/'shots.json').read_text());bm=json.loads((baked/'shots.json').read_text());records=[]
+    for view,record in sp.items():
+        if sm[view]['render_recipe_sha256']!=bm[view]['render_recipe_sha256']:raise ValueError('Source/baked comparison uses different presentation recipes')
+        for label,patch in record['patches'].items():
+            a=patch['render']['display_rgb'];b=bp[view]['patches'][label]['render']['display_rgb']
+            records.append(dict(view=view,patch=label,source_display_rgb=a,baked_display_rgb=b,max_channel_difference=max(abs(x-y) for x,y in zip(a,b))))
+    report=dict(method='Same calibrated camera, procedural sun/sky, factory factors and exposure; ray-measured surface patches on source and imported GLB',source_sha256=sm['used_front']['source_sha256'],glb_sha256=bm['used_front']['source_sha256'],patches=records,maximum_patch_channel_difference=max(r['max_channel_difference'] for r in records))
+    (baked/'bake-loss.json').write_text(json.dumps(report,indent=2))
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--docs',action='store_true');p.add_argument('--diagnostics');a=p.parse_args()
     if a.diagnostics:diagnostic_sheet(a.diagnostics);return
@@ -34,10 +47,15 @@ def main():
         meta,_=R.tone(folder);rows+=list(meta.values())
     if any(r['source_sha256']!=digest or r['stage']!='final exported GLB' for r in rows):raise ValueError('Final gallery uses a stale or non-GLB source')
     if len({r['render_recipe_sha256'] for r in rows})!=1:raise ValueError('Mixed presentation recipe')
+    bake_loss()
     names=['front_three_quarter','rear_three_quarter','front','side','rear','top','face','lamp_unlit','lamp_lit','wheel','mirror','interior_glass','underbody','underbody_layout','opened_front','opened_rear','scale']
     R.sheet([root/(n+'.png') for n in names]+[ROOT/'renders/sedan-eevee/front_three_quarter.png'],root/'contact.jpg',3,1800)
     R.sheet([root/(n+'.png') for n in ['front','side','rear','top']],root/'turnaround.jpg',2,1600)
-    R.sheet([root/(n+'.png') for n in ['face','wheel','interior_glass']],root/'details.jpg',1,1600)
+    details=Image.new('RGB',(1600,1700),(230,232,230))
+    for name,box,pos in [('face',(1600,1100),(0,0)),('wheel',(800,600),(0,1100)),('interior_glass',(800,600),(800,1100))]:
+        im=R.rgb(root/(name+'.png'));im.thumbnail(box,Image.Resampling.LANCZOS)
+        details.paste(im,(pos[0]+(box[0]-im.width)//2,pos[1]+(box[1]-im.height)//2))
+    details.save(root/'details.jpg',quality=93,optimize=True)
     R.sheet([root/(c+'_'+v+'.png') for c in ['Porcelain','Carbon','Graphite','Aluminum','Atlantic'] for v in ['front','rear']],root/'factory-colors.jpg',2,1600)
     motion=ROOT/'renders/sedan-motion';motion_meta=json.loads((motion/'shots.json').read_text())
     R.sheet([motion/(n+'.png') for n in motion_meta],motion/'contact.jpg',5,2400)

@@ -2,7 +2,8 @@
 
 A Smart UV projection can put a very thin gauge triangle over its neighbor.
 Split the smaller triangle's UV chart and repack; never relax overlap policy.
-Geometry, materials, density ratios and authored corner normals are preserved.
+Geometry, materials and authored corner normals are preserved. Existing chart
+scales stay proportional, except the explicitly logged subtexel-altitude repair.
 """
 import sys,json,argparse
 from pathlib import Path

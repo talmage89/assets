@@ -1,6 +1,6 @@
 """Photo-specific procedural autumn sun/sky; no studio reflection rectangles.
 
-Directions are estimates from visible ground/mirror shadows, not EXIF: front
+Directions are estimates from visible ground shadows, not EXIF: front
 27 +/- 6 degrees, rear 30 +/- 6. The wheel-only camera calibration stays fixed.
 """
 import math
@@ -55,4 +55,4 @@ def conditions(name):
     sky=sc.world.node_tree.nodes['S240 autumn sky'];sky.sun_elevation=math.radians(c['elevation']);sky.sun_rotation=math.radians(c['azimuth']);sc.world.node_tree.nodes['S240 sky strength'].inputs['Strength'].default_value=c['sky']
     e=math.radians(c['elevation']);a=math.radians(c['azimuth']);towards=Vector((math.cos(e)*math.cos(a),math.cos(e)*math.sin(a),math.sin(e)))
     sun=bpy.data.objects['S240 matched sun'];sun.data.energy=c['energy'];sun.rotation_euler=(-towards).to_track_quat('-Z','Y').to_euler()
-    return dict(method='Procedural multiple-scattering sky, 0.53 degree sun, asphalt-gray ground',sun_elevation_degrees=c['elevation'],sun_azimuth_degrees=c['azimuth'],uncertainty_elevation_degrees=6,estimate='Ground and mirror shadow direction/length relative to known wheel and mirror height; no gray card or EXIF lighting measurement')
+    return dict(method='Procedural multiple-scattering sky, 0.53 degree sun, asphalt-gray ground',sun_elevation_degrees=c['elevation'],sun_azimuth_degrees=c['azimuth'],uncertainty_elevation_degrees=6,estimate='Ground-shadow direction and extent relative to the class body/wheel heights; partially occluded boundaries, no gray card or EXIF lighting measurement')

@@ -89,6 +89,11 @@ $(DPAIRS)/.stamp: build/sedan/parameters.txt export/AlderS240.glb build/sedan/us
 	$(PYTHON) src/sedan_pair_measure.py measure --calibration build/sedan/used-balanced-cameras.json --renders $(DPAIRS) --out $(DPAIRS)/appearance-patches.json
 	@touch $@
 sedan-pairs: $(DPAIRS)/.stamp
+renders/sedan-source-pairs/.stamp: build/sedan/parameters.txt build/sedan/detail-game.blend build/sedan/used-balanced-cameras.json src/sedan_lookdev.py src/sedan_views.py src/sedan_colors.py src/sedan_lighting.py
+	$(KIT)/with_gpu.sh $(RP) --python src/sedan_lookdev.py -- --source build/sedan/detail-game.blend --out renders/sedan-source-pairs --width $(WIDTH) --samples $(SAMPLES) --camera-file build/sedan/used-balanced-cameras.json
+	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/sedan/used-balanced-cameras.json --renders renders/sedan-source-pairs --out renders/sedan-source-pairs
+	$(PYTHON) src/sedan_pair_measure.py measure --calibration build/sedan/used-balanced-cameras.json --renders renders/sedan-source-pairs --out renders/sedan-source-pairs/appearance-patches.json
+	@touch $@
 renders/sedan-eevee/.stamp: build/sedan/parameters.txt export/AlderS240.glb src/sedan_lookdev.py src/sedan_views.py src/sedan_colors.py src/delivery_materials.py
 	$(KIT)/with_gpu.sh $(RP) --python src/sedan_lookdev.py -- --source export/AlderS240.glb --out renders/sedan-eevee --width $(WIDTH) --samples 128 --shots front_three_quarter --engine BLENDER_EEVEE
 	@touch $@
@@ -99,12 +104,12 @@ check: check-form check-detail check-motion check-repeat build/sedan/delivery-ch
 
 # Delivery retains the accepted studio and adds actual-game curvature evidence.
 .PHONY: sedan-delivery panel-diagnostics docs
-renders/sedan-panels/.stamp: build/sedan/detail-game.blend src/sedan_panel_diagnostics.py src/sedan_curvature_map.py src/sedan_delivery_review.py
+renders/sedan-panels/.stamp: build/sedan/parameters.txt build/sedan/detail-game.blend src/sedan_panel_diagnostics.py src/sedan_curvature_map.py src/sedan_delivery_review.py
 	$(KIT)/with_gpu.sh $(BP) --python src/sedan_panel_diagnostics.py -- --source build/sedan/detail-game.blend --out renders/sedan-panels --width $(WIDTH)
 	$(PYTHON) src/sedan_delivery_review.py --diagnostics renders/sedan-panels
 	@touch $@
 panel-diagnostics: renders/sedan-panels/.stamp
-sedan-delivery: refs check-form check-detail check-motion sedan-export sedan-final sedan-pairs renders/sedan-eevee/.stamp panel-diagnostics
+sedan-delivery: refs check-form check-detail check-motion sedan-export sedan-final sedan-pairs renders/sedan-source-pairs/.stamp renders/sedan-eevee/.stamp panel-diagnostics
 	$(PYTHON) src/sedan_delivery_review.py --docs
 docs: sedan-delivery
 all: sedan-delivery
