@@ -66,6 +66,26 @@ def regularize_blank(ob,surface,front):
     from mathutils.bvhtree import BVHTree
     raw=list(ob['aperture_samples']);guides=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
     uv=[surface_uv(p,surface)[0].to_2d() for p in guides]
+    # Chart-straight hull edges bend on the parent. A lens that keeps only
+    # their endpoints chords through the skin, while the aperture cut follows
+    # the curved parent; the visible result is a second, torn-looking outline.
+    # Retain the same outline, adding only samples needed by its curvature.
+    for _ in range(4):
+        coords,_,faces,*_=delaunay_2d_cdt(uv,[],[],0,1e-6)
+        edges={}
+        for f in faces:
+            for a,b in zip(f,f[1:]+f[:1]):
+                key=tuple(sorted((a,b)));edges[key]=edges.get(key,0)+1
+        points=[surface_point(Vector((q.x,q.y,0)),surface) for q in coords]
+        add=[]
+        for (a,b),count in sorted(edges.items()):
+            if count!=1:continue
+            q=(coords[a]+coords[b])/2
+            p=surface_point(Vector((q.x,q.y,0)),surface)
+            if (p-(points[a]+points[b])/2).length>.003:
+                add.append(q)
+        if not add:break
+        uv=list(coords)+add
     coords,_,faces,*_=delaunay_2d_cdt(uv,[],[],0,1e-6)
     if 'uv_tree' not in surface:
         surface['uv_tree']=BVHTree.FromPolygons(surface['uvs'],surface['triangles'],all_triangles=True)
@@ -76,22 +96,26 @@ def regularize_blank(ob,surface,front):
         p=barycentric_transform(hit,uvs[a],uvs[b],uvs[c],points[a],points[b],points[c])
         n=barycentric_transform(hit,uvs[a],uvs[b],uvs[c],normals[a],normals[b],normals[c]).normalized()
         ps.append(p+n*.004)
-    # Orient triangles from their evaluated positions, not a possibly stale
-    # polygon normal immediately after from_pydata()/flip(). The mirrored
-    # chart reverses handedness; both optical skins must face away from metal.
-    oriented=[]
+    # Preserve the chart's coherent winding. Flipping isolated bent chord
+    # triangles made adjacent faces disagree and corrupted the Solidify gauge.
+    # Pick the global handedness by area-weighted agreement with the parent.
+    agreement=0.0
     for face in faces:
         a,b,c=[ps[i] for i in face]
-        n=surface_uv((a+b+c)/3,surface)[1]
-        oriented.append(tuple(reversed(face)) if (b-a).cross(c-a).dot(n)<0 else face)
-    faces=oriented
+        agreement+=(b-a).cross(c-a).dot(surface_uv((a+b+c)/3,surface)[1])
+    if agreement<0:faces=[tuple(reversed(face)) for face in faces]
+    ob['lens_outer_faces']=len(faces)
+    count=len(ps);edges={}
+    for face in faces:
+        for a,b in zip(face,face[1:]+face[:1]):edges.setdefault(tuple(sorted((a,b))),[]).append((a,b))
+    closed=faces+[tuple(i+count for i in reversed(face)) for face in faces]
+    closed += [(b,a,a+count,b+count) for rows in edges.values() if len(rows)==1 for a,b in rows]
+    back=[p-surface_uv(p,surface)[1]*.0015 for p in ps]
     inverse=ob.matrix_world.inverted();old=ob.data
-    mesh=bpy.data.meshes.new(old.name+' chart disk');mesh.from_pydata([inverse@p for p in ps],[],faces);mesh.update()
+    mesh=bpy.data.meshes.new(old.name+' chart disk');mesh.from_pydata([inverse@p for p in ps+back],[],closed);mesh.update()
     for mat in old.materials:mesh.materials.append(mat)
     ob.data=mesh
     if old.users==0:bpy.data.meshes.remove(old)
-    ob['lens_outer_faces']=len(ob.data.polygons)
-    sol=ob.modifiers.new('Chart lens gauge','SOLIDIFY');sol.thickness=.0015;sol.offset=-1;sol.use_even_offset=False;G.apply(ob)
     kd=KDTree(len(ps))
     for i,p in enumerate(ps):kd.insert(p,i)
     kd.balance();snapped=[kd.find(p)[0].copy() for p in guides]

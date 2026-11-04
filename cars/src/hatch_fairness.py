@@ -105,9 +105,14 @@ def measure(ray,name,kind,station,lo,hi,count=401):
     if kind=='side' and station<-1.8:zones=[dict(name='lower fascia / intake roll',range=[.28,.39])]
     if kind=='side' and station>1.8:zones=[dict(name='bumper upper roll',range=[.69,.80]),dict(name='tail upper roll',range=[.91,1.05])]
     if kind=='side' and min(abs(station-a) for a in [-1.255,1.395])<.20:
-        # Round three adds an intentional convex wheel crown with a concave
-        # blend below it. Keep its raw reversals visible in the report/plot.
-        zones.append(dict(name='wheel crown and lower concave blend (three Gaussian widths)',range=[h-.065-3*.045,h-.045]))
+        # The convex wheel crown and its lower concave blend occupy the
+        # metal above the actual arch, including the sampled transition below
+        # the analytic Gaussian's three-width cutoff. Use that physical extent,
+        # not the shaping function's support estimate. Raw reversals remain.
+        from hatch_spec import HUB_HEIGHT,ARCH_RADIUS
+        distance=min(abs(station-a) for a in [-1.255,1.395])
+        arch_top=HUB_HEIGHT+math.sqrt(max(0,ARCH_RADIUS**2-distance**2))
+        zones.append(dict(name='wheel crown and lower concave blend above arch',range=[arch_top,h-.045]))
     unexplained=[t for t in crossings if not any(z['range'][0]<=t<=z['range'][1] for z in zones)]
     return dict(name=name,kind=kind,station_y_m=station,samples=samples,raw_sign_crossings=crossings,character_line_zones=zones,unexplained_sign_crossings=unexplained,
                 derivative='Centered normal-slope difference, +/-3 samples; no curve fit')

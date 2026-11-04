@@ -188,7 +188,9 @@ def section_field(p):
     bumper_crease=.045*math.exp(-((z-.610)/.034)**2)*(1-smoothstep(.60,.88,abs(x)))
     rd=max(.15,S.LENGTH/2+.0005-rt-face_depth(z,False)-gate-bumper_crease)
     a=max(0,ft-y)/fd;c=max(0,y-rt)/rd
-    rear_power=4.55-1.55*smoothstep(.65,1.40,z)
+    # Keep the fuller accepted lower-bumper plan while blending its corners
+    # into the sculpted gate; changing the entire rear moved the upper profile.
+    rear_power=4.55-1.55*smoothstep(.65,1.40,z)+1.65*(1-smoothstep(.56,1.0,z))
     q=(x/width)**2+a**3+c**rear_power-1
     gradient=math.sqrt((2*x/(width*width))**2+(3*a*a/fd if y<ft else rear_power*c**(rear_power-1)/rd)**2)
     wall=q/max(1,gradient)

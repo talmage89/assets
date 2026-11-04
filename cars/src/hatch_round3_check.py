@@ -5,7 +5,7 @@ rays and silhouette cuts. This measures construction, not visual acceptance.
 """
 import argparse,hashlib,json,math,sys
 from pathlib import Path
-import bpy
+import bpy,bmesh
 from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(Path(__file__).resolve().parent)]
 from hatch_check import bounds,points,mesh_tree
@@ -96,6 +96,13 @@ def measure(source):
         candidates=[p for p in ps if abs(p.x)<tip+.025]
         a,b=min(((p,q) for p in candidates for q in frame),key=lambda pair:(pair[0]-pair[1]).length)
         lamp_gaps[ob.name]=dict(shortest_inner_lens_to_frame_m=(a-b).length,endpoints_m=[list(a),list(b)])
+    lenses={}
+    for ob in obs:
+        if 'lens_outer_faces' not in ob:continue
+        bm=bmesh.new();bm.from_mesh(ob.data)
+        lenses[ob.name]=dict(inconsistent_winding_edges=sum(len(e.link_faces)==2 and not e.is_contiguous for e in bm.edges),
+                            signed_volume_m3=bm.calc_volume(signed=True))
+        bm.free()
     counts={}
     for ob in obs:
         ob.data.calc_loop_triangles();key=ob['part_category'];counts[key]=counts.get(key,0)+len(ob.data.loop_triangles)
@@ -106,10 +113,11 @@ def measure(source):
     if not all(.020<=row['lip_proud_m']<=.041 for row in rear):errors.append('Gate lip proud of bumper')
     if not all(row['concave_vertical_chord_depth_m']>.010 for row in rear[:2]):errors.append('Gate vertical concave run')
     if sum(counts.values())>46881:errors.append('Accepted form allocation exceeded')
+    if any(r['inconsistent_winding_edges'] or r['signed_volume_m3']<=0 for r in lenses.values()):errors.append('Lens winding / gauge volume')
     return dict(source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),scope='Source form construction; actual game rays, corners and triangle counts. Photo pairs remain the visual judgment.',
                 sections=sections,fender_crowns=crowns,gate=rear,gate_plan=plan,bumper_material_areas_m2=areas,bumper_material_z_ranges_m={k:[min(v),max(v)] for k,v in zs.items()},
                 bumper_center_painted_band_z_m=[min(p[2] for p in paint_band),max(p[2] for p in paint_band)],bumper_black_widths=black_width,
-                mirrors=mirrors,reflectors=reflectors,headlamp_frame_gaps=lamp_gaps,triangles_per_category=counts,triangles=sum(counts.values()),finished_plan=sum(counts.values())+12500,
+                mirrors=mirrors,reflectors=reflectors,headlamp_frame_gaps=lamp_gaps,lens_topology=lenses,triangles_per_category=counts,triangles=sum(counts.values()),finished_plan=sum(counts.values())+12500,
                 passed=not errors,errors=errors)
 
 
