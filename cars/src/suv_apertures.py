@@ -16,7 +16,23 @@ def surface_uv(p,surface):
     hit,_,fi,_=surface['tree'].find_nearest(p);a,b,c=surface['triangles'][fi]
     uv=barycentric_transform(hit,surface['points'][a],surface['points'][b],surface['points'][c],surface['uvs'][a],surface['uvs'][b],surface['uvs'][c])
     n=barycentric_transform(hit,surface['points'][a],surface['points'][b],surface['points'][c],surface['normals'][a],surface['normals'][b],surface['normals'][c]).normalized()
+    if surface.get('polar'):
+        front=surface['front'];cy=-1.37 if front else 1.42
+        uv=Vector((math.atan2(p.x,(-1 if front else 1)*(p.y-cy)),p.z,0))
     return uv,n
+
+
+def evaluate_chart(uv,surface):
+    if surface.get('polar'):
+        from suv_sculpt import radial_point
+        return radial_point(surface['tree'],abs(uv.x),uv.y,surface['front'],-1 if uv.x<0 else 1)
+    from mathutils.bvhtree import BVHTree
+    if 'uv_tree' not in surface:
+        surface['uv_tree']=BVHTree.FromPolygons(surface['uvs'],surface['triangles'],all_triangles=True)
+    hit,_,fi,_=surface['uv_tree'].find_nearest(Vector((uv.x,uv.y,0)));a,b,c=surface['triangles'][fi]
+    us=surface['uvs'];ps=surface['points'];ns=surface['normals']
+    return (barycentric_transform(hit,us[a],us[b],us[c],ps[a],ps[b],ps[c]),
+            barycentric_transform(hit,us[a],us[b],us[c],ns[a],ns[b],ns[c]).normalized())
 
 
 def boundary_indices(nu,nv):
@@ -29,7 +45,7 @@ def outline_loop(lamp,surface):
     indices=boundary_indices(nu,nv)
     loop=[points[i] for i in indices]
     uv=[surface_uv(p,surface)[0] for p in loop]
-    wrapped=lamp.name.startswith('Taillamp')
+    wrapped=bool(surface.get('polar')) or lamp.name.startswith(('Taillamp','Headlamp'))
     if not wrapped:
         hull=list(convex_hull_2d([p.to_2d() for p in uv]));uv=[uv[i] for i in hull];loop=[loop[i] for i in hull]
     area=sum(a.x*b.y-b.x*a.y for a,b in zip(uv,uv[1:]+uv[:1]))
@@ -38,6 +54,7 @@ def outline_loop(lamp,surface):
     for i,p in enumerate(loop):
         _,n=surface_uv(p,surface);edge=loop[(i+1)%len(loop)]-loop[i-1]
         outward=edge.cross(n).normalized()
+        if surface.get('polar') and not surface['front']:outward.negate()
         expanded.append(surface_uv(p+outward*.00225,surface)[0])
     if not wrapped:
         expanded=[expanded[i] for i in convex_hull_2d([p.to_2d() for p in expanded])]
@@ -89,14 +106,10 @@ def regularize_blank(ob,surface,front):
     uv=[surface_uv(p,surface)[0].to_2d() for p in guides]
     border=boundary_indices(ob['form_columns'],ob['form_rows'])
     if sum(uv[a].x*uv[c].y-uv[c].x*uv[a].y for a,c in zip(border,border[1:]+border[:1]))<0:border.reverse()
-    wrapped=ob.name.startswith('Taillamp');optical=ob.name.startswith(('Taillamp','Headlamp'))
-    if optical:
-        # Dense borders describe the bend; only a coarse interior grid is
-        # needed for the optical blank. Fine optics are a later allocation.
-        if not wrapped:border=list(convex_hull_2d(uv))
-        uv=[uv[i] for i in border];border=list(range(len(uv)))
-        for x in range(math.floor(min(p.x for p in uv)*2),math.ceil(max(p.x for p in uv)*2)+1):
-            for y in range(math.floor(min(p.y for p in uv)*2),math.ceil(max(p.y for p in uv)*2)+1):uv.append(Vector((x/2,y/2)))
+    wrapped=ob.name.startswith(('Taillamp','Headlamp'));optical=ob.name.startswith(('Taillamp','Headlamp'))
+    # Retain every original guide, especially seam endpoints, in the CDT.
+    # A nearest point on a coarser optical disk moved the border by millimeters
+    # and made a staircase when it was projected back for the paint cut.
     coords,_,faces,*_=delaunay_2d_cdt(uv,[],[border] if optical else [],1 if optical else 0,1e-6)
     used=sorted({i for face in faces for i in face});remap={old:i for i,old in enumerate(used)}
     coords=[coords[i] for i in used];faces=[tuple(remap[i] for i in face) for face in faces]
@@ -104,11 +117,7 @@ def regularize_blank(ob,surface,front):
         surface['uv_tree']=BVHTree.FromPolygons(surface['uvs'],surface['triangles'],all_triangles=True)
     ps=[]
     for q in coords:
-        hit,_,fi,_=surface['uv_tree'].find_nearest(Vector((q.x,q.y,0)));a,b,c=surface['triangles'][fi]
-        uvs=surface['uvs'];points=surface['points'];normals=surface['normals']
-        p=barycentric_transform(hit,uvs[a],uvs[b],uvs[c],points[a],points[b],points[c])
-        n=barycentric_transform(hit,uvs[a],uvs[b],uvs[c],normals[a],normals[b],normals[c]).normalized()
-        ps.append(p+n*.004)
+        p,n=evaluate_chart(q,surface);ps.append(p+n*.004)
     inverse=ob.matrix_world.inverted();old=ob.data
     mesh=bpy.data.meshes.new(old.name+' chart disk');mesh.from_pydata([inverse@p for p in ps],[],faces);mesh.update()
     for mat in old.materials:mesh.materials.append(mat)
@@ -119,8 +128,10 @@ def regularize_blank(ob,surface,front):
     if ob.data.polygons[0].normal.dot(hint)<0:
         for face in ob.data.polygons:face.flip()
     sol=ob.modifiers.new('Chart lens gauge','SOLIDIFY');sol.thickness=ob.get('glazing_gauge_m',.0015);sol.offset=-1;sol.use_even_offset=False;G.apply(ob)
-    actual=BVHTree.FromPolygons(ps,faces)
-    snapped=[actual.find_nearest(p)[0].copy() for p in guides]
+    actual=KDTree(len(ps))
+    for i,p in enumerate(ps):actual.insert(p,i)
+    actual.balance()
+    snapped=[actual.find(p)[0].copy() for p in guides]
     ob['aperture_samples']=[v for p in snapped for v in p]
     ob['chart_disk_topology']=True
 
@@ -136,14 +147,14 @@ def difference(polygon,region):
             dp,dq=signed(p[0]),signed(q[0])
             (inside if dp>=0 else outside).append(p)
             if dp*dq<0:
-                t=dp/(dp-dq);v=(p[0].lerp(q[0],t),p[1].lerp(q[1],t));inside.append(v);outside.append(v)
+                t=dp/(dp-dq);v=(p[0].lerp(q[0],t),p[1].lerp(q[1],t),True);inside.append(v);outside.append(v)
         if len(outside)>=3:pieces.append(outside)
         polygon=inside
         if len(polygon)<3:return [original]  # no intersection; don't fragment untouched skin
     return pieces
 
 
-def cut_mesh(ob,cutters,surface):
+def cut_mesh_clipped(ob,cutters,surface):
     from suv_body import closeable_sheet,conform_edges,skin_gauge
     matrix=ob.matrix_world.copy();inverse=matrix.inverted();normal_matrix=matrix.to_3x3().inverted().transposed()
     points=[matrix@v.co for v in ob.data.vertices];uvs=[surface_uv(p,surface)[0] for p in points]
@@ -158,7 +169,7 @@ def cut_mesh(ob,cutters,surface):
         if ob.get('skin_face_provenance'):
             if face.material_index!=0:continue
         elif (normal_matrix@face_normal).dot(n)<.90:continue
-        original=[(uvs[i],points[i]) for i in face.vertices];pieces=[original]
+        original=[(uvs[i],points[i],False) for i in face.vertices];pieces=[original]
         for region,box in zip(cutters,cutter_boxes):
             result=[]
             for piece in pieces:
@@ -170,7 +181,9 @@ def cut_mesh(ob,cutters,surface):
     if not affected:return
     vertices=[];faces=[]
     for polygon in polygons:
-        offset=len(vertices);vertices.extend(inverse@p[1] for p in polygon);faces.append(tuple(range(offset,len(vertices))))
+        offset=len(vertices)
+        vertices.extend(inverse@(evaluate_chart(p[0],surface)[0] if surface.get('polar') and p[2] else p[1]) for p in polygon)
+        faces.append(tuple(range(offset,len(vertices))))
     old=ob.data;mesh=bpy.data.meshes.new(old.name+' lamp apertures');mesh.from_pydata(vertices,[],faces);mesh.update()
     for mat in old.materials:mesh.materials.append(mat)
     ob.data=mesh
@@ -186,8 +199,69 @@ def cut_mesh(ob,cutters,surface):
     ob['lamp_apertures_cut']=True
 
 
+def cut_mesh(ob,cutters,surface):
+    """Constrain only triangles crossed by a physical end-face aperture.
+
+    The angular/height chart is injective on the local fascia. Unaffected
+    triangles retain their exact positions and winding; they never pass through
+    another chart. Complete hole loops replace convex-partition extensions.
+    """
+    if not surface.get('polar'):return cut_mesh_clipped(ob,cutters,surface)
+    from suv_body import closeable_sheet,skin_gauge,conform_edges
+    matrix=ob.matrix_world.copy();inverse=matrix.inverted()
+    points=[matrix@v.co for v in ob.data.vertices]
+    uvs=[surface_uv(p,surface)[0].to_2d() for p in points]
+    boxes=[bounds(p) for p in cutters]
+    def intersects(a,c):return not (a[0]>c[1] or a[1]<c[0] or a[2]>c[3] or a[3]<c[2])
+    ob.data.calc_loop_triangles();active=[];fixed=[]
+    for tri in ob.data.loop_triangles:
+        if tri.material_index!=0:continue
+        ids=tuple(tri.vertices);box=bounds([uvs[i] for i in ids])
+        crosses=any(intersects(box,b) for b in boxes)
+        if crosses:
+            center=sum((points[i] for i in ids),Vector())/3
+            radial=Vector((center.x,center.y-(-1.37 if surface['front'] else 1.42),0)).normalized()
+            # The hood can share theta/Z with the vertical fascia below its
+            # crest. Only the outward wall belongs to this local chart.
+            crosses=abs((matrix.to_3x3()@tri.normal).dot(radial))>.25
+        _,normal=surface_uv(sum((points[i] for i in ids),Vector())/3,surface)
+        if (matrix.to_3x3()@tri.normal).dot(normal)<0:ids=tuple(reversed(ids))
+        (active if crosses else fixed).append(ids)
+    if not active:return
+    used=sorted({i for f in active for i in f});lookup={old:i for i,old in enumerate(used)}
+    coords=[uvs[i] for i in used];positions=[points[i] for i in used]
+    def ccw(face):
+        area=sum(coords[i].x*coords[j].y-coords[j].x*coords[i].y for i,j in zip(face,face[1:]+face[:1]))
+        return tuple(reversed(face)) if area<0 else tuple(face)
+    constraints=[ccw([lookup[i] for i in f]) for f in active];count=len(constraints)
+    for poly in cutters:
+        first=len(coords);coords.extend(p.to_2d() for p in poly);constraints.append(ccw(list(range(first,len(coords)))))
+    result,_,triangles,originals,_,ids=delaunay_2d_cdt(coords,[],constraints,0,1e-7)
+    kept=[f for f,orig in zip(triangles,ids) if any(i<count for i in orig) and not any(i>=count for i in orig)]
+    vertices=[];faces=[]
+    for f in fixed:
+        offset=len(vertices);vertices.extend(inverse@points[i] for i in f);faces.append(tuple(range(offset,offset+3)))
+    mapping={}
+    for i in sorted({i for f in kept for i in f}):
+        old=next((j for j in originals[i] if j<len(positions)),None)
+        p=positions[old] if old is not None else evaluate_chart(result[i],surface)[0]
+        mapping[i]=len(vertices);vertices.append(inverse@p)
+    for face in kept:
+        ordered=face if surface['front'] else list(reversed(face))
+        faces.append(tuple(mapping[i] for i in ordered))
+    old=ob.data;mesh=bpy.data.meshes.new(old.name+' local angular cuts');mesh.from_pydata(vertices,[],faces);mesh.update()
+    for mat in old.materials:mesh.materials.append(mat)
+    ob.data=mesh
+    if old.users==0:bpy.data.meshes.remove(old)
+    bm=bmesh.new();bm.from_mesh(mesh);bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=1e-6);conform_edges(bm)
+    bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=1e-7)
+    bm.to_mesh(mesh);bm.free();closeable_sheet(ob)
+    skin_gauge(ob,.003 if ob.get('part_category') in ['fascia','cladding'] else .0009)
+    ob['lamp_apertures_cut']=True
+
+
 def carve(front,lamps,surface,recess=.010):
-    cutters=[region for lamp in lamps for region in outline(lamp,surface)]
+    cutters=([outline_loop(lamp,surface) for lamp in lamps] if surface.get('polar') else [region for lamp in lamps for region in outline(lamp,surface)])
     for ob in list(bpy.context.scene.objects):
         if ob.type!='MESH' or ob.get('part_category') not in ['body','doors','fascia','pillars','cladding']:continue
         if (ob.matrix_world@ob.data.vertices[0].co).y*(1 if front else -1)>0:continue

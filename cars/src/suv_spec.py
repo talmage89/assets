@@ -30,3 +30,6 @@ DOOR_SPLIT=.180
 DOOR_REAR=1.260
 BELT=1.175
 CORE_SHIFT=0
+
+# 48 circumferential samples retain the circular silhouette at the form gate.
+TIRE_SEGMENTS_GAME=48

@@ -17,17 +17,22 @@ import suv_spec as S
 END_ALLOWANCE={True:.052,False:.022}
 
 
+def smoothstep(a,b,x):
+    t=max(0.,min(1.,(x-a)/(b-a)));return t*t*t*(10+t*(-15+6*t))
+
+
+def positive(q,r=.004):return .5*(q+math.sqrt(q*q+r*r))
+
+
 def face_depth(z,front):
-    q=z-(.650 if front else .650)
-    t=max(0,min(1,((.45-z)/.25) if front else ((.65-z)/.35)))
-    ease=t*t*(3-2*t)
-    # The upper gate is upright; the lower bumper turns under. Giving both
-    # the same draw made a long black tail and understated its departure.
-    coefficient=(1.20-.10*ease) if front else (.30+.50*ease)
-    return coefficient*q*q/max(.35,1+(0.4 if front else .25)*q)
-
-
-
+    """Center profile: bumper crest, shaped upper face and tucked lower lip."""
+    if front:
+        q=z-.640
+        # Shallower lower return preserves approach while avoiding a rounded
+        # bulb. The chin is higher than the old underhanging front sheet.
+        return (.22+.63*smoothstep(.60,.70,z))*q*q+.15*positive(z-.70)**2/.20
+    q=z-.650
+    return .30*q*q/max(.35,1+.25*q)+.20*positive(.54-z,.014)**2/.20
 
 
 # y, shoulder half-width, belt height, roof/hood center height.
@@ -68,7 +73,7 @@ def hood_draw_x(y):return .52+.18*max(0,min(1,(y+2.2)/1.15))
 
 
 def side_width(y):
-    return .889+.027*sum(math.exp(-((y-a)/.46)**2) for a in [S.FRONT_AXLE,S.REAR_AXLE])
+    return .889+.0226*math.exp(-((y-S.FRONT_AXLE)/.46)**2)+.027*math.exp(-((y-S.REAR_AXLE)/.46)**2)
 
 
 def shoulder_height(y):return 1.047+.022*y
@@ -78,7 +83,7 @@ def character_height(y):return .505+.058*(y-S.DOOR_FRONT)/(S.DOOR_REAR-S.DOOR_FR
 
 
 def side_draw(y,z):
-    def pos(q,r=.006):return .5*(q+math.sqrt(q*q+r*r))
+    def pos(q,r=.0025):return .5*(q+math.sqrt(q*q+r*r))
     h=shoulder_height(y);line=character_height(y)
     d=pos(h-z);tail=pos(d-(h-line),.010);c=d-tail
     flare=.0235*math.exp(-((z-.780)/.090)**2)*sum(math.exp(-((y-a)/.40)**2) for a in [S.FRONT_AXLE,S.REAR_AXLE])
@@ -102,11 +107,11 @@ def body_section(y,w,belt,top):
 
 # End rows fold the same rectangular quad sheet down from the hood/roof to the
 # chin. Its entire boundary is underneath. There are NO cap patches, corner
-# poles, booleans/unions, shrinkwraps, end fields or post-subdivision projection.
+# poles, booleans/unions or fitting of the evaluated subdivision limit.
 # y/z are the centerline CONTROL polygon; the corner's longitudinal spacing is
 # separately monotone so no end row collapses onto its neighbor at the side.
 FRONT_ROWS=[
- (-2.17,.175,-1.99),(-2.20,.285,-1.98),(-2.26,.425,-1.96),
+ (-2.23,.300,-1.99),(-2.25,.340,-1.98),(-2.26,.425,-1.96),
  (-2.30,.580,-1.93),(-2.305,.665,-1.90),(-2.29,.760,-1.87),
  (-2.25,.855,-1.84),(-2.215,.940,-1.81),(-2.20,.978,-1.79),
  (-2.18,.981,-1.77),(-2.04,.999,-1.69),(-1.83,1.025,-1.58),
@@ -116,7 +121,7 @@ REAR_ROWS=[
  (2.185,1.245,2.03),(2.215,1.185,2.045),(2.24,1.157,2.055),
  (2.26,1.125,2.065),(2.28,1.050,2.075),(2.29,.940,2.085),
  (2.292,.800,2.095),(2.305,.665,2.105),(2.292,.570,2.11),
- (2.26,.475,2.125),(2.21,.380,2.14),(2.16,.310,2.15)]
+ (2.26,.475,2.125),(2.21,.380,2.14),(2.20,.295,2.15)]
 
 
 
@@ -155,10 +160,12 @@ def end_section(row,front):
 
 
 def hood_height(x,y):
-    crown=.032*math.exp(-((abs(x)-.837)/.050)**2)*math.exp(-((y+1.55)/.72)**4)
-    return .978+.108*(y+2.19)-.027*(x/.80)**2-.035*max(0,abs(x)-hood_draw_x(y))+crown
-
-
+    """Broad raised center, two supported draw lines and crowned fender tops."""
+    ax=abs(x);ridge=hood_draw_x(y)
+    along=math.exp(-((y+1.64)/.68)**4)*(1-smoothstep(-1.32,-1.075,y))
+    raised=.023*(1-smoothstep(ridge-.040,ridge+.035,ax))*along
+    crown=.026*math.exp(-((ax-.837)/.066)**2)*math.exp(-((y+1.55)/.72)**4)*(1-smoothstep(-1.27,-1.075,y))
+    return .978+.108*(y+2.19)-.027*(x/.80)**2-.035*positive(ax-ridge,.012)+crown+raised
 
 
 def crease_rows(half,hood,backlight=False):
@@ -177,11 +184,20 @@ def section_field(p):
     """Single continuous implicit draw used only to fit the quad control net."""
     from forms import hermite
     x,y,z=p;w=side_width(y)+side_draw(y,z)
-    ft,rt=-1.68,1.72
-    fd=max(.25,2.3005+ft-face_depth(z,True));rd=max(.25,2.3005-rt-face_depth(z,False))
+    ft=-1.60;rt=1.60+.12*smoothstep(1.10,1.20,z)
+    # A ridge above the corner pockets folds down into the bumper, while
+    # the gate has a broad plate surround and horizontal upper shoulder.
+    front_relief=.032*math.exp(-((abs(x)-.73)/.18)**4-((z-(.720+.15*(.73-abs(x))))/.060)**2)
+    gate_land=.014*math.exp(-((z-1.09)/.035)**2)*math.exp(-(x/.70)**8)
+    plate_width=.34+.40*(1.06-z)
+    plate_sculpt=.022*(1-smoothstep(plate_width-.060,plate_width+.060,abs(x)))*smoothstep(.680,.755,z)*(1-smoothstep(1.020,1.110,z))
+    bumper_crease=.014*math.exp(-((z-.665)/.033)**2)
+    fd=max(.25,2.2945+ft-face_depth(z,True)+front_relief)
+    rd=max(.25,2.3005-rt-face_depth(z,False)+gate_land-plate_sculpt-bumper_crease)
     a=max(0,ft-y)/fd;c=max(0,y-rt)/rd
-    q=(x/w)**2+a**3+c**3-1
-    g=math.sqrt((2*x/w**2)**2+(3*a*a/fd if y<ft else 3*c*c/rd)**2)
+    power=4+4*math.exp(-((z-.66)/.17)**4)*smoothstep(.8,1.4,y)-2*smoothstep(1.12,1.24,z)
+    q=(abs(x)/w)**power+a**3+c**3-1
+    g=math.sqrt((power*(abs(x)/w)**(power-1)/w)**2+(3*a*a/fd if y<ft else 3*c*c/rd)**2)
     wall=q/max(1,g)
     if y< -1.075:height=hood_height(x,y)
     else:
@@ -196,8 +212,9 @@ def section_field(p):
 def fit_control_net(ob):
     sub=ob.modifiers.new('Refine section-fit controls','SUBSURF');sub.levels=2;G.apply(ob)
     for v in ob.data.vertices:
-        p=v.co;center=Vector((0,max(-1.45,min(1.45,p.y)),.650))
-        if -1.10<p.y<1.70 and abs(p.x)>.82:center=Vector((0,p.y,p.z))
+        p=v.co
+        side=smoothstep(-1.45,-1.05,p.y)*(1-smoothstep(1.45,1.85,p.y))*smoothstep(.74,.84,abs(p.x))
+        center=Vector((0,max(-1.45,min(1.45,p.y)),.650)).lerp(Vector((0,p.y,p.z)),side)
         direction=p-center;lo,hi=0.,2.
         for _ in range(32):
             t=(lo+hi)/2
@@ -304,7 +321,7 @@ def tessellate(parent,high=False):
         # A regular tensor grid around the compound A-foot. Coarse chords
         # through this narrow roof/hood transition can cross the parent.
         supports=[center+sgn*(3.5+i*.25) for sgn in [-1,1] for i in range(13)]
-        grids=[sorted(set(columns+supports)) if 15<=v<=20 else columns for v,columns in zip(vs,grids)]
+        grids=[sorted(set(columns+supports)) if 15<=v<=20 else sorted(set(columns+[i*.5 for i in range(2*width-1)])) if 8<=v<15 else columns for v,columns in zip(vs,grids)]
     vertices=[];chart=[];offsets=[]
     for v,columns in zip(vs,grids):
         offsets.append(len(vertices))
@@ -326,7 +343,7 @@ def tessellate(parent,high=False):
             selected=set();edges={}
             for fi,face in enumerate(faces):
                 p=sum((vertices[i] for i in face),Vector())/len(face)
-                if len(face)==4 and 1.76<p.y<1.99 and .35<p.z<.55 and abs(p.x)>.80:
+                if len(face)==4 and ((1.80<p.y<2.20 and .60<p.z<.82 and .65<abs(p.x)<.85) or (p.y>2.05 and .76<p.z<1.10 and abs(p.x)<.55)):
                     selected.add(fi)
                     for a,b in zip(face,face[1:]+face[:1]):edges[tuple(sorted((a,b)))]=None
             for edge in edges:
@@ -487,6 +504,11 @@ def simplify_inner_gauge(ob,tree):
     """
     bm=bmesh.new();bm.from_mesh(ob.data);bm.normal_update()
     matrix=ob.matrix_world;inverse_normal=matrix.to_3x3().transposed()
+    # Validate against the exposed game triangles, not the smoother limit: the
+    # gauge follows this physical sheet, including its legitimate chords.
+    ob.data.calc_loop_triangles()
+    outside=[tuple(t.vertices) for t in ob.data.loop_triangles if t.material_index==0]
+    tree=BVHTree.FromPolygons([matrix@v.co for v in ob.data.vertices],outside,all_triangles=True)
     inward=set()
     for f in bm.faces:
         _,n,_,_=tree.find_nearest(matrix@f.calc_center_median())
@@ -494,7 +516,7 @@ def simplify_inner_gauge(ob,tree):
     bm.verts.index_update()
     pure={v for v in bm.verts if v.link_faces and all(f in inward for f in v.link_faces)}
     edges=[e for e in bm.edges if all(v in pure for v in e.verts) and len(e.link_faces)==2]
-    bmesh.ops.dissolve_limit(bm,angle_limit=math.radians(2),verts=sorted(pure,key=lambda v:v.index),edges=edges,use_dissolve_boundaries=False,delimit={'MATERIAL'})
+    bmesh.ops.dissolve_limit(bm,angle_limit=math.radians(.20),verts=sorted(pure,key=lambda v:v.index),edges=edges,use_dissolve_boundaries=False,delimit={'MATERIAL'})
     # Curved inner chords must stay inside the painted sheet. Concave regions
     # can cross a sub-millimeter gauge despite small dihedral angles; reject
     # the whole reduction if centroid/edge probes lose 0.4 mm of inward depth.
@@ -545,10 +567,8 @@ def build(b):
     surface_map=dict(tree=parent_tree,points=parent_points,normals=parent_normals,triangles=parent_triangles,uvs=parent_uvs)
     for name in ['Front lower bumper cladding','Rear lower bumper cladding']:
         names.append(name);source.data.materials.append(bpy.data.materials.new('Cage region '+name))
+    from suv_sculpt import split_lower
     bm=bmesh.new();bm.from_mesh(source.data)
-    for z in [.535,.640]:
-        bmesh.ops.bisect_plane(bm,geom=list(bm.verts)+list(bm.edges)+list(bm.faces),dist=1e-8,
-            plane_co=(0,0,z),plane_no=(0,0,1),clear_inner=False,clear_outer=False)
     cuts=[S.DOOR_FRONT,S.DOOR_SPLIT,S.DOOR_REAR]
     for line in cuts:
         for y in [line-S.PANEL_GAP/2,line+S.PANEL_GAP/2]:
@@ -571,12 +591,9 @@ def build(b):
             if any(abs(p.y-line)<S.PANEL_GAP/2-1e-7 for line in cuts):discard.append(f);continue
             label=('Front fender' if p.y<S.DOOR_FRONT else 'Door F' if p.y<S.DOOR_SPLIT else 'Door R' if p.y<S.DOOR_REAR else 'Rear quarter')+'_'+suffix
             f.material_index=names.index(label)
-    for face in bm.faces:
-        label=names[face.material_index];z=face.calc_center_median().z
-        if label=='Front molded fascia' and z<.535:face.material_index=names.index('Front lower bumper cladding')
-        if label=='Rear molded fascia' and z<.640:face.material_index=names.index('Rear lower bumper cladding')
     bmesh.ops.delete(bm,geom=discard,context='FACES')
     bm.to_mesh(source.data);bm.free();source.data.update()
+    split_lower(source,names)
     source.data.calc_loop_triangles()
     # Preserve master vertex normals across face-group separation and shut lines.
     points=[v.co.copy() for v in source.data.vertices]
@@ -627,7 +644,10 @@ def build(b):
         if glass:verts=[p-normals[old]*.002 for p,old in zip(verts,used)]
         mat=b.m['glass'] if glass else b.m['rubber'] if dark or lower else b.m['body']
         ob=G.mesh(name+' outer' if name in ['Hood','Liftgate'] else name,verts,faces,mat)
-        for face in ob.data.polygons:face.use_smooth=True
+        for face in ob.data.polygons:
+            face.use_smooth=True
+            if face.normal.dot(parent_tree.find_nearest(face.center)[1])<0:face.flip()
+        ob.data.update()
         if not glass:
             for axle in [S.FRONT_AXLE,S.REAR_AXLE]:
                 if min(v.co.y for v in ob.data.vertices)<axle+S.ARCH_HALF and max(v.co.y for v in ob.data.vertices)>axle-S.ARCH_HALF:
@@ -690,11 +710,11 @@ def build(b):
     # This temporary blackout is inside the wheel wells and tucked end skins.
     # A full-width, long rectangle projected behind the curved lower tail and
     # looked like a diffuser plate. It is not the later underbody assembly.
-    floor=G.box('Form cavity closure',(0,-.05,.260),(1.10,3.55,.018),b.m['rubber'],0);b.add(floor,category='closure')
+    floor=G.box('Form cavity closure',(0,-.05,.340),(1.10,3.55,.018),b.m['rubber'],0);b.add(floor,category='closure')
     from suv_character import mirrors
     mirrors(b)
     from suv_cladding import build as cladding
-    cladding(b,tree)
+    cladding(b,parent_tree)
     # The closed-gauge triangulator can leave a collinear triangle at a cut.
     # Dissolve only degenerate geometry (0.1 micrometre); do not weld closed
     # shells or join independent rim fans. The independent audit still gates it.
@@ -704,25 +724,29 @@ def build(b):
         bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=1e-7)
         bmesh.ops.triangulate(bm,faces=list(bm.faces))
         bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=1e-7)
+        bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces))
         bm.to_mesh(item.data);bm.free()
+        if item.name.startswith('Mirror housing'):
+            G.smooth(item,180);item.data.normals_split_custom_set([(0,0,0)]*len(item.data.loops))
     # Boolean aperture cuts can change the rim smoothing fans again. Reapply the
     # pre-cut master field to every exposed outer corner, with flat gauge edges.
     for ob in bpy.context.scene.objects:
         if ob.type!='MESH' or ob.get('part_category') not in ['body','doors','glass','pillars','fascia','cladding']:continue
         if ob.get('part_category')=='cladding' and 'lower bumper cladding' not in ob.name:continue
+        if not b.high and ob.get('skin_face_provenance') and ob.get('part_category')!='glass':simplify_inner_gauge(ob,parent_tree)
         material=next((m for m in ob.data.materials if m),None)
         if material is None:raise ValueError(('Missing form material',ob.name,len(ob.data.vertices),len(ob.data.polygons)))
         ob.data.materials.clear();ob.data.materials.append(material)
         for face in ob.data.polygons:face.material_index=0
-        if not b.high and ob.get('part_category') in ['fascia','cladding']:simplify_inner_gauge(ob,tree)
+
         G.smooth(ob,35);custom=[];inverse=ob.matrix_world.to_3x3().transposed()
         for face in ob.data.polygons:
             center=ob.matrix_world@face.center;_,n,_,_=tree.find_nearest(center)
             face.use_smooth=abs(face.normal.dot(inverse@n))>.5
             for li in face.loop_indices:
                 p=ob.matrix_world@ob.data.vertices[ob.data.loops[li].vertex_index].co
-                hit,n,fi,distance=tree.find_nearest(p);ia,ib,ic=triangles[fi]
-                n=barycentric_transform(hit,points[ia],points[ib],points[ic],normals[ia],normals[ib],normals[ic]).normalized()
+                hit,n,fi,distance=parent_tree.find_nearest(p);ia,ib,ic=parent_triangles[fi]
+                n=barycentric_transform(hit,parent_points[ia],parent_points[ib],parent_points[ic],parent_normals[ia],parent_normals[ib],parent_normals[ic]).normalized()
                 dot=face.normal.dot(inverse@n)
                 custom.append(inverse@(n if dot>0 else -n) if distance<.010 and abs(dot)>.5 else (0,0,0))
         ob.data.normals_split_custom_set(custom)
@@ -742,13 +766,18 @@ def form_blank(name,rows,material,master_tree,front):
             direction=Vector((guess[0],max(0,guess[1]-1.45),0)).normalized()
             hit,n,_,_=master_tree.ray_cast(Vector(guess)+direction*.45,-direction,1.)
             if hit is not None:return hit,n
-        hit,n,_,_=master_tree.find_nearest(Vector(guess));return hit,n
+        if not name.endswith('opening'):
+            hit,n,_,_=master_tree.find_nearest(Vector(guess));return hit,n
+        direction=Vector((0,1 if front else -1,0))
+        hit,n,_,_=master_tree.ray_cast(Vector((guess[0],-4 if front else 4,guess[2])),direction,5)
+        if hit is None:raise ValueError(('Mouth missed parent',name,guess))
+        return hit,n
     vertices=[];nu=len(rows[0])
     for row in rows:
         for guess in row:
             hit,n=project(guess)
             if n.dot(Vector((hit.x,-.8 if front else .8,0)))<0:n.negate()
-            offset=.0025 if front and abs(hit.x)<.25 else .004
+            offset=.004
             vertices.append(hit+n*offset)
     faces=[(j*nu+i,j*nu+i+1,(j+1)*nu+i+1,(j+1)*nu+i) for j in range(len(rows)-1) for i in range(nu-1)]
     ob=G.mesh(name,vertices,faces,material)
@@ -778,7 +807,7 @@ def form_blank(name,rows,material,master_tree,front):
         for v in bm.verts:
             hit,n=project(v.co)
             if n.dot(Vector((hit.x,-.8 if front else .8,0)))<0:n.negate()
-            offset=.0025 if front and abs(hit.x)<.25 else .004
+            offset=.004
             v.co=hit+n*offset
     # Projection at a tapered optical tip can collapse neighboring sample
     # rows onto a 30-micron edge. Weld below optical manufacturing tolerance
@@ -812,48 +841,33 @@ def form_blank(name,rows,material,master_tree,front):
 
 
 def lamp_volume(b,front,sign,material,master_tree):
-    if front:
-        path=[(.52,0,.932,.125),(.60,0,.947,.120),(.71,0,.968,.105),
-         (.80,0,.989,.095),(.858,-1.91,1.008,.080),(.889,-1.79,1.026,.060),(.902,-1.73,1.039,.025)]
-    else:
-        path=[(.32,0,1.111,.075),(.49,0,1.120,.115),(.64,0,1.105,.165),
-         (.76,0,1.105,.170),(.845,0,1.105,.150),(.886,2.11,1.103,.105),(.909,1.92,1.110,.025)]
-    path=[(x,locator_y_guess(x,z,front) if y==0 else y,z,h) for x,y,z,h in path]
-    dense=[]
-    for a,c in zip(path,path[1:]):
-        dense.extend([tuple(a[k]+(c[k]-a[k])*t for k in range(4)) for t in [i/8 for i in range(8)]])
-    dense.append(path[-1]);rows=[[(sign*x,y,z+h*(v-.5)) for x,y,z,h in dense] for v in [i/4 for i in range(5)]]
-    if front:return [form_blank('Headlamp opening'+str(sign),rows,material,master_tree,front)]
-    paths=[];cut=.745
-    for inner in [True,False]:
-        subset=[]
-        for row in rows:
-            keep=[p for p in row if (abs(p[0])<cut if inner else abs(p[0])>cut)]
-            a,c=next((a,c) for a,c in zip(row,row[1:]) if abs(a[0])<=cut<=abs(c[0]))
-            xx=cut+(-1 if inner else 1)*S.PANEL_GAP/2;t=(xx-abs(a[0]))/(abs(c[0])-abs(a[0]));q=tuple(a[k]+(c[k]-a[k])*t for k in range(3))
-            subset.append(keep+[q] if inner else [q]+keep)
-        ob=form_blank('Taillamp opening'+str(sign)+(' gate' if inner else ' quarter'),subset,material,master_tree,False)
-        ob['lamp_piece']='gate' if inner else 'quarter';paths.append(ob)
-    return paths
+    from suv_sculpt import lamps
+    return lamps(b,front,sign,material,master_tree)
 
 
 def fascia(b,front,master_tree,surface_map):
-    openings=([('Upper grille',0,.780,1.19,.225,.062),('Lower intake',0,.454,1.32,.140,.055),
-       ('Corner pocket L',-.767,.576,.175,.205,.048),('Corner pocket R',.767,.576,.175,.205,.048)] if front else
-       [('Plate pocket',0,.931,.320,.171,.025),('Reflector L',-.69,.565,.16,.038,.015),('Reflector R',.69,.565,.16,.038,.015),('Exhaust cutout',.63,.375,.17,.075,.045)])
+    openings=([('Upper grille',0,.805,1.25,.240,.065),('Lower intake',0,.455,1.30,.145,.060),
+       ('Corner pocket L',-.700,.615,.160,.225,.060),('Corner pocket R',.700,.615,.160,.225,.060)] if front else
+       [('Plate pocket',0,.931,.320,.171,.025),('Reflector L',-.69,.493,.18,.035,.015),('Reflector R',.69,.493,.18,.035,.015),('Exhaust cutout',.63,.382,.17,.065,.045)])
     from suv_character import well,bars
+    end_surface=dict(surface_map,polar=True,front=front)
     for name,cx,cz,width,height,depth in openings:
-        rows=[];nu=16 if width>1 else 8
+        rows=[];nu=(16 if width>1 else 8) if b.high else (12 if width>1 else 6)
         for j in range(5):
             v=j/4;z=cz+(v-.5)*height
             half=width/2
-            if name=='Upper grille':half-=.115*v
-            if name.startswith('Corner pocket'):half*=.70+.30*v
+            if name=='Upper grille':half-=.11*abs(2*v-1)**1.2
+            if name=='Lower intake':half-=.09*(1-v)
+            if name.startswith('Corner pocket'):half*=.38+.62*v
             r=.005;dz=max(0,abs(z-cz)-(height/2-r));half-=r-math.sqrt(max(0,r*r-dz*dz))
-            rows.append([(cx+(2*i/nu-1)*half,locator_y_guess(cx+(2*i/nu-1)*half,z,front),z) for i in range(nu+1)])
+            xc=cx+(math.copysign(.035*(1-v),cx) if name.startswith('Corner pocket') else 0)
+            rows.append([(xc+(2*i/nu-1)*half,locator_y_guess(xc+(2*i/nu-1)*half,z,front),z) for i in range(nu+1)])
         blank=form_blank(name+' opening',rows,b.m['rubber'],master_tree,front);b.add(blank,category='openings')
-        ps=well(b,blank,surface_map,depth,front)
+        ps=well(b,blank,end_surface,depth,front)
         if name in ['Upper grille','Lower intake']:bars(b,blank,ps,front)
+        if name=='Upper grille':
+            from suv_sculpt import grille_lip
+            grille_lip(b,blank,end_surface)
         if name=='Plate pocket':
             # A small supported overhead plate-light housing; no markings yet.
             top=ps[-(nu+1)+(nu//2)]
@@ -861,15 +875,19 @@ def fascia(b,front,master_tree,surface_map):
         if not b.high:
             dec=blank.modifiers.new('Hidden bed allocation','DECIMATE');dec.ratio=.3;G.apply(blank)
     lamps=[]
+    optical_surface=dict(surface_map,polar=True,front=front)
     from suv_apertures import regularize_blank,carve
     for side,sgn in [('L',-1),('R',1)]:
         for lamp in lamp_volume(b,front,sgn,b.m['glass'],master_tree):
-            regularize_blank(lamp,surface_map,front)
+            regularize_blank(lamp,optical_surface,front)
             b.add(lamp,bpy.data.objects['Liftgate'] if lamp.get('lamp_piece')=='gate' else None,category='openings');lamps.append(lamp)
     from suv_apertures import outline_loop
     from suv_character import optical_case
-    loops=[outline_loop(lamp,surface_map) for lamp in lamps]
-    carve(front,lamps,surface_map)
-    for lamp,loop in zip(lamps,loops):optical_case(b,lamp,loop,surface_map,front)
+    loops=[outline_loop(lamp,optical_surface) for lamp in lamps]
+    carve(front,lamps,optical_surface)
+    for lamp,loop in zip(lamps,loops):optical_case(b,lamp,loop,optical_surface,front)
+    if not front:
+        from suv_sculpt import rear_garnish
+        rear_garnish(b,master_tree)
 
 

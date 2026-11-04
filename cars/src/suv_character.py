@@ -44,20 +44,41 @@ def bars(b,blank,points,front):
 
 
 def mirrors(b):
-    """Door sail and rounded wedge: 260 x 125 x 162 mm, 2117 mm span."""
+    """Door-corner rounded wedge, compound nose and planar rear glazing."""
+    # X/Z outline is deliberately asymmetric: a low inner heel, rounded crown,
+    # and an aft optical plane. Several shaped sections make the compound cap.
+    outline=[(.7985,1.164),(.857,1.135),(.995,1.139),(1.049,1.166),
+             (1.0585,1.234),(1.035,1.279),(.970,1.295),(.868,1.282),(.810,1.231)]
+    profile=G.fillet_polygon(outline,.012,3)
     for side,sgn in [('L',-1),('R',1)]:
-        parent=bpy.data.objects['Door_F'+side];loops=[]
-        for t,r in [(0,.30),(.06,.68),(.16,.94),(.28,1),(.68,.98),(.94,.80),(1,.25)]:
-            ring=[]
-            for k in range(20):
-                a=math.tau*k/20;c=math.cos(a);ss=math.sin(a)
-                # Rounded rectangular YZ section, flat rear optical face.
-                yy=math.copysign(abs(c)**.55,c);zz=math.copysign(abs(ss)**.65,ss)
-                ring.append((sgn*(.7985+.260*t),-.735+.0625*r*yy,1.218+.081*r*zz+.008*t))
-            loops.append(ring)
-        ob=G.loft('Mirror housing_'+side,loops,b.m['body']);b.add(ob,parent,category='mirrors')
-        pane=G.box('Mirror pane_'+side,(sgn*.942,-.674,1.225),(.177,.003,.112),b.m['glass'],.018,3);b.add(pane,parent,category='mirrors')
-        stem=G.tube('Mirror sail_'+side,[(sgn*.855,-.899,1.146),(sgn*.897,-.818,1.154),(sgn*.916,-.751,1.185)],.021,b.m['rubber'],sides=8);b.add(stem,parent,category='mirrors')
+        parent=bpy.data.objects['Door_F'+side];rings=[]
+        for yy,scale,dx in [(-.714,.06,-.015),(-.707,.40,-.010),(-.686,.76,-.004),
+                            (-.652,.95,0),(-.607,1,0),(-.588,.995,0),(-.584,.96,0)]:
+            rings.append([(sgn*(.9285+(x-.9285)*scale+dx),yy,1.215+(z-1.215)*scale) for x,z in profile])
+        # Preserve the specified envelope on the crown ring after corner rounds.
+        xs=[p[0] for p in rings[4]];zs=[p[2] for p in rings[4]]
+        xmin,xmax=min(xs),max(xs);zmin,zmax=min(zs),max(zs)
+        for ring in rings:
+            for i,(x,y,z) in enumerate(ring):
+                x=sgn*(.7985+(abs(x)-min(abs(xmin),abs(xmax)))*.260/(xmax-xmin))
+                z=1.135+(z-zmin)*.160/(zmax-zmin);ring[i]=(x,y,z)
+        housing=G.loft('Mirror housing_'+side,rings,b.m['body'])
+        sub=housing.modifiers.new('Molded cap fairing','SUBSURF');sub.levels=1;G.apply(housing)
+        for axis,lo,hi in [(0,-1.0585 if sgn<0 else .7985,-.7985 if sgn<0 else 1.0585),(1,-.714,-.584),(2,1.135,1.295)]:
+            aa=min(v.co[axis] for v in housing.data.vertices);cc=max(v.co[axis] for v in housing.data.vertices)
+            for v in housing.data.vertices:v.co[axis]=lo+(v.co[axis]-aa)*(hi-lo)/(cc-aa)
+        if not b.high:
+            dec=housing.modifiers.new('Cap silhouette allocation','DECIMATE');dec.ratio=.67;G.apply(housing)
+        b.add(housing,parent,category='mirrors');G.smooth(housing,80)
+        rear=rings[-1];center=Vector((sgn*.9285,-.583,1.215))
+        border=[(center.x+(x-center.x)*.86,-.581,center.z+(z-center.z)*.80) for x,y,z in rear]
+        pane=G.loft('Mirror pane_'+side,[[(x,-.585,z) for x,y,z in border],border],b.m['glass'])
+        b.add(pane,parent,category='mirrors')
+        sail=[[(sgn*x,y,z) for x,y,z in row] for row in [
+          [(.854,-.890,1.137),(.854,-.790,1.131),(.866,-.760,1.165),(.860,-.858,1.186)],
+          [(.875,-.818,1.140),(.891,-.690,1.142),(.909,-.667,1.171),(.882,-.770,1.190)],
+          [(.893,-.715,1.146),(.912,-.641,1.154),(.925,-.646,1.176),(.913,-.711,1.185)]]]
+        b.add(G.loft('Mirror sail_'+side,sail,b.m['rubber']),parent,category='mirrors')
 
 
 def optical_case(b,lamp,polygon,surface,front):
@@ -74,18 +95,16 @@ def optical_case(b,lamp,polygon,surface,front):
         border.extend(a.lerp(c,i/steps) for i in range(steps))
     mouth=[];bed=[]
     def sample(uv,depth):
-        q,_,fi,_=surface['uv_tree'].find_nearest(Vector((uv.x,uv.y,0)));ia,ib,ic=surface['triangles'][fi]
-        chart=surface['uvs'];points=surface['points'];normals=surface['normals']
-        p=barycentric_transform(q,chart[ia],chart[ib],chart[ic],points[ia],points[ib],points[ic])
-        n=barycentric_transform(q,chart[ia],chart[ib],chart[ic],normals[ia],normals[ib],normals[ic]).normalized()
-        return p-n*depth
+        from suv_apertures import evaluate_chart
+        p,n=evaluate_chart(uv,surface);return p-n*depth
     for uv in border:
         mouth.append(sample(uv,.003));bed.append(sample(uv,.045))
     count=len(mouth);faces=[(i,(i+1)%count,count+(i+1)%count,count+i) for i in range(count)]
     # A constrained bed follows the same sweep instead of an n-gon spanning it.
     uv=[p.to_2d() for p in border]
-    for x in range(math.floor(min(p.x for p in uv)),math.ceil(max(p.x for p in uv))+1):
-        for y in range(math.floor(min(p.y for p in uv)),math.ceil(max(p.y for p in uv))+1):uv.append(Vector((x,y)))
+    step=(.045 if b.high else .075) if surface.get('polar') else 1.
+    for x in range(math.floor(min(p.x for p in uv)/step),math.ceil(max(p.x for p in uv)/step)+1):
+        for y in range(math.floor(min(p.y for p in uv)/step),math.ceil(max(p.y for p in uv)/step)+1):uv.append(Vector((x*step,y*step)))
     coords,_,caps,*_=delaunay_2d_cdt(uv,[],[list(range(count))],1,1e-6)
     vertices=mouth+bed;lookup={}
     for index in sorted({i for face in caps for i in face}):
