@@ -2605,3 +2605,18 @@ is 59,932 triangles, four fewer than the first delivery candidate.
 Source and export photo pairs are now both dependencies of the default build.
 Their patch comparison is regenerated with the gallery, rather than relying
 on an untracked one-off measurement script. Final export evidence follows.
+
+### Pass 5 — retain sky reflection while fitting the rear sun contribution
+
+Color/value first: the .025 sky / energy-8 sun fit leaves the rear upper door
+19.8 levels too bright and its rear door 24.7 too bright, although the front
+upper door is close. A .05 sky with front/rear sun energies 6/4 overcorrects:
+the rear quarter becomes 50.6 levels too dark. Reject that endpoint. The .04
+sky and 8/6 sun fit retains the near-neutral front door and improves the rear
+doors without altering paint factors. The diagnostic front upper door is
+150/148/148 against 153/147/151; rear upper door 125/126/128 against
+121/119/131. Ten-patch median absolute displayed-luma error drops from 17.1
+to 14.1 levels. The worst is now the differently shaped rear quarter's sky
+reflection, 29.4 levels low; that does not establish a paint-albedo error.
+The sky/glass reflection is more evident and there are no studio rectangles.
+This is the final outdoor recipe. The accepted studio remains unchanged.

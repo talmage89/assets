@@ -9,8 +9,8 @@ from mathutils import Vector
 from kit import studio,model as G
 
 CONDITIONS={
- 'front':dict(elevation=27,azimuth=-155,energy=8.0,sky=.025),
- 'rear':dict(elevation=30,azimuth=155,energy=8.0,sky=.025),
+ 'front':dict(elevation=27,azimuth=-155,energy=8.0,sky=.04),
+ 'rear':dict(elevation=30,azimuth=155,energy=6.0,sky=.04),
 }
 
 def setup():
@@ -55,4 +55,4 @@ def conditions(name):
     sky=sc.world.node_tree.nodes['S240 autumn sky'];sky.sun_elevation=math.radians(c['elevation']);sky.sun_rotation=math.radians(c['azimuth']);sc.world.node_tree.nodes['S240 sky strength'].inputs['Strength'].default_value=c['sky']
     e=math.radians(c['elevation']);a=math.radians(c['azimuth']);towards=Vector((math.cos(e)*math.cos(a),math.cos(e)*math.sin(a),math.sin(e)))
     sun=bpy.data.objects['S240 matched sun'];sun.data.energy=c['energy'];sun.rotation_euler=(-towards).to_track_quat('-Z','Y').to_euler()
-    return dict(method='Procedural multiple-scattering sky, 0.53 degree sun, asphalt-gray ground',sun_elevation_degrees=c['elevation'],sun_azimuth_degrees=c['azimuth'],uncertainty_elevation_degrees=6,estimate='Ground-shadow direction and extent relative to the class body/wheel heights; partially occluded boundaries, no gray card or EXIF lighting measurement')
+    return dict(method='Procedural multiple-scattering sky, 0.53 degree sun, asphalt-gray ground',sun_elevation_degrees=c['elevation'],sun_azimuth_degrees=c['azimuth'],sun_energy=c['energy'],sky_strength=c['sky'],uncertainty_elevation_degrees=6,estimate='Ground-shadow direction and extent relative to the class body/wheel heights; partially occluded boundaries, no gray card or EXIF lighting measurement')
