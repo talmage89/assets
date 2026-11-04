@@ -22,9 +22,13 @@ def well(b,blank,surface,depth,front):
     carve(front,[blank],surface,recess=depth)
     ob=G.loft(blank.name+' molded return',rings,b.m['rubber'],caps=False)
     sol=ob.modifiers.new('Molded return gauge','SOLIDIFY');sol.thickness=.002;sol.offset=-1;G.apply(ob)
-    b.add(ob,category='openings')
+    b.add(ob,blank.parent,category='openings')
     blank['well_depth_m']=depth-.004
-    blank['well_mouth_samples']=[v for p in loop for v in p]
+    # Locators sit slightly above the paint to make projection robust. Depth
+    # metrology must start at the evaluated parent skin, not that offset guide.
+    skin_loop=[surface['tree'].find_nearest(p)[0] for p in loop]
+    blank['well_mouth_samples']=[v for p in skin_loop for v in p]
+    blank['well_mouth_basis']='Actual evaluated parent skin before cut; no locator standoff'
     return ps
 
 
@@ -44,39 +48,46 @@ def bars(b,blank,points,front):
 
 
 def mirrors(b):
-    """Door-mounted rounded wedges, 240 x 120 x 145 mm; flat rear glass."""
+    """Rounded wedge caps on a broad door sail; planar rear glazing.
+
+    The front section is shallower and lower than the rear. A supported
+    trapezoidal cage retains that wedge after subdivision, avoiding oval pods.
+    """
     for side,sign in [('L',-1),('R',1)]:
-        parent=bpy.data.objects['Door_F'+side];loops=[]
-        count=24 if b.high else 16
-        # Superelliptic sections keep a continuously bowed cap instead of four
-        # planar faces converging on the nose of a scaled rounded rectangle.
-        outline=[]
-        for i in range(count):
-            a=math.tau*i/count;c,t=math.cos(a),math.sin(a)
-            outline.append((.120*math.copysign(abs(c)**(2/2.8),c),.0725*math.copysign(abs(t)**(2/2.8),t)))
-        for y,scale in [(-.768,.12),(-.763,.42),(-.746,.80),(-.716,.98),(-.656,1),(-.645,.98),(-.642,.96)]:
-            loops.append([(sign*(.9025+x*scale),y,1.052+z*scale-.035*x) for x,z in outline])
+        parent=bpy.data.objects['Door_F'+side]
+        outline=G.fillet_polygon([(-.120,-.071),(.120,-.057),(.109,.060),(-.098,.074)],.022,3 if b.high else 2)
+        loops=[]
+        for y,sx,sz,dz in [(-.682,.46,.28,-.017),(-.681,.72,.54,-.012),
+                            (-.661,.94,.85,-.004),(-.615,1,1,0),
+                            (-.559,1,1,0),(-.554,.99,.99,0)]:
+            loops.append([(sign*(.9040+x*sx),y,1.061+z*sz+dz) for x,z in outline])
         cap=G.loft('Mirror housing_'+side,loops,b.m['body'])
-        sub=cap.modifiers.new('Compound plastic wedge','SUBSURF');sub.levels=2 if b.high else 1;G.apply(cap)
-        for f in cap.data.polygons:f.use_smooth=True
+        sub=cap.modifiers.new('Supported wedge cap','SUBSURF');sub.levels=2 if b.high else 1;G.apply(cap)
         G.smooth(cap,90);b.add(cap,parent,category='mirrors')
-        outline=G.rounded_rectangle(.211,.119,.025,5 if b.high else 3)
-        pane=G.loft('Mirror pane_'+side,[[(sign*(.9025+x),y,1.052+z-.035*x) for x,z in outline] for y in [-.643,-.640]],b.m['glass'])
+        pane_outline=G.fillet_polygon([(-.103,-.059),(.104,-.046),(.094,.049),(-.085,.062)],.017,3)
+        pane=G.loft('Mirror pane_'+side,[[(sign*(.9040+x),y,1.061+z) for x,z in pane_outline] for y in [-.554,-.551]],b.m['glass'])
         b.add(pane,parent,category='mirrors')
-        stem=G.tube('Mirror stalk_'+side,[(sign*.827,-.792,.979),(sign*.860,-.765,.992),(sign*.883,-.713,1.000)],.016,b.m['rubber'],sides=8)
-        b.add(stem,parent,category='mirrors')
-        sail=G.profile('Mirror sail_'+side,[(-.849,.972),(-.752,.978),(-.790,1.036)],sign*.821,sign*.844,b.m['rubber'],axis='X',radius=.004,segments=2)
+        sail=G.profile('Mirror sail_'+side,[(-.852,.960),(-.676,.966),(-.687,1.045),(-.807,1.069)],sign*.820,sign*.858,b.m['rubber'],axis='X',radius=.005,segments=2)
         b.add(sail,parent,category='mirrors')
+        shoe=G.profile('Mirror mounting shoe_'+side,[(-.743,.994),(-.604,1.003),(-.609,1.038),(-.711,1.043)],sign*.835,sign*.899,b.m['rubber'],axis='X',radius=.008,segments=2)
+        b.add(shoe,parent,category='mirrors')
 
 
 def spoiler(b,surface):
-    """Molded roof lip overhangs the steep glass, with a closed underside."""
-    loops=[]
-    for i in range(25 if b.high else 17):
-        x=-.695+1.390*i/(24 if b.high else 16);t=x/.695
+    """Supported roof lip with a fair free edge and a closed molded underside."""
+    import numpy as np
+    def roof(x):
         hit=surface.ray_cast(Vector((x,1.480,2)),Vector((0,0,-1)),2)[0]
-        if hit is None:raise ValueError(('Spoiler roof attachment missing',x))
-        drop=1.414-hit.z
-        # Rounded wedge section: supported root, 145 mm overhang, 19 mm edge.
-        loops.append([(x,y,z-drop) for y,z in [(1.475,1.418),(1.500,1.436),(1.625,1.434),(1.655,1.427),(1.656,1.413),(1.625,1.407),(1.515,1.403),(1.480,1.407)]])
-    ob=G.loft('Roof spoiler',loops,b.m['body']);G.smooth(ob,50);b.add(ob,bpy.data.objects['Liftgate'],category='spoiler')
+        if hit is None:raise ValueError(('Spoiler attachment absent',x))
+        return hit.z
+    center=roof(0);a,bend=np.linalg.solve([[.35**2,.35**4],[.64**2,.64**4]],[center-roof(.35),center-roof(.64)])
+    xs=sorted(set([-.695+1.390*i/16 for i in range(17)]+[-.690,.690]))
+    loops=[]
+    for x in xs:
+        root=roof(x);lip=center-a*x*x-bend*x**4
+        loops.append([(x,y,z) for y,z in [(1.475,root+.004),(1.500,root+.022),
+          (1.625,lip+.020),(1.655,lip+.013),(1.656,lip-.001),
+          (1.625,lip-.007),(1.515,root-.011),(1.480,root-.007)]])
+    ob=G.loft('Roof spoiler',loops,b.m['body'])
+    sub=ob.modifiers.new('Molded lip smoothing','SUBSURF');sub.levels=2 if b.high else 1;G.apply(ob)
+    G.smooth(ob,90);b.add(ob,bpy.data.objects['Liftgate'],category='spoiler')

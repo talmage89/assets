@@ -52,31 +52,41 @@ def main():
  mirrors={o.name:bounds([o]) for o in obs if o.name.startswith('Mirror housing')}
  span=bounds([o for o in obs if o.get('part_category')=='mirrors'])['size'][0]
  crown=[]
- for y in [-1.60,-1.30,-1.10]:
+ # The cowl moved forward with the unchanged windscreen rake in round two.
+ # Keep the aft crown sample on steel, 40 mm ahead of its new shut line.
+ for y in [-1.60,-1.30,-1.14]:
   def top(x):return tree.ray_cast(Vector((x,y,3)),Vector((0,0,-1)),3)[0]
   edge=top(.76);candidates=[top(.79+i*.002) for i in range(61)];candidates=[p for p in candidates if p is not None]
   peak=max(candidates,key=lambda p:p.z)
   crown.append(dict(y_m=y,hood_side_edge_m=list(edge),fender_peak_m=list(peak),rise_m=peak.z-edge.z))
+ # At a removed mouth, the nearest surviving paint can be a different panel
+ # (notably the hood above the grille). Re-evaluate the uncut parent for the
+ # measurement direction; the bed and mouth positions remain actual meshes.
+ import hatch_body
+ parent,_=hatch_body.master(2);parent_ray=field([parent])
  wells={}
  for ob in obs:
   if 'well_mouth_samples' not in ob:continue
   raw=list(ob['well_mouth_samples']);mouth=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)];bed=mesh_tree([ob]);samples=[]
   for p0 in mouth[::max(1,len(mouth)//12)]:
-   # Use the nearest outward SMOOTH skin normal; a flat gauge rim's normal is
-   # tangent to the body and cannot measure recess depth. Inner backs excluded.
-   n=ray.nearest_normal(p0)
+   # The evaluated uncut parent defines the original skin normal at this hole.
+   n=parent_ray.nearest_normal(p0)
    if n.dot(Vector((p0.x,-1 if p0.y<0 else 1,0)))<0:n.negate()
    hitp,_,_,dist=bed.ray_cast(p0+n*.025,-n,.150)
    if hitp is not None:samples.append(dict(mouth_m=list(p0),bed_m=list(hitp),normal_depth_m=dist-.025))
   # Independent axial rays through the central bed must not find paint in
   # front of it. This proves a cut opening, separately from bed depth.
   raw=list(ob['aperture_samples']);guides=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
+  bb=bounds([ob])
+  guide_bounds_valid=all(all(bb['min'][k]-.01<=p[k]<=bb['max'][k]+.01 for k in range(3)) for p in guides)
   nu,nv=ob['form_columns'],ob['form_rows'];clearance=[]
-  for i in [nu//3,nu//2,2*nu//3]:
+  # A three-column cutout has only one interior column. Its last column is
+  # the mouth boundary, where hitting the return/painted lip is expected.
+  for i in sorted({max(1,min(nu-2,i)) for i in [nu//3,nu//2,2*nu//3]}):
    p0=guides[(nv//2)*nu+i];out=Vector((p0.x,-1 if p0.y<0 else 1,0)).normalized()
    pp,_,_,dd=tree.ray_cast(p0+out*.10,-out,.115)
    clearance.append(dict(bed_guide_m=list(p0),ray_outward=list(out),paint_hit_m=list(pp) if pp is not None else None,paint_hit_distance_m=dd))
-  wells[ob.name]=dict(depth_samples=samples,min_depth_m=min((r['normal_depth_m'] for r in samples),default=None),max_depth_m=max((r['normal_depth_m'] for r in samples),default=None),clearance_rays=clearance)
+  wells[ob.name]=dict(depth_samples=samples,min_depth_m=min((r['normal_depth_m'] for r in samples),default=None),max_depth_m=max((r['normal_depth_m'] for r in samples),default=None),clearance_rays=clearance,world_guides_inside_mesh_bounds=guide_bounds_valid)
  floor=bounds([bpy.data.objects['Form cavity closure']]);half=max(abs(floor['min'][0]),abs(floor['max'][0]))
  tire_inboard=min(abs(p.x) for o in obs if o.name.startswith('Tire_') for p in points(o))
  closure=dict(bounds_m=floor,tire_axial_separation_m=tire_inboard-half,scope='Actual floor/tire extrema; positive X separation proves parked surface clearance and persists through wheel spin. Other motion remains deferred.')
@@ -97,6 +107,8 @@ def main():
  if closure['tire_axial_separation_m']<=0:errors.append('Temporary closure reaches the tire envelopes')
  for name,row in wells.items():
   if not row['depth_samples']:errors.append(name+' missing depth coverage')
+  if row['min_depth_m'] is not None and row['min_depth_m']<.001:errors.append(name+' insufficient positive recess depth')
+  if not row['world_guides_inside_mesh_bounds']:errors.append(name+' guide coordinates are not world-space bed samples')
   if any(p['paint_hit_m'] is not None for p in row['clearance_rays']):errors.append(name+' painted skin remains in front of bed')
  report.update(passed=not errors,errors=errors);Path(a.out).write_text(json.dumps(report,indent=2));print(json.dumps({k:report[k] for k in ['sections','mirror_span_m','fender_crowns','errors']},indent=2))
  if errors and not a.diagnostic:raise AssertionError(errors)

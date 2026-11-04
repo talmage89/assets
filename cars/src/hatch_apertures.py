@@ -19,6 +19,15 @@ def surface_uv(p,surface):
     return uv,n
 
 
+def surface_point(uv,surface):
+    """Project a new cut vertex onto the same fair parent used by its outline."""
+    from mathutils.bvhtree import BVHTree
+    if 'uv_tree' not in surface:
+        surface['uv_tree']=BVHTree.FromPolygons(surface['uvs'],surface['triangles'],all_triangles=True)
+    p,_,fi,_=surface['uv_tree'].find_nearest(uv);a,b,c=surface['triangles'][fi]
+    return barycentric_transform(p,surface['uvs'][a],surface['uvs'][b],surface['uvs'][c],surface['points'][a],surface['points'][b],surface['points'][c])
+
+
 def outline(lamp,surface):
     raw=list(lamp['aperture_samples']);points=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
     nu,nv=lamp['form_columns'],lamp['form_rows']
@@ -125,7 +134,7 @@ def cut_mesh(ob,cutters,surface):
     if not affected:return
     vertices=[];faces=[]
     for polygon in polygons:
-        offset=len(vertices);vertices.extend(inverse@p[1] for p in polygon);faces.append(tuple(range(offset,len(vertices))))
+        offset=len(vertices);vertices.extend(inverse@surface_point(p[0],surface) for p in polygon);faces.append(tuple(range(offset,len(vertices))))
     old=ob.data;mesh=bpy.data.meshes.new(old.name+' lamp apertures');mesh.from_pydata(vertices,[],faces);mesh.update()
     for mat in old.materials:mesh.materials.append(mat)
     ob.data=mesh
@@ -138,11 +147,29 @@ def cut_mesh(ob,cutters,surface):
     if bad:bmesh.ops.delete(bm,geom=bad,context='FACES')
     bm.to_mesh(ob.data);bm.free();closeable_sheet(ob)
     ob['outer_skin_faces']=len(ob.data.polygons)
-    gauge=ob.modifiers.new('Cut aperture gauge','SOLIDIFY');gauge.thickness=.003 if ob.get('part_category')=='fascia' else .0009;gauge.offset=-1;gauge.use_even_offset=False;G.apply(ob)
+    # Extrude along the fair parent's normals. Averaging the newly clipped
+    # triangle fans can cancel at a very narrow mouth vertex, producing a
+    # zero-thickness corner and collapsed Solidify rim. The parent field has
+    # a defined normal everywhere along this continuous sheet.
+    thickness=.003 if ob.get('part_category')=='fascia' else .0009
+    ps=[v.co.copy() for v in ob.data.vertices];count=len(ps)
+    back=[inverse@(matrix@p-surface_uv(matrix@p,surface)[1]*thickness) for p in ps]
+    fs=[tuple(f.vertices) for f in ob.data.polygons];edges={}
+    for face in fs:
+        for aa,bb in zip(face,face[1:]+face[:1]):edges.setdefault(tuple(sorted((aa,bb))),[]).append((aa,bb))
+    closed=fs+[tuple(i+count for i in reversed(face)) for face in fs]
+    closed += [(bb,aa,aa+count,bb+count) for rows in edges.values() if len(rows)==1 for aa,bb in rows]
+    old=ob.data;mesh=bpy.data.meshes.new(old.name+' parent-normal gauge');mesh.from_pydata(ps+back,[],closed);mesh.update()
+    for mat in old.materials:mesh.materials.append(mat)
+    ob.data=mesh
+    if old.users==0:bpy.data.meshes.remove(old)
     ob['lamp_apertures_cut']=True
 
 
 def carve(front,lamps,surface,recess=.010):
+    # A newly parented garnish/lens has already been baked into pivot-local
+    # coordinates by attach(); evaluate its world matrix before any ray query.
+    bpy.context.view_layer.update()
     cutters=[region for lamp in lamps for region in outline(lamp,surface)]
     for ob in list(bpy.context.scene.objects):
         if ob.type!='MESH' or ob.get('part_category') not in ['body','doors','fascia','pillars']:continue

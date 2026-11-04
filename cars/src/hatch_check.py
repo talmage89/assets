@@ -110,7 +110,9 @@ def main():
  ends['rear']['d_pillar_projected_width_m']=(shoulder_width-ends['rear']['backlight_widths_m']['base'])/2
  sp=bounds([bpy.data.objects['Roof spoiler']]);upper_glass=[p.y for p in gps if p.z>gzhi-.035]
  ends['rear']['spoiler_overhang_m']=sp['max'][1]-sum(upper_glass)/len(upper_glass)
- gate_samples=[end(0,z,False) for z in [.72,.92]]
+ # Measure the lower stamped panel below the new garnish aperture. A ray at
+ # z=.92 can pass through that real opening and hit the opposite end of the car.
+ gate_samples=[end(0,z,False) for z in [.72,.84]]
  ends['rear']['lower_gate_rake_degrees']=math.degrees(math.atan2(gate_samples[0].y-gate_samples[1].y,gate_samples[1].z-gate_samples[0].z))
  ends['rear']['lower_gate_samples_m']=[list(q) for q in gate_samples]
  roof_samples=[top(0,y) for y in [.15,1.40]]
@@ -141,15 +143,17 @@ def main():
  for o in obs:
   if not o.name.startswith(('Headlamp opening','Taillamp opening')):continue
   raw=list(o['aperture_samples']);ps=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)];nu,nv=o['form_columns'],o['form_rows'];mid=ps[(nv//2)*nu:(nv//2+1)*nu]
-  lamps[o.name]=dict(surface_centerline_length_m=sum((b-a).length for a,b in zip(mid,mid[1:])),max_aperture_height_m=max((ps[(nv-1)*nu+i]-ps[i]).length for i in range(nu)),outer_minus_inner_height_m=mid[-1].z-mid[0].z,surface_centerline_m=[list(p) for p in mid])
+  lamps[o.name]=dict(surface_centerline_length_m=sum((b-a).length for a,b in zip(mid,mid[1:])),max_aperture_height_m=max((ps[(nv-1)*nu+i]-ps[i]).length for i in range(nu)),inner_aperture_height_m=(ps[(nv-1)*nu]-ps[0]).length,outer_minus_inner_height_m=mid[-1].z-mid[0].z,surface_centerline_m=[list(p) for p in mid])
  report['lamps']=lamps
  checks={}
  def check(name,v,lo,hi):checks[name]=dict(measured=v,minimum=lo,maximum=hi,passed=lo<=v<=hi)
  for k,v,target in zip(['width','length','height'],report['bounds_m']['size'],[S.WIDTH,S.LENGTH,S.HEIGHT]):check(k,v,target-.004,target+.004)
- check('game triangles',report['triangles'],0,55000 if report['quality']=='game' else 500000)
+ check('game triangles',report['triangles'],0,46000 if report['quality']=='game' else 500000)
  check('windshield rake',report['a_pillar_rake_from_vertical_degrees'],58,62)
- check('backlight rake',ends['rear']['backlight_rake_from_vertical_degrees'],30,45)
+ # Round two explicitly permits more rake to follow the matched Corolla rear.
+ check('backlight rake',ends['rear']['backlight_rake_from_vertical_degrees'],30,49)
  check('hood leading height',he.z,.70,.78);check('tumblehome',next(s['tumblehome_degrees'] for s in sections if 'tumblehome_degrees' in s),20,25)
+ check('front upper leading tangent height',ends['front']['bumper_m'][2],.63,.78)
  check('rear overhang',report['overhangs_m']['rear'],.70,.85)
  for row in report['arches']:check(row['wheel']+' arch gap',row['tire_to_arch_m'],.030,.050)
  for name,row in lamps.items():
