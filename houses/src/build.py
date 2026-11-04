@@ -174,7 +174,7 @@ class Builder:
         self.root['seed']=plan['seed'];self.root['checkpoint']='form / placeholder materials'
         main=plan['blocks'][0]
         self.door=G.pivot('FrontDoor',(plan['door_x']-.9144/2+.004,main.y0+.153,.514),'Z',(0,105))
-        if plan['spec']['type']=='ranch':
+        if plan['spec']['type'] in ('ranch','cape'):
             self.door.location.z=main.floor+.006
         self.door.parent=self.root
         self.moving={'FrontDoor':self.door}
@@ -299,8 +299,14 @@ def window(b,o):
         for zh in (zz+.025,zz+sh-.025):box(u,v,zh,inner-.10,.036,.050)
         box(u,v-.019,zz+sh/2,inner-.10,.004,sh-.10,b.colors['Glass'],0,'Glass')
         # Grilles are between the glass, rather than heavy exterior jail bars.
-        for q in (-1,1):box(u+q*(inner-.1)/6,v-.022,zz+sh/2,.012,.010,sh-.1,r=0)
-        box(u,v-.022,zz+sh/2,inner-.1,.010,.012,r=0)
+        if b.plan['spec']['type']=='cape':
+            grid=b.plan['spec']['window_update'];cols=4 if grid=='eight_over_eight' else 3
+            if grid!='one_over_one':
+                for q in range(1,cols):box(u+(q/cols-.5)*(inner-.1),v-.022,zz+sh/2,.012,.010,sh-.1,r=0)
+                box(u,v-.022,zz+sh/2,inner-.1,.010,.012,r=0)
+        else:
+            for q in (-1,1):box(u+q*(inner-.1)/6,v-.022,zz+sh/2,.012,.010,sh-.1,r=0)
+            box(u,v-.022,zz+sh/2,inner-.1,.010,.012,r=0)
     box(u,.032,z+h/2,w-.07,.042,.027)
     # Curtains are shallow softly pleated surfaces, not rigid opaque panels.
     mode=int(o['id'].split('_')[-1])%4
@@ -345,11 +351,11 @@ def panel(me,xf,u,v,z,w,h,color):
 
 
 def doors(b):
-    main,garage=b.plan['blocks']
+    main=b.plan['blocks'][0]
     for o in b.openings:
         if o['kind']=='window':window(b,o);continue
         if o['kind'] in ('patio','service'):continue
-        block=main if o['block']=='Main' else garage
+        block=next(v for v in b.plan['blocks'] if v.name==o['block'])
         xf,n,length=b.frame(block,o['face']);u,z,w,h=o['u'],o['z'],o['w'],o['h']
         static=b.mesh(o['id']+'_Jamb',component='door_frame')
         masonry=b.plan['spec']['type']=='ranch' and b.plan['spec']['cladding'][block.name][o['face']]=='veneer'
@@ -392,7 +398,8 @@ def doors(b):
 def exterior_edges(block,faces):
     """Merge fragmented perimeter intervals so roof clipping cannot double trim."""
     o=block.overhang;result=[]
-    for axis,value,n in ((0,block.x0-o,(-1,0)),(0,block.x1+o,(1,0)),(1,block.y0-o,(0,-1)),(1,block.y1+o,(0,1))):
+    ox,oy=((block.rake,o) if block.ridge_axis=='X' else (o,block.rake)) if hasattr(block,'rake') else (o,o)
+    for axis,value,n in ((0,block.x0-ox,(-1,0)),(0,block.x1+ox,(1,0)),(1,block.y0-oy,(0,-1)),(1,block.y1+oy,(0,1))):
         ranges=[]
         for row in faces:
             if row['block']!=block.name:continue
@@ -485,6 +492,9 @@ def drain(b,me,a,c,n,block,index):
 
 
 def roofs(b):
+    if b.plan['spec']['type']=='cape':
+        from cape_build import roofs as cape_roofs
+        return cape_roofs(b)
     structural=[b.plan['roof_envelope']] if b.plan.get('roof_envelope') else roof_blocks(b.plan['blocks'])
     blocks=structural+[b.plan['porch']] if b.plan.get('roof_envelope') else b.plan['blocks']+[b.plan['porch']]
     # Porch is below upper windows, with its rear planes terminated at the wall.
@@ -632,6 +642,9 @@ def services(b):
 
 
 def build(plan):
+    if plan['spec']['type']=='cape':
+        from cape_build import build as cape_build
+        return cape_build(plan)
     if plan['spec']['type']=='ranch':
         from ranch_build import build as ranch_build
         return ranch_build(plan)
@@ -678,7 +691,7 @@ def save(b,out,export=True):
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--seed',type=int,default=27);p.add_argument('--plan',type=Path);p.add_argument('--type',choices=('builder_colonial','ranch'))
+    p=argparse.ArgumentParser();p.add_argument('--seed',type=int,default=27);p.add_argument('--plan',type=Path);p.add_argument('--type',choices=('builder_colonial','ranch','cape'))
     p.add_argument('--out',type=Path,default=Path('build/house.blend'));p.add_argument('--no-export',action='store_true')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);bpy.ops.wm.read_factory_settings(use_empty=True)
     save(build(load(a.seed,a.plan,a.type)),a.out,not a.no_export)

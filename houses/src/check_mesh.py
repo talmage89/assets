@@ -35,6 +35,9 @@ def surface(objects):
 def source_check(source):
     bpy.ops.wm.open_mainfile(filepath=str(source.resolve()));bpy.context.view_layer.update()
     report=json.loads(source.with_suffix('.json').read_text())
+    if report['spec']['type']=='cape':
+        from cape_check import source_check as cape_check
+        return cape_check(source)
     if report['spec']['type']=='ranch':
         from ranch_check import check
         return check(source)
@@ -235,6 +238,7 @@ def delivery_check(source):
     pivot_error=max(math.dist(bpy.data.objects[name].matrix_world.translation,p) for name,p in source_pivots.items())
     assert pivot_error<2e-5
     expected_meshes=3 if expected['spec']['type']=='ranch' and expected['spec']['garage']['kind']=='carport' else 4
+    if expected['spec']['type']=='cape':expected_meshes=3
     assert len(doc.get('meshes',[]))==expected_meshes, 'Fixed shell plus moving leaves'
     return dict(passed=True,triangles=triangles,materials=len(materials),images=0,meshes=len(doc['meshes']),
                 primitives=sum(len(m['primitives']) for m in doc['meshes']),

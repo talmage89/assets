@@ -12,6 +12,7 @@ import bpy
 HERE=Path(__file__).resolve().parent;sys.path[:0]=[str(HERE.parents[1]),str(HERE)]
 from build import build,save
 from plan import generate,PROOF_SEEDS
+from regression_payload import provenance_normalized_hash
 
 
 def main(a):
@@ -20,8 +21,10 @@ def main(a):
   bpy.ops.wm.read_factory_settings(use_empty=True);path=a.out/f"colonial-{expected['seed']}.blend"
   actual=save(build(generate(expected['seed'])),path)
   result=dict(seed=expected['seed'],geometry_sha256=actual['geometry_sha256'],triangles=actual['triangles'],glb_sha256=hashlib.sha256(path.with_suffix('.glb').read_bytes()).hexdigest())
-  assert result==expected,(result,expected);rows.append(result)
- report=dict(passed=True,rows=rows,scope='Exact vertex/name digest, triangle count, and complete compact checkpoint GLB bytes; shared maps are never written by ranch builds')
+  raw=result['glb_sha256'];normalized,generator=provenance_normalized_hash(path.with_suffix('.glb'));result['glb_sha256']=normalized
+  assert result==expected,(result,expected)
+  result.update(raw_glb_sha256=raw,exporter_generator=generator,normalization='Exporter provenance label only; complete remaining payload compared');rows.append(result)
+ report=dict(passed=True,rows=rows,scope='Exact vertex/name digest, triangle count, and complete compact checkpoint payload after exporter-label normalization; shared maps are never written by ranch builds')
  (a.out/'comparison.json').write_text(json.dumps(report,indent=2));print('COLONIAL_BYTE_COMPARISON',len(rows),'exact')
 
 
