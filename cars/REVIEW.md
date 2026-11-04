@@ -2539,3 +2539,41 @@ vanes over a recessed original diamond relief, in gloss black with the dark
 chrome surround and original ALDER badge. The rear plate carries an original
 ALDER / WILLOW MOTOR CO. dealer insert and dark frame relief; no jurisdiction,
 registration format or serial. A 3× marking priority protects its atlas area.
+
+### Pass 3 — keep the held section while correcting the crest
+
+Color/value first: the direct source and baked preflight remove the cool cast
+(the front upper door is 153/150/149 against balanced photo 153/147/151), but
+the rear quarter's reflected value still differs. The sun/sky balance replaces
+the milky glass and studio rectangles with darker sky and a constructed facade
+where the photograph reflects one. Rear facade height is restricted to the
+observed low horizon, so it does not paint the roof/backlight beige. Solar
+azimuth is refined against the visible ground-shadow direction, front −155°,
+rear +155°, in the Blender frame. The neutral-balanced sun color is used for
+the already-balanced photographic comparisons.
+
+The longer matched view also shows that the old spray fans fade out before
+the rear door. Their existing aft-wheel masks now extend along that door and
+have a slightly higher, declining spray ceiling; deposited dust is darker.
+The broken grain, low splash, chip and washing masks retain their causes.
+Source pair `sedan-r7-film-source` exposes this wear at full frame. The strength
+is judged with the final export again below.
+
+The first broadened crest fails the clean build's independent section checks:
+its shoulder narrows 1.7 mm and the hood loses too much transverse crown.
+That candidate is rejected. The final draw uses a 45 mm / 100 mm crown over
+an independently crowned hood, rather than the first 22 mm / 135 mm trial.
+Sail relaxation fades in above the shoulder, preserving its widest row.
+Actual measured width returns to 1849.39 mm; the hood and other held numeric
+requirements pass again. No dimensional tolerance was changed. The regular
+parent remains continuous before the openings and panel cuts.
+
+UV projection trials at 3, 4, 4.5, 5.5, 6 and 7 degrees do not solve the thin
+fragment chart folds. Keep the 5-degree layout and split only the overlapping
+fragments before repacking. A subtexel sliver receives a representable UV
+altitude when float packing would flatten it. The preflight has sixteen chart
+repairs, zero overlapping/outside/degenerate UV triangles, 36.92% coverage and
+83.0 / 232.7 / 298.9 px/m density p5/median/p95. This changes UV seams, not
+positions, triangle count or the acceptance policy. Exact-surface baking has
+zero unfilled interior pixels. Verified high-normal coverage is recorded
+separately from direct shader normals.

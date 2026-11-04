@@ -242,8 +242,8 @@ def hood_height(x,y):
     # Convex shallow crown with an outward slope change at the two draw lines.
     # A stamped fender crown is a broad draw. The former 38 mm / 55 mm
     # Gaussian ridge folded the hood/lamp corner before any panel was cut.
-    crown=.022*math.exp(-((abs(x)-.875)/.135)**2)*math.exp(-((y+1.57)/.74)**4)
-    return .770+.170*(y+2.245)-.024*(x/.80)**2-.065*max(0,abs(x)-hood_draw_x(y))+crown
+    crown=.045*math.exp(-((abs(x)-.875)/.100)**2)*math.exp(-((y+1.57)/.74)**4)
+    return .770+.170*(y+2.245)-.050*(x/.80)**2-.065*max(0,abs(x)-hood_draw_x(y))+crown
 
 
 def deck_height(x,y):
@@ -380,6 +380,10 @@ def fair_pillar_feet(ob):
         # The fitted side/canopy protection changes at the sail's foot. Fair
         # its control rows across the transition, rather than its normals.
         sail=math.exp(-((y-1.68)/.30)**2-((z-1.04)/.16)**2-((abs(x)-.78)/.17)**2)
+        # Keep the measured shoulder envelope fixed. The sail correction
+        # belongs above that die line, rather than pulling its widest row in.
+        t=max(0,min(1,(z-shoulder_height(y)-.005)/.100))
+        sail*=t*t*t*(10-15*t+6*t*t)
         weights.append(.55*max(a,c,lamp,sail))
     for _ in range(90):
         old=[v.co.copy() for v in ob.data.vertices]
