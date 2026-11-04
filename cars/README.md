@@ -398,10 +398,10 @@ sheet, separate molded cladding, flush glazing, real cut recesses and
 
 | Actual source quantity | Value |
 | --- | ---: |
-| Length / wheelbase | 4600.1 / 2690.0 mm |
-| Body / full mirror width | 1841.6 / 2117.0 mm |
-| Roof / rail height | 1678.9 / 1700.0 mm |
-| Game triangles | 58,422 |
+| Length / wheelbase | 4599.6 / 2690.0 mm |
+| Body / full mirror width | 1842.1 / 2117.0 mm |
+| Roof / rail height | 1679.0 / 1700.0 mm |
+| Game triangles | 59,642 |
 | Temporary materials / image maps | 5 / 0 |
 
 ```sh
@@ -409,7 +409,8 @@ make -C cars BODY=suv
 ```
 
 [Full dimensions, sources, per-part counts, pivots and rebuild proof](SUV.md).
-The 42-view contact is `renders/suv-form/contact.jpg`; source measurements are
+The round-two 45-view contact is `renders/suv-round2/contact.jpg`; source measurements are
 `build/suv/form-check.json`. [REVIEW.md](REVIEW.md) records the critique passes.
-The requested 40 mm profile agreement remains unmet at some holdouts; this is
-a form-review candidate. No SUV GLB, UV/bake or motion approval is implied.
+The revised face/rear have measured plan wraps, taller lamps and sculpted fascias.
+Some silhouette holdouts and local highlight fairness remain weaker than the
+references; this is a form-review candidate. No SUV GLB, UV/bake or motion approval is implied.

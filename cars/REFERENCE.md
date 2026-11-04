@@ -332,3 +332,37 @@ photo ratios with uncertain camera pitch and body-width correspondence, not
 manufacturer glass dimensions. The original's 250–360 mm construction range
 allows for those uncertainties; the actual centerline height is measured in
 `build/suv/form-check.json` along with its widths and rake.
+
+
+### X220 round-two plan and fascia measurements
+
+The Toyota RAV4 XA50 rescue sheet (2019-04) and Honda CR-V RW rescue sheet
+(2019 model, release 08/2018) supply sparse top-view envelope measurements at
+approximately 800 mm half-width. The images and four straight front/rear
+photographs are annotated by `suv_references.py` in the ignored review folder.
+That tool never supplies geometry to the model generator. Source links,
+authorship and copyright are recorded in `refs/SOURCES.md`.
+
+| Measurement | Toyota | Honda |
+| --- | ---: | ---: |
+| Front setback from center | 271 mm | 258 mm |
+| Rear setback from center | 252 mm | 197 mm |
+| Front lamp outer height | 161 mm | 167 mm |
+| Front black center height / hood-to-ground share | 391 mm / 43.4% | 303 mm / 37.2% |
+| Rear lamp corner height | 178 mm | 197 mm |
+| Main lower rear lip | 229 mm | 233 mm |
+| Entire rear black region including upper band | 407 mm | 276 mm |
+
+Plan estimates allow approximately ±20 mm, photo heights ±30 mm, with additional
+trim/perspective differences. The Honda rescue sheet predates the facelift and
+is normalized to the cited US length; it is not precision 2020 bumper CAD.
+The white background is the photographic neutral, with unit RGB gains.
+
+The source front follows both makes' front setbacks. Its 211 mm rear setback
+follows Honda rather than Toyota. The main rear lip is 220–248 mm, distinct from
+the manufacturers' entire black upper-and-lower regions. The revised source
+front approach is 17.88° (Honda's 18.1° comparison); rear departure is 20.64°
+(Toyota's 21° comparison). Actual physical rays, sections and supporting planes,
+not those targets, produce the source measurements. Source plan circle samples
+are flattened into XY before reporting the local radius; their envelope hits
+can occur at different heights.
