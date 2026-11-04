@@ -110,6 +110,9 @@ def cargo(b):
     for sign in [-1,1]:
         box(b,'H120 cargo wheelhouse trim '+str(sign),(sign*.572,1.62,.625),(.11,.68,.28),b.m['interior'],'cargo',radius=.030)
     box(b,'H120 load sill',(0,2.016,.584),(1.04,.052,.045),b.m['plastic'],'cargo',radius=.008)
-    box(b,'H120 parcel cover',(0,1.60,.971),(1.11,.63,.018),b.m['cloth'],'cargo',radius=.010)
+    if b.high:box(b,'H120 parcel cover',(0,1.60,.971),(1.11,.63,.018),b.m['cloth'],'cargo',radius=.010)
+    else:
+        outline=[(u,1.60+v) for u,v in G.rounded_rectangle(1.11,.63,.018,1)]
+        b.add(G.profile('H120 parcel cover',outline,.962,.980,b.m['cloth'],axis='Z'),category='cargo')
     for sign in []:
         tube(b,'H120 parcel cover tether '+str(sign),[(sign*.50,1.88,.978),(sign*.50,1.91,1.10)],.0015,b.m['rubber'],'cargo',sides=4)

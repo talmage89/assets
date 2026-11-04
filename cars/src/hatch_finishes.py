@@ -47,7 +47,7 @@ def paint(wear):
     output('base',base);output('rough',n.add(oldrough,n.mul(film,.25),swirls,abrasion))
     output('paint_coverage',coverage);output('paint_contamination',dirt);output('road_film',film);output('chips',chips)
     bs=n.nt.nodes['SURFACE'];n.feed(bs.inputs['Coat Weight'],n.add(.10,n.mul(coverage,.90)))
-    n.feed(bs.inputs['Coat Roughness'],n.add(.035,n.mul(film,.35)))
+    n.feed(bs.inputs['Coat Roughness'],n.add(.035,n.mul(film,.35),swirls))
     return mat
 
 
@@ -108,7 +108,7 @@ def build(wear):
         image.colorspace_settings.name='Non-Color'
         # Rebuild with that image so no geometry is spent on type.
         if image:
-            m['tire_'+side]=V.tire('H120 lettered tire '+side,image,-1 if side=='L' else 1,wear=wear)
+            m['tire_'+side]=V.tire('H120 lettered tire '+side,None,-1 if side=='L' else 1,wear=wear)
             nt=m['tire_'+side].node_tree
             # The class photos show dark dusty rubber, rather than a pale tire
             # annulus. Preserve the radial cause and reduce its reflected value.
@@ -120,4 +120,14 @@ def build(wear):
             scale.inputs[1].default_value=(.275/.225,FAMILY.HUB_HEIGHT/S.HUB_HEIGHT,FAMILY.HUB_HEIGHT/S.HUB_HEIGHT)
             nt.links.new(tc.outputs['Object'],scale.inputs[0])
             for link in links:nt.links.new(scale.outputs[0],link.to_socket)
+            # Passenger-sidewall lettering uses its measured 273 mm annulus;
+            # the truck's global tread coordinates would bury it at the bead.
+            local=n.node('ShaderNodeTexCoord');x,y,z=n.split(local.outputs['Object'])
+            radius=n.math('SQRT',n.add(n.mul(y,y),n.mul(z,z)))
+            embossed=n.node('ShaderNodeTexImage');embossed.image=image;embossed.extension='CLIP'
+            sign=-1 if side=='L' else 1
+            n.feed(embossed.inputs['Vector'],n.combine(n.add(.5,n.mul(y,sign*1.26)),n.add(.5,n.mul(z,1.26)),0))
+            coverage=n.mul(n.ramp(n.math('ABSOLUTE',x),.093,.108),n.ramp(radius,.241,.248),n.ramp(radius,.307,.297))
+            old=nt.nodes['OUT_height'].inputs[0].links[0].from_socket
+            n.feed(nt.nodes['OUT_height'].inputs[0],n.add(old,n.mul(coverage,embossed.outputs['Color'],.0005)))
     return m

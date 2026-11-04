@@ -57,16 +57,30 @@ def build(b):
     for y in [.56,.88]:
         outline=[(-.4212,.383),(-.4212,.2188),(.4212,.2188),(.4212,.383),(.420,.383),(.420,.220),(-.420,.220),(-.420,.383)]
         b.add(G.profile('H120 tank strap '+str(y),outline,y-.0125,y+.0125,b.m['frame'],axis='Y'),category='underbody')
-    tube(b,'H120 exhaust',[(.15,-1.5,.29),(.20,-.97,.185),(.26,.30,.185),(.27,.98,.20),(.36,1.45,.24),(.50,1.92,.29),(.50,2.02,.28)],.022,b.m['brake'],'underbody',sides=8)
+    # The original left bumper cutout receives an actual open tailpipe.
+    cut=bpy.data.objects['Exhaust cutout'];raw=list(cut['well_mouth_samples'])
+    mouth=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
+    tip=sum(p.y for p in mouth)/len(mouth)+.006
+    bpy.data.objects.remove(cut,do_unlink=True)
+    tube(b,'H120 exhaust',[(.15,-1.5,.29),(.20,-.97,.185),(.26,.30,.185),(.27,.98,.20),(.36,1.45,.24),(.35,1.78,.26)],.022,b.m['brake'],'underbody',sides=6)
     box(b,'H120 catalyst',(.20,-.75,.20),(.16,.32,.095),b.m['brake'],'underbody',radius=.025)
-    box(b,'H120 rear muffler',(.40,1.71,.273),(.28,.42,.13),b.m['brake'],'underbody',radius=.028)
+    box(b,'H120 rear muffler',(0,1.78,.273),(.80,.20,.13),b.m['brake'],'underbody',radius=.028)
+    tube(b,'H120 muffler outlet',[(-.40,1.78,.26),(-.60,1.86,.26),(-.765,tip-.075,.26)],.022,b.m['brake'],'underbody',sides=6)
+    profile=[(tip-.075,.022),(tip,.022),(tip,.0205)]
+    if b.high:profile.append((tip-.075,.0205))
+    tail=G.lathe('H120 open exhaust tip',profile,b.m['brake'],32 if b.high else 8,axis='Y',center=(-.765,.260),closed=True)
+    tail.data.materials.append(b.m['frame'])
+    for face in tail.data.polygons:
+        radial=Vector((face.center.x+.765,0,face.center.z-.260))
+        if face.normal.dot(radial)<0:face.material_index=1
+    b.add(tail,category='underbody');G.smooth(tail,85)
     # Trunk well closes the car above the departure tangent.
     tub=box(b,'H120 trunk tub',(0,1.75,.45),(1.10,.48,.060),b.m['frame'],'underbody',radius=.02)
     support=mesh_tree([floor,tub])
-    for y in [1.62,1.85]:
+    for y in [1.71,1.85]:
         hit=support.ray_cast(Vector((.52,y,.35)),Vector((0,0,1)),1)[0]
         if hit is None:raise ValueError('Exhaust hanger misses its actual floor support')
-        tube(b,'H120 exhaust hanger '+str(y),[(.42,y,.31),(.46,y,.35),(.52,y,hit.z+.0003)],.006,b.m['frame'],'underbody',sides=6)
+        tube(b,'H120 exhaust hanger '+str(y),[(.30,y,.31),(.42,y,.35),(.52,y,hit.z+.0003)],.006,b.m['frame'],'underbody',sides=6)
         box(b,'H120 exhaust isolator '+str(y),(.52,y,hit.z-.012),(.032,.025,.024),b.m['rubber'],'underbody',radius=0)
     for front in [True,False]:
         skin=mesh_tree([bpy.data.objects['Front molded fascia' if front else 'Rear molded fascia']]);rings=[]
