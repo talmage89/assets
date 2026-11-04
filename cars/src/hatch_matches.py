@@ -22,3 +22,16 @@ for make,front,picks in [
   photo=str(ROOT/('refs/hatch-'+make+('-front.jpg' if front else '-rear.jpg'))),crop=(-90,-70,2190,1645),
   location=(sign*7,-sign*10,2),target=(0,0,.7),lens=58,background='transparent',
   landmarks=anchors(worlds,picks,[1,1,1,1,.5]))
+
+# Near-profile cameras have no visible far wheel contact. The two near hubs
+# and tire contacts constrain their pose, with a stated 65 mm lens prior.
+# Silhouette points are withheld, as in the three-quarter fits. Contact picks
+# refer to the tread center, not the outer sidewall's curved shadow.
+for make,picks in [
+ ('corolla',[(246,566),(974,566),(246,648),(974,648)]),
+ ('hyundai',[(241,566),(976,565),(241,649),(976,648)])]:
+ MATCHES[make+'_side']=dict(title='Alder H120 / '+make+' / perspective profile',
+  photo=str(ROOT/('refs/hatch-'+make+'-side.jpg')),crop=(0,0,2100,1575),
+  location=(7.5,0,1.4),target=(0,0,.75),lens=65,lens_bounds_mm=(45,100),
+  background='transparent',landmarks=anchors(
+   [(.876,F,H),(.881,R,H),(.775,F,0),(.780,R,0)],picks,[1,1,1,1]))

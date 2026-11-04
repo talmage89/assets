@@ -139,6 +139,8 @@ def main():
         save(rgb(path),out/(name+'.jpg'))
     (out/'tonal-range.json').write_text(json.dumps(dict(scope='Opaque foreground only; neutral source clay, no factory-paint albedo claim',views=tone),indent=2))
     sections(out,report,22.5);centerline(out,report);dimensioned(out,shots,report);side_overlay(out,shots);rear_references(out,report)
+    from hatch_profiles import profiles
+    profiles(out,cameras)
     from kit.photo_match import compose
     clay={name+'_clay':dict(data,title=data['title'].replace('clay with stripes','neutral clay')) for name,data in cameras.items()}
     calibration=out/'clay-cameras.json';calibration.write_text(json.dumps(clay,indent=2));compose(calibration,out,out)
@@ -151,6 +153,8 @@ def main():
     names += [name+'-pair.jpg' for name in cameras]
     names += [name+'_clay-pair.jpg' for name in cameras]
     names += [name+'-calibration.jpg' for name in cameras]
+    names += ['side-perspective-'+make+'.jpg' for make in ['corolla','hyundai']]
+    names += ['side-methods-'+make+'.jpg' for make in ['corolla','hyundai']]
     tw,th=800,530;canvas=Image.new('RGB',(3*tw,math.ceil(len(names)/3)*th),(229,231,232));d=ImageDraw.Draw(canvas)
     for i,name in enumerate(names):
         im=Image.open(out/name).convert('RGB');im.thumbnail((tw-20,th-55),Image.Resampling.LANCZOS);x=(i%3)*tw;y=(i//3)*th
