@@ -68,6 +68,7 @@ def main():
   sc.render.engine='BLENDER_EEVEE' if a.preview else 'CYCLES'
   if not a.preview:gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=12;sc.cycles.transmission_bounces=8;sc.cycles.transparent_max_bounces=8
   sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=(-2.0 if lighting=='studio' else (-.95 if name=='used_rear' else .2) if lighting=='matched' else shot.get('exposure',.6))
+  if lighting=='studio' and shot.get('paint',a.paint)=='Aluminum':sc.view_settings.exposure-=.80
   sc.render.resolution_x=a.width;sc.render.resolution_y=round(a.width/shot.get('aspect',1.6));sc.render.resolution_percentage=100;sc.render.image_settings.file_format='PNG';sc.render.image_settings.color_mode='RGBA';sc.render.film_transparent=True
   sc.render.filepath=str((out/(name+'.png')).resolve());bpy.ops.render.render(write_still=True)
   unchanged()

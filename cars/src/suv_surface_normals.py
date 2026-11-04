@@ -65,6 +65,15 @@ def reseed(ob):
 def finish():
     for ob in bpy.context.scene.objects:
         if ob.type!='MESH':continue
+        if ob.name.startswith(('Corner pocket','Exhaust cutout','Reflector')) and ob.name.endswith(' opening'):
+            # These formed insert walls had inherited near-tangent/opposed cap
+            # directions from the projected sheet. Their own bends define the
+            # normal field; the painted parent field does not belong here.
+            from kit import model as G
+            G.smooth(ob,35)
+            ob.data.normals_split_custom_set([(0,0,0)]*len(ob.data.loops))
+            ob['normal_basis']='Own molded insert walls; sharp gauge turns, no parent cap transfer'
+            continue
         if ob.get('optical_patch'):
             from suv_glazing import field
             field(ob)
