@@ -42,12 +42,18 @@ def character_height(y):return .405+.082*(y-S.DOOR_FRONT)/(S.DOOR_REAR-S.DOOR_FR
 
 def side_draw(y,z):
     h=shoulder_height(y);line=character_height(y)
-    d=positive(h-z);tail=positive(d-(h-line),.012);c=d-tail
+    d=positive(h-z,.002);tail=positive(d-(h-line),.006);c=d-tail
     lower=-.065*c-.225*c*c-.120*tail
-    lower-=.0040*math.exp(-((z-line-.043)/.030)**2)
+    # The stamped door hollow dies into the rear wheel's trailing shoulder;
+    # it must not emboss another horizontal ripple into the molded bumper.
+    lower-=.0070*math.exp(-((z-line-.038)/.026)**2)*(1-smoothstep(1.60,1.97,y))
     lower-=.50*positive(.280-z,.008)
-    upper=-.37*positive(z-h)-.12*positive(z-h)**2
-    return lower+upper
+    upper=-.37*positive(z-h,.002)-.12*positive(z-h,.002)**2
+    # Raised wheel crowns blend in section as well as along the car. Preserve
+    # the arch edge and widest shoulder, accentuating the metal between them.
+    wheel=sum(math.exp(-((y-a)/.34)**2) for a in [S.FRONT_AXLE,S.REAR_AXLE])
+    swell=.004*wheel*math.exp(-((z-(h-.065))/.045)**2)
+    return lower+upper+swell
 
 def hood_draw_x(y):return .515+.235*max(0,min(1,(y+1.98)/.935))
 def hood_height(x,y):
@@ -92,7 +98,7 @@ FRONT_ROWS=[
  (-2.171,.400,-1.860),(-2.188,.475,-1.820),(-2.172,.525,-1.800),
  (-2.126,.595,-1.780),(-2.065,.670,-1.760),(-2.000,.743,-1.740),
  (-1.980,.756,-1.725),(-1.875,.775,-1.640),(-1.690,.810,-1.480),
- (-1.475,.850,-1.300),(-1.240,.895,-1.150)]
+ (-1.475,.850,-1.300),(-1.240,.895,-1.240)]
 # Glass is on the steep folded portion. No sedan deck is retained.
 REAR_ROWS=[
  (1.570,1.393,1.560),(1.605,1.365,1.585),(1.690,1.285,1.610),
@@ -172,15 +178,17 @@ def region(y,c):
 
 def section_field(p):
     x,y,z=p
-    bumper=.055*math.exp(-((y+1.98)/.50)**2-((z-.48)/.16)**2)+.054*math.exp(-((y-1.98)/.44)**2-((z-.55)/.18)**2)
+    bumper=.055*math.exp(-((y+1.98)/.50)**2-((z-.48)/.16)**2)+.042*math.exp(-((y-1.98)/.52)**2)*(1-smoothstep(.60,.82,z))
     width=side_width(y)+side_draw(y,z)+bumper
     ft=-1.560;rt=1.660-.32*smoothstep(1.0,1.40,z)
     fd=max(.15,S.LENGTH/2+.0055+ft-face_depth(z,True))
-    gate=.012*smoothstep(.865,.905,z)*(1-smoothstep(.985,1.025,z))*(1-smoothstep(.50,.73,abs(x)))
-    bumper_crease=.006*(1-smoothstep(.58,.625,z))*smoothstep(.52,.57,z)
+    gate=.060*math.exp(-((z-.835)/.075)**2)*math.exp(-(x/.365)**4)
+    # The lower hem retains the accepted envelope. Its shadow comes from an
+    # inset bumper shoulder beneath it, not a bolt-on lip outside the package.
+    bumper_crease=.045*math.exp(-((z-.610)/.034)**2)*(1-smoothstep(.60,.88,abs(x)))
     rd=max(.15,S.LENGTH/2+.0005-rt-face_depth(z,False)-gate-bumper_crease)
     a=max(0,ft-y)/fd;c=max(0,y-rt)/rd
-    rear_power=3+3*(1-smoothstep(.40,1.40,z))
+    rear_power=4.55-1.55*smoothstep(.65,1.40,z)
     q=(x/width)**2+a**3+c**rear_power-1
     gradient=math.sqrt((2*x/(width*width))**2+(3*a*a/fd if y<ft else rear_power*c**(rear_power-1)/rd)**2)
     wall=q/max(1,gradient)
@@ -284,6 +292,9 @@ def tessellate(parent,high=False):
     step=.25 if high else 1.0
     us=sorted(set([i*step for i in range(round((width-1)/step)+1)]+[u+d for u in [(width-1)/2-10,(width-1)/2+10] for d in [-.75,-.25,.25,.75]]))
     vs=sorted(set(list(range(rows))+[j+.5 for j in range(rows-1) if high or j in [2,3,4,5,6] or j>=rows-19]))
+    if not high:
+        rear_start=len(FRONT_ROWS)+len(STATIONS)
+        vs=sorted(set(vs+[rear_start+j/4 for j in [39,41,43,45]]))
     # Keep the actual parent extrema, so regular sampling cannot miss a narrow
     # shoulder maximum or a bumper tangent and silently shrink the envelope.
     for axis in range(3):
@@ -307,6 +318,34 @@ def tessellate(parent,high=False):
     if not high:
         lamp_corner=[center+sign*(2.25+j*.25) for sign in [-1,1] for j in range(15)]
         grids=[sorted(set(columns+lamp_corner)) if 7<=v<14 else columns for v,columns in zip(vs,grids)]
+        # Place samples on each side of the actual shoulder and die-line turn.
+        # Coarse chart rows previously interpolated a sharp parent normal over
+        # a broad door chord, erasing the line in the game surface.
+        for row,v in enumerate(vs):
+            if not 11<=v<rows-9:continue
+            added=[]
+            for feature,offset in [('shoulder',-.018),('shoulder',0),('shoulder',.018),
+                                   ('lower',.010),('lower',.037),('lower',.065)]:
+                lo,hi=center+8,center+18
+                for _ in range(18):
+                    mid=(lo+hi)/2;p,_=sample(mid,v)
+                    target=(shoulder_height(p.y) if feature=='shoulder' else character_height(p.y))+offset
+                    if p.z>target:lo=mid
+                    else:hi=mid
+                u=(lo+hi)/2;p,_=sample(u,v)
+                if abs(p.y)<1.75 and p.x>.80 and center+8.01<u<center+17.99:
+                    added.extend([u,2*center-u])
+            # Replace nearby chart samples rather than adding nearly coincident
+            # sliver cells. Every replacement is sampled on the same parent.
+            grids[row]=sorted([u for u in grids[row] if not any(abs(u-q)<.14 for q in added)]+added)
+        for row,v in enumerate(vs):
+            added=[]
+            for a,c in zip(grids[row],grids[row][1:]):
+                if c-a<.40:continue
+                u=(a+c)/2;p,_=sample(u,v)
+                corner=abs(p.x)>.65 and (p.y>1.75 and p.z<.78 or p.y<-1.75 and .66<p.z<.84)
+                if corner:added.append(u)
+            grids[row]=sorted(grids[row]+added)
     vertices=[];chart=[];offsets=[]
     for v,columns in zip(vs,grids):
         offsets.append(len(vertices))
@@ -361,7 +400,7 @@ def tessellate(parent,high=False):
     return ob,uvs
 
 
-def conform_edges(bm):
+def conform_edges(bm,tolerance=5e-7):
     """Split shared edges at clipping-generated T vertices before sheet closing."""
     bm.verts.ensure_lookup_table();bm.verts.index_update();verts=list(bm.verts)
     kd=KDTree(len(verts))
@@ -369,13 +408,13 @@ def conform_edges(bm):
     kd.balance();weld={}
     for edge in list(bm.edges):
         a,c=edge.verts;delta=c.co-a.co;length=delta.length
-        if length<1e-6:continue
+        if length<2*tolerance:continue
         candidates=[]
-        for co,index,_ in kd.find_range((a.co+c.co)/2,length/2+1e-6):
+        for co,index,_ in kd.find_range((a.co+c.co)/2,length/2+2*tolerance):
             v=verts[index]
             if v==a or v==c:continue
             t=(co-a.co).dot(delta)/(length*length)
-            if 1e-5<t<1-1e-5 and (co-a.co-delta*t).length<5e-7:candidates.append((t,v))
+            if 1e-5<t<1-1e-5 and (co-a.co-delta*t).length<tolerance:candidates.append((t,v))
         # Split from the far end so the original edge's a-to-new length shrinks.
         previous=1.
         for t,v in sorted(candidates,reverse=True,key=lambda p:p[0]):
@@ -424,7 +463,7 @@ def trim_arch(ob,axle,segments):
     bm.to_mesh(ob.data);bm.free()
 
 
-def closeable_sheet(ob):
+def closeable_sheet(ob,weld=True):
     """Remove clipping crumbs and split point-touching surface fans.
 
     Two sheet regions touching at a single vertex need independent gauge rims;
@@ -432,7 +471,7 @@ def closeable_sheet(ob):
     No surface point is moved by the fan split.
     """
     bm=bmesh.new();bm.from_mesh(ob.data)
-    bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=1e-6)
+    if weld:bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=1e-6)
     bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=1e-7)
     bad=[f for f in bm.faces if f.calc_area()<1e-12]
     if bad:bmesh.ops.delete(bm,geom=bad,context='FACES')
@@ -528,7 +567,7 @@ def remove_buried_backs(ob,tree):
     bmesh.ops.delete(bm,geom=remove,context='FACES')
     # All painted parent faces are still present; only reverse-facing gauge
     # faces were eligible. No decimation or movement of the outer skin occurs.
-    if any(len(e.link_faces)>2 for e in bm.edges):raise ValueError('Non-manifold fixed stamping')
+    if any(len(e.link_faces)>2 for e in bm.edges):raise ValueError('Non-manifold fixed stamping: '+ob.name)
     bm.to_mesh(ob.data);bm.free();ob.data.update()
     ob['allow_boundary']=True
     ob['boundary_reason']='Buried reverse skin omitted; visible skin and gauge returns retained'
@@ -549,7 +588,7 @@ def build(b):
     parent_triangles=[tuple(t.vertices) for t in source.data.loop_triangles]
     parent_tree=BVHTree.FromPolygons(parent_points,parent_triangles,all_triangles=True)
     dense=source;source,parent_uvs=tessellate(dense,b.high);bpy.data.objects.remove(dense,do_unlink=True)
-    surface_map=dict(tree=parent_tree,points=parent_points,normals=parent_normals,triangles=parent_triangles,uvs=parent_uvs)
+    surface_map=dict(tree=parent_tree,points=parent_points,normals=parent_normals,triangles=parent_triangles,uvs=parent_uvs,high=b.high)
     bm=bmesh.new();bm.from_mesh(source.data)
     cuts=[S.DOOR_FRONT,S.DOOR_SPLIT,S.DOOR_REAR]
     for line in cuts:
@@ -741,6 +780,19 @@ def build(b):
         for face in ob.data.polygons:face.material_index=0
         if not b.high and ob.parent==b.root and ob.get('part_category') in ['body','fascia','pillars']:
             remove_buried_backs(ob,parent_tree)
+        if ob.name=='Rear molded fascia':
+            # Material construction boundary on the parent sheet: Corolla-like
+            # black lower center, leaving the painted upper band and corners.
+            bm=bmesh.new();bm.from_mesh(ob.data)
+            planes=[((0,0,.570),(0,0,1))]
+            for sign in [-1,1]:
+                planes += [((sign*.850,0,0),(sign,0,.35)),((sign*1.130,0,0),(sign,0,.90))]
+            for co,no in planes:
+                faces=[f for f in bm.faces if no[0]==0 or min(v.co.z for v in f.verts)<.57001]
+                verts={v for f in faces for v in f.verts};edges={e for f in faces for e in f.edges}
+                bm.verts.index_update();bm.edges.index_update()
+                bmesh.ops.bisect_plane(bm,geom=sorted(verts,key=lambda v:v.index)+sorted(edges,key=lambda e:e.index)+faces,dist=1e-8,plane_co=co,plane_no=no,clear_inner=False,clear_outer=False)
+            bm.to_mesh(ob.data);bm.free()
         G.smooth(ob,35);custom=[];inverse=ob.matrix_world.to_3x3().transposed()
         for face in ob.data.polygons:
             center=ob.matrix_world@face.center;_,n,_,_=tree.find_nearest(center)
@@ -752,6 +804,12 @@ def build(b):
                 dot=face.normal.dot(inverse@n)
                 custom.append(inverse@(n if dot>0 else -n) if distance<.010 and abs(dot)>.5 else (0,0,0))
         ob.data.normals_split_custom_set(custom)
+        if ob.name=='Rear molded fascia':
+            ob.data.materials.append(b.m['rubber'])
+            for face in ob.data.polygons:
+                p=ob.matrix_world@face.center
+                if p.z<.570 and abs(p.x)+.35*p.z<.850 and abs(p.x)+.90*p.z<1.130:
+                    face.material_index=1
 
 
 def locator_y_guess(x,z,front):
@@ -858,20 +916,19 @@ def lamp_volume(b,front,sign,material,master_tree):
 
 
 def fascia(b,front,master_tree,surface_map):
-    openings=([('Low wide grille',(0,.585),(1.18,.225),.012,.060),
+    openings=([('Low wide grille',(0,.585),(1.25,.225),.012,.070),
                ('Lower intake',(0,.300),(1.23,.120),.012,.055),
                ('Corner pocket L',(-.756,.438),(.185,.220),.018,.050),
                ('Corner pocket R',(.756,.438),(.185,.220),.018,.050)] if front else
               [('Diffuser',(0,.275),(1.43,.130),.015,.014),
-               ('Plate pocket',(0,.465),(.330,.180),.004,.025),
-               ('Liftgate garnish',(0,.950),(.675,.065),.012,.010)])
+               ('Plate pocket',(0,.465),(.330,.180),.004,.025)])
     from hatch_character import well,bars
     for name,(cx,cz),(ww,hh),radius,depth in openings:
         rows=[];nu=16 if ww>1 else 8;r=radius
         for j in range(5):
             v=j/4;zz=(v-.5)*(hh-.010);dz=max(0,abs(zz)-((hh-.010)/2-r))
             cut=r-math.sqrt(max(0,r*r-dz*dz));half=(ww-.010)/2-cut;z=cz+zz
-            if name=='Low wide grille':half-=.100*v
+            if name=='Low wide grille':half-=.035*v
             if name.startswith('Corner pocket'):
                 half*=.45+.55*(1-v);xcenter=cx+math.copysign(.030*v,cx)
             else:xcenter=cx
@@ -879,6 +936,9 @@ def fascia(b,front,master_tree,surface_map):
         backing=form_blank(name+' opening',rows,b.m['body'] if name=='Liftgate garnish' else b.m['rubber'],master_tree,front)
         b.add(backing,bpy.data.objects['Liftgate'] if name=='Liftgate garnish' else None,category='openings');ps=well(b,backing,surface_map,depth,front)
         if name in ['Low wide grille','Lower intake']:bars(b,backing,ps,front)
+        if name=='Low wide grille':
+            from hatch_character import surround
+            surround(b,backing,surface_map)
         # Broad visible beds must retain their crown. Collapsing their grids
         # into long diagonal fans made false dents under studio reflections.
         if not b.high and name not in ['Diffuser','Low wide grille','Lower intake','Plate pocket','Liftgate garnish']:
@@ -894,9 +954,12 @@ def fascia(b,front,master_tree,surface_map):
         # Plate lamp / lower reflector blanks and an inset exhaust cutout are
         # the requested rear form cues, with no optical internals or badges.
         p=master_tree.ray_cast(Vector((0,3,.560)),Vector((0,-1,0)),3)[0]
-        b.add(G.box('Plate lamp envelope',(0,p.y-.005,.555),(.065,.018,.012),b.m['glass'],.002,1),category='openings')
+        b.add(G.box('Plate lamp envelope',(0,p.y-.014,.555),(.065,.018,.012),b.m['glass'],.002,1),category='openings')
         for sign in [-1,1]:
-            rows=[[(sign*x,locator_y_guess(sign*x,z,False),z) for x in [.58,.62,.66,.70,.74]] for z in [.365,.3785,.392]]
+            rows=[]
+            for j in range(9):
+                z=.335+.200*j/8;xc=.790+.12*(.535-z)
+                rows.append([(sign*x,locator_y_guess(sign*x,z,False),z) for x in [xc-.012,xc,xc+.012]])
             ob=form_blank('Rear reflector'+str(sign),rows,b.m['glass'],master_tree,False)
             b.add(ob,category='openings');well(b,ob,surface_map,.008,False)
         rows=[[(x,locator_y_guess(x,z,False),z) for x in [-.80,-.765,-.73]] for z in [.235,.260,.285]]

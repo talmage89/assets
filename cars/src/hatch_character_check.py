@@ -10,7 +10,7 @@ from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(Path(__file__).resolve().parent)]
 import hatch_spec as S
 from hatch_check import mesh_tree,plane_cut,bounds,points
-from hatch_fairness import field
+from hatch_fairness import field,smooth_parent_field
 
 
 def main():
@@ -63,7 +63,7 @@ def main():
  # (notably the hood above the grille). Re-evaluate the uncut parent for the
  # measurement direction; the bed and mouth positions remain actual meshes.
  import hatch_body
- parent,_=hatch_body.master(2);parent_ray=field([parent])
+ parent,_=hatch_body.master(2);parent_ray=smooth_parent_field(parent)
  wells={}
  for ob in obs:
   if 'well_mouth_samples' not in ob:continue
@@ -100,7 +100,9 @@ def main():
   if not .040<=r['lower_edge_to_sill_tuck_m']<=.060:errors.append(r['name']+' sill tuck')
   if not 3<=r['just_below_shoulder_lean_degrees']<=5:errors.append(r['name']+' upper lower-door lean')
   if not 12<=r['lower_door_lean_degrees']<=20:errors.append(r['name']+' low-door lean')
-  if not 8<=r['lower_crease_normal_turn_80mm_degrees']<=15:errors.append(r['name']+' crease turn')
+  # Round three requests a visibly sharper die crease. The independent new
+  # report also measures its much narrower 30 mm turning interval.
+  if not 10<=r['lower_crease_normal_turn_80mm_degrees']<=25:errors.append(r['name']+' crease turn')
  for r in crown:
   if not .010<=r['rise_m']<=.030:errors.append('Fender crown at '+str(r['y_m']))
  if not 2.02<=span<=2.06:errors.append('Mirror span')

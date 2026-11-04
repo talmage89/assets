@@ -9,7 +9,7 @@ from pathlib import Path
 import bpy
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
-from mathutils.geometry import barycentric_transform
+from mathutils.geometry import barycentric_transform,closest_point_on_tri
 ROOT=Path(__file__).resolve().parents[2]
 sys.path[:0]=[str(ROOT),str(Path(__file__).resolve().parent)]
 
@@ -40,6 +40,35 @@ def field(obs):
         p,_,fi,_=tree.find_nearest(Vector(point));a,b,c=triangles[fi]
         return barycentric_transform(p,points[a],points[b],points[c],normals[a],normals[b],normals[c]).normalized()
     ray.nearest_normal=nearest_normal
+    return ray
+
+
+def smooth_parent_field(ob):
+    """Query the dense, smooth parent without duplicating millions of corners.
+
+    The uncut parent has vertex normals and no split gauge normals. Blender's
+    native BVH returns original polygon indices; interpolate the hit quad's
+    vertex normals, choosing its closest triangle. Game checks still use the
+    exact authored corner-normal field above.
+    """
+    bpy.context.view_layer.update();mesh=ob.data;matrix=ob.matrix_world
+    if any(len(f.vertices)!=4 for f in mesh.polygons):raise ValueError('Parent field requires the all-quad sheet')
+    mesh.calc_loop_triangles()
+    inverse=matrix.inverted();normal_matrix=matrix.to_3x3().inverted().transposed()
+    tree=BVHTree.FromObject(ob,bpy.context.evaluated_depsgraph_get(),deform=False)
+    def normal(p,fi):
+        candidates=[]
+        for tri in mesh.loop_triangles[fi*2:fi*2+2]:
+            a,b,c=[mesh.vertices[i] for i in tri.vertices];q=closest_point_on_tri(p,a.co,b.co,c.co)
+            candidates.append(((q-p).length_squared,q,a,b,c))
+        _,q,a,b,c=min(candidates,key=lambda r:r[0])
+        return (normal_matrix@barycentric_transform(q,a.co,b.co,c.co,a.normal,b.normal,c.normal)).normalized()
+    def ray(origin,direction):
+        p,_,fi,_=tree.ray_cast(inverse@Vector(origin),inverse.to_3x3()@Vector(direction),5)
+        return None if p is None else (matrix@p,normal(p,fi),ob.name)
+    def nearest(point):
+        p,_,fi,_=tree.find_nearest(inverse@Vector(point));return normal(p,fi)
+    ray.nearest_normal=nearest
     return ray
 
 
@@ -75,6 +104,10 @@ def measure(ray,name,kind,station,lo,hi,count=401):
            [dict(name='fender crown / hood draw transition',range=[-.80,-.64]),dict(name='fender crown / hood draw transition',range=[.64,.80])] if station<0 else [])
     if kind=='side' and station<-1.8:zones=[dict(name='lower fascia / intake roll',range=[.28,.39])]
     if kind=='side' and station>1.8:zones=[dict(name='bumper upper roll',range=[.69,.80]),dict(name='tail upper roll',range=[.91,1.05])]
+    if kind=='side' and min(abs(station-a) for a in [-1.255,1.395])<.20:
+        # Round three adds an intentional convex wheel crown with a concave
+        # blend below it. Keep its raw reversals visible in the report/plot.
+        zones.append(dict(name='wheel crown and lower concave blend (three Gaussian widths)',range=[h-.065-3*.045,h-.045]))
     unexplained=[t for t in crossings if not any(z['range'][0]<=t<=z['range'][1] for z in zones)]
     return dict(name=name,kind=kind,station_y_m=station,samples=samples,raw_sign_crossings=crossings,character_line_zones=zones,unexplained_sign_crossings=unexplained,
                 derivative='Centered normal-slope difference, +/-3 samples; no curve fit')
@@ -88,7 +121,7 @@ def main():
         import hatch_body
         for ob in list(bpy.context.scene.objects):bpy.data.objects.remove(ob,do_unlink=True)
         master,_=hatch_body.master(2);obs=[master]
-    ray=field(obs);sections=[]
+    ray=smooth_parent_field(master) if a.parent else field(obs);sections=[]
     for y in [-1.255,-.335,.255,.755,1.395]:sections.append(measure(ray,f'Body y={y:+.3f}', 'side',y,.26,min(1.30,.891+.012*y+.085)))
     for y in [-1.80,-1.50,-1.15]:sections.append(measure(ray,f'Hood y={y:+.2f}','top',y,-.80,.80))
     for y in [.15,.65,1.10]:sections.append(measure(ray,f'Roof y={y:+.2f}','top',y,-.55,.55))

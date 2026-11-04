@@ -47,29 +47,68 @@ def bars(b,blank,points,front):
         b.add(G.loft(blank.name+f' blade {j}',loops,b.m['bumper']),category='openings')
 
 
-def mirrors(b):
-    """Rounded wedge caps on a broad door sail; planar rear glazing.
+def surround(b,blank,surface):
+    """A proud 9 mm molding follows the actual curved opening mouth."""
+    from hatch_apertures import surface_uv
+    raw=list(blank['well_mouth_samples']);loop=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
+    if not b.high:loop=loop[::2]
+    frames=[]
+    center=sum(loop,Vector())/len(loop)
+    for i,p in enumerate(loop):
+        n=surface_uv(p,surface)[1]
+        tangent=(loop[(i+1)%len(loop)]-loop[i-1]).normalized()
+        outward=tangent.cross(n).normalized()
+        if outward.dot(p-center)<0:outward.negate()
+        section=[]
+        for w,d in [(-.001,-.003),(-.001,.0005),(.008,.0005),(.008,-.003)]:
+            q=surface['tree'].find_nearest(p+outward*w)[0]
+            section.append(q+surface_uv(q,surface)[1]*d)
+        frames.append(section)
+    frames.append(frames[0])
+    ob=G.loft('Grille proud surround',frames,b.m['bumper'],caps=False)
+    import bmesh
+    bm=bmesh.new();bm.from_mesh(ob.data)
+    bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=1e-7)
+    bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free()
+    b.add(ob,category='openings')
 
-    The front section is shallower and lower than the rear. A supported
-    trapezoidal cage retains that wedge after subdivision, avoiding oval pods.
+
+def mirrors(b):
+    """Crowned teardrop caps: continuous cubic sections, planar rear glass.
+
+    The outboard quarter rounds through a 50 mm design radius. Longitudinal
+    rings taper the molded nose into the door; there is no flat box top.
     """
+    from hatch_check import mesh_tree
+    curves=[
+      ((-.114,-.025),(-.114,.021),(-.084,.053),(-.030,.063)),
+      ((-.030,.063),(.012,.073),(.052,.068),(.077,.047)),
+      ((.077,.047),(.102,.029),(.114,.014),(.114,-.009)),
+      ((.114,-.009),(.114,-.044),(.088,-.065),(.057,-.068)),
+      ((.057,-.068),(-.008,-.068),(-.104,-.064),(-.114,-.025))]
+    outline=[]
+    for curve in curves:
+        for i in range(8 if b.high else 5):
+            t=i/(8 if b.high else 5);s=1-t
+            outline.append(tuple(s**3*curve[0][k]+3*s*s*t*curve[1][k]+3*s*t*t*curve[2][k]+t**3*curve[3][k] for k in [0,1]))
     for side,sign in [('L',-1),('R',1)]:
         parent=bpy.data.objects['Door_F'+side]
-        outline=G.fillet_polygon([(-.120,-.071),(.120,-.057),(.109,.060),(-.098,.074)],.022,3 if b.high else 2)
         loops=[]
-        for y,sx,sz,dz in [(-.682,.46,.28,-.017),(-.681,.72,.54,-.012),
-                            (-.661,.94,.85,-.004),(-.615,1,1,0),
-                            (-.559,1,1,0),(-.554,.99,.99,0)]:
-            loops.append([(sign*(.9040+x*sx),y,1.061+z*sz+dz) for x,z in outline])
+        for y,scale,shift in [(-.682,.10,-.035),(-.675,.48,-.023),
+                              (-.650,.81,-.009),(-.612,1,0),
+                              (-.559,1,0),(-.554,.985,0)]:
+            loops.append([(sign*(.90565+x*scale+shift),y,1.0628+z*scale) for x,z in outline])
         cap=G.loft('Mirror housing_'+side,loops,b.m['body'])
-        sub=cap.modifiers.new('Supported wedge cap','SUBSURF');sub.levels=2 if b.high else 1;G.apply(cap)
         G.smooth(cap,90);b.add(cap,parent,category='mirrors')
-        pane_outline=G.fillet_polygon([(-.103,-.059),(.104,-.046),(.094,.049),(-.085,.062)],.017,3)
-        pane=G.loft('Mirror pane_'+side,[[(sign*(.9040+x),y,1.061+z) for x,z in pane_outline] for y in [-.554,-.551]],b.m['glass'])
+        G.smooth(cap,90)
+        pane=G.loft('Mirror pane_'+side,[[(sign*(.90565+x*.89),y,1.0628+z*.87) for x,z in outline] for y in [-.554,-.551]],b.m['glass'])
         b.add(pane,parent,category='mirrors')
-        sail=G.profile('Mirror sail_'+side,[(-.852,.960),(-.676,.966),(-.687,1.045),(-.807,1.069)],sign*.820,sign*.858,b.m['rubber'],axis='X',radius=.005,segments=2)
+        door=mesh_tree([bpy.data.objects['Door F_'+side]])
+        sail_outline=[(-.839,.967),(-.679,.978),(-.800,1.059)]
+        roots=[door.find_nearest(Vector((sign*.85,y,z)))[0] for y,z in sail_outline]
+        sail=G.loft('Mirror sail_'+side,[[p+Vector((sign*d,0,0)) for p in roots] for d in [-.002,.009]],b.m['rubber'])
         b.add(sail,parent,category='mirrors')
-        shoe=G.profile('Mirror mounting shoe_'+side,[(-.743,.994),(-.604,1.003),(-.609,1.038),(-.711,1.043)],sign*.835,sign*.899,b.m['rubber'],axis='X',radius=.008,segments=2)
+        shoe=G.profile('Mirror mounting shoe_'+side,[(-.740,1.001),(-.612,1.009),(-.625,1.030),(-.718,1.037)],sign*.840,sign*.881,b.m['rubber'],axis='X',radius=.006,segments=2)
         b.add(shoe,parent,category='mirrors')
 
 
