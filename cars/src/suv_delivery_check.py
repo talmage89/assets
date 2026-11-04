@@ -59,6 +59,8 @@ def main():
     check('KHR_materials_clearcoat' in paint.get('extensions',{}),'Clearcoat lost')
     check('KHR_materials_transmission' in mats['Glass'].get('extensions',{}),'Transmission lost')
     normals,panels,atlas_summary=source(Path(a.finalized));tree=KDTree(len(normals))
+    for name,panel in panels.items():
+        if panel['surface_m2']>.02:check(panel['density_px_m']['50']>=100,'Painted panel underallocated: '+name)
     for i,(pos,_) in enumerate(normals):tree.insert(pos,i)
     tree.balance();angles=[];max_distance=0;bounds_points=[];worst=[]
     for node_index,node in enumerate(doc['nodes']):

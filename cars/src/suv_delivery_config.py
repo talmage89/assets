@@ -23,6 +23,7 @@ SOURCE_MATERIAL_SURFACES.update({'X220 '+n:'Lamps' for n in ['running guide','pr
 REQUIRED_NODES=['AlderX220','Door_FL','Door_FR','Door_RL','Door_RR','Hood','Liftgate','FuelDoor','Wheel_FL','Wheel_FR','Wheel_RL','Wheel_RR','Steer_FL','Steer_FR']
 UV_DEFAULT_PRIORITY=.40
 UV_PRIORITY={'Door ':2.0,'Hood outer':2.1,'Front fender':2.0,'Rear quarter':2.0,'Front fascia':2.1,'Rear bumper':2.0,'Liftgate outer':2.0,'Roof fixed':1.8,
+ 'Front molded fascia':2.1,'Rear molded fascia':2.0,'Mirror housing':1.6,'Liftgate spoiler':1.4,'Gate upper header':1.5,'Greenhouse_':1.4,'Window surround_':1.4,'Fuel flap':1.5,'Shark fin antenna':1.2,
  'Headlamp':1.2,'Taillamp':1.1,'Tire_':2.0,'Wheel ':1.1,'Cast spoke':1.5,'Rear plate face':6.0,'Front ALDER badge':6.0,'Rear ALDER badge':6.0,'X220 AWD model badge':5.0,'Alder center cap':6.0,'Front badge':2.5,'Rear badge':2.5,'Fictional plate':2.5,'Alder':2.0,
  'Lower door cladding':1.2,'Arch cladding':1.2,'Front side glazing':.85,'Rear side glazing':.85,'Backlight':.85,'Windshield':.85}
 UV_SMART_ANGLE=66
