@@ -58,3 +58,36 @@ no-load/full-load clearance. The LX photograph's 225/50R17 differs from our chos
 235/45R18 package; its diameter is similar but wheel style is not copied.
 
 Ford Motor Company [MY2020 Mondeo brochure](https://www.ford.ie/content/dam/guxeu/uk/documents/feature-pdfs/FT-Mondeo.pdf), copyrighted manufacturer literature, reference only. Web-viewed 2026-10-31; direct local retrieval timed out, so it is not a build dependency. Dimensions table: 2121 mm including mirrors versus 1852 mm body. Class cross-check for original 2110 mm S240 mirror span; housing dimensions remain original construction estimates.
+
+
+# H120 hatchback reference register — accessed 2026-11-03
+
+Reference only; images are never loaded by the model or used as asset textures.
+
+| Local file | Direct image/PDF URL | Author / license / use |
+| --- | --- | --- |
+| hatch-corolla-front.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019TOC330001.jpg&width=1600 | CarsDirect / Autodata; copyrighted stock photograph, reference-only; MY2019 Toyota Corolla Hatchback SE, front. Profile/three-quarter/rear width measurements and external comparisons; no photographic pixels enter geometry. |
+| hatch-corolla-rear.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019TOC330002.jpg&width=1600 | CarsDirect / Autodata; copyrighted stock photograph, reference-only; MY2019 Toyota Corolla Hatchback SE, rear. Profile/three-quarter/rear width measurements and external comparisons; no photographic pixels enter geometry. |
+| hatch-corolla-side.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019TOC330003.jpg&width=1600 | CarsDirect / Autodata; copyrighted stock photograph, reference-only; MY2019 Toyota Corolla Hatchback SE, side. Profile/three-quarter/rear width measurements and external comparisons; no photographic pixels enter geometry. |
+| hatch-corolla-back.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019TOC330005.jpg&width=1600 | CarsDirect / Autodata; copyrighted stock photograph, reference-only; MY2019 Toyota Corolla Hatchback SE, back. Profile/three-quarter/rear width measurements and external comparisons; no photographic pixels enter geometry. |
+| hatch-hyundai-front.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019HYC170018.jpg&width=1600 | CarsDirect / Autodata; copyrighted stock photograph, reference-only; MY2019 Hyundai Elantra GT Base, front. Profile/three-quarter/rear width measurements and external comparisons; no photographic pixels enter geometry. |
+| hatch-hyundai-rear.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019HYC170021.jpg&width=1600 | CarsDirect / Autodata; copyrighted stock photograph, reference-only; MY2019 Hyundai Elantra GT Base, rear. Profile/three-quarter/rear width measurements and external comparisons; no photographic pixels enter geometry. |
+| hatch-hyundai-side.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019HYC170022.jpg&width=1600 | CarsDirect / Autodata; copyrighted stock photograph, reference-only; MY2019 Hyundai Elantra GT Base, side. Profile/three-quarter/rear width measurements and external comparisons; no photographic pixels enter geometry. |
+| hatch-hyundai-back.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019HYC170027.jpg&width=1600 | CarsDirect / Autodata; copyrighted stock photograph, reference-only; MY2019 Hyundai Elantra GT Base, back. Profile/three-quarter/rear width measurements and external comparisons; no photographic pixels enter geometry. |
+| hatch-corolla-specs.pdf | https://newsroom.toyota.eu/download/647310/2019-toyota-corolla-dpl-en-983710.pdf | Toyota Motor Europe; copyrighted manufacturer MY2019 Corolla launch press kit, p50, hatchback column: dimensions, tracks, overhangs, ground clearance and tire sizes. |
+| hatch-hyundai-specs.pdf | https://www.hyundai.news/newsroom/dam/uk/press-kits/20181001_i30/hyundai_i30_fivedoor_and_tourer_press_kit_november2018_technical_specifications.pdf | Hyundai Motor UK; copyrighted November 2018 i30 five-door/Tourer technical specifications, hatchback columns: dimensions, mirrors, tracks and tires. |
+| hatch-hyundai-au.pdf | https://www.hyundai.com/content/dam/hyundai/au/en/models/i30/docs/Hyundai_i30_Hatch_Specifications.pdf | Hyundai Motor Australia; copyrighted 2021 same-generation i30 hatch specification, cross-check only: 140 mm kerb clearance and wheel sizes; not relabeled as MY2019. |
+
+Photo source galleries: https://www.carsdirect.com/toyota/corolla-hatchback/2019/pictures and https://www.carsdirect.com/hyundai/elantra-gt/2019/pictures . Neutral white backdrops provide the comparison white balance. Stock profile views retain small perspective; the wheel centers alone register overlays.
+
+### hatch-hyundai-drawing.pdf
+- URL: https://www.hyundai.com/content/dam/hyundai/ma/fr/data/marketing/brochure/product/i30/hyundai-ft-new-i30-juillet2018-4f.pdf
+- Author: Hyundai Motor Company, Morocco, July 2018
+- License: Manufacturer copyright; reference only, not redistributed.
+- Used for: Wheelbase-registered side elevation; viewing and measurement only.
+
+### hatch-corolla-drawing.pdf
+- URL: https://www.toyotaalbania.al/content/modelspdfs/535-corolla-hatchback-2019-al-2.pdf?t=1741271340
+- Author: Toyota Motor Europe / Toyota Albania, Corolla 2019 brochure
+- License: Manufacturer copyright; reference only, not redistributed.
+- Used for: Wheelbase-registered side elevation; viewing and measurement only.
