@@ -1,5 +1,18 @@
 """Read-only accepted type context, with source fallback on a cold clone."""
 from pathlib import Path
+
+
+def cape_control(seed=34):
+    """Retained finish witness; rebuild source only on a fresh checkout."""
+    accepted=Path(f'build/cape/house-{seed}.blend')
+    if accepted.exists():return accepted
+    import bpy
+    from build import build,save
+    from plan import generate
+    from cape_lookdev import prepare
+    folder=Path('build/split/controls');folder.mkdir(parents=True,exist_ok=True)
+    bpy.ops.wm.read_factory_settings(use_empty=True);form=folder/f'cape-form-{seed}.blend';save(build(generate(seed,house_type='cape')),form)
+    prepare(form,accepted);return accepted
 import bpy
 from build import build,save
 from plan import generate

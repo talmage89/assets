@@ -280,7 +280,7 @@ def sectional(b,ob,o):
         # Sectional leaves run behind the masonry/frame, not within its
         # thickness. A 180 mm recess clears the solid header on lift.
         me.transform(Matrix.Translation((0,.18,0)))
-        if b.plan['seed']%6==0 and row==0:
+        if b.plan['spec']['garage']['condition']=='dented' and row==0:
             # A shallow parking impact in an old lower steel section. The
             # stamped profile survives; no isolated damage box or decal.
             center=xf((o['u']+.30,-.201,o['z']+.30))
