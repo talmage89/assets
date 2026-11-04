@@ -642,6 +642,9 @@ def services(b):
 
 
 def build(plan):
+    if plan['spec']['type']=='split':
+        from split_build import build as split_build
+        return split_build(plan)
     if plan['spec']['type']=='cape':
         from cape_build import build as cape_build
         return cape_build(plan)
@@ -691,7 +694,7 @@ def save(b,out,export=True):
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--seed',type=int,default=27);p.add_argument('--plan',type=Path);p.add_argument('--type',choices=('builder_colonial','ranch','cape'))
+    p=argparse.ArgumentParser();p.add_argument('--seed',type=int,default=27);p.add_argument('--plan',type=Path);p.add_argument('--type',choices=('builder_colonial','ranch','cape','split'))
     p.add_argument('--out',type=Path,default=Path('build/house.blend'));p.add_argument('--no-export',action='store_true')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);bpy.ops.wm.read_factory_settings(use_empty=True)
     save(build(load(a.seed,a.plan,a.type)),a.out,not a.no_export)

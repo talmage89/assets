@@ -8,6 +8,9 @@ FRAME_FACE=-.0254
 
 def brick_extent(b,o):
  block=next(v for v in b.plan['blocks'] if v.name==o['block'])
+ if b.plan['spec']['type']=='split':
+  from split_build import veneer_top
+  return veneer_top(b.plan,block,o['face'])
  if b.plan['spec']['cladding'][block.name][o['face']]!='veneer':return None
  return block.floor+1.016-.07 if b.plan['spec']['wall_mix']=='wainscot' else block.plate-.03
 

@@ -1,5 +1,5 @@
 TYPE ?= builder_colonial
-ifeq ($(filter ranch cape,$(TYPE)),)
+ifeq ($(filter ranch cape split,$(TYPE)),)
 # Seeded family delivery, with retained construction/source checkpoint targets.
 SAMPLES ?= 64
 SEED ?= 27
@@ -139,3 +139,4 @@ endif
 include src/ranch_rules.mk
 
 include src/cape_rules.mk
+include src/split_rules.mk

@@ -421,3 +421,125 @@ multiplying the accepted blue seed cannot correctly recover white chalk. It
 shares all eleven image URIs and does not change any of the six main palettes.
 No curled roof tabs ship; the authorized alternative retains granule loss,
 algae runoff and shaded moss without isolated block-like tab geometry.
+
+
+---
+
+## Split-level: period research and source checkpoint
+
+The [PHMC split-level field guide](https://www.phmc.state.pa.us/portal/communities/pa-suburbs/field-guide/split-level.html)
+identifies low roofs, asymmetry, picture glazing and integrated parking. It
+distinguishes the three activity levels and includes the brick-lower / wood-
+or-aluminum-upper raised ranch. The [New Jersey Historical Society's
+architectural collection context](https://jerseyhistory.org/guide-to-the-carl-f-saalbach-collection1954-2006bulk-dates-1954-1994mg-1679/)
+explains half-story staggering and half flights, versus a bi-level entry on a
+landing between full floors. Its plans were not loaded, traced or reproduced.
+
+National Plan Service's 1961 *Multi-level Homes* catalog, archived by Washington
+DAHP, supplies period combinations of quiet/sleeping/recreation wings, short
+flights, attached/integral parking, picture windows, brick/stone/wood and
+plywood. Houser's June 2014 Washington survey presentation shows both forms
+with period attributions, vertical boards, replacement lap and broad boxed
+cornices. The Wisconsin municipal survey independently dates examples to
+1959 and 1963; its autumn photographs are supplemental. Regional summer
+references comprise a dated July 1964 Illinois street, a dated July 2024
+Connecticut raised ranch, and leaf-on summer-condition Pennsylvania and
+Washington examples with unverified capture dates. The Connecticut attribution
+is 1979, so it documents later survival/updates rather than proving a 1955–75
+construction date. No private-home caption or location identifier is copied
+into tracked files. Direct image/PDF URLs, authors, rights and specific uses
+are in [refs/SOURCES.md](refs/SOURCES.md).
+
+USDA Handbook 73 (1955), printed pp. 149–155, supplies stair terminology and
+riser/tread relationships, including the principal-stair preference around
+7–7½ in and a 10 in tread with 7½ in rise. Its preferred 8 ft clear ceiling,
+frame floor zone, closed cornice, sash and foundation details are reused with
+the existing family construction. The seed flights are derived from the
+actual authored floor offsets: seven risers on side splits, six up/eight down
+on the proof split entry. The short-flight risers are approximately 7.43–7.71
+in; their equal 10 in treads give a 5 ft run on the seven-riser flight. Those
+are authored choices within the family's sanity limits, not surveyed stairs
+or a claim of permit compliance.
+
+| Authored split parameter | Bounds / construction |
+| --- | --- |
+| Living wing | 24–32 × 24–32 ft; proof widths 26–30 ft |
+| Two-story wing | 20–26 × 24–32 ft; left/right; front projection 0–2 ft |
+| Living floor | 1–3 ft above grade; proofs 18 or 30 in |
+| Lower / upper floors | One half story below/above living; full story = 8 ft clear + 8–12 in framing |
+| Split foyer | Single 40–48 ft box; proof 46 × 28 ft; unchanged datums upper 1.3208 m, lower −1.3716 m, entry .1524 m; local grade −.1524 m |
+| Stair reservation | .9144 m clear width and landing; 10 in treads; derived equal rises ≤7¾ in |
+| Roof | Separate gable/hip envelopes, 3:12–5:12, parallel/perpendicular side-split ridges; high wing eave 1.32–1.37 m above living eave |
+| Eave / rake | Independent 12–24 / 6–18 in controls; boxed soffit, vents, fascia, drip hems and supported gutters |
+| Upper cantilever | 0–12 in front setback of the lower wall; proof setbacks 0/6/8/10 in; closed underside, material break and sloped veneer cap |
+| Picture / bay | 9 × 4½ ft opening; fixed center/flanking operable sashes; bay projects 16 in with angled sash, 45 mm seat, bolted triangular steel knees, stepped brick corbels and folded hood |
+| Upper bedroom units | 48 × 40 in sliders or 1-over-1 hung units; foyer 32 × 48 in hung units |
+| Lower daylight units | side-split 48–60 × 24–28 in sliders with wells where needed; foyer full 36 in sashes with 6 in sill clearance |
+| Entry / rear leaves | Existing 36 × 80 / 34 × 80 in assemblies; real hinges and hardware |
+| Stoop | Existing equal-rise concrete construction; landing 10 mm below threshold top; optional iron rail |
+| Garage door | Existing 9 or 16 × 7 ft stamped construction divided into four articulated sections, behind the jamb; 200 mm guide radius |
+| Drive | Every seed has an original concrete drive; integral garages have falling drives, level aprons and retaining cheeks |
+| Walls | Existing period brick and wood/aluminum/vinyl lap; vertical painted battens reuse trim. Original fieldstone on 52 adds a 512² color/normal pair; no plywood set. |
+
+Dimensions above are authored from the brief and period construction modules.
+The photographs establish type and proportions; they do not establish a
+surveyed roof pitch, eave depth, window size or exact veneer height. The
+literal floor/ceiling/framing relation is maintained rather than selecting
+incompatible offsets independently. A shallow entry backing and short flights
+explain the door; the house remains an exterior shell, without full interiors.
+
+Roof clipping retains the lower roof under the high eave up to the actual
+wall, with step flashing at that wall. Additional rays isolate that lower roof
+so the top-down maximum-envelope check cannot hide an open wedge. A high
+inward eave sheds onto the lower roof rather than sending a pipe through an
+occupied wing. Where the upper floor projects, the front downspout dogleg
+returns to the recessed lower wall and its straps.
+
+The original western PDF form pairs are retired. The former foyer candidate
+was a contemporary with a raised lower floor; two PHMC broadly labeled
+“split entry” candidates also place the door on the lower floor. Neither
+substitutes for a between-floor landing. The western vertical-redwood photo
+remains a material reference only.
+
+Four current native-image comparisons use true types, direct image URLs and
+generic regional captions in `refs/SOURCES.md`. White-balance gains preserve
+exposure; original and neutral-corrected hashes/ROIs are in
+`build/split/pair-references.json`. Facade structure calibrates the camera;
+held-out incompatible features remain visible in `build/split/photo-audit.json`.
+
+| Pair | Seed | Corresponding-feature RMS, native px | Held-out RMS, px | Photographic roof/eave recovery |
+| --- | ---: | ---: | ---: | --- |
+| Pennsylvania builder side | 53 | 8.457 | 60.51 | Approx. 3.64:12 from ridge ray and assumed box/story scale; eave depth unidentifiable |
+| Ohio builder side | 51 | 6.511 | 41.10 | Approx. 5.39:12; bearing eave approx. 24.5 ±4 in from two transverse gable endpoints |
+| Pennsylvania true foyer | 55 | 3.630 | 12.51 | Main ridge hidden; added cross-gable 5.45/6.88:12 from two slopes, not our main roof |
+| Ohio true foyer | 55 | 9.292 | 44.22 | Main ridge hidden behind the front eave; neither pitch nor physical soffit depth recoverable |
+
+Pitch recovery intersects photographic rays with stated facade/ridge planes;
+it assumes our story/box scale. It is not an independent survey. Only the
+Ohio side view clearly exposes transverse endpoints for eave recovery. The
+other visible 3–8 px bands combine fascia thickness, cantilever and foreshortened
+soffit. Converting them directly to inches produced unstable/nonphysical
+answers and is rejected. Physical depth remains unresolved for those three
+photos. The original plans' protected living widths, parking choices and
+window/entry positions explain held-out mismatch; no camera can remove it.
+Resizing the comparisons to 1100 px gives camera RMS values
+12.74 / 10.77 / 6.65 / 14.60 px. Thus not all views meet ten pixels at that
+normalized display size. All projected landmarks independently agree with
+Blender within .001 native pixel. The tighter camera residual is not a whole-house similarity score.
+
+Proof roofs now use 5/4/3.5/4/3.5/4:12, bearing eaves 24/24/24/22/20/22 in
+and rakes 16/16/18/16/14/18 in. These are authored choices guided by the
+measurable pairs and the period ranges, not six measured houses. Lowering
+53's roof from 6:12 to 3.5:12 removes the nearly wall-height attic mass.
+
+Material measurement uses fixed used-house ROIs after linear-RGB neutral
+balance, with exposure preserved. Most neutrals are white sash/entry casing;
+56's tan brick and the drive instead use sunlit unpainted concrete, assumed
+neutral gray. A cream soffit and shaded car plate were rejected. Blue lap
+calibrates painted appearance but its substrate is unverified. Vertical red
+boards use the retired western photo for material only. Aluminum white-paint
+and clear glass retain explicit Cape source controls; blue aluminum is also
+measured on 53. All other rows use actual split source geometry/palettes,
+independent first-hit material masks, stated physical spans and disclosed
+lighting. Median tolerance is 10%, p10/p90 15%, hue ratios 10%. These are
+rendered-appearance checks, not measured paint albedos or bake-loss proof.

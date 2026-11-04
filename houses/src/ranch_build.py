@@ -93,7 +93,8 @@ def window(b,o):
   box(u,.10,z+h+.062,w+.15,.10,.009,(.35,.35,.31),0)
  elif masonry_top<z+h:me.box((u,.047,z+h+.026),(w+.108,.052,.052),'Trim',c,.0015,xf)
  # One opening, no false casings between the picture unit's three lights.
- panels=[(u-w*.355,w*.27,True),(u,w*.44,False),(u+w*.355,w*.27,True)] if picture else [(u,w,True)]
+ slider=b.plan['spec']['type']=='split' and o.get('style')=='slider'
+ panels=[(u-w*.355,w*.27,True),(u,w*.44,False),(u+w*.355,w*.27,True)] if picture else ([(u-w/4,w/2,False),(u+w/4,w/2,False)] if slider else [(u,w,o.get('style')!='fixed')])
  for pi,(x,pw,operable) in enumerate(panels):
   inner=pw-.06
   for sign in (-1,1):box(x+sign*(pw/2-.022),.055,z+h/2,.044,.045,h-.02)
@@ -249,10 +250,13 @@ def chimney(b):
  me.finish()
 
 
-def services(b):
+def services(b,ground=0.0):
  s=b.plan['spec'];m,g=b.plan['blocks'];me=b.mesh('Services',component='services')
  xf,n,l=b.frame(m,'front');fixture(me,xf,b.plan['door_x']-m.x0+.64,m.floor+1.83)
  xf,n,l=b.frame(m,'back');metal=(.27,.29,.26)
+ if ground:
+  previous=xf
+  xf=lambda p:previous((p[0],p[1],p[2]+ground))
  # Utility pier occupies the interval between kitchen and slider, never a pane.
  u=l*.29;me.box((u,.14,1.25),(.26,.13,.45),color=metal,r=.009,xf=xf)
  p=xf((u,.205,1.36));normal=Vector((*n,0));me.tube([p,p+normal*.07],.094,color=metal,sides=20)
@@ -283,7 +287,9 @@ def services(b):
   ac.box((x+off,y,.895),(.012,ln,.012),color=(.29,.31,.26),r=0)
  ac.tube([(x-.32,y-.29,.35),(x-.46,y-.33,.30),(x-.48,m.y1+.32,.22),(x-.45,m.y1+.14,.29),(x-.45,m.y1+.09,.50)],.027,color=(.035,.038,.03),sides=10)
  ac.tube([(x-.28,y-.30,.31),(x-.40,y-.39,.26),(x-.41,m.y1+.12,.19),(x-.36,m.y1+.085,.45)],.009,color=(.28,.13,.046),sides=8)
- ac.finish()
+ ac_object=ac.finish()
+ if ground:
+  for v in ac_object.data.vertices:v.co.z+=ground
  if s['aerial']:
   aerial=b.mesh('Legacy_'+s['aerial'],component='aerial');x=m.cx+1.;y=m.cy+1.4;z=m.height(x,y)
   aerial.tube([(x,y,z),(x,y,z+1.40)],.019,color=(.24,.26,.23),sides=10)

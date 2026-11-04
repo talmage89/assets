@@ -63,7 +63,7 @@ def reuse(seeds):
 def textures():
  rows=[]
  for path in sorted(Path('export/textures').glob('*.png')):
-  if path.name.startswith('T_Cape'):continue
+  if path.name.startswith(('T_Cape','T_Split')):continue
   a=read_png(path);assert np.isfinite(a).all();n=a.shape[0];assert a.shape==(n,n,3)
   if '_Normal' in path.name:assert float(abs(np.linalg.norm(a*2-1,axis=2)-1).max())<.008
   loss=None
