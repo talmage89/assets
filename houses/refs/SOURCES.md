@@ -212,3 +212,5 @@ on their lower floor. The two previously registered PHMC entry photographs
 are retained for materials and context, not used as true split-foyer camera
 pairs in the revised gate. The new Pennsylvania and Ohio foyer photographs
 have doors crossing the upper/lower material line and lower full sashes.
+
+| `split-used-battens-commons.jpg` | https://upload.wikimedia.org/wikipedia/commons/9/90/RANCHHOUSE8.JPG | Mcheath; public domain | Supplemental used 1960s ranch: original vertical board/batten seams, window casing and broad closed eave. Not used as a split-foyer or color measurement; cream paint is not assumed white. |

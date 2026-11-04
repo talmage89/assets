@@ -19,7 +19,7 @@ PHOTOS={
 
 
 def prepare():
-    fetch('refs',[v['file'] for v in PHOTOS.values()]+['split-pa-builder-c.jpg','split-pa-builder-d.jpg','split-used-bay.jpg','split-visions.pdf','split-oh-side-c.jpg','split-builder-used-oh.jpg'])
+    fetch('refs',[v['file'] for v in PHOTOS.values()]+['split-pa-builder-c.jpg','split-pa-builder-d.jpg','split-used-bay.jpg','split-visions.pdf','split-oh-side-c.jpg','split-builder-used-oh.jpg','split-used-battens-commons.jpg'])
     rows={}
     for name,s in PHOTOS.items():
         p=Path('refs')/s['file'];im=ImageOps.exif_transpose(Image.open(p)).convert('RGB');a=srgb_to_linear(np.asarray(im)/255)
