@@ -22,6 +22,8 @@ def build(source,out,wear=.65):
  joints(b)
  from suv_construction import fit
  fit(b)
+ from suv_glazing import build as fair_glazing
+ fair_glazing(b.high)
  if not b.high:
   from suv_allocation import remove_hidden_backs,simplify_glazing,simplify_moldings
   sc['concealed_back_allocation']=json.dumps(remove_hidden_backs())

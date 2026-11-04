@@ -44,7 +44,7 @@ def remove_hidden_backs():
   if ob.type!='MESH':continue
   # Optical laminates need their real exit surface. Face provenance is now
   # present on lamp covers too; it is not permission to remove their backs.
-  if ob.name.startswith(('Headlamp opening','Taillamp opening')):continue
+  if ob.get('part_category')=='glass' or ob.name.startswith(('Headlamp opening','Taillamp opening')):continue
   if ob.parent.name!='AlderX220' and ob.get('part_category')!='doors' and ob.name!='Liftgate outer':continue
   mesh=ob.data;role=mesh.attributes.get('skin_face_role')
   if role is None:continue
@@ -83,6 +83,9 @@ def simplify_glazing():
  report={}
  for ob in bpy.context.scene.objects:
   if ob.type!='MESH' or ob.get('part_category')!='glass':continue
+  if ob.get('optical_patch'):
+   report[ob.name]=dict(accepted=False,reason='Authored optical collar and chart allocation retained; no fan-producing edge dissolution')
+   continue
   old=ob.data;old.calc_loop_triangles();before=len(old.loop_triangles)
   ps=[v.co.copy() for v in old.vertices];ts=[tuple(t.vertices) for t in old.loop_triangles]
   ns=[old.corner_normals[li].vector.copy() for t in old.loop_triangles for li in t.loops]

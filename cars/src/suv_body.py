@@ -384,9 +384,23 @@ def tessellate(parent,high=False):
             # Refine the actual lower rear plan turn in BOTH chart directions.
             # Adjacent polygons share inserted midpoints, so there are no T cracks.
             selected=set();edges={}
+            # The silhouette can be accurate while an under-sampled draw bank
+            # kinks a broad softbox. Spend samples by parent-normal interpolation
+            # error, keeping the accepted parent and every design line intact.
+            hood=[]
+            def chart_normal(u,v):
+                hit,_,fi,_=tree.find_nearest(Vector((u,v,0)));a,c,d=ts[fi]
+                return barycentric_transform(hit,uvs[a],uvs[c],uvs[d],mesh.vertices[a].normal,mesh.vertices[c].normal,mesh.vertices[d].normal).normalized()
             for fi,face in enumerate(faces):
                 p=sum((vertices[i] for i in face),Vector())/len(face)
-                if len(face)==4 and ((1.80<p.y<2.20 and .60<p.z<.82 and .65<abs(p.x)<.85) or (p.y>2.05 and .76<p.z<1.10 and abs(p.x)<.55) or (-1.16<p.y<-.96 and 1.0<p.z<1.15 and .74<abs(p.x)<.88)):
+                if len(face)!=4 or not(-2.10<p.y<-1.23 and p.z>.94 and abs(p.x)<.74):continue
+                u=sum(chart[i][0] for i in face)/4;v=sum(chart[i][1] for i in face)/4
+                interpolated=sum((chart_normal(*chart[i]) for i in face),Vector()).normalized()
+                hood.append((chart_normal(u,v).angle(interpolated),fi))
+            hood_refine={fi for _,fi in sorted(hood,reverse=True)[:20]}
+            for fi,face in enumerate(faces):
+                p=sum((vertices[i] for i in face),Vector())/len(face)
+                if len(face)==4 and (fi in hood_refine or (1.80<p.y<2.20 and .60<p.z<.82 and .65<abs(p.x)<.85) or (p.y>2.05 and .76<p.z<1.10 and abs(p.x)<.55) or (-1.16<p.y<-.96 and 1.0<p.z<1.15 and .74<abs(p.x)<.88)):
                     selected.add(fi)
                     for a,b in zip(face,face[1:]+face[:1]):edges[tuple(sorted((a,b)))]=None
             for edge in edges:
@@ -788,8 +802,10 @@ def build(b):
         material=next((m for m in ob.data.materials if m),None)
         if material is None:raise ValueError(('Missing form material',ob.name,len(ob.data.vertices),len(ob.data.polygons)))
         if ob.get('skin_face_provenance'):
-            role=ob.data.attributes.get('skin_face_role') or ob.data.attributes.new(name='skin_face_role',type='INT',domain='FACE')
-            for face in ob.data.polygons:role.data[face.index].value=face.material_index
+            role=ob.data.attributes.get('skin_face_role')
+            if role is None:
+                role=ob.data.attributes.new(name='skin_face_role',type='INT',domain='FACE')
+                for face in ob.data.polygons:role.data[face.index].value=face.material_index
         ob.data.materials.clear();ob.data.materials.append(material)
         for face in ob.data.polygons:face.material_index=0
 

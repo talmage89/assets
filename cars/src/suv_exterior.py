@@ -63,6 +63,15 @@ def fuel_pocket(b,side):
  parent=pivot(b,'FuelDoor',side(-1,y-.079,z,-.004),axis='Z',limits=(0,85))
  flap_outline=G.rounded_rectangle(.155,.155,.024,3 if b.high else 1)
  flap=b.add(G.loft('Fuel flap',[[side(-1,y+u,z+v,off) for u,v in flap_outline] for off in [.002,.004]],b.m['body']),parent,'trim')
+ if field:
+  # A non-planar n-gon cap otherwise shades as a fan of flat triangles. Carry
+  # the actual quarter's smooth field across this small formed outer cap.
+  from suv_surface_normals import capture
+  me=flap.data;roles=me.attributes.new('skin_face_role','INT','FACE')
+  for face in me.polygons:
+   n=flap.matrix_world.to_3x3()@face.normal
+   roles.data[face.index].value=0 if n.x<-.5 else 1 if n.x>.5 else 2
+  capture(flap,dict(tree=original,points=points,triangles=triangles,normals=field))
  bpy.context.view_layer.update();ps=[flap.matrix_world@v.co for v in flap.data.vertices]
  front=min(p.y for p in ps);ends=[p for p in ps if p.y<front+1e-5]
  top=max(ends,key=lambda p:p.z);bottom=min(ends,key=lambda p:p.z)
