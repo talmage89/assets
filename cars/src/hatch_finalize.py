@@ -51,14 +51,18 @@ def main():
             ob.data.calc_loop_triangles();layer=ob.data.uv_layers['BakeUV']
             for tri in ob.data.loop_triangles:
                 coords=[layer.data[i].uv.copy() for i in tri.loops]
-                if abs(uv.signed_area(coords))>=1e-13:continue
+                longest=max((coords[(i+1)%3]-coords[i]).length for i in range(3))
+                altitude=2*abs(uv.signed_area(coords))/max(longest,1e-15)
+                # glTF stores float32 UVs and flips V. A merely nonzero
+                # sliver can collapse in that subtraction on re-import.
+                if altitude>=5e-7:continue
                 ps=[ob.matrix_world@ob.data.vertices[i].co for i in tri.vertices]
                 lengths=[(ps[(i+1)%3]-ps[i]).length for i in range(3)];k=max(range(3),key=lambda i:lengths[i])
                 order=[k,(k+1)%3,(k+2)%3];a0,b0,c0=[ps[i] for i in order];edge=b0-a0;length=edge.length
                 x=(c0-a0).dot(edge)/length;alt=(c0-a0).cross(edge).length/length;scale=.12
                 center=sum(coords,Vector((0,0)))/3
                 for index,q in zip(order,[(0,0),(length*scale,0),(x*scale,max(alt*scale,2e-6))]):layer.data[tri.loops[index]].uv=center+Vector(q)
-                repairs.append(dict(iteration=iteration,mesh=ob.name,triangle=tri.index,reason='Representable UV altitude for a subtexel sliver'))
+                repairs.append(dict(iteration=iteration,mesh=ob.name,triangle=tri.index,reason='Float32-safe UV altitude for a subtexel sliver',uv_altitude_before=altitude))
         report=uv.report(obs,a.size)
         if not report['overlap_pairs']:break
         triangles=[]
