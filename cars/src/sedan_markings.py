@@ -10,6 +10,20 @@ def build(out):
     out=Path(out);out.mkdir(parents=True,exist_ok=True)
     image=Image.new('RGB',(512,128),(12,14,16));d=ImageDraw.Draw(image);f=ImageFont.truetype(FONT,76)
     text='S240';bb=d.textbbox((0,0),text,font=f);d.text(((512-bb[2])/2,(128-bb[3]-bb[1])/2),text,font=f,fill=(185,193,195));image.save(out/'model.png')
+    # Dealer promotional insert, no jurisdiction, registration or serial.
+    image=Image.new('RGB',(1024,512),(15,18,20));d=ImageDraw.Draw(image)
+    d.rounded_rectangle((8,8,1015,503),radius=25,outline=(52,58,59),width=10)
+    d.rounded_rectangle((33,50,990,433),radius=9,fill=(215,211,193))
+    def centered(text,y,size,color):
+        f=ImageFont.truetype(FONT,size);bb=d.textbbox((0,0),text,font=f)
+        d.text(((1024-bb[2])/2,y),text,font=f,fill=color)
+    centered('ALDER',102,122,(23,36,40))
+    d.line((190,267,834,267),fill=(120,101,64),width=5)
+    centered('WILLOW MOTOR CO.',300,52,(34,43,43))
+    centered('ALDER AUTHORIZED RETAILER',451,26,(175,182,177))
+    for x in [95,929]:
+        for y in [28,479]:d.ellipse((x-7,y-7,x+7,y+7),fill=(87,91,89))
+    image.save(out/'dealer.png')
     image=Image.new('L',(1024,1024),0)
     for text,r,start,end,size in [('ALDER TOURING',352,-62,62,40),('235/45 R18',352,142,218,30)]:
         f=ImageFont.truetype(FONT,size)

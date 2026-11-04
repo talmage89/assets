@@ -5,6 +5,6 @@ _family=runpy.run_path(str(Path(__file__).with_name("pickup_spec.py")))
 FAMILY_COLORS=_family["COLORS"];FAMILY_METAL=_family["PAINT_METAL"]
 COLORS=dict(FAMILY_COLORS)
 PAINT_METAL=dict(FAMILY_METAL)
-# Original cool graphite factory option; no photograph is a material input.
-COLORS['Graphite']=(.120,.130,.145)
+# Neutral graphite corrected in matched sunlight; no photo enters materials.
+COLORS['Graphite']=(.130,.125,.126)
 PAINT_METAL['Graphite']=.55

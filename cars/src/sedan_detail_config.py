@@ -15,6 +15,7 @@ BOUNDS={'Sedan':dict(size=(2.105,4.885,1.482),tolerance=(.006,.010,.003))}
 DELIVERY_BOUNDS=BOUNDS['Sedan']
 SOURCE_MATERIAL_SURFACES.update({
  'S240 cast alloy':'Opaque',
+ 'S240 dealer insert':'Opaque','S240 grille lattice':'Opaque','S240 gloss black grille':'Opaque',
  'S240 original model':'Opaque',
  'S240 red lamp cover':'Glass',
  'S240 windshield':'Glass','S240 front door glass':'Glass','S240 rear door glass':'Glass','S240 backlight':'Glass',
@@ -68,3 +69,5 @@ UV_PRIORITY['S240 lower light']=2.5
 UV_PRIORITY_ATTRIBUTE='S240UVWeight'
 UV_PRIORITY['Alder center cap']=3.0
 UV_PRIORITY['Tire_']=1.6
+
+UV_PRIORITY['Plate blank']=3.0

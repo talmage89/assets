@@ -119,8 +119,8 @@ def optics(b):
         if ob.name.startswith('Mirror pane_'):
             ob.data.materials.clear();ob.data.materials.append(b.m['mirror'])
         if ob.name.startswith('Mirror housing_'):G.smooth(ob,70)
-        if 'blade' in ob.name and ob.name.startswith('Low wide grille'):
-            ob.data.materials.clear();ob.data.materials.append(b.m['dark_chrome'])
+        if 'cascade vane' in ob.name and ob.name.startswith('Low wide grille'):
+            ob.data.materials.clear();ob.data.materials.append(b.m['grille_bar'])
     grille=bpy.data.objects['Low wide grille opening'];grille.data.materials.clear();grille.data.materials.append(b.m['grille'])
     uv=grille.data.uv_layers.new(name='Original grille relief')
     for f in grille.data.polygons:
@@ -217,7 +217,16 @@ def trim(b):
     for z,w,length,yshift in [(0,.050,.14,0),(.012,.046,.13,.005),(.057,.008,.045,.015)]:
         rings.append([(p.x+u,p.y+v+yshift,p.z+z) for u,v in G.rounded_rectangle(w,length,min(w*.4,.015),2)])
     b.add(G.smooth(G.loft('S240 shark fin',rings,b.m['body'])),category='trim')
-    # A fictional family badge in the recessed upper grille; plate stays blank.
+    # The existing stamped plate carries a fictional dealer insert and frame
+    # relief in the atlas. Keep its physical size, fasteners and lid ownership.
+    plate=bpy.data.objects['Plate blank 12x6 inch']
+    plate.data.materials.clear();plate.data.materials.append(b.m['dealer'])
+    uv=plate.data.uv_layers.new(name='Original dealer insert')
+    for face in plate.data.polygons:
+        for li in face.loop_indices:
+            p=plate.data.vertices[plate.data.loops[li].vertex_index].co
+            uv.data[li].uv=(.5-p.x/.3048,p.z/.1524+.5)
+    # A fictional family badge in the recessed upper grille.
     g=bpy.data.objects['Low wide grille opening'];raw=list(g['aperture_samples']);ps=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
     nu=g['form_columns'];c=ps[(g['form_rows']//2)*nu+nu//2]+Vector((0,-.012,0))
     box(b,'S240 front emblem carrier',c,(.085,.012,.027),b.m['dark_chrome'],'trim',radius=.006)

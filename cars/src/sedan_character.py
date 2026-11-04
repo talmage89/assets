@@ -38,6 +38,24 @@ def bars(b,blank,points,front):
     """Broad original horizontal grille blades, within the recessed opening."""
     nu,nv=blank['form_columns'],blank['form_rows']
     raw=list(blank['aperture_samples']);bed=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
+    if blank.name.startswith('Low wide grille'):
+        # Seventeen splayed vertical vanes: original Alder cascade motif.
+        # A center station gives each vane a shallow molded bow.
+        # The recessed bed remains behind the bars, rather than a radiator face.
+        for j in range(17):
+            t=(j+.5)/17
+            def point(row):
+                u=t*(nu-1);i=min(nu-2,int(u));return bed[row*nu+i].lerp(bed[row*nu+i+1],u-i)
+            lower=point(0);upper=point(nv-1)
+            lower.z+=.008;upper.z-=.008
+            loops=[]
+            for p in [lower,lower.lerp(upper,.5)+Vector((0,-.008,0)),upper]:
+                p+=Vector((0,-.018,0))
+                loops.append([p+Vector((dx,dy,0)) for dx,dy in [(-.006,-.009),(.006,-.009),(.006,.009),(-.006,.009)]])
+            bar=G.loft(blank.name+f' cascade vane {j:02d}',loops,b.m['bumper'])
+            if b.high:G.bevel(bar,.0012,2)
+            b.add(bar,category='openings')
+        return
     for j in [1,2,3]:
         row=bed[j*nu:(j+1)*nu]
         if not b.high:row=row[::2]

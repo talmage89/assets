@@ -6,6 +6,7 @@ SHOTS={
  'lamp_unlit':dict(location=(1.95,-3.6,1.10),target=(.72,-2.08,.78),lens=95,aspect=1.50,studio_yaw=-35,paint='Graphite'),
  'lamp_lit':dict(location=(1.95,-3.6,1.10),target=(.72,-2.08,.78),lens=95,aspect=1.50,studio_yaw=-35,paint='Graphite',lights=True),
  'wheel':dict(location=(2.20,-2.60,.68),target=(.80,-1.475,.34),lens=85,aspect=1.2,studio_yaw=-45),
+ 'plate_detail':dict(location=(.35,3.65,1.05),target=(0,2.38,.86),lens=90,aspect=1.55,studio_yaw=145,paint='Graphite'),
  'mirror':dict(location=(1.80,-2.20,1.25),target=(.97,-.85,1.00),lens=100,aspect=1.5,studio_yaw=-35,paint='Graphite'),
  'interior_glass':dict(location=(1.72,-.55,1.20),target=(0,-.23,.82),lens=43,aspect=1.5,studio_yaw=95,paint='Graphite',exposure=-1.3),
  'underbody':dict(location=(3.8,5.3,.15),target=(0,1.0,.25),lens=60,aspect=1.65,studio_yaw=145,exposure=-1.3),

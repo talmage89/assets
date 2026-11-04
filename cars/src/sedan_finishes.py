@@ -21,8 +21,8 @@ def paint(wear):
     fans=[n.mul(n.ramp(n.math('SUBTRACT',ceiling,z),0,.22),.45)]
     for axle in [S.FRONT_AXLE,S.REAR_AXLE]:
         dy=n.math('SUBTRACT',y,axle+.25)
-        aft=n.mul(n.ramp(dy,0,.12),n.ramp(dy,2.0,.65))
-        ceiling=n.add(.64,n.mul(dy,-.10))
+        aft=n.mul(n.ramp(dy,0,.12),n.ramp(dy,2.6,1.3))
+        ceiling=n.add(.74,n.mul(dy,-.06))
         fans.append(n.mul(aft,n.ramp(n.math('SUBTRACT',ceiling,z),0,.23),.85))
     film=n.mul(n.maximum(*fans),grain,wear)
     # Cavity residue follows actual shut-line locations, never a panel-wide wash.
@@ -34,7 +34,7 @@ def paint(wear):
     chips=n.mul(n.maximum(leading,edges),n.ramp(n.noise(p,780,2),.78,.86),wear)
     coverage=n.mul(n.math('SUBTRACT',1,film),n.math('SUBTRACT',1,grime),n.math('SUBTRACT',1,chips))
     tint=n.nt.nodes['Paint tint'].outputs[0]
-    dirt=n.mix(film,(0,0,0),(.16,.14,.11),True)
+    dirt=n.mix(film,(0,0,0),(.095,.082,.064),True)
     dirt=n.mix(grime,dirt,(.008,.007,.006),True)
     dirt=n.mix(chips,dirt,(.105,.110,.113),True)
     base=n.vec('ADD',n.mix(coverage,(0,0,0),tint,True),dirt)
@@ -70,13 +70,13 @@ def build(wear):
         m[key]=V.manufactured(name,color,kind,wear*.8,(S.FRONT_AXLE,S.REAR_AXLE),refined=True)
     bpy.data.materials.remove(m['body'])
     m['body']=paint(wear)
-    m['wheel']=V.manufactured('S240 cast alloy',(.43,.46,.48),'alloy',wear,
+    m['wheel']=V.manufactured('S240 cast alloy',(.23,.24,.25),'alloy',wear,
         brake_centers=[(sign*track/2,y,S.HUB_HEIGHT) for sign in [-1,1]
                        for track,y in [(S.FRONT_TRACK,S.FRONT_AXLE),(S.REAR_TRACK,S.REAR_AXLE)]],refined=True)
-    m['glass']=V.glazing('S240 windshield',(.70,.78,.80))
-    m['side_glass']=V.glazing('S240 front door glass',(.56,.65,.66),axes=(1,2))
-    m['privacy']=V.glazing('S240 rear door glass',(.28,.36,.38),True,axes=(1,2))
-    m['rear_glass']=V.glazing('S240 backlight',(.32,.40,.42),True)
+    m['glass']=V.glazing('S240 windshield',(.48,.54,.55))
+    m['side_glass']=V.glazing('S240 front door glass',(.30,.38,.39),axes=(1,2))
+    m['privacy']=V.glazing('S240 rear door glass',(.11,.15,.16),True,axes=(1,2))
+    m['rear_glass']=V.glazing('S240 backlight',(.14,.19,.20),True)
     for key in ['glass','side_glass','privacy','rear_glass']:dirty_lower_glass(m[key],wear)
     m['rear_cover']=V.lamp('S240 red lamp cover',(.55,.010,.006),0,1)
     m['rear_cover'].node_tree.nodes['OUT_rough'].inputs[0].links[0].from_socket.default_value=.045
@@ -85,6 +85,21 @@ def build(wear):
     image=bpy.data.images.load(str(directory/'model.png'),check_existing=True)
     n=Nodes('S240 original model');tex=n.node('ShaderNodeTexImage');tex.image=image
     m['model']=n.finish(tex.outputs['Color'],.25,.8)
+    image=bpy.data.images.load(str(directory/'dealer.png'),check_existing=True)
+    n=Nodes('S240 dealer insert');tex=n.node('ShaderNodeTexImage');tex.image=image
+    uv=n.node('ShaderNodeTexCoord');n.feed(tex.inputs['Vector'],uv.outputs['UV'])
+    x,y,z=n.split(uv.outputs['UV'])
+    edge=n.maximum(n.ramp(x,.045,.025),n.ramp(x,.955,.975),n.ramp(y,.11,.08),n.ramp(y,.85,.90))
+    m['dealer']=n.finish(tex.outputs['Color'],n.mix(edge,.36,.21),n.mul(edge,.35),n.mul(edge,.0012))
+    # Recessed diamond relief behind the vertical cascade vanes, gloss black.
+    n=Nodes('S240 grille lattice');tc=n.node('ShaderNodeTexCoord');u,v,_=n.split(tc.outputs['UV'])
+    lines=[]
+    for diagonal in [n.add(n.mul(u,44),n.mul(v,6)),n.add(n.mul(u,44),n.mul(v,-6))]:
+        wave=n.math('PINGPONG',diagonal,1);lines.append(n.ramp(wave,.84,.96))
+    bars=n.maximum(*lines)
+    m['grille']=n.finish(n.mix(bars,(.003,.004,.004),(.014,.018,.018),True),n.mix(bars,.35,.14),n.mul(bars,.35),n.mul(bars,.002))
+    m['grille_bar']=V.manufactured('S240 gloss black grille',(.012,.015,.016),'chrome',0,refined=True)
+    n=Nodes.__new__(Nodes);n.mat=m['grille_bar'];n.nt=n.mat.node_tree;n.feed(n.nt.nodes['OUT_rough'].inputs[0],.14)
     for side in ['L','R']:
         # The family's original fictional lettering is the only relief image.
         image=bpy.data.images.load(str(directory/'tire_relief.png'),check_existing=True)
@@ -92,7 +107,13 @@ def build(wear):
         # Rebuild with that image so no geometry is spent on type.
         if image:
             m['tire_'+side]=V.tire('S240 lettered tire '+side,image,-1 if side=='L' else 1,wear=wear)
-            nt=m['tire_'+side].node_tree;tc=next(t for t in nt.nodes if t.type=='TEX_COORD')
+            nt=m['tire_'+side].node_tree
+            # The class photos show dark dusty rubber, rather than a pale tire
+            # annulus. Preserve the radial cause and reduce its reflected value.
+            n=Nodes.__new__(Nodes);n.mat=m['tire_'+side];n.nt=nt
+            base=nt.nodes['OUT_base'].inputs[0].links[0].from_socket
+            n.feed(nt.nodes['OUT_base'].inputs[0],n.vec('MULTIPLY',base,(.55,.55,.55)))
+            tc=next(t for t in nt.nodes if t.type=='TEX_COORD')
             links=list(tc.outputs['Object'].links);scale=nt.nodes.new('ShaderNodeVectorMath');scale.operation='MULTIPLY'
             scale.inputs[1].default_value=(.275/.235,FAMILY.HUB_HEIGHT/S.HUB_HEIGHT,FAMILY.HUB_HEIGHT/S.HUB_HEIGHT)
             nt.links.new(tc.outputs['Object'],scale.inputs[0])
