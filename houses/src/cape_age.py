@@ -61,10 +61,13 @@ def add(meta,plan=None,foundation_marks=True):
             for j in range(5):
                 x=b.x0+o['u']+rng.uniform(-o['w']/2-.04,o['w']/2+.04)
                 w=rng.uniform(.028,.065);d=rng.uniform(.009,.019)
-                depth=.174-d-rng.uniform(.002,.006) if j<3 else rng.uniform(.022,.045)
+                depth=.174-d-rng.uniform(.002,.006) if j<3 else rng.uniform(*o.get('sill_loss_depth_range',(.022,.045)))
                 def point(dx,dy,lift):
                     v=depth+dy
-                    return (x+dx,b.y0-v,o['z']+.004-(v-.013)*.016/.161+lift)
+                    if 'sill_profile' in o:
+                        a,za,c,zc=o['sill_profile'];zz=o['z']+za+(v-a)*(zc-za)/(c-a)+lift
+                    else:zz=o['z']+.004-(v-.013)*.016/.161+lift
+                    return (x+dx,o.get('sill_wall_y',b.y0)-v,zz)
                 off=len(bare)
                 # Continuous grain-long losses with torn, tapered boundaries.
                 # Five losses replace nine repeated slivers, funding the fuller

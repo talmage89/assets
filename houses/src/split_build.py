@@ -30,6 +30,10 @@ class SplitMesh(Mesh):
         # Fine hidden/rear sash bevels never change the street silhouette.
         if self.props.get('component') in ('window','storm_window') and min(s)<.020:r=0
         if self.props.get('component')=='window' and self.props.get('opening') and json.loads(self.props['opening'])['face']!='front' and self.builder.plan['spec']['siding']=='aluminum' and min(s)<.070:r=0
+        if self.props.get('component')=='window' and abs(p[1]-.10)<1e-6 and abs(s[1]-.19)<1e-6 and abs(s[2]-.04)<1e-6:
+            # Bed the support below the actual sloping sill. Its flat top
+            # otherwise hides the weather surface and the lifted paint film.
+            p=(p[0],p[1],p[2]-.016)
         if self.props.get('component')=='window' and role=='Trim' and color and max(color)<.01 and abs(s[1]-.014)<1e-6:
             # Reuse the Cape's dark room construction behind the existing
             # folded curtains. The common ranch assembler's backing is only

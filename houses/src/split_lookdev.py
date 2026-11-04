@@ -1,4 +1,4 @@
-"""Quick shared source finishes for the form gate; never publishes maps.
+"""Cape-reused source look development; never publishes delivery maps.
 
 Metric lap geometry reuses the Cape profile sweep on siding faces only.
 Existing brick, roof, trim and concrete fields are reused. Macro age follows
@@ -44,7 +44,18 @@ def prepare(source,out):
     import copy
     if s['roof_age']=='tired' and s['window_update']=='wood_storm':
         age_meta=copy.deepcopy(meta);age_meta['spec']['siding']='wood'
-        add(age_meta,generate(meta['seed'],s,house_type='split'),foundation_marks=False)
+        from split_build import veneer_top
+        age_plan=generate(meta['seed'],s,house_type='split');sills=[]
+        for o in age_meta['openings']:
+            block=next(b for b in age_plan['blocks'] if b.name==o['block']);top=veneer_top(age_plan,block,o['face'])
+            # Masonry openings have brick rowlocks, not projecting painted
+            # wood noses. The bay also has its own newer faceted seat.
+            if o.get('style')=='bay' or (top is not None and top>o['z']):continue
+            o['sill_wall_y']=block.y0+o.get('recess',0)
+            o['sill_profile']=(.035,.006,.185,-.012)
+            o['sill_loss_depth_range']=(.135,.150);sills.append(o)
+        age_meta['openings']=sills
+        add(age_meta,age_plan,foundation_marks=False)
     mats=materials(Path('textures/source'))
     folder=Path('build/split/materials')
     mats['Shingles']=roof_material(folder/'roof',s['roof_age'])

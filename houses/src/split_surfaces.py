@@ -72,7 +72,7 @@ def layer(mat,role,meta):
             yy=n.mul(n.math('FRACT',n.math('DIVIDE',zz,.2032/3)),.2032/3)
             edge=minimum(minimum(xx,n.add(.2032,n.mul(xx,-1))),minimum(yy,n.add(.2032/3,n.mul(yy,-1))))
             body=n.ramp(edge,.003,.008)
-            factors=BRICK_BODY.get(meta['seed'],BRICK_BODY[51])
+            factors=BRICK_BODY[51+(meta['seed']-51)%6]
             altered=n.vec('MULTIPLY',base,factors)
             if (meta['seed']-51)%6==3:
                 fired=n.node('ShaderNodeTexWhiteNoise');n.feed(fired.inputs['Vector'],n.combine(n.math('FLOOR',n.math('DIVIDE',uu,.2032)),row,0));unit=fired.outputs['Value']

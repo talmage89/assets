@@ -125,6 +125,15 @@ def source_check(source):
             gap=None if foot is None or tread is None else foot.z-tread.z
             rail_contacts.append(dict(station_xy=(x,y),post_bottom_m=None if foot is None else foot.z,tread_m=None if tread is None else tread.z,gap_m=gap))
             if gap is None or abs(gap)>2e-5:errors.append('Rail post misses actual tread')
+    flakes=[o for o in obs if o.get('component')=='paint_flakes'];paint_contact=None
+    if flakes:
+        sills=surface([o for o in obs if o.get('component') in ('window','storm_window')]);distances=[];signed=[]
+        for ob in flakes:
+            for v in ob.data.vertices:
+                p=ob.matrix_world@v.co;q,normal,_,distance=sills.find_nearest(p)
+                distances.append(distance);signed.append((p-q).dot(normal))
+        paint_contact=dict(vertices=len(distances),max_distance_m=max(distances),min_outward_gap_m=min(signed),scope='Every flake/loss vertex against actual window surfaces; curled film may lift at most 4 mm. Excludes brick rowlocks and the differently shaped bay seat.')
+        if max(distances)>.004 or min(signed)<-.00005:errors.append('Paint loss floats or is buried outside its actual sill surface')
     measured=[]
     for b in plan['blocks']:
         roofs=[o for o in obs if o.get('component')=='roof' and o.get('block')==b.name]
@@ -133,7 +142,7 @@ def source_check(source):
         measured.append(dict(block=b.name,roof_bounds_m=[[min(v[k] for v in values) for k in range(3)],[max(v[k] for v in values) for k in range(3)]]))
     driveway=surface([o for o in obs if o.get('component')=='driveway']);d=plan['driveway'];apron=driveway.ray_cast(Vector((d['x'],d['back']-.4,5)),Vector((0,0,-1)),10)[0]
     if apron is None or abs(apron.z-(d['back_z']-.010))>2e-5:errors.append('Driveway apron misses door sill')
-    result=dict(passed=not errors,errors=errors,triangles=count,materials=materials,degenerate_triangles=tiny,roof_rays=roof_samples,roof_missing=missing,max_roof_error_m=maxerror,vent_tip_above_roof_measured_m=vent_clearance,lower_roof_under_eave_error_m=skirt_errors,opening_rays=opening_samples,landing_top_measured_m=landing_z,driveway_apron_measured_m=apron.z if apron else None,roof_measurements=measured,measured_ground_solid_gaps_m=ground_gaps,measured_rail_tread_contacts=rail_contacts,
+    result=dict(passed=not errors,errors=errors,triangles=count,materials=materials,degenerate_triangles=tiny,roof_rays=roof_samples,roof_missing=missing,max_roof_error_m=maxerror,vent_tip_above_roof_measured_m=vent_clearance,lower_roof_under_eave_error_m=skirt_errors,opening_rays=opening_samples,landing_top_measured_m=landing_z,driveway_apron_measured_m=apron.z if apron else None,roof_measurements=measured,measured_ground_solid_gaps_m=ground_gaps,measured_rail_tread_contacts=rail_contacts,measured_paint_surface_contact=paint_contact,
                 scope='Actual mesh surface roof/opening/landing/apron probes; geometry and material budget. Separate GLB import and moving-leaf tests prove serialization and sampled clearance.')
     if errors:raise AssertionError(result)
     return result
