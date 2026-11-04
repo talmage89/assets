@@ -56,7 +56,8 @@ def side_draw(y,z):
     # Give the door hollow enough turn to reflect the sky at its lower edge.
     # Fade the extra draw into the wheel openings; the molded ends retain
     # their accepted relief instead of inheriting a deeper bumper crease.
-    hollow=.0070+.0030*smoothstep(-1.03,-.75,y)*(1-smoothstep(1.02,1.30,y))
+    extra=.0020+.0010*smoothstep(-.40,.80,y)
+    hollow=.0070+extra*smoothstep(-1.03,-.75,y)*(1-smoothstep(1.02,1.30,y))
     lower-=hollow*math.exp(-((z-line-.038)/.026)**2)*(1-smoothstep(1.60,1.97,y))
     lower-=.50*positive(.280-z,.008)
     upper=-.37*positive(z-h,.002)-.12*positive(z-h,.002)**2
