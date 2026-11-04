@@ -2,6 +2,8 @@
 import argparse,json,sys
 from pathlib import Path
 import numpy as np
+ROOT=Path(__file__).resolve().parents[2]
+sys.path[:0]=[str(ROOT),str(Path(__file__).resolve().parent)]
 from compare_pickup import capture
 
 

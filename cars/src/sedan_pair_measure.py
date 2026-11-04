@@ -30,7 +30,8 @@ def balance(calibration,out):
 def measure(calibration,renders,out):
     data=json.loads(Path(calibration).read_text());result={}
     for name,row in data.items():
-        photo=Image.open(row['photo']).convert('RGB').crop(row['crop']);render=Image.open(Path(renders)/(name+'.png')).convert('RGB')
+        photo=Image.open(row['photo']).convert('RGB').crop(row['crop'])
+        rgba=Image.open(Path(renders)/(name+'.png')).convert('RGBA');background=Image.new('RGBA',rgba.size,(238,239,236,255));background.alpha_composite(rgba);render=background.convert('RGB')
         shot=row['shot'];cam=np.array(shot['location']);fw=np.array(shot['target'])-cam;fw/=np.linalg.norm(fw)
         parameters=[math.atan2(fw[1],fw[0]),math.asin(fw[2]),*cam,math.log(shot['lens']),shot.get('roll',0)]
         metadata=json.loads((Path(renders)/'shots.json').read_text())[name]
