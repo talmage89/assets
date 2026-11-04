@@ -104,7 +104,7 @@ renders/sedan-panels/.stamp: build/sedan/detail-game.blend src/sedan_panel_diagn
 	$(PYTHON) src/sedan_delivery_review.py --diagnostics renders/sedan-panels
 	@touch $@
 panel-diagnostics: renders/sedan-panels/.stamp
-sedan-delivery: sedan-checkpoint panel-diagnostics
+sedan-delivery: refs check-form check-detail check-motion sedan-export sedan-final sedan-pairs renders/sedan-eevee/.stamp panel-diagnostics
 	$(PYTHON) src/sedan_delivery_review.py --docs
 docs: sedan-delivery
 all: sedan-delivery

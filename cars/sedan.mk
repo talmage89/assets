@@ -21,7 +21,7 @@ COMPARISONS := $(addsuffix _clay,$(PAIRS))
 .DELETE_ON_ERROR:
 .NOTPARALLEL:
 .PHONY: all model refs check render review fairness FORCE
-all: refs sedan-checkpoint
+all: sedan-delivery
 form: refs model check-form render review
 build/sedan/parameters.txt: FORCE
 	@mkdir -p build/sedan $(TMPDIR)

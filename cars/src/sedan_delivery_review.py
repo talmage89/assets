@@ -39,6 +39,11 @@ def main():
     R.sheet([root/(n+'.png') for n in ['front','side','rear','top']],root/'turnaround.jpg',2,1600)
     R.sheet([root/(n+'.png') for n in ['face','wheel','interior_glass']],root/'details.jpg',1,1600)
     R.sheet([root/(c+'_'+v+'.png') for c in ['Porcelain','Carbon','Graphite','Aluminum','Atlantic'] for v in ['front','rear']],root/'factory-colors.jpg',2,1600)
+    motion=ROOT/'renders/sedan-motion';motion_meta=json.loads((motion/'shots.json').read_text())
+    R.sheet([motion/(n+'.png') for n in motion_meta],motion/'contact.jpg',5,2400)
+    for group in ['doors','hood','trunk','steering','wheels']:
+        R.sheet([motion/(group+'_'+str(i)+'.png') for i in range(5)],motion/(group+'-sweep.jpg'),5,2400)
+    R.sheet([root/'contact.jpg',root/'factory-colors.jpg',ROOT/'renders/sedan-used-pairs/used_front-pair.jpg',ROOT/'renders/sedan-used-pairs/used_rear-pair.jpg',motion/'contact.jpg',ROOT/'renders/sedan-eevee/front_three_quarter.jpg'],root/'checkpoint.jpg',2,2400)
     if a.docs:
         docs=ROOT/'docs';docs.mkdir(exist_ok=True)
         for name,src in [('hero',root/'front_three_quarter.png'),('rear',root/'rear_three_quarter.png'),('details',root/'details.jpg'),('five-colors',root/'factory-colors.jpg'),('turnaround',root/'turnaround.jpg')]:doc(src,docs/('sedan-'+name+'.jpg'))
