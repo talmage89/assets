@@ -53,7 +53,11 @@ def side_draw(y,z):
     lower=-.065*c-.225*c*c-.120*tail
     # The stamped door hollow dies into the rear wheel's trailing shoulder;
     # it must not emboss another horizontal ripple into the molded bumper.
-    lower-=.0070*math.exp(-((z-line-.038)/.026)**2)*(1-smoothstep(1.60,1.97,y))
+    # Give the door hollow enough turn to reflect the sky at its lower edge.
+    # Fade the extra draw into the wheel openings; the molded ends retain
+    # their accepted relief instead of inheriting a deeper bumper crease.
+    hollow=.0070+.0030*smoothstep(-1.03,-.75,y)*(1-smoothstep(1.02,1.30,y))
+    lower-=hollow*math.exp(-((z-line-.038)/.026)**2)*(1-smoothstep(1.60,1.97,y))
     lower-=.50*positive(.280-z,.008)
     upper=-.37*positive(z-h,.002)-.12*positive(z-h,.002)**2
     # Raised wheel crowns blend in section as well as along the car. Preserve
