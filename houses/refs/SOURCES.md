@@ -183,3 +183,32 @@ Inspection photos are only cropped / chromatically balanced for paired review.
 White sash/casing is the assumed neutral, never a calibrated gray card. Regional
 photos do not independently establish meter dimensions or paint albedos. No
 photographic pixels enter modeled geometry, materials, shared maps or docs.
+
+## Split-level revised form and source look development
+
+| File | Direct image/PDF URL | Author / rights | Use |
+| --- | --- | --- | --- |
+| split-pa-builder-a.jpg | https://www.phmc.state.pa.us/portal/communities/pa-suburbs/images/split_level_4_allg_1.jpg | PHMC, photographer uncredited, rights unspecified; inspection only | Pennsylvania common builder side-split; upper/lower roof, siding/veneer and used finishes. Exact date/year unknown. |
+| split-pa-builder-b.jpg | https://www.phmc.state.pa.us/portal/communities/pa-suburbs/images/split_level_2_allg_1.jpg | PHMC, photographer uncredited, rights unspecified; inspection only | Pennsylvania builder side-split, roof/eave and facade comparison. Exact date/year unknown. |
+| split-pa-builder-c.jpg | https://www.phmc.state.pa.us/portal/communities/pa-suburbs/images/split_level_7_1.jpg | PHMC, photographer uncredited, rights unspecified; inspection only | Pennsylvania side-split, veneer and roof context. Exact date/year unknown. |
+| split-pa-builder-d.jpg | https://www.phmc.state.pa.us/portal/communities/pa-suburbs/images/split_level_4_1.jpg | PHMC, photographer uncredited, rights unspecified; inspection only | Pennsylvania builder side-split, roof/eave and glazing context. Exact date/year unknown. |
+| split-pa-builder-e.jpg | https://www.phmc.state.pa.us/portal/communities/pa-suburbs/images/split_level_1_1.jpg | PHMC, photographer uncredited, rights unspecified; inspection only | Pennsylvania builder side-split, roof/eave and glazing context. Exact date/year unknown. |
+| split-visions.pdf | https://coonrapidsmn.gov/DocumentCenter/View/217/Split-Visions-PDF | Robert Gerloff and Jeremiah Battles, with Peter Musty; ©2003 Brooklyn Park EDA; municipal publication, inspection only | Minnesota used split-entry and side-split photographs, half-flight sections and before/remodel construction. Photographs only are comparison candidates; drawings are not traced or imported. |
+| split-builder-used-pa.jpg | listing photograph, URL not recorded (it carries the listing’s number) | Listing photograph, Pennsylvania, catalogued 1959; photographer uncredited, copyright reserved; local inspection only | Summer-condition common builder side-split, brick lower/living face, pale lap upper and sunken single garage. No listing page or private-home identity retained. |
+| split-builder-used-oh.jpg | listing photograph, URL not recorded (it carries the listing’s number) | Listing photograph, Ohio; photographer uncredited, copyright reserved; local inspection only | Used split-foyer raised ranch: centered landing door crosses the floor/material break, full lower sash, brick and lap. Season/year unverified. No listing page or private-home identity retained. |
+| split-oh-side-a.jpg | https://photos.zillowstatic.com/fp/60d3eafd561e124d3450abb07525a574-cc_ft_1536.jpg | Listing photograph, Ohio, catalogued 1959; photographer uncredited, copyright reserved; inspection only | Side-split candidate, brick/lap construction and low roof. |
+| split-oh-side-b.jpg | listing photograph, URL not recorded (it carries the listing’s number) | Listing photograph, Ohio, catalogued 1964; photographer uncredited, copyright reserved; inspection only | Three-level builder candidate, brick/lap construction and low roof. |
+| split-oh-side-c.jpg | https://photos.zillowstatic.com/fp/605dcfa2797eef804ab223a2f9f9a430-cc_ft_1536.jpg | Listing photograph, Ohio; photographer uncredited, copyright reserved; inspection only | Side-split candidate, brick/lap construction and low roof. |
+| split-used-bay.jpg | listing photograph, URL not recorded (it carries the listing’s number) | Listing photograph, Pennsylvania; photographer uncredited, copyright reserved; inspection only | Shallow bay construction candidate on a used split-level, not a catalog rendering. |
+| split-foyer-used-pa.webp | listing photograph, URL not recorded (it carries the listing’s number) | Listing photograph, Pennsylvania; photographer uncredited, copyright reserved; inspection only | Center-entry raised-ranch candidate; used lap siding, brick and lower full sashes. Individual construction year unverified. |
+
+Previously registered PHMC `split_entry_1_1` and `split_entry_2_1` photographs
+are actual split-entry candidates for this revision. The western contemporary
+pair is retired as a split-foyer comparison. No private-home caption, street
+address, household identity or listing link is retained in committed files.
+
+The broad PHMC “split entry” catalogue also includes raised ranches entered
+on their lower floor. The two previously registered PHMC entry photographs
+are retained for materials and context, not used as true split-foyer camera
+pairs in the revised gate. The new Pennsylvania and Ohio foyer photographs
+have doors crossing the upper/lower material line and lower full sashes.
