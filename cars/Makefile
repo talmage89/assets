@@ -1,5 +1,7 @@
 BODY ?= pickup
-ifeq ($(BODY),sedan)
+ifeq ($(BODY),hatch)
+include hatch.mk
+else ifeq ($(BODY),sedan)
 include sedan.mk
 else ifeq ($(BODY),pickup)
 ASSET := AlderC150
