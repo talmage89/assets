@@ -46,8 +46,8 @@ build/sedan/motion-high.json: build/sedan/detail-high.blend $(SEDAN_CONFIG)
 	$(BP) --python $(KIT)/motion.py -- --source $< --config $(SEDAN_CONFIG) --out $@
 check-motion: build/sedan/motion-game.json build/sedan/motion-high.json
 
-build/sedan/finalized.blend build/sedan/uv-report.json &: build/sedan/material-source.blend $(SEDAN_CONFIG) $(KIT)/finalize.py $(KIT)/uv.py
-	$(BP) --python $(KIT)/finalize.py -- --source $< --out build/sedan/finalized.blend --config $(SEDAN_CONFIG) --report build/sedan/uv-report.json --size 2048 --target-density 360 --margin .0012
+build/sedan/finalized.blend build/sedan/uv-report.json &: build/sedan/material-source.blend $(SEDAN_CONFIG) src/sedan_finalize.py $(KIT)/finalize.py $(KIT)/uv.py
+	$(BP) --python src/sedan_finalize.py -- --source $< --out build/sedan/finalized.blend --config $(SEDAN_CONFIG) --report build/sedan/uv-report.json --size 2048 --target-density 360 --margin .0012
 build/sedan/bake-source.blend: build/sedan/detail-high.blend src/prepare_bake.py
 	$(BP) --python src/prepare_bake.py -- --source $< --out $@
 build/sedan/material-source.blend: build/sedan/detail-game.blend src/prepare_bake.py
@@ -96,3 +96,15 @@ sedan-checkpoint: form check-detail check-motion sedan-export sedan-final sedan-
 	$(PYTHON) src/sedan_detail_review.py --renders $(DOUT) --pairs $(DPAIRS) --form $(OUT)
 check: check-form check-detail check-motion check-repeat build/sedan/delivery-check.json
 	$(PYTHON) $(KIT)/repo_check.py
+
+# Delivery retains the accepted studio and adds actual-game curvature evidence.
+.PHONY: sedan-delivery panel-diagnostics docs
+renders/sedan-panels/.stamp: build/sedan/detail-game.blend src/sedan_panel_diagnostics.py src/sedan_curvature_map.py src/sedan_delivery_review.py
+	$(KIT)/with_gpu.sh $(BP) --python src/sedan_panel_diagnostics.py -- --source build/sedan/detail-game.blend --out renders/sedan-panels --width $(WIDTH)
+	$(PYTHON) src/sedan_delivery_review.py --diagnostics renders/sedan-panels
+	@touch $@
+panel-diagnostics: renders/sedan-panels/.stamp
+sedan-delivery: sedan-checkpoint panel-diagnostics
+	$(PYTHON) src/sedan_delivery_review.py --docs
+docs: sedan-delivery
+all: sedan-delivery

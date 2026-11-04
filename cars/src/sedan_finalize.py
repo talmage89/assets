@@ -1,0 +1,60 @@
+"""Kit finalization plus explicit seams for folded subpixel projection charts.
+
+A Smart UV projection can put a very thin gauge triangle over its neighbor.
+Split the smaller triangle's UV chart and repack; never relax overlap policy.
+Geometry, materials, density ratios and authored corner normals are preserved.
+"""
+import sys,json,argparse
+from pathlib import Path
+import bpy
+from mathutils import Vector
+ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
+from kit import finalize,uv
+
+def main():
+    p=argparse.ArgumentParser(add_help=False);p.add_argument('--out');p.add_argument('--report');p.add_argument('--size',type=int,default=2048);p.add_argument('--margin',type=float,default=.0012)
+    a,_=p.parse_known_args(sys.argv[sys.argv.index('--')+1:]);finalize.main()
+    obs=[o for o in bpy.context.scene.objects if o.type=='MESH' and 'asset_set' in o]
+    saved={o:[n.vector.copy() for n in o.data.corner_normals] for o in obs if o.data.has_custom_normals};repairs=[]
+    for iteration in range(8):
+        # Repacking can quantize an extremely thin subtexel UV sliver to a
+        # line. Give that tiny chart a representable altitude; no mesh change.
+        for ob in obs:
+            ob.data.calc_loop_triangles();layer=ob.data.uv_layers['BakeUV']
+            for tri in ob.data.loop_triangles:
+                coords=[layer.data[i].uv.copy() for i in tri.loops]
+                if abs(uv.signed_area(coords))>=1e-13:continue
+                ps=[ob.matrix_world@ob.data.vertices[i].co for i in tri.vertices]
+                lengths=[(ps[(i+1)%3]-ps[i]).length for i in range(3)];k=max(range(3),key=lambda i:lengths[i])
+                order=[k,(k+1)%3,(k+2)%3];a0,b0,c0=[ps[i] for i in order];edge=b0-a0;length=edge.length
+                x=(c0-a0).dot(edge)/length;alt=(c0-a0).cross(edge).length/length;scale=.12
+                center=sum(coords,Vector((0,0)))/3
+                for index,q in zip(order,[(0,0),(length*scale,0),(x*scale,max(alt*scale,2e-6))]):layer.data[tri.loops[index]].uv=center+Vector(q)
+                repairs.append(dict(iteration=iteration,mesh=ob.name,triangle=tri.index,reason='Representable UV altitude for a subtexel sliver'))
+        report=uv.report(obs,a.size)
+        if not report['overlap_pairs']:break
+        triangles=[]
+        for ob in obs:
+            ob.data.calc_loop_triangles()
+            for tri in ob.data.loop_triangles:
+                if abs(uv.signed_area([tuple(ob.data.uv_layers['BakeUV'].data[i].uv) for i in tri.loops]))>=1e-14 and tri.area>=1e-12:triangles.append((ob,tuple(tri.loops)))
+        def area(index):
+            ob,loops=triangles[index];return abs(uv.signed_area([tuple(ob.data.uv_layers['BakeUV'].data[i].uv) for i in loops]))
+        chosen={min([x,y],key=area) for x,y,_ in report['overlap_examples']}
+        for index in sorted(chosen):
+            ob,loops=triangles[index];layer=ob.data.uv_layers['BakeUV']
+            for i in loops:layer.data[i].uv+=Vector((.00037+(index%53)*.000001,.00051+(index%67)*.000001))
+            repairs.append(dict(iteration=iteration,mesh=ob.name,triangle=index,uv_area_before=area(index)))
+        bpy.ops.object.select_all(action='DESELECT')
+        for ob in obs:ob.select_set(True)
+        bpy.context.view_layer.objects.active=obs[0]
+        bpy.ops.object.mode_set(mode='EDIT');bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.uv.pack_islands(udim_source='CLOSEST_UDIM',rotate=True,rotate_method='ANY',scale=True,merge_overlap=False,margin_method='FRACTION',margin=a.margin,pin=False,shape_method='CONVEX')
+        bpy.ops.object.mode_set(mode='OBJECT')
+    for ob,normals in saved.items():ob.data.normals_split_custom_set(normals)
+    report=uv.report(obs,a.size)
+    if report['overlap_fraction']>=1e-6 or report['outside_triangles'] or report['degenerate_uv_triangles']:raise ValueError('Repaired UV validation failed: '+str({k:v for k,v in report.items() if k!='island_measurements'}))
+    old=json.loads(Path(a.report).read_text());old.update(report);old['projection_chart_seams']=repairs
+    Path(a.report).write_text(json.dumps(old,indent=2));bpy.ops.wm.save_as_mainfile(filepath=str(Path(a.out).resolve()))
+    print('S240_UV_SEAMS',len(repairs),'splits, overlaps',report['overlap_pairs'],'coverage',report['coverage'],flush=True)
+if __name__=='__main__':main()
