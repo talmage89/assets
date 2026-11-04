@@ -250,9 +250,10 @@ The script source and shader behavior are available for engine integration.
 ## Alder S240 — sedan form checkpoint
 
 An original 2018–2022 FWD midsize sedan, compared with the Camry and Accord.
-**Round 4 is a source form checkpoint.** Interior, underbody, optical internals,
+**Round 5 is a source form checkpoint.** Interior, underbody, optical internals,
 paint/wear, UVs, baking, motion certification and sedan GLB remain later work.
-The pickup's default generation and complete exported GLB stay byte-identical.
+The pickup's source and binary payload are unchanged; the current Blender
+exporter changes only its generator-version label on a fresh re-export.
 
 ### Construction and character
 
@@ -266,27 +267,45 @@ canopy. Steel gauge is 0.9 mm, molded fascia 3 mm and glass 4.8 mm.
 
 The shoulder is the widest point of each door. Its upper door leans inward;
 the lower door turns inward progressively through a shallow die hollow and
-soft rising crease, then a recessed sill. Same-height rays measure **33.3 /
-28.2 mm front/rear fender swell**. The rear's finite-span bumper-height plan
-radius is **303.4 mm**, retaining the approximately 305 mm draw.
+soft rising crease, then a recessed sill. Same-height rays measure **32.9 /
+27.4 mm front/rear fender swell**. The rear's finite-span plan radius at
+z=570 mm is **305.5 mm**, retaining the approximately 305 mm draw.
 
-The original rising headlamp blades are **746 × 110 mm**, with 268–292 mm
+The original rising headlamp blades are **723 × 105 mm**, with 245 mm
 returns. Their chart-triangulated blanks sit behind real skin apertures;
 the triangulation prevents folded tiny cells at tapered tips. Upper grille,
 lower intake and corner pockets have physical inward returns and blocked
-horizontal blades. Measured mouth-to-bed depths are 64–67, 60–62 and 50–52 mm.
-Fender crown rise over the hood side is 19.0 / 14.8 mm at y=−1.60 / −1.30 m,
-falling to 3.9 mm by y=−1.10 m; that last blend remains weaker than requested.
+horizontal blades. Measured mouth-to-bed depths are 64–67, 60–62 and 43–45 mm.
+The corner pockets taper around the curved molding. Fender crown rise over
+the hood side is 19.1 / 14.8 mm at y=−1.60 / −1.30 m, falling to 4.0 mm by
+y=−1.10 m; that last blend remains weaker than requested.
 
 The deck and C-pillar are raised per the round-4 overlay correction. The
-integrated lip kicks up **21.3 mm** over the adjacent deck's
-extrapolated slope. Tapered rear wings split at the lid's real cut and wrap
-approximately 300 mm forward into the quarters. The plate pocket is 26–27 mm
-deep; the diffuser is recessed 11–14 mm inside the fascia. These are source
-mesh measurements, not design constants or delivery serialization checks.
+integrated lip kicks up **25.8 mm** over the adjacent deck's extrapolated
+slope. The narrower backlight leaves painted sails flowing into the hips:
 
-Door-mounted mirror caps measure **250 × 204 × 157 mm** (outboard × fore/aft ×
-height); full span is **2110.0 mm**. This original size is cross-checked
+| Transverse width | S240 mesh | Camry photo estimate | Accord photo estimate |
+| --- | ---: | ---: | ---: |
+| Backlight top | 1211 mm | 1316 ±80 mm | 1202 ±80 mm |
+| Backlight base | 1268 mm, 68.6% of body | 1347 ±80 mm | 1061 ±80 mm |
+| C-pillar/sail near beltline | 252–253 mm | 243 ±60 mm | 258 ±60 mm |
+
+The photo estimates depend on calibrated camera rays and an assumed glass
+plane, described in [REFERENCE.md](REFERENCE.md); they are not OEM dimensions.
+The sail is measured transversely at the glass-base Y, 80 mm below its corner.
+Tapered rear wings split at the lid cut, stand **153–155 mm** tall at their
+corners, wrap 445–446 mm forward and taper to 25–27 mm. The **320.1 × 170.5 mm**
+plate pocket holds a measured 304.8 × 152.4 mm plate, recessed **26.4 mm** along
+its face normal, with a lamp above it. The diffuser is recessed about 14 mm
+and carries reflector blanks and a rolled exhaust finisher with a dark bore.
+The bumper turns under 44.8 mm over its lower 150 mm; its painted edge rises
+from 219 mm on center to 239 mm at x=800 mm. These are actual source surfaces.
+
+Door-mounted rounded wedge caps measure **243 × 120 × 148 mm** (outboard ×
+fore/aft × height); full span is **2104.6 mm**. Their bottoms are 916.7 mm high,
+the housing spans y=−915…−795 mm, and the short arms start at the door's
+front upper corner behind the A-pillar. Flat aft panes face the driver. The
+housing stays below the canopy silhouette at the same Y. Size is cross-checked
 against Ford's manufacturer-published [2121 mm Mondeo mirror span](https://www.ford.ie/content/dam/guxeu/uk/documents/feature-pdfs/FT-Mondeo.pdf).
 The housings remain form blanks; their stems are supported by the doors.
 
@@ -297,25 +316,29 @@ manufacturer dimensions, original styling and photographic uncertainty.
 
 | Measurement | Actual game source |
 | --- | ---: |
-| Length × body width × height | 4900.8 × 1850.1 × 1449.6 mm |
+| Length × body width × height | 4885.0 × 1849.4 × 1449.6 mm |
 | Wheelbase / tracks front, rear | 2830 / 1590, 1600 mm |
-| Front / rear overhang | 975.4 / 1095.4 mm |
+| Front / rear overhang | 962.5 / 1092.5 mm |
 | Tire / loaded diameter / crown gap | 235/45R18 / 660.7 / 40.0 mm |
 | Windshield rake / B-section tumblehome | 61.72° / 23.66° from vertical |
 | Door reveals | 4.5 mm, measured across the actual cuts |
-| Front sweep at x=850 mm / upper rake | 321.2 mm / 36.14° |
-| Hood edge height / setback | 757.1 / 187.8 mm |
-| Chin height / tuck | 176.7 / 123.9 mm |
-| Hood rise / cowl height / crown | 10.03° / 966.1 / 22.9 mm |
-| Rear sweep / upper tail lean | 247.9 mm / 12.55° |
-| Deck crest height / deck length | 1110.8 / 366.4 mm |
-| Rear lower tuck / diffuser test height | 195.6 / 300.0 mm |
+| Front sweep at x=850 mm / upper rake | 333.3 mm / 34.48° |
+| Hood edge height / setback | 755.7 / 177.0 mm |
+| Chin height / tuck | 176.1 / 34.5 mm |
+| Hood rise / cowl height / crown | 10.11° / 966.1 / 22.9 mm |
+| Rear sweep at z=570 mm / upper tail lean | 186.1 mm / 12.49° |
+| Deck crest height / deck length | 1114.5 / 362.4 mm |
+| Rear lower tuck / diffuser test height | 51.1 / 300.0 mm |
+
+Round 5's lower-end reshaping supersedes the old front/rear tuck targets;
+their measured misses remain in `form-check.json`. Length remains in the
+published sedan class. The axle and cabin coordinate package stays fixed.
 
 | Section | Shoulder height | Upper inward lean | Lean just below / low door | Lower edge inset | Sill tuck | Crease turn over 80 mm |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| mid front door | 910.0 mm | 20.2–21.2° | 4.6 / 16.3° | 80.4 mm | 40.9 mm | 11.2° |
-| b pillar | 921.0 mm | 20.2–20.6° | 4.6 / 15.3° | 75.0 mm | 45.4 mm | 10.7° |
-| mid rear door | 932.0 mm | 20.3–20.6° | 4.6 / 13.1° | 70.1 mm | 49.7 mm | 9.7° |
+| mid front door | 910.0 mm | 20.2–21.3° | 4.6 / 17.0° | 80.4 mm | 40.9 mm | 11.2° |
+| b pillar | 921.0 mm | 20.2–20.6° | 4.6 / 16.5° | 75.0 mm | 45.4 mm | 10.7° |
+| mid rear door | 932.0 mm | 20.3–20.6° | 4.6 / 15.7° | 70.1 mm | 49.7 mm | 10.1° |
 
 The three 50 mm chord tests find a 1.7–1.8 mm inward hollow. Section positions
 come from actual triangle-plane cuts and rays; rendered normal angles use the
@@ -326,10 +349,10 @@ and lower fascia roll. These finite tests do not certify global Class A fairness
 
 ### Budget and reproducibility
 
-The game source is **52,628 triangles** and the high source
-**116,600**. Five diagnostic clay materials use **zero image
-textures**. Generated game/high blends are 1,189,936 /
-2,475,377 bytes. No sedan GLB is produced at this gate. The temporary cavity closure sits
+The game source is **51,296 triangles** and the high source
+**114,684**. Five diagnostic clay materials use **zero image
+textures**. Generated game/high blends are 1,181,792 /
+2,407,933 bytes. No sedan GLB is produced at this gate. The temporary cavity closure sits
 inboard of the wheel wells and forward of the tucked tail; actual mesh extrema
 measure 127.5 mm lateral clearance to the tire envelopes. Other motion remains
 unverified.
@@ -339,12 +362,12 @@ allocation must be replaced during detail, not simply added to.
 
 | Parent / assembly | Triangles |
 | --- | ---: |
-| Static body, fascia, glazing, mirrors and locators | 34,788 |
-| Hood / trunk including its lamp blanks | 1,028 / 2,304 |
-| Front doors L / R | 1,348 / 1,344 |
-| Rear doors L / R | 1,100 / 1,100 |
+| Static body, fascia, glazing, closures and locators | 33,868 |
+| Hood / trunk including its lamp blanks | 1,048 / 2,604 |
+| Front doors L / R, including mirrors | 1,094 / 1,090 |
+| Rear doors L / R | 988 / 988 |
 | Each wheel and tire | 2,404 |
-| **Total** | **52,628** |
+| **Total** | **51,296** |
 
 ```sh
 make -C cars BODY=sedan WIDTH=1600 SAMPLES=40
@@ -357,34 +380,38 @@ The first three commands pass the source gate: both density audits, closed
 positive gauges, normals, budget, scale, real cut openings and bed depths,
 sections, end ranges, parent/game curvature, camera projection and repository
 rules. UV, bake, motion and GLB checks remain explicitly pending. Independent
-one-thread regeneration matches all 112 meshes' geometry, normals, transforms,
+one-thread regeneration matches all 120 meshes' geometry, normals, transforms,
 materials and parents exactly. A fresh default pickup build matches all 454
-meshes; re-export matches all 150 accessors and the complete 11,530,736-byte GLB,
-SHA-256 `f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
+meshes; re-export matches all 150 accessors, maps, graph and the entire binary
+chunk. The accepted 11,530,736-byte GLB retains SHA-256
+`f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
+The new export has the same size but a different hash: its only JSON change
+is the exporter label `v5.2.40` → `v5.2.41`. It does not replace the accepted file.
 
 ### Review images and remaining misses
 
-`renders/sedan-round4/contact.jpg` contains 37 views: clay front/rear,
+`renders/sedan-round5/contact.jpg` contains 42 views: clay front/rear,
 dimensioned side/front/rear/top and paired front/rear, raking side, both
 stripe directions from front/rear/side, driver's hood reflections, five body
 and six cover curvature plots, five transverse cuts plus centerline,
-photographic tumblehome estimate, all four calibrated neutral and striped
-pairs, and their calibration overlays. All 22 rendered views carry the same
-source hash. [REVIEW.md](REVIEW.md) records the two critique passes and rejected
+photographic tumblehome and rear-glass estimates, raw/profile-camera/lens-
+sensitivity side overlays, all four calibrated neutral and striped pairs,
+and their calibration overlays. All 25 rendered views carry the same
+source hash. [REVIEW.md](REVIEW.md) records the critique passes and rejected
 intermediate experiments. No checkpoint images are committed.
 
 The wheel-center-only side overlay now measures **−32.9 mm at the C-pillar
 and −35.3 mm at the deck**, with ±16.5 mm photographic pick uncertainty.
-The lower-end 40 mm target is **not met**: the held bumper tangents remain
-+132.9 mm nose / +78.2 mm tail in that raw overlay. Lower nose/chin are
-+41.2 / +25.9 mm, and lower tail/under-tail +41.2 / +2.9 mm. Near-profile
-perspective and original end styling remain uncertainties; no outline fit or
-image warp is used to erase them. The accepted 4900 mm envelope and
-975 / 1095 mm overhangs remain held.
+The raw lower-end 40 mm target is **not met**: deviations still reach about
+119 mm nose / 76 mm tail. A six-wheel-anchor perspective registration with
+explicit 80 mm lens / 1.25 m height priors reduces them to **33 mm**, but that
+camera is not unique: 60/100 mm priors give worst deviations of **59/47 mm**.
+The accepted C-pillar is about 75 mm low in the nominal perspective view.
+All four overlays are kept; no body outline is fitted and no photo is warped.
 
-The lower rear's large stripe zigzag is removed; fine grazing waviness and
-the lower front-door/sill transition remain weaker. Plain bumper lands, simple
-bars, regular glazing corners and oval mirror housings still read as form
-proxies beside the photos. The fender crown fades too early near the A-pillar.
+The lower rear's crumpled rim is removed; fine grazing waviness and the lower
+front-door/sill transition remain weaker. Plain bumper lands, simple bars,
+regular glazing corners and coarse mirror caps still read as form proxies
+beside the photos. The fender crown fades too early near the A-pillar.
 These are recorded limitations, not final paint or delivery approval. No kit
 changes were needed.

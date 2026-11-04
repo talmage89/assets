@@ -250,3 +250,50 @@ now meet the approximate 40 mm request. The lower bumper tangents still miss
 it (+132.9 / +78.2 mm); near-profile perspective is unresolved, and accepted
 envelope/overhangs are not changed to fit that photograph. This limitation is
 reported, not hidden in the camera calibration or softened by a pass flag.
+
+## Round 5 rear construction and photographic limits
+
+The backlight is cut narrower on the same canopy; the remaining painted sail
+panels belong to that parent sheet. Widths are measured from the actual outer
+glass corners. The source's roughly 1211 / 1268 mm top/base and 252 mm sails
+interpolate the two photographed makes, rather than reproduce one of them.
+The sail measurement is transverse to the vehicle at the glass base's Y station,
+80 mm below that glass corner, approximately z=972 mm at the beltline.
+
+The annotated rear photographs use the existing chassis calibrations. Rays
+intersect the estimated glass plane `z + 0.30 y = 1.67 m`; the hip pick intersects
+the mean glass-base Y plane. These yield Camry top/base 1316 / 1347 mm and near
+sail 243 mm, and Accord 1202 / 1061 mm and 258 mm. Glass width uncertainty is
+approximately ±80 mm, sail ±60 mm, including the picks, assumed plane and
+camera/class mismatch. These are transverse class estimates, not manufacturer
+glass dimensions or widths measured along curved surfaces. The white studio
+backgrounds remain the balance neutral; no reference pixels become geometry.
+
+Round 5 supersedes the earlier lower-end tucks and permits overall length within
+the class. The actual molding envelope is about 4885 mm; the 4900 mm coordinate
+package still defines the unchanged axle/cabin stations. The earlier 100–150 mm
+front and 150–200 mm rear tuck ranges remain visible as superseded measurements
+in `form-check.json`. The new lower tail turns under over its last 150 mm and
+has lifted corners, flush reflector blanks and a rolled finisher. Plate mouth,
+plate edge lengths and depth are independent mesh measurements. Their original
+construction estimates follow the brief's 320 × 170 mm pocket / 12 × 6 inch
+plate; they are not manufacturer stamping specifications.
+
+The original wheel-center-only orthographic overlay is retained. An additional
+six-wheel-anchor perspective registration uses an explicit 80 mm lens prior
+and 1.25 ±0.10 m camera-height prior. Its estimated 82.3 mm lens has 2.02 native
+pixel RMS; 60 / 100 mm priors fit 63.9 / 101.6 mm. A near-parallel wheel plane
+does not determine a unique photographic focal length. All three perspective
+overlays and the raw orthographic residuals are reported separately. None fits
+the body outline or warps a photograph. The nominal perspective result alone
+does not establish the original 40 mm overlay requirement; the raw comparison
+and lens sensitivity remain limitations.
+
+The quad control net is fitted before subdivision, including smooth fitting
+frames at the low rear corners. Final skin normals are sampled directly from
+that dense parent, rather than re-interpolated through the game chart. Clip
+duplicates and bounded submillimeter crumbs are removed before gauge closing;
+optical guides are triangulated in the injective chart before their gauge is
+made. These construction changes preserve the existing independent topology,
+surface-ray, curvature and chassis checks. They do not certify final optics,
+materials, UVs, motion or delivery.

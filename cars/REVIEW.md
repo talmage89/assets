@@ -1,3 +1,211 @@
+# Sedan form round 5 — rear glazing, bumper construction and mirrors
+
+## Pass 1 — reject the proxies and diagnose the lower surfaces
+
+Compared the first, second, fourth, sixth and seventh source candidates with
+both rear class photographs, both front photographs and the Camry profile.
+The inspected clay images are in `renders/sedan-round5-pass1`, `pass2`, `pass4`,
+`pass6` and `pass7` (each directory carries the `sedan-round5-` prefix).
+These are rejected/intermediate evidence, not the final checkpoint revision.
+
+Color/value first: the white studio backdrop is the photographic neutral,
+with unit RGB gains. Black Camry and silver Accord paint cannot be compared
+as albedos with neutral clay. Review form, value gradients and cavity depth;
+final optical response, paint and wear remain outside this source gate.
+
+- **Backlight and sails:** narrowing the glass on the existing canopy makes
+  painted sail panels instead of thin hatchback posts. The first measured
+  top/base widths are 1211/1268 mm, against photographic estimates of
+  1316/1347 mm Camry and 1202/1061 mm Accord (glass estimates ±80 mm).
+  Near-side transverse sail estimates are 243/258 mm, versus about 256 mm
+  on the source. All photographic picks, camera rays and the assumed glass
+  plane are exposed in the annotated images and JSON; these are not OEM
+  glass dimensions. The straight glass side boundaries still read CG.
+- **Tail and hips:** the larger corner lenses measure about 142 mm tall and
+  taper to 17–18 mm forward. Their dark optical blanks still lack a lamp
+  graphic. Reject the residual quarter hollow and the abrupt return behind
+  the arch. Continue the rear die swell farther aft without changing its
+  peak over the axle or the three accepted door sections.
+- **Bumper and diffuser:** the arched parting line helps the elevation, but
+  the first lower edge still reads like a plate. Rays identify the apparent
+  gray bar as the opposite front chin visible through the incomplete
+  underbody. Reject the rectangular blackout-box experiment too: roll the
+  rear closure forward, with lifted ends. The well's projected grid perimeter
+  can fold even when its lens/bed chart disk is valid; loft the same convex
+  chart boundary used for the skin cut. Flat reflector boxes intersect the
+  curved molding: replace them with conforming strips inside the black panel.
+- **Plate:** the new 317 × 169 mm mouth is crisp, but the un-tilted plate
+  intersects the sloping pocket bed. Tilting it still leaves one black
+  triangle: a ray identifies the bed 0.3 mm ahead of the plate. Set the real
+  304.8 × 152.4 mm blank ahead of the whole bed plane while retaining the
+  requested 20–30 mm recess, and tuck its lamp below the brow.
+- **Front corners:** tapering the pockets removes the square blocks. Keep
+  the accepted lamps, grille and crowns. The impact band and bottom require
+  different corrections: retain the class length, flatten the overly bowed
+  lower waterlines, and restrict the underturn to the final lower band.
+  Small simple pockets and parallel bars still look cheaper than the photos.
+- **Mirrors:** the lowered 243 × 120 × 148 mm wedges have flat aft glass,
+  a rounded forward cap and a supported door-corner arm. They are visible
+  from both quarters and no longer make a ball above the cowl. Their coarse
+  cap transitions and unarticulated stalk remain source-stage simplifications.
+- **Overlay:** retain the original orthographic comparison. Also register
+  a perspective source using six wheel anchors and explicit 80 mm lens /
+  1.25 m height priors: estimated 82.3 mm, RMS 2.02 native pixels. A single
+  near-wheel plane cannot recover focal length uniquely; render 60/100 mm
+  prior sensitivity as well. Do not call the nominal camera a measured lens.
+  Seventh-candidate held-out lower-end differences are −34 to +20 mm front
+  and −32 to −27 mm rear. The upper C-pillar remains low in this camera;
+  retain the accepted deck and lift the C-pillar's descending controls.
+- **Topology/budget:** reject the 56k allocations, aperture slivers and
+  non-manifold bridges. A broad coplanar dissolve can encode multiple holes
+  with repeated-vertex polygons. Keep convex cut fragments, collapse only
+  sub-50-micron cut crumbs, and reduce hidden gauge backs with local depth
+  and manifold-link checks while locking the outer skin and cut rims.
+
+## Pass 2 — fresh-session rebuild and reject the diffuser scars
+
+Color/value first: compared the new source against the same four stock photos,
+balanced on their white backdrops with unit gains. Neutral clay still has dark
+optical blanks and wells; silver/black photographic paint is not its albedo
+target. Opened the fresh front/rear/side/top Workbench views, both Cycles
+three-quarters and the profile overlay in `renders/sedan-round5-handoff/` and
+`sedan-round5-handoff-wb/`. All intermediate diagnostic views stay ignored.
+
+- **Glass and sails:** retain the narrower backlight and the painted widening
+  sails, on the existing canopy. Both photographed rear glasses and their
+  annotated picks support this change. Their straight source-stage side
+  boundaries still look more regular than either photograph.
+- **Tail and diffuser:** reject the remaining triangular dents along the
+  diffuser's top edge. Removing cavity shading and gauge backs does not cure
+  them. Sampling normals directly from the dense parent removes the broad
+  false triangular highlights introduced by re-interpolating the coarse game
+  field. The two surviving corner scars expose a hard 370 mm switch in the
+  control-net fitting frame. Replace that switch with smooth vertical and
+  longitudinal blends before subdivision; no painted patch or replacement
+  shading field is used to conceal it.
+- **Deck:** the fresh build's measured kick is only 14.5 mm, below the held
+  15–30 mm range. Increase the actual lip control and move its crest slightly
+  aft, retaining the integrated deck and the original canopy silhouette.
+- **Plate and tail lamps:** the plate sits in a crisp small pocket with a
+  supported lamp above it. The thicker tapered wings are a useful class
+  correction; their black blanks still lack optical graphics. Retain the
+  actual apertures and corner wrap rather than adding surface decals.
+- **Front corners:** the tapered, curved pockets are less block-like than the
+  round-4 boxes. Keep the accepted lamp/grille/crown layout. The simple bars
+  and unarticulated pockets remain plainer than both production references.
+- **Mirrors:** keep the door-corner wedges and flat rear panes. Their lower
+  position removes the cowl bump in the overlay; their caps and arms remain
+  unusually simple beside both photos.
+- **Profile:** lower-end holdouts on the 80 mm-prior perspective registration
+  are within about 33 mm. The six wheel anchors do not measure a unique lens:
+  keep the raw orthographic overlay and both lens-prior sensitivity views.
+  The accepted C-pillar is lower in the new camera than in the raw overlay;
+  do not move the accepted roof to conceal a camera-dependent difference.
+
+The new Blender patch version also changes the pickup exporter's version text
+from `v5.2.40` to `v5.2.41`. Fresh default pickup generation retains all 454
+meshes exactly; all 150 re-exported accessors, embedded maps, hierarchy and
+the entire binary chunk are identical. The accepted GLB is untouched. A fresh
+export's complete file hash differs only because of that generator label;
+complete byte identity is not claimed for that re-export.
+
+## Pass 3 — reject the straight lower edge after the complete comparison
+
+Color/value first: the completed white clay has deep cavities and unclipped
+highlights (front/rear foreground p99 about 238/225). The four neutral pairs
+still use the photographs' white backdrops as the balance neutral, not their
+paint. Opened both full-size heroes, all four neutral pairs, the orthographic
+rear and the raking side of the first complete fresh-session build.
+
+The diffuser's painted rim is now clean and the quarter's old dark hollow has
+gone. But the rear elevation still carries a straight bottom and rectangular
+black insert. The photographs' lower corners roll upward into their quarters.
+Lift the source cage's lowest rear corner controls and the diffuser's lower
+boundary, leaving the centerline, accepted side sections, top crease and
+quarter shoulders intact. Do this before subdivision, not by reshaping the
+finished game panels. The upper fascia and the plate/optical blanks remain
+visibly plainer than either production car; this remains a form checkpoint.
+
+The complete overlay set exposes a material limitation: the 80 mm-prior
+perspective source has a 33 mm worst lower-end residual, while 60/100 mm
+priors give 59/47 mm. The raw orthographic comparison is still about 119 mm
+front / 76 mm rear. No unique photographic lens was recovered. Preserve all
+four overlays and report these misses; the nominal perspective view alone
+does not prove the original 40 mm overlay request.
+
+## Pass 4 — whole car in white clay, final source checkpoint
+
+Color/value first against all four final neutral and striped photo pairs:
+the stock photos' white studio backgrounds are the balance neutral, with unit
+RGB gains. Front/rear white-clay foreground p1/p50/p99 luma is 1/153/238 and
+0/145/225; no opaque foreground channel reaches 255. Cavities remain dark.
+This is form inspection, not paint/albedo or used-car wear validation.
+
+Opened every final JPG, including the parent plots, in
+`build/sedan-round5/final-reviewed-00.jpg` through `final-reviewed-15.jpg`.
+The white-clay heroes, rear elevation, raking side, main stripes and neutral
+pairs were also inspected at full size. The 42-view contact is
+`renders/sedan-round5/contact.jpg`; all 25 rendered views record the same
+current game-source hash.
+
+- **Backlight/C-pillars:** the 1211 mm top / 1268 mm base glass now leaves
+  sails about 252–253 mm wide near the beltline. Against the Camry's estimated
+  1316/1347 mm glass and 243 mm sail, and Accord's 1202/1061 mm and 258 mm,
+  the original breadth is a class interpolation. Photo uncertainties are
+  ±80/60 mm; no OEM glass drawing is claimed. The rear no longer has the
+  former almost-full-width glass. Straight window side boundaries and the
+  regular greenhouse corners remain more synthetic than either photograph.
+- **Tail/hips:** the quarter's old dark dent is gone in raking clay. The rear
+  plan stays convex; the same three rays at z=570 mm measure a 305.5 mm local
+  circle. The clean bumper turns under 44.8 mm over the tested lower 150 mm;
+  its painted lower edge rises from 219 mm on center to 239 mm at x=800 mm.
+  The lifted diffuser boundary and flush reflector blanks remove the old
+  protruding-plate and crumpled-rim read. A rolled finisher has a real dark
+  bore. The broad unadorned painted land is still plainer than both photos.
+- **Lamps/plate/deck:** rear wings stand 153–155 mm tall at the corner, wrap
+  445–446 mm along the quarters and taper to 25–27 mm forward. The plate mouth
+  measures 320.1 × 170.5 mm; actual plate edges are 304.8 × 152.4 mm. A ray
+  along the actual tilted plate normal measures a 26.4 mm recess, with the
+  lamp tucked above. The integrated lip's kick is 25.8 mm and deck length
+  362.4 mm. The optical blanks remain intentionally unresolved; dark shapes
+  alone are less legible than the photos' lens graphics.
+- **Mirrors/front corners:** 243 × 120 × 148 mm rounded wedges, 2104.6 mm
+  across, have flat aft panes. Bottoms are 916.7 mm high; arms begin behind
+  the A-pillar on the front upper door. Actual housing vertices stay below
+  the same-Y canopy silhouette. They read as supported mirrors in both
+  quarters, though their caps and arms are still coarse. The tapered corner
+  pockets now follow the front turn. Simple grille bars and the lower front
+  door/sill highlight junction remain cheaper-looking than both references.
+- **Whole car/accepted forms:** the unchanged wheelbase, tracks, loaded tires
+  and 40 mm arch gaps keep the low stance. Door sections retain their crown,
+  die hollow and sill tuck. Direct dense-parent normals improve the cut rims
+  without replacing the surface. Fine grazing waviness remains around the
+  arch/sill joins; the fender crown still fades too early near the A-pillar.
+- **Overlay:** nominal perspective lower ends remain within 32.9 mm, but
+  the 60/100 mm prior cases reach 58.8/46.5 mm. The raw orthographic overlay
+  still misses by 118.8 mm front / 75.9 mm rear. Raw C-pillar/deck are
+  −32.9/−35.3 mm; the nominal perspective C-pillar is −75.3 mm. These are
+  openly retained camera-dependent misses, with ±16.5 mm pick uncertainty.
+  The original 40 mm overlay request is not certified by the new camera.
+
+Proof: `make -C cars BODY=sedan WIDTH=1600 SAMPLES=40` and `make -C cars
+BODY=sedan check fairness` pass. Both density audits are closed, positive,
+within their configured envelopes, and free of zero-area triangles or invalid
+normals. All regional form/recess/clearance rays, current numeric ranges,
+parent/game curvature and independent camera projections pass. Superseded
+round-2 tuck targets are retained separately as misses, not silently passed.
+The control net remains one connected sheet with 124,032 quads and valence
+four inside. Game/high sources are 51,296 / 114,684 triangles; five diagnostic
+materials, zero maps; blends 1,181,792 / 2,407,933 bytes, ignored.
+
+Independent one-thread generation matches all 120 meshes' geometry, corner
+normals, materials, transforms and hierarchy exactly. Pickup preservation is
+as documented in pass 2: source, every accessor/map/graph and the entire binary
+payload match; only a fresh exporter's generator label changes. No kit changes,
+sedan GLB, baked textures or committed checkpoint images. Interior, underbody
+detail, optics, real paint/wear, UVs and motion clearance remain later work.
+Nothing additional is needed from the lead beyond this requested form review.
+
 # Sedan form round 4 — character and construction
 
 This is the requested source form checkpoint. No sedan delivery, optics,
