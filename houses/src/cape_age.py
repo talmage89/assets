@@ -5,8 +5,9 @@ from mathutils import Vector
 from cape_plan import generate,roof_parts
 
 
-def add(meta):
-    plan=generate(meta['seed'],meta['spec']);m=plan['blocks'][0];rng=random.Random(8100+meta['seed'])
+def add(meta,plan=None,foundation_marks=True):
+    plan=generate(meta['seed'],meta['spec']) if plan is None else plan
+    m=plan['blocks'][0];rng=random.Random(8100+meta['seed'])
     owner=next(o for o in bpy.context.scene.objects if o.type=='MESH' and o.get('asset_set'))
     stock=list(owner.data.materials)
     def mesh(name,vertices,faces,role,color,component):
@@ -28,7 +29,7 @@ def add(meta):
     from plan import wall_frame
     from cape_build import foundation_top
     import math
-    for block in plan['blocks']:
+    for block in (plan['blocks'] if foundation_marks else []):
         if block.name.startswith('Dormer') or block.name in ('RearShed','Breezeway'):continue
         top=foundation_top(block)
         if top<.2:continue

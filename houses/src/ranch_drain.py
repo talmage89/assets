@@ -77,7 +77,8 @@ def drain(b,me,a,c,n,block,index):
  if reuse:
   b.drains.append({**reuse,'gutter':[list(a),list(c)],'normal':n,'shared_column_outlet':True});return
  start=foot+normal*.060+Vector((0,0,-.183))
- walltop=Vector((pipe.x,pipe.y,start.z-block.overhang-.13));finish=Vector((pipe.x,pipe.y,.24))
+ ground=b.plan['spec'].get('site_grade_m',0.) if b.plan['spec']['type']=='split' else 0.
+ walltop=Vector((pipe.x,pipe.y,start.z-block.overhang-.13));finish=Vector((pipe.x,pipe.y,ground+.24))
  outlet=finish+normal*.30+Vector((0,0,-.12))
  controls=[start,start+Vector((0,0,-.09)),walltop+Vector((0,0,.10)),walltop,finish,finish+normal*.12+Vector((0,0,-.09)),outlet]
  lower_setback=0
@@ -99,7 +100,7 @@ def drain(b,me,a,c,n,block,index):
   me.beam(p-along*.047,p+along*.047,.014,.015,r=.001)
   me.beam(p-along*.047,p-along*.047-normal*.14,.014,.015,r=.001)
   me.beam(p+along*.047,p+along*.047-normal*.14,.014,.015,r=.001)
- splash=b.mesh(f'{block.name}_Splash_{index}',component='splash_block');mid=outlet+normal*.12;mid.z=.0225
+ splash=b.mesh(f'{block.name}_Splash_{index}',component='splash_block');mid=outlet+normal*.12;mid.z=ground+.0225
  splash.box(mid,(.31,.60,.045) if abs(n[1])>.5 else (.60,.31,.045),'Concrete',r=.009);splash.finish()
  b.drains.append(dict(block=block.name,gutter=[list(a),list(c)],normal=n,fall=.0025,
   centerline=[list(p) for p in controls],outlet=list(outlet),bottom_outlet=list(start),sampled_path=[list(p) for p in rounded(controls)]))

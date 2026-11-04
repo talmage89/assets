@@ -92,7 +92,7 @@ def main():
     cape_rows=[check(generate(seed,house_type='cape')) for seed in range(a.count)]
     split_rows=[check(generate(seed,house_type='split')) for seed in range(a.count)]
     split_negative=[]
-    for override in (dict(kind='backsplit'),dict(main=dict(width=5)),dict(main=dict(pitch=.75)),dict(main=dict(overhang=.1)),dict(wing=dict(side='rear')),dict(ceiling=1.8),dict(floor=2),dict(garage=dict(kind='detached')),dict(siding='stone'),dict(window_update='glass_block'),dict(colors=dict(siding=[1,1,1]))):
+    for override in (dict(kind='backsplit'),dict(site_grade_m=.2),dict(veneer='plastic'),dict(garage=dict(condition='broken')),dict(main=dict(width=5)),dict(main=dict(pitch=.75)),dict(main=dict(overhang=.1)),dict(wing=dict(side='rear')),dict(ceiling=1.8),dict(floor=2),dict(garage=dict(kind='detached')),dict(siding='stone'),dict(window_update='glass_block'),dict(colors=dict(siding=[1,1,1]))):
         try:check(generate(51,override,house_type='split'))
         except AssertionError:split_negative.append(override)
         else:raise AssertionError('Invalid split accepted '+str(override))

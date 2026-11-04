@@ -9,6 +9,10 @@ def check_plan(plan):
     assert lv['lower']<lv['living']<lv['upper']
     assert abs(lv['upper']-lv['lower']-s['ceiling']-s['floor_zone'])<1e-8
     assert lv['lower']<0 and .3048<=lv['upper']<=2.5
+    if s['kind']=='foyer':
+        assert .6096-1e-8<=s['site_grade_m']-lv['lower']<=1.2192+1e-8
+        lower_windows=[o for o in holes if o['role'].startswith('lower')]
+        assert all(o['h']>=.9144-1e-8 and .10<=o['z']-s['site_grade_m']<=.21 for o in lower_windows)
     for stair in plan['stairs']:
         assert stair['riser_m']<=.19685 and stair['tread_m']>=.254
         assert stair['run_m']+stair['landing_m']<min(b.depth for b in plan['blocks'])-.6
@@ -104,6 +108,23 @@ def source_check(source):
     p=Vector((plan['door_x'],m.y0-.45,5));hit=landing.ray_cast(p,Vector((0,0,-1)),8)[0]
     landing_z=None if hit is None else hit.z
     if landing_z is None or abs(landing_z-(plan['levels']['living']-.010))>2e-5:errors.append('Landing/threshold')
+    # Ground-anchored solids are measured against the declared site plane;
+    # rail posts are independently compared with the actual tread surfaces.
+    grade=plan['spec']['site_grade_m'];ground_gaps={}
+    for component in ('porch_steps','rear_landing','condenser','splash_block'):
+        objects=[o for o in obs if o.get('component')==component]
+        gaps=[min((o.matrix_world@v.co).z for v in o.data.vertices)-grade for o in objects]
+        ground_gaps[component]=gaps
+        if any(abs(g)>2e-5 for g in gaps):errors.append(component+' misses authored grade plane')
+    rail=bpy.data.objects.get('Entry_IronRail');rail_contacts=[]
+    if rail:
+        rails=surface([rail])
+        for x,y in json.loads(rail.get('contact_stations_xy','[]')):
+            foot=rails.ray_cast(Vector((x,y,grade-2)),Vector((0,0,1)),8)[0]
+            tread=landing.ray_cast(Vector((x,y,10)),Vector((0,0,-1)),15)[0]
+            gap=None if foot is None or tread is None else foot.z-tread.z
+            rail_contacts.append(dict(station_xy=(x,y),post_bottom_m=None if foot is None else foot.z,tread_m=None if tread is None else tread.z,gap_m=gap))
+            if gap is None or abs(gap)>2e-5:errors.append('Rail post misses actual tread')
     measured=[]
     for b in plan['blocks']:
         roofs=[o for o in obs if o.get('component')=='roof' and o.get('block')==b.name]
@@ -112,7 +133,7 @@ def source_check(source):
         measured.append(dict(block=b.name,roof_bounds_m=[[min(v[k] for v in values) for k in range(3)],[max(v[k] for v in values) for k in range(3)]]))
     driveway=surface([o for o in obs if o.get('component')=='driveway']);d=plan['driveway'];apron=driveway.ray_cast(Vector((d['x'],d['back']-.4,5)),Vector((0,0,-1)),10)[0]
     if apron is None or abs(apron.z-(d['back_z']-.010))>2e-5:errors.append('Driveway apron misses door sill')
-    result=dict(passed=not errors,errors=errors,triangles=count,materials=materials,degenerate_triangles=tiny,roof_rays=roof_samples,roof_missing=missing,max_roof_error_m=maxerror,vent_tip_above_roof_measured_m=vent_clearance,lower_roof_under_eave_error_m=skirt_errors,opening_rays=opening_samples,landing_top_measured_m=landing_z,driveway_apron_measured_m=apron.z if apron else None,roof_measurements=measured,
+    result=dict(passed=not errors,errors=errors,triangles=count,materials=materials,degenerate_triangles=tiny,roof_rays=roof_samples,roof_missing=missing,max_roof_error_m=maxerror,vent_tip_above_roof_measured_m=vent_clearance,lower_roof_under_eave_error_m=skirt_errors,opening_rays=opening_samples,landing_top_measured_m=landing_z,driveway_apron_measured_m=apron.z if apron else None,roof_measurements=measured,measured_ground_solid_gaps_m=ground_gaps,measured_rail_tread_contacts=rail_contacts,
                 scope='Actual mesh surface roof/opening/landing/apron probes; geometry and material budget. Separate GLB import and moving-leaf tests prove serialization and sampled clearance.')
     if errors:raise AssertionError(result)
     return result

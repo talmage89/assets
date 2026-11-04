@@ -8,12 +8,12 @@ import bpy
 from mathutils import Vector
 
 
-def courses(ob,skin,meta=None):
+def courses(ob,skin,meta=None,exposure_m=None):
     if ob.get('component')!='wall' or skin not in ('wood','vinyl','aluminum','cement'):return
     me=ob.data;face=ob.get('face')
     outward=Vector(dict(front=(0,-1,0),back=(0,1,0),left=(-1,0,0),right=(1,0,0))[face])
     axis=0 if face in ('front','back') else 1;fixed=1-axis
-    exposure=.2794 if skin=='cement' else .1016
+    exposure=(.2794 if skin=='cement' else .1016) if exposure_m is None else exposure_m
     projection=.00437 if skin=='cement' else .014 if skin=='wood' else .0105
     vs=[];fs=[];cs=[];mis=[];external=[];tint=me.color_attributes['Tint']
     def emit(points,colors,mi,normal=None):

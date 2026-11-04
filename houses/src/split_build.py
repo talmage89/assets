@@ -29,6 +29,17 @@ class SplitMesh(Mesh):
     def box(self,p,s,role='Trim',color=None,r=.0015,xf=None):
         # Fine hidden/rear sash bevels never change the street silhouette.
         if self.props.get('component') in ('window','storm_window') and min(s)<.020:r=0
+        if self.props.get('component')=='window' and self.props.get('opening') and json.loads(self.props['opening'])['face']!='front' and self.builder.plan['spec']['siding']=='aluminum' and min(s)<.070:r=0
+        if self.props.get('component')=='window' and role=='Trim' and color and max(color)<.01 and abs(s[1]-.014)<1e-6:
+            # Reuse the Cape's dark room construction behind the existing
+            # folded curtains. The common ranch assembler's backing is only
+            # 300 mm deep; it must not turn a glazed bay into a frosted box.
+            opening=json.loads(self.props['opening']);z=opening['z'];h=opening['h']
+            p=(p[0],p[1]-.85,p[2])
+            for sign in (-1,1):
+                super().box((p[0]+sign*s[0]/2,p[1]+.45,p[2]),(.018,.90,h),role,(.028,.026,.022),0,xf)
+            super().box((p[0],p[1]+.45,z-.30),(s[0],.92,.018),role,(.012,.011,.009),0,xf)
+            color=(.005,.005,.0045)
         return super().box(p,s,role,color,r,xf)
     def finish(self):
         ob=super().finish()
@@ -80,7 +91,7 @@ def shell(b):
                     lo=min(p[0] for p in poly);hi=max(p[0] for p in poly)
                     if block.stories==2:poly=[(u,base_top if abs(z-.02)<1e-6 else z) for u,z in poly]
                     poly=clip(poly,0,1,-base_top)
-                    bottom=min(-.18,block.floor-.18)
+                    bottom=min(s['site_grade_m']-.18,block.floor-.18)
                     foundation.prism([xf((lo,-.024-recess,bottom)),xf((hi,-.024-recess,bottom)),xf((hi,-.024-recess,base_top)),xf((lo,-.024-recess,base_top))],(-n[0],-n[1],0),.18,'Concrete')
                 parts=[poly]
                 for o in b.openings:
@@ -112,7 +123,16 @@ def shell(b):
             for u in (.035,length-.035):
                 p=xf((u,0,0));height=block.height(p.x,p.y)-.151-low
                 if height>.02 and not any(v is not block and v.contains(*(xf((u,.02,0))[:2]),.015) for v in b.plan['blocks']):
-                    trim.box((u,.036,low+height/2),(.07,.045,height),r=.001,xf=xf)
+                    if s['siding']=='vinyl':
+                        sign=1 if u<length/2 else -1;edge=0 if sign==1 else length
+                        zz=low+height/2
+                        # Thin joined corner cover and its siding receiver,
+                        # with a real open pocket behind the return lip.
+                        trim.box((edge+sign*.0195,.0545,zz),(.139,.0018,height),r=0,xf=xf)
+                        trim.box((edge+sign*.089,.034,zz),(.0018,.041,height),r=0,xf=xf)
+                        trim.box((edge+sign*.106,.014,zz),(.034,.0018,height),r=0,xf=xf)
+                        trim.box((edge+sign*.087,.055,zz),(.008,.0018,height),r=0,xf=xf)
+                    else:trim.box((u,.036,low+height/2),(.07,.045,height),r=.001,xf=xf)
             # A frieze follows the true gable or bearing line.
             from build import exterior_edges
             for poly,adj in wall_sections(b,block,face):
@@ -157,10 +177,38 @@ def bay(b,o):
     b.frame=frame
     me=b.mesh(o['id']+'_BaySeat',component='bay',block=block.name)
     footprint=[(u-w/2,0),(u-center/2,depth),(u+center/2,depth),(u+w/2,0)]
-    for zz in (z-.08,z+h+.06):me.prism([xf((x,v,zz)) for x,v in footprint],(0,0,-1),.045)
-    # Knee brackets carry the seat; no floating glass bay.
-    for x in (u-center*.35,u+center*.35):me.beam(xf((x,.018,z-.52)),xf((x,depth-.04,z-.10)),.065,r=.001)
+    me.prism([xf((x,v+.014,z-.045)) for x,v in footprint],(0,0,-1),.045)
     me.finish()
+    # A shallow three-plane roof, continuous wall flashing and folded hem.
+    # The used split-level photograph has a supported masonry apron rather
+    # than two isolated diagonal sticks; retain that construction vocabulary.
+    hood=b.mesh(o['id']+'_BayRoof',component='bay_roof',block=block.name)
+    deck=b.mesh(o['id']+'_BayRoofDeck',component='bay',block=block.name)
+    a=xf((u-w/2-.055,-.018,z+h+.08));c=xf((u+ w/2+.055,-.018,z+h+.08))
+    l=xf((u-center/2-.035,-.018,z+h+.22));r=xf((u+center/2+.035,-.018,z+h+.22))
+    fl=xf((u-center/2-.035,depth+.065,z+h+.08));fr=xf((u+center/2+.035,depth+.065,z+h+.08))
+    for face in ((a,l,fl),(l,r,fr,fl),(r,c,fr)):
+        hood.prism(face,(0,0,-1),.0012,color=(.12,.125,.115))
+        deck.prism([p-Vector((0,0,.0012)) for p in face],(0,0,-1),.016)
+    for p,q in ((a,fl),(fl,fr),(fr,c)):
+        hood.beam(p,q,.0012,.025,color=(.20,.205,.19),r=0)
+    flashing=[xf((x,.009,zz)) for x,zz in ((u-w/2-.055,z+h+.08),(u-center/2-.035,z+h+.22),(u+center/2+.035,z+h+.22),(u+w/2+.055,z+h+.08),(u+w/2+.055,z+h+.28),(u-w/2-.055,z+h+.28))]
+    hood.prism(flashing,(-n[0],-n[1],0),.0012,color=(.18,.19,.17));hood.finish();deck.finish()
+    support=b.mesh(o['id']+'_BayMasonryApron',component='bay_support',block=block.name)
+    # Stepped corbel courses transfer the seat back into the wall. They join
+    # at their actual surfaces; there are no hovering bracket endpoints.
+    for j in range(4):
+        zz=z-.09-j*.0677333;dd=max(.025,depth-.086-j*.085)
+        pp=[(u-w/2+.016,0),(u-center/2,dd),(u+center/2,dd),(u+w/2-.016,0)]
+        support.prism([xf((x,v+.072,zz)) for x,v in pp],(0,0,-1),.0677333,'Veneer')
+    support.finish()
+    steel=b.mesh(o['id']+'_BayStructuralKnees',component='bay_brackets',block=block.name)
+    for x in (u-center*.35,u+center*.35):
+        steel.box((x,.084,z-.30),(.080,.006,.46),color=(.065,.070,.060),r=0,xf=xf)
+        steel.beam(xf((x,.088,z-.112)),xf((x,depth-.03,z-.112)),.040,.040,color=(.065,.070,.060),r=0)
+        steel.beam(xf((x,.088,z-.49)),xf((x,depth-.03,z-.13)),.040,.040,color=(.065,.070,.060),r=0)
+        for zz in (z-.47,z-.15):steel.tube([xf((x,.087,zz)),xf((x,.097,zz))],.006,color=(.21,.22,.20),sides=6)
+    steel.finish()
 
 
 def wells(b):
@@ -177,6 +225,25 @@ def wells(b):
         me.geom(vs,[(2*j,2*j+1,2*j+3,2*j+2) for j in range(32)],color=(.25,.26,.24))
         me.prism([xf((u-o['w']/2-.18,0,-.22)),xf((u+o['w']/2+.18,0,-.22)),xf((u+o['w']/2+.18,.50,-.22)),xf((u-o['w']/2-.18,.50,-.22))],(0,0,-1),.02,'Concrete')
         me.finish()
+
+
+def receivers(b,o):
+    """Thin replacement-window J receivers; brick openings keep their returns."""
+    if o.get('system')!='vinyl':return
+    block=next(v for v in b.plan['blocks'] if v.name==o['block'])
+    cap=veneer_top(b.plan,block,o['face'])
+    if cap is not None and cap>o['z']+o['h']-.05:return
+    xf,_,_=b.frame(block,o['face']);u,z,w,h=(o[k] for k in ('u','z','w','h'))
+    low=max(z-.04,(cap+.04) if cap is not None else z-.04)
+    me=b.mesh(o['id']+'_JReceiver',component='window_receiver',block=block.name,face=o['face'])
+    for sign in (-1,1):
+        x=u+sign*(w/2+.068)
+        me.box((x,.021,(low+z+h+.07)/2),(.036,.002,z+h+.07-low),r=0,xf=xf)
+        me.box((x+sign*.017,.050,(low+z+h+.07)/2),(.002,.060,z+h+.07-low),r=0,xf=xf)
+        me.box((x+sign*.009,.080,(low+z+h+.07)/2),(.018,.002,z+h+.07-low),r=0,xf=xf)
+    for v,depth,hh,zz in ((.021,.002,.036,z+h+.068),(.050,.060,.002,z+h+.085),(.080,.002,.018,z+h+.076)):
+        me.box((u,v,zz),(w+.17,depth,hh),r=0,xf=xf)
+    me.finish()
 
 
 def driveway(b):
@@ -294,6 +361,7 @@ def build(plan):
         if o['kind']=='window':
             if o['style']=='bay':bay(b,o)
             else:window(b,o)
+            receivers(b,o)
         elif o['kind']=='service':portal(b,o)
         else:doors(b)
         opening_masonry(b)
@@ -305,19 +373,19 @@ def build(plan):
     oldfloor=plan['blocks'][0].floor;oldhood=plan['spec']['hood']
     plan['blocks'][0].floor=plan['levels']['living']
     if plan['porch'] is None:plan['spec']['hood']='none'
-    cape_landing(b)
+    cape_landing(b,ground=plan['spec']['site_grade_m'])
     plan['spec']['hood']=oldhood;plan['blocks'][0].floor=oldfloor
     # Rear landing is at the actual kitchen level, including raised foyer.
     oldfloor=plan['blocks'][0].floor
     rear=next(o for o in b.openings if o['kind']=='service')
-    plan['blocks'][0].floor=rear['z'];cape_landing(b,True);plan['blocks'][0].floor=oldfloor
+    plan['blocks'][0].floor=rear['z'];cape_landing(b,True,ground=plan['spec']['site_grade_m']);plan['blocks'][0].floor=oldfloor
     generic=bpy.data.objects.get('GarageService_Step')
     if generic:b.objects.remove(generic);bpy.data.objects.remove(generic,do_unlink=True)
     if 'ServiceDoor' in b.moving:b.moving['ServiceDoor']['range_degrees']=[-100,0]
     original=b.plan;main=plan['blocks'][0]
     # Shared service positions use the living wing, never the buried garage.
     service_main=copy.copy(main);service_main.floor=plan['levels']['living']
-    b.plan={**plan,'blocks':[service_main,service_main]};services(b);service_mounts(b);b.plan=original
+    b.plan={**plan,'blocks':[service_main,service_main]};services(b,ground=plan['spec']['site_grade_m']);service_mounts(b,ground=plan['spec']['site_grade_m']);b.plan=original
     if plan['spec']['garage']['kind']=='carport':
         garage=next(v for v in plan['blocks'] if v.name=='Garage')
         b.plan={**plan,'blocks':[main,garage]};carport(b);b.plan=original
@@ -325,10 +393,21 @@ def build(plan):
     b.plan={**plan,'spec':{**plan['spec'],'garage':{**plan['spec']['garage'],'side':plan['spec']['wing']['side']}}}
     chimney(b);b.plan=original
     rail=b.mesh('Entry_IronRail',component='entry_rail')
+    contacts=[]
     if plan['spec']['rail']:
         top=plan['levels']['living']-.010;yy=main.y0-.94;x=plan['door_x']+.77
-        for y,z in ((yy,top),(yy-.65,max(.06,top-.36))):
-            rail.box((x,y,z+.44),(.025,.025,.88),color=(.026,.029,.023),r=.001)
-        rail.beam((x,yy,top+.88),(x,yy-.65,max(.06,top-.36)+.88),.032,.025,color=(.026,.029,.023),r=.001)
-    rail.finish();wells(b);driveway(b);foyer(b)
+        ground=plan['spec']['site_grade_m'];count=math.ceil((top-ground)/.19);riser=(top-ground)/count
+        # Center the lower post on the actual last tread, including the
+        # short three-riser stoop. A fixed run can land beyond its nosing.
+        y2=main.y0-1.02-(count-1.5)*.28;bottom=ground+riser
+        for y,z in ((yy,top),(y2,bottom)):
+            distance=main.y0-y
+            tread=top if distance<1.045 else top-(min(count-2,max(0,math.floor((distance-1.02)/.28)))+1)*riser
+            height=z+.88-tread
+            rail.box((x,y,tread+height/2),(.025,.025,height),color=(.026,.029,.023),r=.001)
+            contacts.append((x,y))
+        rail.beam((x,yy,top+.88),(x,y2,bottom+.88),.032,.025,color=(.026,.029,.023),r=.001)
+    rail_object=rail.finish()
+    if rail_object:rail_object['contact_stations_xy']=json.dumps(contacts)
+    wells(b);driveway(b);foyer(b)
     bpy.context.view_layer.update();return b

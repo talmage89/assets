@@ -234,17 +234,17 @@ def roofs(b):
     vents.tube([(x,y,z),(x,y,z+.40)],.038,color=(.075,.078,.071),sides=10,closed=False);vents.finish()
 
 
-def landing(b,rear=False):
+def landing(b,rear=False,ground=0.0):
     m=b.plan['blocks'][0];s=b.plan['spec'];floor=m.floor;top=floor-.010
     opening=next(o for o in b.openings if o['kind']=='service') if rear else None
     x=m.x0+opening['u'] if rear else b.plan['door_x'];y=m.y1 if rear else m.y0;direction=1 if rear else -1
     me=b.mesh('Rear_Stoop' if rear else 'Porch_Concrete',component='rear_landing' if rear else 'porch_steps')
     width=1.45 if rear else 1.75;depth=1.02
-    me.box((x,y+direction*(depth/2+.025),top/2),(width,depth+.05,top),'Concrete',r=.004)
-    count=math.ceil(top/.19);riser=top/count
+    me.box((x,y+direction*(depth/2+.025),(top+ground)/2),(width,depth+.05,top-ground),'Concrete',r=.004)
+    count=math.ceil((top-ground)/.19);riser=(top-ground)/count
     for j in range(count-1):
         z=top-(j+1)*riser;yy=y+direction*(depth+(j+.5)*.28)
-        me.box((x,yy,z/2),(width-.18,.285,z),'Concrete',r=.003)
+        me.box((x,yy,(z+ground)/2),(width-.18,.285,z-ground),'Concrete',r=.003)
     me.finish()
     if not rear and s['hood']!='none':
         p=b.plan['porch'];me=b.mesh('Porch_Supports',component='porch_structure')
@@ -345,7 +345,7 @@ def chimney(b):
     shared_chimney(b);b.plan=original
 
 
-def service_mounts(b):
+def service_mounts(b,ground=0.0):
     m=b.plan['blocks'][0];xf,n,l=b.frame(m,'back')
     me=b.mesh('Cape_ServiceMounts',component='services')
     # Stand-off meter lugs bed into the wall; piping keeps its accepted route.
@@ -355,4 +355,6 @@ def service_mounts(b):
     x=m.x0+l*.64
     for xx,zz,rr in ((x-.45,.50,.04),(x-.36,.45,.023)):
         me.tube([(xx,m.y1+.012,zz),(xx,m.y1+.095,zz)],rr,color=(.23,.24,.20),sides=8)
-    me.finish()
+    ob=me.finish()
+    if ground:
+        for v in ob.data.vertices:v.co.z+=ground
