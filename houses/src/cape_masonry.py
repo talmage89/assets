@@ -42,7 +42,7 @@ def author(folder,n=512):
             color,height,_,_,_=fields('Concrete',n,sx)
             # Form bugholes and exposed aggregate are manufacturing features.
             # Their scale survives filtering; broad weather remains causal C0.
-            color*=((.70+.60*fine)[:,:,None])
+            color*=((.85+.30*fine)[:,:,None])
             for i in range(145):
                 px,py=rng.uniform(0,sx,2);radius=rng.uniform(.0018,.0060)
                 dx=np.minimum(abs(x-px),sx-abs(x-px));dy=np.minimum(abs(y-py),sy-abs(y-py))
