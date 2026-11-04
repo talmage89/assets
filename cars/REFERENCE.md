@@ -386,3 +386,24 @@ unit RGB balance is retained. No photograph supplies model vertices or texels.
 The side's shoulder, rising lower hollow, wheel crowns, gate pinching, lower
 hem shadow, bumper corner roll and mirror crown are judged in the unchanged
 calibrated pairs and procedural reflection bands.
+
+
+### H120 round 4: reflection and curvature evidence
+
+The six calibrated round-three photo cameras and both makes' reference images
+are retained. White studio backgrounds remain the neutral, with unit RGB gains.
+The new mid-gray clearcoated clay is intentionally a form diagnostic; it does
+not claim to match the photographs' silver paint, studio lighting or exposure.
+A procedural Blender sky and an original dark diffuse ground provide reflected
+value above and below the horizon. The shoulder, lower crease and wheel crowns
+are judged through those reflections as well as the unchanged matte and stripe
+views. The Corolla's bounded gate recess guides the new upper crease; the
+Hyundai remains the smoother alternative in the second rear pair.
+
+Curvature maps measure actual game-triangle positions, independently of authored
+shading normals. Signed cotangent curvature uses mixed Voronoi areas, with raw
+values retained and a common asinh display scale for both rounds. Analytic
+plane, cylinder and sphere checks validate the implementation. Open cut edges
+are gray because their neighborhoods are incomplete. Maps accompany matching
+stripe views; neither a scalar curvature threshold nor the section measurements
+substitutes for the photographic comparisons.

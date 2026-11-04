@@ -390,29 +390,31 @@ These are recorded limitations, not final paint or delivery approval. No kit
 changes were needed.
 
 
-## Alder H120 — compact hatchback form round 3
+## Alder H120 — compact hatchback form round 4
 
-The third body is an original late-2010s five-door hatch, built in isolated
-`hatch_*.py` modules. Its measured package is **4363 × 1796 × 1451 mm**, with a
-**2650 mm wheelbase** and **225/40R18** form wheels. Toyota Corolla and Hyundai
-i30/Elantra GT references establish the class; the short rear package, level
-roof, split lamps and bumper plate pocket are documented in
-[REFERENCE.md](REFERENCE.md#alder-h120-compact-five-door-hatchback-source-form-checkpoint).
+The third body is an original late-2010s five-door hatch in isolated
+`hatch_*.py` modules: **4363 × 1796 × 1451 mm**, **2650 mm wheelbase**, and
+**225/40R18** form wheels. Corolla and i30/Elantra GT references establish the
+class; the accepted short rear package and main greenhouse remain preserved. The
+lowest windshield/cowl corners are locally refaired; HATCH.md quantifies that
+change separately from the preserved main glass.
 
-[H120 checkpoint report](HATCH.md) contains the measured sections, face/rear
-numbers, per-part budgets, reproducible commands, pickup preservation proof
-and remaining form misses. [REVIEW.md](REVIEW.md#h120-form-round-3--sculpture-and-reflection-flow)
-records the critique passes. Rebuild with `make -C cars BODY=hatch` from the
-repository root; the default `cars/` build remains the pickup.
+[H120 checkpoint report](HATCH.md) gives measured sections, gate/crease numbers,
+per-part budgets, rebuild commands, pickup preservation and remaining weaknesses.
+[REVIEW.md](REVIEW.md) records the critiques. Rebuild from the repository root
+with `make -C cars BODY=hatch`; the default cars build remains the pickup.
 
-The [front clay](renders/hatch-round3/front_three_quarter.jpg),
-[rear clay](renders/hatch-round3/rear_three_quarter.jpg) and
-[complete contact sheet](renders/hatch-round3/contact.jpg) are generated
-locally. This is a source-form review, before UVs, textures, GLB, interior,
-motion validation or paint. Checkpoint images are not committed.
+[Gloss front](renders/hatch-round4/gloss_front_three_quarter.jpg),
+[gloss rear](renders/hatch-round4/gloss_rear_three_quarter.jpg), and the
+[round-four contact sheet](renders/hatch-round4/round4-contact.jpg) are generated
+locally. The checkpoint includes whole-game-body curvature maps beside stripes,
+all calibrated gloss/photo pairs and same-camera round-three comparisons.
 
-Round 3 sharpens the side lines and wheel crowns, sculpts the gate and its
-shadowed lower lip, follows the Corolla's black lower bumper construction,
-rounds the mirror caps and repairs aperture cuts. The form is **46,843 triangles**,
-within its **46,881 allocation** and **59,381 finished plan**. Pickup source and
-GLB remain identical. Sedan modules and the kit are unchanged.
+Round four repairs control-sheet folds and physical game-triangle sampling at
+the hood crowns, bounds the gate recess with a crisp upper crease and retains
+its lower lip. Gloss clay under a procedural sky/ground reveals the accepted
+side lines. The form is **46,737 triangles**; with the unchanged 12,500 future
+allowance, the plan is **59,237 against 59,343**. Pickup source and GLB remain
+identical. No shared family implementation, sedan module or kit file changed.
+This is a source-form checkpoint; no hatch interior, detail, UV, bake, export
+or final documentation images were added.
