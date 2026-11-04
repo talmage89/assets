@@ -250,3 +250,85 @@ now meet the approximate 40 mm request. The lower bumper tangents still miss
 it (+132.9 / +78.2 mm); near-profile perspective is unresolved, and accepted
 envelope/overhangs are not changed to fit that photograph. This limitation is
 reported, not hidden in the camera calibration or softened by a pass flag.
+
+# Alder X220 — compact crossover form basis
+
+An original two-row late-2010s compact crossover, compared with two makes.
+The selected FWD-capable package uses 225/65R17 tires. All sculpting, aperture
+outlines and construction controls are authored in metres; no photograph is
+traced, imported into Blender or projected into a texture.
+
+| Quantity | Toyota 2020 RAV4 LE US brochure | Honda 2020 CR-V LX US specification | X220 design target |
+| --- | ---: | ---: | ---: |
+| Length | 180.9 in / 4595 mm rounded metric | 182.1 in / 4625 mm rounded | 4600 mm |
+| Wheelbase | 105.9 in / 2690 mm | 104.8 in FWD / 2662 mm | 2690 mm |
+| Body width | 73.0 in / 1855 mm | 73.0 in / 1855 mm | 1855 mm including cladding |
+| Published height | 67.0 in / 1701 mm, with antenna | 66.1 / 66.5 in FWD/AWD / 1679 / 1689 mm | 1679 mm roof / 1700 mm low rails |
+| Front / rear track | 63.0 / 63.7 in / 1600 / 1618 mm | Same for FWD; AWD 62.9 / 63.5 in | 1600 / 1610 mm |
+| Running ground clearance | 8.4 in / 213 mm | 7.8 / 8.2 in FWD/AWD / 198 / 208 mm | 205 mm underbody target, underbody deferred |
+| Tire | 225/65R17 on LE | 235/65R17 on LX | 225/65R17 |
+| Approach / departure | 19 / 21 degrees | 18.1 / 25.3 degrees FWD LX | Measured on actual form, not claimed OEM-equivalent suspension loading |
+
+The [Toyota manufacturer-authored US brochure](https://cdn.dealereprocess.org/cdn/brochures/toyota/2020-rav4.pdf)
+is archived by Dealer eProcess; see the exterior dimensions and capability
+tables. The [Honda manufacturer sheet](https://hondanews.com/en-US/honda-automobiles/releases/release-47ef5ef525f391ae783334075a01030f-2020-cr-v-specifications-features)
+explicitly distinguishes FWD/AWD. Inch publications are rounded; converted
+values do not imply submillimetre physical precision.
+
+Toyota's [2019 launch specification](https://global.toyota/en/newsroom/toyota/21906523.html)
+explicitly gives **66.9 / 67.1 inches without/with roof rails**, but labels these
+preliminary. The 2020 brochure's height includes its antenna. Those height
+definitions and trim changes are retained rather than silently combined.
+The [manufacturer-authored 2019 UK Honda brochure](https://www.kingswood-honda.com/wp-content/uploads/2019/01/CR-V_Brochure.pdf)
+gives **2117 mm including mirrors**, used as a same-generation class cross-check
+for the original housings. It is not asserted to be a US trim specification.
+
+The downloaded June-2021 Toyota UK document is a **plug-in** cross-check:
+4600 / 2690 / 1855 / 1690 mm, with 910 / 1000 mm overhangs and different
+1600 / 1630 mm tracks. Its 190 mm clearance and 17.5 / 20 degree angles are
+not substituted for the US LE. The X220's **960 / 950 mm** overhang allocation
+is an original brief requirement (front longer), not a claim that both makes
+publish that relationship. The full wheelbase-registered silhouette residuals
+against each stock profile remain in the review images and JSON.
+
+The 0.9 mm steel skin, 3 mm fascia/molding gauge, nominal 4.5 mm reveals,
+4.8 mm main glazing, low rail feet, arch flanges and mirror housings are
+construction estimates. Body panels, glazing and apertures are cut after the
+single regular all-quad parent has been fitted and subdivided. The game mesh
+retains parent normals; the master itself is never projected after subdivision.
+Six lights provide a fixed rising quarter window; the rear glass and liftgate
+share the roof-hinged parent. Hinge clearance, struts and interior remain later
+work, so the pivot metadata is not a clearance certification.
+
+The source check measures actual evaluated triangles, rays and plane sections,
+including separate molding heights/proud offsets, optical lengths, well depths,
+backlight widths and finite-span corner radii. The three-point circle is a local
+plan measurement, not a constant-radius claim for an entire bumper. Angles from
+normal interpolation are distinguished from position measurements. Curvature
+reports keep every raw sign crossing, along with the specific die/shoulder,
+molding and bumper-transition zones; these finite sections do not certify global
+automotive Class A fairness.
+
+Four chassis-only three-quarter fits use inspected hubs and ground-contact
+centroids, with pixel-pick and tire/trim uncertainty. Two supplemental side fits
+hold an estimated 85 mm lens and use four chassis anchors, not body outlines.
+They disclose perspective effects alongside the unchanged orthographic overlays;
+their fixed focal length is not EXIF. Rear photographs supply glass/body ratios
+with approximately +/-5 preview-pixel uncertainty. No low chassis residual is
+reported as all-body accuracy. White studio backdrops are the white-balance
+neutral (unit gains); neutral clay is not a paint-albedo match.
+
+For the SUV, glass lean is a chord across the central 60 percent of each actual
+side pane's ray-hit height span, excluding rounded borders. The previous fixed
+1.25/1.51 m chord can cross onto a frame or the windshield and is retained only
+as debugging evidence with the hit-object names; it is not a glass angle.
+Approach/departure use a mean circle fitted from actual tire extents and hub
+height, and supporting-plane tests of the actual outer-form vertices. They do
+not certify suspension loading, underbody clearance or later moving assemblies.
+
+The two near-rear photographs estimate 314 mm (Toyota) and 275 mm (Honda)
+vertical backlight span under the same width normalization. These are projected
+photo ratios with uncertain camera pitch and body-width correspondence, not
+manufacturer glass dimensions. The original's 250–360 mm construction range
+allows for those uncertainties; the actual centerline height is measured in
+`build/suv/form-check.json` along with its widths and rake.

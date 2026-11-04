@@ -58,3 +58,36 @@ no-load/full-load clearance. The LX photograph's 225/50R17 differs from our chos
 235/45R18 package; its diameter is similar but wheel style is not copied.
 
 Ford Motor Company [MY2020 Mondeo brochure](https://www.ford.ie/content/dam/guxeu/uk/documents/feature-pdfs/FT-Mondeo.pdf), copyrighted manufacturer literature, reference only. Web-viewed 2026-10-31; direct local retrieval timed out, so it is not a build dependency. Dimensions table: 2121 mm including mirrors versus 1852 mm body. Class cross-check for original 2110 mm S240 mirror span; housing dimensions remain original construction estimates.
+
+# X220 compact crossover form — accessed 2026-11-03
+
+Reference only; images never enter geometry or materials. Stock photographs use
+white backdrop as balance neutral (unit gains). Calibrated and annotated pairs
+remain ignored. Native images are 2100 × 1575 despite the width request.
+
+| Local file | Direct image/PDF URL | Author / license / use |
+| --- | --- | --- |
+| suv-crv-front.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2020HOS020082.jpg&width=1600 | Autodata / CarsDirect, copyrighted stock photography; 2020 Honda CR-V LX FWD, front 3/4, class form/camera. Reference only. Gallery: https://www.carsdirect.com/honda/cr-v/2020/pictures . |
+| suv-crv-rear.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2020HOS020083.jpg&width=1600 | Autodata / CarsDirect, copyrighted stock photography; CR-V LX FWD rear 3/4. Same gallery; reference only. |
+| suv-crv-side.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2020HOS020084.jpg&width=1600 | Autodata / CarsDirect, copyrighted stock photography; CR-V LX FWD profile; independent wheelbase-scaled overlay. Same gallery; reference only. |
+| suv-crv-back.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2020HOS020086.jpg&width=1600 | Autodata / CarsDirect, copyrighted stock photography; CR-V LX rear width/glass/pillar measurement. Same gallery; reference only. |
+| suv-rav4-front.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2020TOS110017.jpg&width=1600 | Autodata / CarsDirect, copyrighted stock photography; 2020 Toyota RAV4 LE FWD front 3/4 class form/camera. Gallery: https://www.carsdirect.com/toyota/rav4/2020/pictures . Reference only. |
+| suv-rav4-rear.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2020TOS110018.jpg&width=1600 | Autodata / CarsDirect, copyrighted stock photography; RAV4 LE rear 3/4. Same gallery; reference only. |
+| suv-rav4-side.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2020TOS110019.jpg&width=1600 | Autodata / CarsDirect, copyrighted stock photography; RAV4 LE profile; independent wheelbase-scaled overlay. Same gallery; reference only. |
+| suv-rav4-back.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2020TOS110042.jpg&width=1600 | Autodata / CarsDirect, copyrighted stock photography; RAV4 LE near-rear, backlight/pillar proportions. Same gallery; reference only. |
+| suv-rav4-specs.pdf | https://cdn.dealereprocess.org/cdn/brochures/toyota/2020-rav4.pdf | Toyota Motor Sales USA, copyrighted 2020 eBrochure; envelope, tires, tracks, clearance, approach/departure. Reference only. |
+| suv-rav4-uk.pdf | https://www.toyota.co.uk/content/dam/toyota/nmsc/united-kingdom/brochure-archive/rav4/rav4-jun-21.pdf | Toyota GB, copyrighted June 2021 brochure; plug-in metric envelope and overhang cross-check, explicitly another market/powertrain, not the US LE. Reference only. |
+
+Honda Motor Co., [2020 US specifications](https://hondanews.com/en-US/honda-automobiles/releases/release-47ef5ef525f391ae783334075a01030f-2020-cr-v-specifications-features),
+manufacturer copyrighted technical literature, web-viewed: FWD/AWD envelope,
+tracks, clearance, tire sizes and approach/departure. No downloaded executable
+or source model is used. Construction dimensions and original styling controls
+are estimates; their actual mesh measurements are separate.
+
+Height without/with rails is cross-checked against Toyota's [2019 launch
+specification](https://global.toyota/en/newsroom/toyota/21906523.html), 66.9 / 67.1 in,
+explicitly preliminary. The 2020 US brochure instead publishes 67.0 in with
+antenna for LE; these different height definitions are not interchangeable.
+Honda's [manufacturer-authored 2019 UK brochure](https://www.kingswood-honda.com/wp-content/uploads/2019/01/CR-V_Brochure.pdf),
+archived by a Honda dealer, publishes 2117 mm including mirrors. This supplies
+the X220 mirror-span class check; it is not an American trim dimension.

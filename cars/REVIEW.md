@@ -1,3 +1,314 @@
+# X220 SUV — source form checkpoint
+
+## Pass 1 — reject folded quarters and cosmetic cut faults
+
+Color and value first: the four 2020 RAV4 LE / CR-V LX stock photographs have
+white studio backgrounds (white-balance neutral, unit RGB gains). Their pearl
+paint and transparent windows are not clay albedo targets. Opened the eight
+native front/rear/profile/rear photos, the first four full clay pairs and the
+complete pass-1 through pass-4 Workbench sheets. Early clay had a broad pale
+window reflection; suppress specular on the opaque diagnostic glazing rather
+than treating that reflection as body form or raising the exposure.
+
+- Profile: the package reads as a lifted long-roof car, but the window rectangles
+  and nearly vertical quarter-window ends read as a cheaper older wagon. Replace
+  them with projected six-light apertures, round their corners, and raise the
+  quarter-window's lower aft edge. Keep two makes visible in the comparisons.
+- Side: the progressive section is present but a false panel cut at the low die
+  line interrupts it. The inherited rocker label created that cut. Remove it;
+  the door is a continuous stamping behind the separate lower molding.
+- Front: real grille/intake/corner wells replace dark slabs. The lamp blank is
+  too thin at the outer tip and the lands are too plain beside both production
+  fronts. The apron and lower molding have small cutting spikes, not acceptable
+  wear or intentional detail. Trim every affected skin at each opening and
+  close the lower fascia independently. A wider crown is needed toward the A-foot.
+- Rear: reject the first folded D-pillars and flaps. The high rear-glass rows
+  wrongly used a sedan's low-deck section topology: the shoulder climbed half a
+  meter between adjacent control rows. Continue the actual shoulder/belt/roof
+  section through these rows before fitting. Widen the rear glass on its own
+  projected aperture, keep substantial sails, and keep the plate pocket crisp.
+- Construction: the first black band was separated from an already closed
+  gauge, leaving open cut edges. Split the outer sheet at the molding line and
+  close both physical pieces. The longitudinal low cladding must also be cut
+  away at the wheel openings; it cannot cross an empty arch.
+- Fairness: the hood center's driver-eye bands are continuous, but the A-foot
+  has concentrated grazing bands and the original rear quarter bunches them.
+  The stripes do not yet prove a fair whole body. The unclassified sign changes
+  remain in the raw curvature report, with no acceptance claim.
+- Allocation: reject 68,920 triangles. The earlier source wasted samples at end
+  backs and glazing; retain feature-aligned exterior samples, reduce redundant
+  glass grids/rail spans and keep the 60k cap. The later 55,894 candidate is a
+  better allocation, subject to the pending topology and form checks.
+
+The chassis fits are 7.19 / 8.91 / 8.40 / 9.99 native pixels RMS. These are five
+chassis anchors with uncertainty, not all-body accuracy. Mirror, pillar, bumper
+and roof correspondence is independently judged; no photographic outline enters
+geometry. No UV, paint, bake, interior, underbody or motion approval is implied.
+
+## Pass 2 — judge the unadorned body and the reflected bands
+
+Color/value first against both makes' white stock photographs: compare form,
+not neutral clay to pearl paint. The white backdrop remains the neutral; no
+photo-derived tint enters Blender. Opened every pass-1 through pass-7 render
+in `build/suv/intermediates-0.jpg` through `intermediates-6.jpg`, plus the
+full-size driver-eye hood, front horizontal bands, rear vertical bands and
+raking side. The raw front/rear photos remain beside the clay pairs.
+
+The roof is long and nearly level, the hood is short/high, and the squared arch
+moldings establish the crossover class. The first independent arch band crossed
+the low door moldings, making teeth at the openings. Cut those moldings too,
+shorten their toes to the sill, and remove hidden game steel hems covered by
+the molded inner returns. Tire/arch crown gaps stay near 55 mm. The two makes'
+body sides show more construction variation than the unadorned clay; adding
+handles or lamp jewelry is not a substitute for the crown and low die line.
+
+The old rear chart lifted its shoulder toward the backlight. Keeping the actual
+shoulder/belt section through the rear rows removes the large flap, but the
+first rear lamp outline still made a high black triangular tip beside the
+backlight. Lower its corner guide while retaining the measured 120–200 mm
+corner height. Broaden the rear glass on its own aperture and move the gate's
+side cuts outside it. The lower bumper needs its convex plan and turned-under
+bottom; a plate beneath it would be a different construction failure.
+
+The hood's center reflection lines are continuous, with concentration at the
+two intended draws. The doors show broad flowing bands. Do not approve the
+A-foot simply because most of the door is smooth: a coarse chart chord crossed
+the compound parent there. Regular quarter-step chart samples around that foot
+are needed; local inserted n-gons made the cut topology worse and were rejected.
+The final chart retains its feature flow without a new evaluated-surface fit.
+Fine grazing variation at the header and quarter still needs the final views.
+
+## Pass 3 — construction and actual measurements, before final presentation
+
+Color/value first against the same four neutral-background photo pairs and
+both raw rear-width photos. Keep dark cavities, charcoal moldings and opaque
+glazing as diagnostic materials. Reject the earlier glossy plate-bed blob and
+window glare as presentation; the actual recess still needs a crisp outline.
+The rear plate mouth was only about 160 mm high after projection. Enlarge its
+control height to reach approximately 170 mm, retain the 25 mm depth and seat
+its small overhead lamp from the actual mouth samples. Use 4.8 mm main glass,
+not the optical blank's default 1.5 mm gauge.
+
+The physical fascia split must precede closing the sheet. Extracting an exterior
+from a closed, repeatedly perforated fascia could include one return strip;
+that produced a three-face edge at the grille. Form both upper paint and lower
+plastic regions on the fair open sheet, then close and cut each. Fixed welded
+upper-frame regions do not need artificial reveals between themselves. Exact
+world-space door cuts keep their real reveals. No topology exception is added.
+The final tiny collinear-face cleanup dissolves degeneracy at 0.1 micrometre;
+it does not weld the two layers of a closed shell. A broad closed-shell weld
+was tried, made the fan topology worse, and was rejected.
+
+The source's upper door lean is about 16 degrees; lower lean grows from about
+4.6 to 15 degrees, with a measurable inward hollow and a roughly 9-degree die
+turn. The grille/low intake/corner wells have approximately 62/55/48 mm depth,
+with paint-clearance rays measured along the actual bed normals. An axial ray
+at a tapered corner can leave the aperture and is not proof of a blocked hole.
+Mirrors are door-mounted 260 × 125 × 164 mm wedges, 2117 mm across the pair,
+with a flat rear pane. They no longer form oval caps on the cowl.
+
+The front chin is lowered toward the profile, and the angle test now uses a
+supporting plane tangent to the mean loaded tire circle. A line from the patch
+center alone understated the real approach/departure angle. Both values are
+retained in the report; suspension compression and underbody clearance remain
+outside this form build. No input dimension is returned as a measurement.
+
+The original allocation spent too much on temporary glazing/rails and hidden
+backs. Keep the game source inside 60k without exempting any part. It still
+sits near that cap, above the desired 50k: later detail must replace/reduce this
+allocation, not be added on top. No kit or sedan module changes were needed.
+
+## Pass 4 — reject full-size aperture artifacts
+
+Color/value first: the first 1600-pixel Cycles candidate was too pale, even
+though its channels did not hard-clip. Keep the white photographic backdrops
+as the neutral and judge neutral clay separately from the manufacturers' paint.
+Lower the diagnostic exposure; do not brighten the cavities or moldings.
+Opened the complete later Workbench sheets, the uncut parent from the side and
+front three-quarter, and the rejected full-size Cycles front/rear candidate.
+
+- Rear: a large notch at the D-pillar was a cutting fault, not an acceptable
+  styling feature. The convex hull of a wrapped optical border in parameter
+  space crossed a region above the actual guide. Preserve this concavity,
+  partition it into convex cutters and use a constrained lens triangulation.
+  An independent ray traced the missing paint to the quarter-lamp cut. The
+  uncut parent was continuous there. Reject the attempt to use concave borders
+  for the simple windows/pockets: it left little irregular edges.
+- Openings: retain explicit outside/back/rim provenance through Solidify;
+  classifying coarse skin chords by a 25-degree normal threshold can discard
+  legitimate compound-corner skin. Closed cassettes have curved beds and walls;
+  their geometry follows the corner instead of a straight n-gon across it.
+  A very dense cassette trial exceeded the cap and was rejected. Spend on the
+  border; use a coarser internal bed grid. Never exempt hidden backs from the
+  budget. Disjoint cutters now leave untouched triangles intact instead of
+  unnecessarily fragmenting them along extended cutter planes.
+- Lamps: the coarse guide's straight segments in chart space still made an
+  irregular outline around the tight corner. More guide stations follow the
+  physical bend. Project their construction onto the evaluated fair parent,
+  rather than the coarser game chords; the latter introduced a little facet
+  jitter into a densely sampled border. Optical guides go directly to the
+  chart triangulator instead of refining/closing a disposable Cartesian lens.
+- Cladding/wells: replace the circular liner behind the squared arch with the
+  same squared section. This closes the daylight above the tire. Reduce the
+  arch crest's authored proud offset by 2.5 mm: the actual rear measurement was
+  27 mm, beyond the brief's 25 mm maximum. Preserve the 22 mm inward flange.
+- Cowl/quarter: keep the shoulder control rows below the belt as the canopy
+  folds down, and maintain distinct monotone end-row tangents. The source
+  parent is much better than the first folded rows. The A-foot and header's
+  concentrated grazing reflections still deserve scrutiny in the final pairs;
+  a successful door section cannot certify these separate regions.
+
+The later previews are retained in `build/suv/late-previews-*.jpg`; rejected
+Cycles candidates remain under `renders/suv-candidate/` and
+`renders/suv-candidate2/`. They are review history, not accepted final images.
+
+## Pass 5 — reject the premature profile handoff
+
+Color/value first: use the white photographic backdrop as the neutral, with
+unit RGB gains. The clay is a diagnostic gray, not either make's pearl paint.
+The earlier pale Cycles candidate hid too much of the crown; use 18-percent
+linear gray for the final body and a darker wheel proxy. Opened all 24 views
+on the four `build/suv/candidate3-page-*.jpg` sheets, the four striped photo
+pairs, the original side photos and both registered overlay methods. Also
+opened all eighteen subsequent low-resolution profile/rear trial renders.
+
+- Profile: reject the apparently tidy upper tail. Its nearest silhouette miss
+  against the CR-V's D-pillar was 148 mm; its fixed-column vertical miss was
+  280 mm. The end draw pulled the upper gate too far forward. Extend the upper
+  mass/hinge by 120 mm, keep the spoiler's aft extent, and maintain the glass's
+  approximately 30-degree rake. Use an upright upper gate and a stronger lower
+  bumper tuck. A single end-depth coefficient made the lower plastic project
+  too far after the upper gate correction. The separate, smooth lower return
+  restores the departure angle, measured from actual outer surfaces.
+- Front roof/cowl: the old header was roughly 100 mm high at the RAV4 holdout.
+  Lower the cowl and header and let the roof rise toward its nearly level main
+  span. Retain the measured windshield rake inside 55–60 degrees. Lower the
+  mirror housing 20 mm and move it aft 50 mm to keep its rounded cap within the
+  corrected profile, with its foot still at the door's front upper corner.
+  The front chin also needs its lower draw, rather than a nominal approach
+  constant printed beside the picture.
+- Glass measurement: the old fixed 1.25/1.51 m ray chord did not always touch a
+  side pane. The high front sample hit a frame, and after lowering the header
+  it hit the windshield. It was not a glass-tumblehome measurement. Find the
+  actual side-pane ray span and measure its central 60 percent; retain the old
+  chord, its hit-object names and explicit invalid-for-glass scope in the JSON.
+  The three central panes remain around 19 degrees. Do not report the fixed
+  chord as a successful glass check or silently delete that debugging evidence.
+- Rear construction: retain the projected glass widths and real gate cut,
+  narrow the pocket's authored height to recover its actual 170 mm mouth after
+  changing the gate's slope, and keep the overhead lamp attached to that mouth.
+  Recheck the actual optical paths and clear-paint rays after the end changes.
+- Method: retain both fixed-axis residuals and nearest silhouette distances.
+  A steep backlight amplifies the former. Neither metric is a full photo
+  outline fit. Keep the raw orthographic overlay and supplemental fixed-lens
+  perspective overlay, even where either one misses the 40 mm request. Hide
+  the studio floor in quantitative profile renders so shadow-catcher pixels
+  cannot become part of the measured silhouette.
+
+The body is closer to the modern crossover class, with a long roof and a real
+lower door turn. The regular side-window corners, plain front lands and broad
+unadorned rear bumper still read older/cheaper beside both photos. Fine grazing
+concentrations at the A-foot/header and small arch-to-lower-molding junctions
+remain CG tells for the final scrutiny. Handles, optics and badges cannot
+substitute for fixing those surfaces. No detail or finishing stage is opened.
+
+## Pass 6 — rear glass proportions and final evidence integrity
+
+Color/value first: the photographic white studio remains the neutral. The
+18-percent gray body keeps deep cavities and un-clipped highlights; it is not
+matched to pearl paint. Opened all 42 candidate-4 review views, including both
+rear photographs, both rear construction comparisons and every clay/striped
+pair. The completed contact exposed a miss that the width calipers alone had
+not caught: the backlight was 413 mm high and touched the lamp band. It read as
+an older tall-window wagon beside both makes.
+
+Measure height too: the same rear-photo ratios give about 314 mm Toyota and
+275 mm Honda vertical span, with perspective/body-width/pick uncertainty. Raise
+the glass base on the unchanged fair parent. The next measured centerline span
+is 301 mm, with a 30.7-degree rake and approximately 1393 / 1159 mm base/top
+widths. The painted land between the backlight and lamps now exists. Opened
+the new rear and rear-three-quarter Workbench renders before proceeding.
+The same-height projected D-pillar is only about 162 mm: it remains slimmer
+than the photo-ratio estimates, which also use a different body-width height.
+That ratio is a remaining weakness, not an approval claim.
+
+Crown calipers now find the actual Hood object's plane-cut boundary and sample
+1 mm inboard of its gauge rim, then search the adjacent fender. They measure
+12.7 / 14.1 / 14.1 mm rise. The old x=735 mm probe was a surface sample, not a
+measurement of the actual shut-line edge. The result remains inside 10–30 mm,
+with the corrected method recorded explicitly.
+
+After lowering the front header, move the driver's-eye reflection camera aft
+inside the greenhouse (+X 340, Y −100, Z 1470 mm). Its old Y −520 mm position
+could sit above the lowered windshield. This is an authored seated eye estimate,
+not an interior/ergonomic certification.
+
+The image check also rejected two empty rear clay pairs. Their low matched
+cameras were behind the studio cove's rising back. Rotate the cove for rear
+views, regenerate, and reject any review image with empty opaque foreground.
+The geometry and fitted cameras are unchanged by that lighting correction.
+Keep quantitative profile renders free of the shadow-catcher floor.
+
+The broad rear plastic and regular window/upper-frame transitions still read
+cheaper than the production photos. Small grazing-band concentrations at the
+A-foot, D-pillar and lower rear remain visible in stripes. This finite source
+gate is not a global Class A surface or a finished vehicle.
+
+## Pass 7 — final source review; do not approve form from numeric checks
+
+Color/value first: the white studio backdrops remain the neutral, with unit
+RGB gains. Final clay is 18-percent linear gray. Opened every final view on
+`build/suv/final-review-0.jpg` through `final-review-6.jpg`, the complete raw
+front/rear photographic comparisons, full-size CR-V front and RAV4 rear clay
+pairs, the driver's-eye hood and front reflection bands. The front/rear hero
+p99 display luminance is 219 / 206; clipped-255 fraction is zero. Cavities
+retain deep shadow. The low-sun view is too dark to be the main side proof
+(median 19); use it alongside the studio and both stripe directions.
+
+- Profile/package: the high short hood, long roof, raised wheels and squared
+  moldings establish the class. The overlay still fails the brief's 40 mm
+  target. Raw wheelbase-registered nearest misses are 83 mm Toyota lower tail
+  and 81 mm Honda front bumper; upper-profile maxima are 49 / 46 mm. The
+  fixed-axis maxima are 128 / 110 mm. Supplemental fixed-lens fits still have
+  101 / 103 mm nearest misses and 128 / 244 mm axis maxima. Retain all four
+  overlays; neither method is permission to call the silhouette accepted.
+- Side/greenhouse: actual shoulder heights 1037 / 1050 / 1062 mm, upper lean
+  about 16 degrees, progressive lower lean 4.6 to 14–16 degrees and a 9–9.5
+  degree low die turn give the doors a visible gradient. Glass lean is around
+  19 degrees. Reflections still concentrate/pinch at the A-foot/header and
+  upper quarter/D-pillar. The regular pane corners and uneven applique ends
+  read procedural. The finite eleven-section check misses these transitions;
+  it is not a global fairness certificate.
+- Face: the 654–657 mm wrapped lamps, 13–14 mm fender crown and real grille,
+  intake and corner wells are measured on actual surfaces. The lamps' tiny
+  cut-edge tips/margins and the parallel grille blades still read as a proxy,
+  and the broad unarticulated fascia lands look cheaper/older than both
+  references. Fine optics and badges would not resolve the parent transition.
+- Rear: the corrected 301 mm glass height and 30.7-degree rake remove the old
+  tall-window wagon proportion. Widths are 1159 / 1393 mm top/base; the
+  same-height D-pillar estimate is only 162 mm against uncertain photo ratios
+  of 196 / 235 mm. The gate has a real 319.5 by 170.4 mm plate mouth and
+  25–26 mm recess, but the broad convex lower plastic, unshaped plate land and
+  regular lamp borders remain the most obviously older/cheaper rear cues.
+  Small grazing concentrations remain at the lower rear/quarter transition.
+- Arches/assembly/allocation: actual crown clearance is about 55 mm; moldings
+  have 60 mm bands, 19–23 mm sampled proud offsets and visible inner flanges.
+  Small toes where they meet the low molding remain CG tells. Actual outer
+  approach/departure are 19.45 / 20.97 degrees. There is no measured underbody
+  clearance or completed hinge/suspension sweep. All parts count toward
+  58,422 triangles, near the 60k cap; later detail must replace geometry.
+
+The complete source make/check and independent 139-mesh repeat comparison
+pass. Both parent/game curvature reports retain raw crossings with no crossing
+outside their declared construction zones. All 24 renders share the measured
+source hash; all 42 review views were inspected. The pickup comparison remains
+454 unchanged source meshes and 150 unchanged GLB accessors, embedded maps and
+graph, with byte-identical fresh exports. No kit or sedan modules changed.
+
+Stop at this requested source checkpoint. The remaining visual faults and
+failed overlay tolerance mean this is a review candidate, not accepted form.
+Do not open interior, underbody, optics, paint, UV/bake/export or LOD work.
+
 # Sedan form round 4 — character and construction
 
 This is the requested source form checkpoint. No sedan delivery, optics,

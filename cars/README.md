@@ -1,6 +1,6 @@
-# Cars family — Alder C150 and S240
+# Cars family — Alder C150, S240 and X220
 
-The C150 pickup is delivered. The [S240 sedan](#alder-s240--sedan-form-checkpoint) is a source form checkpoint; `BODY=sedan` stops before detail and delivery.
+The C150 pickup is delivered. The [S240 sedan](#alder-s240--sedan-form-checkpoint) and [X220 SUV](SUV.md) are source form checkpoints; `BODY=sedan` and `BODY=suv` select their isolated form pipelines.
 
 An original late-2010s crew-cab 4×4 pickup on 275/65R18 all-terrain tires.
 Five factory paints share one baked atlas and four delivery surfaces. The
@@ -388,3 +388,28 @@ bars, regular glazing corners and oval mirror housings still read as form
 proxies beside the photos. The fender crown fades too early near the A-pillar.
 These are recorded limitations, not final paint or delivery approval. No kit
 changes were needed.
+
+
+## Alder X220 — SUV form checkpoint
+
+An original late-2010s compact two-row crossover, with one fair subdivision
+sheet, separate molded cladding, flush glazing, real cut recesses and
+225/65R17 wheels. This source checkpoint stops before detail and delivery.
+
+| Actual source quantity | Value |
+| --- | ---: |
+| Length / wheelbase | 4600.1 / 2690.0 mm |
+| Body / full mirror width | 1841.6 / 2117.0 mm |
+| Roof / rail height | 1678.9 / 1700.0 mm |
+| Game triangles | 58,422 |
+| Temporary materials / image maps | 5 / 0 |
+
+```sh
+make -C cars BODY=suv
+```
+
+[Full dimensions, sources, per-part counts, pivots and rebuild proof](SUV.md).
+The 42-view contact is `renders/suv-form/contact.jpg`; source measurements are
+`build/suv/form-check.json`. [REVIEW.md](REVIEW.md) records the critique passes.
+The requested 40 mm profile agreement remains unmet at some holdouts; this is
+a form-review candidate. No SUV GLB, UV/bake or motion approval is implied.
