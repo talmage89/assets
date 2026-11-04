@@ -23,6 +23,7 @@ def fuel_pocket(b,side):
  points=[ob.matrix_world@v.co for v in old.vertices]
  triangles=[tuple(t.vertices) for t in old.loop_triangles]
  normals=[ob.matrix_world.to_3x3().inverted().transposed()@old.corner_normals[i].vector for t in old.loop_triangles for i in t.loops]
+ field=[d.vector.copy() for d in old.attributes['BodyNormal'].data] if old.attributes.get('BodyNormal') else None
  original=BVHTree.FromPolygons(points,triangles,all_triangles=True)
  role=old.attributes['skin_face_role'];outside=[tuple(f.vertices) for f in old.polygons if role.data[f.index].value==0]
  sheet=bpy.data.meshes.new('Quarter filler aperture sheet');sheet.from_pydata([v.co for v in old.vertices],[],outside);sheet.update();sheet.materials.append(b.m['body']);ob.data=sheet
@@ -42,6 +43,11 @@ def fuel_pocket(b,side):
    a,c,e=triangles[fi];n=barycentric_transform(hit,points[a],points[c],points[e],*normals[fi*3:fi*3+3]).normalized()
    custom.append(n if n.dot(face.normal)>.25 else face.normal)
  me.normals_split_custom_set(custom)
+ if field:
+  attr=me.attributes.new('BodyNormal','FLOAT_VECTOR','POINT')
+  for v,d in zip(me.vertices,attr.data):
+   hit,_,fi,_=original.find_nearest(ob.matrix_world@v.co);a,c,e=triangles[fi]
+   d.vector=barycentric_transform(hit,points[a],points[c],points[e],field[a],field[c],field[e]).normalized()
  attr=me.attributes.get('skin_face_role') or me.attributes.new('skin_face_role','INT','FACE')
  for face in me.polygons:attr.data[face.index].value=face.material_index;face.material_index=0
  me.materials.clear();me.materials.append(b.m['body'])
@@ -97,17 +103,8 @@ def build(b):
      emitter=G.lathe('LED source '+name+str(i),[(-.004,0),(-.004,r*.45),(-.001,r*.45),(-.001,0)],b.m['headlight'],12,axis='Z');emitter.data.transform(xf);b.add(emitter,parent,'lamps')
     p=pts[nu-3].lerp(pts[(nv-1)*nu+nu-3],.5)-normal*.010
     box(b,'Amber side optic '+name,p,(.018,.025,.038),b.m['amber'],'lamps',parent,.003)
- # More numerous thin recessed grille ribs and a central original medallion.
- for name in ['Upper grille opening','Lower intake opening']:
-  blank=bpy.data.objects[name];nu=blank['form_columns'];raw=list(blank['aperture_samples']);pts=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
-  for ob in list(bpy.context.scene.objects):
-   if ob.name.startswith(name+' blade'):bpy.data.objects.remove(ob,do_unlink=True)
-  for j in range(1,6):
-   t=j/6*4;lo=int(t);f=t-lo;row=[pts[lo*nu+i].lerp(pts[min(lo+1,4)*nu+i],f) for i in range(1,nu-1,2)]
-   rows=[[p+Vector((0,dy,dz)) for dy,dz in [(-.008,-.003),(.004,-.003),(.004,.003),(-.008,.003)]] for p in row]
-   b.add(G.loft(name+' recessed rib '+str(j),rows,b.m['dark_chrome']),category='trim')
-  for i in range(2,nu-1,2):
-   p=pts[i];q=pts[4*nu+i];tube(b,name+' back web '+str(i),[p+Vector((0,.005,0)),q+Vector((0,.005,0))],.003,b.m['plastic'],'trim',sides=4)
+ from suv_grille import build as grille
+ grille(b)
  # Badge lands are deliberately fictional, without a real emblem silhouette.
  p=end(0,1.13,False,.012)
  print_quad(b,'Rear ALDER badge',[(p.x+.034,p.y+.002,p.z-.012),(p.x-.034,p.y+.002,p.z-.012),(p.x-.034,p.y+.002,p.z+.012),(p.x+.034,p.y+.002,p.z+.012)],b.m['badge'],'trim',bpy.data.objects['Liftgate'])
