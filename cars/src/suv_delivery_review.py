@@ -73,12 +73,18 @@ def main():
         docs=ASSET/'docs';docs.mkdir(exist_ok=True)
         for name,source_image in [('hero','hero.png'),('rear','rear.png'),('details','details.jpg'),('views','views.jpg'),('five-colors','five-colors.jpg')]:bounded_jpg(out/source_image,docs/('suv-'+name+'.jpg'))
         if (motion/'shots.json').exists():
-            frames=[ImageOps.contain(rgb(motion/(n+'.png')),(800,800),Image.Resampling.LANCZOS) for n in mm]
-            for palette in [128,96,64,48,32]:
-                reduced=[im.quantize(colors=palette,method=Image.Quantize.MEDIANCUT) for im in frames]
-                reduced[0].save(docs/'suv-liftgate.gif',save_all=True,append_images=reduced[1:],duration=110,loop=0,optimize=True,disposal=2)
-                if (docs/'suv-liftgate.gif').stat().st_size<=450000:break
-            else:raise ValueError('Liftgate GIF exceeds budget')
+            accepted=False
+            for width in [800,720,640,560,480]:
+                frames=[ImageOps.contain(rgb(motion/(n+'.png')),(width,width),Image.Resampling.LANCZOS) for n in mm]
+                swatches=Image.new('RGB',(160*len(frames),100))
+                for i,im in enumerate(frames):swatches.paste(im.resize((160,100)),(160*i,0))
+                for colors in [256,128,96]:
+                    palette=swatches.quantize(colors=colors,method=Image.Quantize.MEDIANCUT)
+                    reduced=[im.quantize(palette=palette,dither=Image.Dither.NONE) for im in frames]
+                    reduced[0].save(docs/'suv-liftgate.gif',save_all=True,append_images=reduced[1:],duration=110,loop=0,optimize=True,disposal=1)
+                    if (docs/'suv-liftgate.gif').stat().st_size<=450000:accepted=True;break
+                if accepted:break
+            if not accepted:raise ValueError('Liftgate GIF exceeds budget')
     print('X220_FINAL_REVIEW',digest,'frames',len(meta),'bake loss',loss)
 
 
