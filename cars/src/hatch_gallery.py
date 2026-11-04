@@ -51,7 +51,7 @@ def main():
  out=Path(a.out);out.mkdir(parents=True,exist_ok=True);meta=json.loads((out/'shots.json').read_text()) if (out/'shots.json').exists() else {}
  recipe=hashlib.sha256(b''.join(path.read_bytes() for path in [Path(__file__),Path(__file__).with_name('delivery_materials.py'),Path(__file__).with_name('hatch_detail_config.py'),Path(__file__).with_name('hatch_final_views.py'),Path(__file__).with_name('hatch_lighting.py'),ROOT/'kit/studio.py'])).hexdigest()
  for name in names:
-  shot=shots[name];preset=shot.get('paint','Atlantic');state=D.apply(preset,shot.get('lights',False))
+  shot=shots[name];preset=shot.get('paint','Porcelain' if a.camera_file else 'Atlantic');state=D.apply(preset,shot.get('lights',False))
   xf=Matrix.Rotation(math.radians(shot.get('studio_yaw',0)),4,'Z')
   for ob,matrix in rest.items():ob.matrix_world=xf@matrix;ob.hide_render=visibility[ob]
   for person in people:person.hide_render=not shot.get('human',False)
