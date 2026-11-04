@@ -26,11 +26,14 @@ def main():
     if base.shape!=high.shape:raise ValueError('Mismatched normal atlases')
     size=base.shape[0];mask=Image.new('L',(size,size),0);draw=ImageDraw.Draw(mask)
     glass_mask=Image.new('L',(size,size),0);gd=ImageDraw.Draw(glass_mask)
+    paint_mask=Image.new('L',(size,size),0);pd=ImageDraw.Draw(paint_mask)
     for ob in bpy.context.scene.objects:
         if ob.type!='MESH' or 'asset_set' not in ob:continue
         ob.data.calc_loop_triangles();uv=ob.data.uv_layers['BakeUV']
         for triangle in ob.data.loop_triangles:
             mat=ob.data.materials[ob.data.polygons[triangle.polygon_index].material_index]
+            coords=[(float(uv.data[i].uv.x)*size,(1-float(uv.data[i].uv.y))*size) for i in triangle.loops]
+            if mat.get('vehicle_paint'):pd.polygon(coords,fill=255)
             if mat.get('vehicle_glass'):
                 gd.polygon([(float(uv.data[i].uv.x)*size,(1-float(uv.data[i].uv.y))*size) for i in triangle.loops],fill=255)
     for name in approved:
@@ -46,15 +49,18 @@ def main():
     # bake padding already surrounds each island; never dilate into a neighbor.
     chosen=(np.asarray(mask.filter(ImageFilter.MinFilter(5)))>0)&(high[:,:,2]>=.5)
     base[chosen]=high[chosen]
-    # Glass has no authored geometric microdetail. Keep its existing smooth
-    # vertex normals through a neutral tangent map, including chart padding.
-    smooth=np.asarray(glass_mask.filter(ImageFilter.MaxFilter(5)))>0
+    # Glazing has no authored microrelief. Micron paint peel/flake is below
+    # this atlas' Nyquist limit; its filtered response belongs in roughness,
+    # not point-sampled, millimeter-scale normal noise. Both retain the actual
+    # authored surface normal field through a neutral map and chart padding.
+    smooth=(np.asarray(glass_mask.filter(ImageFilter.MaxFilter(5)))>0)|(np.asarray(paint_mask.filter(ImageFilter.MaxFilter(5)))>0)
     base[smooth,:3]=(.5,.5,1)
     write_png(out/'T_AlderH120_Normal.png',base,16)
     for channel in ['BaseColor','ORM']:shutil.copyfile(material/('T_AlderH120_'+channel+'.png'),out/('T_AlderH120_'+channel+'.png'))
     exact=json.loads((material/'bake-report.json').read_text());geometric=json.loads((geometry/'bake-report.json').read_text())
     report=dict(method='Exact game-surface procedural channels; verified geometric normals where source correspondence passes',size=size,samples=exact['samples'],device=exact['device'],
         exact_surface=exact,geometric_source=geometric,normal_projection_policy=dict(max_miss_area_fraction=.0001,max_back_hit_area_fraction=.0001,max_nearest_distance_m=.003),
+        smooth_paint_normal_texels=int(np.count_nonzero(np.asarray(paint_mask))),smooth_glass_normal_texels=int(np.count_nonzero(np.asarray(glass_mask))),paint_normal_policy='Unresolved micron peel/flake filtered into roughness; Paint and Glass export normal scale zero to preserve authored normals without 8-bit neutral-map deflection',
         approved_normal_parts=approved,approved_normal_atlas_fraction=float(chosen.mean()),game_sha256=projection['low_sha256'],high_sha256=projection['high_sha256'])
     (out/'bake-report.json').write_text(json.dumps(report,indent=2));print('H120_BAKE_MERGE',len(approved),'verified normal parts; exact RGB/ORM; projected atlas fraction',float(chosen.mean()))
 if __name__=='__main__':main()

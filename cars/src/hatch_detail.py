@@ -73,6 +73,8 @@ def main():
                 p.y=S.FRONT_AXLE+(p.y-S.FRONT_AXLE)*(r+.006)/r;p.z=S.HUB_HEIGHT+(p.z-S.HUB_HEIGHT)*(r+.006)/r
                 v.co=inverse@p
     hatch_hardware.passenger_wheels(b);hatch_hardware.game_wheel_allocation(b)
+    import hatch_running_surfaces
+    hatch_running_surfaces.tires(b)
     # The spoiler's mounting underside seats above the roof skin; its held outer
     # contour is unchanged. The former locator buried its foot 7 mm in the roof.
     from hatch_check import mesh_tree
@@ -85,10 +87,22 @@ def main():
         if hit is not None and p.z<hit.z+.008:p.z=hit.z+.008;v.co=inverse@p
     import hatch_surface_detail
     hatch_surface_detail.refine(b)
+    import hatch_surface_normals
+    hatch_surface_normals.sample_reflections(b)
+    hatch_surface_normals.apply()
+    import hatch_shoulder_surface
+    hatch_shoulder_surface.apply(b)
+    hatch_running_surfaces.arches(b)
+    hatch_running_surfaces.liners(b)
     hatch_exterior.build(b);hatch_interior.build(b);hatch_underbody.build(b);hatch_mechanisms.build(b)
     if not b.high:
         for ob in list(bpy.context.scene.objects):
             if 'bolster piping' in ob.name or ob.name=='Lower intake opening blade 2':bpy.data.objects.remove(ob,do_unlink=True)
+    import hatch_reference_surface
+    hatch_reference_surface.cleanup()
+    import hatch_hidden_allocation
+    hatch_hidden_allocation.reduce(b)
+    hatch_hidden_allocation.covered_door_backs(b)
     bpy.context.view_layer.update()
     for ob in bpy.context.scene.objects:
         if ob.type!='MESH' or ob.get('asset_set')!=S.ASSET_SET:continue

@@ -75,10 +75,10 @@ def build(wear):
     m['wheel']=V.manufactured('H120 cast alloy',(.23,.24,.25),'alloy',wear,
         brake_centers=[(sign*track/2,y,S.HUB_HEIGHT) for sign in [-1,1]
                        for track,y in [(S.FRONT_TRACK,S.FRONT_AXLE),(S.REAR_TRACK,S.REAR_AXLE)]],refined=True)
-    m['glass']=V.glazing('H120 windshield',(.80,.86,.88))
-    m['side_glass']=V.glazing('H120 front door glass',(.56,.64,.66),axes=(1,2))
-    m['privacy']=V.glazing('H120 rear door glass',(.35,.43,.46),True,axes=(1,2))
-    m['rear_glass']=V.glazing('H120 backlight',(.62,.68,.70),True)
+    m['glass']=V.glazing('H120 windshield',(.90,.93,.94))
+    m['side_glass']=V.glazing('H120 front door glass',(.503,.573,.593),axes=(1,2))
+    m['privacy']=V.glazing('H120 rear door glass',(.82,.86,.88),False,axes=(1,2))
+    m['rear_glass']=V.glazing('H120 backlight',(.98,.99,.99),False)
     for key in ['glass','side_glass','privacy','rear_glass']:dirty_lower_glass(m[key],wear)
     m['rear_cover']=V.lamp('H120 red lamp cover',(.55,.010,.006),0,1)
     m['rear_cover'].node_tree.nodes['OUT_rough'].inputs[0].links[0].from_socket.default_value=.045
@@ -93,15 +93,12 @@ def build(wear):
     x,y,z=n.split(uv.outputs['UV'])
     edge=n.maximum(n.ramp(x,.045,.025),n.ramp(x,.955,.975),n.ramp(y,.11,.08),n.ramp(y,.85,.90))
     m['dealer']=n.finish(tex.outputs['Color'],n.mix(edge,.36,.21),n.mul(edge,.35),n.mul(edge,.0012))
-    # Recessed diamond relief behind the vertical cascade vanes, gloss black.
-    n=Nodes('H120 grille lattice');tc=n.node('ShaderNodeTexCoord');u,v,_=n.split(tc.outputs['UV'])
-    lines=[]
-    for diagonal in [n.add(n.mul(u,44),n.mul(v,6)),n.add(n.mul(u,44),n.mul(v,-6))]:
-        wave=n.math('PINGPONG',diagonal,1);lines.append(n.ramp(wave,.84,.96))
-    bars=n.maximum(*lines)
-    m['grille']=n.finish(n.mix(bars,(.003,.004,.004),(.014,.018,.018),True),n.mix(bars,.35,.14),n.mul(bars,.35),n.mul(bars,.002))
+    # The open webs are geometric. Their recessed radiator bed stays matte
+    # and nearly black, rather than carrying a second, bumped lattice.
+    n=Nodes('H120 intake cavity')
+    m['grille']=n.finish((.0015,.0017,.0018),.94,0)
     m['grille_bar']=V.manufactured('H120 gloss black grille',(.012,.015,.016),'chrome',0,refined=True)
-    n=Nodes.__new__(Nodes);n.mat=m['grille_bar'];n.nt=n.mat.node_tree;n.feed(n.nt.nodes['OUT_rough'].inputs[0],.14)
+    n=Nodes.__new__(Nodes);n.mat=m['grille_bar'];n.nt=n.mat.node_tree;n.feed(n.nt.nodes['OUT_rough'].inputs[0],.14);n.feed(n.nt.nodes['OUT_metal'].inputs[0],0)
     for side in ['L','R']:
         # The family's original fictional lettering is the only relief image.
         image=bpy.data.images.load(str(directory/'tire_relief.png'),check_existing=True)

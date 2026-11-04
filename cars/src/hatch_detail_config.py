@@ -6,6 +6,9 @@ for key in ['DELIVERY_SURFACES','SOURCE_MATERIAL_SURFACES','MAX_MATERIALS','BAKE
     globals()[key]=family[key].copy() if isinstance(family[key],dict) else family[key]
 colors=runpy.run_path(str(Path(__file__).with_name('hatch_colors.py')))
 DELIVERY_SURFACES['Paint']=dict(DELIVERY_SURFACES['Paint'])
+DELIVERY_SURFACES['Paint']['normal_strength']=0
+DELIVERY_SURFACES['Glass']=dict(DELIVERY_SURFACES['Glass'],normal_strength=0)
+DELIVERY_SURFACES['Glass']['principled']=dict(DELIVERY_SURFACES['Glass']['principled'],IOR=1.52)
 DELIVERY_SURFACES['Paint']['extras']=dict(DELIVERY_SURFACES['Paint']['extras'],paint_colors=json.dumps(colors['COLORS']),paint_metallic=json.dumps(colors['PAINT_METAL']))
 # Family's documented North-American five-color selection, normalized only here.
 COLOR_WEIGHTS=dict(Porcelain=31/89,Carbon=19/89,Graphite=21/89,Aluminum=8/89,Atlantic=10/89)
@@ -14,7 +17,7 @@ BUDGETS={'Hatch':60000}
 BOUNDS={'Hatch':dict(size=(2.0393,4.3630,1.5050),tolerance=(.004,.004,.004))}
 DELIVERY_BOUNDS=BOUNDS['Hatch']
 SOURCE_MATERIAL_SURFACES.update({
- 'H120 cast alloy':'Opaque','H120 dealer insert':'Opaque','H120 grille lattice':'Opaque','H120 gloss black grille':'Opaque','H120 original model':'Opaque',
+ 'H120 cast alloy':'Opaque','H120 dealer insert':'Opaque','H120 intake cavity':'Opaque','H120 gloss black grille':'Opaque','H120 original model':'Opaque',
  'H120 red lamp cover':'Glass','H120 windshield':'Glass','H120 front door glass':'Glass','H120 rear door glass':'Glass','H120 backlight':'Glass',
  'H120 lettered tire L':'Opaque','H120 lettered tire R':'Opaque',
 })

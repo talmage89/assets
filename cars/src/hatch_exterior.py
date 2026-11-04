@@ -119,9 +119,12 @@ def optics(b):
     lamps=[o for o in bpy.context.scene.objects if o.name.startswith(('Headlamp opening','Taillamp opening'))]
     for cover in lamps:
         front=cover.name.startswith('Headlamp');parent=cover.parent
+        if front:
+            from hatch_optical_surfaces import rebuild
+            rebuild(cover,b.high)
         raw=list(cover['aperture_samples']);ps=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
         nu,nv=cover['form_columns'],cover['form_rows'];normal=optical_normal(cover)
-        if front:
+        if front and not cover.get('physical_lens_chart'):
             inverse=cover.matrix_world.inverted()
             for v in cover.data.vertices:
                 p=cover.matrix_world@v.co;v.co=inverse@(p-normal(p)*.0018)
@@ -158,7 +161,10 @@ def optics(b):
             if not b.high and not front and cover.get('lamp_piece')=='gate':
                 path=path[::2]+([path[-1]] if path[::2][-1]!=path[-1] else [])
             # A 9 mm original twin-blade signature, following the swept cover.
-            guide=[p-normal(p)*(.012 if front else .008) for p in path]
+            if front and cover.get('physical_lens_chart'):
+                raw_path=list(cover['molded_guide_'+label]);guide=[Vector(raw_path[i:i+3]) for i in range(0,len(raw_path),3)]
+            else:guide=[p-normal(p)*(.012 if front else .008) for p in path]
+            guide=[p for i,p in enumerate(guide) if i==0 or (p-guide[i-1]).length>.0005]
             tube(b,'H120 '+label+' light guide '+cover.name,guide,.0045 if front else .004,b.m['drl'] if front else b.m['brakelight'],'lamps',parent,sides=4)
         if front:
             for fraction,radius,label in [(.15,.026,'low')]:
@@ -239,8 +245,8 @@ def trim(b):
             a=math.tau*i/20;p,n=side_point(sign,y+.070*math.cos(a),z+.070*math.sin(a));boundary.append(p+n*.001)
         if side=='L':
             tube(b,'H120 fuel door reveal',boundary+[boundary[0]],.0018,b.m['rubber'],'trim',sides=4)
-            p,n=side_point(sign,y,z);rings=[[q+n*d for q in boundary] for d in [.0003,.0013]]
-            b.add(G.loft('H120 fuel flap',rings,b.m['body']),category='trim')
+            from hatch_fuel_surface import build as fuel_surface
+            fuel_surface(b)
     for name in ['Windshield','Backlight']:
         glass=bpy.data.objects[name];points=perimeter(glass);normal=optical_normal(glass)
         center=sum(points,Vector())/len(points)
@@ -286,19 +292,12 @@ def grille(b):
         if ' blade ' in ob.name and ob.name.startswith('Low wide grille'):
             bpy.data.objects.remove(ob,do_unlink=True)
     bed=bpy.data.objects['Low wide grille opening'];tree=mesh_tree([bed])
-    # Interleaved swept vanes share the recessed bed's actual plan curvature.
-    for k in range(-9,10):
-        x=k*.061
-        path=[]
-        for z in [.490,.527,.566,.604,.645,.674]:
-            xx=x+.012*abs((z-.582)/.092)
-            hit=tree.ray_cast(Vector((xx,-3,z)),Vector((0,1,0)),3)[0]
-            if hit is not None:path.append(hit+Vector((0,-.010,0)))
-        if not b.high and len(path)>3:path=[path[0],path[len(path)//2],path[-1]]
-        if len(path)>2:tube(b,'H120 grille swept vane '+str(k),path,.0035,b.m['grille_bar'],'trim',sides=4)
+    from hatch_grille import build as build_lattice
+    build_lattice(b)
+    tree=mesh_tree([bed])
     hit=tree.ray_cast(Vector((0,-3,.593)),Vector((0,1,0)),3)[0]
-    c=hit+Vector((0,-.023,0));box(b,'H120 emblem carrier',c,(.104,.016,.035),b.m['dark_chrome'],'trim',radius=.006)
-    y=c.y-.009
+    c=hit+Vector((0,-.043,0));box(b,'H120 emblem carrier',c,(.104,.040,.035),b.m['dark_chrome'],'trim',radius=.006)
+    y=c.y-.0205
     ob=print_quad(b,'H120 original grille emblem',[(-.047,y,c.z-.012),(.047,y,c.z-.012),(.047,y,c.z+.012),(-.047,y,c.z+.012)],b.m['badge'])
     ob['allow_boundary']=True
     gate=mesh_tree([bpy.data.objects['Liftgate outer']])
