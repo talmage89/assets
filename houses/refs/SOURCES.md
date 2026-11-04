@@ -202,9 +202,7 @@ photographic pixels enter modeled geometry, materials, shared maps or docs.
 | split-used-bay.jpg | listing photograph, URL not recorded (it carries the listing’s number) | Listing photograph, Pennsylvania; photographer uncredited, copyright reserved; inspection only | Shallow bay construction candidate on a used split-level, not a catalog rendering. |
 | split-foyer-used-pa.webp | listing photograph, URL not recorded (it carries the listing’s number) | Listing photograph, Pennsylvania; photographer uncredited, copyright reserved; inspection only | Center-entry raised-ranch candidate; used lap siding, brick and lower full sashes. Individual construction year unverified. |
 
-Previously registered PHMC `split_entry_1_1` and `split_entry_2_1` photographs
-are actual split-entry candidates for this revision. The western contemporary
-pair is retired as a split-foyer comparison. No private-home caption, street
+The western contemporary pair is retired as a split-foyer comparison. No private-home caption, street
 address, household identity or listing link is retained in committed files.
 
 The broad PHMC “split entry” catalogue also includes raised ranches entered
@@ -213,4 +211,4 @@ are retained for materials and context, not used as true split-foyer camera
 pairs in the revised gate. The new Pennsylvania and Ohio foyer photographs
 have doors crossing the upper/lower material line and lower full sashes.
 
-| `split-used-battens-commons.jpg` | https://upload.wikimedia.org/wikipedia/commons/9/90/RANCHHOUSE8.JPG | Mcheath; public domain | Supplemental used 1960s ranch: original vertical board/batten seams, window casing and broad closed eave. Not used as a split-foyer or color measurement; cream paint is not assumed white. |
+| split-used-battens-commons.jpg | https://upload.wikimedia.org/wikipedia/commons/9/90/RANCHHOUSE8.JPG | Mcheath; public domain | Supplemental used 1960s ranch: original vertical board/batten seams, window casing and broad closed eave. Not used as a split-foyer or color measurement; cream paint is not assumed white. |
