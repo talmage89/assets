@@ -161,7 +161,7 @@ def main():
       'hood edge setback':(f['hood_edge_setback_m'],.15,.25),
       'hood edge height':(f['hood_edge_m'][2],.72,.80),
       'front chin height':(f['chin_m'][2],.15,.20),
-      'front chin tuck':(f['chin_tuck_m'],.025,.075),
+      'front chin tuck':(f['chin_tuck_m'],.10,.15),
       'hood rise':(f['hood_rise_degrees'],8,12),
       'cowl height':(f['cowl_m'][2],.95,1),
       'hood crown':(f['hood_transverse_crown_m'],.02,.04),
@@ -170,17 +170,10 @@ def main():
       'deck edge height':(r['deck_trailing_edge_m'][2],1.06,1.12),
       'rear upper lean':(r['upper_panel_degrees_from_vertical'],5,15),
       'rear bumper height':(r['bumper_rearmost_m'][2],.55,.65),
-      'rear lower tuck':(r['lower_tuck_m'],.050,.120),
+      'rear lower tuck':(r['lower_tuck_m'],.15,.20),
       'diffuser height':(r['diffuser_m'][2],.25,.35),
       'deck length':(r['deck_length_m'],.35,.45)}
-    # Round 5 explicitly replaces the lower-end silhouette and permits length
-    # within the class. Preserve the old measurements/ranges for comparison:
-    # passing the current construction checks does not satisfy those old tucks.
-    report['superseded_round2_ranges']={
-      'front chin tuck':dict(measured=f['chin_tuck_m'],minimum=.10,maximum=.15),
-      'rear lower tuck':dict(measured=r['lower_tuck_m'],minimum=.15,maximum=.20),
-      'length':dict(measured=report['bounds_m']['size'][1],target=4.900),
-      'reason':'R5 reshapes both lower bumpers against the profile photograph; the primary body/chassis package stays fixed.'}
+    report['profile_requirements']='R6 restores the original 100–150 / 150–200 mm lower tucks; overall length remains within the published class.'
     for name,values in lamps.items():
         if name.startswith('Headlamp'):
             for label,field,lo,hi in [('length','surface_centerline_length_m',.60,.75),('height','max_aperture_height_m',.08,.16),('return','corner_return_y_m',.20,.30)]:

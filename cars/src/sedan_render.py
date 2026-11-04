@@ -54,6 +54,7 @@ def stripes(sc,direction):
 def main():
     p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--out',required=True)
     p.add_argument('--width',type=int,default=1400);p.add_argument('--samples',type=int,default=32)
+    p.add_argument('--workbench',action='store_true',help='Fast clay inspection; reflection diagnostics still use Cycles')
     p.add_argument('--mode',choices=['clay','stripes','pairs','comparisons'],default='clay');p.add_argument('--cameras',default='build/sedan/cameras.json');p.add_argument('--shots',default='')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);source=Path(a.source).resolve();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     shots={n:s for n,s in SHOTS.items() if n.startswith('stripes')==(a.mode=='stripes')}
@@ -73,7 +74,7 @@ def main():
             stripes(sc,shot.get('direction','horizontal'));sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=4
             for ob in sc.objects:
                 if ob.get('studio') and ob.type in ['MESH','LIGHT']:ob.hide_render=True
-        elif shot.get('raking') or name in ['front_three_quarter','rear_three_quarter']:
+        elif not a.workbench and (shot.get('raking') or name in ['front_three_quarter','rear_three_quarter']):
             sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=5
             for mat in bpy.data.materials:
                 bs=mat.node_tree.nodes.get('Principled BSDF') if mat.use_nodes else None

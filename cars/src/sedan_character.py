@@ -100,7 +100,7 @@ def rear_trim(b,tree):
         b.add(ob,category='openings')
     # A rolled lip with an actual dark bore; the inner return sits inside the
     # black molding, with no broad horizontal plate protruding behind the car.
-    p,n,_,_=tree.find_nearest(Vector((.500,2.37,.278)))
+    p,n,_,_=tree.find_nearest(Vector((.500,2.37,.330)))
     p-=n*.006
     tangent=Vector((n.y,-n.x,0)).normalized();up=tangent.cross(n).normalized()
     outline=G.rounded_rectangle(.135,.052,.019,2)

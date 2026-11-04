@@ -5,6 +5,7 @@ projected onto the parent, offset 2.25 mm in its tangent plane, and faired to a 
 outline in the 2D chart. Cut skin fragments retain their original face planes;
 all gauge rims are constructed after cutting. No volume unions or thin booleans.
 """
+import math
 import bpy,bmesh
 from mathutils import Vector
 from mathutils.geometry import barycentric_transform,convex_hull_2d,delaunay_2d_cdt
@@ -55,41 +56,133 @@ def bounds(poly):
     return min(p.x for p in poly),max(p.x for p in poly),min(p.y for p in poly),max(p.y for p in poly)
 
 
-def regularize_blank(ob,surface,front):
-    """Triangulate a tapered lens in the parent's injective parameter chart.
+def regularize_blank(ob,surface,front,high=False):
+    """A feature-aligned cover strip on the continuous parent chart.
 
-    Closest-point projection of a Cartesian grid can fold its last tiny cells
-    over the shoulder. A chart triangulation has one disk topology even at the
-    narrow tip. All authored guide rows remain actual vertex samples.
+    A convex-hull triangulation joined distant optical tips with long chords
+    through the hood. Instead, resample the authored centerline and solve a
+    transverse tangent frame in the parent's metric. Every outer vertex is on
+    that parent; no image contour or replacement volume defines this cover.
     """
+    if not front:
+        return regularize_rear(ob,surface,high)
+    from bisect import bisect_right
     from mathutils.bvhtree import BVHTree
     raw=list(ob['aperture_samples']);guides=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
-    uv=[surface_uv(p,surface)[0].to_2d() for p in guides]
-    coords,_,faces,*_=delaunay_2d_cdt(uv,[],[],0,1e-6)
+    old_nu,old_nv=ob['form_columns'],ob['form_rows']
+    center_points=guides[(old_nv//2)*old_nu:(old_nv//2+1)*old_nu]
+    guide_uv=[surface_uv(p,surface)[0].to_2d() for p in guides]
+    center_uv=guide_uv[(old_nv//2)*old_nu:(old_nv//2+1)*old_nu]
+    heights=[(guides[(old_nv-1)*old_nu+i]-guides[i]).length for i in range(old_nu)]
     if 'uv_tree' not in surface:
         surface['uv_tree']=BVHTree.FromPolygons(surface['uvs'],surface['triangles'],all_triangles=True)
-    ps=[]
-    for q in coords:
+    def sample(q):
         hit,_,fi,_=surface['uv_tree'].find_nearest(Vector((q.x,q.y,0)));a,b,c=surface['triangles'][fi]
         uvs=surface['uvs'];points=surface['points'];normals=surface['normals']
         p=barycentric_transform(hit,uvs[a],uvs[b],uvs[c],points[a],points[b],points[c])
         n=barycentric_transform(hit,uvs[a],uvs[b],uvs[c],normals[a],normals[b],normals[c]).normalized()
-        ps.append(p+n*.004)
+        return p+n*.004,n
+    arc=[0.]
+    for a,c in zip(center_points,center_points[1:]):arc.append(arc[-1]+(c-a).length)
+    def center(s):
+        s=max(0,min(arc[-1],s));i=min(len(arc)-2,max(0,bisect_right(arc,s)-1));span=arc[i+1]-arc[i]
+        t=(s-arc[i])/max(span,1e-8);a,c=center_uv[i:i+2]
+        ia=max(0,i-1);ic=min(len(arc)-1,i+2)
+        ma=(center_uv[i+1]-center_uv[ia])/max(arc[i+1]-arc[ia],1e-7)
+        mc=(center_uv[ic]-center_uv[i])/max(arc[ic]-arc[i],1e-7)
+        q=a*(2*t**3-3*t*t+1)+ma*(span*(t**3-2*t*t+t))+c*(-2*t**3+3*t*t)+mc*(span*(t**3-t*t))
+        return q,heights[i]*(1-t)+heights[i+1]*t
+    steps=max(4,math.ceil(arc[-1]/(.020 if high else .030)))
+    stations=[arc[-1]*i/steps for i in range(steps+1)]
+    nu=len(stations);nv=7 if high else 4;rows=[[] for _ in range(nv)];eps=.002
+    for s in stations:
+        q,height=center(s);p,n=sample(q)
+        qa,_=center(s-.002);qc,_=center(s+.002);tangent=(sample(qc)[0]-sample(qa)[0]).normalized()
+        up=n.cross(tangent).normalized()
+        if up.z<0:up.negate()
+        du=(sample(q+Vector((eps,0)))[0]-sample(q-Vector((eps,0)))[0])/(2*eps)
+        dv=(sample(q+Vector((0,eps)))[0]-sample(q-Vector((0,eps)))[0])/(2*eps)
+        aa,bb,cc=du.dot(du),du.dot(dv),dv.dot(dv);det=aa*cc-bb*bb
+        if det<1e-12:raise ValueError('Singular optical tangent frame')
+        au,av=du.dot(up),dv.dot(up)
+        across=Vector(((cc*au-bb*av)/det,(aa*av-bb*au)/det))
+        for j in range(nv):
+            offset=height*(j/(nv-1)-.5)
+            qq=q+across*offset;rows[j].append(sample(qq)[0])
+    ps=[p for row in rows for p in row]
+    faces=[(j*nu+i,j*nu+i+1,(j+1)*nu+i+1,(j+1)*nu+i) for j in range(nv-1) for i in range(nu-1)]
     inverse=ob.matrix_world.inverted();old=ob.data
-    mesh=bpy.data.meshes.new(old.name+' chart disk');mesh.from_pydata([inverse@p for p in ps],[],faces);mesh.update()
+    mesh=bpy.data.meshes.new(old.name+' aligned optical strip');mesh.from_pydata([inverse@p for p in ps],[],faces);mesh.update()
     for mat in old.materials:mesh.materials.append(mat)
     ob.data=mesh
     if old.users==0:bpy.data.meshes.remove(old)
-    center=sum((ps[i] for i in faces[0]),Vector())/len(faces[0])
-    hint=Vector((center.x,-1 if front else 1,0))
-    if ob.data.polygons[0].normal.dot(hint)<0:
-        for face in ob.data.polygons:face.flip()
-    sol=ob.modifiers.new('Chart lens gauge','SOLIDIFY');sol.thickness=.0015;sol.offset=-1;sol.use_even_offset=False;G.apply(ob)
-    kd=KDTree(len(ps))
-    for i,p in enumerate(ps):kd.insert(p,i)
-    kd.balance();snapped=[kd.find(p)[0].copy() for p in guides]
-    ob['aperture_samples']=[v for p in snapped for v in p]
-    ob['chart_disk_topology']=True
+    for face in ob.data.polygons:
+        p=sum((ps[i] for i in face.vertices),Vector())/len(face.vertices);_,n=surface_uv(p,surface)
+        if face.normal.dot(n)<0:face.flip()
+    ob.data.update();count=len(faces)
+    sol=ob.modifiers.new('Aligned lens gauge','SOLIDIFY');sol.thickness=.0015;sol.offset=-1;sol.use_even_offset=False;G.apply(ob)
+    custom=[]
+    for face in ob.data.polygons:
+        role=0 if face.index<count else 1 if face.index<2*count else 2;face.use_smooth=role!=2
+        for li in face.loop_indices:
+            p=ob.matrix_world@ob.data.vertices[ob.data.loops[li].vertex_index].co;_,n=surface_uv(p,surface)
+            custom.append(n if role==0 else -n if role==1 else (0,0,0))
+    ob.data.normals_split_custom_set(custom)
+    ob['form_rows']=nv;ob['form_columns']=nu;ob['aperture_samples']=[v for p in ps for v in p]
+    ob['lens_outer_faces']=count;ob['chart_disk_topology']=True
+
+
+def regularize_rear(ob,surface,high):
+    """Sample the outermost rear sheet along a physical horizontal normal.
+
+    The quarter's thin rolled tip is not injective under nearest-point UV
+    inversion. A radial surface ray chooses the exposed surface explicitly.
+    This retains the authored centerline, envelope and five-row lens section.
+    """
+    from bisect import bisect_right
+    raw=list(ob['aperture_samples']);guides=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
+    old_nu,old_nv=ob['form_columns'],ob['form_rows']
+    middle=guides[(old_nv//2)*old_nu:(old_nv//2+1)*old_nu]
+    heights=[abs(guides[(old_nv-1)*old_nu+i].z-guides[i].z) for i in range(old_nu)]
+    arc=[0.]
+    for a,c in zip(middle,middle[1:]):arc.append(arc[-1]+(c-a).length)
+    steps=max(4,math.ceil(arc[-1]/(.018 if high else .027)));nu=steps+1;nv=7 if high else 5
+    rows=[[] for _ in range(nv)];sign=1 if middle[0].x>0 else -1
+    for k in range(nu):
+        s=arc[-1]*k/steps;i=min(old_nu-2,max(0,bisect_right(arc,s)-1));t=(s-arc[i])/max(arc[i+1]-arc[i],1e-8)
+        center=middle[i].lerp(middle[i+1],t);height=heights[i]*(1-t)+heights[i+1]*t
+        tangent=middle[min(old_nu-1,i+2)]-middle[max(0,i-1)]
+        radial=Vector((-tangent.y,tangent.x,0)).normalized()
+        if radial.dot(Vector((sign,1,0)))<0:radial.negate()
+        for j in range(nv):
+            row=j*(old_nv-1)/(nv-1);r=min(old_nv-2,int(row));fraction=row-r
+            lower=guides[r*old_nu+i].lerp(guides[r*old_nu+i+1],t)
+            upper=guides[(r+1)*old_nu+i].lerp(guides[(r+1)*old_nu+i+1],t)
+            guess=lower.lerp(upper,fraction)
+            hit,n,_,_=surface['tree'].ray_cast(guess+radial*.70,-radial,2.0)
+            if hit is None or (hit-guess).length>.045:
+                hit,n,_,distance=surface['tree'].find_nearest(guess)
+                if distance>.025:raise ValueError(('Outer rear optical ray missed',ob.name,k,j,distance))
+            if n.dot(radial)<0:n.negate()
+            rows[j].append(hit+n*.004)
+    ps=[p for row in rows for p in row]
+    faces=[(j*nu+i,j*nu+i+1,(j+1)*nu+i+1,(j+1)*nu+i) for j in range(nv-1) for i in range(nu-1)]
+    inverse=ob.matrix_world.inverted();old=ob.data
+    mesh=bpy.data.meshes.new(old.name+' outer ray strip');mesh.from_pydata([inverse@p for p in ps],[],faces);mesh.update()
+    for mat in old.materials:mesh.materials.append(mat)
+    ob.data=mesh
+    if old.users==0:bpy.data.meshes.remove(old)
+    for face in mesh.polygons:
+        hint=sum((ps[i] for i in face.vertices),Vector())/len(face.vertices);hint=Vector((hint.x,1,0))
+        if face.normal.dot(hint)<0:face.flip()
+    mesh.update();count=len(faces)
+    sol=ob.modifiers.new('Outer ray lens gauge','SOLIDIFY');sol.thickness=.0015;sol.offset=-1;sol.use_even_offset=False;G.apply(ob)
+    # Shade the physical cover itself; no inward normal from a folded parent
+    # chart is allowed to enter its smooth optical surface.
+    for face in ob.data.polygons:face.use_smooth=face.index<2*count
+    ob.data.update()
+    ob['form_rows']=nv;ob['form_columns']=nu;ob['aperture_samples']=[v for p in ps for v in p]
+    ob['lens_outer_faces']=count;ob['chart_disk_topology']=True
 
 
 def difference(polygon,region):

@@ -27,8 +27,8 @@ def face_depth(z,front):
     # One positive-curvature function per end, with no height-band blends.
     q=z-(.500 if front else .600)
     r=.008;positive=.5*(q+math.sqrt(q*q+r*r))
-    if not front:return .45*q*q-.10*(positive*positive-r*q/2-r*r/4)
-    return .30*q*q+2.35*(positive*positive-r*q/2-r*r/4)
+    if not front:return 1.95*q*q-1.60*(positive*positive-r*q/2-r*r/4)
+    return 1.25*q*q+1.40*(positive*positive-r*q/2-r*r/4)
 
 
 def locator_plan_guess(x,front):
@@ -200,14 +200,14 @@ REAR_ROWS=[
  (2.355,1.044,2.030),(2.380,1.045,2.035),(2.394,1.031,2.040),
  (2.407,.969,2.045),(2.425,.865,2.055),(2.443,.755,2.065),
  (2.454,.625,2.075),(2.450,.575,2.085),(2.401,.460,2.095),
- (2.337,.360,2.105),(2.276,.280,2.115),(2.246,.218,2.125)]
+ (2.337,.360,2.105),(2.276,.300,2.115),(2.246,.270,2.125)]
 
 
 
 def end_section(row,front):
     yc,zc,tangent=row
     sign=1 if front else -1
-    bottom=.175 if front else .218
+    bottom=.175 if front else .270
     xs=[0,.28,.55,.735,.815,.860,.894,.913,.921]
     # A hood's section is shallow. The same section turns around in plan at
     # the vertical fascia, instead of keeping a spurious diagonal top ridge.
@@ -328,10 +328,15 @@ def fit_control_net(ob):
         p=v.co
         # The accepted canopy retains its full section, including the low
         # backlight corners; height alone cannot identify a roof/side chart.
-        if -1.08<p.y<1.90 and abs(parameter_u[v.index]-center_u)<8.5:continue
-        cy=max(-1.40,min(1.40,p.y));end_center=Vector((0,cy,.43 if p.y<0 else .60))
         def ease(t):
             t=max(0,min(1,t));return t*t*t*(10-15*t+6*t*t)
+        protect=ease((p.y+1.25)/.22)*ease((2.02-p.y)/.22)
+        edge_fit=ease((abs(parameter_u[v.index]-center_u)-7.5)/3.0)
+        edge_fit=max(edge_fit,ease((shoulder_height(p.y)+.065-p.z)/.030))
+        fit_weight=1-protect*(1-edge_fit)
+        if fit_weight<1e-7:continue
+        original=p.copy()
+        cy=max(-1.40,min(1.40,p.y));end_center=Vector((0,cy,.43 if p.y<0 else .60))
         # A hard z=370 mm switch in the projection center folded control rows
         # at the diffuser corners. Blend the fitting frame before subdivision;
         # the limit surface and its own normals now remain continuous there.
@@ -340,7 +345,7 @@ def fit_control_net(ob):
         if p.y<0:
             # Hold the accepted hood/cowl fit; only the lower end frame needs
             # the smooth height transition. The rear hip gets the longer blend.
-            center=Vector((0,p.y,p.z)) if p.y>-1.08 else Vector((0,cy,.43))
+            center=Vector((0,p.y,p.z)).lerp(Vector((0,cy,.43)),ease((-1.00-p.y)/.24))
             center.z+=(p.z-center.z)*low*ease((-1.80-p.y)/.10)
         else:
             center=Vector((0,p.y,p.z)).lerp(end_center,ease((p.y-1.65)/.25))
@@ -350,7 +355,32 @@ def fit_control_net(ob):
             t=(lo+hi)/2
             if section_field(center+direction*t)>0:hi=t
             else:lo=t
-        v.co=center+direction*((lo+hi)/2)
+        v.co=original.lerp(center+direction*((lo+hi)/2),fit_weight)
+    ob.data.update()
+
+
+def fair_pillar_feet(ob):
+    """Relax the fitted control net locally before evaluating its limit.
+
+    The fit/canopy boundary used to leave a narrow normal kink at the A foot
+    and C header. A smooth, compact relaxation spans those manufactured radii;
+    the accepted centerline, glass width and door sections stay outside it.
+    """
+    adjacency=[[] for _ in ob.data.vertices]
+    for e in ob.data.edges:
+        a,c=e.vertices;adjacency[a].append(c);adjacency[c].append(a)
+    weights=[]
+    for v in ob.data.vertices:
+        x,y,z=v.co
+        a=math.exp(-((y+1.045)/.20)**2-((z-1.00)/.16)**2-((abs(x)-.83)/.11)**2)
+        c=math.exp(-((y-.91)/.20)**2-((z-1.34)/.13)**2-((abs(x)-.69)/.13)**2)
+        lamp=math.exp(-((y+1.85)/.25)**2-((z-.82)/.13)**2-((abs(x)-.85)/.10)**2)
+        weights.append(.55*max(a,c,lamp))
+    for _ in range(90):
+        old=[v.co.copy() for v in ob.data.vertices]
+        for v,w,neighbors in zip(ob.data.vertices,weights,adjacency):
+            if w<1e-5 or len(neighbors)!=4:continue
+            v.co=old[v.index].lerp(sum((old[i] for i in neighbors),Vector())/4,w)
     ob.data.update()
 
 
@@ -392,6 +422,7 @@ def master(level):
             vi=ob.data.loops[li].vertex_index;uv.data[li].uv=(vi%width,vi//width)
     ob['grid_width']=width;ob['grid_rows']=len(rows)
     fit_control_net(ob)
+    fair_pillar_feet(ob)
     bm=bmesh.new();bm.from_mesh(ob.data)
     quads=sum(len(f.verts)==4 for f in bm.faces)
     if quads!=len(bm.faces) or any(len(v.link_edges)!=4 for v in bm.verts if not v.is_boundary):raise AssertionError('The parent control sheet must be regular quads')
@@ -467,7 +498,11 @@ def tessellate(parent,high=False):
         selected=set();edges={}
         for fi,face in enumerate(faces):
             p=sum((vertices[i] for i in face),Vector())/len(face)
-            if len(face)==4 and 1.76<p.y<1.99 and .35<p.z<.55 and abs(p.x)>.80:
+            rear_roll=1.76<p.y<1.99 and .35<p.z<.55 and abs(p.x)>.80
+            a_foot=-1.17<p.y<-.83 and .96<p.z<1.19 and abs(p.x)>.70
+            c_header=.70<p.y<1.14 and 1.25<p.z<1.45 and abs(p.x)>.60
+            lamp_crest=-2.13<p.y<-1.64 and .74<p.z<.93 and abs(p.x)>.70
+            if len(face)==4 and (rear_roll or a_foot or c_header or lamp_crest):
                 selected.add(fi)
                 for a,b in zip(face,face[1:]+face[:1]):edges[tuple(sorted((a,b)))]=None
         for edge in edges:
@@ -637,7 +672,7 @@ def sheet_gauge(ob,thickness):
     ob['sheet_roles']=True
 
 
-def simplify_inner_gauge(ob,tree):
+def simplify_inner_gauge(ob,tree,minimum_depth=.0004,max_collapses=1000,max_iterations=16):
     """Collapse only hidden back edges, with local depth and link checks.
 
     Exposed skin vertices and cut rims are locked. Each new back triangle is
@@ -658,12 +693,12 @@ def simplify_inner_gauge(ob,tree):
         if f.material_index==1:inward.add(f)
     pure={v for v in bm.verts if v.link_faces and all(f in inward for f in v.link_faces)}
     count=0;minimum=1.
-    for iteration in range(16):
+    for iteration in range(max_iterations):
         bm.edges.index_update();used=set();changed=0
         candidates=sorted([e for e in bm.edges if len(e.link_faces)==2 and all(v in pure for v in e.verts)
                            and all(len(f.verts)==3 for f in e.link_faces)],key=lambda e:(e.calc_length(),e.index))
         for e in candidates:
-            if count>=1000:break
+            if count>=max_collapses:break
             if not e.is_valid:continue
             a,c=e.verts
             if a in used or c in used or e.calc_length()>.12:continue
@@ -681,13 +716,13 @@ def simplify_inner_gauge(ob,tree):
                 probes=[sum(ps,Vector())/3]+[(p+q)/2 for p,q in zip(ps,ps[1:]+ps[:1])]
                 for q in probes:
                     q=matrix@q;hit,n,_,_=tree.find_nearest(q);depth=-(q-hit).dot(n)
-                    if depth<.0004:valid=False;break
+                    if depth<minimum_depth:valid=False;break
                     depth_min=min(depth_min,depth)
                 if not valid:break
             if not valid:continue
             bmesh.ops.collapse(bm,edges=[e],uvs=False)
             used|=neighbors;count+=1;changed+=1;minimum=min(minimum,depth_min)
-        if not changed or count>=1000:break
+        if not changed or count>=max_collapses:break
         pure={v for v in pure if v.is_valid};bm.normal_update()
     bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=1e-8)
     # Reject any topology regression; the original outer sheet remains intact.
@@ -806,6 +841,9 @@ def build(b):
                 if i in centroids:centroids[i].append(center)
         for i in boundary:
             p=verts[i];inside=centroids[i]
+            # The lower nose and fender are one faired surface at the arch.
+            # This chart boundary is not a manufactured parting line.
+            if name.startswith(('Front molded fascia','Front fender')) and p.y<-1.50 and p.z<.700:continue
             if any(abs(abs(p.y-line)-S.PANEL_GAP/2)<2e-6 for line in cuts):continue
             if p.y>1.80 and (abs(abs(abs(p.x)-.615)-S.PANEL_GAP/2)<2e-6 or abs(abs(p.z+.022*(p.x/.90)**2-.620)-S.PANEL_GAP/2)<.0003):continue
             if inside:
@@ -818,9 +856,10 @@ def build(b):
         mat=b.m['glass'] if glass else b.m['rubber'] if dark else b.m['body']
         ob=G.mesh(name+' outer' if name in ['Hood','Trunk'] else name,verts,faces,mat)
         for face in ob.data.polygons:face.use_smooth=True
-        if name.startswith(('Front fender','Rear quarter','Door R')):
+        if name.startswith(('Front fender','Rear quarter','Door R','Front molded fascia','Rear molded fascia','Rocker')):
             for end,axle in [('F',S.FRONT_AXLE),('R',S.REAR_AXLE)]:
-                if (end=='F')!=name.startswith('Front fender'):continue
+                if name.startswith(('Front fender','Front molded fascia')) and end!='F':continue
+                if name.startswith(('Rear quarter','Rear molded fascia','Door R')) and end!='R':continue
                 trim_arch(ob,axle,128 if b.high else 64)
                 if not ob.data.polygons:raise ValueError(('Arch trim discarded panel',name,end))
         closeable_sheet(ob)
@@ -866,11 +905,14 @@ def build(b):
             sol=ob.modifiers.new('Arch hem gauge','SOLIDIFY');sol.thickness=.001;sol.offset=-1;G.apply(ob);b.add(ob,category='arches')
             # Dark well, following the same real opening; interior detail deferred.
             inner_angles=angles[::2] if b.high else angles;count=len(inner_angles)
-            verts=[(sign*x,axle+(S.ARCH_RADIUS+.012)*math.cos(a),S.HUB_HEIGHT+(S.ARCH_RADIUS+.012)*math.sin(a)) for x in [.56,.88] for a in inner_angles]
+            inner_x=.48 if end=='F' else .56
+            well_radius=S.ARCH_RADIUS+(.025 if end=='F' else .014)
+            outer_x=.88 if end=='F' else .875
+            verts=[(sign*x,axle+well_radius*math.cos(a),S.HUB_HEIGHT+well_radius*math.sin(a)) for x in [inner_x,outer_x] for a in inner_angles]
             fs=[(i,i+1,count+i+1,count+i) for i in range(count-1)]
             ob=G.mesh('Wheelwell_'+end+side,verts,fs,b.m['rubber']);sol=ob.modifiers.new('Liner thickness','SOLIDIFY');sol.thickness=.002;G.apply(ob);b.add(ob,category='liners')
-            outline=[(axle+(S.ARCH_RADIUS+.012)*math.cos(a),S.HUB_HEIGHT+(S.ARCH_RADIUS+.012)*math.sin(a)) for a in inner_angles]
-            b.add(G.profile('Wheelwell inboard_'+end+side,outline,sign*.559,sign*.561,b.m['rubber'],axis='X'),category='liners')
+            outline=[(axle+well_radius*math.cos(a),S.HUB_HEIGHT+well_radius*math.sin(a)) for a in inner_angles]
+            b.add(G.profile('Wheelwell inboard_'+end+side,outline,sign*(inner_x-.001),sign*(inner_x+.001),b.m['rubber'],axis='X'),category='liners')
     fascia(b,front=True,master_tree=tree,surface_map=surface_map);fascia(b,front=False,master_tree=tree,surface_map=surface_map)
     # Only a cavity closure is supplied at this gate, not an interior or drivetrain.
     # This temporary blackout is inside the wheel wells and tucked end skins.
@@ -884,8 +926,8 @@ def build(b):
     rings=[]
     for i in range(17):
         x=-.71+1.42*i/16;q=(x/.71)**2;bottom_q=(max(0,abs(x)-.50)/.21)**2
-        rings.append([(x,y,z) for y,z in [(2.32-.25*q,.275+.01*q),(2.29-.25*q,.235+.015*q),
-             (2.20-.22*q,.190+.035*bottom_q),(2.10-.20*q,.170+.050*bottom_q),(1.84,.190+.050*bottom_q),(1.84,.270+.010*q)]])
+        rings.append([(x,y,z) for y,z in [(2.24-.25*q,.315+.01*q),(2.21-.25*q,.285+.015*q),
+             (2.14-.22*q,.260+.035*bottom_q),(2.04-.20*q,.245+.050*bottom_q),(1.82,.240+.050*bottom_q),(1.82,.310+.010*q)]])
     b.add(G.loft('Rear form underbody closure',rings,b.m['rubber']),category='closure')
     handles(b)
     from sedan_character import mirrors
@@ -1036,7 +1078,7 @@ def fascia(b,front,master_tree,surface_map):
                ('Lower intake',(0,-2.41,.325),(1.40,.32,.150),.018,.060),
                ('DRL pocket L',(-.780,-2.34,.465),(.205,.30,.155),.026,.042),
                ('DRL pocket R',(.780,-2.34,.465),(.205,.30,.155),.026,.042)] if front else
-              [('Diffuser',(0,2.43,.302),(1.44,.32,.130),.035,.014),
+              [('Diffuser',(0,2.43,.335),(1.44,.32,.110),.035,.014),
                ('Plate pocket',(0,2.43,.865),(.330,.23,.180),.004,.031)])
     from sedan_character import well,bars
     for name,center,size,radius,depth in openings:
@@ -1070,7 +1112,7 @@ def fascia(b,front,master_tree,surface_map):
     from sedan_apertures import regularize_blank
     for side,sgn in [('L',-1),('R',1)]:
         for lamp in lamp_volume(b,front,sgn,b.m['glass'],master_tree):
-            regularize_blank(lamp,surface_map,front)
+            regularize_blank(lamp,surface_map,front,b.high)
             b.add(lamp,bpy.data.objects['Trunk'] if lamp.get('lamp_piece')=='lid' else None,category='openings');lamps.append(lamp)
     from sedan_apertures import carve
     carve(front,lamps,surface_map)
