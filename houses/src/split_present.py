@@ -22,6 +22,7 @@ def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 
 def audit_row(row,image,recipe):
     assert image.exists(),image
+    assert sha(image)==row['image_sha256'],('Changed render pixels',image)
     assert sha(row['source'])==row['source_sha256'],('Stale source',image)
     assert sha(Path(row['source']).with_suffix('.json'))==row['metadata_sha256'],('Stale metadata',image)
     for p,digest in row['map_sha256'].items():assert sha(p)==digest,('Stale map',image,p)
@@ -39,7 +40,7 @@ def audit_views(folder):
     recipe=hashlib.sha256(b''.join((HERE/n).read_bytes() for n in names)).hexdigest()
     for name,row in json.loads((folder/'values'/'patches.json').read_text()).items():
         image=folder/'values'/(name+'.png');audit_row(row,image,recipe);rows[str(image)]=row['source_sha256']
-    assert len(rows)>=62,len(rows)
+    assert len(rows)>=63,len(rows)
     return rows
 
 
@@ -70,7 +71,7 @@ def main(a):
     r=ROOT
     family=[r/'seeds'/str(s)/(v+'.png') for s in range(51,57) for v in ('front','rear')]
     sheet(family,r/'family.jpg',2,(780,350),[f'Seed {s} / {v}' for s in range(51,57) for v in ('front','rear')])
-    details=[r/(v+'.png') for v in ('entry','eave','veneer','garage','tired','driveway')]+[r/'details'/'56'/'bay.png',r/'details'/'55'/'lower.png',r/'details'/'54'/'garage.png']
+    details=[r/(v+'.png') for v in ('entry','eave','veneer','garage','tired','driveway','peeling')]+[r/'details'/'56'/'bay.png',r/'details'/'55'/'lower.png',r/'details'/'54'/'garage.png']
     sheet(details,r/'details.jpg',3,(650,470))
     paths=[r/'seeds'/str(s)/'veneer_face.png' for s in range(51,57)]
     sheet(paths,r/'veneers.jpg',3,(650,470),[f'Seed {s} / '+('fieldstone' if s==52 else 'brick') for s in range(51,57)])

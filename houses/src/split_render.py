@@ -1,4 +1,4 @@
-"""Cycles form views and calibrated comparisons, with cut grade for the drive."""
+"""Cycles source look views and calibrated pairs, with cut grade for the drive."""
 import argparse
 import hashlib
 import json
@@ -53,6 +53,8 @@ def views(meta):
     else:vx=(wing['x0']+wing['x1'])/2;vy=wing['y0'];vz=.50
     sx=(wing['x0']+wing['x1'])/2
     if meta['spec']['kind']=='foyer':sx=m['x0']+(m['x1']-m['x0'])*.35
+    old_sash=next(o for o in meta['openings'] if o['kind']=='window' and o['face']=='front' and o['block']==wing['name'] and o['z']>=lv['upper']+.4)
+    sill_x=wing['x0']+old_sash['u'];sill_z=old_sash['z']
     return dict(
         hero=dict(location=(cx+side*width*.74,y-width*1.30,6.2),target=(cx,0,2.1),lens=43,aspect=1.65),
         front=dict(location=(cx,-70,6.2),target=(cx,0,2.7),ortho=width,aspect=max(1.7,width/9)),
@@ -73,6 +75,7 @@ def views(meta):
         tired=dict(location=(wing['x1']+2.5,wing['y1']+6.0,wing['eave']+4.0),target=((wing['x0']+wing['x1'])/2,wing['y1']-1.3,wing['eave']+wing['pitch']*1.3),lens=52,aspect=1.4),
         driveway=dict(location=(gx+3.7,gy-7,6),target=(gx,gy-3.1,meta['driveway']['back_z']),lens=52,aspect=1.4),
         bay=dict(location=(px+2.8,y-4.4,pz+.7),target=(px,y-.15,pz),lens=52,aspect=1.4),
+        peeling=dict(location=(sill_x+.35,wing['y0']-1.8,sill_z+.65),target=(sill_x,wing['y0']-.12,sill_z+.05),lens=65,aspect=1.6),
         lower=dict(location=(m['x0']+(m['x1']-m['x0'])*.19,y-5.4,.8),target=(m['x0']+(m['x1']-m['x0'])*.19,y,.35),lens=48,aspect=1.5))
 
 
@@ -111,7 +114,7 @@ def render(source,out,names='hero',width=1200,samples=32,camera_file=None,types=
         bpy.data.objects['Afternoon sun'].rotation_euler=Vector((.5,.8,-1)).to_track_quat('-Z','Y').to_euler()
         next(n for n in sc.world.node_tree.nodes if n.type=='BACKGROUND').inputs['Strength'].default_value=.12
         sc.render.filepath=str((out/(name+'.png')).resolve());bpy.ops.render.render(write_still=True)
-        reports[name]=dict(source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),metadata_sha256=hashlib.sha256(source.with_suffix('.json').read_bytes()).hexdigest(),map_sha256=maps,recipe_sha256=recipe_sha(),camera=shot,context=context,stage=meta['stage'],engine=engine,clay=clay)
+        reports[name]=dict(source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),metadata_sha256=hashlib.sha256(source.with_suffix('.json').read_bytes()).hexdigest(),map_sha256=maps,recipe_sha256=recipe_sha(),image_sha256=hashlib.sha256((out/(name+'.png')).read_bytes()).hexdigest(),width=width,samples=samples,camera=shot,context=context,stage=meta['stage'],engine=engine,clay=clay)
         if name=='hero':tonal(out/'hero.png',camera)
     (out/'provenance.json').write_text(json.dumps(reports,indent=2))
 

@@ -10,7 +10,7 @@ def run(a):
     root=Path('renders/split/lookdev/checkpoint')
     if a.group=='main':
         source=Path('build/split/house-51.blend')
-        render(source,root,'hero,back,side,entry,eave,veneer,garage,tired,driveway,scale',a.width,a.samples)
+        render(source,root,'hero,back,side,entry,eave,veneer,garage,tired,driveway,scale,peeling',a.width,a.samples)
         for seed in range(51,57):
             source=Path(f'build/split/house-{seed}.blend');out=root/'seeds'/str(seed)
             render(source,out,'front,rear,veneer_face'+(',siding' if seed!=54 else ''),min(a.width,1280),a.samples)
