@@ -1,4 +1,7 @@
-# H120 source form checkpoint. No detail, textures or hatch GLB at this gate.
+# Detail/look checkpoint. STAGE=form preserves the accepted round-four graph.
+ifeq ($(STAGE),form)
+include hatch_form.mk
+else
 .DEFAULT_GOAL := all
 BLENDER ?= blender
 PYTHON ?= python3
@@ -8,80 +11,116 @@ BP := $(BLENDER) -t 1 -b --factory-startup --python-exit-code 1
 RP := $(BLENDER) -b --factory-startup --python-exit-code 1
 export TMPDIR := $(REPO)/build/tmp
 export ASSETS_GPU_LOCK ?= $(REPO)/build/locks/gpu.lock
-WIDTH ?= 1600
-SAMPLES ?= 40
-PASS ?= hatch-round4
+WIDTH ?= 1400
+SAMPLES ?= 48
+WEAR ?= .65
+PASS ?= hatch-checkpoint
 OUT := renders/$(PASS)
-HDEPS := src/hatch_build.py src/hatch_body.py src/hatch_apertures.py src/hatch_character.py src/hatch_spec.py src/build.py src/forms.py src/wheels.py src/detail_helpers.py ../kit/model.py ../kit/vehicle.py
-CLAY := front_three_quarter rear_three_quarter side front rear top side_raking
-STRIPES := stripes_horizontal stripes_vertical stripes_rear_horizontal stripes_rear_vertical stripes_side_horizontal stripes_side_vertical stripes_hood_driver stripes_rear_unpainted
-PAIRS := corolla_front corolla_rear hyundai_front hyundai_rear corolla_side hyundai_side
-COMPARISONS := $(addsuffix _clay,$(PAIRS))
-MAPVIEWS := front_three_quarter rear_three_quarter side front rear
-GLOSS := $(addprefix gloss_,side front_three_quarter rear_three_quarter rear $(PAIRS))
-MAPS := $(addprefix curvature_,$(MAPVIEWS))
-MAPSTRIPES := $(addprefix map_stripes_,$(MAPVIEWS))
+HD := build/hatch-detail
+HC := src/hatch_detail_config.py
+FORMDEPS := src/hatch_build.py src/hatch_body.py src/hatch_apertures.py src/hatch_character.py src/hatch_spec.py src/build.py src/wheels.py
+DETAILDEPS := src/hatch_detail.py src/hatch_exterior.py src/hatch_finishes.py src/hatch_hardware.py src/hatch_interior.py src/hatch_mechanisms.py src/hatch_surface_detail.py src/hatch_underbody.py src/finishes.py src/detail_helpers.py ../kit/vehicle_materials.py
+empty :=
+space := $(empty) $(empty)
+comma := ,
+VIEWS := front_three_quarter rear_three_quarter face lamp_unlit lamp_lit wheel grille plate_detail mirror interior_glass cargo underbody underbody_layout opened_front opened_rear scale side front rear top
+COLORS := Porcelain Carbon Graphite Aluminum Atlantic
+COLORVIEWS := $(foreach c,$(COLORS),$(c)_front $(c)_rear)
+MOTIONVIEWS := $(foreach g,doors hood liftgate steering wheels,$(foreach i,0 1 2 3 4,$(g)_$(i)))
 .NOTPARALLEL:
 .DELETE_ON_ERROR:
-.PHONY: all model refs check render review fairness baseline FORCE
-all: refs model check render review
-build/hatch/parameters.txt: FORCE
-	@mkdir -p build/hatch $(TMPDIR)
-	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='width=$(WIDTH) samples=$(SAMPLES) out=$(OUT)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
-build/hatch/game.blend: $(HDEPS)
+.PHONY: all refs model check render review FORCE
+all: refs model check render review eevee
+RENDER_SOURCE ?= export/AlderH120.glb
+$(HD)/wear.txt: FORCE
+	@mkdir -p $(HD) $(TMPDIR)
+	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='$(WEAR)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
+$(HD)/parameters.txt: FORCE
+	@mkdir -p $(HD) $(TMPDIR)
+	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='wear=$(WEAR) width=$(WIDTH) samples=$(SAMPLES) out=$(OUT)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
+refs:
+	$(PYTHON) $(KIT)/fetch_refs.py refs --only hatch-used-front.jpg hatch-used-rear.jpg hatch-color-report.pdf
+build/markings/.hatch-family: src/markings.py ../kit/fonts.py
+	$(PYTHON) src/markings.py build/markings
+	@touch $@
+$(HD)/markings/.stamp: src/hatch_markings.py ../kit/fonts.py
+	$(PYTHON) src/hatch_markings.py $(HD)/markings
+	@touch $@
+build/hatch/game.blend: $(FORMDEPS)
 	@mkdir -p build/hatch $(TMPDIR)
 	$(BP) --python src/hatch_build.py -- --quality game --out $@
-build/hatch/high.blend: $(HDEPS)
+build/hatch/high.blend: $(FORMDEPS)
 	@mkdir -p build/hatch $(TMPDIR)
 	$(BP) --python src/hatch_build.py -- --quality high --out $@
-model: build/hatch/game.blend build/hatch/high.blend
-refs:
-	$(PYTHON) $(KIT)/fetch_refs.py refs --only hatch-corolla-front.jpg hatch-corolla-rear.jpg hatch-corolla-side.jpg hatch-corolla-back.jpg hatch-hyundai-front.jpg hatch-hyundai-rear.jpg hatch-hyundai-side.jpg hatch-hyundai-back.jpg hatch-corolla-specs.pdf hatch-hyundai-specs.pdf hatch-hyundai-au.pdf hatch-corolla-drawing.pdf hatch-hyundai-drawing.pdf
-build/hatch/cameras.json: src/hatch_matches.py src/hatch_spec.py $(KIT)/photo_match.py
-	$(PYTHON) $(KIT)/photo_match.py solve --config src/hatch_matches.py --out $@
-build/hatch/form-check.json: build/hatch/game.blend src/hatch_check.py
-	$(BP) --python src/hatch_check.py -- --source $< --out $@
-build/hatch/character-check.json: build/hatch/game.blend src/hatch_character_check.py src/hatch_fairness.py src/hatch_body.py
-	$(BP) --python src/hatch_character_check.py -- --source $< --out $@
-build/hatch/round2-check.json: build/hatch/game.blend src/hatch_round2_check.py
-	$(BP) --python src/hatch_round2_check.py -- --source $< --out $@
-build/hatch/round3-check.json: build/hatch/game.blend src/hatch_round3_check.py src/hatch_fairness.py
-	$(BP) --python src/hatch_round3_check.py -- --source $< --out $@
-build/hatch-round3-baseline/game.blend:
-	$(PYTHON) src/hatch_round4_review.py --renders $(OUT) --cameras build/hatch/cameras.json --blender $(BLENDER) --baseline-model-only
-build/hatch/round4-check.json: build/hatch/game.blend build/hatch-round3-baseline/game.blend src/hatch_round4_check.py src/hatch_curvature_map.py src/hatch_round3_check.py src/hatch_body.py
-	$(BP) --python src/hatch_round4_check.py -- --source $< --baseline build/hatch-round3-baseline/game.blend --out $@ --parent
-build/hatch/curvature.json: build/hatch/game.blend src/hatch_fairness.py
-	$(BP) --python src/hatch_fairness.py -- --source $< --out $@
-build/hatch/parent-curvature.json: build/hatch/game.blend src/hatch_fairness.py src/hatch_body.py
-	$(BP) --python src/hatch_fairness.py -- --source $< --out $@ --parent
-fairness: build/hatch/curvature.json build/hatch/parent-curvature.json
-	$(PYTHON) src/hatch_curvature_plot.py --report build/hatch/curvature.json --out $(OUT)
-	$(PYTHON) src/hatch_curvature_plot.py --report build/hatch/parent-curvature.json --out $(OUT)/parent
-check: model refs build/hatch/cameras.json build/hatch/form-check.json build/hatch/character-check.json build/hatch/round2-check.json build/hatch/round3-check.json build/hatch/round4-check.json fairness
-	$(BP) --python $(KIT)/audit.py -- --source build/hatch/game.blend --config src/hatch_config.py --out build/hatch/game-audit.json
-	$(BP) --python $(KIT)/audit.py -- --source build/hatch/high.blend --config src/hatch_config.py --out build/hatch/high-audit.json
-	$(BP) --python $(KIT)/photo_match.py -- verify --calibration build/hatch/cameras.json
+$(HD)/game.blend $(HD)/game.counts.json &: build/hatch/game.blend build/hatch/high.blend $(DETAILDEPS) $(HD)/markings/.stamp build/markings/.hatch-family $(HD)/wear.txt
+	$(BP) --python src/hatch_detail.py -- --source build/hatch/game.blend --out $(HD)/game.blend --wear $(WEAR)
+$(HD)/high.blend $(HD)/high.counts.json &: build/hatch/high.blend $(DETAILDEPS) $(HD)/markings/.stamp build/markings/.hatch-family $(HD)/wear.txt
+	$(BP) --python src/hatch_detail.py -- --source build/hatch/high.blend --out $(HD)/high.blend --wear $(WEAR)
+model: $(HD)/game.blend $(HD)/high.blend
+$(HD)/detail-check.json: $(HD)/game.blend src/hatch_detail_check.py src/hatch_coupled_motion.py
+	$(BP) --python src/hatch_detail_check.py -- --source $< --out $@ --coupled-struts
+$(HD)/detail-high-check.json: $(HD)/high.blend src/hatch_detail_check.py src/hatch_coupled_motion.py
+	$(BP) --python src/hatch_detail_check.py -- --source $< --out $@ --coupled-struts
+$(HD)/used-cameras.json: src/hatch_used_matches.py src/hatch_spec.py
+	$(PYTHON) $(KIT)/photo_match.py solve --config $< --out $@
+$(HD)/audit-game.json: $(HD)/game.blend $(HC)
+	$(BP) --python $(KIT)/audit.py -- --source $< --config $(HC) --out $@
+$(HD)/audit-high.json: $(HD)/high.blend $(HC)
+	$(BP) --python $(KIT)/audit.py -- --source $< --config $(HC) --out $@
+$(HD)/motion-game.json: $(HD)/game.blend $(HC)
+	$(BP) --python $(KIT)/motion.py -- --source $< --config $(HC) --out $@
+$(HD)/motion-high.json: $(HD)/high.blend $(HC)
+	$(BP) --python $(KIT)/motion.py -- --source $< --config $(HC) --out $@
+$(HD)/repeat-game.blend: build/hatch/game.blend build/hatch/high.blend $(DETAILDEPS) $(HD)/markings/.stamp build/markings/.hatch-family $(HD)/wear.txt
+	$(BP) --python src/hatch_detail.py -- --source $< --out $@ --wear $(WEAR)
+$(HD)/determinism.json: $(HD)/game.blend $(HD)/repeat-game.blend src/hatch_repeat.py src/compare_pickup.py
+	$(BP) --python src/hatch_repeat.py -- --before $(HD)/game.blend --after $(HD)/repeat-game.blend --out $@
+check: $(HD)/detail-check.json $(HD)/detail-high-check.json $(HD)/audit-game.json $(HD)/audit-high.json $(HD)/motion-game.json $(HD)/motion-high.json $(HD)/used-cameras.json $(HD)/delivery-check.json $(HD)/determinism.json
+	$(BP) --python $(KIT)/photo_match.py -- verify --calibration $(HD)/used-cameras.json
 	$(PYTHON) $(KIT)/repo_check.py
-$(addprefix $(OUT)/,$(addsuffix .png,$(CLAY))) &: build/hatch/game.blend build/hatch/form-check.json src/hatch_render.py build/hatch/parameters.txt
-	$(KIT)/with_gpu.sh $(RP) --python src/hatch_render.py -- --source build/hatch/game.blend --out $(OUT) --width $(WIDTH) --samples $(SAMPLES) --mode clay
-$(addprefix $(OUT)/,$(addsuffix .png,$(STRIPES))) &: build/hatch/game.blend build/hatch/form-check.json src/hatch_render.py build/hatch/parameters.txt
-	$(KIT)/with_gpu.sh $(RP) --python src/hatch_render.py -- --source build/hatch/game.blend --out $(OUT) --width $(WIDTH) --samples $(SAMPLES) --mode stripes
-$(addprefix $(OUT)/,$(addsuffix .png,$(PAIRS))) &: build/hatch/game.blend build/hatch/form-check.json build/hatch/cameras.json src/hatch_render.py build/hatch/parameters.txt
-	$(KIT)/with_gpu.sh $(RP) --python src/hatch_render.py -- --source build/hatch/game.blend --out $(OUT) --width $(WIDTH) --samples $(SAMPLES) --mode pairs --cameras build/hatch/cameras.json
-$(addprefix $(OUT)/,$(addsuffix .png,$(COMPARISONS))) &: build/hatch/game.blend build/hatch/form-check.json build/hatch/cameras.json src/hatch_render.py build/hatch/parameters.txt
-	$(KIT)/with_gpu.sh $(RP) --python src/hatch_render.py -- --source build/hatch/game.blend --out $(OUT) --width $(WIDTH) --samples $(SAMPLES) --mode comparisons --cameras build/hatch/cameras.json
-$(addprefix $(OUT)/,$(addsuffix .png,$(MAPS))) &: build/hatch/game.blend src/hatch_round4_render.py src/hatch_curvature_map.py build/hatch/parameters.txt
-	$(BP) --python src/hatch_round4_render.py -- --source build/hatch/game.blend --out $(OUT) --mode curvature --width $(WIDTH)
-$(addprefix $(OUT)/,$(addsuffix .png,$(GLOSS))) &: build/hatch/game.blend src/hatch_round4_render.py build/hatch/cameras.json build/hatch/parameters.txt
-	$(KIT)/with_gpu.sh $(RP) --python src/hatch_round4_render.py -- --source build/hatch/game.blend --out $(OUT) --mode gloss --width $(WIDTH) --samples $(SAMPLES) --cameras build/hatch/cameras.json
-$(addprefix $(OUT)/,$(addsuffix .png,$(MAPSTRIPES))) &: build/hatch/game.blend src/hatch_round4_render.py build/hatch/parameters.txt
-	$(KIT)/with_gpu.sh $(RP) --python src/hatch_round4_render.py -- --source build/hatch/game.blend --out $(OUT) --mode map-stripes --width $(WIDTH) --samples $(SAMPLES)
-render: $(addprefix $(OUT)/,$(addsuffix .png,$(CLAY) $(STRIPES) $(PAIRS) $(COMPARISONS) $(MAPS) $(GLOSS) $(MAPSTRIPES)))
-renders/hatch-round1-overlays/baseline.json: src/hatch_baseline.py
-	$(PYTHON) src/hatch_baseline.py --blender $(BLENDER) --model --renders renders/hatch-round1-overlays
-baseline: renders/hatch-round1-overlays/baseline.json
-review: render fairness baseline
-	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/hatch/cameras.json --renders $(OUT) --out $(OUT)
-	$(PYTHON) src/hatch_review.py --renders $(OUT) --report build/hatch/form-check.json --cameras build/hatch/cameras.json
-	$(PYTHON) src/hatch_round4_review.py --renders $(OUT) --cameras build/hatch/cameras.json --blender $(BLENDER) --width $(WIDTH) --samples $(SAMPLES)
+$(addprefix $(OUT)/,$(addsuffix .png,$(VIEWS))) &: $(RENDER_SOURCE) src/hatch_lookdev.py src/hatch_colors.py src/hatch_views.py src/hatch_lighting.py $(HD)/parameters.txt
+	$(KIT)/with_gpu.sh $(RP) --python src/hatch_lookdev.py -- --source $< --out $(OUT) --width $(WIDTH) --samples $(SAMPLES) --shots $(subst $(space),$(comma),$(VIEWS))
+$(OUT)/colors.stamp: $(RENDER_SOURCE) src/hatch_lookdev.py src/hatch_colors.py src/hatch_views.py $(HD)/parameters.txt
+	$(KIT)/with_gpu.sh $(RP) --python src/hatch_lookdev.py -- --source $< --out $(OUT) --width $(WIDTH) --samples $(SAMPLES) --colors
+	@touch $@
+$(OUT)/motions.stamp: $(RENDER_SOURCE) src/hatch_lookdev.py src/hatch_colors.py src/hatch_views.py $(HD)/parameters.txt
+	$(KIT)/with_gpu.sh $(RP) --python src/hatch_lookdev.py -- --source $< --out $(OUT) --width 960 --samples 32 --motions
+	@touch $@
+$(OUT)/pairs.stamp: $(RENDER_SOURCE) $(HD)/used-cameras.json src/hatch_lookdev.py src/hatch_lighting.py $(HD)/parameters.txt
+	$(KIT)/with_gpu.sh $(RP) --python src/hatch_lookdev.py -- --source $< --out $(OUT) --width $(WIDTH) --samples $(SAMPLES) --paint Porcelain --camera-file $(HD)/used-cameras.json
+	$(PYTHON) $(KIT)/photo_match.py compose --calibration $(HD)/used-cameras.json --renders $(OUT) --out $(OUT)
+	@touch $@
+render: $(addprefix $(OUT)/,$(addsuffix .png,$(VIEWS))) $(OUT)/colors.stamp $(OUT)/motions.stamp $(OUT)/pairs.stamp
+review: render
+	$(PYTHON) src/hatch_detail_review.py --renders $(OUT) --source $(RENDER_SOURCE)
+
+$(HD)/material-source.blend: $(HD)/game.blend src/hatch_prepare_bake.py src/prepare_bake.py
+	$(BP) --python src/hatch_prepare_bake.py -- --source $< --out $@
+$(HD)/bake-source.blend: $(HD)/high.blend src/hatch_prepare_bake.py src/prepare_bake.py
+	$(BP) --python src/hatch_prepare_bake.py -- --source $< --out $@
+$(HD)/finalized.blend $(HD)/uv-report.json &: $(HD)/material-source.blend $(HC) src/hatch_finalize.py $(KIT)/finalize.py $(KIT)/uv.py
+	$(BP) --python src/hatch_finalize.py -- --source $< --out $(HD)/finalized.blend --config $(HC) --report $(HD)/uv-report.json --size 2048 --target-density 360 --margin .0012
+$(HD)/projection-check.json: $(HD)/game.blend $(HD)/high.blend src/hatch_projection_check.py
+	$(BP) --python src/hatch_projection_check.py -- --low $(HD)/game.blend --high $(HD)/high.blend --out $@
+textures/hatch/material-bake/bake-report.json: $(HD)/finalized.blend src/hatch_surface_bake.py $(KIT)/bake.py
+	$(KIT)/with_gpu.sh $(RP) --python src/hatch_surface_bake.py -- --source $< --out textures/hatch/material-bake --size 4096 --samples 24
+textures/hatch/geometry-bake/bake-report.json: $(HD)/finalized.blend $(HD)/bake-source.blend $(HC) src/hatch_geometry_bake.py
+	$(KIT)/with_gpu.sh $(RP) --python src/hatch_geometry_bake.py -- --low $(HD)/finalized.blend --high $(HD)/bake-source.blend --out textures/hatch/geometry-bake --size 4096 --samples 24 --config $(HC)
+textures/hatch/bake/bake-report.json: textures/hatch/material-bake/bake-report.json textures/hatch/geometry-bake/bake-report.json $(HD)/projection-check.json src/hatch_bake_merge.py
+	$(BP) --python src/hatch_bake_merge.py -- --low $(HD)/finalized.blend --game $(HD)/game.blend --material textures/hatch/material-bake --geometry textures/hatch/geometry-bake --projection $(HD)/projection-check.json --out textures/hatch/bake
+textures/hatch/ship/texture-report.json: textures/hatch/bake/bake-report.json $(KIT)/downsample.py
+	$(PYTHON) $(KIT)/downsample.py --source textures/hatch/bake --out textures/hatch/ship --asset AlderH120 --size 2048 --alpha-mode independent
+export/AlderH120.glb $(HD)/export-report.json &: $(HD)/finalized.blend textures/hatch/ship/texture-report.json $(HC) $(KIT)/export.py
+	$(BP) --python $(KIT)/export.py -- --source $< --textures textures/hatch/ship --asset AlderH120 --out export/AlderH120.glb --config $(HC) --report $(HD)/export-report.json
+$(HD)/delivery-check.json: export/AlderH120.glb $(HD)/export-report.json $(HC) $(KIT)/verify.py
+	$(BP) --python $(KIT)/verify.py -- --source $< --expected $(HD)/export-report.json --config $(HC) --out $@ --size 2048
+.PHONY: export source-render
+export: export/AlderH120.glb $(HD)/delivery-check.json
+.PHONY: eevee
+renders/hatch-eevee/.stamp: export/AlderH120.glb src/hatch_lookdev.py src/hatch_views.py src/delivery_materials.py
+	$(KIT)/with_gpu.sh $(RP) --python src/hatch_lookdev.py -- --source $< --out renders/hatch-eevee --width $(WIDTH) --samples 128 --shots front_three_quarter --engine BLENDER_EEVEE
+	@touch $@
+eevee: renders/hatch-eevee/.stamp
+source-render:
+	$(MAKE) BODY=hatch RENDER_SOURCE=$(HD)/game.blend PASS=hatch-source render review
+endif
