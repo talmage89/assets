@@ -58,11 +58,15 @@ def views(meta):
 
 
 def render(source,out,names='hero',width=1200,samples=32,camera_file=None,types=False,engine='CYCLES'):
+    context_paths=None
+    if types:
+        from split_context import ensure
+        context_paths=ensure()
     bpy.ops.wm.open_mainfile(filepath=str(source.resolve()));meta=json.loads(source.with_suffix('.json').read_text())
     maps={str(Path(bpy.path.abspath(i.filepath)).resolve()):hashlib.sha256(Path(bpy.path.abspath(i.filepath)).read_bytes()).hexdigest() for i in bpy.data.images if i.filepath and Path(bpy.path.abspath(i.filepath)).is_file()}
     camera=setup(engine,samples);grade(meta);shots=views(meta);context=[]
     if types:
-        for path,offset in [('export/HearthfieldCape-36.gltf',-46),('export/HearthfieldRanch-12.gltf',-22),('export/Hearthfield-27.gltf',25)]:context.append(load_context(Path(path),offset))
+        for kind,offset in [('cape',-46),('ranch',-22),('builder_colonial',25)]:context.append(load_context(context_paths[kind],offset))
         shots=dict(types=dict(location=(-9,-100,18),target=(-9,0,3),ortho=102,aspect=4.6))
     if camera_file:shots={n:d['shot'] for n,d in json.loads(camera_file.read_text()).items()}
     figures=human((door:=meta['door_x']-1.5,meta['blocks'][0]['y0']-1.6,0))

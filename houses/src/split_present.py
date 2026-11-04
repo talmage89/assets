@@ -43,11 +43,22 @@ def check():
     images=list(Path('export/textures').glob('*.png'))
     # All existing images are 8-bpp blocks under BC7/BC5; one image's full mip
     # chain costs width*height*4/3 bytes. Engine compression is an assumption.
-    memory=sum(Image.open(p).width*Image.open(p).height*4/3/1048576 for p in images)
-    assert len(images)==39 and abs(memory-(48+1/3))<1e-7,(len(images),memory)
+    if images:
+        memory=sum(Image.open(p).width*Image.open(p).height*4/3/1048576 for p in images)
+        assert len(images)==39 and abs(memory-(48+1/3))<1e-7,(len(images),memory)
+        memory_scope='Dimensions read from the 39 accepted canonical PNGs'
+    else:
+        # Source-only cold builds need not run any previous family's bake.
+        # Keep the accepted allocation explicit and distinguish it from an
+        # observation of image files that do not exist yet.
+        allocations=[(1024,1024,3),(2048,2048,3),(512,512,3),(512,512,3),(2048,2048,3),
+                     (512,512,12),(1024,1024,3),(1024,1024,1),(512,256,4),(256,256,4)]
+        memory=sum(w*h*n*4/3/1048576 for w,h,n in allocations)
+        assert abs(memory-(48+1/3))<1e-7
+        memory_scope='Accepted family delivery dimensions; source checkpoint did not build prior bakes'
     models=json.loads(Path('build/split/checks.json').read_text());assert models['passed']
     for row in models['rows']:assert 30000<=row['triangles']<=80000,(row['seed'],row['triangles'])
-    result=dict(passed=True,shared_images=len(images),existing_family_gpu_mib=memory,planned_addition_mib=0,planned_family_gpu_mib=memory,accepted_files_checked=len(files),justification='Period modular brick, lap, painted battens, shingles, trim, glass and neutral concrete all reuse existing family sets. No stone or plywood map is allocated for this grammar.',stage='Form checkpoint only; procedural source age has not been baked.')
+    result=dict(passed=True,shared_images_present=len(images),accepted_shared_images=39,memory_scope=memory_scope,existing_family_gpu_mib=memory,planned_addition_mib=0,planned_family_gpu_mib=memory,accepted_files_checked=len(files),justification='Period modular brick, lap, painted battens, shingles, trim, glass and neutral concrete all reuse existing family sets. No stone or plywood map is allocated for this grammar.',stage='Form checkpoint only; procedural source age has not been baked.')
     Path('build/split/memory.json').write_text(json.dumps(result,indent=2));return result
 
 

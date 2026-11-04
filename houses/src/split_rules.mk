@@ -47,7 +47,7 @@ build/split/render-parameters.txt: FORCE
 	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='width=$(WIDTH) samples=$(SAMPLES) seed=$(SEED)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
 $(SPLIT_VIEWS) &: $(SPLIT_MODELS) src/split_render.py src/render.py build/split/render-parameters.txt
 	$(KIT)/with_gpu.sh $(BP) --python src/split_render.py -- --seed $(SEED) --out renders/split/checkpoint --family --width $(WIDTH) --samples $(SAMPLES)
-renders/split/checkpoint/comparison/types.png: $(SPLIT_MODELS) src/split_render.py build/split/render-parameters.txt
+renders/split/checkpoint/comparison/types.png: $(SPLIT_MODELS) src/split_render.py src/split_context.py build/split/render-parameters.txt
 	$(KIT)/with_gpu.sh $(BP) --python src/split_render.py -- --seed $(SEED) --out renders/split/checkpoint/comparison --shots types --types --width 2400 --samples $(SAMPLES)
 render: $(SPLIT_VIEWS) renders/split/checkpoint/comparison/types.png
 renders/split/matches/split_side.png renders/split/matches/split_foyer.png &: $(SPLIT_MODELS) build/split/cameras.json src/split_render.py build/split/render-parameters.txt | refs
