@@ -3143,3 +3143,53 @@ same folder were preserved under `renders/hatch-checkpoint-form-archive/`,
 so they cannot masquerade as current detail views. Pickup source and full
 GLB bytes remain identical. No kit/shared family implementation changed, and
 no hatch docs images are committed. Stop at this requested checkpoint.
+
+## H120 surface correction checkpoint
+
+### Surface pass 1 — causes isolated before correction
+
+Color and value first: keep the five accepted factory factors and the accepted
+white-balance neutrals (front siding; rear garage mullion). The earlier rear
+pair measures front side glass 161.9 versus 123.7 (+38.2), and backlight 73.4
+versus 121.2 (−47.7). These are displayed values under the stated diffuse sky,
+not recovered albedo. The rear photo has a dark building reflected in its side
+pane and bright surroundings transmitted/reflected through its backlight;
+the procedural open sky over asphalt does not supply that environment.
+Tint, cabin occlusion and reflected-environment contributions need separate
+experiments before any adjustment to paint or overall exposure.
+
+Earlier images and the GLB are retained in `renders/hatch-surfaces-before/`
+and `build/hatch-surfaces/before/`. Same-camera procedural-source renders are
+in `renders/hatch-surfaces-source-before/`. Disconnecting every paint/material
+bump input (`renders/hatch-diagnosis-no-bump-game/`) leaves the torn lenses,
+hood reflection ripples and arch spikes. These defects therefore precede UV,
+bake and normal-map filtering. The prior neutral glazing tangent map cannot
+repair their source geometry.
+
+Before fixes, `build/hatch-surfaces/normal-audit-before.json` measures outer
+lens triangles with normal/face disagreement up to 177.6 degrees. A coherent
+parameter-chart disk can still have reversed physical chords over this steeply
+wrapped surface. Authored normals do not make those refracting triangles a
+smooth molded shell. The game and high source both inherit this lens topology.
+The hood and rear quarter have continuous normals at shared vertices, but
+coarse diagonal interpolation across changing curvature remains visible with
+bump disconnected. They need a denser or smoother physical derivative field,
+not stronger orange peel or another coat.
+
+Arch returns are separately sampled from side rays, with a hard `.89` fallback
+when the ray misses near the lower/forward tip. Their outer contour is also
+sampled independently of the actual clipped skin. The visible slivers already
+exist in the source. Replace that unsupported return sampling, retaining the
+accepted exterior opening. Tire sidewall rings expose another construction
+fault: the generic tall-tire profile's fixed 75 mm station exceeds this low
+profile tire's shoulder radius, doubling back before the tread. Sharp ring
+edges and 48 circumferential samples amplify the polygonal result. Rebuild a
+monotone passenger carcass and continuous toroidal normals; preserve its width,
+rolling radius and wheel pivots.
+
+The grille's vanes follow an uneven triangulated backing, deliberately kink at
+their middle station, and stand in front of a procedural bumped diamond image.
+This is the radiator appearance in both source and GLB. Replace the vanes and
+bumped backing with an actual open regular cell lattice, a smooth dark recessed
+bed, and the retained surround/badge. Give the lower opening a distinct lattice
+and the corner pockets formed inserts with supported lamp/blank faces.
