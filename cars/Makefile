@@ -1,6 +1,8 @@
 BODY ?= pickup
 ifeq ($(BODY),sedan)
 include sedan.mk
+else ifeq ($(BODY),suv)
+include suv.mk
 else ifeq ($(BODY),pickup)
 ASSET := AlderC150
 FINAL_PIPELINE := 1
@@ -102,7 +104,7 @@ check-delivery: export check-motion
 	$(BP) --python src/check_delivery.py -- --source export/$(ASSET).glb --out build/car-delivery-check.json
 check: check-delivery
 else
-$(error BODY must be pickup or sedan)
+$(error BODY must be pickup, sedan or suv)
 endif
 
 .PHONY: sedan
