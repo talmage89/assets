@@ -92,6 +92,9 @@ def main():
     hatch_surface_normals.apply()
     import hatch_gate_surface
     hatch_gate_surface.apply(b)
+    import hatch_windshield_normals,hatch_crown_surface
+    hatch_windshield_normals.apply()
+    hatch_crown_surface.apply(b)
     import hatch_shoulder_surface
     hatch_shoulder_surface.apply(b)
     hatch_running_surfaces.arches(b)

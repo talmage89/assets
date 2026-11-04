@@ -14,7 +14,7 @@ import delivery_materials as D
 
 def main():
  p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--out',required=True)
- p.add_argument('--stage',choices=['final'],default='final');p.add_argument('--config');p.add_argument('--fit-reference');p.add_argument('--shots',default='hero');p.add_argument('--camera-file');p.add_argument('--colors',action='store_true')
+ p.add_argument('--stage',choices=['final'],default='final');p.add_argument('--config');p.add_argument('--fit-reference');p.add_argument('--shots',default='hero');p.add_argument('--camera-file');p.add_argument('--colors',action='store_true');p.add_argument('--paint',help='Limit --colors to this factory preset')
  p.add_argument('--width',type=int,default=1500);p.add_argument('--samples',type=int,default=64)
  p.add_argument('--engine',choices=['CYCLES','BLENDER_EEVEE'],default='CYCLES')
  a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);source=Path(a.source)
@@ -32,7 +32,9 @@ def main():
  human_height=max((o.matrix_world@v.co).z for o in people if o.type=='MESH' for v in o.data.vertices)-min((o.matrix_world@v.co).z for o in people if o.type=='MESH' for v in o.data.vertices)
  config=runpy.run_path(str(Path(__file__).with_name('hatch_final_views.py')));shots=config['FINAL_VIEWS'].copy()
  if a.camera_file:shots={name:row['shot'] for name,row in json.loads(Path(a.camera_file).read_text()).items()}
- if a.colors:shots={'paint_'+name:dict(config['FINAL_VIEWS']['hero'],paint=name) for name in D.colors()}
+ if a.colors:
+  shots={'paint_'+name:dict(config['FINAL_VIEWS']['hero'],paint=name) for name in D.colors() if not a.paint or name==a.paint}
+  if not shots:raise ValueError('Unknown factory paint '+str(a.paint))
  names=list(shots) if a.camera_file or a.colors else a.shots.split(',')
  rest={o:o.matrix_world.copy() for o in sc.objects if o.get('studio') and o!=camera}
  visibility={o:o.hide_render for o in rest};poses={o.name:o.matrix_basis.copy() for o in sc.objects if o.type=='EMPTY'}

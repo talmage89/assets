@@ -3482,3 +3482,52 @@ aspect too. The real 4:1 print regression passes with axis anisotropy below
 wheel caps 137.3 × 47.3, and dealer insert 360.7 × 180.3, each with equal
 physical density on both axes. Forty-one explicit cut-fragment UV repairs
 leave 41.0% coverage, zero overlap, outside and degenerate triangles.
+
+### Delivery pass 3 — the family gallery rejects the header and nose roll
+
+Color/value first: the candidate uses the exact C150 gallery constructor,
+diffusion adjustments, shared studio implementation and AgX settings. The
+setup's AST matches the pickup recipe. Atlantic remains dark blue, cavities
+are deep, and the broad hood is clean. Do not change the accepted lighting to
+hide the defects below. The initial exported candidate passes its checks at
+59,968 triangles, but these images reject its presentation.
+
+`renders/hatch-gallery-audit1/hero.png` has a triangular white reflection at
+an upper windshield corner. An actual-GLB reflection-only ablation retains it,
+so this is neither a darker cabin nor refracted headliner light. Source corner
+normals there turn toward the neighboring roof/A-pillar; their swing differs
+by up to about 18° from a smooth height fit to the pane's own positions.
+Use that pane-local mold derivative only at the header corners, blended into
+the held field. No glass vertex, cut, tint, IOR or rear pane changes. The fit
+has a 4.56 mm maximum diagnostic height residual on the game pane; it supplies
+a normal approximation, not a claim of an exact positional reconstruction.
+The actual-GLB normal trial removes the shard. High-source corrections are
+bounded to avoid extrapolated corner fields; game corrections remain below 20°.
+
+The apparent hood ripple is on **Front molded fascia**, measured by camera
+rays, in the narrow strip above the grille. An implicit-normal-only trial
+leaves its broad waves: the dominant fault is interpolation along irregular
+radial diagonals across a narrow roll. Keep all 87 boundary vertices and
+replace only interior chords in a physical chart parallel to the nose
+contour. The candidate replaces 163 triangles with 295. New points sample
+our own held parent; its small normal error is resolved against the original
+continuous die field. The broad softbox edge now crosses the strip as one
+curve. A remaining thin stepped feature in a source-only procedural preview
+disappears under constant paint: its rest coordinates agree exactly and
+shared-vertex normals have zero measured discontinuity. Do not mistake that
+source microresponse/denoising artifact for another broad form defect. The
+filtered exported material must decide whether it remains visible.
+
+A buried 12 mm inboard wheel-barrel return is simplified in the game mesh to
+fund the new visible chords. The bearing lip, tire/wheel envelope and all
+outboard contours remain held, with the complete return in the high source.
+The candidate source is exactly 60,000 triangles, within the existing cap.
+Each final gallery view now starts a fresh GLB import, with the shared GPU
+lock acquired per view; no studio recipe changes.
+
+The clean build also caught a reference endpoint omitting `Content-Type` for
+a valid manufacturer PDF. The fetcher now accepts that narrow case only after
+checking `%PDF-`; explicit HTML and missing-header HTML still fail without a
+file write. Its positive/negative fixtures pass. All 24 kit modules pass again
+sequentially from a clean scratch build, with all bake fixtures under the lock.
+No downloaded code is executed and the pickup still re-exports byte-identical.

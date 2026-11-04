@@ -19,7 +19,7 @@ OUT := renders/$(PASS)
 HD := build/hatch-detail
 HC := src/hatch_detail_config.py
 FORMDEPS := src/hatch_build.py src/hatch_body.py src/hatch_apertures.py src/hatch_character.py src/hatch_spec.py src/build.py src/wheels.py
-DETAILDEPS := src/hatch_gate_surface.py src/hatch_shoulder_surface.py src/hatch_fuel_surface.py src/hatch_reference_surface.py src/hatch_hidden_allocation.py src/hatch_optical_surfaces.py src/hatch_surface_normals.py src/hatch_running_surfaces.py src/hatch_grille.py src/hatch_detail.py src/hatch_exterior.py src/hatch_finishes.py src/hatch_hardware.py src/hatch_interior.py src/hatch_mechanisms.py src/hatch_surface_detail.py src/hatch_underbody.py src/finishes.py src/detail_helpers.py ../kit/vehicle_materials.py
+DETAILDEPS := src/hatch_crown_surface.py src/hatch_windshield_normals.py src/hatch_gate_surface.py src/hatch_shoulder_surface.py src/hatch_fuel_surface.py src/hatch_reference_surface.py src/hatch_hidden_allocation.py src/hatch_optical_surfaces.py src/hatch_surface_normals.py src/hatch_running_surfaces.py src/hatch_grille.py src/hatch_detail.py src/hatch_exterior.py src/hatch_finishes.py src/hatch_hardware.py src/hatch_interior.py src/hatch_mechanisms.py src/hatch_surface_detail.py src/hatch_underbody.py src/finishes.py src/detail_helpers.py ../kit/vehicle_materials.py
 RENDERDEPS := src/hatch_lookdev.py src/hatch_colors.py src/hatch_views.py src/delivery_materials.py src/lighting.py ../kit/studio.py ../kit/gpu.py
 PAIRDEPS := $(RENDERDEPS) src/hatch_lighting.py
 empty :=
@@ -171,8 +171,12 @@ FINALIMAGES := $(foreach n,$(FINALVIEWS),$(FINAL)/$(n).png $(FINAL)/$(n)-mask.pn
 FINALCOLORS := $(foreach c,$(COLORS),$(FINAL)/paint_$(c).png $(FINAL)/paint_$(c)-mask.png)
 .PHONY: gallery final-review docs final-pairs
 $(FINAL)/.stamp $(FINALIMAGES) $(FINALCOLORS) &: export/AlderH120.glb $(GALLERYDEPS) $(HD)/parameters.txt
-	$(KIT)/with_gpu.sh $(RP) --python src/hatch_gallery.py -- --source $< --out $(FINAL) --width $(WIDTH) --samples $(SAMPLES) --shots $(subst $(space),$(comma),$(FINALVIEWS))
-	$(KIT)/with_gpu.sh $(RP) --python src/hatch_gallery.py -- --source $< --out $(FINAL) --width $(WIDTH) --samples $(SAMPLES) --colors
+	@for shot in $(FINALVIEWS); do \
+	  $(KIT)/with_gpu.sh $(RP) --python src/hatch_gallery.py -- --source $< --out $(FINAL) --width $(WIDTH) --samples $(SAMPLES) --shots $$shot || exit $$?; \
+	done
+	@for paint in $(COLORS); do \
+	  $(KIT)/with_gpu.sh $(RP) --python src/hatch_gallery.py -- --source $< --out $(FINAL) --width $(WIDTH) --samples $(SAMPLES) --colors --paint $$paint || exit $$?; \
+	done
 	@touch $(FINAL)/.stamp
 renders/hatch-final-eevee/.stamp: export/AlderH120.glb $(GALLERYDEPS) $(HD)/parameters.txt
 	$(KIT)/with_gpu.sh $(RP) --python src/hatch_gallery.py -- --source $< --out renders/hatch-final-eevee --width $(WIDTH) --samples 192 --shots hero --engine BLENDER_EEVEE

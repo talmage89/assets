@@ -78,8 +78,10 @@ def game_wheel_allocation(b):
             code=ob.name[-2:];sign=-1 if code.endswith('L') else 1
             cx=sign*(S.FRONT_TRACK if code.startswith('F') else S.REAR_TRACK)/2
             y=S.FRONT_AXLE if code.startswith('F') else S.REAR_AXLE;r=S.RIM_INCHES*.0254/2
-            profile=[(-.093,r-.020),(-.093,r+.005),(-.081,r+.005),(.084,r-.008),(.099,r+.006),(.103,r-.015)]
-            counts=[16,16,16,32,32,32];points=[];rings=[];faces=[]
+            # The high source retains the buried 12 mm bead-seat return.
+            # Game keeps the inboard bearing lip and all outboard contours.
+            profile=[(-.093,r-.020),(-.093,r+.005),(.084,r-.008),(.099,r+.006),(.103,r-.015)]
+            counts=[16,16,32,32,32];points=[];rings=[];faces=[]
             for (x,rr),count in zip(profile,counts):
                 rings.append(list(range(len(points),len(points)+count)))
                 points.extend((cx+sign*x,y+rr*math.cos(math.tau*k/count),S.HUB_HEIGHT+rr*math.sin(math.tau*k/count)) for k in range(count))
