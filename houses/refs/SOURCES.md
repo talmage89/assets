@@ -156,3 +156,30 @@ fixed material ROIs, median encoded Rec.709 luma, p10/p90 tails and median
 R:G:B ratios. These are display comparisons, not measured reflectance from an
 uncalibrated JPEG. Auxiliary finish comparisons state their paint controls;
 they do not pretend that a white aluminum photograph measures blue paint.
+
+
+## Split-level form checkpoint
+
+| File | Direct URL | Author / license | Use |
+| --- | --- | --- | --- |
+| split-period-plans.pdf | https://dahp.wa.gov/sites/default/files/NpsMulti-levelHomes_NationalPlanService_1961.pdf | National Plan Service, 1961 catalog, archived by Washington DAHP; copyright reserved, local inspection only | Period combinations of staggered quiet/sleeping/recreation floors, gables/hips, garages, picture glazing, brick/wood/plywood. Original plans are neither traced nor reproduced. |
+| split-west-survey.pdf | https://dahp.wa.gov/sites/default/files/MidCenturyWorkshop.pdf | Michael Houser, Washington DAHP, June 2014; public agency presentation, rights unspecified, local inspection only | PDF pp. 99–108: side splits and split entries, period attributions, roof/wall proportions, broad eaves and ribbon glazing. Several leaf-on summer-condition photographs; exact capture dates unknown. Derived comparison photographs omit private-home captions. |
+| split-midwest-survey.pdf | https://www.greenbaywi.gov/ArchiveCenter/ViewFile/Item/790 | City of Green Bay architectural/historical survey, published municipal record; rights unspecified, local inspection only | PDF p. 61 / printed p. 60: Wisconsin examples attributed 1959/1963, short flights, multi-level arrangement. Photographs show autumn; supplemental context, not summer evidence. |
+| split-midwest-summer.jpg | https://mchistory.org/assets/blog/facebook-extra-post-bright-view-subdivision-july-1964.jpg | McLean County Museum of History archival photograph; photographer uncredited, copyright reserved, local inspection only | Illinois subdivision, explicitly July 1964; original side-splits among ranches, integrated parking and mixed cladding. Black and white; form only, never a hue target. |
+| split-ne-summer.jpg | https://upload.wikimedia.org/wikipedia/commons/2/2c/Raised_Ranch_-_Fairfield_Beach%2C_Connecticut.jpg | CityLimitsJunction, CC0 1.0, photographed 3 July 2024 | Connecticut raised ranch, summer foliage, upper cantilever, plywood siding, sliding windows and between-floor entry. Catalog attribution 1979 is later than the brief; supplemental survival/update evidence, not proof of a 1955–75 construction date. |
+| split-pa-split_level_allg_5_1.jpg | https://www.phmc.state.pa.us/portal/communities/pa-suburbs/images/split_level_allg_5_1.jpg | Pennsylvania Historical and Museum Commission, photographer uncredited; rights unspecified, local inspection only | Mid-Atlantic leaf-on summer-condition side-split; separate eaves, broad upper cantilever and brick lower level. Date/individual year unknown. |
+| split-pa-split_level_10_1.jpg | https://www.phmc.state.pa.us/portal/communities/pa-suburbs/images/split_level_10_1.jpg | Pennsylvania Historical and Museum Commission, photographer uncredited; rights unspecified, local inspection only | Supplemental early-spring contemporary side-split, stone lower living wing, plywood upper, sunken garage and triple slider. Not summer evidence. |
+| split-pa-split_entry_2_1.jpg | https://www.phmc.state.pa.us/portal/communities/pa-suburbs/images/split_entry_2_1.jpg | Pennsylvania Historical and Museum Commission, photographer uncredited; rights unspecified, local inspection only | Winter split-entry / raised ranch, horizontal siding, projecting upper floor and shallow roof. Not summer evidence. |
+| split-pa-split_entry_1_1.jpg | https://www.phmc.state.pa.us/portal/communities/pa-suburbs/images/split_entry_1_1.jpg | Pennsylvania Historical and Museum Commission, photographer uncredited; rights unspecified, local inspection only | Leaf-on mid-Atlantic raised ranch; entry below upper floor and brick/wood break. Exact season and year unverified. |
+
+Textual construction authorities (no home addresses or owner identities retained):
+
+- PHMC, [Split Level field guide](https://www.phmc.state.pa.us/portal/communities/pa-suburbs/field-guide/split-level.html): three activity zones, large picture windows, low roofs, integrated parking; wood/aluminum over brick on raised ranches; vertical siding and ribbon windows on contemporary examples.
+- New Jersey Historical Society, [collection MG 1679 architectural context](https://jerseyhistory.org/guide-to-the-carl-f-saalbach-collection1954-2006bulk-dates-1954-1994mg-1679/): half-story offsets and half flights; split-entry sill at the stair landing, with full stories on either side. No collection plan is imported or copied.
+- Already registered USDA Handbook 73 (1955), printed pp. 149–155: stairs, preferred principal risers about 7–7.5 in, 10 in tread at 7.5 in rise; preferred 8 ft ceiling and period boxed cornice/window construction. These inform authored dimensions, not a claim of permit compliance.
+- University of Illinois circular C2.5, *Split-Level Houses*, 1960: catalog located but PDF retrieval rejected with HTTP 403. It is not cited as inspected dimensional evidence.
+
+Inspection photos are only cropped / chromatically balanced for paired review.
+White sash/casing is the assumed neutral, never a calibrated gray card. Regional
+photos do not independently establish meter dimensions or paint albedos. No
+photographic pixels enter modeled geometry, materials, shared maps or docs.
