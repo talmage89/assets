@@ -28,7 +28,7 @@ def linear(a):return np.where(a<=.04045,a/12.92,((a+.055)/1.055)**2.4)
 def srgb(a):return np.where(a<=.0031308,a*12.92,1.055*a**(1/2.4)-.055)
 
 
-def pairs(out):
+def pairs(out,asset_label='Original X220 / source'):
     settings={
       'used_front':dict(file='suv-used-crv-front.jpg',neutral=(25,797,90,818),neutral_description='Neutral asphalt in the lower-left foreground; aged pavement, not a calibrated gray card',patches=dict(door_mid=(827,438,912,477),door_low=(823,537,911,558),cladding=(808,599,887,613),glass=(900,236,936,273))),
       'used_rear':dict(file='suv-used-rav4-rear.jpg',neutral=(6,124,15,137),neutral_description='Unprinted white area of the parking sign at the left edge',patches=dict(door_mid=(431,410,478,447),rear_quarter=(820,435,864,470),cladding=(1035,595,1110,619),glass=(594,191,630,231)))}
@@ -50,7 +50,7 @@ def pairs(out):
         for label,rect in crops.items():
             views=[render.crop(rect),photo.crop(rect)];height=round(800*views[0].height/views[0].width)
             page=Image.new('RGB',(1600,height+42),(232,234,234));d=ImageDraw.Draw(page)
-            for j,(view,title) in enumerate(zip(views,['Original X220 / source','Used reference / neutral balanced'])):
+            for j,(view,title) in enumerate(zip(views,[asset_label,'Used reference / neutral balanced'])):
                 page.paste(view.resize((800,height),Image.Resampling.LANCZOS),(j*800,42));d.text((j*800+10,10),title,font=ImageFont.truetype(FONT,18),fill=(25,37,41))
             page.save(out/(name+'-'+label+'-pair.jpg'),quality=93,optimize=True)
         annotated=[]

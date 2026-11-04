@@ -20,7 +20,7 @@ STRIPES := stripes_horizontal stripes_vertical stripes_rear_horizontal stripes_r
 PAIRS := crv_front rav4_front crv_rear rav4_rear
 .NOTPARALLEL:
 .PHONY: all model refs check check-repeat render fairness review FORCE
-all: detail-check surfaces
+all: suv-delivery
 build/suv/game.blend: $(DEPS)
 	@mkdir -p build/suv $(TMPDIR)
 	$(BP) --python src/suv_build.py -- --out $@ --quality game
@@ -91,4 +91,5 @@ empty :=
 space := $(empty) $(empty)
 comma := ,
 include suv_detail.mk
+include suv_delivery.mk
 check: detail-check
