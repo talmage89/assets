@@ -1,7 +1,7 @@
-"""Cycles form review from fresh imported diagnostic GLBs, with provenance.
+"""Cycles checkpoint from fresh imported GLB/glTF, with dependency provenance.
 
-No source shader replacement and no baked-look claim. Context loads immutable
-exports for the same-scale comparison only; no context is ever re-exported.
+Shared PBR maps stay intact. Operational day/dusk emission states are explicit;
+own-library context remains presentation only and is never re-exported.
 """
 import argparse,hashlib,json,math,sys
 from pathlib import Path
@@ -15,7 +15,7 @@ from siteworks import context_roads
 from ground_adapter import FLOW
 from context import bundle,recipe
 
-def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+def sha(p):return bundle(Path(p).resolve())['sha256'] if Path(p).suffix=='.gltf' else hashlib.sha256(Path(p).read_bytes()).hexdigest()
 
 
 def setup(samples,engine='CYCLES'):
@@ -24,9 +24,11 @@ def setup(samples,engine='CYCLES'):
  sc.world=bpy.data.worlds.new('Original sky');sc.world.use_nodes=True
  ns,ls=sc.world.node_tree.nodes,sc.world.node_tree.links;ns.clear()
  sky=ns.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(38);sky.sun_rotation=math.radians(220);sky.sun_disc=False;sky.air_density=1;sky.aerosol_density=.3
+ saturation=ns.new('ShaderNodeHueSaturation');saturation.name='Sky chroma';saturation.inputs['Saturation'].default_value=.45
+ ls.new(sky.outputs[0],saturation.inputs['Color'])
  bg=ns.new('ShaderNodeBackground');bg.inputs['Strength'].default_value=.13
  mix=ns.new('ShaderNodeMixRGB');mix.name='Ambient balance';mix.inputs[0].default_value=0;mix.inputs[2].default_value=(1,1,1,1)
- out=ns.new('ShaderNodeOutputWorld');ls.new(sky.outputs[0],mix.inputs[1]);ls.new(mix.outputs[0],bg.inputs[0]);ls.new(bg.outputs[0],out.inputs[0])
+ out=ns.new('ShaderNodeOutputWorld');ls.new(saturation.outputs[0],mix.inputs[1]);ls.new(mix.outputs[0],bg.inputs[0]);ls.new(bg.outputs[0],out.inputs[0])
  ld=bpy.data.lights.new('Sun','SUN');ob=bpy.data.objects.new('Sun',ld);sc.collection.objects.link(ob)
  ld.energy=3.3;ld.angle=math.radians(.6);ld.color=(1,.97,.92)
  ob.rotation_euler=Vector((.5,.7,-1)).to_track_quat('-Z','Y').to_euler()
@@ -42,14 +44,19 @@ def views(p):
  W,D=p['lot'];b=p['building'];c=p['canopy'];x,y=p['islands'][0]['center'];u,v=rotate((0,-.96),c['angle']);x+=u;y+=v
  # Authored local camera positions rotate with the corner, all street eyes 1.68m.
  shots=dict(
- hero=dict(location=(-W/2-12,-D/2-10,FLOW+.00635+1.68),target=(0,-3,2.6),lens=39,aspect=1.85),
- street=dict(location=(-W/2-8,-D/2-6,FLOW+.00635+1.68),target=(0,-2,2.7),lens=35,aspect=1.85),
+ hero=dict(location=(-W/2-24,-D/2-14.35,FLOW+.16764+1.60),target=(0,-3,FLOW+.16764+1.60),lens=40,aspect=2.65,shift_y=.025),
+ street=dict(location=(-W/2-14.35,-D/2-24,FLOW+.16764+1.60),target=(0,-2,FLOW+.16764+1.60),lens=40,aspect=2.65,shift_y=.025),
  above=dict(location=(-W*.73,-D*.93,46),target=(0,-1,0),lens=35,aspect=1.42),
  dispenser=dict(location=(x+3.7,y-3.0,1.75),target=(x,y,1.36),lens=60,aspect=1.25),
  canopy=dict(location=(-c['width']/2-1,c['center'][1]-7.8,2.1),target=(-c['width']/2+2,c['center'][1]-.5,4.20),lens=45,aspect=1.45),
+ column=dict(location=(p['islands'][0]['center'][0]+2.8,p['islands'][0]['center'][1]-2.0,1.70),target=(p['islands'][0]['center'][0],p['islands'][0]['center'][1]+.92,1.43),lens=48,aspect=1.25),
  entry=dict(location=(4.5,b['front']-8,1.70),target=(0,b['front'],1.65),lens=44,aspect=1.5),
  sign=dict(location=(p['sign_center'][0]+5,p['sign_center'][1]-8,1.68),target=(*p['sign_center'],2.25 if p['sign']=='monument' else 3.55),lens=48,aspect=1.25),
  rear=dict(location=(W/2+6,D/2+10,6.0),target=(2,12,2),lens=40,aspect=1.6),
+ services=dict(location=(b['width']/2+5,b['front']+b['depth']*.20-3,2.0),target=(b['width']/2,b['front']+b['depth']*.20+1.9,1.7),lens=50,aspect=1.5),
+ asphalt=dict(location=(x+4,y-4,3.1),target=(x+2.0,y-.2,.08),lens=48,aspect=1.5),
+ landscape=dict(location=(W/2-4,D/2-8,1.5),target=(W/2-.65,D/2-3,.45),lens=50,aspect=1.5),
+ dusk=dict(location=(-W/2-24,-D/2-14.35,1.60),target=(0,-3,1.60),lens=40,aspect=2.65,shift_y=.025,dusk=True,sky_strength=.025,sun_elevation=2,sun_energy=0,exposure=.6),
  motion=dict(location=(3,b['front']-6,1.7),target=(0,b['front']+.2,1.55),lens=43,aspect=1.4),
  )
  result={k:{**v,'location':rotate(v['location'],p['yaw']),'target':rotate(v['target'],p['yaw'])} for k,v in shots.items()}
@@ -97,13 +104,14 @@ def tone(path,camera,assets):
  for ob in assets:
   if ob.type!='MESH':continue
   # Paving excluded so architecture/equipment dark cavities are represented.
-  if ob.get('asset_set')=='SitePaving' or 'SitePaving' in ob.name:continue
+  if ob.get('asset_set') in ('SitePaving','Landscape') or 'SitePaving' in ob.name:continue
   ps=[world_to_camera_view(bpy.context.scene,camera,ob.matrix_world@v.co) for v in ob.data.vertices]
   for poly in ob.data.polygons:
    points=[ps[i] for i in poly.vertices]
    if all(v.z>0 for v in points):dr.polygon([(v.x*w,(1-v.y)*h) for v in points],fill=255)
  rgb=np.asarray(im)/255.;valid=np.asarray(mask)>0;y=rgb@np.array([.2126,.7152,.0722]);a=y[valid]
- result=dict(scope='Projected geometry mask, static form GLB, paving excluded',pixels=int(valid.sum()),Yprime_percentiles=dict(zip(('p1','p50','p95','p99'),map(float,np.percentile(a,[1,50,95,99])))),white_clip_fraction=float((rgb[valid].min(axis=-1)>.985).mean()))
+ bounds=mask.getbbox()
+ result=dict(scope='Projected architectural/equipment geometry mask, paving and foliage excluded; visibility is a conservative polygon union',pixels=int(valid.sum()),projected_bounds_fraction=[bounds[0]/w,bounds[1]/h,bounds[2]/w,bounds[3]/h],projected_width_fraction=(bounds[2]-bounds[0])/w,Yprime_percentiles=dict(zip(('p1','p50','p95','p99'),map(float,np.percentile(a,[1,50,95,99])))),white_clip_fraction=float((rgb[valid].min(axis=-1)>.985).mean()))
  path.with_suffix('.tone.json').write_text(json.dumps(result,indent=2));mask.save(path.with_suffix('.mask.png'))
 
 
@@ -127,21 +135,28 @@ def render(source,out,names,width,samples,camera_file=None,engine='CYCLES'):
  assets=set(bpy.context.scene.objects);meta=json.loads(source.with_suffix('.json').read_text())
  palette(BRANDS[meta['brand']],meta['building']['wall_color'])
  # Match site orientation. Context stays outside the diagnostic station GLB.
- road=context_roads(meta);road.rotation_euler.z=math.radians(meta['yaw'])
+ if 'baked PBR' in meta['stage']:
+  from presentation import ground
+  road,ground_record=ground(meta)
+ else:
+  road=context_roads(meta);road.rotation_euler.z=math.radians(meta['yaw']);ground_record=None
  camera=setup(samples,engine);shots=views(meta);ctx=[]
  if 'scale' in names:
   if meta['yaw']!=0:raise ValueError('Scale comparison uses seed 101 canonical corner')
   shots['scale'],ctx=context(meta)
  if camera_file:shots={k:d['shot'] for k,d in json.loads(camera_file.read_text()).items()}
  out.mkdir(parents=True,exist_ok=True);records={}
+ emission={m:p.inputs['Emission Strength'].default_value for m in bpy.data.materials if m.use_nodes for p in [m.node_tree.nodes.get('Principled BSDF')] if p}
  for name in names:
   shot=dict(shots[name]);camera.location=shot['location'];camera.rotation_euler=(Vector(shot['target'])-camera.location).to_track_quat('-Z','Y').to_euler();camera.rotation_euler.rotate_axis('Z',shot.get('roll',0))
-  eye=None
+  eye=None;camera.data.shift_y=shot.get('shift_y',0)
   if name in ('hero','street') and camera_file is None:
    bpy.context.view_layer.update();hit,point,_,_,surface,_=bpy.context.scene.ray_cast(bpy.context.evaluated_depsgraph_get(),Vector((camera.location.x,camera.location.y,1000)),Vector((0,0,-1)))
    if not hit:raise AssertionError('Street eye has no road surface beneath it')
+   camera.location.z=point.z+1.60
+   shot['location']=tuple(camera.location);shot['target']=(shot['target'][0],shot['target'][1],camera.location.z)
+   camera.rotation_euler=(Vector(shot['target'])-camera.location).to_track_quat('-Z','Y').to_euler()
    eye=dict(height_m=camera.location.z-point.z,surface_z_m=point.z,surface=surface.name)
-   if abs(eye['height_m']-1.68)>.0001:raise AssertionError(eye)
   camera.data.type='ORTHO' if 'ortho' in shot else 'PERSP';camera.data.lens=shot.get('lens',40)
   if 'ortho' in shot:camera.data.ortho_scale=shot['ortho']
   if name=='motion':
@@ -154,11 +169,20 @@ def render(source,out,names,width,samples,camera_file=None,engine='CYCLES'):
    framing=frame_property(camera,assets);shot['lens']=float(camera.data.lens)
   bg=next(n for n in sc.world.node_tree.nodes if n.type=='BACKGROUND');bg.inputs['Strength'].default_value=shot.get('sky_strength',.13)
   sc.world.node_tree.nodes['Ambient balance'].inputs[0].default_value=shot.get('neutral_ambient',0)
+  sc.world.node_tree.nodes['Sky chroma'].inputs['Saturation'].default_value=shot.get('sky_saturation',.45)
   sun=bpy.data.objects['Sun'];sun.rotation_euler=Vector(shot.get('sun_direction',(.5,.7,-1))).to_track_quat('-Z','Y').to_euler()
+  sun.data.energy=shot.get('sun_energy',3.3)
+  direction=shot.get('sun_direction',(.5,.7,-1));elevation=math.degrees(math.atan2(-direction[2],math.hypot(*direction[:2])));rotation=math.degrees(math.atan2(-direction[1],-direction[0]))
+  sky=next(n for n in sc.world.node_tree.nodes if n.type=='TEX_SKY');sky.sun_elevation=math.radians(shot.get('sun_elevation',-4 if shot.get('dusk') else elevation));sky.sun_rotation=math.radians(shot.get('sun_rotation',rotation))
   sc.view_settings.exposure=shot.get('exposure',-.15)
+  for material,strength in emission.items():
+   factor=1
+   if any(t in material.name for t in ('CanopyLamp','WallPackLamp','LotLamp')):factor=1 if shot.get('dusk') else 0
+   elif 'GraphicsLit' in material.name:factor=1 if shot.get('dusk') else .10
+   material.node_tree.nodes.get('Principled BSDF').inputs['Emission Strength'].default_value=strength*factor
   path=out/(name+'.png');sc.render.filepath=str(path.resolve());bpy.ops.render.render(write_still=True)
   if name=='hero':tone(path,camera,assets)
-  records[name]=dict(source=str(source),sha256=sha(source),image_sha256=sha(path),camera=shot,eye_measurement=eye,framing_measurement=framing,width=width,samples=samples,engine=engine,stage=meta['stage'],context=ctx,recipe_sha256=recipe())
+  records[name]=dict(source=str(source),sha256=sha(source),image_sha256=sha(path),camera=shot,eye_measurement=eye,framing_measurement=framing,width=width,samples=samples,engine=engine,stage=meta['stage'],context=ctx,ground=ground_record,recipe_sha256=recipe())
  for row in ctx:
   if bundle(HERE.parents[1]/row['source'])!=row:raise AssertionError('Presentation changed a context export')
  old=json.loads((out/'provenance.json').read_text()) if (out/'provenance.json').exists() else {};old.update(records)
@@ -169,4 +193,4 @@ if __name__=='__main__':
  a=argparse.ArgumentParser();a.add_argument('--source',type=Path,default=Path('build/station-101.glb'));a.add_argument('--out',type=Path,default=Path('renders/checkpoint'));a.add_argument('--width',type=int,default=1440);a.add_argument('--samples',type=int,default=40);a.add_argument('--shots',default='hero,above,dispenser,canopy,entry,sign,rear');a.add_argument('--camera-file',type=Path);a.add_argument('--family',action='store_true');a.add_argument('--engine',default='CYCLES');a=a.parse_args(sys.argv[sys.argv.index('--')+1:])
  render(a.source,a.out,a.shots.split(','),a.width,a.samples,a.camera_file,a.engine)
  if a.family:
-  for seed in PROOF_SEEDS:render(Path(f'build/station-{seed}.glb'),a.out/'seeds'/str(seed),['above','street'],a.width,a.samples)
+  for seed in PROOF_SEEDS:render(Path(f'export/CommercialGas-{seed}.gltf') if a.source.suffix=='.gltf' else a.source.parent/f'station-{seed}.glb',a.out/'seeds'/str(seed),['above','street'],a.width,a.samples)

@@ -35,5 +35,24 @@ MATCHES={
   location=(ix+3.0,iy-2.0,1.7),target=(ix,iy,1.2),lens=45,lens_bounds_mm=(24,180),background='transparent',exposure=-.15,landmarks=ca)
 }
 PAIR_SEEDS={name:101 for name in MATCHES}
-LIGHTING={'period_canopy':dict(sky_strength=.7,neutral_ambient=1,sun_direction=(-.6,.4,-1)),
-          'period_dispenser':dict(sky_strength=.7,neutral_ambient=1)}
+# Same photograph, held-out forecourt crop: no separate material/exposure fit.
+MATCHES['used_forecourt']={**MATCHES['period_canopy'],'title':'PA 2006 / used concrete, joints and fueling drips','crop':(0,1120,1660,1599)}
+seed=generate(104);front=seed['building']['front']
+def entrance(v):
+ x,y,z=v;return rotate((x,front+y,z),seed['yaw'])
+tx=[point(entrance(v),pixel,label) for v,pixel,label in (
+ ((-.9144,-.135,2.188),(1058,996),'paired entry upper left'),
+ ((.9144,-.135,2.188),(1248,1000),'paired entry upper right'),
+ ((.9144,-.135,.158),(1249,1238),'paired entry lower right'),
+ ((-.9144,-.135,.158),(1058,1255),'paired entry lower left'))]
+MATCHES['used_store']=dict(title='Texas 2004 / used EIFS store, entry shelter and glazing',photo='build/tx-store-neutral.png',crop=(650,650,1700,1380),
+ location=rotate((-6,front-12,1.7),seed['yaw']),target=rotate((0,front,1.5),seed['yaw']),lens=40,lens_bounds_mm=(24,100),background='transparent',exposure=-.15,landmarks=tx)
+PAIR_SEEDS.update(used_forecourt=101,used_store=104)
+# Shadow estimates are disclosed, not EXIF/surveyed solar positions. PA:
+# column/island shadows toward +X/-Y, about 49 degrees elevation. CA:
+# short vehicle shadow right/rear, about 53 degrees. TX: the metal canopy's
+# wall shadow runs down/right at about 61 degrees, with broad cloud fill.
+LIGHTING={'period_canopy':dict(sky_strength=.15,sky_saturation=.18,neutral_ambient=0,sun_direction=(-.60,.40,-1),sun_energy=5.2,exposure=-.15),
+          'period_dispenser':dict(sky_strength=.25,sky_saturation=.22,neutral_ambient=0,sun_direction=(.45,.58,-1),sun_energy=3.0,exposure=-.15),
+          'used_store':dict(sky_strength=.32,sky_saturation=.15,neutral_ambient=0,sun_direction=(.42,-.35,-1),sun_energy=2.6,exposure=-.15)}
+LIGHTING['used_forecourt']=LIGHTING['period_canopy'].copy()

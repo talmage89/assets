@@ -5,7 +5,8 @@ from PIL import Image,ImageOps
 import numpy as np
 
 CASES={'pa-canopy':dict(neutral=(150,1400,250,1450),description='sunlit forecourt concrete at lower left, assumed neutral gray; warm/yellow soffit rejected'),
-       'ca-dispenser':dict(neutral=(1050,110,1190,180),description='light store wall behind dispenser, assumed neutral off-white')}
+       'ca-dispenser':dict(neutral=(1050,110,1190,180),description='light store wall behind dispenser, assumed neutral off-white'),
+       'tx-store':dict(neutral=(1240,1070,1245,1150),description='exposed aluminum entry jamb, away from lettering and reflected sky; assumed neutral silver')}
 
 def main():
  rows={}

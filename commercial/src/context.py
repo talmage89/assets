@@ -5,7 +5,7 @@ from pathlib import Path
 
 def recipe():
  here=Path(__file__).resolve().parent
- return hashlib.sha256(b''.join((here/n).read_bytes() for n in ('render.py','siteworks.py','context.py','ground_adapter.py','photo_matches.py'))).hexdigest()
+ return hashlib.sha256(b''.join((here/n).read_bytes() for n in ('render.py','siteworks.py','context.py','ground_adapter.py','photo_matches.py','presentation.py'))).hexdigest()
 
 
 def bundle(path):
@@ -19,10 +19,11 @@ def bundle(path):
  return dict(source=str(path.relative_to(repo)),sha256=hashlib.sha256(json.dumps(rows,sort_keys=True).encode()).hexdigest(),files=rows)
 
 
-def ensure(ground_only=False):
+def ensure(ground_only=False,street=False):
  repo=Path(__file__).resolve().parents[2];rows=[]
  cases=[('ground','Ground.glb',['export'])]
- if not ground_only:cases += [('houses','HearthfieldSplit-51.gltf',['TYPE=split','SEEDS=51','export']),('cars','AlderC150.glb',['export'])]
+ if street:cases += [('houses','HearthfieldSplit-51.gltf',['TYPE=split','SEEDS=51','export']),('trees','PinOak.glb',['SPECIES=oak','export'])]
+ elif not ground_only:cases += [('houses','HearthfieldSplit-51.gltf',['TYPE=split','SEEDS=51','export']),('cars','AlderC150.glb',['export'])]
  for folder,name,args in cases:
   file=repo/folder/'export'/name
   if not file.exists():
@@ -33,4 +34,4 @@ def ensure(ground_only=False):
  return rows
 
 if __name__=='__main__':
- p=argparse.ArgumentParser();p.add_argument('--ground-only',action='store_true');ensure(p.parse_args().ground_only)
+ p=argparse.ArgumentParser();p.add_argument('--ground-only',action='store_true');p.add_argument('--street',action='store_true');a=p.parse_args();ensure(a.ground_only,a.street)

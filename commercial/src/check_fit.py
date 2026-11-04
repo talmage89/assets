@@ -5,9 +5,9 @@ import bpy
 from mathutils.bvhtree import BVHTree
 from mathutils import Vector
 if __name__=='__main__':
- a=argparse.ArgumentParser();a.add_argument('--reference',type=Path,required=True);a=a.parse_args(sys.argv[sys.argv.index('--')+1:])
+ a=argparse.ArgumentParser();a.add_argument('--reference',type=Path,required=True);a.add_argument('--source',type=Path,default=Path('build/look/station-101.blend'));a=a.parse_args(sys.argv[sys.argv.index('--')+1:])
  before=hashlib.sha256(a.reference.read_bytes()).hexdigest()
- source=Path('build/station-101.blend');bpy.ops.wm.open_mainfile(filepath=str(source.resolve()))
+ source=a.source;bpy.ops.wm.open_mainfile(filepath=str(source.resolve()))
  cage=bpy.data.objects['PropaneCage'];ob=bpy.data.objects['PropaneCage__Mesh'];inv=cage.matrix_world.inverted()
  vs=[inv@ob.matrix_world@v.co for v in ob.data.vertices];ob.data.calc_loop_triangles()
  tree=BVHTree.FromPolygons(vs,[tuple(t.vertices) for t in ob.data.loop_triangles],all_triangles=True)

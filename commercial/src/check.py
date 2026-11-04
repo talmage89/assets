@@ -41,8 +41,8 @@ def ray(tree,origin,direction,length=100):
 def points(obs):return np.array([tuple(o.matrix_world@v.co) for o in obs for v in o.data.vertices])
 
 
-def run(seed,motions=False):
- source=Path(f'build/station-{seed}.blend');p=json.loads(source.with_suffix('.json').read_text())
+def run(seed,motions=False,source_root=Path('build')):
+ source=source_root/f'station-{seed}.blend';p=json.loads(source.with_suffix('.json').read_text())
  bpy.ops.wm.open_mainfile(filepath=str(source.resolve()));bpy.context.view_layer.update();obs=[o for o in bpy.context.scene.objects if o.type=='MESH'];srcpoints=points(obs)
  assert sum(len(o.data.polygons) for o in obs)==p['total_triangles'],'Source count'
  tiny=sum(t.area<1e-12 for o in obs for t in o.data.loop_triangles)
@@ -152,8 +152,8 @@ def run(seed,motions=False):
  return result
 
 if __name__=='__main__':
- a=argparse.ArgumentParser();a.add_argument('--seeds',default=','.join(map(str,PROOF_SEEDS)));a.add_argument('--motion',action='store_true');a=a.parse_args(sys.argv[sys.argv.index('--')+1:])
+ a=argparse.ArgumentParser();a.add_argument('--seeds',default=','.join(map(str,PROOF_SEEDS)));a.add_argument('--motion',action='store_true');a.add_argument('--source-root',type=Path,default=Path('build'));a=a.parse_args(sys.argv[sys.argv.index('--')+1:])
  rows=[]
  for s in map(int,a.seeds.split(',')):
-  row=run(s,a.motion);rows.append(row);print('CHECK',s,row['passed'],row['source_triangle_count'],'triangles',row['import_position_max_error_m'],'m import error',flush=True)
+  row=run(s,a.motion,a.source_root);rows.append(row);print('CHECK',s,row['passed'],row['source_triangle_count'],'triangles',row['import_position_max_error_m'],'m import error',flush=True)
  Path('build/checks.json').write_text(json.dumps(rows,indent=2))
