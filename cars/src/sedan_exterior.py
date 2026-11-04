@@ -50,6 +50,18 @@ def perimeter(ob):
 
 
 def optics(b):
+    from mathutils.bvhtree import BVHTree
+    skin_points=[];skin_faces=[];skin_gauges=[]
+    for panel in bpy.context.scene.objects:
+        if panel.type!='MESH' or panel.get('part_category') not in ['body','doors','fascia']:continue
+        roles=panel.data.attributes.get('sheet_role')
+        if roles is None:continue
+        panel.data.calc_loop_triangles();start=len(skin_points)
+        skin_points.extend(panel.matrix_world@v.co for v in panel.data.vertices)
+        for tri in panel.data.loop_triangles:
+            if roles.data[tri.polygon_index].value!=0:continue
+            skin_faces.append(tuple(start+i for i in tri.vertices));skin_gauges.append(.003 if panel.get('part_category')=='fascia' else .0009)
+    skin_tree=BVHTree.FromPolygons(skin_points,skin_faces,all_triangles=True)
     lamps=[o for o in bpy.context.scene.objects if o.name.startswith(('Headlamp opening','Taillamp opening'))]
     for cover in lamps:
         front=cover.name.startswith('Headlamp');parent=cover.parent
@@ -58,27 +70,52 @@ def optics(b):
         if front:
             inverse=cover.matrix_world.inverted()
             for v in cover.data.vertices:
-                p=cover.matrix_world@v.co;v.co=inverse@(p-normal(p)*.0018)
-            ps=[p-normal(p)*.0018 for p in ps];cover['aperture_samples']=[q for p in ps for q in p]
+                p=cover.matrix_world@v.co;v.co=inverse@(p-normal(p)*.0010)
+            ps=[p-normal(p)*.0010 for p in ps];cover['aperture_samples']=[q for p in ps for q in p]
         boundary=perimeter(cover);ns=[normal(p) for p in boundary]
+        if front:
+            sign=1 if ps[0].x>0 else -1
+            bucket_direction=Vector((sign*.12,-.65,.75)).normalized()
+            ns=[bucket_direction for p in boundary]
         depth=.100 if front else .035
         rings=[[p-n*d for p,n in zip(boundary,ns)] for d in [.001,depth]]
+        if front:
+            center=sum(boundary,Vector())/len(boundary);mouth=[];distances=[]
+            for i,p in enumerate(boundary):
+                tangent=boundary[(i+1)%len(boundary)]-boundary[i-1]
+                outward=tangent.cross(normal(p)).normalized()
+                if outward.dot(p-center)<0:outward.negate()
+                hit,n,fi,distance=skin_tree.find_nearest(p+outward*.003)
+                if distance>.012:raise ValueError(('Optical flange misses actual paint',cover.name,distance))
+                mouth.append(hit-n*(skin_gauges[fi]+.0012));distances.append(distance)
+            rings[0]=mouth
+            cover['casing_flange_max_support_distance_m']=max(distances)
         if cover.get('lamp_piece')=='lid':
             for ring in rings:
                 for p in ring:p.x=max(-.607,min(.607,p.x))
         housing=G.loft('S240 optical housing '+cover.name,rings,b.m['plastic'],caps=False)
         sol=housing.modifiers.new('Optical housing wall','SOLIDIFY');sol.thickness=.0015;sol.offset=-1;sol.use_even_offset=False;G.apply(housing)
         b.add(housing,parent,'lamps')
-        back=G.mesh('S240 optical back '+cover.name,rings[-1],[tuple(range(len(rings[-1])))],b.m['dark_chrome'] if front else b.m['chrome'])
-        sol=back.modifiers.new('Optical backing gauge','SOLIDIFY');sol.thickness=.0015;sol.offset=-1;sol.use_even_offset=False;G.apply(back)
+        if front:
+            back_points=[ps[j*nu+i]-bucket_direction*depth for j in [0,nv-1] for i in range(nu)]
+            back_faces=[(i,i+1,nu+i+1,nu+i) for i in range(nu-1)]
+        else:back_points=rings[-1];back_faces=[tuple(range(len(rings[-1])))]
+        back=G.mesh('S240 optical back '+cover.name,back_points,back_faces,b.m['dark_chrome'] if front else b.m['chrome'])
+        if b.high or not front:
+            sol=back.modifiers.new('Optical backing gauge','SOLIDIFY');sol.thickness=.0015;sol.offset=-1;sol.use_even_offset=False;G.apply(back)
+        else:back['allow_boundary']=True
         bm=bmesh.new();bm.from_mesh(back.data);bmesh.ops.triangulate(bm,faces=list(bm.faces));bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces))
         if bm.calc_volume(signed=True)<0:bmesh.ops.reverse_faces(bm,faces=list(bm.faces))
         bm.to_mesh(back.data);bm.free()
+        if front:G.smooth(back,70)
         b.add(back,parent,'lamps')
         cover.data.materials.clear();cover.data.materials.append(b.m['lens'] if front else b.m['rear_cover'])
         cover['part_category']='glass' if front else 'lamps'
-        lower=(nv-1)//2;upper=nv//2
-        mid=[(ps[lower*nu+i]+ps[upper*nu+i])*.5 for i in range(nu)]
+        fractions=list(cover.get('form_row_fractions',[j/(nv-1) for j in range(nv)]))
+        from bisect import bisect_right
+        lower=max(0,min(nv-2,bisect_right(fractions,.5)-1));upper=lower+1
+        mix=(.5-fractions[lower])/(fractions[upper]-fractions[lower])
+        mid=[ps[lower*nu+i].lerp(ps[upper*nu+i],mix) for i in range(nu)]
         def at(fraction):
             t=max(0,min(nu-1,fraction*(nu-1)));i=min(nu-2,int(t))
             return mid[i].lerp(mid[i+1],t-i)
@@ -86,9 +123,17 @@ def optics(b):
         for direction,label in [(-1,'lower'),(1,'upper')]:
             path=[]
             for i,p in enumerate(mid):
-                n=normal(p);up=(Vector((0,0,1))-n*n.z).normalized()
-                height=(ps[(nv-1)*nu+i]-ps[i]).length
-                path.append(lens_tree.find_nearest(p+up*(direction*height*.40))[0])
+                if front:
+                    width=(ps[(nv-1)*nu+i]-ps[i]).length
+                    if width<(.026 if direction<0 else .014):continue
+                    margin=max(.12,.006/width)
+                    row=margin if direction<0 else 1-margin if width>=.026 else .5
+                    lo=max(0,min(nv-2,bisect_right(fractions,row)-1));t=(row-fractions[lo])/(fractions[lo+1]-fractions[lo])
+                    path.append(ps[lo*nu+i].lerp(ps[(lo+1)*nu+i],t))
+                else:
+                    n=normal(p);up=(Vector((0,0,1))-n*n.z).normalized()
+                    height=(ps[(nv-1)*nu+i]-ps[i]).length
+                    path.append(lens_tree.find_nearest(p+up*(direction*height*.40))[0])
             if not b.high and not front and cover.get('lamp_piece')=='lid':
                 path=path[::2]+([path[-1]] if path[::2][-1]!=path[-1] else [])
             # A 9 mm original twin-blade signature, following the swept cover.
@@ -96,7 +141,7 @@ def optics(b):
             tube(b,'S240 '+label+' light guide '+cover.name,guide,.0045 if front else .004,b.m['drl'] if front else b.m['brakelight'],'lamps',parent,sides=4)
         if front:
             for fraction,radius,label in [(.15,.026,'low')]:
-                p=at(fraction)-normal(at(fraction))*.010;n=Vector((.06*(1 if p.x>0 else -1),-1,.05)).normalized()
+                p=at(fraction)-normal(at(fraction))*.045;n=Vector((.06*(1 if p.x>0 else -1),-1,.05)).normalized()
                 # Closed formed reflector, convex optic and phosphor behind it.
                 for part,profile,mat in [
                     ('reflector',[(-.050,0),(-.048,radius*.55),(-.023,radius*1.12),(-.012,radius*1.12),(-.012,radius*.96),(-.045,radius*.46),(-.046,0)],b.m['chrome']),
@@ -105,9 +150,9 @@ def optics(b):
                     ob=G.lathe('S240 '+label+' '+part+' '+cover.name,profile,mat,32 if b.high else 16)
                     ob.location=p;ob.rotation_euler=n.to_track_quat('Z','Y').to_euler();b.add(ob,parent,'lamps')
             # Amber reflector follows the outer return, seated behind the cover.
-            path=[at(.80+.17*i/3) for i in range(4)]
+            path=[at(.72+.10*i/3) for i in range(4)]
             path=[p-normal(p)*.014 for p in path]
-            tube(b,'S240 amber side marker '+cover.name,path,.008,b.m['amber'],'lamps',parent,sides=4)
+            tube(b,'S240 amber side marker '+cover.name,path,.0035,b.m['amber'],'lamps',parent,sides=4)
         else:
             # A bright reverse window inside the red wing, on the lid half.
             if cover.get('lamp_piece')=='lid':

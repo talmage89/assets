@@ -32,7 +32,27 @@ def main():
             if not inside(q):continue
             samples+=1;hit,_,fi,_=tree.ray_cast(Vector((q.x,-4,q.y)),Vector((0,1,0)),6)
             if hit is not None and hit.y<limit:hits.append(dict(part=names[fi][0],triangle=names[fi][1],point_m=list(hit)))
-    report=dict(passed=not hits and samples>1000,method='5 mm grid of rays through the actual mouth polygon, inset 8 mm from its measured rim; exterior paint only, through the recessed well depth plus 10 mm',samples=samples,paint_occlusions=len(hits),occlusions=hits,scope='Physical aperture correctness on the source, not export serialization')
+    optical={}
+    for name in ['Headlamp opening-1','Headlamp opening1']:
+        cover=bpy.data.objects[name];raw=list(cover['aperture_samples'])
+        ps=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)];nu,nv=cover['form_columns'],cover['form_rows']
+        raw=list(cover['aperture_chart_samples']);chart=[Vector((raw[i],raw[i+1])) for i in range(0,len(raw),2)]
+        raw=list(cover['optical_patch_normals']);ns=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
+        areas=[];blocked=[]
+        for j in range(nv-1):
+            for i in range(nu-1):
+                indices=[j*nu+i,j*nu+i+1,(j+1)*nu+i+1,(j+1)*nu+i]
+                q=[chart[k] for k in indices]
+                areas.append(sum(a.x*c.y-c.x*a.y for a,c in zip(q,q[1:]+q[:1]))*.5)
+        orientation=1 if sum(areas)>0 else -1
+        for j in range(1,nv-1):
+            for i in range(1,nu-1):
+                q=ps[j*nu+i];n=ns[j*nu+i];hit,_,fi,_=tree.ray_cast(q+n*.05,-n,.065)
+                if hit is not None:blocked.append(dict(part=names[fi][0],point_m=list(hit)))
+        optical[name]=dict(minimum_oriented_chart_cell_area=min(a*orientation for a in areas),
+            cells=len(areas),interior_rays=(nu-2)*(nv-2),paint_occlusions=blocked,
+            method='Every cover cell must preserve orientation in its construction chart; 65 mm normal rays from 50 mm outside interior cover vertices must see no painted obstruction')
+    report=dict(passed=not hits and samples>1000 and all(row['minimum_oriented_chart_cell_area']>1e-8 and not row['paint_occlusions'] for row in optical.values()),method='5 mm grid of rays through the actual mouth polygon, inset 8 mm from its measured rim; exterior paint only, through the recessed well depth plus 10 mm',samples=samples,paint_occlusions=len(hits),occlusions=hits,front_cover_charts=optical,scope='Physical aperture correctness on the source, not export serialization')
     Path(a.out).write_text(json.dumps(report,indent=2));print('S240_GRILLE_APERTURE',samples,'rays,',len(hits),'paint occlusions')
     if not report['passed']:raise SystemExit(1)
 if __name__=='__main__':main()

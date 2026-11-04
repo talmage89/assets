@@ -1,14 +1,14 @@
 """Lamp openings cut in the sedan's evaluated subdivision parameter chart.
 
 Reference pixels never enter this operation. The original locator outline is
-projected onto the parent, offset 2.25 mm in its tangent plane, and faired to a convex
-outline in the 2D chart. Cut skin fragments retain their original face planes;
+projected onto the parent and expanded by the manufactured reveal. Convex
+pieces retain its true concavity; the hood uses its natural XY plane. Cut skin fragments retain their original face planes;
 all gauge rims are constructed after cutting. No volume unions or thin booleans.
 """
 import math
 import bpy,bmesh
 from mathutils import Vector
-from mathutils.geometry import barycentric_transform,convex_hull_2d,delaunay_2d_cdt
+from mathutils.geometry import barycentric_transform,convex_hull_2d,delaunay_2d_cdt,tessellate_polygon
 from mathutils.kdtree import KDTree
 from kit import model as G
 
@@ -18,6 +18,29 @@ def surface_uv(p,surface):
     uv=barycentric_transform(hit,surface['points'][a],surface['points'][b],surface['points'][c],surface['uvs'][a],surface['uvs'][b],surface['uvs'][c])
     n=barycentric_transform(hit,surface['points'][a],surface['points'][b],surface['points'][c],surface['normals'][a],surface['normals'][b],surface['normals'][c]).normalized()
     return uv,n
+
+
+def convex_pieces(poly):
+    """Convex decomposition of the true bent optical outline, without hull loss."""
+    pieces=[[poly[v] if isinstance(v,int) else v for v in t] for t in tessellate_polygon([poly])]
+    def area(ps):return abs(sum(a.x*c.y-c.x*a.y for a,c in zip(ps,ps[1:]+ps[:1])))*.5
+    changed=True
+    while changed:
+        changed=False
+        for i,a in enumerate(pieces):
+            for j in range(i+1,len(pieces)):
+                c=pieces[j]
+                shared=sum(any((p-q).length<1e-7 for q in c) for p in a)
+                if shared<2:continue
+                candidates=[]
+                for q in a+c:
+                    if not any((p-q).length<1e-7 for p in candidates):candidates.append(q)
+                hull=[candidates[k] for k in convex_hull_2d([p.to_2d() for p in candidates])]
+                if abs(area(hull)-area(a)-area(c))>1e-9:continue
+                if sum(p.x*q.y-q.x*p.y for p,q in zip(hull,hull[1:]+hull[:1]))<0:hull.reverse()
+                pieces[i]=hull;pieces.pop(j);changed=True;break
+            if changed:break
+    return pieces
 
 
 def outline(lamp,surface):
@@ -37,6 +60,20 @@ def outline(lamp,surface):
             edge=(plane[(i+1)%len(plane)]-plane[i-1]).normalized()
             expanded.append(p+Vector((edge.y,-edge.x,0))*.00225)
         return [expanded]
+    if lamp.name.startswith('Headlamp') and 'aperture_chart_samples' in lamp:
+        raw=list(lamp['aperture_chart_samples']);chart=[Vector((raw[i],raw[i+1],0)) for i in range(0,len(raw),2)]
+        uv=[chart[i] for i in indices]
+        if sum(p.x*q.y-q.x*p.y for p,q in zip(uv,uv[1:]+uv[:1]))<0:uv.reverse()
+        def position(q):
+            hit,_,fi,_=surface['uv_tree'].find_nearest(Vector((q.x,q.y,0)));a,c,d=surface['triangles'][fi]
+            us=surface['uvs'];ps=surface['points']
+            return barycentric_transform(hit,us[a],us[c],us[d],ps[a],ps[c],ps[d])
+        expanded=[]
+        for i,q in enumerate(uv):
+            tangent=(uv[(i+1)%len(uv)]-uv[i-1]).normalized();outward=Vector((tangent.y,-tangent.x,0))
+            eps=.001;scale=(position(q+outward*eps)-position(q-outward*eps)).length/(2*eps)
+            expanded.append(q+outward*(.00325/max(scale,.001)))
+        return convex_pieces(expanded)
     uv=[surface_uv(p,surface)[0] for p in loop]
     hull=list(convex_hull_2d([p.to_2d() for p in uv]));uv=[uv[i] for i in hull];loop=[loop[i] for i in hull]
     area=sum(a.x*b.y-b.x*a.y for a,b in zip(uv,uv[1:]+uv[:1]))
@@ -94,7 +131,7 @@ def regularize_blank(ob,surface,front,high=False):
         return q,heights[i]*(1-t)+heights[i+1]*t
     steps=max(4,math.ceil(arc[-1]/(.020 if high else .030)))
     stations=[arc[-1]*i/steps for i in range(steps+1)]
-    nu=len(stations);nv=7 if high else 4;rows=[[] for _ in range(nv)];eps=.002
+    nu=len(stations);nv=7 if high else 4;rows=[[] for _ in range(nv)];charts=[[] for _ in range(nv)];row_normals=[[] for _ in range(nv)];eps=.002
     for s in stations:
         q,height=center(s);p,n=sample(q)
         qa,_=center(s-.002);qc,_=center(s+.002);tangent=(sample(qc)[0]-sample(qa)[0]).normalized()
@@ -108,7 +145,7 @@ def regularize_blank(ob,surface,front,high=False):
         across=Vector(((cc*au-bb*av)/det,(aa*av-bb*au)/det))
         for j in range(nv):
             offset=height*(j/(nv-1)-.5)
-            qq=q+across*offset;rows[j].append(sample(qq)[0])
+            qq=q+across*offset;p,n=sample(qq);rows[j].append(p);charts[j].append(qq);row_normals[j].append(n)
     ps=[p for row in rows for p in row]
     faces=[(j*nu+i,j*nu+i+1,(j+1)*nu+i+1,(j+1)*nu+i) for j in range(nv-1) for i in range(nu-1)]
     inverse=ob.matrix_world.inverted();old=ob.data
@@ -130,6 +167,9 @@ def regularize_blank(ob,surface,front,high=False):
     ob.data.normals_split_custom_set(custom)
     ob['form_rows']=nv;ob['form_columns']=nu;ob['aperture_samples']=[v for p in ps for v in p]
     ob['lens_outer_faces']=count;ob['chart_disk_topology']=True
+    ob['aperture_chart_samples']=[c for row in charts for q in row for c in [q.x,q.y]]
+    ob['optical_patch_normals']=[c for row in row_normals for n in row for c in n]
+    ob['form_row_fractions']=[j/(nv-1) for j in range(nv)]
 
 
 def regularize_rear(ob,surface,high):
@@ -216,11 +256,11 @@ def difference(polygon,region):
     return pieces
 
 
-def cut_mesh(ob,cutters,surface,axial=False,front=False,spatial_boxes=None):
+def cut_mesh(ob,cutters,surface,axial=False,front=False,spatial_boxes=None,top_projection=False):
     from sedan_body import closeable_sheet,conform_edges
     matrix=ob.matrix_world.copy();inverse=matrix.inverted();normal_matrix=matrix.to_3x3().inverted().transposed()
     points=[matrix@v.co for v in ob.data.vertices]
-    uvs=[Vector((p.x,p.z,0)) if axial else surface_uv(p,surface)[0] for p in points]
+    uvs=[Vector((p.x,p.y,0)) if top_projection else Vector((p.x,p.z,0)) if axial else surface_uv(p,surface)[0] for p in points]
     polygons=[];affected=False
     cutter_boxes=[bounds(t) for t in cutters]
     def intersects(a,b):return not(a[0]>b[1] or a[1]<b[0] or a[2]>b[3] or a[3]<b[2])
@@ -232,6 +272,9 @@ def cut_mesh(ob,cutters,surface,axial=False,front=False,spatial_boxes=None):
         if ob.get('sheet_roles'):
             if ob.data.polygons[face.polygon_index].material_index!=0:continue
         elif (normal_matrix@face_normal).dot(n)<.5:continue
+        original=[(uvs[i],points[i]) for i in face.vertices]
+        if not any(intersects(bounds([q for q,p in original]),box) for box in cutter_boxes):
+            polygons.append(original);continue
         if axial:
             sign=-1 if front else 1
             # A coarse triangle's center is a chord, not a surface sample.
@@ -250,7 +293,7 @@ def cut_mesh(ob,cutters,surface,axial=False,front=False,spatial_boxes=None):
                 # Keep this original triangle; it is another side/roof chart,
                 # not the outer end face reached by the aperture projection.
                 polygons.append([(uvs[i],points[i]) for i in face.vertices]);continue
-        original=[(uvs[i],points[i]) for i in face.vertices];pieces=[original]
+        pieces=[original]
         world_lo=[min(points[i][k] for i in face.vertices) for k in range(3)]
         world_hi=[max(points[i][k] for i in face.vertices) for k in range(3)]
         for cutter_index,(region,box) in enumerate(zip(cutters,cutter_boxes)):
@@ -267,7 +310,7 @@ def cut_mesh(ob,cutters,surface,axial=False,front=False,spatial_boxes=None):
     if not affected:return
     vertices=[];faces=[]
     for polygon in polygons:
-        offset=len(vertices);vertices.extend(inverse@p[1] for p in polygon);faces.append(tuple(range(offset,len(vertices))))
+        offset=len(vertices);vertices.extend(inverse@p for q,p in polygon);faces.append(tuple(range(offset,len(vertices))))
     old=ob.data;mesh=bpy.data.meshes.new(old.name+' lamp apertures');mesh.from_pydata(vertices,[],faces);mesh.update()
     for mat in old.materials:mesh.materials.append(mat)
     ob.data=mesh
@@ -282,13 +325,9 @@ def cut_mesh(ob,cutters,surface,axial=False,front=False,spatial_boxes=None):
     bad=[f for f in bm.faces if f.calc_area()<1e-11]
     if bad:bmesh.ops.delete(bm,geom=bad,context='FACES')
     bm.to_mesh(ob.data);bm.free();closeable_sheet(ob)
-    # Clipped corners used to remain in the coarse triangle's chord plane.
-    # Skinny aperture fragments then had a different geometric curvature from
-    # the dense normals assigned below. Return the skin to the actual parent
-    # before creating gauge; this changes positions, not just shading normals.
-    for v in ob.data.vertices:
-        p=matrix@v.co;hit=surface['tree'].find_nearest(p)[0]
-        v.co=inverse@hit
+    # Clipping subdivides the original game facets. Lifting only the new
+    # intersections onto the dense parent folds skinny cut fragments and
+    # opens triangular teeth. Keep every original chord plane intact.
     ob.data.update()
     from sedan_body import sheet_gauge
     sheet_gauge(ob,.003 if ob.get('part_category')=='fascia' else .0009)
@@ -305,9 +344,36 @@ def carve(front,lamps,surface,recess=.010):
     for ob in list(bpy.context.scene.objects):
         if ob.type!='MESH' or ob.get('part_category') not in ['body','doors','fascia','pillars']:continue
         if (ob.matrix_world@ob.data.vertices[0].co).y*(1 if front else -1)>0:continue
-        cut_mesh(ob,cutters,surface,axial=axial,front=front,spatial_boxes=spatial if not axial else None)
+        if ob.name=='Hood outer' and all(lamp.name.startswith('Headlamp') for lamp in lamps):
+            # The hood is a height field in XY. Its coarse chord intersections
+            # cannot be inverted reliably through a nearest-parent UV lookup.
+            # Cut its actual facet coordinates in that manufacturing plane.
+            top_cutters=[]
+            for lamp in lamps:
+                raw=list(lamp['aperture_samples']);ps=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
+                nu,nv=lamp['form_columns'],lamp['form_rows']
+                ids=list(range(nu))+[j*nu+nu-1 for j in range(1,nv)]+list(range((nv-1)*nu+nu-2,(nv-1)*nu-1,-1))+[j*nu for j in range(nv-2,0,-1)]
+                poly=[Vector((ps[i].x,ps[i].y,0)) for i in ids]
+                if sum(a.x*c.y-c.x*a.y for a,c in zip(poly,poly[1:]+poly[:1]))<0:poly.reverse()
+                expanded=[]
+                for i,p in enumerate(poly):
+                    tangent=(poly[(i+1)%len(poly)]-poly[i-1]).normalized()
+                    expanded.append(p+Vector((tangent.y,-tangent.x,0))*.00325)
+                top_cutters.extend(convex_pieces(expanded))
+            cut_mesh(ob,top_cutters,surface,front=front,top_projection=True)
+        else:cut_mesh(ob,cutters,surface,axial=axial,front=front,spatial_boxes=spatial if not axial else None)
     for lamp in lamps:
         matrix=lamp.matrix_world.copy();inverse=matrix.inverted()
+        if lamp.name.startswith('Headlamp') and 'aperture_chart_samples' in lamp:
+            raw=list(lamp['aperture_chart_samples']);chart=[Vector((raw[i],raw[i+1],0)) for i in range(0,len(raw),2)]
+            raw=list(lamp['optical_patch_normals']);ns=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
+            if len(lamp.data.vertices)!=2*len(chart):raise ValueError('Unexpected optical laminate vertex layout')
+            for v in lamp.data.vertices:
+                p=matrix@v.co;v.co=inverse@(p-ns[v.index%len(chart)]*.0035)
+            lamp['aperture_samples']=[c for v in list(lamp.data.vertices)[:len(chart)] for c in matrix@v.co]
+            lamp['opening_recess_m']=-.0005
+            continue
+
         for v in lamp.data.vertices:
             p=matrix@v.co;_,n=surface_uv(p,surface);v.co=inverse@(p-n*recess)
         raw=list(lamp['aperture_samples']);guides=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)];moved=[]
