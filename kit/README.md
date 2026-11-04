@@ -496,6 +496,9 @@ the clear-coat lobe stays continuous. Defaults retain the earlier appearance.
 
 `DELIVERY_SURFACES` optionally defines uniform Principled settings, metallic/
 roughness factors, emission and extras for a small delivery palette.
+Each surface can set `normal_strength` (default unchanged); zero preserves
+authored mesh normals without quantized neutral-map deflection, and exports
+as the glTF normal texture's scale.
 `SOURCE_MATERIAL_SURFACES` maps manufacturing material names to that palette;
 assignment is per face before consolidation, so coated panels can retain
 opaque interior faces. Existing name-prefix overrides remain unchanged.

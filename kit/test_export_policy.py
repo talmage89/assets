@@ -84,6 +84,35 @@ for label, extra in [('config', []), ('cli', ['--variant', '1'])]:
     assert abs(glass['extensions']['KHR_materials_ior']['ior']-1.45)<1e-6
 print('PASS: tile alpha + glass/emission + numeric/config/ancestor variants compose')
 
+# Smooth refractive/reflective surfaces must be able to bypass even the small
+# deflection of an 8-bit neutral normal. Verify actual glTF scale, shared image
+# storage, and the unchanged default on a neighboring textured surface.
+bpy.ops.wm.open_mainfile(filepath=str(folder / 'finalized.blend'))
+cfg = runpy.run_path(str(folder / 'config.py'))
+cfg = {k: v for k, v in cfg.items() if not k.startswith('__')}
+cfg['DELIVERY_SURFACES'] = {'Smooth': dict(normal_strength=0), 'Textured': {}}
+cfg['SOURCE_MATERIAL_SURFACES'] = {}
+for i, ob in enumerate(o for o in bpy.context.scene.objects if o.type == 'MESH'):
+    for slot in ob.material_slots:
+        slot.material = slot.material.copy()
+        cfg['SOURCE_MATERIAL_SURFACES'][slot.material.name] = 'Smooth' if i == 0 else 'Textured'
+config.write_text('\n'.join(k + '=' + repr(v) for k, v in cfg.items()))
+source = folder / 'normal-scale.blend'
+bpy.ops.wm.save_as_mainfile(filepath=str(source))
+output = folder / 'normal-scale.glb'
+sys.argv = ['blender', '--', '--source', str(source), '--textures', str(folder / 'textures'),
+            '--asset', 'TileFixture', '--config', str(config), '--out', str(output),
+            '--report', str(folder / 'normal-scale.json')]
+export.main()
+doc = gltf.GLB(output).json
+assert len(doc['images']) == len(doc['textures']) == 3
+smooth = [m for m in doc['materials'] if m['name'].endswith(' Smooth')]
+textured = [m for m in doc['materials'] if m['name'].endswith(' Textured')]
+assert smooth and textured
+assert all(m['normalTexture']['scale'] == 0 for m in smooth)
+assert all(m['normalTexture'].get('scale', 1) == 1 for m in textured)
+print('PASS: zero normal scale survives real glTF export while neighboring defaults and three shared images remain')
+
 
 def studio_snapshot(**options):
     bpy.ops.wm.read_factory_settings(use_empty=True)

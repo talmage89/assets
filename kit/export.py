@@ -100,6 +100,8 @@ def main():
     surfaces={}
     for key,settings in cfg.get('DELIVERY_SURFACES',{}).items():
         extra=material.copy();extra.name=a.asset+' '+key;nt=extra.node_tree;shader=nt.nodes['SURFACE']
+        if 'normal_strength' in settings:
+            next(n for n in nt.nodes if n.type=='NORMAL_MAP').inputs['Strength'].default_value=settings['normal_strength']
         for socket,value in settings.get('principled',{}).items():shader.inputs[socket].default_value=value
         for socket,factor in settings.get('factors',{}).items():
             source=shader.inputs[socket].links[0].from_socket
