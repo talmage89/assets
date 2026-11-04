@@ -10,9 +10,9 @@ export TMPDIR := $(REPO)/build/tmp
 export ASSETS_GPU_LOCK ?= $(REPO)/build/locks/gpu.lock
 WIDTH ?= 1600
 SAMPLES ?= 40
-PASS ?= suv-round2
+PASS ?= suv-round3
 OUT := renders/$(PASS)
-DEPS := src/suv_build.py src/suv_body.py src/suv_spec.py src/suv_apertures.py src/suv_character.py src/suv_greenhouse.py src/suv_cladding.py src/suv_sculpt.py src/build.py src/forms.py src/wheels.py src/detail_helpers.py ../kit/model.py ../kit/vehicle.py
+DEPS := src/suv_build.py src/suv_body.py src/suv_spec.py src/suv_apertures.py src/suv_character.py src/suv_greenhouse.py src/suv_cladding.py src/suv_sculpt.py src/suv_optimize.py src/build.py src/forms.py src/wheels.py src/detail_helpers.py ../kit/model.py ../kit/vehicle.py
 CLAY := front_three_quarter rear_three_quarter side front rear top side_raking
 STRIPES := stripes_horizontal stripes_vertical stripes_rear_horizontal stripes_rear_vertical stripes_side_horizontal stripes_side_vertical stripes_hood_driver
 PAIRS := crv_front rav4_front crv_rear rav4_rear
@@ -32,7 +32,7 @@ build/suv/cameras.json: src/suv_matches.py src/suv_spec.py $(KIT)/photo_match.py
 	$(PYTHON) $(KIT)/photo_match.py solve --config src/suv_matches.py --out $@
 build/suv/profile-cameras.json: src/suv_profile_matches.py src/suv_spec.py $(KIT)/photo_match.py
 	$(PYTHON) $(KIT)/photo_match.py solve --config src/suv_profile_matches.py --out $@
-build/suv/form-check.json: build/suv/game.blend src/suv_check.py src/suv_measure.py src/suv_round2_measure.py src/suv_fairness.py
+build/suv/form-check.json: build/suv/game.blend src/suv_check.py src/suv_measure.py src/suv_round2_measure.py src/suv_round3_measure.py src/suv_fairness.py
 	$(BP) --python src/suv_check.py -- --source $< --out $@
 build/suv/curvature.json: build/suv/game.blend src/suv_fairness.py
 	$(BP) --python src/suv_fairness.py -- --source $< --out $@
@@ -66,9 +66,21 @@ $(addprefix $(OUT)/,$(addsuffix _clay.png,$(PAIRS))) &: build/suv/game.blend bui
 $(OUT)/rav4_profile.png $(OUT)/crv_profile.png &: build/suv/game.blend build/suv/profile-cameras.json src/suv_render.py build/suv/parameters.txt | build/suv/form-check.json
 	$(KIT)/with_gpu.sh $(RP) --python src/suv_render.py -- --source build/suv/game.blend --out $(OUT) --width $(WIDTH) --samples $(SAMPLES) --mode profiles --cameras build/suv/profile-cameras.json
 render: $(OUT)/rav4_profile.png $(OUT)/crv_profile.png $(addprefix $(OUT)/,$(addsuffix .png,$(CLAY) $(STRIPES) $(PAIRS))) $(addprefix $(OUT)/,$(addsuffix _clay.png,$(PAIRS)))
-review: render fairness
+review: render fairness curvature-map diagnostic-stripes
 	@mkdir -p $(REPO)/build/suv-reference-pages
 	pdftoppm -f 1 -singlefile -scale-to 1800 -png refs/suv-rav4-plan.pdf $(REPO)/build/suv-reference-pages/suv-rav4-plan
 	pdftoppm -f 1 -singlefile -scale-to 1800 -png refs/suv-crv-plan.pdf $(REPO)/build/suv-reference-pages/suv-crv-plan
 	$(PYTHON) src/suv_references.py --refs refs --out $(OUT)/measurements --plan-pages $(REPO)/build/suv-reference-pages
 	$(PYTHON) src/suv_review.py --renders $(OUT) --report build/suv/form-check.json --cameras build/suv/cameras.json
+
+# Mean curvature uses the exact game triangles, including their sampling error.
+.PHONY: curvature-map diagnostic-stripes
+build/suv/mean-curvature/mean-curvature.blend: build/suv/game.blend src/suv_curvature_map.py
+	$(BP) --python src/suv_curvature_map.py -- --source $< --out build/suv/mean-curvature
+CURVATURE_VIEWS := front_three_quarter rear_three_quarter side front rear
+curvature-map: $(addprefix $(OUT)/mean_curvature_,$(addsuffix .png,$(CURVATURE_VIEWS)))
+$(addprefix $(OUT)/mean_curvature_,$(addsuffix .png,$(CURVATURE_VIEWS))) &: build/suv/mean-curvature/mean-curvature.blend src/suv_render.py build/suv/parameters.txt
+	$(KIT)/with_gpu.sh $(RP) --python src/suv_render.py -- --source $< --out $(OUT) --width $(WIDTH) --samples 16 --mode curvature
+diagnostic-stripes: $(addprefix $(OUT)/curvature_stripes_,$(addsuffix .png,$(CURVATURE_VIEWS)))
+$(addprefix $(OUT)/curvature_stripes_,$(addsuffix .png,$(CURVATURE_VIEWS))) &: build/suv/game.blend src/suv_render.py build/suv/parameters.txt
+	$(KIT)/with_gpu.sh $(RP) --python src/suv_render.py -- --source $< --out $(OUT) --width $(WIDTH) --samples $(SAMPLES) --mode diagnostic_stripes

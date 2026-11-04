@@ -74,10 +74,14 @@ def measure(ray,name,kind,station,lo,hi,count=401):
     zones=([dict(name='recessed sill and rocker upper blend',range=[.29,.34]),dict(name='lower die hollow and crease',range=[line-.100,line+.115]),dict(name='shoulder / belt roll',range=[h-.045,h+.050])] if kind=='side' else
            [dict(name='raised hood draw bank into crowned fender',range=[-.86,-hood_draw_x(station)+.065]),dict(name='raised hood draw bank into crowned fender',range=[hood_draw_x(station)-.065,.86])] if station< -1.08 else [])
     if kind=='side' and station<-1.8:zones=[dict(name='lower fascia / intake roll',range=[.29,.45]),dict(name='bumper / tapered corner pocket and upper ridge',range=[.60,.80]),dict(name='hood / headlamp upper roll',range=[.95,1.06]),dict(name='lower die continuation into fascia',range=[line-.100,line+.115])]
-    if kind=='side' and station>1.8:zones=[dict(name='lower bumper return into broadened crown',range=[.36,.51]),dict(name='broadened bumper crown and lower-quarter waist',range=[.56,.98]),dict(name='plate-stamping upper shoulder, garnish and lamp land',range=[1.02,1.23])]
-    unexplained=[t for t in crossings if not any(z['range'][0]<=t<=z['range'][1] for z in zones)]
+    if kind=='side' and station>1.8:zones=[dict(name='lower bumper return into broadened crown',range=[.36,.51]),dict(name='broadened bumper crown and lower-quarter waist',range=[.56,.98]),dict(name='continuous waist into upper rear plan blend',range=[.98,1.05]),dict(name='gate upper shoulder, garnish and lamp land',range=[1.02,1.23])]
+    # A centered derivative samples a physical interval, not an infinitesimal
+    # point. Attribute a crossing to a feature when that actual stencil touches
+    # its measured zone; retain every raw crossing for inspection.
+    support=3*step
+    unexplained=[t for t in crossings if not any(z['range'][0]-support<=t<=z['range'][1]+support for z in zones)]
     return dict(name=name,kind=kind,station_y_m=station,samples=samples,raw_sign_crossings=crossings,character_line_zones=zones,unexplained_sign_crossings=unexplained,
-                derivative='Centered normal-slope difference, +/-3 samples; no curve fit')
+                derivative='Centered normal-slope difference, +/-3 samples; no curve fit',feature_zone_support_tolerance_m=support)
 
 
 def main():

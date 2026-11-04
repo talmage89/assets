@@ -104,7 +104,7 @@ def dimensioned(out,shots,report):
 
 def round_two(out,report):
  """Compare preserved cameras, and show independently measured plan samples."""
- names=[];old=ASSET/'renders/suv-form'
+ names=[];old=ASSET/'renders/suv-form' if 'round3' not in report else out
  if old.exists() and old.resolve()!=out.resolve():
   for label,views in [('ends',['front','rear']),('plan-side',['top','side_raking'])]:
    page=Image.new('RGB',(2400,1500),(228,231,232));d=ImageDraw.Draw(page)
@@ -147,7 +147,8 @@ def main():
  for name in shots:
   path=out/(name+'.png');im=np.array(Image.open(path).convert('RGBA'));cols=im[...,:3][im[...,3]>250]
   if len(cols)<100:raise ValueError('Empty opaque foreground in '+str(path)+'; inspect framing and studio occlusion')
-  luma=cols@np.array([.2126,.7152,.0722]);tone[name]=dict(display_luma_p1_p50_p99=np.percentile(luma,[1,50,99]).tolist(),channel_255_fraction=float(np.mean(cols.max(axis=1)==255)),shadow_below_25_fraction=float(np.mean(luma<25)))
+  if not name.startswith('mean_curvature_'):
+   luma=cols@np.array([.2126,.7152,.0722]);tone[name]=dict(display_luma_p1_p50_p99=np.percentile(luma,[1,50,99]).tolist(),channel_255_fraction=float(np.mean(cols.max(axis=1)==255)),shadow_below_25_fraction=float(np.mean(luma<25)))
   save(rgb(path),out/(name+'.jpg'))
  (out/'tonal-range.json').write_text(json.dumps(dict(scope='Opaque foreground source clay; lit values are not paint albedos',views=tone),indent=2))
  compose(Path(a.cameras),out,out);clay={k+'_clay':dict(v,title=v['title'].replace('clay with stripes','neutral clay')) for k,v in cameras.items()};cp=out/'clay-cameras.json';cp.write_text(json.dumps(clay,indent=2));compose(cp,out,out)
@@ -159,6 +160,9 @@ def main():
  names += ['rear-photo-measure-'+k+'.jpg' for k in ['crv','rav4']]+['rear-comparison-'+k+'.jpg' for k in ['crv','rav4']]
  names += [k+'-pair.jpg' for k in cameras]+[k+'_clay-pair.jpg' for k in cameras]+[k+'-calibration.jpg' for k in cameras]
  names += round_two(out,report)
+ if 'round3' in report:
+  from suv_round3_review import make as round_three
+  names += round_three(out,report)
  tw,th=800,550;canvas=Image.new('RGB',(2400,math.ceil(len(names)/3)*th),(228,231,232));d=ImageDraw.Draw(canvas)
  for i,name in enumerate(names):
   im=rgb(out/name);im.thumbnail((tw-20,th-60),Image.Resampling.LANCZOS);x=i%3*tw;y=i//3*th;canvas.paste(im,(x+(tw-im.width)//2,y+45+(th-60-im.height)//2));d.text((x+12,y+10),name,font=font(19),fill=(25,50,65))
