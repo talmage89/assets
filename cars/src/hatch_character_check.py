@@ -110,6 +110,10 @@ def main():
   if row['min_depth_m'] is not None and row['min_depth_m']<.001:errors.append(name+' insufficient positive recess depth')
   if not row['world_guides_inside_mesh_bounds']:errors.append(name+' guide coordinates are not world-space bed samples')
   if any(p['paint_hit_m'] is not None for p in row['clearance_rays']):errors.append(name+' painted skin remains in front of bed')
+ for name,lo,hi in [('Low wide grille opening',.040,.080),('Plate pocket opening',.020,.030)]:
+  row=wells[name]
+  if row['min_depth_m'] is None or not lo<=row['min_depth_m']<=row['max_depth_m']<=hi:
+   errors.append(name+' physical recess outside brief range')
  report.update(passed=not errors,errors=errors);Path(a.out).write_text(json.dumps(report,indent=2));print(json.dumps({k:report[k] for k in ['sections','mirror_span_m','fender_crowns','errors']},indent=2))
  if errors and not a.diagnostic:raise AssertionError(errors)
 if __name__=='__main__':main()

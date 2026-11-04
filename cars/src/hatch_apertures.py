@@ -2,7 +2,7 @@
 
 Reference pixels never enter this operation. The original locator outline is
 projected onto the parent, offset 2.25 mm in its tangent plane, and faired to a convex
-outline in the 2D chart. Cut skin fragments retain their original face planes;
+outline in the 2D chart. Cut skin vertices return to the evaluated fair parent;
 all gauge rims are constructed after cutting. No volume unions or thin booleans.
 """
 import bpy,bmesh

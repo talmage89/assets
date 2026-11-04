@@ -322,12 +322,16 @@ def tessellate(parent,high=False):
             elif na<nb:faces.append((a0+i,a0+i+1,b0+j));i+=1
             else:faces.append((a0+i,b0+j+1,b0+j));j+=1
     if not high:
-        # Refine the actual lower rear plan turn in BOTH chart directions.
+        # Refine the lower rear turn and the tight hood/lamp junction in BOTH
+        # chart directions. Transverse samples alone leave a long chord at
+        # the inner lamp corner, visible as a pinched rim in the front view.
         # Adjacent polygons share inserted midpoints, so there are no T cracks.
         selected=set();edges={}
         for fi,face in enumerate(faces):
             p=sum((vertices[i] for i in face),Vector())/len(face)
-            if len(face)==4 and 1.76<p.y<1.99 and .35<p.z<.55 and abs(p.x)>.80:
+            rear_turn=1.76<p.y<1.99 and .35<p.z<.55 and abs(p.x)>.80
+            lamp_corner=p.y<-2.0 and .69<p.z<.78 and .48<abs(p.x)<.69
+            if len(face)==4 and (rear_turn or lamp_corner):
                 selected.add(fi)
                 for a,b in zip(face,face[1:]+face[:1]):edges[tuple(sorted((a,b)))]=None
         for edge in edges:
@@ -875,7 +879,9 @@ def fascia(b,front,master_tree,surface_map):
         backing=form_blank(name+' opening',rows,b.m['body'] if name=='Liftgate garnish' else b.m['rubber'],master_tree,front)
         b.add(backing,bpy.data.objects['Liftgate'] if name=='Liftgate garnish' else None,category='openings');ps=well(b,backing,surface_map,depth,front)
         if name in ['Low wide grille','Lower intake']:bars(b,backing,ps,front)
-        if not b.high and name!='Diffuser':
+        # Broad visible beds must retain their crown. Collapsing their grids
+        # into long diagonal fans made false dents under studio reflections.
+        if not b.high and name not in ['Diffuser','Low wide grille','Lower intake','Plate pocket','Liftgate garnish']:
             dec=backing.modifiers.new('Hidden pocket bed allocation','DECIMATE');dec.ratio=.25;G.apply(backing)
     lamps=[]
     from hatch_apertures import regularize_blank,carve

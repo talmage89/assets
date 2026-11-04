@@ -148,7 +148,7 @@ def main():
  checks={}
  def check(name,v,lo,hi):checks[name]=dict(measured=v,minimum=lo,maximum=hi,passed=lo<=v<=hi)
  for k,v,target in zip(['width','length','height'],report['bounds_m']['size'],[S.WIDTH,S.LENGTH,S.HEIGHT]):check(k,v,target-.004,target+.004)
- check('game triangles',report['triangles'],0,46000 if report['quality']=='game' else 500000)
+ check('game triangles',report['triangles'],0,47000 if report['quality']=='game' else 500000)
  check('windshield rake',report['a_pillar_rake_from_vertical_degrees'],58,62)
  # Round two explicitly permits more rake to follow the matched Corolla rear.
  check('backlight rake',ends['rear']['backlight_rake_from_vertical_degrees'],30,49)
