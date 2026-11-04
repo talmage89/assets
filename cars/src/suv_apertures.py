@@ -127,7 +127,11 @@ def regularize_blank(ob,surface,front):
     hint=Vector((center.x,-1 if front else 1,0))
     if ob.data.polygons[0].normal.dot(hint)<0:
         for face in ob.data.polygons:face.flip()
-    sol=ob.modifiers.new('Chart lens gauge','SOLIDIFY');sol.thickness=ob.get('glazing_gauge_m',.0015);sol.offset=-1;sol.use_even_offset=False;G.apply(ob)
+    from suv_body import skin_gauge
+    skin_gauge(ob,ob.get('glazing_gauge_m',.0015))
+    role=ob.data.attributes.new('skin_face_role','INT','FACE')
+    for f in ob.data.polygons:role.data[f.index].value=f.material_index;f.material_index=0
+    mat=ob.data.materials[0];ob.data.materials.clear();ob.data.materials.append(mat)
     actual=KDTree(len(ps))
     for i,p in enumerate(ps):actual.insert(p,i)
     actual.balance()

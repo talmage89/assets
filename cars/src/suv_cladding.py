@@ -14,7 +14,18 @@ def build(b,tree):
    for width,proud in [(0,.010),(.008,.0225),(.045,.0205),(.060,.004)]:
     for a in angles:
      y,z=arch_point(a,axle,width);p=tree.ray_cast(Vector((sgn*2,y,z)),Vector((-sgn,0,0)),3)[0]
-     x=abs(p.x) if p else .896
+     if p is None:
+      # At the low trailing ends the molding extends below the parent sheet.
+      # The old constant-X fallback made a 60–120 mm unsupported spike. Continue
+      # the same implicit bumper section instead of jumping to maximum width.
+      from suv_body import section_field
+      lo,hi=.3,1.05
+      for _ in range(30):
+       mid=(lo+hi)/2
+       if section_field((mid,y,z))>0:hi=mid
+       else:lo=mid
+      x=(lo+hi)/2
+     else:x=abs(p.x)
      verts.append((sgn*(x+proud-(.007 if end=='F' and width in [.008,.045] else .003 if end=='F' and width==0 else .0019 if end=='R' and width in [.008,.045] else 0)),y,z))
    fs=[(j*nu+i,j*nu+i+1,(j+1)*nu+i+1,(j+1)*nu+i) for j in range(3) for i in range(nu-1)]
    ob=G.mesh('Arch cladding_'+end+label,verts,fs,b.m['rubber']);sol=ob.modifiers.new('Injection molded gauge','SOLIDIFY');sol.thickness=.003;sol.offset=-1;G.apply(ob);b.add(ob,category='cladding')

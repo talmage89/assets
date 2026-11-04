@@ -41,6 +41,8 @@ def build(source,out,wear=.65):
   if ob.type=='MESH':
    attr=ob.data.attributes.get('VehicleRest') or ob.data.attributes.new('VehicleRest','FLOAT_VECTOR','POINT')
    attr.data.foreach_set('vector',[q for v in ob.data.vertices for q in ob.matrix_world@v.co])
+ from suv_surface_normals import finish
+ finish()
  from suv_weather import edge_attributes,cladding_fasteners,freeze_exposure_normals
  edge_attributes();cladding_fasteners(b.m['cladding']);freeze_exposure_normals()
  Path(out).parent.mkdir(parents=True,exist_ok=True);bpy.ops.wm.save_as_mainfile(filepath=str(Path(out).resolve()))

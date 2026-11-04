@@ -806,6 +806,14 @@ def build(b):
         ob.data.normals_split_custom_set(custom)
 
 
+    # Capture AFTER every cut and gauge reduction, before detail joints split
+    # the assembly. Explicit provenance survives subsequent BMesh operations;
+    # split-normal encodings and nearest corners do not.
+    from suv_surface_normals import capture
+    for ob in bpy.context.scene.objects:
+        if ob.type=='MESH':capture(ob,surface_map)
+
+
 def locator_y_guess(x,z,front):
     sign=-1 if front else 1
     return sign*(S.LENGTH/2+.008-(.27 if front else .21)*(x/.925)**2-face_depth(z,front))

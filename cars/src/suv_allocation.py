@@ -42,6 +42,9 @@ def remove_hidden_backs():
  report={}
  for ob in bpy.context.scene.objects:
   if ob.type!='MESH':continue
+  # Optical laminates need their real exit surface. Face provenance is now
+  # present on lamp covers too; it is not permission to remove their backs.
+  if ob.name.startswith(('Headlamp opening','Taillamp opening')):continue
   if ob.parent.name!='AlderX220' and ob.get('part_category')!='doors' and ob.name!='Liftgate outer':continue
   mesh=ob.data;role=mesh.attributes.get('skin_face_role')
   if role is None:continue
@@ -54,6 +57,9 @@ def remove_hidden_backs():
   for f,old in zip(candidate.polygons,selected):f.material_index=old.material_index;f.use_smooth=old.use_smooth
   a=candidate.attributes.new('skin_face_role','INT','FACE')
   for d,old in zip(a.data,selected):d.value=role.data[old.index].value
+  if mesh.attributes.get('BodyNormal'):
+   a=candidate.attributes.new('BodyNormal','FLOAT_VECTOR','POINT')
+   a.data.foreach_set('vector',[q for d in mesh.attributes['BodyNormal'].data for q in d.vector])
   candidate.normals_split_custom_set(ns);candidate.calc_loop_triangles()
   ob.data=candidate;ob['allow_boundary']=True
   ob['collision_gauge_m']=.003 if ob.get('part_category') in ['fascia','cladding'] else .0009

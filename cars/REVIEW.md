@@ -1,3 +1,43 @@
+# X220 SUV — surface and matched-light checkpoint
+
+## Surface pass 1 — diagnosis before repair
+
+Color/value first: Graphite's inherited linear RGB .160/.153/.141 is warm;
+its luminance will be retained while moving to a slightly cool neutral gray.
+The front reference is shaded/diffuse (no measurable sharp sun shadow); the
+rear has very soft daylight shadows. The former asphalt neutral and rear
+unprinted sign neutral remain the available white-balance anchors. Direct
+sun direction/elevation can only be an estimate from these photographs.
+
+Opened the old face, lamp, all ten full-size factory views and both actual
+used photographs. Before changing geometry, rendered the SAME source with
+only roadside reflection proxies removed (`renders/suv-ablation-no-canopy/`).
+The supposed studio softbox was an overcast world with twelve serrated opaque
+canopy polygons and trunks; the area lights were disabled. Their silhouettes
+produce the white/black lens shards, the hood's large wavy patches and much
+of the rear gate/quarter mottling. These patterns disappear without moving a
+vertex. A second normal/bump-disabled ablation is recorded separately. No SUV
+bake exists: these source defects cannot be attributed to atlas projection.
+
+There are additional actual faults, not explained by the environment. The
+projected cut and later closed-shell splits transfer nearest corner normals
+without a retained outside/back/rim field. The same exterior vertex can acquire
+different normals from a cap or the other side. The first audit records up to
+76.65 degrees at the front fascia, 10–11 degrees on lower rear quarters, and
+24–31 degrees in the A-frame. Optical shell rims must be excluded from the
+continuity statistic: their approximately 90 degree turns are intentional.
+The lens itself has no authored smooth parent normal field. The arch endpoints
+also continue below the sill as unsupported narrow molded tails, visible as
+black slivers in the old front three-quarter; these are geometry, not dirt.
+
+Repair plan: retain a manufacturing face role and one continuous parent normal
+field through cuts, joint splits and allocation; pair both laminate faces;
+terminate the molded arch ends into their real sill/bumper seat. Keep all
+accepted body sample positions and features. Use the family's real broad
+softbox studio and separate estimated sun/sky comparison lighting. The grille
+is genuinely five ribs on an opaque bed, not merely a bad reflection; replace
+it with an open, deep patterned face and a distinct lower intake.
+
 # X220 SUV — detail and look development
 
 ## Detail pass 1 — form fixes and inherited-work audit

@@ -18,7 +18,11 @@ def split_roof(b):
  ps=[ob.matrix_world@v.co for v in mesh.vertices];fs=[tuple(f.vertices) for f in mesh.polygons if role.data[f.index].value==0]
  from suv_body import skin_gauge
  for aft in [False,True]:
-  me=bpy.data.meshes.new('Roof hinge seam');me.from_pydata(ps,[],fs);me.update();bm=bmesh.new();bm.from_mesh(me)
+  me=bpy.data.meshes.new('Roof hinge seam');me.from_pydata(ps,[],fs);me.update()
+  if mesh.attributes.get('BodyNormal'):
+   attr=me.attributes.new('BodyNormal','FLOAT_VECTOR','POINT')
+   attr.data.foreach_set('vector',[q for d in mesh.attributes['BodyNormal'].data for q in d.vector])
+  bm=bmesh.new();bm.from_mesh(me)
   bmesh.ops.bisect_plane(bm,geom=list(bm.verts)+list(bm.edges)+list(bm.faces),plane_co=(0,1.62+(.00225 if aft else -.00225),0),plane_no=(0,1,0),clear_inner=aft,clear_outer=not aft,dist=1e-7)
   bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(me);bm.free()
   new=bpy.data.objects.new('Gate upper header' if aft else 'Roof fixed',me);bpy.context.collection.objects.link(new);me.materials.append(b.m['body']);skin_gauge(new,.0009);b.add(new,bpy.data.objects['Liftgate'] if aft else b.root,'body')
