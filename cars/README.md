@@ -1,6 +1,6 @@
 # Cars family — Alder C150 and S240
 
-The C150 pickup is delivered. The [S240 sedan](#alder-s240--sedan-form-checkpoint) is a source form checkpoint; `BODY=sedan` stops before detail and delivery.
+The C150 pickup is delivered. The [S240 sedan](#alder-s240--sedan-detail-and-look-checkpoint) has a baked GLB and checked mechanisms; its form and look checkpoint remains under review.
 
 An original late-2010s crew-cab 4×4 pickup on 275/65R18 all-terrain tires.
 Five factory paints share one baked atlas and four delivery surfaces. The
@@ -247,171 +247,249 @@ The shared atlas averages microscopic flakes and limits sidewall-type detail.
 The script source and shader behavior are available for engine integration.
 
 
-## Alder S240 — sedan form checkpoint
+## Alder S240 — sedan detail and look checkpoint
 
-An original 2018–2022 FWD midsize sedan, compared with the Camry and Accord.
-**Round 5 is a source form checkpoint.** Interior, underbody, optical internals,
-paint/wear, UVs, baking, motion certification and sedan GLB remain later work.
-The pickup's source and binary payload are unchanged; the current Blender
-exporter changes only its generator-version label on a fresh re-export.
+An original 2018–2022 FWD midsize sedan. Round 6 adds the exterior, five-place
+cabin, low underbody, factory coatings and working mechanisms to the accepted
+continuous-sheet body. The delivered GLB is **59,992 triangles**. This is a
+review checkpoint: the side-overlay 40 mm target and photographic polish remain
+open, as described below. Checkpoint images stay in ignored `renders/`; final
+`docs/` images have not been committed.
 
-### Construction and character
+### Form and real construction
 
-One connected, all-quad control sheet spans the hood, fenders, doors,
-greenhouse, deck and both fascias. Its **124,032 control quads**
-retain valence four at every interior vertex. Section fitting happens before
-Catmull-Clark evaluation. Panels and apertures are cut afterwards; their
-normals and curvature come from that parent. The game chart concentrates
-samples at the lower rear corner and uses fewer chords across the broad
-canopy. Steel gauge is 0.9 mm, molded fascia 3 mm and glass 4.8 mm.
+The hood, fenders, doors, greenhouse, deck and fascias retain their common
+Catmull–Clark parent and its measured sections, shoulder, lower character line,
+fender swells, recessed face and painted rear sails. Local sampling and fairing
+at the lamp crests, A-pillar feet and C-header corners improve reflection flow.
+The lower nose/arch chart boundary no longer makes a false panel seam. Steel
+skins have 0.9 mm gauge, molded fascias 3 mm, glazing 4.8 mm.
 
-The shoulder is the widest point of each door. Its upper door leans inward;
-the lower door turns inward progressively through a shallow die hollow and
-soft rising crease, then a recessed sill. Same-height rays measure **32.9 /
-27.4 mm front/rear fender swell**. The rear's finite-span plan radius at
-z=570 mm is **305.5 mm**, retaining the approximately 305 mm draw.
+The nose now leads at **500 mm** and tucks **133.9 mm** to its **174.9 mm** chin.
+The rear leads at **602 mm**, tucks **189.5 mm** to the diffuser's 300 mm station,
+and its painted bottom rises to **270 mm**. The actual rear tire/overhang ground
+tangent is **18.04°**, above Honda's published **17.5°** later-generation Accord
+class cross-check. This is not a MY2019 Camry departure-angle claim; see
+[REFERENCE.md](REFERENCE.md) and [refs/SOURCES.md](refs/SOURCES.md).
 
-The original rising headlamp blades are **723 × 105 mm**, with 245 mm
-returns. Their chart-triangulated blanks sit behind real skin apertures;
-the triangulation prevents folded tiny cells at tapered tips. Upper grille,
-lower intake and corner pockets have physical inward returns and blocked
-horizontal blades. Measured mouth-to-bed depths are 64–67, 60–62 and 43–45 mm.
-The corner pockets taper around the curved molding. Fender crown rise over
-the hood side is 19.1 / 14.8 mm at y=−1.60 / −1.30 m, falling to 4.0 mm by
-y=−1.10 m; that last blend remains weaker than requested.
+The 1211 / 1268 mm backlight and sails, integrated deck lip, convex bumper,
+153 mm class taillamps, 320 × 170 × 26 mm plate pocket, reflectors and rolled
+exhaust finisher remain. The registration plate is blank. The door-mounted
+mirrors keep their full span; the compound caps now measure 167 × 120 × 96 mm,
+with supported arms, body clearance and real reflective panes.
 
-The deck and C-pillar are raised per the round-4 overlay correction. The
-integrated lip kicks up **25.8 mm** over the adjacent deck's extrapolated
-slope. The narrower backlight leaves painted sails flowing into the hips:
+The detail uses an original recessed barred/relief grille, 52 mm projector
+optics in formed reflector bowls, swept twin running guides, amber side
+markers, red rear optics and reverse guides. Fictional ALDER/S240 markings,
+pull handles and cups, window seals/brightwork, B appliques, parked wipers,
+washer nozzles, shark fin and fuel flap complete the exterior. Fine lettering,
+tread, machining and coating detail are procedural or generated with Noto Sans;
+no downloaded texture, model, HDRI or photograph enters the asset.
 
-| Transverse width | S240 mesh | Camry photo estimate | Accord photo estimate |
-| --- | ---: | ---: | ---: |
-| Backlight top | 1211 mm | 1316 ±80 mm | 1202 ±80 mm |
-| Backlight base | 1268 mm, 68.6% of body | 1347 ±80 mm | 1061 ±80 mm |
-| C-pillar/sail near beltline | 252–253 mm | 243 ±60 mm | 258 ±60 mm |
+The frameless doors carry their glass, cards and controls. Inside are two front
+seats and a three-place rear bench with five headrests, dash, cluster and center
+screen, console/shifter, steering wheel, headliner and rear shelf. Underneath
+are a FWD engine/transaxle approximation, subframes, independent suspension,
+CV shafts, tank/straps and supported exhaust. Hidden geometry is deliberately
+simple; the engine bay and upholstery remain visibly approximate at close range.
 
-The photo estimates depend on calibrated camera rays and an assumed glass
-plane, described in [REFERENCE.md](REFERENCE.md); they are not OEM dimensions.
-The sail is measured transversely at the glass-base Y, 80 mm below its corner.
-Tapered rear wings split at the lid cut, stand **153–155 mm** tall at their
-corners, wrap 445–446 mm forward and taper to 25–27 mm. The **320.1 × 170.5 mm**
-plate pocket holds a measured 304.8 × 152.4 mm plate, recessed **26.4 mm** along
-its face normal, with a lamp above it. The diffuser is recessed about 14 mm
-and carries reflector blanks and a rolled exhaust finisher with a dark bore.
-The bumper turns under 44.8 mm over its lower 150 mm; its painted edge rises
-from 219 mm on center to 239 mm at x=800 mm. These are actual source surfaces.
+### Dimensions and budget
 
-Door-mounted rounded wedge caps measure **243 × 120 × 148 mm** (outboard ×
-fore/aft × height); full span is **2104.6 mm**. Their bottoms are 916.7 mm high,
-the housing spans y=−915…−795 mm, and the short arms start at the door's
-front upper corner behind the A-pillar. Flat aft panes face the driver. The
-housing stays below the canopy silhouette at the same Y. Size is cross-checked
-against Ford's manufacturer-published [2121 mm Mondeo mirror span](https://www.ford.ie/content/dam/guxeu/uk/documents/feature-pdfs/FT-Mondeo.pdf).
-The housings remain form blanks; their stems are supported by the doors.
+Dimensions come from actual mesh rays/vertices and the cited class references,
+not copied CAD or a fitted photographic outline.
 
-### Actual dimensions and sections
-
-[REFERENCE.md](REFERENCE.md) and [refs/SOURCES.md](refs/SOURCES.md) distinguish
-manufacturer dimensions, original styling and photographic uncertainty.
-
-| Measurement | Actual game source |
+| Measurement | Actual source / delivery |
 | --- | ---: |
-| Length × body width × height | 4885.0 × 1849.4 × 1449.6 mm |
-| Wheelbase / tracks front, rear | 2830 / 1590, 1600 mm |
-| Front / rear overhang | 962.5 / 1092.5 mm |
-| Tire / loaded diameter / crown gap | 235/45R18 / 660.7 / 40.0 mm |
-| Windshield rake / B-section tumblehome | 61.72° / 23.66° from vertical |
-| Door reveals | 4.5 mm, measured across the actual cuts |
-| Front sweep at x=850 mm / upper rake | 333.3 mm / 34.48° |
-| Hood edge height / setback | 755.7 / 177.0 mm |
-| Chin height / tuck | 176.1 / 34.5 mm |
-| Hood rise / cowl height / crown | 10.11° / 966.1 / 22.9 mm |
-| Rear sweep at z=570 mm / upper tail lean | 186.1 mm / 12.49° |
-| Deck crest height / deck length | 1114.5 / 362.4 mm |
-| Rear lower tuck / diffuser test height | 51.1 / 300.0 mm |
+| Length × body width × body height | 4884.9 × 1849.4 × 1449.6 mm |
+| Including mirrors / antenna | 2104.6 mm wide / 1481.8 mm high |
+| Wheelbase / front and rear tracks | 2830 / 1590, 1600 mm |
+| Tires / rolling diameter / crown gap | 235/45R18 / 660.7 / 44 mm |
+| Rim bead width / overall metal width | 190.5 / 196.0 mm |
+| Studs / pitch circle / cap recess | five / 114.3 mm / 12.0 mm |
+| Lowest underbody point | 146.5 mm, engine sump |
+| Nominal door reveals | 4.5 mm, including the physical sill cut |
+| Game / high source | 59,992 / 170,032 triangles |
+| GLB | 12,845,344 bytes |
 
-Round 5's lower-end reshaping supersedes the old front/rear tuck targets;
-their measured misses remain in `form-check.json`. Length remains in the
-published sedan class. The axle and cabin coordinate package stays fixed.
-
-| Section | Shoulder height | Upper inward lean | Lean just below / low door | Lower edge inset | Sill tuck | Crease turn over 80 mm |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| mid front door | 910.0 mm | 20.2–21.3° | 4.6 / 17.0° | 80.4 mm | 40.9 mm | 11.2° |
-| b pillar | 921.0 mm | 20.2–20.6° | 4.6 / 16.5° | 75.0 mm | 45.4 mm | 10.7° |
-| mid rear door | 932.0 mm | 20.3–20.6° | 4.6 / 15.7° | 70.1 mm | 49.7 mm | 10.1° |
-
-The three 50 mm chord tests find a 1.7–1.8 mm inward hollow. Section positions
-come from actual triangle-plane cuts and rays; rendered normal angles use the
-parent's interpolated corner normals. Raw sample points, derivative windows
-and every curvature sign reversal remain in the JSON reports. Character zones
-include the rising die line, rocker return, shoulder, fender-crown transition
-and lower fascia roll. These finite tests do not certify global Class A fairness.
-
-### Budget and reproducibility
-
-The game source is **51,296 triangles** and the high source
-**114,684**. Five diagnostic clay materials use **zero image
-textures**. Generated game/high blends are 1,181,792 /
-2,407,933 bytes. No sedan GLB is produced at this gate. The temporary cavity closure sits
-inboard of the wheel wells and forward of the tucked tail; actual mesh extrema
-measure 127.5 mm lateral clearance to the tire envelopes. Other motion remains
-unverified.
-The later shared 2048² BaseColor / OpenGL Normal / ORM plan remains 16 MiB
-with three 8-bpp compressed maps and full mip chains. Temporary optical/well
-allocation must be replaced during detail, not simply added to.
-
-| Parent / assembly | Triangles |
+| Manufactured group | Triangles |
 | --- | ---: |
-| Static body, fascia, glazing, closures and locators | 33,868 |
-| Hood / trunk including its lamp blanks | 1,048 / 2,604 |
-| Front doors L / R, including mirrors | 1,094 / 1,090 |
-| Rear doors L / R | 988 / 988 |
-| Each wheel and tire | 2,404 |
-| **Total** | **51,296** |
+| Body skins | 12,916 |
+| Molded fascias | 10,772 |
+| Pillars / door skins | 1,316 / 2,808 |
+| Glass / mirrors | 2,272 / 660 |
+| Arch flanges / liners | 784 / 1,168 |
+| Recesses / optical assemblies | 2,796 / 6,144 |
+| Tires / wheels / brakes | 3,520 / 4,072 / 1,120 |
+| Exterior trim / hinge hardware | 2,812 / 1,176 |
+| Interior / underbody | 3,896 / 1,760 |
+| **Total** | **59,992** |
+
+| Moving parent, including its attached detail | Triangles |
+| --- | ---: |
+| Front doors L / R | 1,664 / 1,666 |
+| Rear doors L / R | 1,624 / 1,626 |
+| Hood / trunk | 892 / 3,474 |
+| Each spinning wheel assembly | 2,078 |
+| Each front steering carrier | 148 |
+| Hood support sleeves / rods, both sides | 128 / 64 |
+| Static assembly, including cabin and underbody | 40,246 |
+
+Every individual mesh count is in `build/sedan/detail-game.counts.json` and
+`build/sedan/detail-check.json`. Hidden gauge-back reductions preserve all
+exposed vertices and dense-parent corner normals. Fine shoulder blocks and
+chamfers stay in the high source; the game tire retains procedural tread relief.
+
+### Coatings, atlas and runtime controls
+
+Five factory factors use the pickup's coverage-delta method over one neutral
+atlas: Porcelain, Carbon, cool Graphite, Aluminum and Atlantic. Graphite is an
+original cooler sedan option; the pickup's factors and export remain intact.
+The normalized spawn weights are 31 / 19 / 21 / 8 / 10 out of 89, using Axalta's
+2025 North American new-car color shares for these five choices. They are not a
+measurement of the used-car fleet.
+
+Paint has a continuous clearcoat, faint procedural peel/flake and wash swirls.
+Road film comes from low splash and fans aft of the wheels, broken by gravity
+streaks; chips follow hood-front and door edges, with residue in the shut lines.
+Metal, black plastic, rubber, cloth and chrome have separate source responses.
+Glass has dark transmission, printed edge frit and visible cabin depth. The
+wheels use caliper-centered brake dust and fictional ALDER TOURING tire relief.
+Wear is `--wear` on the detail generator, default 0.65.
+
+The three maps are `T_AlderS240_BaseColor.png` (sRGB),
+`T_AlderS240_Normal.png` (OpenGL +Y) and `T_AlderS240_ORM.png` (linear R/G/B =
+occlusion/roughness/metallic), baked at 4096² and delivered at **2048²**.
+BaseColor alpha retains paint coverage or lamp strength according to surface;
+`src/delivery_materials.py` and the documented family decoder apply factory
+factors and lit/unlit state without five texture copies.
+
+There are **four delivery surfaces**, matching the pickup: Paint, Opaque,
+Glass and Lamps. Paint recoloring/coat, transmission and switchable emission
+need separate responses; this exceeds the standing three-material preference.
+All four reference the same three embedded images.
+
+The set costs **16 MiB with full mip chains at 8 bpp per map** (for example
+BC7/BC5/BC7), or 64 MiB if all three are expanded to RGBA8 with mips. This
+checkpoint shares the pickup's material/decoder methods, **not its atlas pixels**:
+loading both current cars costs about 32 MiB compressed. A common family atlas
+would require a coordinated repack/rebake of the accepted pickup and parallel
+bodies; that remains a family integration limitation.
+
+The bake is explicit about correspondence. Direct finalized-surface procedural
+BaseColor/ORM and shader normals avoid neighboring-skin, reverse-gauge and optical
+projection contamination. Original coordinates are stored before UV packing. High-source
+normals replace exact-surface shader normals only on parts passing independent
+partwise projection rays. The body already carries the dense parent's normal
+field. `bake-report.json` lists accepted parts and fallback coverage; this is
+not a claim that every high-detail feature survived projection. A tiny set of
+backward direct-normal samples falls back to the neutral tangent normal; the
+report exposes both interior counts and padding counts. The source geometric
+normal field remains intact. The final direct normal interior fallback is
+172 / 4,744,395 samples (0.0036%); verified high normals cover 256 parts and
+8.64% of the atlas.
+
+UV coverage is 37.06%, with 83.7 / 234.5 / 268.0 px/m at the 5th / median /
+95th percentiles. No UV triangle is degenerate or out of bounds. Four residual
+subpixel overlaps total less than one shipped texel and pass the kit threshold.
+Visible skins take priority over hidden gauge backs; small markings retain
+extra density.
+
+### Pivots and measured motion
+
+Coordinates are meters in Blender: +Z up, front −Y, origin at the authored
+footprint center. Doors rotate about **custom unit vectors**, stored in each
+node's `hinge_axis_vehicle`; use an axis-angle quaternion, not a local-Z Euler
+rotation. Their mesh frames stay aligned with the vehicle at rest.
+
+| Node | Pivot (x, y, z) | Axis / tested range |
+| --- | --- | --- |
+| Door_FL / FR | (±0.880, −1.060, 0.740) | normalized (±0.14, 0, 1); L 0…60°, R −60…0° |
+| Door_RL / RR | (±0.865, 0.125, 0.740) | normalized (±0.14, 0, 1); L 0…68°, R −68…0° |
+| Hood | (0, −1.080, 0.977) | local X, −62…0° |
+| Trunk | (0, 1.720, 1.010) | local X, 0…72° |
+| Wheel_FL / FR | (±0.795, −1.475, 0.33035) | local X, full revolution |
+| Wheel_RL / RR | (±0.800, 1.355, 0.33035) | local X, full revolution |
+| Steer_FL / FR | (±0.68478, −1.48236, 0.33035) | inclined local Z, −35…35° |
+
+In this table negative x is L; the door-axis x sign follows its side. The
+steering unit vectors are L (+0.20663, +0.11076, +0.97213) and R
+(−0.20663, +0.11076, +0.97213), an original 12° SAI / 6.5° caster package.
+Four wheels spin independently; calipers stay on their steering/rear carriers.
+The hollow hubs have minimum 70.4 mm bores around 70.0 mm journals, measured
+0.20 mm radial clearance and 31.0 mm axial engagement through a full revolution.
+
+Eight concealed hinges have measured 8.0 mm pins, minimum 8.4 mm bores and
+approximately 0.20 mm radial clearance. Moving leaves contact their barrels
+and lie within 0.94 mm of the supporting sheet; fixed leaves meet their pins.
+Front jamb channels, inner B posts and sill reinforcements carry the loads.
+The hood uses two telescoping hollow gas supports. Measured member overlap
+stays **67.9–280.2 mm** through the range. Trunk goosenecks clear the backlight,
+rear shelf and tub. Their lid ends are measured within 0.30 mm of the actual
+inner sheet, and their fixed supports meet both bearing and tub. Tank straps,
+exhaust hangers and upper dampers are seated on measured supporting surfaces.
+The 1.2 mm stepped floor rises over the tank and joins the trunk; front rails
+and engine-mount gussets carry the front structure.
+
+The kit tests all 12 mechanisms on both game and high sources: door/hood/trunk
+steps 2°, steering 1°, wheel spin 10°, **491 sampled poses per source** at
+0.5 mm penetration tolerance. Independently evaluated hood-support sweeps cover
+all 32 hood poses, including the real hollow rod/sleeve pair. These are sampled
+surface-collision tests; GLB re-import separately proves geometry and pivot
+serialization, not mechanical correctness between samples. Intended CV, lower
+ball-joint and coaxial strut/knuckle contacts use explicitly named composite
+joint proxies; they are not unrelated-panel collision exceptions.
+
+After changing the hood pose, re-aim each support frame toward its exported
+`support_target` endpoint, as `supports()` in `src/sedan_lookdev.py` demonstrates.
+The rigid members telescope; glTF does not serialize Blender tracking constraints.
+
+### Rebuild and inspect
 
 ```sh
-make -C cars BODY=sedan WIDTH=1600 SAMPLES=40
+make -C cars BODY=sedan WIDTH=1400 SAMPLES=36
 make -C cars BODY=sedan check
-make -C cars BODY=sedan fairness
-make -C cars                         # unchanged pickup delivery path
+make -C cars BODY=sedan form       # accepted-sheet clay/stripes/overlays
+make -C cars BODY=sedan check-motion
+make -C cars                     # pickup delivery path
 ```
 
-The first three commands pass the source gate: both density audits, closed
-positive gauges, normals, budget, scale, real cut openings and bed depths,
-sections, end ranges, parent/game curvature, camera projection and repository
-rules. UV, bake, motion and GLB checks remain explicitly pending. Independent
-one-thread regeneration matches all 120 meshes' geometry, normals, transforms,
-materials and parents exactly. A fresh default pickup build matches all 454
-meshes; re-export matches all 150 accessors, maps, graph and the entire binary
-chunk. The accepted 11,530,736-byte GLB retains SHA-256
-`f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
-The new export has the same size but a different hash: its only JSON change
-is the exporter label `v5.2.40` → `v5.2.41`. It does not replace the accepted file.
+Studio heroes use exposure −2.8: all ten factory-color views have zero clipped
+paint pixels. Used-car patches have median absolute display-luma difference
+14.0/255 and worst 49.7/255 at the rear quarter; Graphite remains too cool.
 
-### Review images and remaining misses
+The default sedan graph fetches only recorded reference images/PDFs, builds
+both sources and markings, checks physical construction/motion, packs UVs,
+bakes via the shared GPU lock, downsamples, exports/re-imports, and renders the
+GLB. No installed packages or downloaded code are needed. An independent
+regeneration matches all **405 meshes / 426 objects**, including topology,
+vertices, corner normals, transforms, parents and material assignments exactly.
+The pickup preservation report matches all 454 source meshes and the accepted
+GLB's 150 accessors, embedded maps, graph and binary payload; only the current
+exporter-version label differs on re-export. Its accepted export is untouched.
+No kit files changed. The only shared family edit adds optional wheel sampling
+and centers narrow-caliper scaling on the hub; pickup defaults are identical.
 
-`renders/sedan-round5/contact.jpg` contains 42 views: clay front/rear,
-dimensioned side/front/rear/top and paired front/rear, raking side, both
-stripe directions from front/rear/side, driver's hood reflections, five body
-and six cover curvature plots, five transverse cuts plus centerline,
-photographic tumblehome and rear-glass estimates, raw/profile-camera/lens-
-sensitivity side overlays, all four calibrated neutral and striped pairs,
-and their calibration overlays. All 25 rendered views carry the same
-source hash. [REVIEW.md](REVIEW.md) records the critique passes and rejected
-intermediate experiments. No checkpoint images are committed.
+| Generated image location | Contents |
+| --- | --- |
+| `renders/sedan-round6/` | Clay, stripes, sections, three perspective variants and raw side overlay, form/photo pairs and contact sheet |
+| `renders/sedan-detail/contact.jpg` | Exported-GLB studio views, orthographic turnaround, face, lamps, wheel/mirror, cabin through glass, low and underside views, open mechanisms, human scale |
+| `renders/sedan-detail/factory-colors.jpg` | Five colors, front and rear three-quarters |
+| `renders/sedan-motion/*-sweep.jpg` | Five visible poses each for doors, hood, trunk, steering and wheel spin |
+| `renders/sedan-used-pairs/` | Calibrated, white-balanced five-year class pairs, annotated surface patches and display-value measurements |
+| `renders/sedan-eevee/` | Eevee export check |
+| `renders/sedan-detail/checkpoint.jpg` | Combined review contact sheet |
 
-The wheel-center-only side overlay now measures **−32.9 mm at the C-pillar
-and −35.3 mm at the deck**, with ±16.5 mm photographic pick uncertainty.
-The raw lower-end 40 mm target is **not met**: deviations still reach about
-119 mm nose / 76 mm tail. A six-wheel-anchor perspective registration with
-explicit 80 mm lens / 1.25 m height priors reduces them to **33 mm**, but that
-camera is not unique: 60/100 mm priors give worst deviations of **59/47 mm**.
-The accepted C-pillar is about 75 mm low in the nominal perspective view.
-All four overlays are kept; no body outline is fitted and no photo is warped.
+### Limits of this checkpoint
 
-The lower rear's crumpled rim is removed; fine grazing waviness and the lower
-front-door/sill transition remain weaker. Plain bumper lands, simple bars,
-regular glazing corners and coarse mirror caps still read as form proxies
-beside the photos. The fender crown fades too early near the A-pillar.
-These are recorded limitations, not final paint or delivery approval. No kit
-changes were needed.
+The physical lower-end targets pass, but the **40 mm side-overlay target does
+not**. Raw wheelbase-scaled worst deviations remain **118.8 mm front / 71.8 mm
+rear**. The perspective camera alternatives reach **110–131 mm** below the ends.
+The raw photo wheelbase scale implies a roughly 4702 mm envelope versus the
+accepted 4885 mm body. The length is retained; this discrepancy is exposed in
+all overlays and is not excused as lens error or hidden by fitting the outline.
+
+[REVIEW.md](REVIEW.md) records the color-first critique passes, rejected bakes
+and final measurements. Remaining CG tells include simple seat/dash forms,
+coarse grazing reflections at the C-sail and lamp crest, simplified rear optics,
+and less convincing surrounding reflections/road-film variation than the used
+photographs. This is not final photographic or family-atlas approval.

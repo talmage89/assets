@@ -297,3 +297,78 @@ optical guides are triangulated in the injective chart before their gauge is
 made. These construction changes preserve the existing independent topology,
 surface-ray, curvature and chassis checks. They do not certify final optics,
 materials, UVs, motion or delivery.
+
+## Round 6: lower profiles, constructed mechanisms and used-car comparison
+
+Round 6 restores the brief's physical lower-end requirements. The actual front
+centerline leads at z=500 mm and turns back 133.9 mm to a 174.9 mm chin. The rear
+leads at 602 mm and turns forward 189.5 mm to the 300 mm diffuser station; the
+painted bottom is 270 mm. These are source rays/vertices, not values read back
+from generator constants. A ground tangent to the actual rear tire and rear
+overhang gives 18.04°. Honda's current FF Accord FAQ publishes 17.5° departure:
+https://www.honda.co.jp/customer/auto/accord/faq/qa015/ . It is an independent,
+later-generation class cross-check, not an asserted 2019 Camry specification.
+The MY2019 Camry brochure remains the main envelope/tire/clearance reference.
+
+The fixed wheelbase, accepted 4885 mm length and raw side photograph still do
+not agree at both ends within 40 mm. Raw wheel-center scaling implies about
+4702 mm overall; the final raw residual reaches 118.8 mm at the front bumper
+and 71.8 mm at the upper tail. The three prior-constrained perspective cameras
+remain separate evidence, with lower-end worst residuals 110–131 mm. No outline
+anchor enters their fit. The physical tuck correction is real, and the remaining
+overlay miss is real; a passed dimensions check does not establish a photo match.
+
+The continuous sheet remains the form source. Local lamp/A-foot/C-header chart
+samples and smooth fitting transitions improve the specified stripe breaks;
+the nose/fender chart edge is no longer treated as a physical shut line. The
+riggable version additionally cuts a real horizontal sill at 300 mm, keeping the
+lower reinforcement fixed while the doors and their glass move. This changes
+panel ownership on the accepted sheet, not its envelope. The source form is
+52,452 triangles; the completed detail allocation is 59,992.
+
+Five-year comparison photographs are the CC0 MY2020 Camry front/rear images in
+`refs/SOURCES.md`, photographed 25 October 2025. Their visible dirt and wear
+supply a condition comparison; model-year age is not a verified service history.
+Four visible near-wheel hub/contact picks constrain each camera. The purported
+far-wheel contacts were occluded and were rejected. Native-pixel RMS is 12.25
+front / 13.49 rear, approximately 3 px at 1100 px comparison width. That proves
+wheel registration, not body or coating agreement.
+
+Before color comparison, front balance assumes the off-white plaster in the
+upper-right background is neutral. Rear balance assumes white paint on the
+background car's upper trunk is neutral; the stained curb was rejected. Linear
+channel gains and exact source rectangles are in the balanced calibration JSON.
+Neither contains a photographed gray card. Colored surroundings and class
+material/shape differences remain uncertainty, so the reported RGB/luma values
+are **display appearance**, never inferred paint albedos.
+
+Each exported-car patch is ray-cast onto the actual paint skin at its Y/Z
+station. Its camera pixel comes from Blender projection. The corresponding
+photo patch uses the calibrated camera; cross-class surface correspondence is
+approximate. Small annotated rectangles show whether a patch includes a trim,
+reflection boundary or shadow. Previous constant x=−0.90 m proxy patches were
+rejected: they could sample a different portion of the sloping lower door.
+No photograph pixels enter any material, geometry, bake or lighting graph.
+
+The reflection stage uses a procedural sky, area lights/sun and original facade
+boxes with window openings represented by dark surfaces. Paint color factors,
+metallic response, coating and dirt remain independently authored. A plausible
+lighting fit is not proof of BRDF or albedo equivalence. Factory spawn weights
+come from Axalta's 2025 North America new-car shares, normalized across the five
+options only; they are not estimates of the surviving used fleet.
+
+Door hinge axes are original 7.97° transverse inclinations, explicitly exported
+as unit vectors. Pin/bore sizes, leaf attachment, rim/bead widths and stud circles
+are measured from the final source meshes. Sampled game/high collision sweeps
+and independently evaluated hood supports establish sampled mechanical behavior;
+GLB verification establishes serialization. The two claims remain distinct.
+
+
+The final mechanical allocation is 59,992 triangles. The stepped 1.2 mm floor,
+returned tank straps, engine gussets and trunk bearing supports replace the
+first underbody proxies without exceeding 60k. Measured lid tips and damper
+mounts are within 0.30 mm of their actual supporting sheets; tank-strap/floor
+contacts are within 0.20 mm. Wheel hubs have minimum 70.4 mm bores around 70.0 mm
+journals, with 31.0 mm measured engagement and 0.20 mm radial running clearance.
+The lower control-arm joint centers follow the front kingpin axes. Composite
+CV/knuckle/strut contacts are explicitly documented in the motion policy.

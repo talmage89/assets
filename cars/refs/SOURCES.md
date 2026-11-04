@@ -62,3 +62,13 @@ The Ford dimensions figure was inspected again for round 5: 2121 mm including
 mirrors, against the S240's measured 2104.6 mm. The housing dimensions and
 rounded wedge construction remain original estimates. Reference images/PDFs
 never enter the generator, aperture cutter or material graph.
+
+## Sedan detail and look references — accessed 2026-11-04
+
+| Local file | Direct image/PDF URL | Author / license / use |
+| --- | --- | --- |
+| sedan-used-front.jpg | https://upload.wikimedia.org/wikipedia/commons/5/5b/2020_Toyota_Camry_XSE_front.jpg | Throwawayacc222, CC0 1.0; MY2020 photographed 25 October 2025, five-year daily-driver paint values/reflections, road film and optical construction. Reference only. |
+| sedan-used-rear.jpg | https://upload.wikimedia.org/wikipedia/commons/1/19/2020_Toyota_Camry_XSE_rear.jpg | Throwawayacc222, CC0 1.0; same five-year vehicle/date, rear three-quarter paint/wear and glazing comparison. Reference only. |
+| sedan-color-popularity.pdf | https://www.axalta.com/content/dam/New%20Axalta%20Corporate%20Website/Public/Documents/US/axalta-global-automotive-color-popularity_2025.pdf | Axalta Coating Systems, 2025 Global Automotive Color Popularity Report; copyright Axalta, reference only, not redistributed. Page 3 North America shares (31 white, 21 gray, 19 black, 10 blue, 8 silver), normalized across the S240 five choices; no source pixels enter the asset. |
+
+Honda's manufacturer [Accord supplementary dimensions](https://www.honda.co.jp/customer/auto/accord/faq/qa015/) publishes a 17.5 degree departure angle for its current FF sedan. This is a later-generation class cross-check, not a MY2019 Camry claim. Used to set the original S240 lower-tail ground tangent; the delivered mesh angle is independently measured. Web-viewed specification; no web page is downloaded or used in modeling.
