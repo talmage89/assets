@@ -18,7 +18,8 @@ def grade(meta):
     # Lawn is presentation only. Cut a real slot so the sloped drive remains
     # visible below grade; it is never painted over a flat ground plane.
     d=meta['driveway'];w=d['width']/2+.27
-    parts=subtract([(-1000,-1000),(1000,-1000),(1000,1000),(-1000,1000)],[(1,0,-d['x']+w),(-1,0,d['x']+w),(0,1,-d['front']),(0,-1,d['back']+.12)])
+    back=d['back']+6.20 if meta['spec']['garage']['kind']=='integral' else d['back']+.12
+    parts=subtract([(-1000,-1000),(1000,-1000),(1000,1000),(-1000,1000)],[(1,0,-d['x']+w),(-1,0,d['x']+w),(0,1,-d['front']),(0,-1,back)])
     for o in meta['openings']:
         if not o.get('well'):continue
         b=next(v for v in meta['blocks'] if v['name']==o['block'])

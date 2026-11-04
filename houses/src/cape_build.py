@@ -224,7 +224,12 @@ def roofs(b):
         me.finish()
     vents=b.mesh('Plumbing_RoofVents',component='roof_vent')
     # One boot beside, never through, the rear shed cheeks.
-    x=main.x0+.26;y=main.cy+.60;z=main.height(x,y)
+    x=main.x0+.26
+    if b.plan['spec']['type']=='split':
+        # Keep the living-roof boot out from under the tall adjoining eave
+        # and clear of an exterior chimney's apron.
+        x=main.x1-.75 if b.plan['spec']['kind']=='side' and b.plan['spec']['wing']['side']=='left' else main.x0+.75
+    y=main.cy+.60;z=main.height(x,y)
     vents.prism([(xx,yy,main.height(xx,yy)+.006) for xx,yy in [(x-.12,y-.18),(x+.12,y-.18),(x+.12,y+.18),(x-.12,y+.18)]],(0,0,-1),.005,color=(.10,.105,.095))
     vents.tube([(x,y,z),(x,y,z+.40)],.038,color=(.075,.078,.071),sides=10,closed=False);vents.finish()
 

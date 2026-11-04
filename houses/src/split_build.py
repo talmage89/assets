@@ -236,11 +236,13 @@ def sectional(b,ob,o):
     for side in (-1,1):
         x=o['u']+side*(o['w']/2+.05)
         for sign in (-1,1):
-            points=[xf((x+sign*.016,-.260,o['z']+.04)),xf((x+sign*.016,-.260,o['z']+o['h']+.06))]
-            points += [xf((x+sign*.016,-.260-.20*(1-math.cos(t)),o['z']+o['h']+.06+.20*math.sin(t))) for t in [k*math.pi/24 for k in range(1,13)]]
-            points.append(xf((x+sign*.016,-.260-o['h']-.40,o['z']+o['h']+.26)))
+            points=[xf((x+sign*.016,-.260,o['z']+.04)),xf((x+sign*.016,-.260,o['z']+o['h']+.01))]
+            points += [xf((x+sign*.016,-.260-.20*(1-math.cos(t)),o['z']+o['h']+.01+.20*math.sin(t))) for t in [k*math.pi/24 for k in range(1,13)]]
+            points.append(xf((x+sign*.016,-.260-o['h']-.40,o['z']+o['h']+.21)))
             for a,c in zip(points,points[1:]):track.beam(a,c,.010,.020,color=(.25,.26,.25),r=0)
     track.finish();b.objects.remove(ob);bpy.data.objects.remove(ob,do_unlink=True)
+    floor=b.mesh('Garage_Floor',component='garage_floor',block=block.name)
+    floor.box((block.cx,block.y0+3.10,block.floor-.035),(o['w']+.30,6.20,.05),'Concrete',r=0);floor.finish()
 
 
 def foyer(b):

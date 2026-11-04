@@ -28,7 +28,7 @@ def run(a):
         motion=sweep(dict(MOTIONS=motions));(out/f'motion-{seed}.json').write_text(json.dumps(motion,indent=2))
         assert motion['passed'],f'Motion seed {seed}; see report'
         from split_motion import check as sectional_check
-        garage_motion=sectional_check();(out/f'garage-motion-{seed}.json').write_text(json.dumps(garage_motion,indent=2))
+        garage_motion=sectional_check(plan);(out/f'garage-motion-{seed}.json').write_text(json.dumps(garage_motion,indent=2))
         assert garage_motion['passed'],f'Sectional motion {seed}; see garage-motion report'
         rows.append(dict(seed=seed,triangles=look['triangles'],source_triangles=construction['triangles'],levels_m=plan['levels'],blocks=[dict(name=b.name,width_m=b.width,depth_m=b.depth) for b in plan['blocks']],construction=measured,serialization=serial,source=actual,motion=motion,garage_motion=garage_motion))
     if a.quick:return

@@ -68,6 +68,16 @@ def source_check(source):
             if hit[0] is None:missing+=1
             else:maxerror=max(maxerror,abs(hit[0].z-expected))
     if missing or maxerror>2e-5:errors.append(f'Roof misses={missing} error={maxerror}')
+    vent=bpy.data.objects.get('Plumbing_RoofVents');vent_clearance=None
+    if vent:
+        points=[vent.matrix_world@v.co for v in vent.data.vertices]
+        top=max(p.z for p in points);tip=[p for p in points if abs(p.z-top)<1e-5]
+        x=sum(p.x for p in tip)/len(tip);y=sum(p.y for p in tip)/len(tip)
+        hit=roof.ray_cast(Vector((x,y,20)),Vector((0,0,-1)),30)[0]
+        if hit is None:errors.append('Roof vent misses roof')
+        else:
+            vent_clearance=top-hit.z
+            if vent_clearance<.30:errors.append('Roof vent below adjoining roof/eave')
     skirt_errors=[]
     if plan['spec']['kind']=='side':
         main,wing=plan['blocks'][:2]
@@ -102,7 +112,7 @@ def source_check(source):
         measured.append(dict(block=b.name,roof_bounds_m=[[min(v[k] for v in values) for k in range(3)],[max(v[k] for v in values) for k in range(3)]]))
     driveway=surface([o for o in obs if o.get('component')=='driveway']);d=plan['driveway'];apron=driveway.ray_cast(Vector((d['x'],d['back']-.4,5)),Vector((0,0,-1)),10)[0]
     if apron is None or abs(apron.z-(d['back_z']-.010))>2e-5:errors.append('Driveway apron misses door sill')
-    result=dict(passed=not errors,errors=errors,triangles=count,materials=materials,degenerate_triangles=tiny,roof_rays=roof_samples,roof_missing=missing,max_roof_error_m=maxerror,lower_roof_under_eave_error_m=skirt_errors,opening_rays=opening_samples,landing_top_measured_m=landing_z,driveway_apron_measured_m=apron.z if apron else None,roof_measurements=measured,
+    result=dict(passed=not errors,errors=errors,triangles=count,materials=materials,degenerate_triangles=tiny,roof_rays=roof_samples,roof_missing=missing,max_roof_error_m=maxerror,vent_tip_above_roof_measured_m=vent_clearance,lower_roof_under_eave_error_m=skirt_errors,opening_rays=opening_samples,landing_top_measured_m=landing_z,driveway_apron_measured_m=apron.z if apron else None,roof_measurements=measured,
                 scope='Actual mesh surface roof/opening/landing/apron probes; geometry and material budget. Separate GLB import and moving-leaf tests prove serialization and sampled clearance.')
     if errors:raise AssertionError(result)
     return result
