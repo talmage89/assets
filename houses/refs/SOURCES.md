@@ -149,11 +149,10 @@ ignored; no photograph is read by a material or texture generator.
 | cape-striated-product.jpg | https://cdn.shopify.com/s/files/1/0646/5008/4579/files/weatherside_profile_12_0225.jpg?v=1758910407 | GAF via LENCO Supplies; copyright, local inspection only | Dimensioned 12 × 24 in straight-edge striated replacement shingle; 11 in installed exposure, face-hole placement and rib depth. Manufacture reference only, never used as an age/value target. |
 | cape-used-vinyl.jpg | https://upload.wikimedia.org/wikipedia/commons/a/a9/Vinyl-siding.jpg | Peter Rockwood; CC BY-SA 4.0 | Vinyl profile and receiving trims, August 2011; inspection only. |
 | cape-used-vinyl-houses.jpg | https://upload.wikimedia.org/wikipedia/commons/7/7c/Houses_with_vinyl_siding%2C_South_Side%2C_2022-08-17%2C_01.jpg | Cbaile19; CC0 | Used gray vinyl, August 2022; supplemental non-Cape material comparator, white window-casing neutral. |
+| cape-used-peeling.jpg | https://s7d2.scene7.com/is/image/sherwinwilliams/window-sill-peeling-paint?wid=1200&fmt=jpeg | Sherwin-Williams; photographer unspecified; copyright, local inspection only | Water damage at the sill nose, long grain-following flakes and casing-foot checks. Qualitative construction comparison; teal hue is not a paint target and no pixels enter the asset. |
 
 `src/cape_values.py` records all neutral boxes, chromatic linear-RGB gains,
 fixed material ROIs, median encoded Rec.709 luma, p10/p90 tails and median
 R:G:B ratios. These are display comparisons, not measured reflectance from an
 uncalibrated JPEG. Auxiliary finish comparisons state their paint controls;
 they do not pretend that a white aluminum photograph measures blue paint.
-
-| `cape-used-peeling.jpg` | https://s7d2.scene7.com/is/image/sherwinwilliams/window-sill-peeling-paint?wid=1200&fmt=jpeg | Sherwin-Williams; photographer unspecified | Copyright; local visual inspection only; no pixels used in asset | Water damage concentrated on sill nose, long grain-following flakes, checked paint at the casing foot; qualitative construction comparison, teal hue is not a paint target. |
