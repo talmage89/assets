@@ -1,0 +1,598 @@
+{
+  "passed": true,
+  "files": [
+    {
+      "path": "export/Hearthfield-27.bin",
+      "byte_identical": true,
+      "accepted_sha256": "e99979bf9cde17a4647d64a19f387dc13f58b109e89b339a2a2f702d2d49f4f9",
+      "rebuilt_sha256": "e99979bf9cde17a4647d64a19f387dc13f58b109e89b339a2a2f702d2d49f4f9"
+    },
+    {
+      "path": "export/Hearthfield-27.gltf",
+      "byte_identical": false,
+      "accepted_sha256": "277072bdd47032ce56d465b16b8175e2b417699908d7bb3caf6e763f401e2997",
+      "rebuilt_sha256": "8a92f48c06ab87f3002df5dbef967825a53e48d95e9d771d3794093fabb8204f",
+      "different_top_level_keys": [
+        "asset"
+      ],
+      "accepted_generator": "Khronos glTF Blender I/O v5.2.40",
+      "rebuilt_generator": "Khronos glTF Blender I/O v5.2.41",
+      "reason": "Exporter provenance only; all accessors, materials, node transforms and payloads identical"
+    },
+    {
+      "path": "export/Hearthfield-27.json",
+      "byte_identical": false,
+      "accepted_sha256": "3e57b16c95da3392a911e62c2ec7639034a284c7d22c03970872d48204a3735d",
+      "rebuilt_sha256": "58c01114679ad3dd798e7164e4895436fa901142bfc7603d79360830148112ad",
+      "different_top_level_keys": [
+        "original_form_source_sha256"
+      ],
+      "reason": "Hash of rebuilt construction GLB changed with exporter provenance"
+    },
+    {
+      "path": "export/Hearthfield-2.bin",
+      "byte_identical": true,
+      "accepted_sha256": "723e970ed82b73af227d090c12d8016f33be7822c923e06d904cf82ad94dcbb0",
+      "rebuilt_sha256": "723e970ed82b73af227d090c12d8016f33be7822c923e06d904cf82ad94dcbb0"
+    },
+    {
+      "path": "export/Hearthfield-2.gltf",
+      "byte_identical": false,
+      "accepted_sha256": "93f3bf6910837e5d2264ede710016f688de23f7ba6cb164e0a1376beab592804",
+      "rebuilt_sha256": "778b71e79933ceebdf59c1941c80c92812860d31f8c9ac8c56555dd3b93f1522",
+      "different_top_level_keys": [
+        "asset"
+      ],
+      "accepted_generator": "Khronos glTF Blender I/O v5.2.40",
+      "rebuilt_generator": "Khronos glTF Blender I/O v5.2.41",
+      "reason": "Exporter provenance only; all accessors, materials, node transforms and payloads identical"
+    },
+    {
+      "path": "export/Hearthfield-2.json",
+      "byte_identical": false,
+      "accepted_sha256": "d32a57060fa597eaafdbd4fde5be54e615351ccbedee4ea61f71d9965a40617e",
+      "rebuilt_sha256": "d6c61f59cb584ec4d440ae6a5710301e5fe92e1962a33d526d1149dc52cb7a55",
+      "different_top_level_keys": [
+        "original_form_source_sha256"
+      ],
+      "reason": "Hash of rebuilt construction GLB changed with exporter provenance"
+    },
+    {
+      "path": "export/Hearthfield-3.bin",
+      "byte_identical": true,
+      "accepted_sha256": "dfb4ce9c4f41e47eef6f4f072e1a3728226be3850f3505e385a3b2c1a1fd7f99",
+      "rebuilt_sha256": "dfb4ce9c4f41e47eef6f4f072e1a3728226be3850f3505e385a3b2c1a1fd7f99"
+    },
+    {
+      "path": "export/Hearthfield-3.gltf",
+      "byte_identical": false,
+      "accepted_sha256": "656e81fd8f578642961a03a08708ecf1d6c4bd0f596782fb3113f71680be6e3a",
+      "rebuilt_sha256": "9a32bd8b50c20b24e20e0ce27a05642efe819dc9cc7eec9ca6196a4e5e8a3104",
+      "different_top_level_keys": [
+        "asset"
+      ],
+      "accepted_generator": "Khronos glTF Blender I/O v5.2.40",
+      "rebuilt_generator": "Khronos glTF Blender I/O v5.2.41",
+      "reason": "Exporter provenance only; all accessors, materials, node transforms and payloads identical"
+    },
+    {
+      "path": "export/Hearthfield-3.json",
+      "byte_identical": false,
+      "accepted_sha256": "84864abfb3314af28388313df7620ec88c790ad1f876b636d9d65663981d73b7",
+      "rebuilt_sha256": "8ec49595f321987706ebdd9f34a4f5cc841122eb4209cc6af17d58643bf7cf3a",
+      "different_top_level_keys": [
+        "original_form_source_sha256"
+      ],
+      "reason": "Hash of rebuilt construction GLB changed with exporter provenance"
+    },
+    {
+      "path": "export/Hearthfield-6.bin",
+      "byte_identical": true,
+      "accepted_sha256": "408e4d104e37dda98b4417db66d8859a6404c9a6ce442826437748e88f3656f9",
+      "rebuilt_sha256": "408e4d104e37dda98b4417db66d8859a6404c9a6ce442826437748e88f3656f9"
+    },
+    {
+      "path": "export/Hearthfield-6.gltf",
+      "byte_identical": false,
+      "accepted_sha256": "ed9bfd12127fd4d0f80436e442b5d48ce7cfec709b6f72615a7a3964b80174a7",
+      "rebuilt_sha256": "9d162819f53a74f5969000536880c84e042a794a01ee3ffad31292bea9d19f92",
+      "different_top_level_keys": [
+        "asset"
+      ],
+      "accepted_generator": "Khronos glTF Blender I/O v5.2.40",
+      "rebuilt_generator": "Khronos glTF Blender I/O v5.2.41",
+      "reason": "Exporter provenance only; all accessors, materials, node transforms and payloads identical"
+    },
+    {
+      "path": "export/Hearthfield-6.json",
+      "byte_identical": false,
+      "accepted_sha256": "974ba9f5499e86568d1367fa9c8a6fa995d126cc9d320351dd0fb48502cad94f",
+      "rebuilt_sha256": "c8f96fa2c78d7db100b61d770dec850ea85fe67ec4f86d866065dc3ec2f4531f",
+      "different_top_level_keys": [
+        "original_form_source_sha256"
+      ],
+      "reason": "Hash of rebuilt construction GLB changed with exporter provenance"
+    },
+    {
+      "path": "export/Hearthfield-8.bin",
+      "byte_identical": true,
+      "accepted_sha256": "0d1533580ccaaf1a1a7f2f442bbf3a2d85cc450f033d9a1c74a6208b245b36c2",
+      "rebuilt_sha256": "0d1533580ccaaf1a1a7f2f442bbf3a2d85cc450f033d9a1c74a6208b245b36c2"
+    },
+    {
+      "path": "export/Hearthfield-8.gltf",
+      "byte_identical": false,
+      "accepted_sha256": "02aaf90d4f393718b1615395ec6208507221654f345241ccc3e48a10c0e0720a",
+      "rebuilt_sha256": "41336e7fefc8fa5b4ebbb63d77138b7dd7c8b15803a50c8d751d4fcf2b28725b",
+      "different_top_level_keys": [
+        "asset"
+      ],
+      "accepted_generator": "Khronos glTF Blender I/O v5.2.40",
+      "rebuilt_generator": "Khronos glTF Blender I/O v5.2.41",
+      "reason": "Exporter provenance only; all accessors, materials, node transforms and payloads identical"
+    },
+    {
+      "path": "export/Hearthfield-8.json",
+      "byte_identical": false,
+      "accepted_sha256": "85ce792557dd057ec12af9c737dea249454212945fe26c7102c98044b7541f70",
+      "rebuilt_sha256": "1036727e12640efaf443884de713df5bdeabbf0f15f74c58dcdcfd40c7d26c7c",
+      "different_top_level_keys": [
+        "original_form_source_sha256"
+      ],
+      "reason": "Hash of rebuilt construction GLB changed with exporter provenance"
+    },
+    {
+      "path": "export/Hearthfield-14.bin",
+      "byte_identical": true,
+      "accepted_sha256": "d9eef080cd2f379a241196da9c995a1380ea60d67aea5a65c6b6bc53ff0fa81b",
+      "rebuilt_sha256": "d9eef080cd2f379a241196da9c995a1380ea60d67aea5a65c6b6bc53ff0fa81b"
+    },
+    {
+      "path": "export/Hearthfield-14.gltf",
+      "byte_identical": false,
+      "accepted_sha256": "83029605825fd56b4811fa47da83510b90228c1edde744bf6df8a81e872498bd",
+      "rebuilt_sha256": "dfd11e33cf69be1065cb3d309ea8fb247dc7373dee30d4c1e2c9d1c42a12a16d",
+      "different_top_level_keys": [
+        "asset"
+      ],
+      "accepted_generator": "Khronos glTF Blender I/O v5.2.40",
+      "rebuilt_generator": "Khronos glTF Blender I/O v5.2.41",
+      "reason": "Exporter provenance only; all accessors, materials, node transforms and payloads identical"
+    },
+    {
+      "path": "export/Hearthfield-14.json",
+      "byte_identical": false,
+      "accepted_sha256": "d07bd884227385895c5a4bb7b491c8174f9ece70aac5c30333ab9bb5eaf31828",
+      "rebuilt_sha256": "2800f4d0b5ed0d27ab96788bff3b36342b0f3c24cedfe4aad34a087dcaa9a0f2",
+      "different_top_level_keys": [
+        "original_form_source_sha256"
+      ],
+      "reason": "Hash of rebuilt construction GLB changed with exporter provenance"
+    },
+    {
+      "path": "export/HearthfieldRanch-11.bin",
+      "byte_identical": true,
+      "accepted_sha256": "fce6b0494827231b9c3f12657df1b885a52683a4dd2aaadee8a8e1b3c3ac49b2",
+      "rebuilt_sha256": "fce6b0494827231b9c3f12657df1b885a52683a4dd2aaadee8a8e1b3c3ac49b2"
+    },
+    {
+      "path": "export/HearthfieldRanch-11.gltf",
+      "byte_identical": false,
+      "accepted_sha256": "cf38faeef4f1b1b72297466363d2cff65948745c3ecdc0b5a8f6092223aa671b",
+      "rebuilt_sha256": "89f26b4975301ff267faa75bc1a50cf002a76ad6e16b14f82a8473461d72f785",
+      "different_top_level_keys": [
+        "asset"
+      ],
+      "accepted_generator": "Khronos glTF Blender I/O v5.2.40",
+      "rebuilt_generator": "Khronos glTF Blender I/O v5.2.41",
+      "reason": "Exporter provenance only; all accessors, materials, node transforms and payloads identical"
+    },
+    {
+      "path": "export/HearthfieldRanch-11.json",
+      "byte_identical": true,
+      "accepted_sha256": "f65bfddc0a8ed2da68a7fc2f13a7ad22d837a2e5e286a5b9aea7a859fe82ae81",
+      "rebuilt_sha256": "f65bfddc0a8ed2da68a7fc2f13a7ad22d837a2e5e286a5b9aea7a859fe82ae81"
+    },
+    {
+      "path": "export/HearthfieldRanch-12.bin",
+      "byte_identical": true,
+      "accepted_sha256": "af84399a8d1698badd2ac59b0772be75ef4dc5c41099e6e7a4a2af6c9f2f3b25",
+      "rebuilt_sha256": "af84399a8d1698badd2ac59b0772be75ef4dc5c41099e6e7a4a2af6c9f2f3b25"
+    },
+    {
+      "path": "export/HearthfieldRanch-12.gltf",
+      "byte_identical": false,
+      "accepted_sha256": "0beefce72801255d7209147d098f0935fb414e1bdb84592c1c902227fcea237c",
+      "rebuilt_sha256": "56cc71d7b0f0322c8862fd8e846a20462f2bb030712c98a74d83c2c333e9cde4",
+      "different_top_level_keys": [
+        "asset"
+      ],
+      "accepted_generator": "Khronos glTF Blender I/O v5.2.40",
+      "rebuilt_generator": "Khronos glTF Blender I/O v5.2.41",
+      "reason": "Exporter provenance only; all accessors, materials, node transforms and payloads identical"
+    },
+    {
+      "path": "export/HearthfieldRanch-12.json",
+      "byte_identical": true,
+      "accepted_sha256": "60ebe7ee71e0b090e43dc3439aec99f560492a29b302324f320cf9a20a6f4823",
+      "rebuilt_sha256": "60ebe7ee71e0b090e43dc3439aec99f560492a29b302324f320cf9a20a6f4823"
+    },
+    {
+      "path": "export/HearthfieldRanch-13.bin",
+      "byte_identical": true,
+      "accepted_sha256": "50736a272df7f50ed8aa003ecc120f30dd812d0019e240bb28fcb1951638881c",
+      "rebuilt_sha256": "50736a272df7f50ed8aa003ecc120f30dd812d0019e240bb28fcb1951638881c"
+    },
+    {
+      "path": "export/HearthfieldRanch-13.gltf",
+      "byte_identical": false,
+      "accepted_sha256": "8b250acf6665f5104f19eb58f2e2b4e4bf498f2a8ecb6b5b3e3d8db67bff03a7",
+      "rebuilt_sha256": "6d771848bd870220b2b8edda80e0b817054bb202a71cd509a04a6fbc4eefe41a",
+      "different_top_level_keys": [
+        "asset"
+      ],
+      "accepted_generator": "Khronos glTF Blender I/O v5.2.40",
+      "rebuilt_generator": "Khronos glTF Blender I/O v5.2.41",
+      "reason": "Exporter provenance only; all accessors, materials, node transforms and payloads identical"
+    },
+    {
+      "path": "export/HearthfieldRanch-13.json",
+      "byte_identical": true,
+      "accepted_sha256": "af6b26e3e07d58568d559ef34e2a023818a4558f2ecc03486be9649828f08bec",
+      "rebuilt_sha256": "af6b26e3e07d58568d559ef34e2a023818a4558f2ecc03486be9649828f08bec"
+    },
+    {
+      "path": "export/HearthfieldRanch-14.bin",
+      "byte_identical": true,
+      "accepted_sha256": "fb56050caed571a497576633f63e8226ccecd684d299f398bffcf264db19c8fd",
+      "rebuilt_sha256": "fb56050caed571a497576633f63e8226ccecd684d299f398bffcf264db19c8fd"
+    },
+    {
+      "path": "export/HearthfieldRanch-14.gltf",
+      "byte_identical": false,
+      "accepted_sha256": "f440863b93a7976687d0c1c23a562dd17e91158a5605aecca7e96c1d3d348c3f",
+      "rebuilt_sha256": "e3e9c0c40f3a3c83e22ad8baac494270491478fe668c580c40fbf8e114af0f21",
+      "different_top_level_keys": [
+        "asset"
+      ],
+      "accepted_generator": "Khronos glTF Blender I/O v5.2.40",
+      "rebuilt_generator": "Khronos glTF Blender I/O v5.2.41",
+      "reason": "Exporter provenance only; all accessors, materials, node transforms and payloads identical"
+    },
+    {
+      "path": "export/HearthfieldRanch-14.json",
+      "byte_identical": true,
+      "accepted_sha256": "ceac37db143d53dc0f88f45eae33dd1e8e5fa250284b9c91e8b46390a9607a0a",
+      "rebuilt_sha256": "ceac37db143d53dc0f88f45eae33dd1e8e5fa250284b9c91e8b46390a9607a0a"
+    },
+    {
+      "path": "export/HearthfieldRanch-15.bin",
+      "byte_identical": true,
+      "accepted_sha256": "c6409c1d9ef787957b6677128e1c7579aaff52f1672c4a5c16a2e78ecefe49c2",
+      "rebuilt_sha256": "c6409c1d9ef787957b6677128e1c7579aaff52f1672c4a5c16a2e78ecefe49c2"
+    },
+    {
+      "path": "export/HearthfieldRanch-15.gltf",
+      "byte_identical": false,
+      "accepted_sha256": "a870eb638692181d8dc63b4b5268fb3b7f80fc7de20a1ffd6602c686e95524a0",
+      "rebuilt_sha256": "b334df61a9dedfc3b77e19f57c2f9035508606b2ec9cf298605d5d2c126039f3",
+      "different_top_level_keys": [
+        "asset"
+      ],
+      "accepted_generator": "Khronos glTF Blender I/O v5.2.40",
+      "rebuilt_generator": "Khronos glTF Blender I/O v5.2.41",
+      "reason": "Exporter provenance only; all accessors, materials, node transforms and payloads identical"
+    },
+    {
+      "path": "export/HearthfieldRanch-15.json",
+      "byte_identical": true,
+      "accepted_sha256": "a5233d0603df3b055f446445f71618b895f4267deb8d2df4f394753d4061c24a",
+      "rebuilt_sha256": "a5233d0603df3b055f446445f71618b895f4267deb8d2df4f394753d4061c24a"
+    },
+    {
+      "path": "export/HearthfieldRanch-16.bin",
+      "byte_identical": true,
+      "accepted_sha256": "439c6184dedd9a0eb41a3157daa8b3ab5cbc6b3f774438ee41827f80b3855c82",
+      "rebuilt_sha256": "439c6184dedd9a0eb41a3157daa8b3ab5cbc6b3f774438ee41827f80b3855c82"
+    },
+    {
+      "path": "export/HearthfieldRanch-16.gltf",
+      "byte_identical": false,
+      "accepted_sha256": "7226ec483862dce8cc58921081bb755705617e151a1aaabb65b5d1de7a7388ac",
+      "rebuilt_sha256": "008b5eb44d0984e76da931e3c30aaff159e96d7fa60cb8b7c6ced6a50aa74d9a",
+      "different_top_level_keys": [
+        "asset"
+      ],
+      "accepted_generator": "Khronos glTF Blender I/O v5.2.40",
+      "rebuilt_generator": "Khronos glTF Blender I/O v5.2.41",
+      "reason": "Exporter provenance only; all accessors, materials, node transforms and payloads identical"
+    },
+    {
+      "path": "export/HearthfieldRanch-16.json",
+      "byte_identical": true,
+      "accepted_sha256": "a38609222db77f7c8735845a1add18f0f0b85f6b9588bf69def9f6c609238da7",
+      "rebuilt_sha256": "a38609222db77f7c8735845a1add18f0f0b85f6b9588bf69def9f6c609238da7"
+    },
+    {
+      "path": "export/textures/T_HouseSiding_BaseColor.png",
+      "byte_identical": true,
+      "accepted_sha256": "2486173ca0d36fd4a79fe4081145cd1e73c61fe3143c1cd643ce46f8e4ecceb1",
+      "rebuilt_sha256": "2486173ca0d36fd4a79fe4081145cd1e73c61fe3143c1cd643ce46f8e4ecceb1"
+    },
+    {
+      "path": "export/textures/T_HouseSiding_Normal.png",
+      "byte_identical": true,
+      "accepted_sha256": "07a3dc59969fd78302a70346fba036e30845f0c1a6451fbc482c8f18fb880382",
+      "rebuilt_sha256": "07a3dc59969fd78302a70346fba036e30845f0c1a6451fbc482c8f18fb880382"
+    },
+    {
+      "path": "export/textures/T_HouseSiding_ORM.png",
+      "byte_identical": false,
+      "accepted_sha256": "2a10b1a1f53be874506c1800a171a437437e883921a34d7ec9ebdc0ba605a2ba",
+      "rebuilt_sha256": "1b9b064d3e251d8dcbd86fbd188d99c77306a2f11f9d0e9e8887e3d9ba02e8cd",
+      "maximum_byte_error": 1.0,
+      "rms_byte_error": 0.001953125,
+      "changed_channel_samples": 12,
+      "reason": "Independent Cycles rebake under Blender 5.2.3; generator and canonical map-author scripts unchanged"
+    },
+    {
+      "path": "export/textures/T_HouseShingles_BaseColor.png",
+      "byte_identical": false,
+      "accepted_sha256": "f029fa95067e6c6d45a49d8433c2a8be60b4701ea633abfffc009b725fdd4691",
+      "rebuilt_sha256": "8ad001242b0197b917311b5df2456c8fb23675b00f22e6516d4488b501a3e25c",
+      "maximum_byte_error": 1.0,
+      "rms_byte_error": 0.0007458619295175521,
+      "changed_channel_samples": 7,
+      "reason": "Independent Cycles rebake under Blender 5.2.3; generator and canonical map-author scripts unchanged"
+    },
+    {
+      "path": "export/textures/T_HouseShingles_Normal.png",
+      "byte_identical": false,
+      "accepted_sha256": "d67da25e8b5fa3914f30a39f47315e869b759cb24cf724bb396fe9e2b4e660b0",
+      "rebuilt_sha256": "5e47c44ac5635fe23738dc9bb8d6487ddc7853891adfc4c294c40ee0e672d10c",
+      "maximum_byte_error": 1.0,
+      "rms_byte_error": 0.00028190931112774694,
+      "changed_channel_samples": 1,
+      "reason": "Independent Cycles rebake under Blender 5.2.3; generator and canonical map-author scripts unchanged"
+    },
+    {
+      "path": "export/textures/T_HouseShingles_ORM.png",
+      "byte_identical": false,
+      "accepted_sha256": "d6af14438319b70732b189fe57b710128d930032cc71603dc4107d1fc18e7144",
+      "rebuilt_sha256": "789d0c1630ee73f3f9d34db001953bb89b5c1963297e2192ef4da8f0c68e79df",
+      "maximum_byte_error": 1.0,
+      "rms_byte_error": 0.0022552744890219755,
+      "changed_channel_samples": 64,
+      "reason": "Independent Cycles rebake under Blender 5.2.3; generator and canonical map-author scripts unchanged"
+    },
+    {
+      "path": "export/textures/T_HouseVeneer_BaseColor.png",
+      "byte_identical": true,
+      "accepted_sha256": "9948d5391d06565ccf9ea3a21047a69bf0c41e9bfa571d765dba11ce69f6b480",
+      "rebuilt_sha256": "9948d5391d06565ccf9ea3a21047a69bf0c41e9bfa571d765dba11ce69f6b480"
+    },
+    {
+      "path": "export/textures/T_HouseVeneer_Normal.png",
+      "byte_identical": true,
+      "accepted_sha256": "d6db0a401f7a859c3417fbe7df02705fd431ce6a136b1d5573c9ab6a9124b31f",
+      "rebuilt_sha256": "d6db0a401f7a859c3417fbe7df02705fd431ce6a136b1d5573c9ab6a9124b31f"
+    },
+    {
+      "path": "export/textures/T_HouseVeneer_ORM.png",
+      "byte_identical": false,
+      "accepted_sha256": "0004c38df13b236d99486a3b8de6dd62eb2a81c73974a84217b37e65fe49e733",
+      "rebuilt_sha256": "73e390b2abad888bc7f931012962cac4a403ed784d14134857b3184c0c4c160d",
+      "maximum_byte_error": 1.0,
+      "rms_byte_error": 0.0022552744890219755,
+      "changed_channel_samples": 4,
+      "reason": "Independent Cycles rebake under Blender 5.2.3; generator and canonical map-author scripts unchanged"
+    },
+    {
+      "path": "export/textures/T_HouseConcrete_BaseColor.png",
+      "byte_identical": false,
+      "accepted_sha256": "a9deb7a6037dd6d61ade34353bee510cd8ab4bb6ce44a0e4e711a139a067ab07",
+      "rebuilt_sha256": "9d03dff76030644ce6c5edc39ca8056ecf98f82190ddbf95be8a10a3a53ec00c",
+      "maximum_byte_error": 1.0,
+      "rms_byte_error": 0.0011276372445109878,
+      "changed_channel_samples": 1,
+      "reason": "Independent Cycles rebake under Blender 5.2.3; generator and canonical map-author scripts unchanged"
+    },
+    {
+      "path": "export/textures/T_HouseConcrete_Normal.png",
+      "byte_identical": true,
+      "accepted_sha256": "f2770eadf77576988e67472d01bcd06b43b5fe9a5aab6beaa849434fa4ebbdd4",
+      "rebuilt_sha256": "f2770eadf77576988e67472d01bcd06b43b5fe9a5aab6beaa849434fa4ebbdd4"
+    },
+    {
+      "path": "export/textures/T_HouseConcrete_ORM.png",
+      "byte_identical": false,
+      "accepted_sha256": "14de4275841172e707291c50f64c195e50defa28354c609bd4ce98ea69d0600c",
+      "rebuilt_sha256": "e91b05ad39dc935904ba6003975e2b01b6c6241b1e6cffa9f739df718ee3edfb",
+      "maximum_byte_error": 1.0,
+      "rms_byte_error": 0.0022552744890219755,
+      "changed_channel_samples": 4,
+      "reason": "Independent Cycles rebake under Blender 5.2.3; generator and canonical map-author scripts unchanged"
+    },
+    {
+      "path": "export/textures/T_HouseTrim_BaseColor.png",
+      "byte_identical": true,
+      "accepted_sha256": "4f82c9c9525b86e79f091f2ab533d84e7c003335c5903072a398100b9b5b9317",
+      "rebuilt_sha256": "4f82c9c9525b86e79f091f2ab533d84e7c003335c5903072a398100b9b5b9317"
+    },
+    {
+      "path": "export/textures/T_HouseTrim_Normal.png",
+      "byte_identical": false,
+      "accepted_sha256": "cb44215e351ebcb3b30bce4bef74e85772750b25688b7f213fcc28b11251c076",
+      "rebuilt_sha256": "12166bea26c35d6584cc78ac024f780fe63690e618bd05db16e18e13e959d67f",
+      "maximum_byte_error": 1.0,
+      "rms_byte_error": 0.00039867997115611623,
+      "changed_channel_samples": 2,
+      "reason": "Independent Cycles rebake under Blender 5.2.3; generator and canonical map-author scripts unchanged"
+    },
+    {
+      "path": "export/textures/T_HouseTrim_ORM.png",
+      "byte_identical": true,
+      "accepted_sha256": "91074c9e1d9e12837510d36fc7c9aad81c8fa74cf0fc5983812ed70fb1cd761d",
+      "rebuilt_sha256": "91074c9e1d9e12837510d36fc7c9aad81c8fa74cf0fc5983812ed70fb1cd761d"
+    },
+    {
+      "path": "export/textures/T_RanchBrick_red_BaseColor.png",
+      "byte_identical": true,
+      "accepted_sha256": "50e74bc6718ffd65eb3f0f92e17ab086c94d9a5e475215f01bed04e46c85bb7f",
+      "rebuilt_sha256": "50e74bc6718ffd65eb3f0f92e17ab086c94d9a5e475215f01bed04e46c85bb7f"
+    },
+    {
+      "path": "export/textures/T_RanchBrick_red_Normal.png",
+      "byte_identical": true,
+      "accepted_sha256": "ee4ecb0f9d1cc0387f28f41a0e7c58c913c5408ed29cf85de1f52ae70eb8c4ea",
+      "rebuilt_sha256": "ee4ecb0f9d1cc0387f28f41a0e7c58c913c5408ed29cf85de1f52ae70eb8c4ea"
+    },
+    {
+      "path": "export/textures/T_RanchBrick_red_ORM.png",
+      "byte_identical": true,
+      "accepted_sha256": "13be93d16f90aa040e815736614a12314d4a0e5b50e7a9937b5bcddf1f7ac801",
+      "rebuilt_sha256": "13be93d16f90aa040e815736614a12314d4a0e5b50e7a9937b5bcddf1f7ac801"
+    },
+    {
+      "path": "export/textures/T_RanchBrick_red_brown_BaseColor.png",
+      "byte_identical": true,
+      "accepted_sha256": "b048da4519a11d3282a776ffaf1da837353b506e958ce079c8c6edafef8778ab",
+      "rebuilt_sha256": "b048da4519a11d3282a776ffaf1da837353b506e958ce079c8c6edafef8778ab"
+    },
+    {
+      "path": "export/textures/T_RanchBrick_red_brown_Normal.png",
+      "byte_identical": true,
+      "accepted_sha256": "ee4ecb0f9d1cc0387f28f41a0e7c58c913c5408ed29cf85de1f52ae70eb8c4ea",
+      "rebuilt_sha256": "ee4ecb0f9d1cc0387f28f41a0e7c58c913c5408ed29cf85de1f52ae70eb8c4ea"
+    },
+    {
+      "path": "export/textures/T_RanchBrick_red_brown_ORM.png",
+      "byte_identical": true,
+      "accepted_sha256": "798ed76d6f5484b930e085398b0eeb96e4c5f966e3b2dfd7daf08fe0de0dd57a",
+      "rebuilt_sha256": "798ed76d6f5484b930e085398b0eeb96e4c5f966e3b2dfd7daf08fe0de0dd57a"
+    },
+    {
+      "path": "export/textures/T_RanchBrick_buff_BaseColor.png",
+      "byte_identical": true,
+      "accepted_sha256": "8621f3eaaa3909bc57e5a81da98f6d6ea7e6e98b7865264000180aa1b476db02",
+      "rebuilt_sha256": "8621f3eaaa3909bc57e5a81da98f6d6ea7e6e98b7865264000180aa1b476db02"
+    },
+    {
+      "path": "export/textures/T_RanchBrick_buff_Normal.png",
+      "byte_identical": true,
+      "accepted_sha256": "ee4ecb0f9d1cc0387f28f41a0e7c58c913c5408ed29cf85de1f52ae70eb8c4ea",
+      "rebuilt_sha256": "ee4ecb0f9d1cc0387f28f41a0e7c58c913c5408ed29cf85de1f52ae70eb8c4ea"
+    },
+    {
+      "path": "export/textures/T_RanchBrick_buff_ORM.png",
+      "byte_identical": true,
+      "accepted_sha256": "798ed76d6f5484b930e085398b0eeb96e4c5f966e3b2dfd7daf08fe0de0dd57a",
+      "rebuilt_sha256": "798ed76d6f5484b930e085398b0eeb96e4c5f966e3b2dfd7daf08fe0de0dd57a"
+    },
+    {
+      "path": "export/textures/T_RanchBrick_tan_BaseColor.png",
+      "byte_identical": true,
+      "accepted_sha256": "f5c295d559e40a652a7795d03a897dc355fa4c14fbc7704d41a01de7d83459bf",
+      "rebuilt_sha256": "f5c295d559e40a652a7795d03a897dc355fa4c14fbc7704d41a01de7d83459bf"
+    },
+    {
+      "path": "export/textures/T_RanchBrick_tan_Normal.png",
+      "byte_identical": true,
+      "accepted_sha256": "ee4ecb0f9d1cc0387f28f41a0e7c58c913c5408ed29cf85de1f52ae70eb8c4ea",
+      "rebuilt_sha256": "ee4ecb0f9d1cc0387f28f41a0e7c58c913c5408ed29cf85de1f52ae70eb8c4ea"
+    },
+    {
+      "path": "export/textures/T_RanchBrick_tan_ORM.png",
+      "byte_identical": true,
+      "accepted_sha256": "13be93d16f90aa040e815736614a12314d4a0e5b50e7a9937b5bcddf1f7ac801",
+      "rebuilt_sha256": "13be93d16f90aa040e815736614a12314d4a0e5b50e7a9937b5bcddf1f7ac801"
+    },
+    {
+      "path": "export/textures/T_RanchRoof_BaseColor.png",
+      "byte_identical": true,
+      "accepted_sha256": "248230113203a615213de08d30739455206576d693acf457b2323760a40cfd82",
+      "rebuilt_sha256": "248230113203a615213de08d30739455206576d693acf457b2323760a40cfd82"
+    },
+    {
+      "path": "export/textures/T_RanchRoof_Normal.png",
+      "byte_identical": true,
+      "accepted_sha256": "a3185d88f8f3cd25faa34241b496194bca4b8258138fe68c3575fa5eda82341d",
+      "rebuilt_sha256": "a3185d88f8f3cd25faa34241b496194bca4b8258138fe68c3575fa5eda82341d"
+    },
+    {
+      "path": "export/textures/T_RanchRoof_ORM.png",
+      "byte_identical": true,
+      "accepted_sha256": "0210703c5a5ceab21599a21ab45ff76ccfe6537e09fc42f1f8f70dd0d3b74113",
+      "rebuilt_sha256": "0210703c5a5ceab21599a21ab45ff76ccfe6537e09fc42f1f8f70dd0d3b74113"
+    },
+    {
+      "path": "export/textures/T_RanchTrim_ORM.png",
+      "byte_identical": true,
+      "accepted_sha256": "8853de19625bc0a85b45aa1d3589a70fe80179fc4393de8a471639ee29441416",
+      "rebuilt_sha256": "8853de19625bc0a85b45aa1d3589a70fe80179fc4393de8a471639ee29441416"
+    },
+    {
+      "path": "docs/hero.jpg",
+      "byte_identical": true,
+      "accepted_sha256": "5c68b168e27cdf86402065bf5aaa33153f53b5f189352bbcceb0150dc509bd6a",
+      "rebuilt_sha256": "5c68b168e27cdf86402065bf5aaa33153f53b5f189352bbcceb0150dc509bd6a"
+    },
+    {
+      "path": "docs/turnaround.jpg",
+      "byte_identical": true,
+      "accepted_sha256": "f4907a4caabf11f1031fac94fb03e07acb742188ff3192bd18dca8f1e27cd66e",
+      "rebuilt_sha256": "f4907a4caabf11f1031fac94fb03e07acb742188ff3192bd18dca8f1e27cd66e"
+    },
+    {
+      "path": "docs/details.jpg",
+      "byte_identical": true,
+      "accepted_sha256": "c20a82b2150a62961d6fb1130c8be810c7fb322465902d3f0b23d0d8517374f5",
+      "rebuilt_sha256": "c20a82b2150a62961d6fb1130c8be810c7fb322465902d3f0b23d0d8517374f5"
+    },
+    {
+      "path": "docs/family.jpg",
+      "byte_identical": true,
+      "accepted_sha256": "c790fe6a88591a229fd9c3e7a8e25c2e7992efbd1586fe0ff4fc2d70932ea0c6",
+      "rebuilt_sha256": "c790fe6a88591a229fd9c3e7a8e25c2e7992efbd1586fe0ff4fc2d70932ea0c6"
+    },
+    {
+      "path": "docs/street.jpg",
+      "byte_identical": true,
+      "accepted_sha256": "dae5a076bf2d90e4a9ab518c43e1c4fcd4f309152a1318768d3ba0626d2f01f1",
+      "rebuilt_sha256": "dae5a076bf2d90e4a9ab518c43e1c4fcd4f309152a1318768d3ba0626d2f01f1"
+    },
+    {
+      "path": "docs/ranch-hero.jpg",
+      "byte_identical": true,
+      "accepted_sha256": "f4ee1180750167b9f50fedbebaf01c0a1c0c9d1483a2e54e80163ea4894555f6",
+      "rebuilt_sha256": "f4ee1180750167b9f50fedbebaf01c0a1c0c9d1483a2e54e80163ea4894555f6"
+    },
+    {
+      "path": "docs/ranch-turnaround.jpg",
+      "byte_identical": true,
+      "accepted_sha256": "3b89a40e52e1af05110244a29545dc8f97c695c8370626cd4a01dcb6d2760f2d",
+      "rebuilt_sha256": "3b89a40e52e1af05110244a29545dc8f97c695c8370626cd4a01dcb6d2760f2d"
+    },
+    {
+      "path": "docs/ranch-details.jpg",
+      "byte_identical": true,
+      "accepted_sha256": "ad744fb8c91c8183fa6e92e69d520c7488e146f801e98c0c48180fb526324f2b",
+      "rebuilt_sha256": "ad744fb8c91c8183fa6e92e69d520c7488e146f801e98c0c48180fb526324f2b"
+    },
+    {
+      "path": "docs/ranch-family.jpg",
+      "byte_identical": true,
+      "accepted_sha256": "4b4010576ff76aa8c12487a76cff7f518b2ccb0abded15311e070af524b13855",
+      "rebuilt_sha256": "4b4010576ff76aa8c12487a76cff7f518b2ccb0abded15311e070af524b13855"
+    },
+    {
+      "path": "docs/ranch-street.jpg",
+      "byte_identical": true,
+      "accepted_sha256": "461afb5a0ea7ca2dcdf98e232d1b9e21c33fd4dcd784f649dfb7231a353b0806",
+      "rebuilt_sha256": "461afb5a0ea7ca2dcdf98e232d1b9e21c33fd4dcd784f649dfb7231a353b0806"
+    }
+  ],
+  "unchanged": 51,
+  "changed": 26,
+  "scope": "Actual complete rebuild using modified ranch helpers and Blender 5.2.3, compared with pre-session Blender 5.2.2 accepted files"
+}

@@ -30,7 +30,7 @@ refs:
 	$(PYTHON) $(KIT)/fetch_refs.py refs
 build/ranch/plan-sweep.json: src/plan.py src/ranch_plan.py src/check_plan.py
 	$(PYTHON) src/check_plan.py --count 1000 --out $@
-build/ranch/colonial-regression/comparison.json: src/build.py src/plan.py src/additions.py src/ranch_regression.py src/colonial_baseline.json
+build/ranch/colonial-regression/comparison.json: src/build.py src/plan.py src/additions.py src/ranch_regression.py src/regression_payload.py src/colonial_baseline.json
 	$(BP) --python src/ranch_regression.py --
 check: model build/ranch/plan-sweep.json build/ranch/colonial-regression/comparison.json
 	$(PYTHON) $(KIT)/repo_check.py
