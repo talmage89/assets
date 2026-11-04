@@ -1,9 +1,9 @@
 """Alder's open double-chevron grille and separate lower cooling comb.
 
-Sixteen molded blades sit 42 mm ahead of the radiator bed. Two concealed
-cross-rails connect them and carry the existing badge. The lower opening uses
-eighteen straight matte fins. The 560 game triangles replace the former ribs
-and webs one for one; this is real open geometry, with no opacity trick.
+Sixteen molded blades sit 42 mm ahead of the radiator bed. Two bowed carriers
+connect them and support the badge stem. Eighteen straight matte lower fins
+are distinct. The 636 game triangles replace 560 former ribs/webs plus 76
+triangles of required support; this is real open geometry.
 """
 import bpy
 from mathutils import Vector
@@ -33,13 +33,18 @@ def build(b):
                     rows.append([tuple(p+Vector((dx,dy,0))) for dx,dy in [(-.008,-.004),(.008,-.004),(.008,.011),(-.008,.011)]])
                 ob=G.loft('Alder chevron grille blade '+str(i),rows,b.m['dark_chrome'])
                 b.add(ob,category='trim')
-                # Flat manufactured blade faces, with an actual kink in plan;
-                # never smooth a rectangular section into its neighboring face.
-                for f in ob.data.polygons:f.use_smooth=False
+                # Continue normals through the shallow molded bend while the
+                # 90-degree rectangular-section edges remain manufactured edges.
+                G.smooth(ob,35)
             for v in [.30,.70]:
-                a=sample(.018,v);c=sample(.982,v);p=(a+c)*.5;p.y-=.020
-                ob=G.box('Grille structural rail '+str(v),p,((c-a).length,.012,.009),b.m['gloss_black'],0)
+                rows=[]
+                for j in range(6):
+                    p=sample(.018+.964*j/5,v);p.y-=.028
+                    rows.append([tuple(p+Vector((0,dy,dz))) for dy,dz in [(-.012,-.0045),(.012,-.0045),(.012,.0045),(-.012,.0045)]])
+                ob=G.loft('Grille structural rail '+str(v),rows,b.m['gloss_black'])
                 b.add(ob,category='trim')
+            back=sample(.5,.70).y-.020;front=-2.255
+            b.add(G.box('Grille badge stem',(0,(front+back)/2,.837),(.026,back-front,.044),b.m['gloss_black'],0),category='trim')
         else:
             for i in range(18):
                 u=(i+.5)/18;a=sample(u,.035);c=sample(u,.965)
