@@ -339,6 +339,9 @@ ordinary command still fetches every entry and skips existing files. This lets
 a check declare its actual photograph prerequisites without depending on unrelated
 manual URLs. Run `python3 -m unittest kit.test_fetch_refs` for selection, legacy
 cache, MIME and path guards (mocked requests, no network).
+Manufacturer PDF responses without a `Content-Type` header are accepted only
+after checking their `%PDF-` signature. Explicit non-image/PDF MIME types and
+missing-header HTML responses still fail without writing a reference file.
 
 Reserved-atlas verification also measures the unique region after GLB import,
 rejects any intersection between unique and tile rectangles, and checks the
