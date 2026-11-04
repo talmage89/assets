@@ -54,10 +54,12 @@ def stripes(sc,direction):
 def main():
     p=argparse.ArgumentParser();p.add_argument('--preview',action='store_true');p.add_argument('--source',required=True);p.add_argument('--out',required=True)
     p.add_argument('--width',type=int,default=1400);p.add_argument('--samples',type=int,default=32)
-    p.add_argument('--mode',choices=['clay','stripes','pairs','comparisons','profiles','curvature','diagnostic_stripes'],default='clay');p.add_argument('--cameras',default='build/suv/cameras.json');p.add_argument('--shots',default='')
+    p.add_argument('--engine',choices=['CYCLES','BLENDER_EEVEE'])
+    p.add_argument('--mode',choices=['clay','stripes','pairs','comparisons','profiles','curvature','diagnostic_stripes','gloss','gloss_pairs'],default='clay');p.add_argument('--cameras',default='build/suv/cameras.json');p.add_argument('--shots',default='')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);source=Path(a.source).resolve();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     shots={n:s for n,s in SHOTS.items() if n.startswith('stripes')==(a.mode=='stripes')}
     if a.mode in ['pairs','comparisons','profiles']:shots={n+('_clay' if a.mode=='comparisons' else ''):r['shot'] for n,r in json.loads(Path(a.cameras).read_text()).items()}
+    if a.mode=='gloss_pairs':shots={n:r['shot'] for n,r in json.loads(Path(a.cameras).read_text()).items()}
     if a.mode in ['curvature','diagnostic_stripes']:
         prefix='mean_curvature_' if a.mode=='curvature' else 'curvature_stripes_'
         shots={prefix+n:SHOTS[n] for n in ['front_three_quarter','rear_three_quarter','side','front','rear']}
@@ -72,15 +74,18 @@ def main():
         bpy.data.objects['Studio seamless'].rotation_euler.z=math.pi if shot['location'][1]>0 else 0
         stripe=a.mode in ['stripes','pairs','diagnostic_stripes']
         if stripe:
-            stripes(sc,shot.get('direction','horizontal'));sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=4
+            stripes(sc,shot.get('direction','horizontal'));sc.render.engine='CYCLES';gpu.enable() if a.engine!='BLENDER_EEVEE' else None;sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=4
             for ob in sc.objects:
                 if ob.get('studio') and ob.type in ['MESH','LIGHT']:ob.hide_render=True
         elif a.mode=='curvature':
-            sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=False;sc.cycles.max_bounces=2
+            sc.render.engine='CYCLES';gpu.enable() if a.engine!='BLENDER_EEVEE' else None;sc.cycles.samples=a.samples;sc.cycles.use_denoising=False;sc.cycles.max_bounces=2
             for ob in sc.objects:
                 if ob.get('studio') and ob.type=='MESH':ob.hide_render=True
+        elif a.mode.startswith('gloss'):
+            from suv_lighting import gloss_clay
+            gloss_clay();sc.render.engine='CYCLES';gpu.enable() if a.engine!='BLENDER_EEVEE' else None;sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=8
         elif not a.preview:
-            sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=5
+            sc.render.engine='CYCLES';gpu.enable() if a.engine!='BLENDER_EEVEE' else None;sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=5
             for mat in bpy.data.materials:
                 bs=mat.node_tree.nodes.get('Principled BSDF') if mat.use_nodes else None
                 if bs:
@@ -119,10 +124,12 @@ def main():
         sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=.65 if shot.get('raking') else -.2 if stripe else -1.65 if sc.render.engine=='CYCLES' else .25
         if a.mode=='curvature':
             sc.view_settings.view_transform='Standard';sc.view_settings.look='None';sc.view_settings.exposure=0
+        if a.mode.startswith('gloss'):sc.view_settings.exposure=-.7
         sc.render.resolution_x=a.width;sc.render.resolution_y=round(a.width/shot.get('aspect',1.65));sc.render.resolution_percentage=100
         sc.render.image_settings.file_format='PNG';sc.render.image_settings.color_mode='RGBA';sc.render.film_transparent=True
-        bpy.data.objects['Studio seamless'].hide_render=stripe or a.mode=='curvature' or a.preview or camera.data.type=='ORTHO' or a.mode=='profiles'
+        bpy.data.objects['Studio seamless'].hide_render=stripe or a.mode=='curvature' or a.preview or camera.data.type=='ORTHO' or a.mode=='profiles' or a.mode.startswith('gloss')
         if not stripe and not a.preview:bpy.data.objects['Studio seamless'].is_shadow_catcher=True
+        if a.engine:sc.render.engine=a.engine
         sc.render.filepath=str((out/(name+'.png')).resolve());bpy.context.view_layer.update();bpy.ops.render.render(write_still=True)
         landmarks=dict(front=(0,-S.LENGTH/2,0),rear=(0,S.LENGTH/2,0),front_axle=(S.FRONT_TRACK/2+.094,S.FRONT_AXLE,S.HUB_HEIGHT),rear_axle=(S.REAR_TRACK/2+.094,S.REAR_AXLE,S.HUB_HEIGHT),left=(-S.WIDTH/2,0,0),right=(S.WIDTH/2,0,0),ground=(0,0,0),roof=(0,.35,S.HEIGHT))
         measured=source.parent/'form-check.json'

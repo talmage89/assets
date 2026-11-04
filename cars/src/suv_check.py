@@ -180,7 +180,7 @@ def main():
   for line in report['round3']['lines']:
    if not 15<=line['shoulder']['normal_turn_degrees']<=25:errors.append('Shoulder turn / 30 mm')
   if report['round3']['gate']['pocket_bed_plane_max_residual_m']>.0001:errors.append('Plate bed is not planar')
- if report['quality']=='game' and report['triangles']>61500:errors.append('Source allocation exceeds 61.5k; 65k finished reserve would be lost')
+ if report['quality']=='game' and report['triangles']>65000:errors.append('Source exceeds current 65k SUV budget')
  if abs(report['wheelbase_m']-S.WHEELBASE)>1e-5:errors.append('Wheelbase')
  if any(not .040<=r['crown_gap_m']<=.070 for r in arches):errors.append('Arch crown clearance')
  if not 55<=rake<=60:errors.append('Windshield rake')

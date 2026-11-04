@@ -91,7 +91,7 @@ def main():
     if a.parent:
         import suv_body
         for ob in list(bpy.context.scene.objects):bpy.data.objects.remove(ob,do_unlink=True)
-        master,_=suv_body.master(2);obs=[master]
+        master,_=suv_body.master(3);obs=[master]
     ray=field(obs);sections=[]
     for y in [-1.94,-.390,.215,.720,2.10]:sections.append(measure(ray,f'Body y={y:+.3f}', 'side',y,.29,min(1.58,1.047+.022*y+.16)))
     for y in [-2.00,-1.65,-1.30]:sections.append(measure(ray,f'Hood y={y:+.2f}','top',y,-.80,.80))

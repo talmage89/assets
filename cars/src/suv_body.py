@@ -208,12 +208,16 @@ def section_field(p):
     q=(abs(x)/w)**power+a**3+c**3-1
     g=math.sqrt((power*(abs(x)/w)**(power-1)/w)**2+(3*a*a/fd if y<ft else 3*c*c/rd)**2)
     wall=q/max(1,g)
-    if y< -1.075:height=hood_height(x,y)
+    if y< -1.23:height=hood_height(x,y)
     else:
-        height=hermite(y,[(-1.075,1.0984,.108),(-1.00,1.145,.61),(-.30,1.57,.61),(-.16,1.645,.25),
+        canopy=hermite(y,[(-1.075,1.0984,.108),(-1.00,1.145,.61),(-.30,1.57,.61),(-.16,1.645,.25),
          (.30,1.679,0),(1.30,1.665,-.035),(1.80,1.63,-.18),(1.90,1.595,-1.2),
          (2.16,1.165,-1.7),(2.32,.96,-1.8),(2.47,.65,-2.2)])
-        height-=.023*(x/.70)**2
+        canopy-=.023*(x/.70)**2
+        # The former hard switch at -1.075 had different lateral heights and
+        # slopes on each side, creating a real cowl dent before panel cutting.
+        blend=smoothstep(-1.23,-.94,y)
+        height=hood_height(x,y)*(1-blend)+canopy*blend
     top=z-height;m=max(wall,top);r=.011
     return m+r*math.log(math.exp((wall-m)/r)+math.exp((top-m)/r))
 
@@ -382,7 +386,7 @@ def tessellate(parent,high=False):
             selected=set();edges={}
             for fi,face in enumerate(faces):
                 p=sum((vertices[i] for i in face),Vector())/len(face)
-                if len(face)==4 and ((1.80<p.y<2.20 and .60<p.z<.82 and .65<abs(p.x)<.85) or (p.y>2.05 and .76<p.z<1.10 and abs(p.x)<.55)):
+                if len(face)==4 and ((1.80<p.y<2.20 and .60<p.z<.82 and .65<abs(p.x)<.85) or (p.y>2.05 and .76<p.z<1.10 and abs(p.x)<.55) or (-1.16<p.y<-.96 and 1.0<p.z<1.15 and .74<abs(p.x)<.88)):
                     selected.add(fi)
                     for a,b in zip(face,face[1:]+face[:1]):edges[tuple(sorted((a,b)))]=None
             for edge in edges:
@@ -592,7 +596,7 @@ def skin_gauge(ob,thickness):
 
 
 def build(b):
-    source,names=master(2)
+    source,names=master(3)
     b.root['surface_cage']=source['cage_report']
     # Project straight side shut lines through the already fair sheet. The
     # front/rear/hood/greenhouse boundaries follow its longitudinal cage charts;
@@ -743,6 +747,9 @@ def build(b):
             outline=[arch_point(a,axle,.018) for a in inner_angles]
             b.add(G.profile('Wheelwell inboard_'+end+side,outline,sign*.559,sign*.561,b.m['rubber'],axis='X'),category='liners')
     fascia(b,front=True,master_tree=parent_tree,surface_map=surface_map);fascia(b,front=False,master_tree=parent_tree,surface_map=surface_map)
+    from suv_resample import remesh
+    for name in ['Front molded fascia','Front lower bumper cladding']:
+        remesh(bpy.data.objects[name],dict(surface_map,polar=True,front=True),.018 if b.high else .030)
     from suv_greenhouse import build as greenhouse
     greenhouse(b,parent_tree,surface_map)
     # Only a cavity closure is supplied at this gate, not an interior or drivetrain.

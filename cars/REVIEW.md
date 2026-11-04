@@ -1,3 +1,50 @@
+# X220 SUV — detail and look development
+
+## Detail pass 1 — form fixes and inherited-work audit
+
+Color/value first: retain the stock photos' neutral white backdrops (unit white
+balance gains). Gloss clay is a neutral linear .18 clearcoated gray; it is not
+a match to the white paint. Its procedural sky and actual dark ground plane
+supply the upper/lower reflected values. Opened all five actual-triangle
+curvature maps and their matching stripes, all four old-photo-camera gloss
+views, the side and the front/rear gloss views. Evidence: `renders/suv-detail-form/`
+and `renders/suv-detail-gloss/`, with the four original cameras in
+`renders/suv-detail-gloss-pairs/`.
+
+The interrupted work correctly identified two different faults. The cowl used
+a hard hood/canopy height switch with different lateral values and derivatives;
+it now blends the two fields before fitting the control cage. Aperture cuts
+mixed existing coarse chord vertices with newly projected limit vertices,
+creating ridges in skinny cut triangles. The local cutter now intersects the
+same physical source triangles, and the exposed front fascia is resampled on
+its parent using a constrained chart with real hole membership. The denser
+parent and local A-foot sampling retain that shape. These change actual
+positions/topology; the raw mean-curvature diagnostic is not filtered.
+
+The corner comparison's negative-curvature tail improves: in the disclosed
+X640–890 / Y<-1700 / Z400–940 mm region, five valid vertices below -5 /m become
+zero. This is a changing sample set (587 versus 347 vertices), not a pointwise
+improvement score. The A-foot becomes a coherent narrow concave transition,
+not a perfectly convex panel: its local minimum remains about -6.5 /m and the
+hood-cowl draw is still visible. Small cut-border speckles remain at the thin
+upper fascia strip. Do not report them as eliminated. Broad corner stripes
+are smoother; the remaining raw sampling noise deserves another look at bake.
+
+In the side gloss, the shoulder reads continuously as a bright-to-dark reflected
+break, the rising lower crease changes value above the rocker, and both fenders
+carry broad crown highlights. Keep their accepted amplitudes. Against Honda
+and Toyota the original's cowl is still less relaxed, its lower line subtler,
+and the untrimmed glass and optical blanks still look cheap. No change to the
+accepted package or photo cameras is justified by this lighting test.
+
+The inherited detail scene was also opened and rejected: 65,980 triangles,
+coarse sweeps with intersecting cards/tires, supports passing through the dash,
+a roof/spoiler overlap, and trim clips on exterior surfaces. Its source modules
+are useful scaffolding, not verified work. The next passes correct construction,
+measure actual surfaces, and judge new renders against the used photographs.
+
+---
+
 # X220 SUV — form round 3
 
 The accepted round-two source is `53f57a8`. `main` was merged at the start

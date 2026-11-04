@@ -234,6 +234,8 @@ def cut_mesh(ob,cutters,surface):
         area=sum(coords[i].x*coords[j].y-coords[j].x*coords[i].y for i,j in zip(face,face[1:]+face[:1]))
         return tuple(reversed(face)) if area<0 else tuple(face)
     constraints=[ccw([lookup[i] for i in f]) for f in active];count=len(constraints)
+    from mathutils.bvhtree import BVHTree
+    local_chart=BVHTree.FromPolygons([Vector((*q,0)) for q in coords],constraints,all_triangles=True)
     for poly in cutters:
         first=len(coords);coords.extend(p.to_2d() for p in poly);constraints.append(ccw(list(range(first,len(coords)))))
     result,_,triangles,originals,_,ids=delaunay_2d_cdt(coords,[],constraints,0,1e-7)
@@ -244,7 +246,14 @@ def cut_mesh(ob,cutters,surface):
     mapping={}
     for i in sorted({i for f in kept for i in f}):
         old=next((j for j in originals[i] if j<len(positions)),None)
-        p=positions[old] if old is not None else evaluate_chart(result[i],surface)[0]
+        if old is not None:p=positions[old]
+        else:
+            # Intersect the physical game triangle, not a different curved
+            # surface. Mixing projected new vertices with old coarse chords
+            # created ridges through the skinny aperture-cut triangles.
+            hit,_,fi,_=local_chart.find_nearest(Vector((*result[i],0)))
+            a,c,d=constraints[fi]
+            p=barycentric_transform(hit,Vector((*coords[a],0)),Vector((*coords[c],0)),Vector((*coords[d],0)),positions[a],positions[c],positions[d])
         mapping[i]=len(vertices);vertices.append(inverse@p)
     for face in kept:
         ordered=face if surface['front'] else list(reversed(face))

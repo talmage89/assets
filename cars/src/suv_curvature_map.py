@@ -124,7 +124,7 @@ def main():
     if a.parent:
         from suv_body import master
         for o in list(bpy.data.objects):bpy.data.objects.remove(o,do_unlink=True)
-        ob,_=master(2);obs=[ob]
+        ob,_=master(3);obs=[ob]
         mat=bpy.data.materials.new('Clay body');mat.use_nodes=True;ob.data.materials.clear();ob.data.materials.append(mat)
         for f in ob.data.polygons:f.material_index=0
         # Keep an untouched diagnostic parent for an explicit source/game split.
