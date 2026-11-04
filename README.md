@@ -58,6 +58,10 @@ Houses
 - [Builder colonials and postwar ranches](houses/README.md): seeded two-story and one-story houses with garages
   or carports, moving doors and one shared weathered tiling-and-trim texture family.
 
+Commercial — form checkpoint
+- [Corner gas stations](commercial/README.md): four seeded corner plans, reusable retail construction,
+  original fuel brands, dispensers and service props; quick materials, before look development.
+
 Vehicles
 - [Pickup](cars/README.md): full-size crew-cab pickup in five factory colors; doors, hood, tailgate, steering and
   wheels move.

@@ -86,16 +86,20 @@ def traffic(p):
 
 
 def main():
- for i in range(1000):generate(i)
+ extended=[(seed,traffic(generate(seed))) for seed in range(1000)]
+ failed=[seed for seed,row in extended if not row['passed']]
  invalid=[dict(brand='shell'),dict(count=5),dict(store=(90,80,20)),dict(angle=44),dict(lot=(50,50)),dict(yaw=45),dict(wall='vinyl'),dict(sign_placement='roof')]
  for bad in invalid:
   try:generate(101,bad)
   except (AssertionError,ValueError):pass
   else:raise AssertionError('Accepted unsupported plan '+repr(bad))
- result=dict(plan_count=1000,rejected_controls=len(invalid),traffic={str(s):traffic(generate(s)) for s in PROOF_SEEDS})
+ result=dict(plan_count=1000,rejected_controls=len(invalid),traffic={str(s):traffic(generate(s)) for s in PROOF_SEEDS},
+  seed_traffic=dict(plan_count=len(extended),passed=not failed,minimum_separating_gap_m=min(row['minimum_separating_gap_m'] for seed,row in extended),failed_seeds=failed,scope='Pure-plan pickup-envelope regression; actual solid surfaces and exports are checked on four proof seeds'))
  Path('build').mkdir(exist_ok=True);Path('build/plan-check.json').write_text(json.dumps(result,indent=2))
  print('PLAN 1000 passed,',len(invalid),'negative controls rejected')
  for s,r in result['traffic'].items():print('TRAFFIC',s,r['passed'],r['minimum_separating_gap_m'],len(r['violations']))
+ print('SEED TRAFFIC',len(extended),'plans',not failed,'minimum SAT gap',result['seed_traffic']['minimum_separating_gap_m'])
+ assert not failed,'Seed-family circulation regression: '+repr(failed)
  if any(not v['passed'] for v in result['traffic'].values()):raise AssertionError('Circulation collision')
 
 if __name__=='__main__':main()
