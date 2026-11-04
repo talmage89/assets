@@ -14,7 +14,7 @@ def plant(p,station):
  if not path.exists():raise RuntimeError('Build shrubs with its own Makefile first')
  before=set(bpy.context.scene.objects);bpy.ops.import_scene.gltf(filepath=str(path))
  added=set(bpy.context.scene.objects)-before
- stock=[o for o in added if o.type=='MESH' and o.name.startswith('Boxwood')]
+ stock=sorted((o for o in added if o.type=='MESH' and o.name.startswith('Boxwood')),key=lambda o:o.name)
  assert len(stock)==2,'Stock shrub library layout changed'
  lib=[(o.data,o.matrix_world.copy()) for o in stock]
  for o in added:bpy.data.objects.remove(o,do_unlink=True)
@@ -28,7 +28,7 @@ def plant(p,station):
   locations.append((x,D/2-.65))
  for i,(x,y) in enumerate(locations):
   rt=root('Boxwood_'+str(i),(x,y,.016),rng.uniform(0,360),parent=parent)
-  rt.scale=(1,1,rng.uniform(.88,1.04))
+  rt.location.z-=rng.uniform(0,.025)
   for j,(mesh,xf) in enumerate(lib):
    ob=bpy.data.objects.new(f'Boxwood_{i}_{j}',mesh);bpy.context.collection.objects.link(ob)
    ob.parent=rt;ob.matrix_basis=xf;ob['asset_set']='Landscape';ob['module_root']='Landscape'

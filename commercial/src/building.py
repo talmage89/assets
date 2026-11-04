@@ -158,12 +158,19 @@ def retail_shell(spec,brand):
   cylinder('Vent boot',(xx,2.4,roof+.02),(xx,2.4,roof+.10),.18,'Black',r,16)
   cylinder('Plumbing vent',(xx,2.4,roof+.08),(xx,2.4,roof+.62),.055,'Metal',r,14)
  # Meter and switchgear: wall-mounted, with conduit physically joining the boxes.
- xx=w/2+.05
- box('Electric cabinet',(xx,1.8,1.2),(.18,1.0,1.4),'Metal',r,.008)
- for yy in (1.52,2.05):
+ xx=w/2+.05;service_y=-d*.30
+ box('Electric cabinet',(xx,service_y+1.8,1.2),(.18,1.0,1.4),'Metal',r,.008)
+ for yy in (service_y+1.52,service_y+2.05):
   cylinder('Meter housing',(xx+.10,yy,1.8),(xx+.18,yy,1.8),.14,'Metal',r,20)
+  cylinder('Meter dial',(xx+.181,yy,1.8),(xx+.186,yy,1.8),.119,'White',r,20)
+  cylinder('Meter sealed glass',(xx+.209,yy,1.8),(xx+.214,yy,1.8),.122,'Glass',r,24)
+  dial=root('Meter readout',(xx+.185,yy,1.8),90,parent=r)
+  panel('Meter LCD',0,-.012,.015,.16,.060,'Inside',dial,.004)
+  text('Meter reading','084216',(0,-.015,.017),.026,'Black',dial)
+  text('Meter unit','kWh',(0,-.014,-.052),.023,'Black',dial)
   cylinder('Conduit',(xx,yy,.08),(xx,yy,.62),.025,'Metal',r,10)
- box('Service disconnect',(xx,2.65,1.3),(.16,.34,.60),'Trim',r,.004)
+ box('Service disconnect',(xx,service_y+2.65,1.3),(.16,.34,.60),'Trim',r,.004)
+ box('Disconnect handle',(xx+.098,service_y+2.65,1.32),(.035,.065,.18),'Black',r,.008)
  services(w,d,r)
  if b['cooler']:
   box('Walk-in cooler insulated box',(w/2+1.25,d*.19,1.6),(2.50,3.7,3.10),'White',r,.025)
@@ -226,10 +233,11 @@ def services(w,d,parent):
   box('Rear wall pack',(xx,-.08,2.95),(.28,.18,.32),'Trim',rear,.022,2)
   box('Rear wall pack lens',(xx,-.18,2.88),(.23,.028,.13),'Lamp',rear,.007)
  # Feed and branch conduits physically enter their weatherproof boxes.
- for yy in (1.52,2.05):
+ service_y=-d*.30
+ for yy in (service_y+1.52,service_y+2.05):
   tube('Service mast conduit',[(w/2+.16,yy,1.94),(w/2+.16,yy,3.46),(w/2+.04,yy,3.57)],.025,'Metal',parent,10)
   box('Conduit strap',(w/2+.14,yy,2.60),(.10,.10,.025),'Metal',parent,.002)
- tube('Disconnect feeder',[(w/2+.15,2.05,1.10),(w/2+.18,2.05,.77),(w/2+.18,2.65,.77),(w/2+.13,2.65,1.05)],.022,'Metal',parent,10)
+ tube('Disconnect feeder',[(w/2+.15,service_y+2.05,1.10),(w/2+.18,service_y+2.05,.77),(w/2+.18,service_y+2.65,.77),(w/2+.13,service_y+2.65,1.05)],.022,'Metal',parent,10)
  gas=root('Gas service',(-w*.18,d/2+.30,0),parent=parent)
  box('Gas meter body',(0,0,.65),(.42,.24,.48),'Metal',gas,.06,3)
  box('Gas register',(0,.138,.73),(.24,.04,.16),'White',gas,.008)

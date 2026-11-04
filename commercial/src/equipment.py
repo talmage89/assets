@@ -45,12 +45,12 @@ def nozzle(name,p,parent,back=False):
  # Compound cast envelope: changing transverse breadth and center at each section.
  loops=[]
  for z,cx,wx,dy in [(-.18,-.035,.028,.027),(-.12,-.02,.042,.037),(.02,.025,.054,.047),(.10,.055,.062,.048),(.16,.065,.048,.035),(.19,.06,.033,.027)]:
-  loops.append([(cx+wx*math.cos(i*math.tau/12),dy*math.sin(i*math.tau/12),z) for i in range(12)])
+  loops.append([(cx+wx*math.cos(i*math.tau/16),dy*math.sin(i*math.tau/16),z) for i in range(16)])
  own(G.smooth(G.loft('Cast nozzle body',loops,M['Metal'])),r)
  # Rubber hand warmer follows a sculpted grip section rather than a flat profile.
  loops=[]
  for z,cx,wx,dy in [(-.15,-.028,.036,.037),(-.10,-.015,.047,.041),(-.015,.015,.052,.044),(.065,.045,.055,.045)]:
-  loops.append([(cx+wx*math.cos(i*math.tau/12),dy*math.sin(i*math.tau/12),z) for i in range(12)])
+  loops.append([(cx+wx*math.cos(i*math.tau/16),dy*math.sin(i*math.tau/16),z) for i in range(16)])
  own(G.smooth(G.loft('Nozzle handwarmer',loops,M['Black'])),r)
  guard=[(-.07,-.005,-.15),(-.14,-.005,-.12),(-.16,-.005,.04),(-.13,-.005,.12),(-.04,-.005,.13)]
  pts=[]

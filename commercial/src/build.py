@@ -1,4 +1,8 @@
-"""Build four independent original corner stations and diagnostic form GLBs."""
+"""Build independent original stations; --look installs shared baked PBR.
+
+The scalar branch remains available for construction comparisons. Reusable
+modules, pivots and sockets survive both the embedded build and external glTF.
+"""
 import argparse, hashlib, json, math, sys
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
