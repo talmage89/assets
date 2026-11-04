@@ -617,14 +617,16 @@ source IOR level is half this factor. `test_surface_profiles.py` checks the
 actual extension, image reuse, alpha values and opaque mode in a GLB. The
 default preserves all existing material behavior.
 
-With authored seams and `UV_UNWRAP_METHOD`, `UV_USE_TARGET_ASPECT=True` makes
-the unwrap/averaging/packing operators use the
+`UV_USE_TARGET_ASPECT=True` makes either Smart UV or an authored-seam
+`UV_UNWRAP_METHOD`, and the averaging/packing operators, use the
 actual delivery-region aspect (`UV_ATLAS_RECT`, or the whole square atlas),
 instead of an arbitrary procedural input image's dimensions. Original image
 inputs and the active material nodes are restored before saving. This prevents
 a tall bark source field from squashing the shipped UVs in a wide reserved
 region. Defaults remain unchanged. `test_uv_target_aspect.py` measures actual
-triangle Jacobians in a non-square region and checks source-image restoration.
+triangle Jacobians in a non-square region, a square Smart UV print atlas, and
+source-image restoration. This opt-in also prevents rectangular marking images
+from changing a printed chart's physical aspect; existing defaults are unchanged.
 
 `flat_bake.py --height-distance` optionally gives the physical meter range of
 an original normalized height field. The default stays .004 m. This lets
