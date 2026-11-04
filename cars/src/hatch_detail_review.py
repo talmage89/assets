@@ -34,7 +34,8 @@ def main():
         if record['source_sha256']!=current:raise ValueError('Stale Eevee source hash')
         for suffix in ['.png','-mask.png']:shutil.copyfile(extra/('front_three_quarter'+suffix),folder/('eevee'+suffix))
         meta['eevee']=record;meta['eevee']['tonal_mask']='eevee-mask.png';names.append('eevee')
-        (folder/'shots.json').write_text(json.dumps(meta,indent=2))
+    meta={name:meta[name] for name in names}
+    (folder/'shots.json').write_text(json.dumps(meta,indent=2))
     sheet(folder,colors,folder/'five-colors.jpg',2,(700,470))
     sheet(folder,VIEWS,folder/'details-contact.jpg',3,(700,485))
     sheet(folder,motions,folder/'motion-sweeps.jpg',5,(480,340))

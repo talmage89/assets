@@ -20,6 +20,7 @@ HD := build/hatch-detail
 HC := src/hatch_detail_config.py
 FORMDEPS := src/hatch_build.py src/hatch_body.py src/hatch_apertures.py src/hatch_character.py src/hatch_spec.py src/build.py src/wheels.py
 DETAILDEPS := src/hatch_detail.py src/hatch_exterior.py src/hatch_finishes.py src/hatch_hardware.py src/hatch_interior.py src/hatch_mechanisms.py src/hatch_surface_detail.py src/hatch_underbody.py src/finishes.py src/detail_helpers.py ../kit/vehicle_materials.py
+RENDERDEPS := src/hatch_lookdev.py src/hatch_colors.py src/hatch_views.py src/hatch_lighting.py src/delivery_materials.py src/lighting.py ../kit/studio.py ../kit/gpu.py
 empty :=
 space := $(empty) $(empty)
 comma := ,
@@ -78,15 +79,15 @@ $(HD)/determinism.json: $(HD)/game.blend $(HD)/repeat-game.blend src/hatch_repea
 check: $(HD)/detail-check.json $(HD)/detail-high-check.json $(HD)/audit-game.json $(HD)/audit-high.json $(HD)/motion-game.json $(HD)/motion-high.json $(HD)/used-cameras.json $(HD)/delivery-check.json $(HD)/determinism.json
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration $(HD)/used-cameras.json
 	$(PYTHON) $(KIT)/repo_check.py
-$(addprefix $(OUT)/,$(addsuffix .png,$(VIEWS))) &: $(RENDER_SOURCE) src/hatch_lookdev.py src/hatch_colors.py src/hatch_views.py src/hatch_lighting.py $(HD)/parameters.txt
+$(addprefix $(OUT)/,$(addsuffix .png,$(VIEWS))) &: $(RENDER_SOURCE) $(RENDERDEPS) $(HD)/parameters.txt
 	$(KIT)/with_gpu.sh $(RP) --python src/hatch_lookdev.py -- --source $< --out $(OUT) --width $(WIDTH) --samples $(SAMPLES) --shots $(subst $(space),$(comma),$(VIEWS))
-$(OUT)/colors.stamp: $(RENDER_SOURCE) src/hatch_lookdev.py src/hatch_colors.py src/hatch_views.py $(HD)/parameters.txt
+$(OUT)/colors.stamp: $(RENDER_SOURCE) $(RENDERDEPS) $(HD)/parameters.txt
 	$(KIT)/with_gpu.sh $(RP) --python src/hatch_lookdev.py -- --source $< --out $(OUT) --width $(WIDTH) --samples $(SAMPLES) --colors
 	@touch $@
-$(OUT)/motions.stamp: $(RENDER_SOURCE) src/hatch_lookdev.py src/hatch_colors.py src/hatch_views.py $(HD)/parameters.txt
+$(OUT)/motions.stamp: $(RENDER_SOURCE) $(RENDERDEPS) $(HD)/parameters.txt
 	$(KIT)/with_gpu.sh $(RP) --python src/hatch_lookdev.py -- --source $< --out $(OUT) --width 960 --samples 32 --motions
 	@touch $@
-$(OUT)/pairs.stamp: $(RENDER_SOURCE) $(HD)/used-cameras.json src/hatch_lookdev.py src/hatch_lighting.py $(HD)/parameters.txt
+$(OUT)/pairs.stamp: $(RENDER_SOURCE) $(HD)/used-cameras.json $(RENDERDEPS) $(HD)/parameters.txt
 	$(KIT)/with_gpu.sh $(RP) --python src/hatch_lookdev.py -- --source $< --out $(OUT) --width $(WIDTH) --samples $(SAMPLES) --paint Porcelain --camera-file $(HD)/used-cameras.json
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration $(HD)/used-cameras.json --renders $(OUT) --out $(OUT)
 	@touch $@
@@ -120,12 +121,12 @@ $(HD)/delivery-check.json: export/AlderH120.glb $(HD)/export-report.json $(HC) $
 .PHONY: export source-render
 export: export/AlderH120.glb $(HD)/delivery-check.json
 .PHONY: eevee
-renders/hatch-eevee/.stamp: export/AlderH120.glb src/hatch_lookdev.py src/hatch_views.py src/delivery_materials.py
+renders/hatch-eevee/.stamp: export/AlderH120.glb $(RENDERDEPS)
 	$(KIT)/with_gpu.sh $(RP) --python src/hatch_lookdev.py -- --source $< --out renders/hatch-eevee --width $(WIDTH) --samples 128 --shots front_three_quarter --engine BLENDER_EEVEE
 	@touch $@
 eevee: renders/hatch-eevee/.stamp
 .PHONY: source-pairs
-renders/hatch-source-pairs/.stamp: $(HD)/game.blend $(HD)/used-cameras.json src/hatch_lookdev.py src/hatch_views.py src/hatch_lighting.py src/hatch_pair_measure.py
+renders/hatch-source-pairs/.stamp: $(HD)/game.blend $(HD)/used-cameras.json $(RENDERDEPS) src/hatch_pair_measure.py
 	$(KIT)/with_gpu.sh $(RP) --python src/hatch_lookdev.py -- --source $< --out renders/hatch-source-pairs --width $(WIDTH) --samples $(SAMPLES) --paint Porcelain --camera-file $(HD)/used-cameras.json
 	$(PYTHON) src/hatch_pair_measure.py --renders renders/hatch-source-pairs
 	@touch $@
