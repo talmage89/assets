@@ -28,6 +28,10 @@ VIEWS := front_three_quarter rear_three_quarter face lamp_unlit lamp_lit wheel g
 COLORS := Porcelain Carbon Graphite Aluminum Atlantic
 COLORVIEWS := $(foreach c,$(COLORS),$(c)_front $(c)_rear)
 MOTIONVIEWS := $(foreach g,doors hood liftgate steering wheels,$(foreach i,0 1 2 3 4,$(g)_$(i)))
+HATCH_CHANNELS := BaseColor Normal ORM
+MATMAPS := $(foreach c,$(HATCH_CHANNELS),textures/hatch/material-bake/T_AlderH120_$(c).png)
+BAKEMAPS := $(foreach c,$(HATCH_CHANNELS),textures/hatch/bake/T_AlderH120_$(c).png)
+SHIPMAPS := $(foreach c,$(HATCH_CHANNELS),textures/hatch/ship/T_AlderH120_$(c).png)
 .NOTPARALLEL:
 .DELETE_ON_ERROR:
 .PHONY: all refs model check render review FORCE
@@ -106,15 +110,15 @@ $(HD)/finalized.blend $(HD)/uv-report.json &: $(HD)/material-source.blend $(HC) 
 	$(BP) --python src/hatch_finalize.py -- --source $< --out $(HD)/finalized.blend --config $(HC) --report $(HD)/uv-report.json --size 2048 --target-density 360 --margin .0012
 $(HD)/projection-check.json: $(HD)/game.blend $(HD)/high.blend src/hatch_projection_check.py
 	$(BP) --python src/hatch_projection_check.py -- --low $(HD)/game.blend --high $(HD)/high.blend --out $@
-textures/hatch/material-bake/bake-report.json: $(HD)/finalized.blend src/hatch_surface_bake.py $(KIT)/bake.py
+textures/hatch/material-bake/bake-report.json $(MATMAPS) &: $(HD)/finalized.blend src/hatch_surface_bake.py $(KIT)/bake.py
 	$(KIT)/with_gpu.sh $(RP) --python src/hatch_surface_bake.py -- --source $< --out textures/hatch/material-bake --size 4096 --samples 24
-textures/hatch/geometry-bake/bake-report.json: $(HD)/finalized.blend $(HD)/bake-source.blend $(HC) src/hatch_geometry_bake.py
+textures/hatch/geometry-bake/bake-report.json textures/hatch/geometry-bake/T_AlderH120_Normal.png &: $(HD)/finalized.blend $(HD)/bake-source.blend $(HC) src/hatch_geometry_bake.py
 	$(KIT)/with_gpu.sh $(RP) --python src/hatch_geometry_bake.py -- --low $(HD)/finalized.blend --high $(HD)/bake-source.blend --out textures/hatch/geometry-bake --size 4096 --samples 24 --config $(HC)
-textures/hatch/bake/bake-report.json: textures/hatch/material-bake/bake-report.json textures/hatch/geometry-bake/bake-report.json $(HD)/projection-check.json src/hatch_bake_merge.py
+textures/hatch/bake/bake-report.json $(BAKEMAPS) &: textures/hatch/material-bake/bake-report.json $(MATMAPS) textures/hatch/geometry-bake/bake-report.json textures/hatch/geometry-bake/T_AlderH120_Normal.png $(HD)/projection-check.json src/hatch_bake_merge.py
 	$(BP) --python src/hatch_bake_merge.py -- --low $(HD)/finalized.blend --game $(HD)/game.blend --material textures/hatch/material-bake --geometry textures/hatch/geometry-bake --projection $(HD)/projection-check.json --out textures/hatch/bake
-textures/hatch/ship/texture-report.json: textures/hatch/bake/bake-report.json $(KIT)/downsample.py
+textures/hatch/ship/texture-report.json $(SHIPMAPS) &: textures/hatch/bake/bake-report.json $(BAKEMAPS) $(KIT)/downsample.py
 	$(PYTHON) $(KIT)/downsample.py --source textures/hatch/bake --out textures/hatch/ship --asset AlderH120 --size 2048 --alpha-mode independent
-export/AlderH120.glb $(HD)/export-report.json &: $(HD)/finalized.blend textures/hatch/ship/texture-report.json $(HC) $(KIT)/export.py
+export/AlderH120.glb $(HD)/export-report.json &: $(HD)/finalized.blend textures/hatch/ship/texture-report.json $(SHIPMAPS) $(HC) $(KIT)/export.py
 	$(BP) --python $(KIT)/export.py -- --source $< --textures textures/hatch/ship --asset AlderH120 --out export/AlderH120.glb --config $(HC) --report $(HD)/export-report.json
 $(HD)/delivery-check.json: export/AlderH120.glb $(HD)/export-report.json $(HC) $(KIT)/verify.py
 	$(BP) --python $(KIT)/verify.py -- --source $< --expected $(HD)/export-report.json --config $(HC) --out $@ --size 2048
