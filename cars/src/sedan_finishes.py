@@ -15,16 +15,20 @@ def paint(wear):
                 (S.FRONT_AXLE,S.REAR_AXLE),refined=True,flakes=.65)
     n=Nodes.__new__(Nodes);n.mat=mat;n.nt=mat.node_tree
     p,x,y,z,nx,ny,nz=V.rest(n,'VehicleRest')
-    streaks=n.noise(n.vec('MULTIPLY',p,(1,1,.55)),35,3)
-    grain=n.add(.45,n.mul(n.ramp(streaks,.27,.70),.55))
-    ceiling=n.add(.34,n.mul(n.noise(p,7,2),.12))
-    fans=[n.mul(n.ramp(n.math('SUBTRACT',ceiling,z),0,.22),.45)]
+    # A deposited film follows grade and tire wakes. The large field is smooth;
+    # small directional modulation follows rearward airflow, never isotropic noise.
+    low=n.ramp(z,.57,.23)
+    fans=[n.mul(low,.34)]
     for axle in [S.FRONT_AXLE,S.REAR_AXLE]:
-        dy=n.math('SUBTRACT',y,axle+.25)
-        aft=n.mul(n.ramp(dy,0,.12),n.ramp(dy,2.6,1.3))
-        ceiling=n.add(.74,n.mul(dy,-.06))
-        fans.append(n.mul(aft,n.ramp(n.math('SUBTRACT',ceiling,z),0,.23),.85))
-    film=n.mul(n.maximum(*fans),grain,wear)
+        dy=n.math('SUBTRACT',y,axle+.24)
+        aft=n.mul(n.ramp(dy,-.03,.16),n.ramp(dy,2.4,.50))
+        ceiling=n.add(.64,n.mul(dy,-.10))
+        rise=n.ramp(n.math('SUBTRACT',ceiling,z),0,.32)
+        # Elongated streaks lean downward as the wake travels aft.
+        flow=n.combine(n.mul(x,3),n.mul(dy,.7),n.add(n.mul(z,30),n.mul(dy,3)))
+        streak=n.add(.90,n.mul(n.noise(flow,1,1),.10))
+        fans.append(n.mul(aft,rise,streak,.78))
+    film=n.mul(n.maximum(*fans),wear)
     # Cavity residue follows actual shut-line locations, never a panel-wide wash.
     gaps=n.maximum(*[n.band(y,v,.002,.007) for v in [S.DOOR_FRONT,S.DOOR_SPLIT,S.DOOR_REAR]])
     gaps=n.mul(gaps,n.ramp(z,1.02,.94),wear,.32)
@@ -32,14 +36,19 @@ def paint(wear):
     leading=n.mul(n.ramp(y,-2.10,-2.29),n.ramp(z,.68,.74),n.ramp(z,.86,.79))
     edges=n.mul(n.maximum(*[n.band(y,v-.004,.001,.003) for v in [S.DOOR_SPLIT,S.DOOR_REAR]]),n.ramp(z,.30,.46),n.ramp(z,1.0,.95))
     chips=n.mul(n.maximum(leading,edges),n.ramp(n.noise(p,780,2),.78,.86),wear)
-    coverage=n.mul(n.math('SUBTRACT',1,film),n.math('SUBTRACT',1,grime),n.math('SUBTRACT',1,chips))
+    coverage=n.mul(n.math('SUBTRACT',1,n.mul(film,.28)),n.math('SUBTRACT',1,grime),n.math('SUBTRACT',1,chips))
     tint=n.nt.nodes['Paint tint'].outputs[0]
-    dirt=n.mix(film,(0,0,0),(.095,.082,.064),True)
+    dirt=n.mix(film,(0,0,0),(.009,.0075,.0055),True)
     dirt=n.mix(grime,dirt,(.008,.007,.006),True)
     dirt=n.mix(chips,dirt,(.105,.110,.113),True)
     base=n.vec('ADD',n.mix(coverage,(0,0,0),tint,True),dirt)
     def output(name,socket):n.feed(n.nt.nodes['OUT_'+name].inputs[0],socket)
-    oldrough=n.nt.nodes['OUT_rough'].inputs[0].links[0].from_socket
+    # Below one delivered texel, use the integrated clearcoat/flake response.
+    # Point sampling 900–2800/m detail into a ~300 px/m atlas aliases to mottles.
+    oldrough=.158
+    output('height',0)
+    for node in n.nt.nodes:
+        if node.type=='BUMP':n.feed(node.inputs['Height'],0)
     arcs=n.math('SINE',n.mul(n.voronoi(p,8),3200))
     swirls=n.mul(n.ramp(arcs,.93,.99),n.ramp(n.noise(p,30,2),.57,.70),wear,.018)
     output('base',base);output('rough',n.add(oldrough,n.mul(film,.25),swirls))
@@ -48,7 +57,7 @@ def paint(wear):
     output('metal',n.mul(coverage,n.nt.nodes['Paint metallic'].outputs[0]))
     output('paint_coverage',coverage);output('paint_contamination',dirt);output('road_film',film);output('chips',chips)
     bs=n.nt.nodes['SURFACE'];n.feed(bs.inputs['Coat Weight'],n.add(.10,n.mul(coverage,.90)))
-    n.feed(bs.inputs['Coat Roughness'],n.add(.035,n.mul(film,.35)))
+    n.feed(bs.inputs['Coat Roughness'],n.add(.385,n.mul(coverage,-.35)))
     return mat
 
 
@@ -100,25 +109,32 @@ def build(wear):
     for diagonal in [n.add(n.mul(u,44),n.mul(v,6)),n.add(n.mul(u,44),n.mul(v,-6))]:
         wave=n.math('PINGPONG',diagonal,1);lines.append(n.ramp(wave,.84,.96))
     bars=n.maximum(*lines)
-    m['grille']=n.finish(n.mix(bars,(.003,.004,.004),(.014,.018,.018),True),n.mix(bars,.35,.14),n.mul(bars,.35),n.mul(bars,.002))
+    m['grille']=n.finish(n.mix(bars,(.003,.004,.004),(.014,.018,.018),True),n.mix(bars,.35,.14),n.mul(bars,.35),n.mul(bars,.00018))
     m['grille_bar']=V.manufactured('S240 gloss black grille',(.012,.015,.016),'chrome',0,refined=True)
     n=Nodes.__new__(Nodes);n.mat=m['grille_bar'];n.nt=n.mat.node_tree;n.feed(n.nt.nodes['OUT_rough'].inputs[0],.14)
     for side in ['L','R']:
-        # The family's original fictional lettering is the only relief image.
         image=bpy.data.images.load(str(directory/'tire_relief.png'),check_existing=True)
         image.colorspace_settings.name='Non-Color'
-        # Rebuild with that image so no geometry is spent on type.
-        if image:
-            m['tire_'+side]=V.tire('S240 lettered tire '+side,image,-1 if side=='L' else 1,wear=wear)
-            nt=m['tire_'+side].node_tree
-            # The class photos show dark dusty rubber, rather than a pale tire
-            # annulus. Preserve the radial cause and reduce its reflected value.
-            n=Nodes.__new__(Nodes);n.mat=m['tire_'+side];n.nt=nt
-            base=nt.nodes['OUT_base'].inputs[0].links[0].from_socket
-            n.feed(nt.nodes['OUT_base'].inputs[0],n.vec('MULTIPLY',base,(.55,.55,.55)))
-            tc=next(t for t in nt.nodes if t.type=='TEX_COORD')
-            links=list(tc.outputs['Object'].links);scale=nt.nodes.new('ShaderNodeVectorMath');scale.operation='MULTIPLY'
-            scale.inputs[1].default_value=(.275/.235,FAMILY.HUB_HEIGHT/S.HUB_HEIGHT,FAMILY.HUB_HEIGHT/S.HUB_HEIGHT)
-            nt.links.new(tc.outputs['Object'],scale.inputs[0])
-            for link in links:nt.links.new(scale.outputs[0],link.to_socket)
+        m['tire_'+side]=touring_tire('S240 lettered tire '+side,image,-1 if side=='L' else 1,wear)
     return m
+
+
+def touring_tire(name,image,sign,wear):
+    """Native passenger-tire dimensions; type is molded rubber, never white ink."""
+    n=Nodes(name);tc=n.node('ShaderNodeTexCoord');p=tc.outputs['Object'];x,y,z=n.split(p)
+    ax=n.math('ABSOLUTE',x);r=n.math('SQRT',n.add(n.mul(y,y),n.mul(z,z)))
+    angle=n.math('ARCTAN2',z,y)
+    tread=n.mul(n.ramp(ax,.105,.080),n.ramp(r,.306,.324))
+    phase=n.add(n.mul(angle,52/6.283185307179586),n.mul(x,18))
+    blocks=n.mul(n.ramp(n.math('FRACT',phase),.10,.18),n.ramp(n.math('FRACT',phase),.94,.86))
+    lanes=n.ramp(n.math('ABSOLUTE',n.math('SUBTRACT',n.math('FRACT',n.mul(x,28)),.5)),.45,.34)
+    tex=n.node('ShaderNodeTexImage');tex.image=image;tex.extension='CLIP';tex.interpolation='Linear'
+    n.feed(tex.inputs['Vector'],n.combine(n.add(.5,n.mul(y,sign/.81)),n.add(.5,n.mul(z,1/.81)),0))
+    side=n.mul(n.ramp(ax,.090,.114),n.ramp(r,.238,.254),n.ramp(r,.315,.302))
+    type_relief=n.mul(tex.outputs['Color'],side)
+    height=n.add(n.mul(tread,blocks,lanes,.0018),n.mul(type_relief,.00065))
+    dust=n.mul(side,n.ramp(r,.247,.278),wear,.20)
+    base=n.mix(dust,(.0050,.0055,.0060),(.035,.030,.023),True)
+    base=n.vec('ADD',base,n.mix(type_relief,(0,0,0),(.0018,.0017,.0015),True))
+    mat=n.finish(base,.77,0,height);mat.diffuse_color=(.010,.011,.012,1)
+    return mat

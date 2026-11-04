@@ -18,7 +18,7 @@ def main():
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     material=Path(a.material);geometry=Path(a.geometry);projection=json.loads(Path(a.projection).read_text())
     if projection['low_sha256']!=hashlib.sha256(Path(a.game).read_bytes()).hexdigest():raise ValueError('Stale projection correspondence')
-    approved=[n for n,r in projection['parts'].items() if r['miss_area_fraction']<=.0001 and r['back_hit_area_fraction']<=.0001 and r['nearest_distance_max_m']<=.003]
+    approved=[n for n,r in projection['parts'].items() if 'cascade vane' not in n and not n.startswith('Arch flange_') and r['miss_area_fraction']<=.0001 and r['back_hit_area_fraction']<=.0001 and r['nearest_distance_max_m']<=.003]
     bpy.ops.wm.open_mainfile(filepath=str(Path(a.low).resolve()))
     base=read_png(material/'T_AlderS240_Normal.png').astype(np.float32);high=read_png(geometry/'T_AlderS240_Normal.png').astype(np.float32)
     if base.shape!=high.shape:raise ValueError('Mismatched normal atlases')
