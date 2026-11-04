@@ -32,7 +32,10 @@ def main():
     for mat in materials:
         node=mat.node_tree.nodes.new('ShaderNodeTexImage');mat.node_tree.nodes.active=node;nodes[mat]=node
     sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=False
-    sc.render.bake.use_selected_to_active=False;sc.render.bake.use_clear=True;sc.render.bake.margin=12;sc.render.bake.margin_type='EXTEND'
+    # The packed unique-chart gap is .0015 UV. Opposing color margins must
+    # share that space; a 12 px extension can overwrite unsampled thin strips
+    # with a neighboring material's lamp color even without UV overlaps.
+    sc.render.bake.use_selected_to_active=False;sc.render.bake.use_clear=True;sc.render.bake.margin=max(1,int(a.size*.0015/2));sc.render.bake.margin_type='EXTEND'
     if not sc.world:sc.world=bpy.data.worlds.new('X220 bake world')
     if hasattr(sc.world,'light_settings'):sc.world.light_settings.distance=.03
     mask=Image.new('L',(a.size,a.size),0);draw=ImageDraw.Draw(mask);target.data.calc_loop_triangles()
@@ -70,7 +73,11 @@ def main():
     write_png(out/'T_AlderX220_BaseColor.png',base)
     bake('Roughness','EMIT','rough');bake('Metallic','EMIT','metal');bake('AO','AO')
     orm=np.stack([images.pop('AO')[:,:,0],images.pop('Roughness')[:,:,0],images.pop('Metallic')[:,:,0]],axis=2);write_png(out/'T_AlderX220_ORM.png',orm)
-    bake('Height','EMIT','height');raw=images.pop('Height');valid_height=raw[:,:,3]>.5;height=(raw[:,:,0]-.5)/100
+    bake('Height','EMIT','height');raw=images.pop('Height')
+    # Zero is the unset sentinel, not -5 mm of relief. Flat manufactured
+    # surfaces encode .5; all authored relief lies well inside this codec.
+    # Cycles may retain alpha 1 on uncovered raster-border pixels.
+    valid_height=(raw[:,:,3]>.5)&(raw[:,:,0]>1e-6);height=(raw[:,:,0]-.5)/100
     write_png(out/'T_AlderX220_Height.png',raw[:,:,:1].repeat(3,axis=2),16)
     from suv_height_normal import derive
     normal,normal_report=derive(target,height,sample_valid=valid_height)
@@ -78,6 +85,6 @@ def main():
     stats['Normal']=normal_report
     if any(v.get('alpha_missed_interior_texels',0) for v in stats.values()):raise ValueError('Direct bake has unfilled interior pixels')
     if normal_report['minimum_tangent_z']<=0:raise ValueError('Height normal left its tangent hemisphere')
-    stats.update(method='Direct finalized-surface procedural bake; no selected-to-active projection',size=a.size,samples=a.samples,device=sc.cycles.device,source_meshes=len(meshes),source_materials=len(materials))
+    stats.update(method='Direct finalized-surface procedural bake; no selected-to-active projection',size=a.size,samples=a.samples,color_margin_pixels=sc.render.bake.margin,device=sc.cycles.device,source_meshes=len(meshes),source_materials=len(materials))
     (out/'bake-report.json').write_text(json.dumps(stats,indent=2))
 if __name__=='__main__':main()

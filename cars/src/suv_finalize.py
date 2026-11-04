@@ -6,7 +6,7 @@ remain those of the accepted source.
 """
 import argparse,json,sys
 from pathlib import Path
-import bpy
+import bpy,numpy as np
 from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
 from kit import finalize,uv
@@ -23,6 +23,25 @@ def main():
     obs=[o for o in all_objects if not o.name.startswith('Tire_')]
     saved={o:[n.vector.copy() for n in o.data.corner_normals] for o in obs};repairs=[]
     for iteration in range(12):
+        footprint_changes=False
+        for ob in obs:
+            layer=ob.data.uv_layers['BakeUV'];groups=list(uv.islands(ob))
+            owner={li:j for j,loops in enumerate(groups) for li in loops};areas=[0.]*len(groups)
+            ob.data.calc_loop_triangles()
+            for t in ob.data.loop_triangles:areas[owner[t.loops[0]]]+=abs(uv.signed_area([tuple(layer.data[i].uv) for i in t.loops]))
+            for loops,area in zip(groups,areas):
+                if area<1e-14:continue  # The independent triangle repair below separates these.
+                coords=np.array([tuple(layer.data[i].uv) for i in loops]);center=coords.mean(axis=0)
+                _,axes=np.linalg.eigh((coords-center).T@(coords-center));local=(coords-center)@axes;extent=np.ptp(local,axis=0)
+                if area*a.size*a.size>=4 and min(extent)*a.size>=.75:continue
+                # A valid but subpixel chart cannot retain its own material:
+                # filtering samples another part's gutter. Give each island a
+                # sampled footprint before repacking, with room for pack scale.
+                stretch=np.maximum(1,1.5/a.size/np.maximum(extent,1e-14));local*=stretch
+                factor=max(1,(16/(a.size*a.size*area*np.prod(stretch)))**.5);local*=factor
+                for li,co in zip(loops,center+local@axes.T):layer.data[li].uv=co
+                repairs.append(dict(mesh=ob.name,reason='Representable material footprint',iteration=iteration))
+                footprint_changes=True
         for ob in obs:
             me=ob.data;me.calc_loop_triangles();layer=me.uv_layers['BakeUV']
             for t in me.loop_triangles:
@@ -38,7 +57,7 @@ def main():
                 for index,q in zip(order,[(0,0),(width,0),(along,max(alt*.1,2e-5))]):layer.data[t.loops[index]].uv=center+Vector(q)
                 repairs.append(dict(mesh=ob.name,triangle=t.index,reason='Independent representable UV sliver',iteration=iteration))
         report=uv.report(obs,a.size)
-        if not report['overlap_pairs'] and not report['degenerate_uv_triangles']:break
+        if not report['overlap_pairs'] and not report['degenerate_uv_triangles'] and not footprint_changes:break
         triangles=[]
         for ob in obs:
             ob.data.calc_loop_triangles()

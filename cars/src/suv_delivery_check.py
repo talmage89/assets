@@ -19,9 +19,12 @@ def percentiles(rows):
     return result
 
 
-def source(path):
+def source(path,base):
     bpy.ops.wm.open_mainfile(filepath=str(path.resolve()));bpy.context.view_layer.update()
-    normals=[];paint={};paint_rows=[];unique_area=tile_area=0
+    normals=[];paint={};paint_rows=[];unique_area=tile_area=0;contamination=[];tested=0
+    def sample(coords):
+        x=coords[0]*base.shape[1]-.5;y=(1-coords[1])*base.shape[0]-.5;ix,iy=math.floor(x),math.floor(y);fx,fy=x-ix,y-iy
+        return sum(base[(iy+j)%base.shape[0],(ix+i)%base.shape[1],:3]*wx*wy for i,wx in [(0,1-fx),(1,fx)] for j,wy in [(0,1-fy),(1,fy)])
     for ob in bpy.context.scene.objects:
         if ob.type!='MESH' or ob.get('asset_set')!='SUV':continue
         me=ob.data;me.calc_loop_triangles();matrix=ob.matrix_world;nm=matrix.to_3x3().inverted().transposed();uv=me.uv_layers['BakeUV'];role=me.attributes.get('skin_face_role')
@@ -32,6 +35,14 @@ def source(path):
             if ob.name=='Tire_FR':tile_area+=atlas
             elif not ob.name.startswith('Tire_'):unique_area+=atlas
             f=me.polygons[t.polygon_index]
+            material=me.materials[f.material_index].name
+            if material in ['X220 weathered molded cladding','X220 gloss black']:
+                coords=np.array([tuple(uv.data[i].uv) for i in t.loops])
+                for weights in [(.333333333,.333333333,.333333334),(.8,.1,.1),(.1,.8,.1),(.1,.1,.8)]:
+                    color=sample(np.array(weights)@coords);tested+=1
+                    red=material=='X220 weathered molded cladding' and color[0]>.18 and color[0]>1.8*color[1] and color[0]>1.8*color[2]
+                    bright=material=='X220 gloss black' and max(color)>.55
+                    if red or bright:contamination.append(dict(mesh=ob.name,triangle=t.index,material=material,rgb=color.tolist()))
             if not me.materials[f.material_index].get('vehicle_paint') or role and role.data[f.index].value!=0:continue
             points=[matrix@me.vertices[i].co for i in t.vertices];area=(points[1]-points[0]).cross(points[2]-points[0]).length*.5
             if area<=0 or atlas<=0:continue
@@ -39,7 +50,7 @@ def source(path):
         if rows:paint[ob.name]=dict(triangles=len(rows),surface_m2=wa,atlas_fraction=ua,density_px_m=percentiles(rows))
     atlas_summary=dict(unique_fraction=unique_area,shared_tire_fraction_counted_once=tile_area,total_occupied_fraction=unique_area+tile_area,
         painted_density_px_m=percentiles(paint_rows),density_percentile_weight='UV area',coverage_scope='Triangle UV areas; unique region non-overlap is gated independently by kit.verify, canonical tyre tile counted once')
-    return normals,paint,atlas_summary
+    return normals,paint,atlas_summary,dict(samples=tested,impossible_material_colors=contamination,scope='Bilinear raw atlas samples: saturated red cannot be molded cladding; bright white cannot be gloss-black substrate')
 
 
 def main():
@@ -50,15 +61,17 @@ def main():
     check(len(doc['materials'])==4,'Expected family Paint/Opaque/Glass/Lamps palette')
     check(len(doc['images'])==3 and len(doc['textures'])==3,'Atlas images or texture views duplicated')
     check(not any('COLOR_0' in p['attributes'] for m in doc['meshes'] for p in m['primitives']),'Data mask exported as albedo colors')
-    images=[]
+    images=[];base=None
     for i,row in enumerate(doc['images']):
         im=Image.open(io.BytesIO(g.image(i)));check(im.size==(2048,2048),'Wrong map size')
         images.append(dict(name=row.get('name'),bytes=len(g.image(i)),size=list(im.size),mode=im.mode))
+        if row.get('name')=='T_AlderX220_BaseColor':base=np.asarray(im,dtype=np.float32)/255
     mats={m['name'].split()[-1]:m for m in doc['materials']};paint=mats['Paint'];extras=paint['extras']
     check(set(json.loads(extras['paint_colors']))=={'Porcelain','Carbon','Graphite','Aluminum','Atlantic'},'Factory colors lost')
     check('KHR_materials_clearcoat' in paint.get('extensions',{}),'Clearcoat lost')
     check('KHR_materials_transmission' in mats['Glass'].get('extensions',{}),'Transmission lost')
-    normals,panels,atlas_summary=source(Path(a.finalized));tree=KDTree(len(normals))
+    normals,panels,atlas_summary,contamination=source(Path(a.finalized),base);tree=KDTree(len(normals))
+    check(not contamination['impossible_material_colors'],'Atlas contains another material on cladding or gloss-black fittings')
     for name,panel in panels.items():
         if panel['surface_m2']>.02:check(panel['density_px_m']['50']>=100,'Painted panel underallocated: '+name)
     for i,(pos,_) in enumerate(normals):tree.insert(pos,i)
@@ -94,7 +107,7 @@ def main():
     check(sum(delivered.values())==counts['triangles'],'Part budget changed')
     result=dict(passed=not errors,errors=errors,source_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),bytes=path.stat().st_size,
         triangles=sum(delivered.values()),triangles_by_exported_part=delivered,triangles_by_manufacturing_category=counts['categories'],images=images,materials=4,
-        actual_vertex_bounds_m=bounds.tolist(),atlas=atlas_summary,painted_panels=panels,painted_atlas_fraction=sum(r['atlas_fraction'] for r in panels.values()),normal_samples=len(angles),normal_angle_p50_p95_max_degrees=np.percentile(angles,[50,95,100]).tolist(),normal_position_error_m=max_distance,
+        actual_vertex_bounds_m=bounds.tolist(),atlas=atlas_summary,atlas_material_check=contamination,painted_panels=panels,painted_atlas_fraction=sum(r['atlas_fraction'] for r in panels.values()),normal_samples=len(angles),normal_angle_p50_p95_max_degrees=np.percentile(angles,[50,95,100]).tolist(),normal_position_error_m=max_distance,
         normal_disagreements=sorted(worst,key=lambda r:-r['angle_degrees'])[:40],support_drivers=drivers,support_rest_matrix_error=support_error,gpu_texture_mib_8bpp_with_mips=16,
         scope='Raw accessors, exact source normal field, measured painted-panel UV areas/density and re-imported support rest frames; clearance is independently sampled in source sweeps')
     Path(a.out).write_text(json.dumps(result,indent=2));print('X220_DELIVERY_CHECK',result['passed'],result['errors'],result['triangles'],result['normal_angle_p50_p95_max_degrees'])
