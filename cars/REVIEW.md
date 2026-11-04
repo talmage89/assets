@@ -1,3 +1,181 @@
+# X220 SUV — form round 3
+
+The accepted round-two source is `53f57a8`. `main` was merged at the start
+(already up to date). Its images and source snapshot were preserved before
+editing. Work stays in SUV modules and evidence; no kit/shared generator,
+sedan, hatchback or pickup source changed. Current evidence is
+`renders/suv-round3/`, with 34 source renders and a 52-view contact.
+
+## Round 3.1 — diagnose the damage before editing
+
+Color/value first: both makes' white studio backgrounds remain the neutral,
+with unit RGB gains. Clay linear value stays 0.36. Do not mistake a dark optical
+blank or different exposure for a panel dent. Opened round two's rear/front and
+raking images, the two makes' front/rear photographs, and five baseline
+mean-curvature views of both the actual game body and the independently rebuilt
+uncut parent. The broad dents were present before the projected cuts.
+
+The plate surround came from the explicit 22 mm `plate_sculpt` displacement.
+The hood's narrow 26 mm crown collided with the leading roll. The rear chart
+bunched and reversed quads where two projection centers blended, compounded by
+abrupt height-dependent plan exponents. The side's narrow die hollow continued
+around the bumper and produced repeated reflection teeth. Mirrors used an
+irregular polygon loft with QEM collapse, leaving visible planar fans.
+These are distinct causes; a normal reset is not a repair for any of them.
+
+Retained raw rays, normals, exclusions and geometric curvature. The new mean
+map uses actual game triangles, cotangent weights and mixed Voronoi area, with
+no smoothing or custom-normal substitution. Analytic plane, sphere and cylinder
+checks pass. Boundary vertices are gray, unmeasured parts dark, and all views
+use the same signed scale. The large number of skinny cut triangles produces
+local numerical noise; that is shown rather than filtered away. Both makes'
+photos have clean uninterrupted panel highlights, so a merely passing section
+test is insufficient evidence of fairness.
+
+## Round 3.2 — clean gate and plate recess
+
+Color/value first: compare the body highlight in both calibrated rear clay
+pairs against the white-background neutrals. Keep the pocket dark, but inspect
+its silhouette and lit return. Opened straight rear, rear three-quarter, both
+rear photo pairs in clay and stripes, the rear curvature/stripe pages, and the
+round-two/new rear comparisons.
+
+Removed the displaced plate surround. The gate is convex across; actual
+center-to-X600 setbacks are 24.4 / 28.5 / 45.6 mm at three heights. The cut pocket
+has a planar bed (49 ray hits, less than 0.001 mm departure from its fitted
+plane), sharp edges and its own return. The 320 × 170 mm nominal pocket has a
+323 × 176 mm actual cut including clearance. Actual lip depths vary 20.8–24.9 mm
+under the sloping convex mouth; the old guide-to-bed rays were 4 mm proud and
+are no longer described as physical depth. The panel turns in below the lamps,
+with a broad 1201 × 44 mm garnish and badge land above the pocket.
+
+The former broad soft dents around the pocket no longer appear in the clay.
+The rear map shows a broad coherent field around it, and vertical reflection
+bands sweep through the gate rather than breaking around the old displacement.
+Compared with Honda, the garnish and lower gate still read more generic and
+less decisively stamped. Toyota has stronger angular side shoulders around its
+plate; the X220 follows Honda's softer convex panel without copying the lamp
+signature. The garnish remains a little bar-like and the empty pocket increases
+the prototype impression. Small cut-border disturbances remain in the raw map.
+
+## Round 3.3 — rear corner and D-pillar
+
+Color/value first: neutral backdrop balance as above; inspect gradients, not
+photo paint brightness. Opened both makes' rear clay/stripe pairs, raking side,
+rear and side stripes in both directions, and the matching whole-mesh maps.
+The reference highlights sweep through each corner without a dent or repeated
+zigzag.
+
+Replaced the abrupt plan-power changes with broad smooth transitions; relaxed
+four-valent control spacing before subdivision and used one radial projection
+center. That alone was insufficient: the first trials still showed teeth below
+the rear arch. Ending the lower-door die field in the arch and fading the bumper
+crease before the corner removed the repeating ripple. Independent 95th-percentile
+game/parent normal mismatch at the rear bumper and D-pillar is now 0.36 / 0.54°,
+versus 2.67 / 2.86° before. The high source audit subsequently caught a tiny
+concealed lower-return fold; the control-spacing correction was extended there
+instead of exempting that object from topology checks.
+
+The broad quarter and bumper no longer read as pushed-in panels in either rear
+pair. Vertical bands are substantially more regular. Residual high-frequency
+noise remains around cut/stitch triangles in the unsmoothed game curvature map;
+it is not evidence of a perfect class-A surface. The broad rear pillar is still
+heavier than Honda's, and the regular window corners and bare lamp cavities look
+cheaper than either reference. The existing Honda D-pillar outline miss remains
+about 106 mm nearest-silhouette distance; this round did not refit the accepted
+package to that photograph.
+
+## Round 3.4 — shoulder, lower line and swells
+
+Color/value first: body albedo is unchanged. The low sun direction runs along
+the side, with neutral sky fill, to reveal normal turns rather than bleach the
+paint. Both makes' front and rear calibrated pairs show highlights continuing
+across the doors. Opened the side clay, relit raking view, both side band
+directions, actual ray profiles and whole-body curvature side view.
+
+The supported shoulder now turns **16.1–16.3° across 30 mm**, with a measured
+10–90% transition width of 30.5–31 mm. It runs continuously between the lamp
+ends and is a narrow red/orange strip in the geometric map. The lower crease
+turns **9.0–9.5° across 80 mm**, with a 37–43.5 mm 10–90% transition width; it
+rises from 561 to 587 mm. The fender swells remain **32.3 / 29.6 mm** beyond the
+door at Z900 mm. Both show as broad curvature changes around the wheel openings.
+
+The shoulder is now a visible continuous break in the raking image. The rising
+lower line and rear arch swell read clearly; the front swell is weaker in that
+single lighting direction and clearer in the three-quarter pairs. Toyota's
+lower stamping is more assertive and Honda's shoulder has a more confident,
+continuous highlight. The X220 door centers remain very plain without handles,
+and horizontal stripes still expose minor sampled waviness over the front arch.
+Do not call those remaining issues solved by the angle measurements.
+
+## Round 3.5 — hood and mirrors
+
+Color/value first: white-background neutral in both front reference pairs;
+compare highlight shape independently of the dark production mirror trim and
+headlamp reflectors. Opened the front, top, front three-quarter, both front
+pairs in clay/stripes, both hood reflection directions, and the mean maps.
+
+The narrow corner crown is broadened and reduced; the two raised draw banks
+fade before reaching the nose. The raised center drops **34 / 30 / 18 mm** to
+X600 at the three measured hood stations. The new bands show two continuous
+raised banks rather than folded corners. The front still has the accepted long
+lamps meeting the original grille surround. Compared with both makes, the
+remaining optical blanks and three broad grille blades look unfinished; the
+hood's A-foot transition also concentrates bands more than a production panel.
+The hood corner remains the weakest sampled region, with 95th-percentile
+normal mismatch to the fair parent of 3.48°.
+
+The mirror shells now have evenly distributed rounded sections and **1246
+triangles each**. Size, sail placement, 1135 mm bottom and 2117 mm overall width
+are unchanged. Their front silhouette and highlights are smooth, with crowned
+tops, rounded ends and planar rear glass. Honda's cap is softer than Toyota's;
+the X220 is now closer to that soft cap, but a little oval/bulbous, especially in
+front three-quarter. Its border and tiny sail still lack the assembled precision
+of either production mirror. The old large polygon facets are gone.
+
+## Round 3.6 — molded spoiler
+
+Color/value first: compare against both rear pairs after neutral background
+balance; Honda's black spoiler is judged by section and silhouette, not copied
+as a material treatment. Opened the rear, raking side, rear three-quarter, top,
+both rear pairs, stripes and geometric maps, plus round-two/new rear comparisons.
+
+Replaced the thin board with a closed molded section continuing the roof. Its
+main aft chord is **65–76 mm** thick, with **159–191 mm** downturned end returns.
+Twenty-nine root rays show 5.4–8.0 mm overlap into the roof seat. The underside
+turns forward into the gate and the third-lamp blank is integrated in its aft
+face. The spoiler group costs **1710 triangles** including the lamp.
+
+The side and rear pair now show depth and downturned ends instead of a plate
+standing on the roof. Honda is the closer construction reference; Toyota's
+trailing surface is flatter and its black end treatment more angular. The X220
+end caps remain somewhat abrupt where they meet the D-pillar, and the broad
+white bridge looks bulkier than Honda's dark assembly. The lower surface is a
+closed root plus an overhang, not a claim that the underside touches glass all
+along its length.
+
+## Round 3.7 — whole car, white clay
+
+Color/value first: unchanged linear clay value 0.36, deep black cavities and
+rolling highlights; hero foreground p99 remains about 231 / 219 with no clipped
+channels. The raking view is intentionally darker (median about 39, p99 199).
+These are source lighting measurements, not a claim about finished albedo.
+Opened both makes' four calibrated clay pairs, the corresponding stripe pairs,
+all original view modes, the old/new comparison sheets, overlays and five
+whole-mesh curvature/stripe pages.
+
+The accepted wrapped face, taller lamps, door mirrors, low rails and rear lip
+are retained. The gate no longer looks dented, the hood has visible draw banks,
+the shoulder is continuous, and the spoiler has a molded section. The remaining
+cheap/CG tells are the uneven untrimmed window boundaries, plain optical blanks,
+regular wheel proxies, sparse garnish construction and a few small cut-edge
+highlight disturbances. The raw curvature maps still show sampling noise at the
+end-corner triangulation; they do not justify a claim of perfectly fair surfaces.
+The side package still differs from Honda at the D-pillar and cowl. Keep this a
+form checkpoint and stop before interior/detail/bake work.
+
+---
+
 # X220 SUV — form round 2
 
 This round retains the accepted package and cameras from `74b40c4`. `main`
