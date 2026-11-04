@@ -169,10 +169,27 @@ def source_check(source):
     if support_dist and max(support_dist)>.18:errors.append('Unsupported downspout body')
     # Roof pitch measured from triangle normals, not the input coefficient.
     normals=[t.normal for ob in obs if ob.get('component')=='roof' and ob.get('block')=='Main' for t in ob.data.loop_triangles if t.normal.z>.2]
-    observed_pitch=max(abs(n.y/n.z) for n in normals)
-    if abs(observed_pitch-main.pitch)>1e-4:errors.append('Measured roof pitch mismatch')
+    raw_triangle_pitch=max(abs(n.y/n.z) for n in normals)
+    # UV chart cuts create extremely thin triangles. Their float32 cross
+    # products exaggerate sub-micrometer coordinate rounding into angle errors.
+    # Fit each actual roof surface in float64 over its full measured span;
+    # retain every top vertex and report both raw angle and plane residual.
+    import numpy as np
+    fits=[]
+    for sign in (-1,1):
+        points=[]
+        for ob in obs:
+            if ob.get('component')!='roof' or ob.get('block')!='Main':continue
+            for t in ob.data.loop_triangles:
+                if t.normal.z>.2 and t.normal.y*sign>0:points.extend(tuple(ob.matrix_world@ob.data.vertices[i].co) for i in t.vertices)
+        xyz=np.unique(np.array(points,dtype='float64'),axis=0)
+        design=np.c_[xyz[:,:2],np.ones(len(xyz))];coef=np.linalg.lstsq(design,xyz[:,2],rcond=None)[0]
+        residual=float(abs(design@coef-xyz[:,2]).max())
+        fits.append(dict(vertices=len(xyz),measured_pitch=float(abs(coef[1])),x_slope=float(coef[0]),plane_max_residual_m=residual))
+    observed_pitch=max(f['measured_pitch'] for f in fits)
+    if abs(observed_pitch-main.pitch)>1e-4 or max(f['plane_max_residual_m'] for f in fits)>1e-5:errors.append('Measured roof pitch mismatch')
     result=dict(passed=not errors,errors=errors,triangles=tri,tiny_triangles=tiny,roof_samples=samples,roof_missing=missing,roof_max_error_m=error,opening_probes=len(meta['openings'])*9,front_eave_m=eave,rake_m=rake,dormer_interior=cheek,dormer_skirt_contact_max_m=max(skirt_gaps) if skirt_gaps else 0,window_head_soffit_clearances_m=header_clearances,stoop_tread_tops_m=tops,stoop_risers_m=risers,downspout_support_max_m=max(support_dist) if support_dist else 0,measured_pitch=observed_pitch,scope='Actual source roof/holes/services/dormer interior; no bake, UV or delivery certification')
-    result.update(materials=material_count,foundation_exposure_m=concrete_top,foundation_to_floor_m=main.floor-concrete_top,siding_bottom_m=siding_bottom,foundation_opening_probes=vent_probes,threshold_to_stoop_m=main.floor-tops[0] if tops else None,landing_threshold_contact_error_m=threshold_gap)
+    result.update(raw_triangle_pitch_max=raw_triangle_pitch,roof_plane_fits=fits,materials=material_count,foundation_exposure_m=concrete_top,foundation_to_floor_m=main.floor-concrete_top,siding_bottom_m=siding_bottom,foundation_opening_probes=vent_probes,threshold_to_stoop_m=main.floor-tops[0] if tops else None,landing_threshold_contact_error_m=threshold_gap)
     source.with_suffix('.check.json').write_text(json.dumps(result,indent=2))
     if errors:raise AssertionError(str(source)+': '+'; '.join(errors))
     return result

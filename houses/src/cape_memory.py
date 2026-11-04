@@ -1,4 +1,4 @@
-"""Before/after allocation proposal; no new maps are published or baked."""
+"""Source-preview allocation audit; cape_delivery_check audits shipped maps."""
 import json
 from pathlib import Path
 from ranch_memory import check as family_memory

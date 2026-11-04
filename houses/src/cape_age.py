@@ -65,13 +65,20 @@ def add(meta):
                     v=depth+dy
                     return (x+dx,b.y0-v,o['z']+.004-(v-.013)*.016/.161+lift)
                 off=len(bare)
-                bare.extend([point(-w,0,.00015),point(-w*.8,d,.00015),point(w*.75,d*.8,.00015),point(w,.001,.00015)])
-                bare_faces.append((off,off+1,off+2,off+3))
-                off=len(vs);film=d*.40
-                for k,(v,lift) in enumerate(((0,.0002),(.3,.0003),(.65,.0008),(.90,.0015),(.82,.0019))):
-                    width=w*(.90+.10*math.sin(k*1.7+j))
-                    vs.extend([point(-width,v*film,lift),point(width*.85,v*film*.9,lift*.88)])
-                for k in range(4):fs.append((off+2*k,off+2*k+2,off+2*k+3,off+2*k+1))
+                # Ragged, grain-long losses, with broad splintered ends rather
+                # than identical knife-shaped trapezoids. Eight-vertex outlines
+                # are funded by curling only three of each nine paint losses.
+                outline=((-1,.14),(-.55,.02),(.12,.09),(.87,.03),(1,.68),(.48,.96),(-.20,.81),(-.86,.92))
+                bare.extend(point(w*xx,d*yy,.00015) for xx,yy in outline)
+                bare_faces.append(tuple(range(off,off+8)))
+                if j%3==0:
+                    off=len(vs);film=d*.40
+                    for k,(v,lift) in enumerate(((0,.0002),(.3,.0003),(.8,.0013),(.7,.0019))):
+                        width=w*(.90+.10*math.sin(k*1.7+j))
+                        vs.extend([point(-width,v*film,lift),point(-width*.05,v*film*.85,lift*.64),point(width*.85,v*film*.9,lift*.88)])
+                    for k in range(3):
+                        for col in range(2):
+                            a=off+3*k+col;fs.append((a,a+3,a+4,a+1))
                 off=len(checks)
                 check=min(d*1.15,.173-depth)
                 checks.extend([point(-w*1.12,check,.00008),point(-w*1.12,check+.00045,.00008),point(w*1.10,check+.00045,.00008),point(w*1.10,check,.00008)])

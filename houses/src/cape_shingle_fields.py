@@ -32,7 +32,9 @@ def shingle_tile(folder,size=512):
                 units.append(dict(kind=kind,row=r,u0_m=float(a),u1_m=float(b),width_m=float(b-a),exposure_m=exposure,butt_offset_m=butt,tone=tone,chroma=chroma.tolist(),split=split,cup_m=cup,nominal_height_m=.3048 if kind=='cement' else .4064))
                 for period in (-1.2192,0,1.2192):
                     aa,bb=a+period,b+period;select=(row==r)&(x>=aa)&(x<bb);key=np.minimum(x-aa,bb-x)
-                    grain=np.sin(x*2791+np.sin(z*38)*.7)+.5*np.sin(x*5731+z*27)
+                    # Resolvable 7–17 mm fibers/striations survive the 420 px/m ship filter.
+                    frequency=(370,860) if kind=='cedar' else (620,1120)
+                    grain=np.sin(x*frequency[0]+np.sin(z*38)*.7)+.5*np.sin(x*frequency[1]+z*27)
                     relief=(.007 if kind=='cedar' else .00437)*(1-v)-np.exp(-(key/.0024)**2)*.0025+grain*(.00021 if kind=='cedar' else .00060)
                     # The thin upper end is shaded by the next course's butt.
                     # Contrast belongs within every shingle, not in alternating
@@ -41,11 +43,11 @@ def shingle_tile(folder,size=512):
                     if kind=='cedar':
                         headlap=np.clip((v-.52)/.28,0,1);headlap=headlap*headlap*(3-2*headlap)
                         shade=1-.82*headlap-.48*np.exp(-(key/.0024)**2)
-                    else:shade=1-.68*np.exp(-(1-v)/shadow_span)-.48*np.exp(-(key/.0024)**2)
+                    else:shade=1-.68*np.exp(-(1-v)/shadow_span)-.85*np.exp(-(key/.0024)**2)
                     if kind=='cement':
                         # Face nails 20 mm above each butt, 25 mm from the ends.
                         nail=np.maximum(np.exp(-((x-(aa+.025))**2+(v*exposure-.020)**2)/.000006),np.exp(-((x-(bb-.025))**2+(v*exposure-.020)**2)/.000006))
-                        shade*=1-.40*nail;relief+=.0007*nail
+                        shade*=1-.72*nail;relief+=.0009*nail
                     else:
                         crack=np.exp(-((x-(aa+(bb-aa)*.38)-.0008*np.sin(z*84))/.0011)**2)*np.clip((.48-v)*5,0,1) if split else 0
                         shade*=1-.70*crack;relief-=.002*crack
