@@ -166,12 +166,18 @@ def roofs(b):
             a,c=map(Vector,pts);normal=Vector((*n,0));level=abs(a.z-c.z)<.005
             trim.prism([a+Vector((0,0,-.018)),c+Vector((0,0,-.018)),c+Vector((0,0,-.151)),a+Vector((0,0,-.151))],normal,.019)
             inner=[Vector((max(block.x0,min(block.x1,p.x)),max(block.y0,min(block.y1,p.y)),p.z-.14)) for p in (a,c)]
-            trim.prism([a+Vector((0,0,-.14)),c+Vector((0,0,-.14)),inner[1],inner[0]],(0,0,-1),.009)
+            soffit=[a+Vector((0,0,-.14)),c+Vector((0,0,-.14)),inner[1],inner[0]]
+            footprint_area=abs(sum(p.x*q.y-q.x*p.y for p,q in zip(soffit,soffit[1:]+soffit[:1])))/2
+            if b.plan['spec']['type']!='split' or footprint_area>1e-8:
+                trim.prism(soffit,(0,0,-1),.009)
             trim.beam(a+normal*.01+Vector((0,0,-.013)),c+normal*.01+Vector((0,0,-.013)),.014,.014,color=(.40,.41,.37),r=0)
             trim.beam(a+Vector((0,0,.003)),c+Vector((0,0,.003)),.024,.012,'Shingles',r=0)
             # Dormer eaves discharge onto the parent roof, with a drip edge;
             # pipes on the house/additions use the existing rounded K system.
-            if level and block.name in ('Main','Wing','Garage'):
+            # A high split-wing eave can discharge onto the lower living
+            # roof. No downspout may run through the occupied wing below.
+            shed_to_lower=(b.plan['spec']['type']=='split' and any(v is not block and v.contains((a.x+c.x)/2,(a.y+c.y)/2,.02) and v.height((a.x+c.x)/2,(a.y+c.y)/2)<min(a.z,c.z)-.2 for v in b.plan['blocks']))
+            if level and block.name in ('Main','Wing','Garage') and not shed_to_lower:
                 drain(b,gutters,a,c,n,block,index)
                 # Concealed steel hangers at 3 ft centers, fixed to the fascia.
                 axis=0 if abs(c.x-a.x)>abs(c.y-a.y) else 1
@@ -218,22 +224,27 @@ def roofs(b):
         me.finish()
     vents=b.mesh('Plumbing_RoofVents',component='roof_vent')
     # One boot beside, never through, the rear shed cheeks.
-    x=main.x0+.26;y=main.cy+.60;z=main.height(x,y)
+    x=main.x0+.26
+    if b.plan['spec']['type']=='split':
+        # Keep the living-roof boot out from under the tall adjoining eave
+        # and clear of an exterior chimney's apron.
+        x=main.x1-.75 if b.plan['spec']['kind']=='side' and b.plan['spec']['wing']['side']=='left' else main.x0+.75
+    y=main.cy+.60;z=main.height(x,y)
     vents.prism([(xx,yy,main.height(xx,yy)+.006) for xx,yy in [(x-.12,y-.18),(x+.12,y-.18),(x+.12,y+.18),(x-.12,y+.18)]],(0,0,-1),.005,color=(.10,.105,.095))
     vents.tube([(x,y,z),(x,y,z+.40)],.038,color=(.075,.078,.071),sides=10,closed=False);vents.finish()
 
 
-def landing(b,rear=False):
+def landing(b,rear=False,ground=0.0):
     m=b.plan['blocks'][0];s=b.plan['spec'];floor=m.floor;top=floor-.010
     opening=next(o for o in b.openings if o['kind']=='service') if rear else None
     x=m.x0+opening['u'] if rear else b.plan['door_x'];y=m.y1 if rear else m.y0;direction=1 if rear else -1
     me=b.mesh('Rear_Stoop' if rear else 'Porch_Concrete',component='rear_landing' if rear else 'porch_steps')
     width=1.45 if rear else 1.75;depth=1.02
-    me.box((x,y+direction*(depth/2+.025),top/2),(width,depth+.05,top),'Concrete',r=.004)
-    count=math.ceil(top/.19);riser=top/count
+    me.box((x,y+direction*(depth/2+.025),(top+ground)/2),(width,depth+.05,top-ground),'Concrete',r=.004)
+    count=math.ceil((top-ground)/.19);riser=(top-ground)/count
     for j in range(count-1):
         z=top-(j+1)*riser;yy=y+direction*(depth+(j+.5)*.28)
-        me.box((x,yy,z/2),(width-.18,.285,z),'Concrete',r=.003)
+        me.box((x,yy,(z+ground)/2),(width-.18,.285,z-ground),'Concrete',r=.003)
     me.finish()
     if not rear and s['hood']!='none':
         p=b.plan['porch'];me=b.mesh('Porch_Supports',component='porch_structure')
@@ -334,7 +345,7 @@ def chimney(b):
     shared_chimney(b);b.plan=original
 
 
-def service_mounts(b):
+def service_mounts(b,ground=0.0):
     m=b.plan['blocks'][0];xf,n,l=b.frame(m,'back')
     me=b.mesh('Cape_ServiceMounts',component='services')
     # Stand-off meter lugs bed into the wall; piping keeps its accepted route.
@@ -344,4 +355,6 @@ def service_mounts(b):
     x=m.x0+l*.64
     for xx,zz,rr in ((x-.45,.50,.04),(x-.36,.45,.023)):
         me.tube([(xx,m.y1+.012,zz),(xx,m.y1+.095,zz)],rr,color=(.23,.24,.20),sides=8)
-    me.finish()
+    ob=me.finish()
+    if ground:
+        for v in ob.data.vertices:v.co.z+=ground

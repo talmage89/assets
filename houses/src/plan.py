@@ -226,6 +226,9 @@ def merge(base, override):
 
 def generate(seed=27, overrides=None, house_type=None):
     selected=house_type or (overrides or {}).get("type", "builder_colonial")
+    if selected=="split":
+        from split_plan import generate as split_generate
+        return split_generate(seed,overrides)
     if selected=="cape":
         from cape_plan import generate as cape_generate
         return cape_generate(seed,overrides)
@@ -300,6 +303,9 @@ def wall_frame(block,face):
 
 
 def openings(plan):
+    if plan['spec']['type']=='split':
+        from split_plan import openings as split_openings
+        return split_openings(plan)
     if plan["spec"]["type"]=="cape":
         from cape_plan import openings as cape_openings
         return cape_openings(plan)
@@ -356,6 +362,9 @@ def openings(plan):
 
 
 def serialize(plan):
+    if plan['spec']['type']=='split':
+        from split_plan import serialize as split_serialize
+        return split_serialize(plan)
     if plan['spec']['type']=='cape':
         from cape_plan import serialize as cape_serialize
         return cape_serialize(plan)

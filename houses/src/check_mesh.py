@@ -35,6 +35,9 @@ def surface(objects):
 def source_check(source):
     bpy.ops.wm.open_mainfile(filepath=str(source.resolve()));bpy.context.view_layer.update()
     report=json.loads(source.with_suffix('.json').read_text())
+    if report['spec']['type']=='split':
+        from split_check import source_check as split_check
+        return split_check(source)
     if report['spec']['type']=='cape':
         from cape_check import source_check as cape_check
         return cape_check(source)
@@ -225,7 +228,7 @@ def delivery_check(source):
     source_points=sorted(tuple(ob.matrix_world@p.co) for ob in bpy.context.scene.objects if ob.type=='MESH' for p in ob.data.vertices)
     # Vertex splitting at UV/material seams changes multiplicity; compare sets.
     source_points=set(source_points)
-    source_pivots={o.name:tuple(o.matrix_world.translation) for o in bpy.context.scene.objects if o.name in ('FrontDoor','PatioDoor','ServiceDoor') or o.get('socket_kind')}
+    source_pivots={o.name:tuple(o.matrix_world.translation) for o in bpy.context.scene.objects if o.name in ('FrontDoor','PatioDoor','ServiceDoor') or o.get('socket_kind') or (expected['spec']['type']=='split' and o.get('motion_kind')=='sectional_track')}
     bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(path.resolve()));bpy.context.view_layer.update()
     imported=set(tuple(ob.matrix_world@p.co) for ob in bpy.context.scene.objects if ob.type=='MESH' for p in ob.data.vertices)
     # Compare actual float positions by nearest measured point distance,
@@ -239,6 +242,7 @@ def delivery_check(source):
     assert pivot_error<2e-5
     expected_meshes=3 if expected['spec']['type']=='ranch' and expected['spec']['garage']['kind']=='carport' else 4
     if expected['spec']['type']=='cape':expected_meshes=3
+    if expected['spec']['type']=='split':expected_meshes=7 if expected['spec']['garage']['kind'] in ('integral','attached') else 3
     assert len(doc.get('meshes',[]))==expected_meshes, 'Fixed shell plus moving leaves'
     return dict(passed=True,triangles=triangles,materials=len(materials),images=0,meshes=len(doc['meshes']),
                 primitives=sum(len(m['primitives']) for m in doc['meshes']),

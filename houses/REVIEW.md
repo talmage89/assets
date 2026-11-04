@@ -1737,3 +1737,621 @@ bake-loss comparisons. Five final Cape JPGs pass the current-source/map/camera p
 with the older ten docs unchanged. Whole-house mean absolute Y-prime bake
 loss is .0107 / .0168 (dormered / plain), with p95 .0429 / .0650 on the
 common opaque asset mask; ground/context pixels are excluded.
+
+
+---
+
+## Split-level form — pass 1: levels, foundation and first shared finishes
+
+Evidence: `renders/split/pass1/{hero,entry,eave}.png` and all twelve
+`renders/split/pass1/family/seeds/*/{front,rear}.png`, inspected together on
+`renders/split/pass1/family.jpg`, beside the Pennsylvania side-split photos,
+the western survey examples, the Connecticut July view and the Illinois
+July 1964 street. This is a new form checkpoint, before any split bake.
+
+**Color and value first.** The roof is below siding/trim value, the entry and
+soffits have deep shade, and the poured plinth is neutral gray rather than
+Cape's rejected tan. The red-brown brick retains a warm fired body; the buff
+variant is too regular. White paint is authored at .53/.51/.45 on the hero,
+not inferred from a JPEG. Quick common maps and source age are insufficient
+for a final sixty-year surface. Reject any claim that their cleanliness is
+accepted look-development. The reference whites have different white balances;
+use their actual sash/casing neutrals before quantitative hue comparisons.
+
+The living threshold, bedroom windows and lower garage/daylight windows give
+three genuinely staggered heights. The living foundation is exposed below its
+floor; it does not run siding nearly to grade. The integral garage needs a
+real descending drive, a level apron and retaining cheeks; a buried door on a
+flat lawn is unacceptable. The source includes all three. Two garage seeds,
+two attached garages, a posted carport and side parking provide different
+parking arrangements, not six garage recolors. The foyer is a single box with
+the entrance between floors, rather than a two-story colonial entry.
+
+Reject the first orthographic elevations: below-grade faces form a black
+strip because the horizontal camera sees under the ground surface. Tilt the
+orthographic rays slightly downward and cut the presentation ground at drives
+and window wells. This changes presentation, not floor heights. Keep the
+wide eaves and their boxed/vented undersides. The opening and cap profiles are
+real geometry, with half-sash shutters only on ordinary hung windows.
+
+## Split-level form — pass 2: roofs and working garage construction
+
+Evidence: every main view and twelve seed portraits in `renders/split/pass2/`,
+with entry, eave, veneer, rear, roof and side opened at full resolution.
+The same-scale four-type image is `pass2/comparison/types.png`.
+
+**Color and value first.** The refreshed ground hides the underground skins.
+Roof, trim and deep recesses remain separated; the hero does not wash out.
+The underside vent strip reads in the close-up. However the glass still has
+simple sky and room backings, brick remains regularly manufactured, and
+source age is too restrained at whole-house distance for final acceptance.
+Do not fix those shortcomings by raising albedo. The source's muted colors
+are deliberate variants of the photograph's red/green contemporary paint.
+
+Reject the black wedge behind the tall wing in the rear. Analytic roof union
+cut the living roof at the tall roof's projecting eave, leaving no roofing
+under that skirt. Use a split-only wall-footprint occlusion boundary, retain
+the living roof under the high eave, add roof/wall step flashing and probe the
+lower roof separately there. The original top-down maximum-height roof audit
+could not see that gap; extend it rather than exempting the location.
+
+A clipped hip soffit also collapsed a miter in float storage. Dissolve its
+sub-micrometer degenerate edges and redundant coincident caps before export;
+never remove arbitrary triangles from a roof. Raw source/export counts must
+agree after that correction. There is no change to any accepted type's path.
+
+The first sectional-door sweep fails: a 40 mm foundation band enters the
+bottom section, and the top panel enters the header. Lower the foundation
+edge below the sill and recess the common stamped sections 180 mm behind the
+frame. Solve each successive section's path from the preceding rigid chord,
+so joints remain connected around the bend. The corrected four-section
+mechanism clears every fixed solid and neighboring section over 41 samples,
+without allowed-contact exemptions. The separate front/rear leaf sweeps also
+pass. A serialized hinge alone would not prove any of this.
+
+## Split-level form — pass 3: calibrated photographic comparisons
+
+Evidence: `renders/split/matches-pass2/{split_side,split_foyer}-pair.jpg`, both
+opened against their native PDF photographs. White upper sash stile is the
+side neutral; white entry/screen-wall mullion is the foyer neutral. The
+linear RGB gains are 1.0142/.9861/1.0000 and 1.0061/.9970/.9970, preserving
+mean linear value and photographic exposure. ROIs and crop coordinates are
+in `build/split/reference-preparation.json`. These are assumed whites, not
+gray cards or inverse albedo measurements.
+
+**Color and value first.** The photo's stained red wood and green metal roof
+differ from our ochre boards and brown asphalt. Preserve that authored palette;
+this is a form pair, not a completed material-value match. Our paint faces are
+too smooth and the manufacture too regular. The foyer photo has richer window
+curtains/reflections and much denser vegetation. Those are future look limits,
+not proof that brighter paint would help.
+
+The side pair supports the low living roof / higher bedroom roof / lower
+recreation arrangement. The photo has three shorter bedroom units, an end
+carport and original screening; our seed has two windows, a shallow later bay
+and side parking. The roof is at the brief's 4:12–6:12 range; do not force it
+into the photograph's much shallower contemporary roof. The bay's faceted
+sashes, seat and knee brackets distinguish it from a pasted-on flat picture.
+The living stoop is taller than that photograph, within the authored floor
+range. Retain the exposed foundation and report the difference honestly.
+
+The split-entry door lands between the lower daylight windows and upper
+floor. Its small hood and attached side garage are different original choices
+from the photograph's large glazed stair facade. The basic level relationship
+reads, without pretending these are the same plan. Fits are approximate:
+27.57 px RMS at a 25 mm lower lens bound for the side pair, 23.40 px at
+56.43 mm for the foyer. The weak lens-bound side fit is explicitly a type
+comparison, not a recovered survey camera. Independent Blender projection is
+checked separately. The next refreshed gate must show the roof-skirt fix and
+all current sources, not these superseded renders.
+
+## Split-level form — pass 4: current form gate and construction closure
+
+Evidence: every current main view in `renders/split/checkpoint/`, all twelve
+seed front/rear images, `comparison/types.png`, `side-levels.jpg`, both
+refreshed photographs in `renders/split/matches/`, and the half/open garage
+views in `renders/split/motion/`. The contact, family and detail sheets were
+opened again after the final rebuild. Provenance checks bind 25 required
+Cycles views to their current source, metadata, maps and render recipe.
+
+**Color and value first.** The same neutral-balanced photographs from pass 3
+remain the comparison. Brick keeps its red/buff body, concrete stays neutral,
+and the hero has dark soffit, window and garage recesses without clipping the
+white trim. Display luminance percentiles are .125 / .509 / .715 / .722 at
+p1 / p50 / p95 / p99; clipped-white fraction is zero. These are image-tone
+observations, not inferred material albedos. The exposed painted faces and
+regular brick still look cleaner and more uniform than the used photographs.
+The low/shaded/drainage masks are a starting point: whole-frame age remains
+too weak. Do not call the source finish accepted or solve it with a noise wash.
+
+The five side-splits read from the street through living thresholds, lower
+openings or descending garages, and bedroom windows half a story higher.
+The foyer reads through its between-floor entry and low daylight windows.
+The annotated side view labels authored floor datums, not surveyed surfaces.
+The 4:12–6:12 masses, gable/hip combinations and parallel/perpendicular ridges
+produce distinct low/high eave lines; the same-scale Cape/ranch/colonial view
+confirms their type and scale. The three-quarter source remains more useful
+than the side photographic fit, which still reaches its lower lens bound.
+
+Wide boxed soffits, vent strips, friezes and rake hems survive the close-up.
+The lower roofing now reaches the higher wall beneath its skirt. Pixel-ray
+inspection of the remaining dark triangular junction hits roofing and step
+flashing: it is shadow, not the rejected opening. Independent lower-roof probes
+also pass. The plumbing vent was shifted clear of the adjoining eave and
+chimney apron; its actual tip is about .400 m above the highest roof surface
+below it on every proof seed.
+
+The veneer cap and upper cantilever/material break are visible construction,
+not paint stripes. Dogleg downpipes follow the recessed lower wall. Picture
+units and the faceted bay occupy the living frontage without picture-window
+shutters; ordinary shutters remain half-opening width. The double garage is
+deliberately dominant on 51, while a single garage, attached garages, carport
+and side parking vary that share across the family. The bay, taller entry
+stoops and window counts differ from the photographic houses and are original
+plan choices, not claimed matches. The carport remains open on posts, rather
+than closing its negative space into a breezeway box.
+
+Reject the first optional open-garage render's green strip: the review ground
+crossed the sunken room. Cut the ground back inside the garage and retain a
+simple concrete floor backing. The refreshed open view has a continuous
+floor/apron. Lower the overhead track 50 mm so the handles and actual panel
+bounds clear the authored ceiling plane by at least 15.3 mm. That last test
+is explicitly against a plan plane; the separate collision test uses actual
+tagged closed construction and neighboring sections. Neither claims complete
+interior construction or continuous collision proof between sampled poses.
+
+The final `make TYPE=split WIDTH=1440 SAMPLES=40` and standalone
+`make TYPE=split check` pass. Evidence includes 4,000 plans across four types,
+eleven split negative controls, six proof sources plus an authored override,
+24,195 actual roof rays and 936 opening rays on the six source seeds, raw
+GLB/import checks, repeat geometry/full GLB bytes and 506 sampled door/garage
+poses. Roof error is below .005 mm; import position and pivot error are zero.
+All eighteen pre-change raw GLBs/geometry digests match, and all 111 captured
+accepted delivery/map/docs files keep their bytes. The source-context fallback
+was also built and rendered without relying on previous deliveries.
+
+No shared map or kit file changes. Existing 39 maps remain an estimated
+48⅓ MiB with full mips under the documented block-compression assumption;
+planned split addition is zero. Six-material sources span 31,460–38,384
+triangles. Stop here: no split bake, final UV/density certification, exported
+baked-look comparison, delivered game package or committed portfolio image.
+The next gate must address visible age, repetitive manufacture and simple
+glass/room backings before calling this a finished sixty-year-old house.
+
+## Split source look development — pass 1: reject overstatement
+
+Evidence: `renders/split/lookdev/pass1/` hero, back, entry, eave, veneer,
+garage, tired-roof and drive close-ups, and all six front/rear portraits.
+These are source Cycles views; no split bake has run.
+
+**Color and value first.** Compared with the new Pennsylvania and Ohio used
+builder photographs, the veneers have become too similar, pink and chalky.
+The fieldstone is too bright and flat in the family sheet. Concrete is too
+blue under the current daylight and must be checked against the accepted
+Cape neutral recipe and an actual used-house patch. Reject these as calibrated
+finishes. Restrict efflorescence to broken runoff/base sites, reduce its
+coverage, and measure the complete body/mortar distribution before tuning.
+
+Roof aging is visible at full frame but is now exaggerated: dark stripes on
+sunny slopes read as a procedural overlay. Reduce granule-depletion amplitude,
+preserve the material's own granules and courses, and keep the deepest algae
+on shaded slopes. Do not replace the stripes with a whole-plane noise wash.
+The source has proper dark rooms and clearer glazing, but needs more varied
+visible curtain/blind response. The sunken drives have useful parked-car marks;
+their new control-joint and edge deposits need a closer value/scale comparison.
+
+The lower roof profiles and wider eaves improve the massing, especially 53.
+The foyer lower sashes now read as room windows. The first trial kept its accepted floor
+datums with a local grade at −.3048 m. Pass 2 replaces that trial with the
+smaller −.1524 m adjustment and a .1524 m sill clearance. This is a declared site adjustment,
+not an unreported change to accepted levels. The bay now has a folded hood,
+angled sashes and stepped masonry corbels following the used bay photograph.
+
+Four new camera fits are being evaluated. Corresponding facade corners fit
+under 10 native pixels, but held-out entry locations expose major plan
+differences in the first foyer candidates. Do not use a four-corner residual
+to imply a complete house match. Search for better centered-entry photographs,
+retain all diagnostics, and keep the accepted six plans rather than distorting
+their widths or landing heights to chase an image.
+
+
+## Split source look development — pass 2: scale and distributions
+
+Evidence: `renders/split/lookdev/pass2/` hero/back and eight close-ups, all
+six front/rear portraits; `values-pass4/` seventeen fixed surface pairs.
+
+**Color and value first.** Reject the pink appearance of 52 in direct sun
+even though its overcast redwood crop passes. Lower the coating's linear
+albedo and use a red-brown rather than mauve body. Brick 51 needs a warmer
+red/yellow balance; the Chicago mix lacks the photograph's near-black fired
+units. Perlin interpolation between brick IDs suppressed those extremes: use
+a deterministic independent kiln-tone assignment per brick. Retain neutral
+mortar. Buff 55 is still 13% low in its photographed shaded appearance.
+
+The fixed tests now include brick 56 and the drive balanced on sunlit
+unpainted concrete, assumed neutral gray; the cream soffit and shaded vehicle
+plate were rejected as unreliable whites. This assumption is disclosed: these
+are appearance comparisons, not inverse albedo measurements. All patches use
+first-hit material masks; none use displayed brightness to select pixels.
+
+The horizontal aluminum photo has wide courses. Model 53 with eight-inch
+exposure while preserving the same original shared map; halve its V scale and
+keep the trapped lip dirt at its physical width. Compare its blue appearance
+separately from the accepted Cape's white four-inch aluminum control. Match
+physical patch spans to the photographed course counts rather than enlarging
+a few clean brick faces. Stone still looks too like a smooth polygon diagram:
+retain its deep joints but increase fine relief on the actual rock faces.
+
+The roof no longer looks covered by black painted stripes. The driveway's
+parked-engine mark, tire paths and joint cracks read at full frame, but its
+calibration crop is too dark. Garage 51 needs a clearer replacement bottom
+section and aged upper sections, rather than uniformly white stamped panels.
+Its low road film remains localized to the seal. Glazing is clear in the hero,
+but the small measured room patch is almost uniformly black: investigate the
+reflection context without tinting the material or painting a reflection.
+
+Form: 53's 3.5:12 hip is lower and the 24-inch bearing eaves read convincingly.
+Foyer 55 uses grade −.1524 m, giving a four-foot lower-floor depth, six-inch
+sill clearance and full 36-inch sashes. Move stoops, condenser, meter mounts
+and splash blocks to that grade, and extend rail feet to actual tread tops.
+The bay's masonry corbels alone cannot support a cantilevered frame: add
+visible bolted steel wall plates and square-tube triangular knees beneath
+the seat, with a three-plane folded sheet hood and its wall flashing.
+
+Four true-type camera pairs fit corresponding facade features at
+8.46/6.51/3.63/9.29 native pixels. Do not hide their held-out differences.
+The first side pair's living width, the Ohio side pair's plan and the Ohio
+foyer's garage/window arrangement differ from our protected original plans.
+The Pennsylvania foyer's added gable also differs. Roof/eave recovery is
+limited by foliage, frontal angles and missing ridge views; report those
+limits instead of substituting authored numbers for photographic measurements.
+
+## Split source look development — pass 3: reject diagrammatic stone
+
+Evidence: first complete `lookdev/checkpoint` gate, including four clay/look
+pairs, all seed portraits, veneers/siding and bay/lower-window details.
+Historical copies of selected rejected views remain in `lookdev/pass3/`.
+
+**Color and value first.** Sixteen of seventeen fixed tests pass. The vertical
+red coating remains 15% low in its measured shaded median, with a 20% low
+upper tail: correct that test's disclosed exposure without lightening the
+actual street palette. The darker body coat prevents the first pale pink
+appearance; it follows the used redwood photograph, rather than inventing a
+pastel. The independent fired-unit assignment now gives 54 the required dark,
+brown and buff mix. Keep its calibrated mortar and body distribution.
+
+Reject the stone despite its passing median. At full frame it looks like a
+polygon diagram, and the close-up shows smooth slabs outlined by an even
+black line. Increase face cleavage and irregularity at actual rock scales,
+vary the individual stone tones, and break the straight joints. Keep the
+18 mm recess and original meter scale. Generate the periodic stone field
+before packing it into its guarded chart so the chart boundary does not
+introduce a manufactured seam. Keep the same two 512 maps and scalar ORM.
+
+The new bay has actual angled side lights, a folded hipped hood, seat and
+visible triangular bolted steel support. Its glass now shows room depth and
+hood/sky reflection. The lower foyer sashes are full windows above local
+soil, not slits. The original roof masses and all floor datums remain, with
+53's lowered broad roof and wider eaves. The photo pairs still show protected
+plan differences; the small camera fit errors do not erase them. Record
+those, including the PA foyer's different added cross-gable and the Ohio
+foyer's integral rather than attached parking.
+
+Weaknesses carried into the last pass: regular mortar/course manufacture,
+limited stone repeat, clean replacement trims and simplified curtain/room
+backings. Peeling is correctly at old wet sill noses but is weaker at street
+size than the driveway oil, bottom-seal dirt and roof algae. These images
+are source look-dev evidence, not proof of how fine wear survives a bake.
+
+
+## Split source look development — pass 4: actual surfaces over appearance
+
+Evidence: `stone-pass4b/`, `common-pass4/`, `values-pass8/` focused pairs,
+and the complete checkpoint's new `peeling.png`, hero, bay and foyer details.
+
+**Color and value first.** The focused stone, red board and common-brick
+rechecks pass the unchanged 10% median / 15% tail / 10% hue thresholds. The
+common brick now varies continuously between fired tones rather than switching
+three flat colors. Stone's measured physical scale is reduced to a 1.3716 m
+repeat with twenty stones; its calibration patch spans 1.70 m, corresponding
+to about 1.29 m in the central measured area. The photograph's apparent scale
+is estimated from a nominal nine-foot garage opening, not a measured home.
+The base color distribution is close, but reject the broad rounded bumps:
+they read as molded pillows. Replace them with shallow intersected cleavage
+planes and much smaller pores, within the same 512 color/normal pair.
+
+The independent surface audit also contradicts pass 3's visual assumption
+that every inherited paint loss sits correctly on its sill. The shared helper
+was placing wood losses on brick rowlocks and the bay's different seat. Some
+were buried beneath a flat supporting block and the storm-frame rail. Remove
+the incompatible sites, lower the supporting block 16 mm beneath the sloped
+weather surface, and give the helper that actual profile. Limit the retained
+losses to exposed outer wood noses. The revised close-up shows thin cupped
+film over grain-long gray wood, without floating slabs or scattered specks.
+Actual tests now measure all 600 retained vertices: maximum surface distance
+1.986 mm and minimum outward gap .079 mm; none float or lie buried. The
+Cape's default geometry, attributes, shader inputs/links and referenced fields
+remain exactly equal to the accepted version in the separate reuse witness.
+
+Do not promote the camera numbers into a whole-house fit claim. Native
+corresponding-feature RMS is 8.46 / 6.51 / 3.63 / 9.29 px; at 1100 px it is
+12.74 / 10.77 / 6.65 / 14.60 px. Held-out native differences remain
+60.51 / 41.10 / 12.51 / 44.22 px because protected living widths, parking,
+window locations and the added PA foyer gable differ. The foyers' main ridges
+and three physical soffit depths are not recovered by these frontal images.
+Only the Ohio side photograph yields a usable bearing-eave estimate,
+24.5 ±4 in. These are limits of the comparisons, not measurements to invent.
+
+
+## Split source look development — pass 5: checkpoint before bake
+
+Evidence: all 63 current Cycles views in `renders/split/lookdev/checkpoint/`,
+with current source, metadata, map, recipe and rendered-PNG hashes. All views
+were opened, including the complete front/rear, veneer, siding, clay/look and
+material sheets, the sill and bay, and the scale/type-comparison views.
+
+**Color and value first.** Seventeen fixed used-surface comparisons pass.
+Maximum absolute median error is 8.24%, p10/p90 tail error 14.84%
+and R/G or B/G ratio error 9.74%. The tired roof
+upper tail is the closest to its limit; preserve that result as a pre-bake
+measurement, not a guarantee of the next bake.
+
+The table reports encoded Rec.709 Y-prime medians and median-channel R:G:B,
+with G normalized to one. Photographic white balance preserves exposure;
+render lighting/exposure and physical patch spans are disclosed in the JSON.
+No rendered pixels are edited or selected by brightness. Source masks use
+independent first-hit triangle/material IDs. These are appearance comparisons,
+not inverse-rendered albedos. Aluminum white paint and glass are explicitly
+unchanged Cape controls; the split's wide blue lap and street/bay glazing are
+separate evidence. The blue photograph's substrate is unverified. The gray
+concrete neutral is an assumption, not a measured gray card.
+
+| Surface | Y source / photo | R:G:B source | R:G:B photo | Worst tail error | Photo neutral |
+| --- | --- | --- | --- | ---: | --- |
+| Red brick / 51 | 0.560 / 0.560 | 1.336:1:0.754 | 1.431:1:0.688 | 3.87% | white upper sash casing |
+| Red-brown brick / 53 | 0.338 / 0.317 | 1.346:1:0.802 | 1.451:1:0.781 | 2.92% | white living-window casing |
+| Common mix / 54 | 0.285 / 0.287 | 1.214:1:0.800 | 1.201:1:0.749 | 4.15% | white entry casing |
+| Buff brick / 55 | 0.681 / 0.742 | 1.140:1:0.849 | 1.209:1:0.784 | 11.33% | white upper sash casing |
+| Tan brick / 56 | 0.626 / 0.640 | 1.095:1:0.880 | 1.147:1:0.804 | 2.85% | unpainted sunlit concrete at the lower-left drive, assumed neutral gray |
+| Fieldstone / 52 | 0.365 / 0.373 | 1.154:1:0.791 | 1.102:1:0.846 | 3.53% | white upper window bottom casing |
+| Red wood battens / 52 | 0.248 / 0.253 | 2.118:1:1.020 | 2.101:1:1.096 | 7.41% | white upper sash stile |
+| Blue wide lap / 53 | 0.324 / 0.336 | 0.800:1:1.188 | 0.832:1:1.212 | 12.44% | white upper window casing |
+| Vinyl / 55 | 0.813 / 0.839 | 0.981:1:1.014 | 1.031:1:0.924 | 11.16% | white upper sash casing |
+| Steel garage / 51 | 0.745 / 0.715 | 0.974:1:1.010 | 1.001:1:1.046 | 13.90% | white upper window casing |
+| Tired charcoal / 51 | 0.174 / 0.181 | 0.911:1:1.089 | 0.986:1:1.166 | 14.84% | white living-window casing |
+| Drive / 51 | 0.770 / 0.839 | 0.949:1:1.040 | 1.009:1:0.980 | 9.73% | unpainted sunlit concrete at the lower-left drive, assumed neutral gray |
+| Wood lap / 51 | 0.651 / 0.630 | 0.964:1:1.018 | 1.031:1:0.969 | 1.48% | white-painted left door casing, in the same facade light |
+| White aluminum / Cape control | 0.884 / 0.939 | 0.987:1:1.009 | 0.966:1:0.988 | 12.60% | white-painted right corner board in front-wall daylight |
+| Concrete / 51 | 0.508 / 0.546 | 0.962:1:0.969 | 0.964:1:0.989 | 7.32% | white-painted window casing |
+| Trim / 51 | 0.599 / 0.649 | 0.955:1:1.013 | 1.000:1:1.000 | 11.11% | white-painted door casing, same neutral used for wall paint |
+| Glass / Cape control | 0.075 / 0.070 | 1.000:1:1.000 | 1.024:1:1.046 | 14.19% | white-painted door casing |
+
+The hero's asset-mask Y-prime p1/median/p99 is
+0.112/0.472/0.722, with 0% clipped-white pixels. Window
+rooms retain deep values, with sky/eave and modeled neighboring-crown
+reflections. The bay is clear rather than pale/frosted. Newer roof and vinyl
+parts remain cleaner; old garage seals, engine/tire zones, shaded lower
+roof/wall sites and water paths carry the strongest visible use. Fine sill
+peeling and fascia overflow remain weaker at street size than oil/algae.
+
+Stone now uses shallow intersected fracture planes, smaller pores and broken
+edges; its joint scale and cap differ from modular brick. It still has a
+detectable repeated cell vocabulary. Mortar and shingle manufacture are too
+regular at close range, and interior backings/curtain folds remain simplified.
+These are the clearest remaining CG tells. The causal fields preserve each
+material's body color; no additional whole-wall chalk/noise wash was added.
+
+Form remains the accepted six-house grammar. The taller lower foyer sashes,
+reduced 53 roof, wide cornices, rowlock boundaries and supported shallow bay
+read correctly. Their photo-pair limits are recorded in pass 4 and
+`REFERENCE.md`; the unchanged original plans do not globally fit four
+different real houses within ten pixels. Three soffit depths and both foyer
+main pitches remain unmeasured because the necessary geometry is hidden.
+
+`make TYPE=split WIDTH=1440 SAMPLES=40` and `make TYPE=split check` pass.
+Proof comprises 4,000 plans, fourteen split negative controls, six source
+seeds plus an authored override, 24,171 roof rays and 936 opening rays,
+506 sampled door/garage poses, actual ground/rail/paint contact, raw GLB
+import and repeat bytes. All eighteen previous construction payloads and all
+111 protected existing files retain their bytes. The separate Cape-36 default
+age/profile/surface witness matches exact geometry, every mesh attribute,
+shader inputs/links and referenced field bytes. No kit files changed.
+
+Source triangle counts for 51–56 are 34,036 / 32,926 / 33,228 / 33,756 /
+33,064 / 37,242; every house uses six materials. Raw construction GLBs are
+2.62–3.23 MB and are serialization proofs, not textured deliveries. Existing
+39 shared maps remain 48⅓ MiB. The only planned addition is the 512 color/
+normal fieldstone pair with packed brick coping: ⅔ MiB, hence a planned
+49 MiB family allocation under BC7/BC5 plus full mips. Scalar roughness/metal
+avoids an ORM map. No canonical shared map changed.
+
+Stop here. No split bake, final UV/density or deep-mip certification,
+textured-game export, exported-look comparison or portfolio image is claimed.
+Thin film and the stone/coping chart must be judged after the eventual bake;
+source Cycles does not prove their game-distance stability. No tools or kit
+features are needed from the lead for this checkpoint.
+
+## Split delivery — pass 1: reject aliased factory color
+
+Color and value first. The first exported brick crops fail despite mostly
+close medians: red 51 loses red chroma, and 54 loses the common brick's near
+black fired units (p10 error +88.8%, p90 −23.2%). The stone median is 5.2%
+low and passes. These are actual imported glTF patches with unchanged fixed
+cameras, exposure and material-ID masks in `renders/split/delivery-pass1/`.
+The fitted source measurements cannot stand in for export measurements.
+
+The first hero, cap and peeling views were opened. Form, low garage and
+wide soffits survive, but fine factory color has become broad vertex patches;
+the drive's parked-car stains are also lost between coarse samples. Reject
+this transfer. Put kiln variation into guarded texture regions within the
+same planned pair, leave the older shared maps immutable, and add physical
+samples at driveway and drainage wear sites. The thin sill film survives its
+close-up, but needs stronger wet wood contrast at street size. Keep its actual
+surface contact rather than enlarging flakes into floating geometry.
+
+## Split delivery — pass 2: preserve manufacture without excess seams
+
+Color and value first. Opened all seventeen exported material pairs and the
+hero/eave/drive/sill sheet. Factory palettes in the first guarded two-axis
+atlas restore distinct brick colors; sixteen rows improve, but common brick
+still loses its dark tail. The blue lap's p10 and roof's p90 also miss. Reject
+promoting these images on the strength of their medians. Restore the common
+mix's fired spread and compensate the measured lap/roof filtering loss.
+
+Two-axis atlas seams and indiscriminate wear cuts also exceed 45k. Replace
+square brick regions by full-width color bands, retaining the existing Cape
+brick normal at full density through standard texture transforms. Stone's
+full-density normal is retained; its color occupies the lower half of the
+same planned 512 pair. No older shared pixel changes and no added allocation.
+Remove only redundant coplanar color samples within a stated residual bound.
+The regular factory repeat remains an honest limitation.
+
+The opened drive is too clean and its control-joint cracks disappear. Add
+samples at the actual joint lips, retain the parked engine/tire sites and
+restore their attenuated contrast. The sill's measured film stays attached;
+darken its already exposed wet wood, and strengthen runoff only at real low
+gutter outlets. These should be judged in the next whole-house and street
+views, not asserted from the close-up. A source-to-game surface audit found a
+4.6 mm folded-return change: freeze original tessellation before planar cuts.
+A fresh six-seed surface audit must prove that repair.
+
+## Split delivery — pass 3: retain the field, audit precision and placement
+
+Color and value first. Sixteen fixed exported surface rows now pass. Opened
+the full material sheet and roof-control contact. Red brick's lost chroma is
+corrected in manufacture; the blue lap and common mix retain their colors.
+The roof still misses its low tail by about two tenths of a percent. Do not
+round that into a pass or change the accepted camera/EV. Uniform gain controls
+show plateaus from dark normalized vertex colors and eight-bit display pixels;
+they cannot restore the lost spread. Retain a bounded fraction of the source's
+actual granule-loss field, and use the available COLOR_0 range by moving a
+common uniform factor into the stock material. The latter must preserve the
+physical color and be checked in the actual glTF, with no added map or material.
+
+All six surface comparisons now measure less than 2 micrometers difference.
+The earlier folded-return losses came from changing a nonplanar ngon's
+triangulation: preserve its original tessellation before cuts, and retain those
+folds through chart conversion. Actual moving-leaf and sectional sweeps pass;
+serialization checks separately preserve pivots and sockets. All six exports
+are below 45k. The three earlier types pass their checks; only exporter labels
+and original-form file hashes drifted on rebuilding. Every other JSON value,
+BIN, image and old docs byte matched, and accepted canonical files were restored.
+
+The CPU-only street framing preview was opened to judge composition, not
+materials. Four delivered seeds recede down a native ground-family street;
+closest projected width is 35%, eye height 1.68 m over the actual sidewalk.
+Add real exported curb cuts and tapered aprons, retaining the sunken drives'
+open ground slots. This avoids an uninterrupted curb across driveways. Its
+pavement dominates the foreground and the sky remains broad; the final Cycles
+view must judge whether this reads as a street photograph. The fine sill losses
+remain smaller than the roof and parking wear at this distance. Keep their
+contact and localized water causes while strengthening their wet-wood contrast.
+
+## Split delivery — pass 4: current export, full-frame wear and street rejection
+
+Color and value first. All seventeen actual exported material rows pass with
+the same source cameras, light and EV. Maximum median error is 8.24%, maximum
+p10/p90 error 14.84%, and maximum hue-ratio error 9.74%. The roof's final fix
+retains uniform .925 roughness, within .005 of the accepted .93 source, rather
+than silently using the different shared ORM roughness. Its original shared
+ORM bytes remain available for AO. The dark-color material/vertex factor
+preserves physical color and improves quantization without another texture.
+
+Opened the current hero, driveway, all required main views and the new street.
+The living/bedroom/lower levels, sunken garage, driveway and complete ground
+shadow read. Engine/tire zones and control-joint lips now survive at full
+frame, although their finest cracks and oil breakup remain softer than the
+source. Low gutter-end contrast and wet sill wood are stronger at their actual
+causes; fine peeling still reads mainly in the close-up. Do not invent large
+floating flakes to make subpixel film conspicuous. The white siding keeps its
+body value, the garage replacement section remains distinct, and window rooms
+remain dark with glass/eave reflections.
+
+Reject the street's blue horizon: finite lawn ends expose the procedural sky's
+lower hemisphere like water. Extend only the distant presentation lawn with
+the already imported ground material. The native cut curbs, aprons, sidewalks,
+road and open sunken-drive slots remain. The scene still has too much empty
+background around four houses; add untouched back-lot maple/pin-oak instances
+to break the line while retaining the front silhouettes. This changes only
+presentation. Actual camera height is 1.68 m over the sidewalk and nearest
+projected width is 35%. Re-render and inspect the final street before docs.
+
+Fresh complete publication repeats all eighteen split glTF/BIN/metadata files
+byte-for-byte. All 111 accepted older files also retain their bytes. Independent
+whole-house source/export losses on common opaque asset pixels are .01347 /
+.00965 / .00590 / .00583 mean absolute Y′ for the two sides and two foyers;
+maximum per-view p95 is .04596. These statistics include filtering and coarse
+weather interpolation; they do not certify a photographic look or full interiors.
+
+## Split delivery — pass 5: inspect and retain the shipped set
+
+Color and value first. Opened the final hero at full size, all six front/rear
+portraits, all eleven veneer/siding close-ups, the entry/eave/cap/garage/bay
+and wet-sill sheet, scale and both lifted garage poses, Eevee, all seventeen
+material pairs and source/export pairs, all four whole-house photo pairs and
+their source/export comparisons. All seventeen fixed material rows pass.
+The hero's actual asset-mask Y′ p1/median/p99 is .10814/.46987/.72189, with
+zero clipped-white pixels. The white siding stays below the highlights'
+shoulder and the garage/room cavities stay dark. No pale material wash is
+used to hide the softened fine color.
+
+Opened the revised street at full size: the false water horizon is gone, and
+additional exported mature maple/oak crowns break the back-lot line without
+covering the stepped fronts. Four different exported houses, including the
+foyer, recede behind the nearest side-split; native ground curbs, cut aprons,
+sidewalks and road connect the drives. The pickup and shrubs remain untouched
+exports. Measured eye height is 1.68 m over the sidewalk and nearest-house
+width is 35% of the frame. The spare empty far lots, straight horizon, wide
+pavement and repeated tree vocabulary still make this a procedural scene.
+This is the presentation's weakest image, not proof of photoreal landscaping.
+
+The roof's macro use, parked engine/tire sites and old garage bottom seals
+read at full frame. Gutter-end runoff and wet wood are stronger only at their
+existing physical causes. Fine peeling remains mainly a close-up effect; it
+is subpixel in the street. Regular mortar, very orderly shingles, softened
+stone color and simple dark room/curtain backings remain visible CG tells.
+Do not misreport statistical agreement as the absence of those weaknesses.
+The accepted six plans, levels, roofs and material families are retained.
+
+The final complete make passes, including 47 current export views, seventeen
+passing exported/photo material pairs, independent source/export masks and
+measured tone. Fresh publication of all six seeds repeats all eighteen
+glTF/BIN/metadata payloads exactly. Every seed uses six materials and
+40,998–44,223 triangles; the whole family remains 49 MiB. Existing accepted
+files are all byte-identical. Only these five final split JPGs enter docs;
+no earlier-type image is replaced. No kit file changed.
+
+## Split delivery — street framing correction
+
+Color and value first. The accepted house/map colors, sun and sky are unchanged.
+Opened the final street beside the registered real split-level street photograph
+in `refs/split-midwest-summer.jpg`, using `renders/split/street/photo-pair.jpg`.
+The 1964 photograph is monochrome and elevated: it informs roof/eave shadow,
+setback and row rhythm, not hue, pedestrian camera calibration or an exposure
+match. The exported image retains dark roof/cavity values and bright trim. Its
+full-image Y′ p1/median/p99 is .01010/.54771/.86305; three clipped-white pixels
+are .000305% of the image. The separate accepted hero-mask tonal check is
+unchanged and passes.
+
+The lead rejected the previous street as a horizon band. Its reported 35%
+width included the driveway and did not measure the visible house. Retire that
+framing claim from passes 4–5. The new fixed 35 mm full-frame camera stands on
+the houses' own Sidewalk_A, at (-20, -7, 1.594948) m, measured 1.60 m above its
+actual surface. It aims at (80, 11, 8) m with a 36 mm sensor; a 2.6:1 vertical
+crop leaves the road at the right and the lawn in a low foreground band.
+
+Opened the new full-size render and compressed docs JPG. The nearest side-split
+occupies the left 34.3% of the frame in visible architecture, with the living
+wing continuing beyond the left edge. Three other seeds recede behind it; the
+foyer, carport, pickup and native curb/apron connections remain visible. Raw
+unclipped building bounds and frame-clipped bounds are recorded separately,
+with concrete driveway/retaining faces excluded. This is an intentional crop,
+not a claim that the complete nearest house fits inside one third. No house,
+context placement, mesh, map, material, sun or sky changed. The far horizon,
+regular paving/lawn and repeated tree vocabulary remain procedural.
+
+The new `docs/split-street.jpg` is 1600 × 615 and 141,670 bytes. It replaces the
+previous image in the original portfolio commit, so only one street JPG blob
+remains in this branch's history. All other accepted docs, delivered split
+files and shared maps retain their bytes. All four types' make checks and
+the repository/privacy checks pass again for this correction. No kit changes.

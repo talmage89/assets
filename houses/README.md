@@ -2,6 +2,7 @@
 
 The family delivers a builder colonial, a [postwar ranch](#second-type-postwar-ranch)
 and a [postwar Cape Cod](#third-type-postwar-cape-cod).
+The fourth type is the [postwar split-level](#fourth-type-split-level).
 The colonial remains the default generator and the subject of the first images below.
 
 An original family of maintained, roughly twenty-year-old American builder
@@ -811,3 +812,314 @@ The UV charts and small fittings are intended for normal player distances.
 No full interiors, arbitrary footprints or engineering certification are
 claimed. Fonts are system open-license faces; references remain inspection
 only. Credits and rights are in [refs/SOURCES.md](refs/SOURCES.md).
+
+
+---
+
+## Fourth type: split-level
+
+Five original side-splits and one split-entry / raised ranch, representing
+1955–1975 construction with later windows, siding and roofs. The six seeds
+ship as stock glTF/BIN pairs with the family’s shared baked maps.
+All accepted colonial, ranch and Cape files retain their canonical bytes.
+
+![Side-split 51 / exported maps in Cycles](docs/split-hero.jpg)
+
+![Front, side, rear and top](docs/split-turnaround.jpg)
+
+![Entry, eave, veneer cap, garage, bay and wet sill](docs/split-details.jpg)
+
+![The six seeds, front and rear](docs/split-family.jpg)
+
+![Four exported split-levels on the library street](docs/split-street.jpg)
+
+`generate(seed, overrides=None, house_type='split')`, CLI `--type split`,
+or JSON `{"type":"split"}` selects the new type. Its local RNG never consumes
+choices in the accepted generators. `kind` selects `side` or `foyer`; bounded
+nested controls select living/bedroom wing dimensions, wing side/projection,
+gable/hip roof, independent eave/rake, ridge direction, garage/carport/parking,
+front cantilever, material mix, restrained palette, picture/bay, sash system,
+shutters, chimney, entry hood and roof age. Five out of each six default
+variants are side-splits. Examples are in `src/split_plan.py`.
+
+### Dimensions and level construction
+
+These are authored meter dimensions informed by the cited period construction
+and photographic proportions, not surveys of the reference homes. Every
+side-split has an 8 ft clear ceiling and an 8–12 in floor zone in its two-story
+wing; its living floor lies halfway between the two floors. The proof split
+entry has a low landing between the lower and upper floors. Actual short
+flights are reserved and modeled in the shallow entry backing; they are not a
+full playable interior. [REFERENCE.md](REFERENCE.md) distinguishes the period
+authorities, dimensional choices and approximate photo-camera fits.
+
+| Seed / form | Living box, ft | Bedroom box, ft | Lower / entry-living / upper floor, m | Roof pitch | Source triangles |
+| --- | --- | --- | --- | --- | ---: |
+| 51 / side, right wing | 28 × 30 | 24 × 28 | −.6096 / .7620 / 2.1336 | 5:12 | 34,036 |
+| 52 / side, left wing | 30 × 26 | 22 × 26 | −.8890 / .4572 / 1.8034 | 4:12 | 32,926 |
+| 53 / side, right wing | 28 × 28 | 24 × 30 | −.8636 / .4572 / 1.7780 | 3.5:12 | 33,228 |
+| 54 / side, left wing | 28 × 28 | 22 × 28 | −.6096 / .7620 / 2.1336 | 4:12 | 33,756 |
+| 55 / split foyer | 46 × 28 single box | Same box | −1.3716 / .1524 / 1.3208 | 3.5:12 | 33,064 |
+| 56 / side, right wing | 26 × 28 | 22 × 26 | −.5588 / .7620 / 2.0828 | 4:12 | 37,242 |
+
+Counts include the original drive, retaining cheeks where needed, services,
+shallow entry/stairs and all moving sections. Every source uses six materials
+at most. They remain within the accepted 31.5–38.4k range;
+spare triangles remain available for later delivery UV charts and macro wear.
+No geometry is added simply to reach the preferred range. Garage leaves
+retain a simple floor backing, with the review ground cut behind their sunken
+aprons. Panel bounds are also checked against the authored ceiling plane.
+
+The living / bedroom bearing eaves are respectively 3.4544 / 4.8260 m on
+51/54; 3.1496 / 4.4958 on 52; 3.1496 / 4.4704 on 53; and 3.4544 / 4.7752 on
+56. Seed 55's main eave is 4.0132 m, against its attached garage's 2.7940 m.
+Eaves and gable rakes have independent 12–24 / 6–18 in bounds. Boxed soffits,
+vent strips, friezes, gutters, hems and roof/wall step flashing reuse the
+family's construction. The lower roof continues under the higher eave to
+its wall, rather than leaving a gap under the skirt.
+
+Brick on the living front / lower floor, upper lap or vertical painted battens,
+and the all-brick-wall seed have visible cap/material breaks. Cantilevered
+fronts close their undersides, and their downspouts dogleg back to the lower
+wall. Picture units have a fixed light and flanking sashes; the 16 in shallow
+bay uses three glazed facets, a 45 mm seat, bolted square-tube steel knees,
+stepped brick corbels and a three-plane folded sheet hood with wall flashing. Ordinary shutters are
+half their associated opening width. The source retains period wood/storm,
+aluminum/bronze and replacement vinyl systems, plus horizontal sliders.
+
+Seeds 51/54 have integral two/one-car garages, 53/55 attached one-car garages,
+52 a posted two-car carport, and 56 side parking. Every seed has a driveway;
+sunken integral garages have descending concrete drives, level aprons and
+retaining cheeks. Rear doors, stoops, condenser, slack lines, meters, bibs,
+dryer hood, splash blocks and lower window wells remain. These are exterior
+shells; hidden engineering, full interiors and arbitrary plans are outside
+the grammar.
+
+### Shared materials and motion
+
+Cape-calibrated wood, aluminum, vinyl, modular brick, neutral concrete, trim
+and clear glass are reused. Seed 52 introduces original procedural fieldstone;
+51/53/54/55/56 have distinct red, red-brown, mottled common, buff and tan brick
+bodies with neutral mortar. Eight-inch aluminum courses on 53 use the existing
+map at half V scale. Replacement vinyl has J receivers and hollow corner
+posts; older painted battens reuse the trim finish and vertical grain.
+
+The family now has **41 canonical PNGs / 49 MiB** under BC7 color/ORM,
+BC5 normal and full mip chains. The sole addition is the planned **512²
+BaseColor/Normal pair, ⅔ MiB**. Its color map holds stone and five full-width
+kiln-color bands; the normal retains the full accepted stone/coping field.
+Brick normals reuse the unchanged Cape normal through ordinary
+`KHR_texture_transform`. Factory color stays in texels while macro weather
+uses RGBA8 `COLOR_0`; sparse vertex sampling would lose the common brick's
+fired-unit spread. Scalar roughness .91 / metallic 0 avoids another image.
+The other 39 shared maps remain byte-identical. Color bands have eight-pixel
+periodic vertical guards; the stone color’s half-size guards are three pixels.
+The latter and the atlas's mixed deep mips remain a distant-LOD limitation.
+
+Source aging follows real sill corners, gutter endpoints, shaded low walls,
+raised stoop contact, base splash, engine drip zones, wheel paths and joint
+cracks. Tired/new roofs differ in shaded algae, lower-course moss and exposed
+granule loss. Garage 51 has a replacement bottom section; 54 has a low dent.
+The original Cape clear-glass response is retained, with deeper dark rooms
+and curtains/blinds at varied heights. Seventeen fixed used-surface comparisons
+report white-balance neutrals, medians, p10/p90 and R:G:B ratios in
+`renders/split/final-values/values.json`. They measure rendered
+appearance under disclosed lighting, not inverse albedo. White aluminum and
+glass are explicitly retained Cape controls; blue wide-course aluminum is
+measured on split 53 separately. The blue photograph's substrate is unverified.
+
+Foyer 55 retains all three accepted floor datums. Its local review grade is
+−.1524 m, leaving the lower floor four feet below ground and its full 36-inch
+sashes six inches above it. Upper floor is 4.83 ft above that local ground.
+Stoops, services and splash blocks follow the grade; rail feet touch actual
+tread surfaces. Other seeds retain grade zero.
+
+`FrontDoor` and `ServiceDoor` retain physical hinge origins and Blender +Z
+ranges 0–105° / −100–0°. The sectional door consists of `GaragePanel1` through
+`GaragePanel4`, numbered bottom to top, each with its origin at its top hinge.
+Each section rotates about Blender +X from 0 to −90° during lift.
+`split_motion.pose(progress)` demonstrates the 0–1 vertical / 200 mm quarter-
+circle / overhead path. Each successive section follows the preceding rigid
+chord; a game should implement that controller from the stored track/section
+metadata. There is no armature or delivered animation clip. All four sections
+clear the frame and each other at 41 sampled poses without exemptions.
+
+The usual `Socket_FrontThreshold`, `Socket_Walk`, `Socket_Driveway` and optional
+`Socket_GarageApron` are emitted per plan. Units are meters, +Z up, −Y street
+front. The grade origin centers the permanent wall/stoop footprint; driveway,
+eaves and rear attachments extend beyond it, as in the existing family.
+Seed 55 keeps the accepted local datums; placement must account for the
+−.1524 m grade declared by its walk/drive sockets.
+
+### Rebuild and delivery evidence
+
+From `houses/`:
+
+```sh
+make TYPE=split WIDTH=1600 SAMPLES=48  # bake, exports, checks and final portfolio views
+make TYPE=split export               # clean scripted asset build, no photographs needed
+make TYPE=split split-checkpoint     # retained source look review
+make TYPE=split check                # delivered surfaces, motion, UVs, import, old-type bytes
+make TYPE=split model SEEDS=51,52,53,54,55,56
+blender -b --factory-startup --python-exit-code 1 --python src/build.py -- \
+  --type split --seed 57 --out build/split/custom.blend
+# Optional --plan build/my-split.json uses the same bounded nested controls.
+```
+
+Poppler `pdftoppm` is used only to prepare local inspection-photo crops from
+the registered PDF. All Cycles invocations use the kit GPU lock. No downloaded
+code, models, materials, texture assets or lighting are used.
+
+Every final view imports `export/HearthfieldSplit-<seed>.gltf` and resolves
+its relative `textures/` images. `renders/split/final/contact.jpg` collects the
+hero, turnaround, entry/soffit/cap/garage/bay details, 1.8 m scale, sectional
+door poses, six-seed portraits, Eevee and street evidence. Full material pairs
+and source/export loss are in `renders/split/final-values/`; four fitted
+house/photo pairs and source/export comparisons are in
+`renders/split/final-matches/`. The street imports Ground, RedMaple, PinOak,
+Shrubs and AlderC150 from their own exports, for presentation only. No context
+mesh, image, camera or lighting is exported with a house.
+
+Five listing-photo URLs carried private-home listing identifiers. Their source
+cells now state that the URL is not recorded; this branch's own commits since
+its base were rewritten to erase them too. Hash-only image URLs remain.
+`src/split_privacy.py` checks both branch patches and every historical source
+table. The four camera comparisons require the local inspection-photo cache:
+these five identifying URLs cannot be fetched on a fresh clone. Geometry,
+manufacture, maps and exports rebuild without photographs; the public agency
+and other nonidentifying reference URLs remain downloadable. No photograph
+is committed or read by a geometry/material generator.
+
+Four new photographs show common builder side-splits in Pennsylvania/Ohio
+and true between-floor split foyers in both regions. Their corresponding-
+feature camera errors are 8.46 / 6.51 / 3.63 / 9.29 native pixels. Held-out
+plan differences are separately reported (60.51 / 41.10 / 12.51 / 44.22 px);
+these are original houses, not replicas. Side-roof estimates are 3.64:12 and
+5.39:12. Ohio's visible bearing eave estimates 24.5 ±4 in; the other frontal
+views do not independently recover eave depth. Foyer main ridges are hidden;
+the Pennsylvania added cross-gable estimates 5.45–6.88:12 and differs from
+our protected plain-roof plan. See [REFERENCE.md](REFERENCE.md) for scope.
+
+`build/split/checks.json` separates actual surface probes, raw GLB/import
+checks and sampled motion. Roof heights, unblocked openings, threshold/landing
+and driveway/apron contact are tested on built meshes. The lower roof under
+the tall skirt has independent probes. Every retained paint-loss vertex is
+checked against actual window/storm surfaces: wood losses exclude masonry
+rowlocks and the bay, and remain on the exposed sloping noses.
+The four-type plan sweep covers 1,000
+seeds each and rejects fourteen additional split negative controls. An authored
+left-wing / flat-hood / no-garage override and complete repeat GLB bytes are
+also checked. These tests prove specific geometry/serialization properties;
+they do not prove the look, structural engineering or future bake fidelity.
+
+The pre-change fixture `src/split_baseline.json` captures all eighteen accepted
+construction GLBs in the current Blender version. The regression compares
+those raw bytes and geometry digests without normalizing exporter labels;
+all eighteen match. All 111 captured existing delivery/maps/docs files also
+retain their SHA256 bytes. The shared code changes are split-only dispatch,
+optional slider/fixed glazing, roof discharge/soffit handling, stepped-wall
+pipe routing, masonry extent and audit support. No `kit/` file changes.
+
+Four form critiques and subsequent material/form passes in
+[REVIEW.md](REVIEW.md) record the rejected roof stripes, pale/pink finishes,
+wrong foyer candidates, unsupported rail foot and flat calibration patches.
+Remaining weaknesses include regular mortar/manufacture, polygonal stone
+repetition, simplified room backings, unmatched reference plan features and
+softened fine color after filtering. Full interiors and hidden engineering
+remain outside this exterior grammar. Delivery measurements follow below.
+
+### Delivered budgets and measured appearance
+
+The six delivered seeds retain six materials. Geometry bytes below are glTF
+plus BIN, excluding the shared images and optional per-seed JSON metadata.
+
+| Seed | Triangles | Materials | glTF + BIN bytes |
+| --- | ---: | ---: | ---: |
+| 51 | 42,005 | 6 | 3,822,197 |
+| 52 | 41,975 | 6 | 3,903,204 |
+| 53 | 41,702 | 6 | 3,819,551 |
+| 54 | 43,577 | 6 | 4,028,881 |
+| 55 | 40,998 | 6 | 3,739,482 |
+| 56 | 44,223 | 6 | 4,242,677 |
+
+All seventeen fixed-ROI exported/photo comparisons pass: medians within 10%,
+both tails within 15%, and R/G and B/G within 10%. Values are encoded Rec.709
+Y′ under the unchanged disclosed light, camera and EV, not recovered albedo.
+
+| Surface | Y′ export / photo | R:1:B export / photo | p10 / p90 error |
+| --- | --- | --- | --- |
+| Red brick / 51 | 0.575 / 0.560 | 1.331:1:0.748 / 1.431:1:0.688 | -3.1% / -3.2% |
+| Red-brown brick / 53 | 0.338 / 0.317 | 1.370:1:0.778 / 1.451:1:0.781 | -0.7% / -11.2% |
+| Common mix / 54 | 0.303 / 0.287 | 1.145:1:0.763 / 1.201:1:0.749 | +10.7% / -4.3% |
+| Buff brick / 55 | 0.682 / 0.742 | 1.140:1:0.854 / 1.209:1:0.784 | +10.3% / -5.9% |
+| Tan brick / 56 | 0.622 / 0.640 | 1.089:1:0.873 / 1.147:1:0.804 | -3.1% / -4.4% |
+| Fieldstone / 52 | 0.354 / 0.373 | 1.146:1:0.787 / 1.102:1:0.846 | -2.3% / -7.3% |
+| Red battens / 52 | 0.250 / 0.253 | 2.058:1:1.038 / 2.101:1:1.096 | +5.1% / -6.6% |
+| Blue wide lap / 53 | 0.348 / 0.336 | 0.813:1:1.198 / 0.832:1:1.212 | -13.5% / +3.3% |
+| Vinyl / 55 | 0.813 / 0.839 | 0.981:1:1.014 / 1.031:1:0.924 | -11.3% / -6.2% |
+| Steel garage / 51 | 0.745 / 0.715 | 0.969:1:1.010 / 1.001:1:1.046 | +13.6% / -13.0% |
+| Tired charcoal / 51 | 0.175 / 0.181 | 0.933:1:1.111 / 0.986:1:1.166 | +14.6% / -14.8% |
+| Drive / 51 | 0.770 / 0.839 | 0.949:1:1.040 / 1.009:1:0.980 | +9.7% / -9.7% |
+| Wood lap / 51 | 0.651 / 0.630 | 0.964:1:1.018 / 1.031:1:0.969 | -1.8% / -1.4% |
+| White aluminum / Cape control | 0.884 / 0.939 | 0.987:1:1.009 / 0.966:1:0.988 | +10.3% / -8.3% |
+| Concrete / 51 | 0.509 / 0.546 | 0.962:1:0.969 / 0.964:1:0.989 | +4.4% / -8.1% |
+| Painted trim / 51 | 0.596 / 0.649 | 0.961:1:1.020 / 1.000:1:1.000 | +9.6% / -11.1% |
+| Glass / Cape control | 0.075 / 0.070 | 1.000:1:1.000 / 1.024:1:1.046 | -14.7% / -11.4% |
+
+Assumed neutrals are the white sash, entry or living-window casing for the
+brick, stone, siding, garage and roof comparisons. Tan brick and the driveway
+use sunlit unpainted concrete, assumed neutral gray. Reused Cape controls use
+white door/window casing or a white corner board. The registered native boxes
+and linear RGB gains preserve photographic exposure; the photographs are not
+calibrated reflectance measurements. The white aluminum and glass controls
+remain explicit older-type witnesses; blue eight-inch lap is measured on 53.
+
+The roof retains a stock uniform roughness of .925, within .005 of the source.
+A common material factor lets its dark RGBA8 vertex colors use more of their
+available range while retaining the physical color. No additional image or
+material is needed. Source/export pairs separately disclose fine-granule
+filtering, weather interpolation and stone color softening.
+
+The source-to-export material median changes by at most .02410 Y′. On common
+opaque house silhouettes, the four fitted views have mean absolute Y′ loss
+.01347 / .00965 / .00590 / .00583; their largest p95 loss is .04596. These are
+appearance-loss measurements under identical lighting, distinct from the
+photo-fit and physical-surface checks. The hero's asset-mask p1 / median /
+p99 are .10814 / .46987 / .72189, with no clipped-white pixels.
+
+`make TYPE=split` and `make TYPE=split check` pass. Separate
+`make TYPE=builder_colonial check`, `make TYPE=ranch check` and
+`make TYPE=cape check` pass. The split audit includes 506 door/sectional
+poses, source/game surfaces within 2 micrometers, glTF import, pivots/sockets,
+UV/density/normals, scalar material responses and actual shared-image identity
+across four types. Fresh publication repeats all eighteen split glTF/BIN/JSON
+files byte-for-byte. The forty-one PNGs occupy 23,174,235 disk bytes; the new
+color/normal pair occupies 221,226 / 369,512 bytes. Their compressed GPU
+allocation with full mip chains remains 49 MiB for the entire family.
+
+`build/split/delivery/check.json`, `repeat.json`, `preserved.json`,
+`privacy.json`, `bake-loss.json`, `whole-house-loss.json` and `view-check.json`
+record those results. The latter verifies 47 current exported views and all
+shared-map hashes. The street's eye is measured 1.60 m over the houses' own
+sidewalk, using a fixed 35 mm lens on a 36 mm sensor and a 2.6:1 vertical crop.
+The nearest visible architecture occupies 34.3% of the frame width; its living
+wing continues beyond the left edge. This is a frame-clipped building
+measurement, excluding the driveway, rather than a whole-site bound.
+
+The handoff preservation audit compares 111 exact accepted files: 57 geometry
+and metadata files, 39 maps and 15 existing docs images. Old-type checks under
+a newer Blender exporter initially changed only generator/provenance fields;
+`older-rebuild-audit.json` records those differences, and all accepted bytes
+were restored. The rebuild checks distinguish that provenance change from
+mesh/image change. A cold clone with no generated old deliveries builds the
+three earlier types first and explicitly captures a fresh preservation
+baseline; exporter patch versions can change provenance bytes. Existing
+accepted deliveries always use the committed handoff hashes. An incomplete
+existing delivery is reported rather than silently overwritten.
+
+The five final `split-*.jpg` files are each at most 1600 pixels wide and
+200,000 bytes. Existing docs stay byte-identical. Five exported critique
+passes and a street-framing correction in [REVIEW.md](REVIEW.md) disclose the
+regular brick/shingle manufacture, softened stone color, simple room
+backings, peeling that still reads chiefly in close-up, and a spare procedural street
+landscape. No kit changes or additional tools are required.

@@ -1,0 +1,128 @@
+[
+  {
+    "type": "builder_colonial",
+    "seed": 27,
+    "triangles": 47750,
+    "geometry_sha256": "2a28b67eb84ff06a3fec8690d030fff734a1a9f1bb2bfb0e626e5046d91b514a",
+    "glb_sha256": "63e730462047e661272ced40d70eb63857d66692ec04e1390a35be100fc6c282"
+  },
+  {
+    "type": "builder_colonial",
+    "seed": 2,
+    "triangles": 48618,
+    "geometry_sha256": "bc4be2cf156284dc18ccfa7dd42987dce2d89e9a78d7e6aaed36e95fd55bd377",
+    "glb_sha256": "f54a020a6e56bd8b8228a4a9369e5a27b266d46291b8b9f00a69a4817e2efd23"
+  },
+  {
+    "type": "builder_colonial",
+    "seed": 3,
+    "triangles": 47010,
+    "geometry_sha256": "90d29b37150ca9ac88c110ff56f81ce92a589289ac31abcc714be5c7303e66bd",
+    "glb_sha256": "ea561b367e7b579086cc23d2e68e130c0e8a4745a965047020045b39e2125d60"
+  },
+  {
+    "type": "builder_colonial",
+    "seed": 6,
+    "triangles": 49218,
+    "geometry_sha256": "e44b5ac064826264bd297a5abfe1650e1e78b3b5f3502a145ca492dd2b06fab8",
+    "glb_sha256": "a623c76acfbcb0672fb0134559a589f2c837d660f2dd523e8c76178025b54cbf"
+  },
+  {
+    "type": "builder_colonial",
+    "seed": 8,
+    "triangles": 48090,
+    "geometry_sha256": "ffa7b9553e8baa878bca06f913495e916f0ad1342607f0c7e075b95d37096cb8",
+    "glb_sha256": "e34415eb981c1511f69eb1d85a1c7176361f128c68ce3e1736c2129be143e1fd"
+  },
+  {
+    "type": "builder_colonial",
+    "seed": 14,
+    "triangles": 48898,
+    "geometry_sha256": "59c147589eaeba450917936576fb7e54347aa5b29070b407e1ec830b2d09a583",
+    "glb_sha256": "1cc5939fdfc5cd12ebfbc8374e797db03b6f48ac66d25ecfd19d231332be5d96"
+  },
+  {
+    "type": "ranch",
+    "seed": 11,
+    "triangles": 39030,
+    "geometry_sha256": "ec6a9bda988652236659c9e23949a57a9899883bdc39208ac139b3e7e2e9c78e",
+    "glb_sha256": "7be4f1cef5666370d1a978da44d661539f21bc74b0e9c13ecb5f92a6aab6d9fd"
+  },
+  {
+    "type": "ranch",
+    "seed": 12,
+    "triangles": 25594,
+    "geometry_sha256": "fee6a67d26405efe7f1ec272c50c6e1a02af4f08fb38985243edb4b1f73680f8",
+    "glb_sha256": "bc0711d54c2f1b6df737d06bb63128ad6295e6613f7df250e07c0af75de70f6e"
+  },
+  {
+    "type": "ranch",
+    "seed": 13,
+    "triangles": 36322,
+    "geometry_sha256": "29b6bbc034122e22e00a34ebeaba9de75326d75dbf998d9da1872c0bf73006b5",
+    "glb_sha256": "b8b09045e7a102abbe1feb11329947aa4abe06e3e6da81595864a7756e4c3c59"
+  },
+  {
+    "type": "ranch",
+    "seed": 14,
+    "triangles": 23390,
+    "geometry_sha256": "92cdd16a47294342e7672b42c09614b6c4e092161614e8d7dc5e3f0facd25977",
+    "glb_sha256": "aad8e3594127ac913bc14b7b1646f880a1ff27566aed5af538f3703b58282d7a"
+  },
+  {
+    "type": "ranch",
+    "seed": 15,
+    "triangles": 28642,
+    "geometry_sha256": "7289f42a0888966ab0cc03fb30928579bf8c688e9b1063fd12f887e517aefffb",
+    "glb_sha256": "8bbab0238bb6f149cee1610ac17d82b4a3bcbc4227ddfb39fdf70d249066f4ac"
+  },
+  {
+    "type": "ranch",
+    "seed": 16,
+    "triangles": 29294,
+    "geometry_sha256": "f379de4c852c0dad2223450de2b2fd82cf628932cdecd8d4977ddb55cb3bffa1",
+    "glb_sha256": "77de28cf5c4fbd18275cb9897a617e006eaf82fa0f68564900c716240dc6b787"
+  },
+  {
+    "type": "cape",
+    "seed": 31,
+    "triangles": 29320,
+    "geometry_sha256": "ac137306e4e3ef74c1cb2ee00e02383f7d41a18b71e6d00a67a01ed0bcc42bed",
+    "glb_sha256": "95800419d3728778c4b9af8f07dfe809a5d37ec0bdcfb1058dfaaad7f3a3a2e1"
+  },
+  {
+    "type": "cape",
+    "seed": 32,
+    "triangles": 34832,
+    "geometry_sha256": "1a4432527201571d40f268fc3a1741809d2e940949cdd99c613499e1ae9f5390",
+    "glb_sha256": "2f07fb00c18d8febefc0f3da89155de889a704e5e321c4af889685d00e30d231"
+  },
+  {
+    "type": "cape",
+    "seed": 33,
+    "triangles": 30338,
+    "geometry_sha256": "0c88728ab8c02d9bb486b77139a3dc6bb7ac2f54892adee1934a6a812fa54258",
+    "glb_sha256": "e3edff0035dd4c03a7b9af44b7ef031e058d8164ddf65ca4caee6ac0e8e059ae"
+  },
+  {
+    "type": "cape",
+    "seed": 34,
+    "triangles": 24080,
+    "geometry_sha256": "693380d91a01fbcdfd4ac7614d66f28f2f74074195e0c48e54d4063ef3127f2d",
+    "glb_sha256": "71ff0b6fea12a736986f8243c4640627bedc277840c6931ce61b6eb3cd007a5f"
+  },
+  {
+    "type": "cape",
+    "seed": 35,
+    "triangles": 31912,
+    "geometry_sha256": "14d681911adc83103184782cc3603afb9d4fb635724720a4e17371f51d384be6",
+    "glb_sha256": "8d0a5088ccc96a6a3b49b9e19d433d26b0a249d5b7139dcb95f8373ac5292946"
+  },
+  {
+    "type": "cape",
+    "seed": 36,
+    "triangles": 25938,
+    "geometry_sha256": "3b6b296e07f58efba394c44129b0e4ed6f1da85d5d98e71c1c95fe276d1b2d18",
+    "glb_sha256": "514c23c949f41178a40e56e43917643fb8752b142faf9e3fb2eefe3bdcda682e"
+  }
+]

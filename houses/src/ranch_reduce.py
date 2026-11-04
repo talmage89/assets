@@ -9,7 +9,7 @@ import numpy as np
 from mathutils import Vector
 
 
-def reduce(ob,meta,tolerance=.035,passes=12,include_front=False):
+def reduce(ob,meta,tolerance=.035,passes=12,include_front=False,wall_min_z=None):
  comp=ob.get('component')
  if comp not in ('roof','eave_rake_soffit','ridge') and not (comp=='wall' and (include_front or ob.get('face') in ('back','left','right'))):return None
  me=ob.data;me.calc_loop_triangles();before=len(me.loop_triangles)
@@ -41,7 +41,8 @@ def reduce(ob,meta,tolerance=.035,passes=12,include_front=False):
    if not fs:continue
    n=fs[0].normal
    if any(len(f.verts)!=3 or f.normal.dot(n)<.999999 or f.material_index!=fs[0].material_index for f in fs):continue
-   if comp=='wall' and ((ob.matrix_world@v.co).z<meta['blocks'][0]['floor']+.60 or max(abs(n.x),abs(n.y))<.9):continue
+   protected=meta['blocks'][0]['floor']+.60 if wall_min_z is None else wall_min_z
+   if comp=='wall' and ((ob.matrix_world@v.co).z<protected or max(abs(n.x),abs(n.y))<.9):continue
    ring={w for f in fs for w in f.verts if w!=v}
    if len(ring)<2 or len(ring)>12:continue
    if v.is_boundary:

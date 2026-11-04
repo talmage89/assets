@@ -58,7 +58,7 @@ def weld_uv_slivers(ob):
     me.normals_split_custom_set([v.vector.normalized() for v in me.attributes['_CleanupNormals'].data]);me.attributes.remove(me.attributes['_CleanupNormals']);me.color_attributes.active_color=me.color_attributes['Tint'];return count
 
 
-def bake_weather(objects):
+def bake_weather(objects,fine_mix=0):
     sc=bpy.context.scene;sc.render.engine='CYCLES';sc.cycles.samples=1;gpu.enable()
     sc.render.bake.target='VERTEX_COLORS'
     used={m for o in objects for m in o.data.materials}
@@ -74,7 +74,12 @@ def bake_weather(objects):
             channel=nt.nodes.get('OUT_'+name)
             if channel:
                 constant=nt.nodes.new('ShaderNodeValue');constant.outputs[0].default_value=value
-                for link in list(channel.outputs[0].links):nt.links.new(constant.outputs[0],link.to_socket)
+                links=list(channel.outputs[0].links)
+                replacement=constant.outputs[0]
+                if name=='fine_noise' and fine_mix:
+                    mix=nt.nodes.new('ShaderNodeMath');mix.operation='MULTIPLY_ADD'
+                    nt.links.new(channel.outputs[0],mix.inputs[0]);mix.inputs[1].default_value=fine_mix;mix.inputs[2].default_value=value*(1-fine_mix);replacement=mix.outputs[0]
+                for link in links:nt.links.new(replacement,link.to_socket)
         output=next(n for n in nt.nodes if n.type=='OUTPUT_MATERIAL')
         emit=nt.nodes.new('ShaderNodeEmission');emit.inputs['Strength'].default_value=1
         channel=nt.nodes.get('OUT_base')
