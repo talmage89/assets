@@ -21,7 +21,7 @@ SOURCE_MATERIAL_SURFACES.update({
  'S240 windshield':'Glass','S240 front door glass':'Glass','S240 rear door glass':'Glass','S240 backlight':'Glass',
  'S240 lettered tire L':'Opaque','S240 lettered tire R':'Opaque','S240 tire L':'Opaque','S240 tire R':'Opaque',
 })
-UV_DEFAULT_PRIORITY=.50
+UV_DEFAULT_PRIORITY=.32
 UV_PRIORITY={'Door ':1.5,'Hood outer':1.5,'Front fender':1.4,'Rear quarter':1.4,'Front molded fascia':1.5,'Rear molded fascia':1.3,
  'Roof':1.2,'Trunk':1.4,'Headlamp':1.8,'Taillamp':1.8,'S240 optical':1.0,'S240 low ':1.7,'S240 high ':1.7,'S240 upper light':1.8,'S240 lower light':1.8,
  'Tire_':1.2,'Cast spoke':1.4,'Wheel center':1.5,'Wheel barrel':1.0,'S240 original':2.0,
@@ -52,7 +52,7 @@ for _sign in [-1,1]:
         BAKE_POLICY['moving_roots'] += ['S240 '+_row+' light guide '+_lamp for _row in ['upper','lower']]
 
 # Convex packing prevents concave-packer sliver collisions between thin skins.
-UV_SMART_ANGLE=5
+UV_SMART_ANGLE=45
 UV_PACK_SHAPE='CONVEX'
 UV_NORMALIZE_ISLAND_SCALE=True
 
@@ -71,3 +71,6 @@ UV_PRIORITY['Alder center cap']=3.0
 UV_PRIORITY['Tire_']=1.6
 
 UV_PRIORITY['Plate blank']=3.0
+
+
+UV_PRIORITY.update({"Greenhouse":1.4,"Low wide grille":2.2,"Tire_":1.6})

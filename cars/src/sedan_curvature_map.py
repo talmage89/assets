@@ -44,10 +44,14 @@ def mean_curvature(points,triangles):
 def selected_triangles(ob,parent=False):
     ob.data.calc_loop_triangles();result=[]
     normal_matrix=ob.matrix_world.to_3x3().inverted().transposed()
-    all_faces=parent or ob.name.startswith(('Mirror housing','Liftgate spoiler'))
+    all_faces=parent or ob.name.startswith(('Mirror housing','Liftgate spoiler','Tire_'))
     for tri in ob.data.loop_triangles:
         f=ob.data.polygons[tri.polygon_index];c=ob.matrix_world@f.center
         if not all_faces:
+            outer=ob.get('lens_outer_faces')
+            if outer is not None and not ob.data.attributes.get('sheet_role'):
+                if f.index<int(outer):result.append(tuple(tri.vertices))
+                continue
             role=ob.data.attributes.get('sheet_role')
             if role is not None:
                 if role.data[f.index].value!=0:continue

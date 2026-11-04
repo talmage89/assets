@@ -16,7 +16,7 @@ def diagnostic_sheet(folder):
     folder=Path(folder)
     from kit.fonts import find_font
     font=ImageFont.truetype(find_font('Noto Sans','Regular'),20)
-    for name in ['front_three_quarter','rear_three_quarter','side','front','rear']:
+    for name in ['front_three_quarter','rear_three_quarter','side','front','rear','face','wheel']:
         images=[R.rgb(folder/(name+'-'+mode+'.png')) for mode in ['curvature','horizontal','vertical']]
         w=1200;h=round(w*images[0].height/images[0].width)
         canvas=Image.new('RGB',(w*3,h+70),(235,237,233));draw=ImageDraw.Draw(canvas)

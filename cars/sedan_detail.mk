@@ -45,6 +45,12 @@ build/sedan/aperture-game.json: build/sedan/detail-game.blend src/sedan_aperture
 build/sedan/aperture-high.json: build/sedan/detail-high.blend src/sedan_aperture_check.py
 	$(BP) --python src/sedan_aperture_check.py -- --source $< --out $@
 check-detail: build/sedan/aperture-game.json build/sedan/aperture-high.json
+build/sedan/surface-source.json: build/sedan/detail-game.blend src/sedan_surface_check.py src/sedan_surface_proof.py
+	$(BP) --python src/sedan_surface_check.py -- --source $< --out $@
+build/sedan/surface-delivery.json: export/AlderS240.glb build/sedan/finalized.blend src/sedan_surface_check.py src/sedan_surface_proof.py
+	$(BP) --python src/sedan_surface_check.py -- --source build/sedan/finalized.blend --glb export/AlderS240.glb --out $@
+check-detail: build/sedan/surface-source.json
+check: build/sedan/surface-delivery.json
 build/sedan/motion-game.json: build/sedan/detail-game.blend $(SEDAN_CONFIG)
 	$(BP) --python $(KIT)/motion.py -- --source $< --config $(SEDAN_CONFIG) --out $@
 build/sedan/motion-high.json: build/sedan/detail-high.blend $(SEDAN_CONFIG)
@@ -67,11 +73,11 @@ textures/sedan/bake/bake-report.json $(addprefix textures/sedan/bake/T_AlderS240
 	$(BP) --python src/sedan_bake_merge.py -- --low build/sedan/finalized.blend --game build/sedan/detail-game.blend --material textures/sedan/material-bake --geometry textures/sedan/geometry-bake --projection build/sedan/projection-check.json --out textures/sedan/bake
 textures/sedan/ship/texture-report.json $(addprefix textures/sedan/ship/T_AlderS240_,$(addsuffix .png,BaseColor Normal ORM)) &: textures/sedan/bake/bake-report.json $(KIT)/downsample.py
 	$(PYTHON) $(KIT)/downsample.py --source textures/sedan/bake --out textures/sedan/ship --asset AlderS240 --size 2048 --alpha-mode independent
-export/AlderS240.glb build/sedan/export-report.json &: build/sedan/finalized.blend textures/sedan/ship/texture-report.json $(SEDAN_CONFIG) $(KIT)/export.py
-	$(BP) --python $(KIT)/export.py -- --source build/sedan/finalized.blend --textures textures/sedan/ship --asset AlderS240 --out export/AlderS240.glb --config $(SEDAN_CONFIG) --report build/sedan/export-report.json
+export/AlderS240.glb build/sedan/export-report.json &: build/sedan/finalized.blend textures/sedan/ship/texture-report.json $(SEDAN_CONFIG) $(KIT)/export.py src/sedan_export.py
+	$(BP) --python src/sedan_export.py -- --source build/sedan/finalized.blend --textures textures/sedan/ship --asset AlderS240 --out export/AlderS240.glb --config $(SEDAN_CONFIG) --report build/sedan/export-report.json
 build/sedan/delivery-check.json: export/AlderS240.glb build/sedan/export-report.json $(SEDAN_CONFIG) $(KIT)/verify.py
 	$(BP) --python $(KIT)/verify.py -- --source export/AlderS240.glb --expected build/sedan/export-report.json --config $(SEDAN_CONFIG) --out $@ --size 2048
-sedan-export: export/AlderS240.glb build/sedan/delivery-check.json
+sedan-export: export/AlderS240.glb build/sedan/delivery-check.json build/sedan/surface-delivery.json
 
 build/sedan/used-cameras.json: src/sedan_used_matches.py $(KIT)/photo_match.py
 	$(PYTHON) $(KIT)/photo_match.py solve --config $< --out $@
@@ -109,8 +115,10 @@ check: check-form check-detail check-motion check-repeat build/sedan/delivery-ch
 
 # Delivery retains the accepted studio and adds actual-game curvature evidence.
 .PHONY: sedan-delivery panel-diagnostics docs
-renders/sedan-panels/.stamp: build/sedan/parameters.txt build/sedan/detail-game.blend src/sedan_panel_diagnostics.py src/sedan_curvature_map.py src/sedan_delivery_review.py
-	$(KIT)/with_gpu.sh $(BP) --python src/sedan_panel_diagnostics.py -- --source build/sedan/detail-game.blend --out renders/sedan-panels --width $(WIDTH)
+renders/sedan-panels/.stamp: build/sedan/parameters.txt build/sedan/detail-game.blend src/sedan_panel_diagnostics.py src/sedan_curvature_map.py src/sedan_delivery_review.py src/sedan_surface_proof.py export/AlderS240.glb build/sedan/finalized.blend
+	$(KIT)/with_gpu.sh $(BP) --python src/sedan_panel_diagnostics.py -- --source build/sedan/detail-game.blend --out renders/sedan-panels/source --width $(WIDTH)
+	$(KIT)/with_gpu.sh $(BP) --python src/sedan_panel_diagnostics.py -- --source build/sedan/finalized.blend --glb export/AlderS240.glb --out renders/sedan-panels --width $(WIDTH)
+	$(PYTHON) src/sedan_delivery_review.py --diagnostics renders/sedan-panels/source
 	$(PYTHON) src/sedan_delivery_review.py --diagnostics renders/sedan-panels
 	@touch $@
 panel-diagnostics: renders/sedan-panels/.stamp
