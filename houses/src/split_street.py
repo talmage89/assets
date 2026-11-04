@@ -100,17 +100,30 @@ def main(a):
     from kit.tiling import world_uv
     world_uv(far,3.048);tint=far.data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='POINT')
     for c in tint.data:c.color=(.95,.95,.95,1)
-    camera.location=(-22,-21,1.68);target=Vector((18,9,2.8));camera.rotation_euler=(target-camera.location).to_track_quat('-Z','Y').to_euler();camera.data.lens=30
-    sc=bpy.context.scene;sc.render.resolution_x=a.width;sc.render.resolution_y=round(a.width/1.8);sc.render.resolution_percentage=100
+    # Stand on the houses' own walk, looking along their fronts with a normal
+    # full-frame lens. A panoramic vertical crop keeps the lawn in a low band;
+    # the nearest living wing continues naturally beyond the left frame edge.
+    camera.location=(-20,-7,1.6);target=Vector((80,11,8))
+    camera.data.lens=35
+    sc=bpy.context.scene;sc.render.resolution_x=a.width;sc.render.resolution_y=round(a.width/2.6);sc.render.resolution_percentage=100
     walk=surface([o for o in walks if o.type=='MESH']);hit=walk.ray_cast(Vector((camera.location.x,camera.location.y,2)),Vector((0,0,-1)),3)[0];assert hit is not None
-    camera.location.z=hit.z+1.68;camera.rotation_euler=(target-camera.location).to_track_quat('-Z','Y').to_euler()
+    assert walk_y<camera.location.y<walk_y+1.524,'Camera must stand on the house-side walk'
+    camera.location.z=hit.z+1.6;camera.rotation_euler=(target-camera.location).to_track_quat('-Z','Y').to_euler()
     from bpy_extras.object_utils import world_to_camera_view
     def projected(objects):
-        p=[world_to_camera_view(sc,camera,o.matrix_world@v.co) for o in objects if o.type=='MESH' for v in o.data.vertices]
+        p=[]
+        for ob in objects:
+            if ob.type!='MESH':continue
+            # The joined static mesh also contains the drive and retaining
+            # cheeks. Those are not the building's apparent frame width.
+            ids={vi for poly in ob.data.polygons if ob.data.materials[poly.material_index].name.split('.')[0]!='CapeConcrete' for vi in poly.vertices}
+            p.extend(world_to_camera_view(sc,camera,ob.matrix_world@ob.data.vertices[i].co) for i in ids)
         return [min(q.x for q in p),max(q.x for q in p)]
-    bpy.context.view_layer.update();bounds=projected(groups[0]);camera.data.lens*=.35/(bounds[1]-bounds[0]);bpy.context.view_layer.update()
+    bpy.context.view_layer.update()
     for row,objects in zip(houses,groups):
-        bounds=projected(objects);row['projected_frame_width']=bounds[1]-bounds[0];row['projected_frame_bounds_x']=bounds;row.pop('meta')
+        bounds=projected(objects);visible=[max(0,bounds[0]),min(1,bounds[1])]
+        row.update(projected_frame_width=bounds[1]-bounds[0],projected_frame_bounds_x=bounds,visible_frame_width=max(0,visible[1]-visible[0]),visible_frame_bounds_x=visible,framing_scope='Architecture excluding concrete drive/retaining walls; raw and frame-clipped extents reported separately')
+        row.pop('meta')
     bpy.data.objects['Afternoon sun'].rotation_euler=Vector((.35,.9,-.65)).to_track_quat('-Z','Y').to_euler()
     next(n for n in sc.world.node_tree.nodes if n.type=='BACKGROUND').inputs['Strength'].default_value=.12
     if a.layout_only:
@@ -120,7 +133,7 @@ def main(a):
     for row in houses:assert bundle_hash(Path(row['source']))==row['bundle_sha256']
     for row in context:assert hashlib.sha256(Path(row['source']).read_bytes()).hexdigest()==row['sha256']
     recipe=hashlib.sha256(b''.join((HERE/n).read_bytes() for n in ('split_street.py','cape_street.py','street.py','render.py'))).hexdigest()
-    (out/'provenance.json').write_text(json.dumps(dict(houses=houses,context=context,camera=list(camera.location),target=list(target),lens=camera.data.lens,sidewalk_surface_z_m=hit.z,eye_height_above_sidewalk_m=camera.location.z-hit.z,pickup_drive_surface_z_m=hit_car.z,engine='CYCLES',recipe_sha256=recipe,image_sha256=hashlib.sha256((out/'street.png').read_bytes()).hexdigest(),render_only=True),indent=2))
+    (out/'provenance.json').write_text(json.dumps(dict(houses=houses,context=context,camera=list(camera.location),target=list(target),lens=camera.data.lens,sensor_width_mm=camera.data.sensor_width,aspect=2.6,camera_support='House-side Sidewalk_A; measured vertical ray hit',sidewalk_surface_z_m=hit.z,eye_height_above_sidewalk_m=camera.location.z-hit.z,pickup_drive_surface_z_m=hit_car.z,engine='CYCLES',recipe_sha256=recipe,image_sha256=hashlib.sha256((out/'street.png').read_bytes()).hexdigest(),render_only=True),indent=2))
 
 
 if __name__=='__main__':

@@ -2,7 +2,7 @@
 import hashlib,json,sys
 from pathlib import Path
 import numpy as np
-from PIL import Image
+from PIL import Image,ImageOps,ImageDraw
 HERE=Path(__file__).resolve().parent;sys.path[:0]=[str(HERE.parents[1]),str(HERE)]
 from ranch_review import sheet
 from delivery_io import bundle_hash
@@ -63,6 +63,18 @@ def whole_house():
     sheet(pictures,folders[1]/'bake-loss.jpg',2,1000);(BUILD/'whole-house-loss.json').write_text(json.dumps(rows,indent=2));return rows
 
 
+def street_photo_pair():
+    """Composition inspection only: a registered real street, not a camera fit."""
+    source=Path('refs/split-midwest-summer.jpg');crop=(0,385,1000,690)
+    views=[('Export: 35 mm / own sidewalk / 1.60 m',Image.open(ROOT/'street/street.png').convert('RGB')),
+           ('Real split-level street, 1964 / elevated view / massing reference',Image.open(source).convert('RGB').crop(crop))]
+    canvas=Image.new('RGB',(1600,400),(234,235,230));draw=ImageDraw.Draw(canvas)
+    for i,(label,im) in enumerate(views):
+        im=ImageOps.contain(im,(790,355),Image.Resampling.LANCZOS);canvas.paste(im,(i*800+(800-im.width)//2,35+(355-im.height)//2));draw.text((i*800+8,12),label,fill=(20,25,22))
+    canvas.save(ROOT/'street/photo-pair.jpg',quality=93)
+    return dict(source=str(source),sha256=digest(source),crop=crop,scope='Elevated 1964 monochrome street photograph: row rhythm/setbacks/massing only, not matched camera or color calibration')
+
+
 def main():
     base=ROOT/'final';family=ROOT/'final-seeds';pairs=ROOT/'final-matches';seeds=list(range(51,57))
     materials();whole_house()
@@ -80,11 +92,18 @@ def main():
     assert digest(ROOT/'street/street.png')==street['image_sha256']
     for row in street['houses']:assert bundle_hash(Path(row['source']))==row['bundle_sha256']
     for row in street['context']:assert digest(row['source'])==row['sha256']
-    assert abs(street['eye_height_above_sidewalk_m']-1.68)<1e-5 and .30<=street['houses'][0]['projected_frame_width']<=.39
+    assert abs(street['eye_height_above_sidewalk_m']-1.6)<1e-5 and .30<=street['houses'][0]['visible_frame_width']<=.39
+    assert 35<=street['lens']<=50 and street['sensor_width_mm']==36 and street['camera_support'].startswith('House-side')
+    assert street['houses'][0]['projected_frame_bounds_x'][0]<0,'Nearest living wing intentionally exits the left frame'
+    rgb=np.asarray(Image.open(ROOT/'street/street.png').convert('RGB'))/255;lum=rgb@np.array((.2126,.7152,.0722))
+    street_tone=dict(zip(('p1','p50','p95','p99'),map(float,np.quantile(lum,[.01,.5,.95,.99]))))
+    street_tone.update(clipped_white_fraction=float(np.mean(np.min(rgb,axis=2)>.985)),scope='Entire street image including sky, ground and context; hero asset-mask check retained separately')
+    assert street_tone['clipped_white_fraction']<.001
+    (ROOT/'street/tonal.json').write_text(json.dumps(street_tone,indent=2))
     views.append(('Street',ROOT/'street/street.png'))
     sheet(views,base/'contact.jpg',3,850)
     tonal=json.loads((base/'tonal.json').read_text());assert tonal['clipped_white_fraction']<.001
-    result=dict(passed=True,views=len(views),paths=[str(p) for n,p in views],tonal=tonal,street_eye_height_m=street['eye_height_above_sidewalk_m'],nearest_house_frame_width=street['houses'][0]['projected_frame_width'])
+    result=dict(passed=True,views=len(views),paths=[str(p) for n,p in views],tonal=tonal,street_tonal=street_tone,street_photo_reference=street_photo_pair(),street_eye_height_m=street['eye_height_above_sidewalk_m'],nearest_house_visible_frame_width=street['houses'][0]['visible_frame_width'],nearest_house_unclipped_frame_width=street['houses'][0]['projected_frame_width'])
     (BUILD/'view-check.json').write_text(json.dumps(result,indent=2))
     for name,path in dict(hero=base/'hero.png',turnaround=base/'turnaround.jpg',details=base/'details.jpg',family=base/'family.jpg',street=ROOT/'street/street.png').items():
         im=Image.open(path).convert('RGB');im.thumbnail((1600,3800),Image.Resampling.LANCZOS);dest=Path('docs')/('split-'+name+'.jpg')

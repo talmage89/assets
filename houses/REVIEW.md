@@ -2170,3 +2170,188 @@ textured-game export, exported-look comparison or portfolio image is claimed.
 Thin film and the stone/coping chart must be judged after the eventual bake;
 source Cycles does not prove their game-distance stability. No tools or kit
 features are needed from the lead for this checkpoint.
+
+## Split delivery — pass 1: reject aliased factory color
+
+Color and value first. The first exported brick crops fail despite mostly
+close medians: red 51 loses red chroma, and 54 loses the common brick's near
+black fired units (p10 error +88.8%, p90 −23.2%). The stone median is 5.2%
+low and passes. These are actual imported glTF patches with unchanged fixed
+cameras, exposure and material-ID masks in `renders/split/delivery-pass1/`.
+The fitted source measurements cannot stand in for export measurements.
+
+The first hero, cap and peeling views were opened. Form, low garage and
+wide soffits survive, but fine factory color has become broad vertex patches;
+the drive's parked-car stains are also lost between coarse samples. Reject
+this transfer. Put kiln variation into guarded texture regions within the
+same planned pair, leave the older shared maps immutable, and add physical
+samples at driveway and drainage wear sites. The thin sill film survives its
+close-up, but needs stronger wet wood contrast at street size. Keep its actual
+surface contact rather than enlarging flakes into floating geometry.
+
+## Split delivery — pass 2: preserve manufacture without excess seams
+
+Color and value first. Opened all seventeen exported material pairs and the
+hero/eave/drive/sill sheet. Factory palettes in the first guarded two-axis
+atlas restore distinct brick colors; sixteen rows improve, but common brick
+still loses its dark tail. The blue lap's p10 and roof's p90 also miss. Reject
+promoting these images on the strength of their medians. Restore the common
+mix's fired spread and compensate the measured lap/roof filtering loss.
+
+Two-axis atlas seams and indiscriminate wear cuts also exceed 45k. Replace
+square brick regions by full-width color bands, retaining the existing Cape
+brick normal at full density through standard texture transforms. Stone's
+full-density normal is retained; its color occupies the lower half of the
+same planned 512 pair. No older shared pixel changes and no added allocation.
+Remove only redundant coplanar color samples within a stated residual bound.
+The regular factory repeat remains an honest limitation.
+
+The opened drive is too clean and its control-joint cracks disappear. Add
+samples at the actual joint lips, retain the parked engine/tire sites and
+restore their attenuated contrast. The sill's measured film stays attached;
+darken its already exposed wet wood, and strengthen runoff only at real low
+gutter outlets. These should be judged in the next whole-house and street
+views, not asserted from the close-up. A source-to-game surface audit found a
+4.6 mm folded-return change: freeze original tessellation before planar cuts.
+A fresh six-seed surface audit must prove that repair.
+
+## Split delivery — pass 3: retain the field, audit precision and placement
+
+Color and value first. Sixteen fixed exported surface rows now pass. Opened
+the full material sheet and roof-control contact. Red brick's lost chroma is
+corrected in manufacture; the blue lap and common mix retain their colors.
+The roof still misses its low tail by about two tenths of a percent. Do not
+round that into a pass or change the accepted camera/EV. Uniform gain controls
+show plateaus from dark normalized vertex colors and eight-bit display pixels;
+they cannot restore the lost spread. Retain a bounded fraction of the source's
+actual granule-loss field, and use the available COLOR_0 range by moving a
+common uniform factor into the stock material. The latter must preserve the
+physical color and be checked in the actual glTF, with no added map or material.
+
+All six surface comparisons now measure less than 2 micrometers difference.
+The earlier folded-return losses came from changing a nonplanar ngon's
+triangulation: preserve its original tessellation before cuts, and retain those
+folds through chart conversion. Actual moving-leaf and sectional sweeps pass;
+serialization checks separately preserve pivots and sockets. All six exports
+are below 45k. The three earlier types pass their checks; only exporter labels
+and original-form file hashes drifted on rebuilding. Every other JSON value,
+BIN, image and old docs byte matched, and accepted canonical files were restored.
+
+The CPU-only street framing preview was opened to judge composition, not
+materials. Four delivered seeds recede down a native ground-family street;
+closest projected width is 35%, eye height 1.68 m over the actual sidewalk.
+Add real exported curb cuts and tapered aprons, retaining the sunken drives'
+open ground slots. This avoids an uninterrupted curb across driveways. Its
+pavement dominates the foreground and the sky remains broad; the final Cycles
+view must judge whether this reads as a street photograph. The fine sill losses
+remain smaller than the roof and parking wear at this distance. Keep their
+contact and localized water causes while strengthening their wet-wood contrast.
+
+## Split delivery — pass 4: current export, full-frame wear and street rejection
+
+Color and value first. All seventeen actual exported material rows pass with
+the same source cameras, light and EV. Maximum median error is 8.24%, maximum
+p10/p90 error 14.84%, and maximum hue-ratio error 9.74%. The roof's final fix
+retains uniform .925 roughness, within .005 of the accepted .93 source, rather
+than silently using the different shared ORM roughness. Its original shared
+ORM bytes remain available for AO. The dark-color material/vertex factor
+preserves physical color and improves quantization without another texture.
+
+Opened the current hero, driveway, all required main views and the new street.
+The living/bedroom/lower levels, sunken garage, driveway and complete ground
+shadow read. Engine/tire zones and control-joint lips now survive at full
+frame, although their finest cracks and oil breakup remain softer than the
+source. Low gutter-end contrast and wet sill wood are stronger at their actual
+causes; fine peeling still reads mainly in the close-up. Do not invent large
+floating flakes to make subpixel film conspicuous. The white siding keeps its
+body value, the garage replacement section remains distinct, and window rooms
+remain dark with glass/eave reflections.
+
+Reject the street's blue horizon: finite lawn ends expose the procedural sky's
+lower hemisphere like water. Extend only the distant presentation lawn with
+the already imported ground material. The native cut curbs, aprons, sidewalks,
+road and open sunken-drive slots remain. The scene still has too much empty
+background around four houses; add untouched back-lot maple/pin-oak instances
+to break the line while retaining the front silhouettes. This changes only
+presentation. Actual camera height is 1.68 m over the sidewalk and nearest
+projected width is 35%. Re-render and inspect the final street before docs.
+
+Fresh complete publication repeats all eighteen split glTF/BIN/metadata files
+byte-for-byte. All 111 accepted older files also retain their bytes. Independent
+whole-house source/export losses on common opaque asset pixels are .01347 /
+.00965 / .00590 / .00583 mean absolute Y′ for the two sides and two foyers;
+maximum per-view p95 is .04596. These statistics include filtering and coarse
+weather interpolation; they do not certify a photographic look or full interiors.
+
+## Split delivery — pass 5: inspect and retain the shipped set
+
+Color and value first. Opened the final hero at full size, all six front/rear
+portraits, all eleven veneer/siding close-ups, the entry/eave/cap/garage/bay
+and wet-sill sheet, scale and both lifted garage poses, Eevee, all seventeen
+material pairs and source/export pairs, all four whole-house photo pairs and
+their source/export comparisons. All seventeen fixed material rows pass.
+The hero's actual asset-mask Y′ p1/median/p99 is .10814/.46987/.72189, with
+zero clipped-white pixels. The white siding stays below the highlights'
+shoulder and the garage/room cavities stay dark. No pale material wash is
+used to hide the softened fine color.
+
+Opened the revised street at full size: the false water horizon is gone, and
+additional exported mature maple/oak crowns break the back-lot line without
+covering the stepped fronts. Four different exported houses, including the
+foyer, recede behind the nearest side-split; native ground curbs, cut aprons,
+sidewalks and road connect the drives. The pickup and shrubs remain untouched
+exports. Measured eye height is 1.68 m over the sidewalk and nearest-house
+width is 35% of the frame. The spare empty far lots, straight horizon, wide
+pavement and repeated tree vocabulary still make this a procedural scene.
+This is the presentation's weakest image, not proof of photoreal landscaping.
+
+The roof's macro use, parked engine/tire sites and old garage bottom seals
+read at full frame. Gutter-end runoff and wet wood are stronger only at their
+existing physical causes. Fine peeling remains mainly a close-up effect; it
+is subpixel in the street. Regular mortar, very orderly shingles, softened
+stone color and simple dark room/curtain backings remain visible CG tells.
+Do not misreport statistical agreement as the absence of those weaknesses.
+The accepted six plans, levels, roofs and material families are retained.
+
+The final complete make passes, including 47 current export views, seventeen
+passing exported/photo material pairs, independent source/export masks and
+measured tone. Fresh publication of all six seeds repeats all eighteen
+glTF/BIN/metadata payloads exactly. Every seed uses six materials and
+40,998–44,223 triangles; the whole family remains 49 MiB. Existing accepted
+files are all byte-identical. Only these five final split JPGs enter docs;
+no earlier-type image is replaced. No kit file changed.
+
+## Split delivery — street framing correction
+
+Color and value first. The accepted house/map colors, sun and sky are unchanged.
+Opened the final street beside the registered real split-level street photograph
+in `refs/split-midwest-summer.jpg`, using `renders/split/street/photo-pair.jpg`.
+The 1964 photograph is monochrome and elevated: it informs roof/eave shadow,
+setback and row rhythm, not hue, pedestrian camera calibration or an exposure
+match. The exported image retains dark roof/cavity values and bright trim. Its
+full-image Y′ p1/median/p99 is .01010/.54771/.86305; three clipped-white pixels
+are .000305% of the image. The separate accepted hero-mask tonal check is
+unchanged and passes.
+
+The lead rejected the previous street as a horizon band. Its reported 35%
+width included the driveway and did not measure the visible house. Retire that
+framing claim from passes 4–5. The new fixed 35 mm full-frame camera stands on
+the houses' own Sidewalk_A, at (-20, -7, 1.594948) m, measured 1.60 m above its
+actual surface. It aims at (80, 11, 8) m with a 36 mm sensor; a 2.6:1 vertical
+crop leaves the road at the right and the lawn in a low foreground band.
+
+Opened the new full-size render and compressed docs JPG. The nearest side-split
+occupies the left 34.3% of the frame in visible architecture, with the living
+wing continuing beyond the left edge. Three other seeds recede behind it; the
+foyer, carport, pickup and native curb/apron connections remain visible. Raw
+unclipped building bounds and frame-clipped bounds are recorded separately,
+with concrete driveway/retaining faces excluded. This is an intentional crop,
+not a claim that the complete nearest house fits inside one third. No house,
+context placement, mesh, map, material, sun or sky changed. The far horizon,
+regular paving/lawn and repeated tree vocabulary remain procedural.
+
+The new `docs/split-street.jpg` is 1600 × 615 and 141,670 bytes. It replaces the
+previous image in the original portfolio commit, so only one street JPG blob
+remains in this branch's history. All other accepted docs, delivered split
+files and shared maps retain their bytes. All four types' make checks and
+the repository/privacy checks pass again for this correction. No kit changes.
