@@ -54,7 +54,9 @@ for _sign in [-1,1]:
 # Convex packing prevents concave-packer sliver collisions between thin skins.
 UV_SMART_ANGLE=45
 UV_PACK_SHAPE='CONVEX'
-UV_NORMALIZE_ISLAND_SCALE=True
+# The sedan finalizer normalizes the connected outer charts after unwrapping.
+# Preliminary SmartUV slivers can have zero projected area before that repair.
+UV_NORMALIZE_ISLAND_SCALE=False
 
 # Project each named manufactured part independently. Thin optical returns and
 # skin backs must not receive a neighboring source's material or reverse normal.
