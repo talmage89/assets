@@ -25,6 +25,14 @@ build/sedan/detail-game.blend: build/sedan/riggable-game.blend $(DDEPS) build/ma
 build/sedan/detail-high.blend: build/sedan/riggable-high.blend $(DDEPS) build/markings/.stamp build/sedan/markings/.stamp
 	$(BP) --python src/sedan_detail.py -- --source $< --out $@
 detail-model: build/sedan/detail-game.blend build/sedan/detail-high.blend
+build/sedan/repeat-riggable.blend: $(SDEPS) src/sedan_shell.py
+	$(BP) --python src/sedan_shell.py -- --quality game --out $@
+build/sedan/repeat-detail.blend: build/sedan/repeat-riggable.blend $(DDEPS) build/markings/.stamp build/sedan/markings/.stamp
+	$(BP) --python src/sedan_detail.py -- --source $< --out $@
+build/sedan/repeat-check.json: build/sedan/detail-game.blend build/sedan/repeat-detail.blend src/sedan_repeat.py src/compare_pickup.py
+	$(BP) --python src/sedan_repeat.py -- --before build/sedan/detail-game.blend --after build/sedan/repeat-detail.blend --out $@
+check-repeat: build/sedan/repeat-check.json
+
 build/sedan/detail-audit.json: build/sedan/detail-game.blend $(SEDAN_CONFIG)
 	$(BP) --python $(KIT)/audit.py -- --source $< --config $(SEDAN_CONFIG) --out $@
 build/sedan/detail-high-audit.json: build/sedan/detail-high.blend $(SEDAN_CONFIG)
@@ -86,5 +94,5 @@ renders/sedan-eevee/.stamp: build/sedan/parameters.txt export/AlderS240.glb src/
 	@touch $@
 sedan-checkpoint: form check-detail check-motion sedan-export sedan-final sedan-pairs renders/sedan-eevee/.stamp
 	$(PYTHON) src/sedan_detail_review.py --renders $(DOUT) --pairs $(DPAIRS) --form $(OUT)
-check: check-form check-detail check-motion build/sedan/delivery-check.json
+check: check-form check-detail check-motion check-repeat build/sedan/delivery-check.json
 	$(PYTHON) $(KIT)/repo_check.py
