@@ -122,6 +122,18 @@ def optics(b):
         if front:
             from hatch_optical_surfaces import rebuild
             rebuild(cover,b.high)
+        else:
+            # The refracting skin needs the mold's continuous derivatives.
+            # Angle-limited mesh smoothing left tiny hard fans at the tips.
+            from hatch_reference_surface import field as parent_field
+            mesh=cover.data;outer=cover['lens_outer_faces']
+            nm=cover.matrix_world.to_3x3().transposed();custom=[]
+            for face in mesh.polygons:
+                face.use_smooth=face.index<2*outer
+                for li in face.loop_indices:
+                    p=cover.matrix_world@mesh.vertices[mesh.loops[li].vertex_index].co
+                    custom.append(nm@parent_field().nearest_normal(p)*(1 if face.index<outer else -1) if face.index<2*outer else face.normal)
+            mesh.normals_split_custom_set(custom)
         raw=list(cover['aperture_samples']);ps=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
         nu,nv=cover['form_columns'],cover['form_rows'];normal=optical_normal(cover)
         if front and not cover.get('physical_lens_chart'):
@@ -174,7 +186,7 @@ def optics(b):
                     ('reflector',[(-.050,0),(-.048,radius*.55),(-.023,radius*1.12),(-.012,radius*1.12),(-.012,radius*.96),(-.045,radius*.46),(-.046,0)],b.m['chrome']),
                     ('optic',[(-.018,0),(-.018,radius*.85),(-.011,radius*.91),(-.007,radius*.65),(-.005,0)],b.m['lens']),
                     ('phosphor',[(-.040,0),(-.040,radius*.45),(-.037,radius*.45),(-.037,0)],b.m['headlight'])]:
-                    ob=G.lathe('H120 '+label+' '+part+' '+cover.name,profile,mat,32 if b.high else 16)
+                    ob=G.lathe('H120 '+label+' '+part+' '+cover.name,profile,mat,48 if b.high else (24 if part!='phosphor' else 8))
                     ob.location=p;ob.rotation_euler=n.to_track_quat('Z','Y').to_euler();b.add(ob,parent,'lamps')
             # Amber reflector follows the outer return, seated behind the cover.
             path=[at(.80+.17*i/3) for i in range(4)]
@@ -241,8 +253,9 @@ def trim(b):
             tube(b,'H120 window brightwork '+name,bright,.0018,b.m['dark_chrome'],'trim',glass.parent,sides=4)
         # A static, flush fuel flap with a causal black reveal.
         y,z=1.62,.91;boundary=[]
-        for i in range(20):
-            a=math.tau*i/20;p,n=side_point(sign,y+.070*math.cos(a),z+.070*math.sin(a));boundary.append(p+n*.001)
+        count=72 if b.high else 48
+        for i in range(count):
+            a=math.tau*i/count;p,n=side_point(sign,y+.070*math.cos(a),z+.070*math.sin(a));boundary.append(p+n*.001)
         if side=='L':
             tube(b,'H120 fuel door reveal',boundary+[boundary[0]],.0018,b.m['rubber'],'trim',sides=4)
             from hatch_fuel_surface import build as fuel_surface

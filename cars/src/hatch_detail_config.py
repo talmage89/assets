@@ -41,11 +41,13 @@ for code in ['FL','FR']:
 UV_DEFAULT_PRIORITY=.50
 UV_PRIORITY={'Door ':1.5,'Hood outer':1.5,'Front fender':1.4,'Rear quarter':1.4,'Front molded fascia':1.5,'Rear molded fascia':1.3,
  'Roof':1.2,'Liftgate':1.4,'Headlamp':1.8,'Taillamp':1.8,'H120 upper light':2.5,'H120 lower light':2.5,
- 'Tire_':2.5,'Cast spoke':1.6,'Wheel center':1.8,'H120 original':4.0,'H120 dealer':5.0,'Alder center cap':5.0,
+ 'Tire_':2.5,'Cast spoke':1.6,'Wheel center':1.8,'H120 original':12.0,'H120 dealer':8.0,'Alder center cap':16.0,
+ 'H120 center screen':5.0,'H120 instrument panel':5.0,
  'H120 headliner':.25,'H120 stamped floor':.25,'H120 cargo':.6}
 UV_SMART_ANGLE=35
 UV_PACK_SHAPE='CONCAVE'
 UV_NORMALIZE_ISLAND_SCALE=True
+UV_USE_TARGET_ASPECT=True
 counts=Path(__file__).resolve().parents[1]/'build/hatch-detail/game.counts.json'
 BAKE_POLICY=dict(isolate_moving=True,moving_roots=sorted(json.loads(counts.read_text())['meshes']) if counts.exists() else REQUIRED_NODES[1:],
  cage_m=.014,ray_distance_m=.040,ao_distance_m=.030,consolidate_attribute_sources=True)

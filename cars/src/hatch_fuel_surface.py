@@ -8,7 +8,7 @@ from hatch_body import shoulder_height
 
 
 def build(b):
-    count=48 if b.high else 24;parent=field();origin_y,origin_z=1.62,.91;radius=.070
+    count=72 if b.high else 48;parent=field();origin_y,origin_z=1.62,.91;radius=.070
     rows=([-.065,-.055,-.045,-.030,-.018,-.009,0,.009,.018,.030,.045,.055,.065] if b.high else [-.060,-.035,-.018,-.009,0,.009,.018,.035,.060])
     columns=11 if b.high else 7;uv=[];constraints=[];boundary=set();slope=.012;delta=shoulder_height(origin_y)-origin_z
     # v = z - shoulder(y). Exact row constraints keep the reflected crease

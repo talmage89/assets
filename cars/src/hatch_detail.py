@@ -90,6 +90,8 @@ def main():
     import hatch_surface_normals
     hatch_surface_normals.sample_reflections(b)
     hatch_surface_normals.apply()
+    import hatch_gate_surface
+    hatch_gate_surface.apply(b)
     import hatch_shoulder_surface
     hatch_shoulder_surface.apply(b)
     hatch_running_surfaces.arches(b)

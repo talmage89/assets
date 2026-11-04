@@ -5,7 +5,7 @@ Split the smaller triangle's UV chart and repack; never relax overlap policy.
 Geometry, materials and authored corner normals are preserved. Existing chart
 scales stay proportional, except the explicitly logged subtexel-altitude repair.
 """
-import sys,json,argparse
+import sys,json,argparse,math
 from pathlib import Path
 import bpy
 from mathutils import Vector
@@ -14,9 +14,25 @@ from kit import finalize,uv
 
 original_islands=uv.islands
 altitude_repairs=[]
+print_charts=set()
 def representable_islands(ob):
     """Retain micron-scale cut triangles with an explicit isolated UV chart."""
     layer=ob.data.uv_layers['BakeUV'];ob.data.calc_loop_triangles()
+    # average_islands_scale inherits each source image's aspect even when
+    # Smart UV's correct_aspect is disabled. A 4:1 badge consequently got a
+    # 1:4 chart: only fourteen pixels along ALDER. Reconstruct print charts
+    # from their physical metric before the kit applies density priorities.
+    # BakeSourceUV still addresses the original artwork, independently.
+    source=ob.data.attributes.get('BakeSourceUV')
+    if ob.name not in print_charts and source and ob.data.uv_layers.get('PrintUV'):
+        import numpy as np
+        coordinates=np.array([list(r.vector)[:2]+[1.] for r in source.data])
+        positions=np.array([list(ob.matrix_world@ob.data.vertices[l.vertex_index].co) for l in ob.data.loops])
+        basis=np.linalg.lstsq(coordinates,positions,rcond=None)[0]
+        width=float(np.linalg.norm(basis[0]));along=float(np.dot(basis[0],basis[1])/width)
+        height=math.sqrt(max(0,float(np.dot(basis[1],basis[1]))-along**2))
+        for row,q in zip(layer.data,coordinates):row.uv=(q[0]*width+q[1]*along,q[1]*height)
+        print_charts.add(ob.name)
     for tri in ob.data.loop_triangles:
         coords=[layer.data[i].uv.copy() for i in tri.loops]
         if abs(uv.signed_area(coords))>1e-16:continue
@@ -44,6 +60,12 @@ def main():
     finally:uv.islands=original_islands
     obs=[o for o in bpy.context.scene.objects if o.type=='MESH' and 'asset_set' in o]
     saved={o:[n.vector.copy() for n in o.data.corner_normals] for o in obs if o.data.has_custom_normals};repairs=[]
+    # The kit restores source images after its pack. The extra cut-sliver
+    # repacks below must also see the square delivery aspect, not print aspect.
+    aspect=bpy.data.images.new('H120 UV repair aspect',8,8);sources=[]
+    for mat in {m for ob in obs for m in ob.data.materials if m and m.use_nodes}:
+        for node in mat.node_tree.nodes:
+            if node.type=='TEX_IMAGE':sources.append((node,node.image));node.image=aspect
     for iteration in range(8):
         # Repacking can quantize an extremely thin subtexel UV sliver to a
         # line. Give that tiny chart a representable altitude; no mesh change.
@@ -83,10 +105,31 @@ def main():
         bpy.ops.object.mode_set(mode='EDIT');bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.uv.pack_islands(udim_source='CLOSEST_UDIM',rotate=True,rotate_method='ANY',scale=True,merge_overlap=False,margin_method='FRACTION',margin=a.margin,pin=False,shape_method='CONCAVE')
         bpy.ops.object.mode_set(mode='OBJECT')
+    for node,image in sources:node.image=image
+    bpy.data.images.remove(aspect)
     for ob,normals in saved.items():ob.data.normals_split_custom_set(normals)
     report=uv.report(obs,a.size)
     if report['coverage']<.35 or report['overlap_fraction']>=1e-6 or report['outside_triangles'] or report['degenerate_uv_triangles']:raise ValueError('Repaired UV validation failed: '+str({k:v for k,v in report.items() if k!='island_measurements'}))
     old=json.loads(Path(a.report).read_text());old.update(report);old['projection_chart_seams']=repairs;old['representable_slivers']=altitude_repairs
+    old['print_charts']={}
+    for ob in obs:
+        source=ob.data.attributes.get('BakeSourceUV')
+        if ob.name not in print_charts or source is None:continue
+        import numpy as np
+        coords=np.array([list(r.vector)[:2]+[1.] for r in source.data])
+        packed=np.array([list(r.uv) for r in ob.data.uv_layers['BakeUV'].data])
+        positions=np.array([list(ob.matrix_world@ob.data.vertices[l.vertex_index].co) for l in ob.data.loops])
+        atlas=np.linalg.lstsq(coords,packed,rcond=None)[0]
+        physical=np.linalg.lstsq(coords,positions,rcond=None)[0]
+        pixels=np.linalg.norm(atlas[:2],axis=1)*a.size
+        density=pixels/np.linalg.norm(physical[:2],axis=1)
+        old['print_charts'][ob.name]=dict(pixels_u_v=pixels.tolist(),density_u_v_px_m=density.tolist())
+        if max(density)/min(density)>1.02:raise ValueError('Stretched printed atlas chart: '+ob.name)
+    old['paint_panel_density_px_m']={}
+    for name in sorted({r['object'] for r in report['island_measurements']}):
+        if not name.startswith(('Door ','Hood outer','Roof','Front fender','Rear quarter','Front molded fascia','Rear molded fascia','Liftgate outer')):continue
+        rows=[r for r in report['island_measurements'] if r['object']==name]
+        old['paint_panel_density_px_m'][name]=a.size*math.sqrt(sum(r['uv_area'] for r in rows)/sum(r['surface_m2'] for r in rows))
     bpy.context.scene['stage']='finalized';bpy.context.scene['atlas_size']=a.size
     Path(a.report).write_text(json.dumps(old,indent=2));bpy.ops.wm.save_as_mainfile(filepath=str(Path(a.out).resolve()))
     print('H120_UV_SEAMS',len(repairs),'splits, overlaps',report['overlap_pairs'],'coverage',report['coverage'],flush=True)

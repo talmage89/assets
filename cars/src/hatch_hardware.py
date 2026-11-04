@@ -71,7 +71,7 @@ def passenger_wheels(b):
 
 
 def game_wheel_allocation(b):
-    """Submillimeter spoke chamfers stay in the high source, not the game rings."""
+    """Retain visible cast chamfers; spend fewer chords on the inboard barrel."""
     if b.high:return
     for ob in list(bpy.context.scene.objects):
         if ob.name.startswith('Wheel barrel_'):
@@ -79,16 +79,23 @@ def game_wheel_allocation(b):
             cx=sign*(S.FRONT_TRACK if code.startswith('F') else S.REAR_TRACK)/2
             y=S.FRONT_AXLE if code.startswith('F') else S.REAR_AXLE;r=S.RIM_INCHES*.0254/2
             profile=[(-.093,r-.020),(-.093,r+.005),(-.081,r+.005),(.084,r-.008),(.099,r+.006),(.103,r-.015)]
-            new=G.lathe('H120 allocation',[(cx+sign*x,rr) for x,rr in profile],b.m['wheel'],32,axis='X',center=(y,S.HUB_HEIGHT),closed=True)
+            counts=[16,16,16,32,32,32];points=[];rings=[];faces=[]
+            for (x,rr),count in zip(profile,counts):
+                rings.append(list(range(len(points),len(points)+count)))
+                points.extend((cx+sign*x,y+rr*math.cos(math.tau*k/count),S.HUB_HEIGHT+rr*math.sin(math.tau*k/count)) for k in range(count))
+            for a,c in zip(rings,rings[1:]+rings[:1]):
+                if len(a)==len(c):
+                    faces.extend((a[i],c[i],c[(i+1)%len(c)],a[(i+1)%len(a)]) for i in range(len(a)))
+                elif len(a)*2==len(c):
+                    for i in range(len(a)):
+                        j=(i+1)%len(a);k=2*i
+                        faces.extend([(a[i],c[k],c[k+1]),(a[i],c[k+1],a[j]),(a[j],c[k+1],c[(k+2)%len(c)])])
+                else:
+                    for i in range(len(c)):
+                        j=(i+1)%len(c);k=2*i
+                        faces.extend([(a[k],c[i],a[k+1]),(a[k+1],c[i],c[j]),(a[k+1],c[j],a[(k+2)%len(a)])])
+            new=G.mesh('H120 allocation',points,faces,b.m['wheel'])
             new.data.transform(ob.matrix_world.inverted());old=ob.data;ob.data=new.data
             bpy.data.objects.remove(new,do_unlink=True)
-            if old.users==0:bpy.data.meshes.remove(old)
-            G.smooth(ob,35)
-        if ob.name.startswith('Cast spoke_'):
-            vertices=[v.co.copy() for v in ob.data.vertices];count=len(vertices)//3
-            # The outer front and back contours retain the cast depth.
-            loops=[vertices[count:2*count],vertices[2*count:]]
-            temp=G.loft('H120 spoke allocation',loops,b.m['wheel']);old=ob.data;ob.data=temp.data
-            bpy.data.objects.remove(temp,do_unlink=True)
             if old.users==0:bpy.data.meshes.remove(old)
             G.smooth(ob,35)

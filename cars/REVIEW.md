@@ -3411,3 +3411,47 @@ export tire values differ, so roundness is not a claim of a perfect rubber
 response. The rear photo tire patch includes bright rim pixels and has a broad
 range, but that does not erase the median mismatch. Lighting context remains
 an estimate. No lead action is required; stop at this requested surface gate.
+
+## H120 delivery
+
+### Delivery pass 1 — isolate the remaining causes before accepting a bake
+
+Color/value first: retain the accepted paint factors, Porcelain white balance,
+rear daylight/facade and glazing IOR/normal policy. Front white siding and the
+rear gray mullion remain the comparison neutrals; no lighting recalibration
+is used to conceal a surface repair.
+
+The softened type is already lost in the material bake, independently of the
+Opaque normal input. `build/hatch-delivery/badges-before.json` and reconstructed
+4K/2K badge texels show the cause: native UV island averaging inherited the
+rectangular source image's aspect despite Smart UV `correct_aspect=False`.
+The grille badge's chart has fourteen samples along the 94 mm word and 57
+along its 24 mm height. Its area-equivalent 596 px/m therefore concealed a
+roughly sixteenfold density anisotropy. Wheel-cap type has the same fault.
+Rebuild only original print charts in their physical metric before priority
+and packing. Keep artwork addressing in the separate `BakeSourceUV` attribute.
+Increase marking priority, including dealer fine print and cabin displays;
+measure both printed axes, rather than declaring legibility from atlas area.
+Paint and Glass keep normal scale zero; Opaque and Lamps keep scale one.
+
+The gate's wavering run occurs in both the game and high procedural source,
+before baking. Dense parent versus its original continuous die field measures
+up to 3.58 mm of draw error around the 47 mm hollow; the control-net radial fit
+and subdivision underresolve that narrow feature. The repair is confined to
+the lower gate: restore the continuous die field, blending to the accepted
+parent at the lamp/perimeter/hem, and add local samples where interpolated
+reflection normals disagree. The actual game vertices move at most 2.170 mm.
+Retain the aperture, crease, lower lip, package and all moving pivots. A scratch
+trial initially left the disposable uncut parent visible; reject that render
+and remove it before evaluating the actual repaired panel.
+
+Tail covers inherited angle-limited geometric smoothing, leaving hard fans
+at their narrow ends. Give both sides of their laminate the continuous mold
+normal field; leave the gauge rim separate. The projector reflector and optic
+increase from sixteen to twenty-four circumferential samples. Restore the
+spokes' real 1.8 mm chamfer loop instead of hoping a subtexel normal bake can
+carry it, and increase the fuel reveal from twenty to forty-eight stations.
+The compound flap's perimeter also gains samples. Offset that visible detail
+with sixteen-segment inboard barrel rings and eight-segment phosphor disks
+behind the projector optics. Held exterior wheel/tire envelopes are unchanged.
+The game source is 59,968 triangles, with 32 left under the existing ceiling.
