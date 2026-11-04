@@ -3193,3 +3193,221 @@ This is the radiator appearance in both source and GLB. Replace the vanes and
 bumped backing with an actual open regular cell lattice, a smooth dark recessed
 bed, and the retained surround/badge. Give the lower opening a distinct lattice
 and the corner pockets formed inserts with supported lamp/blank faces.
+
+### Surface pass 2 — reject the first repairs, refine the causes
+
+Color and value first: source tint trials leave rear side glass +14.4 and
+backlight −9.3, versus the original +38.2/−47.7; the front pane is now too dark
+(−17.8), so this is not an accepted glazing solution. A reflection-only ablation
+places rear side glass at +1.0 but the front at −22.6. Removing the cabin changes
+backlight by only about five levels. A traced refracted ray through the actual
+backlight exits the far rear door pane: four tinted interfaces compound the
+attenuation before the ray reaches low sky/ground. The photo has clearer rear
+glazing. These tests explain why backlight tint alone did not recover its value.
+
+Reject the first replacement lens. It used the analytic section target directly,
+but the accepted subdivided crown blends away from that target near the lamp tip
+by as much as 136 mm. A global polynomial fit was consequently both inaccurate
+and ill-conditioned; its molded surface did not stay seated. The replacement
+also initially used an outward offset instead of retaining the accepted 7.8 mm
+recess. Neither is a valid correction. Sample the actual original evaluated
+parent in a physical cylindrical chart, retaining the recess, with continuous
+outer/inner normals. No source photograph enters this construction.
+
+Hiding every arch flange leaves the principal spike visible. A camera ray at
+its pixels identifies **Front molded fascia**, not the hem: a sparse curved
+triangle fan and its interpolated normal field make a triangular reflected dark
+flag near the arch's forward end. Resolve normal-interpolation error with local
+physical samples on the accepted parent. The return's unsupported fallback was
+also wrong, but it was not the whole cause; the first diagnosis overstated it.
+A later all-skin reclip is rejected: it reconstructs thousands of already omitted
+buried back faces, wastes the budget and does not address that fascia reflection.
+The original physical arch cut is held for the next comparison.
+
+The first tire carcass and lattice are materially clearer in their studio views.
+Reject the first fog blanks, whose estimated stand-off leaves them outside the
+pocket; seat them from rays against the actual pocket bed. Interior gauge
+reduction must also be admitted by measured inward clearance, rather than an
+angle threshold alone: keep at least 0.35 mm below the actual exterior, and
+retain the old gauge if that bound fails. This allocation funds visible rubber
+and optical sampling without increasing the 60k cap.
+
+Further cause isolation in pass 2: the signed maps now include the lenses and
+show physical chord failures even where every shared corner normal agrees.
+A perspective chart aimed from inside the convex front resolves the grazing
+chart direction, but still needs explicit chord-error refinement at thin tips.
+The final candidate uses a symmetric, regularized physical contour and a smooth
+cubic radial optical mold, fitted to samples of our evaluated parent. The mold
+bridges the stamping's draw line, stays recessed behind it, and derives its own
+continuous normals. Global section-target fits were rejected; the actual
+subdivision surface is the fitting reference. Its extra seating recess and
+maximum fit error are recorded on each lens, alongside every chord refinement.
+This is a different optical mold behind the accepted painted aperture, rather
+than a claim that the old crumpled shell was fair.
+
+Both original and corrected skins are typically within hundredths of a
+millimeter of the accepted parent (`build/hatch-surfaces/position-errors.json`).
+The hood's largest tested residual is 0.451 mm, the right rear quarter's
+0.258 mm. This rules out a broad form refit as the cause of the paint correction.
+Local reflected-normal sampling is the appropriate correction; irregular-cut
+curvature outliers are retained in the raw maps rather than filtered away.
+
+The first all-surface audit also rejected zero-area return triangles caused by
+repeated nearest hits on an already cut arch and repeated guide points. Arch
+returns now ray-sample the original **uncut** parent, retaining their open arc
+construction and inward steering clearance. Optical guides follow consistent
+fractions of the fitted mold's physical chart, with duplicate chords removed.
+
+The broad gray comparison facade was rejected: it lowered rear paint by more
+than 20 levels while darkening the pane too much. A narrow, bright, procedural
+facade changes that low-angle reflected sector while retaining the original
+sun/sky and asphalt. It is estimated surrounding scene context, with dimensions,
+albedo and placement recorded in the shot metadata; it is never exported or
+baked into the car. A narrow-facade source trial leaves rear paint within four
+levels, side glass −6.3 and backlight −3.1. Small final transmission adjustments
+are checked in the actual exported pairs next. Front-side glass in that trial
+is +1.7; the source windshield's −15.5 remains an independent residual.
+
+The enlarged wheel crop and exact pixel rays refine the arch diagnosis again:
+the thin spike's tip hits **Wheelwell_FR**, with the adjacent reflected region
+on the fascia. The liner's constant 795 mm outboard coordinate exceeds the
+fascia's actual tucked width near its bottom/front (about 790 mm there).
+Its edge therefore protrudes through the paint and continues as a thin exposed
+sliver below it. Extra fascia samples improve its reflection but cannot remove
+that exposed liner. Clamp the lining inside the measured parent skin, sampling
+the body hem above an open lower edge when necessary; retain the liner's radial
+rolling/steering clearance. This is a construction interference, not a normal
+map effect. The exact crop is `build/hatch-surfaces/arch-pick-grid.png`; pixel
+rays are in `build/hatch-surfaces/pick-spike.log`.
+
+### Surface pass 3 — source close-ups reject the flat fuel flap
+
+Color and value first: the candidate preserves Graphite's accepted neutral
+factor, darkens the grille's recessed bed without bleaching its webs, and
+retains visible dark tire rubber and molded lettering. The rear-quarter close
+view exposes another cause of the lumpy highlight: the fuel flap's nonplanar
+ngon cap is triangulated as broad flat faces across the shoulder. Its reflection
+therefore steps independently of the curved quarter beneath it. Replace that
+cap with a sampled compound disk on the same accepted parent normal field;
+retain the circular reveal and original 140 mm size. This spends visible
+surface triangles by omitting the disk's buried game-side back, with the high
+source keeping its full gauge. The studio close-up, not that allocation, decides
+whether the reflection is improved.
+
+A second exported-asset ablation separates the paint's bake defect from its
+sampling defect. Disabling only the **Paint** normal input on the unchanged
+old GLB (`renders/hatch-paint-no-normal/`) removes the coarse mottling around
+both hood softboxes and the rear-quarter highlight. The broad curve/cut jogs
+and flat fuel flap remain. The procedural source has much finer, weaker peel:
+the 2800 cycles/meter paint micro-height is unresolved at the delivered body
+density (about 228 pixels/meter). Baking point samples and then quantizing that
+field leaves false millimeter-scale normal noise. The paint's only authored
+height channels are micron peel/flake; wear and chips already live in color and
+roughness. Keep those roughness responses and use a neutral delivered tangent
+field on painted faces, as on smooth glazing. Geometric normal detail on tires,
+alloys, hardware and the cabin retains its independent projection checks.
+This removes an alias, not a designed stamp or normal-map scratch.
+
+### Surface pass 4 — distinguish the remaining interpolation and delivery errors
+
+Color and value first: the first new export preserves the five paint factors
+and the original studio light/exposure, with deep grille cavities and visible
+used rubber. It still fails the rear glazing test: side glass 118.8 against
+123.7, backlight 101.8 against 121.2. Source values near 121.5 / 119.0 are not
+proof of the delivered result. Reject that exported glazing result.
+
+An actual-GLB ablation removes only the Glass normal input. With the same
+1.50 delivery IOR the backlight rises to 120.2. An 8-bit neutral map has
+128/255 in X/Y, not 0.5; the small tangent deflection changes the background
+sector sampled through several refracting interfaces. This error is amplified
+by the narrow bright facade, not evidence of darker exported tint. Retaining
+the source glazing's 1.52 IOR as well gives **121.5 side / 121.0 backlight**
+against **123.7 / 121.2**. Preserve the authored smooth Glass normal field with
+glTF normal scale zero; the same policy avoids neutral-map deflection on Paint.
+The independent material ablation is `renders/hatch-glass-delivery-150/` and
+`-152/`. A small front-pane tint adjustment is checked in the final export.
+
+Reject an additional bounded parent-normal projection. It fills its checked
+outer-skin texels, but does not remove the remaining shoulder teeth and adds
+unnecessary low-density map corrections. Both a normal-input ablation and a
+constant-paint ablation retain those teeth. Their cause is the game skin's
+irregular interpolation across a very narrow roll, independently of the
+earlier micron-height alias. A direct comparison of game/finalized/imported
+normal fields finds the latter two equivalent: this is not GLB serialization.
+
+Simply bisecting three aligned rows improves the line but adds 1,954 triangles;
+one row is insufficient. Instead, retain every existing patch boundary and
+replace only the shoulder's interior chords in physical (longitudinal position,
+height above shoulder) coordinates. Regular 21 mm stations and 7–8 mm rows
+near the roll sample our actual evaluated parent. The two patches replace
+868 / 862 triangles with 484 / 494, saving **752**. The source studio close-up
+now carries an uninterrupted strip through the quarter and the compound fuel
+flap. The first scratch patch had uninitialized rest-coordinate attributes and
+therefore a rectangular shader artifact; reject it. Regenerating those
+attributes resolves the artifact, as the actual model pipeline does for every
+new vertex. A radial fuel-cap grid was also rejected for its central pimple;
+the accepted disk's rows follow the shoulder instead.
+
+The resulting game source is **59,178 triangles**. The new kit option is only
+`DELIVERY_SURFACES[...]['normal_strength']`; default behavior is unchanged.
+Real glTF regression checks zero scale, the neighboring default scale, and
+three shared images. All **24** kit test modules pass sequentially from a clean
+scratch build, including the three GPU-baking fixtures under the shared lock.
+The final studio, all-surface diagnostics and measured pairs must now approve
+the new export; earlier candidate sheets do not approve it.
+
+### Surface pass 5 — exported checkpoint and the remaining CG tells
+
+Color and value first: white balance remains on the front white siding and
+rear gray garage mullion, with the recorded original linear gains. The final
+rear side pane is **121.6 against 123.7 (−2.1)** and backlight **122.0 against
+121.2 (+0.9)**. The side is 0.1 below the photo's p10 (121.7); the backlight
+is inside its 118.4–124.1 p10–p90 interval. Do not round this into an exact
+radiometric match. A final 2.2% increase in the rear diffuse sky (.225 to .230)
+centers the backlight; the facade, sun, accepted studio and five paint factors
+stay held. Front white paint patches remain within 7.8 levels, rear within 3.7.
+Both Cycles heroes have zero clipped channel samples; luma p1/median/p99 is
+0.0/46.3/248.9 front and 0.3/45.8/248.9 rear. Cavities and undersides stay dark.
+
+The actual GLB studio pairs show the corrections: no crumpled white lens shards,
+no coarse paint-normal mottling, an uninterrupted quarter/fuel-flap reflection,
+no protruding liner spike, and a bulged, smoothly shaded passenger sidewall.
+All nine before/after regions use identical camera, framing, studio rotation,
+paint factor, exposure and native resolution; these fields were compared
+directly in both shot manifests. The upper 14×2 diamond lattice has real open
+cells and depth over a dark bowed cavity. A finer 20×1 lattice serves the lower
+intake, the surround remains dark chrome, the badge carrier touches the webs,
+and the corner wells now have seated molded blanks and recessed slots.
+
+The full curvature review caught a diagnostic bug: joined GLB objects retain
+the active component's old outer-face count. That stale count masked most of
+the assembly, leaving false gray areas. Discard it for the imported diagnostic
+and measure every exported face, including gauge; weld only coincident UV-seam
+positions in the disposable diagnostic scene. The corrected map measures
+**28,352 vertices across 21 meshes**. Source maps keep their explicit outer
+roles and measure **23,440 vertices across 442 parts**. Their different gauge
+selection is stated in the JSON; raw signs and cut outliers are never filtered.
+True open-boundary neighborhoods remain gray in source maps. Both stripe
+directions cover the glass, lenses, grille, lamps, arches, rubber and hardware.
+The studio crops, rather than those diagnostic colors, approve the appearance.
+
+Evidence is under `renders/hatch-checkpoint/`: the ten-view five-color sheet,
+nine `compare-*.jpg` regions, 61 native views/contact/review pages, measured used
+pairs and 27 exported diagnostics. The 27 source diagnostics and two measured
+source pairs remain in their own folders. All exported views name GLB SHA-256
+`9f4a4c6c13bb47b5e1af51840a54aa07db1c6e78491c4621095f8243f5f9fca0`.
+The delivery has **59,178 triangles**, four existing delivery materials, three
+2048 maps, **16 MiB** BC-class mipmapped memory, and **7,945,496 GLB bytes**.
+UV overlap/outside/degenerate counts are zero; bake interior misses are zero
+over 5,714,185 checked texels per channel. Source construction/motion checks
+and exact independent regeneration pass separately from re-import checks.
+The pickup re-export still compares byte-identical at its accepted SHA-256.
+
+What still reads as CG: alloy rim/spoke facets and the small projector bowl,
+very small cut/trim reflection jogs, the fuel reveal's segmented outline,
+coarse cabin/cargo controls, and softened small badges/type in the atlas. Tire
+patch medians remain +10.0 front / +21.0 rear and windshield −9.7; source and
+export tire values differ, so roundness is not a claim of a perfect rubber
+response. The rear photo tire patch includes bright rim pixels and has a broad
+range, but that does not erase the median mismatch. Lighting context remains
+an estimate. No lead action is required; stop at this requested surface gate.

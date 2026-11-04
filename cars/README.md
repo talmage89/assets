@@ -1,6 +1,6 @@
 # Cars family — Alder C150, S240 and H120
 
-The C150 pickup is delivered. The [S240 sedan](#alder-s240--sedan-form-checkpoint) is a source form checkpoint on this branch. The [H120 hatchback](HATCH.md) has reached its detail and look checkpoint, with an independent baked export.
+The C150 pickup is delivered. The [S240 sedan](#alder-s240--sedan-form-checkpoint) is a source form checkpoint on this branch. The [H120 hatchback](HATCH.md) has reached its surface checkpoint, with an independent baked export.
 
 An original late-2010s crew-cab 4×4 pickup on 275/65R18 all-terrain tires.
 Five factory paints share one baked atlas and four delivery surfaces. The
@@ -390,11 +390,11 @@ These are recorded limitations, not final paint or delivery approval. No kit
 changes were needed.
 
 
-## Alder H120 — detail and look checkpoint
+## Alder H120 — surface checkpoint
 
 The third body retains its accepted compact five-door package: **4363 × 1796 ×
 1451 mm**, **2650 mm wheelbase**, and **225/40R18** tires. Original projector
-lamps, a gloss-black cascade/diamond grille, Alder badges and a Willow Motor Co.
+lamps, an open gloss-black diamond grille, Alder badges and a Willow Motor Co.
 dealer insert accompany the four-door cabin, cargo well and FWD underbody.
 Four doors, hood, liftgate, wheel spin and front kingpins have measured pivots
 and sampled clearance checks. Five factory paints share one H120 atlas.
@@ -413,12 +413,16 @@ the detail critiques.
 are generated local review artifacts. No hatch documentation JPGs are committed
 at this checkpoint.
 
-**59,989 triangles**, including **3,600 cabin**, **260 cargo**, **1,792
+**59,178 triangles**, including **3,600 cabin**, **260 cargo**, **1,792
 underbody**, and **1,912 hinge/support** triangles. Four family delivery surfaces
 use one 2048 BaseColor / OpenGL Normal / ORM set, approximately **16 MiB** with
 block compression and full mipmaps. The pickup's source and full GLB bytes
-remain identical; shared family implementation, sedan modules and `kit/` are
-unchanged in this detail round.
+remain identical. Shared family implementation and sedan modules are unchanged;
+the kit adds an optional normal-strength setting with unchanged defaults.
+[Before/after surface crops](renders/hatch-checkpoint/compare-five-colors.jpg) and
+[all-surface diagnostics](renders/hatch-checkpoint/surface-proofs/horizontal-contact.jpg)
+include the smooth optical molds, aligned quarter roll, seated arch liners and
+rounded passenger tire carcasses.
 
 ```sh
 make -C cars BODY=hatch
