@@ -180,7 +180,19 @@ def body_section(y,w,belt,top):
             z+=lift*max(0,min(1,(z-.82)/.25))
         result.append((x,yy,z))
     result.insert(-1,(side_width(physical)+side_draw(physical,character_height(physical)-.055),physical*.73,character_height(physical)-.055))
-    return result
+    # Pool adjacent reversed Z rows before fitting the control sheet. The old
+    # belt -> shoulder+17 mm sequence doubled back into a nearly collapsed
+    # ribbon. This is the nearest monotone ordering, not a new body profile.
+    gap=.0004;blocks=[]
+    for i,(_,_,z) in enumerate(result):
+        blocks.append(([i],z+i*gap))
+        while len(blocks)>1 and blocks[-2][1]<blocks[-1][1]:
+            a,av=blocks[-2];c,cv=blocks[-1]
+            blocks[-2:]=[(a+c,(av*len(a)+cv*len(c))/(len(a)+len(c)))]
+    heights=[0.]*len(result)
+    for ids,value in blocks:
+        for i in ids:heights[i]=value-i*gap
+    return [(x,yy,z) for (x,yy,_),z in zip(result,heights)]
 
 
 # End rows fold the same rectangular quad sheet down from the hood/deck to the
@@ -507,7 +519,7 @@ def tessellate(parent,high=False):
         selected=set();edges={}
         for fi,face in enumerate(faces):
             p=sum((vertices[i] for i in face),Vector())/len(face)
-            rear_roll=1.76<p.y<1.99 and .35<p.z<.55 and abs(p.x)>.80
+            rear_roll=1.76<p.y<1.99 and .35<p.z<.62 and abs(p.x)>.80
             a_foot=-1.17<p.y<-.83 and .96<p.z<1.19 and abs(p.x)>.70
             c_header=.70<p.y<1.14 and 1.25<p.z<1.45 and abs(p.x)>.60
             lamp_crest=-2.13<p.y<-1.64 and .74<p.z<.93 and abs(p.x)>.70
@@ -532,6 +544,27 @@ def tessellate(parent,high=False):
                     if mid is not None:polygon.append(mid)
                 refined.append(tuple(polygon))
         faces=refined
+    # Stitched refinement boundaries are nonplanar n-gons in 3D. A generic
+    # triangulator invents sliver triangles along their curved edge samples.
+    # Use their convex parameter-chart center, retaining every shared midpoint.
+    stitched=[]
+    for face in faces:
+        if len(face)<=4:stitched.append(face);continue
+        from mathutils.geometry import tessellate_polygon
+        def normal_at(i):
+            u,v=chart[i];hit,_,fi,_=tree.find_nearest(Vector((u,v,0)));a,c,d=ts[fi]
+            return barycentric_transform(hit,uvs[a],uvs[c],uvs[d],mesh.vertices[a].normal,mesh.vertices[c].normal,mesh.vertices[d].normal).normalized()
+        poor=False
+        for tri in tessellate_polygon([[vertices[i] for i in face]]):
+            ids=[face[k] for k in tri];a,c,d=[vertices[i] for i in ids];n=(c-a).cross(d-a)
+            if n.length<1e-12:continue
+            expected=sum((normal_at(i) for i in ids),Vector()).normalized()
+            if n.normalized().dot(expected)<.85:poor=True;break
+        if not poor:stitched.append(face);continue
+        u=sum(chart[i][0] for i in face)/len(face);v=sum(chart[i][1] for i in face)/len(face)
+        ci=len(vertices);vertices.append(sample(u,v)[0]);chart.append((u,v))
+        stitched.extend((a,c,ci) for a,c in zip(face,face[1:]+face[:1]))
+    faces=stitched
     ob=G.mesh('Fair game surface samples',vertices,faces)
     for mat in mesh.materials:ob.data.materials.append(mat)
     for face in ob.data.polygons:
@@ -681,7 +714,7 @@ def sheet_gauge(ob,thickness):
     ob['sheet_roles']=True
 
 
-def simplify_inner_gauge(ob,tree,minimum_depth=.0004,max_collapses=1000,max_iterations=16):
+def simplify_inner_gauge(ob,tree,minimum_depth=.0004,max_collapses=1000,max_iterations=16,max_edge_length=.12,protected_regions=()):
     """Collapse only hidden back edges, with local depth and link checks.
 
     Exposed skin vertices and cut rims are locked. Each new back triangle is
@@ -701,6 +734,11 @@ def simplify_inner_gauge(ob,tree,minimum_depth=.0004,max_collapses=1000,max_iter
     for f in bm.faces:
         if f.material_index==1:inward.add(f)
     pure={v for v in bm.verts if v.link_faces and all(f in inward for f in v.link_faces)}
+    def in_region(point,region):
+        coordinates=[point.y,point.z] if len(region)==4 else list(point)
+        return all(lo<=value<=hi for value,lo,hi in zip(coordinates,region[::2],region[1::2]))
+    protected={v for v in bm.verts if any(in_region(matrix@v.co,region) for region in protected_regions)}
+    pure-=protected
     count=0;minimum=1.
     for iteration in range(max_iterations):
         bm.edges.index_update();used=set();changed=0
@@ -710,12 +748,12 @@ def simplify_inner_gauge(ob,tree,minimum_depth=.0004,max_collapses=1000,max_iter
             if count>=max_collapses:break
             if not e.is_valid:continue
             a,c=e.verts
-            if a in used or c in used or e.calc_length()>.12:continue
+            if a in used or c in used or e.calc_length()>max_edge_length:continue
             na={v for ed in a.link_edges for v in ed.verts if v!=a}
             nc={v for ed in c.link_edges for v in ed.verts if v!=c}
             if len(na&nc)!=2:continue
             neighbors=na|nc|{a,c}
-            if neighbors&used:continue
+            if neighbors&used or neighbors&protected:continue
             point=(a.co+c.co)/2;valid=True;depth_min=1.
             for f in set(a.link_faces)|set(c.link_faces):
                 if f in e.link_faces:continue
@@ -742,6 +780,26 @@ def simplify_inner_gauge(ob,tree,minimum_depth=.0004,max_collapses=1000,max_iter
     ob['inner_gauge_probe_depth_m']=minimum if count else 0.
     if valid:bm.to_mesh(ob.data)
     bm.free();ob.data.update()
+
+
+def remove_clip_islands(ob):
+    """Discard measured, disconnected sub-12 mm remnants of panel/arch cuts."""
+    bm=bmesh.new();bm.from_mesh(ob.data);unseen=set(bm.verts);removed=[]
+    while unseen:
+        stack=[unseen.pop()];component=[]
+        while stack:
+            v=stack.pop();component.append(v)
+            for edge in v.link_edges:
+                q=edge.other_vert(v)
+                if q in unseen:unseen.remove(q);stack.append(q)
+        if len(component)<3:continue
+        ps=[v.co for v in component];extent=[max(p[k] for p in ps)-min(p[k] for p in ps) for k in range(3)]
+        faces={f for v in component for f in v.link_faces};area=sum(f.calc_area() for f in faces)*.5
+        if max(extent)<.012 and area<.00005:
+            removed.append(dict(vertices=len(component),extent_m=extent,paired_skin_area_m2=area))
+            bmesh.ops.delete(bm,geom=component,context='VERTS')
+    if removed:bm.to_mesh(ob.data)
+    bm.free();ob.data.update();ob['removed_clip_islands']=json.dumps(removed)
 
 
 def build(b):
@@ -862,8 +920,14 @@ def build(b):
             center=sum((verts[j] for j in f),Vector())/len(f)
             for i in f:
                 if i in centroids:centroids[i].append(center)
+        original_verts=[p.copy() for p in verts]
+        local_triangles=[tuple(lookup[v] for v in tri.vertices) for tri in source.data.loop_triangles
+                         if source.data.polygons[tri.polygon_index].material_index==index]
         for i in boundary:
             p=verts[i];inside=centroids[i]
+            # Bonded glazing is recessed normally beneath the separate seal;
+            # a centroid-directed tangential inset distorts its smooth edge.
+            if glass:continue
             # The lower nose and fender are one faired surface at the arch.
             # This chart boundary is not a manufactured parting line.
             if name.startswith(('Front molded fascia','Front fender')) and p.y<-1.50 and p.z<.700:continue
@@ -876,6 +940,22 @@ def build(b):
                 if tangent.length>1e-8:
                     q=p+tangent.normalized()*S.PANEL_GAP/2
                     verts[i]=tree.find_nearest(q)[0]
+        # A fixed inset can cross a sub-2 mm strip left by a panel cut.
+        # Solve all boundary moves together, keeping every incident triangle's
+        # orientation and at least 20% of its original projected area.
+        delta=[p-q for p,q in zip(verts,original_verts)];factors=[1.]*len(verts)
+        for iteration in range(32):
+            candidate=[p+d*t for p,d,t in zip(original_verts,delta,factors)];limited=set()
+            for tri in local_triangles:
+                a,c,d=[original_verts[i] for i in tri];reference=(c-a).cross(d-a)
+                if reference.length_squared<1e-22:continue
+                a,c,d=[candidate[i] for i in tri];current=(c-a).cross(d-a)
+                if current.dot(reference)<reference.length_squared*.20:
+                    limited.update(i for i in tri if delta[i].length_squared>1e-20)
+            if not limited:break
+            for i in limited:factors[i]*=.5
+        else:raise ValueError(('Panel setback cannot preserve local orientation',name))
+        verts=candidate
         if glass:verts=[p-normals[old]*.002 for p,old in zip(verts,used)]
         mat=b.m['glass'] if glass else b.m['rubber'] if dark else b.m['body']
         ob=G.mesh(name+' outer' if name in ['Hood','Trunk'] else name,verts,faces,mat)
@@ -913,22 +993,52 @@ def build(b):
     # Actual inward arch flange follows the evaluated master, not a flat stuck-on ring.
     for side,sign in [('L',-1),('R',1)]:
         for end,axle in [('F',S.FRONT_AXLE),('R',S.REAR_AXLE)]:
-            loops=[]
-            segments=48 if b.high else 24
-            angles=[-.31+(math.pi+.62)*i/segments for i in range(segments+1)]
-            count=len(angles)
-            for depth in [0,.018]:
-                ring=[]
-                for a in angles:
-                    y=axle+S.ARCH_RADIUS*math.cos(a);z=S.HUB_HEIGHT+S.ARCH_RADIUS*math.sin(a)
-                    hit=tree.ray_cast(Vector((sign*2,y,z)),Vector((-sign,0,0)),3)[0]
-                    x=abs(hit.x) if hit else .89
-                    ring.append((sign*(x-depth),y,z))
-                loops.append(ring)
+            # Read the actual circular cut boundary. An independent circle
+            # ray can choose a different sheet or miss a chord near the front
+            # termination, producing a projecting needle in the lip.
+            boundary=[]
+            for panel in bpy.context.scene.objects:
+                if panel.type!='MESH' or panel.get('part_category') not in ['body','doors','fascia']:continue
+                edges={}
+                for face in panel.data.polygons:
+                    if face.material_index!=0:continue
+                    for va,vb in zip(face.vertices,list(face.vertices[1:])+[face.vertices[0]]):
+                        edge=tuple(sorted((va,vb)));edges[edge]=edges.get(edge,0)+1
+                for edge,number in edges.items():
+                    if number!=1:continue
+                    ps=[panel.matrix_world@panel.data.vertices[i].co for i in edge]
+                    if any(p.x*sign<.6 or abs(math.hypot(p.y-axle,p.z-S.HUB_HEIGHT)-S.ARCH_RADIUS)>.00065 for p in ps):continue
+                    for p in ps:
+                        theta=math.atan2(p.z-S.HUB_HEIGHT,p.y-axle)
+                        if theta<-.5:theta+=math.tau
+                        boundary.append((theta,p))
+            boundary.sort(key=lambda row:row[0]);distinct=[]
+            for theta,p in boundary:
+                if not distinct or theta-distinct[-1][0]>1e-5:distinct.append((theta,p))
+            if len(distinct)<12:raise ValueError(('Missing physical arch boundary',side,end,len(distinct)))
+            from bisect import bisect_right
+            segments=96 if b.high else 48
+            low=max(-.31,distinct[0][0]);high=min(math.pi+.31,distinct[-1][0])
+            angles=[low+(high-low)*i/segments for i in range(segments+1)]
+            ring=[];ts=[r[0] for r in distinct]
+            for theta in angles:
+                k=max(0,min(len(distinct)-2,bisect_right(ts,theta)-1));ta,pa=distinct[k];tb,pb=distinct[k+1]
+                ring.append(pa.lerp(pb,max(0,min(1,(theta-ta)/(tb-ta)))))
+            count=len(ring);loops=[ring,[p-Vector((sign*.018,0,0)) for p in ring]]
             ob=G.mesh('Arch flange_'+end+side,loops[0]+loops[1],[(i,i+1,count+i+1,count+i) for i in range(count-1)],b.m['body'])
-            sol=ob.modifiers.new('Arch hem gauge','SOLIDIFY');sol.thickness=.001;sol.offset=-1;G.apply(ob);b.add(ob,category='arches')
+            for face in ob.data.polygons:
+                c=face.center;radial=Vector((0,c.y-axle,c.z-S.HUB_HEIGHT))
+                if face.normal.dot(radial)>0:face.flip()
+            ob.data.update()
+            if b.high:
+                sol=ob.modifiers.new('Arch hem gauge','SOLIDIFY');sol.thickness=.001;sol.offset=-1;G.apply(ob)
+            else:
+                # Hidden gauge/back faces add no silhouette. Retain the real
+                # 18 mm return as a thin game sheet, with its air-facing normal.
+                ob['allow_boundary']=True
+            b.add(ob,category='arches');G.smooth(ob,180)
             # Dark well, following the same real opening; interior detail deferred.
-            inner_angles=angles[::2] if b.high else angles;count=len(inner_angles)
+            inner_angles=[-.31+(math.pi+.62)*i/24 for i in range(25)];count=len(inner_angles)
             inner_x=.48 if end=='F' else .56
             well_radius=S.ARCH_RADIUS+(.025 if end=='F' else .014)
             outer_x=.88 if end=='F' else .875
@@ -962,6 +1072,7 @@ def build(b):
     tree=parent_tree;points=parent_points;normals=parent_normals;triangles=parent_triangles
     for ob in bpy.context.scene.objects:
         if ob.type!='MESH' or ob.get('part_category') not in ['body','doors','glass','pillars','fascia']:continue
+        if ob.get('part_category') in ['body','doors','fascia']:remove_clip_islands(ob)
         material=next((m for m in ob.data.materials if m),None)
         if material is None:raise ValueError(('Missing form material',ob.name,len(ob.data.vertices),len(ob.data.polygons)))
         if not b.high and ob.get('part_category')=='fascia':simplify_inner_gauge(ob,tree)
@@ -1076,7 +1187,9 @@ def lamp_volume(b,front,sign,material,master_tree):
         dense.extend([tuple(a[k]+(c[k]-a[k])*t for k in range(4)) for t in ts])
     dense.append(path[-1])
     rows=[[(sign*x,y,z+h*(v-.5)) for x,y,z,h in dense] for v in [i/4 for i in range(5)]]
-    if front:return [form_blank('Headlamp opening'+str(sign),rows,material,master_tree,front)]
+    if front:
+        ob=form_blank('Headlamp opening'+str(sign),rows,material,master_tree,front)
+        return [ob]
     cut=.615
     # Insert a sample at either side of the physical lid reveal.
     paths=[]
