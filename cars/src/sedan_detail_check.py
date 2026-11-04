@@ -85,7 +85,14 @@ def mechanical_measurements():
             ob=bpy.data.objects['S240 '+label+' damper '+str(sign)];ps=points(ob);tip=sum(ps[:8],Vector())/8
             house=mesh_tree([bpy.data.objects['Wheelwell_'+end+('L' if sign<0 else 'R')]])
             anchors[label+' upper damper '+str(sign)]=dict(wheelhouse_contact_distance_m=house.find_nearest(tip)[3])
-    return dict(hinges=hinges,wheels=wheels,mirrors=mirrors,measured_anchors=anchors)
+    frame=bpy.data.objects['S240 molded dealer frame'];fp=points(frame)
+    plate=mesh_tree([bpy.data.objects[frame['plate_backing']]])
+    contact=max(plate.find_nearest(fp[i])[3] for i in frame['plate_contact_vertices'])
+    pocket=mesh_tree([bpy.data.objects['Plate pocket opening molded return']])
+    clearance=min(pocket.find_nearest(p)[3] for p in fp)
+    plate_frame=dict(bounds_m=bounds([frame]),maximum_back_edge_distance_to_plate_m=contact,minimum_vertex_distance_to_pocket_m=clearance)
+    if contact>.0001 or clearance<.0005:raise AssertionError(('Dealer frame support/clearance',plate_frame))
+    return dict(hinges=hinges,wheels=wheels,mirrors=mirrors,measured_anchors=anchors,plate_frame=plate_frame)
 
 
 def main():

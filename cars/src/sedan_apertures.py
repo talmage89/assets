@@ -164,7 +164,20 @@ def regularize_rear(ob,surface,high):
                 hit,n,_,distance=surface['tree'].find_nearest(guess)
                 if distance>.025:raise ValueError(('Outer rear optical ray missed',ob.name,k,j,distance))
             if n.dot(radial)<0:n.negate()
-            rows[j].append(hit+n*.004)
+            q=hit+n*.004
+            # A radial surface ray can walk across the lid's constant-X cut.
+            # Intersect the exposed sheet at the actual reveal instead: the
+            # cover must remain on its own moving/stationary side of that cut.
+            from sedan_spec import PANEL_GAP
+            inner=ob.get('lamp_piece')=='lid'
+            limit=.615+(-1 if inner else 1)*PANEL_GAP/2
+            if (abs(q.x)>limit if inner else abs(q.x)<limit):
+                xx=sign*limit
+                for _ in range(5):
+                    ph,nh,_,_=surface['tree'].ray_cast(Vector((xx,4,guess.z)),Vector((0,-1,0)),6)
+                    if ph is None:raise ValueError(('Rear optical reveal misses parent',ob.name,xx,guess.z))
+                    q=ph+nh*.004;xx-=q.x-sign*limit
+            rows[j].append(q)
     ps=[p for row in rows for p in row]
     faces=[(j*nu+i,j*nu+i+1,(j+1)*nu+i+1,(j+1)*nu+i) for j in range(nv-1) for i in range(nu-1)]
     inverse=ob.matrix_world.inverted();old=ob.data

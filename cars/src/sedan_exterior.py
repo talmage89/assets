@@ -221,11 +221,27 @@ def trim(b):
     # relief in the atlas. Keep its physical size, fasteners and lid ownership.
     plate=bpy.data.objects['Plate blank 12x6 inch']
     plate.data.materials.clear();plate.data.materials.append(b.m['dealer'])
+    ps=[plate.matrix_world@v.co for v in plate.data.vertices]
+    center=sum(ps,Vector())/len(ps);u=Vector((1,0,0))
+    n=next((plate.matrix_world.to_3x3()@f.normal).normalized() for f in plate.data.polygons if (plate.matrix_world.to_3x3()@f.normal).y>.5)
+    up=u.cross(n).normalized()
     uv=plate.data.uv_layers.new(name='Original dealer insert')
     for face in plate.data.polygons:
         for li in face.loop_indices:
-            p=plate.data.vertices[plate.data.loops[li].vertex_index].co
-            uv.data[li].uv=(.5-p.x/.3048,p.z/.1524+.5)
+            q=ps[plate.data.loops[li].vertex_index]-center
+            uv.data[li].uv=(.5-q.dot(u)/.3048,.5+q.dot(up)/.1524)
+    # A molded frame returns to the plate at its inner back edge. Its hidden
+    # rear is open against that substrate, rather than spending hidden faces.
+    rings=[];count=None
+    for width,height,depth in [(.308,.156,.0005),(.308,.156,.0035),(.292,.140,.0035),(.292,.140,.0005)]:
+        outline=G.rounded_rectangle(width,height,.003,3 if b.high else 1)
+        rings.append([center+u*x+up*z+n*depth for x,z in outline]);count=len(outline)
+    frame=G.loft('S240 molded dealer frame',rings,b.m['plastic'],caps=False)
+    if frame.data.polygons[count].normal.dot(n)<0:
+        for f in frame.data.polygons:f.flip()
+        frame.data.update()
+    frame['allow_boundary']=True;frame['plate_contact_vertices']=list(range(3*count,4*count));frame['plate_backing']=plate.name
+    b.add(frame,bpy.data.objects['Trunk'],'trim')
     # A fictional family badge in the recessed upper grille.
     g=bpy.data.objects['Low wide grille opening'];raw=list(g['aperture_samples']);ps=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
     nu=g['form_columns'];c=ps[(g['form_rows']//2)*nu+nu//2]+Vector((0,-.012,0))
