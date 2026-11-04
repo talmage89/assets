@@ -2474,3 +2474,68 @@ both, with shared methods rather than shared pixels. Family atlas integration
 needs coordination with the other bodies. Possible kit follow-ups are an
 opt-in direct procedural bake and bounds measured from actual world vertices;
 rotated mesh AABBs can otherwise overstate a correctly exported envelope.
+
+## S240 R7 — corner causes and matched autumn light
+
+### Pass 1 — isolate geometry from shading and lighting
+
+Color/value first: the R6 used-pair stage does not establish paint agreement.
+Its connected world was a blue RGB ramp, bypassing its nominal sky texture;
+its 51° sun and large reflection rectangles differ from the photographs.
+Preserve the wheel-only calibrations and the assumed-neutral white balances.
+Rebuild the comparison illumination from a procedural scattering sky, a sun
+estimated from the shadow directions/lengths, asphalt and original facade
+reflectors where a building is actually reflected. The estimates remain
+uncertain lighting fits, not EXIF or measured illumination.
+
+The new diagnostic is the original SUV cotangent/mixed-area kernel from
+`85d7450`, adapted without merging that branch. Its analytic checks give
+maximum H error 0.000076/m on a 2 m sphere and effectively zero on a cylinder
+and plane. Game measurements use actual exterior triangle positions, excluding
+open boundaries/gauge; authored normals do not enter them. The fixed color
+scale is shared by the entire car and all views. Parent maps are separate.
+
+The hood/lamp crest defect already exists before apertures are cut: its narrow
+38 mm high / 55 mm wide Gaussian crown creates a local roll and hollow. It is
+now a broader 22 mm / 135 mm stamped draw. Control-net relaxation spans the
+front corner and rear canopy/side-fit transition at the C-sail foot, before
+limit subdivision. No lamp shell deforms the body, and the parent has regular
+valence four; an aperture pole or global decimator is not the cause. Cutting
+had a second error: inserted points stayed in coarse triangle chord planes
+while shading normals came from the dense parent. Those exterior points now
+return to the parent before gauge closing.
+
+In identical spatial boxes, actual game H ranges (1/m, including design
+creases and thin cut triangles) change from front -78.5…1041.5 to -60.8…181.9,
+and sail -535.7…565.4 to -156.7…392.5. Sail p5/p95 improves from -70.2/+42.5
+to -8.0/+17.1. These numbers show improvement, not globally perfect curvature.
+The raw maps still expose discretization at thin cut/arch fragments; they are
+not smoothed to hide it. Whole-body maps and both reflection directions are
+paired in five views. The trial global edge beautification worsens these maps;
+tangential redistribution improves the nose but worsens the sail, so both
+experiments are rejected and remain ignored.
+
+### Pass 2 — correct illumination before material factors
+
+Color/value first: sky strength/exposure trials in `sedan-r7-light1` through
+`light5` range from pale blue to too dark; neither endpoint is acceptable.
+The low autumn sun estimate is 27° front / 30° rear, with approximately ±6°
+elevation uncertainty. Source and export comparisons use the same stage.
+Studio presentation is independent and retains the family's accepted layout.
+The sky texture now actually supplies the world, the sun matches its direction,
+and no luminous studio panel enters a comparison reflection.
+
+The existing front Graphite appearance is too cool. Its original factor
+0.120/0.130/0.145 becomes a near-neutral 0.130/0.125/0.126; the other four factory
+colors and the coverage-delta decoder remain. Matched sunlight exposes overly
+pale alloy/tire values and too much transmitted cabin light. The alloy becomes
+a darker production finish, radial sidewall dust keeps its cause but drops in
+value, and glazing transmission tints darken. Original road film/chips/swirl
+masks are retained. Geometry and motion of the accepted cabin, underbody and
+optical assemblies are retained.
+
+The radiator-like horizontal blades become seventeen bowed, splayed vertical
+vanes over a recessed original diamond relief, in gloss black with the dark
+chrome surround and original ALDER badge. The rear plate carries an original
+ALDER / WILLOW MOTOR CO. dealer insert and dark frame relief; no jurisdiction,
+registration format or serial. A 3× marking priority protects its atlas area.

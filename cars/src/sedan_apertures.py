@@ -258,6 +258,14 @@ def cut_mesh(ob,cutters,surface,axial=False,front=False,spatial_boxes=None):
     bad=[f for f in bm.faces if f.calc_area()<1e-11]
     if bad:bmesh.ops.delete(bm,geom=bad,context='FACES')
     bm.to_mesh(ob.data);bm.free();closeable_sheet(ob)
+    # Clipped corners used to remain in the coarse triangle's chord plane.
+    # Skinny aperture fragments then had a different geometric curvature from
+    # the dense normals assigned below. Return the skin to the actual parent
+    # before creating gauge; this changes positions, not just shading normals.
+    for v in ob.data.vertices:
+        p=matrix@v.co;hit=surface['tree'].find_nearest(p)[0]
+        v.co=inverse@hit
+    ob.data.update()
     from sedan_body import sheet_gauge
     sheet_gauge(ob,.003 if ob.get('part_category')=='fascia' else .0009)
     ob['lamp_apertures_cut']=True
