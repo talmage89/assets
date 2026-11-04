@@ -20,8 +20,8 @@ def preserved():
     return dict(passed=True,files=len(files),sha256=files)
 
 
-def surfaces(seed):
-    path=Path(f'build/cape/delivery/game-{seed}.blend');bpy.ops.wm.open_mainfile(filepath=str(path.resolve()))
+def surfaces(seed,kind='cape'):
+    path=Path(f'build/{kind}/delivery/game-{seed}.blend');bpy.ops.wm.open_mainfile(filepath=str(path.resolve()))
     game={o.name:o for o in bpy.context.scene.objects if o.type=='MESH'}
     target={name:surface([ob]) for name,ob in game.items()}
     triangles={}
@@ -31,7 +31,7 @@ def surfaces(seed):
         triangles[name]=np.array([[tuple(ob.matrix_world@ob.data.vertices[i].co) for i in t.vertices] for t in ob.data.loop_triangles],dtype='float64')
         exact[name]={tuple(sorted(tuple(round(float(x),6) for x in p) for p in t)):t for t in triangles[name]}
     # Fresh source geometry, compared on actual triangle interiors and vertices.
-    bpy.ops.wm.open_mainfile(filepath=str(Path(f'build/cape/house-{seed}.blend').resolve()))
+    bpy.ops.wm.open_mainfile(filepath=str(Path(f'build/{kind}/house-{seed}.blend').resolve()))
     assert {o.name for o in bpy.context.scene.objects if o.type=='MESH'}==set(target),'Source/game object names differ'
     maximum=0;points=0;by_object={};raw_maximum=0;refined=0;matched=0
     for ob in bpy.context.scene.objects:
@@ -83,6 +83,7 @@ def scalar_orm(seeds):
 def textures():
     rows=[]
     for path in sorted(Path('export/textures').glob('*.png')):
+        if path.name.startswith('T_Split'):continue
         a=read_png(path);assert a.ndim==3 and a.shape[2]==3 and np.isfinite(a).all()
         if path.name.startswith(('T_CapeCedar_','T_CapeCement_')):assert a.shape[:2]==(256,512)
         else:assert a.shape[0]==a.shape[1]

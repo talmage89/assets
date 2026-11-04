@@ -100,5 +100,5 @@ if __name__=='__main__':
    target=folder/file.name
    if not target.exists() or target.read_bytes()!=file.read_bytes():target.write_bytes(file.read_bytes())
  rows=[export_house(s) for s in dict.fromkeys(map(int,a.seeds.split(',')))]
- files=[p for p in folder.glob('*.png') if not p.name.startswith('T_Cape')];assert len(files)==31
+ files=[p for p in folder.glob('*.png') if not p.name.startswith(('T_Cape','T_Split'))];assert len(files)==31
  Path('build/ranch/delivery/delivery.json').write_text(json.dumps(dict(rows=rows,shared_images=len(files),shared_png_bytes=sum(f.stat().st_size for f in files),total_geometry_bytes=sum(r['gltf_bytes']+r['bin_bytes'] for r in rows)),indent=2))
