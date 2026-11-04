@@ -34,10 +34,13 @@ def pairs(out):
       'used_rear':dict(file='suv-used-rav4-rear.jpg',neutral=(6,124,15,137),neutral_description='Unprinted white area of the parking sign at the left edge',patches=dict(door_mid=(431,410,478,447),rear_quarter=(820,435,864,470),cladding=(1035,595,1110,619),glass=(594,191,630,231)))}
     report={}
     for name,rec in settings.items():
-        photo=rgb(ASSET/'refs'/rec['file']);photo=photo.resize((1400,round(1400*photo.height/photo.width)),Image.Resampling.LANCZOS)
+        native=rgb(ASSET/'refs'/rec['file']);photo=native.resize((1400,round(1400*native.height/native.width)),Image.Resampling.LANCZOS)
         render=rgb(out/(name+'.png'));render=render.resize(photo.size,Image.Resampling.LANCZOS)
         array=np.asarray(photo)/255;box=rec['neutral'];neutral=np.median(linear(array[box[1]:box[3],box[0]:box[2]]).reshape(-1,3),axis=0);gains=neutral.mean()/neutral
-        photo=Image.fromarray(np.uint8(np.clip(srgb(linear(array)*gains),0,1)*255+.5));item=dict(neutral_box_1400=box,neutral_description=rec['neutral_description'],linear_white_balance_gains=gains.tolist(),patches={})
+        photo=Image.fromarray(np.uint8(np.clip(srgb(linear(array)*gains),0,1)*255+.5));balanced=name+'-reference-balanced.jpg'
+        tables=[np.uint8(np.clip(srgb(linear(np.arange(256)/255)*gain),0,1)*255+.5).tolist() for gain in gains]
+        Image.merge('RGB',tuple(band.point(table) for band,table in zip(native.split(),tables))).save(out/balanced,quality=95,optimize=True)
+        item=dict(neutral_box_1400=box,neutral_description=rec['neutral_description'],linear_white_balance_gains=gains.tolist(),balanced_reference=balanced,patches={})
         for label,rect in rec['patches'].items():
             pp=np.median(np.asarray(photo.crop(rect)).reshape(-1,3),axis=0);rr=np.median(np.asarray(render.crop(rect)).reshape(-1,3),axis=0)
             item['patches'][label]=dict(photo_box_1400=rect,render_box_1400=rect,photo_rgb=pp.tolist(),render_rgb=rr.tolist(),photo_luma=float(pp@[.2126,.7152,.0722]),render_luma=float(rr@[.2126,.7152,.0722]))
@@ -80,7 +83,6 @@ def main():
         sheet([('Actual triangles / signed mean curvature',form/('mean_curvature_'+view+'.png')),('Matching camera / reflection bands',form/('curvature_stripes_'+view+'.png'))],out/('curvature-'+view+'.jpg'),cell_height=620)
     form_views=sorted(form.glob('*.png'))
     sheet([(file.stem.replace('_',' '),file) for file in form_views],out/'form-contact.jpg',columns=3,cell_height=360)
-    compose(a.cameras,out,out)
     gloss_calibration=json.loads((ASSET/'build/suv/cameras.json').read_text())
     for name,rec in gloss_calibration.items():rec['title']='Alder X220 / '+name+' / GLOSS CLAY'
     gc=form/'gloss-pairs/calibration.json';gc.write_text(json.dumps(gloss_calibration,indent=2))
@@ -89,6 +91,10 @@ def main():
     # the gloss sheets explicitly instead of making a shader claim from it.
     sheet([(name+' / gloss clay beside reference',form/'gloss-pairs'/(name+'-pair.jpg')) for name in ['crv_front','rav4_front','crv_rear','rav4_rear']],out/'gloss-pairs.jpg',columns=1,cell_height=690)
     measurements=pairs(out);tones={}
+    balanced=json.loads(Path(a.cameras).read_text())
+    for name,rec in balanced.items():
+        rec['photo']=str((out/measurements[name]['balanced_reference']).resolve());rec['title']+=' / reference neutral-balanced'
+    calibration=out/'balanced-comparisons.json';calibration.write_text(json.dumps(balanced,indent=2));compose(calibration,out,out)
     for name in names:
         im=np.asarray(Image.open(out/(name+'.png')).convert('RGB'));mask=np.asarray(Image.open(out/meta[name]['tonal_mask']).convert('RGBA'))
         geometry=mask[:,:,3]>240;paint=geometry & (mask[:,:,:3].mean(axis=2)>240)
