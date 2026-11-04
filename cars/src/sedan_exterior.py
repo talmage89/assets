@@ -51,6 +51,19 @@ def perimeter(ob):
 
 def optics(b):
     from mathutils.bvhtree import BVHTree
+    def guide_curve(points):
+        """Bound every authored station against its final chord, in meters."""
+        def distance(p,a,c):
+            d=c-a;t=max(0,min(1,(p-a).dot(d)/max(d.length_squared,1e-15)))
+            return (p-a-d*t).length
+        def split(first,last):
+            if last-first<2:return [first,last]
+            error,index=max((distance(points[i],points[first],points[last]),i) for i in range(first+1,last))
+            if error<=.0003:return [first,last]
+            return split(first,index)[:-1]+split(index,last)
+        ids=list(range(len(points))) if b.high else split(0,len(points)-1)
+        measured=max((min(distance(p,points[a],points[c]) for a,c in zip(ids,ids[1:])) for p in points),default=0.)
+        return [points[i] for i in ids],measured
     skin_points=[];skin_faces=[];skin_gauges=[]
     for panel in bpy.context.scene.objects:
         if panel.type!='MESH' or panel.get('part_category') not in ['body','doors','fascia']:continue
@@ -89,6 +102,10 @@ def optics(b):
                 if distance>.012:raise ValueError(('Optical flange misses actual paint',cover.name,distance))
                 mouth.append(hit-n*(skin_gauges[fi]+.0025));distances.append(skin_tree.find_nearest(mouth[-1])[3])
             rings[0]=mouth
+            # The cover is bonded to the bucket's molded lip. Without this
+            # land, the reveal looks into the well and exposes guide ends.
+            lip=[p-normal(p)*.0022 for p in boundary]
+            rings.insert(0,lip)
             cover['casing_flange_max_support_distance_m']=max(distances)
         if cover.get('lamp_piece')=='lid':
             for ring in rings:
@@ -138,7 +155,9 @@ def optics(b):
                 path=path[::2]+([path[-1]] if path[::2][-1]!=path[-1] else [])
             # A 9 mm original twin-blade signature, following the swept cover.
             guide=[p-normal(p)*(.012 if front else .008) for p in path]
-            tube(b,'S240 '+label+' light guide '+cover.name,guide,.0045 if front else .004,b.m['drl'] if front else b.m['brakelight'],'lamps',parent,sides=4)
+            guide,chord_error=guide_curve(guide)
+            guide_ob=tube(b,'S240 '+label+' light guide '+cover.name,guide,.0045 if front else .004,b.m['drl'] if front else b.m['brakelight'],'lamps',parent,sides=4)
+            guide_ob['measured_guide_chord_error_m']=chord_error
         if front:
             for fraction,radius,label in [(.15,.026,'low')]:
                 p=at(fraction)-normal(at(fraction))*.045;n=Vector((.06*(1 if p.x>0 else -1),-1,.05)).normalized()
