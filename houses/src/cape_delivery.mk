@@ -61,7 +61,10 @@ renders/cape/street/.stamp: build/cape/delivery/export.stamp build/cape/delivery
 	$(KIT)/with_gpu.sh $(BP) --python src/cape_street.py -- --width $(WIDTH) --samples $(SAMPLES)
 	@touch $@
 street: renders/cape/street/.stamp
-docs: final-render final-seeds final-matches final-values source-values street renders/cape/source-matches/.stamp
+renders/cape/final-cmu/.stamp: build/cape/delivery/export.stamp $(CAPE_RENDER_DEPS) src/cape_final.py build/cape/render-parameters.txt
+	$(KIT)/with_gpu.sh $(BP) --python src/cape_final.py -- --seed 34 --shots concrete,foundation --out renders/cape/final-cmu --width $(WIDTH) --samples $(SAMPLES)
+	@touch $@
+docs: final-render final-seeds final-matches final-values source-values street renders/cape/source-matches/.stamp renders/cape/final-cmu/.stamp
 	$(PYTHON) $(KIT)/fetch_refs.py refs --only cape-used-peeling.jpg
 	$(BP) --python src/cape_pair_masks.py --
 	$(PYTHON) src/cape_final_review.py

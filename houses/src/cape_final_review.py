@@ -89,11 +89,11 @@ def main():
     # paint is not used as a hue/value target for the off-white asset paint.
     sheet([('Used sill photograph / water damage',Path('refs/cape-used-peeling.jpg')),('Export / nose and sash-joint peeling',base/'peeling.png')],base/'peeling-pair.jpg',2,900)
     paths=[(n,base/(n+'.png')) for n in ('hero','front','side','rear','back','top','roof','dormer','eave','entry','chimney','scale','foundation','concrete','peeling')]
-    paths.extend([('Eevee',Path('renders/cape/final-eevee/hero.png')),('Street',Path('renders/cape/street/street.png'))])
+    paths.extend([('Block foundation / coursing',Path('renders/cape/final-cmu/concrete.png')),('Block foundation / stoop',Path('renders/cape/final-cmu/foundation.png'))]);paths.extend([('Eevee',Path('renders/cape/final-eevee/hero.png')),('Street',Path('renders/cape/street/street.png'))])
     paths.extend([(f'{s} / {n}',family/str(s)/(n+'.png')) for s in seeds for n in ('front','rear','siding')]);paths.extend([(f'{s} / {n}',family/str(s)/(n+'.png')) for s in (32,35) for n in ('hero','connector')]);paths.append(('32 / roof wear',family/'32/tired.png'));paths.extend([(n+' / fitted camera',pairs/(n+'.png')) for n in ('cape_dormers','cape_plain')])
     sheet(paths,base/'contact.jpg',3,800)
     views=[]
-    for folder in (base,pairs,Path('renders/cape/final-eevee'),*[family/str(s) for s in seeds]):
+    for folder in (base,pairs,Path('renders/cape/final-eevee'),Path('renders/cape/final-cmu'),*[family/str(s) for s in seeds]):
         for name,row in json.loads((folder/'provenance.json').read_text()).items():
             assert row['render_recipe_sha256']==recipe_sha(),(folder,name,'stale camera/lighting recipe')
             source=Path(row['source']);assert source.suffix=='.gltf' and bundle_hash(source)==row['source_sha256'],(folder,name,'stale export')
