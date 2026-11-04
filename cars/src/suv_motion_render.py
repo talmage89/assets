@@ -18,7 +18,9 @@ def main():
     metadata={}
     for view,eye,target in [('front',(7,-9,4.4),(0,-.1,1.0)),('rear',(-7,9,4.6),(0,.2,1.0))]:
         bpy.ops.wm.open_mainfile(filepath=str(src.resolve()));sc=bpy.context.scene
-        camera=studio.add_studio(scale=2.5);bpy.data.objects['Studio seamless'].hide_render=True
+        camera=studio.add_studio(scale=2.5)
+        for ob in sc.objects:
+            if ob.get('studio') and ob.type=='MESH':ob.hide_render=True
         for mat in bpy.data.materials:
             mat.diffuse_color=(.25,.32,.34,1) if mat.get('vehicle_paint') else (.06,.07,.08,1)
         trace=studio.studio_mat('Sampled vertex path',(.95,.28,.045),.6);trace.diffuse_color=(.95,.28,.045,1)
