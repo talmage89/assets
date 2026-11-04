@@ -109,3 +109,12 @@ Caltech authors' paper, copyrighted scholarly publication, section 3.5.
 Read for the cotangent Laplace–Beltrami and mixed Voronoi area formula only;
 `suv_curvature_map.py` is our own implementation. No downloaded code, mesh or
 texture. Analytic sphere, cylinder and plane checks accompany the diagnostic.
+# X220 used-crossover look development
+
+These Commons photographs are for visual comparison and independent camera/value
+measurements only. They are never loaded by modeling or material scripts.
+
+| Local file | Direct image/PDF URL | Author / license / use |
+| --- | --- | --- |
+| suv-used-crv-front.jpg | https://upload.wikimedia.org/wikipedia/commons/9/94/2020_Honda_CR-V_LX_in_Modern_Steel_Metallic%2C_front_left%2C_2026-07-03.jpg | Elise240SX, CC BY-SA 4.0, 2026-07-03. Used front three-quarter, paint, road film, lamps, dark glass and wheels; six model years old, a slightly older cross-check than the brief. |
+| suv-used-rav4-rear.jpg | https://upload.wikimedia.org/wikipedia/commons/c/c1/2019_Toyota_Rav4_XLE_Premium_Package_AWD_in_Silver_Sky_Metallic%2C_rear_left%2C_2024-11-01.jpg | Elise240SX, CC BY-SA 4.0, 2024-11-01. Five-year crossover, rear three-quarter reflections, loading sill/cladding, glass, alloy and tires. |

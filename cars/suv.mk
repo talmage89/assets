@@ -1,5 +1,6 @@
-# X220 source form gate. No finish/UV/bake/interior/delivery stage is selected.
+# X220 source form plus detail/look checkpoint. UV/bake/delivery remain later.
 .DEFAULT_GOAL := all
+.DELETE_ON_ERROR:
 BLENDER ?= blender
 PYTHON ?= python3
 KIT := $(abspath ../kit)
@@ -10,15 +11,15 @@ export TMPDIR := $(REPO)/build/tmp
 export ASSETS_GPU_LOCK ?= $(REPO)/build/locks/gpu.lock
 WIDTH ?= 1600
 SAMPLES ?= 40
-PASS ?= suv-round3
+PASS ?= suv-detail-form
 OUT := renders/$(PASS)
-DEPS := src/suv_build.py src/suv_body.py src/suv_spec.py src/suv_apertures.py src/suv_character.py src/suv_greenhouse.py src/suv_cladding.py src/suv_sculpt.py src/suv_optimize.py src/build.py src/forms.py src/wheels.py src/detail_helpers.py ../kit/model.py ../kit/vehicle.py
+DEPS := src/suv_build.py src/suv_body.py src/suv_spec.py src/suv_apertures.py src/suv_character.py src/suv_greenhouse.py src/suv_cladding.py src/suv_sculpt.py src/suv_optimize.py src/suv_resample.py src/build.py src/forms.py src/wheels.py src/detail_helpers.py ../kit/model.py ../kit/vehicle.py
 CLAY := front_three_quarter rear_three_quarter side front rear top side_raking
 STRIPES := stripes_horizontal stripes_vertical stripes_rear_horizontal stripes_rear_vertical stripes_side_horizontal stripes_side_vertical stripes_hood_driver
 PAIRS := crv_front rav4_front crv_rear rav4_rear
 .NOTPARALLEL:
 .PHONY: all model refs check check-repeat render fairness review FORCE
-all: refs model check render review
+all: detail-check detail-render detail-review
 build/suv/game.blend: $(DEPS)
 	@mkdir -p build/suv $(TMPDIR)
 	$(BP) --python src/suv_build.py -- --out $@ --quality game
@@ -27,7 +28,7 @@ build/suv/high.blend: $(DEPS)
 	$(BP) --python src/suv_build.py -- --out $@ --quality high
 model: build/suv/game.blend build/suv/high.blend
 refs:
-	$(PYTHON) $(KIT)/fetch_refs.py refs --only suv-crv-front.jpg suv-crv-rear.jpg suv-crv-side.jpg suv-crv-back.jpg suv-rav4-front.jpg suv-rav4-rear.jpg suv-rav4-side.jpg suv-rav4-back.jpg suv-rav4-specs.pdf suv-rav4-uk.pdf suv-rav4-plan.pdf suv-crv-plan.pdf suv-rav4-face.jpg suv-crv-face.jpg
+	$(PYTHON) $(KIT)/fetch_refs.py refs --only suv-crv-front.jpg suv-crv-rear.jpg suv-crv-side.jpg suv-crv-back.jpg suv-rav4-front.jpg suv-rav4-rear.jpg suv-rav4-side.jpg suv-rav4-back.jpg suv-rav4-specs.pdf suv-rav4-uk.pdf suv-rav4-plan.pdf suv-crv-plan.pdf suv-rav4-face.jpg suv-crv-face.jpg suv-used-crv-front.jpg suv-used-rav4-rear.jpg
 build/suv/cameras.json: src/suv_matches.py src/suv_spec.py $(KIT)/photo_match.py
 	$(PYTHON) $(KIT)/photo_match.py solve --config src/suv_matches.py --out $@
 build/suv/profile-cameras.json: src/suv_profile_matches.py src/suv_spec.py $(KIT)/photo_match.py
@@ -41,7 +42,7 @@ build/suv/parent-curvature.json: build/suv/game.blend src/suv_fairness.py
 fairness: build/suv/curvature.json build/suv/parent-curvature.json
 	$(PYTHON) src/suv_curvature_plot.py --report build/suv/curvature.json --out $(OUT)
 	$(PYTHON) src/suv_curvature_plot.py --report build/suv/parent-curvature.json --out $(OUT)/parent
-check: model refs build/suv/cameras.json build/suv/profile-cameras.json build/suv/form-check.json fairness
+check-form: model refs build/suv/cameras.json build/suv/profile-cameras.json build/suv/form-check.json fairness
 	$(BP) --python $(KIT)/audit.py -- --source build/suv/game.blend --config src/suv_config.py --out build/suv/game-audit.json
 	$(BP) --python $(KIT)/audit.py -- --source build/suv/high.blend --config src/suv_config.py --out build/suv/high-audit.json
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration build/suv/cameras.json
@@ -84,3 +85,9 @@ $(addprefix $(OUT)/mean_curvature_,$(addsuffix .png,$(CURVATURE_VIEWS))) &: buil
 diagnostic-stripes: $(addprefix $(OUT)/curvature_stripes_,$(addsuffix .png,$(CURVATURE_VIEWS)))
 $(addprefix $(OUT)/curvature_stripes_,$(addsuffix .png,$(CURVATURE_VIEWS))) &: build/suv/game.blend src/suv_render.py build/suv/parameters.txt
 	$(KIT)/with_gpu.sh $(RP) --python src/suv_render.py -- --source $< --out $(OUT) --width $(WIDTH) --samples $(SAMPLES) --mode diagnostic_stripes
+
+empty :=
+space := $(empty) $(empty)
+comma := ,
+include suv_detail.mk
+check: detail-check
