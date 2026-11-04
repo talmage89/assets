@@ -93,7 +93,8 @@ def window(b,o):
   box(u,.10,z+h+.062,w+.15,.10,.009,(.35,.35,.31),0)
  elif masonry_top<z+h:me.box((u,.047,z+h+.026),(w+.108,.052,.052),'Trim',c,.0015,xf)
  # One opening, no false casings between the picture unit's three lights.
- panels=[(u-w*.355,w*.27,True),(u,w*.44,False),(u+w*.355,w*.27,True)] if picture else [(u,w,True)]
+ slider=b.plan['spec']['type']=='split' and o.get('style')=='slider'
+ panels=[(u-w*.355,w*.27,True),(u,w*.44,False),(u+w*.355,w*.27,True)] if picture else ([(u-w/4,w/2,False),(u+w/4,w/2,False)] if slider else [(u,w,o.get('style')!='fixed')])
  for pi,(x,pw,operable) in enumerate(panels):
   inner=pw-.06
   for sign in (-1,1):box(x+sign*(pw/2-.022),.055,z+h/2,.044,.045,h-.02)

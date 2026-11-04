@@ -166,12 +166,18 @@ def roofs(b):
             a,c=map(Vector,pts);normal=Vector((*n,0));level=abs(a.z-c.z)<.005
             trim.prism([a+Vector((0,0,-.018)),c+Vector((0,0,-.018)),c+Vector((0,0,-.151)),a+Vector((0,0,-.151))],normal,.019)
             inner=[Vector((max(block.x0,min(block.x1,p.x)),max(block.y0,min(block.y1,p.y)),p.z-.14)) for p in (a,c)]
-            trim.prism([a+Vector((0,0,-.14)),c+Vector((0,0,-.14)),inner[1],inner[0]],(0,0,-1),.009)
+            soffit=[a+Vector((0,0,-.14)),c+Vector((0,0,-.14)),inner[1],inner[0]]
+            footprint_area=abs(sum(p.x*q.y-q.x*p.y for p,q in zip(soffit,soffit[1:]+soffit[:1])))/2
+            if b.plan['spec']['type']!='split' or footprint_area>1e-8:
+                trim.prism(soffit,(0,0,-1),.009)
             trim.beam(a+normal*.01+Vector((0,0,-.013)),c+normal*.01+Vector((0,0,-.013)),.014,.014,color=(.40,.41,.37),r=0)
             trim.beam(a+Vector((0,0,.003)),c+Vector((0,0,.003)),.024,.012,'Shingles',r=0)
             # Dormer eaves discharge onto the parent roof, with a drip edge;
             # pipes on the house/additions use the existing rounded K system.
-            if level and block.name in ('Main','Wing','Garage'):
+            # A high split-wing eave can discharge onto the lower living
+            # roof. No downspout may run through the occupied wing below.
+            shed_to_lower=(b.plan['spec']['type']=='split' and any(v is not block and v.contains((a.x+c.x)/2,(a.y+c.y)/2,.02) and v.height((a.x+c.x)/2,(a.y+c.y)/2)<min(a.z,c.z)-.2 for v in b.plan['blocks']))
+            if level and block.name in ('Main','Wing','Garage') and not shed_to_lower:
                 drain(b,gutters,a,c,n,block,index)
                 # Concealed steel hangers at 3 ft centers, fixed to the fascia.
                 axis=0 if abs(c.x-a.x)>abs(c.y-a.y) else 1

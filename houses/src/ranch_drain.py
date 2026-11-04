@@ -80,13 +80,23 @@ def drain(b,me,a,c,n,block,index):
  walltop=Vector((pipe.x,pipe.y,start.z-block.overhang-.13));finish=Vector((pipe.x,pipe.y,.24))
  outlet=finish+normal*.30+Vector((0,0,-.12))
  controls=[start,start+Vector((0,0,-.09)),walltop+Vector((0,0,.10)),walltop,finish,finish+normal*.12+Vector((0,0,-.09)),outlet]
+ lower_setback=0
+ if b.plan['spec']['type']=='split' and block.stories==2 and tuple(n)==(0,-1) and b.plan['spec']['kind']=='side':
+  lower_setback=b.plan['spec']['wing']['overhang']
+  if lower_setback:
+   band=b.plan['levels']['upper']-.254
+   above=Vector((pipe.x,pipe.y,band+.14));below=Vector((pipe.x,pipe.y,band-.14))-normal*lower_setback
+   finish-=normal*lower_setback;outlet-=normal*lower_setback
+   controls=controls[:4]+[above,below,finish,finish+normal*.12+Vector((0,0,-.09)),outlet]
  rim=section(me,rounded(controls),along)
  center=sum(rim,Vector())/4;me.geom([center+(p-center)*.90-normal*.012 for p in rim],[(0,1,2,3)],color=(.025,.027,.024))
  # A short collar is entirely below the gutter's bottom.
  section(me,[start,start+Vector((0,0,-.045))],along,.082,.057)
  for z in (.72,1.65,2.45):
   if z>=walltop.z-.08:continue
-  p=Vector((pipe.x,pipe.y,z));me.beam(p-along*.047,p+along*.047,.014,.015,r=.001)
+  p=Vector((pipe.x,pipe.y,z))
+  if lower_setback and z<b.plan['levels']['upper']-.254:p-=normal*lower_setback
+  me.beam(p-along*.047,p+along*.047,.014,.015,r=.001)
   me.beam(p-along*.047,p-along*.047-normal*.14,.014,.015,r=.001)
   me.beam(p+along*.047,p+along*.047-normal*.14,.014,.015,r=.001)
  splash=b.mesh(f'{block.name}_Splash_{index}',component='splash_block');mid=outlet+normal*.12;mid.z=.0225
