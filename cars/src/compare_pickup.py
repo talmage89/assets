@@ -40,11 +40,20 @@ def main():
                 if not np.array_equal(old.accessor(index),new.accessor(ra[key])):array_changes.append(f'{mi}/{pi}/{key}')
     images_equal=len(old.json['images'])==len(new.json['images']) and all(old.image(i)==new.image(i) for i in range(len(old.json['images'])))
     graph_equal=all(old.json.get(k)==new.json.get(k) for k in ['nodes','scenes','materials','textures','samplers'])
-    report=dict(passed=not changes and not array_changes and images_equal and graph_equal,source_objects=len(before),
+    json_changes=[k for k in sorted(set(old.json)|set(new.json)) if old.json.get(k)!=new.json.get(k)]
+    def without_generator(document):
+        result=dict(document);result['asset']={k:v for k,v in document['asset'].items() if k!='generator'};return result
+    metadata_only=without_generator(old.json)==without_generator(new.json)
+    payload_equal=old.binary==new.binary
+    report=dict(passed=not changes and not array_changes and images_equal and graph_equal and payload_equal and metadata_only,source_objects=len(before),
        source_meshes=sum(r['type']=='MESH' for r in before.values()),source_changes=changes,
        glb_accessors_compared=accessors,glb_array_changes=array_changes,embedded_maps_identical=images_equal,delivery_graph_identical=graph_equal,
        old_bytes=Path(a.old_glb).stat().st_size,new_bytes=Path(a.new_glb).stat().st_size,
        old_sha256=hashlib.sha256(Path(a.old_glb).read_bytes()).hexdigest(),new_sha256=hashlib.sha256(Path(a.new_glb).read_bytes()).hexdigest(),
+       complete_glb_identical=Path(a.old_glb).read_bytes()==Path(a.new_glb).read_bytes(),
+       binary_payload_identical=payload_equal,json_fields_changed=json_changes,
+       json_identical_except_exporter_version=metadata_only,
+       exporter_versions=[old.json['asset'].get('generator'),new.json['asset'].get('generator')],
        scope='Fresh default pickup source generation; re-export of unchanged accepted finalized source/maps. No GPU rebake.')
     Path(a.out).write_text(json.dumps(report,indent=2));print(json.dumps(report,indent=2))
     if not report['passed']:raise AssertionError('Pickup preservation failed')

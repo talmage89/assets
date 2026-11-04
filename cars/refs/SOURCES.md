@@ -40,6 +40,7 @@ geometry, a shader or a texture. Paired comparison images remain ignored.
 | Local file | Direct image/PDF URL | Author / license / use |
 | --- | --- | --- |
 | sedan-camry-specs.pdf | https://cdn.dealereprocess.org/cdn/brochures/toyota/2019-camry.pdf | Toyota Motor Sales USA; copyrighted MY2019 manufacturer eBrochure, archived by Dealer eProcess; specification table, SE dimensions/track/clearance and 235/45R18. Reference only. |
+| sedan-mondeo-specs.pdf | https://www.ford.ie/content/dam/guxeu/uk/documents/feature-pdfs/FT-Mondeo.pdf | Ford Motor Company; copyrighted MY2020 manufacturer brochure, reference only. Dimensions figure, printed p.43 (PDF page 7): 2121 mm across mirrors. Cross-check for the original S240 mirror package; not a styling source. Retrieved 2026-10-31. |
 | sedan-camry-uk-2021.pdf | https://www.toyota.co.uk/content/dam/toyota/nmsc/united-kingdom/brochure-archive/camry/camry-jun-21.pdf | Toyota GB; copyrighted June 2021 manufacturer brochure; independent metric envelope/145 mm clearance cross-check. Different market, not substituted for US trim. |
 | sedan-toyota-2020.pdf | https://media.toyota.ca/content/dam/media-toyota/general/unassigned/20145/20-camry-brochure-en.pdf | Toyota Canada; copyrighted MY2020 manufacturer brochure; same-generation tire/package comparison only, not the US envelope source. |
 | sedan-accord-front.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019HOC010107.jpg&width=1600 | CarsDirect / Autodata copyrighted stock photo, reference only; MY2019 LX front three-quarter, roof/hood/stance and calibration. Source page: https://www.carsdirect.com/honda/accord/2019/pictures . |
@@ -57,4 +58,7 @@ copyrighted specification literature. Envelope, front/rear track and explicitly
 no-load/full-load clearance. The LX photograph's 225/50R17 differs from our chosen
 235/45R18 package; its diameter is similar but wheel style is not copied.
 
-Ford Motor Company [MY2020 Mondeo brochure](https://www.ford.ie/content/dam/guxeu/uk/documents/feature-pdfs/FT-Mondeo.pdf), copyrighted manufacturer literature, reference only. Web-viewed 2026-10-31; direct local retrieval timed out, so it is not a build dependency. Dimensions table: 2121 mm including mirrors versus 1852 mm body. Class cross-check for original 2110 mm S240 mirror span; housing dimensions remain original construction estimates.
+The Ford dimensions figure was inspected again for round 5: 2121 mm including
+mirrors, against the S240's measured 2104.6 mm. The housing dimensions and
+rounded wedge construction remain original estimates. Reference images/PDFs
+never enter the generator, aperture cutter or material graph.

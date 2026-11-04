@@ -118,7 +118,7 @@ def main():
               hood_rise_degrees=math.degrees(math.atan2(cowl.z-edge.z,cowl.y-edge.y)),
               hood_transverse_crown_m=crown0.z-(crownL.z+crownR.z)/2,
               hood_crown_samples_m=[list(p) for p in [crown0,crownL,crownR]],
-              plan_sweep_at_850mm_m=end(.850,bumper.z,True).y-bumper.y)
+              plan_sweep_at_850mm_m=end(.850,bumper.z,True).y-bumper.y,plan_sweep_height_m=bumper.z)
         else:
             edge=max([p for p in trunk if abs(p.x)<.05 and p.y>2.15],key=lambda p:p.z)
             glass=points(bpy.data.objects['Backlight']);base=max([p for p in glass if abs(p.x)<.05],key=lambda p:p.y)
@@ -127,7 +127,7 @@ def main():
             curves[key]=dict(bumper_rearmost_m=list(bumper),deck_trailing_edge_m=list(edge),backlight_base_m=list(base),diffuser_m=list(lower),
               upper_panel_degrees_from_vertical=math.degrees(math.atan2(bumper.y-edge.y,edge.z-bumper.z)),
               lower_tuck_m=bumper.y-lower.y,deck_length_m=edge.y-base.y,deck_rise_degrees=math.degrees(math.atan2(edge.z-base.z,edge.y-base.y)),
-              deck_transverse_crown_m=dc.z-(dl.z+dr.z)/2,plan_sweep_at_850mm_m=bumper.y-end(.850,bumper.z,False).y)
+              deck_transverse_crown_m=dc.z-(dl.z+dr.z)/2,plan_sweep_at_850mm_m=end(0,.570,False).y-end(.850,.570,False).y,plan_sweep_height_m=.570)
         curves[key]['centerline_samples_m']=[list(p) for p in curve]
     lamps={}
     for ob in obs:
@@ -143,7 +143,8 @@ def main():
     report.update(end_measurements=curves,lamps=lamps,
         overhangs_m=dict(front=wheels['FL'][1]-report['bounds_m']['min'][1],rear=report['bounds_m']['max'][1]-wheels['RL'][1]))
     errors=[]
-    if any(abs(value-target)>.0008 for value,target in zip(report['bounds_m']['size'],[1.850,4.900,1.449])):errors.append('Accepted envelope changed')
+    if any(abs(report['bounds_m']['size'][axis]-target)>.001 for axis,target in [(0,1.850),(2,1.449)]):errors.append('Accepted width/height changed')
+    if not 4.882<=report['bounds_m']['size'][1]<=4.901:errors.append('Length outside the sedan class envelope')
     if any(row['min_m']<.0043 or row['max_m']>.0048 for row in seams.values()):errors.append('Physical door reveal')
     if report['quality']=='game' and report['triangles']>55000:errors.append('Form allocation above 55k')
     if abs(wheelbase-S.WHEELBASE)>1e-5:errors.append('Wheelbase')
@@ -160,7 +161,7 @@ def main():
       'hood edge setback':(f['hood_edge_setback_m'],.15,.25),
       'hood edge height':(f['hood_edge_m'][2],.72,.80),
       'front chin height':(f['chin_m'][2],.15,.20),
-      'front chin tuck':(f['chin_tuck_m'],.10,.15),
+      'front chin tuck':(f['chin_tuck_m'],.025,.075),
       'hood rise':(f['hood_rise_degrees'],8,12),
       'cowl height':(f['cowl_m'][2],.95,1),
       'hood crown':(f['hood_transverse_crown_m'],.02,.04),
@@ -169,9 +170,17 @@ def main():
       'deck edge height':(r['deck_trailing_edge_m'][2],1.06,1.12),
       'rear upper lean':(r['upper_panel_degrees_from_vertical'],5,15),
       'rear bumper height':(r['bumper_rearmost_m'][2],.55,.65),
-      'rear lower tuck':(r['lower_tuck_m'],.15,.20),
+      'rear lower tuck':(r['lower_tuck_m'],.050,.120),
       'diffuser height':(r['diffuser_m'][2],.25,.35),
       'deck length':(r['deck_length_m'],.35,.45)}
+    # Round 5 explicitly replaces the lower-end silhouette and permits length
+    # within the class. Preserve the old measurements/ranges for comparison:
+    # passing the current construction checks does not satisfy those old tucks.
+    report['superseded_round2_ranges']={
+      'front chin tuck':dict(measured=f['chin_tuck_m'],minimum=.10,maximum=.15),
+      'rear lower tuck':dict(measured=r['lower_tuck_m'],minimum=.15,maximum=.20),
+      'length':dict(measured=report['bounds_m']['size'][1],target=4.900),
+      'reason':'R5 reshapes both lower bumpers against the profile photograph; the primary body/chassis package stays fixed.'}
     for name,values in lamps.items():
         if name.startswith('Headlamp'):
             for label,field,lo,hi in [('length','surface_centerline_length_m',.60,.75),('height','max_aperture_height_m',.08,.16),('return','corner_return_y_m',.20,.30)]:
