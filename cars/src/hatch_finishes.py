@@ -21,10 +21,10 @@ def paint(wear):
     fans=[n.mul(n.ramp(n.math('SUBTRACT',ceiling,z),0,.22),.45)]
     for axle in [S.FRONT_AXLE,S.REAR_AXLE]:
         dy=n.math('SUBTRACT',y,axle+.25)
-        aft=n.mul(n.ramp(dy,0,.12),n.ramp(dy,1.30,.45))
-        ceiling=n.add(.52,n.mul(dy,-.10))
+        aft=n.mul(n.ramp(dy,0,.12),n.ramp(dy,2.60,1.50))
+        ceiling=n.add(n.add(.52,n.mul(n.noise(p,7,2),.020)),n.mul(dy,-.035))
         fans.append(n.mul(aft,n.ramp(n.math('SUBTRACT',ceiling,z),0,.23),.85))
-    film=n.mul(n.maximum(*fans),grain,wear,.38)
+    film=n.mul(n.maximum(*fans),grain,wear,.65)
     loading=n.mul(n.ramp(y,1.98,2.10),n.band(z,.615,.012,.040),n.ramp(n.math('ABSOLUTE',x),.62,.46),wear)
     abrasion=n.mul(loading,n.ramp(n.noise(n.vec('MULTIPLY',p,(.25,4,2)),420,2),.70,.81),.20)
     # Cavity residue follows actual shut-line locations, never a panel-wide wash.
@@ -76,9 +76,9 @@ def build(wear):
         brake_centers=[(sign*track/2,y,S.HUB_HEIGHT) for sign in [-1,1]
                        for track,y in [(S.FRONT_TRACK,S.FRONT_AXLE),(S.REAR_TRACK,S.REAR_AXLE)]],refined=True)
     m['glass']=V.glazing('H120 windshield',(.80,.86,.88))
-    m['side_glass']=V.glazing('H120 front door glass',(.64,.72,.74),axes=(1,2))
+    m['side_glass']=V.glazing('H120 front door glass',(.56,.64,.66),axes=(1,2))
     m['privacy']=V.glazing('H120 rear door glass',(.35,.43,.46),True,axes=(1,2))
-    m['rear_glass']=V.glazing('H120 backlight',(.40,.48,.50),True)
+    m['rear_glass']=V.glazing('H120 backlight',(.62,.68,.70),True)
     for key in ['glass','side_glass','privacy','rear_glass']:dirty_lower_glass(m[key],wear)
     m['rear_cover']=V.lamp('H120 red lamp cover',(.55,.010,.006),0,1)
     m['rear_cover'].node_tree.nodes['OUT_rough'].inputs[0].links[0].from_socket.default_value=.045
