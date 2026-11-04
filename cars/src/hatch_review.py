@@ -147,7 +147,7 @@ def main():
     front,rear=[rgb(out/(name+'-dimensions.jpg')) for name in ['front','rear']]
     pair=Image.new('RGB',(front.width+rear.width,max(front.height,rear.height)),(229,231,232));pair.paste(front,(0,0));pair.paste(rear,(front.width,0));save(pair,out/'front-rear.jpg')
     names=['front_three_quarter.jpg','rear_three_quarter.jpg','side-dimensions.jpg','front-dimensions.jpg','rear-dimensions.jpg','front-rear.jpg','top-dimensions.jpg','side_raking.jpg','side-overlay-corolla.jpg','side-overlay-hyundai.jpg',
-       'stripes_horizontal.jpg','stripes_vertical.jpg','stripes_rear_horizontal.jpg','stripes_rear_vertical.jpg',
+       'stripes_horizontal.jpg','stripes_vertical.jpg','stripes_rear_horizontal.jpg','stripes_rear_vertical.jpg','stripes_rear_unpainted.jpg',
        'stripes_side_horizontal.jpg','stripes_side_vertical.jpg','stripes_hood_driver.jpg','curvature-body.jpg','curvature-hood-roof.jpg',
        'section-front_axle.jpg','section-b_pillar.jpg','section-rear_axle.jpg','section-mid_front_door.jpg','section-mid_rear_door.jpg','section-centerline.jpg','rear-reference-corolla.jpg','rear-reference-hyundai.jpg','rear-comparison-corolla.jpg','rear-comparison-hyundai.jpg']
     names += [name+'-pair.jpg' for name in cameras]

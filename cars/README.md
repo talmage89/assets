@@ -390,10 +390,10 @@ These are recorded limitations, not final paint or delivery approval. No kit
 changes were needed.
 
 
-## Alder H120 — compact hatchback form round 2
+## Alder H120 — compact hatchback form round 3
 
 The third body is an original late-2010s five-door hatch, built in isolated
-`hatch_*.py` modules. Its measured package is **4361 × 1794 × 1451 mm**, with a
+`hatch_*.py` modules. Its measured package is **4363 × 1796 × 1451 mm**, with a
 **2650 mm wheelbase** and **225/40R18** form wheels. Toyota Corolla and Hyundai
 i30/Elantra GT references establish the class; the short rear package, level
 roof, split lamps and bumper plate pocket are documented in
@@ -401,17 +401,18 @@ roof, split lamps and bumper plate pocket are documented in
 
 [H120 checkpoint report](HATCH.md) contains the measured sections, face/rear
 numbers, per-part budgets, reproducible commands, pickup preservation proof
-and remaining form misses. [REVIEW.md](REVIEW.md#alder-h120--form-round-2)
+and remaining form misses. [REVIEW.md](REVIEW.md#h120-form-round-3--sculpture-and-reflection-flow)
 records the critique passes. Rebuild with `make -C cars BODY=hatch` from the
 repository root; the default `cars/` build remains the pickup.
 
-The [front clay](renders/hatch-round2/front_three_quarter.jpg),
-[rear clay](renders/hatch-round2/rear_three_quarter.jpg) and
-[complete contact sheet](renders/hatch-round2/contact.jpg) are generated
+The [front clay](renders/hatch-round3/front_three_quarter.jpg),
+[rear clay](renders/hatch-round3/rear_three_quarter.jpg) and
+[complete contact sheet](renders/hatch-round3/contact.jpg) are generated
 locally. This is a source-form review, before UVs, textures, GLB, interior,
 motion validation or paint. Checkpoint images are not committed.
 
-Round 2 adds perspective profile fits, door-mounted wedge mirrors, shaped gate
-and bumper features, and fairer end transitions. The form is **46,881 triangles**;
-the documented interior/underbody/detail plan stays below **60,000**. Pickup
-source and GLB remain identical. Sedan modules and the kit are unchanged.
+Round 3 sharpens the side lines and wheel crowns, sculpts the gate and its
+shadowed lower lip, follows the Corolla's black lower bumper construction,
+rounds the mirror caps and repairs aperture cuts. The form is **46,843 triangles**,
+within its **46,881 allocation** and **59,381 finished plan**. Pickup source and
+GLB remain identical. Sedan modules and the kit are unchanged.

@@ -24,6 +24,7 @@ SHOTS={
  'stripes_side_horizontal':dict(location=(10,0,1.0),target=(0,0,.74),ortho=5.1,aspect=2,direction='horizontal'),
  'stripes_side_vertical':dict(location=(10,0,1.0),target=(0,0,.74),ortho=5.1,aspect=2,direction='vertical'),
  'stripes_hood_driver':dict(location=(.34,-.60,1.24),target=(.06,-1.70,.85),lens=38,aspect=1.6,direction='vertical',only=['Hood outer']),
+ 'stripes_rear_unpainted':dict(location=(-5.5,6.5,2.5),target=(0,.15,.76),lens=58,aspect=1.65,direction='horizontal',unpainted_bumper=True),
 }
 
 
@@ -68,6 +69,9 @@ def main():
         camera=studio.add_studio(scale=2.5,backdrop_color=(.2,.21,.22))
         stripe=a.mode in ['stripes','pairs']
         if stripe:
+            if shot.get('unpainted_bumper'):
+                ob=bpy.data.objects['Rear molded fascia']
+                for slot in ob.material_slots:slot.material=bpy.data.materials['Clay body']
             stripes(sc,shot.get('direction','horizontal'));sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=4
             for ob in sc.objects:
                 if ob.get('studio') and ob.type in ['MESH','LIGHT']:ob.hide_render=True

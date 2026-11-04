@@ -365,3 +365,24 @@ The measured mirror span is 2039.3 mm, following the **2039 mm** published
 width with mirrors in the November 2018 Hyundai UK manufacturer sheet linked
 above. The new wedge caps sit on the front door’s sail, with a flat rear pane.
 Reference photos are used only for measurements and side-by-side review.
+
+
+### H120 round 3: rear construction and surface references
+
+The lower black bumper center and tall slim corner reflectors now follow the
+Corolla rear photograph (`refs/hatch-corolla-back.jpg`), while retaining the
+accepted plate pocket and gate cut. The Hyundai rear is retained as a second
+comparison: its broader painted bumper and horizontal reflectors differ, so
+this treatment does not claim to match both. On the 1824-pixel Corolla image,
+the body spans approximately x = 356…1470 at its rear shoulders. A reflector
+spans approximately 13 × 135 pixels, implying roughly 21 × 217 mm using the
+1790 mm body width. These are projected class estimates, about ±20 mm in
+height and ±5 mm in width, not a parts drawing. The original H120 guide is
+24 × 200 mm before projection onto its own curved corner. The checkpoint
+report measures the resulting mesh separately.
+
+White studio backgrounds provide the neutral for both makes' comparisons;
+unit RGB balance is retained. No photograph supplies model vertices or texels.
+The side's shoulder, rising lower hollow, wheel crowns, gate pinching, lower
+hem shadow, bumper corner roll and mirror crown are judged in the unchanged
+calibrated pairs and procedural reflection bands.

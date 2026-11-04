@@ -57,6 +57,6 @@ def profiles(out,cameras):
   if baseline.exists():
    a,b=Image.open(baseline).convert('RGB'),im.copy()
    a.thumbnail((1200,900));b.thumbnail((1200,900));pair=Image.new('RGB',(2400,980),(229,231,232));pair.paste(a,(0,70));pair.paste(b,(1200,70));draw=ImageDraw.Draw(pair)
-   draw.text((20,20),'ROUND 1 / ORIGINAL ORTHOGRAPHIC OVERLAY',font=font(24),fill=(25,55,75));draw.text((1220,20),'ROUND 2 / MATCHED PERSPECTIVE',font=font(24),fill=(25,55,75));save(pair,out/('side-rounds-'+make+'.jpg'))
+   draw.text((20,20),'ROUND 1 / ORIGINAL ORTHOGRAPHIC OVERLAY',font=font(24),fill=(25,55,75));draw.text((1220,20),'CURRENT / MATCHED PERSPECTIVE',font=font(24),fill=(25,55,75));save(pair,out/('side-rounds-'+make+'.jpg'))
  (out/'side-perspective.json').write_text(json.dumps(records,indent=2))
  return records
