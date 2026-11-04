@@ -2738,3 +2738,67 @@ nested optical depth and noisier grazing reflections than Cycles. Nothing is
 needed from the lead to rebuild or inspect this delivery. A future general UV
 minimum-feature allocator could help thin gauge/trim within a small atlas;
 this round does not add one to the shared kit.
+
+## S240 R8 — repair the surfaces judged in the finals
+
+### Pass 1 — baseline, causes before correction
+
+Color and value first: opened the delivered hero, rear, details, five-color
+sheet and full-size face beside the actual used-front/rear photographs. Keep
+the five factory factors, outdoor white balances (front plaster, rear white
+background-car trunk), matched sun/sky and accepted studio. The photographic
+film keeps the underlying paint hue and has a smooth vertical falloff; the
+white/silver delivery instead exposes an irregular high-contrast noise field.
+The checked patches did not certify these whole-view defects.
+
+Baseline evidence is preserved under `build/sedan-r8/before/`. The
+`build/sedan-r8/no-normal/` experiment renders the same imported delivery with
+only the Principled normal connections disabled. Glass tearing and most grille
+warping disappear; the canopy rail kink, optical cut, arch spikes and tire
+rings remain. This separates bake/material defects from actual geometry.
+
+Causes established before editing:
+
+- Windshield/backlight: their source has no glass height relief, but the direct
+  normal bake is not neutral: windshield p99/max tangent deviation .469/3.024
+  degrees, backlight .115/.251 degrees. A crisp softbox edge exposes these
+  small interpolation/edge errors; removing the map removes the ragged edge.
+  The game canopy also has too few transverse chords near the rail. Geometry
+  and normal continuity still require inspection independently of this bake.
+- Roof/sail: the source canopy controls change spacing and cross crown near
+  the header; localized Laplacian relaxation and coarser game canopy sampling
+  leave an uneven transition. It survives the normal-disabled experiment.
+  The backlight's longitudinal section also changes slope repeatedly. These
+  are high-surface/game sampling issues, not merely a texture problem.
+- Hood: the normal-disabled face still has broad uneven highlight flow and
+  mottled roughness. Source flake/peel is sampled far below the 229 px/m median
+  atlas density (2800/m peel, 900/m roughness); a sparse point-sampled bake
+  aliases microscopic structure into visible variation. Broad flow is a
+  separate parent/control and game interpolation issue.
+- Grille: each low vane has sharp rectangular sides while the high source
+  adds bevels. Accepted partwise hit coverage does not establish accurate
+  shading: vane 08's projected normal has p95 9.64, p99 30.79 and max 77.29
+  degrees. It replaces a direct normal with only .053-degree maximum error.
+  The 20%-decimated backing has irregular triangles and a 2 mm shader relief;
+  that direct map reaches 20 degrees. Both are exaggerated at this density.
+- Headlamp outer cut: the chart cutter uses a convex hull over a bent strip,
+  and then returns chord intersections by nearest 3D point rather than the
+  carried parameter. These operations can select the wrong folded branch at
+  the tip. The defect persists with every normal map disabled.
+- Film: 35/m three-octave noise modulates the entire deposit, and 7/m noise
+  changes its ceiling. The mask's nominal wheel location does not make this
+  mottling a plausible spray gradient. Replace its distribution and directional
+  streak construction while keeping factory colors and localized gap dirt.
+- Tires/arches: the low tire has only 40 angular segments and 11 profile
+  stations, with angle-threshold smoothing creating distinct sidewall rings.
+  The lettering also inherits the pickup's radius and masks after coordinate
+  rescaling, so it is too small/soft in the delivered sidewall. The arch cutter
+  clips coarse chord planes, then aperture recuts return all vertices to the
+  nearest parent without preserving the circular cut. This moves the lip off
+  its intended boundary and leaves thin projecting facets. These are source
+  geometry/construction faults, separate from bake noise.
+
+Next: correct each surface/projection by cause, allocate continuous UV charts
+and properly filtered shader detail, then repeat the same full-size finals.
+The expanded curvature and reflection evidence must include glass, grille,
+lamps and arch lips, and must inspect the delivered GLB as well as the source.
