@@ -20,11 +20,11 @@ from textures import SETS
 from plan import PROOF_SEEDS
 
 
-def check(seed,ranch=False,cape=False):
-    path=Path(f'export/HearthfieldCape-{seed}.gltf' if cape else f'export/HearthfieldRanch-{seed}.gltf' if ranch else f'export/Hearthfield-{seed}.gltf')
-    source=Path(f'build/cape/delivery/game-{seed}.blend' if cape else f'build/ranch/delivery/game-{seed}.blend' if ranch else f'build/family/game-{seed}.blend')
+def check(seed,ranch=False,cape=False,split=False):
+    path=Path(f'export/HearthfieldSplit-{seed}.gltf' if split else f'export/HearthfieldCape-{seed}.gltf' if cape else f'export/HearthfieldRanch-{seed}.gltf' if ranch else f'export/Hearthfield-{seed}.gltf')
+    source=Path(f'build/split/delivery/game-{seed}.blend' if split else f'build/cape/delivery/game-{seed}.blend' if cape else f'build/ranch/delivery/game-{seed}.blend' if ranch else f'build/family/game-{seed}.blend')
     physical=source_check(source);meta=json.loads(source.with_suffix('.json').read_text())
-    pivots={o.name:tuple(o.matrix_world.translation) for o in bpy.context.scene.objects if o.name in ('FrontDoor','PatioDoor','ServiceDoor') or o.get('socket_kind')}
+    pivots={o.name:tuple(o.matrix_world.translation) for o in bpy.context.scene.objects if o.name in ('FrontDoor','PatioDoor','ServiceDoor') or o.get('socket_kind') or split and o.get('motion_kind')=='sectional_track'}
     source_points=[(tuple(o.matrix_world@v.co),tuple(o.data.color_attributes['Tint'].data[v.index].color[:3]))
         for o in bpy.context.scene.objects if o.type=='MESH' for v in o.data.vertices]
     source_tree=KDTree(len(source_points))
@@ -32,7 +32,8 @@ def check(seed,ranch=False,cape=False):
     source_tree.balance()
     raw=read_delivery(path);doc=raw.json;triangles=0;normal_error=0;tint_error=0;position_error=0;uv_zero=0;areas={};points=[]
     expected_meshes=3 if cape or ranch and meta['spec']['garage']['kind']=='carport' else 4
-    assert len(doc['meshes'])==expected_meshes and (4 if ranch or cape else 5)<=len(doc['materials'])<=6 and (11 if cape else 12)<=len(doc['images'])<=(18 if cape else 16 if ranch else 15)
+    if split:expected_meshes=7 if meta['spec']['garage']['kind'] in ('integral','attached') else 3
+    assert len(doc['meshes'])==expected_meshes and (4 if ranch or cape or split else 5)<=len(doc['materials'])<=6 and (11 if cape or split else 12)<=len(doc['images'])<=(18 if cape or split else 16 if ranch else 15)
     assert all('bufferView' not in im and im['uri'].startswith('textures/') for im in doc['images'])
     assert len(raw.binary)==doc['buffers'][0]['byteLength']
     for p in dependencies(path):assert p.exists() and not p.is_symlink()
@@ -61,10 +62,10 @@ def check(seed,ranch=False,cape=False):
             assert float(area.min())>1e-12
             uv_zero+=int(np.sum(ua<1e-14))
             role=doc['materials'][prim['material']]['name'].split('.')[0].removeprefix('House')
-            size=256 if role in ('CapeBrick','CapeConcrete') else (512*256)**.5 if role in ('CapeCedar','CapeCement') else 1024 if role=='RanchRoof' else 512 if role.startswith('RanchBrick') else SETS.get(role,SETS['Trim'])[0]
+            size=512 if role=='SplitStone' else 256 if role in ('CapeBrick','CapeConcrete') else (512*256)**.5 if role in ('CapeCedar','CapeCement') else 1024 if role=='RanchRoof' else 512 if role.startswith('RanchBrick') else SETS.get(role,SETS['Trim'])[0]
             densities=np.sqrt(ua/area)*size
             areas.setdefault(role,[]).extend(zip(map(float,densities),map(float,area)))
-            if role in ('Trim','Glass'):
+            if role in ('Trim','Glass','SplitPaintedBoards'):
                 # A strip must contain each face. U repetition is deliberate.
                 span=np.max(tc[:,:,1],axis=1)-np.min(tc[:,:,1],axis=1)
                 assert float(span.max())<=.125+1e-6
@@ -80,7 +81,12 @@ def check(seed,ranch=False,cape=False):
         rows=sorted(rows);v=np.array([r[0] for r in rows]);w=np.cumsum([r[1] for r in rows]);w/=w[-1]
         density[role]=dict(zip(('p10','median','p90'),map(float,np.interp([.1,.5,.9],w,v))))
         target=(256*256/(.6096*(.2032/3*8)))**.5 if role=='CapeBrick' else 256/1.2192 if role=='CapeConcrete' else (512*256/(1.2192*(.762 if meta['spec'].get('siding')=='cedar' else .5588)))**.5 if role in ('CapeCedar','CapeCement') else 1024/4.8768 if role=='RanchRoof' else 512/1.2192 if role.startswith('RanchBrick') else SETS.get(role,SETS['Trim'])[0]/SETS.get(role,SETS['Trim'])[1]
-        if role not in ('Trim','Glass'):assert abs(density[role]['median']/target-1)<.005
+        if split and role=='Siding' and meta['spec']['siding']=='aluminum':target/=2**.5
+        if role=='SplitStone':
+            from split_atlas import rect
+            r=rect('stone' if meta['spec']['veneer']=='stone' else str(seed));coverage=1.3716**2 if meta['spec']['veneer']=='stone' else .6096*(.2032/3*8)
+            target=512*((r[2]-r[0])*(r[3]-r[1])/coverage)**.5
+        if role not in ('Trim','Glass','SplitPaintedBoards'):assert abs(density[role]['median']/target-1)<.005,(role,density[role],target)
     bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(path.resolve()));bpy.context.view_layer.update()
     imported=[tuple(o.matrix_world@v.co) for o in bpy.context.scene.objects if o.type=='MESH' for v in o.data.vertices]
     imported_tree=KDTree(len(imported))

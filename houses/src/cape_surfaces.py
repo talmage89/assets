@@ -7,7 +7,7 @@ def attr(n,name,output='Vector'):
     return n.node('ShaderNodeAttribute',attribute_name=name).outputs[output]
 
 
-def layer(mat,role,meta):
+def layer(mat,role,meta,roof_shade=False,lap_exposure_m=None):
     n=Nodes.__new__(Nodes);n.mat=mat;n.nt=mat.node_tree;p=n.nt.nodes.get('Principled BSDF')
     def input_value(key):
         s=p.inputs[key];return s.links[0].from_socket if s.is_linked else s.default_value
@@ -67,7 +67,8 @@ def layer(mat,role,meta):
             oxide=n.mul(.27,n.add(.38,n.mul(sun,.62)),n.add(1,n.mul(washed,-.88)))
             base=n.mix(oxide,base,(.49,.50,.47),color=True);rough=n.add(.52,n.mul(oxide,.9))
             phase=n.math('FRACT',n.mul(v,24))
-            trapped=n.maximum(n.ramp(phase,.20,.01),n.ramp(nz,-.5,-.95))
+            trap_width=.20 if lap_exposure_m is None else .02032/lap_exposure_m
+            trapped=n.maximum(n.ramp(phase,trap_width,.01),n.ramp(nz,-.5,-.95))
             dirt=n.mul(trapped,.50,n.add(1,n.mul(washed,-.8)))
             base=n.vec('MULTIPLY',base,n.combine(n.add(1,n.mul(dirt,-.60)),n.add(1,n.mul(dirt,-.64)),n.add(1,n.mul(dirt,-.67))))
         else:rough=.49
@@ -108,6 +109,7 @@ def layer(mat,role,meta):
             rust=n.mul(old,n.maximum(screw,hanger),n.ramp(broad,.25,.7),.67)
             base=n.mix(rust,base,(.18,.065,.025),color=True)
     if role=='Shingles':
+        if roof_shade:north=shade
         uv=n.node('ShaderNodeTexCoord').outputs['UV'];ru,rv,_=n.split(uv)
         row=n.math('FLOOR',n.mul(rv,17));tab=n.math('FLOOR',n.add(n.mul(ru,24),n.mul(row,.37)))
         granule=n.noise(n.combine(tab,row,0),1,0)
@@ -124,6 +126,7 @@ def layer(mat,role,meta):
         algae=n.mul(old,north,n.add(.18,n.mul(streak,.69)))
         base=n.vec('MULTIPLY',base,n.combine(n.add(1,n.mul(algae,-.75)),n.add(1,n.mul(algae,-.72)),n.add(1,n.mul(algae,-.66))))
         loss=n.mul(old,n.ramp(streak,.10,.75),n.ramp(fine,.43,.60))
+        if roof_shade:loss=n.mul(loss,n.add(.25,n.mul(sun,.75)))
         base=n.mix(loss,base,(.012,.011,.009),color=True)
         cheek=0
         for d in meta['blocks']:
