@@ -357,7 +357,9 @@ def cut_mesh(ob,cutters,surface):
             t=(v.co-aa.co).dot(delta)/delta.length_squared
             if not 0<t<1 or (v.co-aa.co-delta*t).length>2e-5:continue
             pa,pb=[surface_point(q.co,surface) for q in [aa,bb]]
-            if (pb-pa).length>.045:continue
+            # Dense source cuts have narrower chart fragments; preserve their
+            # shorter chords instead of borrowing the game mesh's allowance.
+            if (pb-pa).length>(.030 if surface['high'] else .045):continue
             pm=surface_point((aa.co+bb.co)/2,surface)
             if (pm-(pa+pb)/2).length>.0003:continue
             bmesh.ops.dissolve_verts(bm,verts=[v],use_face_split=False,use_boundary_tear=False)
