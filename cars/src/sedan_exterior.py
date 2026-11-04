@@ -87,7 +87,7 @@ def optics(b):
                 if outward.dot(p-center)<0:outward.negate()
                 hit,n,fi,distance=skin_tree.find_nearest(p+outward*.003)
                 if distance>.012:raise ValueError(('Optical flange misses actual paint',cover.name,distance))
-                mouth.append(hit-n*(skin_gauges[fi]+.0012));distances.append(distance)
+                mouth.append(hit-n*(skin_gauges[fi]+.0025));distances.append(skin_tree.find_nearest(mouth[-1])[3])
             rings[0]=mouth
             cover['casing_flange_max_support_distance_m']=max(distances)
         if cover.get('lamp_piece')=='lid':
@@ -226,7 +226,16 @@ def trim(b):
             glass=bpy.data.objects[name];world_parent(glass,bpy.data.objects[parent_name]);points=perimeter(glass)
             normal=field([glass]).nearest_normal
             center=sum(points,Vector())/len(points)
-            seal=[p+normal(p)*.003+(center-p).normalized()*.002 for p in points]
+            seal=[]
+            for i,p in enumerate(points):
+                n=normal(p)
+                if name.startswith('Front side glass'):
+                    tangent=points[(i+1)%len(points)]-points[i-1]
+                    inward=n.cross(tangent).normalized()
+                    if inward.dot(center-p)<0:inward.negate()
+                    offset=inward*.0028
+                else:offset=(center-p).normalized()*.002
+                seal.append(p+n*.003+offset)
             tube(b,'S240 window seal '+name,seal+[seal[0]],.002,b.m['rubber'],'trim',glass.parent,sides=4)
             # Dark chrome retains a thin bright edge, rather than a white frame.
             tube(b,'S240 window brightwork '+name,[p+normal(p)*.005 for p in points]+[points[0]+normal(points[0])*.005],.0018,b.m['dark_chrome'],'trim',glass.parent,sides=4)

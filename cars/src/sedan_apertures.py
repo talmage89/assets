@@ -351,6 +351,8 @@ def carve(front,lamps,surface,recess=.010):
             top_cutters=[]
             for lamp in lamps:
                 raw=list(lamp['aperture_samples']);ps=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
+                raw=list(lamp['optical_patch_normals']);ns=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
+                ps=[p-n*.0045 for p,n in zip(ps,ns)]  # final laminate seat, including the optical assembly offset
                 nu,nv=lamp['form_columns'],lamp['form_rows']
                 ids=list(range(nu))+[j*nu+nu-1 for j in range(1,nv)]+list(range((nv-1)*nu+nu-2,(nv-1)*nu-1,-1))+[j*nu for j in range(nv-2,0,-1)]
                 poly=[Vector((ps[i].x,ps[i].y,0)) for i in ids]
