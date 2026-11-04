@@ -788,6 +788,16 @@ def build(b):
         if axis==2:
             vs|={v for f in bm.faces if names[f.material_index] in ['Trunk','Rear molded fascia'] for v in f.verts}
             for v in vs:v.co.z-=.022*(v.co.x/.90)**2
+    physical_doors=getattr(b,'physical_doors',False)
+    if physical_doors:
+        # The form chart's old rocker boundary is not a manufactured door
+        # edge. Cut a real sill reveal in the same evaluated sheet before
+        # separating/gauging it, retaining every exterior surface position.
+        for z in [.300-S.PANEL_GAP/2,.300+S.PANEL_GAP/2]:
+            fs=[f for f in bm.faces if names[f.material_index].startswith(('Door F','Door R','Rocker','Front fender','Rear quarter'))
+                and S.DOOR_FRONT-.003<=f.calc_center_median().y<=S.DOOR_REAR+.003]
+            es={e for f in fs for e in f.edges};vs={v for f in fs for v in f.verts}
+            bmesh.ops.bisect_plane(bm,geom=list(vs)+list(es)+fs,dist=1e-8,plane_co=(0,0,z),plane_no=(0,0,1),clear_inner=False,clear_outer=False)
     discard=[]
     for f in bm.faces:
         label=names[f.material_index]
@@ -797,10 +807,14 @@ def build(b):
             if abs(p.z-zsplit)<S.PANEL_GAP/2-1e-7 or (p.z>zsplit and abs(abs(p.x)-.615)<S.PANEL_GAP/2-1e-7):discard.append(f);continue
             label=('Trunk' if abs(p.x)<.615 else 'Rear quarter_'+suffix) if p.z>zsplit else 'Rear molded fascia'
             f.material_index=names.index(label)
-        elif label.startswith(('Door F','Door R','Front fender','Rear quarter')):
+        elif label.startswith(('Door F','Door R','Front fender','Rear quarter')) or (physical_doors and label.startswith('Rocker')):
             p=f.calc_center_median();suffix='R' if p.x>0 else 'L'
-            if any(abs(p.y-line)<S.PANEL_GAP/2-1e-7 for line in cuts):discard.append(f);continue
-            label=('Front fender' if p.y<S.DOOR_FRONT else 'Door F' if p.y<S.DOOR_SPLIT else 'Door R' if p.y<S.DOOR_REAR else 'Rear quarter')+'_'+suffix
+            if any(abs(p.y-line)<S.PANEL_GAP/2-1e-7 for line in cuts) and (not physical_doors or p.z>.300-S.PANEL_GAP/2):discard.append(f);continue
+            if physical_doors and S.DOOR_FRONT<p.y<S.DOOR_REAR:
+                if abs(p.z-.300)<S.PANEL_GAP/2-1e-7:discard.append(f);continue
+                label='Rocker_'+suffix if p.z<.300 else ('Door F' if p.y<S.DOOR_SPLIT else 'Door R')+'_'+suffix
+            elif not label.startswith('Rocker'):
+                label=('Front fender' if p.y<S.DOOR_FRONT else 'Door F' if p.y<S.DOOR_SPLIT else 'Door R' if p.y<S.DOOR_REAR else 'Rear quarter')+'_'+suffix
             f.material_index=names.index(label)
     bmesh.ops.delete(bm,geom=discard,context='FACES')
     bm.to_mesh(source.data);bm.free();source.data.update()
@@ -845,6 +859,7 @@ def build(b):
             # This chart boundary is not a manufactured parting line.
             if name.startswith(('Front molded fascia','Front fender')) and p.y<-1.50 and p.z<.700:continue
             if any(abs(abs(p.y-line)-S.PANEL_GAP/2)<2e-6 for line in cuts):continue
+            if physical_doors and S.DOOR_FRONT<p.y<S.DOOR_REAR and abs(abs(p.z-.300)-S.PANEL_GAP/2)<2e-6:continue
             if p.y>1.80 and (abs(abs(abs(p.x)-.615)-S.PANEL_GAP/2)<2e-6 or abs(abs(p.z+.022*(p.x/.90)**2-.620)-S.PANEL_GAP/2)<.0003):continue
             if inside:
                 tangent=(sum(inside,Vector())/len(inside)-p)

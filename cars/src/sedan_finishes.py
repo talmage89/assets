@@ -1,0 +1,83 @@
+"""S240 uses the C150 coating method at sedan-specific causal wear heights.
+
+Factory factors and the runtime decoder are identical across the family.
+Only original nodes/marking images are used; no photographic pixels enter here.
+"""
+import bpy
+from kit import vehicle_materials as V
+from kit.materials import Nodes
+import pickup_spec as FAMILY
+import sedan_spec as S
+
+
+def paint(wear):
+    mat=V.paint('Alder factory paint',FAMILY.COLORS['Atlantic'],0,
+                (S.FRONT_AXLE,S.REAR_AXLE),refined=True,flakes=.65)
+    n=Nodes.__new__(Nodes);n.mat=mat;n.nt=mat.node_tree
+    p,x,y,z,nx,ny,nz=V.rest(n,'VehicleRest')
+    streaks=n.noise(n.vec('MULTIPLY',p,(1,1,.12)),35,3)
+    grain=n.add(.30,n.mul(n.ramp(streaks,.27,.70),.70))
+    ceiling=n.add(.43,n.mul(n.noise(p,7,2),.13))
+    fans=[n.mul(n.ramp(n.math('SUBTRACT',ceiling,z),0,.20),.85)]
+    for axle in [S.FRONT_AXLE,S.REAR_AXLE]:
+        dy=n.math('SUBTRACT',y,axle+.25)
+        aft=n.mul(n.ramp(dy,0,.12),n.ramp(dy,2.0,.65))
+        ceiling=n.add(.73,n.mul(dy,-.10))
+        fans.append(n.mul(aft,n.ramp(n.math('SUBTRACT',ceiling,z),0,.23),1.25))
+    film=n.mul(n.maximum(*fans),grain,wear)
+    # Cavity residue follows actual shut-line locations, never a panel-wide wash.
+    gaps=n.maximum(*[n.band(y,v,.002,.007) for v in [S.DOOR_FRONT,S.DOOR_SPLIT,S.DOOR_REAR]])
+    gaps=n.mul(gaps,n.ramp(z,1.02,.94),wear,.32)
+    grime=gaps
+    leading=n.mul(n.ramp(y,-2.10,-2.29),n.ramp(z,.68,.74),n.ramp(z,.86,.79))
+    edges=n.mul(n.maximum(*[n.band(y,v-.004,.001,.003) for v in [S.DOOR_SPLIT,S.DOOR_REAR]]),n.ramp(z,.30,.46),n.ramp(z,1.0,.95))
+    chips=n.mul(n.maximum(leading,edges),n.ramp(n.noise(p,780,2),.78,.86),wear)
+    coverage=n.mul(n.math('SUBTRACT',1,film),n.math('SUBTRACT',1,grime),n.math('SUBTRACT',1,chips))
+    tint=n.nt.nodes['Paint tint'].outputs[0]
+    dirt=n.mix(film,(0,0,0),(.38,.34,.28),True)
+    dirt=n.mix(grime,dirt,(.008,.007,.006),True)
+    dirt=n.mix(chips,dirt,(.105,.110,.113),True)
+    base=n.vec('ADD',n.mix(coverage,(0,0,0),tint,True),dirt)
+    def output(name,socket):n.feed(n.nt.nodes['OUT_'+name].inputs[0],socket)
+    oldrough=n.nt.nodes['OUT_rough'].inputs[0].links[0].from_socket
+    arcs=n.math('SINE',n.mul(n.voronoi(p,8),3200))
+    swirls=n.mul(n.ramp(arcs,.93,.99),n.ramp(n.noise(p,30,2),.57,.70),wear,.018)
+    output('base',base);output('rough',n.add(oldrough,n.mul(film,.25),swirls))
+    output('paint_coverage',coverage);output('paint_contamination',dirt);output('road_film',film);output('chips',chips)
+    bs=n.nt.nodes['SURFACE'];n.feed(bs.inputs['Coat Weight'],n.add(.10,n.mul(coverage,.90)))
+    n.feed(bs.inputs['Coat Roughness'],n.add(.035,n.mul(film,.35)))
+    return mat
+
+
+def build(wear):
+    from finishes import build as family_finishes
+    m=family_finishes(0)
+    bpy.data.materials.remove(m['body'])
+    m['body']=paint(wear)
+    m['wheel']=V.manufactured('S240 cast alloy',(.43,.46,.48),'alloy',wear,
+        brake_centers=[(sign*track/2,y,S.HUB_HEIGHT) for sign in [-1,1]
+                       for track,y in [(S.FRONT_TRACK,S.FRONT_AXLE),(S.REAR_TRACK,S.REAR_AXLE)]],refined=True)
+    m['glass']=V.glazing('S240 windshield',(.70,.78,.80))
+    m['side_glass']=V.glazing('S240 front door glass',(.56,.65,.66),axes=(1,2))
+    m['privacy']=V.glazing('S240 rear door glass',(.28,.36,.38),True,axes=(1,2))
+    m['rear_glass']=V.glazing('S240 backlight',(.32,.40,.42),True)
+    m['rear_cover']=V.lamp('S240 red lamp cover',(.55,.010,.006),0,1)
+    m['rear_cover'].node_tree.nodes['OUT_rough'].inputs[0].links[0].from_socket.default_value=.045
+    from pathlib import Path
+    directory=Path(__file__).resolve().parents[1]/'build/sedan/markings'
+    image=bpy.data.images.load(str(directory/'model.png'),check_existing=True)
+    n=Nodes('S240 original model');tex=n.node('ShaderNodeTexImage');tex.image=image
+    m['model']=n.finish(tex.outputs['Color'],.25,.8)
+    for side in ['L','R']:
+        # The family's original fictional lettering is the only relief image.
+        image=bpy.data.images.load(str(directory/'tire_relief.png'),check_existing=True)
+        image.colorspace_settings.name='Non-Color'
+        # Rebuild with that image so no geometry is spent on type.
+        if image:
+            m['tire_'+side]=V.tire('S240 lettered tire '+side,image,-1 if side=='L' else 1,wear=wear)
+            nt=m['tire_'+side].node_tree;tc=next(t for t in nt.nodes if t.type=='TEX_COORD')
+            links=list(tc.outputs['Object'].links);scale=nt.nodes.new('ShaderNodeVectorMath');scale.operation='MULTIPLY'
+            scale.inputs[1].default_value=(.275/.235,FAMILY.HUB_HEIGHT/S.HUB_HEIGHT,FAMILY.HUB_HEIGHT/S.HUB_HEIGHT)
+            nt.links.new(tc.outputs['Object'],scale.inputs[0])
+            for link in links:nt.links.new(scale.outputs[0],link.to_socket)
+    return m
