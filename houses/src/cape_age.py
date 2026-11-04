@@ -57,28 +57,37 @@ def add(meta):
         for o in meta['openings']:
             if o['face']!='front' or o['kind']!='window':continue
             b=next(v for v in plan['blocks'] if v.name==o['block'])
-            for j in range(9):
+            for j in range(5):
                 x=b.x0+o['u']+rng.uniform(-o['w']/2-.04,o['w']/2+.04)
-                w=rng.uniform(.018,.047);d=rng.uniform(.006,.014)
-                depth=.174-d-rng.uniform(.002,.006) if j<6 else rng.uniform(.022,.045)
+                w=rng.uniform(.028,.065);d=rng.uniform(.009,.019)
+                depth=.174-d-rng.uniform(.002,.006) if j<3 else rng.uniform(.022,.045)
                 def point(dx,dy,lift):
                     v=depth+dy
                     return (x+dx,b.y0-v,o['z']+.004-(v-.013)*.016/.161+lift)
                 off=len(bare)
-                # Ragged, grain-long losses, with broad splintered ends rather
-                # than identical knife-shaped trapezoids. Eight-vertex outlines
-                # are funded by curling only three of each nine paint losses.
-                outline=((-1,.14),(-.55,.02),(.12,.09),(.87,.03),(1,.68),(.48,.96),(-.20,.81),(-.86,.92))
+                # Continuous grain-long losses with torn, tapered boundaries.
+                # Five losses replace nine repeated slivers, funding the fuller
+                # outlines and a cupped paint film within the house budget.
+                outline=[]
+                for k in range(10):
+                    t=-1+2*k/9;fade=max(.08,(1-t*t)**.5)
+                    inner=.35*(1-fade)+.08*math.sin(k*2.1+j)
+                    outline.append((t,inner))
+                for k in range(9,-1,-1):
+                    t=-1+2*k/9;fade=max(.08,(1-t*t)**.5)
+                    outer=.35*(1-fade)+(.82+.12*math.sin(k*2.7+j))*fade
+                    outline.append((t,outer))
                 bare.extend(point(w*xx,d*yy,.00015) for xx,yy in outline)
-                bare_faces.append(tuple(range(off,off+8)))
-                if j%3==0:
-                    off=len(vs);film=d*.40
-                    for k,(v,lift) in enumerate(((0,.0002),(.3,.0003),(.8,.0013),(.7,.0019))):
-                        width=w*(.90+.10*math.sin(k*1.7+j))
-                        vs.extend([point(-width,v*film,lift),point(-width*.05,v*film*.85,lift*.64),point(width*.85,v*film*.9,lift*.88)])
-                    for k in range(3):
-                        for col in range(2):
-                            a=off+3*k+col;fs.append((a,a+3,a+4,a+1))
+                bare_faces.append(tuple(range(off,off+20)))
+                if j in (0,3):
+                    off=len(vs);film=d*.42
+                    for k,(v,lift) in enumerate(((0,.00012),(.65,.00115),(.52,.0019))):
+                        for col in range(5):
+                            t=-1+col*.5;cup=max(.10,(1-t*t)**.5)
+                            vs.append(point(w*t*(.92+.06*math.sin(k+j)),v*film*(.90+.10*math.sin(col*2.4+j)),.00010+lift*cup))
+                    for k in range(2):
+                        for col in range(4):
+                            a=off+5*k+col;fs.append((a,a+5,a+6,a+1))
                 off=len(checks)
                 check=min(d*1.15,.173-depth)
                 checks.extend([point(-w*1.12,check,.00008),point(-w*1.12,check+.00045,.00008),point(w*1.10,check+.00045,.00008),point(w*1.10,check,.00008)])

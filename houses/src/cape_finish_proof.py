@@ -25,4 +25,15 @@ for seed in (31,33,34,36):
     projection=float(np.median([r['linear_extrapolated_projection_m'] for r in measured]));target=.00437 if skin=='cement' else .014 if skin=='wood' else .0105
     assert abs(projection-target)<2e-5,(seed,projection,target)
     rows.append(dict(seed=seed,siding=skin,course_exposure_m=float(np.median(valid)),measured_projection_m=projection,samples=measured,scope='Ray intersections with actual delivered chart surfaces; course datums read from horizontal butt faces, not metadata'))
-Path('build/cape/delivery/construction.json').write_text(json.dumps(dict(passed=True,rows=rows),indent=2));print('CAPE_LAP_MEASUREMENTS',[(r['siding'],r['measured_projection_m']) for r in rows])
+paint=[]
+for seed in (35,36):
+    path=Path(f'build/cape/delivery/game-{seed}.blend');bpy.ops.wm.open_mainfile(filepath=str(path.resolve()))
+    support=surface([ob for ob in bpy.context.scene.objects if ob.type=='MESH' and ob.get('component')=='window'])
+    values={}
+    for name in ('Aged_GrayWoodAtSillNoses','Aged_LiftedPaint'):
+        ob=bpy.data.objects[name];distances=[float(support.find_nearest(ob.matrix_world@v.co)[3]) for v in ob.data.vertices]
+        values[name]=dict(vertices=len(distances),minimum_surface_gap_m=min(distances),maximum_surface_gap_m=max(distances))
+    assert values['Aged_GrayWoodAtSillNoses']['maximum_surface_gap_m']<.0004,(seed,values)
+    assert values['Aged_LiftedPaint']['maximum_surface_gap_m']<.0022,(seed,values)
+    paint.append(dict(seed=seed,measured=values,scope='Actual nearest window/sill surfaces; bare patches stay on the weather surface, raised film clearance is intentional'))
+Path('build/cape/delivery/construction.json').write_text(json.dumps(dict(passed=True,rows=rows,paint_support=paint),indent=2));print('CAPE_LAP_MEASUREMENTS',[(r['siding'],r['measured_projection_m']) for r in rows]);print('CAPE_PAINT_SUPPORT',paint)
