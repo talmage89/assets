@@ -73,11 +73,12 @@ def rear_photos(out,report):
  records={}
  for make,body,top,base in [('rav4',[(250,360),(948,360)],[(379,180),(810,180)],[(323,298),(874,298)]),('crv',[(237,350),(960,350)],[(383,202),(824,202)],[(334,309),(874,309)])]:
   width=1.855;ppm=(body[1][0]-body[0][0])/width;record=dict(scope='Near-rear photograph ratio estimate; perspective and feature picks +/-5 preview px, not OEM section data',body_reference_m=width,top_m=(top[1][0]-top[0][0])/ppm,base_m=(base[1][0]-base[0][0])/ppm)
-  record['d_pillar_per_side_m']=(width-record['base_m'])/2;records[make]=record
+  record['d_pillar_per_side_m']=(width-record['base_m'])/2
+  record['vertical_span_m']=(sum(p[1] for p in base)/2-sum(p[1] for p in top)/2)/ppm;records[make]=record
   im=Image.open(ASSET/('refs/suv-'+make+'-back.jpg')).convert('RGB');d=ImageDraw.Draw(im)
   for name,pair in [('body',body),('top',top),('base',base)]:
    pair=[tuple(1.75*v for v in p) for p in pair];d.line((*pair[0],*pair[1]),fill=(230,55,20),width=5)
-  d.text((35,35),f"{make.upper()} / glass top {record['top_m']*1000:.0f}, base {record['base_m']*1000:.0f} mm / pillar {record['d_pillar_per_side_m']*1000:.0f} mm",font=font(29),fill=(35,65,85))
+  d.text((35,35),f"{make.upper()} / glass top {record['top_m']*1000:.0f}, base {record['base_m']*1000:.0f}, H {record['vertical_span_m']*1000:.0f} mm / pillar {record['d_pillar_per_side_m']*1000:.0f} mm",font=font(29),fill=(35,65,85))
   save(im,out/('rear-photo-measure-'+make+'.jpg'))
  (out/'rear-photo-measurements.json').write_text(json.dumps(records,indent=2))
  # Same-frame construction comparisons, deliberately not called fitted rear pairs.
@@ -105,7 +106,9 @@ def main():
  if any(v['source_sha256']!=report['source_sha256'] for v in shots.values()):raise ValueError('Mixed source revisions in review')
  tone={}
  for name in shots:
-  path=out/(name+'.png');im=np.array(Image.open(path).convert('RGBA'));cols=im[...,:3][im[...,3]>250];luma=cols@np.array([.2126,.7152,.0722]);tone[name]=dict(display_luma_p1_p50_p99=np.percentile(luma,[1,50,99]).tolist(),channel_255_fraction=float(np.mean(cols.max(axis=1)==255)),shadow_below_25_fraction=float(np.mean(luma<25)))
+  path=out/(name+'.png');im=np.array(Image.open(path).convert('RGBA'));cols=im[...,:3][im[...,3]>250]
+  if len(cols)<100:raise ValueError('Empty opaque foreground in '+str(path)+'; inspect framing and studio occlusion')
+  luma=cols@np.array([.2126,.7152,.0722]);tone[name]=dict(display_luma_p1_p50_p99=np.percentile(luma,[1,50,99]).tolist(),channel_255_fraction=float(np.mean(cols.max(axis=1)==255)),shadow_below_25_fraction=float(np.mean(luma<25)))
   save(rgb(path),out/(name+'.jpg'))
  (out/'tonal-range.json').write_text(json.dumps(dict(scope='Opaque foreground source clay; lit values are not paint albedos',views=tone),indent=2))
  compose(Path(a.cameras),out,out);clay={k+'_clay':dict(v,title=v['title'].replace('clay with stripes','neutral clay')) for k,v in cameras.items()};cp=out/'clay-cameras.json';cp.write_text(json.dumps(clay,indent=2));compose(cp,out,out)

@@ -23,7 +23,7 @@ SHOTS={
  'stripes_vertical':dict(location=(7,-8,2.7),target=(0,0,.85),lens=75,aspect=1.65,direction='vertical'),
  'stripes_side_horizontal':dict(location=(10,0,1.0),target=(0,0,.85),ortho=5.4,aspect=2,direction='horizontal'),
  'stripes_side_vertical':dict(location=(10,0,1.0),target=(0,0,.85),ortho=5.4,aspect=2,direction='vertical'),
- 'stripes_hood_driver':dict(location=(.34,-.52,1.47),target=(.06,-1.75,1.03),lens=38,aspect=1.6,direction='vertical',only=['Hood outer']),
+ 'stripes_hood_driver':dict(location=(.34,-.10,1.47),target=(.06,-1.75,1.03),lens=38,aspect=1.6,direction='vertical',only=['Hood outer']),
 }
 
 
@@ -64,6 +64,9 @@ def main():
     for name,shot in shots.items():
         bpy.ops.wm.open_mainfile(filepath=str(source));sc=bpy.context.scene
         camera=studio.add_studio(scale=2.5,backdrop_color=(.2,.21,.22))
+        # The cove rises behind +Y by default. A low rear camera would see
+        # through its underside before reaching the car, even as a catcher.
+        bpy.data.objects['Studio seamless'].rotation_euler.z=math.pi if shot['location'][1]>0 else 0
         stripe=a.mode in ['stripes','pairs']
         if stripe:
             stripes(sc,shot.get('direction','horizontal'));sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=4

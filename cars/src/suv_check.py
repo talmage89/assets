@@ -157,7 +157,7 @@ def main():
   wheel_centers_m=wheel,wheelbase_m=wheel['RR'][1]-wheel['FR'][1],tracks_m={e:wheel[e+'R'][0]-wheel[e+'L'][0] for e in ['F','R']},
   overhangs_m=dict(front=wheel['FR'][1]-bb['min'][1],rear=bb['max'][1]-wheel['RR'][1]),sections=sections,
   hood_leading_center_m=list(hoodfront),roof_peak_m=list(max(roof,key=lambda p:p.z)),windshield_rake_degrees=rake,windshield_endpoints_m=[list(lo),list(hi)],
-  backlight=dict(widths_m=widths,rake_degrees=backrake,endpoints_m=[list(bl),list(bt)],body_belt_width_m=rear_belt_width,d_pillar_belt_width_m=(rear_belt_width-widths['base'])/2,scope='Actual glass end-band widths and painted rear body width in the same 18 mm base-height band; rear projection estimate'),
+  backlight=dict(widths_m=widths,height_m=bt.z-bl.z,rake_degrees=backrake,endpoints_m=[list(bl),list(bt)],body_belt_width_m=rear_belt_width,d_pillar_belt_width_m=(rear_belt_width-widths['base'])/2,scope='Actual glass end-band widths/centerline height and painted rear body width in the same 18 mm base-height band; rear projection estimate'),
   arches=arches,mirrors=mirror,mirror_span_m=bounds([o for o in obs if o.get('part_category')=='mirrors'])['size'][0],lamps=lamps,openings=wells,angles=approaches,fender_swell=swells,fender_crowns=crowns,
   door_seams=seams,lower_door_moldings=moldings,arch_moldings=arch_molding,plate_pocket=plate,corner_plan=plan,
   hood_rise_degrees=math.degrees(math.atan2(lo.z-hoodfront.z,lo.y-hoodfront.y)),
@@ -175,6 +175,7 @@ def main():
  if any(not .040<=r['crown_gap_m']<=.070 for r in arches):errors.append('Arch crown clearance')
  if not 55<=rake<=60:errors.append('Windshield rake')
  if not 20<=backrake<=35:errors.append('Backlight rake')
+ if not .250<=bt.z-bl.z<=.360:errors.append('Backlight height outside the reference-photo construction range')
  if any(not all(v for v in r['paint_clearance_rays']) for r in wells.values()):errors.append('Paint remains over a recess')
  if any(not all(r['paint_clearance_rays']) for r in lamps.values()):errors.append('Paint remains over an optical aperture')
  report.update(passed=not errors,errors=errors);Path(a.out).parent.mkdir(parents=True,exist_ok=True);Path(a.out).write_text(json.dumps(report,indent=2))
