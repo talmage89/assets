@@ -44,6 +44,8 @@ def motions(coarse=False):
     row['allow'].append(dict(moving=label+' barrel',fixed=label+' body ball seat',reason='Strut barrel eye articulates on its fixed ball stud'))
   if name=='Liftgate':
    for sign in [-1,1]:row['allow'].append(dict(moving='Gate strut '+str(sign)+' barrel',fixed='Gate strut body return '+str(sign),reason='Fixed strut ball stud and its steel body return share the barrel eye seat'))
+  if name=='Hood':
+   for sign in [-1,1]:row['allow'].append(dict(moving='Hood strut '+str(sign)+' barrel',fixed='Hood strut body return '+str(sign),reason='Fixed strut ball stud and formed fender return share the barrel eye seat'))
   if name.startswith('Steer_'):
    sign=-1 if name.endswith('L') else 1
    for fixed,reason in [('Control arm ','Knuckle ball joint at the control-arm end'),('Halfshaft ','Outer CV joint inside the hub spindle')]:row['allow'].append(dict(moving='Hub spindle F'+str(sign),fixed=fixed+'F'+str(sign),reason=reason))

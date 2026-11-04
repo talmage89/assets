@@ -8,6 +8,36 @@ is removed and moving closures use their separate inner carriers and trim panels
 import bpy
 
 
+def couple_glass_normals(ob,source=None):
+ """One outside normal field for both sides of a parallel glass laminate.
+
+ Independent nearest-corner transfers can select a rim on one side and the
+ pane on the other, turning a 4.8 mm window into a strong optical prism.
+ Classification uses the actual side-facing sheets; rims remain flat.
+ """
+ from mathutils import Vector
+ from mathutils.bvhtree import BVHTree
+ from mathutils.geometry import barycentric_transform
+ source=source or ob.data;source.calc_loop_triangles()
+ direction=ob.matrix_world.to_3x3().inverted()@Vector((-1 if ob.name.endswith('_L') else 1,0,0));direction.normalize()
+ triangles=[t for t in source.loop_triangles if t.normal.dot(direction)>.5]
+ ps=[v.co.copy() for v in source.vertices];ts=[tuple(t.vertices) for t in triangles]
+ ns=[source.corner_normals[i].vector.copy() for t in triangles for i in t.loops]
+ tree=BVHTree.FromPolygons(ps,ts,all_triangles=True);custom=[]
+ for face in ob.data.polygons:
+  facing=face.normal.dot(direction)
+  for li in face.loop_indices:
+   if abs(facing)<=.5:custom.append(face.normal);continue
+   p=ob.data.vertices[ob.data.loops[li].vertex_index].co
+   hit,_,fi,d=tree.ray_cast(p+direction*.03,-direction,.1)
+   if hit is None:hit,_,fi,d=tree.find_nearest(p)
+   a,c,e=ts[fi];n=barycentric_transform(hit,ps[a],ps[c],ps[e],*ns[fi*3:fi*3+3]).normalized()
+   if facing<0:n.negate()
+   custom.append(n if n.dot(face.normal)>.5 else face.normal)
+ ob.data.normals_split_custom_set(custom)
+ ob['glass_normal_basis']='Shared exterior field for entrance and exit; physical rims flat'
+
+
 def remove_hidden_backs():
  report={}
  for ob in bpy.context.scene.objects:
@@ -62,16 +92,7 @@ def simplify_glazing():
   accepted=closed and error<.0013 and len(candidate.loop_triangles)<before
   report[ob.name]=dict(before=before,after=len(candidate.loop_triangles) if accepted else before,maximum_probe_error_m=error,closed=closed,accepted=accepted)
   if accepted:
-   custom=[]
-   for face in candidate.polygons:
-    for li in face.loop_indices:
-     p=candidate.vertices[candidate.loops[li].vertex_index].co
-     options=[hit for hit in tree.find_nearest_range(p,.015) if hit[1].dot(face.normal)>.25]
-     hit,_,fi,_=min(options,key=lambda h:h[3]) if options else tree.find_nearest(p)
-     a,c,d=ts[fi]
-     n=barycentric_transform(hit,ps[a],ps[c],ps[d],*ns[3*fi:3*fi+3]).normalized()
-     custom.append(n if n.dot(face.normal)>.02 else face.normal)
-   candidate.normals_split_custom_set(custom);ob.data=candidate
+   ob.data=candidate;couple_glass_normals(ob,old)
    if old.users==0:bpy.data.meshes.remove(old)
   else:bpy.data.meshes.remove(candidate)
  return report

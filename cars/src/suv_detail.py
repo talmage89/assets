@@ -27,6 +27,10 @@ def build(source,out,wear=.65):
   sc['concealed_back_allocation']=json.dumps(remove_hidden_backs())
   sc['glass_allocation']=json.dumps(simplify_glazing())
   sc['molding_allocation']=json.dumps(simplify_moldings())
+ else:
+  from suv_allocation import couple_glass_normals
+  for ob in sc.objects:
+   if ob.type=='MESH' and 'side glazing_' in ob.name:couple_glass_normals(ob)
  for m in list(bpy.data.materials):
   if not m.users:bpy.data.materials.remove(m)
  sc['stage']='X220 detail and procedural look-dev checkpoint; UV/bake/export pending'

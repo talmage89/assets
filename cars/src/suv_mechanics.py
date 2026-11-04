@@ -74,8 +74,25 @@ def build(b):
   ob=bpy.data.objects[name];world=ob.matrix_world.copy();ob.parent=gate;ob.matrix_world=world
  for s in [-1,1]:
   for name,y,z,parent in [('Hood',-1.13,1.08,hood),('Liftgate',1.66,1.61,gate)]:
-   box(b,name+' hinge '+str(s),(s*.48,y,z),(.06,.045,.025),b.m['frame'],'mechanisms',parent,0)
+   plate=box(b,name+' hinge '+str(s),(s*.48,y,z),(.06,.045,.025),b.m['frame'],'mechanisms',parent,0)
+   if name=='Hood':
+    from suv_exterior import tree_for
+    tree=tree_for([bpy.data.objects['Hood outer']]);bpy.context.view_layer.update();inverse=plate.matrix_world.inverted()
+    for vertex in plate.data.vertices:
+     point=plate.matrix_world@vertex.co
+     if point.z<=z:continue
+     hit=tree.ray_cast(Vector((point.x,point.y,.6)),Vector((0,0,1)),1)[0]
+     if hit is None:raise ValueError('Hood hinge plate misses its inner skin')
+     point.z=hit.z+.0005;vertex.co=inverse@point
+    plate.data.update()
   support(b,'Hood strut '+str(s),(s*.59,-1.18,.85),(s*.59,-1.65,1.04),hood,.46,.44)
+  from suv_exterior import tree_for
+  fender=bpy.data.objects['Front fender_'+('L' if s<0 else 'R')];tree=tree_for([fender])
+  hit=tree.ray_cast(Vector((s*2,-1.18,.85)),Vector((-s,0,0)),2)[0]
+  if hit is None:raise ValueError('Hood strut return misses the fender')
+  x=hit.x+s*.0005
+  outline=[(s*.58,-1.19),(x,-1.19),(x,-1.13)]
+  b.add(G.profile('Hood strut body return '+str(s),outline,.847,.853,b.m['frame'],axis='Z',radius=.0015 if b.high else 0,segments=2),category='mechanisms')
   support(b,'Gate strut '+str(s),(s*.68,1.55,1.19),(s*.68,1.98,1.49),gate,.50,.44)
   box(b,'Gate strut body return '+str(s),(s*.775,1.55,1.19),(.21,.025,.025),b.m['frame'],'mechanisms',radius=0)
  update_supports()

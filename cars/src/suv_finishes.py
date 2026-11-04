@@ -16,7 +16,7 @@ FLEET_WEIGHTS={'Porcelain':.30,'Carbon':.25,'Graphite':.22,'Aluminum':.16,'Atlan
 
 def palette(wear=.65):
  root=Path(__file__).resolve().parents[1]/'build/suv-detail/markings'
- images={k:bpy.data.images.load(str(root/(k+'.png')),check_existing=True) for k in ['badge','model','plate','display','tire_relief']}
+ images={k:bpy.data.images.load(str(root/(k+'.png')),check_existing=True) for k in ['badge','model','plate','display','cluster','tire_relief']}
  images['tire_relief'].colorspace_settings.name='Non-Color'
  axles=(S.FRONT_AXLE,S.REAR_AXLE)
  m={'body':V.paint('X220 factory paint',COLORS['Graphite'],wear,axles,front=-S.LENGTH/2,rear=S.LENGTH/2,refined=True,flakes=.55,metallic=PAINT_METAL['Graphite'])}
@@ -55,10 +55,10 @@ def palette(wear=.65):
   nt.links.new(tc.outputs['Object'],scale.inputs[0])
   for link in links:nt.links.new(scale.outputs[0],link.to_socket)
   m['tire_'+side]=mat
- for key in ['badge','model','plate','display']:
+ for key in ['badge','model','plate','display','cluster']:
   n=Nodes('X220 original '+key);tex=n.node('ShaderNodeTexImage');tex.image=images[key]
-  mat=n.finish(tex.outputs['Color'],.32 if key=='plate' else .25,0 if key in ['plate','display'] else .8)
-  if key=='display':
+  mat=n.finish(tex.outputs['Color'],.32 if key=='plate' else .25,0 if key in ['plate','display','cluster'] else .8)
+  if key in ['display','cluster']:
    bs=mat.node_tree.nodes['SURFACE'];n.feed(bs.inputs['Emission Color'],tex.outputs['Color']);bs.inputs['Emission Strength'].default_value=.22
   m[key]=mat
  # SUV cladding: upward fading, aft-wheel sediment and loading-sill scuffs.

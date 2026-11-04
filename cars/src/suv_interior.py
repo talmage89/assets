@@ -34,7 +34,7 @@ def build(b):
  box(b,'Center stack',(0,-.485,.88),(.30,.06,.25),b.m['seat_side'],'interior',radius=.025)
  print_quad(b,'Center display',[(.125,-.448,.91),(-.125,-.448,.91),(-.125,-.448,1.035),(.125,-.448,1.035)],b.m['display'],'interior')
  box(b,'Cluster binnacle',(.425,-.59,1.043),(.33,.16,.12),b.m['plastic'],'interior',radius=.025)
- print_quad(b,'Cluster face',[(.57,-.505,1.00),(.28,-.505,1.00),(.28,-.505,1.085),(.57,-.505,1.085)],b.m['display'],'interior')
+ print_quad(b,'Cluster face',[(.57,-.505,1.00),(.28,-.505,1.00),(.28,-.505,1.085),(.57,-.505,1.085)],b.m['cluster'],'interior')
  for x in [-.67,-.20,.20,.67]:
   box(b,'Dash vent '+str(x),(x,-.50,1.00),(.09,.012,.055),b.m['frame'],'interior',radius=.004)
   for z in [.983,1.001,1.019]:box(b,'Vent vane '+str(x)+str(z),(x,-.49,z),(.075,.005,.003),b.m['interior_light'],'interior',radius=0)

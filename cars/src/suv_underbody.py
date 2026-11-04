@@ -32,7 +32,9 @@ def build(b):
  for y in [.30,.76]:box(b,'Tank strap '+str(y),(-.25,y,.275),(.55,.03,.009),b.m['frame'],'underbody',radius=0)
  tube(b,'Exhaust',[(.20,-1.57,.53),(.25,-1.06,.28),(.29,.52,.27),(.32,1.25,.45),(.47,1.75,.37),(.62,2.20,.38)],.025,b.m['brake'],'underbody',sides=8)
  box(b,'Muffler',(.40,1.80,.37),(.38,.37,.16),b.m['brake'],'underbody',radius=.035)
- for y in [-.77,.55,1.68]:tube(b,'Exhaust hanger '+str(y),[(.29,y,.29),(.40,y,.38)],.006,b.m['frame'],'underbody',sides=5)
+ for y in [-.77,.55,1.68]:
+  upper=(.46,y,.445) if y>1 else (.40,y,.426)
+  tube(b,'Exhaust hanger '+str(y),[(.29,y,.29),upper],.006,b.m['frame'],'underbody',sides=5)
  ob=G.lathe('Exhaust rolled tip',[(2.12,.037),(2.22,.037),(2.22,.034),(2.12,.034)],b.m['dark_chrome'],16,axis='Y',center=(.62,.38),closed=True);b.add(ob,category='underbody')
  box(b,'Front crash beam',(0,-2.13,.63),(1.36,.07,.10),b.m['frame'],'underbody',radius=.008)
  box(b,'Rear crash beam',(0,2.11,.61),(1.35,.06,.09),b.m['frame'],'underbody',radius=.008)
