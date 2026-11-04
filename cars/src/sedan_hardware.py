@@ -117,3 +117,24 @@ def door_hinges(b):
                     if hit is None:raise ValueError(('Rear hinge missed its B post',code,z))
                     hit.x-=sign*.0004
                 prism(b,'S240 hinge fixed leaf '+name,[center+Vector((-sign*.002,-.002,0)),hit,hit+Vector((-sign*.040,0,0))],z-.017,b.m['frame'],b.root)
+
+
+def tire_normals(b):
+    """Continuous carcass normals; profile rings are rubber curvature, not creases."""
+    for code in ['FL','FR','RL','RR']:
+        ob=bpy.data.objects['Tire_'+code];me=ob.data;segments=96 if b.high else S.TIRE_DELIVERY_SEGMENTS
+        rings=len(me.vertices)//segments
+        profile=[Vector((me.vertices[j*segments].co.x,math.hypot(me.vertices[j*segments].co.y,me.vertices[j*segments].co.z))) for j in range(rings)]
+        tangents=[]
+        for j in range(rings):
+            a=profile[max(0,j-1)];c=profile[min(rings-1,j+1)]
+            tangents.append((c-a).normalized())
+        for edge in me.edges:edge.use_edge_sharp=False
+        normals=[]
+        for face in me.polygons:
+            face.use_smooth=True;closing=any(i//segments==0 for i in face.vertices) and any(i//segments==rings-1 for i in face.vertices)
+            for li in face.loop_indices:
+                vi=me.loops[li].vertex_index;p=me.vertices[vi].co;r=math.hypot(p.y,p.z);dx,dr=tangents[vi//segments]
+                normal=Vector((0,-p.y/r,-p.z/r)) if closing else Vector((-dr,dx*p.y/r,dx*p.z/r)).normalized()
+                normals.append(normal)
+        me.normals_split_custom_set(normals)

@@ -38,3 +38,6 @@ TIRE_GAME_SEGMENTS=40
 TREAD_BLOCK_COUNT=20
 ROTOR_GAME_SEGMENTS=24
 WHEEL_GAME_SEGMENTS=32
+
+# Circular delivery carcass; seven section rings fund the finer circumference.
+TIRE_DELIVERY_SEGMENTS=56

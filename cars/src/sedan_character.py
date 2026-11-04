@@ -52,7 +52,13 @@ def bars(b,blank,points,front):
             for p in [lower,lower.lerp(upper,.5)+Vector((0,-.008,0)),upper]:
                 p+=Vector((0,-.018,0))
                 loops.append([p+Vector((dx,dy,0)) for dx,dy in [(-.006,-.009),(.006,-.009),(.006,.009),(-.006,.009)]])
-            bar=G.loft(blank.name+f' cascade vane {j:02d}',loops,b.m['bumper'])
+            if b.high:
+                bar=G.loft(blank.name+f' cascade vane {j:02d}',loops,b.m['bumper'])
+            else:
+                ps=loops[0]+loops[1][:2]+loops[2]
+                fs=[(3,2,1,0),(6,7,8,9),(0,1,5,4),(4,5,7,6),
+                    (1,2,8,7,5),(0,4,6,9,3),(2,3,9,8)]
+                bar=G.mesh(blank.name+f' cascade vane {j:02d}',ps,fs,b.m['bumper'])
             if b.high:G.bevel(bar,.0012,2)
             b.add(bar,category='openings')
         return
