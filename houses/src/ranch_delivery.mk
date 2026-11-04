@@ -16,7 +16,7 @@ textures/ranch-ship/.stamp: textures/ranch-bake/.stamp src/ranch_bake.py $(KIT)/
 	$(PYTHON) src/ranch_bake.py filter
 	@touch $@
 bake: textures/ranch-ship/.stamp
-build/ranch/delivery/colonial.stamp: src/deliver.py src/check_delivery.py
+build/ranch/delivery/colonial.stamp: src/deliver.py
 	$(MAKE) TYPE=builder_colonial SEED=27 PLAN= export
 	@mkdir -p build/ranch/delivery
 	@touch $@

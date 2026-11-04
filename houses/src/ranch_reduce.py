@@ -9,9 +9,9 @@ import numpy as np
 from mathutils import Vector
 
 
-def reduce(ob,meta,tolerance=.035,passes=12):
+def reduce(ob,meta,tolerance=.035,passes=12,include_front=False):
  comp=ob.get('component')
- if comp not in ('roof','eave_rake_soffit','ridge') and not (comp=='wall' and ob.get('face') in ('back','left','right')):return None
+ if comp not in ('roof','eave_rake_soffit','ridge') and not (comp=='wall' and (include_front or ob.get('face') in ('back','left','right'))):return None
  me=ob.data;me.calc_loop_triangles();before=len(me.loop_triangles)
  vertices=[];colors=[];coords=[];normals=[];faces=[];materials=[];lookup={};old=me.color_attributes['Tint'];uv=me.uv_layers.active
  for tri in me.loop_triangles:
