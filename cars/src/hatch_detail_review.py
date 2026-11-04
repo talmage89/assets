@@ -1,5 +1,5 @@
 """Reproducible checkpoint sheets; no committed final-doc images at this gate."""
-import argparse,hashlib,json,math,sys
+import argparse,hashlib,json,math,shutil,sys
 from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont
 import numpy as np
@@ -29,6 +29,12 @@ def main():
     hashes={meta[n]['source_sha256'] for n in names}
     current=hashlib.sha256(Path(a.source).read_bytes()).hexdigest()
     if hashes!={current}:raise ValueError('Mixed or stale source hashes: rebuild all checkpoint views')
+    if Path(a.source).suffix=='.glb':
+        extra=folder.parent/'hatch-eevee';record=json.loads((extra/'shots.json').read_text())['front_three_quarter']
+        if record['source_sha256']!=current:raise ValueError('Stale Eevee source hash')
+        for suffix in ['.png','-mask.png']:shutil.copyfile(extra/('front_three_quarter'+suffix),folder/('eevee'+suffix))
+        meta['eevee']=record;meta['eevee']['tonal_mask']='eevee-mask.png';names.append('eevee')
+        (folder/'shots.json').write_text(json.dumps(meta,indent=2))
     sheet(folder,colors,folder/'five-colors.jpg',2,(700,470))
     sheet(folder,VIEWS,folder/'details-contact.jpg',3,(700,485))
     sheet(folder,motions,folder/'motion-sweeps.jpg',5,(480,340))

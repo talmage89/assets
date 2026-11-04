@@ -30,7 +30,7 @@ MOTIONVIEWS := $(foreach g,doors hood liftgate steering wheels,$(foreach i,0 1 2
 .NOTPARALLEL:
 .DELETE_ON_ERROR:
 .PHONY: all refs model check render review FORCE
-all: refs model check render review eevee
+all: refs model check render review eevee source-pairs
 RENDER_SOURCE ?= export/AlderH120.glb
 $(HD)/wear.txt: FORCE
 	@mkdir -p $(HD) $(TMPDIR)
@@ -93,6 +93,9 @@ $(OUT)/pairs.stamp: $(RENDER_SOURCE) $(HD)/used-cameras.json src/hatch_lookdev.p
 render: $(addprefix $(OUT)/,$(addsuffix .png,$(VIEWS))) $(OUT)/colors.stamp $(OUT)/motions.stamp $(OUT)/pairs.stamp
 review: render
 	$(PYTHON) src/hatch_detail_review.py --renders $(OUT) --source $(RENDER_SOURCE)
+ifeq ($(suffix $(RENDER_SOURCE)),.glb)
+review: eevee
+endif
 
 $(HD)/material-source.blend: $(HD)/game.blend src/hatch_prepare_bake.py src/prepare_bake.py
 	$(BP) --python src/hatch_prepare_bake.py -- --source $< --out $@
@@ -121,6 +124,12 @@ renders/hatch-eevee/.stamp: export/AlderH120.glb src/hatch_lookdev.py src/hatch_
 	$(KIT)/with_gpu.sh $(RP) --python src/hatch_lookdev.py -- --source $< --out renders/hatch-eevee --width $(WIDTH) --samples 128 --shots front_three_quarter --engine BLENDER_EEVEE
 	@touch $@
 eevee: renders/hatch-eevee/.stamp
+.PHONY: source-pairs
+renders/hatch-source-pairs/.stamp: $(HD)/game.blend $(HD)/used-cameras.json src/hatch_lookdev.py src/hatch_lighting.py src/hatch_pair_measure.py
+	$(KIT)/with_gpu.sh $(RP) --python src/hatch_lookdev.py -- --source $< --out renders/hatch-source-pairs --width $(WIDTH) --samples $(SAMPLES) --paint Porcelain --camera-file $(HD)/used-cameras.json
+	$(PYTHON) src/hatch_pair_measure.py --renders renders/hatch-source-pairs
+	@touch $@
+source-pairs: renders/hatch-source-pairs/.stamp
 source-render:
 	$(MAKE) BODY=hatch RENDER_SOURCE=$(HD)/game.blend PASS=hatch-source render review
 endif
