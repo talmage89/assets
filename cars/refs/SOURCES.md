@@ -100,3 +100,12 @@ the X220 mirror-span class check; it is not an American trim dimension.
 | suv-crv-plan.pdf | https://w3.techinfo.honda-eu.com/sites/default/files/2023-11/cr-v_rw-_en.pdf | Honda Motor Europe, RW 2019 rescue sheet, release 08/2018, copyrighted manufacturer literature. Plan-view corner setback estimates only; same-generation pre-facelift cross-check, never traced or imported into Blender. Accessed 2026-11-04. |
 | suv-crv-face.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2020HOS020085.jpg&width=1600 | Autodata / CarsDirect, copyrighted stock photography; 2020 CR-V LX FWD full front. Black lower-fascia height/share and lamp-height photo ratios. Reference only; same gallery as the front three-quarter. |
 | suv-rav4-face.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2020TOS110020.jpg&width=1600 | Autodata / CarsDirect, copyrighted stock photography; 2020 RAV4 LE FWD full front. Black lower-fascia height/share and lamp-height photo ratios. Reference only; same gallery as the front three-quarter. |
+
+## X220 third form round — geometric diagnostic method
+
+Meyer, Desbrun, Schröder and Barr, [Discrete Differential-Geometry Operators for
+Triangulated 2-Manifolds](https://geometry.caltech.edu/pubs/DMSB_III.pdf),
+Caltech authors' paper, copyrighted scholarly publication, section 3.5.
+Read for the cotangent Laplace–Beltrami and mixed Voronoi area formula only;
+`suv_curvature_map.py` is our own implementation. No downloaded code, mesh or
+texture. Analytic sphere, cylinder and plane checks accompany the diagnostic.
