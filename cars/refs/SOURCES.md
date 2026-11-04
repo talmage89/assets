@@ -84,3 +84,12 @@ Photo source galleries: https://www.carsdirect.com/toyota/corolla-hatchback/2019
 | --- | --- | --- |
 | hatch-hyundai-drawing.pdf | https://www.hyundai.com/content/dam/hyundai/ma/fr/data/marketing/brochure/product/i30/hyundai-ft-new-i30-juillet2018-4f.pdf | Hyundai Motor Company / Global Engines Morocco, July 2018; manufacturer copyright, reference only. Page 2 illustrated side/rear/front elevations and dimensions; perspective illustration is not a metrology drawing. |
 | hatch-corolla-drawing.pdf | https://www.toyotaalbania.al/content/modelspdfs/535-corolla-hatchback-2019-al-2.pdf?t=1741271340 | Toyota Motor Europe / Toyota Albania, MY2019; manufacturer copyright, reference only. Pages 46–47 specifications and illustrated elevations. Raster illustration retains perspective; numerical dimensions take precedence. |
+
+## H120 used-car look reference (detail checkpoint)
+
+| File | Image URL | Author / license | Use |
+| --- | --- | --- | --- |
+| hatch-used-front.jpg | https://upload.wikimedia.org/wikipedia/commons/b/ba/2018_Hyundai_Elantra_GT_GL_in_Polar_White%2C_Front_Left%2C_08-06-2022.jpg | Elise240SX, CC BY-SA 4.0; photographed 2022-08-06 | Four-year daily-driver front; paint, glass, alloy, rockers; lighting estimated from diffuse contact shadows |
+| hatch-used-rear.jpg | https://upload.wikimedia.org/wikipedia/commons/b/b9/2018_Hyundai_Elantra_GT_GL_in_Polar_White%2C_Rear_Left%2C_08-06-2022.jpg | Elise240SX, CC BY-SA 4.0; photographed 2022-08-06 | Same four-year class rear; glass, cargo cover, wiper, lower film |
+
+Only visual comparison and camera measurements; never texture, lighting or geometry input.
