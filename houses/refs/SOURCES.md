@@ -95,3 +95,64 @@ unidentified home. Only direct image URLs above identify source photographs;
 no private-home name, address, listing or location metadata is retained elsewhere.
 Discarded search candidates are not build inputs. Crops and local comparison
 sheets remain ignored and are never projected onto the generated asset.
+
+## Postwar Cape form checkpoint
+
+Photographs are inspection-only. Only direct image URLs identify private homes;
+none is committed, projected onto geometry, or read by a material generator.
+Leaf-on photographs supply summer appearance; capture dates are not inferred
+from foliage. The dated spring images are explicitly supplemental.
+
+| Local file | Direct image/PDF URL | Author / rights | Used for |
+| --- | --- | --- | --- |
+| cape-midatl-leaf.jpg | https://upload.wikimedia.org/wikipedia/commons/d/dc/2015-05-17_14_26_04_A_Cape_Cod_style_house_on_Terrace_Boulevard_in_Ewing%2C_New_Jersey.jpg | Famartin, CC BY-SA 4.0 | New Jersey, May 2015, full leaf-on late spring; unpierced steep roof, tight rake, updated picture glazing and lap siding. Not a verified individual construction year. |
+| cape-northeast-spring.jpg | https://upload.wikimedia.org/wikipedia/commons/9/99/20th_Century_Cape_Cod_style_house_Westchester_New_York.jpg | Beyond My Ken, CC BY-SA 3.0 / GFDL | New York, April 2014; supplemental spring dormer/cheek, end chimney and storm-window form. Catalogue describes a twentieth-century Cape; precise year unknown. |
+| cape-ne-summer.jpg | https://images.squarespace-cdn.com/content/v1/582f430cd1758e45299308b8/1657299374889-D9B0V472BB7DQ4NHJB77/19%2Bexterior%2B1.jpg | A3 Architects project publication; photographer not credited on page, copyright reserved, local inspection only | Renovated 1950s Cape, Massachusetts, summer leaf-on appearance, capture date unknown; cedar exposure, maintained trim, wing and roof. Published decade, no claim of an original unaltered facade. |
+| cape-ne-rear.jpg | https://images.squarespace-cdn.com/content/v1/582f430cd1758e45299308b8/1657299403009-FZ7O0946VXQPISJX0AVH/21%2Bexterior%2B3.jpg | A3 Architects project publication; photographer uncredited, copyright reserved | Same regional reference, full leaf-on appearance; shingled gable and additions. Its walk-out basement differs from the authored level site. |
+| cape-midwest-survey.pdf | https://rigov.org/DocumentCenter/View/1134/Historic-Residential-Neighborhoods-1835-1955?bidId= | James E. Jacobsen / History Pays!, 1999 city preservation survey; copyright unspecified, inspection only | Illinois, pp. 112 and 228: prewar and 1946–47 Cape forms, small dormers, wings, garage/breezeway evolution. Leaf-on survey photos, exact capture seasons unknown; no private-home captions are copied to tracked files. |
+| cape-midatl-summer.jpg | https://www.phmc.state.pa.us/portal/communities/pa-suburbs/images/cape_cod_mont_1_0.jpg | Pennsylvania Historical and Museum Commission; photographer uncredited, copyright unspecified | Pennsylvania, leaf-on summer appearance, date unknown; small starter-house street, long steep roof, end chimneys and low eaves. Individual years unverified. |
+| cape-midatl-dormers.jpg | https://www.phmc.state.pa.us/portal/communities/pa-suburbs/images/cape_cod_1_0.jpg | PHMC; photographer uncredited, copyright unspecified | Pennsylvania, leaf-on appearance; enlarged front shed dormer as an evolution comparator. This grammar's shed addition is rear-only. |
+| cape-midatl-plain.jpg | https://www.phmc.state.pa.us/portal/communities/pa-suburbs/images/cape_cod_2_0.jpg | PHMC; photographer uncredited, copyright unspecified | Pennsylvania, simple box and roof/wall ratio; contextual photograph only. |
+| cape-plan-1940.jpg | https://upload.wikimedia.org/wikipedia/commons/3/31/Standard_Floor_Plans_for_a_Cape_Cod_Cottage_-_NARA_-_5928284.jpg | Federal Home Loan Bank Board / NARA NAID 5928284, circa 1940, drawing credits Eleanor Raymond; Commons labels U.S. federal public domain | Published 8 ft first-floor and 7 ft 6 in upper ceilings, wood siding; dimensional vocabulary only; no room plan, outline, linework or pixels copied. |
+
+Published construction/context authorities, read in the browser:
+
+- [NPS Historic Residential Suburbs, part 1](https://www.nps.gov/subjects/nationalregister/upload/NRB46_Suburbs_part1_508.pdf), p. 66: postwar one-and-a-half-story small house, two dormers and clapboard. Federal public domain; establishes historical context, not our authored dimensions.
+- [PHMC Cape Cod field guide](https://www.phmc.state.pa.us/portal/communities/pa-suburbs/field-guide/cape-cod.html): three/five-bay symmetry, steep side gable, half-story, dormers and side chimney. Public-agency publication, copyright unspecified.
+- [NCHRP Report 723, postwar housing evaluation](https://discover.pbcgov.org/pzb/planning/PDF/Projects/Historic/WWIIHousingNTSB.pdf), p. 100: six-over-six/eight-over-eight wood sash, clapboard/shingles, detached garage or covered connection. Transportation Research Board / Mead & Hunt and Louis Berger, copyright reserved; construction vocabulary only.
+- [Baltimore preservation guidelines](https://www.baltimorecity.gov/sites/default/files/Illustrated%20Baltimore%20City%20Historic%20Preservation%20Procedures%20and%20Design%20Guidelines%202013_0.pdf), p. 11: 1920s–1960s Cape, one to three gabled dormers, wood sash and shingle/clapboard walls. Municipal publication, copyright unspecified.
+- The family's already registered 1955 USDA Handbook 73 supplies period cornice, framing, foundation separation and window construction. Its recommendations do not establish this particular house's foundation or eave height.
+- [Skyline manufacturer terminology](https://www.skylinehomes.com/resources/terms-and-definitions): current 1½-story Cape roofs at 10:12/12:12. This is a modern dimensional comparator, **not period evidence**. The 8:12–12:12 generator range is the brief's authored bound, checked against photographic proportions.
+
+`src/cape_refs.py` makes ignored, casing-neutralized 1200-pixel comparison
+copies and survey crops. `build/cape/photo-neutral.json` records the neutral
+patches and linear RGB gains. Neither original nor derived photograph enters
+an asset map. The two camera fits retain design differences and residuals;
+they are not surveys of private buildings.
+
+## Cape source look-development: used surfaces
+
+Every file below is an inspection-only Commons photograph. Historic Capes
+are material/aging comparators, not evidence for a postwar construction date.
+Only the direct image URL identifies any home. Review crops and pairs remain
+ignored; no photograph is read by a material or texture generator.
+
+| Local file | Direct image URL | Author / rights | Used for |
+| --- | --- | --- | --- |
+| cape-used-white.jpg | https://upload.wikimedia.org/wikipedia/commons/9/9b/Pratt-Faxon_House.jpg | Sswonk; CC BY-SA 3.0 | Used white-painted clapboard Cape and tired gray-brown asphalt roof; autumn, not summer evidence. White door casing neutral. |
+| cape-used-brown.jpg | https://upload.wikimedia.org/wikipedia/commons/1/14/242_Phinneys_Lane%2C_Centerville_MA.jpg | John Phelan; CC BY-SA 3.0 | Used cedar-shingle Cape, November 2012; variable silver/brown, deep butts and sheltered staining. White attic casing neutral. |
+| cape-used-shingle.jpg | https://upload.wikimedia.org/wikipedia/commons/0/06/375_Cedar_St%2C_West_Barnstable_MA.jpg | John Phelan; CC BY-SA 3.0 | Used shingled Cape, November 2012; upper-gable bleaching, keyways and tight roof edges. Shape/material inspection only. |
+| cape-used-cedar.jpg | https://upload.wikimedia.org/wikipedia/commons/b/b0/Todd_House%2C_Eastport%2C_Maine_2012.jpg | Ken Gallager at English Wikipedia; CC BY-SA 3.0 | Maintained yellow clapboard Cape, leaf-on; exposed foundation and basement glazing, sash/curtain depth. The generic local filename is not a claim of cedar siding. |
+| cape-used-metal.jpg | https://upload.wikimedia.org/wikipedia/commons/4/48/House_with_aluminum_siding%2C_South_Side%2C_2022-08-17%2C_01.jpg | Cbaile19; CC0 | Used aluminum siding, August 2022; oxidation, fastener/rust sites, course highlights. Supplemental non-Cape material comparator, white corner-board neutral. |
+| cape-used-cement.jpg | https://upload.wikimedia.org/wikipedia/commons/3/35/House_with_asbestos-cement_siding%2C_McKeesport%2C_2023-06-25%2C_01.jpg | Cbaile19; CC0 | Used painted cement shingles, June 2023. Diamond unit differs from this brief's straight-butt 12 × 24 in units. Chalk/paint comparison only; concrete sidewalk neutral. |
+| cape-used-striated.jpg | https://www.haus.de/sites/haus.de/files/styles/original_content_full/public/2018-01/asbest_fassade.jpg?itok=zyWGzYjV | DAS HAUS; photographer unspecified; copyright, local inspection only | Used straight-butt striated cement shingles: face nails, staggered joints, substantial butt shadows and low deposits. Clean upper face is the assumed neutral. Nominal unit size is supported independently by the product photograph, not surveyed from this image. Replaces the diamond-unit comparison. |
+| cape-striated-product.jpg | https://cdn.shopify.com/s/files/1/0646/5008/4579/files/weatherside_profile_12_0225.jpg?v=1758910407 | GAF via LENCO Supplies; copyright, local inspection only | Dimensioned 12 × 24 in straight-edge striated replacement shingle; 11 in installed exposure, face-hole placement and rib depth. Manufacture reference only, never used as an age/value target. |
+| cape-used-vinyl.jpg | https://upload.wikimedia.org/wikipedia/commons/a/a9/Vinyl-siding.jpg | Peter Rockwood; CC BY-SA 4.0 | Vinyl profile and receiving trims, August 2011; inspection only. |
+| cape-used-vinyl-houses.jpg | https://upload.wikimedia.org/wikipedia/commons/7/7c/Houses_with_vinyl_siding%2C_South_Side%2C_2022-08-17%2C_01.jpg | Cbaile19; CC0 | Used gray vinyl, August 2022; supplemental non-Cape material comparator, white window-casing neutral. |
+| cape-used-peeling.jpg | https://s7d2.scene7.com/is/image/sherwinwilliams/window-sill-peeling-paint?wid=1200&fmt=jpeg | Sherwin-Williams; photographer unspecified; copyright, local inspection only | Water damage at the sill nose, long grain-following flakes and casing-foot checks. Qualitative construction comparison; teal hue is not a paint target and no pixels enter the asset. |
+
+`src/cape_values.py` records all neutral boxes, chromatic linear-RGB gains,
+fixed material ROIs, median encoded Rec.709 luma, p10/p90 tails and median
+R:G:B ratios. These are display comparisons, not measured reflectance from an
+uncalibrated JPEG. Auxiliary finish comparisons state their paint controls;
+they do not pretend that a white aluminum photograph measures blue paint.

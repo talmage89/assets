@@ -193,8 +193,8 @@ def carport(b):
 def chimney(b):
  s=b.plan['spec'];m=b.plan['blocks'][0];roof=b.plan.get('roof_envelope') or m
  if not s['chimney']:return
- if s['chimney']=='ridge':x=m.cx+m.width*(.17 if s['garage']['side']=='left' else -.17);y=m.cy+.13;bottom=roof.height(x,y)-.35
- else:x=m.x0-.22 if s['garage']['side']=='right' else m.x1+.22;y=m.y0+m.depth*.60;bottom=.02
+ if s['chimney']=='ridge':x=m.cx+s.get('chimney_offset',m.width*(.17 if s['garage']['side']=='left' else -.17));y=m.cy+.13;bottom=roof.height(x,y)-.35
+ else:x=m.x0-.22 if s['garage']['side']=='right' else m.x1+.22;y=m.y0+m.depth*s.get('chimney_position',.60);bottom=.02
  w,d=((.6096,1.2192) if s['chimney']=='gable' else (1.2192,.6096));top=roof.height(max(m.x0,min(x,m.x1)),y)+1.02
  me=b.mesh('Brick_Chimney',component='chimney')
  me.box((x,y,(bottom+top)/2),(w,d,top-bottom),'Veneer',r=.003)

@@ -1,0 +1,86 @@
+[
+  {
+    "type": "builder_colonial",
+    "seed": 27,
+    "geometry_sha256": "2a28b67eb84ff06a3fec8690d030fff734a1a9f1bb2bfb0e626e5046d91b514a",
+    "triangles": 47750,
+    "glb_sha256": "159b318dcf519c3d3d52c39759a1368730b8ec2cc671dd977438f510fbcc4ec2"
+  },
+  {
+    "type": "builder_colonial",
+    "seed": 2,
+    "geometry_sha256": "bc4be2cf156284dc18ccfa7dd42987dce2d89e9a78d7e6aaed36e95fd55bd377",
+    "triangles": 48618,
+    "glb_sha256": "d61f000021ae82c99d860df98be36c5b58c936eacb2c45cf7959481cfa1d0a80"
+  },
+  {
+    "type": "builder_colonial",
+    "seed": 3,
+    "geometry_sha256": "90d29b37150ca9ac88c110ff56f81ce92a589289ac31abcc714be5c7303e66bd",
+    "triangles": 47010,
+    "glb_sha256": "6b502188c4f910c2c26cf69d68441512dd66114114b34b619aa1f4ca3af9fe22"
+  },
+  {
+    "type": "builder_colonial",
+    "seed": 6,
+    "geometry_sha256": "e44b5ac064826264bd297a5abfe1650e1e78b3b5f3502a145ca492dd2b06fab8",
+    "triangles": 49218,
+    "glb_sha256": "bdacd07bf56ae0bcc8d62cae412bc2981b36186b2c05b5a8d1dba60324cace27"
+  },
+  {
+    "type": "builder_colonial",
+    "seed": 8,
+    "geometry_sha256": "ffa7b9553e8baa878bca06f913495e916f0ad1342607f0c7e075b95d37096cb8",
+    "triangles": 48090,
+    "glb_sha256": "54c642affb0325ad52beffadc0b8f91e294c4561f543990650b5086bb7363fae"
+  },
+  {
+    "type": "builder_colonial",
+    "seed": 14,
+    "geometry_sha256": "59c147589eaeba450917936576fb7e54347aa5b29070b407e1ec830b2d09a583",
+    "triangles": 48898,
+    "glb_sha256": "14ae95522004ae588f43bc9a32c8132822930c5972da6d419e9e92795c7be6ce"
+  },
+  {
+    "type": "ranch",
+    "seed": 11,
+    "geometry_sha256": "ec6a9bda988652236659c9e23949a57a9899883bdc39208ac139b3e7e2e9c78e",
+    "triangles": 39030,
+    "glb_sha256": "94508db34a01022bc641d30b849910a94b10f3e6ec74c53a409d502dc312dcff"
+  },
+  {
+    "type": "ranch",
+    "seed": 12,
+    "geometry_sha256": "fee6a67d26405efe7f1ec272c50c6e1a02af4f08fb38985243edb4b1f73680f8",
+    "triangles": 25594,
+    "glb_sha256": "8b90f5e28df8f22cd63d8fec0bf7a90ac9672b18e440a0fb61ddfcaf4b3bb6a7"
+  },
+  {
+    "type": "ranch",
+    "seed": 13,
+    "geometry_sha256": "29b6bbc034122e22e00a34ebeaba9de75326d75dbf998d9da1872c0bf73006b5",
+    "triangles": 36322,
+    "glb_sha256": "6d7edfe8b7cfde6dd2277d6437ea26fd7b36a8b45f21a2721f9e3c95c13d0ac8"
+  },
+  {
+    "type": "ranch",
+    "seed": 14,
+    "geometry_sha256": "92cdd16a47294342e7672b42c09614b6c4e092161614e8d7dc5e3f0facd25977",
+    "triangles": 23390,
+    "glb_sha256": "2c112e90453447d10f7973dcfd1f26845e1285703136124d77622283227339c8"
+  },
+  {
+    "type": "ranch",
+    "seed": 15,
+    "geometry_sha256": "7289f42a0888966ab0cc03fb30928579bf8c688e9b1063fd12f887e517aefffb",
+    "triangles": 28642,
+    "glb_sha256": "cc1bb9779a5e874999e6e14236ad30150488cdf73a7b5bbea5cfd3ce6f7cbdc3"
+  },
+  {
+    "type": "ranch",
+    "seed": 16,
+    "geometry_sha256": "f379de4c852c0dad2223450de2b2fd82cf628932cdecd8d4977ddb55cb3bffa1",
+    "triangles": 29294,
+    "glb_sha256": "0fe2cd4a224b84e3403b925b3a099fde474685796eaa3911431d779bf39e4a0a"
+  }
+]
