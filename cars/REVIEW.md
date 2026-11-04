@@ -2624,3 +2624,117 @@ to 14.1 levels. The worst is now the differently shaped rear quarter's sky
 reflection, 29.4 levels low; that does not establish a paint-albedo error.
 The sky/glass reflection is more evident and there are no studio rectangles.
 This is the final outdoor recipe. The accepted studio remains unchanged.
+
+### Pass 6 — final exported asset and delivery evidence
+
+Color/value first, at the final 1600 px / 48-sample settings. White balance is
+still the stated front plaster and rear background white-car trunk, with linear
+RGB gains .955/.992/1.289 and .910/.997/1.476 respectively. These are assumed
+neutrals, not gray cards. The sun is estimated at 27°/−155° front and 30°/+155°
+rear, approximately ±6° elevation uncertainty, with the connected scattering
+sky, asphalt-gray ground and original facade reflectors. Displayed patch
+measurements include class/shape/reflection differences and do not measure albedo.
+
+| View / paint patch | Export RGB | Balanced photo RGB | Export / photo luma, 0–255 |
+| --- | --- | --- | ---: |
+| Front / upper front door | 150/148/148 | 153/147/151 | 148.4 / 148.6 |
+| Front / front road film | 162/159/156 | 148/141/141 | 159.4 / 142.5 |
+| Front / rear door | 151/149/149 | 137/132/136 | 149.4 / 133.4 |
+| Front / rear road film | 159/156/154 | 135/128/126 | 156.5 / 129.3 |
+| Front / quarter | 155/154/154 | 168/176/202 | 154.2 / 176.2 |
+| Rear / upper front door | 125/126/128 | 121/119/131 | 125.9 / 120.3 |
+| Rear / front road film | 135/132/131 | 130/128/131 | 132.6 / 128.6 |
+| Rear / rear door | 123/123/124 | 117/112/120 | 123.1 / 113.6 |
+| Rear / rear road film | 133/130.5/129 | 144/142/147 | 130.9 / 142.8 |
+| Rear / quarter | 127/126/127 | 136/155/207 | 126.3 / 154.7 |
+
+Median absolute luma difference is **14.0/255**, worst **28.4/255**. The cool
+base-paint cast is corrected; broad quarter/door reflections remain flatter
+and less blue than the photographs. Do not call these a photometric match.
+Source/export medians agree within **one RGB level** on all ten patches under
+identical cameras, exposure, uniforms and lighting. This narrow measurement
+does not establish preservation of every fine detail: grille relief and small
+lettering visibly soften in the atlas. Both source pairs and both exported
+pairs were reviewed at full frame, along with the exterior close-ups.
+
+The Atlantic front/rear heroes have paint p99 luma **.9605**, zero channel-clipped
+paint pixels, and **32.96% / 35.26%** of geometry below 25/255. All ten factory
+three-quarter views have zero clipped paint pixels. Cavities remain deep and
+the lower road film is visible in the hero. The studio recipe is retained.
+
+Actual game H, in the same spatial boxes as the before mesh, is below. The
+statistics include thin cut triangles and authored die creases. No normal map
+or shading normal supplies these values; the analytic sphere/cylinder/plane
+checks pass. Localized irregularity remains at clipped arch and aperture
+fragments, and the front p95 is slightly higher. The maps are deliberately raw.
+
+| Region / version | Min | p5 | Median | p95 | Max, m⁻¹ |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Front / accepted checkpoint, 332 vertices | −78.49 | −5.77 | 1.32 | 42.40 | 1041.50 |
+| Front / final, 311 vertices | −111.82 | −1.36 | 3.19 | 47.22 | 296.18 |
+| Sail / accepted checkpoint, 86 vertices | −535.74 | −70.17 | −2.17 | 42.54 | 565.38 |
+| Sail / final, 115 vertices | −62.87 | −7.06 | −2.53 | 16.41 | 256.17 |
+
+The clean build also exposed a separate rear-cover construction error: its
+radial sampling ray walked across the trunk's constant-X reveal and put the
+moving cover into the stationary quarter. Iterated parent rays now constrain
+each cover to its actual side of the reveal, including its 4 mm normal offset.
+The trunk sweep has zero measured penetration, with its accepted pivot and
+range intact. No new collision exception was added. A physical molded dealer
+frame now seats on the insert: maximum measured back-edge distance 0.25 µm
+(floating-point error), minimum sampled pocket clearance 2.22 mm. The first
+larger-frame candidate failed the unchanged clearance check and was reduced.
+
+Delivery proof:
+
+- Removed generated sedan build, markings, texture, GLB and final render folders
+  before `make -C cars BODY=sedan WIDTH=1600 SAMPLES=48`: **PASS**. Reference
+  image/PDF cache retained and verified. The removal ledger and complete log are
+  `build/sedan-r7/pre-aperture/clean-proof.json` and
+  `build/sedan-r7/final-clean-build.log`.
+- `make -C cars BODY=sedan check`: **PASS**, including source audits, all 12
+  mechanisms on each density, grille aperture checks, independent regeneration,
+  fresh GLB import, UV/normals/scale/pivots and repository rules. Repeat matches
+  all **420 meshes / 441 objects** exactly; it is not a repeated GPU bake claim.
+  Each motion source has **491 poses** at 0.5 mm tolerance. Evaluated hood
+  supports have 32 poses, zero penetration, 66.8–283.7 mm member overlap.
+- **59,932 game / 171,320 high triangles**, four delivery materials, one three-map
+  **2048²** set baked at 4096²: **16 MiB** compressed with mips. Per-part and
+  moving-parent counts are in the README and `build/sedan/detail-game.counts.json`.
+- **35.75% UV coverage**, six chart splits, zero overlap/outside/degenerate
+  triangles; p5/median/p95 **81.8/229.2/278.2 px/m**. The direct bake has no
+  missing pixels or backward normals in **4,535,212 interior samples**. Verified
+  high-source normals cover **262 parts / 8.78% of the atlas**; other normals are
+  the direct source shader/parent field. See the separate bake reports.
+- GLB **13,284,352 bytes**, SHA256
+  `a20b3b9d80245ffb575479152f18a5945c429f87b9cad85e12882dc05516be62`.
+  Fresh import passes every verifier check. All **55** final GLB views use that
+  one digest and one presentation recipe.
+- Pickup GLB remains byte-identical, SHA256
+  `f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
+  No sedan-specific kit or shared pickup-source change is required.
+
+Final image locations: `renders/sedan-detail/contact.jpg`, `turnaround.jpg`,
+`details.jpg`, `factory-colors.jpg`, `scale.jpg`, `checkpoint.jpg`;
+`renders/sedan-eevee/front_three_quarter.jpg`;
+`renders/sedan-motion/contact.jpg` and five sweep strips;
+`renders/sedan-used-pairs/used_front-pair.jpg`, `used_rear-pair.jpg`, patch
+annotations and `bake-loss.json`; `renders/sedan-source-pairs/`;
+`renders/sedan-panels/*-comparison.jpg` for front/rear three-quarter, side,
+front and rear actual-game curvature beside both stripe directions.
+
+All final views, motion poses, five-color views and diagnostic sheets were
+visually reviewed, including the five final compressed docs images. `docs/`
+adds only `sedan-hero.jpg`, `sedan-rear.jpg`, `sedan-details.jpg`,
+`sedan-five-colors.jpg` and `sedan-turnaround.jpg`: 1600 px wide, respectively
+109,794 / 105,939 / 186,434 / 196,652 / 126,068 bytes. No blend/GLB, atlas,
+reference image or intermediate render is committed.
+
+Remaining CG tells: flatter broad reflections than the used photographs;
+localized raw-H sampling speckle; coarse wheel/mirror transitions; simplified
+cabin, rear optics and underbody; soft fine lettering/diamond relief; and
+occasional colored atlas fringes on very thin trim and gauge. Eevee shows less
+nested optical depth and noisier grazing reflections than Cycles. Nothing is
+needed from the lead to rebuild or inspect this delivery. A future general UV
+minimum-feature allocator could help thin gauge/trim within a small atlas;
+this round does not add one to the shared kit.

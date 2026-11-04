@@ -1,6 +1,6 @@
 # Cars family — Alder C150 and S240
 
-The C150 pickup is delivered. The [S240 sedan](#alder-s240--sedan-detail-and-look-checkpoint) has a baked GLB and checked mechanisms; its form and look checkpoint remains under review.
+The C150 pickup and [S240 sedan](#alder-s240--midsize-sedan) are independently rebuildable game assets with baked GLBs, working mechanisms and studio galleries.
 
 An original late-2010s crew-cab 4×4 pickup on 275/65R18 all-terrain tires.
 Five factory paints share one baked atlas and four delivery surfaces. The
@@ -247,152 +247,150 @@ The shared atlas averages microscopic flakes and limits sidewall-type detail.
 The script source and shader behavior are available for engine integration.
 
 
-## Alder S240 — sedan detail and look checkpoint
+## Alder S240 — midsize sedan
 
-An original 2018–2022 FWD midsize sedan. Round 6 adds the exterior, five-place
-cabin, low underbody, factory coatings and working mechanisms to the accepted
-continuous-sheet body. The delivered GLB is **59,992 triangles**. This is a
-review checkpoint: the side-overlay 40 mm target and photographic polish remain
-open, as described below. Checkpoint images stay in ignored `renders/`; final
-`docs/` images have not been committed.
+An original 2018–2022 FWD midsize sedan on 235/45R18 touring tires. Its six-light
+greenhouse, continuous stamped surfaces, swept lamps and cascade grille are
+Alder's own design. Five factory colors share one sedan atlas. The C150's GLB
+and atlas remain independent and unchanged.
 
-### Form and real construction
+![Alder S240](docs/sedan-hero.jpg)
 
-The hood, fenders, doors, greenhouse, deck and fascias retain their common
-Catmull–Clark parent and its measured sections, shoulder, lower character line,
-fender swells, recessed face and painted rear sails. Local sampling and fairing
-at the lamp crests, A-pillar feet and C-header corners improve reflection flow.
-The lower nose/arch chart boundary no longer makes a false panel seam. Steel
-skins have 0.9 mm gauge, molded fascias 3 mm, glazing 4.8 mm.
+| Rear | Factory colors |
+| --- | --- |
+| ![Rear](docs/sedan-rear.jpg) | ![Five colors](docs/sedan-five-colors.jpg) |
 
-The nose now leads at **500 mm** and tucks **133.9 mm** to its **174.9 mm** chin.
-The rear leads at **602 mm**, tucks **189.5 mm** to the diffuser's 300 mm station,
-and its painted bottom rises to **270 mm**. The actual rear tire/overhang ground
-tangent is **18.04°**, above Honda's published **17.5°** later-generation Accord
-class cross-check. This is not a MY2019 Camry departure-angle claim; see
-[REFERENCE.md](REFERENCE.md) and [refs/SOURCES.md](refs/SOURCES.md).
+[Details](docs/sedan-details.jpg) · [Turnaround](docs/sedan-turnaround.jpg) ·
+GLB (`export/AlderS240.glb`) · Studio contact (`renders/sedan-detail/contact.jpg`) ·
+Scale (`renders/sedan-detail/scale.jpg`) · Eevee (`renders/sedan-eevee/`) ·
+[Critique and limitations](REVIEW.md)
 
-The 1211 / 1268 mm backlight and sails, integrated deck lip, convex bumper,
-153 mm class taillamps, 320 × 170 × 26 mm plate pocket, reflectors and rolled
-exhaust finisher remain. The registration plate is blank. The door-mounted
-mirrors keep their full span; the compound caps now measure 167 × 120 × 96 mm,
-with supported arms, body clearance and real reflective panes.
+Every gallery view imports the exported GLB and its embedded baked textures.
+No high scene, source material or reference photograph supplies the finals.
+The runtime factory/coat/lamp decoder is the same method as the pickup's.
 
-The detail uses an original recessed barred/relief grille, 52 mm projector
-optics in formed reflector bowls, swept twin running guides, amber side
-markers, red rear optics and reverse guides. Fictional ALDER/S240 markings,
-pull handles and cups, window seals/brightwork, B appliques, parked wipers,
-washer nozzles, shark fin and fuel flap complete the exterior. Fine lettering,
-tread, machining and coating detail are procedural or generated with Noto Sans;
-no downloaded texture, model, HDRI or photograph enters the asset.
+### Dimensions and construction
 
-The frameless doors carry their glass, cards and controls. Inside are two front
-seats and a three-place rear bench with five headrests, dash, cluster and center
-screen, console/shifter, steering wheel, headliner and rear shelf. Underneath
-are a FWD engine/transaxle approximation, subframes, independent suspension,
-CV shafts, tank/straps and supported exhaust. Hidden geometry is deliberately
-simple; the engine bay and upholstery remain visibly approximate at close range.
+The class envelope is measured against Toyota's MY2019 Camry US eBrochure and
+Honda's MY2019 Accord metric specifications, cross-checked with Toyota UK's
+2021 Camry brochure. [REFERENCE.md](REFERENCE.md#alder-s240--original-20182022-midsize-sedan--form-gate)
+and [refs/SOURCES.md](refs/SOURCES.md) distinguish published figures from original
+construction estimates and record the reference URLs, authors and licenses.
+The table below measures our actual surfaces and pivot centers.
 
-### Dimensions and budget
-
-Dimensions come from actual mesh rays/vertices and the cited class references,
-not copied CAD or a fitted photographic outline.
-
-| Measurement | Actual source / delivery |
+| Measurement | Delivered asset |
 | --- | ---: |
 | Length × body width × body height | 4884.9 × 1849.4 × 1449.6 mm |
 | Including mirrors / antenna | 2104.6 mm wide / 1481.8 mm high |
 | Wheelbase / front and rear tracks | 2830 / 1590, 1600 mm |
-| Tires / rolling diameter / crown gap | 235/45R18 / 660.7 / 44 mm |
+| Tires / mean rolling diameter / crown gap | 235/45R18 / 660.7 / 44 mm |
 | Rim bead width / overall metal width | 190.5 / 196.0 mm |
-| Studs / pitch circle / cap recess | five / 114.3 mm / 12.0 mm |
+| Studs / pitch circle / hub-cap recess | five / 114.3 / 12.0 mm |
 | Lowest underbody point | 146.5 mm, engine sump |
 | Nominal door reveals | 4.5 mm, including the physical sill cut |
-| Game / high source | 59,992 / 170,032 triangles |
-| GLB | 12,845,344 bytes |
+| Hood front / nose's leading height / chin | about 770 / 500 / 174.9 mm |
+| Front lower tuck / rear lower tuck | 133.9 / 189.5 mm |
+| Rear departure ground tangent | 18.04°, against the cited 17.5° class cross-check |
+
+The hood, fenders, doors, roof, sails, deck and fascias derive from one supported
+Catmull–Clark sheet, subdivided before its panels/openings are cut. Outer skins
+have 0.9 mm steel gauge; molded fascias 3 mm; glazing 4.8 mm. A broad fender draw
+and control-net fairing remove the local lamp-crest fold and rear sail wave.
+Inserted aperture vertices return to the parent before thickness is added.
+Actual-triangle mean-curvature maps and horizontal/vertical reflections in
+`renders/sedan-panels/` expose remaining discretization; they do not substitute
+smoothed shading normals for geometry.
+
+The 1211 / 1268 mm backlight, broad sails, integrated deck lip, convex bumper,
+153 mm class taillamps and 320 × 170 × 26 mm plate pocket retain the accepted
+construction. Seventeen bowed gloss-black grille vanes sit over original
+diamond relief, within a dark-chrome surround carrying an ALDER badge. The
+plate carries an original ALDER / WILLOW MOTOR CO. dealer insert with dark
+frame, without a registration format or serial. Its molded return contacts the
+insert within 0.25 µm numerical error and has 2.22 mm sampled pocket clearance.
+
+Projectors, reflector bowls, swept light guides, side markers, reverse windows,
+pull handles, seals/brightwork, wipers, nozzles, antenna and fuel flap complete
+the exterior. The five-place cabin has separate seats/headrests, dash/cluster,
+screen, console/shifter, wheel, cards, headliner and rear shelf. The low-detail
+underbody carries the FWD powertrain approximation, stepped floor, subframes,
+suspension, CV shafts, tank/straps and supported exhaust. Fine tread, lettering,
+flake, coating and machining detail are scripted/baked. No downloaded model,
+material, texture, decal or HDRI enters the asset.
+
+### Delivery budget
 
 | Manufactured group | Triangles |
 | --- | ---: |
-| Body skins | 12,916 |
-| Molded fascias | 10,772 |
+| Body skins / molded fascias | 13,022 / 10,698 |
 | Pillars / door skins | 1,316 / 2,808 |
-| Glass / mirrors | 2,272 / 660 |
+| Glass / mirrors | 2,240 / 660 |
 | Arch flanges / liners | 784 / 1,168 |
-| Recesses / optical assemblies | 2,796 / 6,144 |
+| Recesses and grille / optical assemblies | 2,932 / 5,932 |
 | Tires / wheels / brakes | 3,520 / 4,072 / 1,120 |
-| Exterior trim / hinge hardware | 2,812 / 1,176 |
+| Exterior trim / hinge hardware | 2,828 / 1,176 |
 | Interior / underbody | 3,896 / 1,760 |
-| **Total** | **59,992** |
+| **Delivered total** | **59,932** |
 
-| Moving parent, including its attached detail | Triangles |
+| Moving parent, including attached detail | Triangles |
 | --- | ---: |
 | Front doors L / R | 1,664 / 1,666 |
 | Rear doors L / R | 1,624 / 1,626 |
-| Hood / trunk | 892 / 3,474 |
+| Hood / trunk | 942 / 3,448 |
 | Each spinning wheel assembly | 2,078 |
 | Each front steering carrier | 148 |
 | Hood support sleeves / rods, both sides | 128 / 64 |
-| Static assembly, including cabin and underbody | 40,246 |
+| Static assembly | 40,162 |
 
-Every individual mesh count is in `build/sedan/detail-game.counts.json` and
-`build/sedan/detail-check.json`. Hidden gauge-back reductions preserve all
-exposed vertices and dense-parent corner normals. Fine shoulder blocks and
-chamfers stay in the high source; the game tire retains procedural tread relief.
+The high source is 171,320 triangles. Every mesh is itemized in
+`build/sedan/detail-game.counts.json`; independent source checks and GLB
+re-import reports separate construction from serialization. The 60-triangle
+reduction from the accepted detail count comes from the revised cuts and grille
+allocation. No geometry was added to force a particular count.
+The embedded-texture GLB is **13,284,352 bytes**.
 
-### Coatings, atlas and runtime controls
+Four delivery surfaces match the pickup: **Paint, Opaque, Glass and Lamps**.
+Separate recoloring/coat, transmission and switchable emission responses need
+four materials; this is the brief-authorized exception to the three-material
+preference. All four reference one three-map **2048²** set, baked at **4096²**:
 
-Five factory factors use the pickup's coverage-delta method over one neutral
-atlas: Porcelain, Carbon, cool Graphite, Aluminum and Atlantic. Graphite is an
-original cooler sedan option; the pickup's factors and export remain intact.
-The normalized spawn weights are 31 / 19 / 21 / 8 / 10 out of 89, using Axalta's
-2025 North American new-car color shares for these five choices. They are not a
-measurement of the used-car fleet.
+- `T_AlderS240_BaseColor.png`: sRGB, with independent paint-coverage/lamp data in alpha.
+- `T_AlderS240_Normal.png`: OpenGL +Y tangent normal.
+- `T_AlderS240_ORM.png`: linear occlusion, roughness, metallic in R/G/B.
 
-Paint has a continuous clearcoat, faint procedural peel/flake and wash swirls.
-Road film comes from low splash and fans aft of the wheels, broken by gravity
-streaks; chips follow hood-front and door edges, with residue in the shut lines.
-Metal, black plastic, rubber, cloth and chrome have separate source responses.
-Glass has dark transmission, printed edge frit and visible cabin depth. The
-wheels use caliper-centered brake dust and fictional ALDER TOURING tire relief.
-Wear is `--wear` on the detail generator, default 0.65.
+The set costs **16 MiB** with full mips at 8 bpp per map (for example BC7/BC5/BC7),
+or 64 MiB expanded to three RGBA8 mip chains. Loading both cars costs about
+32 MiB compressed. These bodies share methods, rather than atlas pixels.
+A common family repack would require a coordinated change to the accepted pickup.
 
-The three maps are `T_AlderS240_BaseColor.png` (sRGB),
-`T_AlderS240_Normal.png` (OpenGL +Y) and `T_AlderS240_ORM.png` (linear R/G/B =
-occlusion/roughness/metallic), baked at 4096² and delivered at **2048²**.
-BaseColor alpha retains paint coverage or lamp strength according to surface;
-`src/delivery_materials.py` and the documented family decoder apply factory
-factors and lit/unlit state without five texture copies.
+Porcelain, Carbon, near-neutral Graphite, Aluminum and Atlantic use the family's
+coverage-delta decoder in [delivery_materials.py](src/delivery_materials.py):
+linear `RGB + coverage * (factory tint - reference tint)`. It preserves colored
+deposits without five texture copies. The standard GLB fallback is Atlantic;
+other colors need that documented decoder, not a simple whole-material tint.
+Spawn weights are 31/19/21/8/10 out of 89 from Axalta's 2025 North American new-car
+color shares for these five choices; they are not used-fleet measurements.
 
-There are **four delivery surfaces**, matching the pickup: Paint, Opaque,
-Glass and Lamps. Paint recoloring/coat, transmission and switchable emission
-need separate responses; this exceeds the standing three-material preference.
-All four reference the same three embedded images.
+A continuous clearcoat, faint peel/flake and washing swirls sit over causal road
+film, chips and shut-line residue. The matched pairs justify longer spray fans
+behind the front tires; fine grain breaks up deposits instead of washing the
+entire car with noise. Wear defaults to `--wear .65` on the detail generator.
+ORM blue stores clean coverage before the factory metallic factor, so road
+deposits retain a dielectric response in every color. The pickup preparation
+and shader remain unchanged. Glazing is dark/transmissive with edge frit and
+lower residue; wheels have a
+charcoal alloy response, caliper-centered brake dust and darker radial tire dust.
 
-The set costs **16 MiB with full mip chains at 8 bpp per map** (for example
-BC7/BC5/BC7), or 64 MiB if all three are expanded to RGBA8 with mips. This
-checkpoint shares the pickup's material/decoder methods, **not its atlas pixels**:
-loading both current cars costs about 32 MiB compressed. A common family atlas
-would require a coordinated repack/rebake of the accepted pickup and parallel
-bodies; that remains a family integration limitation.
-
-The bake is explicit about correspondence. Direct finalized-surface procedural
-BaseColor/ORM and shader normals avoid neighboring-skin, reverse-gauge and optical
-projection contamination. Original coordinates are stored before UV packing. High-source
-normals replace exact-surface shader normals only on parts passing independent
-partwise projection rays. The body already carries the dense parent's normal
-field. `bake-report.json` lists accepted parts and fallback coverage; this is
-not a claim that every high-detail feature survived projection. A tiny set of
-backward direct-normal samples falls back to the neutral tangent normal; the
-report exposes both interior counts and padding counts. The source geometric
-normal field remains intact. The final direct normal interior fallback is
-172 / 4,744,395 samples (0.0036%); verified high normals cover 256 parts and
-8.64% of the atlas.
-
-UV coverage is 37.06%, with 83.7 / 234.5 / 268.0 px/m at the 5th / median /
-95th percentiles. No UV triangle is degenerate or out of bounds. Four residual
-subpixel overlaps total less than one shipped texel and pass the kit threshold.
-Visible skins take priority over hidden gauge backs; small markings retain
-extra density.
+BaseColor/ORM and shader normals bake directly on the prepared finalized skin.
+Original coordinates survive UV packing. High-source normals replace direct
+normals only where independent partwise rays pass; the bake report records the
+coverage and neutral tangent fallbacks: 262 parts, or 8.78% of the atlas, receive
+high-source normals. Six chart repairs split overlapping
+projection fragments; the final direct bake has zero missing or reversed-normal
+interior texels among 4,535,212 checked samples. Final UV coverage is 35.75%,
+with zero overlap/outside/degenerate triangles; measured p5/median/p95 density
+is 81.8 / 229.2 / 278.2 px/m. Hidden gauge receives less
+space; plates and small markings receive extra density.
 
 ### Pivots and measured motion
 
@@ -423,7 +421,7 @@ approximately 0.20 mm radial clearance. Moving leaves contact their barrels
 and lie within 0.94 mm of the supporting sheet; fixed leaves meet their pins.
 Front jamb channels, inner B posts and sill reinforcements carry the loads.
 The hood uses two telescoping hollow gas supports. Measured member overlap
-stays **67.9–280.2 mm** through the range. Trunk goosenecks clear the backlight,
+stays **66.8–283.7 mm** through the range. Trunk goosenecks clear the backlight,
 rear shelf and tub. Their lid ends are measured within 0.30 mm of the actual
 inner sheet, and their fixed supports meet both bearing and tub. Tank straps,
 exhaust hangers and upper dampers are seated on measured supporting surfaces.
@@ -438,6 +436,8 @@ surface-collision tests; GLB re-import separately proves geometry and pivot
 serialization, not mechanical correctness between samples. Intended CV, lower
 ball-joint and coaxial strut/knuckle contacts use explicitly named composite
 joint proxies; they are not unrelated-panel collision exceptions.
+Across the measured grille mouth, 8,069 rays find zero painted obstructions
+through its recessed well. This independently detects the old uncut triangles.
 
 After changing the hood pose, re-aim each support frame toward its exported
 `support_target` endpoint, as `supports()` in `src/sedan_lookdev.py` demonstrates.
@@ -446,50 +446,59 @@ The rigid members telescope; glTF does not serialize Blender tracking constraint
 ### Rebuild and inspect
 
 ```sh
-make -C cars BODY=sedan WIDTH=1400 SAMPLES=36
+make -C cars BODY=sedan WIDTH=1600 SAMPLES=48
 make -C cars BODY=sedan check
-make -C cars BODY=sedan form       # accepted-sheet clay/stripes/overlays
-make -C cars BODY=sedan check-motion
-make -C cars                     # pickup delivery path
+make -C cars BODY=sedan panel-diagnostics
+make -C cars BODY=sedan form       # archived clay/stripes/overlay presentation
+make -C cars                      # independent pickup delivery path
 ```
 
-Studio heroes use exposure −2.8: all ten factory-color views have zero clipped
-paint pixels. Used-car patches have median absolute display-luma difference
-14.0/255 and worst 49.7/255 at the rear quarter; Graphite remains too cool.
-
-The default sedan graph fetches only recorded reference images/PDFs, builds
-both sources and markings, checks physical construction/motion, packs UVs,
-bakes via the shared GPU lock, downsamples, exports/re-imports, and renders the
-GLB. No installed packages or downloaded code are needed. An independent
-regeneration matches all **405 meshes / 426 objects**, including topology,
-vertices, corner normals, transforms, parents and material assignments exactly.
-The pickup preservation report matches all 454 source meshes and the accepted
-GLB's 150 accessors, embedded maps, graph and binary payload; only the current
-exporter-version label differs on re-export. Its accepted export is untouched.
-No kit files changed. The only shared family edit adds optional wheel sampling
-and centers narrow-caliper scaling on the hub; pickup defaults are identical.
+The default sedan graph fetches the recorded image/PDF references, builds both
+source densities and markings, checks scale/topology/construction and motion,
+packs/bakes/downsamples the atlas, exports/re-imports the GLB, renders the studio,
+five colors, scale, Eevee, motion and used-car pairs, and creates five bounded
+`sedan-` docs JPGs. Cycles work uses the shared GPU lock. No downloaded code or
+additional packages are needed. This round changes no kit or pickup source file.
 
 | Generated image location | Contents |
 | --- | --- |
-| `renders/sedan-round6/` | Clay, stripes, sections, three perspective variants and raw side overlay, form/photo pairs and contact sheet |
-| `renders/sedan-detail/contact.jpg` | Exported-GLB studio views, orthographic turnaround, face, lamps, wheel/mirror, cabin through glass, low and underside views, open mechanisms, human scale |
+| `renders/sedan-detail/contact.jpg` | Cycles gallery and Eevee, all from the delivered GLB |
+| `renders/sedan-detail/turnaround.jpg` | Front, side, rear, top |
+| `renders/sedan-detail/details.jpg` | Grille/lamps, wheel, cabin through glass |
 | `renders/sedan-detail/factory-colors.jpg` | Five colors, front and rear three-quarters |
-| `renders/sedan-motion/*-sweep.jpg` | Five visible poses each for doors, hood, trunk, steering and wheel spin |
-| `renders/sedan-used-pairs/` | Calibrated, white-balanced five-year class pairs, annotated surface patches and display-value measurements |
-| `renders/sedan-eevee/` | Eevee export check |
-| `renders/sedan-detail/checkpoint.jpg` | Combined review contact sheet |
+| `renders/sedan-detail/scale.jpg` | Real-scale car and 1.8 m human silhouette |
+| `renders/sedan-motion/*-sweep.jpg` | Five poses each for doors, hood, trunk, steering, wheel spin |
+| `renders/sedan-used-pairs/` | Sun/sky-matched, white-balanced used-class pairs and measured patches |
+| `renders/sedan-panels/*-comparison.jpg` | Whole-body game curvature beside both stripe directions, five views |
+| `renders/sedan-eevee/` | Eevee export view |
+| `renders/sedan-detail/checkpoint.jpg` | Combined gallery, pairs and motion review |
 
-### Limits of this checkpoint
+The used-photo lighting uses a procedural scattering sky and an estimated 27°
+front / 30° rear sun, with approximately ±6° elevation uncertainty. Asphalt and
+original facade reflectors supply the observed ground/building reflections.
+No studio softbox is present in the matched pairs. Their assumed-neutral white
+balance uses front plaster and a background white-car trunk; neither is a gray
+card. Patch values measure displayed appearance, including lighting, shape and
+class differences, rather than material albedo. Final figures are in
+`renders/sedan-used-pairs/appearance-patches.json` and [REVIEW.md](REVIEW.md).
+The front upper-door median is RGB **150/148/148** against **153/147/151**;
+rear upper door **125/126/128** against **121/119/131**. Across ten paint/wear
+patches, median absolute displayed-luma difference is **14.0/255**, worst
+**28.4/255** on the rear quarter's sky reflection. Source/export pairs and
+their separate bake-loss measurements regenerate with the default build.
 
-The physical lower-end targets pass, but the **40 mm side-overlay target does
-not**. Raw wheelbase-scaled worst deviations remain **118.8 mm front / 71.8 mm
-rear**. The perspective camera alternatives reach **110–131 mm** below the ends.
-The raw photo wheelbase scale implies a roughly 4702 mm envelope versus the
-accepted 4885 mm body. The length is retained; this discrepancy is exposed in
-all overlays and is not excused as lens error or hidden by fitting the outline.
+### Limits and credits
 
-[REVIEW.md](REVIEW.md) records the color-first critique passes, rejected bakes
-and final measurements. Remaining CG tells include simple seat/dash forms,
-coarse grazing reflections at the C-sail and lamp crest, simplified rear optics,
-and less convincing surrounding reflections/road-film variation than the used
-photographs. This is not final photographic or family-atlas approval.
+The accepted wheelbase-scaled side overlay retains its reported class mismatch:
+118.8 mm front / 71.8 mm rear raw holdout extremes. Those are not hidden by
+fitting the body outline. Construction is original; the reference cars have
+different optical graphics and panel shapes. Broad door/quarter reflections do
+not match every photographic patch, and raw curvature exposes some thin-cut
+sampling irregularity. Simple cabin/underbody forms, wheel bevels and rear optics,
+soft small lettering and occasional thin-trim atlas fringes remain the main
+CG tells. Eevee transmits less nested glass depth than Cycles.
+
+Reference photographs and manufacturer specifications: authors, URLs, licenses
+and exact uses in [refs/SOURCES.md](refs/SOURCES.md). Markings use installed Noto
+Sans under the SIL Open Font License. All geometry, shaders and graphics are
+original scripts; photographs remain comparison material in ignored folders.
