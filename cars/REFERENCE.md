@@ -341,3 +341,27 @@ and a black B-pillar applique. The bumper carries the plate pocket, also as on
 the Hyundai; the uninterrupted upper gate and split wraparound lamps are
 original. Fine lamp optics, trim, weathering, cargo/interior construction,
 hinges and struts remain beyond this form checkpoint.
+
+### H120 round 2: perspective profiles and regional choices
+
+The original axle-registered orthographic overlays are historical evidence,
+not the current comparison method. Both profile photos now have kit pinhole
+camera fits using near wheel hubs and tread contacts. Body silhouette picks
+are held out. Four coplanar landmarks do not determine a unique focal length:
+the fit uses a 65 mm prior, 45–100 mm bounds and converges near 70.8 mm.
+Native-image RMS is 4.30 px Corolla / 4.31 px Hyundai. A separate Blender
+projection check validates the solver-to-render camera conversion. It does
+not validate the assumed depth or the body shape.
+
+The new silhouette is rendered directly through each fitted camera. Regional
+errors are equivalent millimeters using local center-plane projection scale;
+manual edge-pick uncertainty is approximately ±16 mm. The Corolla governs the
+rear roof, spoiler, glass rake and upper gate, while Hyundai governs the lower
+bumper tuck and bumper-mounted plate. The photographs disagree substantially
+at the upper tail; the report preserves both deviations. Accepted body length,
+wheelbase, tracks, door sections and arch gaps are retained.
+
+The measured mirror span is 2039.3 mm, following the **2039 mm** published
+width with mirrors in the November 2018 Hyundai UK manufacturer sheet linked
+above. The new wedge caps sit on the front door’s sail, with a flat rear pane.
+Reference photos are used only for measurements and side-by-side review.

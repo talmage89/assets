@@ -2211,3 +2211,199 @@ approval. No kit change or additional installed tool is needed. A useful future
 kit improvement would be a portable adaptive surface-sampling error report
 that compares both positions and normals; the tight rear turn showed why
 triangle count or sampled curvature alone is insufficient.
+
+## Alder H120 — form round 2
+
+### Round 2 pass 1 — perspective diagnosis and first end revisions
+
+Evidence: `renders/hatch-r2-camera/`, `hatch-r2-shape1/`, `hatch-r2-shape2/`.
+The first folder renders the original checkpoint through fitted profile
+cameras before changing geometry. White studio backgrounds remain the neutral;
+unit RGB gains, with no silver-paint albedo inferred from neutral clay.
+
+- Cameras/profile: add the two near wheel centers and tread contacts to the
+  kit's pinhole solver. Chassis-anchor RMS is 4.30 px Corolla / 4.31 px Hyundai
+  at native 2100 px width. No outline landmark enters the fit. Four coplanar
+  anchors leave lens/depth weakly constrained, so the approximately 70.8 mm
+  estimates retain their stated prior; the millimeter comparisons are screen
+  deviations at the body center plane, not recovered 3D surface errors.
+  Perspective changes the diagnosis: the original gate is close to Corolla,
+  while Hyundai carries its roof and upper tail farther aft. Follow Corolla
+  at the rear greenhouse and Hyundai at the lower bumper where they disagree.
+- Hood/header: both remain below the photographed outlines after matching.
+  Move the straight windscreen forward 105 mm with its rake unchanged, and
+  raise the intervening hood crown. The first revised overlays reduce hood/
+  header misses to 39 mm Corolla / 27 mm Hyundai. No wheelbase or side-section
+  scaling is used. A broad fit transition near the relocated cowl introduces
+  extra curvature reversals; reject it and retest the parent surface.
+- Front end: shifting the tangent to upper-fascia height while retaining too
+  much of the old lower curvature over-tucks the chin. The first attempt misses
+  by 239/201 mm, worse than the starting shape. Reduce that tuck before keeping
+  the revision. The second attempt follows Hyundai's lower front within 7 mm;
+  Corolla's deeper chin still differs by 50 mm. Lamp-top facets remain visible.
+- Rear: a first narrow blend from the broader bumper into the gate produces a
+  conspicuous reflection bullseye at the quarter. Spread that plan transition
+  vertically; a checked silhouette alone does not justify the narrow blend.
+  The gate needs a deliberate transverse feature and a central badge location,
+  not just a dark plate opening. Plate location stays in the bumper, following
+  Hyundai. The spoiler free edge also needs its own fair crown; sampling every
+  root chord directly carries roof-corner facets into that edge.
+- Mirrors: the supported trapezoidal cap reads as a wedge rather than an oval.
+  Its flat rear pane and broad door sail are visible. Move the sail down into
+  the door stamping and verify actual surface intersection; proximity alone is
+  not a contact proof. The initial depth is 130.6 mm, so shorten the cap slightly.
+- Diffuser/budget: axial projection holds its lower edge within about 1 mm in
+  height; retaining its bed sampling removes the earlier decimation wrinkles.
+  Fixed skins can omit their buried reverse faces without altering the painted
+  sheet or the visible edge returns. The first allocation drops to 42,559
+  triangles. Audit each new boundary's face role explicitly; do not treat an
+  open fixed stamping as a closed solid or excuse a missing outer face.
+
+### Round 2 pass 2 — surface repair, rear articulation and allocation
+
+Evidence: `renders/hatch-r2-shape3/`, `hatch-r2-shape4/`, and the complete
+intermediate set `hatch-r2-pass5/`. Inspect both stripe directions, white clay,
+the four calibrated three-quarter pairs and both profile comparisons. Neutral
+white photo backgrounds still use unit RGB gains. Clay is deliberately lighter
+than the reference silver; judge highlight roll, cavity separation and form,
+not metallic albedo. No new texture or paint approval is implied.
+
+- Nose/hood: broad lower fascia and narrow lamps now read as a compact from
+  the late 2010s. The original lower tangent was still just ahead of the upper
+  one by less than a millimeter. Move that lower run back 1.5 mm, preserving
+  package length, then measure the leading tangent independently. Denser local
+  chart columns and reprojecting new cut vertices onto the fair parent remove
+  the folded hood/lamp junction. Parent-normal gauge extrusion avoids collapsed
+  corners introduced by averaged normals on narrow clipped triangle fans.
+  The tip remains a very sharp styling event; do not hide it behind black optics.
+- Roof/spoiler: lower the last 390 mm, increase rear glass rake, and give the
+  spoiler free edge a continuous crown independent of the irregular root
+  chords. The broad top highlight is cleaner. The accepted wide D-pillar still
+  compresses stripes around its corner more abruptly than either reference;
+  neither a sampled curvature pass nor smooth shading proves it perfect.
+- Gate/bumper: a transverse stamped band and inset garnish establish the badge
+  location between the lamps. The lower gate cut remains above the separate
+  soft bumper crease. The wider lower plan improves the rear three-quarter
+  compared with the early pinched corner. The narrow blend experiment made
+  a conspicuous bullseye reflection and was rejected. Keep the broader blend.
+  The intermediate garnish looked proud: its newly attached parent's matrix
+  had not been evaluated before carving. Correct that transform dependency and
+  add an independent world-guide/bounds check before accepting the recess.
+- Plate/diffuser: retain Hyundai's bumper plate location, sharp pocket rim and
+  overhead lamp. Diffuser projection is axial so the lower row stays near level;
+  retain that bed's samples instead of decimating them. The lower edge no longer
+  has the repeated wrinkles of round 1. The black plate pocket is still empty,
+  so it cannot stand in for the later plate/optics construction.
+- Mirrors: the trapezoid with rounded front sections now reads as a wedge and
+  has a flat rear pane. A broad sail and shoe replace the stalk. Verify actual
+  edge/surface intersections with the door and cap; five and twelve per side
+  support the contact claim. The 228 × 136 × 128 mm cap does not break the
+  hood/cowl silhouette. Its simple rear glass and thick dark shoe still look
+  unfinished beside the photographs; finer trim belongs to the next stage.
+- Budget: remove only buried backs from fixed stampings and keep all paint
+  faces and visible gauge returns. Mark and audit the resulting inner boundary
+  edges, rather than calling those skins closed solids. The intermediate local corner
+  sampling and supported spoiler bring this intermediate form to 45,893 triangles, leaving
+  14,107 beneath the finished-car ceiling. This is enough only with the explicit
+  interior/underbody allocations in HATCH.md; it is not permission for unplanned
+  detail growth.
+- Measurement correction: locator guides sit above paint by 2.5–4 mm. Recess
+  depths must start on the evaluated parent skin. Project mouth measurements
+  there, retaining actual bed-ray hits, rather than reporting the locator offset
+  as additional pocket depth. Recheck every opening with this corrected origin.
+
+### Round 2 pass 3 — close front view rejects residual sampling pinches
+
+Evidence: full set `renders/hatch-r2-pass8/` (formerly the candidate round-two
+final), plus `hatch-r2-corner-diagnostic/front_clay.png` and the dense-source
+comparison `hatch-r2-corner-high/front_clay.png`. Neutral studio light and white
+background gains remain unchanged. The extra front render uses Cycles to
+separate real shading faults from Workbench's cavity emphasis.
+
+The front still has small darts at the inner lamp/hood intersections. They
+are reduced in the dense source, so a general parent reshaping would attack
+the wrong cause. Refine those local game cells in both chart directions;
+transverse columns alone left long longitudinal chords. The broad grille bed
+also shows diagonal dents absent from the high source. Its aggressive hidden-
+bed decimation is inappropriate because the bed remains visible between bars.
+Retain the crown grids for the grille, intake, plate pocket and garnish. Use
+some of the saved back-face budget here, then repeat the full checks and views.
+
+The whole intermediate car already reads as a contemporary compact hatch in
+white clay, but calling the corner repair complete from its three-quarter view
+would be lenient. The rear garnish now has a real recess and a separate lower
+gate panel; its straight transverse treatment still looks more generic than
+the sculpted Corolla. The D-pillar reflection compression and the very regular
+side-window corners remain visible limitations. The smooth free spoiler edge
+and level diffuser bottom are improvements in both stripe directions.
+
+### Round 2 pass 4 — final regions and whole car in white clay
+
+Final evidence: `renders/hatch-round2/contact.jpg`, all 26 native renders,
+four front/rear three-quarter pairs in clay and stripes, two perspective profile
+pairs, both original/current overlay comparisons, and game/parent section plots.
+The four white-clay three-quarter pairs were also opened individually at full
+size. The reference neutral remains unobstructed white background, unit RGB
+gains. Front/rear clay heroes have display-luma P99 of **240.1 / 227.9**, zero
+clipped channels, and **11.7% / 9.8%** of opaque foreground below 25/255. Cavities
+have depth and the white highlights roll off; these are form materials, not
+silver-paint or aging approval.
+
+- Profile/ends: chassis fits remain **4.298 / 4.312 px RMS**. The regional table
+  in HATCH.md reports both makes without silhouette fitting. Corolla governs
+  roof/spoiler/backlight/gate: maxima **34.2 / 9.1 / 20.5 / 41.0 mm**. Hyundai
+  governs lower front/rear bumpers: **4.5 / 31.6 mm**. Hood/header are within
+  **38.7 mm** of both. The worst disagreement remains Hyundai's spoiler,
+  **180.7 mm**; that make has a different upper-tail shape. Four coplanar anchors
+  and the lens prior limit reconstruction accuracy. Do not treat a 4.3 px
+  anchor fit as 4.3 px body accuracy or the projected millimeters as 3D errors.
+- Hood/face: targeted two-direction sampling costs 220 triangles and removes
+  the prominent inner-corner darts seen in pass 3. Restoring the four visible
+  recess beds costs 768 and removes their false diagonal dents. Broad hood
+  reflections flow continuously, including the driver's-eye lines. Very thin
+  cut rims and the outer lamp tips still expose small angular marks in the
+  severe front Workbench view; the A-pillar/cowl junction is less polished
+  than the reference stampings. The broad face layout remains accepted.
+- Roof/spoiler: the last roof section now falls toward the spoiler; measured
+  backlight rake is **46.58°**, spoiler overhang **106.9 mm**. The supported
+  free edge is smooth in both stripe directions. The broad accepted D-pillar
+  remains too abrupt in reflection compression compared with both photos.
+  Its white-clay highlight is cleaner but is not a claim of perfect fairness.
+- Mirrors: supported door sails, wedge caps, flat rear panes; **228 × 136 ×
+  128 mm**, housing bottom **994.7 mm**, span **2039.3 mm**. The housings remain
+  below the side profile and actual surface intersections prove support.
+  The dark shoe is visually heavy and the pane perimeter is still simple;
+  these make the mirror look cheaper than either photographed assembly.
+- Rear: the transverse garnish now follows the surface without the decimated
+  pill-shaped bulge. Its bed is **6.0–7.1 mm** recessed. The lamps are **125.5 mm**
+  at the quarter and taper to **51.7 mm** at their inner gate tips. Gate cut,
+  upper bumper crease and lower turn-under read as separate construction.
+  The bumper plate mouth is **319 × 166 mm**, actual depth **21.0–21.6 mm**, with
+  its overhead lamp. The diffuser bottom varies **0.965 mm** across its sampled
+  row; the old repeated wrinkle is gone. The lower bumper turns under over
+  **144.1 mm**. The straight garnish and wide plain lower gate still read more
+  generic and slightly older than the Corolla's shaped gate; fine angular cut
+  marks below the lamps and around the reflector mouths remain CG tells.
+- Whole white clay: it reads as a modern compact five-door, retaining the small
+  package, filled arches and side gradients. It remains less convincing than
+  the photographs: nearly rectangular side-window corners, very regular door
+  cuts, opaque glass, empty optics and bare wheels simplify its appearance.
+  The first two are form weaknesses; the last three are deliberate stage
+  omissions. Do not use those omissions to excuse the remaining rim and pillar
+  issues. No interior, underbody, hinges/struts, paint or baked export is added.
+- Allocation/proof: **46,881 triangles**, down **6,503** from round 1; the current
+  code removes **14,327** buried reverse-skin triangles and spends some savings
+  on the visible repairs. The finished plan is **59,381 + 500 contingency**,
+  under 60,000. Both density audits, measured shape/depth/contact checks, eleven
+  game and parent curvature stations, all camera projection checks and repository
+  rules pass. Independent regeneration matches **133 objects / 120 meshes**
+  exactly. Pickup remains **472 objects / 454 meshes**, **150 GLB accessors**,
+  embedded maps and full file hash identical. No sedan module or kit changed.
+
+Commands completed for the final revision: the scripted game/high builds,
+`make -C cars BODY=hatch check`, `make -C cars BODY=hatch render`,
+`make -C cars BODY=hatch review`, Python compilation and independent deterministic
+regeneration. Every final shot and game measurement report refers to source SHA-256
+`a0e2e383288e48e09664ea760db2296e55449aaa4329940ac2c217a5e2194c55`.
+This is the requested stop at the form checkpoint. The remaining visual misses
+above are reported for the lead; no tool, kit change or permission is needed.
