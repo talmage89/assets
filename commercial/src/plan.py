@@ -63,14 +63,14 @@ def generate(seed=101,overrides=None):
  for i in range(count):
   local=((i-(count-1)/2)*pitch,0)
   x,y=rotate(local,angle);islands.append(dict(center=(x,y+can['center'][1]),angle=angle,index=i+1))
- W,D=(v*FT for v in d['lot']);walk=7*FT;parking_depth=18*FT
+ W,D=(v*FT for v in d['lot']);walk=12*FT;parking_depth=18*FT
  # Entrances remain on the two local street edges; the front opening varies with canopy.
  front_drive=(((count-1)/2*pitch+12*FT) if angle==0 else W/2-24*FT,-D/2)
  side_drive=(-W/2,(-12 if angle==0 else -13)*FT)
  result=dict(seed=seed,stage='form checkpoint: quick materials; no bake',lot=(W,D),yaw=d['yaw'],brand=d['brand'],
     building=asdict(b),canopy=can,islands=islands,sign=d['sign'],
     sign_center=(-W/2+14*FT,-D/2+14*FT),driveways=[dict(edge='south',center=front_drive,width=24*FT),dict(edge='west',center=side_drive,width=24*FT)],
-    walk=walk,parking_depth=parking_depth,parking_front=b.front-walk-parking_depth,
+    walk=walk,access=dict(center_x=b.center_x-1.15,width=5*FT,run=6*FT,landing_depth=6*FT),parking_depth=parking_depth,parking_front=b.front-walk-parking_depth,
     stalls=5 if b.width>19 else 4)
  validate(result);return result
 

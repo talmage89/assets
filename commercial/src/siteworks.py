@@ -108,19 +108,21 @@ def site(p):
  flat('Fuel apron',(-c['width']/2-1,c['width']/2+1,-c['depth']/2-.8,c['depth']/2+.8),'Concrete',pad)
  for x in [(-c['width']/2+i*3.048) for i in range(int(c['width']/3.048)+1)]:strip('Fuel slab joint',(x,-c['depth']/2-.8),(x,c['depth']/2+.8),.009,'Trim',pad,.001)
  for y in (-3.048,0,3.048):strip('Fuel slab joint',(-c['width']/2-1,y),(c['width']/2+1,y),.009,'Trim',pad,.001)
- # Walk is 7 ft wide. A local flush access opening avoids a ramp in the stall aisle.
+ # A 12-ft walk contains a 6-ft 1:12 run plus a 6-ft level top landing.
  front=b['front'];walkback=front-p['walk'];bx=b['center_x'];bw=b['width']
  box('Store front walk',(bx,front-p['walk']/2,.0762),(bw+1.1,p['walk'],.1524),'Concrete',r,.015)
- # 1:12 ramp, wholly inside the walk, at the accessible aisle to the left of entry.
+ # Ramp and landing stay wholly inside the walk, clear of the level stall aisle.
  # Top walk cells are cut at this gap rather than hidden by a pasted ramp.
  # Its final exact opening is constructed below by replacing the broad walk box.
  old=bpy.data.objects['Store front walk'];bpy.data.objects.remove(old,do_unlink=True)
- access_x=bx-1.15;access_w=1.524
+ access_x=p['access']['center_x'];access_w=p['access']['width']
  x0=bx-(bw+1.1)/2;x1=bx+(bw+1.1)/2;ax0=access_x-access_w/2;ax1=access_x+access_w/2
  for lo,hi in ((x0,ax0),(ax1,x1)):
   box('Walk raised pour',((lo+hi)/2,front-p['walk']/2,.0762),(hi-lo,p['walk'],.1524),'Concrete',r,.012)
- verts=[(ax0,walkback,0),(ax1,walkback,0),(ax1,front,.1524),(ax0,front,.1524)]
+ ramp_end=walkback+p['access']['run']
+ verts=[(ax0,walkback,0),(ax1,walkback,0),(ax1,ramp_end,.1524),(ax0,ramp_end,.1524)]
  mesh('Accessible walk ramp',verts,[(0,1,2,3)],'Concrete',r,False)
+ flat('Accessible level landing',(ax0,ax1,ramp_end,front),'Concrete',r,.1524)
  # Parking row on street face, near-front wheel stops keep overhang off the walk.
  rear=walkback;pf=p['parking_front'];stall_w=9*FT
  start=bx-bw/2+.15
