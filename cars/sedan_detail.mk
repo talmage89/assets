@@ -50,6 +50,9 @@ build/sedan/surface-source.json: build/sedan/detail-game.blend src/sedan_surface
 build/sedan/surface-delivery.json: export/AlderS240.glb build/sedan/finalized.blend src/sedan_surface_check.py src/sedan_surface_proof.py
 	$(BP) --python src/sedan_surface_check.py -- --source build/sedan/finalized.blend --glb export/AlderS240.glb --out $@
 check-detail: build/sedan/surface-source.json
+build/sedan/arch-clearance.json: build/sedan/detail-game.blend src/sedan_arch_check.py src/sedan_surface_check.py
+	$(BP) --python src/sedan_arch_check.py -- --source $< --out $@
+check-detail: build/sedan/arch-clearance.json
 check: build/sedan/surface-delivery.json
 build/sedan/motion-game.json: build/sedan/detail-game.blend $(SEDAN_CONFIG)
 	$(BP) --python $(KIT)/motion.py -- --source $< --config $(SEDAN_CONFIG) --out $@
