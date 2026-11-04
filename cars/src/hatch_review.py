@@ -155,6 +155,7 @@ def main():
     names += [name+'-calibration.jpg' for name in cameras]
     names += ['side-perspective-'+make+'.jpg' for make in ['corolla','hyundai']]
     names += ['side-methods-'+make+'.jpg' for make in ['corolla','hyundai']]
+    names += ['side-rounds-'+make+'.jpg' for make in ['corolla','hyundai']]
     tw,th=800,530;canvas=Image.new('RGB',(3*tw,math.ceil(len(names)/3)*th),(229,231,232));d=ImageDraw.Draw(canvas)
     for i,name in enumerate(names):
         im=Image.open(out/name).convert('RGB');im.thumbnail((tw-20,th-55),Image.Resampling.LANCZOS);x=(i%3)*tw;y=(i//3)*th

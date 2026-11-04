@@ -53,5 +53,10 @@ def profiles(out,cameras):
    a,b=Image.open(old).convert('RGB'),im
    a.thumbnail((1200,900));b.thumbnail((1200,900));pair=Image.new('RGB',(2400,980),(229,231,232));pair.paste(a,(0,70));pair.paste(b,(1200,70));draw=ImageDraw.Draw(pair)
    draw.text((20,20),'OLD ORTHOGRAPHIC REGISTRATION',font=font(25),fill=(25,55,75));draw.text((1220,20),'MATCHED PERSPECTIVE',font=font(25),fill=(25,55,75));save(pair,out/('side-methods-'+make+'.jpg'))
+  baseline=ASSET/'renders/hatch-round1-overlays'/('side-overlay-'+make+'.jpg')
+  if baseline.exists():
+   a,b=Image.open(baseline).convert('RGB'),im.copy()
+   a.thumbnail((1200,900));b.thumbnail((1200,900));pair=Image.new('RGB',(2400,980),(229,231,232));pair.paste(a,(0,70));pair.paste(b,(1200,70));draw=ImageDraw.Draw(pair)
+   draw.text((20,20),'ROUND 1 / ORIGINAL ORTHOGRAPHIC OVERLAY',font=font(24),fill=(25,55,75));draw.text((1220,20),'ROUND 2 / MATCHED PERSPECTIVE',font=font(24),fill=(25,55,75));save(pair,out/('side-rounds-'+make+'.jpg'))
  (out/'side-perspective.json').write_text(json.dumps(records,indent=2))
  return records

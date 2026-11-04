@@ -62,6 +62,8 @@ def main():
     metadata={}
     if (out/'shots.json').exists():metadata=json.loads((out/'shots.json').read_text())
     for name,shot in shots.items():
+        # Keep profile silhouette measurements at the reference's native scale.
+        width=2100 if name.endswith('_side_clay') else a.width
         bpy.ops.wm.open_mainfile(filepath=str(source));sc=bpy.context.scene
         camera=studio.add_studio(scale=2.5,backdrop_color=(.2,.21,.22))
         stripe=a.mode in ['stripes','pairs']
@@ -102,7 +104,7 @@ def main():
         camera.data.type='ORTHO' if 'ortho' in shot else 'PERSP';camera.data.sensor_width=36;camera.data.sensor_fit='HORIZONTAL'
         camera.data.lens=shot.get('lens',58);camera.data.ortho_scale=shot.get('ortho',5.1);camera.data.clip_start=.02;camera.data.clip_end=100
         sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=.25 if shot.get('raking') else -.2 if stripe else -.85 if sc.render.engine=='CYCLES' else .25
-        sc.render.resolution_x=a.width;sc.render.resolution_y=round(a.width/shot.get('aspect',1.65));sc.render.resolution_percentage=100
+        sc.render.resolution_x=width;sc.render.resolution_y=round(width/shot.get('aspect',1.65));sc.render.resolution_percentage=100
         sc.render.image_settings.file_format='PNG';sc.render.image_settings.color_mode='RGBA';sc.render.film_transparent=True
         bpy.data.objects['Studio seamless'].hide_render=True
         sc.render.filepath=str((out/(name+'.png')).resolve());bpy.context.view_layer.update();bpy.ops.render.render(write_still=True)
@@ -114,7 +116,7 @@ def main():
             landmarks.update(hood_front=data['hood_leading_center_m'],roof_peak=data['roof_peak_m'],gate=data['gate_upper_center_m'])
         pixels={}
         for key,point in landmarks.items():
-            q=world_to_camera_view(sc,camera,Vector(point));pixels[key]=[q.x*a.width,(1-q.y)*sc.render.resolution_y]
-        metadata[name]=dict(shot,source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),stage='hatch source form checkpoint',engine=sc.render.engine,width=a.width,height=sc.render.resolution_y,points=pixels)
+            q=world_to_camera_view(sc,camera,Vector(point));pixels[key]=[q.x*width,(1-q.y)*sc.render.resolution_y]
+        metadata[name]=dict(shot,source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),stage='hatch source form checkpoint',engine=sc.render.engine,width=width,height=sc.render.resolution_y,points=pixels)
         (out/'shots.json').write_text(json.dumps(metadata,indent=2));print('HATCH_RENDERED',name,flush=True)
 if __name__=='__main__':main()
