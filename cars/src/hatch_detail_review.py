@@ -7,7 +7,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
 from kit.fonts import find_font
 from hatch_pair_measure import measure
 FONT=find_font('Noto Sans','Regular')
-VIEWS='front_three_quarter rear_three_quarter face lamp_unlit lamp_lit wheel grille plate_detail mirror interior_glass cargo underbody underbody_layout opened_front opened_rear scale side front rear top'.split()
+VIEWS='front_three_quarter rear_three_quarter rear_quarter hood_detail face lamp_unlit lamp_lit wheel grille fog_detail plate_detail mirror interior_glass cargo underbody underbody_layout opened_front opened_rear scale side front rear top'.split()
 COLORS=['Porcelain','Carbon','Graphite','Aluminum','Atlantic']
 GROUPS=['doors','hood','liftgate','steering','wheels']
 

@@ -19,12 +19,12 @@ OUT := renders/$(PASS)
 HD := build/hatch-detail
 HC := src/hatch_detail_config.py
 FORMDEPS := src/hatch_build.py src/hatch_body.py src/hatch_apertures.py src/hatch_character.py src/hatch_spec.py src/build.py src/wheels.py
-DETAILDEPS := src/hatch_detail.py src/hatch_exterior.py src/hatch_finishes.py src/hatch_hardware.py src/hatch_interior.py src/hatch_mechanisms.py src/hatch_surface_detail.py src/hatch_underbody.py src/finishes.py src/detail_helpers.py ../kit/vehicle_materials.py
+DETAILDEPS := src/hatch_shoulder_surface.py src/hatch_fuel_surface.py src/hatch_reference_surface.py src/hatch_hidden_allocation.py src/hatch_optical_surfaces.py src/hatch_surface_normals.py src/hatch_running_surfaces.py src/hatch_grille.py src/hatch_detail.py src/hatch_exterior.py src/hatch_finishes.py src/hatch_hardware.py src/hatch_interior.py src/hatch_mechanisms.py src/hatch_surface_detail.py src/hatch_underbody.py src/finishes.py src/detail_helpers.py ../kit/vehicle_materials.py
 RENDERDEPS := src/hatch_lookdev.py src/hatch_colors.py src/hatch_views.py src/hatch_lighting.py src/delivery_materials.py src/lighting.py ../kit/studio.py ../kit/gpu.py
 empty :=
 space := $(empty) $(empty)
 comma := ,
-VIEWS := front_three_quarter rear_three_quarter face lamp_unlit lamp_lit wheel grille plate_detail mirror interior_glass cargo underbody underbody_layout opened_front opened_rear scale side front rear top
+VIEWS := front_three_quarter rear_three_quarter rear_quarter hood_detail face lamp_unlit lamp_lit wheel grille fog_detail plate_detail mirror interior_glass cargo underbody underbody_layout opened_front opened_rear scale side front rear top
 COLORS := Porcelain Carbon Graphite Aluminum Atlantic
 COLORVIEWS := $(foreach c,$(COLORS),$(c)_front $(c)_rear)
 MOTIONVIEWS := $(foreach g,doors hood liftgate steering wheels,$(foreach i,0 1 2 3 4,$(g)_$(i)))
@@ -83,8 +83,8 @@ $(HD)/determinism.json: $(HD)/game.blend $(HD)/repeat-game.blend src/hatch_repea
 check: $(HD)/detail-check.json $(HD)/detail-high-check.json $(HD)/audit-game.json $(HD)/audit-high.json $(HD)/motion-game.json $(HD)/motion-high.json $(HD)/used-cameras.json $(HD)/delivery-check.json $(HD)/determinism.json
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration $(HD)/used-cameras.json
 	$(PYTHON) $(KIT)/repo_check.py
-$(addprefix $(OUT)/,$(addsuffix .png,$(VIEWS))) &: $(RENDER_SOURCE) $(RENDERDEPS) $(HD)/parameters.txt
-	$(KIT)/with_gpu.sh $(RP) --python src/hatch_lookdev.py -- --source $< --out $(OUT) --width $(WIDTH) --samples $(SAMPLES) --shots $(subst $(space),$(comma),$(VIEWS))
+$(addprefix $(OUT)/,$(addsuffix .png,$(VIEWS))): $(OUT)/%.png: $(RENDER_SOURCE) $(RENDERDEPS) $(HD)/parameters.txt
+	$(KIT)/with_gpu.sh $(RP) --python src/hatch_lookdev.py -- --source $< --out $(OUT) --width $(WIDTH) --samples $(SAMPLES) --shots $*
 $(OUT)/colors.stamp: $(RENDER_SOURCE) $(RENDERDEPS) $(HD)/parameters.txt
 	$(KIT)/with_gpu.sh $(RP) --python src/hatch_lookdev.py -- --source $< --out $(OUT) --width $(WIDTH) --samples $(SAMPLES) --colors
 	@touch $@
@@ -137,4 +137,24 @@ renders/hatch-source-pairs/.stamp: $(HD)/game.blend $(HD)/used-cameras.json $(RE
 source-pairs: renders/hatch-source-pairs/.stamp
 source-render:
 	$(MAKE) BODY=hatch RENDER_SOURCE=$(HD)/game.blend PASS=hatch-source render review
+
+# Surface gate includes every visible material, from the actual exported mesh.
+.PHONY: surface-proofs source-surface-proofs surface-compare
+surface-proofs: $(OUT)/surface-proofs/.stamp
+$(OUT)/surface-proofs/.stamp: export/AlderH120.glb src/hatch_surface_proofs.py src/hatch_curvature_map.py src/hatch_views.py $(HD)/parameters.txt
+	$(BP) --python src/hatch_surface_proofs.py -- --source $< --out $(OUT)/surface-proofs --mode curvature --width $(WIDTH)
+	$(KIT)/with_gpu.sh $(RP) --python src/hatch_surface_proofs.py -- --source $< --out $(OUT)/surface-proofs --mode horizontal --width $(WIDTH) --samples 32
+	$(KIT)/with_gpu.sh $(RP) --python src/hatch_surface_proofs.py -- --source $< --out $(OUT)/surface-proofs --mode vertical --width $(WIDTH) --samples 32
+	@touch $@
+all: surface-proofs
+source-surface-proofs: renders/hatch-source-surface-proofs/.stamp
+renders/hatch-source-surface-proofs/.stamp: $(HD)/game.blend src/hatch_surface_proofs.py src/hatch_curvature_map.py src/hatch_views.py $(HD)/parameters.txt
+	$(BP) --python src/hatch_surface_proofs.py -- --source $< --out renders/hatch-source-surface-proofs --mode curvature --width $(WIDTH)
+	$(KIT)/with_gpu.sh $(RP) --python src/hatch_surface_proofs.py -- --source $< --out renders/hatch-source-surface-proofs --mode horizontal --width $(WIDTH) --samples 32
+	$(KIT)/with_gpu.sh $(RP) --python src/hatch_surface_proofs.py -- --source $< --out renders/hatch-source-surface-proofs --mode vertical --width $(WIDTH) --samples 32
+	@touch $@
+all: source-surface-proofs
+surface-compare: render
+	$(PYTHON) src/hatch_surface_review.py --before renders/hatch-surfaces-before --after $(OUT)
+
 endif

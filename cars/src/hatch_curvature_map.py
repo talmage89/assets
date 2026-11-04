@@ -26,9 +26,12 @@ def outer_faces(ob):
     mesh=ob.data
     role=mesh.attributes.get('hatch_outer_skin')
     if role:return {f.index for f in mesh.polygons if role.data[f.index].value}
-    count=ob.get('outer_skin_faces')
+    count=ob.get('lens_outer_faces',ob.get('outer_skin_faces'))
     if count is not None:return set(range(min(count,len(mesh.polygons))))
-    return set()
+    # Every visible auxiliary now participates: optical internals, glass,
+    # open grille webs, arch hems, tires and hardware. Gauge is measured where
+    # a part has no authored outer-face role, with its signed curvature retained.
+    return set(range(len(mesh.polygons))) if ob.get('asset_set')=='Hatch' else set()
 
 
 def measure(ob):
