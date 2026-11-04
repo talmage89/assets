@@ -43,6 +43,9 @@ def paint(wear):
     arcs=n.math('SINE',n.mul(n.voronoi(p,8),3200))
     swirls=n.mul(n.ramp(arcs,.93,.99),n.ramp(n.noise(p,30,2),.57,.70),wear,.018)
     output('base',base);output('rough',n.add(oldrough,n.mul(film,.25),swirls))
+    # Road deposits are dielectric; factory metallic remains an independent
+    # uniform over the clean coverage, shared by all five colors.
+    output('metal',n.mul(coverage,n.nt.nodes['Paint metallic'].outputs[0]))
     output('paint_coverage',coverage);output('paint_contamination',dirt);output('road_film',film);output('chips',chips)
     bs=n.nt.nodes['SURFACE'];n.feed(bs.inputs['Coat Weight'],n.add(.10,n.mul(coverage,.90)))
     n.feed(bs.inputs['Coat Roughness'],n.add(.035,n.mul(film,.35)))

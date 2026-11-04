@@ -48,10 +48,10 @@ check-motion: build/sedan/motion-game.json build/sedan/motion-high.json
 
 build/sedan/finalized.blend build/sedan/uv-report.json &: build/sedan/material-source.blend $(SEDAN_CONFIG) src/sedan_finalize.py $(KIT)/finalize.py $(KIT)/uv.py
 	$(BP) --python src/sedan_finalize.py -- --source $< --out build/sedan/finalized.blend --config $(SEDAN_CONFIG) --report build/sedan/uv-report.json --size 2048 --target-density 360 --margin .0012
-build/sedan/bake-source.blend: build/sedan/detail-high.blend src/prepare_bake.py
-	$(BP) --python src/prepare_bake.py -- --source $< --out $@
-build/sedan/material-source.blend: build/sedan/detail-game.blend src/prepare_bake.py
-	$(BP) --python src/prepare_bake.py -- --source $< --out $@
+build/sedan/bake-source.blend: build/sedan/detail-high.blend src/sedan_prepare_bake.py src/prepare_bake.py
+	$(BP) --python src/sedan_prepare_bake.py -- --source $< --out $@
+build/sedan/material-source.blend: build/sedan/detail-game.blend src/sedan_prepare_bake.py src/prepare_bake.py
+	$(BP) --python src/sedan_prepare_bake.py -- --source $< --out $@
 build/sedan/projection-check.json: build/sedan/detail-game.blend build/sedan/detail-high.blend src/sedan_projection_check.py
 	$(BP) --python src/sedan_projection_check.py -- --low build/sedan/detail-game.blend --high build/sedan/detail-high.blend --out $@
 textures/sedan/material-bake/bake-report.json $(addprefix textures/sedan/material-bake/T_AlderS240_,$(addsuffix .png,BaseColor Normal ORM)) &: build/sedan/finalized.blend src/sedan_surface_bake.py $(KIT)/bake.py
