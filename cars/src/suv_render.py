@@ -77,7 +77,7 @@ def main():
             for mat in bpy.data.materials:
                 bs=mat.node_tree.nodes.get('Principled BSDF') if mat.use_nodes else None
                 if bs:
-                    value={'Clay body':.18,'Clay rubber':.009,'Clay glass':.018,'Clay bumper':.035,'Clay wheel':.16}.get(mat.name)
+                    value={'Clay body':.36,'Clay rubber':.009,'Clay glass':.018,'Clay bumper':.035,'Clay wheel':.16}.get(mat.name)
                     if value is not None:bs.inputs['Base Color'].default_value=(value,value,value,1)
                     bs.inputs['Roughness'].default_value=.31 if mat.name=='Clay body' else .60 if mat.name=='Clay rubber' else .36
                     if mat.name=='Clay rubber':bs.inputs['Specular IOR Level'].default_value=.12
@@ -85,11 +85,15 @@ def main():
             if shot.get('raking'):
                 for ob in sc.objects:
                     if ob.type=='LIGHT':ob.hide_render=True
-                sun=bpy.data.lights.new('Low sun along stamped side','SUN');sun.energy=5.0;sun.angle=.035
+                sun=bpy.data.lights.new('Low sun along stamped side','SUN');sun.energy=3.5;sun.angle=.035
                 ob=bpy.data.objects.new('Low sun along stamped side',sun);sc.collection.objects.link(ob)
-                direction=Vector((-.25,1,-.18));ob.rotation_euler=direction.to_track_quat('-Z','Y').to_euler()
-                sc.world.node_tree.nodes['Background'].inputs['Strength'].default_value=.65
-                sc.world.node_tree.nodes['Background'].inputs['Color'].default_value=(.15,.15,.15,1)
+                direction=Vector((-.12,-1,-.18));ob.rotation_euler=direction.to_track_quat('-Z','Y').to_euler()
+                sc.world.node_tree.nodes['Background'].inputs['Strength'].default_value=.30
+                sc.world.node_tree.nodes['Background'].inputs['Color'].default_value=(.32,.32,.32,1)
+                # Keep the sun as the directional proof; neutral sky fill only
+                # lifts the panel's darkest slope enough to inspect the crease.
+                for flag in sc.objects:
+                    if flag.name.startswith('Studio black reflection'):flag.hide_render=True
         else:
             sc.render.engine='BLENDER_WORKBENCH';sh=sc.display.shading
             sh.light='STUDIO';sh.studio_light='studio.sl';sh.studiolight_rotate_z=0;sh.color_type='MATERIAL';sh.show_shadows=True
@@ -105,7 +109,7 @@ def main():
         camera.location=shot['location'];camera.rotation_euler=(Vector(shot['target'])-camera.location).to_track_quat('-Z','Y').to_euler();camera.rotation_euler.rotate_axis('Z',shot.get('roll',0))
         camera.data.type='ORTHO' if 'ortho' in shot else 'PERSP';camera.data.sensor_width=36;camera.data.sensor_fit='HORIZONTAL'
         camera.data.lens=shot.get('lens',58);camera.data.ortho_scale=shot.get('ortho',5.7);camera.data.clip_start=.02;camera.data.clip_end=100
-        sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=-.35 if shot.get('raking') else -.2 if stripe else -1.65 if sc.render.engine=='CYCLES' else .25
+        sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=.65 if shot.get('raking') else -.2 if stripe else -1.65 if sc.render.engine=='CYCLES' else .25
         sc.render.resolution_x=a.width;sc.render.resolution_y=round(a.width/shot.get('aspect',1.65));sc.render.resolution_percentage=100
         sc.render.image_settings.file_format='PNG';sc.render.image_settings.color_mode='RGBA';sc.render.film_transparent=True
         bpy.data.objects['Studio seamless'].hide_render=stripe or a.preview or camera.data.type=='ORTHO' or a.mode=='profiles'

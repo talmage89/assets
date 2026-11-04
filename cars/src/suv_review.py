@@ -18,7 +18,8 @@ def overlays(out,shots,perspective=False):
  definitions={
  'rav4':dict(wb=2.690,axles=[(244,574),(938,575)],top=[('hood lead',65,417),('hood mid',205,382),('cowl',340,369),('header',525,267),('roof middle',700,239),('roof aft',900,241),('spoiler',1055,259),('D pillar',1110,320)],ends=[('front upper',45,440,True),('front bumper',33,500,True),('front chin',30,570,True),('tail upper',1157,425,False),('tail bumper',1169,500,False),('tail lower',1150,556,False)]),
  'crv':dict(wb=2.66192,axles=[(246,574),(937,574)],top=[('hood lead',80,411),('hood mid',220,382),('cowl',340,360),('header',515,268),('roof middle',700,238),('roof aft',900,242),('spoiler',1080,253),('D pillar',1128,315)],ends=[('front upper',41,465,True),('front bumper',29,510,True),('front chin',34,576,True),('tail upper',1161,425,False),('tail bumper',1170,506,False),('tail lower',1150,565,False)])}
- source=Image.open(out/'side.png').convert('RGBA');meta=shots['side'];sf=np.array(meta['points']['front_axle']);sr=np.array(meta['points']['rear_axle'])
+ if not perspective:
+  source=Image.open(out/'side.png').convert('RGBA');meta=shots['side'];sf=np.array(meta['points']['front_axle']);sr=np.array(meta['points']['rear_axle'])
  for make,rec in definitions.items():
   if perspective:
    source=Image.open(out/(make+'_profile.png')).convert('RGBA');meta=shots[make+'_profile'];sf=np.array(meta['points']['front_axle']);sr=np.array(meta['points']['rear_axle'])
@@ -101,6 +102,44 @@ def dimensioned(out,shots,report):
   save(im,out/(name+'-dimensions.jpg'))
 
 
+def round_two(out,report):
+ """Compare preserved cameras, and show independently measured plan samples."""
+ names=[];old=ASSET/'renders/suv-form'
+ if old.exists() and old.resolve()!=out.resolve():
+  for label,views in [('ends',['front','rear']),('plan-side',['top','side_raking'])]:
+   page=Image.new('RGB',(2400,1500),(228,231,232));d=ImageDraw.Draw(page)
+   for j,view in enumerate(views):
+    for i,folder in enumerate([old,out]):
+     im=rgb(folder/(view+'.png'));im.thumbnail((1170,670),Image.Resampling.LANCZOS)
+     x=i*1200;y=j*750;page.paste(im,(x+(1200-im.width)//2,y+65+(670-im.height)//2))
+     d.text((x+20,y+15),f'ROUND {i+1} / '+view.replace('_',' ').upper(),font=font(27),fill=(25,50,65))
+   name='round1-round2-'+label+'.jpg';save(page,out/name);names.append(name)
+ if 'round2' in report:
+  page=Image.new('RGB',(1600,1050),(240,242,240));d=ImageDraw.Draw(page)
+  d.text((30,20),'ACTUAL PLAN ENVELOPES / source triangle ray intersections',font=font(28),fill=(25,50,65))
+  for i,end in enumerate(['front','rear']):
+   r=report['round2']['plan'][end];x0=400+i*800;y0=180;scale=390
+   d.text((i*800+30,80),end.upper()+f" / setback at 800 mm: {r['corner_setback_at_800mm_m']*1000:.1f} mm",font=font(23),fill=(25,65,85))
+   for x in [-.8,-.4,0,.4,.8]:d.line((x0+x*scale,y0,x0+x*scale,y0+420),fill=(200,209,210))
+   for y in [0,.1,.2,.3,.4,.5]:
+    d.line((x0-350,y0+y*scale,x0+350,y0+y*scale),fill=(200,209,210))
+   for sign in [-1,1]:
+    ps=[(x0+sign*q['halfwidth_m']*scale,y0+q['setback_m']*scale) for q in r['samples']]
+    d.line(ps,fill=(30,90,125),width=3)
+    for x,y in ps:d.ellipse((x-4,y-4,x+4,y+4),fill=(210,65,25))
+   d.text((i*800+30,540),'XY radius through x = 650 / 700 / 750 mm:',font=font(22),fill=(25,65,85))
+   d.text((i*800+30,575),f"{r['three_point_xy_envelope_radius_m']*1000:.0f} mm (not a constant radius)",font=font(22),fill=(25,65,85))
+  lines=['Reference rescue plans, corners at approximately 800 mm half-width:',
+    'Toyota: front 271 / rear 252 mm. Honda: front 258 / rear 197 mm.',
+    'Plan picks approximately +/-20 mm; photograph fascia-height picks approximately +/-30 mm.',
+    'Most outward source hit across Z = 250..1345 mm at 5 mm intervals.',
+    'Each sampled point may occur at a different height. Lines only connect sparse samples.',
+    'Reference annotations and raw picks: measurements/reference-measurements.json']
+  for j,line in enumerate(lines):d.text((30,690+j*44),line,font=font(23),fill=(30,60,80))
+  name='round2-plan-measurements.jpg';save(page,out/name);names.append(name)
+ return names
+
+
 def main():
  p=argparse.ArgumentParser();p.add_argument('--renders',required=True);p.add_argument('--report',required=True);p.add_argument('--cameras',required=True);a=p.parse_args();out=Path(a.renders);report=json.loads(Path(a.report).read_text());shots=json.loads((out/'shots.json').read_text());cameras=json.loads(Path(a.cameras).read_text())
  if any(v['source_sha256']!=report['source_sha256'] for v in shots.values()):raise ValueError('Mixed source revisions in review')
@@ -119,6 +158,7 @@ def main():
  names += ['curvature-body.jpg','curvature-hood-roof.jpg','parent/curvature-body.jpg','parent/curvature-hood-roof.jpg']+['section-'+r['name']+'.jpg' for r in report['sections']]
  names += ['rear-photo-measure-'+k+'.jpg' for k in ['crv','rav4']]+['rear-comparison-'+k+'.jpg' for k in ['crv','rav4']]
  names += [k+'-pair.jpg' for k in cameras]+[k+'_clay-pair.jpg' for k in cameras]+[k+'-calibration.jpg' for k in cameras]
+ names += round_two(out,report)
  tw,th=800,550;canvas=Image.new('RGB',(2400,math.ceil(len(names)/3)*th),(228,231,232));d=ImageDraw.Draw(canvas)
  for i,name in enumerate(names):
   im=rgb(out/name);im.thumbnail((tw-20,th-60),Image.Resampling.LANCZOS);x=i%3*tw;y=i//3*th;canvas.paste(im,(x+(tw-im.width)//2,y+45+(th-60-im.height)//2));d.text((x+12,y+10),name,font=font(19),fill=(25,50,65))

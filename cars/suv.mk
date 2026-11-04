@@ -10,9 +10,9 @@ export TMPDIR := $(REPO)/build/tmp
 export ASSETS_GPU_LOCK ?= $(REPO)/build/locks/gpu.lock
 WIDTH ?= 1600
 SAMPLES ?= 40
-PASS ?= suv-form
+PASS ?= suv-round2
 OUT := renders/$(PASS)
-DEPS := src/suv_build.py src/suv_body.py src/suv_spec.py src/suv_apertures.py src/suv_character.py src/suv_greenhouse.py src/suv_cladding.py src/build.py src/forms.py src/wheels.py src/detail_helpers.py ../kit/model.py ../kit/vehicle.py
+DEPS := src/suv_build.py src/suv_body.py src/suv_spec.py src/suv_apertures.py src/suv_character.py src/suv_greenhouse.py src/suv_cladding.py src/suv_sculpt.py src/build.py src/forms.py src/wheels.py src/detail_helpers.py ../kit/model.py ../kit/vehicle.py
 CLAY := front_three_quarter rear_three_quarter side front rear top side_raking
 STRIPES := stripes_horizontal stripes_vertical stripes_rear_horizontal stripes_rear_vertical stripes_side_horizontal stripes_side_vertical stripes_hood_driver
 PAIRS := crv_front rav4_front crv_rear rav4_rear
@@ -27,12 +27,12 @@ build/suv/high.blend: $(DEPS)
 	$(BP) --python src/suv_build.py -- --out $@ --quality high
 model: build/suv/game.blend build/suv/high.blend
 refs:
-	$(PYTHON) $(KIT)/fetch_refs.py refs --only suv-crv-front.jpg suv-crv-rear.jpg suv-crv-side.jpg suv-crv-back.jpg suv-rav4-front.jpg suv-rav4-rear.jpg suv-rav4-side.jpg suv-rav4-back.jpg suv-rav4-specs.pdf suv-rav4-uk.pdf
+	$(PYTHON) $(KIT)/fetch_refs.py refs --only suv-crv-front.jpg suv-crv-rear.jpg suv-crv-side.jpg suv-crv-back.jpg suv-rav4-front.jpg suv-rav4-rear.jpg suv-rav4-side.jpg suv-rav4-back.jpg suv-rav4-specs.pdf suv-rav4-uk.pdf suv-rav4-plan.pdf suv-crv-plan.pdf suv-rav4-face.jpg suv-crv-face.jpg
 build/suv/cameras.json: src/suv_matches.py src/suv_spec.py $(KIT)/photo_match.py
 	$(PYTHON) $(KIT)/photo_match.py solve --config src/suv_matches.py --out $@
 build/suv/profile-cameras.json: src/suv_profile_matches.py src/suv_spec.py $(KIT)/photo_match.py
 	$(PYTHON) $(KIT)/photo_match.py solve --config src/suv_profile_matches.py --out $@
-build/suv/form-check.json: build/suv/game.blend src/suv_check.py src/suv_measure.py src/suv_fairness.py
+build/suv/form-check.json: build/suv/game.blend src/suv_check.py src/suv_measure.py src/suv_round2_measure.py src/suv_fairness.py
 	$(BP) --python src/suv_check.py -- --source $< --out $@
 build/suv/curvature.json: build/suv/game.blend src/suv_fairness.py
 	$(BP) --python src/suv_fairness.py -- --source $< --out $@
@@ -67,4 +67,8 @@ $(OUT)/rav4_profile.png $(OUT)/crv_profile.png &: build/suv/game.blend build/suv
 	$(KIT)/with_gpu.sh $(RP) --python src/suv_render.py -- --source build/suv/game.blend --out $(OUT) --width $(WIDTH) --samples $(SAMPLES) --mode profiles --cameras build/suv/profile-cameras.json
 render: $(OUT)/rav4_profile.png $(OUT)/crv_profile.png $(addprefix $(OUT)/,$(addsuffix .png,$(CLAY) $(STRIPES) $(PAIRS))) $(addprefix $(OUT)/,$(addsuffix _clay.png,$(PAIRS)))
 review: render fairness
+	@mkdir -p $(REPO)/build/suv-reference-pages
+	pdftoppm -f 1 -singlefile -scale-to 1800 -png refs/suv-rav4-plan.pdf $(REPO)/build/suv-reference-pages/suv-rav4-plan
+	pdftoppm -f 1 -singlefile -scale-to 1800 -png refs/suv-crv-plan.pdf $(REPO)/build/suv-reference-pages/suv-crv-plan
+	$(PYTHON) src/suv_references.py --refs refs --out $(OUT)/measurements --plan-pages $(REPO)/build/suv-reference-pages
 	$(PYTHON) src/suv_review.py --renders $(OUT) --report build/suv/form-check.json --cameras build/suv/cameras.json

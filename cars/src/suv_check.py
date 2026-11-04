@@ -114,7 +114,7 @@ def main():
   z=.90;swells[name]=dict(fender_m=list(hit(y,z)[0]),door_m=list(hit(0,z)[0]),swell_m=hit(y,z)[0].x-hit(0,z)[0].x)
  crowns=[]
  hood_object=bpy.data.objects['Hood outer'];hood_tree=mesh_tree([hood_object]);fender_tree=mesh_tree([bpy.data.objects['Front fender_R']])
- for y in [-1.80,-1.55,-1.25]:
+ for y in [-1.60,-1.40,-1.25]:
   cuts=plane_cut([hood_object],y);edge_x=max(p[0] for segment in cuts for p in segment)
   edge=hood_tree.ray_cast(Vector((edge_x-.001,y,3)),Vector((0,0,-1)),3)[0]
   tops=[fender_tree.ray_cast(Vector((edge_x+i*.002,y,3)),Vector((0,0,-1)),3)[0] for i in range(110)];tops=[p for p in tops if p is not None]
@@ -163,6 +163,8 @@ def main():
   hood_rise_degrees=math.degrees(math.atan2(lo.z-hoodfront.z,lo.y-hoodfront.y)),
   optical_cassettes=cases,materials=sorted({m.name for o in obs for m in o.data.materials if m}),image_textures=len([im for im in bpy.data.images if im.users and im.source=='FILE']),
   deferred=['interior','underbody / actual running ground clearance','mechanical hinge/steering sweeps','UV/bake/delivery GLB','paint and causal wear'])
+ from suv_round2_measure import measure as round2_measure
+ report['round2']=round2_measure(obs)
  errors=[]
  for sec in sections:
   if not all(12<=v<=20 for v in sec['upper_inward_degrees']):errors.append(sec['name']+' upper door')

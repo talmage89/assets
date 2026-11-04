@@ -91,3 +91,12 @@ antenna for LE; these different height definitions are not interchangeable.
 Honda's [manufacturer-authored 2019 UK brochure](https://www.kingswood-honda.com/wp-content/uploads/2019/01/CR-V_Brochure.pdf),
 archived by a Honda dealer, publishes 2117 mm including mirrors. This supplies
 the X220 mirror-span class check; it is not an American trim dimension.
+
+## X220 second form round — plan measurements
+
+| Local file | Direct image/PDF URL | Author / license / use |
+| --- | --- | --- |
+| suv-rav4-plan.pdf | https://global.toyota/pages/global_toyota/your-vehicle/RAV4_50_1.pdf | Toyota Motor Corporation, 2019-04 rescue sheet, copyrighted manufacturer literature. Page 1 plan-view corner setback estimates only; sparse dimensions, never traced or imported into Blender. Accessed 2026-11-04. |
+| suv-crv-plan.pdf | https://w3.techinfo.honda-eu.com/sites/default/files/2023-11/cr-v_rw-_en.pdf | Honda Motor Europe, RW 2019 rescue sheet, release 08/2018, copyrighted manufacturer literature. Plan-view corner setback estimates only; same-generation pre-facelift cross-check, never traced or imported into Blender. Accessed 2026-11-04. |
+| suv-crv-face.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2020HOS020085.jpg&width=1600 | Autodata / CarsDirect, copyrighted stock photography; 2020 CR-V LX FWD full front. Black lower-fascia height/share and lamp-height photo ratios. Reference only; same gallery as the front three-quarter. |
+| suv-rav4-face.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2020TOS110020.jpg&width=1600 | Autodata / CarsDirect, copyrighted stock photography; 2020 RAV4 LE FWD full front. Black lower-fascia height/share and lamp-height photo ratios. Reference only; same gallery as the front three-quarter. |
