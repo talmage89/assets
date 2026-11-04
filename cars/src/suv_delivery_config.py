@@ -9,6 +9,7 @@ for _name in ['DELIVERY_SURFACES','MAX_MATERIALS','BAKE_BASECOLOR_ALPHA_CHANNEL'
     globals()[_name]=copy.deepcopy(_family[_name])
 DELIVERY_SURFACES['Paint']['extras'].update(paint_reference_color=list(COLORS['Atlantic']),paint_colors=json.dumps(COLORS),paint_metallic=json.dumps(PAINT_METAL),factory_spawn_weights=json.dumps(FLEET_WEIGHTS))
 DELIVERY_SURFACES['Glass']['principled']['IOR']=1.52
+DELIVERY_SURFACES['Opaque']['principled']={'Specular IOR Level':.33}
 DELIVERY_SURFACES['Lamps']['extras']['emission_color_override']=json.dumps(dict(alpha_min=.45,alpha_max=.68,linear_rgb=[1,.92,.80]))
 BUDGETS={'SUV':65000}
 BOUNDS={'SUV':dict(size=(2.117,4.59883,1.735),tolerance=(.002,.002,.002))}
