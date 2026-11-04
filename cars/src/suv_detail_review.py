@@ -68,7 +68,7 @@ def main():
     out,form=Path(a.renders),Path(a.form);data=json.loads(Path(a.report).read_text());meta=json.loads((out/'shots.json').read_text());names=list(meta)
     stale=[name for name,r in meta.items() if r['source_sha256']!=data['source_sha256']]
     if stale:raise ValueError('Stale source renders: '+str(stale))
-    recipes=[ASSET/'src/suv_lookdev.py',ASSET/'src/suv_lighting.py',ASSET/'src/lighting.py',ROOT/'kit/studio.py']
+    recipes=[ASSET/'src/suv_lookdev.py',ASSET/'src/suv_lighting.py',ASSET/'src/suv_finishes.py',ASSET/'src/lighting.py',ROOT/'kit/studio.py']
     recipe_hash=hashlib.sha256(b''.join(p.read_bytes() for p in recipes)).hexdigest()
     if any(r['render_recipe_sha256']!=recipe_hash for r in meta.values()):raise ValueError('Stale render recipe; rerender affected views')
     sweeps=json.loads((out/'sweeps.json').read_text())

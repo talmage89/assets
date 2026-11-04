@@ -8,7 +8,8 @@ import bpy
 from kit import vehicle_materials as V
 from kit.materials import Nodes
 import suv_spec as S
-from pickup_spec import COLORS,PAINT_METAL
+from pickup_spec import COLORS as FAMILY_COLORS,PAINT_METAL
+COLORS=dict(FAMILY_COLORS,Graphite=(.150,.1540545,.160))
 
 # Authored scene-spawn proportions, not a measured sales statistic.
 FLEET_WEIGHTS={'Porcelain':.30,'Carbon':.25,'Graphite':.22,'Aluminum':.16,'Atlantic':.07}
@@ -64,6 +65,10 @@ def palette(wear=.65):
  # SUV cladding: upward fading, aft-wheel sediment and loading-sill scuffs.
  n=Nodes('X220 weathered molded cladding');p,x,y,z,nx,ny,nz=V.rest(n,'VehicleRest')
  film=V.daily_road_mask(n,p,y,z,axles,wear*1.8)
+ # Wheel wakes load the flanks; the lower rear-facing center is protected by
+ # the bumper return. Do not continue the side fan as a pale rear dust blanket.
+ shield=n.mul(n.ramp(y,2.02,2.20),n.ramp(ny,.30,.85))
+ film=n.mul(film,n.mix(shield,1,.25))
  fade=n.mul(n.ramp(nz,.15,.95),wear,.35)
  base=n.mix(fade,(.012,.014,.015),(.060,.064,.065),True)
  base=n.mix(film,base,(.065,.055,.041),True)

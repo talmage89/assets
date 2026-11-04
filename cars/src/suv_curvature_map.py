@@ -43,7 +43,7 @@ def mean_curvature(points,triangles):
 def selected_triangles(ob,parent=False):
     ob.data.calc_loop_triangles();result=[]
     normal_matrix=ob.matrix_world.to_3x3().inverted().transposed()
-    all_faces=parent or ob.name.startswith(('Mirror housing','Liftgate spoiler'))
+    all_faces=parent or ob.data.attributes.get('skin_face_role') is None
     for tri in ob.data.loop_triangles:
         f=ob.data.polygons[tri.polygon_index];c=ob.matrix_world@f.center
         if not all_faces:
@@ -55,6 +55,16 @@ def selected_triangles(ob,parent=False):
             if (normal_matrix@f.normal).dot(radial)<=0:continue
         result.append(tuple(tri.vertices))
     return result
+
+
+def visible_surfaces():
+    """All exterior manufacturing, including optics, glazing and grille.
+
+    Gray open borders and high curvature at real blade/rim edges are retained.
+    Material names never decide whether a visible part gets measured.
+    """
+    return [o for o in bpy.context.scene.objects if o.type=='MESH' and
+            o.get('asset_set')=='SUV' and not o.get('studio')]
 
 
 def color(h):
@@ -129,7 +139,7 @@ def main():
         for f in ob.data.polygons:f.material_index=0
         # Keep an untouched diagnostic parent for an explicit source/game split.
         bpy.ops.wm.save_as_mainfile(filepath=str(out/'parent.blend'))
-    else:obs=[o for o in bpy.context.scene.objects if o.type=='MESH' and o.get('part_category') in ['body','doors','fascia','pillars','cladding','mirrors','spoiler'] and (any(m and m.name=='Clay body' for m in o.data.materials) or 'bumper cladding' in o.name)]
+    else:obs=visible_surfaces()
     report=apply(obs,a.parent)
     neutral=bpy.data.materials.new('Unmeasured geometry');neutral.use_nodes=True
     ns=neutral.node_tree.nodes;ns.clear();em=ns.new('ShaderNodeEmission');em.inputs[0].default_value=(.045,.045,.045,1);outnode=ns.new('ShaderNodeOutputMaterial');neutral.node_tree.links.new(em.outputs[0],outnode.inputs[0])

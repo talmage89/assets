@@ -13,6 +13,7 @@ SHOTS.update(
  face=dict(location=(2.3,-5.5,1.65),target=(0,-1.95,.79),lens=95,aspect=1.6),
  lamp_unlit=dict(location=(1.6,-3.0,1.18),target=(.62,-2.03,.88),lens=85,aspect=1.6),
  lamp_lit=dict(location=(1.6,-3.0,1.18),target=(.62,-2.03,.88),lens=85,aspect=1.6,lights=True),
+ rear_quarter=dict(location=(-2.6,3.8,1.55),target=(-.76,1.77,.94),lens=85,aspect=1.6),
  wheel=dict(location=(2.1,-2.3,.70),target=(.80,-1.34,.37),lens=72,aspect=1.3),
  cladding=dict(location=(2.0,2.8,.83),target=(.68,1.94,.49),lens=65,aspect=1.6),
  interior_glass=dict(location=(1.65,-.55,1.45),target=(.03,-.10,1.08),lens=42,aspect=1.6),
@@ -28,9 +29,10 @@ SHOTS.update(
 
 def main():
  p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--out',required=True);p.add_argument('--shots',default='front_three_quarter,rear_three_quarter,face,wheel,interior_glass');p.add_argument('--width',type=int,default=1200);p.add_argument('--samples',type=int,default=32);p.add_argument('--paint',default='Graphite');p.add_argument('--camera-file');p.add_argument('--colors',action='store_true');p.add_argument('--preview',action='store_true');p.add_argument('--masks',action='store_true')
+ p.add_argument('--lighting',choices=['studio','matched','legacy'],default=None)
  a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);src=Path(a.source).resolve();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
  source_hash=hashlib.sha256(src.read_bytes()).hexdigest()
- recipe_files=[Path(__file__),Path(__file__).with_name('suv_lighting.py'),Path(__file__).with_name('lighting.py'),ROOT/'kit/studio.py']
+ recipe_files=[Path(__file__),Path(__file__).with_name('suv_lighting.py'),Path(__file__).with_name('suv_finishes.py'),Path(__file__).with_name('lighting.py'),ROOT/'kit/studio.py']
  recipe_hash=hashlib.sha256(b''.join(p.read_bytes() for p in recipe_files)).hexdigest()
  def unchanged():
   if hashlib.sha256(src.read_bytes()).hexdigest()!=source_hash or hashlib.sha256(b''.join(p.read_bytes() for p in recipe_files)).hexdigest()!=recipe_hash:raise RuntimeError('Source or render recipe changed during this render batch; rerun the batch')
@@ -41,14 +43,19 @@ def main():
  for name in names:
   unchanged()
   bpy.ops.wm.open_mainfile(filepath=str(src));sc=bpy.context.scene;shot=shots[name]
-  camera=studio.add_studio(scale=2.5,backdrop_color=(.12,.13,.14))
-  from suv_lighting import daylight
-  daylight(overcast=True,reflections=True)
-  sc.world.node_tree.nodes['Comparison environment'].inputs['Strength'].default_value=3.6
+  camera=studio.add_studio(scale=2.5,backdrop_color=(.20,.21,.22))
+  from suv_lighting import daylight,product_studio,matched_daylight
+  lighting=a.lighting or ('matched' if a.camera_file else 'studio')
+  if lighting=='legacy':
+   daylight(overcast=True,reflections=True);sc.world.node_tree.nodes['Comparison environment'].inputs['Strength'].default_value=3.6
+   light_state=dict(type='Archived overcast with serrated roadside proxies')
+  elif lighting=='matched':light_state=matched_daylight(name)
+  else:light_state=product_studio(shot)
   if name in ['cargo_open','interior_glass','interior_dash','underbody','underbody_layout']:
    from suv_lighting import inspection_fill
    inspection_fill('underbody' if name=='underbody_layout' else name)
-  if name=='underbody_layout':bpy.data.objects['Comparison ground'].hide_render=True
+  if name=='underbody_layout':
+   ground=bpy.data.objects.get('Comparison ground') or bpy.data.objects['Studio seamless'];ground.hide_render=True
   for m in bpy.data.materials:
    if m.get('vehicle_paint'):
     paint=shot.get('paint',a.paint);m.node_tree.nodes['Paint tint'].outputs[0].default_value=(*COLORS[paint],1);m.node_tree.nodes['Paint metallic'].outputs[0].default_value=PAINT_METAL[paint];m.node_tree.nodes['Paint flakes'].outputs[0].default_value=.55 if PAINT_METAL[paint]>0 else 0
@@ -60,11 +67,11 @@ def main():
   camera.data.type='ORTHO' if 'ortho' in shot else 'PERSP';camera.data.sensor_width=36;camera.data.sensor_fit='HORIZONTAL';camera.data.lens=shot.get('lens',65);camera.data.ortho_scale=shot.get('ortho',5.4);camera.data.clip_start=.015;camera.data.clip_end=200
   sc.render.engine='BLENDER_EEVEE' if a.preview else 'CYCLES'
   if not a.preview:gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=12;sc.cycles.transmission_bounces=8;sc.cycles.transparent_max_bounces=8
-  sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=shot.get('exposure',.6)
+  sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=(-2.0 if lighting=='studio' else (-.95 if name=='used_rear' else .2) if lighting=='matched' else shot.get('exposure',.6))
   sc.render.resolution_x=a.width;sc.render.resolution_y=round(a.width/shot.get('aspect',1.6));sc.render.resolution_percentage=100;sc.render.image_settings.file_format='PNG';sc.render.image_settings.color_mode='RGBA';sc.render.film_transparent=True
   sc.render.filepath=str((out/(name+'.png')).resolve());bpy.ops.render.render(write_still=True)
   unchanged()
-  meta[name]=dict(shot,source_sha256=source_hash,render_recipe_sha256=recipe_hash,samples=a.samples,stage='source detail and procedural look-dev; no bake',engine=sc.render.engine,paint=shot.get('paint',a.paint),exposure=sc.view_settings.exposure,width=a.width,height=sc.render.resolution_y)
+  meta[name]=dict(shot,source_sha256=source_hash,render_recipe_sha256=recipe_hash,samples=a.samples,stage='source detail and procedural look-dev; no bake',engine=sc.render.engine,paint=shot.get('paint',a.paint),exposure=sc.view_settings.exposure,width=a.width,height=sc.render.resolution_y,lighting=light_state)
   if a.masks:
    for ob in sc.objects:
     if ob.get('studio') and ob.type=='MESH':ob.hide_render=True

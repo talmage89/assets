@@ -56,13 +56,17 @@ def main():
     p.add_argument('--width',type=int,default=1400);p.add_argument('--samples',type=int,default=32)
     p.add_argument('--engine',choices=['CYCLES','BLENDER_EEVEE'])
     p.add_argument('--mode',choices=['clay','stripes','pairs','comparisons','profiles','curvature','diagnostic_stripes','gloss','gloss_pairs'],default='clay');p.add_argument('--cameras',default='build/suv/cameras.json');p.add_argument('--shots',default='')
+    p.add_argument('--direction',choices=['horizontal','vertical'],default='horizontal')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);source=Path(a.source).resolve();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     shots={n:s for n,s in SHOTS.items() if n.startswith('stripes')==(a.mode=='stripes')}
     if a.mode in ['pairs','comparisons','profiles']:shots={n+('_clay' if a.mode=='comparisons' else ''):r['shot'] for n,r in json.loads(Path(a.cameras).read_text()).items()}
     if a.mode=='gloss_pairs':shots={n:r['shot'] for n,r in json.loads(Path(a.cameras).read_text()).items()}
     if a.mode in ['curvature','diagnostic_stripes']:
-        prefix='mean_curvature_' if a.mode=='curvature' else 'curvature_stripes_'
-        shots={prefix+n:SHOTS[n] for n in ['front_three_quarter','rear_three_quarter','side','front','rear']}
+        from suv_lookdev import SHOTS as DETAIL_SHOTS
+        prefix='mean_curvature_' if a.mode=='curvature' else 'curvature_stripes_'+('vertical_' if a.direction=='vertical' else '')
+        views={n:SHOTS[n] for n in ['front_three_quarter','rear_three_quarter','side','front','rear']}
+        views.update({n:DETAIL_SHOTS[n] for n in ['face','lamp_unlit','rear_quarter']})
+        shots={prefix+n:dict(s,direction=a.direction) for n,s in views.items()}
     if a.shots:shots={n:s for n,s in shots.items() if n in a.shots.split(',')}
     metadata={}
     if (out/'shots.json').exists():metadata=json.loads((out/'shots.json').read_text())
@@ -74,6 +78,18 @@ def main():
         bpy.data.objects['Studio seamless'].rotation_euler.z=math.pi if shot['location'][1]>0 else 0
         stripe=a.mode in ['stripes','pairs','diagnostic_stripes']
         if stripe:
+            if a.mode=='diagnostic_stripes':
+                from suv_curvature_map import visible_surfaces
+                measured=visible_surfaces()
+                mirror=bpy.data.materials.new('Clay body');mirror.use_nodes=True
+                bs=mirror.node_tree.nodes['Principled BSDF'];bs.inputs['Base Color'].default_value=(.28,.29,.30,1);bs.inputs['Metallic'].default_value=.75;bs.inputs['Roughness'].default_value=.065
+                neutral=bpy.data.materials.new('Unmeasured stripe context');neutral.use_nodes=True
+                neutral.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value=(.015,.015,.015,1)
+                neutral.node_tree.nodes['Principled BSDF'].inputs['Roughness'].default_value=.85
+                for ob in sc.objects:
+                    if ob.type=='MESH' and not ob.get('studio'):
+                        ob.data.materials.clear();ob.data.materials.append(mirror if ob in measured else neutral)
+                        for f in ob.data.polygons:f.material_index=0
             stripes(sc,shot.get('direction','horizontal'));sc.render.engine='CYCLES';gpu.enable() if a.engine!='BLENDER_EEVEE' else None;sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=4
             for ob in sc.objects:
                 if ob.get('studio') and ob.type in ['MESH','LIGHT']:ob.hide_render=True
