@@ -32,7 +32,7 @@ def read_delivery(path):
 
 
 
-def externalize(source,out,images_folder=Path('textures/ship'),max_images=15):
+def externalize(source,out,images_folder=Path('textures/ship'),max_images=15,min_images=12):
     doc,binary=read(source);out.parent.mkdir(parents=True,exist_ok=True)
     folder=out.parent/'textures';folder.mkdir(parents=True,exist_ok=True)
     known={digest(p):p for p in sorted(images_folder.glob('*.png'))}
@@ -48,7 +48,7 @@ def externalize(source,out,images_folder=Path('textures/ship'),max_images=15):
         path=folder/chosen.name
         if not path.exists() or path.read_bytes()!=payload:path.write_bytes(payload)
         im['uri']='textures/'+path.name;image_names.append(path.name)
-    assert 12<=len(set(image_names))<=max_images
+    assert min_images<=len(set(image_names))<=max_images
     # Only geometry views remain. No embedded image payload or dead buffer range.
     used=sorted({a['bufferView'] for a in doc['accessors']});remap={};views=[];output=bytearray()
     for old in used:

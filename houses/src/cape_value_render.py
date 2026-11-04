@@ -22,8 +22,8 @@ def material_mask(path,camera,normal,span,name):
     from mathutils.bvhtree import BVHTree
     wanted={'wood':('HouseSiding',),'vinyl':('HouseSiding',),'aluminum':('HouseSiding',),
         'cedar':('CapeShingle','CapeCedar'),'cement':('CapeShingle','CapeCement'),
-        'roof':('RanchRoof',),'concrete':('HouseConcrete',),'trim':('HouseTrim',),
-        'brick':('RanchBrick','RanchBrick_tan'),'glass':('HouseGlass',)}[name]
+        'roof':('RanchRoof',),'concrete':('HouseConcrete','CapeConcrete'),'trim':('HouseTrim',),
+        'brick':('RanchBrick','RanchBrick_tan','CapeBrick'),'glass':('HouseGlass',)}[name]
     vertices=[];faces=[];eligible=[]
     for ob in bpy.context.scene.objects:
         if ob.type!='MESH' or not ob.get('asset_set'):continue
@@ -128,6 +128,7 @@ def render(folder,width,samples,names,final=False):
         # selected from pixel values. Roof avoids both dormer penetrations.
         box=[width*.12,sc.render.resolution_y*.12,width*.88,sc.render.resolution_y*.88]
         patches[name]=dict(image=name,box=box,seed=s['seed'],target_m=list(target),width_m=span*.76,source=str(source),source_sha256=source_digest,metadata_sha256=hashlib.sha256(source.with_suffix('.json').read_bytes()).hexdigest(),render_recipe_sha256=recipe_sha((Path(__file__),)),reflection_phase=list(s.get('reflection_phase',DEFAULT_PHASE)),paint_control=s.get('paint'),exposure_ev=s['exposure'],sky_strength=1 if s.get('overcast') else s.get('sky',.12),overcast=s.get('overcast',False),white_balance_kelvin=s.get('white_balance_kelvin'),engine='CYCLES',stage='delivered shared PBR' if final else 'source')
+        patches[name]['material_sha256']={bpy.path.abspath(im.filepath):hashlib.sha256(Path(bpy.path.abspath(im.filepath)).read_bytes()).hexdigest() for im in bpy.data.images if im.filepath and Path(bpy.path.abspath(im.filepath)).is_file()}
         patches[name].update(material_mask=name+'-mask.png',measured_material_pixels=count,mask_method='Independent orthographic first-hit rays against asset triangles and material IDs; fixtures excluded without selecting displayed values')
         patches[name]['sun_direction']=s.get('sun_direction',(.5,.8,-1))
         if unit_stats:patches[name]['per_shingle']=unit_stats

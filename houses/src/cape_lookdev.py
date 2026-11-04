@@ -30,10 +30,10 @@ def prepare(source,out):
             node.image=bpy.data.images.load(str((trim_folder/'T_RanchTrim_ORM.png').resolve()),check_existing=True);node.image.colorspace_settings.name='Non-Color'
     from ranch_lookdev import roof_material
     mats['Shingles']=roof_material(out.parent/'materials'/'roof',meta['spec']['roof_age'])
-    from ranch_fields import brick
-    brick_folder=out.parent/'materials'/'brick';brick(brick_folder,'tan')
-    mats['Veneer']=tiling.material('RanchBrick',brick_folder,tint=True)
-    next(n for n in mats['Veneer'].node_tree.nodes if n.type=='NORMAL_MAP').inputs['Strength'].default_value=.45
+    from cape_masonry import author,dielectric,COVERAGE
+    masonry=out.parent/'materials'/'masonry';author(masonry)
+    mats['Veneer']=dielectric('CapeBrick',masonry);mats['Veneer'].name='RanchBrick'
+    mats['Concrete']=dielectric('CapeConcrete',masonry);mats['Concrete'].name='HouseConcrete'
     skin=meta['spec']['siding'];preview=out.parent/'materials'/'shingles'
     if skin in ('wood','vinyl','aluminum'):
         next(n for n in mats['Siding'].node_tree.nodes if n.type=='NORMAL_MAP').inputs['Strength'].default_value=.15
@@ -118,7 +118,9 @@ def prepare(source,out):
                         center=-sum(q[axes[1]] for q in pts)/len(pts)/2.4384
                         vv+=(1e-6 if center>vv else -1e-6 if center<vv else 0)
                     uv.data[li].uv=(p[axes[0]]/2.4384,vv)
-                else:uv.data[li].uv=(p[axes[0]]/SETS.get(role,SETS['Trim'])[1],(p[axes[1]]+(.3048 if role=='Concrete' else 0))/SETS.get(role,SETS['Trim'])[1])
+                else:
+                    coverage=COVERAGE['CapeBrick' if role=='Veneer' else 'CapeConcrete'] if role in ('Veneer','Concrete') else (SETS.get(role,SETS['Trim'])[1],)*2
+                    uv.data[li].uv=(p[axes[0]]/coverage[0],(p[axes[1]]+(.3048 if role=='Concrete' else 0))/coverage[1])
         rest=me.attributes.new(name='CapeRest',type='FLOAT_VECTOR',domain='POINT')
         context=me.attributes.new(name='CapeContext',type='FLOAT_VECTOR',domain='POINT')
         fasteners=me.attributes.new(name='CapeFasteners',type='FLOAT_VECTOR',domain='POINT')

@@ -23,6 +23,7 @@ def bake_loss():
             p=item['render'];file=Path(p['source']);digest=bundle_hash(file) if file.suffix=='.gltf' else hashlib.sha256(file.read_bytes()).hexdigest()
             assert digest==p['source_sha256'],(name,folder,'stale material render')
             assert p['metadata_sha256']==hashlib.sha256(file.with_suffix('.json').read_bytes()).hexdigest()
+            for image_path,digest in p['material_sha256'].items():assert hashlib.sha256(Path(image_path).read_bytes()).hexdigest()==digest
             assert p['render_recipe_sha256']==recipe_sha(('cape_value_render.py',)),(name,folder,'stale material recipe')
         ims=[np.asarray(Image.open(p/(name+'.png')).convert('RGB'))/255 for p in folders]
         masks=[np.asarray(Image.open(p/(name+'-mask.png')))>0 for p in folders];mask=masks[0]&masks[1]

@@ -66,6 +66,20 @@ def surfaces(seed):
     return dict(passed=True,source_surface_samples=points,source_to_chart_surface_max_m=maximum,raw_float_bvh_max_m=raw_maximum,float64_refined_samples=refined,matched_triangle_samples=matched,scope='Actual source and delivery surfaces, independent of serialization; matched triangle vertices and float64 triangle refinement for ill-conditioned thin faces; tiny ridge-cap area tolerances still require this displacement bound')
 
 
+def scalar_orm(seeds):
+    from cape_masonry import ROUGHNESS
+    rows=[]
+    for seed in seeds:
+        doc=json.loads(Path(f'export/HearthfieldCape-{seed}.gltf').read_text())
+        for mat in doc['materials']:
+            name=mat['name'].split('.')[0]
+            if name not in ROUGHNESS:continue
+            p=mat['pbrMetallicRoughness'];assert 'metallicRoughnessTexture' not in p and 'occlusionTexture' not in mat
+            assert p.get('metallicFactor',1)==0 and abs(p.get('roughnessFactor',1)-ROUGHNESS[name])<1e-6
+            rows.append(dict(seed=seed,material=name,roughness=p['roughnessFactor'],metallic=0,occlusion=1,scope='Actual exported scalar parameters; authored uniform dielectric parameters; no ORM image or packed-region boundary bleed'))
+    return rows
+
+
 def textures():
     rows=[]
     for path in sorted(Path('export/textures').glob('*.png')):
@@ -76,7 +90,7 @@ def textures():
         if '_Normal' in path.name:
             error=float(abs(np.linalg.norm(a*2-1,axis=2)-1).max());assert error<.008
         h,w=a.shape[:2];rows.append(dict(path=str(path),size=[w,h],bytes=path.stat().st_size,gpu_mib=w*h*4/3/1048576,normal_length_error=error,sha256=hashlib.sha256(path.read_bytes()).hexdigest()))
-    assert len(rows)==37 and abs(sum(r['gpu_mib'] for r in rows)-(48+1/3))<1e-6
+    assert len(rows)==39 and abs(sum(r['gpu_mib'] for r in rows)-(48+1/3))<1e-6
     return rows
 
 
@@ -92,7 +106,7 @@ def reuse(seeds):
             if key in seen:assert seen[key]==im.as_pointer()
             seen[key]=im.as_pointer()
         steps.append(dict(source=str(path),images=len(current)))
-    assert len(seen)<=37
+    assert len(seen)<=39
     return dict(passed=True,unique_images=len(seen),steps=steps,scope='Actual Blender image identity across all three types and a repeated Cape')
 
 
@@ -104,5 +118,5 @@ if __name__=='__main__':
         bpy.ops.wm.open_mainfile(filepath=str(Path(f'build/cape/delivery/game-{seed}.blend').resolve()))
         motion=sweep(dict(MOTIONS=[dict(node='FrontDoor',axis='Z',range=[0,105],step=3,tolerance_m=.0005),dict(node='ServiceDoor',axis='Z',range=[-100,0],step=5,tolerance_m=.0005)]));assert motion['passed'];row['motion']=motion;rows.append(row)
     control=check('34-control',cape=True) if 34 in seeds else None
-    maps=textures();result=dict(passed=True,auxiliary_paint_control=control,rows=rows,textures=maps,family_gpu_mib=sum(r['gpu_mib'] for r in maps),family_png_bytes=sum(r['bytes'] for r in maps),preserved=preserved(),image_reuse=reuse(seeds))
+    maps=textures();result=dict(passed=True,scalar_orm=scalar_orm(seeds),auxiliary_paint_control=control,rows=rows,textures=maps,family_gpu_mib=sum(r['gpu_mib'] for r in maps),family_png_bytes=sum(r['bytes'] for r in maps),preserved=preserved(),image_reuse=reuse(seeds))
     Path('build/cape/delivery/check.json').write_text(json.dumps(result,indent=2));print('CAPE_DELIVERY_CHECK',[(r['seed'],r['triangles']) for r in rows],result['family_gpu_mib'],flush=True)

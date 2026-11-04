@@ -25,6 +25,9 @@ def check():
         if channel=='Normal':assert np.ptp(pixels[:,:,0])>30 and np.median(pixels[:,:,2])>200,'Shingle normal field is clamped/flat'
         if channel=='ORM':assert np.max(pixels[:,:,2])==0,'Cedar/cement must remain dielectric'
         rows.append(dict(path=str(path),size=size,preview_png_bytes=path.stat().st_size,gpu_mib=size[0]*size[1]*4/3/1048576))
+    previews=rows;rows=[]
+    for name,w,h in (('CapeCedar',512,256),('CapeCement',512,256),('CapeBrick',256,256),('CapeConcrete',256,256)):
+        for channel in ('BaseColor','Normal'):rows.append(dict(name=f'T_{name}_{channel}.png',size=[w,h],gpu_mib=w*h*4/3/1048576))
     before=prior['planned_gpu_mib'];after=before+sum(r['gpu_mib'] for r in rows)
     reused_roof=[]
     for channel in ('BaseColor','Normal','ORM'):
@@ -36,8 +39,8 @@ def check():
     assert all(.0762-1e-8<=u['width_m']<=.254+1e-8 and abs(u['exposure_m']-.1524)<1e-8 for u in cedar)
     assert all(abs(u['width_m']-.6096)<1e-8 and abs(u['exposure_m']-.2794)<1e-8 for u in cement)
     result=dict(passed=True,family_before_mib=before,planned_family_after_mib=after,addition_mib=after-before,new_images=rows,
-        scope='Planned BC7 BaseColor / BC5 Normal / BC7 ORM with full mips. Original previews only; no delivery bake or image publication.',
-        justification='One 512-square two-region tile for irregular cedar units and large asbestos-cement shingles. Existing lap siding cannot represent these joints. Wood, vinyl, aluminum, roof, brick, concrete, trim and storms reuse family fields; vertex tint varies paint and age.')
+        scope='BC7 BaseColor / BC5 Normal with full mips; exact scalar dielectric ORM frees the masonry allocation. Delivery audit reads actual published files.',
+        justification='Four 512x256 wall-shingle color/normal images plus four 256-square masonry color/normal images total 1 MiB. Constant ORM needs no images. All accepted original maps stay unchanged.')
     result['cedar_unit_width_range_m']=[min(u['width_m'] for u in cedar),max(u['width_m'] for u in cedar)]
     result['byte_identical_reused_roof_maps']=reused_roof
     Path('build/cape/memory.json').write_text(json.dumps(result,indent=2));print('CAPE_MEMORY',before,'->',after,'MiB; planned addition',after-before)

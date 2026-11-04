@@ -129,9 +129,10 @@ def export_house(seed,paint_control=None):
     aged_orm(original['Trim'])
     if skin in ('wood','aluminum'):aged_orm(original['Siding'],constant=True)
     original['Shingles']=tiling.material('RanchRoof',Path('textures/ranch-ship'),tint=True)
-    original['Veneer']=tiling.material('RanchBrick_tan',Path('textures/ranch-ship'),tint=True)
-    next(n for n in original['Veneer'].node_tree.nodes if n.type=='NORMAL_MAP').inputs['Strength'].default_value=.45
-    if skin in ('cedar','cement'):original['Siding']=tiling.material('CapeCedar' if skin=='cedar' else 'CapeCement',Path('textures/cape-ship'),tint=True)
+    from cape_masonry import dielectric
+    original['Veneer']=dielectric('CapeBrick',Path('textures/cape-ship'))
+    original['Concrete']=dielectric('CapeConcrete',Path('textures/cape-ship'))
+    if skin in ('cedar','cement'):original['Siding']=dielectric('CapeCedar' if skin=='cedar' else 'CapeCement',Path('textures/cape-ship'))
     else:next(n for n in original['Siding'].node_tree.nodes if n.type=='NORMAL_MAP').inputs['Strength'].default_value=.15
     p=original['Glass'].node_tree.nodes.get('Principled BSDF');nt=original['Glass'].node_tree
     for link in list(p.inputs['Base Color'].links):nt.links.remove(link)
@@ -197,7 +198,7 @@ def export_house(seed,paint_control=None):
     for mat in list(bpy.data.materials):
         if mat not in keep:bpy.data.materials.remove(mat,do_unlink=True)
     for role,mat in original.items():
-        if mat in keep:mat.name=('CapeCedar' if skin=='cedar' else 'CapeCement') if role=='Siding' and skin in ('cedar','cement') else 'RanchRoof' if role=='Shingles' else 'RanchBrick_tan' if role=='Veneer' else 'House'+role
+        if mat in keep:mat.name=('CapeCedar' if skin=='cedar' else 'CapeCement') if role=='Siding' and skin in ('cedar','cement') else 'RanchRoof' if role=='Shingles' else 'CapeBrick' if role=='Veneer' else 'CapeConcrete' if role=='Concrete' else 'House'+role
     triangles=0
     for ob in objects:ob.data.calc_loop_triangles();triangles+=len(ob.data.loop_triangles)
     meta.update(stage='baked Cape delivery; shared external PBR maps',triangles=triangles,charts=chart,reduction=reduction)
@@ -210,7 +211,7 @@ def export_house(seed,paint_control=None):
     known=ROOT/'images';known.mkdir(exist_ok=True)
     for folder in ('textures/ship','textures/ranch-ship','textures/cape-ship'):
         for path in Path(folder).glob('T_*.png'):(known/path.name).write_bytes(path.read_bytes())
-    out=Path(f'export/HearthfieldCape-{suffix}.gltf');sizes=externalize(embedded,out,known,max_images=18)
+    out=Path(f'export/HearthfieldCape-{suffix}.gltf');sizes=externalize(embedded,out,known,max_images=18,min_images=11)
     out.with_suffix('.json').write_text(json.dumps(meta,indent=2));doc,_=read(embedded)
     row=dict(seed=seed,triangles=triangles,materials=len(doc['materials']),meshes=len(doc['meshes']),**sizes)
     print('CAPE_DELIVERED',row,flush=True);return row

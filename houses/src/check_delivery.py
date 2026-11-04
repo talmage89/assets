@@ -32,7 +32,7 @@ def check(seed,ranch=False,cape=False):
     source_tree.balance()
     raw=read_delivery(path);doc=raw.json;triangles=0;normal_error=0;tint_error=0;position_error=0;uv_zero=0;areas={};points=[]
     expected_meshes=3 if cape or ranch and meta['spec']['garage']['kind']=='carport' else 4
-    assert len(doc['meshes'])==expected_meshes and (4 if ranch or cape else 5)<=len(doc['materials'])<=6 and 12<=len(doc['images'])<=(18 if cape else 16 if ranch else 15)
+    assert len(doc['meshes'])==expected_meshes and (4 if ranch or cape else 5)<=len(doc['materials'])<=6 and (11 if cape else 12)<=len(doc['images'])<=(18 if cape else 16 if ranch else 15)
     assert all('bufferView' not in im and im['uri'].startswith('textures/') for im in doc['images'])
     assert len(raw.binary)==doc['buffers'][0]['byteLength']
     for p in dependencies(path):assert p.exists() and not p.is_symlink()
@@ -61,7 +61,7 @@ def check(seed,ranch=False,cape=False):
             assert float(area.min())>1e-12
             uv_zero+=int(np.sum(ua<1e-14))
             role=doc['materials'][prim['material']]['name'].split('.')[0].removeprefix('House')
-            size=(512*256)**.5 if role in ('CapeCedar','CapeCement') else 1024 if role=='RanchRoof' else 512 if role.startswith('RanchBrick') else SETS.get(role,SETS['Trim'])[0]
+            size=256 if role in ('CapeBrick','CapeConcrete') else (512*256)**.5 if role in ('CapeCedar','CapeCement') else 1024 if role=='RanchRoof' else 512 if role.startswith('RanchBrick') else SETS.get(role,SETS['Trim'])[0]
             densities=np.sqrt(ua/area)*size
             areas.setdefault(role,[]).extend(zip(map(float,densities),map(float,area)))
             if role in ('Trim','Glass'):
@@ -79,7 +79,7 @@ def check(seed,ranch=False,cape=False):
     for role,rows in areas.items():
         rows=sorted(rows);v=np.array([r[0] for r in rows]);w=np.cumsum([r[1] for r in rows]);w/=w[-1]
         density[role]=dict(zip(('p10','median','p90'),map(float,np.interp([.1,.5,.9],w,v))))
-        target=(512*256/(1.2192*(.762 if meta['spec'].get('siding')=='cedar' else .5588)))**.5 if role in ('CapeCedar','CapeCement') else 1024/4.8768 if role=='RanchRoof' else 512/1.2192 if role.startswith('RanchBrick') else SETS.get(role,SETS['Trim'])[0]/SETS.get(role,SETS['Trim'])[1]
+        target=(256*256/(.6096*(.2032/3*8)))**.5 if role=='CapeBrick' else 256/1.2192 if role=='CapeConcrete' else (512*256/(1.2192*(.762 if meta['spec'].get('siding')=='cedar' else .5588)))**.5 if role in ('CapeCedar','CapeCement') else 1024/4.8768 if role=='RanchRoof' else 512/1.2192 if role.startswith('RanchBrick') else SETS.get(role,SETS['Trim'])[0]/SETS.get(role,SETS['Trim'])[1]
         if role not in ('Trim','Glass'):assert abs(density[role]['median']/target-1)<.005
     bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(path.resolve()));bpy.context.view_layer.update()
     imported=[tuple(o.matrix_world@v.co) for o in bpy.context.scene.objects if o.type=='MESH' for v in o.data.vertices]

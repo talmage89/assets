@@ -6,7 +6,7 @@ BAKE_SAMPLES ?= 8
 build/cape/delivery/bake-parameters.txt: FORCE
 	@mkdir -p build/cape/delivery $(TMPDIR)
 	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='size=$(BAKE_SIZE) samples=$(BAKE_SAMPLES)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
-textures/cape-bake/.stamp: src/cape_bake.py src/cape_shingle_fields.py build/cape/delivery/bake-parameters.txt
+textures/cape-bake/.stamp: src/cape_bake.py src/cape_shingle_fields.py src/cape_masonry.py build/cape/delivery/bake-parameters.txt
 	$(KIT)/with_gpu.sh $(BP) --python src/cape_bake.py -- bake --size $(BAKE_SIZE) --samples $(BAKE_SAMPLES)
 	@touch $@
 textures/cape-ship/.stamp: textures/cape-bake/.stamp src/cape_bake.py $(KIT)/downsample.py
@@ -21,7 +21,7 @@ build/cape/delivery/export.stamp: $(CAPE_MODELS) textures/cape-ship/.stamp build
 	@touch $@
 export: build/cape/delivery/export.stamp
 check-legacy: export
-	$(MAKE) TYPE=ranch check
+	$(PYTHON) src/cape_legacy_check.py
 check-delivery: export check-legacy
 	$(BP) --python src/cape_finish_proof.py --
 	$(BP) --python src/cape_delivery_check.py -- --seeds $(CAPE_SEEDS)
@@ -30,7 +30,7 @@ renders/cape/final/.stamp: build/cape/delivery/export.stamp $(CAPE_RENDER_DEPS) 
 	$(KIT)/with_gpu.sh $(BP) --python src/cape_final.py -- --seed $(CAPE_SEED) --width $(WIDTH) --samples $(SAMPLES)
 	@touch $@
 renders/cape/final-eevee/.stamp: build/cape/delivery/export.stamp $(CAPE_RENDER_DEPS) src/cape_final.py build/cape/render-parameters.txt
-	$(KIT)/with_gpu.sh $(BP) --python src/cape_final.py -- --seed $(CAPE_SEED) --mode eevee --out renders/cape/final-eevee --width $(WIDTH) --samples $(SAMPLES)
+	$(KIT)/with_gpu.sh $(BP) --gpu-backend opengl --python src/cape_final.py -- --seed $(CAPE_SEED) --mode eevee --out renders/cape/final-eevee --width $(WIDTH) --samples $(SAMPLES)
 	@touch $@
 final-render: renders/cape/final/.stamp renders/cape/final-eevee/.stamp
 renders/cape/final-seeds/.stamp: build/cape/delivery/export.stamp $(CAPE_RENDER_DEPS) src/cape_final.py build/cape/render-parameters.txt
