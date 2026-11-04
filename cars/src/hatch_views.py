@@ -1,7 +1,7 @@
 """H120 review framing, in Blender authoring axes; hatch-only."""
 SHOTS={
- 'front_three_quarter':dict(location=(5,-6.8,2.25),target=(0,-.1,.74),lens=58,aspect=1.65,studio_yaw=-35),
- 'rear_three_quarter':dict(location=(-5,6.8,2.25),target=(0,.12,.74),lens=58,aspect=1.65,studio_yaw=145),
+ 'front_three_quarter':dict(location=(5,-6.8,2.25),target=(0,-.1,.74),lens=58,aspect=1.65,studio_yaw=-35,exposure=-2.5),
+ 'rear_three_quarter':dict(location=(-5,6.8,2.25),target=(0,.12,.74),lens=58,aspect=1.65,studio_yaw=145,exposure=-2.5),
  'face':dict(location=(.8,-4.3,1.25),target=(0,-2.14,.56),lens=65,aspect=1.55,studio_yaw=-35,paint='Graphite'),
  'lamp_unlit':dict(location=(1.95,-3.6,1.10),target=(.72,-2.08,.78),lens=95,aspect=1.50,studio_yaw=-35,paint='Graphite'),
  'lamp_lit':dict(location=(1.95,-3.6,1.10),target=(.72,-2.08,.78),lens=95,aspect=1.50,studio_yaw=-35,paint='Graphite',lights=True),
@@ -21,7 +21,7 @@ SHOTS={
  'front':dict(location=(0,-10,.78),target=(0,0,.78),ortho=2.55,aspect=1.25,studio_yaw=-35),
  'rear':dict(location=(0,10,.78),target=(0,0,.78),ortho=2.55,aspect=1.25,studio_yaw=145),
  'top':dict(location=(0,0,12),target=(0,0,0),ortho=5.7,aspect=1.25,studio_yaw=-35),
- 'scale':dict(location=(5,-6.8,2.25),target=(.40,-.10,.80),lens=51,aspect=1.65,studio_yaw=-35,human=True),
+ 'scale':dict(location=(5,-6.8,2.25),target=(.40,-.10,.80),lens=51,aspect=1.65,studio_yaw=-35,human=True,exposure=-2.5),
 }
 
 

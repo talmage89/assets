@@ -125,7 +125,7 @@ renders/hatch-eevee/.stamp: export/AlderH120.glb src/hatch_lookdev.py src/hatch_
 	@touch $@
 eevee: renders/hatch-eevee/.stamp
 .PHONY: source-pairs
-renders/hatch-source-pairs/.stamp: $(HD)/game.blend $(HD)/used-cameras.json src/hatch_lookdev.py src/hatch_lighting.py src/hatch_pair_measure.py
+renders/hatch-source-pairs/.stamp: $(HD)/game.blend $(HD)/used-cameras.json src/hatch_lookdev.py src/hatch_views.py src/hatch_lighting.py src/hatch_pair_measure.py
 	$(KIT)/with_gpu.sh $(RP) --python src/hatch_lookdev.py -- --source $< --out renders/hatch-source-pairs --width $(WIDTH) --samples $(SAMPLES) --paint Porcelain --camera-file $(HD)/used-cameras.json
 	$(PYTHON) src/hatch_pair_measure.py --renders renders/hatch-source-pairs
 	@touch $@
