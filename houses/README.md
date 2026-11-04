@@ -2,6 +2,7 @@
 
 The family delivers a builder colonial, a [postwar ranch](#second-type-postwar-ranch)
 and a [postwar Cape Cod](#third-type-postwar-cape-cod).
+A fourth type, the [split-level](#fourth-type-split-level-form-checkpoint), is at its form checkpoint.
 The colonial remains the default generator and the subject of the first images below.
 
 An original family of maintained, roughly twenty-year-old American builder
@@ -811,3 +812,155 @@ The UV charts and small fittings are intended for normal player distances.
 No full interiors, arbitrary footprints or engineering certification are
 claimed. Fonts are system open-license faces; references remain inspection
 only. Credits and rights are in [refs/SOURCES.md](refs/SOURCES.md).
+
+
+---
+
+## Fourth type: split-level form checkpoint
+
+Five original side-splits and one split-entry / raised ranch, representing
+1955–1975 construction with later windows, siding and roofs. This is the
+requested **form gate before baking**, not a finished fourth delivery.
+All accepted colonial, ranch and Cape files remain byte-identical. No split
+portfolio JPG is committed at this stage.
+
+`generate(seed, overrides=None, house_type='split')`, CLI `--type split`,
+or JSON `{"type":"split"}` selects the new type. Its local RNG never consumes
+choices in the accepted generators. `kind` selects `side` or `foyer`; bounded
+nested controls select living/bedroom wing dimensions, wing side/projection,
+gable/hip roof, independent eave/rake, ridge direction, garage/carport/parking,
+front cantilever, material mix, restrained palette, picture/bay, sash system,
+shutters, chimney, entry hood and roof age. Five out of each six default
+variants are side-splits. Examples are in `src/split_plan.py`.
+
+### Dimensions and level construction
+
+These are authored meter dimensions informed by the cited period construction
+and photographic proportions, not surveys of the reference homes. Every
+side-split has an 8 ft clear ceiling and an 8–12 in floor zone in its two-story
+wing; its living floor lies halfway between the two floors. The proof split
+entry has a low landing between the lower and upper floors. Actual short
+flights are reserved and modeled in the shallow entry backing; they are not a
+full playable interior. [REFERENCE.md](REFERENCE.md) distinguishes the period
+authorities, dimensional choices and approximate photo-camera fits.
+
+| Seed / form | Living box, ft | Bedroom box, ft | Lower / entry-living / upper floor, m | Roof pitch | Source triangles |
+| --- | --- | --- | --- | --- | ---: |
+| 51 / side, right wing | 28 × 30 | 24 × 28 | −.6096 / .7620 / 2.1336 | 4:12 | 33,105 |
+| 52 / side, left wing | 30 × 26 | 22 × 26 | −.8890 / .4572 / 1.8034 | 5:12 | 31,942 |
+| 53 / side, right wing | 28 × 28 | 24 × 30 | −.8636 / .4572 / 1.7780 | 6:12 | 38,384 |
+| 54 / side, left wing | 28 × 28 | 22 × 28 | −.6096 / .7620 / 2.1336 | 5:12 | 32,728 |
+| 55 / split foyer | 46 × 28 single box | Same box | −1.3716 / .1524 / 1.3208 | 4:12 | 31,460 |
+| 56 / side, right wing | 26 × 28 | 22 × 26 | −.5588 / .7620 / 2.0828 | 6:12 | 35,506 |
+
+Counts include the original drive, retaining cheeks where needed, services,
+shallow entry/stairs and all moving sections. Every source uses six materials
+at most. They are below 80k and mostly below the preferred 35–50k range;
+spare triangles remain available for later delivery UV charts and macro wear.
+No geometry is added simply to reach the preferred range. Garage leaves
+retain a simple floor backing, with the review ground cut behind their sunken
+aprons. Panel bounds are also checked against the authored ceiling plane.
+
+The living / bedroom bearing eaves are respectively 3.4544 / 4.8260 m on
+51/54; 3.1496 / 4.4958 on 52; 3.1496 / 4.4704 on 53; and 3.4544 / 4.7752 on
+56. Seed 55's main eave is 4.0132 m, against its attached garage's 2.7940 m.
+Eaves and gable rakes have independent 12–24 / 6–18 in bounds. Boxed soffits,
+vent strips, friezes, gutters, hems and roof/wall step flashing reuse the
+family's construction. The lower roof continues under the higher eave to
+its wall, rather than leaving a gap under the skirt.
+
+Brick on the living front / lower floor, upper lap or vertical painted battens,
+and the all-brick-wall seed have visible cap/material breaks. Cantilevered
+fronts close their undersides, and their downspouts dogleg back to the lower
+wall. Picture units have a fixed light and flanking sashes; the 16 in shallow
+bay uses three glazed facets, a seat and knee brackets. Ordinary shutters are
+half their associated opening width. The source retains period wood/storm,
+aluminum/bronze and replacement vinyl systems, plus horizontal sliders.
+
+Seeds 51/54 have integral two/one-car garages, 53/55 attached one-car garages,
+52 a posted two-car carport, and 56 side parking. Every seed has a driveway;
+sunken integral garages have descending concrete drives, level aprons and
+retaining cheeks. Rear doors, stoops, condenser, slack lines, meters, bibs,
+dryer hood, splash blocks and lower window wells remain. These are exterior
+shells; hidden engineering, full interiors and arbitrary plans are outside
+the grammar.
+
+### Shared materials and motion
+
+Existing period brick, asphalt roof, lap, matte painted trim, glass and neutral
+concrete suffice. Battens are original geometry sampling the existing paint
+strip; no new stone or plywood map is needed. **The family remains 39 shared
+PNGs / 48⅓ MiB compressed with full mips; planned split addition 0 MiB.**
+The estimate assumes BC7 color/ORM and BC5 normals; it is not PNG disk size.
+No existing shared map is regenerated or modified. A cold clone uses source
+context for the accepted types without running their bakes. Quick source aging follows
+low splash, shaded exposure and actual drainage; trim, steps and garage panels
+reuse the family's weather function. Final age calibration and bake loss are
+still pending.
+
+`FrontDoor` and `ServiceDoor` retain physical hinge origins and Blender +Z
+ranges 0–105° / −100–0°. The sectional door consists of `GaragePanel1` through
+`GaragePanel4`, numbered bottom to top, each with its origin at its top hinge.
+Each section rotates about Blender +X from 0 to −90° during lift.
+`split_motion.pose(progress)` demonstrates the 0–1 vertical / 200 mm quarter-
+circle / overhead path. Each successive section follows the preceding rigid
+chord; a game should implement that controller from the stored track/section
+metadata. There is no armature or delivered animation clip. All four sections
+clear the frame and each other at 41 sampled poses without exemptions.
+
+The usual `Socket_FrontThreshold`, `Socket_Walk`, `Socket_Driveway` and optional
+`Socket_GarageApron` are emitted per plan. Units are meters, +Z up, −Y street
+front. The grade origin centers the permanent wall/stoop footprint; driveway,
+eaves and rear attachments extend beyond it, as in the existing family.
+
+### Rebuild and checkpoint evidence
+
+From `houses/`:
+
+```sh
+make TYPE=split WIDTH=1440 SAMPLES=40  # source form, checks, all Cycles views and pairs
+make TYPE=split check                # surfaces, motion, four-type grammar, old-type bytes
+make TYPE=split model SEEDS=51,52,53,54,55,56
+blender -b --factory-startup --python-exit-code 1 --python src/build.py -- \
+  --type split --seed 57 --out build/split/custom.blend
+# Optional --plan build/my-split.json uses the same bounded nested controls.
+```
+
+Poppler `pdftoppm` is used only to prepare local inspection-photo crops from
+the registered PDF. All Cycles invocations use the kit GPU lock. No downloaded
+code, models, materials, texture assets or lighting are used.
+
+The local output is `renders/split/checkpoint/`: `hero.png`, front/rear views
+under `seeds/51` through `56`, `side.png`, the three-quarter `levels.png`,
+`entry.png`, `eave.png`, `veneer.png`, `garage.png`, `roof.png`, `scale.png`,
+`comparison/types.png`, and `contact.jpg`, `details.jpg`, `family.jpg`,
+plus `side-levels.jpg` with explicitly authored floor datums.
+Two neutral-balanced photo pairs and `pairs.jpg` are in `renders/split/matches/`.
+These are source views, not baked/exported final-look evidence. The compact
+untextured construction GLBs under `build/split/form-*.glb` are 2.69–3.12 MB
+local serialization proofs, not final deliveries.
+
+`build/split/checks.json` separates actual surface probes, raw GLB/import
+checks and sampled motion. Roof heights, unblocked openings, threshold/landing
+and driveway/apron contact are tested on built meshes. The lower roof under
+the tall skirt has independent probes. The four-type plan sweep covers 1,000
+seeds each and rejects eleven additional split negative controls. An authored
+left-wing / flat-hood / no-garage override and complete repeat GLB bytes are
+also checked. These tests prove specific geometry/serialization properties;
+they do not prove the look, structural engineering or future bake fidelity.
+
+The pre-change fixture `src/split_baseline.json` captures all eighteen accepted
+construction GLBs in the current Blender version. The regression compares
+those raw bytes and geometry digests without normalizing exporter labels;
+all eighteen match. All 111 captured existing delivery/maps/docs files also
+retain their SHA256 bytes. The shared code changes are split-only dispatch,
+optional slider/fixed glazing, roof discharge/soffit handling, stepped-wall
+pipe routing, masonry extent and audit support. No `kit/` file changes.
+
+Four form critiques in [REVIEW.md](REVIEW.md) record the rejected underground
+strip, roof-skirt hole and nonworking first garage motion. Remaining weaknesses
+are regular brick/roof manufacture, simple glass/rooms, clean trim and faint
+whole-house age. The photographic fits compare different original houses;
+the side camera reaches its lower lens bound. Final UV/density certification,
+4K bake/filter, delivered game package, baked-asset pairs and portfolio docs
+are intentionally left for the next gate.
