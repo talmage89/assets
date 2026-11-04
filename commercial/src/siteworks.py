@@ -203,10 +203,18 @@ def site(p):
 
 def context_roads(p):
  W,D=p['lot'];r=root('PresentationRoads',kind='CONTEXT')
- # 24 ft crowned roadway beyond the curb/gutter, not part of station exports.
- flat('South road',(-W/2-15,W/2+30,-D/2-11.0,-D/2-3.80),'Asphalt',r,FLOW+.00635)
- flat('West road',(-W/2-11.0,-W/2-3.80,-D/2-30,D/2+30),'Asphalt',r,FLOW+.00635)
- flat('Intersection return',(-W/2-20,-W/2+1.2192,-D/2-20,-D/2+1.2192),'Asphalt',r,FLOW+.00635)
+ # One union surface avoids coincident road skins and self-shadow squares.
+ # This flat presentation roadway is separate from the station export.
+ bounds=[(-W/2-15,W/2+30,-D/2-11.0,-D/2-3.80),
+         (-W/2-11.0,-W/2-3.80,-D/2-30,D/2+30),
+         (-W/2-20,-W/2+1.2192,-D/2-20,-D/2+1.2192)]
+ xs=sorted({v for a,b,c,d in bounds for v in (a,b)});ys=sorted({v for a,b,c,d in bounds for v in (c,d)})
+ verts=[(x,y,FLOW+.00635) for y in ys for x in xs];faces=[];n=len(xs)
+ for j,(c,d) in enumerate(zip(ys,ys[1:])):
+  for i,(a,b) in enumerate(zip(xs,xs[1:])):
+   if any(x0<(a+b)/2<x1 and y0<(c+d)/2<y1 for x0,x1,y0,y1 in bounds):
+    q=j*n+i;faces.append((q,q+1,q+n+1,q+n))
+ mesh('Presentation roadway',verts,faces,'Asphalt',r,False)
  # Procedural distant surroundings have subdued grass, avoiding a false blue horizon.
  flat('Distant grade',(-2000,2000,-2000,2000),'Green',r,FLOW-.025)
  return r

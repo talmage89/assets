@@ -219,7 +219,7 @@ dispenser, pair images and circulation were also inspected separately. Current
 source/image/recipe hashes are checked in `build/view-check.json`.
 
 **Color/value first.** The hero's projected architecture/equipment mask has
-Y′ p1 about .057, p50 .370, p95 .624 and p99 .780; white-clip fraction is zero.
+Y′ p1 about .058, p50 .369, p95 .624 and p99 .780; white-clip fraction is zero.
 It retains deep store/nozzle cavities and a dark colored fascia. The paired
 views now have neutral shade rather than blue concrete. The used photographs
 still have visibly more local dirt, finish variation and roughness response.
@@ -236,6 +236,10 @@ The store's walls fit their slab, divided aluminum frontage has real apertures,
 and outward leaves work over the level landing. Rear services and selected
 coolers keep the back from being a blank extruded box. Scupper passages and
 hollow conductors are construction rather than black marks on masonry.
+The final hero also exposed coplanar overlaps in the presentation road skins:
+dark rectangles were false self-shadow, not asphalt wear. A single disjoint
+union surface removes them. The station GLB remains byte-identical through
+this staging correction.
 
 The four corner orientations, canopy axes/counts, store colors/sizes, cooler
 presence and corner/frontage signs read as different stations. Continuous
