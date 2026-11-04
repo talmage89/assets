@@ -24,3 +24,11 @@ for mirrored in [False,True]:
     error=float(np.max(np.linalg.norm(world-np.array(tuple(expected)),axis=1)))
     assert error<1e-4,(mirrored,error)
     print('X220_HEIGHT_NORMAL_AFFINE',mirrored,error)
+    valid=np.ones(height.shape,bool);valid[48:56,48:56]=False
+    missing=height.astype(np.float32).copy();missing[~valid]=-.005
+    encoded,_=derive(ob,missing,padding=2,sample_valid=valid)
+    selected=valid[30:90,30:90];sample=(encoded[30:90,30:90]*2-1)[selected]
+    world=np.array([tuple(tangent*n[0]+bitangent*n[1]+Vector((0,0,1))*n[2]) for n in sample])
+    error=float(np.max(np.linalg.norm(world-np.array(tuple(expected)),axis=1)))
+    assert error<1e-4,(mirrored,'Uncovered samples created a false slope',error)
+    print('X220_HEIGHT_NORMAL_MISSING_SAMPLES',mirrored,error)
