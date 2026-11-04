@@ -2497,7 +2497,8 @@ scale is shared by the entire car and all views. Parent maps are separate.
 
 The hood/lamp crest defect already exists before apertures are cut: its narrow
 38 mm high / 55 mm wide Gaussian crown creates a local roll and hollow. It is
-now a broader 22 mm / 135 mm stamped draw. Control-net relaxation spans the
+first trial uses a broader 22 mm / 135 mm stamped draw (superseded in pass 3).
+Control-net relaxation spans the
 front corner and rear canopy/side-fit transition at the C-sail foot, before
 limit subdivision. No lamp shell deforms the body, and the parent has regular
 valence four; an aperture pole or global decimator is not the cause. Cutting
@@ -2505,7 +2506,7 @@ had a second error: inserted points stayed in coarse triangle chord planes
 while shading normals came from the dense parent. Those exterior points now
 return to the parent before gauge closing.
 
-In identical spatial boxes, actual game H ranges (1/m, including design
+In this first trial's identical spatial boxes, actual game H ranges (1/m, including design
 creases and thin cut triangles) change from front -78.5…1041.5 to -60.8…181.9,
 and sail -535.7…565.4 to -156.7…392.5. Sail p5/p95 improves from -70.2/+42.5
 to -8.0/+17.1. These numbers show improvement, not globally perfect curvature.
@@ -2577,3 +2578,30 @@ repairs, zero overlapping/outside/degenerate UV triangles, 36.92% coverage and
 positions, triangle count or the acceptance policy. Exact-surface baking has
 zero unfilled interior pixels. Verified high-normal coverage is recorded
 separately from direct shader normals.
+
+### Pass 4 — inspect the grille opening at delivery resolution
+
+Color/value first: raising Graphite metallic from .55 to .80, with both the
+current tint and a lighter .160/.150/.155 tint, increases the pale road-film
+contrast and makes the clean/deposited transition too pronounced. Reject both
+runtime-only probes. The production near-neutral tint and .55 metallic remain.
+The source/export paint-patch medians alone do not prove every optical detail
+survives the atlas; the diamond relief is visibly softer in the exported grille.
+
+The full-resolution grille close-up exposes two painted triangular teeth
+inside its upper right mouth. They also appear in the source, excluding a bake
+or glTF-normal cause. Camera-ray picks identify actual exterior fascia triangles,
+not grille vanes or reflection cards. The axial aperture cutter classified a
+triangle by the distance between its center and an end ray on the dense parent.
+At this tight roll the center of a coarse chord lies more than 15 mm behind the
+parent while its vertices still belong to the exposed end sheet. The cutter
+therefore skipped those triangles. Test the actual vertices as well as the
+center; other side/roof branches continue to fail the end rays. The revised
+source close-up has a continuous upper grille mouth and no painted teeth.
+This fixes the cut classification without moving the parent, loosening a
+construction tolerance, or changing any pivot/range. The revised game source
+is 59,932 triangles, four fewer than the first delivery candidate.
+
+Source and export photo pairs are now both dependencies of the default build.
+Their patch comparison is regenerated with the gallery, rather than relying
+on an untracked one-off measurement script. Final export evidence follows.

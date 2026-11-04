@@ -234,8 +234,19 @@ def cut_mesh(ob,cutters,surface,axial=False,front=False,spatial_boxes=None):
         elif (normal_matrix@face_normal).dot(n)<.5:continue
         if axial:
             sign=-1 if front else 1
-            outer=surface['tree'].ray_cast(Vector((center.x,sign*4,center.z)),Vector((0,-sign,0)),6)[0]
-            if outer is None or abs(outer.y-center.y)>.015:
+            # A coarse triangle's center is a chord, not a surface sample.
+            # At the tight upper grille roll it lies >15 mm behind the parent
+            # even though all three vertices belong to the exposed end sheet.
+            # Classifying only its center skipped the cut and left painted
+            # triangular teeth inside the grille. Test its real parent vertices
+            # as well; another side/roof branch still fails every end ray.
+            probes=[center]+[points[i] for i in face.vertices]
+            exposed=False
+            for p in probes:
+                outer=surface['tree'].ray_cast(Vector((p.x,sign*4,p.z)),Vector((0,-sign,0)),6)[0]
+                if outer is not None and abs(outer.y-p.y)<=.015:
+                    exposed=True;break
+            if not exposed:
                 # Keep this original triangle; it is another side/roof chart,
                 # not the outer end face reached by the aperture projection.
                 polygons.append([(uvs[i],points[i]) for i in face.vertices]);continue
