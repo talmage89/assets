@@ -20,6 +20,13 @@ def smoothstep(a,b,q):
     t=max(0,min(1,(q-a)/(b-a)));return t*t*t*(10-15*t+6*t*t)
 def longitudinal(y):return y
 
+def side_station(y,t):
+    # Keep transverse controls in one longitudinal plane at the hood/cowl
+    # transition. The old swept rows became parallel in YZ as their crown
+    # height dropped, folding the fitted chart back over the fender itself.
+    straight=smoothstep(-1.75,-1.35,y)*(1-smoothstep(-1.02,-.75,y))
+    return y*(1-.30*t*(1-straight))
+
 def face_depth(z,front):
     """Physical centerline: low tucked nose; upright gate over a rolled bumper."""
     if front:
@@ -84,12 +91,12 @@ def body_section(y,belt,top):
       (roof_edge-.026,y,top-.026),(roof_edge,y,upper),
       ((roof_edge+foot-.007)/2,y,(upper+lower)/2),(foot-.007,y,lower)]
     for i,z in enumerate([belt,h+.017,h,h-.023,h-.085,min(.665,h-.120),line+.050,line+.012,line-.020,.210]):
-        t=max(0,(i-1)/8);yy=y*(1-.30*t)
+        t=max(0,(i-1)/8);yy=side_station(y,t)
         half.append((side_width(yy)+side_draw(y,z),yy,z))
     if top>1.15 and y<1.52:
         drop=.040*smoothstep(.40,1.40,y)
         half=[(x,yy,z-drop*(x/max(.1,roof_edge))**2) if i<=4 else (x,yy,z-drop*.5) if i==5 else (x,yy,z) for i,(x,yy,z) in enumerate(half)]
-    half.insert(-1,(side_width(y)+side_draw(y,line-.055),y*.73,line-.055))
+    half.insert(-1,(side_width(y)+side_draw(y,line-.055),side_station(y,.9),line-.055))
     return half
 
 # Front/end controls run from the underbody boundary over the face to the hood.
@@ -140,7 +147,7 @@ def end_section(row,front):
     outer_z=result[-1][2]
     fractions=[0,.030,.080,.420,.640,.815,.845,.952,1]
     for j in range(1,9):
-        t=j/8;yy=tangent*(1-.30*t)
+        t=j/8;yy=side_station(tangent,t)
         z=outer_z*(1-fractions[j])+bottom*fractions[j]
         result.append((side_width(yy)+side_draw(yy,z),yy,z))
     a,c=Vector(result[-2]),Vector(result[-1]);result.insert(-1,tuple(a.lerp(c,.15)))
@@ -176,13 +183,26 @@ def region(y,c):
     return 'Greenhouse'
 
 
+def gate_crease_height(x):
+    return .905-.025*(x/.640)**2
+
+
+def gate_relief(x,z):
+    hollow=.0485*math.exp(-((z-.835)/.047)**2)*math.exp(-(x/.320)**4)
+    # A narrow die ridge bounds the retained concavity below the lamps. Its
+    # ends follow the lamps' lower sweep; this is formed into the same skin.
+    q=z-gate_crease_height(x)
+    ridge=.45*(positive(q+.020,.003)-2*positive(q,.003)+positive(q-.020,.003))
+    return hollow-ridge*(1-smoothstep(.50,.75,abs(x)))
+
+
 def section_field(p):
     x,y,z=p
     bumper=.055*math.exp(-((y+1.98)/.50)**2-((z-.48)/.16)**2)+.042*math.exp(-((y-1.98)/.52)**2)*(1-smoothstep(.60,.82,z))
     width=side_width(y)+side_draw(y,z)+bumper
     ft=-1.560;rt=1.660-.32*smoothstep(1.0,1.40,z)
     fd=max(.15,S.LENGTH/2+.0055+ft-face_depth(z,True))
-    gate=.060*math.exp(-((z-.835)/.075)**2)*math.exp(-(x/.365)**4)
+    gate=gate_relief(x,z)
     # The lower hem retains the accepted envelope. Its shadow comes from an
     # inset bumper shoulder beneath it, not a bolt-on lip outside the package.
     bumper_crease=.045*math.exp(-((z-.610)/.034)**2)*(1-smoothstep(.60,.88,abs(x)))
@@ -209,7 +229,10 @@ def fit_control_net(ob):
         # Preserve roof and glass's compound crown. Fit doors/ends underneath.
         u=abs(parameter_u[v.index]-center_u)
         side_weight=smoothstep(6.0,9.5,u)
-        front_weight=1-smoothstep(-1.100,-1.080,p.y)
+        # A 20 mm handoff displaced the hood controls by almost their own
+        # spacing and folded the cowl patch. Spread that positional blend
+        # across the hood; the untouched windshield starts at the same end.
+        front_weight=1-smoothstep(-1.240,-1.080,p.y)
         rear_weight=smoothstep(1.48,1.70,p.y)
         weight=1-(1-side_weight)*(1-front_weight)*(1-rear_weight)
         if weight<1e-9:continue
@@ -309,6 +332,19 @@ def tessellate(parent,high=False):
     def sample(u,v):
         p=Vector((u,v,0));hit,_,fi,_=tree.find_nearest(p);a,c,d=ts[fi]
         return barycentric_transform(hit,uvs[a],uvs[c],uvs[d],mesh.vertices[a].co,mesh.vertices[c].co,mesh.vertices[d].co),mesh.loop_triangles[fi].polygon_index
+    if not high:
+        # Resolve the gate's designed top edge in the actual surface, instead
+        # of spreading its normal transition across a broad diagonal chord.
+        center=(width-1)/2;rear_start=len(FRONT_ROWS)+len(STATIONS)
+        for z in [.875,.895,.905,.915,.935]:
+            lo,hi=rear_start+5,rear_start+10
+            for _ in range(20):
+                mid=(lo+hi)/2;p,_=sample(center,mid)
+                if p.z>z:lo=mid
+                else:hi=mid
+            v=(lo+hi)/2
+            vs=[old for old in vs if abs(old-v)>.08]+[v]
+        vs=sorted(vs)
     # Spend the extra transverse samples on the rear turn, not across every
     # door. One stitched transition uses triangles; the parent stays all quads.
     center=(width-1)/2
@@ -320,6 +356,9 @@ def tessellate(parent,high=False):
     if not high:
         lamp_corner=[center+sign*(2.25+j*.25) for sign in [-1,1] for j in range(15)]
         grids=[sorted(set(columns+lamp_corner)) if 7<=v<14 else columns for v,columns in zip(vs,grids)]
+        gate_center=[center+sign*j*.25 for sign in [-1,1] for j in range(1,9)]
+        rear_start=len(FRONT_ROWS)+len(STATIONS)
+        grids=[sorted(set(columns+gate_center)) if rear_start+6<=v<=rear_start+11 else columns for v,columns in zip(vs,grids)]
         # Place samples on each side of the actual shoulder and die-line turn.
         # Coarse chart rows previously interpolated a sharp parent normal over
         # a broad door chord, erasing the line in the game surface.
@@ -372,7 +411,15 @@ def tessellate(parent,high=False):
             p=sum((vertices[i] for i in face),Vector())/len(face)
             rear_turn=1.76<p.y<1.99 and .35<p.z<.55 and abs(p.x)>.80
             lamp_corner=p.y<-2.0 and .69<p.z<.78 and .48<abs(p.x)<.69
-            if len(face)==4 and (rear_turn or lamp_corner):
+            cowl=False
+            if .65<abs(p.x) and -1.65<p.y<-1.02 and p.z>.75:
+                u=sum(chart[i][0] for i in face)/len(face);v=sum(chart[i][1] for i in face)/len(face)
+                q,fi_parent=sample(u,v)
+                # Tangential chart stretch is not a shape error. Refine only
+                # the missed normal height on hood/fender skins.
+                label=mesh.materials[mesh.polygons[fi_parent].material_index].name
+                cowl=('Hood' in label or 'Front fender' in label) and abs((q-p).dot(mesh.polygons[fi_parent].normal))>.0015
+            if len(face) in [3,4] and (rear_turn or lamp_corner or cowl):
                 selected.add(fi)
                 for a,b in zip(face,face[1:]+face[:1]):edges[tuple(sorted((a,b)))]=None
         for edge in edges:
@@ -381,6 +428,11 @@ def tessellate(parent,high=False):
         refined=[]
         for fi,face in enumerate(faces):
             if fi in selected:
+                if len(face)==3:
+                    a,b,c=face
+                    ab,bc,ca=[edges[tuple(sorted(pair))] for pair in [(a,b),(b,c),(c,a)]]
+                    refined.extend([(a,ab,ca),(ab,b,bc),(ca,bc,c),(ab,bc,ca)])
+                    continue
                 u=sum(chart[i][0] for i in face)/4;v=sum(chart[i][1] for i in face)/4
                 ci=len(vertices);vertices.append(sample(u,v)[0]);chart.append((u,v))
                 for i,a in enumerate(face):

@@ -141,6 +141,154 @@ def difference(polygon,region):
     return pieces
 
 
+def retile_metric(bm,ob,surface):
+    """Triangulate a skin in an injective projection with physical spacing.
+
+    The curved chart stretches the lamp-tip region almost tangentially. Its
+    Delaunay diagonals can therefore become inverted world-space chords. The
+    hood is an XY height field. Rear skins use radial projections from inside
+    their convex envelope, retaining both sides of the lower lip as constraints.
+    Every retained point stays on the same evaluated parent, including any
+    CDT intersection vertex; there is no independent replacement surface.
+    """
+    from mathutils.bvhtree import BVHTree
+    bm.verts.ensure_lookup_table();bm.verts.index_update()
+    matrix=ob.matrix_world;inverse=matrix.inverted()
+    points=[matrix@v.co for v in bm.verts]
+    hood=ob.name=='Hood outer';quarter=ob.name.startswith(('Rear quarter','Front fender'))
+    sign=-1 if ob.name.endswith('_L') else 1
+    front=ob.name.startswith('Front fender')
+    origin=Vector((0,-1.3 if front else 1.3,.0 if front else .75 if quarter else .55))
+    def project(p):
+        if hood:return Vector((p.x,p.y,0))
+        if quarter:return Vector(((p.y-origin.y)/abs(p.x),(p.z-origin.z)/abs(p.x),0))
+        return Vector((p.x/(p.y-origin.y),(p.z-origin.z)/(p.y-origin.y),0))
+    def ray(q):
+        if hood:return Vector((q.x,q.y,3)),Vector((0,0,-1))
+        return origin,Vector((sign,q.x,q.y) if quarter else (q.x,1,q.y)).normalized()
+    xy=[project(p) for p in points]
+    edges=[]
+    from hatch_body import shoulder_height,character_height
+    for e in bm.edges:
+        a,b=[matrix@v.co for v in e.verts];p=(a+b)/2
+        crease=not hood and p.y>1.9 and (.55<p.z<.72 or .88<p.z<.94)
+        aligned=False
+        if quarter and abs(a.x)>.80 and abs(b.x)>.80 and abs(a.y-b.y)>.010:
+            for height,offsets in [(shoulder_height,[-.018,0,.018]),(character_height,[.010,.037,.065])]:
+                da,db=a.z-height(a.y),b.z-height(b.y)
+                if abs(da-db)<.002 and min(max(abs(da-q),abs(db-q)) for q in offsets)<.002:aligned=True
+        if len(e.link_faces)==1 or crease or aligned:edges.append(tuple(v.index for v in e.verts))
+    old=BVHTree.FromPolygons(xy,[tuple(v.index for v in f.verts) for f in bm.faces])
+    coords,_,faces,original,*_=delaunay_2d_cdt([p.to_2d() for p in xy],edges,[],0,1e-8)
+    faces=[f for f in faces if old.ray_cast(sum((Vector((coords[i].x,coords[i].y,0)) for i in f),Vector())/len(f)+Vector((0,0,1)),Vector((0,0,-1)),2)[0] is not None]
+    ps=[]
+    for q,indices in zip(coords,original):
+        if indices:ps.append(points[indices[0]])
+        else:
+            start,direction=ray(q);hit=surface['tree'].ray_cast(start,direction,4)[0]
+            if hit is None:raise ValueError('Metric skin sample missed parent: '+ob.name)
+            ps.append(hit)
+    if not hood and (not quarter or sign<0):faces=[tuple(reversed(f)) for f in faces]
+    mesh=bpy.data.meshes.new('Metric skin triangles');mesh.from_pydata([inverse@p for p in ps],[],faces);mesh.update()
+    result=bmesh.new();result.from_mesh(mesh);bpy.data.meshes.remove(mesh);bm.free()
+    return result
+
+
+def metric_sample(p,surface):
+    hit,_,fi,_=surface['tree'].find_nearest(p);a,b,c=surface['triangles'][fi]
+    n=barycentric_transform(hit,surface['points'][a],surface['points'][b],surface['points'][c],surface['normals'][a],surface['normals'][b],surface['normals'][c]).normalized()
+    return hit,n
+
+
+def reduce_flat_samples(bm,ob,surface):
+    """Retire redundant interior samples, with geometric/reflection bounds.
+
+    Every rim and retained sample stays fixed. Candidate replacement triangles
+    must remain within 0.3 mm of the parent at their centroid/edge midpoints,
+    and interpolate its normals within 1.5 degrees at those same probes.
+    This is a local error test, not a whole-panel decimation ratio.
+    """
+    from mathutils.geometry import tessellate_polygon
+    from hatch_body import shoulder_height
+    matrix=ob.matrix_world;removed=0;maximum=0.;normal_limit=.9996573249755573
+    for _ in range(3):
+        bm.normal_update();bm.verts.index_update()
+        candidates=sorted(list(bm.verts),key=lambda v:(sum(f.calc_area() for f in v.link_faces),v.index))
+        for v in candidates:
+            if not v.is_valid or len(v.link_edges)<3 or len(v.link_edges)>9:continue
+            if any(len(e.link_faces)!=2 for e in v.link_edges) or any(len(f.verts)!=3 for f in v.link_faces):continue
+            p=matrix@v.co
+            # Leave the two tight gate lines and the character-line turn intact.
+            if p.y>1.9 and (.55<p.z<.72 or .87<p.z<.94):continue
+            if p.y>1.35 and abs(p.x)>.80 and abs(p.z-shoulder_height(p.y))<.025:continue
+            next_vertex={}
+            for f in v.link_faces:
+                ids=list(f.verts);i=ids.index(v);next_vertex[ids[(i+1)%3]]=ids[(i+2)%3]
+            if len(next_vertex)!=len(v.link_faces):continue
+            start=next(iter(next_vertex));ring=[start]
+            while len(ring)<len(next_vertex) and next_vertex.get(ring[-1]) not in ring:ring.append(next_vertex[ring[-1]])
+            if len(ring)!=len(next_vertex) or next_vertex.get(ring[-1])!=start:continue
+            if max((q.co-v.co).length for q in ring)>.085:continue
+            coords=[matrix@q.co for q in ring];lookup={tuple(p):q for p,q in zip(coords,ring)}
+            triangles=tessellate_polygon([coords])
+            triangles=[tuple(coords[q] if isinstance(q,int) else q for q in tri) for tri in triangles]
+            accepted=bool(triangles);error=0.
+            normals={tuple(q):metric_sample(q,surface)[1] for q in coords}
+            for tri in triangles:
+                a,b,c=tri;normal=(b-a).cross(c-a)
+                ns=[normals[tuple(q)] for q in tri]
+                probes=[((a+b+c)/3,sum(ns,Vector()).normalized())]
+                probes += [((tri[i]+tri[(i+1)%3])/2,(ns[i]+ns[(i+1)%3]).normalized()) for i in range(3)]
+                for q,n in probes:
+                    hit,pn=metric_sample(q,surface);distance=(q-hit).length;error=max(error,distance)
+                    if distance>.0003 or n.dot(pn)<normal_limit or normal.dot(pn)<=0:accepted=False;break
+                if not accepted:break
+            if not accepted:continue
+            new_faces=[tuple(lookup[tuple(q)] for q in tri) for tri in triangles]
+            if any(bm.faces.get(face) is not None for face in new_faces):continue
+            bmesh.ops.delete(bm,geom=[v],context='VERTS')
+            for face in new_faces:bm.faces.new(face)
+            removed+=1;maximum=max(maximum,error)
+    ob['retired_interior_samples']=removed;ob['retile_probe_error_m']=maximum
+    bm.normal_update()
+
+
+def resolve_turns(bm,ob,surface,fold_only=False):
+    """Resolve tight reflections in physical space before closing sheet gauge."""
+    matrix=ob.matrix_world;inverse=matrix.inverted();added=0
+    front=ob.name=='Hood outer' or ob.name.startswith('Front fender')
+    from hatch_body import shoulder_height
+    for iteration in range(2):
+        selected=[]
+        for f in bm.faces:
+            p=matrix@f.calc_center_median()
+            hit,n=metric_sample(p,surface)
+            normal=matrix.to_3x3().inverted().transposed()@f.normal
+            if f.calc_area()>1e-10 and normal.dot(n)<0:selected.append(f);continue
+            if fold_only:continue
+            crown=.60<abs(p.x) and -2.05<p.y<-1.02 and p.z>.72
+            shoulder=abs(p.x)>.80 and 1.35<p.y<1.85 and abs(p.z-shoulder_height(p.y))<.045
+            if iteration and not front and not shoulder:continue
+            corner=abs(p.x)>.65 and (p.y>1.60 and p.z<.99 or p.y<-1.70 and p.z<.72)
+            if not (crown or corner):continue
+            ps=[matrix@v.co for v in f.verts]
+            interp=sum((metric_sample(q,surface)[1] for q in ps),Vector()).normalized()
+            if abs((hit-p).dot(n))>(.0004 if crown else .0006) or interp.dot(n)<(.999390827 if crown else .999048222):selected.append(f)
+        edges={e for f in selected for e in f.edges}
+        if not edges:break
+        bm.edges.index_update()
+        for e in sorted(edges,key=lambda e:e.index):
+            a,b=e.verts;mid=(matrix@a.co+matrix@b.co)/2
+            if len(e.link_faces)==1:
+                uv=(surface_uv(matrix@a.co,surface)[0]+surface_uv(matrix@b.co,surface)[0])/2
+                point=surface_point(uv,surface)
+            else:point=metric_sample(mid,surface)[0]
+            _,v=bmesh.utils.edge_split(e,a,.5);v.co=inverse@point;added+=1
+        bmesh.ops.triangulate(bm,faces=[f for f in bm.faces if len(f.verts)>3],quad_method='BEAUTY',ngon_method='BEAUTY')
+        bm.normal_update()
+    ob['reflection_samples_added']=added
+
+
 def cut_mesh(ob,cutters,surface):
     from hatch_body import closeable_sheet,conform_edges
     from mathutils.bvhtree import BVHTree
@@ -193,6 +341,32 @@ def cut_mesh(ob,cutters,surface):
     kd=KDTree(len(source_uvs))
     for i,q in enumerate(source_uvs):kd.insert(q,i)
     kd.balance()
+    # Cutter extensions leave many nearly coincident points on a straight
+    # chart boundary. Keep authored surface samples, but retire redundant
+    # intersection points where the physical chord misses by under 0.3 mm.
+    # This spends the game budget on crowns/creases instead of clipping crumbs.
+    retired=0
+    for _ in range(3):
+        count=0
+        for v in list(bm.verts):
+            if not v.is_valid or kd.find(v.co)[2]<1e-5:continue
+            rim=[e for e in v.link_edges if len(e.link_faces)==1]
+            if len(rim)!=2:continue
+            aa,bb=[e.other_vert(v) for e in rim];delta=bb.co-aa.co
+            if delta.length<1e-8:continue
+            t=(v.co-aa.co).dot(delta)/delta.length_squared
+            if not 0<t<1 or (v.co-aa.co-delta*t).length>2e-5:continue
+            pa,pb=[surface_point(q.co,surface) for q in [aa,bb]]
+            if (pb-pa).length>.030:continue
+            pm=surface_point((aa.co+bb.co)/2,surface)
+            if (pm-(pa+pb)/2).length>.0003:continue
+            bmesh.ops.dissolve_verts(bm,verts=[v],use_face_split=False,use_boundary_tear=False)
+            count+=1
+        retired+=count
+        if not count:break
+    ob['retired_cut_boundary_points']=retired
+    bm.verts.ensure_lookup_table();bm.verts.index_update()
+    boundary={v for e in bm.edges if len(e.link_faces)==1 for v in e.verts}
     required={v for v in bm.verts if v in boundary or kd.find(v.co)[2]<1e-5}
     constraints={e for e in bm.edges if len(e.link_faces)==1}
     if ob.name=='Rear molded fascia':
@@ -244,7 +418,22 @@ def cut_mesh(ob,cutters,surface):
     bmesh.ops.triangulate(bm,faces=list(bm.faces))
     for v in bm.verts:v.co=inverse@surface_point(v.co,surface)
     bm.normal_update()
-    bad=[f for f in bm.faces if f.calc_area()<1e-11]
+    # A Delaunay triangle in chart coordinates need not be well shaped in
+    # meters. At the hood's lamp tips, long nearly collinear chords reversed
+    # their physical orientation even though their UV winding was coherent.
+    # Optimize the interior diagonals in the actual surface metric; retain
+    # every sample and every aperture/panel boundary.
+    if ob.name=='Hood outer' or ob.name.startswith(('Rear quarter','Front fender')) or ob.name=='Rear molded fascia':
+        bm=retile_metric(bm,ob,surface)
+    bm.normal_update()
+    if not surface['high']:
+        if ob.name=='Rear molded fascia' or ob.name.startswith('Rear quarter'):
+            reduce_flat_samples(bm,ob,surface)
+        if ob.name=='Hood outer' or ob.name.startswith(('Front fender','Rear quarter')) or ob.name=='Rear molded fascia':
+            resolve_turns(bm,ob,surface)
+            reduce_flat_samples(bm,ob,surface)
+        elif ob.name=='Front molded fascia':resolve_turns(bm,ob,surface,fold_only=True)
+    bad=[f for f in bm.faces if f.calc_area()<1e-10]
     if bad:bmesh.ops.delete(bm,geom=bad,context='FACES')
     bm.to_mesh(ob.data);bm.free();closeable_sheet(ob,weld=False)
     ob['outer_skin_faces']=len(ob.data.polygons)
