@@ -232,7 +232,7 @@ def fit_control_net(ob):
         # A 20 mm handoff displaced the hood controls by almost their own
         # spacing and folded the cowl patch. Spread that positional blend
         # across the hood; the untouched windshield starts at the same end.
-        front_weight=1-smoothstep(-1.240,-1.080,p.y)
+        front_weight=1-smoothstep(-1.200,-1.080,p.y)
         rear_weight=smoothstep(1.48,1.70,p.y)
         weight=1-(1-side_weight)*(1-front_weight)*(1-rear_weight)
         if weight<1e-9:continue

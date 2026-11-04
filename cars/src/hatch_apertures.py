@@ -228,7 +228,7 @@ def reduce_flat_samples(bm,ob,surface):
             start=next(iter(next_vertex));ring=[start]
             while len(ring)<len(next_vertex) and next_vertex.get(ring[-1]) not in ring:ring.append(next_vertex[ring[-1]])
             if len(ring)!=len(next_vertex) or next_vertex.get(ring[-1])!=start:continue
-            if max((q.co-v.co).length for q in ring)>.085:continue
+            if max((q.co-v.co).length for q in ring)>.120:continue
             coords=[matrix@q.co for q in ring];lookup={tuple(p):q for p,q in zip(coords,ring)}
             triangles=tessellate_polygon([coords])
             triangles=[tuple(coords[q] if isinstance(q,int) else q for q in tri) for tri in triangles]
@@ -357,7 +357,7 @@ def cut_mesh(ob,cutters,surface):
             t=(v.co-aa.co).dot(delta)/delta.length_squared
             if not 0<t<1 or (v.co-aa.co-delta*t).length>2e-5:continue
             pa,pb=[surface_point(q.co,surface) for q in [aa,bb]]
-            if (pb-pa).length>.030:continue
+            if (pb-pa).length>.045:continue
             pm=surface_point((aa.co+bb.co)/2,surface)
             if (pm-(pa+pb)/2).length>.0003:continue
             bmesh.ops.dissolve_verts(bm,verts=[v],use_face_split=False,use_boundary_tear=False)
