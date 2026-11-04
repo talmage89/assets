@@ -19,7 +19,13 @@ PHOTOS={
 
 
 def prepare():
-    fetch('refs',[v['file'] for v in PHOTOS.values()]+['split-pa-builder-c.jpg','split-pa-builder-d.jpg','split-used-bay.jpg','split-visions.pdf','split-oh-side-c.jpg','split-builder-used-oh.jpg','split-used-battens-commons.jpg'])
+    # Listing numbers identify homes. Their URLs were deliberately erased from
+    # this branch's entire history; comparison-only photographs remain local.
+    local={'split-builder-used-pa.jpg','split-builder-used-oh.jpg','split-oh-side-b.jpg','split-used-bay.jpg','split-foyer-used-pa.webp'}
+    requested=[v['file'] for v in PHOTOS.values()]+['split-pa-builder-c.jpg','split-pa-builder-d.jpg','split-used-bay.jpg','split-visions.pdf','split-oh-side-c.jpg','split-builder-used-oh.jpg','split-used-battens-commons.jpg']
+    fetch('refs',[name for name in requested if name not in local])
+    missing=[name for name in sorted(local) if not (Path('refs')/name).exists()]
+    if missing:raise FileNotFoundError('Private comparison photographs are local-only; their identifying URLs are not retained: '+', '.join(missing))
     rows={}
     for name,s in PHOTOS.items():
         p=Path('refs')/s['file'];im=ImageOps.exif_transpose(Image.open(p)).convert('RGB');a=srgb_to_linear(np.asarray(im)/255)
