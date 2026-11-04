@@ -1,4 +1,4 @@
-# Source-only sedan gate; the accepted pickup delivery graph stays independent.
+# Sedan form and detail checkpoint; the pickup graph stays independent.
 .DEFAULT_GOAL := all
 BLENDER ?= blender
 PYTHON ?= python3
@@ -11,16 +11,18 @@ export TMPDIR := $(REPO)/build/tmp
 export ASSETS_GPU_LOCK ?= $(REPO)/build/locks/gpu.lock
 WIDTH ?= 1600
 SAMPLES ?= 40
-PASS ?= sedan-round5
+PASS ?= sedan-round6
 OUT := renders/$(PASS)
-SDEPS := sedan.mk src/build.py src/sedan_body.py src/sedan_apertures.py src/sedan_character.py src/sedan_spec.py src/forms.py src/wheels.py src/detail_helpers.py ../kit/model.py ../kit/vehicle.py
+SDEPS := src/build.py src/sedan_body.py src/sedan_apertures.py src/sedan_character.py src/sedan_fairness.py src/sedan_spec.py src/forms.py src/wheels.py src/detail_helpers.py ../kit/model.py ../kit/vehicle.py
 CLAY := front_three_quarter rear_three_quarter side front rear top side_raking side_matched side_matched_wide side_matched_long
 STRIPES := stripes_horizontal stripes_vertical stripes_rear_horizontal stripes_rear_vertical stripes_side_horizontal stripes_side_vertical stripes_hood_driver
 PAIRS := accord_front camry_rear camry_front accord_rear
 COMPARISONS := $(addsuffix _clay,$(PAIRS))
+.DELETE_ON_ERROR:
 .NOTPARALLEL:
 .PHONY: all model refs check render review fairness FORCE
-all: refs model check render review
+all: refs sedan-checkpoint
+form: refs model check-form render review
 build/sedan/parameters.txt: FORCE
 	@mkdir -p build/sedan $(TMPDIR)
 	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='width=$(WIDTH) samples=$(SAMPLES) out=$(OUT)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
@@ -32,7 +34,7 @@ build/sedan/high.blend: $(SDEPS)
 	$(BP) --python src/build.py -- --body sedan --form-only --quality high --out $@
 model: build/sedan/game.blend build/sedan/high.blend
 refs:
-	$(PYTHON) $(KIT)/fetch_refs.py refs --only sedan-accord-front.jpg sedan-accord-rear.jpg sedan-camry-front.jpg sedan-camry-rear.jpg sedan-camry-side.jpg sedan-camry-specs.pdf sedan-mondeo-specs.pdf
+	$(PYTHON) $(KIT)/fetch_refs.py refs --only sedan-accord-front.jpg sedan-accord-rear.jpg sedan-camry-front.jpg sedan-camry-rear.jpg sedan-camry-side.jpg sedan-camry-specs.pdf sedan-mondeo-specs.pdf sedan-used-front.jpg sedan-used-rear.jpg sedan-color-popularity.pdf
 build/sedan/cameras.json: src/sedan_matches.py src/sedan_spec.py $(KIT)/photo_match.py
 	$(PYTHON) $(KIT)/photo_match.py solve --config src/sedan_matches.py --out $@
 build/sedan/profile-camera.json: src/sedan_profile_match.py $(KIT)/photo_match.py
@@ -45,7 +47,7 @@ build/sedan/character-check.json: build/sedan/game.blend src/sedan_character_che
 	$(BP) --python src/sedan_character_check.py -- --source $< --out $@
 build/sedan/rear-check.json: build/sedan/game.blend src/sedan_rear_check.py
 	$(BP) --python src/sedan_rear_check.py -- --source $< --out $@
-check: model refs build/sedan/cameras.json build/sedan/profile-camera.json build/sedan/form-check.json build/sedan/shaping-check.json build/sedan/character-check.json build/sedan/rear-check.json
+check-form: model refs build/sedan/cameras.json build/sedan/profile-camera.json build/sedan/form-check.json build/sedan/shaping-check.json build/sedan/character-check.json build/sedan/rear-check.json
 	$(BP) --python $(KIT)/audit.py -- --source build/sedan/game.blend --config src/sedan_config.py --out build/sedan/game-audit.json
 	$(BP) --python $(KIT)/audit.py -- --source build/sedan/high.blend --config src/sedan_config.py --out build/sedan/high-audit.json
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration build/sedan/cameras.json
@@ -70,3 +72,5 @@ fairness: build/sedan/curvature.json build/sedan/parent-curvature.json
 review: render fairness
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/sedan/cameras.json --renders $(OUT) --out $(OUT)
 	$(PYTHON) src/sedan_review.py --renders $(OUT) --report build/sedan/form-check.json --cameras build/sedan/cameras.json
+
+include sedan_detail.mk
