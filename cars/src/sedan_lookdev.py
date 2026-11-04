@@ -111,7 +111,7 @@ def main():
         camera.data.sensor_fit='HORIZONTAL';camera.data.sensor_width=36;camera.data.type='ORTHO' if 'ortho' in shot else 'PERSP';camera.data.ortho_scale=shot.get('ortho',5.7);camera.data.lens=shot.get('lens',58);camera.data.clip_start=.01;camera.data.clip_end=200
         sc.render.engine='BLENDER_WORKBENCH' if a.workbench else a.engine
         if sc.render.engine=='CYCLES':
-            gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=12;sc.cycles.transmission_bounces=8;sc.cycles.transparent_max_bounces=8;sc.cycles.use_adaptive_sampling=True;sc.cycles.adaptive_threshold=.025
+            gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=12;sc.cycles.transmission_bounces=8;sc.cycles.transparent_max_bounces=8;sc.cycles.use_adaptive_sampling=True;sc.cycles.adaptive_threshold=.008
         elif sc.render.engine=='BLENDER_EEVEE':
             sc.eevee.taa_render_samples=max(128,a.samples);sc.eevee.use_raytracing=True
             if final:D.eevee_glass()

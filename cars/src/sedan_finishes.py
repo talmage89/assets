@@ -42,22 +42,26 @@ def paint(wear):
     dirt=n.mix(grime,dirt,(.008,.007,.006),True)
     dirt=n.mix(chips,dirt,(.105,.110,.113),True)
     base=n.vec('ADD',n.mix(coverage,(0,0,0),tint,True),dirt)
-    def output(name,socket):n.feed(n.nt.nodes['OUT_'+name].inputs[0],socket)
+    def output(name,socket):
+        if not hasattr(socket,'is_output'):
+            value=n.node('ShaderNodeValue');value.outputs[0].default_value=socket;socket=value.outputs[0]
+        n.feed(n.nt.nodes['OUT_'+name].inputs[0],socket)
     # Below one delivered texel, use the integrated clearcoat/flake response.
     # Point sampling 900–2800/m detail into a ~300 px/m atlas aliases to mottles.
     oldrough=.158
     output('height',0)
     for node in n.nt.nodes:
-        if node.type=='BUMP':n.feed(node.inputs['Height'],0)
-    arcs=n.math('SINE',n.mul(n.voronoi(p,8),3200))
-    swirls=n.mul(n.ramp(arcs,.93,.99),n.ramp(n.noise(p,30,2),.57,.70),wear,.018)
-    output('base',base);output('rough',n.add(oldrough,n.mul(film,.25),swirls))
+        if node.type=='BUMP':
+            n.feed(node.inputs['Height'],n.nt.nodes['OUT_height'].outputs[0])
+    output('base',base);output('rough',n.add(oldrough,.0005,n.mul(film,.25)))
     # Road deposits are dielectric; factory metallic remains an independent
     # uniform over the clean coverage, shared by all five colors.
     output('metal',n.mul(coverage,n.nt.nodes['Paint metallic'].outputs[0]))
     output('paint_coverage',coverage);output('paint_contamination',dirt);output('road_film',film);output('chips',chips)
     bs=n.nt.nodes['SURFACE'];n.feed(bs.inputs['Coat Weight'],n.add(.10,n.mul(coverage,.90)))
     n.feed(bs.inputs['Coat Roughness'],n.add(.385,n.mul(coverage,-.35)))
+    for channel in ['base','rough','metal','height']:
+        if not n.nt.nodes['OUT_'+channel].inputs[0].is_linked:raise ValueError('Disconnected sedan paint channel: '+channel)
     return mat
 
 
