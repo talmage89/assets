@@ -3455,3 +3455,30 @@ The compound flap's perimeter also gains samples. Offset that visible detail
 with sixteen-segment inboard barrel rings and eight-segment phosphor disks
 behind the projector optics. Held exterior wheel/tire envelopes are unchanged.
 The game source is 59,968 triangles, with 32 left under the existing ceiling.
+
+### Delivery pass 2 — reject partially buried rear lettering
+
+Color/value first: the current source daylight pairs retain their accepted
+neutral gains and glass context. Front paint differences remain about −6.4,
+−4.3, −7.8 and −0.7 display levels; rear paint −0.5, +0.9, −1.6 and +3.7.
+These are source values, not approval of the new export. The gate's broad
+reflection is quieter through the corrected run, but its ends and small cut
+boundaries still need the final gallery audit.
+
+Full-size rear source inspection rejects the name/model badges independently
+of the atlas repair: the four-corner plaques chord through the compound paint
+surface. Only the end fragments of their black substrates and lettering are
+visible. This is a physical occlusion; more pixels cannot fix it. Replace each
+with a 4 × 2 conforming grid, sampled on the actual gate, 1.5 mm proud along
+its smooth normal. Original artwork and dimensions are held. This adds 28
+triangles for a 59,996-triangle candidate. A dedicated gallery gate view must
+approve the complete words after export.
+
+The first new UV validation also rejected a rear print's anisotropic repack.
+The kit's existing target-aspect control now supports Smart UV as well as
+seam unwrap, and the hatch's later cut-sliver repacks explicitly use square
+aspect too. The real 4:1 print regression passes with axis anisotropy below
+1.000001. The current packed charts measure grille 166.8 × 42.6 pixels,
+wheel caps 137.3 × 47.3, and dealer insert 360.7 × 180.3, each with equal
+physical density on both axes. Forty-one explicit cut-fragment UV repairs
+leave 41.0% coverage, zero overlap, outside and degenerate triangles.

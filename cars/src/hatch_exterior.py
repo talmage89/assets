@@ -313,14 +313,25 @@ def grille(b):
     y=c.y-.0205
     ob=print_quad(b,'H120 original grille emblem',[(-.047,y,c.z-.012),(.047,y,c.z-.012),(.047,y,c.z+.012),(-.047,y,c.z+.012)],b.m['badge'])
     ob['allow_boundary']=True
-    gate=mesh_tree([bpy.data.objects['Liftgate outer']])
+    # A four-corner print chords through this compound stamping and hides
+    # the middle letters. Conform the plaque itself, not just its corners.
+    from hatch_fairness import field as normal_field
+    gate=normal_field([bpy.data.objects['Liftgate outer']])
     for label,x,z,w,h,mat in [('model',-.40,.755,.110,.025,b.m['model']),('name',0,.974,.092,.023,b.m['badge'])]:
-        corners=[]
-        for xx,zz in [(x+w/2,z-h/2),(x-w/2,z-h/2),(x-w/2,z+h/2),(x+w/2,z+h/2)]:
-            p=gate.ray_cast(Vector((xx,3,zz)),Vector((0,-1,0)),3)[0]
-            if p is None:raise ValueError('Rear badge misses its gate stamping')
-            corners.append(p+Vector((0,.001,0)))
-        ob=print_quad(b,'H120 original rear '+label,corners,mat,parent=bpy.data.objects['Liftgate']);ob['allow_boundary']=True
+        points=[];normals=[];nu,nv=4,2
+        for j in range(nv+1):
+            for i in range(nu+1):
+                xx=x+w/2-w*i/nu;zz=z-h/2+h*j/nv;hit=gate((xx,3,zz),(0,-1,0))
+                if hit is None:raise ValueError('Rear badge misses its gate stamping')
+                p,n,_=hit;points.append(p+n*.0015);normals.append(n)
+        faces=[(j*(nu+1)+i,j*(nu+1)+i+1,(j+1)*(nu+1)+i+1,(j+1)*(nu+1)+i) for j in range(nv) for i in range(nu)]
+        ob=G.mesh('H120 original rear '+label,points,faces,mat);uv=ob.data.uv_layers.new(name='PrintUV')
+        for face in ob.data.polygons:
+            face.use_smooth=True
+            for li in face.loop_indices:
+                vi=ob.data.loops[li].vertex_index;uv.data[li].uv=((vi%(nu+1))/nu,(vi//(nu+1))/nv)
+        ob.data.normals_split_custom_set([normals[l.vertex_index] for l in ob.data.loops])
+        b.add(ob,bpy.data.objects['Liftgate'],'trim');ob['allow_boundary']=True
 
 
 def plate(b):
