@@ -30,8 +30,12 @@ def bake_loss():
     source=ROOT/'renders/sedan-source-pairs';baked=ROOT/'renders/sedan-used-pairs'
     sp=json.loads((source/'appearance-patches.json').read_text());bp=json.loads((baked/'appearance-patches.json').read_text())
     sm=json.loads((source/'shots.json').read_text());bm=json.loads((baked/'shots.json').read_text());records=[]
+    source_digest=hashlib.sha256((ROOT/'build/sedan/detail-game.blend').read_bytes()).hexdigest()
     for view,record in sp.items():
+        if sm[view]['source_sha256']!=source_digest:raise ValueError('Stale procedural source comparison')
         if sm[view]['render_recipe_sha256']!=bm[view]['render_recipe_sha256']:raise ValueError('Source/baked comparison uses different presentation recipes')
+        for key in ['location','target','lens','roll','paint','lighting','exposure','width','height']:
+            if sm[view].get(key)!=bm[view].get(key):raise ValueError('Source/baked comparison differs in '+key)
         for label,patch in record['patches'].items():
             a=patch['render']['display_rgb'];b=bp[view]['patches'][label]['render']['display_rgb']
             records.append(dict(view=view,patch=label,source_display_rgb=a,baked_display_rgb=b,max_channel_difference=max(abs(x-y) for x,y in zip(a,b))))
