@@ -43,7 +43,256 @@ a roof/spoiler overlap, and trim clips on exterior surfaces. Its source modules
 are useful scaffolding, not verified work. The next passes correct construction,
 measure actual surfaces, and judge new renders against the used photographs.
 
+## Detail pass 2 — reject ornamental hardware and unsupported cabin surfaces
+
+Color/value first: factory Graphite is the family's linear .160/.153/.141,
+with a continuous clear coat. The inherited gray source is not a silver/white
+match. Compare it against both used-car photos before adding fine wear. Opened
+`renders/suv-lookdev-pass2/` front/rear, opened and cargo views beside the two
+used photographs. The body still looked too dark below its shoulder and the
+optics were too plain. The front and rear needed separate camera/value checks.
+
+Reject the first assembly: it was 70,624 triangles after real sash/header
+separation, and actual rest/swept contacts occurred in cards, tires, the floor,
+hood supports and dropped spoiler ends. The first hinge blocks neither sat on
+real bearings nor concealed themselves behind the skin. Do not accept parenting
+as construction. Rebuilt pin/sleeve bearings, inboard goosenecks and documented
+hinge axes; split the steel and plastic at the closure joints. Sashes and arch
+segments follow their door. The gate carries its upper header and spoiler while
+the fixed D-pillar stays below the joint. The struts now articulate from measured
+attachment frames, rather than staying as fixed cylinders in the open views.
+
+The cabin uses shaped five-seat upholstery, actual cards, a cluster/display,
+console, headliner and cargo trim. A later emission-only material probe exposed
+the dark lower-door band: the constant-X inner carrier protruded through the
+inward-curving outer skin. It was not dirt. The carriers/cards are now fitted
+behind actual door rays; the floor is narrowed to clear them. The cargo cover
+has a tapered rear edge and the inner gate lining stays behind the pocket.
+No outer body vertex is moved to accommodate these interior corrections.
+
+Still cheap/CG in this pass: angular sparse cabin trim, over-plain lamp backs,
+small uniformly silver wheel faces and exterior-looking hinge bits. Fix those
+before treating a counts/audit pass as a look approval.
+
+## Detail pass 3 — reject the first used-pair calibration and glass transfer
+
+Color/value first: the eventual comparison balances the front photo on the
+foreground asphalt and the rear on unprinted white sign stock. These are
+available scene neutrals, not calibrated gray cards. The former gains are
+.8834/.9907/1.1647 in linear light; rear gains 1.0258/1.0129/.9635.
+Opened the two `renders/suv-lookdev-pass3/` pairs and rejected both as evidence.
+The rear inherited picks missed the wheel centers by over a hundred preview
+pixels and used the wrong near-side sign. A low coplanar landmark RMS did not
+make that camera physically correct; the body was cropped and the hidden wheels
+fit instead. Re-inspected the full 1400-pixel previews and added the visible far
+rear contact with lower weight. The shared solver now gives 12.66/6.39 native-pixel
+RMS, estimated 72.17/106.18 mm lenses, and the correct camera quadrants. All
+projection-implementation residuals remain independently checked in Blender.
+
+The reduced glass also showed black triangular facets. Its vertex query chose
+entrance, exit or rim normals interchangeably at shared border coordinates.
+Re-seed each corner from the same geometric hemisphere, preserving smooth
+entrance/exit fields and flat gauge rims. Reject open or >1.3 mm chord-error
+reductions; keep the original windshield and backlight where proposals fail.
+The typed source audit additionally rejects opposed transmission normals.
+These are optical/shading corrections, not a frost tint or roughness increase.
+
+Opened `suv-lookdev-pass4`, `pass5` and `pass6` pairs. The corrected framing,
+separate optical internals and actual interior are substantially clearer.
+An emission-only BaseColor/road-film/gap-grime probe confirmed that the broad
+black band was carrier geometry, not a weather texture. Once it was moved
+inboard, the lower painted door returned. The blank plate was also seated on
+its true sloping pocket plane, rather than intersecting the bed, and the
+washers are supported on actual hood rays. Both corrections matter at full frame.
+
+Still CG: uniform sky/ground reflection fields, dull gray door values, sparse
+red lamp jewelry and very regular window trim. Use original camera-hidden
+roadside reflection silhouettes with the procedural sky/ground, not a downloaded
+HDRI or a texture reconstructed from the photographs.
+
+## Detail pass 4 — color/value calibration before final presentation
+
+Color/value first: `renders/suv-lookdev-pass6/measurements.json` records the
+unretouched display RGB samples after the photographic balance above. At the
+front, mid/low door luma was 52.6/48.6 against 88.1/76.6; rear mid-door was
+97.5 against 135.6. This was an exposure/reflection problem, not permission to
+make the paint chalky. Keep the factory tints, neutralize the overly blue cloud
+source and raise the comparison exposure by .9 EV, from -.3 to +.6.
+
+Opened `renders/suv-lookdev-pass7/` and both annotated measurement pages.
+The same front mid/low patches now read 82.1/76.9 against 88.1/76.6; rear
+mid-door 139.2 against 135.6, and rear-quarter 146.4 against 152.7.
+Cladding is 32.7 versus 37.4 front, and 39.9 versus 27.4 rear. The rear molding
+is still too light in that sample. Front glass is 116.2 versus 158.8; rear glass
+141.6 versus 127.7. Environment/reflection correspondence is weaker than paint
+value correspondence. The silver remains cooler than Toyota's warm reflected
+mid-door, and the original warm Graphite is less violet than the balanced Honda.
+No pixel samples are reported as measured albedo. The camera/trim/lighting and
+regional correspondence limitations stay visible in the pairs.
+
+The extra road load follows axle wakes and stays low; upward cladding fade,
+loading/sill scuffs, hood/door-edge chips, gap deposits, glass-bottom sediment,
+brake dust and wash swirls each have a physical mask. Inner arch fastener heads
+are original height relief, rather than the inherited floating exterior blocks.
+Clearcoat, peel and flake remain the family method, with solid colors turning
+flake off in the review. The five paints use factors, not five texture sets.
+
+Still CG in this pass: the reflection environment is simpler and less varied
+than the real wooded parking places; very regular side trim and low-detail
+cabin shapes remain visible. The lamps and wheel need their final close-ups,
+and wear visibility must survive the later 4096/2048 bake. This is source look
+development, not a shipping or baked-GLB approval.
+
 ---
+
+## Detail pass 5 — optics, wheel finish and inspection views
+
+Color/value first: the 1600 px source close-ups retained the matched +.6 EV
+setup. Paint has reflected sky/ground separation and dark cavities, but the
+unlit projector substrate was almost white and the entire alloy wheel shared
+one bright value. The lower side-glass sediment scattered into a coarse white
+strip. Those are material failures visible before any bake, not excuses to
+increase exposure or make glass opaque.
+
+Keep the lit emitter's warm-white emission and darken its unlit physical
+substrate. Separate machined axial wheel faces from darker cast pockets using
+rest normals, add wheel-centered radial brake dust and fine machining response,
+and retain the family alloy/paint method. Reduce sediment to the bottom few
+centimeters, with finer deposit density, a much smaller roughness change and
+nearly intact transmission. These remain manufacturing masks for the later
+neutral bake, not extra per-color textures.
+
+The original eye-height cabin image was dominated by the sky reflection and
+large mirror, so it did not prove the interior. Shift the camera toward the
+front window center; add a camera-hidden photographer's black flag and a small
+physical cabin bounce. The glass material is the same as in the hero. Taper and
+round the upholstered headrest sections instead of retaining box-like caps.
+The cargo floor/cover, rear bench and actual gate supports are present; the
+cargo trim remains deliberately sparse. The first low view mostly showed the
+rockers and wheels. Lower its camera to 80 mm above the ground and add a separate
+below-floor inspection view with the ground removed, so the AWD layout can be
+judged independently of the low-angle vehicle view.
+
+The extra fuel-flap sweep exposed an uncut quarter-panel behind its outer cap.
+Cut the actual skin, form a filler cup and cap, and align the hinge with the
+flap's forward-edge chord. Both source densities now clear to 85°. All twelve
+required mechanisms also pass their individual sweeps. The game plate's tiny
+bevel moves to the high source to fund that pocket; game total is 64,980.
+Two sub-micron C-divider cap slivers were cured by welding coincident cut points
+within 5 micrometers before capping. The high source passes the unmodified kit
+solid/sliver audit. The solid, budget and 0.5 mm motion tolerances are unchanged.
+
+Remaining CG tells to review in the final set: the regular low-segment projector
+bezel and wheel-barrel silhouettes in extreme close-up, idealized roadside
+reflection shapes, simplified cargo and engine compartments, and the thin
+upper-fascia cut-border curvature noise. The final source is frozen before the
+last render batch; its renderer now rejects source or recipe edits during a
+batch so provenance cannot drift while images are being written.
+
+## Detail pass 6 — physical supports and parallel glass
+
+Color/value first: keep the prior photographic neutrals and +.6 EV; the front
+and rear paint value corrections remain. The revised side-window view removed
+the broad sky veil, but exposed two separate defects. A visible white oval was
+the inspection area light itself, so hide that fixture from camera, glossy and
+transmission rays while retaining its diffuse bounce. Large triangular cabin
+displacements persisted, proving they were not just lighting or dirt.
+
+Compare the game and unreduced high cabin, plus an explicitly diagnostic IOR=1
+copy. The high and IOR=1 images have coherent seats/controls; the old game has
+broken refraction. Entrance/exit shading-normal rays find up to 47.7° mismatch
+through a 4.8 mm laminate. A hemisphere test alone missed this: independently
+transferred normals selected an old rim on one layer and the pane on the other.
+Use one actual exterior-sheet field for both layers, with flat physical rims.
+The 116-ray diagnostic grid falls below 1.85°. The broader 13×13-per-pane audit
+also samples the tightly curved lower A-corner: its maximum is 3.65° on both
+source densities, with all rear/quarter panes below .56°. Record that residual
+and a disclosed 5° audit bound; do not claim perfect optical parallelism. Final
+images retain physical IOR 1.52 and the real laminate; the IOR=1 copy never enters
+the checkpoint. Evidence: `renders/suv-interior-pass8/`, `suv-interior-high8/`,
+`suv-interior-ior1/`, `suv-interior-pass9/` and `suv-interior-pass10/`.
+
+The second eye-height camera sees the steering wheel, shifter/cup holders,
+cluster and center screen. Replace the oversized shared placeholder text with
+separate original instrument and abstract navigation graphics. The seat/cargo
+camera and this controls camera complement each other; one cannot prove all
+five seats and all controls in the same frame.
+
+A direct contact audit found a fault that stroke/sweep tests cannot find: hood
+strut body seats were 149 mm from surrounding structure, and hinge plates were
+8.64 mm below the hood. Add two formed triangular fender returns (16 game
+triangles total), then fit the hinge tops in vehicle space, not their pivot's
+local Z. Measured final hinge-to-skin distance is .40 mm. Actual seat/return and
+return/fender surface intersections prove support on both source densities.
+The small exhaust hanger ends now reach the actual floor or rear longitudinal;
+they have 12/12/10 measured game triangle crossings at those attachments.
+
+The final game source is **64,996 triangles**, four below the hard limit; high is
+167,598. The source has 35 manufacturing materials and six generated marking/UI
+images. These are not a shipping draw-call or texture-memory claim. The later
+neutral 2048 atlas remains budgeted at 16 MiB with compression/full mipmaps.
+The source is frozen before the final full render set. Remaining CG tells are
+the regular close-up wheel/projector silhouettes, broad procedural reflection
+shapes, sparse cargo/engine detail and unmodeled full hood reinforcement. The
+lower front glass corner and thin upper fascia cut-border noise remain honest
+limits for the checkpoint, not hidden by a normal-map claim.
+
+## Detail pass 7 — final full set and used-photo comparison
+
+Color/value first: the final front photo uses the lower-left asphalt neutral,
+linear gains .8834/.9907/1.1647. The final rear uses the unprinted white sign
+patch, gains 1.0173/1.0173/.9672. The full pairs and measurement crops use the
+same neutral balance. These are display-RGB comparisons under different
+reflection environments, not measured albedos. The small rear gain change from
+the earlier preview comes from the final Lanczos-resampled neutral patch.
+
+| Patch | Render luma / 255 | Balanced photograph / 255 |
+| --- | ---: | ---: |
+| Front mid-door | 82.1 | 88.1 |
+| Front low door | 77.1 | 76.6 |
+| Front cladding | 32.7 | 37.4 |
+| Front glass | 116.4 | 158.8 |
+| Rear mid-door | 139.2 | 135.3 |
+| Rear quarter | 146.4 | 152.6 |
+| Rear cladding | 39.9 | 27.4 |
+| Rear glass | 141.4 | 127.5 |
+
+The main paint values are close; the front factory Graphite is warmer than the
+Honda's violet-gray, and Aluminum is cooler than Toyota's reflected silver.
+The rear cladding remains too light and the front glass reflection too dark in
+these selected patches. Do not hide those misses by changing the neutral
+factory palette or treating the photographs as albedo maps. The roadside
+reflection environment is deliberately original and remains less detailed than
+the actual leafy/urban surroundings.
+
+Opened all 34 final form frames as four inspection pages, all 28 look frames,
+the direct lamp/wheel/controls/cargo/underbody/opened close-ups, and the three
+gloss-clay views. The gloss clay shows a narrow shoulder value break, the lower
+die's broader shadow change and curved fender highlights. The maps and matching
+bands retain the thin cut-border noise instead of concealing it. Color variants
+retain body identity, dark cavities and distinct plastic/gloss trim; the white
+and silver remain different, and black retains sky reflections. Across all ten
+factory-color views, geometry's first-percentile luma is 1.1–2.1/255 and paint's
+99th percentile is 227–233/255, with **zero clipped paint channels**. The lit
+lamp close-up intentionally clips its luminous cores; its paint 99th percentile
+is 216/255. Masks and complete per-frame ranges accompany the sheet.
+
+The new controls view reads through actual glass without the old triangular
+prisms or visible inspection fixture. Instruments and navigation graphics are
+separate, original assets. The opened gate shows the cargo cover, floor and
+three rear headrests; the low shot and below-floor inspection complement each
+other. Orange trajectories show sampled actual vertices; the numerical proof
+remains 413 individually sampled poses per source density, at the documented
+0.5 mm penetration tolerance. No continuous swept-volume or arbitrary combined
+pose clearance claim is made.
+
+Remaining CG: regular macro wheel/barrel and projector silhouettes; stylized
+low-frequency reflections; sparse cargo/engine/hood underside detail; the small
+A-corner optical mismatch and upper-fascia cut-border curvature noise. Tire dust
+and small wear remain more regular than the photographs. Fine peel/flake,
+lettering, UI and grain may lose definition in the future 2048 bake; no baked
+or exported appearance is being claimed. The checkpoint keeps these limits
+visible for review rather than declaring the asset finished.
 
 # X220 SUV — form round 3
 
