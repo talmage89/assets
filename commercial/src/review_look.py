@@ -14,7 +14,7 @@ def main():
  root=Path('renders/look-checkpoint');names=('hero','above','dispenser','canopy','column','entry','sign','rear','services','asphalt','landscape','dusk')
  details=[(name,root/(name+'.png')) for name in names];family=[(f'{seed} / {view}',root/'seeds'/str(seed)/(view+'.png')) for seed in (101,102,103,104) for view in ('above','street')]
  sheet(details,root/'details.jpg',3,(800,560));sheet(family,root/'family.jpg',2,(960,620))
- pairs=[(n,Path('renders/look-matches')/(n+'-pair.jpg')) for n in ('period_canopy','period_dispenser','used_forecourt','used_store')]
+ pairs=[(n,Path('renders/look-matches')/(n+'-pair.jpg')) for n in ('period_canopy','period_dispenser','used_forecourt','used_store','used_asphalt')]
  sheet(pairs,root/'matched-pairs.jpg',1,(1800,850))
  fixes=[(p.stem,p) for p in sorted(Path('renders/form-fixes').glob('*-before-after.jpg'))]
  assert len(fixes)==7
@@ -29,6 +29,7 @@ def main():
     image=p.parent/(name+'.png');assert digest(image)==r['image_sha256'];assert digest(r['source'])==r['sha256'],('Stale export',image)
     assert r['source'].endswith('.gltf') and r['recipe_sha256']==recipe(),('Stale render recipe',image)
     assert r['engine']=='CYCLES'
+    if name=='used_asphalt':assert r['comparison_recipe_sha256']==hashlib.sha256((HERE/'asphalt_match.py').read_bytes()).hexdigest()
     if r.get('ground'):
      source=HERE.parents[1]/r['ground']['source'];assert digest(source)==r['ground']['sha256']
      for ctx in r['ground'].get('neighbor_dependencies',[]):assert bundle(HERE.parents[1]/ctx['source'])==ctx

@@ -5,7 +5,7 @@ MAPS := $(foreach role,CMU Brick Trim Equipment,$(foreach channel,BaseColor Norm
 DELIVERIES := $(foreach seed,$(SEED_LIST),export/CommercialGas-$(seed).gltf export/CommercialGas-$(seed).bin export/CommercialGas-$(seed).json)
 CHECKPOINT_BLEND := build/look/station-101.blend
 CHECKPOINT_OUTPUTS := $(foreach seed,$(SEED_LIST),build/look/station-$(seed).blend build/look/station-$(seed).glb build/look/station-$(seed).json)
-CHECKPOINT_DEPS := $(wildcard src/*.py) $(MAPS) textures/ship/graphics.json ../kit/model.py ../kit/fonts.py ../ground/src/build.py ../ground/src/dimensions.py ../ground/export/Ground.glb ../shrubs/export/Shrubs.glb
+CHECKPOINT_DEPS := $(addprefix src/,build.py plan.py geometry.py building.py equipment.py siteworks.py ground_adapter.py landscape.py age.py surfaces.py textures.py) $(MAPS) textures/ship/graphics.json ../kit/model.py ../kit/fonts.py ../kit/tiling.py ../ground/src/build.py ../ground/src/dimensions.py ../ground/export/Ground.glb ../shrubs/export/Shrubs.glb
 CHECKPOINT_ARGS := --look --seeds $(SEEDS)
 SHOTS := hero,above,dispenser,canopy,column,entry,sign,rear,services,asphalt,landscape,dusk
 CHECKPOINT_RENDER_OUTPUTS := $(foreach shot,hero above dispenser canopy column entry sign rear services asphalt landscape dusk,renders/look-checkpoint/$(shot).png) $(foreach seed,$(SEED_LIST),renders/look-checkpoint/seeds/$(seed)/above.png renders/look-checkpoint/seeds/$(seed)/street.png)
@@ -46,7 +46,10 @@ match: export refs
 	$(PYTHON) src/prepare_refs.py
 	$(PYTHON) $(KIT)/photo_match.py solve --config src/photo_matches.py --out build/look-cameras.json
 	$(KIT)/with_gpu.sh $(BP) --python src/matches.py -- --width $(WIDTH) --samples $(SAMPLES)
+	$(PYTHON) $(KIT)/photo_match.py solve --config src/asphalt_match.py --out build/asphalt-cameras.json
+	$(KIT)/with_gpu.sh $(BP) --python src/asphalt_match.py -- --width $(WIDTH) --samples $(SAMPLES)
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/look-cameras.json --renders renders/look-matches --out renders/look-matches
+	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/asphalt-cameras.json --renders renders/look-matches --out renders/look-matches
 	$(PYTHON) src/values.py
 before-after: export render
 	$(PYTHON) src/form_comparison.py --blender "$(BLENDER)" --width $(WIDTH) --samples $(SAMPLES)

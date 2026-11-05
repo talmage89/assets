@@ -40,7 +40,10 @@ def baseline(blender):
 
 def main(a):
  source=baseline(a.blender);out=Path('renders/form-before');names=','.join(dict.fromkeys(r[0] for r in CASES.values()))
- need=not all((out/(n+'.png')).exists() for n in names.split(','))
+ from context import recipe
+ provenance=json.loads((out/'provenance.json').read_text()) if (out/'provenance.json').exists() else {}
+ digest=hashlib.sha256(source.read_bytes()).hexdigest()
+ need=not all((out/(n+'.png')).exists() and (r:=provenance.get(n,{})).get('sha256')==digest and r.get('recipe_sha256')==recipe() and r.get('width')==a.width and r.get('samples')==a.samples for n in names.split(','))
  if need:
   cmd=[str(HERE.parents[1]/'kit/with_gpu.sh'),a.blender,'-b','--factory-startup','--python-exit-code','1','--python','src/render.py','--','--source',str(source),'--out',str(out),'--shots',names,'--width',str(a.width),'--samples',str(a.samples)]
   with Path('build/form-before-render.log').open('w') as log:subprocess.run(cmd,stdout=log,stderr=subprocess.STDOUT,check=True)

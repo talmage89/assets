@@ -17,6 +17,7 @@ CASES={
  'concrete':dict(pair='used_forecourt',photo='pa-canopy',photo_box=(500,1350,650,1450),render_box=(.08,.55,.25,.82),surface='Forecourt concrete, away from the cover and large stains; different shadow coverage remains'),
  'dark_cabinet':dict(pair='period_dispenser',photo='ca-dispenser',photo_box=(450,1000,480,1120),render_box=(.025,.04,.105,.30),surface='Dark dispenser surround, away from printed labels; different makes and finishes'),
  'eifs':dict(pair='used_store',photo='tx-store',photo_box=(710,680,840,730),render_box=(.82,.25,.95,.29),surface='Sunlit upper EIFS/plaster sign-band face; photograph has haze and an unsurveyed finish'),
+ 'asphalt':dict(pair='used_asphalt',photo='va-store',photo_box=(2400,2170,2600,2240),render_box=(.40,.60,.65,.69),surface='Sunlit weathered forecourt asphalt between shadow bands, away from foliage, the patch and large stains; different mixture and repair history'),
 }
 
 
