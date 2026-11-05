@@ -9,8 +9,8 @@ from pathlib import Path
 import numpy as np
 from PIL import Image,ImageDraw
 CASES={
- 'period_asphalt':dict(pair='period_lot',render_box=(.66,.78,.98,.97),photo_box=(.72,.86,.98,.98),material='Asphalt',surface='Sunlit asphalt, omitting the photographs tree shadows, cars and curb'),
- 'shaded_walk':dict(pair='period_walk',render_box=(.28,.685,.40,.705),photo_box=(.43421,.648,.46053,.65867),material='CommercialConcrete',surface='Shaded covered concrete walk, away from column bases; ray-verified before accepting'),
+ 'period_asphalt':dict(pair='period_lot',render_box=(.50,.88,.98,.98),photo_box=(.72,.86,.98,.98),material='Asphalt',surface='Sunlit asphalt, omitting the photographs tree shadows, cars and curb'),
+ 'shaded_walk':dict(pair='period_walk',render_box=(.54,.715,.62,.73),photo_box=(.43421,.648,.46053,.65867),material='CommercialConcrete',surface='Shaded covered concrete walk, away from column bases; ray-verified before accepting'),
 }
 
 
@@ -27,7 +27,7 @@ def patch(image,box,path):
 def run(folder=Path('renders/strip/matches')):
     cal=json.loads(Path('build/strip/cameras.json').read_text());out=Path('renders/strip/measurements');out.mkdir(parents=True,exist_ok=True);rows={}
     for name,case in CASES.items():
-        im=Image.open(folder/(case['pair']+'.png')).convert('RGB');row=cal[case['pair']];photo=Image.open(row['photo']).convert('RGB').crop(row['crop']).resize(im.size,Image.Resampling.LANCZOS)
+        row=cal[case['pair']];im=Image.open(folder/(case['pair']+'.png')).convert('RGB');im=im.resize((1440,round(1440/row['shot']['aspect'])),Image.Resampling.LANCZOS);photo=Image.open(row['photo']).convert('RGB').crop(row['crop']).resize(im.size,Image.Resampling.LANCZOS)
         rows[name]=dict(**case,render=patch(im,case['render_box'],out/(name+'-render-mask.png')),photo=patch(photo,case['photo_box'],out/(name+'-photo-mask.png')),render_sha256=hashlib.sha256((folder/(case['pair']+'.png')).read_bytes()).hexdigest())
     (out/'wear-values.json').write_text(json.dumps(dict(rows=rows,neutral_balance=json.loads(Path('build/strip/references/balance.json').read_text()),scope=__doc__),indent=2)+'\n')
     print(json.dumps(rows,indent=2))

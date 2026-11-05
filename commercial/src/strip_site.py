@@ -50,7 +50,11 @@ def _south_street(p,parent):
 
 def street(p,parent):
     south=[dict(dr,id=i+1) for i,dr in enumerate(p['driveways']) if dr['edge']=='south']
-    _south_street({**p,'driveways':south},parent)
+    if p.get('frontage')!='west':_south_street({**p,'driveways':south},parent)
+    if p.get('frontage')=='west':
+        W,D=p['lot'];west=[dict(dr,id=i+1,center=(-dr['center'][1],-W/2)) for i,dr in enumerate(p['driveways'])]
+        rt=root('West public frontage',yaw=-90,parent=parent)
+        _south_street({**p,'lot':(D,W),'driveways':west},rt)
     if any(dr['edge']=='east' for dr in p['driveways']):
         W,D=p['lot'];east=[]
         for i,dr in enumerate(p['driveways']):
@@ -103,22 +107,31 @@ def site(p,modules,ink,layout):
         inner=p['elbow']['bounds'][0];excludes.append((inner,inner+b['depth'],b['front']-2*p['modules'][0]['width'],b['front']))
     # Property edge beds occupy the last four feet, except street entries.
     east=next((dr for dr in p['driveways'] if dr['edge']=='east'),None)
+    west=[dr for dr in p['driveways'] if dr['edge']=='west']
     excludes.extend([(-W/2,-W/2+4*FT,-D/2,D/2),(W/2-4*FT,W/2,-D/2,D/2),(-W/2,W/2,D/2-4*FT,D/2)])
     if east:
         excludes.remove((W/2-4*FT,W/2,-D/2,D/2))
         ey=east['center'][1];half=east['width']/2+5*FT
         excludes.extend([(W/2-4*FT,W/2,-D/2,ey-half),(W/2-4*FT,W/2,ey+half,D/2)])
+    if west:
+        excludes.remove((-W/2,-W/2+4*FT,-D/2,D/2))
+        cuts=sorted([-D/2,D/2,*[dr['center'][1]+s*(dr['width']/2+5*FT) for dr in west for s in (-1,1)]])
+        excludes.extend([(-W/2,-W/2+4*FT,a,c) for a,c in zip(cuts,cuts[1:]) if not any(abs((a+c)/2-dr['center'][1])<dr['width']/2+5*FT for dr in west)])
     xs=sorted({-W/2,W/2,*[q for e in excludes for q in e[:2]]});ys=sorted({-D/2,D/2,*[q for e in excludes for q in e[2:]]})
     for x0,x1 in zip(xs,xs[1:]):
         for y0,y1 in zip(ys,ys[1:]):
             if not any(a<(x0+x1)/2<c and d<(y0+y1)/2<e for a,c,d,e in excludes):flat('Lot asphalt',(x0,x1,y0,y1),'Asphalt',r)
     for bounds in ((-W/2,-W/2+4*FT,-D/2,D/2),(W/2-4*FT,W/2,-D/2,D/2),(-W/2+4*FT,W/2-4*FT,D/2-4*FT,D/2)):
-        if east and bounds[0]>0:
+        if west and bounds[1]<0:
+            for a,c in zip(cuts,cuts[1:]):
+                if not any(abs((a+c)/2-dr['center'][1])<dr['width']/2+5*FT for dr in west):flat('Perimeter planted verge',(bounds[0],bounds[1],a,c),'Green',r,.009)
+        elif east and bounds[0]>0:
             ey=east['center'][1];half=east['width']/2+5*FT
             for aa,bb in ((bounds[2],ey-half),(ey+half,bounds[3])):flat('Perimeter planted verge',(bounds[0],bounds[1],aa,bb),'Green',r,.009)
         else:flat('Perimeter planted verge',bounds,'Green',r,.009)
     for x in (-W/2+4*FT,W/2-4*FT):
         spans=[(-D/2,D/2)]
+        if west and x<0:spans=[(a,c) for a,c in zip(cuts,cuts[1:]) if not any(abs((a+c)/2-dr['center'][1])<dr['width']/2+5*FT for dr in west)]
         if east and x>0:spans=[(-D/2,ey-half),(ey+half,D/2)]
         for aa,bb in spans:box('Private perimeter curb',(x,(aa+bb)/2,.06),(.14,bb-aa,.12),'Concrete',r,.004)
     box('Private rear curb',(0,D/2-4*FT,.06),(W-8*FT,.14,.12),'Concrete',r,.004)
@@ -151,9 +164,12 @@ def site(p,modules,ink,layout):
         x0,x1,y0,y1=isl['bounds'];lightpole('LotPole_'+str(i),((x0+x1)/2,(y0+y1)/2,.155))
     # Service yard sits in the buffer between the left end and the side drive,
     # with its gates opening into a clear apron, not across the rear drive.
-    enclosure=dumpster_enclosure((b['left']-2.75,b['rear']-3.1,0));enclosure.name='StripDumpsterEnclosure';enclosure['reusable_module']=True
+    enclosure=dumpster_enclosure((b['left']+b['width']+3.2,b['front']+12,0) if west else (b['left']-2.75,b['rear']-3.1,0));enclosure.name='StripDumpsterEnclosure';enclosure['reusable_module']=True
     for ob in enclosure.children_recursive:
         if ob.get('pivot_axis'):ob.name='Strip_'+ob.name
+    if p.get('look'):
+        from strip_dumpsters import add
+        add(p,ink,layout)
     return r
 
 

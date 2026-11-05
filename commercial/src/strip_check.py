@@ -123,6 +123,9 @@ def run(seed,folder=Path('build/strip'),motion=True):
         for driveway in meta['driveways']:
             x=driveway['center'][0] if kind.endswith('Cut') else 0
             if driveway['edge']=='south':positions=[(x,-D/2-3.3528+u,FLOW+z) for u,z in section]
+            elif driveway['edge']=='west':
+                y=driveway['center'][1] if kind.endswith('Cut') else 0
+                positions=[(-W/2-3.3528+u,y,FLOW+z) for u,z in section]
             else:
                 y=driveway['center'][1] if kind.endswith('Cut') else 0
                 positions=[(W/2+3.3528-u,y,FLOW+z) for u,z in section]

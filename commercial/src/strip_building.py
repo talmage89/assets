@@ -71,7 +71,7 @@ def interior(m,p,parent):
     # depth and service space, not falsely advertised as a playable shop.
     for s in (-1,1):
         if (s>0 and not m['partition']) or (s<0 and m.get('open_left')) or (s==m.get('wrap_side')):continue
-        box('Room side finish',(s*(w/2-.12),deep/2,1.55),(.045,deep,2.8),'White',parent,0)
+        box('Room side finish',(s*(w/2-.23),deep/2,1.55),(.045,deep,2.8),'White',parent,0)
     if key!='vacant':
         for yy in (1.6,4.1,6.4):
             for x in (-w*.23,w*.23):box('Tenant ceiling diffuser',(x,yy,2.985),(.85,.26,.012),'Lamp',parent,0)
@@ -80,13 +80,14 @@ def interior(m,p,parent):
         box('Counter worktop',(x,y,1.195),(width+.07,.70,.045),'White',parent,.004)
         box('Register',(x+.25,y+.12,1.3375),(.26,.22,.24),'Black',parent,.006)
     def chair(x,y):
-        box('Chair upholstered seat',(x,y,.62),(.52,.50,.10),'Trim',parent,.025,2)
-        box('Chair back',(x,y+.23,.90),(.50,.07,.55),'Trim',parent,.022,2)
+        box('Chair upholstered seat',(x,y,.62),(.52,.50,.10),'Trim',parent,.025,1)
+        box('Chair back',(x,y+.23,.90),(.50,.07,.55),'Trim',parent,.022,1)
         cylinder('Chair stem',(x,y,.17),(x,y,.57),.035,'Metal',parent,10)
         for a in (0,math.pi/2):
             beam('Chair base',(x-.30*math.cos(a),y-.30*math.sin(a),.1765),(x+.30*math.cos(a),y+.30*math.sin(a),.1765),.035,.035,'Metal',parent)['floor_support']=True
     if key in ('nails','hair'):
         counter(-w*.23,1.8,1.4)
+        for yy in (.85,4.0):chair(-w*.34,yy)
         for j in range(3):
             yy=2.5+j*1.4;chair(w*.20,yy)
             if key=='hair':
@@ -100,9 +101,9 @@ def interior(m,p,parent):
                 x=s*(w/2-.78);y=1.4+j*1.23
                 box('Front load washer cabinet',(x,y,.76),(1.0,.86,1.20),'White',parent,.022)['floor_support']=True
                 face=root('Washer face',(x,y-.447,.80),parent=parent)
-                cylinder('Washer bezel',(0,0,0),(0,-.05,0),.34,'Metal',face,24)
-                cylinder('Washer black seal',(0,-.051,0),(0,-.063,0),.285,'Black',face,24)
-                cylinder('Washer glass',(0,-.064,0),(0,-.068,0),.245,'Glass',face,24)
+                cylinder('Washer bezel',(0,0,0),(0,-.05,0),.34,'Metal',face,16)
+                cylinder('Washer black seal',(0,-.051,0),(0,-.063,0),.285,'Black',face,16)
+                cylinder('Washer glass',(0,-.064,0),(0,-.068,0),.245,'Glass',face,16)
                 panel('Washer control',0,-.012,.44,.46,.13,'Trim',face,.018)
         box('Laundry folding table',(0,4.3,.98),(1.18,2.4,.06),'White',parent,.004)
         for yy in (3.5,5.1):box('Folding table legs',(0,yy,.56),(.85,.08,.80),'Trim',parent,.002)['floor_support']=True
@@ -112,8 +113,8 @@ def interior(m,p,parent):
             px=xx+(-.50 if xx<w*.13 else .50)
             cylinder('Conveyor support post',(px,5.3,.159),(px,5.3,1.95),.024,'Metal',parent,8)['floor_support']=True
             beam('Conveyor cantilever bracket',(px,5.3,1.95),(xx,5.3,1.95),.035,.035,'Metal',parent)
-            for j in range(12):
-                yy=4.1+j*.20
+            for j in range(10):
+                yy=3.6+j*.25
                 outline=[(-.31,.65),(.30,.65),(.34,1.51),(.12,1.68),(-.11,1.68),(-.35,1.49)]
                 cylinder('Garment suspension',(xx,yy,1.68),(xx,yy,1.94),.0025,'Metal',parent,6)
                 n=len(outline);verts=[(xx+x,yy+side*.025,z) for side in (-1,1) for x,z in outline]
@@ -238,14 +239,17 @@ def bay(m,p,ink,layout):
     sz=3.91 if p['style']=='mansard' else 4.38
     sw=m.get('sign_width',w-.95);sh=.97;sx=m.get('sign_offset',0)
     if not m.get('hosted_sign') and m.get('sign_leader',True) and not (p.get('look') and m['tenant']=='vacant'):
-        box('Tenant sign cabinet',(sx,sy+.065,sz),(sw,.14,sh),'Trim',r,.009)
+        box('Tenant sign cabinet',(sx,sy+.010,sz),(sw,.14,sh),'Trim',r,.009)
         # A common carrier accepts any tenant graphic without new geometry.
         # Filled box/panel cells cover the raceway; channel cells expose it.
         box('Sign carrier raceway',(sx,sy-.016,sz+.37),(sw-.20,.055,.06),'Trim',r,.004)
         frame('Sign cabinet extrusion',sx,sy-.023,sz,sw+.03,sh+.03,'Metal',r,.026,.065)
-        quad('Tenant replaceable sign',m['tenant'],'sign',sx,sy-.059,sz,sw-.06,sh-.06,r,ink,layout)
-    quad('Door hours / lease poster',m['tenant'],'window',dw/2,-.0008,1.51-.158,.52,.44,entry,ink,layout)
-    quad('Tenant window notice',m['tenant'],'window',w*.19,-.0438,1.40,1.30,.80,r,ink,layout)
+        quad('Tenant replaceable sign',m['tenant'],'sign',sx,sy-.061,sz,sw-.06,sh-.06,r,ink,layout)
+    if p.get('look'):
+        from strip_fitout import dressing
+        dressing(m,p,r,entry,ink,layout)
+    else:
+        quad('Door hours / lease poster',m['tenant'],'window',dw/2,-.0008,1.51-.158,.52,.44,entry,ink,layout)
     # The sign band is a wall parapet around a real lower membrane roof.
     box('Roof membrane',(0,d/2,b['roof']),(w-.01,d-.39,.045),'Roof',r,0)
     coping('Front coping',w,.1016,b['parapet'],r)

@@ -1,4 +1,4 @@
-"""Independent strip-center form builds; never writes station artifacts."""
+"""Scripted strip modules and runtime consolidation; never writes station artifacts."""
 import argparse
 import hashlib
 import json
@@ -79,22 +79,32 @@ def build(seed,folder=Path('build/strip'),overrides=None,plants=True,look=False)
         from strip_age import add
         from strip_surfaces import apply
         add(p,modules,ink,layout);apply(p,ink,layout)
+    p['fixture_lights']=[]
+    for ob in sorted(bpy.context.scene.objects,key=lambda o:o.name):
+        if ob.type!='MESH' or not any(t in ob.name for t in ('Tenant ceiling diffuser','Walk light lens','Light lens')):continue
+        points=[ob.matrix_world@v.co for v in ob.data.vertices];xyz=[sum(v[k] for v in points)/len(points) for k in range(3)];xyz[2]=min(v.z for v in points)-.025
+        kind='room' if 'Tenant' in ob.name else 'walk' if 'Walk' in ob.name else 'lot'
+        p['fixture_lights'].append(dict(name=ob.name,position=xyz,kind=kind,candela={'room':160,'walk':120,'lot':8000}[kind]))
     finish_prints(folder/f'addresses-{seed}.png');finalize();bpy.context.view_layer.update()
     if plants:p['landscape']=plant(p,world)
     else:p['landscape']=dict(instances=0,scope='No botanical instances for diagnostic repeat')
     bpy.context.view_layer.update();path=folder/f'strip-{seed}.blend'
-    bpy.ops.wm.save_as_mainfile(filepath=str(path.resolve()),compress=True)
-    if look:
-        from kit.tiling import export
-        export(path.with_suffix('.glb'))
-    else:bpy.ops.export_scene.gltf(filepath=str(path.with_suffix('.glb').resolve()),export_format='GLB',export_extras=True,export_apply=False,export_yup=True,export_texcoords=True,export_normals=True,export_tangents=False,export_materials='EXPORT',export_cameras=False,export_lights=False)
     counts={};meshes=[o for o in bpy.context.scene.objects if o.type=='MESH']
     for ob in meshes:
         owner=ob.parent
         while owner and owner.parent!=world:owner=owner.parent
         key=owner.name if owner else ob.name;counts[key]=counts.get(key,0)+sum(len(f.vertices)-2 for f in ob.data.polygons)
-    p.update(triangles=counts,total_triangles=sum(counts.values()),unique_mesh_triangles=sum(sum(len(f.vertices)-2 for f in me.polygons) for me in {o.data for o in meshes}),
-             materials=len({mat for o in meshes for mat in o.data.materials}),glb_bytes=path.with_suffix('.glb').stat().st_size,glb_sha256=hashlib.sha256(path.with_suffix('.glb').read_bytes()).hexdigest())
+    material_count=len({mat for o in meshes for mat in o.data.materials})
+    unique_triangles=sum(sum(len(f.vertices)-2 for f in me.polygons) for me in {o.data for o in meshes})
+    bpy.ops.wm.save_as_mainfile(filepath=str(path.resolve()),compress=True)
+    if look:
+        from kit.tiling import export
+        from strip_export import consolidate
+        consolidate(world)
+        export(path.with_suffix('.glb'))
+    else:bpy.ops.export_scene.gltf(filepath=str(path.with_suffix('.glb').resolve()),export_format='GLB',export_extras=True,export_apply=False,export_yup=True,export_texcoords=True,export_normals=True,export_tangents=False,export_materials='EXPORT',export_cameras=False,export_lights=False)
+    p.update(triangles=counts,total_triangles=sum(counts.values()),unique_mesh_triangles=unique_triangles,
+             materials=material_count,glb_bytes=path.with_suffix('.glb').stat().st_size,glb_sha256=hashlib.sha256(path.with_suffix('.glb').read_bytes()).hexdigest())
     p['building_triangles']=sum(n for key,n in counts.items() if key.startswith(('Bay_','EndCap_','Tower_','Elbow','RoofLadder','MeterBank')))
     p['moving_parts']={o.name:dict(position=list(o.matrix_world.translation),axis=o['pivot_axis'],range=list(o['range_degrees'])) for o in bpy.context.scene.objects if o.get('pivot_axis')}
     p['sockets']={o.name:list(o.matrix_world.translation) for o in bpy.context.scene.objects if o.get('socket_kind')}

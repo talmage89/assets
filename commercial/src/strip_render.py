@@ -1,4 +1,4 @@
-"""Cycles form evidence from freshly imported diagnostic strip GLBs.
+"""Cycles/Eevee evidence from freshly imported external strip deliveries.
 
 Native road/curb/sidewalk/lawn are presentation context. No source-scene
 geometry or replacement facade shaders enter these judgments.
@@ -19,7 +19,9 @@ from strip_plan import PROOF_SEEDS
 from context import bundle
 
 
-def sha(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+def sha(path):
+    path=Path(path)
+    return bundle(path.resolve())['sha256'] if path.suffix=='.gltf' else hashlib.sha256(path.read_bytes()).hexdigest()
 
 def recipe():
     files=[HERE/n for n in ('strip_render.py','strip_presentation.py','render.py','presentation.py','paving.py','strip_photo_matches.py')]
@@ -73,7 +75,7 @@ def ground(p):
 
 def views(p):
     W,D=p['lot'];b=p['building'];f=b['front'];left=b['left'];right=left+b['width'];bay=p['modules'][2];x=bay['origin'][0]
-    return dict(
+    result=dict(
         hero=dict(location=(-W/2+1.5,f-18,1.6),target=(left+b['width']*.22,f,1.6),lens=35,aspect=1.90,shift_y=.10),
         street=dict(location=(-W*.85,-D/2-14.0,1.6),target=(0,f+b['depth']*.50,1.6),lens=40,aspect=2.6,shift_y=.025,shift_x=-.06),
         above=dict(location=(-W*.74,-D*.93,69),target=(0,0,0),lens=40,aspect=1.6),
@@ -87,6 +89,16 @@ def views(p):
         rear=dict(location=(left-3,b['rear']+13,5.3),target=(left+14,b['rear'],2.1),lens=42,aspect=1.75,sun_direction=(.45,-.65,-1)),
         services=dict(location=(right+7,b['rear']+4,2.0),target=(right,b['rear']-2.2,1.7),lens=45,aspect=1.5,sun_direction=(-.65,-.45,-1)),
     )
+    kind=(p['seed']-201)%4
+    result['street']=(
+        dict(location=(-W*.35,-D/2-16,1.6),target=(left+b['width']*.50,f+2,1.6),lens=35,aspect=2.10,shift_y=.045),
+        dict(location=(W*.56,-D/2-17,1.6),target=(-W*.06,f+2,1.6),lens=42,aspect=1.85,shift_y=.035),
+        dict(location=(-W/2-13,-D*.32,1.6),target=(left+6,f+2,1.6),lens=38,aspect=1.75,shift_y=.08),
+        dict(location=(-W*.32,-D/2-16,1.6),target=(left+b['width']*.55,f+1,1.6),lens=38,aspect=2.10,shift_y=.06),
+    )[kind]
+    for name,loc in (('front',(0,f-80,3)),('side',(right+80,f+5,3)),('back',(0,b['rear']+80,3)),('top',(0,.001,150))):
+        result[name]=dict(location=loc,target=(0,0,0) if name=='top' else (left+b['width']/2,f+b['depth']/2,3),ortho=max(W,D)+9,aspect=1.35 if name=='top' else 3.3)
+    return result
 
 
 def scale(p):
@@ -145,11 +157,12 @@ therefore all actual exported vertices stay within these reported bounds.
 
 
 def render(seed=201,folder=Path('build/strip'),out=Path('renders/strip/checkpoint'),names=None,width=1440,samples=32,cameras=None,engine='CYCLES',with_scale=False):
-    path=Path(folder)/f'strip-{seed}.glb';source_digest=sha(path);render_recipe=recipe();meta=json.loads(path.with_suffix('.json').read_text())
+    path=Path(f'export/CommercialStrip-{seed}.gltf') if Path(folder).name=='strip-look' else Path(folder)/f'strip-{seed}.glb';source_digest=sha(path);render_recipe=recipe();meta=json.loads(path.with_suffix('.json').read_text())
     bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(path.resolve()));assets=set(bpy.context.scene.objects)
     from strip_presentation import ready,neighborhood,cars
     ground_record=neighborhood(meta) if ready() else ground(meta)
     context=cars(meta) if meta.get('look') and not cameras else []
+    context_objects=set(bpy.context.scene.objects)-assets
     camera=setup(samples,engine);shots=views(meta)
     if with_scale:
         shots['scale']={**shots['storefront'],'human':True}
@@ -162,6 +175,8 @@ def render(seed=201,folder=Path('build/strip'),out=Path('renders/strip/checkpoin
     if with_scale:names=[name for name in names if name!='scale']+['scale']
     out=Path(out);out.mkdir(parents=True,exist_ok=True);records={}
     for name in names:
+        for ob in context_objects:
+            if ob.type in ('MESH','LIGHT'):ob.hide_render=name in ('front','side','back','top') and not ob.name.startswith('Context native lawn')
         for figure in figures:figure.hide_render=name!='scale'
         parked=bpy.data.objects.get('ParkedVehicles')
         if parked:
@@ -193,7 +208,10 @@ def render(seed=201,folder=Path('build/strip'),out=Path('renders/strip/checkpoin
             probe.data.capture_world=True;probe.data.capture_indirect=True;probe.data.capture_emission=True
             bpy.ops.object.lightprobe_cache_bake(subset='ALL')
         target=out/(name+'.png');sc.render.filepath=str(target.resolve());bpy.ops.render.render(write_still=True)
-        if name=='hero':tone(target,camera,[ob for ob in assets if ob.type=='MESH' and ob.parent and ob.parent.name.startswith(('Bay_','Tower_','EndCap_'))])
+        if name=='scale':
+            q=[o.matrix_world@v.co for o in figures for v in o.data.vertices];height=max(v.z for v in q)-min(v.z for v in q);assert abs(height-1.8)<.001
+            target.with_suffix('.scale.json').write_text(json.dumps(dict(measured_height_m=height,minimum_z_m=min(v.z for v in q),scope='Actual imported-scene silhouette vertices'),indent=2)+'\n')
+        if name=='hero':tone(target,camera,[ob for ob in assets if ob.type=='MESH' and ob.parent and ob.parent.name.startswith(('BuildingStatic','Bay_','Tower_','EndCap_'))])
         assert sha(path)==source_digest and recipe()==render_recipe,'Source/recipe changed during rendering'
         records[name]=dict(source=str(path),sha256=source_digest,image_sha256=sha(target),shot=shot,engine=engine,width=width,samples=samples,eye=eye,framing=framing,ground=ground_record,context=context,stage=meta['stage'],recipe_sha256=render_recipe,comparison=dict(calibration_sha256=sha('build/strip/cameras.json'),balanced_photo_sha256=sha(cameras[name]['photo'])) if cameras else None)
     provenance=out/'provenance.json';old=json.loads(provenance.read_text()) if provenance.exists() else {};old.update(records);provenance.write_text(json.dumps(old,indent=2)+'\n')

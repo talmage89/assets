@@ -1,7 +1,19 @@
 """External shared-image strip packages. Never writes the station delivery."""
 import argparse,copy,hashlib,json,os
 from pathlib import Path
-from deliver import read,sha,bundle,part_materials
+from deliver import read,sha,bundle
+
+
+def part_materials(doc,meta):
+    parents={c:i for i,n in enumerate(doc['nodes']) for c in n.get('children',[])};rows={}
+    for i,node in enumerate(doc['nodes']):
+        if 'mesh' not in node:continue
+        owner=parents.get(i,i);name=doc['nodes'][owner].get('name',node.get('name'))
+        if name.startswith('StripBoxwood_'):name='Landscape'
+        row=rows.setdefault(name,dict(materials=set(),draw_primitives=0,triangles=0))
+        for pr in doc['meshes'][node['mesh']]['primitives']:
+            row['materials'].add(doc['materials'][pr['material']]['name']);row['draw_primitives']+=1;row['triangles']+=doc['accessors'][pr['indices']]['count']//3
+    return {key:{**row,'materials':sorted(row['materials']),'material_count':len(row['materials'])} for key,row in rows.items()}
 
 
 def run(seeds,folder=Path('build/strip-look')):
@@ -22,6 +34,17 @@ def run(seeds,folder=Path('build/strip-look')):
         for old in used:
             payload.extend(b'\0'*(-len(payload)%4));v=copy.deepcopy(doc['bufferViews'][old]);start=v.get('byteOffset',0);data=binary[start:start+v['byteLength']];v['buffer']=0;v['byteOffset']=len(payload);payload.extend(data);remap[old]=len(views);views.append(v)
         for a in doc['accessors']:a['bufferView']=remap[a['bufferView']]
+        meta=json.loads(source.with_suffix('.json').read_text())
+        lights=[]
+        for row in meta.get('fixture_lights',[]):
+            light=dict(name=row['name']+' light',type='point' if row['kind']=='room' else 'spot',intensity=row['candela'],color=[1,.89,.72],range={'room':6.0,'walk':4.5,'lot':15.0}[row['kind']])
+            if light['type']=='spot':light['spot']=dict(innerConeAngle=.45,outerConeAngle=1.20)
+            x,y,z=row['position'];node=dict(name=light['name'],translation=[x,z,-y],extensions={'KHR_lights_punctual':dict(light=len(lights))})
+            if light['type']=='spot':node['rotation']=[-.7071067811865476,0,0,.7071067811865476]
+            doc['scenes'][doc.get('scene',0)].setdefault('nodes',[]).append(len(doc['nodes']));doc['nodes'].append(node);lights.append(light)
+        if lights:
+            doc.setdefault('extensions',{})['KHR_lights_punctual']=dict(lights=lights)
+            doc.setdefault('extensionsUsed',[]).append('KHR_lights_punctual')
         doc['bufferViews']=views;doc['buffers']=[dict(uri=out.with_suffix('.bin').name,byteLength=len(payload))]
         out.with_suffix('.bin').write_bytes(payload);out.write_text(json.dumps(doc,separators=(',',':'))+'\n')
         meta=json.loads(source.with_suffix('.json').read_text());meta['delivery_bundle_sha256']=bundle(out);out.with_suffix('.json').write_text(json.dumps(meta,indent=2))

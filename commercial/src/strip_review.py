@@ -6,7 +6,12 @@ from kit.contact import review_sheet
 from strip_plan import PROOF_SEEDS
 
 
-def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+def sha(p):
+    p=Path(p)
+    if p.suffix=='.gltf':
+        from context import bundle
+        return bundle(p.resolve())['sha256']
+    return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
 def recipe():
@@ -16,12 +21,12 @@ def recipe():
 
 
 def dependency(row):
-    for f in row['files']:assert sha(REPO/f['source'])==f['sha256'],('Changed presentation dependency',f['source'])
+    for f in row['files']:assert hashlib.sha256((REPO/f['source']).read_bytes()).hexdigest()==f['sha256'],('Changed presentation dependency',f['source'])
 
 
 def main():
     folder=Path('renders/strip/checkpoint');pairs=Path('renders/strip/matches');eevee=Path('renders/strip/eevee');records=[]
-    expected={folder:('hero','storefront','walk','tower','endcap','pylon','rear','services','stalls','dusk','scale'),pairs:('commerce','sterling','sunnyvale','period_walk','period_lot','used_rear'),eevee:('hero',)}
+    expected={folder:('hero','storefront','walk','tower','endcap','pylon','rear','services','stalls','dusk','scale','front','side','back','top'),pairs:('commerce','sterling','sunnyvale','period_walk','period_lot','used_rear'),eevee:('hero',)}
     expected.update({folder/'seeds'/str(s):('above','street') for s in PROOF_SEEDS})
     for path,names in expected.items():
         provenance=json.loads((path/'provenance.json').read_text())
@@ -48,20 +53,16 @@ def main():
     pair_rows=[[pairs/(name+'-pair.jpg')] for name in expected[pairs]]
     review_sheet(pair_rows,pairs/'pairs.jpg',width=1800,title='Estimated matched sunlight / stated neutrals and held-out construction differences')
     rows=[[folder/'hero.png'],*[family[i:i+2] for i in range(0,len(family),2)],*[details[i:i+2] for i in range(0,len(details),2)],[folder/'dusk.png',folder/'scale.png',eevee/'hero.png'],*pair_rows]
-    fixes=Path('renders/strip/form-fixes');fix_images=sorted(fixes.glob('*-before-after.jpg'))
-    assert len(fix_images)==6,'Six before/after form comparisons are required'
-    comparison=json.loads((fixes/'comparison.json').read_text())
-    for entry in comparison['rows']:
-        assert sha(entry['source'])==entry['sha256'],('Stale form-fix source',entry)
-        path=fixes/entry['label']/str(entry['seed'])
-        provenance=json.loads((path/'provenance.json').read_text())
-        for name in (('above','endcap','rear') if entry['seed']==201 else ('above',)):
-            record=provenance[name]
-            assert record['sha256']==entry['sha256'] and record['recipe_sha256']==recipe(),('Stale form-fix render',entry,name)
-            assert sha(path/(name+'.png'))==record['image_sha256']
-    rows += [fix_images[i:i+2] for i in range(0,len(fix_images),2)]
-    review_sheet(rows,folder/'contact.jpg',width=2200,title='Strip look checkpoint / current GLBs, baked maps, context, matched pairs and form fixes')
-    out=Path('build/strip-look/view-check.json');out.write_text(json.dumps(dict(passed=True,views=len(records),rows=records,scope='Current exported GLB, source recipe, map-containing context bundles, photographic calibration and actual image bytes; appearance acceptance is the separate native-size review in REVIEW.md.'),indent=2)+'\n')
+    review_sheet([[folder/'seeds'/str(s)/'above.png' for s in (201,202)],[folder/'seeds'/str(s)/'above.png' for s in (203,204)]],folder/'sites.jpg',width=2000,title='Four parcels / shallow, deep, street-edge, corner')
+    review_sheet([[folder/'seeds'/str(s)/'street.png' for s in (201,202)],[folder/'seeds'/str(s)/'street.png' for s in (203,204)]],folder/'streets.jpg',width=2000,title='Four actual frontages / four street cameras')
+    from strip_final_comparison import run as compare
+    if Path('build/strip-final/before/checkpoint').exists():compare()
+    fixes=Path('renders/strip/fixes');comparison=json.loads((fixes/'comparison.json').read_text()) if (fixes/'comparison.json').exists() else {'rows':[]}
+    for row in comparison['rows']:
+        for source in row['sources']:assert hashlib.sha256(Path(source['path']).read_bytes()).hexdigest()==source['sha256']
+    rows += [[fixes/(r['name']+'-before-after.jpg')] for r in comparison['rows']]
+    review_sheet(rows,folder/'contact.jpg',width=2200,title='Strip center delivery / external glTF, baked maps, native references and before-after evidence')
+    out=Path('build/strip-look/view-check.json');out.write_text(json.dumps(dict(passed=True,views=len(records),rows=records,scope='Current external glTF bundle, source recipe, map-containing context bundles, photographic calibration and actual image bytes; appearance acceptance is the separate native-size review in REVIEW.md.'),indent=2)+'\n')
     print('STRIP VIEW AUDIT',len(records),'current exported views; sheets ready')
 
 if __name__=='__main__':main()

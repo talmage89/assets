@@ -44,6 +44,7 @@ def south_loop(p,y):
 
 
 def crossing(p,y):
+    if p.get('frontage')=='west':return west_route(p,y)
     route=south_loop(p,y)
     if not any(d['edge']=='east' for d in p['driveways']):return route
     right=p['side_drive_centers'][1];ey=next(d['center'][1] for d in p['driveways'] if d['edge']=='east');R=4.8
@@ -60,6 +61,23 @@ def crossing(p,y):
         t=math.radians(angle);route.append((right+R*(1-math.cos(t)),ey+R-R*math.sin(t),180+angle))
     route+=line((right+R,ey),(p['lot'][0]/2+3.3,ey),-90)
     return route
+
+
+def west_route(p,y):
+    # Enter the west street directly into a parking aisle. Reach the rear
+    # around the free east end; the street-edge west end is not a driveway.
+    W,D=p['lot'];x0=-W/2-3.3;right=p['side_drive_centers'][1];R=4.8
+    entry=p['aisle_centers'][0]
+    if y in p['aisle_centers']:return line((x0,y),(right-2,y),-90)+line((right-2,y),(x0,y),90)
+    result=line((x0,entry),(right-R,entry),-90)
+    for a in range(91):
+        t=math.radians(a);result.append((right-R+R*math.sin(t),entry+R*(1-math.cos(t)),-90+a))
+    result+=line((right,entry+R),(right,y-R),0)
+    for a in range(91):
+        t=math.radians(a);result.append((right-R+R*math.cos(t),y-R+R*math.sin(t),a))
+    end=p['building']['left']+12
+    result+=line((right-R,y),(end,y),90)
+    return result+list(reversed(result))
 
 
 def obstacles(p,omit=None):
@@ -80,7 +98,9 @@ def obstacles(p,omit=None):
         a,b,c,d=p['elbow']['bounds'];out.append(('elbow',rect(((a+b)/2,(c+d)/2),b-a,d-c,0)))
         wing_length=sum(m['width'] for m in p['modules'] if m['wing'])
         out.append(('wing covered walk',rect((a-p['walk']/2,c-wing_length/2),p['walk'],wing_length,0)))
-    b=p['building'];out.append(('dumpster yard',rect((b['left']-2.75,b['rear']-3.1),4.5,3.6,0)))
+    b=p['building'];out.append(('dumpster yard',rect((b['left']+b['width']+3.2,b['front']+12) if p.get('frontage')=='west' else (b['left']-2.75,b['rear']-3.1),4.5,3.6,0)))
+    for m in p['modules'][1::3]:
+        if not m['wing']:out.append(('rear container pad',rect((m['origin'][0]+m['width']*.31,b['rear']+1.40),2.89,2.05,0)))
     out.append(('pylon footing',rect(p['sign_center'],4.0,1.02,0)))
     return out
 
@@ -97,9 +117,10 @@ def sweep(p,poses,width,length,omit=None):
             if gap<-.0001:violations.append(dict(sample=i,object=name,penetration_sat_m=-gap))
         for xx,yy in car:
             east=next((d for d in p['driveways'] if d['edge']=='east'),None)
+            west=[d for d in p['driveways'] if d['edge']=='west'];in_west=any(abs(yy-d['center'][1])<12*FT-.02 for d in west)
             in_east=east and abs(yy-east['center'][1])<12*FT-.02
-            if xx<-W/2+4*FT or (xx>W/2-4*FT and not in_east) or yy>D/2-4*FT:violations.append(dict(sample=i,object='property landscaping'))
-            if yy<-D/2 and not any(abs(xx-v)<12*FT-.02 for v in p['side_drive_centers']):violations.append(dict(sample=i,object='street opening'))
+            if (xx<-W/2+4*FT and not in_west) or (xx>W/2-4*FT and not in_east) or yy>D/2-4*FT:violations.append(dict(sample=i,object='property landscaping'))
+            if yy<-D/2 and not any(d['edge']=='south' and abs(xx-d['center'][0])<12*FT-.02 for d in p['driveways']):violations.append(dict(sample=i,object='street opening'))
     return dict(passed=not violations,samples=len(poses),minimum_separating_gap_m=smallest,nearest_obstacle=closest,violations=violations[:12])
 
 
@@ -107,7 +128,7 @@ def traffic(p):
     # Both double-loaded aisles and the rear service drive connect to both
     # street openings. The L's front route uses the reserved cross aisle.
     routes={}
-    for name,y in (('front_aisle',p['aisle_centers'][0]),('street_aisle',p['aisle_centers'][1]),('rear_drive',sum(p['rear_drive'])/2)):
+    for name,y in (('front_aisle',p['aisle_centers'][0]),('street_aisle',p['aisle_centers'][-1]),('rear_drive',sum(p['rear_drive'])/2)):
         path=crossing(p,y);routes[name]=sweep(p,path,2.14,5.70)
     R=4.8;ay=p['aisle_centers'][0];park=None
     # Find a representative ordinary stall with a comfortable demonstrated
@@ -159,7 +180,7 @@ def diagram(p,path):
     for s in p['stalls']:box((s['x0'],s['x1'],s['y0'],s['y1']),'#325b71' if s['accessible'] else '#696b6c','#c6c4b5')
     for a in p['access']:box((a['x0'],a['x1'],a['y0'],a['y1']),'#a3a691')
     for i in p['islands']:box(i['bounds'],'#536b3c')
-    for index,y in enumerate((p['aisle_centers'][1],sum(p['rear_drive'])/2)):
+    for index,y in enumerate((p['aisle_centers'][-1],sum(p['rear_drive'])/2)):
         poses=crossing(p,y);dr.line([xy(x,y) for x,y,a in poses],fill=('#e7ba68','#72bfba')[index],width=4)
         for x,y,a in poses[::35]:dr.polygon([xy(xx,yy) for xx,yy in rect((x,y),2.14,5.70,a)],outline=('#e7ba68','#72bfba')[index],width=2)
     font=ImageFont.truetype(str(find_font('DejaVu Sans','Book')),22)

@@ -64,7 +64,7 @@ def wall_cuts(ob,top):
 def pavement(ob,p,role):
     # Grid only the actual flat site skins; cabinets and curb bevels keep their
     # modest original topology. A 2 m grid resolves lane/edge macro values.
-    if ob.name.startswith(('Lot asphalt','Repaired utility')):cut(ob,2.0)
+    if ob.name.startswith(('Lot asphalt','Repaired utility')):cut(ob,1.1)
     me=ob.data;attr=me.color_attributes.get('Tint') or me.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='CORNER');me.color_attributes.active_color=attr
     W,D=p['lot'];field,mean=ground_field();b=p['building']
     for poly in me.polygons:
@@ -74,18 +74,20 @@ def pavement(ob,p,role):
             q=ob.matrix_world@me.vertices[me.loops[li].vertex_index].co;x,y,z=q
             if role=='Asphalt':
                 sample=field[int((1-y/6.096%1)*127)%128,int((x/6.096%1)*128)%128];comp=np.clip(mean/np.maximum(sample,.001),.74,1.36)
-                edge=min(W/2-abs(x),D/2-abs(y));factor=.67+.12*math.exp(-max(0,edge)/1.4)
-                travel=min(abs(y-ay-lane*1.45-wheel*.78) for ay in p['aisle_centers'] for lane in (-1,1) for wheel in (-1,1))
+                edge=min(W/2-abs(x),D/2-abs(y));factor=.78+.07*math.exp(-max(0,edge)/1.4)
+                travel=min(abs(y-ay-lane*1.45-wheel*.78) for ay in (*p['aisle_centers'],sum(p['rear_drive'])/2) for lane in (-1,1) for wheel in (-1,1))
                 travel=min(travel,*[abs(x-xx-lane*1.45-wheel*.78) for xx in p['side_drive_centers'] for lane in (-1,1) for wheel in (-1,1)])
-                factor*=1-.15*math.exp(-(travel/.70)**2)
-                if ob.get('repair'):factor*=.58
-                rgb=np.minimum(comp*factor,1)
+                factor*=1-.50*math.exp(-(travel/.80)**2)
+                parked=min(((x-(s['x0']+s['x1'])/2)/.92)**2+((y-(s['y0']+s['y1'])/2-s['facing']*.65)/1.85)**2 for s in p['stalls'])
+                factor*=1-.43*math.exp(-parked)
+                if ob.get('repair'):factor*=.60
+                rgb=np.minimum(comp*factor*np.array((1.0,.98,.94)),1)
             else:
                 factor=slab
                 if 'walk' in ob.name.lower():
                     # Tracked grit concentrates by storefronts and along the
                     # open edge; it never tints the entire concrete slab tan.
-                    dist=abs(y-b['front']);factor*=1-.18*math.exp(-(dist/.25)**2)
+                    dist=abs(y-b['front']);factor*=1-.08*math.exp(-(dist/.25)**2)
                 rgb=(factor,factor*.999,factor*.99)
             attr.data[li].color=(*rgb,1)
 
@@ -125,21 +127,25 @@ def apply(p,ink,layout):
             ob.data.materials.clear();ob.data.materials.append(ink);overlay_chart(ob,layout['Wear:'+ob['wear_cell']]['sign']);emission_chart(ob,layout);continue
         if ob.get('graphic'):
             ob.data.materials.clear();ob.data.materials.append(ink)
-            lit=ob.get('graphic_kind') in ('sign','tower','faded') and ob.get('tenant') not in ('Ghost','vacant') and any(s in name for s in ('sign','name','identification','endcap','panel'))
+            lit=ob.get('graphic_kind') in ('sign','tower','faded') and ob.get('tenant') not in ('Ghost','vacant') and (any(s in name for s in ('sign','name','identification','endcap','panel')) or ob.get('tenant') in ('Open','PizzaMenu','Drinks','Products'))
             emission_chart(ob,layout,lit);continue
         lamp=role=='Lamp' or any(t in name for t in ('light lens','wall pack lens','wall lens','Light lens'))
         if lamp:
             key='InteriorLamp' if 'Tenant' in name else 'WalkLamp' if 'Walk' in name else 'LotLamp' if 'Light lens' in name else 'WallLamp'
             ob.data.materials.clear();ob.data.materials.append(ink);overlay_chart(ob,layout[key]['sign']);emission_chart(ob,layout,True);continue
         material=mats['Equipment'];cell='Black' if role=='Trim' else role if role in CELLS else 'White';coverage=1;col=(1,1,1)
-        if role=='Wall':material=mats[wallkey];cell=None;coverage=SETS[wallkey][1];wall_cuts(ob,b['parapet'])
+        if role=='Wall':material=mats[wallkey];cell=None;coverage=SETS[wallkey][1];col=p['palette']['wall_tint'];wall_cuts(ob,b['parapet'])
         elif role in ('Concrete','Asphalt','Green'):material=mats['Lawn' if role=='Green' else role];cell=None;coverage={'Concrete':1.524,'Asphalt':6.096,'Green':3.048}[role]
         elif role=='Roof':
             key='Shingles' if 'Mansard' in name else 'Roof';material=mats[key];cell=None;coverage=4.8768 if key=='Shingles' else SETS['Roof'][1]
+            if key=='Shingles':col=(.63,.90,.66)
         elif role=='Glass':material=glass;cell=None
-        elif role=='Primary':cell='Primary';col=(.16,.21,.19)
+        elif role=='Primary':cell='Primary';col=p['palette']['fascia']
         elif 'Rear steel leaf' in name:cell='Gray';col=(.88,.89,.86)
-        elif role=='Accent':cell='Primary';col=(.43,.24,.12)
+        elif role=='Accent':cell='Primary';col=p['palette']['accent']
+        elif role=='Inside':cell='White';col=(.48,.46,.40)
+        if ob.get('product_index') is not None:cell='Package'+str(ob['product_index']%6);col=(1,1,1)
+        if ob.get('container_color') is not None:cell='Primary';col=((.13,.23,.16),(.32,.16,.08),(.21,.24,.25))[ob['container_color']]
         # Softer warm-white paint under the walk, not unpainted black trim.
         if any(t in name for t in ('Soffit','soffit')) and 'joint' not in name:cell='White';col=(.82,.79,.72)
         if 'Repaired' in name:role='Asphalt'
@@ -158,5 +164,5 @@ def apply(p,ink,layout):
             tint_layer(ob,values)
         rows[name]=dict(role=role,material=material.name,cell=cell)
     interior_contacts(p)
-    p['surface_assignment']=rows;p['stage']='strip exported PBR look checkpoint; shared gas maps, original tenant sheet and causal age'
+    p['surface_assignment']=rows;p['stage']='strip final external PBR delivery; shared gas maps, original tenant sheet and causal age'
     return mats

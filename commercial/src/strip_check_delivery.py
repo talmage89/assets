@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 HERE=Path(__file__).resolve().parent;sys.path[:0]=[str(HERE.parents[1]),str(HERE)]
 from kit.gltf import GLB
-from deliver import part_materials
+from strip_delivery import part_materials
 
 
 def run(seeds,folder):

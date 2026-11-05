@@ -103,8 +103,8 @@ def populate(image,records,out):
     for key,t in TENANTS.items():
         r=rect(116,90);x,y,a,b=r;records[key]['window']=r
         text('HOURS' if key!='vacant' else 'FOR LEASE',(x,y,a,y+28),'#F1EBDD',24)
-        text('MON - SAT',(x,y+29,a,y+56),'#E3DECD',17)
-        text('9 AM - 7 PM',(x,y+59,a,b),'#E3DECD',16)
+        text('AT OFFICE' if key=='vacant' else 'MON - SAT',(x,y+29,a,y+56),'#E3DECD',17)
+        text('INQUIRE' if key=='vacant' else '9 AM - 7 PM',(x,y+59,a,b),'#E3DECD',16)
     specials={
         'Open':('OPEN',), 'PizzaMenu':('NOTCH OVEN','CHEESE  12   /   GARDEN  15','PEPPER + SAUSAGE  16','SLICES  3.50   /   COMBO  8.50'),
         'Drinks':('COLD DRINKS','•  •  •  •  •','•  •  •  •  •','•  •  •  •  •'),
