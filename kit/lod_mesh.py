@@ -142,7 +142,7 @@ def simplify(attrs, faces, ratio, max_error, mode='COLLAPSE', max_uv_error=1/204
     bvh=BVHTree.FromPolygons([Vector(p) for p in source],faces.tolist(),all_triangles=True)
     # Every candidate vertex, edge midpoint and centroid is projected onto LOD0.
     # Reuse the barycentric field for normals/UV/colors/Wind, including tangents.
-    err=0.; uv_error=0.
+    err=0.; uv_error=0.;field_error=0.
     for vi,p in enumerate(positions):
         q,_,i,d=bvh.find_nearest(Vector(p))
         if i is None: raise ValueError('Cannot project LOD candidate')
@@ -182,17 +182,21 @@ def simplify(attrs, faces, ratio, max_error, mode='COLLAPSE', max_uv_error=1/204
             p=w@positions[tri];q,_,i,d=bvh.find_nearest(Vector(p));err=max(err,d)
             bw=barycentric(np.array(q),source[faces[i]])
             uv_keys=[k for k in attrs if k.startswith('TEXCOORD_')]
-            if uv_keys:
+            data_keys=[k for k in attrs if k.startswith(('COLOR_','_WIND'))]
+            if uv_keys or data_keys:
                 # Coincident backs, seam endpoints and overlaid decals can be
                 # equidistant. Test all nearby source triangles; never let an
                 # arbitrary BVH tie select a different chart.
                 candidates=bvh.find_nearest_range(Vector(p),max(1e-6,d+1e-6))
-                best=float('inf')
+                best=float('inf');best_field=float('inf')
                 for qq,nn,ii,dd in candidates:
                     ww=barycentric(np.array(qq),source[faces[ii]])
-                    e=max(float(np.max(np.abs(w@out[k][tri]-ww@attrs[k][faces[ii]]))) for k in uv_keys)
-                    best=min(best,e)
+                    e=max((float(np.max(np.abs(w@out[k][tri]-ww@attrs[k][faces[ii]]))) for k in uv_keys),default=0.)
+                    data_error=max((float(np.max(np.abs(w@out[k][tri]-ww@attrs[k][faces[ii]]))) for k in data_keys),default=0.)
+                    if e<best-1e-6:best=e;best_field=data_error
+                    elif e<=best+1e-6:best_field=min(best_field,data_error)
                 uv_error=max(uv_error,best)
+                field_error=max(field_error,best_field)
     before,boundary0=topology(attrs,faces); after,boundary1=topology(out,tris)
     # Test old chart/crease vertices are still present, not just the aggregate
     # number of open edges. Candidate boundary edges must cover the same paths.
@@ -218,11 +222,14 @@ def simplify(attrs, faces, ratio, max_error, mode='COLLAPSE', max_uv_error=1/204
     # approximation, a drift here can create a real crack between materials.
     if boundary_error>3e-6: reason.append('boundary drift')
     if uv_error>max_uv_error: reason.append('UV field deviation')
+    # Vertex weathering/AO is an interpolated surface field too. Re-triangulating
+    # identical planar positions can otherwise introduce broad triangular bands.
+    if field_error>.01:reason.append('color/Wind field deviation')
     for key in ('degenerate','degenerate_uv','slivers','nonmanifold_edges','winding_disagreements'):
         if after[key]>before[key]:reason.append(key)
     if any(n>before['degenerate_uv_by_layer'].get(k,0) for k,n in after['degenerate_uv_by_layer'].items()):
         reason.append('degenerate UV layer')
-    report=dict(triangles=len(tris), candidate_triangles=len(tris), mode=mode, surface_error_m=max(err,reverse), uv_error=uv_error,
+    report=dict(triangles=len(tris), candidate_triangles=len(tris), mode=mode, surface_error_m=max(err,reverse), uv_error=uv_error,field_error=field_error,
                 boundary_error_m=boundary_error if math.isfinite(boundary_error) else None, before=before, after=after)
     if reason:return attrs,faces,dict(report,status='rejected',reason=reason,triangles=len(faces))
     return out,tris,dict(report,status='simplified')

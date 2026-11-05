@@ -36,6 +36,21 @@ def signatures(attrs,uv_keys):
     return data.view(np.dtype((np.void,data.shape[1]*data.dtype.itemsize))).ravel()
 
 
+def tangent_errors(attrs,source):
+    """Gate new basis errors; report byte-exact inherited source defects."""
+    if 'TANGENT' not in attrs:return 0.,0.,0
+    keys=['POSITION','NORMAL','TANGENT',*[k for k in attrs if k.startswith('TEXCOORD_')]]
+    def records(values):
+        a=np.ascontiguousarray(np.column_stack([values[k] for k in keys]),dtype=np.float32)
+        return a.view(np.dtype((np.void,a.shape[1]*a.dtype.itemsize))).ravel()
+    tangent=attrs['TANGENT'][:,:3]
+    dot=np.abs(np.einsum('ij,ij->i',tangent,attrs['NORMAL']))
+    length=np.abs(np.linalg.norm(tangent,axis=1)-1)
+    invalid=(dot>1e-3)|(length>2e-4)
+    inherited=invalid & np.isin(records(attrs),np.unique(records(source)))
+    return float(dot[~inherited].max(initial=0)),float(length[~inherited].max(initial=0)),int(inherited.sum())
+
+
 def audit(config):
     cfg,root,source,out=configuration(config);m=json.loads((out/'manifest.json').read_text())
     base=Document(source);base.select(cfg.get('include_nodes'));fields={}
@@ -49,7 +64,7 @@ def audit(config):
         if row.get('impostor'):
             rows.append(dict(level=row['level'],scope='unlit billboard; source surface normals intentionally replaced'))
             continue
-        doc=Document(out/row['path']);angles=[];max_distance=0.;uv_degenerate=0;exact_total=0;tangent_dot=0.;tangent_length_error=0.;max_uv_error=0.
+        doc=Document(out/row['path']);angles=[];max_distance=0.;uv_degenerate=0;exact_total=0;tangent_dot=0.;tangent_length_error=0.;max_uv_error=0.;inherited_tangents=0
         preceding=m['levels'][1:row['level']+1]
         surface_radius=sum(r.get('surface_tolerance_m',.35*m['height_m']/(1080*r['screen_height'])) for r in preceding)*1.01+2e-6
         uv_limit=sum(max(1/2048,.35/(1080*r['screen_height'])) for r in preceding)+1e-6
@@ -64,9 +79,9 @@ def audit(config):
                 if key.startswith(('JOINTS_','WEIGHTS_')) and not np.array_equal(src[key],attrs.get(key)):
                     errors.append(f'LOD{row["level"]}: protected skin weights changed')
             if 'TANGENT' in attrs:
-                tangent=attrs['TANGENT'][:,:3]
-                tangent_dot=max(tangent_dot,float(np.abs(np.einsum('ij,ij->i',tangent,attrs['NORMAL'])).max()))
-                tangent_length_error=max(tangent_length_error,float(np.abs(np.linalg.norm(tangent,axis=1)-1).max()))
+                dot,length,inherited=tangent_errors(attrs,src)
+                tangent_dot=max(tangent_dot,dot);tangent_length_error=max(tangent_length_error,length)
+                inherited_tangents+=inherited
             uv_keys=[k for k in attrs if k.startswith('TEXCOORD_')]
             exact=np.isin(signatures(attrs,uv_keys),known);exact_total+=int(exact.sum())
             angles.extend([0.]*int(exact.sum()))
@@ -99,6 +114,7 @@ def audit(config):
         rows.append(dict(level=row['level'],vertices=len(angles),exact_source_vertices=exact_total,
             projected_vertices=len(angles)-exact_total,max_degrees=maximum,p95_degrees=p95,degenerate_uv_triangles=uv_degenerate,
             max_tangent_normal_dot=tangent_dot,max_tangent_length_error=tangent_length_error,
+            inherited_invalid_tangent_vertices=inherited_tangents,
             max_uv_correspondence_error=max_uv_error,uv_correspondence_limit=uv_limit,
             max_vertex_surface_distance_m=max_distance,
             max_vertex_surface_distance_pixels=max_distance*1080*row['screen_height']/m['height_m']))

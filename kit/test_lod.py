@@ -32,10 +32,23 @@ def main():
     attrs=dict(POSITION=pos,NORMAL=np.tile((0,0,1),(len(pos),1)).astype(np.float32),
                TANGENT=np.tile((1,0,0,1),(len(pos),1)).astype(np.float32),
                TEXCOORD_0=uv,TEXCOORD_1=uv*3,_WIND=wind.astype(np.float32))
+    from kit.lod_normals import tangent_errors
+    inherited={k:v.copy() for k,v in attrs.items()};inherited['TANGENT'][0,:3]=0
+    assert tangent_errors(inherited,inherited)==(0.,0.,1)
+    damaged={k:v.copy() for k,v in inherited.items()};damaged['TANGENT'][1,:3]=0
+    assert tangent_errors(damaged,inherited)[1:]==(1.,1)
+    damaged={k:v.copy() for k,v in inherited.items()};damaged['POSITION'][0,2]=.001
+    assert tangent_errors(damaged,inherited)[1:]==(1.,0)
     reduced,tris,report=simplify_parts(attrs,faces,.4,.0001,.0001)
     assert len(tris)<len(faces)*.8,report
     assert topology(reduced,tris)[0]['winding_disagreements']==0
     assert np.max(np.abs(reduced['_WIND'][:,0]-reduced['POSITION'][:,0]))<1e-5
+    # A planar mesh can carry non-affine vertex weathering. New triangulation
+    # must not turn its smooth bottom band into broad triangular shading.
+    from kit.lod_mesh import simplify
+    painted={**attrs,'COLOR_0':np.column_stack([pos[:,1]**2]*3+[np.ones(len(pos))]).astype(np.float32)}
+    _,_,paint_report=simplify(painted,faces,.05,.0001,max_uv_error=.0001)
+    assert paint_report['field_error']>.01 and paint_report['status']=='rejected',paint_report
     # Explicit corner split: independent chart on half the panel.
     flat={k:a[faces.ravel()] for k,a in attrs.items()}
     split_faces=np.arange(len(faces)*3,dtype=np.uint32).reshape(-1,3)
