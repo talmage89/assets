@@ -1,15 +1,17 @@
-"""Construction helpers wrapping kit geometry; checkpoint materials only."""
+"""Construction helpers wrapping kit geometry; shared baked trim assignment."""
 import math,hashlib
+from pathlib import Path
 import bpy
 from mathutils import Vector,Matrix
 from kit import model as G
+import surfaces
 M={};COMPONENTS={}
 def mat(name,col,rough=.6,metal=0):
  m=bpy.data.materials.get(name)
  if m:return m
  m=bpy.data.materials.new(name);m.use_nodes=True
  p=m.node_tree.nodes.get('Principled BSDF');p.inputs['Base Color'].default_value=(*col,1);p.inputs['Roughness'].default_value=rough;p.inputs['Metallic'].default_value=metal
- return m
+ m['trim_role']=name.replace('Form_','');return m
 def image_mat(name,path,emit=0,alpha=False,dark=False,emission_path=None):
  m=bpy.data.materials.new(name);m.use_nodes=True;ns=m.node_tree.nodes;ls=m.node_tree.links;p=ns.get('Principled BSDF')
  im=ns.new('ShaderNodeTexImage');im.image=bpy.data.images.load(str(path.resolve()),check_existing=True)
@@ -25,13 +27,13 @@ def image_mat(name,path,emit=0,alpha=False,dark=False,emission_path=None):
   ls.new(em,p.inputs['Emission Color']);p.inputs['Emission Strength'].default_value=emit
  return m
 def palette(graphics):
- M.clear();COMPONENTS.clear()
+ M.clear();COMPONENTS.clear();surfaces.setup()
  for name,c,r,met in [('zinc',(.25,.28,.28),.65,.8),('green',(.025,.065,.047),.68,.25),('black',(.009,.012,.012),.65,0),('bronze',(.065,.048,.03),.64,.3),('yellow',(.64,.37,.009),.62,0),('inside',(.004,.006,.007),.7,0),('steel',(.27,.29,.29),.42,.9),('white',(.69,.70,.66),.76,0),('concrete',(.32,.33,.30),.94,0),('cabinet',(.31,.34,.34),.55,.78),('rubber',(.008,.009,.008),.9,0),('border',(.72,.49,.008),.5,0)]:
   M[name]=mat('Form_'+name,c,r,met)
- M['lit']=image_mat('SharedLens_Lit',graphics/'lenses-off.png',5,True,emission_path=graphics/'lenses.png')
- M['off']=image_mat('SharedLens_Off',graphics/'lenses-off.png',0,True)
- M['names']=image_mat('SharedNames',graphics/'names.png')
- M['r10']=image_mat('R10-3_Checkpoint',graphics/'r10.png')
+ M['off'],M['lit']=surfaces.lenses(graphics)
+ M['names']=image_mat('SharedNames',Path('textures/ship/T_Signals_Names.png'))
+ M['r10']=mat('Form_r10',(.5,.5,.5))
+ M['panel']=mat('Form_panel',(.1,.1,.1));M['record']=mat('Form_record',(.5,.5,.5))
  return M
 def root(name,p=(0,0,0),parent=None,kind=None,yaw=0):
  o=G.pivot(name,p);o.parent=parent;o.rotation_euler.z=math.radians(yaw)
@@ -44,6 +46,7 @@ def own(o,rt):
   COMPONENTS[ident]=o.name
   attr=o.data.attributes.get('Construction') or o.data.attributes.new(name='Construction',type='INT',domain='FACE')
   for f in attr.data:f.value=ident
+  surfaces.assign(o)
  return o
 def box(name,p,sz,ma,rt,r=.002):return own(G.box(name,p,sz,M.get(ma,ma),r,1),rt)
 def cyl(name,a,b,r,ma,rt,n=12):return own(G.cylinder(name,a,b,r,M.get(ma,ma),n),rt)
@@ -79,6 +82,9 @@ def join_fixed(rt):
 def finalize_meshes():
  for o in list(bpy.context.scene.objects):
   if o.type!='MESH':continue
-  G.apply(o);o.data.calc_loop_triangles()
+  G.apply(o)
+  import bmesh
+  bm=bmesh.new();bm.from_mesh(o.data);bmesh.ops.delete(bm,geom=[v for v in bm.verts if not v.link_faces],context='VERTS');bm.to_mesh(o.data);bm.free()
+  o.data.calc_loop_triangles()
   mod=o.modifiers.new('Game triangles','TRIANGULATE');G.apply(o)
 def tri(rt):return sum(len(o.data.loop_triangles) for o in rt.children_recursive if o.type=='MESH')

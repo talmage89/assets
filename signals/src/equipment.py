@@ -6,6 +6,7 @@ from mathutils import Vector
 from geometry import *
 from graphics import TILES
 from plan import *
+from layout import SITES
 
 def shaft_radius(z):
  return SHAFT_R0+(SHAFT_R1-SHAFT_R0)*(z-SHAFT_BASE)/(POLE_TOP-SHAFT_BASE)
@@ -14,10 +15,7 @@ def arm_radius(distance):
 
 def lens(rt,name,center,radius,kind,lit=False):
  x,y,z=center
- # Slightly crowned cover, real circular silhouette. LED dots are original print.
- vs=[(x,y+.0001,z)]+[(x+radius*math.cos(i*math.tau/24),y+.002,z+radius*math.sin(i*math.tau/24)) for i in range(24)]
- o=mesh(name+'_Cover',vs,[(0,i+1,(i+1)%24+1) for i in range(24)],'inside',rt)
- o['lens_cover']=True
+ # The shared sheet carries an opaque circular optical cover and LED packages.
  j=TILES.index(kind);rect=((j%4)/4,1-(j//4+1)/2,(j%4+1)/4,1-(j//4)/2)
  o=quad(name,(x,y-.0003,z),radius*2,radius*2,'lit' if lit else 'off',rt,rect)
  o['signal_lens']=True;o['signal_kind']=kind;o['powered']=lit
@@ -27,7 +25,7 @@ def lens(rt,name,center,radius,kind,lit=False):
 def visor(rt,x,z,style,coating):
  # Formed sheet with two shells and actual 1.6 mm gauge, open drainage below.
  start,end=(-.35,math.pi+.35) if style=='tunnel' else (-.03,math.pi+.03)
- n=10 if style=='tunnel' else 8
+ n=20 if style=='tunnel' else 18
  vs=[];fs=[];shell=[]
  for r in (.1585,.1601):
   for y in (-.147,-.147-(.245 if style=='tunnel' else .205)):
@@ -39,16 +37,16 @@ def visor(rt,x,z,style,coating):
   fs += [(k,k+1,stride+k+1,stride+k),(2*stride+k,3*stride+k,3*stride+k+1,2*stride+k+1),
          (stride+k,stride+k+1,3*stride+k+1,3*stride+k)]
  for k in (0,n):fs.append((k,stride+k,3*stride+k,2*stride+k))
- o=G.smooth(mesh('Sheet visor',vs,fs,coating,rt),40);o.data.materials.append(M['black'])
+ o=G.smooth(G.mesh('Sheet visor',vs,fs,M[coating]),40);o.data.materials.append(M['black'])
  for i,p in enumerate(o.data.polygons):
   if i%3==0:p.material_index=1
- return o
+ return own(o,rt)
 
 def aperture(rt,x,z):
- n=16;vs=[];fs=[]
+ n=20;vs=[];fs=[]
  for y,r in [(-.145,.169),(-.151,.1524),(-.140,.1524)]:
   vs.extend((x+r*math.cos(i*math.tau/n),y,z+r*math.sin(i*math.tau/n)) for i in range(n))
- for j in range(2):
+ for j in range(1):
   for i in range(n):fs.append((j*n+i,j*n+(i+1)%n,(j+1)*n+(i+1)%n,(j+1)*n+i))
  return G.smooth(mesh('Door lens retaining rim',vs,fs,'black',rt),40)
 
@@ -79,9 +77,9 @@ def head(name,parent,p=(0,0,0),yaw=0,kind='three',color='yellow',style='tunnel',
   own(G.smooth(body,40),rt)
   aperture(rt,x,z);visor(rt,x,z,style,color)
   for side in (-1,1):
-   box('Door hinge' if side<0 else 'Captive latch',(x+side*.176,-.110,z+.105),(.024,.034,.046),color,rt,0)
+   box('Door hinge' if side<0 else 'Captive latch',(x+side*.176,-.110,z+.105),(.024,.034,.064),color,rt,0)
    if side<0:cyl('Hinge pin',(x+side*.178,-.132,z+.088),(x+side*.178,-.132,z+.125),.005,'steel',rt,6)
-   else:box('Latch screw',(x+side*.178,-.132,z+.105),(.010,.010,.010),'steel',rt,0)
+   else:quad('Captive latch screw cap',(x+side*.178,-.138,z+.105),.010,.010,'steel',rt)
   # Lens remains a named part even in the dark state.
   on=(kindmark==active and (kind!='fya' or j!=1)) if active else False
   ob=lens(rt,f'{name}__S{section:02d}_{kindmark}',(x,-.144,z),.1524,kindmark,on)
@@ -109,6 +107,8 @@ def footing(rt,finish='zinc',pedestal=False):
  for j in range(6):
   a=j*math.tau/6;x,y=.2921*math.cos(a),.2921*math.sin(a)
   G.boolean(plate,G.cylinder('Anchor clearance bore',(x,y,PLATE_BOTTOM-.010),(x,y,SHAFT_BASE+.010),.0238,M[finish],12))
+ plate.data.materials.clear();plate.data.materials.append(M[finish])
+ import surfaces;surfaces.assign(plate)
  for j in range(6):
   a=j*math.tau/6;x,y=.2921*math.cos(a),.2921*math.sin(a)
   cyl('Anchor rod',(x,y,.145),(x,y,.36885),.022225,'steel',rt,8)
@@ -119,8 +119,9 @@ def footing(rt,finish='zinc',pedestal=False):
   # Individual cast nut covers rather than a skirt concealing the real joint.
   own(G.lathe('Nut weather cover',[(z-.01315,r) for z,r in [(.343,.049),(.375,.049),(.395,.034),(.400,0),(.397,0),(.392,.032),(.373,.046),(.343,.0375)]],M[finish],12,center=(x,y),closed=True),rt)
 
-def mast(name,p,angle,plan,parent=None):
- rt=root(name,p,parent,kind='MastArm',yaw=angle)
+def mast(name,p,angle,plan,parent=None,shared_pole=False):
+ rt=root(name,p,parent,kind='MastArm',yaw=angle);rt['arm_reach_m']=plan.arm;rt['finish']=plan.finish
+ rt['pole_shared_with']='Mast_'+str(int(angle/90)-1) if SITES[plan.seed].diagonal and int(angle/90)%2 else ''
  footing(rt,plan.finish)
  # 12-sided brake-formed hollow steel; sealed installed parts have no hidden bore.
  own(G.lathe('Tapered shaft',[(SHAFT_BASE,SHAFT_R0),(POLE_TOP,SHAFT_R1)],M[plan.finish],12),rt)
@@ -175,31 +176,35 @@ def mast(name,p,angle,plan,parent=None):
  own(G.loft('Cambered tapered mast arm',loops,M[plan.finish]),rt)
  cyl('Vented end cap',(-arm_len,0,z+(arm_len-.2735)*.03492),(-arm_len-.012,0,z+(arm_len-.2735)*.03492),arm_radius(arm_len),plan.finish,rt,12)
  # Two through faces eight feet apart; turn face over central left-turn lane.
- stations=[POLE_X-LANE,POLE_X-(LANE-2.4384)]
- if plan.left!='permissive':stations.append(POLE_X)
+ site=SITES[plan.seed];turn=int(angle/90);stations=[site.face(turn)+1.02-x for x in site.positions(turn)]
+ if site.diagonal and turn%2:stations=[site.core(0)-1+x for x in site.positions(turn)]
  for j,dist in enumerate(stations):
   zz=z+(dist-.2735)*.03492
   # Balanced rigid clamp: steel collars, rear support spine and aiming clevis.
   cyl('Arm clamp collar',(-dist-.045,0,zz),(-dist+.045,0,zz),arm_radius(dist)+.010,'steel',rt,12)
-  box('Clamp saddle',(-dist,-.195,zz),(.12,.095,.17),'steel',rt,.004)
-  tube('Rigid hanger pipe',[(-dist,-.22,zz),(-dist,-.20,zz),(-dist,-.20,zz+.55),(-dist,-.42,zz+.55)],.021,'steel',rt,10)
-  bolt('Hanger aiming clamp',(-dist,-.35,zz+.48),(0,-1,0),.009,'steel',rt)
-  k=plan.left if j==2 else 'three'
-  h=head(f'{name}__Head{j}',rt,(-dist,-.42,zz+.55),kind=k,color=plan.head,style=plan.visor,border=plan.border,active='red_arrow' if k in ('fya','protected') else 'red')
-  # 15 mm multicore along arm; U loop lets the head be adjusted without strain.
-  pts=G.bezier((-dist,-.08,zz+.14),(-dist-.24,-.11,zz+.84),(-dist-.20,-.62,zz+.90),(-dist,-.42,zz+.53),12)
-  tube('Head slack cable',pts,.0075,'rubber',rt,6)
+  flipped=site.diagonal and turn%2
+  side=1 if flipped else -1;head_y=side*.42
+  box('Clamp saddle',(-dist,side*.195,zz),(.12,.095,.17),'steel',rt,.004)
+  tube('Rigid hanger pipe',[(-dist,side*.22,zz),(-dist,side*.20,zz),(-dist,side*.20,zz+.45),(-dist,head_y,zz+.45)],.021,'steel',rt,10)
+  bolt('Hanger aiming clamp',(-dist,side*.35,zz+.48),(0,side,0),.009,'steel',rt)
+  k=plan.left if j==len(stations)-1 and plan.left!='permissive' else 'three'
+  h=head(f'{name}__Head{j}',rt,(-dist,head_y,zz+.45),yaw=180 if site.diagonal and int(angle/90)%2 else 0,kind=k,color=plan.head,style=plan.visor,border=plan.border,active='red_arrow' if k in ('fya','protected') else 'red')
+  # Wiring enters the top boss and runs through the hollow hanger to the
+  # arm. No decorative cable projects into air (FDOT 17745 conduit detail).
+  cyl('Head cable gland',(-dist,head_y,zz+.40),(-dist,head_y,zz+.45),.016,'rubber',rt,8)
  # Sign, mounted with two clamps/standoffs; name rows swap without geometry.
- sx=-1.40;sy=-.30;sz=z-.28
+ sx=-1.40;sy=-.30;sz=z-(1.25 if site.half(int(angle/90))<4 else .28)
  box('Street sign extruded frame',(sx,sy,sz),(2.134,.085,.4572),plan.finish,rt,.009)
  row=plan.seed-201;col=(angle//90)%2
  nameface=quad('Swappable street name',(sx,sy-.044,sz),2.10,.427,'names',rt,(col*.5,1-(row+1)*.25,(col+1)*.5,1-row*.25))
  if plan.illuminated:
   # Quick emissive sign prototype shares original name image; final uses graphics palette.
-  nameface.data.materials.clear();nm=M['names'].copy();nm.name='IlluminatedName_Checkpoint'
+  nameface.data.materials.clear();nm=bpy.data.materials.get('SharedNames_Lit')
+  if nm is None:nm=M['names'].copy();nm.name='SharedNames_Lit'
   pnode=nm.node_tree.nodes.get('Principled BSDF');im=next(n for n in nm.node_tree.nodes if n.type=='TEX_IMAGE')
   nm.node_tree.links.new(im.outputs['Color'],pnode.inputs['Emission Color']);pnode.inputs['Emission Strength'].default_value=.6;nameface.data.materials.append(nm)
  for x in (sx-.78,sx+.78):
+  tube('Street sign hanger',[(x,0,z+abs(x+.2735)*.03492),(x,-.15,sz+.20)],.013,'steel',rt,8)
   box('Street name saddle',(x,-.15,sz+.19),(.085,.32,.12),'steel',rt)
   bolt('Name sign bolt',(x,sy-.048,sz+.15),(0,-1,0),.005,'steel',rt)
  # Camera with shade hood and explicitly routed cable to arm entrance.
@@ -208,18 +213,18 @@ def mast(name,p,angle,plan,parent=None):
  box('Detection camera',(cx,-.045,cz+.56),(.13,.245,.11),'white',rt,.025)
  cyl('Camera optical port',(cx,-.1665,cz+.56),(cx,-.183,cz+.56),.035,'black',rt,12)
  box('Camera rain hood',(cx,-.08,cz+.620),(.17,.30,.012),'white',rt,.002)
- tube('Detection cable down riser',[(cx,.03,cz+.54),(cx+.05,.04,cz+.30),(cx+.03,.045,cz+.18)],.005,'rubber',rt,6)
- # Cabled service slack near gland, kept against arm rather than through open air.
- pts=[(-.26-.35*i, -.11, z+.14+.0122*i) for i in range(max(2,int((arm_len-.5)/.35)))]
- tube('Arm clipped multicore',pts,.0075,'rubber',rt,6)
- for i in range(0,len(pts),3):box('Cable clip',pts[i],(.024,.033,.022),'steel',rt,0)
- tube('Arm entrance service U',G.bezier((-.26,-.11,z+.14),(-.18,-.35,z-.33),(-.05,-.38,z-.33),(-.02,-.15,z-.05),16),.009,'rubber',rt,6)
+ # Detector lead is clipped down the riser and enters the arm at its foot.
+ tube('Detection cable down riser',[(cx,.026,cz+.54),(cx,.026,cz+.30),(cx,.026,cz+.03)],.005,'rubber',rt,6)
+ for dz in (.12,.35):box('Detection cable clip',(cx,.028,cz+dz),(.018,.015,.018),'steel',rt,0)
  root(name+'__LuminaireSocket',(0,0,POLE_TOP),rt,kind='socket')
  if plan.luminaire:luminaire(rt,plan)
  if plan.ped_mount=='mast':
   ped_head(name+'__Ped',rt,(-.32,0,2.65),yaw=-90,walk=angle%180==0)
   tube('Pole pedestrian bracket',[(-.17,0,2.28),(-.275,0,2.28),(-.275,0,2.40)],.023,'steel',rt,10)
- if plan.near:head(name+'__Near',rt,(.05,-.38,4.6),yaw=180,kind='three',color=plan.head,style=plan.visor,border=False,active='green')
+ if plan.near:
+  head(name+'__Near',rt,(.05,.52,4.6),yaw=180,kind='three',color=plan.head,style=plan.visor,border=False,active='green')
+  ring('Near-side mounting band',4.48,shaft_radius(4.48),shaft_radius(4.48)+.012,.05,'steel',rt,12)
+  tube('Near-side mounting elbow',[(.05,.10,4.50),(.05,.10,4.68),(.05,.52,4.68),(.05,.52,4.60)],.021,'steel',rt,10)
  join_fixed(rt);return rt
 
 def luminaire(rt,plan):
@@ -234,6 +239,7 @@ def luminaire(rt,plan):
   bmesh.ops.delete(bm,geom=delete,context='VERTS');bm.to_mesh(o.data);bm.free()
   if not len(o.data.polygons):continue
   o.parent=rt;o.name='Rill_LibraryHead';o.location=(0,.1288,2.8728)
+  import surfaces;surfaces.assign(o)
   # Retains the exact library vertices/materials: only instance translation changes.
  for o in imported:
   if o.type!='MESH' or not len(o.data.polygons):bpy.data.objects.remove(o,do_unlink=True)
@@ -250,6 +256,7 @@ def push(rt,p=(0,0,0),yaw=0,name='PushButton'):
  arrow=[(-.025,1.108),(.001,1.130),(.001,1.117),(.026,1.117),(.026,1.099),(.001,1.099),(.001,1.087)]
  arrow=[(x,z+(BUTTON_AXIS-1.108)) for x,z in arrow]
  profile('Raised tactile crossing arrow',arrow,-.174,-.171,'black',station)
+ quad('APS service sticker',(-.036,-.153,1.166),.034,.028,'record',station)
  for i in range(4):box('APS speaker slot',(0,-.153,.987+i*.009),(.060,.006,.003),'inside',station,0)
  box('R10 sign blank',(0,-.09,1.63),(.2286,.003,.3048),'steel',station,0)
  quad('R10-3 instructions',(0,-.093,1.63),.223,.300,'r10',station)
@@ -278,7 +285,7 @@ def ped_head(name,rt,p,yaw=0,walk=False):
    o=quad(f'{name}__Countdown_{"Tens" if digit==0 else "Ones"}_{seg}',(.065+digit*.086+dx,-.116,dz),w,hh,'lit' if on else 'off',h,(.25,.5,.5,1))
    # Cropping a solid dot gives a soft LED segment rather than a full tile.
    uv=o.data.uv_layers.active
-   for entry in uv.data:entry.uv=(.373046875,.7421875)
+   for entry in uv.data:entry.uv=(.37451171875,.7509765625)
    o['signal_lens']=True;o['signal_kind']='countdown';o['segment']=seg;o['digit']=digit;o['powered']=on
  cyl('Ped head mounting boss',(0,.045,-.285),(0,.045,-.20),.023,'steel',h,10)
  tube('Ped head service slack',G.bezier((.12,.10,.02),(.23,.16,-.24),(.01,.18,-.27),(0,.045,-.26),10),.006,'rubber',h,6)
@@ -307,7 +314,17 @@ def cabinet(name,p,yaw,parent=None):
  box('Folded rain roof',(0,.03,1.875),(.967,.78,.025),'cabinet',rt,.006)
  box('Drip lip',(0,-.358,1.854),(.963,.035,.03),'cabinet',rt,.002)
  # Black cavity remains visible inside the openable leaf.
- box('Cabinet rack blank',(0,.15,1.10),(.72,.03,1.40),'inside',rt,0)
+ # Open 19-inch-style rack: controller, monitor and removable load modules.
+ box('Cabinet rack shadow',(0,.29,1.10),(.72,.025,1.40),'inside',rt,0)
+ for x in (-.285,.285):box('Rack upright',(x,.04,1.06),(.026,.035,1.44),'steel',rt,0)
+ for label,z,h,w in [('Controller',1.56,.22,.51),('Conflict monitor',1.30,.17,.27),('Detector cards',1.08,.18,.51),('Load switch bay',.75,.22,.51),('Power panel',.43,.22,.51)]:
+  box(label+' chassis',(0,.10,z),(w,.30,h),'black' if label=='Controller' else 'cabinet',rt,0)
+  quad(label+' generated panel',(0,-.052,z),w-.02,h-.018,'panel',rt)
+ for i in range(8):box('Load switch module',(-.224+i*.064,-.075,.75),(.051,.08,.18),'panel',rt,0)
+ for i in range(4):box('Circuit breaker',(-.18+i*.09,-.073,.43),(.049,.045,.068),'black',rt,0)
+ for x in (-.32,.32):
+  tube('Rack harness',G.bezier((x,.12,.28),(x*.92,-.02,.58),(x*.92,.0,1.15),(x,.12,1.72),14),.014,'rubber',rt,6)
+ for z in (.50,.93,1.45):box('Harness restraint',(.32,.09,z),(.044,.03,.015),'white',rt,0)
  door=root(name+'__Door',(-.435,-.380,.23),rt,kind='CabinetDoor')
  door['pivot_axis']='Z';door['range_degrees']=[-110,0]
  box('Folded aluminum door',(.44375,-.012,.80075),(.8475,.040,1.5965),'cabinet',door,.007)
@@ -322,6 +339,8 @@ def cabinet(name,p,yaw,parent=None):
  # Small service lock and maintenance sticker form, markings wait for look-dev.
  cyl('Door service lock',(.80,-.035,1.04),(.80,-.047,1.04),.012,'steel',door,12)
  box('Inspection sticker',(.55,-.034,1.08),(.071,.001,.10),'white',door,0)
+ box('Door document pocket',(.43,.085,.48),(.56,.045,.29),'cabinet',door,0)
+ quad('Maintenance record',(.43,.111,.51),.39,.22,'record',door)
  # Service pedestal / meter next to cabinet, conduits terminate at grade.
  cyl('Service riser',(1.02,.18,.0),(1.02,.18,1.72),.030,'zinc',rt,12)
  box('Electric disconnect',(1.02,.12,1.13),(.27,.18,.40),'cabinet',rt,.006)
@@ -364,10 +383,10 @@ def span(name,parent,plan):
  for label,zbase,sag,r,ma in [('Catenary',8.65,.66,.0065,'steel'),('Messenger',7.72,.26,.0048,'steel'),('Tether',5.62,.14,.0040,'steel'),('Lashed signal cable',7.74,.26,.010,'rubber')]:
   tube(label,[wire(i/48,zbase,sag) for i in range(49)],r,ma,rt,6)
  # Stagger the four pairs on the same cable; avoid co-located perpendicular heads.
- for j,(t,angle) in enumerate(((.53,0),(.62,0),(.38,180),(.47,180),(.28,90),(.43,90),(.57,270),(.72,270))):
+ for j,(t,angle) in enumerate(((.53,0),(.66,0),(.27,180),(.40,180),(.345,90),(.433,90))):
   x,y,z=wire(t,7.72,.26);h=head(f'{name}__Head{j}',rt,(x,y,z-.20),yaw=angle,color=plan.head,style='tunnel',border=False,active='red' if angle in (0,180) else 'green')
   # Messenger clamp, balancer, conduit drop, plus the lower tether restraint.
-  cyl('Span wire clamp',(x-.065,y,z),(x+.065,y,z),.025,'steel',rt,8)
+  along=(b-a).normalized();point=Vector((x,y,z));cyl('Span wire clamp',point-along*.065,point+along*.065,.025,'steel',rt,8)
   cz=wire(t,8.65,.66)[2];cyl('Catenary drop tie',(x,y,z),(x,y,cz),.006,'steel',rt,6)
   tube('Balanced hanger',[(x-.08,y,z),(x-.08,y,z-.11),(x,y,z-.11),(x,y,z-.20)],.017,'steel',rt,8)
   tz=wire(t,5.62,.14)[2]
@@ -376,9 +395,17 @@ def span(name,parent,plan):
   tube('Tether restraint',tetherpts,.005,'steel',h,6)
   sock=root(h.name+'__TetherSocket',tetherpts[0],h,kind='socket');sock['socket_kind']='flexible_tether_end'
   join_fixed(h)
-  # Two turn service loops are original 15 mm multicore, like the 2009 photograph.
-  for side in (-1,1):
-   pts=[(x+side*.23+.13*math.cos(k*math.tau/20),y-.045,z-.10+.13*math.sin(k*math.tau/20)) for k in range(21)]
-   tube('Coiled signal service',pts,.0075,'rubber',rt,6)
-  tube('Loop to head',[(x-.10,y,z-.10),(x,y-.02,z-.19)],.0075,'rubber',rt,6)
+  # FDOT 17727 sheet 2: adjustable extension bar, two overlapping
+  # fasteners, balance adjuster and 8–12 inch drip loop at the entry.
+  box('Hanger extension bar',(x,y,z-.115),(.046,.024,.19),'steel',rt,0)
+  for dz in (.05,.11):bolt('Hanger extension bolt',(x,y-.016,z-dz),(0,-1,0),.007,'steel',rt)
+  cyl('Balance adjuster',(x,y,z-.20),(x,y,z-.155),.031,'steel',rt,10)
+  pts=G.bezier((x-.13,y-.02,z+.02),(x-.16,y-.035,z-.30),(x+.08,y-.035,z-.31),(x,y,z-.18),16)
+  tube('Short head entry slack',pts,.0075,'rubber',rt,6)
+ # Lashed wiring follows messenger. One gravity-draining loop at each pole.
+ for t in [i/36 for i in range(37)]:
+  x,y,z=wire(t,7.72,.26);cyl('Cable lashing',(x,y-.014,z-.01),(x,y+.014,z+.023),.003,'steel',rt,4)
+ for t in (0,1):
+  x,y,z=wire(t,7.72,.26);sign=1 if t==0 else -1
+  tube('Pole drip loop',G.bezier((x+sign*.15,y,z+.02),(x+sign*.37,y-.04,z-.51),(x-sign*.14,y-.04,z-.49),(x,y,7.60),22),.009,'rubber',rt,6)
  join_fixed(rt);return rt

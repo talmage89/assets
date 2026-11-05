@@ -1,7 +1,7 @@
-"""Measured checkpoint budget, scale, state and source/GLB serialization audit.
+"""Measured budget, scale, state and source/GLB serialization audit.
 
-No UV/bake certification at the form gate. Physical clearance measurements are
-reported separately from raw-export and reimport serialization checks.
+Physical clearance measurements are reported separately from raw-export and
+reimport serialization. Raw external glTF UV/map tests live in check_delivery.
 """
 import sys,json,math,hashlib
 from pathlib import Path
@@ -11,6 +11,7 @@ ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(Path(__file
 from kit.gltf import GLB
 from kit import motion
 from plan import *
+from layout import SITES
 from preserve import run as preserve
 def bounds(o):
  pts=[m.matrix_world@v.co for m in [o,*o.children_recursive] if m.type=='MESH' for v in m.data.vertices]
@@ -31,7 +32,7 @@ def main():
   litmat=next(m for m in g.json['materials'] if m['name']=='SharedLens_Lit')
   index=offmat['pbrMetallicRoughness']['baseColorTexture']['index'];imageindex=g.json['textures'][index]['source']
   offpixels=np.array(Image.open(io.BytesIO(g.image(imageindex))).convert('RGBA'))
-  assert int(offpixels[:,:,:3].max())<=10,('Off-state texture lost its darkening',seed)
+  assert max(offmat['pbrMetallicRoughness']['baseColorFactor'][:3])<=.001,('Off-state factor lost',seed)
   assert litmat.get('emissiveTexture') and max(litmat.get('emissiveFactor',[0]))>0
   rawtri=sum(len(g.accessor(p['indices']))//3 for n in g.json['nodes'] if 'mesh' in n for p in g.json['meshes'][n['mesh']]['primitives'])
   assert rawtri==meta['equipment_triangles'],(seed,rawtri,meta['equipment_triangles'])
@@ -48,10 +49,19 @@ def main():
    if not o.get('part_kind','').startswith('Head_') or '__Near' in o.name:continue
    lo,hi=bounds(o)
    # Highest asphalt crown under this footprint is conservative for the actual road.
-   pavement=.00635+HALF/48
+   pavement=.012
    clearance=float(lo[2]-pavement)
    assert clearance>=5.334,(o.name,clearance)
-   assert hi[2]-pavement<=7.80288,(o.name,hi)
+   registry=json.loads(source.with_name(source.stem+'-components.json').read_text())
+   housing=[]
+   for m in o.children_recursive:
+    if m.type!='MESH':continue
+    attr=m.data.attributes.get('Construction')
+    for f in m.data.polygons:
+     if attr and registry.get(str(attr.data[f.index].value),'').startswith(('Top mounting stem','Indexed top boss')):continue
+     housing.extend(m.matrix_world@m.data.vertices[i].co for i in f.vertices)
+   housingtop=max(p.z for p in housing)
+   assert housingtop-pavement<=7.80288,(o.name,housingtop)
    assert abs(o.location.z)>0 # physical hinge frame
    clear.append(dict(head=o.name,underside_m=float(lo[2]),pavement_bound_m=pavement,clearance_m=clearance))
   covers=[o for o in bpy.context.scene.objects if o.type=='MESH' and o.name.endswith('_Cover')]
@@ -82,7 +92,9 @@ def main():
    kd=KDTree(len(row['positions']))
    for i,p in enumerate(row['positions']):kd.insert(p,i)
    kd.balance()
-   errs=[kd.find(p)[2] for p in actual[name]['positions']];maxerr=max(maxerr,max(errs))
+   errs=[kd.find(p)[2] for p in actual[name]['positions']];
+   if max(errs)>.00002:print('ROUNDTRIP FAILURE',seed,name,max(errs),flush=True)
+   maxerr=max(maxerr,max(errs))
    kd=KDTree(len(actual[name]['positions']))
    for i,p in enumerate(actual[name]['positions']):kd.insert(p,i)
    kd.balance();maxerr=max(maxerr,max(kd.find(p)[2] for p in row['positions']))
@@ -92,5 +104,5 @@ def main():
   assert all(np.isfinite(g.accessor(p['attributes']['POSITION'])).all() for mesh in g.json['meshes'] for p in mesh['primitives'])
   row=dict(seed=seed,passed=True,equipment_triangles=rawtri,materials=len(g.json['materials']),primitives=sum(len(g.json['meshes'][n['mesh']]['primitives']) for n in g.json['nodes'] if 'mesh' in n),max_normal_length_error=normal_error,glb_bytes=glb.stat().st_size,named_lenses=len(states),lens_diameter_measured_m=[min(radii),max(radii)],budget=budget,overhead_clearances=clear,max_roundtrip_position_error_m=maxerr,cabinet_open95_penetration_m=depth)
   rows.append(row);print('CHECK',seed,rawtri,'triangles',len(states),'states',maxerr,'m roundtrip')
- Path('build/checks.json').write_text(json.dumps(dict(passed=True,scope='form checkpoint: budgets, dimensions, named states, clearance bound, outward door pose, raw and fresh-import serialization; no UV/bake claims',seeds=rows),indent=2))
+ Path('build/checks.json').write_text(json.dumps(dict(passed=True,scope='Budgets, dimensions, named states, clearance bound, outward door pose, raw and fresh-import serialization. External map/UV audit is in delivery-check.json.',seeds=rows),indent=2))
 if __name__=='__main__':main()

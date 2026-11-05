@@ -10,7 +10,7 @@ TILES=['red','yellow','green','red_arrow','yellow_arrow','green_arrow','hand','w
 def generate(out):
  out=Path(out);out.mkdir(parents=True,exist_ok=True)
  im=Image.new('RGBA',(1024,512),(0,0,0,0))
- colors=[(255,14,3),(255,158,1),(2,255,122),(255,14,3),(255,158,1),(2,255,122),(255,108,2),(245,255,247)]
+ colors=[(255,1,0),(255,120,0),(0,255,75),(255,1,0),(255,120,0),(0,255,75),(255,108,2),(245,255,247)]
  for j,kind in enumerate(TILES):
   mask=Image.new('L',(256,256));d=ImageDraw.Draw(mask)
   if 'arrow' in kind:
@@ -27,10 +27,14 @@ def generate(out):
    d.line([(119,86),(163,117),(204,125)],fill=255,width=16)
   else:d.ellipse((8,8,248,248),fill=255)
   dots=Image.new('RGBA',(256,256));dd=ImageDraw.Draw(dots)
-  for y in range(12,250,12):
-   for x in range(12+(6 if (y//12)%2 else 0),250,12):
+  for y in range(10,250,9):
+   for x in range(10+(4 if (y//9)%2 else 0),250,9):
     if mask.getpixel((x,y))>0:
      dd.ellipse((x-3,y-3,x+3,y+3),fill=(*colors[j],255))
+  if j<6:
+   # A continuous dark optical cover reflects the sky between LED packages.
+   # Only emission is dotted; opacity is the full nominal circular lens.
+   opacity=Image.new('L',(256,256));ImageDraw.Draw(opacity).ellipse((0,0,255,255),fill=255);dots.putalpha(opacity)
   im.alpha_composite(dots,((j%4)*256,(j//4)*256))
  im.save(out/'lenses.png')
  # The glTF exporter cannot preserve the source-only MixRGB darkening.

@@ -37,3 +37,6 @@ their original source's author and license and stay ignored in refs/. Photo
 pairs crop the actual render and photo by the same pinhole rectangle; calibration
 on the full image is retained separately. Comparison views omit neighborhood
 context so it cannot conceal the fitted hardware. No photo contributes texels.
+
+| gadsden-2025.jpg | https://upload.wikimedia.org/wikipedia/commons/4/45/Traffic_light_at_Gadsden_and_College.jpg | The Bushranger, CC BY-SA 4.0; 14 February 2025 | Later photograph of installed vertical mast-arm equipment; construction and aged surface comparator, not proof of installation date |
+| led-2008.jpg | https://upload.wikimedia.org/wikipedia/commons/4/47/LED_traffic_light.jpg | Bidgee, CC BY 3.0; 13 December 2008 | Optical construction comparator only; excluded from sunlit contrast measurements because its sky is overcast |

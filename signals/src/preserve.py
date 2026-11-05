@@ -7,6 +7,8 @@ def run():
   rows={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for base in ROOT.iterdir() if base.is_dir() and base.name not in ('signals','build','.git') for kind in ('export','textures/ship') for p in (base/kind).rglob('*') if p.is_file() and p.name!='ArterialCheckpoint.glb'}
   RECEIPT.write_text(json.dumps(rows,indent=2))
  rows=json.loads(RECEIPT.read_text())
+ fresh=ROOT/'build/signals-look-preservation.json'
+ if fresh.exists():rows.update(json.loads(fresh.read_text()))
  for name,digest in rows.items():assert hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==digest,name
  out=ROOT/'signals/build/preservation.json';out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(dict(passed=True,files=len(rows),receipt=str(RECEIPT.relative_to(ROOT))),indent=2))
  print('PRESERVATION',len(rows),'existing delivery files unchanged')

@@ -11,7 +11,10 @@ def ensure():
  ('houses','HearthfieldSplit-51.gltf',['TYPE=split','SEEDS=51','export']),
  ('trees','PinOak.glb',['SPECIES=oak','export']),
  ('trees','RedMaple.glb',['SPECIES=maple','export']),
- ('cars','AlderC150.glb',['export'])]
+ ('cars','AlderC150.glb',['export']),
+ ('cars','AlderH120.glb',['BODY=hatch','export']),
+ ('cars','AlderX220.glb',['BODY=suv','export']),
+ ('commercial','CommercialGas-101.gltf',['SEEDS=101','export'])]
  rows=[]
  for folder,name,args in cases:
   file=ROOT/folder/'export'/name
