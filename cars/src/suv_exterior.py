@@ -106,10 +106,23 @@ def build(b):
     for i,frac in enumerate([.24,.58]):
      center=pts[(nv//2)*nu+round(frac*(nu-1))]-normal*.020
      r=.030 if i==0 else .027
-     reflect=G.lathe('Reflector '+name+str(i),[(-.016,r*.65),(0,r),( .005,r*.92),(.005,r*.79),(-.014,r*.50)],b.m['chrome'],20 if b.high else 16,axis='Z',closed=True)
+     profile=[(-.016,r*.65),(0,r),(.005,r*.92),(.005,r*.79),(-.014,r*.50)]
+     reflect=G.lathe('Reflector '+name+str(i),profile,b.m['chrome'],48 if b.high else 32,axis='Z',closed=True)
+     if not b.high:
+      # The bowl backs onto the opaque cassette. Keep its entire visible
+      # draw and rolled rim; omit only the buried closing strip.
+      import bmesh
+      bm=bmesh.new();bm.from_mesh(reflect.data)
+      buried=[f for f in bm.faces if all(v.index<32 or v.index>=128 for v in f.verts)]
+      bmesh.ops.delete(bm,geom=buried,context='FACES');bm.to_mesh(reflect.data);bm.free()
+      reflect['allow_boundary']=True
      xf=Matrix.Translation(center)@normal.to_track_quat('Z','Y').to_matrix().to_4x4();reflect.data.transform(xf);b.add(reflect,parent,'lamps')
-     lens=G.lathe('Projector '+name+str(i),[(0,0),(0,r*.78),(.005,r*.62),(.008,0)],b.m['lens'],20 if b.high else 16,axis='Z');lens.data.transform(xf);b.add(lens,parent,'lamps')
-     emitter=G.lathe('LED source '+name+str(i),[(-.004,0),(-.004,r*.45),(-.001,r*.45),(-.001,0)],b.m['headlight'],12,axis='Z');emitter.data.transform(xf);b.add(emitter,parent,'lamps')
+     lens=G.lathe('Projector '+name+str(i),[(0,0),(0,r*.78),(.005,r*.62),(.008,0)],b.m['lens'],48 if b.high else 32,axis='Z');lens.data.transform(xf);b.add(lens,parent,'lamps')
+     if b.high:emitter=G.lathe('LED source '+name+str(i),[(-.004,0),(-.004,r*.45),(-.001,r*.45),(-.001,0)],b.m['headlight'],48,axis='Z')
+     else:
+      # Only the front of the emitting substrate is visible through the lens.
+      emitter=G.mesh('LED source '+name+str(i),[(0,0,-.001)]+[(r*.45*math.cos(math.tau*k/32),r*.45*math.sin(math.tau*k/32),-.001) for k in range(32)],[(0,1+k,1+(k+1)%32) for k in range(32)],b.m['headlight']);emitter['allow_boundary']=True
+     emitter.data.transform(xf);b.add(emitter,parent,'lamps')
     p=pts[nu-3].lerp(pts[(nv-1)*nu+nu-3],.5)-normal*.010
     box(b,'Amber side optic '+name,p,(.018,.025,.038),b.m['amber'],'lamps',parent,.003)
  from suv_grille import build as grille

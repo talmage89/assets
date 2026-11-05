@@ -1,6 +1,6 @@
 # Cars family — Alder C150, S240 and X220
 
-The C150 pickup is delivered. The [S240 sedan](#alder-s240--sedan-form-checkpoint) is a source form checkpoint. The [X220 SUV](SUV.md) has articulated detail, a five-seat cabin, AWD underbody, fair optical surfaces and an open chevron grille at 64,972 triangles. `BODY=sedan` and `BODY=suv` select their isolated pipelines; SUV UVs, baking and export remain later stages.
+The C150 pickup and [X220 SUV](#alder-x220--compact-crossover) are delivered. The [S240 sedan](#alder-s240--sedan-form-checkpoint) record below is its source form checkpoint. `BODY=sedan` and `BODY=suv` select isolated pipelines. The X220 has articulated closures, a five-seat cabin, AWD underbody and an open chevron grille at 64,933 triangles.
 
 An original late-2010s crew-cab 4×4 pickup on 275/65R18 all-terrain tires.
 Five factory paints share one baked atlas and four delivery surfaces. The
@@ -390,28 +390,84 @@ These are recorded limitations, not final paint or delivery approval. No kit
 changes were needed.
 
 
-## Alder X220 — SUV form checkpoint
+## Alder X220 — compact crossover
 
-An original late-2010s compact two-row crossover, with one fair subdivision
-sheet, separate molded cladding, flush glazing, real cut recesses and
-225/65R17 wheels. This source checkpoint stops before detail and delivery.
+An original late-2010s two-row crossover, generated entirely by scripts. The
+stamped body, molded cladding, laminate glazing, chevron grille, projector lamps,
+five-seat cabin, covered cargo floor and AWD underbody share one baked atlas.
+The delivery preserves the accepted body lines, detail, colors and articulation.
 
-| Actual source quantity | Value |
+![Alder X220 in the family gallery](docs/suv-hero.jpg)
+![Rear three-quarter](docs/suv-rear.jpg)
+![Optics, wheels, cargo and lit lamps](docs/suv-details.jpg)
+![Turnaround, scale and Eevee](docs/suv-views.jpg)
+![Five factory colors](docs/suv-five-colors.jpg)
+![Liftgate through its 75-degree range](docs/suv-liftgate.gif)
+
+Every final starts with a fresh import of `export/AlderX220.glb` and its three
+embedded maps in the unchanged C150 gallery. Source shaders are used only for
+separately labeled bake-loss controls. Full-size [contact sheet](renders/suv-final/contact.jpg),
+[matched front](renders/suv-final-pairs/used_front-pair.jpg),
+[matched rear](renders/suv-final-pairs/used_rear-pair.jpg),
+[bake-loss measurements](renders/suv-final/bake-loss.json), and
+[critique passes](REVIEW.md) accompany the delivery.
+
+| Actual game measurement | Value |
 | --- | ---: |
 | Length / wheelbase | 4598.8 / 2690.0 mm |
 | Body / full mirror width | 1842.0 / 2117.0 mm |
-| Roof / rail height | 1679.0 / 1700.0 mm |
-| Game triangles | 61,374 |
-| Temporary materials / image maps | 5 / 0 |
+| Roof / rails / antenna height | 1679.0 / 1700.0 / 1735.0 mm |
+| Front / rear track | 1600.0 / 1610.0 mm |
+| Tires / lowest underbody surface | 225/65R17 / 205 mm |
+
+The package is measured against Toyota's MY2020 US RAV4 brochure and Honda's
+MY2020 CR-V specifications; the UK CR-V brochure cross-checks mirror width.
+These are reference classes, not reproduced designs. [REFERENCE.md](REFERENCE.md)
+and [SOURCES.md](refs/SOURCES.md) distinguish published dimensions, original
+construction estimates and photographic authors/licenses.
+
+| Delivery resource | Actual |
+| --- | ---: |
+| Triangles | **64,933 / 65,000** |
+| Materials / embedded maps | **4 / 3**, family Paint, Opaque, Glass, Lamps |
+| Shipped maps | **2048²** BaseColor / OpenGL Normal / ORM, baked at 4096² |
+| Compressed texture allocation with mip chain | **about 16 MiB** |
+| GLB | 9,061,968 bytes |
+| Unique atlas / shared tyre tile / total occupied area | 30.39% / 24.75% / **55.14%** |
+| Exterior painted-panel density | 137 / 195 / 206 px/m (p5 / median / p95, UV-area weighted) |
+
+The four family surfaces share the same images: paint needs clearcoat and
+factory factors, glazing transmission/IOR, lamps controlled emission, and
+opaque fittings their own response (source dielectric specular level .33). This retains the family's four-material
+exception to the general three-material target. The four identical tyre
+carcasses reuse one tile at 854–1099 px/m; all other charts are unique. The
+trade is four separate carcass primitives, parented to their spinning wheels.
+
+Five factory presets cost no extra maps. The family coverage decoder keeps
+colored dirt/chips while changing paint. SUV Graphite is linear RGB
+`.150 / .1540545 / .160`, metallic `.42`; the other four family factors are
+unchanged. [suv_delivery_materials.py](src/suv_delivery_materials.py) reads only
+embedded images and material extras. Smooth glass has normal-texture scale
+zero. The lamp extras specify the warm white projector/guide emission color
+independently of its dark unlit substrate. Cycles follows nested refraction;
+Eevee uses the family's documented thin-sheet fallback. A stock glTF viewer
+shows the Atlantic fallback; runtime factors enable the other colors and lamps.
+
+Doors open 60°, hood 65°, liftgate 75°, front steering ±35°, fuel flap 85°;
+wheels spin continuously. Each is a separate rigid node with its actual pivot,
+axis and range in extras. Eight endpoint-driven telescoping strut meshes stay
+separate. [SUV.md](SUV.md) lists all local-axis conventions, per-part triangles,
+UV measurements, measured bake loss and remaining limits.
 
 ```sh
-make -C cars BODY=suv
+make -C cars BODY=suv clean
+make -C cars BODY=suv WIDTH=1600 FINAL_SAMPLES=64
+make -C cars BODY=suv check
+make -C cars BODY=suv check-detail-repeat
+python3 kit/repo_check.py
 ```
 
-[Full dimensions, sources, per-part counts, pivots and rebuild proof](SUV.md).
-The round-three 52-view contact is `renders/suv-round3/contact.jpg`; source measurements are
-`build/suv/form-check.json`. [REVIEW.md](REVIEW.md) records the critique passes.
-The fairer gate, supported side lines, molded spoiler and rounded mirrors have
-actual mesh measurements and five whole-body curvature/stripe comparison pages.
-Some silhouette holdouts and local highlight fairness remain weaker than the
-references; this is a form-review candidate. No SUV GLB, UV/bake or motion approval is implied.
+`export`, `verify`, `final-render`, `final-pairs` and `docs` are separately
+rebuildable targets. The default makes the complete SUV delivery. All GPU
+bakes/renders use the shared kit lock. No kit or other body generator changed;
+the existing C150 GLB remains byte-identical.

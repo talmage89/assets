@@ -1,4 +1,4 @@
-# X220 source form plus detail/look checkpoint. UV/bake/delivery remain later.
+# X220 independent source, detail, bake/export and gallery delivery pipeline.
 .DEFAULT_GOAL := all
 .DELETE_ON_ERROR:
 BLENDER ?= blender

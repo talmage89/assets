@@ -21,19 +21,27 @@ def percentiles(rows):
 
 def source(path,base):
     bpy.ops.wm.open_mainfile(filepath=str(path.resolve()));bpy.context.view_layer.update()
-    normals=[];paint={};paint_rows=[];unique_area=tile_area=0;contamination=[];tested=0
+    normals=[];paint={};paint_rows=[];ordinary_rows=[];unique_area=tile_area=0;contamination=[];tested=0;prints={}
     def sample(coords):
         x=coords[0]*base.shape[1]-.5;y=(1-coords[1])*base.shape[0]-.5;ix,iy=math.floor(x),math.floor(y);fx,fy=x-ix,y-iy
         return sum(base[(iy+j)%base.shape[0],(ix+i)%base.shape[1],:3]*wx*wy for i,wx in [(0,1-fx),(1,fx)] for j,wy in [(0,1-fy),(1,fy)])
     for ob in bpy.context.scene.objects:
         if ob.type!='MESH' or ob.get('asset_set')!='SUV':continue
         me=ob.data;me.calc_loop_triangles();matrix=ob.matrix_world;nm=matrix.to_3x3().inverted().transposed();uv=me.uv_layers['BakeUV'];role=me.attributes.get('skin_face_role')
+        if ob.name.startswith(('Alder center cap_','Rear ALDER badge','Front ALDER badge','Rear plate face','X220 AWD model badge')):
+            t=me.loop_triangles[0];original=me.attributes['BakeSourceUV']
+            coords=np.array([tuple(original.data[i].vector)[:2] for i in t.loops]);atlas=np.array([tuple(uv.data[i].uv) for i in t.loops])
+            jacobian=np.linalg.solve(coords[1:]-coords[0],atlas[1:]-atlas[0])
+            prints[ob.name]=dict(width_height_pixels=(2048*np.linalg.norm(jacobian,axis=1)).tolist(),scope='Measured full authored print axes in the delivered atlas; glyphs occupy the original artwork inside them')
         for li,row in enumerate(me.corner_normals):normals.append((matrix@me.vertices[me.loops[li].vertex_index].co,(nm@row.vector).normalized()))
         rows=[];ua=wa=0
         for t in me.loop_triangles:
             atlas=abs(signed_area([tuple(uv.data[i].uv) for i in t.loops]))
             if ob.name=='Tire_FR':tile_area+=atlas
             elif not ob.name.startswith('Tire_'):unique_area+=atlas
+            if ob.name not in prints and not ob.name.startswith('Tire_'):
+                points=[matrix@me.vertices[i].co for i in t.vertices];physical=(points[1]-points[0]).cross(points[2]-points[0]).length*.5
+                if physical>0 and atlas>0:ordinary_rows.append((2048*math.sqrt(atlas/physical),atlas))
             f=me.polygons[t.polygon_index]
             material=me.materials[f.material_index].name
             if material in ['X220 weathered molded cladding','X220 gloss black']:
@@ -49,7 +57,7 @@ def source(path,base):
             row=(2048*math.sqrt(atlas/area),atlas);rows.append(row);paint_rows.append(row);ua+=atlas;wa+=area
         if rows:paint[ob.name]=dict(triangles=len(rows),surface_m2=wa,atlas_fraction=ua,density_px_m=percentiles(rows))
     atlas_summary=dict(unique_fraction=unique_area,shared_tire_fraction_counted_once=tile_area,total_occupied_fraction=unique_area+tile_area,
-        painted_density_px_m=percentiles(paint_rows),density_percentile_weight='UV area',coverage_scope='Triangle UV areas; unique region non-overlap is gated independently by kit.verify, canonical tyre tile counted once')
+        painted_density_px_m=percentiles(paint_rows),unprinted_density_px_m=percentiles(ordinary_rows),printed_charts=prints,density_percentile_weight='UV area',coverage_scope='Triangle UV areas; unique region non-overlap is gated independently by kit.verify, canonical tyre tile counted once')
     return normals,paint,atlas_summary,dict(samples=tested,impossible_material_colors=contamination,scope='Bilinear raw atlas samples: saturated red cannot be molded cladding; bright white cannot be gloss-black substrate')
 
 
@@ -72,6 +80,12 @@ def main():
     check('KHR_materials_transmission' in mats['Glass'].get('extensions',{}),'Transmission lost')
     normals,panels,atlas_summary,contamination=source(Path(a.finalized),base);tree=KDTree(len(normals))
     check(not contamination['impossible_material_colors'],'Atlas contains another material on cladding or gloss-black fittings')
+    check(len(atlas_summary['printed_charts'])==8,'Missing badge/label chart')
+    from suv_delivery_config import UV_UNPRINTED_P95_MAX
+    check(atlas_summary['unprinted_density_px_m']['95']<=UV_UNPRINTED_P95_MAX,'Ordinary-surface density exceeds original family limit')
+    for name,chart in atlas_summary['printed_charts'].items():
+        width,height=chart['width_height_pixels']
+        check(width>=96 and height>=24,'Badge/label underallocated in delivered atlas: '+name)
     for name,panel in panels.items():
         if panel['surface_m2']>.02:check(panel['density_px_m']['50']>=100,'Painted panel underallocated: '+name)
     for i,(pos,_) in enumerate(normals):tree.insert(pos,i)

@@ -6,6 +6,118 @@ from detail_helpers import box,tube,loop,print_quad
 import suv_spec as S
 
 
+def cargo_liners(b):
+ """Continuous molded quarter liners with wheelhouse draw and lapped edges.
+
+ The former two small boxes left the back of the quarter steel exposed. This
+ section follows the actual quarter, covers its construction splits, and turns
+ into the opening. Its upper edge stays below the moving shoulder stamping.
+ """
+ from suv_exterior import tree_for
+ from suv_body import smoothstep
+ shell=tree_for([o for o in bpy.context.scene.objects if o.type=='MESH' and
+                 o.name.startswith('Rear quarter')])
+ gate=tree_for([o for o in bpy.context.scene.objects if o.type=='MESH' and
+                (o.name in ['Liftgate outer','Backlight'] or o.name.startswith('Taillamp') and ' gate' in o.name)])
+ for s in [-1,1]:
+  rows=[]
+  for u in [0,.25,.50,.75,1]:
+   # The quarter window's lower border rises aft. Lap behind that actual
+   # 1.24–1.30 m belt instead of ending a flat 1.215 m wall below its seam.
+   top=min(1.319,1.252+.090*u);row=[]
+   # Vertical molded section: drawn wheel dome, cover shelf, then belt liner.
+   for z,inset in [(.645,.030),(.680,.035),(.77,.095),(.87,.100),(.99,.045),
+                   (1.085,.023),(1.115,.023),(1.145,.012),(top,.012)]:
+    rear=shell.ray_cast(Vector((s*.755,3,z)),Vector((0,-1,0)),3)[0]
+    if rear is None:rear=shell.find_nearest(Vector((s*.755,2.15,z)))[0]
+    # The opening sweeps forward toward its top. A constant Y end plane
+    # would let the liner protrude through that opening above the tail lamp.
+    y=1.245+(rear.y-.022-1.245)*u
+    hit=shell.ray_cast(Vector((s*2,y,z)),Vector((-s,0,0)),3)[0]
+    if hit is None:hit=shell.find_nearest(Vector((s*.76,y,z)))[0]
+    wheel=math.exp(-((y-1.40)/.34)**4)*math.exp(-((z-.83)/.19)**4)
+    x=min(abs(hit.x)-inset,.72-.105*wheel)
+    if z in [.645,.680]:x=min(x,.635)
+    if z in [1.085,1.115]:x=min(x,.638+.082*smoothstep(.70,1,u))
+    # The inner return crosses the wrapped outer end of the gate cassette.
+    # Check both ends of that span, not only the more rearward central skin.
+    for xx in [x,.740]:
+     closed=gate.ray_cast(Vector((s*xx,3,z)),Vector((0,-1,0)),3)[0]
+     if closed is not None:y=min(y,closed.y-.078)
+    row.append((s*x,y,z))
+   # Lapped top return reaches the steel behind the window sill/rear split.
+   row.append((s*(abs(hit.x)-.002),y,top))
+   rows.append(row)
+  # A molded inward return laps the steel aperture and its seal. An exposed
+  # sheet edge alone left a direct line of sight through the 22 mm setback.
+  rows.append([(s*(.754 if k==9 else .752),p[1]-(.008 if k>=8 else 0),p[2]) for k,p in enumerate(rows[-1])])
+  returned=[]
+  for k,p in enumerate(rows[-1]):
+   z=p[2];hit=shell.ray_cast(Vector((s*.755,3,z)),Vector((0,-1,0)),3)[0]
+   if hit is None:hit=shell.find_nearest(Vector((s*.755,2.15,z)))[0]
+   returned.append((s*(.754 if k==9 else .752),hit.y-.002,z))
+  rows.append(returned)
+  ob=G.mesh('Cargo quarter molded liner '+str(s),[p for row in rows for p in row],
+       [(j*10+i,j*10+i+1,(j+1)*10+i+1,(j+1)*10+i) for j in range(len(rows)-1) for i in range(9)],b.m['cargo_trim'])
+  # Open-sheet recalc chooses the vehicle's outward hemisphere. The visible
+  # molded surface faces the cargo cavity; bake its AO on that actual side,
+  # with the 3 mm reverse gauge toward the body, rather than toward the cabin.
+  walls=[f for f in ob.data.polygons if .77<f.center.z<1.0 and f.center.y<1.9]
+  if sum(f.area*f.normal.x*(-s) for f in walls)<0:
+   for face in ob.data.polygons:face.flip()
+   ob.data.update()
+  ob['trim_sheet_vertex_count']=len(ob.data.vertices)
+  sol=ob.modifiers.new('Molded liner wall','SOLIDIFY');sol.thickness=.003;sol.offset=-1
+  b.add(G.smooth(ob,55),category='interior')
+ # A curved loading sill laps both the floor and rear molding; the old floor
+ # stopped 17 mm below the opening and exposed the white studio through it.
+ rows=[]
+ for i in range(25):
+  x=-.77+1.54*i/24
+  hit=tree_for([bpy.data.objects['Rear molded fascia']]).ray_cast(Vector((x,3,.690)),Vector((0,-1,0)),3)[0]
+  y=hit.y if hit else 2.23
+  rows.append([(x,y-.115,.670),(x,y-.050,.688),(x,y-.008,.698),(x,y+.004,.684)])
+ ob=G.loft('Cargo loading sill',rows,b.m['interior_light'])
+ if not b.high:
+  from suv_wheels import omit_buried_faces
+  # Loft orders its four longitudinal faces first, followed by the end caps.
+  omit_buried_faces(ob,list(range(3,24*4,4)))
+ b.add(G.smooth(ob,55),category='interior')
+ # Compressible seal seated across the fixed aperture's steel/liner lap.
+ # It closes the real seam, rather than changing the lighting or its pixels.
+ path=[]
+ for s in [1,-1]:
+  side=[]
+  for j in range(9):
+   z=.704+.603*j/8
+   hit=shell.ray_cast(Vector((s*.755,3,z)),Vector((0,-1,0)),3)[0]
+   if hit is None:hit=shell.find_nearest(Vector((s*.755,2.15,z)))[0]
+   side.append((s*.756,hit.y-.010,z))
+  path.extend(reversed(side) if s==1 else side)
+ tube(b,'Cargo aperture seal',path,.009,b.m['rubber'],'interior',sides=8)
+
+
+def jamb_backing(b):
+ """Inner unibody returns block daylight through the real closure reveals."""
+ from suv_exterior import tree_for
+ skin=tree_for([o for o in bpy.context.scene.objects if o.type=='MESH' and
+                o.get('part_category') in ['doors','body','pillars','glass']])
+ for s in [-1,1]:
+  for y in [S.DOOR_FRONT,S.DOOR_SPLIT,S.DOOR_REAR]:
+   rows=[]
+   # Upper returns finish above the hinge leaves; the real hinge pockets
+   # remain open below them rather than putting a solid box through a hinge.
+   for z in [1.10,1.16,1.40,1.59]:
+    hits=[skin.ray_cast(Vector((s*2,y+dy,z)),Vector((-s,0,0)),3)[0] for dy in [-.02,.02]]
+    hits=[p for p in hits if p is not None]
+    if not hits:continue
+    outer=sum(abs(p.x) for p in hits)/len(hits)
+    # A real jamb returns inward from the reveal; a narrow rod 65 mm
+    # behind it still lets an oblique camera look around the seam.
+    rows.append([(s*(outer-inset),y+dy,z) for inset,dy in [(.065,-.011),(.006,-.011),(.006,.011),(.065,.011)]])
+   if len(rows)>1:b.add(G.loft('Inner jamb backing '+str(s)+' '+str(y),rows,b.m['interior']),category='interior')
+
+
 def build(b):
  def cushion(name,x,y,w,d,z0,z1,mat):
   headrest='headrest' in name
@@ -66,7 +178,8 @@ def build(b):
    b.add(G.profile('Door card '+end+side,outline,sgn*.77,sgn*.805,b.m['interior'],axis='X'),parent,'interior')
    # A shaped inner carrier supports the card, with a real wheel-opening notch
    # and 35 mm return depth instead of the form checkpoint's paper-thin door.
-   lower=.315;upper=1.155+.018*y;carrier=[(ya+.05,upper),(yb-.05,upper)]
+   lower=.315;upper=1.205+.018*y
+   carrier=([(ya+.05,1.155+.018*y),(ya+.20,upper)] if end=='F' else [(ya+.05,upper)])+[(yb-.05,upper)]
    for zz in [upper-(upper-lower)*i/14 for i in range(1,15)]:
     dz=(zz-S.HUB_HEIGHT)/(S.ARCH_RADIUS+.04)
     limit=yb-.05 if dz>=1 else min(yb-.05,S.REAR_AXLE-S.ARCH_HALF*max(0,1-abs(dz)**S.ARCH_POWER)**(1/S.ARCH_POWER)-.035)
@@ -87,9 +200,7 @@ def build(b):
  outline=[(-.63,-.88),(.63,-.88),(.695,-.65),(.695,.86),(.59,1.22),(-.59,1.22),(-.695,.86),(-.695,-.65)]
  b.add(G.profile('Cabin floor',outline,.4225,.4675,b.m['interior'],axis='Z',radius=.012 if b.high else 0,segments=1),category='interior')
  box(b,'Cargo floor',(0,1.67,.655),(1.29,1.03,.045),b.m['cloth'],'interior',radius=.018 if b.high else 0)
- for s in [-1,1]:
-  box(b,'Cargo wheelhouse trim '+str(s),(s*.62,1.57,.81),(.11,.79,.23),b.m['interior'],'interior',radius=.045)
-  box(b,'Cargo cover ledge '+str(s),(s*.625,1.61,1.12),(.038,.78,.025),b.m['plastic'],'interior',radius=.005)
+ cargo_liners(b);jamb_backing(b)
  b.add(G.profile('Cargo cover',[(-.64,1.165),(.64,1.165),(.64,1.96),(.60,2.04),(-.60,2.04),(-.64,1.96)],1.121,1.139,b.m['cloth'],axis='Z'),category='interior')
  # Headliner follows the accepted roof crown; one shallow loft rather than a slab.
  rows=[]

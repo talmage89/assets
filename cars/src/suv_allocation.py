@@ -8,6 +8,35 @@ is removed and moving closures use their separate inner carriers and trim panels
 import bpy
 
 
+def fair_front_molding_seam():
+ """Replace independent centroid setbacks with one fair molded seam curve.
+
+ Only the existing seam vertices move, by less than 2.25 mm. The aperture,
+ body control cage, tessellation and continuous parent normal fields stay put.
+ """
+ from suv_sculpt import lower_edge
+ import suv_spec as S
+ for name,sign in [('Front molded fascia',1),('Front lower bumper cladding',-1)]:
+  ob=bpy.data.objects[name];me=ob.data;role=me.attributes['skin_face_role'];edges={}
+  for f in me.polygons:
+   if role.data[f.index].value!=0:continue
+   for a,c in zip(f.vertices,tuple(f.vertices[1:])+tuple(f.vertices[:1])):
+    e=tuple(sorted((a,c)));edges[e]=edges.get(e,0)+1
+  boundary={i for e,count in edges.items() if count==1 for i in e}
+  moves={}
+  for i in boundary:
+   p=ob.matrix_world@me.vertices[i].co
+   if abs(p.x)>.54 or abs(p.z-lower_edge(p.x,True))>.004:continue
+   moves[i]=lower_edge(p.x,True)+sign*S.PANEL_GAP/2-p.z
+  # Carry the adjacent reverse/rim samples by the same local displacement.
+  original=[v.co.copy() for v in me.vertices]
+  for v in me.vertices:
+   p=ob.matrix_world@original[v.index]
+   near=min(moves,key=lambda i:(original[v.index]-original[i]).length_squared) if moves else None
+   if near is not None and (original[v.index]-original[near]).length<.004:p.z+=moves[near];v.co=ob.matrix_world.inverted()@p
+  me.update()
+
+
 def couple_glass_normals(ob,source=None):
  """One outside normal field for both sides of a parallel glass laminate.
 
@@ -42,10 +71,19 @@ def remove_hidden_backs():
  report={}
  for ob in bpy.context.scene.objects:
   if ob.type!='MESH':continue
+  sheet_count=ob.get('cassette_sheet_vertex_count',ob.get('trim_sheet_vertex_count'))
+  if sheet_count:
+   # Solidify keeps the source sheet first and the concealed reverse second.
+   # Preserve the visible sheet and its rim, exactly, with manufacturing gauge
+   # reconstructed for the independent collision sweep as on the body panels.
+   if len(ob.data.vertices)!=sheet_count*2:raise ValueError('Sheet allocation lost provenance: '+ob.name)
+   role=ob.data.attributes.new('skin_face_role','INT','FACE')
+   for f,d in zip(ob.data.polygons,role.data):
+    d.value=0 if all(i<sheet_count for i in f.vertices) else 1 if all(i>=sheet_count for i in f.vertices) else 2
   # Optical laminates need their real exit surface. Face provenance is now
   # present on lamp covers too; it is not permission to remove their backs.
-  if ob.get('part_category')=='glass' or ob.name.startswith(('Headlamp opening','Taillamp opening')):continue
-  if ob.parent.name!='AlderX220' and ob.get('part_category')!='doors' and ob.name!='Liftgate outer':continue
+  if ob.get('part_category')=='glass' or ob.name.startswith(('Headlamp opening','Taillamp opening')) and not sheet_count:continue
+  if ob.parent.name!='AlderX220' and ob.get('part_category')!='doors' and ob.name!='Liftgate outer' and not sheet_count:continue
   mesh=ob.data;role=mesh.attributes.get('skin_face_role')
   if role is None:continue
   selected=[f for f in mesh.polygons if role.data[f.index].value!=1]
@@ -62,7 +100,7 @@ def remove_hidden_backs():
    a.data.foreach_set('vector',[q for d in mesh.attributes['BodyNormal'].data for q in d.vector])
   candidate.normals_split_custom_set(ns);candidate.calc_loop_triangles()
   ob.data=candidate;ob['allow_boundary']=True
-  ob['collision_gauge_m']=.003 if ob.get('part_category') in ['fascia','cladding'] else .0009
+  ob['collision_gauge_m']=.002 if ob.get('cassette_sheet_vertex_count') else .003 if ob.get('part_category') in ['fascia','cladding'] or ob.get('trim_sheet_vertex_count') else .0009
   ob['game_sheet_reason']='Concealed reverse faces removed; exposed cut rims retained; high manufacturing source has full gauge'
   report[ob.name]=dict(before=before,after=len(candidate.loop_triangles),saved=before-len(candidate.loop_triangles))
   if mesh.users==0:bpy.data.meshes.remove(mesh)
@@ -122,11 +160,19 @@ def simplify_moldings():
   me.calc_loop_triangles()
   return BVHTree.FromPolygons([v.co for v in me.vertices],[tuple(t.vertices) for t in me.loop_triangles],all_triangles=True)
  def probes(me):
-  me.calc_loop_triangles();result=[v.co.copy() for v in me.vertices]
+  me.calc_loop_triangles();used={i for t in me.loop_triangles for i in t.vertices};result=[me.vertices[i].co.copy() for i in sorted(used)]
   result += [sum((me.vertices[i].co for i in t.vertices),Vector())/3 for t in me.loop_triangles]
   return result
  def border(me):
   bm=bmesh.new();bm.from_mesh(me);ps=[v.co.copy() for v in bm.verts if v.is_boundary];bm.free();return ps
+ def gauge_valid(me):
+  role=me.attributes['skin_face_role']
+  data=bpy.data.meshes.new('Molding allocation gauge probe');data.from_pydata([v.co for v in me.vertices],[],[tuple(f.vertices) for f in me.polygons if role.data[f.index].value==0]);data.update()
+  probe=bpy.data.objects.new('Molding allocation gauge probe',data);bpy.context.collection.objects.link(probe)
+  sol=probe.modifiers.new('Actual collision gauge','SOLIDIFY');sol.thickness=.003;sol.offset=-1;sol.use_even_offset=True;G.apply(probe)
+  bm=bmesh.new();bm.from_mesh(probe.data);valid=all(e.is_manifold for e in bm.edges) and bm.calc_volume(signed=True)>0;bm.free()
+  data=probe.data;bpy.data.objects.remove(probe,do_unlink=True);bpy.data.meshes.remove(data)
+  return valid
  for ob in bpy.context.scene.objects:
   if ob.name not in ['Front lower bumper cladding','Rear lower bumper cladding']:continue
   original=ob.data;oldtree=capture(original);oldprobes=probes(original);oldborder=border(original);before=len(original.loop_triangles)
@@ -136,8 +182,9 @@ def simplify_moldings():
    candidate=ob.data;candidate.calc_loop_triangles();newtree=capture(candidate)
    error=max([newtree.find_nearest(p)[3] for p in oldprobes]+[oldtree.find_nearest(p)[3] for p in probes(candidate)])
    border_error=max([newtree.find_nearest(p)[3] for p in oldborder]+[oldtree.find_nearest(p)[3] for p in border(candidate)],default=0)
-   accepted=error<.0015 and border_error<.0005
-   attempts.append(dict(ratio=ratio,triangles=len(candidate.loop_triangles),maximum_probe_error_m=error,border_probe_error_m=border_error,accepted=accepted))
+   valid=gauge_valid(candidate)
+   accepted=error<.0015 and border_error<.0005 and valid
+   attempts.append(dict(ratio=ratio,triangles=len(candidate.loop_triangles),maximum_probe_error_m=error,border_probe_error_m=border_error,collision_gauge_valid=valid,accepted=accepted))
    if accepted:
     # The collapse modifier carries FACE provenance; collision gauge
     # reconstruction starts from these actual new exterior triangles.
@@ -146,4 +193,23 @@ def simplify_moldings():
     break
    ob.data=original;bpy.data.meshes.remove(candidate)
   report[ob.name]=dict(before=before,after=len(ob.data.loop_triangles),attempts=attempts)
+  # Reallocate redundant near-planar molding chords to the visible optics and
+  # cargo liners. Keep all boundary vertices, the sheet roles and parent field;
+  # accept only actual bidirectional surface error below the existing 1.5 mm.
+  original=ob.data;oldtree=capture(original);oldprobes=probes(original);oldborder=border(original)
+  candidate=original.copy();bm=bmesh.new();bm.from_mesh(candidate);bm.normal_update()
+  role=bm.faces.layers.int.get('skin_face_role')
+  for f in bm.faces:f.material_index=f[role]
+  bmesh.ops.dissolve_limit(bm,angle_limit=__import__('math').radians(1),verts=list(bm.verts),edges=list(bm.edges),use_dissolve_boundaries=False,delimit={'NORMAL','MATERIAL'})
+  bmesh.ops.triangulate(bm,faces=list(bm.faces))
+  for f in bm.faces:f.material_index=0
+  bm.to_mesh(candidate);bm.free();candidate.calc_loop_triangles();newtree=capture(candidate)
+  error=max([newtree.find_nearest(p)[3] for p in oldprobes]+[oldtree.find_nearest(p)[3] for p in probes(candidate)])
+  border_error=max([newtree.find_nearest(p)[3] for p in oldborder]+[oldtree.find_nearest(p)[3] for p in border(candidate)],default=0)
+  valid=gauge_valid(candidate)
+  accepted=error<.0015 and border_error<.0005 and valid
+  report[ob.name]['planar_allocation']=dict(accepted=accepted,triangles=len(candidate.loop_triangles),maximum_probe_error_m=error,border_probe_error_m=border_error,collision_gauge_valid=valid)
+  if accepted:ob.data=candidate
+  else:bpy.data.meshes.remove(candidate)
+  report[ob.name]['after']=len(ob.data.loop_triangles)
  return report

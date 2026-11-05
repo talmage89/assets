@@ -24,6 +24,7 @@ def palette(wear=.65):
  for key,col,kind in [('rubber',(.008,.009,.010),'rubber'),('plastic',(.014,.016,.017),'plastic'),('bumper',(.014,.016,.017),'plastic'),('wheel',(.43,.46,.48),'alloy'),('chrome',(.56,.60,.62),'chrome'),('dark_chrome',(.12,.145,.16),'chrome'),('frame',(.009,.011,.012),'plastic'),('caliper',(.12,.13,.13),'steel'),('cloth',(.045,.049,.052),'fabric'),('seat_side',(.020,.024,.026),'plastic'),('interior',(.018,.021,.023),'plastic'),('headliner',(.18,.18,.17),'fabric'),('interior_light',(.085,.093,.098),'plastic')]:
   m[key]=V.manufactured('X220 '+key,col,kind,wear,axles,refined=True,brake_centers=[(sgn*track/2,y,S.HUB_HEIGHT) for sgn in [-1,1] for track,y in [(S.FRONT_TRACK,S.FRONT_AXLE),(S.REAR_TRACK,S.REAR_AXLE)]] if key=='wheel' else ())
  m['brake']=V.brake_rotor('X220 turned rotor')
+ m['cargo_trim']=V.manufactured('X220 cargo trim',(.105,.112,.116),'plastic',wear,(),refined=True)
  m['gloss_black']=V.manufactured('X220 gloss black',(.005,.007,.008),'plastic',wear*.3,(),refined=True)
  bs=m['gloss_black'].node_tree.nodes['SURFACE'];bs.inputs['Coat Weight'].default_value=.8
  # Named output and actual roughness agree; retain all bake channels.

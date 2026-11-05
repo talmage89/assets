@@ -69,8 +69,10 @@ def build(b):
   name='Rear quarter_'+side
   split_y(b,name,[('lower',None,1.31775,b.root),('upper',1.32225,None,b.root)],axis='Z')
   split_y(b,name+' upper',[('forward',None,1.61775,b.root),('aft',1.62225,None,b.root)])
-  limits=[('gate return',-.77775,None,gate),('fixed side',None,-.78225,b.root)] if side=='L' else [('gate return',None,.77775,gate),('fixed side',.78225,None,b.root)]
-  split_y(b,name+' upper aft',limits,axis='X')
+  # The gate wraps the complete aft shoulder above the fixed quarter. Cutting
+  # it again at X=782 mm left a 46 mm triangular steel remnant standing alone
+  # when the gate opened. Keep that shoulder on the moving stamping instead.
+  split_y(b,name+' upper aft',[('gate return',None,None,gate)],axis='X')
   for ob in bpy.context.scene.objects:
    if ob.name.startswith('Cladding clip ') and side in ob.name.split()[-1]:
     p=sum((ob.matrix_world@v.co for v in ob.data.vertices),Vector())/len(ob.data.vertices)

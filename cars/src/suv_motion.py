@@ -17,6 +17,17 @@ from suv_mechanics import update_supports
 def collision_gauges():
  result={}
  for ob in list(bpy.context.scene.objects):
+  if ob.type=='MESH' and ob.get('collision_hidden_faces'):
+   # Restore only the exact buried faces omitted by the game allocator.
+   # Actual visible tread/rotor vertices still participate in every sweep.
+   bm=bmesh.new();bm.from_mesh(ob.data);bm.verts.ensure_lookup_table()
+   hidden=json.loads(ob['collision_hidden_faces'])
+   for face in hidden:bm.faces.new([bm.verts[i] for i in face])
+   bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces))
+   nonmanifold=sum(not e.is_manifold for e in bm.edges);volume=bm.calc_volume(signed=True)
+   if nonmanifold or volume<=0:raise ValueError(('Invalid hidden-face reconstruction',ob.name,nonmanifold,volume))
+   bm.to_mesh(ob.data);bm.free();ob['allow_boundary']=False
+   result[ob.name]=dict(restored_buried_faces=len(hidden),nonmanifold_edges=nonmanifold,volume_m3=volume)
   if ob.type!='MESH' or not ob.get('collision_gauge_m'):continue
   old=ob.data;role=old.attributes['skin_face_role']
   faces=[tuple(f.vertices) for f in old.polygons if role.data[f.index].value==0]

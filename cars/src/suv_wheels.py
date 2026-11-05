@@ -1,9 +1,18 @@
 """Original 17-inch five-fork crossover alloy wheel, ISO tire and fixed caliper assembly."""
-import math
+import math,json,bmesh
 from kit import model as G
 from kit.vehicle import loaded_tire
 from mathutils import Vector
 from detail_helpers import box,print_quad
+
+
+def omit_buried_faces(ob,indices):
+    """Keep the actual hidden closures for collision reconstruction only."""
+    me=ob.data;buried=[list(me.polygons[i].vertices) for i in indices]
+    ob['collision_hidden_faces']=json.dumps(buried)
+    bm=bmesh.new();bm.from_mesh(me);bm.faces.ensure_lookup_table()
+    bmesh.ops.delete(bm,geom=[bm.faces[i] for i in indices],context='FACES');bm.to_mesh(me);bm.free()
+    ob['allow_boundary']=True
 
 
 def shoulder_blocks(b,name,pos,spin,material,S):
@@ -22,7 +31,9 @@ def shoulder_blocks(b,name,pos,spin,material,S):
                     r=radius+depth;r=rim+(r-rim)*(S.HUB_HEIGHT-rim)/(S.TIRE_RADIUS-rim);z=r*math.sin(t)
                     vertices.append((pos[0]+side*axial*S.WHEEL_AXIAL_SCALE,pos[1]+r*math.cos(t),pos[2]+z))
             faces.extend(tuple(start+i for i in f) for f in [(3,2,1,0),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)])
-    ob=G.mesh(name,vertices,faces,material);b.add(ob,spin,'tires')
+    ob=G.mesh(name,vertices,faces,material)
+    if not b.high:omit_buried_faces(ob,list(range(0,len(faces),6)))
+    b.add(ob,spin,'tires')
 
 
 def build(b,S):
@@ -50,9 +61,9 @@ def build(b,S):
             if b.detail:shoulder_blocks(b,'Shoulder tread_'+end+side,pos,spin,b.m['tire_'+side],S)
             cx=pos[0];r=S.RIM_INCHES*.0254/2
             profile=[(-.093,r-.020),(-.093,r+.005),(-.081,r+.005),(.084,r-.008),(.099,r+.006),(.103,r-.015)]
-            ob=G.lathe('Wheel barrel_'+end+side,[(cx+sign*x,rr) for x,rr in profile],b.m['wheel'],64 if b.high else 24,axis='X',center=(y,S.HUB_HEIGHT),closed=True)
+            ob=G.lathe('Wheel barrel_'+end+side,[(cx+sign*x,rr) for x,rr in profile],b.m['wheel'],64 if b.high else 32,axis='X',center=(y,S.HUB_HEIGHT),closed=True)
             b.add(ob,spin,'wheels')
-            hub=G.lathe('Wheel center_'+end+side,[(cx+sign*.068,0),(cx+sign*.068,.065),(cx+sign*.118,.065),(cx+sign*.129,.052),(cx+sign*.129,0)],b.m['wheel'],32 if b.high else 20,axis='X',center=(y,S.HUB_HEIGHT))
+            hub=G.lathe('Wheel center_'+end+side,[(cx+sign*.068,0),(cx+sign*.068,.065),(cx+sign*.118,.065),(cx+sign*.129,.052),(cx+sign*.129,0)],b.m['wheel'],40 if b.high else 32,axis='X',center=(y,S.HUB_HEIGHT))
             b.add(hub,spin,'wheels')
             for k in range(5):
                 angle=math.tau*k/5+.15
@@ -76,7 +87,8 @@ def build(b,S):
                 x=cx+sign*.130
                 print_quad(b,'Alder center cap_'+end+side,[(x,y-sign*.029,S.HUB_HEIGHT-.010),(x,y+sign*.029,S.HUB_HEIGHT-.010),(x,y+sign*.029,S.HUB_HEIGHT+.010),(x,y-sign*.029,S.HUB_HEIGHT+.010)],b.m['badge'],'wheels',spin)
                 # Disc rotates; caliper follows the knuckle but never the wheel.
-                rotor=G.lathe('Brake rotor_'+end+side,[(cx+sign*.008,.061),(cx+sign*.008,.161),(cx+sign*.028,.161),(cx+sign*.028,.104),(cx+sign*.045,.091),(cx+sign*.045,.061)],b.m['brake'],48 if b.high else 20,axis='X',center=(y,S.HUB_HEIGHT),closed=True)
+                rotor=G.lathe('Brake rotor_'+end+side,[(cx+sign*.008,.061),(cx+sign*.008,.161),(cx+sign*.028,.161),(cx+sign*.028,.104),(cx+sign*.045,.091),(cx+sign*.045,.061)],b.m['brake'],48 if b.high else 32,axis='X',center=(y,S.HUB_HEIGHT),closed=True)
+                if not b.high:omit_buried_faces(rotor,list(range(32)))
                 rotor.data.materials.append(b.m['caliper'])
                 for f in rotor.data.polygons:
                     radius=sum(math.hypot(rotor.data.vertices[i].co.y-y,rotor.data.vertices[i].co.z-S.HUB_HEIGHT) for i in f.vertices)/len(f.vertices)

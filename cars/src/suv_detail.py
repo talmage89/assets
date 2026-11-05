@@ -25,12 +25,14 @@ def build(source,out,wear=.65):
  from suv_glazing import build as fair_glazing
  fair_glazing(b.high)
  if not b.high:
-  from suv_allocation import remove_hidden_backs,simplify_glazing,simplify_moldings
+  from suv_allocation import remove_hidden_backs,simplify_glazing,simplify_moldings,fair_front_molding_seam
+  fair_front_molding_seam()
   sc['concealed_back_allocation']=json.dumps(remove_hidden_backs())
   sc['glass_allocation']=json.dumps(simplify_glazing())
   sc['molding_allocation']=json.dumps(simplify_moldings())
  else:
-  from suv_allocation import couple_glass_normals
+  from suv_allocation import couple_glass_normals,fair_front_molding_seam
+  fair_front_molding_seam()
   for ob in sc.objects:
    if ob.type=='MESH' and 'side glazing_' in ob.name:couple_glass_normals(ob)
  for m in list(bpy.data.materials):

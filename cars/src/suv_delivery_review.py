@@ -2,8 +2,8 @@
 import argparse,hashlib,json
 from pathlib import Path
 import numpy as np
-from PIL import Image,ImageOps,ImageFilter
-from suv_detail_review import sheet,rgb,pairs
+from PIL import Image,ImageOps,ImageFilter,ImageDraw,ImageFont
+from suv_detail_review import sheet,rgb,pairs,FONT
 from kit.photo_match import compose
 
 ASSET=Path(__file__).resolve().parents[1]
@@ -25,8 +25,27 @@ def bounded_jpg(source,destination):
     raise ValueError('Docs JPG cannot meet its budget: '+str(destination))
 
 
+def closeup_crops(before,out):
+    """Same-camera native-pixel evidence; these review JPGs stay untracked."""
+    regions={
+        'cargo-seams':('cargo',(145,300,700,800)),
+        'cargo-corner':('cargo',(940,330,1300,760)),
+        'grille-badge':('face',(545,470,715,550)),
+        'wheel-badge':('wheel',(815,550,1050,805)),
+        'projectors':('lamps_lit',(825,440,1045,635)),
+        'bumper':('face',(190,630,1165,830)),
+    }
+    for label,(view,box) in regions.items():
+        aa=rgb(before/(view+'.png')).crop(box);bb=rgb(out/(view+'.png')).crop(box)
+        page=Image.new('RGB',(aa.width*2,aa.height+36),(225,228,230));draw=ImageDraw.Draw(page)
+        font=ImageFont.truetype(FONT,14)
+        for i,(title,im) in enumerate([('Before / delivered GLB',aa),('After / rebuilt GLB',bb)]):
+            page.paste(im,(i*aa.width,36));draw.text((i*aa.width+6,8),title,font=font,fill=(20,25,30))
+        page.save(out/('before-after-'+label+'.jpg'),quality=96,optimize=True)
+
+
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--docs',action='store_true');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--docs',action='store_true');p.add_argument('--before',type=Path);a=p.parse_args()
     out=ASSET/'renders/suv-final';eevee=ASSET/'renders/suv-eevee';photo=ASSET/'renders/suv-final-pairs';control=ASSET/'renders/suv-source-pairs';studio_control=ASSET/'renders/suv-source-studio'
     glb=ASSET/'export/AlderX220.glb';digest=hashlib.sha256(glb.read_bytes()).hexdigest()
     meta=json.loads((out/'shots.json').read_text())
@@ -85,6 +104,7 @@ def main():
                     if (docs/'suv-liftgate.gif').stat().st_size<=450000:accepted=True;break
                 if accepted:break
             if not accepted:raise ValueError('Liftgate GIF exceeds budget')
+    if a.before:closeup_crops(a.before,out)
     print('X220_FINAL_REVIEW',digest,'frames',len(meta),'bake loss',loss)
 
 

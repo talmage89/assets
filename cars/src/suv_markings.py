@@ -12,7 +12,9 @@ def build(out):
  font=find_font('Noto Sans','Bold')
  for name,size,label,fg,bg in [('badge',(512,128),'ALDER',(193,201,204),(9,12,14)),('model',(512,128),'X220  AWD',(180,186,190),(13,16,18)),('plate',(1024,512),'ALDER',(41,47,49),(197,201,197))]:
   im=Image.new('RGB',size,bg);d=ImageDraw.Draw(im)
-  centered(d,(0,0,*size),label,round(size[1]*.52),fg,font)
+  # Badge lettering occupies its physical land. The previous .52-em label
+  # left half the chart blank before the atlas downsample even began.
+  centered(d,(0,0,*size),label,round(size[1]*(1.10 if name=='badge' else .68 if name=='model' else .52)),fg,font)
   im.save(out/(name+'.png'))
  regular=find_font('Noto Sans','Regular')
  im=Image.new('RGB',(512,256),(5,9,12));d=ImageDraw.Draw(im)

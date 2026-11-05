@@ -64,6 +64,13 @@ def main():
     optical=[laminate(ob) for ob in obs if 'side glazing_' in ob.name]
     for row in optical:
         if not row['probe_count'] or row['max_normal_mismatch_degrees']>row['tolerance_degrees']:errors.append('Glass laminate acts as an optical prism: '+row['part'])
+    liner_normals=[]
+    for sign in [-1,1]:
+        ob=bpy.data.objects['Cargo quarter molded liner '+str(sign)];me=ob.data;count=ob['trim_sheet_vertex_count'];role=me.attributes.get('skin_face_role')
+        faces=[f for f in me.polygons if (role.data[f.index].value==0 if role else all(i<count for i in f.vertices)) and .77<f.center.z<1.0 and f.center.y<1.9]
+        facing=sum(f.area*f.normal.x*(-sign) for f in faces)/sum(f.area for f in faces)
+        liner_normals.append(dict(part=ob.name,area_weighted_inward_normal_component=facing))
+        if facing<.5:errors.append('Cargo visible liner faces away from cavity: '+ob.name)
     low=[min(p[k] for p in allpoints) for k in range(3)];high=[max(p[k] for p in allpoints) for k in range(3)];size=[b-a for a,b in zip(low,high)]
     if any(abs(x-y)>t for x,y,t in zip(size,[2.117,4.600,1.735],[.010,.008,.005])):errors.append('Actual vertex envelope')
     if max(rest_errors)>1e-5:errors.append('Rest coordinates drift from actual positions')
@@ -123,7 +130,7 @@ def main():
         supports.append(dict(parts=[handle.name,seat.name],triangle_crossings=crossings,seat_min_vertex_to_paint_m=nearest))
         if not crossings or nearest>.002:errors.append('Handle lacks a measured seat: '+code)
     resources=dict(source_materials=sorted({m.name for o in obs for m in o.data.materials}),source_images={im.name:list(im.size) for im in bpy.data.images if im.source=='FILE' and im.size[0]},delivery_plan=dict(texture_size=2048,maps=['BaseColor RGBA','OpenGL +Y Normal','ORM'],compressed_full_mips_MiB=16,status='planned; no SUV UV/bake/export at this checkpoint'))
-    report=dict(passed=not errors,errors=errors,source_sha256=hashlib.sha256(src.read_bytes()).hexdigest(),quality=bpy.context.scene['quality'],triangles=sum(parts.values()),categories=dict(categories),assemblies=dict(assemblies),parts=parts,actual_vertex_bounds_m=dict(min=low,max=high,size=size),underbody_lowest_m=ground[0],underbody_lowest_part=ground[1],rest_position_max_error_m=max(rest_errors),glass_normal_checks=glass,glass_laminate_rays=optical,paint_border_distances=edge,pivots=pivots,steering=steering,hinge_axis_measurements=hinges,strut_strokes=strokes,measured_fitting_supports=supports,resources=resources,scope='Source construction only; mechanical sweeps are separate; delivery is pending')
+    report=dict(passed=not errors,errors=errors,source_sha256=hashlib.sha256(src.read_bytes()).hexdigest(),quality=bpy.context.scene['quality'],triangles=sum(parts.values()),categories=dict(categories),assemblies=dict(assemblies),parts=parts,actual_vertex_bounds_m=dict(min=low,max=high,size=size),underbody_lowest_m=ground[0],underbody_lowest_part=ground[1],rest_position_max_error_m=max(rest_errors),glass_normal_checks=glass,glass_laminate_rays=optical,cargo_liner_normals=liner_normals,paint_border_distances=edge,pivots=pivots,steering=steering,hinge_axis_measurements=hinges,strut_strokes=strokes,measured_fitting_supports=supports,resources=resources,scope='Source construction only; mechanical sweeps are separate; delivery is pending')
     Path(a.out).parent.mkdir(parents=True,exist_ok=True);Path(a.out).write_text(json.dumps(report,indent=2));print('SUV_CONSTRUCTION',report['passed'],report['triangles'],errors,flush=True)
     if errors:raise AssertionError(errors)
 

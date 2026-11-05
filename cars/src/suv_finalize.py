@@ -21,9 +21,35 @@ def main():
         print('X220_UV_REPAIR',str(error),flush=True)
     all_objects=[o for o in bpy.context.scene.objects if o.type=='MESH' and o.get('asset_set')=='SUV']
     obs=[o for o in all_objects if not o.name.startswith('Tire_')]
+    # Blender's UV averaging/packing inherited the marking images' 4:1 aspect.
+    # Area normalization could not repair that anisotropy: the 96x22 mm front
+    # badge became a 17.7x46.8 pixel chart, with its word on the SHORT axis.
+    # Reconstruct print metrics from the actual geometry and authored print
+    # coordinates; keep their allocated area. Repack against a square atlas,
+    # then restore every original image/node before the procedural bake.
+    square=bpy.data.images.new('X220 square UV packing target',width=a.size,height=a.size)
+    image_sources=[];helpers=[]
+    for mat in {m for ob in obs for m in ob.data.materials if m and m.use_nodes}:
+        nt=mat.node_tree;active=nt.nodes.active
+        for node in nt.nodes:
+            if node.type=='TEX_IMAGE':image_sources.append((node,node.image));node.image=square
+        helper=nt.nodes.new('ShaderNodeTexImage');helper.image=square;nt.nodes.active=helper;helpers.append((nt,helper,active))
+    print_repairs=[]
+    for ob in obs:
+        me=ob.data;source=me.attributes.get('BakeSourceUV')
+        if source is None or not me.uv_layers.get('PrintUV'):continue
+        me.calc_loop_triangles();t=me.loop_triangles[0];layer=me.uv_layers['BakeUV']
+        coords=np.array([tuple(source.data[i].vector)[:2] for i in t.loops])
+        ps=np.array([tuple(ob.matrix_world@me.vertices[i].co) for i in t.vertices])
+        metric=np.linalg.solve(coords[1:]-coords[0],ps[1:]-ps[0]);width,height=np.linalg.norm(metric,axis=1)
+        area=sum(abs(uv.signed_area([tuple(layer.data[i].uv) for i in tri.loops])) for tri in me.loop_triangles)
+        factor=(area/(width*height))**.5;center=sum((q.uv.copy() for q in layer.data),Vector((0,0)))/len(layer.data)
+        for li,q in enumerate(layer.data):
+            u,v=source.data[li].vector[:2];q.uv=center+Vector(((u-.5)*width*factor,(v-.5)*height*factor))
+        print_repairs.append(dict(mesh=ob.name,physical_width_height_m=[width,height],retained_uv_area=area))
     saved={o:[n.vector.copy() for n in o.data.corner_normals] for o in obs};repairs=[]
     for iteration in range(12):
-        footprint_changes=False
+        footprint_changes=iteration==0 and bool(print_repairs)
         for ob in obs:
             layer=ob.data.uv_layers['BakeUV'];groups=list(uv.islands(ob))
             owner={li:j for j,loops in enumerate(groups) for li in loops};areas=[0.]*len(groups)
@@ -81,7 +107,22 @@ def main():
         # repaired unique charts into the same rectangular delivery region.
         for ob in obs:
             for p in ob.data.uv_layers['BakeUV'].data:p.uv.y=.28+p.uv.y*.72
+    for rec in print_repairs:
+        ob=bpy.data.objects[rec['mesh']];me=ob.data;source=me.attributes['BakeSourceUV'];layer=me.uv_layers['BakeUV'];t=me.loop_triangles[0]
+        original=np.array([tuple(source.data[i].vector)[:2] for i in t.loops]);packed=np.array([tuple(layer.data[i].uv) for i in t.loops])
+        axes=np.linalg.solve(original[1:]-original[0],packed[1:]-packed[0]);width,height=rec['physical_width_height_m']
+        center=np.mean(packed-original@axes,axis=0)+np.array([.5,.5])@axes
+        # A rectangular-region pack can rotate a chart before the final .72
+        # Y transform. Preserve its word-axis pixels, shrink only surplus
+        # cross-word extent to recover physical aspect. Every new UV stays
+        # inside its packed parallelogram, so no other chart loses its gutter.
+        shrink=min(1,np.linalg.norm(axes[0])*height/(np.linalg.norm(axes[1])*width));axes[1]*=shrink
+        for li,q in enumerate(layer.data):q.uv=center+(np.array(tuple(source.data[li].vector)[:2])-.5)@axes
+        rec['post_pack_cross_word_scale']=float(shrink)
     for ob,normals in saved.items():ob.data.normals_split_custom_set(normals)
+    for node,original in image_sources:node.image=original
+    for nt,helper,active in helpers:nt.nodes.remove(helper);nt.nodes.active=active
+    bpy.data.images.remove(square)
     # Float corner directions survive the join/rebase smoothing-fan encoding.
     # Export reseeds them after the final attachment, in the owning node frame.
     for ob in all_objects:
@@ -91,6 +132,7 @@ def main():
     report=uv.report(obs,a.size)
     if report['overlap_fraction']>=1e-6 or report['outside_triangles'] or report['degenerate_uv_triangles']:raise ValueError('UV repair failed')
     report['projection_chart_repairs']=repairs
+    report['print_metric_repairs']=print_repairs
     report['density_policy']='Measured area normalization, exterior face weights and manufacturing-part priorities'
     report['unique_rectangle']=[0,.28,1,1]
     report['shared_tire_rectangle']=[.005,.005,.995,.255]

@@ -1,3 +1,225 @@
+# Alder X220 — delivered compact crossover
+
+Original Blender 5.2 procedural asset. The accepted reflective surfaces,
+chevron grille, five factory colors, cabin/cargo area, underbody and thirteen
+pivot contracts now ship as `export/AlderX220.glb`, with one baked three-map
+2048 set. No reference pixels, imported geometry or downloaded environment
+enter the asset. The C150 gallery's lights and cove are unchanged.
+
+![X220 gallery hero](docs/suv-hero.jpg)
+
+The [family README](README.md#alder-x220--compact-crossover) has the five final
+JPGs, liftgate GIF, dimensions and rebuild commands. Full-size deliverables:
+[all views](renders/suv-final/contact.jpg),
+[five colors](renders/suv-final/five-colors.jpg),
+[details](renders/suv-final/details.jpg),
+[turnaround / scale / Eevee](renders/suv-final/views.jpg),
+[front used pair](renders/suv-final-pairs/used_front-pair.jpg),
+[rear used pair](renders/suv-final-pairs/used_rear-pair.jpg).
+Images include their source GLB hash, recipe hash, camera, exposure and paint
+preset in `shots.json`. Every final is rendered from a fresh GLB import.
+
+## Delivered parts and atlas
+
+| Exported rigid part | Triangles |
+| --- | ---: |
+| Static shell, fittings, cabin and underbody | 34,437 |
+| Front door L / R | 3,598 / 3,597 |
+| Rear door L / R | 2,134 / 2,141 |
+| Hood / liftgate / fuel flap | 1,674 / 6,796 / 28 |
+| Each wheel assembly, excluding shared-tile carcass | 1,708 |
+| Each tyre carcass, parented to its wheel | 768 |
+| Each front steering assembly | 120 |
+| Each of four strut barrels / four rods | 64 / 32 |
+| **Total** | **64,933** |
+
+The manufacturing allocation is 2,322 door-skin, 10,442 body, 5,046 fascia,
+1,598 glass, 7,479 cladding, 1,168 liner, 5,480 opening, 2,716 mirror, 744 rail,
+1,710 spoiler, 4,352 tyre, 4,272 wheel, 1,680 brake, 4,464 interior, 1,668
+underbody, 2,608 lamp, 2,576 trim, 1,688 mechanism and 2,920 pillar triangles.
+The 496-mesh source retains its 36 manufacturing materials; the 169,778-triangle
+high source is an independent construction/motion check and is not loaded for
+final renders. Accepted parent fields already supply broad surface normals
+on the game mesh. Fine procedural height, colors, roughness and metallic
+coverage are baked directly on that finalized game surface, avoiding sheet
+backside/cap projection. No high-to-low geometric projection is claimed.
+
+| Resource | Measured result |
+| --- | ---: |
+| GLB bytes | 9,061,968 |
+| Embedded BaseColor / Normal / ORM bytes | 904,536 / 1,374,998 / 1,934,969 |
+| Maps / delivery materials | 3 × 2048² / 4 |
+| Block-compressed maps with complete mips | about 16 MiB |
+| Unique chart coverage | 30.39% |
+| Shared tyre tile area | 24.75%, repeated four times without extra maps |
+| Total occupied atlas area, counting tile once | 55.14% |
+| Painted exterior atlas fraction | 11.15% |
+| Painted-panel density | 137 / 195 / 206 px/m (p5 / median / p95, UV-area weighted) |
+| Tyre tile density | 854–1099 px/m |
+| Unique overlaps / degenerate UVs / out-of-atlas triangles | 0 / 0 / 0 |
+
+The original procedural sidewall relief needs more texels than four separate
+copies could afford. One authored torus chart shares the canonical FR carcass;
+left-wheel angular reflection keeps the molded lettering readable. This also
+mirrors the tread's handedness. Four additional carcass primitives are the
+explicit draw-call trade. Unique charts reserve the upper 72% of the atlas;
+material gutters separate that region from the tyre tile. Sheet-panel density
+is measured on exterior face roles, excluding reverse and gauge faces; unsheeted
+molded paint parts use their complete painted surfaces.
+Every panel's area/density is in `build/suv-delivery/surface-check.json`.
+
+| Representative painted part | Median px/m |
+| --- | ---: |
+| Door F_R | 195 |
+| Door R_R | 196 |
+| Front fender_R | 196 |
+| Hood outer | 206 |
+| Roof fixed | 176 |
+| Liftgate outer | 198 |
+| Rear quarter_R lower | 197 |
+| Front molded fascia | 207 |
+| Rear molded fascia | 196 |
+| Mirror housing_R | 156 |
+| Liftgate spoiler | 136 |
+| Gate upper header | 150 |
+
+The family Paint/Opaque/Glass/Lamps split is retained as a four-material
+exception. One shared set contains sRGB BaseColor, OpenGL +Y Normal and linear
+ORM (occlusion/roughness/metallic). BaseColor alpha is paint coverage or lamp
+power, never surface transparency; downsampling treats it independently.
+Factory tint/metallic factors and lamp controls live in the GLB extras. The
+SUV decoder reads the warm projector emission override from those extras;
+its dark unlit surface stays dark. Glass IOR is 1.52 and normalTexture scale
+zero: its molded optical shape is represented by the continuous mesh normals.
+
+## Dimensions, construction and motion
+
+Actual bounds including mirrors/antenna: **2117.0 × 4598.8 × 1735.0 mm**.
+Body width 1842 mm, roof 1679 mm, rails 1700 mm, wheelbase 2690 mm, tracks
+1600/1610 mm, 225/65R17 tyres, lowest underbody surface 205 mm. Published
+reference envelopes are Toyota's MY2020 US RAV4 and Honda's MY2020 CR-V;
+Honda's UK brochure cross-checks mirror width. The original design is not
+traced. Source URLs, authors, licenses and use are in [SOURCES.md](refs/SOURCES.md)
+and dimension distinctions in [REFERENCE.md](REFERENCE.md).
+
+Meters; front −Y, up +Z, origin on the ground footprint center. L is −X and R
+is +X; driver controls are at +X. The following angles use node **local** axes.
+
+| Node | Closed pivot (m) | Local axis / range |
+| --- | --- | --- |
+| Door_FL / FR | (−/+ .840, −1.035, .780) | Z inclined 5.71° outward; L 0…60°, R −60…0° |
+| Door_RL / RR | (−/+ .820, .150, .780) | Same inclined Z; L 0…60°, R −60…0° |
+| Hood | (0, −1.070, 1.120) | X, −65…0° |
+| Liftgate | (0, 1.620, 1.670) | X, 0…75° |
+| Wheel_FL / FR | (−/+ .800, −1.340, .35715) | X, continuous |
+| Wheel_RL / RR | (−/+ .805, 1.350, .35715) | X, continuous |
+| Steer_FL / FR | (−/+ .68409, −1.34431, .35715) | Z, 12° SAI / 6.5° caster, ±35° |
+| FuelDoor | (−.91055, 1.47854, 1.04016) | Z along (−.03070,.00006,.99953), 0…85° |
+
+Eight separate strut drivers retain `support_*` endpoint metadata. Runtime
+calls to `suv_mechanics.update_supports()` re-aim and telescope their barrels
+and rods after closure poses. The liftgate GIF demonstrates the exported nodes
+through 0…75…0°; this is a scripted pose sequence, not an embedded animation.
+No armature is required. Source motion checks evaluate 413 poses at each
+quality with the unchanged 0.5 mm penetration tolerance. They prove sampled
+individual motions, not every combined pose or continuous swept volume.
+Serialization checks separately verify the imported pivot/support frames.
+
+## Bake loss and final critique
+
+Color/value first: the four gallery paint controls have mean absolute RGB
+loss of **0.51 / 1.03 / 1.33 / 0.76 levels** (hero / face / lamp / wheel).
+Matched-light paint loses 0–3 display levels; cladding loses 0–.72 after
+preserving source dielectric specular level .33 via `KHR_materials_specular`.
+The earlier generic .5 specular caused an unacceptable +6-level cladding shift.
+Rear glass shifts −8.57 levels, closer to its balanced photo; uniform glass
+transmission and atlas filtering remain approximations. These are identical
+camera/light/exposure comparisons, not albedo measurements.
+
+| Matched-light patch | Source Y | Export Y | Balanced photo Y | Bake ΔY |
+| --- | ---: | ---: | ---: | ---: |
+| front / door_mid | 87.4 | 88.2 | 88.1 | +0.7 |
+| front / door_low | 82.4 | 85.4 | 76.6 | +3.0 |
+| front / cladding | 32.9 | 33.6 | 37.4 | +0.7 |
+| front / glass | 137.2 | 137.2 | 158.8 | +0.0 |
+| rear / door_mid | 135.9 | 136.2 | 135.3 | +0.2 |
+| rear / rear_quarter | 141.2 | 141.2 | 152.6 | +0.0 |
+| rear / cladding | 27.6 | 27.6 | 27.4 | +0.0 |
+| rear / glass | 138.7 | 130.1 | 127.5 | -8.6 |
+
+Front photo balance uses foreground asphalt; rear uses the unprinted white
+parking sign. Sun/sky and the original surrounding geometry retain the accepted
+estimated daylight, with ±20° sun-direction uncertainty. The front glass still
+reads about 21 levels too dim, the rear quarter 11 levels too dark, and the low
+front door about 9 levels too bright against the photograph. Those accepted
+source/environment misses remain; bake equality does not prove a perfect photo
+match. The tyre tile preserves readable original relief, while the finest
+flakes, fabric and molded grain soften at 2048. Badge charts retain physical
+aspect and at least 96 × 24 delivered pixels; their original artwork fills
+its lands. The grille badge measures 202 × 46 pixels, each center cap
+146 × 51, rear badge 143 × 51, model badge 201 × 51 and plate 253 × 125.
+Both the ordinary density limits and the new footprint gate pass. A stock
+viewer’s uniform coat and the Eevee thin-sheet approximation have further
+response limits.
+
+
+The full-size audit, rejected bake trials and cause-based fixes are recorded
+in [REVIEW.md](REVIEW.md). Aluminum's gallery exposure is bracketed −.8 EV
+without changing its accepted material or matched-daylight exposure. The final
+normal accessor audit retains the reviewed source corner field within 0.040°.
+
+Opened all 24 gallery/color PNGs at their native 1600 px, the Eevee view,
+both matched-light exports and source controls, all 21 motion frames, the
+contact/sheets and the five compressed docs JPGs. Reflection edges stay
+continuous across the paint and glazing; the grille remains straight and open,
+the lamp covers have no black/white shards, and arch tails have no spikes.
+The sparse cabin, economical tyre silhouette and regular procedural wear
+still read as game geometry. The cargo opening is now lined and sealed;
+projectors, wheel centers/barrels and rotors use 32 angular stations. Aluminum's two gallery views
+have zero clipped paint pixels. Other rear presets retain 1–10 isolated hot
+paint pixels, with no broad clipped return. Road film stays a soft low gradient
+with wheel wakes, not a noise overlay. Sixteen-bit height samples are filtered
+into the normal atlas without interpreting unset borders as depressions.
+
+The final docs are five JPGs at 1600 px, 120,509–194,154 bytes, and one 21-frame
+640 × 400 liftgate GIF at 440,601 bytes. They were committed only after this
+full-size audit. GIF palette banding is compression; the full motion PNGs remain
+available. All finals carry the same verified GLB SHA-256:
+`d8bfd1c781637a75bfbe55ece01537911ef5434bd3e860da490a03a7f83cf51c`.
+
+## Rebuild, proof and credits
+
+```sh
+make -C cars BODY=suv clean
+make -C cars BODY=suv WIDTH=1600 FINAL_SAMPLES=64
+make -C cars BODY=suv check
+make -C cars BODY=suv check-detail-repeat
+python3 kit/repo_check.py
+```
+
+GPU work runs through `kit/with_gpu.sh`. `finalize`, `bake`, `export`, `verify`,
+`final-render`, `final-pairs`, `docs` and the archived `surfaces` target are
+available separately. The complete default rebuild generates source/detail,
+checks, the 4096 bake, 2048 downsample, export/re-import verification, gallery,
+matched pairs, comparisons, motion frames and bounded docs. No kit file or
+other body generator changed.
+
+Proof: `build/suv-delivery/{uv-report,export-report,delivery-check,surface-check}.json`,
+`textures/suv/{bake/bake-report,ship/texture-report}.json`,
+`build/suv-detail/{game,high}-check.json`, `motion-{game,high}.json`,
+`repeat-check.json` and `pickup-preservation.json`. RGB bake-loss comparisons
+and tonal masks accompany the final renders. The existing C150 is still
+11,530,740 bytes, SHA-256
+`ec70cde87fbe50fb814cc14c900ee324e254711b5bfa5d3735aef166b146de5b`.
+
+All meshes, markings, shaders and textures are original scripted work. The
+family kit supplies modeling, UV/export/verification, studio and photo-match
+infrastructure. Installed open-license Noto Sans provides fictional lettering.
+Photographs are used only for visual measurement/comparison; their authors and
+licenses remain in the reference manifest. No new tool or kit change is needed.
+
+<details><summary>Archived accepted surface checkpoint and earlier records</summary>
+
 # Alder X220 — surface and matched-light checkpoint
 
 The SUV retains its accepted package, painted body lines, detail and thirteen
@@ -1309,6 +1531,8 @@ oval; the spoiler end caps meet the pillars abruptly. The garnish is still more
 generic than Honda’s, and untrimmed window edges, opaque optical blanks and wheel
 proxies keep the car looking unfinished. The accepted Honda D-pillar/cowl mismatch
 remains. These are form-review limitations, not a finished-asset claim.
+
+</details>
 
 </details>
 

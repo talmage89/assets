@@ -20,6 +20,7 @@ def main():
         nt.links.new(nt.nodes['OUT_paint_coverage'].outputs[0],nt.nodes['OUT_metal'].inputs[0])
     for ob in list(bpy.context.scene.objects):
         if ob.type!='MESH':continue
+        if 'collision_hidden_faces' in ob:del ob['collision_hidden_faces']
         # Retain the original support's own Z-axis frame through consolidation.
         # Runtime re-aims the exported driver using the same measured endpoints.
         if 'support_pivot' in ob:

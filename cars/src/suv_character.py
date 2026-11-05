@@ -131,6 +131,7 @@ def optical_case(b,lamp,polygon,surface,front):
         else:lookup[index]=len(vertices);vertices.append(sample(p,.045))
     faces.extend(tuple(lookup[i] for i in face) for face in caps)
     ob=G.mesh(lamp.name+' optical cassette',vertices,faces,b.m['rubber'])
+    ob['cassette_sheet_vertex_count']=len(vertices)
     cap=ob.data.polygons[-1];center=cap.center;hint=Vector((center.x,-1 if front else 1,0))
     if cap.normal.dot(hint)<0:
         for face in ob.data.polygons:face.flip()
