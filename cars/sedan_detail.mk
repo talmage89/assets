@@ -61,7 +61,7 @@ build/sedan/motion-high.json: build/sedan/detail-high.blend $(SEDAN_CONFIG)
 	$(BP) --python $(KIT)/motion.py -- --source $< --config $(SEDAN_CONFIG) --out $@
 check-motion: build/sedan/motion-game.json build/sedan/motion-high.json
 
-build/sedan/finalized.blend build/sedan/uv-report.json &: build/sedan/material-source.blend $(SEDAN_CONFIG) src/sedan_finalize.py $(KIT)/finalize.py $(KIT)/uv.py
+build/sedan/finalized.blend build/sedan/uv-report.json &: build/sedan/material-source.blend $(SEDAN_CONFIG) src/sedan_finalize.py src/sedan_surface_normals.py $(KIT)/finalize.py $(KIT)/uv.py
 	$(BP) --python src/sedan_finalize.py -- --source $< --out build/sedan/finalized.blend --config $(SEDAN_CONFIG) --report build/sedan/uv-report.json --size 2048 --target-density 360 --margin .0012
 build/sedan/bake-source.blend: build/sedan/detail-high.blend src/sedan_prepare_bake.py src/prepare_bake.py
 	$(BP) --python src/sedan_prepare_bake.py -- --source $< --out $@

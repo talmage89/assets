@@ -3620,3 +3620,40 @@ zero differences in vertices, polygons, corner normals, transforms, parents
 and material assignments. This is regeneration evidence, not repeated GPU-bake
 byte identity. Check the export and its native crops before the final empty-
 output build; only the final gallery will replace docs.
+
+### R9 export preflight — UV fan encoding and native image gate
+
+Color/value first: the factory, color, road-film and gallery-light modules are
+identical to R8. The preflight GLB keeps deep glazing/grille/wheelwell values
+and rolling highlights. Revisited the balanced used-class photographs: front
+plaster and rear background white-car paint are the assumed neutrals, with the
+same limitations and gains as before. No tint, light or roughness change hides
+a surface fault.
+
+The first export's geometry/winding/back checks pass, but Door R_L's shared
+normal difference rises from 0.000398 on the source to 0.001231 after UV editing.
+Blender re-encodes restored float vectors in changed smoothing fans. Synchronize
+the representable outer field AFTER UV edit-mode operations, using the same
+coarse-fan method as the source. The strict 0.001 gate remains. Re-bake and
+re-export: all 422 parts pass; Door R_L measures 0.000656, with zero reversed
+facets and zero exact inner/outer crossings. This numerical repair is not
+claimed as the visual surface rebuild.
+
+Opened the preflight export's 1600 px front/rear/face crops, their native
+3200 px before/after pairs, and both 1600 px gallery zebra views. These images
+DO change. The old broad ragged windshield reflection now follows the pane's
+smooth mold; the old roof/sail angular white patches become one continuous
+swept reflection; the raised/crumpled deck corner becomes a clean rolled edge.
+The front lamp's old bright shards over the painted skin disappear into a
+proper opening. Bright white reflector-card reflections remain confined inside
+the recessed lamp. The vane pairs now share their bow. The source and export
+stripe curves agree through the affected surfaces.
+
+Preflight limitations: small reflector facets and very thin four-sided trim
+are still economical in macro/zebra views. The original badge is soft at this
+atlas scale. Those are separate from the repaired steel/glass reflection flow.
+No docs have been replaced. The preflight export is 59,812 triangles,
+9,698,784 bytes; one 2048 three-map set, four accepted delivery surfaces.
+UV coverage is 40.93%, with zero overlap/outside/degenerate triangles. The
+independent game/high motion and game construction gates pass. Now run the
+final empty-output build and judge every resulting final before docs.

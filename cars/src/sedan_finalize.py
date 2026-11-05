@@ -2,14 +2,15 @@
 
 A Smart UV projection can put a very thin gauge triangle over its neighbor.
 Split the smaller triangle's UV chart and repack; never relax overlap policy.
-Geometry, materials and authored corner normals are preserved. Existing chart
-scales stay proportional, except the explicitly logged subtexel-altitude repair.
+Geometry and materials are preserved. The manufactured normal field is
+synchronized after UV edit-mode re-encoding. Existing chart scales stay
+proportional, except the explicitly logged subtexel-altitude repair.
 """
 import sys,json,argparse,math,runpy
 from pathlib import Path
 import bpy,numpy as np
 from mathutils import Vector
-ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
+ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(Path(__file__).resolve().parent)]
 from kit import finalize,uv
 
 def continuous_charts(obs,config,margin):
@@ -120,6 +121,13 @@ def main():
         bpy.ops.uv.pack_islands(udim_source='CLOSEST_UDIM',rotate=True,rotate_method='ANY',scale=True,merge_overlap=False,margin_method='FRACTION',margin=a.margin,pin=False,shape_method='CONCAVE')
         bpy.ops.object.mode_set(mode='OBJECT')
     for ob,normals in saved.items():ob.data.normals_split_custom_set(normals)
+    # UV edit-mode roundtrips change Blender's smoothing-fan encoding.
+    # Restoring equal float vectors can therefore decode to different bins
+    # at one manufactured point. Synchronize representable outer normals
+    # AFTER those operations, with the same strict field used by the source.
+    from sedan_surface_normals import coalesce
+    for ob in obs:
+        if ob.get('part_category') in ['body','doors','fascia','pillars','glass']:coalesce(ob)
     print_stretch={}
     for ob in obs:
         if not ob.name.startswith(('Alder center cap','S240 original Alder emblem','S240 model badge')):continue
