@@ -70,7 +70,7 @@ def build(spec,rootpath):
    for x in (center-.085,center+.085):strip('Double yellow center',x-.05,x+.05,stop,extent,t,.016,yellow)
   if (spec['ns'] if t%2==0 else spec['ew'])>=4:
    for side in (-1,1):
-    x=side*(L*1.5+(spec['median']/2 if spec['median'] else 0))
+    x=side*((L if spec['median'] else L*1.5)+(spec['median']/2 if spec['median'] else 0))
     for y in range(round(stop+3),348,9):strip('White lane dash',x-.05,x+.05,y,y+3.048,t,.016,white)
   strip('Stop bar',-h,(L/2 if spec['ns']==5 and t%2==0 else -.1),stop-.3048,stop+.3048,t,.017,white)
   for i in range(math.floor(2*h/.76)):
@@ -85,12 +85,14 @@ def build(spec,rootpath):
   if spec['median'] and t%2==0:
    # Left-turn bay occupies half the median: tapered approach, rounded end.
    m=spec['median']/2;start=core+2.6;bay=stop+32
-   pts=[(-m,start+.65),(-m,bay+12),(m,bay+12),(0,bay),(0,start+.65)]
+   pts=[(-m,start+.65),(-m,extent),(m,extent),(m,bay+12),(0,bay),(0,start+.65)]
    for i in range(1,9):
     a=-i*math.pi/8;pts.append((-m/2+m/2*math.cos(a),start+.65+.65*math.sin(a)))
    slab('Median and rounded left-bay nose',[xy(-x,y,t) for x,y in pts])
    # Bay entry taper and left lane boundary.
-   strip('Left bay edge',-.05,.05,start+1,bay,t,.018,yellow)
+   strip('Left bay median edge',-.05,.05,start+1,bay,t,.018,yellow)
+   strip('Left bay lane divider',-m-.05,-m+.05,stop,bay,t,.018,white)
+   for side in (-1,1):strip('Divided median edge',side*m-.05,side*m+.05,bay+12,extent,t,.018,yellow)
   # Left/through symbols are original polygons.
   if (spec['ns'] if t%2==0 else spec['ew'])>=4:
    x=-spec['median']/2+L/2 if spec['median'] else 0;y=stop+8
@@ -98,6 +100,7 @@ def build(spec,rootpath):
    poly('Left turn arrow',[xy(*p,t) for p in pts],.018,white)
  for sx in (-1,1):
   for sy in (-1,1):
+   if 1 not in spec['approaches'] and sx<0:continue
    cx,cy=hx+.4572+R,hy+.4572+R
    # Measured circular return and adjacent walk; tessellated in arc strips.
    for label,ra,rb,z,ma in [('Gutter',R,R+.4572,.009,mats['Concrete']),('Corner curb',R-.1524,R,.1524,mats['Concrete']),('Corner planting verge',R-1.8288,R-.1524,.151,mats['Lawn']),('Corner walk',R-3.3528,R-1.8288,.1524,mats['Concrete'])]:
@@ -118,7 +121,11 @@ def build(spec,rootpath):
   pts=G.fillet_polygon([(hx+1,hy+1),(hx+.5,hy+3.3),(hx+3.8,hy+.5)],[.25,.25,.25],4)
   slab('Channelizing right-turn island',pts)
  if 1 not in spec['approaches']:
-  rect('T junction closed parcel',-extent,-hx,-hy,hy,.149,mats['Lawn'])
+  rect('T junction closed parcel',-extent,-hx-.6096,-extent,extent,.149,mats['Lawn'])
+  core=hy+.4572+R
+  rect('T closed-side gutter',-hx-.4572,-hx,-core,core,.008,mats['Concrete'])
+  slab('T closed-side curb',[(-hx-.6096,-core),(-hx-.4572,-core),(-hx-.4572,core),(-hx-.6096,core)])
+  rect('T closed-side verge',-hx-2.286,-hx-.6096,-core,core,.151,mats['Lawn'])
   rect('T junction sidewalk',-hx-3.81,-hx-2.286,-hy-R,hy+R,.1524,mats['Concrete'])
  return rt
 
