@@ -125,7 +125,7 @@ def rebuild(ob,surface,high=False):
         return [(3*v[i]/(knots[i+3]-knots[i]) if knots[i+3]>knots[i] else 0.)-
                 (3*v[i+1]/(knots[i+4]-knots[i+1]) if knots[i+4]>knots[i+1] else 0.) for i in range(len(v)-1)]
     def basis(a,t):
-        return [u*v for u in spline((a-middle)/span,knots_a) for v in spline(t,knots_t)]
+        return [u*v for u in spline((a-middle)/span,knots_a) for v in ([1-t,t] if front else spline(t,knots_t))]
     anchor_uv=[(angle(p),(i//33)/6) for i,p in enumerate(anchors)]
     A=np.array([basis(a,t) for a,t in anchor_uv]);radius=np.array([math.hypot(p.x,p.y-origin.y) for p in anchors])
     coefficients=np.linalg.lstsq(A,radius,rcond=None)[0];residual=A@coefficients-radius
@@ -133,9 +133,17 @@ def rebuild(ob,surface,high=False):
     def mold(a,t):
         q=(a-middle)/span;ba=spline(q,knots_a);bt=spline(t,knots_t)
         da=spline_derivative(q,knots_a);dt=spline_derivative(t,knots_t)
-        r=float(np.dot(basis(a,t),coefficients))-recess
-        ra=float(np.dot([u*v for u in da for v in bt],coefficients))/span
-        rt=float(np.dot([u*v for u in ba for v in dt],coefficients))
+        if front:
+            # Manufacture a gently crowned ruled cover across the opening.
+            # Fitting the steel's full transverse draw copied its tight roll
+            # into the transparent mold and produced refractive shards.
+            r=float(np.dot(basis(a,t),coefficients))-recess+.0005*4*t*(1-t)
+            ra=float(np.dot([u*v for u in da for v in [1-t,t]],coefficients))/span
+            rt=float(np.dot([u*v for u in ba for v in [-1,1]],coefficients))+.002*(1-2*t)
+        else:
+            r=float(np.dot(basis(a,t),coefficients))-recess
+            ra=float(np.dot([u*v for u in da for v in bt],coefficients))/span
+            rt=float(np.dot([u*v for u in ba for v in dt],coefficients))
         z=low(q)*(1-t)+upper(q)*t
         za=(derivative(low,q)*(1-t)+derivative(upper,q)*t)/span;zt=upper(q)-low(q)
         sa,ca=math.sin(a),math.cos(a)
@@ -173,7 +181,9 @@ def rebuild(ob,surface,high=False):
             a,b,c=[ps[i] for i in f];n=(b-a).cross(c-a).normalized()
             agreement=n.dot(sum((ns[i] for i in f),Vector()).normalized());minimum=min(minimum,agreement)
             longest=max(zip(f,f[1:]+f[:1]),key=lambda e:(ps[e[0]]-ps[e[1]]).length_squared)
-            if agreement<.50 or (ps[longest[0]]-ps[longest[1]]).length>.055:selected.add(tuple(sorted(longest)))
+            q=tuple(sum(coordinates[i][k] for i in f)/3 for k in [0,1]);true_p,true_n=mold(*q)
+            sag=abs((true_p-a).dot(n));angular=true_n.dot(sum((ns[i] for i in f),Vector()).normalized())
+            if agreement<.50 or (ps[longest[0]]-ps[longest[1]]).length>.055 or (front and (sag>.00010 or angular<math.cos(math.radians(.35)))):selected.add(tuple(sorted(longest)))
         refinement.append(dict(iteration=iteration,triangles=len(faces),minimum_chord_normal_agreement=minimum,split_edges=len(selected)))
         if not selected:break
         midpoint={}
