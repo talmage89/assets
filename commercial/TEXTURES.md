@@ -97,3 +97,39 @@ A standalone fully landscaped station references 39⅔ + 48 ground + 16 shrubs
 = **103⅔ MiB** across all wall alternatives. A neighborhood already loading
 ground and shrubs still adds only **39⅔ MiB** for commercial. Neighboring
 houses/trees used only for presentation are excluded from the station export.
+
+
+## Strip-center look checkpoint
+
+Strip manufacture uses the gas delivery's unchanged CMU, brick, EIFS, roof,
+concrete and equipment maps. It also reuses Ground asphalt/lawn, Boxwood
+and (for seed 202) HouseShingles without changing their pixels. Furniture
+uses equipment cells; no interior sheet is added.
+
+The only new strip allocation is **StripSigns: 2048² RGBA color + 1024² RGB
+emission, 6⅔ MiB** at 8 bpp with full mips. It replaces the station's
+1024² graphics pair rather than loading alongside it. Original tenant
+art, window notices, tower faces, address numbers, south-facing faded
+variants, removed-letter ghost, lamps and causal deposit charts share it.
+UV0 selects ink/coverage and UV1 selects radiance or a zero swatch.
+The 16-bit normalized emission file retains low sign output alongside
+brighter fixtures under one glTF emissive-strength scalar.
+
+| Allocation | GPU memory, full mips |
+| --- | ---: |
+| All strip commercial wall alternatives, including StripSigns | 33 MiB |
+| Existing Ground asphalt + lawn | 32 MiB |
+| Existing Boxwood triple | 16 MiB |
+| Family with all wall alternatives, no mansard | 81 MiB |
+| Existing HouseShingles triple, only mansard | +16 MiB |
+| Actual seed 201 / 202 / 203 / 204 referenced maps | 79⅓ / 92⅓ / 76 / 79⅓ MiB |
+
+These are compressed GPU estimates, not PNG or GLB sizes. A neighborhood
+already loading commercial manufacture, ground and shrubs adds only
+6⅔ MiB for strip art; shared external URIs allow one image cache.
+`build/strip-look/delivery.json` records every map and actual part primitive.
+The strip has **nine material states**, except the mansard's **ten**: its
+existing shingle material is needed alongside the flat roof membrane.
+Nine states do not mean nine draw calls: the default hierarchy has 246
+material primitives, including 36 placed shrubs and separate moving leaves.
+Per-part materials and their construction roles are listed in STRIP.md.

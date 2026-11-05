@@ -1056,3 +1056,193 @@ too blue and was rejected; no material was tuned to that cast. All three
 fits remain unsurveyed type comparisons. Final masonry/shingles, weathering, sign optics,
 material consolidation and baking are still pending. Stop at the requested
 form checkpoint; no portfolio docs images are committed.
+
+## Strip look pass 1 — reject cropped hero, uniform runoff and rust stamps
+
+**Color/value first.** Opened all five 1200 px Cycles exports in
+`renders/strip/look-pass1/`, plus the original Texas storefront, the used rear
+photograph and both native Westlakes front/lot photographs. The procedural
+raking sun gives deep storefront cavities and a distinct walk shadow. The
+CMU reads neutral gray rather than the former warm scalar slab; concrete and
+asphalt are distinct. The first hero's conservative architecture union has
+Y′ p1 .0126, median .2143, p99 .7678. Its .124% white clipping includes active
+emissive diffusers; this is not a zero-clipping claim or recovered albedo.
+Paving is still too even at full frame to accept without the matched pairs.
+
+**Rejects and changes.** The eye is now inside the lot, but the nearest tower
+clips the top of the panoramic frame. Give the hero more vertical field and
+raise the camera shift, retaining 40 mm and an actual 1.6 m ground offset.
+Parked vehicles belong in the site views; hide them for diagnostic close-ups
+so the pizza room can be judged. The coping wash repeats the same pointed
+shape, and wet door-bottom rust looks like an orange stamp. Reduce wash
+opacity, vary its width, length and mirror selection. Generate hem-rooted
+corrosion coverage in the strip's existing free chart, retaining a dark
+oxide color and irregular paint-loss boundary. Increase threshold deposits
+and the tracked-grit strip rather than tinting the whole walk dirty.
+
+**Construction evidence.** The revised plans pass 1,000 plans / seven invalid
+controls and all four occupied-lot route sets. The first motion run correctly
+rejects a gate deposit authored on the wrong signed side of its pivot; it
+extended outside the right leaf. Place deposits separately on the seventeen
+actual slat faces. The corrected default passes every moving-part sweep,
+service-landing ray, ramp/column, meter-support and native-curb probe, as well
+as fresh GLB geometry/frame import. The three available raw surfaced exports
+pass map-byte, material-count, UV-area and unit-normal checks. No delivered
+station, house or ground file has been edited.
+
+## Strip look pass 2 — construction reads; reject traffic tape and tight framing
+
+**Color/value first.** Opened every 1400 px image in `renders/strip/look-pass2/`:
+hero, storefront, walk, rear, stalls, dusk and endcap. Cross-check against the
+native used Texas and Westlakes photos, and the 600 px used rear. The walk's
+shadow is deep without blue-tinting the black framing. The rear's gray door
+paint and hem-rooted dark oxide retain their colors; the bright concrete stoop
+is distinct from the asphalt. Blue hour has a brighter sky than ground, lit
+signs and shops, and a light pool under the walk. The palette still needs the
+held-out paving measurements; no exact albedo match is claimed.
+
+**Rejects and changes.** The upper nearest tower now fits, but the neighboring
+pole crosses it and its cap is still tight. Move the eye four meters down the
+side drive and use 35 mm, retaining a level 1.6 m view with a shifted lens.
+Hide the presentation cars for all diagnostic details; their absence now
+exposes the pizza oven, work counter and tables. The stalls have accumulated
+soft drips instead of an isolated ink splat, but long tire contacts look like
+fresh painted stripes. Soften that shared strip chart and retain the broader
+vertex-sampled polished paths. Replace pointed coping wash with several
+unequal soft gravity rivulets. Keep grime/gum localized to entries.
+
+The wrapped left end now has continuous room depth through both glazed faces
+and carries the same tenant's side sign. Audit all four plans for the same
+fix: the L's short closure was still a solid wall, even though its end-treatment
+parameter said wrap. Give that closure the return tenant's glazing and side
+sign too. The former 7,000-triangle maximum leaves no useful margin for the
+last tracked-grit quad; reduce only the bollard cap's radial segmentation,
+retaining its measured diameter and silhouette, rather than dropping real
+construction or exceeding the bay budget.
+
+## Strip look pass 3 — reject weak evidence, soft ink and unsupported fit-out
+
+**Color/value first.** Opened all nineteen 1600 px main/family views and all
+six native comparison renders; archived this iteration in
+`build/strip-look/pass3-images/` and `pass3-pairs/`. Also inspected native
+photo grids before accepting measurement patches. Reject the original
+Westlakes-lot neutral: it sampled blue tree-shadow asphalt, with linear gains
+1.348 / .987 / .803, turning sunlit ground orange. The replacement is the
+sunlit concrete curb top, native (80,492)–(108,495), with gains about
+.993 / .982 / 1.026. Keep its tiny native size disclosed. The first walk
+rectangle also crossed glass and a sunlit curb; reject its statistics. A
+fixed shaded-concrete patch now gives Y′ .217 / .231 before the final light
+revision, rather than pretending the mixed .100 / .249 patches measured
+concrete.
+
+The period-lot photograph casts the shelter's shadow toward the lot. Reverse
+the estimated sun's front-normal component and match its brighter camera
+exposure; leave the family's asphalt albedo intact. The initial asphalt proxy
+has 4%-threshold variation coverage / median contrast 56.8% / 6.9%, against
+45.8% / 7.3% in the balanced photo. At 8% it is 19.5% / 10.1% against
+18.3% / 10.6%. These count projected visible variation, including aggregate
+and repair texture; they are not chemical oil segmentation or surveyed area.
+Retain the annotated masks and both thresholds. The rear photo is overcast:
+use neutralized procedural sky illumination, rather than allowing blue fill
+to turn its gray steel blue. All outdoor pairs retain the procedural sky.
+
+**Native-size rejects and fixes.** The narrow tower cell is visibly softer
+than adjacent masonry. Reallocate unused address/window pixels within the
+same 2048 sheet to 488×150 tower faces; put addresses in compact guarded
+cells and preserve the nine tenant styles. No extra map or memory. The
+full imported neighborhood still has a gap beyond the far end; stagger a
+second library block behind the first. The above views expose a missing
+public corner quadrant inherited from the station's context assumptions.
+Restore the native corner curb, walk and planted sector, leaving Ground's
+files untouched. Locally join the boxwood's two skins under its existing
+mask, as the station does: one primitive per plant, unchanged stock vertices
+and pixels. The mansard needs a tenth material for its separate existing
+house shingles; the other three seeds stay at nine.
+
+**Construction rejects and fixes.** The new tracked-grit quad floated across
+an accessible ramp; the actual pedestrian surface rays reject it. Keep broad
+entry grime on the level landing and exclude gum from the sloped lane.
+An actual material-patch ray also exposes downward open-sheet winding on a
+sealant strip. Restore authored sheet fronts, preserving UVs by vertex
+identity; do not hide this with a two-sided opaque material. Finally, simple
+fit-out proxies had unsupported chair bases, oven, desks and conveyor rail.
+Seat the chair bases, add oven/table/desk feet and monitor stands, and make
+a closed racetrack conveyor with external supports, cantilevers and hanging
+connections. Source probes now measure each tagged foot against its actual
+finished floor: 73 default contacts within 1 mm, before consolidation. These
+are source-contact measurements, separate from reimport serialization.
+
+The complete four-seed construction, motion, raw-UV/map and reimport checks
+pass after these corrections. All final images must be rerendered against
+stable current GLBs; the renderer now rejects source or recipe edits during
+a render instead of attributing an earlier loaded scene to later file bytes.
+
+## Strip look pass 4 — final exported checkpoint and measured misses
+
+**Color/value first.** Inspected the final nineteen main/family Cycles views,
+the six calibrated native comparison renders and six pair composites, the
+Eevee view and all four annotated measurement masks. The hero's architecture
+mask has Y′ p1/p50/p95/p99 of .012/.210/.605/.768 and .118% white clipping,
+mostly powered diffusers; deep walk/interior shadows remain intact. The
+35 mm camera is inside the lot at a measured 1.6 m eye. Raking sunlight
+separates the split faces and coping; it does not imitate overcast exposure.
+The distant frontage is legible, with parked delivered cars and a street
+horizon. The tower's reallocated ink is visibly sharper at native size.
+
+Photo exposures are camera settings independent of the hero and material
+albedos. The retained Westlakes neutrals precede every measurement. With
+period-lot exposure 1.75 and walk .30, fixed asphalt median Y′ is .657
+against .675 in the balanced photograph; shaded walk is .219 against .232.
+At 4% below each patch's clean p85, asphalt variation covers 24.9% at 5.1%
+median contrast, against 46.0% at 7.3%. At 8%, it is .91% / 9.0%, against
+18.34% / 10.6%. This is a remaining lack of broad pavement variation despite
+the improved value match. Do not describe the result as identical aging.
+The shaded walk measures 46.9% / 9.6%, against 58.3% / 6.2%; at 8%,
+28.6% / 13.7%, against 18.4% / 9.6%. Its remaining marks are too contrasty.
+The native walk patch is only about 20×4 pixels. These are projected
+variation estimates including aggregate/repairs, not chemically separated
+oil or surveyed area. Eighteen independent exported-surface rays pass at the
+fixed rectangles, rejecting the earlier glass/curb and reversed-sheet errors.
+
+**Construction and presentation judgment.** All four sites are rendered above
+and from the street, with the shallow east-shifted row, west-biased arcade's
+staggered islands and corner L visibly differing from the centered lot.
+The left end shares its room through real wrapped openings; the short L
+return now wraps too. Rear stoops and loading bollards make the service
+entries usable. Lit signs, window rooms, canopy fixtures and the pylon survive
+export and read at dusk; Eevee's cached indirect view is darker under the
+walk than Cycles but retains the same materials. Salon/cleaner/pizza fittings
+now have actual supports; the measured source floor contacts are distinct
+from the reimport-position check.
+
+**Remaining CG tells at this gate.** Identical structural bay rhythms,
+simplified interior appliances/furniture, very orderly rear services and
+restrained large-area aging still reveal the generator. Door-hem corrosion
+is still an alpha simplification. Small notices/pylon lettering soften;
+canopy and wall runoff reads more clearly in detail than in the full hero.
+The corrected native asphalt repeat is less obvious but the photographic
+patch remains more varied. The library neighborhood is occupied yet sparse,
+with recognizable repeated house/tree forms. This is a look checkpoint,
+not a claim of final photographic equivalence.
+
+**Proof.** `make strip-check` passes all four current sources: 1,000 plans,
+seven rejected invalid controls, occupied-lot route/parking proofs, actual
+construction and motion checks, raw map/UV/normal validation and fresh import.
+The repository check reports 1,546 source files / zero errors. Independent
+`make strip-repeat` produces a byte-identical 66,825,832-byte default GLB.
+`make strip-values` passes all eighteen surface rays. Three seeds retain nine
+material states; the mansard requires ten for its existing separate shingles.
+The default has 246 actual material primitives, not nine draw calls. New strip
+maps cost 6⅔ MiB; its actual referenced set costs 79⅓ MiB. No kit changes.
+The preservation receipt verifies all 43 initially present delivery/doc files;
+gas source/docs and houses/Ground tracked files remain identical to main.
+
+The final form batch completed under one inherited shared GPU lock. Inspected
+all twelve native before/after renders and six comparison JPGs: four sites,
+wrapped end and service landings. Both sides retain original quick finishes
+under the same renderer/light; the baseline is `b3a77d8`, the after side is
+rebuilt from current form scripts. The comparison metadata hashes both source
+sets. Inspected the final family, detail, pair and complete contact sheets.
+`python3 src/strip_review.py` passes **26 current exported views**, plus the
+twelve form renders' source/recipe/image hashes and six required crops.
+The requested checkpoint stops here. No final docs images are committed.

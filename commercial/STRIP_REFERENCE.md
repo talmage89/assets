@@ -100,5 +100,36 @@ store graphic, price poster or color-coded chain mark is copied.
 
 Channel-letter diagnostic faces, box-sign faces and painted panels use equal
 quad dimensions and different atlas cells. Tenants swap UV selection without
-changing storefront geometry. Raised letter depth, sign optics, masonry grain
-and causal service wear remain future surface work.
+changing storefront geometry. The look checkpoint adds shared masonry, sign emission, sun-faded pylon
+panels and causal service wear. The small channel-letter faces remain an
+economical sign-sheet construction, with physical cabinet/raceway depth.
+
+
+## Look checkpoint: dated service photographs
+
+The 2007 Westlakes offering memorandum reports construction as 1985 on one
+page and 1986 on another: retain that conflict, giving 21–22 years of use.
+Two photographs supply the covered-walk and repaired-lot comparisons. They
+are type/material evidence, not a survey or a surface whose pixels are
+reproduced. Neutral balance uses an asphalt patch in the walk photograph
+and a sunlit curb top in the lot photograph. The rejected blue-shadow
+asphalt neutral and its excessive correction are recorded in REVIEW.md.
+
+Eric G. Bachman's 2015 rear photograph supplies gray service steel, lower
+wall deposits and repaired paving. Its building date is unverified, so it
+is an auxiliary construction/age reference rather than dated period proof.
+California remains an older auxiliary. Commerce and Sterling plus the two
+Westlakes views provide four dated-period comparisons; none establishes our
+authored parcel dimensions. The rear uses neutral overcast procedural sky;
+the other pairs estimate sun directions from visible shadows.
+
+The neutral ROIs, linear RGB gains, source hashes and fitted residuals are
+rebuildable in `build/strip/references/balance.json` and
+`build/strip/cameras.json`. Fixed visible-variation measurements, annotated
+exclusions and actual exported-surface ray checks are documented in STRIP.md.
+The native walk ROI is only about 20 × 4 pixels: its uncertainty is material.
+
+The revised sites retain the cited construction/parking dimensions but
+author distinct parcels: 336×244, 390×210, 348×260 and 396×244 ft.
+The wide row moves east; the arcade moves west and staggers its islands;
+the L uses two street frontages with an east exit. No property plan is traced.

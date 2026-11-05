@@ -1,221 +1,215 @@
-# Neighborhood strip centers — form checkpoint
+# Neighborhood strip centers — look checkpoint
 
-Four original maintained small-shop centers using the commercial family's
-construction. **This is the requested form gate, before strip look development.**
-Diagnostic GLBs use quick finishes and one original tenant sheet. Manufactured
-masonry, causal 15–25-year wear, final baking and portfolio docs are deferred.
-[Sources and tenant originality](STRIP_REFERENCE.md) and the strip section of
-[REVIEW.md](REVIEW.md) accompany the images.
+Four original maintained small-shop centers, approximately 15–25 years in
+service. This is the requested look checkpoint, not final portfolio delivery.
+[Reference limits and originality](STRIP_REFERENCE.md), [maps](TEXTURES.md),
+and four look critique passes in [REVIEW.md](REVIEW.md) accompany it.
+Checkpoint renders remain ignored under `renders/strip/`; no unfinished docs
+images are committed.
 
-## Plans and dimensions
+Main was merged in `40de911`, including the gas delivery and delivered hatch.
+Gas source and committed delivery images, houses and Ground remain identical
+to main. A receipt also verifies the 43 delivery/doc files present before
+this work. No kit code changed.
 
-| Seed / center | Lot, ft | Building | Front / walls | Spaces |
+## Plans, construction and form fixes
+
+| Seed / center | Lot, ft | Building | Site and construction | Spaces |
 | --- | --- | --- | --- | ---: |
-| 201 / Alder Rill Shops | 336 × 244 | 240 × 70 ft; 16,800 sq ft; ten 24 ft bays, nine leases | Flat metal covered walk; split CMU; end towers | 101 |
-| 202 / Crossbend Court | 324 × 238 | 220 × 64 ft; 14,080 sq ft; ten 22 ft bays, nine leases | Mansard; brick; center tower | 97 |
-| 203 / Lowbank Commons | 348 × 250 | 242 × 76 ft; 18,392 sq ft; eleven 22 ft bays, nine leases | Segmental arcade; EIFS; end towers | 109 |
-| 204 / Willow Span Shops | 396 × 244 | L: seven 24 × 64 ft main bays, two return bays, 64 ft square elbow; 17,920 sq ft | Flat canopy; smooth CMU; elbow entry | 90 |
+| 201 / Alder Rill Shops | 336 × 244 | 240 × 70 ft; 16,800 sq ft | Centered deep lot, four rows, flat walk, split CMU, end towers; southwest pylon | 101 |
+| 202 / Crossbend Court | 390 × 210 | 220 × 64 ft; 14,080 sq ft | Wide shallow lot, row pushed 24 ft east, three rows, mansard/brick, central tower; southeast pylon | 93 |
+| 203 / Lowbank Commons | 348 × 260 | 242 × 76 ft; 18,392 sq ft | West-biased row, staggered islands, differing driveway stations, arcade/EIFS; west pylon | 105 |
+| 204 / Willow Span Shops | 396 × 244 | L; 17,920 sq ft | Two-street corner, south entry/east exit, flat walk/smooth CMU, elbow tower; east pylon | 91 |
 
-Dimensions are authored against the brief and cited comparators, not recovered
-from surveyed properties. Standard parking is **9 × 18 ft**, around two
-**24 ft** double-loaded aisles. **9 ft** planted islands bookend and break up
-the rows. Six **11 ft** accessible spaces share three exclusive **5 ft** aisles,
-dispersed along the walk. Their recessed **6 ft / 1:12** ramps stay within the
-**10 ft** walk and retain a **4 ft** level landing. Actual surface rays check
-that column bases do not intrude. The two **24 ft** entrances use native
-five-foot transition wings and six-foot aprons on the ground six-inch grid.
-Side drives connect to a **24 ft** rear drive. The L's front aisle continues
-through a reserved cross aisle with a turn flare.
+End caps select wrap glazing and a side tenant sign, or a signed solid side.
+The L's short return also wraps; it no longer ends in a blank closure.
+Wrapped frames occupy real wall openings and reveal the same tenant room.
+Each service door has a 1.7 × 1.6 m concrete stoop and two 114.3 mm loading
+bollards. These additions retain the accepted bay widths, building heights,
+walk styles, rear services, tenants, pylon and moving parts.
 
-Floor is **.1524 m**; membrane datum **4.2672 m**; parapet **5.1816 m**; tower
-top **6.72 m**. Storefront head/transom/sill are **2.75 / 2.20 / .27 m**.
-Flat/arcade soffit is **3.3075 m**, mansard soffit **3.0925 m**. Source rays
-measure these independently of the GLB roundtrip.
+The grammar is bounded parcel design, not arbitrary site planning.
+`strip_plan.generate(seed, overrides)` resolves dimensions and circulation
+before modeling. `STRIP_PLAN=build/my-plan.json` supplies overrides; unsupported
+geometry is rejected. Other seeds vary the same tested archetypes.
 
-The parking dimensions come from Brookfield's published nonresidential site
-standards; the count/van dimensions come from the US Access Board. The retail
-ratio comparator is Commercial Point's **3 spaces / 1,000 sq ft** shopping
-center baseline. The four actual ratios are **6.01 / 6.89 / 5.93 / 5.02**.
-These exceed that comparator; they are not a mixed-use demand study or a
-claim of local approval. [STRIP_REFERENCE.md](STRIP_REFERENCE.md) links each
-authority, states its limits and separates authored sizes from photo picks.
+Standard parking is **9 × 18 ft**, around **24 ft** double-loaded aisles.
+**9 ft** islands break the rows. Six **11 ft** accessible spaces share three
+exclusive **5 ft** aisles. The **6 ft / 1:12** recessed ramps retain a **4 ft**
+level landing within the **10 ft** walk. Actual surface rays check columns,
+ramps and native street interfaces. Entrances are **24 ft**, with native
+five-foot transition wings and six-foot aprons on Ground's six-inch grid.
+The corner's cross aisle continues to its east exit.
 
-## Parameters
+Floor is **.1524 m**, membrane datum **4.2672 m**, parapet **5.1816 m**,
+tower top **6.72 m**. Storefront head/transom/sill are **2.75 / 2.20 / .27 m**.
+Flat/arcade soffit is **3.3075 m**, mansard soffit **3.0925 m**.
+Sizes are authored against the cited standards/comparators, not recovered
+from surveyed properties. Parking ratios are **6.01 / 6.61 / 5.71 / 5.08**
+per 1,000 sq ft; they exceed the cited 3/1,000 baseline but are not a local
+approval or demand study. STRIP_REFERENCE states each authority's limits.
 
-`strip_plan.generate(seed, overrides)` produces a pure-Python plan before
-Blender builds anything. Four bounded archetypes select row/L, bay count,
-width/depth, lot, canopy/arcade/mansard, towers and wall finish. Other seeds
-shuffle all eight trades plus vacancy and vary depth/color within the same
-tested archetypes. Driveway stations follow the lot width on the ground
-six-inch grid; parking counts and access groups regenerate from the available
-frontage. This is deliberately a bounded grammar, not arbitrary parcel design.
+## Surfaces, signs and occupied rooms
 
-A JSON passed as `STRIP_PLAN=build/my-plan.json` can override `lot_ft`,
-`bays`, `bay_ft`, `depth_ft`, `shape`, `style`, `wall`, `color` and `towers`.
-Dimension/circulation validation rejects unsupported plans. `TENANTS` holds
-the original names, sign style and colors; the atlas supplies fixed-size cells
-so a tenant changes through UV selection. Proof seeds are 201–204.
+Manufacture shares the gas station's exact CMU, brick, EIFS, concrete,
+membrane and equipment maps. Ground asphalt/lawn and Boxwood remain unchanged;
+the mansard uses the existing house shingles. New strip art is only one
+**2048² RGBA color + 1024² RGB emission** sheet: **6⅔ MiB** compressed with
+full mips. Original signs, notices, address numbers, wear charts, powered
+fixtures, faded south-facing pylon alternatives and the removed tenant's
+letter ghost share it. Furniture uses the equipment atlas, without a new
+interior sheet. All alternatives total **81 MiB**, or **97 MiB** with existing
+shingles; actual referenced memory is **79⅓ / 92⅓ / 76 / 79⅓ MiB** by seed.
+These estimates are separate from file bytes.
 
-## Construction and reuse
-
-Each bay owns its slab, aluminum storefront, lit shallow room, covered-walk
-share, roof membrane, rooftop unit, vents, rear wall, scupper/downpipe, gas
-meter and disconnect. Adjacent bays combine at an end; their shared demising
-wall and room finish are removed. Fixed construction joins per module.
-Rear-wall pieces retain their own reusable mesh roots inside each bay.
-End caps, towers, roof ladder, meter bank, pylon, paving, poles and dumpster
-yard remain separate. The L closes a real elbow/storage volume and miters
-its walk/canopy; it is not two overlapping rows of shop boxes.
-
-The common meter bank occupies the rear of the right end wall, clear of the
-left dumpster yard and rear rain leaders/gas gear. Mounting feet fit the
-projecting base; an actual-surface check tests the bank against every other
-mesh and probes its outboard working space.
-
-Direct reuse: `building.storefront`, `glazed_leaf`, `wall_with_openings`,
-`rooftop_unit`; family geometry/coping/utility vocabulary; `siteworks.strip`,
-`curb_run`, `flat`; the unchanged ground profile/transition adapter; family
-light poles and operating dumpster enclosure; stock Boxwood's two meshes and
-three maps. No gas-station module or canonical output is changed. No kit
-feature is added. Main remains unmerged pending the lead's instruction.
-
-New `strip_*.py` modules supply plans, bay/end/tower wrappers, mansard/arcade,
-meter bank, tenant furnishing, parking/cross aisle, pylon, sign sheet, checks
-and presentation. Sub-4 mm edge breaks belong in the future trim normal;
-larger cabinet, casting, masonry-base and upholstery radii remain geometry.
-
-The original occupants are **Vellum Nails, Hemwick Dry Cleaners, Notch Oven
+The original trades remain Vellum Nails, Hemwick Dry Cleaners, Notch Oven
 Pizza, Copperfold Laundry, Pintrace Phone Repair, Drowsefield Mattress,
-Tallied Oak Tax, Snipwell Hair Studio**, plus **For Lease**. Their names,
-letter/raceway, box and panel treatments differ from national chains as
-recorded in STRIP_REFERENCE. All sign/window quads retain identical topology
-when UV selection changes tenant. Names, hours, addresses and parking captions
-share one sheet. Door-mounted notices travel with their leaves.
+Tallied Oak Tax, Snipwell Hair Studio and vacancy. UV0 selects ink/coverage;
+UV1 selects radiance or zero. The exported material lights the signs,
+pylon, canopy fixtures and interior fixtures in both Cycles and Eevee.
+Presentation light sources support the exported fixture emission at dusk.
 
-Visible rooms have salon/manicure chairs and desks, garment racks, a pizza
-counter/oven/tables, washers/folding tables, repair/tax desks and mattress
-displays. These are economical shallow fit-outs, not playable interiors.
-Vacancy has an empty unlit backing.
+Rooms contain supported salon/manicure chairs and counters, a closed dry
+cleaner's overhead conveyor with hanging garments and cantilever supports,
+pizza counter/oven/tables, washers and folding tables, desks and mattress
+displays. Vacancy retains a bare empty floor and no powered room lights.
+These are shallow storefront fit-outs, not playable interiors. Actual source
+floor probes measure **73 / 70 / 69 / 63** tagged support contacts, at most
+**1 mm** above the finished floor.
 
-## Budgets and memory
+Age follows causes: accumulated engine drips occupy stall centers; continuous
+wheel paths follow the aisles and turns. Sealed cracks and a repaired utility
+trench explain pavement repairs. Old/restriped paint keeps its own pigment.
+Entry footfall, gum and grit stay on the walk and avoid sloped ramps. Coping
+and canopy joints feed unequal gravity rivulets. Wet masonry retains salts
+near grade/rain leaders; service-leaf and gate hems retain corrosion.
+The vacant bay has the ghost of fictional removed letters. Deposits have zero
+radiance and retain the underlying material's color; there is no uniform
+whole-center aging wash.
 
-| Seed | Building | Bay range | Pylon | Center without plants | Whole placed center | Unique-mesh triangles | GLB bytes |
+## Geometry and material cost
+
+| Seed | Building triangles | Bay range | Center without shrubs | Whole placed center | Unique mesh triangles | GLB bytes | States / primitives |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 201 | 54,738 | 3,602–6,432 | 3,104 | 77,036 | 278,204 | 82,624 | 10,925,644 |
-| 202 | 52,812 | 3,610–6,458 | 3,104 | 74,770 | 275,938 | 80,358 | 10,861,500 |
-| 203 | 59,256 | 3,690–6,538 | 3,104 | 82,274 | 283,442 | 87,862 | 11,372,236 |
-| 204 | 47,664 | 3,496–6,462 | 3,104 | 69,118 | 270,286 | 74,706 | 10,444,704 |
+| 201 | 60,866 | 3,962–6,896 | 88,756 | 289,924 | 94,344 | 66,825,832 | 9 / 246 |
+| 202 | 58,662 | 3,948–6,900 | 85,362 | 236,238 | 90,950 | 76,087,580 | 10 / 240 |
+| 203 | 66,946 | 4,034–6,986 | 95,906 | 297,074 | 101,494 | 65,225,800 | 9 / 262 |
+| 204 | 53,754 | 3,962–6,926 | 82,420 | 283,588 | 88,008 | 65,969,172 | 9 / 231 |
 
-Every proof stays below **80k building / 7k bay / 5k pylon**. Counts include
-moving leaves. Exact per-part and frame measurements are retained in
-`build/strip/strip-<seed>.json` and `build/strip/checks.json`.
+All remain below **80k building / 7k bay / 5k pylon**. The increase from the
+accepted form buys the required stoops/bollards, wrapped ends, real interior
+supports and vertex samples for material/age variation. Every pylon is 3,104
+triangles. The 36 stock shrubs contribute 201,168 placed triangles but only
+5,588 unique triangles; seed 202 has 27 shrubs / 150,876 placed triangles.
+Presentation cars, streets, houses, trees and street lights do not ship.
 
-Default bays 01–10 are **4,712 / 4,946 / 5,118 / 4,690 / 3,602 / 4,702 /
-4,638 / 4,682 / 6,332 / 6,432** triangles. Larger end leases retain one RTU
-per original structural bay, as a combined tenancy in an existing center can.
+The default's external glTF is **289,528 bytes**, its geometry bin
+**12,357,964 bytes**, and referenced PNGs **54,175,963 bytes**. Canonical
+external image URIs share maps across centers and existing families. The
+self-contained GLB is a convenient rendering/inspection copy.
 
-For example, bay 01's **4,712** comprises **3,508** fixed front/room/walk/roof,
-**866** fixed rear-service construction, **314** entry leaf and **24** rear
-steel leaf. Rear pieces and both leaves retain their own meshes/pivots.
+| Default part | Triangles | Materials and reason | Material primitives |
+| --- | ---: | --- | ---: |
+| Bays 01–10 | 5,164 / 5,842 / 5,710 / 5,202 / 3,962 / 5,214 / 5,102 / 5,146 / 6,796 / 6,896 | Six: masonry, concrete, equipment/trim/furniture, glass, membrane, ink/emission | 15 each, including independent rear/entry/service meshes |
+| Left wrapped / right signed end | 954 / 554 | Five / four: wall, slab, trim, ink; wrapped end also glass | 5 / 4 |
+| Two towers | 438 each | Four: wall, concrete, trim, ink | 4 each |
+| Ladder | 760 | Equipment | 1 |
+| Meter bank | 2,688 | Equipment, glass, ink | 3 |
+| Paving/islands/paint | 20,150 | Asphalt, concrete, equipment bark/guards, lawn, ink/deposits | 5 |
+| Six lot poles | 316 each | Concrete base, equipment pole, powered diffuser | 3 each |
+| Operating dumpster yard | 1,440 | Masonry, concrete, equipment, corrosion ink | 9 including moving parts |
+| Pylon | 3,104 | Masonry, concrete, equipment, ink/emission | 4 |
+| Site wear/repairs | 1,300 | Asphalt repair, equipment sealant, alpha deposits | 3 |
+| Landscape | 201,168 placed | One existing masked shrub material | 36 |
 
-The default's end caps are 312 triangles each; towers 406 each; ladder 760;
-meter bank 2,688; paving/stripes/curbs 16,070; six poles 316 each; operating
-dumpster yard 1,228. Landscape
-has **36 stock shrubs**, **5,588 unique mesh triangles / 201,168 placed**.
-Whole-center placement cost is deliberately reported separately from unique
-geometry. Street, station, house and pickup context never enter its export.
+Nine material states are not nine draw calls. Modular roots and actual moving
+leaves retain their necessary primitives. The mansard has a tenth state for
+existing shingles alongside its flat membrane. This is the only exception.
+Exact materials/triangles for every seed and part are in
+`build/strip-look/delivery.json` and `delivery-check.json`.
 
-There are **18 quick material states**, including the two stock shrub states.
-This is a diagnostic palette, not the final draw-call allocation. Shared trim,
-equipment, masonry, graphics, glass and lamp consolidation awaits the family's
-gas-station material delivery and the next gate.
+## Frames and motion
 
-Current maps: **one new 2048² RGBA sign sheet**, about **5⅓ MiB** with BC7 and
-full mips, plus the unchanged shrubs' **16 MiB** triple reused once. Scalar
-finishes/glass add no images. Native ground context reuses its three existing
-2048 triples (**48 MiB**). PNG/GLB bytes are not GPU memory.
+Meters; Blender +Z up / frontage −Y; glTF maps `(x,y,z)` to `(x,z,−y)`.
+`StripCenter_<seed>` is at the footprint center at grade. Bay modules retain
+front-center and left/right repeat sockets. No armature or animation clips.
 
-The planned look shares Commercial CMU/brick/EIFS/roof, trim and equipment.
-Signs are the sole proposed new set; no interior sheet is needed. The whole
-existing commercial allocation plus signs is **45 MiB**, or **109 MiB** with
-required ground/lawn/shrubs and all wall alternatives loaded. Mansards reuse
-the houses' unchanged shingle triple (**16 MiB existing**, shared with houses).
-See [TEXTURES.md](TEXTURES.md) for the allocation assumptions.
-
-## Parts and frames
-
-Meters, Blender +Z up / frontage −Y; glTF maps `(x,y,z)` to `(x,z,−y)`.
-`StripCenter_<seed>` is at the site footprint center at grade. Bay modules use
-front-center construction anchors and left/right repeat sockets. Pylon and
-loose props retain their ground-footprint origins.
-
-| Node | Local axis / range |
+| Node | Pivot / local range |
 | --- | --- |
-| `Bay_<nn>_Entry` | Physical exterior hinge, Z −100…0°. Handle/threshold sockets retained. |
-| `Bay_<nn>_ServiceDoor` | Rear frame's exterior hinge, Z −100…0°; rotated rear parent faces outward. |
-| `Strip_DumpsterGate_-1/1` | Z −110…0° / 0…110°. |
-| `Strip_DumpsterLid_-1/1` | X −105…0° at rear lid edges. |
-| `Bay_<nn>__RepeatLeft/Right` | Structural-bay joint anchors. |
-| `Socket_{Drive,GroundCurb,GroundApron,GroundWalk}_1/2` | Private paving and native public-interface frames. |
+| `Bay_<nn>_Entry` | Exterior hinge, Z −100…0° |
+| `Bay_<nn>_ServiceDoor` | Rear-frame exterior hinge, Z −100…0° |
+| `Strip_DumpsterGate_-1/1` | Z −110…0° / 0…110° |
+| `Strip_DumpsterLid_-1/1` | Rear lid edge, X −105…0° |
+| `Bay_<nn>__RepeatLeft/Right` | Structural-bay joint sockets |
+| `Socket_{Drive,GroundCurb,GroundApron,GroundWalk}_1/2` | Private/native public-interface frames |
 
-Transforms are rebased/applied within each module. No armature or animation
-clips; the game supplies door controllers, collision, navigation and LODs.
-
-## Rebuild and evidence
+## Rebuild and checkpoint evidence
 
 ```sh
 make -C commercial strip WIDTH=1600 SAMPLES=40
 make -C commercial strip-check
 make -C commercial strip-repeat
-make -C commercial strip-model STRIP_SEEDS=201,202,203,204
-make -C commercial strip-render
-make -C commercial strip-match
 ```
 
-The additive targets hold the shared GPU lock for every Cycles invocation.
-Missing ground/shrubs/pickup build through their own Makefiles. Scripted
-station and split-level forms stay under `commercial/build/strip/context/`, preserving
-their canonical deliveries. The existing pickup GLB is read-only context.
+`strip` adds the look pipeline beside the unchanged gas default. Individual
+steps are `strip-model`, `strip-export`, `strip-render`, `strip-match`,
+`strip-eevee`, `strip-values`, `strip-fixes`, `strip-review` and
+`strip-protected`. Use the same WIDTH/SAMPLES when rerunning render targets.
+All Cycles invocations hold the shared GPU lock. Missing context builds
+through the library's own scripts, without changing their source/deliveries.
 
-| Output after rebuild | Evidence |
+| Path under commercial/ | Evidence |
 | --- | --- |
-| `build/strip/strip-<seed>.{blend,glb,json}` | Sources, exported module hierarchies, exact counts and frames |
-| `build/strip/plan-check.json`, `plan-<seed>.jpg` | 1,000 plans; seven invalid controls rejected; occupied-lot pickup routes and representative park/back-out |
-| `build/strip/checks.json`, `motion-<seed>.json` | Actual wall/roof/walk/ramp/native-curb surfaces, pedestrian clearance, moving-part sweeps and raw/fresh GLB import |
-| `renders/strip/checkpoint/hero.png` | 1.6 m eye on native opposite sidewalk, 40 mm lens, level verticals |
-| `renders/strip/checkpoint/seeds/<seed>/{above,street}.png` | Four centers in native road, curb, sidewalk and lawn |
-| `renders/strip/checkpoint/{storefront,walk,tower,pylon,rear,services}.png` | Tenant room/sign, walk, tower, pylon and rear utility construction |
-| `renders/strip/checkpoint/scale.png` | Same-scale strip, station form, split-level form and pickup |
-| `renders/strip/matches/{commerce,sterling,sunnyvale}-pair.jpg` | Two period comparators plus an older auxiliary; neutral-balanced, kit-fitted exported GLBs |
-| `renders/strip/checkpoint/{family,details,contact}.jpg` | Checkpoint sheets; complete contact includes all three fitted pairs |
-| `build/strip/view-check.json`, `repeat/check.json` | Current export/image/dependency hashes and independent byte repeat |
+| `build/strip-look/strip-<seed>.{blend,glb,json}` | Four generated sources, exported hierarchies, dimensions and exact counts |
+| `export/CommercialStrip-<seed>.{gltf,bin,json}` | Shared-map stock glTF delivery |
+| `renders/strip/checkpoint/hero.png` | Raking sun; inside lot, 1.6 m eye, 35 mm, parked delivered pickup/crossover/hatch in several colors |
+| `renders/strip/checkpoint/seeds/<seed>/{above,street}.png` | Four parcels in native streets, sidewalks and library neighborhood |
+| `renders/strip/checkpoint/{storefront,walk,tower,endcap,pylon,rear,services,stalls}.png` | Unoccluded construction/interior/sign/service/age detail |
+| `renders/strip/checkpoint/{dusk,scale}.png` | Powered center; separate 1.8 m silhouette |
+| `renders/strip/eevee/hero.png` | Exported materials with Eevee irradiance cache |
+| `renders/strip/matches/*-pair.jpg` | Six balanced-photo/procedural-light comparisons: Commerce, Sterling, Westlakes walk/lot; older California and date-unverified rear auxiliaries |
+| `renders/strip/form-fixes/*-before-after.jpg` | Four parcel comparisons, end-cap crop, rear landing crop; original quick finishes on both sides |
+| `renders/strip/checkpoint/{family,details,contact}.jpg` | Complete review sheets including pairs and form fixes |
+| `renders/strip/measurements/` | Fixed annotated coverage/contrast patches and neutral balances |
+| `build/strip-look/{checks,delivery-check,value-surface-check,view-check}.json` | Source construction/motion, raw maps/UVs/normals, actual measurement-surface rays, current image/export/context hashes |
 
-The completed verification run passes **1,000 plans**, rejects **seven invalid
-controls**, and clears occupied-lot pickup routes plus a representative car's
-park/back-out in all four centers. Pickup routes retain at least **1.93 m**
-separating gap; the selected parking maneuvers retain at least **.393 m**.
-These are sampled geometric proofs, not traffic-capacity or delivery-truck
-certification.
+The plan proof covers 1,000 seeds, rejects seven invalid controls, and tests
+all four occupied-lot routes and representative park/back-out maneuvers.
+Construction checks measure surfaces and clearances; fresh-import checks
+separately prove serialization. Shared tiling/chart overlaps are intentional;
+raw glTF checks reject degenerate UV triangles and nonunit normals and verify
+image bytes against the generated/library maps. The independent default
+factory-startup build is byte-identical at **66,825,832 bytes**.
 
-All **2,040** sampled moving-part poses pass with zero measured penetration
-and no contact exemptions. Every bank clears all other source meshes; its
-mounting feet are within **.50 mm** of the wall, cabinet backs measure about
-**85 mm** from it, and **324 finite rays per seed** clear a **1.2 m** working
-corridor. Ramp/landing surface errors are below **.4 µm**, native-curb surface
-gaps below **8 µm**. Fresh GLB import positions differ by at most **12 µm**;
-that last number proves serialization, separately from the construction tests.
-The image audit covers **19 current exported views**. The default's independent
-factory-startup GLB rebuild is byte-identical. Repository rules pass; no kit
-code was changed, so a kit-wide regression run is not applicable.
+## Photographic judgment and remaining limitations
 
-The form gate stops here. Unweathered quick walls/paving, simple furnishings,
-sparse surroundings and weak unsurveyed photo fits remain visible limitations.
-Virginia's brochure states **1989**; Texas is reported **2002** by a secondary
-property record. Both remain unsurveyed; California is an older auxiliary,
-excluded from period proof. The native Ground repair pattern is conspicuously
-repeated in overhead context; that
-shared asset is unchanged here. Rear service leaves have a six-inch step
-to the lot; detailed service landings are still weaker than the front access.
-The mansard's shingle pattern, final masonry, service wear, sign optics and
-shared-image delivery await look development. No unfinished `docs/` art is
-committed.
+Four look critique passes start with color/value. All main, family, dusk,
+Eevee, comparison and form-fix renders are inspected at native size.
+Procedural sun/sky follows estimated photo shadows; the overcast rear uses
+neutral sky. Photo neutrals and uncertainties are recorded in the generated
+balance receipt. They are assumed neutral surfaces, not measured albedos.
+Sparse camera fits have roughly .3–10.4 native-pixel residuals; their precision
+does not establish unsurveyed dimensions or identical construction.
+
+| Fixed patch | Median Y′, render / photo | 4%-threshold coverage, render / photo | Median contrast, render / photo |
+| --- | --- | --- | --- |
+| Sunlit repaired asphalt | .657 / .675 | 24.9% / 46.0% | 5.1% / 7.3% |
+| Shaded walk | .219 / .232 | 46.9% / 58.3% | 9.6% / 6.2% |
+
+Coverage is projected visible variation relative to each patch's p85, not
+chemical oil segmentation or surveyed stain area. Aggregate, repairs, unknown
+camera response and residual shadows affect it. Both 4% and 8% thresholds
+and masks are retained; nine actual exported-surface rays per rectangle
+exclude glass, walls, columns, curbs and wrong floor levels. The native photo
+walk patch is only about 20×4 pixels. Asphalt value is close, but its variation
+is weaker than the used photograph; the walk's remaining deposits are more
+contrasty. These are measured misses, not a claimed appearance pass.
+
+The center still reads CG through regular bay repetition, restrained broad
+weathering, simple low-detail rooms and very tidy service construction.
+Close tower ink is improved by reallocating pixels within the same sheet;
+small notices and distant pylon lettering still soften. Door-bottom rust
+remains a simplified alpha treatment. The neighborhood uses delivered library
+forms and sparse traffic rather than a fully dressed commercial district.
+These limitations remain visible at this checkpoint; no final portfolio/docs
+claim is made.
