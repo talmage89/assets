@@ -48,30 +48,30 @@ def generate(seed=201, overrides=None):
     rng = random.Random(seed)
     variants = (
         dict(lot_ft=(336,244), bays=10, bay_ft=24, depth_ft=70, style='flat',
-             wall='split_cmu', color=(.31,.285,.245), towers='ends', shape='row'),
-        dict(lot_ft=(324,238), bays=10, bay_ft=22, depth_ft=64, style='mansard',
-             wall='brick', color=(.26,.105,.057), towers='center', shape='row'),
-        dict(lot_ft=(348,250), bays=11, bay_ft=22, depth_ft=76, style='arcade',
-             wall='eifs', color=(.43,.38,.29), towers='ends', shape='row'),
+             wall='split_cmu', color=(.31,.285,.245), towers='ends', shape='row', rear_ft=32, shift_ft=0, rows=4, drive_ft=(18,18), endcaps=('wrap','sign')),
+        dict(lot_ft=(390,210), bays=10, bay_ft=22, depth_ft=64, style='mansard',
+             wall='brick', color=(.26,.105,.057), towers='center', shape='row', rear_ft=28, shift_ft=24, rows=3, drive_ft=(22,18), endcaps=('sign','wrap')),
+        dict(lot_ft=(348,260), bays=11, bay_ft=22, depth_ft=76, style='arcade',
+             wall='eifs', color=(.43,.38,.29), towers='ends', shape='row', rear_ft=30, shift_ft=-8, rows=4, drive_ft=(18,24), endcaps=('wrap','wrap')),
         dict(lot_ft=(396,244), bays=7, bay_ft=24, depth_ft=64, style='flat',
-             wall='smooth_cmu', color=(.32,.34,.31), towers='elbow', shape='L'),
+             wall='smooth_cmu', color=(.32,.34,.31), towers='elbow', shape='L', rear_ft=32, shift_ft=0, rows=4, drive_ft=(18,18), endcaps=('sign','wrap')),
     )
     d = copy.deepcopy(variants[(seed-201)%4])
     if seed not in PROOF_SEEDS:
         d['color'] = tuple(c*rng.uniform(.95,1.05) for c in d['color'])
         d['depth_ft'] += rng.choice((-2,0,2))
-        d['lot_ft'] = (d['lot_ft'][0], d['lot_ft'][1]+d['depth_ft']-variants[(seed-201)%4]['depth_ft'])
+        d['lot_ft'] = (d['lot_ft'][0], min(260,d['lot_ft'][1]+d['depth_ft']-variants[(seed-201)%4]['depth_ft']))
     if overrides:
         if set(overrides)-set(d): raise ValueError('Unknown strip-center controls')
         d.update(copy.deepcopy(overrides))
     W,D = (v*FT for v in d['lot_ft'])
     bw,dep = d['bay_ft']*FT,d['depth_ft']*FT
-    rear = D/2-32*FT
+    rear = D/2-d['rear_ft']*FT
     front = rear-dep
     walk = 10*FT
     rowwidth = bw*d['bays']
     totalwidth = rowwidth+(dep if d['shape']=='L' else 0)
-    left = -totalwidth/2
+    left = -totalwidth/2+d['shift_ft']*FT
     modules=[]
     for i in range(d['bays']):
         modules.append(dict(id=f'Bay_{i+1:02d}', origin=(left+(i+.5)*bw,front), yaw=0,
@@ -96,7 +96,8 @@ def generate(seed=201, overrides=None):
         m.update(tenant=key,address=f'{110+i*2}',lease_group=key)
         tenants.append(key)
     # Full-width two-way side drives connect the street to the rear loop.
-    drives=[dict(edge='south',center=(s*(W/2-18*FT),-D/2),width=24*FT) for s in (-1,1)]
+    drive_x=[-W/2+d['drive_ft'][0]*FT,W/2-d['drive_ft'][1]*FT]
+    drives=[dict(edge='south',center=(x,-D/2),width=24*FT) for x in drive_x]
     lane_centers=(front-walk-18*FT-12*FT,
                   front-walk-18*FT-24*FT-36*FT-4*FT-12*FT)
     # Facing north/south pairs around both 24-foot aisles. The 4-foot median
@@ -106,8 +107,8 @@ def generate(seed=201, overrides=None):
         (front-walk-82*FT,front-walk-64*FT,1),
         (front-walk-124*FT,front-walk-106*FT,-1)]
     rows=[];islands=[];stalls=[]
-    x0,x1=-W/2+33*FT,W/2-33*FT
-    for j,(y0,y1,facing) in enumerate(ys):
+    x0,x1=drive_x[0]+15*FT,drive_x[1]-15*FT
+    for j,(y0,y1,facing) in enumerate(ys[:d['rows']]):
         right=x1
         if elbow and j<2:right=min(right,elbow['bounds'][0]-walk-32*FT)
         # 9-foot islands bookend each row. The full front row is step-free:
@@ -118,7 +119,7 @@ def generate(seed=201, overrides=None):
         rows.append(dict(index=j,x0=a,x1=b,y0=y0,y1=y1,facing=facing,count=count))
         for s,(lo,hi) in enumerate(((x0,a),(b,b+9*FT))):
             islands.append(dict(bounds=(lo,hi,y0,y1),row=j,end=s))
-        middle=count//2
+        middle=count//2 + (1 if (seed-201)%4==1 and j==1 else -2 if (seed-201)%4==2 and j%2 else 0)
         islands.append(dict(bounds=(a+middle*9*FT,a+(middle+1)*9*FT,y0,y1),row=j,end='intermediate'))
         for k in range(count):
             if k==middle:continue
@@ -140,7 +141,7 @@ def generate(seed=201, overrides=None):
             if ax0<left+.36 or ax1>left+rowwidth-.36:continue
             if any(ax0<x+radius+.05 and ax1>x-radius-.05 for x,radius in columns):continue
             if any(k<t+3 and k+3>t for t in reserved):continue
-            if k<=frontrow['count']//2<k+3:continue
+            if any(isl['row']==0 and isl['end']=='intermediate' and aa<isl['bounds'][1] and aa+27*FT>isl['bounds'][0] for isl in islands):continue
             choices.append(k)
         assert choices,'No unobstructed dispersed accessible group'
         k=min(choices,key=lambda k:(abs(k-preferred),k));reserved.append(k)
@@ -161,16 +162,19 @@ def generate(seed=201, overrides=None):
         # aisle, with an extra six-foot flare on the eastern turn.
         lo=cross['center_x']-cross['width']/2;hi=cross['center_x']+cross['width']/2+cross['turn_flare']
         stalls=[s for s in stalls if not (s['row']==2 and s['x0']<hi and s['x1']>lo)]
+    if d['shape']=='L':
+        drives[1]=dict(edge='east',center=(W/2,lane_centers[1]),width=24*FT)
     area=(rowwidth*dep+(dep*dep+2*bw*dep if elbow else 0))
     p=dict(seed=seed,stage='strip form checkpoint: diagnostic materials, no look-dev acceptance',
            lot=(W,D),building=dict(width=totalwidth,depth=dep,front=front,rear=rear,
              floor=.1524,roof=4.2672,parapet=5.1816,wall=d['wall'],wall_color=d['color'],area_m2=area,left=left),
            shape=d['shape'],style=d['style'],towers=d['towers'],modules=modules,elbow=elbow,
-           walk=walk,driveways=drives,side_drive_centers=[v['center'][0] for v in drives],
-           rear_drive=(rear+4*FT,rear+28*FT),rows=rows,stalls=stalls,islands=islands,
+           walk=walk,driveways=drives,side_drive_centers=drive_x,
+           rear_drive=(rear+2*FT,rear+26*FT),rows=rows,stalls=stalls,islands=islands,
            access=access,aisle_centers=lane_centers,cross_aisle=cross,stall_count=len(stalls),
            center_name=('ALDER RILL SHOPS','CROSSBEND COURT','LOWBANK COMMONS','WILLOW SPAN SHOPS')[(seed-201)%4],
-           sign_center=(-W/2+38*FT,-D/2+6*FT),
+           sign_center=((-W/2+38*FT,-D/2+6*FT), (W/2-43*FT,-D/2+7*FT), (-W/2+40*FT,-D/2+10*FT), (W/2-7*FT,-D/2+8*FT))[(seed-201)%4],
+           endcaps=d['endcaps'], site_archetype=('centered deep lot','wide shallow offset row','west-biased row and staggered islands','two-street corner L')[(seed-201)%4],
            parking_ratio=len(stalls)/(area/FT**2)*1000)
     validate(p)
     return p
@@ -184,7 +188,7 @@ def validate(p):
     assert p['shape'] in ('row','L'), 'Shape'
     assert b['wall'] in ('brick','split_cmu','smooth_cmu','eifs'), 'Wall finish'
     assert p['rows'][-1]['y0']>-D/2+3*FT, 'No front landscape setback'
-    assert b['width']/2+12*FT<W/2-30*FT, 'Side circulation squeezed'
+    assert b['left']>-W/2+30*FT and b['left']+b['width']<W/2-30*FT, 'Side circulation squeezed'
     assert p['parking_ratio']>=3.0, 'Insufficient parking for reference shopping-center baseline'
     assert sum(s['accessible'] for s in p['stalls'])>=required_accessible(p['stall_count']), 'Accessible count'
     assert 'vacant' in [m['tenant'] for m in p['modules']], 'No vacant bay'

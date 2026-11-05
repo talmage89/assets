@@ -17,7 +17,7 @@ def line(a,b,yaw,spacing=.18):
     return [(a[0]+(b[0]-a[0])*i/n,a[1]+(b[1]-a[1])*i/n,yaw) for i in range(n+1)]
 
 
-def crossing(p,y):
+def south_loop(p,y):
     left,right=p['side_drive_centers'];R=4.8;D=p['lot'][1]
     if p.get('cross_aisle') and abs(y-p['aisle_centers'][0])<.001:
         result=line((left,-D/2-3.3),(left,y-R),0)
@@ -41,6 +41,25 @@ def crossing(p,y):
         t=math.radians(a);result.append((right-R+R*math.sin(t),y-R+R*math.cos(t),-90-a))
     result+=line((right,y-R),(right,-D/2-3.3),180)
     return result
+
+
+def crossing(p,y):
+    route=south_loop(p,y)
+    if not any(d['edge']=='east' for d in p['driveways']):return route
+    right=p['side_drive_centers'][1];ey=next(d['center'][1] for d in p['driveways'] if d['edge']=='east');R=4.8
+    if y<=p['aisle_centers'][0]+.001:
+        end=max(i for i,(x,yy,a) in enumerate(route) if abs(yy-ey)<.001 and x<=right-R+.001 and a==-90)
+        return route[:end+1]+line(route[end][:2],(p['lot'][0]/2+3.3,ey),-90)
+    # Cut the last southbound leg, leaving enough straight to turn east.
+    candidates=[i for i,(x,yy,a) in enumerate(route) if abs(x-right)<1e-6 and yy>=ey+R-.01]
+    end=max(candidates) if candidates else None
+    assert end is not None,'No east exit approach'
+    route=route[:end+1];start=route[-1][:2]
+    route+=line(start,(right,ey+R),180)
+    for angle in range(91):
+        t=math.radians(angle);route.append((right+R*(1-math.cos(t)),ey+R-R*math.sin(t),180+angle))
+    route+=line((right+R,ey),(p['lot'][0]/2+3.3,ey),-90)
+    return route
 
 
 def obstacles(p,omit=None):
@@ -77,7 +96,9 @@ def sweep(p,poses,width,length,omit=None):
             if gap<smallest:smallest=gap;closest=name
             if gap<-.0001:violations.append(dict(sample=i,object=name,penetration_sat_m=-gap))
         for xx,yy in car:
-            if abs(xx)>W/2-4*FT or yy>D/2-4*FT:violations.append(dict(sample=i,object='property landscaping'))
+            east=next((d for d in p['driveways'] if d['edge']=='east'),None)
+            in_east=east and abs(yy-east['center'][1])<12*FT-.02
+            if xx<-W/2+4*FT or (xx>W/2-4*FT and not in_east) or yy>D/2-4*FT:violations.append(dict(sample=i,object='property landscaping'))
             if yy<-D/2 and not any(abs(xx-v)<12*FT-.02 for v in p['side_drive_centers']):violations.append(dict(sample=i,object='street opening'))
     return dict(passed=not violations,samples=len(poses),minimum_separating_gap_m=smallest,nearest_obstacle=closest,violations=violations[:12])
 
@@ -115,8 +136,9 @@ def plan_check(p):
         for t in aisles:
             dx=min(s['x1'],t['x1'])-max(s['x0'],t['x0']);dy=min(s['y1'],t['y1'])-max(s['y0'],t['y0'])
             assert min(dx,dy)<1e-6,'Parking in an access aisle'
-    for a,b in ((p['rows'][1],p['rows'][0]),(p['rows'][3],p['rows'][2])):assert abs(b['y0']-a['y1']-24*FT)<1e-6
-    for d in p['driveways']:assert abs(d['center'][0]/GRID-round(d['center'][0]/GRID))<1e-6
+    for a,b in [(p['rows'][j+1],p['rows'][j]) for j in range(0,len(p['rows'])-1,2)]:assert abs(b['y0']-a['y1']-24*FT)<1e-6
+    for d in p['driveways']:
+        station=d['center'][0 if d['edge']=='south' else 1];assert abs(station/GRID-round(station/GRID))<1e-6
     assert sum(s['accessible'] for s in stalls)>=required_accessible(len(stalls))
     return True
 

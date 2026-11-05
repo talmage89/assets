@@ -12,12 +12,12 @@ from strip_graphics import quad
 from equipment import lightpole,dumpster_enclosure
 
 
-def street(p,parent):
+def _south_street(p,parent):
     W,D=p['lot'];edge=-D/2;wing=5*FT
     stations={-W/2,W/2}
     for dr in p['driveways']:stations.update(dr['center'][0]+v for v in TRANSITION(dr['width']+2*wing,dr['width']))
     stations=sorted(stations)
-    def top(u):return min(cut_top(u-dr['center'][0],dr['width']) for dr in p['driveways'])
+    def top(u):return min((cut_top(u-dr['center'][0],dr['width']) for dr in p['driveways']),default=CURB_TOP)
     curb_run('Native public curb',[(u,edge-3.3528,top(u)) for u in stations],parent)
     for a,b in zip(stations,stations[1:]):
         mesh('Public sidewalk',[(a,edge-1.3716,walk_z(-1.3716)),(b,edge-1.3716,walk_z(-1.3716)),(b,edge+.1524,0),(a,edge+.1524,0)],[(0,1,2,3)],'Concrete',parent,False)
@@ -45,7 +45,18 @@ def street(p,parent):
                     z0=cut_top(u-dc,width);z=z0+(CURB_TOP-z0)*t+.002;vs.append((u,edge-3.2004+x,z))
             mesh('Apron turf wing',vs,[(2*j,2*j+1,2*j+3,2*j+2) for j in range(4)],'Green',parent,False)
         for label,v,z in (('Drive',.1524,0),('GroundCurb',-3.3528,FLOW),('GroundApron',-3.2004,FLOW),('GroundWalk',-1.3716,FLOW)):
-            socket(f'Socket_{label}_{i+1}',(dc,edge+v,z),parent,'ground_'+label.lower(),90)
+            socket(f"Socket_{label}_{dr.get('id',i+1)}",(dc,edge+v,z),parent,'ground_'+label.lower(),90)
+
+
+def street(p,parent):
+    south=[dict(dr,id=i+1) for i,dr in enumerate(p['driveways']) if dr['edge']=='south']
+    _south_street({**p,'driveways':south},parent)
+    if any(dr['edge']=='east' for dr in p['driveways']):
+        W,D=p['lot'];east=[]
+        for i,dr in enumerate(p['driveways']):
+            if dr['edge']=='east':east.append(dict(dr,id=i+1,center=(dr['center'][1],-W/2)))
+        rt=root('East public frontage',yaw=90,parent=parent)
+        _south_street({**p,'lot':(D,W),'driveways':east},rt)
 
 
 def walks(p,modules,parent):
@@ -91,14 +102,25 @@ def site(p,modules,ink,layout):
     if p['elbow']:
         inner=p['elbow']['bounds'][0];excludes.append((inner,inner+b['depth'],b['front']-2*p['modules'][0]['width'],b['front']))
     # Property edge beds occupy the last four feet, except street entries.
+    east=next((dr for dr in p['driveways'] if dr['edge']=='east'),None)
     excludes.extend([(-W/2,-W/2+4*FT,-D/2,D/2),(W/2-4*FT,W/2,-D/2,D/2),(-W/2,W/2,D/2-4*FT,D/2)])
+    if east:
+        excludes.remove((W/2-4*FT,W/2,-D/2,D/2))
+        ey=east['center'][1];half=east['width']/2+5*FT
+        excludes.extend([(W/2-4*FT,W/2,-D/2,ey-half),(W/2-4*FT,W/2,ey+half,D/2)])
     xs=sorted({-W/2,W/2,*[q for e in excludes for q in e[:2]]});ys=sorted({-D/2,D/2,*[q for e in excludes for q in e[2:]]})
     for x0,x1 in zip(xs,xs[1:]):
         for y0,y1 in zip(ys,ys[1:]):
             if not any(a<(x0+x1)/2<c and d<(y0+y1)/2<e for a,c,d,e in excludes):flat('Lot asphalt',(x0,x1,y0,y1),'Asphalt',r)
     for bounds in ((-W/2,-W/2+4*FT,-D/2,D/2),(W/2-4*FT,W/2,-D/2,D/2),(-W/2+4*FT,W/2-4*FT,D/2-4*FT,D/2)):
-        flat('Perimeter planted verge',bounds,'Green',r,.009)
-    for x in (-W/2+4*FT,W/2-4*FT):box('Private perimeter curb',(x,0,.06),(.14,D,.12),'Concrete',r,.004)
+        if east and bounds[0]>0:
+            ey=east['center'][1];half=east['width']/2+5*FT
+            for aa,bb in ((bounds[2],ey-half),(ey+half,bounds[3])):flat('Perimeter planted verge',(bounds[0],bounds[1],aa,bb),'Green',r,.009)
+        else:flat('Perimeter planted verge',bounds,'Green',r,.009)
+    for x in (-W/2+4*FT,W/2-4*FT):
+        spans=[(-D/2,D/2)]
+        if east and x>0:spans=[(-D/2,ey-half),(ey+half,D/2)]
+        for aa,bb in spans:box('Private perimeter curb',(x,(aa+bb)/2,.06),(.14,bb-aa,.12),'Concrete',r,.004)
     box('Private rear curb',(0,D/2-4*FT,.06),(W-8*FT,.14,.12),'Concrete',r,.004)
     paint=set()
     for s in p['stalls']:
@@ -167,6 +189,9 @@ def plant(p,world):
     bpy.ops.import_scene.gltf(filepath=str(source.resolve()));added=set(bpy.context.scene.objects)-before
     stock=sorted((o for o in added if o.type=='MESH' and o.name.startswith('Boxwood')),key=lambda o:o.name)
     assert len(stock)==2
+    if p.get('look'):
+        mask=next(m for o in stock for m in o.data.materials if m.surface_render_method=='DITHERED')
+        for o in stock:o.data.materials.clear();o.data.materials.append(mask)
     data=[(o.data,o.matrix_world.copy()) for o in stock]
     for o in added:bpy.data.objects.remove(o,do_unlink=True)
     r=root('Landscape',kind='Landscape',parent=world);r['reusable_module']=True

@@ -122,9 +122,24 @@ def run(seed,folder=Path('build/strip'),motion=True):
         points=canonical(native,kind);section=np.unique(np.round(points[np.abs(points[:,1]-1.524)<3e-5][:,[0,2]],7),axis=0)
         for driveway in meta['driveways']:
             x=driveway['center'][0] if kind.endswith('Cut') else 0
-            errors=[tree.find_nearest(Vector((x,-D/2-3.3528+u,FLOW+z)))[3] for u,z in section]
+            if driveway['edge']=='south':positions=[(x,-D/2-3.3528+u,FLOW+z) for u,z in section]
+            else:
+                y=driveway['center'][1] if kind.endswith('Cut') else 0
+                positions=[(W/2+3.3528-u,y,FLOW+z) for u,z in section]
+            errors=[tree.find_nearest(Vector(q))[3] for q in positions]
             assert max(errors)<5e-5,(kind,max(errors))
             seams.append(dict(module=kind,station_x_m=x,samples=len(errors),maximum_surface_gap_m=max(errors)))
+    # Rear service landings are physical slabs at the six-inch floor, and
+    # loading bollards must stand clear of their outward-swinging leaves.
+    landings=[]
+    for m in meta['modules']:
+        rt=bpy.data.objects[m['id']+'_Rear'];inv=rt.matrix_world.inverted();skin=surface(meshes_under(rt));xx=m['width']*.20
+        hits=[]
+        for dx in (-.55,0,.55):
+            for yy in (-1.35,-.50):
+                origin=rt.matrix_world@Vector((xx+dx,yy,.8));hit=ray(skin,origin,(0,0,-1));hits.append((inv@Vector(hit)).z)
+        assert max(abs(z-.1524) for z in hits)<3e-5,('Service stoop',m['id'],hits)
+        landings.append(dict(module=m['id'],surface_heights_m=hits))
     frames={o.name:o.matrix_world.copy() for o in bpy.context.scene.objects if o.get('pivot_axis') or o.get('socket_kind')}
     motion_report=None
     if motion:
@@ -148,7 +163,7 @@ def run(seed,folder=Path('build/strip'),motion=True):
     error=max(distance(src,points),distance(points,src));assert error<4e-5,error
     frame_error=max(max(abs(o-v) for o,v in zip(sum((list(row) for row in xf),[]),sum((list(row) for row in bpy.data.objects[name].matrix_world),[]))) for name,xf in frames.items())
     assert frame_error<3e-5,frame_error
-    return dict(seed=seed,passed=True,building_triangles=meta['building_triangles'],bay_triangles=bay_counts,pylon_triangles=meta['triangles']['PylonSign'],placed_triangles=raw_count,unique_mesh_triangles=meta['unique_mesh_triangles'],glb_bytes=meta['glb_bytes'],construction=dict(bays=probes,ramps=ramp,pedestrian_routes=pedestrian,native_curb=seams,services=services,scope='Source surface rays / nearest triangles; physical construction independent of GLB roundtrip'),motion=dict(parts=len(motion_report['motions']),samples=sum(row['samples'] for row in motion_report['motions'])) if motion_report else None,serialization=dict(maximum_position_error_m=error,maximum_frame_element_error=frame_error,frames=len(frames),source_vertices=len(src),imported_vertices=len(points),maximum_normal_length_error=maximum_normal_error,scope='Fresh GLB import and raw accessors; glTF splits corners at hard normals/UVs. Proves serialization, not working assembly contacts'),scope='Form checkpoint. Diagnostic UV projection, quick finish palette and original sign sheet; no final material/bake/age acceptance.')
+    return dict(seed=seed,passed=True,building_triangles=meta['building_triangles'],bay_triangles=bay_counts,pylon_triangles=meta['triangles']['PylonSign'],placed_triangles=raw_count,unique_mesh_triangles=meta['unique_mesh_triangles'],glb_bytes=meta['glb_bytes'],construction=dict(bays=probes,service_landings=landings,ramps=ramp,pedestrian_routes=pedestrian,native_curb=seams,services=services,scope='Source surface rays / nearest triangles; physical construction independent of GLB roundtrip'),motion=dict(parts=len(motion_report['motions']),samples=sum(row['samples'] for row in motion_report['motions'])) if motion_report else None,serialization=dict(maximum_position_error_m=error,maximum_frame_element_error=frame_error,frames=len(frames),source_vertices=len(src),imported_vertices=len(points),maximum_normal_length_error=maximum_normal_error,scope='Fresh GLB import and raw accessors; glTF splits corners at hard normals/UVs. Proves serialization, not working assembly contacts'),scope='Form checkpoint. Diagnostic UV projection, quick finish palette and original sign sheet; no final material/bake/age acceptance.')
 
 
 if __name__=='__main__':

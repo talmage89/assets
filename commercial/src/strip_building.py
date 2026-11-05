@@ -55,10 +55,11 @@ def cover(m,p,parent):
             mesh('Arcade segmental arch',vs,fs,'Wall',parent)
             box('Arcade precast cap',(0,-walk+.05,3.82),(w,.47,.08),'Concrete',parent,.004)
     # Trim supports a sequence of real soffit seams and flush white diffusers.
-    for i in range(1,5):box('Soffit folded joint',(-w/2+i*w/5,-walk/2,3.298),(.012,walk-.14,.012),'Trim',parent,0)
+    soffit=3.0925 if style=='mansard' else 3.3075
+    for i in range(1,5):box('Soffit folded joint',(-w/2+i*w/5,-walk/2,soffit-.0095),(.012,walk-.14,.012),'Trim',parent,0)
     for x in (-w*.24,w*.24):
-        box('Walk light rim',(x,-walk*.51,3.295),(.36,.25,.035),'Metal',parent,.003)
-        box('Walk light lens',(x,-walk*.51,3.274),(.32,.21,.008),'White',parent,.002)
+        box('Walk light rim',(x,-walk*.51,soffit-.0125),(.36,.25,.035),'Metal',parent,.003)
+        box('Walk light lens',(x,-walk*.51,soffit-.0335),(.32,.21,.008),'White',parent,.002)
 
 
 def interior(m,p,parent):
@@ -69,7 +70,7 @@ def interior(m,p,parent):
     # Finish a proper room at the glazed front. The remainder is exterior-shell
     # depth and service space, not falsely advertised as a playable shop.
     for s in (-1,1):
-        if (s>0 and not m['partition']) or (s<0 and m.get('open_left')):continue
+        if (s>0 and not m['partition']) or (s<0 and m.get('open_left')) or (s==m.get('wrap_side')):continue
         box('Room side finish',(s*(w/2-.12),deep/2,1.55),(.045,deep,2.8),'White',parent,0)
     if key!='vacant':
         for yy in (1.6,4.1,6.4):
@@ -111,7 +112,15 @@ def interior(m,p,parent):
             for zz in (.38,1.7):cylinder('Garment rack',(xx,4.0,zz),(xx,6.6,zz),.024,'Metal',parent,8)
             for j in range(12):
                 yy=4.1+j*.20
-                box('Hanging garment',(xx,yy,1.15),(.70,.07,1.0),'White' if j%3 else 'Primary',parent,.015)
+                outline=[(-.31,.65),(.30,.65),(.34,1.51),(.12,1.68),(-.11,1.68),(-.35,1.49)]
+                n=len(outline);verts=[(xx+x,yy+side*.025,z) for side in (-1,1) for x,z in outline]
+                faces=[tuple(range(n-1,-1,-1)),tuple(range(n,2*n))]+[(i,(i+1)%n,(i+1)%n+n,i+n) for i in range(n)]
+                mesh('Hanging garment with shoulders',verts,faces,'White' if j%3 else 'Primary',parent)
+        track=[]
+        for i in range(33):
+            a=i*math.tau/32;track.append((w*.215*math.cos(a)-w*.035,5.3+1.5*math.sin(a),1.95))
+        tube('Dry cleaner conveyor overhead rail',track,.028,'Metal',parent,8)
+        box('Conveyor geared drive',(w*.18,5.3,2.03),(.30,.42,.24),'Trim',parent,.015)
     elif key=='pizza':
         counter(w*.18,3.8,w*.55)
         box('Pizza oven',(w*.22,5.8,1.25),(1.9,1.0,1.7),'Metal',parent,.025)
@@ -145,6 +154,10 @@ def rear(m,p,parent,ink,layout):
     door=hinge(m['id']+'_ServiceDoor',(w*.20-.495,-.15,.158),rr,(-100,0))
     box('Rear steel leaf',(.495,0,1.055),(.984,.045,2.10),'Trim',door,.004)
     box('Rear panic bar',(.50,-.06,1.04),(.68,.035,.035),'Metal',door,.003)
+    box('Service door landing',(w*.20,-.90,.0762),(1.70,1.60,.1524),'Concrete',rr,.009)
+    for side in (-1,1):
+        cylinder('Loading protection bollard',(w*.20+side*1.22,-1.62,0),(w*.20+side*1.22,-1.62,1.05),.05715,'Yellow',rr,12)
+        cylinder('Bollard domed cap',(w*.20+side*1.22,-1.62,1.05),(w*.20+side*1.22,-1.62,1.075),.052,'Yellow',rr,12)
     socket(m['id']+'__RearHand',(.77,-.07,1.04),door,'door_handle')
     # Printed address is a small installed open-font diagnostic, not contour mesh.
     quad('Rear tenant address',m['address'],'sign',w*.20,-.135,2.45,.32,.075,rr,ink,layout)
@@ -212,7 +225,7 @@ def bay(m,p,ink,layout):
     sy=-p['walk']+.50 if p['style']=='mansard' else -.20
     sz=3.91 if p['style']=='mansard' else 4.38
     sw=m.get('sign_width',w-.95);sh=.97;sx=m.get('sign_offset',0)
-    if not m.get('hosted_sign') and m.get('sign_leader',True):
+    if not m.get('hosted_sign') and m.get('sign_leader',True) and not (p.get('look') and m['tenant']=='vacant'):
         box('Tenant sign cabinet',(sx,sy+.065,sz),(sw,.14,sh),'Trim',r,.009)
         # A common carrier accepts any tenant graphic without new geometry.
         # Filled box/panel cells cover the raceway; channel cells expose it.
@@ -236,16 +249,30 @@ def bay(m,p,ink,layout):
     return r
 
 
-def endcap(name,x,p,parent=None,outward=-1):
-    b=p['building'];d=b['depth'];r=root(name,(x,b['front']+d/2,0),kind='EndCap',parent=parent);r['reusable_module']=True
-    box('End wall',(0,0,b['parapet']/2),(.2032,d,b['parapet']),'Wall',r,.004)
-    box('End wainscot',(0,0,.48),(.245,d,.65),'Wall',r,.003)
-    box('End water table',(0,0,.83),(.29,d,.07),'Concrete',r,.003)
-    for s in (-1,1):box('End coping hem',(s*.142,0,b['parapet']-.025),(.016,d,.065),'Trim',r,.002)
-    box('End coping',(0,0,b['parapet']+.018),(.30,d,.036),'Trim',r,.003)
-    for yy in (-d*.28,d*.28):
-        box('End wall pack',(outward*.16,yy,3.0),(.15,.29,.33),'Trim',r,.02,2)
-        box('End wall lens',(outward*.245,yy,2.92),(.018,.23,.12),'White',r,.004)
+def endcap(name,x,p,parent=None,outward=-1,ink=None,layout=None):
+    b=p['building'];d=b['depth'];side=0 if outward<0 else 1
+    treatment=p['endcaps'][side];tenant=p['modules'][0 if side==0 else -1]['tenant']
+    r=root(name,(x,b['front']+d/2,0),outward*90,kind='EndCap',parent=parent);r['reusable_module']=True;r['end_treatment']=treatment
+    center=-outward*(d/2-3.75);window=6.30
+    wall_with_openings('End wall',d,b['parapet'],[(center,window,.20,2.68)] if treatment=='wrap' else [],r)
+    if treatment=='wrap':
+        for j in range(4):storefront('Wrapped end storefront',center-window/2+(j+.5)*window/4,-.114,window/4-.035,r)
+        # Water table below glazing; only the solid rear gets tall wainscot.
+        rear_len=d-window-.50;rear_center=outward*(d/2-rear_len/2)
+        box('End wainscot',(rear_center,0,.48),(rear_len,.245,.65),'Wall',r,.003)
+        box('End low sill',(center,-.10,.20),(window+.10,.13,.085),'Concrete',r,.003)
+        box('End water table',(rear_center,-.105,.83),(rear_len,.08,.07),'Concrete',r,.003)
+    else:
+        box('End wainscot',(0,0,.48),(d,.245,.65),'Wall',r,.003)
+        box('End water table',(0,-.105,.83),(d,.08,.07),'Concrete',r,.003)
+    coping('End coping',d,0,b['parapet'],r)
+    if ink:
+        box('Side tenant sign cabinet',(center,-.15,4.12),(5.95,.18,.92),'Trim',r,.009)
+        frame('Side sign extrusion',center,-.25,4.12,5.98,.95,'Metal',r,.028,.06)
+        quad('Side endcap tenant',tenant,'sign',center,-.285,4.12,5.88,.83,r,ink,layout)
+    for xx in (-d*.28,d*.28):
+        box('End wall pack',(xx,-.16,3.0),(.29,.15,.33),'Trim',r,.02,2)
+        box('End wall lens',(xx,-.245,2.92),(.23,.018,.12),'White',r,.004)
     return r
 
 
