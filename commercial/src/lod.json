@@ -1,0 +1,29 @@
+{
+  "kind": "canopy and dispenser",
+  "source": "export/CommercialGas-101.gltf",
+  "include_nodes": [
+    "Canopy",
+    "Dispenser_1"
+  ],
+  "levels": [
+    {
+      "ratio": 0.6,
+      "screen_height": 0.3
+    },
+    {
+      "ratio": 0.3,
+      "screen_height": 0.12
+    },
+    {
+      "ratio": 0.15,
+      "screen_height": 0.045
+    }
+  ],
+  "drop_subpixel": true,
+  "detail_nodes": [
+    "Dispenser_1"
+  ],
+  "protected_nodes": [
+    "*Nozzle*"
+  ]
+}
