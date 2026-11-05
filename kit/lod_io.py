@@ -20,7 +20,10 @@ WIDTHS = {'SCALAR': 1, 'VEC2': 2, 'VEC3': 3, 'VEC4': 4, 'MAT4': 16}
 
 
 def digest(path):
-    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+    value=hashlib.sha256()
+    with Path(path).open('rb') as stream:
+        for chunk in iter(lambda:stream.read(1024*1024),b''):value.update(chunk)
+    return value.hexdigest()
 
 
 def distance(height, screen_height, vfov=60):
@@ -205,7 +208,8 @@ class Document:
         geometry_bytes=self.path.stat().st_size-embedded+sum(self.resolve(b['uri']).stat().st_size for b in self.data.get('buffers',[]) if 'uri' in b)
         used={v for _,_,p in self.primitives() for v in [p['indices'],*p['attributes'].values()]}
         mesh_gpu=sum(self.data['accessors'][i]['count']*WIDTHS[self.data['accessors'][i]['type']]*np.dtype(DTYPES[self.data['accessors'][i]['componentType']]).itemsize for i in used)
-        return dict(triangles=triangles, placed_triangles=placed, materials=len(self.data.get('materials', [])),
+        return dict(triangles=triangles, placed_triangles=placed, materials=len({p.get('material',0) for _,_,p in self.primitives()}),
+                    draw_calls=sum(len(self.data['meshes'][n['mesh']]['primitives']) for i,n in enumerate(self.data['nodes']) if 'mesh' in n and i in selected),
                     file_bytes=self.path.stat().st_size, geometry_bytes=geometry_bytes,package_bytes=package, images=images,
                     texture_gpu_bytes=gpu,mesh_gpu_bytes=mesh_gpu)
 
