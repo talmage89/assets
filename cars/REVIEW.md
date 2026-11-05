@@ -3589,3 +3589,1712 @@ split normals, loaded ISO tires, their geometry/normal fixture, and an opt-in
 custom checkpoint recipe switch. Existing asset defaults remain unchanged.
 No tools or installs are needed. The lead is needed to review the form, with
 particular attention to the greenhouse and front-corner highlight pinching.
+
+## Alder H120 — compact hatchback form checkpoint (in progress)
+
+### Hatch pass 1 — package and four calibrated pairs
+
+Evidence: `renders/hatch-pass3/`, including Corolla and Hyundai front/rear
+three-quarter clay and striped pairs. Earlier `hatch-pass1` and `hatch-pass2`
+clay turnarounds were rejected during construction: their high rear control
+rows folded into fins at the glass/quarter junction. They are not candidates.
+
+Color/value first: both stock-photo sets use a neutral white studio background;
+the unobstructed white background is the neutral reference (unit RGB gains).
+Silver metallic paint is lighter than the diagnostic gray clay. Judge the
+position/width of gradients and the shadows, not absolute silver brightness.
+Opaque dark glass is a deliberate form proxy; it does not excuse bad pillars.
+
+- Profile/greenhouse: the roof is appropriately level and the rear overhang
+  short, but rectangular quarter glazing and a broad rear glass make it read
+  like an older small wagon. The rear glass is 1.62 m wide near its base,
+  plainly wider than either photograph. Narrow the aperture on the fair sheet,
+  taper the quarter-window termination and raise the rear belt slightly.
+- Side: the shoulder and lower die line are visible at full-frame scale. The
+  three door sections have progressive crown and a local hollow. Front lower
+  edge inset is 81.4 mm, and sill return only 33.9 mm; correct those small but
+  real section misses. The door cut arrangement is still too rectilinear.
+- Front: the long rising lamps and recessed grille follow the family, but the
+  painted band and tiny corner pockets read cheap/older. Increase the pockets
+  and grille height. Hood highlights are clean across the broad center;
+  compressed stripes at the fender/cowl corner need further scrutiny.
+- Rear: the gate is upright, but the huge backlight and short lamps give the
+  rear a featureless appearance. Split lamps and bumper plate pocket are real
+  apertures. The quarter-to-glass strip is pinched; lower bumper corner bands
+  also curl. Remove the projected lower tails and inspect the corrected parent.
+- Mirrors: correct small door-mounted envelope, but the front cap's highlights
+  form a conspicuous cross. It needs a fuller rounded wedge and smoother fans.
+- Wheels/arches: 40 mm tire-top clearance, with inward hems. End fascia pieces
+  still intrude into the lower arch silhouette; trim all adjacent skins with
+  the same opening, not just the metal fenders.
+
+Camera residuals are 3.59/2.95 px (Corolla front/rear) and 5.02/7.81 px
+(Hyundai front/rear), in 2100-pixel-wide reference images. These are five
+chassis-anchor residuals, not body-fit errors. Every anchor and residual remains
+in `build/hatch/cameras.json`. Stripe and clay pairs were inspected together.
+Source curvature has no unexplained reversal at the eleven sampled sections;
+that does not establish fairness between those stations, particularly at the
+D-pillar and bumper corner where the reflection test is stricter.
+
+### Hatch pass 2 — sections, aperture construction and rear glazing
+
+Evidence: `renders/hatch-pass4/` through `hatch-pass6/`, compared with the same
+Corolla and Hyundai photographs and the four pass-3 calibrated pairs. White
+studio backgrounds remain the neutral reference; no colored shade is sampled
+as a paint albedo. The broad side now has a shoulder highlight and a descending
+value gradient. The diagnostic glass remains intentionally opaque.
+
+- Profile: hood lead, windshield rake and overhangs meet their dimensional
+  targets. The level roof reads closer to the Hyundai than the Corolla. The
+  rear spoiler still has an overly square end in the side silhouette.
+- Side: the rocker correction brings the front-door lower inset below 80 mm
+  and the further sill tuck above 40 mm. The soft die crease rises rearward,
+  with a measurable shallow hollow above it. The door shut lines remain too
+  vertical and regular compared with both photographs; this is a form weakness,
+  not a missing handle that later detail will cure.
+- Face: taller grille and corner wells now have depth. Their beds are behind
+  actual holes; axial rays confirm that painted faces do not cover them.
+  The upper grille still looks conventional and the narrow lamp tips need
+  careful reflection inspection. Hood center bands stay calm.
+- Rear: narrowing the glass fixes the excessive broad backlight, but the first
+  taper leaves too much painted D-pillar. The lower bumper corners have tight
+  stripe curls. A cut routine was accidentally retaining diagonal gauge rims
+  as outer paint; tracking the actual outer face count fixes that construction
+  error. This is a topology repair, not evidence of visual fairness.
+- Wheels: arch trims now include adjacent fascia sheets. Tire/arch top gap is
+  40 mm. Wheel detail is deliberately limited to the existing family form wheel.
+- Mirrors: subdivision rounds the housing silhouette, but the nose still has
+  an over-regular four-way highlight. It remains weaker than the reference's
+  smooth, asymmetric molded cap.
+
+### Hatch pass 3 — complete evidence set and failures retained
+
+Evidence: all 22 renders and 41 review images in `renders/hatch-pass10/`.
+All four Corolla/Hyundai front/rear clay and striped pairs were inspected.
+The clay studio renders are too light relative to the dark Workbench pairs;
+the next pair set therefore uses the same Cycles clay response as the studio
+views. The white photographic backdrop remains the neutral; silver paint is
+not treated as a target gray value. Deep openings are visible, not filled with
+ambient gray, and the upper highlights retain shape.
+
+- Profile: the raw wheelbase-registered orthographic overlays miss the requested
+  40 mm envelope. Worst sampled deviations are 160 mm at the Corolla backlight
+  and 113 mm at the Hyundai chin. Hood-middle differences are −81/−72 mm.
+  Both photos show finite perspective; the manufacturer brochure illustrations
+  are also not exact engineering outlines. Keep these errors visible. Do not
+  shorten the numerically sourced package to force a photographic fit.
+- Greenhouse: roof/glass proportions are less wagon-like, but the severely
+  clipped quarter pane leaves a conspicuous painted patch. Retain a small rear
+  quarter pane, as on the Hyundai, and widen the bottom of the rear glass while
+  keeping its top narrow. This is the last glazing revision before review.
+- Side: the actual three sections pass the requested lean, inset, sill and
+  crease ranges. The simple shut-line layout still looks older/cheaper than
+  either reference. Low sun reveals the broad lower-door crown rather than a
+  flat plate, though the rocker termination is too abrupt.
+- Front: the upper lamp sweep and fender crowns read correctly at distance;
+  close views still reveal fender/cowl compression. The front-corner pockets
+  have depth but could have more coherent transitions into the arch.
+- Rear: high-frequency D-pillar wrinkles remain visible even in neutral clay.
+  Denser rear sampling improves the stripe contour but does not eliminate the
+  underlying problem. An uncut parent comparison isolates the extra sampling
+  error. Inspection also finds a discontinuous fitting-ray origin at the
+  side/end transition; replace that switch with a smooth blend in the control
+  fit. Recheck sections and reflections after this structural change.
+- Assembly/topology: two tiny, disconnected lower-door scraps fail the solid
+  audit. They are outside the door stamping, below the rocker, not functional
+  geometry. Remove disconnected door islands before closing the gauge; retain
+  and report the removed area. The resulting pass-11 game solid audit passes.
+- Mirrors and spoiler: both are dimensionally plausible, but their cap/end
+  highlights still read more regular than molded automotive plastic. No badges,
+  trim or paint are being added to distract from those weaknesses.
+
+The parent and sampled game curvature checks pass at the eleven nominated
+sections. Those finite tests did not catch the D-pillar between stations.
+The reflection views and photograph pairs remain the deciding evidence.
+
+### Hatch pass 4 — checkpoint handoff, form limitations explicit
+
+Evidence: `renders/hatch-checkpoint/contact.jpg`, all 22 final renders and
+all four calibrated Corolla/Hyundai front/rear clay and striped pairs, plus
+the two unregistered rear comparisons and both raw side overlays. Every final
+render and both parent/game curvature reports identify the same game source.
+All rendered views were opened, including the seven reflection views and the
+independent uncut-parent plots. The final geometry is in source commit
+`2479d35`; this documentation records its review, not a later detail pass.
+
+Color/value first: neutral remains the unobstructed white photographic studio
+backdrop, with unit RGB gains. Neutral clay now uses the same Cycles response
+for the four calibrated pairs and studio three-quarters. The opaque-foreground
+display-luma median/p99 is 157.2/239.1 front and 164.2/228.9 rear; no foreground
+channel reaches 255. Deep-shadow fractions below luma 25 are 10.2% and 8.6%.
+Cavities stay dark and bright panels retain gradients. This is a clay tonal
+check, not certification of real paint albedo or glass transmission.
+
+- Profile: the level roof, short tail and steep glass now read as a compact
+  hatch rather than a sedan deck or fastback. It still has a more rectangular,
+  older greenhouse than either photo. The raw overlay **does not meet 40 mm
+  everywhere**: worst 157.5 mm at the Corolla backlight, 113.3 mm at the Hyundai
+  chin. Front bumper deviations are +107.8/+105.1 mm; rear bumper +62.2/+80.3 mm.
+  Hood-middle differences are −80.8/−72.1 mm, roof peak +2.1/−6.2 mm. The two
+  rear profiles genuinely differ, and finite camera perspective is also
+  present; neither is claimed to explain away every discrepancy. Numerical
+  length, wheelbase and overhangs remain held.
+- Body side: three sections meet the requested shoulder, inward lean,
+  progressive lower crown, hollow, crease turn and sill tuck. The raking view
+  carries a readable shoulder-to-lower-door gradient. Vertical door cuts and
+  the abrupt lower front-door termination remain conspicuously procedural;
+  both photographs have more carefully resolved frame and sill transitions.
+  Fender swell is 29.6/29.0 mm at the measured above-arch peaks. Its blending
+  and highlight continuity still deserve examination between the sampled cuts.
+- Face: actual crown rises are 14.95/21.61/10.12 mm at the three stations.
+  A stronger local crown experiment was rejected when the **parent** curvature
+  test found extra hood reversals; it was not excused by expanding the allowed
+  crease zones. The final control fit restores the broad hood's calm curvature.
+  The 691 mm lamps rise at their outer ends, and grille/intake/pockets have real
+  depth. The grille's simple trapezoid and the pocket-to-arch junction still
+  look older/cheaper than the references. Lamp corners remain too angular.
+- Rear: the glass is now 1173/1411 mm top/base, closer to the Hyundai's broad
+  base; the projected pillar band is 145 mm. Removing the invented painted
+  patch shut line and smoothing the fitting transition removes the most
+  obvious D-pillar creases in clay. The remaining broad pillar bulge still
+  compresses stripes more than the reference's calm quarter turn. Fine lower
+  bumper-corner zigzags and the exhaust-cutout transition remain visible in
+  grazing reflections. The gate's large unarticulated painted area is still
+  too plain; adding a badge is not a substitute for resolving its form.
+- Mirrors/greenhouse: the rounded superelliptic caps remove the four-way
+  diamond highlight. The measured 234 × 141 × 126 mm housings and 2039 mm total
+  span are plausible. Their rear faces and the spoiler's square end still
+  look regular. The small quarter pane avoids the earlier painted rectangle,
+  but the side-window corners need more automotive shaping in a later form
+  revision. Opaque glass is a stage proxy and must not conceal future interior
+  or window-attachment work.
+- Wheels/assembly: all four top gaps are 40 mm; tire/arch outboard extrema
+  differ by only ±2.5 mm. The source solid audits pass at both densities after
+  removing hidden disconnected door scraps. No moving-part clearance claim
+  is made: these are closed form assemblies with provisional pivot groups.
+- Budget: 53,384 triangles is within the 55k limit but too near it for the
+  future interior/detail allowance. Rear sampling costs real triangles.
+  Reduce hidden gauge backs and fixed-body overhead before adding those stages;
+  do not silently raise the final budget.
+
+`make -C cars BODY=hatch` completes the source build, checks, rendering and
+41-image review. `make -C cars BODY=hatch check` covers both closed-solid audits,
+measured proportions/sections/depths, all eleven game and parent curvature
+stations, Blender camera projection agreement (under 0.0011 px), and repository
+rules. Independent one-thread regeneration matches **all 131 objects and 118
+meshes exactly**, including corner normals and transforms. The default pickup
+comparison matches 472 objects / 454 meshes, all 150 GLB accessors, embedded
+maps and graph, and the whole 11,530,720-byte GLB. Details and reproducible scope
+are in [HATCH.md](HATCH.md).
+
+The source checks pass; the pictures still show the limitations above.
+This is the requested stop before detail, not final surface or delivery
+approval. No kit change or additional installed tool is needed. A useful future
+kit improvement would be a portable adaptive surface-sampling error report
+that compares both positions and normals; the tight rear turn showed why
+triangle count or sampled curvature alone is insufficient.
+
+## Alder H120 — form round 2
+
+### Round 2 pass 1 — perspective diagnosis and first end revisions
+
+Evidence: `renders/hatch-r2-camera/`, `hatch-r2-shape1/`, `hatch-r2-shape2/`.
+The first folder renders the original checkpoint through fitted profile
+cameras before changing geometry. White studio backgrounds remain the neutral;
+unit RGB gains, with no silver-paint albedo inferred from neutral clay.
+
+- Cameras/profile: add the two near wheel centers and tread contacts to the
+  kit's pinhole solver. Chassis-anchor RMS is 4.30 px Corolla / 4.31 px Hyundai
+  at native 2100 px width. No outline landmark enters the fit. Four coplanar
+  anchors leave lens/depth weakly constrained, so the approximately 70.8 mm
+  estimates retain their stated prior; the millimeter comparisons are screen
+  deviations at the body center plane, not recovered 3D surface errors.
+  Perspective changes the diagnosis: the original gate is close to Corolla,
+  while Hyundai carries its roof and upper tail farther aft. Follow Corolla
+  at the rear greenhouse and Hyundai at the lower bumper where they disagree.
+- Hood/header: both remain below the photographed outlines after matching.
+  Move the straight windscreen forward 105 mm with its rake unchanged, and
+  raise the intervening hood crown. The first revised overlays reduce hood/
+  header misses to 39 mm Corolla / 27 mm Hyundai. No wheelbase or side-section
+  scaling is used. A broad fit transition near the relocated cowl introduces
+  extra curvature reversals; reject it and retest the parent surface.
+- Front end: shifting the tangent to upper-fascia height while retaining too
+  much of the old lower curvature over-tucks the chin. The first attempt misses
+  by 239/201 mm, worse than the starting shape. Reduce that tuck before keeping
+  the revision. The second attempt follows Hyundai's lower front within 7 mm;
+  Corolla's deeper chin still differs by 50 mm. Lamp-top facets remain visible.
+- Rear: a first narrow blend from the broader bumper into the gate produces a
+  conspicuous reflection bullseye at the quarter. Spread that plan transition
+  vertically; a checked silhouette alone does not justify the narrow blend.
+  The gate needs a deliberate transverse feature and a central badge location,
+  not just a dark plate opening. Plate location stays in the bumper, following
+  Hyundai. The spoiler free edge also needs its own fair crown; sampling every
+  root chord directly carries roof-corner facets into that edge.
+- Mirrors: the supported trapezoidal cap reads as a wedge rather than an oval.
+  Its flat rear pane and broad door sail are visible. Move the sail down into
+  the door stamping and verify actual surface intersection; proximity alone is
+  not a contact proof. The initial depth is 130.6 mm, so shorten the cap slightly.
+- Diffuser/budget: axial projection holds its lower edge within about 1 mm in
+  height; retaining its bed sampling removes the earlier decimation wrinkles.
+  Fixed skins can omit their buried reverse faces without altering the painted
+  sheet or the visible edge returns. The first allocation drops to 42,559
+  triangles. Audit each new boundary's face role explicitly; do not treat an
+  open fixed stamping as a closed solid or excuse a missing outer face.
+
+### Round 2 pass 2 — surface repair, rear articulation and allocation
+
+Evidence: `renders/hatch-r2-shape3/`, `hatch-r2-shape4/`, and the complete
+intermediate set `hatch-r2-pass5/`. Inspect both stripe directions, white clay,
+the four calibrated three-quarter pairs and both profile comparisons. Neutral
+white photo backgrounds still use unit RGB gains. Clay is deliberately lighter
+than the reference silver; judge highlight roll, cavity separation and form,
+not metallic albedo. No new texture or paint approval is implied.
+
+- Nose/hood: broad lower fascia and narrow lamps now read as a compact from
+  the late 2010s. The original lower tangent was still just ahead of the upper
+  one by less than a millimeter. Move that lower run back 1.5 mm, preserving
+  package length, then measure the leading tangent independently. Denser local
+  chart columns and reprojecting new cut vertices onto the fair parent remove
+  the folded hood/lamp junction. Parent-normal gauge extrusion avoids collapsed
+  corners introduced by averaged normals on narrow clipped triangle fans.
+  The tip remains a very sharp styling event; do not hide it behind black optics.
+- Roof/spoiler: lower the last 390 mm, increase rear glass rake, and give the
+  spoiler free edge a continuous crown independent of the irregular root
+  chords. The broad top highlight is cleaner. The accepted wide D-pillar still
+  compresses stripes around its corner more abruptly than either reference;
+  neither a sampled curvature pass nor smooth shading proves it perfect.
+- Gate/bumper: a transverse stamped band and inset garnish establish the badge
+  location between the lamps. The lower gate cut remains above the separate
+  soft bumper crease. The wider lower plan improves the rear three-quarter
+  compared with the early pinched corner. The narrow blend experiment made
+  a conspicuous bullseye reflection and was rejected. Keep the broader blend.
+  The intermediate garnish looked proud: its newly attached parent's matrix
+  had not been evaluated before carving. Correct that transform dependency and
+  add an independent world-guide/bounds check before accepting the recess.
+- Plate/diffuser: retain Hyundai's bumper plate location, sharp pocket rim and
+  overhead lamp. Diffuser projection is axial so the lower row stays near level;
+  retain that bed's samples instead of decimating them. The lower edge no longer
+  has the repeated wrinkles of round 1. The black plate pocket is still empty,
+  so it cannot stand in for the later plate/optics construction.
+- Mirrors: the trapezoid with rounded front sections now reads as a wedge and
+  has a flat rear pane. A broad sail and shoe replace the stalk. Verify actual
+  edge/surface intersections with the door and cap; five and twelve per side
+  support the contact claim. The 228 × 136 × 128 mm cap does not break the
+  hood/cowl silhouette. Its simple rear glass and thick dark shoe still look
+  unfinished beside the photographs; finer trim belongs to the next stage.
+- Budget: remove only buried backs from fixed stampings and keep all paint
+  faces and visible gauge returns. Mark and audit the resulting inner boundary
+  edges, rather than calling those skins closed solids. The intermediate local corner
+  sampling and supported spoiler bring this intermediate form to 45,893 triangles, leaving
+  14,107 beneath the finished-car ceiling. This is enough only with the explicit
+  interior/underbody allocations in HATCH.md; it is not permission for unplanned
+  detail growth.
+- Measurement correction: locator guides sit above paint by 2.5–4 mm. Recess
+  depths must start on the evaluated parent skin. Project mouth measurements
+  there, retaining actual bed-ray hits, rather than reporting the locator offset
+  as additional pocket depth. Recheck every opening with this corrected origin.
+
+### Round 2 pass 3 — close front view rejects residual sampling pinches
+
+Evidence: full set `renders/hatch-r2-pass8/` (formerly the candidate round-two
+final), plus `hatch-r2-corner-diagnostic/front_clay.png` and the dense-source
+comparison `hatch-r2-corner-high/front_clay.png`. Neutral studio light and white
+background gains remain unchanged. The extra front render uses Cycles to
+separate real shading faults from Workbench's cavity emphasis.
+
+The front still has small darts at the inner lamp/hood intersections. They
+are reduced in the dense source, so a general parent reshaping would attack
+the wrong cause. Refine those local game cells in both chart directions;
+transverse columns alone left long longitudinal chords. The broad grille bed
+also shows diagonal dents absent from the high source. Its aggressive hidden-
+bed decimation is inappropriate because the bed remains visible between bars.
+Retain the crown grids for the grille, intake, plate pocket and garnish. Use
+some of the saved back-face budget here, then repeat the full checks and views.
+
+The whole intermediate car already reads as a contemporary compact hatch in
+white clay, but calling the corner repair complete from its three-quarter view
+would be lenient. The rear garnish now has a real recess and a separate lower
+gate panel; its straight transverse treatment still looks more generic than
+the sculpted Corolla. The D-pillar reflection compression and the very regular
+side-window corners remain visible limitations. The smooth free spoiler edge
+and level diffuser bottom are improvements in both stripe directions.
+
+### Round 2 pass 4 — final regions and whole car in white clay
+
+Final evidence: `renders/hatch-round2/contact.jpg`, all 26 native renders,
+four front/rear three-quarter pairs in clay and stripes, two perspective profile
+pairs, both original/current overlay comparisons, and game/parent section plots.
+The four white-clay three-quarter pairs were also opened individually at full
+size. The reference neutral remains unobstructed white background, unit RGB
+gains. Front/rear clay heroes have display-luma P99 of **240.1 / 227.9**, zero
+clipped channels, and **11.7% / 9.8%** of opaque foreground below 25/255. Cavities
+have depth and the white highlights roll off; these are form materials, not
+silver-paint or aging approval.
+
+- Profile/ends: chassis fits remain **4.298 / 4.312 px RMS**. The regional table
+  in HATCH.md reports both makes without silhouette fitting. Corolla governs
+  roof/spoiler/backlight/gate: maxima **34.2 / 9.1 / 20.5 / 41.0 mm**. Hyundai
+  governs lower front/rear bumpers: **4.5 / 31.6 mm**. Hood/header are within
+  **38.7 mm** of both. The worst disagreement remains Hyundai's spoiler,
+  **180.7 mm**; that make has a different upper-tail shape. Four coplanar anchors
+  and the lens prior limit reconstruction accuracy. Do not treat a 4.3 px
+  anchor fit as 4.3 px body accuracy or the projected millimeters as 3D errors.
+- Hood/face: targeted two-direction sampling costs 220 triangles and removes
+  the prominent inner-corner darts seen in pass 3. Restoring the four visible
+  recess beds costs 768 and removes their false diagonal dents. Broad hood
+  reflections flow continuously, including the driver's-eye lines. Very thin
+  cut rims and the outer lamp tips still expose small angular marks in the
+  severe front Workbench view; the A-pillar/cowl junction is less polished
+  than the reference stampings. The broad face layout remains accepted.
+- Roof/spoiler: the last roof section now falls toward the spoiler; measured
+  backlight rake is **46.58°**, spoiler overhang **106.9 mm**. The supported
+  free edge is smooth in both stripe directions. The broad accepted D-pillar
+  remains too abrupt in reflection compression compared with both photos.
+  Its white-clay highlight is cleaner but is not a claim of perfect fairness.
+- Mirrors: supported door sails, wedge caps, flat rear panes; **228 × 136 ×
+  128 mm**, housing bottom **994.7 mm**, span **2039.3 mm**. The housings remain
+  below the side profile and actual surface intersections prove support.
+  The dark shoe is visually heavy and the pane perimeter is still simple;
+  these make the mirror look cheaper than either photographed assembly.
+- Rear: the transverse garnish now follows the surface without the decimated
+  pill-shaped bulge. Its bed is **6.0–7.1 mm** recessed. The lamps are **125.5 mm**
+  at the quarter and taper to **51.7 mm** at their inner gate tips. Gate cut,
+  upper bumper crease and lower turn-under read as separate construction.
+  The bumper plate mouth is **319 × 166 mm**, actual depth **21.0–21.6 mm**, with
+  its overhead lamp. The diffuser bottom varies **0.965 mm** across its sampled
+  row; the old repeated wrinkle is gone. The lower bumper turns under over
+  **144.1 mm**. The straight garnish and wide plain lower gate still read more
+  generic and slightly older than the Corolla's shaped gate; fine angular cut
+  marks below the lamps and around the reflector mouths remain CG tells.
+- Whole white clay: it reads as a modern compact five-door, retaining the small
+  package, filled arches and side gradients. It remains less convincing than
+  the photographs: nearly rectangular side-window corners, very regular door
+  cuts, opaque glass, empty optics and bare wheels simplify its appearance.
+  The first two are form weaknesses; the last three are deliberate stage
+  omissions. Do not use those omissions to excuse the remaining rim and pillar
+  issues. No interior, underbody, hinges/struts, paint or baked export is added.
+- Allocation/proof: **46,881 triangles**, down **6,503** from round 1; the current
+  code removes **14,327** buried reverse-skin triangles and spends some savings
+  on the visible repairs. The finished plan is **59,381 + 500 contingency**,
+  under 60,000. Both density audits, measured shape/depth/contact checks, eleven
+  game and parent curvature stations, all camera projection checks and repository
+  rules pass. Independent regeneration matches **133 objects / 120 meshes**
+  exactly. Pickup remains **472 objects / 454 meshes**, **150 GLB accessors**,
+  embedded maps and full file hash identical. No sedan module or kit changed.
+
+Commands completed for the final revision: the scripted game/high builds,
+`make -C cars BODY=hatch check`, `make -C cars BODY=hatch render`,
+`make -C cars BODY=hatch review`, Python compilation and independent deterministic
+regeneration. Every final shot and game measurement report refers to source SHA-256
+`a0e2e383288e48e09664ea760db2296e55449aaa4329940ac2c217a5e2194c55`.
+This is the requested stop at the form checkpoint. The remaining visual misses
+above are reported for the lead; no tool, kit change or permission is needed.
+
+## H120 form round 3 — sculpture and reflection flow
+
+### Pass 1 — stronger lines, rejected end treatment
+
+Evidence: `renders/hatch-r3-pass1/`, `hatch-r3-pass2/` and
+`hatch-r3-pass4/`; round-two views remain in `hatch-round2/`. The four
+front/rear calibrated neutral pairs in pass 4 were opened beside both
+photographs. Neutral is the unobstructed white studio background in each
+reference, with unit RGB gains. This is neutral source clay, not a paint
+albedo match; judge value gradients and geometry before optical detail.
+
+The side's sharper shoulder and deeper rising lower hollow produce distinct
+light/dark runs in the pairs. The first wheel-crown increase widened the body
+beyond its accepted package, so reduce that increase and spend effort on the
+normal transition and its game sampling. The raking side is still less sharply
+articulated than either photograph. Do not accept the angle measurements as
+proof that the side looks right.
+
+The original flat garnish was removed and the gate itself drawn inward between
+convex lamp corners. The first game tessellation flattened the proposed lip:
+it did not achieve its requested overhang despite the parent controls. Add
+samples across the hem and inset the bumper immediately below it. A black
+lower center and slim vertical reflectors follow the Corolla rear photograph;
+the Hyundai retains a broader painted bumper and horizontal reflectors. The
+H120 keeps the accepted bumper plate location. The larger black area helps the
+rear proportions, but conceals neither its painted-corner lumps nor the torn
+marks below the lamps. Add an unpainted rear stripe diagnostic so black
+plastic cannot conceal an unfair surface.
+
+The crowned mirror outline and tapered nose are much closer to the Elantra
+than the old flat-topped block. The sail is thinner and triangular. The new
+cap is still rather egg-shaped beside the photograph, and the simple pane
+perimeter lacks a production molding's crispness. Preserve the mounting and
+2039.3 mm span while judging that tradeoff in the front view.
+
+### Pass 2 — close views reject sampling and cut artifacts
+
+Evidence: `renders/hatch-r3-pass7/` and `hatch-r3-pass9/`: front/rear,
+rear three-quarter, raking side, front stripes in both directions and rear
+stripes with the entire bumper reflective. These were opened individually.
+The same neutral and lighting settings are retained. Highlights roll into
+dark cavities; increasing exposure would only conceal the weak forms.
+
+The gate now has a clearly visible concave run and a shadowed lower hem.
+Measured lip projection is about 32–33 mm. The lower center follows the
+Corolla's black construction while the corners remain painted. Nevertheless,
+the taillamp surrounds have fine torn marks, the lower bumper corners ripple,
+and the hood ends still have darts. The Corolla has a much cleaner single
+lamp outline; both photographs have calmer bumper reflections. Reject these
+candidates despite acceptable dimensions and triangle counts.
+
+Tracing the generated triangles found several separate causes: a reversed
+longitudinal control ordering at the front fender transition; narrow clipped
+polygons triangulated after bending into space; and a lens disk using all its
+projected guide points while its cut used only the original guide perimeter.
+A first triangulation-order correction alone did not remove the visible marks.
+A more complete chart-cut revision is therefore required, with coverage checks
+rather than accepting a lower triangle count as proof of optimization.
+
+Candidate 10's attempted chart retessellation lost large painted patches; the
+side-ray check rejected it. The failed clay and stripe views in
+`hatch-r3-pass10/` were inspected and are retained only as diagnostic evidence.
+Subsequent candidates are checked for old-to-new chart coverage and topology.
+No failed candidate is the checkpoint source, and no diagnostic image is
+committed to `docs/`.
+
+
+### Pass 3 — final pairs expose a second optical boundary
+
+Evidence: the first complete `hatch-round3/` candidate (20), then
+`hatch-r3-pass21/` and `hatch-r3-pass22/`. Front, rear and both three-quarter
+clay views were opened individually. White balance remains the photographs'
+white studio backdrop, unit RGB gains. The neutral clay has deep lower-body
+and aperture shadows; there is no evidence that raising exposure would solve
+the form problems.
+
+- Side, against both makes: shoulder and lower line are visible in the neutral
+  front/rear pairs and horizontal stripes. The lower hollow is clearer than in
+  round two. However, the unchanged low-sun side is only modestly stronger;
+  the broad door still changes value less convincingly than the Corolla or
+  Hyundai. The roughly 24-degree shoulder number cannot be used to call that
+  visual issue solved. Wheel crowns catch a narrow highlight but are quieter
+  than the photographs' flared arches.
+- Gate and rear construction, against both rear pairs: the inward central run
+  and shadow under the hem replace the old flat rectangle. The Corolla's black
+  center and tall corner reflectors are the chosen construction; the Hyundai's
+  broader painted bumper is deliberately not followed there. The H120's gate
+  scoop is more symmetrical and regular than either stamping. The straight
+  gate cuts still make it look cheaper. The lower corner now joins the arch
+  with a continuous broad surface, but stripes retain fine crowding at its
+  bottom roll; do not describe the entire bumper as perfectly fair.
+- Mirrors, against both front pairs: the crowned cap and rounded outboard end
+  remove the rectangular silhouette. The thin sail meets the window corner,
+  and the measured span remains 2039.3 mm. The cap is too egg-shaped beside the
+  Hyundai's crisper teardrop; its simple pane edge still looks cheaper than
+  both production mirror moldings.
+- Face, against both front pairs: the curved recessed grille and surrounding
+  lip now join the lamp ends closely. Its regular horizontal slats still read
+  older than either reference's mesh. Broad hood bands are calmer, but the
+  outer cowl/lamp transition retains small pinches in the front and both stripe
+  directions. This is a form weakness, separate from the deliberately absent
+  optical internals.
+
+The nominal final candidate still showed a second dark edge above the rear
+corner lenses and below the headlamps. Plotting the actual lens triangles and
+cut boundaries identified a further error: a straight edge in the parent
+chart curves in space. The body cut sampled that curve, while the lens used a
+long endpoint chord. Its edge therefore sank through the painted surface.
+Candidate 21 refined all lens triangles and cleaned the boundary but cost
+49,572 triangles, so it was rejected. Candidate 22 refines only those boundary
+chords whose midpoint error exceeds 3 mm. It spends 220 additional triangles,
+keeping the total at 46,788. The rear now has a single outline in the straight
+rear view; the large false wedges below the front lamps are gone. Small
+angular tip marks and a dark sliver at the outer headlamp/hood junction remain.
+Do not relabel those remaining artifacts as production detailing.
+
+
+### Pass 4 — preserve the profile, retain the diagnostic limits
+
+The full candidate-22 profile overlays revealed a regression that the package
+bounds alone did not detect: the Hyundai rear-bumper maximum grew from 31.6 to
+47.4 projected millimeters. Candidate 23's fuller plan recovered most of that
+loss but also moved the upper gate. The final lower-plan adjustment blends out
+before the backlight. Its native-size Workbench silhouette preview restores
+31.6 mm at the Hyundai bumper while retaining the Corolla roof, spoiler and
+backlight deviations. The final Cycles overlay is the authoritative comparison.
+Both makes' profile images were opened; the cameras and held-out picks were
+unchanged. This is a shape correction, not a calibration adjustment.
+
+The final form is 46,843 triangles, leaving 38 within the accepted 46,881 form
+allocation. Actual lower-gate lip projections remain 32.31 / 31.76 / 32.51 mm
+at x = 0 / 250 / 500 mm. The center section is 24.18 mm concave over its 120 mm
+chord; the transverse center run is 16.63 mm inside its 900 mm chord. Black
+bumper widths are 1454 / 1384 / 1270 mm at z = 350 / 450 / 550 mm, with the
+painted center band still 570–644 mm. The final tall reflectors measure about
+19 × 198 mm in rear projection, within the photograph's measurement uncertainty.
+
+The revised rear game section has a curvature reversal at z = 695.1 mm, above the
+669.2 mm arch crown (HUB_HEIGHT + ARCH_RADIUS). The former Gaussian-support
+estimate began at 707.7 mm and excluded the lower blend. The check now uses the
+actual arch crown as the construction region's lower bound. Raw crossings,
+points and normals remain visible, including this reversal. That revision does
+not certify the reflection as fair and must not conceal the visible corner
+weaknesses from pass 3.
+
+
+The solid audit then rejected both gate-lens shells for negative signed volume.
+The earlier per-triangle orientation correction was wrong: isolated flips in
+curved chart chords made adjacent faces disagree. The final implementation
+retains one coherent chart winding and creates the 1.5 mm inner gauge along the
+parent normals instead of averaging the defective local fans. All six lens
+blanks now measure zero inconsistent-winding edges and positive volume. This
+changes the inner shell and winding, preserving the authored outer outline and
+46,843-triangle total. The independent round-three report now retains those
+actual topology and volume measurements.
+
+### Pass 5 — final white clay and same-camera comparison
+
+Evidence: all 27 native views in `renders/hatch-round3/`, the twelve calibrated
+stripe/neutral pairs, `contact.jpg`, and the 23 comparisons collected in
+`round2-round3-contact.jpg`. Every native view was opened, as were all six
+neutral pairs and the individual before/after front, rear, raking side and
+horizontal rear stripes. Cameras are unchanged. The final source is
+`d6901bfc3cb9f97bf78a90580bec2972df16ec06f5356df1b7f2dc3d7fffc3da`.
+
+Color/value first: reference neutral remains the unobstructed white studio
+background, unit RGB gains. No factory-paint match is claimed for white clay.
+The front/rear heroes have display-luma 99th percentiles of 240.9 / 227.9,
+zero clipped channels, and 12.0% / 14.3% of opaque foreground below luma 25.
+The grille, plate, underbody and gate lip retain deep shadow. The pale roof
+does not need darker exposure to reveal the remaining geometric defects.
+
+- Side: the front and rear pairs against both makes now show a shoulder edge,
+  rising lower crease and concave run above it. Horizontal stripes change
+  direction decisively at both lines. Measured normal turns are 23.79–23.89°
+  at the shoulder and 12.78–16.20° at the lower line over 30 mm vertical spans.
+  Wheel-crown turns are 13.62° front / 9.60° rear over 70 mm. These gains are
+  visible, but the round-two/three raking comparison is only modestly better:
+  the door remains broad and quiet, and the crowns lack both photographs'
+  stronger rolling highlight. This remains the largest unmet visual ambition.
+- Rear: both neutral rear pairs now show an inward gate run and a real lip
+  shadow. The actual lip is 31.76–32.51 mm proud; the center section is 24.18 mm
+  concave over 120 mm, and the plan run 16.63 mm over 900 mm. The Corolla-style
+  black center reduces the broad painted mass; the central painted band is
+  only 74 mm high. The center bumper reflections are calmer. In the unpainted
+  diagnostic, however, the lower painted corners still crowd and kink near
+  the arch/hem junction. The gate bowl is too symmetric and its corner stripe
+  transitions too busy beside either real stamping. The single taillamp
+  outlines are much cleaner in the straight rear view, with small extreme-tip
+  angular marks remaining. These are not final-quality surfacing claims.
+- Mirrors: the straight front comparison clearly replaces the old rectangular
+  caps with crowned tops and rounded outboard ends, measured at 57.9 mm radius.
+  The 2039.3 mm span and door-sail location remain. Both front photo pairs still
+  expose an overly egg-shaped cap, a simple pane perimeter and a visible small
+  mounting shoe. The Hyundai's tapered molding is more precise and looks less
+  cheap. The sail is thinner, but the whole assembly has room for refinement.
+- Face: the grille's 66.0–67.5 mm bed depth and proud curved frame read in the
+  front pairs, with only 15.0 mm to each lamp. The large false wedges under the
+  headlamps are removed. Broad hood bands are fairer in both stripe directions,
+  but cowl/lamp-end pinches and dark slivers remain visible in the straight
+  front and raking views. The regular slats and angular lamp ends still make
+  the face look older and cheaper than either photographed car.
+- Whole white clay: the package, short roof and rear opening still read as a
+  compact five-door, and the rear now has distinct construction rather than a
+  flat wall. It remains recognizably CG: regular window corners and door cuts,
+  crowded D-pillar reflections, the symmetric gate scoop and the face/corner
+  weaknesses above. Empty optics, opaque glazing, bare wheels and the absent
+  interior are separate stage omissions; they do not excuse those form issues.
+
+The final 2100 px Cycles overlays confirm unchanged selected Corolla
+roof/spoiler/backlight maxima (34.2 / 9.1 / 20.5 mm) and Hyundai front/rear
+bumper maxima (4.5 / 31.6 mm). The Corolla gate maximum moves 41.0 → 45.6 mm,
+hood 36.5 → 38.7 mm and nose 6.8 → 22.8 mm. HATCH.md lists every region for
+both makes, including the intentionally larger Hyundai upper-rear errors and
+the approximately ±16 mm manual-pick uncertainty. The cameras were not refit.
+
+`make -C cars BODY=hatch` completed successfully, including both source builds,
+both density audits, package/character/round-two/round-three checks, eleven
+game and parent curvature stations, camera verification, repository rules,
+27 renders and the full review/comparison set. Log:
+`build/hatch-r3-final4-make.log`. Independent factory-empty regeneration matches
+all 132 objects / 119 meshes exactly (`build/hatch/determinism.json` under
+`cars/`). The 783-ray normal-query equivalence check has zero position error
+and maximum normal-vector difference 1.23e−7. These checks establish the
+stated construction and repeatability, not visual approval.
+
+Final form: 46,843 triangles; high source: 114,174; five temporary materials;
+zero image textures; game/high files 1,059,996 / 2,427,423 bytes. The unchanged
+12,500 future allowance makes 59,343 against the accepted 59,381 plan. The
+fresh pickup source matches 472 objects / 454 meshes. Its re-export matches
+150 accessors, embedded maps, delivery graph and all 11,530,720 bytes, SHA-256
+`58661d0c2e11c2050e10677e12fabdf61570a3d25dc53837b485fee5c55a85ea`.
+That check uses the accepted finalized source/maps and does not claim a fresh
+GPU rebake. No shared family implementation, sedan module or kit file changed.
+
+Stop here for the requested form review. No hatch interior, underbody detail,
+UV/bake/export work or final docs images were added. No new tool or permission
+is needed from the lead; the remaining visual misses above are the review items.
+
+## Alder H120 — form round 4
+
+### Pass 1 — diagnose the folds on the parent and game mesh
+
+Starting point: `da466e3`, retained under `build/hatch-round3-baseline/`.
+`main` was already merged. The round-three cameras, matte clay and reflection
+stripe rigs are unchanged. New diagnostics live only in `hatch_*` modules.
+The reference neutral is still each photograph's white studio background,
+with unit RGB gains. Gray gloss is a form diagnostic, not a factory-paint
+color match. The first gloss exposure was too pale; the final diagnostic
+uses the same darker exposure for both revisions, without altering geometry
+or the existing matte/stripe look.
+
+The front pairs against both Corolla and Hyundai show the same failure:
+creases near the outer hood/lamp junction break into short angular marks,
+where both real stampings carry a continuous crown. The Hyundai's broader
+hood roll is particularly unforgiving. The rear pairs expose a soft central
+hollow with busy ends, unlike the Corolla's bounded gate recess or the
+Hyundai's smoother convex gate. Those are geometric weaknesses, not missing
+paint or optical detail.
+
+Cause isolation used the uncut parent, the game skins, dense-parent stripe
+renders, stored-normal inspection and actual face orientation. Three faults
+were distinct:
+
+- At the cowl/front-fender transition, the side controls swept longitudinally
+  while their crown height dropped. Rows became almost parallel in YZ and
+  folded back across each other. A separate 20 mm fitting-weight handoff
+  displaced controls over too short a distance. The old parent had 1,049
+  suspect faces in the tested cowl region, including almost reversed normals.
+  Locally unswept rows and a 160 mm fitting handoff remove those parent folds;
+  the corresponding diagnostic then found none. The windshield controls and
+  its accepted rake are retained.
+- At the lamp tips, the parent was fair but chart-space Delaunay triangles
+  became nearly collinear, reversed chords in world space. The old hood had
+  three inverted triangles, totaling about 6 square millimeters. Physical-XY
+  triangulation preserves the parent samples and aperture boundary while
+  removing that inversion. Simply beautifying the old triangles was insufficient.
+- The remaining narrow crown corrugation followed coarse game diagonals.
+  Dense-parent stripes were substantially smoother. Position error alone is
+  insufficient on such a tight turn: interpolated normals must resolve the
+  changing reflection as well. This motivated local physical sampling and
+  explicit reflection-error checks, instead of another change to hood shape.
+
+The lamp shell does not deform the parent. There is no QEM reduction of the
+outer sheet. A suspected normal-transfer fault was disproved: independently
+retransferred normals agree to approximately 0.03 degrees on the exposed hood.
+Blender's zero-vector reset had retained the custom normals; removing the
+attribute produced the expected different result. That failed diagnostic is
+not evidence of a broken transfer.
+
+The whole-body curvature colors use the actual game triangle positions:
+signed cotangent mean curvature with mixed Voronoi areas, no spatial smoothing
+or outlier removal. Open cut boundaries are gray because their one-ring
+neighborhood is incomplete. Raw values are retained; the display has an asinh
+scale clamped at +/-40 inverse meters. Analytic plane, cylinder and sphere
+checks validate sign and magnitude independently of the car. This map also
+shows irregular sampling at rear-quarter and bumper turns; those regions
+must be checked beside reflections rather than dismissed as harmless color.
+
+Scratch evidence is under `build/hatch-r4/`: `fold-causes.json`,
+`inverted-regions.json`, `pass2-parent-regions.json`,
+`pass2-inverted-regions.json`, `normal-transfer.log`, and
+`curvature-calibration.log`. Final reproducible maps and same-camera
+comparisons are listed in the concluding pass below.
+
+
+### Pass 2 — retain the crown and repair physical sampling
+
+Value remains neutral gray against each photograph's white studio neutral.
+The procedural sky has a brighter upper hemisphere and dark ground reflection;
+it exposes the crown's value turn without changing the accepted matte rig.
+A first broad fitting handoff removed the fold but reduced the aft front-fender
+rise to 6.4 mm. The existing character check rejected it. A 120 mm handoff,
+with the local unswept rows retained, restores the aft rise above 10 mm without
+bringing back the parent fold. The check was retained without loosening its
+10–30 mm range.
+
+Physical-XY hood triangulation and locally radial fender triangulation remove
+the reversed lamp-tip chords. An initially higher radial origin grazed the
+concave crown and introduced eight tiny reversals; lowering that origin below
+the crown resolves the projection ambiguity. This is a sampling repair on
+the same evaluated sheet, not a new independently fitted panel.
+
+The curvature maps also directed attention to the front arch/grille edge and
+the rear shoulder termination. Two small reversed fragments at the front arch
+and grille edge were resolved with parent-sampled midpoint refinement.
+Feature-aligned shoulder edges are now retained across the rear quarter;
+additional samples follow its tight reflection turn. The broad rear quarter,
+gate and bumper parent were also inspected for fold orientation. Their tested
+regions contained no reversed patches. Remaining raw map variation at
+irregular cut triangles is disclosed with the final stripe comparisons.
+
+Budget is reallocated by retiring redundant samples only after centroid and
+edge-midpoint probes meet 0.3 mm positional and 1.5 degree normal-interpolation
+limits. Rim vertices and the gate's tight lines are protected. Increasing the
+candidate neighborhood does not relax either error bound. The ordinary clean
+build and the independently prepared parent build match all 132 objects /
+119 meshes exactly. No shared modeling or kit implementation changed.
+
+
+The direct accepted-part comparison catches one local preservation departure
+that the rake check alone cannot reveal: lowest windshield tips move up to
+29.49 mm and adjacent lower pillar corners 26.52 mm as the folded cowl is
+repaired. Above z = 980 mm, both surfaces agree within 0.00015 mm. Roof,
+backlight, side glass and mirror sail differ only by tiny resampling roundoff;
+mirror housings, spoiler and wheels match exactly. The accepted main glass
+and its rake remain, but the entire windshield boundary is not byte-identical.
+This exception is visible and measured, not hidden behind the package check.
+
+The denser source also rejected a 1.9 mm rear-fascia chart coverage gap after
+boundary cleanup. Its shorter 30 mm cleanup chord was restored; the final game
+retains its verified 45 mm maximum with the same 0.3 mm positional bound. Both
+ordinary source builds now pass their coverage checks. The full game orientation
+audit retains three microscopic door-cut fragments totaling 0.00151 square
+millimeters; no additional visible reversed region was found. The requested
+hood/fender region contains none.
+
+
+### Pass 3 — calibrated gloss pairs expose the remaining value hierarchy
+
+Neutral remains the white studio backdrop in each reference, with unit RGB
+gains. The new material is a darker mid-gray diagnostic rather than a silver
+paint match. Its bright sky and dark ground show value changes that the
+unchanged low-sun matte view cannot show. Both makes' photographs remain beside
+their calibrated renders; their lighting is not reproduced or projected.
+
+**Hood and front fenders, against both front pairs.** The previous short folds
+along the narrow hood crowns are substantially calmer. Corolla's broad hood
+highlight and Hyundai's continuous lamp-to-cowl roll now have a corresponding
+continuous reflection on the H120. The crown is still narrower and more
+pointed at the lamp end than either real stamping. The plain horizontal grille
+bars and empty lamp shells look older and cheaper than both references. Small
+aperture-end and cowl junction marks remain in the tight stripes; no assertion
+of perfect surface continuity is warranted by the orientation checks alone.
+
+**Gate and rear corners, against both rear pairs.** The top crease gives the
+central run a definite upper edge, while the retained lower lip supplies its
+second boundary and shadow. Interior bands are coherent in the rear view;
+the old wrinkled smear is reduced. Compared with Corolla, the center still
+reads more like a narrow scoop and the quarter's reflected transition is less
+resolved. Compared with Hyundai's largely convex gate, the H120 recess is more
+assertive and less restrained. The Corolla remains the chosen construction
+reference for the black lower center and tall corner reflectors. Raw curvature
+colors at the bumper cuts remain irregular and the rear shoulder termination
+still has a fine reflection jog. The maps are not presented as blotch-free.
+
+**Side, against both side pairs.** The shoulder gives a strong bright-to-dark
+step and the wheel crowns turn reflected value. The lower crease is visible,
+but its reflection remains substantially quieter than both Corolla's bright
+lower sill shoulder and Hyundai's rising lower highlight. A trial increases
+the hollow above that crease by 3 mm, so the lower surface can turn farther
+toward the bright hemisphere. The accepted shoulder and wheel-crown parameters
+are retained; this trial is judged visually before its measurements are used.
+
+
+The local door trial is retained after opening both calibrated side pairs and
+the front three-quarter. Its lower reflection is now a distinct bright edge
+above the sill instead of only a darker blur. It remains less broad and bright
+than the silver reference highlights, which also reflect studio light. The
+measured turn is 18.35 / 22.82 / 24.73 degrees across 30 mm, versus the previous
+12.77 / 15.67 / 16.20 degrees. Shoulder turn stays 23.79 / 23.89 / 23.87 degrees.
+The extra 3 mm of draw fades at the wheel openings and is absent from the
+molded ends. Form allocation becomes 46,745, including 4,428 door and 12,725
+body triangles. `build/hatch-r4/lower-crease-side.jpg` records the same-camera
+trial; the canonical checkpoint is regenerated from the ordinary build path.
+
+
+The uniform 3 mm trial subsequently failed two existing character limits:
+front low-door lean was 20.22 degrees (limit 20), and the B-pillar's older
+80 mm window was 25.44 degrees (limit 25). Neither check was relaxed. Tapering
+the additional draw from 2 mm at the front toward 3 mm at the rear retains
+the clearer lower reflection in both side pairs while restoring front lean
+to 19.49 degrees. Final 30 mm turns are **16.52 / 21.84 / 24.72 degrees**;
+the 80 mm windows read **20.78 / 24.30 / 24.58 degrees**. Actual 50 mm hollow
+chords measure **4.67 / 5.20 / 5.49 mm**. This version passes the character
+check and uses **46,737 triangles**. The accepted shoulder remains unchanged.
+
+
+### Pass 4 — final whole-car gloss and limits of the map
+
+The white studio backgrounds remain the photographic neutrals, with unit RGB
+gains. The gloss diagnostic uses scene-linear gray 0.18, roughness 0.22 and
+clearcoat, with a procedural sky above a dark diffuse ground. Both revisions
+use the same environment and exposure. This is a value/reflection comparison;
+it does not match the silver paints or reproduce the manufacturers' studio rigs.
+
+At whole-car scale the continuous bright shoulder above the darker door gives
+the side a clearer section. The rising lower edge now catches a distinct
+reflection in both calibrated side views, and both wheel crowns turn the value
+around their arches. Corolla's lower highlight and Hyundai's longer rising
+highlight remain broader and brighter. The H120 still looks more regular and
+less subtly crowned across its large door fields. Its narrow hood crowns are
+calmer but more pointed than either make. The grille's broad horizontal bars
+look older, and the bare optical cavities, opaque glass, missing cabin and
+uniform wheels remain obvious CG placeholders.
+
+The gate's new top crease and retained lower lip bracket its hollow. Actual
+normal turns are 34.51 / 32.99 / 16.42 degrees over 30 mm at x = 0 / 250 /
+450 mm. The central run retains 24.00 mm section depth and 15.61 mm plan depth;
+the lip stands 32.55–33.37 mm proud. Its interior curvature colors form broad
+continuous bands and the rear reflections pass coherently through them. The
+center remains more scoop-like than Corolla's stamping and less restrained
+than Hyundai's largely convex gate. The rear shoulder's ending still makes a
+small reflection jog, and the D-pillar transition remains crowded.
+
+The maps are deliberately raw. They still have conspicuous triangular patches
+at irregular cut-adjacent samples, especially the lamp crowns, rear quarter and
+bumper corners. These are not all proven harmless merely because the parent
+has no reversed faces. The corresponding stripes and gloss show much smaller
+irregularities, but the evidence does not support a claim of universally clean
+curvature. The repaired front-arch and grille fragments, the parent cowl folds
+and the lamp-tip inversions are separately documented above. The full audit's
+three microscopic door-cut fragments total 0.00151 square millimeters and are
+retained in the raw report, not counted as visible panel damage.
+
+The lowest windshield tips' 29.49 mm movement and adjoining pillar corners'
+26.52 mm movement remain the local preservation exception. The main glass,
+header and rake are preserved; the complete old glazing boundary is not.
+
+The opaque car pixels in the final front/rear gloss three-quarters have
+display-luma p1 / median / p99 of **3.0 / 94.7 / 220.7** and
+**1.1 / 79.4 / 230.8** on a 0–255 scale. Pixels below 25 occupy 7.9% / 13.7%,
+with zero clipped color channels in all ten gloss views. Cavities retain deep
+values and the bright roof rolls off without clipping. These whole-car values
+include dark inserts and tires; they are not measurements of body albedo.
+
+Final ordinary `make -C cars BODY=hatch` completes successfully. Its check
+target passes game/high source audits, the package/character and round-two
+through round-four checks, parent orientation, curvature calibration, camera
+verification and repository rules. `python3 -m py_compile cars/src/hatch_*.py`,
+`git diff --check` and `python3 kit/repo_check.py` also pass. No source-audit
+warning is outstanding. These checks certify the source checkpoint, not the
+deferred UVs, baking, articulation or export. Independent factory-empty builds
+match 132 objects / 119 meshes exactly, including authored normals.
+
+The reviewed final set contains 47 native views: the original 27 matte/stripe
+views and pairs, five actual-game curvature maps, five matching stripe views,
+and ten gloss views including all six calibrated photo cameras. All 47
+round-three comparisons retain their cameras. Every current view and game
+measurement carries source SHA-256
+`62deb6c290f859e3fb930965bcc32a23b5dd1b0d344bcbd87f2de0e9a4c4d4d5`.
+The final side overlays retain 4.298 / 4.312 px camera RMS at 2100 px. The
+accepted upper rear and lower bumper deviations remain as reported in HATCH.md.
+
+Evidence is under `renders/hatch-round4/`: `round4-contact.jpg` contains
+62 views; `contact.jpg` retains the earlier review layout. The five
+`curvature-stripes-*.jpg` plates, six `gloss_*-pair.jpg` comparisons,
+`round3-round4-*.jpg` comparisons, `gloss-tonal-range.json`,
+`mean-curvature.json` and `round3-round4.json` carry the visual and numerical
+record. All native renders, both profile overlays, game/parent curvature plots
+and both makes' final gloss pairs were opened for review.
+
+The final form is **46,737 triangles**, with the per-part allocation in HATCH.md.
+The unchanged 12,500 reserve gives **59,237 against the 59,343 plan**, leaving
+106. There are five temporary materials and zero textures. Game/high sources
+are 1,084,081 / 2,303,895 bytes; the high source has 110,922 triangles.
+Pickup regeneration matches 472 objects / 454 meshes; its re-export matches
+all 150 GLB accessors, embedded maps and all **11,530,720 bytes**. No shared
+family implementation, sedan module or kit file changed. Stop at this source
+form checkpoint: no hatch detail, interior, UV, bake or GLB phase was started.
+
+
+## H120 detail and look checkpoint
+
+### Detail pass 1 — reject underexposure and the inherited inner package
+
+Color and value first: the four-year white hatchback photographs (Elise240SX,
+2022-08-06, `refs/hatch-used-*.jpg`) show white paint around mid/high display
+values, dark but legible cabins, and dark used tires. The initial studio in
+`renders/hatch-detail-pass1/` is too dark to judge any of those. Its metallic
+coat reflects the lamps, but this does not establish a daylight match. The
+white siding in the front reference and gray garage door mullion in the rear
+are the proposed neutrals; their explicit patch gains are measured later.
+
+The first optical housing used a nearest-normal field that admitted the inner
+laminate at the boundary; the resulting reversed offsets stuck black geometry
+above the hood. Use only the authored outer lens triangles for that field.
+The first cargo opening proves the five-seat package, load well and parcel
+cover, but also exposes floating tether ends and the backlight seal left in
+the body hierarchy. Remove the unneeded tethers and carry the seal with the
+gate. Cabin, firewall and floor corners copied from the longer sedan intrude
+into the front wheel envelopes. The solid sweeps correctly reject those;
+reshape those hidden corners instead of suppressing collision pairs.
+
+### Detail pass 2 — reject streaked road film and concealed hardware outside
+
+Color and value first: `renders/hatch-detail-pass2/` has a readable blue coat
+but still excessively black glass and dark wheel pockets. The procedural
+studio is an appearance diagnostic, not the reference daylight. The first
+matched cameras were also rejected: four coplanar wheel anchors admitted a
+camera below ground and a reflected pose. Correct the near-side sign and add
+a stated 1.50 m height prior; keep the resulting 9–10 px native residual visible.
+`hatch-detail-pass4/` accidentally selected Graphite through a renderer default;
+that is diagnostic failure evidence, not a white-paint comparison.
+
+`renders/hatch-detail-pass5/` finally compares white with white. It rejects the
+illumination: the car and asphalt remain far too dim. Increase sky/sun together
+before tuning paint albedo. It also rejects the inherited broad film fan: the
+rockers look streaked and much dirtier than the photographed daily driver.
+Shorten the tire wakes, lower their ceiling and use fine variation only in
+deposit density. Preserve the clean paint's own hue.
+
+The close face identifies an exposed straight crash beam through the curved
+nose, not a new styling problem. Give its ends the fascia's plan curvature.
+The hinge leaves also break through the lower door skins: the accepted form's
+provisional pivots are too far outboard for real hardware. Move the hinge axis
+inward, use 2 mm fixed leaves and preserve the world skin position. An actual
+bored roof sleeve replaces the gate leaf drawn through its pin. Inner
+wheelhouse returns clear the steering tire while their outer lips remain held.
+The resulting twelve game sweeps pass at 0.5 mm tolerance, 2 degree closure,
+10 degree wheel and 1 degree steering increments. These are sampled solid
+clearance tests; they do not by themselves prove every fixed support contact.
+
+
+### Detail pass 3 — matched daylight, fair reflections and supported hardware
+
+Color and value first: `renders/hatch-detail-pass6/` replaces the rejected dim
+white comparison with diffuse procedural sky/sun and asphalt. White paint now
+sits in the photograph's value range; the sky is desaturated before any paint
+hue adjustment. The front reference's white siding and the rear reference's
+gray garage mullion are the stated white-balance assumptions, rather than an
+unqualified claim that the photograph records true albedo. Glass stays dark,
+with seats visible, and tire sidewalls remain darker than the paint. The new
+short road-film fans stay below the door field and behind their originating
+wheels. The former tall streaked overlay is rejected.
+
+The game/high comparison exposes a small shoulder scallop near the rear cut.
+Add 48 interior edge samples on each rear quarter, projecting only those new
+samples onto our own dense accepted surface. Give the hood and front fenders
+32 each for their narrow crown reflections. This adds 384 body triangles;
+retained samples and exterior cut outlines are held. The largest new-sample
+projection is 1.011 mm on the front left fender. Tight lamp-corner reflection
+jogs remain a weakness, not a reason to refit the accepted package.
+
+The full source close-ups show legible original tire relief, projector/guide
+layers and a fictional dealer insert. Game spokes still need their high-source
+chamfers in the normal map. The through-glass camera exposes a white softbox
+reflection over the dash; move the studio around that inspection view before
+judging cabin visibility. Do not brighten or frost the glass to reveal it.
+Cargo trim and the shelf are deliberately simple, with no floating tethers.
+
+Solid sweeps found a small fixed front pane needed ahead of the moving window,
+a buried spoiler mounting foot, and a gas-spring casing clipping the closed
+backlight. Split the tiny forward glazing sail without changing its outer
+surface; seat the spoiler's hidden foot; place the gate ball brackets against
+the actual perimeter segments with cabin-side stand-off. Formed door leaves
+and welded pads replace unsupported hinge tubes. Check 42 actual support
+contacts independently of the motion sweeps, and evaluate both moving spring
+ends every degree. All source motions now pass on game and high meshes,
+including the supplemental coupled high spring sweeps.
+
+
+### Detail pass 4 — reject the first exported bake
+
+Color and value first: `renders/hatch-bake-review/` is the first actual imported
+H120 GLB, not the procedural source. Its blue paint and dark glass retain the
+broad source values, but a thin red line above the grille and stray colored
+strokes on trim are impossible material contamination. The first 5° UV pack
+has 16,012 charts and only 37.1% useful area. Its narrow island gaps cannot
+support the baker's broad padding. The original source close-ups stay clean;
+this is bake loss rather than a new form defect. Reject these images as final
+evidence and repack with broader charts, wider gutters and marking priorities.
+
+The same first export makes the door-glass softbox reflection wavy and the
+wheel chamfer highlights ragged. Do not accept partwise ray coverage as a
+visual proof of a smooth reflection. Smooth glazing needs no high-source
+geometric normal, and the game skins already carry the accepted parent normal
+field. Restrict projected geometric detail to hardware, wheels, tread, cabin
+and underbody where it has a cause. Keep the exact procedural tire sidewall
+normal for the original raised lettering. Neutralize tangent normals on the
+smooth glazing, and leave chart-edge normals with the direct bake.
+
+The cabin remains legible through the dark pane, but the inspection light
+reflects across the cluster. Rotate the inspection studio so the opening
+reveals the dash; keep the photograph pairs free of every studio light. The
+coarse headrests, simple cargo trim and low-detail underside remain visible
+limitations. The lamp lit/unlit state and promotional insert do survive the
+first bake, although text and the tire's small relief lose resolution.
+
+
+### Detail pass 5 — correct the neutral, preserve the measured limits
+
+Color and value first: the annotated front comparison exposes a reference
+measurement mistake. The first purported siding neutral at x50–180/y80–100
+on the 1200-wide image reaches vegetation (median RGB121/128/100). Reject
+its magenta white balance and all front residuals derived from it. A clean
+siding patch between the two windows, x120–220/y12–42, measures RGB166/171/171
+and gives linear gains 1.0453/0.9788/0.9788. The rear neutral remains the gray
+garage mullion with gains 1.0416/0.9689/0.9923. This correction changes the
+front comparison without changing the rendered lighting or factory tint.
+
+`renders/hatch-source-tuned/` uses the longer but strictly low wheel wakes,
+with a slightly broken upper edge. The current direct source front paint
+patches are 6.4/7.8 display levels darker than the corrected reference; its
+low-film patches are 4.2/0.6 darker. Rear paint is 5.0/1.4 brighter, with lower
+film 9.0/7.9 brighter. This is a materially closer low-body gradient than the
+previous nearly clean rear rockers; the film remains caused by tire spray,
+not a whole-car color overlay. The rear side-glass and backlight residuals
+remain +38.2/−41.9: different reflected surroundings, viewing angles and the
+privacy package are unresolved. Report those rather than tuning white paint
+to conceal a glass/environment mismatch.
+
+The revised atlas uses broader 35° charts, higher marking/tire priorities and
+three-pixel bake padding. The first broad-chart repair has eighteen chart splits and 39.9%
+coverage; float32 re-import then catches one collapsed subpixel altitude.
+The revised guard logs 47 UV repairs/splits and yields zero overlaps with
+40.5% coverage. Three submicron cut slivers retain their geometry with representable
+UV altitudes. Smooth glazing keeps a neutral tangent map over its authored
+vertex normals, and projected tread detail is confined to the crown. Final
+imported images, not this source comparison or the rejected first bake, are
+the next visual decision.
+
+
+### Detail pass 6 — final bake survives; correct the studio's clipped highlights
+
+Color and value first: the imported 2048 bake now preserves the deep black
+optical cavities, clear dark glass, original dealer insert and restrained
+dirt. The source/GLB daylight pairs use the corrected neutral patches and
+the same procedural sky/sun. The first final studio heroes nevertheless clip
+1.68% / 2.20% of asset color channels at 254 or above, with p99 luma255.
+Reject that exposure as a tonal proof. `renders/hatch-tonal-study/` re-renders
+the actual GLB one stop lower: p99 is 248.9 on both heroes and no checked
+channel clips. Adopt −2.5 exposure for the whole-car heroes, five factory
+colors, scale and the inherited whole-car mechanism poses. Keep the daylight
+photograph recipe unchanged, and keep separate exposure for close inspection.
+This is a physical re-render, not a remap of clipped PNGs.
+
+The wheel close-up at `renders/hatch-checkpoint/wheel.png` retains ALDER
+TOURING and the original size lettering after a faint dust deposit on the
+raised type. The normal relief alone had faded below legibility in the first
+bake. Broader charts and smaller padding remove the red line above the grille
+and colored trim strokes. Neutral glass normals restore smooth reflections.
+Spoke chamfers remain soft at 2048 and the tire's shoulder facets still show
+in this extreme close-up; neither the vertex-normal check nor ray coverage
+is used to claim otherwise.
+
+The eye-height view now exposes the dash and steering wheel through the dark
+pane by moving the studio reflection, without making the glass milky. Cluster
+and screen detail remains small and dark, and the cabin's regular headrests
+and cargo trim remain simplified. The lower gate stamping, fine hood-corner
+reflections and regular door/window cuts still read more deliberately modeled
+than the reference car. The static low-detail suspension is not a complete
+kinematic steering linkage. These remain limitations for the checkpoint.
+
+
+### Detail pass 7 — checkpoint review and explicit remaining limits
+
+Color and value first: all 58 current native views were opened via the seven
+review pages, with the wheel, glass/cabin and annotated pairs also inspected
+at native size. The two 1400-pixel Cycles heroes have asset luma p1/median/p99
+0.8/46.3/249.1 front and 0.0/45.7/248.9 rear, with zero channels at 254 or
+above. Other factory-color Cycles heroes have at most 0.0013% of channel samples
+at 254 or above; these are isolated near-white samples rather than broad
+clipped reflection patches. White,
+black, gray, silver and blue now occupy distinct plausible value ranges,
+rather than five pale versions. The Eevee fallback has a tiny 0.078% clipped
+channel fraction and darker glass; it remains a less faithful secondary view.
+
+Correctly balanced exported white paint differs from the selected reference
+patches by −6.4/−7.8 front and +5.0/+1.4 rear. Low-film patches differ by
+−4.1/−0.7 front and +9.0/+7.9 rear. The rear side-glass/backlight remain
++38.2/−47.7, and the front tire sidewall +11.1. Those are substantial remaining
+appearance differences; the gray procedural horizon does not reproduce the
+photographed surroundings or the reference's glazing package. RGB medians,
+patch ranges and neutral gains remain in `pair-values.json`, rather than
+claiming that display luma measures intrinsic albedo. The current source
+pairs are separately rebuilt under `renders/hatch-source-pairs/`.
+
+The original cascade vanes, surround, badge and dealer insert read clearly;
+the fine secondary lattice loses contrast in the atlas. Projector/guide layers
+and lamp on/off state survive. Tire lettering survives the final bake, but
+shoulder facets, thin inner-arch return glints and soft spoke chamfers remain
+visible at the extreme wheel close-up. Small hood/lamp-corner highlight jogs,
+regular door/window cuts and the crowded rear shoulder still betray the model.
+The cabin's small graphics and regular headrests/cargo trim are weaker than the
+exterior. Upper gate-frame and suspension/steering supports are simplified
+proxies, not a fully detailed or fully coupled mechanical assembly.
+
+`make -C cars BODY=hatch` and `make -C cars BODY=hatch check` pass. The clean
+source-only copy also passes its rebuild/check; all 484 objects / 455 meshes
+and every atlas UV match exactly. Independent GPU bakes differ by at most
+one 8-bit level at 1/115/4 BaseColor/Normal/ORM pixels. Both source densities'
+twelve kit motion sweeps pass, as do 42 support pairs and the one-degree
+coupled gas-support checks. UV overlap/outside/degenerate counts are zero,
+including re-import. The actual GLB is 8,256,940 bytes, 59,989 triangles,
+21 meshes / 36 material primitives, four family surfaces and three 2048 maps
+(about 16 MiB compressed with mips). Re-import position error is 0.386 μm.
+
+Every indexed checkpoint view has GLB hash
+`c0e0adb268eb3d5de7ac3fa71cf93834633d72c4699bd64a6b4911ea4e253c45`
+and one current render-recipe hash. Sixteen legacy form views formerly in the
+same folder were preserved under `renders/hatch-checkpoint-form-archive/`,
+so they cannot masquerade as current detail views. Pickup source and full
+GLB bytes remain identical. No kit/shared family implementation changed, and
+no hatch docs images are committed. Stop at this requested checkpoint.
+
+## H120 surface correction checkpoint
+
+### Surface pass 1 — causes isolated before correction
+
+Color and value first: keep the five accepted factory factors and the accepted
+white-balance neutrals (front siding; rear garage mullion). The earlier rear
+pair measures front side glass 161.9 versus 123.7 (+38.2), and backlight 73.4
+versus 121.2 (−47.7). These are displayed values under the stated diffuse sky,
+not recovered albedo. The rear photo has a dark building reflected in its side
+pane and bright surroundings transmitted/reflected through its backlight;
+the procedural open sky over asphalt does not supply that environment.
+Tint, cabin occlusion and reflected-environment contributions need separate
+experiments before any adjustment to paint or overall exposure.
+
+Earlier images and the GLB are retained in `renders/hatch-surfaces-before/`
+and `build/hatch-surfaces/before/`. Same-camera procedural-source renders are
+in `renders/hatch-surfaces-source-before/`. Disconnecting every paint/material
+bump input (`renders/hatch-diagnosis-no-bump-game/`) leaves the torn lenses,
+hood reflection ripples and arch spikes. These defects therefore precede UV,
+bake and normal-map filtering. The prior neutral glazing tangent map cannot
+repair their source geometry.
+
+Before fixes, `build/hatch-surfaces/normal-audit-before.json` measures outer
+lens triangles with normal/face disagreement up to 177.6 degrees. A coherent
+parameter-chart disk can still have reversed physical chords over this steeply
+wrapped surface. Authored normals do not make those refracting triangles a
+smooth molded shell. The game and high source both inherit this lens topology.
+The hood and rear quarter have continuous normals at shared vertices, but
+coarse diagonal interpolation across changing curvature remains visible with
+bump disconnected. They need a denser or smoother physical derivative field,
+not stronger orange peel or another coat.
+
+Arch returns are separately sampled from side rays, with a hard `.89` fallback
+when the ray misses near the lower/forward tip. Their outer contour is also
+sampled independently of the actual clipped skin. The visible slivers already
+exist in the source. Replace that unsupported return sampling, retaining the
+accepted exterior opening. Tire sidewall rings expose another construction
+fault: the generic tall-tire profile's fixed 75 mm station exceeds this low
+profile tire's shoulder radius, doubling back before the tread. Sharp ring
+edges and 48 circumferential samples amplify the polygonal result. Rebuild a
+monotone passenger carcass and continuous toroidal normals; preserve its width,
+rolling radius and wheel pivots.
+
+The grille's vanes follow an uneven triangulated backing, deliberately kink at
+their middle station, and stand in front of a procedural bumped diamond image.
+This is the radiator appearance in both source and GLB. Replace the vanes and
+bumped backing with an actual open regular cell lattice, a smooth dark recessed
+bed, and the retained surround/badge. Give the lower opening a distinct lattice
+and the corner pockets formed inserts with supported lamp/blank faces.
+
+### Surface pass 2 — reject the first repairs, refine the causes
+
+Color and value first: source tint trials leave rear side glass +14.4 and
+backlight −9.3, versus the original +38.2/−47.7; the front pane is now too dark
+(−17.8), so this is not an accepted glazing solution. A reflection-only ablation
+places rear side glass at +1.0 but the front at −22.6. Removing the cabin changes
+backlight by only about five levels. A traced refracted ray through the actual
+backlight exits the far rear door pane: four tinted interfaces compound the
+attenuation before the ray reaches low sky/ground. The photo has clearer rear
+glazing. These tests explain why backlight tint alone did not recover its value.
+
+Reject the first replacement lens. It used the analytic section target directly,
+but the accepted subdivided crown blends away from that target near the lamp tip
+by as much as 136 mm. A global polynomial fit was consequently both inaccurate
+and ill-conditioned; its molded surface did not stay seated. The replacement
+also initially used an outward offset instead of retaining the accepted 7.8 mm
+recess. Neither is a valid correction. Sample the actual original evaluated
+parent in a physical cylindrical chart, retaining the recess, with continuous
+outer/inner normals. No source photograph enters this construction.
+
+Hiding every arch flange leaves the principal spike visible. A camera ray at
+its pixels identifies **Front molded fascia**, not the hem: a sparse curved
+triangle fan and its interpolated normal field make a triangular reflected dark
+flag near the arch's forward end. Resolve normal-interpolation error with local
+physical samples on the accepted parent. The return's unsupported fallback was
+also wrong, but it was not the whole cause; the first diagnosis overstated it.
+A later all-skin reclip is rejected: it reconstructs thousands of already omitted
+buried back faces, wastes the budget and does not address that fascia reflection.
+The original physical arch cut is held for the next comparison.
+
+The first tire carcass and lattice are materially clearer in their studio views.
+Reject the first fog blanks, whose estimated stand-off leaves them outside the
+pocket; seat them from rays against the actual pocket bed. Interior gauge
+reduction must also be admitted by measured inward clearance, rather than an
+angle threshold alone: keep at least 0.35 mm below the actual exterior, and
+retain the old gauge if that bound fails. This allocation funds visible rubber
+and optical sampling without increasing the 60k cap.
+
+Further cause isolation in pass 2: the signed maps now include the lenses and
+show physical chord failures even where every shared corner normal agrees.
+A perspective chart aimed from inside the convex front resolves the grazing
+chart direction, but still needs explicit chord-error refinement at thin tips.
+The final candidate uses a symmetric, regularized physical contour and a smooth
+cubic radial optical mold, fitted to samples of our evaluated parent. The mold
+bridges the stamping's draw line, stays recessed behind it, and derives its own
+continuous normals. Global section-target fits were rejected; the actual
+subdivision surface is the fitting reference. Its extra seating recess and
+maximum fit error are recorded on each lens, alongside every chord refinement.
+This is a different optical mold behind the accepted painted aperture, rather
+than a claim that the old crumpled shell was fair.
+
+Both original and corrected skins are typically within hundredths of a
+millimeter of the accepted parent (`build/hatch-surfaces/position-errors.json`).
+The hood's largest tested residual is 0.451 mm, the right rear quarter's
+0.258 mm. This rules out a broad form refit as the cause of the paint correction.
+Local reflected-normal sampling is the appropriate correction; irregular-cut
+curvature outliers are retained in the raw maps rather than filtered away.
+
+The first all-surface audit also rejected zero-area return triangles caused by
+repeated nearest hits on an already cut arch and repeated guide points. Arch
+returns now ray-sample the original **uncut** parent, retaining their open arc
+construction and inward steering clearance. Optical guides follow consistent
+fractions of the fitted mold's physical chart, with duplicate chords removed.
+
+The broad gray comparison facade was rejected: it lowered rear paint by more
+than 20 levels while darkening the pane too much. A narrow, bright, procedural
+facade changes that low-angle reflected sector while retaining the original
+sun/sky and asphalt. It is estimated surrounding scene context, with dimensions,
+albedo and placement recorded in the shot metadata; it is never exported or
+baked into the car. A narrow-facade source trial leaves rear paint within four
+levels, side glass −6.3 and backlight −3.1. Small final transmission adjustments
+are checked in the actual exported pairs next. Front-side glass in that trial
+is +1.7; the source windshield's −15.5 remains an independent residual.
+
+The enlarged wheel crop and exact pixel rays refine the arch diagnosis again:
+the thin spike's tip hits **Wheelwell_FR**, with the adjacent reflected region
+on the fascia. The liner's constant 795 mm outboard coordinate exceeds the
+fascia's actual tucked width near its bottom/front (about 790 mm there).
+Its edge therefore protrudes through the paint and continues as a thin exposed
+sliver below it. Extra fascia samples improve its reflection but cannot remove
+that exposed liner. Clamp the lining inside the measured parent skin, sampling
+the body hem above an open lower edge when necessary; retain the liner's radial
+rolling/steering clearance. This is a construction interference, not a normal
+map effect. The exact crop is `build/hatch-surfaces/arch-pick-grid.png`; pixel
+rays are in `build/hatch-surfaces/pick-spike.log`.
+
+### Surface pass 3 — source close-ups reject the flat fuel flap
+
+Color and value first: the candidate preserves Graphite's accepted neutral
+factor, darkens the grille's recessed bed without bleaching its webs, and
+retains visible dark tire rubber and molded lettering. The rear-quarter close
+view exposes another cause of the lumpy highlight: the fuel flap's nonplanar
+ngon cap is triangulated as broad flat faces across the shoulder. Its reflection
+therefore steps independently of the curved quarter beneath it. Replace that
+cap with a sampled compound disk on the same accepted parent normal field;
+retain the circular reveal and original 140 mm size. This spends visible
+surface triangles by omitting the disk's buried game-side back, with the high
+source keeping its full gauge. The studio close-up, not that allocation, decides
+whether the reflection is improved.
+
+A second exported-asset ablation separates the paint's bake defect from its
+sampling defect. Disabling only the **Paint** normal input on the unchanged
+old GLB (`renders/hatch-paint-no-normal/`) removes the coarse mottling around
+both hood softboxes and the rear-quarter highlight. The broad curve/cut jogs
+and flat fuel flap remain. The procedural source has much finer, weaker peel:
+the 2800 cycles/meter paint micro-height is unresolved at the delivered body
+density (about 228 pixels/meter). Baking point samples and then quantizing that
+field leaves false millimeter-scale normal noise. The paint's only authored
+height channels are micron peel/flake; wear and chips already live in color and
+roughness. Keep those roughness responses and use a neutral delivered tangent
+field on painted faces, as on smooth glazing. Geometric normal detail on tires,
+alloys, hardware and the cabin retains its independent projection checks.
+This removes an alias, not a designed stamp or normal-map scratch.
+
+### Surface pass 4 — distinguish the remaining interpolation and delivery errors
+
+Color and value first: the first new export preserves the five paint factors
+and the original studio light/exposure, with deep grille cavities and visible
+used rubber. It still fails the rear glazing test: side glass 118.8 against
+123.7, backlight 101.8 against 121.2. Source values near 121.5 / 119.0 are not
+proof of the delivered result. Reject that exported glazing result.
+
+An actual-GLB ablation removes only the Glass normal input. With the same
+1.50 delivery IOR the backlight rises to 120.2. An 8-bit neutral map has
+128/255 in X/Y, not 0.5; the small tangent deflection changes the background
+sector sampled through several refracting interfaces. This error is amplified
+by the narrow bright facade, not evidence of darker exported tint. Retaining
+the source glazing's 1.52 IOR as well gives **121.5 side / 121.0 backlight**
+against **123.7 / 121.2**. Preserve the authored smooth Glass normal field with
+glTF normal scale zero; the same policy avoids neutral-map deflection on Paint.
+The independent material ablation is `renders/hatch-glass-delivery-150/` and
+`-152/`. A small front-pane tint adjustment is checked in the final export.
+
+Reject an additional bounded parent-normal projection. It fills its checked
+outer-skin texels, but does not remove the remaining shoulder teeth and adds
+unnecessary low-density map corrections. Both a normal-input ablation and a
+constant-paint ablation retain those teeth. Their cause is the game skin's
+irregular interpolation across a very narrow roll, independently of the
+earlier micron-height alias. A direct comparison of game/finalized/imported
+normal fields finds the latter two equivalent: this is not GLB serialization.
+
+Simply bisecting three aligned rows improves the line but adds 1,954 triangles;
+one row is insufficient. Instead, retain every existing patch boundary and
+replace only the shoulder's interior chords in physical (longitudinal position,
+height above shoulder) coordinates. Regular 21 mm stations and 7–8 mm rows
+near the roll sample our actual evaluated parent. The two patches replace
+868 / 862 triangles with 484 / 494, saving **752**. The source studio close-up
+now carries an uninterrupted strip through the quarter and the compound fuel
+flap. The first scratch patch had uninitialized rest-coordinate attributes and
+therefore a rectangular shader artifact; reject it. Regenerating those
+attributes resolves the artifact, as the actual model pipeline does for every
+new vertex. A radial fuel-cap grid was also rejected for its central pimple;
+the accepted disk's rows follow the shoulder instead.
+
+The resulting game source is **59,178 triangles**. The new kit option is only
+`DELIVERY_SURFACES[...]['normal_strength']`; default behavior is unchanged.
+Real glTF regression checks zero scale, the neighboring default scale, and
+three shared images. All **24** kit test modules pass sequentially from a clean
+scratch build, including the three GPU-baking fixtures under the shared lock.
+The final studio, all-surface diagnostics and measured pairs must now approve
+the new export; earlier candidate sheets do not approve it.
+
+### Surface pass 5 — exported checkpoint and the remaining CG tells
+
+Color and value first: white balance remains on the front white siding and
+rear gray garage mullion, with the recorded original linear gains. The final
+rear side pane is **121.6 against 123.7 (−2.1)** and backlight **122.0 against
+121.2 (+0.9)**. The side is 0.1 below the photo's p10 (121.7); the backlight
+is inside its 118.4–124.1 p10–p90 interval. Do not round this into an exact
+radiometric match. A final 2.2% increase in the rear diffuse sky (.225 to .230)
+centers the backlight; the facade, sun, accepted studio and five paint factors
+stay held. Front white paint patches remain within 7.8 levels, rear within 3.7.
+Both Cycles heroes have zero clipped channel samples; luma p1/median/p99 is
+0.0/46.3/248.9 front and 0.3/45.8/248.9 rear. Cavities and undersides stay dark.
+
+The actual GLB studio pairs show the corrections: no crumpled white lens shards,
+no coarse paint-normal mottling, an uninterrupted quarter/fuel-flap reflection,
+no protruding liner spike, and a bulged, smoothly shaded passenger sidewall.
+All nine before/after regions use identical camera, framing, studio rotation,
+paint factor, exposure and native resolution; these fields were compared
+directly in both shot manifests. The upper 14×2 diamond lattice has real open
+cells and depth over a dark bowed cavity. A finer 20×1 lattice serves the lower
+intake, the surround remains dark chrome, the badge carrier touches the webs,
+and the corner wells now have seated molded blanks and recessed slots.
+
+The full curvature review caught a diagnostic bug: joined GLB objects retain
+the active component's old outer-face count. That stale count masked most of
+the assembly, leaving false gray areas. Discard it for the imported diagnostic
+and measure every exported face, including gauge; weld only coincident UV-seam
+positions in the disposable diagnostic scene. The corrected map measures
+**28,352 vertices across 21 meshes**. Source maps keep their explicit outer
+roles and measure **23,440 vertices across 442 parts**. Their different gauge
+selection is stated in the JSON; raw signs and cut outliers are never filtered.
+True open-boundary neighborhoods remain gray in source maps. Both stripe
+directions cover the glass, lenses, grille, lamps, arches, rubber and hardware.
+The studio crops, rather than those diagnostic colors, approve the appearance.
+
+Evidence is under `renders/hatch-checkpoint/`: the ten-view five-color sheet,
+nine `compare-*.jpg` regions, 61 native views/contact/review pages, measured used
+pairs and 27 exported diagnostics. The 27 source diagnostics and two measured
+source pairs remain in their own folders. All exported views name GLB SHA-256
+`9f4a4c6c13bb47b5e1af51840a54aa07db1c6e78491c4621095f8243f5f9fca0`.
+The delivery has **59,178 triangles**, four existing delivery materials, three
+2048 maps, **16 MiB** BC-class mipmapped memory, and **7,945,496 GLB bytes**.
+UV overlap/outside/degenerate counts are zero; bake interior misses are zero
+over 5,714,185 checked texels per channel. Source construction/motion checks
+and exact independent regeneration pass separately from re-import checks.
+The pickup re-export still compares byte-identical at its accepted SHA-256.
+
+What still reads as CG: alloy rim/spoke facets and the small projector bowl,
+very small cut/trim reflection jogs, the fuel reveal's segmented outline,
+coarse cabin/cargo controls, and softened small badges/type in the atlas. Tire
+patch medians remain +10.0 front / +21.0 rear and windshield −9.7; source and
+export tire values differ, so roundness is not a claim of a perfect rubber
+response. The rear photo tire patch includes bright rim pixels and has a broad
+range, but that does not erase the median mismatch. Lighting context remains
+an estimate. No lead action is required; stop at this requested surface gate.
+
+## H120 delivery
+
+### Delivery pass 1 — isolate the remaining causes before accepting a bake
+
+Color/value first: retain the accepted paint factors, Porcelain white balance,
+rear daylight/facade and glazing IOR/normal policy. Front white siding and the
+rear gray mullion remain the comparison neutrals; no lighting recalibration
+is used to conceal a surface repair.
+
+The softened type is already lost in the material bake, independently of the
+Opaque normal input. `build/hatch-delivery/badges-before.json` and reconstructed
+4K/2K badge texels show the cause: native UV island averaging inherited the
+rectangular source image's aspect despite Smart UV `correct_aspect=False`.
+The grille badge's chart has fourteen samples along the 94 mm word and 57
+along its 24 mm height. Its area-equivalent 596 px/m therefore concealed a
+roughly sixteenfold density anisotropy. Wheel-cap type has the same fault.
+Rebuild only original print charts in their physical metric before priority
+and packing. Keep artwork addressing in the separate `BakeSourceUV` attribute.
+Increase marking priority, including dealer fine print and cabin displays;
+measure both printed axes, rather than declaring legibility from atlas area.
+Paint and Glass keep normal scale zero; Opaque and Lamps keep scale one.
+
+The gate's wavering run occurs in both the game and high procedural source,
+before baking. Dense parent versus its original continuous die field measures
+up to 3.58 mm of draw error around the 47 mm hollow; the control-net radial fit
+and subdivision underresolve that narrow feature. The repair is confined to
+the lower gate: restore the continuous die field, blending to the accepted
+parent at the lamp/perimeter/hem, and add local samples where interpolated
+reflection normals disagree. The actual game vertices move at most 2.170 mm.
+Retain the aperture, crease, lower lip, package and all moving pivots. A scratch
+trial initially left the disposable uncut parent visible; reject that render
+and remove it before evaluating the actual repaired panel.
+
+Tail covers inherited angle-limited geometric smoothing, leaving hard fans
+at their narrow ends. Give both sides of their laminate the continuous mold
+normal field; leave the gauge rim separate. The projector reflector and optic
+increase from sixteen to twenty-four circumferential samples. Restore the
+spokes' real 1.8 mm chamfer loop instead of hoping a subtexel normal bake can
+carry it, and increase the fuel reveal from twenty to forty-eight stations.
+The compound flap's perimeter also gains samples. Offset that visible detail
+with sixteen-segment inboard barrel rings and eight-segment phosphor disks
+behind the projector optics. Held exterior wheel/tire envelopes are unchanged.
+The game source is 59,968 triangles, with 32 left under the existing ceiling.
+
+### Delivery pass 2 — reject partially buried rear lettering
+
+Color/value first: the current source daylight pairs retain their accepted
+neutral gains and glass context. Front paint differences remain about −6.4,
+−4.3, −7.8 and −0.7 display levels; rear paint −0.5, +0.9, −1.6 and +3.7.
+These are source values, not approval of the new export. The gate's broad
+reflection is quieter through the corrected run, but its ends and small cut
+boundaries still need the final gallery audit.
+
+Full-size rear source inspection rejects the name/model badges independently
+of the atlas repair: the four-corner plaques chord through the compound paint
+surface. Only the end fragments of their black substrates and lettering are
+visible. This is a physical occlusion; more pixels cannot fix it. Replace each
+with a 4 × 2 conforming grid, sampled on the actual gate, 1.5 mm proud along
+its smooth normal. Original artwork and dimensions are held. This adds 28
+triangles for a 59,996-triangle candidate. A dedicated gallery gate view must
+approve the complete words after export.
+
+The first new UV validation also rejected a rear print's anisotropic repack.
+The kit's existing target-aspect control now supports Smart UV as well as
+seam unwrap, and the hatch's later cut-sliver repacks explicitly use square
+aspect too. The real 4:1 print regression passes with axis anisotropy below
+1.000001. The current packed charts measure grille 166.8 × 42.6 pixels,
+wheel caps 137.3 × 47.3, and dealer insert 360.7 × 180.3, each with equal
+physical density on both axes. Forty-one explicit cut-fragment UV repairs
+leave 41.0% coverage, zero overlap, outside and degenerate triangles.
+
+### Delivery pass 3 — the family gallery rejects the header and nose roll
+
+Color/value first: the candidate uses the exact C150 gallery constructor,
+diffusion adjustments, shared studio implementation and AgX settings. The
+setup's AST matches the pickup recipe. Atlantic remains dark blue, cavities
+are deep, and the broad hood is clean. Do not change the accepted lighting to
+hide the defects below. The initial exported candidate passes its checks at
+59,968 triangles, but these images reject its presentation.
+
+`renders/hatch-gallery-audit1/hero.png` has a triangular white reflection at
+an upper windshield corner. An actual-GLB reflection-only ablation retains it,
+so this is neither a darker cabin nor refracted headliner light. Source corner
+normals there turn toward the neighboring roof/A-pillar; their swing differs
+by up to about 18° from a smooth height fit to the pane's own positions.
+Use that pane-local mold derivative only at the header corners, blended into
+the held field. No glass vertex, cut, tint, IOR or rear pane changes. The fit
+has a 4.56 mm maximum diagnostic height residual on the game pane; it supplies
+a normal approximation, not a claim of an exact positional reconstruction.
+The actual-GLB normal trial removes the shard. High-source corrections are
+bounded to avoid extrapolated corner fields; game corrections remain below 20°.
+
+The apparent hood ripple is on **Front molded fascia**, measured by camera
+rays, in the narrow strip above the grille. An implicit-normal-only trial
+leaves its broad waves: the dominant fault is interpolation along irregular
+radial diagonals across a narrow roll. Keep all 87 boundary vertices and
+replace only interior chords in a physical chart parallel to the nose
+contour. The candidate replaces 163 triangles with 295. New points sample
+our own held parent; its small normal error is resolved against the original
+continuous die field. The broad softbox edge now crosses the strip as one
+curve. A remaining thin stepped feature in a source-only procedural preview
+disappears under constant paint: its rest coordinates agree exactly and
+shared-vertex normals have zero measured discontinuity. Do not mistake that
+source microresponse/denoising artifact for another broad form defect. The
+filtered exported material must decide whether it remains visible.
+
+A buried 12 mm inboard wheel-barrel return is simplified in the game mesh to
+fund the new visible chords. The bearing lip, tire/wheel envelope and all
+outboard contours remain held, with the complete return in the high source.
+The candidate source is exactly 60,000 triangles, within the existing cap.
+Each final gallery view now starts a fresh GLB import, with the shared GPU
+lock acquired per view; no studio recipe changes.
+
+The clean build also caught a reference endpoint omitting `Content-Type` for
+a valid manufacturer PDF. The fetcher now accepts that narrow case only after
+checking `%PDF-`; explicit HTML and missing-header HTML still fail without a
+file write. Its positive/negative fixtures pass. All 24 kit modules pass again
+sequentially from a clean scratch build, with all bake fixtures under the lock.
+No downloaded code is executed and the pickup still re-exports byte-identical.
+
+### Delivery pass 4 — reject the first finals; resolve the remaining interpolation
+
+Color/value first: inspect all fourteen gallery views, all five paints and the
+Eevee hero at native size. Upper paint stays dark enough, the broad hood is
+clean, and the road film retains its wheel-wake cause. The badges, plate type,
+tail shell, fuel reveal, cast chamfers and header correction survive export.
+The scale figure measures 1.8 m. Cabin contours are visibly economical in the
+cargo view, and Eevee's screen-space optics remain weaker than Cycles.
+
+The first finals still fail at the narrow front roll and around the gate draw.
+Correct the previous pass's material diagnosis: the thin step also remains in
+the constant-paint ablation. Separate actual-GLB coat-roughness, base-roughness,
+coat-weight, metallic and normal ablations retain it. No new paint decoder or
+studio change is justified. The front's reflection rays do not hit the car
+again. Nearest-point normal projection across the roll changes the sampled
+normal phase between its irregular chords. A smooth height fit to our own
+parent in the nose-aligned chart supplies a coherent derivative instead.
+Its diagnostic anchor residual is 1.12 mm at p95 and 8.42 mm at the extreme;
+it approximates normals, and does not move the accepted surface to that fit.
+The source gallery trial removes the thin step.
+
+The gate needs both aligned rows and smooth derivatives. Differentiating the
+parent's triangle **positions** through the fairing blend introduces its
+faceted slope into an otherwise smooth die field. Blend the parent's smooth
+normal derivative with the implicit die derivative, including the derivative
+of the blend weight. Replace the central radial chords with 40 mm transverse
+and 10 mm crease-aligned rows; retain all 81 boundary vertices. A sparse trial
+still tears the highlight and is rejected. The finer trial makes the central
+recess coherent; the letter plaques are constructed against the final skin.
+
+Fund the visible rows by dissolving one-degree, nearly coplanar lower fascia
+chords below 0.60 m. Every retained vertex stays fixed. Original-surface probes
+at the resulting triangle centers and edge midpoints measure at most 0.272 mm
+front and 0.648 mm rear, and retire 328 + 1,277 triangles. This is a sampled
+chord-deviation check, not a continuous bound. The resulting source is 59,871
+triangles, under the unchanged 60,000 cap. Rebuild, bake and re-audit the actual
+GLB before accepting documentation images.
+
+The native 2000 px source audit warrants one last transverse refinement inside
+that hollow: 20 mm central columns, leaving the 40 mm outer columns and all
+cuts held. The chart now replaces 293 triangles with 2,409. The front lower
+allocation permits two degrees and measures 0.683 mm at worst; rear stays at
+one degree / 0.648 mm. It retires 747 + 1,277 triangles, producing **59,964**
+in total. The topology audit passes after explicitly removing nine retired
+wire diagonals; independent regenerated transforms, faces, vertices, split
+normals and material assignments match across 471 objects / 442 meshes.
+Both source solid sweeps and coupled supports pass. The source close-ups are
+`build/hatch-delivery/source-fine/{face,gate}.png`; the exported candidate must
+still pass the final image audit.
+
+### Delivery pass 5 — isolate the rear glass and retain its accepted values
+
+Color/value first: the actual-GLB rear daylight trial retains side glass at
+122.52 against the white-balanced photograph's 123.68 and backlight at 122.01
+against 121.16. Paint, dirt and optical material factors remain held.
+
+The native rear gallery view has a split hook-shaped reflection in the lower
+backlight. Hiding negative-fill flags from glossy rays does not remove it.
+Opaque reflection-only glazing retains it, ruling out light seen through the
+cabin. Reflected-ray probes do not hit the car again. The lower field inherits
+a saddle/normal inflection from the adjacent die; an unconstrained whole-pane
+fit also incorporates the nearly horizontal header return. Both that fit and
+a local unconstrained fit retain the hook and are rejected.
+
+Fit the pane's own lower positions with its transverse crown and rake, using
+a gently convex longitudinal mold derivative. The 25 m longitudinal radius is
+an original design constraint, not a measured reference dimension. Blend it
+into the held header. The resulting game normal correction is at most 8.05°;
+no pane vertex, gauge, cut, tint, IOR or roughness changes. Its positional fit
+residual is 11.52 mm at p95 / 15.55 mm maximum: this is explicitly a **normal
+approximation**, not an exact positional reconstruction. The actual-GLB trial
+replaces the split hook with a coherent broad reflection and preserves the
+accepted measured value exactly. The source gallery confirms the same result.
+
+The source topology, dimensions, closure/steering/wheel solid sweeps, coupled
+supports and independent regeneration pass again. Re-bake and render the
+actual exported asset before generating the final docs. The accepted gallery
+studio recipe remains unchanged throughout; every ablation stays diagnostic.
+
+
+### Delivery pass 6 — reject intersecting gate backs at native size
+
+Color/value first: the native gallery retains the accepted five finishes,
+deep cavities and bounded highlights. Badges, optics, fuel reveal and casting
+chamfers survive the 2048 bake. Both the main and an entirely empty-output
+rebuild pass `make` and `make check`, but those checks do not excuse the
+remaining gate image defect. No docs are accepted from this candidate.
+
+The 2000 px gate close-up exposes a dark slit and torn reflection below the
+draw. Disconnecting the already disabled paint normal does not change it.
+Ray intersections identify the coarse **reverse sheet** in front of the
+refined outer surface, and the molded **inner card** protruding through the
+hollow. The apparent large black handle is that card, not a designed aperture.
+A reflected ray can also see these surfaces. An adaptive redistribution of
+the same outer triangle budget does not fix the occlusion and is rejected.
+
+Retain the outer hollow and regular chart. Round only its narrow die ridge
+with a 6.5 mm / 25 mm Gaussian crown in the local detail field; the diagnostic
+change from the preceding fairing is at most 2.828 mm. The original parent,
+accepted raw form and other panels use their unchanged field. Retreat only
+buried reverse vertices until six-millimeter barycentric probes keep their
+chords behind the actual outer triangles; held outer/cut vertices never move
+for this clearance operation. Seat the molded card from its whole face rather
+than its locator rows. The game reverse is an economical occlusion surface,
+not an exact reconstruction of uniform sheet gauge. The visible hems retain
+their original gauge. No triangles are added.
+
+The combined source trial removes the false black slit and crossed facets;
+the softbox follows the recess as a continuous band. An independent seven-
+millimeter offset ray grid is added to construction verification, comparing
+actual triangle intersections for the outer sheet, reverse and card. This
+checks the previously missed self-occlusion, separately from serialization
+and assembly motion. Rebuild, bake and re-audit the resulting GLB and cargo
+pose before accepting final docs.
+
+The regenerated source keeps the raw accepted form byte-exact across all
+132 objects / 119 meshes. Outer fairing now measures 2.333 mm maximum on the
+game mesh. Buried reverse vertices retreat at most 11.067 mm and the card
+35.089 mm; high-source values are 4.108 / 31.985 mm. The existing hidden-back
+optimizer can now safely retire another 112 triangles, yielding **59,852**.
+After that optimizer, the independent grid finds minimum reverse/card Y gaps
+of 0.662 / 18.629 mm on the game mesh and 1.002 / 19.062 mm on the high source,
+with zero piercing samples. The rejected candidate fails the same check:
+1,328 reverse and 596 card rays pierce by up to 7.215 / 15.195 mm. These are
+sampled triangle measurements, not constants or continuous guarantees.
+
+
+### Delivery pass 7 — exported gallery accepted for documentation
+
+Color/value first: open all fourteen 2000 px Cycles views, all five paint
+variants and the native Eevee hero from GLB `fcbbc20b6a172beec6b16694985044afe6e93a78dbace6e112a0dbeb0107656e`.
+The exact pickup gallery constructor, light diffusion and AgX setup remain
+held. No hero RGB channel clips. With floor excluded, 25.89% of its vehicle
+mask is below 0.10 display luminance; upper blue paint remains blue, cavity
+shadows are deep and highlights roll off. Porcelain does not wash out.
+
+Follow each card edge across hood, fascia, greenhouse and gate. The front
+roll is continuous, the header shard and backlight split hook are gone, and
+the gate has no exposed reverse sheet or trim slit. Its retained concave draw
+now reads as painted sheet. The open cargo view retains seated trim and
+working supports. Inspect grille webs, all badge/plate words, optical shells,
+fuel reveal, spoke chamfers, tire carcasses/lettering and road film too.
+Lettering is legible in its close-ups; wear stays localized to its causes.
+A small amount of grazing interpolation remains near held patch margins;
+the 32-station wheel lip and economical headrests/trim still reveal the game
+budget at extreme range. Eevee's thin-sheet reflection/transmission fallback
+is weaker than Cycles. Do not describe the result as indistinguishable from
+a photograph in every close-up.
+
+Re-run and inspect both source and exported matched-light pairs. On the
+export, sampled upper paint medians are unchanged by the bake; road film
+changes 0.00–0.93 display levels. Rear side glass is 122.52 versus the balanced
+photo's 123.68; backlight 122.01 versus 121.16. Source-to-export loss is +0.72
+for backlight, +3.79 for windshield and +5 / +7 for the tire patches. Tires
+remain the largest measured bake change. No accepted material is recolored
+to hide it. White-balance neutrals remain the front siding and rear mullion;
+these lit patch values are not claimed as albedos.
+
+The requested six same-camera before/after crops live in
+`renders/hatch-delivery-comparisons/compare-*.jpg`, with camera/exposure/paint
+and source hashes in `comparisons.json`. Four additional gallery crops show
+the header, nose roll, gate and backlight changes, with their own manifest.
+The header's earlier candidate is the actual rejected audit-one GLB, not the
+later candidate in which it was already fixed. Normalize resolution before
+identical crops; do not enlarge the after image to exaggerate its recovery.
+
+The empty-output archive build and `make check` pass. Its source arrays match
+471 objects / 442 meshes exactly; UV reports and all 174 GLB accessors match.
+A fresh GPU bake changes one 8-bit level in 30 Normal pixels, three ORM pixels
+and two BaseColor pixels. The independently saved source-blend provenance
+hash differs too, so the hatch GLBs are not byte-identical across those two
+full builds. The pickup's complete GLB remains byte-identical. All 24 kit
+modules still match the tested kit snapshot and passed sequentially from
+clean scratch. Native finals, contact/mask sheets and comparisons are now
+accepted for generating the five bounded docs JPGs; inspect those separately
+before committing them.
+
+
+The five generated documentation JPGs are also opened at native size and
+accepted: hero 156,259 bytes, details 185,066, turnaround 124,379, five colors
+195,758 and scale/Eevee 195,856. Each is 1600 px wide and below 200 KB; no GIF
+is needed. Captions use presentation names, and no photograph or diagnostic
+ablation enters the committed gallery. Documentation is committed only after
+this inspection. The pickup hash is checked again unchanged before delivery.

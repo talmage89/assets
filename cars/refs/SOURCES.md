@@ -118,3 +118,39 @@ measurements only. They are never loaded by modeling or material scripts.
 | --- | --- | --- |
 | suv-used-crv-front.jpg | https://upload.wikimedia.org/wikipedia/commons/9/94/2020_Honda_CR-V_LX_in_Modern_Steel_Metallic%2C_front_left%2C_2026-07-03.jpg | Elise240SX, CC BY-SA 4.0, 2026-07-03. Used front three-quarter, paint, road film, lamps, dark glass and wheels; six model years old, a slightly older cross-check than the brief. |
 | suv-used-rav4-rear.jpg | https://upload.wikimedia.org/wikipedia/commons/c/c1/2019_Toyota_Rav4_XLE_Premium_Package_AWD_in_Silver_Sky_Metallic%2C_rear_left%2C_2024-11-01.jpg | Elise240SX, CC BY-SA 4.0, 2024-11-01. Five-year crossover, rear three-quarter reflections, loading sill/cladding, glass, alloy and tires. |
+
+
+# H120 hatchback reference register — accessed 2026-11-03
+
+Reference only; images are never loaded by the model or used as asset textures.
+
+| Local file | Direct image/PDF URL | Author / license / use |
+| --- | --- | --- |
+| hatch-corolla-front.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019TOC330001.jpg&width=1600 | CarsDirect / Autodata; copyrighted stock photograph, reference-only; MY2019 Toyota Corolla Hatchback SE, front. Profile/three-quarter/rear width measurements and external comparisons; no photographic pixels enter geometry. |
+| hatch-corolla-rear.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019TOC330002.jpg&width=1600 | CarsDirect / Autodata; copyrighted stock photograph, reference-only; MY2019 Toyota Corolla Hatchback SE, rear. Profile/three-quarter/rear width measurements and external comparisons; no photographic pixels enter geometry. |
+| hatch-corolla-side.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019TOC330003.jpg&width=1600 | CarsDirect / Autodata; copyrighted stock photograph, reference-only; MY2019 Toyota Corolla Hatchback SE, side. Profile/three-quarter/rear width measurements and external comparisons; no photographic pixels enter geometry. |
+| hatch-corolla-back.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019TOC330005.jpg&width=1600 | CarsDirect / Autodata; copyrighted stock photograph, reference-only; MY2019 Toyota Corolla Hatchback SE, back. Profile/three-quarter/rear width measurements and external comparisons; no photographic pixels enter geometry. |
+| hatch-hyundai-front.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019HYC170018.jpg&width=1600 | CarsDirect / Autodata; copyrighted stock photograph, reference-only; MY2019 Hyundai Elantra GT Base, front. Profile/three-quarter/rear width measurements and external comparisons; no photographic pixels enter geometry. |
+| hatch-hyundai-rear.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019HYC170021.jpg&width=1600 | CarsDirect / Autodata; copyrighted stock photograph, reference-only; MY2019 Hyundai Elantra GT Base, rear. Profile/three-quarter/rear width measurements and external comparisons; no photographic pixels enter geometry. |
+| hatch-hyundai-side.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019HYC170022.jpg&width=1600 | CarsDirect / Autodata; copyrighted stock photograph, reference-only; MY2019 Hyundai Elantra GT Base, side. Profile/three-quarter/rear width measurements and external comparisons; no photographic pixels enter geometry. |
+| hatch-hyundai-back.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019HYC170027.jpg&width=1600 | CarsDirect / Autodata; copyrighted stock photograph, reference-only; MY2019 Hyundai Elantra GT Base, back. Profile/three-quarter/rear width measurements and external comparisons; no photographic pixels enter geometry. |
+| hatch-corolla-specs.pdf | https://newsroom.toyota.eu/download/647310/2019-toyota-corolla-dpl-en-983710.pdf | Toyota Motor Europe; copyrighted manufacturer MY2019 Corolla launch press kit, p50, hatchback column: dimensions, tracks, overhangs, ground clearance and tire sizes. |
+| hatch-hyundai-specs.pdf | https://www.hyundai.news/newsroom/dam/uk/press-kits/20181001_i30/hyundai_i30_fivedoor_and_tourer_press_kit_november2018_technical_specifications.pdf | Hyundai Motor UK; copyrighted November 2018 i30 five-door/Tourer technical specifications, hatchback columns: dimensions, mirrors, tracks and tires. |
+| hatch-hyundai-au.pdf | https://www.hyundai.com/content/dam/hyundai/au/en/models/i30/docs/Hyundai_i30_Hatch_Specifications.pdf | Hyundai Motor Australia; copyrighted 2021 same-generation i30 hatch specification, cross-check only: 140 mm kerb clearance and wheel sizes; not relabeled as MY2019. |
+
+Photo source galleries: https://www.carsdirect.com/toyota/corolla-hatchback/2019/pictures and https://www.carsdirect.com/hyundai/elantra-gt/2019/pictures . Neutral white backdrops provide the comparison white balance. Stock profile views retain small perspective; the wheel centers alone register overlays.
+
+| Local file | Direct image/PDF URL | Author / license / use |
+| --- | --- | --- |
+| hatch-hyundai-drawing.pdf | https://www.hyundai.com/content/dam/hyundai/ma/fr/data/marketing/brochure/product/i30/hyundai-ft-new-i30-juillet2018-4f.pdf | Hyundai Motor Company / Global Engines Morocco, July 2018; manufacturer copyright, reference only. Page 2 illustrated side/rear/front elevations and dimensions; perspective illustration is not a metrology drawing. |
+| hatch-corolla-drawing.pdf | https://www.toyotaalbania.al/content/modelspdfs/535-corolla-hatchback-2019-al-2.pdf?t=1741271340 | Toyota Motor Europe / Toyota Albania, MY2019; manufacturer copyright, reference only. Pages 46–47 specifications and illustrated elevations. Raster illustration retains perspective; numerical dimensions take precedence. |
+
+## H120 used-car look reference (detail checkpoint)
+
+| File | Image URL | Author / license | Use |
+| --- | --- | --- | --- |
+| hatch-used-front.jpg | https://upload.wikimedia.org/wikipedia/commons/b/ba/2018_Hyundai_Elantra_GT_GL_in_Polar_White%2C_Front_Left%2C_08-06-2022.jpg | Elise240SX, CC BY-SA 4.0; photographed 2022-08-06 | Four-year daily-driver front; paint, glass, alloy, rockers; lighting estimated from diffuse contact shadows |
+| hatch-used-rear.jpg | https://upload.wikimedia.org/wikipedia/commons/b/b9/2018_Hyundai_Elantra_GT_GL_in_Polar_White%2C_Rear_Left%2C_08-06-2022.jpg | Elise240SX, CC BY-SA 4.0; photographed 2022-08-06 | Same four-year class rear; glass, cargo cover, wiper, lower film |
+| hatch-color-report.pdf | https://www.axalta.com/content/dam/New%20Axalta%20Corporate%20Website/Public/Documents/US/axalta-global-automotive-color-popularity_2025.pdf | Axalta Coating Systems, 2025 report; copyright retained, reference only | North American new-build color proportions; five selected colors normalized, not a used-fleet claim |
+
+Only visual comparison and camera measurements; never texture, lighting or geometry input.

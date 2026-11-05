@@ -10,12 +10,12 @@ enter the asset. The C150 gallery's lights and cove are unchanged.
 
 The [family README](README.md#alder-x220--compact-crossover) has the five final
 JPGs, liftgate GIF, dimensions and rebuild commands. Full-size deliverables:
-[all views](renders/suv-final/contact.jpg),
-[five colors](renders/suv-final/five-colors.jpg),
-[details](renders/suv-final/details.jpg),
-[turnaround / scale / Eevee](renders/suv-final/views.jpg),
-[front used pair](renders/suv-final-pairs/used_front-pair.jpg),
-[rear used pair](renders/suv-final-pairs/used_rear-pair.jpg).
+all views (`renders/suv-final/contact.jpg`),
+five colors (`renders/suv-final/five-colors.jpg`),
+details (`renders/suv-final/details.jpg`),
+turnaround / scale / Eevee (`renders/suv-final/views.jpg`),
+front used pair (`renders/suv-final-pairs/used_front-pair.jpg`),
+rear used pair (`renders/suv-final-pairs/used_rear-pair.jpg`).
 Images include their source GLB hash, recipe hash, camera, exposure and paint
 preset in `shots.json`. Every final is rendered from a fresh GLB import.
 
@@ -232,12 +232,12 @@ The C150 pickup export is byte-identical to the accepted delivery.
 
 These are ignored checkpoint products, not committed portfolio images.
 
-- [Five colors, front and rear three-quarters](renders/suv-surfaces/five-colors.jpg)
-- [Face, lamp and rear quarter](renders/suv-surfaces/close-ups.jpg)
-- [Complete contact sheet](renders/suv-surfaces/contact.jpg)
-- Before/after: [face](renders/suv-surfaces/before-after-face.jpg), [lens](renders/suv-surfaces/before-after-lens.jpg), [hood](renders/suv-surfaces/before-after-hood.jpg), [front fender](renders/suv-surfaces/before-after-front-fender.jpg), [rear quarter](renders/suv-surfaces/quarter-same-light.jpg), [rear bumper](renders/suv-surfaces/before-after-rear-bumper.jpg), [arch tail](renders/suv-surfaces/before-after-rear-arch-tail.jpg), [windshield](renders/suv-surfaces/before-after-windshield.jpg) and [backlight](renders/suv-surfaces/before-after-backlight.jpg).
-- Actual-triangle curvature and both stripe directions: [front three-quarter](renders/suv-surfaces/fairness-front_three_quarter.jpg), [rear three-quarter](renders/suv-surfaces/fairness-rear_three_quarter.jpg), [side](renders/suv-surfaces/fairness-side.jpg), [front](renders/suv-surfaces/fairness-front.jpg), [rear](renders/suv-surfaces/fairness-rear.jpg), [face](renders/suv-surfaces/fairness-face.jpg), [lamp](renders/suv-surfaces/fairness-lamp_unlit.jpg), [rear quarter](renders/suv-surfaces/fairness-rear_quarter.jpg).
-- Estimated matched daylight: [used front](renders/suv-surfaces/used_front-pair.jpg), [used rear](renders/suv-surfaces/used_rear-pair.jpg), [measurement picks](renders/suv-surfaces/used_front-measurement-picks.jpg), [numeric samples](renders/suv-surfaces/pair-measurements.json).
+- Five colors, front and rear three-quarters (`renders/suv-surfaces/five-colors.jpg`)
+- Face, lamp and rear quarter (`renders/suv-surfaces/close-ups.jpg`)
+- Complete contact sheet (`renders/suv-surfaces/contact.jpg`)
+- Before/after: face (`renders/suv-surfaces/before-after-face.jpg`), lens (`renders/suv-surfaces/before-after-lens.jpg`), hood (`renders/suv-surfaces/before-after-hood.jpg`), front fender (`renders/suv-surfaces/before-after-front-fender.jpg`), rear quarter (`renders/suv-surfaces/quarter-same-light.jpg`), rear bumper (`renders/suv-surfaces/before-after-rear-bumper.jpg`), arch tail (`renders/suv-surfaces/before-after-rear-arch-tail.jpg`), windshield (`renders/suv-surfaces/before-after-windshield.jpg`) and backlight (`renders/suv-surfaces/before-after-backlight.jpg`).
+- Actual-triangle curvature and both stripe directions: front three-quarter (`renders/suv-surfaces/fairness-front_three_quarter.jpg`), rear three-quarter (`renders/suv-surfaces/fairness-rear_three_quarter.jpg`), side (`renders/suv-surfaces/fairness-side.jpg`), front (`renders/suv-surfaces/fairness-front.jpg`), rear (`renders/suv-surfaces/fairness-rear.jpg`), face (`renders/suv-surfaces/fairness-face.jpg`), lamp (`renders/suv-surfaces/fairness-lamp_unlit.jpg`), rear quarter (`renders/suv-surfaces/fairness-rear_quarter.jpg`).
+- Estimated matched daylight: used front (`renders/suv-surfaces/used_front-pair.jpg`), used rear (`renders/suv-surfaces/used_rear-pair.jpg`), measurement picks (`renders/suv-surfaces/used_front-measurement-picks.jpg`), numeric samples (`renders/suv-surfaces/pair-measurements.json`).
 
 ## Causes and repairs
 
@@ -369,14 +369,14 @@ SUV UV allocation, baking and GLB delivery. The C150 export is untouched.
 All images here are ignored build products; checkpoint images are not committed
 as final portfolio photographs.
 
-- [Complete contact sheet](renders/suv-detail/contact.jpg)
-- [Five factory colors, front and rear](renders/suv-detail/five-colors.jpg)
-- [Face, optics, wheel, cladding, cabin and underneath](renders/suv-detail/details.jpg)
-- [Opened parts and sampled trajectories](renders/suv-detail/motion.jpg)
-- [Gloss clay](renders/suv-detail/gloss-clay.jpg) and [four stock-camera pairs](renders/suv-detail/gloss-pairs.jpg)
-- [Front curvature / matching bands](renders/suv-detail/curvature-front_three_quarter.jpg), [rear](renders/suv-detail/curvature-rear_three_quarter.jpg), [side](renders/suv-detail/curvature-side.jpg), [front elevation](renders/suv-detail/curvature-front.jpg), [rear elevation](renders/suv-detail/curvature-rear.jpg)
-- [Used front pair](renders/suv-detail/used_front-pair.jpg) and [used rear pair](renders/suv-detail/used_rear-pair.jpg)
-- [White-balanced measurement picks, front](renders/suv-detail/used_front-measurement-picks.jpg) and [rear](renders/suv-detail/used_rear-measurement-picks.jpg)
+- Complete contact sheet (`renders/suv-detail/contact.jpg`)
+- Five factory colors, front and rear (`renders/suv-detail/five-colors.jpg`)
+- Face, optics, wheel, cladding, cabin and underneath (`renders/suv-detail/details.jpg`)
+- Opened parts and sampled trajectories (`renders/suv-detail/motion.jpg`)
+- Gloss clay (`renders/suv-detail/gloss-clay.jpg`) and four stock-camera pairs (`renders/suv-detail/gloss-pairs.jpg`)
+- Front curvature / matching bands (`renders/suv-detail/curvature-front_three_quarter.jpg`), rear (`renders/suv-detail/curvature-rear_three_quarter.jpg`), side (`renders/suv-detail/curvature-side.jpg`), front elevation (`renders/suv-detail/curvature-front.jpg`), rear elevation (`renders/suv-detail/curvature-rear.jpg`)
+- Used front pair (`renders/suv-detail/used_front-pair.jpg`) and used rear pair (`renders/suv-detail/used_rear-pair.jpg`)
+- White-balanced measurement picks, front (`renders/suv-detail/used_front-measurement-picks.jpg`) and rear (`renders/suv-detail/used_rear-measurement-picks.jpg`)
 
 ## Form fixes and accepted package
 

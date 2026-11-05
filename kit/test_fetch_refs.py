@@ -41,5 +41,16 @@ class FetchReferences(unittest.TestCase):
         with patch('kit.fetch_refs.urllib.request.urlopen') as request:
             with self.assertRaises(ValueError):fetch(self.folder)
         request.assert_not_called()
+    def test_missing_pdf_content_type_checks_signature(self):
+        (self.folder/'SOURCES.md').write_text('| report.pdf | https://example.invalid/report.pdf | manufacturer fixture |\n')
+        response=Response(b'%PDF-1.7\noriginal fixture');response.headers={}
+        with patch('kit.fetch_refs.urllib.request.urlopen',return_value=response):fetch(self.folder)
+        self.assertEqual((self.folder/'report.pdf').read_bytes(),b'%PDF-1.7\noriginal fixture')
+    def test_missing_content_type_rejects_html(self):
+        (self.folder/'SOURCES.md').write_text('| report.pdf | https://example.invalid/report.pdf | manufacturer fixture |\n')
+        response=Response(b'<html>not a PDF</html>');response.headers={}
+        with patch('kit.fetch_refs.urllib.request.urlopen',return_value=response):
+            with self.assertRaisesRegex(ValueError,'not image/PDF'):fetch(self.folder)
+        self.assertFalse((self.folder/'report.pdf').exists())
 
 if __name__=='__main__':unittest.main()

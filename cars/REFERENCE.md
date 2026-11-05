@@ -366,3 +366,209 @@ front approach is 17.88° (Honda's 18.1° comparison); rear departure is 20.64°
 not those targets, produce the source measurements. Source plan circle samples
 are flattened into XY before reporting the local radius; their envelope hits
 can occur at different heights.
+
+# Alder H120: compact five-door hatchback, source form checkpoint
+
+The H120 is an original 2018–2022-class front-drive hatch. Two different
+manufacturers establish the package and provide independent shape comparisons;
+neither silhouette is traced into a mesh. The Toyota's short rear package and
+the Hyundai's relatively level roof are useful constraints. Alder's narrow
+rising lamp blades and broad horizontal grille continue the sedan language.
+
+## Published dimensions and chosen package
+
+All values below are millimeters. Direct PDFs, author, rights and local fetch
+names are recorded in [refs/SOURCES.md](refs/SOURCES.md).
+
+| Dimension | Toyota Corolla hatch, MY2019 Europe | Hyundai i30 five-door, November 2018 UK | H120 design target |
+| --- | ---: | ---: | ---: |
+| Length | 4370 | 4340 | 4360 |
+| Wheelbase | 2640 | 2650 | 2650 |
+| Body width | 1790 | 1795 | 1795 |
+| Height | 1435 | 1455 | 1450 |
+| Front / rear track | 1531 / 1544 | 1565 / 1573, SE 16-inch package | 1550 / 1560 |
+| Front / rear overhang | 935 / 795 | 1690 combined, calculated | 925 / 785 |
+| Width with mirrors | Not used from this sheet | 2039 | About 2039 |
+| Ground clearance | 135 | Not used from this sheet | 140, underbody deferred |
+
+Toyota source: [MY2019 European Corolla launch press kit, p50](https://newsroom.toyota.eu/download/647310/2019-toyota-corolla-dpl-en-983710.pdf).
+Hyundai source: [November 2018 UK i30 technical specifications](https://www.hyundai.news/newsroom/dam/uk/press-kits/20181001_i30/hyundai_i30_fivedoor_and_tourer_press_kit_november2018_technical_specifications.pdf).
+The Hyundai sheet does not separately establish the two overhangs here; their
+1690 mm sum is calculated from length minus wheelbase. Tracks depend on the
+wheel package.
+
+The chosen tire is **225/40R18**, a listed Toyota upper-trim size. The
+[2021 Australian i30 same-generation specification](https://www.hyundai.com/content/dam/hyundai/au/en/models/i30/docs/Hyundai_i30_Hatch_Specifications.pdf)
+independently lists 225/40R18 on an 18 × 7.5J +53 wheel for N Line, with
+1549 / 1563 mm tracks and 135 mm kerb clearance. Its base trim lists 140 mm
+clearance and 1559 / 1568 mm tracks. This is explicitly a later, same-generation
+cross-check, not a MY2019 specification. H120 tracks are original rounded
+upper-wheel-package values. Its 140 mm target is not reported as a measured
+minimum: there is no drivetrain or suspension underneath at this checkpoint.
+
+The tire designation gives a nominal 637.2 mm diameter. The form wheel uses
+the family's simple circular tire at 314.6 mm hub height, 4 mm below nominal
+unloaded radius; measured geometric diameter is 629.2 mm. This is an explicit
+form approximation, not a loaded-tire or contact-patch simulation. All four
+arch tops are 40 mm above those tires, with inward 18 mm arch returns.
+
+## Photographic evidence and its limits
+
+The eight CarsDirect/Autodata photographs are MY2019 Corolla Hatchback SE and
+MY2019 Elantra GT Base (the North American i30 five-door). Front/rear
+three-quarters, near-profile and rear photographs of each make were inspected.
+Their wheel designs are not copied. Both sets have neutral white studio
+backgrounds; that unobstructed white is the comparison neutral, with unit RGB
+gains. It does not make silver metallic paint a clay albedo reference.
+
+Four camera fits use five chassis landmarks each: near wheel centers, near
+tire contacts and one far tire contact. Body silhouette points are held out.
+At native 2100-pixel width the RMS residuals are 3.59 / 2.95 px for the Corolla
+front/rear, and 5.02 / 7.81 px for the Hyundai front/rear. These prove camera
+registration accuracy at those anchors, not body accuracy. The photographs'
+wheel diameters differ slightly from the chosen H120 upper-trim package.
+
+Both side overlays use only the wheel centers to determine scale and level.
+The stock photographs retain perspective, and the illustrated elevations in
+Toyota's MY2019 brochure and Hyundai Morocco's July 2018 sheet also differ from
+their numerical package ratios. None is presented as an exact orthographic
+engineering drawing. The raw overlay deviations are retained in the review
+JSON and README; there is no silhouette warp or fitted body outline. Manual
+side picks have approximately ±14 mm uncertainty at the wheel plane, in
+addition to the unquantified perspective error.
+
+Rear photo widths, normalized to each published body width, estimate:
+
+| Projected feature | Corolla | Hyundai |
+| --- | ---: | ---: |
+| Backlight upper width | 1114 mm | 1149 mm |
+| Backlight base width | 1232 mm | 1385 mm |
+| Outer pillar band at lower-glass level | 123 mm | 88 mm |
+
+These are ±30 mm photographic estimates: top/base glass and body-width
+landmarks are at different depths. All pixel picks and marked photos remain
+in `renders/hatch-checkpoint/rear-reference-measurements.json` and accompanying
+JPGs. H120 actual mesh widths are measured separately; its pillar measurement
+is explicitly a projected difference between the upper-quarter width and
+lower-glass width, not a structural metal-section thickness.
+
+H120 uses a small fixed rear quarter pane, like the Hyundai, flush side glass,
+and a black B-pillar applique. The bumper carries the plate pocket, also as on
+the Hyundai; the uninterrupted upper gate and split wraparound lamps are
+original. Fine lamp optics, trim, weathering, cargo/interior construction,
+hinges and struts remain beyond this form checkpoint.
+
+### H120 round 2: perspective profiles and regional choices
+
+The original axle-registered orthographic overlays are historical evidence,
+not the current comparison method. Both profile photos now have kit pinhole
+camera fits using near wheel hubs and tread contacts. Body silhouette picks
+are held out. Four coplanar landmarks do not determine a unique focal length:
+the fit uses a 65 mm prior, 45–100 mm bounds and converges near 70.8 mm.
+Native-image RMS is 4.30 px Corolla / 4.31 px Hyundai. A separate Blender
+projection check validates the solver-to-render camera conversion. It does
+not validate the assumed depth or the body shape.
+
+The new silhouette is rendered directly through each fitted camera. Regional
+errors are equivalent millimeters using local center-plane projection scale;
+manual edge-pick uncertainty is approximately ±16 mm. The Corolla governs the
+rear roof, spoiler, glass rake and upper gate, while Hyundai governs the lower
+bumper tuck and bumper-mounted plate. The photographs disagree substantially
+at the upper tail; the report preserves both deviations. Accepted body length,
+wheelbase, tracks, door sections and arch gaps are retained.
+
+The measured mirror span is 2039.3 mm, following the **2039 mm** published
+width with mirrors in the November 2018 Hyundai UK manufacturer sheet linked
+above. The new wedge caps sit on the front door’s sail, with a flat rear pane.
+Reference photos are used only for measurements and side-by-side review.
+
+
+### H120 round 3: rear construction and surface references
+
+The lower black bumper center and tall slim corner reflectors now follow the
+Corolla rear photograph (`refs/hatch-corolla-back.jpg`), while retaining the
+accepted plate pocket and gate cut. The Hyundai rear is retained as a second
+comparison: its broader painted bumper and horizontal reflectors differ, so
+this treatment does not claim to match both. On the 1824-pixel Corolla image,
+the body spans approximately x = 356…1470 at its rear shoulders. A reflector
+spans approximately 13 × 135 pixels, implying roughly 21 × 217 mm using the
+1790 mm body width. These are projected class estimates, about ±20 mm in
+height and ±5 mm in width, not a parts drawing. The original H120 guide is
+24 × 200 mm before projection onto its own curved corner. The checkpoint
+report measures the resulting mesh separately.
+
+White studio backgrounds provide the neutral for both makes' comparisons;
+unit RGB balance is retained. No photograph supplies model vertices or texels.
+The side's shoulder, rising lower hollow, wheel crowns, gate pinching, lower
+hem shadow, bumper corner roll and mirror crown are judged in the unchanged
+calibrated pairs and procedural reflection bands.
+
+
+### H120 round 4: reflection and curvature evidence
+
+The six calibrated round-three photo cameras and both makes' reference images
+are retained. White studio backgrounds remain the neutral, with unit RGB gains.
+The new mid-gray clearcoated clay is intentionally a form diagnostic; it does
+not claim to match the photographs' silver paint, studio lighting or exposure.
+A procedural Blender sky and an original dark diffuse ground provide reflected
+value above and below the horizon. The shoulder, lower crease and wheel crowns
+are judged through those reflections as well as the unchanged matte and stripe
+views. The Corolla's bounded gate recess guides the new upper crease; the
+Hyundai remains the smoother alternative in the second rear pair.
+
+Curvature maps measure actual game-triangle positions, independently of authored
+shading normals. Signed cotangent curvature uses mixed Voronoi areas, with raw
+values retained and a common asinh display scale for both rounds. Analytic
+plane, cylinder and sphere checks validate the implementation. Open cut edges
+are gray because their neighborhoods are incomplete. Maps accompany matching
+stripe views; neither a scalar curvature threshold nor the section measurements
+substitutes for the photographic comparisons.
+
+
+### H120 detail: dated daily-driver photographs and matched daylight
+
+Two Commons photographs by Elise240SX show a MY2018 white compact hatchback
+on 2022-08-06, four years after its model year. They are the front/rear daily-
+driver look references, registered as `hatch-used-front.jpg` and
+`hatch-used-rear.jpg` in [refs/SOURCES.md](refs/SOURCES.md), under CC BY-SA 4.0.
+The original H120 remains a distinct design; these photographs supply no mesh
+or texture pixels. Tire lettering, dealer insert and every marking are drawn
+by our scripts with installed Noto fonts.
+
+The front white exterior siding (x120–220, y12–42) and rear gray garage-door
+mullion (x210–216, y65–125), measured on 1200-pixel-wide review copies, are the
+neutral assumptions. `hatch_pair_measure.py` computes channel gains in linear
+light, then measures annotated display-value patches on the balanced photo
+and the corresponding projected H120 surfaces. They are neither measured
+albedos nor inferred roughness values. Different panel shapes, reflections
+and patch extents limit the comparison. HATCH.md reports the actual results.
+
+Four wheel hub/contact anchors constrain each pinhole camera without fitting
+the body outline. A 1.50 ± 0.15 m camera-height prior resolves the otherwise
+admissible below-ground/reflected pose. Native residuals remain approximately
+9.24 / 9.76 px front/rear; estimated lenses are 88.7 / 71.2 mm. The new pair
+cameras serve appearance review, and do not replace the accepted round-four
+profile cameras or overlays.
+
+The photographs show diffuse daylight, without a distinct hard cast shadow.
+Mirror undersides, wheel contact shade and broad panel gradients guide an
+estimated 24° solar elevation, with ±15° uncertainty; azimuth is −130° front
+and +140° rear in the original car's authoring frame. A broad 18° weak sun
+and a procedural multiple-scattering sky dominate the comparisons. Desaturated
+sky and asphalt-gray ground replace all studio lights and black cards. This
+is a stated lighting approximation, not a unique reconstruction of the sky
+or surrounding buildings. No HDRI is downloaded or used.
+
+The five factory colors use the existing family coating/decoder method.
+Axalta's 2025 North American production shares (white31, gray21, black19,
+blue10, silver8) are normalized across these five selected colors only. They
+are a factory-spawn proxy, not a census of four-year-old cars on American roads.
+The manufacturer's report is registered in SOURCES.md and fetched by `make refs`.
+
+The detailed H120 retains the accepted exterior package. The underbody's
+actual lowest authored surface measures 146.5 mm above ground. The 18 × 7.5
+alloy has a 190.5 mm bead-seat width, 5 × 114.3 mm stud circle and 225/40R18
+sidewall/rolling envelope. The front steering geometry is our original
+15° steering-axis inclination / 6.5° caster / −20 mm scrub construction,
+validated through its full ±35° sweep; these are design choices, not claimed
+manufacturer suspension dimensions.

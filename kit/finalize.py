@@ -48,8 +48,6 @@ def main():
     objects=[o for o in objects if o not in tiled]
     aspect_image=None;aspect_sources=[];aspect_helpers=[]
     if config.get('UV_USE_TARGET_ASPECT',False):
-        if not config.get('UV_UNWRAP_METHOD'):
-            raise ValueError('UV_USE_TARGET_ASPECT requires authored seams and UV_UNWRAP_METHOD')
         # UV operators otherwise inherit the aspect of an arbitrary look-dev
         # input image. Use the actual packed delivery region, then restore all
         # material inputs before saving the finalized scene.

@@ -20,8 +20,15 @@ def fetch(folder,names=None):
         if path.exists():continue
         with urllib.request.urlopen(urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0'}),timeout=60) as r:
             mime=r.headers.get('Content-Type','')
-            if 'pdf' not in mime and not mime.startswith('image/'):raise ValueError('Reference is not image/PDF: '+url)
-            data=r.read()
+            if not mime and path.suffix.lower()=='.pdf':
+                # Some manufacturer endpoints omit Content-Type entirely.
+                # Accept only an actual PDF signature in that narrow case.
+                prefix=r.read(8)
+                if not prefix.startswith(b'%PDF-'):raise ValueError('Reference is not image/PDF: '+url)
+                data=prefix+r.read()
+            else:
+                if 'pdf' not in mime and not mime.startswith('image/'):raise ValueError('Reference is not image/PDF: '+url)
+                data=r.read()
         path.write_bytes(data);print('Fetched',name,len(data))
 
 if __name__=='__main__':

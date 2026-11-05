@@ -75,6 +75,8 @@ Vehicles
   - [Alder C150 pickup](cars/README.md#alder-c150--crew-cab-pickup): full-size crew-cab 4×4 on all-terrain tires.
   - [Alder X220 crossover](cars/README.md#alder-x220--compact-crossover): two-row compact SUV with a liftgate,
     cargo area and AWD underbody.
+  - [Alder H120 hatchback](cars/README.md#alder-h120--compact-five-door-hatchback): compact five-door with a
+    liftgate, diamond grille and projector lamps.
 
 Trees and shrubs
 - [Trees](trees/README.md): summer street trees with leaf cards and wind weights.

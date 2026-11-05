@@ -339,6 +339,9 @@ ordinary command still fetches every entry and skips existing files. This lets
 a check declare its actual photograph prerequisites without depending on unrelated
 manual URLs. Run `python3 -m unittest kit.test_fetch_refs` for selection, legacy
 cache, MIME and path guards (mocked requests, no network).
+Manufacturer PDF responses without a `Content-Type` header are accepted only
+after checking their `%PDF-` signature. Explicit non-image/PDF MIME types and
+missing-header HTML responses still fail without writing a reference file.
 
 Reserved-atlas verification also measures the unique region after GLB import,
 rejects any intersection between unique and tile rectangles, and checks the
@@ -496,6 +499,9 @@ the clear-coat lobe stays continuous. Defaults retain the earlier appearance.
 
 `DELIVERY_SURFACES` optionally defines uniform Principled settings, metallic/
 roughness factors, emission and extras for a small delivery palette.
+Each surface can set `normal_strength` (default unchanged); zero preserves
+authored mesh normals without quantized neutral-map deflection, and exports
+as the glTF normal texture's scale.
 `SOURCE_MATERIAL_SURFACES` maps manufacturing material names to that palette;
 assignment is per face before consolidation, so coated panels can retain
 opaque interior faces. Existing name-prefix overrides remain unchanged.
@@ -614,14 +620,16 @@ source IOR level is half this factor. `test_surface_profiles.py` checks the
 actual extension, image reuse, alpha values and opaque mode in a GLB. The
 default preserves all existing material behavior.
 
-With authored seams and `UV_UNWRAP_METHOD`, `UV_USE_TARGET_ASPECT=True` makes
-the unwrap/averaging/packing operators use the
+`UV_USE_TARGET_ASPECT=True` makes either Smart UV or an authored-seam
+`UV_UNWRAP_METHOD`, and the averaging/packing operators, use the
 actual delivery-region aspect (`UV_ATLAS_RECT`, or the whole square atlas),
 instead of an arbitrary procedural input image's dimensions. Original image
 inputs and the active material nodes are restored before saving. This prevents
 a tall bark source field from squashing the shipped UVs in a wide reserved
 region. Defaults remain unchanged. `test_uv_target_aspect.py` measures actual
-triangle Jacobians in a non-square region and checks source-image restoration.
+triangle Jacobians in a non-square region, a square Smart UV print atlas, and
+source-image restoration. This opt-in also prevents rectangular marking images
+from changing a printed chart's physical aspect; existing defaults are unchanged.
 
 `flat_bake.py --height-distance` optionally gives the physical meter range of
 an original normalized height field. The default stays .004 m. This lets
