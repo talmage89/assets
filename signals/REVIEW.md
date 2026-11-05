@@ -365,3 +365,11 @@ entire multi-megapixel frame for each small detail. The source Cinderbrook
 comparison fell from 6481.9 to 3911.5 MiB kernel peak RSS. The two full Oregon
 preview frames peaked at 4111.0 MiB. Repeated neighborhood planting remains
 conspicuous, but no library export is modified by this presentation cap.
+
+An additional shadow audit sampled the same exposed yellow strip and the strip
+below the visor. The source photo's left side is shaded while the draft's left
+side was lit: the close-pair sun had its lateral direction reversed. Correct
+the incident rays to come from the camera's right, keeping the sky direction
+coupled. Record zinc value and both painted strips in lens-measurements.json;
+the under-visor contrast includes cast shadow and cannot be called dirt alone.
+This changes comparison illumination, not the delivered BaseColor.

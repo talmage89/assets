@@ -38,6 +38,20 @@ def run():
     factor=meta['render_scale'];x0,y0,x1,y1=[round((v-crop[k%2])*factor) for k,v in enumerate((x0,y0,x1,y1))]
   cut=a[y0:y1,x0:x1].reshape(-1,3)
   surfaces[key]=dict(file=str(file),roi=paint_roi,median_display_rgb=np.median(cut,axis=0).tolist(),clipped_red_fraction=float((cut[:,0]>=.99).mean()),scope='Flat paint patch in nominally matched framing; not a physical albedo measurement. Different visor shadows remain visible in the pair.')
- result=dict(photos=photos,render=comparisons,surfaces=surfaces,neutral_balance=json.loads(Path('build/reference-balance.json').read_text()),scope='Display-domain contrast under documented sun/sky, median adjacent sky. Different exposure/camera response and optical products prevent physical luminance inference.')
+ age={}
+ def sample(file,rect):
+  im=Image.open(file).convert('RGB');a=np.asarray(im,dtype=float)/255;x0,y0,x1,y1=rect
+  if str(file).startswith('renders/'):
+   meta=json.loads(Path(file).with_suffix('.json').read_text());crop=meta.get('render_crop');factor=meta.get('render_scale',1.)
+   if crop:x0,y0,x1,y1=[round((v-crop[k%2])*factor) for k,v in enumerate(rect)]
+  cut=a[y0:y1,x0:x1];assert cut.size,(file,rect)
+  y=cut@np.array([.2126,.7152,.0722]);return dict(median_rgb=np.median(cut.reshape(-1,3),axis=0).tolist(),median_Yprime=float(np.median(y)),Yprime_p10_p90=np.quantile(y,[.1,.9]).tolist(),photo_frame_roi=rect)
+ for name,file in [('photo_zinc','refs/oregon-fya-2005-balanced.jpg'),('render_zinc','renders/matches/mast_sidewalk.png')]:
+  age[name]=sample(file,(600,497,680,503))
+ for name,file in [('photo_visor','refs/span-2009-balanced.jpg'),('render_visor','renders/matches/head_201.png')]:
+  below=sample(file,(1210,1075,1240,1090));bare=sample(file,paint_roi)
+  age[name]=dict(below_visor=below,exposed_paint=bare,below_over_exposed_Yprime=below['median_Yprime']/bare['median_Yprime'],limitation='Includes visor cast shadow and different door geometry; cannot attribute this contrast to dirt alone.')
+ age['scope']='Display-domain aged zinc and under-visor appearance in matched framing; field neutrals, differing products and camera response limit material inference.'
+ result=dict(photos=photos,render=comparisons,surfaces=surfaces,age_comparison=age,neutral_balance=json.loads(Path('build/reference-balance.json').read_text()),scope='Display-domain contrast under documented sun/sky, median adjacent sky. Different exposure/camera response and optical products prevent physical luminance inference.')
  Path('build/lens-measurements.json').write_text(json.dumps(result,indent=2));print('OPTICS',json.dumps({n:{'R95/skyR':r['R95_over_skyR'],'Y/skyY':r['lens_mean_Yprime_over_skyYprime']} for n,r in photos.items()}))
 if __name__=='__main__':run()
