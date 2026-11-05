@@ -21,6 +21,11 @@ from context import bundle
 
 def sha(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
+def recipe():
+    files=[HERE/n for n in ('strip_render.py','strip_presentation.py','render.py','presentation.py','paving.py','strip_photo_matches.py')]
+    files += [HERE.parents[1]/'houses/src/render.py',HERE.parents[1]/'cars/src/delivery_materials.py']
+    return hashlib.sha256(b''.join(p.read_bytes() for p in files)).hexdigest()
+
 
 def ground(p):
     source=HERE.parents[1]/'ground/export/Ground.glb';before=set(bpy.context.scene.objects)
@@ -69,12 +74,15 @@ def ground(p):
 def views(p):
     W,D=p['lot'];b=p['building'];f=b['front'];left=b['left'];right=left+b['width'];bay=p['modules'][2];x=bay['origin'][0]
     return dict(
-        hero=dict(location=(-W*.85,-D/2-14.0,1.6),target=(0,f+b['depth']*.50,1.6),lens=40,aspect=3.0,shift_y=.025,shift_x=-.06),
+        hero=dict(location=(-W/2+1.5,f-18,1.6),target=(left+b['width']*.22,f,1.6),lens=35,aspect=1.90,shift_y=.10),
         street=dict(location=(-W*.85,-D/2-14.0,1.6),target=(0,f+b['depth']*.50,1.6),lens=40,aspect=2.6,shift_y=.025,shift_x=-.06),
         above=dict(location=(-W*.74,-D*.93,69),target=(0,0,0),lens=40,aspect=1.6),
         storefront=dict(location=(x+3.1,f-23,1.75),target=(x,f-1,2.6),lens=82,aspect=1.5),
         walk=dict(location=(left+4.5,f-1.7,1.65),target=(left+25,f-1.45,1.65),lens=38,aspect=1.65),
         tower=dict(location=(left+7.0,f-12.2,1.7),target=(left+1.8,f-2.7,3.6),lens=45,aspect=1.15),
+        endcap=dict(location=(left-12,f-10,1.7),target=(left,f+4.5,2.45),lens=45,aspect=1.55),
+        stalls=dict(location=(x+3,f-19,2.8),target=(x,f-6.0,.12),lens=50,aspect=1.55),
+        dusk=dict(location=(-W/2+1.5,f-18,1.6),target=(left+b['width']*.22,f,1.6),lens=35,aspect=1.90,shift_y=.10,dusk=True,sun_energy=0,sky_strength=.40,exposure=2.2),
         pylon=dict(location=(p['sign_center'][0]+6,p['sign_center'][1]-10,1.9),target=(*p['sign_center'],4.05),lens=48,aspect=1.0),
         rear=dict(location=(left-3,b['rear']+13,5.3),target=(left+14,b['rear'],2.1),lens=42,aspect=1.75,sun_direction=(.45,-.65,-1)),
         services=dict(location=(right+7,b['rear']+4,2.0),target=(right,b['rear']-2.2,1.7),lens=45,aspect=1.5,sun_direction=(-.65,-.45,-1)),
@@ -137,16 +145,28 @@ therefore all actual exported vertices stay within these reported bounds.
 
 
 def render(seed=201,folder=Path('build/strip'),out=Path('renders/strip/checkpoint'),names=None,width=1440,samples=32,cameras=None,engine='CYCLES',with_scale=False):
-    path=Path(folder)/f'strip-{seed}.glb';meta=json.loads(path.with_suffix('.json').read_text())
+    path=Path(folder)/f'strip-{seed}.glb';source_digest=sha(path);render_recipe=recipe();meta=json.loads(path.with_suffix('.json').read_text())
     bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(path.resolve()));assets=set(bpy.context.scene.objects)
-    ground_record=ground(meta);camera=setup(samples,engine);shots=views(meta);context=[]
-    if with_scale:shots['scale']={}
+    from strip_presentation import ready,neighborhood,cars
+    ground_record=neighborhood(meta) if ready() else ground(meta)
+    context=cars(meta) if meta.get('look') and not cameras else []
+    camera=setup(samples,engine);shots=views(meta)
+    if with_scale:
+        shots['scale']={**shots['storefront'],'human':True}
+        import importlib.util
+        spec=importlib.util.spec_from_file_location('_strip_human',HERE.parents[1]/'houses/src/render.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+        module.human((meta['modules'][2]['origin'][0]-2,meta['building']['front']-1,.1524))
+    figures=[o for o in bpy.context.scene.objects if o.name.startswith(('Scale ','Human '))]
     if cameras:shots={name:row['shot'] for name,row in cameras.items()}
     names=names or list(shots)
     if with_scale:names=[name for name in names if name!='scale']+['scale']
     out=Path(out);out.mkdir(parents=True,exist_ok=True);records={}
     for name in names:
-        if name=='scale' and with_scale:shots[name],context=scale(meta)
+        for figure in figures:figure.hide_render=name!='scale'
+        parked=bpy.data.objects.get('ParkedVehicles')
+        if parked:
+            for ob in parked.children_recursive:ob.hide_render=name not in ('hero','street','above','dusk')
+        assert sha(path)==source_digest and recipe()==render_recipe,'Source/recipe changed during render; rerun from a stable export'
         shot=dict(shots[name]);camera.location=shot['location'];camera.rotation_euler=(Vector(shot['target'])-camera.location).to_track_quat('-Z','Y').to_euler()
         if shot.get('roll'):camera.rotation_euler.rotate_axis('Z',shot['roll'])
         camera.data.type='ORTHO' if 'ortho' in shot else 'PERSP';camera.data.lens=shot.get('lens',40);camera.data.shift_y=shot.get('shift_y',0);camera.data.shift_x=shot.get('shift_x',0)
@@ -161,27 +181,35 @@ def render(seed=201,folder=Path('build/strip'),out=Path('renders/strip/checkpoin
             eye=dict(height_m=camera.location.z-point.z,surface=ob.name)
         if name=='above':
             framing=above_frame(camera,assets);shot.update(lens=camera.data.lens,shift_x=camera.data.shift_x,shift_y=camera.data.shift_y)
-        direction=shot.get('sun_direction',(.45,.65,-1))
-        sun=bpy.data.objects['Sun'];sun.rotation_euler=Vector(direction).to_track_quat('-Z','Y').to_euler();sun.data.energy=shot.get('sun_energy',3.2)
-        sky=next(n for n in sc.world.node_tree.nodes if n.type=='TEX_SKY');sky.sun_elevation=math.atan2(-direction[2],math.hypot(*direction[:2]));sky.sun_rotation=math.atan2(-direction[1],-direction[0])
+        direction=shot.get('sun_direction',(-1.0,.30,-.75))
+        sun=bpy.data.objects['Sun'];sun.rotation_euler=Vector(direction).to_track_quat('-Z','Y').to_euler();sun.data.energy=shot.get('sun_energy',6.0);sun.data.angle=math.radians(shot.get('sun_angle',.65))
+        sky=next(n for n in sc.world.node_tree.nodes if n.type=='TEX_SKY');sky.sun_elevation=math.radians(-3) if shot.get('dusk') else math.atan2(-direction[2],math.hypot(*direction[:2]));sky.sun_rotation=math.atan2(-direction[1],-direction[0])
         bg=next(n for n in sc.world.node_tree.nodes if n.type=='BACKGROUND');bg.inputs['Strength'].default_value=shot.get('sky_strength',.035)
-        sc.world.node_tree.nodes['Sky chroma'].inputs['Saturation'].default_value=shot.get('sky_saturation',.85)
-        sc.view_settings.exposure=shot.get('exposure',-.15)
+        sc.world.node_tree.nodes['Sky chroma'].inputs['Saturation'].default_value=shot.get('sky_saturation',1)
+        sc.view_settings.exposure=shot.get('exposure',.25)
+        if engine=='BLENDER_EEVEE' and not bpy.data.objects.get('Strip bounce cache'):
+            bpy.ops.object.lightprobe_add(type='VOLUME',location=(0,meta['building']['front'],2.3));probe=bpy.context.object;probe.name='Strip bounce cache';probe.scale=(meta['building']['width']/2+1,9,3)
+            probe.data.resolution_x=24;probe.data.resolution_y=8;probe.data.resolution_z=4;probe.data.bake_samples=32
+            probe.data.capture_world=True;probe.data.capture_indirect=True;probe.data.capture_emission=True
+            bpy.ops.object.lightprobe_cache_bake(subset='ALL')
         target=out/(name+'.png');sc.render.filepath=str(target.resolve());bpy.ops.render.render(write_still=True)
         if name=='hero':tone(target,camera,[ob for ob in assets if ob.type=='MESH' and ob.parent and ob.parent.name.startswith(('Bay_','Tower_','EndCap_'))])
-        records[name]=dict(source=str(path),sha256=sha(path),image_sha256=sha(target),shot=shot,engine=engine,width=width,samples=samples,eye=eye,framing=framing,ground=ground_record,context=context,stage=meta['stage'],recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
+        assert sha(path)==source_digest and recipe()==render_recipe,'Source/recipe changed during rendering'
+        records[name]=dict(source=str(path),sha256=source_digest,image_sha256=sha(target),shot=shot,engine=engine,width=width,samples=samples,eye=eye,framing=framing,ground=ground_record,context=context,stage=meta['stage'],recipe_sha256=render_recipe,comparison=dict(calibration_sha256=sha('build/strip/cameras.json'),balanced_photo_sha256=sha(cameras[name]['photo'])) if cameras else None)
     provenance=out/'provenance.json';old=json.loads(provenance.read_text()) if provenance.exists() else {};old.update(records);provenance.write_text(json.dumps(old,indent=2)+'\n')
     return records
 
 
 if __name__=='__main__':
-    a=argparse.ArgumentParser();a.add_argument('--seed',type=int,default=201);a.add_argument('--source-root',type=Path,default=Path('build/strip'));a.add_argument('--out',type=Path,default=Path('renders/strip/checkpoint'));a.add_argument('--shots',default='hero,storefront,walk,tower,pylon,rear,services');a.add_argument('--width',type=int,default=1440);a.add_argument('--samples',type=int,default=32);a.add_argument('--family',action='store_true');a.add_argument('--scale',action='store_true');a.add_argument('--matches',action='store_true');a.add_argument('--engine',default='CYCLES');a=a.parse_args(sys.argv[sys.argv.index('--')+1:])
+    a=argparse.ArgumentParser();a.add_argument('--seed',type=int,default=201);a.add_argument('--source-root',type=Path,default=Path('build/strip'));a.add_argument('--out',type=Path,default=Path('renders/strip/checkpoint'));a.add_argument('--shots',default='hero,storefront,walk,tower,endcap,pylon,rear,services,stalls,dusk');a.add_argument('--width',type=int,default=1440);a.add_argument('--samples',type=int,default=32);a.add_argument('--family',action='store_true');a.add_argument('--scale',action='store_true');a.add_argument('--matches',action='store_true');a.add_argument('--engine',default='CYCLES');a=a.parse_args(sys.argv[sys.argv.index('--')+1:])
     if a.matches:
         from kit.photo_match import verify
         from strip_photo_matches import PAIR_SEEDS,LIGHTING
         path=Path('build/strip/cameras.json');verify(path);cameras=json.loads(path.read_text())
-        for name,seed in PAIR_SEEDS.items():
-            cameras[name]['shot'].update(LIGHTING[name]);render(seed,a.source_root,Path('renders/strip/matches'),[name],a.width,a.samples,{name:cameras[name]},a.engine)
+        for name in PAIR_SEEDS:cameras[name]['shot'].update(LIGHTING[name])
+        for seed in dict.fromkeys(PAIR_SEEDS.values()):
+            selected={name:cameras[name] for name,value in PAIR_SEEDS.items() if value==seed}
+            render(seed,a.source_root,Path('renders/strip/matches'),list(selected),a.width,a.samples,selected,a.engine)
     else:
         names=a.shots.split(',')+(['scale'] if a.scale else [])
         render(a.seed,a.source_root,a.out,names,a.width,a.samples,engine=a.engine,with_scale=a.scale)

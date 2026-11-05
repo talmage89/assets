@@ -48,3 +48,35 @@ PAIR_SEEDS=dict(commerce=201,sunnyvale=202,sterling=201)
 LIGHTING=dict(commerce=dict(sun_direction=(.65,.25,-1),sun_energy=3.0,sky_strength=.06,sky_saturation=.60),
               sunnyvale=dict(sun_direction=(.30,.15,-1),sun_energy=3.2,sky_strength=.035,sky_saturation=.85),
               sterling=dict(sun_direction=(-.50,.40,-1),sun_energy=3.2,sky_strength=.04,sky_saturation=.75))
+
+# Look checkpoint: four dated-period views plus rear/older-paving auxiliaries.
+# Window picks are sparse, unsurveyed fit anchors; material ROIs are held out.
+p202=generate(202);mm=p202['modules'][0];ww=mm['width'];dx2=-ww*.23
+lo2=dx2+.9144/2+.07;hi2=ww/2-.31;sp2=(hi2-lo2)/max(1,round((hi2-lo2)/1.50));cc=lo2+sp2/2
+lx=mm['origin'][0]+cc-(sp2-.035)/2;rx=lx+sp2-.035;ff=mm['origin'][1]-.04
+
+def pane(lt,rt,rb,lb):
+    return [point(q,pixel,label) for q,pixel,label in (
+        ((lx,ff,2.75),lt,'held glazing upper left'),((rx,ff,2.75),rt,'held glazing upper right'),
+        ((rx,ff,.27),rb,'held glazing lower right'),((lx,ff,.27),lb,'held glazing lower left'))]
+
+MATCHES['period_walk']=dict(title='1985/86 center at 21–22 years / covered walk, glazing and accumulated service',photo='build/strip/references/westlakes-neutral.png',crop=(140,220,900,595),
+    location=(mm['origin'][0]+14,ff-14,1.65),target=(mm['origin'][0],ff,2),lens=40,lens_bounds_mm=(24,100),camera_height_m=(1.65,.35),
+    landmarks=pane((378,346),(430,352),(430,466),(378,477)),background='transparent',exposure=.1)
+MATCHES['period_lot']=dict(title='1985/86 center at 21–22 years / sidewalk edge and repaired asphalt',photo='build/strip/references/westlakes_lot-neutral.png',crop=(110,270,911,608),
+    location=(mm['origin'][0]-14,ff-17,1.65),target=(mm['origin'][0]+3,ff,2),lens=40,lens_bounds_mm=(24,100),camera_height_m=(1.65,.35),
+    landmarks=pane((251,321),(289,326),(289,459),(251,466)),background='transparent',exposure=.1)
+# Rear door stands in a rotated real aperture, independently of the storefront fit.
+rp=generate(201);rm=rp['modules'][1];cx=rm['origin'][0]-rm['width']*.20;ry=rp['building']['rear']+.05
+rear_anchors=[point(q,pixel,label) for q,pixel,label in (
+    ((cx+.492,ry,2.268),(278,193),'rear steel upper left'),((cx-.492,ry,2.268),(306,192),'rear steel upper right'),
+    ((cx-.492,ry,.158),(307,272),'rear steel lower right'),((cx+.492,ry,.158),(279,273),'rear steel lower left'))]
+MATCHES['used_rear']=dict(title='Used strip-center rear / date unverified; service and base-damp auxiliary',photo='build/strip/references/rear-neutral.png',crop=(35,90,590,365),
+    location=(cx,ry+22,1.7),target=(cx,ry,2),lens=45,lens_bounds_mm=(24,100),camera_height_m=(1.7,.4),landmarks=rear_anchors,background='transparent',exposure=.1)
+PAIR_SEEDS.update(period_walk=202,period_lot=202,used_rear=201)
+LIGHTING.update(period_walk=dict(sun_direction=(-.75,-.35,-.65),exposure=.15,sun_energy=6,sky_strength=.035,sky_saturation=1),
+    period_lot=dict(sun_direction=(.72,-.75,-.62),exposure=1.25,sun_energy=6,sky_strength=.035,sky_saturation=1),
+    used_rear=dict(sun_direction=(.25,-.45,-1),sun_energy=0,sky_strength=.35,sky_saturation=.10,sun_angle=20))
+
+# Outdoor comparison skies remain procedural and visible, as on the station.
+for match in MATCHES.values():match.pop('background',None)
