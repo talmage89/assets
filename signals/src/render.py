@@ -55,6 +55,9 @@ def shots(seed):
  site=SITES[seed];px,py,pz=site.pole(0);dist=site.face(0)+1.02-site.positions(0)[0]
  hz=GRADE+ARM_Z+(dist-.2735)*.03492+.45
  h=(site.positions(0)[0],py-.42,hz-.75)
+ first=bpy.data.objects.get('Mast_0__Head0')
+ if first:
+  bpy.context.view_layer.update();h=tuple(first.matrix_world.translation+Vector((0,0,-.75)))
  d=dict(above=dict(location=(48,-61,53),target=(0,0,0),lens=42,aspect=1.5),
  driver=dict(location=(site.half(0)-LANE/2,-site.stop(2)-18,1.18),target=(1,site.core(0),4.4),lens=42,aspect=1.5))
  if seed==201:
