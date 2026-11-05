@@ -64,6 +64,11 @@ Houses
   - [Postwar Cape Cod](houses/README.md#third-type-postwar-cape-cod): one and a half stories with dormers.
   - [Split-level](houses/README.md#fourth-type-split-level): five side-splits and a raised ranch.
 
+Commercial
+- [Corner gas station](commercial/README.md): seeded 1995–2010 corner station and convenience store in two original
+  fuel brands, with a lit canopy, dispensers with slack hoses and holstered nozzles, a stocked store behind its
+  storefront, a price sign, services and causal wear, on shared tiled sets and one equipment atlas.
+
 Vehicles
 - [Cars](cars/README.md): late-2010s vehicles in five factory colors on one baked atlas each; doors, closures,
   steering and wheels move.
