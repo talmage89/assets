@@ -1,0 +1,22 @@
+"""Factory-startup repeat, including sign sheet and instanced stock shrubs."""
+import argparse
+import hashlib
+import json
+import subprocess
+from pathlib import Path
+
+
+def main(blender):
+    folder=Path('build/strip/repeat');folder.mkdir(parents=True,exist_ok=True)
+    with (folder/'build.log').open('w') as log:
+        subprocess.run([blender,'-b','--factory-startup','--python-exit-code','1','--python','src/strip_build.py','--','--seeds','201','--out',str(folder)],stdout=log,stderr=subprocess.STDOUT,check=True)
+    a=Path('build/strip/strip-201.glb');b=folder/a.name
+    sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+    row=dict(passed=sha(a)==sha(b),baseline_sha256=sha(a),repeat_sha256=sha(b),bytes=a.stat().st_size,
+             scope='Independent factory-startup diagnostic GLB byte identity. No surface bake is performed at this checkpoint.')
+    (folder/'check.json').write_text(json.dumps(row,indent=2)+'\n');assert row['passed'],row
+    print('STRIP REPEAT: byte-identical',row['bytes'],'bytes')
+
+
+if __name__=='__main__':
+    a=argparse.ArgumentParser();a.add_argument('--blender',default='blender');main(a.parse_args().blender)

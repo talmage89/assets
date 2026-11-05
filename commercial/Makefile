@@ -59,3 +59,5 @@ fit: model
 	$(BP) --python src/check_fit.py -- --reference $(TANK_REFERENCE)
 look-review:
 	$(CHECKPOINT_REVIEW)
+
+include src/strip_rules.mk
