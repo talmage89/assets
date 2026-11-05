@@ -45,6 +45,8 @@ def main():
     p.add_argument('--studio-exposure',type=float,default=-2.8);p.add_argument('--width',type=int,default=1400);p.add_argument('--samples',type=int,default=40)
     p.add_argument('--motions',action='store_true');p.add_argument('--colors',action='store_true');p.add_argument('--camera-file');p.add_argument('--paint',default='Atlantic')
     p.add_argument('--engine',default='CYCLES',choices=['CYCLES','BLENDER_EEVEE']);p.add_argument('--workbench',action='store_true')
+    p.add_argument('--zebra',action='store_true',help='Gallery cameras with evenly spaced reflection lights and neutral polished surfaces')
+    p.add_argument('--crop',type=float,nargs=4,metavar=('X0','Y0','X1','Y1'),help='Native pixel bounds, measured from the upper left')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);source=Path(a.source).resolve();source_hash=hashlib.sha256(source.read_bytes()).hexdigest();final=source.suffix.lower()=='.glb'
     bpy.ops.wm.read_factory_settings(use_empty=True)
     if final:
@@ -70,6 +72,9 @@ def main():
     light_data=bpy.data.lights.new('S240 underside inspection fill','AREA');light_data.energy=0;light_data.size=4
     bottom_fill=bpy.data.objects.new('S240 underside inspection fill',light_data);sc.collection.objects.link(bottom_fill);bottom_fill.location=(0,0,-3);bottom_fill.rotation_euler=(Vector((0,0,.25))-bottom_fill.location).to_track_quat('-Z','Y').to_euler();bottom_fill['studio']=True
     people=studio.human()
+    if a.zebra:
+        from sedan_reflection_review import setup
+        setup()
     if a.camera_file:
         from sedan_lighting import setup
         setup()
@@ -94,6 +99,9 @@ def main():
                     m.node_tree.nodes['Paint tint'].outputs[0].default_value=(*FAMILY.COLORS[paint],1)
                     m.node_tree.nodes['Paint metallic'].outputs[0].default_value=FAMILY.PAINT_METAL[paint]
                 if m.get('lamp_lit_strength',0)>0:m.node_tree.nodes['SURFACE'].inputs['Emission Strength'].default_value=m['lamp_lit_strength'] if lights else 0
+        if a.zebra:
+            from sedan_reflection_review import material
+            material()
         xf=Matrix.Rotation(math.radians(shot.get('studio_yaw',0)),4,'Z')
         for o,m in rest.items():o.matrix_world=xf@m;o.hide_render=visibility[o]
         for o in people:
@@ -121,9 +129,15 @@ def main():
                 if o.get('studio') and o.type in ['MESH','LIGHT']:o.hide_render=True
         sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=shot.get('exposure',a.studio_exposure) if not a.workbench else .3
         sc.render.resolution_x=a.width;sc.render.resolution_y=round(a.width/shot.get('aspect',1.65));sc.render.resolution_percentage=100
+        if a.crop:
+            x0,y0,x1,y1=a.crop;sc.render.use_border=True;sc.render.use_crop_to_border=True
+            sc.render.border_min_x=x0/sc.render.resolution_x;sc.render.border_max_x=x1/sc.render.resolution_x
+            sc.render.border_min_y=1-y1/sc.render.resolution_y;sc.render.border_max_y=1-y0/sc.render.resolution_y
         sc.render.image_settings.file_format='PNG';sc.render.image_settings.color_mode='RGBA';sc.render.film_transparent=bool(a.camera_file) or a.workbench or camera.data.type=='ORTHO' or shot.get('underside',False);bpy.data.objects['Studio seamless'].hide_render=sc.render.film_transparent
         sc.render.filepath=str((out/(name+'.png')).resolve());bpy.context.view_layer.update();bpy.ops.render.render(write_still=True)
         meta[name]=dict(shot,source=str(source),source_sha256=source_hash,render_recipe_sha256=recipe,stage='final exported GLB' if final else 'source detail and look-dev',paint=paint,lighting=lighting,engine=sc.render.engine,width=sc.render.resolution_x,height=sc.render.resolution_y,samples=a.samples,exposure=sc.view_settings.exposure)
+        if a.zebra:meta[name]['reflection_lines']=dict(spacing_m=.60,width_m=.13,count_per_rack=15,racks=['ceiling','wall'],mesh_normals=True,normal_map=False)
+        if a.crop:meta[name]['native_crop_pixels']=a.crop
         if a.camera_file:meta[name]['appearance_points']=appearance_points(camera,sc.render.resolution_x,sc.render.resolution_y)
         # Same-framing paint/geometry mask, independent of backdrop and floor.
         for o in rest:

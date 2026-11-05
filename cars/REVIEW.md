@@ -3329,3 +3329,52 @@ The sparse worst JPEG-edge difference is 12/255, rather than zero. Geometry
 regeneration is independently exact, including corner normals and assignments.
 The native repairs remain visible; no modeling, factory-factor or lighting
 change was made during this provenance refresh.
+
+## S240 R9 — rebuild the surfaces; image evidence is the gate
+
+### Pass 1 — reject R8's unchanged highlights and read the other bodies
+
+Color/value first: preserve the five accepted factors, front plaster and rear
+background-car neutral balances, gallery recipe, road film and lamp power.
+Opened R8's native front/rear heroes and details. The passenger windshield edge
+is still ragged; the roof/sail and deck/lamp corners are still crumpled; the
+lamp close-up still has sharp white shards. R8's geometric checks do not certify
+those images. Its "repaired" descriptions overstate what the crops show.
+
+Baseline GLB, native views and documentation are retained in
+`build/sedan-r9/before/`. Its SHA is recorded with the pickup in
+`build/sedan-r9/baseline.json`. The gallery-camera reflection-line baseline is
+`renders/sedan-r9-before-zebra/`. Diagnostic surfaces retain the real geometry,
+triangulation and corner normals, with no normal map; evenly spaced area strips
+replace the broad cards. Roof/sail folds and lamp breaks survive that ablation.
+
+Read the hatch and SUV surface modules and their rejected/accepted trials via
+`git show`, without checking out or merging their branches. They separate an
+optical mold from neighboring steel, pair both laminate normal fields, retain
+outside/back/rim provenance, and test physical chord direction as well as
+normal continuity. The SUV collar prevents long nearly collinear border fans;
+the hatch uses a smooth physical optical chart and feature-aligned body rows.
+Their reviews repeatedly reject a passing normal audit when the image fails.
+
+The sedan still derives its windshield normals from the rolled steel/A-pillar
+field, independently queries its reverse layer, and lets sparse glass chords
+interpolate those changing directions. Its upper stamping combines unrelated
+station heights, additive header/rear lifts and a protected fit boundary, then
+locally relaxes the result. That retains multiple curvature reversals under
+one broad reflection. The front cover and cutter use different projection
+planes at the hood/fender boundary, while the optical mold inherits the
+stamping's roll. Grille vanes derive each endpoint from an asymmetric faceted
+bed, rather than one mirrored manufactured curve.
+
+The first new upper-loft experiment and pane-local molds are development
+candidates only. They must be rejected if they merely change measurements or
+move a defect. Native finished crops and reflection lines of both source and
+export must show the repair before documentation is replaced.
+
+Development rejection: the first loft's radial remap narrowed the roof's
+B-post support, and the next used a canopy/belt ordering that crossed near
+the cowl. The unchanged inner-skin check rejects both; no failing assembly is
+accepted or hidden by a normal change. The new upper sections are ordered
+radially, with an explicitly measured transition above the retained shoulder.
+The first cubic lens trial needs 16 mm of extra recess and misses its paint
+flange; reject that mold too. A symmetric quartic mold is the next trial.
