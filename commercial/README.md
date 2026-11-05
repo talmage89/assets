@@ -1,5 +1,9 @@
 # Commercial / seeded corner gas stations
 
+The family's second type, the neighborhood strip center, is at its separate
+[four-seed form checkpoint](STRIP.md). Build it with `make strip`; gas-station
+modules and canonical outputs remain independent.
+
 **Exported surface and age checkpoint, awaiting lead review.** Four original
 1995–2010 American corner stations, maintained at about fifteen years in service.
 The accepted plans, dimensions, circulation, brands, moving parts and sockets

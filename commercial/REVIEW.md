@@ -520,3 +520,188 @@ image reuse and 25 current exported views. `make repeat` is byte-identical
 (73,894,428 bytes); both brands retain geometry, 196 frames and 24 embedded
 image payloads. The source manufacture fields also repeat byte for byte.
 No kit source changes. See README for exact per-part/export/map budgets.
+
+---
+
+## Neighborhood strip center — form checkpoint
+
+This section concerns only `strip_*.py` and `build/strip/`. The station's
+accepted construction and its separate look work are unchanged. All strip
+images import diagnostic GLBs with quick finishes and original graphics.
+No surface bake, final age, masonry relief or portfolio acceptance is implied.
+The Texas and California photographs are credited in refs/SOURCES.md;
+STRIP_REFERENCE.md separates authored dimensions from their sparse camera fits.
+
+### Strip pass 1 — reject expense, framing and type
+
+Evidence: `renders/strip/pass1/{hero,storefront,walk,pylon,rear}.png`, all
+opened individually. References: the used Texas shop row and California low
+center, also opened, with their neutral assumptions documented for later fits.
+
+**Color/value first.** Shaded glazing is appropriately dark, rather than pale
+blue/frosted panels. The first sky is too gray, and the smooth quick masonry
+cannot stand in for a used split-face block wall. Keep the material distinction
+honest: do not turn all concrete tan to copy the Texas photograph's paving.
+The form palette needs directional sunlight and shadow separation; no claim
+of material matching is made.
+
+**Rejects.** The unoptimized ten-bay building costs 92,196 triangles. Repeated
+tiny bevels consume that budget without changing player-distance silhouette.
+The hero clips the left return, and the near storefront camera cannot see
+the sign above the deep canopy. The first sign cells have the wrong aspect
+ratio, stretching their letters. Pale channel-letter inks on white pylon
+substrates are nearly unreadable.
+
+**Changes.** Retain silhouette radii, remove sub-4 mm edge breaks from the
+game construction, and reserve them for trim normals. Keep the same physical
+storefront depth/head/transom. Recompose with a fixed 40 mm level camera;
+move the detail camera far enough back to clear the shelter. Give fascia
+art its real narrow aspect, darken the channel-panel substrate and put all
+captions/addresses on the same new sheet.
+
+### Strip pass 2 — reject a merely passing plan
+
+Evidence: `renders/strip/pass2-camera/`, `renders/strip/pass2-L/`, the plan
+diagrams and the actual surface/motion reports. Every rendered view was opened.
+
+**Color/value first.** Sun/sky now creates a deep covered-walk band and
+recognizable cast column shadows. Asphalt stays dark gray; concrete stays
+neutral. The used photos still have much more material variation and wear.
+These remain future look work, not a reason to add a noise wash to this gate.
+
+**Rejects.** The L initially duplicates its corner walk and canopy, has an
+unsupported coping segment inside the elbow, and leaves the front parking
+aisle without a good exit. Counts alone also place some accessible aisles
+under columns or beyond the end of the building's actual walk. The first
+full motion check catches a real water-table collision across every entry
+bottom rail. After cutting that trim, it catches a second smaller collision:
+the door-hours notice was fixed in space while the leaf moved through it.
+The perimeter planting exclusions are holes until they receive actual skins.
+
+**Changes.** Miter the return canopy/walk, remove the internal floating cap,
+and reserve a cross aisle and turn flare outside the entire wing walk.
+Include covered walks, occupied vehicles, islands, sign and yard in pickup
+routes. Shorten upper L rows to keep the cross aisle usable. Select dispersed
+accessible groups that clear column/tower plinths and reach the real walk;
+probe the full ramp/landing width on actual source surfaces. Cut the entry
+opening to floor height and interrupt the water table at the jambs. Parent
+the notice to the leaf at its actual glass surface. Fill the perimeter beds.
+
+**Independent proof.** Four occupied-lot pickup route sets and representative
+car park/back-out paths pass. The source/native-curb comparison, ramp rays
+and raw/fresh GLB import are separate from the kinematic plan proof. Full
+5-degree entry/service/gate/lid sweeps have no contact exemptions.
+
+### Strip pass 3 — reject hidden signs and weak evidence
+
+Evidence: the first full 1600 px set, archived at
+`build/strip/review-pass3/`, and both used-photo pairs at
+`build/strip/review-pass3-matches/`. All sixteen main/family PNGs and both pairs
+were opened individually, including the original reference photos.
+
+**Color/value first.** The architecture mask has deep glazing and zero white
+clipping, with a dark-gray lot and neutral concrete. The rear and service
+views are too dark to inspect; use a rear-directed sun for those diagnostic
+views. Do not lighten the exported black door or metal to hide poor evidence.
+Both pairs make the remaining surface gap plain: our quick wall/roof/paving
+fields lack the photographs' manufacture and service history.
+
+**Rejects.** Entry towers obscure the first/last tenant wordmarks, echoing a
+failure already rejected on the station. Combined end leases repeat identical
+signs on each structural bay. A raceway crosses a subtitle. The overhead
+camera fits extents without centering them, wasting much of its frame on
+grass. Scale context is present in ordinary shots, and the house's first
+placement/grade hides its driveway; moving it must also keep it out of the
+station's footprint. Native near-side street continuations leave short gaps
+at the ends of the commercial frontage. A newly added tower-art rectangle
+also exposes a UV-transfer error: pixel coordinates were not normalized.
+
+**Changes.** Put affected tenant names on the tower's own face, use one sign
+per combined lease, keep a common physical graphic carrier, and move its
+raceway above the lettering. Add appropriately proportioned tower art to the
+same sheet and reject any out-of-range ink rectangle before export. Center
+and fit the above views using positive-depth imported bounds. Load the
+station/house/pickup only for the scale shot, keep their footprints separate,
+and cut presentation lawn around the split's actual descending drive. Clip
+native ground modules along their length at the property endpoints, retaining
+their cross section. No ground/shrub/house/car source or delivery is modified.
+
+**Photo critique.** The roughly 10 native-pixel fits compare a few framing
+stations, not entire surveyed centers. The Texas fascia/shelter and California
+metal mansard are different systems from our full covered walk and shingle
+alternative. Glazing divisions and period proportions are useful comparators;
+roof materials, exact bay width, local finish and light response are not
+accepted matches. Their neutral ROIs/gains remain disclosed. This gate must
+stop before trying to manufacture the missing used surfaces.
+
+### Strip pass 4 — fixed services, end closures and final form audit
+
+Evidence: all sixteen PNGs under `renders/strip/checkpoint/`, the three current
+`renders/strip/matches/*-pair.jpg` comparisons, and the assembled contact
+sheet were opened. Family rows run 201, 202, 203, 204. The provenance audit
+hashes all nineteen current exported views, their renderer and native context.
+
+**Color/value first.** Retain the same assumed photo neutrals: Texas white
+vehicle hatch, California sunlit gray sidewalk, with the generated gains/ROIs
+in `build/strip/references/balance.json`. The final hero's conservative
+architecture mask has Y′ p1 **.0149**, median **.2476**, p99 **.6322**, and
+**zero white clipping**. Covered glazing and column shadows stay deep, concrete
+reads neutral and asphalt dark gray. This checks the image's tonal range,
+not real albedos: the quick wall, roof, paving and service surfaces still lack
+the used photographs' manufacture, localized dirt and variation. Those flat
+fields remain conspicuously CG and are explicitly outside this form gate.
+
+**Rejects and fixes.** A well-lit service close-up exposed a fixed collision
+that moving-door sweeps could not detect: the original long meter bank crosses
+the first rain leader and service gear. Its first end-wall location also puts
+the dumpster yard in front of its access. Put the bank at the rear of the
+right end wall, with feet shaped to the wainscot/water table and risers meeting
+grade. Test its actual consolidated skin against every other source mesh,
+including the yard. Finite rays now test the full width of a 1.2 m outboard
+working corridor. The close-up then reveals a duplicated last-bay partition
+on the end-cap skin and an inward-facing right wall pack. Remove the redundant
+partition/finish and mirror the pack outward. The final service image has no
+striped coplanar panel, hidden meter faces or unsupported mounting feet.
+Rear-wall construction also retains its own reusable mesh root per bay.
+The mansard audit also catches columns inheriting the flat canopy's 3.46 m
+shaft top and protruding through the slope. Lower the shafts to 3.10 m and
+seat their capitals under the lower soffit. All ten actual shaft tops now
+measure 3.0999999 m, with the same triangle count.
+
+**Form judgment.** The 22/24 ft modules read as small tenants, with combined
+end leases and one name per lease. The 2.75 m storefront head and shallow
+transom keep the glass commercial in scale. Ten-foot walks have a useful
+column setback and continuous shelter; the mansard and arcade change the
+silhouette rather than just recoloring the flat front. Raised towers and
+coping interrupt the long parapet. Sign band, tower faces and pylon are
+readable, and original names/treatments remain distinct from the reviewed
+national chains. Cheap lit furnishing gives the windows room depth, though
+the repeated notices, flat rear partitions and rigid garment shapes remain
+weak at close range. End and rear walls are purposefully service construction,
+but their scalar finishes still look like blank blocks.
+
+**Parking and assembly.** Both entrances, both occupied aisles and the rear
+loop pass the pickup paths. The L uses its reserved cross aisle outside the
+covered return. Representative car parking/back-out passes with neighbors
+occupied; this does not certify every stall or simultaneous traffic. All four
+plans retain six unobstructed van-sized spaces and exclusive aisles. Actual
+ramp/landing rays clear column bases. All **2,040** sampled door/gate/lid poses
+have zero measured penetration without contact exemptions. The bank has zero
+measured interference, about **85 mm** cabinet standoff, **.49–.50 mm** foot
+assembly gaps, and **324** clear working-area rays per seed. Its end-wall
+working space is measured separately from GLB serialization.
+
+**Gate limits.** The scale shot keeps the station, split-level and pickup at
+their native meter scale on separate footprints. Overhead views reveal the
+Ground family's repeated road-repair patch; flag that shared pattern rather
+than modifying Ground here. Rear service landings are less developed than
+the accessible front walk. Period research adds a third pair: the Virginia
+brochure states 1989 construction / 2015 renovation; Texas has a published
+secondary-record date of 2002. California remains an older auxiliary. The
+Virginia fit uses one clear pane at only 1164 px native width and .30 px RMS;
+its hipped pavilions differ from our flat towers. The tiny white fascia-trim
+neutral is disclosed. A first yellowish pavement ROI turned the photograph
+too blue and was rejected; no material was tuned to that cast. All three
+fits remain unsurveyed type comparisons. Final masonry/shingles, weathering, sign optics,
+material consolidation and baking are still pending. Stop at the requested
+form checkpoint; no portfolio docs images are committed.

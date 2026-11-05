@@ -1,5 +1,19 @@
 # Shared commercial maps — exported surface checkpoint
 
+The strip center's form build uses quick scalar materials and one original
+2048² RGBA sign sheet, **5⅓ MiB** with 8-bpp block compression/full mips.
+It holds all tenant/center names, window notices, addresses and parking text;
+tenants change through UV selection without geometry or per-seed maps. Stock
+Boxwood reuses its existing **16 MiB** triple. No strip surface bake is done.
+
+For the later look, the strip shares the sets below, adding only that sign
+sheet: **45 MiB new commercial family allocation** including the gas brands,
+or **109 MiB** with the existing ground/lawn/shrubs. Mansard variants also
+reuse HouseShingles, the houses' unchanged **16 MiB** triple. That is an
+existing allocation, not a new commercial texture. The simple visible room
+furnishings need no interior sheet. These are plans, not final strip delivery
+or draw-call acceptance; see [STRIP.md](STRIP.md).
+
 Manufacture fields are generated at 4096, GPU Cycles flat-baked at 4096 and
 filtered to the sizes below, following houses' shared external-image delivery.
 Original typography/marks are rasterized at 4096 and filtered in premultiplied
