@@ -25,8 +25,9 @@ def main():
     details=[folder/(name+'.png') for name in ('storefront','walk','tower','pylon','rear','services')]
     review_sheet([family[i:i+2] for i in range(0,len(family),2)],folder/'family.jpg',width=1600,title='Strip center / four form seeds')
     review_sheet([details[i:i+2] for i in range(0,len(details),2)],folder/'details.jpg',width=1600,title='Strip center / construction details')
-    review_sheet([[pairs/'commerce-pair.jpg'],[pairs/'sunnyvale-pair.jpg']],pairs/'pairs.jpg',width=1600,title='Strip center / sparse fitted comparisons')
-    review_sheet([[folder/'hero.png'],* [family[i:i+2] for i in range(0,len(family),2)],*[details[i:i+2] for i in range(0,len(details),2)],[folder/'scale.png'],[pairs/'commerce-pair.jpg'],[pairs/'sunnyvale-pair.jpg']],folder/'contact.jpg',width=2000,title='Strip center / exported form checkpoint')
+    pair_rows=[[pairs/(name+'-pair.jpg')] for name in ('commerce','sterling','sunnyvale')]
+    review_sheet(pair_rows,pairs/'pairs.jpg',width=1600,title='Strip center / sparse fitted comparisons; California is an older auxiliary')
+    review_sheet([[folder/'hero.png'],* [family[i:i+2] for i in range(0,len(family),2)],*[details[i:i+2] for i in range(0,len(details),2)],[folder/'scale.png'],*pair_rows],folder/'contact.jpg',width=2000,title='Strip center / exported form checkpoint')
     out=Path('build/strip/view-check.json');out.write_text(json.dumps(dict(passed=True,views=len(records),rows=records,scope='Every checkpoint image hashes its current diagnostic GLB, renderer, native ground and optional scale context. No final surface/bake acceptance.'),indent=2)+'\n')
     print('STRIP VIEW AUDIT',len(records),'current exported views; sheets ready')
 

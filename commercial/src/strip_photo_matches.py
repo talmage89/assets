@@ -1,8 +1,9 @@
-"""Sparse storefront fits to two used strip-center photographs.
+"""Sparse storefront fits to three used strip-center photographs.
 
 Bay dimensions are our original authored comparators, not surveyed widths of
 these buildings. Held-out roof, sign, parking and construction differences stay
-visible. Native-coordinate picks derive from a documented 1400px inspection.
+visible. Wikimedia picks derive from a 1400px inspection; brochure picks use
+its native 1164px JPEG. The older California center is auxiliary context.
 """
 import sys
 from pathlib import Path
@@ -29,12 +30,21 @@ sunnyvale=[point(world,tuple(v*factor2 for v in pixel),label) for world,pixel,la
     ((xr2,front2,2.75),(516,606),'masonry/frontage station, upper right'),
     ((xr2,front2,.1524),(516,712),'frontage station, pavement right'),
     ((xl2,front2,.1524),(214,709),'frontage station, pavement left'))]
+m3=p['modules'][1];xl3=xl+m3['origin'][0]-m['origin'][0];xr3=xr+m3['origin'][0]-m['origin'][0];fy=m3['origin'][1]-.04
+sterling=[point(world,pixel,label) for world,pixel,label in (
+    ((xl3,fy,2.75),(1083,272),'clear right-pavilion window upper left'),
+    ((xr3,fy,2.75),(1114,273),'clear right-pavilion window upper right'),
+    ((xr3,fy,.27),(1114,322),'clear right-pavilion window lower right'),
+    ((xl3,fy,.27),(1083,321),'clear right-pavilion window lower left'))]
 MATCHES={
     'commerce':dict(title='Used Texas row / storefront height, bay subdivision and sign fascia',photo='build/strip/references/commerce-neutral.png',crop=(500,1150,5200,3250),
                     location=(m['origin'][0]+12,front-18,1.65),target=(m['origin'][0]+3,front,2.3),lens=36,lens_bounds_mm=(24,100),camera_height_m=(1.65,.35),landmarks=commerce,background='transparent',exposure=-.15),
     'sunnyvale':dict(title='Used California row / mansard, glazing and masonry piers',photo='build/strip/references/sunnyvale-neutral.png',crop=(100,1350,3350,2350),
                      location=(m2['origin'][0]+7,front2-25,1.65),target=(m2['origin'][0]+4,front2,2.5),lens=38,lens_bounds_mm=(24,100),camera_height_m=(1.65,.35),landmarks=sunnyvale,background='transparent',exposure=-.15),
+    'sterling':dict(title='Documented 1989 Virginia center / glazing, shelter and entry punctuation',photo='build/strip/references/sterling-neutral.png',crop=(600,170,1164,350),
+                    location=(m3['origin'][0]+25,fy-55,1.65),target=(m3['origin'][0],fy,2.3),lens=40,lens_bounds_mm=(24,100),camera_height_m=(1.65,.35),landmarks=sterling,background='transparent',exposure=-.15),
 }
-PAIR_SEEDS=dict(commerce=201,sunnyvale=202)
+PAIR_SEEDS=dict(commerce=201,sunnyvale=202,sterling=201)
 LIGHTING=dict(commerce=dict(sun_direction=(.65,.25,-1),sun_energy=3.0,sky_strength=.06,sky_saturation=.60),
-              sunnyvale=dict(sun_direction=(.30,.15,-1),sun_energy=3.2,sky_strength=.035,sky_saturation=.85))
+              sunnyvale=dict(sun_direction=(.30,.15,-1),sun_energy=3.2,sky_strength=.035,sky_saturation=.85),
+              sterling=dict(sun_direction=(-.50,.40,-1),sun_energy=3.2,sky_strength=.04,sky_saturation=.75))

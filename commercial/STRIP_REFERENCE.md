@@ -1,9 +1,10 @@
 # Neighborhood strip center — form reference
 
 Original 1985–2005 construction vocabulary, maintained after roughly 15–25
-years. Photos establish the vocabulary and visible service condition; neither
-reference building has a verified construction year. They are comparators,
-not surveyed properties. The generated tenants, signs and plans are original.
+years. The Virginia brochure states 1989 construction; a published property
+record reports 2002 for the Texas row. California is an older auxiliary,
+excluded from period proof. These are comparators, not surveyed properties.
+The generated tenants, signs and plans are original.
 
 | Dimension | Published comparator | Authored choice |
 | --- | --- | --- |
@@ -39,19 +40,38 @@ access, delivery-truck turning, tire dynamics or drainage design.
   darkness and room depth. A narrow empty-bay window supplies four sparse
   anchors. The photo has a much shallower shelter and a metal fascia rather
   than our freestanding full covered walk. Its warm finish is not copied.
+  The photographed commercial row is reported as built **2002** by
+  [CountyOffice's published property record](https://www.countyoffice.org/live-oak-st-commerce-tx-property-records/).
+  This is a secondary public-record aggregator, not independent assessor verification.
+- **Virginia center, built 1989**, Bernstein Management Group's September
+  2016 [Sterling Village brochure](https://0201.nccdn.net/1_2/000/000/0f2/4b8/3-page-flyer-Sterling-Village-Center_9-16-16--1-.pdf),
+  p.1. The same page states a 2015 renovation. Photographer is unnamed and no
+  open license is stated; the extracted original JPEG stays in ignored build
+  comparisons. A clear right-pavilion window supplies four anchors. Inspect
+  the fascia, shelter, glazed height and raised entry punctuation; its hipped
+  metal pavilions differ from our flat towers. Cars, stitching and low JPEG
+  resolution limit its precision. No site-plan drawing is traced or used.
 - **California used low center**, Yngvadottir, CC BY-SA 4.0. Description says
   2018, EXIF says 2011; neither is a construction date. Inspect the steep
   mansard, masonry separators, independent signs, shaded glazing and bed.
   Our mansard is asphalt shingles, while the photo's roof is standing-seam
   metal. The material difference is held out, not disguised as a match.
+  A later property-year search indicates an older center. Keep this solely
+  as auxiliary vocabulary; it does not establish 1985–2005 construction.
 
 The Texas neutral is white vehicle hatch paint, excluding identification,
-glass and lamps. The California neutral is the sunlit gray public sidewalk.
+glass and lamps. Virginia uses the white painted fascia's lower trim beside
+the left pavilion, excluding teal paint/glazing. Its tiny JPEG ROI makes
+that balance tentative. An initially selected yellowish sidewalk patch gave
+an excessive blue correction and was rejected after inspection. California's
+neutral is the sunlit gray public sidewalk.
 Native ROIs, linear RGB gains and hashes are generated in
 `build/strip/references/balance.json`. These are assumed neutrals, not gray
 cards or recovered albedos. The kit fits camera pose/lens to four landmarks
-per photo and independently checks projection in Blender. Both are weak,
-approximately 10 native-pixel RMS type comparisons. Low residual alone
+per photo and independently checks projection in Blender. Texas/California
+are weak, approximately 10 native-pixel RMS type comparisons. Virginia's
+39.2 mm fit is .30 native-pixel RMS on one low-resolution pane; that small
+residual does not make its unsurveyed measurements stronger. Low residual alone
 cannot prove their unsurveyed bay widths, our whole plan, or exact finishes.
 Procedural sun/sky directions are estimated from the photographs' shadows.
 

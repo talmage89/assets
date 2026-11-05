@@ -15,7 +15,7 @@ $(STRIP_MODELS) &: $(STRIP_GEOMETRY) src/geometry.py src/building.py src/equipme
 	$(BP) --python src/strip_build.py -- --seeds $(STRIP_SEEDS) --out build/strip $(if $(STRIP_PLAN),--plan $(STRIP_PLAN))
 strip-model: $(STRIP_MODELS)
 strip-refs:
-	$(PYTHON) $(KIT)/fetch_refs.py refs --only strip-commerce.jpg strip-sunnyvale.jpg
+	$(PYTHON) $(KIT)/fetch_refs.py refs --only strip-commerce.jpg strip-sunnyvale.jpg strip-sterling.pdf
 strip-check: strip-model ../ground/export/Ground.glb
 	$(PYTHON) src/strip_check_plan.py
 	$(BP) --python src/strip_check.py -- --seeds $(STRIP_SEEDS)
@@ -36,10 +36,10 @@ strip-render: $(STRIP_IMAGES)
 build/strip/cameras.json: src/strip_photo_matches.py src/strip_plan.py src/strip_refs.py $(KIT)/photo_match.py | strip-refs
 	$(PYTHON) src/strip_refs.py
 	$(PYTHON) $(KIT)/photo_match.py solve --config src/strip_photo_matches.py --out $@
-renders/strip/matches/commerce-pair.jpg renders/strip/matches/sunnyvale-pair.jpg &: $(STRIP_MODELS) src/strip_render.py src/strip_photo_matches.py build/strip/cameras.json build/strip/render-parameters.txt | strip-context
+renders/strip/matches/commerce-pair.jpg renders/strip/matches/sunnyvale-pair.jpg renders/strip/matches/sterling-pair.jpg &: $(STRIP_MODELS) src/strip_render.py src/strip_photo_matches.py build/strip/cameras.json build/strip/render-parameters.txt | strip-context
 	$(KIT)/with_gpu.sh $(BP) --python src/strip_render.py -- --matches --width $(WIDTH) --samples $(SAMPLES)
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/strip/cameras.json --renders renders/strip/matches --out renders/strip/matches
-strip-match: renders/strip/matches/commerce-pair.jpg renders/strip/matches/sunnyvale-pair.jpg
+strip-match: renders/strip/matches/commerce-pair.jpg renders/strip/matches/sunnyvale-pair.jpg renders/strip/matches/sterling-pair.jpg
 strip-review: strip-render strip-match
 	$(PYTHON) src/strip_review.py
 strip-repeat: strip-model
