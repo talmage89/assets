@@ -19,6 +19,7 @@ context: build/context.json
 check: check-surfaces
 check-surfaces: model
 	$(BP) --python src/check.py
+	$(BP) --python src/render.py -- --validate-only
 
 build/matched-cameras.json: src/photo_matches.py $(foreach s,101 104,build/street-$(s).json)
 	$(PYTHON) src/photo_matches.py $@
