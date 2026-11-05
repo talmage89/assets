@@ -37,7 +37,7 @@ def measure(ob):
         dot=cross.normalized().dot(sum(ns,Vector()).normalized());dots.append(dot)
         if dot<0:negative.append(dict(area_m2=area,dot=dot,center_m=list((a+c+d)/3)))
         for i,n in zip(ids,ns):by_point.setdefault(tuple(round(v,7) for v in ps[i]),[]).append(n)
-    continuous=ob.get('part_category') in ['body','doors','fascia','pillars','glass']
+    continuous=ob.get('part_category') in ['body','doors','fascia','pillars','glass'] or ob.name.startswith(('Headlamp opening','Taillamp opening'))
     jump=0.
     if continuous:
         for ns in by_point.values():
@@ -61,6 +61,24 @@ def measure(ob):
     return row
 
 
+def grille_measure(obs):
+    """Measure mirror pairs on the actual vanes, including imported delivery."""
+    from mathutils.kdtree import KDTree
+    vanes={int(o.name.rsplit(' ',1)[-1]):o for o in obs if 'Low wide grille opening cascade vane ' in o.name}
+    if len(vanes)!=17:raise ValueError('Missing manufactured grille vanes')
+    pairs=[]
+    for index in range(9):
+        a,b=vanes[index],vanes[16-index]
+        target=[b.matrix_world@v.co for v in b.data.vertices];tree=KDTree(len(target))
+        for i,p in enumerate(target):tree.insert(p,i)
+        tree.balance();errors=[]
+        for v in a.data.vertices:
+            p=a.matrix_world@v.co;p.x=-p.x;errors.append(tree.find(p)[2])
+        pairs.append(dict(vanes=[a.name,b.name],maximum_mirrored_vertex_error_m=max(errors)))
+    return dict(passed=max(r['maximum_mirrored_vertex_error_m'] for r in pairs)<1e-5,
+        pairs=pairs,scope='Actual vane vertices reflected across the vehicle center plane; no authored die constants substituted for measurements')
+
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--glb');p.add_argument('--out',required=True);a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
     triangle=[Vector(p) for p in [(0,0,0),(1,0,0),(0,1,0)]]
@@ -71,7 +89,10 @@ def main():
         bpy.ops.wm.open_mainfile(filepath=str(Path(a.source).resolve()));correspondence=None
         obs=[o for o in bpy.context.scene.objects if o.type=='MESH' and o.get('part_category') in CATEGORIES]
     rows={o.name:measure(o) for o in obs};failed=[name for name,row in rows.items() if not row['passed']]
+    grille=grille_measure(obs)
+    if not grille['passed']:failed.append('Grille mirror curvature')
     report=dict(passed=not failed,failed_parts=failed,parts=rows,delivery_correspondence=correspondence,
+        grille_curvature=grille,
         source_sha256=hashlib.sha256(Path(a.source).read_bytes()).hexdigest(),glb_sha256=hashlib.sha256(Path(a.glb).read_bytes()).hexdigest() if a.glb else None,
         scope='Actual triangle winding versus exported corner normals, normal continuity at shared positions, and exact back/outer triangle crossings; source and delivery checked independently',
         numerical_sliver_area_m2=1e-8,shared_normal_difference_tolerance=1e-3)

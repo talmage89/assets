@@ -292,21 +292,31 @@ The table below measures our actual surfaces and pivot centers.
 | Front lower tuck / rear lower tuck | 133.9 / 189.5 mm |
 | Rear departure ground tangent | 18.04°, against the cited 17.5° class cross-check |
 
-The hood, fenders, doors, roof, sails, deck and fascias derive from one supported
-Catmull–Clark sheet, subdivided before its panels/openings are cut. Outer skins
-have 0.9 mm steel gauge; molded fascias 3 mm; glazing 4.8 mm. The control
-section stays monotone before its surface fit, removing collapsed shoulder
-ribbons. Glazing recesses normally beneath its separate seals; it is
-not distorted by a tangential panel inset. Openings clip the actual game facets
-without lifting only their new vertices onto a different surface. The hood's
-lamp cuts use its XY manufacturing plane and final laminate footprint.
+The upper stamping is rebuilt as one C2 die through fair longitudinal
+sections. A regular chart evaluates that die before the roof, sail, backlight,
+deck, hood and lamps are cut; the accepted lower construction retains its
+subdivision sheet. Steel gauge is nominally 0.9 mm, fascias 3 mm and glazing
+4.8 mm. The game mesh samples the nose/deck rolls and shoulder in physical
+coordinates aligned with their bends. Fine lower molding allocation preserves
+cut boundaries and bounds sampled deviation against the original sheet.
 
-Inner backs are triangulated and checked against the actual outer triangles,
-including exact crossings. Their reduction preserves the hinge and gas-support
-spaces. Mean-curvature maps, reflection stripes and independent surface checks
-cover all 420 parts in seventeen categories on both the source and freshly
-imported GLB, including glass, grille, lamps, arches and tires. Source names select parts; delivery geometry and corner normals supply the
-geometric proof. Native before/after crops separately judge the baked materials.
+The windshield has its accepted physical base/header outline, independent of
+cage column widths, and its own smooth optical crown. Both laminate faces
+share its analytic derivatives. An inward collar and injective triangulation
+avoid border fans. The backlight and swept lamp covers also use their own
+optical molds; glass and coated paint retain continuous mesh normals without
+a quantized tangent-normal texture binding. The material factors, road film,
+five paints and gallery lighting are unchanged.
+
+Lamps and their stamping use one physical perspective chart. Its cut
+intersections use perspective-correct weights on the original game edges.
+Molded lips and overlapping mounting lands seat the covers on the real cut
+steel; the cassette's back closes its actual rim. All vanes in the grille
+follow one mirror-symmetric die. Shared-corner normal continuity, actual
+facet winding, gauge containment and measured grille mirror pairs are checked
+independently on source and imported delivery geometry. These measurements
+prove construction and serialization. Native before/after crops and evenly
+spaced gallery reflection lights separately judge the appearance.
 
 The 1211 / 1268 mm backlight, broad sails, integrated deck lip, convex bumper,
 153 mm class taillamps and 320 × 170 × 26 mm plate pocket retain the accepted
@@ -495,7 +505,8 @@ additional packages are needed. This round changes no kit or pickup source file.
 | `renders/sedan-used-pairs/` | Sun/sky-matched, white-balanced used-class pairs and measured patches |
 | `renders/sedan-panels/*-comparison.jpg` | Actual GLB curvature and both reflection directions, seven views including face and wheel |
 | `renders/sedan-panels/source/` | The same expanded measurements and views on the source |
-| `renders/sedan-surface-repair/` | Captured native-size earlier/revised delivery crops and their camera/provenance record |
+| `renders/sedan-surface-repair/` | Native R8/R9 export comparisons, each crop at least 800 px wide, with camera/provenance records |
+| `renders/sedan-reflection-lines/` | Gallery-camera zebra lights on the actual source and exported surfaces |
 | `renders/sedan-eevee/` | Eevee export view |
 | `renders/sedan-detail/checkpoint.jpg` | Combined gallery, pairs and motion review |
 

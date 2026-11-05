@@ -7,15 +7,12 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
 from kit.fonts import find_font
 
 REGIONS=[
- ('windshield','front_three_quarter',(790,335,920,505)),
- ('backlight-sail','rear_three_quarter',(300,300,860,510)),
- ('hood','face',(180,0,1430,325)),
- ('grille','face',(15,310,1515,780)),
- ('lamp-cut','front_three_quarter',(500,455,835,635)),
- ('road-film-white','Porcelain_front',(820,480,1210,660)),
- ('road-film-silver','Aluminum_rear',(710,470,1140,665)),
- ('wheel','wheel',(310,30,1460,1310)),
- ('arch-lip','wheel',(120,180,530,1160)),
+ ('windshield','front_three_quarter',(460,250,1260,700)),
+ ('roof-sail','front_three_quarter',(600,240,1400,620)),
+ ('backlight-sail-deck','rear_three_quarter',(160,260,960,700)),
+ ('hood-lamp-corner','front_three_quarter',(120,390,920,820)),
+ ('lamp-cut','face',(0,0,1600,650)),
+ ('grille','face',(0,250,1600,950)),
 ]
 
 def main():
@@ -31,6 +28,7 @@ def main():
   ims=[Image.open(f).convert('RGB') for f in paths]
   if ims[0].size!=ims[1].size:raise ValueError('Before/after framing resolution differs: '+name)
   crops=[im.crop(box) for im in ims];w,h=crops[0].size
+  if w<800:raise ValueError('A native comparison crop must be at least 800 px wide')
   pair=Image.new('RGB',(2*w,h+40),(230,232,230));d=ImageDraw.Draw(pair)
   for i,(im,text) in enumerate(zip(crops,['Before','After GLB'])):
    pair.paste(im,(i*w,40));d.text((i*w+8,8),text,font=font,fill=(25,35,40))

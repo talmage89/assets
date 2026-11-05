@@ -3378,3 +3378,209 @@ accepted or hidden by a normal change. The new upper sections are ordered
 radially, with an explicitly measured transition above the retained shoulder.
 The first cubic lens trial needs 16 mm of extra recess and misses its paint
 flange; reject that mold too. A symmetric quartic mold is the next trial.
+
+### Pass 2 — reject the first finished source views and spend on physical chords
+
+Color/value first: retained the accepted Atlantic/Graphite factors, gallery
+exposure, film and cavity values. Opened both actual used photographs and the
+credited catalog rear reference again, balanced on the same front plaster/rear
+background-car neutrals. The source is still a dark blue used car; no paint or
+lighting adjustment is a surface repair. The source-only comparisons do not
+certify the eventual baked appearance.
+
+Opened every image in `sedan-r9-pass2`, `sedan-r9-pass3`, the reflection-only
+windshield crop, and both `sedan-r9-dense-glass-zebra` views. The lamp cover now
+reads as a continuous shell, but the first sources are rejected: the windshield
+softbox edge and the painted sail still have straight stepped segments. The
+rear lamp's deepest bed/return also produces unsupported-looking fragments.
+Replace normal-flow tail-cassette offsets with an inward horizontal draw and
+ruled backing; retain the existing emitters, projector construction and power.
+
+A same-mesh, reflection-only windshield ablation retains its segmented edge:
+this is not the cabin transmitted through the glass. Pane-local smooth normals
+alone do not resolve their sparse triangle interpolation. The dense optical
+trial changes the image: `sedan-r9-dense-glass/front_three_quarter.png` has a
+curved main softbox edge. Its 2,366/1,149 outer windshield/backlight triangles
+are too expensive, so reject that allocation and use reflection-error-driven
+chords at a less excessive threshold. The 66,430-triangle trial is explicitly
+not a delivery candidate.
+
+Actual pixel rays identify the rear white step as `Greenhouse_L` at approximately
+(-.695,1.519,1.161) m, not a normal-map artifact on the glass. Neighboring samples
+are the same painted sail; the glass point at (-.610,1.519,1.170) m is separate.
+The new C2 die requires physical section-aligned game rows through that painted
+zone, as the hatch's shoulder pass demonstrated. Holding the old coarse cage
+chords cannot prove a fair reflection merely by evaluating a better normal.
+
+The first common perspective polynomial is also rejected as an optical mold:
+its long narrow domain makes its fit poor and produces excessive seating.
+The current trial uses local C2 radial/height sections, fixed source anchors
+at both densities, and one shared tail mold intersected with the physical lid
+plane. Its fit condition is about 46; residuals and seating are recorded per
+cover. Both sides are manufactured from the same mirrored guides.
+
+Independent form checks catch two regressions rather than approving the new
+look: removing the old radial stretch shortened the backlight, and the first
+polar front guide made the lamp return too long. Define the backlight's base
+as the physical Y=1.970 m cut and shorten the guide's azimuth span. Retain all
+original dimensional gates; do not widen them to admit these mistakes.
+
+A coplanar cut-fragment merge produces a non-sheet edge and is rejected and
+removed. Recover allocation from shallow lower moldings instead, with fixed
+cut boundaries, topology link checks, and sampled deviation against their
+original surfaces. The initial near-planar pass measures 0.486 mm front and
+0.640 mm rear; conservative interior allocation and its final independent
+surface checks remain in progress. No docs image has been replaced.
+
+### Pass 3 — follow the manufactured bend; reject an over-budget optical trial
+
+Color/value first: Atlantic paint remains dark blue, with deep grille, wheel
+and cabin cavities under the held gallery exposure. The source crops retain
+R8's lower road film. No paint factor, light power or broad-card position was
+changed. This pass judges source geometry; the exported/baked pairs still have
+to repeat the appearance check.
+
+Opened every pass-4/pass-5/pass-6 gallery and zebra view, plus the native
+reflection-only and quadratic-pane trials. Pass 5 still scallops along the C
+sail and is rejected. Actual dense-parent queries show that a new sail sample
+is only 0.90 mm from the dense stamping but 28 mm from the old game chord. The
+first radial grid improves position yet crosses the roof-rail bend diagonally.
+The hatch's physical shoulder coordinates explain the remaining interpolation
+error: sample in `(Y, abs(X)-rail(Y))`, with closer rows through the roll. The
+pass-6 sail's broad reflected edge is now continuous and its zebra stripes
+follow the same turn. This is visible in `sedan-r9-pass6/rear_three_quarter.png`
+and `sedan-r9-pass6-zebra/rear_three_quarter.png`, unlike the rejected crops.
+
+The windshield's cubic fit retains an S-shaped parent transition and a hooked
+lower reflection. A manufactured quadratic crown removes that inflection;
+`sedan-r9-wind-quad/front_three_quarter.png` changes the ragged edge to a clean
+bounded reflection. Its independent mold must seat on an actual urethane
+mounting bead rather than inherit the A-pillar's tight steel roll. The pane's
+own entrance/exit derivatives and physical collar are retained. The quadratic
+backlight trial fits poorly (21 mm maximum residual) and is rejected; its
+six-term C2 optical sag fits within 5.2 mm and is retained.
+
+The former tail housing clamps every ring at 607 mm while its cover ends at
+612.75 mm: actual rear pixel rays see the seat through that unsupported edge.
+Only the hidden cassette now narrows for clearance. The lip reaches the cover,
+the split edge closes behind the cover, and a real connected mounting flange
+reaches the cut stamping. Tail guide paths follow the same ordered rows and
+horizontal draw as their mold. Front lamps use a 12 mm mounting land; the tail
+wrap's 25 mm land accommodates its narrow forward tip. These rings are modeled
+and their distances measured, rather than treating an empty gap as support.
+
+The 60,340-triangle pass-6 trial is rejected for delivery despite the improved
+sail. Its backlight refinement spends on optical curvature that already reads
+smooth; retain the independently tested 0.15-degree/0.8 mm backlight limits.
+The simple windshield crown also avoids unnecessary cubic refinement. Shared
+position normal continuity, facet winding, back containment and measured grille
+mirror pairs pass on that source trial; those checks are construction evidence,
+not a substitute for the displayed comparison.
+
+### Pass 4 — common physical dies, correct projective cuts and a seated cover
+
+Color/value first: retained the same paint factors, clean coating response,
+used lower film, neutral balances and gallery recipe. Opened the pass-7/pass-8
+source heroes, face and both zebra cameras, the deck-rebuild crop, and the
+normal/underlap and exact-loft trials at native size. The windshield's edge and
+sail have changed visibly. The deck corner remains unacceptable in those
+trials; direct die evaluation alone does not remove its white marks, so it is
+not credited as that visual repair.
+
+The first narrow rail experiment also altered the accepted door shoulder.
+Independent sections reject it. The revised longitudinal rail restores actual
+front/B/rear shoulder heights near 910/922/930 mm, upper lean around 20 degrees
+and the lower shoulder lean near 4.6 degrees. The old physical windshield
+outline is measured from our earlier generated source: about 1670 mm at its
+base and 1347 mm at its header. Cage columns had narrowed the new base and
+widened its top into the pillar roll. Cut that real outline before separating
+the stamping, then manufacture the pane's own gently crowned optical mold.
+Its source fit now remains within about 3 mm, with a real urethane mounting bed.
+
+The hood/nose and rear deck also need physical game chords, not only the sail.
+Both densities sample the SAME uncut die for their lamps. Sampling the already
+split game shell had changed the low/high molds and could hit a real lid gap.
+Upper nose/deck rows follow their end contours; fenders/quarters use an
+injective radial chart around the side. The first XY fender chart folds under
+the shoulder and fails the unchanged winding/containment checks; reject it.
+The radial replacement passes those checks. The deck, quarters and sail now
+sample the common parent before their optical cuts.
+
+The perspective cutter had another concrete error: it interpolated a 3D edge
+with its 2D projective fraction. Correct rational weights keep each new vertex
+on both its original edge and its actual cutting ray. The old affine error
+measures up to 4.63 mm on the front fender; corrected ray residual stays below
+0.66 micrometers in the recorded candidate. No cut intersection is lifted out
+of its original facet plane.
+
+The tail cassette's back must close its actual curved rim, rather than join
+only the first/last guide rows. Its rear draw becomes axial at the split seam
+to keep the moving and fixed halves apart. A nearest mounting ring ending
+exactly at the cut is also insufficient: the flange needs a nominal 6 mm
+underlap beneath the steel. An excessively subdivided nearest-ring experiment
+costs 63,836 triangles and still leaks; reject it. Model the overlap and the
+closed cup instead. Front/rear mounting land limits are 18/30 mm; actual spans
+are measured from their generated rings.
+
+Finally, the inherited optical-blank convention puts guides 4 mm OUTSIDE the
+steel. A roughly 2–4 mm radial mold allowance does not undo that outward offset
+at the deck roll. It lets the cover stand above the painted edge despite a
+metadata recess. The hatch's physical optical construction explicitly seats
+its mold inward. The new candidate starts 3 mm inside the actual die; its
+measured rear cover vertices are 4.29–13.61 mm inside the nearest steel plane.
+This is a geometry measurement against the uncut stamping, not the authored
+recess constant. The next native crop must show that change before acceptance.
+
+The upper die is evaluated directly before cuts so subdivision approximation
+cannot supply inconsistent steel/optical phases. A residual check exposed a
+hard front/rear parameter switch at Y=0; use C2 transitions for blend radius and
+section exponent, plus smooth hood draw endpoints. The latest exact evaluation
+has a 0.133 micrometer maximum field residual. That rigor is retained, while
+its isolated trial's unchanged rear image is explicitly not called a fix.
+
+### R9 pass 5 — physical openings and feature-aligned game chords
+
+Color/value first: retain the accepted factory factors, neutral balance,
+gallery lights and directional road film. The source crops retain deep glass,
+grille and wheelwell shadows with rolling painted highlights. No exposure or
+roughness change is used to hide the defects.
+
+The decisive rear change is the quarter's game triangulation: Y / height
+relative to its upper draw, with 7 mm rows through the roll. The radial mesh
+still produced crumpled white reflections at 512 samples; the aligned rows
+remove them. Applying that height chart to the shallow FRONT fender made
+95 mm transverse chords and zipper highlights. Reject that trial. The front
+retains its injective radial chart; the rear uses the aligned height chart.
+The sail independently uses Y / X relative to the roof rail. Each chart samples
+the same manufactured C2 parent before cutting the optics.
+
+The full mechanical sweep then exposed an inherited material-row boundary:
+it narrowed the new hood to about 1.24 m near Y=-1.30, leaving fixed fender
+steel over the accepted hood struts. Restore the accepted physical hood plan
+(about 1.54 m at Y=-1.355, flaring to 1.68 m beside the cowl) independently of
+cage columns. The struts now pass without moving their mounts, axes or range.
+The upper hinge's hidden gauge keeps its local sampling. Closed side-window
+trim uses pane-oriented sections and a true closed loft, avoiding transported
+section flips and negative signed volume. Its front brightwork seats 3 mm
+inside the actual pane border. All source motion checks pass on that candidate.
+
+Resample the full hood and front fenders after restoring their physical cuts;
+retaining old cage triangles aft of Y=-1.35 wasted geometry and made cowl
+highlights wavy. Keep close rows at the optical rolls and use 80/90 mm chords
+on broad hood regions. Cover chords are independently bounded below 56 mm.
+The candidate is 59,926 triangles, below the accepted 59,930 allocation. The
+source crops and stripes are a gate before any baked delivery claim; finals
+and native before/after comparisons follow the clean rebuild.
+
+The 59,926-triangle trial's full motion sweep caught one final closed-hood
+contact with the new windshield adhesive bed (1.27 mm). Its bed had selected
+the moving hood as a mounting surface. Reject that attachment. The hood's
+rear cut now leaves a narrow fixed cowl land below the windshield, and the
+adhesive's support query excludes the hood. This is a structural fit correction,
+not an exception added to the motion checker; the same sweep must pass.
+
+The fixed cowl passes both the full motion sweep and the independent evaluated
+support sweep with their original tolerances and contact lists. Broad hood
+chords are about 90 mm; its optical roll keeps the close longitudinal rows.
+The final source candidate is 59,812 triangles. Construction, source normals,
+mechanical clearance and reflection stripes are checked before the clean bake.

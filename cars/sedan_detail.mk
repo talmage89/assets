@@ -1,6 +1,7 @@
 # Detail replaces proxies, then ships one atlas and imported-GLB checkpoint views.
 SEDAN_CONFIG := src/sedan_detail_config.py
 DDEPS := src/sedan_detail.py src/sedan_hardware.py src/sedan_exterior.py src/sedan_interior.py src/sedan_underbody.py src/sedan_finishes.py src/sedan_colors.py src/sedan_spec.py src/finishes.py src/wheels.py src/build.py src/detail_helpers.py $(KIT)/vehicle_materials.py $(KIT)/materials.py
+DDEPS += src/sedan_surface_allocation.py
 DOUT := renders/sedan-detail
 DPAIRS := renders/sedan-used-pairs
 DSHOTS := front_three_quarter rear_three_quarter face lamp_unlit lamp_lit wheel mirror interior_glass underbody underbody_layout opened_front opened_rear side front rear top scale
@@ -118,6 +119,7 @@ check: check-form check-detail check-motion check-repeat build/sedan/delivery-ch
 
 # Delivery retains the accepted studio and adds actual-game curvature evidence.
 .PHONY: sedan-delivery panel-diagnostics docs
+DEFER_DOCS ?= 0
 renders/sedan-panels/.stamp: build/sedan/parameters.txt build/sedan/detail-game.blend src/sedan_panel_diagnostics.py src/sedan_curvature_map.py src/sedan_delivery_review.py src/sedan_surface_proof.py export/AlderS240.glb build/sedan/finalized.blend
 	$(KIT)/with_gpu.sh $(BP) --python src/sedan_panel_diagnostics.py -- --source build/sedan/detail-game.blend --out renders/sedan-panels/source --width $(WIDTH)
 	$(KIT)/with_gpu.sh $(BP) --python src/sedan_panel_diagnostics.py -- --source build/sedan/finalized.blend --glb export/AlderS240.glb --out renders/sedan-panels --width $(WIDTH)
@@ -125,7 +127,17 @@ renders/sedan-panels/.stamp: build/sedan/parameters.txt build/sedan/detail-game.
 	$(PYTHON) src/sedan_delivery_review.py --diagnostics renders/sedan-panels
 	@touch $@
 panel-diagnostics: renders/sedan-panels/.stamp
-sedan-delivery: refs check-form check-detail check-motion sedan-export sedan-final sedan-pairs renders/sedan-source-pairs/.stamp renders/sedan-eevee/.stamp panel-diagnostics
+renders/sedan-reflection-lines/.stamp: build/sedan/detail-game.blend export/AlderS240.glb src/sedan_lookdev.py src/sedan_reflection_review.py src/sedan_views.py build/sedan/parameters.txt
+	$(KIT)/with_gpu.sh $(RP) --python src/sedan_lookdev.py -- --source build/sedan/detail-game.blend --out renders/sedan-reflection-lines/source --width $(WIDTH) --samples 64 --shots front_three_quarter,rear_three_quarter --zebra
+	$(KIT)/with_gpu.sh $(RP) --python src/sedan_lookdev.py -- --source export/AlderS240.glb --out renders/sedan-reflection-lines/export --width $(WIDTH) --samples 64 --shots front_three_quarter,rear_three_quarter --zebra
+	@touch $@
+.PHONY: reflection-lines
+reflection-lines: renders/sedan-reflection-lines/.stamp
+sedan-delivery: refs check-form check-detail check-motion sedan-export sedan-final sedan-pairs renders/sedan-source-pairs/.stamp renders/sedan-eevee/.stamp panel-diagnostics reflection-lines
+ifneq ($(DEFER_DOCS),1)
 	$(PYTHON) src/sedan_delivery_review.py --docs
+else
+	$(PYTHON) src/sedan_delivery_review.py
+endif
 docs: sedan-delivery
 all: sedan-delivery
