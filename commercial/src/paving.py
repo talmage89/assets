@@ -49,6 +49,13 @@ def traffic_distance(x,y,meta):
    t=i/21
    xx,yy=(dx-2.2*t*t,dy+.3+t*7) if d['edge']=='south' else (dx+.3+t*8.5,dy-2*t*t)
    distance=min(distance,math.hypot(x-xx,y-yy))
+ # Through circulation around the exposed pad edges. Vehicles reach every
+ # fueling lane and the store rather than stopping seven meters past a cut.
+ c=meta['canopy'];u,v=rotate((x-c['center'][0],y-c['center'][1]),-c['angle'])
+ left=-c['width']/2-2.0;right=c['width']/2+4.2;front=-c['depth']/2-2.0;rear=c['depth']/2+2.8
+ for a,b in (((left,front),(right,front)),((left,front),(left,rear)),((right,front),(right,rear))):
+  ax,ay=a;bx,by=b;dx=bx-ax;dy=by-ay;t=max(0,min(1,((u-ax)*dx+(v-ay)*dy)/(dx*dx+dy*dy)))
+  distance=min(distance,math.hypot(u-ax-dx*t,v-ay-dy*t))
  return distance
 
 
@@ -71,7 +78,7 @@ def tint(ob,meta,role):
     sample=a[int((1-y/6.096%1)*127)%128,int((x/6.096%1)*128)%128]
     compensate=np.clip(mean/np.maximum(sample,.001),.74,1.36)
     edge=min(W/2-abs(x),D/2-abs(y));factor=.72+.10*math.exp(-max(0,edge)/1.3)
-    travel=traffic_distance(x,y,meta);factor*=1-.23*math.exp(-(travel/1.6)**2)
+    travel=traffic_distance(x,y,meta);factor*=1-.34*math.exp(-(travel/1.10)**2)
     for i in range(meta['stalls']):
      px=b['center_x']-b['width']/2+.15+(i+.5)*2.7432;py=b['front']-meta['walk']-1.8
      factor*=1-.27*math.exp(-((x-px)/.9)**2-((y-py)/1.65)**2)
@@ -83,7 +90,7 @@ def tint(ob,meta,role):
      u,v=rotate((x-fx,y-fy),-c['angle'])
      standing=math.exp(-((u/.82)**4+((v+.1)/2.35)**4))
      engine=math.exp(-((u/.64)**2+((v-.9)/.70)**2))
-     factor*=1-.22*standing-.16*engine
+     factor*=1-.08*standing-.06*engine
     # Retained damp grit beside actual joints, narrow and irregular.
     u,v=rotate((x-c['center'][0],y-c['center'][1]),-c['angle'])
     if 'Fuel apron' in ob.name:

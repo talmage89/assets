@@ -38,13 +38,28 @@ def add(meta):
  for island in meta['islands']:
   x,y=island['center']
   for side in (-1,1):
-   u,v=rotate((side*2.10,-.90),c['angle']);yaw=c['angle']+rng.uniform(-9,9)
-   decal('Fueling engine drips',(x+u,y+v,.014),1.95,4.85,'Oil'+str(rng.randrange(4)),r,yaw)
+   u,v=rotate((side*2.10,-1.60),c['angle']);yaw=c['angle']+rng.uniform(-9,9)
+   decal('Fueling engine drips',(x+u,y+v,.014),3.0,9.0,'Oil'+str(rng.randrange(4)),r,yaw)
    causes.append(dict(cause='engine drips at fueling position',center=(x+u,y+v,.014)))
   # Dirt at each plinth and where shoes work around both operating faces.
   for side in (-1,1):
    u,v=rotate((side*.45,-.96),c['angle'])
    decal('Dispenser base grime',(x+u,y+v,.164),.78,1.25,'Oil'+str(rng.randrange(4)),r,c['angle'])
+ # Repeated wheel contacts continue through each fueling lane, including
+ # its exposed approach beyond the canopy. They cross the absorbed drops.
+ for island in meta['islands']:
+  for side in (-1,1):
+   for wheel in (-1,1):
+    lateral=side*2.10+wheel*.78;points=[]
+    for i in range(20):
+     along=-c['depth']/2-3+i*(c['depth']+5)/19
+     u,v=rotate((lateral+.09*math.sin(i*.40+island['index']*1.13+wheel*.67),along),c['angle'])
+     points.append((island['center'][0]+u,island['center'][1]+v))
+    ob=ribbon('Fuel lane repeated wheel contact',points,.27,r,mat='White',z=.014);ob['wear_cell']='Tire';ob['swept_wear']=True
+    for i in range(20):
+     along=-c['depth']/2-3+i*(c['depth']+5)/19
+     level=.014 if -c['depth']/2-.8<along<c['depth']/2+.8 else .0035
+     for vertex in ob.data.vertices[2*i:2*i+2]:vertex.co.z=level
  # Parking engine positions, including the accessible vehicle bay, without
  # painting over its clear aisle. Lightly worn markings are vertex-filtered.
  for i in range(meta['stalls']):
@@ -65,7 +80,7 @@ def add(meta):
      x=dx+.3+t*8.5;y=dy+side*.79-2.0*t*t;yaw=90-math.degrees(math.atan2(-4.0*t,8.5))
     points.append((x,y))
    # One continuous swept contact, rather than repeated rectangular stamps.
-   ob=ribbon('Driveway turning tire contact',points,.23,r,mat='White',z=.0035)
+   ob=ribbon('Driveway turning tire contact',points,.32,r,mat='White',z=.0035)
    for i in range(12):
     center=Vector((*points[i],.0035));factor=max(.06,min(1,i/1.5,(11-i)/1.5))
     for vertex in ob.data.vertices[2*i:2*i+2]:vertex.co=center+(vertex.co-center)*factor
@@ -87,6 +102,17 @@ def add(meta):
  # Runoff decals are parented to the actual architectural module. Each
  # narrow streak starts at a folded seam; salts stay in the wet base course.
  store=bpy.data.objects['Store'];w,d=b['width'],b['depth'];fy=-d/2
+ # Wash from the canopy's folded sheet joints, on all four outer faces.
+ # The ink is only deposited below an actual panel division, not over logos.
+ can=bpy.data.objects['Canopy']
+ for axis,length,fixed in ((0,c['width'],c['depth']/2+.052),(1,c['depth'],c['width']/2+.052)):
+  for i in range(1,math.ceil(length/2.4384)):
+   along=-length/2+i*2.4384
+   flow=random.Random(meta['seed']*887+axis*71+i);height=flow.uniform(.48,.83)
+   for side in (-1,1):
+    pos=(along,side*fixed,c['clear']+c['fascia']-height/2-.028) if axis==0 else (side*fixed,along,c['clear']+c['fascia']-height/2-.028)
+    ob=decal('Fascia joint runoff',pos,flow.uniform(.31,.48),height,'Grime',can,(0 if side<0 else 180) if axis==0 else (90 if side>0 else -90),True)
+    ob['wear_flip']=flow.random()>.5
  for i in range(int(w/2.4384)+1):
   x=-w/2+.20+i*2.4384
   for side in (-1,1):

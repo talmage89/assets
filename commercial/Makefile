@@ -61,13 +61,14 @@ fit: model
 look-review:
 	$(CHECKPOINT_REVIEW)
 
+WRITE_DOCS ?= 1
 .PHONY: final-eevee docs
 all: docs
 renders/final-eevee/hero.png: $(DELIVERIES) src/render.py src/presentation.py src/paving.py
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source export/CommercialGas-101.gltf --out renders/final-eevee --engine BLENDER_EEVEE --shots hero --width $(WIDTH) --samples $(SAMPLES)
 final-eevee: renders/final-eevee/hero.png
 docs: review
-	$(PYTHON) src/final_review.py --docs
+	$(PYTHON) src/final_review.py $(if $(filter 1,$(WRITE_DOCS)),--docs,)
 
 .PHONY: protected
 protected:

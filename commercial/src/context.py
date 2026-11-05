@@ -22,7 +22,11 @@ def bundle(path):
 def ensure(ground_only=False,street=False):
  repo=Path(__file__).resolve().parents[2];rows=[]
  cases=[('ground','Ground.glb',['export'])]
- if street:cases += [('houses','HearthfieldSplit-51.gltf',['TYPE=split','SEEDS=51','export']),('trees','PinOak.glb',['SPECIES=oak','export'])]
+ if street:cases += [('houses','HearthfieldSplit-51.gltf',['TYPE=split','SEEDS=51','export']),
+                     ('houses','HearthfieldCape-31.gltf',['TYPE=cape','SEEDS=31','export']),
+                     ('houses','HearthfieldRanch-11.gltf',['TYPE=ranch','SEEDS=11','export']),
+                     ('trees','PinOak.glb',['SPECIES=oak','export']),('trees','RedMaple.glb',['SPECIES=maple','export']),
+                     ('street-light','StreetLight.glb',['export'])]
  elif not ground_only:cases += [('houses','HearthfieldSplit-51.gltf',['TYPE=split','SEEDS=51','export']),('cars','AlderC150.glb',['export'])]
  for folder,name,args in cases:
   file=repo/folder/'export'/name

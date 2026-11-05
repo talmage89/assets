@@ -203,6 +203,43 @@ def ship():
  (folder/'sets.json').write_text(json.dumps(report,indent=2))
 
 
+def service_deposit(name,width=1024,height=432):
+ """Analytic service deposits, sampled directly into the existing ink sheet.
+
+ These are coverage/color fields, not manufactured relief: they need no
+ Cycles rebake. Keep every other finish and powered pixel byte-identical.
+ """
+ yy,xx=np.mgrid[:height,:width].astype('float32');u=(xx+.5)/width;v=1-(yy+.5)/height
+ rng=np.random.default_rng(8912+CELLS[name]);alpha=np.zeros_like(u)
+ if name.startswith('Oil'):
+  # Dispersed drip clusters from many cars; larger old absorption halos
+  # remain legible after projection to a few dozen hero pixels.
+  band=np.exp(-((u-.5-.035*np.sin(v*15))/.31)**4-((v-.5)/.46)**6)
+  acc=np.zeros_like(u)
+  for i in range(620):
+   px,py=(rng.normal(.48,.21),rng.normal(.64,.18)) if i<450 else (rng.normal(.66,.18),rng.normal(.28,.18))
+   radius=rng.uniform(.006,.028) if i<520 else rng.uniform(.026,.060)
+   # Correct for the footprint's physical aspect, rather than stretching
+   # circular oil drops into long streaks in the vehicle direction.
+   rx=radius;ry=radius*(3.0/9.0)*rng.uniform(.7,1.5)
+   acc+=np.exp(-(((u-px)/rx)**2+((v-py)/ry)**2)*1.7)*rng.uniform(.18,.70)
+  alpha=(.05*band+.56*(1-np.exp(-acc)))*smooth(np.minimum.reduce((u,1-u,v,1-v))/.16)
+  color=(.050,.046,.038)
+ elif name=='Tire':
+  edge=smooth((.48-abs(u-.5))/.14)
+  tread=.70+.30*(np.sin(v*185+u*12)>-.2)
+  alpha=edge*tread*(.24+.06*np.sin(v*11)**2);color=(.008,.008,.007)
+  alpha*=smooth(v/.20)*smooth((1-v)/.20)
+ else:
+  # Gravity tails below seam heads: unequal side rivulets and no rectangle.
+  center=.50+.035*np.sin(v*15);width=.025+.19*v*v
+  alpha=.51*smooth((width-abs(u-center))/.045)*smooth(v/.08)*smooth((1-v)/.06)
+  alpha+=.15*np.exp(-((u-.68)/.035)**2)*smooth(v/.35)*smooth((1-v)/.13)
+  color=(.033,.029,.024)
+ rgb=np.broadcast_to(linear_to_srgb(np.array(color)),(*u.shape,3))
+ return Image.fromarray(np.uint8(np.clip(np.dstack((rgb,alpha)),0,1)*255+.5),'RGBA')
+
+
 def graphics(folder):
  """Both brands and shared strings in fixed guarded cells, chosen through UVs."""
  strings=['RILLWAY','LATCHLINE','FRESH\nCOFFEE','DAILY\nGOODS','FOOD  •  COFFEE  •  EVERYDAY',
@@ -239,7 +276,8 @@ def graphics(folder):
  for i,name in enumerate(wear):
   cell=CELLS[name];row,col=divmod(cell,4);piece=eq.crop((col*512,(7-row)*256,(col+1)*512,(8-row)*256))
   x,y=(i%4)*256,640+(i//4)*108;w,h=256,108
-  image.paste(piece.resize((w*4,h*4),Image.Resampling.BICUBIC),(x*4,y*4))
+  piece=service_deposit(name,w*4,h*4) if name.startswith('Oil') or name in ('Tire','Grime') else piece.resize((w*4,h*4),Image.Resampling.BICUBIC)
+  image.paste(piece,(x*4,y*4))
   rects['Wear:'+name]=dict(rect=((x+4)/1024,1-(y+h-4)/1024,(x+w-4)/1024,1-(y+4)/1024),aspect=w/h,font_size=0,pixel_height=h)
  for i,name in enumerate(('CanopyLamp','InteriorLamp','WallPackLamp','LotLamp','PriceLED','Blank','BrandRillway','BrandLatchline')):
   x,y=i*40,980;ink=(225,227,223,255) if name!='PriceLED' else (255,166,48,255)

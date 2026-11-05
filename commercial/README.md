@@ -83,7 +83,7 @@ than a unique whole-building projection.
 The family reuses ground asphalt/lawn and shrubs' maps (**48 MiB**). All wall
 alternatives together therefore allocate **77 MiB**; a default CMU station
 loads **75⅓ MiB**. PNG disk bytes are reported separately below. Presentation
-houses, oak trees and roads load their own exports and do not enter delivery.
+Cape/ranch/split houses, oak/maple trees, street lights and roads load their own exports and do not enter delivery.
 The houses' and ground family's existing 150 delivery/map files remain
 byte-identical to the pre-work receipt.
 
@@ -104,7 +104,7 @@ modules. One plant is one primitive with shared geometry.
 | Default part | Triangles | Materials | Primitives |
 | --- | ---: | --- | ---: |
 | Store | 34,308 | CMU, Concrete, Equipment, Glass, Graphics, Roof (6) | 11 |
-| Canopy | 13,046 | Concrete, Equipment, Graphics, Roof (4) | 16 |
+| Canopy | 13,098 | Concrete, Equipment, Graphics, Roof (4) | 16 |
 | SitePaving | 23,180 | Asphalt, Concrete, Equipment, Lawn (4) | 4 |
 | AccessibleSign | 416 | Equipment, Graphics (2) | 2 |
 | TankPad | 1,164 | Concrete, Equipment (2) | 2 |
@@ -118,17 +118,17 @@ modules. One plant is one primitive with shared geometry.
 | AirWater | 1,570 | Concrete, Equipment, Graphics (3) | 3 |
 | DumpsterEnclosure | 3,224 | CMU, Concrete, Equipment (3) | 7 |
 | Lot light, each | 348 | Concrete, Equipment, Graphics (3) | 3 |
-| ServiceWear | 256 | Asphalt, Equipment, Graphics (3) | 3 |
+| ServiceWear | 712 | Asphalt, Equipment, Graphics (3) | 3 |
 | Landscape | 106,172 | Shrubs .001 (1) | 19 |
 
 ## Measured budgets and bytes
 
 | Seed | Store | Canopy/islands | Sign | Without plants | Placed plants | Total |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 101 | 34,308 | 13,046 | 1,516 | 105,982 | 106,172 | 212,154 |
-| 102 | 30,060 | 9,786 | 1,044 | 90,150 | 106,172 | 196,322 |
-| 103 | 34,528 | 16,426 | 1,516 | 118,804 | 111,760 | 230,564 |
-| 104 | 32,058 | 13,046 | 1,044 | 105,952 | 106,172 | 212,124 |
+| 101 | 34,308 | 13,098 | 1,516 | 106,490 | 106,172 | 212,662 |
+| 102 | 30,060 | 9,826 | 1,044 | 90,494 | 106,172 | 196,666 |
+| 103 | 34,528 | 16,490 | 1,516 | 119,476 | 111,760 | 231,236 |
+| 104 | 32,058 | 13,098 | 1,044 | 106,460 | 106,172 | 212,632 |
 
 Store ≤45k, canopy ≤18k and each dispenser 5,160 ≤6k. The sign uses fewer
 than the preferred 2k lower end because its accepted construction needs no
@@ -141,15 +141,15 @@ normal errors, actual lens/support probes, and source/import surface errors.
 
 | Seed | glTF + BIN bytes | Embedded build GLB bytes | Materials | Placed material primitives |
 | --- | ---: | ---: | ---: | ---: |
-| 101 | 13,105,912 | 66,790,984 | 9 | 112 |
-| 102 | 11,412,880 | 62,731,988 | 9 | 102 |
-| 103 | 14,337,849 | 68,022,952 | 10 | 123 |
-| 104 | 13,103,272 | 64,222,968 | 9 | 111 |
+| 101 | 13,186,355 | 66,729,400 | 9 | 112 |
+| 102 | 11,467,051 | 62,644,132 | 9 | 102 |
+| 103 | 14,444,302 | 67,987,368 | 10 | 123 |
+| 104 | 13,182,568 | 64,160,228 | 9 | 111 |
 
-The 18 shared new PNGs occupy **10,201,614 bytes**. Geometry buffers exclude images.
-All 27 unique family PNGs occupy 54,628,500 bytes including reused
-ground/shrubs; the default station references 53,683,758 image bytes.
-Four glTF/BIN pairs total 51,959,913 bytes.
+The 18 shared new PNGs occupy **10,059,586 bytes**. Geometry buffers exclude images.
+All 27 unique family PNGs occupy 54,486,472 bytes including reused
+ground/shrubs; the default station references 53,541,730 image bytes.
+Four glTF/BIN pairs total 52,280,276 bytes.
 Glass uses KHR transmission/IOR/specular; native lamp radiance uses
 KHR_materials_emissive_strength. Use an importer supporting those standard
 extensions. Canonical image identities let a scene load each map once; a same-scene import
@@ -227,13 +227,16 @@ and linear gain before any value comparison. Fixed display Y′ medians follow.
 
 | Surface | Export | Balanced photo | Difference |
 | --- | ---: | ---: | ---: |
-| soffit | 0.439 | 0.417 | +5.3% |
+| soffit | 0.423 | 0.417 | +1.5% |
 | concrete | 0.777 | 0.795 | -2.3% |
-| dark cabinet | 0.133 | 0.135 | -1.2% |
+| dark cabinet | 0.128 | 0.135 | -4.8% |
 | eifs | 0.667 | 0.663 | +0.5% |
-| asphalt | 0.461 | 0.466 | -1.0% |
+| asphalt | 0.447 | 0.466 | -4.1% |
 
-The cabinet ROI was narrowed after rays exposed rubber hose inside the old
+The concrete control now samples bare sunlit cement ahead of the longer
+fueling footprint; the original patch contains visible deposits. The strict
+nine-ray material check is retained. The cabinet ROI was narrowed after rays
+exposed rubber hose inside the old
 wide patch (.107 mixed value). All five current ROIs have nine actual
 exported surface/finish ray checks in `build/value-surface-check.json`.
 These are display measurements under estimated matching light, not albedos.
@@ -247,26 +250,54 @@ through `kit/fonts.py`. References are credited with rights and comparison use
 in [refs/SOURCES.md](refs/SOURCES.md); original stock ground, Boxwood, house and
 oak assets come from this repository. No reference image contributes texels.
 
-The clean `make WIDTH=1600 SAMPLES=48` completed from empty commercial build,
-map, export and render directories (references and immutable family deliveries
-retained). `make check`, `make repeat` and the repository check pass. Repeat:
-66,790,984 byte-identical bytes; both brands retain 177 frames and 22 image
+The clean `make WIDTH=1600 SAMPLES=48 WRITE_DOCS=0` replay began with empty
+commercial build, map, export and render directories, retaining references
+and immutable family deliveries. It completed after correcting the bare-cement
+measurement control; docs were generated after the native-size review.
+`make check`, `make repeat` and the repository check pass. Repeat:
+66,729,400 byte-identical bytes; both brands retain 177 frames and 22 image
 payloads. The final provenance gate verifies 30 Cycles images and one Eevee
 image against the current exported geometry, maps, context and recipe.
 
 Every final was opened at native resolution before committing docs. Passes
-13–16 in REVIEW record the fixes, rejected frames and remaining limits.
+13–18 in REVIEW record the fixes, rejected frames and remaining limits.
 Hero architecture spans 74.9% of the frame at measured 1.60 m / 40 mm. Its
-architectural/equipment mask has display Y′ p1/p50/p95/p99 of
-.074/.476/.749/.844; .27% clips white, concentrated in powered lenses/ink.
+conservative projected architectural/equipment mask has display Y′ p1/p50/p95/p99 of
+.041/.266/.631/.776; .26% clips white, concentrated in powered lenses/ink.
 Source/import position error remains under 8 µm and all 48 actual canopy
 lens openings are independently probed across the four seeds.
 
 Remaining CG tells: the six repeated product fronts, very regular masonry
-and joinery, simplified fine bark depth and sparse surrounding development.
+and joinery, simplified fine bark depth and repeated neighborhood prototypes.
 The ground atlas has a broad repeat; the commercial correction reduces it
 without changing that family's bytes, but some aggregate rhythm survives in
 extreme overhead views. Eevee's cached indirect light restores the soffit;
 its shadows and glass still differ from the Cycles judgments. Photograph fits
 and unknown camera responses limit exact comparisons. No tool, permission or
 kit change is needed; the broad ground-field repeat is an upstream finding.
+
+
+The hero revision keeps the accepted camera, construction, emission and
+detail/dusk lighting. A lateral procedural sun separates front/side values
+and casts the canopy shadow across the slab. Original neighborhood houses,
+trees and street lights sit along continuing native streets; none ships in
+the station. Top retains the surrounding ground, and the period canopy
+comparison renders its procedural sky opaque under the retained matched sun.
+
+Fixed sunlit-paving masks (`src/hero_review.py`) measure pixels at least 4%
+below each region's clean p85 Y′. Coverage / median deposit contrast:
+
+| Pair | Before | After | Balanced photo |
+| --- | --- | --- | --- |
+| Used forecourt | 19.0% / 11.9% | 37.2% / 9.0% | 31.5% / 6.8% |
+| Used asphalt | 23.4% / 4.9% | 63.3% / 10.5% | 59.2% / 9.1% |
+
+These are projected appearance estimates with annotated masks, not surveyed
+surface areas or chemical oil segmentation; aggregate, residual joints,
+different layouts and estimated light limit the comparison. An additional
+8% threshold is recorded in `renders/hero-review/wear-measurements.json`.
+Native-pixel before/after hero crops cover forecourt, fascia, driveway,
+lighting and setting. Recreate the current masks with
+`python3 src/hero_review.py`; supply `--before <saved-render-folder>` to compare
+a retained earlier render. Close paving still exposes some softness in the
+shared ink atlas, and repeated house/tree prototypes remain recognizable.

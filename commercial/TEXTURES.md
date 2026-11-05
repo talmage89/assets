@@ -75,3 +75,12 @@ at real joints and excludes scupper openings; low masonry retains salts and
 dirt. Sun-facing paint fades. Broad effects use stock glTF vertex colors,
 small deposits use guarded alpha swatches; there is no whole-surface noise
 wash, random wall peeling or arbitrary dark blotch.
+
+The hero revision generates oil, tire and runoff coverage directly into the
+existing graphics sheet, without rebaking manufactured finishes or changing
+powered pixels. Round absorbed drops account for the physical 3.0 × 9.0 m
+fueling footprint; wheel contacts continue through the operating lanes and
+traffic around the pad. Fixed sunlit-floor masks compare coverage and contrast
+against both used-paving photographs (`src/hero_review.py`). These are
+projected appearance measurements, with annotated exclusions and disclosed
+thresholds, rather than surveyed stain areas or recovered albedos.

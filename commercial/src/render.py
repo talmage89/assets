@@ -73,6 +73,10 @@ def views(p):
  result.update({k:dict(location=rotate(loc,p['yaw']),target=rotate((0,0,3.4),p['yaw']),ortho=max(W,D)+10,lens=45,aspect=5.2) for k,loc in (('front',(0,-90,3.4)),('back',(0,90,3.4)),('side',(90,0,3.4)))})
  result['top']=dict(location=(0,.001,100),target=(0,0,0),ortho=max(W,D)+11,aspect=1)
  result['scale']=dict(location=rotate((x+8,y-11,2.0),p['yaw']),target=rotate((x,y+1,2.0),p['yaw']),lens=38,aspect=1.65,human=True)
+ # The hero light crosses the view: lit storefront, shaded side, and a
+ # readable canopy shadow across its slab. Accepted detail/dusk recipes stay.
+ for name in ('hero','street','above','scale','top'):
+  result[name].update(sun_direction=rotate((-1.0,.30,-.75),p['yaw']),sun_energy=6.0,sky_strength=.035,exposure=.25)
  return result
 
 
@@ -142,13 +146,17 @@ def frame_property(camera,assets):
 
 
 def render(source,out,names,width,samples,camera_file=None,engine='CYCLES'):
+ neighborhood={'hero','street','above','scale','top'} if camera_file is None else set()
+ near=[n for n in names if n in neighborhood];accepted=[n for n in names if n not in neighborhood]
+ if near and accepted:
+  return {**render(source,out,near,width,samples,camera_file,engine),**render(source,out,accepted,width,samples,camera_file,engine)}
  bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
  assets=set(bpy.context.scene.objects);meta=json.loads(source.with_suffix('.json').read_text())
  palette(BRANDS[meta['brand']],meta['building']['wall_color'])
  # Match site orientation. Context stays outside the diagnostic station GLB.
  if 'baked PBR' in meta['stage']:
   from presentation import ground
-  road,ground_record=ground(meta)
+  road,ground_record=ground(meta,neighborhood=bool(near))
  else:
   road=context_roads(meta);road.rotation_euler.z=math.radians(meta['yaw']);ground_record=None
  camera=setup(samples,engine);shots=views(meta);ctx=[]
@@ -169,7 +177,7 @@ def render(source,out,names,width,samples,camera_file=None,engine='CYCLES'):
   shot=dict(shots[name]);camera.location=shot['location'];camera.rotation_euler=(Vector(shot['target'])-camera.location).to_track_quat('-Z','Y').to_euler();camera.rotation_euler.rotate_axis('Z',shot.get('roll',0))
   for ob in figures:ob.hide_render=not shot.get('human',False)
   for ob in set(bpy.context.scene.objects)-assets-{camera,bpy.data.objects['Sun']}-set(figures):
-   if ob.type=='MESH':ob.hide_render=name in ('front','side','back','top')
+   if ob.type=='MESH':ob.hide_render=name in ('front','side','back') or (name=='top' and ob.get('presentation_neighbor',False))
   eye=None;camera.data.shift_y=shot.get('shift_y',0)
   if name in ('hero','street') and camera_file is None:
    bpy.context.view_layer.update();hit,point,_,_,surface,_=bpy.context.scene.ray_cast(bpy.context.evaluated_depsgraph_get(),Vector((camera.location.x,camera.location.y,1000)),Vector((0,0,-1)))
