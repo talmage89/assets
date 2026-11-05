@@ -1,6 +1,6 @@
 # Cars family — Alder C150, S240 and H120
 
-The C150 pickup is delivered. The [S240 sedan](#alder-s240--sedan-form-checkpoint) is a source form checkpoint on this branch. The [H120 hatchback](HATCH.md) has reached its surface checkpoint, with an independent baked export.
+The C150 pickup is delivered. The [S240 sedan](#alder-s240--sedan-form-checkpoint) is a source form checkpoint on this branch. The [H120 hatchback](HATCH.md) is delivered with baked textures and final gallery renders.
 
 An original late-2010s crew-cab 4×4 pickup on 275/65R18 all-terrain tires.
 Five factory paints share one baked atlas and four delivery surfaces. The
@@ -390,45 +390,101 @@ These are recorded limitations, not final paint or delivery approval. No kit
 changes were needed.
 
 
-## Alder H120 — surface checkpoint
+## Alder H120 — compact five-door hatchback
 
-The third body retains its accepted compact five-door package: **4363 × 1796 ×
-1451 mm**, **2650 mm wheelbase**, and **225/40R18** tires. Original projector
-lamps, an open gloss-black diamond grille, Alder badges and a Willow Motor Co.
-dealer insert accompany the four-door cabin, cargo well and FWD underbody.
-Four doors, hood, liftgate, wheel spin and front kingpins have measured pivots
-and sampled clearance checks. Five factory paints share one H120 atlas.
+![Alder H120 in the family gallery](docs/hatch-hero.jpg)
 
-[H120 checkpoint report](HATCH.md) records the parts, budget, materials, motion
-ranges, matched-daylight measurements and rebuild commands. The [accepted form
-report](HATCH_FORM.md) retains its profile overlays, gloss clay, sections and
-whole-body curvature maps; `make -C cars BODY=hatch STAGE=form` rebuilds that
-separate graph. [REVIEW.md](REVIEW.md#h120-detail-and-look-checkpoint) records
-the detail critiques.
+An original late-2010s five-door, with four working doors, hood, liftgate,
+steering, rolling wheels, a five-seat cabin and a cargo well. Projector optics,
+split red rear covers, an open diamond grille, Alder badges and a Willow
+Motor Co. dealer insert distinguish the hatch. Five factory paints share one
+H120 atlas; wheel-wake film, brake dust, hem chips and loading scuffs describe
+a daily driver a few seasons old.
 
-[Color sheet](renders/hatch-checkpoint/five-colors.jpg),
-[detail views](renders/hatch-checkpoint/details-contact.jpg),
-[motion poses](renders/hatch-checkpoint/motion-sweeps.jpg), and
-[checkpoint contact sheet](renders/hatch-checkpoint/contact-sheet.jpg). These
-are generated local review artifacts. No hatch documentation JPGs are committed
-at this checkpoint.
+[Complete delivery report and per-part counts](HATCH.md) ·
+[Native gallery/contact sheet](renders/hatch-final/contact-sheet.jpg) ·
+[Matched front](renders/hatch-final-pairs/used_front-pair.jpg) ·
+[Matched rear](renders/hatch-final-pairs/used_rear-pair.jpg) ·
+[Delivery critiques](REVIEW.md#h120-delivery)
 
-**59,178 triangles**, including **3,600 cabin**, **260 cargo**, **1,792
-underbody**, and **1,912 hinge/support** triangles. Four family delivery surfaces
-use one 2048 BaseColor / OpenGL Normal / ORM set, approximately **16 MiB** with
-block compression and full mipmaps. The pickup's source and full GLB bytes
-remain identical. Shared family implementation and sedan modules are unchanged;
-the kit adds an optional normal-strength setting with unchanged defaults.
-[Before/after surface crops](renders/hatch-checkpoint/compare-five-colors.jpg) and
-[all-surface diagnostics](renders/hatch-checkpoint/surface-proofs/horizontal-contact.jpg)
-include the smooth optical molds, aligned quarter roll, seated arch liners and
-rounded passenger tire carcasses.
+| | |
+| --- | --- |
+| ![Exterior details](docs/hatch-details.jpg) | ![Factory colors](docs/hatch-five-colors.jpg) |
+| ![Turnaround](docs/hatch-turnaround.jpg) | ![1.8 m scale and Eevee](docs/hatch-scale-eevee.jpg) |
+
+Every final starts with a fresh import of `export/AlderH120.glb` and its three
+embedded maps. The studio, lights, reflection flags and AgX settings are the
+accepted pickup gallery recipe; the hatch supplies its camera framing.
+Native images, source hashes, paint/geometry masks, tone statistics and
+source-versus-export measurements accompany the sheets. Documentation images
+are generated only after the native audit.
+
+| Measurement / delivery | Actual H120 |
+| --- | ---: |
+| Length × body width × body height | 4363.0 × 1796.5 × 1450.6 mm |
+| Mirror width / antenna height | 2039.3 / 1505.0 mm |
+| Wheelbase / front and rear track | 2650 / 1550 / 1560 mm |
+| Tires / wheels | 225/40R18 / 18 × 7.5; 5 × 114.3 mm studs |
+| Ground clearance / tire-to-arch gap | 146.5 / 40.0 mm |
+| Game triangles / export meshes | 59,852 / 21 |
+| Delivery materials | Four; existing family exception |
+| Shared maps | 2048² BaseColor RGBA / OpenGL +Y Normal RGB / ORM RGB |
+| Compressed memory, including mipmaps | About 16 MiB |
+| GLB | 7,892,240 bytes |
+| UV coverage / painted-panel density | 40.96% / 177.3–221.7 px/m |
+
+The original package sits between Toyota's
+[MY2019 Corolla hatchback specification](https://newsroom.toyota.eu/download/647310/2019-toyota-corolla-dpl-en-983710.pdf)
+and Hyundai's
+[November 2018 i30 five-door specification](https://www.hyundai.news/newsroom/dam/uk/press-kits/20181001_i30/hyundai_i30_fivedoor_and_tourer_press_kit_november2018_technical_specifications.pdf).
+The later [same-generation Australian sheet](https://www.hyundai.com/content/dam/hyundai/au/en/models/i30/docs/Hyundai_i30_Hatch_Specifications.pdf)
+cross-checks mirror width and the tire/wheel class. [REFERENCE.md](REFERENCE.md)
+distinguishes published dimensions, original choices and photographic estimates.
+[HATCH_FORM.md](HATCH_FORM.md) retains the accepted form evidence.
+
+One connected subdivision parent supplies real panel cuts, gauge, returns,
+arch hems and liners. Independent smooth optical molds, physical spoke
+chamfers and the passenger-tire carcass supply the visible construction. The
+atlas prioritizes original printed type over buried structure; the grille
+badge and center caps retain their physical aspect and legibility. Paint,
+Opaque, Glass and Lamps share all three maps. Atlantic is the stock glTF
+fallback; the family decoder applies Porcelain, Carbon, Graphite, Aluminum
+and Atlantic without five texture copies.
+
+Meters, Blender +Z up, front −Y; origin at the footprint center on the ground.
+Separate nodes expose these ranges:
+
+| Assembly | Local motion |
+| --- | --- |
+| Front doors | 62° outward; canted hinge axes |
+| Rear doors | 66° outward; canted hinge axes |
+| Hood | X, −62…0° |
+| Liftgate | X, 0…82° |
+| Wheels | Local X, full revolution |
+| Front kingpins | Local Z, −35…+35° |
+
+[HATCH.md](HATCH.md#mechanisms-and-coordinates) lists pivot coordinates, signs,
+world-space kingpin axes and the endpoint extras used to articulate the gas
+supports. Source construction/contact measurements and sampled motion sweeps
+are independent of the exported-GLB serialization check. The scale silhouette
+measures 1.8 m from its actual vertices.
 
 ```sh
 make -C cars BODY=hatch
 make -C cars BODY=hatch check
+make -C cars BODY=hatch docs       # after inspecting native finals
 ```
 
-The default cars build remains the pickup. The remaining weaknesses and
-source-versus-export comparison are disclosed in HATCH.md; this is the
-requested review checkpoint, not a new final gallery.
+`make` rebuilds source, checks, 4096 GPU bakes, 2048 maps, the GLB, the gallery,
+Eevee and matched-light pairs. `checkpoint` retains the earlier diagnostic
+studio; `STAGE=form` retains the accepted form graph. The default cars build
+remains the pickup. Its regenerated source and complete re-exported GLB bytes
+remain identical. Hatch delivery changes stay in the hatch modules; the kit's
+Smart UV target-aspect option and missing-MIME PDF signature fallback are
+backward compatible and covered by all 24 kit test modules.
+
+Photographs by Elise240SX, CC BY-SA 4.0, and manufacturer documents are
+reference-only; [SOURCES.md](refs/SOURCES.md) records URLs, authors, licenses
+and use. Noto Sans is SIL OFL. Every vertex, material texel, marking and light
+is original and scripted. The remaining limits and measured bake loss are
+reported in [HATCH.md](HATCH.md#finishes-colors-and-bake-loss).

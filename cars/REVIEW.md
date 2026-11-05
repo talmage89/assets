@@ -3657,3 +3657,62 @@ of 0.662 / 18.629 mm on the game mesh and 1.002 / 19.062 mm on the high source,
 with zero piercing samples. The rejected candidate fails the same check:
 1,328 reverse and 596 card rays pierce by up to 7.215 / 15.195 mm. These are
 sampled triangle measurements, not constants or continuous guarantees.
+
+
+### Delivery pass 7 — exported gallery accepted for documentation
+
+Color/value first: open all fourteen 2000 px Cycles views, all five paint
+variants and the native Eevee hero from GLB `fcbbc20b6a172beec6b16694985044afe6e93a78dbace6e112a0dbeb0107656e`.
+The exact pickup gallery constructor, light diffusion and AgX setup remain
+held. No hero RGB channel clips. With floor excluded, 25.89% of its vehicle
+mask is below 0.10 display luminance; upper blue paint remains blue, cavity
+shadows are deep and highlights roll off. Porcelain does not wash out.
+
+Follow each card edge across hood, fascia, greenhouse and gate. The front
+roll is continuous, the header shard and backlight split hook are gone, and
+the gate has no exposed reverse sheet or trim slit. Its retained concave draw
+now reads as painted sheet. The open cargo view retains seated trim and
+working supports. Inspect grille webs, all badge/plate words, optical shells,
+fuel reveal, spoke chamfers, tire carcasses/lettering and road film too.
+Lettering is legible in its close-ups; wear stays localized to its causes.
+A small amount of grazing interpolation remains near held patch margins;
+the 32-station wheel lip and economical headrests/trim still reveal the game
+budget at extreme range. Eevee's thin-sheet reflection/transmission fallback
+is weaker than Cycles. Do not describe the result as indistinguishable from
+a photograph in every close-up.
+
+Re-run and inspect both source and exported matched-light pairs. On the
+export, sampled upper paint medians are unchanged by the bake; road film
+changes 0.00–0.93 display levels. Rear side glass is 122.52 versus the balanced
+photo's 123.68; backlight 122.01 versus 121.16. Source-to-export loss is +0.72
+for backlight, +3.79 for windshield and +5 / +7 for the tire patches. Tires
+remain the largest measured bake change. No accepted material is recolored
+to hide it. White-balance neutrals remain the front siding and rear mullion;
+these lit patch values are not claimed as albedos.
+
+The requested six same-camera before/after crops live in
+`renders/hatch-delivery-comparisons/compare-*.jpg`, with camera/exposure/paint
+and source hashes in `comparisons.json`. Four additional gallery crops show
+the header, nose roll, gate and backlight changes, with their own manifest.
+The header's earlier candidate is the actual rejected audit-one GLB, not the
+later candidate in which it was already fixed. Normalize resolution before
+identical crops; do not enlarge the after image to exaggerate its recovery.
+
+The empty-output archive build and `make check` pass. Its source arrays match
+471 objects / 442 meshes exactly; UV reports and all 174 GLB accessors match.
+A fresh GPU bake changes one 8-bit level in 30 Normal pixels, three ORM pixels
+and two BaseColor pixels. The independently saved source-blend provenance
+hash differs too, so the hatch GLBs are not byte-identical across those two
+full builds. The pickup's complete GLB remains byte-identical. All 24 kit
+modules still match the tested kit snapshot and passed sequentially from
+clean scratch. Native finals, contact/mask sheets and comparisons are now
+accepted for generating the five bounded docs JPGs; inspect those separately
+before committing them.
+
+
+The five generated documentation JPGs are also opened at native size and
+accepted: hero 156,259 bytes, details 185,066, turnaround 124,379, five colors
+195,758 and scale/Eevee 195,856. Each is 1600 px wide and below 200 KB; no GIF
+is needed. Captions use presentation names, and no photograph or diagnostic
+ablation enters the committed gallery. Documentation is committed only after
+this inspection. The pickup hash is checked again unchanged before delivery.
