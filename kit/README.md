@@ -923,3 +923,42 @@ Checkpoint families may now declare `CHECKPOINT_OUTPUTS` and
 `CHECKPOINT_RENDER_OUTPUTS` as grouped target sets, plus `CHECKPOINT_RENDER_ARGS`.
 Deleting any declared blend/GLB/image regenerates its whole group. The default
 single blend/render-stamp behavior remains compatible with existing families.
+
+## Additional LOD chains (opt-in)
+
+`lod.py`, `lod_io.py`, `lod_mesh.py` and `lod_rules.mk` build separate glTF/BIN
+levels from immutable delivered GLB/glTF inputs. `lod_render.py` renders each
+switch against original and adjacent levels, and `lod_impostor.py` creates an
+explicit camera-facing foliage billboard from the delivered tree. No existing
+exporter, default build or `check` target changes. Pilots opt in by including
+`lod_rules.mk` and supplying `src/lod.json`.
+
+```sh
+make -C traffic-cone lod
+make -C traffic-cone check-lod
+blender -b --factory-startup --python-exit-code 1 --python kit/test_lod.py
+```
+
+The fixture uses fresh `build/lod-test/` outputs and needs no GPU. It exercises
+actual simplification, corner seams, UV1, Wind, protected moving geometry,
+embedded/external PNGs, bind data and a clip, re-import, byte repeatability,
+billboard orientation, changed-source rejection and flipped-face rejection.
+GPU rendering/billboard generation uses the shared lock through the new targets.
+`lod_report.py` composes checked pilot tables/overview and, only with explicit
+`--write-readmes`, updates their marked README sections.
+
+See [delivery convention and engine sources](LOD.md),
+[critique and pilot measurements](LOD_REVIEW.md), and the
+[six-pilot overview](docs/lod-pilots.jpg). Full native-pixel evidence is rebuilt
+under each pilot's `renders/lod/`; detailed component rejection reports stay
+under `build/lod/<source stem>/`. Safe reductions can miss requested ratios;
+the manifest reports both target and achieved counts rather than degrading UVs
+or shading to meet a number.
+
+`lod_normals.py` independently compares delivered geometry normals against LOD0,
+counts zero-area UVs per layer, and compares skin weights, inverse binds and
+animation values. Exact source corners are compared directly; altered corners
+are projected onto original surfaces, with UV correspondence resolving seams.
+`check-lod` runs both that audit and the package/import/image checks. Source BIN
+and image resources are protected against output-path aliases; regenerated maps
+also repair cache files left incomplete by an interrupted run.

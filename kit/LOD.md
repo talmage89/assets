@@ -39,7 +39,7 @@ need a bound/FOV-aware controller. There is no universal cull distance.
 | Moving hero grill | .60 @ .30 (324px), .30 @ .12 (130px), .15 @ .045 (49px) | 2048 near, 1024 middle, 512 far |
 | Moving C150 pickup | .55 @ .25, .25 @ .10, .12 @ .04 (43px) | 2048 / 1024 / 512 |
 | Colonial / canopy and dispenser | .60 @ .30, .30 @ .12, .15 @ .045 | Same canonical external tiles/trim at every level |
-| Red maple | .70 @ .30, .40 @ .12, render-derived far impostor @ .02 (22px) | Original alpha atlas near; independent far impostor |
+| Red maple | Original until .02 (22px), then a 2-triangle render-derived billboard | Original alpha atlas near; independent far impostor |
 
 These are requested targets, not permission to damage an asset. The report
 records achieved counts and all rejected reductions. UV splits, thin walls,
@@ -48,9 +48,12 @@ Do not advertise a failed target as an achieved count.
 
 All moving objects, pivots, sockets, rig weights, skin data and animation
 accessors retain their names and hierarchy at every ordinary level. No far
-merge is authorized in the pilots. Skinned primitives are retained verbatim;
-static geometry under separate moving parents can simplify. Alpha card
-primitives remain intact before the explicit final foliage impostor. Keep all
+merge is authorized in the pilots. Moving/socket geometry and skinned
+primitives are retained verbatim. This protects engineered clearances and
+specular surfaces at the cost of a substantial reduction floor. Alpha card
+primitives remain intact before the explicit final foliage impostor. The
+maple's .70/.40 trials retained every triangle, so these redundant levels are
+omitted. Keep all
 levels in the same pose during switching; a rest-only check does not establish
 motion clearance after simplification.
 
@@ -85,7 +88,11 @@ The tool starts from **delivered accessors**, reconstructing each primitive in
 Blender instead of loading source high geometry or running the asset exporter.
 This retains unknown material extensions, multiple UVs, linear Wind, vertex
 weathering, skin and all node metadata that an importer/exporter round trip
-could drop. Blender's deterministic native collapse operates on split charts;
+could drop. Geometric topology is reconstructed from coincident positions,
+with chart/normal discontinuities retained as corner data. Boundary and crease
+weights guide Blender's deterministic native collapse; acceptance is measured,
+not assumed from those weights. Fully constrained components still get a
+candidate trial, rather than bypassing validation without trying a reduction;
 native planar dissolve is a fallback. Attribute fields travel through the
 modifier as linear corner data. UVs and normals are then reprojected from the
 delivered triangle field at the actual simplified positions; native corner
@@ -97,7 +104,11 @@ Candidates are sampled at vertices, edge midpoints and centroids against the
 source surface, with a reverse source-vertex distance check. A .35 projected
 pixel surface tolerance is used at the proposed switch. UV field deviation is
 bounded separately, with chart ambiguities resolved among equally close source
-triangles. Open boundary paths are compared in both directions. New degenerate,
+triangles. Open boundary paths are compared in both directions, within 3 µm:
+material boundaries cannot drift by a screen-space tolerance and leave cracks.
+With `drop_subpixel`, an entire disconnected component may be omitted only when
+its 3D diameter is below the same .35-pixel tolerance; the only component of a
+primitive is never removed. New degenerate,
 near-zero-aspect triangles, nonmanifold edges and winding/normal disagreements
 reject a reduction. Existing defects are reported relative to LOD0, never
 silently repaired. These are sampled geometric bounds, not an exact Hausdorff
@@ -109,15 +120,46 @@ are native-pixel crops, with a separate framed close-up per level. Difference
 images amplify absolute display RGB by six. Metrics composite on neutral gray
 and use the union of asset alpha support, preventing empty background from
 diluting error. Default limits: mean absolute RGB ≤.02, p95 maximum-channel
-difference ≤.08, mean alpha difference ≤.05, for both original and adjacent
-comparisons. These tolerate small subpixel edge filtering while rejecting
+difference ≤.08, mean alpha difference ≤.05, and maximum mean RGB difference
+in any 8×8-pixel patch ≤.08, for both original and adjacent comparisons. The
+local gate catches concentrated highlight changes that global averages hide.
+These tolerate small subpixel edge filtering while rejecting
 broad value/coverage changes. They are review gates, not a universal perceptual
 guarantee. Close inspection and several view angles are still necessary.
 
 `check-lod` verifies persisted original SHA256s, configuration and package
-hashes/statistics, names/full transforms/extras/hierarchy/materials, topology
-against LOD0, finite unit normals, fresh re-import counts and all rendered
+hashes/statistics and tool/renderer recipes, names/full transforms/extras/hierarchy/materials, topology
+against LOD0, finite unit normals, monotonic triangle counts, fresh re-import
+counts, actual imported positions (20 µm) and pivot matrices (2e-5), and all rendered
 evidence hashes. It never regenerates evidence to hide a stale failure.
+
+The independent `lod_normals.py` audit compares the delivered geometry-normal
+field with LOD0 at every output vertex. Exact position/normal/UV signatures are
+direct matches; altered points use nearest source triangles and UV chart
+correspondence. Its maximum / vertex-weighted p95 limits are 45° / 10°; the
+image gates judge the actual shading, including normal-map/tangent changes.
+It separately rejects newly zero-area triangles in each UV layer (intentional
+constant UV1 emission swatches cannot hide a degenerate UV0), and checks skin
+weights, inverse bind matrices and animation samples against the original.
+The unlit billboard explicitly replaces the original surface-normal field.
+
+Detailed candidate reports live under `build/lod/<source stem>/simplification.json`,
+outside the compact delivery manifest. Ship only the referenced glTF/BIN/image
+payloads and optional runtime manifest; build/check reports are not game data.
+The commercial LOD0 row deliberately counts the complete station's immutable
+container/resources, while triangle counts and camera bounds select its canopy
+and one dispenser. New levels include only those modules. That container-to-module
+saving is distinct from geometric simplification.
+
+The maple's final level uses 32 rendered directions in a 2048×1024 RGBA atlas,
+one unlit material and two triangles. The controller rotates about glTF +Y and
+selects the nearest 11.25° sector from the local asset-to-camera azimuth. The
+stock glTF fallback shows sector zero. `lod_impostor.pose()` demonstrates the
+controller in Blender; engines must implement it explicitly. Transparent RGB
+is filled from the tree's own scene-linear render using the existing pull-push
+helper before mip filtering; alpha stays unchanged. Wind is frozen and light is
+prebaked procedural daylight. Dynamic sun/night, elevated views and angular
+blending are limitations; the checked switch is a horizontal, static-wind case.
 
 Unsupported compressed mesh extensions, morph targets, sparse accessors and
 network/data URIs fail explicitly. A future library sweep must inventory these,
