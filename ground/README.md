@@ -344,3 +344,13 @@ are placed around the wider port without scaling. Road skins retain native
 asphalt images; paint/sealant have quick checkpoint materials pending review.
 Every existing delivery remains unchanged. This separate checkpoint does not
 claim baked arterial markings or final delivery verification.
+
+The signal family's road additions stay separate from the native ground
+export. `make -C ../signals arterial` builds `export/ArterialSites.glb` from
+`src/junction.py`: parameterized two-/five-lane widths, circular returns,
+walks/verges, detector cuts and crossings, a raised median with turn-bay taper
+and rounded nose, and a rounded channelizing island. The four supplied junction
+roots are authored in the signals family's `src/layout.py`; the generator also
+accepts a JSON specification via `--spec` and an explicit `--out`. None of the
+native Ground GLB or shipped map bytes is replaced. These additive road modules
+are independent of the ground family's original delivery and checks.
