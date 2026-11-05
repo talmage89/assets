@@ -55,33 +55,41 @@ Ground
   driveways, lawn, a storm inlet and a manhole, on three seamless tiling sets and one trim and decal atlas.
 
 Houses
-- [Builder colonials and postwar ranches](houses/README.md): seeded two-story and one-story houses with garages
-  or carports, moving doors and one shared weathered tiling-and-trim texture family.
+- [Hearthfield houses](houses/README.md): seeded American houses on one shared weathered tiling-and-trim texture
+  family, with moving doors and ground sockets.
+  - [Builder colonial](houses/README.md#first-type-builder-colonial): two stories, a room over an attached double
+    garage, vinyl siding and optional brick veneer.
+  - [Postwar ranch](houses/README.md#second-type-postwar-ranch): one story with broad eaves, a picture window and a
+    garage or carport.
+  - [Postwar Cape Cod](houses/README.md#third-type-postwar-cape-cod): one and a half stories with dormers.
+  - [Split-level](houses/README.md#fourth-type-split-level): five side-splits and a raised ranch.
 
 Vehicles
-- [Pickup](cars/README.md): full-size crew-cab pickup in five factory colors; doors, hood, tailgate, steering and
-  wheels move.
+- [Cars](cars/README.md): late-2010s vehicles in five factory colors on one baked atlas each; doors, closures,
+  steering and wheels move.
+  - [Alder C150 pickup](cars/README.md#alder-c150--crew-cab-pickup): full-size crew-cab 4×4 on all-terrain tires.
+  - [Alder X220 crossover](cars/README.md#alder-x220--compact-crossover): two-row compact SUV with a liftgate,
+    cargo area and AWD underbody.
 
-Trees
-- [Red maple](trees/README.md): 12.5 m open-grown summer red maple with leaf cards, flaky lower bark and wind
-  weights.
-- [Pin oak](trees/README.md): 17 m street pin oak with drooping lower limbs, lobed leaf cards, ridged bark and
-  wind weights, from the same species-driven generator.
+Trees and shrubs
+- [Trees](trees/README.md): summer street trees with leaf cards and wind weights.
+  - [Red maple](trees/README.md#red-maple--summer-delivery): 12.5 m open-grown tree with flaky lower bark.
+  - [Pin oak](trees/README.md#pin-oak--summer-delivery): 17 m street tree with drooping lower limbs and ridged bark.
 - [Foundation shrubs](shrubs/README.md): a sheared boxwood and a blooming bigleaf hydrangea in one GLB on one
   shared set, with wind weights.
 
 Held weapons
-- [Guns](guns/README.md): the PD C9 compact 9 mm pistol, the family's pilot, rigged with ten clips on the rifle's
-  frame and sockets, with loaded and empty magazines and a fired case; the PD Hearth 12 pump shotgun in blued steel
-  and walnut, with eighteen clips, a live shell and a fired hull; the PD Vesper B24 bolt-action rifle with a variable
-  scope and bipod, nine clips, magazines and a fired case; the PD Relay 9 9 mm submachine gun in black paint over
-  phosphate with a worn receiver, 21 clips, loaded and empty magazines, a cartridge and a fired case; the PD
-  Meridian Six .357 revolver in carried stainless steel with a rubber grip, 22 clips with per-chamber state, a
-  speedloader, a cartridge and a fired case; the PD Bracken L20 .30-30 lever-action carbine in bluing worn to
-  plum-brown with oiled walnut, 37 clips with tube and gate loading, a cartridge and a fired case; the PD Rill 39
-  7.62×39 stamped-receiver rifle in black enamel with varnished hardwood, 20 clips with a rock-in magazine, loaded and
-  empty magazines, a cartridge and a fired case. All seven guns' standalone magazines and ammunition carry their
-  own 512 or 1024 texture subsets at the guns' density.
+- [Guns](guns/README.md): nine original firearms on one shared rig interface, each with baked PBR textures, animation
+  clips, sockets, and standalone magazines and ammunition.
+  - [PD C9](guns/pistol/README.md): compact 9 mm pistol, the family's pilot.
+  - [PD Meridian Six](guns/revolver/README.md): .357 revolver in carried stainless steel, with a speedloader.
+  - [PD Hearth 12](guns/shotgun/README.md): pump shotgun in blued steel and walnut.
+  - [PD Covey 26](guns/sxs/README.md): side-by-side 12-gauge shotgun in oiled walnut, with extractors.
+  - [PD Vesper B24](guns/bolt/README.md): bolt-action precision rifle with a variable scope and bipod.
+  - [PD Bracken L20](guns/lever/README.md): .30-30 lever-action carbine with tube and gate loading.
+  - [PD Rill 39](guns/ak/README.md): 7.62×39 stamped-receiver rifle in black enamel and hardwood.
+  - [PD Relay 9](guns/smg/README.md): 9 mm submachine gun, black paint over phosphate.
+  - [PD Harrow 56](guns/lmg/README.md): belt-fed 5.56×45 light machine gun with a count-aware belt.
 
 Toolkit
 - [Shared toolkit](kit/README.md): procedural modeling and materials, UV, bake and export, verification and studio

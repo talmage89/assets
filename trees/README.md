@@ -1,5 +1,12 @@
 # Trees / red maple and pin oak
 
+<table>
+<tr>
+<td align="center" width="50%"><a href="#red-maple--summer-delivery"><img src="docs/hero.jpg" alt="Red maple" width="400"></a><br><a href="#red-maple--summer-delivery"><b>Red maple</b></a><br>12.4 m open-grown street tree</td>
+<td align="center" width="50%"><a href="#pin-oak--summer-delivery"><img src="docs/oak-hero.jpg" alt="Pin oak" width="400"></a><br><a href="#pin-oak--summer-delivery"><b>Pin oak</b></a><br>16.8 m central-led street tree</td>
+</tr>
+</table>
+
 Two original scripted summer street trees: a spreading **red maple**
 (*Acer rubrum*) and a taller, central-led **pin oak** (*Quercus palustris*).
 Each has two materials, one shared-within-species 2048² alpha/PBR atlas and
@@ -15,6 +22,8 @@ The dimensions below are measurements of generated surfaces. The authored ages
 (about 20 / 25 years) are specimen briefs, not surveyed ages of the photographs.
 See [oak delivery](#pin-oak--summer-delivery), [critique](REVIEW.md#pin-oak--bark-only-polish),
 [oak species evidence](OAK_REFERENCE.md) and [reference credits](refs/SOURCES.md).
+
+## Red maple / summer delivery
 
 An original scripted summer **red maple (*Acer rubrum*)**, about 12.5 m tall,
 with a 9.8 m crown and a 36 cm trunk. The specimen represents an open-grown
@@ -40,7 +49,7 @@ Bark value crops (`renders/final/bark-value-pair.jpg`) ·
 The full-resolution files are local rebuild outputs; the three docs JPGs are
 tracked.
 
-## Scale and construction
+### Scale and construction
 
 | Measured source surface | Result |
 | --- | ---: |
@@ -70,7 +79,7 @@ Five broad buttresses merge into a smooth lower-bole flare and disappear into
 grade. Section measurements use actual triangle/plane intersections; pipe
 conservation checks concern authored profiles, not exact fused-surface areas.
 
-## Budget and texture split
+### Budget and texture split
 
 | Allocation | Delivered cost |
 | --- | ---: |
@@ -104,7 +113,7 @@ every tangent direction** there. Bark occupies about 23% of the whole atlas,
 with half the atlas reserved separately for foliage. Leaf-card density is
 727–812 px/m at 2048. Alpha reuse is intentional only inside the declared leaf region.
 
-## Materials and engine integration
+### Materials and engine integration
 
 The branchlet variants carry 24–30 opposite leaves each. Blade length is
 6.6–9.4 cm before 0.94–1.05 card scale variation: approximately **6.2–9.9 cm**
@@ -151,7 +160,7 @@ The engine adds the wind shader, instance variation, distance LODs and impostors
 or billboards. Keep authored bent normals on foliage; automatic normal
 recalculation loses the mass shading. Wind is not animation baked into the GLB.
 
-## Rebuild and checks
+### Rebuild and checks
 
 ```sh
 make -C trees                  # refs → source → UV → bake → GLB → final renders/docs/checks
@@ -186,7 +195,7 @@ metadata records the GLB hash; `renders/final/render-check.json` rejects stale
 or source-scene presentation images. These checks prove their stated scopes;
 only the photo pairs and close-ups establish appearance.
 
-## Final photo and build evidence
+### Final photo and build evidence
 
 The bark correction rebuilt the source scenes, UVs, 4096 bake, filtered maps,
 GLB and full presentation with `make -C trees`; `make -C trees check` passes.
@@ -226,7 +235,7 @@ ORM occlusion p10 is **.608**. These verify retained normal/occlusion variation;
 the bark and two-meter images establish whether it reads. Plate lips remain
 flat at grazing angles, with some procedural regularity in macro views.
 
-## Limits and credits
+### Limits and credits
 
 The crown is more compact and its masses more distinct than Penn State's broad
 individual. Some isolated upper wood remains angular. Close branchlet views
