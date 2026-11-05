@@ -192,6 +192,10 @@ def plant(p,world):
     if p.get('look'):
         mask=next(m for o in stock for m in o.data.materials if m.surface_render_method=='DITHERED')
         for o in stock:o.data.materials.clear();o.data.materials.append(mask)
+        bpy.ops.object.select_all(action='DESELECT')
+        for o in stock:o.select_set(True)
+        bpy.context.view_layer.objects.active=stock[0];bpy.ops.object.join();stock=[bpy.context.object]
+        added=set(bpy.context.scene.objects)-before
     data=[(o.data,o.matrix_world.copy()) for o in stock]
     for o in added:bpy.data.objects.remove(o,do_unlink=True)
     r=root('Landscape',kind='Landscape',parent=world);r['reusable_module']=True
@@ -205,4 +209,4 @@ def plant(p,world):
             for j,(mesh,xf) in enumerate(data):
                 ob=bpy.data.objects.new(f'StripBoxwood_{count}_{j}',mesh);bpy.context.collection.objects.link(ob);ob.parent=rt;ob.matrix_basis=xf
             count+=1
-    return dict(source='shrubs/export/Shrubs.glb',sha256=hashlib.sha256(source.read_bytes()).hexdigest(),instances=count,unique_meshes=2,reused_gpu_mib=16)
+    return dict(source='shrubs/export/Shrubs.glb',sha256=hashlib.sha256(source.read_bytes()).hexdigest(),instances=count,unique_meshes=len(data),reused_gpu_mib=16)

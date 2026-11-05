@@ -13,16 +13,16 @@ from strip_building import bay,endcap,tower,ladder,coping,meter_bank
 from strip_site import site,pylon,plant
 
 
-def build(seed,folder=Path('build/strip'),overrides=None,plants=True):
+def build(seed,folder=Path('build/strip'),overrides=None,plants=True,look=False):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     import geometry
     geometry.SHARED_GRAPHICS=False;reset_prints()
-    p=generate(seed,overrides);b=p['building']
+    p=generate(seed,overrides);p['look']=look;b=p['building']
     palette(dict(primary=(.095,.125,.12),accent=(.35,.19,.09),light=(.70,.67,.59)),b['wall_color'])
     # Quick physical-value palette; the form gate deliberately does not build
     # the commercial material fields or modify the gas station's shared maps.
     M['Lamp'].node_tree.nodes.get('Principled BSDF').inputs['Emission Strength'].default_value=25
-    ink,layout=install();modules={}
+    ink,layout=install(Path('build/strip/signs-look' if look else 'build/strip/signs'),look=look);modules={}
     row=[m for m in p['modules'] if not m['wing']]
     if p['towers']=='ends':positions=[b['left']+1.8,b['left']+b['width']-1.8];tower_tenants=[row[0]['tenant'],row[-1]['tenant']]
     elif p['towers']=='center':positions=[b['left']+b['width']/2];tower_tenants=[None]
@@ -37,6 +37,7 @@ def build(seed,folder=Path('build/strip'),overrides=None,plants=True):
         m['open_left']=bool(prev and prev['lease_group']==m['lease_group'] and prev['yaw']==m['yaw'])
         m['corner_end']=bool(nextm and not m['wing'] and nextm['wing'])
         m['end_column']=(nextm is None or m['yaw']!=nextm['yaw']) and not m['corner_end']
+        m['wrap_side']=(-1 if i==0 and p['endcaps'][0]=='wrap' else 1 if i==len(p['modules'])-1 and p['endcaps'][1]=='wrap' and not p['elbow'] else 0)
         m['hosted_sign']=not m['wing'] and m['tenant'] in hosted
         group=[q for q in p['modules'] if q['lease_group']==m['lease_group'] and q['yaw']==m['yaw']]
         m['sign_leader']=m==group[0]
@@ -47,8 +48,8 @@ def build(seed,folder=Path('build/strip'),overrides=None,plants=True):
                 m['sign_width']=m['width']-2.45
                 m['sign_offset']=-.90 if xx<center else .90
         modules[m['id']]=bay(m,p,ink,layout)
-    endcap('EndCap_Left',b['left']+.1016,p)
-    if not p['elbow']:endcap('EndCap_Right',b['left']+b['width']-.1016,p,outward=1)
+    endcap('EndCap_Left',b['left']+.1016,p,ink=ink,layout=layout)
+    if not p['elbow']:endcap('EndCap_Right',b['left']+b['width']-.1016,p,outward=1,ink=ink,layout=layout)
     else:
         x0,x1,y0,y1=p['elbow']['bounds'];r=root('ElbowStorage',kind='Elbow');r['reusable_module']=True
         box('Elbow floor',((x0+x1)/2,(y0+y1)/2,.0762),(x1-x0,y1-y0,.1524),'Concrete',r,.003)
@@ -58,10 +59,10 @@ def build(seed,folder=Path('build/strip'),overrides=None,plants=True):
         # Wing outer end wall and coping close the short leg without a duplicate
         # inside end wall between the elbow and its tenant's storage.
         d=b['depth'];ww=p['modules'][0]['width'];yy=y0-2*ww
-        box('Return wing end',((x0+x1)/2,yy+.1016,b['parapet']/2),(d,.2032,b['parapet']),'Wall',r,.004)
+        end=endcap('EndCap_Return',0,{**p,'building':{**b,'front':-d/2}},outward=1,ink=ink,layout=layout)
+        end.location=((x0+x1)/2,yy+.1016,0);end.rotation_euler.z=0
         box('Elbow east coping',(x1,(y0+y1)/2,b['parapet']+.018),(.30,y1-y0,.036),'Trim',r,.003)
         box('Elbow rear coping',((x0+x1)/2,y1,b['parapet']+.018),(d,.30,.036),'Trim',r,.003)
-        box('Return wing end coping',((x0+x1)/2,yy,b['parapet']+.018),(d,.30,.036),'Trim',r,.003)
     for i,(x,tenant) in enumerate(zip(positions,tower_tenants)):tower('Tower_'+str(i+1),x,p,tenant,ink,layout)
     ladder(p);meter_bank(p,ink,layout);site(p,modules,ink,layout);pylon(p,ink,layout)
     world=root('StripCenter_'+str(seed),kind='StripCenter')
@@ -74,12 +75,19 @@ def build(seed,folder=Path('build/strip'),overrides=None,plants=True):
     for ob in bpy.context.scene.objects:
         for mod in list(ob.modifiers):
             if mod.type=='BEVEL' and mod.width<=.0041:ob.modifiers.remove(mod)
+    if look:
+        from strip_age import add
+        from strip_surfaces import apply
+        add(p,modules,ink,layout);apply(p,ink,layout)
     finish_prints(folder/f'addresses-{seed}.png');finalize();bpy.context.view_layer.update()
     if plants:p['landscape']=plant(p,world)
     else:p['landscape']=dict(instances=0,scope='No botanical instances for diagnostic repeat')
     bpy.context.view_layer.update();path=folder/f'strip-{seed}.blend'
     bpy.ops.wm.save_as_mainfile(filepath=str(path.resolve()),compress=True)
-    bpy.ops.export_scene.gltf(filepath=str(path.with_suffix('.glb').resolve()),export_format='GLB',export_extras=True,export_apply=False,export_yup=True,export_texcoords=True,export_normals=True,export_tangents=False,export_materials='EXPORT',export_cameras=False,export_lights=False)
+    if look:
+        from kit.tiling import export
+        export(path.with_suffix('.glb'))
+    else:bpy.ops.export_scene.gltf(filepath=str(path.with_suffix('.glb').resolve()),export_format='GLB',export_extras=True,export_apply=False,export_yup=True,export_texcoords=True,export_normals=True,export_tangents=False,export_materials='EXPORT',export_cameras=False,export_lights=False)
     counts={};meshes=[o for o in bpy.context.scene.objects if o.type=='MESH']
     for ob in meshes:
         owner=ob.parent
@@ -97,6 +105,6 @@ def build(seed,folder=Path('build/strip'),overrides=None,plants=True):
 
 
 if __name__=='__main__':
-    a=argparse.ArgumentParser();a.add_argument('--seeds',default=','.join(map(str,PROOF_SEEDS)));a.add_argument('--out',type=Path,default=Path('build/strip'));a.add_argument('--plan',type=Path);a.add_argument('--no-plants',action='store_true');a=a.parse_args(sys.argv[sys.argv.index('--')+1:])
-    graphics()
-    for seed in map(int,a.seeds.split(',')):build(seed,a.out,json.loads(a.plan.read_text()) if a.plan else None,not a.no_plants)
+    a=argparse.ArgumentParser();a.add_argument('--seeds',default=','.join(map(str,PROOF_SEEDS)));a.add_argument('--out',type=Path,default=Path('build/strip'));a.add_argument('--plan',type=Path);a.add_argument('--no-plants',action='store_true');a.add_argument('--look',action='store_true');a=a.parse_args(sys.argv[sys.argv.index('--')+1:])
+    graphics(Path('build/strip/signs-look' if a.look else 'build/strip/signs'),look=a.look)
+    for seed in map(int,a.seeds.split(',')):build(seed,a.out,json.loads(a.plan.read_text()) if a.plan else None,not a.no_plants,a.look)

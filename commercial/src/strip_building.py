@@ -65,7 +65,7 @@ def cover(m,p,parent):
 def interior(m,p,parent):
     w=m['width'];key=m['tenant'];deep=7.4
     box('Tenant ceiling',(0,deep/2,3.02),(w-.24,deep,.045),'White',parent,0)
-    box('Tenant room floor',(0,deep/2,.153),(w-.24,deep,.012),'Concrete',parent,0)
+    box('Tenant room floor',(0,deep/2,.153),(w-.24,deep,.012),'Concrete',parent,0)['room_floor']=True
     box('Interior partition backing',(0,deep,1.56),(w-.25,.075,2.82),'Inside',parent,0)
     # Finish a proper room at the glazed front. The remainder is exterior-shell
     # depth and service space, not falsely advertised as a playable shop.
@@ -76,15 +76,15 @@ def interior(m,p,parent):
         for yy in (1.6,4.1,6.4):
             for x in (-w*.23,w*.23):box('Tenant ceiling diffuser',(x,yy,2.985),(.85,.26,.012),'Lamp',parent,0)
     def counter(x,y,width=1.7):
-        box('Tenant counter',(x,y,.66),(width,.63,1.02),'Primary',parent,.012)
+        box('Tenant counter',(x,y,.669),(width,.63,1.02),'Primary',parent,.012)['floor_support']=True
         box('Counter worktop',(x,y,1.195),(width+.07,.70,.045),'White',parent,.004)
-        box('Register',(x+.25,y+.12,1.34),(.26,.22,.24),'Black',parent,.006)
+        box('Register',(x+.25,y+.12,1.3375),(.26,.22,.24),'Black',parent,.006)
     def chair(x,y):
         box('Chair upholstered seat',(x,y,.62),(.52,.50,.10),'Trim',parent,.025,2)
         box('Chair back',(x,y+.23,.90),(.50,.07,.55),'Trim',parent,.022,2)
         cylinder('Chair stem',(x,y,.17),(x,y,.57),.035,'Metal',parent,10)
         for a in (0,math.pi/2):
-            beam('Chair base',(x-.30*math.cos(a),y-.30*math.sin(a),.20),(x+.30*math.cos(a),y+.30*math.sin(a),.20),.035,.035,'Metal',parent)
+            beam('Chair base',(x-.30*math.cos(a),y-.30*math.sin(a),.1765),(x+.30*math.cos(a),y+.30*math.sin(a),.1765),.035,.035,'Metal',parent)['floor_support']=True
     if key in ('nails','hair'):
         counter(-w*.23,1.8,1.4)
         for j in range(3):
@@ -98,48 +98,60 @@ def interior(m,p,parent):
         for s in (-1,1):
             for j in range(4):
                 x=s*(w/2-.78);y=1.4+j*1.23
-                box('Front load washer cabinet',(x,y,.76),(1.0,.86,1.20),'White',parent,.022)
+                box('Front load washer cabinet',(x,y,.76),(1.0,.86,1.20),'White',parent,.022)['floor_support']=True
                 face=root('Washer face',(x,y-.447,.80),parent=parent)
                 cylinder('Washer bezel',(0,0,0),(0,-.05,0),.34,'Metal',face,24)
                 cylinder('Washer black seal',(0,-.051,0),(0,-.063,0),.285,'Black',face,24)
                 cylinder('Washer glass',(0,-.064,0),(0,-.068,0),.245,'Glass',face,24)
                 panel('Washer control',0,-.012,.44,.46,.13,'Trim',face,.018)
         box('Laundry folding table',(0,4.3,.98),(1.18,2.4,.06),'White',parent,.004)
-        for yy in (3.5,5.1):box('Folding table legs',(0,yy,.56),(.85,.08,.80),'Trim',parent,.002)
+        for yy in (3.5,5.1):box('Folding table legs',(0,yy,.56),(.85,.08,.80),'Trim',parent,.002)['floor_support']=True
     elif key=='cleaner':
         counter(-w*.20,1.8,2.3)
-        for xx in (-w*.25,w*.18):
-            for zz in (.38,1.7):cylinder('Garment rack',(xx,4.0,zz),(xx,6.6,zz),.024,'Metal',parent,8)
+        for xx in (w*.13-.65,w*.13+.65):
+            px=xx+(-.50 if xx<w*.13 else .50)
+            cylinder('Conveyor support post',(px,5.3,.159),(px,5.3,1.95),.024,'Metal',parent,8)['floor_support']=True
+            beam('Conveyor cantilever bracket',(px,5.3,1.95),(xx,5.3,1.95),.035,.035,'Metal',parent)
             for j in range(12):
                 yy=4.1+j*.20
                 outline=[(-.31,.65),(.30,.65),(.34,1.51),(.12,1.68),(-.11,1.68),(-.35,1.49)]
+                cylinder('Garment suspension',(xx,yy,1.68),(xx,yy,1.94),.0025,'Metal',parent,6)
                 n=len(outline);verts=[(xx+x,yy+side*.025,z) for side in (-1,1) for x,z in outline]
                 faces=[tuple(range(n-1,-1,-1)),tuple(range(n,2*n))]+[(i,(i+1)%n,(i+1)%n+n,i+n) for i in range(n)]
                 mesh('Hanging garment with shoulders',verts,faces,'White' if j%3 else 'Primary',parent)
         track=[]
-        for i in range(33):
-            a=i*math.tau/32;track.append((w*.215*math.cos(a)-w*.035,5.3+1.5*math.sin(a),1.95))
+        for i in range(13):
+            a=i*math.pi/12;track.append((w*.13+.65*math.cos(a),6.3+.65*math.sin(a),1.95))
+        for i in range(13):
+            a=math.pi+i*math.pi/12;track.append((w*.13+.65*math.cos(a),4.1+.65*math.sin(a),1.95))
+        track.append(track[0])
         tube('Dry cleaner conveyor overhead rail',track,.028,'Metal',parent,8)
-        box('Conveyor geared drive',(w*.18,5.3,2.03),(.30,.42,.24),'Trim',parent,.015)
+        box('Conveyor geared drive',(w*.13+.65,5.3,2.03),(.30,.42,.24),'Trim',parent,.015)
     elif key=='pizza':
         counter(w*.18,3.8,w*.55)
         box('Pizza oven',(w*.22,5.8,1.25),(1.9,1.0,1.7),'Metal',parent,.025)
+        for dx in (-.78,.78):
+            for dy in (-.40,.40):box('Oven support leg',(w*.22+dx,5.8+dy,.2795),(.044,.044,.241),'Metal',parent,.002)['floor_support']=True
         for zz in (.95,1.47):panel('Oven dark mouth',w*.22,5.285,zz,1.50,.30,'Black',parent,.018)
         for j in range(2):
             x=-w*.27;y=1.6+j*1.7
             box('Takeout table',(x,y,.92),(.77,.77,.07),'White',parent,.02)
-            cylinder('Table pedestal',(x,y,.18),(x,y,.88),.04,'Trim',parent,10)
+            cylinder('Table pedestal foot',(x,y,.159),(x,y,.185),.20,'Trim',parent,10)['floor_support']=True
+            cylinder('Table pedestal',(x,y,.18),(x,y,.885),.04,'Trim',parent,10)
             for dx in (-.58,.58):chair(x+dx,y)
     elif key=='mattress':
         for j in range(3):
             x=(-.20 if j%2 else .20)*w;y=1.7+j*1.7
-            box('Bed display base',(x,y,.35),(1.55,1.65,.38),'Trim',parent,.015)
+            box('Bed display base',(x,y,.35),(1.55,1.65,.38),'Trim',parent,.015)['floor_support']=True
             box('Mattress display',(x,y,.67),(1.57,1.68,.29),'White',parent,.075,3)
             box('Bed display pillow',(x,y+.52,.88),(1.0,.38,.14),'White',parent,.06,2)
     elif key in ('phone','tax'):
         counter(w*.20,2.2,w*.48)
         for j in range(3):chair(-w*.28,1.4+j*.78)
         box('Work desk',(w*.21,5.0,.92),(2.1,.8,.06),'White',parent,.005)
+        for side in (-1,1):box('Desk pedestal support',(w*.21+side*.82,5.0,.5245),(.08,.68,.731),'White',parent,0)['floor_support']=True
+        box('Monitor stand',(w*.21,5.05,1.0325),(.055,.07,.17),'Trim',parent,0)
+        box('Monitor foot',(w*.21,5.05,.959),(.28,.18,.018),'Trim',parent,0)
         box('Computer monitor',(w*.21,5.05,1.30),(.58,.07,.39),'Trim',parent,.01)
     else:
         box('Vacant letting partition',(0,5.3,1.55),(w-.30,.055,2.8),'White',parent,0)
@@ -157,7 +169,7 @@ def rear(m,p,parent,ink,layout):
     box('Service door landing',(w*.20,-.90,.0762),(1.70,1.60,.1524),'Concrete',rr,.009)
     for side in (-1,1):
         cylinder('Loading protection bollard',(w*.20+side*1.22,-1.62,0),(w*.20+side*1.22,-1.62,1.05),.05715,'Yellow',rr,12)
-        cylinder('Bollard domed cap',(w*.20+side*1.22,-1.62,1.05),(w*.20+side*1.22,-1.62,1.075),.052,'Yellow',rr,12)
+        cylinder('Bollard domed cap',(w*.20+side*1.22,-1.62,1.05),(w*.20+side*1.22,-1.62,1.075),.052,'Yellow',rr,10)
     socket(m['id']+'__RearHand',(.77,-.07,1.04),door,'door_handle')
     # Printed address is a small installed open-font diagnostic, not contour mesh.
     quad('Rear tenant address',m['address'],'sign',w*.20,-.135,2.45,.32,.075,rr,ink,layout)

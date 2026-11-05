@@ -13,7 +13,7 @@ from kit.fonts import find_font
 from strip_plan import TENANTS
 
 
-def generate(out=Path('build/strip/signs')):
+def generate(out=Path('build/strip/signs'),look=False):
     out=Path(out);out.mkdir(parents=True,exist_ok=True)
     size=2048;im=Image.new('RGBA',(size,size),(0,0,0,0));dr=ImageDraw.Draw(im);records={}
     keys=list(TENANTS)
@@ -69,33 +69,41 @@ def generate(out=Path('build/strip/signs')):
         else:label(t['name'],(r[0],r[1]+2,r[2],r[1]+55),face,t['ink'],height=.66)
         label(t['subtitle'],(r[0]+2,r[1]+58,r[2]-2,r[3]-2),'DejaVu Sans',t['ink'],height=.65)
         records[key]['tower']=r
+    if look:
+        from strip_maps import extend
+        extend(im,records,out)
     im.save(out/'T_StripSigns_BaseColor.png')
     for data in records.values():
-        for kind in ('sign','window','tower'):
+        for kind in ('sign','window','tower','faded'):
             if kind in data:
                 a,b,c,d=data[kind];data[kind]=(a/size,1-d/size,c/size,1-b/size)
     (out/'layout.json').write_text(json.dumps(records,indent=2)+'\n')
     return out
 
 
-def install(folder=Path('build/strip/signs')):
+def install(folder=Path('build/strip/signs'),look=False):
     import bpy
     folder=Path(folder);ma=bpy.data.materials.new('StripTenantInks');ma.use_nodes=True
     ns,ls=ma.node_tree.nodes,ma.node_tree.links;p=ns.get('Principled BSDF')
     tex=ns.new('ShaderNodeTexImage');tex.image=bpy.data.images.load(str((folder/'T_StripSigns_BaseColor.png').resolve()),check_existing=True)
     ls.new(tex.outputs['Color'],p.inputs['Base Color']);ls.new(tex.outputs['Alpha'],p.inputs['Alpha'])
-    p.inputs['Roughness'].default_value=.55;ma.surface_render_method='DITHERED';ma.use_backface_culling=True
+    p.inputs['Roughness'].default_value=.55;ma['tiling_vertex_tint']=False
+    if look:
+        em=ns.new('ShaderNodeTexImage');em.image=bpy.data.images.load(str((folder/'T_StripSigns_Emission.png').resolve()),check_existing=True)
+        u=ns.new('ShaderNodeUVMap');u.uv_map='EmissionUV';ls.new(u.outputs['UV'],em.inputs['Vector']);ls.new(em.outputs['Color'],p.inputs['Emission Color']);p.inputs['Emission Strength'].default_value=300
+    ma.surface_render_method='DITHERED';ma.use_backface_culling=True
     return ma,json.loads((folder/'layout.json').read_text())
 
 
 def quad(name,tenant,kind,x,y,z,w,h,parent,mat,layout):
     from geometry import mesh
     ob=mesh(name,[(x-w/2,y,z-h/2),(x+w/2,y,z-h/2),(x+w/2,y,z+h/2),(x-w/2,y,z+h/2)],[(0,1,2,3)],mat,parent,False)
+    if name=='Pylon tenant panel' and abs(parent.rotation_euler.z)<.01 and 'faded' in layout[tenant]:kind='faded'
     uv=ob.data.uv_layers.new(name='UVMap');a,b,c,d=layout[tenant][kind]
     assert 0<=a<c<=1 and 0<=b<d<=1,('Invalid ink rectangle',tenant,kind,(a,b,c,d))
     tc=((a,b),(c,b),(c,d),(a,d))
     for li in ob.data.loops:uv.data[li.index].uv=tc[li.vertex_index]
-    ob['tenant']=tenant;ob['graphic']=True;return ob
+    ob['tenant']=tenant;ob['graphic']=True;ob['graphic_kind']=kind;return ob
 
 
 if __name__=='__main__':generate()
