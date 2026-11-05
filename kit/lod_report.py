@@ -12,7 +12,7 @@ from PIL import Image,ImageDraw,ImageFont
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
-from kit.lod import configuration
+from kit.lod import configuration,tool_digests
 from kit.lod_io import Document,digest
 from kit.fonts import find_font
 
@@ -86,7 +86,7 @@ def main():
         cfg,root,source,out=configuration(config);m=json.loads((out/'manifest.json').read_text())
         checks=json.loads((out/'check.json').read_text());renders=root/cfg.get('renders','renders/lod')
         metrics=json.loads((renders/'metrics.json').read_text());normals=json.loads((out/'normals-vs-lod0.json').read_text())
-        if checks.get('manifest_sha256')!=digest(out/'manifest.json') or not checks['passed'] or not metrics['passed'] or not normals['passed'] or normals['manifest_sha256']!=digest(out/'manifest.json') or normals.get('auditor_sha256')!=digest(ROOT/'kit/lod_normals.py') or metrics.get('renderer_sha256')!=digest(ROOT/'kit/lod_render.py') or Document(source).dependencies()!=m['baseline']:
+        if m.get('tools')!=tool_digests() or metrics.get('manifest_sha256')!=digest(out/'manifest.json') or checks.get('manifest_sha256')!=digest(out/'manifest.json') or not checks['passed'] or not metrics['passed'] or not normals['passed'] or normals['manifest_sha256']!=digest(out/'manifest.json') or normals.get('auditor_sha256')!=digest(ROOT/'kit/lod_normals.py') or metrics.get('renderer_sha256')!=digest(ROOT/'kit/lod_render.py') or Document(source).dependencies()!=m['baseline']:
             raise RuntimeError('Checkpoint is not current/passing: '+str(config))
         text+=['## '+cfg['kind'],'',table(m),'']
         dependencies={}
