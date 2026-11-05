@@ -46,6 +46,10 @@ def own(o,rt):
   COMPONENTS[ident]=o.name
   attr=o.data.attributes.get('Construction') or o.data.attributes.new(name='Construction',type='INT',domain='FACE')
   for f in attr.data:f.value=ident
+  # Resolve manufacturing bevels before projecting trims. Blender bevel UV
+  # interpolation can differ by an ULP between clean processes. Mesh geometry
+  # is deterministic; assigning from its resolved surfaces removes that drift.
+  G.apply(o)
   surfaces.assign(o)
  return o
 def box(name,p,sz,ma,rt,r=.002):return own(G.box(name,p,sz,M.get(ma,ma),r,1),rt)

@@ -39,13 +39,13 @@ def solve():
  for row,pixel in enumerate([(1416,1116),(1417,1148),(1418,1180)]):m.append(lm(mastpoint(x,row),pixel))
  c=mastpoint(x,0)
  m += [lm([c[0],c[1]+.1524,c[2]],(1402,1116)),lm([c[0],c[1]-.1524,c[2]],(1430,1116))]
- mast=dict(title='Straight mast / sidewalk support framing / 202',photo='refs/gadsden-2025-balanced.jpg',crop=(850,870,2250,1460),location=(-65,-6.4,1.65),target=(5,-2,6),lens=80,camera_height_m=(1.65,.4),lens_bounds_mm=(25,160),landmarks=m)
+ mast=dict(title='Straight mast / sidewalk support framing / 202',photo='refs/gadsden-2025-balanced.jpg',crop=(500,850,2600,2250),location=(-65,-6.4,1.65),target=(5,-2,6),lens=80,camera_height_m=(1.65,.4),lens_bounds_mm=(25,160),landmarks=m)
  # Same installed support in a wider driver's frame, independently fitted.
  driver=dict(mast);driver.update(title='Driver approach / straight mast / 202',crop=(0,0,3264,2448))
  a=np.array((-(FACE+4.2),-(CORE+4),0.));b=-a
  def center(t,row):
   p=a+(b-a)*t;p[2]=7.72-4*.26*t*(1-t)-.20-.390-row*.370;return p.tolist()
- span=dict(title='Span approach / sag and cable construction / 204',photo='refs/maryland-2006-balanced.jpg',crop=(1150,360,2110,940),location=(14,-46,1.7),target=(0,0,4.5),lens=42,camera_height_m=(1.7,.4),lens_bounds_mm=(22,100),landmarks=[lm(center(.53,0),(1632,531)),lm(center(.53,1),(1633,551)),lm(center(.53,2),(1634,571)),lm(center(.66,0),(1794,549)),lm(center(.66,1),(1795,570)),lm(center(.66,2),(1796,589))])
+ span=dict(title='Span approach / sag and cable construction / 204',photo='refs/maryland-2006-balanced.jpg',crop=(850,350,2300,1700),location=(14,-46,1.7),target=(0,0,4.5),lens=42,camera_height_m=(1.7,.4),lens_bounds_mm=(22,100),landmarks=[lm(center(.53,0),(1632,531)),lm(center(.53,1),(1633,551)),lm(center(.53,2),(1634,571)),lm(center(.66,0),(1794,549)),lm(center(.66,1),(1795,570)),lm(center(.66,2),(1796,589))])
  close=dict(title='Sunlit maintained LED head / 204',photo='refs/span-2009-balanced.jpg',crop=(1120,450,1700,1950),location=(.6,-20,1.65),target=center(.53,1),lens=300,camera_height_m=(1.65,.3),lens_bounds_mm=(150,900),landmarks=[lm(center(.53,0),(1375,907)),lm(center(.53,1),(1373,1283)),lm(center(.53,2),(1371,1658)),lm([center(.53,0)[0]-.1524,center(.53,0)[1],center(.53,0)[2]],(1220,907)),lm([center(.53,0)[0]+.1524,center(.53,0)[1],center(.53,0)[2]],(1530,907))])
  extra=[]
  for seed,photo,pixels,crop in [(201,'span-2009',[(1375,907),(1373,1283),(1371,1658)],(1120,680,1700,1900)),(203,'span-2009',[(1375,907),(1373,1283),(1371,1658)],(1120,680,1700,1900))]:

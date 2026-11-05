@@ -37,9 +37,11 @@ def context(seed):
   for side in (-1,1):
    for i in range(8):
     y=site.core(turn)+22+i*29+rng.uniform(-2,2);x=side*(site.face(turn)+15+rng.uniform(-1,2))
-    if seed==201 and turn==0 and side==1 and i<2:continue
+    pos=xy(x,y,angle,.15)
+    # Reserve the complete commercial parcel plus house eaves/setback.
+    if site.commercial and abs(pos[0]-(site.hx+31))<35 and abs(pos[1]-(site.hy+33))<35:continue
     rel=houses[(i+turn+side+seed)%3];base,_=library(rel)
-    clone(base,f'House{turn}_{side}_{i}',xy(x,y,angle,.15),angle+(-90 if side>0 else 90))
+    clone(base,f'House{turn}_{side}_{i}',pos,angle+(-90 if side>0 else 90))
    for i in range(11):
     y=site.core(turn)+30+i*22
     rel='trees/export/PinOak.glb' if (i+seed)%2 else 'trees/export/RedMaple.glb';base,_=library(rel)
