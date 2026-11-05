@@ -1,0 +1,23 @@
+{
+  "kind": "C150 pickup",
+  "source": "export/AlderC150.glb",
+  "levels": [
+    {
+      "ratio": 0.55,
+      "screen_height": 0.25
+    },
+    {
+      "ratio": 0.25,
+      "screen_height": 0.1,
+      "texture_size": 1024
+    },
+    {
+      "ratio": 0.12,
+      "screen_height": 0.04,
+      "texture_size": 512
+    }
+  ],
+  "drop_subpixel": true,
+  "readme_before": "\n## Alder X220",
+  "readme_level": 3
+}
