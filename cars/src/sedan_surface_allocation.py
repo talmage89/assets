@@ -32,7 +32,7 @@ def collapse_lower(mesh,reference,ceiling,world,limit):
         edges=sorted([e for e in bm.edges if len(e.link_faces)==2 and all(v in pure for v in e.verts)],key=lambda e:(e.calc_length(),e.index))
         for e in edges:
             if count>=limit:break
-            if not e.is_valid or e.calc_length()>.12:continue
+            if not e.is_valid or e.calc_length()>.16:continue
             a,c=e.verts;na={q for ed in a.link_edges for q in ed.verts if q!=a};nc={q for ed in c.link_edges for q in ed.verts if q!=c}
             if len(na&nc)!=2:continue
             neighborhood=na|nc|{a,c}
@@ -118,7 +118,7 @@ def reduce(ob):
                     p=candidate.vertices[candidate.loops[li].vertex_index].co
                     custom.append(held[tuple(p)] if r==0 else (0,0,0))
             candidate.normals_split_custom_set(custom)
-            limit=(900 if ob.name.startswith('Front') else 700) if 'fascia' in ob.name else 300 if ob.name=='Trunk outer' else 120
+            limit=(900 if ob.name.startswith('Front') else 800) if 'fascia' in ob.name else 300 if ob.name=='Trunk outer' else 160
             collapse=collapse_lower(candidate,old,ceiling,world,limit)
             ob['lower_allocation']=json.dumps(dict(original_triangles=before,triangles=len(candidate.loop_triangles),ceiling_m=ceiling,attempts=attempts,collapse=collapse,method='Boundary-preserving interior edge allocation against the original outer sheet; source normals resampled; original-surface center and quarter-edge probes'))
             if old.users==0:bpy.data.meshes.remove(old)

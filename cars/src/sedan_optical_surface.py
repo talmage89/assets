@@ -26,7 +26,7 @@ def guides(b,sign,mat,tree,front=True):
     for j in range(nv):
         row=[];v=j/(nv-1)
         for i in range(nu):
-            u=i/(nu-1);theta=math.radians(28+34*u if front else 17+51*u)
+            u=i/(nu-1);theta=math.radians(28+34*u if front else 17+48*u)
             direction=Vector((math.sin(theta),(-1 if front else 1)*math.cos(theta),0))
             def hit(z):
                 center=Vector((0,ORIGIN.y if front else REAR_ORIGIN.y,z));p,n,_,_=tree.ray_cast(center+direction*2,-direction,2)
@@ -40,8 +40,12 @@ def guides(b,sign,mat,tree,front=True):
                     from sedan_upper_surface import height
                     top=height(p.x,p.y)-.014
                 p,_=hit(top)
-            gauge=(.075+.055*ease(0,.55,u))*(1-.83*ease(.78,1,u)) if front else (.055+.125*ease(0,.60,u))*(1-.87*ease(.80,1,u))
-            p,n=hit(top-gauge*(1-v));row.append(p+n*.004)
+            gauge=(.075+.055*ease(0,.55,u))*(1-.83*ease(.78,1,u)) if front else (.052+.112*ease(0,.60,u))*(1-.87*ease(.80,1,u))
+            # The original blank convention added 4 mm OUTSIDE the steel.
+            # The mold's smaller radial fitting allowance did not undo that
+            # at the deck roll, so the lens stood above its painted edge.
+            # Manufacture the cover inside its actual supporting stamping.
+            p,n=hit(top-gauge*(1-v));row.append(p-n*.003)
         rows.append(row)
     anchors=[p for row in rows for p in row]
     if not b.high:
@@ -168,7 +172,8 @@ def rebuild(ob,surface,high=False):
         for f in faces:
             a,b,c=[ps[i] for i in f];n=(b-a).cross(c-a).normalized()
             agreement=n.dot(sum((ns[i] for i in f),Vector()).normalized());minimum=min(minimum,agreement)
-            if agreement<.50:selected.add(tuple(sorted(max(zip(f,f[1:]+f[:1]),key=lambda e:(ps[e[0]]-ps[e[1]]).length_squared))))
+            longest=max(zip(f,f[1:]+f[:1]),key=lambda e:(ps[e[0]]-ps[e[1]]).length_squared)
+            if agreement<.50 or (ps[longest[0]]-ps[longest[1]]).length>.055:selected.add(tuple(sorted(longest)))
         refinement.append(dict(iteration=iteration,triangles=len(faces),minimum_chord_normal_agreement=minimum,split_edges=len(selected)))
         if not selected:break
         midpoint={}
@@ -208,5 +213,11 @@ def rebuild(ob,surface,high=False):
     ob['optical_fit_condition']=float(np.linalg.cond(A))
     ob['optical_chord_refinement']=str(refinement)
     ob['normal_basis']='Own smooth radial/height optical loft; paired laminate normals; common physical perspective cut'
+    seating=[]
+    for p in ps:
+        hit,n,_,_=surface['tree'].find_nearest(p)
+        seating.append((float((p-hit).dot(n)),list(p),list(hit)))
+    ob['measured_cover_steel_seating']=str(dict(signed_nearest_plane_distance_min_p50_p95_max_m=np.percentile([q[0] for q in seating],[0,50,95,100]).tolist(),maximum_example=max(seating),scope='Actual cover outer vertices against the uncut manufactured stamping; negative is seated inside'))
+    print('S240_COVER_STEEL_SEATING',ob.name,min(q[0] for q in seating),max(q[0] for q in seating),flush=True)
     if old.users==0:bpy.data.meshes.remove(old)
     print('S240_PHYSICAL_OPTIC',ob.name,count,'outer triangles; extra seating',recess,'fit',float(np.max(np.abs(residual))),'condition',float(np.linalg.cond(A)),flush=True)

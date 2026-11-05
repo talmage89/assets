@@ -1,4 +1,4 @@
-"""One continuous, supported Catmull-Clark body cage, split AFTER evaluation.
+"""A continuous C2 upper die and retained lower subdivision sheet, cut afterwards.
 
 The same cage spans nose, hood, fenders, doors, greenhouse and deck. Transverse
 sections sculpt the crown/tumblehome/tuck; longitudinal supports control roof
@@ -119,7 +119,9 @@ def region(y,c):
 
 
 def hood_draw_x(y):
-    return .555+.245*max(0,min(1,(y+2.25)/1.17))
+    t=(y+2.25)/1.17;r=.012
+    soft=.5*(t+math.sqrt(t*t+r*r))-.5*(t-1+math.sqrt((t-1)**2+r*r))
+    return .555+.245*soft
 
 
 def side_width(y):
@@ -197,7 +199,7 @@ def body_section(y,w,belt,top):
 
 # End rows fold the same rectangular quad sheet down from the hood/deck to the
 # chin. Its entire boundary is underneath. There are NO cap patches, corner
-# poles, booleans/unions, shrinkwraps, end fields or post-subdivision projection.
+# poles, booleans/unions or shrinkwraps. The upper chart evaluates its new C2 die.
 # y/z are the centerline CONTROL polygon; the corner's longitudinal spacing is
 # separately monotone so no end row collapses onto its neighbor at the side.
 FRONT_ROWS=[
@@ -254,8 +256,11 @@ def hood_height(x,y):
     # Convex shallow crown with an outward slope change at the two draw lines.
     # A stamped fender crown is a broad draw. The former 38 mm / 55 mm
     # Gaussian ridge folded the hood/lamp corner before any panel was cut.
-    crown=.045*math.exp(-((abs(x)-.875)/.100)**2)*math.exp(-((y+1.57)/.74)**4)
-    return .770+.170*(y+2.245)-.050*(x/.80)**2-.065*max(0,abs(x)-hood_draw_x(y))+crown
+    from sedan_upper_surface import ease
+    along=ease(-2.30,-1.98,y)*(1-ease(-1.24,-1.02,y))
+    crown=.024*math.exp(-((abs(x)-.875)/.160)**2)*along
+    d=math.sqrt(x*x+.002**2)-hood_draw_x(y);draw=.5*(d+math.sqrt(d*d+.020**2))
+    return .770+.170*(y+2.245)-.050*(x/.80)**2-.065*draw+crown
 
 
 def deck_height(x,y):
@@ -281,7 +286,7 @@ def crease_rows(half,hood,backlight=False):
     return half
 
 
-def section_field(p):
+def section_field(p,wall_only=False):
     """One continuous waterline section family used to FIT control vertices.
 
     Cubic end terms have zero first and second derivatives at their side
@@ -316,16 +321,18 @@ def section_field(p):
     fd=max(.20,2.4375+ft-face_depth(z,True))
     rd=max(.20,2.4475-rt-face_depth(z,False))
     a=max(0,ft-y)/fd;c=max(0,y-rt)/rd
-    power=4 if y<0 else 4.2
+    phase=max(0,min(1,(y+.30)/.60));phase=phase**3*(10-15*phase+6*phase*phase)
+    power=4+.2*phase
     q=abs(x/width)**power+a**3+c**3-1
     gradient=math.sqrt((power*abs(x/width)**(power-1)/width)**2+(3*a*a/fd if y<ft else 3*c*c/rd)**2)
     wall=q/max(1.0,gradient)
+    if wall_only:return wall
     # The crown rolls down into the same side waterline. C∞ smooth maximum
     # avoids the derivative step of the previous polynomial rounded union.
     if y< -1.08:top=z-hood_height(x,y)
     elif y>1.90:top=z-deck_height(x,y)
     else:top=-2
-    r=.012 if y<0 else .014
+    r=.012+.002*phase
     m=max(wall,top)
     return m+r*math.log(math.exp((wall-m)/r)+math.exp((top-m)/r))
 
@@ -333,13 +340,33 @@ def section_field(p):
 def fit_control_net(ob):
     # Three regular refinements give the section fit enough degrees of freedom
     # at the broad plan turns. It is still an all-quad CONTROL mesh; subdivision
-    # that defines the final surface happens after this fit, without projection.
+    # retains the lower sheet after this fit. The upper chart subsequently
+    # evaluates its own exact C2 loft before any manufactured part is cut.
     sub=ob.modifiers.new('Refine section-fit controls','SUBSURF');sub.levels=3;G.apply(ob)
     parameter_u=[0.]*len(ob.data.vertices)
     for loop in ob.data.loops:parameter_u[loop.vertex_index]=ob.data.uv_layers.active.data[loop.index].uv.x
     center_u=(ob['grid_width']-1)/2
     for v in ob.data.vertices:
         p=v.co
+        # The upper stamping is rebuilt from ONE independent fair section
+        # family. It does not inherit the old protected canopy, additive
+        # header/rear displacements, or local control-row relaxation.
+        if p.z>.70:
+            from sedan_upper_surface import field as loft_field,ease as loft_ease
+            # The greenhouse uses transverse sections. Around the nose/tail
+            # those sections turn onto the end face: keeping Y fixed there
+            # maps several height rows onto the same radial root and makes
+            # cut fragments collapse beneath the optical opening.
+            turn=loft_ease(1.80,2.24,p.y) if p.y>0 else 1-loft_ease(-1.80,-1.24,p.y)
+            cy=p.y+(max(-1.40,min(1.40,p.y))-p.y)*turn
+            center=Vector((0,cy,.60-(.17*turn if p.y<0 else 0)))
+            direction=p-center;lo,hi=0.,2.
+            for _ in range(30):
+                t=(lo+hi)/2
+                if loft_field(center+direction*t)>0:hi=t
+                else:lo=t
+            v.co=center+direction*((lo+hi)/2)
+            continue
         # The accepted canopy retains its full section, including the low
         # backlight corners; height alone cannot identify a roof/side chart.
         def ease(t):
@@ -373,38 +400,6 @@ def fit_control_net(ob):
     ob.data.update()
 
 
-def fair_pillar_feet(ob):
-    """Relax the fitted control net locally before evaluating its limit.
-
-    The fit/canopy boundary used to leave a narrow normal kink at the A foot
-    and C header. A smooth, compact relaxation spans those manufactured radii;
-    the accepted centerline, glass width and door sections stay outside it.
-    """
-    adjacency=[[] for _ in ob.data.vertices]
-    for e in ob.data.edges:
-        a,c=e.vertices;adjacency[a].append(c);adjacency[c].append(a)
-    weights=[]
-    for v in ob.data.vertices:
-        x,y,z=v.co
-        a=math.exp(-((y+1.045)/.20)**2-((z-1.00)/.16)**2-((abs(x)-.83)/.11)**2)
-        c=math.exp(-((y-.91)/.20)**2-((z-1.34)/.13)**2-((abs(x)-.69)/.13)**2)
-        lamp=math.exp(-((y+2.02)/.32)**2-((z-.83)/.15)**2-((abs(x)-.75)/.19)**2)
-        # The fitted side/canopy protection changes at the sail's foot. Fair
-        # its control rows across the transition, rather than its normals.
-        sail=math.exp(-((y-1.68)/.30)**2-((z-1.04)/.16)**2-((abs(x)-.78)/.17)**2)
-        # Keep the measured shoulder envelope fixed. The sail correction
-        # belongs above that die line, rather than pulling its widest row in.
-        t=max(0,min(1,(z-shoulder_height(y)-.005)/.100))
-        sail*=t*t*t*(10-15*t+6*t*t)
-        weights.append(.55*max(a,c,lamp,sail))
-    for _ in range(90):
-        old=[v.co.copy() for v in ob.data.vertices]
-        for v,w,neighbors in zip(ob.data.vertices,weights,adjacency):
-            if w<1e-5 or len(neighbors)!=4:continue
-            v.co=old[v.index].lerp(sum((old[i] for i in neighbors),Vector())/4,w)
-    ob.data.update()
-
-
 def master(level):
     n=20;verts=[];faces=[];labels=[]
     rows=[];kinds=[]
@@ -412,7 +407,8 @@ def master(level):
         rows.append(crease_rows(end_section(row,True),row[1]>.74));kinds.append(('front',row[0]))
     for row in STATIONS:
         if -1.18<=row[0]<=1.90:
-            rows.append(crease_rows(body_section(*row),row[0]<-.99,backlight=row[0]>.85));kinds.append(('body',row[0]))
+            from sedan_upper_surface import section as loft_section
+            rows.append(loft_section(*row));kinds.append(('body',row[0]))
     for row in REAR_ROWS:
         rows.append(crease_rows(end_section(row,False),False));kinds.append(('rear',row[0]))
     for half in rows:
@@ -443,7 +439,7 @@ def master(level):
             vi=ob.data.loops[li].vertex_index;uv.data[li].uv=(vi%width,vi//width)
     ob['grid_width']=width;ob['grid_rows']=len(rows)
     fit_control_net(ob)
-    fair_pillar_feet(ob)
+    # No local Laplacian fairing: upper derivatives belong to the new C2 loft.
     bm=bmesh.new();bm.from_mesh(ob.data)
     quads=sum(len(f.verts)==4 for f in bm.faces)
     if quads!=len(bm.faces) or any(len(v.link_edges)!=4 for v in bm.verts if not v.is_boundary):raise AssertionError('The parent control sheet must be regular quads')
@@ -454,16 +450,18 @@ def master(level):
             for e in stack.pop().link_edges:
                 for v in e.verts:
                     if v in unseen:unseen.remove(v);stack.append(v)
-    ob['cage_report']=json.dumps(dict(vertices=len(bm.verts),quads=quads,connected_components=components,interior_valence_four=True,fit='Control vertices only; no evaluated projection'))
+    ob['cage_report']=json.dumps(dict(vertices=len(bm.verts),quads=quads,connected_components=components,interior_valence_four=True,fit='Regular control chart; exact C2 upper die and retained subdivision lower sheet evaluated before cuts'))
     bm.free()
     sub=ob.modifiers.new('Fair continuous quad sheet','SUBSURF');sub.subdivision_type='CATMULL_CLARK';sub.levels=level;sub.render_levels=level
     G.apply(ob)
-    ob['construction']='One regular all-quad sheet folded over both ends; Catmull-Clark before projected cuts'
+    from sedan_upper_surface import exact_loft
+    exact_loft(ob)
+    ob['construction']='One regular chart; exact C2 upper-section loft and retained subdivision lower sheet, before physical cuts'
     return ob,names
 
 
 def tessellate(parent,high=False):
-    """Resample the subdivision limit in its original two-dimensional chart.
+    """Resample the manufactured parent in its original two-dimensional chart.
 
     Regular feature-aligned quads replace QEM collapse. This keeps reflection
     derivatives represented across shallow doors even when their position
@@ -811,11 +809,26 @@ def build(b):
     source.data.calc_loop_triangles()
     parent_points=[v.co.copy() for v in source.data.vertices]
     parent_normals=[v.normal.copy() for v in source.data.vertices]
+    from sedan_surface_normals import normal as loft_normal
     parent_triangles=[tuple(t.vertices) for t in source.data.loop_triangles]
     parent_tree=BVHTree.FromPolygons(parent_points,parent_triangles,all_triangles=True)
     dense=source;source,parent_uvs=tessellate(dense,b.high);bpy.data.objects.remove(dense,do_unlink=True)
     surface_map=dict(tree=parent_tree,points=parent_points,normals=parent_normals,triangles=parent_triangles,uvs=parent_uvs)
     bm=bmesh.new();bm.from_mesh(source.data)
+    from sedan_glazing import cut_opening
+    from sedan_upper_surface import cut_hood
+    cut_hood(bm,names,parent_tree)
+    cut_opening(bm,names,parent_tree)
+    # A physical base cut retains the accepted 361 mm deck. The new loft's
+    # regular Y spacing must not inherit the old radial fitter's stretched
+    # material-row boundary as the glass opening.
+    fs=[f for f in bm.faces if names[f.material_index] in ['Backlight','Trunk'] and f.calc_center_median().z>.99 and f.calc_center_median().y<2.10]
+    es={e for f in fs for e in f.edges};vs={v for f in fs for v in f.verts}
+    bmesh.ops.bisect_plane(bm,geom=list(vs)+list(es)+fs,dist=1e-8,plane_co=(0,1.970,0),plane_no=(0,1,0),clear_inner=False,clear_outer=False)
+    for f in bm.faces:
+        label=names[f.material_index];p=f.calc_center_median()
+        if label=='Backlight' and p.y>1.970:f.material_index=names.index('Trunk')
+        elif label=='Trunk' and .82<p.y<1.970 and p.z>.99:f.material_index=names.index('Backlight')
     # Cut a narrow backlight out of the same canopy, retaining the continuous
     # painted sail panels. Their widening feet become the quarter shoulders;
     # no overlay shell or replacement volume changes the accepted roof line.
@@ -1047,6 +1060,9 @@ def build(b):
             ob=G.mesh('Wheelwell_'+end+side,verts,fs,b.m['rubber']);sol=ob.modifiers.new('Liner thickness','SOLIDIFY');sol.thickness=.002;G.apply(ob);b.add(ob,category='liners')
             outline=[(axle+well_radius*math.cos(a),S.HUB_HEIGHT+well_radius*math.sin(a)) for a in inner_angles]
             b.add(G.profile('Wheelwell inboard_'+end+side,outline,sign*(inner_x-.001),sign*(inner_x+.001),b.m['rubber'],axis='X'),category='liners')
+    from sedan_upper_tessellation import stamping_rolls
+    stamping_rolls(surface_map,b.high,front=True)
+    stamping_rolls(surface_map,b.high,front=False)
     fascia(b,front=True,master_tree=tree,surface_map=surface_map);fascia(b,front=False,master_tree=tree,surface_map=surface_map)
     # Only a cavity closure is supplied at this gate, not an interior or drivetrain.
     # This temporary blackout is inside the wheel wells and tucked end skins.
@@ -1076,7 +1092,7 @@ def build(b):
         material=next((m for m in ob.data.materials if m),None)
         if material is None:raise ValueError(('Missing form material',ob.name,len(ob.data.vertices),len(ob.data.polygons)))
         if not b.high and ob.get('part_category')=='fascia':simplify_inner_gauge(ob,tree)
-        G.smooth(ob,35);custom=[];inverse=ob.matrix_world.to_3x3().transposed()
+        G.smooth(ob,35);custom=[];inverse=ob.matrix_world.to_3x3().transposed();loft_normals={}
         roles=ob.data.attributes.new('sheet_role','INT','FACE')
         for face in ob.data.polygons:
             center=ob.matrix_world@face.center;_,n,_,_=tree.find_nearest(center)
@@ -1085,10 +1101,27 @@ def build(b):
                 p=ob.matrix_world@ob.data.vertices[ob.data.loops[li].vertex_index].co
                 hit,n,fi,distance=tree.find_nearest(p);ia,ib,ic=triangles[fi]
                 n=barycentric_transform(hit,points[ia],points[ib],points[ic],normals[ia],normals[ib],normals[ic]).normalized()
+                vi=ob.data.loops[li].vertex_index
+                if vi not in loft_normals:loft_normals[vi]=loft_normal(p,n)
+                n=loft_normals[vi]
                 custom.append(inverse@(n if role==0 else -n) if role!=2 else (0,0,0))
         ob.data.normals_split_custom_set(custom)
         ob.data.materials.clear();ob.data.materials.append(material)
         for face in ob.data.polygons:face.material_index=0
+    from sedan_upper_tessellation import build as upper_rows
+    upper_rows(surface_map,b.high)
+    from sedan_glazing import build as glazing
+    glazing(b.high,surface_map)
+    if not b.high:
+        # The form checkpoint and detailed asset share the same game sheet.
+        # Allocate it once, before either pipeline adds its wheel/detail parts.
+        from sedan_surface_allocation import reduce
+        from sedan_detail import optimize_backs
+        from sedan_surface_normals import coalesce
+        bpy.context.view_layer.update()
+        for ob in sorted(list(bpy.context.scene.objects),key=lambda o:o.name):
+            if ob.type!='MESH' or ob.get('part_category') not in ['body','doors','fascia','pillars']:continue
+            reduce(ob);optimize_backs(ob);coalesce(ob);ob['s240_game_allocated']=True
 
 
 def locator_y_guess(x,z,front):
@@ -1169,42 +1202,8 @@ def form_blank(name,rows,material,master_tree,front,axial=False):
 
 
 def lamp_volume(b,front,sign,material,master_tree):
-    path=[]
-    # A 630 mm surface envelope including a 230 mm fender return. The top
-    # follows the curved hood edge; the aperture tapers at its rear tip.
-    if front:
-        path=[(.570,0,.699,.150),(.60,0,.717,.145),(.69,0,.744,.125),
-              (.77,0,.772,.110),(.845,-1.940,.798,.090),(.880,-1.840,.824,.075),
-              (.902,-1.730,.847,.050),(.912,-1.675,.868,.022)]
-    else:
-        path=[(.300,0,.996,.055),(.48,0,.981,.115),(.66,0,.971,.172),
-              (.78,0,.977,.184),(.852,0,.984,.182),(.886,2.110,.990,.166),
-              (.910,1.965,1.002,.105),(.919,1.820,1.022,.024)]
-    path=[(x,locator_y_guess(x,z,front) if y==0 else y,z,h) for x,y,z,h in path]
-    dense=[]
-    for index,(a,c) in enumerate(zip(path,path[1:])):
-        ts=[0,.25,.5,.75] if index>=3 else [0,.5]
-        dense.extend([tuple(a[k]+(c[k]-a[k])*t for k in range(4)) for t in ts])
-    dense.append(path[-1])
-    rows=[[(sign*x,y,z+h*(v-.5)) for x,y,z,h in dense] for v in [i/4 for i in range(5)]]
-    if front:
-        ob=form_blank('Headlamp opening'+str(sign),rows,material,master_tree,front)
-        return [ob]
-    cut=.615
-    # Insert a sample at either side of the physical lid reveal.
-    paths=[]
-    for inner in [True,False]:
-        subset=[]
-        for row in rows:
-            keep=[p for p in row if (abs(p[0])<cut if inner else abs(p[0])>cut)]
-            a,c=next((a,c) for a,c in zip(row,row[1:]) if abs(a[0])<=cut<=abs(c[0]))
-            xx=cut+(-1 if inner else 1)*S.PANEL_GAP/2
-            t=(xx-abs(a[0]))/(abs(c[0])-abs(a[0]));p=tuple(a[k]+(c[k]-a[k])*t for k in range(3))
-            subset.append(keep+[p] if inner else [p]+keep)
-        ob=form_blank('Taillamp opening'+str(sign)+(' lid' if inner else ' quarter'),subset,material,master_tree,False)
-        ob['lamp_piece']='lid' if inner else 'quarter'
-        paths.append(ob)
-    return paths
+    from sedan_optical_surface import guides
+    return guides(b,sign,material,master_tree,front)
 
 
 def fascia(b,front,master_tree,surface_map):
@@ -1248,8 +1247,15 @@ def fascia(b,front,master_tree,surface_map):
     lamps=[]
     from sedan_apertures import regularize_blank
     for side,sgn in [('L',-1),('R',1)]:
-        for lamp in lamp_volume(b,front,sgn,b.m['glass'],master_tree):
-            regularize_blank(lamp,surface_map,front,b.high)
+        # Both densities use the SAME uncut stamping to manufacture their
+        # optics. The already split game skin has real lid/door reveal holes
+        # and coarse chords; sampling that skin changes the mold or misses a
+        # guide at the reveal. Cut it only after the common mold is built.
+        for lamp in lamp_volume(b,front,sgn,b.m['glass'],surface_map['tree']):
+            if lamp.get('physical_optical_chart'):
+                from sedan_optical_surface import rebuild
+                rebuild(lamp,surface_map,b.high)
+            else:regularize_blank(lamp,surface_map,front,b.high)
             b.add(lamp,bpy.data.objects['Trunk'] if lamp.get('lamp_piece')=='lid' else None,category='openings');lamps.append(lamp)
     from sedan_apertures import carve
     carve(front,lamps,surface_map)

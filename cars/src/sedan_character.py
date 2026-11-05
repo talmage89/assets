@@ -39,17 +39,27 @@ def bars(b,blank,points,front):
     nu,nv=blank['form_columns'],blank['form_rows']
     raw=list(blank['aperture_samples']);bed=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
     if blank.name.startswith('Low wide grille'):
+        import numpy as np
+        # One mirror-symmetric die for all blades. Sampling each end from a
+        # triangulated pocket bed gave the two halves different apparent bows.
+        rows=np.array([[1,p.z,p.z*p.z,p.x*p.x,p.x*p.x*p.z,p.x**4] for p in bed])
+        coefficient=np.linalg.lstsq(rows,np.array([p.y for p in bed]),rcond=None)[0]
+        def die(x,z):return float(np.dot([1,z,z*z,x*x,x*x*z,x**4],coefficient))
         # Seventeen splayed vertical vanes: original Alder cascade motif.
         # A center station gives each vane a shallow molded bow.
         # The recessed bed remains behind the bars, rather than a radiator face.
         for j in range(17):
             t=(j+.5)/17
             def point(row):
-                u=t*(nu-1);i=min(nu-2,int(u));return bed[row*nu+i].lerp(bed[row*nu+i+1],u-i)
+                def sample(fraction):
+                    u=fraction*(nu-1);i=min(nu-2,int(u));return bed[row*nu+i].lerp(bed[row*nu+i+1],u-i)
+                a=sample(t);c=sample(1-t);c.x=-c.x
+                return (a+c)/2
             lower=point(0);upper=point(nv-1)
             lower.z+=.008;upper.z-=.008
             loops=[]
-            for p in [lower,lower.lerp(upper,.5)+Vector((0,-.008,0)),upper]:
+            for v in [0,.5,1]:
+                p=lower.lerp(upper,v);p.y=die(p.x,p.z)-.008*4*v*(1-v)
                 p+=Vector((0,-.018,0))
                 loops.append([p+Vector((dx,dy,0)) for dx,dy in [(-.006,-.009),(.006,-.009),(.006,.009),(-.006,.009)]])
             if b.high:

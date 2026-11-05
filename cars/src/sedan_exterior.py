@@ -49,8 +49,24 @@ def perimeter(ob):
     return points
 
 
+def glazing_loop(b,name,points,radius,material,parent,normal):
+    """Closed trim follows the pane's normal without transport flips or caps."""
+    rings=[];count=12 if b.high else 4
+    for i,p in enumerate(points):
+        n=normal(p);t=(points[(i+1)%len(points)]-points[i-1]).normalized()
+        v=t.cross(n).normalized();n=v.cross(t).normalized()
+        rings.append([p+radius*(n*math.cos(math.tau*k/count)+v*math.sin(math.tau*k/count)) for k in range(count)])
+    ob=G.ring_loft(name,rings,material)
+    bm=bmesh.new();bm.from_mesh(ob.data);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free()
+    return b.add(G.smooth(ob),parent,'trim')
+
+
 def optics(b):
     from mathutils.bvhtree import BVHTree
+    from sedan_upper_surface import ease
+    def back_direction(p):
+        radial=Vector((p.x,p.y-1.42,0)).normalized()
+        return Vector((0,1,0)).lerp(radial,ease(.64,.78,abs(p.x))).normalized()
     def guide_curve(points):
         """Bound every authored station against its final chord, in meters."""
         def distance(p,a,c):
@@ -90,33 +106,70 @@ def optics(b):
             sign=1 if ps[0].x>0 else -1
             bucket_direction=Vector((sign*.12,-.65,.75)).normalized()
             ns=[bucket_direction for p in boundary]
+        else:
+            # The shallow tail cassette draws horizontally into the body.
+            # Following the deck's rapidly turning normal folds its chrome
+            # bed and return through the painted lower edge of the opening.
+            ns=[back_direction(p) for p in boundary]
         depth=.100 if front else .035
         rings=[[p-n*d for p,n in zip(boundary,ns)] for d in [.001,depth]]
-        if front:
-            center=sum(boundary,Vector())/len(boundary);mouth=[];distances=[]
-            for i,p in enumerate(boundary):
-                tangent=boundary[(i+1)%len(boundary)]-boundary[i-1]
+        if front or cover.get('lamp_piece'):
+            support=skin_tree;gauges=skin_gauges
+            if not front:
+                owner='Trunk outer' if cover.get('lamp_piece')=='lid' else 'Rear quarter_'+('L' if ps[0].x<0 else 'R')
+                panel=bpy.data.objects[owner];panel.data.calc_loop_triangles();roles=panel.data.attributes['sheet_role']
+                support=BVHTree.FromPolygons([panel.matrix_world@v.co for v in panel.data.vertices],
+                    [tuple(t.vertices) for t in panel.data.loop_triangles if roles.data[t.polygon_index].value==0],all_triangles=True)
+                gauges=None
+            center=sum(boundary,Vector())/len(boundary)
+            def mount(p,tangent):
+                direction=bucket_direction if front else back_direction(p)
+                if not front and abs(abs(p.x)-(.61275 if cover.get('lamp_piece')=='lid' else .61725))<.00015:
+                    seat=p-direction*.004
+                    return seat,(seat-(p-direction*.0022)).length
                 outward=tangent.cross(normal(p)).normalized()
                 if outward.dot(p-center)<0:outward.negate()
-                hit,n,fi,distance=skin_tree.find_nearest(p+outward*.003)
-                if distance>.012:raise ValueError(('Optical flange misses actual paint',cover.name,distance))
-                mouth.append(hit-n*(skin_gauges[fi]+.0025));distances.append(skin_tree.find_nearest(mouth[-1])[3])
-            rings[0]=mouth
-            # The cover is bonded to the bucket's molded lip. Without this
-            # land, the reveal looks into the well and exposes guide ends.
-            lip=[p-normal(p)*.0022 for p in boundary]
-            rings.insert(0,lip)
-            cover['casing_flange_max_support_distance_m']=max(distances)
+                actual_support=skin_tree if not front and cover.get('lamp_piece')=='quarter' else support
+                # Rear flanges overlap the stamping by a nominal 6 mm.
+                # Merely snapping a sparse ring onto the cut edge leaves
+                # triangular gaps wherever that edge curves between stations.
+                hit,n,fi,_=actual_support.find_nearest(p+outward*(.003 if front else .009))
+                seat=hit-n*((gauges[fi] if gauges is not None else .0009)+.00025)
+                span=(seat-(p-direction*.0022)).length
+                land=.018 if front else .030
+                if span>land:raise ValueError(('Optical flange exceeds its mounting land',cover.name,span,land))
+                return seat,span
+            entries=[(p,*mount(p,boundary[(i+1)%len(boundary)]-boundary[i-1])) for i,p in enumerate(boundary)]
+            boundary=[r[0] for r in entries];mouth=[r[1] for r in entries]
+            ns=[bucket_direction if front else back_direction(p) for p in boundary]
+            rings=[[p-n*.0022 for p,n in zip(boundary,ns)],mouth,[p-n*depth for p,n in zip(boundary,ns)]]
+            cover['casing_flange_max_span_m']=max(r[2] for r in entries)
+            cover['casing_mounting_curve_vertices']=len(entries)
         if cover.get('lamp_piece')=='lid':
-            for ring in rings:
-                for p in ring:p.x=max(-.607,min(.607,p.x))
+            # The hidden cassette clears the lid hinge envelope. The bonded
+            # lip and mounting land reach the actual .61275 m lens edge;
+            # clamping those as well leaves a visible hole into the cabin.
+            for p in rings[-1]:p.x=max(-.607,min(.607,p.x))
         housing=G.loft('S240 optical housing '+cover.name,rings,b.m['plastic'],caps=False)
         sol=housing.modifiers.new('Optical housing wall','SOLIDIFY');sol.thickness=.0015;sol.offset=-1;sol.use_even_offset=False;G.apply(housing)
         b.add(housing,parent,'lamps')
         if front:
             back_points=[ps[j*nu+i]-bucket_direction*depth for j in [0,nv-1] for i in range(nu)]
             back_faces=[(i,i+1,nu+i+1,nu+i) for i in range(nu-1)]
-        else:back_points=rings[-1];back_faces=[tuple(range(len(rings[-1])))]
+        else:
+            # Close the actual cassette rim. The former ruled strip joined
+            # only its first/last rows, leaving holes where the lens's curved
+            # side borders departed from that chord. A constrained physical
+            # disk shares every back-rim vertex with the housing return.
+            from mathutils.geometry import delaunay_2d_cdt
+            from sedan_optical_surface import chart
+            back_points=[p.copy() for p in rings[-1]];count=len(back_points)
+            back_points += [ps[(nv//2)*nu+i]-back_direction(ps[(nv//2)*nu+i])*depth for i in range(1,nu-1,3)]
+            coords=[chart(p,False).to_2d() for p in back_points];outline=list(range(count))
+            result,_,back_faces,original,*_=delaunay_2d_cdt(coords,list(zip(outline,outline[1:]+outline[:1])),[outline],1,1e-8)
+            if any(not ids for ids in original):raise ValueError('Cassette closure created an unowned vertex')
+            back_points=[back_points[ids[0]] for ids in original]
+            if sum((back_points[f[1]]-back_points[f[0]]).cross(back_points[f[2]]-back_points[f[0]]).y for f in back_faces)<0:back_faces=[tuple(reversed(f)) for f in back_faces]
         back=G.mesh('S240 optical back '+cover.name,back_points,back_faces,b.m['dark_chrome'] if front else b.m['chrome'])
         if b.high or not front:
             sol=back.modifiers.new('Optical backing gauge','SOLIDIFY');sol.thickness=.0015;sol.offset=-1;sol.use_even_offset=False;G.apply(back)
@@ -124,7 +177,7 @@ def optics(b):
         bm=bmesh.new();bm.from_mesh(back.data);bmesh.ops.triangulate(bm,faces=list(bm.faces));bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces))
         if bm.calc_volume(signed=True)<0:bmesh.ops.reverse_faces(bm,faces=list(bm.faces))
         bm.to_mesh(back.data);bm.free()
-        if front:G.smooth(back,70)
+        G.smooth(back,70)
         b.add(back,parent,'lamps')
         cover.data.materials.clear();cover.data.materials.append(b.m['lens'] if front else b.m['rear_cover'])
         cover['part_category']='glass' if front else 'lamps'
@@ -148,13 +201,13 @@ def optics(b):
                     lo=max(0,min(nv-2,bisect_right(fractions,row)-1));t=(row-fractions[lo])/(fractions[lo+1]-fractions[lo])
                     path.append(ps[lo*nu+i].lerp(ps[(lo+1)*nu+i],t))
                 else:
-                    n=normal(p);up=(Vector((0,0,1))-n*n.z).normalized()
-                    height=(ps[(nv-1)*nu+i]-ps[i]).length
-                    path.append(lens_tree.find_nearest(p+up*(direction*height*.40))[0])
+                    row=.10 if direction<0 else .90
+                    lo=max(0,min(nv-2,bisect_right(fractions,row)-1));t=(row-fractions[lo])/(fractions[lo+1]-fractions[lo])
+                    path.append(ps[lo*nu+i].lerp(ps[(lo+1)*nu+i],t))
             if not b.high and not front and cover.get('lamp_piece')=='lid':
                 path=path[::2]+([path[-1]] if path[::2][-1]!=path[-1] else [])
             # A 9 mm original twin-blade signature, following the swept cover.
-            guide=[p-normal(p)*(.012 if front else .008) for p in path]
+            guide=[p-normal(p)*.012 if front else p-back_direction(p)*.008 for p in path]
             guide,chord_error=guide_curve(guide)
             guide_ob=tube(b,'S240 '+label+' light guide '+cover.name,guide,.0045 if front else .004,b.m['drl'] if front else b.m['brakelight'],'lamps',parent,sides=4)
             guide_ob['measured_guide_chord_error_m']=chord_error
@@ -255,9 +308,14 @@ def trim(b):
                     offset=inward*.0028
                 else:offset=(center-p).normalized()*.002
                 seal.append(p+n*.003+offset)
-            tube(b,'S240 window seal '+name,seal+[seal[0]],.002,b.m['rubber'],'trim',glass.parent,sides=4)
+            glazing_loop(b,'S240 window seal '+name,seal,.002,b.m['rubber'],glass.parent,normal)
             # Dark chrome retains a thin bright edge, rather than a white frame.
-            tube(b,'S240 window brightwork '+name,[p+normal(p)*.005 for p in points]+[points[0]+normal(points[0])*.005],.0018,b.m['dark_chrome'],'trim',glass.parent,sides=4)
+            bright=[]
+            for i,p in enumerate(points):
+                n=normal(p);t=points[(i+1)%len(points)]-points[i-1];inward=n.cross(t).normalized()
+                if inward.dot(center-p)<0:inward.negate()
+                bright.append(p+n*.005+inward*(.003 if name.startswith('Front side glass') else 0))
+            glazing_loop(b,'S240 window brightwork '+name,bright,.0018,b.m['dark_chrome'],glass.parent,normal)
         # A static, flush fuel flap with a causal black reveal.
         y,z=1.65,.91;boundary=[]
         for i in range(20):
@@ -269,6 +327,28 @@ def trim(b):
     for name in ['Windshield','Backlight']:
         glass=bpy.data.objects[name];points=perimeter(glass);normal=field([glass]).nearest_normal
         center=sum(points,Vector())/len(points)
+        # Molded glass has its own crown; a real urethane mounting bead bridges
+        # that laminate to the cut steel. Do not bend the glass into the rail's
+        # tight roll just to force its border onto the stamped-body normals.
+        from mathutils.bvhtree import BVHTree
+        ps=[];fs=[]
+        for panel in bpy.context.scene.objects:
+            if panel.type!='MESH' or panel.name=='Hood outer' or panel.get('part_category') not in ['body','pillars']:continue
+            roles=panel.data.attributes.get('sheet_role')
+            if roles is None:continue
+            panel.data.calc_loop_triangles();start=len(ps);ps.extend(panel.matrix_world@v.co for v in panel.data.vertices)
+            fs.extend(tuple(start+i for i in t.vertices) for t in panel.data.loop_triangles if roles.data[t.polygon_index].value==0)
+        support=BVHTree.FromPolygons(ps,fs,all_triangles=True);bed=[];laminate=[];distances=[]
+        for i,p in enumerate(points):
+            n=normal(p);tangent=points[(i+1)%len(points)]-points[i-1]
+            outward=tangent.cross(n).normalized()
+            if outward.dot(p-center)<0:outward.negate()
+            hit,sn,_,distance=support.find_nearest(p+outward*.004)
+            if distance>.025:raise ValueError(('Bonded glazing has no nearby steel mounting land',name,distance))
+            laminate.append(p-n*.0047);bed.append(hit-sn*.0012);distances.append(distance)
+        adhesive=G.loft('S240 urethane mounting bead '+name,[laminate,bed],b.m['rubber'],caps=False)
+        sol=adhesive.modifiers.new('Bonded urethane gauge','SOLIDIFY');sol.thickness=.001;sol.offset=-1;sol.use_even_offset=False;G.apply(adhesive)
+        b.add(adhesive,glass.parent,'trim');glass['measured_mounting_land_max_distance_m']=max(distances)
         seal=[p+normal(p)*.001+(center-p).normalized()*.003 for p in points]
         tube(b,'S240 bonded seal '+name,seal+[seal[0]],.0018,b.m['rubber'],'trim',sides=4)
     # Parked wipers lie on the actual glass, just behind the hood's rear edge.

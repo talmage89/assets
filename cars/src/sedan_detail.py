@@ -33,6 +33,7 @@ def optimize_backs(ob):
     tree=BVHTree.FromPolygons(points,[tuple(f.vertices) for f in ob.data.polygons if f.material_index==0])
     fascia=ob.get('part_category')=='fascia'
     hinge_space=[(y-.22,y+.24,.49,.69) for y in [S.DOOR_FRONT,S.DOOR_SPLIT]]
+    hinge_space.extend([(y-.08,y+.08,.82,.92) for y in [S.DOOR_FRONT,S.DOOR_SPLIT]])
     if ob.name=='Hood outer':
         hinge_space.extend([(x0,x1,-1.90,-1.05,.70,1.10) for x0,x1 in [(-.80,-.50),(.50,.80)]])
     simplify_inner_gauge(ob,tree,.00025 if fascia else .00008,5000,96,max_edge_length=.35 if fascia else .25,
@@ -55,7 +56,7 @@ def optimize_backs(ob):
         if 2*min(ac,bd)/max(longest,1e-9)>1e-6 or max(ac,bd)<20*min(ac,bd):continue
         bmesh.ops.triangulate(bm,faces=[face],quad_method='FIXED' if ac>bd else 'ALTERNATE')
         retessellated+=1
-    if not all(e.is_manifold for e in bm.edges):raise ValueError('Sheet cleanup changed solid topology')
+    if not all(e.is_manifold for e in bm.edges):raise ValueError(('Sheet cleanup changed solid topology',ob.name))
     bmesh.ops.triangulate(bm,faces=list(bm.faces))
     bm.to_mesh(ob.data);bm.free();ob['submicron_slivers_retessellated']=retessellated
     seat_inner_sheet(ob)
@@ -163,7 +164,9 @@ def main():
             bpy.data.objects.remove(ob,do_unlink=True);continue
         for i,mat in enumerate(ob.data.materials):
             if mat and mat.name in old_to_new:ob.data.materials[i]=b.m[old_to_new[mat.name]]
-        if not b.high and ob.get('part_category') in ['body','doors','fascia']:
+        if not b.high and ob.get('part_category') in ['body','doors','fascia','pillars'] and not ob.get('s240_game_allocated'):
+            from sedan_surface_allocation import reduce
+            reduce(ob)
             optimize_backs(ob)
     # The rear plastic liner ends inboard of the door's stamped return.
     for name in ['Wheelwell_RL','Wheelwell_RR']:
@@ -238,6 +241,9 @@ def main():
             tire=bpy.data.objects['Tire_'+code];lug=bpy.data.objects['Shoulder tread_'+code]
             bpy.ops.object.select_all(action='DESELECT');tire.select_set(True);lug.select_set(True)
             bpy.context.view_layer.objects.active=tire;bpy.ops.object.join()
+    from sedan_surface_normals import coalesce
+    for ob in bpy.context.scene.objects:
+        if ob.type=='MESH' and ob.get('part_category') in ['body','doors','fascia','pillars','glass']:coalesce(ob)
     for mat in list(bpy.data.materials):
         if mat.users==0:bpy.data.materials.remove(mat)
     sc=bpy.context.scene;sc['stage']='S240 detail and procedural look-dev';sc['form_source_sha256']=hashlib.sha256(source.read_bytes()).hexdigest();sc['wear']=a.wear

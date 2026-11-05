@@ -8,14 +8,11 @@ from sedan_upper_surface import field,ease
 
 
 def normal(p,parent):
-    from sedan_body import shoulder_height
     x,y,z=p
-    w=ease(-1.22,-1.08,y)*(1-ease(2.08,2.20,y))*ease(.025,.085,z-shoulder_height(y))
-    front=ease(-2.42,-2.28,y)*(1-ease(-1.22,-1.08,y))*ease(.68,.76,z)
-    if front>w:
-        from sedan_body import section_field
-        sample=section_field;w=front
-    else:sample=field
+    # Every upper control vertex is fitted to this same C2 die. Its own
+    # derivatives continue through the deck roll and cut corners; nearest
+    # triangulated-parent phases must not re-enter at a rear Y cutoff.
+    w=ease(.68,.76,z);sample=field
     if w==0:return parent
     h=.000025
     n=Vector(tuple((sample((x+(h if k==0 else 0),y+(h if k==1 else 0),z+(h if k==2 else 0)))-sample((x-(h if k==0 else 0),y-(h if k==1 else 0),z-(h if k==2 else 0))))/(2*h) for k in range(3))).normalized()
@@ -58,4 +55,22 @@ def coalesce(ob):
             if difference>1e-6:changed+=1
             custom[i]=n
     me.normals_split_custom_set(custom)
-    ob['coincident_outer_normal_field']=json.dumps(dict(position_radius_m=2e-7,changed_corners=changed,maximum_vector_correction=maximum))
+    # Blender encodes custom normals in each smoothing fan's local space.
+    # Coincident cut fans can have different angular precision. An encoded
+    # representative is stable in its own fan; synchronize the finer fans to
+    # that representable direction instead of repeatedly averaging two bins.
+    encoded_spread=0.;passes=0
+    for iteration in range(4):
+        decoded=[n.vector.copy() for n in me.corner_normals];repairs={};encoded_spread=0.
+        for loops in groups.values():
+            center=sum((decoded[i] for i in loops),Vector()).normalized()
+            spread=max(((decoded[i]-decoded[loops[0]]).length for i in loops),default=0.)
+            encoded_spread=max(encoded_spread,spread)
+            if spread>=.0008:
+                representative=max((decoded[i] for i in loops),key=lambda n:(n-center).length_squared)
+                for i in loops:repairs[i]=representative
+        if not repairs:break
+        if iteration==3:raise ValueError(('Coincident normal encoding does not converge',ob.name,encoded_spread))
+        for i,n in repairs.items():decoded[i]=n
+        me.normals_split_custom_set(decoded);passes+=1
+    ob['coincident_outer_normal_field']=json.dumps(dict(position_radius_m=2e-7,changed_corners=changed,maximum_vector_correction=maximum,encoding_passes=passes,maximum_decoded_shared_difference=encoded_spread))

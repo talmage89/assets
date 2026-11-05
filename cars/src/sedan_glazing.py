@@ -27,7 +27,7 @@ def cut_opening(bm,names,parent):
     width=Curve([(-1.0773,.8346),(-.9817,.8128),(-.8131,.7825),
                  (-.5788,.7340),(-.4079,.6893),(-.3266,.6733)])
     y0,y1=-1.0773,-.3266
-    stations=[y0+(y1-y0)*i/24 for i in range(25)]
+    stations=[y0+(y1-y0)*i/18 for i in range(19)]
     def candidates():
         return [f for f in bm.faces if names[f.material_index] in ['Windshield','Greenhouse_L','Greenhouse_R','Roof']
             and -1.16<f.calc_center_median().y<-.24 and f.calc_center_median().z>.85]
@@ -188,6 +188,5 @@ def rebuild(ob,high=False):
 
 def build(high=False,surface=None):
     if surface is not None:
-        for ob in list(bpy.context.scene.objects):
-            if ob.type=='MESH' and ob.get('part_category')=='glass':seat_on_parent(ob,surface)
+        for name in ['Windshield','Backlight']:seat_on_parent(bpy.data.objects[name],surface)
     for name in ['Windshield','Backlight']:rebuild(bpy.data.objects[name],high)

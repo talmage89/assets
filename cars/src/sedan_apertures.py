@@ -5,7 +5,7 @@ projected onto the parent and expanded by the manufactured reveal. Convex
 pieces retain its true concavity; the hood uses its natural XY plane. Cut skin fragments retain their original face planes;
 all gauge rims are constructed after cutting. No volume unions or thin booleans.
 """
-import math
+import math,json
 import bpy,bmesh
 from mathutils import Vector
 from mathutils.geometry import barycentric_transform,convex_hull_2d,delaunay_2d_cdt,tessellate_polygon
@@ -238,7 +238,7 @@ def regularize_rear(ob,surface,high):
     ob['lens_outer_faces']=count;ob['chart_disk_topology']=True
 
 
-def difference(polygon,region):
+def difference(polygon,region,perspective=False,measurement=None):
     """Convex difference; vertices carry both UV and original 3D position."""
     pieces=[]
     for a,b in zip(region,region[1:]+region[:1]):
@@ -249,19 +249,31 @@ def difference(polygon,region):
             dp,dq=signed(p[0]),signed(q[0])
             (inside if dp>=0 else outside).append(p)
             if dp*dq<0:
-                t=dp/(dp-dq);v=(p[0].lerp(q[0],t),p[1].lerp(q[1],t));inside.append(v);outside.append(v)
+                t=dp/(dp-dq)
+                # U=(Y-originY)/abs(X), V=(Z-originZ)/abs(X) is a
+                # perspective chart. Its interpolation fraction is not the
+                # fraction along the original 3D edge. Correcting the weights
+                # keeps the cut on BOTH that edge and the actual cutting ray.
+                w=t*abs(p[1].x)/((1-t)*abs(q[1].x)+t*abs(p[1].x)) if perspective else t
+                position=p[1].lerp(q[1],w)
+                if measurement is not None:measurement['maximum_old_affine_intersection_error_m']=max(measurement['maximum_old_affine_intersection_error_m'],(position-p[1].lerp(q[1],t)).length)
+                v=(p[0].lerp(q[0],t),position);inside.append(v);outside.append(v)
         if len(outside)>=3:pieces.append(outside)
         polygon=inside
         if len(polygon)<3:break
     return pieces
 
 
-def cut_mesh(ob,cutters,surface,axial=False,front=False,spatial_boxes=None,top_projection=False):
+def cut_mesh(ob,cutters,surface,axial=False,front=False,spatial_boxes=None,top_projection=False,physical_sign=None):
     from sedan_body import closeable_sheet,conform_edges
     matrix=ob.matrix_world.copy();inverse=matrix.inverted();normal_matrix=matrix.to_3x3().inverted().transposed()
     points=[matrix@v.co for v in ob.data.vertices]
-    uvs=[Vector((p.x,p.y,0)) if top_projection else Vector((p.x,p.z,0)) if axial else surface_uv(p,surface)[0] for p in points]
-    polygons=[];affected=False
+    if physical_sign:
+        from sedan_optical_surface import chart
+        uvs=[chart(p,front) if abs(p.x)>.001 else Vector((10000,10000,0)) for p in points]
+    else:uvs=[Vector((p.x,p.y,0)) if top_projection else Vector((p.x,p.z,0)) if axial else surface_uv(p,surface)[0] for p in points]
+    polygons=[];affected=False;intersection_measurement={'maximum_old_affine_intersection_error_m':0.}
+    def keep(poly):polygons.append(poly)
     cutter_boxes=[bounds(t) for t in cutters]
     def intersects(a,b):return not(a[0]>b[1] or a[1]<b[0] or a[2]>b[3] or a[3]<b[2])
     ob.data.calc_loop_triangles()
@@ -273,8 +285,13 @@ def cut_mesh(ob,cutters,surface,axial=False,front=False,spatial_boxes=None,top_p
             if ob.data.polygons[face.polygon_index].material_index!=0:continue
         elif (normal_matrix@face_normal).dot(n)<.5:continue
         original=[(uvs[i],points[i]) for i in face.vertices]
+        if physical_sign:
+            if any(points[i].x*physical_sign<.20 for i in face.vertices):
+                keep(original);continue
+            if not any(all(min(points[i][k] for i in face.vertices)<=hi[k] and max(points[i][k] for i in face.vertices)>=lo[k] for k in range(3)) for lo,hi in spatial_boxes):
+                keep(original);continue
         if not any(intersects(bounds([q for q,p in original]),box) for box in cutter_boxes):
-            polygons.append(original);continue
+            keep(original);continue
         if axial:
             sign=-1 if front else 1
             # A coarse triangle's center is a chord, not a surface sample.
@@ -292,7 +309,7 @@ def cut_mesh(ob,cutters,surface,axial=False,front=False,spatial_boxes=None,top_p
             if not exposed:
                 # Keep this original triangle; it is another side/roof chart,
                 # not the outer end face reached by the aperture projection.
-                polygons.append([(uvs[i],points[i]) for i in face.vertices]);continue
+                keep([(uvs[i],points[i]) for i in face.vertices]);continue
         pieces=[original]
         world_lo=[min(points[i][k] for i in face.vertices) for k in range(3)]
         world_hi=[max(points[i][k] for i in face.vertices) for k in range(3)]
@@ -303,11 +320,16 @@ def cut_mesh(ob,cutters,surface,axial=False,front=False,spatial_boxes=None,top_p
             result=[]
             for piece in pieces:
                 if not intersects(bounds([p[0] for p in piece]),box):result.append(piece);continue
-                result.extend(difference(piece,region));affected=True
+                result.extend(difference(piece,region,bool(physical_sign),intersection_measurement if physical_sign else None));affected=True
             pieces=result
             if not pieces:break
-        polygons.extend(pieces)
+        for piece in pieces:keep(piece)
     if not affected:return
+    if physical_sign:
+        errors=[abs(p.x)*(chart(p,front)-q).length for poly in polygons for q,p in poly if abs(p.x)>.20]
+        intersection_measurement['maximum_corrected_cut_ray_error_m']=max(errors,default=0.)
+        if max(errors,default=0.)>2e-6:raise ValueError(('Physical cutter lost its original 3D ray',ob.name,max(errors)))
+        ob['physical_cut_intersections']=json.dumps(intersection_measurement)
     vertices=[];faces=[]
     for polygon in polygons:
         offset=len(vertices);vertices.extend(inverse@p for q,p in polygon);faces.append(tuple(range(offset,len(vertices))))
@@ -335,6 +357,27 @@ def cut_mesh(ob,cutters,surface,axial=False,front=False,spatial_boxes=None,top_p
 
 
 def carve(front,lamps,surface,recess=.010):
+    if all(lamp.get('physical_optical_chart') for lamp in lamps):
+        from sedan_optical_surface import chart
+        for lamp in lamps:
+            raw=list(lamp['aperture_samples']);ps=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
+            nu,nv=lamp['form_columns'],lamp['form_rows']
+            ids=list(range(nu))+[j*nu+nu-1 for j in range(1,nv)]+list(range((nv-1)*nu+nu-2,(nv-1)*nu-1,-1))+[j*nu for j in range(nv-2,0,-1)]
+            poly=[chart(ps[i],front) for i in ids]
+            if sum(a.x*b.y-b.x*a.y for a,b in zip(poly,poly[1:]+poly[:1]))<0:poly.reverse()
+            expanded=[]
+            for i,p in enumerate(poly):
+                t=(poly[(i+1)%len(poly)]-poly[i-1]).normalized()
+                expanded.append(p+Vector((t.y,-t.x,0))*.0045)
+            cutters=convex_pieces(expanded)
+            box=([min(p[k] for p in ps)-.035 for k in range(3)],[max(p[k] for p in ps)+.035 for k in range(3)])
+            sign=1 if ps[0].x>0 else -1
+            for ob in list(bpy.context.scene.objects):
+                if ob.type!='MESH' or ob.get('part_category') not in ['body','doors','fascia','pillars']:continue
+                if (front and (max((ob.matrix_world@v.co).y for v in ob.data.vertices)<-1.30 or ob.name=='Hood outer' or ob.name.startswith('Front fender'))) or (not front and (ob.name=='Trunk outer' or ob.name.startswith(('Rear quarter','Rear molded fascia')))):
+                    cut_mesh(ob,cutters,surface,front=front,spatial_boxes=[box]*len(cutters),physical_sign=sign)
+            lamp['opening_recess_m']=.003
+        return
     cutters=[];spatial=[]
     for lamp in lamps:
         raw=list(lamp['aperture_samples']);ps=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]

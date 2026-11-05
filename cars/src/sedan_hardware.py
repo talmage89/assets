@@ -70,7 +70,9 @@ def prism(b,name,points,z,material,parent):
 
 
 def door_hinges(b):
-    roof=mesh_tree([bpy.data.objects['Roof']]);posts={}
+    # The cap seats on the continuous roof stamping and its structural rail;
+    # the modeling/material partition is not a physical support boundary.
+    roof=mesh_tree([bpy.data.objects[n] for n in ['Roof','Greenhouse_L','Greenhouse_R']]);posts={}
     for side,sign in [('L',-1),('R',1)]:
         rings=[]
         for z,x,width in [(.18,.72,.054),(.94,.77,.054),(1.38,.64,.054)]:
@@ -79,8 +81,17 @@ def door_hinges(b):
                 p=Vector((sign*(x+dx),S.DOOR_SPLIT-.005+dy,z))
                 if z>1.3:
                     hit=roof.ray_cast(Vector((p.x,p.y,2)),Vector((0,0,-1)),3)[0]
-                    if hit is None:raise ValueError('Inner B-post missed its roof support')
-                    p.z=hit.z-.0005
+                    if hit is None:
+                        # The outer corner meets the sloping roof rail beyond
+                        # the door's drain gap. Seat the cap radially on that
+                        # actual steel, rather than aiming vertically through
+                        # the gap or extending an unsupported flat cap.
+                        origin=Vector((0,p.y,.60));direction=(p-origin).normalized()
+                        hit=roof.ray_cast(origin,direction,1.5)[0]
+                        if hit is None or (hit-p).length>.025:
+                            raise ValueError('Inner B-post missed its roof support')
+                        p=hit-direction*.0005
+                    else:p.z=hit.z-.0005
                 ring.append(p)
             rings.append(ring)
         posts[side]=b.add(G.loft('S240 inner B post '+side,rings,b.m['frame']),category='interior')

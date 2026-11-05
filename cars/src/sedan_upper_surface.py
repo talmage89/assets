@@ -58,7 +58,7 @@ def height(x,y):
     t=y+1.0773;wind=.971+.530*t-.009*t*t
     weight=ease(-1.15,-1.07,y)*(1-ease(-.33,-.24,y))
     h=h*(1-weight)+wind*weight
-    d=abs(x)-e;r=.018
+    d=math.sqrt(x*x+.002**2)-e;r=.018
     roll=.5*(d+math.sqrt(d*d+r*r))
     z=h-c*x*x-2.25*roll
     if y<-.97:
@@ -71,8 +71,38 @@ def height(x,y):
 def field(p):
     from sedan_body import section_field
     x,y,z=p;wall=section_field(p,wall_only=True);top=z-height(x,y)
-    r=.012 if y<0 else .014;m=max(wall,top)
+    r=.012+.002*ease(-.30,.30,y);m=max(wall,top)
     return m+r*math.log(math.exp((wall-m)/r)+math.exp((top-m)/r))
+
+
+def exact_loft(ob):
+    """Evaluate the upper C2 die, instead of shipping subdivision-fit phase.
+
+    The regular cage supplies the chart and the retained lower construction.
+    Its finite subdivision approximation can be millimeters inside a tight
+    die roll. Sample that die itself before any opening/panel is cut, so game,
+    source, steel and optics use one actual surface and its own derivatives.
+    """
+    from mathutils import Vector
+    import json
+    maximum=0.;residual=0.;count=0
+    for v in ob.data.vertices:
+        original=v.co.copy()
+        if original.z<=.70:continue
+        p=original.copy();weight=ease(.70,.76,p.z)
+        for _ in range(5):
+            value=field(p)
+            if abs(value)<2e-8:break
+            h=.0001;x,y,z=p
+            gradient=Vector(tuple((field((x+(h if k==0 else 0),y+(h if k==1 else 0),z+(h if k==2 else 0)))-
+                field((x-(h if k==0 else 0),y-(h if k==1 else 0),z-(h if k==2 else 0))))/(2*h) for k in range(3)))
+            p-=gradient*(value/gradient.length_squared)
+        v.co=original.lerp(p,weight);maximum=max(maximum,(v.co-original).length);count+=1
+        if original.z>=.76:residual=max(residual,abs(field(v.co)))
+    ob.data.update()
+    if residual>2e-6:raise ValueError(('Upper loft evaluation did not converge to its die',residual))
+    ob['upper_exact_loft']=json.dumps(dict(vertices=count,maximum_subdivision_approximation_distance_m=maximum,maximum_die_residual_m=residual,lower_transition_z_m=[.70,.76],construction='C2 manufactured die evaluated before panel, glazing and lamp cuts'))
+    print('S240_EXACT_UPPER_LOFT',count,'vertices; subdivision deviation',maximum,'residual',residual,flush=True)
 
 
 def section(y,w,belt,top):
@@ -115,3 +145,40 @@ def section(y,w,belt,top):
             else:lo=t
         upper.append(tuple(center+d*((lo+hi)/2)))
     return upper+lower[10:]
+
+
+def cut_hood(bm,names,parent):
+    """Retain the accepted hood plan independently of the loft's cage columns."""
+    import bmesh
+    from mathutils import Vector
+    width=Curve([(-1.90,.722),(-1.86,.725),(-1.512,.747),(-1.355,.769),
+                 (-1.255,.832),(-1.152,.842),(-1.090,.838)])
+    stations=[-1.90+(-1.090+1.90)*i/8 for i in range(9)]
+    def candidates():
+        return [f for f in bm.faces if names[f.material_index] in
+                ['Hood','Front fender_L','Front fender_R','Greenhouse_L','Greenhouse_R']
+                and -1.94<f.calc_center_median().y<-1.04 and f.calc_center_median().z>.72]
+    def split(fs,point,normal):
+        es={e for f in fs for e in f.edges};vs={v for f in fs for v in f.verts}
+        bm.verts.index_update();bm.edges.index_update();bm.faces.index_update()
+        bmesh.ops.bisect_plane(bm,geom=sorted(vs,key=lambda v:v.index)+sorted(es,key=lambda e:e.index)+sorted(fs,key=lambda f:f.index),
+            dist=1e-8,plane_co=point,plane_no=normal,clear_inner=False,clear_outer=False)
+    for y in stations:split(candidates(),(0,y,0),(0,1,0))
+    for a,c in zip(stations,stations[1:]):
+        slope=(width(c)-width(a))/(c-a)
+        for sign in [-1,1]:
+            split([f for f in candidates() if a-1e-7<f.calc_center_median().y<c+1e-7],
+                  (sign*width(a),a,0),(sign,-slope,0))
+    for f in candidates():
+        p=f.calc_center_median()
+        if stations[0]<p.y<stations[-1]:
+            if abs(p.x)<width(p.y):f.material_index=names.index('Hood')
+            elif names[f.material_index]=='Hood':f.material_index=names.index('Front fender_L' if p.x<0 else 'Front fender_R')
+        elif p.y>=stations[-1] and names[f.material_index]=='Hood':
+            f.material_index=names.index('Greenhouse_L' if p.x<0 else 'Greenhouse_R')
+    for v in {v for f in candidates() for v in f.verts}:
+        p=v.co
+        if stations[0]-1e-6<=p.y<=stations[-1]+1e-6 and abs(abs(p.x)-width(p.y))<.0004:
+            hit=parent.ray_cast(Vector((p.x,p.y,3)),Vector((0,0,-1)),4)[0]
+            if hit is None:raise ValueError('Hood cut misses its parent stamping')
+            v.co.z=hit.z

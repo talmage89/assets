@@ -105,3 +105,110 @@ def rebuild(ob,surface,high=False):
 
 def build(surface,high=False):
     for side in ['L','R']:rebuild(bpy.data.objects['Greenhouse_'+side],surface,high)
+
+
+def stamping_rolls(surface,high=False,front=True):
+    """Nose-aligned chords, cut afterwards; same dense die as the lamp molds.
+
+    A millimeter-scale optical recess cannot seat on a game chord that lies
+    centimeters inside the nose roll. This is the hatch crown method: X and
+    distance behind the physical nose contour, with close rows through its roll.
+    """
+    from sedan_body import sheet_gauge,closeable_sheet,side_width
+    from sedan_upper_surface import height
+    origin=Vector((0,-1.30,.43)) if front else Vector((0,1.42,.60));axis=1 if front else -1
+    import numpy as np
+    stations=[]
+    for i in range(33):
+        x=-.88+1.76*i/32;hit=surface['tree'].ray_cast(Vector((x,-4 if front else 4,.72 if front else .95)),Vector((0,axis,0)),6)[0]
+        if hit is None:raise ValueError(('Nose station misses the dense stamping',x))
+        stations.append((x,hit.y))
+    A=np.array([[x**k for k in [0,2,4,6]] for x,y in stations]);values=np.array([y for x,y in stations])
+    coefficients=np.linalg.lstsq(A,values,rcond=None)[0]
+    def nose(x):return float(np.dot([x**k for k in [0,2,4,6]],coefficients))
+    names=['Hood outer','Front molded fascia','Front fender_L','Front fender_R'] if front else ['Trunk outer','Rear quarter_L','Rear quarter_R']
+    for name in names:
+        ob=bpy.data.objects[name];world=ob.matrix_world;inverse=world.inverted();old=ob.data
+        radial=name.startswith(('Front fender','Rear quarter'));sign=-1 if name.endswith('L') else 1
+        perspective_side=radial and front
+        bm=bmesh.new();bm.from_mesh(old);role=bm.faces.layers.int.new('front_sampling_role')
+        for f in bm.faces:f[role]=f.material_index
+        bmesh.ops.delete(bm,geom=[f for f in bm.faces if f[role]!=0],context='FACES_ONLY')
+        nm=world.to_3x3().inverted().transposed()
+        # XY is injective only on the upper side of the shoulder. The lower
+        # fender wall turns back under that maximum and is another chart.
+        selected=[f for f in bm.faces if ((world@f.calc_center_median()).y<-1.04 if front else (world@f.calc_center_median()).y>1.85) and (world@f.calc_center_median()).z>(.66 if front else .78) and (True if perspective_side else (nm@f.normal).x*sign>.04 if radial else (nm@f.normal).z>.04)]
+        if not selected:bm.free();continue
+        region=set(selected);boundary=list(dict.fromkeys(e for f in selected for e in f.edges if sum(q in region for q in e.link_faces)==1))
+        degrees={e:len(e.link_faces) for e in boundary};bm.verts.index_update()
+        verts=sorted({v for e in boundary for v in e.verts},key=lambda v:v.index);lookup={v:i for i,v in enumerate(verts)}
+        for v in verts:
+            p=world@v.co
+            if (p.y<-1.85 and p.z>.69) if front else (p.y>1.80 and p.z>.78):
+                direction=(p-origin).normalized()
+                radial_boundary=radial and (front or (not .61<abs(p.x)<.62 and p.z<1.0))
+                hit=(surface['tree'].ray_cast(origin+direction*2,-direction,2)[0] if radial_boundary else
+                     surface['tree'].ray_cast(Vector((p.x,p.y,3)),Vector((0,0,-1)),4)[0])
+                if hit is None:raise ValueError('Front cut boundary misses the dense stamping')
+                v.co=inverse@hit
+        def upper_draw(y):return height(side_width(y)-.012,y)
+        def chart(p):
+            if perspective_side:return Vector(((p.y-origin.y)/abs(p.x),(p.z-origin.z)/abs(p.x)))
+            return Vector((p.y,p.z-upper_draw(p.y))) if radial else Vector((p.x,axis*(p.y-nose(p.x))))
+        coords=[chart(world@v.co) for v in verts]
+        edges=[tuple(lookup[v] for v in e.verts) for e in boundary]
+        def inside(q):
+            count=0
+            for a,c in edges:
+                a,c=coords[a],coords[c]
+                if (a.y>q.y)!=(c.y>q.y) and q.x<(c.x-a.x)*(q.y-a.y)/(c.y-a.y)+a.x:count+=1
+            return count%2==1
+        def distance(q):
+            ds=[]
+            for a,c in edges:
+                a,c=coords[a],coords[c];d=c-a;t=max(0,min(1,(q-a).dot(d)/d.length_squared));ds.append((q-a-d*t).length)
+            return min(ds)
+        x0,x1=min(q.x for q in coords),max(q.x for q in coords);t0,t1=min(q.y for q in coords),max(q.y for q in coords)
+        step=(.025 if high else .060) if perspective_side else (.015 if high else .025) if radial else (.035 if high else .090 if front else .065)
+        offsets=([- .35,-.30,-.25,-.20,-.15,-.10,-.075,-.060,-.045,-.030,-.022,-.014,-.007,0,.007,.014,.022,.030,.045,.060,.080,.11,.15]+([i*.0035 for i in range(-16,17)] if high else []) if radial else sorted(set([-.055,-.040,-.030,-.022,-.014,-.007,0,.007,.014,.022,.030,.042,.058,.080,.11,.15,.20]+
+            [t0+i*(.035 if high else .090 if front else .070) for i in range(1,math.ceil((t1-t0)/(.035 if high else .090 if front else .070))) if t0+i*(.035 if high else .090 if front else .070)>.20]))
+        )
+        if perspective_side:offsets=[t0+i*(.015 if high else .025) for i in range(1,math.ceil((t1-t0)/(.015 if high else .025)))]
+        columns=sorted(set([x0+i*step for i in range(1,math.ceil((x1-x0)/step))]+([0.] if not radial and x0<0<x1 else [])))
+        for x in columns:
+            for t in offsets:
+                q=Vector((x,t))
+                if inside(q) and distance(q)>.002:coords.append(q)
+        result,_,faces,original,*_=delaunay_2d_cdt(coords,edges,[],0,1e-8)
+        faces=[f for f in faces if inside(sum((result[i] for i in f),Vector((0,0)))/len(f))]
+        needed={i for f in faces for i in f};new={}
+        for i in sorted(needed):
+            held=[j for j in original[i] if j<len(verts)]
+            if held:
+                if len(held)!=1:raise ValueError('Front physical chart merged boundary vertices')
+                new[i]=verts[held[0]]
+            else:
+                x,t=result[i];y=nose(x)+axis*t
+                if perspective_side:
+                    direction=Vector((sign,x,t)).normalized();p=surface['tree'].ray_cast(origin+direction*2,-direction,2)[0]
+                elif radial:
+                    y=x;z=upper_draw(y)+t
+                    p=surface['tree'].ray_cast(Vector((sign*2,y,z)),Vector((-sign,0,0)),4)[0]
+                else:p=surface['tree'].ray_cast(Vector((x,y,3)),Vector((0,0,-1)),4)[0]
+                if p is None:raise ValueError(('Front physical chord misses the stamping',name,x,t))
+                new[i]=bm.verts.new(inverse@p)
+        before=sum(len(f.verts)-2 for f in selected);bmesh.ops.delete(bm,geom=selected,context='FACES_ONLY')
+        for f in faces:
+            vs=[new[i] for i in f];ps=[world@v.co for v in vs]
+            center=sum(ps,Vector())/len(ps);expected=surface['tree'].find_nearest(center)[1]
+            if (ps[1]-ps[0]).cross(ps[2]-ps[0]).dot(expected)<0:vs.reverse()
+            nf=bm.faces.new(vs);nf[role]=0;nf.material_index=0;nf.smooth=True
+        for e in boundary:
+            if not e.is_valid or len(e.link_faces)!=degrees[e]:raise ValueError('Front physical boundary is not conforming')
+        bmesh.ops.delete(bm,geom=[v for v in bm.verts if not v.link_faces],context='VERTS')
+        bmesh.ops.triangulate(bm,faces=list(bm.faces));bm.normal_update();bm.to_mesh(old);bm.free()
+        closeable_sheet(ob);sheet_gauge(ob,.003 if 'fascia' in name else .0009)
+        temporary=ob.data.attributes.get('front_sampling_role')
+        if temporary is not None:ob.data.attributes.remove(temporary)
+        ob['physical_roll_chords']=json.dumps(dict(removed_outer_triangles=before,new_outer_triangles=len(faces),chart_spacing=step,coordinate='Physical perspective' if perspective_side else 'Y / Z relative to upper draw' if radial else 'X / distance inward from physical end contour',reference='Actual uncut dense C2 stamping, shared with optical mold'))
+        print('S240_ROLL_PHYSICAL_CHORDS',name,before,'to',len(faces),flush=True)
