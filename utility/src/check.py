@@ -134,8 +134,9 @@ def check():
             telecom=catenary(comm['start'],comm['end'],comm['sag_m'])['point']
             gap=min(power(t/200)[2]-telecom(t/200)[2]-(neutral['diameter_m']+comm['diameter_m'])/2 for t in range(201))
             assert gap>=1.016,(seed,gap);gaps.append(gap)
-        # Compare actual imported conductor vertex rings to the declared sample
-        # centreline via a nearest-position query, independently of socket JSON.
+        # Check the declared sample polyline against the analytic catenary.
+        # Imported mesh surfaces are measured separately for ground/road
+        # clearances above; this curve-error value is not a GLB surface fit.
         for span in spans:
             truth=catenary(span['start'],span['end'],span['sag_m'])['point'];L=math.hypot(span['end'][0]-span['start'][0],span['end'][1]-span['start'][1])
             for p,q in zip(span['points'],span['points'][1:]):
