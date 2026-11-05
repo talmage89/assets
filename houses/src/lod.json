@@ -1,0 +1,21 @@
+{
+  "kind": "colonial seed 27",
+  "source": "export/Hearthfield-27.gltf",
+  "levels": [
+    {
+      "ratio": 0.6,
+      "screen_height": 0.3
+    },
+    {
+      "ratio": 0.3,
+      "screen_height": 0.12
+    },
+    {
+      "ratio": 0.15,
+      "screen_height": 0.045
+    }
+  ],
+  "drop_subpixel": true,
+  "readme_before": "\n## Second type:",
+  "readme_level": 3
+}

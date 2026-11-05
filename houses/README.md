@@ -313,6 +313,32 @@ texture pixel is authored here.
 
 ---
 
+<!-- LOD checkpoint: begin -->
+### Additional LODs
+
+`make lod` builds additional glTF/BIN files under `export/lod/`; `make check-lod` independently checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+
+| Level | Triangles / target | Materials | Geometry bytes | PNG bytes | Total load bytes | GPU textures + mesh, MiB | Switch height / distance |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| LOD0 | 58,232 / — | 6 | 5,085,829 | 16,072,464 | 21,158,293 | 38.000 + 4.8366 | near |
+| LOD1 | 58,183 / 34,939 | 6 | 5,083,625 | 16,072,464 | 21,156,089 | 38.000 + 4.8351 | 30.0% / 25.11 m |
+| LOD2 | 57,739 / 17,470 | 6 | 5,046,725 | 16,072,464 | 21,119,189 | 38.000 + 4.7999 | 12.0% / 62.78 m |
+| LOD3 | 57,243 / 8,735 | 6 | 5,001,821 | 16,072,464 | 21,074,285 | 38.000 + 4.7571 | 4.5% / 167.41 m |
+
+Distances are to the bound center at a 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. PNG storage is separate. Each row is a cold load; URI/content caching can share images across levels. Targets are aspirations: the achieved counts retain geometry when reduction fails seam, silhouette, shading or topology checks.
+
+Load the original and additional files as alternatives and explicitly configure Godot visibility ranges, Unity LODGroup renderers, or corresponding Unreal mesh/component LODs. A filename does not create an engine controller. Keep matching pivots in the same pose during switching. [Engine sources, thresholds, texture policy and limitations](../kit/LOD.md).
+
+All ordinary moving geometry, sockets, skins and their frames stay separate and retain their delivered data. No pilot merges moving parts into its body. Canonical external PNGs stay shared among the additional levels and LOD0. A distant texture set saves residency only when larger maps are unloaded or streamed.
+
+Native-pixel comparison strips, amplified differences and close views of every level: `renders/lod/`. The local `contact.jpg` indexes them; `metrics.json` records original/adjacent comparisons from three azimuths. Raw checks and immutable-input hashes: `export/lod/check.json` and `manifest.json`. Rejected component reductions: `build/lod/<source stem>/simplification.json`. [Two critique passes and the six-pilot sheet](../kit/LOD_REVIEW.md).
+
+Shipped PNG dimensions: LOD0: 6 × 512×512, 3 × 1024×1024, 6 × 2048×2048; LOD1: 6 × 512×512, 3 × 1024×1024, 6 × 2048×2048; LOD2: 6 × 512×512, 3 × 1024×1024, 6 × 2048×2048; LOD3: 6 × 512×512, 3 × 1024×1024, 6 × 2048×2048.
+
+The canonical tiling sets/trim remain shared at all levels; no parallel low-resolution building maps are added. Use engine mip streaming for texture residency. Only seed 27 is piloted.
+
+<!-- LOD checkpoint: end -->
+
 ## Second type: postwar ranch
 
 A seeded 1955–1975 one-story ranch, maintained through about 55 years of
