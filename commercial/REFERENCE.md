@@ -1,9 +1,9 @@
 # Commercial / corner station form evidence
 
 This is an original 1995–2010 suburban station grammar, maintained at roughly
-15 years of service. The current gate adds shared baked manufacture, causal
+15 years of service. The delivery adds shared baked manufacture, causal
 age and external-image delivery to the accepted form. No reference pixels
-enter geometry or materials. It remains a lead-review checkpoint.
+enter geometry or materials. Final exports and their full-size review are recorded in REVIEW.md.
 
 The dated Pennsylvania (2006), Louisiana (2008) and California (2009) photos
 prove those operating configurations existed in the period. They do not establish
