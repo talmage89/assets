@@ -3,10 +3,11 @@
 .DELETE_ON_ERROR:
 BLENDER ?= blender
 PYTHON ?= python3
+RUN := $(PYTHON) src/run_blender.py
 KIT := $(abspath ../kit)
 REPO := $(abspath ..)
 BP := $(BLENDER) -t 2 -b --factory-startup --python-exit-code 1
-RP := $(BLENDER) -t 4 -b --factory-startup --python-exit-code 1
+RP := $(BLENDER) -t 2 -b --factory-startup --python-exit-code 1
 export TMPDIR := $(REPO)/build/tmp
 export ASSETS_GPU_LOCK ?= $(REPO)/build/locks/gpu.lock
 WIDTH ?= 1600
@@ -32,11 +33,11 @@ context: preserve
 $(MAPS) &: src/textures.py src/graphics.py build/parameters.txt
 	$(PYTHON) src/graphics.py
 	$(PYTHON) src/textures.py fields --wear $(WEAR)
-	$(KIT)/with_gpu.sh $(BP) --python src/textures.py -- bake
+	$(KIT)/with_gpu.sh $(RUN) --report build/memory/bake.json -- $(BP) --python src/textures.py -- bake
 	$(PYTHON) src/textures.py ship
 textures: $(MAPS)
 $(MODELS) &: $(MODELDEPS) $(MAPS) | context
-	$(BP) --python src/build.py -- --out build/Signals-201.blend
+	$(RUN) --report build/memory/model.json -- $(BP) --python src/build.py -- --out build/Signals-201.blend
 model: $(MODELS)
 build/delivery.json: $(MODELS) src/deliver.py
 	$(PYTHON) src/deliver.py
@@ -53,7 +54,7 @@ build/render-parameters.txt: FORCE
 	@mkdir -p build
 	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='$(WIDTH) $(SAMPLES)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
 renders/checkpoint/.stamp: build/delivery.json src/render.py src/setting.py src/layout.py ../ground/src/junction.py build/render-parameters.txt
-	$(KIT)/with_gpu.sh $(RP) --python src/render.py -- --source export/Signals-201.gltf --out renders/checkpoint --seeds 201,202,203,204 --width $(WIDTH) --samples $(SAMPLES)
+	@for seed in $(SEEDS); do $(KIT)/with_gpu.sh $(RUN) --report build/memory/checkpoint-$$seed.json -- $(RP) --python src/render.py -- --source export/Signals-201.gltf --out renders/checkpoint --seeds $$seed --width $(WIDTH) --samples $(SAMPLES) || exit $$?; done
 	$(KIT)/with_gpu.sh $(RP) --python src/lens_compare.py
 	@touch $@
 render: renders/checkpoint/.stamp
@@ -61,7 +62,7 @@ build/cameras.json: src/matches.py src/sidewalk_fit.py src/layout.py $(foreach n
 	$(PYTHON) src/matches.py
 renders/matches/.stamp: build/delivery.json build/cameras.json src/render.py src/setting.py build/render-parameters.txt
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration build/cameras.json
-	$(KIT)/with_gpu.sh $(RP) --python src/render.py -- --source export/Signals-201.gltf --out renders/matches --seeds 201,202,203,204 --camera-file build/cameras.json --width $(WIDTH) --samples $(SAMPLES)
+	@for seed in $(SEEDS); do $(KIT)/with_gpu.sh $(RUN) --report build/memory/matches-$$seed.json -- $(RP) --python src/render.py -- --source export/Signals-201.gltf --out renders/matches --seeds $$seed --camera-file build/cameras.json --width $(WIDTH) --samples $(SAMPLES) || exit $$?; done
 	$(PYTHON) src/matches.py --compose
 	@touch $@
 matches: renders/matches/.stamp renders/source-matches/.stamp
@@ -75,11 +76,11 @@ clean:
 build/sites.json: src/layout.py
 	$(PYTHON) src/layout.py
 ../ground/export/ArterialSites.glb: build/sites.json ../ground/src/junction.py
-	$(BP) --python ../ground/src/junction.py -- --spec build/sites.json --out $@
+	$(RUN) --report build/memory/arterial.json -- $(BP) --python ../ground/src/junction.py -- --spec build/sites.json --out $@
 .PHONY: arterial
 arterial: ../ground/export/ArterialSites.glb
 
 renders/source-matches/.stamp: $(MODELS) build/cameras.json src/render.py src/setting.py build/render-parameters.txt
-	$(KIT)/with_gpu.sh $(RP) --python src/render.py -- --source build/Signals-201.blend --out renders/source-matches --seeds 201,202,203,204 --camera-file build/cameras.json --width $(WIDTH) --samples $(SAMPLES)
+	@for seed in $(SEEDS); do $(KIT)/with_gpu.sh $(RUN) --report build/memory/source-matches-$$seed.json -- $(RP) --python src/render.py -- --source build/Signals-201.blend --out renders/source-matches --seeds $$seed --camera-file build/cameras.json --width $(WIDTH) --samples $(SAMPLES) || exit $$?; done
 	$(PYTHON) src/matches.py --compose --renders renders/source-matches
 	@touch $@

@@ -1,5 +1,6 @@
 """Build only missing same-clone context exports, preserving every existing byte."""
-import subprocess,json,hashlib
+import subprocess,json
+from preserve import sha256
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 def ensure():
@@ -21,7 +22,7 @@ def ensure():
   if not file.exists():
    with (ROOT/'signals/build'/('context-'+name+'.log')).open('w') as log:
     subprocess.run(['make','-C',str(ROOT/folder),*args],check=True,stdout=log,stderr=subprocess.STDOUT)
-  rows.append(dict(source=str(file.relative_to(ROOT)),sha256=hashlib.sha256(file.read_bytes()).hexdigest()))
+  rows.append(dict(source=str(file.relative_to(ROOT)),sha256=sha256(file)))
  (ROOT/'signals/build/context.json').write_text(json.dumps(rows,indent=2))
  print('CONTEXT',len(rows),'local exports ready')
 if __name__=='__main__':ensure()

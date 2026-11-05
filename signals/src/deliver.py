@@ -22,10 +22,11 @@ def state_factors(path):
  d,b=read(path)
  for m in d.get('materials',[]):
   if m['name'].startswith('SharedLens_'):
-   m['pbrMetallicRoughness']['baseColorFactor']=[.0007,.0007,.0007,1]
+   factor=.0007 if m['name'].endswith('Lit') else .012
+   m['pbrMetallicRoughness']['baseColorFactor']=[factor,factor,factor,1]
    m['pbrMetallicRoughness']['metallicFactor']=0
    m['alphaMode']='MASK';m['alphaCutoff']=.5
-   m['extras']=dict(state='lit' if m['name'].endswith('Lit') else 'off',base_factor=.0007)
+   m['extras']=dict(state='lit' if m['name'].endswith('Lit') else 'off',base_factor=factor)
  write(path,d,b)
 
 def externalize(source,out):

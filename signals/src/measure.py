@@ -24,6 +24,20 @@ def run():
   distance=row['distance'];im=Image.open(f'renders/checkpoint/optics/{distance}m.png').convert('RGB');a=np.array(im)/255;h,w=a.shape[:2];sky=a[round(.10*h):round(.20*h),round(.65*w):round(.75*w)];items=[]
   for head in row['heads']:items.append(dict(**head,measure=metric(circle(im,head['rect_pixels']),sky)))
   comparisons[str(distance)]=items
- result=dict(photos=photos,render=comparisons,neutral_balance=json.loads(Path('build/reference-balance.json').read_text()),scope='Display-domain contrast under documented sun/sky, median adjacent sky. Different exposure/camera response and optical products prevent physical luminance inference.')
+ surfaces={}
+ # One flat painted strip below the red lens. This camera-space sample is
+ # exposed in the record; original housing/visor shapes and JPEG clipping
+ # limit the conclusion, so it is not an albedo or pass/fail measurement.
+ paint_roi=(1450,1070,1490,1090)
+ for key,file in [('photo_yellow',Path('refs/span-2009-balanced.jpg')),*[(f'head_{seed}',Path(f'renders/matches/head_{seed}.png')) for seed in (201,203)]]:
+  if not file.exists():continue
+  a=np.asarray(Image.open(file).convert('RGB'),dtype=float)/255;x0,y0,x1,y1=paint_roi
+  if key!='photo_yellow':
+   meta=json.loads(file.with_suffix('.json').read_text());crop=meta.get('render_crop')
+   if crop:
+    factor=meta['render_scale'];x0,y0,x1,y1=[round((v-crop[k%2])*factor) for k,v in enumerate((x0,y0,x1,y1))]
+  cut=a[y0:y1,x0:x1].reshape(-1,3)
+  surfaces[key]=dict(file=str(file),roi=paint_roi,median_display_rgb=np.median(cut,axis=0).tolist(),clipped_red_fraction=float((cut[:,0]>=.99).mean()),scope='Flat paint patch in nominally matched framing; not a physical albedo measurement. Different visor shadows remain visible in the pair.')
+ result=dict(photos=photos,render=comparisons,surfaces=surfaces,neutral_balance=json.loads(Path('build/reference-balance.json').read_text()),scope='Display-domain contrast under documented sun/sky, median adjacent sky. Different exposure/camera response and optical products prevent physical luminance inference.')
  Path('build/lens-measurements.json').write_text(json.dumps(result,indent=2));print('OPTICS',json.dumps({n:{'R95/skyR':r['R95_over_skyR'],'Y/skyY':r['lens_mean_Yprime_over_skyYprime']} for n,r in photos.items()}))
 if __name__=='__main__':run()

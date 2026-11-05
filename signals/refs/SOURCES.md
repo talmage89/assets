@@ -16,7 +16,7 @@ no reference image or drawing supplies geometry or texture pixels.
 | span-2009.jpg | https://upload.wikimedia.org/wikipedia/commons/3/3a/LED_traffic_light_on_red.jpg | Kevin Payravi, Wikimedia Commons, CC BY-SA 4.0 (also multi-license/GFDL) | 27 December 2009 NC installation; LED cover, visor, upper hanger and cable |
 | intersection-2008.jpg | https://upload.wikimedia.org/wikipedia/commons/0/0c/Stoplight.jpg | Alexis Kondra / Dhscommtech, CC BY-SA 3.0, GFDL | 29 September 2008 intersection; scale, mounting and form comparison |
 
-| maryland-2006.jpg | https://upload.wikimedia.org/wikipedia/commons/1/1c/2006_11_10_-_108%40Brooke_-_EB_2.JPG | Andrew Bossi / Thisisbossi, CC BY-SA 2.5 | 10 November 2006 US mast-arm intersection, approach form pair |
+| maryland-2006.jpg | https://upload.wikimedia.org/wikipedia/commons/1/1c/2006_11_10_-_108%40Brooke_-_EB_2.JPG | Andrew Bossi / Thisisbossi, CC BY-SA 2.5 | 10 November 2006 span-wire intersection, approach and hanger form pair |
 | newjersey-2014.jpg | https://upload.wikimedia.org/wikipedia/commons/c/c2/2014-05-16_18_05_06_View_north_along_Mercer_County_Route_533_%28White_Horse-Mercerville_Road%29_at_New_Jersey_State_Route_33_in_Hamilton_Township%2C_Mercer_County%2C_New_Jersey.jpg | Famartin, CC BY-SA 3.0 | 16 May 2014 US mast-arm intersection, approach form pair |
 | trenton-2014.jpg | https://upload.wikimedia.org/wikipedia/commons/f/fd/2014-08-27_12_49_20_Traffic_signal_at_the_intersection_of_Parkside_Avenue_%28Mercer_County_Route_636%29%2C_Bellevue_Avenue_and_the_entrance_to_Cadwalder_Park_in_Trenton%2C_New_Jersey.JPG | Famartin, CC BY-SA 3.0 | 27 August 2014 US mast-arm intersection; principal mast-arm form pair |
 
@@ -35,8 +35,13 @@ separately in REFERENCE. No real certification marks are reproduced.
 Derived neutral-balanced, cropped, gridded and rasterized reading aids retain
 their original source's author and license and stay ignored in refs/. Photo
 pairs crop the actual render and photo by the same pinhole rectangle; calibration
-on the full image is retained separately. Comparison views omit neighborhood
-context so it cannot conceal the fitted hardware. No photo contributes texels.
+on the full image is retained separately. Wide comparisons retain the town;
+any presentation context or equipment omitted to expose the measured assembly
+is listed in the render sidecar. No photo contributes texels.
 
 | gadsden-2025.jpg | https://upload.wikimedia.org/wikipedia/commons/4/45/Traffic_light_at_Gadsden_and_College.jpg | The Bushranger, CC BY-SA 4.0; 14 February 2025 | Later photograph of installed vertical mast-arm equipment; construction and aged surface comparator, not proof of installation date |
 | led-2008.jpg | https://upload.wikimedia.org/wikipedia/commons/4/47/LED_traffic_light.jpg | Bidgee, CC BY 3.0; 13 December 2008 | Optical construction comparator only; excluded from sunlit contrast measurements because its sky is overcast |
+
+| arlington-fya.png | https://www.arlingtonva.us/files/sharedassets/public/transportation/images/traffic-lights.png?w=1200 | Arlington County Virginia; copyright retained, date unspecified | Elevated mast-array comparator; not used as an eye-height camera reference |
+| penndot-fya-2024.jpg | https://media.tegna-media.com/assets/WNEP/images/f263cf8d-01c3-48cc-bae6-d915b9488c34/20241003T212103/f263cf8d-01c3-48cc-bae6-d915b9488c34_1920x1080.jpg | WNEP / TEGNA, copyright retained, 3 October 2024 | Later FYA close-up comparator; yellow casing and unpowered modules, not proof of service age |
+| oregon-fya-2005.jpg | https://upload.wikimedia.org/wikipedia/commons/b/bd/Flashing_LT1.jpg?utm_campaign=index&utm_content=original&utm_source=commons.wikimedia.org | Deloreanman14, public domain dedication; photographed 14 March 2005, uploaded 25 October 2006 | Period complete three-face FYA mast array, matched sidewalk and driver framing; viewing and measuring only |
