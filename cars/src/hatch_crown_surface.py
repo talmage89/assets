@@ -2,9 +2,11 @@
 
 The old radial triangulation spans a changing normal phase along unrelated
 long diagonals. Keep every cut boundary and sample our own evaluated parent
-on rows parallel to the physical nose contour. No aperture or package refit.
+on rows parallel to the physical nose contour. A smooth height fit to our own
+parent supplies mold derivatives, avoiding normal phase changes caused by
+nearest-point projection across the roll. No aperture or package refit.
 """
-import bpy,bmesh
+import bpy,bmesh,numpy as np
 from mathutils import Vector
 from mathutils.geometry import delaunay_2d_cdt
 from hatch_reference_surface import field
@@ -75,22 +77,30 @@ def apply(b):
     for e in boundary:
         if not e.is_valid or len(e.link_faces)!=2:raise ValueError('Crown boundary is not conforming')
     bm.to_mesh(me);bm.free();saved=me.attributes['H120 crown held normals'];role=me.attributes['hatch_outer_skin'];custom=[];nm=matrix.to_3x3().transposed()
-    def design_normal(p):
-        q=p.copy();h=.00001
-        def gradient(q):
-            return Vector([(section_field(q+Vector([h if k==a else 0 for k in range(3)]))-section_field(q-Vector([h if k==a else 0 for k in range(3)])))/(2*h) for a in range(3)])
-        for _ in range(6):
-            g=gradient(q);q-=g*(section_field(q)/g.length_squared)
-        return gradient(q).normalized()
+    anchors=[]
+    for i in range(41):
+        x=-.75+i*.0375
+        for j in range(25):
+            t=-.035+j*.006;y=nose(x)+t;hit=parent((x,y,3),(0,0,-1))
+            if hit and .66<hit[0].z<.83:anchors.append((x,t,hit[0].z))
+    terms=[(i,j) for i in range(5) for j in range(6) if i+j<=6]
+    rows=np.array([[(x/.75)**i*(t/.10)**j for i,j in terms] for x,t,z in anchors]);values=np.array([z for x,t,z in anchors]);coef=np.linalg.lstsq(rows,values,rcond=None)[0];residual=rows@coef-values
+    ob['crown_normal_fit_residual_p95_m']=float(np.percentile(abs(residual),95));ob['crown_normal_fit_residual_max_m']=float(abs(residual).max())
+    def normal(p):
+        x=p.x/.75;t=(p.y-nose(p.x))/.10
+        dx=sum(c*i*x**(i-1)*t**j/.75 for c,(i,j) in zip(coef,terms) if i)
+        dt=sum(c*j*x**i*t**(j-1)/.10 for c,(i,j) in zip(coef,terms) if j)
+        h=.0001;d=(nose(p.x+h)-nose(p.x-h))/(2*h)
+        return Vector((-dx+dt*d,-dt,1)).normalized()
     for f in me.polygons:
         for li in f.loop_indices:
             p=matrix@me.vertices[me.loops[li].vertex_index].co
-            if role.data[f.index].value and abs(p.x)<.76 and p.y<-1.8 and .67<p.z<.80:
+            if role.data[f.index].value and abs(p.x)<.78 and p.y<-1.8 and .64<p.z<.82:
                 from hatch_body import smoothstep
-                original=parent.nearest_normal(p);target=design_normal(p)
-                w=(1-smoothstep(.70,.76,abs(p.x)))*smoothstep(.67,.69,p.z)*(1-smoothstep(.78,.80,p.z))*(1-smoothstep(-1.85,-1.80,p.y))
+                original=parent.nearest_normal(p);target=normal(p)
+                w=(1-smoothstep(.72,.78,abs(p.x)))*smoothstep(.64,.66,p.z)*(1-smoothstep(.80,.82,p.z))*(1-smoothstep(-1.85,-1.80,p.y))
                 custom.append(nm@original.lerp(target,w).normalized())
-            else:custom.append(saved.data[li].vector.copy())
+            else:custom.append(nm@parent.nearest_normal(p) if role.data[f.index].value and saved.data[li].vector.length<.1 else saved.data[li].vector.copy())
     me.normals_split_custom_set(custom);me.attributes.remove(saved)
     ob['crown_removed_triangles']=old_count;ob['crown_new_triangles']=len(faces)
     print('H120_CROWN_PATCH',old_count,'to',len(faces),'held boundary',len(verts),flush=True)

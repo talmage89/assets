@@ -108,6 +108,8 @@ def main():
     import hatch_hidden_allocation
     hatch_hidden_allocation.reduce(b)
     hatch_hidden_allocation.covered_door_backs(b)
+    import hatch_lower_allocation
+    hatch_lower_allocation.apply(b)
     bpy.context.view_layer.update()
     for ob in bpy.context.scene.objects:
         if ob.type!='MESH' or ob.get('asset_set')!=S.ASSET_SET:continue

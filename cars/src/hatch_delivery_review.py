@@ -3,13 +3,25 @@
 Sheet layout reuses the pickup's gallery review helpers. Photographs and
 before/after diagnostics remain in ignored renders, separate from docs.
 """
-import argparse,hashlib,json,os,sys
+import argparse,hashlib,json,math,os,sys
 from pathlib import Path
-from PIL import Image
+from PIL import Image,ImageDraw,ImageFont
 import review_lookdev as R
 from hatch_pair_measure import measure
 from hatch_final_views import FINAL_VIEWS
 ROOT=Path(__file__).resolve().parents[1]
+
+
+def sheet(files,out,columns=3,width=800,captions=None):
+    """Pickup panel treatment, with cells sized to the native gallery aspect."""
+    title=max(38,round(width*.048));height=round(width/1.5)+title
+    canvas=Image.new('RGB',(columns*width,math.ceil(len(files)/columns)*height),(226,228,225))
+    draw=ImageDraw.Draw(canvas);font=ImageFont.truetype(R.FONT,max(17,round(width*.022)))
+    for i,path in enumerate(files):
+        x=i%columns*width;y=i//columns*height
+        canvas.paste(R.panel(path,(width,height-title)),(x,y+title))
+        draw.text((x+14,y+8),(captions or {}).get(str(path),path.stem),font=font,fill=(25,32,30))
+    canvas.save(out,quality=92,optimize=True)
 
 
 def doc(source,target):
@@ -38,12 +50,12 @@ def main():
     views=list(FINAL_VIEWS);files=[folder/(n+'.png') for n in views+colors]+[eevee/'hero.png']
     for path in files:
         if not path.exists():raise FileNotFoundError(path)
-    R.sheet(files,folder/'contact-sheet.jpg',columns=3,width=800,captions={str(eevee/'hero.png'):'hero / Eevee'})
-    R.sheet([folder/(n+'.png') for n in ['front','side','back','top']],folder/'turnaround.jpg',columns=2,width=800)
-    R.sheet([folder/(n+'.png') for n in ['face','lamp','wheel','rear_quarter']],folder/'details.jpg',columns=2,width=800)
-    R.sheet([folder/(n+'.png') for n in colors],folder/'five-colors.jpg',columns=2,width=800)
-    R.sheet([folder/'scale.png',eevee/'hero.png'],folder/'scale-eevee.jpg',columns=1,width=1600,captions={str(eevee/'hero.png'):'Eevee / exported GLB'})
-    R.sheet([pairs/(n+'-pair.jpg') for n in ['used_front','used_rear']],pairs/'contact-sheet.jpg',columns=1,width=1600)
+    sheet(files,folder/'contact-sheet.jpg',columns=3,width=800,captions={str(eevee/'hero.png'):'hero / Eevee'})
+    sheet([folder/(n+'.png') for n in ['front','side','back','top']],folder/'turnaround.jpg',columns=2,width=800)
+    sheet([folder/(n+'.png') for n in ['face','lamp','wheel','rear_quarter']],folder/'details.jpg',columns=2,width=800)
+    sheet([folder/(n+'.png') for n in colors],folder/'five-colors.jpg',columns=2,width=800)
+    sheet([folder/'scale.png',eevee/'hero.png'],folder/'scale-eevee.jpg',columns=1,width=1600,captions={str(eevee/'hero.png'):'Eevee / exported GLB'})
+    sheet([pairs/(n+'-pair.jpg') for n in ['used_front','used_rear']],pairs/'contact-sheet.jpg',columns=1,width=1600)
     if (source_pairs/'shots.json').exists():
         source_meta=json.loads((source_pairs/'shots.json').read_text());expected=hashlib.sha256((ROOT/'build/hatch-detail/game.blend').read_bytes()).hexdigest()
         if any(r['source_sha256']!=expected for r in source_meta.values()):raise ValueError('Stale source comparison')

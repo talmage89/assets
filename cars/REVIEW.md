@@ -3531,3 +3531,41 @@ checking `%PDF-`; explicit HTML and missing-header HTML still fail without a
 file write. Its positive/negative fixtures pass. All 24 kit modules pass again
 sequentially from a clean scratch build, with all bake fixtures under the lock.
 No downloaded code is executed and the pickup still re-exports byte-identical.
+
+### Delivery pass 4 — reject the first finals; resolve the remaining interpolation
+
+Color/value first: inspect all fourteen gallery views, all five paints and the
+Eevee hero at native size. Upper paint stays dark enough, the broad hood is
+clean, and the road film retains its wheel-wake cause. The badges, plate type,
+tail shell, fuel reveal, cast chamfers and header correction survive export.
+The scale figure measures 1.8 m. Cabin contours are visibly economical in the
+cargo view, and Eevee's screen-space optics remain weaker than Cycles.
+
+The first finals still fail at the narrow front roll and around the gate draw.
+Correct the previous pass's material diagnosis: the thin step also remains in
+the constant-paint ablation. Separate actual-GLB coat-roughness, base-roughness,
+coat-weight, metallic and normal ablations retain it. No new paint decoder or
+studio change is justified. The front's reflection rays do not hit the car
+again. Nearest-point normal projection across the roll changes the sampled
+normal phase between its irregular chords. A smooth height fit to our own
+parent in the nose-aligned chart supplies a coherent derivative instead.
+Its diagnostic anchor residual is 1.12 mm at p95 and 8.42 mm at the extreme;
+it approximates normals, and does not move the accepted surface to that fit.
+The source gallery trial removes the thin step.
+
+The gate needs both aligned rows and smooth derivatives. Differentiating the
+parent's triangle **positions** through the fairing blend introduces its
+faceted slope into an otherwise smooth die field. Blend the parent's smooth
+normal derivative with the implicit die derivative, including the derivative
+of the blend weight. Replace the central radial chords with 40 mm transverse
+and 10 mm crease-aligned rows; retain all 81 boundary vertices. A sparse trial
+still tears the highlight and is rejected. The finer trial makes the central
+recess coherent; the letter plaques are constructed against the final skin.
+
+Fund the visible rows by dissolving one-degree, nearly coplanar lower fascia
+chords below 0.60 m. Every retained vertex stays fixed. Original-surface probes
+at the resulting triangle centers and edge midpoints measure at most 0.272 mm
+front and 0.648 mm rear, and retire 328 + 1,277 triangles. This is a sampled
+chord-deviation check, not a continuous bound. The resulting source is 59,871
+triangles, under the unchanged 60,000 cap. Rebuild, bake and re-audit the actual
+GLB before accepting documentation images.
