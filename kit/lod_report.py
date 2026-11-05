@@ -18,13 +18,13 @@ from kit.fonts import find_font
 
 
 def table(manifest):
-    lines=['| Level | Triangles / target | Geometry bytes | PNG bytes | Total load bytes | GPU textures + mesh, MiB | Switch height / distance |',
-           '| --- | ---: | ---: | ---: | ---: | ---: | --- |']
+    lines=['| Level | Triangles / target | Materials | Geometry bytes | PNG bytes | Total load bytes | GPU textures + mesh, MiB | Switch height / distance |',
+           '| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |']
     for row in manifest['levels']:
         target='—' if row['level']==0 else f'{row["target_triangles"]:,}'
         switch='near' if row['level']==0 else f'{row["screen_height"]:.1%} / {row["distance_m"]:.2f} m'
         png=sum(i['bytes'] for i in row['images'])
-        lines.append(f'| LOD{row["level"]} | {row["triangles"]:,} / {target} | {row["geometry_bytes"]:,} | {png:,} | {row["package_bytes"]:,} | {row["texture_gpu_bytes"]/2**20:.3f} + {row["mesh_gpu_bytes"]/2**20:.4f} | {switch} |')
+        lines.append(f'| LOD{row["level"]} | {row["triangles"]:,} / {target} | {row["materials"]} | {row["geometry_bytes"]:,} | {png:,} | {row["package_bytes"]:,} | {row["texture_gpu_bytes"]/2**20:.3f} + {row["mesh_gpu_bytes"]/2**20:.4f} | {switch} |')
     return '\n'.join(lines)
 
 
@@ -50,6 +50,12 @@ def block(cfg,m):
       'Raw checks and immutable-input hashes: `export/lod/check.json` and `manifest.json`. '
       'Rejected component reductions: `build/lod/<source stem>/simplification.json`. '
       '[Two critique passes and the six-pilot sheet](../kit/LOD_REVIEW.md).']
+    from collections import Counter
+    image_sizes=[]
+    for row in m['levels']:
+        sizes=Counter(tuple(i['size']) for i in row['images'])
+        image_sizes.append(f'LOD{row["level"]}: '+', '.join(f'{n} × {w}×{h}' for (w,h),n in sorted(sizes.items())))
+    lines+=['','Shipped PNG dimensions: '+'; '.join(image_sizes)+'.']
     if cfg.get('include_nodes'):
         lines+=['','This pilot selects `Canopy` (including islands) and `Dispenser_1` from the original station. '
           'LOD0 triangle counts describe those modules, while its bytes/materials/maps describe the full unchanged station container. '
