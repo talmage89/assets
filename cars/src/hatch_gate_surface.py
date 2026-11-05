@@ -92,6 +92,9 @@ def apply(b):
             vs=[newverts[i] for i in f];ps=[matrix@v.co for v in vs]
             if (ps[1]-ps[0]).cross(ps[2]-ps[0]).y<0:vs.reverse()
             nf=bm.faces.new(vs);nf[outer]=1;nf.smooth=True;nf.material_index=material
+        # FACES_ONLY also leaves old diagonals joining two held boundary
+        # vertices. Remove those wire edges before retiring orphan vertices.
+        bmesh.ops.delete(bm,geom=[e for e in bm.edges if not e.link_faces],context='EDGES')
         bmesh.ops.delete(bm,geom=[v for v in bm.verts if not v.link_faces],context='VERTS');bm.normal_update()
         for edge in boundary:
             if not edge.is_valid or len(edge.link_faces)!=2:raise ValueError('Gate boundary is not conforming')
