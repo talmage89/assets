@@ -201,7 +201,13 @@ def main():
     ob=bpy.data.objects.new('billboard fixture',mesh);bpy.context.scene.collection.objects.link(ob)
     ob.rotation_mode='QUATERNION'
     for k,v in dict(lod_billboard=True,sectors=32,columns=8,rows=4).items():ob[k]=v
+    center=ob.matrix_world@Vector((.5,0,.5))
     pose(55);bpy.context.view_layer.update()
+    assert (ob.matrix_world@Vector((.5,0,.5))-center).length<1e-6
+    matrix=ob.matrix_world.copy();coords=[v.uv.copy() for v in uv.data]
+    pose(55);bpy.context.view_layer.update()
+    assert max(abs(matrix[i][j]-ob.matrix_world[i][j]) for i in range(4) for j in range(4))<1e-6
+    assert all((v.uv-expected).length<1e-6 for v,expected in zip(uv.data,coords))
     normal=ob.matrix_world.to_3x3()@Vector((0,-1,0))
     assert normal.dot(Vector((math.sin(math.radians(55)),-math.cos(math.radians(55)),0)))>.99999
     assert min(x.uv.x for x in uv.data)>=.625

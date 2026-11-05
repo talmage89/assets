@@ -51,6 +51,80 @@ def tangent_errors(attrs,source):
     return float(dot[~inherited].max(initial=0)),float(length[~inherited].max(initial=0)),int(inherited.sum())
 
 
+def foliage_normals(doc,base,row):
+    errors=[];matched=0
+    for mi,pi,p in doc.primitives():
+        a,f=doc.arrays(p);source=base.arrays(base.data['meshes'][mi]['primitives'][pi])[0]
+        if any(not np.isfinite(v).all() for v in a.values()):errors.append('nonfinite foliage attributes')
+        if '_WIND' not in a:errors.append('lost foliage Wind')
+        if np.max(np.abs(np.linalg.norm(a['NORMAL'],axis=1)-1))>2e-4:errors.append('nonunit foliage normals')
+        mat=doc.data['materials'][p.get('material',0)]
+        if mat.get('alphaMode') in ('MASK','BLEND'):
+            keys=['NORMAL','_WIND',*[k for k in a if k.startswith('TEXCOORD_')]]
+            def sig(values):
+                v=np.ascontiguousarray(np.column_stack([values[k] for k in keys]),dtype=np.float32)
+                return v.view(np.dtype((np.void,v.shape[1]*4))).ravel()
+            same=np.isin(sig(a),np.unique(sig(source)))
+            matched+=int(same.sum())
+            if not same.all():errors.append('leaf UV/normal/Wind corner data changed')
+    return dict(level=row['level'],scope='enlarged cards: exact UV, bent normals and Wind; geometry/coverage checked in renders',matched_leaf_vertices=matched),errors
+
+
+def atlas_normals(doc,base,row):
+    """Audit transported near normals and new UVs; proxy cage normals are new.
+
+    Proxy appearance is carried by its tangent-normal bake, whose normalization
+    is measured independently. The exported render gates judge that shading.
+    """
+    from kit.detachable_verify import _image
+    angles=[];errors=[];degenerate_uv=0;unit_error=0.;max_distance=0.
+    for ni,node in enumerate(doc.data['nodes']):
+        if 'mesh' not in node:continue
+        source_ids=node.get('extras',{}).get('lod_sources',[ni]);points=[];normals=[];triangles=[];offset=0
+        for si in source_ids:
+            n=base.data['nodes'][si]
+            if 'mesh' not in n:continue
+            matrix=np.eye(4) if 'skin' in n else base.world(si)
+            for p in base.data['meshes'][n['mesh']]['primitives']:
+                a,f=base.arrays(p);v=a['POSITION']@matrix[:3,:3].T+matrix[:3,3]
+                nn=a['NORMAL']@np.linalg.inv(matrix[:3,:3]);nn/=np.maximum(np.linalg.norm(nn,axis=1,keepdims=True),1e-20)
+                points.extend(v);normals.extend(nn);triangles.extend(f.astype(np.uint32)+offset);offset+=len(v)
+        points=np.array(points);normals=np.array(normals);triangles=np.array(triangles)
+        tree=BVHTree.FromPolygons([Vector(v) for v in points],triangles.tolist(),all_triangles=True)
+        matrix=np.eye(4) if 'skin' in node else doc.world(ni)
+        for p in doc.data['meshes'][node['mesh']]['primitives']:
+            a,f=doc.arrays(p);r=topology(a,f)[0];degenerate_uv+=r['degenerate_uv']
+            if r['degenerate_uv']:errors.append('new atlas contains zero-area UV triangles')
+            t=a['POSITION'][f];cross=np.cross(t[:,1]-t[:,0],t[:,2]-t[:,0])
+            dot=np.einsum('fvi,fi->fv',a['NORMAL'][f],cross)
+            if np.any(dot < -1e-10):errors.append('rebaked tangent frame points through its own face')
+            for k,v in a.items():
+                if k.startswith('WEIGHTS_') and (np.any(v<0) or np.max(np.abs(v.sum(axis=1)-1))>1e-5):errors.append('invalid interpolated skin weights')
+            v=a['POSITION']@matrix[:3,:3].T+matrix[:3,3]
+            nn=a['NORMAL']@np.linalg.inv(matrix[:3,:3]);nn/=np.maximum(np.linalg.norm(nn,axis=1,keepdims=True),1e-20)
+            # Source correspondence does not use new atlas UVs as if they were
+            # original charts. Nearby original normal alternatives disambiguate
+            # thin walls; search only at the measured nearest surface distance.
+            for point,normal in zip(v,nn):
+                q,n,fi,dist=tree.find_nearest(Vector(point));max_distance=max(max_distance,dist)
+                pairs=[]
+                for qq,unused,ii,dd in tree.find_nearest_range(Vector(point),max(dist+1e-6,1e-6)):
+                    w=barycentric(np.array(qq),points[triangles[ii]])
+                    source_normal=w@normals[triangles[ii]];source_normal/=max(np.linalg.norm(source_normal),1e-20)
+                    pairs.append(float(np.degrees(np.arccos(np.clip(normal@source_normal,-1,1)))))
+                angles.append(min(pairs))
+    for mat in doc.data.get('materials',[]):
+        if 'normalTexture' not in mat:continue
+        ti=mat['normalTexture']['index'];image=_image(doc.image(doc.data['textures'][ti]['source']))[:,:,:3]*2-1
+        unit_error=max(unit_error,float(np.max(np.abs(np.linalg.norm(image,axis=2)-1))))
+    if unit_error>.007:errors.append('nonunit baked normal map')
+    maximum=max(angles,default=0.);p95=float(np.percentile(angles,95)) if angles else 0.
+    if not row.get('proxy') and rig_data(doc)!=rig_data(base):errors.append('skin bind matrices or animation changed')
+    return dict(level=row['level'],scope='new tangent cage: source geometric normal angles reported; baked shading checked in renders',
+                max_degrees=maximum,p95_degrees=p95,vertices=len(angles),degenerate_uv_triangles=degenerate_uv,
+                baked_normal_max_unit_error=unit_error,max_vertex_surface_distance_m=max_distance),errors
+
+
 def audit(config):
     cfg,root,source,out=configuration(config);m=json.loads((out/'manifest.json').read_text())
     base=Document(source);base.select(cfg.get('include_nodes'));fields={}
@@ -64,6 +138,11 @@ def audit(config):
         if row.get('impostor'):
             rows.append(dict(level=row['level'],scope='unlit billboard; source surface normals intentionally replaced'))
             continue
+        if row.get('rebaked') or row.get('proxy'):
+            result,issues=atlas_normals(Document(out/row['path']),base,row);rows.append(result)
+            errors.extend(f'LOD{row["level"]}: '+issue for issue in issues);continue
+        if row.get('leaf_cards'):
+            result,issues=foliage_normals(Document(out/row['path']),base,row);rows.append(result);errors.extend(issues);continue
         doc=Document(out/row['path']);angles=[];max_distance=0.;uv_degenerate=0;exact_total=0;tangent_dot=0.;tangent_length_error=0.;max_uv_error=0.;inherited_tangents=0
         preceding=m['levels'][1:row['level']+1]
         surface_radius=sum(r.get('surface_tolerance_m',.35*m['height_m']/(1080*r['screen_height'])) for r in preceding)*1.01+2e-6

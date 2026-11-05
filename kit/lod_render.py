@@ -34,6 +34,10 @@ def setup(source, bounds, azimuth, dist, size=(1920,1080), include=None,foliage=
     if include:
         roots=[bpy.data.objects[n] for n in include]
         keep={x for r in roots for x in [r]+list(r.children_recursive)}
+        document=Document(source);selected=document.selected_nodes(include)
+        for n in document.data['nodes']:
+            if selected.intersection(n.get('extras',{}).get('lod_sources',[])):
+                if bpy.data.objects.get(n.get('name','')):keep.add(bpy.data.objects[n['name']])
         for o in bpy.context.scene.objects:
             if o.type=='MESH' and o not in keep:o.hide_render=True
     sc=bpy.context.scene;sc.render.engine='CYCLES'
@@ -79,7 +83,7 @@ def setup(source, bounds, azimuth, dist, size=(1920,1080), include=None,foliage=
     sc.render.resolution_x,sc.render.resolution_y=size;sc.render.resolution_percentage=100
     sc.render.film_transparent=True;sc.render.image_settings.file_format='PNG'
     sc.render.image_settings.color_mode='RGBA';sc.view_settings.view_transform='AgX'
-    sc.render.threads_mode='FIXED';sc.render.threads=8
+    sc.render.threads_mode='FIXED';sc.render.threads=4
     return sc
 
 
@@ -102,6 +106,7 @@ def compare(a,b):
                 patch_mean_max=float(patch.max()/64),
                 changed_over_8pct=float((d[support]>.08).mean()),
                 alpha_mae=float(np.abs(a[:,:,3]-b[:,:,3])[support].mean()),
+                silhouette_loss=float(1-np.minimum(a[:,:,3],b[:,:,3]).sum()/np.maximum(a[:,:,3],b[:,:,3]).sum()),
                 asset_pixels=int(support.sum()),bbox=[int(x.min()),int(y.min()),int(x.max()+1),int(y.max()+1)]),delta
 
 
@@ -116,19 +121,22 @@ def main():
     # Close construction views are independent of switch camera and clearly labeled.
     span=bounds[1]-bounds[0]
     close_extent=max(float(span[1]),float(span[0]*math.cos(math.radians(35))+span[2]*math.sin(math.radians(35))))
-    for row in m['levels']:
+    items=m['levels']+[a for r in m['levels'] for a in r.get('alternatives',[])]
+    for row in items:
         path=out/row['path'];li=row['level']
-        render(dest/f'close-LOD{li}.png',path,bounds,35,distance(close_extent,.75),
+        label=f'LOD{li}'+('-camera-facing' if row.get('alternative') else '')
+        render(dest/f'close-{label}.png',path,bounds,35,distance(close_extent,.75),
                size=(960,960),include=cfg.get('include_nodes'),foliage=foliage)
         for name in cfg.get('detail_nodes',[]):
             db=Document(source).bounds([name]);ds=db[1]-db[0]
             extent=max(float(ds[1]),float(ds[0]+ds[2]))
             render(dest/f'close-LOD{li}-{name}.png',path,db,35,distance(extent,.75),
                    size=(960,960),include=[name],foliage=foliage)
-    for row in m['levels'][1:]:
+    for row in [r for r in items if r['level']]:
         li=row['level']
+        label=f'LOD{li}'+('-camera-facing' if row.get('alternative') else '')
         for az in cfg.get('azimuths',[0,55,145]):
-            prefix=f'LOD{li}-{az}'
+            prefix=f'{label}-{az}'
             ref=render(dest/f'{prefix}-reference.png',source,bounds,az,row['distance_m'],include=cfg.get('include_nodes'),foliage=foliage)
             lod=render(dest/f'{prefix}-level.png',out/row['path'],bounds,az,row['distance_m'],include=cfg.get('include_nodes'),foliage=foliage)
             previous=m['levels'][li-1]
@@ -139,17 +147,18 @@ def main():
             # 2% mean RGB, 8% p95 and 5% coverage change allow subpixel AA but
             # reject broad color shifts, obvious faceting and lost leaf masses.
             limits=cfg.get('image_limits',dict(mean=.02,p95=.08,alpha_mae=.05,patch_mean_max=.08))
+            limits={**limits,'silhouette_loss':cfg.get('silhouette_loss',.05)}
             passed=all(metric[k]<=v and adjacent[k]<=v for k,v in limits.items())
             rows.append(dict(level=li,azimuth=az,distance_m=row['distance_m'],reference=metric,
-                             adjacent=adjacent,limits=limits,passed=passed))
+                             adjacent=adjacent,limits=limits,passed=passed,alternative=row.get('alternative')))
             diff=np.uint8(np.clip(delta*6,0,1)*255)
             Image.fromarray(diff).save(dest/f'{prefix}-difference.png')
             box=metric['bbox'];pad=12;box=[max(0,box[0]-pad),max(0,box[1]-pad),min(1920,box[2]+pad),min(1080,box[3]+pad)]
             w,h=box[2]-box[0],box[3]-box[1]
-            strip=Image.new('RGB',(max(700,3*w),h+65),(35,35,35));d=ImageDraw.Draw(strip)
+            strip=Image.new('RGB',(max(700,4*w),h+65),(35,35,35));d=ImageDraw.Draw(strip)
             d.text((8,8),f'{cfg["kind"]} LOD{li} / {row["screen_height"]:.1%} / {row["distance_m"]:.2f}m / azimuth {az}',fill='white')
-            d.text((8,25),f'LOD0 | LOD{li} | difference x6; native 1080p crop; mean {metric["mean"]:.4f} / p95 {metric["p95"]:.4f}',fill='white')
-            for j,arr in enumerate([ref,lod,None]):
+            d.text((8,25),f'LOD0 | preceding level | LOD{li} | difference x6; native 1080p crop; mean {metric["mean"]:.4f} / p95 {metric["p95"]:.4f}',fill='white')
+            for j,arr in enumerate([ref,prev,lod,None]):
                 if arr is None:im=Image.fromarray(diff)
                 else:
                     rgb=arr[:,:,:3]*arr[:,:,3:4]+.18*(1-arr[:,:,3:4]);im=Image.fromarray(np.uint8(rgb*255))

@@ -20,7 +20,7 @@ from kit.lod_io import Document, digest, distance
 
 
 def tool_digests():
-    names=('lod.py','lod_io.py','lod_mesh.py','lod_impostor.py','lod_render.py','foliage.py',
+    names=('lod.py','lod_io.py','lod_foliage.py','lod_mesh.py','lod_scene.py','lod_gpu.py','lod_atlas.py','lod_transfer.py','lod_impostor_fit.py','lod_impostor.py','lod_render.py','foliage.py',
            'detachable_textures.py','image_io.py')
     return {name:digest(ROOT/'kit'/name) for name in names}
 
@@ -98,57 +98,93 @@ def build(config):
     zero=Document(source).stats()
     if cfg.get('include_nodes'):
         selected=original.stats()
+        zero['container_materials']=zero['materials'];zero['container_draw_calls']=zero['draw_calls']
         zero.update(triangles=selected['triangles'],placed_triangles=selected['placed_triangles'],
-                    scope='Selected roots; byte/material/image costs describe the complete immutable source container')
+                    materials=selected['materials'],draw_calls=selected['draw_calls'],
+                    scope='Selected roots for triangles/materials/draws; bytes/images/mesh allocation describe the complete immutable source container')
     manifest['levels'].append(dict(level=0,path=os.path.relpath(source,out),**zero))
     for li,spec in enumerate(cfg['levels'],1):
         filename=f'{cfg.get("name",source.stem)}_LOD{li}.gltf';path=out/filename
         if spec.get('impostor'):
-            import subprocess
-            command=[str(ROOT/'kit/with_gpu.sh'),bpy.app.binary_path,'-b','--factory-startup',
-                     '--python-exit-code','1','--python',str(ROOT/'kit/lod_impostor.py'),
-                     '--','--source',str(source),'--out',str(path)]
-            subprocess.run(command,check=True)
+            from kit.lod_gpu import locked
+            from kit.lod_impostor import build as build_impostor
+            with locked():build_impostor(source,path,spec.get('impostor')=='crossed')
             stats=Document(path).stats()
-            manifest['levels'].append(dict(level=li,path=filename,screen_height=spec['screen_height'],
+            item=dict(level=li,path=filename,screen_height=spec['screen_height'],
                 pixels_1080=1080*spec['screen_height'],distance_m=distance(height,spec['screen_height']),
-                target_triangles=2,impostor=True,sha256=digest(path),**stats))
+                target_triangles=8 if spec.get('impostor')=='crossed' else 2,impostor=True,crossed=spec.get('impostor')=='crossed',sha256=digest(path),**stats)
+            if item['crossed']:
+                alt=path.with_name(path.stem+'_CameraFacing.gltf');altstats=Document(alt).stats()
+                item['alternatives']=[dict(level=li,path=alt.name,alternative='camera-facing',impostor=True,crossed=False,
+                    target_triangles=2,screen_height=spec['screen_height'],distance_m=item['distance_m'],sha256=digest(alt),**altstats)]
+            manifest['levels'].append(item)
             continue
-        doc=Document(out/manifest['levels'][-1]['path']);reports=[];switch=spec['screen_height']
-        if li==1:doc.select(cfg.get('include_nodes'))
-        dist=distance(height,switch);max_error=height/(1080*switch)*cfg.get('max_surface_pixels',.35)
-        protected=set()
-        # Preserve moving geometry itself, in addition to its frame. This keeps
-        # engineered bearings and near-clearance fits intact on both sides of
-        # the switch; far maps may still have a lower resolution.
-        for ni,node in enumerate(doc.data['nodes']):
-            current=ni
-            while True:
-                extras=doc.data['nodes'][current].get('extras',{})
-                if any(k in extras for k in ('pivot_axis','slide_axis','socket_kind')) or any(fnmatch.fnmatchcase(doc.data['nodes'][current].get('name',''),pattern) for pattern in cfg.get('protected_nodes',[])):
-                    if 'mesh' in node:protected.add(node['mesh'])
-                    break
-                if current not in doc.parents:break
-                current=doc.parents[current]
-        for mi,pi,p in doc.primitives():
-            attrs,faces=doc.arrays(p)
-            mat=doc.data.get('materials',[])[p.get('material',0)]
-            if mi in protected:
-                row=dict(status='retained',reason='moving/socket geometry protected',triangles=len(faces))
-            elif mat.get('alphaMode') in ('MASK','BLEND'):
-                row=dict(status='retained',reason='alpha coverage protected',triangles=len(faces))
-            else:
-                uv_limit=max(1/2048,.35/(1080*switch))
-                preceding=manifest['levels'][-1]['triangles']/manifest['levels'][0]['triangles']
-                ratio=min(.999,spec['ratio']/preceding)
-                new,tri,row=simplify_parts(attrs,faces,ratio,max_error,uv_limit,cfg.get('drop_subpixel',False))
-                if row['status']=='simplified':doc.replace(p,new,tri)
-            reports.append(dict(mesh=doc.data['meshes'][mi].get('name',str(mi)),primitive=pi,**row))
-        doc.save(path,image_paths=textures(doc,out,spec.get('texture_size')))
-        stats=Document(path).stats(cfg.get('include_nodes'))
+        doc=Document(source);doc.select(cfg.get('include_nodes'));reports=[];switch=spec['screen_height']
+        dist=distance(height,switch);meters_per_pixel=height/(1080*switch)
+        max_error=meters_per_pixel*spec.get('surface_pixels',cfg.get('max_surface_pixels',.75))
+        from kit.lod_scene import merge_static,proxy,shell_static
+        assembly=None
+        if spec.get('proxy'):
+            assembly=proxy(doc,spec['target_triangles'],meters_per_pixel)
+        elif spec.get('leaf_cards'):
+            from kit.lod_foliage import build as build_foliage
+            reports=build_foliage(doc,round(manifest['levels'][0]['triangles']*spec['ratio']),meters_per_pixel,spec.get('leaf_scale_exponent',.4))
+        elif cfg.get('screen_space'):
+            from kit.lod_mesh import reduce_screen,uv_budget
+            assembly=merge_static(doc,cfg.get('protected_nodes',[]),cfg.get('include_nodes',[]))
+            if spec.get('static_shell'):assembly['shells']=shell_static(doc,spec['ratio'],meters_per_pixel)
+            static_meshes={n['mesh'] for n in doc.data['nodes'] if 'mesh' in n and n.get('extras',{}).get('lod_static_shell')}
+            for mi,pi,p in doc.primitives():
+                attrs,faces=doc.arrays(p)
+                mat=doc.data.get('materials',[])[p.get('material',0)]
+                if mi in static_meshes:
+                    reports.append(dict(mesh=mi,primitive=pi,status='static shell',triangles=len(faces)));continue
+                if mat.get('alphaMode') in ('MASK','BLEND') or (any(k.startswith(('JOINTS_','WEIGHTS_')) for k in attrs) and not spec.get('rebake')):
+                    row=dict(status='retained',reason='alpha/skin retained',triangles=len(faces))
+                else:
+                    budgets=uv_budget(attrs,faces,meters_per_pixel,spec.get('texture_size',2048))
+                    new,tri,row=reduce_screen(attrs,faces,spec['ratio'],meters_per_pixel,
+                         cfg.get('feature_pixels',1.5),rebake=spec.get('rebake',False),uv_limit=min((b['normalized_tolerance'] for b in budgets.values()),default=1),
+                         surface_pixels=spec.get('surface_pixels',cfg.get('max_surface_pixels',.75)))
+                    row['uv_budgets']=budgets
+                    doc.replace(p,new,tri)
+                reports.append(dict(mesh=doc.data['meshes'][mi].get('name',str(mi)),primitive=pi,**row))
+        else:
+            for mi,pi,p in doc.primitives():
+                attrs,faces=doc.arrays(p)
+                mat=doc.data.get('materials',[])[p.get('material',0)]
+                if any(k.startswith(('JOINTS_','WEIGHTS_')) for k in attrs) or mat.get('alphaMode') in ('MASK','BLEND'):
+                    row=dict(status='retained',triangles=len(faces))
+                else:
+                    new,tri,row=simplify_parts(attrs,faces,spec['ratio'],max_error,max(1/2048,.35/(1080*switch)),cfg.get('drop_subpixel',False))
+                    if row['status']=='simplified':doc.replace(p,new,tri)
+                reports.append(dict(mesh=doc.data['meshes'][mi].get('name',str(mi)),primitive=pi,**row))
+        if spec.get('rebake') or spec.get('proxy'):
+            temp=root/'build/lod'/cfg.get('name',source.stem)/f'LOD{li}-geometry.gltf';temp.parent.mkdir(parents=True,exist_ok=True)
+            doc.save(temp,image_paths=textures(doc,temp.parent))
+            cache=path.parent/(path.stem+'-maps')/'bake.json'
+            recipe=dict(input_dependencies=Document(temp).dependencies(),source_dependencies=Document(source).dependencies(),
+                        baker_sha256=digest(ROOT/'kit/lod_atlas.py'),transfer_sha256=digest(ROOT/'kit/lod_transfer.py'),
+                        proxy=bool(spec.get('proxy')),composite_alpha=bool(spec.get('static_shell')),size=spec.get('texture_size',2048),projection_m=max_error*2)
+            valid=False
+            if cache.exists() and path.exists():
+                old=json.loads(cache.read_text())
+                valid=old.get('recipe')==recipe and all((cache.parent/f'T_{path.stem}_{k}.png').exists() and digest(cache.parent/f'T_{path.stem}_{k}.png')==v['sha256'] for k,v in old.get('maps',{}).items())
+            if not valid:
+                from kit.lod_gpu import locked
+                from kit.lod_atlas import bake as bake_atlas
+                baked=Document(temp)
+                with locked():bake_atlas(baked,source,path,spec.get('texture_size',2048),
+                    proxy=bool(spec.get('proxy')),projection_m=max_error*2,composite_alpha=bool(spec.get('static_shell')))
+                baked.save(path)
+                report=json.loads(cache.read_text());report['recipe']=recipe;cache.write_text(json.dumps(report,indent=2)+'\n')
+        else:doc.save(path,image_paths=textures(doc,out,spec.get('texture_size')))
+        stats=Document(path).stats()
+        target=spec.get('target_triangles',round(manifest['levels'][0]['triangles']*spec['ratio']))
         row=dict(level=li,path=filename,screen_height=switch,pixels_1080=switch*1080,
-                 distance_m=dist,target_triangles=round(manifest['levels'][0]['triangles']*spec['ratio']),
-                 surface_tolerance_m=max_error,target_met=stats['triangles']<=round(manifest['levels'][0]['triangles']*spec['ratio']),**stats)
+                 distance_m=dist,target_triangles=target,surface_tolerance_m=max_error,
+                 meters_per_pixel=meters_per_pixel,rebaked=bool(spec.get('rebake')),proxy=bool(spec.get('proxy')),
+                 assembly=assembly,leaf_cards=bool(spec.get('leaf_cards')),target_met=stats['triangles']<=target,**stats)
         analysis.append(dict(level=li,primitives=reports))
         row['sha256']=digest(path);manifest['levels'].append(row)
         print('LOD',li,stats['triangles'],'target',row['target_triangles'],flush=True)
@@ -162,7 +198,7 @@ def build(config):
 def check(config, require_renders=True):
     import bpy
     import numpy as np
-    from kit.lod_mesh import topology
+    from kit.lod_mesh import topology,world_geometry
     cfg,root,source,out=configuration(config);m=json.loads((out/'manifest.json').read_text())
     errors=[];base=Document(source);original={}
     base.select(cfg.get('include_nodes'))
@@ -172,8 +208,8 @@ def check(config, require_renders=True):
     if m.get('tools')!=tool_digests():errors.append('stale LOD tool recipe')
     for mi,pi,p in base.primitives(): original[mi,pi]=topology(*base.arrays(p))[0]
     reports=[]
-    for row in m['levels'][1:]:
-        path=out/row['path'];doc=Document(path);stats=doc.stats(cfg.get('include_nodes'))
+    for row in m['levels'][1:]+[a for r in m['levels'] for a in r.get('alternatives',[])]:
+        path=out/row['path'];doc=Document(path);stats=doc.stats()
         if digest(path)!=row['sha256']:errors.append(f'{path.name}: bytes changed')
         if stats['triangles']>m['levels'][row['level']-1]['triangles']:errors.append('triangle count increased down chain')
         if any(stats[k]!=row[k] for k in stats if k in row):errors.append(f'{path.name}: stale package stats')
@@ -181,6 +217,14 @@ def check(config, require_renders=True):
             expected=copy.deepcopy(base.data['nodes'])
             for n in expected:n.pop('mesh',None)
             if doc.data['nodes'][:-1]!=expected:errors.append('impostor lost original transform nodes')
+        elif row.get('rebaked') or row.get('proxy'):
+            def frame(node):
+                n=copy.deepcopy(node);n.pop('mesh',None)
+                if row.get('proxy'):n.pop('skin',None)
+                if 'extras' in n:
+                    n['extras']={k:v for k,v in n['extras'].items() if not k.startswith('lod_')}
+                return n
+            if [frame(n) for n in doc.data['nodes'][:len(base.data['nodes'])]]!=[frame(n) for n in base.data['nodes']]:errors.append('canonical names/pivots/extras/hierarchy changed')
         else:
             if doc.data['nodes']!=base.data['nodes']:errors.append('node names/pivots/extras/hierarchy changed')
             if doc.data.get('materials')!=base.data.get('materials'):errors.append('material boundaries/settings changed')
@@ -189,15 +233,30 @@ def check(config, require_renders=True):
             attrs,faces=doc.arrays(p);r,_=topology(attrs,faces)
             if any(not np.isfinite(v).all() for v in attrs.values()):errors.append('nonfinite vertex attributes')
             if row.get('impostor'):
-                b=dict(degenerate=0,slivers=0,nonmanifold_edges=0,winding_disagreements=0,boundary_edges=4)
+                b=dict(degenerate=0,slivers=0,nonmanifold_edges=0,winding_disagreements=0,boundary_edges=16 if row.get('crossed') else 4)
+            elif row.get('rebaked') or row.get('proxy'):
+                b={k:sum(v[k] for v in original.values()) for k in ('degenerate','slivers','nonmanifold_edges','winding_disagreements','boundary_edges')}
+                if row.get('proxy'):b.update(boundary_edges=0,nonmanifold_edges=0,degenerate=0,slivers=0,winding_disagreements=0)
             else:b=original[mi,pi]
             for key in ('degenerate','slivers','nonmanifold_edges','winding_disagreements'):
                 if r[key]>b[key]:errors.append(f'{path.name}: new {key}')
-            if r['boundary_edges']>b['boundary_edges']:errors.append(f'{path.name}: new open edges')
+            if not (row.get('rebaked') or row.get('proxy')) and r['boundary_edges']>b['boundary_edges']:errors.append(f'{path.name}: new open edges')
             normals=attrs.get('NORMAL')
             if normals is None or np.max(np.abs(np.linalg.norm(normals,axis=1)-1))>2e-4:
                 errors.append(f'{path.name}: nonunit normals')
             topo.append(dict(mesh=mi,primitive=pi,**r))
+        assembly_topology=[]
+        if row.get('rebaked') or row.get('proxy'):
+            for ni,node in enumerate(doc.data['nodes']):
+                if 'mesh' not in node:continue
+                current,_=topology(*world_geometry(doc,[ni]))
+                source_ids=node.get('extras',{}).get('lod_sources',[ni])
+                previous,_=topology(*world_geometry(base,source_ids))
+                limit=0 if row.get('proxy') or node.get('extras',{}).get('lod_static_shell') else previous['boundary_edges']
+                if current['boundary_edges']>limit:errors.append(f'{path.name}: new open assembly edges: '+node.get('name',''))
+                if current['nonmanifold_edges']>(0 if row.get('proxy') or node.get('extras',{}).get('lod_static_shell') else previous['nonmanifold_edges']):
+                    errors.append(f'{path.name}: nonmanifold shell: '+node.get('name',''))
+                assembly_topology.append(dict(node=node.get('name'),before=previous,after=current))
         bpy.ops.wm.read_factory_settings(use_empty=True)
         bpy.ops.import_scene.gltf(filepath=str(path),import_pack_images=False)
         mesh_names={n.get('name') for n in doc.data['nodes'] if 'mesh' in n}
@@ -232,7 +291,7 @@ def check(config, require_renders=True):
                 pivot_error=max(pivot_error,float(np.max(np.abs(np.array(ob.matrix_world)-expected))));pivots_checked+=1
         if position_error>2e-5:errors.append(f'{path.name}: imported surface position drift {position_error}')
         if pivot_error>2e-5:errors.append(f'{path.name}: imported pivot drift {pivot_error}')
-        reports.append(dict(level=row['level'],triangles_reimported=actual,topology=topo,
+        reports.append(dict(level=row['level'],triangles_reimported=actual,topology=topo,assembly_topology=assembly_topology,
             imported_position_error_m=position_error,imported_pivot_matrix_error=pivot_error,
             imported_vertices_checked=vertices_checked,imported_pivots_checked=pivots_checked))
     render_path=root/cfg.get('renders','renders/lod')/'metrics.json'
