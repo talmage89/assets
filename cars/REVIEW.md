@@ -3595,3 +3595,28 @@ cancelled. Restore that paired vertex to the actual 0.9 mm gauge along the
 manufactured die normal. Keep the outer coordinates and topology unchanged;
 no audit tolerance or sliver exception changes. A regenerated high form then
 passes the unchanged audit. Restart the empty-output build with this fix.
+
+### R9 high-source motion fit
+
+The clean detailed game mesh passes every gate at 59,812 triangles. Both high
+and game audits pass, as do optical apertures, source normals and arch returns.
+The high motion sweep detects ~0.80 mm interference of each front upper hinge
+sleeve with the new fender return at 2 degrees. The circular high-source barrel
+exposes a contact the six-sided game barrel does not. Move only those upper
+front barrels and their attached leaves 20 mm lower along the existing hinge
+axis. Keep both door pivots, axes, ranges, 8 mm pins, 8.4 mm minimum bores and
+the rear hinges unchanged. Regenerated game and high motion sweeps pass.
+High upper-leaf tips measure within 0.238 mm of the actual door skin; pins and
+fixed leaves remain in contact. The game construction check passes unchanged.
+
+An additional exploratory run of the game-only construction checker on the
+high mesh predictably fails its unconditional 60k delivery budget, and records
+two unrelated high-only exhaust/damper contact probes. It is not a delivery
+certification. The shipped construction check passes; the accepted underbody
+is unchanged. The applicable high-source audit and full motion sweep pass.
+
+The independent detailed rebuild compares all 443 objects / 422 meshes with
+zero differences in vertices, polygons, corner normals, transforms, parents
+and material assignments. This is regeneration evidence, not repeated GPU-bake
+byte identity. Check the export and its native crops before the final empty-
+output build; only the final gallery will replace docs.

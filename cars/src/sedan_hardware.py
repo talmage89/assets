@@ -103,7 +103,10 @@ def door_hinges(b):
     for side,sign in [('L',-1),('R',1)]:
         for end,front in [('F',S.DOOR_FRONT),('R',S.DOOR_SPLIT)]:
             code=end+side;parent=bpy.data.objects['Door_'+code];axis=parent.matrix_world.translation.copy();door=mesh_tree([bpy.data.objects['Door '+end+'_'+side]])
-            for z,label in [(.59,'lower'),(.87,'upper')]:
+            # Seat the upper barrel lower on the SAME accepted hinge axis.
+            # Its true circular high-source sleeve and 24 mm axial span
+            # must clear the newly fair fender's return at every door angle.
+            for z,label in [(.59,'lower'),(.85 if end=='F' else .87,'upper')]:
                 direction=Vector(parent['hinge_axis_vehicle']).normalized()
                 center=axis+direction*((z-axis.z)/direction.z);name=code+' '+label
                 pin=G.cylinder('S240 hinge pin '+name,center-direction*.016,center+direction*.016,.004,b.m['chrome'],12 if b.high else 6)
