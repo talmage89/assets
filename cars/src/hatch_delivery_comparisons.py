@@ -23,15 +23,20 @@ def main():
         directory=pairs if view=='used_rear' else after;meta=pm if view=='used_rear' else am
         for field in ['location','target','lens','roll','studio_yaw','exposure','paint']:
             if bm[view].get(field)!=meta[view].get(field):raise ValueError('Comparison changed '+field+' in '+view)
-        panels=[];crops=[]
+        panels=[];crops=[];original_sizes=[]
+        canonical_size=Image.open(before/(view+'.png')).size
         for path in [before/(view+'.png'),directory/(view+'.png')]:
-            im=Image.open(path).convert('RGB');crop=tuple(round(v*(im.width if i%2==0 else im.height)) for i,v in enumerate(rect));crops.append(crop)
+            im=Image.open(path).convert('RGB');original_sizes.append(im.size)
+            if im.size!=canonical_size:im=im.resize(canonical_size,Image.Resampling.LANCZOS)
+            crop=tuple(round(v*(im.width if i%2==0 else im.height)) for i,v in enumerate(rect));crops.append(crop)
             im=im.crop(crop);im.thumbnail((1000,900),Image.Resampling.LANCZOS);panels.append(im)
         height=max(im.height for im in panels);canvas=Image.new('RGB',(2000,height+48),(228,231,234));draw=ImageDraw.Draw(canvas)
         for k,im in enumerate(panels):
             draw.text((1000*k+14,10),('Accepted surface gate / ' if k==0 else 'Delivery / ')+name,font=font,fill=(20,30,35))
             canvas.paste(im,(1000*k+(1000-im.width)//2,48))
         canvas.save(out/('compare-'+name+'.jpg'),quality=94,optimize=True)
-        records[name]=dict(view=view,crops=crops,before_sha256=bm[view]['source_sha256'],after_sha256=meta[view]['source_sha256'],same_camera_paint_exposure=True)
+        records[name]=dict(view=view,crops=crops,original_sizes=original_sizes,comparison_size=canonical_size,
+            before_sha256=bm[view]['source_sha256'],after_sha256=meta[view]['source_sha256'],same_camera_paint_exposure=True,
+            resampling='Delivery downsampled to the original render size before identical pixel crops when native sizes differ')
     (out/'comparisons.json').write_text(json.dumps(records,indent=2));print('H120_DELIVERY_CROPS',len(records))
 if __name__=='__main__':main()
