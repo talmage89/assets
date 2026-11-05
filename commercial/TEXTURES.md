@@ -139,3 +139,11 @@ by material; pylon, poles, yard and containers remain independently reusable.
 The source blend retains the individual bay/end/tower modules. Actual exported
 primitives per building and whole seed are reported in STRIP.md, rather than
 calling a material-state count the draw-call count.
+
+The strip value correction retains the exact Ground asphalt images but applies
+a darker COLOR_0 wearing course and **scalar roughness .96 / metallic 0**.
+The original ORM remains connected for occlusion; the strip overrides its
+roughness channel without generating a replacement image. Dry, dark sealant
+shares this asphalt material. All other families retain their original material
+responses and bytes. `renders/strip/values/` records measured exported inputs,
+same-light swatches, photo sunlit-value patches and native hero before/after.

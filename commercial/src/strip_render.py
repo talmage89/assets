@@ -21,7 +21,8 @@ from context import bundle
 
 def sha(path):
     path=Path(path)
-    return bundle(path.resolve())['sha256'] if path.suffix=='.gltf' else hashlib.sha256(path.read_bytes()).hexdigest()
+    if path.suffix=='.gltf':return bundle(path.resolve())['sha256']
+    with path.open('rb') as f:return hashlib.file_digest(f,'sha256').hexdigest()
 
 def recipe():
     files=[HERE/n for n in ('strip_render.py','strip_presentation.py','render.py','presentation.py','paving.py','strip_photo_matches.py')]
@@ -156,8 +157,8 @@ therefore all actual exported vertices stay within these reported bounds.
     return dict(min_uv=lo,max_uv=hi,minimum_margin=.06,imported_bounding_corners=len(points),scope='Conservative imported mesh bounds, wholly positive camera depth; every contained exported vertex fits')
 
 
-def render(seed=201,folder=Path('build/strip'),out=Path('renders/strip/checkpoint'),names=None,width=1440,samples=32,cameras=None,engine='CYCLES',with_scale=False):
-    path=Path(f'export/CommercialStrip-{seed}.gltf') if Path(folder).name=='strip-look' else Path(folder)/f'strip-{seed}.glb';source_digest=sha(path);render_recipe=recipe();meta=json.loads(path.with_suffix('.json').read_text())
+def render(seed=201,folder=Path('build/strip'),out=Path('renders/strip/checkpoint'),names=None,width=1440,samples=32,cameras=None,engine='CYCLES',with_scale=False,source_override=None):
+    path=source_override or (Path(f'export/CommercialStrip-{seed}.gltf') if Path(folder).name=='strip-look' else Path(folder)/f'strip-{seed}.glb');source_digest=sha(path);render_recipe=recipe();meta=json.loads(path.with_suffix('.json').read_text())
     bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(path.resolve()));assets=set(bpy.context.scene.objects)
     from strip_presentation import ready,neighborhood,cars
     ground_record=neighborhood(meta) if ready() else ground(meta)

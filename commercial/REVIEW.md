@@ -1460,3 +1460,165 @@ both files byte for byte, and restore the baseline package in all cases.
 including fixture lights and shared-image URIs, in addition to the 66,392,004
 embedded intermediate bytes and unchanged gas repeat. This is delivery
 reproducibility, separate from the actual-surface construction checks.
+
+
+## Strip value round — reject a bright sampling corner and hero-invisible wear
+
+**Color/value first.** Reopened the accepted native period_lot pair, hero,
+stalls and walk, and the balanced source photographs. The prior right-corner
+photo ROI (Y′ .675) is an unusually bright portion of the wearing course.
+Three clearly sunlit native patches measure .605, .626 and .675; these
+are display values under the photograph's unknown exposure, not reflectance.
+The assumed neutral remains the sunlit gray concrete curb, excluding its joint
+and blue tree shadow. The neutral gains and photographic pixels are unchanged.
+The old .657 render statistic did not prove the lot's overall value matched.
+
+**Material isolation.** Measured actual exported UV/COLOR_0/PBR samples using
+memory-mapped buffers. The shared Ground asphalt image has median sRGB Y′
+.411 / linear Y .141. Effective exported linear Y medians are Ground .134,
+gas .100 and accepted strip .0905; these are shader-input samples, not scene
+pixels or area-weighted surveys. The road ORM's median roughness is .788.
+Only the strip's application changes: darker, causally varied COLOR_0 and a
+dry scalar roughness, retaining the exact shared color, normal and AO images.
+No canonical gas/Ground image is rewritten and no texture allocation is added.
+
+**Rejects while iterating.** Moving the actual comparison camera and its fitted
+glazing anchors two bays along removes the foreground island, retaining the
+same lens/height and .53 px landmark RMS. That move brings an awning shadow
+through the old render ROI; reject its nonsensical 61% contrast. Place the
+replacement rectangle wholly on sunlit exported pavement and test its surface
+rays. Reframe the accepted export under the same new camera for a comparable
+before measure, with the original deposit sheet regenerated from the accepted
+script and verified against its original embedded payload. Do not substitute
+changed rectangles silently for the inherited 45.0% / 5.8% report.
+
+The first stronger walk chart produced repeated tire-like ribs and 10.3%
+contrast; reject it. Use broad, soft footfall deposits with irregular cloud
+shapes, preserving gum. Merely lowering asphalt albedo still leaves the hero
+looking clean at its grazing view. Actual source and fresh-import eye rays
+confirm the repair surfaces are present, correctly above the wearing course,
+with their intended vertex colors. Increase their local contrast and exposed
+utility-repair footprints, and retain the routed crack shapes. Compare these
+at full-frame hero size, separately from the close-up's aggregate statistic.
+
+The outside memory stop interrupted no build owned by this round; git was
+clean and the preceding completed build log was intact. Subsequent jobs use
+one Blender process, four threads and the shared GPU lock, with streamed
+hashes/memory-mapped diagnostics instead of whole large-file reads.
+
+
+**Cold-build rejection.** The actual ramp probe caught a 22.7 mm obstruction:
+the widened flat footfall/traffic quads bridged a sloping access ramp. Trim
+their outer edges to the actual level walk, 39 mm inside the ramp knee, rather
+than weakening the probe or presenting those quads as physical ramp wear. No
+new triangles or changed ramp geometry. Restart the cold build after this fix.
+
+
+**Grazing-view rejection.** The full native walk image exposes pale oil-shaped
+reflections across the sunlit stalls: the separate alpha films use the sign
+sheet's material response and catch the sky. Increasing their opacity is the
+wrong fix. Remove the asphalt oil/tire overlay meshes, retain absorbed oil and
+wheel contact in the actual wearing-course COLOR_0, and sample the true entry
+turn paths into that same field. Dark seals and repairs share the asphalt
+response. Gum and footfall deposits remain on the shaded walk. Stop the
+current gallery and cold-rebuild this corrected export; do not bless the
+white-looking oil films because its close-up coverage happens to pass.
+
+
+**Contrast calibration, color/value still first.** With pale films removed,
+the clean course is darker and the hero carries visible dark utility repairs
+and routed seals. But the broad sunlit pair patch still measured only 5.86%
+contrast, so value correction alone is not accepted as a contrast fix. Two
+actual-export trials at fixed camera/light/1440 px give tire strengths
+.64 → 55.63% coverage / 7.16% contrast and .72 → 59.90% / 7.99%, against
+46.00% / 7.25% in the unchanged photo patch. Freeze .65 and verify at final
+1600 px / 40 samples. The extra variation follows wheel travel, not a whole-
+lot noise overlay. The higher coverage is disclosed rather than tuning the
+threshold or choosing another rectangle to force both numbers to agree.
+
+The final source keeps the accepted RNG draws for each stall's unequal width,
+length and rotation, preserving subsequent rear-wear placement. Entry-path
+fields explicitly handle west, east and south openings. Removing the thin
+asphalt films saves 590–1,022 placed triangles per seed and retains the same
+115 / 138 / 139 / 133 material primitives and texture allocation.
+
+
+## Final value critique — exported 1600 px / 40 sample cold build
+
+**Color/value first.** The common-camera sunlit asphalt patch is Y′ .652 before
+and .572 after. The balanced photo's three sunlit native patches are .605,
+.626 and .675; the final outlined native render patches are .559, .579 and
+.572. The strip has moved from pale gray to a darker wearing course, slightly
+below the photograph's patch medians rather than claiming exact photographic
+reflectance. The neutral assumption remains the sunlit concrete curb; gains,
+photo pixels, lighting and exposure are unchanged. Hero foreground Y′ drops
+.486 → .396 in the identical rectangle. The native 1600 px before/after crop
+shows dark utility repairs, seals and wheel paths without relying on a zoom.
+
+Actual exported input median linear Y is Ground .134, gas .100, strip .0905
+before / .0492 after. The original asphalt base image is unchanged (.411 sRGB
+Y′ / .141 linear Y). With the actual exported median tints and native PBR
+settings under identical procedural light, diagnostic swatches measure Ground
+.757, gas .728, strip .724 before / .643 after. The swatches isolate material
+application from the three sites' differing shadows; they are not additional
+photo-matched scenes. The strip alone uses roughness .96. The diagnostic
+preserves the gas's roughness texture multiplier as well as its texture.
+
+**Contrast and coverage.** At the unchanged 4%-below-p85 threshold, final
+asphalt is 56.31% coverage / 7.12% contrast versus the photo's 46.00% / 7.25%.
+The inherited accepted-camera result remains 44.99% / 5.79%; the actual accepted
+export reframed with the new camera measures 51.07% / 6.32%. These are separate
+series, not interchangeable before numbers. Walk, with camera/patch unchanged,
+is 39.68% / 5.70% before, 35.18% / 6.61% after, against 58.27% / 6.24% in the
+photo. Keep that coverage shortfall visible in the report. Nine actual export
+rays per patch validate the floor, and the nine asphalt rays also have clear
+asset sun paths. This proves sampling scope, not artistic quality.
+
+**Native image judgement.** Opened all 30 current export views: hero, all
+close-ups, turnaround, scale, dusk, four overheads, four streets, six matched
+renders and Eevee. Opened all six pair plates, the family/sites/streets/details/
+contact/pairs sheets, outlined sunlit patches, before/after hero plate, coverage
+masks, four diagnostic swatches and all five final docs JPGs at native size.
+The walking-eye oil no longer turns into pale reflective films. Broader soft
+traffic dirt and discrete gum read at the doors; the pale clean strip beside
+the curb remains plausible. The hero's repairs and black routed seals remain
+visible in the whole frame; broad oil centers are quieter where cars occlude
+them. The lot pair foreground is open pavement, no planted island.
+
+**What still reads as CG in the pairs.** The photo's mineral aggregate is
+coarser and its repair edges more broken. Our repaired rectangles remain too
+regular, wheel paths form orderly bands in overhead views, and the photo's
+walk has more widespread accumulated dirt. Shipped rooms and signage retain
+the accepted simplicity; glazing reflections and repeated construction are
+more uniform than the photographs. Eevee's rooms remain darker than Cycles.
+Do not call the coverage overrun or the walk shortfall a match merely because
+asphalt contrast is now within .14 percentage point of the photo.
+
+**Build and preservation.** Removed the owned strip models, generated art,
+exports, calibration and final render outputs before rebuilding serially with
+`make -j1 -C commercial WIDTH=1600 SAMPLES=40` (four-thread Blender wrapper).
+Canonical dependencies were retained to honor their byte-preservation rule.
+The cold make and `make check` pass; the latter covers construction, ramp and
+motion probes, UVs, budgets, external export/re-import and repository rules.
+The strip repeat passes with both the four-thread wrapper and default Blender.
+The protected gas repeat differs with the thread override, so reran the
+specified normal `make -j1 -C commercial repeat`: both strip and gas are exactly
+byte-identical. No shared code or protected bytes were altered to accommodate
+that difference. The gas GLB remains 66,729,416 bytes with its accepted hash.
+`python3 kit/repo_check.py`: 1,561 source files, zero errors.
+`python3 commercial/src/strip_preserve.py`: 198 existing files byte-identical.
+Final source and diagnostics compile; `git diff --check` passes. No kit change.
+
+Building triangles remain 60,592 / 53,882 / 67,808 / 54,154; placed seed totals
+are 189,264 / 290,052 / 252,144 / 294,046. Building/seed material primitives
+remain 56/115, 52/138, 61/139, 51/133 (gas default 112 seed primitives).
+External geometry packages are 12,227,249 / 12,285,134 / 13,895,142 / 12,553,502
+bytes. Map dimensions and compressed GPU estimates remain unchanged at
+79⅓ / 92⅓ / 76 / 79⅓ MiB; no added map or material allocation.
+
+**Final docs replacement.** Inspected before staging: strip-hero.jpg 185,970,
+strip-sites.jpg 196,005, strip-streets.jpg 189,937, strip-details.jpg 197,496,
+strip-dusk.jpg 159,908 bytes. All are 1600 px wide and below 200,000 bytes.
+Replace these in the owned gallery head by amendment, as requested, so only
+one gallery-image version is reachable in branch history. The accepted
+parcels, palettes, fitouts, sign construction and occupancy remain in place.

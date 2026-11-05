@@ -128,7 +128,7 @@ def populate(image,records,out):
     for key in ('Oil0','Oil1','Oil2','Oil3','Tire','Gum','Salt','Grime','Scuff','Rust'):
         r=rect(180,104);x,y,a,b=r;u,v,c,d=catalogue['Wear:'+key]['rect'];piece=shared.crop((round(u*1024),round((1-d)*1024),round(c*1024),round((1-v)*1024))).resize((180,104),Image.Resampling.LANCZOS)
         pixels=np.asarray(piece).copy()
-        if key=='Tire':pixels[:,:,3]=np.uint8(pixels[:,:,3]*.45)
+        if key=='Tire':pixels[:,:,3]=np.uint8(pixels[:,:,3]*.85)
         if key=='Grime':
             yy,xx=np.mgrid[:104,:180];alpha=np.zeros((104,180),float)
             for i in range(7):alpha+=.55*np.exp(-((xx/180-(.18+i*.105+.018*np.sin(yy/19+i)))/(.012+.016*(1-yy/104)))**2)*(1-yy/104)**.65
@@ -139,7 +139,7 @@ def populate(image,records,out):
             alpha=np.clip((yy/104-(1-wet))/.05,0,1)*np.clip((broad-.32)*3.4,0,1)*.80
             pixels[:,:,:3]=[100,55,25];pixels[:,:,3]=np.uint8(alpha*255)
         image.paste(Image.fromarray(pixels),(x,y));records['Wear:'+key]={'sign':r}
-    for key,base,opacity in (('WalkGrime','Oil2',.35),('WalkTrack','Tire',.30)):
+    for key,base,opacity in (('WalkGrime','Oil2',.45),('WalkTrack','Oil3',.40)):
         r=rect(180,104);piece=image.crop(records['Wear:'+base]['sign']);a=np.asarray(piece).copy();a[:,:,3]=np.uint8(a[:,:,3]*opacity);image.paste(Image.fromarray(a),r[:2]);records['Wear:'+key]={'sign':r}
     for i,address in enumerate(str(110+2*i) for i in range(12)):
         r=rect(64,27);dr.rectangle(r,fill='#252D2A');text(address,r,'#EAE5D2',23);records[address]={'sign':r}

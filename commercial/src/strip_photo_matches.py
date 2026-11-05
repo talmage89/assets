@@ -63,9 +63,14 @@ def pane(lt,rt,rb,lb):
 MATCHES['period_walk']=dict(title='1985/86 center at 21–22 years / covered walk, glazing and accumulated service',photo='build/strip/references/westlakes-neutral.png',crop=(140,220,900,595),
     location=(mm['origin'][0]+14,ff-14,1.65),target=(mm['origin'][0],ff,2),lens=40,lens_bounds_mm=(24,100),camera_height_m=(1.65,.35),
     landmarks=pane((378,346),(430,352),(430,466),(378,477)),background='transparent',exposure=.1)
+# Move the actual camera and its glazing anchors two bays along the same
+# frontage: the foreground is open pavement, beyond the end planting island.
+lot_shift=2*ww
+lot_picks=pane((251,321),(289,326),(289,459),(251,466))
+for pick in lot_picks:pick['world']=(pick['world'][0]+lot_shift,*pick['world'][1:])
 MATCHES['period_lot']=dict(title='1985/86 center at 21–22 years / sidewalk edge and repaired asphalt',photo='build/strip/references/westlakes_lot-neutral.png',crop=(110,270,911,608),
-    location=(mm['origin'][0]-14,ff-17,1.65),target=(mm['origin'][0]+3,ff,2),lens=40,lens_bounds_mm=(24,100),camera_height_m=(1.65,.35),
-    landmarks=pane((251,321),(289,326),(289,459),(251,466)),background='transparent',exposure=.1)
+    location=(mm['origin'][0]-14+lot_shift,ff-17,1.65),target=(mm['origin'][0]+3+lot_shift,ff,2),lens=40,lens_bounds_mm=(24,100),camera_height_m=(1.65,.35),
+    landmarks=lot_picks,background='transparent',exposure=.1)
 # Rear door stands in a rotated real aperture, independently of the storefront fit.
 rp=generate(201);rm=rp['modules'][1];cx=rm['origin'][0]-rm['width']*.20;ry=rp['building']['rear']+.05
 rear_anchors=[point(q,pixel,label) for q,pixel,label in (

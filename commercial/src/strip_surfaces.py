@@ -11,6 +11,8 @@ from surfaces import pbr,charts,tint_layer
 from textures import CELLS,SETS
 from paving import cut,ground_field
 
+TIRE_DARKEN=.65
+
 
 def emission_chart(ob,layout,lit=False):
     uv=ob.data.uv_layers.active
@@ -63,24 +65,28 @@ def wall_cuts(ob,top):
 
 def pavement(ob,p,role):
     # Grid only the actual flat site skins; cabinets and curb bevels keep their
-    # modest original topology. A 2 m grid resolves lane/edge macro values.
+    # modest original topology. The existing grid resolves lane/edge macro values.
     if ob.name.startswith(('Lot asphalt','Repaired utility')):cut(ob,1.1)
     me=ob.data;attr=me.color_attributes.get('Tint') or me.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='CORNER');me.color_attributes.active_color=attr
     W,D=p['lot'];field,mean=ground_field();b=p['building']
+    # Strip-only darker wearing course; shared Ground/gas images stay exact.
+    # Partial compensation retains mineral mottling rather than flattening it.
     for poly in me.polygons:
         center=ob.matrix_world@poly.center
         slab=random.Random(p['seed']*117+math.floor(center.x/3.048)*71+math.floor(center.y/3.048)*37).uniform(.95,1.025)
         for li in poly.loop_indices:
             q=ob.matrix_world@me.vertices[me.loops[li].vertex_index].co;x,y,z=q
             if role=='Asphalt':
-                sample=field[int((1-y/6.096%1)*127)%128,int((x/6.096%1)*128)%128];comp=np.clip(mean/np.maximum(sample,.001),.74,1.36)
-                edge=min(W/2-abs(x),D/2-abs(y));factor=.78+.07*math.exp(-max(0,edge)/1.4)
+                sample=field[int((1-y/6.096%1)*127)%128,int((x/6.096%1)*128)%128];comp=1+.20*(np.clip(mean/np.maximum(sample,.001),.74,1.36)-1)
+                edge=min(W/2-abs(x),D/2-abs(y));factor=.45+.06*math.exp(-max(0,edge)/1.4)
                 travel=min(abs(y-ay-lane*1.45-wheel*.78) for ay in (*p['aisle_centers'],sum(p['rear_drive'])/2) for lane in (-1,1) for wheel in (-1,1))
                 travel=min(travel,*[abs(x-xx-lane*1.45-wheel*.78) for xx in p['side_drive_centers'] for lane in (-1,1) for wheel in (-1,1)])
-                factor*=1-.50*math.exp(-(travel/.80)**2)
-                parked=min(((x-(s['x0']+s['x1'])/2)/.92)**2+((y-(s['y0']+s['y1'])/2-s['facing']*.65)/1.85)**2 for s in p['stalls'])
-                factor*=1-.43*math.exp(-parked)
-                if ob.get('repair'):factor*=.60
+                travel=min(travel,*[math.hypot(x-a,y-b) for a,b in p['pavement_entry_paths']])
+                factor*=1-TIRE_DARKEN*math.exp(-(travel/.80)**2)
+                parked=max((strength*math.exp(-(((x-cx)*co+(y-cy)*sn)/sx)**2-((-(x-cx)*sn+(y-cy)*co)/sy)**2) for cx,cy,sx,sy,co,sn,strength in p['pavement_stain_sites']),default=0)
+                factor*=1-.88*parked
+                if ob.get('repair'):factor*=.24
+                if ob.get('asphalt_seal'):factor=.045
                 rgb=np.minimum(comp*factor*np.array((1.0,.98,.94)),1)
             else:
                 factor=slab
@@ -113,6 +119,13 @@ def apply(p,ink,layout):
     mats={key:pbr('Commercial'+key,pair=SETS[key][2]==2) for key in (wallkey,'Concrete','Roof','Equipment')}
     if style=='smooth_cmu':next(n for n in mats[wallkey].node_tree.nodes if n.type=='NORMAL_MAP').inputs['Strength'].default_value=.20
     for key in ('Asphalt','Lawn'):mats[key]=pbr(key,Path('../ground/textures/ship'))
+    # The shared road's roughness (~.79) washes out deposits at a walking eye.
+    # Keep its exact color/normal/AO maps; this dry, porous strip course uses
+    # stock glTF scalar roughness, without allocating a duplicate image.
+    asphalt=mats['Asphalt'];shader=asphalt.node_tree.nodes.get('Principled BSDF')
+    for key,value in (('Roughness',.96),('Metallic',0)):
+        for link in list(shader.inputs[key].links):asphalt.node_tree.links.remove(link)
+        shader.inputs[key].default_value=value
     if p['style']=='mansard':mats['Shingles']=pbr('HouseShingles',Path('../houses/textures/ship'))
     glass=bpy.data.materials.new('CommercialGlass');glass.use_nodes=True;glass['tiling_vertex_tint']=False
     pp=glass.node_tree.nodes.get('Principled BSDF');pp.inputs['Base Color'].default_value=(.94,.97,.96,1);pp.inputs['Transmission Weight'].default_value=1;pp.inputs['IOR'].default_value=1.52;pp.inputs['Roughness'].default_value=.025
@@ -148,6 +161,7 @@ def apply(p,ink,layout):
         if ob.get('container_color') is not None:cell='Primary';col=((.13,.23,.16),(.32,.16,.08),(.21,.24,.25))[ob['container_color']]
         # Softer warm-white paint under the walk, not unpainted black trim.
         if any(t in name for t in ('Soffit','soffit')) and 'joint' not in name:cell='White';col=(.82,.79,.72)
+        if ob.get('asphalt_seal'):role='Asphalt';material=mats['Asphalt'];cell=None;coverage=6.096
         if 'Repaired' in name:role='Asphalt'
         ob.data.materials.clear();ob.data.materials.append(material)
         charts(ob,role,cell=cell,coverage=coverage)

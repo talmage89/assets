@@ -102,10 +102,10 @@ Source bay counts include its share of the walk/roof and its fitted room.
 
 | Seed | Building / bay triangles | Total / unique triangles | glTF + BIN bytes | Building / whole-seed primitives | GPU MiB |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| 201 | 60,592 / 4,036–6,252 | 189,854 / 94,858 | 12,311,793 | 56 / 115 | 79.33 |
-| 202 | 53,882 / 4,034–6,256 | 291,062 / 95,482 | 12,429,531 | 52 / 138 | 92.33 |
-| 203 | 67,808 / 4,108–6,342 | 253,140 / 107,852 | 14,038,028 | 61 / 139 | 76.00 |
-| 204 | 54,154 / 4,036–6,282 | 295,068 / 99,488 | 12,700,828 | 51 / 133 | 79.33 |
+| 201 | 60,592 / 4,036–6,252 | 189,854 / 94,858 | 12,311,606 | 56 / 115 | 79.33 |
+| 202 | 53,882 / 4,034–6,256 | 291,062 / 95,482 | 12,429,065 | 52 / 138 | 92.33 |
+| 203 | 67,808 / 4,108–6,342 | 253,140 / 107,852 | 14,036,685 | 61 / 139 | 76.00 |
+| 204 | 54,154 / 4,036–6,282 | 295,068 / 99,488 | 12,699,687 | 51 / 133 | 79.33 |
 
 Building static surfaces join by material, with entry/service leaves separate.
 Site surfaces consolidate; **pylons, poles, yards and containers retain their
@@ -127,14 +127,14 @@ use six or seven primitives. Distinct material states per seed are 9/10/9/9.
 
 | Seed | Referenced image bytes | First-load bytes, geometry + images |
 | --- | ---: | ---: |
-| 201 | 54,102,459 | 66,414,252 |
-| 202 | 63,753,802 | 76,183,333 |
-| 203 | 51,537,156 | 65,575,184 |
-| 204 | 54,102,459 | 66,803,287 |
+| 201 | 54,117,556 | 66,344,805 |
+| 202 | 63,768,899 | 76,054,033 |
+| 203 | 51,552,253 | 65,447,395 |
+| 204 | 54,117,556 | 66,671,058 |
 
 The first center still needs its referenced images. Four centers together
-reference 30 unique image files totaling 67,064,433 bytes; all four geometries
-plus that union total 118,544,613 bytes. No per-seed image copies are shipped.
+reference 30 unique image files totaling 67,079,530 bytes; all four geometries
+plus that union total 118,040,557 bytes. No per-seed image copies are shipped.
 GPU figures above estimate block-compressed textures with complete mip chains;
 they exclude geometry, framebuffers and presentation context.
 
@@ -233,7 +233,8 @@ and hatchback instances with several stock colors, favoring the shops.
 | Asphalt | 28.24% / 5.25% | 44.99% / 5.79% | 46.00% / 7.25% |
 | Shaded concrete walk | 11.07% / 5.58% | 39.68% / 5.70% | 58.27% / 6.24% |
 
-These use the 4%-below-p85 display-value threshold, standardized at 1440 px;
+That table records the accepted first delivery, before the asphalt value correction.
+It uses the 4%-below-p85 display-value threshold, standardized at 1440 px;
 8% results are retained in the JSON. Aggregate, repair and illumination
 variation count as well as deposits: this is not measured chemical oil area.
 Neutral assumptions and RGB gains are recorded beside the masks. The walk
@@ -247,10 +248,68 @@ were remeasured in the replacement rectangles**. The table is the comparable
 series; the inherited values cannot honestly be subtracted from its after
 values. The reference rectangles remain unchanged.
 
-Final asphalt is slightly darker than its photo patch (Y′ .657 vs .675), but
+In that earlier delivery, asphalt was slightly darker than its bright-corner photo patch (Y′ .657 vs .675), but
 its strong-variation tail remains weaker. The shaded walk is brighter (.258
 vs .232), with lower coverage. Architecture p1/p50/p95/p99 is
 .015/.265/.625/.776; white clipping is .121%, largely fixture lenses.
+
+## Asphalt value correction after the accepted delivery
+
+The strip now applies darker COLOR_0 to the existing Ground asphalt, retains
+more of its mineral mottling, and uses dry scalar roughness .96. The canonical
+Ground/gas maps are unchanged. Absorbed engine oil and curved entry/aisle wheel
+paths live in the wearing course; sky-reflecting alpha films were removed.
+The exposed utility repairs and 45–55 mm routed seals retain asphalt response.
+Broader soft walk deposits retain the individual gum marks and stop before
+access-ramp slopes. No extra texture memory or material primitive is added.
+
+The period_lot camera and its fitted glazing landmarks moved two bays along
+the same frontage, clearing the foreground island. Lens, eye height, photo,
+neutral balance and light/exposure remain fixed. Surface rays and sun-path
+rays validate the replacement sunlit render patch. The accepted export was
+also rendered through this camera with its verified original chart bytes.
+
+| Asphalt display value Y′ (0–1) | Before | After / control |
+| --- | ---: | ---: |
+| Actual export, common reframed sunlit patch | .652 | .572 |
+| Actual hero, identical foreground rectangle | .486 | .396 |
+| Balanced photo, three sunlit native patches | — | .605 / .626 / .675 |
+
+These are exposed image values, not measured real-world reflectance. The
+assumed photographic neutral is the sunlit concrete curb, excluding joints
+and blue shadow. The result is deliberately on the dark side: its measured
+sunlit patch is .033 below the darkest of the three photo-patch medians.
+See the [outlined photo patches](renders/strip/values/photo-sunlit-patches.jpg),
+[outlined render patches](renders/strip/values/render-sunlit-patches.jpg) and
+[1600 px native hero before/after](renders/strip/values/hero-lot-before-after.jpg).
+
+| Surface | Accepted coverage / contrast | Current coverage / contrast | Balanced photo |
+| --- | ---: | ---: | ---: |
+| Asphalt, inherited accepted camera | 44.99% / 5.79% | — | 46.00% / 7.25% |
+| Asphalt, common reframed camera | 51.07% / 6.32% | 56.31% / 7.12% | 46.00% / 7.25% |
+| Shaded walk, unchanged camera/patch | 39.68% / 5.70% | 35.18% / 6.61% | 58.27% / 6.24% |
+
+The same 4%-below-p85 metric, 1440 px normalization and photo rectangles are
+retained. Contrast now approaches the asphalt photo; asphalt coverage is
+10.31 percentage points higher. The walk statistic under-covers its tiny
+photo patch even though broader traffic wear is visible beside the doors.
+The photo still has coarser exposed aggregate and less orderly repair history.
+[JSON receipts](renders/strip/values/value-round.json) retain the inherited
+camera results separately from the common-camera comparison.
+
+Ground and gas are measured without modifying their deliveries: actual
+exported UV/vertex/PBR input median linear Y is .134 and .100, versus strip
+.0905 before / .0492 after. These are vertex samples, not area-weighted
+reflectance surveys. The [same-light swatches](renders/strip/values/same-light.jpg)
+isolate those median tints and native PBR settings from different site shadows;
+their display values are recorded in
+[control-values.json](renders/strip/values/control-values.json).
+
+The cold strip rebuild, checks, export repeat and repository check pass.
+All five docs JPGs were regenerated from the current export and inspected at
+native size before replacing the sole gallery commit. Building geometry,
+palettes, occupancy and tenant fitouts remain as accepted. Current budgets
+above include the 590–1,022 removed site-film triangles per seed.
 
 ## Credits and limits
 

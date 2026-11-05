@@ -21,6 +21,12 @@ for name,case in CASES.items():
             assert mat in allowed and n.z>.98,(name,x,y,mat,tuple(n),tuple(p))
             expect=.1524 if case['material']=='CommercialConcrete' else 0
             assert abs(p.z-expect)<.01,(name,'Wrong floor level',tuple(p))
-            samples.append(dict(pixel_fraction=(x,y),material=mat,position=list(p)))
+            sun_clear=None
+            if name=='period_asphalt':
+                toward_sun=-Vector(shot['sun_direction']).normalized()
+                blocked=scene.ray_cast(bpy.context.evaluated_depsgraph_get(),p+Vector((0,0,.02)),toward_sun,distance=200)[0]
+                assert not blocked,('Asphalt measurement enters asset shadow',name,x,y,list(p))
+                sun_clear=True
+            samples.append(dict(pixel_fraction=(x,y),material=mat,position=list(p),asset_sun_path_clear=sun_clear))
     rows[name]=dict(samples=samples,render_box=case['render_box'],image_sha256=row['image_sha256'])
 Path('build/strip-look/value-surface-check.json').write_text(json.dumps(dict(passed=True,patches=rows,scope='Nine actual exported surface rays per patch. Alpha deposits/black sealant on the same grade are allowed; columns, walls, glass, curbs and wrong floor heights are rejected.'),indent=2)+'\n');print('STRIP VALUE SURFACES',sum(len(r['samples']) for r in rows.values()),'PASS')

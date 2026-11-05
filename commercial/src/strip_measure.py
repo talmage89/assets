@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image,ImageDraw
 CASES={
- 'period_asphalt':dict(pair='period_lot',render_box=(.50,.88,.98,.98),photo_box=(.72,.86,.98,.98),material='Asphalt',surface='Sunlit asphalt, omitting the photographs tree shadows, cars and curb'),
+ 'period_asphalt':dict(pair='period_lot',render_box=(.82,.72,.99,.90),photo_box=(.72,.86,.98,.98),material='Asphalt',surface='Sunlit asphalt, omitting the photographs tree shadows, cars and curb'),
  'shaded_walk':dict(pair='period_walk',render_box=(.54,.715,.62,.73),photo_box=(.43421,.648,.46053,.65867),material='CommercialConcrete',surface='Shaded covered concrete walk, away from column bases; ray-verified before accepting'),
 }
 

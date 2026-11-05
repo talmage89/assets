@@ -56,9 +56,11 @@ strip-match: $(addprefix renders/strip/matches/,$(addsuffix -pair.jpg,$(STRIP_PA
 renders/strip/eevee/hero.png: $(STRIP_DELIVERIES) src/strip_render.py src/strip_presentation.py $(STRIP_BUILD)/render-parameters.txt | strip-context
 	$(KIT)/with_gpu.sh $(BP) --python src/strip_render.py -- --source-root $(STRIP_BUILD) --out renders/strip/eevee --engine BLENDER_EEVEE --shots hero --width $(WIDTH) --samples $(SAMPLES)
 strip-eevee: renders/strip/eevee/hero.png
-strip-values: strip-match
+strip-values: strip-match strip-render
 	$(PYTHON) src/strip_measure.py
 	$(BP) --python src/strip_check_values.py
+	$(KIT)/with_gpu.sh $(BP) --python src/strip_value_render.py
+	$(PYTHON) src/strip_value_report.py
 strip-review: strip-render strip-values strip-eevee
 	$(PYTHON) src/strip_review.py
 strip-repeat: strip-model
