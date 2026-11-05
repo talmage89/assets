@@ -32,7 +32,7 @@ def main():
   if ims[0].size!=ims[1].size:raise ValueError('Before/after framing resolution differs: '+name)
   crops=[im.crop(box) for im in ims];w,h=crops[0].size
   pair=Image.new('RGB',(2*w,h+40),(230,232,230));d=ImageDraw.Draw(pair)
-  for i,(im,text) in enumerate(zip(crops,['Earlier delivery','Revised exported GLB'])):
+  for i,(im,text) in enumerate(zip(crops,['Before','After GLB'])):
    pair.paste(im,(i*w,40));d.text((i*w+8,8),text,font=font,fill=(25,35,40))
   pair.save(out/(label+'.jpg'),quality=96,optimize=True)
   records.append(dict(region=label,view=name,box=list(box),native_crop_size=[w,h],sources=[str(f) for f in paths],sha256=[hashlib.sha256(f.read_bytes()).hexdigest() for f in paths]))
