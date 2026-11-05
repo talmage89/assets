@@ -73,6 +73,7 @@ UV_PRIORITY['Alder center cap']=3.0
 UV_PRIORITY['Tire_']=1.6
 
 UV_PRIORITY['Plate blank']=3.0
+UV_PRIORITY['S240 model badge']=3.0
 
 
 UV_PRIORITY.update({"Greenhouse":1.4,"Low wide grille":2.2,"Tire_":1.6})

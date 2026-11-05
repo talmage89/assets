@@ -7,13 +7,19 @@ scales stay proportional, except the explicitly logged subtexel-altitude repair.
 """
 import sys,json,argparse,math,runpy
 from pathlib import Path
-import bpy
+import bpy,numpy as np
 from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
 from kit import finalize,uv
 
 def continuous_charts(obs,config,margin):
     """Unwrap each visible sheet as a connected patch, instead of 5° fragments."""
+    bpy.ops.object.select_all(action='DESELECT')
+    for ob in obs:ob.select_set(True)
+    bpy.context.view_layer.objects.active=obs[0]
+    bpy.ops.object.mode_set(mode='EDIT');bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.uv.smart_project(angle_limit=math.radians(45),margin_method='SCALED',island_margin=0,area_weight=0,correct_aspect=False,scale_to_bounds=False)
+    bpy.ops.object.mode_set(mode='OBJECT')
     for ob in obs:
         roles=ob.data.attributes.get('sheet_role')
         if roles is None:continue
@@ -67,6 +73,16 @@ def main():
     config=runpy.run_path(a.config) if a.config else {}
     obs=[o for o in bpy.context.scene.objects if o.type=='MESH' and 'asset_set' in o]
     saved={o:[n.vector.copy() for n in o.data.corner_normals] for o in obs if o.data.has_custom_normals};repairs=[]
+    # UV packing consults active image aspect even when SmartUV's own aspect
+    # correction is disabled. Keep every material's UV context square until
+    # all unwrap/repair/pack operations finish, then restore source graphics.
+    square=bpy.data.images.new('S240 square atlas context',width=a.size,height=a.size)
+    image_sources=[];helpers=[]
+    for mat in {m for ob in obs for m in ob.data.materials if m and m.use_nodes}:
+        nt=mat.node_tree;active=nt.nodes.active
+        for node in nt.nodes:
+            if node.type=='TEX_IMAGE':image_sources.append((node,node.image));node.image=square
+        helper=nt.nodes.new('ShaderNodeTexImage');helper.image=square;nt.nodes.active=helper;helpers.append((nt,helper,active))
     continuous_charts(obs,config,a.margin)
     for iteration in range(32):
         # Repacking can quantize an extremely thin subtexel UV sliver to a
@@ -104,9 +120,26 @@ def main():
         bpy.ops.uv.pack_islands(udim_source='CLOSEST_UDIM',rotate=True,rotate_method='ANY',scale=True,merge_overlap=False,margin_method='FRACTION',margin=a.margin,pin=False,shape_method='CONCAVE')
         bpy.ops.object.mode_set(mode='OBJECT')
     for ob,normals in saved.items():ob.data.normals_split_custom_set(normals)
+    print_stretch={}
+    for ob in obs:
+        if not ob.name.startswith(('Alder center cap','S240 original Alder emblem','S240 model badge')):continue
+        layer=ob.data.uv_layers['BakeUV'];values=[];ob.data.calc_loop_triangles()
+        for tri in ob.data.loop_triangles:
+            p,q,r=[ob.matrix_world@ob.data.vertices[i].co for i in tri.vertices]
+            e=q-p;length=e.length;x=(r-p).dot(e)/length;y=e.cross(r-p).length/length
+            u,v,w=[layer.data[i].uv.copy() for i in tri.loops]
+            a0=(v-u)/length;a1=((w-u)-a0*x)/y
+            singular=np.linalg.svd(np.array([[a0.x,a1.x],[a0.y,a1.y]]),compute_uv=False)
+            values.append(float(singular[0]/singular[1]))
+        print_stretch[ob.name]=max(values)
+    if any(v>1.05 for v in print_stretch.values()):raise ValueError('Anisotropic printed atlas chart: '+str(print_stretch))
+    for node,source in image_sources:node.image=source
+    for nt,helper,active in helpers:nt.nodes.remove(helper);nt.nodes.active=active
+    bpy.data.images.remove(square)
     report=uv.report(obs,a.size)
     if report['overlap_fraction']>=1e-6 or report['outside_triangles'] or report['degenerate_uv_triangles']:raise ValueError('Repaired UV validation failed: '+str({k:v for k,v in report.items() if k!='island_measurements'}))
     old=dict(report);old['projection_chart_seams']=repairs
+    old['planar_print_uv_condition_numbers']=print_stretch
     old['chart_method']='Continuous unwrapped outer sheets; SmartUV rigid interiors; measured area/priority scaling'
     old['target_density_px_m']=a.target_density
     if report['coverage']<.35:raise ValueError('Insufficient atlas utilization after continuous chart packing')
