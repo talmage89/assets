@@ -48,13 +48,18 @@ def main():
     if abs(records['scale']['human_measured_height_m']-1.8)>1e-5:raise ValueError('Scale silhouette is not 1.8 m')
     colors=['paint_'+c for c in ['Porcelain','Carbon','Graphite','Aluminum','Atlantic']]
     views=list(FINAL_VIEWS);files=[folder/(n+'.png') for n in views+colors]+[eevee/'hero.png']
+    labels={'face':'Grille and lettering','lamp':'Projector optics','wheel':'Alloy and sidewall',
+        'rear_quarter':'Rear lens and fuel flap','gate':'Liftgate draw','plate':'Dealer insert',
+        'cargo':'Open cargo area','scale':'1.8 m scale'}
+    captions={str(folder/(n+'.png')):labels.get(n,n.removeprefix('paint_').replace('_',' ').capitalize()) for n in views+colors}
+    captions[str(eevee/'hero.png')]='Eevee / exported GLB'
     for path in files:
         if not path.exists():raise FileNotFoundError(path)
-    sheet(files,folder/'contact-sheet.jpg',columns=3,width=800,captions={str(eevee/'hero.png'):'hero / Eevee'})
-    sheet([folder/(n+'.png') for n in ['front','side','back','top']],folder/'turnaround.jpg',columns=2,width=800)
-    sheet([folder/(n+'.png') for n in ['face','lamp','wheel','rear_quarter']],folder/'details.jpg',columns=2,width=800)
-    sheet([folder/(n+'.png') for n in colors],folder/'five-colors.jpg',columns=2,width=800)
-    sheet([folder/'scale.png',eevee/'hero.png'],folder/'scale-eevee.jpg',columns=1,width=1600,captions={str(eevee/'hero.png'):'Eevee / exported GLB'})
+    sheet(files,folder/'contact-sheet.jpg',columns=3,width=800,captions=captions)
+    sheet([folder/(n+'.png') for n in ['front','side','back','top']],folder/'turnaround.jpg',columns=2,width=800,captions=captions)
+    sheet([folder/(n+'.png') for n in ['face','lamp','wheel','rear_quarter']],folder/'details.jpg',columns=2,width=800,captions=captions)
+    sheet([folder/(n+'.png') for n in colors],folder/'five-colors.jpg',columns=2,width=800,captions=captions)
+    sheet([folder/'scale.png',eevee/'hero.png'],folder/'scale-eevee.jpg',columns=1,width=1600,captions=captions)
     sheet([pairs/(n+'-pair.jpg') for n in ['used_front','used_rear']],pairs/'contact-sheet.jpg',columns=1,width=1600)
     if (source_pairs/'shots.json').exists():
         source_meta=json.loads((source_pairs/'shots.json').read_text());expected=hashlib.sha256((ROOT/'build/hatch-detail/game.blend').read_bytes()).hexdigest()

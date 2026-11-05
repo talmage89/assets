@@ -32,7 +32,7 @@ def main():
             im=im.crop(crop);im.thumbnail((1000,900),Image.Resampling.LANCZOS);panels.append(im)
         height=max(im.height for im in panels);canvas=Image.new('RGB',(2000,height+48),(228,231,234));draw=ImageDraw.Draw(canvas)
         for k,im in enumerate(panels):
-            draw.text((1000*k+14,10),('Accepted surface gate / ' if k==0 else 'Delivery / ')+name,font=font,fill=(20,30,35))
+            draw.text((1000*k+14,10),('Surface checkpoint / ' if k==0 else 'Delivery / ')+name,font=font,fill=(20,30,35))
             canvas.paste(im,(1000*k+(1000-im.width)//2,48))
         canvas.save(out/('compare-'+name+'.jpg'),quality=94,optimize=True)
         records[name]=dict(view=view,crops=crops,original_sizes=original_sizes,comparison_size=canonical_size,
