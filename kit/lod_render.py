@@ -41,6 +41,10 @@ def setup(source, bounds, azimuth, dist, size=(1920,1080), include=None,foliage=
     gpu.enable();sc.cycles.samples=24;sc.cycles.seed=23
     sc.cycles.use_denoising=False;sc.cycles.use_adaptive_sampling=False
     sc.cycles.max_bounces=6;sc.cycles.transparent_max_bounces=32
+    # Powered canopy lenses produce rare indirect fireflies at checkpoint
+    # sample counts. Clamp only indirect radiance, identically for all levels;
+    # direct light and the visible emissive lenses keep their delivered values.
+    sc.cycles.sample_clamp_indirect=3
     # Restore the maple's published thin-leaf shader from imported maps only.
     for mat in list(bpy.data.materials) if foliage else []:
         if not mat.use_nodes:continue
@@ -159,7 +163,7 @@ def main():
     for t in thumbs:contact.paste(t,(0,y));y+=t.height+5
     contact.save(dest/'contact.jpg',quality=90)
     files={p.name:digest(p) for p in dest.iterdir() if p.suffix in ('.png','.jpg')}
-    report=dict(manifest_sha256=digest(out/'manifest.json'),renderer_sha256=digest(Path(__file__)),renderer='Cycles GPU, procedural world/sun, 24 samples, fixed seed, no denoiser',
+    report=dict(manifest_sha256=digest(out/'manifest.json'),renderer_sha256=digest(Path(__file__)),renderer='Cycles GPU, procedural world/sun, 24 samples, fixed seed, no denoiser, indirect clamp 3',
                 passed=all(r['passed'] for r in rows),comparisons=rows,files=files)
     (dest/'metrics.json').write_text(json.dumps(report,indent=2)+'\n')
     print('LOD RENDER',report['passed'],[(r['level'],r['azimuth'],r['reference']['mean']) for r in rows])

@@ -20,7 +20,7 @@ from kit.lod_io import Document, digest, distance
 
 
 def tool_digests():
-    names=('lod.py','lod_io.py','lod_mesh.py','lod_impostor.py','foliage.py',
+    names=('lod.py','lod_io.py','lod_mesh.py','lod_impostor.py','lod_render.py','foliage.py',
            'detachable_textures.py','image_io.py')
     return {name:digest(ROOT/'kit'/name) for name in names}
 
