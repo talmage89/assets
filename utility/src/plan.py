@@ -4,10 +4,10 @@ FT=.3048
 IN=.0254
 SEEDS=(101,102,103,104)
 PROFILES={
- 101:dict(town='Older northern grid',length_ft=40,phases=3,framing='crossarm',arm_ft=8,comm=True,spacing_ft=140,house_types=['cape','ranch','split']),
- 102:dict(town='Low postwar feeder',length_ft=35,phases=1,framing='armless',arm_ft=8,comm=True,spacing_ft=110,house_types=['ranch','cape']),
+ 101:dict(town='Older northern grid',length_ft=40,phases=3,framing='crossarm',arm_ft=8,comm=True,comm_count=3,spacing_ft=140,house_types=['cape','ranch','split']),
+ 102:dict(town='Low postwar feeder',length_ft=35,phases=1,framing='armless',arm_ft=8,comm=True,comm_count=2,spacing_ft=110,house_types=['ranch','cape']),
  103:dict(town='Small commercial edge',length_ft=45,phases=3,framing='crossarm',arm_ft=10,comm=False,spacing_ft=185,house_types=['builder_colonial','split']),
- 104:dict(town='Later suburban rebuild',length_ft=40,phases=3,framing='armless',arm_ft=8,comm=True,spacing_ft=160,house_types=['split','builder_colonial','ranch']),
+ 104:dict(town='Later suburban rebuild',length_ft=40,phases=3,framing='armless',arm_ft=8,comm=True,comm_count=4,spacing_ft=160,house_types=['split','builder_colonial','ranch']),
 }
 
 
@@ -33,7 +33,7 @@ def street(seed):
         # drifting across this straight roadway.
         x=-5.05+(max(0,i-2)*.15 if seed==104 else 0)
         spec=pole_spec(**{k:profile[k] for k in ('length_ft','phases','framing','arm_ft','comm')},kind=kind,seed=seed*10+i)
-        spec.update(name=f'P{i}',location=(x,y,.16764),light=(i==1 or i==3) and seed!=103,bank=3 if seed==103 and i==3 else 1)
+        spec.update(name=f'P{i}',location=(x,y,.16764),light=(i==1 or i==3) and seed!=103,bank=3 if seed==103 and i==3 else 1,comm_count=profile.get('comm_count',0))
         poles.append(spec)
     # Place two rows of six houses; each transformer serves its nearest lots.
     houses=[]

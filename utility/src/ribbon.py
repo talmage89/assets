@@ -1,4 +1,4 @@
-"""Camera-facing, coverage-preserving wire inspection, and engine mesh data."""
+"""Camera-facing, contrast-compensated wire inspection, and engine mesh data."""
 import math
 
 
@@ -29,7 +29,7 @@ def inspection(meta,camera,width,height):
     import bpy
     from mathutils import Vector
     from kit import model as G
-    vertices=[];faces=[];alphas=[]
+    vertices=[];faces=[];alphas=[];colors=[]
     inv=camera.matrix_world.inverted();metres_per_pixel_at_unit=36/camera.data.lens/width
     for span in meta['spans']:
         pts=span['points'];diam=span['diameter_m']
@@ -38,16 +38,21 @@ def inspection(meta,camera,width,height):
             direction=(camera.location-p).normalized();side=t.cross(direction).normalized()
             depth=max(.1,-(inv@p).z);mpp=depth*metres_per_pixel_at_unit
             true_px=diam/mpp;display_px=max(.85,true_px);w=display_px*mpp
-            for sign in (-1,1):vertices.append(p+side*w*.5*sign);alphas.append(min(1,true_px/display_px))
+            for sign in (-1,1):
+                vertices.append(p+side*w*.5*sign);alphas.append(min(1,(true_px/display_px)**.55))
+                colors.append((.012,.013,.012,1) if span.get('material')=='Aluminum' else (.0015,.0017,.0015,1))
             if i:
                 j=len(vertices)-2;faces.append((j-2,j-1,j+1,j))
-    m=bpy.data.materials.new('Coverage preserving far-wire inspection');m.use_nodes=True
+    m=bpy.data.materials.new('Contrast compensated far-wire inspection');m.use_nodes=True
     ns,ls=m.node_tree.nodes,m.node_tree.links;ns.clear()
     attr=ns.new('ShaderNodeAttribute');attr.attribute_name='Coverage'
-    transparent=ns.new('ShaderNodeBsdfTransparent');surface=ns.new('ShaderNodeBsdfDiffuse');surface.inputs['Color'].default_value=(.02,.024,.025,1)
+    color=ns.new('ShaderNodeAttribute');color.attribute_name='LineColor'
+    transparent=ns.new('ShaderNodeBsdfTransparent');surface=ns.new('ShaderNodeEmission');ls.new(color.outputs['Color'],surface.inputs['Color'])
     mix=ns.new('ShaderNodeMixShader');out=ns.new('ShaderNodeOutputMaterial')
     ls.new(attr.outputs['Fac'],mix.inputs[0]);ls.new(transparent.outputs[0],mix.inputs[1]);ls.new(surface.outputs[0],mix.inputs[2]);ls.new(mix.outputs[0],out.inputs['Surface'])
     ob=G.mesh('Camera evaluated far-wire ribbons',vertices,faces,m);a=ob.data.attributes.new('Coverage','FLOAT','POINT')
     for d,v in zip(a.data,alphas):d.value=v
+    c=ob.data.color_attributes.new('LineColor','FLOAT_COLOR','POINT')
+    for d,v in zip(c.data,colors):d.color=v
     ob.visible_shadow=False
     return ob

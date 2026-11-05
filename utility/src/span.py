@@ -53,14 +53,19 @@ def catenary(start, end, sag):
 
 
 def sample(start,end,sag,tolerance=.008,max_step=4.):
+    if tolerance<=0 or max_step<=0:raise ValueError('Positive sampling tolerances required')
+    # Uniform catenary stations avoid the old power-of-two oversampling. Each
+    # interval is independently screened at three interior positions, then
+    # refined below if necessary. The API and 8 mm / 4 m guarantees stay put.
     curve=catenary(start,end,sag);point=curve['point'];out=[(0.,point(0))]
     def split(t0,p0,t1,p1):
         tm=(t0+t1)/2;pm=point(tm)
-        error=math.dist(pm,tuple((x+y)/2 for x,y in zip(p0,p1)))
+        error=max(math.dist(point(t0+(t1-t0)*f),tuple(x+(y-x)*f for x,y in zip(p0,p1))) for f in (.25,.5,.75))
         if error>tolerance or math.dist(p0,p1)>max_step:
             split(t0,p0,tm,pm);split(tm,pm,t1,p1)
         else:out.append((t1,p1))
-    split(0,point(0),1,point(1))
+    count=max(1,math.ceil(curve['arc_m']/max_step),math.ceil(math.sqrt(sag/tolerance)))
+    for i in range(count):split(i/count,point(i/count),(i+1)/count,point((i+1)/count))
     return [p for _,p in out],{k:v for k,v in curve.items() if k!='point'}
 
 

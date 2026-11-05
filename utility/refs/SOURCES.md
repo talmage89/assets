@@ -22,6 +22,7 @@ rights stay with their authors; no source image is redistributed in Git.
 | street-a.jpg | https://upload.wikimedia.org/wikipedia/commons/2/2a/North_Bennington%2C_Vermont.jpg | Mark Barry, 21 April 2007; CC BY 2.0 | Supplemental period crossarm and street hardware; commercial edge, not one of the two residential fits |
 | street-b.jpg | https://upload.wikimedia.org/wikipedia/commons/8/8f/Phone_Pole_Valley_%284977085933%29.jpg | Superior National Forest, 10 September 2010; CC BY 2.0 | Supplemental wood silvering and long-span sag; not a residential comparison |
 | hardware.jpg | https://upload.wikimedia.org/wikipedia/commons/d/dd/Southeastern_United_States_Utility_Pole.jpg | AdventureStoryFanGamer, 30 May 2024; CC BY 4.0 | Supplemental maintained hardware construction; not period dating evidence |
+| telephone-cables.pdf | https://www.caledonian-cables.co.uk/DdFls/Telephone%20Cables.pdf | Caledonian Cables; manufacturer, copyright retained | GR-421 air-core 200-pair .63 mm: 37 mm jacket, 1.771 kg/m. Geometric cable envelope, not a claimed US vendor installation |
 
 Supplemental inspection, excluded from the automatic fetch list: `howard.pdf`,
 [Howard Industries conventional pole-mounted transformers](https://howard-ind.com/Power/Product/DisplayDocument/14),
@@ -49,8 +50,21 @@ Read-only online references (no executable or asset downloads):
 - [Southwire ACSR specification 80100](https://cabletechsupport.southwire.com/cablespec/download_spec/?country=US&spec=80100):
   Raven 1/0 6/1, .398-inch OD; Sparrow #2 6/1, .316-inch OD; copyright retained.
 - [Southwire triplex service drop](https://www.southwire.com/wire-cable/600-volt-secondary-distribution/al-xlp-triplex-service-drop/p/AL600V66):
-  two insulated aluminum hots and neutral messenger. The checkpoint uses
-  authored 8.5/6.2 mm strand envelopes, not a claim of a selected ampacity design.
+  two insulated aluminum hots and neutral messenger. Construction reference only; the selected dimensions below come from the
+  Classic Wire table, without a claim of an ampacity design.
+- [Classic Wire #4 triplex service drop](https://www.classicwire.com/products/triplex-service-drop-aluminum-conductor-acsr-neutral-messenger/),
+  manufacturer, copyright retained: Periwinkle .303-inch insulated hots,
+  #4 6/1 .250-inch messenger, .653-inch total bundle and 153 lb/1,000 ft
+  (**.227692 kg/m**, not .153 kg/m). This look
+  round replaces the provisional 8.5/6.2 mm constituents with 7.6962/6.35 mm.
+- [Belden outdoor loose-tube dimensional table](https://www.belden.com/products/cable/fiber-optic-cable/multi-loose-tube-fiber-cable/fs1l144ng),
+  manufacturer, copyright retained: 144-fiber .621-inch / 15.8 mm
+  jacket envelope. The authored aerial route is a maintained pair of black PE
+  cables lashed together to 6.35 mm strand; no exact Belden product installation
+  or period introduction is claimed. Two real jackets total 31.6 mm wide.
+  The retained fourth copper route uses the Caledonian GR-421 100-pair .63 mm
+  table's 28 mm jacket. Its 1.135 kg/m authored supported mass includes strand;
+  4,300 N is an authored horizontal tension case, not a utility stringing chart.
 - [NVIDIA GPU Gems 2, chapter 22](https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-22-fast-prefiltered-lines),
   Eric Chan and Frédo Durand; copyright retained: prefiltered screen-space lines.
 - [Pixar RenderMan curves](https://renderman.atlassian.net/wiki/spaces/REN23/pages/19039125),
@@ -63,3 +77,6 @@ Fictional marks: RILL TIMBER / RILL ELECTRIC / RV numbers, using installed
 DejaVu Sans (Bitstream Vera/DejaVu open font license), resolved by kit/fonts.py.
 Only direct image URLs identify residential photographs; no home address,
 license plate, listing identifier or homeowner is recorded in tracked files.
+
+The manufacturer's former QR860 JCA PDF URL now returns HTTP 404. It is
+excluded from automatic fetching; the manufacturer's [current QR860 page](https://www.commscope.com/product-type/cables/coaxial-cables/hardline-cables/item5501302/) and [coaxial construction guide](https://www.commscope.com/globalassets/digizuite/3447-broadband-app-const-manual-ii-106549-en.pdf) supply the jacket/strand construction and bend radius.

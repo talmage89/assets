@@ -7,6 +7,8 @@ render_mode unshaded, cull_disabled, skip_vertex_transform, depth_draw_never;
 
 uniform vec4 wire_color : source_color = vec4(0.025, 0.028, 0.030, 1.0);
 uniform float minimum_pixels = 0.85;
+// Calibrated optical compensation; 1.0 is strict integrated coverage.
+uniform float coverage_exponent = 0.55;
 varying float coverage;
 varying float half_width_pixels;
 varying float support_width_pixels;
@@ -20,7 +22,7 @@ void vertex() {
     float metres_per_pixel = 2.0 * max(0.01, -p.z) / (PROJECTION_MATRIX[1][1] * VIEWPORT_SIZE.y);
     float true_pixels = UV2.x / metres_per_pixel;
     float width_pixels = max(minimum_pixels, true_pixels);
-    coverage = min(1.0, true_pixels / width_pixels);
+    coverage = pow(min(1.0, true_pixels / width_pixels), coverage_exponent);
     half_width_pixels = width_pixels * 0.5;
     // Include the pixel filter's support outside the nominal band. Fading
     // inside the original quad alone would lose integrated wire coverage.

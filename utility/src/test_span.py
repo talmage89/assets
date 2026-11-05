@@ -33,6 +33,19 @@ class CatenaryTests(unittest.TestCase):
     def test_invalid(self):
         for end,sag in [((0,0,20),1),((0,40,10),0),((0,40,10),-1),((0,40,10),20)]:
             with self.assertRaises(ValueError):catenary((0,0,10),end,sag)
+        for tolerance,step in ((0,4),(.008,0),(-1,4)):
+            with self.assertRaises(ValueError):sample((0,0,10),(0,40,10),1,tolerance,step)
+    def test_dense_sampling_screen(self):
+        # Unequal supports and shallow/deep sag exercise the new station
+        # allocation independently of its three-point refinement screen.
+        for length,rise,sag in ((31,-8,.12),(56,6,1.8),(70,-4,10),(14,9,2)):
+            p,q=(0,0,10),(0,length,10+rise)
+            pts,_=sample(p,q,sag);truth=catenary(p,q,sag)['point']
+            for a,b in zip(pts,pts[1:]):
+                self.assertLessEqual(math.dist(a,b),4.000001)
+                for k in range(1,100):
+                    f=k/100;y=a[1]+(b[1]-a[1])*f;z=a[2]+(b[2]-a[2])*f
+                    self.assertLess(abs(z-truth(y/length)[2]),.00801)
     def test_far_coverage(self):
         for depth in (20,50,100,200):
             w=screen_width(.01,depth)
