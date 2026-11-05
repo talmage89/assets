@@ -12,6 +12,7 @@ REGIONS=[
  ('backlight-sail-deck','rear_three_quarter',(160,260,960,700)),
  ('hood-lamp-corner','front_three_quarter',(120,390,920,820)),
  ('lamp-cut','face',(0,0,1600,650)),
+ ('lamp-macro','lamp_unlit',(650,350,1600,900)),
  ('grille','face',(0,250,1600,950)),
 ]
 

@@ -35,7 +35,10 @@ def optimize_backs(ob):
     hinge_space=[(y-.22,y+.24,.49,.69) for y in [S.DOOR_FRONT,S.DOOR_SPLIT]]
     hinge_space.extend([(y-.08,y+.08,.82,.92) for y in [S.DOOR_FRONT,S.DOOR_SPLIT]])
     if ob.name=='Hood outer':
-        hinge_space.extend([(x0,x1,-1.90,-1.05,.70,1.10) for x0,x1 in [(-.80,-.50),(.50,.80)]])
+        # Keep the actual strut/bracket lands at X=+/-660 mm, with 40 mm
+        # clearance each way. The former 300 mm bands locked unrelated back
+        # tessellation; the exposed hood is held by optimize_backs throughout.
+        hinge_space.extend([(x0,x1,-1.90,-1.05,.70,1.10) for x0,x1 in [(-.70,-.62),(.62,.70)]])
     simplify_inner_gauge(ob,tree,.00025 if fascia else .00008,5000,96,max_edge_length=.35 if fascia else .25,
                          protected_regions=hinge_space)
     # Remove submicron collinear back slivers: their geometry is valid but

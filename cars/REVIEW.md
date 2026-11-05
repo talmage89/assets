@@ -3657,3 +3657,98 @@ No docs have been replaced. The preflight export is 59,812 triangles,
 UV coverage is 40.93%, with zero overlap/outside/degenerate triangles. The
 independent game/high motion and game construction gates pass. Now run the
 final empty-output build and judge every resulting final before docs.
+
+### R9 macro gate — withdraw the wide-view preflight acceptance
+
+Color/value first: the held Atlantic paint, gallery exposure, deep lamp/grille
+values and accepted road film remain unchanged. Reopened both used photographs;
+the front plaster and rear background white car remain the assumed balance
+neutrals. Their smooth manufactured lamp/steel boundaries are the visual bar.
+
+The next clean build regenerated all geometry, textures and export, and passed
+all numerical gates. Nevertheless its actual `lamp_unlit` macro shows serrated
+white optical fragments, a steel fin and a stepped paint reflection. STOP the
+partial gallery; withdraw the preceding wide-view acceptance. Those wide crops
+hid faults that the macro exposes. No docs were replaced.
+
+Source ablations in `sedan-r9-lamp-isolation` separate the causes: hiding the
+cover removes the white fragments; hiding every optical part leaves the fin
+and paint steps. The cover had inherited the steel's tight transverse draw.
+A shallow ruled optical mold, with its own analytic derivatives and bounded
+chord error, visibly removes those white fragments in candidate 43. The steel
+cut also needs replacement: sequential convex-piece subtraction leaves tiny
+barbs in its actual chart boundary despite correct summed cutter area. One
+constrained triangulation of the complete aperture and panel boundary removes
+these piece seams. Fresh rows follow the upper lip on the uncut die; gauge
+collars remain protected when reducing hidden backs. No checker is relaxed.
+
+Candidate 47 still fails the macro: one tapered fender end remains and the
+paint band pinches. Increasing undirected subdivision previously exceeded the
+budget and is rejected. The hood/fender crown's additive Gaussian has two to
+four transverse curvature reversals in sampled sections from Y=-2.05 to -1.60.
+Replace it with one convex quadratic section preserving the center and 800 mm
+draw datum, and round the manufactured panel end. Candidate 48 must pass the
+same native macro before any new export or full gallery is attempted. These
+analytic measurements describe construction, not visual acceptance.
+
+The short vertex-bevel trials are rejected as well. Actual chart intersections
+show overlapping facets at the fender end, not merely reversed winding. Replace
+the bevel with an outline trim and tangent quadratic arc, then constrained CDT.
+The first nonoverlapping candidate (55) passes all 422 surface parts, both
+source audits, both aperture checks, arch clearance, construction and both
+motion sweeps at 59,808 triangles. Its macro STILL fails: unconstrained local
+retriangulation drops the reflection rows, while a 12 mm perimeter trim stops
+before the old 25 mm tapered tab. Passing checks does not accept that image.
+Retain every original interior edge as a constraint and continue the outline
+trim beyond the complete tab (35 mm chart arclength). Candidate 56 is 59,800
+triangles and passes the same surface gate; its macro remains the next gate.
+The high fascia rebuild now covers only the injective upper optical land;
+existing lower grille/DRL construction is retained. Its duplicated high cut
+endpoint has exactly zero 3D separation, and only that duplicate is removed.
+Hidden hood-back protection now follows the actual +/-660 mm strut lands with
+40 mm padding, rather than locking unrelated 300 mm wide bands. Outer hood
+coordinates/normals are held throughout; independent support/motion gates pass.
+
+### R9 source macro and reflection-line acceptance — complete the joint
+
+Color/value first: the front/rear source crops retain Atlantic; face and lamp
+macros retain the accepted Graphite preset. Paint factors, coating response,
+road film, emitter powers and gallery lights are unchanged. The balanced used
+photographs retain the same front-plaster / rear-background-car neutral
+assumptions. Deep grille, lens and cabin shadows remain; the softbox band rolls
+into the paint without a pale contamination wash.
+
+Candidates 56, 58 and 60 still show a spur despite different housing geometry.
+Reject them. Actual pixel ownership (`build/sedan-r9/fin-ownership.png`) reveals
+the housing through the fender/fascia joint. The two panel ends used independent
+material-column setbacks: their gap terminates in a triangular opening beside
+the lamp. Changing bucket direction or flange queries does not change that
+silhouette. Revert both trials. Do not retain a measurement-only repair.
+
+Build both panel ends against one shared manufactured parting cut on the same
+uncut die, then cut the complete lamp aperture. The straight-cut trial 61
+visibly removes the spur, but changes the accepted seam path too much; reject
+its path. The final authored C2 cut follows the lamp-to-arch curve. Independent
+sections at Z=0.60–0.71 m put its center within 0.977 mm of the prior accepted
+path; the normal reveal is nominally 4.5 mm. These are finite section checks,
+not a global error bound. The short fan bevels and outline-rounding workaround
+are removed entirely.
+
+Opened candidate 62's native 950 x 550 unlit/lit lamp crops, all three native
+1600 x 650 gallery crops and both full 1600 px zebra images. The image now
+changes by cause: refractive white shards disappear with the cover's own
+shallow mold; the crown band is continuous with its convex section and held
+reflection rows; the isolated spur becomes a continuous manufactured panel
+joint with both parts on the same die. Windshield stripes remain smooth;
+backlight/sail stripes sweep continuously into the deck roll. Rear lamp/deck
+edges stay seated. The grille's apparent perspective differs across the view,
+but its measured mirror pairs and common die retain the same bow.
+
+Source 62 is 59,748 game / 187,540 high triangles. All 422 source parts pass
+winding, shared normals and back containment; both audits, both aperture and
+motion checks, game construction and 290-pose arch check pass unchanged.
+This accepts the SOURCE image and construction. It does not certify the next
+bake/export. Run the original-script empty-output pipeline, repeat the export
+macro and stripe checks, then judge every actual final before replacing docs.
+Thin four-sided trim, economical reflector facets and the small atlas badge
+remain the source's weaker macro details.

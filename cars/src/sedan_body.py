@@ -258,7 +258,10 @@ def hood_height(x,y):
     # Gaussian ridge folded the hood/lamp corner before any panel was cut.
     from sedan_upper_surface import ease
     along=ease(-2.30,-1.98,y)*(1-ease(-1.24,-1.02,y))
-    crown=.024*math.exp(-((abs(x)-.875)/.160)**2)*along
+    # Preserve the center and the 800 mm draw datum without adding a local
+    # Gaussian ridge. Its inward inflection folded the reflected softbox at
+    # the lamp. This section stays convex across the complete hood crown.
+    crown=(.024*math.exp(-((.800-.875)/.160)**2))*along*(x/.800)**2
     d=math.sqrt(x*x+.002**2)-hood_draw_x(y);draw=.5*(d+math.sqrt(d*d+.020**2))
     return .770+.170*(y+2.245)-.050*(x/.80)**2-.065*draw+crown
 
@@ -751,6 +754,8 @@ def simplify_inner_gauge(ob,tree,minimum_depth=.0004,max_collapses=1000,max_iter
         coordinates=[point.y,point.z] if len(region)==4 else list(point)
         return all(lo<=value<=hi for value,lo,hi in zip(coordinates,region[::2],region[1::2]))
     protected={v for v in bm.verts if any(in_region(matrix@v.co,region) for region in protected_regions)}
+    collar=bm.verts.layers.int.get('S240 hold optical gauge')
+    if collar is not None:protected|={v for v in bm.verts if v[collar]}
     pure-=protected
     count=0;minimum=1.
     for iteration in range(max_iterations):
