@@ -51,7 +51,14 @@ def run(seed,folder=Path('build/strip'),motion=True):
         assert abs(roof-b['roof']-.0225)<3e-5,(m['id'],'roof',roof)
         expected=3.0925 if meta['style']=='mansard' else 3.3075
         assert abs(soffit-expected)<3e-5,(m['id'],'soffit',soffit,expected)
-        probes.append(dict(module=m['id'],outside_slab_width_m=measured_width,outside_masonry_depth_m=rear-front,membrane_top_m=roof,covered_walk_soffit_m=soffit,clear_above_walk_m=soffit-.1524))
+        shaft_top=None
+        if meta['style']=='mansard':
+            local_points=[inv@v for v in coordinates(meshes_under(root))]
+            shaft=[v.z for v in local_points if abs(v.x+w/2)<.12 and abs(v.y+meta['walk']-.24)<.12 and v.z>.81]
+            assert shaft,('Missing mansard column shaft',m['id'])
+            shaft_top=max(shaft)
+            assert abs(shaft_top-3.10)<3e-5,('Column protrudes through mansard',m['id'],shaft_top)
+        probes.append(dict(module=m['id'],outside_slab_width_m=measured_width,outside_masonry_depth_m=rear-front,membrane_top_m=roof,covered_walk_soffit_m=soffit,clear_above_walk_m=soffit-.1524,mansard_column_shaft_top_m=shaft_top))
     # Fixed assembly proof, separate from moving leaves. Test the actual
     # consolidated meter-bank skin against every other mesh, including the
     # end wall, rain leaders, gas plumbing, ladder, paving and moving leaves.

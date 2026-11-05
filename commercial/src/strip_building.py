@@ -18,11 +18,12 @@ def coping(name,w,y,z,parent):
 
 def column(x,y,parent,style):
     width=.43 if style=='arcade' else .2032
+    head=3.10 if style=='mansard' else 3.46
     box('Column masonry plinth',(x,y,.46),(.51,.51,.61),'Wall',parent,.008)
     box('Column plinth cap',(x,y,.80),(.56,.56,.07),'Concrete',parent,.004)
-    box('Canopy column',(x,y,1.98),(width,width,2.96),'Wall' if style=='arcade' else 'Trim',parent,.006)
+    box('Canopy column',(x,y,(.50+head)/2),(width,width,head-.50),'Wall' if style=='arcade' else 'Trim',parent,.006)
     box('Column shoe',(x,y,.83),(width+.08,width+.08,.09),'Trim',parent,.004)
-    box('Column bearing capital',(x,y,3.31),(width+.13,width+.13,.10),'Concrete' if style=='arcade' else 'Trim',parent,.004)
+    box('Column bearing capital',(x,y,3.095 if style=='mansard' else 3.31),(width+.13,width+.13,.10),'Concrete' if style=='arcade' else 'Trim',parent,.004)
 
 
 def cover(m,p,parent):
