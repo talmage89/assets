@@ -181,8 +181,10 @@ def canopy(spec,brand):
   for side in (-1,1):
    for yy in (-d/2+2.0,d/2-2.0):
     xx=x+side*2.2
-    box('Recessed luminaire frame',(xx,yy,clear+.018),(.55,.55,.036),'Trim',r,.003)
-    box('Flush luminaire lens',(xx,yy,clear+.005),(.47,.47,.010),'Lamp',r,.003)
+    for frame_side in (-1,1):
+     box('LED aluminum frame',(xx+frame_side*.255,yy,clear+.018),(.04,.55,.036),'Metal',r,0)
+     box('LED aluminum frame',(xx,yy+frame_side*.255,clear+.018),(.47,.04,.036),'Metal',r,0)
+    box('Flush luminaire lens',(xx,yy,clear+.002),(.47,.47,.010),'Lamp',r,.001)
   # Pump and washer are independent module roots, located through canopy frame.
  return r
 

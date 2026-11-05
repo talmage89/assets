@@ -1,7 +1,8 @@
-"""Place the repository's original stock boxwood, retaining shared mesh/maps.
+"""Instance the repository's original boxwood faces and canonical maps.
 
-Loaded after static consolidation so every specimen instances the two stock
-meshes. No foliage is baked onto commercial maps or modified in its library.
+Loaded after static consolidation. Bark and leaf faces share the stock mask
+material (bark alpha is opaque), then join locally into one instanced mesh.
+No library file or texture changes; no new botanical vertices or pixels.
 """
 import hashlib,math,random
 from pathlib import Path
@@ -16,6 +17,13 @@ def plant(p,station):
  added=set(bpy.context.scene.objects)-before
  stock=sorted((o for o in added if o.type=='MESH' and o.name.startswith('Boxwood')),key=lambda o:o.name)
  assert len(stock)==2,'Stock shrub library layout changed'
+ mask=bpy.data.materials['Shrubs .001']
+ for ob in stock:
+  ob.data.materials.clear();ob.data.materials.append(mask)
+ bpy.ops.object.select_all(action='DESELECT')
+ for ob in stock:ob.select_set(True)
+ bpy.context.view_layer.objects.active=stock[0];bpy.ops.object.join()
+ stock=[bpy.context.object];added=set(bpy.context.scene.objects)-before
  lib=[(o.data,o.matrix_world.copy()) for o in stock]
  for o in added:bpy.data.objects.remove(o,do_unlink=True)
  parent=root('Landscape',kind='Landscape',parent=station);parent['reusable_module']=True

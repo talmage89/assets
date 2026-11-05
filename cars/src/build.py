@@ -14,6 +14,7 @@ import body,wheels
 class Build:
     def __init__(self,high,wear=.65,detail=True):
         self.high=high;self.detail=detail;self.wear=wear;self.root=G.pivot('AlderC150',(0,0,0));self.root['static_root']=True
+        self.asset_set='Pickup'
         self.root['asset_set']='Pickup'
         self.m={}
         for key,color in dict(body=(.39,.405,.41),glass=(.065,.086,.095),rubber=(.027,.029,.032),
@@ -28,7 +29,7 @@ class Build:
             self.m=finishes.build(wear)
     def add(self,ob,parent=None,category='body'):
         ob['part_category']=category
-        ob=G.attach(ob,parent or self.root,asset_set='Pickup')
+        ob=G.attach(ob,parent or self.root,asset_set=self.asset_set)
         if not ob.data.has_custom_normals:G.smooth(ob,35)
         if self.detail:
             bpy.context.view_layer.update()
@@ -78,17 +79,27 @@ class Build:
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--out',required=True);p.add_argument('--quality',default='high',choices=['game','high']);p.add_argument('--wear',type=float,default=.65);p.add_argument('--form-only',action='store_true')
+    p.add_argument('--body',choices=['pickup','sedan'],default='pickup')
     args=p.parse_args(sys.argv[sys.argv.index('--')+1:])
     bpy.ops.wm.read_factory_settings(use_empty=True)
-    b=Build(args.quality=='high',args.wear,not args.form_only);body.build(b);wheels.build(b,S)
+    if args.body=='sedan':
+        if not args.form_only:raise ValueError('Sedan stops at the body-form checkpoint; pass --form-only')
+        import sedan_spec,sedan_body
+        spec=sedan_spec
+        b=Build(args.quality=='high',args.wear,False)
+        b.root.name=spec.NAME;b.asset_set=spec.ASSET_SET;b.root['asset_set']=spec.ASSET_SET
+        sedan_body.build(b);wheels.build(b,spec)
+    else:
+        spec=S
+        b=Build(args.quality=='high',args.wear,not args.form_only);body.build(b);wheels.build(b,S)
     if b.detail:
         import exterior,interior,underbody
         exterior.build(b);interior.build(b);underbody.build(b)
     for material in list(bpy.data.materials):
         if material.users==0:bpy.data.materials.remove(material)
     sc=bpy.context.scene;sc.unit_settings.system='METRIC';sc.unit_settings.scale_length=1
-    sc['asset']='AlderC150';sc['quality']=args.quality;sc['stage']='detail and procedural look-dev' if b.detail else 'body-form corrections';sc['seed']=150
-    sc['reference_dimensions']=json.dumps(dict(length=S.LENGTH,width=S.WIDTH,height=S.HEIGHT,wheelbase=S.WHEELBASE,track=S.TRACK))
+    sc['asset']='AlderC150' if args.body=='pickup' else spec.NAME;sc['quality']=args.quality;sc['stage']='detail and procedural look-dev' if b.detail else 'body-form corrections';sc['seed']=150
+    sc['reference_dimensions']=json.dumps(dict(length=spec.LENGTH,width=spec.WIDTH,height=spec.HEIGHT,wheelbase=spec.WHEELBASE,track=spec.TRACK))
     bpy.context.view_layer.update();Path(args.out).parent.mkdir(parents=True,exist_ok=True)
     bpy.ops.wm.save_as_mainfile(filepath=str(Path(args.out).resolve()))
     counts={}

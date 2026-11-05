@@ -101,6 +101,20 @@ def street_edge(edge,p,parent):
  return xy
 
 
+
+def bark_relief(bounds,parent,seed):
+ # Sparse larger shredded pieces carry glancing-light shadows and silhouette;
+ # the many small fibers remain in the normal map. No hidden bottom faces.
+ x0,x1,y0,y1=bounds;rng=random.Random(seed);vertices=[];faces=[]
+ for i in range(round((x1-x0)*(y1-y0)*9)):
+  x=rng.uniform(x0+.08,x1-.08);y=rng.uniform(y0+.08,y1-.08)
+  length=rng.uniform(.045,.115);width=rng.uniform(.009,.022);angle=rng.uniform(0,math.tau);rise=rng.uniform(.003,.008)
+  start=len(vertices)
+  for u,v,z in ((-length/2,-width/2,.012),(length/2,-width*.28,.012),(-length*.38,0,.012+rise),(length*.45,0,.012+rise),(-length*.45,width*.4,.012),(length*.36,width*.46,.012)):
+   vertices.append((x+u*math.cos(angle)-v*math.sin(angle),y+u*math.sin(angle)+v*math.cos(angle),z))
+  faces.extend(tuple(start+j for j in f) for f in ((0,1,3,2),(2,3,5,4)))
+ return mesh('Larger shredded bark relief',vertices,faces,'Soil',parent)
+
 def site(p):
  W,D=p['lot'];b=p['building'];r=root('SitePaving',kind='SitePaving')
  # Visible ground skins, no invisible buried faces.
@@ -115,8 +129,8 @@ def site(p):
  # Concrete fueling pad is fitted to canopy, with a perimeter beyond islands.
  c=p['canopy'];pad=root('FuelPad',(c['center'][0],c['center'][1],.01),c['angle'],'SitePaving',r)
  flat('Fuel apron',(-c['width']/2-1,c['width']/2+1,-c['depth']/2-.8,c['depth']/2+.8),'Concrete',pad)
- for x in [(-c['width']/2+i*3.048) for i in range(int(c['width']/3.048)+1)]:strip('Fuel slab joint',(x,-c['depth']/2-.8),(x,c['depth']/2+.8),.009,'Trim',pad,.001)
- for y in (-3.048,0,3.048):strip('Fuel slab joint',(-c['width']/2-1,y),(c['width']/2+1,y),.009,'Trim',pad,.001)
+ for x in [(-c['width']/2+i*3.048) for i in range(int(c['width']/3.048)+1)]:strip('Fuel slab joint',(x,-c['depth']/2-.8),(x,c['depth']/2+.8),.009,'Rubber',pad,.001)
+ for y in (-3.048,0,3.048):strip('Fuel slab joint',(-c['width']/2-1,y),(c['width']/2+1,y),.009,'Rubber',pad,.001)
  # A 12-ft walk contains a 6-ft 1:12 run plus a 6-ft level top landing.
  front=b['front'];walkback=front-p['walk'];bx=b['center_x'];bw=b['width']
  box('Store front walk',(bx,front-p['walk']/2,.0762),(bw+1.1,p['walk'],.1524),'Concrete',r,.015)
@@ -164,6 +178,8 @@ def site(p):
  rear_start=-W/2+5.5
  flat('East landscape strip',(W/2-1.4,W/2,-D/2+1,D/2),'Soil',r,.012)
  flat('Rear landscape strip',(rear_start,W/2-1.4,D/2-1.4,D/2),'Soil',r,.012)
+ bark_relief((W/2-1.4,W/2,-D/2+1,D/2),r,p['seed']*31)
+ bark_relief((rear_start,W/2-1.4,D/2-1.4,D/2),r,p['seed']*31+1)
  box('East planting curb',(W/2-1.4,.5,.0375),(.10,D-1,.075),'Concrete',r,.008)
  box('Rear planting curb',((rear_start+W/2-1.4)/2,D/2-1.4,.0375),(W/2-1.4-rear_start,.10,.075),'Concrete',r,.008)
  box('Landscape strip end',(rear_start,D/2-.7,.0375),(.10,1.4,.075),'Concrete',r,.008)

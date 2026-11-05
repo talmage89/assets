@@ -1,4 +1,18 @@
-# Alder C150 / cars family
+# Cars family
+
+Original late-2010s vehicles, generated entirely by scripts in Blender 5.2. Each body ships as one GLB on one baked
+2048 atlas in five factory colors, with opening doors and closures, steering and turning wheels. `make` builds the
+pickup, `make BODY=suv` the crossover and `make BODY=hatch` the hatchback. A midsize sedan is in progress.
+
+<table>
+<tr>
+<td align="center" width="33%"><a href="#alder-c150--crew-cab-pickup"><img src="docs/hero.jpg" alt="Alder C150 pickup" width="300"></a><br><a href="#alder-c150--crew-cab-pickup"><b>Alder C150</b></a><br>crew-cab 4×4 pickup</td>
+<td align="center" width="33%"><a href="#alder-x220--compact-crossover"><img src="docs/suv-hero.jpg" alt="Alder X220 crossover" width="300"></a><br><a href="#alder-x220--compact-crossover"><b>Alder X220</b></a><br>compact crossover SUV</td>
+<td align="center" width="33%"><a href="#alder-h120--compact-five-door-hatchback"><img src="docs/hatch-hero.jpg" alt="Alder H120 hatchback" width="300"></a><br><a href="#alder-h120--compact-five-door-hatchback"><b>Alder H120</b></a><br>compact five-door hatchback</td>
+</tr>
+</table>
+
+## Alder C150 — crew-cab pickup
 
 An original late-2010s crew-cab 4×4 pickup on 275/65R18 all-terrain tires.
 Five factory paints share one baked atlas and four delivery surfaces. The
@@ -19,7 +33,7 @@ embedded baked maps. The factory paint/lamp uniforms are decoded by
 procedural manufacturing shaders are never loaded for finals. View metadata,
 GLB hashes, paint/geometry masks and measured tonal ranges accompany the renders.
 
-## Dimensions and construction
+### Dimensions and construction
 
 [REFERENCE.md](REFERENCE.md) distinguishes published dimensions from original
 construction estimates. [refs/SOURCES.md](refs/SOURCES.md) records the authors,
@@ -68,7 +82,7 @@ and rail clearance, true mirror fold bearings and upward wiper sweeps. These
 retain the accepted body fields, factory colors and causal wear. Static support,
 gauge, brake and optical-seat measurements are in `build/detail-check.json`.
 
-## Delivery budget
+### Delivery budget
 
 The delivery mesh is **59,838 triangles**, below the 60,000 limit. Detailed
 counts are rebuilt in `build/form-check.json` and `build/export-report.json`.
@@ -103,7 +117,7 @@ mesh allocation is:
 | Materials | 4: Paint, Opaque, Glass, Lamps |
 | Textures | One shared 2048² sRGB BaseColor RGBA, linear OpenGL +Y Normal RGB, linear ORM RGB |
 | Bake | 4096², GPU Cycles, 24 samples; linear-light downsample to 2048² |
-| GLB | 11,530,724 bytes, embedded PNGs and moving hierarchy |
+| GLB | 11,530,736 bytes, embedded PNGs and moving hierarchy |
 | Raw mesh buffers | 5,389,908 bytes; 30 mesh primitives |
 | Texture GPU estimate | **16 MiB** with three 8-bpp compressed maps and full mip chains |
 | Texture GPU estimate, RGBA8 | 64 MiB with full mip chains |
@@ -116,7 +130,7 @@ microstructure; no extra geometry is added for these details. UVs have zero
 overlap or outside/degenerate triangles; density is weighted toward exposed
 body panels, optics, wheels and markings, with structural undersides lower.
 
-## Paint, wear and factory colors
+### Paint, wear and factory colors
 
 ![Five shared-atlas colors](docs/five-colors.jpg)
 
@@ -165,7 +179,7 @@ vary chrome roughness. These are separate physically located masks. Baked
 coverage reduces the paint coat where contamination sits. Fine flake response
 is filtered into the undercoat roughness/normal at the shared atlas density.
 
-## Articulation and clearance
+### Articulation and clearance
 
 Meters, Blender +Z up, front −Y; glTF +Y up, front +Z. Origin is the bumper
 footprint center on the ground. Ranges below are local-axis rotations from the
@@ -210,7 +224,7 @@ radius, without a rotating parked flat spot. A separate fixture checks ground
 support through a full revolution. It does not simulate tire carcass squirm,
 suspension travel or road contact physics.
 
-## Rebuild and evidence
+### Rebuild and evidence
 
 ```sh
 make -C cars                    # references, source, UV/bake, GLB, all finals,
@@ -243,3 +257,186 @@ remain simpler than the photographed street and parking lots; the low-detail
 interior and tiny filtered markings are the weakest close-range areas.
 The shared atlas averages microscopic flakes and limits sidewall-type detail.
 The script source and shader behavior are available for engine integration.
+
+
+## Alder X220 — compact crossover
+
+An original late-2010s two-row crossover, generated entirely by scripts. The
+stamped body, molded cladding, laminate glazing, chevron grille, projector lamps,
+five-seat cabin, covered cargo floor and AWD underbody share one baked atlas.
+The delivery preserves the accepted body lines, detail, colors and articulation.
+
+![Alder X220 in the family gallery](docs/suv-hero.jpg)
+![Rear three-quarter](docs/suv-rear.jpg)
+![Optics, wheels, cargo and lit lamps](docs/suv-details.jpg)
+![Turnaround, scale and Eevee](docs/suv-views.jpg)
+![Five factory colors](docs/suv-five-colors.jpg)
+![Liftgate through its 75-degree range](docs/suv-liftgate.gif)
+
+Every final starts with a fresh import of `export/AlderX220.glb` and its three
+embedded maps in the unchanged C150 gallery. Source shaders are used only for
+separately labeled bake-loss controls. Full-size contact sheet (`renders/suv-final/contact.jpg`),
+matched front (`renders/suv-final-pairs/used_front-pair.jpg`),
+matched rear (`renders/suv-final-pairs/used_rear-pair.jpg`),
+bake-loss measurements (`renders/suv-final/bake-loss.json`), and
+[critique passes](REVIEW.md) accompany the delivery.
+
+| Actual game measurement | Value |
+| --- | ---: |
+| Length / wheelbase | 4598.8 / 2690.0 mm |
+| Body / full mirror width | 1842.0 / 2117.0 mm |
+| Roof / rails / antenna height | 1679.0 / 1700.0 / 1735.0 mm |
+| Front / rear track | 1600.0 / 1610.0 mm |
+| Tires / lowest underbody surface | 225/65R17 / 205 mm |
+
+The package is measured against Toyota's MY2020 US RAV4 brochure and Honda's
+MY2020 CR-V specifications; the UK CR-V brochure cross-checks mirror width.
+These are reference classes, not reproduced designs. [REFERENCE.md](REFERENCE.md)
+and [SOURCES.md](refs/SOURCES.md) distinguish published dimensions, original
+construction estimates and photographic authors/licenses.
+
+| Delivery resource | Actual |
+| --- | ---: |
+| Triangles | **64,933 / 65,000** |
+| Materials / embedded maps | **4 / 3**, family Paint, Opaque, Glass, Lamps |
+| Shipped maps | **2048²** BaseColor / OpenGL Normal / ORM, baked at 4096² |
+| Compressed texture allocation with mip chain | **about 16 MiB** |
+| GLB | 9,061,968 bytes |
+| Unique atlas / shared tyre tile / total occupied area | 30.39% / 24.75% / **55.14%** |
+| Exterior painted-panel density | 137 / 195 / 206 px/m (p5 / median / p95, UV-area weighted) |
+
+The four family surfaces share the same images: paint needs clearcoat and
+factory factors, glazing transmission/IOR, lamps controlled emission, and
+opaque fittings their own response (source dielectric specular level .33). This retains the family's four-material
+exception to the general three-material target. The four identical tyre
+carcasses reuse one tile at 854–1099 px/m; all other charts are unique. The
+trade is four separate carcass primitives, parented to their spinning wheels.
+
+Five factory presets cost no extra maps. The family coverage decoder keeps
+colored dirt/chips while changing paint. SUV Graphite is linear RGB
+`.150 / .1540545 / .160`, metallic `.42`; the other four family factors are
+unchanged. [suv_delivery_materials.py](src/suv_delivery_materials.py) reads only
+embedded images and material extras. Smooth glass has normal-texture scale
+zero. The lamp extras specify the warm white projector/guide emission color
+independently of its dark unlit substrate. Cycles follows nested refraction;
+Eevee uses the family's documented thin-sheet fallback. A stock glTF viewer
+shows the Atlantic fallback; runtime factors enable the other colors and lamps.
+
+Doors open 60°, hood 65°, liftgate 75°, front steering ±35°, fuel flap 85°;
+wheels spin continuously. Each is a separate rigid node with its actual pivot,
+axis and range in extras. Eight endpoint-driven telescoping strut meshes stay
+separate. [SUV.md](SUV.md) lists all local-axis conventions, per-part triangles,
+UV measurements, measured bake loss and remaining limits.
+
+```sh
+make -C cars BODY=suv clean
+make -C cars BODY=suv WIDTH=1600 FINAL_SAMPLES=64
+make -C cars BODY=suv check
+make -C cars BODY=suv check-detail-repeat
+python3 kit/repo_check.py
+```
+
+`export`, `verify`, `final-render`, `final-pairs` and `docs` are separately
+rebuildable targets. The default makes the complete SUV delivery. All GPU
+bakes/renders use the shared kit lock. No kit or other body generator changed;
+the existing C150 GLB remains byte-identical.
+
+
+## Alder H120 — compact five-door hatchback
+
+![Alder H120 in the family gallery](docs/hatch-hero.jpg)
+
+An original late-2010s five-door, with four working doors, hood, liftgate,
+steering, rolling wheels, a five-seat cabin and a cargo well. Projector optics,
+split red rear covers, an open diamond grille, Alder badges and a Willow
+Motor Co. dealer insert distinguish the hatch. Five factory paints share one
+H120 atlas; wheel-wake film, brake dust, hem chips and loading scuffs describe
+a daily driver a few seasons old.
+
+[Complete delivery report and per-part counts](HATCH.md) ·
+Native gallery/contact sheet (`renders/hatch-final/contact-sheet.jpg`) ·
+Matched front (`renders/hatch-final-pairs/used_front-pair.jpg`) ·
+Matched rear (`renders/hatch-final-pairs/used_rear-pair.jpg`) ·
+[Delivery critiques](REVIEW.md#h120-delivery)
+
+| | |
+| --- | --- |
+| ![Exterior details](docs/hatch-details.jpg) | ![Factory colors](docs/hatch-five-colors.jpg) |
+| ![Turnaround](docs/hatch-turnaround.jpg) | ![1.8 m scale and Eevee](docs/hatch-scale-eevee.jpg) |
+
+Every final starts with a fresh import of `export/AlderH120.glb` and its three
+embedded maps. The studio, lights, reflection flags and AgX settings are the
+accepted pickup gallery recipe; the hatch supplies its camera framing.
+Native images, source hashes, paint/geometry masks, tone statistics and
+source-versus-export measurements accompany the sheets. Documentation images
+are generated only after the native audit.
+
+| Measurement / delivery | Actual H120 |
+| --- | ---: |
+| Length × body width × body height | 4363.0 × 1796.5 × 1450.6 mm |
+| Mirror width / antenna height | 2039.3 / 1505.0 mm |
+| Wheelbase / front and rear track | 2650 / 1550 / 1560 mm |
+| Tires / wheels | 225/40R18 / 18 × 7.5; 5 × 114.3 mm studs |
+| Ground clearance / tire-to-arch gap | 146.5 / 40.0 mm |
+| Game triangles / export meshes | 59,852 / 21 |
+| Delivery materials | Four; existing family exception |
+| Shared maps | 2048² BaseColor RGBA / OpenGL +Y Normal RGB / ORM RGB |
+| Compressed memory, including mipmaps | About 16 MiB |
+| GLB | 7,892,240 bytes |
+| UV coverage / painted-panel density | 40.96% / 177.3–221.7 px/m |
+
+The original package sits between Toyota's
+[MY2019 Corolla hatchback specification](https://newsroom.toyota.eu/download/647310/2019-toyota-corolla-dpl-en-983710.pdf)
+and Hyundai's
+[November 2018 i30 five-door specification](https://www.hyundai.news/newsroom/dam/uk/press-kits/20181001_i30/hyundai_i30_fivedoor_and_tourer_press_kit_november2018_technical_specifications.pdf).
+The later [same-generation Australian sheet](https://www.hyundai.com/content/dam/hyundai/au/en/models/i30/docs/Hyundai_i30_Hatch_Specifications.pdf)
+cross-checks mirror width and the tire/wheel class. [REFERENCE.md](REFERENCE.md)
+distinguishes published dimensions, original choices and photographic estimates.
+[HATCH_FORM.md](HATCH_FORM.md) retains the accepted form evidence.
+
+One connected subdivision parent supplies real panel cuts, gauge, returns,
+arch hems and liners. Independent smooth optical molds, physical spoke
+chamfers and the passenger-tire carcass supply the visible construction. The
+atlas prioritizes original printed type over buried structure; the grille
+badge and center caps retain their physical aspect and legibility. Paint,
+Opaque, Glass and Lamps share all three maps. Atlantic is the stock glTF
+fallback; the family decoder applies Porcelain, Carbon, Graphite, Aluminum
+and Atlantic without five texture copies.
+
+Meters, Blender +Z up, front −Y; origin at the footprint center on the ground.
+Separate nodes expose these ranges:
+
+| Assembly | Local motion |
+| --- | --- |
+| Front doors | 62° outward; canted hinge axes |
+| Rear doors | 66° outward; canted hinge axes |
+| Hood | X, −62…0° |
+| Liftgate | X, 0…82° |
+| Wheels | Local X, full revolution |
+| Front kingpins | Local Z, −35…+35° |
+
+[HATCH.md](HATCH.md#mechanisms-and-coordinates) lists pivot coordinates, signs,
+world-space kingpin axes and the endpoint extras used to articulate the gas
+supports. Source construction/contact measurements and sampled motion sweeps
+are independent of the exported-GLB serialization check. The scale silhouette
+measures 1.8 m from its actual vertices.
+
+```sh
+make -C cars BODY=hatch
+make -C cars BODY=hatch check
+make -C cars BODY=hatch docs       # after inspecting native finals
+```
+
+`make` rebuilds source, checks, 4096 GPU bakes, 2048 maps, the GLB, the gallery,
+Eevee and matched-light pairs. `checkpoint` retains the earlier diagnostic
+studio; `STAGE=form` retains the accepted form graph. The default cars build
+remains the pickup. Its regenerated source and complete re-exported GLB bytes
+remain identical. Hatch delivery changes stay in the hatch modules; the kit's
+Smart UV target-aspect option and missing-MIME PDF signature fallback are
+backward compatible and covered by all 24 kit test modules.
+
+Photographs by Elise240SX, CC BY-SA 4.0, and manufacturer documents are
+reference-only; [SOURCES.md](refs/SOURCES.md) records URLs, authors, licenses
+and use. Noto Sans is SIL OFL. Every vertex, material texel, marking and light
+is original and scripted. The remaining limits and measured bake loss are
+reported in [HATCH.md](HATCH.md#finishes-colors-and-bake-loss).

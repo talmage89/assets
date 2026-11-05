@@ -24,6 +24,17 @@ def bundle(path):
  return hashlib.sha256(json.dumps({str(p):sha(p) for p in sorted(set(files))},sort_keys=True).encode()).hexdigest()
 
 
+def part_materials(doc,metadata):
+ parents={c:i for i,n in enumerate(doc['nodes']) for c in n.get('children',[])};rows={k:dict(materials=set(),draw_primitives=0) for k in metadata['triangles']}
+ for i,node in enumerate(doc['nodes']):
+  if 'mesh' not in node:continue
+  owner=i
+  while doc['nodes'][owner].get('name') not in rows and owner in parents:owner=parents[owner]
+  name=doc['nodes'][owner].get('name');assert name in rows,(name,node.get('name'))
+  primitives=doc['meshes'][node['mesh']]['primitives'];rows[name]['materials'].update(doc['materials'][p['material']]['name'] for p in primitives);rows[name]['draw_primitives']+=len(primitives)
+ return {k:dict(materials=sorted(v['materials']),material_count=len(v['materials']),draw_primitives=v['draw_primitives'],triangles=metadata['triangles'][k]) for k,v in rows.items()}
+
+
 def externalize(seed,source_root=Path('build/look')):
  source=source_root/f'station-{seed}.glb';doc,binary=read(source);out=Path(f'export/CommercialGas-{seed}.gltf');out.parent.mkdir(parents=True,exist_ok=True)
  folders=(Path('textures/ship'),Path('../ground/textures/ship'),Path('../shrubs/textures/ship'))
@@ -46,7 +57,7 @@ def externalize(seed,source_root=Path('build/look')):
  doc['bufferViews']=views;doc['buffers']=[dict(uri=out.with_suffix('.bin').name,byteLength=len(payload))]
  out.with_suffix('.bin').write_bytes(payload);out.write_text(json.dumps(doc,separators=(',',':'))+'\n')
  metadata=json.loads(source.with_suffix('.json').read_text());metadata['delivery_bundle_sha256']=bundle(out);out.with_suffix('.json').write_text(json.dumps(metadata,indent=2))
- return dict(seed=seed,triangles=metadata['triangles'],total_triangles=metadata['total_triangles'],gltf_bytes=out.stat().st_size,bin_bytes=len(payload),embedded_glb_bytes=source.stat().st_size,images=images,materials=len(doc['materials']),bundle_sha256=bundle(out))
+ return dict(seed=seed,parts=part_materials(doc,metadata),triangles=metadata['triangles'],total_triangles=metadata['total_triangles'],gltf_bytes=out.stat().st_size,bin_bytes=len(payload),embedded_glb_bytes=source.stat().st_size,images=images,materials=len(doc['materials']),bundle_sha256=bundle(out))
 
 
 def main(seeds,source_root):
@@ -54,10 +65,11 @@ def main(seeds,source_root):
  # Publish the whole family once, including the two alternatives not used by
  # the default seed. Unchanged maps retain their original bytes.
  folder=Path('export/textures');folder.mkdir(parents=True,exist_ok=True)
+ for old in folder.glob('T_CommercialTrim_*.png'):old.unlink()
  for p in Path('textures/ship').glob('T_Commercial*.png'):
   dst=folder/p.name;data=p.read_bytes()
   if not dst.exists() or dst.read_bytes()!=data:dst.write_bytes(data)
- Path('build/delivery.json').write_text(json.dumps(dict(rows=rows,new_images=17,new_gpu_mib=39+2/3,scope='External stock glTF; canonical ground and shrub image paths, byte-identical maps; compressed-memory estimate assumes 8bpp and full mips'),indent=2))
+ Path('build/delivery.json').write_text(json.dumps(dict(rows=rows,new_images=18,new_gpu_mib=29,scope='External stock glTF; canonical ground and shrub image paths, byte-identical maps; compressed-memory estimate assumes 8bpp and full mips'),indent=2))
  for r in rows:print('DELIVERY',r['seed'],r['gltf_bytes']+r['bin_bytes'],'geometry bytes',r['materials'],'materials')
 
 

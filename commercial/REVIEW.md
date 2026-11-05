@@ -521,6 +521,357 @@ image reuse and 25 current exported views. `make repeat` is byte-identical
 image payloads. The source manufacture fields also repeat byte for byte.
 No kit source changes. See README for exact per-part/export/map budgets.
 
+
+## Pass 13 — direct sun, real fixture openings and the first surface export
+
+**Color/value first.** The accepted hero's neutralized sky fill overwhelmed
+its sun. Compare all six `renders/delivery-light-study/` images at full size:
+the first clear-sky study (sun 6, sky .025, EV .25) has actual canopy/store
+cast shadows. Retain a procedural sky's blue; do not desaturate it into an
+ambient overcast. The first surface pairs put concrete at .847 against .795,
+soffit .608 against .417, and cabinet .166 against .135. Reject the excess
+fill from the newly exposed emitters before changing black paint again.
+The original broad splash mask also incorrectly darkened entire horizontal
+concrete slabs. Replace that with physical slab/traffic fields and a dedicated
+cement, sand and broom finish, with sealant following real joints.
+
+**Full-size inspection.** Open every image in `renders/delivery-pass1/` and
+both the main and detailed first pair renders. The lot now differs from the
+street and its checker repeat is reduced, but neighboring road modules still
+show the same broad ground-family pattern. Normalize that repeated low
+frequency on copied presentation meshes as well; preserve all ground files.
+The original LED frame was a solid box covering its lens. A real four-sided
+frame fixes that obstruction. Two remaining black openings expose a reused
+loop variable that duplicates fixture positions; fix it and audit every
+opening in the actual reimport. Broad absorbed oil replaces the old isolated
+ink splat. The new mulch has overlapping shredded fibers instead of paver
+cells; the base rust follows curved paint-loss scars rather than a flat card.
+
+**Delivery.** The exported station uses ten materials (eleven with distinct
+smooth/split CMU), replacing eighteen/nineteen. Trim uses the equipment atlas.
+Wear, original ink and all lights share one alpha material, one emissive map
+and a second UV selector; unlit surfaces select a zero-emission swatch.
+The new dedicated concrete and emission maps fit within 29 MiB after removing
+the redundant trim triple. Independent raw import/chart/image checks pass.
+
+## Pass 14 — reject the night exposure and invalid material patches
+
+**Color/value first.** All eight `renders/delivery-pass2/` views and five
+`renders/delivery-pairs2/` exports/pairs were opened individually. Under the
+clear matched sun, concrete is .765 against .795, asphalt .379 against .466,
+soffit .501 against .417, dark cabinet .076 against .135, and ray-verified
+EIFS .596 against .663. Keep the concrete. Ease the station asphalt correction
+from .43 to .59, restore a physically plausible charcoal finish now that the
+old ambient wash is gone, and use a warmer off-white soffit finish. The Texas
+awning shadow implies a stronger front-normal sun component than the first
+estimate; revise that vector, rather than warm all the surfaces globally.
+
+The former EIFS ROI includes the concrete facade belt and its cast shadow.
+An independent pixel-to-surface ray identifies those materials and stations.
+Reject that measurement and fix a new rectangle on actual sunlit EIFS above
+the 4.12 m belt, retaining the original photographic comparison patch.
+
+**Reject the first blue-hour frame.** Its sky has the right blue, but its
+exposure is still too low. Inspect all three `renders/dusk-study/` frames:
+choose sky .4 and EV 2.2, exposing for the canopy while retaining darker
+surrounding ground. Add low-level panel emission to the actual store/price
+brand backings. Keep lamps in their native atlas and reduce their excessive
+radiances; this does not add a material. All frame openings now show white
+lenses. Reduce unnecessary bevel topology on their aluminum frame sections
+so even the four-island canopy stays below 18k.
+
+**Fine audit fixes.** Replace the cast nozzle's striped polished normal with
+fine cast-metal grain. Increase runoff only under the actual folded joints,
+and retain the absorbed gray-brown oil's many overlapping drops. Street-road
+normalization uses copied mesh colors and canonical ground images. House and
+ground preservation receipts still match all 150 original delivery files.
+No docs have been committed.
+
+## Pass 15 — reject repeated streaks, pink panels and elevation occlusion
+
+**Color/value first.** Open all 31 first final-attempt views individually at
+native resolution, plus all five assembled pairs. Matched-light medians are
+soffit .419/.417, concrete .765/.795, cabinet .084/.135, EIFS .664/.663 and
+asphalt .424/.466 (export/photo). Keep the soffit and corrected Texas solar
+vector. Increase the dedicated cement's reflectance modestly and ease the
+station asphalt multiplier to .72, retaining darker actual travel/engine
+centers. The photograph's cabinet is charcoal, rather than the near-black
+1.3% reflectance finish; raise that finish to about 3.5% reflectance.
+
+The new broad sign-back emission lightens aubergine toward pink in daylight.
+Reduce its radiance from 1.6 to .4, retaining the original ink and native
+powered state. Dusk now has a blue sky above dark ground, readable interior,
+white diffusers and a forecourt pool; keep sky .4 / EV 2.2.
+
+**Full-size faults and their causes.** Coping runoff reads as repeated dark
+daggers: reduce the shared grime opacity, vary seam-specific deposit length,
+width and handedness, and soften the broad wall deposit. A physical scupper
+probe also finds that a non-solid runoff plane bridges an opening. Cut the
+actual aperture out of the overlay and preserve its complete UV chart; do not
+exempt the probe. Fine broom/sand survives the bake without a tan wash, and
+oil is now an absorbed standing band rather than an isolated ink splat.
+
+The overhead's asphalt still exposes broad periodic modulation between the
+coarse vertex samples. Increase only the station's correction sampling to
+.55 m (copied presentation roads .50 m); keep the canonical ground PNGs.
+Bark fibers have no paver grid but look too flat from the low close-up. Darken
+the fibers, widen their irregular ribbons, and add sparse larger 3–8 mm raised
+pieces with open bottoms, sharing the existing equipment material. Fine
+fibers remain in normals. Stock shrub bark/leaves retain their geometry/maps
+under one native mask material, without new botanical pixels.
+
+The front/side/back orthographic attempts include neighboring houses that
+occlude the station, with excess vertical space. Hide presentation context
+for those elevations/top, fit the public-interface width and use a wide
+architectural elevation aspect. Retain actual context for street/details.
+Eevee lacks diffuse sky/bounce under its roof despite ray tracing; bake a
+local irradiance volume for its presentation, using the same sun/sky and
+native exported materials. No additional export material or engine-specific
+replacement shader is introduced.
+
+**Build discipline.** First clean checks passed after the scupper correction;
+byte repeat passed (65,507,692 bytes), brand swap retained 177 frames and 22
+image payloads. The final provenance gate rejected the first hero after a
+renderer cleanup occurred while its long render process was starting. No
+docs were published. Rebuild all commercial generated directories from empty
+with the corrected, fixed recipe, then repeat the checks and full-size audit.
+
+## Pass 16 — final exported audit and delivery
+
+**Color/value first.** Final matched-sun display Y′ medians (export / balanced
+used photo): soffit .439/.417 (+5.3%); concrete .777/.795 (−2.3%); charcoal
+cabinet .133/.135 (−1.2%); EIFS .667/.663 (+.5%); asphalt .461/.466 (−1.0%).
+Neutrals are PA sunlit concrete, CA light background wall, TX exposed aluminum
+jamb and VA sunlit gray aggregate; each linear gain/ROI is retained. These
+are appearance measurements under shadow-estimated sun/sky, not albedos or
+surveyed solar positions. The full RGB ratios and p10/p90 remain in values.json.
+
+The former wide cabinet ROI also contains its rubber hose. Actual ray hits
+identify Equipment cells 1 and 3; reject that mixed .107 measurement, rather
+than brighten the hose to match cabinet paint. Narrow the patch to the cabinet
+beside the hose. A new independent gate verifies nine actual surface/finish
+rays in each of the five final patches (45 total), their image hashes and
+current ROI definitions. The prior EIFS belt/shadow contamination is also
+covered by that gate.
+
+**Native-size inspection.** Open each of the 17 main Cycles views, all eight
+seed views, five raw photo-camera renders, the five composed pairs and the
+Eevee image. Also inspect their value patches, eight before/after crops,
+contact/comparison sheets and all five final docs JPGs at native size. Keep
+the clearer cast-shadow separation, light gray cement, charcoal asphalt,
+white LED lenses, gray-brown absorbed standing bands, yellow paint and
+cause-local chips. The cast nozzle's grain no longer tears its highlights.
+Runoff is softer and varies by actual coping joint, without painting across
+the scuppers. Sparse raised bark pieces add small shadows above the fine
+fiber normal. Orthographic elevations/top now exclude occluding neighboring
+houses. The documentation views sheet and photo-pair sheet use compact
+layouts without the former large empty rows. The runoff comparison now
+actually crops the coping beneath the canopy, rather than the entry sign.
+
+Hero store/canopy vertices span 74.9% of the frame. Actual sidewalk ray eye:
+1.60000005 m; lens 40 mm; verticals vertical. Conservative projected
+architecture/equipment-mask Y′ p1/p50/p95/p99: .074/.476/.749/.844. White clip:
+.27%, concentrated in powered lenses/ink rather than broad painted surfaces.
+Dusk retains a brighter blue sky, readable storefront glow and lit forecourt,
+with the canopy diffusers/pool controlling exposure. Eevee's irradiance cache
+restores diffuse light below the canopy; the same exported materials remain.
+
+**Proof.** A clean rebuild from empty commercial build/maps/export/renders
+completed: `make WIDTH=1600 SAMPLES=48`, return 0. The final default command
+also passes after adding the patch-surface gate. `make check` passes the
+1,000-plan/negative-control tests, actual source surface and sampled moving
+leaf sweeps, independent raw glTF charts/normals/counts, fresh-import surfaces,
+all 48 actual LED-lens openings, and same-scene image reuse. `make repeat`
+returns byte-identical 66,790,984-byte default GLB; brand swap retains oriented
+geometry, 177 node frames and 22 original PNG payloads. No GPU bake-repeat
+claim is made by that geometry/export repeat. Repository check: zero errors.
+House/ground preservation: all 150 pre-existing delivery/map files unchanged.
+No kit source changed. Current provenance verifies 30 Cycles views + one Eevee.
+
+**Cost.** Nine materials per station, ten with distinct smooth/split CMU;
+store six/seven, canopy four, dispenser two. Native graphics/wear/emission
+share a material and UV emission selector; one glass; opaque trim/equipment
+share a sheet. Original boxwood wood/leaves share one locally joined mesh
+and native mask. Default: 212,154 placed triangles / 111,570 unique, including
+106,172 placed shrub triangles (one 5,588-triangle mesh); 112 placed material
+primitives before renderer batching. Store 34,308, canopy 13,046, pump 5,160,
+sign 1,516, site 23,180. Extra paving vertices carry the station's repeat/traffic
+correction and raised larger bark pieces; none violates a part budget. All
+per-seed parts/materials/bytes are in README and delivery receipts. New maps:
+18 / 29 MiB, down from 39⅔ MiB by removing redundant trim maps; complete
+landscaped family 77 MiB with existing maps. GPU figures assume 8-bpp block
+compression and full mips, not measured engine residency.
+
+**Remaining CG tells.** Six repeated product fronts and regular joinery are
+visible close up. Fine bark still relies on normal relief, while only the
+larger pieces have geometry. The setting remains sparsely developed. Some
+original ground aggregate rhythm survives at extreme overhead distance;
+the broad tile field is an upstream finding, with all ground bytes preserved.
+Eevee shadows/glass differ from the Cycles judgments. The sparse VA photo fit
+and unknown photo responses limit precision. These limits are exposed rather
+than calling the station indistinguishable from a photograph.
+
+**Docs last.** Five final gas-prefixed JPGs, each ≤1600 px wide / 200,000 bytes;
+no motion GIF. Commit only after the above audit, in a separate final commit.
+
+
+## Pass 17 — hero takeover; reject the first wear trial
+
+**Color/value first.** The accepted source colors and neutral-balanced reference
+copies are retained. Initial hero shows the same pale store front/side, little
+canopy shadow, and nearly invisible foreground deposits. Save all original
+finals and pairs outside the commercial clean directory before changing them.
+The fixed PA floor mask measures 19.0% visible markings at a 4% Y′ deficit
+against its clean p85, versus 31.5% in the photograph. VA asphalt measures
+23.4% versus 59.2%. This is projected sunlit floor area, excluding structures,
+large shadows and PA covers; the thresholds include aggregate and residual
+seams, not chemical oil identification or surveyed square meters. The masks
+and both 4% and 8% deficit thresholds are exposed by src/hero_review.py.
+PA is balanced on sunlit concrete; VA on gray sunlit aggregate, with the
+existing linear gains and neutral ROIs retained.
+
+The first stronger PA trial reaches 29.5% coverage but its selected deposits
+have 21.6% median contrast versus the photo's 6.8%. Reject it: droplets were
+stretched in the long footprint direction, and the result is dark smear-like
+bands. Correct each droplet for the footprint's physical aspect; use more
+round overlapping drops, a lighter absorbed background and fewer strong
+cores. The wider standing footprint can remain while its vertex multiplier
+is reduced; gray-brown absorbed marks preserve the concrete's own value.
+Tire contacts follow operating lanes and the two actual driveways. No
+manufactured finish is rebaked for this change: only analytic coverage/ink
+within the existing graphics sheet changes; its powered pixels are identical.
+
+The first raking-sun hero has convincing canopy shadow and front/side
+separation but too little sky fill. Raise procedural sky from .022 to .035
+and sun from 5 to 6, retaining the cross-camera direction. Runoff originates
+below folded canopy divisions and existing coping joints. Reject the strongest
+opacity to avoid repeated black daggers. Native camera height stays 1.6 m.
+
+Presentation uses a continuous neighborhood block of the actual ground
+modules, with original Cape/ranch/split houses, pin oak/maple trees and street
+lights. A template-copy error in the old two-house context allowed copies to
+inherit an earlier placement's transform; the expanded context snapshots
+original bases before any placement. All context remains outside delivery.
+Accepted detail and dusk views keep their existing context and light recipe.
+The period_canopy pair already had the estimated direct sun; transparent
+composition made its sky white. Render its procedural sky opaque. Top keeps
+the ground visible while hiding neighboring buildings, closing its black edges.
+
+The second oil trial reaches 31.8% coverage but 13.5% selected contrast;
+spread the footprint to 3.0 × 6.5 m and lower its standing/core coverage again.
+Keep the carbon contact dark while reducing its opacity; asphalt traffic
+continues around the pad instead of ending just inside the two driveways.
+A closer 35 mm hero trial enlarges the monument over the storefront: reject
+it and restore the accepted 40 mm camera exactly. Before/after hero crops
+therefore retain matching native-pixel framing. Only the graphics BaseColor
+changed during look iteration; all 17 other commercial shipped images,
+including emission, stayed byte-identical before the required clean replay.
+
+Start the final replay with empty commercial build/, textures/, export/ and
+renders/, keeping references, immutable library deliveries, original evidence
+and tracked docs. Use make WIDTH=1600 SAMPLES=48 WRITE_DOCS=0 so automatic
+docs generation waits until every rendered final has been visually judged.
+
+
+## Pass 18 — native-size final audit; exposed approaches and street ends
+
+**Color/value first.** Keep the accepted 40 mm / 1.6 m hero framing and all
+manufactured colors. The cross-camera sun gives the front a brighter value
+than the side and throws the canopy shadow leftward across the forecourt.
+Keep .035 procedural sky fill: .022 made the shaded masonry too dark.
+
+At native size the first final attempt's wheel contacts taper into pointed,
+regular skid-like marks in top/scale. Reject them: retain actual tire width,
+vary their center paths by island/wheel, and fade coverage at both ends.
+The drip field still ends too far inside the canopy to read from the street.
+Extend its local footprint to 3.0 × 9.0 m, move its center .70 m toward the
+approach, keep round droplets and deepen individual old absorbed cores
+without restoring the rejected opaque standing smear. All six fueling faces
+retain their own deterministic clusters. The field stays within the pad.
+
+The neighborhood fixes the hero's field horizon, but the first aerial shows
+two black strips beyond road ends. Lawn exclusions reached 250 m while road
+modules stopped at 190 m. Extend native street runs to the same 250 m
+coverage; keep ground visible at the top view's edges. No station or library
+construction is changed. A process time limit interrupted the first clean
+render attempt; use a detached local runner for the complete clean replay.
+Stop the second attempt to correct these visible faults before any docs.
+
+**Final measured color/value.** PA sunlit cement and VA gray aggregate remain
+the photographic neutrals, with the existing linear balancing gains retained.
+The strict surface gate finds that the original concrete control now samples
+the longer oil footprint (actual coverage alpha 0–80/255 at the nine rays),
+so it no longer measures bare cement. A ray grid locates bare sunlit cement
+ahead of those marks. Move only that control ROI to (.22,.84,.37,.88); all
+45 independent surface/finish rays pass, without ignoring transparent quads
+or relaxing the expected material. Export/photo Y′ medians: soffit
+.423/.417; concrete .777/.795; cabinet .128/.135; EIFS .667/.663; asphalt
+.447/.466. Manufacturing colors and shader responses were not retuned.
+
+Fixed sunlit-pavement masks, at least 4% below each region's clean p85 Y′:
+
+| Pair | Before coverage / contrast | After | Balanced photograph |
+| --- | --- | --- | --- |
+| PA forecourt | 19.0% / 11.9% | 37.2% / 9.0% | 31.5% / 6.8% |
+| VA asphalt | 23.4% / 4.9% | 63.3% / 10.5% | 59.2% / 9.1% |
+
+At the separate 8% deficit threshold, PA coverage is 13.4 → 22.2%, photo
+12.5%; selected contrast 15.0 → 11.5%, photo 12.2%. VA coverage is .7 →
+44.2%, photo 35.4%; contrast 8.5 → 12.3%, photo 12.2%. These are projected
+appearance proxies, including aggregate and residual seams, not square
+meters or chemical oil segmentation. The original plans differ. The final
+field is somewhat more extensively marked than the photograph, while the
+stronger deposits' contrast is close. Masks, image hashes, exclusions and
+neutral gains are in renders/hero-review/wear-measurements.json.
+
+**Final native-size judgment.** Open all 17 main Cycles images, all eight
+seed views, five raw photo-camera views and the Eevee hero. Inspect their
+contact sheet and the five native-pixel hero before/after crops. Keep the
+accepted 40 mm camera and measured 1.6 m sidewalk eye. The hero's lateral sun
+produces a canopy shadow across the slab, brighter storefront and darker
+side/cavities; neighboring original houses, trees and street lights now
+replace its field horizon. Longitudinal wheel contacts fade softly, fueling
+deposits spread into the exposed approach and fascia/coping runoff remains
+at its construction joints. The unchanged close-up lighting retains the
+accepted entry, sign and dispenser look. Dusk retains its accepted lighting
+and composition. The period canopy has its actual procedural sky rather
+than a white transparency composite, under its retained photo-estimated sun.
+Top-edge Y′ minimum/p1/median are .057/.337/.379: no black void border.
+
+Hero conservative projected architecture/equipment-mask Y′ p1/median/p95/p99
+is .041/.266/.631/.776; white clipping .26%, principally powered lenses/ink.
+This is a display range, not albedo or a visibility-buffer measurement.
+
+**Final proof and cost.** Rebuild every commercial source, map, export and
+render from initially empty generated directories with
+`make WIDTH=1600 SAMPLES=48 WRITE_DOCS=0`. Complete the replay after correcting
+the measurement control described above; final make returns 0 and validates
+30 Cycles views plus one Eevee, all from current external glTF/maps.
+`make check` returns 0; `make repeat` returns 0 with a byte-identical
+66,729,400-byte default GLB and unchanged geometry/frames/shared images under
+the brand swap. The repository check returns zero errors. House/ground
+preservation verifies all 150 existing delivery/map files. No main merge,
+kit change, library alteration or shared construction-interface change.
+
+Default triangles: 212,662 placed / 112,078 unique. Store 34,308 and dispenser
+5,160 are unchanged; canopy 13,098 includes 52 runoff triangles; ServiceWear
+712 includes 456 added wheel-contact triangles. Nine materials (ten on seed
+103), 18 new maps at the accepted 512/1024/2048 sizes, 29 MiB new / 75⅓ MiB
+default total. Default external glTF/BIN 13,186,355 bytes, plus 53,541,730
+referenced PNG bytes; new shared PNGs occupy 10,059,586 bytes.
+
+**Remaining CG tells.** Very close paving exposes softness in the shared
+1024 ink atlas; the effect is calibrated and readable at street distance
+but is not high-resolution grime at macro range. Regular construction, six
+repeated product fronts and repeated neighborhood prototypes remain. Eevee
+has harder shadow/alpha and glass differences from Cycles. Fine bark and
+some ground aggregate rhythm remain the accepted limitations. No extra
+texture allocation is introduced to conceal those limits.
+
+**Docs last.** After the above full-size judgments, regenerate the affected
+five gas-prefixed JPGs from the current exported finals. Amend the existing
+head docs commit, so history contains one version of these five images.
+
 ---
 
 ## Neighborhood strip center — form checkpoint

@@ -1,21 +1,23 @@
 # Commercial / seeded corner gas stations
 
-The family's second type, the neighborhood strip center, is at its separate
-[four-seed form checkpoint](STRIP.md). Build it with `make strip`; gas-station
-modules and canonical outputs remain independent.
+The family’s second type has its own [strip-center checkpoint](STRIP.md), built with `make strip`.
 
-**Exported surface and age checkpoint, awaiting lead review.** Four original
-1995–2010 American corner stations, maintained at about fifteen years in service.
-The accepted plans, dimensions, circulation, brands, moving parts and sockets
-are retained. This round adds construction refinements, shared baked PBR maps,
-causal wear, a visible retail fit-out and day/dusk lighting states.
+Four original 1995–2010 American corner stations, maintained at about fifteen
+years in service. Fixed plans and two fictional brands share tiled masonry,
+roof, concrete and one equipment/trim atlas. Deliveries are stock glTF with
+external images shared across every seed.
 
-Every vertex, graphic and material field is scripted. No photograph supplies
-mesh or texture pixels. [REFERENCE.md](REFERENCE.md) separates published sizes,
-authored choices and camera-fit limits; [REVIEW.md](REVIEW.md) records rejected
-passes. [TEXTURES.md](TEXTURES.md) gives the allocation and image-sharing rules.
-Reference rights and direct files are in [refs/SOURCES.md](refs/SOURCES.md).
-No unfinished portfolio JPGs are committed; review images remain rebuild outputs.
+![Rillway corner station from the opposite sidewalk](docs/gas-hero.jpg)
+![Dispenser, entry, sign and absorbed forecourt stains](docs/gas-details.jpg)
+![Four street corners and plan variants](docs/gas-family.jpg)
+![Turnaround, scale and Eevee](docs/gas-views.jpg)
+![Blue hour: canopy, shop and signs lit](docs/gas-dusk.jpg)
+
+Every vertex and texel is scripted. Photographs supply measurements and
+comparison only. [REFERENCE.md](REFERENCE.md) distinguishes published sizes,
+original decisions and fit limits; [REVIEW.md](REVIEW.md) records rejected
+images and the full-size final audit. [TEXTURES.md](TEXTURES.md) explains
+allocation and sharing; [refs/SOURCES.md](refs/SOURCES.md) records credits.
 
 ## Plans and real dimensions
 
@@ -43,109 +45,117 @@ Meters, Blender +Z up and canonical −Y frontage; a quarter-turn selects the
 street corner. Props retain footprint/ground origins, and operating leaves
 retain their physical hinges. glTF maps Blender Z to Y up.
 
-## Construction and age
+## Construction and maintained age
 
-Storefront bays now have masonry pilasters, precast feet/caps, a projecting
-folded-metal entry canopy and, on CMU stores, split-face wainscot returns with
-a water table. Coping has folds, hems and standing joints. Wall packs, service
-lighting, sealed electric meters, disconnect/conduit and a connected gas set
-complete the rear/sides. The electrical set clears the cooler. Monument signs
-use the store's masonry and a cap; price cabinets have extruded frames.
-Canopy columns have folded wraps, a skirt/drip, closure seam and brand band.
+Split-face pilasters/wainscot, precast feet and caps, folded entry shelter,
+profiled coping, wall packs and electric/gas service complete the store.
+Monument bases use its masonry with real caps. Canopy columns have painted
+wraps, base skirts and a brand band. Smooth 30 mm hoses hang in slack loops;
+the original wire proxy is removed. Compound-section nozzles have open guards,
+swivels and separate hand sockets. Gondola product fronts, cooler doors,
+checkout and ceiling lights read through the wall of glass.
 
-The lower hose U has more longitudinal stations and smooth circumferential
-normals. The former stray wire/reel proxy is removed: the crown bulkhead and
-holstered swivel support the stored hose. No deployable retractor mechanism or
-runtime hose deformation is claimed. The nozzle has compound cast sections,
-an open guard, grip socket, swivel and curved spout.
+The station's asphalt retains the ground family's exact maps. Vertex colors
+compensate their repeated broad field and add darker polished traffic lanes,
+weathered edges and parked-engine centers. Sealed cracks and a patched buried
+service trench follow actual repairs. A dedicated concrete tile has sand,
+pores and irregular fine broom bristles; independent pours have slight tone
+changes and sealant follows saw cuts. Absorbed gray-brown footprints combine
+many drips around the engine/fuel-door and a soft standing band. Swept tire
+contacts cross them and follow the driveways. Gum and base grime belong to
+foot traffic. Rust borders curved bumper-height paint chips and the wet base
+ring, preserving yellow paint. Runoff starts at fascia/coping joints and
+excludes open scuppers; low masonry retains salts/dirt. Sun-facing sign paint
+fades. Original Boxwood instances sit over irregular shredded bark.
 
-The glass reveals gondola shelves, six generated product-front variants,
-a cooler-door wall, checkout counter/register and ceiling lights. This is a
-representative visible retail volume, not a playable shop plan. Maintained
-beds instance the original Boxwood family over generated angular bark chips.
+All light uses procedural sun/sky. Day views have cast canopy/store shadows;
+blue hour exposes for white canopy diffusers and their forecourt pool. Price
+digits, brand panels, shop lights and the visible interior emit from the
+exported map. The same emission state is retained by day and night.
 
-Wear is placed at its causes: engine drips at every fueling face and parking
-position; swept tire contact at driveway turns; a repaired service trench and
-sealed branching cracks; joint deposits; worn stall paint; gum by the entry;
-base/hand-working grime; low bollard scuffs and exposed-steel corrosion; runoff
-below coping/fascia joints; low masonry salts/dirt; and south-facing paint fading.
-Manufactured grain remains in textures, with broad age in stock vertex tint.
-There is no whole-surface dirt noise wash, arbitrary wall peeling or blanket
-warm tint on the paving. The maintained age remains an artistic checkpoint.
+## Shared maps and material cost
 
-## Shared PBR and loading
+**18 new images / 29 MiB** estimated BC7/BC5 with full mips: CMU 1024 triple,
+brick 512 triple, EIFS/roof 512 color-normal pairs, concrete 1024 triple,
+equipment/trim 2048 triple, graphics 1024 RGBA color and emission. Manufacture
+is generated and Cycles flat-baked at 4096, then filtered in linear color,
+vector-normal and roughness-RMS space. This is a shared tile bake, rather
+than a unique whole-building projection.
 
-`export/CommercialGas-<seed>.gltf` plus its `.bin` is the stock delivery layout.
-`export/textures/` holds **17 new shared images / 39⅔ MiB** assuming 8-bpp
-BC7/BC5 and full mipmaps. CMU is 1024; brick, EIFS and roof 512; trim and
-shared equipment 2048; both brands' ink sheet 1024. EIFS/roof omit redundant
-ORM maps. Glass and the operational emissive states add no images.
+The family reuses ground asphalt/lawn and shrubs' maps (**48 MiB**). All wall
+alternatives together therefore allocate **77 MiB**; a default CMU station
+loads **75⅓ MiB**. PNG disk bytes are reported separately below. Presentation
+Cape/ranch/split houses, oak/maple trees, street lights and roads load their own exports and do not enter delivery.
+The houses' and ground family's existing 150 delivery/map files remain
+byte-identical to the pre-work receipt.
 
-Manufacture is generated and GPU Cycles flat-baked at 4096, then filtered in
-linear color, vector-normal and roughness-RMS space. Typography/marks are
-original 4096 raster art with coverage-aware filtering. The original baked
-fields repeat byte for byte. This is a tiled-material bake, not a unique
-whole-station projection bake.
+**Nine materials per station; ten on smooth-CMU seed 103.** Equipment and
+trim share one opaque PBR atlas. Ink, transparent wear and all emission share
+one graphics material: UV0 selects color/alpha and UV1 selects powered pixels
+or a zero-emission swatch. Glass is one material. Tiled masonry, roof and
+concrete retain separate materials for their scale and physical response;
+smooth/split CMU share images but need different normal strengths. Ground
+asphalt/lawn and the single original shrub mask retain canonical image URIs.
+Bark and leaves join locally into one instanced mesh/material, retaining their
+original vertices, UVs and maps. None of those library assets is modified.
 
-Ground asphalt/concrete use their existing canonical images (**32 MiB**),
-with native 6.096/3.048 m repeats. Stock public lawn adds its existing **16 MiB**;
-Boxwood uses the shrubs family's existing **16 MiB**, once for every instance.
-The full wall-alternative + paving/lawn/shrub allocation is **103⅔ MiB**.
-A neighborhood already loading ground and shrubs adds only the commercial
-**39⅔ MiB**. PNG bytes are not GPU memory. Keep canonical URI/image identities
-when loading; the same-scene importer reuse check proves that sharing here.
+Material counts differ from draw calls. The table counts actual glTF material
+primitives, including separate operating leaves; a renderer may batch repeated
+modules. One plant is one primitive with shared geometry.
 
-Each shrub instances two stock meshes; the repeated plants do not upload
-nineteen independent botanical atlases or geometries. Neighboring houses,
-trees and streets in the presentation are loaded from their own exports and
-are excluded from station delivery. Their hashes are recorded.
+| Default part | Triangles | Materials | Primitives |
+| --- | ---: | --- | ---: |
+| Store | 34,308 | CMU, Concrete, Equipment, Glass, Graphics, Roof (6) | 11 |
+| Canopy | 13,098 | Concrete, Equipment, Graphics, Roof (4) | 16 |
+| SitePaving | 23,180 | Asphalt, Concrete, Equipment, Lawn (4) | 4 |
+| AccessibleSign | 416 | Equipment, Graphics (2) | 2 |
+| TankPad | 1,164 | Concrete, Equipment (2) | 2 |
+| TankVents | 376 | Equipment (1) | 1 |
+| Dispenser, each | 5,160 | Equipment, Graphics (2) | 4 |
+| Trash/washer, each | 1,116 | Equipment (1) | 1 |
+| PriceSign | 1,516 | CMU, Concrete, Equipment, Graphics (4) | 4 |
+| IceMerchandiser | 1,776 | Equipment, Graphics (2) | 5 |
+| PropaneCage | 4,474 | Equipment, Graphics (2) | 6 |
+| Store bollard, each | 288 | Concrete, Equipment (2) | 2 |
+| AirWater | 1,570 | Concrete, Equipment, Graphics (3) | 3 |
+| DumpsterEnclosure | 3,224 | CMU, Concrete, Equipment (3) | 7 |
+| Lot light, each | 348 | Concrete, Equipment, Graphics (3) | 3 |
+| ServiceWear | 712 | Asphalt, Equipment, Graphics (3) | 3 |
+| Landscape | 106,172 | Shrubs .001 (1) | 19 |
 
-The exported lamps retain their authored night-capable emission strengths.
-Day presentation switches exterior luminaires off, keeps the interior and
-prices on, and scales logo-panel emission to .10. Dusk restores their strengths.
-Both states use the same exported geometry, inks and PBR maps, with procedural
-sun/sky only. Ink colors are stored in the sheet because glTF emission does
-not multiply COLOR_0. No replacement source look shader is used for judgments.
+## Measured budgets and bytes
 
-## Measured budgets
-
-Counts include real operating leaves, hoses, cylinders, utility gear and wear
-ribbons. Each dispenser is **5,160 triangles**, below 6k. Paving, landscaping
-and presentation are accounted separately.
-
-| Seed | Store | Canopy + islands | Price sign | Station without plants | Placed stock plants | Whole placed station |
+| Seed | Store | Canopy/islands | Sign | Without plants | Placed plants | Total |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 101 | 34,306 | 12,806 | 1,516 | 86,066 | 106,172 | 192,238 |
-| 102 | 30,058 | 9,626 | 1,044 | 71,684 | 106,172 | 177,856 |
-| 103 | 34,526 | 16,106 | 1,516 | 96,100 | 111,760 | 207,860 |
-| 104 | 32,054 | 12,806 | 1,044 | 83,556 | 106,172 | 189,728 |
+| 101 | 34,308 | 13,098 | 1,516 | 106,490 | 106,172 | 212,662 |
+| 102 | 30,060 | 9,826 | 1,044 | 90,494 | 106,172 | 196,666 |
+| 103 | 34,528 | 16,490 | 1,516 | 119,476 | 111,760 | 231,236 |
+| 104 | 32,058 | 13,098 | 1,044 | 106,460 | 106,172 | 212,632 |
 
-Default seed's other parts: paving 3,634; separate service-wear ribbons 256;
-tank pad 1,164; vents 376; trash/washer 1,116 each; ice cabinet 1,776;
-propane cage/cylinders/doors 4,474; dumpster yard/container/gates/lids 3,224;
-air/water 1,570; store bollard 256 each; accessible sign 416; light pole 348 each.
-The store and canopy are within 45k/18k. The price sign stays below the preferred
-2k lower end because its construction does not need filler geometry.
+Store ≤45k, canopy ≤18k and each dispenser 5,160 ≤6k. The sign uses fewer
+than the preferred 2k lower end because its accepted construction needs no
+filler geometry. Botanical placements are
+not unique GPU geometry: each Boxwood instance shares the same 5,588 triangles.
+The additional paving vertices carry the station-only repeat/traffic correction;
+raised bark pieces supply close-range relief without another material.
+`build/delivery-check.json` records unique geometry and measured UV densities,
+normal errors, actual lens/support probes, and source/import surface errors.
 
-`build/delivery.json` and `build/delivery-check.json` record exact per-seed
-geometry bytes, embedded-GLB bytes, unique mesh triangles, material primitives,
-shared PNG bytes, UV density and import errors. Placed shrub triangles are not
-unique GPU geometry: seed 101's unique mesh total is 91,654 triangles.
-The large embedded build GLBs duplicate no images internally but include the
-existing ground/shrub PNG payloads; external deliveries share those resources.
+| Seed | glTF + BIN bytes | Embedded build GLB bytes | Materials | Placed material primitives |
+| --- | ---: | ---: | ---: | ---: |
+| 101 | 13,186,355 | 66,729,400 | 9 | 112 |
+| 102 | 11,467,051 | 62,644,132 | 9 | 102 |
+| 103 | 14,444,302 | 67,987,368 | 10 | 123 |
+| 104 | 13,182,568 | 64,160,228 | 9 | 111 |
 
-
-| Seed | glTF + geometry BIN bytes | Embedded build GLB bytes | Materials |
-| --- | ---: | ---: | ---: |
-| 101 | 10,714,116 | 73,894,428 | 18 |
-| 102 | 9,241,258 | 70,055,664 | 18 |
-| 103 | 11,696,735 | 74,876,996 | 19 |
-| 104 | 10,586,865 | 71,201,832 | 18 |
-
-The 17 new PNGs occupy 12,295,219 bytes on disk.
-The material counts include separate tiled construction finishes, ground,
-foliage, glass, transparent wear, graphics and operational lamp states; they
-are not a claim of one draw call for a whole station.
+The 18 shared new PNGs occupy **10,059,586 bytes**. Geometry buffers exclude images.
+All 27 unique family PNGs occupy 54,486,472 bytes including reused
+ground/shrubs; the default station references 53,541,730 image bytes.
+Four glTF/BIN pairs total 52,280,276 bytes.
+Glass uses KHR transmission/IOR/specular; native lamp radiance uses
+KHR_materials_emissive_strength. Use an importer supporting those standard
+extensions. Canonical image identities let a scene load each map once; a same-scene import
+of all four seeds and a repeat independently checks actual image reuse.
 
 ## Parts, pivots and generator
 
@@ -179,62 +189,117 @@ quads allow UV-selected brand changes without different logo geometry.
 Retail walls/openings, storefronts, coping, services and fit-out remain reusable
 within this family for the later strip mall. No strip mall is built this round.
 
-## Rebuild and review
+## Rebuild and proof
 
 ```sh
 make -C commercial WIDTH=1600 SAMPLES=48
 make -C commercial check
-make -C commercial export
-make -C commercial match
-make -C commercial before-after
 make -C commercial repeat
+python3 kit/repo_check.py
 ```
 
-The default command rebuilds original fields/bakes/maps, four sources and
-shared-image exports, checks, Cycles checkpoint views, used-photo pairs and
-before/after form crops. GPU work holds the shared kit lock; scratch stays under
-worktree build/. Missing stock ground, shrubs, house and oak presentation
-exports build with their families' own Makefiles; existing exports stay intact.
-No kit source changed.
+`make` generates fields, GPU bakes and shared images; builds four sources and
+external deliveries; checks them; renders the exported station in Cycles and
+Eevee; composes five used-photo pairs and eight before/after crops; generates
+bounded documentation JPGs. GPU jobs hold the kit lock. Work stays under
+build/. Existing family deliveries are preserved. No kit code changes.
 
 | Output | Evidence |
 | --- | --- |
-| `renders/look-checkpoint/hero.png` | Opposite sidewalk, 1.60 m eye, 40 mm lens, verticals vertical; entry clear of monument |
-| `renders/look-checkpoint/seeds/<seed>/{street,above}.png` | Four corners and whole-property views fitted to actual exported vertices |
-| `renders/look-checkpoint/{dispenser,canopy,column,entry,sign,rear,services,asphalt,landscape}.png` | Construction, services, material and causal age close-ups |
-| `renders/look-checkpoint/dusk.png` | Exported canopy, prices, brand/store panels and interior lit |
-| `renders/look-matches/*-pair.jpg` | Five calibrated used-photo comparisons, explicit procedural sun/sky and neutral balance |
-| `renders/look-matches/*-values.jpg` | Fixed display-value and hue patches; differences retained in values.json |
-| `renders/form-fixes/*-before-after.jpg` | Seven fixed-camera crops; before rebuilt from our accepted Git version |
-| `renders/look-checkpoint/contact.jpg` | Full checkpoint contact sheet |
-| `build/checks.json`, `build/motion-*.json` | Surface probes, 948 total sampled 5° door/gate/lid poses, native ground interface |
-| `build/plan-check.json` | 1,000 pickup routes with occupied parking; tightest SAT gap .225 m |
-| `build/delivery-check.json`, `build/look-view-check.json` | Actual geometry/UV/normal/image reuse; current source/image/context hashes |
+| `renders/final/hero.png` | Opposite sidewalk, measured 1.60 m eye, 40 mm, verticals vertical |
+| `renders/final/seeds/<seed>/{street,above}.png` | All four corners, property fitted to actual exported vertices |
+| `renders/final/{dispenser,entry,sign,asphalt}.png` | Hoses, storefront, sign and absorbed forecourt wear |
+| `renders/final/{canopy,column,rear,services,landscape}.png` | Construction, services, bark and plant details |
+| `renders/final/{front,side,back,top,scale}.png` | Turnaround and measured 1.8 m silhouette |
+| `renders/final/dusk.png`, `renders/final-eevee/hero.png` | Lit station and real-time view |
+| `renders/final/contact.jpg`, `matched-pairs.jpg`, `values.jpg` | Current finals and compact comparison sheets |
+| `renders/look-matches/*-pair.jpg` | Five neutral-balanced photographs paired under estimated matching sun/sky |
+| `renders/delivery-fixes/*-before-after.jpg` | Eight fixed-camera crops against accepted `dba25d4` |
+| `build/checks.json`, `motion-*.json`, `plan-check.json` | Actual surfaces, swept leaves, 1,000 pickup routes and negative controls |
+| `build/delivery-check.json`, `final-view-check.json` | Actual image sharing, charts, normals, package and image provenance |
+| `build/repeat-check.json`, `brand-swap-check.json`, `preservation.json` | Byte repeat, equal-geometry brands and protected family bytes |
 
-Photo cameras fit selected structure, not entire stations: PA 2006 canopy
-1.66 px RMS; CA 2009 dispenser .28 px; PA forecourt crop 3.43 px; TX 2004
-entry .58 px; supplementary VA 2009 paving 19.26 px with a 1.65 m eye prior.
-Sun elevations/directions are estimates from visible shadows;
-photos do not supply surveyed solar positions, camera response or albedos.
-The five comparisons use four photographs, with two PA crops. Neutral ROIs
-and linear gains are in `build/reference-balance.json`.
+PA canopy fit: 1.66 native pixels RMS; CA dispenser .28; PA forecourt 3.43;
+TX entry .58. Supplementary VA paving: 19.26 px with a 1.65 m eye prior, a
+weaker fit. Five comparisons use four photographs (two PA crops). Procedural
+sun vectors follow visible shadow directions/lengths, without downloaded
+HDRIs. These are estimates, rather than surveyed solar positions or inverse
+albedo measurements. `build/reference-balance.json` records each neutral ROI
+and linear gain before any value comparison. Fixed display Y′ medians follow.
 
-Fixed display Y′ medians (export / balanced photograph; not albedos):
-
-| Surface | Export | Photo | Relative difference |
+| Surface | Export | Balanced photo | Difference |
 | --- | ---: | ---: | ---: |
-| soffit | 0.434 | 0.417 | +4.2% |
-| concrete | 0.636 | 0.795 | -20.0% |
-| dark cabinet | 0.159 | 0.135 | +17.9% |
-| eifs | 0.692 | 0.663 | +4.4% |
-| asphalt | 0.544 | 0.466 | +16.8% |
+| soffit | 0.423 | 0.417 | +1.5% |
+| concrete | 0.777 | 0.795 | -2.3% |
+| dark cabinet | 0.128 | 0.135 | -4.8% |
+| eifs | 0.667 | 0.663 | +0.5% |
+| asphalt | 0.447 | 0.466 | -4.1% |
 
-Remaining limitations are recorded in REVIEW: the PA concrete remains darker
-than its very bright photograph, VA asphalt is brighter than its comparator,
-the photographed soffit is warmer, and exact
-black-surround/EIFS appearance differs between manufacturers and lighting.
-The original station plan, single column row, flat fascia and stored hoses
-are not copies of those photographed systems. Repetition, regular construction,
-flat bark relief and simple package geometry remain visible close up. The
-finest wear is weaker from the opposite sidewalk than in detail views; this is
-not presented as a perfect photograph or an accepted portfolio final.
+The concrete control now samples bare sunlit cement ahead of the longer
+fueling footprint; the original patch contains visible deposits. The strict
+nine-ray material check is retained. The cabinet ROI was narrowed after rays
+exposed rubber hose inside the old
+wide patch (.107 mixed value). All five current ROIs have nine actual
+exported surface/finish ray checks in `build/value-surface-check.json`.
+These are display measurements under estimated matching light, not albedos.
+
+
+## Credits and limits
+
+Original geometry, procedural fields, graphics, Rillway/Latchline marks and
+Cairn M3 dispenser design. DejaVu system fonts are found
+through `kit/fonts.py`. References are credited with rights and comparison use
+in [refs/SOURCES.md](refs/SOURCES.md); original stock ground, Boxwood, house and
+oak assets come from this repository. No reference image contributes texels.
+
+The clean `make WIDTH=1600 SAMPLES=48 WRITE_DOCS=0` replay began with empty
+commercial build, map, export and render directories, retaining references
+and immutable family deliveries. It completed after correcting the bare-cement
+measurement control; docs were generated after the native-size review.
+`make check`, `make repeat` and the repository check pass. Repeat:
+66,729,400 byte-identical bytes; both brands retain 177 frames and 22 image
+payloads. The final provenance gate verifies 30 Cycles images and one Eevee
+image against the current exported geometry, maps, context and recipe.
+
+Every final was opened at native resolution before committing docs. Passes
+13–18 in REVIEW record the fixes, rejected frames and remaining limits.
+Hero architecture spans 74.9% of the frame at measured 1.60 m / 40 mm. Its
+conservative projected architectural/equipment mask has display Y′ p1/p50/p95/p99 of
+.041/.266/.631/.776; .26% clips white, concentrated in powered lenses/ink.
+Source/import position error remains under 8 µm and all 48 actual canopy
+lens openings are independently probed across the four seeds.
+
+Remaining CG tells: the six repeated product fronts, very regular masonry
+and joinery, simplified fine bark depth and repeated neighborhood prototypes.
+The ground atlas has a broad repeat; the commercial correction reduces it
+without changing that family's bytes, but some aggregate rhythm survives in
+extreme overhead views. Eevee's cached indirect light restores the soffit;
+its shadows and glass still differ from the Cycles judgments. Photograph fits
+and unknown camera responses limit exact comparisons. No tool, permission or
+kit change is needed; the broad ground-field repeat is an upstream finding.
+
+
+The hero revision keeps the accepted camera, construction, emission and
+detail/dusk lighting. A lateral procedural sun separates front/side values
+and casts the canopy shadow across the slab. Original neighborhood houses,
+trees and street lights sit along continuing native streets; none ships in
+the station. Top retains the surrounding ground, and the period canopy
+comparison renders its procedural sky opaque under the retained matched sun.
+
+Fixed sunlit-paving masks (`src/hero_review.py`) measure pixels at least 4%
+below each region's clean p85 Y′. Coverage / median deposit contrast:
+
+| Pair | Before | After | Balanced photo |
+| --- | --- | --- | --- |
+| Used forecourt | 19.0% / 11.9% | 37.2% / 9.0% | 31.5% / 6.8% |
+| Used asphalt | 23.4% / 4.9% | 63.3% / 10.5% | 59.2% / 9.1% |
+
+These are projected appearance estimates with annotated masks, not surveyed
+surface areas or chemical oil segmentation; aggregate, residual joints,
+different layouts and estimated light limit the comparison. An additional
+8% threshold is recorded in `renders/hero-review/wear-measurements.json`.
+Native-pixel before/after hero crops cover forecourt, fascia, driveway,
+lighting and setting. Recreate the current masks with
+`python3 src/hero_review.py`; supply `--before <saved-render-folder>` to compare
+a retained earlier render. Close paving still exposes some softness in the
+shared ink atlas, and repeated house/tree prototypes remain recognizable.

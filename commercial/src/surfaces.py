@@ -110,6 +110,29 @@ def charts(ob,role,cell=None,strip=None,coverage=1):
    else:uv.data[li].uv=(u/coverage,v/coverage)
 
 
+def graphic_chart(ob,key,lit=False):
+ catalogue=json.loads((FOLDER/'graphics.json').read_text());r=catalogue[key]['rect']
+ uv=ob.data.uv_layers.active or ob.data.uv_layers.new(name='UVMap');uv.name='UVMap'
+ em=ob.data.uv_layers.get('EmissionUV') or ob.data.uv_layers.new(name='EmissionUV')
+ blank=catalogue['Blank']['rect'];off=((blank[0]+blank[2])/2,(blank[1]+blank[3])/2)
+ if not ob.get('graphic'):
+  charts(ob,'Wear' if key.startswith('Wear:') else 'Lamp',cell=ob.get('wear_cell')) if ob.get('swept_wear') else None
+  # Every small face fits its swatch; the wide wear quads use true corner UVs.
+  coords=[v.co for v in ob.data.vertices]
+  for poly in ob.data.polygons:
+   axis=max(range(3),key=lambda k:abs(poly.normal[k]));axes=[(1,2),(0,2),(0,1)][axis]
+   ids=range(len(coords)) if key.startswith('Wear:') else poly.vertices
+   bounds=[(min(coords[i][a] for i in ids),max(coords[i][a] for i in ids)) for a in axes]
+   for li in poly.loop_indices:
+    i=ob.data.loops[li].vertex_index
+    if ob.get('swept_wear'):u=i%2;v=(i//2)/(len(coords)//2-1)
+    else:u,v=[(coords[i][a]-lo)/max(hi-lo,1e-8) for a,(lo,hi) in zip(axes,bounds)]
+    if ob.get('wear_flip'):u=1-u
+    uv.data[li].uv=(r[0]+u*(r[2]-r[0]),r[1]+v*(r[3]-r[1]))
+ for li in range(len(ob.data.loops)):em.data[li].uv=uv.data[li].uv if lit else off
+ ob.data.uv_layers.active=uv
+
+
 def weather(q,name,role,ob,meta):
  x,y,z=q;b=meta['building'];amount=0
  # Low grade splash follows roughness in a narrow decaying zone, not a band.
@@ -120,11 +143,12 @@ def weather(q,name,role,ob,meta):
   # Runoff starts at the actual coping joints and dies down the wall.
   top=b['parapet'];u=x if 'Side' not in name and 'wainscot' not in name else y
   joint=abs((u+b['width']/2-.20+1.2192)%2.4384-1.2192)
-  amount+=.34*math.exp(-(joint/.095)**2)*math.exp(-max(0,top-z)/.62)
+  strength=.78+.22*math.sin(math.floor((u+b['width']/2-.20)/2.4384)*2.37+meta['seed'])**2
+  amount+=.30*strength*math.exp(-(joint/.14)**2)*math.exp(-max(0,top-z)/.62)
   if z<.5:amount+=.13*(.5+.5*math.sin(u*9.1))**4*max(0,1-z/.5)
  if 'Fascia' in name:
   u=x if ob.dimensions.x>ob.dimensions.y else y
-  seams=abs((u+1.2192)%2.4384-1.2192);amount+=.24*math.exp(-(seams/.08)**2)
+  seams=abs((u+1.2192)%2.4384-1.2192);amount+=.48*math.exp(-(seams/.16)**2)
  if any(s in name for s in ('Hydraulic','Dispenser plinth','Square canopy column','Column base','Pipe bollard','Column U guard')):
   localz=ob.matrix_world.inverted()@Vector(q)
   bottom=min((ob.matrix_world@v.co).z for v in ob.data.vertices)
@@ -147,30 +171,21 @@ def apply(meta):
  get_settings_group()
  mats={r:pbr('Commercial'+r,pair=c==2) for r,(size,cov,c) in SETS.items()}
  ground=Path(__file__).resolve().parents[2]/'ground/textures/ship'
- for r in ('Asphalt','Concrete','Lawn'):mats[r]=pbr(r,ground)
- # Smooth and split finishes share identical image identities.
+ for r in ('Asphalt','Lawn'):mats[r]=pbr(r,ground)
+ nt=mats['Asphalt'].node_tree;p=nt.nodes.get('Principled BSDF');source=p.inputs['Roughness'].links[0].from_socket
+ multiply=nt.nodes.new('ShaderNodeMath');multiply.operation='MULTIPLY';multiply.inputs[1].default_value=.88;nt.links.new(source,multiply.inputs[0]);nt.links.new(multiply.outputs[0],p.inputs['Roughness'])
+ # Smooth CMU shares the same image, with a distinct physical normal response.
  mats['SmoothCMU']=mats['CMU'].copy();mats['SmoothCMU'].name='CommercialSmoothCMU'
  next(n for n in mats['SmoothCMU'].node_tree.nodes if n.type=='NORMAL_MAP').inputs['Strength'].default_value=.20
  mats['Glass']=bpy.data.materials.new('CommercialGlass');mats['Glass'].use_nodes=True;mats['Glass']['tiling_vertex_tint']=False
  p=mats['Glass'].node_tree.nodes.get('Principled BSDF');p.inputs['Base Color'].default_value=(.94,.97,.96,1);p.inputs['Transmission Weight'].default_value=1;p.inputs['IOR'].default_value=1.52;p.inputs['Roughness'].default_value=.025
- # Mask and luminous variants reuse the very same graphic pixels.
- for state in ('Graphics','GraphicsLit'):
-  ma=bpy.data.materials.new('Commercial'+state);ma.use_nodes=True;ma['tiling_vertex_tint']=False
-  ns,ls=ma.node_tree.nodes,ma.node_tree.links;pp=ns.get('Principled BSDF');tex=ns.new('ShaderNodeTexImage');tex.image=bpy.data.images.load(str((FOLDER/'T_CommercialGraphics_BaseColor.png').resolve()),check_existing=True)
-  ls.new(tex.outputs['Color'],pp.inputs['Base Color']);ls.new(tex.outputs['Alpha'],pp.inputs['Alpha'])
-  pp.inputs['Roughness'].default_value=.53;ma.surface_render_method='DITHERED';ma.use_backface_culling=False
-  if state.endswith('Lit'):ls.new(tex.outputs['Color'],pp.inputs['Emission Color']);pp.inputs['Emission Strength'].default_value=1.7
-  mats[state]=ma
- mats['Emissive']=mats['Equipment'].copy();mats['Emissive'].name='CommercialEmissive'
- nt=mats['Emissive'].node_tree;pp=nt.nodes.get('Principled BSDF');color=pp.inputs['Base Color'].links[0].from_socket;nt.links.new(color,pp.inputs['Emission Color']);pp.inputs['Emission Strength'].default_value=8
- for key,strength in (('CanopyLamp',180),('InteriorLamp',60),('WallPackLamp',75),('LotLamp',250)):
-  mats[key]=mats['Emissive'].copy();mats[key].name='Commercial'+key;mats[key].node_tree.nodes.get('Principled BSDF').inputs['Emission Strength'].default_value=strength
- mats['LED']=mats['Emissive'].copy();mats['LED'].name='CommercialPriceLED'
- nt=mats['LED'].node_tree;pp=nt.nodes.get('Principled BSDF')
- for link in list(pp.inputs['Emission Color'].links):nt.links.remove(link)
- pp.inputs['Emission Color'].default_value=(.88,.24,.025,1);pp.inputs['Emission Strength'].default_value=3
- mats['Wear']=mats['Equipment'].copy();mats['Wear'].name='CommercialWear'
- nt=mats['Wear'].node_tree;tex=next(n for n in nt.nodes if n.type=='TEX_IMAGE' and '_BaseColor' in n.image.name);nt.links.new(tex.outputs['Alpha'],nt.nodes.get('Principled BSDF').inputs['Alpha']);mats['Wear'].surface_render_method='DITHERED';mats['Wear'].use_backface_culling=False
+ ma=bpy.data.materials.new('CommercialGraphics');ma.use_nodes=True;ma['tiling_vertex_tint']=False
+ ns,ls=ma.node_tree.nodes,ma.node_tree.links;pp=ns.get('Principled BSDF');tex=ns.new('ShaderNodeTexImage');tex.image=bpy.data.images.load(str((FOLDER/'T_CommercialGraphics_BaseColor.png').resolve()),check_existing=True)
+ ls.new(tex.outputs['Color'],pp.inputs['Base Color']);ls.new(tex.outputs['Alpha'],pp.inputs['Alpha'])
+ pp.inputs['Roughness'].default_value=.55;ma.surface_render_method='DITHERED';ma.use_backface_culling=False
+ emi=ns.new('ShaderNodeTexImage');emi.image=bpy.data.images.load(str((FOLDER/'T_CommercialGraphics_Emission.png').resolve()),check_existing=True);emi.image.colorspace_settings.name='sRGB'
+ u=ns.new('ShaderNodeUVMap');u.uv_map='EmissionUV';ls.new(u.outputs['UV'],emi.inputs['Vector']);ls.new(emi.outputs['Color'],pp.inputs['Emission Color']);pp.inputs['Emission Strength'].default_value=300
+ mats['Graphics']=ma
  rows={};bpy.context.view_layer.update()
  objects=[o for o in bpy.context.scene.objects if o.type=='MESH']
  dg=bpy.context.evaluated_depsgraph_get();evaluated=[]
@@ -182,11 +197,12 @@ def apply(meta):
   if index%400==0:print('SURFACES',index,'/',len(objects),ob.name,flush=True)
   old=ob.data.materials[0];role=old.name.removeprefix('Form_').split('.')[0];name=ob.name
   if ob.get('wear_cell'):
-   ob.data.materials.clear();ob.data.materials.append(mats['Wear']);charts(ob,'Wear',cell=ob['wear_cell']);tint_layer(ob,[(1,1,1)]*len(ob.data.vertices));continue
+   ob.data.materials.clear();ob.data.materials.append(mats['Graphics']);graphic_chart(ob,'Wear:'+ob['wear_cell']);continue
   if ob.get('graphic'):
-   role=ob['graphic_role'];lit=(role in ('Light','Logo') and any(t in name for t in ('Canopy','Store brand','Price brand'))) or role=='Lamp';material=mats['GraphicsLit' if lit else 'Graphics']
-   col=M[role].node_tree.nodes.get('Principled BSDF').inputs['Base Color'].default_value[:3]
-   ob.data.materials.clear();ob.data.materials.append(material);tint_layer(ob,[col]*len(ob.data.vertices));continue
+   role=ob['graphic_role'];lit=role in ('Light','Logo') and any(t in name for t in ('Canopy','Store brand','Price brand'))
+   ob.data.materials.clear();ob.data.materials.append(mats['Graphics']);graphic_chart(ob,ob['graphic_string'],lit);continue
+  if role=='Primary' and any(q in name for q in ('Store brand backing','Price brand backing')):
+   ob.data.materials.clear();ob.data.materials.append(mats['Graphics']);graphic_chart(ob,'BrandRillway' if meta['brand']=='rillway' else 'BrandLatchline',True);continue
   # Evaluate manufacturing bevels before causal planar sampling.
   wall=role=='Wall';fascia='Fascia' in name
   subdivide(ob,wall,fascia)
@@ -207,25 +223,28 @@ def apply(meta):
    style=meta['building']['wall'];key='Brick' if style=='brick' else 'EIFS' if style=='eifs' else 'CMU' if style=='split_cmu' or 'wainscot' in name or 'Pilaster precast foot' in name else 'SmoothCMU'
    material=mats[key];cell=None;coverage=SETS['CMU' if key=='SmoothCMU' else key][1]
   elif role in ('Concrete','Asphalt','Green'):
-   material=mats['Lawn' if role=='Green' else role];cell=None;coverage=6.096 if role=='Asphalt' else 3.048
+   material=mats['Lawn' if role=='Green' else role];cell=None;coverage=6.096 if role=='Asphalt' else 1.524 if role=='Concrete' else 3.048
   elif role=='Roof':material=mats['Roof'];cell=None;coverage=SETS['Roof'][1]
+  elif ob.get('rust_finish'):cell='Rust'
   elif ob.get('package') is not None:cell='Package'+str(ob['package'])
   elif role=='Glass':material=mats['Glass'];cell=None
   elif role in ('Lamp','LED','Logo','Light'):
-   material=mats['LED'] if role=='LED' else mats['Emissive'];cell='Lens' if role=='Lamp' else 'Light';base=(.56,.62,.64) if role=='Lamp' else (.75,.75,.71)
-   if role=='Lamp':material=mats['CanopyLamp' if 'luminaire' in name else 'InteriorLamp' if 'Ceiling' in name else 'WallPackLamp' if 'pack lens' in name else 'LotLamp' if name.startswith('Light lens') else 'Emissive']
-   target=M[role].node_tree.nodes.get('Principled BSDF').inputs['Base Color'].default_value[:3];col=tuple(min(1,a/c) for a,c in zip(target,base))
-  elif role in ('Metal','Trim','Primary','Accent','White') and not in_dispenser and not any(s in name for s in ('Dispenser','Hydraulic','Face insert','nozzle','Nozzle','Grade','Reader','Keypad','Payment','Sale','Card','Receipt','Product','groceries','Cooler product','Air','Ice','Trash','Squeegee','Washer','Towel','Cage','Cylinder')):
-   material=mats['Trim'];cell=None;strip=TRIM[role]
-   if 'Soffit' in name:strip=TRIM['Soffit']
-   if role in ('Primary','Accent'):
-    target=M[role].node_tree.nodes.get('Principled BSDF').inputs['Base Color'].default_value[:3];col=tuple(a/.85 for a in target)
+   key='PriceLED' if role=='LED' else 'CanopyLamp' if 'luminaire' in name else 'InteriorLamp' if 'Ceiling' in name else 'WallPackLamp' if 'pack lens' in name else 'LotLamp' if name.startswith('Light lens') else 'InteriorLamp'
+   ob.data.materials.clear();ob.data.materials.append(mats['Graphics']);graphic_chart(ob,key,True);continue
+  elif role=='Trim':cell='Black'
   if material==mats['Equipment'] and role in ('Primary','Accent'):
    cell='Primary';target=M[role].node_tree.nodes.get('Principled BSDF').inputs['Base Color'].default_value[:3];col=tuple(a/.86 for a in target)
+  if 'Soffit cladding' in name:col=(.78,.69,.56)
   if role in ('Primary','Accent') and any(s in name for s in ('Fascia','backing','crown','Entry canopy fascia')):
    front=ob.matrix_world.to_3x3()@Vector((0,-1,0));angle=math.radians(meta['yaw']);south=max(0,-(front.x*math.sin(angle)+front.y*math.cos(angle)))
    fade=.35*south;col=tuple(c*(1-.18*fade)+.055*fade for c in col)
   ob.data.materials.clear();ob.data.materials.append(material)
+  if role in ('Asphalt','Concrete'):
+   from paving import cut,tint
+   if ob.name.startswith('Lot asphalt'):cut(ob,.55)
+   elif ob.name.startswith('Fuel apron'):cut(ob,.90)
+   charts(ob,role,cell,strip,coverage);tint(ob,meta,role)
+   rows[name]=dict(role=role,material=material.name,cell=cell,strip=strip);continue
   charts(ob,role,cell,strip,coverage)
   values=[]
   for vertex in ob.data.vertices:
