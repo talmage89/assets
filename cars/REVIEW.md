@@ -3581,3 +3581,32 @@ normals and material assignments match across 471 objects / 442 meshes.
 Both source solid sweeps and coupled supports pass. The source close-ups are
 `build/hatch-delivery/source-fine/{face,gate}.png`; the exported candidate must
 still pass the final image audit.
+
+### Delivery pass 5 — isolate the rear glass and retain its accepted values
+
+Color/value first: the actual-GLB rear daylight trial retains side glass at
+122.52 against the white-balanced photograph's 123.68 and backlight at 122.01
+against 121.16. Paint, dirt and optical material factors remain held.
+
+The native rear gallery view has a split hook-shaped reflection in the lower
+backlight. Hiding negative-fill flags from glossy rays does not remove it.
+Opaque reflection-only glazing retains it, ruling out light seen through the
+cabin. Reflected-ray probes do not hit the car again. The lower field inherits
+a saddle/normal inflection from the adjacent die; an unconstrained whole-pane
+fit also incorporates the nearly horizontal header return. Both that fit and
+a local unconstrained fit retain the hook and are rejected.
+
+Fit the pane's own lower positions with its transverse crown and rake, using
+a gently convex longitudinal mold derivative. The 25 m longitudinal radius is
+an original design constraint, not a measured reference dimension. Blend it
+into the held header. The resulting game normal correction is at most 8.05°;
+no pane vertex, gauge, cut, tint, IOR or roughness changes. Its positional fit
+residual is 11.52 mm at p95 / 15.55 mm maximum: this is explicitly a **normal
+approximation**, not an exact positional reconstruction. The actual-GLB trial
+replaces the split hook with a coherent broad reflection and preserves the
+accepted measured value exactly. The source gallery confirms the same result.
+
+The source topology, dimensions, closure/steering/wheel solid sweeps, coupled
+supports and independent regeneration pass again. Re-bake and render the
+actual exported asset before generating the final docs. The accepted gallery
+studio recipe remains unchanged throughout; every ablation stays diagnostic.
