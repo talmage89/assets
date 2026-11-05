@@ -5,6 +5,7 @@ Tracks follow the entries and swept turns; repairs follow a buried-service
 trench. Vertical deposits start at actual folded joints and exposed steel.
 """
 import math,random
+import bmesh
 from geometry import *
 from plan import rotate,FT
 
@@ -38,7 +39,7 @@ def add(meta):
   x,y=island['center']
   for side in (-1,1):
    u,v=rotate((side*2.10,-.90),c['angle']);yaw=c['angle']+rng.uniform(-9,9)
-   decal('Fueling engine drips',(x+u,y+v,.014),1.45,2.25,'Oil'+str(rng.randrange(4)),r,yaw)
+   decal('Fueling engine drips',(x+u,y+v,.014),1.95,4.85,'Oil'+str(rng.randrange(4)),r,yaw)
    causes.append(dict(cause='engine drips at fueling position',center=(x+u,y+v,.014)))
   # Dirt at each plinth and where shoes work around both operating faces.
   for side in (-1,1):
@@ -50,7 +51,7 @@ def add(meta):
   xx=b['center_x']-b['width']/2+.15+(i+.5)*9*FT
   if abs(xx-meta['access']['center_x'])<1.3:continue
   yy=b['front']-meta['walk']-1.8
-  decal('Parked engine drips',(xx,yy,.003),1.30,1.70,'Oil'+str(i%4),r,rng.uniform(-8,8))
+  decal('Parked engine drips',(xx,yy,.003),1.80,3.7,'Oil'+str(i%4),r,rng.uniform(-8,8))
  # Tire contact sweeps enter from each opening and turn toward the canopy.
  for drive in meta['driveways']:
   dx,dy=drive['center'];south=drive['edge']=='south'
@@ -89,17 +90,41 @@ def add(meta):
  for i in range(int(w/2.4384)+1):
   x=-w/2+.20+i*2.4384
   for side in (-1,1):
-   decal('Coping seam runoff',(x,side*(d/2+.004),b['parapet']-.43),.22,.78,'Grime',store,0 if side<0 else 180,True)
+   flow=random.Random(meta['seed']*701+i*31+side);length=flow.uniform(.54,.94)
+   ob=decal('Coping seam runoff',(x,side*(d/2+.004),b['parapet']-.065-length/2),flow.uniform(.24,.36),length,'Grime',store,0 if side<0 else 180,True)
+   ob['wear_flip']=flow.random()>.5
+   if side>0:
+    # A deposit must not bridge the open drainage sleeve. Cut its actual
+    # aperture out of the non-solid overlay, retaining the full chart below.
+    bm=bmesh.new();bm.from_mesh(ob.data)
+    for sx in (-w*.35,w*.35):
+     lx=x-sx # rear overlay is rotated through 180 degrees
+     if abs(lx)>.31:continue
+     lo,hi=lx-.145,lx+.145;bottom=b['roof']+.017-ob.location.z;top=b['roof']+.163-ob.location.z
+     for axis,value in ((0,lo),(0,hi),(2,bottom),(2,top)):
+      point=[0,0,0];normal=[0,0,0];point[axis]=value;normal[axis]=1
+      bmesh.ops.bisect_plane(bm,geom=[*bm.verts,*bm.edges,*bm.faces],dist=1e-7,plane_co=point,plane_no=normal)
+     gone=[f for f in bm.faces if lo<f.calc_center_median().x<hi and bottom<f.calc_center_median().z<top]
+     bmesh.ops.delete(bm,geom=gone,context='FACES')
+    bm.to_mesh(ob.data);bm.free()
  for side in (-1,1):
   for j in range(9):
    y=-d/2+.7+j*(d-1.4)/8
    decal('Low masonry salt from moisture',(side*(w/2+.043),y,.34),.46,.40,'Salt',store,90 if side>0 else -90,True)
- # Paint impact is concentrated near bumper height and the exposed base.
+ # Paint loss follows scraped arcs, conforming to the real pipe surface.
+ # Rust is restricted to those exposed chips and to water at the base collar.
  for ob in list(bpy.context.scene.objects):
-  if ob.type!='MESH' or not ('Pipe bollard' in ob.name or 'Column U guard' in ob.name):continue
-  parent=ob.parent;xx,yy,_=ob.location
-  if 'Pipe bollard' in ob.name:
-   decal('Bollard impact scuff',(xx,yy-.0845,.28),.115,.24,'Scuff',parent,0,True)
-   decal('Bollard exposed steel corrosion',(xx,yy-.085,.09),.11,.12,'Rust',parent,0,True)
+  if ob.type!='MESH' or not ob.name.startswith('Pipe bollard'):continue
+  parent=ob.parent
+  for scar,(height,span) in enumerate(((.052,1.4),(.39,.70))):
+   vertices=[]
+   for i in range(10):
+    theta=-math.pi/2-span/2+span*i/9;z=height+.007*math.sin(i*2.7+meta['seed'])
+    thickness=(.025 if scar==0 else .010)*max(.10,math.sin(math.pi*i/9))
+    for dz in (-thickness,thickness):vertices.append((.0846*math.cos(theta),.0846*math.sin(theta),z+dz))
+   chip=mesh('Impact exposed paint chip',vertices,[(2*i,2*i+1,2*i+3,2*i+2) for i in range(9)],'Metal',parent,False)
+   if scar==0:
+    # Small irregular oxide fragments border only the actual chipped ring.
+    chip['rust_finish']=True
  meta['wear_causes']=dict(age_years=15,maintained=True,fueling_positions=causes,methods='Generated guarded footprints, swept contact paths, physical repair/seal ribbons, coping runoff, contact wear and broad COLOR_0')
  return r

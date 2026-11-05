@@ -22,6 +22,8 @@ def ground(meta):
    cp=ob.copy();bpy.context.collection.objects.link(cp);copies[ob]=cp;placed.append(cp)
   for ob,cp in copies.items():cp.parent=copies.get(ob.parent,parent);cp.matrix_basis=ob.matrix_basis.copy();cp.name=name+'__'+ob.name
   rt=copies[source];rt.location=loc;rt.rotation_mode='XYZ';rt.rotation_euler=(0,0,math.radians(yaw));rt.scale=scale
+  from paving import context_road
+  for cp in copies.values():context_road(cp,kind)
   return rt
  W,D=meta['lot'];core=8.6868;face=4.1148;back=4.2672;walkin=6.096
  cx=-W/2+1.2192-core;cy=-D/2+1.2192-core
@@ -86,4 +88,4 @@ def ground(meta):
    for ob,cp in copies.items():cp.parent=copies.get(ob.parent,rt);cp.matrix_basis=ob.matrix_basis.copy()
   from context import bundle
   dressing.append(bundle(source))
- return parent,dict(source='ground/export/Ground.glb',sha256=hashlib.sha256(path.read_bytes()).hexdigest(),placed_modules=len(placed),neighbor_dependencies=dressing,scope='Untouched library meshes/materials, presentation only')
+ return parent,dict(source='ground/export/Ground.glb',sha256=hashlib.sha256(path.read_bytes()).hexdigest(),placed_modules=len(placed),neighbor_dependencies=dressing,scope='Library geometry/materials with copied presentation-road color fields; all canonical files immutable')

@@ -11,7 +11,7 @@ import bpy,numpy as np
 from mathutils.kdtree import KDTree
 from kit.gltf import GLB
 from kit.image_io import read_png
-from deliver import bundle
+from deliver import bundle,part_materials
 from textures import SETS
 
 
@@ -62,6 +62,10 @@ def check(seed):
    if name.startswith('CommercialGraphics'):assert 'COLOR_0' not in attrs,'Ink must survive without glTF emission vertex tint'
   counts.append(count)
  assert normal_error<1e-5;assert zero==0,('Zero-area UVs',seed,zero);assert not chart_errors,chart_errors
+ parts=part_materials(d,meta);assert len(d['materials'])<=11
+ assert parts['Store']['material_count']<=7 and parts['Canopy']['material_count']<=4
+ assert all(v['material_count']<=2 for k,v in parts.items() if k.startswith('Dispenser_'))
+ assert sum('emissiveTexture' in m for m in d['materials'])==1
  placed=sum(counts[n['mesh']] for n in d['nodes'] if 'mesh' in n);assert placed==meta['total_triangles']
  # Actual local reusable-module counts include their real moving leaves.
  assert meta['triangles']['Store']<=45000 and meta['triangles']['Canopy']<=18000
@@ -78,7 +82,22 @@ def check(seed):
  t=tree(actual);s=tree(source);forward=max(t.find(p)[2] for p in source);reverse=max(s.find(p)[2] for p in actual)
  frame_error=max(float(abs(np.array(bpy.data.objects[n].matrix_world)-m).max()) for n,m in frames.items())
  assert max(forward,reverse)<2e-5 and frame_error<1e-5,(seed,forward,reverse,frame_error)
- return dict(seed=seed,passed=True,placed_triangles=placed,unique_mesh_triangles=sum(counts),per_part=meta['triangles'],materials=len(d['materials']),mesh_primitives=sum(len(m['primitives']) for m in d['meshes']),gltf_bytes=path.stat().st_size,bin_bytes=len(raw.binary),normal_length_max_error=normal_error,degenerate_uv_triangles=zero,chart_guard_errors=chart_errors,density_px_m={k:weighted(v) for k,v in density.items()},source_to_import_max_m=forward,import_to_source_max_m=reverse,pivot_socket_matrix_max_error=frame_error,images=image_rows,bundle_sha256=bundle(path))
+ # This is construction correctness: every actual soffit opening is closed
+ # by a lamp face below its frame, rather than a duplicated/occluded fixture.
+ from mathutils import Vector
+ from plan import rotate
+ c=meta['canopy'];lens=[]
+ for i in range(c['count']):
+  x=(i-(c['count']-1)/2)*c['pitch']
+  for side in (-1,1):
+   for y in (-c['depth']/2+2,c['depth']/2-2):
+    u,v=rotate((x+side*2.2,y),c['angle']);xx,yy=rotate((c['center'][0]+u,c['center'][1]+v),meta['yaw'])
+    hit,point,normal,index,obj,_=bpy.context.scene.ray_cast(bpy.context.evaluated_depsgraph_get(),Vector((xx,yy,c['clear']-.3)),Vector((0,0,1)),distance=.4)
+    assert hit and abs(point.z-(c['clear']-.003))<.002,(seed,'Missing or obstructed LED lens',xx,yy)
+    assert obj.data.materials[obj.data.polygons[index].material_index].name.startswith('CommercialGraphics')
+    lens.append(dict(position=list(point),normal=list(normal)))
+
+ return dict(seed=seed,passed=True,parts=parts,measured_lenses=lens,placed_triangles=placed,unique_mesh_triangles=sum(counts),per_part=meta['triangles'],materials=len(d['materials']),mesh_primitives=sum(len(m['primitives']) for m in d['meshes']),gltf_bytes=path.stat().st_size,bin_bytes=len(raw.binary),normal_length_max_error=normal_error,degenerate_uv_triangles=zero,chart_guard_errors=chart_errors,density_px_m={k:weighted(v) for k,v in density.items()},source_to_import_max_m=forward,import_to_source_max_m=reverse,pivot_socket_matrix_max_error=frame_error,images=image_rows,bundle_sha256=bundle(path))
 
 
 def maps():
@@ -90,7 +109,7 @@ def maps():
    a=read_png(p);error=float(abs(np.linalg.norm(a*2-1,axis=2)-1).max());assert error<.008,(p,error)
   assert p.read_bytes()==(Path('textures/ship')/p.name).read_bytes()
   rows.append(dict(file=p.name,size=list(im.size),bytes=p.stat().st_size,gpu_mib=im.width*im.height*4/3/1048576,normal_length_max_error=error))
- assert len(rows)==17 and abs(sum(r['gpu_mib'] for r in rows)-(39+2/3))<1e-6
+ assert len(rows)==18 and abs(sum(r['gpu_mib'] for r in rows)-29)<1e-6
  return rows
 
 
@@ -109,5 +128,5 @@ def reuse(seeds):
 
 if __name__=='__main__':
  a=argparse.ArgumentParser();a.add_argument('--seeds',default='101,102,103,104');a=a.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else []);seeds=list(map(int,a.seeds.split(',')))
- rows=[check(s) for s in seeds];result=dict(passed=True,rows=rows,maps=maps(),new_gpu_mib=39+2/3,image_reuse=reuse(seeds),scope='Raw serialization, chart/normal/density/image proof and fresh import; physical construction/motion separately in checks.json')
+ rows=[check(s) for s in seeds];result=dict(passed=True,rows=rows,maps=maps(),new_gpu_mib=29,image_reuse=reuse(seeds),scope='Raw serialization, chart/normal/density/image proof and fresh import; physical construction/motion separately in checks.json')
  Path('build/delivery-check.json').write_text(json.dumps(result,indent=2));print('DELIVERY_CHECK',[(r['seed'],r['placed_triangles'],r['unique_mesh_triangles']) for r in rows])

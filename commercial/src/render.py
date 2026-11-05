@@ -1,6 +1,6 @@
 """Cycles checkpoint from fresh imported GLB/glTF, with dependency provenance.
 
-Shared PBR maps stay intact. Operational day/dusk emission states are explicit;
+Shared PBR maps and their native emission stay intact in day and blue hour;
 own-library context remains presentation only and is never re-exported.
 """
 import argparse,hashlib,json,math,sys
@@ -21,20 +21,28 @@ def sha(p):return bundle(Path(p).resolve())['sha256'] if Path(p).suffix=='.gltf'
 def setup(samples,engine='CYCLES'):
  sc=bpy.context.scene;sc.render.engine=engine
  if engine=='CYCLES':gpu.enable();sc.cycles.samples=samples;sc.cycles.use_denoising=True
+ if engine=='BLENDER_EEVEE':
+  sc.eevee.use_raytracing=True;sc.eevee.ray_tracing_options.resolution_scale='1'
+  for mat in bpy.data.materials:
+   bs=mat.node_tree.nodes.get('Principled BSDF') if mat.use_nodes else None
+   if bs and bs.inputs['Transmission Weight'].default_value>0:
+    mat.use_raytrace_refraction=True;mat.thickness_mode='SLAB'
+    val=mat.node_tree.nodes.new('ShaderNodeValue');val.outputs[0].default_value=.004
+    out=next(n for n in mat.node_tree.nodes if n.type=='OUTPUT_MATERIAL');mat.node_tree.links.new(val.outputs[0],out.inputs['Thickness'])
  sc.world=bpy.data.worlds.new('Original sky');sc.world.use_nodes=True
  ns,ls=sc.world.node_tree.nodes,sc.world.node_tree.links;ns.clear()
  sky=ns.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(38);sky.sun_rotation=math.radians(220);sky.sun_disc=False;sky.air_density=1;sky.aerosol_density=.3
- saturation=ns.new('ShaderNodeHueSaturation');saturation.name='Sky chroma';saturation.inputs['Saturation'].default_value=.45
+ saturation=ns.new('ShaderNodeHueSaturation');saturation.name='Sky chroma';saturation.inputs['Saturation'].default_value=1
  ls.new(sky.outputs[0],saturation.inputs['Color'])
- bg=ns.new('ShaderNodeBackground');bg.inputs['Strength'].default_value=.13
+ bg=ns.new('ShaderNodeBackground');bg.inputs['Strength'].default_value=.025
  mix=ns.new('ShaderNodeMixRGB');mix.name='Ambient balance';mix.inputs[0].default_value=0;mix.inputs[2].default_value=(1,1,1,1)
  out=ns.new('ShaderNodeOutputWorld');ls.new(saturation.outputs[0],mix.inputs[1]);ls.new(mix.outputs[0],bg.inputs[0]);ls.new(bg.outputs[0],out.inputs[0])
  ld=bpy.data.lights.new('Sun','SUN');ob=bpy.data.objects.new('Sun',ld);sc.collection.objects.link(ob)
- ld.energy=3.3;ld.angle=math.radians(.6);ld.color=(1,.97,.92)
+ ld.energy=6;ld.angle=math.radians(.65);ld.color=(1,.97,.93)
  ob.rotation_euler=Vector((.5,.7,-1)).to_track_quat('-Z','Y').to_euler()
  cam=bpy.data.objects.new('ReviewCamera',bpy.data.cameras.new('ReviewCamera'));sc.collection.objects.link(cam);sc.camera=cam
  cam.data.sensor_fit='HORIZONTAL';cam.data.sensor_width=36;cam.data.clip_start=.025;cam.data.clip_end=4000
- sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=-.15
+ sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=.25
  sc.view_settings.use_white_balance=True;sc.view_settings.white_balance_temperature=6500
  sc.render.image_settings.file_format='PNG';sc.render.image_settings.color_mode='RGBA'
  return cam
@@ -56,12 +64,15 @@ def views(p):
  services=dict(location=(b['width']/2+5,b['front']+b['depth']*.20-3,2.0),target=(b['width']/2,b['front']+b['depth']*.20+1.9,1.7),lens=50,aspect=1.5),
  asphalt=dict(location=(x+4,y-4,3.1),target=(x+2.0,y-.2,.08),lens=48,aspect=1.5),
  landscape=dict(location=(W/2-4,D/2-8,1.5),target=(W/2-.65,D/2-3,.45),lens=50,aspect=1.5),
- dusk=dict(location=(-W/2-24,-D/2-14.35,1.60),target=(0,-3,1.60),lens=40,aspect=2.65,shift_y=.025,dusk=True,sky_strength=.025,sun_elevation=2,sun_energy=0,exposure=.6),
+ dusk=dict(location=(-W/2-24,-D/2-14.35,1.60),target=(0,-3,1.60),lens=40,aspect=2.65,shift_y=.025,dusk=True,sky_strength=.4,sky_saturation=1,sun_elevation=-3,sun_energy=0,exposure=2.2),
  motion=dict(location=(3,b['front']-6,1.7),target=(0,b['front']+.2,1.55),lens=43,aspect=1.4),
  )
  result={k:{**v,'location':rotate(v['location'],p['yaw']),'target':rotate(v['target'],p['yaw'])} for k,v in shots.items()}
  # Common geographic overhead makes the four real corner orientations visible.
  result['above']=shots['above']
+ result.update({k:dict(location=rotate(loc,p['yaw']),target=rotate((0,0,3.4),p['yaw']),ortho=max(W,D)+10,lens=45,aspect=5.2) for k,loc in (('front',(0,-90,3.4)),('back',(0,90,3.4)),('side',(90,0,3.4)))})
+ result['top']=dict(location=(0,.001,100),target=(0,0,0),ortho=max(W,D)+11,aspect=1)
+ result['scale']=dict(location=rotate((x+8,y-11,2.0),p['yaw']),target=rotate((x,y+1,2.0),p['yaw']),lens=38,aspect=1.65,human=True)
  return result
 
 
@@ -141,14 +152,24 @@ def render(source,out,names,width,samples,camera_file=None,engine='CYCLES'):
  else:
   road=context_roads(meta);road.rotation_euler.z=math.radians(meta['yaw']);ground_record=None
  camera=setup(samples,engine);shots=views(meta);ctx=[]
+ figures=[]
  if 'scale' in names:
+  import importlib.util
+  spec=importlib.util.spec_from_file_location('_commercial_human',HERE.parents[1]/'houses/src/render.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+  ix,iy=meta['islands'][0]['center'];xx,yy=rotate((ix+1.8,iy-2.4),meta['yaw'])
+  hit,point,_,_,_,_=bpy.context.scene.ray_cast(bpy.context.evaluated_depsgraph_get(),Vector((xx,yy,.5)),Vector((0,0,-1)),distance=1)
+  assert hit;figures=module.human((xx,yy,point.z))
+  for ob in figures:ob.hide_render=True
+ if 'context_scale' in names:
   if meta['yaw']!=0:raise ValueError('Scale comparison uses seed 101 canonical corner')
-  shots['scale'],ctx=context(meta)
+  shots['context_scale'],ctx=context(meta)
  if camera_file:shots={k:d['shot'] for k,d in json.loads(camera_file.read_text()).items()}
  out.mkdir(parents=True,exist_ok=True);records={}
- emission={m:p.inputs['Emission Strength'].default_value for m in bpy.data.materials if m.use_nodes for p in [m.node_tree.nodes.get('Principled BSDF')] if p}
  for name in names:
   shot=dict(shots[name]);camera.location=shot['location'];camera.rotation_euler=(Vector(shot['target'])-camera.location).to_track_quat('-Z','Y').to_euler();camera.rotation_euler.rotate_axis('Z',shot.get('roll',0))
+  for ob in figures:ob.hide_render=not shot.get('human',False)
+  for ob in set(bpy.context.scene.objects)-assets-{camera,bpy.data.objects['Sun']}-set(figures):
+   if ob.type=='MESH':ob.hide_render=name in ('front','side','back','top')
   eye=None;camera.data.shift_y=shot.get('shift_y',0)
   if name in ('hero','street') and camera_file is None:
    bpy.context.view_layer.update();hit,point,_,_,surface,_=bpy.context.scene.ray_cast(bpy.context.evaluated_depsgraph_get(),Vector((camera.location.x,camera.location.y,1000)),Vector((0,0,-1)))
@@ -167,22 +188,28 @@ def render(source,out,names,width,samples,camera_file=None,engine='CYCLES'):
   framing=None
   if name=='above':
    framing=frame_property(camera,assets);shot['lens']=float(camera.data.lens)
-  bg=next(n for n in sc.world.node_tree.nodes if n.type=='BACKGROUND');bg.inputs['Strength'].default_value=shot.get('sky_strength',.13)
+  bg=next(n for n in sc.world.node_tree.nodes if n.type=='BACKGROUND');bg.inputs['Strength'].default_value=shot.get('sky_strength',.025)
   sc.world.node_tree.nodes['Ambient balance'].inputs[0].default_value=shot.get('neutral_ambient',0)
-  sc.world.node_tree.nodes['Sky chroma'].inputs['Saturation'].default_value=shot.get('sky_saturation',.45)
-  sun=bpy.data.objects['Sun'];sun.rotation_euler=Vector(shot.get('sun_direction',(.5,.7,-1))).to_track_quat('-Z','Y').to_euler()
-  sun.data.energy=shot.get('sun_energy',3.3)
-  direction=shot.get('sun_direction',(.5,.7,-1));elevation=math.degrees(math.atan2(-direction[2],math.hypot(*direction[:2])));rotation=math.degrees(math.atan2(-direction[1],-direction[0]))
+  sc.world.node_tree.nodes['Sky chroma'].inputs['Saturation'].default_value=shot.get('sky_saturation',1)
+  direction=shot.get('sun_direction',(.35,.75,-.8))
+  sun=bpy.data.objects['Sun'];sun.rotation_euler=Vector(direction).to_track_quat('-Z','Y').to_euler()
+  sun.data.energy=shot.get('sun_energy',6)
+  elevation=math.degrees(math.atan2(-direction[2],math.hypot(*direction[:2])));rotation=math.degrees(math.atan2(-direction[1],-direction[0]))
   sky=next(n for n in sc.world.node_tree.nodes if n.type=='TEX_SKY');sky.sun_elevation=math.radians(shot.get('sun_elevation',-4 if shot.get('dusk') else elevation));sky.sun_rotation=math.radians(shot.get('sun_rotation',rotation))
-  sc.view_settings.exposure=shot.get('exposure',-.15)
-  for material,strength in emission.items():
-   factor=1
-   if any(t in material.name for t in ('CanopyLamp','WallPackLamp','LotLamp')):factor=1 if shot.get('dusk') else 0
-   elif 'GraphicsLit' in material.name:factor=1 if shot.get('dusk') else .10
-   material.node_tree.nodes.get('Principled BSDF').inputs['Emission Strength'].default_value=strength*factor
+  sc.view_settings.exposure=shot.get('exposure',.25)
+  if engine=='BLENDER_EEVEE':
+   # Eevee needs a local diffuse cache for sky/bounce light beneath the roof.
+   # This is presentation lighting, never a substitute material or export.
+   bpy.ops.object.lightprobe_add(type='VOLUME',location=(0,0,3.2));probe=bpy.context.object;probe.name='Station sky and bounce cache';probe.scale=(30,30,4)
+   probe.data.resolution_x=16;probe.data.resolution_y=16;probe.data.resolution_z=5;probe.data.bake_samples=64
+   probe.data.capture_world=True;probe.data.capture_indirect=True;probe.data.capture_emission=True
+   bpy.ops.object.lightprobe_cache_bake(subset='ALL')
   path=out/(name+'.png');sc.render.filepath=str(path.resolve());bpy.ops.render.render(write_still=True)
   if name=='hero':tone(path,camera,assets)
-  records[name]=dict(source=str(source),sha256=sha(source),image_sha256=sha(path),camera=shot,eye_measurement=eye,framing_measurement=framing,width=width,samples=samples,engine=engine,stage=meta['stage'],context=ctx,ground=ground_record,recipe_sha256=recipe())
+  if name=='scale':
+   points=[o.matrix_world@v.co for o in figures for v in o.data.vertices];height=max(q.z for q in points)-min(q.z for q in points);assert abs(height-1.8)<.001
+   path.with_suffix('.scale.json').write_text(json.dumps(dict(measured_height_m=height,foot_surface_z_m=min(q.z for q in points),scope='Actual generated silhouette vertices and ray-hit support surface'),indent=2))
+  records[name]=dict(source=str(source),sha256=sha(source),image_sha256=sha(path),camera=shot,lighting=dict(sun_energy=sun.data.energy,sun_direction=direction,sky_strength=bg.inputs['Strength'].default_value,sky_elevation_degrees=math.degrees(sky.sun_elevation),exposure=sc.view_settings.exposure),eye_measurement=eye,framing_measurement=framing,width=width,samples=samples,engine=engine,stage=meta['stage'],context=ctx,ground=ground_record,recipe_sha256=recipe())
  for row in ctx:
   if bundle(HERE.parents[1]/row['source'])!=row:raise AssertionError('Presentation changed a context export')
  old=json.loads((out/'provenance.json').read_text()) if (out/'provenance.json').exists() else {};old.update(records)

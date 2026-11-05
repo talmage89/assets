@@ -5,7 +5,7 @@ from pathlib import Path
 
 def recipe():
  here=Path(__file__).resolve().parent
- return hashlib.sha256(b''.join((here/n).read_bytes() for n in ('render.py','siteworks.py','context.py','ground_adapter.py','photo_matches.py','presentation.py'))).hexdigest()
+ return hashlib.sha256(b''.join((here/n).read_bytes() for n in ('render.py','siteworks.py','context.py','ground_adapter.py','photo_matches.py','presentation.py','paving.py'))+(here.parents[1]/'houses/src/render.py').read_bytes()).hexdigest()
 
 
 def bundle(path):

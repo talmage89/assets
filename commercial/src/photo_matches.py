@@ -52,7 +52,7 @@ PAIR_SEEDS.update(used_forecourt=101,used_store=104)
 # column/island shadows toward +X/-Y, about 49 degrees elevation. CA:
 # short vehicle shadow right/rear, about 53 degrees. TX: the metal canopy's
 # wall shadow runs down/right at about 61 degrees, with broad cloud fill.
-LIGHTING={'period_canopy':dict(sky_strength=.15,sky_saturation=.18,neutral_ambient=0,sun_direction=(-.60,.40,-1),sun_energy=5.2,exposure=-.15),
-          'period_dispenser':dict(sky_strength=.25,sky_saturation=.22,neutral_ambient=0,sun_direction=(.45,.58,-1),sun_energy=3.0,exposure=-.15),
-          'used_store':dict(sky_strength=.32,sky_saturation=.15,neutral_ambient=0,sun_direction=(.42,-.35,-1),sun_energy=2.6,exposure=-.15)}
+LIGHTING={'period_canopy':dict(sky_strength=.025,sky_saturation=1,neutral_ambient=0,sun_direction=(-.60,.40,-1),sun_energy=6,exposure=.25),
+          'period_dispenser':dict(sky_strength=.035,sky_saturation=1,neutral_ambient=0,sun_direction=(.45,.58,-1),sun_energy=6,exposure=.25),
+          'used_store':dict(sky_strength=.045,sky_saturation=1,neutral_ambient=0,sun_direction=(.42,-.60,-1),sun_energy=5,exposure=.15)}
 LIGHTING['used_forecourt']=LIGHTING['period_canopy'].copy()

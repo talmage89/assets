@@ -13,7 +13,7 @@ from kit.image_io import write_png,read_png,linear_to_srgb,srgb_to_linear
 from kit.fonts import find_font
 
 SETS={'CMU':(1024,2.4384,3),'Brick':(512,1.2192,3),'EIFS':(512,1.2192,2),
-      'Roof':(512,2.4384,2),'Trim':(2048,2.4384,3),'Equipment':(2048,2.0,3)}
+      'Roof':(512,2.4384,2),'Concrete':(1024,1.524,3),'Equipment':(2048,2.0,3)}
 CELLS={'White':0,'Black':1,'Metal':2,'Rubber':3,'Primary':4,'Yellow':5,'Red':6,'Blue':7,
        'Orange':8,'Gray':9,'Soil':10,'Inside':11,'Oil0':12,'Oil1':13,'Oil2':14,'Oil3':15,
        'Tire':16,'Gum':17,'Salt':18,'Grime':19,'Package0':20,'Package1':21,'Package2':22,
@@ -67,6 +67,17 @@ def fields(role,n,coverage):
   lap=np.minimum(np.mod(x,1.2192),1.2192-np.mod(x,1.2192));seam=np.exp(-(lap/.014)**2)
   color=np.array((.17,.178,.178),dtype='float32')*(.94+.10*mid-.11*seam)[:,:,None]
   h=.0009*(mid-.5)+.0012*seam;rough[:]=.93
+ elif role=='Concrete':
+  # Fine cement/sand and a dragged broom finish at measured millimeter scale.
+  # No dark joint is painted into this tile; joints follow actual slab geometry.
+  aggregate=noise(n,480,rng);sand=noise(n,1100,rng)
+  bristle=rng.uniform(-1,1,1600).astype('float32')
+  track=(y/coverage*1600+1.4*np.sin(x*5.2)).astype(int)%1600
+  broom=bristle[track];pores=np.maximum(0,(.14-aggregate)*3)
+  tone=.39+.022*(aggregate-.5)+.012*(sand-.5)-.025*pores
+  color=np.stack((tone*1.015,tone*1.004,tone*.977),2)
+  h=.00014*broom+.00012*(aggregate-.5)-.00035*pores
+  rough=.82+.08*pores+.035*(sand-.5)
  elif role=='Trim':
   strip=np.minimum(7,(y/coverage*8).astype(int));v=np.mod(y/coverage*8,1)
   palette=np.array(((.69,.69,.66),(.47,.49,.50),(.027,.034,.038),(.70,.70,.67),(.39,.41,.41),(.86,.86,.83),(.37,.39,.40),(.85,.85,.83)),dtype='float32')
@@ -81,7 +92,7 @@ def fields(role,n,coverage):
   ao-=louver*.24*np.exp(-phase/.09);color*=1-(louver*.20*np.exp(-phase/.09))[:,:,None]
  else:
   color=np.zeros((n,n,3),dtype='float32');stepx=n//4;stepy=n//8
-  palette=[(.69,.69,.66),(.0055,.0065,.0075),(.46,.49,.50),(.012,.014,.014),(.86,.86,.83),(.68,.40,.020),(.43,.014,.010),(.012,.075,.32),(.66,.12,.010),(.23,.25,.25),(.075,.043,.020),(.021,.023,.023)]
+  palette=[(.69,.69,.66),(.036,.033,.035),(.46,.49,.50),(.012,.014,.014),(.86,.86,.83),(.68,.40,.020),(.43,.014,.010),(.012,.075,.32),(.66,.12,.010),(.23,.25,.25),(.075,.043,.020),(.021,.023,.023)]
   for index in range(32):
    # Cell IDs are bottom-up glTF UV coordinates.
    row,col=divmod(index,4);sl=(slice(n-(row+1)*stepy,n-row*stepy),slice(col*stepx,(col+1)*stepx))
@@ -91,41 +102,35 @@ def fields(role,n,coverage):
    if index<12:
     cc*=1+.026*(f-.5)[:,:,None];hh=.000035*(f-.5)
     if index==1:hh=.00015*(f-.5)+.00008*(m-.5);rr=.78+.09*(f-.5)
-    if index==2:rr=.25+.11*(f-.5);mm[:]=.95;hh=.000008*np.sin(v*1900+m*4)
+    if index==2:rr=.34+.06*(f-.5);mm[:]=.95;hh=.000012*(f-.5)
     elif index==3:rr[:]=.81;hh=.00012*(f-.5)
     elif index==10:
-     # Jittered, independently oriented angular bark chips. Their fibers
-     # follow each chip instead of a single flowing wood-grain field.
-     bark=np.random.default_rng(102940);count=14;sites=bark.uniform(.1,.9,(count,count,2));angles=bark.uniform(0,2*np.pi,(count,count));tones=bark.uniform(.48,1.40,(count,count));heights=bark.uniform(.001,.004,(count,count))
-     gx=u*count;gy=v*count;ix=np.floor(gx).astype(int);iy=np.floor(gy).astype(int)
-     best=np.full(sh,np.inf);second=best.copy();idsx=ix.copy();idsy=iy.copy();along=np.zeros(sh)
-     for oy in (-1,0,1):
-      for ox in (-1,0,1):
-       cx0=ix+ox;cy0=iy+oy;cx1=cx0%count;cy1=cy0%count
-       dx=gx-(cx0+sites[cy1,cx1,0]);dy=gy-(cy0+sites[cy1,cx1,1]);ang=angles[cy1,cx1]
-       axial=dx*np.cos(ang)+dy*np.sin(ang);cross=-dx*np.sin(ang)+dy*np.cos(ang);distance=(axial/1.7)**2+(cross/.65)**2
-       keep=distance<best;second=np.where(keep,best,np.minimum(second,distance));best=np.minimum(best,distance)
-       idsx=np.where(keep,cx1,idsx);idsy=np.where(keep,cy1,idsy);along=np.where(keep,axial,along)
-     face=smooth((second-best)/.10);tone=tones[idsy,idsx];fiber=.5+.5*np.sin(along*78+m*3)
-     cc=np.array((.085,.041,.015))*(tone*(.78+.22*face+.08*fiber))[:,:,None]
-     cc*=.65+.35*face[:,:,None];hh=heights[idsy,idsx]*face+.0003*fiber;rr[:]=.96
+     # Shredded bark: overlapping tapered fibers, no Voronoi/paver cells.
+     bark=np.random.default_rng(102940);cc[:]=(.019,.010,.004);hh[:]=0;rr[:]=.97
+     for j in range(1400):
+      cx,cy=bark.uniform(-.04,1.04,2);length=bark.uniform(.022,.095);width=bark.uniform(.005,.018);ang=bark.uniform(0,2*np.pi)
+      radius=length*.65;ax=max(0,int((cx-radius)*stepx));bx=min(stepx,int((cx+radius)*stepx)+1);ay=max(0,int((1-cy-radius)*stepy));by=min(stepy,int((1-cy+radius)*stepy)+1)
+      if ax>=bx or ay>=by:continue
+      du=u[ay:by,ax:bx]-cx;dv=v[ay:by,ax:bx]-cy
+      along=du*np.cos(ang)+dv*np.sin(ang);cross=-du*np.sin(ang)+dv*np.cos(ang)
+      taper=np.maximum(0,1-abs(along)/(length/2));inside=(abs(along)<length/2)&(abs(cross)<width/2*(.3+.7*taper))
+      fibers=.8+.2*np.sin(cross/width*27+along*700);tone=bark.uniform(.55,1.35)
+      rgb=np.array((.055,.028,.011))*tone*fibers[:,:,None]
+      cc[ay:by,ax:bx]=np.where(inside[:,:,None],rgb,cc[ay:by,ax:bx])
+      ridge=bark.uniform(.001,.005)*(1-np.minimum(1,abs(cross)/(width/2)))
+      hh[ay:by,ax:bx]=np.where(inside,ridge,hh[ay:by,ax:bx])
    elif 12<=index<=15:
-    # Accumulated engine drips: overlapping irregular small rivulets and
-    # splashes around a vehicle center, never a single circular stain.
-    rng2=np.random.default_rng(400+index)
-    def local(c):
-     seed=rng2.random((c,c)).astype('float32')
-     return np.asarray(Image.fromarray(seed).resize((stepx,stepy),Image.Resampling.BICUBIC))
-    broad=local(11);grain=local(43);envelope=np.exp(-(((u-.5)/.24)**2+((v-.5)/.30)**2)*1.7)
-    # Accumulated seepage coalesces into an irregular granular core with
-    # sparse satellite drops. It has no large elliptical component.
-    a=(.52*smooth((broad+.30*envelope-.61)/.16)+.12*grain)*envelope
-    a*=.45+.55*smooth((grain-.26)/.45)
-    for k in range(14):
-     px,py=rng2.normal(.5,.19),rng2.normal(.5,.21);r0=rng2.uniform(.006,.015)
-     dist=((u-px)/r0)**2+((v-py)/(r0*.75))**2
-     a=np.maximum(a,smooth((1-dist+(grain-.5)*.6)/.18)*rng2.uniform(.22,.48))
-    a*=smooth(np.minimum.reduce((u,1-u,v,1-v))/.07);rr[:]=.58
+    # Many absorbed droplets and small leaks combine into a standing band.
+    rng2=np.random.default_rng(400+index);acc=np.zeros(sh,dtype='float32')
+    bend=.04*np.sin(v*11+index);band=np.exp(-((u-.5-bend)/.27)**4)*np.exp(-((v-.5)/.44)**6)
+    for k in range(240):
+     # Engine and fuel-door concentrations, with much quieter incidental drops.
+     px,py=(rng2.normal(.48,.14),rng2.normal(.64,.15)) if k<175 else (rng2.normal(.67,.11),rng2.normal(.29,.14))
+     rx=rng2.uniform(.004,.035);ry=rx*rng2.uniform(.6,1.9)
+     drop=np.exp(-(((u-px)/rx)**2+((v-py)/ry)**2)*1.5)*rng2.uniform(.12,.44)
+     acc+=drop
+    a=(.24*band+.70*(1-np.exp(-acc)))*smooth(np.minimum.reduce((u,1-u,v,1-v))/.09)
+    a*=.84+.16*m;cc[:]=(.145,.119,.084);rr[:]=.74
    elif index==16:
     # Parallel worn tread contacts. The path itself is swept on the lot.
     edge=smooth((.46-abs(u-.5))/.12);gaps=.55+.45*smooth((f-.25)/.50)
@@ -137,7 +142,7 @@ def fields(role,n,coverage):
     # Narrow vertical deposits with long tapered tails; geometry puts their
     # heads at a coping seam, drain, fascia joint or dispenser base.
     width=.018+.13*v*v;dist=abs(u-.5+.028*np.sin(v*18))
-    a=.32*smooth((width-dist+(m-.5)*.035)/.045)*smooth(v/.12)*smooth((1-v)/.10)*(.55+.40*m)
+    a=(.32 if index==18 else .40)*smooth((width-dist+(m-.5)*.035)/.045)*smooth(v/.12)*smooth((1-v)/.10)*(.55+.40*m)
     cc[:]=(.55,.54,.50) if index==18 else (.033,.029,.024);rr[:]=.93
    elif 20<=index<=25:
     pal=np.array(((.18,.29,.075),(.62,.26,.031),(.035,.18,.31),(.47,.035,.021),(.30,.22,.12),(.20,.11,.30)))
@@ -152,7 +157,7 @@ def fields(role,n,coverage):
     strokes=(abs(v-.55+.12*np.sin(u*3))<.045)&(u>.12)&(u<.85);a=strokes*(.5+.5*f);cc[:]=(.15,.16,.16);mm[:]=.8;rr[:]=.58
    elif index==29:
     a=smooth((.39-abs(u-.5))/.08)*smooth((.48-abs(v-.5))/.08)*smooth((m-.35)/.3);cc[:]=(.16,.055,.016);rr[:]=.91
-   elif index==30:cc[:]=(.56,.62,.64);rr[:]=.18;hh=.00015*np.sin(u*950)
+   elif index==30:cc[:]=(.74,.75,.73);rr[:]=.61;hh=.000025*(f-.5)
    else:cc[:]=(.75,.75,.71);rr[:]=.56
    # 8 delivered pixels of constant edge dilation at 2K.
    g=max(2,round(n/2048*8))
@@ -163,7 +168,7 @@ def fields(role,n,coverage):
 
 
 def source(size=4096,roles=None):
- folder=Path('build/procedural');folder.mkdir(parents=True,exist_ok=True);report=json.loads((folder/'fields.json').read_text()) if (folder/'fields.json').exists() else {}
+ folder=Path('build/procedural');folder.mkdir(parents=True,exist_ok=True);report={k:v for k,v in json.loads((folder/'fields.json').read_text()).items() if k in SETS} if (folder/'fields.json').exists() else {}
  for role,(ship,coverage,count) in SETS.items():
   if roles and role not in roles:continue
   color,h,ao,rough,metal,alpha=fields(role,size,coverage);lo=float(h.min());distance=max(.00001,float(h.max())-lo)
@@ -193,7 +198,8 @@ def ship():
    factor=alpha.shape[0]//size;alpha=alpha.reshape(size,factor,size,factor,1).mean(axis=(1,3))
    write_png(folder/'T_CommercialEquipment_BaseColor.png',np.concatenate((color[:,:,:3],alpha),2))
  graphics(folder)
- report=dict(new_images=17,new_gpu_mib=39+2/3,sets=SETS,graphics_size=1024,source_size=4096)
+ for p in folder.glob('T_CommercialTrim_*.png'):p.unlink()
+ report=dict(new_images=18,new_gpu_mib=29,sets=SETS,graphics_size=1024,source_size=4096)
  (folder/'sets.json').write_text(json.dumps(report,indent=2))
 
 
@@ -227,11 +233,32 @@ def graphics(folder):
    d.multiline_text(((x+(w-(bb[2]-bb[0]))/2-bb[0])*4,(y+(h-(bb[3]-bb[1]))/2-bb[1])*4),s,font=actual_font,spacing=12,align='center',fill=ink)
   rects[s]=dict(rect=(x/1024,1-(y+h)/1024,(x+w)/1024,1-y/1024),aspect=w/h,font_size=fs,pixel_height=h)
   x+=w+12;rh=max(rh,h)
+ # The lower 384px hold broad wear at its appropriate texel density.
+ eq=Image.open(folder/'T_CommercialEquipment_BaseColor.png').convert('RGBA')
+ wear=('Oil0','Oil1','Oil2','Oil3','Tire','Gum','Salt','Grime','Scuff','Rust')
+ for i,name in enumerate(wear):
+  cell=CELLS[name];row,col=divmod(cell,4);piece=eq.crop((col*512,(7-row)*256,(col+1)*512,(8-row)*256))
+  x,y=(i%4)*256,640+(i//4)*108;w,h=256,108
+  image.paste(piece.resize((w*4,h*4),Image.Resampling.BICUBIC),(x*4,y*4))
+  rects['Wear:'+name]=dict(rect=((x+4)/1024,1-(y+h-4)/1024,(x+w-4)/1024,1-(y+4)/1024),aspect=w/h,font_size=0,pixel_height=h)
+ for i,name in enumerate(('CanopyLamp','InteriorLamp','WallPackLamp','LotLamp','PriceLED','Blank','BrandRillway','BrandLatchline')):
+  x,y=i*40,980;ink=(225,227,223,255) if name!='PriceLED' else (255,166,48,255)
+  if name.startswith('Brand'):
+   from plan import BRANDS
+   rgb=BRANDS['rillway' if name=='BrandRillway' else 'latchline']['primary'];ink=tuple(round(q*255) for q in linear_to_srgb(np.array(rgb)))+(255,)
+  d.rectangle((x*4,y*4,(x+32)*4,(y+32)*4),fill=ink)
+  rects[name]=dict(rect=((x+3)/1024,1-(y+29)/1024,(x+29)/1024,1-(y+3)/1024),aspect=1,font_size=0,pixel_height=32)
  source=Path('build/procedural/T_CommercialGraphics_BaseColor.png');image.save(source)
  a=np.asarray(image,dtype='float32')/255;alpha=a[:,:,3:4];weighted=srgb_to_linear(a[:,:,:3])*alpha
  out_alpha=alpha.reshape(1024,4,1024,4,1).mean(axis=(1,3));weighted=weighted.reshape(1024,4,1024,4,3).mean(axis=(1,3))
  rgb=np.where(out_alpha>0,weighted/np.maximum(out_alpha,1e-8),1)
  write_png(folder/'T_CommercialGraphics_BaseColor.png',np.concatenate((linear_to_srgb(rgb),out_alpha),2));(folder/'graphics.json').write_text(json.dumps(rects,indent=2))
+ emission=np.zeros((1024,1024,3),dtype='float32')
+ for name,strength in [(x,1.7) for x in ('RILLWAY','LATCHLINE','@rillway','@latchline')]+[('CanopyLamp',40),('InteriorLamp',16),('WallPackLamp',15),('LotLamp',55),('PriceLED',3),('BrandRillway',.40),('BrandLatchline',.40)]:
+  r=rects[name]['rect'];x0,x1=round(r[0]*1024)-2,round(r[2]*1024)+2;y0,y1=round((1-r[3])*1024)-2,round((1-r[1])*1024)+2
+  emission[y0:y1,x0:x1]=rgb[y0:y1,x0:x1]*strength/300
+ write_png(folder/'T_CommercialGraphics_Emission.png',linear_to_srgb(emission),bits=16)
+
 
 
 if __name__=='__main__':
