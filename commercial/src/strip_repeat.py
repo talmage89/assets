@@ -13,7 +13,7 @@ def main(blender,look=False):
     a=Path('build/strip-look/strip-201.glb' if look else 'build/strip/strip-201.glb');b=folder/a.name
     sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
     row=dict(passed=sha(a)==sha(b),baseline_sha256=sha(a),repeat_sha256=sha(b),bytes=a.stat().st_size,
-             scope='Independent factory-startup diagnostic GLB byte identity. No surface bake is performed at this checkpoint.')
+             scope='Independent factory-startup GLB byte identity, including referenced shipping map bytes. Manufactured maps are reused without another surface bake.')
     (folder/'check.json').write_text(json.dumps(row,indent=2)+'\n');assert row['passed'],row
     print('STRIP REPEAT: byte-identical',row['bytes'],'bytes')
 
