@@ -35,7 +35,7 @@ def run():
     constant=node.get('extras',{}).get('signal_kind')=='countdown'
     if mat['name'].startswith('SharedLens_'):assert mat['alphaMode']=='MASK' and mat['alphaCutoff']==.5
     if constant:
-     tex=mat['pbrMetallicRoughness']['baseColorTexture']['index'];imrow=d['images'][d['textures'][tex]['source']];pixels=np.array(Image.open(path.parent/imrow['uri']).convert('RGBA'));uu,vv=uv[0];px=min(pixels.shape[1]-1,int(uu*pixels.shape[1]));py=min(pixels.shape[0]-1,int((1-vv)*pixels.shape[0]));assert pixels[py,px,3]>200,('Countdown samples transparent texel',node['name'])
+     tex=mat['pbrMetallicRoughness']['baseColorTexture']['index'];imrow=d['images'][d['textures'][tex]['source']];pixels=np.array(Image.open(path.parent/imrow['uri']).convert('RGBA'));uu,vv=uv[0];px=min(pixels.shape[1]-1,int(uu*pixels.shape[1]));py=min(pixels.shape[0]-1,int((1-vv)*pixels.shape[0]));assert pixels[py,px,3]>200 and int(pixels[py,px,:3].max())>100,('Countdown samples dark or transparent texel',node['name'])
     if mat['name']=='Signals_Atlas':
      cells=np.floor(np.clip(t,0,.999999)*np.array([4,8])).astype(int)
      crossed=np.any(cells!=cells[:,0:1],axis=(1,2));assert not crossed.any(),(path,node['name'],'trim boundary',int(crossed.sum()))

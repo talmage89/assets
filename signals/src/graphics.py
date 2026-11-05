@@ -26,11 +26,20 @@ def generate(out):
    d.line([(116,83),(76,112),(47,146)],fill=255,width=16)
    d.line([(119,86),(163,117),(204,125)],fill=255,width=16)
   else:d.ellipse((8,8,248,248),fill=255)
-  dots=Image.new('RGBA',(256,256));dd=ImageDraw.Draw(dots)
-  for y in range(10,250,9):
-   for x in range(10+(4 if (y//9)%2 else 0),250,9):
+  dots=Image.new('RGBA',(256,256))
+  hot=[(255,80,32),(255,220,70),(90,255,160),(255,80,32),(255,220,70),(90,255,160),(255,205,65),(255,255,255)][j]
+  # About twenty packages across a 12-inch module; broad red/amber/green
+  # package response and a small hot core, with no baked photographic glow.
+  for y in range(10,250,13):
+   for x in range(10+(6 if (y//13)%2 else 0),250,13):
     if mask.getpixel((x,y))>0:
-     dd.ellipse((x-3,y-3,x+3,y+3),fill=(*colors[j],255))
+     for dy in range(-6,7):
+      for dx in range(-6,7):
+       xx,yy=x+dx,y+dy
+       if not(0<=xx<256 and 0<=yy<256) or dx*dx+dy*dy>36:continue
+       a=math.exp(-(dx*dx+dy*dy)/(2*3.5**2));core=a**3
+       rgb=tuple(round(colors[j][k]*a+(hot[k]-colors[j][k])*core) for k in range(3))
+       previous=dots.getpixel((xx,yy));dots.putpixel((xx,yy),(*tuple(max(previous[k],rgb[k]) for k in range(3)),255))
   if j<6:
    # A continuous dark optical cover reflects the sky between LED packages.
    # Only emission is dotted; opacity is the full nominal circular lens.

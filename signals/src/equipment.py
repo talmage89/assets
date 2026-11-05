@@ -190,20 +190,21 @@ def mast(name,p,angle,plan,parent=None,shared_pole=False):
  if site.diagonal and turn%2:stations=[site.core(0)-1+x for x in site.positions(turn)]
  for j,dist in enumerate(stations):
   zz=z+(dist-.2735)*.03492
+  rise=(.66,.12,.39)[j] if plan.seed==201 and turn%2==0 else .45
   # Balanced rigid clamp: steel collars, rear support spine and aiming clevis.
   cyl('Arm clamp collar',(-dist-.045,0,zz),(-dist+.045,0,zz),arm_radius(dist)+.010,'steel',rt,12)
   flipped=site.diagonal and turn%2
   side=1 if flipped else -1;head_y=side*.42
   box('Clamp saddle',(-dist,side*.195,zz),(.12,.095,.17),'steel',rt,.004)
-  tube('Rigid hanger pipe',[(-dist,side*.22,zz),(-dist,side*.20,zz),(-dist,side*.20,zz+.45),(-dist,head_y,zz+.45)],.021,'steel',rt,10)
-  bolt('Hanger aiming clamp',(-dist,side*.35,zz+.48),(0,side,0),.009,'steel',rt)
+  tube('Rigid hanger pipe',[(-dist,side*.22,zz),(-dist,side*.20,zz),(-dist,side*.20,zz+rise),(-dist,head_y,zz+rise)],.021,'steel',rt,10)
+  bolt('Hanger aiming clamp',(-dist,side*.35,zz+rise+.03),(0,side,0),.009,'steel',rt)
   k=plan.left if j==len(stations)-1 and plan.left!='permissive' else 'three'
-  h=head(f'{name}__Head{j}',rt,(-dist,head_y,zz+.45),yaw=180 if site.diagonal and int(angle/90)%2 else 0,kind=k,color=plan.head,style=plan.visor,border=plan.border,active='red_arrow' if k in ('fya','protected') else 'red')
+  h=head(f'{name}__Head{j}',rt,(-dist,head_y,zz+rise),yaw=180 if site.diagonal and int(angle/90)%2 else 0,kind=k,color=plan.head,style=plan.visor,border=plan.border,active='red_arrow' if k in ('fya','protected') else 'red')
   # Wiring enters the top boss and runs through the hollow hanger to the
   # arm. No decorative cable projects into air (FDOT 17745 conduit detail).
-  cyl('Head cable gland',(-dist,head_y,zz+.40),(-dist,head_y,zz+.45),.016,'rubber',rt,8)
+  cyl('Head cable gland',(-dist,head_y,zz+rise-.05),(-dist,head_y,zz+rise),.016,'rubber',rt,8)
  # Sign, mounted with two clamps/standoffs; name rows swap without geometry.
- sx=-1.40;sy=-.30;sz=z-(1.25 if site.half(int(angle/90))<4 else .28)
+ sx=-1.40;sy=-.30;sz=z if plan.seed==201 and turn%2==0 else z-(1.25 if site.half(int(angle/90))<4 else .28)
  box('Street sign extruded frame',(sx,sy,sz),(2.134,.085,.4572),plan.finish,rt,.009)
  row=plan.seed-201;col=(angle//90)%2
  nameface=quad('Swappable street name',(sx,sy-.044,sz),2.10,.427,'names',rt,(col*.5,1-(row+1)*.25,(col+1)*.5,1-row*.25))
@@ -295,7 +296,7 @@ def ped_head(name,rt,p,yaw=0,walk=False):
    o=quad(f'{name}__Countdown_{"Tens" if digit==0 else "Ones"}_{seg}',(.065+digit*.086+dx,-.116,dz),w,hh,'lit' if on else 'off',h,(.25,.5,.5,1))
    # Cropping a solid dot gives a soft LED segment rather than a full tile.
    uv=o.data.uv_layers.active
-   for entry in uv.data:entry.uv=(.37451171875,.7509765625)
+   for entry in uv.data:entry.uv=(.38037109375,.7509765625)
    o['signal_lens']=True;o['signal_kind']='countdown';o['segment']=seg;o['digit']=digit;o['powered']=on
  cyl('Ped head mounting boss',(0,.045,-.285),(0,.045,-.20),.023,'steel',h,10)
  tube('Ped head service slack',G.bezier((.12,.10,.02),(.23,.16,-.24),(.01,.18,-.27),(0,.045,-.26),10),.006,'rubber',h,6)

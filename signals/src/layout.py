@@ -25,6 +25,7 @@ class Site:
  def positions(self,turn):
   if (self.ns if turn%2==0 else self.ew)>=4:
    outer=self.median/2+LANE*1.5 if self.median else 2*LANE
+   if self.seed==201:return [2*LANE,LANE+.1524,0]
    return [outer,outer-2.4384]+([self.median/2-LANE*.5] if self.median else [0])
   c=LANE/2;return [c+1.2192,c-1.2192]
  def arm(self,turn):
@@ -35,7 +36,7 @@ class Site:
   return xy(self.hx+6.3,self.hy+self.radius+6.5,(self.seed-201)*90,.171)
  def data(self):
   return dict(seed=self.seed,title=self.title,ns=self.ns,ew=self.ew,radius=self.radius,median=self.median,approaches=self.approaches,diagonal=self.diagonal,commercial=self.commercial)
-SITES={201:Site(201,'Five-lane arterial / two-lane commercial street',5,2,7.62,commercial=True),
+SITES={201:Site(201,'Five-lane arterial / two-lane commercial street',5,2,10.668,commercial=True),
 202:Site(202,'Two-lane town crossroads / two diagonal dual-arm poles',2,2,4.572,diagonal=True),
 203:Site(203,'Divided boulevard / median left-turn bays',4,2,7.62,median=2*LANE),
 204:Site(204,'Two-lane T junction / span wire',2,2,6.096,approaches=(0,2,3))}

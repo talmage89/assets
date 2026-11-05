@@ -11,7 +11,7 @@ ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
 from kit.image_io import write_png,linear_to_srgb
 from kit.fonts import find_font
 ROLES=['zinc','green','black','bronze','yellow','inside','steel','white','concrete','cabinet','rubber','border','r10','panel','record','rust','zinc_top','yellow_top','black_top','bronze_top','green_top','cabinet_lower','optics','sticker','zinc_base','yellow_chalk','black_chalk','bronze_chalk','green_chalk','concrete_form','white_aged','button_worn']
-COLORS=[(.235,.245,.245),(.014,.038,.025),(.009,.011,.010),(.047,.034,.022),(.56,.335,.012),(.004,.005,.006),(.31,.33,.33),(.60,.61,.58),(.32,.325,.303),(.32,.345,.345),(.006,.007,.006),(.62,.39,.012)]
+COLORS=[(.235,.245,.245),(.014,.038,.025),(.009,.011,.010),(.047,.034,.022),(.70,.285,.010),(.004,.005,.006),(.31,.33,.33),(.60,.61,.58),(.32,.325,.303),(.32,.345,.345),(.006,.007,.006),(.62,.39,.012)]
 def smooth(x):
  x=np.clip(x,0,1);return x*x*(3-2*x)
 def noise(w,h,cells,rng):
@@ -38,6 +38,9 @@ def fields(size=4096,wear=.8):
     # Lower sheltered zinc retains water and develops a white zinc oxide film.
     stain=smooth((.27-v)/.15)*np.exp(-((u-.62)/.13)**2)*wear*.48
     c=c*(1-stain[:,:,None])+np.array((.43,.44,.42))*stain[:,:,None];rough+=stain*.35
+    # Runoff below the upper cap/perch, down one real exposed shaft face.
+    trail=np.exp(-((u-.60-.006*np.sin(v*14))/.025)**2)*smooth((.94-v)/.035)*smooth((v-.69)/.12)*wear*.55
+    c=c*(1-trail[:,:,None])+np.array((.60,.57,.48))*trail[:,:,None];rough+=trail*.4
   elif base=='concrete':
    rough[:]=.93;c*=.95+.10*mid[:,:,None];hh=.00019*(fine-.5)-.00030*np.maximum(0,.18-mid)
   elif base=='rubber':rough[:]=.86;hh=.00006*(fine-.5)
@@ -48,27 +51,27 @@ def fields(size=4096,wear=.8):
    c=c*(1-fade[:,:,None])+np.array(COLORS[j])*1.7*fade[:,:,None];rough+=fade*.55
    # Narrow unequal gravity tracks start below retained dirt ledges.
    tails=np.zeros_like(u)
-   for cx,length,width in ((.24,.32,.052),(.71,.24,.037)):
-    tails+=np.exp(-((u-cx-.010*np.sin(v*11))/width)**2)*smooth((length-v)/.18)*smooth(v/.08)
-   dirt=np.clip(tails*.44*wear*(.65+.35*mid),0,.5)
+   for cx,length,width in ((.24,.32,.065),(.71,.24,.047)):
+    tails+=np.exp(-((u-cx-.010*np.sin(v*11))/width)**2)*smooth((length-v)/.18)
+   dirt=np.clip(tails*.60*wear*(.65+.35*mid),0,.5)
    c*=1-dirt[:,:,None];rough+=dirt*.22
   if role.endswith('_top'):
    # Droppings only on upward exposed surfaces under perches. One deposit and
    # its gravity tail, not mottling painted uniformly over the support.
    deposit=np.zeros_like(u)
    for cx,cy in ((.27,.55),(.68,.44)):
-    core=np.exp(-(((u-cx)/.034)**2+((v-cy)/.09)**2)*1.8)
-    tail=np.exp(-((u-cx-.01*np.sin(v*22))/.012)**2)*smooth((cy-v)/.15)*smooth((v-cy+.38)/.12)
+    core=np.exp(-(((u-cx)/.075)**2+((v-cy)/.12)**2)*1.8)
+    tail=np.exp(-((u-cx-.01*np.sin(v*22))/.022)**2)*smooth((cy-v)/.15)*smooth((v-cy+.38)/.12)
     deposit+=core+.38*tail
    deposit=np.clip(deposit*wear,0,.92)*( .75+.25*mid)
-   c=c*(1-deposit[:,:,None])+np.array((.53,.52,.43))*deposit[:,:,None];hh+=.00035*deposit;rough+=deposit*.25
+   c=c*(1-deposit[:,:,None])+np.array((.60,.57,.48))*deposit[:,:,None];hh+=.00035*deposit;rough+=deposit*.25
   if role in ('rust','zinc_base'):
    # Crevice/edge oxidation: rusty nuts and plate perimeter, no broad red wash.
    c[:]=COLORS[6] if role=='rust' else COLORS[0];metal[:]=.86
    edge=np.minimum.reduce((u,1-u,v,1-v));mask=smooth((.10+.04*(mid-.5)-edge)/.06)*wear*smooth((broad-.30)/.42)
    c=c*(1-mask[:,:,None])+np.array((.12,.043,.012))*mask[:,:,None];metal*=1-mask;rough=.57+.36*mask;hh-=.00012*mask
   if role=='cabinet_lower':
-   splash=smooth((.38-v+(broad-.5)*.12)/.27)*wear*.55
+   splash=smooth((.38-v+(broad-.5)*.12)/.27)*wear*.62*(.55+.45*mid)
    c=c*(1-splash[:,:,None])+np.array((.085,.075,.052))*splash[:,:,None];rough+=splash*.6
   if role=='concrete_form':
    seam=np.exp(-((v-.32)/.009)**2)+np.exp(-((v-.72)/.012)**2);hh-=seam*.0006;c*=1-seam[:,:,None]*.13

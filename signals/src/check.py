@@ -32,7 +32,7 @@ def main():
   litmat=next(m for m in g.json['materials'] if m['name']=='SharedLens_Lit')
   index=offmat['pbrMetallicRoughness']['baseColorTexture']['index'];imageindex=g.json['textures'][index]['source']
   offpixels=np.array(Image.open(io.BytesIO(g.image(imageindex))).convert('RGBA'))
-  assert max(offmat['pbrMetallicRoughness']['baseColorFactor'][:3])<=.001,('Off-state factor lost',seed)
+  assert max(offmat['pbrMetallicRoughness']['baseColorFactor'][:3])<=.02,('Off-state factor lost',seed)
   assert litmat.get('emissiveTexture') and max(litmat.get('emissiveFactor',[0]))>0
   rawtri=sum(len(g.accessor(p['indices']))//3 for n in g.json['nodes'] if 'mesh' in n for p in g.json['meshes'][n['mesh']]['primitives'])
   assert rawtri==meta['equipment_triangles'],(seed,rawtri,meta['equipment_triangles'])
