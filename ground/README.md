@@ -357,7 +357,7 @@ are independent of the ground family's original delivery and checks.
 
 Each new module covers 100 m out from its center and is separately rooted;
 markings and joints stop at that extent. Actual retained vertices are checked
-against it before export. The four road assemblies are 2,353 / 2,140 / 2,377 /
+against it before export. The four road assemblies are 2,321 / 2,140 / 2,322 /
 1,390 triangles (201–204), including their walks, corners and markings. These
 are assemblies, not single repeated road sections. Presentation can request
 a longer extent from the same grammar.

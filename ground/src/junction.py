@@ -9,14 +9,26 @@ import bpy
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
 from kit import model as G
 from kit.tiling import world_uv
+_GROUND_MATERIALS={}
 
 def build(spec,rootpath):
  from mathutils import Vector
- before=set(bpy.context.scene.objects)
- bpy.ops.import_scene.gltf(filepath=str((rootpath/'ground/export/Ground.glb').resolve()))
- old=set(bpy.context.scene.objects)-before
- mats={k:next(m for m in bpy.data.materials if m.name==k) for k in ('Asphalt','Concrete','Lawn')}
- for o in old:bpy.data.objects.remove(o,do_unlink=True)
+ global _GROUND_MATERIALS
+ # Import the canonical library once per live scene. The four-module export
+ # must not retain four copies of its packed images and material graphs.
+ try:cached=bool(_GROUND_MATERIALS) and all(bpy.data.materials.get(m.name)==m for m in _GROUND_MATERIALS.values())
+ except ReferenceError:cached=False
+ if not cached:
+  before=set(bpy.context.scene.objects);before_mats=set(bpy.data.materials);before_images=set(bpy.data.images)
+  bpy.ops.import_scene.gltf(filepath=str((rootpath/'ground/export/Ground.glb').resolve()))
+  old=set(bpy.context.scene.objects)-before;added=set(bpy.data.materials)-before_mats
+  _GROUND_MATERIALS={k:next(m for m in added if m.name==k or m.name.startswith(k+'.')) for k in ('Asphalt','Concrete','Lawn')}
+  for o in old:bpy.data.objects.remove(o,do_unlink=True)
+  for m in added-set(_GROUND_MATERIALS.values()):
+   if m.users==0:bpy.data.materials.remove(m)
+  for im in set(bpy.data.images)-before_images:
+   if im.users==0:bpy.data.images.remove(im)
+ mats=_GROUND_MATERIALS
  def material(n,c):
   m=bpy.data.materials.new(n);m.use_nodes=True;p=m.node_tree.nodes.get('Principled BSDF');p.inputs['Base Color'].default_value=(*c,1);p.inputs['Roughness'].default_value=.88;return m
  white=material('Arterial aged white',(.55,.55,.50));yellow=material('Arterial faded yellow',(.52,.32,.012));seal=material('Arterial loop seal',(.012,.012,.011))
@@ -115,11 +127,14 @@ def build(spec,rootpath):
    # Fill all quadrants outside the road so the horizon has real ground.
    rect('Roadside parcels',sx*(hx+3.81),sx*extent,sy*(hy+.4572+R),sy*extent,.149,mats['Lawn'])
    rect('Cross-street parcels',sx*(hx+.4572+R),sx*extent,sy*(hy+3.81),sy*extent,.149,mats['Lawn'])
- if spec['radius']>=7:
+ if spec['radius']>=10.668:
   # Large outer corner: swept right-turn island and separate slip lane.
   cx,cy=hx+.4572+R,hy+.4572+R
-  pts=G.fillet_polygon([(hx+1,hy+1),(hx+.5,hy+3.3),(hx+3.8,hy+.5)],[.25,.25,.25],4)
+  pts=G.fillet_polygon([(hx+.55,hy+.55),(hx+.1,hy+1.5),(hx+1.5,hy+.1)],[.12,.12,.12],4)
   slab('Channelizing right-turn island',pts)
+  clear=min(math.hypot(cx-x,cy-y)-(R+.4572) for x,y in pts)
+  assert clear>=L,('Channelized carriageway narrower than one lane',clear)
+  rt['island_min_carriageway_width_m']=clear
  if 1 not in spec['approaches']:
   rect('T junction closed parcel',-extent,-hx-.6096,-extent,extent,.149,mats['Lawn'])
   core=hy+.4572+R
