@@ -1,170 +1,155 @@
-# Waycroft / traffic signals — form checkpoint
+# Waycroft traffic signals
 
-Four original signalized intersections for an American town of 1995–2015.
-This is the requested construction gate before look-dev: quick materials,
-original graphics and imported checkpoint GLBs. It is not a baked final delivery.
-No docs images are committed until the family is finished.
+Original, maintained 1995–2015 American signal equipment, with four road-derived
+installations and shared baked surfaces. This is the requested look checkpoint;
+no docs images are committed this round. All inspection renders come from
+the exported game parts, with separate source comparisons to expose bake loss.
 
-The family includes tapered mast arms and anchored poles, three-section
-12-inch heads, a four-section FYA, five-section doghouse and protected-arrow
-heads, black/yellow-bordered backplates, street-name signs, detection cameras,
-pedestrian heads and accessible buttons, a two-pole span set, controller
-cabinet, electric service and pull boxes. Real joints, visors, cast shoulders,
-anchor holes, hollow nut covers, hinge hardware and slack service cables are
-built in geometry where they affect construction or silhouette.
+[REFERENCE.md](REFERENCE.md) records measured standards and authored choices.
+[TEXTURES.md](TEXTURES.md) explains the atlas, material references and age.
+[REVIEW.md](REVIEW.md) records rejected views and remaining weaknesses.
+[refs/SOURCES.md](refs/SOURCES.md) credits photographs and engineering drawings.
 
-[REFERENCE.md](REFERENCE.md) records dimensions and distinguishes published
-standards from authored choices. [REVIEW.md](REVIEW.md) records rejected passes
-and remaining limits. [refs/SOURCES.md](refs/SOURCES.md) credits every source.
+## Four towns
 
-| Seed / town | Support and heads |
+| Seed | Road plan and support |
 | --- | --- |
-| 201 / Aldervale | Galvanized 36 ft reach; yellow tunnel visors; 2 in yellow border; FYA |
-| 202 / Cinderbrook | Dark green 30 ft reach; black cap visors; five section; near-side head; pole-mounted pedestrian heads and separate button posts; lit street name |
-| 203 / Wrenfield | Bronze 25 ft reach; yellow cap visors; protected arrows; Rill luminaire head |
-| 204 / Morrow Glen | Black steel strain poles; diagonal catenary/messenger/tether set; eight free-standing heads |
+| 201 / Aldervale | Five-lane 55 ft arterial crossing a 22 ft street; center turn lane, 35 ft corner returns and a channelizing island; four galvanized mast supports, yellow cases and FYA on the arterial; commercial corner with the library gas station |
+| 202 / Cinderbrook | Two 22 ft streets, 15 ft corner returns; two diagonal dark-green poles with paired arms reaching the lanes each serves; black cases, doghouse left treatment and supplemental near-side faces |
+| 203 / Wrenfield | 66 ft divided boulevard: four 11 ft through lanes and a 22 ft median, with an 11 ft left-turn bay cut into each end; 22 ft cross street, rounded noses, tapers and 25 ft returns; four bronze masts, yellow cases, protected arrows and Rill luminaires |
+| 204 / Morrow Glen | Two-lane T with 20 ft returns and a continuous walk on its closed side; two black strain poles, catenary/messenger, lashed cable, lower tether and six faces serving the three actual approaches |
 
-Each mast carries two primary through faces 8 ft apart and a left-turn face
-over the central turn lane. Opposing approaches share phases. Pedestrian walk,
-hand and two seven-segment countdown digits have independently named parts.
-The cabinet corner, finishes, head style, arm reach, left treatment and detection
-presentation follow the seed. These four layouts demonstrate distinct municipal
-equipment choices; they are not four engineered traffic plans.
+The cabinet corner, pedestrian arrangement, pole corners and arm reaches follow
+the road grammar. Native ground deliveries remain untouched. The additive
+`ground/export/ArterialSites.glb` contains four separate junction modules built
+by `ground/src/junction.py`; it is independent of Ground.glb and the earlier
+ArterialCheckpoint.glb. Houses, trees, street lights, the gas station and the
+pickup/crossover/hatchback are presentation only and never enter signal exports.
 
-| Feature | Dimension / choice |
+## Construction and dimensions
+
+| Feature | Dimension / construction |
 | --- | --- |
-| Vehicle indication | 304.8 mm / 12 in |
-| Head section pitch / front width | 370 / 354 mm |
-| Tunnel / cap visor reach | 245 / 205 mm |
-| Steel pole | 7.62 m / 25 ft from plate bottom; 16 → 12.53 in across flats |
-| Base plate / foundation | 762 × 63.5 mm circular plate; 1.2192 m round pier |
-| Anchors | Six 44.45 mm rods; 584.2 mm circle |
-| Arm | 7.62 / 9.144 / 10.9728 m pole-center reach; 2° camber |
-| Street-name frame | 2.134 × .4572 m; equal name-face geometry |
-| Pedestrian case / pedestal | 444.5 × 419.1 × 180 mm; 101.6 mm pole |
-| Accessible button / standing space | 1.0668 m above actual landing; 762 × 1219.2 mm clear rectangle |
-| Cabinet shell | 910 × 720 × 1660 mm; 3 mm aluminum, 200 mm plinth |
+| Vehicle indication | 304.8 mm / 12 in nominal clear circle; 370 mm section pitch |
+| Cases / visors | Original compound Waycroft shoulders, separate retaining rim, hinge and latch; 1.6 mm sheet visors, 205 / 245 mm reach |
+| Pole | 25 ft from plate bottom; 16 → 12.53 in across flats, twelve-sided taper |
+| Base | 30 × 2½ in plate, six 1¾ in anchors on 23 in circle, hollow nut covers, 4 ft round foundation |
+| Arm | Brake-formed taper, 2° camber, flange/box connection; reach derived from controlled lanes, within the brief's 20–45 ft range |
+| Pedestrian case / post | 444.5 × 419.1 × 180 mm, 150 mm hood; 4 in pedestal |
+| Accessible button | Axis 1.0668 m / 42 in above the actual landing; raised tactile arrow and separate instruction sign |
+| Cabinet | Original Morrow Controls 910 × 720 × 1660 mm shell, 3 mm aluminum over 200 mm plinth |
+| Cabinet interior | Rack controller, conflict monitor, detector inputs, load-switch bay, breakers, harness and door document pocket; simple forms with generated fronts |
 
-Meters, Blender +Z up, −Y frontage; glTF +Y up and +Z forward. Reusable assemblies
-have ground-footprint origins. Head origins are their upper indexed hanger;
-pedestrian head origins are case centers; the attachment-only APS origin is its
-pole frame, with its button above it. Ground sockets preserve these placement
-frames. Cabinet door uses local Z, −110…0°. Head frames provide Z ±15° aiming
-and X ±4° limited movement. Source-surface sampled clearances distinguish
-construction from the independent source/GLB serialization check. Service cable
-is static geometry; a game adding wind motion must update its attachment ends.
+MUTCD 2009 and FDOT 2014 establish the period convention and chosen support
+construction. The installation is a game asset, without structural, electrical,
+traffic-study or accessibility certification. Lane widths, tapers, plans and
+fictional makes are authored choices, distinguished from published dimensions.
 
-## Rebuild and inspect
+Mast wiring enters the head's top boss through its bracket into the hollow arm.
+The detector lead is clipped to its riser. Span clamps follow the messenger;
+overlapping extension bars and balance adjusters support the heads, with short
+gravity-hanging entry loops and one drip loop at each pole. FDOT 17727 sheets
+1–2 inform that construction. There are no large rings or airborne mast handles.
 
-Run make WIDTH=1200 SAMPLES=24 in this folder. It fetches photos/PDFs, builds
-the four sources and GLBs plus standalone parts, checks geometry and construction,
-renders 19 Cycles views, fits two period photos and composes review sheets.
-Every Cycles call holds the shared kit GPU lock. No kit source is changed.
+## Game parts and state control
 
-- make check: budgets, named lenses, scale/clearance, source/import geometry,
-  actual component contacts, sampled pivots and repository/preservation rules.
-- make matches: calibrated period comparison views and side-by-side pairs.
-- make -C ../ground arterial: separately build the new ground checkpoint library.
+`export/Signals-201…204.gltf` are complete equipment-only installations.
+`export/parts/` supplies MastArm, Pedestal, PushButtonPost, Cabinet, PushButton,
+PedHead, Head_three, Head_fya, Head_five, Head_protected and SpanSet. Their .bin
+files carry geometry; every referenced image resolves to `export/textures/`.
 
-Generated outputs:
+Meters, Blender +Z up / −Y front, glTF +Y up / +Z forward. Ground sockets retain
+placement frames. Main support origins sit at the pole foundation; the span
+set's origin is its installation center. Each head's origin is its indexed
+hanger. The door uses local Z, −110…0°. Heads retain local Z ±15° aiming and
+X ±4° limited movement. A game moving a head must update its flexible cable
+and tether ends; a static service loop is not a cable simulation.
 
-| Path | Contents |
+Every indication retains its stable `signal_lens` / `signal_kind` / `powered`
+extras and name, such as `Mast_0__Head0__S00_red`. Swap that mesh's reference
+between SharedLens_Off and SharedLens_Lit. Never modify a shared material to
+change only one head. FYA S02 carries `flashing_yellow_arrow`; S01 is the steady
+yellow arrow. No timing controller or animation is imposed.
+
+Pedestrian hand, walk and `Countdown_{Tens,Ones}_{A…G}` remain independent parts.
+Use the ordinary seven-segment table, suppress countdown during walk as needed,
+and control legal phases in the game. The demonstration keeps protected arrows
+red while opposing through traffic runs; the T has no face aimed at its missing
+branch. The optical fixture shows lit/dark copies at measured 30 m and 100 m.
+
+## Budget and verification
+
+One 2048 BaseColor / +Y Normal / ORM set, a 1024 indication sheet and 512 × 256
+name sheet cost about **17.5 MiB** with 8-bpp compression and complete mips.
+They are allocated once for the whole family. A mast uses atlas, two state
+references and names; a cabinet uses only the atlas. See TEXTURES.md for details.
+
+The actual per-part triangles, primitive/material references, per-intersection
+bytes, map hashes and UV density are generated in `build/budget-report.json`
+and `build/budget-report.md`. Every vehicle-head variant stays at or below
+1,500 triangles; complete mast assemblies stay under 14,000, cabinets under
+3,000 and pedestals under 4,000. The two halves sharing a Cinderbrook pole are
+also reported together as one complete dual-arm support.
+
+Measured equipment totals (ground and presentation excluded):
+
+| Delivery | Triangles | Materials | glTF + geometry bytes |
+| --- | ---: | ---: | ---: |
+| Aldervale 201 | 47,036 | 4 | 2,507,052 |
+| Cinderbrook 202 | 42,244 | 4 | 2,274,444 |
+| Wrenfield 203 | 51,356 | 4 | 2,729,061 |
+| Morrow Glen 204 | 31,340 | 3 | 1,608,485 |
+
+Reusable three / FYA / five / protected heads are 1,060 / 1,340 / 1,500 / 964
+triangles. PedHead is 464; PushButton 408; PushButtonPost 1,044; Pedestal 1,564;
+Cabinet 2,800; MastArm 8,174; SpanSet 17,456. The complete dual-arm Cinderbrook
+support is 13,380 triangles. Variants' actual per-head and support counts are
+also retained in the generated report. Shared PNGs total 3,657,741 bytes;
+all fifteen glTF/bin deliveries plus that single map copy total 14,607,233 bytes.
+
+`make` rebuilds fields, locked Cycles bakes, game parts, external glTFs, checks,
+checkpoint views, source/game photo pairs and review sheets. Defaults are
+1600 px / 32 samples. Render seeds run sequentially in fresh Blender processes;
+presentation images are capped at 512–1024 in memory while the signals retain
+their full delivered maps. Source files are never resaved by this cap. Kernel
+peak RSS for the render processes is recorded in build/memory/. `WEAR=.8` controls service age. No kit code is changed.
+
+```sh
+make
+make check
+make repeat
+make arterial
+make WIDTH=1200 SAMPLES=24 render
+```
+
+Checks distinguish source-surface contacts and sampled motion from raw glTF
+accessors, UV trim domains and fresh-import serialization. An additional layout
+check measures actual pole counts, face aiming toward existing roads, primary
+face separation and a conservative 20° horizontal view cone at the stop bar.
+They prove construction and serialization, not photographic realism.
+`make repeat` replays the model recipe in a separate factory-startup build;
+it checks exact GLB bytes, without claiming bit-identical GPU rebakes.
+
+## Inspection artifacts
+
+| Path | Evidence |
 | --- | --- |
-| build/Signals-201…204.blend / .glb / .json | Equipment-only source, imported game checkpoint and measured budgets |
-| build/parts/*.glb | MastArm, Pedestal, PushButtonPost, Cabinet, PushButton, PedHead, three/FYA/five/protected heads and SpanSet |
-| renders/checkpoint/201/hero.png | Sidewalk eye height, 40 mm; original library ground, houses, trees and vehicles |
-| renders/checkpoint/<seed>/{above,driver}.png | All four intersections; driver camera 1.18 m high, 42 mm |
-| renders/checkpoint/201/{head_lit,head_dark,connection,base,pedestrian,button,cabinet,cabinet_open,dusk}.png | Construction, state and dusk evidence |
-| renders/checkpoint/204/span_hanger.png | Balanced hanger, catenary tie, cable coils and tether |
-| renders/checkpoint/{contact,four-towns,construction,photo-pairs}.jpg | Complete review sheets |
-| renders/matches/{trenton,maryland}-pair.jpg | Imported GLB against balanced 2014 NJ / 2006 MD photograph |
-| build/{checks,construction,ground-placement,preservation,hero-range}.json | Independent numerical evidence and provenance |
+| renders/checkpoint/201/hero.png | 40 mm sidewalk view, eye 1.6 m above its actual standing surface |
+| renders/checkpoint/201/dusk.png | Lit indications, street lights and town windows; sky brighter than ground |
+| renders/checkpoint/<seed>/{above,driver}.png | Four distinct plans and driver's approaches |
+| renders/checkpoint/201/{head_lit,head_dark,connection,base,pedestrian,button,cabinet,cabinet_open}.png | Equipment close-ups, including the operating cabinet |
+| renders/checkpoint/204/span_hanger.png | Clamp, extension, entry loop and lashing |
+| renders/checkpoint/optics/{30m,100m}.png | Equal-distance lit/dark imported heads, with distances and pixel bounds in sidecars |
+| renders/matches/ | Seven game-part photo pairs across four seeds, with balanced neutrals and fitted camera overlays |
+| renders/source-matches/ | The same comparisons before delivery filtering |
+| renders/form-fixes/ | Native-pixel before/after panels, at least 800 px across each crop |
+| renders/checkpoint/contact.jpg | Complete checkpoint sheet; four-towns.jpg, construction.jpg and photo-pairs.jpg separate the views |
 
-Validated with make WIDTH=1200 SAMPLES=24 and make check (both exit 0).
-All four source-surface construction checks pass. The independent fresh-import
-comparison has at most 2.16 µm vertex error. Replaying the four-seed recipe
-produced 15 byte-identical GLBs (12,170,008 bytes total). The baseline receipt
-confirms 295 existing delivery files are unchanged; repository check has zero
-errors. The check scope excludes final UV packing, bake and look-dev approval.
-
-The environment uses installed Blender/Python/Pillow/NumPy, fontconfig and
-flock. No downloaded code, models, materials or HDRIs are used.
-
-## Lens states for a game
-
-Every lens is a separate mesh with signal_lens, signal_kind and powered extras.
-Names are stable: Mast_0__Head0__S00_red, S01_yellow, S02_green; an FYA head
-has S00_red_arrow, S01_yellow_arrow, S02_yellow_arrow and S03_green_arrow.
-S02 additionally carries flashing_yellow_arrow. No animations or timing logic
-are imposed on a game.
-
-Switch a lens between the two shared materials SharedLens_Off and
-SharedLens_Lit; both retain the same UV tile and dark BaseColor image. The lit material adds a separate generated bright emission image and
-emission. The game must keep other sections dark and control legal phase
-timing. Flash FYA S02 by toggling that lens; S01 is the steady yellow arrow.
-Pedestrian meshes end in __hand, __walk and
-__Countdown_{Tens,Ones}_{A…G}. Set those seven segment parts with the ordinary
-0–9 segment table; suppress countdown during walk/steady don't-walk as needed.
-The checkpoint shows walk in one direction and hand/countdown in the other.
-Materials are shared: swap per-mesh references, do not change a shared material
-globally to power an individual lens.
-
-## Measured checkpoint budgets
-
-| Reusable part | Triangles |
-| --- | ---: |
-| Three-section head, all variants | 940–1,036 |
-| Four-section FYA | 1,308 |
-| Five-section doghouse | 1,460 |
-| Protected-arrow head | 940 |
-| Complete mast assembly, seed 201 / 202 / 203 | 9,038 / 10,374 / 9,794 |
-| Pedestal with head / button-only post | 1,562 / 1,042 |
-| Push-button attachment / pedestrian head | 406 / 464 |
-| Cabinet including service and moving leaf | 2,160 |
-| Complete span-wire set with poles and eight heads | 20,152 |
-| Flush pull box | 232 |
-
-Whole equipment totals include every support, head, lens, station, cabinet,
-pull box and standing pad. They exclude ground and presentation houses/trees/cars.
-
-| Seed | Equipment triangles | Checkpoint GLB bytes |
-| --- | ---: | ---: |
-| 201 | 53,060 | 2,365,668 |
-| 202 | 56,324 | 2,491,980 |
-| 203 | 56,084 | 4,029,256 |
-| 204 | 37,060 | 1,478,600 |
-
-The prototype palette uses 13–26 materials across the seeds; final shared-map consolidation is pending. The native Rill maps account for the larger seed 203 file. This is intentionally a form checkpoint, not final draw-call/UV validation.
-
-## Planned final texture allocation
-
-One shared 2048² BaseColor/OpenGL Normal/ORM family atlas, one 1024² emissive
-sheet and a 512 × 256 street-name sheet: approximately 17.5 MiB compressed
-with full mipmaps (16 + 1⅓ + ⅙ MiB). The 2048 atlas is justified by the pole,
-cabinet, pedestrian and several head styles sharing it. Most small fittings
-will use baked normal detail. The optional Rill head keeps its native 1024 maps
-in this checkpoint; its final charts are planned inside the family atlas without
-changing the street-light delivery. Three surface types are planned: opaque family,
-LED optics and names. Runtime lit/off instances share those same images.
-
-This checkpoint still uses a quick palette and generated print sheets; it has
-not performed UV packing, 4096 baking, downsampling or texture-memory validation.
-The prototype GLBs' bytes and material counts are reported by build/checks.json,
-not represented as final texture cost.
-
-## Additive ground work
-
-ground/src/arterial.py builds ArterialCheckpoint.glb separately: three 11 ft
-lanes and a matching intersection, double yellow/dashes, left/through arrows,
-24 in stop bars, high visibility crossings and sealed detector loops. Native
-curbs, corners, sidewalks, ramps and lawn are placed unscaled. The script reuses
-native asphalt maps. All pre-existing deliveries are protected by a SHA-256
-receipt; no ground, street-light, street-sign or context asset is rebuilt.
-
-The remaining weakness is the quick material response: no accepted 10–20 year
-chalking, base rust, zinc patina, bird deposits, streaks or maintenance stickers
-has been developed or baked. The cabinet rack is a blank; small optical and
-mounting details remain simplified. The neighborhood repeats a few prototypes
-and the distant setting is sparse. Photo fits compare construction in different
-regional installations and cannot establish exact albedo or civil compliance.
-Work stops at this checkpoint.
+The Oregon mast pairs fit the complete three-face FYA assembly from actual
+lens vertices, with constrained sidewalk and driver eyes. The other pairs
+check black cases, yellow cases and span construction. Omitted presentation
+equipment/context is recorded in sidecars. Finishes and original street
+geography differ, which limits direct surface conclusions. Head and hanger
+details remain simpler than the photographs; tall-pole texel density and the
+repeated neighborhood are the weakest close views. This checkpoint does not
+claim that those differences have disappeared.

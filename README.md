@@ -44,7 +44,6 @@ Street
 - [Fire hydrant](fire-hydrant/README.md): three-way dry-barrel hydrant, installed at grade.
 - [Street signs](street-signs/README.md): stop sign with crossed street-name blades.
 - [Street light](street-light/README.md): LED cobra head on a tapered steel pole.
-- [Traffic signals — form checkpoint](signals/README.md): four seeded mast-arm/span-wire intersections, pedestrian equipment and controller cabinets; look-dev pending.
 - [Traffic cone](traffic-cone/README.md): 28-inch PVC cone with a weighted base.
 - [Mailbox](mailbox/README.md): curbside mailbox on a wooden post; door and flag move.
 - [Trash cart](trash-cart/README.md): 96-gallon wheeled cart in trash and recycling variants.

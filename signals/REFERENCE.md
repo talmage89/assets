@@ -23,8 +23,8 @@ shaft depth, soil capacity and reinforcement are omitted.
 
 The shorter original arms borrow the same construction vocabulary; they are
 not claimed to be FDOT pre-engineered S1/D1 combinations. Reach is measured
-from pole center, not the flange face. The default reaches 36 ft; alternatives
-reach 30 and 25 ft. Shafts use 16 → 12.53 in measured across flats. The actual shaft starts at 260.35 mm and ends at 7816.85 mm above the placement origin; its steel length is 7556.5 mm. The 44.45 mm gap between pier and plate equals one anchor diameter.
+from pole center, not the flange face. The road grammar computes reach from actual lane stations. Primary arms
+range from about 20 to 36 ft; Cinderbrook's reverse arm reaches about 36 ft. Shafts use 16 → 12.53 in measured across flats. The actual shaft starts at 260.35 mm and ends at 7816.85 mm above the placement origin; its steel length is 7556.5 mm. The 44.45 mm gap between pier and plate equals one anchor diameter.
 The arm root is 14 in across flats; its corner envelope is larger by the 12-sided section's cosine factor. These distinctions matter when measuring a
 12-sided steel section and are not hidden as survey accuracy.
 
@@ -50,7 +50,10 @@ informs slab, service standing space, conduit and separate power service.
 Morrow Controls is an original 910 × 720 × 1660 mm folded aluminum cabinet
 above a 200 mm plinth. The 3 mm shell, folded returns, gasket, drip lip,
 hinge leaves/knuckles, nine louvers, service lock and padlock are modeled.
-The inside is a dark rack blank; electronic equipment is outside this checkpoint.
+The service interior has a rack, controller, conflict monitor, four detector
+cards, load-switch bank, breaker/power panel and tied harness. The door carries
+a document pocket. These are original low-cost visual approximations, not a
+wiring diagram or a functional controller.
 
 The Waycroft sections are authored at 370 mm pitch, 354 mm front width,
 242 mm housing depth and 304.8 mm clear lens diameter. Housings have compound
@@ -61,18 +64,44 @@ section arrangement is an original doghouse layout; FYA is four vertical
 sections. LED arrays and all symbols are mathematical graphics.
 
 [2009 MUTCD Part 3](https://mutcd.fhwa.dot.gov/pdfs/2009/part3.pdf)
-informs the additive ground markings. The authored road has three 11 ft lanes,
-a 33 ft asphalt width, native 18 in gutter, 6 in curb, 15 ft return and 5 ft
-walk. Two inbound lanes are turn/through; the opposite direction has one
-outbound lane. Farther approach topology is a demonstration, not a traffic study.
+informs the additive ground markings. The four plans use 11 ft lanes,
+18 in gutter, 6 in curb and 5 ft walk. Aldervale has five arterial lanes
+crossing two; Cinderbrook has two crossing two with diagonal supports;
+Wrenfield has four through lanes plus a 22 ft median that provides two
+11 ft left-turn bays; Morrow Glen is a two-lane T. Return radii are
+35, 15, 25 and 20 ft; the large arterial return has a raised channelizing
+island. Its rounded splitter vertices are measured against the circular gutter
+edge to leave at least one 11 ft carriageway. Road plans are authored
+demonstrations, not traffic studies.
 Paint is 4 in lines/dashes, 24 in stop bars and 18 in crosswalk bars over a
 6 ft band. Loop cuts are an original chamfered 6 ft square, sealed at 10 mm.
 Arrow geometry is authored; no published drawing is traced.
 
-The photographs in refs/SOURCES.md establish period appearance and support
-style, not surveyed plans. Camera fitting uses nominal size landmarks; the
-NJ far-mast pair has a 37.1 px residual in a 3264 px frame, while the Maryland
-span pair is about 3 px in 2592 px. Estimated lenses and provisional asphalt
-neutral balance limit material conclusions. Standardized signal symbols,
-construction details and rectangular cabinets are common; the cases, section
-shoulders, latch/speaker layouts and fictional marks are our own.
+The photographs in refs/SOURCES.md establish construction and appearance, not
+surveyed plans. The curved New Jersey arm is rejected as a comparator. The
+replacement Oregon photograph matches the complete straight mast: one four-section
+FYA and two three-section through faces, with all ten lens centers and six
+actual red-lens diameter vertices fitted. The seed's suspended mounting lengths
+are 0.66 / 0.12 / 0.39 m, and its two through stations are 10.5 ft apart.
+Independent constrained cameras stand on the actual sidewalk (1.6 m eye) and
+approach pavement (1.18 m eye). Gadsden supplies a separate black-head value
+comparison. Maryland fits two heads on a diagonal span; the North Carolina
+close-up fits three 12-inch indications. All seven camera residuals and
+landmark overlays are recorded in build/cameras.json. A small residual proves
+projection agreement, separately from finish, optical response and street geography.
+
+Photo neutrals are sampled before measurements: the unlettered reverse of a
+roadside sign in Oregon, bare asphalt in Gadsden and Maryland, and a small
+stainless latch in the close head image. These are provisional field neutrals;
+the latch is shadowed and imperfect. Linear gains and annotated ROIs are
+retained in build/reference-balance.json and refs/.
+Sun direction is estimated from the visor/ground shadows, then the procedural
+sky uses the same direction. No HDRI or photograph contributes to any asset
+pixel. Source and exported-part comparisons use identical cameras and light.
+
+Span clamp, extension bar, balance adjuster, messenger lashing, head-entry
+slack and lower tether follow FDOT 17727. The service cable hangs in a single
+gravity loop at each pole and short slack at each head; it is never a ring.
+Mast wiring passes through the mounting saddle and internal arm; its detection
+camera lead is clipped to the riser. Engine aiming motion must update the
+flexible cable socket and tether termination.

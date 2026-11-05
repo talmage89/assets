@@ -18,5 +18,14 @@ def run():
   for i,(im,text) in enumerate(zip(panels,('Before / accepted checkpoint source pixels','After / exported shared-map game parts'))):canvas.paste(im,(i*width,42));d.text((i*width+10,12),text,fill='#22322c')
   canvas.save(out/(label+'.jpg'),quality=96,optimize=True)
   rows.append(dict(fix=label,before=str(old/(rel+'.png')),after=str(new/(rel+'.png')),crop_width_px=width,resampled=False))
+ previous=old.parent/'matches/trenton-pair.jpg';current=Path('renders/matches/mast_sidewalk-pair.jpg')
+ if previous.exists() and current.exists():
+  panels=[Image.open(p).convert('RGB') for p in (previous,current)]
+  width=max(im.width for im in panels);height=sum(im.height for im in panels)+84
+  canvas=Image.new('RGB',(width,height),'#e7e8e4');d=ImageDraw.Draw(canvas);y=0
+  for im,label in zip(panels,('Before / rejected New Jersey photo pairing','After / whole Oregon three-face installation fit')):
+   d.text((10,y+12),label,fill='#22322c');canvas.paste(im,(0,y+42));y+=im.height+42
+  canvas.save(out/'photo_pair_fit.jpg',quality=96,optimize=True)
+  rows.append(dict(fix='photo_pair_fit',before=str(previous),after=str(current),crop_width_px=min(im.width for im in panels),resampled=False))
  (out/'provenance.json').write_text(json.dumps(rows,indent=2));print('FORM FIXES',len(rows),'native-pixel comparisons')
 if __name__=='__main__':run()
