@@ -60,7 +60,7 @@ strip-protected:
 
 .PHONY: strip-fixes
 renders/strip/form-fixes/comparison.json: src/strip_form_comparison.py src/strip_render.py src/strip_presentation.py src/strip_plan.py src/strip_building.py src/strip_site.py | strip-context
-	$(PYTHON) src/strip_form_comparison.py --blender "$(BLENDER)"
+	$(KIT)/with_gpu.sh $(PYTHON) src/strip_form_comparison.py --blender "$(BLENDER)"
 strip-fixes: renders/strip/form-fixes/comparison.json
 strip: strip-fixes
 

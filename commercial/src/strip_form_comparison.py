@@ -29,7 +29,8 @@ def run(blender='blender',width=1200,samples=24):
     for label,folder in (('before',before),('after',after)):
         for seed in range(201,205):
             out=root/label/str(seed);shots='above,endcap,rear' if seed==201 else 'above'
-            cmd=[str(REPO/'kit/with_gpu.sh'),blender,'-b','--factory-startup','--python-exit-code','1','--python','src/strip_render.py','--','--source-root',str(folder),'--out',str(out),'--seed',str(seed),'--shots',shots,'--width',str(width),'--samples',str(samples)]
+            lock=[] if os.environ.get('ASSETS_GPU_HELD')=='1' else [str(REPO/'kit/with_gpu.sh')]
+            cmd=lock+[blender,'-b','--factory-startup','--python-exit-code','1','--python','src/strip_render.py','--','--source-root',str(folder),'--out',str(out),'--seed',str(seed),'--shots',shots,'--width',str(width),'--samples',str(samples)]
             with (root/f'{label}-{seed}.log').open('w') as log:subprocess.run(cmd,stdout=log,stderr=subprocess.STDOUT,check=True)
             records.append(dict(label=label,seed=seed,source=str(folder/f'strip-{seed}.glb'),sha256=hashlib.sha256((folder/f'strip-{seed}.glb').read_bytes()).hexdigest()))
     font=ImageFont.truetype(str(find_font('DejaVu Sans','Book')),18)
