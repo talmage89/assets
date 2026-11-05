@@ -3,7 +3,8 @@ import bpy
 from mathutils import Vector
 from mathutils.kdtree import KDTree
 
-CATEGORIES={'body','doors','fascia','pillars','glass','openings','arches','lamps','tires','wheels'}
+CATEGORIES={'body','doors','fascia','pillars','glass','openings','arches','lamps','tires','wheels',
+            'mirrors','trim','liners','brakes','hinges','interior','underbody'}
 
 
 def delivery_parts(source,glb):
