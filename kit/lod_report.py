@@ -29,6 +29,9 @@ def table(manifest):
 
 
 def block(cfg,m):
+    map_storage=('The far billboard adds its own render-derived atlas. ' if cfg.get('foliage_shader') else
+      'Embedded original PNGs are extracted once for the additional near levels; the original GLB keeps its embedded copy. '
+      if Path(cfg['source']).suffix=='.glb' else 'Canonical external PNGs stay shared among the additional levels and LOD0. ')
     lines=['<!-- LOD checkpoint: begin -->','#'*cfg.get('readme_level',2)+' Additional LODs','',
       '`make lod` builds additional glTF/BIN files under `export/lod/`; `make check-lod` independently checks them. '
       'The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.','',
@@ -43,7 +46,7 @@ def block(cfg,m):
       '[Engine sources, thresholds, texture policy and limitations](../kit/LOD.md).','',
       'All ordinary moving geometry, sockets, skins and their frames stay separate and retain their delivered data. '
       'No pilot merges moving parts into its body. '
-      'Embedded original PNGs are extracted once for the additional near levels; the original GLB keeps its embedded copy. '
+      +map_storage+
       'A distant texture set saves residency only when larger maps are unloaded or streamed.','',
       'Native-pixel comparison strips, amplified differences and close views of every level: `renders/lod/`. '
       'The local `contact.jpg` indexes them; `metrics.json` records original/adjacent comparisons from three azimuths. '
