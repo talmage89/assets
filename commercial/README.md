@@ -1,279 +1,236 @@
 # Commercial / seeded corner gas stations
 
-**Form checkpoint, before look development.** Four original American corner
-stations of the 1995–2010 type, intended to represent maintained fifteen-year-old
-sites after the next surface stage. Current quick materials intentionally carry
-no accepted manufacture or service wear. These are diagnostic GLBs, with actual
-separate reusable modules, doors and nozzle sockets; they are not finished game
-packages or baked portfolio assets.
+**Exported surface and age checkpoint, awaiting lead review.** Four original
+1995–2010 American corner stations, maintained at about fifteen years in service.
+The accepted plans, dimensions, circulation, brands, moving parts and sockets
+are retained. This round adds construction refinements, shared baked PBR maps,
+causal wear, a visible retail fit-out and day/dusk lighting states.
 
-The family starts with the station. The later strip mall can reuse the retail
-wall/opening grammar, aluminum storefront bays, hinged leaves, parapet/coping,
-membrane roof, rooftop units, drains and services. Fuel equipment and corner
-planning are separate from that building code. Nothing is downloaded as a model,
-material, texture, decal, lighting environment or executable.
+Every vertex, graphic and material field is scripted. No photograph supplies
+mesh or texture pixels. [REFERENCE.md](REFERENCE.md) separates published sizes,
+authored choices and camera-fit limits; [REVIEW.md](REVIEW.md) records rejected
+passes. [TEXTURES.md](TEXTURES.md) gives the allocation and image-sharing rules.
+Reference rights and direct files are in [refs/SOURCES.md](refs/SOURCES.md).
+No unfinished portfolio JPGs are committed; review images remain rebuild outputs.
 
-[REFERENCE.md](REFERENCE.md) distinguishes published dimensions, original design
-choices and camera-fit limits. [REVIEW.md](REVIEW.md) records rejected form passes.
-[TEXTURES.md](TEXTURES.md) explains the shared texture/memory plan, and
-[refs/SOURCES.md](refs/SOURCES.md) credits photographs and published drawings.
-All review images are ignored rebuild outputs; no unfinished docs JPGs enter Git.
+## Plans and real dimensions
 
-## Four original plans
-
-| Seed | Lot, ft | Store, ft / area | Canopy / fueling positions | Corner / walls / brand / price sign |
+| Seed | Lot, ft | Store, ft / area | Canopy | Corner / walls / brand / sign |
 | --- | --- | --- | --- | --- |
-| 101 | 150 × 150 | 60 × 50 / 3,000 sq ft | 3 islands, parallel; 6 faces | SW / split CMU / Rillway / corner monument |
-| 102 | 140 × 150 | 56 × 48 / 2,688 sq ft | 2 islands, perpendicular; 4 faces | SE / brick / Latchline / south-frontage pylon |
-| 103 | 160 × 160 | 64 × 48 / 3,072 sq ft | 4 islands, parallel; 8 faces | NW / smooth CMU / Latchline / west-frontage monument |
-| 104 | 160 × 160 | 66 × 50 / 3,300 sq ft | 3 islands, 30° to store; 6 faces | NE / EIFS / Rillway / corner pylon |
+| 101 | 150 × 150 | 60 × 50 / 3,000 sq ft | 3 islands, parallel | SW / split CMU / Rillway / corner monument |
+| 102 | 140 × 150 | 56 × 48 / 2,688 sq ft | 2 islands, perpendicular | SE / brick / Latchline / frontage pylon |
+| 103 | 160 × 160 | 64 × 48 / 3,072 sq ft | 4 islands, parallel | NW / smooth CMU / Latchline / frontage monument |
+| 104 | 160 × 160 | 66 × 50 / 3,300 sq ft | 3 islands at 30° | NE / EIFS / Rillway / corner pylon |
 
-Both streets have a 24 ft commercial opening and 5 ft transition wings. The
-source keeps the ground family's 6 in grid, 5 ft sidewalk, 6 ft planting strip,
-15 ft corner radius and curb/gutter section. The extended commercial opening
-uses that section at its real dimensions, rather than scaling a 10 ft house cut.
-The outer sidewalk meets site grade with the native 1% crossfall; the curb
-flowline is .16764 m below it. The lot is centered on grade, Blender +Z up and
-canonical −Y store front; a
-quarter turn places it on its geographic corner. Each module retains a local
-footprint/ground origin. Above views use one geographic camera orientation and
-fit every exported
-station vertex inside a measured 4% image margin;
-street cameras stand across each seed's own corner at 1.68 m.
-
-The canopy has **4.4196 m / 14 ft 6 in nominal soffit clearance**, a .9906 m /
-3 ft 3 in fascia and .3556 m / 14 in square outer columns. Island centers are
-7.62 m / 25 ft apart. Each combined column/pump/service island is 1.2192 ×
-5.4864 m / 4 × 18 ft, .1524 m above the concrete pad, leaving 6.4008 m / 21 ft
-between curbs. Their round ends, base plates, anchors, pipe guards, supported
-drains, hollow fascia and flush light openings are geometry. Small soffit joint
-relief lies below the nominal plane; the posted height is not an engineering
-clearance certification. Published dimensional comparators and limits are in
-REFERENCE, including 12 in steel-column literature and the different broader
-clad columns in the Pennsylvania photograph.
-
-Store slabs sit .1524 m above the site; their 203.2 mm wall shell has actual
-storefront/service openings. Window heads are 2.75 m, the membrane datum 3.9624 m,
-and parapet 4.8768 m. Coping has folded returns and hems. The exterior includes
-divided glass, dark shallow retail/entry backings, fictional posters, ice cabinet,
-propane cage, two RTUs, scuppers/downspouts, electrical service, selected cooler
-boxes, and a gated CMU dumpster yard. It is an exterior asset, not a playable
-retail interior or engineered construction set.
-
-Every fictional **Cairn M3** dispenser has two faces, a 1.10 m cabinet, .62 m
-electronics depth, 1.19 m crown and 2.24 m crown height above its island. Three
-gasoline products share one hose on each face, with individual unit-price windows
-and grade buttons. Both faces carry the fuel brand and separate fictional maker.
-Hoses are 30 mm outside diameter,
-with breakaways, retractors, a tether attached to the actual curve, a slack loop,
-swivel and original compound-section cast nozzles. Small controls/graphics share
-one generated preview sheet; contour fonts do not consume pump triangles.
-
-Fill covers use API color/symbols: white/black cross regular, blue/white cross
-plus, red/white cross premium, orange vapor; the alcohol-extender borders and
-monitoring-well triangles are explicit. Three 12 ft vent risers stand at the
-outer lot edge. Concealed tanks and plumbing are omitted. Air/water, accessible
-parking/sign/approach with a 6 ft ramp run and a 6 ft level landing in the 12 ft
-walk, wheel stops, continuous landscape strips, low shrubs and lot lights
-complete the form program.
-
-## Generator and reuse
-
-`src/plan.py` is Blender-independent. `generate(seed, overrides)` emits the
-lot, `BuildingSpec`, canopy axes/spacing/count, islands, sign, driveway sockets
-and parking. The four fixed proof seeds preserve the table above. Other seeds
-vary bounded store dimensions, corner, brand and sign within four supported
-planning topologies; a 1,000-plan sweep checks them. Unsupported controls and
-islands intruding on reserved circulation space fail.
-
-`src/build.py --plan` accepts a JSON override, for example,
-`{"brand":"latchline","sign":"pylon","cooler":false}`.
-`store` is `(width_ft, depth_ft, front_y_ft)`; `lot` is `(width_ft, depth_ft)`;
-`count`, `angle`, `canopy_y` in feet, `yaw`, `wall`, `brand` and `sign` are bounded
-controls. `sign_placement` selects `corner`, `south` or `west`; frontage
-placements orient the cabinet toward their street. Angles are 0/30/90° within the canopy frame; corner yaw is a quarter
-turn. These are validated plans rather than independent random object placements.
-
-From `commercial/`, an override saved to `build/variant.json` builds separately:
-
-```sh
-blender -b --factory-startup --python src/build.py -- --seeds 101 --plan build/variant.json --out build/custom/station-101.blend
-```
-
-`building.py` exposes `wall_with_openings`, `storefront`, `glazed_leaf`,
-`retail_shell` and `rooftop_unit`. `equipment.py` builds reusable pumps/signs/
-props; `siteworks.py` handles paving and interfaces. Shared low-level boxes,
-lofts, tubes, pivots and fonts come from `kit/`. No kit file changed.
-
-Two original brands are applied consistently to canopy, pumps, sign and store:
-**Rillway**, aubergine/copper/ivory with three unequal piers; **Latchline**,
-graphite/periwinkle/off-white with offset square brackets. Neither uses familiar
-red/yellow, green/yellow or red/blue/white fuel trade dress, stars, shells,
-flowers, dinosaurs, arrows or maple leaves. REFERENCE records the US/Canadian
-comparison and its scope. The future equal-cell decal sheet makes brand swaps
-geometry-independent; raised form marks are current placeholders.
-
-## Measured checkpoint budgets
-
-Counts include moving leaves, hoses, original cylinders and service equipment.
-Paving is separate; presentation roads, house and pickup are excluded.
-Each diagnostic station has 24 used source material states and one 2048²
-lettering image, not a final material/atlas budget. Raw-accessor/fresh-import checks are
-separate from construction measurements.
-
-| Seed | Store | Canopy + islands | Each dispenser | Price sign | Whole station | Diagnostic GLB bytes |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 101 | 18,980 | 5,670 | 5,716 | 908 | **63,826** | 4,835,120 |
-| 102 | 17,592 | 4,390 | 5,980 | 1,216 | **55,042** | 4,278,400 |
-| 103 | 19,112 | 7,478 | 5,980 | 1,172 | **74,200** | 5,524,148 |
-| 104 | 19,732 | 5,670 | 5,716 | 952 | **64,818** | 4,961,760 |
-
-Default seed 101, including all parts placed on its site:
-
-| Part | Copies | Triangles each |
-| --- | ---: | ---: |
-| Store, entries/service door/RTUs/drains | 1 | 18,980 |
-| Canopy/islands/column guards | 1 | 5,670 |
-| Dispenser, two hoses and detachable nozzles | 3 | 5,716 |
-| Price monument | 1 | 908 |
-| Paving, walks, street edges and continuous planting beds | 1 | 3,848 |
-| Tank pad and covers | 1 | 1,164 |
-| Tank vent assembly | 1 | 376 |
-| Trash/washer/towels/squeegee | 3 | 1,116 |
-| Ice merchandiser | 1 | 1,808 |
-| Propane cage, doors and eight original cylinders | 1 | 4,474 |
-| Dumpster enclosure, gates, container/lids | 1 | 2,316 |
-| Air/water machine and hose | 1 | 1,634 |
-| Store bollard | 4 | 252 |
-| Accessible sign | 1 | 448 |
-| Light pole | 2 | 348 |
-
-Checkpoint checks distinguish measured construction from export fidelity:
-
-- Four outside masonry rays verify each authored shell width/depth. Two
-  rear scupper passages are open through the actual wall and sleeve.
-- Nine roof rays per seed read 3.9849 m at the membrane surface; the coping top
-  reads 4.9128 m. Canopy nominal clearance reads 4.4196 m; its cap reads 5.4482 m.
-  Island widths/lengths and hose surface radii are independently probed.
-  Ramp rays read .01524 / .07620 / .13716 m through the 1:12 run; three
-  independent top-landing samples read .15240 m.
-- Eleven solid moving assemblies per seed pass 237 sampled poses at 5° intervals
-  (948 poses total), with 1 mm penetration tolerance and no allowed-contact exceptions.
-- Native straight/cut curb profiles from the delivered ground GLB match 48 actual
-  station surface samples per seed within 0.000004 m across all four corners.
-  This checks the section, not a complete road-crown or whole-street tiling assembly.
-- Full-body 5.70 × 2.14 m pickup envelopes pass forward-only routes with occupied
-  store stalls, through a fueling lane and the other street opening. The four
-  minimum separating-axis gaps are .225 / .310 / .225 / .286 m. These deliberately
-  tight demonstrated paths are not tanker sweeps or opposing-traffic simulations.
-  The extended pure-plan regression also passes all 1,000 seeded pickup routes;
-  physical source/export checks remain on the four displayed proof seeds.
-- Raw GLB triangles agree with source totals; unit-normal error is below 1.2e−7.
-  Fresh-import positions agree within 7.7 µm and pivot/socket matrices within 5.8e−6.
-  Those checks prove serialization, separately from the surface and motion checks.
-- A second factory-startup seed-101 build produces a byte-identical diagnostic GLB.
-
-The store, canopy and price sign are below the brief's preferred ranges at this
-form stage. Their silhouettes and operating assemblies are retained; there is
-no reason to add invisible framing or pad triangles to reach a lower bound.
-The later material charts, causal weather samples and optimized detail transfer
-still have room within the stated ceilings. Pumps are below their 6k ceiling;
-small props are at or below their relevant tiers. Low-sided bollards and poles
-are lean repeated modules whose finer fasteners belong in the trim normal.
-
-The shared delivery plan is **39⅔ MiB of new commercial maps**, plus the two
-existing ground paving triples (**32 MiB**), for **71⅔ MiB** across the complete
-commercial family. A neighborhood already using ground adds only 39⅔ MiB.
-The strip mall reuses these sets. These are BC7/BC5 estimates with full mipmaps,
-not PNG bytes or measured engine uploads; see TEXTURES for every allocation.
-No final PBR texture bake or UV-density certification has run.
-
-## Parts, motion and sockets
-
-Fixed construction is consolidated per reusable module. The station's GLB
-retains `Store`, `Canopy`, `Dispenser_<n>`, `PriceSign`, `SitePaving`, `TankPad`,
-`TankVents`, `TrashWasher_<n>`, `AirWater`, `IceMerchandiser`, `PropaneCage`,
-`DumpsterEnclosure`, store/island bollards, accessible sign and light poles.
-Nozzle meshes and hinged leaves remain separate. Helpers carry local frames;
-no armature is used.
-
-| Moving node | Local axis / range | Origin and use |
-| --- | --- | --- |
-| `Entry_Left` / `Entry_Right` | Z, −100…0° / 0…100° | Outer jamb hinge barrels; paired outward leaves |
-| `ServiceDoor` | Z, −100…0° | Rear steel leaf's physical exterior hinge |
-| `IceDoor_-1`, `IceDoor_1` | Z, −100…0° | Independent left-hinged insulated utility doors |
-| `PropaneDoor_-1`, `PropaneDoor_1` | Z, −100…0° | Independent front cage gate hinges |
-| `DumpsterGate_-1` / `DumpsterGate_1` | Z, −110…0° / 0…110° | Yard's outer front jambs |
-| `DumpsterLid_-1`, `DumpsterLid_1` | X, −105…0° | Rear edges, above an actual open steel container |
-| `Dispenser_<n>_NozzleA/B` | Detachable rigid rest frame | Nozzle body, hand socket and holstered pose; hose deformation/controller is future runtime work |
-
-`...__Hand` nozzle sockets lie in the grip; door handles have their own hand
-socket. `Socket_StoreEntry` and `Socket_StoreWalk` expose the retail approach; the walk helper is the frontage grade datum beneath the store
-face, not the outer edge of the paved approach.
-`Socket_Drive_south/west` expose the private paving interface.
-`Socket_GroundCurb_*`, `Socket_GroundApron_*` and `Socket_GroundWalk_*`
-expose the native ground flowline frames, including its actual vertical offset.
-Their local +X points inward across each 24 ft opening before the station's
-global corner rotation. Source JSON and glTF extras retain actual per-seed frames.
-Blender Z becomes glTF Y; local X lid hinges remain X. The motion audit samples
-the actual solid surfaces at 5° increments and distinguishes this construction
-proof from simply preserving node transforms during serialization.
-
-Original scripted 20 lb cylinders fill the exchange cage. The owner's external
-tank is used only by the optional read-only fit audit, never joined, baked,
-modified, saved or exported. Its imported .3122 m diameter × .4680 m height
-fits the cage; horizontal bay choices and ray-measured shelf height are reported
-separately in `build/tank-fit.json`.
-
-## Rebuild and review evidence
-
-From the clone root:
-
-```sh
-make -C commercial WIDTH=1440 SAMPLES=40  # all four forms, checks and Cycles evidence
-make -C commercial check                 # grammar, surfaces, motions, raw GLBs/import, repo
-make -C commercial model                 # no bake or rendering
-make -C commercial match                 # two dated photo comparisons
-make -C commercial scale                 # same-scale split-level and pickup
-make -C commercial repeat                # independent factory-startup byte repeat
-make -C commercial fit TANK_REFERENCE=../../.foundry/shared/propane-tank.glb
-```
-
-The last command needs the expressly authorized local owner reference, not
-provided by this repository. On another clone, pass its own authorized path.
-The scale shot imports this worktree's existing `houses/export/HearthfieldSplit-51.gltf`
-and `cars/export/AlderC150.glb`, for presentation only. Existing
-exports are reused when present; `src/context.py` builds missing same-worktree
-exports with those families' own Makefiles. Hashes include the house's external
-buffer and maps. The station never changes or re-exports loaded context.
-All Cycles renders hold the shared GPU lock and enable OptiX/CUDA through kit.
-Scratch and generated data stay in ignored worktree `build/` directories.
-
-| Local output | Evidence |
+| Construction | Authored real size / measured proof |
 | --- | --- |
-| `build/station-<seed>.blend/.glb/.json` | Four independent source forms, stock diagnostic exports, counts/frames |
-| `build/plan-check.json` | 1,000 bounded plans and pickup routes, eight invalid controls; four named proof routes |
-| `build/checks.json`, `build/motion-<seed>.json` | Actual roof, island and hose probes; fixed entry opening; motion; independent raw attributes/import/pivots |
-| `build/tank-fit.json` | Optional owner reference bounds and actual cage shelf clearance |
-| `build/repeat-check.json` | Independent factory-startup seed-101 geometry/embedded-image repeat |
-| `renders/checkpoint/hero.png` | Cycles from exported GLB, eye at 1.68 m across the corner |
-| `renders/checkpoint/seeds/<seed>/{above,street}.png` | Each whole property and each actual street approach |
-| `renders/checkpoint/{dispenser,canopy,entry,sign}.png` | Required construction close-ups |
-| `renders/checkpoint/{rear,motion,scale}.png` | Services, paired open entry, split-level/pickup at common meter scale |
-| `renders/matches/*-pair.jpg` | Two kit-calibrated comparisons, with original dated photos and disclosed neutral balance |
-| `renders/checkpoint/{family,details,circulation,contact}.jpg` | Review sheets; never committed portfolio images |
-| `build/view-check.json` | Current source/image/recipe hashes for the checkpoint |
+| Canopy | 14 ft 6 in / 4.4196 m nominal soffit; 3 ft 3 in / .9906 m fascia; 14 in / .3556 m clad columns |
+| Islands | 25 ft / 7.62 m centers; 4 × 18 ft / 1.2192 × 5.4864 m; 6 in rise; 21 ft / 6.4008 m clear between curbs |
+| Cairn M3 dispenser | 1.10 m cabinet width, .62 m electronics depth, 1.19 m crown, 2.24 m crown height; 30 mm OD hoses |
+| Store | 203.2 mm wall shell; 2.75 m glazing head; 3.9624 m roof datum; 4.8768 m parapet; .1524 m slab |
+| Public interface | 24 ft clear openings, 5 ft transition wings, native 6 ft apron, 5 ft walk and 15 ft curb-return radius |
+| Accessible approach | 132 in vehicle bay + 60 in aisle; a 6 ft 1:12 run and 6 ft level landing in the 12 ft store walk |
+| Tank vents | 12 ft / 3.6576 m before caps; original fill/monitor covers use the cited API colors and symbols |
 
-Weakest at this gate: broad surfaces are deliberately smooth and unaged; brick,
-split-face CMU and EIFS differ by quick color, not accepted manufactured relief.
-The light/shadow and glazing are controlled outdoor previews with simple retail
-backings and a spare landscape. Prop cylinders, pipe bends and tiny fittings
-remain coarse at extreme close-up. The small cooler condenser still uses the
-large RTU helper's fan/grille proportions and needs a size-specific refinement.
-Original plan and column/cabinet differences
-remain visible in the photos; a small camera-fit residual does not erase them.
-Brand/decal geometry independence, final draw calls, shared map reuse, UV/density,
-baked wear and exported-PBR photo fidelity await the requested next stage.
+Published municipal/manufacturer comparators and original decisions are cited
+in REFERENCE. These are asset dimensions and sampled construction checks,
+not structural, ADA, fuel-system or civil-engineering certification.
+Meters, Blender +Z up and canonical −Y frontage; a quarter-turn selects the
+street corner. Props retain footprint/ground origins, and operating leaves
+retain their physical hinges. glTF maps Blender Z to Y up.
 
-Stop here for form review. There is no strip-mall asset, completed look-dev,
-texture bake or final portfolio delivery hidden behind this checkpoint.
+## Construction and age
+
+Storefront bays now have masonry pilasters, precast feet/caps, a projecting
+folded-metal entry canopy and, on CMU stores, split-face wainscot returns with
+a water table. Coping has folds, hems and standing joints. Wall packs, service
+lighting, sealed electric meters, disconnect/conduit and a connected gas set
+complete the rear/sides. The electrical set clears the cooler. Monument signs
+use the store's masonry and a cap; price cabinets have extruded frames.
+Canopy columns have folded wraps, a skirt/drip, closure seam and brand band.
+
+The lower hose U has more longitudinal stations and smooth circumferential
+normals. The former stray wire/reel proxy is removed: the crown bulkhead and
+holstered swivel support the stored hose. No deployable retractor mechanism or
+runtime hose deformation is claimed. The nozzle has compound cast sections,
+an open guard, grip socket, swivel and curved spout.
+
+The glass reveals gondola shelves, six generated product-front variants,
+a cooler-door wall, checkout counter/register and ceiling lights. This is a
+representative visible retail volume, not a playable shop plan. Maintained
+beds instance the original Boxwood family over generated angular bark chips.
+
+Wear is placed at its causes: engine drips at every fueling face and parking
+position; swept tire contact at driveway turns; a repaired service trench and
+sealed branching cracks; joint deposits; worn stall paint; gum by the entry;
+base/hand-working grime; low bollard scuffs and exposed-steel corrosion; runoff
+below coping/fascia joints; low masonry salts/dirt; and south-facing paint fading.
+Manufactured grain remains in textures, with broad age in stock vertex tint.
+There is no whole-surface dirt noise wash, arbitrary wall peeling or blanket
+warm tint on the paving. The maintained age remains an artistic checkpoint.
+
+## Shared PBR and loading
+
+`export/CommercialGas-<seed>.gltf` plus its `.bin` is the stock delivery layout.
+`export/textures/` holds **17 new shared images / 39⅔ MiB** assuming 8-bpp
+BC7/BC5 and full mipmaps. CMU is 1024; brick, EIFS and roof 512; trim and
+shared equipment 2048; both brands' ink sheet 1024. EIFS/roof omit redundant
+ORM maps. Glass and the operational emissive states add no images.
+
+Manufacture is generated and GPU Cycles flat-baked at 4096, then filtered in
+linear color, vector-normal and roughness-RMS space. Typography/marks are
+original 4096 raster art with coverage-aware filtering. The original baked
+fields repeat byte for byte. This is a tiled-material bake, not a unique
+whole-station projection bake.
+
+Ground asphalt/concrete use their existing canonical images (**32 MiB**),
+with native 6.096/3.048 m repeats. Stock public lawn adds its existing **16 MiB**;
+Boxwood uses the shrubs family's existing **16 MiB**, once for every instance.
+The full wall-alternative + paving/lawn/shrub allocation is **103⅔ MiB**.
+A neighborhood already loading ground and shrubs adds only the commercial
+**39⅔ MiB**. PNG bytes are not GPU memory. Keep canonical URI/image identities
+when loading; the same-scene importer reuse check proves that sharing here.
+
+Each shrub instances two stock meshes; the repeated plants do not upload
+nineteen independent botanical atlases or geometries. Neighboring houses,
+trees and streets in the presentation are loaded from their own exports and
+are excluded from station delivery. Their hashes are recorded.
+
+The exported lamps retain their authored night-capable emission strengths.
+Day presentation switches exterior luminaires off, keeps the interior and
+prices on, and scales logo-panel emission to .10. Dusk restores their strengths.
+Both states use the same exported geometry, inks and PBR maps, with procedural
+sun/sky only. Ink colors are stored in the sheet because glTF emission does
+not multiply COLOR_0. No replacement source look shader is used for judgments.
+
+## Measured budgets
+
+Counts include real operating leaves, hoses, cylinders, utility gear and wear
+ribbons. Each dispenser is **5,160 triangles**, below 6k. Paving, landscaping
+and presentation are accounted separately.
+
+| Seed | Store | Canopy + islands | Price sign | Station without plants | Placed stock plants | Whole placed station |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 101 | 34,306 | 12,806 | 1,516 | 86,066 | 106,172 | 192,238 |
+| 102 | 30,058 | 9,626 | 1,044 | 71,684 | 106,172 | 177,856 |
+| 103 | 34,526 | 16,106 | 1,516 | 96,100 | 111,760 | 207,860 |
+| 104 | 32,054 | 12,806 | 1,044 | 83,556 | 106,172 | 189,728 |
+
+Default seed's other parts: paving 3,634; separate service-wear ribbons 256;
+tank pad 1,164; vents 376; trash/washer 1,116 each; ice cabinet 1,776;
+propane cage/cylinders/doors 4,474; dumpster yard/container/gates/lids 3,224;
+air/water 1,570; store bollard 256 each; accessible sign 416; light pole 348 each.
+The store and canopy are within 45k/18k. The price sign stays below the preferred
+2k lower end because its construction does not need filler geometry.
+
+`build/delivery.json` and `build/delivery-check.json` record exact per-seed
+geometry bytes, embedded-GLB bytes, unique mesh triangles, material primitives,
+shared PNG bytes, UV density and import errors. Placed shrub triangles are not
+unique GPU geometry: seed 101's unique mesh total is 91,654 triangles.
+The large embedded build GLBs duplicate no images internally but include the
+existing ground/shrub PNG payloads; external deliveries share those resources.
+
+
+| Seed | glTF + geometry BIN bytes | Embedded build GLB bytes | Materials |
+| --- | ---: | ---: | ---: |
+| 101 | 10,714,116 | 73,894,428 | 18 |
+| 102 | 9,241,258 | 70,055,664 | 18 |
+| 103 | 11,696,735 | 74,876,996 | 19 |
+| 104 | 10,586,865 | 71,201,832 | 18 |
+
+The 17 new PNGs occupy 12,295,219 bytes on disk.
+The material counts include separate tiled construction finishes, ground,
+foliage, glass, transparent wear, graphics and operational lamp states; they
+are not a claim of one draw call for a whole station.
+
+## Parts, pivots and generator
+
+Fixed construction consolidates per reusable module: store, canopy/islands,
+each dispenser, sign, site paving, tank pad/vents, trash/washer, ice cabinet,
+propane cage, air/water, dumpster yard, bollards, signs and poles. Botanical
+meshes remain instanced. There is no armature.
+
+| Moving node | Local axis / range |
+| --- | --- |
+| Entry_Left / Entry_Right | Z, −100…0° / 0…100°; outer jamb barrels |
+| ServiceDoor | Z, −100…0°; rear exterior hinge |
+| IceDoor_-1 / IceDoor_1 | Z, −100…0°; separate cabinet hinges |
+| PropaneDoor_-1 / PropaneDoor_1 | Z, −100…0°; cage front hinges |
+| DumpsterGate_-1 / DumpsterGate_1 | Z, −110…0° / 0…110° |
+| DumpsterLid_-1 / DumpsterLid_1 | X, −105…0°; rear lid edges |
+| Dispenser_<n>_NozzleA/B | Detachable holstered frames, separate hand sockets |
+
+Entry/nozzle hand sockets, `Socket_StoreEntry`, `Socket_StoreWalk`, and separate
+private paving, curb-flowline, apron and public-walk driveway frames survive.
+The owner's tank may be loaded only by the read-only fit tool; it never enters
+the saved station, maps or export. Source and fresh-import checks distinguish
+working surface clearances from mere serialization.
+
+`src/plan.py` remains Blender-independent: 2–4 islands, 0/30/90° canopy axes,
+quarter-turn corners, bounded stores, four wall styles, two original brands,
+monument/pylon and selected cooler boxes. Rillway retains aubergine/copper/ivory
+and three unequal piers; Latchline retains graphite/periwinkle/off-white and
+offset brackets. The trade-dress comparison is in REFERENCE. Equal graphic
+quads allow UV-selected brand changes without different logo geometry.
+Retail walls/openings, storefronts, coping, services and fit-out remain reusable
+within this family for the later strip mall. No strip mall is built this round.
+
+## Rebuild and review
+
+```sh
+make -C commercial WIDTH=1600 SAMPLES=48
+make -C commercial check
+make -C commercial export
+make -C commercial match
+make -C commercial before-after
+make -C commercial repeat
+```
+
+The default command rebuilds original fields/bakes/maps, four sources and
+shared-image exports, checks, Cycles checkpoint views, used-photo pairs and
+before/after form crops. GPU work holds the shared kit lock; scratch stays under
+worktree build/. Missing stock ground, shrubs, house and oak presentation
+exports build with their families' own Makefiles; existing exports stay intact.
+No kit source changed.
+
+| Output | Evidence |
+| --- | --- |
+| `renders/look-checkpoint/hero.png` | Opposite sidewalk, 1.60 m eye, 40 mm lens, verticals vertical; entry clear of monument |
+| `renders/look-checkpoint/seeds/<seed>/{street,above}.png` | Four corners and whole-property views fitted to actual exported vertices |
+| `renders/look-checkpoint/{dispenser,canopy,column,entry,sign,rear,services,asphalt,landscape}.png` | Construction, services, material and causal age close-ups |
+| `renders/look-checkpoint/dusk.png` | Exported canopy, prices, brand/store panels and interior lit |
+| `renders/look-matches/*-pair.jpg` | Five calibrated used-photo comparisons, explicit procedural sun/sky and neutral balance |
+| `renders/look-matches/*-values.jpg` | Fixed display-value and hue patches; differences retained in values.json |
+| `renders/form-fixes/*-before-after.jpg` | Seven fixed-camera crops; before rebuilt from our accepted Git version |
+| `renders/look-checkpoint/contact.jpg` | Full checkpoint contact sheet |
+| `build/checks.json`, `build/motion-*.json` | Surface probes, 948 total sampled 5° door/gate/lid poses, native ground interface |
+| `build/plan-check.json` | 1,000 pickup routes with occupied parking; tightest SAT gap .225 m |
+| `build/delivery-check.json`, `build/look-view-check.json` | Actual geometry/UV/normal/image reuse; current source/image/context hashes |
+
+Photo cameras fit selected structure, not entire stations: PA 2006 canopy
+1.66 px RMS; CA 2009 dispenser .28 px; PA forecourt crop 3.43 px; TX 2004
+entry .58 px; supplementary VA 2009 paving 19.26 px with a 1.65 m eye prior.
+Sun elevations/directions are estimates from visible shadows;
+photos do not supply surveyed solar positions, camera response or albedos.
+The five comparisons use four photographs, with two PA crops. Neutral ROIs
+and linear gains are in `build/reference-balance.json`.
+
+Fixed display Y′ medians (export / balanced photograph; not albedos):
+
+| Surface | Export | Photo | Relative difference |
+| --- | ---: | ---: | ---: |
+| soffit | 0.434 | 0.417 | +4.2% |
+| concrete | 0.636 | 0.795 | -20.0% |
+| dark cabinet | 0.159 | 0.135 | +17.9% |
+| eifs | 0.692 | 0.663 | +4.4% |
+| asphalt | 0.544 | 0.466 | +16.8% |
+
+Remaining limitations are recorded in REVIEW: the PA concrete remains darker
+than its very bright photograph, VA asphalt is brighter than its comparator,
+the photographed soffit is warmer, and exact
+black-surround/EIFS appearance differs between manufacturers and lighting.
+The original station plan, single column row, flat fascia and stored hoses
+are not copies of those photographed systems. Repetition, regular construction,
+flat bark relief and simple package geometry remain visible close up. The
+finest wear is weaker from the opposite sidewalk than in detail views; this is
+not presented as a perfect photograph or an accepted portfolio final.

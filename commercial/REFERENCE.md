@@ -1,9 +1,9 @@
 # Commercial / corner station form evidence
 
 This is an original 1995–2010 suburban station grammar, maintained at roughly
-15 years of service. The current gate proves **form with quick materials**.
-Manufacture, causal use, final charts, tile bakes and game packaging follow
-form review. No reference pixels enter geometry or materials.
+15 years of service. The current gate adds shared baked manufacture, causal
+age and external-image delivery to the accepted form. No reference pixels
+enter geometry or materials. It remains a lead-review checkpoint.
 
 The dated Pennsylvania (2006), Louisiana (2008) and California (2009) photos
 prove those operating configurations existed in the period. They do not establish
@@ -19,7 +19,7 @@ direct files and unavailable downloads are in [refs/SOURCES.md](refs/SOURCES.md)
 | Square columns | [Superior Canopy drawing, municipal planning packet](https://ghtmi.gov/wp-content/uploads/2024/12/PlanningPacket_080723_UPDATED2-1.pdf), S-100.00, specifies 12 × 12 × 1/4 in HSS, 36 in fascia and 14 ft 9 in clearance. Cached published drawing text; host blocks retrieval. | 14 in / .3556 m painted outer envelope, chosen around a nominal 12 in steel core. The hidden core is not modeled. PA's broader clad columns are a different finish. No structural-load certification. |
 | Islands / lanes | Choubah gives 25 ft island centers, compact 3 × 5 ft dispenser curbs and 6 in steel protection. PA shows longer service/column islands. | 25 ft / 7.62 m centers; **4 × 18 ft / 1.2192 × 5.4864 m combined islands**, 6 in high. Their length is original to accommodate pump, column, guard and washer. Clear between curbs: 21 ft / 6.4008 m. |
 | Fueling positions | [Gilbarco period certificate](https://www.gilbarco.com/la/sites/gilbarco.com.la/files/pdfs/Certificado_Encore_500_S.pdf), issued 2000, revised 2006: single-hose multi-grade variants and separate hydraulic/electronic cabinets. [MDE-3985L, May 2006](https://manualzilla.com/doc/6026367/mde-3985l-encore%C2%AE-installation-manual), manufacturer manual reproduced by archive, pp.62–63, has 44-inch-class footprint and roughly 94-inch overall reference envelopes. | Fictional Cairn M3: 1.10 m main width, .62 m electronics depth, 2.24 m crown top; 1.19 m crown width. Two operating faces, three grade buttons and one hose per face. Cabinet is original and slightly lower than the reference with overhead options. |
-| Hose / nozzle | OPW's [11-series sheet](https://www.opwglobal.com/docs/libraries/retail-fueling/product-catalogs/above-ground/conventional-dispensing-equipment/11a-and-11b-automatic-nozzles.pdf?sfvrsn=69b5dac4_20) specifies a 3/4 in connection. Continental's [manufacturer catalog reproduction](https://www.goodyearrubberproducts.com/2015pdfs/Contitech/Contitech_2015_Industrial_Hose_Catalog/files/assets/basic-html/page177.html) lists 19.1 mm ID / 28.7 mm OD. CA 2009 photo independently shows real slack and a cast trigger guard. | 30 mm OD curb hose; curved gravity loop, reel tether, breakaway and swivel; original compound-section cast nozzle with open guard. The tether is attached to an actual curve station. |
+| Hose / nozzle | OPW's [11-series sheet](https://www.opwglobal.com/docs/libraries/retail-fueling/product-catalogs/above-ground/conventional-dispensing-equipment/11a-and-11b-automatic-nozzles.pdf?sfvrsn=69b5dac4_20) specifies a 3/4 in connection. Continental's [manufacturer catalog reproduction](https://www.goodyearrubberproducts.com/2015pdfs/Contitech/Contitech_2015_Industrial_Hose_Catalog/files/assets/basic-html/page177.html) lists 19.1 mm ID / 28.7 mm OD. CA 2009 photo independently shows real slack and a cast trigger guard. | 30 mm OD curb hose; smooth gravity loop, breakaway and swivel; original compound-section cast nozzle with open guard. The former wire/reel proxy is removed; the bulkhead and holstered swivel support the stored hose. |
 | Store / site | Program bounds come from this brief; published station photographs establish low retail massing, divided aluminum glazing and parapet vocabulary. | 140–160 ft proof lots; 2,688–3,300 sq ft stores. Original layouts, not reproductions of the photographed properties. |
 | Storefront | Commercial aluminum framing vocabulary in the photos and [Scottsdale guidelines](https://www.scottsdaleaz.gov/docs/default-source/scottsdaleaz/planning---develpment/forms/gas-station-and-convenience-store-design-guidelines.pdf?sfvrsn=4378457c_1): grouped windows and integrated equipment. Scottsdale's lower canopy limits are local and are not adopted as national rules. | 55 mm sightlines, 120 mm frame depth, 2.75 m head, .27 m window sill; paired nominal 36 × 80 in entry leaves. Roof datum 3.9624 m, parapet 4.8768 m, 203.2 mm wall shell. |
 | Parking / access | [US Access Board, Chapter 5](https://www.access-board.gov/ada/guides/chapter-5-parking/): 132 in van bay plus 60 in aisle; sign bottom at least 60 in. | 3.3528 m bay + 1.524 m hatched aisle, 18 ft parking depth, 12 ft store walk containing a 6 ft 1:12 ramp run and 6 ft level top landing, with .1524 m rise. Sign bottom 1.615 m. This is a dimensional asset check, not a jurisdictional permit design. |
@@ -78,7 +78,16 @@ fuel/convenience result; this is an art-direction check, not trademark clearance
 Some pages block retrieval; the dated licensed station photographs and the
 manufacturer's own brand publications are retained as explicit witnesses.
 No real logo files are downloaded, copied into the graphics sheet or traced.
-Daylight form materials are temporary. Delivery will put both brands' marks,
-wordmarks, price digits and common safety graphics into guarded equal-size UV
-cells so a brand swaps without changing geometry. Raised form marks are
-placeholders for those illuminated graphic panels, not a final swap proof.
+Both brands' marks and wordmarks now occupy guarded equal-size UV cells,
+alongside the common regulatory and product graphics. Raised form marks have
+become equal graphic panels; their ink and emitted colors survive standard
+glTF without relying on emission vertex tint. The source and shipped maps are
+original. No source photograph is a texture or a private identifying record.
+
+
+A supplementary VA 2009 paving comparison uses adjacent column stations, a
+1.65 m eye-height prior and a 59.1 mm estimated lens. Native 3888px residual is
+19.26 px: substantially weaker than the four primary fits. It judges asphalt
+and repair history under a roughly 37° procedural sun, not exact plan geometry.
+Its neutral is sunlit gray aggregate between shadow bands, at native
+(2025,2228)–(2228,2329); all photographs are comparison-only.

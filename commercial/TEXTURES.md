@@ -1,9 +1,11 @@
-# Planned shared commercial maps — no delivery bake at the form checkpoint
+# Shared commercial maps — exported surface checkpoint
 
-All fields will be generated at 4096 and filtered to the sizes below, following
-houses' shared external-image delivery. Repeat UV overlap is deliberate on
-building tiles; trim/graphic faces stay within guarded finish cells. Source
-photo pairs will be repeated on the actual final glTF after the eventual bake.
+Manufacture fields are generated at 4096, GPU Cycles flat-baked at 4096 and
+filtered to the sizes below, following houses' shared external-image delivery.
+Original typography/marks are rasterized at 4096 and filtered in premultiplied
+linear color to 1024. Repeat UV overlap is deliberate on building tiles;
+trim/equipment faces stay within guarded finish cells. The photo comparisons
+load the actual exported glTF and its unchanged shipped maps.
 
 | Set | Ship maps / size | Physical use and reason | BC7 / BC5 + full mips |
 | --- | --- | --- | ---: |
@@ -26,18 +28,40 @@ road and station do not upload identical paving images twice. A standalone
 commercial package still needs those two triples once. Loading the entire
 64 MiB ground family plus commercial adds only 39⅔ MiB: 103⅔ MiB combined.
 
-At this checkpoint, **one generated 2048² transparent lettering sheet per station
-and scalar quick materials** support form review. It is not a finished atlas or baked
-texture delivery; current material slots and its preview PNG are not final GPU
-claims. Every pixel is generated from our strings and installed open DejaVu
-fonts. Photos never become texture inputs. Raised logo placeholders will become
-fixed graphic panels; geometry identity across brand swaps remains a delivery
-check, not a claim of this prototype.
+There is one canonical directory of **17 new images**, without per-seed maps.
+Stock external glTFs reference these files and the ground/shrub families'
+canonical image URIs. Their unchanged PNG bytes and same-scene image identities
+are independently checked. PNG sizes and Blender's decoded image bytes are
+not claimed to be actual compressed engine upload measurements.
 
-Future wear remains cause-driven: parked-engine and fueling drips, turning tire
-paths, repaired trench/cracks, joint deposits, door/base gum/grime, low bollard
-scuffs and rust, coping/fascia runoff, low masonry salts and south-facing fading.
-Broad fields can use ordinary RGBA8 vertex tint as houses do; microstructure
-stays in tiles/trim. No uniform noise wash, scattered wall peeling or extra
-whole-station unique atlas is planned. Full-frame and used-photo checks must
-judge the strength after baking.
+The 2048 equipment sheet contains 32 guarded cells: painted steel, dark molded
+plastic, stainless, rubber, bark chips, four accumulated oil footprints, linear
+tire/joint contact, gum, runoff/salts, corrosion/scuffs and six original product
+fronts. Alpha is coverage only in the wear material; opaque equipment keeps
+ordinary PBR. Eight trim strips carry white enamel, aluminum, anodized finish,
+soffit, galvanizing, painted brand fields and louvers. EIFS/roof use scalar
+.88/.93 roughness and zero metal without redundant ORM maps.
+
+Both brands' wordmarks and marks use equal geometry and select guarded ink
+cells through UVs. Ink colors live in the image: standard glTF emission cannot
+multiply vertex tint. Price LEDs use uniform amber emission; canopy, wall-pack,
+lot and interior lamps reuse the equipment images. Scalar glass adds no image.
+Day renders turn exterior luminaires off, retain interior/LED lighting and
+reduce logo-panel emission to .10; dusk uses exported authored strengths.
+These are documented operational states of the delivered materials.
+
+Wear comes from parked/fueling engine drips, swept driveway tire paths, a
+repaired service trench and sealed cracks, retained joint deposits, door/base
+gum/grime, impact scuffs and exposed-steel rust, coping/fascia runoff, low
+masonry salts, and south-facing paint fading. Broad low-frequency age uses
+stock COLOR_0; manufacture stays in the maps. No whole-station unique atlas,
+uniform noise wash or scattered wall peeling is introduced.
+
+Maintained beds instance **Boxwood** from `shrubs/export/Shrubs.glb`: two shared
+meshes, three existing 2048 maps (**16 MiB**, reused once). Public planting and
+neighboring presentation lawns also reuse Ground's existing lawn triple
+(**16 MiB**). These are existing stock families, not new commercial sets.
+A standalone fully landscaped station references 39⅔ + 48 ground + 16 shrubs
+= **103⅔ MiB** across all wall alternatives. A neighborhood already loading
+ground and shrubs still adds only **39⅔ MiB** for commercial. Neighboring
+houses/trees used only for presentation are excluded from the station export.
