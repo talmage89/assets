@@ -17,8 +17,18 @@ def lens(rt,name,center,radius,kind,lit=False):
  x,y,z=center
  # The shared sheet carries an opaque circular optical cover and LED packages.
  j=TILES.index(kind);rect=((j%4)/4,1-(j//4+1)/2,(j%4+1)/4,1-(j//4)/2)
- o=quad(name,(x,y-.0003,z),radius*2,radius*2,'lit' if lit else 'off',rt,rect)
- o['signal_lens']=True;o['signal_kind']=kind;o['powered']=lit
+ # A six-millimeter optical crown carries a broad real cover reflection.
+ # Nine vertices / eight triangles keep even the five-section head at 1500.
+ coords=[(a,b) for b in (-1,0,1) for a in (-1,0,1)]
+ vs=[(x+radius*a,y-.0003-.006*max(0,1-a*a-b*b),z+radius*b) for a,b in coords]
+ fs=[(j*3+i,j*3+i+1,(j+1)*3+i+1,(j+1)*3+i) for j in range(2) for i in range(2)]
+ o=G.smooth(G.mesh(name,vs,fs,M['lit' if lit else 'off']),40)
+ uv=o.data.uv_layers.new(name='UVMap');u0,v0,u1,v1=rect
+ for face in o.data.polygons:
+  for li in face.loop_indices:
+   a,b=coords[o.data.loops[li].vertex_index];uv.data[li].uv=(u0+(a+1)*.5*(u1-u0),v0+(b+1)*.5*(v1-v0))
+ own(o,rt)
+ o['signal_lens']=True;o['signal_kind']=kind;o['powered']=lit;o['cover_crown_m']=.006
  o['off_material']='SharedLens_Off';o['lit_material']='SharedLens_Lit'
  return o
 

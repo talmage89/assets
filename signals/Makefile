@@ -57,7 +57,7 @@ renders/checkpoint/.stamp: build/delivery.json src/render.py src/setting.py src/
 	$(KIT)/with_gpu.sh $(RP) --python src/lens_compare.py
 	@touch $@
 render: renders/checkpoint/.stamp
-build/cameras.json: src/matches.py src/sidewalk_fit.py src/layout.py | refs
+build/cameras.json: src/matches.py src/sidewalk_fit.py src/layout.py $(foreach n,$(SEEDS),build/Signals-$(n).json) | refs
 	$(PYTHON) src/matches.py
 renders/matches/.stamp: build/delivery.json build/cameras.json src/render.py src/setting.py build/render-parameters.txt
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration build/cameras.json

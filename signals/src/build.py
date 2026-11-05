@@ -80,7 +80,12 @@ def build(plan,out):
   if o.type=='MESH':o.data.calc_loop_triangles()
  report=dict(plan=plan.data(),site=site.data(),checkpoint=True,parts=[dict(name=o.name,kind=o['part_kind'],triangles=tri(o),bounds=bounds(o)) for o in parts],lenses=[])
  for o in bpy.context.scene.objects:
-  if o.get('signal_lens'):report['lenses'].append(dict(name=o.name,kind=o['signal_kind'],powered=bool(o.get('powered')),parent=o.parent.name))
+  if o.get('signal_lens'):
+   points=[v.co for v in o.data.vertices];cx=(min(p.x for p in points)+max(p.x for p in points))/2;cz=(min(p.z for p in points)+max(p.z for p in points))/2
+   middle=min(points,key=lambda p:(p.x-cx)**2+(p.z-cz)**2)
+   left=min(points,key=lambda p:(p.x-min(q.x for q in points))**2+(p.z-cz)**2)
+   right=min(points,key=lambda p:(p.x-max(q.x for q in points))**2+(p.z-cz)**2)
+   report['lenses'].append(dict(name=o.name,kind=o['signal_kind'],powered=bool(o.get('powered')),parent=o.parent.name,center_world_m=list(o.matrix_world@middle),left_world_m=list(o.matrix_world@left),right_world_m=list(o.matrix_world@right),measurement='Actual source apex and horizontal diameter vertices, preserved by the independently checked export'))
  report['subparts']=[dict(name=o.name,kind=o['part_kind'],triangles=tri(o)) for o in bpy.context.scene.objects if o.type=='EMPTY' and (o.get('part_kind','').startswith('Head_') or o.get('part_kind') in ('PushButton','PedHead','CabinetDoor'))]
  report['equipment_triangles']=sum(len(o.data.loop_triangles) for o in bpy.context.scene.objects if o.type=='MESH')
  report['sha256_recipe']=hashlib.sha256(b''.join(p.read_bytes() for p in sorted(Path('src').glob('*.py')))).hexdigest()
