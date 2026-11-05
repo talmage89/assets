@@ -66,7 +66,7 @@ def shots(seed):
    hero=dict(location=(-14.0,-8.0,1.7524),target=(3,site.core(0)-1,4.0),lens=40,aspect=1.5),
    head_lit=dict(location=(h[0]+1.05,h[1]-3.4,h[2]+.7),target=h,lens=60,aspect=1.2),
    head_dark=dict(location=(h[0]+1.05,h[1]-3.4,h[2]+.7),target=h,lens=60,aspect=1.2,dark=True),
-   connection=dict(location=(px-1.4,py-2.5,7.3),target=(px-.24,py,ARM_Z+.15),lens=60,aspect=1.3),
+   connection=dict(location=(px-1.7,py+2.5,7.3),target=(px-.24,py,ARM_Z+.15),lens=60,aspect=1.3),
    base=dict(location=(px+1.3,py-1.7,1.25),target=(px,py,.48),lens=57,aspect=1.3),
    pedestrian=dict(location=(site.face(0)-2,site.core(0)+3.824,2.05),target=(site.face(0)+1.65,site.core(0)+3.824,2.1),lens=45,aspect=.95),
    button=dict(location=(site.face(0)+2.1,site.core(0)+1.024,1.5),target=(site.face(0)+1.65,site.core(0)+3.654,1.52),lens=70,aspect=1.2),

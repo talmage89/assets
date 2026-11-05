@@ -104,8 +104,8 @@ Reusable three / FYA / five / protected heads are 1,060 / 1,340 / 1,500 / 964
 triangles. PedHead is 464; PushButton 408; PushButtonPost 1,044; Pedestal 1,564;
 Cabinet 2,800; MastArm 8,174; SpanSet 17,456. The complete dual-arm Cinderbrook
 support is 13,380 triangles. Variants' actual per-head and support counts are
-also retained in the generated report. Shared PNGs total 3,657,741 bytes;
-all fifteen glTF/bin deliveries plus that single map copy total 14,607,233 bytes.
+also retained in the generated report. Shared PNGs total 3,657,737 bytes;
+all fifteen glTF/bin deliveries plus that single map copy total 14,607,229 bytes.
 
 `make` rebuilds fields, locked Cycles bakes, game parts, external glTFs, checks,
 checkpoint views, source/game photo pairs and review sheets. Defaults are
