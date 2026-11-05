@@ -1,4 +1,4 @@
-"""Feature-aligned physical chords on the newly lofted rear greenhouse.
+"""Feature-aligned physical chords on the newly lofted greenhouse.
 
 Port of the hatch shoulder's held-boundary resampling method. Y/radial-angle
 coordinates follow the manufactured sections; the old coarse cage diagonals
@@ -14,7 +14,7 @@ from sedan_upper_surface import field,rail
 from sedan_surface_normals import normal
 
 
-def rebuild(ob,surface,high=False):
+def rebuild(ob,surface,high=False,front=False):
     from sedan_fairness import field as old_field
     from sedan_body import shoulder_height,sheet_gauge,closeable_sheet
     world=ob.matrix_world;inverse=world.inverted();nm=world.to_3x3().transposed();old=ob.data
@@ -28,7 +28,11 @@ def rebuild(ob,surface,high=False):
     selected=[]
     for f in bm.faces:
         p=world@f.calc_center_median()
-        if p.y>.50 and p.z>shoulder_height(p.y)+.055:selected.append(f)
+        # The A-pillar retains its own physical opening but also needs fresh
+        # die-aligned rows: old cage diagonals step the macro reflection even
+        # when the windshield itself has a correct optical normal field.
+        if ((-1.06<p.y<-.26 and p.z>.91) if front else
+                p.y>.50 and p.z>shoulder_height(p.y)+.055):selected.append(f)
     region=set(selected);boundary=list(dict.fromkeys(e for f in selected for e in f.edges if sum(q in region for q in e.link_faces)==1))
     boundary_degree={e:len(e.link_faces) for e in boundary}
     verts=sorted({v for e in boundary for v in e.verts},key=lambda v:v.index);lookup={v:i for i,v in enumerate(verts)}
@@ -39,7 +43,7 @@ def rebuild(ob,surface,high=False):
     # those wrong heights would retain the wavering frame by construction.
     for v in verts:
         p=world@v.co
-        if p.y>.50 and p.z>shoulder_height(p.y)+.055:
+        if front or p.y>.50 and p.z>shoulder_height(p.y)+.055:
             hit=surface['tree'].ray_cast(Vector((p.x,p.y,3)),Vector((0,0,-1)),4)[0]
             if hit is None:raise ValueError('Upper cut boundary misses the dense parent')
             v.co=inverse@hit
@@ -56,9 +60,10 @@ def rebuild(ob,surface,high=False):
             a,c=coords[a],coords[c];d=c-a;t=max(0,min(1,(q-a).dot(d)/d.length_squared));ds.append((q-a-d*t).length)
         return min(ds)
     y0,y1=min(q.x for q in coords),max(q.x for q in coords);v0,v1=min(q.y for q in coords),max(q.y for q in coords)
-    dy,dv=(.020,.020) if high else (.040,.040)
-    transverse=sorted(set([v0+k*dv for k in range(1,math.ceil((v1-v0)/dv)) if abs(v0+k*dv)>.050]+
-        [i*.012 for i in range(-4,5) if v0<i*.012<v1]))
+    dy,dv=((.020,.006) if high else (.040,.012)) if front else ((.020,.020) if high else (.040,.040))
+    transverse=([v0+k*dv for k in range(1,math.ceil((v1-v0)/dv))] if front else
+        sorted(set([v0+k*dv for k in range(1,math.ceil((v1-v0)/dv)) if abs(v0+k*dv)>.050]+
+        [i*.012 for i in range(-4,5) if v0<i*.012<v1])))
     for j in range(1,math.ceil((y1-y0)/dy)):
         for v in transverse:
             q=Vector((y0+j*dy,v))
@@ -99,12 +104,15 @@ def rebuild(ob,surface,high=False):
             vi=me.loops[li].vertex_index;custom.append(nm@(outside[vi%num]*(1 if r==0 else -1)) if r!=2 else f.normal)
         f.material_index=0
     material=me.materials[0];me.materials.clear();me.materials.append(material);me.normals_split_custom_set(custom)
-    ob['upper_physical_rows']=json.dumps(dict(removed_outer_triangles=before,new_outer_triangles=len(faces),boundary_vertices=len(verts),boundary_xy_held=True,longitudinal_spacing_m=dy,transverse_chart_spacing_m=dv,maximum_new_vertex_distance_to_old_game_chord_m=deviation,old_game_chord_example=example,reference='Actual dense uncut C2 parent, not the coarse game triangles'))
+    ob['front_pillar_physical_rows' if front else 'upper_physical_rows']=json.dumps(dict(removed_outer_triangles=before,new_outer_triangles=len(faces),boundary_vertices=len(verts),boundary_xy_held=True,longitudinal_spacing_m=dy,transverse_chart_spacing_m=dv,maximum_new_vertex_distance_to_old_game_chord_m=deviation,old_game_chord_example=example,reference='Actual dense uncut C2 parent, not the coarse game triangles'))
     print('S240_UPPER_PHYSICAL_ROWS',ob.name,before,'to',len(faces),'held boundary',len(verts),'max distance',deviation,flush=True)
 
 
 def build(surface,high=False):
-    for side in ['L','R']:rebuild(bpy.data.objects['Greenhouse_'+side],surface,high)
+    for side in ['L','R']:
+        ob=bpy.data.objects['Greenhouse_'+side]
+        rebuild(ob,surface,high)
+        rebuild(ob,surface,high,front=True)
 
 
 def stamping_rolls(surface,high=False,front=True):

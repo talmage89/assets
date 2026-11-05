@@ -3787,3 +3787,29 @@ gates, game construction/arch checks and all 422 source surface checks pass.
 Add an eighth native before/after crop for the rear turnaround so this view
 cannot disappear into the broader three-quarter comparison. Keep the rejected
 ledger explicitly marked rejected; all docs remain the prior baseline.
+
+### R9 native macro gate — complete the front pillar sampling
+
+Color/value first: delivery 65 retains the accepted Atlantic/Graphite values,
+road film and deep cavities. Its rear turnaround visibly removes the missing
+trunk skin. Its native mirror macro nevertheless reveals a stepped bright edge
+beside the windshield. Reject the complete set before any docs write.
+
+Actual camera rays along that edge hit `Greenhouse_R`'s steel outer skin, not
+the glazing. The glass rebuild works, but the front steel still carries old
+cage chords; only the rear sail had received fresh physical rows. Apply the
+same Y / distance-from-rail resampling to the front pillar, evaluating every
+new point on the same dense uncut C2 die. Hold its XY opening boundary, rebuild
+the corresponding gauge, and retain the same parent normal field. New points
+are up to 20.53 mm away from the old coarse chords; this is a real geometry
+correction rather than a relaxed shading metric.
+
+Opened candidate 66's native 800 x 850 mirror crop. The bright steel reflection
+now follows a continuous curve instead of the conspicuous staircase. The
+game mesh is 59,454 triangles and the high source 187,960. All 422 surface
+parts, both audits/aperture/motion gates, game construction and arch clearance
+pass unchanged. The source hero crop and reflection check remain required,
+followed by a fresh bake/export and every actual final. Add a ninth native
+before/after region for this macro. Delivery 65's 17 gallery views and four
+completed palette views were inspected at native size; its ledger remains
+explicitly rejected. No docs have been replaced.
