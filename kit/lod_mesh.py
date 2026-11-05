@@ -167,6 +167,9 @@ def simplify(attrs, faces, ratio, max_error, mode='COLLAPSE', max_uv_error=1/204
         for k in mapped:
             value=ww@attrs[k][faces[ii]]
             if k in ('NORMAL','TANGENT'):
+                if k=='TANGENT':
+                    normal=ww@attrs['NORMAL'][faces[ii]];normal/=max(np.linalg.norm(normal),1e-20)
+                    value[:3]-=normal*np.dot(normal,value[:3])
                 value[:3]/=max(np.linalg.norm(value[:3]),1e-20)
                 if k=='TANGENT':value[3]=1 if value[3]>=0 else -1
             mapped[k][vi]=value

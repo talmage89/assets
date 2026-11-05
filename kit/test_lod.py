@@ -30,6 +30,7 @@ def main():
     faces=np.array(faces,np.uint32)
     uv=pos[:,:2];wind=np.column_stack((uv,uv[:,0]*0,uv[:,1]))
     attrs=dict(POSITION=pos,NORMAL=np.tile((0,0,1),(len(pos),1)).astype(np.float32),
+               TANGENT=np.tile((1,0,0,1),(len(pos),1)).astype(np.float32),
                TEXCOORD_0=uv,TEXCOORD_1=uv*3,_WIND=wind.astype(np.float32))
     reduced,tris,report=simplify_parts(attrs,faces,.4,.0001,.0001)
     assert len(tris)<len(faces)*.8,report

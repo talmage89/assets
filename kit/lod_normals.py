@@ -49,7 +49,7 @@ def audit(config):
         if row.get('impostor'):
             rows.append(dict(level=row['level'],scope='unlit billboard; source surface normals intentionally replaced'))
             continue
-        doc=Document(out/row['path']);angles=[];max_distance=0.;uv_degenerate=0;exact_total=0
+        doc=Document(out/row['path']);angles=[];max_distance=0.;uv_degenerate=0;exact_total=0;tangent_dot=0.;tangent_length_error=0.
         if rig_data(doc)!=rig_data(base):errors.append(f'LOD{row["level"]}: skin bind data or animation changed')
         for mi,pi,p in doc.primitives():
             attrs,triangles=doc.arrays(p);src,faces,tree,known=fields[mi,pi]
@@ -60,6 +60,10 @@ def audit(config):
             for key in src:
                 if key.startswith(('JOINTS_','WEIGHTS_')) and not np.array_equal(src[key],attrs.get(key)):
                     errors.append(f'LOD{row["level"]}: protected skin weights changed')
+            if 'TANGENT' in attrs:
+                tangent=attrs['TANGENT'][:,:3]
+                tangent_dot=max(tangent_dot,float(np.abs(np.einsum('ij,ij->i',tangent,attrs['NORMAL'])).max()))
+                tangent_length_error=max(tangent_length_error,float(np.abs(np.linalg.norm(tangent,axis=1)-1).max()))
             uv_keys=[k for k in attrs if k.startswith('TEXCOORD_')]
             exact=np.isin(signatures(attrs,uv_keys),known);exact_total+=int(exact.sum())
             angles.extend([0.]*int(exact.sum()))
@@ -82,8 +86,10 @@ def audit(config):
         # a broad field change; switch renders remain the stricter appearance
         # test for glossy faces and normal-map/tangent interactions.
         if maximum>45 or p95>10:errors.append(f'LOD{row["level"]}: source normal field changed ({maximum:.3f} max / {p95:.3f} p95 degrees)')
+        if tangent_dot>1e-3 or tangent_length_error>2e-4:errors.append(f'LOD{row["level"]}: invalid tangent basis')
         rows.append(dict(level=row['level'],vertices=len(angles),exact_source_vertices=exact_total,
             projected_vertices=len(angles)-exact_total,max_degrees=maximum,p95_degrees=p95,degenerate_uv_triangles=uv_degenerate,
+            max_tangent_normal_dot=tangent_dot,max_tangent_length_error=tangent_length_error,
             max_vertex_surface_distance_m=max_distance,
             max_vertex_surface_distance_pixels=max_distance*1080*row['screen_height']/m['height_m']))
     report=dict(passed=not errors,errors=errors,manifest_sha256=digest(out/'manifest.json'),
