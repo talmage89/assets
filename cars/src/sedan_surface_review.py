@@ -10,6 +10,7 @@ REGIONS=[
  ('windshield','front_three_quarter',(460,250,1260,700)),
  ('roof-sail','front_three_quarter',(600,240,1400,620)),
  ('backlight-sail-deck','rear_three_quarter',(160,260,960,700)),
+ ('tail-cut','rear',(800,350,1600,750)),
  ('hood-lamp-corner','front_three_quarter',(120,390,920,820)),
  ('lamp-cut','face',(0,0,1600,650)),
  ('lamp-macro','lamp_unlit',(650,350,1600,900)),

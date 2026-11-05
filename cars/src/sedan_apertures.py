@@ -2,8 +2,8 @@
 
 Reference pixels never enter this operation. The original locator outline is
 projected onto the parent and expanded by the manufactured reveal. Convex
-pieces retain the rear's true concavity. Front panels use one constrained
-triangulation of their complete aperture, sampled afresh on the die; the hood
+pieces retain the quarter's true concavity. Front panels and trunk lamp lands
+use one constrained triangulation of each complete aperture on the die; the hood
 uses its natural XY plane. Gauge rims are constructed after cutting.
 """
 import math,json
@@ -367,11 +367,13 @@ def carve(front,lamps,surface,recess=.010):
     if front and all(lamp.get('physical_optical_chart') for lamp in lamps):
         for ob in list(bpy.context.scene.objects):
             if ob.type=='MESH' and (ob.name=='Hood outer' or ob.name.startswith('Front fender') or ob.name=='Front molded fascia'):
-                fair_front_apertures(ob,lamps,surface)
+                fair_panel_apertures(ob,lamps,surface)
         for lamp in lamps:lamp['opening_recess_m']=.003
         return
     if all(lamp.get('physical_optical_chart') for lamp in lamps):
         from sedan_optical_surface import chart
+        if not front:
+            fair_panel_apertures(bpy.data.objects['Trunk outer'],[lamp for lamp in lamps if lamp.get('lamp_piece')=='lid'],surface,front=False)
         for lamp in lamps:
             raw=list(lamp['aperture_samples']);ps=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
             nu,nv=lamp['form_columns'],lamp['form_rows']
@@ -387,6 +389,7 @@ def carve(front,lamps,surface,recess=.010):
             sign=1 if ps[0].x>0 else -1
             for ob in list(bpy.context.scene.objects):
                 if ob.type!='MESH' or ob.get('part_category') not in ['body','doors','fascia','pillars']:continue
+                if not front and ob.name=='Trunk outer':continue
                 if (front and (max((ob.matrix_world@v.co).y for v in ob.data.vertices)<-1.30 or ob.name=='Hood outer' or ob.name.startswith('Front fender'))) or (not front and (ob.name=='Trunk outer' or ob.name.startswith(('Rear quarter','Rear molded fascia')))):
                     cut_mesh(ob,cutters,surface,front=front,spatial_boxes=[box]*len(cutters),physical_sign=sign)
             lamp['opening_recess_m']=.003
@@ -443,7 +446,7 @@ def carve(front,lamps,surface,recess=.010):
         lamp['aperture_samples']=[c for p in moved for c in p];lamp['opening_recess_m']=recess-.004
 
 
-def fair_front_apertures(ob,lamps,surface):
+def fair_panel_apertures(ob,lamps,surface,front=True):
     """Constrained physical aperture charts, sampled afresh on the fair die.
 
     Sequential convex subtraction left tiny boundary barbs at panel junctions.
@@ -451,12 +454,13 @@ def fair_front_apertures(ob,lamps,surface):
     ONE triangulation. No convex-piece seam can become a manufactured edge.
     """
     from sedan_body import closeable_sheet,sheet_gauge
-    from sedan_optical_surface import chart,ORIGIN
+    from sedan_optical_surface import chart,ORIGIN,REAR_ORIGIN
     from mathutils.geometry import delaunay_2d_cdt
     world=ob.matrix_world;inverse=world.inverted();old=ob.data
     bm=bmesh.new();bm.from_mesh(old)
     bmesh.ops.delete(bm,geom=[f for f in bm.faces if f.material_index!=0],context='FACES_ONLY')
-    hood=ob.name=='Hood outer';fascia=ob.get('part_category')=='fascia';measurements=[]
+    hood=front and ob.name=='Hood outer';fascia=front and ob.get('part_category')=='fascia';measurements=[]
+    origin=ORIGIN if front else REAR_ORIGIN
     def inside(q,segments):
         count=0
         for a,b in segments:
@@ -465,18 +469,20 @@ def fair_front_apertures(ob,lamps,surface):
     def sample(q,sign):
         if hood:return surface['tree'].ray_cast(Vector((q.x,q.y,3)),Vector((0,0,-1)),4)[0]
         direction=Vector((sign,q.x,q.y)).normalized()
-        return surface['tree'].ray_cast(ORIGIN+direction*2,-direction,2)[0]
-    def project(p):return Vector((p.x,p.y)) if hood else chart(p,True).to_2d()
-    for sign in ([1] if hood else [-1,1] if fascia else [-1 if ob.name.endswith('L') else 1]):
+        return surface['tree'].ray_cast(origin+direction*2,-direction,2)[0]
+    def project(p):return Vector((p.x,p.y)) if hood else chart(p,front).to_2d()
+    for sign in ([1] if hood else [-1,1] if fascia or not front else [-1 if ob.name.endswith('L') else 1]):
         # Rebuild the upper optical land only. The lower fascia contains
         # separate grille/DRL wells and rolled returns, which are not one
         # injective radial sheet and must keep their original construction.
-        selected=[f for f in bm.faces if all((world@v.co).x*sign>.35 and (world@v.co).z>.53 for v in f.verts)] if fascia else list(bm.faces)
+        if not front:
+            selected=[f for f in bm.faces if all((world@v.co).x*sign>.20 and (world@v.co).y>2.10 and (world@v.co).z>.86 for v in f.verts)]
+        else:selected=[f for f in bm.faces if all((world@v.co).x*sign>.35 and (world@v.co).z>.53 for v in f.verts)] if fascia else list(bm.faces)
         if not selected:continue
         region=set(selected);boundary=list(dict.fromkeys(e for f in selected for e in f.edges if sum(g in region for g in e.link_faces)==1))
         degrees={e:len(e.link_faces) for e in boundary};bm.verts.index_update()
         seam_movement=0.
-        if not hood:
+        if front and not hood:
             from sedan_upper_surface import ease
             # Both manufactured parts end at ONE cut through the same die.
             # Independent material-column setbacks left a triangular gap at
@@ -499,7 +505,7 @@ def fair_front_apertures(ob,lamps,surface):
         reconstructed=0.
         for v,q in zip(originals,coords):
             p=world@v.co
-            if p.z>.70 and p.y<-1.60:
+            if front and p.z>.70 and p.y<-1.60:
                 hit=sample(q,sign)
                 if hit is None:raise ValueError('Upper aperture station misses its manufactured die')
                 reconstructed=max(reconstructed,(hit-p).length);v.co=inverse@hit
@@ -538,7 +544,7 @@ def fair_front_apertures(ob,lamps,surface):
         # Replace the old interior sampling beside the upper optical lip.
         # Parallel physical rows spend chords across its tight draw, rather
         # than refining unrelated long diagonals in every direction.
-        if not hood and not fascia:
+        if front and not hood and not fascia:
             held_boundary={v for e in boundary for v in e.verts}
             originals=[v for v in originals if v in held_boundary or not
                        ((gap:=top_gap(project(world@v.co))) is not None and 0<gap<.050)]
@@ -548,16 +554,26 @@ def fair_front_apertures(ob,lamps,surface):
         # coordinates are re-encoded. Classify against these exact constraint
         # coordinates, not a submicron displaced copy from before projection.
         domain=[(coords[a],coords[b]) for a,b in edges]
+        retained_roll_edges=0
+        if not front:
+            # The lid crosses the tight deck roll. Keep its manufactured
+            # section edges while inserting the complete optical cut; a new
+            # unconstrained diagonal can chord through that roll's gauge.
+            seen={tuple(sorted(e)) for e in edges}
+            for e in dict.fromkeys(e for f in selected for e in f.edges):
+                pair=tuple(lookup[v] for v in e.verts);key=tuple(sorted(pair))
+                if key in seen:continue
+                edges.append(pair);seen.add(key);retained_roll_edges+=1
         for hole in holes:
             start=len(coords);coords.extend(hole);edges.extend((start+i,start+(i+1)%len(hole)) for i in range(len(hole)))
         for hole in holes:
             for i,q in enumerate(hole):
                 t=(hole[(i+1)%len(hole)]-hole[i-1]).normalized();q=q+Vector((t.y,-t.x))*.010
                 gap=top_gap(q)
-                if not hood and not fascia and gap is not None and gap>=0:continue
+                if front and not hood and not fascia and gap is not None and gap>=0:continue
                 if inside(q,domain) and not any(inside(q,list(zip(h,h[1:]+h[:1]))) for h in holes):coords.append(q)
         rows=[]
-        if not hood and not fascia:
+        if front and not hood and not fascia:
             for hole in holes:
                 u0,u1=min(q.x for q in hole),max(q.x for q in hole);count=math.ceil((u1-u0)/.050)
                 for offset in [.002,.006,.012,.022,.038,.050]:
@@ -607,13 +623,16 @@ def fair_front_apertures(ob,lamps,surface):
         def segment_distance(q,segments):
             return min((q-(a+(b-a)*max(0,min(1,(q-a).dot(b-a)/max((b-a).length_squared,1e-20))))).length for a,b in segments)
         mouth_segments=[(a,b) for h in holes for a,b in zip(h,h[1:]+h[:1])]
-        measurements.append(dict(side=sign,removed_triangles=before,new_triangles=len(faces),collar_spacing_m=.010,maximum_original_station_reconstruction_m=reconstructed,maximum_shared_parting_line_reconstruction_m=seam_movement,coincident_stations_removed=duplicates,maximum_merged_station_distance_m=duplicate_distance,feature_aligned_rows=rows))
+        measurements.append(dict(side=sign,removed_triangles=before,new_triangles=len(faces),collar_spacing_m=.010,maximum_original_station_reconstruction_m=reconstructed,maximum_shared_parting_line_reconstruction_m=seam_movement,coincident_stations_removed=duplicates,maximum_merged_station_distance_m=duplicate_distance,retained_roll_edges=retained_roll_edges,feature_aligned_rows=rows))
     bmesh.ops.delete(bm,geom=[v for v in bm.verts if not v.link_faces],context='VERTS')
     bmesh.ops.triangulate(bm,faces=list(bm.faces));bm.normal_update();bm.to_mesh(old);bm.free()
     closeable_sheet(ob)
     hold=ob.data.attributes.new('S240 hold optical gauge','INT','POINT')
     for v in ob.data.vertices:
-        p=world@v.co;q=project(p)
+        p=world@v.co
+        if not hood and abs(p.x)<.15:
+            hold.data[v.index].value=0;continue
+        q=project(p)
         hold.data[v.index].value=int(segment_distance(q,mouth_segments)<.006)
     sheet_gauge(ob,.003 if fascia else .0009)
     ob['lamp_apertures_cut']=True;ob['fair_physical_aperture']=json.dumps(measurements)

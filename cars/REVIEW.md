@@ -3752,3 +3752,38 @@ bake/export. Run the original-script empty-output pipeline, repeat the export
 macro and stripe checks, then judge every actual final before replacing docs.
 Thin four-sided trim, economical reflector facets and the small atlas badge
 remain the source's weaker macro details.
+
+### R9 full-final review catches an excess rear cut — reject delivery 62
+
+Color/value first: the final Atlantic/Graphite colors, road film and gallery
+values agree with the accepted source; cavities remain dark and the broad
+highlights roll off. The early exported hero/face/front-lamp views and seven
+native before/after pairs visibly preserve the source repairs. This is still
+insufficient to accept the complete final set.
+
+The native rear turnaround exposes small triangular black cuts under the inner
+tail-lamp wing. Reject GLB `79e2e601…` and stop the remaining final jobs before
+any docs write. The numerical checks had all passed, including independent
+regeneration of 443 objects / 422 meshes with zero differences. Actual pixel
+rays at (1065,486) in the rear camera pass through the missing trunk skin to
+the windshield. This is excess aperture geometry, not a paint-normal texture
+or an economical reflector facet. The old sequential convex-piece cutter is
+still active here; repairing the front alone left this failure mode at the rear.
+
+Use the same complete physical aperture CDT on the trunk's two optical lands.
+An unconstrained trial chords across the tight deck roll and fails the actual
+inner-sheet clearance gate by 4.13 mm; reject it without changing that gate.
+Retain the newly manufactured die's section edges as CDT constraints, so every
+new cut intersection lands on that die while its bend-following rows survive.
+The result eliminates the excess triangular holes rather than covering them.
+The rear perspective chart is evaluated only away from its centerline pole.
+
+Opened candidate 65's native rear crop, rear three-quarter crop and full rear
+zebra: the lower lamp border is continuous, the missing-skin triangles are
+gone, and the sail/deck stripe flow stays fair. This is another SOURCE image
+acceptance, awaiting a new bake/export. It saves 518 game triangles relative
+to the rejected build: 59,230 game / 185,832 high. Both audits/aperture/motion
+gates, game construction/arch checks and all 422 source surface checks pass.
+Add an eighth native before/after crop for the rear turnaround so this view
+cannot disappear into the broader three-quarter comparison. Keep the rejected
+ledger explicitly marked rejected; all docs remain the prior baseline.
