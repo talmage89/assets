@@ -3584,3 +3584,14 @@ support sweep with their original tolerances and contact lists. Broad hood
 chords are about 90 mm; its optical roll keeps the close longitudinal rows.
 The final source candidate is 59,812 triangles. Construction, source normals,
 mechanical clearance and reflection stripes are checked before the clean bake.
+
+### R9 clean-build interruption — high-density arch gauge
+
+The first empty-output build passes form, shaping, character and rear checks,
+and the game-source audit. The high-source audit correctly stops on two
+zero-area rim triangles at the right front arch cut. One Solidify back vertex
+is exactly coincident with its outer partner: its averaged corner displacement
+cancelled. Restore that paired vertex to the actual 0.9 mm gauge along the
+manufactured die normal. Keep the outer coordinates and topology unchanged;
+no audit tolerance or sliver exception changes. A regenerated high form then
+passes the unchanged audit. Restart the empty-output build with this fix.

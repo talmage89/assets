@@ -705,10 +705,25 @@ def closeable_sheet(ob):
 
 def sheet_gauge(ob,thickness):
     """Keep an unambiguous outer/back/rim role through every aperture cut."""
+    count=len(ob.data.vertices)
     mat=ob.data.materials[0]
     while len(ob.data.materials)<3:ob.data.materials.append(mat)
     gauge=ob.modifiers.new('Sheet gauge','SOLIDIFY');gauge.thickness=thickness;gauge.offset=-1;gauge.use_even_offset=False
     gauge.material_offset=1;gauge.material_offset_rim=2;G.apply(ob)
+    # At an exact arch/cut intersection Solidify can cancel a boundary
+    # vertex's averaged normal and leave its paired back ON the outside.
+    # Restore the actual sheet gauge along the manufactured die normal;
+    # never delete its rim or move a visible surface to hide the sliver.
+    if len(ob.data.vertices)!=2*count:raise ValueError(('Unexpected sheet pairing',ob.name))
+    repaired=0;world=ob.matrix_world;inverse=world.inverted().to_3x3()
+    for i in range(count):
+        a=ob.data.vertices[i];c=ob.data.vertices[i+count]
+        if (a.co-c.co).length>=1e-7:continue
+        from sedan_surface_normals import normal
+        p=world@a.co;n=normal(p,(world.to_3x3().inverted().transposed()@a.normal).normalized())
+        if n.length<.99:raise ValueError(('Undefined manufactured sheet normal',ob.name,i))
+        c.co=a.co-inverse@n*thickness;repaired+=1
+    ob.data.update();ob['zero_gauge_cut_vertices_repaired']=repaired
     ob['sheet_roles']=True
 
 
