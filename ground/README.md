@@ -354,3 +354,10 @@ roots are authored in the signals family's `src/layout.py`; the generator also
 accepts a JSON specification via `--spec` and an explicit `--out`. None of the
 native Ground GLB or shipped map bytes is replaced. These additive road modules
 are independent of the ground family's original delivery and checks.
+
+Each new module covers 100 m out from its center and is separately rooted;
+markings and joints stop at that extent. Actual retained vertices are checked
+against it before export. The four road assemblies are 2,353 / 2,140 / 2,377 /
+1,390 triangles (201–204), including their walks, corners and markings. These
+are assemblies, not single repeated road sections. Presentation can request
+a longer extent from the same grammar.

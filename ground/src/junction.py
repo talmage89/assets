@@ -60,7 +60,7 @@ def build(spec,rootpath):
    strip('Planted verge',side*(h+.6096),side*(h+2.286),core,extent,t,.151,mats['Lawn'])
    strip('Continuing sidewalk',side*(h+2.286),side*(h+3.81),core,extent,t,.1524,mats['Concrete'])
    # Walking paving has joints, generated in geometry.
-   for y in range(math.ceil(core/1.524),99):
+   for y in range(math.ceil(core/1.524),math.ceil(extent/1.524)):
     yy=y*1.524
     strip('Sidewalk expansion joint',side*(h+2.286),side*(h+3.81),yy-.004,yy+.004,t,.153,seal)
   # Lane lines. Right side inbound from the opposing approach.
@@ -71,7 +71,7 @@ def build(spec,rootpath):
   if (spec['ns'] if t%2==0 else spec['ew'])>=4:
    for side in (-1,1):
     x=side*((L if spec['median'] else L*1.5)+(spec['median']/2 if spec['median'] else 0))
-    for y in range(round(stop+3),348,9):strip('White lane dash',x-.05,x+.05,y,y+3.048,t,.016,white)
+    for y in range(round(stop+3),math.floor(extent-3.048),9):strip('White lane dash',x-.05,x+.05,y,y+3.048,t,.016,white)
   strip('Stop bar',-h,(L/2 if spec['ns']==5 and t%2==0 else -.1),stop-.3048,stop+.3048,t,.017,white)
   for i in range(math.floor(2*h/.76)):
    x=-h+.3+i*.76;strip('Crosswalk bar',x,x+.4572,core+.6,core+2.4288,t,.017,white)
@@ -136,12 +136,15 @@ def main():
  from kit.tiling import export
  rows=json.loads(args.spec.read_text())
  for i,spec in enumerate(rows):
-  spec=dict(spec,extent=30);rt=build(spec,rootpath);rt.name='Junction_'+str(spec['seed']);rt.location.x=i*100
+  spec=dict(spec,extent=100);rt=build(spec,rootpath);rt.name='Junction_'+str(spec['seed']);rt.location.x=i*250
   bpy.context.view_layer.update();meshes=[o for o in rt.children_recursive if o.type=='MESH']
   bpy.ops.object.select_all(action='DESELECT')
-  for o in meshes:
-   o.select_set(True);o.modifiers.new('Game triangles','TRIANGULATE');G.apply(o)
-  bpy.context.view_layer.objects.active=meshes[0];bpy.ops.object.join();meshes[0].name=rt.name+'__Surface'
+  for o in meshes:o.select_set(True)
+  bpy.context.view_layer.objects.active=meshes[0];bpy.ops.object.join();ob=meshes[0];ob.name=rt.name+'__Surface'
+  ob.modifiers.new('Game triangles','TRIANGULATE');G.apply(ob)
+  local=[rt.matrix_world.inverted()@ob.matrix_world@v.co for v in ob.data.vertices]
+  assert max(abs(p[k]) for p in local for k in (0,1))<=spec['extent']+.001,('Ground outside module',spec['seed'])
+  print('JUNCTION',spec['seed'],len(ob.data.polygons),'triangles; bounded to',spec['extent'],'m radius',flush=True)
  export(args.out)
  print('ARTERIAL SITES',len(rows),'parametric junction modules',args.out)
 if __name__=='__main__':main()
