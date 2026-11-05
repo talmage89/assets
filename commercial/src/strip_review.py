@@ -60,8 +60,11 @@ def main():
     fixes=Path('renders/strip/fixes');comparison=json.loads((fixes/'comparison.json').read_text()) if (fixes/'comparison.json').exists() else {'rows':[]}
     for row in comparison['rows']:
         for source in row['sources']:assert hashlib.sha256(Path(source['path']).read_bytes()).hexdigest()==source['sha256']
-    rows += [[fixes/(r['name']+'-before-after.jpg')] for r in comparison['rows']]
-    review_sheet(rows,folder/'contact.jpg',width=2200,title='Strip center delivery / external glTF, baked maps, native references and before-after evidence')
+    turns=[folder/(n+'.png') for n in ('front','side','back','top')]
+    rows += [turns[:2],turns[2:]]
+    # Native before/after plates remain separate; do not shrink these tall
+    # comparisons into the final-render contact sheet. Their hashes are audited above.
+    review_sheet(rows,folder/'contact.jpg',width=2200,title='Strip center delivery / external glTF, baked maps, final views and photographic comparisons')
     out=Path('build/strip-look/view-check.json');out.write_text(json.dumps(dict(passed=True,views=len(records),rows=records,scope='Current external glTF bundle, source recipe, map-containing context bundles, photographic calibration and actual image bytes; appearance acceptance is the separate native-size review in REVIEW.md.'),indent=2)+'\n')
     print('STRIP VIEW AUDIT',len(records),'current exported views; sheets ready')
 

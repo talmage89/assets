@@ -29,7 +29,7 @@ def run(folder=Path('renders/strip/matches')):
     for name,case in CASES.items():
         row=cal[case['pair']];im=Image.open(folder/(case['pair']+'.png')).convert('RGB');im=im.resize((1440,round(1440/row['shot']['aspect'])),Image.Resampling.LANCZOS);photo=Image.open(row['photo']).convert('RGB').crop(row['crop']).resize(im.size,Image.Resampling.LANCZOS)
         rows[name]=dict(**case,render=patch(im,case['render_box'],out/(name+'-render-mask.png')),photo=patch(photo,case['photo_box'],out/(name+'-photo-mask.png')),render_sha256=hashlib.sha256((folder/(case['pair']+'.png')).read_bytes()).hexdigest())
-    (out/'wear-values.json').write_text(json.dumps(dict(rows=rows,neutral_balance=json.loads(Path('build/strip/references/balance.json').read_text()),scope=__doc__),indent=2)+'\n')
+    (out/'wear-values.json').write_text(json.dumps(dict(rows=rows,neutral_balance=json.loads(Path('build/strip/references/balance.json').read_text()),comparison_width_px=1440,scope=__doc__),indent=2)+'\n')
     print(json.dumps(rows,indent=2))
 
 if __name__=='__main__':run()

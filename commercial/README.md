@@ -1,6 +1,6 @@
 # Commercial / seeded corner gas stations
 
-The family’s second type has its own [strip-center checkpoint](STRIP.md), built with `make strip`.
+The family’s second type is the delivered [neighborhood strip centers](STRIP.md). The default `make` builds the strip; gas targets and delivery remain unchanged.
 
 Four original 1995–2010 American corner stations, maintained at about fifteen
 years in service. Fixed plans and two fictional brands share tiled masonry,

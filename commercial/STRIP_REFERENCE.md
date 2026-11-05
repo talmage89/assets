@@ -16,7 +16,7 @@ The generated tenants, signs and plans are original.
 | Side/rear drive / entrances | Brookfield's 24 ft maneuvering width and the ground family's native curb section/grid are dimensional comparators. Driveway requirements vary locally. | 24 ft clear entrances, 5 ft transition wings, 6 ft apron, 24 ft side and rear drives. Two frontage entrances on six-inch grid stations. L has a cross aisle with a turn flare. |
 | Storefront | Existing commercial construction, period photographs; [family evidence](REFERENCE.md). | 55 mm aluminum sightlines, 120 mm depth, 2.75 m head, 2.20 m transom, .27 m display sill. 914.4 × 2,030 mm entry leaf. |
 | Building/walk heights | Original proportions compared with both used-center photos. | .1524 m floor, 4.2672 m membrane datum, 5.1816 m parapet, 6.72 m entry towers. Flat/arcade soffit 3.3075 m; mansard soffit 3.0925 m. Walk is 3.048 m deep. |
-| Site / building | Program bounds in the brief; original site planning. | 324–396 ft street frontage, 238–250 ft depth; about 14,080–18,392 sq ft. These are not dimensions recovered from a photograph. |
+| Site / building | Program bounds in the brief; original site planning. | 300–396 ft long dimension, 200–260 ft depth; about 12,672–18,392 sq ft. These are not dimensions recovered from a photograph. |
 
 The L's elbow is a genuine 64 × 64 ft rear storage/service volume connected
 to the return leg, rather than two overlapping shop rows. The two wing bays

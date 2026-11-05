@@ -12,7 +12,7 @@ STRIP_IMAGES := $(addprefix renders/strip/checkpoint/,$(addsuffix .png,$(STRIP_M
 STRIP_PAIRS := commerce sunnyvale sterling period_walk period_lot used_rear
 STRIP_DELIVERIES := $(foreach s,$(STRIP_IDS),export/CommercialStrip-$(s).gltf export/CommercialStrip-$(s).bin export/CommercialStrip-$(s).json)
 .PHONY: strip strip-model strip-check strip-refs strip-render strip-match strip-review strip-context strip-repeat strip-export strip-protected strip-eevee strip-values strip-fixes strip-docs
-strip: strip-protected strip-refs strip-model strip-export strip-check strip-render strip-match strip-eevee strip-review
+strip: strip-protected strip-refs strip-model strip-export strip-check strip-render strip-match strip-eevee strip-docs
 $(STRIP_BUILD)/parameters.txt: FORCE
 	@mkdir -p $(STRIP_BUILD) $(TMPDIR)
 	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='seeds=$(STRIP_SEEDS) plan=$(STRIP_PLAN) look=1\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"

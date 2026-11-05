@@ -99,21 +99,23 @@ ground and shrubs still adds only **39⅔ MiB** for commercial. Neighboring
 houses/trees used only for presentation are excluded from the station export.
 
 
-## Strip-center look checkpoint
+## Strip-center delivery
 
 Strip manufacture uses the gas delivery's unchanged CMU, brick, EIFS, roof,
-concrete and equipment maps. It also reuses Ground asphalt/lawn, Boxwood
-and (for seed 202) HouseShingles without changing their pixels. Furniture
-uses equipment cells; no interior sheet is added.
+concrete and equipment maps, plus canonical Ground asphalt/lawn, Boxwood
+and (for seed 202) HouseShingles. Seed palettes tint the delivered vertices;
+no shared image is repainted. Foreground products use equipment package
+cells. There is no new interior texture set.
 
-The only new strip allocation is **StripSigns: 2048² RGBA color + 1024² RGB
-emission, 6⅔ MiB** at 8 bpp with full mips. It replaces the station's
-1024² graphics pair rather than loading alongside it. Original tenant
-art, window notices, tower faces, address numbers, south-facing faded
-variants, removed-letter ghost, lamps and causal deposit charts share it.
-UV0 selects ink/coverage and UV1 selects radiance or a zero swatch.
-The 16-bit normalized emission file retains low sign output alongside
-brighter fixtures under one glTF emissive-strength scalar.
+The only new allocation is **StripSigns: 2048² RGBA color + 1024² RGB
+emission, 6⅔ MiB** at 8 bpp with full mips. It replaces gas graphics for this
+type. The guarded sheet carries fascia/tower/pylon ink, south-facing faded
+panels, illustrated trade offers, glass vinyl, hours, OPEN tubing, vacancy
+paper, menu/cooler/product fronts, addresses, retained deposits and fixtures.
+All pixels come from original drawings, installed open fonts and the family's
+own generated deposit charts. UV0 selects color/coverage; UV1 selects radiance
+or a zero-emission swatch. The 16-bit normalized emission retains low sign
+outputs beside bright diffusers under one shared emissive-strength scalar.
 
 | Allocation | GPU memory, full mips |
 | --- | ---: |
@@ -124,12 +126,16 @@ brighter fixtures under one glTF emissive-strength scalar.
 | Existing HouseShingles triple, only mansard | +16 MiB |
 | Actual seed 201 / 202 / 203 / 204 referenced maps | 79⅓ / 92⅓ / 76 / 79⅓ MiB |
 
-These are compressed GPU estimates, not PNG or GLB sizes. A neighborhood
-already loading commercial manufacture, ground and shrubs adds only
-6⅔ MiB for strip art; shared external URIs allow one image cache.
-`build/strip-look/delivery.json` records every map and actual part primitive.
-The strip has **nine material states**, except the mansard's **ten**: its
-existing shingle material is needed alongside the flat roof membrane.
-Nine states do not mean nine draw calls: the default hierarchy has 246
-material primitives, including 36 placed shrubs and separate moving leaves.
-Per-part materials and their construction roles are listed in STRIP.md.
+These are compressed GPU estimates, not PNG, decoded Blender, or geometry
+bytes. A neighborhood already loading the common families adds only
+6⅔ MiB for strip art. Canonical external URIs let four centers and a repeated
+default share the same **30 decoded image identities**, independently checked
+on fresh imports. Refer to STRIP.md for exact geometry/image bytes.
+
+There are nine material states, or ten for the mansard's additional existing
+shingle surface. The fixed building consolidates to six material primitives,
+or seven with shingles, with actual door leaves separate. Paving/deposits join
+by material; pylon, poles, yard and containers remain independently reusable.
+The source blend retains the individual bay/end/tower modules. Actual exported
+primitives per building and whole seed are reported in STRIP.md, rather than
+calling a material-state count the draw-call count.

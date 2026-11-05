@@ -1246,3 +1246,217 @@ sets. Inspected the final family, detail, pair and complete contact sheets.
 `python3 src/strip_review.py` passes **26 current exported views**, plus the
 twelve form renders' source/recipe/image hashes and six required crops.
 The requested checkpoint stops here. No final docs images are committed.
+
+## Strip delivery pass 1 — reject the inherited look (full-size before)
+
+**Color/value first.** Inspected the native 1600-pixel hero, storefront and
+blue-hour images, the 1800-pixel-wide six-pair sheet, and the family sheet
+before editing. The cool masonry and black extrusions make every seed one
+palette. The asphalt has almost no broad service variation. The fixed pair
+measurements are 24.9% coverage / 5.1% median contrast versus the photo's
+46.0% / 7.3%; walk contrast is 9.6% versus 6.2%. Retain those original masks
+and images in `build/strip-final/before/`, without changing the neutrals.
+
+**CG tells rejected.** Empty gray rooms, one identical dark notice per window,
+weak interior radiance at dusk, no pole pools, a clean service rear, and four
+nearly identical parking grids are substantive misses. The prior checkpoint's
+claim that the occupied sites differed enough was too lenient. Transparent
+channel-letter face artwork sits 54 mm ahead of its backing and projects an
+offset alphabet onto it; the apparent duplicate is a cast shadow, rather
+than duplicate text geometry. Close the carrier spacing and make its printed
+backplate opaque, retaining separate lit letter pixels in the emission map.
+
+**Changes for the next export.** Use single-frontage shallow and deep parcels,
+a west-street endcap with side parking and a corner L; native entrances follow
+those frontages. Add trade-specific vinyl, offers, OPEN tubing, blinds, vacancy
+paper, menu/cooler/product art in the same 2K sheet. Strengthen the physical
+fixture output and ship punctual fixture lights. Warm seeded masonry/fascia
+colors, accumulated stall centers, aisle paths, sawcut repairs, rear gas runs,
+fixture wash and three welded dumpster forms address the causes of the misses.
+No photograph supplies model or texture pixels.
+
+## Strip delivery pass 2 — new exported rooms, reject sign placement and service conflict
+
+**Color/value first.** Inspected all five native 1200-pixel exported views in
+`renders/strip/final-pass1/`: storefront, hero, dusk, rear and above. Sandstone
+CMU is now warm rather than slate. Powered rooms are markedly brighter, with
+OPEN signs and identifiable cleaner/pizza display forms. The bright backing
+is still too even and can obscure depth; keep counters, reflective appliances
+and graphics distinct rather than treating illumination as sufficient dressing.
+The asphalt's stall centers read, but the open travel field remains too regular.
+The rear's warm paint is closer to the used photo, but its runoff is too faint.
+
+**CG tells and fixes.** Moving the sign backing forward exposed an assembly
+mistake: the ink quad is 1 mm behind it, leaving blank cabinet faces. Move ink
+2 mm outward. The original alpha shadow was correctly diagnosed; the corrected
+opaque carrier must still be visibly in front. Rear hem corrosion inherited
+round blobs from the shared sheet: replace only the strip chart with thin,
+unequal edge loss. Increase vertical fixture/scupper runoff, retaining the wall
+color. Window posters, translucent vinyl, partial blinds and merchandise now
+vary by tenant; simple room fixtures still reveal the economical fit-out.
+
+**Measured assembly rejection.** The complete motion sweep catches the new
+containers' lids against service geometry at −100 degrees. Move their pads
+300 mm out from the wall and give the lid its physical −95-degree stop; rerun
+the actual-surface sweep. Keep the service-loop occupied-lot test, including
+the new pad polygons, so visual dressing cannot silently obstruct circulation.
+The first delivery consolidation has six fixed-building primitives, with
+separate entry/service leaves; the full placed center has 100 primitives
+before the final shallower layout. No kit or accepted-family code changed.
+
+## Strip delivery pass 3 — matched-light audit, reject misleading patches and white rooms
+
+**Color/value first.** Inspected all six native pair composites and the native
+lot/walk renders, plus the 1600-pixel corrected storefront/hero/dusk/rear.
+The sandstone/brass palette separates the default from brick and cream EIFS;
+the rear is warm rather than blue-gray. The sign face now has one alphabet.
+But the day rooms are too evenly bright compared with the used photos. Reduce
+room-fixture radiance and the shipped point-light intensity together, keep
+lit ceilings at dusk, darken backing paint, and put colorful merchandise and
+supported chairs near the glass. Move the left interior finish inward: the
+previous lining was embedded in the exterior end wall and exposed brick inside.
+Portrait window offers now include original drawn trade illustrations, not
+only three lines of text. Vinyl and posters must not conceal the cooler/menu.
+
+**Measurement rejection.** The changed narrow/deep parcel moves an island
+into the old asphalt ROI. The actual surface test hits its vertical concrete
+curb; reject that result even though its apparent coverage is closer to the
+photo. The original shaded-walk ROI also crosses a new light gradient. Select
+unobstructed floor rectangles, verify all eighteen rays, and recompute the
+before images in the same rectangles. Standardize comparisons at the original
+1440-pixel measurement width and the calibration's exact aspect, since a
+one-pixel resize phase materially changes the tiny photo walk patch. Retain
+the original 24.9% / 5.1% asphalt and 9.6% walk-contrast report as historical
+values, not as interchangeable with the new patches.
+
+The validated common before asphalt patch is 28.2% coverage / 5.25% contrast;
+the common before walk is 11.1% / 5.58%. Their changed positions are recorded,
+not silently substituted. Strengthen the actual side-drive/rear-drive wheel
+bands and stall engine centers; soften/broaden entry deposits while preserving
+gum. These are cause-local adjustments, not a global noise overlay.
+
+**Assembly rejection.** All new container lids pass in the default and brick
+center. The full four-seed sweep catches the street-edge center's relocated
+enclosure against Bay 01's service leaf and the building when its gates open.
+Move that enclosure into the large free east buffer, away from the wrapped
+front, meter working space and rear doors. Keep the new container pads in the
+occupied-lot route obstacles. Matching dimensions or preserving exports alone
+would not have detected this conflict.
+
+## Strip delivery pass 4 — full gallery audit before cold rebuild
+
+**Color/value first.** Inspected the 1600-pixel hero, storefront, walk, tower,
+end cap, pylon, rear, services, stalls, dusk, scale, all four overheads and
+streets, all four turnaround frames and the Eevee hero. The default's
+architecture-mask Y′ p1/p50/p95/p99 is .015/.264/.625/.776, with .120% white
+clipping, largely fixture lenses. Warm CMU, red brick/sage, cream EIFS and
+putty/teal remain distinct; cavities are deep. Window products, illustrated
+posters, blinds and notices are now visible; source photos still have more
+varied merchandise and less orderly rear services.
+
+The verified common asphalt patch measures 38.9% variation / 5.63% median
+contrast, up from 28.2% / 5.25%; photo 46.0% / 7.25%. A final wheel-path
+amplitude calibration is warranted before freezing. The common walk reaches
+29.0% / 6.30%, versus 58.3% / 6.24% in the balanced photo. Its broad marks are
+softer than the inherited 9.6%-contrast patch, although the rectangles are
+explicitly different; clean-to-dirty coverage still falls short. Gum remains
+visible. These are appearance variations at a 4%-below-p85 threshold, not
+chemical stain segmentation. Keep both thresholds and source/mask hashes.
+
+**Native-size rejects.** The four parcels now read differently above: shallow
+single-aisle, deep four-row, west street/endcap with side parking, and the
+corner L. However, street 201's foreground pylon clips and obscures shops;
+street 204 favors the return's blind rear. Move both cameras. The orthographic
+turnarounds have neighboring houses in front of the asset; hide presentation
+context for those diagnostic elevations while retaining the ground plane.
+Dusk has operating rooms and OPEN signs, but strengthen the pole pools. Keep
+fixture ranges bounded in the external package. Eevee remains darker through
+transmission than Cycles; do not hide that difference with substitute shaders.
+
+**Delivery decision.** Consolidating every fixed site prop is unnecessary and
+makes the pylon/poles/containers hard to reuse. Consolidate the building by
+material and the site skins together, but retain independent site-prop roots
+and meshes; accept their actual primitives and report them. Source modules
+remain intact before delivery consolidation. All four construction/motion,
+raw-UV/normal/budget and external buffer/image checks pass, and four external
+centers plus a repeat reuse thirty image identities. The shared-family
+preservation receipt verifies 198 pre-existing delivery/map/doc files.
+The final audit and docs follow the cold rebuild, not this preliminary batch.
+
+
+## Strip delivery pass 5 — cold export, native-pixel final acceptance
+
+**Color/value first.** Opened every cold-built final at native resolution:
+hero; storefront, walk, tower, wrapped end, pylon, rear, meters and stalls;
+dusk; 1.8 m scale; front/side/back/top; four overheads and four independent
+street views; Eevee; all six photo pairs; their masks and the final contact,
+family, sites, streets, detail and pair sheets. Opened all eleven native
+before/after plates (1,312–1,600 px wide), checking against the immutable
+handoff pixels. Warm sandstone/bronze, brick/sage, cream/burgundy and
+putty/teal separate the centers. Final architectural Y′ p1/p50/p95/p99 is
+.015/.265/.625/.776; .121% white clipping is mostly light lenses. Dusk rooms
+and OPEN signs glow, with actual pole pools on the ground. Day rooms remain
+more evenly illuminated than photographic shops. Eevee glass is visibly
+darker than Cycles; the unaltered Eevee result is retained.
+
+**Final calibrated values.** On the same validated replacement rectangles,
+asphalt before → after is 28.24% → 44.99% variation coverage and
+5.25% → 5.79% median contrast; balanced photo 46.00% / 7.25%. Walk is
+11.07% → 39.68% coverage and 5.58% → 5.70% contrast; photo 58.27% / 6.24%.
+Asphalt Y′ .657 vs photo .675; walk .258 vs .232. This is display variation
+below the local p85, not an oil classifier. Both thresholds, original photo
+rectangles, assumed neutrals and hashes remain in wear-values.json. Eighteen
+floor rays pass. The inherited 24.9% asphalt / 9.6%-contrast walk series uses
+different render patches and is retained as history, not a claim of a direct
+9.6-to-5.7 reduction. The photo walk patch has very few original pixels.
+
+**What still reads as CG in the pairs.** Goods and hanging shirts are simple;
+poster typography softens at atlas resolution. Counters/room backings remain
+too uniform compared with the crowded photographic windows. Containers and
+rear service spacing remain orderly; the source photo has substantially more
+varied scars and debris. The asphalt's 8% tail and median contrast are still
+weaker than the photo; the walk lacks the photo's broad worn coverage and is
+a little bright. Surrounding houses sit in sparse library landscaping. These
+are visual limitations, not hidden by serialization or dimension tests.
+
+**Delivery proof.** A cold build removed all owned strip models, art, external
+packages, calibration and render outputs, retaining canonical shared-library
+dependencies; `make -C commercial WIDTH=1600 SAMPLES=40` passed. Then
+`make -C commercial check` and `make -C commercial repeat` passed, including
+the unchanged gas targets. Strip repeat is byte-identical at 66,392,004
+embedded intermediate bytes; gas repeat is byte-identical at 66,729,416 bytes.
+The intermediate GLB is not the shipping format. All four external glTF/BIN
+packages preserve canonical image URIs; four centers plus a repeated center
+reuse thirty decoded image identities. Their common image union is 67,064,433
+bytes and the four geometry packages total 51,480,180 bytes. Building/seed
+primitives are 56/115, 52/138, 61/139 and 51/133; fixed building surfaces use
+6/7/6/6. Whole default was 246, gas default remains 112 (store 11).
+Buildings are 60,592 / 53,882 / 67,808 / 54,154 triangles; fitted bays stay
+4,034–6,342; pylons stay 3,104. Source construction, UV/normal/budget,
+whole-range motion, occupied circulation and external byte/import checks pass.
+These prove geometry and serialization separately, not photographic equality.
+
+The protected-family receipt passes all 198 existing delivery/map/doc files;
+no kit, houses, Ground, cars or top-level README edits. Repository check
+passed with zero errors. Five final JPGs follow this review and receive a
+separate last commit; native proof renders and downloaded photographs remain
+ignored and rebuildable.
+
+
+**Final docs inspection.** The first eight-view gallery could not meet 200 KB
+without excessive compression, and the size guard rejected it. Retain that
+full sheet under renders; use a six-close-up, three-column docs layout and
+encode in memory before writing only a compliant JPG. Opened that composition,
+the final contact and all five docs JPGs at native size. Hero/sites/streets/
+details/dusk are respectively 190,687 / 192,947 / 189,194 / 199,856 / 164,093
+bytes; all are 1600 px wide. The final default `make` passes including the
+new docs stage. Repository check now covers 1,557 files with zero errors.
+
+
+**Shipping repeat.** Extended the repeat to convert the independently rebuilt
+scene into external glTF/BIN at the canonical relative-URI location, compare
+both files byte for byte, and restore the baseline package in all cases.
+`make -C commercial repeat` passes again: 12,311,793 external bytes match,
+including fixture lights and shared-image URIs, in addition to the 66,392,004
+embedded intermediate bytes and unchanged gas repeat. This is delivery
+reproducibility, separate from the actual-surface construction checks.
