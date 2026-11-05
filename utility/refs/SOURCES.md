@@ -8,6 +8,7 @@ rights stay with their authors; no source image is redistributed in Git.
 | --- | --- | --- | --- |
 | wps-poles.pdf | https://www.wisconsinpublicservice.com/joint-use-management/ju-standards/pole-info.pdf | Wisconsin Public Service / We Energies; published utility standards, copyright retained | P25 embedment, P30 ANSI class circumferences, P5 brand/tag locations, P15–20 bolt/gain construction |
 | wps-joint.pdf | https://www.wisconsinpublicservice.com/joint-use-management/ju-standards/joint-use.pdf | WPS / We Energies; copyright retained | JU10: NESC 238E safety space, 232-1 ground clearance, pole versus span clearances and equipment rules |
+| wps-services.pdf | https://www.wisconsinpublicservice.com/partners/builders/manual/section7.pdf | WPS; copyright retained | Section 7 Type-A cabled services: general 16-ft service clearance versus limited residential-driveway 12-ft exception; roof and road/yard distinctions |
 | wps-3phase.pdf | https://www.wisconsinpublicservice.com/joint-use-management/ju-standards/three-phase-framing.pdf | WPS / We Energies; copyright retained | C01 wood arm/pin/braces, C20/C40 armless, construction differences at angle/deadend |
 | wps-transformer.pdf | https://www.wisconsinpublicservice.com/joint-use-management/ju-standards/transformer-framing.pdf | WPS / We Energies; copyright retained | Can hangers, cutout/arrester placement, grounded-wye leads, three-can support hardware |
 | wps-guy.pdf | https://www.wisconsinpublicservice.com/joint-use-management/ju-standards/guying-and-anchoring.pdf | WPS / We Energies; copyright retained | G series: load-side guying, anchor rod, strain and guy markers |
@@ -15,13 +16,18 @@ rights stay with their authors; no source image is redistributed in Git.
 | pole-tables.pdf | https://www.sfasilviculture.com/documents/fieldsilv/pole_classification_2017.pdf | Association of Southern Forestry Clubs; copyright retained | Published ANSI O5.1-2008 southern pine table cross-check |
 | nreca-staking.pdf | https://www.cooperative.com/programs-services/bts/Documents/Reports/SimplifiedStakingManual.pdf | NRECA / Cooperative Research Network; published technical manual, copyright retained | RUS/REA assembly cross-reference, NESC-derived Table 2.1, staking, tension and sag, guy anchor directions |
 | mps-transformer.pdf | https://metapowersolutions.com/wp-content/uploads/2023/05/SPECS_Single-Phase-Pole-Mounted-Distribution-Transformers.pdf | Meta Power Solutions; manufacturer, copyright retained | 50 kVA: 42-inch overall height, 20-inch tank, 26-inch width and 29-inch depth envelope |
-| howard.pdf | https://howard-ind.com/Power/Product/DisplayDocument/14 | Howard Industries; manufacturer, copyright retained | Conventional versus CSP can construction, single HV bushing, accessories; not dimension authority |
 | hubbell-ties.pdf | https://hubbellcdn.com/salesdrawings/LDIC_CC-26966.pdf | Hubbell Power Systems; manufacturer, copyright retained | ANSI 55-2/55-3 tie and neck connection construction |
 | residential-a.jpg | https://www.opendurham.org/sites/default/files/styles/full_width_image/public/images/2009_5/CrestSt_W_041209.jpg?itok=5-cSfwBL | Gary Kueber / Open Durham, 12 April 2009; copyright retained, local comparison only | Residential NC street: three-phase vertical framing, spacing, line silhouette, planting strip and service age |
 | residential-b.jpg | https://upload.wikimedia.org/wikipedia/commons/e/ed/Houses_in_Oxon_Hill.jpg | Ser Amantio di Nicolao, 13 June 2015; CC BY-SA 4.0 | Residential Maryland street: maintained older distribution equipment, transformer, sag, communication hierarchy; photographed after the modeled installation period |
 | street-a.jpg | https://upload.wikimedia.org/wikipedia/commons/2/2a/North_Bennington%2C_Vermont.jpg | Mark Barry, 21 April 2007; CC BY 2.0 | Supplemental period crossarm and street hardware; commercial edge, not one of the two residential fits |
 | street-b.jpg | https://upload.wikimedia.org/wikipedia/commons/8/8f/Phone_Pole_Valley_%284977085933%29.jpg | Superior National Forest, 10 September 2010; CC BY 2.0 | Supplemental wood silvering and long-span sag; not a residential comparison |
 | hardware.jpg | https://upload.wikimedia.org/wikipedia/commons/d/dd/Southeastern_United_States_Utility_Pole.jpg | AdventureStoryFanGamer, 30 May 2024; CC BY 4.0 | Supplemental maintained hardware construction; not period dating evidence |
+
+Supplemental inspection, excluded from the automatic fetch list: `howard.pdf`,
+[Howard Industries conventional pole-mounted transformers](https://howard-ind.com/Power/Product/DisplayDocument/14),
+Howard Industries, copyright retained. Used for conventional versus CSP can
+construction, the single HV bushing and accessories, not dimensions. The
+endpoint's TLS chain fails in this environment; it is not a required rebuild input.
 
 Read-only online references (no executable or asset downloads):
 

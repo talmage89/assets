@@ -8,6 +8,8 @@ render_mode unshaded, cull_disabled, skip_vertex_transform, depth_draw_never;
 uniform vec4 wire_color : source_color = vec4(0.025, 0.028, 0.030, 1.0);
 uniform float minimum_pixels = 0.85;
 varying float coverage;
+varying float half_width_pixels;
+varying float support_width_pixels;
 
 void vertex() {
     vec3 p = (MODELVIEW_MATRIX * vec4(VERTEX, 1.0)).xyz;
@@ -19,14 +21,20 @@ void vertex() {
     float true_pixels = UV2.x / metres_per_pixel;
     float width_pixels = max(minimum_pixels, true_pixels);
     coverage = min(1.0, true_pixels / width_pixels);
-    VERTEX = p + side * (UV.x - 0.5) * width_pixels * metres_per_pixel;
+    half_width_pixels = width_pixels * 0.5;
+    // Include the pixel filter's support outside the nominal band. Fading
+    // inside the original quad alone would lose integrated wire coverage.
+    support_width_pixels = width_pixels + 2.0;
+    VERTEX = p + side * (UV.x - 0.5) * support_width_pixels * metres_per_pixel;
 }
 
 void fragment() {
     // Coverage compensation avoids turning distant wires into black ropes.
-    float edge_distance = abs(UV.x * 2.0 - 1.0);
-    float aa = max(fwidth(edge_distance), 0.001);
-    float edge = 1.0 - smoothstep(1.0 - aa, 1.0, edge_distance);
+    float distance_pixels = (UV.x - 0.5) * support_width_pixels;
+    float footprint = max(fwidth(distance_pixels), 0.0001);
+    float left = max(-half_width_pixels, distance_pixels - footprint * 0.5);
+    float right = min(half_width_pixels, distance_pixels + footprint * 0.5);
+    float filtered_coverage = max(0.0, right - left) / footprint;
     ALBEDO = wire_color.rgb;
-    ALPHA = edge * coverage * wire_color.a;
+    ALPHA = filtered_coverage * coverage * wire_color.a;
 }

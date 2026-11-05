@@ -52,6 +52,27 @@ def minimum_height(ob):
     return min((ob.matrix_world@v.co).z for v in ob.data.vertices)
 
 
+def road_height(ob):
+    """Clip actual imported triangles at both curb-back planes, not just
+    their vertices: the lowest crossing can occur between sample stations.
+    """
+    vertices=[ob.matrix_world@v.co for v in ob.data.vertices];minimum=None
+    for t in ob.data.loop_triangles:
+        polygon=[vertices[i] for i in t.vertices]
+        for sign in (-1,1):
+            clipped=[]
+            for i,p in enumerate(polygon):
+                q=polygon[(i+1)%len(polygon)];dp=sign*p.x-4.2672;dq=sign*q.x-4.2672
+                if dp<=0:clipped.append(p)
+                if (dp<0<dq) or (dq<0<dp):clipped.append(p.lerp(q,dp/(dp-dq)))
+            polygon=clipped
+            if not polygon:break
+        if polygon:
+            h=min(p.z for p in polygon)-.16764
+            minimum=h if minimum is None else min(minimum,h)
+    return minimum
+
+
 def roof_surfaces(homes):
     result=[]
     for row in homes:
@@ -97,9 +118,13 @@ def check():
             ob=by_name.get('Conductors_'+kind)
             if not ob:continue
             minimum=minimum_height(ob)-.16764
-            target=6.096 if kind=='primary' else 5.4864 if kind in ('neutral','service') else 4.7244
+            target=6.096 if kind=='primary' else 5.4864 if kind=='neutral' else 4.8768 if kind=='service' else 3.6576 if kind=='comm_drop' else 4.7244
             assert minimum>=target,(seed,kind,minimum,target)
             clearance[kind]=dict(actual_lowest_surface_above_grade_m=minimum,gate_m=target)
+            if kind in ('service','comm_drop'):
+                road_min=road_height(ob);road_gate=5.4864 if kind=='service' else 4.7244
+                assert road_min is None or road_min>=road_gate,(seed,kind,road_min,road_gate)
+                clearance[kind].update(actual_road_minimum_m=road_min,road_gate_m=road_gate)
         gaps=[];curve_error=0.;spans=meta['spans']
         for i in range(4):
             neutral=next(s for s in spans if s['name']==f'Span_{i}_Neutral')

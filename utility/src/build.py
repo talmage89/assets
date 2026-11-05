@@ -8,7 +8,7 @@ from kit import model as G
 from kit.tiling import export
 from plan import SEEDS,pole_spec,street
 from construction import Assembly,palette,pole,guy,crossarm,transformer,conductor,pin,M
-from span import sag_from_tension
+from span import sag_from_tension,catenary
 
 
 def mesh_report(objects):
@@ -59,7 +59,7 @@ def parts(out):
     save(out,dict(stage='FORM CHECKPOINT / quick materials / unbaked',parts=rows))
 
 
-def house_attachment(row,source_pole):
+def house_attachment(row,source_pole,source_comm=None):
     """Optional mast and metadata outside the unchanged house delivery.
 
     A front-wall mast stands outside the roof overhang. Its lower elbow enters
@@ -71,9 +71,42 @@ def house_attachment(row,source_pole):
     angle=math.radians(row['yaw']);rot=Matrix.Rotation(angle,4,'Z');inv=rot.inverted()
     local_source=inv@(Vector(source_pole)-Vector(row['location']))
     side=-1 if local_source.x<0 else 1
-    xx=max(block['x0']+1.,min(block['x1']-1.,(block['x0']+block['x1'])/2+side*.7))
+    # The corner jamb avoids entry-porch roofs and the garage/window openings.
+    xx=block['x0']+.32 if side<0 else block['x1']-.32
     wall_y=block['y0'];yy=wall_y-.80
-    x=xx;top=6.6
+    x=xx
+    from mathutils.bvhtree import BVHTree
+    with bpy.data.libraries.load(str(Path('build/context',row['type']+'.blend').resolve()),link=False) as (src,dst):
+        dst.objects=[n for n in src.objects if 'Roof' in n or 'roof' in n]
+    roof_objects=[o for o in dst.objects if o and o.type=='MESH'];vs=[];fs=[]
+    for o in roof_objects:
+        o.data.calc_loop_triangles();offset=len(vs);vs.extend([o.matrix_world@v.co for v in o.data.vertices]);fs.extend([tuple(offset+i for i in t.vertices) for t in o.data.loop_triangles])
+    bvh=BVHTree.FromPolygons(vs,fs,all_triangles=True);anchor_records=[]
+    for sign in (-1,1):
+        rx=max(block['x0']+.4,min(block['x1']-.4,x+sign*1.3));ry=wall_y+1.6
+        hit=bvh.ray_cast(Vector((rx,ry,20)),Vector((0,0,-1)),30)[0]
+        if hit is None:raise ValueError('Missing actual roof anchor')
+        anchor_records.append(list(hit))
+    for o in dst.objects:
+        if o:bpy.data.objects.remove(o,do_unlink=True)
+    top=max(5.2,max(p[2] for p in anchor_records)+.75)
+    # Size each mast for its own crossing, rather than applying an 18-ft road
+    # criterion to the entire private yard. Independent exported checks repeat
+    # the classification on actual wire vertices. Private service stays above
+    # the general 16-ft Type-A driveway criterion; comm yards retain 12 ft.
+    for _ in range(60):
+        valid=True
+        for source,dz,mass,H,kind in [(source_pole,0,.153,300,'service')]+([(source_comm,-.8,.045,160,'comm_drop')] if source_comm is not None else []):
+            end=rot@Vector((x,yy-.32,top+dz))+Vector(row['location'])
+            curve=catenary(source,end,sag_from_tension(source,end,mass,H))['point']
+            for k in range(201):
+                p=curve(k/200);road=abs(p[0])<=4.2672
+                minimum=(5.4864 if road else 4.8768) if kind=='service' else (4.7244 if road else 3.6576)
+                if p[2]-.16764-.009<minimum+.02:valid=False;break
+            if not valid:break
+        if valid:break
+        top+=.05
+    else:raise ValueError('No valid service attachment height')
     a=Assembly(row['name']+'_ServiceMast')
     a.rod('2 inch rigid service mast',(x,yy,2.30),(x,yy,top+.23),.03015,'Steel',10,'house_service')
     a.tube('Service entrance wall elbow',G.bezier((x,yy,2.4),(x,yy,2.12),(x,wall_y-.25,2.15),(x,wall_y+.03,2.15),12),.03015,'Steel',8,'house_service')
@@ -89,23 +122,10 @@ def house_attachment(row,source_pole):
     a.rod('Porcelain service attachment',(x,yy,top),(x,yy-.32,top),.024,'Porcelain',10,'house_service')
     # Roof guys attach to actual source roof triangles, rather than guessed
     # roof constants. This supports the tall service mast above the low eave.
-    from mathutils.bvhtree import BVHTree
-    with bpy.data.libraries.load(str(Path('build/context',row['type']+'.blend').resolve()),link=False) as (src,dst):
-        dst.objects=[n for n in src.objects if 'Roof' in n or 'roof' in n]
-    roof_objects=[o for o in dst.objects if o and o.type=='MESH'];vs=[];fs=[]
-    for o in roof_objects:
-        o.data.calc_loop_triangles();offset=len(vs);vs.extend([o.matrix_world@v.co for v in o.data.vertices]);fs.extend([tuple(offset+i for i in t.vertices) for t in o.data.loop_triangles])
-    bvh=BVHTree.FromPolygons(vs,fs,all_triangles=True)
-    anchor_records=[]
-    for sign in (-1,1):
-        rx=max(block['x0']+.4,min(block['x1']-.4,x+sign*1.3));ry=wall_y+1.6
-        hit=bvh.ray_cast(Vector((rx,ry,20)),Vector((0,0,-1)),30)[0]
-        if hit is None:raise ValueError('Missing actual roof anchor')
+    for anchor in anchor_records:
+        hit=Vector(anchor)
         a.rod('Mast roof guy',(x,yy,top-.55),hit+Vector((0,0,.035)),.0024,'Steel',6,'house_service')
         a.box('Roof guy flashed anchor',hit+Vector((0,0,.016)),(.10,.08,.027),'Steel',0,'house_service')
-        anchor_records.append(list(hit))
-    for o in dst.objects:
-        if o:bpy.data.objects.remove(o,do_unlink=True)
     a.socket('ServiceDrop',(x,yy-.32,top),'house_service',.022)
     a.socket('CommunicationDrop',(x,yy-.27,top-.8),'house_communications',.006)
     a.rod('Communication attachment eye',(x,yy,top-.8),(x,yy-.27,top-.8),.008,'Steel',6,'house_service')
@@ -113,7 +133,7 @@ def house_attachment(row,source_pole):
     bpy.context.view_layer.update()
     sockets={k:list(o.matrix_world.translation) for k,o in a.sockets.items()}
     return a,sockets,dict(house_type=row['type'],seed=row['seed'],local={k:list(o.location) for k,o in a.sockets.items()},
-        frame='Blender metres, +Z up, -Y house front',roof_anchors=anchor_records,optional_hardware=True,house_bytes_modified=False)
+        frame='Blender metres, +Z up, -Y house front',attachment_height_above_house_grade_m=top,roof_anchors=anchor_records,optional_hardware=True,house_bytes_modified=False)
 
 
 def run(seed,out):
@@ -145,7 +165,7 @@ def run(seed,out):
     transformers=[1,3]
     for row in plan['houses']:
         index=min(transformers,key=lambda i:abs(plan['poles'][i]['location'][1]-row['location'][1]))
-        a=poles[index];mast,sockets,sidecar=house_attachment(row,point(a,'Service'))
+        a=poles[index];mast,sockets,sidecar=house_attachment(row,point(a,'Service'),point(a,'CommDrop') if plan['profile']['comm'] else None)
         p=point(a,'Service');q=Vector(sockets['ServiceDrop']);length=(p-q).length
         sag=min(.5,length*.011)
         # Three true conductors, smooth central axes; the lay is a normal-map

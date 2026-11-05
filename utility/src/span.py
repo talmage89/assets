@@ -15,7 +15,9 @@ def sag_from_tension(start,end,mass_kg_m,horizontal_tension_n,gravity=9.80665):
     as an appropriate tension/weight case; this function does not invent them.
     """
     if mass_kg_m<=0 or horizontal_tension_n<=0:raise ValueError('Positive mass and horizontal tension required')
-    length=math.hypot(end[0]-start[0],end[1]-start[1]);a=horizontal_tension_n/(mass_kg_m*gravity)
+    length=math.hypot(end[0]-start[0],end[1]-start[1])
+    if length<.05:raise ValueError('Need a horizontal span >= .05 m')
+    a=horizontal_tension_n/(mass_kg_m*gravity)
     h=length/(2*a);k=math.asinh((end[2]-start[2])/(2*a*math.sinh(h)))
     return a*math.cosh(k)*(2*math.sinh(h/2)**2)
 
@@ -81,4 +83,5 @@ if __name__=='__main__':
     p.add_argument('--out',required=True)
     a=p.parse_args();points,report=sample(a.start,a.end,a.sag,a.tolerance)
     from pathlib import Path
-    Path(a.out).write_text(json.dumps(dict(points=points,**report),indent=2))
+    output=Path(a.out);output.parent.mkdir(parents=True,exist_ok=True)
+    output.write_text(json.dumps(dict(points=points,**report),indent=2))

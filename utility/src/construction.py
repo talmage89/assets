@@ -329,7 +329,8 @@ def guy(name,start,anchor):
     a.rod('Guy strain egg',egg-v*.09,egg+v*.09,.035,'Porcelain',10,'guy')
     a.rod('7 strand guy lower',egg+v*.09,q,.00476,'Steel',6,'guy')
     end=q-v*min(2.44,(q-p).length*.3)
-    a.rod('Faded 8 foot yellow guy guard',q,end,.026,'Guard',10,'guard')
+    guard=G.lathe('Hollow 8 foot yellow guy guard',[(0,.0235),(0,.026),((end-q).length,.026),((end-q).length,.0235)],M['Guard'],10,closed=True)
+    guard.location=q;guard.rotation_euler=(end-q).to_track_quat('Z','Y').to_euler();a.add(guard,'guard')
     a.rod('5/8 inch anchor eye rod',q-v*.18,q+v*.3,.00794,'Steel',8,'anchor')
     a.rod('Anchor forged eye',q-v*.22,q-v*.15,.025,'Steel',8,'anchor')
     for t in (.10,.23):
