@@ -329,3 +329,18 @@ All delivered graphics, meshes and materials are original. References are
 inspection only, never projected/traced/baked. The open fonts and all photo /
 municipal/manufacturer credits are listed in `refs/SOURCES.md`. This completion
 adds no shared kit functionality; it uses the existing opt-in tiling pipeline.
+
+## Arterial form checkpoint (signals family)
+
+An additive, separately named library is available with make arterial:
+export/ArterialCheckpoint.glb. It adds a three-lane 33 ft / 10.0584 m crowned
+road, a matching rounded intersection, double yellow and lane dashes, an
+exclusive turn arrow and through arrow, 24 inch stop bar, 18 inch high
+visibility crosswalk bars and 6 ft sealed detector loop cuts. The 11 ft lane
+choice and original arrow outlines are authored. The MUTCD 2009 Part 3 supplies
+the marking conventions; see ../signals/REFERENCE.md and its source register.
+The native 15 ft returns, curb/gutter profile, 5 ft walk and accessible ramps
+are placed around the wider port without scaling. Road skins retain native
+asphalt images; paint/sealant have quick checkpoint materials pending review.
+Every existing delivery remains unchanged. This separate checkpoint does not
+claim baked arterial markings or final delivery verification.
