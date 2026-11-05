@@ -84,9 +84,12 @@ the conductor API is independent of these four demonstration layouts.
 | Guy / guard / anchor | 280 |
 | Three-can pole, seed 103 | 8,404 |
 
-The riser exceeds the tangent's 4k cap by 376 triangles for its conduit,
-three sealed terminations and tails. It is a separately placed specialty
-pole. The guy falls below the broad prop guidance because extra geometry
+These library-module counts exclude optional additions. The most detailed
+placed single-can pole is **7,166** triangles with its light bracket and vines;
+the placed riser reaches **4,528** with vines. That riser exceeds the tangent's
+4k cap by **528** triangles for its conduit, three sealed terminations, tails
+and sparse vines. It is a separately placed specialty pole.
+The guy falls below the broad prop guidance because extra geometry
 would not change its silhouette. No baked microdetail is modeled as filler.
 
 | Whole utility block, including optional house masts | Triangles | GLB bytes | Individual conductor meshes before consolidation |
