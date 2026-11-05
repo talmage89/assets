@@ -27,6 +27,32 @@ Sources consulted 2026-11-05:
 
 ## Policy
 
+To add an asset, include `../kit/lod_rules.mk` at the end of its Makefile and
+create `<asset>/src/lod.json`, for example:
+
+```json
+{
+  "kind": "standard prop",
+  "source": "export/Asset.glb",
+  "levels": [
+    {"ratio": 0.6, "screen_height": 0.25},
+    {"ratio": 0.3, "screen_height": 0.10, "texture_size": 512}
+  ],
+  "protected_nodes": ["Detachable*"]
+}
+```
+
+Paths resolve against the asset directory; defaults are `export/lod/` and
+`renders/lod/`. Ratios refer to LOD0, with decreasing switch fractions. Omit
+`texture_size` to retain maps. `protected_nodes` accepts shell-style name
+patterns for moving/detachable parts lacking standard pivot metadata;
+protection covers descendants. `include_nodes` selects named hierarchy roots
+for a module pilot. `detail_nodes` adds per-level construction close-ups.
+`drop_subpixel` is opt-in; its strict whole-component bound is described below.
+Use `impostor: true` only for a reviewed final foliage level, with an engine
+controller and an appropriate shader/render recipe. The six pilot configs are
+worked examples. Inspect every rejected-target report and rendered switch.
+
 Switch fractions are vertical projected extent at 1080p and a 60° **vertical**
 FOV. Equivalent centered distance is `height / (2 * fraction * tan(30°))`.
 This distance concerns the bound's center, not its nearest surface, and is an
@@ -40,6 +66,17 @@ need a bound/FOV-aware controller. There is no universal cull distance.
 | Moving C150 pickup | .55 @ .25, .25 @ .10, .12 @ .04 (43px) | 2048 / 1024 / 512 |
 | Colonial / canopy and dispenser | .60 @ .30, .30 @ .12, .15 @ .045 | Same canonical external tiles/trim at every level |
 | Red maple | Original until .02 (22px), then a 2-triangle render-derived billboard | Original alpha atlas near; independent far impostor |
+
+The cone starts with only 872 triangles: two additional levels avoid extra
+draw resources for imperceptible intermediate steps. The grill earns three
+steps because its broad glossy lid and working fittings remain readable near
+the camera; the car similarly keeps its silhouette and articulated assembly
+while progressively reducing map resolution. Buildings get three conservative
+steps because long roof/fascia outlines and repeated windows/columns expose
+small errors over many pixels. Their shared maps already amortize texture
+storage across instances. The maple keeps the original cards until 22 pixels
+high: ordinary card decimation did not reduce safely, while a render-derived
+last level trades wind and dynamic lighting for a substantial geometry saving.
 
 These are requested targets, not permission to damage an asset. The report
 records achieved counts and all rejected reductions. UV splits, thin walls,
@@ -113,6 +150,9 @@ near-zero-aspect triangles, nonmanifold edges and winding/normal disagreements
 reject a reduction. Existing defects are reported relative to LOD0, never
 silently repaired. These are sampled geometric bounds, not an exact Hausdorff
 proof, and do not replace image judgment.
+The same triangle samples bound interpolated vertex color and Wind field error
+to .01 per channel. Reprojection at vertices alone cannot preserve non-affine
+vertex weathering when a planar surface is re-triangulated.
 
 Renders compare LOD0 and each level, and adjacent levels, at the same switch
 camera/light, from three azimuths. Full 1920×1080 images remain on disk; strips
@@ -142,6 +182,13 @@ It separately rejects newly zero-area triangles in each UV layer (intentional
 constant UV1 emission swatches cannot hide a degenerate UV0), and checks skin
 weights, inverse bind matrices and animation samples against the original.
 The unlit billboard explicitly replaces the original surface-normal field.
+Projected tangent XYZ is orthogonalized against the transported normal before
+normalization; handedness is retained. The raw audit limits tangent/normal dot
+error to .001 and tangent unit-length error to .0002, including importers that
+use the supplied tangents instead of regenerating them as Blender does.
+Byte-exact inherited invalid tangent corners are counted separately; newly
+invalid or displaced invalid corners still fail. The grill has eight and the
+station has four zero-length source tangents. LOD0 is never repaired here.
 
 Detailed candidate reports live under `build/lod/<source stem>/simplification.json`,
 outside the compact delivery manifest. Ship only the referenced glTF/BIN/image
