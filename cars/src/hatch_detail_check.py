@@ -9,6 +9,32 @@ from hatch_lookdev import supports
 import hatch_spec as S
 
 
+def gate_clearance():
+    """Independent offset grid of actual triangle intersections, not locators."""
+    from mathutils.bvhtree import BVHTree
+    gate=bpy.data.objects['Liftgate outer'];me=gate.data;matrix=gate.matrix_world
+    vertices=[matrix@v.co for v in me.vertices];role=me.attributes['hatch_outer_skin']
+    front=BVHTree.FromPolygons(vertices,[tuple(f.vertices) for f in me.polygons if role.data[f.index].value])
+    reverse=BVHTree.FromPolygons(vertices,[tuple(f.vertices) for f in me.polygons
+        if not role.data[f.index].value and (matrix.to_3x3()@f.normal).y<-.4])
+    card=mesh_tree([bpy.data.objects['H120 liftgate inner trim']])
+    gaps={'reverse':[],'card':[]};piercing={'reverse':0,'card':0}
+    for i in range(172):
+        for j in range(44):
+            origin=Vector((-.5983+i*.007,3,.6761+j*.007));direction=Vector((0,-1,0))
+            skin=front.ray_cast(origin,direction,3)[0]
+            if skin is None:continue
+            for name,tree in [('reverse',reverse),('card',card)]:
+                point=tree.ray_cast(origin,direction,3)[0]
+                if point is None:continue
+                gap=skin.y-point.y;gaps[name].append(gap)
+                piercing[name]+=int(gap<-.00005)
+    minima={k:min(v) if v else None for k,v in gaps.items()}
+    passed=all(gaps.values()) and not any(piercing.values()) and minima['reverse']>=.0005 and minima['card']>=.0178
+    return dict(method='Actual triangle Y intersections on an independent 7 mm offset grid; sampled clearance, not a continuous bound',
+        sample_counts={k:len(v) for k,v in gaps.items()},minimum_y_gap_m=minima,piercing_samples=piercing,passed=bool(passed))
+
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--out',required=True);p.add_argument('--coupled-struts',action='store_true')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);source=Path(a.source).resolve();bpy.ops.wm.open_mainfile(filepath=str(source));bpy.context.view_layer.update()
@@ -64,9 +90,11 @@ def main():
         from hatch_coupled_motion import sweep
         coupled=sweep()
         if not coupled['passed']:errors.append('Coupled gas-spring motion')
-    supports();report=dict(stage='source detail/look checkpoint; no UV, bake or GLB certification',passed=not errors,errors=errors,
+    supports();gate_gaps=gate_clearance()
+    if not gate_gaps['passed']:errors.append('Gate reverse sheet / inner card pierces the outer draw')
+    report=dict(stage='source construction and travel; UV, bake and GLB certification are separate',passed=not errors,errors=errors,
         source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),triangles=sum(parts.values()),categories=categories,meshes=parts,pivots=pivots,
-        min_underbody_clearance_m=minimum,strut_stroke=stroke,contacts=contacts,coupled_springs=coupled,
+        min_underbody_clearance_m=minimum,strut_stroke=stroke,contacts=contacts,coupled_springs=coupled,gate_buried_clearance=gate_gaps,
         wheel_axes={c:dict(axle_world_m=list(bpy.data.objects['Wheel_'+c].matrix_world.translation),spin_axis='local X',range_degrees=[0,360],
             kingpin_axis_vehicle=list(bpy.data.objects['Steer_'+c]['kingpin_axis_vehicle']) if c.startswith('F') else None) for c in ['FL','FR','RL','RR']},
         surface_refinements={o.name:dict(new_samples=o['detail_reflection_samples'],max_projection_m=o['detail_reflection_max_projection_m']) for o in bpy.context.scene.objects if 'detail_reflection_samples' in o},

@@ -100,6 +100,8 @@ def main():
     hatch_running_surfaces.arches(b)
     hatch_running_surfaces.liners(b)
     hatch_exterior.build(b);hatch_interior.build(b);hatch_underbody.build(b);hatch_mechanisms.build(b)
+    import hatch_gate_clearance
+    hatch_gate_clearance.apply()
     if not b.high:
         for ob in list(bpy.context.scene.objects):
             if 'bolster piping' in ob.name or ob.name=='Lower intake opening blade 2':bpy.data.objects.remove(ob,do_unlink=True)

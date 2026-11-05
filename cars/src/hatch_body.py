@@ -201,13 +201,13 @@ def gate_relief(x,z):
     return hollow-ridge*(1-smoothstep(.50,.75,abs(x)))
 
 
-def section_field(p):
+def section_field(p,gate_relief_fn=None):
     x,y,z=p
     bumper=.055*math.exp(-((y+1.98)/.50)**2-((z-.48)/.16)**2)+.042*math.exp(-((y-1.98)/.52)**2)*(1-smoothstep(.60,.82,z))
     width=side_width(y)+side_draw(y,z)+bumper
     ft=-1.560;rt=1.660-.32*smoothstep(1.0,1.40,z)
     fd=max(.15,S.LENGTH/2+.0055+ft-face_depth(z,True))
-    gate=gate_relief(x,z)
+    gate=(gate_relief_fn or gate_relief)(x,z)
     # The lower hem retains the accepted envelope. Its shadow comes from an
     # inset bumper shoulder beneath it, not a bolt-on lip outside the package.
     bumper_crease=.045*math.exp(-((z-.610)/.034)**2)*(1-smoothstep(.60,.88,abs(x)))

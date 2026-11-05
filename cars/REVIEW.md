@@ -3610,3 +3610,50 @@ The source topology, dimensions, closure/steering/wheel solid sweeps, coupled
 supports and independent regeneration pass again. Re-bake and render the
 actual exported asset before generating the final docs. The accepted gallery
 studio recipe remains unchanged throughout; every ablation stays diagnostic.
+
+
+### Delivery pass 6 — reject intersecting gate backs at native size
+
+Color/value first: the native gallery retains the accepted five finishes,
+deep cavities and bounded highlights. Badges, optics, fuel reveal and casting
+chamfers survive the 2048 bake. Both the main and an entirely empty-output
+rebuild pass `make` and `make check`, but those checks do not excuse the
+remaining gate image defect. No docs are accepted from this candidate.
+
+The 2000 px gate close-up exposes a dark slit and torn reflection below the
+draw. Disconnecting the already disabled paint normal does not change it.
+Ray intersections identify the coarse **reverse sheet** in front of the
+refined outer surface, and the molded **inner card** protruding through the
+hollow. The apparent large black handle is that card, not a designed aperture.
+A reflected ray can also see these surfaces. An adaptive redistribution of
+the same outer triangle budget does not fix the occlusion and is rejected.
+
+Retain the outer hollow and regular chart. Round only its narrow die ridge
+with a 6.5 mm / 25 mm Gaussian crown in the local detail field; the diagnostic
+change from the preceding fairing is at most 2.828 mm. The original parent,
+accepted raw form and other panels use their unchanged field. Retreat only
+buried reverse vertices until six-millimeter barycentric probes keep their
+chords behind the actual outer triangles; held outer/cut vertices never move
+for this clearance operation. Seat the molded card from its whole face rather
+than its locator rows. The game reverse is an economical occlusion surface,
+not an exact reconstruction of uniform sheet gauge. The visible hems retain
+their original gauge. No triangles are added.
+
+The combined source trial removes the false black slit and crossed facets;
+the softbox follows the recess as a continuous band. An independent seven-
+millimeter offset ray grid is added to construction verification, comparing
+actual triangle intersections for the outer sheet, reverse and card. This
+checks the previously missed self-occlusion, separately from serialization
+and assembly motion. Rebuild, bake and re-audit the resulting GLB and cargo
+pose before accepting final docs.
+
+The regenerated source keeps the raw accepted form byte-exact across all
+132 objects / 119 meshes. Outer fairing now measures 2.333 mm maximum on the
+game mesh. Buried reverse vertices retreat at most 11.067 mm and the card
+35.089 mm; high-source values are 4.108 / 31.985 mm. The existing hidden-back
+optimizer can now safely retire another 112 triangles, yielding **59,852**.
+After that optimizer, the independent grid finds minimum reverse/card Y gaps
+of 0.662 / 18.629 mm on the game mesh and 1.002 / 19.062 mm on the high source,
+with zero piercing samples. The rejected candidate fails the same check:
+1,328 reverse and 596 card rays pierce by up to 7.215 / 15.195 mm. These are
+sampled triangle measurements, not constants or continuous guarantees.

@@ -5,11 +5,20 @@ original die field locally, retaining the lamps, cuts, perimeter and lower hem.
 Use the parent's smooth normal derivative through the blend: differentiating
 its triangle positions would reintroduce facets. Game rows follow the crease.
 """
-import bpy,bmesh
+import bpy,bmesh,math
 from mathutils import Vector
 from mathutils.geometry import delaunay_2d_cdt
 from hatch_body import section_field,smoothstep,gate_crease_height
 from hatch_reference_surface import field
+
+
+def fair_field(p):
+    """Keep the accepted hollow; round the narrow triangular die ridge."""
+    def relief(x,z):
+        hollow=.0485*math.exp(-((z-.835)/.047)**2)*math.exp(-(x/.320)**4)
+        ridge=.0065*math.exp(-((z-gate_crease_height(x))/.025)**2)
+        return hollow-ridge*(1-smoothstep(.50,.75,abs(x)))
+    return section_field(p,gate_relief_fn=relief)
 
 
 def apply(b):
@@ -24,7 +33,7 @@ def apply(b):
             p,n,_=parent((x,3,z),(0,-1,0));lo,hi=1.8,2.3
             for _ in range(30):
                 y=(lo+hi)/2
-                if section_field((x,y,z))>0:hi=y
+                if fair_field((x,y,z))>0:hi=y
                 else:lo=y
             target=(lo+hi)/2;cache[key]=(p,n,target,p.y+weight(x,z)*(target-p.y))
         return cache[key]
@@ -32,7 +41,7 @@ def apply(b):
         key=(x,z)
         if key not in normal_cache:
             p,pn,y,_=sample(x,z);q=Vector((x,y,z));h=.00001
-            tn=Vector([(section_field(q+Vector([h if k==a else 0 for k in range(3)]))-section_field(q-Vector([h if k==a else 0 for k in range(3)])))/(2*h) for a in range(3)]).normalized()
+            tn=Vector([(fair_field(q+Vector([h if k==a else 0 for k in range(3)]))-fair_field(q-Vector([h if k==a else 0 for k in range(3)])))/(2*h) for a in range(3)]).normalized()
             h=.00015;w=weight(x,z)
             wx=(weight(x+h,z)-weight(x-h,z))/(2*h);wz=(weight(x,z+h)-weight(x,z-h))/(2*h)
             dx=(1-w)*(-pn.x/pn.y)+w*(-tn.x/tn.y)+(y-p.y)*wx
