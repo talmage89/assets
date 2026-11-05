@@ -137,7 +137,7 @@ def shots(meta):
     plan=meta['plan'];p=plan['poles'][1]['location'];x,y,z=p;h=plan['poles'][1]['height'];comm=plan['poles'][1]['communication']
     first=meta['houses'][0];q=first['sockets']['ServiceDrop']
     house_rotation=Matrix.Rotation(math.radians(first['yaw']),3,'Z')
-    service_camera=Vector(q)+house_rotation@Vector((-5,-4,-.5))
+    service_camera=Vector(q)+house_rotation@Vector((-5,-5,1.0))
     return dict(
       hero=dict(location=(-7.0,y-26,1.84764),target=(-2,y+25,7.4),lens=35,aspect=1.6),
       street=dict(location=(6.8,3,1.84764),target=(-3,55,7),lens=40,aspect=1.6),
@@ -147,7 +147,7 @@ def shots(meta):
       communication=dict(location=(x-1.8,y-3.0,comm-.05),target=(x-.2,y,comm-.25),lens=65,aspect=1.4),
       deadend=dict(location=(-13,-16,2.4),target=(-5.05,-2.4,4.7),lens=35,aspect=1.3),
       anchor=dict(location=(-6.25,-8.7,.8),target=(-5.05,-6.25,.34),lens=48,aspect=1.4),
-      service=dict(location=tuple(service_camera),target=(q[0],q[1],q[2]-.4),lens=55,aspect=1.4),
+      service=dict(location=tuple(service_camera),target=(q[0],q[1],q[2]-1.4),lens=40,aspect=1.4),
       base=dict(location=(x-1.2,y-2.0,.9),target=(x,y,.65),lens=42,aspect=1.2),
       distance=dict(location=(-8,-55,1.85),target=(-5,90,7.9),lens=50,aspect=1.8),
       distance_filtered=dict(location=(-8,-55,1.85),target=(-5,90,7.9),lens=50,aspect=1.8),

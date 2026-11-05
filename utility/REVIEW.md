@@ -146,6 +146,51 @@ render receipt. All 96 anchors pass; the maximum measured surface miss is
 Regenerate every street, detail, distance frame and photographic pair from
 the corrected presentation. Current-source recipe hashes reject stale images.
 
+## Pass 6 — keep the line jog out of the travel lane
+
+Color/value first: the corrected-pose hero has deep under-eave and hardware
+shadow, a broad midrange and no clipped white. Wood remains dark and smooth
+against the balanced used-pole photographs; surface age is still deferred.
+
+Opening every street and aerial exposed a layout error in seed 104: the
+original 1.05 m-per-span lateral offset crossed the curb and placed two poles
+in the road. The straight native ground context did not follow a road bend.
+Reject that arrangement. Reduce the line jog to .15 m per span, staying in
+the planting strip, with the guy opposing its lateral pull. This is a small
+utility alignment jog, not a claim of a curved street. The independent import
+gate now records the actual shaft's world-space section bounds and requires
+its entire ground footprint between curb back and sidewalk front.
+
+The close-up review also finds polygonal short-jumper bends, a simplified
+splice-case end and temporary nameplate orientation. Those need closer-range
+polish at the next stage. Widen and lower the service detail framing to include
+the eave/supports with the head and drip loops. The final replay regenerates
+all frames and both matches; stale receipts cannot pass the review script.
+
+Final inspection: opened all 20 regenerated native frames, both photographic
+pairs, the contact sheets and neutral-balanced reference copies. The corrected
+104 aerial keeps every pole on grass; its nearest shaft edge is 0.347 m behind
+the curb back. The service frame now includes the two wall supports, wall-entry
+elbow, roof edge and upper attachment. Long wires remain thin in the distance;
+the filtered still improves continuity without the opaque-rope silhouette,
+but cannot establish moving-camera temporal stability.
+
+Final hero lower-56% encoded Y′ p1/p50/p95/p99 is
+0.0255 / 0.3668 / 0.8550 / 0.8701, with zero all-channel white clipping.
+The final NC/MD calibration RMS is 6.513 / 18.117 native pixels; MD's held-out
+neutral/comm residuals are 36.93 / 81.88 pixels. These expose the real spacing
+differences rather than hide them. The three-can close-up reads as supported
+separate cans; the source still needs the finer connections/normal detail
+described below and is not a three-phase secondary wiring diagram.
+
+Proof: `make clean && make` completed the clean checkpoint replay;
+after the planting-strip correction, `make` regenerated the models, checks,
+20 Cycles images, two pairs and sheets. Final `make check`, `make review`,
+`python3 kit/repo_check.py` and `git diff --check` pass. The five pure math tests,
+raw/fresh-import gates, road clipping, shaft footprints and visible house fits
+all pass. Repository check reports 1,539 source files and zero errors.
+No kit regression suite is required because kit/ is unchanged.
+
 ## Remaining work, deliberately outside this checkpoint
 
 - Prove real aged wood, silvering/check depth, wet ground-line absorption,

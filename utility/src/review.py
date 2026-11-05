@@ -5,6 +5,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
 from PIL import Image,ImageDraw,ImageFont
 import numpy as np
 from kit.contact import contact,review_sheet
+from plan import PROFILES
 
 
 def balance():
@@ -30,10 +31,12 @@ def main(a):
         receipts=json.loads((p.parent/'provenance.json').read_text());r=receipts[p.stem]
         assert r['sha256']==hashlib.sha256(Path(r['source']).read_bytes()).hexdigest(),p
         assert r['recipe_sha256']==recipe,p
-    contact(files,a.renders/'contact.jpg',title='Utility / construction checkpoint / 20 Cycles views')
-    contact([a.renders/str(s)/v for s in (101,102,103,104) for v in ('street.png','above.png')],a.renders/'four-streets.jpg',title='Four utility towns / street and above')
+    captions={str(p):f'Seed {p.parent.name} / {p.stem.replace("_"," ")}' for p in files}
+    contact(files,a.renders/'contact.jpg',title='Utility / construction checkpoint / 20 Cycles views',captions=captions)
+    towns={str(a.renders/str(s)/v):f'{s} / {PROFILES[s]["town"]} / {Path(v).stem}' for s in (101,102,103,104) for v in ('street.png','above.png')}
+    contact(list(towns),a.renders/'four-streets.jpg',title='Four utility towns / street and above',captions=towns)
     details=[a.renders/'101'/f'{n}.png' for n in ('transformer','crossarm','deadend','anchor','communication','service','base')]+[a.renders/'103/bank.png',a.renders/'103/riser.png']
-    contact(details,a.renders/'construction.jpg',title='Construction / exported quick-material utility GLBs')
+    contact(details,a.renders/'construction.jpg',title='Construction / exported quick-material utility GLBs',captions=captions)
     review_sheet([[a.renders/'101/distance.png',a.renders/'101/distance_filtered.png']],a.renders/'wire-distance.jpg',title='True-diameter tubes / camera-facing .85px coverage-compensated ribbons')
     pairs=[Path('renders/matches')/(n+'-pair.jpg') for n in ('nc_street','md_street')]
     if all(p.exists() for p in pairs):

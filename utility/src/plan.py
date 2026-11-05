@@ -28,7 +28,10 @@ def street(seed):
     poles=[];y=0
     for i,kind in enumerate(('deadend','transformer','angle','transformer','riser')):
         if i:y+=profile['spacing_ft']*FT*rng.uniform(.96,1.04)
-        x=-5.05+(max(0,i-2)*1.05 if seed==104 else 0)
+        # A small line jog stays inside the existing planting strip; a road
+        # corner would require a matching ground/street layout, not poles
+        # drifting across this straight roadway.
+        x=-5.05+(max(0,i-2)*.15 if seed==104 else 0)
         spec=pole_spec(**{k:profile[k] for k in ('length_ft','phases','framing','arm_ft','comm')},kind=kind,seed=seed*10+i)
         spec.update(name=f'P{i}',location=(x,y,.16764),light=(i==1 or i==3) and seed!=103,bank=3 if seed==103 and i==3 else 1)
         poles.append(spec)

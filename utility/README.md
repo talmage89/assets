@@ -94,7 +94,7 @@ would not change its silhouette. No baked microdetail is modeled as filler.
 | 101 | 47,916 | 2,020,424 | 76 |
 | 102 | 40,692 | 1,640,636 | 68 |
 | 103 | 44,242 | 1,997,964 | 52 |
-| 104 | 48,824 | 2,054,736 | 76 |
+| 104 | 48,824 | 2,054,700 | 76 |
 
 `build/checks.json` is authoritative. The parts library is 29,740 triangles /
 1,729,184 bytes, with 24 diagnostic material states and eight 256² label images;
@@ -203,7 +203,9 @@ from the retrievable MPS/WPS/NRECA publications.
 `build/checks.json` distinguishes serialization from geometry: raw GLB counts,
 finite positions, unit normals and zero degenerate triangles; fresh-import
 counts and sockets; actual shaft sections and wire minima; sampled interspace
-clearance; actual roof rays beneath service drops. Minimum neutral/comm gap
+clearance; actual roof rays beneath service drops. Every imported shaft's
+full ground footprint also has to fit between the curb back and sidewalk.
+Minimum neutral/comm gap
 is **1.205 m**. Lowest checkpoint service surface is **5.193 m** above grade;
 lowest comm drop is **4.397 m** on private land. Actual triangle-clipped road
 minima are **5.975 m service / 4.866 m comm drop**, above the chosen

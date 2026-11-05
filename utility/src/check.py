@@ -30,7 +30,9 @@ def measured_circle(ob,height):
     points=list({tuple(round(x,6) for x in p):p for p in points}.values())
     points.sort(key=lambda p:math.atan2(p.y,p.x));assert len(points)==20,(height,len(points))
     perimeter=sum((p-points[(i+1)%len(points)]).length for i,p in enumerate(points))
-    return dict(vertices=len(points),perimeter_m=perimeter,diameter_x_m=max(p.x for p in points)-min(p.x for p in points))
+    world=[ob.matrix_world@p for p in points]
+    return dict(vertices=len(points),perimeter_m=perimeter,diameter_x_m=max(p.x for p in points)-min(p.x for p in points),
+                world_x_bounds_m=[min(p.x for p in world),max(p.x for p in world)])
 
 
 def raw_check(path,expected):
@@ -104,6 +106,9 @@ def check():
                 ground_expected+=(21*.0254-ground_expected)*(.5*.3048)/(spec['height']+.5*.3048)
             assert abs(ring['perimeter_m']-ground_expected)<2e-5
             assert abs(tip['perimeter_m']-21*.0254)<2e-5
+            # The complete imported shaft footprint must fit in the native
+            # left planting strip, between curb back and sidewalk front.
+            assert -6.096<=ring['world_x_bounds_m'][0] and ring['world_x_bounds_m'][1]<=-4.2672,(seed,name,ring)
             # Pole geometry includes only an installation stub below grade.
             wood_top=max(v.co.z for v in mesh.data.vertices if math.hypot(v.co.x,v.co.y)<.18 and v.co.z<spec['height']+.01)
             assert abs(wood_top-spec['height'])<2e-5
