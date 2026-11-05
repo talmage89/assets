@@ -109,7 +109,7 @@ renders/sedan-source-pairs/.stamp: build/sedan/parameters.txt build/sedan/detail
 	$(PYTHON) src/sedan_pair_measure.py measure --calibration build/sedan/used-balanced-cameras.json --renders renders/sedan-source-pairs --out renders/sedan-source-pairs/appearance-patches.json
 	@touch $@
 renders/sedan-eevee/.stamp: build/sedan/parameters.txt export/AlderS240.glb src/sedan_lookdev.py src/sedan_views.py src/sedan_colors.py src/delivery_materials.py
-	$(KIT)/with_gpu.sh $(RP) --python src/sedan_lookdev.py -- --source export/AlderS240.glb --out renders/sedan-eevee --width $(WIDTH) --samples 128 --shots front_three_quarter --engine BLENDER_EEVEE
+	$(KIT)/with_gpu.sh $(RP) --python src/sedan_lookdev.py -- --source export/AlderS240.glb --out renders/sedan-eevee --width $(WIDTH) --samples 512 --shots front_three_quarter --engine BLENDER_EEVEE
 	@touch $@
 sedan-checkpoint: form check-detail check-motion sedan-export sedan-final sedan-pairs renders/sedan-eevee/.stamp
 	$(PYTHON) src/sedan_detail_review.py --renders $(DOUT) --pairs $(DPAIRS) --form $(OUT)
