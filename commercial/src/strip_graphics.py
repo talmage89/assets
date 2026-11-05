@@ -70,11 +70,11 @@ def generate(out=Path('build/strip/signs'),look=False):
         label(t['subtitle'],(r[0]+2,r[1]+58,r[2]-2,r[3]-2),'DejaVu Sans',t['ink'],height=.65)
         records[key]['tower']=r
     if look:
-        from strip_maps import extend
-        extend(im,records,out)
+        from strip_art import populate
+        populate(im,records,out)
     im.save(out/'T_StripSigns_BaseColor.png')
     for data in records.values():
-        for kind in ('sign','window','tower','faded'):
+        for kind in ('sign','window','tower','faded','vinyl','poster'):
             if kind in data:
                 a,b,c,d=data[kind];data[kind]=(a/size,1-d/size,c/size,1-b/size)
     (out/'layout.json').write_text(json.dumps(records,indent=2)+'\n')
