@@ -65,3 +65,8 @@ check-bark: renders/final/.matched src/bark_evidence.py
 check: check-bark
 
 endif
+
+# Optional red-maple LOD pilot.
+ifeq ($(SPECIES),maple)
+include ../kit/lod_rules.mk
+endif

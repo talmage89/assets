@@ -1,0 +1,14 @@
+{
+  "kind": "red maple",
+  "source": "export/RedMaple.glb",
+  "levels": [
+    {
+      "ratio": 0.001,
+      "screen_height": 0.02,
+      "impostor": true
+    }
+  ],
+  "foliage_shader": "maple",
+  "readme_before": "\n## Pin oak /",
+  "readme_level": 3
+}
