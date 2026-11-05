@@ -75,6 +75,13 @@ def apply(b):
             for j in range(33):
                 q=Vector((x,-.25+j*.010))
                 if inside(q) and distance(q)>.002:coords.append(q)
+        # The fourth-power transverse hollow turns most sharply in its
+        # central 640 mm. Double only those columns through the draw.
+        for i in range(16):
+            x=-.30+i*.04
+            for j in range(16):
+                q=Vector((x,-.14+j*.010))
+                if inside(q) and distance(q)>.002:coords.append(q)
         uv,_,faces,original,*_=delaunay_2d_cdt(coords,edges,[],0,1e-8)
         faces=[f for f in faces if inside(sum((uv[i] for i in f),Vector((0,0)))/len(f))]
         newverts={}

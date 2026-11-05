@@ -23,7 +23,8 @@ def apply(b):
         vertices=[v for v in bm.verts if v.link_faces and all(f in region for f in v.link_faces)]
         edges=[e for e in bm.edges if len(e.link_faces)==2 and all(f in region for f in e.link_faces)]
         before=sum(len(f.verts)-2 for f in bm.faces)
-        bmesh.ops.dissolve_limit(bm,angle_limit=math.radians(1),use_dissolve_boundaries=False,
+        angle=2 if name.startswith('Front') else 1
+        bmesh.ops.dissolve_limit(bm,angle_limit=math.radians(angle),use_dissolve_boundaries=False,
             verts=vertices,edges=edges,delimit={'MATERIAL'})
         bmesh.ops.triangulate(bm,faces=[f for f in bm.faces if len(f.verts)>3]);bm.normal_update()
         maximum=0

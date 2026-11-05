@@ -3569,3 +3569,15 @@ front and 0.648 mm rear, and retire 328 + 1,277 triangles. This is a sampled
 chord-deviation check, not a continuous bound. The resulting source is 59,871
 triangles, under the unchanged 60,000 cap. Rebuild, bake and re-audit the actual
 GLB before accepting documentation images.
+
+The native 2000 px source audit warrants one last transverse refinement inside
+that hollow: 20 mm central columns, leaving the 40 mm outer columns and all
+cuts held. The chart now replaces 293 triangles with 2,409. The front lower
+allocation permits two degrees and measures 0.683 mm at worst; rear stays at
+one degree / 0.648 mm. It retires 747 + 1,277 triangles, producing **59,964**
+in total. The topology audit passes after explicitly removing nine retired
+wire diagonals; independent regenerated transforms, faces, vertices, split
+normals and material assignments match across 471 objects / 442 meshes.
+Both source solid sweeps and coupled supports pass. The source close-ups are
+`build/hatch-delivery/source-fine/{face,gate}.png`; the exported candidate must
+still pass the final image audit.
