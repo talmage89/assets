@@ -356,7 +356,7 @@ re-import reports separate construction from serialization. The repaired car is 
 redundant guide chords and the grille backs fund the fair skins, supported
 optical seats and rounder tires. Guide reduction measures every authored station
 against its final chord; maximum error stays below 0.30 mm.
-The embedded-texture GLB is **9,152,252 bytes**.
+The embedded-texture GLB is **9,152,316 bytes**.
 
 Four delivery surfaces match the pickup: **Paint, Opaque, Glass and Lamps**.
 Separate recoloring/coat, transmission and switchable emission responses need

@@ -3185,7 +3185,7 @@ Inspecting actual baked chart pixels identifies a packing defect: a physical
 58 × 20 mm label at a measured 558 px/m occupies **8.08 × 44.60 texels**, rather
 than about 32 × 11. A non-square active marking image has contaminated the UV
 operators' aspect context. Area-based density passes while one dimension loses
-four fifths of its resolution. The original emblem has the same distortion;
+three quarters of its resolution. The original emblem has the same distortion;
 the S240 badge also inherits the low structural priority. Fix the atlas, not the
 lettering design: establish a square active image for every UV operation, reset
 the affected rigid SmartUV charts, then unwrap/normalize/pack as before. Give
@@ -3278,8 +3278,8 @@ Final build evidence:
   claimed as an exact global surface minimum or a continuous-motion proof.
 - Source **174,212** / delivery **59,930 triangles**, four authorized family
   surfaces, one three-map **2048²** set baked at **4096²**, **16 MiB** compressed
-  with full mips. GLB **9,152,252 bytes**, SHA-256
-  `789b382a084a5cf839e580a16ae9b92323d0f61503f972a007730dfa24cfc5e3`.
+  with full mips. GLB **9,152,316 bytes**, SHA-256
+  `82cd0eca5c0481f75b87487b406661f7a96960f9cfd1ac6a8e948c4b37babdbc`.
 - Atlas coverage **40.82%**; p5/median/p95 **59.6/264.3/506.0 px/m**;
   zero overlaps/outside/degenerate triangles, 31 logged overlap-chart repairs.
   Six planar prints have measured UV Jacobian condition numbers below 1.00003.
@@ -3291,8 +3291,8 @@ Final build evidence:
   `renders/sedan-detail/checkpoint.jpg`, `renders/sedan-motion/contact.jpg`.
   Expanded geometric evidence: `renders/sedan-panels/*-comparison.jpg` and
   `renders/sedan-panels/source/*-comparison.jpg` (seven views / three modes each).
-- Five final docs JPGs: hero **107,225**, rear **103,061**, details **185,919**,
-  five colors **194,151**, turnaround **119,511 bytes**. Each is 1600 px wide
+- Five final docs JPGs: hero **107,195**, rear **103,063**, details **185,910**,
+  five colors **194,194**, turnaround **119,489 bytes**. Each is 1600 px wide
   and below 200 KB. They are the only sedan gallery images to be kept in Git.
 - Pickup SHA-256 remains
   `f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
@@ -3309,3 +3309,23 @@ Nothing is needed from the lead to rebuild. Suggested kit follow-up: add
 per-triangle UV anisotropy beside area-based density, complete-triangle label
 correspondence for thin sheets, and explicit open-sheet sweep coverage. Keep
 that general work coordinated with the other family branches.
+
+
+Final provenance refresh: the first history rewrite overlapped a verification
+run and refreshed generated-scene timestamps. Rebuild the affected chain before
+calling it final. The long foreground render command subsequently received
+SIGTERM; a persistent runner completed the normal Make graph with exit 0
+(`build/sedan-r8/persistent-make.log` and `persistent-make-result.json`). Then
+`make -C cars BODY=sedan WIDTH=1600 SAMPLES=256 check` ran separately and exited
+0 (`build/sedan-r8/post-refresh-check.log`). All 55 views now reference the final
+GLB digest printed above. The source-photo pairs, bake-loss report, nine crops,
+contacts and five docs have been regenerated and reviewed again.
+
+All 57 raster masks and all 14 geometric curvature maps are pixel-identical to
+the earlier reviewed run. GPU shading/baking is not claimed bit-for-bit
+repeatable: the final rebake adds 64 compressed bytes; refreshed docs differ
+from the reviewed copies by at most 0.0017/255 mean absolute channel value.
+The sparse worst JPEG-edge difference is 12/255, rather than zero. Geometry
+regeneration is independently exact, including corner normals and assignments.
+The native repairs remain visible; no modeling, factory-factor or lighting
+change was made during this provenance refresh.
