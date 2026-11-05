@@ -88,6 +88,28 @@ def main():
     build(config);check(config,require_renders=False)
     from kit.lod_normals import audit as audit_normals
     audit_normals(config)
+    # Closely spaced surfaces with different chart ownership: nearest geometry
+    # alone picks the wrong plane. UV correspondence must choose the original
+    # front field, and must still reject a reversed normal at that same point.
+    overlap=Document(source);plane={k:np.concatenate([v,v]) for k,v in attrs.items()}
+    count=len(pos);plane['POSITION'][count:,2]=.0001;plane['NORMAL'][count:]*=-1
+    plane['TANGENT'][count:,3]=-1
+    plane['TEXCOORD_0'][count:,0]+=2;plane['TEXCOORD_1'][count:,0]+=2
+    both=np.concatenate([faces,faces[:,::-1]+count]);pr=overlap.data['meshes'][1]['primitives'][0]
+    overlap.replace(pr,plane,both);overlap_source=out/'normal-source.gltf';overlap.save(overlap_source)
+    candidate=Document(overlap_source);moving={k:v.copy() for k,v in plane.items()};middle=(n//2)*(n+1)+n//2
+    moving['POSITION'][middle,2]=.00008
+    overlap_dir=asset/'normal-compare';overlap_dir.mkdir(exist_ok=True)
+    candidate.replace(candidate.data['meshes'][1]['primitives'][0],moving,both);cp=overlap_dir/'candidate.gltf';candidate.save(cp)
+    oc=asset/'src/normal-compare.json';oc.write_text(json.dumps(dict(kind='normal field fixture',source='../normal-source.gltf',output='normal-compare',levels=[dict(ratio=.5,screen_height=.2)])))
+    om=json.loads((asset/'lod/manifest.json').read_text());om['levels']=om['levels'][:2];om['levels'][1]['path']=cp.name
+    (overlap_dir/'manifest.json').write_text(json.dumps(om));audit_normals(oc)
+    moving['NORMAL'][middle]*=-1
+    bad=Document(overlap_source);bad.replace(bad.data['meshes'][1]['primitives'][0],moving,both);bad.save(overlap_dir/'bad.gltf')
+    om['levels'][1]['path']='bad.gltf';(overlap_dir/'manifest.json').write_text(json.dumps(om))
+    try:audit_normals(oc)
+    except RuntimeError:pass
+    else:raise AssertionError('Nearby back surface hid a reversed front normal')
     manifest=(asset/'lod/manifest.json').read_bytes()
     generated={p.name:digest(p) for p in (asset/'lod').glob('*') if p.is_file() and p.suffix in ('.gltf','.bin')}
     build(config)
