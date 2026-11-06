@@ -30,7 +30,10 @@ A runtime uploading everything as RGBA8 with full mips would use about 70 MiB.
 
 The family has four material references at most in one intersection; a span
 installation uses three. Lit/dark instances share the same image and UV tile; dark packages retain a
-small reflectance factor. Each vehicle cover has an authored 6 mm crown.
+linear BaseColor factor of .065, making the packages faintly visible. Lit
+BaseColor stays .0007 and emission strength stays 6. Each vehicle cover has an
+authored 6 mm crown with analytic molded-cover normals; stock clear-coat PBR
+adds its sky reflection without another map or material reference.
 An illuminated name uses the existing name image, with no additional texture.
 The Rill fixture is mapped into these same manufacturing trims; its original
 library file is read only and remains byte-identical.
@@ -41,7 +44,8 @@ Paint keeps its hue as the exposed top chalks and roughens. Dirt tracks begin
 under retained ledges and extend down. Zinc crystallization is restrained;
 water retained low on the support leaves zinc oxide, and crevices/cut edges at
 the base and nuts carry interrupted oxidation. Upward arm/case faces receive
-perch deposits. Concrete has form lines. Cabinet splash stays on the lower
+perch deposits. Concrete has form lines. Mill-finish cabinet aluminum retains .95 metallic, variable brushed roughness
+around .28 and rain patina. Cabinet splash stays on the lower
 leaf; the service label and document sheet stay attached to their door.
 The accessible button has polished contact and short abrasion strokes, with a
 small maintenance sticker on its station.

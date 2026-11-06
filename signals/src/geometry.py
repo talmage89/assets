@@ -91,4 +91,10 @@ def finalize_meshes():
   bm=bmesh.new();bm.from_mesh(o.data);bmesh.ops.delete(bm,geom=[v for v in bm.verts if not v.link_faces],context='VERTS');bm.to_mesh(o.data);bm.free()
   o.data.calc_loop_triangles()
   mod=o.modifiers.new('Game triangles','TRIANGULATE');G.apply(o)
+  if o.get('signal_kind') in ('red','yellow','green','red_arrow','yellow_arrow','green_arrow'):
+   # Analytic molded cover normals on the accepted eight-triangle crown.
+   # The angular reflection changes continuously without silhouette triangles.
+   pts=[v.co for v in o.data.vertices];cx=(min(v.x for v in pts)+max(v.x for v in pts))/2;cz=(min(v.z for v in pts)+max(v.z for v in pts))/2
+   for f in o.data.polygons:f.use_smooth=True
+   o.data.normals_split_custom_set_from_vertices([Vector(((v.co.x-cx)/.24,-1,(v.co.z-cz)/.24)).normalized() for v in o.data.vertices])
 def tri(rt):return sum(len(o.data.loop_triangles) for o in rt.children_recursive if o.type=='MESH')

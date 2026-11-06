@@ -11,7 +11,7 @@ ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
 from kit.image_io import write_png,linear_to_srgb
 from kit.fonts import find_font
 ROLES=['zinc','green','black','bronze','yellow','inside','steel','white','concrete','cabinet','rubber','border','r10','panel','record','rust','zinc_top','yellow_top','black_top','bronze_top','green_top','cabinet_lower','optics','sticker','zinc_base','yellow_chalk','black_chalk','bronze_chalk','green_chalk','concrete_form','white_aged','button_worn']
-COLORS=[(.235,.245,.245),(.014,.038,.025),(.009,.011,.010),(.047,.034,.022),(.70,.285,.010),(.004,.005,.006),(.31,.33,.33),(.60,.61,.58),(.32,.325,.303),(.32,.345,.345),(.006,.007,.006),(.62,.39,.012)]
+COLORS=[(.235,.245,.245),(.014,.038,.025),(.009,.011,.010),(.047,.034,.022),(.73,.37,.004),(.004,.005,.006),(.31,.33,.33),(.60,.61,.58),(.32,.325,.303),(.48,.49,.48),(.006,.007,.006),(.62,.39,.012)]
 def smooth(x):
  x=np.clip(x,0,1);return x*x*(3-2*x)
 def noise(w,h,cells,rng):
@@ -31,6 +31,11 @@ def fields(size=4096,wear=.8):
    # Small zinc crystallites/brushed sheet, patina reduces specular response.
    metal[:]=.82 if base=='zinc' else .95;rough[:]=.62 if base=='zinc' else .45
    grains=noise(W,H,95,rng);c*=.98+.04*grains[:,:,None];hh=.000018*(grains-.5)
+   if base=='cabinet':
+    # Mill-finish aluminum: fine draw lines, rain patina and handling scratches.
+    rough[:]=.28+.045*mid+.035*np.sin(u*1500+v*3)
+    rain=smooth((broad-.48)/.23)*wear*.26
+    c*=1-rain[:,:,None]*.32;rough+=rain*.35;hh+=.000012*np.sin(u*1800)
    if base=='zinc':
     patina=smooth((broad-.44)/.28)*.22*wear;c=c*(1-patina[:,:,None])+np.array((.40,.41,.39))*patina[:,:,None];rough+=patina*.5
    else:rough+=.025*np.sin(v*1100+mid*3)

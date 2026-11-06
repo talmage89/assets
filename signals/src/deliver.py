@@ -22,7 +22,7 @@ def state_factors(path):
  d,b=read(path)
  for m in d.get('materials',[]):
   if m['name'].startswith('SharedLens_'):
-   factor=.0007 if m['name'].endswith('Lit') else .012
+   factor=.0007 if m['name'].endswith('Lit') else .065
    m['pbrMetallicRoughness']['baseColorFactor']=[factor,factor,factor,1]
    m['pbrMetallicRoughness']['metallicFactor']=0
    m['alphaMode']='MASK';m['alphaCutoff']=.5
