@@ -212,3 +212,324 @@ No shared kit file or neighboring asset source is modified. Existing generated
 deliveries were absent from this worktree; context generation writes only
 utility/build. Their absence is stated rather than claimed as a comparison of
 hundreds of delivered files that were not present.
+
+## Surface round, pass 1 — exported 2048 atlas and cable hierarchy
+
+Color and value first: opened the original NC/MD photographs and the old hero
+and distance sheet, then the first baked export's hero, ground line, transformer
+and communication views at native 1280. Jacketed routes are now much darker
+against sky. The pine is neutral gray-brown rather than the old smooth dark
+cylinder; the pale gray dielectric sheds and can keep distinct responses.
+Assumed neutral for the MD comparison remains its bare driveway cement; NC
+uses its bare sidewalk. Their explicit linear gains are retained for the next
+matched-light measurements. No photographed pixel is an input to a material.
+
+Reject the first images as finals: 24 un-denoised samples leave conspicuous
+noise in tree crowns and shadowed timber; the base camera clips the number
+tag; and a source-field update made during an earlier bake left that bake's
+crossarm grain perpendicular to the arm. The actual current source field has
+horizontal growth bands and checks. Rebuild the complete atlas serially from
+stable fields, reframe the base to show grade and tags, and preserve actual
+wire coverage when denoising the scene. The current top close-up also exposes
+a flat green horizon between the trees; fill the distant residential yards
+with the library tree species as well as the nearby planting strips.
+
+The first new 104 block was 50,164 triangles, above the retained 49k target.
+Recover oversampling in the repeated optional mast curves and tiny roof guys,
+retaining their diameters, sockets and supports. Long-span uniform stations
+already retain the API's 8 mm chord-error and 4 m step screens without the
+old power-of-two excess. All five existing mathematical controls pass.
+
+## Surface round, pass 2 — reject machined-looking wood and floating ink
+
+Color and value first: opened all six 1600-pixel pass-2 exports at native
+size: hero, base, transformer, crossarm, communications and dusk. Compared
+with the neutral-balanced MD pole/can and NC street photographs. The gray
+paint, shaded jacket black and porcelain are separated without pale clipping.
+The hero's raking shadows and continuing residential horizon read much more
+convincingly than the original field; the remaining run stays visible between
+crowns. The strip/yard trees no longer obscure the whole line corridor.
+
+Reject the wood's normal strength: the long ridges make pine and fir read
+like corrugated plastic. Lower the physical growth-band relief from .33 mm
+to .085 mm on fir / .11 mm on round pine; keep localized drying splits.
+Raise the uneven capillary wetting reach slightly so the ground line has a
+visible material change. The can's broad lower stain is plausible, but the
+one sinuous front streak looks arbitrary. Start runoff at the actual lift-eye
+weld roots and lid seam, reduce its wandering and make bottom retention uneven.
+No pasted speckle or uniform rust wash is added.
+
+The base camera now reaches grade and the birth mark, but the tag lettering
+has the atlas rectangle's distorted aspect. The birth/rating quads also bridge
+their cylinders. Author lettering at physical aspect, use shared glyphs for
+seeded tag numbers, and conform the stamped mark and foil nameplate to the
+actual polygon surfaces. Keep these in the same atlas and draw call. Turn
+some existing vine growth toward the base view; do not add a vegetation mesh
+budget. Correct the triplex's constituent packing; the old separated row was
+wider than a real #4 assembly even though its constituent diameters were right.
+
+Dusk has a blue sky above a darker street, lit heads and window glow, but the
+pickup's glass incorrectly receives the house-window emission state. Exclude
+vehicle glazing and give the night wire samples 128 samples to reduce bright
+specular sampling noise. Retain native sky-line samples when denoising the
+surrounding surfaces. Three original factory paint colors reduce the parked
+pickup repetition without changing any car source or delivery.
+
+The raw delivery gate now passes every package: nondegenerate UVs, retained
+stock-chart boundaries, unit normals/tangents and the same three image
+**datablocks** when all five external glTFs are imported together. The gate
+previously caught a collapsed UV strip on the buried insertion stub and a
+folded central riser breakout; the stub now has nonzero UV height, and that
+straight central connection no longer folds back over itself. Physical
+clearance tests remain separate and pass at this authored tension state.
+
+
+## Surface pass 3 — exported atlas, native 1600 px, photo fits and exact wire ranges
+
+Color and value first: the exported wood retains gray-brown albedo, but the
+strong blue fill and an overly regular annual-band pattern made the upper
+shaft look like fluted metal. The can is substantially lighter than the used
+Maryland can in soft backlight; its fitting layout is also different. The
+Maryland concrete and NC concrete were separately balanced as assumed
+neutrals (not gray cards); native photographic line profiles are saved beside
+the raw model probes. They have no surveyed distances.
+
+Opened all six pass-3 close views, all three paired sheets, and the native
+wire comparison. Reject the old local can-only 2.4 px fit: it concealed the
+wrong crossarm direction. Add both arm pins and the cut top as independent
+controls. The communication fit's shaft roll was visibly wrong; add a second
+shaft station and start the camera on the physically correct side of the
+cable direction. Keep the residual visible instead of reporting the local
+can fit as full-assembly agreement. Accepted equipment heights stay fixed.
+
+The corrected telephone and coax remain dark at 120 m (23.7/23.8% displayed
+contrast); the true 10.109 mm primary falls to 2.6%. Strict energy-preserving
+.85 px ribbons also fall to 2.3%, so merely widening and reducing alpha in
+exact proportion fails this requirement. Retain true diameters nearby; give
+the documented far policy an explicit calibrated optical exponent .55,
+with 1.0 available for strict integrated coverage. This is a deliberate
+visibility compromise, never a changed physical cable diameter. Re-measure
+the result against native photo profiles and report both versions.
+
+Change the grain coordinate with coherent anisotropic fibre waviness and
+vary each band's strength; enlarge fir knots to their physical section.
+Reduce molding relief independently. Reframe ground-line and identification
+views separately, so neither the wet base nor the full tag is cropped.
+The actual exported-label contact check also found a 6.8 mm bank-only gap;
+conform its plate to the bank's 14 facets and require <1 mm measured contact.
+
+
+## Surface pass 4 — native close views and eye-height street
+
+Color and value first: opened the four complete pass-4 1600 px renders
+(crossarm, base, tags, hero). The warm-gray wood separates from blue-gray
+steel and the black communication jackets now hold the street perspective.
+The pine still looks too smooth at an extreme close-up, and capillary
+darkening is too weak. Add millimetre-scale longitudinal fibre variation
+under the existing warped growth bands; strengthen only wet/shaded wood at
+grade, with its irregular upper reach. The fir grain direction and the
+reduced relief are now correct, without the previous regular flutes.
+
+Reject the tag view: the camera still cuts the upper digits, and the real
+ground molding occludes the birth brand. Turn the complete tag/brand group
+exactly two shaft facets (36 degrees) clear of the molding; this preserves
+the conformed contact and geometry budget. Increase camera distance and
+frame the actual world-height datums. The vine's sparse kite leaves and the
+close view's enlarged texture are weaker than the real plant/wood; retain
+this as a limitation rather than claiming a photograph at macro distance.
+
+The sunlit street is populated and continues to the horizon. Repeated house
+setbacks, lawn planes and pickup type still reveal procedural presentation.
+Keep the utility audit separate from that context. The resumed four-view
+render completed with 4,522,972 KiB peak resident memory; all following jobs
+run serially with four CPU threads. No other delivery was involved.
+
+The new transformer-top fit includes both arm pins and the cut top (6.19 px
+RMS); the can mount remains a visible construction difference from the
+Maryland installation. The communications fit has 15.10 px residual against
+its estimated shaft stations/cable points. That is a weaker comparison,
+not a precise equipment survey. Balance NC/MD on stated concrete ROIs and
+the communications photo on an assumed gray porcelain shed before color
+comparison. Reverse the NC sun direction to match the right-side tree
+shadows; desaturate the soft MD sky fill instead of accepting a blue pole.
+
+
+## Surface pass 5 — reject the remaining pale street lighting
+
+Color and value first: opened native final/101 hero and street before stopping the batch. The street has actual
+raking cast shadows, but the nearly white procedural sky fill, neutral sun
+and .20 linear pine base combine into a cold, pale pole. Against the
+neutral-balanced used wood, its reflectance is too high. Lower treated pine
+to .132/.113/.084 linear and fir to .145/.111/.073; preserve gray-brown hue
+and all localized age masks. Add fine fibre relief to the fine fibre field,
+not to the low-frequency growth bands that previously looked corrugated.
+
+The separate sun lamp was white even when the procedural sky described a
+lower afternoon sun. Give the ordinary sun its warm low-angle color, lower
+its elevation to about 23 degrees and reduce sky fill. Keep the photo-pair
+lighting independent and neutral for their own conditions. This is a
+lighting correction plus measured material-value correction, not a uniform
+color-grade wash. Make removed the incomplete grouped render targets on termination; retain
+the inspection receipt and recheck a complete hero/base/tag group before
+producing the remaining views.
+
+The moved markings now clear the molding and measured surface contact
+remains within .401 mm. All physical and external-delivery checks passed
+from the clean build before this deliberate visual rejection.
+
+
+## Surface pass 6 — value-corrected export, 1600 px hero/base/tags
+
+Color and value first: opened all three native value-pass images. The pole
+now reads brown-gray in the warm sun and substantially darker in shade;
+the light has long raking shadows instead of the earlier cold flatness.
+Black communication jackets remain distinct across the sky. The atlas
+retains measured dark wet/green pixels at grade (about 70–86 sRGB bytes
+versus 97–108 higher up); those are material samples, not a claim about
+displayed brightness under different lighting. Fine wood remains limited
+by reused atlas density at a macro crop; the small vine's silhouette is
+still angular. At street distance the pole is the intended material.
+
+The complete RV number and birth mark now fit and clear the ground molding.
+Reject the birth mark's pale rectangle: change its backing to wood of the
+same mean reflectance with its own fibres, retaining dark burned/stamped
+letters. This should read as a marked patch of wood, not a foil label.
+The transformer's actual foil plate stays gray. Correct the guard UVs to
+lathe-local cylindrical coordinates: its dirt belongs at the anchor end,
+not across a tube face selected by an arbitrary projection. Neither fix
+adds geometry, materials or images. Add independent native jacketed-line
+profiles in the Maryland and communications photographs alongside the
+existing bare-line probes. Then rebuild from nothing and inspect all views.
+
+
+## Surface pass 7 — reject inferred local shaft stations as camera controls
+
+Color and value first: retain the corrected warm gray-brown material values
+and the separate neutral-balanced reference lighting; do not use a blue
+cast to make a pole look dark. The communications framing still needs a
+stronger geometric basis. The local fit used arbitrary estimated stations
+on an unmarked shaft and reached its lens bound. Reject that fit.
+
+Fit the complete reference pole from base, cut top and both upper arm pins,
+using the actual exported 40-ft angle pole. These controls span its full
+height and width. Independently hold out the shaft centre at telephone
+strand height. Render the verified whole portrait at its native 749 × 1640
+pixels, then take the same native 570 × 370 review crop from both images.
+This preserves the actual full-frame lens and principal point, rather than
+refitting an assumed centred lens to an off-centre crop. Record the control
+residual, held-out residual, full portrait and crop separately. Equipment
+placement differences (case position, extra route) remain visible.
+
+The guard unwrap gate caught the riser's yellow formed channel sharing the
+Guard role. Cylindrical mapping belongs only on the round guy guard; the
+channel keeps a longitudinal planar chart and separate cap mapping. Retain
+the zero-degenerate-UV gate; do not loosen it to get the build through.
+
+The full-street ribbon inspection also needs the same raw-wire preservation
+mask as physical tubes. Assign its temporary ribbon mesh to that object
+index and include transparent coverage in the pass; otherwise the surface
+denoiser can erase the very far-wire policy being reviewed. The controlled
+30/60/120 m measurements remain completely undenoised.
+
+
+## Surface pass 8 — distinct routes, not an aliased merged line
+
+Color and value first: the raw distance profiles had suspiciously identical
+telephone/coax minima at 120 m. Their dark value was correct, but their
+different authored tension/mass ratios let the telephone sag toward the
+coax and merge at midspan. The longest seed actually crossed their analytic
+envelopes. Reject this. The new actual-triangle section gate independently
+fails the old export at only 105.46 mm free separation near the start of
+seed 101; it samples 84 planes per street and also checks the observed
+number of separately hung route envelopes.
+
+Restore the accepted communication catenary constant from .24 kg/m / 900 N
+for each supported route. Scale force with supported mass: telephone
+6,641.25 N, coax 1,612.5 N, paired fiber 1,350 N and retained copper
+4,256.25 N. These remain authored supported self-weight cases, not vendor
+stringing tables. This keeps the new accurate diameters and route count
+while retaining the accepted sag shape and vertical spacing. It adds no
+geometry. Keep an independent 60 m span regression and the actual imported
+triangle-plane gap gate. Rebuild the blocks and all affected render evidence.
+
+
+## Surface pass 9 — native final review and rejected color assumptions
+
+Color and value first: reopened the current hero, base and transformer,
+three final pairs, full communications portrait and held-out overlay at
+native resolution. Also opened every final Cycles seed/detail/dusk image,
+the nine raw 30/60/120 m wire controls, ten historical renders and all eleven
+native before/after sheets. The brown-gray shaft, warm fir, neutral can and
+zinc, gray dielectric sheds, faded yellow guard and near-black jackets keep
+their own colors. The hero's lower-image p10 / median / p95 are .065 / .227 /
+.821 displayed Y′, with .001% white clipping; this measures the whole street
+foreground, not a segmented utility albedo. Raking shadows keep deep values.
+
+Reject the previous beige-concrete and shaded-insulator neutral assumptions.
+The latter produced a false orange reference; neither is an acceptable color
+target. Final pairs retain original photographed colors. Separate inspection
+copies balance NC on cloud ROI (20,95)–(55,120), gains 1.143/1.031/.866, and
+Maryland on cloud ROI (2150,330)–(2220,380), gains .988/.988/1.026 in linear
+light. These are approximate achromatic-cloud assumptions, not gray cards.
+No neutral is accepted in the hardware photograph; use it for geometry and
+contrast only. Do not calibrate the wood's hue to that photo's blue cast.
+
+The final fitted RMS residuals are 6.51 px street, 6.19 px transformer upper
+shaft/arm and 9.74 px full communications pole. The latter's native dimensions
+are 749 × 1640 (correcting the initial 1644-pixel transcription); its telephone-height shaft centre is held out and misses by
+2.17 px. The case and the passing span have different installation positions
+and azimuths; the Maryland can is lower than this accepted mounting. Keep
+those differences visible rather than claiming that a shaft/arm fit also
+proves every item of equipment. House slopes no longer drive this camera.
+
+The true primary's 30/60/120 m displayed contrast is 33.2/10.5/3.8%; the
+far option reaches 37.7/15.5/7.6%. Telephone reaches 87.8/51.1/21.3% as tube,
+99.4/53.8/23.9% as ribbon; coax 79.6/34.1/14.9% and 90.3/34.7/20.5%.
+Against native photographic bare-line contrasts (NC 11.0/9.7/6.8%, Maryland
+23.1/23.6/24.7%), the far primary is readable at 120 m, but the tube alone
+remains too weak. Photo depths are unknown. Retain tubes near and recommend
+the .85 px / exponent .55 option below .8 projected pixels; this deliberately
+boosts optical contrast rather than preserving strict integrated energy.
+The hardware jacket annotation was five pixels below its centre at one end;
+reject its 32.4% result. Correct centreline controls clear of the case give
+83.7% median, p10 81.8%; the Maryland jacket independently measures 60.1%.
+
+The street has mature maple/oak, both-sided houses, continuing roads and
+walks, parked pickups and populated far ground. At full frame, softened wood
+and wet base read better than the old flat material, but fine bolt streaks
+and sign scars remain subtle. Close wood still looks filtered; vine leaves
+are angular, and repeated pickups/setbacks, lawn planes and cloudless sky
+remain procedural tells. The can keeps its paint rather than a pasted rust
+wash. Dusk has powered lamp pools and warm house windows; isolated bare-wire
+specular samples remain noisy. These limitations are not covered by the
+construction checks.
+
+The separate Eevee shot initially exposed a house-context compiler failure
+(pink trim despite Blender exiting zero). Reject it. Prune only unreachable
+branches, combine identical reads and pack six existing scalar masks into
+two FLOAT_COLOR RGBA corner attributes. Exact field roundtrip error is zero.
+The final shader log passes an explicit compilation-error gate and the
+reopened hero has no pink material. Eevee's context glazing stays flatter
+than Cycles; the delivered utility retains the exact same baked PBR maps.
+
+
+Final verification after pass 9: the uninterrupted serial sequence
+`make clean`, `make`, `make check`, `make repeat`, then the repository check
+completed with exit zero. The root-worktree log is
+`build/utility-clean-final-validation.log`. All seven span tests pass;
+all five fresh geometry packages and 48 source fields reproduce byte for
+byte. The final independent GPU rebake has exact BaseColor/ORM and one
+Normal channel sample different by one 8-bit level (RMSE .000282/255).
+A prior rebake instead had two one-level ORM differences; retain the
+explicit floating-point bake tolerance rather than claim universal byte
+identity. No rebake replaces the canonical delivery maps.
+
+Reopened the final 22 Cycles views, three matched pairs, Eevee checkpoint,
+nine raw range controls, ten regenerated historical images and all eleven
+regenerated before/after sheets at native size. The smallest crop panel is
+1,152 pixels wide; no before/after panel is upsampled. Rechecked the current
+contact sheets and exposed photographic profile selections. Color and value
+remain as judged above; the listed close-wood, fine-age, context, vine and
+dusk-sample limitations remain. No kit, neighboring delivery, top-level
+README or docs image is changed. Suggested kit improvement: treat Eevee
+shader compilation errors as failure even when Blender exits zero.

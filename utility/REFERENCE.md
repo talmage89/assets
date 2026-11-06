@@ -2,7 +2,7 @@
 
 The target is maintained 1970–2010 US overhead residential distribution, seen
 at pedestrian distance. The new meshes, label pixels and lighting are original.
-The checkpoint deliberately uses quick materials; it is not the final asset.
+The look checkpoint uses original physically scaled fields, a Cycles bake and shared external glTF maps.
 Full source URLs, authors and rights are in [refs/SOURCES.md](refs/SOURCES.md).
 
 ## Selected construction
@@ -65,9 +65,8 @@ not wasted hidden faces. There are no climbing steps at any height.
 The dry checks are tapered mesh slits for the checkpoint. An 8½-foot protective
 molding follows the taper over the #6 copper grounding path, with nails,
 staples, a utility tag and a fictional 1992 birth brand. Small rooted vines
-appear on selected transformer/riser seeds. Surface checks, silvering, wet
-ground-line absorption, removed-sign scars and bolt rust belong in the next
-normal/color bake, not additional game geometry.
+appear on selected transformer/riser seeds. Surface checks, silvering, wet ground-line absorption, removed-sign scars and
+bolt rust are in the shared normal/color bake, without additional game geometry.
 
 ## Hardware dimensions and connections
 
@@ -77,10 +76,10 @@ normal/color bake, not additional game geometry.
 | Crossarm | 2.4384 / 3.048 m; .09525 × .12065 m sawn section; published utility/RUS construction idiom |
 | Conventional transformer | MPS 50 kVA: 20 in / .508 m tank diameter, 42 in / 1.0668 m bottom-to-HV-terminal height; .8128 m tank body and .254 m bushing |
 | Transformer reference envelope | MPS approximate overall width/depth 26/29 in; authored lifting eyes, hangers, cutout and arrester remain separate construction, not copied vendor CAD |
-| Primary conductor | Southwire Raven 1/0 6/1 ACSR, .398 in / 10.109 mm published OD; authored 10.1 mm |
-| Neutral | Southwire Sparrow #2 6/1 ACSR, .316 in / 8.026 mm published OD; authored 8.0 mm |
-| Service triplex | Two 8.5 mm insulated hots + 6.2 mm messenger; Southwire construction reference, authored strand envelopes; lay reserved for normal detail |
-| Communication | 6.35 mm strand, 20 mm lashed fiber envelope, 28 mm telephone cable; authored maintained joint-use equipment, not a named vendor configuration |
+| Primary conductor | Southwire Raven 1/0 6/1 ACSR, .398 in / 10.109 mm published OD; authored 10.1092 mm |
+| Neutral | Southwire Sparrow #2 6/1 ACSR, .316 in / 8.026 mm published OD; authored 8.0264 mm |
+| Service triplex | Classic Wire Periwinkle: two 7.6962 mm insulated hots + 6.35 mm ACSR messenger; packed triangular constituents, unresolved helical lay |
+| Communication | 6.35 mm strand; 37 mm 200-pair telephone, 24.384 mm jacketed CATV; two touching 15.8 mm fiber jackets (31.6 mm bundle); optional 28 mm retained copper; two to four separately supported routes |
 | Inline splice case | .68 m long × .144 m diameter; authored housing, two clamps, hanger and two supported slack loops |
 | Guy | ⅜ in / 9.525 mm strand envelope; ⅝ in / 15.875 mm anchor rod; 8 ft / 2.4384 m × 52 mm faded guard; WPS guy/anchor construction |
 | Street-light bracket | 2 m tip reach, .46 m rise, 60.3 mm tube; carries the original `street-light/` head at its slipfitter datum |
@@ -104,8 +103,9 @@ to the case. Long-span lashing and conductor strands are future normal detail.
 The span API solves an unequal-support catenary. Sag means the vertical drop
 below the endpoint chord at horizontal midspan. It also accepts mass and
 horizontal tension via **a = H/(mass × gravity)**. Seeded examples use Raven
-.2158 kg/m / 550 N, neutral .1354 kg/m / 450 N, assumed supported telecom
-.24 kg/m / 900 N, triplex .153 kg/m / 300 N, and small comm drop .045 kg/m /
+.2158 kg/m / 550 N, neutral .1354 kg/m / 450 N, telephone 1.771 kg/m / 6,641.25 N, CATV .43 kg/m / 1,612.5 N, fiber
+bundle .36 kg/m / 1,350 N and retained copper 1.135 kg/m / 4,256.25 N;
+triplex .227692 kg/m / 446.455 N, and small comm drop .045 kg/m /
 160 N. The service mass applies to its whole triplex even though the mesh
 contains three constituent tubes. These are authored self-weight cases, not
 a temperature/tension chart. Different utility sag tables remain external input.
@@ -116,22 +116,58 @@ directional width compromise; a final close-view LOD may use six sides.
 
 NVIDIA's prefiltered-line research and Pixar's minimum-width/coverage method
 inform the far representation: camera-facing ribbons, **.85-pixel minimum
-width**, opacity multiplied by true projected width / widened width. This
-reduces broken lines without making remote wires into opaque ropes. It needs
+width**, opacity compensated by `(true projected width / widened width)^.55`.
+The original strict exponent 1.0 preserved integrated energy but left the
+120 m primary at only 2.3% displayed contrast. The .55 exponent deliberately
+retains more optical contrast; it is a calibrated visibility compromise,
+not a claim of conserved energy or a larger physical conductor. An engine
+should transition when the true tube falls below approximately .8 px, and
+retain physical tube shadows. It needs
 no wire texture. The Cycles distance pair explicitly compares the original
 GLB tubes with a camera-evaluated version of that policy. The supplied original
 Godot shader and mesh-data generator are integration examples; no Godot binary
 is installed here, so compilation, TAA/MSAA motion and engine performance are
 not certified by the Cycles comparison.
 
-## Appearance checkpoint limits
+## Surfaces, light and photographic limits
 
-Gray-brown wood, brown porcelain, galvanized steel, gray-green can paint,
-black jackets and faded yellow guards are provisional diagnostic materials.
-They show construction; they do not represent the promised 15–30 years of
-surface history. The next stage must prove the wood, rust runoff, chalking,
-ground moisture and handling wear against used photographs after baking.
-Nothing about the current images is described as final look development.
+Original 4096 source fields are baked in Cycles, then filtered to one shared
+2048 BaseColor / tangent +Y Normal / ORM set. Sixteen guarded stock charts
+intentionally reuse UVs across repeated materials and hardware. These are not
+a unique object unwrap: the delivery gate measures chart boundaries,
+nondegenerate triangle UVs and per-role density, and reports intentional reuse.
+Two round-pine charts carry grain, checks and age. Fibres warp coherently
+around knots; the fir arm's grain runs along its actual length. Causal masks
+put moisture at grade, end weathering at the cut top, fastener runoff below
+its mounting height, chalking on exposed paint and retained dirt at the can
+bottom. Zinc, gray dielectric hardware and faded guards retain their material
+colors. Own fictional stamps use installed open fonts and the same atlas.
+
+The presentation imports the external glTF and its baked maps. Neighboring
+houses, original maple/pin oak, pickups, ground and light heads are rebuilt
+from this library's source into utility-local scratch folders and retain
+their source-look shaders. They are presentation context, not utility delivery
+geometry and not a claim of re-exported neighboring final assets.
+
+Photo cameras are estimates, not a survey. NC fits several pole/socket
+landmarks; the transformer-top fit uses the shaft and both crossarm pins,
+with the actual can height/position retained as a visible construction
+difference. The communication camera fits the full pole base, cut top and both upper
+arm pins; the telephone-height shaft point is held out. Its portrait is
+rendered at the photo's native dimensions and cropped identically for review,
+preserving the full camera principal point. Full portrait and calibration
+overlays remain available beside the pair.
+Every residual and point is recorded, and Blender independently verifies
+the camera projection. Lighting is estimated separately from each photograph.
+The final pairs retain original photographic colors. Separate NC/MD color
+inspection copies balance on approximate achromatic cloud ROIs, recorded with
+linear gains in `build/reference-balance/balance.json`. Beige concrete and a
+shaded insulator were rejected as neutrals. The hardware photograph has no
+accepted neutral and supports geometry/contrast comparisons only; its pole
+hue is not used as an albedo target. Clouds are assumptions, not gray cards
+or albedo measurements. Native photographic wire depths are unknown;
+near/middle/far image profiles bracket contrast while exact 30/60/120 m
+ranges apply only to our model. No photo is projected or used in an asset map.
 
 The last form pass moved the optional service masts to solid corner jambs
 outside porch roofs. The mast height is the greater of 5.2 m or the measured

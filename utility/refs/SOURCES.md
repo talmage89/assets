@@ -64,7 +64,7 @@ Read-only online references (no executable or asset downloads):
   or period introduction is claimed. Two real jackets total 31.6 mm wide.
   The retained fourth copper route uses the Caledonian GR-421 100-pair .63 mm
   table's 28 mm jacket. Its 1.135 kg/m authored supported mass includes strand;
-  4,300 N is an authored horizontal tension case, not a utility stringing chart.
+  4,256.25 N is an authored horizontal tension case, not a utility stringing chart.
 - [NVIDIA GPU Gems 2, chapter 22](https://developer.nvidia.com/gpugems/gpugems2/part-iii-high-quality-rendering/chapter-22-fast-prefiltered-lines),
   Eric Chan and Frédo Durand; copyright retained: prefiltered screen-space lines.
 - [Pixar RenderMan curves](https://renderman.atlassian.net/wiki/spaces/REN23/pages/19039125),
