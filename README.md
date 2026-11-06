@@ -78,6 +78,8 @@ Commercial
     fuel brands, with a lit canopy, dispensers with slack hoses, a stocked store, a price sign and causal wear.
   - [Neighborhood strip center](commercial/README.md#neighborhood-strip-center): four small-shop centers on
     different parcels, with tenants' signs and dressed windows, fitted rooms, rear services and a worn parking lot.
+- [Main Street](downtown/README.md): 28 brick commercial buildings of about 1880–1930 in four seeded block faces, with
+  cast-iron storefronts, bracketed cornices, a stone corner bank, upper apartments, fire escapes and service alleys.
 
 Vehicles
 - [Cars](cars/README.md): late-2010s vehicles in five factory colors on one baked atlas each; doors, closures,
