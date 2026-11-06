@@ -15,7 +15,7 @@ for name,old,new,crop in [
  ims=[]
  for p in (old,new):
   im=Image.open(p).convert('RGB');scale=im.width/1440;box=tuple(round(v*scale) for v in crop);im=im.crop(box);im=im.resize((max(800,im.width),round(im.height*max(800,im.width)/im.width)),Image.Resampling.LANCZOS);ims.append(im)
- w=max(i.width for i in ims);h=max(i.height for i in ims);canvas=Image.new('RGB',(w*2,h+50),(224,226,219));d=ImageDraw.Draw(canvas)
+ w=max(i.width for i in ims);ims=[i.resize((w,round(i.height*w/i.width)),Image.Resampling.LANCZOS) for i in ims];h=max(i.height for i in ims);canvas=Image.new('RGB',(w*2,h+50),(224,226,219));d=ImageDraw.Draw(canvas)
  for j,(im,caption) in enumerate(zip(ims,('Before / accepted checkpoint','After / exported PBR glTF'))):canvas.paste(im,(j*w,50));d.text((j*w+15,10),caption,font=font,fill=(20,25,22));im.save(out/(name+('-before.png' if j==0 else '-after.png')))
  canvas.save(out/(name+'-pair.jpg'),quality=94)
 route={}

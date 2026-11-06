@@ -37,7 +37,7 @@ def main():
             for file,h in b['files'].items():assert sha(ROOT/file)==h,(p,file)
         if meta.get('photo_calibration_sha256'):assert meta['photo_calibration_sha256']==sha('build/photo-calibration.json'),p
     rows=[[a.folder/'hero.png'],[a.folder/'lineup.png'],[a.folder/'signs-regulatory.png'],[a.folder/'signs-warning.png']]
-    rows += [[a.folder/(n+'.png') for n in pair] for pair in [('sign-face','sign-back'),('post-base','pole-band'),('shelter-frame','bench'),('meter','boxes'),('collection','receptacles'),('rack','front'),('side','back'),('top',)]]
+    rows += [[a.folder/(n+'.png') for n in pair] for pair in [('sign-face','sign-back'),('post-base','pole-band'),('shelter-frame','bench'),('meter','boxes'),('collection','receptacles'),('rack','front'),('side','back'),('top','route-plate')]]
     rows += [[Path('renders/eevee/hero.png')]]+[[Path('renders/match')/(n+'-pair.jpg')] for n in ('used-shelter','used-meter','used-news','used-sign')]
     review_sheet(rows,a.folder/'contact.jpg',width=1800,title='Rill street furniture and 2009 sign set / exported PBR glTF')
     receipt=dict(passed=True,views=[str(p) for p in paths],scope='Image bytes, current render recipe and actual external-glTF bundle hashes; appearance is separately recorded in REVIEW.md')
@@ -45,7 +45,7 @@ def main():
         jpg(Image.open(a.folder/'hero.png'),Path('docs/furniture-hero.jpg'))
         jpg(Image.open(a.folder/'lineup.png'),Path('docs/furniture-lineup.jpg'))
         jpg(grid([a.folder/(n+'.png') for n in ('shelter-frame','bench','rack','receptacles')]),Path('docs/furniture-construction.jpg'))
-        jpg(grid([a.folder/(n+'.png') for n in ('meter','boxes','collection')]),Path('docs/furniture-mechanisms.jpg'))
+        jpg(grid([a.folder/(n+'.png') for n in ('meter','boxes','collection','route-plate')]),Path('docs/furniture-mechanisms.jpg'))
         # The three accepted STOP/blade JPGs stay byte-identical. Two additions
         # keep the whole street-signs family within its five-JPG ceiling.
         jpg(grid([a.folder/(n+'.png') for n in ('hero','sign-face','sign-back','post-base')]),ROOT/'street-signs/docs/set-street.jpg')

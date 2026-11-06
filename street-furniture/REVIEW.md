@@ -219,3 +219,180 @@ their baseline hashes. Final UV overlap/density, final materials, wear/bakes
 and sampled motion clearances are expressly deferred. No kit code changed.
 
 Stop here for the requested form/construction review; no look-dev started.
+
+The first two finish-pass intermediates were retained locally in
+`../build/furniture-before/finish-audit/` before the clean build. Their
+`renders/look*` names below describe those historical images; final evidence
+is regenerated under `renders/final/` and `renders/match/`.
+
+## Finish pass 1 — neutral controls, cast housing and causal finishes
+
+Color and value first: opened the checkpoint hero, meter and warning lineup
+at native size. The cream paint is uniformly pale, zinc and alloy look like
+one gray plastic, and the empty dark horizon makes their shadows look staged.
+The later card-meter and free-paper pedestal photos cannot establish our
+mechanisms. Replaced those studies with Jonathunder's used mechanical
+coin/crank meter and Twzink's standalone coin cabinet. Controls are bare paving;
+the blue meter's paint is expressly not an alloy color target.
+
+Rebuilt the meter from a subdivided compound cage, cut die openings, and
+relaxed a 1.5 mm voxel cast source. The game skin is reduced from that source;
+the dome is a separate three-ring glazed surface seated in a real bezel.
+Raised the route plate 7.9 mm to a 2.1336 m lower edge. Removed one duplicate
+rack-path station that generated zero-area tube triangles, without changing
+its silhouette. Meter single/twin are 1,477 / 2,976 triangles.
+
+The first shared unwrap was rejected: native packing left overlapping thin
+returns. Kept kit finalization, split the one folded chart and repacked chart
+rectangles with guarded bounds. Independent kit intersection measurement now
+finds zero overlap, zero outside and zero degenerate triangles. The family
+has 109 px/m median opaque density; high-priority heads get more, and printed
+legends retain their independent sheet. Fine chips may soften at delivery;
+judge the actual bake rather than assuming source detail survives.
+
+Authored finish reflectances distinguish dark powder coating, blue/red/cream
+paint, galvanized pipe, bare alloy and concrete. Chalking follows upward
+exposure, chips actual edges and lower impacts, runoff actual seams, splash
+low height, and hand polish the door pull/bench contact zone. These are source
+masks awaiting the exported render. What still reads as CG: source panes lack
+accumulated edge dirt; the dome needs an export close-up; native packing's
+thin-chart density is modest. No final look approval yet.
+
+## Finish pass 2 — exported full-frame failures and corrections
+
+Color and value first: opened all five `renders/look1/` images at their native
+1440 px: meter, hero, boxes, speed face and warning lineup. The blue/red/cream
+paint values stay distinct and white signs remain neutral. The meter alloy is
+too glossy and reads machined/chromed rather than used die casting. Most wear
+vanishes at the wide hero's scale. The new extended lawn accidentally sits
+above much of the roadway, making a green street: rejected this hero outright.
+
+Lowered that presentation plane below the actual road. Reduced the tree
+population to alternating species at approximately 31 m instead of a 15 m
+canopy wall, retaining houses on both sides and the library utility poles and
+catenaries. The raking sun and 1.65 m / 40 mm camera are unchanged. Those
+corrections still require the next actual Cycles image.
+
+The cabinet close-up proves that source-only bevel chips were subpixel at
+shared-atlas density. Added a physical 10 mm edge-distance envelope, confined
+to the actual part edges, with stronger low splash and gravity tracks under
+folds. Kept each paint's own color. Added one small original F9 adhesive tag.
+Separated the shelter's anodized extrusions from its powder-coated steel bench.
+Raised alloy roughness and confined oxidation to ledges/cavities. Glass now
+has authored UVs for edge deposits and rougher retaining margins, shared by
+all panes rather than allocating another map. The meter crown gets 100 more
+triangles funded by its hidden bezel rear and lens tessellation; single/twin
+are now 1,449 / 2,916. The vault leaf was recentered over its actual opening.
+
+The independent source motion sweep found preexisting interference, not a
+serialization error: approximately 6 mm in cabinet returns/caps, 9.1 mm at the
+collection door jamb, 5.7 mm at the chute/roof and 5 mm at the receptacle rear
+rim. Meter leaves meet the reduced casting by up to 1.44 mm at rest. These are
+not hidden by a blanket contact exception. The owner was asked whether to
+extend scope because accepted forms/pivots were explicitly to be retained.
+No unapproved hinge change has been made. The numeric sweep is separate from
+the passing raw/import/UV/channel/preservation gates; no physical-clearance
+pass is claimed here.
+
+Remaining CG tells: the printed newspapers are original stylized press art,
+small corners and circles can facet at macro distance, and the shared atlas
+softens very fine wear. The corrected cast/dome and stronger wear need the
+next exported close-up and matched-light comparisons before final approval.
+
+
+## Finish pass 3 — final imported delivery, values and limits
+
+Color and value first: inspected the 1600 px exported hero, all module and
+sign lineups, every detail, the four turnarounds, Eevee, four full-size pairs
+and the ROI overlay. Blue/red/cream paint remains colored under sun; black
+cavities and undersides stay deep. Chips and fold grime survive on the nearest
+news cabinets at full hero frame. The bench's pale handling stripe was rejected:
+powder roughness is now higher and hand polish stays around the actual arms.
+Galvanized low pipe gets zinc-colored oxide rather than painted-steel rust.
+The roof/frame, bench and glass now have distinct responses.
+
+Neutral controls are bare paving/concrete, with the exact original-photo ROI
+and RGB gains in `build/photo-calibration.json`. Sunshine shelter/meter pairs
+have directional light; the cabinet and shaded sign use diffuse sky. Camera
+exposure is calibrated on comparable surfaces, not presented as recovered
+camera metadata. The ROI audit caught the first cabinet photo measurement on
+the side skin; it was moved to the front red stile, excluding rivets, and the
+comparison exposure was corrected. The sign's first concrete control had
+accidentally selected sky and was rejected before final calibration. The final
+numeric receipt is tabulated below. Our charcoal anodizing is intentionally
+darker than the reference's blue finish; that pair is not exact color agreement.
+
+The source cast cage/voxel body and separate dome were checked again on the
+baked export. The larger straight die opening removes the narrowing vault
+mouth without changing the accepted pivot. Single/twin remain 1,449/2,916
+triangles. A sampled source-surface sweep is separate from the successful
+raw/import serialization gate. Accepted cabinet/collection returns and lid
+rims still have interference; no clearance pass or new hinge location is
+claimed while permission to alter the accepted mechanisms remains pending.
+
+The road continues into town with library houses on both sides, alternating
+street trees, parked cars and utility construction/catenaries. No other
+family delivery was written. The front orthographic camera was moved back
+along its existing view to remove a narrow below-floor strip. The hero is
+still 40 mm / 1.65 m, with a raking sun. Every image is made from the external
+glTF and its actual maps, with dependency hashes in its JSON receipt.
+
+Eevee initially lost print behind the combined transmission state. Its
+presentation adapter now assigns opaque print faces an equivalent opaque
+state for per-material refraction sorting; all vertices, UVs, image bytes and
+PBR values come from the import. It does not rewrite the glTF. Screen-space
+refraction still loses detail through stacked panes. Cycles is the reference
+for these layers. The shipped material limit and shared memory are unchanged.
+
+What still reads as CG: low-cost bezel/cap silhouettes facet at macro distance;
+the shared atlas softens fine wear; the newspapers remain stylized original
+press art; the meter's dial/crank internals are authored estimates. Repeated
+context trees/houses and very clean broad pavement reveal the staged street.
+The meter/cabinet camera fits compare different original designs and retain
+large landmark residuals (170.85/116.67 source pixels); they prove mechanism
+class and guide surface response, not exact replicas. The shelter fit is
+21.36 px; the R2-1 is 2.34 px. The independent Blender projection check proves
+camera serialization only, not these geometric agreements.
+
+
+### Final measurement and command receipt
+
+Display-referred median luminance on the explicit surface ROIs (render /
+neutral-balanced photograph), not linear albedo:
+
+| Surface | Render | Photo |
+| --- | ---: | ---: |
+| rear frame; different original design, compare value not exact hue | 0.081 | 0.182 |
+| unpainted bezel; exclude blue housing as an alloy target | 0.487 | 0.439 |
+| red front door stile, exposed painted steel; excludes side skin and rivets | 0.258 | 0.256 |
+| white sheeting away from text and border | 0.434 | 0.436 |
+
+Hero display luminance p5 / median / p95 is .026 / .338 / .608; 7.47% of the
+frame is below .05, and .0132% has any channel at least 254/255. This describes
+the whole image, not a proof of material reflectance. The darkest cavities and
+under-roof seating were also inspected directly.
+
+Commands: `make -C street-signs set-clean`, `make clean`, `make`, then the
+render-adapter refresh through `make`; `make repeat` passes all 89 added files
+byte-for-byte (20,706,651 bytes), retaining accepted baked maps. `make check`
+passes 15 furniture modules plus 25 sign modules, 722 prior-delivery hashes,
+actual imported normals/bounds, material channels, budgets and zero opaque
+UV overlap. Final atlas density p5 / median / p95 is 73.84 / 109.16 / 189.60
+px/m, coverage 33.15%. The separate `make check-motion` intentionally fails:
+6.000 mm cabinet contacts, 9.054 mm service-door contact, 5.736 mm chute/roof,
+and 4.976 mm receptacle rear-rim contact. All three meter leaves report no
+penetration over the 0.5 mm threshold at the sampled angles. No pair is skipped.
+
+The repeated GPU bake is not bit-identical: a few encoded map bytes can change
+at quantization boundaries. Geometry/UV/graphics/export repeat is byte-tested
+with accepted maps retained; no bit-identical GPU rebake is claimed. The final
+renders were refreshed against the current canonical images and all 25 receipts
+pass their actual dependency hashes. Repeat now preserves dependency timestamps
+after proven byte identity, avoiding an unintended unchanged bake on `make check`.
+
+Final crops are `renders/comparison/{meter,symbols,route-plate,setting}-pair.jpg`;
+each constituent crop is at least 800 px wide and normalized to the same scale.
+The replaced mechanism pairs are `reference-{meter,news}-{before,after}.jpg`
+in that directory. The route's actual imported lower edge measures
+2.125699997 m before / 2.133599997 m after, against 2.1336 m. Book comparisons
+remain local in root build/. No downloaded image enters docs or a texture.

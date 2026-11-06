@@ -94,3 +94,83 @@ all final sign views again. The bracket is 712 triangles; the full addition
 image sharing and the bent-post regression pass. The earlier finished STOP
 and blades retain every baseline delivery hash. Final sheet response, detailed
 symbol refinement, wear and final UV/bake gates remain for after this review.
+
+## Finish pass 1 — symbol book and sheeting values
+
+Color and value first: the checkpoint white/red/yellow/FYG colors separate,
+but one uniform shader makes the back, galvanized post and sheeting look
+like the same paint. Added separate stock-glTF sheeting and metal states,
+sharing the same 2048 image. Engineering-grade is satin, prismatic smoother;
+true headlight retroreflection requires an engine shader and is not claimed.
+Edge road film, upper exposure fading and short bolt tracks are located by
+the face's construction; printed black stays dark.
+
+Opened SHS Appendix 6-10 and 6-58 and the original generated figures side by
+side at 1600 px. Replaced the generic stick-person routine with hand-entered
+grid primitives and sampled cubic torso curves. The pedestrian retains the
+bent far arm, forward arm, curved trunk and distinct stride. School now has
+the child on the left, adult on the right, skirt, satchels and open elbow
+gaps. No PDF path/raster is imported or traced. Comparison JPGs live under
+root build/. Remaining CG tells: open-font letter outlines differ from the
+federal alphabet; plain PBR cannot reproduce a headlamp's retroreflective
+return. Source artwork is sharper than the shared delivery cells and still
+needs an imported warning-lineup check.
+
+## Finish pass 2 — exported face and full warning lineup
+
+Color and value first: opened `renders/look1/sign-face.png` and
+`signs-warning.png` at native 1440 px, plus the street hero. White sheeting is
+neutral, black legend stays dark, and yellow/FYG are distinct under the raking
+sun. The daylight dielectric sheen differs from the plain metallic support.
+The source sheet's mild upper fade and edge film retain their underlying color;
+exact color agreement must still be measured under each photo's own light.
+
+The complete warning lineup now shows the SHS-style pedestrian stride and
+child-left/adult-right school group. The former approximate stick figures are
+gone. Both figures retain their book proportions at the delivered cell size.
+The speed face exposes the accepted open-font substitution and mildly faceted
+blank corners at extreme close range. These small repeated signs retain their
+accepted triangle budgets. They are not regulatory-fabrication artwork.
+
+Rejected the first extended street setting because a presentation lawn plane
+covered the road. Its fix belongs only to furniture's presentation script.
+The used R2-1 comparison uses an overcast photograph, so its own render gets
+soft sky rather than the hero's directional sun; sunny shelter/meter pairs
+retain their directional light. Neutral paving controls and fit residuals are
+recorded separately from any albedo claim. Remaining CG tells: standard PBR
+cannot return headlight retroreflection, and tiny post perforations are flat
+color indications. No accepted STOP/blade byte changed.
+
+
+## Finish pass 3 — final sun, shaded comparison and delivery
+
+Color and value first: opened the complete 1600 px warning/regulatory lineups,
+face/back/base/band details and town hero from the shared exported delivery.
+Printed black remains dark under sun because the reused sheet alpha supplies
+stock-glTF specular strength; it adds no image. White, yellow and FYG remain
+distinct. The neutral-balanced shaded R2-1 pair now measures white sheeting
+at 0.434 display luminance against 0.436 in the photograph; this is not an
+albedo measurement. Sunlight and shade have separate procedural lighting.
+Bare concrete is the photo's balance control. Its first sky-contaminated ROI
+was rejected; the final control coordinates and gains are retained.
+
+Checked pedestrian/school figures beside the actual SHS appendix grid sheets
+and again at delivered chart size. The stride, arm gap and curved torso read;
+the school child-left/adult-right, skirt and satchels remain distinct. Local
+book comparisons are `../build/pedestrian-symbol-pair.jpg` and
+`../build/school-symbol-pair.jpg`. The figures use independently authored
+primitives; no book pixels or paths become texture artwork.
+
+Every assembly remains within 1,500 triangles, with two shipped states (one
+for the standalone band), one canonical 2048 sheet and no per-instance image.
+The tables in README now report actual glTF/BIN bytes as well as triangles.
+No accepted STOP/blade image, export or texture was changed. All final images
+and their hashes are under `../street-furniture/renders/`; the final contact
+includes the Eevee shot and four matched-light pairs. Docs are generated only
+after this full-size audit and committed in their own final commit.
+
+What still reads as CG: DejaVu glyph outlines remain an accepted substitute;
+the shared cells soften minute sheeting/soil detail; small support holes are
+flat indications and blank corners can facet at macro distance. Standard PBR
+shows daylight sheen, not true headlamp retroreflection. The photograph's
+graffiti is not reproduced. The town's repeating context remains apparent.
