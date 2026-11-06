@@ -17,6 +17,42 @@ from kit.detachable_verify import _image
 from kit.lod_render import compare
 
 
+def material_isolation_fixture(out):
+    """A retained translucent sign must never replace its opaque backing.
+
+    Both primitives share a moving node; a root-only projection selects the
+    foreground sign for both. Material partitions must be temporary, retain
+    pivots, and also resolve compacted material indices for module selections.
+    """
+    from kit.detachable_verify import sample
+    from kit.image_io import srgb_to_linear
+    stub=out/'material-stub.gltf';source=out/'material-source.gltf'
+    stub.write_text(json.dumps(dict(asset=dict(version='2.0'),scene=0,scenes=[dict(nodes=[0])],
+        nodes=[dict(name='Hinged panel',mesh=0,translation=[.7,.2,-.1],extras=dict(pivot_axis='Y',range_degrees=[0,90]))],
+        meshes=[dict(primitives=[dict(attributes={},indices=0,material=1),dict(attributes={},indices=0,material=2)])],
+        materials=[dict(name='Unused'),dict(name='Backing',pbrMetallicRoughness=dict(baseColorFactor=[.18,.08,.03,1],roughnessFactor=.6,metallicFactor=0)),
+                   dict(name='Sign',alphaMode='BLEND',pbrMetallicRoughness=dict(baseColorFactor=[.9,.1,.05,.25],roughnessFactor=.6,metallicFactor=0))],
+        buffers=[],bufferViews=[],accessors=[])))
+    doc=Document(stub);faces=np.array([[0,1,2],[0,2,3]],np.uint32)
+    for i,p in enumerate(doc.data['meshes'][0]['primitives']):
+        a=dict(POSITION=np.array([[-.2,-.2,i*.002],[.2,-.2,i*.002],[.2,.2,i*.002],[-.2,.2,i*.002]],np.float32),
+               NORMAL=np.tile([0,0,1],(4,1)).astype(np.float32),TEXCOORD_0=np.array([[0,1],[1,1],[1,0],[0,0]],np.float32))
+        doc.replace(p,a,faces)
+    doc.save(source);before=Document(source).dependencies();target=Document(source);target.select(['Hinged panel'])
+    frames=copy.deepcopy(target.data['nodes']);target.data['nodes'][0]['extras']['lod_sources']=[0]
+    delivered=out/'material-near.gltf';report=bake(target,source,delivered,128,projection_m=.02);target.save(delivered)
+    assert report['material_isolation'] and report['source_sha256']==digest(source),report
+    assert len(target.data['nodes'])==1 and target.data['nodes'][0]['name']==frames[0]['name']
+    assert target.data['nodes'][0]['translation']==frames[0]['translation'] and target.data['nodes'][0]['extras']['pivot_axis']=='Y'
+    assert Document(source).dependencies()==before,'material partition modified its source'
+    actual=Document(delivered)
+    for p,wanted,alpha in zip(actual.data['meshes'][0]['primitives'],[[.18,.08,.03],[.9,.1,.05]],[1,.25]):
+        a,f=actual.arrays(p);uv=a['TEXCOORD_0'][f[0]].mean(axis=0);m=actual.data['materials'][p['material']]
+        ti=m['pbrMetallicRoughness']['baseColorTexture']['index'];pixels=_image(actual.image(actual.data['textures'][ti]['source']));value=sample(pixels,uv[None,:])[0]
+        assert np.max(np.abs(srgb_to_linear(value[:3])-wanted))<.025,('wrong retained material',value,wanted)
+        assert abs(value[3]-alpha)<.025,('wrong retained opacity',value,alpha)
+
+
 def transmitted_emission_fixture(out,attrs,faces):
     stub=out/'lens-stub.gltf';path=out/'lens-source.gltf'
     stub.write_text(json.dumps(dict(asset=dict(version='2.0'),scene=0,scenes=[dict(nodes=[0,1,2])],
@@ -85,14 +121,18 @@ def shader_normal_fixture(out):
      bpy.ops.object.bake(type='EMIT');data=np.empty(128*128*4,np.float32);image.pixels.foreach_get(data);data=data.reshape(128,128,4);vectors=data[:,:,:3][mask]*2-1;vectors/=np.linalg.norm(vectors,axis=1,keepdims=True);write_png(out/(label+'.png'),data[::-1]);return vectors
     references={k:np.median(measured(source,k,'source-'+k.replace(' ','_')),axis=0) for k in ['Normal','Coat Normal']}
     target=Document(source);a['POSITION'][:,2]=.01;a['NORMAL']=np.array([[-.5,-.2,.84],[.5,-.2,.84],[.35,.45,.82],[-.35,.45,.82]],np.float32);a['NORMAL']/=np.linalg.norm(a['NORMAL'],axis=1,keepdims=True);target.replace(target.data['meshes'][0]['primitives'][0],a,faces);target.data['nodes'][0]['extras']=dict(lod_sources=[0]);path=out/'frame-baked.gltf';bake(target,source,path,128,proxy=True,projection_m=.05);target.save(path)
-    for channel,wanted in references.items():
-     vectors=measured(path,channel,'target-'+channel.replace(' ','_'))
-     angles=np.degrees(np.arccos(np.clip(vectors@wanted,-1,1)))
-     assert np.percentile(angles,95)<.75 and angles.max()<1.25,(channel,np.percentile(angles,[50,95,100]))
+    for kind in ['proxy','near']:
+     if kind=='near':
+      target=Document(source);target.replace(target.data['meshes'][0]['primitives'][0],a,faces);target.data['nodes'][0]['extras']=dict(lod_sources=[0]);path=out/'frame-near.gltf';bake(target,source,path,128,projection_m=.05);target.save(path)
+     for channel,wanted in references.items():
+      vectors=measured(path,channel,'target-'+kind+'-'+channel.replace(' ','_'))
+      angles=np.degrees(np.arccos(np.clip(vectors@wanted,-1,1)))
+      assert np.percentile(angles,95)<.75 and angles.max()<1.25,(kind,channel,np.percentile(angles,[50,95,100]))
 
 
 def main():
     out=ROOT/'build/lod-proxy-test';out.mkdir(parents=True,exist_ok=True)
+    material_isolation_fixture(out)
     # A quarter-meter cube plus a truly subpixel bolt. At the closer switch it
     # must stay; farther away it may go. Long visible bars must never disappear
     # merely because one dimension is thin.

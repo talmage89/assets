@@ -44,7 +44,79 @@ def object_from_arrays(name,attrs,faces,matrix=None):
     return ob
 
 
+def _partition_materials(doc,source_lookup=None,material_map=None):
+    """Temporary material children; original frames, skins and clips survive.
+
+    Ordinary near levels retain material membership. Projecting a decal into
+    its opaque backing, or a lens into its emitter, is therefore incorrect.
+    Shell/proxy projection deliberately uses the complete source instead.
+    """
+    nodes=copy.deepcopy(doc.data['nodes']);meshes=copy.deepcopy(doc.data['meshes']);restore={};lookup={}
+    for ni,node in enumerate(nodes):
+        if 'mesh' not in node:continue
+        groups={}
+        for p in meshes[node['mesh']]['primitives']:groups.setdefault(p.get('material',0),[]).append(copy.deepcopy(p))
+        if len(groups)==1 and source_lookup is None:
+            lookup[ni,next(iter(groups))]=ni;continue
+        doc.data['nodes'][ni].pop('mesh');doc.data['nodes'][ni].pop('skin',None);restore[ni]=[]
+        for material,primitives in groups.items():
+            name=node.get('name','Mesh')+f'_LOD_Material{material}'
+            mi=len(doc.data['meshes']);doc.data['meshes'].append(dict(name=name,primitives=primitives));child=dict(name=name,mesh=mi)
+            if 'skin' in node:child['skin']=node['skin']
+            if source_lookup is not None:
+                source_ids=node.get('extras',{}).get('lod_sources',[ni]);source_material=material_map[material]
+                ids=[source_lookup[si,source_material] for si in source_ids if (si,source_material) in source_lookup]
+                if not ids:raise ValueError(f'No original material {material} for bake group {ni}')
+                child['extras']=dict(lod_sources=ids)
+            ci=len(doc.data['nodes']);doc.data['nodes'].append(child);doc.data['nodes'][ni].setdefault('children',[]).append(ci)
+            lookup[ni,material]=ci;restore[ni].append(ci)
+    used=sorted({n['mesh'] for n in doc.data['nodes'] if 'mesh' in n});remap={old:new for new,old in enumerate(used)}
+    doc.data['meshes']=[doc.data['meshes'][i] for i in used]
+    for n in doc.data['nodes']:
+        if 'mesh' in n:n['mesh']=remap[n['mesh']]
+    doc.parents={c:i for i,n in enumerate(doc.data['nodes']) for c in n.get('children',[])}
+    return lookup,(nodes,meshes,restore)
+
+
+def _restore_materials(doc,receipt):
+    nodes,meshes,restore=receipt
+    for ni,children in restore.items():
+        mesh=copy.deepcopy(meshes[nodes[ni]['mesh']])
+        mesh['primitives']=[p for ci in children for p in doc.data['meshes'][doc.data['nodes'][ci]['mesh']]['primitives']]
+        # Different placements can receive different atlas charts even when
+        # their original geometry was instanced. Give each its own chart mesh.
+        nodes[ni]['mesh']=len(meshes);meshes.append(mesh)
+    used=sorted({n['mesh'] for n in nodes if 'mesh' in n});remap={old:new for new,old in enumerate(used)}
+    doc.data['meshes']=[meshes[i] for i in used];doc.data['nodes']=nodes
+    for n in nodes:
+        if 'mesh' in n:n['mesh']=remap[n['mesh']]
+    doc.parents={c:i for i,n in enumerate(nodes) for c in n.get('children',[])}
+
+
 def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=False):
+    if proxy or composite_alpha:return _bake(doc,source,path,size,proxy=proxy,projection_m=projection_m,composite_alpha=composite_alpha)
+    from tempfile import TemporaryDirectory
+    original=Document(source);materials=original.data.get('materials',[]);target_materials=doc.data.get('materials',[])
+    material_map={}
+    for i,m in enumerate(target_materials):
+        if len(materials)==len(target_materials):material_map[i]=i;continue
+        matches=[j for j,s in enumerate(materials) if m.get('name') is not None and s.get('name')==m['name']]
+        if len(matches)!=1:raise ValueError('Selected near materials need unique original names for appearance transfer')
+        material_map[i]=matches[0]
+    lookup,_=_partition_materials(original);_,receipt=_partition_materials(doc,lookup,material_map)
+    scratch=Path(__file__).resolve().parents[1]/'build';scratch.mkdir(exist_ok=True)
+    try:
+        with TemporaryDirectory(prefix='lod-atlas-',dir=scratch) as folder:
+            staged=Path(folder)/'source.gltf';original.save(staged)
+            report=_bake(doc,staged,path,size,projection_m=projection_m)
+    finally:_restore_materials(doc,receipt)
+    report.update(source_sha256=digest(source),material_isolation=True)
+    dest=Path(path).parent/(Path(path).stem+'-maps')
+    (dest/'bake.json').write_text(json.dumps(report,indent=2)+'\n')
+    return report
+
+
+def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=False):
     """Replace charts/maps, keeping near-level material response and pivots.
 
     doc extras on each mesh node contain lod_sources (original node indices).
@@ -210,7 +282,7 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
     underlay=(proxy or composite_alpha) and any(m.name in alpha_names for m in mats)
     transmission_names={m.get('name') for m in original.data.get('materials',[]) if m.get('extensions',{}).get('KHR_materials_transmission',{}).get('transmissionFactor',0)>0}
     through_required=(proxy or composite_alpha) and any(m.name in transmission_names for m in mats)
-    coat_required=(proxy or composite_alpha) and any(m.get('extensions',{}).get('KHR_materials_clearcoat',{}).get('clearcoatFactor',0)>0 for m in doc.data.get('materials',[]))
+    coat_required=any(m.get('extensions',{}).get('KHR_materials_clearcoat',{}).get('clearcoatFactor',0)>0 for m in doc.data.get('materials',[]))
     channels=('BaseColor','Alpha','Position','ORM','Emission',*(('Transmission',) if proxy or composite_alpha else ()),*(('Clearcoat',) if proxy else ()),*(('CoatNormal',) if coat_required else ()),'Normal')
     if through_required:channels+=('EmissionThrough','AlphaThrough','PositionThrough')
     if underlay:channels+=('BaseColorUnder','EmissionUnder','ORMUnder','NormalUnder','AlphaUnder','PositionUnder','TransmissionUnder',*(('ClearcoatUnder',) if proxy else ()),*(('CoatNormalUnder',) if coat_required else ()))
