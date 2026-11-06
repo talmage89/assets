@@ -15,3 +15,7 @@ match: model refs
 	$(KIT)/with_gpu.sh $(BP) --python src/matches.py -- render --width $(WIDTH) --samples $(SAMPLES)
 	$(PYTHON) src/review.py --matches
 checkpoint: match
+.PHONY: context
+context:
+	$(PYTHON) src/prepare_context.py
+$(CHECKPOINT_RENDER_OUTPUTS): | context

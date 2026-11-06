@@ -11,6 +11,7 @@ from mathutils.bvhtree import BVHTree
 from kit.gltf import GLB
 from kit.motion import surface,penetration
 from plan import generate
+from plan_check import validate
 from preserve import check as preserve
 
 class External(GLB):
@@ -129,6 +130,7 @@ def check():
  for seed in range(250):
   a=generate(seed);assert a==generate(seed);assert [h['number'] for h in a['holes']]==list(range(1,19));assert len({h['feature'] for h in a['holes']})>=5
  assert generate(71,'classic')['lot']!=generate(92,'adventure')['lot']
- out=dict(passed=True,rows=rows,shared_external_images=used_images,generator_seeds_checked=250,scope=__doc__)
+ plan_proof=validate()
+ out=dict(passed=True,plan_envelopes=plan_proof,rows=rows,shared_external_images=used_images,generator_seeds_checked=250,scope=__doc__)
  Path('build/check.json').write_text(json.dumps(out,indent=2));preserve();print('MINIGOLF CHECK PASS',[(r['kind'],r['triangles']) for r in rows])
 if __name__=='__main__':check()

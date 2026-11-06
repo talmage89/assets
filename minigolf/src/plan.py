@@ -46,6 +46,7 @@ def generate(seed=71,kind=None):
     for i,(c,r) in enumerate(cells):
         length=rng.uniform(7.0,8.6) if adv else rng.uniform(6.3,7.9)
         width=rng.uniform(2.45,3.25) if adv else rng.uniform(2.0,2.8)
+        if not adv and i==0:length,width=5.2,3.6576
         fixture=fixtures.get(i)
         feature='plain' if fixture else features[i]
         # The drop remains a playable steep carpet break; no unsupported sheet.

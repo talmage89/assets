@@ -12,7 +12,10 @@ def walk(rt,name,points,width=1.524,z=.065):
  for i,p in enumerate(points):
   a=Vector(points[max(0,i-1)]);b=Vector(points[min(len(points)-1,i+1)]);d=(b-a).normalized();n=Vector((-d.y,d.x))
   for side in (-1,1):vs.append((p[0]+side*n.x*width/2,p[1]+side*n.y*width/2,(p[2] if len(p)>2 else z+(grade(p[1]) if z>=0 else 0))))
- return mesh(name,vs,[(2*i,2*i+1,2*i+3,2*i+2) for i in range(len(points)-1)],'concrete',rt,False)
+ ob=mesh(name,vs,[(2*i,2*i+1,2*i+3,2*i+2) for i in range(len(points)-1)],'concrete',rt,False)
+ if z>=0:
+  mod=ob.modifiers.new('Walk slab gauge','SOLIDIFY');mod.thickness=.10;mod.offset=-1
+ return ob
 
 def footbridge(rt,p=(0,-4,0)):
  sub=root('StreamFootbridge',p,parent=rt,kind='footbridge')
@@ -173,7 +176,7 @@ def build(p,parent):
  for h in p['holes']:
   # Short approach from tee to its nearest route, plus separate exit from cup.
   for tag in ('tee','cup'):
-   q=h[tag];x=min(xs,key=lambda x:abs(x-q[0]));walk(rt,'Hole %d %s approach'%(h['number'],tag),[(x,q[1],.070+grade(q[1])),(q[0],q[1],q[2])],1.0)
+   q=h[tag];x=min(xs,key=lambda x:abs(x-q[0]));t=.08 if tag=='tee' else .88;cx,cy=center(h,t);side=(-1 if x<q[0] else 1)*(1 if math.cos(math.radians(h['yaw']))>0 else -1);edge=local(h,cx+side*(halfwidth(h,t)+.015),cy,level(h,cx+side*halfwidth(h,t),t)+.0048);walk(rt,'Hole %d %s approach'%(h['number'],tag),[(x,edge[1],.070+grade(edge[1])),edge],1.0)
  # Central entrance route to both lobes, using the human bridge at the stream.
  walk(rt,'Entrance path',[(0,p['clubhouse'][1]+2.3),(0,-12)],1.8)
  for x in (-5.5,5.5):walk(rt,'Water-side promenade',[(x,y) for y in (-12,-9,0,11,22)],1.524)

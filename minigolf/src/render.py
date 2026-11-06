@@ -26,7 +26,7 @@ def views(p):
  return {
  'ground':dict(location=(7.5,-12.5,1.65) if adv else (-15,-14,1.65),target=(0,9,1.65) if adv else (-4,9,1.65),lens=40,aspect=1.8,shift_y=-.035),
  'above':dict(location=(-58,-66,71) if adv else (-45,-55,61),target=(0,-2,0),lens=43,aspect=1.5),
- 'hero':dict(location=(-6.4,15.4,2.26),target=(-1.0,-14.0,1.65),lens=40,aspect=1.9,shift_y=-.06),
+ 'hero':dict(location=(-6.4,15.4,2.275),target=(-1.0,-14.0,1.65),lens=40,aspect=1.9,shift_y=-.06),
  'tee':dict(location=relative(tee,-2.1,-2.7,1.85),target=relative(tee,-.65,.0,.65),lens=46,aspect=1.45),
  'cup':dict(location=relative(cup,.33,-.45,.39),target=relative(cup,.04,.03,.04),lens=55,aspect=1.35),
  'border':dict(location=relative(tee,-2.1,.45,.56),target=relative(tee,-1.0,.75,.05),lens=55,aspect=1.55),

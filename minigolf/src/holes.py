@@ -59,8 +59,9 @@ def border(h,rt):
     rock('Set stone bank',((x0+x1)/2,(y0+y1)/2,(z0+z1)/2-.06),(.34,.40,.28),rt,i+side*39+h['number']*71)
    else:
     mat={'concrete':'concrete','brick':'brick','timber':'wood'}[h['border']]
-    height=.1397 if mat=='wood' else .1524
-    beam('Jointed '+h['border']+' border',(x0,y0,z0+height/2),(x1,y1,z1+height/2),.1524,height,mat,rt)
+    height=.1397 if mat=='wood' else (.1016 if mat=='brick' else .1524)
+    stock_width=.0889 if mat=='wood' else (.05715 if mat=='brick' else .1524)
+    beam('Jointed '+h['border']+' border',(x0,y0,z0+height/2),(x1,y1,z1+height/2),stock_width,height,mat,rt)
     if mat=='wood':
      for x,y,z in ((x0,y0,z0),(x1,y1,z1)):cyl('Countersunk spike',(x,y,z+height-.002),(x,y,z+height+.001),.008,'metal',rt,8)
  # Low tee entrance and cup backstop carry actual crosswise closure.

@@ -21,7 +21,7 @@ to the asset. Original graphics use installed open-license DejaVu Sans.
 | Element | Chosen construction |
 | --- | --- |
 | Parcels including clubhouse/parking | Classic 49 × 56 m; adventure 64 × 65 m |
-| Holes | 6.3–8.6 m centerline; 2.0–3.25 m nominal width, with seeded necks/heads and bends |
+| Holes | 5.2–8.6 m centerline; 2.0–3.6576 m nominal width, with seeded necks/heads and bends |
 | Concrete / carpet | Actual .1016 m slab edge; .0048 m nominal outdoor carpet top offset; compacted planted base below |
 | Cup | .10795 m clear opening, .1016 m liner depth, 2 mm wall, open 20 mm drain; circular hole in carpet mesh |
 | Tee | .9144 × .6096 × .003175 m rubber pad with real drilled start pocket; number/par, scorecard shelf and pencil |
@@ -89,8 +89,8 @@ the themed fixture on the hole is counted separately. Both 2k–8k hole and
 
 | Seed / kind | Course triangles | Per hole | glTF + BIN bytes | Material primitives |
 | --- | ---: | ---: | ---: | ---: |
-| 71 / classic | 123,136 | 4,232–5,512 | 7,686,306 | 77 |
-| 92 / adventure | 173,928 | 5,640–7,108 | 9,622,760 | 79 |
+| 71 / classic | 123,584 | 4,144–5,512 | 7,708,860 | 77 |
+| 92 / adventure | 174,572 | 5,640–7,108 | 9,666,582 | 79 |
 
 | Fixture | Triangles |
 | --- | ---: |
@@ -111,7 +111,7 @@ if none is already loaded. These future allocations are not claimed shipped.
 The road uses Ground's native construction with a quick palette; presentation
 houses/shops are original massing, and the existing RedMaple/Boxwood exports
 supply linked landscape instances. These do not ship in the course glTF.
-Each view places 28 maples (663,040 triangles) and 17 boxwoods (94,996),
+Each view places 39 maples (923,520 triangles) and 17 boxwoods (94,996),
 sharing only 23,680 + 5,588 unique botanical triangles and their existing maps.
 Town/road construction adds its own presentation geometry. A fully textured
 course site will adopt the shared sets during the look gate.

@@ -104,6 +104,7 @@ def make(p):
   x=-100+i*9.5;y=road_y-32-rng.random()*15;trees.append(((x,y,0),rng.uniform(.70,1.2),rng.random()*math.tau))
  for s in (-1,1):
   for y in (-9,6,23):trees.append(((s*(W/2+3),y,0),rng.uniform(.68,.9),rng.random()*math.tau))
+ for i in range(11):trees.append(((-W/2-9+i*(W+18)/10,D/2+9+rng.uniform(-2,3),0),rng.uniform(.72,1.0),rng.random()*math.tau))
  tree_proof=planted_asset(REPO/'trees/export/RedMaple.glb','RedMaple',trees)
  shrubs=[]
  for s in (-1,1):
