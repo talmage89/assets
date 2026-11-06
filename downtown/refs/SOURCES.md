@@ -18,6 +18,8 @@ states no known restrictions. The three photographs precede or fall within our
 | metal-cornices.pdf | https://www.nps.gov/orgs/1739/upload/tech-note-metals-02-cornices.pdf | Richard Pieper, NPS Preservation Tech Notes Metals 2, 1990; US government | Formed sheet-metal cornice assembly, anchorage, roof covering and corrosion causes |
 | cast-iron.pdf | https://www.nps.gov/orgs/1739/upload/preservation-brief-27-cast-iron.pdf | John G. Waite / Margot Gayle, NPS Brief 27, 1991; US government | Bolted storefront columns and iron support construction |
 | awnings.pdf | https://www.nps.gov/orgs/1739/upload/preservation-brief-44-awnings.pdf | Chad Randl, NPS Brief 44, 2004; US government | Canvas, head rods, front bars, braced frames and valances |
+| ouray-district.pdf | https://npgallery.nps.gov/GetAsset/763c4bf3-1646-4712-95c5-2c0b12accfb7 | Martha Sullenberger / Roger Henn, Ouray Historic District nomination, 1981/1983; government archive, inspection only | Section 7: low western Main Street, one/two-story brick, varied historic styles and alterations; no copied plan |
+| gonzales-district.pdf | https://atlas.thc.texas.gov/NR/pdfs/96000935/96000935.pdf | Mary Dillman, Texas Historical Commission, April 1996; additional research Binnie Hoffman; government archive, inspection only | Section 7 pp. 6–7: party walls, full-depth lots, 1–3 stories, recessed entries, ghost signs and altered storefronts |
 | bank-nomination.pdf | https://mostateparks.com/sites/g/files/zuston361/files/media/pdf/2025/02/lawrence-county-bank-building.pdf | Shirley Elwing, NRHP nomination 2004/2005, Missouri SHPO / NPS; government archival reference | 25 × 100 ft masonry commercial footprint; Romanesque corner bank |
 
 Catalog records: [Madison row](https://www.loc.gov/item/in0335/),
@@ -30,3 +32,11 @@ NPS [Metals 2: Restoring Metal Roof Cornices](https://www.nps.gov/orgs/1739/uplo
 NPS [Brief 44, awnings](https://www.nps.gov/orgs/1739/upload/preservation-brief-44-awnings.pdf).
 Installed DejaVu Serif and Sans (Bitstream Vera / DejaVu open font license)
 render all original fictional names. No manufacturer's ornament or marks copied.
+
+District context: Ouray's section 7 supports the western block's predominantly
+low brick skyline; its specific landmark hotel and opera house are outside
+this grammar. Gonzales's section 7 describes full-depth adjoining masonry
+commercial rows, ordinary and ornate fronts, arched upper sashes, later
+plate-glass storefronts, ghost signs and restrained later ornament. Those
+features bound our southern grammar. The gallery geometry remains authored
+from general cast-iron/awning construction, not copied from a surveyed front.

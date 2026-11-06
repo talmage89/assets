@@ -25,3 +25,12 @@ Three pairs use HABS photographs, with camera fits and residuals disclosed.
 Two are monochrome: only value and form can be judged, never hue. For the
 color row, the pale sidewalk and white window trim are the white-balance
 references. Lighting/color checks remain preliminary at this quick-material gate.
+
+Regional cross-check: Ouray's National Register district nomination, section 7,
+places mostly one- and two-story brick commercial buildings alongside occasional
+large landmarks. That supports the western block's low skyline; its specific
+Second Empire hotel and opera house are outside this grammar. Gonzales's National Register nomination, section 7 pages 6–7, corroborates
+1–3-story party-wall rows occupying full lot depths, recessed entries, altered
+display glass, ghost signs and more restrained later commercial fronts.
+The gallery remains an authored interpretation of the NPS storefront/awning
+construction guidance, not a surveyed copy of a Texan building.
