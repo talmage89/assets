@@ -46,6 +46,8 @@ Street
 - [Street light](street-light/README.md): LED cobra head on a tapered steel pole.
 - [Traffic signals](signals/README.md): LED signal heads with a flashing yellow arrow, pedestrian heads and buttons, mast
   arms, a span-wire installation and a controller cabinet, at four seeded intersections with worn pavement and loops.
+- [Utility poles](utility/README.md): silvered wood distribution poles with crossarms, transformers, a three-pot bank,
+  risers, guys, a street-light bracket and communication cables, wired along four seeded streets.
 - [Traffic cone](traffic-cone/README.md): 28-inch PVC cone with a weighted base.
 - [Mailbox](mailbox/README.md): curbside mailbox on a wooden post; door and flag move.
 - [Trash cart](trash-cart/README.md): 96-gallon wheeled cart in trash and recycling variants.
