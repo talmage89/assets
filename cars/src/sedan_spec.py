@@ -39,5 +39,5 @@ TREAD_BLOCK_COUNT=20
 ROTOR_GAME_SEGMENTS=24
 WHEEL_GAME_SEGMENTS=32
 
-# Circular delivery carcass; seven section rings fund the finer circumference.
-TIRE_DELIVERY_SEGMENTS=56
+# Visible delivery shoulder/tread chords; concealed rings are graded separately.
+TIRE_DELIVERY_SEGMENTS=96

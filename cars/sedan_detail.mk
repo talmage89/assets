@@ -1,7 +1,7 @@
 # Detail replaces proxies, then ships one atlas and imported-GLB checkpoint views.
 SEDAN_CONFIG := src/sedan_detail_config.py
 DDEPS := src/sedan_detail.py src/sedan_hardware.py src/sedan_exterior.py src/sedan_interior.py src/sedan_underbody.py src/sedan_finishes.py src/sedan_colors.py src/sedan_spec.py src/finishes.py src/wheels.py src/build.py src/detail_helpers.py $(KIT)/vehicle_materials.py $(KIT)/materials.py
-DDEPS += src/sedan_surface_allocation.py
+DDEPS += src/sedan_surface_allocation.py src/sedan_returns.py
 DOUT := renders/sedan-detail
 DPAIRS := renders/sedan-used-pairs
 DSHOTS := front_three_quarter rear_three_quarter face lamp_unlit lamp_lit wheel mirror interior_glass underbody underbody_layout opened_front opened_rear side front rear top scale
@@ -17,8 +17,8 @@ build/sedan/markings/.stamp: src/sedan_markings.py $(KIT)/fonts.py
 	@mkdir -p build/sedan/markings $(TMPDIR)
 	$(PYTHON) src/sedan_markings.py build/sedan/markings
 	@touch $@
-build/sedan/riggable-game.blend: $(SDEPS) src/sedan_shell.py
-	$(BP) --python src/sedan_shell.py -- --quality game --out $@
+build/sedan/riggable-game.blend build/sedan/riggable-game.envelope.blend &: $(SDEPS) src/sedan_shell.py src/sedan_seethrough.py
+	$(BP) --python src/sedan_shell.py -- --quality game --out build/sedan/riggable-game.blend
 build/sedan/riggable-high.blend: $(SDEPS) src/sedan_shell.py
 	$(BP) --python src/sedan_shell.py -- --quality high --out $@
 build/sedan/detail-game.blend: build/sedan/riggable-game.blend $(DDEPS) build/markings/.stamp build/sedan/markings/.stamp
@@ -61,6 +61,22 @@ build/sedan/motion-high.json: build/sedan/detail-high.blend $(SEDAN_CONFIG)
 	$(BP) --python $(KIT)/motion.py -- --source $< --config $(SEDAN_CONFIG) --out $@
 check-motion: build/sedan/motion-game.json build/sedan/motion-high.json
 
+# Thin return skins have no solid parity; test their actual triangle crossings.
+build/sedan/return-game.json: build/sedan/detail-game.blend src/sedan_return_check.py $(SEDAN_CONFIG)
+	$(BP) --python src/sedan_return_check.py -- --source $< --out $@
+build/sedan/return-high.json: build/sedan/detail-high.blend src/sedan_return_check.py $(SEDAN_CONFIG)
+	$(BP) --python src/sedan_return_check.py -- --source $< --out $@
+check-motion: build/sedan/return-game.json build/sedan/return-high.json
+
+renders/sedan-seethrough/.stamp: export/AlderS240.glb build/sedan/finalized.blend build/sedan/riggable-game.envelope.blend src/sedan_seethrough.py src/sedan_seethrough_review.py
+	$(KIT)/with_gpu.sh $(RP) --python src/sedan_seethrough.py -- --source export/AlderS240.glb --parts-source build/sedan/finalized.blend --envelope build/sedan/riggable-game.envelope.blend --out renders/sedan-seethrough
+	$(PYTHON) src/sedan_seethrough_review.py --renders renders/sedan-seethrough --out renders/sedan-seethrough/audit
+	@touch $@
+.PHONY: check-seethrough
+check-seethrough: renders/sedan-seethrough/.stamp
+check: check-seethrough
+sedan-delivery: check-seethrough
+
 build/sedan/finalized.blend build/sedan/uv-report.json &: build/sedan/material-source.blend $(SEDAN_CONFIG) src/sedan_finalize.py src/sedan_surface_normals.py $(KIT)/finalize.py $(KIT)/uv.py
 	$(BP) --python src/sedan_finalize.py -- --source $< --out build/sedan/finalized.blend --config $(SEDAN_CONFIG) --report build/sedan/uv-report.json --size 2048 --target-density 360 --margin .0012
 build/sedan/bake-source.blend: build/sedan/detail-high.blend src/sedan_prepare_bake.py src/prepare_bake.py
@@ -85,7 +101,7 @@ sedan-export: export/AlderS240.glb build/sedan/delivery-check.json build/sedan/s
 
 build/sedan/used-cameras.json: src/sedan_used_matches.py $(KIT)/photo_match.py
 	$(PYTHON) $(KIT)/photo_match.py solve --config $< --out $@
-$(DOUT)/.stamp: build/sedan/parameters.txt export/AlderS240.glb src/sedan_lookdev.py src/sedan_views.py src/sedan_colors.py src/delivery_materials.py src/lighting.py src/sedan_lighting.py
+$(DOUT)/.stamp: renders/sedan-seethrough/.stamp build/sedan/parameters.txt export/AlderS240.glb src/sedan_lookdev.py src/sedan_views.py src/sedan_colors.py src/delivery_materials.py src/lighting.py src/sedan_lighting.py
 	$(KIT)/with_gpu.sh $(RP) --python src/sedan_lookdev.py -- --source export/AlderS240.glb --out $(DOUT) --width $(WIDTH) --samples $(SAMPLES) --shots $(DSHOTS_ARG)
 	$(KIT)/with_gpu.sh $(RP) --python src/sedan_lookdev.py -- --source export/AlderS240.glb --out $(DOUT) --width $(WIDTH) --samples $(SAMPLES) --colors
 	@touch $@

@@ -77,7 +77,7 @@ def door_hinges(b):
         rings=[]
         for z,x,width in [(.18,.72,.054),(.94,.77,.054),(1.38,.64,.054)]:
             ring=[]
-            for dx,dy in [(-width/2,-.04),(width/2,-.04),(width/2,.04),(-width/2,.04)]:
+            for dx,dy in [(-width/2,-.05),(width/2,-.05),(width/2,.05),(-width/2,.05)]:
                 p=Vector((sign*(x+dx),S.DOOR_SPLIT-.005+dy,z))
                 if z>1.3:
                     hit=roof.ray_cast(Vector((p.x,p.y,2)),Vector((0,0,-1)),3)[0]
@@ -133,12 +133,51 @@ def door_hinges(b):
                 prism(b,'S240 hinge fixed leaf '+name,[center+Vector((-sign*.002,-.002,0)),hit,hit+Vector((-sign*.040,0,0))],z-.017,b.m['frame'],b.root)
 
 
+def grade_tire(ob,code):
+    """Round the visible rubber with 96 chords, grading only concealed rings.
+
+    Both tire sides retain their measured maximum width, beads and crown.
+    Extra outer-side profile stations round the shoulder in the oblique macro.
+    The transition mesh shares all ring edges, without poles or T junctions.
+    """
+    segments=S.TIRE_DELIVERY_SEGMENTS
+    profile=[Vector((ob.data.vertices[j*segments].co.x,
+                     math.hypot(ob.data.vertices[j*segments].co.y,ob.data.vertices[j*segments].co.z)))
+             for j in range(9)]
+    counts=[16,16,48,96,96,96,96,32,16]
+    if code.endswith('L'):counts=list(reversed(counts))
+    starts=[];vertices=[];faces=[]
+    for (x,r),num in zip(profile,counts):
+        starts.append(len(vertices))
+        vertices.extend((x,r*math.cos(math.tau*k/num),r*math.sin(math.tau*k/num)) for k in range(num))
+    for ring in range(len(counts)):
+        other=(ring+1)%len(counts);a,c=counts[ring],counts[other];i=j=0
+        while i<a or j<c:
+            va=starts[ring]+i%a;vc=starts[other]+j%c
+            if (i+1)*c==(j+1)*a:
+                faces.append((va,starts[ring]+(i+1)%a,starts[other]+(j+1)%c,vc));i+=1;j+=1
+            elif (i+1)*c<(j+1)*a:
+                faces.append((va,starts[ring]+(i+1)%a,vc));i+=1
+            else:
+                faces.append((va,starts[other]+(j+1)%c,vc));j+=1
+    old=ob.data;me=bpy.data.meshes.new('S240 graded radial carcass');me.from_pydata(vertices,[],faces);me.update()
+    for mat in old.materials:me.materials.append(mat)
+    ob.data=me
+    # Axis-X sweep winding follows the ordered bead -> crown -> bead profile.
+    me.update();ob['s240_tire_ring_counts']=counts
+    ob['tread_chord_sag_m']=S.HUB_HEIGHT*(1-math.cos(math.pi/96))
+    if old.users==0:bpy.data.meshes.remove(old)
+
+
 def tire_normals(b):
     """Continuous carcass normals; profile rings are rubber curvature, not creases."""
     for code in ['FL','FR','RL','RR']:
         ob=bpy.data.objects['Tire_'+code];me=ob.data;segments=96 if b.high else S.TIRE_DELIVERY_SEGMENTS
-        rings=len(me.vertices)//segments
-        profile=[Vector((me.vertices[j*segments].co.x,math.hypot(me.vertices[j*segments].co.y,me.vertices[j*segments].co.z))) for j in range(rings)]
+        counts=list(ob.get('s240_tire_ring_counts',[segments]*(len(me.vertices)//segments)))
+        starts=[];ring_for=[]
+        for ring,num in enumerate(counts):starts.append(len(ring_for));ring_for.extend([ring]*num)
+        rings=len(counts)
+        profile=[Vector((me.vertices[i].co.x,math.hypot(me.vertices[i].co.y,me.vertices[i].co.z))) for i in starts]
         tangents=[]
         for j in range(rings):
             a=profile[max(0,j-1)];c=profile[min(rings-1,j+1)]
@@ -146,9 +185,9 @@ def tire_normals(b):
         for edge in me.edges:edge.use_edge_sharp=False
         normals=[]
         for face in me.polygons:
-            face.use_smooth=True;closing=any(i//segments==0 for i in face.vertices) and any(i//segments==rings-1 for i in face.vertices)
+            face.use_smooth=True;closing=any(ring_for[i]==0 for i in face.vertices) and any(ring_for[i]==rings-1 for i in face.vertices)
             for li in face.loop_indices:
-                vi=me.loops[li].vertex_index;p=me.vertices[vi].co;r=math.hypot(p.y,p.z);dx,dr=tangents[vi//segments]
+                vi=me.loops[li].vertex_index;p=me.vertices[vi].co;r=math.hypot(p.y,p.z);dx,dr=tangents[ring_for[vi]]
                 normal=Vector((0,-p.y/r,-p.z/r)) if closing else Vector((-dr,dx*p.y/r,dx*p.z/r)).normalized()
                 normals.append(normal)
         me.normals_split_custom_set(normals)

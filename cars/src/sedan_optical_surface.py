@@ -137,9 +137,14 @@ def rebuild(ob,surface,high=False):
             # Manufacture a gently crowned ruled cover across the opening.
             # Fitting the steel's full transverse draw copied its tight roll
             # into the transparent mold and produced refractive shards.
-            r=float(np.dot(basis(a,t),coefficients))-recess+.0005*4*t*(1-t)
-            ra=float(np.dot([u*v for u in da for v in [1-t,t]],coefficients))/span
-            rt=float(np.dot([u*v for u in ba for v in [-1,1]],coefficients))+.002*(1-2*t)
+            # Hold the upper molding rail; recess the lower rail into the
+            # cassette. The old die followed the steel's upward rake and
+            # reflected the studio strip as a broad flat white rectangle.
+            # A real cover is more upright than that surrounding steel draw.
+            tm=.4+.6*t
+            r=float(np.dot(basis(a,tm),coefficients))-recess+.0005*4*t*(1-t)
+            ra=float(np.dot([u*v for u in da for v in [1-tm,tm]],coefficients))/span
+            rt=.6*float(np.dot([u*v for u in ba for v in [-1,1]],coefficients))+.002*(1-2*t)
         else:
             r=float(np.dot(basis(a,t),coefficients))-recess
             ra=float(np.dot([u*v for u in da for v in bt],coefficients))/span

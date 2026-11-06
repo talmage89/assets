@@ -190,15 +190,17 @@ def main():
     wheel_spec.WHEEL_AXIAL_SCALE=1.0
     wheels.build(b,wheel_spec)
     if not b.high:
-        # Seven section rings retain both beads, both maximum-width shoulders
-        # and the crown. Their saved triangles fund a round 56-chord silhouette.
+        # Graded rings spend 96 circumference chords on the visible shoulder
+        # and tread, with economical concealed bead and inboard rings.
         from kit.vehicle import loaded_tire
         for code in ['FL','FR','RL','RR']:
             old=bpy.data.objects['Tire_'+code];parent=old.parent
             center=parent.matrix_world.translation.copy();material=old.data.materials[0]
             bpy.data.objects.remove(old,do_unlink=True)
             tire=loaded_tire('Tire_'+code,center,S.TIRE_WIDTH,S.TIRE_ASPECT,S.RIM_INCHES,
-                material,S.TIRE_DELIVERY_SEGMENTS,S.HUB_HEIGHT,profile_indices=[0,3,5,7,9,11,14],rolling_radius=S.HUB_HEIGHT)
+                material,S.TIRE_DELIVERY_SEGMENTS,S.HUB_HEIGHT,profile_indices=([0,1,3,4,5,7,9,11,14] if code.endswith('L') else [0,3,5,7,9,10,11,13,14]),rolling_radius=S.HUB_HEIGHT)
+            from sedan_hardware import grade_tire
+            grade_tire(tire,code)
             b.add(tire,parent,'tires')
     # The sedan shoulder blocks follow its narrower tread, while the existing
     # family carcass already has the correct ISO section width.
@@ -218,6 +220,8 @@ def main():
     sedan_hardware.passenger_wheels(b)
     sedan_hardware.tire_normals(b)
     sedan_exterior.build(b);sedan_interior.build(b);sedan_underbody.build(b);sedan_hardware.door_hinges(b)
+    import sedan_returns
+    sedan_returns.build(b)
     bpy.context.view_layer.update()
     for ob in bpy.context.scene.objects:
         if ob.type!='MESH' or ob.get('asset_set')!='Sedan':continue

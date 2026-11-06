@@ -23,7 +23,17 @@ def well(b,blank,surface,depth,front):
         uv=[surface_uv(p,surface)[0].to_2d() for p in loop]
         loop=[loop[i] for i in convex_hull_2d(uv)]
     normals=[surface_uv(p,surface)[1] for p in loop]
-    rings=[[p-n*d for p,n in zip(loop,normals)] for d in [.002,depth]]
+    center=sum(loop,Vector())/len(loop)
+    # The molded mouth overlaps the steel from behind. The old +2 mm proud
+    # locator edge reflected as a loose bright grille corner and left air
+    # between the opening cut and its return.
+    mouth=[]
+    for i,(p,n) in enumerate(zip(loop,normals)):
+        tangent=(loop[(i+1)%len(loop)]-loop[i-1]).normalized()
+        outward=tangent.cross(n).normalized()
+        if outward.dot(p-center)<0:outward.negate()
+        mouth.append(p+outward*.007-n*.006)
+    rings=[mouth,[p-n*depth for p,n in zip(loop,normals)]]
     # Cut before adding the well, so its return can never be mistaken for skin.
     carve(front,[blank],surface,recess=depth)
     ob=G.loft(blank.name+' molded return',rings,b.m['body'] if blank.name.startswith('Plate pocket') else b.m['rubber'],caps=False)

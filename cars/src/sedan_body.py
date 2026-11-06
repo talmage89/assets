@@ -325,9 +325,18 @@ def section_field(p,wall_only=False):
     rd=max(.20,2.4475-rt-face_depth(z,False))
     a=max(0,ft-y)/fd;c=max(0,y-rt)/rd
     phase=max(0,min(1,(y+.30)/.60));phase=phase**3*(10-15*phase+6*phase*phase)
-    power=4+.2*phase
-    q=abs(x/width)**power+a**3+c**3-1
-    gradient=math.sqrt((power*abs(x/width)**(power-1)/width)**2+(3*a*a/fd if y<ft else 3*c*c/rd)**2)
+    # Square the lower molded end waterlines around the recessed inserts.
+    # The former broad rounded plan made every aperture remove the leading
+    # side-view tangent; its bed/blades then became loose silhouette steps.
+    # A fair superellipse keeps an outboard cheek on that tangent. The upper
+    # impact band, lamps, hood and all accepted upper surfaces are untouched.
+    from sedan_upper_surface import ease as end_ease
+    lower_end=max((1-end_ease(.39,.50,z))*end_ease(1.86,2.04,y),
+                  (1-end_ease(.39,.56,z))*(1-end_ease(-2.04,-1.86,y)))
+    power=4+.2*phase+10*lower_end
+    quadratic=.06*lower_end
+    q=(1-quadratic)*abs(x/width)**power+quadratic*(x/width)**2+a**3+c**3-1
+    gradient=math.sqrt((((1-quadratic)*power*abs(x/width)**(power-1)+2*quadratic*abs(x/width))/width)**2+(3*a*a/fd if y<ft else 3*c*c/rd)**2)
     wall=q/max(1.0,gradient)
     if wall_only:return wall
     # The crown rolls down into the same side waterline. C∞ smooth maximum
@@ -834,6 +843,11 @@ def build(b):
     parent_tree=BVHTree.FromPolygons(parent_points,parent_triangles,all_triangles=True)
     dense=source;source,parent_uvs=tessellate(dense,b.high);bpy.data.objects.remove(dense,do_unlink=True)
     surface_map=dict(tree=parent_tree,points=parent_points,normals=parent_normals,triangles=parent_triangles,uvs=parent_uvs)
+    from sedan_lower_profile import LowerNoseMold
+    lower_mold=LowerNoseMold(surface_map)
+    if not b.high and hasattr(b,'silhouette_envelope_path'):
+        from sedan_seethrough import write_envelope
+        write_envelope(source,b.silhouette_envelope_path,lower_mold)
     bm=bmesh.new();bm.from_mesh(source.data)
     from sedan_glazing import cut_opening
     from sedan_upper_surface import cut_hood
@@ -1142,6 +1156,11 @@ def build(b):
         for ob in sorted(list(bpy.context.scene.objects),key=lambda o:o.name):
             if ob.type!='MESH' or ob.get('part_category') not in ['body','doors','fascia','pillars']:continue
             reduce(ob);optimize_backs(ob);coalesce(ob);ob['s240_game_allocated']=True
+    # Manufacture the lower nose and its inserts with one shared smooth mold.
+    # Original aperture topology and all held upper vertices remain intact.
+    lower_mold.apply(list(bpy.context.scene.objects))
+    from sedan_lower_profile import finish_sheet
+    finish_sheet(bpy.data.objects['Front molded fascia'])
 
 
 def locator_y_guess(x,z,front):

@@ -11,6 +11,7 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--out',required=True);p.add_argument('--quality',choices=['game','high'],required=True);a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
     bpy.ops.wm.read_factory_settings(use_empty=True);b=Build(a.quality=='high',0,False)
     b.root.name=S.NAME;b.asset_set=S.ASSET_SET;b.root['asset_set']=S.ASSET_SET;b.physical_doors=True
+    if not b.high:b.silhouette_envelope_path=Path(a.out).with_suffix('.envelope.blend')
     sedan_body.build(b);wheels.build(b,S)
     for mat in list(bpy.data.materials):
         if mat.users==0:bpy.data.materials.remove(mat)

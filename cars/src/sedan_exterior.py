@@ -19,7 +19,7 @@ def repivot(ob,position,limits):
     for c,matrix in children.items():c.matrix_world=matrix
 
 
-def perimeter(ob):
+def perimeter(ob,tolerance=.0012):
     """Ordered boundary of the actual outside skin, excluding gauge backs."""
     roles=ob.data.attributes.get('sheet_role');count=ob.get('lens_outer_faces')
     edges={}
@@ -44,7 +44,7 @@ def perimeter(ob):
         for i,p in enumerate(points):
             a,c=points[i-1],points[(i+1)%len(points)];v=c-a
             t=max(0,min(1,(p-a).dot(v)/max(v.length_squared,1e-12)))
-            if (p-a-v*t).length<.0012:
+            if (p-a-v*t).length<tolerance:
                 points.pop(i);changed=True;break
     return points
 
@@ -101,7 +101,7 @@ def optics(b):
             for v in cover.data.vertices:
                 p=cover.matrix_world@v.co;v.co=inverse@(p-normal(p)*.0010)
             ps=[p-normal(p)*.0010 for p in ps];cover['aperture_samples']=[q for p in ps for q in p]
-        boundary=perimeter(cover);ns=[normal(p) for p in boundary]
+        boundary=perimeter(cover,.0004 if not front else .0012);ns=[normal(p) for p in boundary]
         if front:
             sign=1 if ps[0].x>0 else -1
             bucket_direction=Vector((sign*.12,-.65,.75)).normalized()
@@ -111,7 +111,7 @@ def optics(b):
             # Following the deck's rapidly turning normal folds its chrome
             # bed and return through the painted lower edge of the opening.
             ns=[back_direction(p) for p in boundary]
-        depth=.100 if front else .035
+        depth=.100 if front else .016
         rings=[[p-n*d for p,n in zip(boundary,ns)] for d in [.001,depth]]
         if front or cover.get('lamp_piece'):
             support=skin_tree;gauges=skin_gauges
@@ -133,16 +133,16 @@ def optics(b):
                 # Rear flanges overlap the stamping by a nominal 6 mm.
                 # Merely snapping a sparse ring onto the cut edge leaves
                 # triangular gaps wherever that edge curves between stations.
-                hit,n,fi,_=actual_support.find_nearest(p+outward*(.003 if front else .009))
+                hit,n,fi,_=actual_support.find_nearest(p+outward*(.006 if front else .010))
                 seat=hit-n*((gauges[fi] if gauges is not None else .0009)+.00025)
                 span=(seat-(p-direction*.0022)).length
-                land=.018 if front else .030
+                land=.040 if front else .030
                 if span>land:raise ValueError(('Optical flange exceeds its mounting land',cover.name,span,land))
                 return seat,span
             entries=[(p,*mount(p,boundary[(i+1)%len(boundary)]-boundary[i-1])) for i,p in enumerate(boundary)]
             boundary=[r[0] for r in entries];mouth=[r[1] for r in entries]
             ns=[bucket_direction if front else back_direction(p) for p in boundary]
-            rings=[[p-n*.0022 for p,n in zip(boundary,ns)],mouth,[p-n*depth for p,n in zip(boundary,ns)]]
+            rings=[[p-normal(p)*.0015 for p in boundary],mouth,[p-(bucket_direction if front else normal(p))*depth for p in boundary]]
             cover['casing_flange_max_span_m']=max(r[2] for r in entries)
             cover['casing_mounting_curve_vertices']=len(entries)
         if cover.get('lamp_piece')=='lid':
@@ -150,12 +150,31 @@ def optics(b):
             # lip and mounting land reach the actual .61275 m lens edge;
             # clamping those as well leaves a visible hole into the cabin.
             for p in rings[-1]:p.x=max(-.607,min(.607,p.x))
-        housing=G.loft('S240 optical housing '+cover.name,rings,b.m['plastic'],caps=False)
-        sol=housing.modifiers.new('Optical housing wall','SOLIDIFY');sol.thickness=.0015;sol.offset=-1;sol.use_even_offset=False;G.apply(housing)
+        if front:
+            # The drawn bucket closes directly from lens rim to rear shell.
+            # Its mounting flange branches outward; routing the bucket wall
+            # through that flange left a tunnel behind the wrapped outer tip.
+            count=len(boundary);vertices=[p for ring in rings for p in ring];faces=[]
+            for target in [1,2]:
+                for i in range(count):
+                    j=(i+1)%count;faces.append((i,j,target*count+j,target*count+i))
+            housing=G.mesh('S240 optical housing '+cover.name,vertices,faces,b.m['plastic'])
+        else:housing=G.loft('S240 optical housing '+cover.name,rings,b.m['plastic'],caps=False)
+        if b.high:
+            sol=housing.modifiers.new('Optical housing wall','SOLIDIFY');sol.thickness=.0015;sol.offset=-1;sol.use_even_offset=False;G.apply(housing)
+        else:housing['allow_boundary']=True
         b.add(housing,parent,'lamps')
         if front:
-            back_points=[ps[j*nu+i]-bucket_direction*depth for j in [0,nv-1] for i in range(nu)]
-            back_faces=[(i,i+1,nu+i+1,nu+i) for i in range(nu-1)]
+            # Close the whole swept rim, rather than a ruled strip between
+            # two guide rows. That strip left the curved side borders open.
+            from mathutils.geometry import delaunay_2d_cdt
+            back_points=[p.copy() for p in rings[-1]];count=len(back_points)
+            back_points += [ps[(nv//2)*nu+i]-bucket_direction*depth for i in range(1,nu-1,3)]
+            u=bucket_direction.cross(Vector((0,0,1))).normalized();v=bucket_direction.cross(u).normalized()
+            coords=[Vector((p.dot(u),p.dot(v))) for p in back_points];outline=list(range(count))
+            result,_,back_faces,original,*_=delaunay_2d_cdt(coords,list(zip(outline,outline[1:]+outline[:1])),[outline],1,1e-8)
+            if any(not ids for ids in original):raise ValueError('Front cassette closure created an unowned vertex')
+            back_points=[back_points[ids[0]] for ids in original]
         else:
             # Close the actual cassette rim. The former ruled strip joined
             # only its first/last rows, leaving holes where the lens's curved
@@ -164,14 +183,14 @@ def optics(b):
             from mathutils.geometry import delaunay_2d_cdt
             from sedan_optical_surface import chart
             back_points=[p.copy() for p in rings[-1]];count=len(back_points)
-            back_points += [ps[(nv//2)*nu+i]-back_direction(ps[(nv//2)*nu+i])*depth for i in range(1,nu-1,3)]
+            back_points += [ps[(nv//2)*nu+i]-normal(ps[(nv//2)*nu+i])*depth for i in range(1,nu-1,3)]
             coords=[chart(p,False).to_2d() for p in back_points];outline=list(range(count))
             result,_,back_faces,original,*_=delaunay_2d_cdt(coords,list(zip(outline,outline[1:]+outline[:1])),[outline],1,1e-8)
             if any(not ids for ids in original):raise ValueError('Cassette closure created an unowned vertex')
             back_points=[back_points[ids[0]] for ids in original]
             if sum((back_points[f[1]]-back_points[f[0]]).cross(back_points[f[2]]-back_points[f[0]]).y for f in back_faces)<0:back_faces=[tuple(reversed(f)) for f in back_faces]
         back=G.mesh('S240 optical back '+cover.name,back_points,back_faces,b.m['dark_chrome'] if front else b.m['chrome'])
-        if b.high or not front:
+        if b.high:
             sol=back.modifiers.new('Optical backing gauge','SOLIDIFY');sol.thickness=.0015;sol.offset=-1;sol.use_even_offset=False;G.apply(back)
         else:back['allow_boundary']=True
         bm=bmesh.new();bm.from_mesh(back.data);bmesh.ops.triangulate(bm,faces=list(bm.faces));bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces))
@@ -464,4 +483,61 @@ def build(b):
         elif o.name.startswith(('Rear side glass','Quarter glass')):material=b.m['privacy']
         else:continue
         o.data.materials.clear();o.data.materials.append(material)
-    optics(b);trim(b);hinges(b)
+    optics(b);seat_returns(b);seat_finisher(b);trim(b);hinges(b)
+
+
+def seat_returns(b):
+    """Seat molded well mouths on actual cut steel, not their old locators."""
+    from mathutils.bvhtree import BVHTree
+    vertices=[];faces=[]
+    for ob in bpy.context.scene.objects:
+        if ob.type!='MESH' or ob.get('part_category') not in ['body','doors','fascia']:continue
+        roles=ob.data.attributes.get('sheet_role')
+        if roles is None:continue
+        start=len(vertices);vertices.extend(ob.matrix_world@v.co for v in ob.data.vertices);ob.data.calc_loop_triangles()
+        faces.extend(tuple(start+i for i in tri.vertices) for tri in ob.data.loop_triangles if roles.data[tri.polygon_index].value==0)
+    support=BVHTree.FromPolygons(vertices,faces,all_triangles=True)
+    for old in [o for o in bpy.context.scene.objects if o.name.endswith(' opening molded return')]:
+        blank=bpy.data.objects[old.name.removesuffix(' molded return')];raw=list(blank['well_mouth_samples']);points=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)];count=len(points)
+        if len(old.data.vertices)!=4*count:raise ValueError(('Unexpected molded return gauge',old.name,len(old.data.vertices),count))
+        back=[old.matrix_world@old.data.vertices[count+i].co for i in range(count)]
+        center=sum(points,Vector())/count;mouth=[];depths=[]
+        for i,p in enumerate(points):
+            _,n,_,_=support.find_nearest(p);t=points[(i+1)%count]-points[i-1];out=t.cross(n).normalized()
+            if out.dot(p-center)<0:out.negate()
+            hit,n,_,_=support.find_nearest(p+out*.012);q=hit-n*.0045;mouth.append(q)
+            actual,normal,_,_=support.find_nearest(q);depths.append(-(q-actual).dot(normal))
+        name=old.name;parent=old.parent;material=old.data.materials[0]
+        bpy.data.objects.remove(old,do_unlink=True)
+        ob=G.loft(name,[mouth,back],material,caps=False)
+        sol=ob.modifiers.new('Molded return gauge','SOLIDIFY');sol.thickness=.002;sol.offset=-1;G.apply(ob)
+        b.add(ob,parent,'openings');ob['actual_mounting_depth_min_max_m']=[min(depths),max(depths)]
+        print('S240_RETURN_SEAT',name,min(depths),max(depths),flush=True)
+
+
+def seat_finisher(b):
+    """The rolled finisher clears the actual painted side silhouette.
+
+    Probe real outer-triangle plane intersections at its vertices and edge
+    midpoints. Its old flat lip stood 6–7 mm beyond the rolling valance.
+    """
+    ob=bpy.data.objects['Rear molded fascia'];me=ob.data;roles=me.attributes['sheet_role'];positions=[ob.matrix_world@v.co for v in me.vertices]
+    edges={tuple(sorted((a,c))) for face in me.polygons if roles.data[face.index].value==0 for a,c in zip(face.vertices,list(face.vertices[1:])+[face.vertices[0]])}
+    segments=[(positions[a],positions[c]) for a,c in edges];cache={}
+    def outline(z):
+        key=round(z,7)
+        if key not in cache:
+            ys=[a.y+(c.y-a.y)*(z-a.z)/(c.z-a.z) for a,c in segments if min(a.z,c.z)<=z<=max(a.z,c.z) and abs(c.z-a.z)>1e-10]
+            cache[key]=max(ys) if ys else None
+        return cache[key]
+    lip=bpy.data.objects['Exhaust finisher rolled lip'];ps=[lip.matrix_world@v.co for v in lip.data.vertices]
+    probes=ps+[(ps[e.vertices[0]]+ps[e.vertices[1]])/2 for e in lip.data.edges]
+    before=min(limit-p.y for p in probes if (limit:=outline(p.z)) is not None);shift=max(0,.003-before)
+    for name in ['Exhaust finisher rolled lip','Exhaust dark bore']:
+        part=bpy.data.objects[name];inverse=part.matrix_world.inverted().to_3x3();delta=inverse@Vector((0,-shift,0))
+        for v in part.data.vertices:v.co+=delta
+        part.data.update()
+    actual=[lip.matrix_world@v.co for v in lip.data.vertices];actual += [(actual[e.vertices[0]]+actual[e.vertices[1]])/2 for e in lip.data.edges]
+    after=min(limit-p.y for p in actual if (limit:=outline(p.z)) is not None)
+    lip['measured_side_envelope_setback_before_after_m']=[before,after];lip['measured_seating_translation_y_m']=-shift
+    print('S240_FINISHER_SEAT',before,after,-shift,flush=True)

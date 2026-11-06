@@ -10,7 +10,7 @@ DELIVERY_SURFACES['Paint']['extras']=dict(DELIVERY_SURFACES['Paint']['extras'],p
 # Normalize these five choices only; not a claim about used-car fleet shares.
 COLOR_WEIGHTS={name:value/89 for name,value in [('Porcelain',31),('Carbon',19),('Graphite',21),('Aluminum',8),('Atlantic',10)]}
 DELIVERY_SURFACES['Paint']['extras']['factory_spawn_weights']=__import__('json').dumps(COLOR_WEIGHTS)
-BUDGETS={'Sedan':60000}
+BUDGETS={'Sedan':62000}
 BOUNDS={'Sedan':dict(size=(2.105,4.885,1.482),tolerance=(.006,.010,.003))}
 DELIVERY_BOUNDS=BOUNDS['Sedan']
 SOURCE_MATERIAL_SURFACES.update({
