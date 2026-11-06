@@ -43,7 +43,7 @@ def raster(target,size):
         yield yy,xx,w@p,n,t,b,np.sqrt(area/max(abs(det),1e-20))/size
 
 
-def repair(source,target,arrays,mask,size,tolerance,route,batch_size=8192):
+def repair(source,target,arrays,mask,size,tolerance,route,batch_size=16384):
     missing=mask & (arrays['Alpha'][:,:,0]<.001)
     if not missing.any() and 'Position' not in arrays:return dict(candidates=0,repaired=0,max_distance_m=0.)
     mesh=source.data;mesh.calc_loop_triangles();mesh.calc_tangents(uvmap='LOD_SourceUV0')
@@ -72,11 +72,13 @@ def repair(source,target,arrays,mask,size,tolerance,route,batch_size=8192):
                 if fi is None or dist>tolerance:continue
                 # Thin closed parts have two nearby sides. Correspondence
                 # must agree with the cage's outward hemisphere.
-                if np.dot(source_face_normal,nn)<=.05:
-                    compatible=[hit for hit in tree.find_nearest_range(Vector(point),tolerance) if np.dot(hit[1],nn)>.05]
+                cosine=float(np.dot(source_face_normal,nn))
+                if cosine<.85:
+                    radius=tolerance if cosine<=.05 else min(tolerance,dist+tolerance*.125)
+                    compatible=[hit for hit in tree.find_nearest_range(Vector(point),radius) if np.dot(hit[1],nn)>.05]
                     if not compatible:continue
-                    q,source_face_normal,fi,dist=min(compatible,key=lambda hit:hit[3])
-                if not missing[y,x] and np.linalg.norm(arrays['Position'][y,x]-np.array(q))<=tolerance*.005:continue
+                    q,source_face_normal,fi,dist=min(compatible,key=lambda hit:(hit[3]/tolerance)**2+.5*(1-float(np.dot(hit[1],nn)))**2)
+                if not missing[y,x] and np.linalg.norm(arrays['Position'][y,x]-np.array(q))<=tolerance*.05:continue
                 tri=vertices[faces[fi]];e=tri[1:]-tri[0];gram=e@e.T
                 if abs(np.linalg.det(gram))<1e-24:continue
                 bw=np.linalg.solve(gram,e@(np.array(q)-tri[0]));bw=np.array([1-bw.sum(),*bw])
@@ -124,8 +126,8 @@ def repair(source,target,arrays,mask,size,tolerance,route,batch_size=8192):
         layer=data.uv_layers.new(name='LOD_TransferBake');layer.data.foreach_set('uv',uv.astype(np.float32).ravel());data.uv_layers.active=layer;layer.active_render=True
         ob=bpy.data.objects.new('LOD nearest source patches',data);scene.collection.objects.link(ob);ob.select_set(True);ob.hide_render=False;bpy.context.view_layer.objects.active=ob
         result={}
-        for channel in ['Alpha','BaseColor','ORM','Emission',*(['Transmission'] if 'Transmission' in arrays else []),*(['Clearcoat'] if 'Clearcoat' in arrays else []),'Normal']:
-            route('NormalField' if channel=='Normal' else channel)
+        for channel in ['Alpha','BaseColor','ORM','Emission',*(['Transmission'] if 'Transmission' in arrays else []),*(['Clearcoat'] if 'Clearcoat' in arrays else []),*(['CoatNormal'] if 'CoatNormal' in arrays else []),'Normal']:
+            route(channel+'Field' if channel in ('Normal','CoatNormal') else channel)
             im=bpy.data.images.new('LOD nearest '+channel,width=patch_size,height=patch_size,alpha=True,float_buffer=True);im.colorspace_settings.name='Non-Color'
             for material,node,old in bake_nodes:node.image=im;material.node_tree.nodes.active=node
             bpy.ops.object.bake(type='EMIT')
@@ -133,7 +135,7 @@ def repair(source,target,arrays,mask,size,tolerance,route,batch_size=8192):
             result[channel]=values[py,px,:3].copy();bpy.data.images.remove(im)
         valid=result['Alpha'][:,0]>.001
         for channel in result:
-            if channel=='Normal':
+            if channel in ('Normal','CoatNormal'):
                 wn=unit(result[channel]*2-1);tn=np.array([r[5] for r in batch]);tt=np.array([r[6] for r in batch]);tb=np.array([r[7] for r in batch])
                 wn*=np.where(np.sum(wn*tn,axis=1)>=0,1,-1)[:,None]
                 value=np.stack([np.sum(wn*tt,axis=1),np.sum(wn*tb,axis=1),np.sum(wn*tn,axis=1)],axis=1)*.5+.5

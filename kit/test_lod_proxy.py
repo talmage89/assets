@@ -10,8 +10,8 @@ import bpy
 import numpy as np
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from kit.lod_mesh import uv_budget,reduce_screen,topology
-from kit.lod_scene import merge_static,proxy,shell_static,planar_groups,clean_slivers
-from kit.lod_atlas import bake
+from kit.lod_scene import merge_static,proxy,shell_static,planar_groups,clean_slivers,construction_components
+from kit.lod_atlas import bake,object_from_arrays
 from kit.lod_io import Document,digest
 from kit.detachable_verify import _image
 from kit.lod_render import compare
@@ -75,6 +75,11 @@ def main():
     for shift in ([0,2,0],[0,0,.1]):
         separate=dict(POSITION=np.concatenate([board,other+shift]))
         assert len(planar_groups(separate,bt,.02))==2
+    # Closed construction shells touching at an edge remain distinct until
+    # an explicit planar merge, rather than becoming one giant convex hull.
+    touching=dict(POSITION=np.concatenate([a['POSITION'],a['POSITION']+[.25,.25,0]]))
+    separate=construction_components(touching,np.concatenate([ff,ff+36]))
+    assert sorted(map(len,separate))==[12,12],separate
     # Discrete joint IDs must not be averaged. Affine influence transport on a
     # tessellated panel should reduce and retain the same physical field.
     grid=np.array([(x/6,y/6,0) for y in range(7) for x in range(7)],np.float32);faces=[]
@@ -133,6 +138,34 @@ def main():
     decal['TEXCOORD_1']=np.tile([.75,.75],(4,1)).astype(np.float32)
     d.replace(d.data['meshes'][3]['primitives'][0],decal,np.array([[0,1,2],[0,2,3]],np.uint32))
     source=out/'source.gltf';d.save(source);before=Document(source).dependencies();d=Document(source)
+    # Equal surfaces with four times the original UV frequency require 16x
+    # chart area. Uniform world-area packing loses deliberately dense detail.
+    from kit.lod_layout import unwrap,charts
+    quad=dict(POSITION=np.array([[0,0,0],[1,0,0],[1,1,0],[0,0,0],[1,1,0],[0,1,0]],np.float32),
+              NORMAL=np.array([[0,0,1]]*3+[[.2,0,.9797959]]*3,np.float32))
+    ob=object_from_arrays('discontinuous cage',quad,np.arange(6,dtype=np.uint32).reshape(-1,3))
+    layer=ob.data.uv_layers.new(name='UVMap');layer.data.foreach_set('uv',quad['POSITION'][:,:2].ravel())
+    assert len(charts(ob.data))==2,'hard cage normals shared filtered tangent texels'
+    mesh=ob.data;bpy.data.objects.remove(ob,do_unlink=True);bpy.data.meshes.remove(mesh)
+    material=bpy.data.materials.new('Brown');src=[];dst=[]
+    for i,multiple in enumerate((1,4)):
+        ref=object_from_arrays('density source '+str(i),a,ff);ref.location.x=i*.6
+        layer=ref.data.uv_layers.new(name='LOD_SourceUV0');layer.data.foreach_set('uv',(a['TEXCOORD_0'][ff.ravel()]*multiple).ravel())
+        ref.data.materials.append(material);src.append(ref)
+        target=object_from_arrays('density target '+str(i),a,ff);target.location.x=i*.6;dst.append(target)
+    layout=unwrap(dst,src,Document(source),256,.02);areas=[]
+    for ob in dst:
+        ob.data.calc_loop_triangles();uv=ob.data.uv_layers.active.data;total=0
+        for triangle in ob.data.loop_triangles:
+            u=np.array([uv[j].uv[:] for j in triangle.loops]);e=u[1:]-u[:1]
+            total+=abs(e[0,0]*e[1,1]-e[0,1]*e[1,0])*.5
+        coords=np.array([v.uv[:] for v in uv]);assert coords.min()>-1e-5 and coords.max()<1.00001
+        areas.append(total)
+    assert 14<areas[1]/areas[0]<18,(areas,layout)
+    assert layout['gutter_pixels']>=4 and layout['uv_area']>.1,layout
+    for ob in src+dst:
+        data=ob.data;bpy.data.objects.remove(ob,do_unlink=True);bpy.data.meshes.remove(data)
+    bpy.data.materials.remove(material)
     animated=Document(source);animated.data['animations']=[dict(channels=[dict(target=dict(node=1,path='translation'))])]
     assert 'StaticB' in merge_static(animated)['separate_nodes'],'animation-only moving part was merged'
     transforms=[d.world(i).copy() for i in range(3)]
@@ -188,11 +221,57 @@ def main():
     ra,rr=trial.arrays(trial.data['meshes'][0]['primitives'][0]);vertices,inverse=np.unique(np.round(ra['POSITION'],6),axis=0,return_inverse=True);rr=inverse[rr]
     edges={tuple(sorted((int(face[a]),int(face[b])))) for face in rr for a,b in [(0,1),(1,2),(2,0)]}
     assert len(vertices)-len(edges)+len(rr)==0,'wheel hole was filled'
+    # Preserve a building's concave footprint, including closing an open
+    # bottom boundary. A convex envelope would bridge its roof valley.
+    footprint=[(0,0),(2,0),(2,1),(1,1),(1,2),(0,2)]
+    building=np.array([(x,y,z) for y in [0,1] for x,z in footprint],np.float32)
+    for bottom in (True,False):
+        mesh=bpy.data.meshes.new('concave building');polygons=[tuple(range(11,5,-1))]
+        if bottom:polygons.append(tuple(range(6)))
+        for i in range(6):j=(i+1)%6;polygons.append((i,i+6,j+6,j))
+        mesh.from_pydata(building.tolist(),[],polygons);mesh.update();mesh.calc_loop_triangles()
+        bf=np.array([t.vertices[:] for t in mesh.loop_triangles],np.uint32)
+        bn=np.cross(building[bf[:,1]]-building[bf[:,0]],building[bf[:,2]]-building[bf[:,0]]);bn/=np.linalg.norm(bn,axis=1,keepdims=True)
+        trial=Document(source)
+        for node in trial.data['nodes'][1:]:node.pop('mesh',None)
+        trial.replace(trial.data['meshes'][0]['primitives'][0],dict(POSITION=building[bf.ravel()],NORMAL=np.repeat(bn,3,axis=0),TEXCOORD_0=np.zeros((bf.size,2),np.float32)),np.arange(bf.size,dtype=np.uint32).reshape(-1,3))
+        bpy.data.meshes.remove(mesh)
+        kept=proxy(trial,100,.05);assert kept['concave_parts']==1,kept
+        aa,tt=trial.arrays(trial.data['meshes'][0]['primitives'][0])
+        from mathutils import Vector
+        from mathutils.bvhtree import BVHTree
+        tree=BVHTree.FromPolygons([Vector(v) for v in aa['POSITION']],tt.tolist(),all_triangles=True)
+        assert tree.find_nearest(Vector((1.4,.5,1.4)))[3]>.3,'roof valley was bridged'
+        assert kept['topology']['boundary_edges']==0 and kept['topology']['nonmanifold_edges']==0,kept
+        if not bottom:assert kept['closed_source_boundary_edges']>0,kept
+    # Backing size belongs to the complete construction component, rather
+    # than a single tiny triangle in a densely tessellated body panel.
+    import bmesh
+    mesh=bpy.data.meshes.new('dense backing');mesh.from_pydata(a['POSITION'].tolist(),[],ff.tolist());mesh.update()
+    bm=bmesh.new();bm.from_mesh(mesh);bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=1e-6)
+    bmesh.ops.subdivide_edges(bm,edges=list(bm.edges),cuts=7,use_grid_fill=True);bmesh.ops.triangulate(bm,faces=list(bm.faces));bm.to_mesh(mesh);bm.free();mesh.update()
+    dp=np.array([v.co[:] for v in mesh.vertices],np.float32);df=np.array([p.vertices[:] for p in mesh.polygons],np.uint32)
+    dn=np.cross(dp[df[:,1]]-dp[df[:,0]],dp[df[:,2]]-dp[df[:,0]]);dn/=np.linalg.norm(dn,axis=1,keepdims=True)
+    dense=dict(POSITION=dp[df.ravel()],NORMAL=np.repeat(dn,3,axis=0),TEXCOORD_0=np.zeros((df.size,2),np.float32));dt=np.arange(df.size,dtype=np.uint32).reshape(-1,3)
+    trim={k:v.copy() for k,v in a.items()};trim['POSITION']=trim['POSITION']*[.8,.02,.02]+[0,0,.129]
+    trial=Document(source)
+    for node in trial.data['nodes'][1:]:node.pop('mesh',None)
+    trial.replace(trial.data['meshes'][0]['primitives'][0],{k:np.concatenate([dense[k],trim[k]]) for k in dense},np.concatenate([dt,ff+len(dense['POSITION'])]))
+    bpy.data.meshes.remove(mesh)
+    kept=proxy(trial,100,.02);assert any(v['reason']=='thin attached feature' for v in kept['removed_features']),kept
+    # A support touching floor and body only at its ends remains. Vertex-only
+    # samples put every box corner at an attachment and incorrectly delete it.
+    leg={k:v.copy() for k,v in a.items()};leg['POSITION']=leg['POSITION']*[.04,.04,2]+[0,0,-.375]
+    floor={k:v.copy() for k,v in a.items()};floor['POSITION']=floor['POSITION']*[4,4,.04]+[0,0,-.63]
+    trial=Document(source)
+    for node in trial.data['nodes'][1:]:node.pop('mesh',None)
+    trial.replace(trial.data['meshes'][0]['primitives'][0],{k:np.concatenate([a[k],leg[k],floor[k]]) for k in a},np.concatenate([ff,ff+36,ff+72]))
+    kept=proxy(trial,100,.02);assert not kept['removed_features'],'freestanding support was removed'
     d=Document(source);r=proxy(d,150,.075)
     assert r['triangles']<=150 and not r['topology']['boundary_edges'] and not r['topology']['nonmanifold_edges'],r
     path=out/'proxy.gltf';result=bake(d,source,path,128,proxy=True,projection_m=.08);d.save(path)
     delivered=Document(path);stats=delivered.stats()
-    assert stats['materials']==stats['draw_calls']==1 and len(stats['images'])==5,stats
+    assert stats['materials']==stats['draw_calls']==1 and len(stats['images'])==6,stats
     assert all(i['size']==[128,128] for i in stats['images'])
     assert result['zero_alpha_interior_texels']<=result['uv_covered_texels']*.001,result
     # The sub-0.1% UV-edge raster discrepancy is reported, not filled over.
@@ -228,13 +307,18 @@ def main():
     assert Document(source).dependencies()==before,'proxy bake modified LOD0'
     # A real normal map must carry face changes; a constant blue stand-in fails.
     assert np.std(normal[:,:,:2])>.01
+    coatnormal=_image(delivered.image(5))*2-1
+    assert np.max(np.abs(np.linalg.norm(coatnormal[:,:,:3],axis=2)-1))<.007
+    assert np.max(np.abs(coatnormal-normal))>.02,'base bump was incorrectly reused for clearcoat'
     # Near HDR atlases must not make an originally non-emitting material
     # emit. A bright neighboring label can otherwise bleed across chart mips.
     near=Document(source);nearpath=out/'near.gltf'
-    bake(near,source,nearpath,128,projection_m=.08);near.save(nearpath)
+    bake(near,source,nearpath,128,projection_m=.08,composite_alpha=True);near.save(nearpath)
     assert near.data['materials'][0].get('emissiveFactor')==[0,0,0]
     assert 'emissiveTexture' not in near.data['materials'][0]
     assert near.data['materials'][1].get('emissiveTexture') is not None
+    coat=near.data['materials'][0]['extensions']['KHR_materials_clearcoat']
+    assert coat['clearcoatNormalTexture']['index']!=near.data['materials'][0]['normalTexture']['index']
     print('LOD PROXY FIXTURE PASS: projected pruning, mip-relative UV budget, silhouette IoU, material merge, pivot preservation, closed budgeted shell, real immutable-source PBR/normal bake')
 
 if __name__=='__main__':main()

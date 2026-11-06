@@ -103,13 +103,8 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
     for si,ob in source_objects.items():
         if ob not in high and ob.name in sc.objects:bpy.data.objects.remove(ob,do_unlink=True)
     if not targets or not high:raise ValueError('Empty atlas projection')
-    # A shared UV pack across all parts, with a mip-safe physical gutter.
-    bpy.ops.object.select_all(action='DESELECT')
-    for ob in targets:ob.select_set(True)
-    bpy.context.view_layer.objects.active=targets[0]
-    bpy.ops.object.mode_set(mode='EDIT');bpy.ops.mesh.select_all(action='SELECT')
-    bpy.ops.uv.smart_project(angle_limit=math.radians(66),island_margin=4/size,correct_aspect=False,scale_to_bounds=True)
-    bpy.ops.object.mode_set(mode='OBJECT')
+    from kit.lod_layout import unwrap
+    layout_report=unwrap(targets,high,original,size,projection_m/1.5)
     for p,attrs,faces,ob,matrix in records:
         uv=np.empty((len(ob.data.loops),2),np.float32);ob.data.uv_layers.active.data.foreach_get('uv',uv.ravel());uv[:,1]=1-uv[:,1]
         # Corner expansion deliberately preserves hard normals and other data.
@@ -170,18 +165,19 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
     def route(channel):
         for nt,output,bsdf,original_socket,emit,combine,ao in routes:
             if channel=='Normal':nt.links.new(original_socket,output.inputs['Surface']);continue
-            if channel=='NormalField':
+            if channel in ('NormalField','CoatNormalField'):
                 # NORMAL self-baking returns geometric normals in Blender 5.2.
                 # Evaluate the delivered BSDF normal input as a shader field,
                 # including its normal map, then encode world direction.
-                if nt not in normal_nodes:
+                normal_key=(nt,channel)
+                if normal_key not in normal_nodes:
                     geometry=nt.nodes.new('ShaderNodeNewGeometry')
                     normalize=nt.nodes.new('ShaderNodeVectorMath');normalize.operation='NORMALIZE'
                     encode=nt.nodes.new('ShaderNodeVectorMath');encode.operation='MULTIPLY_ADD'
                     encode.inputs[1].default_value=(.5,.5,.5);encode.inputs[2].default_value=(.5,.5,.5)
-                    nt.links.new(normalize.outputs[0],encode.inputs[0]);normal_nodes[nt]=(geometry,normalize,encode)
-                geometry,normalize,encode=normal_nodes[nt]
-                socket=bsdf.inputs['Normal']
+                    nt.links.new(normalize.outputs[0],encode.inputs[0]);normal_nodes[normal_key]=(geometry,normalize,encode)
+                geometry,normalize,encode=normal_nodes[normal_key]
+                socket=bsdf.inputs['Coat Normal' if channel=='CoatNormalField' else 'Normal']
                 nt.links.new(socket.links[0].from_socket if socket.is_linked else geometry.outputs['Normal'],normalize.inputs[0])
                 nt.links.new(encode.outputs[0],emit.inputs['Color'])
             elif channel=='Position':
@@ -212,8 +208,9 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
     arrays={};report={}
     alpha_names={m.get('name') for m in original.data.get('materials',[]) if m.get('alphaMode')=='BLEND'}
     underlay=(proxy or composite_alpha) and any(m.name in alpha_names for m in mats)
-    channels=('BaseColor','Alpha','Position','ORM','Emission',*(('Transmission',) if proxy or composite_alpha else ()),*(('Clearcoat',) if proxy else ()),'Normal')
-    if underlay:channels+=('BaseColorUnder','EmissionUnder','ORMUnder','NormalUnder','AlphaUnder','PositionUnder','TransmissionUnder',*(('ClearcoatUnder',) if proxy else ()))
+    coat_required=(proxy or composite_alpha) and any(m.get('extensions',{}).get('KHR_materials_clearcoat',{}).get('clearcoatFactor',0)>0 for m in doc.data.get('materials',[]))
+    channels=('BaseColor','Alpha','Position','ORM','Emission',*(('Transmission',) if proxy or composite_alpha else ()),*(('Clearcoat',) if proxy else ()),*(('CoatNormal',) if coat_required else ()),'Normal')
+    if underlay:channels+=('BaseColorUnder','EmissionUnder','ORMUnder','NormalUnder','AlphaUnder','PositionUnder','TransmissionUnder',*(('ClearcoatUnder',) if proxy else ()),*(('CoatNormalUnder',) if coat_required else ()))
     for label in channels:
         channel=label.removesuffix('Under')
         if label=='BaseColorUnder':
@@ -225,7 +222,7 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
             bm.to_mesh(under.data);bm.free()
             high.hide_render=True;high.select_set(False);under.select_set(True)
             bpy.context.view_layer.objects.active=target
-        route('NormalField' if channel=='Normal' else channel)
+        route(channel+'Field' if channel in ('Normal','CoatNormal') else channel)
         im=bpy.data.images.new('LOD '+label,width=size,height=size,alpha=True,float_buffer=True)
         im.colorspace_settings.name='Non-Color';tex.image=im
         bpy.ops.object.bake(type='EMIT')
@@ -243,7 +240,7 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
     exact=np.zeros((size,size),bool)
     for yy,xx,point,nn,tt,bb,footprint in raster(target,size):
         exact[yy,xx]=True
-        for label in ('Normal','NormalUnder'):
+        for label in ('Normal','NormalUnder','CoatNormal','CoatNormalUnder'):
             if label not in arrays:continue
             world=arrays[label][yy,xx]*2-1
             world/=np.maximum(np.linalg.norm(world,axis=1,keepdims=True),1e-20)
@@ -278,8 +275,11 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
     has_transmission=(proxy or composite_alpha) and bool(transmission.max()>.001)
     clearcoat=_pull_push(arrays['Clearcoat'],visible) if proxy else None
     has_clearcoat=proxy and bool(clearcoat[:,:,0].max()>.001)
+    has_coatnormal=coat_required and (has_clearcoat if proxy else True)
+    coatnormal=_pull_push(arrays['CoatNormal'],visible)*2-1 if has_coatnormal else None
+    if has_coatnormal:coatnormal/=np.maximum(np.linalg.norm(coatnormal,axis=2,keepdims=True),1e-20)
     files={}
-    for name,a in [('BaseColor',np.concatenate([linear_to_srgb(base),alpha],axis=2)),('ORM',orm),('Normal',normal*.5+.5)]+([('Emission',linear_to_srgb(emission/strength))] if has_emission else [])+([('Transmission',np.repeat(transmission,3,axis=2))] if has_transmission else [])+([('Clearcoat',clearcoat)] if has_clearcoat else []):
+    for name,a in [('BaseColor',np.concatenate([linear_to_srgb(base),alpha],axis=2)),('ORM',orm),('Normal',normal*.5+.5)]+([('Emission',linear_to_srgb(emission/strength))] if has_emission else [])+([('Transmission',np.repeat(transmission,3,axis=2))] if has_transmission else [])+([('Clearcoat',clearcoat)] if has_clearcoat else [])+([('CoatNormal',coatnormal*.5+.5)] if has_coatnormal else []):
         f=dest/f'T_{path.stem}_{name}.png';write_png(f,np.clip(a,0,1));files[name]=f
     oldmaterials=copy.deepcopy(doc.data.get('materials',[]))
     doc.data['images']=[dict(name=k,uri=os.path.relpath(v,doc.path.parent)) for k,v in files.items()]
@@ -304,14 +304,15 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
                 m.setdefault('extensions',{})['KHR_materials_ior']=dict(ior=next(iter(iors)))
                 if 'KHR_materials_ior' not in doc.data.setdefault('extensionsUsed',[]):doc.data['extensionsUsed'].append('KHR_materials_ior')
         if has_clearcoat:
-            m.setdefault('extensions',{})['KHR_materials_clearcoat']=dict(clearcoatFactor=1,clearcoatRoughnessFactor=1,clearcoatTexture=dict(index=ids['Clearcoat']),clearcoatRoughnessTexture=dict(index=ids['Clearcoat']),clearcoatNormalTexture=dict(index=ids['Normal']))
+            m.setdefault('extensions',{})['KHR_materials_clearcoat']=dict(clearcoatFactor=1,clearcoatRoughnessFactor=1,clearcoatTexture=dict(index=ids['Clearcoat']),clearcoatRoughnessTexture=dict(index=ids['Clearcoat']),clearcoatNormalTexture=dict(index=ids['CoatNormal']))
             if 'KHR_materials_clearcoat' not in doc.data.setdefault('extensionsUsed',[]):doc.data['extensionsUsed'].append('KHR_materials_clearcoat')
-        # Native near primitives retain their delivered emission membership.
-        # Giving an HDR atlas to a non-emitting material causes light to bleed
-        # into unrelated UV islands through trilinear mips. Reconstructed
-        # shells instead require spatial emission on their common material.
+        elif has_coatnormal and m.get('extensions',{}).get('KHR_materials_clearcoat',{}).get('clearcoatFactor',0)>0:
+            m['extensions']['KHR_materials_clearcoat']['clearcoatNormalTexture']=dict(index=ids['CoatNormal'])
+        # Native material membership remains exact, including reconstructed
+        # multi-material shells; only the one-material proxy needs emission
+        # everywhere via its spatial map.
         native_emits=any(v>0 for v in m.get('emissiveFactor',[0,0,0]))
-        if has_emission and (proxy or composite_alpha or native_emits):
+        if has_emission and (proxy or native_emits):
             m['emissiveTexture']=dict(index=ids['Emission']);m['emissiveFactor']=[1,1,1]
             m.setdefault('extensions',{})['KHR_materials_emissive_strength']=dict(emissiveStrength=strength)
             if 'KHR_materials_emissive_strength' not in doc.data.setdefault('extensionsUsed',[]):doc.data['extensionsUsed'].append('KHR_materials_emissive_strength')
@@ -321,7 +322,7 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
     doc.data['materials']=materials
     if proxy:
         for _,_,p in doc.primitives():p['material']=0
-    report.update(baked_channels=list(channels),used_underlay=underlay,source_sha256=digest(source),size=size,projection_m=projection_m,isolated_groups=len(used),
+    report.update(layout=layout_report,baked_channels=list(channels),used_underlay=underlay,source_sha256=digest(source),size=size,projection_m=projection_m,isolated_groups=len(used),
                   uv_covered_texels=int(mask.sum()),zero_alpha_interior_texels=int(np.count_nonzero(interior & (arrays['Alpha'][:,:,0]<.01))),
                   maps={k:dict(bytes=v.stat().st_size,sha256=digest(v)) for k,v in files.items()})
     (dest/'bake.json').write_text(json.dumps(report,indent=2)+'\n')

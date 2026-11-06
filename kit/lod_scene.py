@@ -1,6 +1,7 @@
 """LOD-only assembly consolidation and closed proxies in delivered space."""
 import copy
 import fnmatch
+import math
 
 import bpy
 import bmesh
@@ -65,13 +66,35 @@ def merge_static(doc,protected_patterns=(),include_roots=()):
     return dict(static_groups=receipt,separate_nodes=[doc.data['nodes'][i].get('name') for i in keep])
 
 
+def construction_components(attrs,faces):
+    """Separate shells meeting at a point or a nonmanifold assembly edge.
+
+    Vertex connectivity joins whole roof assemblies through touching trim and
+    makes a convex envelope bridge valleys. Manifold edge adjacency retains
+    the actual surfaces; coplanar neighbors can then merge deliberately.
+    """
+    _,remap=np.unique(np.round(attrs['POSITION'],7),axis=0,return_inverse=True)
+    parent=np.arange(len(faces));edges={}
+    def root(i):
+        while parent[i]!=i:parent[i]=parent[parent[i]];i=parent[i]
+        return i
+    for fi,face in enumerate(remap[faces]):
+        for a,b in ((face[0],face[1]),(face[1],face[2]),(face[2],face[0])):
+            edges.setdefault(tuple(sorted((int(a),int(b)))),[]).append(fi)
+    for ids in edges.values():
+        if len(ids)==2:parent[root(ids[1])]=root(ids[0])
+    groups={}
+    for fi in range(len(faces)):groups.setdefault(root(fi),[]).append(fi)
+    return list(groups.values())
+
+
 def planar_groups(attrs,faces,meters_per_pixel):
     """Merge neighboring coplanar construction, including separate siding boards.
 
     A half-pixel depth band can become one shell with new baked charts. Spatial
     adjacency prevents unrelated modules on the same plane filling the air.
     """
-    groups=components(attrs,faces);flat=[];parent=list(range(len(groups)))
+    groups=construction_components(attrs,faces);flat=[];parent=list(range(len(groups)))
     def root(i):
         while parent[i]!=i:parent[i]=parent[parent[i]];i=parent[i]
         return i
@@ -138,6 +161,10 @@ def proxy(doc,target,meters_per_pixel,preserve_concavity=()):
     tt=positions[faces];source_areas=np.linalg.norm(np.cross(tt[:,1]-tt[:,0],tt[:,2]-tt[:,0]),axis=1)*.5
     points=[];triangles=[];offset=0;removed=[];concave=0;envelopes=0;pieces=[]
     groups=planar_groups(attrs,faces,mpp)
+    component_index=np.empty(len(faces),np.int32)
+    component_area=np.array([source_areas[ids].sum() for ids,count in groups])
+    for gi,(ids,count) in enumerate(groups):component_index[ids]=gi
+    capped_edges=0
     for ids,merged_count in groups:
         ff=faces[ids];unique,remap=np.unique(ff,return_inverse=True);pp=positions[unique];ff=remap.reshape(-1,3)
         _,first,weld=np.unique(np.round(pp,8),axis=0,return_index=True,return_inverse=True);pp=pp[first];ff=weld[ff]
@@ -148,9 +175,10 @@ def proxy(doc,target,meters_per_pixel,preserve_concavity=()):
         extent=np.sort(np.ptp(centered@axes,axis=0)/mpp)
         thin=extent[1]<1.5 and extent[2]<48
         if thin:
-            own=set(map(int,ids));sample=pp[np.linspace(0,len(pp)-1,min(12,len(pp)),dtype=int)]
+            own=set(map(int,ids));centers=positions[faces[ids]].mean(axis=1)
+            sample=centers[np.linspace(0,len(centers)-1,min(12,len(centers)),dtype=int)]
             area=float(extent[1]*extent[2]*mpp*mpp)
-            attached=sum(any(fi not in own and source_areas[fi]>area*2 for q,n,fi,d in reference.find_nearest_range(Vector(p),mpp*1.5)) for p in sample)
+            attached=sum(any(fi not in own and component_area[component_index[fi]]>area*2 for q,n,fi,d in reference.find_nearest_range(Vector(p),mpp*1.5)) for p in sample)
             if attached>=len(sample)*.6:
                 removed.append(dict(triangles=len(ff),diameter_pixels=diameter,reason='thin attached feature',attached_samples=attached,samples=len(sample)));continue
         # Restore a real closed thickness to open planar source sheets.
@@ -166,14 +194,28 @@ def proxy(doc,target,meters_per_pixel,preserve_concavity=()):
         if unused:bmesh.ops.delete(bm,geom=unused,context='VERTS')
         bmesh.ops.triangulate(bm,faces=list(bm.faces));bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces))
         hull_volume=abs(bm.calc_volume(signed=True))
-        source_volume=abs(float(np.einsum('ij,ij->i',pp[ff[:,0]]-centroid,np.cross(pp[ff[:,1]]-centroid,pp[ff[:,2]]-centroid)).sum()/6))
-        top,_=topology(dict(POSITION=pp),ff)
-        preserve=merged_count==1 and not top['boundary_edges'] and not top['nonmanifold_edges'] and (protected[ids].any() or (source_volume<hull_volume*.6 and extent[0]<extent[2]*.12))
+        native=bmesh.new()
+        for point in pp:native.verts.new(point)
+        native.verts.ensure_lookup_table()
+        for triangle in ff:
+            try:native.faces.new([native.verts[int(i)] for i in triangle])
+            except ValueError:pass
+        bmesh.ops.remove_doubles(native,verts=list(native.verts),dist=1e-6)
+        boundary=[e for e in native.edges if e.is_boundary]
+        if boundary:bmesh.ops.holes_fill(native,edges=boundary,sides=0)
+        bmesh.ops.triangulate(native,faces=list(native.faces));bmesh.ops.recalc_face_normals(native,faces=list(native.faces))
+        native_closed=bool(native.faces) and all(len(e.link_faces)==2 for e in native.edges)
+        source_volume=abs(native.calc_volume(signed=True)) if native_closed else 0
+        native_closed=native_closed and source_volume>max(hull_volume,1e-20)*1e-8
+        # Large concave shells matter as much as thin tubes: convexifying an
+        # L-shaped roof bridges its valley, beyond the projection allowance.
+        preserve=merged_count==1 and native_closed and (protected[ids].any() or source_volume<hull_volume*.95)
         planes=[(np.array(f.normal),np.array(f.verts[0].co)) for f in bm.faces]
         mesh=bpy.data.meshes.new('LOD construction envelope')
         if preserve:
-            bm.free();mesh.from_pydata(pp.tolist(),[],ff.tolist());concave+=1
+            bm.free();native.to_mesh(mesh);concave+=1;capped_edges+=len(boundary)
         else:bm.to_mesh(mesh);bm.free();envelopes+=1
+        native.free()
         mesh.update()
         vv=np.array([v.co[:] for v in mesh.vertices],np.float32);tt=np.array([p.vertices[:] for p in mesh.polygons],np.uint32)
         # Separate overlapping manufactured shells retain distinct topology.
@@ -207,8 +249,10 @@ def proxy(doc,target,meters_per_pixel,preserve_concavity=()):
     clean_slivers(ob.data,mpp)
     vertices=np.array([v.co[:] for v in ob.data.vertices],np.float32)
     faces=np.array([p.vertices[:] for p in ob.data.polygons],np.uint32)
-    normals=np.array([p.normal[:] for p in ob.data.polygons],np.float32)
-    aa=dict(POSITION=vertices[faces.ravel()],NORMAL=np.repeat(normals,3,axis=0));ff=np.arange(len(aa['POSITION']),dtype=np.uint32).reshape(-1,3)
+    for polygon in ob.data.polygons:polygon.use_smooth=True
+    ob.data.set_sharp_from_angle(angle=math.radians(35));ob.data.update()
+    normals=np.array([n.vector[:] for n in ob.data.corner_normals],np.float32)
+    aa=dict(POSITION=vertices[faces.ravel()],NORMAL=normals);ff=np.arange(len(aa['POSITION']),dtype=np.uint32).reshape(-1,3)
     report,_=topology(aa,ff)
     if any(report[k] for k in ('boundary_edges','nonmanifold_edges','degenerate','slivers')):
         raise ValueError('Construction proxy is not clean/closed: '+str(report))
@@ -218,7 +262,7 @@ def proxy(doc,target,meters_per_pixel,preserve_concavity=()):
     doc.data['scenes'][doc.data.get('scene',0)].setdefault('nodes',[]).append(ni)
     doc.data.pop('skins',None);doc.data.pop('animations',None)
     return dict(method='closed construction envelopes',requested_budget_triangles=target,preserved_concave_nodes=concave_nodes,envelopes=envelopes,concave_parts=concave,planar_merged_components=sum(n-1 for ids,n in groups),removed_enclosed_parts=enclosed,
-        removed_features=removed,input_envelope_triangles=pre,triangles=len(ff),topology=report,
+        closed_source_boundary_edges=capped_edges,removed_features=removed,input_envelope_triangles=pre,triangles=len(ff),topology=report,
         merged_parts=[doc.data['nodes'][i].get('name') for i in source_ids])
 
 

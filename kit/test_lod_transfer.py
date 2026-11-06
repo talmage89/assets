@@ -22,10 +22,10 @@ def main():
     color=nt.nodes.new('ShaderNodeCombineColor');nt.links.new(split.outputs[0],color.inputs[0]);color.inputs[1].default_value=.2
     nt.links.new(color.outputs[0],bsdf.inputs['Base Color'])
     def route(channel):
-        if channel=='NormalField':
+        if channel in ('NormalField','CoatNormalField'):
             geometry=nt.nodes.new('ShaderNodeNewGeometry');encode=nt.nodes.new('ShaderNodeVectorMath');encode.operation='MULTIPLY_ADD'
             encode.inputs[1].default_value=(.5,.5,.5);encode.inputs[2].default_value=(.5,.5,.5)
-            socket=bsdf.inputs['Normal']
+            socket=bsdf.inputs['Coat Normal' if channel=='CoatNormalField' else 'Normal']
             nt.links.new(socket.links[0].from_socket if socket.is_linked else geometry.outputs['Normal'],encode.inputs[0])
             nt.links.new(encode.outputs[0],emit.inputs['Color']);nt.links.new(emit.outputs[0],out.inputs['Surface']);return
         for link in list(emit.inputs['Color'].links):nt.links.remove(link)
@@ -52,12 +52,16 @@ def main():
     for socket,value in zip(direction.inputs,wanted):socket.default_value=float(value)
     nt.links.new(direction.outputs[0],bsdf.inputs['Normal'])
     oblique={k:np.zeros_like(v) for k,v in arrays.items()}
+    oblique['CoatNormal']=np.zeros_like(oblique['Normal'])
     result=repair(source,target,oblique,mask,size,.5,route)
     assert result['repaired']==size*size,result
     for yy,xx,p,n,t,b,footprint in raster(target,size):
         tangent=oblique['Normal'][yy,xx]*2-1
         world=t*tangent[:,0,None]+b*tangent[:,1,None]+n*tangent[:,2,None]
         assert np.max(np.abs(world-wanted))<1e-4,(world.min(axis=0),world.max(axis=0),wanted)
+        coat=oblique['CoatNormal'][yy,xx]*2-1
+        coatworld=t*coat[:,0,None]+b*coat[:,1,None]+n*coat[:,2,None]
+        assert np.max(np.abs(coatworld-[0,0,1]))<1e-4,'coat normal incorrectly reused base normal'
     target.rotation_euler.y=0;nt.nodes.remove(direction);bpy.context.view_layer.update()
     # A ray may hit an opaque neighbor: alpha alone cannot identify the wrong
     # surface. The baked source position makes that false hit measurable.
