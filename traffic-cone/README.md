@@ -73,21 +73,24 @@ interior mask, and BaseColor has zero black interior samples.
 <!-- LOD checkpoint: begin -->
 ## Additional LODs
 
-`make lod` builds additional glTF/BIN files under `export/lod/`; `make check-lod` independently checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
 
-| Level | Triangles / target | Materials | Geometry bytes | PNG bytes | Total load bytes | GPU textures + mesh, MiB | Switch height / distance |
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU textures + mesh, MiB | Switch height / distance |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| LOD0 | 872 / — | 1 | 47,708 | 307,676 | 355,384 | 1.000 + 0.0434 | near |
-| LOD1 | 776 / 523 | 1 | 46,434 | 307,676 | 354,110 | 1.000 + 0.0424 | 25.0% / 2.46 m |
-| LOD2 | 748 / 262 | 1 | 43,355 | 101,597 | 144,952 | 0.250 + 0.0395 | 10.0% / 6.16 m |
+| LOD0 | 872 / — | 1 / 1 | 47,708 | 307,676 | 355,384 | 1.000 + 0.0434 | near |
+| LOD1 | 348 / 349 | 1 / 1 | 21,732 | 234,534 | 256,266 | 1.000 + 0.0188 | 25.0% / 2.46 m |
+| LOD2 | 268 / 131 | 1 / 1 | 20,643 | 61,322 | 81,965 | 0.250 + 0.0178 | 9.0% / 6.84 m |
 
-Distances are to the bound center at a 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. PNG storage is separate. Each row is a cold load; URI/content caching can share images across levels. Targets are aspirations: the achieved counts retain geometry when reduction fails seam, silhouette, shading or topology checks.
+Chain check: True; image check: True; normal check: True.
 
-Load the original and additional files as alternatives and explicitly configure Godot visibility ranges, Unity LODGroup renderers, or corresponding Unreal mesh/component LODs. A filename does not create an engine controller. Keep matching pivots in the same pose during switching. [Engine sources, thresholds, texture policy and limitations](../kit/LOD.md).
 
-All ordinary moving geometry, sockets, skins and their frames stay separate and retain their delivered data. No pilot merges moving parts into its body. Embedded original PNGs are extracted once for the additional near levels; the original GLB keeps its embedded copy. A distant texture set saves residency only when larger maps are unloaded or streamed.
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Each row is a cold load. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
 
-Native-pixel comparison strips, amplified differences and close views of every level: `renders/lod/`. The local `contact.jpg` indexes them; `metrics.json` records original/adjacent comparisons from three azimuths. Raw checks and immutable-input hashes: `export/lod/check.json` and `manifest.json`. Rejected component reductions: `build/lod/<source stem>/simplification.json`. [Two critique passes and the six-pilot sheet](../kit/LOD_REVIEW.md).
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. LOD2 closes and simplifies static construction where configured. New charts are baked from the immutable delivered maps and shaders. Larger maps must be released or streamed for distant residency savings.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/check.json` and `normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/<source stem>/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
 
 Shipped PNG dimensions: LOD0: 3 × 512×512; LOD1: 3 × 512×512; LOD2: 3 × 256×256.
 
