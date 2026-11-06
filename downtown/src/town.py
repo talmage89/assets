@@ -21,6 +21,7 @@ def instance_block(path,location,yaw,name):
  for ob in obs:
   if ob.parent is None:ob.parent=root
  root.location=location;root.rotation_euler.z=math.radians(yaw)
+ for ob in list(obs)+[root]:ob['town_group']=name
  return list(obs)+[root]
 
 
@@ -39,15 +40,15 @@ def setting(p,mats,append,rows,street):
   for yy in (far+walk/2,-walk/2):b.box(((lo+hi)/2,yy,-.075),(hi-lo,walk,.15),'Mineral',(.43,.43,.41))
  for side in (-1,1):
   xx=side*(W/2+walk+road/2)
-  b.box((xx,25,-.203),(road,200,.095),'Roof',(.085,.086,.080))
-  for off in (-1,1):b.box((xx+off*(road/2+walk/2),25,-.075),(walk,200,.15),'Mineral',(.40,.40,.37))
+  b.box((xx,25,-.206),(road,200,.095),'Roof',(.085,.086,.080))
+  for off in (-1,1):b.box((xx+off*(road/2+walk/2),25,-.077),(walk,200,.15),'Mineral',(.40,.40,.37))
  # Neighborhood grades support the original house foundations at Z=0.
- for yy in (D+28,far-D-28):
-  b.box((45,yy,-.11),(260,30,.22),'Mineral',(.095,.13,.055))
+ for yy in (D+69.01,far-D-69.01):
+  b.box((45,yy,-.11),(360,100,.22),'Mineral',(.095,.13,.055))
  for yy in (D+12,far-D-12):
-  b.box((45,yy,-.203),(260,8,.095),'Roof',(.085,.086,.080))
+  b.box((45,yy,-.203),(360,8,.095),'Roof',(.085,.086,.080))
  for yy in (D+17.5,far-D-17.5):
-  b.box((45,yy,-.075),(260,3,.15),'Mineral',(.43,.43,.41))
+  b.box((45,yy,-.075),(360,3,.15),'Mineral',(.43,.43,.41))
  # Things left by tenants: entry planters, crates and folding menu boards.
  for lot in p['lots']:
   if lot['index']%2:
@@ -74,11 +75,12 @@ def setting(p,mats,append,rows,street):
   obs+=append(rows['light'],(pos[0]+2.2,pos[1]-.35,0))
   obs+=append(rows['maple'],(pos[0]+5,far+walk-1,0),65+i*23,.30 if i<2 else .43)
   obs+=append(rows['light'],(pos[0]+6,far+walk-.65,0),180)
- for i in range(7):
-  xx=-W*.9+i*26
+ for i in range(11):
+  xx=-W*1.4+i*26
   obs+=append(rows['house'],(xx,D+28,0),0)
   obs+=append(rows['maple'],(xx+11,D+19,0),i*31,.68)
-  obs+=append(rows['house'],(xx,far-D-25,0),180)
+  obs+=append(rows['house'],(xx,far-D-28,0),180)
+  for yy in (D+52,far-D-52):obs+=append(rows['maple'],(xx+5,yy,0),i*53,.70+.04*(i%3))
  return obs
 
 

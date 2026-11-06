@@ -59,7 +59,13 @@ def apply_light(shot,p):
  if balance is None:
   balance=sc.world.node_tree.nodes.new('ShaderNodeMixRGB');balance.name='Dusk sky balance';balance.blend_type='MULTIPLY';balance.inputs[0].default_value=1
   sc.world.node_tree.links.new(sky.outputs[0],balance.inputs[1]);sc.world.node_tree.links.new(balance.outputs[0],bg.inputs[0])
- balance.inputs[2].default_value=(.35,.55,1.3,1) if dusk else (1,1,1,1); bg.inputs[1].default_value=.13 if dusk else shot.get('sky_strength',.16)
+ balance.inputs[2].default_value=(.35,.55,1.3,1) if dusk else (1,1,1,1)
+ overcast=sc.world.node_tree.nodes.get('Neutral overcast')
+ if overcast is None:
+  overcast=sc.world.node_tree.nodes.new('ShaderNodeMixRGB');overcast.name='Neutral overcast'
+  sc.world.node_tree.links.new(balance.outputs[0],overcast.inputs[1]);sc.world.node_tree.links.new(overcast.outputs[0],bg.inputs[0])
+ overcast.inputs[0].default_value=1 if shot.get('overcast') else 0;overcast.inputs[2].default_value=(.8,.8,.8,1)
+ bg.inputs[1].default_value=.13 if dusk else shot.get('sky_strength',.16)
  sun=next(o for o in sc.objects if o.type=='LIGHT' and o.data.type=='SUN');sun.data.energy=.06 if dusk else shot.get('sun_energy',3)
  sun.rotation_euler=Vector(shot.get('sun_direction',(.7,.65,-.52))).to_track_quat('-Z','Y').to_euler()
  sc.view_settings.exposure=shot.get('exposure',.40 if dusk else -.35)
@@ -69,12 +75,12 @@ def apply_light(shot,p):
  if dusk:
   bpy.context.view_layer.update()
   for i,emitter in enumerate([o for o in sc.objects if o.get('socket_kind')=='engine_light']):
-   l=bpy.data.lights.new('Street lamp pool '+str(i),'AREA');l.energy=160;l.color=(1,.74,.46);l.size=.30
+   l=bpy.data.lights.new('Street lamp pool '+str(i),'AREA');l.energy=650;l.color=(1,.74,.46);l.size=.30
    o=bpy.data.objects.new(l.name,l);sc.collection.objects.link(o);o.location=emitter.matrix_world.translation
  for m in bpy.data.materials:
-  if m.use_nodes and m.name.startswith(('Lamp','LED','Diffuser')):
+  if m.use_nodes and ('LED phosphor' in m.name or m.name.startswith(('Lamp','LED','Diffuser'))):
    q=next((n for n in m.node_tree.nodes if n.type=='BSDF_PRINCIPLED'),None)
-   if q:q.inputs['Emission Strength'].default_value=25 if dusk else 0
+   if q:q.inputs['Emission Strength'].default_value=100 if dusk else 0
 
 def append_context(row,loc,yaw=0,scale=1):
  path=Path(row['path']);assert hashlib.sha256(path.read_bytes()).hexdigest()==row['sha256'];before=set(bpy.data.objects)
@@ -93,6 +99,7 @@ def append_context(row,loc,yaw=0,scale=1):
   if ob.parent is None:ob.parent=root
  root.location=loc;root.rotation_euler.z=math.radians(yaw);root.scale=(scale,)*3
  for ob in obs:
+  ob['presentation_side']='opposite' if loc[1]<-12 else 'near'
   if row['name'] in ('pickup','crossover','hatchback') and ob.type=='MESH':
    for m in ob.data.materials:
     if m and m.use_nodes and m.name.startswith('Clay body'):
@@ -134,12 +141,17 @@ def render_block(region,out,width,samples,selected=None,camera_file=None,engine=
  from kit.studio import human
  silhouette=human();offset=Vector((p['lots'][1]['x']+1.03,-1.04,0))
  for o in silhouette:o.location+=offset;o.hide_render=True
+ cm=next(v for v in p['lots'] if v['cornice']=='metal')
+ shots['cornice_profile']=dict(location=(cm['x']+3.8,-5.4,cm['height']-1.3),target=(cm['x']-.55,0,cm['height']-.45),lens=42,aspect=1.5)
+ if region=='northeast':
+  hl=p['lots'][3];hx=hl['x']-hl['width']/2+hl['width']/8;hz=hl['floor_first']+hl['upper']+.65+1.15
+  shots['hood']=dict(location=(hx+2.2,-4.2,hz-.10),target=(hx,0,hz),lens=45,aspect=.95)
  shots['scale']=dict(location=(p['lots'][1]['x']+4,-20,1.60),target=(p['lots'][1]['x'],0,4.2),lens=50,aspect=1.35)
  for n in ('across','above','rear'):shots[n]['context']=True
  shots['dusk']=dict(shots['hero'],dusk=True,location=(-p['width']/2-3,-p['walk']-p['road_width']-1,1.60),target=(-p['width']/2+20,0,3.8),lens=35)
  shots['awning']=dict(shots['storefront'],location=[p['lots'][1]['x']+1.2,-4.4,p['lots'][1]['floor_first']-.80],target=[p['lots'][1]['x'],0,p['lots'][1]['floor_first']-.95],lens=38,aspect=1.6)
  if camera_file:shots={k:v['shot'] for k,v in json.loads(camera_file.read_text()).items() if v.get('region',region)==region}
- names=selected.split(',') if selected else list(shots) if camera_file else (['hero','dusk','across','above','rear','storefront','window','cornice','corner','ghost','escape','awning','scale'] if region=='midwest' else ['across','above','rear']+(['storefront'] if region=='northeast' else [])+(['gallery'] if region=='southern' else []))
+ names=selected.split(',') if selected else list(shots) if camera_file else (['hero','dusk','across','above','rear','storefront','window','cornice','corner','ghost','escape','awning','scale','cornice_profile'] if region=='midwest' else ['across','above','rear']+(['storefront','hood'] if region=='northeast' else [])+(['gallery'] if region=='southern' else []))
  context=[];manifest=Path('build/context/manifest.json')
  if manifest.exists():
   rows={r['name']:r for r in json.loads(manifest.read_text())}
@@ -151,7 +163,7 @@ def render_block(region,out,width,samples,selected=None,camera_file=None,engine=
   apply_light(shot,p)
   for o in context:
    o.hide_render=False
-   o.visible_camera=shot.get('context',False)
+   o.visible_camera=shot.get('context',False) and not (name=='across' and (o.get('town_group')=='Opposite block' or o.get('presentation_side')=='opposite'))
    o.visible_shadow=shot.get('context',False)
   camera.location=shot['location'];camera.rotation_euler=(Vector(shot['target'])-camera.location).to_track_quat('-Z','Y').to_euler();camera.rotation_euler.rotate_axis('Z',shot.get('roll',0));camera.data.lens=shot.get('lens',45)
   sc=bpy.context.scene;sc.render.resolution_x=width;sc.render.resolution_y=round(width/shot.get('aspect',1.6));sc.render.resolution_percentage=100
@@ -169,7 +181,7 @@ def render_block(region,out,width,samples,selected=None,camera_file=None,engine=
   if camera_file:
    import shutil
    raw=out.parent/'raw';raw.mkdir(exist_ok=True);shutil.copyfile(out/(name+'.png'),raw/(name+'.png'))
-  report[name]=dict(source=str(source),sha256=digest,source_look=source_look,stage=('Original 4096 material fields on exported mesh' if source_look else p['stage']),engine=engine,camera=shot,street_triangles=street['triangles'],bundles=[dict(path=r['source'],sha256=bundle_hash(Path(r['source']))) for r in p['buildings']],context=json.loads(manifest.read_text()) if context and manifest.exists() else [],context_visibility=dict(camera=shot.get('context',False),shadow=shot.get('context',False),glossy=True),lighting=dict(exposure=sc.view_settings.exposure,sky_strength=next(n for n in sc.world.node_tree.nodes if n.type=='BACKGROUND').inputs[1].default_value,sun_energy=next(o for o in sc.objects if o.type=='LIGHT' and o.data.type=='SUN').data.energy))
+  report[name]=dict(source=str(source),sha256=digest,source_look=source_look,stage=('Original 4096 material fields on exported mesh' if source_look else p['stage']),engine=engine,camera=shot,street_triangles=street['triangles'],bundles=[dict(path=r['source'],sha256=bundle_hash(Path(r['source']))) for r in p['buildings']],context=json.loads(manifest.read_text()) if context and manifest.exists() else [],context_visibility=dict(camera=shot.get('context',False),shadow=shot.get('context',False),glossy=True,opposite_foreground_cutaway=name=='across'),lighting=dict(exposure=sc.view_settings.exposure,sky_strength=next(n for n in sc.world.node_tree.nodes if n.type=='BACKGROUND').inputs[1].default_value,sun_energy=next(o for o in sc.objects if o.type=='LIGHT' and o.data.type=='SUN').data.energy))
  old=json.loads((out/'provenance.json').read_text()) if (out/'provenance.json').exists() else {};old.update(report);(out/'provenance.json').write_text(json.dumps(old,indent=2)+'\n');assert hashlib.sha256(source.read_bytes()).hexdigest()==digest
  print('RENDERED',region,names,flush=True)
 if __name__=='__main__':

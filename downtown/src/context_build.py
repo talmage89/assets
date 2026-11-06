@@ -61,4 +61,10 @@ for m in list(bpy.data.materials):
  if p:
   # Procedural source materials can remain; no bake or export is requested.
   p.inputs['Emission Strength'].default_value=0
+# Exterior builders may leave an unparented fitting cage in the scene.
+# Presentation contains only the actual authored vehicle assembly.
+allowed={b.root,*b.root.children_recursive}
+for ob in list(bpy.context.scene.objects):
+ if ob not in allowed:bpy.data.objects.remove(ob,do_unlink=True)
+assert all(o in allowed for o in bpy.context.scene.objects)
 bpy.ops.wm.save_as_mainfile(filepath=str(Path(a.out).resolve()))

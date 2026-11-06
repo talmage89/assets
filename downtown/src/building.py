@@ -1,7 +1,7 @@
 """Original load-bearing brick commercial shells, 1880–1930 with later work.
 
-Geometry carries construction at this gate. Fine coursing, wear and ornament
-are intentionally reserved for shared tile/trim normals in the next gate.
+Geometry carries construction; shared tile/trim fields carry fine coursing,
+manufacturing relief and weather through stock exported materials.
 """
 import math
 import random
@@ -474,7 +474,8 @@ class Building:
                     b.box((L/2,-.48,.075),(L+.18,.30,.15),'Mineral',STONE)
                     b.box((L/2,-.17,.15),(L+.12,.34,.30),'Mineral',STONE)
                 O.molding(b,-.12,L+.12,2.86,.34,.20,'Mineral',STONE)
-                self.graphic(b,'label0' if p['tenant']=='hotel' else 'label1',L/2,-.12,3.24,L-.28,.23)
+                b.box((L/2,-.070,3.24),(L-.20,.080,.32),'Mineral',(.45,.43,.38))
+                self.graphic(b,'label0' if p['tenant']=='hotel' else 'label1',L/2,-.112,3.24,L-.28,.23)
                 if p['cornice']=='metal':O.cornice(b,L,p['height'],CREAM,True)
                 else:O.molding(b,-.10,L+.10,p['height']-.20,.40,.20,'Mineral',STONE)
             elif exposed:

@@ -20,6 +20,16 @@ def tint(point,role,color,p,name):
   drain_x=-w/2+.38
   drain=math.exp(-((x-drain_x)/.22)**2) if back else 0
   dirt+=.27*drain*(.6+.4*ripple)
+  if back and p.get('fire_escape'):
+   # Oxide runs from the lower fixings of the two actual escape anchor plates.
+   span=min(5.60,w-.55);rust=0.
+   for level in range(p['stories']-1):
+    fixing=p['floor_first']+level*p['upper']+.02-1.65
+    drop=fixing-z
+    if 0<=drop<1.15:
+     for sign in (-1,1):rust+=.38*math.exp(-((x-sign*(span/2-.35))/(.11+.035*drop))**2)*math.exp(-drop/.62)
+   rust=min(.42,rust)*AMOUNT
+   color=tuple(v*(1-rust)+rust*c for v,c in zip(color,(.22,.075,.027)))
   # Water passing each projecting sill drags atmospheric soot downward.
   if y<-d/2+.48:
    L=w-p['chamfer'];left=-w/2+(p['chamfer'] if p['corner']=='left' else 0);n=max(2,round((L-.6)/1.95))
@@ -28,7 +38,7 @@ def tint(point,role,color,p,name):
     if sill-1.25<=z<=sill+.00001:
      for j in range(n):
       xx=left+(j+.5)*L/n
-      for off in (-.46,.46):dirt+=.46*math.exp(-((x-xx-off)/.12)**2)*math.exp(-(sill-z)/.54)*(.7+.3*ripple)
+      for off in (-.46,.46):dirt+=.55*math.exp(-((x-xx-off)/.18)**2)*math.exp(-(sill-z)/.68)*(.7+.3*ripple)
    # Repointing replaces local mortar/body response over a stepped repair.
    patch=(w*.08<x<w*.36 and .5<z<2.1 and int(z/.2032)%3!=1)
    if patch:color=tuple(v*(1.04+.055*ripple) for v in color)

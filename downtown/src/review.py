@@ -14,9 +14,9 @@ from delivery import bundle_hash
 def audit_checkpoint(folder):
  """Verify the image evidence belongs to the current exported geometry."""
  expected={r:['across','above','rear'] for r in ('midwest','western','northeast','southern')}
- expected['midwest']+=['scale','dusk','awning','hero','storefront','window','cornice','corner','ghost','escape']
+ expected['midwest']+=['cornice_profile','scale','dusk','awning','hero','storefront','window','cornice','corner','ghost','escape']
  expected['southern']+=['gallery']
- expected['northeast']+=['storefront'];views=[]
+ expected['northeast']+=['storefront','hood'];views=[]
  def check(region,name,base):
   provenance=json.loads((base/region/'provenance.json').read_text())[name]
   source=Path(provenance['source']);assert provenance['sha256']==hashlib.sha256(source.read_bytes()).hexdigest(),(region,name,'stale export')

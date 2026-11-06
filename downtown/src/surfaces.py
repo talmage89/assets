@@ -29,7 +29,7 @@ def palette(sheet):
     mix=interior.node_tree.nodes.new('ShaderNodeMixRGB');mix.blend_type='MULTIPLY';mix.inputs[0].default_value=1
     l=interior.node_tree.links;l.new(n.outputs['Color'],mix.inputs[1]);l.new(vc.outputs['Color'],mix.inputs[2]);l.new(mix.outputs[0],p.inputs['Base Color'])
     e=interior.node_tree.nodes.new('ShaderNodeTexImage');e.image=n.image
-    u=interior.node_tree.nodes.new('ShaderNodeUVMap');u.uv_map='LightUV';l.new(u.outputs[0],e.inputs['Vector']);l.new(e.outputs['Color'],p.inputs['Emission Color']);p.inputs['Emission Strength'].default_value=2.6
+    u=interior.node_tree.nodes.new('ShaderNodeUVMap');u.uv_map='LightUV';l.new(u.outputs[0],e.inputs['Vector']);l.new(e.outputs['Color'],p.inputs['Emission Color']);p.inputs['Emission Strength'].default_value=.13
     return [masonry,mineral,finish,mineral,glass,graphics,interior]
 
 
@@ -74,7 +74,7 @@ def clip_height(poly,z,above,axis=2):
     return clean
 
 
-def masonry_faces(points,variant,painted=False,tile_height=BRICK_TILE_H,coverage=MASONRY_COVERAGE,ground_grid=True,upper_grid=False):
+def masonry_faces(points,variant,painted=False,tile_height=BRICK_TILE_H,coverage=MASONRY_COVERAGE,ground_grid=True,upper_grid=False,vertical_cuts=()):
     lo=min(p[2] for p in points);hi=max(p[2] for p in points)
     normal=(Vector(points[1])-Vector(points[0])).cross(Vector(points[2])-Vector(points[0]))
     axis=0 if abs(normal[1])>abs(normal[0]) else 1
@@ -91,6 +91,13 @@ def masonry_faces(points,variant,painted=False,tile_height=BRICK_TILE_H,coverage
             for j in range(math.floor(a/.65),math.floor((b-1e-7)/.65)+1):
                 chunk=clip_height(clip_height(poly,j*.65,True,axis),(j+1)*.65,False,axis)
                 if len(chunk)>=3:pieces.append(chunk)
+        for cut in vertical_cuts:
+            divided=[]
+            for piece in pieces:
+                if min(p[axis] for p in piece)+1e-7<cut<max(p[axis] for p in piece)-1e-7:
+                    divided.extend([clip_height(piece,cut,True,axis),clip_height(piece,cut,False,axis)])
+                else:divided.append(piece)
+            pieces=[q for q in divided if len(q)>=3]
         for poly in pieces:
             uv=[(p[axis]/coverage,variant/4+GUARD+(p[2]/tile_height-k)*(.25-2*GUARD)) for p in poly]
             out.append((poly,uv))

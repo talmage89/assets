@@ -15,7 +15,7 @@ for name,m in MATCHES.items():
   data=np.uint8(np.clip(linear_to_srgb(linear*gains),0,1)*255+.5);dest=folder/(name+'.jpg');Image.fromarray(data).save(dest,quality=97);m['photo']=str(dest)
   balance=dict(original=MATCHES[name]['photo'],neutral_pixels=m['neutral'],neutral_linear_rgb=neutral.tolist(),gains=gains.tolist(),assumption='Unpainted sunlit apron for Auburn; pale painted hood fascia for Louisiana. Neutral assumptions, not measured gray cards.')
  d=calibrate(m);d['region']=m['region'];d['white_balance']=balance
- for key in ('sun_direction','sun_elevation','sun_energy','context','exposure','sky_strength'):
+ for key in ('sun_direction','sun_elevation','sun_energy','context','exposure','sky_strength','overcast'):
   if key in m:d['shot'][key]=m[key]
  out[name]=d
 Path('build/cameras.json').write_text(json.dumps(out,indent=2)+'\n')

@@ -22,7 +22,7 @@ def generate(folder):
         layout[key]=tuple((v/2048 if j%2==0 else 1-v/2048) for j,v in enumerate((x,y+230,x+1000,y)))
     for i,text in enumerate(('MERIDIAN BLOCK 1894','UNION LANDING BANK','MILLSTONE GOODS','ROOMS & OFFICES','1898','1906','OPEN • 9 TO 6','STAIR TO OFFICES')):
         x=(i%2)*1024+12;y=1100+(i//2)*170;r=(x,y,x+1000,y+150)
-        d.rectangle(r,fill='#8D8064' if i<4 else '#C6B998');fit(text,r,serif,60,color='#DED1AD' if i<4 else '#4E493D')
+        d.rectangle(r,fill=(0,0,0,0) if i<2 else '#8D8064' if i<4 else '#C6B998');fit(text,r,serif,60,color='#55524C' if i<2 else '#DED1AD' if i<4 else '#4E493D')
         layout['label'+str(i)]=(x/2048,1-(y+150)/2048,(x+1000)/2048,1-y/2048)
     # The ghost lettering is original faded paint with open, irregular losses.
     import random

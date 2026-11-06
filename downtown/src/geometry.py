@@ -59,8 +59,15 @@ class Batch:
             if self.textured and role=='Masonry':
                 painted=p.get('painted',False) and self.name.split('__')[-1].startswith('Wall0')
                 variant=2 if painted else 3 if color[1]>color[0]*.63 else (p.get('index',0)%2)
-                chunks=masonry_faces(points,variant,upper_grid="__Wall0" in self.name)
-                tint=tuple(v/.62 for v in color) if painted else (1.,1.,1.)
+                cuts=[]
+                if p.get('fire_escape') and '__RearConstruction' in self.name and min(self.xf(v).y for v in points)>p['depth']/2-.50:
+                    span=min(5.60,p['width']-.55)
+                    cuts=[p['width']/2+sign*(span/2-.35)+off for sign in (-1,1) for off in (-.10,.10)]
+                chunks=masonry_faces(points,variant,upper_grid="__Wall0" in self.name,vertical_cuts=cuts)
+                # Neutral-balanced Louisiana putty paint: remove the inherited
+                # yellow bias in this particular authored paint variant.
+                gains=(.97,.99,1.15) if p.get('brick') in ((.39,.38,.31),[.39,.38,.31]) else (1,1,1)
+                tint=tuple(v*g/.62 for v,g in zip(color,gains)) if painted else (1.,1.,1.)
             elif self.textured and role in ('Mineral','Roof','Finish'):
                 strip,count=classify(role,color,self.surface);chunks=[(points,strip_uv(points,strip,count))]
                 if role=='Mineral' and self.stone_ground and color==(.43,.42,.37):chunks=masonry_faces(points,1,tile_height=1.0,coverage=4.0,ground_grid=False)

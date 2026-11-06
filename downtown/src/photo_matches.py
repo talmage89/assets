@@ -43,7 +43,7 @@ MATCHES['madison']=dict(region='midwest',photo='refs/madison.jpg',crop=(82,150,1
 b,l,r=bounds('midwest',0);h=b['height'];ch=b['chamfer']
 MATCHES['auburn_block']=dict(region='midwest',photo='refs/auburn-color.jpg',crop=(0,520,3430,2240),title='Used Main Street / Auburn 2012 / original row comparison',
  location=(-52,-26,1.7),target=(-5,0,4),lens=38,lens_bounds_mm=(24,70),camera_height_m=(1.7,.5),
- neutral=(180,2075,250,2095),sun_direction=(.72,.52,-.62),sun_elevation=36,exposure=-.20,context=True,
+ neutral=(180,2075,250,2095),sun_direction=(.45,.30,-.84),sun_elevation=57,exposure=-.20,context=True,
  landmarks=[dict(world=(l+ch,0,0),pixel=(300,2050)),dict(world=(r,0,0),pixel=(995,1980)),
  dict(world=(l+ch,0,h),pixel=(300,625)),dict(world=(r,0,h),pixel=(995,865)),
  dict(world=(r+16,0,0),pixel=(2220,1810)),dict(world=(r+16,0,h-.3),pixel=(2220,1355))])
@@ -53,6 +53,6 @@ MATCHES['auburn_block']=dict(region='midwest',photo='refs/auburn-color.jpg',crop
 b,l,r=bounds('northeast',3);base=b['floor_first']+b['upper'];x=l+b['width']/8;lo=base+.65;hi=lo+b['window_height']
 MATCHES['louisiana_upper']=dict(region='northeast',photo='refs/louisiana-color.jpg',crop=(600,650,1520,2200),title='Used painted brick, hood and pressed cornice / Louisiana 2015',
  location=(x-6,-9,1.65),target=(x,0,lo+1),lens=45,lens_bounds_mm=(24,240),
- neutral=(836,1222,849,1233),sun_energy=0.,sky_strength=.30,exposure=-.15,
+ neutral=(836,1222,849,1233),overcast=True,sun_energy=0.,sky_strength=.75,exposure=1.08,
  landmarks=[dict(world=(x-.37,.125,hi-.1),pixel=(756,1355)),dict(world=(x+.37,.125,hi-.1),pixel=(941,1369)),
  dict(world=(x-.37,.125,lo+.1),pixel=(734,1978)),dict(world=(x+.37,.125,lo+.1),pixel=(915,1990))])
