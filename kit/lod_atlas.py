@@ -208,11 +208,25 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
     arrays={};report={}
     alpha_names={m.get('name') for m in original.data.get('materials',[]) if m.get('alphaMode')=='BLEND'}
     underlay=(proxy or composite_alpha) and any(m.name in alpha_names for m in mats)
+    transmission_names={m.get('name') for m in original.data.get('materials',[]) if m.get('extensions',{}).get('KHR_materials_transmission',{}).get('transmissionFactor',0)>0}
+    through_required=(proxy or composite_alpha) and any(m.name in transmission_names for m in mats)
     coat_required=(proxy or composite_alpha) and any(m.get('extensions',{}).get('KHR_materials_clearcoat',{}).get('clearcoatFactor',0)>0 for m in doc.data.get('materials',[]))
     channels=('BaseColor','Alpha','Position','ORM','Emission',*(('Transmission',) if proxy or composite_alpha else ()),*(('Clearcoat',) if proxy else ()),*(('CoatNormal',) if coat_required else ()),'Normal')
+    if through_required:channels+=('EmissionThrough','AlphaThrough','PositionThrough')
     if underlay:channels+=('BaseColorUnder','EmissionUnder','ORMUnder','NormalUnder','AlphaUnder','PositionUnder','TransmissionUnder',*(('ClearcoatUnder',) if proxy else ()),*(('CoatNormalUnder',) if coat_required else ()))
+    through=None
     for label in channels:
-        channel=label.removesuffix('Under')
+        channel=label.removesuffix('Under').removesuffix('Through')
+        if label=='EmissionThrough':
+            # A lens carries radiance from emitters behind it. A union shell
+            # removes that internal geometry, so surface-emission alone would
+            # incorrectly turn headlights and powered lenses off.
+            through=high.copy();through.data=high.data.copy();sc.collection.objects.link(through)
+            bm=bmesh.new();bm.from_mesh(through.data)
+            bmesh.ops.delete(bm,geom=[f for f in bm.faces if through.data.materials[f.material_index].name in transmission_names],context='FACES')
+            bm.to_mesh(through.data);bm.free()
+            high.hide_render=True;high.select_set(False);through.select_set(True)
+            bpy.context.view_layer.objects.active=target
         if label=='BaseColorUnder':
             # Composite translucent graphics onto their real backing. Emission
             # routing alone cannot see through alpha=0 source decals.
@@ -220,6 +234,7 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
             bm=bmesh.new();bm.from_mesh(under.data)
             bmesh.ops.delete(bm,geom=[f for f in bm.faces if under.data.materials[f.material_index].name in alpha_names],context='FACES')
             bm.to_mesh(under.data);bm.free()
+            if through:through.hide_render=True;through.select_set(False)
             high.hide_render=True;high.select_set(False);under.select_set(True)
             bpy.context.view_layer.objects.active=target
         route(channel+'Field' if channel in ('Normal','CoatNormal') else channel)
@@ -247,8 +262,13 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
             world*=np.where(np.sum(world*nn,axis=1)>=0,1,-1)[:,None]
             arrays[label][yy,xx]=np.stack([np.sum(world*tt,axis=1),np.sum(world*bb,axis=1),np.sum(world*nn,axis=1)],axis=1)*.5+.5
     mask=exact;interior=np.asarray(Image.fromarray(mask.astype(np.uint8)*255).filter(ImageFilter.MinFilter(3)))>0
-    primary={k:v for k,v in arrays.items() if not k.endswith('Under')}
+    primary={k:v for k,v in arrays.items() if not k.endswith(('Under','Through'))}
     report['nearest_transfer']=repair(high,target,primary,mask,size,projection_m*4/3,route)
+    if through_required:
+        transmitted={k.removesuffix('Through'):v for k,v in arrays.items() if k.endswith('Through')}
+        report['nearest_transmitted_emission']=repair(through,target,transmitted,mask,size,projection_m*4/3,route)
+        primary['Emission']+=transmitted['Emission']*primary['Transmission']*primary['BaseColor']
+        del transmitted
     if underlay:
         backing={k.removesuffix('Under'):v for k,v in arrays.items() if k.endswith('Under')}
         arrays.clear()
@@ -288,6 +308,8 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
     ids={name:i for i,name in enumerate(files)}
     materials=[{}] if proxy else oldmaterials
     for mi,m in enumerate(materials):
+        native_emits=any(v>0 for v in m.get('emissiveFactor',[0,0,0]))
+        native_receiver=through_required and m.get('extensions',{}).get('KHR_materials_transmission',{}).get('transmissionFactor',0)>0
         # Transmission/IOR/specular factors stay on near materials. Base, ORM,
         # alpha, emission and normals have been evaluated from delivered nodes.
         pbr=m.setdefault('pbrMetallicRoughness',{})
@@ -311,8 +333,7 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
         # Native material membership remains exact, including reconstructed
         # multi-material shells; only the one-material proxy needs emission
         # everywhere via its spatial map.
-        native_emits=any(v>0 for v in m.get('emissiveFactor',[0,0,0]))
-        if has_emission and (proxy or native_emits):
+        if has_emission and (proxy or native_emits or native_receiver):
             m['emissiveTexture']=dict(index=ids['Emission']);m['emissiveFactor']=[1,1,1]
             m.setdefault('extensions',{})['KHR_materials_emissive_strength']=dict(emissiveStrength=strength)
             if 'KHR_materials_emissive_strength' not in doc.data.setdefault('extensionsUsed',[]):doc.data['extensionsUsed'].append('KHR_materials_emissive_strength')

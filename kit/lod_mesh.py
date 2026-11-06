@@ -361,6 +361,16 @@ def components(attrs, faces):
     return list(groups.values())
 
 
+def shell_volumes(attrs,faces):
+    """Signed volume per geometric island from raw triangles, near its center."""
+    result=[]
+    for ids in components(attrs,faces):
+        triangles=attrs['POSITION'][faces[ids]].astype(np.float64)
+        triangles-=triangles.reshape(-1,3).mean(axis=0)
+        result.append(float(np.einsum('ij,ij->i',triangles[:,0],np.cross(triangles[:,1],triangles[:,2])).sum()/6))
+    return result
+
+
 def reduce_screen(attrs,faces,ratio,meters_per_pixel,feature_pixels=1.5,rebake=False,uv_limit=.001,surface_pixels=.75):
     """Level-sized trial. Component size is a pruning criterion, not a veto.
 

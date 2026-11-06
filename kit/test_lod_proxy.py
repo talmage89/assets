@@ -9,12 +9,53 @@ from pathlib import Path
 import bpy
 import numpy as np
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
-from kit.lod_mesh import uv_budget,reduce_screen,topology
-from kit.lod_scene import merge_static,proxy,shell_static,planar_groups,clean_slivers,construction_components
+from kit.lod_mesh import uv_budget,reduce_screen,topology,shell_volumes
+from kit.lod_scene import merge_static,proxy,shell_static,planar_groups,clean_slivers,construction_components,orient_closed_shells
 from kit.lod_atlas import bake,object_from_arrays
 from kit.lod_io import Document,digest
 from kit.detachable_verify import _image
 from kit.lod_render import compare
+
+
+def transmitted_emission_fixture(out,attrs,faces):
+    stub=out/'lens-stub.gltf';path=out/'lens-source.gltf'
+    stub.write_text(json.dumps(dict(asset=dict(version='2.0'),scene=0,scenes=[dict(nodes=[0,1,2])],
+        nodes=[dict(name=n,mesh=i) for i,n in enumerate(['Body','Glass','Emitter'])],
+        meshes=[dict(primitives=[dict(attributes={},indices=0,material=i)]) for i in range(3)],
+        accessors=[],bufferViews=[],buffers=[],extensionsUsed=['KHR_materials_transmission','KHR_materials_emissive_strength'],
+        materials=[dict(name='Body',pbrMetallicRoughness=dict(baseColorFactor=[.2,.1,.05,1],metallicFactor=0,roughnessFactor=.5)),
+          dict(name='Glass',extensions={'KHR_materials_transmission':dict(transmissionFactor=1)},pbrMetallicRoughness=dict(baseColorFactor=[.5,.5,.5,1],metallicFactor=0,roughnessFactor=.05)),
+          dict(name='Emitter',emissiveFactor=[.1,.4,.9],extensions={'KHR_materials_emissive_strength':dict(emissiveStrength=4)},pbrMetallicRoughness=dict(baseColorFactor=[1,1,1,1],metallicFactor=0,roughnessFactor=.5))])))
+    source=Document(stub);source.replace(source.data['meshes'][0]['primitives'][0],attrs,faces)
+    for i,z in [(1,.13),(2,.129)]:
+        a=dict(POSITION=np.array([[-.1,-.1,z],[.1,-.1,z],[.1,.1,z],[-.1,.1,z]],np.float32),NORMAL=np.tile([0,0,1],(4,1)).astype(np.float32),TEXCOORD_0=np.array([[0,0],[1,0],[1,1],[0,1]],np.float32))
+        source.replace(source.data['meshes'][i]['primitives'][0],a,np.array([[0,1,2],[0,2,3]],np.uint32))
+    source.save(path);before=Document(path).dependencies();target=Document(path)
+    for n in target.data['nodes'][1:]:n.pop('mesh')
+    target.data['meshes']=target.data['meshes'][:1];target.data['nodes'][0]['extras']=dict(lod_sources=[0,1,2])
+    delivered=out/'lens-proxy.gltf';report=bake(target,path,delivered,128,proxy=True,projection_m=.04);target.save(delivered)
+    assert 'EmissionThrough' in report['baked_channels'],report
+    from kit.detachable_verify import sample
+    from kit.lod_mesh import barycentric
+    from mathutils import Vector
+    from mathutils.bvhtree import BVHTree
+    target=Document(delivered);p=target.data['meshes'][0]['primitives'][0];a,f=target.arrays(p)
+    tree=BVHTree.FromPolygons([Vector(v) for v in a['POSITION']],f.tolist(),all_triangles=True)
+    q,n,fi,d=tree.find_nearest(Vector((0,0,.15)));uv=barycentric(np.array(q),a['POSITION'][f[fi]].astype(float))@a['TEXCOORD_0'][f[fi]]
+    emission=target.data['materials'][0]['emissiveTexture']['index'];im=_image(target.image(target.data['textures'][emission]['source']))
+    actual=sample(im,uv[None,:])[0,:3]
+    from kit.image_io import srgb_to_linear
+    strength=target.data['materials'][0]['extensions']['KHR_materials_emissive_strength']['emissiveStrength']
+    radiance=srgb_to_linear(actual)*strength
+    assert np.max(np.abs(radiance-[.2,.8,1.8]))<.04,('powered lens lost transmitted emission',radiance)
+    near=Document(path)
+    for node in near.data['nodes'][1:]:node.pop('mesh')
+    near.data['meshes']=near.data['meshes'][:1];near.data['meshes'][0]['primitives'][0]['material']=1
+    near.data['nodes'][0]['extras']=dict(lod_sources=[0,1,2])
+    nearpath=out/'lens-middle.gltf';bake(near,path,nearpath,128,composite_alpha=True,projection_m=.04);near.save(nearpath)
+    assert near.data['materials'][0]['emissiveFactor']==[0,0,0],'transmission maps incorrectly made an opaque material emit'
+    assert 'emissiveTexture' in near.data['materials'][1],'transmissive receiver lost its source emitter'
+    assert Document(path).dependencies()==before,'transmitted-emission bake modified its source'
 
 
 def main():
@@ -27,6 +68,24 @@ def main():
     flat=pos[faces.ravel()];normals=np.repeat(np.cross(pos[faces[:,1]]-pos[faces[:,0]],pos[faces[:,2]]-pos[faces[:,0]]),3,axis=0)
     normals/=np.linalg.norm(normals,axis=1,keepdims=True)
     ff=np.arange(len(flat),dtype=np.uint32).reshape(-1,3)
+    assert shell_volumes(dict(POSITION=flat),ff)[0]>0
+    assert shell_volumes(dict(POSITION=flat),ff[:,::-1])[0]<0
+    # An inward closed cube has perfect edge incidence and consistent normals,
+    # yet its exterior projection samples inward. Require positive volume for
+    # each shell and remove a collapsed zero-volume remnant.
+    import bmesh
+    bm=bmesh.new()
+    for point in pos:bm.verts.new(point)
+    bm.verts.ensure_lookup_table()
+    for face in faces:bm.faces.new([bm.verts[int(i)] for i in reversed(face)])
+    assert bm.calc_volume(signed=True)<0
+    oriented=orient_closed_shells(bm,1e-12)
+    assert oriented==dict(flipped=1,collapsed=0) and bm.calc_volume(signed=True)>0,oriented
+    collapsed=[bm.verts.new(p) for p in [(2,0,0),(3,0,0),(2,1,0),(3,1,0)]]
+    for face in [(0,1,2),(0,3,1),(0,2,3),(1,3,2)]:bm.faces.new([collapsed[i] for i in face])
+    oriented=orient_closed_shells(bm,1e-12)
+    assert oriented==dict(flipped=0,collapsed=1) and len(bm.faces)==12,oriented
+    bm.free()
     a=dict(POSITION=flat,NORMAL=normals,TEXCOORD_0=np.tile([[0,0],[1,0],[1,1]],(12,1)).astype(np.float32))
     tiny={k:v.copy() for k,v in a.items()};tiny['POSITION']=tiny['POSITION']*.02+[.15,0,0]
     combined={k:np.concatenate([a[k],tiny[k]]) for k in a};tri=np.concatenate([ff,ff+len(flat)])
@@ -283,6 +342,10 @@ def main():
     for node in trial.data['nodes'][1:]:node.pop('mesh',None)
     trial.replace(trial.data['meshes'][0]['primitives'][0],{k:np.concatenate([a[k],leg[k],floor[k]]) for k in a},np.concatenate([ff,ff+36,ff+72]))
     kept=proxy(trial,100,.02);assert not kept['removed_features'],'freestanding support was removed'
+    union=Document(source);united=proxy(union,200,.02,remesh=True)
+    assert united['triangles']<=200 and not united['topology']['boundary_edges'] and not united['topology']['nonmanifold_edges'],united
+    assert united['remeshing']['voxel_pixels']==.5
+    assert min(shell_volumes(*union.arrays(union.data['meshes'][0]['primitives'][0])))>0
     d=Document(source);r=proxy(d,150,.075)
     assert r['triangles']<=150 and not r['topology']['boundary_edges'] and not r['topology']['nonmanifold_edges'],r
     path=out/'proxy.gltf';result=bake(d,source,path,128,proxy=True,projection_m=.08);d.save(path)
@@ -335,6 +398,7 @@ def main():
     assert near.data['materials'][1].get('emissiveTexture') is not None
     coat=near.data['materials'][0]['extensions']['KHR_materials_clearcoat']
     assert coat['clearcoatNormalTexture']['index']!=near.data['materials'][0]['normalTexture']['index']
+    transmitted_emission_fixture(out,a,ff)
     print('LOD PROXY FIXTURE PASS: projected pruning, mip-relative UV budget, silhouette IoU, material merge, pivot preservation, closed budgeted shell, real immutable-source PBR/normal bake')
 
 if __name__=='__main__':main()

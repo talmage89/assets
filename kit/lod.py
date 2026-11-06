@@ -125,7 +125,7 @@ def build(config):
         from kit.lod_scene import merge_static,proxy,shell_static
         assembly=None
         if spec.get('proxy'):
-            assembly=proxy(doc,spec.get('proxy_budget',spec['target_triangles']),meters_per_pixel,spec.get('preserve_concavity',[]))
+            assembly=proxy(doc,spec.get('proxy_budget',spec['target_triangles']),meters_per_pixel,spec.get('preserve_concavity',[]),spec.get('proxy_remesh',False))
         elif spec.get('leaf_cards'):
             from kit.lod_foliage import build as build_foliage
             reports=build_foliage(doc,round(manifest['levels'][0]['triangles']*spec['ratio']),meters_per_pixel,spec.get('leaf_scale_exponent',.4))
@@ -198,7 +198,7 @@ def build(config):
 def check(config, require_renders=True):
     import bpy
     import numpy as np
-    from kit.lod_mesh import topology,world_geometry
+    from kit.lod_mesh import topology,world_geometry,shell_volumes
     cfg,root,source,out=configuration(config);m=json.loads((out/'manifest.json').read_text())
     errors=[];base=Document(source);original={}
     base.select(cfg.get('include_nodes'))
@@ -257,6 +257,11 @@ def check(config, require_renders=True):
                 if current['boundary_edges']>limit:errors.append(f'{path.name}: new open assembly edges: '+node.get('name',''))
                 if current['nonmanifold_edges']>(0 if row.get('proxy') or node.get('extras',{}).get('lod_static_shell') else previous['nonmanifold_edges']):
                     errors.append(f'{path.name}: nonmanifold shell: '+node.get('name',''))
+                if row.get('proxy') or node.get('extras',{}).get('lod_static_shell'):
+                    volumes=shell_volumes(*world_geometry(doc,[ni]))
+                    floor=(m['height_m']/(1080*row['screen_height']))**3*1e-8
+                    current['shell_volume']=dict(components=len(volumes),minimum_m3=min(volumes,default=0),nonpositive=sum(v<=floor for v in volumes))
+                    if any(v<=floor for v in volumes):errors.append(f'{path.name}: inward or collapsed shell: '+node.get('name',''))
                 assembly_topology.append(dict(node=node.get('name'),before=previous,after=current))
         bpy.ops.wm.read_factory_settings(use_empty=True)
         bpy.ops.import_scene.gltf(filepath=str(path),import_pack_images=False)

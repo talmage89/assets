@@ -70,6 +70,20 @@ def main():
     assert result['repaired']==size*size,result
     assert np.max(np.abs(arrays['BaseColor'][:,:,0]-(np.arange(size)+.5)[None,:]/size))<1e-4
     assert np.max(np.abs(arrays['Position'][:,:,2]))<1e-6
+    # Both a hidden lining and the paint above it can face outward. A reduced
+    # cage between them is closer to the lining, but must carry the visible
+    # exterior paint. Hemisphere filtering alone chooses the wrong layer.
+    exterior=bpy.data.meshes.new('paint over hidden lining')
+    exterior.from_pydata([(0,0,.015),(1,0,.015),(1,1,.015),(0,1,.015),(0,0,.03),(1,0,.03),(1,1,.03),(0,1,.03)],[],[(0,1,2,3),(4,5,6,7)]);exterior.update()
+    layer=exterior.uv_layers.new(name='LOD_SourceUV0');layer.data.foreach_set('uv',np.array([[.99,.99]]*4+[[0,0],[1,0],[1,1],[0,1]],np.float32).ravel())
+    exterior.materials.append(mat);previous=source.data;source.data=exterior
+    arrays['Alpha'][:]=0
+    result=repair(source,target,arrays,mask,size,.03,route)
+    assert result['repaired']==size*size,result
+    assert np.max(np.abs(arrays['BaseColor'][:,:,0]-(np.arange(size)+.5)[None,:]/size))<1e-4,'hidden lining replaced visible paint'
+    assert np.max(np.abs(arrays['Position'][:,:,2]-.03))<1e-6
+    source.data=previous;arrays['Alpha'][:]=0
+    result=repair(source,target,arrays,mask,size,.03,route)
     assert repair(source,target,arrays,mask,size,.03,route)['candidates']==0
     # The nearest back side of a thin part is not the matching outward
     # surface. Give that side a deliberately different UV field.
@@ -84,6 +98,19 @@ def main():
     arrays['Alpha'][:]=0;target.location.z=.1;bpy.context.view_layer.update()
     result=repair(source,target,arrays,mask,size,.03,route)
     assert result['candidates']==0 and not arrays['Alpha'].any(),result
+    # A tiny source chart next to unrelated texels must not be extrapolated
+    # across by a coarse target texel's repair footprint.
+    blue=plane('small original blue chart',0);blue.data.materials.append(mat)
+    uv=blue.data.uv_layers['LOD_SourceUV0']
+    for item in uv.data:item.uv=item.uv*.2+__import__('mathutils').Vector((.4,.4))
+    texture=bpy.data.images.new('original chart with unrelated surroundings',width=128,height=128,alpha=True,float_buffer=True)
+    pixels=np.ones((128,128,4),np.float32);pixels[:,:,:3]=(.8,.1,.1);pixels[50:79,50:79,:3]=(.05,.2,.8);texture.pixels.foreach_set(pixels.ravel())
+    color=nt.nodes.new('ShaderNodeTexImage');color.image=texture;uvnode=nt.nodes.new('ShaderNodeUVMap');uvnode.uv_map='LOD_SourceUV0';nt.links.new(uvnode.outputs[0],color.inputs['Vector'])
+    target.location=(-1,-1,0);target.scale=(3,3,1);bpy.context.view_layer.update()
+    tiny_arrays={k:np.zeros((1,1,v.shape[2]),np.float32) for k,v in arrays.items()}
+    result=repair(blue,target,tiny_arrays,np.ones((1,1),bool),1,.03,route)
+    assert result['repaired']==1,result
+    assert np.max(np.abs(tiny_arrays['BaseColor'][0,0]-[.05,.2,.8]))<.01,('source chart extrapolated into unrelated texels',tiny_arrays['BaseColor'])
     print('LOD TRANSFER PASS: original shader UV fields, tangent normal frame, bounded distance, batching')
 
 if __name__=='__main__':main()

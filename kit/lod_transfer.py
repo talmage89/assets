@@ -16,6 +16,36 @@ def unit(v):
     return v/np.maximum(np.linalg.norm(v,axis=-1,keepdims=True),1e-20)
 
 
+def source_hit(tree, point, normal, tolerance):
+    """Choose the outward visible layer before nearest-surface fallback.
+
+    A target inside a thin painted shell can be closer to the hidden lining.
+    Distance and normal agreement alone cannot distinguish those two surfaces.
+    March inward from the allowed exterior cage, ignoring back-facing layers.
+    Every returned point remains within the same geometric distance allowance.
+    """
+    point=np.asarray(point,float);normal=unit(np.asarray(normal,float))
+    origin=point+normal*tolerance;remaining=2*tolerance
+    epsilon=max(1e-8,tolerance*1e-5)
+    for unused in range(32):
+        q,nn,fi,distance=tree.ray_cast(Vector(origin),Vector(-normal),remaining)
+        if fi is None:break
+        displacement=float(np.linalg.norm(np.asarray(q)-point))
+        if np.dot(nn,normal)>.05 and displacement<=tolerance+epsilon:
+            return q,nn,fi,displacement
+        origin=np.asarray(q)-normal*epsilon;remaining-=distance+epsilon
+        if remaining<=0:break
+    q,nn,fi,distance=tree.find_nearest(Vector(point))
+    if fi is None or distance>tolerance:return None
+    cosine=float(np.dot(nn,normal))
+    if cosine<.85:
+        radius=tolerance if cosine<=.05 else min(tolerance,distance+tolerance*.125)
+        compatible=[hit for hit in tree.find_nearest_range(Vector(point),radius) if np.dot(hit[1],normal)>.05]
+        if not compatible:return None
+        q,nn,fi,distance=min(compatible,key=lambda hit:(hit[3]/tolerance)**2+.5*(1-float(np.dot(hit[1],normal)))**2)
+    return q,nn,fi,distance
+
+
 def raster(target,size):
     """Native texel-center samples, including the actual target tangent frame."""
     mesh=target.data;mesh.calc_loop_triangles();uvname=mesh.uv_layers.active.name
@@ -68,16 +98,9 @@ def repair(source,target,arrays,mask,size,tolerance,route,batch_size=16384):
             visited[yy[take],xx[take]]=True
             for y,x,point,nn,tt,bb in zip(yy[take],xx[take],p[take],n[take],t[take],b[take]):
                 if not missing[y,x] and 'Position' not in arrays:continue
-                q,source_face_normal,fi,dist=tree.find_nearest(Vector(point))
-                if fi is None or dist>tolerance:continue
-                # Thin closed parts have two nearby sides. Correspondence
-                # must agree with the cage's outward hemisphere.
-                cosine=float(np.dot(source_face_normal,nn))
-                if cosine<.85:
-                    radius=tolerance if cosine<=.05 else min(tolerance,dist+tolerance*.125)
-                    compatible=[hit for hit in tree.find_nearest_range(Vector(point),radius) if np.dot(hit[1],nn)>.05]
-                    if not compatible:continue
-                    q,source_face_normal,fi,dist=min(compatible,key=lambda hit:(hit[3]/tolerance)**2+.5*(1-float(np.dot(hit[1],nn)))**2)
+                hit=source_hit(tree,point,nn,tolerance)
+                if hit is None:continue
+                q,source_face_normal,fi,dist=hit
                 if not missing[y,x] and np.linalg.norm(arrays['Position'][y,x]-np.array(q))<=tolerance*.05:continue
                 tri=vertices[faces[fi]];e=tri[1:]-tri[0];gram=e@e.T
                 if abs(np.linalg.det(gram))<1e-24:continue
@@ -103,14 +126,25 @@ def repair(source,target,arrays,mask,size,tolerance,route,batch_size=16384):
         q=np.array([r[2] for r in batch]);foot=np.array([r[8] for r in batch])
         corners=np.array([[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]])
         delta=(t[:,None,:]*corners[None,:,0,None]+b[:,None,:]*corners[None,:,1,None])*foot[:,None,None]
-        pp=(q[:,None,:]+delta).reshape(-1,3);ff=np.arange(count*4).reshape(-1,4)
+        edge=vertices[faces[fi]][:,1:]-vertices[faces[fi]][:,:1]
+        gram=edge@np.transpose(edge,(0,2,1));grad=np.linalg.solve(gram,edge)
+        shift=np.einsum('nkj,nij->nki',delta,grad)
+        bary_delta=np.concatenate([-shift.sum(axis=2,keepdims=True),shift],axis=2)
+        # Extending a source face's UV gradient beyond that face can read an
+        # unrelated neighboring chart. Shrink the evaluation footprint to
+        # stay inside the actual triangle, keeping its tangent direction.
+        room=np.where(bary_delta<0,bw[:,None,:]/np.maximum(-bary_delta,1e-30),np.inf)
+        shrink=np.clip(.95*room.min(axis=(1,2)),1e-5,1.)
+        delta*=shrink[:,None,None];shift*=shrink[:,None,None]
+        # EMIT self-bakes need UVs and direction, not the original world
+        # position. Center tiny patches locally to avoid losing them to float
+        # precision in assemblies separated for projection. Position receipts
+        # below still store the actual source q.
+        pp=delta.reshape(-1,3);ff=np.arange(count*4).reshape(-1,4)
         data=bpy.data.meshes.new('LOD nearest source patches');data.from_pydata(pp.tolist(),[],ff.tolist());data.update()
         for polygon,slot in zip(data.polygons,slots[fi]):polygon.use_smooth=True;polygon.material_index=int(slot)
         for material in source.data.materials:data.materials.append(material)
         data.normals_split_custom_set(np.repeat(n,4,axis=0).tolist())
-        edge=vertices[faces[fi]][:,1:]-vertices[faces[fi]][:,:1]
-        gram=edge@np.transpose(edge,(0,2,1));grad=np.linalg.solve(gram,edge)
-        shift=np.einsum('nkj,nij->nki',delta,grad)
         corner_w=np.concatenate([1-(bw[:,None,1:]+shift).sum(axis=2,keepdims=True),bw[:,None,1:]+shift],axis=2)
         for name,values in uvs.items():
             uv=np.einsum('nki,nij->nkj',corner_w,values[li]).reshape(-1,2)
@@ -126,7 +160,7 @@ def repair(source,target,arrays,mask,size,tolerance,route,batch_size=16384):
         layer=data.uv_layers.new(name='LOD_TransferBake');layer.data.foreach_set('uv',uv.astype(np.float32).ravel());data.uv_layers.active=layer;layer.active_render=True
         ob=bpy.data.objects.new('LOD nearest source patches',data);scene.collection.objects.link(ob);ob.select_set(True);ob.hide_render=False;bpy.context.view_layer.objects.active=ob
         result={}
-        for channel in ['Alpha','BaseColor','ORM','Emission',*(['Transmission'] if 'Transmission' in arrays else []),*(['Clearcoat'] if 'Clearcoat' in arrays else []),*(['CoatNormal'] if 'CoatNormal' in arrays else []),'Normal']:
+        for channel in [k for k in ('Alpha','BaseColor','ORM','Emission','Transmission','Clearcoat','CoatNormal','Normal') if k in arrays]:
             route(channel+'Field' if channel in ('Normal','CoatNormal') else channel)
             im=bpy.data.images.new('LOD nearest '+channel,width=patch_size,height=patch_size,alpha=True,float_buffer=True);im.colorspace_settings.name='Non-Color'
             for material,node,old in bake_nodes:node.image=im;material.node_tree.nodes.active=node

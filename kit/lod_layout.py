@@ -90,6 +90,7 @@ def unwrap(targets, sources, original, size, meters_per_pixel):
     print('LOD LAYOUT START',len(targets),'targets',size,'px',flush=True)
     bpy.context.view_layer.update()
     tree, density = reference(sources, original)
+    from kit.lod_transfer import source_hit
     bpy.ops.object.select_all(action='DESELECT')
     for ob in targets:ob.select_set(True)
     bpy.context.view_layer.objects.active = targets[0]
@@ -104,8 +105,9 @@ def unwrap(targets, sources, original, size, meters_per_pixel):
             weight = area_sum = 0.
             for fi in ids:
                 p = pp[list(mesh.polygons[fi].vertices)]; area = np.linalg.norm(np.cross(p[1]-p[0], p[2]-p[0]))*.5
-                q, normal, face, distance = tree.find_nearest(Vector(p.mean(axis=0)))
-                value = density[face] if face is not None else 0
+                direction=np.cross(p[1]-p[0],p[2]-p[0]);direction/=max(np.linalg.norm(direction),1e-20)
+                hit=source_hit(tree,p.mean(axis=0),direction,2*meters_per_pixel)
+                value = density[hit[2]] if hit is not None else 0
                 # Constant/unmapped surfaces still need a finite chart for
                 # their normal/material response, without inventing detail.
                 if value <= 0:value = 1/maximum_pixel(meters_per_pixel)**2
