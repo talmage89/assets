@@ -53,7 +53,6 @@ def window(a,name,p,w=1.524,h=1.2192,yaw=0,seed=1,replacement=False,slider=False
     # Slatted blinds differ by tenant; horizontal rails remain low-cost.
     if seed%3==0:
         for j in range(9):m.box((0,.09,h*.45-j*h*.08),(w-.075,.014,.013),'Trim',curtain,r=0)
-    if slider:m.box((-.055,-.063,-.04),(.018,.022,.16),'Trim',DARK,r=.002)
     oriented(m,p,yaw).finish();return m
 
 
@@ -88,14 +87,15 @@ def oriented_point(p,origin,yaw):
 
 def sliding(a,name,p,yaw=0,w=1.8288,h=2.032,seed=1):
     window(a,name+'_fixed',p,w,h,yaw,seed,slider=True)
-    # A separate panel rests in the outer track, 12 mm clear of the fixed one.
+    # Outer sash extrusion clears the fixed center stile by at least 12 mm.
     pivot=a.pivot(name+'_panel',p,slide=True);pivot.rotation_euler.z=math.radians(yaw)
     m=a.mesh(name+'_moving',part=pivot.name,component='slider')
-    for xx in (-w*.5+.02,0):m.box((xx,-.05,0),(.030,.033,h-.04),'Trim',ALUM,r=.001)
-    for zz in (-h/2+.02,h/2-.02):m.box((-w*.25,-.05,zz),(w*.5,.033,.030),'Trim',ALUM,r=.001)
+    for xx in (-w*.5+.02,0):m.box((xx,-.085,0),(.030,.033,h-.04),'Trim',ALUM,r=.001)
+    for zz in (-h/2+.02,h/2-.02):m.box((-w*.25,-.085,zz),(w*.5,.033,.030),'Trim',ALUM,r=.001)
     # Fixed window's glass is a visual room enclosure; moving sash carries its
     # own pane. Its closed track is offset, never coincident with the fixed glass.
-    m.box((-w*.25,-.05,0),(w*.5-.035,.006,h-.065),'Glass',(.86,.88,.85),r=0)
+    m.box((-w*.25,-.085,0),(w*.5-.035,.006,h-.065),'Glass',(.86,.88,.85),r=0)
+    m.box((-.018,-.11,-.04),(.018,.028,.16),'Trim',DARK,r=.002)
     oriented(m,p,yaw);finish_local(m);pivot['range_m']=(0,w*.43)
 
 
