@@ -18,6 +18,8 @@ later than 2015 document conventional forms already in the requested period.
 | Litter/recycling | Traditional agency/Victor Stanley size class: 28-1/8 in diameter × 38-5/8 in height, steel slats, plastic liner and anchored installation | Original .700 m maximum spun lid diameter × .960 m total height; 32 solid steel slats, retaining hoops and separate spun open-center lid, black liner and 3 anchored feet. Recycling shares construction; blue lid and original bottle/can instruction. |
 
 The sign family uses the existing Ground **.1524 m / 6 in** construction grid.
+The bus route plate is currently 7.9 mm below the cited seven-foot clearance
+target; this small form-stage discrepancy remains explicit for review.
 Furniture roots are the center of their ground footprint; `*_SidewalkSocket`
 uses finished pavement grade, while `*_Anchor` sockets give actual anchor
 positions. The shelter socket refers to its slab underside and its bench

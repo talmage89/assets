@@ -200,6 +200,8 @@ housing. This should be corrected before look-dev approval, rather than hidden
 by metal response or grime. The sign pedestrian/school figures similarly
 remain an approximation to refine. Other constructions are adequate to expose
 the design choices for the owner's checkpoint, not finished game assets.
+The bus route plate's 2.1257 m bottom is 7.9 mm below TARC's seven-foot
+clearance target; raise that plate before treating its placement as compliant.
 
 The used shelter comparison has 21.36 px landmark RMS; it shows our higher
 barrel roof, thinner fascia, different ad-end placement and a lack of the
