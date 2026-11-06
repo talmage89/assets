@@ -1,0 +1,16 @@
+"""Generate existing library source forms inside downtown's ignored build only."""
+import hashlib,json,subprocess
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[2]
+CASES=(('pickup','cars/src/build.py',['--quality','game','--form-only']),('crossover','cars/src/suv_build.py',['--quality','game']),('hatchback','cars/src/hatch_build.py',['--quality','game']),('light','street-light/src/build.py',['--quality','game']),('maple','trees/src/build.py',['--quality','game','--species','maple']))
+def ensure():
+ folder=Path('build/context');folder.mkdir(parents=True,exist_ok=True);rows=[]
+ for name,script,args in CASES:
+  dest=folder/(name+'.blend');log=folder/(name+'.log')
+  if name in ('pickup','crossover','hatchback'):
+   script='downtown/src/context_build.py';args=['--kind',name]
+  if not dest.exists():
+   with log.open('w') as out:subprocess.run(['blender','-b','--factory-startup','--python-exit-code','1','--python',str(ROOT/script),'--',*args,'--out',str(dest.resolve())],stdout=out,stderr=subprocess.STDOUT,check=True,cwd=ROOT/'downtown')
+  rows.append(dict(name=name,path=str(dest),sha256=hashlib.sha256(dest.read_bytes()).hexdigest(),stage='existing original family source; quick checkpoint context'))
+ (folder/'manifest.json').write_text(json.dumps(rows,indent=2)+'\n');print('CONTEXT ready',len(rows))
+if __name__=='__main__':ensure()
