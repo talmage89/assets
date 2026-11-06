@@ -117,6 +117,8 @@ def door(a,name,p,yaw=0,width=.9144,glass=False,number='',replaced=False,reveal=
     frame.box((width/2+.18,-.075,1.78),(.13,.11,.25),'Trim',STEEL,r=.006)
     frame.box((width/2+.18,-.137,1.78),(.09,.017,.16),'Trim',(.66,.57,.35),r=.002)
     oriented(frame,p,yaw).finish()
+    light=a.socket(name+'_Light',oriented_point((width/2+.18,-.24,1.78),p,yaw),'engine_light',yaw)
+    light['light_kind']='entry';light['render_power_w']=65
     # Create pivot in building local coordinates and rebase moving mesh once.
     ang=math.radians(yaw);hinge=oriented_point((-width/2,.110,0),p,yaw)
     pivot=a.pivot(name,hinge,yaw=0)

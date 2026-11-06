@@ -85,6 +85,11 @@ def point_light(name,p,power=50,color=(1,.72,.42),radius=.25):
 
 def dress(meta,stem):
  p=meta['plan'];is_complex=stem.startswith('Complex');is_row=stem.startswith('Row');lib=Library();rng=random.Random(p['seed']+914)
+ single=stem.startswith('Building')
+ if single:
+  lib.dependencies.update(match_context(meta,stem,plants=False))
+  p=dict(seed=p['seed'],building=p,lot=(100,86),buildings=[dict(origin=(0,0,0),yaw=0)])
+  is_complex=True
  if not (is_complex or is_row):return lib.dependencies
  W,D=p['lot'] if is_complex else (p['count']*p['width']+12,p['depth']+34)
  depth=p.get('depth',0);south=-D/2-8.8 if is_complex else -depth/2-11.2;north=D/2+9 if is_complex else depth/2+22
@@ -119,6 +124,7 @@ def dress(meta,stem):
  for j,marker in enumerate(markers):
   kind=marker['presentation_kind'];xf=marker.matrix_world.copy();pos=xf.translation;yaw=math.degrees(xf.to_euler().z)
   path=cars[j%3] if kind=='car' else tree if kind=='tree' else shrub
+  if kind=='shrub' and 'Island_shrub' not in marker.name:continue
   if kind=='car' and is_complex:
    b=p['building'];hero_x=p['buildings'][0]['origin'][0]+b['modules'][0]['origin'][0]-21
    if math.hypot(pos.x-hero_x,pos.y+12)<15:continue
@@ -126,28 +132,12 @@ def dress(meta,stem):
   rt=lib.place(path,'Site '+marker.name,pos,yaw,select='Boxwood' if kind=='shrub' else None)
   if kind=='car':rt.matrix_world=xf;lib.factory(rt,j)
   if kind=='tree':rt.scale=(1.15,1.15,1.15)
- # Established foundation beds, spaced to overlap at their natural spread.
+ from landscaping import foundations
+ foundations(lib,p,ROOT,stem)
+ # Mature court canopies are independent of the smaller mixed borders.
  if is_complex:
-  from plans import transform
-  b=p['building']
-  for bb in p['buildings']:
-   for module in b['modules']:
-    for sy in (-1,1):
-     for j in range(int(b['width']/1.12)):
-      x=-b['width']/2+.6+j*1.12
-      if abs(x)<2.3:continue
-      q=transform(transform((x,sy*(b['depth']/2+1.92),0),module['origin'],module['yaw']),bb['origin'],bb['yaw'])
-      # Keep access-gallery flight mouths clear.
-      if b['access']=='breezeway' and sy<0 and abs(x)>b['width']/2-4:continue
-      growth=rng.uniform(.92,1.12)*(1.28 if b['era']<1980 else 1.05)
-      lib.place(shrub,'Foundation planting',q,rng.randrange(360),select='Boxwood',scale=(growth,growth,growth))
   for j,(x,y) in enumerate([(-W*.43,20),(W*.28,14),(-W*.30,-15),(W*.32,-16),(0,D*.38),(-W*.1,-D*.36)]):
    lib.place(tree,'Court canopy '+str(j),(x,y,0),j*57,scale=(1.35,1.35,1.35))
- else:
-  for u in p['units']:
-   for dx in (-.36,.02,.36):
-    if not p['garage'] and dx<0:continue
-    lib.place(shrub,'Row foundation planting',(u['x']+p['width']*dx,-depth/2+u['y']-1.8,0),rng.randrange(360),select='Boxwood',scale=(.9,.9,.85))
  for j in range(-4,5):
   for yy in (south-11,north+11):lib.place(tree,'Street canopy',(j*26+8,yy,0),j*39,scale=(1.2,1.2,1.2))
  if is_row:
@@ -175,7 +165,10 @@ def dress(meta,stem):
  objects=lib.load(ground);turf=next(m for o in objects if o.type=='MESH' for m in o.data.materials if m.name.startswith('Lawn'))
  from kit.tiling import world_uv
  excluded=[(-220,220,yy-4.13,yy+4.13) for yy in (south,north)]
- excluded.append((-W/2,W/2,-D/2,D/2) if is_complex else (-W/2,W/2,-depth/2-17,depth/2+10))
+ if single:
+  bw,bd=p['building']['width'],p['building']['depth'];edge=-bd/2-4.3
+  excluded.extend([(-bw/2-.4,bw/2+.4,-bd/2-2,bd/2+2),(-75,75,edge-25,edge+3.5)])
+ else:excluded.append((-W/2,W/2,-D/2,D/2) if is_complex else (-W/2,W/2,-depth/2-17,depth/2+10))
  xs=sorted({-220,220,*[v for q in excluded for v in q[:2]]});ys=sorted({-220,220,*[v for q in excluded for v in q[2:]]})
  for x0,x1 in zip(xs,xs[1:]):
   for y0,y1 in zip(ys,ys[1:]):
@@ -196,15 +189,14 @@ def dusk_lights():
  for rt in list(bpy.context.scene.objects):
   if rt.get('presentation_only') and rt.name.startswith(('Town street light','Lot street light')):
    socket=next(o for o in rt.children_recursive if o.get('socket_kind')=='engine_light')
-   ld=bpy.data.lights.new('Street pool','SPOT');ld.energy=320;ld.color=(1,.83,.60);ld.spot_size=math.radians(105);ld.spot_blend=.65;ld.shadow_soft_size=.12
+   ld=bpy.data.lights.new('Street pool','SPOT');ld.energy=950;ld.color=(1,.78,.47);ld.spot_size=math.radians(112);ld.spot_blend=.72;ld.shadow_soft_size=.18
    lamp=bpy.data.objects.new('Street pool',ld);bpy.context.collection.objects.link(lamp);lamp.matrix_world=socket.matrix_world.copy();lamp.location.z-=.06
  for ob in list(bpy.context.scene.objects):
-  if ob.get('pivot_axis')=='Z' and ('Unit_' in ob.name or 'Entry' in ob.name or 'Hall_entry' in ob.name):
-   q=ob.matrix_world.translation
-   if int(hashlib.sha256(ob.name.encode()).hexdigest()[:6],16)%3==0:point_light('Entry pool',q+Vector((.7,-.30,1.8)),35)
+  if ob.get('socket_kind')=='engine_light' and ob.get('light_kind'):
+   point_light(ob['light_kind'].title()+' pool',ob.matrix_world.translation,float(ob['render_power_w']),radius=.09)
 
 
-def match_context(meta,stem):
+def match_context(meta,stem,plants=True):
  """Comparable near-ground materials/planting, outside the asset package."""
  p=meta['plan'];lib=Library();ground=ROOT/'ground/export/Ground.glb'
  if stem.startswith('Building'):
@@ -217,10 +209,10 @@ def match_context(meta,stem):
   objects=lib.load(ground);ma=next(m for o in objects if o.type=='MESH' for m in o.data.materials if m.name.startswith('Lawn'))
   if p['seed']==305:
    asphalt=next(m for o in objects if o.type=='MESH' for m in o.data.materials if m.name.startswith('Asphalt'))
-   lot=G.box('Photo apartment parking',(0,edge-50,-.06),(150,100,.10),asphalt,0)
+   lot=G.box('Photo apartment parking',(0,edge-12.5,-.06),(150,25,.10),asphalt,0)
    from kit.tiling import world_uv
    world_uv(lot,6.096);vc=lot.data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='POINT');lot.data.color_attributes.active_color=vc
-   for c in vc.data:c.color=(.55,.55,.53,1)
+   for c in vc.data:c.color=(1.,.98,.94,1)
    vehicles=[ROOT/'cars/export'/name for name in ('AlderC150.glb','AlderX220.glb','AlderH120.glb')]
    for j,x in enumerate((-w*.32,-w*.10,w*.19,w*.39)):
     path=vehicles[j%3]
@@ -229,13 +221,14 @@ def match_context(meta,stem):
   from kit.tiling import world_uv
   world_uv(ob,3.048);tint=ob.data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='POINT');ob.data.color_attributes.active_color=tint
   for c in tint.data:c.color=(.7,.72,.6,1)
-  for j in range(int(w/1.15)):
-   x=-w/2+.6+j*1.15
-   if abs(x)<2.8:continue
-   growth=1.65 if p['seed']==304 else 1.12
-   lib.place(ROOT/'shrubs/export/Shrubs.glb','Photo foundation',(x,-d/2-1.95,0),j*41,select='Boxwood',scale=(growth,growth,growth))
+  if plants:
+   from landscaping import foundations
+   foundations(lib,p,ROOT,stem)
  else:
-  for j,marker in enumerate([o for o in bpy.context.scene.objects if o.get('presentation_kind') in ('shrub','tree')]):
-   xf=marker.matrix_world;p0=xf.translation;kind=marker['presentation_kind']
-   lib.place(ROOT/('shrubs/export/Shrubs.glb' if kind=='shrub' else 'trees/export/RedMaple.glb'),'Photo '+marker.name,p0,j*39,select='Boxwood' if kind=='shrub' else None)
+  from landscaping import foundations
+  foundations(lib,p,ROOT,stem)
+  width=p['count']*p['width']+12;edge=-p['depth']/2-11.2
+  lib.place(ground,'Photo townhouse public street',(0,edge,-.172),90,'Road_Straight_A',(1,(width+50)/6.096,1))
+  for j,marker in enumerate([o for o in bpy.context.scene.objects if o.get('presentation_kind')=='tree']):
+   lib.place(ROOT/'trees/export/RedMaple.glb','Photo '+marker.name,marker.matrix_world.translation,j*39)
  lib.clear();return lib.dependencies

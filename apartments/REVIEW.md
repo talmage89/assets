@@ -532,3 +532,86 @@ these original buildings photographic replicas. No new tool or approval is
 needed from the lead. A future general kit helper could centralize the AO
 settings-group accommodation and thin-glass Eevee setup already used by both
 this family and the houses; this round makes no kit change.
+
+## Delivery pass 8 — first fix crops, rejected planting balance
+
+**Color and value first.** Opened the inherited heroes, all three pairs, the
+native recessed-type plate and dusk before changing anything, then all six
+1400 px frames in `renders/delivery-pass1/`. The native afternoon lot foreground
+rose from about .19 to .32 encoded display luma; it no longer reads as fresh
+black sealcoat. The 2004 photograph's asphalt is .68–.80 in the tested patches,
+with a very bright photographic exposure. Use the direct-sun 2006 townhouse
+photograph as the primary weathered-lot value control: its assumed neutral is
+the same white garage panel already recorded above. Three native pavement
+patches measure .369 / .393 / .435. These are exposed display values, not
+reflectance measurements, and the brighter 2004 comparison is retained.
+
+The initial tint correction exceeded 1 in COLOR_0 on a few asphalt vertices.
+Clamp the delivered factors to the ordinary glTF color range before final
+judgment; do not count on engine-specific out-of-range color behavior. Existing
+baked images, lighting and exposure remain the accepted inputs. Narrow dark
+routed seals, discrete darker utility patches, oils beneath engine positions
+and broken paint runs now differentiate a maintained old wearing course.
+
+The rightmost upper sash now fills its actual roof opening; it formerly
+followed the stepped wall behind an opaque cheek. Its deep return connects
+back to that wall. The dusk shows broad warm pavement pools and the entry's
+wall/walk pool, instead of only glowing lenses. Actual fixture sockets replace
+name-derived door offsets; stair-hall bulkheads use the same existing circuit.
+These changes still require geometric checks as well as visual judgment.
+
+**Remaining CG tells and correction.** The first planting mix still presents
+five small boxwoods together in the principal hero: the hydrangea drift fell
+outside that short bed. Reject that distribution, force a short flowering
+drift within each border, widen the size range and retain a few empty mulch
+stations. The first row photo pair still used legacy shrub markers; route it
+through the same new beds and restore its public-street foreground. The new
+corner maple is plausible but hides part of a balcony, as real planting does.
+Shallow rooms, repeated props and very regular brick manufacture remain
+visible. No docs are created at this pass.
+
+## Delivery pass 9 — all four fixes visible at native size
+
+**Color and value first.** Opened all six second-pass frames and the four
+native before/after plates in `renders/delivery-fixes/`, plus both outlined
+value-control images. The first proposed .369 photo patch included a mulch
+edge and flowers; reject it after looking at the marked photograph. Move
+that patch entirely onto the wearing course. The final three native sunlit
+photo-patch medians are **.385 / .393 / .435**. The unchanged-camera exported
+hero's two pavement rectangles are **.186 → .318** (private aisle) and
+**.198 → .330** (stall apron). The result is deliberately on the darker side,
+.055–.067 below the darkest reference patch, without raising the accepted
+building exposure or editing a canonical Ground image. Five actual surface
+rays hit asphalt and five sunward rays are unblocked. Different photographic
+exposure and sealcoat histories still limit exact value equality. The 2004
+photo remains much brighter; it is not silently rebalanced to fit our lot.
+
+The four plates contain 1400 / 900 / 1050 / 1400 native pixels per side for
+asphalt / dormer / planting / dusk; no resampling. Camera position, target,
+focal length and aspect are independently compared for the hero and dusk.
+The apron has finer mineral breakup than the near-black before, with worn
+paint and dark routed sealing visible in the full frame. Oils remain absorbed
+under selected engine stations; patches and tar do not act as shiny films.
+
+The rightmost mansard aperture now has its sash, glazed pane, curtains and
+room backing. Nine actual source rays through that aperture hit its window;
+the rightmost room joins the existing selected-room dusk circuit. The new
+mixed border visibly breaks the old row of cloned balls: taller/lower clipped
+boxwoods, flowering hydrangea groups, empty stations, bark mulch, low edging
+and a young corner maple. It uses the family's original 419 / 815 specimens,
+with seeded placement, yaw and bounded nonuniform size changes. It does not
+claim additional botanical species or newly baked shrub variants.
+
+The unchanged dusk camera now shows pole-light pools across the aisle and
+stalls, and an entry pool on the wall and approach. All entry/hall fixtures
+have their own engine sockets; nearest actual lens-to-socket distances are
+at most **94.51 mm**. New stair bulkheads and existing gallery entry fixtures
+will be judged in the extended final night views. Light energies are Blender
+presentation settings, not measured illuminance or a luminaire specification.
+
+**What still reads as CG.** The narrow tar zigzag is more regular than a real
+repair; the existing Ground grain repeats, plant specimens remain two shared
+meshes, the brick/curtain rhythm is tidy, and the window rooms have shallow
+backs. The photo fits still compare original plans rather than replicas.
+The four requested changes are visible in their plates, so the family can
+proceed to the final export views and documentation. No docs image exists yet.

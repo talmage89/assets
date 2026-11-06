@@ -113,7 +113,7 @@ def amenity(a,kind,p):
 
 
 def make_complex(p):
-    a=Assembly('Complex_'+str(p['seed']));a.root['site_kind']='complex';W,D=p['lot'];rng=random.Random(p['seed']+91)
+    a=Assembly('Complex_'+str(p['seed']));a.root['site_kind']='complex';W,D=p['lot'];rng=random.Random(p['seed']+91);wear_rng=random.Random(p['seed']+1921)
     for b in p['buildings']:garden_building(p['building'],b['id'],a.root,b['origin'],b['yaw'],a.materials)
     ground=a.mesh('Private_paving',component='site')
     # Ground library road construction and curbs carry the site; stalls are
@@ -126,9 +126,27 @@ def make_complex(p):
         ground.box((0,sy*10.42,.065),(W-8,1.524,.13),'Concrete',r=.002)
     for j,s in enumerate(p['stalls']):
         x,y=s['x'],s['y'];sy=1 if y>0 else -1
-        for sx in (-1,1):ground.box((x+sx*4.5*FT,y, .007),(.09,18*FT,.008),'Trim',(.64,.62,.48),r=0)
+        # Thin paint has no visible side wall. Missing chips follow the wheel
+        # crossings, with long retained runs beside the parked vehicle.
+        for sx in (-1,1):
+            xx=x+sx*4.5*FT
+            for k in range(7):
+                lo=y-9*FT+k*18*FT/7;hi=lo+18*FT/7
+                gap=.03+(.17 if k in (0,1,5) else .015)*wear_rng.random()
+                if (j*7+k*3+int(sx))%31==0:continue
+                ground.geom([(xx-.043,lo+gap,.001),(xx+.043,lo+gap*.7,.001),(xx+.043,hi-.035,.001),(xx-.043,hi-.055,.001)],[(0,1,2,3)],'Trim',(.52,.51,.40))
         ground.box((x,y+sy*2.18,.09),(1.72,.15,.17),'Concrete',(.33,.32,.285),r=.016)
         rng.random()  # Preserve the deterministic placement sequence.
+    # Utility patches and routed seals stay in the wearing course and share
+    # the asphalt material/metric charts; no glossy alpha film or new maps.
+    for j,(xx,yy,ww,dd) in enumerate(((-W*.28,6.7,2.1,3.8),(W*.21,-6.2,2.7,2.9),(-W*.12,-5.7,1.6,2.4))):
+        ground.geom([(xx-ww/2,yy-dd/2,.002),(xx+ww/2,yy-dd/2+.18,.002),(xx+ww/2-.12,yy+dd/2,.002),(xx-ww/2+.15,yy+dd/2-.08,.002)],[(0,1,2,3)],'Shingles',(.047,.049,.047))
+    for j in range(12):
+        xx=-W/2+12+j*(W-24)/12;yy=wear_rng.choice((-1,1))*wear_rng.uniform(4.5,8.8)
+        pts=[(xx+.11*k+.18*math.sin(k*1.7+j),yy+(k-3)*.35,.003) for k in range(7)]
+        for q,r in zip(pts,pts[1:]):
+            dx,dy=r[0]-q[0],r[1]-q[1];ll=math.hypot(dx,dy);ox,oy=-dy/ll*.022,dx/ll*.022
+            ground.geom([(q[0]+ox,q[1]+oy,q[2]),(q[0]-ox,q[1]-oy,q[2]),(r[0]-ox,r[1]-oy,r[2]),(r[0]+ox,r[1]+oy,r[2])],[(0,1,2,3)],'Shingles',(.020,.022,.021))
     # Main walk branches terminate on actual building walk sockets.
     for b in p['buildings']:
         for module in p['building']['modules']:

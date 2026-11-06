@@ -137,6 +137,34 @@ def source(path,stem):
         garage_open={o.name:np.array(o.matrix_world).tolist() for o in garage_nodes};pose(0)
         assert chord_error<1e-6 and ceiling_gap>.001
     obs=[o for o in bpy.context.scene.objects if o.type=='MESH']
+    # Engine sockets must sit in front of actual fixture lenses. This is a
+    # geometric check, separate from the imported socket-frame comparison.
+    lens_vertices=[];lens_faces=[]
+    for ob in obs:
+        if ob.get('component')!='entry':continue
+        uv=ob.data.uv_layers.get('EmissionUV')
+        if not uv:continue
+        for face in ob.data.polygons:
+            if not all(.5<uv.data[li].uv.x<.75 for li in face.loop_indices):continue
+            start=len(lens_vertices);lens_vertices.extend(ob.matrix_world@ob.data.vertices[i].co for i in face.vertices)
+            lens_faces.append(tuple(range(start,len(lens_vertices))))
+    lens_tree=BVHTree.FromPolygons(lens_vertices,lens_faces) if lens_faces else None
+    light_offsets=[]
+    for ob in bpy.context.scene.objects:
+        if ob.get('socket_kind')!='engine_light' or not ob.get('light_kind'):continue
+        assert lens_tree
+        near=lens_tree.find_nearest(ob.matrix_world.translation);distance=float(near[3])
+        assert distance<.16,(ob.name,distance,'Socket displaced from fixture lens')
+        light_offsets.append(dict(socket=ob.name,nearest_actual_lens_m=distance))
+    dormer_hits=[]
+    if stem=='Building-305':
+        plan=garden(305);w,d=plan['width'],plan['depth'];uw=plan['unit_width'];cw=plan['core_width']
+        x=cw/2+uw/2+uw*.25;z=plan['base']+plan['floor_height']+1.5
+        for dx in (-.45,0,.45):
+            for dz in (-.35,0,.35):
+                hit,point,normal,face,ob,xf=bpy.context.scene.ray_cast(bpy.context.evaluated_depsgraph_get(),Vector((x+dx,-d/2-1.1,z+dz)),Vector((0,1,0)),distance=2.)
+                assert hit and 'Bedroom_202' in ob.name,(dx,dz,ob.name if ob else 'void')
+                dormer_hits.append(dict(object=ob.name,hit_m=list(point)))
     form=[]
     for wing in [o for o in bpy.context.scene.objects if o.get('access')]:
         bays=sorted([o for o in wing.children if o.type=='MESH' and '__Facade_-1_bay' in o.name],key=lambda o:o.name)
@@ -170,7 +198,7 @@ def source(path,stem):
     if stem.startswith('Row'):
         architecture=[o for o in obs if any('_Unit' in a.name for a in parent_chain(o))]
     archtris=triangles(architecture)
-    report=dict(source_triangles=triangles(obs),architecture_triangles=archtris,stairs=stair_reports,articulation=form,
+    report=dict(source_triangles=triangles(obs),architecture_triangles=archtris,stairs=stair_reports,articulation=form,light_socket_lens_offsets=light_offsets,rightmost_dormer_surface_hits=dormer_hits,
                 service_passages=service_gaps,site_mesh_triangles=siteparts,sliding_panel_poses=slider_poses,garage_panel_poses=garage_poses,garage_chord_error_m=chord_error,garage_ceiling_gap_m=ceiling_gap if garage_nodes else None,garage_open_frames=garage_open,pivot_and_socket_count=len(pivots),leaf_casing_sampled_poses=motion_poses,motion_scope='Actual leaf/casing surfaces at 0–100 degrees in 10-degree increments, and slider/fixed sash surfaces at nine track positions; excludes other assemblies and continuous collision claims.',scope='Actual source mesh pan crowns; seven consecutive intervals per eight-riser flight. First-rise/landing/guard checks are separate design assertions, not inferred measurements.')
     return report,pivots,points()
 

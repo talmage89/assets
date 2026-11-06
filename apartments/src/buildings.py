@@ -153,7 +153,12 @@ def garden_module(p,parent,name,loc=(0,0,0),yaw=0,materials=None):
                     balcony_back=face-sy*1.524 if recessed else face
                     pos=(bx,balcony_back+sy*.025,z+1.016)
                     sliding(a,'Patio_'+number,pos,0 if sy<0 else 180,seed=p['seed']+f*9+j)
-                    window(a,'Bedroom_'+number,(wx,face+sy*.025,z+1.50),1.524,1.2192,0 if sy<0 else 180,seed=p['seed']+f*3+j,replacement=(j+f+p['seed'])%4==0,masonry=p['skin']=='brick' or p['skin']=='mixed' and f==0,reveal=.45 if p['roof']=='mansard' and f==floors-1 else 0)
+                    # The continuous apron stays on the nominal roof line.
+                    # A stepped wall behind it must not drag the dormer sash
+                    # behind an opaque cheek. Carry its well back to the body.
+                    dormer=p['roof']=='mansard' and f==floors-1
+                    window_face=sy*d/2 if dormer else face
+                    window(a,'Bedroom_'+number,(wx,window_face+sy*.025,z+1.50),1.524,1.2192,0 if sy<0 else 180,seed=p['seed']+f*3+j,replacement=(j+f+p['seed'])%4==0,masonry=p['skin']=='brick' or p['skin']=='mixed' and f==0,reveal=.45-offset(x) if dormer else 0)
                     if recessed:
                         openings[-2].update(w=3.35,h=2.36,z=z+1.18-base)
                         panel_wall(a,'Balcony_back_'+number,3.35,2.40,(bx,balcony_back,z),0 if sy<0 else 180,[dict(x=0,w=sw+.05,h=2.10,z=1.05)],p['skin'],band=fh if f==0 else 0)
@@ -222,6 +227,15 @@ def garden_module(p,parent,name,loc=(0,0,0),yaw=0,materials=None):
             flights+=stairs(a,'Exterior_stair_'+str(sx),(sx*(w/2-1.5)-.6,-d/2-3.10,base),fh,floors,reverse=True)
     else:
         flights=stairs(a,'Core_stairs',(-1.65,-1.10,base),fh,floors)
+        # Common-hall bulkheads illuminate the actual landings. Their warm
+        # lenses share the existing entry circuit, with engine light sockets.
+        for f in range(floors):
+            z=base+f*fh+2.25
+            lamp=a.mesh('Stair_bulkhead_'+str(f),component='entry')
+            lamp.box((core/2-.16,-1.75,z),(.10,.24,.27),'Trim',STEEL,r=.006)
+            lamp.box((core/2-.22,-1.75,z),(.018,.18,.21),'Trim',(.66,.57,.35),r=.002);lamp.finish()
+            socket=a.socket('Stair_light_'+str(f),(core/2-.28,-1.75,z),'engine_light')
+            socket['light_kind']='stair';socket['render_power_w']=95
         # Lateral unit entrances open into the full-depth common hall.
         for sx in (-1,1):
             os=[]
