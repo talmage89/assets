@@ -101,6 +101,9 @@ def nc_corner(context):
     mats={key:next(m for m in bpy.data.materials if m.name=='Context_'+key) for key in ('Asphalt','Concrete','Lawn')}
     def surface(name,vs,fs,mat):
         ob=G.mesh(name,vs,fs,mats[mat]);uv=ob.data.uv_layers.new(name='UVMap')
+        # Open sheets have no enclosed volume from which recalculation can
+        # infer an outside. Explicitly keep horizontal ground faces upward.
+        if ob.data.polygons and ob.data.polygons[0].normal.z<-.99:ob.data.flip_normals()
         for face in ob.data.polygons:
             for li in face.loop_indices:
                 p=ob.data.vertices[ob.data.loops[li].vertex_index].co;tile=6.096 if mat=='Asphalt' else 3.048;uv.data[li].uv=(p.x/tile,p.y/tile)
@@ -125,9 +128,14 @@ def nc_corner(context):
         t=max(0,min(1,(18-y)/42));return 2.2*t*t*(3-2*t)
     # Turf stays under paving; raised side yards stop at the actual walk edge.
     G.box('NC low continuous grade',(0,180,-.04),(1400,1400,.06),mats['Lawn'],0)
-    path=[(centre(y),y,0) for y in range(-25,620,2)]
-    band('NC main road',path,-4.1148,4.1148,.022,'Asphalt')
-    surface('NC crossing road',[(-650,-31,.022),(650,-31,.022),(650,-23.0762,.022),(-650,-23.0762,.022)],[(0,1,2,3)],'Asphalt')
+    path=[(centre(y),y,0) for y in range(-21,620,2)]
+    road_path=[(centre(-23.0762),-23.0762,0)]+path
+    road=band('NC main road',road_path,-4.1148,4.1148,.022,'Asphalt',(Vector((0,1,0)),Vector((0,1,0))))
+    crossing=surface('NC crossing road',[(-650,-31,.022),(650,-31,.022),(650,-23.0762,.022),(-650,-23.0762,.022)],[(0,1,2,3)],'Asphalt')
+    # The asphalt sheets meet at one edge; coplanar overlapping sheets caused
+    # the artificial rectangular dark patch in the final comparison.
+    road_min=min(v.co.y for v in road.data.vertices);cross_max=max(v.co.y for v in crossing.data.vertices)
+    assert abs(road_min-cross_max)<.00001
     # Ribbons begin above the return radius; continuous concrete faces have
     # no cracks between independently warped prefab modules.
     main=[p for p in path if p[1]>=-17]
@@ -180,6 +188,6 @@ def nc_corner(context):
                 gap=min(max((p-q).length for p,q in zip(aa,order)) for order in itertools.permutations(bb))
                 assert gap<.001,(side,role,end,gap)
                 joins.append(dict(side=side,role=role,end=end,measured_maximum_endpoint_gap_m=gap))
-    Path('build/nc-corner-joins.json').write_text(json.dumps(dict(scope='Actual built curb/walk mesh edge endpoints; presentation only',joins=joins),indent=2))
+    Path('build/nc-corner-joins.json').write_text(json.dumps(dict(scope='Actual built curb/walk mesh edge endpoints; presentation only',joins=joins,paving=dict(measured_approach_minimum_y_m=road_min,measured_crossing_maximum_y_m=cross_max,overlapping_area=False)),indent=2))
     surface('NC opposite corner walk',[(-650,-32.5,.16764),(650,-32.5,.16764),(650,-31,.16764),(-650,-31,.16764)],[(0,1,2,3)],'Concrete')
     wall('NC opposite crossing curb face',[(-650,-31,0),(650,-31,0)],0)
