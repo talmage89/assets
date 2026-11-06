@@ -61,7 +61,7 @@ def field(role,w,h,wear=1):
             grain+=np.sin(q*(95+71*k)+.5*np.sin(V*(8+k*3))+k*2)*(.5**k)
         grain*=.5*(.65+.35*coherent(rng,w,h,45,20 if role=='Crossarm' else 85))
         # Silvered, neutral gray-brown fibers; fir keeps a warmer cut grain.
-        base=(.205,.199,.178) if role.startswith('Pole') else (.145,.125,.092)
+        base=(.170,.158,.150) if role.startswith('Pole') else (.145,.125,.092)
         color=np.broadcast_to(np.asarray(base),(h,w,3)).copy()
         color*=np.clip(1+grain[...,None]*.13+broad[...,None]*.13+fine[...,None]*.025,.5,1.5)
         # Millimetre-scale longitudinal fibres, separate from annual bands.
@@ -195,7 +195,7 @@ def field(role,w,h,wear=1):
             # Burned/stamped wood, not a pale foil rectangle.
             ink=np.clip((.112-color.mean(axis=2))/.095,0,1)
             fibres=coherent(rng,w,h,30,3)
-            wood=np.broadcast_to((.205,.199,.178),(h,w,3)).copy()*(1+fibres[...,None]*.13)
+            wood=np.broadcast_to((.170,.158,.150),(h,w,3)).copy()*(1+fibres[...,None]*.13)
             color=wood*(1-ink[...,None])+color*ink[...,None]
         scratches=(fine>1.4)*.08; color*=1-scratches[...,None]*wear
         height=-((color.mean(axis=2)<.05)*.00007);rough[:]=.85
