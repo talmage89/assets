@@ -45,7 +45,8 @@ under retained ledges and extend down. Zinc crystallization is restrained;
 water retained low on the support leaves zinc oxide, and crevices/cut edges at
 the base and nuts carry interrupted oxidation. Upward arm/case faces receive
 perch deposits. Concrete has form lines. Mill-finish cabinet aluminum retains .95 metallic, variable brushed roughness
-around .28 and rain patina. Cabinet splash stays on the lower
+around .30 and narrow unequal runoff beneath exposed edges. Protected inner
+skins use clean sheet; cabinet splash stays on the lower
 leaf; the service label and document sheet stay attached to their door.
 The accessible button has polished contact and short abrasion strokes, with a
 small maintenance sticker on its station.

@@ -447,3 +447,234 @@ layout-check,delivery-check,budget-report,preservation,repeat-check,
 texture-repeat,lens-measurements,hero-range}.json. The repetitive town context,
 coarse tall-pole detail, shared wear and simplified optics remain the clearest
 CG tells. This is the requested review checkpoint, without docs images.
+
+## Final pass 1 — accepted checkpoint re-examined, 5 November 2026
+
+Color and value first: opened the native checkpoint hero, dusk, open cabinet,
+four-town sheet, seven-pair sheet and full neutral-balanced head photograph.
+The yellow's small old exposed-paint patch is .882/.584/.169 against
+.933/.557/.055 in the photo. Those strips have different visor shadows; the
+photo clips red, and the earlier comparison does not prove a matched hue.
+Broader yellow segmentation gives different results and must not be substituted
+for same-surface samples. Increase yellow's green relative to red modestly and
+reduce blue, then judge the same matched-light strips again. The cabinet lacks
+metallic highlights and the blue-hour view has almost no lighting hierarchy.
+
+CG tells: empty foreground/sky dominate the hero; repeated identical tree
+silhouettes make an avenue pattern; every approach looks clean despite its
+signal. Unpowered covers show no recognizable curved sky highlight and their
+arrays vanish. The interior door gasket was actually a solid black panel,
+concealing the aluminum inner skin. Correct it to four perimeter strips, retain
+hardware and rack, and add the small police door and folded inner stiffeners.
+Rebuild shared trims without changing their resolutions or family memory.
+
+The revised arterial surface keeps Ground's canonical maps intact and places
+absorbed oil on the road itself. FHWA 2006 Traffic Detector Handbook Volume II,
+chapter 5/appendix J inform 6 ft square chamfered loops, sealed lead-ins and
+roadside pull boxes. Wheel-path aggregate has its own scalar roughness, while
+paint breaks in value where tires cross. The module's local station grid adds
+geometry only where those broad changes need support; report this separately
+from the unchanged head budgets. All final pavement views must load the actual
+exported ArterialSites module, not the procedural construction scene.
+
+The exported pavement audit found the original MixRGB paint/seal factors were
+not serialized by Blender: paint and seal collapsed to the same shader.
+Corrected to direct stock COLOR_0 colors, re-exported and independently probed
+134 actual imported surface points. All fifteen signal deliveries also pass
+raw normals/UV/image checks and source-to-reimport measurements. This proves
+those data paths, not appearance. The wearing-course additions bring the four
+full road assemblies to 6243/4050/6448/2770 triangles; each consists of multiple
+approach pieces plus corners, walks and medians. No image is added.
+
+A better yellow comparison uses the right-hand flat paint beside each lens,
+away from the unequal visor shadows. For the red section, balanced photo
+RGB is 1.000/.729/.114, hue 41.7 degrees; accepted render .920/.616/.216,
+hue 34.1 degrees. The photo clips red, but the 7.6 degree shift toward orange
+is clear. Two further right-side strips corroborate it. Preserve all three
+rectangles and their clipping fractions in the final measurement receipt.
+The revised Maryland neutral was checked as a native crop: an initial
+rectangle hit asphalt; the corrected 1640,1730–1660,1770 rectangle is bare
+near-curb concrete, clear of leaves and joints. Record the actual gains.
+
+## Final pass 2 — native exported previews rejected selectively, 5 November 2026
+
+Color and value first: opened all three 1200 px Eevee camera drafts, the revised
+Cinderbrook draft and all six 1200 px Cycles material/paving/dusk previews.
+Yellow now reads yellow rather than orange; compare its documented flat strips
+under the retained photo lighting before accepting the numerical match. The
+cabinet is clearly metal and its light reveals the controller and rack. Its
+inner panel needs real contact with the leaf and pocket: remove tiny floating
+standoffs rather than reporting their intended placement as a contact.
+
+CG tells: cover reflection curvature is exaggerated, producing a large golden
+reflection of the visor below the sky patch. Reduce the analytic curvature and
+clear-coat contribution while keeping the arrays faintly visible and the lit
+strength unchanged. The dusk preview has warm pools and visor bounce, but its
+sky is still flat. Pixel samples confirm the world normal's inverted Z sign
+clamped the gradient to its horizon value. Use absolute altitude and compare
+native sky samples again. The pavement close-up misses the detector cuts and
+includes a foreground car: retarget all three approach loops and omit only
+presentation vehicles from that inspection view.
+
+The tighter Aldervale hero improves occupancy but cannot place its remote
+cabinet in the foreground. Cinderbrook's wider corner view includes the cabinet,
+pedestrian post, queued cars and full arms. Its first draft clips hardware;
+reject it. The farther-back view fits the equipment, but a foreground
+presentation street-lamp stem blocks the composition. Leave a documented gap
+in that context placement; never hide or move shipped traffic equipment.
+
+The small police door is a separate hinged leaf over a real access aperture
+through both skins, with perimeter gasket, lock and pins. Cabinet cost is now
+2964 triangles, below 3000. Actual per-approach road counts are 1903 max for
+Aldervale, 794 for Cinderbrook, 1993 for Wrenfield and 772 for Morrow Glen,
+within the 2000 modular-piece limit; full road totals include all approaches.
+
+## Final pass 3 — clean exported outdoor audit, 5 November 2026
+
+Color and value first: inspected every native outdoor image as it arrived.
+The case coating is now a stronger yellow, gray zinc stays separate from it,
+and recesses remain deep. The cabinet's natural metal, gasket, louvers,
+police-door seam/lock/pins, inner stiffeners and rack are visible; its service
+light lifts the former dark void. The molded cover now has a restrained sky
+reflection and visible unpowered packages. Its package layout is still more
+regular than the photograph, and repeated cabinet trim grain is conspicuous.
+
+The pavement detail shows three full 1.8288 m detector rectangles, relieved
+corners, sealed lead-ins and wheel-path wear. Stop/crosswalk paint darkens where
+tires cross; fine binder chipping is simpler than the photograph. The old
+pavement camera missed the cuts and is retained only as rejected evidence.
+Four road plans remain unchanged; tree species, size, rotation and gaps vary.
+
+The 35 mm Cinderbrook hero now fits complete arms against the upper sky, with
+cabinet and pedestrian post near the camera and cars at the bars. It has less
+empty road/sky than the accepted Aldervale camera. Raking light defines the
+steel and nearby surfaces. The dusk gradient now varies with altitude and
+warm street-light pools break the former uniform blue. Its green indications
+read clearly, but the presentation cars' original 80-strength lights compete
+with them. Reduce those imported car materials' preview strengths to 1.6 at
+dusk and .8 by day, preserving the car files and the accepted signal strength.
+
+Another CG tell in the close views is a blue band beyond the 350 m ground
+edge. Extend only the presentation underlay to 10 km in each direction; the
+100 m delivered arterial modules stay intact. The near Cinderbrook street-light
+gap must be real context placement rather than hidden lamp geometry with a
+live light. Omit the two closest presentation lamp instances for that seed.
+Re-render affected outdoor evidence and pairs and verify all recipe/bundle
+receipts before docs. Gallery parts are unaffected by these scene corrections.
+
+## Final pass 4 — gallery lighting and material-value audit
+
+Color and value first: the first gallery views were rejected. The studio light
+matrices had been read before a dependency-graph update, producing bright bars
+through the parts. Update the transforms before recording them, then keep the
+studio exposure low enough to retain coated-case color and aluminum highlights.
+The correctly lit cabinet exposed broad repeated grain, especially on the small
+police leaf. Replace it with fine mill variation and two unequal narrow runoff
+tracks beneath exposed edges; sheltered inner skins sample clean aluminum.
+Keep the grounded cabinet at ground zero so its buried conduits do not lift
+the concrete base into the air.
+
+The inherited equipment-fit pavement camera actually sampled concrete, so its
+asphalt numbers were rejected. A separate nominal 42 mm curbside comparison
+now has three actual imported road hits and three clear sun paths. No fitted
+equipment residual is attributed to this new camera. Under the inherited
+Maryland light, the first wearing-course tint gave Y′ .296/.271/.274 against
+photo .401/.435/.406. It was too dark. Lift dry aggregate from .60 to .95
+vertex tint while retaining localized oil and wheel-path masks; verify again
+before publishing the final values. Ground's canonical maps remain byte-identical.
+
+CG tells still to judge in the rebuilt finals: regular LED packages, shared
+trim weathering, simplified asphalt mineral breakup and paint abrasion, and
+the intentionally coarse distant town. These are appearance limitations, not
+claims resolved by the geometry checks.
+
+The .95 tint confirmation gives Y′ .355/.331/.333; native contrast
+p85–p15/p85 is .088/.123/.117 versus photo .088/.130/.120. The
+nominal comparison also needs a documented half-stop exposure correction:
+clear near white paint was .669 versus .889 in the balanced photo. That
+correction applies only to this estimated ground-view camera, with its
+rectangles and limitations recorded in pavement-camera.json. Re-measure the
+actual final image; the presentation cameras keep their own exposures.
+
+## Final pass 5 — delivered images, 6 November 2026
+
+Color and value first: inspected all 25 native checkpoint/optics images, the
+seven fitted equipment pairs plus the nominal pavement pair on both source
+and export, and the native part turnarounds as they completed. The balanced
+pavement photo medians are .401/.435/.406; final imported road .440/.417/.418.
+All three render samples hit asphalt or polished aggregate and have clear sun
+paths. Near white paint, rather than an asphalt ROI, informed the separate
+nominal camera's half-stop field-exposure correction. Original geography and
+uncalibrated JPEG response prevent a physical albedo inference.
+
+The three yellow photo hues are 41.7/39.8/40.9 degrees, against final
+39.4/40.6/40.9; accepted checkpoint 34.1/34.8/34.9. Corresponding final Y′
+.698/.716/.723 compares with photo .743/.704/.733. The stainless-latch neutral
+is provisional and the first photo strip clips red in about 96% of its pixels.
+These flat strips are a better comparison than the unequal under-visor shadows.
+
+Cinderbrook's 35 mm sidewalk hero places full arms high in frame, cars at bars,
+near service equipment and the town behind. Its Y′ p1/p50/p99 is
+.004/.400/.937, with .000391% near-white pixels. The gradient dusk sky, actual
+street-light pools and small indication flux lights give the lit lenses their
+place in the frame. Off covers show sky and packages. Lit R95/sky-R is
+1.969 at 30 m and 1.610 at 100 m, versus accepted 1.958/1.616: the accepted
+emission remains 6.0. This is image contrast, not candela.
+
+The clean mill finish, narrow runoff and protected inner skin pass the native
+cabinet close-up and all four studio views. Gasket, folded stiffeners, access
+aperture, police leaf, lock/pins and warm service light read clearly. Its plinth
+now rests at floor height with buried conduits. The first standalone button
+gallery was rejected because its instruction sign floated without a post; use
+the delivered PushButtonPost assembly for that turnaround. The native phase
+frames correctly show through green with FYA on/off, steady yellow on S01, then
+red/red-arrow. Their shared display stand supports both hangers. The scale
+silhouette's actual vertex height is 1.79999995 m. The Eevee view is inspected.
+
+Remaining CG tells: LED packages and cloud reflections are more regular than
+the photographed optics; shared trim weathering repeats; paint abrasion and
+long wheel paths are too orderly close up; tall pole texture is coarse. Tree
+species, scale, rotation, gaps and placement now vary, but the distant flat town
+remains simplified. These limitations are retained honestly within the accepted
+geometry/texture budgets. No kit changes or neighboring delivery edits.
+
+Native before/after evidence: renders/final-fixes/{hero,asphalt,yellow,
+dark_lenses,dusk,cabinet_exterior,cabinet_interior,trees}.jpg. Each side is
+1600 native pixels wide; hero/dusk explicitly compare revised authored cameras
+and installations. The other detail comparisons retain their cameras.
+
+## Final pass 6 — compact delivery review, 6 November 2026
+
+Color and value first: rejected the first GIF palette because the small green
+indication became gray against a palette dominated by case yellow and the
+background. Reserve actual sampled green/red/yellow indication colors before
+quantizing. The final 256-color GIF is inspected after encoding: green, FYA
+on/off, steady yellow and red retain their colors; all six frame durations
+are verified. It is 800 × 600 and 306,462 bytes. Quantization banding remains
+visible, an honest GIF limitation; native PNG frames retain full color.
+
+The mounted button's four native views now pass: the instruction sign and
+button are supported on the actual exported post. Inspected the final contact
+sheet and all five compact docs JPGs. Tall overview JPGs are capped at 1600 px
+height as well as width; the native evidence remains intact. Each JPG is under
+200,000 bytes (largest 199,369). The towns sheet names each town and seed.
+
+Build proof: signals build/, textures/ and export/ plus the authored arterial
+GLB were absent at the clean build start. Bake, model, arterial, export, all
+checks and the 50-view final stage completed with exit 0. The final mounted
+button presentation and bounded docs completed afterward. make, make check,
+make repeat and the repository check exit 0. Replay reproduces 15 GLBs exactly,
+64,916,952 bytes; this is model/state/image replay, not an exact GPU rebake
+claim. All 295 protected delivery hashes remain unchanged. No main merge,
+kit changes or top-level README edit.
+
+Final receipts: ../build/signals-delivery-{clean,make,mounted-button,docs}.log;
+../build/signals-delivery-final-{make,check,repeat,repo}.log; build/{checks,
+construction,layout-check,arterial-check,delivery-check,budget-report,
+preservation,repeat-check,final-values,hero-range}.json and build/gif-audit/.
+The shared PNGs total 3,633,325 bytes; fifteen external glTF/bin deliveries
+with one map copy total 14,628,534 bytes. Map sizes and compressed family
+memory remain 2048/1024/512 × 256 and 17.5 MiB. Per-part/per-intersection
+triangles, material counts, bytes and first-use memory are in README and the
+generated budget report. Nothing is needed from the lead to complete this
+delivery. The appearance limitations in pass 5 remain.

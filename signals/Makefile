@@ -20,7 +20,7 @@ MODELS := $(foreach n,$(SEEDS),build/Signals-$(n).blend build/Signals-$(n).glb b
 PARTS := MastArm Pedestal Cabinet Head_three Head_fya Head_five Head_protected PushButton PushButtonPost PedHead SpanSet
 MODELS += $(foreach p,$(PARTS),build/parts/$(p).glb)
 .PHONY: all refs context preserve textures model export check render matches review repeat check-repo clean FORCE
-all: refs context textures model arterial export check render matches review finals
+all: refs context textures model arterial export check render matches review finals docs
 build/parameters.txt: FORCE
 	@mkdir -p build $(TMPDIR)
 	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='wear=$(WEAR)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"

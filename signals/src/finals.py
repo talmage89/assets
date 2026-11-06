@@ -1,5 +1,6 @@
 """Final family evidence and compact docs, with export provenance checks."""
 import argparse,json,shutil,sys,hashlib
+import numpy as np
 from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont
 ROOT=Path(__file__).resolve().parents[2];sys.path[:0]=[str(ROOT),str(Path(__file__).parent)]
@@ -7,7 +8,7 @@ from kit.contact import contact,review_sheet,FONT
 from deliver import bundle
 
 def jpg(im,path,width=1600,limit=200000):
- im=im.convert('RGB');im.thumbnail((width,20000),Image.Resampling.LANCZOS)
+ im=im.convert('RGB');im.thumbnail((width,1600),Image.Resampling.LANCZOS)
  for quality in range(94,39,-2):
   im.save(path,quality=quality,optimize=True)
   if path.stat().st_size<=limit:return
@@ -41,7 +42,8 @@ def run(docs=False):
  gallery_receipt(extra[0]);eevee=json.loads(extra[1].with_suffix('.json').read_text());assert eevee['bundle_sha256']==bundle(eevee['source'])
  for path in extra:assert path.exists(),path
  contact(files,out/'contact.jpg',width=2400,title='Waycroft / final exported equipment / Cycles except labeled Eevee',captions={str(p):str(p.relative_to(out).with_suffix('')) for p in files})
- contact([out/(rel+'.png') for rel in order if rel.endswith(('above','driver'))],out/'four-towns.jpg',width=2400,title='Four road plans / four towns / above and driver')
+ towns={'201':'Aldervale','202':'Cinderbrook','203':'Wrenfield','204':'Morrow Glen'}
+ contact([out/(rel+'.png') for rel in order if rel.endswith(('above','driver'))],out/'four-towns.jpg',width=2400,title='Four road plans / four towns / above and driver',captions={str(out/(rel+'.png')):towns[rel.split('/')[0]]+' / '+rel.split('/')[0]+' / '+rel.split('/')[1] for rel in order if rel.endswith(('above','driver'))})
  contact([out/(rel+'.png') for rel in ('201/head_lit','201/head_dark','201/lens_detail','201/pavement','201/connection','204/span_hanger','201/cabinet_open','201/button')],out/'details.jpg',width=2000,title='Waycroft / optics, construction and service')
  recipe=hashlib.sha256(b''.join((Path('src')/n).read_bytes() for n in ('render.py','setting.py','plan.py'))).hexdigest()
  for folder in ('renders/matches','renders/source-matches'):
@@ -58,8 +60,18 @@ def run(docs=False):
  chart=Image.new('RGB',(frames[0].width*4,frames[0].height))
  for i,index in enumerate((0,1,4,5)):chart.paste(frames[index],(i*frames[0].width,0))
  gif=motion/'signals-cycle.gif'
- for colors in (128,96,64):
-  palette=chart.quantize(colors=colors,method=Image.Quantize.MEDIANCUT);indexed=[im.quantize(palette=palette,dither=Image.Dither.NONE) for im in frames]
+ # Small luminous indications must survive a palette dominated by gray/yellow.
+ reserved=[]
+ for index,kind in ((0,'green'),(5,'red'),(4,'yellow')):
+  a=np.asarray(frames[index]).reshape(-1,3).astype(float);r,g,b=a.T
+  mask=(g>r*1.4)&(g>b*1.2)&(g>80) if kind=='green' else (r>g*1.7)&(r>b*1.7)&(r>90) if kind=='red' else (r>200)&(g>120)&(g>r*.6)&(b<100)
+  pixels=a[mask];assert len(pixels)>100,('Missing phase color',kind)
+  pixels=pixels[np.argsort(pixels@np.array([.2126,.7152,.0722]))]
+  reserved.extend(pixels[round(q*(len(pixels)-1))].astype(int).tolist() for q in (.15,.45,.75,.95))
+ reserved.extend([[20,20,20],[100,100,100],[180,180,180],[255,255,255]])
+ for colors in (256,192,128,96,64):
+  base=colors-len(reserved);common=chart.quantize(colors=base,method=Image.Quantize.MEDIANCUT).getpalette()[:base*3]
+  palette=Image.new('P',(1,1));palette.putpalette(common+[c for rgb in reserved for c in rgb]+[0]*((256-colors)*3));indexed=[im.quantize(palette=palette,dither=Image.Dither.NONE) for im in frames]
   indexed[0].save(gif,save_all=True,append_images=indexed[1:],duration=durations,loop=0,optimize=True,disposal=1)
   if gif.stat().st_size<=450000:break
  assert gif.stat().st_size<=450000,(gif,gif.stat().st_size)
