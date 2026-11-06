@@ -217,3 +217,51 @@ future kit improvement would add geometric-normal orientation and inter-piece
 seam comparisons to the existing unit-normal checks; the local checks caught
 failures that normalized vectors alone could not expose. Nothing is needed
 from the lead to review this checkpoint.
+
+## Pass 8 — site assembly error caught at native size
+
+Color/value first: the quick finish and its previously documented color
+mismatches are unchanged. Native-size ground views expose unsupported fabric
+at the near fence corner and bare posts along the side. This is construction,
+not a transparent-material or wear effect. The imported source roots use
+quaternion mode, so assigning Euler yaw did nothing. Explicitly select Euler
+mode before applying placement yaw. This also restores the intended bench,
+tree and presentation-house orientations.
+
+The new check reads actual imported fabric vertices and actual post-bottom
+rings, rather than comparing declared rotation metadata. All 24 side bays on
+101 and 20 each on 202/303 span 3.048m along Y; the maximum discrepancy between
+fabric endpoints, their 34mm stand-off and supporting post axes is 2.915µm.
+The previous crosswise bays fail this test. Triangle and material counts stay
+unchanged; glTF byte sizes rise slightly because rotations are now serialized.
+
+The final requirements audit also corrected the proof programs to explicitly
+span three decades: Mill Creek 1999, Cedar Junction 2004 and Alder Glen 2011.
+The form sign is regenerated once per fresh scene, so an old cached print
+cannot retain its earlier 2000 date. No skating geometry changed. Re-render
+the corrected sites and repeat the independent byte proof before stopping.
+
+## Pass 9 — corrected site retained; stop before look-dev
+
+Color/value first: the regenerated hero keeps a readable gray skating surface,
+deep bowl shadow and unclipped highlights. Current whole-image display-Y
+p5/p50/p95/p99 are .0039/.6004/.7405/.7822, with zero white clipping. These
+are display diagnostics including context, not albedo validation. The clean
+concrete, dark blue tile and uniform steel still differ visibly from the used
+photographs; the finish gate remains necessary.
+
+All eleven final main PNGs, all three final comparison PNGs, and both regenerated
+sheets were opened. The stray corner fabric and bare side bays are gone.
+Bench orientation, varied tree silhouettes and continuous context roads now
+read correctly. The skating geometry and comparison-fit limitations remain
+as recorded above. Coarse foliage, repeated housing, compressed short-infill
+wire spacing and the weak age distinction between the two concrete parks
+remain disclosed limits. These quick-material sites are not final assets.
+
+The final `make WIDTH=1440 SAMPLES=32` passed the expanded fresh-import checks,
+rendered all fourteen Cycles views from the external glTF deliveries and
+regenerated both sheets. The final isolated `make repeat` again passed all
+15 files byte for byte. Measured whole-site triangles remain 265,018 / 252,900 /
+253,592; skating triangles remain 44,236 / 42,154 / 42,438. The sign and updated
+node transforms are included in the final delivery receipts. No further form,
+look-dev, baking or final-atlas work is performed in this checkpoint.

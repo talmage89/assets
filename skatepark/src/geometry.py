@@ -100,4 +100,7 @@ def instance(src,name,loc=(0,0,0),yaw=0,parent=None):
     copies={o:o.copy() for o in [src,*src.children_recursive]}
     for o,c in copies.items():
         bpy.context.collection.objects.link(c);c.parent=copies.get(o.parent,parent);c.matrix_basis=o.matrix_basis.copy()
-    rt=copies[src];rt.name=name;rt.location=loc;rt.rotation_euler.z=math.radians(yaw);return rt
+    rt=copies[src];rt.name=name;rt.location=loc
+    # glTF imports use quaternion mode even for an identity construction frame.
+    # Euler assignments are ignored until the active rotation mode is changed.
+    rt.rotation_mode='XYZ';rt.rotation_euler=(0,0,math.radians(yaw));return rt

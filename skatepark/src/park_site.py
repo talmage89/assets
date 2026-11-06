@@ -23,11 +23,11 @@ def rules_print(rt,town):
     from PIL import Image,ImageDraw,ImageFont
     path=Path('build/T_Skatepark_FormRules.png')
     towns=('ALDER GLEN','CEDAR JUNCTION','MILL CREEK')
-    if not path.exists():
+    if bpy.data.materials.get('Skate_Form_Rules') is None:
         im=Image.new('RGB',(1024,1024),(44,66,61));draw=ImageDraw.Draw(im)
         for i,label in enumerate(towns):
             x=(i%2)*512;y=(i//2)*512;cx=x+192
-            for text,yy,size,bold in [(label,30,26,True),('PARKS & RECREATION',70,17,False),('SKATE PARK',119,31,True),('OPEN DAWN TO DUSK',200,19,False),('HELMETS REQUIRED',237,19,True),('SHARE THE LINES',274,19,False),('NO GLASS / NO BIKES',311,18,False),('EST. '+str((2011,2004,2000)[i]),430,19,False)]:
+            for text,yy,size,bold in [(label,30,26,True),('PARKS & RECREATION',70,17,False),('SKATE PARK',119,31,True),('OPEN DAWN TO DUSK',200,19,False),('HELMETS REQUIRED',237,19,True),('SHARE THE LINES',274,19,False),('NO GLASS / NO BIKES',311,18,False),('EST. '+str((2011,2004,1999)[i]),430,19,False)]:
                 font=ImageFont.truetype(find_font('DejaVu Sans','Bold' if bold else 'Book'),size);draw.text((cx,y+yy),text,font=font,fill=(211,211,206),anchor='mm')
             draw.rectangle((x+16,y+16,x+368,y+490),outline=(211,211,206),width=2)
         im.save(path)

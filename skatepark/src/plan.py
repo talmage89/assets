@@ -2,7 +2,7 @@
 
 Bounded named archetypes reserve separate transition/street lines, spectator
 space and a pedestrian entry. Seed variations mirror banks of obstacles and
-choose tree/bench counts; decade changes construction, not just paint.
+vary tree orientation; decade changes construction, not just paint.
 """
 import random, math
 GRID=.1524
@@ -13,7 +13,7 @@ def plan(seed,type=None,size=None):
     if kind not in ('poured','prefab'):raise ValueError(kind)
     compact=(size=='compact') if size else seed%2==0
     W,D=((36.576,27.432) if compact else (45.72,33.528)) if kind=='poured' else (36.576,27.432)
-    out=dict(seed=seed,type=kind,year=2000 if kind=='prefab' else 2004 if compact else 2011,
+    out=dict(seed=seed,type=kind,year=1999 if kind=='prefab' else 2004 if compact else 2011,
              town='MILL CREEK' if kind=='prefab' else 'CEDAR JUNCTION' if compact else 'ALDER GLEN',
              skating=[W,D],site=[W+24.384,D+30.48],grid_m=GRID,
              shade=kind=='poured' and not compact,bleachers=kind=='prefab',pool_coping=not compact,

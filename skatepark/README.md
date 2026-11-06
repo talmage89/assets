@@ -22,7 +22,7 @@ Reference credits and download URLs are in [refs/SOURCES.md](refs/SOURCES.md).
 | --- | --- | --- | --- | --- |
 | 101 | Alder Glen, 2011 | 45.720 × 33.528m | 70.104 × 64.008m | Block-coping kidney, street stairs/hubba, two quarter heights, bank rail, spine, pyramid, ledges; pavilion. |
 | 202 | Cedar Junction, 2004 | 36.576 × 27.432m | 60.960 × 57.912m | Smaller concrete program with steel bowl coping, four stairs, lower end ramps and a perimeter ledge. |
-| 303 | Mill Creek, 2000 | 36.576 × 27.432m | 60.960 × 57.912m | Budget asphalt park: framed composite end ramps, two separate opposed-quarter beginner lanes, launch pair, funbox, grind boxes and rails; bleacher. |
+| 303 | Mill Creek, 1999 | 36.576 × 27.432m | 60.960 × 57.912m | Budget asphalt park: framed composite end ramps, two separate opposed-quarter beginner lanes, launch pair, funbox, grind boxes and rails; bleacher. |
 
 The bowl has 4ft and 7ft ends with an 8ft circular transition section,
 a graded waterfall and a real slotted drain. The original kidney contour has
@@ -82,11 +82,11 @@ trim/tile material consolidation.
 | Delivery | glTF + BIN bytes |
 | --- | ---: |
 | Module library, 91,054 triangles across 56 selectable roots | 4,356,828 |
-| Park 101 | 5,994,570 |
-| Park 202 | 5,192,696 |
-| Park 303 | 4,338,444 |
+| Park 101 | 5,999,256 |
+| Park 202 | 5,196,655 |
+| Park 303 | 4,342,402 |
 
-The seven shared checkpoint PNGs total **795,538 disk bytes**. They are two
+The seven shared checkpoint PNGs total **795,368 disk bytes**. They are two
 1024² triples plus one 1024² rules image, about **9⅓MiB** compressed with full
 mips. These temporary context maps do not substitute for the planned concrete,
 asphalt, lawn and skatepark finish sets. Material/mesh-resource counts are
@@ -135,8 +135,9 @@ the floor carries its drain socket. `build/Skatepark.json` records all of them.
 `src/plan.py::plan(seed, type=None, size=None)` is Blender-independent. Seed
 selects poured/prefab, compact/large, the program and year, coping treatment,
 shade/bleacher and a mirrored layout alternative; it also seeds tree yaw.
-Optional `type='poured'|'prefab'` and `size='compact'|'large'` override archetype
-selection. The three proof seeds are fixed compositions; this is a bounded
+Optional `type='poured'|'prefab'` overrides construction, and
+`size='compact'|'large'` selects the poured footprint. Prefab currently has one
+footprint. The three proof seeds are fixed compositions; this is a bounded
 park grammar, not arbitrary free packing. Mini-ramp lanes and the stair's
 return connection reserve useful riding space rather than scattering objects.
 
@@ -166,7 +167,7 @@ files stay inside this worktree. `kit/` and the top-level README are unchanged.
 | `export/checkpoint/SkateparkPieces.gltf` | Reusable module library; select a named root. |
 | `export/checkpoint/Park_{101,202,303}.gltf` | Complete sites; images under the same `shared/` directory. |
 | `build/Skatepark.blend`, `Skatepark.json`, `park-<seed>.json` | Scripted inspection source and measured module/site manifests. |
-| `build/checks.json` | Fresh-import budgets, circular sections, coping, bank angle, rail contact, normals/seams, paved approach rays and 1,000 deterministic plans. |
+| `build/checks.json` | Fresh-import budgets, circular sections, coping, bank angle, rail contact, normals/seams, fence fabric/post alignment, paved approach rays and 1,000 deterministic plans. |
 | `build/repeat-check.json` | Byte repeat of all glTF/BIN/shared image outputs. |
 | `build/calibration.json`, `reference-balance.json` | Camera residuals, photographic crop/neutral choices and linear balance gains. |
 | `renders/checkpoint/101/hero.png` | 1.65m eye, 35mm, lateral procedural sun; exported geometry. |

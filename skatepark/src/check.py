@@ -117,6 +117,27 @@ def main():
         # ends; wholly zero-area triangles are always a construction failure.
         assert degenerate==0,(seed,degenerate)
         checks={}
+        # Inspect actual fabric planes and post-bottom rings in world space.
+        # Quaternion-mode imports previously ignored Euler placement yaw,
+        # leaving crosswise panels and unsupported fabric at the corners.
+        fence=roots['PerimeterFence'];post_centers=[];panels=[]
+        for rt in fence.children:
+            if rt.name.startswith(('Chain post','Chain side post')):
+                points=[rt.matrix_world@v for v in material_vertices(rt,'Zinc')]
+                bottom=min(v.z for v in points);ring=[v for v in points if v.z<bottom+.0001]
+                post_centers.append([(min(v[k] for v in ring)+max(v[k] for v in ring))/2 for k in (0,1)])
+            elif rt.name.startswith('Chain side'):
+                panels.append([rt.matrix_world@v for v in material_vertices(rt,'ChainLink')])
+        endpoint_error=0
+        for points in panels:
+            xmin,xmax=min(v.x for v in points),max(v.x for v in points)
+            ymin,ymax=min(v.y for v in points),max(v.y for v in points)
+            assert xmax-xmin<.0001 and abs(ymax-ymin-3.048)<.0001,('Crosswise side fabric',seed,xmax-xmin,ymax-ymin)
+            for y in (ymin,ymax):
+                error=min(math.hypot((xmin+xmax)/2-.034-x,y-py) for x,py in post_centers)
+                endpoint_error=max(endpoint_error,error)
+        assert len(panels)>=20 and endpoint_error<.001,(seed,len(panels),endpoint_error)
+        checks['side_fence_surface_check']=dict(panels=len(panels),maximum_post_endpoint_error_m=endpoint_error)
         if seed in (101,202):
             tree=bvh(list(roots.values()));stair=next(m for m in expected['plan']['placements'] if m['piece'].startswith('Stairs'))
             x,y,_=stair['location'];nstep=5 if seed==101 else 4;toe=-nstep*.3048/2
