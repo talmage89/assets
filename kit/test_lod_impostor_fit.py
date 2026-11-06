@@ -21,6 +21,9 @@ class ImpostorFit(unittest.TestCase):
         self.assertTrue(np.array_equal(before,frames))
         self.assertGreater(result[:,:,:,3].max(),100)
         self.assertEqual(result.dtype,np.uint8)
+        self.assertTrue(np.all(result[:,0,:,3]==0),'exterior visual hull grew opaque specks')
+        # Low-opacity fit residuals must not invent saturated bright colors.
+        self.assertLess(result[:,:,:,:3].max(),100)
 
     def test_bad_capture_shape(self):
         with self.assertRaises(ValueError):fit(np.zeros((8,31,32,4),np.uint8),size=16)
