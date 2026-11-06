@@ -54,9 +54,14 @@ def stripes(sc,direction):
 def main():
     p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--out',required=True)
     p.add_argument('--width',type=int,default=1400);p.add_argument('--samples',type=int,default=32)
+    p.add_argument('--workbench',action='store_true',help='Fast clay inspection; reflection diagnostics still use Cycles')
     p.add_argument('--mode',choices=['clay','stripes','pairs','comparisons'],default='clay');p.add_argument('--cameras',default='build/sedan/cameras.json');p.add_argument('--shots',default='')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);source=Path(a.source).resolve();out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     shots={n:s for n,s in SHOTS.items() if n.startswith('stripes')==(a.mode=='stripes')}
+    if a.mode=='clay':
+        profile=source.parent/'profile-camera.json'
+        if profile.exists():
+            for name,row in json.loads(profile.read_text()).items():shots[name]=row['shot']
     if a.mode in ['pairs','comparisons']:shots={n+('_clay' if a.mode=='comparisons' else ''):r['shot'] for n,r in json.loads(Path(a.cameras).read_text()).items()}
     if a.shots:shots={n:s for n,s in shots.items() if n in a.shots.split(',')}
     metadata={}
@@ -69,7 +74,7 @@ def main():
             stripes(sc,shot.get('direction','horizontal'));sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=4
             for ob in sc.objects:
                 if ob.get('studio') and ob.type in ['MESH','LIGHT']:ob.hide_render=True
-        elif shot.get('raking') or name in ['front_three_quarter','rear_three_quarter']:
+        elif not a.workbench and (shot.get('raking') or name in ['front_three_quarter','rear_three_quarter']):
             sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=5
             for mat in bpy.data.materials:
                 bs=mat.node_tree.nodes.get('Principled BSDF') if mat.use_nodes else None
@@ -107,11 +112,15 @@ def main():
         bpy.data.objects['Studio seamless'].hide_render=True
         sc.render.filepath=str((out/(name+'.png')).resolve());bpy.context.view_layer.update();bpy.ops.render.render(write_still=True)
         landmarks=dict(front=(0,-S.LENGTH/2,0),rear=(0,S.LENGTH/2,0),front_axle=(S.FRONT_TRACK/2,S.FRONT_AXLE,S.HUB_HEIGHT),rear_axle=(S.REAR_TRACK/2,S.REAR_AXLE,S.HUB_HEIGHT),left=(-S.WIDTH/2,0,0),right=(S.WIDTH/2,0,0),ground=(0,0,0),roof=(0,.35,S.HEIGHT))
+        if name.startswith('side_matched'):
+            landmarks.update(front_axle=(.895,S.FRONT_AXLE,S.HUB_HEIGHT),rear_axle=(.900,S.REAR_AXLE,S.HUB_HEIGHT))
         measured=source.parent/'form-check.json'
         if measured.exists():
             data=json.loads(measured.read_text())
             if data['source_sha256']!=hashlib.sha256(source.read_bytes()).hexdigest():raise ValueError('Form measurements predate source')
-            landmarks.update(hood_front=data['hood_leading_center_m'],roof_peak=data['roof_peak_m'],deck=data['deck_trailing_peak_m'])
+            landmarks.update(front=(0,data['bounds_m']['min'][1],0),rear=(0,data['bounds_m']['max'][1],0),
+                left=(data['bounds_m']['min'][0],0,0),right=(data['bounds_m']['max'][0],0,0),
+                hood_front=data['hood_leading_center_m'],roof_peak=data['roof_peak_m'],deck=data['deck_trailing_peak_m'])
         pixels={}
         for key,point in landmarks.items():
             q=world_to_camera_view(sc,camera,Vector(point));pixels[key]=[q.x*a.width,(1-q.y)*sc.render.resolution_y]

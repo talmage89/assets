@@ -84,6 +84,8 @@ Vehicles
     cargo area and AWD underbody.
   - [Alder H120 hatchback](cars/README.md#alder-h120--compact-five-door-hatchback): compact five-door with a
     liftgate, diamond grille and projector lamps.
+  - [Alder S240 sedan](cars/README.md#alder-s240--midsize-sedan): midsize four-door on 18-inch touring tires, with a
+    hinged trunk, hexagonal mesh grille and swept lamps.
 
 Trees and shrubs
 - [Trees](trees/README.md): summer street trees with leaf cards and wind weights.

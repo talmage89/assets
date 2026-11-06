@@ -1,4 +1,9 @@
-"""Original 18 x 7.5 six-fork alloy wheel, ISO tire and fixed caliper assembly."""
+"""Original 18 x 7.5 six-fork alloy wheel, ISO tire and fixed caliper assembly.
+
+Optional per-body sampling controls keep the pickup defaults byte-compatible.
+Width scaling uses the hub frame for spinning parts and fixed calipers alike;
+the inclined kingpin is not the wheel's axial center.
+"""
 import math
 from kit import model as G
 from kit.vehicle import loaded_tire
@@ -12,7 +17,7 @@ def shoulder_blocks(b,name,pos,spin,material,S):
     Fine central blocks/sipes remain height only. The lug crowns stay below
     the nominal tread crown and use the same parked contact flattening.
     """
-    vertices=[];faces=[];count=28
+    vertices=[];faces=[];count=getattr(S,'TREAD_BLOCK_COUNT',28)
     for side in [-1,1]:
         for k in range(count):
             angle=math.tau*(k+.25*(side+1))/count;start=len(vertices)
@@ -44,13 +49,13 @@ def build(b,S):
             spin.parent=parent;spin.matrix_world=world
             tire=loaded_tire('Tire_'+end+side,pos,S.TIRE_WIDTH,S.TIRE_ASPECT,S.RIM_INCHES,
                 b.m['tire_'+side] if b.detail else b.m['rubber'],
-                getattr(S,'TIRE_SEGMENTS_HIGH',96) if b.high else getattr(S,'TIRE_SEGMENTS_GAME',64),S.HUB_HEIGHT,
+                getattr(S,'TIRE_SEGMENTS_HIGH',96) if b.high else getattr(S,'TIRE_SEGMENTS_GAME',getattr(S,'TIRE_GAME_SEGMENTS',64)),S.HUB_HEIGHT,
                 profile_indices=None if b.high else [0,1,3,4,5,7,9,10,11,13,14],rolling_radius=S.HUB_HEIGHT)
             b.add(tire,spin,'tires')
             if b.detail:shoulder_blocks(b,'Shoulder tread_'+end+side,pos,spin,b.m['tire_'+side],S)
             cx=pos[0];r=S.RIM_INCHES*.0254/2
             profile=[(-.093,r-.020),(-.093,r+.005),(-.081,r+.005),(.084,r-.008),(.099,r+.006),(.103,r-.015)]
-            ob=G.lathe('Wheel barrel_'+end+side,[(cx+sign*x,rr) for x,rr in profile],b.m['wheel'],64 if b.high else 40,axis='X',center=(y,S.HUB_HEIGHT),closed=True)
+            ob=G.lathe('Wheel barrel_'+end+side,[(cx+sign*x,rr) for x,rr in profile],b.m['wheel'],64 if b.high else getattr(S,'WHEEL_GAME_SEGMENTS',40),axis='X',center=(y,S.HUB_HEIGHT),closed=True)
             b.add(ob,spin,'wheels')
             hub=G.lathe('Wheel center_'+end+side,[(cx+sign*.068,0),(cx+sign*.068,.065),(cx+sign*.118,.065),(cx+sign*.129,.052),(cx+sign*.129,0)],b.m['wheel'],32 if b.high else 24,axis='X',center=(y,S.HUB_HEIGHT))
             b.add(hub,spin,'wheels')
@@ -76,7 +81,7 @@ def build(b,S):
                 x=cx+sign*.130
                 print_quad(b,'Alder center cap_'+end+side,[(x,y-sign*.029,S.HUB_HEIGHT-.010),(x,y+sign*.029,S.HUB_HEIGHT-.010),(x,y+sign*.029,S.HUB_HEIGHT+.010),(x,y-sign*.029,S.HUB_HEIGHT+.010)],b.m['badge'],'wheels',spin)
                 # Disc rotates; caliper follows the knuckle but never the wheel.
-                rotor=G.lathe('Brake rotor_'+end+side,[(cx+sign*.008,.061),(cx+sign*.008,.161),(cx+sign*.028,.161),(cx+sign*.028,.104),(cx+sign*.045,.091),(cx+sign*.045,.061)],b.m['brake'],48 if b.high else 32,axis='X',center=(y,S.HUB_HEIGHT),closed=True)
+                rotor=G.lathe('Brake rotor_'+end+side,[(cx+sign*.008,.061),(cx+sign*.008,.161),(cx+sign*.028,.161),(cx+sign*.028,.104),(cx+sign*.045,.091),(cx+sign*.045,.061)],b.m['brake'],48 if b.high else getattr(S,'ROTOR_GAME_SEGMENTS',32),axis='X',center=(y,S.HUB_HEIGHT),closed=True)
                 rotor.data.materials.append(b.m['caliper'])
                 for f in rotor.data.polygons:
                     radius=sum(math.hypot(rotor.data.vertices[i].co.y-y,rotor.data.vertices[i].co.z-S.HUB_HEIGHT) for i in f.vertices)/len(f.vertices)
@@ -108,6 +113,11 @@ def build(b,S):
             ancestor=ob.parent
             while ancestor and not ancestor.name.startswith(('Wheel_','Steer_')):ancestor=ancestor.parent
             if ancestor is None:continue
-            center=ancestor.matrix_world.translation
+            # The sedan scales about the hub; accepted bodies keep their
+            # original ancestor-centered scaling byte for byte.
+            if getattr(S,'WHEEL_SCALE_ABOUT_HUB',False):
+                center=bpy.data.objects['Wheel_'+ancestor.name.split('_')[-1]].matrix_world.translation
+            else:
+                center=ancestor.matrix_world.translation
             xf=Matrix.Translation(center)@Matrix.Diagonal((axial,1,1,1))@Matrix.Translation(-center)
             ob.data.transform(ob.matrix_world.inverted()@xf@ob.matrix_world)

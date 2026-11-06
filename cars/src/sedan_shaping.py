@@ -23,9 +23,10 @@ def main():
     def end(x,z,front):return tree.ray_cast(Vector((x,-4 if front else 4,z)),Vector((0,1 if front else -1,0)),5)[0]
     report=dict(source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),scope='Actual mesh rays; three-point local circle radius at x=800/850/880 mm')
     # The real front corner-pocket aperture crosses the former z=502 mm
-    # probes. Sample the intact skin immediately above it; rear stays at the
-    # held bumper-height waterline and the original three X stations.
-    for front,z in [(True,.570),(False,.600)]:
+    # probes. Sample the intact skin immediately above it. The R5 arched rear
+    # reveal crosses the old 600 mm rays, so use the intact 570 mm waterline;
+    # retain the same three X stations and report all actual hit coordinates.
+    for front,z in [(True,.570),(False,.570)]:
         ps=[end(x,z,front) for x in [.80,.85,.88]]
         if any(p is None for p in ps):raise ValueError('Missing corner surface')
         aa,b,c=ps;area=(b-aa).cross(c-aa).length/2

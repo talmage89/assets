@@ -13,9 +13,9 @@ def rgb(path):
     im=Image.open(path).convert('RGBA');bg=Image.new('RGBA',im.size,(229,231,232,255));bg.alpha_composite(im);return bg.convert('RGB')
 def save(im,path):im.save(path,quality=93,optimize=True)
 
-def side_overlay(out,shots):
-    source=Image.open(out/'side.png').convert('RGBA');photo=Image.open(ASSET/'refs/sedan-camry-side.jpg').convert('RGBA')
-    data=shots['side'];sf=np.array(data['points']['front_axle']);sr=np.array(data['points']['rear_axle'])
+def side_overlay(out,shots,view='side_matched',stem='side-overlay'):
+    source=Image.open(out/(view+'.png')).convert('RGBA');photo=Image.open(ASSET/'refs/sedan-camry-side.jpg').convert('RGBA')
+    data=shots[view];sf=np.array(data['points']['front_axle']);sr=np.array(data['points']['rear_axle'])
     pf=np.array([238,541])*1.75;pr=np.array([924,540])*1.75
     v=sr-sf;w=pr-pf;theta=math.atan2(w[1],w[0])-math.atan2(v[1],v[0]);scale=np.linalg.norm(w)/np.linalg.norm(v)
     matrix=scale*np.array([[math.cos(theta),-math.sin(theta)],[math.sin(theta),math.cos(theta)]])
@@ -24,16 +24,18 @@ def side_overlay(out,shots):
     tint=Image.new('RGBA',photo.size,(20,112,205,0));tint.putalpha(warped.getchannel('A').point(lambda v:round(v*.45)));photo.alpha_composite(tint)
     im=photo.convert('RGB');d=ImageDraw.Draw(im)
     d.text((35,35),'S240 / 45% rendered silhouette over Camry SE profile',font=font(29),fill=(25,55,75))
-    d.text((35,82),'Wheel centers alone set scale/level. Camry 2824.48 mm wheelbase; model 2830 mm (+0.20%).',font=font(22),fill=(25,55,75))
+    prior={'side_matched':80,'side_matched_wide':60,'side_matched_long':100}.get(view)
+    method=(f"Estimated {data['lens']:.1f} mm perspective; six wheel anchors + {prior} mm / 1.25 m priors. No outline fit." if prior else 'Orthographic source: wheel-center similarity only; residual perspective is uncorrected.')
+    d.text((35,82),method,font=font(22),fill=(25,55,75))
     for x,y in [pf,pr]:d.ellipse((x-7,y-7,x+7,y+7),outline=(20,80,180),width=3)
-    save(im,out/'side-overlay.jpg')
+    save(im,out/(stem+'.jpg'))
     ppm=np.linalg.norm(w)/2.82448;mask=np.array(warped.getchannel('A'))>200;measure=[]
     for label,x,y in [('hood lead',70,440),('hood mid',170,409),('cowl',330,385),('roof front',550,286),('roof peak',670,273),('roof aft',800,284),('C-pillar',965,313),('deck',1090,349)]:
         xx,yy=round(x*1.75),round(y*1.75);ys=np.nonzero(np.any(mask[:,xx-1:xx+2],axis=1))[0]
         if len(ys):measure.append(dict(feature=label,render_minus_photo_height_m=(yy-int(ys[0]))/ppm,photo_pixel=[xx,yy],pick_uncertainty_m=4*1.75/ppm))
-    record=dict(method='Two inspected wheel centers only; similarity transform, no outline fit',reference='refs/sedan-camry-side.jpg',wheelbase_reference_m=2.82448,
+    record=dict(method=method,reference='refs/sedan-camry-side.jpg',wheelbase_reference_m=2.82448,
        original_pixels_per_m=ppm,rotation_degrees=math.degrees(theta),scale=scale,offset_pixels=offset.tolist(),silhouette_differences=measure,
-       caveat='Corrected front/rear overhangs; OEM metric front reference 975 mm. Reference is near-profile with residual perspective; outline picks +/-4 preview pixels.')
+       caveat='No EXIF. A single near-wheel plane does not determine focal length. Perspective view uses explicit camera priors; the raw orthographic comparison is retained separately. Outline picks +/-4 preview pixels.')
     # Held-out photographic lower-end picks at four elevations. Only chassis
     # registration is fitted; these are comparisons, never cage constraints.
     ends=[]
@@ -46,11 +48,11 @@ def side_overlay(out,shots):
         x,y=row['photo_pixel'];dx=row['render_minus_photo_outward_m']*ppm
         rx=x-dx if row['feature'].startswith('nose') else x+dx
         d.ellipse((x-4,y-4,x+4,y+4),fill=(210,60,25));d.line((x,y,rx,y),fill=(210,60,25),width=3)
-    save(im,out/'side-overlay.jpg')
+    save(im,out/(stem+'.jpg'))
     record['lower_end_holdouts']=ends
     record['maximum_absolute_top_deviation_m']=max(abs(r['render_minus_photo_height_m']) for r in measure)
     record['maximum_absolute_lower_end_deviation_m']=max(abs(r['render_minus_photo_outward_m']) for r in ends)
-    (out/'side-overlay.json').write_text(json.dumps(record,indent=2))
+    (out/(stem+'.json')).write_text(json.dumps(record,indent=2))
 
 def sections(out,report,photo_angle):
     for record in report['sections']:
@@ -127,7 +129,7 @@ def dimensioned(out,shots,report):
             box=d.textbbox((0,0),text,font=font(18));d.text(((x1+x2-box[2])/2,y-27),text,font=font(18),fill=(25,83,113))
         d.text((22,18),'ALDER S240 / '+name.upper()+' / SOURCE FORM',font=font(25),fill=(30,45,55))
         d.text((22,53),'Targets below; independent surface measurements are in form-check.json.',font=font(17),fill=(60,75,85))
-        if name in ['side','top']:line('front','rear',h-28,'4900 mm length / class 4882-4895 mm')
+        if name in ['side','top']:line('front','rear',h-28,f"{report['bounds_m']['size'][1]*1000:.1f} mm length / class 4882-4895 mm")
         if name=='side':
             line('front_axle','rear_axle',h-78,'2830 mm wheelbase / Honda 2830, Toyota 2824.48 mm')
             d.text((w-290,h//2),f"Roof {report['bounds_m']['size'][2]*1000:.1f} mm",font=font(19),fill=(25,83,113))
@@ -148,13 +150,17 @@ def main():
         tone[name]=dict(display_luma_p1_p50_p99=np.percentile(luma,[1,50,99]).tolist(),channel_255_fraction=float(np.mean(cols.max(axis=1)==255)),deep_shadow_below_25=float(np.mean(luma<25)))
         save(rgb(path),out/(name+'.jpg'))
     (out/'tonal-range.json').write_text(json.dumps(dict(scope='Opaque foreground only; neutral source clay, no factory-paint albedo claim',views=tone),indent=2))
-    angle=photo_section(out,cameras);sections(out,report,angle);centerline(out,report);dimensioned(out,shots,report);side_overlay(out,shots)
+    angle=photo_section(out,cameras);sections(out,report,angle);centerline(out,report);dimensioned(out,shots,report)
+    side_overlay(out,shots);side_overlay(out,shots,'side','side-overlay-orthographic')
+    for suffix in ['wide','long']:side_overlay(out,shots,'side_matched_'+suffix,'side-overlay-'+suffix)
+    from sedan_rear_review import rear_glass
+    rear_glass(out,cameras,font,save)
     from kit.photo_match import compose
     clay={name+'_clay':dict(data,title=data['title'].replace('clay with stripes','neutral clay')) for name,data in cameras.items()}
     calibration=out/'clay-cameras.json';calibration.write_text(json.dumps(clay,indent=2));compose(calibration,out,out)
     front,rear=[rgb(out/(name+'-dimensions.jpg')) for name in ['front','rear']]
     pair=Image.new('RGB',(front.width+rear.width,max(front.height,rear.height)),(229,231,232));pair.paste(front,(0,0));pair.paste(rear,(front.width,0));save(pair,out/'front-rear.jpg')
-    names=['front_three_quarter.jpg','rear_three_quarter.jpg','side-dimensions.jpg','front-dimensions.jpg','rear-dimensions.jpg','front-rear.jpg','top-dimensions.jpg','side_raking.jpg','side-overlay.jpg',
+    names=['front_three_quarter.jpg','rear_three_quarter.jpg','side-dimensions.jpg','front-dimensions.jpg','rear-dimensions.jpg','front-rear.jpg','top-dimensions.jpg','side_raking.jpg','side-overlay.jpg','side-overlay-orthographic.jpg','side-overlay-wide.jpg','side-overlay-long.jpg','camry_rear-glass-measure.jpg','accord_rear-glass-measure.jpg',
        'stripes_horizontal.jpg','stripes_vertical.jpg','stripes_rear_horizontal.jpg','stripes_rear_vertical.jpg',
        'stripes_side_horizontal.jpg','stripes_side_vertical.jpg','stripes_hood_driver.jpg','curvature-body.jpg','curvature-hood-deck.jpg',
        'section-front_axle.jpg','section-b_pillar.jpg','section-rear_axle.jpg','section-mid_front_door.jpg','section-mid_rear_door.jpg','section-centerline.jpg','photo-tumblehome.jpg']
