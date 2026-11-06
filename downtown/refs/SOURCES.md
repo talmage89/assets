@@ -45,3 +45,10 @@ The motion audit's solid-angle mathematics follows Jacobson, Kavan and
 Sorkine-Hornung (2013), [author-hosted paper](https://users.cs.utah.edu/~ladislav/jacobson13robust/jacobson13robust.pdf).
 Used for the inside/outside formula only; implementation is original and no
 downloaded code or package is used.
+
+| File | Direct image / PDF URL | Author / rights | Use |
+| --- | --- | --- | --- |
+| foster-large.jpg | https://tile.loc.gov/storage-services/service/pnp/habshaer/in/in0000/in0019/photos/064669pv.jpg | Jack E. Boucher, HABS IN-86, September 1971; US federal work, no known restrictions | Larger inspection of cast hoods, ear consoles, paired cornice brackets and original iron storefront |
+| auburn-color.jpg | https://upload.wikimedia.org/wikipedia/commons/5/51/Auburn_IN_downtown_2012.JPG | Michael Walter / Cuppysfriend, 12 June 2012; CC BY-SA 3.0 | Used downtown street, sun/shadow, brick kiln range, limestone and cornice paint; photo pair only |
+| galena-color.jpg | https://upload.wikimedia.org/wikipedia/commons/e/e4/Main_Street_%28Galena%29.jpg | Chris Light, 8 August 2009; CC BY-SA 4.0 | Main Street storefronts, warm red masonry and painted metal, used fabric; photo pair only |
+| madison-color.jpg | https://upload.wikimedia.org/wikipedia/commons/f/f3/Madison_IN_Main_Street.JPG | Chris Light, September 2009; CC BY-SA 3.0 | Upper windows/cornice and street value cross-check; photo pair only |
