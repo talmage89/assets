@@ -54,6 +54,10 @@ def assign(o):
    if role=='panel':
     unit=0 if name.startswith('Controller generated') else 2 if name.startswith('Detector cards') else 3 if name.startswith('Power panel') else 1
     q=[(unit%2+q[0])/2,(1-unit//2+q[1])/2]
+   sheltered=(name.startswith('Cabinet side') and n.x*o.location.x<0) or (name.startswith('Cabinet rear') and n.y<0) or (name.startswith('Front return') and n.y>0)
+   if role=='cabinet' and (sheltered or name.startswith(('Stiffened inner','Inner door','Door document','Controller chassis','Conflict monitor chassis','Detector cards chassis','Load switch','Power panel','Rack upright')) or abs(n.z)>.65):
+    # Sheltered aluminum samples the clean middle between roof-edge runoff.
+    q[0]=.30+.40*q[0]
    if name.startswith('Maintenance record'):q[0]=1-q[0]
    if name.startswith('Tapered shaft') and abs(n.z)<.5:
     q=[(math.atan2(p.y,p.x)/math.tau+1)%1,(p.z-lo.z)/max(size.z,1e-7)]

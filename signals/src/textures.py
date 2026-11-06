@@ -30,15 +30,18 @@ def fields(size=4096,wear=.8):
   if base in ('zinc','steel','cabinet'):
    # Small zinc crystallites/brushed sheet, patina reduces specular response.
    metal[:]=.82 if base=='zinc' else .95;rough[:]=.62 if base=='zinc' else .45
-   grains=noise(W,H,95,rng);c*=.98+.04*grains[:,:,None];hh=.000018*(grains-.5)
+   grains=noise(W,H,95,rng);c*=(.998+.004*grains[:,:,None]) if base=='cabinet' else (.98+.04*grains[:,:,None]);hh=np.zeros_like(u) if base=='cabinet' else .000018*(grains-.5)
    if base=='cabinet':
     # Mill-finish aluminum: fine draw lines, rain patina and handling scratches.
-    rough[:]=.28+.045*mid+.035*np.sin(u*1500+v*3)
-    rain=smooth((broad-.48)/.23)*wear*.26
-    c*=1-rain[:,:,None]*.32;rough+=rain*.35;hh+=.000012*np.sin(u*1800)
+    rough[:]=.29+.010*mid+.008*np.sin(u*1400+v*3)
+    rain=np.zeros_like(u)
+    for center,width,length,strength in ((.10,.024,.78,1),(.88,.038,.62,.65)):
+     rain+=np.exp(-((u-center-.004*np.sin(v*13))/width)**2)*smooth((.96-v)/.06)*smooth((v-(1-length))/.24)*strength
+    rain*=wear*.42*(.8+.2*mid)
+    c*=1-rain[:,:,None]*.25;rough+=rain*.22;metal*=1-rain*.6
    if base=='zinc':
     patina=smooth((broad-.44)/.28)*.22*wear;c=c*(1-patina[:,:,None])+np.array((.40,.41,.39))*patina[:,:,None];rough+=patina*.5
-   else:rough+=.025*np.sin(v*1100+mid*3)
+   elif base=='steel':rough+=.025*np.sin(v*1100+mid*3)
    if role=='zinc':
     # Lower sheltered zinc retains water and develops a white zinc oxide film.
     stain=smooth((.27-v)/.15)*np.exp(-((u-.62)/.13)**2)*wear*.48
@@ -77,7 +80,7 @@ def fields(size=4096,wear=.8):
    c=c*(1-mask[:,:,None])+np.array((.12,.043,.012))*mask[:,:,None];metal*=1-mask;rough=.57+.36*mask;hh-=.00012*mask
   if role=='cabinet_lower':
    splash=smooth((.38-v+(broad-.5)*.12)/.27)*wear*.62*(.55+.45*mid)
-   c=c*(1-splash[:,:,None])+np.array((.085,.075,.052))*splash[:,:,None];rough+=splash*.6
+   c=c*(1-splash[:,:,None])+np.array((.085,.075,.052))*splash[:,:,None];rough+=splash*.6;metal*=1-splash
   if role=='concrete_form':
    seam=np.exp(-((v-.32)/.009)**2)+np.exp(-((v-.72)/.012)**2);hh-=seam*.0006;c*=1-seam[:,:,None]*.13
   if role=='button_worn':
