@@ -8,16 +8,11 @@
   "levels": [
     {
       "ratio": 0.4,
-      "screen_height": 0.3,
-      "rebake": true,
-      "texture_size": 2048
+      "screen_height": 0.3
     },
     {
       "ratio": 0.15,
-      "screen_height": 0.12,
-      "rebake": true,
-      "texture_size": 2048,
-      "static_shell": true
+      "screen_height": 0.12
     },
     {
       "ratio": 0.05,
@@ -28,7 +23,8 @@
       "target_triangles": 1800,
       "proxy_remesh": {
         "voxel_pixels": 0.5,
-        "inflation_pixels": 0.3
+        "inflation_pixels": 0.3,
+        "deflation_pixels": 0.25
       }
     }
   ],

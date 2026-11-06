@@ -318,25 +318,27 @@ texture pixel is authored here.
 
 `make lod` builds additional core glTF/BIN files and a manifest under `export/lod/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
 
-| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU textures + mesh, MiB | Switch height / distance |
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | LOD0 | 58,232 / — | 6 / 10 | 5,085,829 | 16,072,464 | 21,158,293 | 38.000 + 4.8366 | near |
-| LOD1 | 25,386 / 23,293 | 6 / 10 | 1,844,400 | 3,107,259 | 4,951,659 | 16.000 + 1.7482 | 30.0% / 25.11 m |
-| LOD2 | 8,690 / 8,735 | 6 / 10 | 666,525 | 5,022,279 | 5,688,804 | 21.333 + 0.6243 | 12.0% / 62.78 m |
-| LOD3 | 1,798 / 1,800 | 1 / 1 | 95,787 | 397,938 | 493,725 | 1.333 + 0.0880 | 4.5% / 167.41 m |
+| LOD1 | 31,774 / 23,293 | 6 / 10 | 3,090,329 | 16,072,464 | 19,162,793 | 38.000 + 2.9342 | 30.0% / 25.11 m |
+| LOD2 | 21,092 / 8,735 | 6 / 10 | 1,822,295 | 16,072,464 | 17,894,759 | 38.000 + 1.7249 | 12.0% / 62.78 m |
+| LOD3 | 1,798 / 1,800 | 1 / 1 | 95,808 | 392,829 | 488,637 | 1.333 + 0.0880 | 4.5% / 167.41 m |
 
 Chain check: False; image check: False; normal check: True.
 
 
-Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Each row is a cold load. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+Whole-chain resident GPU estimate: **48.918 MiB**, versus LOD0 alone **42.837 MiB**. Unique textures 39.334 MiB = 38.000 MiB original + 1.333 MiB proxy/impostor; all meshes 9.5837 MiB. Increase over LOD0 6.081 MiB = 1.333 MiB far maps + 4.7471 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
 
 Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
 
-Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. LOD2 closes and simplifies static construction where configured. The final proxy merges all moving geometry in its rest pose: its retained transform names are placement/socket metadata, and cannot animate that shell. Keep an animatable level while an interaction pose differs from rest. New charts are baked from the immutable delivered maps and shaders. Larger maps must be released or streamed for distant residency savings.
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Both intermediate levels preserve original charts, attributes and LOD0 materials. The final proxy merges all moving geometry in its rest pose: its retained transform names are placement/socket metadata, and cannot animate that shell. Keep an animatable level while an interaction pose differs from rest. Only the proxy receives new charts baked from the immutable delivered maps and shaders. LOD1/2 allocate no additional images.
 
 Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/check.json` and `normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/<source stem>/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
 
-Shipped PNG dimensions: LOD0: 6 × 512×512, 3 × 1024×1024, 6 × 2048×2048; LOD1: 3 × 2048×2048; LOD2: 4 × 2048×2048; LOD3: 4 × 512×512.
+Shipped PNG dimensions: LOD0: 6 × 512×512, 3 × 1024×1024, 6 × 2048×2048; LOD1: 6 × 512×512, 3 × 1024×1024, 6 × 2048×2048; LOD2: 6 × 512×512, 3 × 1024×1024, 6 × 2048×2048; LOD3: 4 × 512×512.
 
 LOD1 separate moving meshes: `FrontDoor_Leaf`, `Patio_Slider`, `ServiceDoor_Leaf`.
 

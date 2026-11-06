@@ -75,23 +75,25 @@ interior mask, and BaseColor has zero black interior samples.
 
 `make lod` builds additional core glTF/BIN files and a manifest under `export/lod/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
 
-| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU textures + mesh, MiB | Switch height / distance |
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | LOD0 | 872 / — | 1 / 1 | 47,708 | 307,676 | 355,384 | 1.000 + 0.0434 | near |
-| LOD1 | 348 / 349 | 1 / 1 | 21,732 | 234,534 | 256,266 | 1.000 + 0.0188 | 25.0% / 2.46 m |
-| LOD2 | 268 / 131 | 1 / 1 | 20,643 | 61,322 | 81,965 | 0.250 + 0.0178 | 9.0% / 6.84 m |
+| LOD1 | 626 / 349 | 1 / 1 | 36,678 | 307,676 | 344,354 | 1.000 + 0.0331 | 25.0% / 2.46 m |
+| LOD2 | 436 / 131 | 1 / 1 | 28,384 | 307,676 | 336,060 | 1.000 + 0.0252 | 9.0% / 6.84 m |
 
 Chain check: True; image check: True; normal check: True.
 
 
-Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Each row is a cold load. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
+Whole-chain resident GPU estimate: **1.102 MiB**, versus LOD0 alone **1.044 MiB**. Unique textures 1.000 MiB = 1.000 MiB original + 0.000 MiB proxy/impostor; all meshes 0.1017 MiB. Increase over LOD0 0.058 MiB = 0.000 MiB far maps + 0.0582 MiB additional mesh buffers. Intermediate new images: 0. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.
+
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
 
 Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
 
-Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. LOD2 closes and simplifies static construction where configured. New charts are baked from the immutable delivered maps and shaders. Larger maps must be released or streamed for distant residency savings.
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. Both intermediate levels preserve original charts, attributes and LOD0 materials. Only the proxy receives new charts baked from the immutable delivered maps and shaders. LOD1/2 allocate no additional images.
 
 Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/check.json` and `normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/<source stem>/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
 
-Shipped PNG dimensions: LOD0: 3 × 512×512; LOD1: 3 × 512×512; LOD2: 3 × 256×256.
+Shipped PNG dimensions: LOD0: 3 × 512×512; LOD1: 3 × 512×512; LOD2: 3 × 512×512.
 
 <!-- LOD checkpoint: end -->
