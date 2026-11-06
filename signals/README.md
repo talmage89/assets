@@ -106,6 +106,9 @@ Cabinet 2,800; MastArm 8,174; SpanSet 17,456. The complete dual-arm Cinderbrook
 support is 13,380 triangles. Variants' actual per-head and support counts are
 also retained in the generated report. Shared PNGs total 3,657,737 bytes;
 all fifteen glTF/bin deliveries plus that single map copy total 14,607,229 bytes.
+The separate ArterialSites GLB is 48,090,112 bytes, including its embedded
+existing ground maps; its four junctions add 2,321 / 2,140 / 2,322 / 1,390
+triangles. Town context is excluded from both counts.
 
 `make` rebuilds fields, locked Cycles bakes, game parts, external glTFs, checks,
 checkpoint views, source/game photo pairs and review sheets. Defaults are
@@ -127,6 +130,15 @@ accessors, UV trim domains and fresh-import serialization. An additional layout
 check measures actual pole counts, face aiming toward existing roads, primary
 face separation and a conservative 20° horizontal view cone at the stop bar.
 They prove construction and serialization, not photographic realism.
+
+Final clean-stage rebuild and final make/check/repeat/repository checks pass.
+The model replay matches 15 intermediate GLBs byte for byte. Independent GPU
+bakes match all shipped maps exactly except four ORM channel values differing
+by 1/255, within the kit's tolerance. The 21 checkpoint views, seven game pairs,
+seven source views and eleven native form panels were inspected at full size.
+Hero display Y p1/p50/p99 is .0146/.5710/.9342. At true 30/100 m, red R95/sky-R
+is 1.958/1.616 (two sunlit photos: 1.783/1.308); these are display contrasts,
+not candela. Detailed measurements and limitations are in REVIEW.md.
 `make repeat` replays the model recipe in a separate factory-startup build;
 it checks exact GLB bytes, without claiming bit-identical GPU rebakes.
 

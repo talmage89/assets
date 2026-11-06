@@ -373,3 +373,77 @@ the incident rays to come from the camera's right, keeping the sky direction
 coupled. Record zinc value and both painted strips in lens-measurements.json;
 the under-visor contrast includes cast shadow and cannot be called dirt alone.
 This changes comparison illumination, not the delivered BaseColor.
+
+## Look pass 8 — exported checkpoint audit, 5 November 2026
+
+Color and value first: opened all 21 current exported Cycles views at native
+resolution, the seven game photo renders and their pairs, all seven source
+renders, four review sheets and eleven native before/after panels. Inspection
+paths are recorded in build/image-review.json. Yellow remains gold instead of
+olive, dull zinc remains gray and black backplates retain deep recesses. The
+sampled zinc display Y is .665 against the balanced Oregon photo's .667. Its
+microstructure is still smoother than the photograph. The exposed yellow
+sample is .882/.584/.169 against .933/.557/.055; photo clipping and the
+optical product prevent interpreting these as inverse albedo estimates.
+
+The small left strip below the visor remains a mismatch: Y relative to the
+exposed paint is 1.083 in the render and .490 in the photograph. The differently
+shaped doors and visors cast different shadows there; this does not demonstrate
+matched dirt coverage. Broader lower-edge runoff is present, but the clear-cover
+reflections, optical package response and fine retained grime remain weaker
+than the photograph. Shared trims repeat some marks. Pole patina is quieter
+than case fading at the hero's full-frame distance. Those limits are retained
+in the report rather than called photographic agreement.
+
+The native audit caught two presentation defects after the mast array refit:
+the head's higher mount clipped its backplate in the old close camera, and the
+raised street sign concealed the arm flange. Target the actual exported head
+pivot, and view the flange from behind the sign. The corrected images show the
+complete head and the bolted connection. Lower Maryland's comparison sun to
+about 17 degrees, with its rays toward the camera's left, to follow the long
+field shadows. Re-render source and exported pairs under identical settings.
+The original reference street geography and seasonal foliage still differ.
+
+The four top/driver pairs now expose different civil plans, lane-derived arms,
+two diagonal poles at the compact crossing, the boulevard's median noses and
+turn bays, and the T's closed side. Houses no longer intersect adjacent rows.
+The gas station, three car bodies and continued town streets are presentation
+only. The span has a messenger clamp, extension/adjuster, lashed lead and one
+short gravity entry loop; no decorative rings remain. The rack, load-switch
+bank, conflict monitor, detector inputs, power/breakers, harness and door pocket
+are present. Cabinet fronts are intentionally simple texture-carried forms.
+
+Hero display Y p1/p50/p99 is .0146/.5710/.9342; white fraction is .00656%,
+including the sky and presentation lights. This is a full-frame range check,
+not a material albedo test. Blue-hour sky is brighter than the ground; the
+street emitters use actual imported light sockets and house windows are lit.
+The true 30/100 m fixtures retain red R95/sky-R ratios 1.958/1.616 versus
+1.783/1.308 in the two balanced sunlit photos. Dark ratios are .067/.290.
+These are display-domain contrasts, not candela measurements.
+
+Build proof: all generated signal output directories and ArterialSites.glb
+were absent before the clean build. Its bake/model/arterial/check stages
+passed. The framing audit interrupted only the render stage; after the camera
+corrections make completed, followed by the corrected pair stage. Final make,
+make check, make repeat and the repository check all exit 0. Exact model replay
+matches 15 GLBs totaling 65,237,392 bytes. Independent shipped-map comparison
+is exact for BaseColor, Normal, emissive and names; four ORM channel values
+differ by 1/255, within the kit's channel tolerance. No exact GPU rebake claim.
+
+Raw external glTF checks pass for all 15 deliveries: one shared five-map image
+folder, valid guarded trim domains, finite unit normals, nonzero UV area and
+measured density. Independent source-surface clearance/motion and lane/view
+checks pass. All 295 protected delivery hashes are unchanged. The delivered
+family totals 14,607,229 bytes including one map copy, at an estimated 17.5 MiB
+block-compressed with full mips. No kit changes or docs images are committed.
+Final kernel peaks are about 4.95 GiB for the bake and 4.83 GiB for the largest
+checkpoint process; each seed runs in a fresh serial Blender process.
+
+Evidence: ../build/signals-final-make.log (clean stages),
+../build/signals-final-make-resumed.log (completed checkpoint),
+../build/signals-final-pair-light.log (corrected comparisons),
+../build/signals-verify-{make,check,repeat,repo}.log; build/{checks,construction,
+layout-check,delivery-check,budget-report,preservation,repeat-check,
+texture-repeat,lens-measurements,hero-range}.json. The repetitive town context,
+coarse tall-pole detail, shared wear and simplified optics remain the clearest
+CG tells. This is the requested review checkpoint, without docs images.
