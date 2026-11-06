@@ -374,3 +374,8 @@ assembly. `signals/src/check_arterial.py` independently ray-probes actual
 imported cuts, lead-ins, flush pull-box lids and repairs. FHWA-HRT-06-139 (2006),
 volume II chapter 5 and appendix J, supplies detector installation references;
 see [the signal reference register](../signals/refs/SOURCES.md).
+
+The signal final value audit sets the unsoiled dry-aggregate tint to .95; queue
+oil and wheel-path masks darken it locally. Its nominal curbside comparison
+uses actual imported asphalt hits and sun-path probes, with camera/light
+limitations recorded by the signals family. This changes only ArterialSites.

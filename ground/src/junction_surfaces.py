@@ -15,7 +15,7 @@ def lanes(spec,turn):
 
 def value(x,y,spec):
  L=3.3528;hx=spec['ns']*L/2+spec['median']/2;hy=spec['ew']*L/2
- factor=.60
+ factor=.95
  for t in spec['approaches']:
   a=t*math.pi/2;u=x*math.cos(a)+y*math.sin(a);v=-x*math.sin(a)+y*math.cos(a)
   stop=(hy if t%2==0 else hx)+.4572+spec['radius']+3.9624
