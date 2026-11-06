@@ -572,3 +572,125 @@ sidewall/rolling envelope. The front steering geometry is our original
 15° steering-axis inclination / 6.5° caster / −20 mm scrub construction,
 validated through its full ±35° sweep; these are design choices, not claimed
 manufacturer suspension dimensions.
+
+## Round 5 rear construction and photographic limits
+
+The backlight is cut narrower on the same canopy; the remaining painted sail
+panels belong to that parent sheet. Widths are measured from the actual outer
+glass corners. The source's roughly 1211 / 1268 mm top/base and 252 mm sails
+interpolate the two photographed makes, rather than reproduce one of them.
+The sail measurement is transverse to the vehicle at the glass base's Y station,
+80 mm below that glass corner, approximately z=972 mm at the beltline.
+
+The annotated rear photographs use the existing chassis calibrations. Rays
+intersect the estimated glass plane `z + 0.30 y = 1.67 m`; the hip pick intersects
+the mean glass-base Y plane. These yield Camry top/base 1316 / 1347 mm and near
+sail 243 mm, and Accord 1202 / 1061 mm and 258 mm. Glass width uncertainty is
+approximately ±80 mm, sail ±60 mm, including the picks, assumed plane and
+camera/class mismatch. These are transverse class estimates, not manufacturer
+glass dimensions or widths measured along curved surfaces. The white studio
+backgrounds remain the balance neutral; no reference pixels become geometry.
+
+Round 5 supersedes the earlier lower-end tucks and permits overall length within
+the class. The actual molding envelope is about 4885 mm; the 4900 mm coordinate
+package still defines the unchanged axle/cabin stations. The earlier 100–150 mm
+front and 150–200 mm rear tuck ranges remain visible as superseded measurements
+in `form-check.json`. The new lower tail turns under over its last 150 mm and
+has lifted corners, flush reflector blanks and a rolled finisher. Plate mouth,
+plate edge lengths and depth are independent mesh measurements. Their original
+construction estimates follow the brief's 320 × 170 mm pocket / 12 × 6 inch
+plate; they are not manufacturer stamping specifications.
+
+The original wheel-center-only orthographic overlay is retained. An additional
+six-wheel-anchor perspective registration uses an explicit 80 mm lens prior
+and 1.25 ±0.10 m camera-height prior. Its estimated 82.3 mm lens has 2.02 native
+pixel RMS; 60 / 100 mm priors fit 63.9 / 101.6 mm. A near-parallel wheel plane
+does not determine a unique photographic focal length. All three perspective
+overlays and the raw orthographic residuals are reported separately. None fits
+the body outline or warps a photograph. The nominal perspective result alone
+does not establish the original 40 mm overlay requirement; the raw comparison
+and lens sensitivity remain limitations.
+
+The quad control net is fitted before subdivision, including smooth fitting
+frames at the low rear corners. Final skin normals are sampled directly from
+that dense parent, rather than re-interpolated through the game chart. Clip
+duplicates and bounded submillimeter crumbs are removed before gauge closing;
+optical guides are triangulated in the injective chart before their gauge is
+made. These construction changes preserve the existing independent topology,
+surface-ray, curvature and chassis checks. They do not certify final optics,
+materials, UVs, motion or delivery.
+
+## Round 6: lower profiles, constructed mechanisms and used-car comparison
+
+Round 6 restores the brief's physical lower-end requirements. The actual front
+centerline leads at z=500 mm and turns back 133.9 mm to a 174.9 mm chin. The rear
+leads at 602 mm and turns forward 189.5 mm to the 300 mm diffuser station; the
+painted bottom is 270 mm. These are source rays/vertices, not values read back
+from generator constants. A ground tangent to the actual rear tire and rear
+overhang gives 18.04°. Honda's current FF Accord FAQ publishes 17.5° departure:
+https://www.honda.co.jp/customer/auto/accord/faq/qa015/ . It is an independent,
+later-generation class cross-check, not an asserted 2019 Camry specification.
+The MY2019 Camry brochure remains the main envelope/tire/clearance reference.
+
+The fixed wheelbase, accepted 4885 mm length and raw side photograph still do
+not agree at both ends within 40 mm. Raw wheel-center scaling implies about
+4702 mm overall; the final raw residual reaches 118.8 mm at the front bumper
+and 71.8 mm at the upper tail. The three prior-constrained perspective cameras
+remain separate evidence, with lower-end worst residuals 110–131 mm. No outline
+anchor enters their fit. The physical tuck correction is real, and the remaining
+overlay miss is real; a passed dimensions check does not establish a photo match.
+
+The continuous sheet remains the form source. Local lamp/A-foot/C-header chart
+samples and smooth fitting transitions improve the specified stripe breaks;
+the nose/fender chart edge is no longer treated as a physical shut line. The
+riggable version additionally cuts a real horizontal sill at 300 mm, keeping the
+lower reinforcement fixed while the doors and their glass move. This changes
+panel ownership on the accepted sheet, not its envelope. The source form is
+52,452 triangles; the completed detail allocation is 59,992.
+
+Five-year comparison photographs are the CC0 MY2020 Camry front/rear images in
+`refs/SOURCES.md`, photographed 25 October 2025. Their visible dirt and wear
+supply a condition comparison; model-year age is not a verified service history.
+Four visible near-wheel hub/contact picks constrain each camera. The purported
+far-wheel contacts were occluded and were rejected. Native-pixel RMS is 12.25
+front / 13.49 rear, approximately 3 px at 1100 px comparison width. That proves
+wheel registration, not body or coating agreement.
+
+Before color comparison, front balance assumes the off-white plaster in the
+upper-right background is neutral. Rear balance assumes white paint on the
+background car's upper trunk is neutral; the stained curb was rejected. Linear
+channel gains and exact source rectangles are in the balanced calibration JSON.
+Neither contains a photographed gray card. Colored surroundings and class
+material/shape differences remain uncertainty, so the reported RGB/luma values
+are **display appearance**, never inferred paint albedos.
+
+Each exported-car patch is ray-cast onto the actual paint skin at its Y/Z
+station. Its camera pixel comes from Blender projection. The corresponding
+photo patch uses the calibrated camera; cross-class surface correspondence is
+approximate. Small annotated rectangles show whether a patch includes a trim,
+reflection boundary or shadow. Previous constant x=−0.90 m proxy patches were
+rejected: they could sample a different portion of the sloping lower door.
+No photograph pixels enter any material, geometry, bake or lighting graph.
+
+The reflection stage uses a procedural sky, area lights/sun and original facade
+boxes with window openings represented by dark surfaces. Paint color factors,
+metallic response, coating and dirt remain independently authored. A plausible
+lighting fit is not proof of BRDF or albedo equivalence. Factory spawn weights
+come from Axalta's 2025 North America new-car shares, normalized across the five
+options only; they are not estimates of the surviving used fleet.
+
+Door hinge axes are original 7.97° transverse inclinations, explicitly exported
+as unit vectors. Pin/bore sizes, leaf attachment, rim/bead widths and stud circles
+are measured from the final source meshes. Sampled game/high collision sweeps
+and independently evaluated hood supports establish sampled mechanical behavior;
+GLB verification establishes serialization. The two claims remain distinct.
+
+
+The final mechanical allocation is 59,992 triangles. The stepped 1.2 mm floor,
+returned tank straps, engine gussets and trunk bearing supports replace the
+first underbody proxies without exceeding 60k. Measured lid tips and damper
+mounts are within 0.30 mm of their actual supporting sheets; tank-strap/floor
+contacts are within 0.20 mm. Wheel hubs have minimum 70.4 mm bores around 70.0 mm
+journals, with 31.0 mm measured engagement and 0.20 mm radial running clearance.
+The lower control-arm joint centers follow the front kingpin axes. Composite
+CV/knuckle/strut contacts are explicitly documented in the motion policy.

@@ -1580,6 +1580,214 @@ Stop at this requested source checkpoint. The remaining visual faults and
 failed overlay tolerance mean this is a review candidate, not accepted form.
 Do not open interior, underbody, optics, paint, UV/bake/export or LOD work.
 
+# Sedan form round 5 — rear glazing, bumper construction and mirrors
+
+## Pass 1 — reject the proxies and diagnose the lower surfaces
+
+Compared the first, second, fourth, sixth and seventh source candidates with
+both rear class photographs, both front photographs and the Camry profile.
+The inspected clay images are in `renders/sedan-round5-pass1`, `pass2`, `pass4`,
+`pass6` and `pass7` (each directory carries the `sedan-round5-` prefix).
+These are rejected/intermediate evidence, not the final checkpoint revision.
+
+Color/value first: the white studio backdrop is the photographic neutral,
+with unit RGB gains. Black Camry and silver Accord paint cannot be compared
+as albedos with neutral clay. Review form, value gradients and cavity depth;
+final optical response, paint and wear remain outside this source gate.
+
+- **Backlight and sails:** narrowing the glass on the existing canopy makes
+  painted sail panels instead of thin hatchback posts. The first measured
+  top/base widths are 1211/1268 mm, against photographic estimates of
+  1316/1347 mm Camry and 1202/1061 mm Accord (glass estimates ±80 mm).
+  Near-side transverse sail estimates are 243/258 mm, versus about 256 mm
+  on the source. All photographic picks, camera rays and the assumed glass
+  plane are exposed in the annotated images and JSON; these are not OEM
+  glass dimensions. The straight glass side boundaries still read CG.
+- **Tail and hips:** the larger corner lenses measure about 142 mm tall and
+  taper to 17–18 mm forward. Their dark optical blanks still lack a lamp
+  graphic. Reject the residual quarter hollow and the abrupt return behind
+  the arch. Continue the rear die swell farther aft without changing its
+  peak over the axle or the three accepted door sections.
+- **Bumper and diffuser:** the arched parting line helps the elevation, but
+  the first lower edge still reads like a plate. Rays identify the apparent
+  gray bar as the opposite front chin visible through the incomplete
+  underbody. Reject the rectangular blackout-box experiment too: roll the
+  rear closure forward, with lifted ends. The well's projected grid perimeter
+  can fold even when its lens/bed chart disk is valid; loft the same convex
+  chart boundary used for the skin cut. Flat reflector boxes intersect the
+  curved molding: replace them with conforming strips inside the black panel.
+- **Plate:** the new 317 × 169 mm mouth is crisp, but the un-tilted plate
+  intersects the sloping pocket bed. Tilting it still leaves one black
+  triangle: a ray identifies the bed 0.3 mm ahead of the plate. Set the real
+  304.8 × 152.4 mm blank ahead of the whole bed plane while retaining the
+  requested 20–30 mm recess, and tuck its lamp below the brow.
+- **Front corners:** tapering the pockets removes the square blocks. Keep
+  the accepted lamps, grille and crowns. The impact band and bottom require
+  different corrections: retain the class length, flatten the overly bowed
+  lower waterlines, and restrict the underturn to the final lower band.
+  Small simple pockets and parallel bars still look cheaper than the photos.
+- **Mirrors:** the lowered 243 × 120 × 148 mm wedges have flat aft glass,
+  a rounded forward cap and a supported door-corner arm. They are visible
+  from both quarters and no longer make a ball above the cowl. Their coarse
+  cap transitions and unarticulated stalk remain source-stage simplifications.
+- **Overlay:** retain the original orthographic comparison. Also register
+  a perspective source using six wheel anchors and explicit 80 mm lens /
+  1.25 m height priors: estimated 82.3 mm, RMS 2.02 native pixels. A single
+  near-wheel plane cannot recover focal length uniquely; render 60/100 mm
+  prior sensitivity as well. Do not call the nominal camera a measured lens.
+  Seventh-candidate held-out lower-end differences are −34 to +20 mm front
+  and −32 to −27 mm rear. The upper C-pillar remains low in this camera;
+  retain the accepted deck and lift the C-pillar's descending controls.
+- **Topology/budget:** reject the 56k allocations, aperture slivers and
+  non-manifold bridges. A broad coplanar dissolve can encode multiple holes
+  with repeated-vertex polygons. Keep convex cut fragments, collapse only
+  sub-50-micron cut crumbs, and reduce hidden gauge backs with local depth
+  and manifold-link checks while locking the outer skin and cut rims.
+
+## Pass 2 — fresh-session rebuild and reject the diffuser scars
+
+Color/value first: compared the new source against the same four stock photos,
+balanced on their white backdrops with unit gains. Neutral clay still has dark
+optical blanks and wells; silver/black photographic paint is not its albedo
+target. Opened the fresh front/rear/side/top Workbench views, both Cycles
+three-quarters and the profile overlay in `renders/sedan-round5-handoff/` and
+`sedan-round5-handoff-wb/`. All intermediate diagnostic views stay ignored.
+
+- **Glass and sails:** retain the narrower backlight and the painted widening
+  sails, on the existing canopy. Both photographed rear glasses and their
+  annotated picks support this change. Their straight source-stage side
+  boundaries still look more regular than either photograph.
+- **Tail and diffuser:** reject the remaining triangular dents along the
+  diffuser's top edge. Removing cavity shading and gauge backs does not cure
+  them. Sampling normals directly from the dense parent removes the broad
+  false triangular highlights introduced by re-interpolating the coarse game
+  field. The two surviving corner scars expose a hard 370 mm switch in the
+  control-net fitting frame. Replace that switch with smooth vertical and
+  longitudinal blends before subdivision; no painted patch or replacement
+  shading field is used to conceal it.
+- **Deck:** the fresh build's measured kick is only 14.5 mm, below the held
+  15–30 mm range. Increase the actual lip control and move its crest slightly
+  aft, retaining the integrated deck and the original canopy silhouette.
+- **Plate and tail lamps:** the plate sits in a crisp small pocket with a
+  supported lamp above it. The thicker tapered wings are a useful class
+  correction; their black blanks still lack optical graphics. Retain the
+  actual apertures and corner wrap rather than adding surface decals.
+- **Front corners:** the tapered, curved pockets are less block-like than the
+  round-4 boxes. Keep the accepted lamp/grille/crown layout. The simple bars
+  and unarticulated pockets remain plainer than both production references.
+- **Mirrors:** keep the door-corner wedges and flat rear panes. Their lower
+  position removes the cowl bump in the overlay; their caps and arms remain
+  unusually simple beside both photos.
+- **Profile:** lower-end holdouts on the 80 mm-prior perspective registration
+  are within about 33 mm. The six wheel anchors do not measure a unique lens:
+  keep the raw orthographic overlay and both lens-prior sensitivity views.
+  The accepted C-pillar is lower in the new camera than in the raw overlay;
+  do not move the accepted roof to conceal a camera-dependent difference.
+
+The new Blender patch version also changes the pickup exporter's version text
+from `v5.2.40` to `v5.2.41`. Fresh default pickup generation retains all 454
+meshes exactly; all 150 re-exported accessors, embedded maps, hierarchy and
+the entire binary chunk are identical. The accepted GLB is untouched. A fresh
+export's complete file hash differs only because of that generator label;
+complete byte identity is not claimed for that re-export.
+
+## Pass 3 — reject the straight lower edge after the complete comparison
+
+Color/value first: the completed white clay has deep cavities and unclipped
+highlights (front/rear foreground p99 about 238/225). The four neutral pairs
+still use the photographs' white backdrops as the balance neutral, not their
+paint. Opened both full-size heroes, all four neutral pairs, the orthographic
+rear and the raking side of the first complete fresh-session build.
+
+The diffuser's painted rim is now clean and the quarter's old dark hollow has
+gone. But the rear elevation still carries a straight bottom and rectangular
+black insert. The photographs' lower corners roll upward into their quarters.
+Lift the source cage's lowest rear corner controls and the diffuser's lower
+boundary, leaving the centerline, accepted side sections, top crease and
+quarter shoulders intact. Do this before subdivision, not by reshaping the
+finished game panels. The upper fascia and the plate/optical blanks remain
+visibly plainer than either production car; this remains a form checkpoint.
+
+The complete overlay set exposes a material limitation: the 80 mm-prior
+perspective source has a 33 mm worst lower-end residual, while 60/100 mm
+priors give 59/47 mm. The raw orthographic comparison is still about 119 mm
+front / 76 mm rear. No unique photographic lens was recovered. Preserve all
+four overlays and report these misses; the nominal perspective view alone
+does not prove the original 40 mm overlay request.
+
+## Pass 4 — whole car in white clay, final source checkpoint
+
+Color/value first against all four final neutral and striped photo pairs:
+the stock photos' white studio backgrounds are the balance neutral, with unit
+RGB gains. Front/rear white-clay foreground p1/p50/p99 luma is 1/153/238 and
+0/145/225; no opaque foreground channel reaches 255. Cavities remain dark.
+This is form inspection, not paint/albedo or used-car wear validation.
+
+Opened every final JPG, including the parent plots, in
+`build/sedan-round5/final-reviewed-00.jpg` through `final-reviewed-15.jpg`.
+The white-clay heroes, rear elevation, raking side, main stripes and neutral
+pairs were also inspected at full size. The 42-view contact is
+`renders/sedan-round5/contact.jpg`; all 25 rendered views record the same
+current game-source hash.
+
+- **Backlight/C-pillars:** the 1211 mm top / 1268 mm base glass now leaves
+  sails about 252–253 mm wide near the beltline. Against the Camry's estimated
+  1316/1347 mm glass and 243 mm sail, and Accord's 1202/1061 mm and 258 mm,
+  the original breadth is a class interpolation. Photo uncertainties are
+  ±80/60 mm; no OEM glass drawing is claimed. The rear no longer has the
+  former almost-full-width glass. Straight window side boundaries and the
+  regular greenhouse corners remain more synthetic than either photograph.
+- **Tail/hips:** the quarter's old dark dent is gone in raking clay. The rear
+  plan stays convex; the same three rays at z=570 mm measure a 305.5 mm local
+  circle. The clean bumper turns under 44.8 mm over the tested lower 150 mm;
+  its painted lower edge rises from 219 mm on center to 239 mm at x=800 mm.
+  The lifted diffuser boundary and flush reflector blanks remove the old
+  protruding-plate and crumpled-rim read. A rolled finisher has a real dark
+  bore. The broad unadorned painted land is still plainer than both photos.
+- **Lamps/plate/deck:** rear wings stand 153–155 mm tall at the corner, wrap
+  445–446 mm along the quarters and taper to 25–27 mm forward. The plate mouth
+  measures 320.1 × 170.5 mm; actual plate edges are 304.8 × 152.4 mm. A ray
+  along the actual tilted plate normal measures a 26.4 mm recess, with the
+  lamp tucked above. The integrated lip's kick is 25.8 mm and deck length
+  362.4 mm. The optical blanks remain intentionally unresolved; dark shapes
+  alone are less legible than the photos' lens graphics.
+- **Mirrors/front corners:** 243 × 120 × 148 mm rounded wedges, 2104.6 mm
+  across, have flat aft panes. Bottoms are 916.7 mm high; arms begin behind
+  the A-pillar on the front upper door. Actual housing vertices stay below
+  the same-Y canopy silhouette. They read as supported mirrors in both
+  quarters, though their caps and arms are still coarse. The tapered corner
+  pockets now follow the front turn. Simple grille bars and the lower front
+  door/sill highlight junction remain cheaper-looking than both references.
+- **Whole car/accepted forms:** the unchanged wheelbase, tracks, loaded tires
+  and 40 mm arch gaps keep the low stance. Door sections retain their crown,
+  die hollow and sill tuck. Direct dense-parent normals improve the cut rims
+  without replacing the surface. Fine grazing waviness remains around the
+  arch/sill joins; the fender crown still fades too early near the A-pillar.
+- **Overlay:** nominal perspective lower ends remain within 32.9 mm, but
+  the 60/100 mm prior cases reach 58.8/46.5 mm. The raw orthographic overlay
+  still misses by 118.8 mm front / 75.9 mm rear. Raw C-pillar/deck are
+  −32.9/−35.3 mm; the nominal perspective C-pillar is −75.3 mm. These are
+  openly retained camera-dependent misses, with ±16.5 mm pick uncertainty.
+  The original 40 mm overlay request is not certified by the new camera.
+
+Proof: `make -C cars BODY=sedan WIDTH=1600 SAMPLES=40` and `make -C cars
+BODY=sedan check fairness` pass. Both density audits are closed, positive,
+within their configured envelopes, and free of zero-area triangles or invalid
+normals. All regional form/recess/clearance rays, current numeric ranges,
+parent/game curvature and independent camera projections pass. Superseded
+round-2 tuck targets are retained separately as misses, not silently passed.
+The control net remains one connected sheet with 124,032 quads and valence
+four inside. Game/high sources are 51,296 / 114,684 triangles; five diagnostic
+materials, zero maps; blends 1,181,792 / 2,407,933 bytes, ignored.
+
+Independent one-thread generation matches all 120 meshes' geometry, corner
+normals, materials, transforms and hierarchy exactly. Pickup preservation is
+as documented in pass 2: source, every accessor/map/graph and the entire binary
+payload match; only a fresh exporter's generator label changes. No kit changes,
+sedan GLB, baked textures or committed checkpoint images. Interior, underbody
+detail, optics, real paint/wear, UVs and motion clearance remain later work.
+Nothing additional is needed from the lead beyond this requested form review.
+
 # Sedan form round 4 — character and construction
 
 This is the requested source form checkpoint. No sedan delivery, optics,
@@ -5298,3 +5506,1973 @@ accepted: hero 156,259 bytes, details 185,066, turnaround 124,379, five colors
 is needed. Captions use presentation names, and no photograph or diagnostic
 ablation enters the committed gallery. Documentation is committed only after
 this inspection. The pickup hash is checked again unchanged before delivery.
+
+## S240 R6 — form corrections, detail and coating checkpoint
+
+### Detail pass 1 — reject floating construction and closed lamp backs
+
+Color and value first: the first Atlantic preview had a dark, nearly uniform
+side and an oversized pale windshield reflection. The dark glass itself had the
+right transmission direction, but the reflection hid the cabin; the paint had
+too few useful reflections to establish a continuous clearcoat.
+
+`renders/sedan-look-pass1/` is rejected. The door-card rectangles crossed the
+accepted compound door sections; they now follow measured sections of the
+actual door and sill. The optical backing was in front of its guide/module;
+it was rebuilt as a return and a recessed backing. Mirror supports, handles,
+wipers and washer nozzles are seated by rays against the actual supporting
+surfaces. Construction and collision checks are independent of serialization.
+
+### Detail pass 2 — reject optical chords and the dark outdoor stage
+
+Color and value first: `renders/sedan-look-pass2-pairs/` was far too dark and
+blue beside the used gray class car. It also accidentally used the source's
+Atlantic default. That pair cannot support an albedo claim. The factory preset
+is now explicit for paired views. No color was sampled into a material.
+
+`renders/sedan-look-pass2/` exposed long lens triangles passing through the hood,
+folded tip cells, and needle-like optical returns. A normal-offset Solidify
+replaces the unstable even-offset return; a feature-aligned strip replaces the
+headlamp's unconstrained convex-hull triangulation. An attempted global
+refinement cost thousands of triangles and was discarded. Local A-foot,
+C-header and lamp-crest samples fund the requested reflection-flow correction.
+The original exterior positions and normals are locked during hidden sheet-back
+reduction; fine tire lugs move to the normal bake.
+
+### Detail pass 3 — reject empty optics and calibrate the comparison stage
+
+Color and value first: `renders/sedan-look-pass3-pairs/` still reflected mostly a
+blue sky and lit the front from the wrong side. The used-car photographs have
+warm low facade reflections and clear direct sun. The sedan-specific stage now
+uses procedurally built facade reflectors and the observed sun side, leaving
+the pickup's lighting unchanged. `renders/sedan-look-pass4-pairs/` overshot
+brightness; the exposure, sky strength and facade values were reduced again.
+This is lighting calibration, not a change to the family's factory color factors.
+
+Two supposed far-wheel ground picks were actually bumper edges: those wheels
+are occluded. They were removed. The four visible near-wheel hub/contact picks
+now give 12.25 / 13.49 native-pixel RMS (front / rear), about 3 pixels at 1100 px
+comparison width. This proves camera registration only, not body agreement.
+
+`renders/sedan-look-pass3/` shows a smooth coat response, but still-empty black
+headlamp housings, no readable road film in Atlantic at full frame, and rear
+cover tip folds. The projector/guide clearance was increased, reflector backs
+were given a metal response, and the low/behind-wheel film was strengthened.
+The rear cover requires an outermost-surface ray: nearest-point inversion of
+the rolled quarter chart selects an inward-facing fold near its narrow tip.
+It must pass surface-normal, topology and motion checks before baking.
+
+The source support sweeps already cleared all four wheel revolutions and both
+full ±35° steering ranges at coarse sampling. Closed mirror throats and rear
+liner/door contacts were corrected geometrically. These previews and coarse
+sweeps are working evidence, not the final exported-GLB checkpoint.
+
+### Detail pass 4 — reject the first delivered bake
+
+Color and value first: the first exported Atlantic hero had opaque black
+streaks on the low rocker and red contamination in a white running guide.
+Those were projection errors, not intentional wear. The roof and A-pillar
+reflections also exaggerated local waviness. `renders/sedan-delivery-rejected1/`
+and `renders/sedan-pairs-rejected1/` are rejected delivery evidence.
+
+Every manufactured part now has its own projection group. The high shoulder
+blocks join the tire source rather than inheriting an exploded frame twice.
+Independent partwise barycentric rays expose correspondence loss on thin backs,
+optical returns and tire shoulders. Exact game-surface procedural RGB/ORM replace
+the contaminated high-to-low channels; normals from the high source are used
+only for independently verified parts. The source's already transferred dense
+parent normals remain on the low exterior. This fallback is explicit in the
+bake report, rather than calling all high geometry successfully baked.
+
+`renders/sedan-delivery-pass2/` removes the black/red projection defects but is
+still rejected: atlas coverage 27.5% fails delivery policy, and its projector
+was hidden by actual fascia geometry. A source camera ray proved the cover,
+fascia, then optic ordering. The projector was moved into the swept aperture;
+new rays encounter cover, optic, housing, reflector in that order. Convex UV
+packing and a 0.001 atlas margin now recover more than 35% coverage without
+zero-area triangles. No verification minimum was weakened.
+
+### Detail pass 5 — reject chart doors and protruding hinges
+
+Color and value first: source previews still had conspicuous dark triangles
+at the shut lines. Hiding the hinge hardware made them vanish; they were actual
+leaf protrusions through the curved closed door, not grime or a paint-normal
+problem. The source's first door chart also carried the low sill when opened.
+`renders/sedan-physical4-preview/` and `renders/sedan-no-hinges-debug/` expose
+these errors and are diagnostic/rejected.
+
+The physical sill is now cut from the same sheet at 300 mm; front jamb channels,
+inner B-posts, sill beams, pins, hollow barrels and stamped leaves form supported
+assemblies. Inclined axes follow the leading door section. Leaves start on the
+inboard side of the barrels and end inside the actual door skin. Card bottoms
+clear the rear arch. Front doors open 60°, rear 68°; the selected ranges clear
+the real neighboring surfaces. The jamb bends aft of the steered tire and avoids
+the hood support. No hinge-collision allow-list exception was introduced.
+
+The first inclined-node export passed vertex serialization but failed its width
+check: transforming a rotated local AABB overstates the unchanged actual door
+vertices. The final nodes retain vehicle-coordinate mesh frames and explicit
+custom hinge-axis unit vectors for quaternion animation. This preserves real
+2.105 m width without widening the tolerance or editing the kit. Pin axes are
+measured from their mesh PCA, since applied object rotations are not a cylinder's
+geometric axis. Both source density sweeps and independent support checks pass.
+
+### Detail pass 6 — compare surfaces and strengthen causal road film
+
+Color and value first: `renders/sedan-look-pass8-pairs/` was too dark after the
+sky-only stage was corrected; pass 9 recovered side values but lacked the
+used reference's facade reflections. Pass 10 adds a procedurally built tall
+facade and a cooler original Graphite option, while the pickup stays unchanged.
+The lower film was too clean/uniform. It now follows aft-wheel fans and low
+splash, with broken gravity streaks and pale dry dust retaining a distinct color.
+The studio hero makes that wear visible at full frame.
+
+The earlier fixed-x appearance patches were not reliable on an inward-turning
+lower door. Final patches use ray-measured paint surfaces and Blender camera
+pixels, with their projected photo correspondence shown in annotated images.
+Small regions avoid silently folding the ground or a sill gap into a paint
+median. Display values remain lighting/shape comparisons, not measured albedos.
+The final exported-GLB pass and remaining misses are recorded below.
+
+### Detail pass 7 — reject the pale band and reverse tangent normals
+
+Color and value first: `renders/sedan-detail-rejected2/` made the lower car a
+pale, continuous band. Its contrast was visible but its cause was unconvincing.
+The final road film is lower and darker, with shorter broken splash streaks and
+aft-wheel fans. Lower glazing has localized residue; its main viewing area
+stays dark, smooth and transmissive.
+
+The same exported pass exposed dark triangular marks absent from the source,
+plus blurred center-cap type. Even self-projection can hit a gauge back near a
+thin shut-line corner. The final material bake therefore runs directly on the
+prepared finalized surface, with no selected-to-active ray. Original object,
+generated and print coordinates are preserved before UV operations. Tiny
+backward tangent samples explicitly fall back to the neutral tangent normal;
+counts remain in the report. This is a bounded detail loss, not evidence that
+all high detail transferred correctly.
+
+UV experiments at 8/12/20/35° had more self-overlap and were rejected. The 5°
+charts remain, with visible-skin priorities, reduced hidden-back density, larger
+marking allocation and 0.0012 padding. No UV tolerance was relaxed. The accepted
+preflight `renders/sedan-delivery-pass3/` removes the large black marks and
+recovers the ALDER cap marking. Fine sidewall relief still softens at 2048.
+The caps now have a 167 × 120 × 96 mm compound envelope and real arm/body checks;
+their grazing highlights remain less fair than a molded production mirror.
+
+### Construction follow-up — contact is distinct from collision clearance
+
+The late anchor probe found gooseneck tips 36.5–37.1 mm below the lid. A collision
+sweep could pass while those ends floated. The tips now come from actual inner
+lid rays, and fixed bearing supports contact the trunk tub. The floor is a
+1.2 mm stepped pan over the tank, with real strap returns, exhaust hanger mounts,
+front longitudinal rails and engine-mount gussets. Dampers terminate at the
+structural wheelhouses. The hubs have actual hollow bores and 31 mm journal
+engagement rather than a concealed axial gap. Hex stud caps and cast mounting
+gussets save the triangles spent here: the final game mesh remains 59,992.
+
+These independent contact measurements accompany both density sweeps; source
+construction and GLB serialization remain separate claims. The underbody is
+still a low-detail assembly, with composite joint housings and simple stamped
+forms, rather than a service-accurate mechanical model.
+
+### Detail pass 8 — final exported-GLB checkpoint
+
+Color and value first: the studio's first final pass clipped about 1.3% of the
+hero's painted pixels. Lowering studio exposure from −1.8 to −2.8 removes that
+clipping. In the final front/rear Atlantic heroes, paint luminance p99 is
+0.961 / 0.958, clipped paint pixels are zero, and 30.8% / 34.1% of the car mask
+falls below display luma 25/255. All ten factory-color hero views have zero
+clipped paint pixels. The white option's median paint luma is 0.741 front /
+0.726 rear. Outdoor comparison exposure stays independent and unchanged.
+
+The used references are balanced on the stated assumed neutrals: front plaster,
+linear RGB gains 0.955 / 0.992 / 1.289; rear background white-car trunk,
+0.910 / 0.997 / 1.476. There is no gray card. Actual delivered paint rays define
+the render patches; the calibrated photo correspondence remains approximate.
+The final display-luma comparisons (render / photo, 0–255) are:
+
+| Surface | Front pair | Rear pair |
+| --- | ---: | ---: |
+| Upper front door | 140.8 / 148.6 | 124.6 / 120.3 |
+| Front road film | 133.5 / 142.5 | 115.1 / 128.6 |
+| Rear door | 147.9 / 133.4 | 117.4 / 113.6 |
+| Rear road film | 144.8 / 129.3 | 114.8 / 142.8 |
+| Quarter | 158.1 / 176.2 | 105.0 / 154.7 |
+
+Median absolute luma difference is **14.0**, worst **49.7** on the rear quarter.
+Hue is still too cool: the front upper door is RGB **126/143/162**, versus
+**153/147/151** in the balanced photo. These are appearance measurements, not
+paint-albedo estimates. The lighting/shape/color match remains incomplete;
+particularly the rear quarter and lower rear door lack the photographed
+reflection and dirt contrast. The pairs are not presented as a realism pass.
+
+The final source is 59,992 triangles; the high source is 170,032. Direct bake
+reports zero unfilled interior pixels in every channel. Of 4,744,395 normal
+interior samples, 172 (0.0036%) use a neutral tangent fallback; padding fallback
+is reported separately. Verified high-source normals cover 256 parts / 8.64%
+of the atlas; the rest uses the direct shader normal over the dense-parent
+geometric normal field. Fine lettering and chips soften after the 2048 bake.
+
+The raw/profile/wide/long side overlays remain visible, with worst front/rear
+holdout deviations (mm): **118.8/71.8**, **101.2/117.0**, **127.0/131.2**,
+**80.0/110.0**. The 40 mm request is not met. The physical tuck/height/departure
+requirements pass, and the lower nose/arch seam is faired; neither fact erases
+those photographic residuals. Roof/A-foot/lamp-crest stripe continuity improves,
+but grazing mirror-cap and C-sail highlights still show waviness.
+
+All final images were inspected, including the 17 standard views, ten factory
+views, 25 motion poses, both used-car pairs and the Eevee view. The same exported
+GLB SHA-256 is recorded throughout:
+`ee972bc7b5ad0a451d01740eae8715ba625d689911402864669cf59c7e115cfe`.
+The face and lamp details are readable, the guides change state, glass stays
+dark, the human stands beside the car, and the underside has a stepped supported
+floor. The cabin remains too blocky, the rear optics and wheel bevels remain
+simple, and tiny colored atlas fringes persist on some thin trim edges. Eevee's
+screen-space glass shows less cabin depth than Cycles. These remain CG tells.
+
+### Final proof and scope
+
+- `make -C cars BODY=sedan WIDTH=1400 SAMPLES=36` — PASS. Source form evidence,
+  prepared direct bake, independently checked high normals, 2048 downsample,
+  GLB export/re-import and the full review graph. The final studio exposure
+  correction was regenerated through the same render targets.
+- `make -C cars BODY=sedan check` — PASS: source density/topology/budget/scale,
+  real construction and anchor checks, all 12 game/high sweeps, UVs, geometric
+  normals, GLB vertex/pivot serialization and repository policy.
+- `make -C cars BODY=sedan check-repeat` — PASS: independently rebuilt master/sill
+  and detail scenes, all 405 meshes / 426 objects identical in vertices,
+  polygons, corner normals, transforms, parents and material assignments.
+  This is not a repeated-GPU-bake byte-identity claim.
+- UV coverage **37.06%**, no degenerate/outside triangles, four subpixel overlaps
+  totaling about 0.89 shipped texel; p5/median/p95 **83.7/234.5/268.0 px/m**.
+- **59,992 triangles**, four material surfaces, three shared **2048²** images,
+  **16 MiB** compressed with mips. GLB **12,845,344 bytes**. Vertex/pivot
+  serialization errors remain below 0.2 micrometers / equivalent matrix error.
+- Direct-surface bake and every Cycles/Eevee view use the shared GPU lock.
+  No kit files, generated binary assets, reference photos or final docs images
+  are committed. The shared wheel change is isolated in `0ef1aad`; unchanged
+  pickup defaults and accepted binary payload are independently verified.
+
+Images: `renders/sedan-detail/checkpoint.jpg`, `contact.jpg`,
+`factory-colors.jpg`; `renders/sedan-round6/contact.jpg` and all four side
+overlays; `renders/sedan-motion/contact.jpg` and the five sweep strips;
+`renders/sedan-used-pairs/used_front-pair.jpg`, `used_rear-pair.jpg`, both
+`*-patches.jpg` and `appearance-patches.json`; `renders/sedan-eevee/`.
+
+The checkpoint needs lead review of the unresolved overlay and photographic
+polish. The current sedan atlas is separate from the pickup: about 32 MiB for
+both, with shared methods rather than shared pixels. Family atlas integration
+needs coordination with the other bodies. Possible kit follow-ups are an
+opt-in direct procedural bake and bounds measured from actual world vertices;
+rotated mesh AABBs can otherwise overstate a correctly exported envelope.
+
+## S240 R7 — corner causes and matched autumn light
+
+### Pass 1 — isolate geometry from shading and lighting
+
+Color/value first: the R6 used-pair stage does not establish paint agreement.
+Its connected world was a blue RGB ramp, bypassing its nominal sky texture;
+its 51° sun and large reflection rectangles differ from the photographs.
+Preserve the wheel-only calibrations and the assumed-neutral white balances.
+Rebuild the comparison illumination from a procedural scattering sky, a sun
+estimated from the shadow directions/lengths, asphalt and original facade
+reflectors where a building is actually reflected. The estimates remain
+uncertain lighting fits, not EXIF or measured illumination.
+
+The new diagnostic is the original SUV cotangent/mixed-area kernel from
+`85d7450`, adapted without merging that branch. Its analytic checks give
+maximum H error 0.000076/m on a 2 m sphere and effectively zero on a cylinder
+and plane. Game measurements use actual exterior triangle positions, excluding
+open boundaries/gauge; authored normals do not enter them. The fixed color
+scale is shared by the entire car and all views. Parent maps are separate.
+
+The hood/lamp crest defect already exists before apertures are cut: its narrow
+38 mm high / 55 mm wide Gaussian crown creates a local roll and hollow. It is
+first trial uses a broader 22 mm / 135 mm stamped draw (superseded in pass 3).
+Control-net relaxation spans the
+front corner and rear canopy/side-fit transition at the C-sail foot, before
+limit subdivision. No lamp shell deforms the body, and the parent has regular
+valence four; an aperture pole or global decimator is not the cause. Cutting
+had a second error: inserted points stayed in coarse triangle chord planes
+while shading normals came from the dense parent. Those exterior points now
+return to the parent before gauge closing.
+
+In this first trial's identical spatial boxes, actual game H ranges (1/m, including design
+creases and thin cut triangles) change from front -78.5…1041.5 to -60.8…181.9,
+and sail -535.7…565.4 to -156.7…392.5. Sail p5/p95 improves from -70.2/+42.5
+to -8.0/+17.1. These numbers show improvement, not globally perfect curvature.
+The raw maps still expose discretization at thin cut/arch fragments; they are
+not smoothed to hide it. Whole-body maps and both reflection directions are
+paired in five views. The trial global edge beautification worsens these maps;
+tangential redistribution improves the nose but worsens the sail, so both
+experiments are rejected and remain ignored.
+
+### Pass 2 — correct illumination before material factors
+
+Color/value first: sky strength/exposure trials in `sedan-r7-light1` through
+`light5` range from pale blue to too dark; neither endpoint is acceptable.
+The low autumn sun estimate is 27° front / 30° rear, with approximately ±6°
+elevation uncertainty. Source and export comparisons use the same stage.
+Studio presentation is independent and retains the family's accepted layout.
+The sky texture now actually supplies the world, the sun matches its direction,
+and no luminous studio panel enters a comparison reflection.
+
+The existing front Graphite appearance is too cool. Its original factor
+0.120/0.130/0.145 becomes a near-neutral 0.130/0.125/0.126; the other four factory
+colors and the coverage-delta decoder remain. Matched sunlight exposes overly
+pale alloy/tire values and too much transmitted cabin light. The alloy becomes
+a darker production finish, radial sidewall dust keeps its cause but drops in
+value, and glazing transmission tints darken. Original road film/chips/swirl
+masks are retained. Geometry and motion of the accepted cabin, underbody and
+optical assemblies are retained.
+
+The radiator-like horizontal blades become seventeen bowed, splayed vertical
+vanes over a recessed original diamond relief, in gloss black with the dark
+chrome surround and original ALDER badge. The rear plate carries an original
+ALDER / WILLOW MOTOR CO. dealer insert and dark frame relief; no jurisdiction,
+registration format or serial. A 3× marking priority protects its atlas area.
+
+### Pass 3 — keep the held section while correcting the crest
+
+Color/value first: the direct source and baked preflight remove the cool cast
+(the front upper door is 153/150/149 against balanced photo 153/147/151), but
+the rear quarter's reflected value still differs. The sun/sky balance replaces
+the milky glass and studio rectangles with darker sky and a constructed facade
+where the photograph reflects one. Rear facade height is restricted to the
+observed low horizon, so it does not paint the roof/backlight beige. Solar
+azimuth is refined against the visible ground-shadow direction, front −155°,
+rear +155°, in the Blender frame. The neutral-balanced sun color is used for
+the already-balanced photographic comparisons.
+
+The longer matched view also shows that the old spray fans fade out before
+the rear door. Their existing aft-wheel masks now extend along that door and
+have a slightly higher, declining spray ceiling; deposited dust is darker.
+The broken grain, low splash, chip and washing masks retain their causes.
+Source pair `sedan-r7-film-source` exposes this wear at full frame. The strength
+is judged with the final export again below.
+
+The first broadened crest fails the clean build's independent section checks:
+its shoulder narrows 1.7 mm and the hood loses too much transverse crown.
+That candidate is rejected. The final draw uses a 45 mm / 100 mm crown over
+an independently crowned hood, rather than the first 22 mm / 135 mm trial.
+Sail relaxation fades in above the shoulder, preserving its widest row.
+Actual measured width returns to 1849.39 mm; the hood and other held numeric
+requirements pass again. No dimensional tolerance was changed. The regular
+parent remains continuous before the openings and panel cuts.
+
+UV projection trials at 3, 4, 4.5, 5.5, 6 and 7 degrees do not solve the thin
+fragment chart folds. Keep the 5-degree layout and split only the overlapping
+fragments before repacking. A subtexel sliver receives a representable UV
+altitude when float packing would flatten it. The preflight has sixteen chart
+repairs, zero overlapping/outside/degenerate UV triangles, 36.92% coverage and
+83.0 / 232.7 / 298.9 px/m density p5/median/p95. This changes UV seams, not
+positions, triangle count or the acceptance policy. Exact-surface baking has
+zero unfilled interior pixels. Verified high-normal coverage is recorded
+separately from direct shader normals.
+
+### Pass 4 — inspect the grille opening at delivery resolution
+
+Color/value first: raising Graphite metallic from .55 to .80, with both the
+current tint and a lighter .160/.150/.155 tint, increases the pale road-film
+contrast and makes the clean/deposited transition too pronounced. Reject both
+runtime-only probes. The production near-neutral tint and .55 metallic remain.
+The source/export paint-patch medians alone do not prove every optical detail
+survives the atlas; the diamond relief is visibly softer in the exported grille.
+
+The full-resolution grille close-up exposes two painted triangular teeth
+inside its upper right mouth. They also appear in the source, excluding a bake
+or glTF-normal cause. Camera-ray picks identify actual exterior fascia triangles,
+not grille vanes or reflection cards. The axial aperture cutter classified a
+triangle by the distance between its center and an end ray on the dense parent.
+At this tight roll the center of a coarse chord lies more than 15 mm behind the
+parent while its vertices still belong to the exposed end sheet. The cutter
+therefore skipped those triangles. Test the actual vertices as well as the
+center; other side/roof branches continue to fail the end rays. The revised
+source close-up has a continuous upper grille mouth and no painted teeth.
+An independent 5 mm ray grid across the actual mouth, inset 8 mm from its rim,
+finds 52 painted occlusions in 8,069 samples on the old game source and zero
+on both corrected source densities. This tests the physical opening, whereas
+the GLB verifier tests serialization. The new check is in `make check`.
+This fixes the cut classification without moving the parent, loosening a
+construction tolerance, or changing any pivot/range. The revised game source
+is 59,932 triangles, four fewer than the first delivery candidate.
+
+Source and export photo pairs are now both dependencies of the default build.
+Their patch comparison is regenerated with the gallery, rather than relying
+on an untracked one-off measurement script. Final export evidence follows.
+
+### Pass 5 — retain sky reflection while fitting the rear sun contribution
+
+Color/value first: the .025 sky / energy-8 sun fit leaves the rear upper door
+19.8 levels too bright and its rear door 24.7 too bright, although the front
+upper door is close. A .05 sky with front/rear sun energies 6/4 overcorrects:
+the rear quarter becomes 50.6 levels too dark. Reject that endpoint. The .04
+sky and 8/6 sun fit retains the near-neutral front door and improves the rear
+doors without altering paint factors. The diagnostic front upper door is
+150/148/148 against 153/147/151; rear upper door 125/126/128 against
+121/119/131. Ten-patch median absolute displayed-luma error drops from 17.1
+to 14.1 levels. The worst is now the differently shaped rear quarter's sky
+reflection, 29.4 levels low; that does not establish a paint-albedo error.
+The sky/glass reflection is more evident and there are no studio rectangles.
+This is the final outdoor recipe. The accepted studio remains unchanged.
+
+### Pass 6 — final exported asset and delivery evidence
+
+Color/value first, at the final 1600 px / 48-sample settings. White balance is
+still the stated front plaster and rear background white-car trunk, with linear
+RGB gains .955/.992/1.289 and .910/.997/1.476 respectively. These are assumed
+neutrals, not gray cards. The sun is estimated at 27°/−155° front and 30°/+155°
+rear, approximately ±6° elevation uncertainty, with the connected scattering
+sky, asphalt-gray ground and original facade reflectors. Displayed patch
+measurements include class/shape/reflection differences and do not measure albedo.
+
+| View / paint patch | Export RGB | Balanced photo RGB | Export / photo luma, 0–255 |
+| --- | --- | --- | ---: |
+| Front / upper front door | 150/148/148 | 153/147/151 | 148.4 / 148.6 |
+| Front / front road film | 162/159/156 | 148/141/141 | 159.4 / 142.5 |
+| Front / rear door | 151/149/149 | 137/132/136 | 149.4 / 133.4 |
+| Front / rear road film | 159/156/154 | 135/128/126 | 156.5 / 129.3 |
+| Front / quarter | 155/154/154 | 168/176/202 | 154.2 / 176.2 |
+| Rear / upper front door | 125/126/128 | 121/119/131 | 125.9 / 120.3 |
+| Rear / front road film | 135/132/131 | 130/128/131 | 132.6 / 128.6 |
+| Rear / rear door | 123/123/124 | 117/112/120 | 123.1 / 113.6 |
+| Rear / rear road film | 133/130.5/129 | 144/142/147 | 130.9 / 142.8 |
+| Rear / quarter | 127/126/127 | 136/155/207 | 126.3 / 154.7 |
+
+Median absolute luma difference is **14.0/255**, worst **28.4/255**. The cool
+base-paint cast is corrected; broad quarter/door reflections remain flatter
+and less blue than the photographs. Do not call these a photometric match.
+Source/export medians agree within **one RGB level** on all ten patches under
+identical cameras, exposure, uniforms and lighting. This narrow measurement
+does not establish preservation of every fine detail: grille relief and small
+lettering visibly soften in the atlas. Both source pairs and both exported
+pairs were reviewed at full frame, along with the exterior close-ups.
+
+The Atlantic front/rear heroes have paint p99 luma **.9605**, zero channel-clipped
+paint pixels, and **32.96% / 35.26%** of geometry below 25/255. All ten factory
+three-quarter views have zero clipped paint pixels. Cavities remain deep and
+the lower road film is visible in the hero. The studio recipe is retained.
+
+Actual game H, in the same spatial boxes as the before mesh, is below. The
+statistics include thin cut triangles and authored die creases. No normal map
+or shading normal supplies these values; the analytic sphere/cylinder/plane
+checks pass. Localized irregularity remains at clipped arch and aperture
+fragments, and the front p95 is slightly higher. The maps are deliberately raw.
+
+| Region / version | Min | p5 | Median | p95 | Max, m⁻¹ |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Front / accepted checkpoint, 332 vertices | −78.49 | −5.77 | 1.32 | 42.40 | 1041.50 |
+| Front / final, 311 vertices | −111.82 | −1.36 | 3.19 | 47.22 | 296.18 |
+| Sail / accepted checkpoint, 86 vertices | −535.74 | −70.17 | −2.17 | 42.54 | 565.38 |
+| Sail / final, 115 vertices | −62.87 | −7.06 | −2.53 | 16.41 | 256.17 |
+
+The clean build also exposed a separate rear-cover construction error: its
+radial sampling ray walked across the trunk's constant-X reveal and put the
+moving cover into the stationary quarter. Iterated parent rays now constrain
+each cover to its actual side of the reveal, including its 4 mm normal offset.
+The trunk sweep has zero measured penetration, with its accepted pivot and
+range intact. No new collision exception was added. A physical molded dealer
+frame now seats on the insert: maximum measured back-edge distance 0.25 µm
+(floating-point error), minimum sampled pocket clearance 2.22 mm. The first
+larger-frame candidate failed the unchanged clearance check and was reduced.
+
+Delivery proof:
+
+- Removed generated sedan build, markings, texture, GLB and final render folders
+  before `make -C cars BODY=sedan WIDTH=1600 SAMPLES=48`: **PASS**. Reference
+  image/PDF cache retained and verified. The removal ledger and complete log are
+  `build/sedan-r7/pre-aperture/clean-proof.json` and
+  `build/sedan-r7/final-clean-build.log`.
+- `make -C cars BODY=sedan check`: **PASS**, including source audits, all 12
+  mechanisms on each density, grille aperture checks, independent regeneration,
+  fresh GLB import, UV/normals/scale/pivots and repository rules. Repeat matches
+  all **420 meshes / 441 objects** exactly; it is not a repeated GPU bake claim.
+  Each motion source has **491 poses** at 0.5 mm tolerance. Evaluated hood
+  supports have 32 poses, zero penetration, 66.8–283.7 mm member overlap.
+- **59,932 game / 171,320 high triangles**, four delivery materials, one three-map
+  **2048²** set baked at 4096²: **16 MiB** compressed with mips. Per-part and
+  moving-parent counts are in the README and `build/sedan/detail-game.counts.json`.
+- **35.75% UV coverage**, six chart splits, zero overlap/outside/degenerate
+  triangles; p5/median/p95 **81.8/229.2/278.2 px/m**. The direct bake has no
+  missing pixels or backward normals in **4,535,212 interior samples**. Verified
+  high-source normals cover **262 parts / 8.78% of the atlas**; other normals are
+  the direct source shader/parent field. See the separate bake reports.
+- GLB **13,284,352 bytes**, SHA256
+  `a20b3b9d80245ffb575479152f18a5945c429f87b9cad85e12882dc05516be62`.
+  Fresh import passes every verifier check. All **55** final GLB views use that
+  one digest and one presentation recipe.
+- Pickup GLB remains byte-identical, SHA256
+  `f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
+  No sedan-specific kit or shared pickup-source change is required.
+
+Final image locations: `renders/sedan-detail/contact.jpg`, `turnaround.jpg`,
+`details.jpg`, `factory-colors.jpg`, `scale.jpg`, `checkpoint.jpg`;
+`renders/sedan-eevee/front_three_quarter.jpg`;
+`renders/sedan-motion/contact.jpg` and five sweep strips;
+`renders/sedan-used-pairs/used_front-pair.jpg`, `used_rear-pair.jpg`, patch
+annotations and `bake-loss.json`; `renders/sedan-source-pairs/`;
+`renders/sedan-panels/*-comparison.jpg` for front/rear three-quarter, side,
+front and rear actual-game curvature beside both stripe directions.
+
+All final views, motion poses, five-color views and diagnostic sheets were
+visually reviewed, including the five final compressed docs images. `docs/`
+adds only `sedan-hero.jpg`, `sedan-rear.jpg`, `sedan-details.jpg`,
+`sedan-five-colors.jpg` and `sedan-turnaround.jpg`: 1600 px wide, respectively
+109,794 / 105,939 / 186,434 / 196,652 / 126,068 bytes. No blend/GLB, atlas,
+reference image or intermediate render is committed.
+
+Remaining CG tells: flatter broad reflections than the used photographs;
+localized raw-H sampling speckle; coarse wheel/mirror transitions; simplified
+cabin, rear optics and underbody; soft fine lettering/diamond relief; and
+occasional colored atlas fringes on very thin trim and gauge. Eevee shows less
+nested optical depth and noisier grazing reflections than Cycles. Nothing is
+needed from the lead to rebuild or inspect this delivery. A future general UV
+minimum-feature allocator could help thin gauge/trim within a small atlas;
+this round does not add one to the shared kit.
+
+## S240 R8 — repair the surfaces judged in the finals
+
+### Pass 1 — baseline, causes before correction
+
+Color and value first: opened the delivered hero, rear, details, five-color
+sheet and full-size face beside the actual used-front/rear photographs. Keep
+the five factory factors, outdoor white balances (front plaster, rear white
+background-car trunk), matched sun/sky and accepted studio. The photographic
+film keeps the underlying paint hue and has a smooth vertical falloff; the
+white/silver delivery instead exposes an irregular high-contrast noise field.
+The checked patches did not certify these whole-view defects.
+
+Baseline evidence is preserved under `build/sedan-r8/before/`. The
+`build/sedan-r8/no-normal/` experiment renders the same imported delivery with
+only the Principled normal connections disabled. Glass tearing and most grille
+warping disappear; the canopy rail kink, optical cut, arch spikes and tire
+rings remain. This separates bake/material defects from actual geometry.
+
+Causes established before editing:
+
+- Windshield/backlight: their source has no glass height relief, but the direct
+  normal bake is not neutral: windshield p99/max tangent deviation .469/3.024
+  degrees, backlight .115/.251 degrees. A crisp softbox edge exposes these
+  small interpolation/edge errors; removing the map removes the ragged edge.
+  The game canopy also has too few transverse chords near the rail. Geometry
+  and normal continuity still require inspection independently of this bake.
+- Roof/sail: the source canopy controls change spacing and cross crown near
+  the header; localized Laplacian relaxation and coarser game canopy sampling
+  leave an uneven transition. It survives the normal-disabled experiment.
+  The backlight's longitudinal section also changes slope repeatedly. These
+  are high-surface/game sampling issues, not merely a texture problem.
+- Hood: the normal-disabled face still has broad uneven highlight flow and
+  mottled roughness. Source flake/peel is sampled far below the 229 px/m median
+  atlas density (2800/m peel, 900/m roughness); a sparse point-sampled bake
+  aliases microscopic structure into visible variation. Broad flow is a
+  separate parent/control and game interpolation issue.
+- Grille: each low vane has sharp rectangular sides while the high source
+  adds bevels. Accepted partwise hit coverage does not establish accurate
+  shading: vane 08's projected normal has p95 9.64, p99 30.79 and max 77.29
+  degrees. It replaces a direct normal with only .053-degree maximum error.
+  The 20%-decimated backing has irregular triangles and a 2 mm shader relief;
+  that direct map reaches 20 degrees. Both are exaggerated at this density.
+- Headlamp outer cut: the chart cutter uses a convex hull over a bent strip,
+  and then returns chord intersections by nearest 3D point rather than the
+  carried parameter. These operations can select the wrong folded branch at
+  the tip. The defect persists with every normal map disabled.
+- Film: 35/m three-octave noise modulates the entire deposit, and 7/m noise
+  changes its ceiling. The mask's nominal wheel location does not make this
+  mottling a plausible spray gradient. Replace its distribution and directional
+  streak construction while keeping factory colors and localized gap dirt.
+- Tires/arches: the low tire has only 40 angular segments and 11 profile
+  stations, with angle-threshold smoothing creating distinct sidewall rings.
+  The lettering also inherits the pickup's radius and masks after coordinate
+  rescaling, so it is too small/soft in the delivered sidewall. The arch cutter
+  clips coarse chord planes, then aperture recuts return all vertices to the
+  nearest parent without preserving the circular cut. This moves the lip off
+  its intended boundary and leaves thin projecting facets. These are source
+  geometry/construction faults, separate from bake noise.
+
+Next: correct each surface/projection by cause, allocate continuous UV charts
+and properly filtered shader detail, then repeat the same full-size finals.
+The expanded curvature and reflection evidence must include glass, grille,
+lamps and arch lips, and must inspect the delivered GLB as well as the source.
+
+### Pass 2 — reject the remaining arch needle and canopy kink
+
+Color/value first: inspected the four full-size `build/sedan-r8/pass1-source/`
+views against the same used photographs and the unchanged baseline studio.
+Factory factors are unchanged. The hood's fine mottling is removed by
+integrating unresolved roughness/height into its mean response. The road film
+keeps the paint hue and is now a soft low gradient; verify its visibility on
+white/silver in the export before calling it sufficient. The smooth touring
+carcass and native-size raised type improve the wheel, without white lettering.
+
+Reject the still-visible narrow front arch needle and the roof/sail kink.
+The initial cut correction preserves original boundary points and evaluates
+only inserted points through their carried parent parameters. However, the
+separate 24-station arch hem still samples a different outline by independent
+rays, with hard angle-threshold normals. The return must follow the actual cut
+boundary. Its game version can omit hidden gauge backs, funding more circular
+samples without raising the budget. The high source retains physical gauge.
+The glass itself is smooth in the source; the canopy's rear station-lift and
+local relaxation still produce uneven longitudinal acceleration. Fair those
+control rows before subdivision, including the painted sail/rail transition.
+
+The first globally seam-unwrapped atlas fails on closed rigid internals and is
+rejected. Continuous sheet charts with SmartUV internals pass strict overlap
+checks, but the tested 40.9% coverage is still inefficient. Separate hidden-back
+and rim charts and retain concave packing during repair; test the delivered
+paint/type detail, rather than claiming area coverage alone proves quality.
+Object joins preserve the source's glass corner normals exactly (maximum
+component difference zero). The glass fault therefore lies in the baked normal
+sampler, including its unavoidable 8-bit tangent quantization, not serialization.
+The exported smooth-glass material will use its actual continuous mesh normals;
+all other surfaces retain the shared normal atlas.
+
+### Pass 3 — reject extrapolated rails; identify the visible surfaces by rays
+
+Color/value first: the fixed studio/source comparisons still retain the original
+Atlantic/Graphite factors and dark cavities. The integrated hood finish is
+cleaner, with no broad fine-noise wash. Film is deliberately subtler in blue;
+white and silver delivery views remain a required visibility check. Source and
+export coat roughness now use the same coverage decoder rather than different
+film multipliers.
+
+Opened all four full-size `pass2-source` and `pass3-source` views and the dense
+source's two `high-no-normal` views. Reject the extrapolated canopy fit: outside
+the measured central patch it bends the roof rail and side glass. Remove it.
+The original dense parent has a substantially smoother header than the game
+sampling, so retain the accepted parent/profile and refine the missing inner
+portion of the rear header grid. This is a sampling correction, not a new roof.
+
+The remaining apparent arch blade is conclusively a **liner occlusion**, not
+an exterior cut hole: at wheel pixel (160,900) the first surface is
+`Wheelwell_FR` at x=.880000 m, ahead of intact exterior fascia at x=.873516 m.
+The next paint/gauge hits are intact. At (160,1000) the liner again precedes the
+paint. The black liner cuts across an otherwise continuous painted arch and
+makes the remaining paint read as a narrow spike. The old fixed .880 m outer
+liner ring ignores the lower fascia's tucked section. The production correction
+seats that ring 6 mm behind actual side rays on the paint; it removes material
+outside the body and cannot enlarge the liner's swept envelope. The circular
+cut boundary independently measures about 374 mm throughout this area. The
+pre-triangulated arch trial adds nearly 2k triangles without curing the spike;
+it is rejected. The hem is now sampled from the physical cut, with hidden game
+backs omitted and high-source gauge retained, but that alone did not cure the
+visible occlusion. Do not credit the wrong cause.
+
+The front cover's old two normal offsets also buried it about 7.8 mm below its
+parent. At the strongly curved end, rays could see the wheelhouse through the
+opening. Carried chart normals and a flush laminate seat remove that branch
+ambiguity; the same face ray at (1550,380) now meets `Headlamp opening1` instead
+of a wheelhouse. The opening follows a convex decomposition of its true bent
+outline, preserving the concavity lost by the old single hull. Its internals
+retain the original constructed layout and powered state.
+
+The source hidden-back trial saves 548 triangles while locking every exposed
+vertex and its normal, with the existing positive-depth/manifold probes. That
+is the appropriate allocation to recover the unchanged 60k budget. Regional
+atlas packing is rejected (27.9% coverage). Continuous visible-sheet charts plus
+45-degree rigid/internal charts give 41.94% coverage, zero overlap, and measured
+p5/median/p95 57.2/267.7/396.8 px/m on the baseline geometry. This is an actual
+packing/density improvement over 35.75% / 229.2 median, not a claim of uniform
+texel density. The final changed geometry still needs its own measurements.
+
+### Optical projection follow-up — the close-up reveals collapsed source height
+
+Color/value first: the 1600 px unlit lamp close-up still has unacceptable bright
+folds and black cuts. Material and exposure changes cannot repair it. The liner
+trial's wheel close-up does remove the long blade, confirming the ray diagnosis.
+The remaining small arch speck is a disconnected clipping crumb, to remove by
+component measurement rather than a texture patch.
+
+The headlamp's source grid, before baking, collapses its intended vertical
+section onto the hood roll: actual upper/lower Z separation is 47.9 mm at
+column 0, 22.3 at column 3, 5.6 at column 9 and only 1.9 at column 12. Its
+transverse tangent metric was linearized across a strongly turning surface;
+that is not a valid projection of the original 90–150 mm vertical lamp section.
+The result also exposes the otherwise accepted projector above the collapsed
+cover. Keeping the authored centerline/height controls, use outermost horizontal
+surface rays at the real row heights, as the accepted rear covers already do.
+This changes the faulty projection, not the fictional lamp graphic or internals.
+
+### Pass 4 — reject the remaining optical teeth and under-sampled swirl field
+
+Color/value first: the full-size source lamp view retains the correct dark paint
+and black optical cavity, but a fine roughness mottle remains across the hood.
+The remaining 8/m Voronoi-distance field is multiplied into a 3200-radian sine:
+its hairline swirl signal is also far below a delivered texel. Integrate that
+last unresolved roughness term into its mean, as with the clearcoat microfinish;
+keep the resolved causal film and shut-line residue.
+
+The new physical lamp section restores the intended height, but the body still
+has triangular teeth along its edge. The parent chart turns back on itself
+through this nose/hood corner: carrying that chart avoids random inversion but
+does not make its projection injective. Test the true concave optical outline
+in world X/Z, selecting only the exposed front branch, just as the grille cut
+already does. Retain the lamp's actual outline rather than replacing it by a
+convex hull. Ray layers also identify the bright lower corner as the optical
+housing/guide assembly, so inspect its depth construction separately after the
+body boundary is continuous. A passing cover-normal statistic is insufficient.
+
+Measured the housing's 100 mm normal-flow offset: its vertical displacement
+ranges from -8.9 to +97.6 mm around one perimeter. That folds a deep housing
+through the tight nose roll and crowds the light guides. A real optical bucket
+extrudes back into the car; it does not follow every changing cover normal.
+Use a horizontal inward direction at each longitudinal column, a ruled backing
+between upper/lower rails, and guides sampled at explicit cover-row fractions.
+The game backing omits its hidden rear gauge; the dense source keeps thickness.
+
+The X/Z boundary plot (`build/sedan-r8/cut-boundary.png`) exposes a more precise
+cause: the physical radial-ray lens itself crosses over at the inner lower
+corner (x≈.69–.73, z≈.60 m). Adjacent column rays diverge enough to exchange X
+order. The cutter faithfully reproduces that crossed outline. Replacing its
+chart alone cannot cure it. Keep each authored column at constant world X and
+cast along the vehicle's front axis; the exposed end is a single-valued height
+field there. This makes the lens and cut share an injective projection, while
+retaining the upper rail, authored heights and optical assembly.
+
+Source/bake graph audit finds why the first height override did not work:
+`Nodes.feed(socket, 0)` changes a default but does not remove an existing link.
+The paint bump therefore retained its original 1700–2800/m height field in both
+source and direct-normal bake. Explicitly remove incoming links before constant
+replacement. The roughness/base channel replacements already route through the
+live shader correctly. Verify the new source and export rather than crediting
+an override that had not actually disconnected the micro-normal.
+
+Reject the X/Z cutter's branch-clipping experiment: the all-surface projection
+cuts farther behind the cover on the side return, leaving slits into the
+wheelhouse. Partitioning that branch adds fragmentation instead of improving
+construction. The boundary plot proved that the lens crossed over; it did not
+prove the parent's topological chart was inherently invalid. With all rows now
+projected to the same frontmost sheet, test cutting in their actual parent
+chart again. The upper row must use the same end ray as every other row; keeping
+its old nearest-point branch retained a mismatch at the hood roll. These are
+source projection trials, not final geometry or evidence of a finished fix.
+
+The first explicit numeric height replacement also exposed a Blender reroute
+API detail: removing its last input link invalidates a cached socket reference.
+That trial disconnected the paint's other channels (white source preview) and
+is rejected. Use a real constant-value output and replace the existing link
+atomically; assert that all four paint channels remain connected. The new graph
+inspection confirms `OUT_height -> Value(0)` and all live paint links intact.
+
+The exact-ray evidence now separates two faults. At lamp pixel (170,220),
+`Hood outer` role 1 is 0.69 mm ahead of role 0; face pixel (870,70) also hits the
+back first. Those bright polygons are physical back-sheet occlusion, not paint
+noise. The actual game diagonals must be frozen before reducing/checking backs.
+A whole-back check also rejects the front fender: some cut facets fold when
+new intersections are lifted from their original coarse chord onto the dense
+parent, while their old neighbors stay on the chord. Preserve the original
+piecewise-planar game surface during clipping. The dense source's finer facets
+still provide the normal field; moving only new vertices onto a different
+surface was the wrong geometry operation. This also explains why edge teeth
+survived both chart and X/Z cutter trials.
+
+The geometric/corner-normal audit finds the larger upstream cause: seven
+front-fender skin triangles per side point almost exactly against their smooth
+parent normals (minimum dot ≈ -0.999), plus two reversed backlight edge fragments
+and shoulder slivers on the rear quarter. Their positions are at panel borders,
+not the lamp's optical grid. The unconditional 2.25 mm boundary setback moves
+vertices across neighboring sub-2 mm clipped strips. Smooth custom normals
+conceal the reversed geometric winding from a normal-field-only check. Limit
+that inset by the actual incident triangle orientation/area, preserving the
+full offset wherever its local topology supports it. Then prove every exposed
+sheet's geometric orientation, and recheck the back against those real facets.
+
+The bounded inset removes the backlight's reversed edge fragments, but the
+fender shoulder folds are unchanged, so do not credit it for those. Their
+triangles lie along refinement transitions: inserted midpoint samples curve
+away from the original chord, leaving nonplanar five/six-sided polygons. A 3D
+n-gon triangulator creates sliver triangles between three points collinear in
+the parent chart, but curved in space. Triangulate each stitched n-gon as a fan
+from its sampled chart center before separation/cutting; every chart boundary
+sample is then retained without those artificial curved-edge slivers.
+
+Stage hooks show the persistent shoulder strips already reversed in the raw
+sample mesh, before inset, arch trim, closing or gauge. Adaptive sampling only
+resolves a microscopic loop in the dense parent, so reject it as a fix. The
+control section itself goes down and back up: its old belt row is followed by
+`shoulder_height + 17 mm` (e.g. about 903 -> 916 mm), then descends again.
+The section fit almost collapses that loop but cannot remove its topology.
+Make the section's Z ordering monotone before fitting, with the least-squares
+adjacent-row pooling and a 0.4 mm minimum control spacing. The existing target
+field, plan/profile dimensions and named construction lines stay authoritative.
+Rebuild the dense parent; this must fix the source, rather than hide it in
+custom normals or keep subdividing a folded ribbon.
+
+The corrected parent removes every substantial front-fender, front-door,
+quarter, sail and glazing reversal. The actual-game back-seat check now also
+converges. Freezing all quads before cuts costs about 5k unnecessary triangles;
+reject that allocation and freeze only the final game surface before its back
+reduction. Keep chart-center fans only where a stitched n-gon's triangulation
+actually loses the surface normal.
+
+The unlit optical close-up remains weaker than acceptable: the cover inherits
+the sheet-metal roll through its entire interior, rather than being a fair
+molded optical patch. Preserve all four measured perimeter curves, interpolate
+a Coons patch between them, and derive its continuous normals from that patch.
+The existing housing also stops inside a 2.25 mm open reveal. Seat its mouth
+under the actual painted cut as the molded casing's flange, so the real reveal
+has a supported black return instead of a view through to the wheelhouse.
+
+Reject the expanded vertical-height optical trial. The flange check measures
+41 mm to the nearest painted support at one perimeter point: the taller trial
+has entered the existing grille opening. The accepted lamp's transverse height
+runs around the nose/hood roll; its small world-Z separation did not by itself
+prove that its surface width collapsed. That earlier diagnosis overinterpreted
+one component of a 3D section. Restore the accepted wrapped optical envelope,
+retain its exact construction-chart samples for the cut, and fix its flush seat,
+casing return and delivered normals. This preserves the owner's accepted form
+instead of expanding the graphic into another assembly.
+
+The restored envelope exposes why the original internals were not contained:
+the projector's 26 mm radius exceeded its 10 mm normal setback, and 9 mm guides
+continued into the 4–5 mm-wide tapered tip. Keep the accepted optical envelope
+and powered state; seat the projector 45 mm beneath the cover, recess guides
+along its true normals, stop them before the tip becomes narrower than their
+physical diameter, and fit the amber strip inside the same cover. Extrude the
+bucket along one rearward/downward construction direction, avoiding intersecting
+local-normal offsets around a wrapped top/front cover.
+
+Back reduction can create nonplanar quads again. Freeze those final back
+triangles as well as the outer skin before validating. Add exact triangle-edge
+intersection checks in both directions to the sampled depth check, so a back
+can never pass on its quad center while one delivered diagonal crosses paint.
+The source now passes this exact containment check at 59,120 triangles.
+Only sampling convergence changes in the studio: adaptive error .025 -> .008;
+all lights, camera views, factory factors, exposure and tone transform remain
+identical. This reduces denoised clearcoat mottle without changing the recipe's
+lighting or values.
+
+The exact source motion audit rejects coarse inner backs entering the unchanged
+lower hinge envelopes (up to 5.8 mm), and a submillimeter closed-hood contact
+with the flush lamp/casing. Preserve original back vertices and their one-ring
+neighbors around the lower hinge spaces; do not move accepted pins or weaken
+the sweep. Recess the laminate another 1 mm and its supported casing mouth
+another 1 mm, then rerun the same 0.5 mm motion tolerance. Guide margins now
+follow actual cover width: two 9 mm guides only where both fit, one centered
+through the narrow section, ending before its physical diameter exceeds it.
+
+The clean build passes all lower-hinge sweeps after preserving their backs.
+Its only game-motion failures are at the closed hood/glass reveal (0.623 and
+0.669 mm, against the unchanged 0.5 mm tolerance). Increase the lamp's true
+painted aperture clearance from 2.25 to 3.25 mm; keep the cover and pivots.
+The independent surface report confirms zero exact inner/outer crossings and
+positive sampled depth on every body back. Shared source normals differ by at
+most 0.000369 in vector length (about 0.021 degrees), consistent with packed
+corner-normal storage; use a documented 0.001 bound, rather than claiming exact
+floating-point identity. It also finds two genuine reversed rear-roll facets
+just above the existing refinement band. Extend that band to z=.62 m, spending
+samples on that actual turn instead of accepting the missed portion.
+
+The last closed-hood witness is a hood edge inside the laminate at
+(-.6504,-2.1543,.74625) m. The hood's coarse chord is inverted to the wrong
+nearest-parent UV near the wrapped nose; simply enlarging the parameter-chart
+reveal barely changes that witness. Cut the actual hood facets in their natural
+XY manufacturing plane, using the same true lamp perimeter. Preserve their
+planes and the lens envelope. Other panels retain their own construction chart.
+This directly repairs the projection error instead of allowing hood/glass contact.
+
+The corrected hood cut eliminates hood/glass penetration (exact closed-pair
+result 0, and the complete rigid sweep passes). The separate constrained strut
+check still finds a coarse hidden hood back entering its unchanged moving rod.
+Preserve the original gauge and its one-ring neighbors in the two strut strips
+(x=±.50–.80 m, y=-1.90–-1.05 m). This keeps the real support clearance instead
+of relocating the accepted mechanism or retaining unnecessary full-panel backs.
+
+The open game arch returns also have their own physical check: solid-parity
+sweeps intentionally omit open sheets, so the kit's result alone cannot certify
+them. `sedan_arch_check.py` tests their exact triangle intersections with the
+closed tires and tests flange vertices inside rubber through all 290 wheel/steer
+poses. The candidate passes; minimum sampled vertex-to-surface distance is
+recorded separately and is not presented as an exact global surface clearance.
+
+The clean high-source sweep catches front door seals compressed into the newly
+un-inset glazing border by 0.610/0.612 mm, and the right casing wall touching the
+closed hood by 0.748 mm. Move only the front seals 0.8 mm inward on their panes.
+The casing's wall gauge is 1.5 mm, so its old 1.2 mm inner clearance was not
+sufficient: seat the mouth 2.5 mm behind the actual panel gauge. Report the real
+mouth-to-skin distance, not the query point's distance. The XY hood cut must
+also use the final recessed laminate footprint (including both normal offsets),
+not its pre-seat coordinates. Keep both density checks and the existing 0.5 mm
+tolerance; these contacts must be removed in construction.
+
+The casing now clears in both densities. The last front seal contact exposes
+the offset's direction: a vector toward the pane's center mostly runs along its
+long edges, so it barely moves away from the frame. Use the actual edge tangent
+crossed with the pane normal to inset the front seal uniformly by 2.8 mm. Keep
+its diameter, glazing, frame and door axes. This is a manufactured perimeter
+seat, not another arbitrary increase in a center-directed offset.
+
+### Pass 5 — reject angular optical reflections in the source close-up
+
+Color/value first: the rebuilt source keeps Atlantic and Graphite's dark values,
+deep grille cavities and the smooth hood highlight. The source-only preview
+was started before the clean build had regenerated its three sedan marking
+images; its magenta dealer/model insert and missing tire type invalidate those
+materials. Discard that preview as appearance evidence. All four rendered views
+were nevertheless opened, and its geometry reveals an unresolved defect that
+must be fixed before the bake.
+
+The `release-source-review/face.png` still shows angular white fragments in the
+lamp ends. Actual camera rays identify the white areas as the cover's **outer
+optical surface**, not painted fragments or the casing. One neighboring ray hits
+a guide before any cover, so the guide is still not completely contained in the
+cover's tapered envelope. Re-querying parent normals accounts for less than
+0.52 degrees of normal error; it is not enough to explain these large shapes.
+The delivered cover has only three transverse cells across the wrapped
+nose/hood roll. Its source-parent normals vary by up to 21.8 degrees between
+30 mm longitudinal stations. A sheet-metal normal field is not itself a fair
+molded optical patch. Test an independent Coons interior and its true derivative
+normals **within the restored accepted perimeter**, rather than the rejected
+expanded lamp envelope. Do not hide the guides or alter the studio to pass.
+
+The empty-cover and opaque-cover ablations retain the broad white polygon at
+the inner end: it is an actual studio-card reflection, not white guide material.
+The independent Coons interior moves up to 8.7 mm and does not improve that
+region, so reject it rather than changing the accepted optical envelope on a
+false diagnosis. The separate exposed-guide witness is real: normal rays miss
+the cover from two upper-guide vertices and thirteen lower-guide vertices per
+side. The bucket has no manufactured land between the cover's bonded edge and
+its painted-mouth flange. Add that supported black lip beneath the laminate,
+closing the view through the reveal. Spend its triangles by eliminating only
+redundant light-guide chords within 0.30 mm; retain the guide endpoints, diameter,
+materials and powered state.
+
+The latest UV preflight also finds a zero-area *preliminary* SmartUV island,
+before the sedan's connected-sheet unwrap can run. Defer island normalization
+to the sedan finalizer, which already measures actual world area, unwraps the
+visible sheets and repairs subtexel chart altitudes before strict validation.
+Do not relax the final overlap, coverage, density or degeneracy checks.
+
+
+The first real export passes the kit's re-import check at 59,930 triangles and
+9,119,128 bytes. Its expanded proof initially rejects source-name distances up
+to 0.667 mm. Witness triangles show matching vertices on narrow liner caps and
+gauge rims; nearest-surface BVH queries jump to their sidewalls. This is an
+attribution-query error, not deformed export geometry. Replace nearest-surface
+ownership with whole-triangle centroid candidates and bidirectional vertex
+matching, retaining the 10 µm limit. The unchanged GLB matches all 59,930 actual
+triangles within 0.238 µm per vertex and 0.477 µm per centroid. All 174 visible
+surface parts then pass their independent tests. Imported geometry and normals
+remain the entire input to the delivered fairness views; the source supplies
+only labels and face-role selection.
+
+The first export's direct normal bake checks 6,053,394 interior texels: zero missed, one
+backward. Its existing documented hemisphere fallback neutralizes that texel
+before packing/downsampling. This is not a zero-error raw bake. Paint and glass
+do not sample the tangent-normal texture; their fair exported normals remain
+continuous independently of atlas quantization.
+
+### Pass 6 — reject stretched markings in the actual GLB
+
+Color/value first: opened all four 1600 px `first-delivery-review/` views. Atlantic
+retains its dark blue, the hood highlight is smooth at the face-view scale, and
+the deep cavities remain dark. The glass's torn micro-edge and arch's exposed
+liner blade are gone. The broad white reflection at the headlamp's blunt inner
+end survives the opaque ablation and is an actual card reflection; the new
+supported reveal no longer looks through an unconstructed bucket edge.
+
+Reject the wheel close-up for sampling quality. The tire is now smooth but its
+molded words are still too faint; the ALDER cap has regressed into blurred bars.
+Inspecting actual baked chart pixels identifies a packing defect: a physical
+58 × 20 mm label at a measured 558 px/m occupies **8.08 × 44.60 texels**, rather
+than about 32 × 11. A non-square active marking image has contaminated the UV
+operators' aspect context. Area-based density passes while one dimension loses
+three quarters of its resolution. The original emblem has the same distortion;
+the S240 badge also inherits the low structural priority. Fix the atlas, not the
+lettering design: establish a square active image for every UV operation, reset
+the affected rigid SmartUV charts, then unwrap/normalize/pack as before. Give
+the original model badge its own marking priority. Add a measured per-triangle
+UV Jacobian condition number on the planar prints, so a future area-only report
+cannot hide this distortion again. The one 2048 set and geometry stay unchanged.
+
+The expanded final contact also includes mirrors, seals, the cabin and the
+underbody. Include all seventeen manufactured categories in the source/GLB
+proof, not only the ten outer-surface categories. This adds their actual
+geometry to the same diagnostics rather than declaring the whole gallery
+covered by the earlier 174-part subset. Designed hard corners stay hard; the
+independent normal/triangle statistics remain available for every part.
+
+
+The full clean `make` and `make check` pass. The Cycles gallery and the native
+before/after pairs are reviewed. Eevee's glass reflection still shows stochastic
+sampling grain at 128 samples, despite the glass having no tangent-normal
+binding. Raise only that renderer's sampling to 512; retain its camera, lights,
+exposure, fallback shader and the same exported GLB. This is render convergence,
+not paint roughness or a surface-detail change.
+
+### Pass 7 — final exported car, native crops and bounded docs
+
+Color/value first: opened the final hero, rear, details, five-color and
+turnaround JPGs at native size, the face/wheel/lamp PNGs, all gallery and motion
+contact views, both used-photo pairs, and all seven source plus seven delivery
+curvature/stripe sheets. Atlantic keeps its dark blue, Carbon stays dark, and
+Porcelain rolls into a highlight without clipping. The hero and rear paint
+masks have zero clipped channels; displayed luma p1/median/p99 is
+20.5/51.7/244.9 and 14.5/47.0/244.9 out of 255. Cavities remain dark. Eevee at
+512 samples is calmer but still grainier and shallower through stacked glass
+than Cycles; it is not substituted for the Cycles finals.
+
+White balance remains the assumed-neutral front plaster and background white
+car's trunk in the two reference photographs, with the recorded linear gains.
+Neither is a gray card. The factory factors and matched sun/sky recipe are
+unchanged. Front upper-door RGB is **150/148/148** against **153/147/151**;
+rear is **125/126/128** against **121/119/131**. These retain the accepted values.
+Across ten displayed paint/wear patches, median absolute luma error is
+**12.75/255**, worst **29.36/255** on the rear quarter's sky reflection. Maximum
+source-to-baked patch channel difference is **1/255**. Those are appearance
+measurements, not albedos or a claim that our original panels match another
+car's reflections. The procedural surroundings remain simpler than the photo.
+
+The native before/after pairs use identical camera, paint, exposure and image
+size, checked against both `shots.json` records. Every source is an exported
+GLB render. `renders/sedan-surface-repair/crops.json` records the crop rectangles
+and both image digests; the contact sheet is
+`renders/sedan-surface-repair/contact.jpg`.
+
+| Defect / measured cause | Final repair | Native before/after |
+| --- | --- | --- |
+| Windshield: redundant, quantized tangent normals tore the reflection; tangential inset also distorted the pane edge. | Normal recess under separate seals; continuous exported limit normals without a glass normal-texture binding. | [Windshield](renders/sedan-surface-repair/windshield.jpg) |
+| Backlight/sail: reversed shoulder control rows collapsed during fitting; tangent-map noise amplified the crease. | Monotone control-row ordering before fitting, orientation-safe panel inset and continuous glass/paint normals. | [Backlight and sail](renders/sedan-surface-repair/backlight-sail.jpg) |
+| Hood: unresolved peel/swirl frequencies aliased into the atlas; some reduced inner triangles also protruded through the skin. | Integrate microfinish into mean roughness, actual zero-height node, omit unresolved paint tangent relief; triangulate/test backs and preserve real hinge/strut clearance. | [Hood](renders/sedan-surface-repair/hood.jpg) |
+| Grille: bevel projection onto sharp game vanes produced large false tangent deflections; 2 mm relief crumpled the backing response. | Direct vane normals and 0.18 mm diamond relief. | [Grille](renders/sedan-surface-repair/grille.jpg) |
+| Lamp cuts: nearest-parent inversion of coarse hood chords missed the true opening; lifting cut-only vertices folded facets; the bucket lacked a bonded land. | Cut actual facet planes, use the hood's XY plane and final seated footprint, retain true wrapped covers, fit internals and add supported molded lips. | [Lamp cut](renders/sedan-surface-repair/lamp-cut.jpg) |
+| Road film: isotropic noise and a noisy upper boundary washed the lower panels. | Smooth rocker-height deposit, elongated rearward tire wakes, mild directional streak variation and gap residue, keeping the paint hue. | [White](renders/sedan-surface-repair/road-film-white.jpg), [silver](renders/sedan-surface-repair/road-film-silver.jpg) |
+| Tires/type: coarse carcass sampling/sharp rings; native passenger lettering was blurred further by anisotropic UV packing. | 56 circumferential stations and continuous carcass normals; native-size molded type, prioritized sidewalls and square atlas context. | [Wheel](renders/sedan-surface-repair/wheel.jpg) |
+| Arch blades: the front liner stood outside the real painted skin; small clip islands remained at the hem. | Seat liners 6 mm inside actual skin rays, construct the hem from its cut boundary and remove measured disconnected crumbs. | [Arch lip](renders/sedan-surface-repair/arch-lip.jpg) |
+
+The broad white polygon at the lamp's blunt end is retained: empty and opaque
+cover ablations identify a genuine reflection of the accepted studio card.
+It is not an unsupported painted fragment. The actual cut, casing and guides
+are judged in the lit/unlit close-ups, not inferred from that reflection alone.
+
+The source and freshly imported GLB checks cover **420 parts in all seventeen
+categories**. All 59,930 delivered triangles match source labels within
+0.238 µm per vertex; delivery geometry/corner normals supply the actual proof.
+Curvature measures real triangle positions; reflection stripes audit corner
+normal fairness. The baked material response is judged separately in the native
+studio pairs above. Raw maps still expose discrete cut cells and tire-section
+interpolation under extreme stripes; they are not smoothed into fictitious
+NURBS surfaces.
+
+Final build evidence:
+
+- `make -C cars BODY=sedan WIDTH=1600 SAMPLES=256`: **exit 0** after removing all
+  generated sedan build, texture, export and render folders. The clean-start
+  ledger and full log are in `build/sedan-r8/clean-start-final.json` and
+  `build/sedan-r8/clean-make.log`. No development parent cache enters Make.
+- `make -C cars BODY=sedan WIDTH=1600 SAMPLES=256 check`: **exit 0**;
+  `build/sedan-r8/final-check.log`. Repeat geometry, scale, source normals,
+  actual UV overlap/density, aperture rays and GLB re-import all pass.
+- Both densities pass **491 rigid poses each**, plus the independently evaluated
+  **32-pose** hollow hood-support sweep. Open game arch returns pass **290**
+  wheel/steering poses with no exact tire crossings or containment. Their
+  minimum **sampled vertex-to-surface** distance is **1.9445 mm**; this is not
+  claimed as an exact global surface minimum or a continuous-motion proof.
+- Source **174,212** / delivery **59,930 triangles**, four authorized family
+  surfaces, one three-map **2048²** set baked at **4096²**, **16 MiB** compressed
+  with full mips. GLB **9,152,316 bytes**, SHA-256
+  `82cd0eca5c0481f75b87487b406661f7a96960f9cfd1ac6a8e948c4b37babdbc`.
+- Atlas coverage **40.82%**; p5/median/p95 **59.6/264.3/506.0 px/m**;
+  zero overlaps/outside/degenerate triangles, 31 logged overlap-chart repairs.
+  Six planar prints have measured UV Jacobian condition numbers below 1.00003.
+  Direct bake: **6,080,665** interior texels checked, zero missing, six backward
+  tangent texels neutralized; 256 parts / 7.77% of the atlas accept independently
+  checked high-source normals. Paint and glass do not sample that normal map.
+- Fifty-five final gallery/motion/pair/Eevee views share the final GLB digest.
+  Final contacts: `renders/sedan-detail/contact.jpg`,
+  `renders/sedan-detail/checkpoint.jpg`, `renders/sedan-motion/contact.jpg`.
+  Expanded geometric evidence: `renders/sedan-panels/*-comparison.jpg` and
+  `renders/sedan-panels/source/*-comparison.jpg` (seven views / three modes each).
+- Five final docs JPGs: hero **107,195**, rear **103,063**, details **185,910**,
+  five colors **194,194**, turnaround **119,489 bytes**. Each is 1600 px wide
+  and below 200 KB. They are the only sedan gallery images to be kept in Git.
+- Pickup SHA-256 remains
+  `f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
+  No shared family implementation or kit file changed.
+
+Still weaker than desired: hard mirror/wheel bevels, simple cabin and underbody
+forms, simplified rear optics, faint molded rubber text and soft small atlas
+lettering at macro distance. Fine sampling irregularities remain visible in
+extreme diagnostic stripes. The estimated photo environment cannot reproduce
+all building/sky reflections. These limits remain explicit; the final studio
+views and crops are the look evidence, rather than the passing numeric checks.
+
+Nothing is needed from the lead to rebuild. Suggested kit follow-up: add
+per-triangle UV anisotropy beside area-based density, complete-triangle label
+correspondence for thin sheets, and explicit open-sheet sweep coverage. Keep
+that general work coordinated with the other family branches.
+
+
+Final provenance refresh: the first history rewrite overlapped a verification
+run and refreshed generated-scene timestamps. Rebuild the affected chain before
+calling it final. The long foreground render command subsequently received
+SIGTERM; a persistent runner completed the normal Make graph with exit 0
+(`build/sedan-r8/persistent-make.log` and `persistent-make-result.json`). Then
+`make -C cars BODY=sedan WIDTH=1600 SAMPLES=256 check` ran separately and exited
+0 (`build/sedan-r8/post-refresh-check.log`). All 55 views now reference the final
+GLB digest printed above. The source-photo pairs, bake-loss report, nine crops,
+contacts and five docs have been regenerated and reviewed again.
+
+All 57 raster masks and all 14 geometric curvature maps are pixel-identical to
+the earlier reviewed run. GPU shading/baking is not claimed bit-for-bit
+repeatable: the final rebake adds 64 compressed bytes; refreshed docs differ
+from the reviewed copies by at most 0.0017/255 mean absolute channel value.
+The sparse worst JPEG-edge difference is 12/255, rather than zero. Geometry
+regeneration is independently exact, including corner normals and assignments.
+The native repairs remain visible; no modeling, factory-factor or lighting
+change was made during this provenance refresh.
+
+## S240 R9 — rebuild the surfaces; image evidence is the gate
+
+### Pass 1 — reject R8's unchanged highlights and read the other bodies
+
+Color/value first: preserve the five accepted factors, front plaster and rear
+background-car neutral balances, gallery recipe, road film and lamp power.
+Opened R8's native front/rear heroes and details. The passenger windshield edge
+is still ragged; the roof/sail and deck/lamp corners are still crumpled; the
+lamp close-up still has sharp white shards. R8's geometric checks do not certify
+those images. Its "repaired" descriptions overstate what the crops show.
+
+Baseline GLB, native views and documentation are retained in
+`build/sedan-r9/before/`. Its SHA is recorded with the pickup in
+`build/sedan-r9/baseline.json`. The gallery-camera reflection-line baseline is
+`renders/sedan-r9-before-zebra/`. Diagnostic surfaces retain the real geometry,
+triangulation and corner normals, with no normal map; evenly spaced area strips
+replace the broad cards. Roof/sail folds and lamp breaks survive that ablation.
+
+Read the hatch and SUV surface modules and their rejected/accepted trials via
+`git show`, without checking out or merging their branches. They separate an
+optical mold from neighboring steel, pair both laminate normal fields, retain
+outside/back/rim provenance, and test physical chord direction as well as
+normal continuity. The SUV collar prevents long nearly collinear border fans;
+the hatch uses a smooth physical optical chart and feature-aligned body rows.
+Their reviews repeatedly reject a passing normal audit when the image fails.
+
+The sedan still derives its windshield normals from the rolled steel/A-pillar
+field, independently queries its reverse layer, and lets sparse glass chords
+interpolate those changing directions. Its upper stamping combines unrelated
+station heights, additive header/rear lifts and a protected fit boundary, then
+locally relaxes the result. That retains multiple curvature reversals under
+one broad reflection. The front cover and cutter use different projection
+planes at the hood/fender boundary, while the optical mold inherits the
+stamping's roll. Grille vanes derive each endpoint from an asymmetric faceted
+bed, rather than one mirrored manufactured curve.
+
+The first new upper-loft experiment and pane-local molds are development
+candidates only. They must be rejected if they merely change measurements or
+move a defect. Native finished crops and reflection lines of both source and
+export must show the repair before documentation is replaced.
+
+Development rejection: the first loft's radial remap narrowed the roof's
+B-post support, and the next used a canopy/belt ordering that crossed near
+the cowl. The unchanged inner-skin check rejects both; no failing assembly is
+accepted or hidden by a normal change. The new upper sections are ordered
+radially, with an explicitly measured transition above the retained shoulder.
+The first cubic lens trial needs 16 mm of extra recess and misses its paint
+flange; reject that mold too. A symmetric quartic mold is the next trial.
+
+### Pass 2 — reject the first finished source views and spend on physical chords
+
+Color/value first: retained the accepted Atlantic/Graphite factors, gallery
+exposure, film and cavity values. Opened both actual used photographs and the
+credited catalog rear reference again, balanced on the same front plaster/rear
+background-car neutrals. The source is still a dark blue used car; no paint or
+lighting adjustment is a surface repair. The source-only comparisons do not
+certify the eventual baked appearance.
+
+Opened every image in `sedan-r9-pass2`, `sedan-r9-pass3`, the reflection-only
+windshield crop, and both `sedan-r9-dense-glass-zebra` views. The lamp cover now
+reads as a continuous shell, but the first sources are rejected: the windshield
+softbox edge and the painted sail still have straight stepped segments. The
+rear lamp's deepest bed/return also produces unsupported-looking fragments.
+Replace normal-flow tail-cassette offsets with an inward horizontal draw and
+ruled backing; retain the existing emitters, projector construction and power.
+
+A same-mesh, reflection-only windshield ablation retains its segmented edge:
+this is not the cabin transmitted through the glass. Pane-local smooth normals
+alone do not resolve their sparse triangle interpolation. The dense optical
+trial changes the image: `sedan-r9-dense-glass/front_three_quarter.png` has a
+curved main softbox edge. Its 2,366/1,149 outer windshield/backlight triangles
+are too expensive, so reject that allocation and use reflection-error-driven
+chords at a less excessive threshold. The 66,430-triangle trial is explicitly
+not a delivery candidate.
+
+Actual pixel rays identify the rear white step as `Greenhouse_L` at approximately
+(-.695,1.519,1.161) m, not a normal-map artifact on the glass. Neighboring samples
+are the same painted sail; the glass point at (-.610,1.519,1.170) m is separate.
+The new C2 die requires physical section-aligned game rows through that painted
+zone, as the hatch's shoulder pass demonstrated. Holding the old coarse cage
+chords cannot prove a fair reflection merely by evaluating a better normal.
+
+The first common perspective polynomial is also rejected as an optical mold:
+its long narrow domain makes its fit poor and produces excessive seating.
+The current trial uses local C2 radial/height sections, fixed source anchors
+at both densities, and one shared tail mold intersected with the physical lid
+plane. Its fit condition is about 46; residuals and seating are recorded per
+cover. Both sides are manufactured from the same mirrored guides.
+
+Independent form checks catch two regressions rather than approving the new
+look: removing the old radial stretch shortened the backlight, and the first
+polar front guide made the lamp return too long. Define the backlight's base
+as the physical Y=1.970 m cut and shorten the guide's azimuth span. Retain all
+original dimensional gates; do not widen them to admit these mistakes.
+
+A coplanar cut-fragment merge produces a non-sheet edge and is rejected and
+removed. Recover allocation from shallow lower moldings instead, with fixed
+cut boundaries, topology link checks, and sampled deviation against their
+original surfaces. The initial near-planar pass measures 0.486 mm front and
+0.640 mm rear; conservative interior allocation and its final independent
+surface checks remain in progress. No docs image has been replaced.
+
+### Pass 3 — follow the manufactured bend; reject an over-budget optical trial
+
+Color/value first: Atlantic paint remains dark blue, with deep grille, wheel
+and cabin cavities under the held gallery exposure. The source crops retain
+R8's lower road film. No paint factor, light power or broad-card position was
+changed. This pass judges source geometry; the exported/baked pairs still have
+to repeat the appearance check.
+
+Opened every pass-4/pass-5/pass-6 gallery and zebra view, plus the native
+reflection-only and quadratic-pane trials. Pass 5 still scallops along the C
+sail and is rejected. Actual dense-parent queries show that a new sail sample
+is only 0.90 mm from the dense stamping but 28 mm from the old game chord. The
+first radial grid improves position yet crosses the roof-rail bend diagonally.
+The hatch's physical shoulder coordinates explain the remaining interpolation
+error: sample in `(Y, abs(X)-rail(Y))`, with closer rows through the roll. The
+pass-6 sail's broad reflected edge is now continuous and its zebra stripes
+follow the same turn. This is visible in `sedan-r9-pass6/rear_three_quarter.png`
+and `sedan-r9-pass6-zebra/rear_three_quarter.png`, unlike the rejected crops.
+
+The windshield's cubic fit retains an S-shaped parent transition and a hooked
+lower reflection. A manufactured quadratic crown removes that inflection;
+`sedan-r9-wind-quad/front_three_quarter.png` changes the ragged edge to a clean
+bounded reflection. Its independent mold must seat on an actual urethane
+mounting bead rather than inherit the A-pillar's tight steel roll. The pane's
+own entrance/exit derivatives and physical collar are retained. The quadratic
+backlight trial fits poorly (21 mm maximum residual) and is rejected; its
+six-term C2 optical sag fits within 5.2 mm and is retained.
+
+The former tail housing clamps every ring at 607 mm while its cover ends at
+612.75 mm: actual rear pixel rays see the seat through that unsupported edge.
+Only the hidden cassette now narrows for clearance. The lip reaches the cover,
+the split edge closes behind the cover, and a real connected mounting flange
+reaches the cut stamping. Tail guide paths follow the same ordered rows and
+horizontal draw as their mold. Front lamps use a 12 mm mounting land; the tail
+wrap's 25 mm land accommodates its narrow forward tip. These rings are modeled
+and their distances measured, rather than treating an empty gap as support.
+
+The 60,340-triangle pass-6 trial is rejected for delivery despite the improved
+sail. Its backlight refinement spends on optical curvature that already reads
+smooth; retain the independently tested 0.15-degree/0.8 mm backlight limits.
+The simple windshield crown also avoids unnecessary cubic refinement. Shared
+position normal continuity, facet winding, back containment and measured grille
+mirror pairs pass on that source trial; those checks are construction evidence,
+not a substitute for the displayed comparison.
+
+### Pass 4 — common physical dies, correct projective cuts and a seated cover
+
+Color/value first: retained the same paint factors, clean coating response,
+used lower film, neutral balances and gallery recipe. Opened the pass-7/pass-8
+source heroes, face and both zebra cameras, the deck-rebuild crop, and the
+normal/underlap and exact-loft trials at native size. The windshield's edge and
+sail have changed visibly. The deck corner remains unacceptable in those
+trials; direct die evaluation alone does not remove its white marks, so it is
+not credited as that visual repair.
+
+The first narrow rail experiment also altered the accepted door shoulder.
+Independent sections reject it. The revised longitudinal rail restores actual
+front/B/rear shoulder heights near 910/922/930 mm, upper lean around 20 degrees
+and the lower shoulder lean near 4.6 degrees. The old physical windshield
+outline is measured from our earlier generated source: about 1670 mm at its
+base and 1347 mm at its header. Cage columns had narrowed the new base and
+widened its top into the pillar roll. Cut that real outline before separating
+the stamping, then manufacture the pane's own gently crowned optical mold.
+Its source fit now remains within about 3 mm, with a real urethane mounting bed.
+
+The hood/nose and rear deck also need physical game chords, not only the sail.
+Both densities sample the SAME uncut die for their lamps. Sampling the already
+split game shell had changed the low/high molds and could hit a real lid gap.
+Upper nose/deck rows follow their end contours; fenders/quarters use an
+injective radial chart around the side. The first XY fender chart folds under
+the shoulder and fails the unchanged winding/containment checks; reject it.
+The radial replacement passes those checks. The deck, quarters and sail now
+sample the common parent before their optical cuts.
+
+The perspective cutter had another concrete error: it interpolated a 3D edge
+with its 2D projective fraction. Correct rational weights keep each new vertex
+on both its original edge and its actual cutting ray. The old affine error
+measures up to 4.63 mm on the front fender; corrected ray residual stays below
+0.66 micrometers in the recorded candidate. No cut intersection is lifted out
+of its original facet plane.
+
+The tail cassette's back must close its actual curved rim, rather than join
+only the first/last guide rows. Its rear draw becomes axial at the split seam
+to keep the moving and fixed halves apart. A nearest mounting ring ending
+exactly at the cut is also insufficient: the flange needs a nominal 6 mm
+underlap beneath the steel. An excessively subdivided nearest-ring experiment
+costs 63,836 triangles and still leaks; reject it. Model the overlap and the
+closed cup instead. Front/rear mounting land limits are 18/30 mm; actual spans
+are measured from their generated rings.
+
+Finally, the inherited optical-blank convention puts guides 4 mm OUTSIDE the
+steel. A roughly 2–4 mm radial mold allowance does not undo that outward offset
+at the deck roll. It lets the cover stand above the painted edge despite a
+metadata recess. The hatch's physical optical construction explicitly seats
+its mold inward. The new candidate starts 3 mm inside the actual die; its
+measured rear cover vertices are 4.29–13.61 mm inside the nearest steel plane.
+This is a geometry measurement against the uncut stamping, not the authored
+recess constant. The next native crop must show that change before acceptance.
+
+The upper die is evaluated directly before cuts so subdivision approximation
+cannot supply inconsistent steel/optical phases. A residual check exposed a
+hard front/rear parameter switch at Y=0; use C2 transitions for blend radius and
+section exponent, plus smooth hood draw endpoints. The latest exact evaluation
+has a 0.133 micrometer maximum field residual. That rigor is retained, while
+its isolated trial's unchanged rear image is explicitly not called a fix.
+
+### R9 pass 5 — physical openings and feature-aligned game chords
+
+Color/value first: retain the accepted factory factors, neutral balance,
+gallery lights and directional road film. The source crops retain deep glass,
+grille and wheelwell shadows with rolling painted highlights. No exposure or
+roughness change is used to hide the defects.
+
+The decisive rear change is the quarter's game triangulation: Y / height
+relative to its upper draw, with 7 mm rows through the roll. The radial mesh
+still produced crumpled white reflections at 512 samples; the aligned rows
+remove them. Applying that height chart to the shallow FRONT fender made
+95 mm transverse chords and zipper highlights. Reject that trial. The front
+retains its injective radial chart; the rear uses the aligned height chart.
+The sail independently uses Y / X relative to the roof rail. Each chart samples
+the same manufactured C2 parent before cutting the optics.
+
+The full mechanical sweep then exposed an inherited material-row boundary:
+it narrowed the new hood to about 1.24 m near Y=-1.30, leaving fixed fender
+steel over the accepted hood struts. Restore the accepted physical hood plan
+(about 1.54 m at Y=-1.355, flaring to 1.68 m beside the cowl) independently of
+cage columns. The struts now pass without moving their mounts, axes or range.
+The upper hinge's hidden gauge keeps its local sampling. Closed side-window
+trim uses pane-oriented sections and a true closed loft, avoiding transported
+section flips and negative signed volume. Its front brightwork seats 3 mm
+inside the actual pane border. All source motion checks pass on that candidate.
+
+Resample the full hood and front fenders after restoring their physical cuts;
+retaining old cage triangles aft of Y=-1.35 wasted geometry and made cowl
+highlights wavy. Keep close rows at the optical rolls and use 80/90 mm chords
+on broad hood regions. Cover chords are independently bounded below 56 mm.
+The candidate is 59,926 triangles, below the accepted 59,930 allocation. The
+source crops and stripes are a gate before any baked delivery claim; finals
+and native before/after comparisons follow the clean rebuild.
+
+The 59,926-triangle trial's full motion sweep caught one final closed-hood
+contact with the new windshield adhesive bed (1.27 mm). Its bed had selected
+the moving hood as a mounting surface. Reject that attachment. The hood's
+rear cut now leaves a narrow fixed cowl land below the windshield, and the
+adhesive's support query excludes the hood. This is a structural fit correction,
+not an exception added to the motion checker; the same sweep must pass.
+
+The fixed cowl passes both the full motion sweep and the independent evaluated
+support sweep with their original tolerances and contact lists. Broad hood
+chords are about 90 mm; its optical roll keeps the close longitudinal rows.
+The final source candidate is 59,812 triangles. Construction, source normals,
+mechanical clearance and reflection stripes are checked before the clean bake.
+
+### R9 clean-build interruption — high-density arch gauge
+
+The first empty-output build passes form, shaping, character and rear checks,
+and the game-source audit. The high-source audit correctly stops on two
+zero-area rim triangles at the right front arch cut. One Solidify back vertex
+is exactly coincident with its outer partner: its averaged corner displacement
+cancelled. Restore that paired vertex to the actual 0.9 mm gauge along the
+manufactured die normal. Keep the outer coordinates and topology unchanged;
+no audit tolerance or sliver exception changes. A regenerated high form then
+passes the unchanged audit. Restart the empty-output build with this fix.
+
+### R9 high-source motion fit
+
+The clean detailed game mesh passes every gate at 59,812 triangles. Both high
+and game audits pass, as do optical apertures, source normals and arch returns.
+The high motion sweep detects ~0.80 mm interference of each front upper hinge
+sleeve with the new fender return at 2 degrees. The circular high-source barrel
+exposes a contact the six-sided game barrel does not. Move only those upper
+front barrels and their attached leaves 20 mm lower along the existing hinge
+axis. Keep both door pivots, axes, ranges, 8 mm pins, 8.4 mm minimum bores and
+the rear hinges unchanged. Regenerated game and high motion sweeps pass.
+High upper-leaf tips measure within 0.238 mm of the actual door skin; pins and
+fixed leaves remain in contact. The game construction check passes unchanged.
+
+An additional exploratory run of the game-only construction checker on the
+high mesh predictably fails its unconditional 60k delivery budget, and records
+two unrelated high-only exhaust/damper contact probes. It is not a delivery
+certification. The shipped construction check passes; the accepted underbody
+is unchanged. The applicable high-source audit and full motion sweep pass.
+
+The independent detailed rebuild compares all 443 objects / 422 meshes with
+zero differences in vertices, polygons, corner normals, transforms, parents
+and material assignments. This is regeneration evidence, not repeated GPU-bake
+byte identity. Check the export and its native crops before the final empty-
+output build; only the final gallery will replace docs.
+
+### R9 export preflight — UV fan encoding and native image gate
+
+Color/value first: the factory, color, road-film and gallery-light modules are
+identical to R8. The preflight GLB keeps deep glazing/grille/wheelwell values
+and rolling highlights. Revisited the balanced used-class photographs: front
+plaster and rear background white-car paint are the assumed neutrals, with the
+same limitations and gains as before. No tint, light or roughness change hides
+a surface fault.
+
+The first export's geometry/winding/back checks pass, but Door R_L's shared
+normal difference rises from 0.000398 on the source to 0.001231 after UV editing.
+Blender re-encodes restored float vectors in changed smoothing fans. Synchronize
+the representable outer field AFTER UV edit-mode operations, using the same
+coarse-fan method as the source. The strict 0.001 gate remains. Re-bake and
+re-export: all 422 parts pass; Door R_L measures 0.000656, with zero reversed
+facets and zero exact inner/outer crossings. This numerical repair is not
+claimed as the visual surface rebuild.
+
+Opened the preflight export's 1600 px front/rear/face crops, their native
+3200 px before/after pairs, and both 1600 px gallery zebra views. These images
+DO change. The old broad ragged windshield reflection now follows the pane's
+smooth mold; the old roof/sail angular white patches become one continuous
+swept reflection; the raised/crumpled deck corner becomes a clean rolled edge.
+The front lamp's old bright shards over the painted skin disappear into a
+proper opening. Bright white reflector-card reflections remain confined inside
+the recessed lamp. The vane pairs now share their bow. The source and export
+stripe curves agree through the affected surfaces.
+
+Preflight limitations: small reflector facets and very thin four-sided trim
+are still economical in macro/zebra views. The original badge is soft at this
+atlas scale. Those are separate from the repaired steel/glass reflection flow.
+No docs have been replaced. The preflight export is 59,812 triangles,
+9,698,784 bytes; one 2048 three-map set, four accepted delivery surfaces.
+UV coverage is 40.93%, with zero overlap/outside/degenerate triangles. The
+independent game/high motion and game construction gates pass. Now run the
+final empty-output build and judge every resulting final before docs.
+
+### R9 macro gate — withdraw the wide-view preflight acceptance
+
+Color/value first: the held Atlantic paint, gallery exposure, deep lamp/grille
+values and accepted road film remain unchanged. Reopened both used photographs;
+the front plaster and rear background white car remain the assumed balance
+neutrals. Their smooth manufactured lamp/steel boundaries are the visual bar.
+
+The next clean build regenerated all geometry, textures and export, and passed
+all numerical gates. Nevertheless its actual `lamp_unlit` macro shows serrated
+white optical fragments, a steel fin and a stepped paint reflection. STOP the
+partial gallery; withdraw the preceding wide-view acceptance. Those wide crops
+hid faults that the macro exposes. No docs were replaced.
+
+Source ablations in `sedan-r9-lamp-isolation` separate the causes: hiding the
+cover removes the white fragments; hiding every optical part leaves the fin
+and paint steps. The cover had inherited the steel's tight transverse draw.
+A shallow ruled optical mold, with its own analytic derivatives and bounded
+chord error, visibly removes those white fragments in candidate 43. The steel
+cut also needs replacement: sequential convex-piece subtraction leaves tiny
+barbs in its actual chart boundary despite correct summed cutter area. One
+constrained triangulation of the complete aperture and panel boundary removes
+these piece seams. Fresh rows follow the upper lip on the uncut die; gauge
+collars remain protected when reducing hidden backs. No checker is relaxed.
+
+Candidate 47 still fails the macro: one tapered fender end remains and the
+paint band pinches. Increasing undirected subdivision previously exceeded the
+budget and is rejected. The hood/fender crown's additive Gaussian has two to
+four transverse curvature reversals in sampled sections from Y=-2.05 to -1.60.
+Replace it with one convex quadratic section preserving the center and 800 mm
+draw datum, and round the manufactured panel end. Candidate 48 must pass the
+same native macro before any new export or full gallery is attempted. These
+analytic measurements describe construction, not visual acceptance.
+
+The short vertex-bevel trials are rejected as well. Actual chart intersections
+show overlapping facets at the fender end, not merely reversed winding. Replace
+the bevel with an outline trim and tangent quadratic arc, then constrained CDT.
+The first nonoverlapping candidate (55) passes all 422 surface parts, both
+source audits, both aperture checks, arch clearance, construction and both
+motion sweeps at 59,808 triangles. Its macro STILL fails: unconstrained local
+retriangulation drops the reflection rows, while a 12 mm perimeter trim stops
+before the old 25 mm tapered tab. Passing checks does not accept that image.
+Retain every original interior edge as a constraint and continue the outline
+trim beyond the complete tab (35 mm chart arclength). Candidate 56 is 59,800
+triangles and passes the same surface gate; its macro remains the next gate.
+The high fascia rebuild now covers only the injective upper optical land;
+existing lower grille/DRL construction is retained. Its duplicated high cut
+endpoint has exactly zero 3D separation, and only that duplicate is removed.
+Hidden hood-back protection now follows the actual +/-660 mm strut lands with
+40 mm padding, rather than locking unrelated 300 mm wide bands. Outer hood
+coordinates/normals are held throughout; independent support/motion gates pass.
+
+### R9 source macro and reflection-line acceptance — complete the joint
+
+Color/value first: the front/rear source crops retain Atlantic; face and lamp
+macros retain the accepted Graphite preset. Paint factors, coating response,
+road film, emitter powers and gallery lights are unchanged. The balanced used
+photographs retain the same front-plaster / rear-background-car neutral
+assumptions. Deep grille, lens and cabin shadows remain; the softbox band rolls
+into the paint without a pale contamination wash.
+
+Candidates 56, 58 and 60 still show a spur despite different housing geometry.
+Reject them. Actual pixel ownership (`build/sedan-r9/fin-ownership.png`) reveals
+the housing through the fender/fascia joint. The two panel ends used independent
+material-column setbacks: their gap terminates in a triangular opening beside
+the lamp. Changing bucket direction or flange queries does not change that
+silhouette. Revert both trials. Do not retain a measurement-only repair.
+
+Build both panel ends against one shared manufactured parting cut on the same
+uncut die, then cut the complete lamp aperture. The straight-cut trial 61
+visibly removes the spur, but changes the accepted seam path too much; reject
+its path. The final authored C2 cut follows the lamp-to-arch curve. Independent
+sections at Z=0.60–0.71 m put its center within 0.977 mm of the prior accepted
+path; the normal reveal is nominally 4.5 mm. These are finite section checks,
+not a global error bound. The short fan bevels and outline-rounding workaround
+are removed entirely.
+
+Opened candidate 62's native 950 x 550 unlit/lit lamp crops, all three native
+1600 x 650 gallery crops and both full 1600 px zebra images. The image now
+changes by cause: refractive white shards disappear with the cover's own
+shallow mold; the crown band is continuous with its convex section and held
+reflection rows; the isolated spur becomes a continuous manufactured panel
+joint with both parts on the same die. Windshield stripes remain smooth;
+backlight/sail stripes sweep continuously into the deck roll. Rear lamp/deck
+edges stay seated. The grille's apparent perspective differs across the view,
+but its measured mirror pairs and common die retain the same bow.
+
+Source 62 is 59,748 game / 187,540 high triangles. All 422 source parts pass
+winding, shared normals and back containment; both audits, both aperture and
+motion checks, game construction and 290-pose arch check pass unchanged.
+This accepts the SOURCE image and construction. It does not certify the next
+bake/export. Run the original-script empty-output pipeline, repeat the export
+macro and stripe checks, then judge every actual final before replacing docs.
+Thin four-sided trim, economical reflector facets and the small atlas badge
+remain the source's weaker macro details.
+
+### R9 full-final review catches an excess rear cut — reject delivery 62
+
+Color/value first: the final Atlantic/Graphite colors, road film and gallery
+values agree with the accepted source; cavities remain dark and the broad
+highlights roll off. The early exported hero/face/front-lamp views and seven
+native before/after pairs visibly preserve the source repairs. This is still
+insufficient to accept the complete final set.
+
+The native rear turnaround exposes small triangular black cuts under the inner
+tail-lamp wing. Reject GLB `79e2e601…` and stop the remaining final jobs before
+any docs write. The numerical checks had all passed, including independent
+regeneration of 443 objects / 422 meshes with zero differences. Actual pixel
+rays at (1065,486) in the rear camera pass through the missing trunk skin to
+the windshield. This is excess aperture geometry, not a paint-normal texture
+or an economical reflector facet. The old sequential convex-piece cutter is
+still active here; repairing the front alone left this failure mode at the rear.
+
+Use the same complete physical aperture CDT on the trunk's two optical lands.
+An unconstrained trial chords across the tight deck roll and fails the actual
+inner-sheet clearance gate by 4.13 mm; reject it without changing that gate.
+Retain the newly manufactured die's section edges as CDT constraints, so every
+new cut intersection lands on that die while its bend-following rows survive.
+The result eliminates the excess triangular holes rather than covering them.
+The rear perspective chart is evaluated only away from its centerline pole.
+
+Opened candidate 65's native rear crop, rear three-quarter crop and full rear
+zebra: the lower lamp border is continuous, the missing-skin triangles are
+gone, and the sail/deck stripe flow stays fair. This is another SOURCE image
+acceptance, awaiting a new bake/export. It saves 518 game triangles relative
+to the rejected build: 59,230 game / 185,832 high. Both audits/aperture/motion
+gates, game construction/arch checks and all 422 source surface checks pass.
+Add an eighth native before/after crop for the rear turnaround so this view
+cannot disappear into the broader three-quarter comparison. Keep the rejected
+ledger explicitly marked rejected; all docs remain the prior baseline.
+
+### R9 native macro gate — complete the front pillar sampling
+
+Color/value first: delivery 65 retains the accepted Atlantic/Graphite values,
+road film and deep cavities. Its rear turnaround visibly removes the missing
+trunk skin. Its native mirror macro nevertheless reveals a stepped bright edge
+beside the windshield. Reject the complete set before any docs write.
+
+Actual camera rays along that edge hit `Greenhouse_R`'s steel outer skin, not
+the glazing. The glass rebuild works, but the front steel still carries old
+cage chords; only the rear sail had received fresh physical rows. Apply the
+same Y / distance-from-rail resampling to the front pillar, evaluating every
+new point on the same dense uncut C2 die. Hold its XY opening boundary, rebuild
+the corresponding gauge, and retain the same parent normal field. New points
+are up to 20.53 mm away from the old coarse chords; this is a real geometry
+correction rather than a relaxed shading metric.
+
+Opened candidate 66's native 800 x 850 mirror crop. The bright steel reflection
+now follows a continuous curve instead of the conspicuous staircase. The
+game mesh is 59,454 triangles and the high source 187,960. All 422 surface
+parts, both audits/aperture/motion gates, game construction and arch clearance
+pass unchanged. The source hero crop and reflection check remain required,
+followed by a fresh bake/export and every actual final. Add a ninth native
+before/after region for this macro. Delivery 65's 17 gallery views and four
+completed palette views were inspected at native size; its ledger remains
+explicitly rejected. No docs have been replaced.
+
+### R9 final exported-image review
+
+Color/value first: the five factory presets, road film, finish factors and
+gallery lights remain byte-identical to the accepted R8 modules. Native front
+and rear Atlantic views retain deep cabin, grille and wheelwell shadows and
+rolled highlights. Inside the geometry mask, 33.20% / 35.48% of pixels are below
+25/255; neither view has a clipped channel. Paint p1/median/p99 display luma is
+0.0833/0.2021/0.9613 front and 0.0567/0.1806/0.9566 rear. These are measured
+display values, not albedo estimates.
+
+Reopened the actual used-class photographs and both source/export matched-light
+pairs. Front plaster and the rear background white car remain assumed balance
+neutrals, not measured gray cards. Upper-door displayed RGB stays 150/148/148
+front and 125/126/128 rear. Across ten paint/wear patches the median absolute
+luma difference is 12.7525/255, worst 29.358 on the rear quarter's sky reflection;
+the maximum source/export patch-channel difference is 1/255. The simplified
+procedural facade and original class-shape differences remain visible. No
+color or lighting adjustment conceals the repaired geometry.
+
+The useful lesson from the hatch and SUV is to manufacture an uncut fair parent,
+sample it in physical coordinates following its bends, then cut panels and
+optical openings. Glass needs its own smooth mold, paired entrance/exit normals
+and a well-conditioned border triangulation. The sedan now uses that method.
+Paint/glass already had no tangent-normal texture binding in R8; retaining that
+policy alone was not a repair. The new physical surfaces change the images.
+
+| Defect and cause | Final construction and native before/after evidence |
+| --- | --- |
+| Torn windshield reflection; cage columns defined the opening and sparse diagonals crossed the optical sag. Front steel still had coarse cage chords. | Independent pane outline/mold, paired normals, inward collar and refined optical chords; fresh front-pillar rows on the same die. [Windshield](renders/sedan-surface-repair/windshield.jpg), [pillar macro](renders/sedan-surface-repair/pillar-macro.jpg). |
+| Roof/sail waves and wavering backlight/deck; several fitted row systems and coarse cut chords. Sequential rear aperture subtraction also removed excess trunk skin. | One C2 die, bend-aligned physical sampling and reconstructed cut intersections. Complete trunk aperture triangulation retains deck-roll edges; lamps sit behind the steel. [Roof/sail](renders/sedan-surface-repair/roof-sail.jpg), [backlight/deck](renders/sedan-surface-repair/backlight-sail-deck.jpg), [rear cut](renders/sedan-surface-repair/tail-cut.jpg). |
+| Crumpled front crown, refractive shards and housing spur; Gaussian crown reversals, a cover copying the steel draw and independently terminated panel ends. | Convex crown, shallow independent optical mold, one complete aperture cut and one shared curved fender/fascia joint. [Hero corner](renders/sedan-surface-repair/hood-lamp-corner.jpg), [face cut](renders/sedan-surface-repair/lamp-cut.jpg), [unlit macro](renders/sedan-surface-repair/lamp-macro.jpg). |
+| Unequal grille bow from independent vane curves. | One mirrored polynomial die; actual mirrored vertex error is zero for every vane pair. [Grille](renders/sedan-surface-repair/grille.jpg). |
+
+Opened all nine comparison pairs at native size, with each side at least 800 px
+wide. Camera, lens, framing, paint and exposure agree with the initial R8 export.
+The fixes visibly change the requested regions. Opened every final beauty at
+native resolution: 17 gallery views, ten colors, 25 motion frames, two exported
+used-class views and one Eevee view; also both procedural source comparisons.
+The mirror macro and rear turnaround separately pass the late failure gates.
+
+Opened all four final gallery zebra renders, source and imported GLB, in the
+same hero/rear cameras. Windshield stripes are smooth; the pillar/crown and
+backlight/sail/deck rolls carry continuous curves through the repaired regions.
+The source and export agree. Individual 1600 px renders and a contact retaining
+their native pixels are in `renders/sedan-reflection-lines/`. Also inspected all
+42 source/export curvature and object-space stripe PNGs. Raw triangle curvature
+still shows cut-cell variation around lower panels; glTF material/UV boundaries
+change some local H values. Those diagnostics remain actual game geometry,
+not an analytic parent substituted for it.
+
+The final GLB is 59,454 triangles, 17 meshes / 21 nodes, four accepted delivery
+materials, and 9,433,072 bytes. One three-map 2048 set, baked at 4096, retains
+the 16 MiB compressed-mip budget. SHA-256:
+`bc3465bf9cf37cdfa64f84f89f1c24d0d8a67d311a4d7c4e28b8bd31a2ea9114`.
+UV coverage is 40.4063%, 4,595 islands, zero overlap/outside/degenerate triangles;
+14 chart repairs, density p5/median/p95 58.4/258.4/495.6 px/m. Direct baking checks
+5,997,744 interior texels with zero missing or backward interior normals.
+High-source normals cover 285 approved parts / 9.21% of the atlas. These checks
+prove coverage and construction; the native comparisons judge the appearance.
+
+Empty-output regeneration began at source commit `059bb65`. All four original
+master builds, both detail densities, markings, bakes, export/re-import and the
+55 beauty views regenerated from scripts, without the iteration cache. The long
+Make process received SIGTERM during source diagnostics, with no failed check.
+Resuming the identical command completed the remaining diagnostics, zebra
+renders and final provenance check successfully. Commands and retained logs:
+
+```sh
+make -C cars BODY=sedan WIDTH=1600 SAMPLES=256 BLENDER='blender -t 4' DEFER_DOCS=1
+# build/sedan-r9/final-clean66-make.log; resumed: final66-finish-make.log
+make -C cars BODY=sedan WIDTH=1600 SAMPLES=256 BLENDER='blender -t 4' check
+# build/sedan-r9/final66-make-check.log: PASS
+python3 kit/repo_check.py
+```
+
+Both source audits, aperture and motion checks, game construction, 290-pose arch
+check, all 422 source/delivery surface parts and GLB verification pass unchanged.
+Independent original-script regeneration matches all 443 objects / 422 meshes
+exactly, with zero vertex, face, corner-normal, transform, parent or material
+differences. The motion tests prove sampled source clearance; the re-import
+check separately proves serialization. The pickup remains 11,530,736 bytes with
+its original SHA-256 `f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
+
+Remaining CG tells: wheel/mirror and reflector facets, very thin trim and small
+hood-reveal steps, coarse hidden inner-hood reflections, simple cabin/underbody,
+faint tire type and soft small text. The existing rear model badge lettering is
+mirrored; the accepted dealer plate is correct and unchanged. Eevee has less
+nested-glass depth and more transmission grain. None of these is claimed as a
+newly repaired feature. No kit or pickup source changed. A future shared helper
+for complete physical-chart aperture triangulation would be useful; this round
+keeps the implementation in the sedan modules. No lead input is required.
+
+Final gallery: `renders/sedan-detail/contact.jpg`; combined review:
+`renders/sedan-detail/checkpoint.jpg`; nine native comparisons and overview:
+`renders/sedan-surface-repair/`; source/export gallery stripes and native contact:
+`renders/sedan-reflection-lines/`. Docs are written only after this native review.
+
+Ran the same final Make recipe with `DEFER_DOCS=0 docs`, then opened all five
+resulting JPGs at native resolution. All are 1600 px wide; file sizes are
+106,609 / 101,637 / 199,568 / 199,635 / 114,442 bytes for hero, rear, details,
+five colors and turnaround respectively. The reviewed docs preserve the repaired
+reflections and the recorded macro limitations. The final image-review ledger
+contains 125 native reviews, including every required unique rendered PNG and
+the five docs. Earlier intermediate docs were removed from the authorized
+post-`7d398c9` history; these five final images are added together once.
+
+### R10 final exported-image review — four remaining tells
+
+Color/value first: opened the two used-class photographs again, then the source
+and baked comparisons. The assumed balance neutrals remain front plaster and
+the rear background white-car trunk, not measured gray cards. Upper-door RGB
+is still 150/148/148 front and 125/126/128 rear; median absolute patch-luma
+error is 12.7525/255, worst 29.358/255 on the rear quarter's sky reflection.
+The ten source/export patches differ by at most 1/255 per channel. The simpler
+procedural surroundings and different original class shapes remain visible.
+Paint factors, five colors, causal road film, exposure and gallery lighting
+are unchanged. No finish adjustment hides the four geometry repairs.
+
+The native Atlantic heroes retain dark cabin, grille, wells and underside.
+Within their geometry masks, 32.50% / 35.33% of pixels are below 25/255; neither
+has a clipped channel. Paint p1/median/p99 displayed luma is
+0.0814/0.2004/0.9613 front and 0.0570/0.1820/0.9566 rear. These measure displayed
+appearance, not albedo. The accepted windshield, roof, sail, backlight, deck,
+hood crown and grille vane construction are retained. The lower-front mold
+holds every point at or above Z=0.66 m and leaves the rear and wheelhouses alone.
+
+| Tell and actual cause | Repair and native final-camera evidence |
+| --- | --- |
+| White door/sill/rear-seam lines: opening borders had no backing at grazing angles. | Closed 2 mm jamb/sill channels 35 mm behind the skin, overlapping aperture strips, A/B-post returns, moving hood hem and rear seam closures. Door strips belong to their moving doors. Optical cassettes also close their full rims and rear faces. [Doors](renders/sedan-final-tells/gaps-doors.jpg), [rear reveal](renders/sedan-final-tells/gaps-tail.jpg). |
+| Stepped lower nose and rear corner: the grille cut removed the tangent of a strongly swept lower die; independent well returns, hidden backing strips and an exposed exhaust lip interrupted the profile. | Fair lower waterlines and one common post-cut nose mold keep cheek, beam, lip and intake seated together. Correct one distorted cut-cell fan without extra triangles. Seat well mouths on actual cut steel (sampled 3.61–4.50 mm behind it), constrain concealed end strips at least 3 mm inside the actual painted profile, and move the exhaust lip/bore 9.64 mm forward to a measured 3.00 mm profile setback. [Nose](renders/sedan-final-tells/nose-profile.jpg), [rear corner](renders/sedan-final-tells/tail-profile.jpg). |
+| White lamp shard: the cover's steep lower rake reflected a complete softbox as a flat rectangle, rather than a duplicated face. The grille mouth/return was proud of its actual steel. | Recess the optical mold's lower rail while holding its upper rail; seat the full molded cassette and its outboard shield behind the cover. Reseat the grille mounting return on its actual cut opening. No material or light change. [Face/surround](renders/sedan-final-tells/lamp-and-surround.jpg), [hero](renders/sedan-final-tells/lamp-hero.jpg). |
+| Faceted tire silhouettes: 56 circumferential stations. | Use 96 stations on the visible shoulder/tread, graded hidden bead rings and continuous carcass normals: 1,024 triangles per tire, 4,096 total, versus 3,136 before. [Native wheel crop](renders/sedan-final-tells/tires.jpg). |
+
+Opened every pair at full size. Each side is 800 px wide (900 for the tire),
+without resizing its native pixels. Camera, lens, framing, paint, exposure and
+render-recipe hashes match R9. All seven regions visibly change; the report
+records changed pixels, crop rectangles and both export hashes. A dark-alpha
+preview initially concealed hanging backing strips; compositing on the actual
+light gallery background exposed them. The final strips are fitted against the
+painted fascia's actual side projection rather than an open underside envelope.
+The final side crop has a continuous painted lower outline at both ends.
+
+The magenta proof imports the actual GLB: black opaque emission, white cabin
+glazing exception, optical covers transparent into their opaque cassettes,
+saturated magenta world, Standard/sRGB, 16 samples, no denoising, maps, shadows
+or reflected lighting. An independent uncut manufactured die supplies the body
+envelope, retaining wheel arches. The mask fills enclosed voids and closes
+one-pixel reveal ribbons, with a two-pixel exterior sampling guard. Before/after
+use the intersection of their envelopes. Count resolved magenta at R/B ≥ 240,
+G ≤ 12; this tests these rendered cameras, not every possible subpixel ray.
+The after-only full-envelope gate also returns zero in every view.
+
+| View | R9 before | R10 after |
+| --- | ---: | ---: |
+| Front | 0 | 0 |
+| Side | 639 | 0 |
+| Rear | 0 | 0 |
+| Top | 57 | 0 |
+| Front three-quarter | 199 | 0 |
+| Rear three-quarter | 179 | 0 |
+
+Raw tests, masks, highlighted leaks and hashes are retained in
+`renders/sedan-seethrough/` and
+`renders/sedan-final-tells/seethrough/counts.json`. The original before export is
+`bc3465bf9cf37cdfa64f84f89f1c24d0d8a67d311a4d7c4e28b8bd31a2ea9114`.
+
+Opened all 55 final GLB beauties at native resolution: 17 gallery views, ten
+color views, 25 motion frames, two used-class views and one Eevee view. Also
+opened both source photo comparisons, all 42 source/export curvature and
+object-space stripe renders, all four gallery-camera reflection renders, all
+seven native repair pairs, the six magenta tests and the final contacts.
+The held upper reflection flow survives export; the tire outline is rounder.
+Raw curvature retains cut-cell variation and changes locally at glTF material/UV
+splits. The actual construction and serialization checks remain separate.
+
+The delivery is **61,776 triangles**, 224 below the final 62,000 limit: 2,322
+triangles above R9. High source: 191,880. The GLB has 17 meshes / 38 total nodes
+(21 pivot/root nodes and 17 mesh nodes), four previously accepted materials,
+one three-map 2048² set baked at 4096², and **9,788,500 bytes**. Compressed
+texture allocation stays about 16 MiB with full mips. Final SHA-256:
+`ee2502f148233fa2f333cd61ffdac626e05eecd86b96fbe0dc153f2f88e9594f`.
+UV coverage is 39.3656%, 5,206 islands, 17 chart repairs and zero overlap,
+outside or degenerate triangles; p5/median/p95 density is 57.0/253.0/398.5 px/m.
+Direct channels have zero missing interior texels among 5,804,371 samples.
+The existing hemisphere fallback neutralizes 14,538 backward normal samples,
+including 346 interior samples (0.0060%, below the unchanged 0.01% gate).
+Verified high-source normals cover 305 parts / 8.98% of the atlas. Paint and
+glass retain their continuous exported mesh normals.
+
+Empty-output regeneration began with the source/marking outputs removed; all
+four masters, both detailed densities and every downstream bake/export/render
+regenerated from scripts. The final code is `d0289bb`. Independent regeneration
+matches all 494 objects / 473 meshes exactly, including corner normals,
+transforms, parents and materials. Source audits, construction, scale, aperture,
+491-pose mechanism sweeps per source, the additional open-return triangle sweep,
+290-pose arch check, UV checks, normal checks and re-import all pass. The grille
+mouth check finds zero painted occlusions at 8,070 rays. The open-return sweep
+finds zero crossings; it complements the solid-motion check. Re-import separately
+proves serialization, with maximum rest-vertex error below 0.2 µm.
+
+```sh
+make -C cars BODY=sedan WIDTH=1600 SAMPLES=256 BLENDER='blender -t 4' DEFER_DOCS=1
+make -C cars BODY=sedan WIDTH=1600 SAMPLES=256 BLENDER='blender -t 4' check
+python3 kit/repo_check.py
+```
+
+Retained logs are under `build/sedan-r10/`: `fair-mold31.log`,
+`fair-mold31-high.log`, `final31-export.log`, `final31-repeat.log`,
+`final31-check.log`, `final31-gallery.log`, `final31-resume-gallery.log` and
+`final31-finish.log`. The gallery process received SIGTERM after eight completed
+views, without a failing check. Resume only the remaining final cameras, then
+colors. After a long external lock wait, group the remaining exact Make render
+recipes under one shared-lock acquisition and resume Make; its final provenance
+check passes for all 55 views. Each final beauty is rendered once in this round.
+An early exploratory crop used a local GPU lock; that was corrected before final
+regeneration. All final bakes and renders use the inherited shared GPU lock.
+
+Remaining CG tells: economical rim/mirror and reflector facets, tight highlights
+on the lower fascia, thin trim and small hood-reveal steps, coarse hidden
+inner-hood reflections, simple cabin/underbody, faint molded tire type and soft
+small markings. The tiny rear model badge lettering remains mirrored. Eevee
+has shallower nested glass and more transmission grain. These are disclosed
+limits outside the four requested repairs. No further design pass is planned.
+No kit or pickup source changed; nothing is needed from the lead.
+
+Final contacts: `renders/sedan-detail/contact.jpg` and
+`renders/sedan-detail/checkpoint.jpg`. Four-tell proofs:
+`renders/sedan-final-tells/`; source/export geometry diagnostics:
+`renders/sedan-panels/`; gallery reflection renders:
+`renders/sedan-reflection-lines/`. The five docs are written after this review.
+
+Ran the same final Make recipe with `DEFER_DOCS=0 docs`; it performed no further
+render. Opened all five resulting docs at native size. Each is 1600 px wide;
+hero/rear/details/five-colors/turnaround sizes are
+108,730 / 102,277 / 199,270 / 195,102 / 114,310 bytes. The image ledger at
+`build/sedan-r10/final-review-ledger.json` records 125 native reviews, including
+all 103 required unique rendered views, proof pairs, magenta tests, contacts and
+the five docs. All five docs replace the withdrawn `5a778ab` delivery together
+in one commit after `7d398c9`; none is added twice in the branch history.
+The pickup remains 11,530,736 bytes, SHA-256
+`f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.
+
+## R11 — sealed front assemblies, molded grille, rim lips and rear badge
+
+Color and value first: Atlantic keeps its dark blue, the grille and optical
+interiors stay black, and the underside and wheel wells retain deep shadow.
+The final hero's geometry luma P1/P50/P99 is 0.000/0.156/0.953; 32.16% is
+below 25/255, with zero clipped channels. Paint P1/P50/P99 is
+0.079/0.200/0.961. All five front color views have zero channel clipping.
+The used-photo comparison balances the front photograph on assumed-neutral
+off-white plaster and the rear on a background white car's upper trunk;
+neither is a gray card. Front upper-door RGB is 150/148/148 versus
+153/147/151, rear 125/126/128 versus 121/119/131. Median absolute displayed
+luma error across ten patches is 12.75/255, worst 29.36/255 on the rear
+quarter reflection. These are appearance measurements, not albedo estimates.
+Source/export patch differences are at most 1/255. Wear remains subtler than
+the used reference and the reflected surroundings are simpler. No paint
+factor, wear recipe, gallery light, exposure or camera was changed to hide
+the front defects.
+
+The 55 final exported-GLB views were opened at native size before writing
+the replacement docs: 17 gallery views, ten factory-color views, 25 motion
+frames, two photo matches and one Eevee view. Source photo matches were
+reviewed separately. Modeling iterations used front and wheel crops; the
+full final gallery and color views were each rendered once after the model
+was frozen. All Cycles work used the shared kit GPU lock.
+
+| Defect and measured cause | Construction repair | Native final-camera proof |
+| --- | --- | --- |
+| White headlamp fragments: broad fascia backing fans crossed the covers, with 166/169 actual triangle crossings. The original covers had roughly 11-degree chord/normal disagreement; original fascia and casing fans also had reversed shading corners. Original lens duplicates and degenerate faces were zero. | Remove aperture-spanning fans, retain the outer closure, and fit each opening with a closed 1.5 mm bucket, opaque lip, true-perimeter seal, inner optical mask and fitted projector return. Refine a slightly crowned lens die and give reverse sheets their actual winding normals. The strips remain continuous behind the sealed cover. | `renders/sedan-face-repair/lamp-left.jpg`, `lamp-right.jpg`, `hero-face.jpg` |
+| Box/comb grille: independent vanes and a broad flat return projected into the lower edge. | H120 recessed-bed/open-web construction, with the sedan's own 23-column, four-row hex pattern. One connected bowed web, hole walls, a narrow molding lip and a closed radiator bed replace the loose bars. | `renders/sedan-face-repair/grille.jpg` |
+| Fragmented whole face and corner pockets. | Fit the upper and 32-slot lower inserts to the existing mouths; seal corner lamps with molded masks, bonded gaskets and short side returns. Fair only the painted cut-land normals with area-weighted 70 mm neighborhoods. | `renders/sedan-face-repair/fascia.jpg`, `hatch-sedan-face.jpg` |
+| Faceted exposed rim and bead interference at the bright lip. | 128 stations around both exposed rolled-lip rings, with graded hidden barrel rings; put the flange ahead of the accepted bead. The tire meshes stay exact. | `renders/sedan-face-repair/rim.jpg` |
+| Mirrored rear model text: a front-oriented quad was viewed from the rear. | Correct the rear quad winding and U direction so S240 reads from outside. | `renders/sedan-face-repair/rear-badge.jpg` |
+
+The seven before/after pairs retain 800–1600 native pixels **per side**.
+`comparisons.json` checks identical camera, framing, paint, exposure and
+renderer-recipe hashes against the archived 4b743a0 gallery. Changed-pixel
+counts at a three-byte-level threshold are respectively 220,483 / 241,980
+(lamp ends), 307,009 (grille), 182,678 (fascia), 130,405 (rim), 3,000 (badge)
+and 44,859 (hero face). The H120 comparison uses its accepted `main` face
+tile with the same camera and framing. These image pairs show the repair;
+mesh and serialization checks alone do not establish its appearance.
+
+`build/sedan/front-delivery.json` freshly imports the actual GLB. Across
+70 lamp/fascia/intake parts and 23,154 triangles it finds **zero** reversed
+face or individual corner normals, inconsistent shared-edge winding,
+within-part or cross-part duplicate faces, near-zero-area faces, and lens
+crossings into the body, hood, cassettes or backings. Minimum triangle area
+is 4.75023e-8 m² and shortest altitude 7.76068e-6 m, above the 1e-10 m² and
+1e-6 m rejection thresholds. Maximum front cover chord/normal errors are
+2.037° and 1.673°. `build/sedan-r11/before-front-final-check.json` records
+the old export's failures under the same audit. Grille mirror error is zero.
+
+All six current exported see-through views remain at **zero**: front, side,
+rear, top, front three-quarter and rear three-quarter. Receipts and masks
+are in `renders/sedan-seethrough/audit/`. The old delivery's archived
+independent-mask audit reported six zeros. Re-evaluating its images in the
+shared current comparison mask exposes five grazing side pixels and three
+rear three-quarter pixels; the new export has none in either audit. This
+comparison is retained in `renders/sedan-face-repair/seethrough/counts.json`.
+
+Exact source-array comparison preserves all 31 accepted painted/glazed
+panels and tires: vertices, topology, parent and world transform. The lower
+nose, rear corner, shut-line construction and accepted panel surfaces stay
+fixed. Reflection normals on the front molding and concealed reverse faces
+are audited separately. `build/sedan-r11/accepted-surfaces.json` records
+the comparison. The pickup's export and source files were not changed
+in this rebuild; its GLB remains byte-identical.
+
+The export has **69,658 triangles**, four delivery materials and one set of
+three 2048² maps, baked at 4096²; compressed full-mip allocation is about
+16 MiB. The GLB is **10,140,724 bytes**, SHA-256
+`3b907074594759b4247e379b1535a4700f3ecdbcfcd67cd1b967390c2fe1ebfa`.
+The bake source has 227,994 triangles. UV overlap, outside triangles and
+degenerate UV triangles are zero; delivered density P5/P50/P95 is
+58.76/258.82/406.94 px/m. All 6,054,036 direct-surface interior bake samples
+have coverage. The separate geometric bake has 836 missed color texels;
+those projected color channels are not shipped. Direct surface channels
+supply color/ORM and only correspondence-approved geometric normals are
+merged. Paint and glass use the preserved continuous mesh-normal field.
+
+Remaining CG tells: economical inner wheel/spoke and mirror facets, small
+reflector facets under frontal reflection cards, tight local lower-fascia
+highlights, small hood/trim steps, simple cabin/underbody and coarse hidden
+hood reflections. Tire lettering and small markings remain faint or soft.
+The rear badge reads correctly. The procedural road film is still less
+obvious than the used photograph; broad panel reflections do not reproduce
+that building. Eevee has shallower nested transmission and more grain.
+These retained limitations are visible in the review images; no further
+design pass is planned. No kit changes or lead input are needed.
+
+Removed the generated sedan products for the script rebuild. The completed
+Make graph and checks pass with the commands below; no pickup build target
+was run. Source construction, game/high motion clearance and thin-return
+crossings all pass. Independent regeneration matches 486 objects and 465
+meshes exactly, including corner normals. Re-import separately proves
+serialization: maximum rest-vertex error is 0.169 µm. It does not substitute
+for those assembly checks or the appearance pairs.
+
+```sh
+make -C cars BODY=sedan WIDTH=1600 SAMPLES=256 BLENDER='blender -t 4' DEFER_DOCS=1
+make -C cars BODY=sedan WIDTH=1600 SAMPLES=256 BLENDER='blender -t 4' DEFER_DOCS=1 check
+python3 kit/repo_check.py
+```
+
+The final `make` performed no additional render. The repository check reports
+1,336 source files and zero errors. Logs are under `build/sedan-r11/`:
+`clean-form-check-resume.log`, `final-export-70.log`, `final-check.log`,
+`final-seethrough-70.log`, `final-gallery.log`, `final-make.log` and
+`repo-check.log`. The native-image ledger records 126 reviewed images,
+including all 103 required unique source/export rendered views, the six
+magenta tests, eight repair/comparison pairs, the five docs and gallery
+contacts. No required rendered view is missing from the ledger.
+
+Final gallery/contact: `renders/sedan-detail/contact.jpg`; combined gallery,
+colors, photo pairs, motion and Eevee: `renders/sedan-detail/checkpoint.jpg`.
+Source/export geometry and reflection diagnostics are under
+`renders/sedan-panels/` and `renders/sedan-reflection-lines/`. These were
+opened at native size and retain the disclosed cut-cell and hidden-detail
+limits. The seven native repair pairs and H120 comparison are under
+`renders/sedan-face-repair/`.
+
+After reviewing all 55 final GLB views and logging this pass, ran
+`python3 cars/src/sedan_delivery_review.py --docs`, then opened all five
+compressed docs at native size. Each is 1600 px wide; hero/rear/details/
+five-colors/turnaround sizes are 110,535 / 102,780 / 187,352 / 195,825 /
+113,140 bytes. They replace the original delivery's five docs in its amended
+commit after `7d398c9`, so each image appears in one commit. The pickup
+remains 11,530,736 bytes with SHA-256
+`f3efff732a4edc3d9353bf2bf7b583b49f3a0a5f9be7932f1041c5729f965c65`.

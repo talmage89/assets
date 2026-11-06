@@ -18,12 +18,15 @@ def field(obs):
     points=[];normals=[];triangles=[];parts=[]
     for ob in obs:
         ob.data.calc_loop_triangles();normal_matrix=ob.matrix_world.to_3x3().inverted().transposed()
+        roles=ob.data.attributes.get('sheet_role')
         for tri in ob.data.loop_triangles:
             face=ob.data.polygons[tri.polygon_index]
             if not face.use_smooth:continue  # cut gauge rims have no smooth curvature
             center=ob.matrix_world@face.center
             radial=center-Vector((0,max(-1.4,min(1.4,center.y)),.6))
-            if (normal_matrix@face.normal).dot(radial)<=0:continue  # inner sheet
+            if roles is not None:
+                if roles.data[tri.polygon_index].value!=0:continue
+            elif (normal_matrix@face.normal).dot(radial)<=0:continue
             offset=len(points)
             for vi,li in zip(tri.vertices,tri.loops):
                 points.append(ob.matrix_world@ob.data.vertices[vi].co)
@@ -73,7 +76,7 @@ def measure(ray,name,kind,station,lo,hi,count=401):
     h=shoulder_height(station);line=character_height(station)
     zones=([dict(name='recessed sill and rocker upper blend',range=[.23,line-.02]),dict(name='lower die hollow and crease',range=[line-.045,line+.115]),dict(name='shoulder / belt roll',range=[h-.045,h+.13])] if kind=='side' else
            [dict(name='fender crown / hood draw transition',range=[-.80,-.64]),dict(name='fender crown / hood draw transition',range=[.64,.80])] if station<0 else [])
-    if kind=='side' and station<-1.8:zones=[dict(name='lower fascia / intake roll',range=[.28,.39])]
+    if kind=='side' and station<-1.8:zones=[dict(name='lower fascia / intake roll',range=[.28,.40])]
     if kind=='side' and station>1.8:zones=[dict(name='bumper upper roll',range=[.69,.80]),dict(name='tail / deck roll',range=[.91,1.05])]
     unexplained=[t for t in crossings if not any(z['range'][0]<=t<=z['range'][1] for z in zones)]
     return dict(name=name,kind=kind,station_y_m=station,samples=samples,raw_sign_crossings=crossings,character_line_zones=zones,unexplained_sign_crossings=unexplained,
