@@ -12,10 +12,14 @@ def center(h,t):
 
 def halfwidth(h,t):
     # Wider landing/cup head, narrowed fairway; tee receives a full putter stance.
-    return h['width']/2*(.76+.24*math.exp(-((t-.87)/.16)**2)+.08*math.exp(-((t-.08)/.13)**2))
+    
+    profile=(.65+.35*math.exp(-((t-.82)/.20)**2)+.13*math.exp(-((t-.10)/.13)**2)) if h.get('organic') else (.78+.22*math.exp(-((t-.87)/.16)**2))
+    rounded=min(1,math.sqrt(max(.05,1-((t-.08)/.09)**2)) if t<.08 else 1,math.sqrt(max(.05,1-((t-.92)/.09)**2)) if t>.92 else 1) if h.get('organic') else 1
+    return h['width']/2*profile*rounded
 
 def level(h,x,t):
-    z=.125+h['rise']*t
+    yworld=h['origin'][1]+math.sin(math.radians(h['yaw']))*x+math.cos(math.radians(h['yaw']))*((t-.5)*h['length'])
+    z=.125+h['rise']*t+h.get('terrain_slope',0)*max(0,yworld+9)
     f=h['feature']
     if f=='bump':z+=.26*math.exp(-((t-.50)/.13)**2)*(1-.2*(x/2)**2)
     if f=='bank':z+=.16*math.sin(math.pi*t)**2*(x/h['width']+.5)
@@ -36,7 +40,7 @@ def generate(seed=71,kind=None):
     features=list(FEATURES)*2;rng.shuffle(features)
     # Each course always shows its signature fixture and all reusable types.
     fixtures={1:'windmill',4:'castle',7:'covered_bridge',11:'lighthouse'}
-    if adv:fixtures={1:'lighthouse',4:'covered_bridge',8:'castle',14:'windmill',16:'shipwreck'}
+    if adv:fixtures={1:'castle',4:'covered_bridge',6:'lighthouse',10:'windmill',16:'shipwreck'}
     elif seed%3==0:fixtures[16]='shipwreck'
     holes=[]
     for i,(c,r) in enumerate(cells):
@@ -46,18 +50,18 @@ def generate(seed=71,kind=None):
         feature='plain' if fixture else features[i]
         # The drop remains a playable steep carpet break; no unsupported sheet.
         rise=rng.choice((0,.06,.12,.24)) if adv else rng.choice((0,0,.035))
-        yaw=rng.uniform(-8,8)+(180 if c%2 else 0)
+        yaw=rng.uniform(-16,16)+(180 if c%2 else 0) if adv else rng.uniform(-8,8)+(180 if c%2 else 0)
         h=dict(number=i+1,par=3 if fixture or feature in ('loop','drop','ramp') else 2,
-               origin=(xs[c]+rng.uniform(-.23,.23),ys[r]),yaw=yaw,length=length,width=width,
+               origin=(xs[c]+rng.uniform(-.42,.42),ys[r]+(rng.uniform(-.65,.65) if adv else 0)),yaw=yaw,length=length,width=width,organic=adv,terrain_slope=.025 if adv else 0,
                bend=rng.uniform(-.40,.40),rise=rise,feature=feature,fixture=fixture,
                border=('rock' if i%3 else 'brick') if adv else ('timber' if i in (6,7,8) else 'concrete'),
                carpet=i%3 if adv else i%2)
         tx,ty=center(h,.08);cx,cy=center(h,.88)
-        h['tee']=local(h,tx,ty,level(h,tx,.08)+.004)
-        h['cup']=local(h,cx,cy,level(h,cx,.88)+.004)
+        h['tee']=local(h,tx,ty,level(h,tx,.08)+.0048)
+        h['cup']=local(h,cx,cy,level(h,cx,.88)+.0048)
         # Reserve the cell, including sign and walking stance outside the edging.
         h['footprint']=[local(h,x,y)[:2] for x,y in ((-2.8,-length/2-1),(2.8,-length/2-1),(2.8,length/2+1),(-2.8,length/2+1))]
         holes.append(h)
     return dict(seed=seed,kind=kind,name='Cairn Creek' if adv else 'Bramble Putt',lot=(W,D),
                 holes=holes,pond=(0,4.5),clubhouse=(0,-D/2+10),parking_y=-D/2+3.6,
-                walk_width=1.524,water=adv,style='harbor and quarry' if adv else 'painted Americana')
+                walk_width=1.524,driveways=(-W/2+12,W/2-4.5),parking_aisle=7.3152,parking_stall=(2.7432,5.4864),water=adv,style='harbor and quarry' if adv else 'painted Americana')
