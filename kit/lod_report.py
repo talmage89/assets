@@ -71,7 +71,7 @@ def block(cfg,m,status=None):
             lines+=['',f'LOD{row["level"]} separate moving meshes: '+', '.join('`'+n+'`' for n in assembly['separate_nodes'])+'.']
     if cfg.get('include_nodes'):
         lines+=['','This pilot selects `Canopy` (including islands) and `Dispenser_1`. LOD0 triangles, '
-          'materials and draws describe those modules; its load bytes and maps still describe the complete '
+          'materials and draws describe those modules; its load bytes, maps and mesh allocation describe the complete '
           'unchanged station container. Extraction savings are separate from reduction. '
           'Dispenser close-ups accompany each level.']
     if cfg.get('foliage_shader'):
