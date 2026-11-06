@@ -7,15 +7,24 @@ party walls, deep lots and service alleys. Accepted dimensions, lot rhythm,
 regional grammars and storefront organization are retained. The family uses shared baked surfaces, articulated cast and pressed ornament,
 and four town presentations.
 
-Generated evidence stays ignored; no docs images are published at this gate:
-[eye-height hero](renders/checkpoint/midwest/hero.png),
-[dusk](renders/checkpoint/midwest/dusk.png),
-[all views](renders/checkpoint/contact.jpg),
+![Midwestern Main Street, exported assets in Cycles](docs/hero.jpg)
+![Blue hour, lit shops and street-lamp pools](docs/dusk.jpg)
+![Four different seeded block faces](docs/towns.jpg)
+![Entries, hoods, cornice, ghost paint and fire escape](docs/details.jpg)
+![Roofs, rear additions and service alleys](docs/rears.jpg)
+
+All building and downtown pavement views import the delivered glTFs and their
+baked maps. Town context remains presentation only. The complete evidence is
+[the contact sheet](renders/checkpoint/contact.jpg),
+[all four heroes and dusk views](renders/checkpoint/),
 [matched-light pairs](renders/matches/contact.jpg),
-[focused storefront pair](renders/matches/foster_storefront-pair.jpg),
-[before/after fixes](renders/fixes/), and
-[source-field comparisons](renders/source-matches/).
-[REVIEW.md](REVIEW.md) records the full-size critiques, including rejected fits.
+[native accepted/fixed comparisons](renders/fixes/),
+[1.8 m scale shot](renders/checkpoint/midwest/scale.png), and
+[Eevee](renders/eevee/midwest/hero.png).
+[REVIEW.md](REVIEW.md) records full-size critiques, including failed controls;
+[REFERENCE.md](REFERENCE.md) separates published dimensions from authored choices.
+The reference credits and allocation are in [SOURCES](refs/SOURCES.md) and
+[TEXTURES](TEXTURES.md).
 
 ## Dimensions and construction
 
@@ -125,38 +134,38 @@ cache images by resolved URI so a town loads each map once.
 <!-- METRICS_START -->
 | Block / seed | Frontage m | Building triangles | glTF + bin bytes | Diagnostic GLB bytes |
 | --- | ---: | ---: | ---: | ---: |
-| midwest / 411 | 60.655 | 95,278 | 13,217,831 | 30,345,532 |
-| western / 512 | 58.826 | 69,590 | 9,718,614 | 26,853,232 |
-| northeast / 613 | 56.083 | 135,168 | 18,828,210 | 35,956,544 |
-| southern / 714 | 65.227 | 121,620 | 16,942,431 | 34,065,328 |
+| midwest / 411 | 60.655 | 95,272 | 13,220,925 | 30,387,616 |
+| western / 512 | 58.826 | 69,584 | 9,721,844 | 26,895,452 |
+| northeast / 613 | 56.083 | 135,162 | 18,831,439 | 35,998,768 |
+| southern / 714 | 65.227 | 121,614 | 16,945,116 | 34,107,004 |
 
 | Building | Lot ft | Stories | Front datum m | Triangles | Materials | glTF + bin bytes |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| Midwest_411_01 | 32 × 100 | 2 | 8.687 | 15,980 | 6 | 2,237,398 |
+| Midwest_411_01 | 32 × 100 | 2 | 8.687 | 15,974 | 6 | 2,240,492 |
 | Midwest_411_02 | 27 × 110 | 2 | 8.992 | 13,974 | 6 | 1,936,151 |
 | Midwest_411_03 | 22 × 90 | 2 | 9.296 | 11,878 | 6 | 1,646,309 |
 | Midwest_411_04 | 27 × 90 | 1 | 4.877 | 4,836 | 5 | 667,370 |
 | Midwest_411_05 | 25 × 90 | 2 | 8.534 | 16,322 | 6 | 2,245,499 |
 | Midwest_411_06 | 30 × 90 | 2 | 8.382 | 14,762 | 6 | 2,033,663 |
 | Midwest_411_07 | 36 × 90 | 2 | 9.296 | 17,526 | 6 | 2,451,441 |
-| Western_512_01 | 36 × 100 | 2 | 8.382 | 25,298 | 6 | 3,568,879 |
+| Western_512_01 | 36 × 100 | 2 | 8.382 | 25,292 | 6 | 3,572,109 |
 | Western_512_02 | 25 × 100 | 1 | 5.029 | 6,144 | 6 | 843,873 |
 | Western_512_03 | 28 × 100 | 1 | 5.334 | 5,086 | 6 | 697,147 |
 | Western_512_04 | 24 × 100 | 1 | 4.724 | 4,788 | 5 | 661,129 |
 | Western_512_05 | 24 × 90 | 1 | 5.944 | 5,922 | 6 | 817,531 |
 | Western_512_06 | 20 × 80 | 1 | 5.639 | 5,140 | 6 | 721,380 |
 | Western_512_07 | 36 × 80 | 2 | 8.992 | 17,212 | 6 | 2,408,675 |
-| Northeast_613_01 | 36 × 120 | 3 | 12.497 | 27,978 | 6 | 3,943,152 |
-| Northeast_613_02 | 20 × 120 | 2 | 8.839 | 15,652 | 6 | 2,163,844 |
+| Northeast_613_01 | 36 × 120 | 3 | 12.497 | 27,972 | 6 | 3,946,245 |
+| Northeast_613_02 | 20 × 120 | 2 | 8.839 | 15,652 | 6 | 2,162,212 |
 | Northeast_613_03 | 20 × 120 | 3 | 13.259 | 14,354 | 6 | 2,015,854 |
-| Northeast_613_04 | 26 × 100 | 3 | 12.497 | 19,300 | 6 | 2,650,705 |
+| Northeast_613_04 | 26 × 100 | 3 | 12.497 | 19,300 | 6 | 2,652,473 |
 | Northeast_613_05 | 20 × 100 | 3 | 12.497 | 14,944 | 6 | 2,061,249 |
 | Northeast_613_06 | 26 × 140 | 3 | 13.259 | 15,170 | 6 | 2,119,268 |
 | Northeast_613_07 | 36 × 140 | 3 | 12.649 | 27,770 | 6 | 3,874,138 |
-| Southern_714_01 | 36 × 120 | 2 | 8.992 | 25,512 | 6 | 3,621,889 |
+| Southern_714_01 | 36 × 120 | 2 | 8.992 | 25,506 | 6 | 3,624,982 |
 | Southern_714_02 | 30 × 90 | 2 | 8.992 | 18,714 | 6 | 2,574,096 |
-| Southern_714_03 | 25 × 120 | 2 | 9.296 | 15,238 | 6 | 2,106,825 |
-| Southern_714_04 | 23 × 120 | 2 | 8.992 | 9,360 | 6 | 1,303,581 |
+| Southern_714_03 | 25 × 120 | 2 | 9.296 | 15,238 | 6 | 2,107,505 |
+| Southern_714_04 | 23 × 120 | 2 | 8.992 | 9,360 | 6 | 1,302,493 |
 | Southern_714_05 | 30 × 90 | 2 | 8.687 | 11,212 | 6 | 1,532,242 |
 | Southern_714_06 | 30 × 100 | 3 | 11.735 | 12,058 | 6 | 1,658,946 |
 | Southern_714_07 | 40 × 90 | 2 | 8.992 | 29,526 | 6 | 4,144,852 |
@@ -172,10 +181,10 @@ Front datums are authored parapet/cornice levels. Covers rise 45 mm above them;
 seeded stepped rear parapets rise up to 480 mm farther. These are plan values,
 not reported as independent height measurements.
 
-The 28 buildings total **58,707,086 bytes** of glTF/bin;
+The 28 buildings total **58,719,324 bytes** of glTF/bin;
 four street pieces total **5,034,993 bytes**. Eleven shared
-images total **17,162,063 bytes**. The deliverable family is
-**80,904,142 bytes**, excluding diagnostic GLBs and presentation context.
+images total **17,201,057 bytes**. The deliverable family is
+**80,955,374 bytes**, excluding diagnostic GLBs and presentation context.
 <!-- METRICS_END -->
 
 There are five material states on small infills and six on the other buildings.
@@ -197,6 +206,11 @@ Rest-position vertex colors add low splash, sill runoff, scupper damp,
 oxide below escape fixing plates, localized repair variation and door/shoe handling, preserving each substrate's
 color. Fine finish losses follow folded edges. Ghost paint breaks along
 courses/joints and irregular losses; transparent areas expose the real brick.
+Upper courses darken below cornices; mortar repairs follow stepped bed joints.
+Paint loss and bulkhead abrasion stay near the base and thresholds. Roof
+membranes have overlap patches, scuppers and parapet copings. Walk slabs vary
+between joints, with gum, edge dirt and local stains; road repairs and routed
+sealant retain different ages within the same asphalt color.
 `--wear 0` disables broad construction weather for a control. All vertices and
 texels are generated by our scripts; reference pixels never enter materials.
 
@@ -231,16 +245,16 @@ serial; all scratch data stays inside ignored build directories.
 
 ```sh
 make -C downtown clean
-make -C downtown                  # 4096 bakes, shipped maps, exports, checks and all evidence
+make -C downtown                  # 4096 bakes, exports, checks, gallery, pairs, crops and docs
 make -C downtown check            # independent fresh-import and construction checks
 make -C downtown repeat           # isolated field/bake/model rebuild; compare actual bytes
 make -C downtown check-repo
 ```
 
-The cold checkpoint and separate checks pass: 28 buildings, 107 doors across
+The cold build and separate checks cover: 28 buildings, 107 doors across
 10,807 sampled positions, 32 deliveries sharing eleven imported images, and
 79 byte-identical files in the independent field/bake/export repeat.
-The repository check reports 1598 source files and zero errors.
+The repository check validates source types, sizes and the five bounded docs JPGs.
 
 `build/check.json` separates raw serialization, fresh-import preservation,
 physical ray measurements and motion. `build/plan-check.json` checks 4,000
@@ -249,7 +263,7 @@ UV area/density and guarded-region containment. `build/texture-check.json`
 checks image sizes, exact canonical bytes and normal lengths;
 `build/resource-check.json` proves actual imported image reuse.
 `build/render-check.json` checks exported bundle/image/context provenance,
-all 26 Cycles views, active photographic pairs and hero camera/tonal range.
+all 32 Cycles views, active photographic pairs and hero camera/tonal range.
 `build/repeat.json` records full isolated procedural-field/GPU-bake/export
 repeatability. Blend container bytes are not deterministic delivery evidence.
 
@@ -261,11 +275,23 @@ unknown photographic processing limit the claim. A fit proves framing, not
 material correctness. `renders/values/` shows measured patches; display values
 are exposure diagnostics, not inferred physical albedos.
 
+| Balanced photographic surface | Photo median Y′ | Export render median Y′ |
+| --- | ---: | ---: |
+| Louisiana painted brick, overcast | .531 | .513 |
+| Auburn sunlit walk slab | .744 | .475 |
+| Auburn dry asphalt, three patches | .563 / .553 / .557 | .435 |
+
+The photo neutrals are the pale Louisiana hood fascia and the unpainted
+sunlit Auburn apron, with recorded channel gains. Pavement sample centers
+pass clear camera and sun rays through the assembled scene. The used rendered
+paving remains darker than these photographs; the comparison does not claim
+an exact value match.
+
 Remaining limitations and the final full-size verdict are recorded in
 [REVIEW.md](REVIEW.md). Simplified cast relief, repeated roof equipment and shallow room backings
 still reveal the procedural construction. Eevee's approximate glass is less convincing than Cycles.
 There are no collision or LOD meshes,
-unique lightmap UVs, or complete interiors in this checkpoint.
+unique lightmap UVs, or complete interiors in this delivery.
 
 ## Credits and scope
 
@@ -280,3 +306,9 @@ Installed DejaVu Serif/Sans use the open Bitstream Vera/DejaVu license. Tenant,
 bank, hotel and foundry names are fictional. Town context uses this library's
 original house, tree, street-light and parked-car generators for presentation.
 Every delivered vertex and texture pixel is generated by the family scripts.
+
+The native before/after views rebuild the accepted `caf80a6` source in an
+ignored local workspace. This comparison target needs that commit in the git
+history; it does not read or modify another worktree. Blender jobs use the
+shared lock serially, including context/model work. `build/` contains all
+working files and logs; only the five final JPEGs belong in git.

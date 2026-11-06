@@ -1,8 +1,8 @@
-# Main Street construction review
+# Main Street construction and delivery review
 
-This is a form checkpoint. The blank quick-color walls, smooth cornice paint,
-missing brick normals and unworn pavement are deliberate unfinished surfaces;
-this document does not certify final material realism or baked delivery.
+This log starts at the quick-material construction gate and continues through
+baked export and delivery review. Early placeholder surfaces and rejected
+controls are historical evidence. The last pass gives the current verdict.
 
 ## Pass 1 — first Midwest shell, Workbench (imported checkpoint GLB)
 
@@ -610,3 +610,102 @@ lost field/letters. It reads as a wall's history rather than a new roof rod.
 The scroll/modillion silhouettes, glass depth layers, local paving repairs
 and dusk pools all show in the native controls. The full cold gallery and
 its roof/rear views still require review before any docs commit.
+
+## Pass 20 — cold exported gallery and delivery verdict
+
+Color and value first: opened every final checkpoint PNG at original size:
+14 Midwest, five western, seven northeastern and six southern views, plus
+the Eevee hero. Opened the five source-look and five exported photographic
+renders and their pairs, the native Foster storefront pair, all seven native
+accepted/fixed panels, the accepted Foster control, both contact sheets and
+the five final docs JPGs. The earlier required handoff images and photographic
+originals were also reviewed at native size. Auburn is balanced on its
+unpainted sunlit apron; Louisiana on its pale hood fascia, with the same
+explicit neutral assumptions used in the fitted pairs.
+
+The cold result's painted-brick median display Y′ is .513 versus .531 in
+the balanced Louisiana patch. Concrete is .475 versus .744 in the sunlit
+Auburn slab; asphalt .435 versus .563/.553/.557. These supersede the preview
+numbers in pass 19. The rendered paving is visibly darker, particularly the
+concrete; differing weather, light and unknown photo processing prevent a
+reflectance claim. Neither a car nor a lamp shadow covers the rendered sample
+centers: bounded camera rays and sun rays are clear. The outlined photo/render
+patches were opened again. No wet pavement is used as a dry value target.
+
+| Town hero | Display Y′ p05 / p50 / p95, 0–255 | Pixels with any channel at 255 |
+| --- | --- | ---: |
+| Midwest | 3.86 / 81.97 / 210.75 | 1 |
+| Western | 3.36 / 87.16 / 215.82 | 175 |
+| Northeast | 3.36 / 79.39 / 207.26 | 0 |
+| Southern | 1.86 / 82.90 / 210.54 | 130 |
+
+Each hero has 1,152,000 pixels. Tiny vehicle/glass highlights reach the display
+limit; the building trim rolls off below clipping. Recesses, under-awning
+iron and alleys keep deep shade. The roofs stay charcoal rather than pale
+gray. Eevee loses the Cycles glass depth and makes the shops milky; it remains
+an explicitly labeled renderer comparison.
+
+The four form controls now show their changes at native 1440 px per panel:
+
+- [Corner](renders/fixes/corner-entry.jpg): actual 45° opening, door/transom,
+  two steps and continuous stone on front, diagonal and public return. Rays
+  on the export measure 1.799999–1.800001 m edge setbacks and return-stone
+  face error below 0.000001 m. The upper corner bears on the stone piers.
+- [Iron](renders/fixes/iron-piers.jpg): exposed paneled shaft, molded base,
+  sill plate, seated maker plate/bolts and capital below the girder. The shared
+  diagnostic exposure is one stop above the overview in both panels. An
+  independent mid-shaft ray measures 159.723 mm projection from masonry on
+  all four original iron fronts. Actual opposed triangle planes measure
+  zero capital-to-girder gap; the source correction closed a 15 mm gap and
+  connected the core through its collars. Replacement aluminum stays plain.
+- [Scrolls](renders/fixes/scrolls.jpg): the rolled modillion noses and bracket
+  heads now project below/forward of the crown and cast distinct shadows in
+  the three-quarter raking view. The leaf occupies existing normal-map space.
+  Its fine ribs are clearer in the source-look pair than after downsampling;
+  the exported leaf remains weak and the silhouettes visibly faceted close up.
+- [Ghost](renders/fixes/ghost-sign.jpg): mostly lost lettering and field,
+  softened broken lime/tar along the old roof slope, warmer protected brick
+  and filled joist pockets. The hard opaque parging control was rejected.
+  No raised rod remains. The old slope is deliberately faint, visible at this
+  distance rather than a new outlined roof shape.
+
+[Hero wear](renders/fixes/hero-wear.jpg) shows darker upper courses, soot and
+runoff under cornices/sills, while buff and red masonry keep their own colors.
+The close-ups show mortar repairs between openings, handling scuffs on lower
+painted rails and thresholds, and low salts/damp/splash at walls and drains.
+These are localized causes; fine salt/abrasion marks remain easier to see in
+the close-ups than in the overview. Above/rear finals show membrane patches,
+drains, copings, stepped rears and hollow additions. Roof equipment and repair
+placement still repeat too regularly across the presentation town.
+[Glass](renders/fixes/store-glass.jpg) shows lit goods behind street/car
+reflections. [Dusk](renders/fixes/dusk-pools.jpg) shows soft warm pools on road
+and walks separated by cool blue shadow, without the old broad white shop
+light rectangles. Goods are still simple blocks and the rooms shallow.
+
+The construction/visual gate passes for these fixes. Remaining CG tells are
+regular coursing and mortar, simplified cast capitals and normal relief,
+faceted scroll edges at extreme close range, the repeated roof equipment,
+sparse street activity and the empty grades beyond the staged town. The
+accepted street setting, triangle envelope and eleven-image allocation are
+retained. No claim of photographic equivalence is made.
+
+Cold proof: `make clean`, `make`, separate `make check`, `make repeat` and
+`make check-repo` completed successfully. The clean run was resumed after the
+capital correction in the same emptied build tree; fields, GPU bakes and
+context had already been rebuilt there. The isolated repeat then generated
+its own fields/bakes/model from empty workspace and reproduced all 79 delivery
+files byte-for-byte. Checks cover 28 buildings, 107 leaves/10,807 sampled door
+positions, physical construction, scale, normals, actual UV charts and 32
+deliveries plus a repeated import reusing exactly eleven images. No collision
+exemptions. Serialization and construction results are separately labeled.
+Repository check: 1,696 source files, zero errors before final commits.
+
+Final buildings are 4,788–29,526 triangles; block totals are 95,272 / 69,584 /
+135,162 / 121,614. Buildings cost 58,719,324 bytes, streets 5,034,993 and shared
+images 17,201,057: 80,955,374 bytes total, excluding diagnostic/context files.
+Five/six material states and the existing 42⅔ MiB compressed mip allocation
+remain. All 32 Cycles finals and the Eevee view appear in
+`renders/checkpoint/contact.jpg`; five fitted pairs plus storefront detail
+appear in `renders/matches/contact.jpg`. Five reviewed final JPGs are
+192,573 / 198,731 / 195,633 / 199,731 / 199,144 bytes, at most 1600 px wide;
+they are committed last, separately from source and prose. No kit change.

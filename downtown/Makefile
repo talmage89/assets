@@ -1,4 +1,4 @@
-# Shared-map PBR checkpoint; no docs images are published at this gate.
+# Shared-map family delivery, exported evidence and bounded final docs.
 .DEFAULT_GOAL := all
 .NOTPARALLEL:
 BLENDER ?= src/blender.sh

@@ -88,8 +88,9 @@ The final form pass keeps these eleven allocations. Modillion acanthus occupies
 the right half of the existing pressed-relief strip; frieze rosettes retain
 the left portion. Original maker plates reuse a narrow vacant sign-sheet band.
 The ghost's field paint is mostly transparent, with surviving letters losing
-more paint at coursing and downward water runs. Flush parging/tar stains and
-filled joist pockets are local surface geometry, not a projecting roof rod.
+more paint at coursing and downward water runs. Flush parging/tar remnants
+use eroded alpha in another vacant sign-sheet band; filled joist pockets
+and protected brick tint record the former neighbor's construction.
 Dry concrete uses slab variation and edge deposits, gum and local stains;
 asphalt has differently aged repair patches and routed joint sealant. These
 use the existing mineral/roof state and vertex colors, adding no allocation.
