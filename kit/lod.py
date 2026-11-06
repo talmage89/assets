@@ -128,7 +128,7 @@ def build(config):
             assembly=proxy(doc,spec.get('proxy_budget',spec['target_triangles']),meters_per_pixel,spec.get('preserve_concavity',[]),spec.get('proxy_remesh',False))
         elif spec.get('leaf_cards'):
             from kit.lod_foliage import build as build_foliage
-            reports=build_foliage(doc,round(manifest['levels'][0]['triangles']*spec['ratio']),meters_per_pixel,spec.get('leaf_scale_exponent',.4))
+            reports=build_foliage(doc,round(manifest['levels'][0]['triangles']*spec['ratio']),meters_per_pixel,spec.get('leaf_scale_exponent',.4),spec.get('leaf_selection','balanced'))
         elif cfg.get('screen_space'):
             from kit.lod_mesh import reduce_screen,uv_budget
             assembly=merge_static(doc,cfg.get('protected_nodes',[]),cfg.get('include_nodes',[]))

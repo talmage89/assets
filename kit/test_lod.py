@@ -18,7 +18,37 @@ from kit.lod import build,check
 from kit.image_io import write_png
 
 
+def density_card_fixture():
+    from kit.lod_foliage import cards
+    # Nine hundred leaves in a dense region and one hundred in a sparse one.
+    # Balanced occupied-cell quotas distort that mass; density quotas must
+    # retain the original 90/10 distribution while keeping source fields.
+    centers=[]
+    for i in range(1000):
+        j=i if i<900 else i-900;columns=30 if i<900 else 10
+        centers.append(((0 if i<900 else 9)+(j%columns)*.0002,(j//columns)*.0002,1))
+    centers=np.asarray(centers,np.float32)
+    corners=np.array([[-1,-1,0],[1,-1,0],[1,1,0],[-1,1,0]],np.float32)*.000025
+    a=dict(POSITION=(centers[:,None,:]+corners).reshape(-1,3),
+           NORMAL=np.tile([0,0,1],(4000,1)).astype(np.float32),
+           TEXCOORD_0=np.tile([[0,0],[1,0],[1,1],[0,1]],(1000,1)).astype(np.float32),
+           _WIND=np.repeat(np.arange(1000,dtype=np.float32)/1000,16).reshape(-1,4))
+    f=(np.array([[0,1,2],[0,2,3]])[None,:,:]+np.arange(1000)[:,None,None]*4).reshape(-1,3).astype(np.uint32)
+    selected,tri,report=cards(a,f,200,.4,selection='density')
+    assert len(tri)==200 and report['cards']==100 and report['selection']=='density',report
+    dense=(selected['POSITION'].reshape(-1,4,3).mean(axis=1)[:,0]<5).sum()
+    assert 89<=dense<=91,(dense,report)
+    assert np.array_equal(selected['TEXCOORD_0'],np.tile([[0,0],[1,0],[1,1],[0,1]],(100,1)))
+    assert np.max(np.abs(selected['_WIND']*1000-np.round(selected['_WIND']*1000)))<.0001
+    again,tf,rr=cards(a,f,200,.4,selection='density')
+    assert np.array_equal(tf,tri) and all(np.array_equal(again[k],v) for k,v in selected.items())
+    try:cards(a,f,200,selection='unknown')
+    except ValueError:pass
+    else:raise AssertionError('Unknown card selection accepted')
+
+
 def main():
+    density_card_fixture()
     out=ROOT/'build/lod-test';out.mkdir(parents=True,exist_ok=True)
     texture=out/'map.png';write_png(texture,np.ones((8,8,3),np.float32)*.4)
     # A planar tessellated panel with affine UVs/data is an exact reduction.
