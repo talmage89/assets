@@ -934,12 +934,15 @@ for switch conventions, engine integration, acceptance policy and sources.
 `lod_shared.py` reduces intermediate meshes with original materials/maps:
 weighted split-wedge QEM, synchronized UV/material seams, weighted vertex
 updates, per-material/per-layer mip bounds and a progressive area-error budget.
+Sampled face interiors retain the shading frame as well as its vertex values.
 It protects graphics, glass and powered surfaces. Intermediate images must match
 LOD0 by full hash; canonical material/image bindings make engine resource reuse
 explicit. The manifest/report count unique maps and every mesh for the entire
 resident chain beside LOD0 alone. Only proxies/impostors add image content.
 `lod_shells.py` guards source layer ordering with measured visibility rays and
 keeps construction beside powered surfaces, including small occluding shutters.
+An assembled-edge guard restores implicated components when their combined
+reduction introduces new boundary or nonmanifold edge incidences.
 `lod_mesh.py` measures screen/mip-relative error, prunes tiny islands and
 transports normalized skin weights. `lod_scene.py` consolidates static material
 groups while preserving interactive frames; a projected-coverage check guards

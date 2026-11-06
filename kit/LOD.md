@@ -206,6 +206,10 @@ until edge counts no longer increase. Receipts record the measured counts and
 edge coordinates. It uses the existing one-micrometer edge-incidence convention,
 not a micrometer surface-displacement budget. Geometric acceptance remains in
 switch pixels. Inherited source defects remain distinguishable from new defects.
+This guard currently operates within each compatible attribute group after
+feature pruning. The independent whole-mesh audit still catches contacts lost
+across groups or during pruning; the station pilot has such a failure. That
+failure is not waived by passing rendered coverage.
 Skinned near meshes retain their source vertices/weights; foliage uses its own
 larger-card path. These are rest/data checks, not swept motion certification.
 
