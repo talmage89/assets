@@ -49,6 +49,7 @@ def field(role,w,h,wear=1):
             q+=.045*coherent(rng,w,h,16,5)+.008*coherent(rng,w,h,100,20)
         else:
             q+=.018*coherent(rng,w,h,13,25)+.003*coherent(rng,w,h,70,180)
+            q+=.17*V # gentle spiral grain around the round timber
         for _ in range(7 if role.startswith('Pole') else 3):
             ku,kv=rng.uniform(.08,.92),rng.uniform(.08,.95)
             dx=(U-ku)/rng.uniform(.10,.22) if role=='Crossarm' else (U-ku)/rng.uniform(.026,.055)
@@ -60,46 +61,61 @@ def field(role,w,h,wear=1):
             grain+=np.sin(q*(95+71*k)+.5*np.sin(V*(8+k*3))+k*2)*(.5**k)
         grain*=.5*(.65+.35*coherent(rng,w,h,45,20 if role=='Crossarm' else 85))
         # Silvered, neutral gray-brown fibers; fir keeps a warmer cut grain.
-        base=(.132,.113,.084) if role.startswith('Pole') else (.145,.111,.073)
+        base=(.205,.199,.178) if role.startswith('Pole') else (.145,.125,.092)
         color=np.broadcast_to(np.asarray(base),(h,w,3)).copy()
         color*=np.clip(1+grain[...,None]*.13+broad[...,None]*.13+fine[...,None]*.025,.5,1.5)
         # Millimetre-scale longitudinal fibres, separate from annual bands.
         fibres=coherent(rng,w,h,220,85 if role.startswith('Pole') else 35)
-        color*=1+fibres[...,None]*.19
-        color=mix(color,(.085,.060,.035),knots*.53)
+        color*=1+fibres[...,None]*.12
+        color=mix(color,(.076,.069,.053),knots*.53)
         height=(.000055 if role=='Crossarm' else .000025 if role=='Molding' else .000075)*grain+.000016*fine+.00022*fibres-knots*.00018
         cracks=np.zeros_like(U)
-        for _ in range(90 if role.startswith('Pole') else 35):
-            u,v=rng.uniform(.01,.99),rng.uniform(.02,.99);length=rng.uniform(.008,.09)
-            width=rng.uniform(.0007,.0034)
-            path=u+.0018*np.sin(V*51+rng.random()*6)
-            slit=np.exp(-((U-path)/width)**2)*smooth(V,v-length,v-length*.65)*(1-smooth(V,v+length*.7,v+length))
+        for j in range(72 if role.startswith('Pole') else 35):
+            u,v=rng.uniform(.01,.99),rng.uniform(.02,.99);length=rng.uniform(.025,.15)
+            # Radial drying opens the exposed side most; long tapered splits
+            # follow the same slow spiral as the fibres, rather than ruled bars.
+            exposure=.35+.65*(.5+.5*np.cos((u-.31)*math.tau))
+            width=rng.uniform(.0013,.0058)*exposure
+            if j%9==0:width*=1.6;length*=1.3
+            path=u+(.17 if role.startswith('Pole') else .022)*(V-v)+.0018*np.sin(V*51+rng.random()*6)
+            envelope=smooth(V,v-length,v-length*.45)*(1-smooth(V,v+length*.45,v+length))
+            slit=np.exp(-((U-path)/(width*(.12+.88*envelope)+1e-6))**2)*envelope
             cracks=np.maximum(cracks,slit)
-        color=mix(color,(.025,.021,.016),cracks*.79*wear)
-        height-=cracks*.0016*wear;ao-=cracks*.28*wear
+        color=mix(color,(.014,.012,.009),cracks*.94*wear)
+        height-=cracks*.0055*wear;ao-=cracks*.55*wear
         if role.startswith('Pole'):
             # Uneven capillary rise, enhanced on the shaded half, never a band.
-            wet_top=.49+.15*np.sin(U*19)+.085*np.sin(U*51)
-            wet=(1-smooth(Z,wet_top-.15,wet_top+.18))*(.65+.25*np.sin(U*math.tau+1))
-            green=(1-smooth(Z,.25,.72))*(.5+.5*np.sin(U*math.tau+.7))**4
-            color=mix(color,(.026,.030,.015),wet*.96*wear)
-            color=mix(color,(.071,.090,.040),green*.64*wear)
+            wet_top=.64+.18*np.sin(U*19)+.085*np.sin(U*51)
+            wet=(1-smooth(Z,wet_top-.15,wet_top+.18))*(.87+.10*np.sin(U*math.tau+1))
+            green=(1-smooth(Z,.25,.72))*(.65+.35*np.cos((U-.23)*math.tau))**4
+            color=mix(color,(.037,.045,.026),wet*.92*wear)
+            color=mix(color,(.055,.080,.027),green*.79*wear)
+            # String-trimmer impacts at the accessible ground-line bark.
+            scuff=np.zeros_like(U)
+            for _ in range(65):
+                u,z=rng.uniform(0,1),rng.uniform(.13,.34)
+                dx=(U-u)/rng.uniform(.009,.026)
+                scratch=np.exp(-dx**6-((Z-z-.012*(U-u))/.005)**2)
+                scuff=np.maximum(scuff,scratch)
+            color=mix(color,(.22,.170,.095),scuff*.65*wear);height-=scuff*.0015
             # Exposed cut end leaches; long fibers remain the same material.
             top=smooth(V,.94,.995)*(.45+.3*broad)
-            color=mix(color,(.105,.099,.080),top*.65*wear)
+            color=mix(color,(.24,.235,.212),top*.65*wear)
             # Fastener drips are located at actual pole equipment datums.
             for u,z,ln in ((.25,9.0,.7),(.75,9.0,.5),(.25,7.85,.65),(.25,6.60,.45),(.25,1.8,.13)):
                 zz=z/H;below=np.maximum(0,zz-V)
                 streak=np.exp(-((U-u)/(.008+below*.015))**2)*smooth(V,zz-ln/H,zz)* (V<zz)
                 color=mix(color,(.105,.057,.025),streak*.62*wear)
             # Removed sign: lighter protected wood around dark nail punctures.
-            for u,z in ((.22,.96),(.32,1.27),(.19,1.46),(.29,1.58)):
-                pin=np.exp(-((U-u)/.004)**2-((Z-z)/.012)**2)
-                runoff=np.exp(-((U-u)/.007)**2)*np.exp(-np.maximum(0,z-Z)/.11)*(Z<z)*(Z>z-.4)
-                color=mix(color,(.035,.027,.017),np.maximum(pin,runoff*.5)*wear)
-                height-=pin*.001
-            scar=np.exp(-((U-.27)/.12)**8-((Z-1.19)/.29)**8)
-            color=mix(color,(.238,.205,.148),scar*.16*wear)
+            for u,z in ((.22,.96),(.32,1.27),(.19,1.46),(.29,1.58),(.39,1.05),(.40,1.52),(.33,2.1),(.18,2.24)):
+                pin=np.exp(-((U-u)/.005)**2-((Z-z)/.014)**2)
+                halo=np.exp(-((U-u)/.017)**2-((Z-z)/.045)**2)
+                runoff=np.exp(-((U-u)/.009)**2)*np.exp(-np.maximum(0,z-Z)/.16)*(Z<z)*(Z>z-.55)
+                color=mix(color,(.125,.052,.017),np.maximum(halo*.75,runoff*.8)*wear)
+                color=mix(color,(.018,.014,.010),pin*.95*wear);height-=pin*.0025
+            scar=np.exp(-((U-.32)/.11)**8-((Z-1.30)/.35)**8)
+            scar*=.6+.4*coherent(rng,w,h,45,90)
+            color=mix(color,(.115,.095,.061),scar*.51*wear)
         else:
             # Through-bolt runoff at the arm centre and brace connections.
             for u in (.18,.5,.82):
@@ -107,16 +123,19 @@ def field(role,w,h,wear=1):
                 color=mix(color,(.085,.045,.021),track*.7*wear)
         rough=.83+.10*cracks+.025*broad
     elif role=='Tank':
-        color=np.broadcast_to((.435,.447,.432),(h,w,3)).copy()
+        color=np.broadcast_to((.235,.247,.238),(h,w,3)).copy()
         chalk=smooth(V,.15,.95)*(.75+.15*broad)
-        color=mix(color,(.49,.50,.477),chalk*.35*wear)
+        color=mix(color,(.29,.30,.285),chalk*.45*wear)
+        color*=1+.025*coherent(rng,w,h,110,90)[...,None]
         bottom=(1-smooth(V,.015,.16+.05*np.sin(U*19)+.025*np.sin(U*37)))*(.64+.18*broad)
-        color=mix(color,(.115,.113,.082),bottom*.65*wear)
+        color=mix(color,(.066,.064,.043),bottom*.83*wear)
         # Lift-eye weld roots and isolated failures of the rolled lid seam.
-        for u,v,ln in ((.022,.87,.43),(.478,.87,.51),(.522,.87,.43),(.978,.87,.33),(.26,.985,.24)):
+        for u,v,ln in ((.022,.87,.43),(.478,.87,.51),(.522,.87,.43),(.978,.87,.33),(.26,.985,.54),(.17,.74,.61),(.25,.74,.52),(.33,.74,.63),(.08,.985,.7),(.43,.985,.55)):
             down=np.maximum(0,v-V)
-            track=np.exp(-((U-u-.0015*np.sin(V*24))/(.002+down*.009))**2)*smooth(V,v-ln,v)*(V<v)
-            color=mix(color,(.13,.075,.032),track*.62*wear)
+            track=np.exp(-((U-u-.0015*np.sin(V*24))/(.004+down*.016))**2)*smooth(V,v-ln,v)*(V<v)
+            color=mix(color,(.079,.068,.046),track*.86*wear)
+            root=np.exp(-((U-u)/.010)**2-((V-v)/.022)**2)
+            color=mix(color,(.16,.063,.018),root*.85*wear)
         # Narrow failure of paint at the rolled lower seam, no pasted rust.
         seam=np.exp(-((V-.027)/.009)**2)*smooth(broad,-.1,.42)
         color=mix(color,(.13,.058,.020),seam*.85*wear)
@@ -176,7 +195,7 @@ def field(role,w,h,wear=1):
             # Burned/stamped wood, not a pale foil rectangle.
             ink=np.clip((.112-color.mean(axis=2))/.095,0,1)
             fibres=coherent(rng,w,h,30,3)
-            wood=np.broadcast_to((.132,.113,.084),(h,w,3)).copy()*(1+fibres[...,None]*.13)
+            wood=np.broadcast_to((.205,.199,.178),(h,w,3)).copy()*(1+fibres[...,None]*.13)
             color=wood*(1-ink[...,None])+color*ink[...,None]
         scratches=(fine>1.4)*.08; color*=1-scratches[...,None]*wear
         height=-((color.mean(axis=2)<.05)*.00007);rough[:]=.85

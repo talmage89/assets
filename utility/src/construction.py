@@ -138,11 +138,15 @@ def wood(a,s):
     pole=a.objects[-1];pole.data.materials.append(M['Endgrain'])
     pole.data.polygons[-1].material_index=1
     for j in range(12):
-        t=rng.uniform(0,math.tau);z=rng.uniform(.08,h-.6);ln=rng.uniform(.22,1.1);w=rng.uniform(.0015,.004)
+        t=rng.uniform(0,math.tau);z=rng.uniform(.08,h-.6);ln=rng.uniform(.65,2.2);w=rng.uniform(.0025,.006)
+        ln=min(ln,h-z-.02)
         vs=[]
         for zz,ww in [(z,0),(z+.14*ln,w),(z+.75*ln,w*.65),(min(h-.01,z+ln),0)]:
-            r=radius(zz)+.00025
-            vs.extend([(r*math.cos(t+sg*ww/r),r*math.sin(t+sg*ww/r),zz) for sg in ((0,) if ww==0 else (-1,1))])
+            r=radius(zz);angle=t+.12*(zz-z)
+            for sg in ((0,) if ww==0 else (-1,1)):
+                tt=angle+sg*ww/r
+                rr=r*math.cos(math.pi/n)/math.cos(tt%(math.tau/n)-math.pi/n)+.00025
+                vs.append((rr*math.cos(tt),rr*math.sin(tt),zz))
         a.add(G.mesh('Drying check',vs,[(0,1,2),(1,3,4,2),(3,5,4)],M['Recess']),'checks')
     # Quarter-round wood ground-wire molding protects #6 copper to 8 ft.
     a.rod('Continuous copper ground',(.02,-radius(0)-.012,-.1),(.02,-radius(h-.45)-.012,h-.45),.00206,'Aluminum',6,'grounding')
@@ -163,17 +167,6 @@ def wood(a,s):
     # A two-facet turn clears the continuous protective ground molding.
     turn=__import__('mathutils').Matrix.Rotation(math.radians(-36),4,'Z')
     for ob in a.objects[marking_start:]:ob.matrix_world=turn@ob.matrix_world
-    if s['seed']%3==0 and s['kind'] in ('riser','transformer'):
-        for j in range(2):
-            pts=[]
-            for k in range(9):
-                z=.02+k*.075;t=-2.0+j*1.4+k*.16;r=radius(z)+.005
-                pts.append((r*math.cos(t),r*math.sin(t),z))
-            a.tube('Sparse ground-rooted vine',pts,.0015,'Vine',4,'vine')
-            for k in (2,4,6,8):
-                p=Vector(pts[k]);out=Vector((p.x,p.y,.2)).normalized();across=out.cross(Vector((0,0,1))).normalized()
-                v=[p,p+out*.045+across*.015,p+out*.065,p+out*.045-across*.015]
-                a.add(G.mesh('Small vine leaf',v,[(0,1,2,3)],M['Vine']),'vine')
     a.root['pole_spec']=__import__('json').dumps(s)
 
 
