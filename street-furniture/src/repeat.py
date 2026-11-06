@@ -1,26 +1,24 @@
-"""Rebuild both new exports and compare every external delivery byte.
+"""Repeat both new deliveries with the accepted shared baked maps retained.
 
-Existing STOP/blades and other families are never build targets here.
+This is a byte determinism check of procedural geometry, UV packing, graphics
+and stock glTF serialization. The full 4096 GPU bake is proven by the separate
+clean build; this target does not claim bit-identical stochastic rebakes.
 """
 import hashlib,json,subprocess,sys
 from pathlib import Path
 FAMILY=Path(__file__).resolve().parents[1];SIGNS=FAMILY.parent/'street-signs'
-
 def snapshot():
-    paths=[p for folder in (FAMILY/'export',SIGNS/'export/set') for p in folder.rglob('*') if p.suffix in ('.gltf','.bin','.png')]
-    return {str(p.relative_to(FAMILY.parent)):dict(sha256=hashlib.sha256(p.read_bytes()).hexdigest(),bytes=p.stat().st_size) for p in sorted(paths)}
-
+    return {str(p.relative_to(FAMILY.parent)):dict(sha256=hashlib.sha256(p.read_bytes()).hexdigest(),bytes=p.stat().st_size) for folder in (FAMILY/'export',SIGNS/'export/set') for p in sorted(folder.rglob('*')) if p.suffix in ('.gltf','.bin','.png')}
 def main():
-    before=snapshot();assert before,'Build the checkpoint first'
-    log=FAMILY/'build/repeat.log'
-    with log.open('w') as output:
-        for cwd,cmd in [(FAMILY,[sys.executable,'src/graphics.py']),
-           (FAMILY,['blender','-b','--factory-startup','--python-exit-code','1','--python','src/build.py','--','--out','build/StreetFurniture.blend']),
-           (SIGNS,[sys.executable,'src/set_graphics.py','build/set']),
-           (SIGNS,['blender','-b','--factory-startup','--python-exit-code','1','--python','src/set_build.py','--','--out','build/set/Signs.blend'])]:
-            subprocess.run(cmd,cwd=cwd,stdout=output,stderr=subprocess.STDOUT,check=True)
-    after=snapshot();changed=[k for k in set(before)|set(after) if before.get(k)!=after.get(k)]
-    report=dict(passed=not changed,files=len(after),bytes=sum(v['bytes'] for v in after.values()),changed=changed,scope=__doc__)
-    (FAMILY/'build/repeat.json').write_text(json.dumps(report,indent=2));assert not changed,changed
-    print('REPEAT PASSED',report['files'],'files /',report['bytes'],'byte-identical bytes')
+    before=snapshot();assert before
+    cmds=[(FAMILY,[sys.executable,'src/graphics.py']),
+      (FAMILY,['blender','-b','-t','4','--factory-startup','--python-exit-code','1','--python','src/build.py','--','--out','build/game.blend']),
+      (FAMILY,['blender','-b','-t','4','--factory-startup','--python-exit-code','1','--python','src/finalize.py','--','--source','build/game.blend','--out','build/finalized.blend','--config','src/bake_config.py','--report','build/uv.json','--size','2048','--margin','.001','--target-density','650']),
+      (FAMILY,['blender','-b','-t','4','--factory-startup','--python-exit-code','1','--python','src/deliver.py','--']),
+      (SIGNS,[sys.executable,'src/set_graphics.py','build/set']),
+      (SIGNS,['blender','-b','-t','4','--factory-startup','--python-exit-code','1','--python','src/set_build.py','--','--out','build/set/Signs.blend'])]
+    with (FAMILY/'build/repeat.log').open('w') as log:
+        for cwd,cmd in cmds:subprocess.run(cmd,cwd=cwd,stdout=log,stderr=subprocess.STDOUT,check=True)
+    after=snapshot();changed=[p for p in set(before)|set(after) if before.get(p)!=after.get(p)];report=dict(passed=not changed,files=len(after),bytes=sum(x['bytes'] for x in after.values()),changed=changed,scope=__doc__)
+    (FAMILY/'build/repeat.json').write_text(json.dumps(report,indent=2));assert not changed,changed;print('REPEAT PASSED',report['files'],'files /',report['bytes'],'bytes')
 if __name__=='__main__':main()

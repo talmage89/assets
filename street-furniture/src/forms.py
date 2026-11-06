@@ -1,14 +1,14 @@
 """Street-furniture construction helpers around kit's modeling vocabulary.
 
 Coordinates are meters in each footprint frame; every rigid part is owned by
-its module or moving pivot. Palette UV reuse is intentional at the form gate.
+its module or moving pivot. Source print UVs and glazing charts are retained beside the finalized opaque atlas.
 """
 import math,json
 from pathlib import Path
 import bpy
 from mathutils import Vector,Matrix
 from kit import model as G
-M=None;GLASS=None;LAYOUT={}
+M=None;GLASS=None;LAYOUT={};QUALITY='game'
 
 def init():
     global M,GLASS,LAYOUT
@@ -24,10 +24,16 @@ def pivot(name,pos,parent,axis='X',limits=(0,75)):
     r=G.pivot(name,pos,axis,limits);r.parent=parent;r['static_root']=False;return r
 
 def own(ob,rt,finish='Paint'):
-    ob.parent=rt;ob['solid']=True
+    ob.parent=rt;ob['solid']=True;ob['finish']=finish
+    ob['bake_surface']=not any(m==GLASS for m in ob.data.materials)
     if ob.type=='MESH':
-        G.apply(ob);uv=ob.data.uv_layers.get('UVMap') or ob.data.uv_layers.new(name='UVMap');r=LAYOUT[finish]
+        G.apply(ob);uv=ob.data.uv_layers.get('UVMap') or ob.data.uv_layers.new(name='UVMap');r=LAYOUT.get(finish,LAYOUT['Aluminum'])
         for x in uv.data:x.uv=((r[0]+r[2])/2,(r[1]+r[3])/2)
+        if not ob['bake_surface']:
+            spans=[max(v.co[k] for v in ob.data.vertices)-min(v.co[k] for v in ob.data.vertices) for k in range(3)];axes=sorted(range(3),key=lambda k:spans[k],reverse=True)[:2];axes.sort();lo=[min(v.co[k] for v in ob.data.vertices) for k in axes]
+            for f in ob.data.polygons:
+                for li in f.loop_indices:
+                    v=ob.data.vertices[ob.data.loops[li].vertex_index].co;uv.data[li].uv=tuple((v[k]-b)/max(spans[k],1e-8) for k,b in zip(axes,lo))
     return ob
 
 def box(n,p,s,rt,finish='Paint',r=.001,segments=1):return own(G.box(n,p,s,M,r,segments),rt,finish)
@@ -49,7 +55,7 @@ def frame(n,x,y,z,w,h,rt,finish='Paint',bar=.035,depth=.04):
     for s in (-1,1):box(n+' rail',(x,y,z+s*(h-bar)/2),(w-2*bar,depth,bar),rt,finish,.001)
 
 def quad(n,key,x,y,z,w,h,rt):
-    ob=G.plane_uv(n,[(x-w/2,y,z-h/2),(x+w/2,y,z-h/2),(x+w/2,y,z+h/2),(x-w/2,y,z+h/2)],M);ob.parent=rt;ob['solid']=False
+    ob=G.plane_uv(n,[(x-w/2,y,z-h/2),(x+w/2,y,z-h/2),(x+w/2,y,z+h/2),(x-w/2,y,z+h/2)],M);ob.parent=rt;ob['solid']=False;ob['graphic_key']=key
     uv=ob.data.uv_layers.active;uv.name='UVMap';r=LAYOUT[key]
     for poly in ob.data.polygons:
         for li in poly.loop_indices:
@@ -58,19 +64,19 @@ def quad(n,key,x,y,z,w,h,rt):
 
 def glass(n,p,s,rt):return own(G.box(n,p,s,GLASS,0),rt,'White')
 
-def consolidate(rt):
+def consolidate(rt,join=True):
     """One mesh per static/moving owner, at most sheet plus glass materials."""
     owners=[rt]+[p for p in rt.children_recursive if p.type=='EMPTY' and 'pivot_axis' in p]
-    for owner in owners:
-        obs=[o for o in owner.children if o.type=='MESH']
-        if not obs:continue
-        bpy.ops.object.select_all(action='DESELECT')
-        for o in obs:o.select_set(True)
-        active=obs[0];bpy.context.view_layer.objects.active=active;bpy.ops.object.join();active.name=owner.name+'_Mesh'
-        G.apply(active);mod=active.modifiers.new('Delivery triangles','TRIANGULATE');G.apply(active)
-        # Bake the object's transform into its own coordinates; moving roots
-        # retain their explicitly authored hinges, never a mesh-center origin.
-        mat=active.matrix_basis.copy();active.data.transform(mat);active.matrix_basis=Matrix.Identity(4)
+    for owner in owners if join else []:
+        for baking in (True,False):
+            obs=[o for o in owner.children if o.type=='MESH' and bool(o.get('bake_surface'))==baking]
+            if not obs:continue
+            bpy.ops.object.select_all(action='DESELECT')
+            for o in obs:o.select_set(True)
+            active=obs[0];bpy.context.view_layer.objects.active=active;bpy.ops.object.join();active.name=owner.name+('_Atlas' if baking else '_GlazingGraphics')
+            if baking:active['asset_set']='StreetFurniture'
+            G.apply(active);mod=active.modifiers.new('Delivery triangles','TRIANGULATE');G.apply(active)
+            mat=active.matrix_basis.copy();active.data.transform(mat);active.matrix_basis=Matrix.Identity(4)
     bpy.context.view_layer.update()
     points=[rt.matrix_world.inverted()@o.matrix_world@v.co for o in rt.children_recursive if o.type=='MESH' for v in o.data.vertices]
     counts=0;materials=set()

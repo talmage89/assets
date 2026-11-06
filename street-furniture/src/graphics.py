@@ -1,8 +1,7 @@
-"""Temporary form palette and original fictional labels; no look-dev/bake.
+"""Original fictional graphic source plus source-only finish swatches.
 
-The preview deliberately uses one common image, with reserved finish swatches.
-Final material fields and causal wear will replace these flat swatches only
-after the form gate. The separate source graphic sheet remains swappable.
+The graphic region becomes the independent 1024 delivery sheet. Flat swatches
+are UV staging inputs only; surfaces.py and the GPU bake supply delivered PBR.
 """
 import json,sys,math
 from pathlib import Path

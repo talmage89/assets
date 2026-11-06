@@ -1,8 +1,8 @@
-"""Independent checkpoint audit: raw external glTF plus fresh Blender import.
+"""Independent raw external-glTF and fresh-import assembly audit.
 
-This proves serialization, per-module counts/bounds, shared images and pivot
-metadata. It explicitly does NOT certify final UVs, baked materials or swept
-clearances. Those gates are deferred with look-dev, rather than faked here.
+Counts, bounds, normals, shared image identities and actual pivot frames prove
+serialization. check_delivery.py separately audits the actual shipped atlas
+and channels; check_motion.py separately measures moving solid surfaces.
 """
 import hashlib,json,sys,math
 from pathlib import Path
@@ -24,7 +24,7 @@ def raw(path):
     images=[]
     for v in doc.get('images',[]):
         assert 'uri' in v and not v['uri'].startswith('data:');p=path.parent/v['uri'];assert p.exists();images.append(dict(uri=v['uri'],bytes=p.stat().st_size,sha256=hashlib.sha256(p.read_bytes()).hexdigest()))
-    assert len(images)==1,images
+    assert len(images) in (1,3,4),images
     return doc,dict(unique_mesh_triangles=triangles,max_unit_normal_error=maxnormal,external_images=images,gltf_bytes=path.stat().st_size,geometry_bytes=sum(len(b) for b in buffers))
 
 def audit(path,manifest,signs=False):
@@ -52,9 +52,10 @@ def audit(path,manifest,signs=False):
         assert max(abs(s-1) for s in rt.scale)<1e-5
         rows[key]=dict(triangles=count,budget=budget,materials=len(mats),measured_bounds_m=[lo,hi],source_import_max_bound_error_m=error)
         standalone=path.with_name(key+'.gltf');sd,sr=raw(standalone)
-        assert sr['external_images']==report['external_images'],(key,'Noncanonical external image')
+        canonical={i['uri']:i['sha256'] for i in report['external_images']}
+        assert all(canonical.get(i['uri'])==i['sha256'] for i in sr['external_images']),(key,'Noncanonical external image')
         assert sr['unique_mesh_triangles']==expected['triangles'],(key,'Standalone count')
-    report.update(passed=True,rows=rows,scope=__doc__,stage='form checkpoint / no final UV or motion certification')
+    report.update(passed=True,rows=rows,scope=__doc__,stage='Final shared external-image glTF / independent import')
     return report
 
 def main():
@@ -63,5 +64,5 @@ def main():
     if receipt.exists():
         expected=json.loads(receipt.read_text());changed=[p for p,h in expected.items() if not (ROOT/p).exists() or hashlib.sha256((ROOT/p).read_bytes()).hexdigest()!=h];assert not changed,changed
         report['preserved_existing_files']=len(expected)
-    Path('build/check.json').write_text(json.dumps(report,indent=2));print('CHECKPOINT CHECK PASSED',len(report['rows']),'modules; existing delivery hashes preserved')
+    Path('build/check.json').write_text(json.dumps(report,indent=2));print('ASSEMBLY DELIVERY CHECK PASSED',len(report['rows']),'modules;',report.get('preserved_existing_files',0),'session-baseline files preserved')
 if __name__=='__main__':main()

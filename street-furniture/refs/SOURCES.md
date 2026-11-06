@@ -38,3 +38,15 @@ Commons file description). Used only to reject the modular ten-door rack as
 a comparison for the standalone cabinet; no geometry or graphics use. Not a
 rebuild dependency and not redistributed. Retain the URL and uncertainty
 rather than inventing attribution.
+
+## Finish-round comparisons
+
+| Local file | URL | Author / rights | Use |
+| --- | --- | --- | --- |
+| meter-mechanical.jpg | https://upload.wikimedia.org/wikipedia/commons/7/7b/BlueParkingMeter.jpg | Jonathunder, 25 May 2014; GFDL 1.2 | Used mechanical dial/coin/crank meter, domed glazing, bezel and cast boss; replaces the electronic conversion pair. Blue paint is not a color target for our bare-alloy housing. Neutral: sunlit bare paving at lower right. |
+| news-group.jpg | https://upload.wikimedia.org/wikipedia/commons/0/01/Group_of_Newspaper_Vending_Machines.jpg | Twzink; CC0 | In-use standalone coin cabinet at right; lower hinged window leaf, raised mechanical coin compartment and worn feet. Replaces the free-paper rack pair. Neutral: bare concrete in front. |
+| news-standalone.jpg | https://upload.wikimedia.org/wikipedia/commons/a/a1/The_Newton_County_Appeal_newspaper_vending_machine.jpg | Ktkvtsh; CC BY 4.0 | Study of blue painted steel cabinet, lower hinge, coin return, fold/foot corrosion. Later photograph of an established mechanical form; no printed content copied. |
+| news-red.jpg | https://upload.wikimedia.org/wikipedia/commons/3/35/Toronto_Sun_newspaper_vending_box.jpg | Wiki.cullin; CC0 | In-service chalked red steel, edge chips, lower window grime and limited graffiti; no artwork reused. |
+| meter-mechanical-wide.jpg | https://upload.wikimedia.org/wikipedia/commons/f/f4/ParkingmeterAustinTX.JPG | WhisperToMe; public domain | Rejected match: pay station, wrong mechanism for our single-head meter. |
+| meter-pole.jpg | https://upload.wikimedia.org/wikipedia/commons/6/67/ParkingMeter.JPG | Marlith, October 2008; CC BY-SA 3.0 | Rejected match: later electronic/card conversion; retained only as alloy oxidation study. |
+| speed-used.jpg | https://upload.wikimedia.org/wikipedia/commons/6/66/Kinkinnati_Speed_Limit_Sign%2C_Clifton%2C_Cincinnati%2C_OH_%2846892356855%29.jpg | Warren LeMay; CC0 | Used R2-1 sheeting, printed black, edge soil and bolt deposits; overcast wet street. Graffiti, local names and photographed identifiers are not reproduced. Neutral: bare concrete walk, comparison crop shows only the sign. |

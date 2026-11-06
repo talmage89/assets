@@ -70,7 +70,7 @@ def context(receipts):
     tile('Road_Intersection',(-13.2588,-4.1148,-.1524))
     tile('Curb_Corner',(-4.572,4.572,-.1524))
     tile('Sidewalk_Corner',(-4.572,4.572,-.1524))
-    for j in range(-1,25):
+    for j in range(-8,110):
         x=j*3.048
         tile('Road_Straight_A',(x,-4.1148,-.1524),90,scale=(1,.5,1))
         tile('Curb_Straight',(x,0,-.1524),90)
@@ -83,12 +83,12 @@ def context(receipts):
         tile('Sidewalk_A',(x,-10.2108,-.1524),270,scale=(1,2,1))
     # Native lawn skins meet the full transit walk and support the neighborhood
     # foundations; no world-background void is left beneath the houses.
-    for j in range(-3,14):
+    for j in range(-8,56):
         for k in range(5):
             tile('Lawn_Field',(j*6.096,4.7244+k*6.096,-.12192+k*.024384),90)
             tile('Lawn_Field',(j*6.096,-11.7348-k*6.096,-.1524+k*.024384),270)
     for ob in obs:bpy.data.objects.remove(ob,do_unlink=True)
-    for rel,positions in [('houses/export/HearthfieldCape-31.gltf',[(-12,-22,0),(21,-22,0),(49,-22,0),(18,16,0)]),('houses/export/HearthfieldRanch-11.gltf',[(7,-23,0),(37,-23,0),(42,17,0)])]:
+    for rel,positions in [('houses/export/HearthfieldCape-31.gltf',[(x,y,0) for x in (-12,42,96,150,204,258) for y in (-22,16)]),('houses/export/HearthfieldRanch-11.gltf',[(x,y,0) for x in (15,69,123,177,231,285) for y in (-23,17)])]:
         path=ROOT/rel;receipt=bundle(path);lib,objs=load(path);receipts.append(receipt)
         for i,p in enumerate(positions):
             position=(p[0],p[1],.04572+.004*(p[1]-4.7244)) if p[1]>0 else p
@@ -102,8 +102,18 @@ def context(receipts):
             carrier=G.pivot('Presentation parked car',p);carrier.rotation_euler.z=math.pi/2
             for r in lib.values():place(lib,r.name,(0,0,0),0,True).parent=carrier
         for o in objs:bpy.data.objects.remove(o,do_unlink=True)
+    for rel in ('trees/export/RedMaple.glb','trees/export/PinOak.glb'):
+        path=ROOT/rel;lib,objs=load(path);receipts.append(bundle(path))
+        shift=0 if 'Maple' in rel else 31
+        for j,x in enumerate(range(-16+shift,620,62)):
+            for y in (-13.6,9.0):
+                carrier=G.pivot('Presentation street tree',(x,y,.035));carrier.rotation_euler.z=j*.71
+                carrier.scale=(.65,.65,.73)
+                for r in lib.values():place(lib,r.name,tuple(r.location),0,True).parent=carrier
+        for o in objs:bpy.data.objects.remove(o,do_unlink=True)
+    path=ROOT/'street-furniture/build/context/UtilityContext.glb';load(path);receipts.append(bundle(path))
     # Continuous outlying lawn belongs to presentation, never furniture export.
-    G.box('Context lawn',(0,-36,-.08),(160,40,.05),material('Distant lawn',(.07,.11,.035)),0)
+    G.box('Context lawn',(120,-36,-.35),(1200,1200,.05),material('Distant lawn',(.07,.11,.035)),0)
 
 SHOTS={
     'hero':dict(location=(-10,-5.2,1.65),target=(5.8,1.2,1.48),lens=40,aspect=1.65),
@@ -116,12 +126,19 @@ SHOTS={
     'pole-band':dict(keys=['RoadSign_PoleBandBracket'],location=(.65,-1.1,.75),target=(0,0,.35),lens=56,aspect=1),
     'shelter-frame':dict(keys=['Shelter'],location=(-4.4,-5.5,2.8),target=(0,0,1.45),lens=49,aspect=1.5),
     'bench':dict(keys=['Bench'],location=(2.1,-2.8,1.27),target=(0,0,.40),lens=58,aspect=1.5),
+    'route-plate':dict(keys=['BusStop'],location=(.65,-1.4,2.68),target=(0,-.035,2.40),lens=58,aspect=1.2),
     'meter':dict(keys=['MeterSingle','MeterTwin'],location=(.8,-2.35,1.6),target=(.30,0,1.32),lens=62,aspect=1.3),
     'boxes':dict(keys=['NewsDaily','NewsPedestal','NewsWeekly'],location=(2.3,-3.6,1.64),target=(.65,0,.67),lens=54,aspect=1.5),
     'collection':dict(keys=['CollectionBox'],location=(1.8,-2.6,1.5),target=(0,0,.66),lens=60,aspect=1.2),
     'receptacles':dict(keys=['Litter','Recycling'],location=(1.9,-2.8,1.6),target=(.42,0,.48),lens=60,aspect=1.5),
     'rack':dict(keys=['BikeRack','BikeRackRow'],location=(2.3,-3.4,1.8),target=(.6,.3,.4),lens=48,aspect=1.5)
 }
+SHOTS.update({
+ 'front':dict(location=(10,-55,8.7),target=(10,3,1.3),ortho=25,aspect=2.2),
+ 'side':dict(location=(36,3,7),target=(10,3,1.2),ortho=18,aspect=1.8),
+ 'back':dict(location=(10,32,7),target=(10,3,1.2),ortho=25,aspect=2.2),
+ 'top':dict(location=(10,3,35),target=(10,3,0),ortho=25,aspect=2.2)
+})
 
 def build_shot(name,shot,match=False,source=Path('export/StreetFurniture.gltf')):
     bpy.ops.wm.read_factory_settings(use_empty=True);receipts=[]
@@ -136,7 +153,7 @@ def build_shot(name,shot,match=False,source=Path('export/StreetFurniture.gltf'))
             grade=.01*(p[1]-.1524);place(lib,k,(p[0],p[1],grade),y)
         place(lib,'MeterSingle',(22,.65,0),180,True);place(lib,'MeterTwin',(28,.65,0),180,True)
         context(receipts);setlight(True)
-    elif name=='lineup':
+    elif name in ('lineup','front','side','back','top'):
         names=['Shelter','ShelterMissingPanel','BusStop','Bench','BikeRack','BikeRackRow','NewsDaily','NewsPedestal','NewsWeekly','CollectionBox','MeterSingle','MeterTwin','Litter','Recycling','NewsRow'];visible(lib,names)
         places=[(0,5,0),(5,5,0),(9,5,0),(12,5,0),(15,5,0),(18,5,0),(0,0,0),(2,0,0),(4,0,0),(6,0,0),(8,0,0),(10,0,0),(12,0,0),(14,0,0),(17,0,0)]
         for k,p in zip(names,places):place(lib,k,p);label(k,(p[0],p[1]-.7,.025),.16)
@@ -156,12 +173,17 @@ def build_shot(name,shot,match=False,source=Path('export/StreetFurniture.gltf'))
         if name=='pole-band':
             G.cylinder('Illustrative .320m host pole',(0,0,0),(0,0,.78),.16,material('Host pole',(.22,.23,.21)),32)
         setlight(shade=match)
-    if name!='hero':G.box('Neutral review ground',(8,2,-.016),(140,140,.03),material('Review ground',(.25,.26,.235)),0)
+    if name!='hero':G.box('Neutral review ground',(8,2,-.016),(2000,2000,.03),material('Review ground',(.25,.26,.235)),0)
+    if match and 'light' in shot:
+        light=shot['light'];sun=bpy.data.objects['Raking sun'];sun.rotation_euler=Vector(light['direction']).to_track_quat('-Z','Y').to_euler();sun.data.energy=light['energy'];sun.data.angle=math.radians(light['angle']);sc=bpy.context.scene;sc.world.node_tree.nodes.get('Background').inputs[1].default_value=light['sky'];sc.view_settings.exposure=light['exposure']
+        sky=next(n for n in sc.world.node_tree.nodes if n.type=='TEX_SKY');direction=Vector(light['direction']).normalized();sky.sun_elevation=math.asin(-direction.z);sky.sun_rotation=math.atan2(-direction.y,-direction.x)
+        if light.get('cloud',0):
+            ns=sc.world.node_tree.nodes;ls=sc.world.node_tree.links;mix=ns.new('ShaderNodeMixRGB');mix.inputs[0].default_value=light['cloud'];mix.inputs[2].default_value=(.75,.77,.79,1);ls.new(sky.outputs[0],mix.inputs[1]);ls.new(mix.outputs[0],ns.get('Background').inputs[0])
     camera(shot['location'],shot['target'],shot.get('lens',45),shot.get('ortho'),shot.get('roll',0));bpy.context.view_layer.update()
     return receipts
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--source',type=Path,default=Path('export/StreetFurniture.gltf'));p.add_argument('--out',type=Path,default=Path('renders/checkpoint'));p.add_argument('--width',type=int,default=1440);p.add_argument('--samples',type=int,default=32);p.add_argument('--shots');p.add_argument('--match',type=Path);p.add_argument('--engine',choices=['CYCLES','BLENDER_WORKBENCH'],default='CYCLES');a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);a.out.mkdir(parents=True,exist_ok=True)
+    p=argparse.ArgumentParser();p.add_argument('--source',type=Path,default=Path('export/StreetFurniture.gltf'));p.add_argument('--out',type=Path,default=Path('renders/checkpoint'));p.add_argument('--width',type=int,default=1440);p.add_argument('--samples',type=int,default=32);p.add_argument('--shots');p.add_argument('--match',type=Path);p.add_argument('--engine',choices=['CYCLES','BLENDER_WORKBENCH','BLENDER_EEVEE'],default='CYCLES');a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);a.out.mkdir(parents=True,exist_ok=True)
     shots=SHOTS
     if a.match:
         data=json.loads(a.match.read_text());shots={k:dict(v['shot'],keys=v['keys']) for k,v in data.items()}
@@ -169,10 +191,16 @@ def main():
     for name in names:
         shot=shots[name];receipts=build_shot(name,shot,bool(a.match),a.source);sc=bpy.context.scene;sc.render.engine=a.engine
         if a.engine=='CYCLES':gpu.enable()
-        else:
+        elif a.engine=='BLENDER_EEVEE':
+            from eevee import setup
+            setup(sc)
+        elif a.engine=='BLENDER_WORKBENCH':
             sc.display.shading.light='STUDIO';sc.display.shading.color_type='TEXTURE';sc.display.shading.show_cavity=True;sc.display.shading.cavity_type='BOTH';sc.display.shading.show_shadows=True
         sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=8;sc.cycles.transparent_max_bounces=8
         sc.render.resolution_x=a.width;sc.render.resolution_y=round(a.width/shot.get('aspect',1.5));sc.render.resolution_percentage=100;sc.render.image_settings.file_format='PNG';sc.render.filepath=str((a.out/(name+'.png')).resolve());bpy.ops.render.render(write_still=True)
-        (a.out/(name+'.json')).write_text(json.dumps(dict(stage='form checkpoint from imported external glTF / quick materials',engine=a.engine,recipe_sha256=sha(Path(__file__)),photo_calibration_sha256=sha(a.match) if a.match else None,shot=shot,inputs=receipts,width=sc.render.resolution_x,height=sc.render.resolution_y,samples=a.samples,image_sha256=sha(a.out/(name+'.png'))),indent=2))
+        measurements={}
+        if name=='route-plate':
+            rt=bpy.data.objects['BusStop'];points=[rt.matrix_world.inverted()@o.matrix_world@v.co for o in rt.children_recursive if o.type=='MESH' for v in o.data.vertices];edge=min(p.z for p in points if abs(p.x)>.22 and 2.10<p.z<2.37);measurements=dict(measured_route_bottom_m=edge,cited_clearance_target_m=2.1336)
+        (a.out/(name+'.json')).write_text(json.dumps(dict(measurements=measurements,stage='Final from imported external glTF / shared baked PBR textures',engine=a.engine,recipe_sha256=sha(Path(__file__)),renderer_adapter_sha256=sha(Path(__file__).with_name('eevee.py')) if a.engine=='BLENDER_EEVEE' else None,photo_calibration_sha256=sha(a.match) if a.match else None,shot=shot,inputs=receipts,width=sc.render.resolution_x,height=sc.render.resolution_y,samples=a.samples,image_sha256=sha(a.out/(name+'.png'))),indent=2))
         print('RENDERED',name,flush=True)
 if __name__=='__main__':main()

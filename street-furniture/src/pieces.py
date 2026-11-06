@@ -30,7 +30,7 @@ def rack(rt,count=1):
     for j in range(count):
         y=(j-(count-1)/2)*.9144;r=.12;half=.358;z=.9144-.03016
         path=[(-half,y,.012),(-half,y,z-r)]
-        path += [(-half+r+r*math.cos(math.pi-i*math.pi/12),y,z-r+r*math.sin(math.pi-i*math.pi/12)) for i in range(7)]
+        path += [(-half+r+r*math.cos(math.pi-i*math.pi/12),y,z-r+r*math.sin(math.pi-i*math.pi/12)) for i in range(1,7)]
         path += [(half-r,y,z)]
         path += [(half-r+r*math.cos(math.pi/2-i*math.pi/12),y,z-r+r*math.sin(math.pi/2-i*math.pi/12)) for i in range(1,7)]
         path += [(half,y,.012)]
@@ -44,7 +44,7 @@ def rack(rt,count=1):
 
 def stop(rt):
     cyl('Bus stop 2-3/8 inch post',(0,0,0),(0,0,3.05),.03016,rt,'Zinc',16)
-    for key,z,w,h in [('transit',2.68,.4572,.6096),('routes',2.24,.4572,.2286)]:
+    for key,z,w,h in [('transit',2.68,.4572,.6096),('routes',2.2479,.4572,.2286)]:
         box('Bus aluminum sign',(0,-.035,z),(w,.002032,h),rt,'White',.001)
         quad('Bus stop '+key,key,0,-.0361,z,w,h,rt)
         for zz in (z-h*.35,z+h*.35):bolt('Bus sign carriage bolt',(0,-.039,zz),rt,.006,(0,-1,0))
@@ -61,37 +61,37 @@ def shelter(rt,seed=11):
     box('Shelter reinforced concrete slab',(0,0,.075),(4.2672,1.8288,.15),rt,'Concrete',.008)
     columns=[(-1.80,-.59),(1.80,-.59),(-1.80,.59),(-.60,.59),(.60,.59),(1.80,.59)]
     for x,y in columns:
-        box('Extruded aluminum column',(x,y,.15+H/2),(.0635,.0635,H),rt,'Paint',.002)
+        box('Extruded aluminum column',(x,y,.15+H/2),(.0635,.0635,H),rt,'Anodized',.002)
         box('Column bolted foot',(x,y,.16),(.16,.16,.02),rt,'Aluminum',.002)
-        box('Column escutcheon',(x,y,.20),(.10,.10,.065),rt,'Paint',.002)
+        box('Column escutcheon',(x,y,.20),(.10,.10,.065),rt,'Anodized',.002)
         for sx in (-1,1):
             for sy in (-1,1):bolt('Shelter M12 hold-down',(x+sx*.058,y+sy*.058,.17),rt,.00635)
     # Narrower panes and a knee rail follow the in-use frame construction;
     # keeping panes replaceable explains each extrusion and gasket.
     for x in (-1.2,0,1.2):
-        frame('Rear glazing frame',x,.59,1.31,1.14,1.91,rt,'Paint',.028,.055)
-        box('Rear intermediate glazing rail',(x,.59,1.08),(1.10,.055,.035),rt,'Paint',.001)
+        frame('Rear glazing frame',x,.59,1.31,1.14,1.91,rt,'Anodized',.028,.055)
+        box('Rear intermediate glazing rail',(x,.59,1.08),(1.10,.055,.035),rt,'Anodized',.001)
         if not(seed==12 and x>.1):glass('Rear 3/8 inch safety glass',(x,.59,1.31),(1.084,.009525,1.854),rt)
         for z in (.39,2.22):box('Glazing channel gasket',(x,.561,z),(1.08,.008,.012),rt,'Rubber',0)
     for s in (-1,1):
         x=s*1.80;end=F.root('End glazing working frame');end.parent=rt;end.location=(x,0,0);end.rotation_euler.z=math.pi/2
-        frame('End glazing frame',0,0,1.31,1.18,1.91,end,'Paint',.028,.055)
+        frame('End glazing frame',0,0,1.31,1.18,1.91,end,'Anodized',.028,.055)
         glass('End 3/8 inch safety glass',(0,0,1.31),(1.124,.009525,1.854),end)
         # End frame is construction, not a moving part. Rebase into module.
         for ob in list(end.children):ob.matrix_basis=end.matrix_basis@ob.matrix_basis;ob.parent=rt
         bpy.data.objects.remove(end,do_unlink=True)
-    for y in (-.59,.59):box('Long roof perimeter extrusion',(0,y,2.47),(3.72,.09,.115),rt,'Paint',.002)
+    for y in (-.59,.59):box('Long roof perimeter extrusion',(0,y,2.47),(3.72,.09,.115),rt,'Anodized',.002)
     for x in (-1.80,-.90,0,.90,1.80):
         path=[(x,-.78+i*1.56/12,2.48+.24*math.sin(math.pi*i/12)) for i in range(13)]
-        tube('Curved roof support rib',path,.022,rt,'Paint',s=8)
+        tube('Curved roof support rib',path,.022,rt,'Anodized',s=8)
     # Shallow original barrel canopy: a continuous 6mm sheet with closed rims.
     ys=[-.80+i*1.60/16 for i in range(17)]
     sec=[(y,2.49+.24*math.sin(math.pi*i/16)) for i,y in enumerate(ys)];poly=sec+[(y,z-.006) for y,z in reversed(sec)]
     profile('Bent aluminum canopy / real 6mm gauge',poly,-W/2,W/2,rt,'Aluminum')
-    for y in (-.80,.80):box('Rain gutter / hem',(0,y,2.47),(W,.045,.05),rt,'Paint',.002)
+    for y in (-.80,.80):box('Rain gutter / hem',(0,y,2.47),(W,.045,.05),rt,'Anodized',.002)
     # Original interchangeable double-sided poster in the right end's kiosk.
     ad=F.root('Ad kiosk local');ad.parent=rt;ad.location=(1.84,0,0);ad.rotation_euler.z=-math.pi/2
-    box('Aluminum ad case',(0,0,1.34),(.96,.12,1.86),ad,'Paint',.004)
+    box('Aluminum ad case',(0,0,1.34),(.96,.12,1.86),ad,'Anodized',.004)
     frame('Ad door gasket',0,-.068,1.34,.91,1.79,ad,'Rubber',.025,.025)
     quad('Swappable Rill River Park poster','advert',0,-.083,1.34,.85,1.72,ad)
     glass('Ad cover safety glazing',(0,-.085,1.34),(.86,.003,1.73),ad)
@@ -113,8 +113,9 @@ def chain(rt,start,end,links=16):
         points=[p+u*.019*math.cos(k*math.tau/8)+v*.010*math.sin(k*math.tau/8) for k in range(9)]
         tube('Welded security chain link',points,.0028,rt,'Zinc',s=4)
 
-def newspaper(rt,kind=0):
-    w,d,H=((.48895,.434975,1.23825),(.46,.43,1.16),(.50,.45,1.28))[kind];finish=('Red','Blue','Cream')[kind]
+def newspaper(rt,kind=0,seed=None):
+    w,d,H=((.48895,.434975,1.23825),(.46,.43,1.16),(.50,.45,1.28))[kind]
+    seed=11+kind if seed is None else int(seed);edition=(seed-11)%3;finish=('Red','Blue','Cream')[edition]
     # Hollow brake-formed cabinet: 1.2mm shell, folded returns and real openings.
     low=.34;bodytop=.98 if kind!=2 else 1.02
     for x in (-w/2,w/2):
@@ -163,15 +164,18 @@ def newspaper(rt,kind=0):
     frame('Returned newspaper door',0,0,dh/2,dw,dh,hinge,finish,.028,.020)
     glass('News door acrylic window',(0,.001,dh*.52),(dw-.056,.003,dh*.69),hinge)
     box('Door masthead panel',(0,0,dh-.062),(dw,.02,.124),hinge,finish,.001)
-    quad('Fictional newspaper masthead','mast'+str(kind),0,-.011,dh-.064,dw-.018,.108,hinge)
+    quad('Fictional newspaper masthead','mast'+str(edition),0,-.011,dh-.064,dw-.018,.108,hinge)
     box('Door pull',(dw*.34,-.028,dh*.45),(.024,.035,.125),hinge,'Zinc',.006)
     cyl('Door pivot pin',(-dw/2,0,0),(dw/2,0,0),.005,hinge,'Zinc',10)
     for j in range(6):box('Folded paper in stack',(0,.015,low+.04+j*.005),(w-.10,d-.10,.004),rt,'Paper',0)
-    quad('Display copy paper inside window','paper'+str(kind),-.025,-d/2+.032,(low+bodytop)/2,w-.12,(bodytop-low)*.71,rt)
-    quad('Front low masthead','mast'+str(kind),-w*.16,-d/2-.002,low+.086,w*.55,.12,rt)
+    quad('Display copy paper inside window','paper'+str(edition),-.025,-d/2+.032,(low+bodytop)/2,w-.12,(bodytop-low)*.71,rt)
+    quad('Front low masthead','mast'+str(edition),-w*.16,-d/2-.002,low+.086,w*.55,.12,rt)
     cyl('Security anchor post',(w/2+.08,d/2+.095,0),(w/2+.08,d/2+.095,.69),.021,rt,'Zinc',8)
     chain(rt,(w/2-.01,d*.35,.55),(w/2+.08,d/2+.10,.59),8)
-    rt['seed']=kind+11;rt['paper_headline']=('RIVER WALK OPENS','LIBRARY ADDS HOURS','LOCAL FAIR RETURNS')[kind]
+
+    if kind==2:
+        tag=quad('Original F9 adhesive tag','tag',0,0,0,.16,.09,rt);tag.rotation_euler.z=math.pi/2;tag.location=(w/2+.001,-.03,.76)
+    rt['seed']=seed;rt['paper_headline']=('RIVER WALK OPENS','LIBRARY ADDS HOURS','LOCAL FAIR RETURNS')[edition]
 
 def collection(rt):
     w,d,H=.879475,.635,1.330325;floor=.385;shoulder=H-d/2
@@ -202,43 +206,53 @@ def collection(rt):
 def meter_head(rt,x,z,expired=False,name='Meter'):
     # Rounded die-cast compound housing: independent sections vary in both
     # width and depth. No extruded silhouette with a bevel pretending to be a casting.
-    stations=[(0,.045,.047),(.025,.067,.061),(.09,.084,.067),(.19,.079,.076),(.30,.105,.080),(.38,.107,.078),(.44,.078,.060),(.475,.043,.038),(.48,.015,.023)]
-    loops=[]
-    for zz,rx,ry in stations:loops.append([(x+rx*math.cos(t*math.tau/20),ry*math.sin(t*math.tau/20),z+zz) for t in range(20)])
-    shell=loft(name+' compound die-cast body',loops,rt,'Aluminum');G.smooth(shell,60)
-    # Window is seated into a real recess cut in the casting.
-    window=[(-.088,-.054),(.088,-.054),(.088,-.025)]+[(.088*math.cos(i*math.pi/12),-.025+.088*math.sin(i*math.pi/12)) for i in range(1,13)]
-    cutter=G.profile('Meter die arched opening',window,-.14,-.010,F.M,axis='Y');cutter.location=(x,0,z+.385);G.boolean(shell,cutter);G.apply(shell)
-    cutter=G.box('Vault service opening',(x,-.085,z+.10),(.114,.11,.174),F.M,.048,4);G.apply(cutter);G.boolean(shell,cutter);G.apply(shell)
-    # Booleans reset UVs; restore the quick palette swatch.
-    F.own(shell,rt,'Aluminum');G.smooth(shell,35)
+    stations=[(0,.035,.039),(.012,.055,.052),(.04,.068,.058),(.10,.076,.064),(.17,.074,.069),(.215,.080,.075),(.27,.098,.080),(.34,.107,.080),(.39,.107,.079),(.43,.100,.074),(.455,.083,.062),(.473,.055,.044),(.480,.012,.016)]
+    loops=[[(x+rx*math.cos(t*math.tau/32),ry*math.sin(t*math.tau/32),z+zz) for t in range(32)] for zz,rx,ry in stations]
+    shell=G.loft(name+' die-cast support cage',loops,F.M,True)
+    sub=shell.modifiers.new('Compound cast support cage','SUBSURF');sub.levels=2;G.apply(shell)
+    window=[(-.084,-.052),(.084,-.052),(.084,-.022)]+[(.084*math.cos(i*math.pi/12),-.022+.084*math.sin(i*math.pi/12)) for i in range(1,13)]
+    cutter=G.profile('Arched cast window seat',window,-.14,-.012,F.M,axis='Y');cutter.location=(x,0,z+.385);G.boolean(shell,cutter);G.apply(shell)
+    cutter=G.profile('Straight-die vault mouth',G.rounded_rectangle(.116,.173,.0505,6),-.14,.03,F.M,axis='Y');cutter.location=(x,0,z+.10);G.boolean(shell,cutter);G.apply(shell)
+    # Remeshing the smooth cage/cuts removes the pinched Boolean shoulder fans.
+    bpy.ops.object.select_all(action='DESELECT');shell.select_set(True);bpy.context.view_layer.objects.active=shell
+    shell.data.remesh_voxel_size=.0015;bpy.ops.object.voxel_remesh()
+    sm=shell.modifiers.new('Cast fillet relaxation','SMOOTH');sm.factor=.72;sm.iterations=4;G.apply(shell)
+    shell.data.calc_loop_triangles();source_count=len(shell.data.loop_triangles)
+    if F.QUALITY=='game':
+        dec=shell.modifiers.new('Budgeted cast skin','DECIMATE');dec.ratio=700/source_count;G.apply(shell)
+    shell.name=name+' compound die-cast body';F.own(G.smooth(shell,180),rt,'Aluminum')
+    shell['cast_source_triangles']=source_count;shell['construction']='Subdivision support cage, die openings, smooth voxel union; high projected to low'
     backing=profile(name+' instrument well',window,-.018,-.014,rt,'Inside','Y');backing.location=(x,0,z+.385)
     quad(name+' minutes dial','meter',x,-.021,z+.382,.170,.095,rt)
     if expired:quad(name+' expired flag','expired',x,-.024,z+.360,.145,.026,rt)
     else:
         o=box(name+' clock hand',(x+.013,-.026,z+.38),(.004,.003,.046),rt,'Red',.001);o.rotation_euler.y=-.5
-    # Shallow compound dome: a raised center rather than a flat extruded pane.
-    # One fan retains the head's budget; a high source/normal will refine it.
-    n=len(window)
-    vertices=[(x+u,-.054,z+.385+v) for u,v in window]+[(x,-.061,z+.385)]
-    vertices += [(x+u,-.051,z+.385+v) for u,v in window]
-    faces=[(i,(i+1)%n,n) for i in range(n)]
-    faces += [(i,n+1+i,n+1+(i+1)%n,(i+1)%n) for i in range(n)]
-    faces += [tuple(reversed(range(n+1,2*n+1)))]
-    F.own(G.smooth(G.mesh(name+' compound dome window',vertices,faces,F.GLASS),45),rt,'White')
+    # Domed glazing has a rolled perimeter and compound crown; independent of
+    # the housing and its retaining bezel. Two rings avoid a pointed fan.
+    n=len(window);vertices=[]
+    for scale,yy in ((1,-.078),(.45,-.091)):
+        vertices += [(x+u*scale,yy,z+.385+v*scale) for u,v in window]
+    faces=[]
+    for j in range(1):
+        for i in range(n):faces.append((j*n+i,j*n+(i+1)%n,(j+1)*n+(i+1)%n,(j+1)*n+i))
+    faces.append(tuple(range(n,2*n)))
+    F.own(G.smooth(G.mesh(name+' separate domed lens',vertices,faces,F.GLASS),180),rt,'White')
     # A die-cast retaining bezel seats the real dome and covers the cut edge.
     # Its inner/outer lips are explicit; this is not a painted outline.
     loops=[]
-    for scale,yy in ((1.045,-.052),(1.045,-.059),(1.0,-.059),(1.0,-.052)):
+    for scale,yy in ((1.065,-.073),(1.065,-.080),(1.0,-.080),(1.0,-.073)):
         loops.append([(x+u*scale,yy,z+.385+v*scale) for u,v in window])
-    F.own(G.smooth(G.ring_loft(name+' window retaining bezel',loops,F.M),50),rt,'Zinc')
+    bezel=G.ring_loft(name+' window retaining bezel',loops,F.M)
+    import bmesh
+    bm=bmesh.new();bm.from_mesh(bezel.data);bm.faces.ensure_lookup_table();bmesh.ops.delete(bm,geom=list(bm.faces)[-n:],context='FACES');bm.to_mesh(bezel.data);bm.free()
+    F.own(G.smooth(bezel,50),rt,'Zinc')
     # Coin-vault door is hinged at the housing's side, with a clearance seam.
     door=F.pivot(name+'CoinDoor',(x-.058,-.065,z+.025),rt,'Z',(-95,0))
-    leaf=profile(name+' rounded coin vault door',G.rounded_rectangle(.111,.168,.048,5),-.008,.006,door,'Aluminum','Y');leaf.location=(.058,0,.085)
+    leaf=profile(name+' rounded coin vault door',G.rounded_rectangle(.111,.168,.048,5),-.008,.006,door,'Aluminum','Y');leaf.location=(.058,0,.075)
     box(name+' vault recess',(x,-.029,z+.10),(.10,.008,.16),rt,'Inside',.014,2)
     bolt(name+' vault lock',(.088,-.010,.083),door,.010,(0,-1,0))
-    box(name+' coin bezel',(x+.027,-.080,z+.231),(.055,.011,.030),rt,'Zinc',.005)
-    box(name+' coin slot',(x+.027,-.086,z+.231),(.028,.001,.003),rt,'Inside',0)
+    box(name+' coin bezel',(x+.027,-.083,z+.231),(.060,.017,.035),rt,'Zinc',.005)
+    box(name+' coin slot',(x+.027,-.092,z+.231),(.028,.001,.003),rt,'Inside',0)
     cyl(name+' winding knob stem',(x-.03,-.08,z+.205),(x-.03,-.108,z+.205),.009,rt,'Zinc',10)
     box(name+' winding grip',(x-.03,-.12,z+.205),(.066,.018,.016),rt,'Zinc',.005)
     cyl(name+' post collar',(x,0,z-.06),(x,0,z+.018),.036,rt,'Aluminum',16)
