@@ -9,7 +9,7 @@ state; storefront glass uses uniform IOR/transmission and allocates no image.
 | --- | --- | --- | ---: |
 | DowntownMasonry | 2048² BaseColor / Normal / ORM | Common-bond red, running-bond red, painted brick and buff common-bond guarded regions | 16 |
 | DowntownMineralRoof | 1024² BaseColor / Normal / ORM | Tooled limestone, terra cotta, mineral roof and poured mineral regions | 4 |
-| DowntownFinish | 2048² BaseColor / Normal / ORM | Painted wood, painted iron, aluminum, bronze, woven canvas, cornice paint, pressed relief, clear finish | 16 |
+| DowntownFinish | 2048² BaseColor / Normal / ORM | Painted wood, painted iron, aluminum, bronze, woven canvas, cornice paint, pressed relief, blind slats | 16 |
 | DowntownSigns | 2048² RGBA BaseColor | Original tenant signs, date/name stones, weathered ghost paint | 5.333 |
 | DowntownInterior | 1024² RGBA BaseColor | Drawn room/shelf backing plus black and warm fixture regions | 1.333 |
 | Glass | No new image | 4 mm panes, transmission 1, IOR 1.50, roughness .045 | 0 |
@@ -37,7 +37,11 @@ existing original family generators for its cars, trees, houses and lights.
 
 `src/textures.py` authors 4096² BaseColor/ORM and signed meter height fields.
 The kit's GPU Cycles flat baker evaluates tangent normals and lighting-independent
-BaseColor/ORM. The kit's channel-correct filter produces the ship sizes:
+BaseColor/ORM. One sample per source texel avoids nondeterministic GPU
+accumulation in these lighting-independent data bakes. Two independent 4096 bakes and delivery filters
+are compared byte for byte, including every shared PNG; the check does not reuse
+cached maps or accept a pixel tolerance. The kit's channel-correct filter produces
+the ship sizes:
 linear-light color, renormalized OpenGL +Y normals, RMS roughness and linear
 AO/metallic. No photo is read by the generator or baker.
 

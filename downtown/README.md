@@ -1,240 +1,244 @@
-# Downtown / American Main Street — construction checkpoint
+# Downtown / American Main Street
 
-An original seeded family of narrow brick commercial buildings built about
-1880–1930 and altered over time: shops at the sidewalk, apartments or offices
-above, party walls, deep lots and an alley. Four seven-building block faces
-contain 28 individually placeable buildings. This delivery stops at the
-**form and construction gate**. It has quick colors and one original sign
-sheet; it has no final material bake, finished trim UVs, weathering or night
-lighting. Do not treat the checkpoint exports as final game deliveries.
+An original scripted family of 28 individually placeable commercial buildings,
+arranged as four seeded seven-lot block faces. Built about 1880–1930 and altered
+over time: recessed shops, separate stair entries, apartments and offices,
+party walls, deep lots and service alleys. Accepted dimensions, lot rhythm,
+regional grammars and storefront organization are retained. This checkpoint
+adds constructed ornament, shared baked surfaces and a town presentation.
 
-The four regional grammars are a Midwestern two-story Italianate/masonry row,
-a lower western commercial street with mid-century infill, a denser
-northeastern three-story row with a projecting bay, and a southern row with
-supported cast-iron galleries. Seeded variation changes the lot order, widths,
-depths, heights, window cadence, cornices, original/replacement storefronts,
-tenants, awnings, roofs and rear services within each regional vocabulary.
-
-Generated images: [eye-height hero](renders/checkpoint/midwest/hero.png),
-[all checkpoint views](renders/checkpoint/contact.jpg), and
-[three reference pairs](renders/matches/contact.jpg). These files are generated
-by `make`, remain ignored, and are not final documentation JPGs.
-[REVIEW.md](REVIEW.md) records the rejected forms and corrections.
+Generated evidence stays ignored; no docs images are published at this gate:
+[eye-height hero](renders/checkpoint/midwest/hero.png),
+[dusk](renders/checkpoint/midwest/dusk.png),
+[all views](renders/checkpoint/contact.jpg),
+[matched-light pairs](renders/matches/contact.jpg),
+[focused storefront pair](renders/matches/foster_storefront-pair.jpg),
+[before/after fixes](renders/fixes/), and
+[source-field comparisons](renders/source-matches/).
+[REVIEW.md](REVIEW.md) records the full-size critiques, including rejected fits.
 
 ## Dimensions and construction
 
-[REFERENCE.md](REFERENCE.md) distinguishes published measurements from authored
-dimensions. [refs/SOURCES.md](refs/SOURCES.md) records every photograph, drawing,
-manual, author, rights statement and use. The National Register bank nomination
-anchors a documented 25 × 100 ft commercial footprint; the NPS storefront,
-window and masonry briefs define the construction vocabulary. HABS photographs
-and the Norwalk measured plan guide proportion and street grain. The 1904
-cornice catalog supplies real stock height/projection ranges. We did not copy
-a building or a manufacturer's ornament.
+[REFERENCE.md](REFERENCE.md) separates published measurements from authored
+choices; [refs/SOURCES.md](refs/SOURCES.md) gives image/PDF credits and uses.
+The Lawrence County Bank nomination anchors a 25 × 100 ft commercial lot;
+NPS briefs establish storefront, sash and masonry construction. HABS photographs
+and the Norwalk plan guide proportion and urban grain. The 1904 cornice catalog
+supplies stock height/projection ranges. These are original buildings rather
+than surveyed copies of the references.
 
-| Feature | Authored range / dimension |
+| Feature | Authored dimension |
 | --- | --- |
-| Interior / corner lots | 20–30 / 32–40 ft wide; 80–140 ft deep |
-| Main ground / upper floor modules | 14–16 / 11–12 ft; infill ground floor 13 ft |
-| Parapet | 2.5–3.5 ft above roof datum |
-| Wall gauge | 440 mm front, 340 mm exposed/rear, 220 mm each party half |
-| Display bulkhead | 510 mm original, 320 mm replacement aluminum |
-| Retail entry | 1.04 m return depth; leaf 70 mm behind returns, 900 mm nominal leaf |
-| Main transom band | 620 mm high, separate from sign-band girder |
+| Interior / corner widths | 20–30 / 32–40 ft; depths 80–140 ft |
+| Ground / upper floor modules | 14–16 / 11–12 ft; infill ground floor 13 ft |
+| Parapet | 2.5–3.5 ft above roof |
+| Wall gauges | 440 mm front, 340 mm exposed/rear, 220 mm each party half |
+| Bulkheads | 510 mm original, 320 mm aluminum replacement |
+| Retail entry | 1.04 m return; leaf 70 mm farther back; 900 mm nominal leaf |
+| Transom | Separate 620 mm band above display sash |
 | Upper front / rear openings | Up to 1.02 × 1.96–2.20 / 1.02 × 1.63 m |
-| Sash inset | 105 mm Italianate front, 190 mm masonry/rear |
-| Segmental arch rise / sill | 220 / 120 mm |
-| Corner chamfer | 1.45 m back on both outer edges, actual diagonal wall |
-| Gallery | 2.70 m deep; 120 mm columns, supported deck and falling canopy |
-| Fire escape | Up to 5.60 m walk, 2.45 m return projection, 1.067 m guard, 880 mm flights |
-| Sidewalk | 12 / 14 / 16 ft curb to building, by region |
+| Sash inset | 105 mm Italianate front; 190 mm other masonry/rear |
+| Corner chamfer | 1.45 m setback on both outer edges |
+| Bank lobby | 300 mm landing, two measured 150 mm risers; retail entry at grade |
+| Metal cornice | 825 mm profile height; 610 mm standard / 708 mm heavy-corner projection |
+| Gallery | 2.70 m projection; 120 mm columns; 1.06 m guard |
+| Fire escape | Up to 5.60 m walk, 2.45 m return; 880 mm flights; 1.067 m guard |
+| Walks | 12 / 14 / 16 ft by region; 152.4 mm curb datum |
 
-The facade has real wall holes and reveals. Angled display returns meet a
-recessed terrazzo entry; storefront piers, plinths and girder carry the upper
-wall. Separate stair doors survive storefront tenant changes. Upper sashes
-have different planes, meeting rails, stools, sills and segmental/flat heads.
-A seeded upper opening retains its old hood and sill around later brick infill.
-Some hoods and cornices are formed-metal assemblies with profiled brackets,
-ledges and dentils; other fronts have corbelled brick. The northeastern bay
-has three glazed planes, a roof and visible brackets.
+Walls have actual apertures and reveals. Original iron storefronts have
+tapered column/pilaster shafts, bases and capitals; replacement aluminum fronts
+remain plain. Profiled hood molds carry ears, keys and consoles, with peaked
+hoods on the original Italianate iron fronts. Washed stone sills have a 170 mm
+body plus a 60 mm lower molding and include drip undercuts; lintels have drafted
+faces. Pressed-metal cornices carry paired
+scroll brackets, modillions, dentils, recessed frieze fields and a reserved
+central date panel. Other fronts have corbelled brick and belt profiles.
+Geometry carries the silhouette; tooling and pressed fine relief use normals.
 
-Corner fronts have diagonal entrances and display openings on their public
-side. The rear has actual service openings, supported escape platforms,
-bar grating, inclined flights, wall anchors, scuppers, strapped downspouts,
-meters, conduit loops and occasional shed additions. Roofs fall toward the
-rear; parapets, coping, skylights, varied equipment and chimney masses remain
-geometry. Ghost lettering and a demolished-neighbor roof scar occur on the
-exposed end wall. Current lettering is fictional, generated with installed
-open DejaVu fonts. No reference pixel enters a texture.
+Canvas sags across frame bays and ends in a scalloped hanging valance. The
+bank/hotel corners have diagonal framed entries, heavier fronts and name
+stones. Rear variation includes different-depth hollow ells, sloping additions,
+back porches/stairs, changing sash, stepped parapets and retained fire escapes.
+Downspouts are strapped to walls; conduit bends and loops follow their supports.
+Shop and upper rooms are shallow visible volumes with fixtures, shelves,
+curtains and blinds, rather than complete playable interiors.
 
-Shop rooms are shallow, economical volumes: diner booths/counter/stools,
-hardware/antiques shelves, barber chairs and mirrors, vacant kraft paper,
-and bank/hotel counters. Upper openings have dark rooms, curtains, partial
-blinds and an occasional window air conditioner. These are exterior shells
-with shallow visible rooms, not playable complete floor plans.
+## Placement and motion
 
-## Generator, placement and doors
+`src/plan.py` takes an integer seed, a region (`midwest`, `western`,
+`northeast`, `southern`) and 4–12 lots; `load()` also accepts an authored plan.
+The proof seeds are 411 / 512 / 613 / 714. A custom build uses the usual
+headless Blender command followed by `-- --seed N --region western --count 8
+--out build/custom.blend`. It replaces that region's diagnostic block;
+`make -B model` restores the four proof blocks.
 
-`src/plan.py` is pure Python. Inputs are integer `seed`, one of `midwest`,
-`western`, `northeast`, `southern`, and a bounded lot count of 4–12. `load()`
-also accepts an authored JSON plan. Regional constants describe permitted lot
-widths/depths, story/style distributions, style-specific sash height, masonry palette, walk width and
-parking type. First and last lots are wider corners; one infill is reserved
-in the Midwestern/western grammar. The same seed gives identical geometry
-and sign pixels; budgets are measured on actual generated meshes.
+Each building is one stock glTF plus its geometry bin, referring to the same
+11 images in `export/textures/`. Keep this directory layout and cache canonical
+image URIs. `build/blocks/<region>/block.json` lists placements and costs;
+its assembled GLB is diagnostic. Presentation context is excluded from building
+deliveries. Origins are ground-level lot centers; frontage is Blender −Y,
+up +Z (glTF forward +Z, up +Y). Mesh scales are applied.
 
-The four proof plans use seeds 411, 512, 613 and 714. `src/build.py -- --seed N
---region western --count 8 --out build/custom.blend` generates another block
-and retains its individual glTFs. This replaces that region's diagnostic block;
-run `make -B model` to restore the four default proof blocks afterward. Supply
-those arguments after the normal headless Blender invocation, not to Python.
-
-Each building exports one stock `.gltf` plus `.bin`; all image references
-resolve to `export/textures/T_DowntownFormSigns_BaseColor.png`. Keep that shared
-folder and cache by canonical URI. A block face is its list of placed building
-instances in `build/blocks/<region>/block.json`; the assembled `.glb` beside it
-is a diagnostic export. Origin is the ground center of the rectangular lot
-footprint. Blender +Z is up, frontage −Y; glTF is +Y up, +Z forward. Mesh scales
-are applied. Front placement aligns the `FrontLine` socket to the sidewalk.
-
-| Node suffix | Function |
+| Node suffix | Purpose |
 | --- | --- |
-| `Socket_PartyLeft`, `Socket_PartyRight` | Lot-line X planes; different lot depths intentionally have different midpoint Y |
-| `Socket_FrontLine`, `Socket_RearAlley` | Building/sidewalk and alley interfaces |
-| `Socket_*DoorThreshold` | Actual door threshold; stores nominal leaf width |
-| `Socket_BladeBracket` | Wall support for the projecting sign |
-| `Socket_AwningLeft`, `Socket_AwningRight` | Paired frame attachments |
-| `StoreDoor`, `StairDoor`, `ServiceDoor` | Separate leaf meshes below actual hinge pivots |
-| `CornerDoor`, `GalleryDoor` | Present only when the construction requires them |
+| `Socket_PartyLeft`, `Socket_PartyRight` | Lot-line planes |
+| `Socket_FrontLine`, `Socket_RearAlley` | Street/alley placement interfaces |
+| `Socket_*DoorThreshold` | Actual threshold and nominal leaf width |
+| `Socket_BladeBracket` | Projecting-sign wall attachment |
+| `Socket_AwningLeft`, `Socket_AwningRight` | Frame attachments |
+| `StoreDoor`, `StairDoor`, `ServiceDoor` | Separate leaves under hinge pivots |
+| `CornerDoor`, `GalleryDoor`, `EllDoor`, `PorchDoor` | Conditional moving leaves |
 
-All door pivots rotate about local Blender +Z (glTF +Y) through 0–100° inward.
-The upper gallery doors meet the deck. No armature or animation clip is needed.
-The sampled sweep checks every actual leaf against the fixed triangles at 1°
-increments, not a constant clearance claim or just serialization. The kit still computes
-BVH crossings, edge intervals and distances; the downtown audit uses oriented
-solid-angle membership because coplanar assembly faces can confuse ray parity.
-Fixtures check both hollow room air and a genuinely contained collision.
+All leaves rotate inward 0–100° about local Blender +Z (glTF +Y).
+The actual imported surfaces are checked every degree. There are no collision
+exemptions or armatures. The kit handles BVH crossings/edge distances; the
+building audit uses oriented solid-angle membership for joined solid members,
+with both hollow-room and contained-collision fixtures. This is a sampled
+geometric test, not structural or building-code certification.
 
-## Geometry and resource budget
+## Geometry and resources
 
-Six quick material states maximum per building; static construction is joined
-inside each root, with separate moving leaves. Fine brick coursing, stamped
-ornament, surface damage and small wear belong in shared normal/color maps,
-not individual brick meshes. Some small fronts fall below 8k because adding
-faces would not improve their silhouette.
+<!-- METRICS_START -->
+| Block / seed | Frontage m | Building triangles | glTF + bin bytes | Diagnostic GLB bytes |
+| --- | ---: | ---: | ---: | ---: |
+| midwest / 411 | 60.655 | 93,242 | 12,906,903 | 30,345,180 |
+| western / 512 | 58.826 | 69,034 | 9,575,892 | 27,023,716 |
+| northeast / 613 | 56.083 | 135,700 | 18,847,675 | 36,289,216 |
+| southern / 714 | 65.227 | 115,440 | 15,991,894 | 33,428,000 |
 
-| Block / seed | Frontage | Building triangles | Checkpoint GLB bytes |
-| --- | ---: | ---: | ---: |
-| Midwest / 411 | 60.655 m | 67,822 | 8,861,312 |
-| Western / 512 | 58.826 m | 48,938 | 6,501,092 |
-| Northeast / 613 | 56.083 m | 104,692 | 13,585,564 |
-| Southern / 714 | 65.227 m | 80,920 | 10,530,516 |
+| Building | Lot ft | Stories | Front datum m | Triangles | Materials | glTF + bin bytes |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| Midwest_411_01 | 32 × 100 | 2 | 8.687 | 16,072 | 6 | 2,237,348 |
+| Midwest_411_02 | 27 × 110 | 2 | 8.992 | 14,362 | 6 | 1,971,662 |
+| Midwest_411_03 | 22 × 90 | 2 | 9.296 | 10,966 | 6 | 1,528,568 |
+| Midwest_411_04 | 27 × 90 | 1 | 4.877 | 4,800 | 5 | 662,256 |
+| Midwest_411_05 | 25 × 90 | 2 | 8.534 | 15,434 | 6 | 2,119,132 |
+| Midwest_411_06 | 30 × 90 | 2 | 8.382 | 13,502 | 6 | 1,869,701 |
+| Midwest_411_07 | 36 × 90 | 2 | 9.296 | 18,106 | 6 | 2,518,236 |
+| Western_512_01 | 36 × 100 | 2 | 8.382 | 23,926 | 6 | 3,361,693 |
+| Western_512_02 | 25 × 100 | 1 | 5.029 | 6,388 | 6 | 861,382 |
+| Western_512_03 | 28 × 100 | 1 | 5.334 | 5,026 | 6 | 687,402 |
+| Western_512_04 | 24 × 100 | 1 | 4.724 | 4,752 | 5 | 656,015 |
+| Western_512_05 | 24 × 90 | 1 | 5.944 | 6,142 | 6 | 830,410 |
+| Western_512_06 | 20 × 80 | 1 | 5.639 | 5,080 | 6 | 712,042 |
+| Western_512_07 | 36 × 80 | 2 | 8.992 | 17,720 | 6 | 2,466,948 |
+| Northeast_613_01 | 36 × 120 | 3 | 12.497 | 29,614 | 6 | 4,162,629 |
+| Northeast_613_02 | 20 × 120 | 2 | 8.839 | 14,466 | 6 | 1,985,302 |
+| Northeast_613_03 | 20 × 120 | 3 | 13.259 | 13,574 | 6 | 1,912,437 |
+| Northeast_613_04 | 26 × 100 | 3 | 12.497 | 18,050 | 6 | 2,468,644 |
+| Northeast_613_05 | 20 × 100 | 3 | 12.497 | 15,264 | 6 | 2,089,688 |
+| Northeast_613_06 | 26 × 140 | 3 | 13.259 | 15,398 | 6 | 2,145,931 |
+| Northeast_613_07 | 36 × 140 | 3 | 12.649 | 29,334 | 6 | 4,083,044 |
+| Southern_714_01 | 36 × 120 | 2 | 8.992 | 24,276 | 6 | 3,423,815 |
+| Southern_714_02 | 30 × 90 | 2 | 8.992 | 17,774 | 6 | 2,437,625 |
+| Southern_714_03 | 25 × 120 | 2 | 9.296 | 13,588 | 6 | 1,872,363 |
+| Southern_714_04 | 23 × 120 | 2 | 8.992 | 8,898 | 6 | 1,231,445 |
+| Southern_714_05 | 30 × 90 | 2 | 8.687 | 11,628 | 6 | 1,568,465 |
+| Southern_714_06 | 30 × 100 | 3 | 11.735 | 12,310 | 6 | 1,689,018 |
+| Southern_714_07 | 40 × 90 | 2 | 8.992 | 26,966 | 6 | 3,769,163 |
 
-Actual individual geometry (gltf + bin MiB excludes the shared image):
+| Street piece | Triangles | glTF + bin bytes |
+| --- | ---: | ---: |
+| midwest | 5,368 | 768,448 |
+| western | 5,140 | 739,736 |
+| northeast | 5,380 | 770,151 |
+| southern | 6,376 | 915,877 |
 
-| Building | Lot | Stories | Top of parapet m | Triangles | Geometry MiB |
-| --- | --- | ---: | ---: | ---: | ---: |
-| Midwest_411_01 | 32 × 100 ft | 2 | 8.687 | 11,566 | 1.423 |
-| Midwest_411_02 | 27 × 110 ft | 2 | 8.992 | 11,662 | 1.440 |
-| Midwest_411_03 | 22 × 90 ft | 2 | 9.296 | 7,338 | 0.906 |
-| Midwest_411_04 | 27 × 90 ft | 1 | 4.877 | 3,316 | 0.423 |
-| Midwest_411_05 | 25 × 90 ft | 2 | 8.534 | 10,954 | 1.345 |
-| Midwest_411_06 | 30 × 90 ft | 2 | 8.382 | 8,746 | 1.069 |
-| Midwest_411_07 | 36 × 90 ft | 2 | 9.296 | 14,240 | 1.745 |
-| Western_512_01 | 36 × 100 ft | 2 | 8.382 | 15,600 | 1.910 |
-| Western_512_02 | 25 × 100 ft | 1 | 5.029 | 4,696 | 0.601 |
-| Western_512_03 | 28 × 100 ft | 1 | 5.334 | 3,350 | 0.427 |
-| Western_512_04 | 24 × 100 ft | 1 | 4.724 | 3,256 | 0.416 |
-| Western_512_05 | 24 × 90 ft | 1 | 5.944 | 4,586 | 0.586 |
-| Western_512_06 | 20 × 80 ft | 1 | 5.639 | 3,568 | 0.454 |
-| Western_512_07 | 36 × 80 ft | 2 | 8.992 | 13,882 | 1.701 |
-| Northeast_613_01 | 36 × 120 ft | 3 | 12.497 | 23,576 | 2.897 |
-| Northeast_613_02 | 20 × 120 ft | 2 | 8.839 | 10,542 | 1.302 |
-| Northeast_613_03 | 20 × 120 ft | 3 | 13.259 | 9,302 | 1.150 |
-| Northeast_613_04 | 26 × 100 ft | 3 | 12.497 | 13,254 | 1.627 |
-| Northeast_613_05 | 20 × 100 ft | 3 | 12.497 | 12,380 | 1.521 |
-| Northeast_613_06 | 26 × 140 ft | 3 | 13.259 | 12,026 | 1.485 |
-| Northeast_613_07 | 36 × 140 ft | 3 | 12.649 | 23,612 | 2.871 |
-| Southern_714_01 | 36 × 120 ft | 2 | 8.992 | 15,898 | 1.950 |
-| Southern_714_02 | 30 × 90 ft | 2 | 8.992 | 13,382 | 1.640 |
-| Southern_714_03 | 25 × 120 ft | 2 | 9.296 | 9,224 | 1.134 |
-| Southern_714_04 | 23 × 120 ft | 2 | 8.992 | 6,078 | 0.757 |
-| Southern_714_05 | 30 × 90 ft | 2 | 8.687 | 9,064 | 1.128 |
-| Southern_714_06 | 30 × 100 ft | 3 | 11.735 | 9,226 | 1.137 |
-| Southern_714_07 | 40 × 90 ft | 2 | 8.992 | 18,048 | 2.199 |
+Front datums are authored parapet/cornice levels. Covers rise 45 mm above them;
+seeded stepped rear parapets rise up to 480 mm farther. These are plan values,
+not reported as independent height measurements.
 
-The 28 individual glTF/bin pairs total 39,050,233 disk bytes.
-The shared checkpoint sign image is 2048² / 174,836 disk bytes, about 5⅓ MiB
-with BC7 and mipmaps. It is loaded once for the family. The proposed final
-allocation is **42⅔ MiB** across three shared PBR sets plus sign and interior
-sheets, serving six materials maximum; [TEXTURES.md](TEXTURES.md) explains
-region packing, physical purposes, texture sizes and memory assumptions.
-Those final maps have not been generated or certified.
+The 28 buildings total **57,322,364 bytes** of glTF/bin;
+four street pieces total **3,194,212 bytes**. Eleven shared
+images total **17,475,265 bytes**. The deliverable family is
+**77,991,841 bytes**, excluding diagnostic GLBs and presentation context.
+<!-- METRICS_END -->
 
-## Street and presentation
+There are five material states on small infills and six on the other buildings.
+Static construction is joined by material; moving doors remain separate.
+[TEXTURES.md](TEXTURES.md) details the **42⅔ MiB** compressed allocation with
+complete mip chains: masonry 2048², mineral/roof 1024², finish 2048², signs
+2048² and interior 1024²; eleven images in total. RGBA8 uploads with mips cost
+170⅔ MiB. Compression and caching remain engine-import policy. The stock
+Blender importer independently verifies reuse of eleven image datablocks
+across all 28 buildings, four street pieces and a repeated import.
 
-New downtown-only pieces provide full building-to-curb poured sidewalks,
-sidewalk returns and triangular paving at chamfered entries, short cross-street connections,
-real open tree pits with flush grates, straight six-inch curbs, an opposite
-sidewalk, roadway with parallel/60° parking marks, and a rear alley with loading
-aprons for different building depths. They use the ground family's 152.4 mm
-curb datum. `export/DowntownStreet_<region>.glb` is separate from the building
-assets; no ground delivery or shared kit file changes.
+The houses' existing running-bond brick lacks common-bond header courses and a
+neutral painted-brick strip. Downtown therefore adds a shared masonry set;
+other families' maps remain byte-identical. Physical coursing, neutral mortar,
+kiln variation and guarded chart regions survive stock glTF. Reused tile/trim
+charts intentionally overlap; these are not unique lightmap UVs.
 
-| Block | Street triangles | Buildings + street | Street GLB bytes |
-| --- | ---: | ---: | ---: |
-| Midwest | 5,368 | 73,190 | 681,336 |
-| Western | 5,140 | 54,078 | 655,840 |
-| Northeast | 5,380 | 110,072 | 682,848 |
-| Southern | 6,376 | 87,296 | 812,132 |
+Rest-position vertex colors add low splash, sill runoff, scupper damp,
+oxide below escape fixing plates, localized repair variation and door/shoe handling, preserving each substrate's
+color. Fine finish losses follow folded edges. Ghost paint breaks along
+courses/joints and irregular losses; transparent areas expose the real brick.
+`--wear 0` disables broad construction weather for a control. All vertices and
+texels are generated by our scripts; reference pixels never enter materials.
 
-These totals exclude the presentation-only cars, trees and lights.
+## Street and setting
 
-The hero is an eye-height 1.68 m view from the opposite sidewalk at 35 mm on
-a 36 mm sensor, under a procedural raking sun. Context uses the existing
-library's pickup, crossover, hatchback, maple and street-light generators.
-Their source forms are generated inside `downtown/build/context/`, imported
-for presentation, and excluded from downtown exports. Vehicle context has
-quick colors; it does not claim the cars' final baked delivery. Context source
-hashes and every camera/source GLB hash are recorded in render provenance.
-The whole-block elevations use a wide panorama from the opposite sidewalk;
-the overhead/rear cameras fit the actual imported architecture bounds;
-the hero keeps its measured eye height and lens.
+Downtown street glTF/bin exports remain separate from buildings and refer to
+the same canonical images. They contain full
+building-to-curb sidewalks, chamfer returns, open tree pits/grates, curbs,
+parking marks, cross-street connections and a service alley with loading aprons.
 
-## Rebuild and evidence
+Presentation adds a different seeded opposite block face, continuing blocks
+and corner buildings at the next crossing, houses and trees beyond the alleys,
+street trees, lamps, parked pickup/crossover/hatchbacks and tenant belongings.
+The library's original generators run only inside `downtown/build/context/`;
+no other family's delivery is modified. The cars use their original procedural
+paint/glazing and exterior construction, rather than a claimed rebake of their
+final deliveries. Context mesh data is instanced. Close-ups retain the town in
+glossy rays so the glass reflects a street rather than a bare sky.
 
-Requires installed Blender 5.2, Python/Pillow/NumPy, DejaVu fonts and flock.
-No packages, models, textures, lighting or executable code are downloaded.
-Reference downloads are image/PDF inspection material only. All temporary data
-stays inside this worktree's ignored build folders. Every Cycles invocation
-holds the shared kit GPU lock and requests OptiX/CUDA.
+The hero is a 1.60 m camera on the opposite sidewalk, 38 mm on a 36 mm sensor,
+under a raking procedural sun. Dusk has warm selected rooms/shops and lights
+at actual street-lamp emitter sockets. Day/dusk share the delivered interior
+image and `LightUV`; presentation light objects are not exported.
+
+## Rebuild and proof
+
+Requires installed Blender 5.2, Python/Pillow/NumPy, open DejaVu fonts and flock.
+No downloaded code, packages, models, textures or HDRIs are used. Every Cycles
+bake/render holds the shared kit GPU lock and requests OptiX/CUDA. Make is
+serial; all scratch data stays inside ignored build directories.
 
 ```sh
-make -C downtown                 # complete form checkpoint, then stop
-make -C downtown check           # 4,000 plans, actual meshes/imports/doors and repository rules
-make -C downtown check-repeat    # rebuild and compare exported geometry/image bytes
-make -C downtown check-sweep     # 48 additional actual buildings against geometry caps
-make -C downtown matches         # three calibrated HABS photo pairs
-make -C downtown WIDTH=1000 SAMPLES=16 render
+make -C downtown clean
+make -C downtown                  # 4096 bakes, shipped maps, exports, checks and all evidence
+make -C downtown check            # independent fresh-import and construction checks
+make -C downtown repeat           # isolated field/bake/model rebuild; compare actual bytes
+make -C downtown check-repo
 ```
 
-`build/check.json` separates raw accessor serialization, fresh-import
-preservation, physical ray measurements, party interfaces and motion.
-`build/motion/*.json` records 89 doors × 101 sampled positions with no
-exemptions. Independent steel-surface rays also measure feet at grade and
-3.328–3.605 m minimum sampled vertical clearance between stacked escape flights. Additional exported-surface
-rays verify gallery feet at grade, 20 mm curb flashing overlap into the roof,
-and skylight glazing seated on its inclined side rails within 1 µm. `build/plan-check.json` records 4,000 deterministic plan checks;
-this is not a claim that 4,000 full buildings were rendered. Additional mesh
-sweep and repeat reports live beside it. `build/render-check.json` verifies all
-20 Cycles views and three pairs against current export hashes, the hero camera,
-context hashes and display highlight clipping. Staging UVs are checked for finite,
-nondegenerate triangles; final trim density and overlap proof are deferred.
+The cold checkpoint and separate checks pass: 28 buildings, 107 doors across
+10,807 sampled positions, 32 deliveries sharing eleven imported images, and
+79 byte-identical files in the independent field/bake/export repeat.
+The repository check reports 1598 source files and zero errors.
 
-Remaining limitations: quick/unworn surfaces; repeated sash and rear equipment
-details; simple flat room furniture; coarse cornice ornament; no final brick
-coursing, causal damage, window vinyl, night lights, collision
-or LOD delivery. Photo calibration is approximate and uses small archival
-service images; residuals remain visible. The photographed buildings differ
-from these original plans. No source-render or measurement check is presented
-as proof of final photorealism.
+`build/check.json` separates raw serialization, fresh-import preservation,
+physical ray measurements and motion. `build/plan-check.json` checks 4,000
+plans, not 4,000 rendered buildings. `build/chart-check.json` measures actual
+UV area/density and guarded-region containment. `build/texture-check.json`
+checks image sizes, exact canonical bytes and normal lengths;
+`build/resource-check.json` proves actual imported image reuse.
+`build/render-check.json` checks exported bundle/image/context provenance,
+all 26 Cycles views, active photographic pairs and hero camera/tonal range.
+`build/repeat.json` records full isolated procedural-field/GPU-bake/export
+repeatability. Blend container bytes are not deterministic delivery evidence.
+
+Five fitted pairs include HABS form checks and separate Auburn/Louisiana
+color checks. A focused storefront crop retains native exported pixels from
+the same Foster fit. Stated neutral patches and channel gains accompany the fits.
+They compare original buildings with different facades; camera residuals and
+unknown photographic processing limit the claim. A fit proves framing, not
+material correctness. `renders/values/` shows measured patches; display values
+are exposure diagnostics, not inferred physical albedos.
+
+Remaining limitations and the final full-size verdict are recorded in
+[REVIEW.md](REVIEW.md). Faceted brackets, simplified relief, regular pavement,
+repeated roof equipment and shallow room backings still reveal the procedural
+construction. Eevee's approximate glass is less convincing than Cycles.
+There are no collision or LOD meshes,
+unique lightmap UVs, or complete interiors in this checkpoint.
