@@ -78,3 +78,5 @@ check: protected
 
 RENDER_DEPS := $(addprefix src/,render.py siteworks.py context.py ground_adapter.py photo_matches.py presentation.py paving.py) ../houses/src/render.py
 $(CHECKPOINT_RENDER_OUTPUTS) renders/final-eevee/hero.png: $(RENDER_DEPS)
+
+include src/strip_rules.mk
