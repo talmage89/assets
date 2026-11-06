@@ -18,10 +18,7 @@ def simple(name,col):
 def setup(samples,engine='CYCLES'):
  sc=bpy.context.scene;sc.render.engine=engine
  if engine=='BLENDER_WORKBENCH':sc.display.shading.color_type='VERTEX';sc.display.shading.light='STUDIO';sc.display.shading.show_shadows=True;sc.display.shading.show_cavity=True
- if engine=='BLENDER_EEVEE':
-  sc.eevee.use_raytracing=True;sc.eevee.use_fast_gi=True;sc.eevee.taa_render_samples=64
-  for m in bpy.data.materials:
-   if m.use_nodes and any(n.type=='BSDF_PRINCIPLED' and (n.inputs['Transmission Weight'].is_linked or n.inputs['Transmission Weight'].default_value>0) for n in m.node_tree.nodes):m.use_raytrace_refraction=True;m.use_screen_refraction=True
+ if engine=='BLENDER_EEVEE':sc.eevee.use_raytracing=True;sc.eevee.use_fast_gi=True;sc.eevee.taa_render_samples=64
  if engine=='CYCLES':gpu.enable();sc.cycles.samples=samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=8;sc.cycles.transparent_max_bounces=12
  sc.world=bpy.data.worlds.new('Procedural afternoon sky');sc.world.use_nodes=True;n=sc.world.node_tree.nodes;l=sc.world.node_tree.links;n.clear()
  sky=n.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_disc=False;sky.sun_elevation=math.radians(28);sky.sun_rotation=math.radians(235);sky.aerosol_density=.25
@@ -160,6 +157,14 @@ def render_block(region,out,width,samples,selected=None,camera_file=None,engine=
  if manifest.exists():
   rows={r['name']:r for r in json.loads(manifest.read_text())}
   context=setting(p,palette(sheet),append_context,rows,street)
+ if engine=='BLENDER_EEVEE':
+  # Static batches span whole buildings. Eevee's inferred mesh thickness
+  # would skip their rooms; specify the actual 4 mm glazing instead.
+  for m in bpy.data.materials:
+   if m.use_nodes and any(n.type=='BSDF_PRINCIPLED' and (n.inputs['Transmission Weight'].is_linked or n.inputs['Transmission Weight'].default_value>0) for n in m.node_tree.nodes):
+    m.use_raytrace_refraction=True;m.use_screen_refraction=True;m.thickness_mode='SLAB'
+    thickness=m.node_tree.nodes.new('ShaderNodeValue');thickness.name='Actual pane gauge';thickness.outputs[0].default_value=.004
+    for output in [n for n in m.node_tree.nodes if n.type=='OUTPUT_MATERIAL']:m.node_tree.links.new(thickness.outputs[0],output.inputs['Thickness'])
  out=Path(out)/region;out.mkdir(parents=True,exist_ok=True);report={}
  for view_index,name in enumerate(names):
   shot=shots[name]

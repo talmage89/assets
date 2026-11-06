@@ -79,7 +79,10 @@ def source(size=4096):
  (folder/'fields.json').write_text(json.dumps(report,indent=2))
 
 
-def bake(size=4096,samples=8):
+def bake(size=4096,samples=1):
+ # One sample avoids nondeterministic multi-sample GPU accumulation. These
+ # are emission/tangent data bakes, not sampled illumination. The 4096
+ # source footprint and channel-aware delivery filter provide antialiasing.
  from kit.flat_bake import bake as flat
  report=json.loads(Path('build/procedural/fields.json').read_text())
  for role,r in report.items():flat(Path('build/procedural'),Path('textures/bake'),'Downtown'+role,r['coverage_m'],size,samples,r['height_distance_m'])
@@ -101,6 +104,6 @@ def ship():
  (out/'textures.json').write_text(json.dumps(report,indent=2))
 
 if __name__=='__main__':
- p=argparse.ArgumentParser();p.add_argument('stage',choices=['source','bake','ship']);p.add_argument('--size',type=int,default=4096);p.add_argument('--samples',type=int,default=8)
+ p=argparse.ArgumentParser();p.add_argument('stage',choices=['source','bake','ship']);p.add_argument('--size',type=int,default=4096);p.add_argument('--samples',type=int,default=1)
  args=sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else sys.argv[1:];a=p.parse_args(args)
  {'source':lambda:source(a.size),'bake':lambda:bake(a.size,a.samples),'ship':ship}[a.stage]()

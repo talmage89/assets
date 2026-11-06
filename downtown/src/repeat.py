@@ -13,7 +13,7 @@ before=snapshot(Path('.'));assert before
 workspace=Path('build/repeat-workspace');shutil.rmtree(workspace,ignore_errors=True);workspace.mkdir(parents=True)
 parameters=Path('build/parameters.txt').read_text().split()
 settings=dict(v.split('=') for v in parameters)
-size=settings.get('size','4096');samples=settings.get('samples','8')
+size=settings.get('size','4096');samples=settings.get('samples','1')
 with Path('build/repeat-textures.log').open('w') as log:
  subprocess.run([sys.executable,str(HERE/'textures.py'),'source','--size',size],cwd=workspace,stdout=log,stderr=subprocess.STDOUT,check=True)
  subprocess.run([str(HERE.parents[1]/'kit/with_gpu.sh'),'blender','-b','--factory-startup','--python-exit-code','1','--python',str(HERE/'textures.py'),'--','bake','--size',size,'--samples',samples],cwd=workspace,stdout=log,stderr=subprocess.STDOUT,check=True)
