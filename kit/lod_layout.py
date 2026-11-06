@@ -47,13 +47,13 @@ def reference(sources, original):
     return BVHTree.FromPolygons([Vector(p) for p in points], faces, all_triangles=True), np.array(densities)
 
 
-def charts(mesh):
+def charts(mesh,normal_angle=1):
     """UV charts separated at meaningful discontinuities of the cage frame."""
     uv=mesh.uv_layers.active.data;normals=np.array([n.vector[:] for n in mesh.corner_normals]);parent=list(range(len(mesh.polygons)));edges={}
     def root(i):
         while parent[i]!=i:parent[i]=parent[parent[i]];i=parent[i]
         return i
-    cosine=math.cos(math.radians(1))
+    cosine=math.cos(math.radians(normal_angle))
     for face in mesh.polygons:
         loops=list(face.loop_indices)
         for j,a in enumerate(loops):
@@ -80,7 +80,7 @@ def measures(ob, ids):
     return float(world_area), float(uv_area)
 
 
-def unwrap(targets, sources, original, size, meters_per_pixel):
+def unwrap(targets, sources, original, size, meters_per_pixel, *, normal_angle=1):
     """Preserve relative source sampling importance, then pack all parts once.
 
     Uniform world-area allocation loses the deliberately denser headlamps,
@@ -101,7 +101,7 @@ def unwrap(targets, sources, original, size, meters_per_pixel):
     for ob in targets:
         mesh = ob.data; uv = mesh.uv_layers.active.data; matrix = np.array(ob.matrix_world)
         pp = np.array([v.co[:] for v in mesh.vertices]) @ matrix[:3, :3].T + matrix[:3, 3]
-        for ids in charts(mesh):
+        for ids in charts(mesh,normal_angle):
             weight = area_sum = 0.
             for fi in ids:
                 p = pp[list(mesh.polygons[fi].vertices)]; area = np.linalg.norm(np.cross(p[1]-p[0], p[2]-p[0]))*.5
@@ -140,7 +140,7 @@ def unwrap(targets, sources, original, size, meters_per_pixel):
         guard = next_guard
     print('LOD LAYOUT PACKED','gutter',guard,'mip95',round(math.log2(footprint),3),flush=True)
     areas = [measures(ob, ids)[1] for ob, ids in groups]
-    return dict(method='source-density-weighted charts', charts=len(groups), uv_area=float(sum(areas)),
+    return dict(method='source-density-weighted charts', normal_cut_degrees=normal_angle, charts=len(groups), uv_area=float(sum(areas)),
                 gutter_pixels=guard, estimated_mip_p95=float(math.log2(footprint)),
                 gutter_cap_pixels=cap, gutter_capped=needed>cap,
                 source_density_min=float(min(source_weights)), source_density_max=float(max(source_weights)))

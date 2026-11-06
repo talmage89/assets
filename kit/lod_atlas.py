@@ -176,7 +176,7 @@ def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fa
         if ob not in high and ob.name in sc.objects:bpy.data.objects.remove(ob,do_unlink=True)
     if not targets or not high:raise ValueError('Empty atlas projection')
     from kit.lod_layout import unwrap
-    layout_report=unwrap(targets,high,original,size,projection_m/1.5)
+    layout_report=unwrap(targets,high,original,size,projection_m/1.5,normal_angle=30 if proxy else 1)
     for p,attrs,faces,ob,matrix in records:
         uv=np.empty((len(ob.data.loops),2),np.float32);ob.data.uv_layers.active.data.foreach_get('uv',uv.ravel());uv[:,1]=1-uv[:,1]
         # Corner expansion deliberately preserves hard normals and other data.
@@ -252,6 +252,9 @@ def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fa
                 socket=bsdf.inputs['Coat Normal' if channel=='CoatNormalField' else 'Normal']
                 nt.links.new(socket.links[0].from_socket if socket.is_linked else geometry.outputs['Normal'],normalize.inputs[0])
                 nt.links.new(encode.outputs[0],emit.inputs['Color'])
+            elif channel=='Coverage':
+                for link in list(emit.inputs['Color'].links):nt.links.remove(link)
+                emit.inputs['Color'].default_value=(1,1,1,1)
             elif channel=='Position':
                 if nt not in position_nodes:
                     geometry=nt.nodes.new('ShaderNodeNewGeometry');subtract=nt.nodes.new('ShaderNodeVectorMath');subtract.operation='SUBTRACT';subtract.inputs[1].default_value=position_lo
@@ -284,7 +287,7 @@ def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fa
     through_required=(proxy or composite_alpha) and any(m.name in transmission_names for m in mats)
     coat_required=any(m.get('extensions',{}).get('KHR_materials_clearcoat',{}).get('clearcoatFactor',0)>0 for m in doc.data.get('materials',[]))
     channels=('BaseColor','Alpha','Position','ORM','Emission',*(('Transmission',) if proxy or composite_alpha else ()),*(('Clearcoat',) if proxy else ()),*(('CoatNormal',) if coat_required else ()),'Normal')
-    if through_required:channels+=('EmissionThrough','AlphaThrough','PositionThrough')
+    if through_required:channels+=('EmissionThrough',)
     if underlay:channels+=('BaseColorUnder','EmissionUnder','ORMUnder','NormalUnder','AlphaUnder','PositionUnder','TransmissionUnder',*(('ClearcoatUnder',) if proxy else ()),*(('CoatNormalUnder',) if coat_required else ()))
     through=None
     for label in channels:
@@ -312,7 +315,10 @@ def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fa
         route(channel+'Field' if channel in ('Normal','CoatNormal') else channel)
         im=bpy.data.images.new('LOD '+label,width=size,height=size,alpha=True,float_buffer=True)
         im.colorspace_settings.name='Non-Color';tex.image=im
+        old_margin=sc.render.bake.margin
+        if channel=='Emission':sc.render.bake.margin=0
         bpy.ops.object.bake(type='EMIT')
+        sc.render.bake.margin=old_margin
         a=np.empty(size*size*4,np.float32);im.pixels.foreach_get(a);a=a.reshape(size,size,4)[::-1].copy()
         arrays[label]=a[:,:,:1 if channel in ('Alpha','Transmission') else 3].copy()
         if channel=='Position':arrays[label]=(arrays[label]*position_span+position_lo).astype(np.float32)
@@ -339,16 +345,16 @@ def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fa
             arrays[label][yy,xx]=tangent_direction(world,nn,tt,bb)*.5+.5
     mask=exact;interior=np.asarray(Image.fromarray(mask.astype(np.uint8)*255).filter(ImageFilter.MinFilter(3)))>0
     primary={k:v for k,v in arrays.items() if not k.endswith(('Under','Through'))}
-    report['nearest_transfer']=repair(high,target,primary,mask,size,projection_m*4/3,route)
+    report['nearest_transfer']=repair(high,target,{k:v for k,v in primary.items() if k!='Emission'},mask,size,projection_m*4/3,route,coverage=True)
     if through_required:
         transmitted={k.removesuffix('Through'):v for k,v in arrays.items() if k.endswith('Through')}
-        report['nearest_transmitted_emission']=repair(through,target,transmitted,mask,size,projection_m*4/3,route)
+        report['transmitted_emission']=dict(method='direct antialiased source rays; no nearest extrapolation',samples=sc.cycles.samples)
         primary['Emission']+=transmitted['Emission']*primary['Transmission']*primary['BaseColor']
         del transmitted
     if underlay:
         backing={k.removesuffix('Under'):v for k,v in arrays.items() if k.endswith('Under')}
         arrays.clear()
-        report['nearest_underlay']=repair(under,target,backing,mask,size,projection_m*4/3,route)
+        report['nearest_underlay']=repair(under,target,{k:v for k,v in backing.items() if k!='Emission'},mask,size,projection_m*4/3,route,coverage=True)
         opacity=np.clip(primary['Alpha'],0,1);below=np.clip(backing['Alpha'],0,1)*(1-opacity)
         combined=opacity+below
         for channel in primary:
@@ -391,7 +397,12 @@ def _bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fa
         pbr=m.setdefault('pbrMetallicRoughness',{})
         pbr.update(baseColorTexture=dict(index=ids['BaseColor']),metallicRoughnessTexture=dict(index=ids['ORM']),baseColorFactor=[1,1,1,1],roughnessFactor=1,metallicFactor=1)
         m['normalTexture']=dict(index=ids['Normal']);m['occlusionTexture']=dict(index=ids['ORM'])
-        if (proxy or composite_alpha) and np.any(interior & (alpha[:,:,0]<.5)):
+        if proxy:
+            # A closed opaque construction proxy owns its coverage. Missing
+            # projection rays and transparent source print sheets are not holes
+            # in the shell; source glass travels through transmission instead.
+            m['alphaMode']='OPAQUE';m.pop('alphaCutoff',None)
+        elif composite_alpha and np.any(interior & (alpha[:,:,0]<.5)):
             m['alphaMode']='MASK';m['alphaCutoff']=.5
         if has_transmission:
             m.setdefault('extensions',{})['KHR_materials_transmission']=dict(transmissionFactor=1,transmissionTexture=dict(index=ids['Transmission']))

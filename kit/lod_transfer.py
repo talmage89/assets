@@ -27,7 +27,7 @@ def tangent_direction(world,normal,tangent,bitangent):
     return unit(np.linalg.solve(frame,world[...,None])[...,0])
 
 
-def source_hit(tree, point, normal, tolerance):
+def source_hit(tree, point, normal, tolerance, *, allow_nearest=True):
     """Choose the outward visible layer before nearest-surface fallback.
 
     A target inside a thin painted shell can be closer to the hidden lining.
@@ -46,6 +46,7 @@ def source_hit(tree, point, normal, tolerance):
             return q,nn,fi,displacement
         origin=np.asarray(q)-normal*epsilon;remaining-=distance+epsilon
         if remaining<=0:break
+    if not allow_nearest:return None
     q,nn,fi,distance=tree.find_nearest(Vector(point))
     if fi is None or distance>tolerance:return None
     cosine=float(np.dot(nn,normal))
@@ -89,7 +90,7 @@ def raster(target,size):
         yield yy,xx,w@p,n,t,b,np.sqrt(area/max(abs(det),1e-20))/size
 
 
-def repair(source,target,arrays,mask,size,tolerance,route,batch_size=16384):
+def repair(source,target,arrays,mask,size,tolerance,route,batch_size=16384,*,coverage=False,allow_nearest=True):
     missing=mask & (arrays['Alpha'][:,:,0]<.001)
     if not missing.any() and 'Position' not in arrays:return dict(candidates=0,repaired=0,max_distance_m=0.)
     mesh=source.data;mesh.calc_loop_triangles();mesh.calc_tangents(uvmap='LOD_SourceUV0')
@@ -114,10 +115,16 @@ def repair(source,target,arrays,mask,size,tolerance,route,batch_size=16384):
             visited[yy[take],xx[take]]=True
             for y,x,point,nn,tt,bb in zip(yy[take],xx[take],p[take],n[take],t[take],b[take]):
                 if not missing[y,x] and 'Position' not in arrays:continue
-                hit=source_hit(tree,point,nn,tolerance)
+                hit=source_hit(tree,point,nn,tolerance,allow_nearest=allow_nearest)
                 if hit is None:continue
                 q,source_face_normal,fi,dist=hit
-                if not missing[y,x] and np.linalg.norm(arrays['Position'][y,x]-np.array(q))<=tolerance*.05:continue
+                if not missing[y,x]:
+                    displacement=arrays['Position'][y,x]-np.array(q);direction=unit(nn)
+                    depth=abs(float(displacement@direction));lateral=float(np.linalg.norm(displacement-direction*(displacement@direction)))
+                    # A correctly antialiased texel stores an average source
+                    # position, not the exact central ray hit. Preserve that
+                    # filtering; still repair depth-separated wrong layers.
+                    if np.linalg.norm(displacement)<=tolerance*.05 or (lateral<=footprint*.5 and depth<=max(tolerance*.05,footprint*.125)):continue
                 tri=vertices[faces[fi]];e=tri[1:]-tri[0];gram=e@e.T
                 if abs(np.linalg.det(gram))<1e-24:continue
                 bw=np.linalg.solve(gram,e@(np.array(q)-tri[0]));bw=np.array([1-bw.sum(),*bw])
@@ -176,15 +183,16 @@ def repair(source,target,arrays,mask,size,tolerance,route,batch_size=16384):
         layer=data.uv_layers.new(name='LOD_TransferBake');layer.data.foreach_set('uv',uv.astype(np.float32).ravel());data.uv_layers.active=layer;layer.active_render=True
         ob=bpy.data.objects.new('LOD nearest source patches',data);scene.collection.objects.link(ob);ob.select_set(True);ob.hide_render=False;bpy.context.view_layer.objects.active=ob
         result={}
-        for channel in [k for k in ('Alpha','BaseColor','ORM','Emission','Transmission','Clearcoat','CoatNormal','Normal') if k in arrays]:
+        for channel in (['Coverage'] if coverage else [])+[k for k in ('Alpha','BaseColor','ORM','Emission','Transmission','Clearcoat','CoatNormal','Normal') if k in arrays]:
             route(channel+'Field' if channel in ('Normal','CoatNormal') else channel)
             im=bpy.data.images.new('LOD nearest '+channel,width=patch_size,height=patch_size,alpha=True,float_buffer=True);im.colorspace_settings.name='Non-Color'
             for material,node,old in bake_nodes:node.image=im;material.node_tree.nodes.active=node
             bpy.ops.object.bake(type='EMIT')
             values=np.empty(patch_size*patch_size*4,np.float32);im.pixels.foreach_get(values);values=values.reshape(patch_size,patch_size,4)[::-1]
             result[channel]=values[py,px,:3].copy();bpy.data.images.remove(im)
-        valid=result['Alpha'][:,0]>.001
+        valid=(result['Coverage'][:,0]>.5) if coverage else (result['Alpha'][:,0]>.001)
         for channel in result:
+            if channel not in arrays:continue
             if channel in ('Normal','CoatNormal'):
                 wn=unit(result[channel]*2-1);tn=np.array([r[5] for r in batch]);tt=np.array([r[6] for r in batch]);tb=np.array([r[7] for r in batch])
                 wn*=np.where(np.sum(wn*tn,axis=1)>=0,1,-1)[:,None]

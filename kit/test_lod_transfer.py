@@ -30,7 +30,7 @@ def main():
             nt.links.new(encode.outputs[0],emit.inputs['Color']);nt.links.new(emit.outputs[0],out.inputs['Surface']);return
         for link in list(emit.inputs['Color'].links):nt.links.remove(link)
         if channel=='BaseColor':nt.links.new(color.outputs[0],emit.inputs['Color'])
-        else:emit.inputs['Color'].default_value={'Alpha':(1,1,1,1),'ORM':(.6,.2,.1,1),'Emission':(0,0,0,1)}[channel]
+        else:emit.inputs['Color'].default_value={'Coverage':(1,1,1,1),'Alpha':(1,1,1,1),'ORM':(.6,.2,.1,1),'Emission':(0,0,0,1)}[channel]
         nt.links.new(emit.outputs[0],out.inputs['Surface'])
     size=16;mask=np.zeros((size,size),bool)
     for yy,xx,*unused in raster(target,size):mask[yy,xx]=True
@@ -43,6 +43,16 @@ def main():
     assert np.max(np.abs(arrays['BaseColor'][:,:,1]-.2))<1e-4
     assert np.max(np.abs(arrays['ORM']-np.array([.6,.2,.1])))<1e-4
     assert np.max(np.abs(arrays['Normal']-np.array([.5,.5,1])))<1e-4
+    # Alpha zero is real print coverage, not a failed shader evaluation.
+    # An independent constant coverage bake proves the patch exists.
+    original_route=route
+    def transparent_route(channel):
+        original_route(channel)
+        if channel=='Alpha':emit.inputs['Color'].default_value=(0,0,0,1)
+    transparent={k:np.ones_like(v) for k,v in arrays.items()};transparent['Position']=np.full((size,size,3),-.2)
+    result=repair(source,target,transparent,mask,size,.03,transparent_route,coverage=True)
+    assert result['repaired']==size*size and not transparent['Alpha'].any(),result
+    assert np.max(np.abs(transparent['BaseColor'][:,:,1]-.2))<1e-4
     # An oblique cage and a non-axis-aligned original shading normal must
     # reconstruct the original world direction after its tangent-space bake.
     # Unit length and blue-map variation alone do not prove this transport.
@@ -111,6 +121,20 @@ def main():
     result=repair(blue,target,tiny_arrays,np.ones((1,1),bool),1,.03,route)
     assert result['repaired']==1,result
     assert np.max(np.abs(tiny_arrays['BaseColor'][0,0]-[.05,.2,.8]))<.01,('source chart extrapolated into unrelated texels',tiny_arrays['BaseColor'])
+    # Through a lens, a missed ray is dark. A nearby emitter must not splat
+    # its radiance sideways into target texels outside its actual coverage.
+    target.location=(-.1,-.1,.02);target.scale=(1.2,1.2,1);bpy.context.view_layer.update()
+    emitter=plane('bounded emitter',0);emitter.data.materials.append(mat)
+    def light_route(channel):
+        route(channel)
+        if channel=='Emission':
+            for link in list(emit.inputs['Color'].links):nt.links.remove(link)
+            emit.inputs['Color'].default_value=(.7,.1,.05,1)
+    light={k:np.zeros((16,16,1 if k=='Alpha' else 3),np.float32) for k in ['Alpha','Emission']}
+    result=repair(emitter,target,light,np.ones((16,16),bool),16,.2,light_route,coverage=True,allow_nearest=False)
+    assert 0<result['repaired']<256,result
+    assert not light['Emission'][0].any() and not light['Emission'][-1].any(),'emitter radiance grew beyond ray coverage'
+    assert light['Emission'][8,8,0]>.69
     print('LOD TRANSFER PASS: original shader UV fields, tangent normal frame, bounded distance, batching')
 
 if __name__=='__main__':main()
