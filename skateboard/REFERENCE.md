@@ -10,8 +10,11 @@ No manufacturer's perimeter or mold is traced or imported.
 
 [Action Sports Technology's Version 2 mold](https://www.actionsportstech.com/index.php/machinery/skateboard-molds)
 specifies 18° kicks and .30 in concave at 8 in width. These establish our mold
-class: 7.62 mm rail rise, 43 mm eased kick transition, rounded asymmetric nose
-and tail. The [Roarockit street-veneer specification](https://www.roarockit.com/skateboard-building/veneer/street-deck/street-deck-maple-7-layer-sets/)
+class: 7.62 mm rail rise, 80 mm continuously eased kick transition, rounded asymmetric nose
+and tail. The period side photograph gives an approximately 81 ±20 mm
+transition after normalizing its visible deck span; the photographic board
+is not dimensioned. Our 80 mm slope blend has a minimum radius near 164 mm
+and continues with slight curvature through the kick. The [Roarockit street-veneer specification](https://www.roarockit.com/skateboard-building/veneer/street-deck/street-deck-maple-7-layer-sets/)
 publishes seven nominal 1/16 inch veneers: five long grain and two cross grain.
 Our pressed/sanded thickness is an estimated 10.5 mm (seven 1.5 mm finished
 plies), plus 0.55 mm grip. Layup is L/L/C/L/C/L/L. Final thickness, edge

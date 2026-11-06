@@ -56,12 +56,16 @@ def halfwidth(s,y):
     t=max(0,(abs(y)-(abs(end)-cap))/cap)
     return s.width/2*math.sqrt(max(0,1-t*t))*(1-.014*(1-min(1,abs(y)/.26))**2)
 def kick(s,y):
-    start=s.plate_y+.040
-    t=max(0,abs(y)-start);blend=.043
-    angle=math.radians(s.nose_angle if y<0 else s.tail_angle)
-    slope=math.tan(angle)
-    return slope*(t*t/(2*blend) if t<blend else t-blend/2)
+    # C2 press transition: 80 mm run (minimum radius ~164 mm / 6.45 in).
+    # Slight curvature continues in the kick instead of ending in a flat ramp.
+    t=max(0,abs(y)-(s.plate_y+.018));blend=.080
+    slope=math.tan(math.radians(s.nose_angle if y<0 else s.tail_angle))
+    u=min(1,t/blend)
+    z=slope*blend*(u**3-.5*u**4)
+    if t>blend:z+=slope*(t-blend)+.13*(t-blend)**2
+    return z
+
 def height(s,x,y):
-    # Concave is cylindrical/parabolic through stance, eases on the kicks.
-    fade=1-.65*min(1,max(0,(abs(y)-.25)/.12))
-    return s.underside+kick(s,y)+s.concave*(x/(s.width/2))**2*fade
+    u=x/(s.width/2*.986-s.thickness/2)
+    q=min(1,max(0,(abs(y)-.235)/.16));fade=1-.80*q*q*(3-2*q)
+    return s.underside+kick(s,y)+s.concave*(.30*u*u+.70*u**4)*fade

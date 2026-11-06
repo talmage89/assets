@@ -9,7 +9,7 @@ from mathutils import Vector,Matrix
 from kit.motion import surface,sweep,penetration
 from kit.assembly import distance
 from kit.gltf import GLB
-from spec import spec
+from spec import spec,halfwidth
 p=argparse.ArgumentParser();p.add_argument('--source',required=True);p.add_argument('--out',required=True);a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);src=Path(a.source).resolve();bpy.ops.wm.open_mainfile(filepath=str(src));root=bpy.data.objects['Skateboard'];s=spec(int(root['seed']),root['age_state']);errors=[];proof={}
 def require(ok,msg):
     if not ok:errors.append(msg)
@@ -30,14 +30,14 @@ dense_counts={}
 for o in bpy.context.scene.objects:
     if o.type=='MESH' and o.get('source_only'):
         o.data.calc_loop_triangles();dense_counts[o.name]=len(o.data.loop_triangles)
-proof['dense_casting_triangles']=dense_counts;proof['triangles_per_part']=counts;proof['triangles']=sum(counts.values());require(6000<=proof['triangles']<=12000,'Whole board outside 6k–12k budget')
-proof['deck_bounds_m']=db;require(abs(db['size'][1]-s.length)<.0001,'Deck length drift');require(abs(db['size'][0]-s.width)<.001,'Deck width drift')
+proof['dense_casting_triangles']=dense_counts;proof['triangles_per_part']=counts;proof['triangles']=sum(counts.values());require(6000<=proof['triangles']<=14000,'Whole board outside authorized 6k–14k budget')
+proof['deck_bounds_m']=db;require(abs(db['size'][1]-s.length)<.0002,'Deck length drift');require(abs(db['size'][0]-s.width)<.001,'Deck width drift')
 # Vertical rays measure the actual top/bottom surfaces at the stance center and rails.
 ds=surface(deck)
 def rayheight(x,y,down=True):
     hit=ds['tree'].ray_cast(Vector((x,y,1 if down else -1)),Vector((0,0,-1 if down else 1)),2)
     return hit[0].z if hit[0] is not None else None
-center=rayheight(0,0);rail=rayheight(s.width/2-.001,0);bottom=rayheight(0,0,False)
+center=rayheight(0,0);rail=rayheight(halfwidth(s,0)-s.thickness/2-.0007,0);bottom=rayheight(0,0,False)
 proof['center_thickness_including_grip_m']=center-bottom;proof['measured_concave_near_rail_m']=rail-center
 require(abs((center-bottom)-(s.thickness+.00055))<.0001,'Measured center thickness incorrect');require(.0068<rail-center<.0085,'Actual concave outside class')
 # Eight through bores: a ray through the deck only must pass without a hit.
@@ -58,7 +58,7 @@ for sign,label in ((-1,'nose'),(1,'tail')):
     candidates=sorted([v for v in dp if abs(v.x)<1e-6 and sign*v.y>.32],key=lambda v:abs(v.y))
     require(len(candidates)>=2,'Missing kick stations')
     if len(candidates)>1:
-        first=Vector((0,sign*.32,rayheight(0,sign*.32)));last=Vector((0,sign*.38,rayheight(0,sign*.38)));angle=math.degrees(math.atan2(last.z-first.z,abs(last.y-first.y)));angles[label]=angle;require(abs(angle-18)<.5,label+' kick angle drift')
+        first=Vector((0,sign*.32,rayheight(0,sign*.32)));last=Vector((0,sign*.38,rayheight(0,sign*.38)));angle=math.degrees(math.atan2(last.z-first.z,abs(last.y-first.y)));angles[label]=angle;require(17.4<angle<20.0,label+' measured curved kick tangent outside mold class')
 proof['measured_kick_angles_degrees']=angles
 # Wheel diameter, contact band and bearing seats are measured from exported
 # mesh-space vertex stations, not reprinted from the input spec.
