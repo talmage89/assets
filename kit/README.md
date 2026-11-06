@@ -926,39 +926,38 @@ single blend/render-stamp behavior remains compatible with existing families.
 
 ## Additional LOD chains (opt-in)
 
-`lod.py`, `lod_io.py`, `lod_mesh.py` and `lod_rules.mk` build separate glTF/BIN
-levels from immutable delivered GLB/glTF inputs. `lod_render.py` renders each
-switch against original and adjacent levels, and `lod_impostor.py` creates an
-explicit camera-facing foliage billboard from the delivered tree. No existing
-exporter, default build or `check` target changes. Pilots opt in by including
-`lod_rules.mk` and supplying `src/lod.json`.
+The existing delivery is immutable LOD0. New levels use separate core glTF/BIN
+files and a manifest; `lod_rules.mk` adds opt-in `make lod` / `make check-lod`
+without changing any default build/check dependency graph. See [LOD.md](LOD.md)
+for switch conventions, engine integration, acceptance policy and sources.
 
-```sh
-make -C traffic-cone lod
-make -C traffic-cone check-lod
-blender -b --factory-startup --python-exit-code 1 --python kit/test_lod.py
-```
+`lod_mesh.py` measures screen/mip-relative error, prunes tiny islands and
+transports normalized skin weights. `lod_scene.py` consolidates static material
+groups while preserving interactive frames; a projected-coverage check guards
+planar frame openings. Its far proxy uses closed
+construction envelopes, preserves concave footprints and optionally unions them with a pixel-sized voxel grid. Closed shells have independently checked positive volume. `lod_layout.py` keeps relative source texel density, cuts normal-frame seams and derives mip gutters. `lod_atlas.py` bakes original delivered PBR
+appearance onto new charts under the shared GPU lock, isolating moving pairs and retained near materials
+and evaluating vertex tint once. `lod_transfer.py` repairs bounded cage misses
+by evaluating the original shader, with explicit UV indices, alpha backing and separate base/coat shading directions. Transmissive receivers retain projected emission from their original internal emitters. Proxies merge all parts in their rest pose.
+`lod_foliage.py` builds enlarged-card levels with balanced or density-proportional crown quotas. `lod_impostor.py` keeps the
+camera-facing billboard and adds a fixed four-plane/eight-triangle alternative.
 
-The fixture uses fresh `build/lod-test/` outputs and needs no GPU. It exercises
-actual simplification, corner seams, UV1, Wind, protected moving geometry,
-embedded/external PNGs, bind data and a clip, re-import, byte repeatability,
-billboard orientation, changed-source rejection and flipped-face rejection.
-GPU rendering/billboard generation uses the shared lock through the new targets.
-`lod_report.py` composes checked pilot tables/overview and, only with explicit
-`--write-readmes`, updates their marked README sections.
+`lod_io.py` serializes additional levels and measures raw-accessor costs.
+`lod_render.py` retains the RGB/alpha/local switch gates and adds soft silhouette
+IoU. `lod_normals.py` audits source normal fields or new tangent cages and baked
+map normalization, according to the reduction path. Winding, topology, fresh
+re-import, skin binds/clips and all source/package/recipe/evidence hashes remain
+checked. Rest renders do not establish swept animation clearance or engine
+performance.
 
-See [delivery convention and engine sources](LOD.md),
-[critique and pilot measurements](LOD_REVIEW.md), and the
-[six-pilot overview](docs/lod-pilots.jpg). Full native-pixel evidence is rebuilt
-under each pilot's `renders/lod/`; detailed component rejection reports stay
-under `build/lod/<source stem>/`. Safe reductions can miss requested ratios;
-the manifest reports both target and achieved counts rather than degrading UVs
-or shading to meet a number.
-
-`lod_normals.py` independently compares delivered geometry normals against LOD0,
-counts zero-area UVs per layer, and compares skin weights, inverse binds and
-animation values. Exact source corners are compared directly; altered corners
-are projected onto original surfaces, with UV correspondence resolving seams.
-`check-lod` runs both that audit and the package/import/image checks. Source BIN
-and image resources are protected against output-path aliases; regenerated maps
-also repair cache files left incomplete by an interrupted run.
+Run `test_lod.py` in fresh Blender and `test_lod_proxy.py` through `with_gpu.sh`.
+The latter exercises pixel/mip budgets, pruning, merge/pivots, closed budgeted
+shells and a real immutable-source PBR/normal bake with UV1 emission and alpha
+backing. A retained sign/backing fixture checks temporary material isolation and compacted module material indices. A varying-normal cage checks the actual re-imported base/coat shader
+directions, including shared UV diagonals and interpolated tangent lengths.
+`test_lod_transfer.py` independently tests the bounded shader transfer;
+`test_lod_gpu.py` and `test_lod_impostor_fit.py` are ordinary Python unittests.
+Builds/bakes run in one Blender process, with four threads and shared GPU locking. Use fresh fixture folders
+`build/lod-test` and `build/lod-proxy-test`. [The pilot review](LOD_REVIEW.md)
+records the checkpoint. `lod_report.py` writes checked tables and the overview;
+README updates require its explicit `--write-readmes` option.
