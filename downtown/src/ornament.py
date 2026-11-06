@@ -121,28 +121,32 @@ def pilaster(b,x,y,head,col):
     # Cast pilaster supported by a square base, with stepped collar and capital.
     for zz,ww,dd,hh in ((.07,.28,.36,.14),(.19,.23,.31,.10),(.31,.205,.28,.14),
                          (head-.36,.225,.34,.09),(head-.25,.29,.39,.12),
-                         (head-.13,.34,.42,.11)):
+                         (head-.125,.34,.42,.20)):
         b.box((x,y,zz),(ww,dd,hh),'Finish',col)
     # Slight shaft entasis with chamfered corners rather than a rectangular pier.
-    rings=[(.38,.091),(head*.40,.098),(head-.42,.086)];vs=[]
+    # The core continues inside the collars, joining their actual solids.
+    rings=[(.38,.091),(head*.40,.098),(head-.18,.086)];vs=[]
     for zz,r in rings:
         for j in range(8):
-            t=math.tau*(j+.5)/8;vs.append((x+r*math.cos(t),y+.005+.135*math.sin(t),zz))
+            t=math.tau*(j+.5)/8
+            xx=(-.81 if j==5 else .81)*r if j in (5,6) else r*math.cos(t)
+            vs.append((x+xx,y+.005+.135*math.sin(t),zz))
     fs=[(k*8+j,k*8+(j+1)%8,(k+1)*8+(j+1)%8,(k+1)*8+j) for k in range(2) for j in range(8)]
     fs += [tuple(reversed(range(8))),tuple(range(16,24))];b.surface='cast_shaft';b.geom(vs,fs,'Finish',col);b.surface=None
     # Bolted capitals and base flange, heads 16 mm wide, no gratuitous spheres.
     for zz in (.13,head-.20):
-        for dx in (-.095,.095):b.tube([(x+dx,y-.205,zz),(x+dx,y-.219,zz)],.010,color=col,n=6)
+        face=.18 if zz==.13 else .21
+        for dx in (-.095,.095):b.tube([(x+dx,y-face,zz),(x+dx,y-face-.014,zz)],.010,color=col,n=6)
     # Recessed long panel with raised stiles and a chamfered lower return.
     # Its shaft still has a changing octagonal section, rather than a box.
     for dx in (-.061,.061):
-        b.box((x+dx,y-.133,(head-.08)/2),(.013,.022,head-1.00),'Finish',tuple(v*1.35 for v in col))
+        b.box((x+dx,y-.129,(head-.08)/2),(.013,.022,head-1.00),'Finish',tuple(v*1.35 for v in col))
     for zz in (.47,head-.53):
-        b.box((x,y-.133,zz),(.13,.023,.035),'Finish',col)
+        b.box((x,y-.129,zz),(.13,.023,.035),'Finish',col)
     molding(b,x-.16,x+.16,.16,.19,.10,color=col)
     molding(b,x-.175,x+.175,head-.22,.23,.16,color=col)
     # Foundry plate on the base, modeled mounting and original raised type.
-    b.box((x,y-.174,.32),(.145,.012,.061),'Finish',(.13,.12,.085))
-    for dx in (-.054,.054):b.tube([(x+dx,y-.182,.32),(x+dx,y-.187,.32)],.004,color=col,n=6)
+    b.box((x,y-.146,.32),(.145,.012,.061),'Finish',(.13,.12,.085))
+    for dx in (-.054,.054):b.tube([(x+dx,y-.152,.32),(x+dx,y-.157,.32)],.004,color=col,n=6)
     from graphics import maker_rect
-    b.quad([(x-.061,y-.181,.30),(x+.061,y-.181,.30),(x+.061,y-.181,.34),(x-.061,y-.181,.34)],maker_rect())
+    b.quad([(x-.061,y-.153,.30),(x+.061,y-.153,.30),(x+.061,y-.153,.34),(x-.061,y-.153,.34)],maker_rect())

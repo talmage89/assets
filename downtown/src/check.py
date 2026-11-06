@@ -31,6 +31,25 @@ def ray(t,point,direction):
  assert hit[0] is not None,('missing physical surface',point,direction)
  return hit[0]
 
+
+def bearing_planes(obs,x,y,head):
+ # Inspect all horizontal triangles, retaining coincident opposed faces at a
+ # bearing contact; a nearest-hit ray alone would discard one of those faces.
+ levels={1:[],-1:[]};p=np.array((x,y))
+ for ob in obs:
+  ob.data.calc_loop_triangles()
+  for tri in ob.data.loop_triangles:
+   if 'Finish' not in ob.data.materials[tri.material_index].name:continue
+   q=np.asarray([ob.matrix_world@ob.data.vertices[i].co for i in tri.vertices])
+   if np.ptp(q[:,2])>1e-6 or not head-.3<q[0,2]<head+.12:continue
+   a=q[1,:2]-q[0,:2];b=q[2,:2]-q[0,:2];v=p-q[0,:2];det=a[0]*b[1]-a[1]*b[0]
+   if abs(det)<1e-12:continue
+   u=(v[0]*b[1]-v[1]*b[0])/det;w=(a[0]*v[1]-a[1]*v[0])/det
+   if u>=-1e-7 and w>=-1e-7 and u+w<=1+1e-7:levels[1 if det>0 else -1].append(float(q[0,2]))
+ capital=max(v for v in levels[1] if v<head+.01)
+ soffit=max(v for v in levels[-1] if v<head+.05)
+ return dict(capital_top_z_m=capital,girder_soffit_z_m=soffit,gap_m=soffit-capital,scope='Actual exported opposed horizontal triangle planes at the bearing, including coincident contact faces')
+
 def winding(triangles,point):
  # Jacobson/Kavan/Sorkine-Hornung 2013, oriented solid-angle sum. Coplanar
  # internal faces cancel; air in an assembled storefront is not a solid.
@@ -109,13 +128,15 @@ def audit(lot,row,do_motion=False):
  assert abs(measured_width-w)<.0001 and abs(measured_depth-d)<.0001 and abs(front_gauge-.44)<.0001,(lot['id'],measured_width,w,measured_depth,d,front_gauge)
  roofhit=ray(roof,(0,0,lot['height']+5),(0,0,-1));expected=lot['roof']-.03+.008*d/2;assert abs(roofhit.z-expected)<.001
  finish=tree(obs,'Finish');sx=-w*.20;sy=-d*.15;base_gaps=[];pane_gaps=[]
- cast_projection=None
+ cast_projection=None;cast_bearing=None
  if lot['storefront']=='iron':
   # A decorated front can still hide its entire shaft behind the masonry.
   # Measure the casting at mid-height, clear of the base, sign and capital.
   shaft=ray(finish,(w/2-.17,front-1,(lot['floor_first']-1.42)*.5),(0,1,0))
   cast_projection=front-shaft.y
   assert .14<cast_projection<.22,('cast shaft buried in masonry',lot['id'],cast_projection)
+  cast_bearing=bearing_planes(obs,w/2-.17,front-.04,lot['floor_first']-1.42)
+  assert -.001<cast_bearing['gap_m']<.001,('unsupported cast capital',lot['id'],cast_bearing)
  for xx in (sx-.65,sx+.65):
   for yy in (sy-.8,sy,sy+.8):
    membrane=ray(roof,(xx,yy,lot['height']+2),(0,0,-1))
@@ -189,7 +210,7 @@ def audit(lot,row,do_motion=False):
  return dict(id=lot['id'],passed=True,triangles=tris,materials=len(doc['materials']),gltf_bytes=path.stat().st_size,bin_bytes=len(g.binary),
   normal_length_error=normal,zero_area_triangles=zero,zero_area_uvs=uv0,reimport_error_m=err,
   construction=dict(measured_masonry_width_m=measured_width,measured_masonry_depth_m=measured_depth,measured_front_gauge_m=front_gauge,measured_door_recess_m=recess,front_plane_error_m=front_error,measured_roof_center_z_m=roofhit.z),
-  corner_lobby_floor_z_m=corner_floor,corner_entry_steps=entry_steps,corner_chamfer=chamfer,cast_shaft_projection_m=cast_projection,roof_details=roof_details,stairs=stairs,motion=sweep,sha256=hashlib.sha256(path.read_bytes()+g.binary).hexdigest())
+  corner_lobby_floor_z_m=corner_floor,corner_entry_steps=entry_steps,corner_chamfer=chamfer,cast_shaft_projection_m=cast_projection,cast_bearing=cast_bearing,roof_details=roof_details,stairs=stairs,motion=sweep,sha256=hashlib.sha256(path.read_bytes()+g.binary).hexdigest())
 
 def main():
  rows=[];blocks=[];fixtures=membership_fixtures()

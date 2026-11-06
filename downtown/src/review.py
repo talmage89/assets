@@ -1,4 +1,4 @@
-"""Ignored checkpoint sheets; no final docs are committed before approval."""
+"""Audit exported evidence and compose ignored review sheets."""
 import argparse
 import hashlib
 import json
@@ -43,6 +43,10 @@ def audit_checkpoint(folder):
  for item in hero['context']:assert hashlib.sha256(Path(item['path']).read_bytes()).hexdigest()==item['sha256']
  rgb=np.asarray(Image.open(folder/'midwest/hero.png').convert('RGB'));luma=rgb@np.asarray((.2126,.7152,.0722))
  report=dict(passed=True,views=views,pairs=pairs,hero_camera=cam,hero_display_luma_percentiles=dict(zip(('p01','p05','p50','p95','p99'),np.percentile(luma,[1,5,50,95,99]).tolist())),pixels_with_channel_255=int(np.any(rgb==255,axis=2).sum()),scope='Current exported baked geometry, camera and context provenance; PNG display values are not linear albedo measurements')
+ report['town_hero_tones']={}
+ for region in expected:
+  a=np.asarray(Image.open(folder/region/'hero.png').convert('RGB'));y=a@np.array((.2126,.7152,.0722))
+  report['town_hero_tones'][region]=dict(display_luma_percentiles=dict(zip(('p01','p05','p50','p95','p99'),np.percentile(y,[1,5,50,95,99]).tolist())),pixels_with_channel_255=int(np.any(a==255,axis=2).sum()),pixels=int(y.size))
  Path('build/render-check.json').write_text(json.dumps(report,indent=2)+'\n');print('RENDER AUDIT PASS',len(views),'Cycles views,',len(pairs),'photo pairs')
 
 def sheet(paths,out,columns=3,cell=520):
