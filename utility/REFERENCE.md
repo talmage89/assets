@@ -64,9 +64,11 @@ not wasted hidden faces. There are no climbing steps at any height.
 
 The dry checks are tapered mesh slits for the checkpoint. An 8½-foot protective
 molding follows the taper over the #6 copper grounding path, with nails,
-staples, a utility tag and a fictional 1992 birth brand. Small rooted vines
-appear on selected transformer/riser seeds. Surface checks, silvering, wet ground-line absorption, removed-sign scars and
-bolt rust are in the shared normal/color bake, without additional game geometry.
+staples, a utility tag and a fictional 1992 birth brand. The sparse vine was removed at delivery review. Surface checks, silvering,
+wet ground-line absorption, removed-sign scars and bolt rust share the
+normal/color bake. Long tapered checks also follow the spiral of the shaft
+on the existing low-cost slit geometry. Installation backfill and unmown
+grass are presentation context, outside the game budgets.
 
 ## Hardware dimensions and connections
 
@@ -175,3 +177,34 @@ roof-guy anchor plus .75 m, raised only when its own tensioned crossing needs
 it. This removes repetitive tall masts over the single-story houses while
 retaining the roof support and actual road/driveway clearances. All house
 sources/deliveries remain untouched.
+
+
+## Delivery color measurements
+
+`src/color_review.py` records exact neutral/sample rectangles and linear WB
+gains in `build/color-review/measurements.json`, with annotated inspection
+copies. These are encoded displayed appearances, not calibrated albedos.
+The two cloud neutrals are approximate achromatic daylight/fog assumptions;
+the Vermont comparator uses a sunlit white painted facade. No reference
+pixels enter the material generator.
+
+| Balanced photographic patch | sRGB bytes R / G / B | Displayed Y prime |
+| --- | --- | ---: |
+| Maryland shaded silvered shaft | 96 / 98 / 105 | .386 |
+| Foggy valley silvered shaft | 163 / 158 / 141 | .618 |
+| Vermont sunlit shaft | 149 / 142 / 132 | .559 |
+| Maryland aged tank | 110 / 118 / 130 | .460 |
+| NC upper / lower sky | 79 / 124 / 167; 184 / 198 / 200 | .460 / .764 |
+| Vermont upper / lower sky | 85 / 141 / 197; 117 / 168 / 212 | .521 / .629 |
+| Maryland upper / lower sky | 196 / 206 / 229; 211 / 213 / 220 | .805 / .835 |
+
+The source wood base is .170/.158/.150 linear before grain, knots and causal
+age; the tank starts at .235/.247/.238 before chalk/runoff. These inputs
+are reflectance choices; they are not reported as photographic measurements.
+The source shade and sunlight comparisons bracket a wide display range.
+Upper/lower photographic sky patches are image zones: the photographs do
+not establish a surveyed zenith angle. Directional procedural sky radiance
+controls the clear camera sky, separately from the desaturated hemispherical
+physical-sky fill; both use original nodes, without HDRIs. The dusk field
+adds west/northwest sunset-side warmth and fades to deeper blue overhead.
+The range controls retain their accepted neutral lighting exactly.

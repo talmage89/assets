@@ -1,19 +1,23 @@
 # Rill / wood utility poles and overhead lines
 
 Original scripted US residential distribution, maintained 1970–2010 equipment
-with 15–30 years of service age. This checkpoint adds the measured cable
-envelopes, seeded communication plant, causal surfaces, a shared Cycles-baked
-atlas and external-image glTF delivery to the accepted construction.
+with 15–30 years of service age. Reusable pole assemblies and four streets
+share one 2048 atlas through external-image glTF delivery.
 
-After `make`, inspect [the hero](renders/final/101/hero.png),
-[dusk](renders/final/101/dusk.png), [all views](renders/final/contact.jpg),
-[four streets](renders/final/four-streets.jpg),
-[construction](renders/final/construction.jpg),
+![Silvered transformer pole and lines along the street](docs/utility-hero.jpg)
+![Equipment, checks, damp ground line and sign scars](docs/utility-details.jpg)
+![Four towns, from the street and above](docs/utility-streets.jpg)
+![Reusable parts, 1.8 m scale and Eevee](docs/utility-parts.jpg)
+![Blue hour and the street-light pool](docs/utility-dusk.jpg)
+
+The utility in every final is imported from its delivered glTF and baked maps.
+After rebuilding, inspect [the complete 69-view contact sheet](renders/final/all-views.jpg),
+[the street/detail contact sheet](renders/final/contact.jpg),
+[gallery turnarounds](renders/final/gallery.jpg),
 [matched-light pairs](renders/final/matched-pairs.jpg), and
-[exact wire ranges beside photos](renders/wires/photo-distance-pairs.jpg).
-[Native before/after crops](renders/fixes/comparison.json) each retain at least
-800 pixels per panel. These are rebuilt, ignored outputs; no docs images are
-committed this round.
+[30/60/120 m wire controls beside photos](renders/wires/photo-distance-pairs.jpg).
+[Native before/after crops](renders/fixes/comparison.json) retain at least
+800 pixels per panel; the hero/dusk deliberately change composition.
 
 [REFERENCE.md](REFERENCE.md) distinguishes published dimensions from authored
 choices; [REVIEW.md](REVIEW.md) records the critique rounds and remaining
@@ -77,10 +81,10 @@ routes into contact. An independent section audit now measures at least
 
 | Seed | Town / framing | Nominal span | Communication routes | Utility triangles |
 | --- | --- | ---: | ---: | ---: |
-| 101 | Older grid, 40 ft, three-phase crossarm | 140 ft | 3 | 46,108 |
-| 102 | Postwar feeder, 35 ft, one-phase armless | 110 ft | 2 | 37,780 |
+| 101 | Older grid, 40 ft, three-phase crossarm | 140 ft | 3 | 45,804 |
+| 102 | Postwar feeder, 35 ft, one-phase armless | 110 ft | 2 | 37,628 |
 | 103 | Commercial edge, 45 ft, three-phase crossarm/bank | 185 ft | 0 | 41,734 |
-| 104 | Later suburb, 40 ft, three-phase armless, shallow jog | 160 ft | 4 | 48,420 |
+| 104 | Later suburb, 40 ft, three-phase armless, shallow jog | 160 ft | 4 | 48,116 |
 
 Each street has five poles and twelve optional service-mast attachments.
 Geometry budgets exclude presentation context. The library houses face both
@@ -91,8 +95,10 @@ heads and house windows receive a dusk presentation state. All context is
 staged under `utility/build/context/`, using the neighboring families' own
 source shaders; only utilities are delivered here as baked external glTF.
 
-The hero uses a measured 1.68 m eye above the sidewalk and 35 mm lens, with
-raking sun. Dusk uses a procedural blue-hour sky, powered heads and windows.
+The hero uses a measured 1.68 m eye above the sidewalk and 35 mm portrait,
+about eight metres from the near pole, with raking sun. The base and upper
+equipment share the frame. Dusk retains that camera, a directional blue-hour
+gradient, powered heads/windows and the pavement pool.
 No downloaded lighting or assets enter any output.
 
 Displayed line contrast is `(sky Y′ − line Y′) / sky Y′`, median of
@@ -131,7 +137,30 @@ staining retained at the bottom. Zinc ages at cut edges and seats; dielectric
 sheds retain lower-lip dust. Guard yellow fades on exposure and scuffs near
 grade. Fictional RILL/RV marks share the atlas and conform to the real facets.
 `WEAR=1` is the service-age default; it is a causal-mask strength, not a
-uniform overlay. Selected seeds retain sparse rooted vines and old staples.
+uniform overlay. Old staples, nails, their runoff and removed-sign scars remain. The sparse
+vine was removed; no leaf geometry or extra material is shipped. Ground
+backfill, rounded gravel, unmown grass, worn lawn edges, leaf litter,
+concrete variation and the photographic T corner are presentation only.
+
+Balanced photo / exported-render appearances, median encoded RGB (0–255):
+
+| Surface / light | Balanced photo | Export render | Render minus photo Y′ |
+| --- | --- | --- | ---: |
+| Shaded MD shaft | 96 / 98 / 105 | 100 / 106 / 113 | +.0265 |
+| Sunlit VT / upper shaft | 149 / 142 / 132 | 149 / 144 / 139 | +.0081 |
+| MD tank | 110 / 118 / 130 | 111 / 123 / 130 | +.0142 |
+| MD upper sky | 196 / 206 / 229 | 198 / 206 / 228 | +.0020 |
+| NC / clear hero upper sky | 79 / 124 / 167 | 79 / 124 / 167 | +.0007 |
+| NC thin-cloud / hero lower visible sky | 184 / 198 / 200 | 167 / 185 / 191 | −.0520 |
+
+NC/MD balance uses approximate achromatic clouds; VT uses sunlit white paint.
+These are display appearances under estimated light, not calibrated albedos.
+The sky patches occupy upper/lower image zones, not surveyed elevation angles;
+the lower clear hero remains darker than the photographed thin-cloud patch.
+[Measurements and neutral/patch rectangles](build/color-review/measurements.json)
+retain that residual and the intermediate sky sample. The T corner's
+[eight curb/walk joins](build/nc-corner-joins.json) are measured on actual
+built mesh-edge endpoints, separately from photographic camera fitting.
 
 | Material / parts | Maps | Why retained / draw calls |
 | --- | --- | --- |
@@ -145,28 +174,28 @@ masts; the mixed service and telecom groups each have two primitives. There
 is no armature or moving mechanism. Fixed parts can be instanced or batched
 by an engine; these counts describe ordinary imported glTF draws.
 
-| Reusable module | Triangles | BIN payload bytes | Materials / primitives |
-| --- | ---: | ---: | ---: |
-| Tangent / angle | 3,632 each | 274,704 / 274,896 | 1 / 1 |
-| Dead end | 3,056 | 223,104 | 1 / 1 |
-| Transformer pole | 6,668 | 496,056 | 1 / 1 |
-| Three-phase riser | 4,356 | 319,704 | 1 / 1 |
-| Street-light bracket pole, excluding head | 4,024 | 302,064 | 1 / 1 |
-| Crossarm module | 1,248 | 103,872 | 1 / 1 |
-| Standalone transformer module | 3,036 | 221,160 | 1 / 1 |
-| Guy / guard / anchor | 280 | 20,592 | 1 / 1 |
-| Optional service mast | 1,088 | 70,656 | 1 / 1 |
-| Placed three-can pole, seed 103 | 8,438 | 690,228 | 1 / 1 |
+| Reusable module | Triangles | Buffer bytes | Geometry memory | Materials / draws |
+| --- | ---: | ---: | ---: | ---: |
+| Tangent / angle | 3,632 each | 274,992 / 274,704 | 0.262 / 0.262 MiB | 1 / 1 |
+| Dead end | 3,056 | 223,296 | 0.213 MiB | 1 / 1 |
+| Transformer pole | 6,668 | 496,152 | 0.473 MiB | 1 / 1 |
+| Three-phase riser | 4,356 | 319,320 | 0.305 MiB | 1 / 1 |
+| Street-light bracket pole, excluding head | 4,024 | 301,344 | 0.287 MiB | 1 / 1 |
+| Crossarm module | 1,248 | 103,872 | 0.099 MiB | 1 / 1 |
+| Standalone transformer module | 3,036 | 221,160 | 0.211 MiB | 1 / 1 |
+| Guy / guard / anchor | 280 | 20,592 | 0.020 MiB | 1 / 1 |
+| Optional service mast | 1,088 | 70,656 | 0.067 MiB | 1 / 1 |
+| Placed three-can pole, seed 103 | 8,438 | 690,036 | 0.658 MiB | 1 / 1 |
 
 Per-part BIN bytes sum the actual buffer views referenced by each mesh,
 including indices and vertex attributes. Shared maps, socket metadata and
 scene JSON are counted separately below. The optional mast is a named part
 of each street package; the bank is seed 103's `P3` assembly.
 
-Optional light/communication/vine combinations differ: seed 101's fullest
-single-can pole is 7,212; the four-route armless seed 104 reaches 7,468.
+Optional light/communication combinations differ: seed 101's fullest
+single-can pole is 7,060; the four-route armless seed 104 reaches 7,316.
 The latter spends 256 more triangles on the requested extra communication
-plant. The fullest riser is 4,508, below its accepted 4,528. All blocks remain
+plant. The fullest riser is 4,356, below its accepted 4,528. All blocks remain
 below 49k, funded by tighter catenary stations and repeated mast sampling,
 with the same 8 mm/4 m curve screens. Individual tubes use 24–120 triangles
 in these layouts; `build/checks.json` records every span.
@@ -178,16 +207,21 @@ retained from the bake. Loading all five actually creates three image
 datablocks, not five independent sets. Internal `build/*.glb` checkpoints
 remain available for exact serialization checks.
 
-| Package | glTF + BIN bytes | Optional socket/curve JSON bytes |
-| --- | ---: | ---: |
-| `UtilityParts.gltf` | 2,269,663 | 19,214 |
-| `UtilityStreet-101.gltf` | 2,926,088 | 211,643 |
-| `UtilityStreet-102.gltf` | 2,422,331 | 153,086 |
-| `UtilityStreet-103.gltf` | 2,780,085 | 145,517 |
-| `UtilityStreet-104.gltf` | 3,023,912 | 240,916 |
+| Package | glTF + BIN bytes | Geometry memory | Optional socket/curve JSON bytes |
+| --- | ---: | ---: | ---: |
+| `UtilityParts.gltf` | 2,268,943 | 2.132 MiB | 19,214 |
+| `UtilityStreet-101.gltf` | 2,905,687 | 2.718 MiB | 211,643 |
+| `UtilityStreet-102.gltf` | 2,412,537 | 2.254 MiB | 153,086 |
+| `UtilityStreet-103.gltf` | 2,780,181 | 2.608 MiB | 145,517 |
+| `UtilityStreet-104.gltf` | 3,004,135 | 2.812 MiB | 240,916 |
 
-The shared PNGs total **9,375,154 bytes** (BaseColor 3,452,511, Normal 4,930,357, ORM 992,286). Count this trio once when combining packages. All five glTF/BIN geometry
-payloads total **13,422,079 bytes**; optional JSON sidecars add 770,376 bytes.
+The shared PNGs total **10,052,350 bytes** (Normal 5,194,503, ORM 1,248,177, BaseColor 3,609,670). Count them once per family.
+All glTF/BIN packages total **13,371,483 bytes**; optional sidecars add 770,376 bytes.
+
+Geometry memory is the serialized vertex/index allocation; an engine may
+repack these attributes/indices. Add the family-wide 16 MiB atlas once.
+[The full measured cost report](build/costs.json) lists every part,
+block instance and conductor group.
 
 The three maps cost **16 MiB** with three 8-bpp block-compressed maps and
 full mip chains, shared across all instances/seeds. This is an engine memory
@@ -280,10 +314,13 @@ python3 kit/repo_check.py
 
 Installed Blender 5.2, Python/NumPy/Pillow and open fonts; one Blender process
 at a time, four CPU threads, and the shared GPU lock for Cycles. Nothing is
-installed or downloaded as code. Reference cache remains through `clean`.
+installed or downloaded as code. Reference cache remains through `clean`. Native before/after rebuilding needs
+Git history containing `f824685`; absent the inspected cache, its original
+scripts are staged in utility-local scratch and rebuilt.
 `make` rebuilds original fields, the Cycles bake, parts/blocks, external
-delivery, physical/serialization checks, 22 Cycles views, three matched-light
-pairs, exact wire-range controls, Eevee hero and native before/after crops.
+delivery, physical/serialization checks, 22 Cycles street/detail views, 32 gallery turnarounds plus scale, three matched-light
+pairs, exact wire-range controls, Eevee hero and native before/after crops. `make docs` writes the five
+size-limited README JPGs after the full-size audit; no GIF is supplied.
 
 `build/checks.json` measures actual shaft sections, planting-strip footprints,
 wire surfaces, clipped road minima, interspace gaps, actual inter-route
@@ -292,10 +329,10 @@ triangle sections and roof overflight rays.
 chart allocation/density, normal/tangent validity, conforming label contact,
 socket re-import and three-image cache reuse. `build/repeat-check.json` records
 a fresh geometry export, all original fields, and independent GPU rebake.
-All five GLBs and 48 source fields reproduce byte for byte. In the final
-independent bake, BaseColor and ORM match exactly; Normal differs in one
-channel sample by one 8-bit level (RMSE .000282/255), within the stated GPU
-bake tolerance. The shipped maps remain the canonical original bake.
+`make repeat` rebuilds all five geometry packages, all 48 original fields,
+and an independent GPU bake without replacing canonical delivery maps.
+Geometry and fields must repeat byte for byte. Bake tolerance is at most
+2/255 per channel and .02/255 RMSE to allow GPU floating-point variation.
 The Eevee checkpoint losslessly packs six house-context scalar masks into
 two RGBA attributes and prunes unreachable shader branches to avoid its
 vertex-attribute limit. Measured packing roundtrip error is zero; no utility
@@ -321,11 +358,25 @@ held-out telephone-height shaft centre is **2.17 px** from the observed
 point. The portrait is native 749 × 1640; both review crops are 570 × 370.
 Upper-arm and shaft controls do not assert an exact can/case/span-layout fit.
 
-Remaining limitations: photographic can height, case placement and span
-azimuth differ from the selected construction. The close wood fibres are
-soft at the shared atlas density; fine rust and scars remain subtle in the
-full street hero. The sparse vine silhouette is angular. Four-sided tubes have a directional width compromise and need
-the far policy at distance. Helical triplex and long-span lashing are below
-this mesh budget. Repeated house/tree/pickup context, simplified lawns and
-cloudless procedural skies still read as CG. The runtime shader needs an
-engine compilation/motion-AA check. No docs images are committed this round.
+Remaining limitations: photographed equipment mounts and passing-line azimuths
+differ from the selected utility construction. The NC context is an original
+curved approach/T corner, not a survey or a copy of its houses. Gallery top
+and communication studies select unchanged exported triangles in documented
+height windows; full poles remain available in the street packages. Fine
+wood fibres are soft at shared-atlas macro density; long checks, dampness
+and fastener stains carry age at pedestrian distance. The context still
+repeats house, tree and pickup forms; NC paving/turf remain more even and
+lighter than the photographic comparator. Four-sided wires retain a directional
+width compromise, and the supplied far shader still needs an engine
+compilation/motion-AA check. Helical triplex and long-span lashing remain
+below the mesh budget. Dusk bare-wire specular samples can remain noisy.
+
+## Credits
+
+Dimensions and photographs: the published utilities/manufacturers and authors
+in [refs/SOURCES.md](refs/SOURCES.md). Photos are local measurements/comparisons;
+no photographed pixels enter geometry, shaders, maps, decals or committed docs.
+Procedural sun/sky and all meshes/texels are original scripts. Fictional RILL
+TIMBER, RILL ELECTRIC and RV IDs use installed DejaVu Sans, resolved through
+`kit/fonts.py` (open Bitstream Vera/DejaVu license). Neighboring family scripts
+supply presentation context without changing their source or delivery paths.

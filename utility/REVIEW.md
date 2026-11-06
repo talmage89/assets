@@ -533,3 +533,239 @@ remain as judged above; the listed close-wood, fine-age, context, vine and
 dusk-sample limitations remain. No kit, neighboring delivery, top-level
 README or docs image is changed. Suggested kit improvement: treat Eevee
 shader compilation errors as failure even when Blender exits zero.
+
+## Delivery pass 10 — reject the first revised framing and shaded color
+
+Color and value first: opened all five native `renders/pass10/101` images.
+The silvered base hue is closer to the photographs and the tank now holds
+mid gray with fitting runoff. Reject the strongly blue shadow fill: it
+obscures the tag-side checks and rust. Desaturate the physical sky fill and
+raise its strength, retaining the separate raking sun and closed cavities.
+The first camera-sky gradient is still too uniformly muted: increase the
+horizon radiance and darken/saturate the upper sky independently of fill.
+
+The closer hero clips the upper crossarm. Reject it; use a 35 mm portrait
+from eight metres, framing the actual base and top together. The ground
+ring is present, but the evenly spaced straight grass blades read as
+bristles. Replace them with overlapping tufts of curved, tapered blades.
+The ground-line wetting still reads too weakly on the visible face; broaden
+its azimuthal exposure and place green damp growth on that shaded front.
+Vine removal is accepted; there are no foliage quads left on the delivered
+pole. Fine wood texture remains visibly filtered at a macro distance.
+
+## Delivery pass 11 — neutral fill accepted; reject the remaining presentation artifacts
+
+Color and value first: opened native hero/base/tags/transformer/dusk, both
+local equipment fits and the full communications portrait. The neutralized
+fill preserves silvered wood instead of blue-black shadow; the tank body in
+the MD fit samples about 111/123/130 sRGB against 110/118/130 in the balanced
+photo. This is displayed appearance under estimated light, not reflectance.
+The clear hero's upper sky samples 6/78/137: its red channel is too low.
+Reject that over-saturated field and retain a continuous, lighter blue
+zenith-to-horizon gradient. The bottom edge of the transformer remains deep.
+
+The soil outline reads as a hard disk and its aggregate as pyramids. Feather
+the installation's disturbed boundary into existing turf and use rounded
+pebbles. Trimmer damage reads as soft pale spots: replace the mask with thin
+horizontal impacts. The bark macro grain is still stretched at this atlas
+density; long checks and fastener runoff carry the larger-scale information.
+The full-height portrait frames both base and equipment correctly and keeps
+the street running away beside it. The dusk pool reads on pavement; the
+large blue sky still needs azimuthal warmth from the sunset side.
+
+Reject the first NC corner: bending isolated modules leaves broken curb
+joins and the crossing surface looks pasted over them. Build one coherent
+presentation corner instead. Two additional image candidates were inspected
+and rejected as replacement street fits (slope/curve, or different parallel
+feeder construction). Preserve the accepted exported street geometry.
+
+## Delivery pass 12 — final preparation at native 1600 pixels
+
+Color and value first: opened hero, base, tags and dusk at native resolution,
+the two equipment fits/full communications portrait, and the NC street.
+The wood is gray rather than warm brown, the damp green/dark foot occupies
+the lower .6 m, and the tank has a darker underside and fitting stains.
+Retain the neutral fill. The upper camera sky still needs more saturation;
+move its blue transition to a lower elevation and brighten the horizon,
+using measured NC/VT clear patches separately from the brighter MD sky.
+
+The softened soil boundary and rounded aggregate no longer have the hard
+outline/pyramids of pass 11. Horizontal trimmer cuts, long grass tufts and
+pole wetting are visible at pedestrian distance. Their small relief and
+wood fibres remain filtered in a close crop. Give the long grain and checks
+a gentle common spiral instead of the remaining evenly vertical bands.
+The hero contains the actual base and all equipment, with a real sidewalk
+viewpoint. Dusk now varies toward the sun's side, the can stays dark, and
+the light pool reads on the paving. Isolated bare-wire sparkle remains.
+
+The NC approach now curves into a T corner and the near pickup is gone.
+Reject its black gaps: flat curb ribbons lack the vertical cast-concrete
+faces. Add those faces and restore the asphalt's actual 6.096 m source
+coverage (the draft used the concrete's 3.048 m scale). House types/setbacks
+still differ from the photograph; this is an original layout comparison,
+not a survey. The exported street/clearance geometry is untouched.
+
+Opened every tangent/dead-end gallery direction in native 800-pixel strips
+and the 1.8 m scale view. Their studio exposure is too bright for silvered
+wood; lower it .6 stop before finals. Gallery selections preserve each
+retained exported triangle's coordinates, UVs and split normals; the
+sections are explicitly documented, rather than claimed standalone crops.
+
+## Delivery pass 13 — reject a measured sky-value undershoot
+
+Color and value first: opened all twelve completed native frames from the
+first clean final batch (hero, street, above, transformer, crossarm,
+communication, dead end, anchor, service, tags, both distance versions; base
+was cancelled). The upper hero sky measures 58/107/156, Y prime .393,
+against balanced NC 79/124/167, .460. Reject the undershoot. Empty-world
+Cycles/AgX probes recover the latter exactly at the hero exposure and the
+horizon at 184/198/200. Expose photographic camera skies independently of
+their surface-light exposure; retain actual hemispherical fill and raking
+sun, and the accepted wire controls. The brighter MD sky has its own
+measured radiance field. It is sky radiance, not a reflectance/albedo value.
+
+The MD shaded shaft in pass 11/12 remains about 110/118/123 against
+96/98/105; reduce only the silvered dry-wood base to .170/.158/.150 linear,
+retaining the tank (already close), damp absorption and localized scuffs.
+The source wood stays neutral gray rather than the original warm brown.
+Macro fibres remain soft, and the context's repeated pickups and setbacks
+remain visible. The deep tank underside and warm dusk pool are retained.
+
+SIGINT cancelled a frame without stopping Blender's Python shot loop.
+Reject a cancelled render as a success: the family now requires FINISHED
+and an actual output before writing provenance. The remaining batch was
+terminated and is not delivery evidence. Rebuild cleanly again with this
+last measured correction; review every replacement at native size.
+
+## Delivery pass 14 — native export final audit
+
+Color and value first: opened all 22 replacement Cycles street/detail frames
+at native size. The clear-day upper sky now measures 79/124/167 against
+balanced NC 79/124/167. A lower unobscured patch just above the roofs reads
+167/185/191 against the photograph's thin-cloud 184/198/200; it remains
+.052 darker in displayed Y prime. These are image zones, not surveyed sky
+angles. Keep that residual explicit. The intermediate sky patch is retained
+in the measurement record, rather than silently calling it the horizon.
+The earlier linear gradient looked overcast in horizontal street views;
+clear-day saturation now develops lower in the sky while the fitted photo
+views retain their own gradients.
+
+Sunlit upper-shaft wood measures 149/144/139 against the balanced VT
+149/142/132 (.568 versus .559 Y prime): slightly cooler, within .009 in
+value. The ground-line view is wetter and darker and is not substituted for
+that dry upper-shaft comparison. The MD shaded wood and tank comparison is
+measured separately after its final photographic render. Neutral assumptions
+and every measurement rectangle remain visible in `build/color-review/`.
+
+The hero contains the near pole's entire base and top, with checks visible
+along the shaft, wetting/scuffs and backfill at its foot, and the street
+receding beside it. The tank holds gray with localized runoff and a dark
+underside. Dusk has a warmer sunset side, a blue gradient, a dark tank and
+a pavement light pool. The sparse vine is gone. All four streets and their
+above views were opened individually, as were every construction detail
+and both range-policy views.
+
+What still reads as CG: fine shaft grain and small scars are filtered at
+this shared atlas density; some long checks are stronger than their fine
+branching; grass tufts and rounded aggregate remain economical presentation
+geometry. The accepted context repeats houses and pickups, particularly
+from above. Dusk retains isolated specular samples on bare wires. These
+limits are not hidden by the contact sheet.
+
+The shared machine interrupted an earlier make batch. Completed views now
+survive subsequent interrupted jobs, and matching source/recipe/context
+receipts allow a serial batch to resume without accepting old images. The
+final 18 remaining frames were rendered together under one GPU lock; `make`
+then resumes the same clean build for the remaining evidence and gates.
+
+## Delivery pass 15 — matched-light values accepted; reject the curb joins
+
+Color and value first: opened all three photographic renders at native size,
+including the uncropped 749 × 1640 communications portrait. MD wood now
+measures 100/106/113 against balanced 96/98/105 (+.0265 Y prime); the tank
+111/123/130 against 110/118/130 (+.0142). The MD sky is 198/206/228 against
+196/206/229 (+.0020). Retain the material/light correction: silvered wood
+and gray paint are close in both value and hue without lifting cavities.
+The sunlit upper shaft comparison in pass 14 covers the second balanced
+wood photograph. The warmer, wet ground-line wood is not a dry-wood target.
+
+The NC T corner has the intended approach bend and right-hand houses, but
+the final reveals black seams at the curve joins. Reject it. The old return
+started at the un-offset centreline and its walk continuation ignored the
+walk's radial offset. Finite chord normals also pulled the first/last walk
+edges apart. Solve the return from the actual bent-ribbon endpoint/tangent,
+end both curves on the crossing curb line, continue the walk at its true
+offset, and use exact endpoint tangents. Measure all eight actual built
+curb/walk edge joins, not just their intended coordinates.
+
+The other 22 views retain their appearance; source-recipe provenance is
+refreshed by a serial export render batch under the shared GPU lock. Native
+image hashes are compared to the inspected pre-join finals, and any differing
+image is reopened. The small shared-atlas fibre/scar filtering, economical
+ground vegetation and repeated context remain the principal CG tells.
+
+## Delivery pass 16 — remove the crossing's false asphalt patch
+
+Color and value first: the native before/after sheets retain the measured
+gray shaft/tank and clear sky. The wider NC crop exposes a sharp dark
+rectangle at the crossing. Reject it. A separate construction inspection
+finds the actual main/crossing road normals already point upward, despite
+the input ribbon winding; the toolkit recalculates them. Do not infer
+shipped normals from an assumed vertex order. Two crossing-walk sheets do
+face down and are explicitly reoriented upward.
+
+The asphalt sheets overlapped coplanarly. End the approach precisely on the
+crossing edge instead, using actual mesh Y extrema to prove their domains
+meet without overlapping area. Curb/walk endpoint checks remain separate.
+The final NC pair must be reopened after this correction. This changes only
+the photographic setting, not a pole, map, line or accepted block.
+
+All 32 gallery directions, the 1.8 m scale, Eevee and the pedestrian-range
+study have now been opened at native size. Gallery top sections intentionally
+show the cut shaft's open plane; they are documented inspection selections,
+not hollow shipped poles. The 10 m study ray measures 9.87345 m to the actual
+shaft surface and 10.00000 m to its axis. Larger checks read; fibre/scar
+filtering still limits the macro surface. All nine wire control images were
+opened at native size, and `contrast.json` is byte-identical to the accepted
+f824685 control. No line appearance recalibration was introduced.
+
+`make` and the explicit `make check` passed; `make repeat` passed after an
+interrupted attempt: five geometry packages and 48 fields repeat byte for
+byte. The independent rebake is identical for BaseColor/ORM; Normal differs
+by at most 1/255, RMSE .000282/255, within the existing tolerance. The root
+repository check reports zero errors. The later paving correction changes
+none of those geometry/map inputs.
+
+## Delivery pass 17 — final acceptance and image delivery
+
+Color and value first: the final measurement table is unchanged by the
+paving-only correction. Hero foreground Y prime p1/p10/p50/p95/p99 is
+.0157/.1539/.4822/.6224/.7046; the near-white clipping fraction is .00000771.
+This is the lower 56% of the displayed hero including context, not a
+segmented utility albedo audit. The can underside and closed cavities retain
+deep shade, and highlight rolloff is preserved.
+
+Opened the corrected NC comparison again: the coplanar rectangular patch is
+gone. Actual approach minimum and crossing maximum Y both measure
+−23.076200485 m; their domains meet at an edge. The eight curb/walk endpoint
+gaps remain below .000002 m. All 22 refreshed street/detail images differ
+from the previously inspected native finals by at most one encoded channel
+level; decoded-image comparison is in the worktree's
+`build/utility-paving-image-equality.json`. No shape/material change was
+introduced outside the NC comparison.
+
+Opened all nine native before/after sheets, all five final docs JPGs, the
+matched-light sheet and the complete 69-view contact sheet. Every fix panel
+is at least 800 pixels wide without enlargement. The JPGs remain under
+1600 pixels wide and 200,000 bytes, and the last pure review run reproduces
+the inspected docs byte for byte. Docs are committed only after this audit.
+
+Remaining CG tells: filtered fine wood fibres/scars, economical grass and
+aggregate, repeated house/tree/pickup forms, a more even and lighter NC
+pavement/turf response than the photograph, estimated camera/light and
+equipment-placement differences, and isolated dusk bare-wire sparkle. The
+upper/lower photo sky zones have no surveyed elevations; the lower clear
+hero remains .052 Y prime below the thin-cloud comparator. Gallery section
+cuts and the uncompiled engine far-shader example are documented limits.
+The utility itself remains within its accepted geometry/material/texture
+budgets. No kit or neighboring source/delivery was changed.

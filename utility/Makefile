@@ -1,5 +1,5 @@
 .DELETE_ON_ERROR:
-# Baked family checkpoint. Docs are deliberately not generated this round.
+# Final shared-image utility family; all Blender jobs run serially.
 WIDTH ?= 1600
 SAMPLES ?= 64
 BAKE_SIZE ?= 4096
@@ -13,9 +13,14 @@ CHECKPOINT_DEPS := $(addprefix src/,build.py construction.py plan.py span.py cab
 CHECKPOINT_CHECK = $(PYTHON) -m unittest discover -s src -p 'test_*.py' -v
 CHECKPOINT_REVIEW = $(PYTHON) src/review.py --renders renders/final
 CHECKPOINT_OUT := renders/final
-CHECKPOINT_RENDER_OUTPUTS := $(foreach s,101 102 103 104,$(foreach v,street above,renders/final/$(s)/$(v).png)) $(addprefix renders/final/101/,$(addsuffix .png,hero transformer crossarm communication deadend anchor service base tags distance distance_filtered dusk)) renders/final/103/bank.png renders/final/103/riser.png
+FINAL_IMAGES := $(foreach s,101 102 103 104,$(foreach v,street above,renders/final/$(s)/$(v).png)) $(addprefix renders/final/101/,$(addsuffix .png,hero transformer crossarm communication deadend anchor service base tags distance distance_filtered dusk)) renders/final/103/bank.png renders/final/103/riser.png
+# Individual jobs keep completed images when the shared machine interrupts a
+# later process. The kit's concluding batch only validates/skips current views.
+CHECKPOINT_RENDER_OUTPUTS := renders/final/.stamp
 include ../kit/checkpoint_rules.mk
 BP += -t 4
+export PYTHONDONTWRITEBYTECODE := 1
+all: docs
 
 build/look-parameters.txt: FORCE
 	@mkdir -p build $(TMPDIR)
@@ -34,17 +39,21 @@ context: build/context.json
 $(DELIVERIES) build/delivery.json &: $(CHECKPOINT_OUTPUTS) src/deliver.py $(MAPS)
 	$(PYTHON) src/deliver.py
 export: $(DELIVERIES) build/delivery.json
-$(CHECKPOINT_RENDER_OUTPUTS): $(DELIVERIES) src/ribbon.py src/context.py
+$(FINAL_IMAGES): $(DELIVERIES) src/render.py src/ribbon.py src/context.py src/setting.py build/checkpoint-render-parameters.txt
+	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --out renders/final --width $(WIDTH) --samples $(SAMPLES) --seeds $(notdir $(patsubst %/,%,$(dir $@))) --shots $(basename $(notdir $@))
+$(CHECKPOINT_RENDER_OUTPUTS): $(FINAL_IMAGES)
+render: $(FINAL_IMAGES)
 check: check-surfaces
 check-surfaces: export
 	$(BP) --python src/check.py
 	$(BP) --python src/check_delivery.py
 	$(BP) --python src/render.py -- --validate-only
+	$(PYTHON) src/costs.py > build/costs.log
 
 build/matched-cameras.json: src/photo_matches.py $(CHECKPOINT_OUTPUTS)
 	$(PYTHON) src/photo_matches.py $@
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration $@
-renders/matches/.stamp: build/matched-cameras.json $(DELIVERIES) src/render.py src/ribbon.py build/checkpoint-render-parameters.txt
+renders/matches/.stamp: build/matched-cameras.json $(DELIVERIES) src/render.py src/ribbon.py src/setting.py build/checkpoint-render-parameters.txt
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --out renders/matches --width $(WIDTH) --samples $(SAMPLES) --seeds 101,104 --camera-file build/matched-cameras.json
 	$(PYTHON) src/photo_matches.py --crop build/matched-cameras.json renders/matches build/matched-pairs.json
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/matched-pairs.json --renders renders/matches --out renders/matches
@@ -55,7 +64,7 @@ renders/wires/.stamp: $(DELIVERIES) src/wire_review.py src/ribbon.py src/render.
 	$(PYTHON) src/wire_review.py measure
 	@touch $@
 wire-review: renders/wires/.stamp
-renders/final-eevee/101/hero.png: $(DELIVERIES) src/render.py src/ribbon.py src/eevee.py
+renders/final-eevee/101/hero.png: $(DELIVERIES) src/render.py src/ribbon.py src/eevee.py src/setting.py
 	$(KIT)/with_gpu.sh $(BP) --python src/eevee.py -- --out renders/final-eevee --width $(WIDTH) --samples $(SAMPLES) > build/eevee-render.log 2>&1
 	$(PYTHON) -c "from pathlib import Path; s=Path('build/eevee-render.log').read_text(errors='replace'); assert 'Error: C' not in s and 'Shader compilation error' not in s; print('EEVEE SHADERS PASS')"
 final-eevee: renders/final-eevee/101/hero.png
@@ -64,6 +73,21 @@ renders/fixes/.stamp: $(DELIVERIES) $(CHECKPOINT_RENDER_OUTPUTS) renders/matches
 	@touch $@
 before-after: renders/fixes/.stamp
 review: matches wire-review final-eevee before-after
+GALLERY_PARTS := tangent-top deadend-guy transformer-top bank riser light-bracket crossarm splice-case
+GALLERY_OUTPUTS := $(foreach p,$(GALLERY_PARTS),$(foreach v,front side back top,renders/gallery/$(p)-$(v).png)) renders/gallery/scale-front.png
+review: gallery
+review: wear-review
+renders/wear/101/wood_10m.png: $(DELIVERIES) src/render.py src/setting.py
+	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --out renders/wear --seeds 101 --shots wood_10m --width $(WIDTH) --samples $(SAMPLES)
+.PHONY: wear-review
+wear-review: renders/wear/101/wood_10m.png
+renders/gallery/.stamp $(GALLERY_OUTPUTS) &: $(DELIVERIES) src/gallery.py src/gallery_views.py
+	$(KIT)/with_gpu.sh $(BP) --python src/gallery.py -- --width 800 --samples 48
+	@touch $@
+.PHONY: gallery docs
+gallery: renders/gallery/.stamp $(GALLERY_OUTPUTS)
+docs: review
+	$(PYTHON) src/review.py --renders renders/final --docs
 repeat: export
 	$(PYTHON) src/repeat.py --blender "$(BLENDER)"
 .PHONY: clean-family
