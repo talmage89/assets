@@ -33,7 +33,22 @@ def roof(a,name,w,d,eave,kind,upper_openings=(),base=0,endcaps=(True,True),galle
             m.box((0,yy(bottom),bottom),(w+.65,.075,.10),'Trim',r=.002)
         for sx in (-1,1):
             if not endcaps[0 if sx<0 else 1]:continue
-            m.prism([(sx*(w/2+.30),-d/2-(1.92 if gallery else .47),bottom),(sx*(w/2+.30),d/2+.47,bottom),(sx*(w/2-.20),d/2-.33,top),(sx*(w/2-.20),-d/2-(1.12 if gallery else -.33),top)],(-sx,0,0),.06,'Shingles')
+            holes=[q for q in upper_openings if q['side']==sx*2]
+            yl=-d/2-(1.92 if gallery else .47);yr=d/2+.47
+            ys=sorted({yl,yr,*[q['x']+s*(q['w']/2+.12) for q in holes for s in (-1,1)]})
+            zs=sorted({bottom,top,*[max(bottom,min(top,q['z']+s*(q['h']/2+.09))) for q in holes for s in (-1,1)]})
+            def xx(z):return sx*(w/2+.30-.50*(z-bottom)/(top-bottom))
+            def edge_y(y,z):return y+(.80 if y==yl else -.80 if y==yr else 0)*(z-bottom)/(top-bottom)
+            for y0,y1 in zip(ys,ys[1:]):
+                for z0,z1 in zip(zs,zs[1:]):
+                    y,z=(y0+y1)/2,(z0+z1)/2
+                    if any(abs(y-q['x'])<q['w']/2+.12-1e-6 and abs(z-q['z'])<q['h']/2+.09-1e-6 for q in holes):continue
+                    m.prism([(xx(z0),edge_y(y0,z0),z0),(xx(z0),edge_y(y1,z0),z0),(xx(z1),edge_y(y1,z1),z1),(xx(z1),edge_y(y0,z1),z1)],(-sx,0,0),.06,'Shingles')
+            for q in holes:
+                zl=max(bottom,q['z']-q['h']/2-.09);zh=min(top,q['z']+q['h']/2+.09)
+                for sy in (-1,1):
+                    yy=q['x']+sy*(q['w']/2+.12)
+                    m.prism([(xx(zl),yy,zl),(sx*(w/2+.03),yy,zl),(sx*(w/2+.03),yy,zh),(xx(zh),yy,zh)],(0,-sy,0),.025,'Trim')
         m.box((0,-.725 if gallery else 0,top-.015),(w-(.40 if all(endcaps) else 0),d+(.79 if gallery else -.66),.08),'Trim',(.055,.053,.045),r=0)
         m.box((0,-.725 if gallery else 0,top+.04),(w-(.28 if all(endcaps) else 0),d+(.91 if gallery else -.54),.06),'Trim',(.12,.115,.10),r=.002)
     else:
@@ -177,6 +192,7 @@ def garden_module(p,parent,name,loc=(0,0,0),yaw=0,materials=None):
             for j,yy in enumerate((-d*.29,d*.29)):
                 os.append(dict(x=yy,w=1.27,h=1.27,z=f*fh+1.50))
                 window(a,f'End_{sx}_{f}_{j}',(sx*(w/2+.025),yy,base+f*fh+1.50),1.22,1.2192,90 if sx>0 else -90,seed=p['seed']+j+f)
+                if f==floors-1:upper.append(dict(x=yy,w=1.27,h=1.27,z=base+f*fh+1.5,side=sx*2))
         end_depth=d+(2*segments[-1][2] if sx>0 else 2*segments[0][2])
         panel_wall(a,'End_wall_'+str(sx),end_depth,floors*fh,(sx*w/2,0,base),90 if sx>0 else -90,os,p['skin'])
     if p['access']=='breezeway':
@@ -209,7 +225,7 @@ def garden_module(p,parent,name,loc=(0,0,0),yaw=0,materials=None):
     a.socket('Front_walk',(0,-d/2-(1.76 if p['access']=='breezeway' else offset(0)+.30),0));a.socket('Rear_walk',(0,d/2+offset(0)+.3,0),yaw=180)
     if p['roof']=='mansard':
         if p['access']=='breezeway':
-            upper=[q for q in upper if q['side']>0]
+            upper=[q for q in upper if q['side']!=-1]
             upper += [dict(x=-w/2+(j+.5)*unitwidth,w=unitwidth-1.35,h=2.20,z=base+fh+1.14,side=-1) for j in range(4)]
         roof(a,'Roof',w,d,eave,p['roof'],upper,base,gallery=p['access']=='breezeway')
     else:
@@ -271,7 +287,7 @@ def townhouse(p,name='Townhouses',parent=None,materials=None):
         openings.append(dict(x=dx,w=.9652,h=2.10,z=1.05))
         if p['garage']:openings.append(dict(x=-w*.16,w=2.54,h=2.16,z=1.08))
         else:openings.append(dict(x=wx,w=2.1844,h=1.37,z=1.48))
-        for xx in (-w*.26,w*.22):
+        for xx in ((-w*.19,w*.29) if p['garage'] else (-w*.26,w*.22)):
             openings.append(dict(x=xx,w=1.27,h=1.37,z=fh+1.43))
             window(unit,f'Upper_{i}_{xx}',(xx,-d/2-.03-(1.0 if p['garage'] and xx<0 else 0),base+fh+1.43),1.22,1.32,seed=p['seed']+i,replacement=u['window_replaced'])
             if p['garage']:
@@ -303,7 +319,7 @@ def townhouse(p,name='Townhouses',parent=None,materials=None):
             ret=unit.mesh('Garage_bay_returns',component='wall')
             for xx in (-w/2,split):ret.box((xx,-d/2-.5,base+h/2),(.20,1.0,h),'Veneer' if i%2==0 else 'Siding',r=0)
             ret.finish()
-        else:panel_wall(unit,'Front',w,h,(0,-d/2,base),0,openings,'brick' if p['skin']=='brick' else 'siding')
+        else:panel_wall(unit,'Front',w,h,(0,-d/2,base),0,openings,'brick' if p['skin']=='brick' else 'mixed' if p['skin']=='mixed' else 'siding')
         door(unit,'Entry',(dx,-d/2-.025,base+.02),number=num,replaced=u['door_replaced'])
         if p['garage']:
             group=unit.root.name+'_Garage';hpanel=2.11/4
@@ -341,7 +357,9 @@ def townhouse(p,name='Townhouses',parent=None,materials=None):
         for xx in (-w*.26,w*.22):rear.append(dict(x=xx,w=1.27,h=1.37,z=fh+1.43))
         panel_wall(unit,'Rear',w,h,(0,d/2,base),180,[dict(q,x=-q['x']) for q in rear],'siding')
         sliding(unit,'Rear_slider',(-w*.20,d/2+.025,base+1.016),180,seed=p['seed']+i)
-        for j,q in enumerate(rear[1:]):window(unit,'Rear_window_'+str(j),(q['x'],d/2+.025,base+q['z']),q['w']-.05,q['h']-.05,180,seed=i+j*3)
+        for j,q in enumerate(rear[1:]):
+            window(unit,'Rear_window_'+str(j),(q['x'],d/2+.025,base+q['z']),q['w']-.05,q['h']-.05,180,seed=i+j*3)
+            if q['z']>fh:upper.append(dict(x=q['x'],w=q['w'],h=q['h'],z=base+q['z'],side=1))
         # Stepped units expose actual narrow wall returns; interior party-wall
         # portions are skipped, with only the end units carrying full side walls.
         for sx in (-1,1):

@@ -21,13 +21,32 @@ def panel_wall(a,name,width,height,origin,yaw,openings,skin='mixed',band=2.7432,
     zs=sorted({0,height,min(height,band),*[max(0,min(height,o['z']+side*o['h']/2)) for o in openings for side in (-1,1)]})
     # Coincident construction lines can differ by floating arithmetic.
     xs=sorted({round(v,6) for v in xs});zs=sorted({round(v,6) for v in zs})
-    for x0,x1 in zip(xs,xs[1:]):
-        for z0,z1 in zip(zs,zs[1:]):
+    filled={}
+    for i,(x0,x1) in enumerate(zip(xs,xs[1:])):
+        for j,(z0,z1) in enumerate(zip(zs,zs[1:])):
             if min(x1-x0,z1-z0)<1e-6:continue
             x,z=(x0+x1)/2,(z0+z1)/2
             if any(abs(x-o['x'])<o['w']/2-1e-6 and abs(z-o['z'])<o['h']/2-1e-6 for o in openings):continue
-            role='Veneer' if skin in ('brick','stone') or (skin=='mixed' and z<band) else 'Siding'
-            m.box((x,thick/2,z),(x1-x0,thick,z1-z0),role,r=0)
+            filled[i,j]='Veneer' if skin in ('brick','stone') or (skin=='mixed' and z<band) else 'Siding'
+    # A connected gauged shell, not one closed box per grid rectangle. Only
+    # rough openings and the wall perimeter receive returns; internal grid
+    # boundaries carry no hidden duplicate faces. The same visible surfaces
+    # retain their material courses and physical thickness.
+    from geometry import ROLES
+    indices={}
+    def vertex(p):
+        if p not in indices:
+            indices[p]=len(m.v);m.v.append(p);m.col.append((*a.colors['Siding'],1))
+        return indices[p]
+    def face(points,role):m.f.append(tuple(vertex(p) for p in points));m.mat.append(ROLES.index(role))
+    for (i,j),role in filled.items():
+        x0,x1=xs[i:i+2];z0,z1=zs[j:j+2]
+        front=[(x0,0,z0),(x1,0,z0),(x1,0,z1),(x0,0,z1)]
+        back=[(x,y+thick,z) for x,y,z in front]
+        face(front,role);face(list(reversed(back)),role)
+        for edge,neighbor in ((0,(i,j-1)),(1,(i+1,j)),(2,(i,j+1)),(3,(i-1,j))):
+            if neighbor in filled:continue
+            nxt=(edge+1)%4;face([front[edge],back[edge],back[nxt],front[nxt]],role)
     oriented(m,origin,yaw).finish();return m
 
 
@@ -140,7 +159,7 @@ def balcony(a,name,x,y,z,w=3.3,depth=1.524,sign=-1,seed=0,support_base=0,recesse
         m.box((x,cy,z+.40),(.44,.43,.025),'Trim',(.17,.20,.15),r=.008)
         m.box((x,cy+.25,z+.65),(.44,.03,.35),'Trim',(.17,.20,.15),r=.01)
     if seed%4==1:
-        m.tube([(x+w*.27,cy,z),(x+w*.27,cy,z+.24)],.16,'Veneer',(.21,.105,.055),sides=10)
+        m.tube([(x+w*.27,cy,z),(x+w*.27,cy,z+.24)],.16,'Trim',(.21,.105,.055),sides=10)
         for j in range(6):
             t=j*math.tau/6;m.beam((x+w*.27,cy,z+.22),(x+w*.27+.12*math.cos(t),cy+.12*math.sin(t),z+.55),.025,.02,'Trim',(.10,.17,.055),r=0)
     if z>1 and seed%4==0:

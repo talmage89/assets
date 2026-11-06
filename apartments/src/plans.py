@@ -30,7 +30,7 @@ def garden(seed=301,**overrides):
     d['recessed']=overrides.get('recessed',seed==305)
     if seed==305:
         d.update(era=1976,floors=2,access='enclosed',skin='mixed',roof='mansard',shape='straight')
-        d['unit_width_ft']=38;d['unit_depth_ft']=16
+        d['unit_width_ft']=38
     d['articulation']=overrides.get('articulation',random.Random(seed+811).choice((.6096,.9144,1.2192)))
     d.update(seed=seed,color=copy.deepcopy(overrides.get('color',PALETTES[i])),floor_height=9*FT,wall=.254)
     if i==3:d['color']['siding']=(.16,.29,.23)
