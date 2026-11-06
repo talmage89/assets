@@ -329,3 +329,53 @@ All delivered graphics, meshes and materials are original. References are
 inspection only, never projected/traced/baked. The open fonts and all photo /
 municipal/manufacturer credits are listed in `refs/SOURCES.md`. This completion
 adds no shared kit functionality; it uses the existing opt-in tiling pipeline.
+
+## Arterial form checkpoint (signals family)
+
+An additive, separately named library is available with make arterial:
+export/ArterialCheckpoint.glb. It adds a three-lane 33 ft / 10.0584 m crowned
+road, a matching rounded intersection, double yellow and lane dashes, an
+exclusive turn arrow and through arrow, 24 inch stop bar, 18 inch high
+visibility crosswalk bars and 6 ft sealed detector loop cuts. The 11 ft lane
+choice and original arrow outlines are authored. The MUTCD 2009 Part 3 supplies
+the marking conventions; see ../signals/REFERENCE.md and its source register.
+The native 15 ft returns, curb/gutter profile, 5 ft walk and accessible ramps
+are placed around the wider port without scaling. Road skins retain native
+asphalt images; paint/sealant have quick checkpoint materials pending review.
+Every existing delivery remains unchanged. This separate checkpoint does not
+claim baked arterial markings or final delivery verification.
+
+The signal family's road additions stay separate from the native ground
+export. `make -C ../signals arterial` builds `export/ArterialSites.glb` from
+`src/junction.py`: parameterized two-/five-lane widths, circular returns,
+walks/verges, detector cuts and crossings, a raised median with turn-bay taper
+and rounded nose, and a rounded channelizing island. The four supplied junction
+roots are authored in the signals family's `src/layout.py`; the generator also
+accepts a JSON specification via `--spec` and an explicit `--out`. None of the
+native Ground GLB or shipped map bytes is replaced. These additive road modules
+are independent of the ground family's original delivery and checks.
+
+Each new module covers 100 m out from its center and is separately rooted;
+markings and joints stop at that extent. Actual retained vertices are checked
+against it before export. The four road assemblies are 6,243 / 4,050 / 6,448 /
+2,770 triangles (201–204), including their walks, corners and markings. These
+are assemblies, not single repeated road sections. Presentation can request
+a longer extent from the same grammar.
+
+The final signal presentation adds `src/junction_surfaces.py`: absorbed oil
+center bands at queues, dark tire tracks, separate .74 tire-polished/.96 dry
+roughness, wheel-abraded paint, unequal routed crack seals and one utility
+repair per site. The sparse approach grids carry this in stock glTF vertex
+colors; canonical Ground image bytes remain unchanged and no map is added.
+Each approach stays within the 2,000-triangle modular-piece budget; the totals
+above include several approaches plus corners, walks and medians. The export
+records actual triangle counts per piece before consolidating each placement
+assembly. `signals/src/check_arterial.py` independently ray-probes actual
+imported cuts, lead-ins, flush pull-box lids and repairs. FHWA-HRT-06-139 (2006),
+volume II chapter 5 and appendix J, supplies detector installation references;
+see [the signal reference register](../signals/refs/SOURCES.md).
+
+The signal final value audit sets the unsoiled dry-aggregate tint to .95; queue
+oil and wheel-path masks darken it locally. Its nominal curbside comparison
+uses actual imported asphalt hits and sun-path probes, with camera/light
+limitations recorded by the signals family. This changes only ArterialSites.
