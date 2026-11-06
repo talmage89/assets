@@ -399,13 +399,9 @@ def reduce_screen(attrs,faces,ratio,meters_per_pixel,feature_pixels=1.5,rebake=F
     if rebake:
         a,f,row=simplify_parts(aa,ff,ratio,meters_per_pixel*surface_pixels,uv_limit,False,screen_space=True,rebake=True)
         return a,f,dict(status=row['status'],triangles=len(f),removed_features=removed,component_trials=row)
-    # The render check decides whether omitted features matter. Surface samples
-    # constrain the retained structure, never the distance to an omitted screw.
-    for rr in [ratio,ratio+(1-ratio)*.25,ratio+(1-ratio)*.5]:
-        a,f,row=simplify(aa,ff,rr,meters_per_pixel*surface_pixels,max_uv_error=uv_limit,screen_space=True,rebake=rebake)
-        trials.append(row)
-        if row['status']=='simplified':break
-    return a,f,dict(status='simplified',triangles=len(f),removed_features=removed,trials=trials)
+    from kit.lod_shared import reduce
+    a,f,row=reduce(aa,ff,ratio,meters_per_pixel,uv_limit,surface_pixels=surface_pixels)
+    return a,f,dict(status=row['status'],triangles=len(f),removed_features=removed,component_trials=row)
 
 
 def uv_budget(attrs,faces,meters_per_pixel,texture_size):

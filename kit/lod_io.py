@@ -266,3 +266,51 @@ class Document:
                              struct.pack('<II',len(js),0x4e4f534a)+js+
                              struct.pack('<II',len(binary),0x004e4942)+binary)
         else: raise ValueError('Expected .glb or .gltf')
+
+
+def residency(levels):
+    """Whole-chain allocation with canonical images keyed by complete SHA-256.
+
+    Engines must bind intermediate primitives to LOD0's material resources.
+    A file loader's private embedded-image cache is not sufficient for this.
+    The camera-facing alternative is a separate choice, not part of the fixed chain.
+    """
+    source={i['sha256']:i for i in levels[0]['images']};images=dict(source);unexpected=[];bindings=[]
+    for row in levels[1:]:
+        proxy=bool(row.get('proxy') or row.get('impostor'))
+        for index,im in enumerate(row['images']):
+            h=im['sha256'];images[h]=im
+            if not proxy and h not in source:unexpected.append(dict(level=row['level'],image=index,sha256=h))
+            if h in source:bindings.append(dict(level=row['level'],image=index,lod0_image=next(j for j,i in enumerate(levels[0]['images']) if i['sha256']==h),sha256=h))
+    textures=sum(i['compressed_mip_bytes'] for i in images.values());base=sum(i['compressed_mip_bytes'] for i in source.values())
+    mesh=sum(r['mesh_gpu_bytes'] for r in levels);base_mesh=levels[0]['mesh_gpu_bytes']
+    return dict(texture_gpu_bytes=textures,mesh_gpu_bytes=mesh,total_gpu_bytes=textures+mesh,
+                lod0_texture_gpu_bytes=base,lod0_mesh_gpu_bytes=base_mesh,lod0_total_gpu_bytes=base+base_mesh,
+                proxy_texture_gpu_bytes=sum(i['compressed_mip_bytes'] for h,i in images.items() if h not in source),
+                additional_mesh_gpu_bytes=mesh-base_mesh,unexpected_intermediate_images=unexpected,
+                passed=not unexpected,canonical_image_bindings=bindings,
+                resource_policy='Bind LOD1/2 to LOD0 material/image resources; content hashes identify embedded/external copies. Sum all mesh levels and unique images; excludes optional alternative impostor and engine overhead.')
+
+
+def shared_material_bindings(source,target):
+    """Canonical material resources, resolving compacted texture/image indices."""
+    def signature(doc,material):
+        def visit(value,key=''):
+            if isinstance(value,list):return [visit(v) for v in value]
+            if not isinstance(value,dict):return value
+            result={k:visit(v,k) for k,v in value.items()}
+            if key.endswith('Texture') and 'index' in value:
+                texture=copy.deepcopy(doc.data['textures'][value['index']])
+                texture['source']=hashlib.sha256(doc.image(texture['source'])).hexdigest()
+                if 'sampler' in texture:texture['sampler']=doc.data['samplers'][texture['sampler']]
+                result['index']=texture
+            return result
+        return json.dumps(visit(material),sort_keys=True,separators=(',',':'))
+    known={}
+    for i,material in enumerate(source.data.get('materials',[])):known.setdefault(signature(source,material),i)
+    bindings=[]
+    for i,material in enumerate(target.data.get('materials',[])):
+        key=signature(target,material)
+        if key not in known:raise ValueError('Intermediate material is not an unchanged LOD0 resource: '+material.get('name',str(i)))
+        bindings.append(dict(material=i,lod0_material=known[key],name=material.get('name','')))
+    return bindings

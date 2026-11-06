@@ -16,11 +16,11 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
-from kit.lod_io import Document, digest, distance
+from kit.lod_io import Document, digest, distance, residency, shared_material_bindings
 
 
 def tool_digests():
-    names=('lod.py','lod_io.py','lod_foliage.py','lod_mesh.py','lod_scene.py','lod_layout.py','lod_gpu.py','lod_atlas.py','lod_transfer.py','lod_impostor_fit.py','lod_impostor.py','lod_render.py','foliage.py',
+    names=('lod_shared.py','lod.py','lod_io.py','lod_foliage.py','lod_mesh.py','lod_scene.py','lod_layout.py','lod_gpu.py','lod_atlas.py','lod_transfer.py','lod_impostor_fit.py','lod_impostor.py','lod_render.py','foliage.py',
            'detachable_textures.py','image_io.py')
     return {name:digest(ROOT/'kit'/name) for name in names}
 
@@ -132,23 +132,27 @@ def build(config):
         elif cfg.get('screen_space'):
             from kit.lod_mesh import reduce_screen,uv_budget
             assembly=merge_static(doc,cfg.get('protected_nodes',[]),cfg.get('include_nodes',[]))
-            if spec.get('static_shell'):assembly['shells']=shell_static(doc,spec['ratio'],meters_per_pixel)
-            static_meshes={n['mesh'] for n in doc.data['nodes'] if 'mesh' in n and n.get('extras',{}).get('lod_static_shell')}
-            for mi,pi,p in doc.primitives():
-                attrs,faces=doc.arrays(p)
-                mat=doc.data.get('materials',[])[p.get('material',0)]
-                if mi in static_meshes:
-                    reports.append(dict(mesh=mi,primitive=pi,status='static shell',triangles=len(faces)));continue
-                if mat.get('alphaMode') in ('MASK','BLEND') or (any(k.startswith(('JOINTS_','WEIGHTS_')) for k in attrs) and not spec.get('rebake')):
-                    row=dict(status='retained',reason='alpha/skin retained',triangles=len(faces))
-                else:
-                    budgets=uv_budget(attrs,faces,meters_per_pixel,spec.get('texture_size',2048))
-                    new,tri,row=reduce_screen(attrs,faces,spec['ratio'],meters_per_pixel,
-                         cfg.get('feature_pixels',1.5),rebake=spec.get('rebake',False),uv_limit=min((b['normalized_tolerance'] for b in budgets.values()),default=1),
-                         surface_pixels=spec.get('surface_pixels',cfg.get('max_surface_pixels',.75)))
-                    row['uv_budgets']=budgets
-                    doc.replace(p,new,tri)
-                reports.append(dict(mesh=doc.data['meshes'][mi].get('name',str(mi)),primitive=pi,**row))
+            if not spec.get('rebake'):
+                from kit.lod_shared import meshes
+                reports=meshes(doc,spec['ratio'],meters_per_pixel,cfg.get('feature_pixels',1.5),spec.get('surface_pixels',cfg.get('max_surface_pixels',.75)))
+            else:
+                if spec.get('static_shell'):assembly['shells']=shell_static(doc,spec['ratio'],meters_per_pixel)
+                static_meshes={n['mesh'] for n in doc.data['nodes'] if 'mesh' in n and n.get('extras',{}).get('lod_static_shell')}
+                for mi,pi,p in doc.primitives():
+                    attrs,faces=doc.arrays(p)
+                    mat=doc.data.get('materials',[])[p.get('material',0)]
+                    if mi in static_meshes:
+                        reports.append(dict(mesh=mi,primitive=pi,status='static shell',triangles=len(faces)));continue
+                    if mat.get('alphaMode') in ('MASK','BLEND') or (any(k.startswith(('JOINTS_','WEIGHTS_')) for k in attrs) and not spec.get('rebake')):
+                        row=dict(status='retained',reason='alpha/skin retained',triangles=len(faces))
+                    else:
+                        budgets=uv_budget(attrs,faces,meters_per_pixel,spec.get('texture_size',2048))
+                        new,tri,row=reduce_screen(attrs,faces,spec['ratio'],meters_per_pixel,
+                             cfg.get('feature_pixels',1.5),rebake=spec.get('rebake',False),uv_limit=min((b['normalized_tolerance'] for b in budgets.values()),default=1),
+                             surface_pixels=spec.get('surface_pixels',cfg.get('max_surface_pixels',.75)))
+                        row['uv_budgets']=budgets
+                        doc.replace(p,new,tri)
+                    reports.append(dict(mesh=doc.data['meshes'][mi].get('name',str(mi)),primitive=pi,**row))
         else:
             for mi,pi,p in doc.primitives():
                 attrs,faces=doc.arrays(p)
@@ -184,13 +188,16 @@ def build(config):
         row=dict(level=li,path=filename,screen_height=switch,pixels_1080=switch*1080,
                  distance_m=dist,target_triangles=target,surface_tolerance_m=max_error,
                  meters_per_pixel=meters_per_pixel,rebaked=bool(spec.get('rebake')),proxy=bool(spec.get('proxy')),
-                 assembly=assembly,leaf_cards=bool(spec.get('leaf_cards')),target_met=stats['triangles']<=target,**stats)
+                 shared_maps=not bool(spec.get('rebake') or spec.get('proxy')),assembly=assembly,leaf_cards=bool(spec.get('leaf_cards')),target_met=stats['triangles']<=target,**stats)
+        if row['shared_maps']:row['canonical_material_bindings']=shared_material_bindings(Document(source),Document(path))
         analysis.append(dict(level=li,primitives=reports))
         row['sha256']=digest(path);manifest['levels'].append(row)
         print('LOD',li,stats['triangles'],'target',row['target_triangles'],flush=True)
     if Document(source).dependencies()!=baseline:raise ValueError('LOD0 changed during build')
+    if tool_digests()!=manifest['tools']:raise ValueError('LOD tool changed during build; rerun with a stable recipe')
     report_dir=root/'build/lod'/cfg.get('name',source.stem);report_dir.mkdir(parents=True,exist_ok=True)
     (report_dir/'simplification.json').write_text(json.dumps(analysis,indent=2,allow_nan=False)+'\n')
+    manifest['resident']=residency(manifest['levels'])
     (out/'manifest.json').write_text(json.dumps(manifest,indent=2,allow_nan=False)+'\n')
     print('LOD manifest',out/'manifest.json',flush=True)
 
@@ -207,6 +214,8 @@ def check(config, require_renders=True):
     if digest(config)!=m['config_sha256']:errors.append('stale configuration')
     if m.get('tools')!=tool_digests():errors.append('stale LOD tool recipe')
     for mi,pi,p in base.primitives(): original[mi,pi]=topology(*base.arrays(p))[0]
+    if m.get('resident')!=residency(m['levels']):errors.append('stale resident memory accounting')
+    if not residency(m['levels'])['passed']:errors.append('intermediate levels add texture allocations')
     reports=[]
     for row in m['levels'][1:]+[a for r in m['levels'] for a in r.get('alternatives',[])]:
         path=out/row['path'];doc=Document(path);stats=doc.stats()
@@ -217,7 +226,7 @@ def check(config, require_renders=True):
             expected=copy.deepcopy(base.data['nodes'])
             for n in expected:n.pop('mesh',None)
             if doc.data['nodes'][:-1]!=expected:errors.append('impostor lost original transform nodes')
-        elif row.get('rebaked') or row.get('proxy'):
+        elif row.get('rebaked') or row.get('proxy') or row.get('assembly'):
             def frame(node):
                 n=copy.deepcopy(node);n.pop('mesh',None)
                 if row.get('proxy'):n.pop('skin',None)
@@ -229,25 +238,28 @@ def check(config, require_renders=True):
         else:
             if doc.data['nodes']!=base.data['nodes']:errors.append('node names/pivots/extras/hierarchy changed')
             if doc.data.get('materials')!=base.data.get('materials'):errors.append('material boundaries/settings changed')
+        if row.get('shared_maps') and doc.data.get('materials')!=base.data.get('materials'):errors.append('shared LOD material settings changed')
+        if row.get('shared_maps') and not {i['sha256'] for i in stats['images']}<={i['sha256'] for i in m['levels'][0]['images']}:errors.append('intermediate level adds images')
+        if row.get('shared_maps') and row.get('canonical_material_bindings')!=shared_material_bindings(Document(source),doc):errors.append('stale canonical material bindings')
         topo=[]
         for mi,pi,p in doc.primitives():
             attrs,faces=doc.arrays(p);r,_=topology(attrs,faces)
             if any(not np.isfinite(v).all() for v in attrs.values()):errors.append('nonfinite vertex attributes')
             if row.get('impostor'):
                 b=dict(degenerate=0,slivers=0,nonmanifold_edges=0,winding_disagreements=0,boundary_edges=16 if row.get('crossed') else 4)
-            elif row.get('rebaked') or row.get('proxy'):
+            elif row.get('rebaked') or row.get('proxy') or row.get('assembly'):
                 b={k:sum(v[k] for v in original.values()) for k in ('degenerate','slivers','nonmanifold_edges','winding_disagreements','boundary_edges')}
                 if row.get('proxy'):b.update(boundary_edges=0,nonmanifold_edges=0,degenerate=0,slivers=0,winding_disagreements=0)
             else:b=original[mi,pi]
             for key in ('degenerate','slivers','nonmanifold_edges','winding_disagreements'):
                 if r[key]>b[key]:errors.append(f'{path.name}: new {key}')
-            if not (row.get('rebaked') or row.get('proxy')) and r['boundary_edges']>b['boundary_edges']:errors.append(f'{path.name}: new open edges')
+            if not (row.get('rebaked') or row.get('proxy') or row.get('assembly')) and r['boundary_edges']>b['boundary_edges']:errors.append(f'{path.name}: new open edges')
             normals=attrs.get('NORMAL')
             if normals is None or np.max(np.abs(np.linalg.norm(normals,axis=1)-1))>2e-4:
                 errors.append(f'{path.name}: nonunit normals')
             topo.append(dict(mesh=mi,primitive=pi,**r))
         assembly_topology=[]
-        if row.get('rebaked') or row.get('proxy'):
+        if row.get('rebaked') or row.get('proxy') or row.get('assembly'):
             for ni,node in enumerate(doc.data['nodes']):
                 if 'mesh' not in node:continue
                 current,_=topology(*world_geometry(doc,[ni]))
