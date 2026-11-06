@@ -251,16 +251,20 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
     # Source positions expose both empty rays and opaque neighboring hits.
     # Evaluate each real layer before alpha compositing, so a fractional decal
     # cannot become a hole or lose the emission/material of its own backing.
-    from kit.lod_transfer import repair,raster
+    from kit.lod_transfer import repair,raster,tangent_direction
     exact=np.zeros((size,size),bool)
     for yy,xx,point,nn,tt,bb,footprint in raster(target,size):
+        # Adjacent triangles share texel centers on some UV diagonals. Their
+        # world field must be converted once, rather than treating a previous
+        # triangle's tangent result as a new world direction.
+        take=~exact[yy,xx];yy=yy[take];xx=xx[take];nn=nn[take];tt=tt[take];bb=bb[take]
         exact[yy,xx]=True
         for label in ('Normal','NormalUnder','CoatNormal','CoatNormalUnder'):
             if label not in arrays:continue
             world=arrays[label][yy,xx]*2-1
             world/=np.maximum(np.linalg.norm(world,axis=1,keepdims=True),1e-20)
             world*=np.where(np.sum(world*nn,axis=1)>=0,1,-1)[:,None]
-            arrays[label][yy,xx]=np.stack([np.sum(world*tt,axis=1),np.sum(world*bb,axis=1),np.sum(world*nn,axis=1)],axis=1)*.5+.5
+            arrays[label][yy,xx]=tangent_direction(world,nn,tt,bb)*.5+.5
     mask=exact;interior=np.asarray(Image.fromarray(mask.astype(np.uint8)*255).filter(ImageFilter.MinFilter(3)))>0
     primary={k:v for k,v in arrays.items() if not k.endswith(('Under','Through'))}
     report['nearest_transfer']=repair(high,target,primary,mask,size,projection_m*4/3,route)

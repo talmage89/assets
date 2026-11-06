@@ -16,6 +16,17 @@ def unit(v):
     return v/np.maximum(np.linalg.norm(v,axis=-1,keepdims=True),1e-20)
 
 
+def tangent_direction(world,normal,tangent,bitangent):
+    """Invert the interpolated frame, which need not be orthonormal.
+
+    The interpolated tangent need not be unit length or orthogonal to the
+    interpolated shading normal. Dot products against an orthogonalized frame
+    change the shipped shader's direction after small bevels collapse.
+    """
+    frame=np.stack([tangent,bitangent,normal],axis=2)
+    return unit(np.linalg.solve(frame,world[...,None])[...,0])
+
+
 def source_hit(tree, point, normal, tolerance):
     """Choose the outward visible layer before nearest-surface fallback.
 
@@ -53,8 +64,8 @@ def raster(target,size):
     uv=np.array([x.uv[:] for x in mesh.uv_layers[uvname].data],float)
     positions=np.array([v.co[:] for v in mesh.vertices],float)
     matrix=np.array(target.matrix_world);positions=positions@matrix[:3,:3].T+matrix[:3,3]
-    normals=unit(np.array([x.vector[:] for x in mesh.corner_normals])@np.linalg.inv(matrix[:3,:3]))
-    tangent=unit(np.array([x.tangent[:] for x in mesh.loops])@matrix[:3,:3].T)
+    normals=np.array([x.vector[:] for x in mesh.corner_normals])
+    tangent=np.array([x.tangent[:] for x in mesh.loops])
     signs=np.array([x.bitangent_sign for x in mesh.loops])
     for tri in mesh.loop_triangles:
         loops=np.array(tri.loops);u=uv[loops].copy();u[:,1]=1-u[:,1]
@@ -68,8 +79,13 @@ def raster(target,size):
         if not inside.any():continue
         yy=yy[inside];xx=xx[inside];w=w[inside]
         p=positions[np.array(tri.vertices)];area=np.linalg.norm(np.cross(p[1]-p[0],p[2]-p[0]))
-        n=unit(w@normals[loops]);t=unit(w@tangent[loops]);t=unit(t-n*np.sum(n*t,axis=1,keepdims=True))
-        b=np.cross(n,t)*np.where(w@signs[loops]>=0,1,-1)[:,None]
+        # Cycles normal mapping normalizes the interpolated shading normal
+        # (triangle.h), but retains the interpolated Mikk tangent length.
+        n=unit(w@normals[loops]);t=w@tangent[loops]
+        b=np.cross(n,t)*(w@signs[loops])[:,None]
+        # The normal-map shader combines these raw object-space vectors before
+        # applying its normal transform. Preserve that complete linear frame.
+        inverse=np.linalg.inv(matrix[:3,:3]);n=n@inverse;t=t@inverse;b=b@inverse
         yield yy,xx,w@p,n,t,b,np.sqrt(area/max(abs(det),1e-20))/size
 
 
@@ -172,7 +188,7 @@ def repair(source,target,arrays,mask,size,tolerance,route,batch_size=16384):
             if channel in ('Normal','CoatNormal'):
                 wn=unit(result[channel]*2-1);tn=np.array([r[5] for r in batch]);tt=np.array([r[6] for r in batch]);tb=np.array([r[7] for r in batch])
                 wn*=np.where(np.sum(wn*tn,axis=1)>=0,1,-1)[:,None]
-                value=np.stack([np.sum(wn*tt,axis=1),np.sum(wn*tb,axis=1),np.sum(wn*tn,axis=1)],axis=1)*.5+.5
+                value=tangent_direction(wn,tn,tt,tb)*.5+.5
             else:value=result[channel]
             arrays[channel][yy[valid],xx[valid],:min(arrays[channel].shape[2],3)]=value[valid,:min(arrays[channel].shape[2],3)]
         if 'Position' in arrays:arrays['Position'][yy[valid],xx[valid]]=q[valid]

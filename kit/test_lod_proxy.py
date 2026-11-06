@@ -58,6 +58,39 @@ def transmitted_emission_fixture(out,attrs,faces):
     assert Document(path).dependencies()==before,'transmitted-emission bake modified its source'
 
 
+def shader_normal_fixture(out):
+    """Evaluate the re-imported shader, independently of the bake's inverse.
+
+    A varying corner-normal cage exercises interpolated tangent lengths and
+    shared-diagonal texels. Both base bump and the separate coat direction
+    must reconstruct the immutable original shader after PNG quantization.
+    """
+    from kit import gpu
+    from kit.image_io import write_png
+    from kit.lod_transfer import raster
+    from PIL import Image,ImageFilter
+    wanted=np.array([.24,.18,.95]);wanted/=np.linalg.norm(wanted);write_png(out/'Source_Normal.png',np.tile(wanted*.5+.5,(4,4,1)))
+    stub=out/'frame-stub.gltf';stub.write_text(json.dumps(dict(asset=dict(version='2.0'),scene=0,scenes=[dict(nodes=[0])],nodes=[dict(name='Surface',mesh=0)],meshes=[dict(primitives=[dict(attributes={},indices=0,material=0)])],materials=[dict(name='Source',normalTexture=dict(index=0),extensions={'KHR_materials_clearcoat':dict(clearcoatFactor=1)},pbrMetallicRoughness=dict(baseColorFactor=[.2,.1,.05,1],metallicFactor=0,roughnessFactor=.4))],images=[dict(name='Source_Normal',uri='Source_Normal.png')],textures=[dict(source=0)],extensionsUsed=['KHR_materials_clearcoat'],buffers=[],bufferViews=[],accessors=[])))
+    source=out/'frame-source.gltf';doc=Document(stub);a=dict(POSITION=np.array([[-1,-1,0],[1,-1,0],[1,1,0],[-1,1,0]],np.float32),NORMAL=np.tile([0,0,1],(4,1)).astype(np.float32),TEXCOORD_0=np.array([[0,1],[1,1],[1,0],[0,0]],np.float32));faces=np.array([[0,1,2],[0,2,3]],np.uint32);doc.replace(doc.data['meshes'][0]['primitives'][0],a,faces);doc.save(source)
+    def measured(path,channel,label):
+     bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(path));sc=bpy.context.scene;sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=1;sc.render.bake.use_selected_to_active=False;sc.render.bake.margin=0
+     for o in sc.objects:o.select_set(o.type=='MESH')
+     ob=next(o for o in sc.objects if o.type=='MESH');bpy.context.view_layer.objects.active=ob
+     image=bpy.data.images.new('actual shader field',width=128,height=128,alpha=True,float_buffer=True);image.colorspace_settings.name='Non-Color'
+     for mat in ob.data.materials:
+      nt=mat.node_tree;bsdf=next(n for n in nt.nodes if n.type=='BSDF_PRINCIPLED');slot=bsdf.inputs[channel];field=slot.links[0].from_socket if slot.is_linked else nt.nodes.new('ShaderNodeNewGeometry').outputs['Normal'];normal=nt.nodes.new('ShaderNodeVectorMath');normal.operation='NORMALIZE';nt.links.new(field,normal.inputs[0]);encode=nt.nodes.new('ShaderNodeVectorMath');encode.operation='MULTIPLY_ADD';encode.inputs[1].default_value=(.5,.5,.5);encode.inputs[2].default_value=(.5,.5,.5);nt.links.new(normal.outputs[0],encode.inputs[0]);emission=nt.nodes.new('ShaderNodeEmission');nt.links.new(encode.outputs[0],emission.inputs['Color']);output=next(n for n in nt.nodes if n.type=='OUTPUT_MATERIAL');nt.links.new(emission.outputs[0],output.inputs['Surface']);node=nt.nodes.new('ShaderNodeTexImage');node.image=image;nt.nodes.active=node
+     mask=np.zeros((128,128),np.uint8)
+     for yy,xx,*unused in raster(ob,128):mask[127-yy,xx]=255
+     mask=np.asarray(Image.fromarray(mask).filter(ImageFilter.MinFilter(3)))>0
+     bpy.ops.object.bake(type='EMIT');data=np.empty(128*128*4,np.float32);image.pixels.foreach_get(data);data=data.reshape(128,128,4);vectors=data[:,:,:3][mask]*2-1;vectors/=np.linalg.norm(vectors,axis=1,keepdims=True);write_png(out/(label+'.png'),data[::-1]);return vectors
+    references={k:np.median(measured(source,k,'source-'+k.replace(' ','_')),axis=0) for k in ['Normal','Coat Normal']}
+    target=Document(source);a['POSITION'][:,2]=.01;a['NORMAL']=np.array([[-.5,-.2,.84],[.5,-.2,.84],[.35,.45,.82],[-.35,.45,.82]],np.float32);a['NORMAL']/=np.linalg.norm(a['NORMAL'],axis=1,keepdims=True);target.replace(target.data['meshes'][0]['primitives'][0],a,faces);target.data['nodes'][0]['extras']=dict(lod_sources=[0]);path=out/'frame-baked.gltf';bake(target,source,path,128,proxy=True,projection_m=.05);target.save(path)
+    for channel,wanted in references.items():
+     vectors=measured(path,channel,'target-'+channel.replace(' ','_'))
+     angles=np.degrees(np.arccos(np.clip(vectors@wanted,-1,1)))
+     assert np.percentile(angles,95)<.75 and angles.max()<1.25,(channel,np.percentile(angles,[50,95,100]))
+
+
 def main():
     out=ROOT/'build/lod-proxy-test';out.mkdir(parents=True,exist_ok=True)
     # A quarter-meter cube plus a truly subpixel bolt. At the closer switch it
@@ -134,6 +167,12 @@ def main():
     for shift in ([0,2,0],[0,0,.1]):
         separate=dict(POSITION=np.concatenate([board,other+shift]))
         assert len(planar_groups(separate,bt,.02))==2
+    # Adjacent coplanar rails enclose a real opening. Their bounding hull is
+    # not a panel, even though every rail touches its neighbor.
+    frame=[a['POSITION']*[4,.2,.004]+[0,y,.3] for y in [-.2,.2]]
+    frame += [a['POSITION']*[.2,1.6,.004]+[x,0,.3] for x in [-.475,.475]]
+    framed=dict(POSITION=np.concatenate(frame));framed_faces=np.concatenate([ff+i*len(flat) for i in range(4)])
+    assert len(planar_groups(framed,framed_faces,.02))==4,'frame rails filled their opening'
     # Closed construction shells touching at an edge remain distinct until
     # an explicit planar merge, rather than becoming one giant convex hull.
     touching=dict(POSITION=np.concatenate([a['POSITION'],a['POSITION']+[.25,.25,0]]))
@@ -342,9 +381,10 @@ def main():
     for node in trial.data['nodes'][1:]:node.pop('mesh',None)
     trial.replace(trial.data['meshes'][0]['primitives'][0],{k:np.concatenate([a[k],leg[k],floor[k]]) for k in a},np.concatenate([ff,ff+36,ff+72]))
     kept=proxy(trial,100,.02);assert not kept['removed_features'],'freestanding support was removed'
-    union=Document(source);united=proxy(union,200,.02,remesh=True)
+    union=Document(source);united=proxy(union,200,.02,remesh=dict(voxel_pixels=.5,inflation_pixels=.3,deflation_pixels=.1))
     assert united['triangles']<=200 and not united['topology']['boundary_edges'] and not united['topology']['nonmanifold_edges'],united
     assert united['remeshing']['voxel_pixels']==.5
+    assert united['remeshing']['deflation_pixels']==.1
     assert min(shell_volumes(*union.arrays(union.data['meshes'][0]['primitives'][0])))>0
     d=Document(source);r=proxy(d,150,.075)
     assert r['triangles']<=150 and not r['topology']['boundary_edges'] and not r['topology']['nonmanifold_edges'],r
@@ -399,6 +439,7 @@ def main():
     coat=near.data['materials'][0]['extensions']['KHR_materials_clearcoat']
     assert coat['clearcoatNormalTexture']['index']!=near.data['materials'][0]['normalTexture']['index']
     transmitted_emission_fixture(out,a,ff)
+    shader_normal_fixture(out)
     print('LOD PROXY FIXTURE PASS: projected pruning, mip-relative UV budget, silhouette IoU, material merge, pivot preservation, closed budgeted shell, real immutable-source PBR/normal bake')
 
 if __name__=='__main__':main()

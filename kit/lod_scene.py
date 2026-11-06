@@ -92,7 +92,7 @@ def planar_groups(attrs,faces,meters_per_pixel):
     """Merge neighboring coplanar construction, including separate siding boards.
 
     A half-pixel depth band can become one shell with new baked charts. Spatial
-    adjacency prevents unrelated modules on the same plane filling the air.
+    adjacency and projected coverage prevent frame rails filling their void.
     """
     groups=construction_components(attrs,faces);flat=[];parent=list(range(len(groups)))
     def root(i):
@@ -104,11 +104,38 @@ def planar_groups(attrs,faces,meters_per_pixel):
         if extent[0]>.5 or extent[1]<.5 or extent[2]<2:continue
         n=axis[:,0];n*=1 if n[np.argmax(np.abs(n))]>=0 else -1
         flat.append((i,n,float(center@n),pp.min(axis=0),pp.max(axis=0)))
+    membership={i:[i] for i in range(len(groups))}
+    def covered(ids,n):
+        # A convex envelope may bridge board seams, but must not turn a
+        # window frame or two rake rails into a filled panel. Use the larger
+        # of the two facing projected areas of each original thin shell;
+        # front/back faces must not count the same coverage twice.
+        basis=np.eye(3)[np.argmin(abs(n))];u=np.cross(n,basis);u/=np.linalg.norm(u);v=np.cross(n,u)
+        points=[];area=0.
+        for gi in ids:
+            tri=attrs['POSITION'][faces[groups[gi]]];cross=np.cross(tri[:,1]-tri[:,0],tri[:,2]-tri[:,0])@n*.5
+            area+=max(cross[cross>0].sum(),-cross[cross<0].sum())
+            pp=tri.reshape(-1,3);points.extend(zip(pp@u,pp@v))
+        points=sorted(set(points))
+        def turn(a,b,c):return (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0])
+        hull=[]
+        for sequence in (points,points[::-1]):
+            half=[]
+            for p in sequence:
+                while len(half)>1 and turn(half[-2],half[-1],p)<=0:half.pop()
+                half.append(p)
+            hull.extend(half[:-1])
+        q=np.asarray(hull);envelope=abs(np.sum(q[:,0]*np.roll(q[:,1],-1)-q[:,1]*np.roll(q[:,0],-1)))*.5
+        return area>=envelope*.8 or envelope-area<=2*meters_per_pixel**2
     for index,(i,n,d,lo,hi) in enumerate(flat):
         for j,nn,dd,ll,hh in flat[:index]:
             if n@nn<.9999 or abs(d-dd)>meters_per_pixel*.5:continue
             if np.any(lo>hh+meters_per_pixel) or np.any(ll>hi+meters_per_pixel):continue
-            parent[root(i)]=root(j)
+            ri,rj=root(i),root(j)
+            if ri==rj:continue
+            combined=membership[ri]+membership[rj]
+            if not covered(combined,n):continue
+            parent[ri]=rj;membership[rj]=combined
     packed={};counts={}
     for i,ids in enumerate(groups):
         r=root(i);packed.setdefault(r,[]).extend(ids);counts[r]=counts.get(r,0)+1
@@ -279,13 +306,19 @@ def proxy(doc,target,meters_per_pixel,preserve_concavity=(),remesh=False):
     if remesh:
         settings=remesh if isinstance(remesh,dict) else {}
         cell=mpp*settings.get('voxel_pixels',.5);inflation=mpp*settings.get('inflation_pixels',.3)
-        if not 0<cell<=mpp or not 0<=inflation<=mpp*.5:raise ValueError('Proxy remesh exceeds switch-pixel allowance')
+        deflation=mpp*settings.get('deflation_pixels',0.)
+        if not 0<cell<=mpp or not 0<=inflation<=mpp*.5 or not 0<=deflation<=min(inflation,cell*.5):raise ValueError('Proxy remesh exceeds switch-pixel allowance')
         expand=ob.modifiers.new('Subpixel shell union','DISPLACE');expand.direction='NORMAL';expand.strength=inflation;expand.mid_level=0
         bpy.ops.object.modifier_apply(modifier=expand.name)
         ob.data.remesh_voxel_size=cell;ob.data.remesh_voxel_adaptivity=0.;ob.data.use_remesh_preserve_volume=True
         bpy.ops.object.voxel_remesh()
+        # Union needs a small expansion to join thin shells. Recover part of
+        # that expansion afterwards so an open frame does not grow opaque.
+        if deflation:
+            shrink=ob.modifiers.new('Recover union exterior','DISPLACE');shrink.direction='NORMAL';shrink.strength=-deflation;shrink.mid_level=0
+            bpy.ops.object.modifier_apply(modifier=shrink.name)
         bm=bmesh.new();bm.from_mesh(ob.data);bmesh.ops.triangulate(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free()
-        remeshing=dict(voxel_pixels=cell/mpp,inflation_pixels=inflation/mpp,union_triangles=len(ob.data.polygons))
+        remeshing=dict(voxel_pixels=cell/mpp,inflation_pixels=inflation/mpp,deflation_pixels=deflation/mpp,union_triangles=len(ob.data.polygons))
     pre=len(ob.data.polygons)
     if pre>target:
         mod=ob.modifiers.new('Shared envelope budget','DECIMATE');mod.ratio=target/pre;mod.use_collapse_triangulate=True
