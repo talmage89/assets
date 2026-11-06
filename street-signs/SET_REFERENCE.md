@@ -28,10 +28,12 @@ URLs and cached PDF names are in [refs/SOURCES.md](refs/SOURCES.md).
 The alphabet is **installed open DejaVu Sans Condensed / Book**. The scripts
 fit the published cap heights and principal line widths to approximate Series
 C/D/E proportions. It is not the exact federal alphabet, a downloaded highway
-font or a traced drawing. Pictograms are independently authored polygons and
-strokes; their remaining outline differences are disclosed in SET_REVIEW.
+font or a traced drawing. Pictograms are independently authored grid-measured primitives and cubic
+curves checked against Appendix 6-10 and 6-58; the school child is on the left
+and adult on the right. No PDF vector or raster is used as artwork input.
 White, black, red, yellow and FYG are explicit original sRGB palette values;
-quick materials do not establish manufactured colorimetry or retroreflection.
+the final stock-PBR material differentiates satin engineering-grade and
+smoother prismatic daylight sheen, without claiming headlight retroreflection.
 
 Blanks are **.080 in / 2.032 mm**, a normal supplier procurement choice;
 MUTCD does not mandate that gauge. Rounded corners, 3/8 in punches and 1/4 in

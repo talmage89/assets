@@ -6,6 +6,7 @@ from PIL import Image,ImageDraw,ImageFont
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
 from kit.fonts import find_font
 from set_catalog import SIGNS
+from set_symbols import place as symbol
 FONT=find_font('DejaVu Sans','Condensed')
 WHITE=(219,222,211);BLACK=(8,10,9);RED=(174,12,22);YELLOW=(231,174,12);FYG=(174,211,20)
 COLORS=dict(white=WHITE,black=BLACK,yellow=YELLOW,fyg=FYG)
@@ -21,13 +22,6 @@ def arrow(draw,points,width,fill=BLACK):
     a,b=points[-2:];dx,dy=b[0]-a[0],b[1]-a[1];r=math.hypot(dx,dy);dx,dy=dx/r,dy/r
     p=(b[0]-dx*width*1.8,b[1]-dy*width*1.8)
     draw.polygon([b,(p[0]-dy*width*1.2,p[1]+dx*width*1.2),(p[0]+dy*width*1.2,p[1]-dx*width*1.2)],fill=fill)
-
-def person(d,x,y,s,small=False):
-    # Independently authored articulated walking symbol, SHS proportion study.
-    r=.10*s;d.ellipse((x-r,y-r,x+r,y+r),fill=BLACK)
-    d.polygon([(x-.075*s,y+.13*s),(x+.08*s,y+.12*s),(x+.16*s,y+.49*s),(x-.025*s,y+.53*s),(x-.10*s,y+.25*s)],fill=BLACK)
-    for pts in [[(x-.02*s,y+.19*s),(x-.17*s,y+.40*s),(x-.36*s,y+.47*s)],[(x+.075*s,y+.22*s),(x+.29*s,y+.32*s),(x+.29*s,y+.52*s)],[(x+.035*s,y+.49*s),(x-.14*s,y+.70*s),(x-.24*s,y+.95*s)],[(x+.075*s,y+.49*s),(x+.17*s,y+.72*s),(x+.35*s,y+.95*s)]]:
-        d.line(pts,fill=BLACK,width=round(s*.10),joint='curve')
 
 def face(key,spec,res=1024):
     w,h=spec['w'],spec['h'];scale=res/max(w,h);W,H=round(w*scale),round(h*scale)
@@ -94,14 +88,21 @@ def face(key,spec,res=1024):
         cx,cy=W*.5,H*.63;rr=W*.205
         pts=[(cx+rr*math.cos(math.pi/8+k*math.pi/4),cy+rr*math.sin(math.pi/8+k*math.pi/4)) for k in range(8)]
         d.polygon(pts,fill=WHITE);pts=[(cx+(rr-W*.012)*math.cos(math.pi/8+k*math.pi/4),cy+(rr-W*.012)*math.sin(math.pi/8+k*math.pi/4)) for k in range(8)];d.polygon(pts,fill=RED)
-    elif key.startswith('pedestrian'):person(d,W*.51,H*.24,H*.62)
+    elif key.startswith('pedestrian'):symbol(im,'pedestrian',(W*.27,H*.16,W*.73,H*.82),BLACK)
     elif key=='schoolCrossing':
         d.polygon([(W*.5,i),(W-i,H*.50),(W-i,H-i),(i,H-i),(i,H*.50)],fill=BLACK)
         q=(i+t);d.polygon([(W*.5,q*1.3),(W-q,H*.52),(W-q,H-q),(q,H-q),(q,H*.52)],fill=bg)
-        person(d,W*.38,H*.32,H*.46);person(d,W*.66,H*.45,H*.33)
-        d.rectangle((W*.66,H*.63,W*.76,H*.74),fill=BLACK)
+        symbol(im,'school',(W*.12,H*(8.5/36),W*.88,H*(32.5/36)),BLACK)
     elif key.startswith('arrow'):arrow(d,[(W*.72,H*.22),(W*.28,H*.75)],H*.12)
-    return im
+    # Causal sheeting age: slight exposed upper fading, lower-edge road film,
+    # and narrow tracks below the two actual mounting holes. Printed black
+    # remains black. No uniform dirt/noise overlay or circular rust blobs.
+    a=np.asarray(im).astype(np.float32);yy,xx=np.mgrid[:H,:W];u=xx/max(1,W-1);v=yy/max(1,H-1)
+    light=np.mean(a,axis=2)>45
+    fade=(1-v)**4*.045;edge=np.minimum.reduce([u,1-u,v,1-v]);dirt=np.exp(-edge/.010)*( .025+.055*v)
+    streak=np.exp(-((u-.5)/.007)**2)*np.maximum(0,1-np.abs(v-.88)/.07)*.12
+    a=a*(1-(dirt+streak)[:,:,None]);a+=fade[:,:,None]*light[:,:,None]*9
+    return Image.fromarray(np.uint8(np.clip(a,0,255)))
 
 def main():
     out=Path(sys.argv[1] if len(sys.argv)>1 else 'build/set');out.mkdir(parents=True,exist_ok=True)
@@ -111,8 +112,18 @@ def main():
         x=(j%5)*cellw+(cellw-im.width)//2;y=(j//5)*cellh+(cellh-im.height)//2
         sheet.paste(im,(x,y));layout[key]=[x/2048,1-(y+im.height)/2048,(x+im.width)/2048,1-y/2048]
     # Hardware/aluminum and rear inspection labels share this very same image.
-    d=ImageDraw.Draw(sheet);d.rectangle((1660,1740,2010,1820),fill=(141,149,148));layout['metal']=[.84,.13,.92,.14]
+    d=ImageDraw.Draw(sheet);d.rectangle((1660,1740,2010,1820),fill=(158,165,162));layout['metal']=[1664/2048,(2048-1816)/2048,2006/2048,(2048-1744)/2048]
+    rng=np.random.default_rng(271);metal=np.full((80,350,3),(158,165,162),np.float32)
+    # Original zinc crystal variation / rolled-aluminum streaks in one shared
+    # hardware swatch; plain metal remains metallic in the delivered shader.
+    cloud=rng.normal(0,3,(10,44));cloud=np.asarray(Image.fromarray(np.uint8(np.clip(128+cloud*5,0,255))).resize((350,80),Image.Resampling.BILINEAR)).astype(float)-128
+    metal+=cloud[:,:,None]*.32;metal+=rng.normal(0,1,(80,350,1));sheet.paste(Image.fromarray(np.uint8(np.clip(metal,0,255))),(1660,1740))
     label=Image.new('RGB',(360,150),(185,187,170));word(label,'ALDERVALE • STREETS',180,12,320,26);word(label,'INSPECTED 06 / 2009',180,57,290,23);word(label,'PROPERTY 03714',180,103,270,22)
     sheet.paste(label,(1650,1860));layout['backlabel']=[1650/2048,(2048-2010)/2048,2010/2048,(2048-1860)/2048]
+    rgb=np.asarray(sheet);luma=rgb.max(axis=2).astype(float)/255
+    # Opaque alpha is linear specular-factor data: black printing suppresses
+    # the bright substrate lobe. It never controls coverage or adds an image.
+    alpha=np.uint8(np.clip(.07+.89*np.clip((luma-.035)/.70,0,1),0,1)*255+.5)
+    sheet=Image.fromarray(np.dstack([rgb,alpha]),'RGBA')
     sheet.save(out/'T_RoadSigns_Faces.png');(out/'layout.json').write_text(json.dumps(layout,indent=2))
 if __name__=='__main__':main()

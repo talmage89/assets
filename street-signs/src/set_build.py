@@ -1,4 +1,4 @@
-"""Additional sign library only. Quick sheet shader, real-gauge drilled blanks.
+"""Additional sign library only. Shared sheet and daylight sheeting grades, real-gauge drilled blanks.
 
 Both the inspection blend and separate glTF are rebuildable. Original STOP,
 blades, atlases and delivery files are never opened for writing.
@@ -15,8 +15,16 @@ def main():
     ap=argparse.ArgumentParser();ap.add_argument('--out',type=Path,default=Path('build/set/Signs.blend'));a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
     bpy.ops.wm.read_factory_settings(use_empty=True)
     folder=Path(__file__).resolve().parents[1];work=folder/'build/set';layout=json.loads((work/'layout.json').read_text())
-    mat=bpy.data.materials.new('RoadSigns_checkpoint_shared_sheet');mat.use_nodes=True;p=mat.node_tree.nodes.get('Principled BSDF');p.inputs['Roughness'].default_value=.46
-    im=bpy.data.images.load(str(work/'T_RoadSigns_Faces.png'));node=mat.node_tree.nodes.new('ShaderNodeTexImage');node.image=im;mat.node_tree.links.new(node.outputs['Color'],p.inputs['Base Color'])
+    im=bpy.data.images.load(str(work/'T_RoadSigns_Faces.png'))
+    def finish(name,rough,metal):
+        m=bpy.data.materials.new(name);m.use_nodes=True;p=m.node_tree.nodes.get('Principled BSDF');p.inputs['Roughness'].default_value=rough;p.inputs['Metallic'].default_value=metal
+        node=m.node_tree.nodes.new('ShaderNodeTexImage');node.image=im;m.node_tree.links.new(node.outputs['Color'],p.inputs['Base Color'])
+        if not metal:
+            factor=m.node_tree.nodes.new('ShaderNodeMath');factor.operation='MULTIPLY';factor.inputs[1].default_value=.5;m.node_tree.links.new(node.outputs['Alpha'],factor.inputs[0]);m.node_tree.links.new(factor.outputs[0],p.inputs['Specular IOR Level'])
+        return m
+    mat=finish('RoadSigns_GalvanizedAluminum',.52,1)
+    engineering=finish('RoadSigns_EngineeringGrade',.39,0)
+    prismatic=finish('RoadSigns_HighIntensityPrismatic',.27,0)
     roots=[];current=None;construction={}
     def own(o,chart='metal'):
         o.parent=current;o['asset_set']=current.name;o['solid']=True
@@ -58,6 +66,7 @@ def main():
             # Cutter coordinates are world-authored, same datum as the blank.
             G.boolean(ob,cut)
         own(ob);uv=ob.data.uv_layers.active;rr=layout[key];mr=layout['metal']
+        ob.data.materials.append(engineering if len(roots)%2 else prismatic)
         ys=[v.co.y for v in ob.data.vertices];gauge=max(ys)-min(ys)
         bores=[]
         for zh in holes:
@@ -68,10 +77,10 @@ def main():
         assert abs(gauge-.002032)<1e-6
         construction.setdefault(current.name,[]).append(dict(face=key,measured_gauge_m=gauge,actual_bore_measurements=bores))
         for poly in ob.data.polygons:
-            front=poly.normal.y<-.9
+            front=poly.normal.y<-.9;poly.material_index=1 if front else 0
             for li in poly.loop_indices:
                 v=ob.data.vertices[ob.data.loops[li].vertex_index].co
-                uv.data[li].uv=(rr[0]+(v.x+w/2)/w*(rr[2]-rr[0]),rr[1]+(v.z+h/2)/h*(rr[3]-rr[1])) if front else ((mr[0]+mr[2])/2,(mr[1]+mr[3])/2)
+                uv.data[li].uv=(rr[0]+(v.x+w/2)/w*(rr[2]-rr[0]),rr[1]+(v.z+h/2)/h*(rr[3]-rr[1])) if front else (mr[0]+(v.x+w/2)/w*(mr[2]-mr[0]),mr[1]+(v.z+h/2)/h*(mr[3]-mr[1]))
         for zh in holes:
             box('Back mounting spacer',(0,y+.009,zh),(.030,.016,.025));bolt('1/4-20 sign fastener',0,y-t/2,zh)
         sticker(w*.25,y+t/2+.00015,z-h*.25)
@@ -171,6 +180,6 @@ def main():
         old=rt.location.copy();rt.location=(0,0,0)
         bpy.ops.export_scene.gltf(filepath=str(export.with_name(rt.name+'.gltf')),use_selection=True,export_format='GLTF_SEPARATE',export_texture_dir='textures',export_extras=True,export_animations=False,export_tangents=True)
         rt.location=old
-    (work/'manifest.json').write_text(json.dumps(dict(stage='form checkpoint / quick materials',pieces=records,sheet_size=[2048,2048],font='DejaVu Sans Condensed / Book fitted to SHS cap heights and line widths'),indent=2))
+    (work/'manifest.json').write_text(json.dumps(dict(stage='Final stock glTF / shared sheeting and metal chart',pieces=records,sheet_size=[2048,2048],font='DejaVu Sans Condensed / Book fitted to SHS cap heights and line widths'),indent=2))
     print('SIGN SET',len(records),'assemblies',sum(r['triangles'] for r in records.values()),'triangles')
 if __name__=='__main__':main()

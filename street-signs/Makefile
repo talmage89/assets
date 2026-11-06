@@ -29,7 +29,7 @@ check-assembly: build/game-audit.blend
 # Independent 2009-period expansion. The existing final targets above keep
 # their original dependencies and delivery bytes, STOP and blades included.
 .PHONY: set-model set-check set-checkpoint
-build/set/layout.json: src/set_graphics.py src/set_catalog.py
+build/set/layout.json: src/set_graphics.py src/set_catalog.py src/set_symbols.py
 	@mkdir -p build/set
 	$(PYTHON) src/set_graphics.py build/set
 export/set/RoadSigns.gltf build/set/Signs.blend build/set/manifest.json &: src/set_build.py src/set_catalog.py build/set/layout.json
@@ -39,3 +39,9 @@ set-check: set-model
 	$(BP) --python src/set_check.py
 set-checkpoint: set-check
 	$(MAKE) -C ../street-furniture render
+
+.PHONY: set-all set-clean
+set-all:
+	$(MAKE) -C ../street-furniture
+set-clean:
+	$(PYTHON) -c "import shutil; [shutil.rmtree(p,ignore_errors=True) for p in ('build/set','export/set')]"

@@ -28,3 +28,10 @@ Hardware/construction sources read online:
 - [Brimar post specifications](https://www.safetysign.com/products/9832/galvanized-u-channel-sign-post): rolled U-channel weight classes, 3/8 in holes on 1 in centers; [round and square support catalog](https://www.safetysign.com/sign-stands-posts): 2-3/8 in round posts and telescoping square anchor posts. Exact channel web/flange profile and band buckle are authored estimates, not engineering-certified structural sections.
 
 The existing STOP and street-blade references above remain unchanged.
+
+| shs-symbols.pdf | https://mutcd.fhwa.dot.gov/SHSe/Appendix.pdf | FHWA SHS 2004, US federal work | Dimension-grid studies 6-10 (pedestrian) and 6-58 (school). Hand-entered geometric primitives and curve controls; PDF vectors/raster never enter the artwork. |
+
+The added set's final used-R2-1 comparison shares
+[`street-furniture/refs/SOURCES.md`](../../street-furniture/refs/SOURCES.md)'s
+`speed-used.jpg` (Warren LeMay, CC0) and its neutral paving control. It remains
+local research; neither graffiti nor photographed names are reproduced.
