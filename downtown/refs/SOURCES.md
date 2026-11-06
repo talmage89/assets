@@ -40,3 +40,8 @@ commercial rows, ordinary and ornate fronts, arched upper sashes, later
 plate-glass storefronts, ghost signs and restrained later ornament. Those
 features bound our southern grammar. The gallery geometry remains authored
 from general cast-iron/awning construction, not copied from a surveyed front.
+
+The motion audit's solid-angle mathematics follows Jacobson, Kavan and
+Sorkine-Hornung (2013), [author-hosted paper](https://users.cs.utah.edu/~ladislav/jacobson13robust/jacobson13robust.pdf).
+Used for the inside/outside formula only; implementation is original and no
+downloaded code or package is used.

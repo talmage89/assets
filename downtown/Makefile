@@ -36,3 +36,5 @@ check-sweep:
 check-resources: model
 	$(BP) --python src/check_resources.py
 check: check-resources
+
+.PRECIOUS: $(CHECKPOINT_RENDER_OUTPUTS)

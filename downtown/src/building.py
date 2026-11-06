@@ -96,7 +96,7 @@ class Building:
         p=self.p;out=[];n=max(2,round((L-.6)/1.95)) if not rear else max(2,round((L-.6)/2.6))
         if spacing:n=max(3,min(8,round(L/spacing)))
         for level in range(1,p['stories']):
-            base=p['floor_first']+(level-1)*p['upper'];h=1.96 if not rear else 1.63
+            base=p['floor_first']+(level-1)*p['upper'];h=p.get('window_height',1.96) if not rear else 1.63
             for j in range(n):
                 x=(j+.5)*L/n;w=min(1.02,L/n-.60)
                 out.append(dict(x0=x-w/2,x1=x+w/2,z0=base+.65,z1=base+.65+h,rise=.22 if p['style'] in ('italianate','romanesque') and not rear else 0))
@@ -157,6 +157,7 @@ class Building:
             b.beam((x,.13,zz+.35),(x,-1.18,zz+.35),.040,color=IRON)
             b.beam((x,.13,zz+.80),(x,-.94,zz+.35),.027,color=IRON)
             b.box((x,-.88,zz-.07),(.065,.69,.68),'Finish',IRON)
+            for yy in (-1.12,-.64):b.beam((x,yy,zz+.27),(x,yy,zz+.36),.025,color=IRON)
             # Projecting sign face is in the YZ plane, same sheet and same quad.
             r=self.layout[p['tenant']]
             b.quad([(x-.036,-1.21,zz-.37),(x-.036,-.55,zz-.37),(x-.036,-.55,zz+.23),(x-.036,-1.21,zz+.23)],r)
@@ -176,16 +177,16 @@ class Building:
             b.box((c-.7,3.0,1.02),(1.0,3.6,.13),'Mineral',(.41,.34,.23))
             b.box((c-.7,3.0,.50),(.75,3.5,1.0),'Finish',(.18,.10,.06))
             for j in range(4):
-                yy=1.6+j*.82;b.tube([(c-1.52,yy,.02),(c-1.52,yy,.62)],.037,color=IRON)
+                yy=1.6+j*.82;b.tube([(c-1.52,yy,0),(c-1.52,yy,.62)],.037,color=IRON)
                 b.box((c-1.52,yy,.65),(.40,.4,.10),'Finish',(.24,.065,.035))
             for j in range(2):
                 yy=3.0+j*1.6;b.box((a+1.05,yy,.76),(1.25,.70,.08),'Mineral',(.45,.40,.30))
-                b.box((a+1.05,yy,.39),(.10,.10,.70),'Finish',IRON)
-                for off in (-.66,.66):b.box((a+1.05,yy+off,.62),(1.20,.32,1.12),'Finish',(.25,.075,.035))
+                b.box((a+1.05,yy,.37),(.10,.10,.74),'Finish',IRON)
+                for off in (-.66,.66):b.box((a+1.05,yy+off,.59),(1.20,.32,1.18),'Finish',(.25,.075,.035))
         elif p['tenant']=='barber':
             for j in range(3):
                 xx=a+.70+j*(w-1.4)/3
-                b.box((xx,2.40,.13),(.50,.50,.20),'Finish',IRON);b.tube([(xx,2.4,.18),(xx,2.4,.55)],.085,color=(.30,.30,.27))
+                b.box((xx,2.40,.10),(.50,.50,.20),'Finish',IRON);b.tube([(xx,2.4,.18),(xx,2.4,.61)],.085,color=(.30,.30,.27))
                 b.box((xx,2.4,.65),(.61,.61,.15),'Finish',(.15,.040,.025));b.box((xx,2.65,1.0),(.61,.12,.65),'Finish',(.15,.040,.025))
                 b.box((xx,5.38,1.8),(.80,.02,1.25),'Glass')
         elif p['tenant'] in ('hardware','pharmacy','antiques'):
@@ -221,6 +222,7 @@ class Building:
                 b.box((L/2,-deep/2+.04,zz),(L,.05+deep,hh),'Finish',col)
             b.box((L/2,-.085,top-.40),(L,.12,.61),'Finish',col)
             for x in [0.27+i*(L-.54)/max(1,round(L/.8)) for i in range(round(L/.8)+1)]:
+                if p['stories']>1 and abs(x-L/2)<.82:continue
                 profile=[(-.015,-.65),(-.13,-.65),(-.19,-.61),(-.22,-.55),(-.20,-.49),(-.16,-.44),(-.16,-.39),(-.21,-.34),(-.33,-.29),(-.39,-.22),(-.39,-.15),(-.015,-.15)]
                 b.prism([(x-.065,yy,top+zz) for yy,zz in profile],(.13,0,0),'Finish',col)
             for j in range(round(L/.20)):
@@ -229,11 +231,14 @@ class Building:
             for j in range(4):b.box((L/2,-.025-j*.024,top-.40+j*.095),(L,.17+j*.045,.075),'Masonry',col)
             if p['cornice']=='corbel':
                 for j in range(round(L/.29)):
-                    x=(j+.5)*L/round(L/.29);b.box((x,-.06,top-.63),(.14,.21,.32),'Masonry',tuple(c*.85 for c in col))
+                    x=(j+.5)*L/round(L/.29)
+                    if p['stories']>1 and abs(x-L/2)<.82:continue
+                    b.box((x,-.06,top-.63),(.14,.21,.32),'Masonry',tuple(c*.85 for c in col))
         b.box((L/2,.12,top+.035),(L+.05,.53,.09),'Mineral',STONE)
         if p['stories']>1:
-            z=p['roof']+.22;b.box((L/2,-.025,z),(1.43,.20,.34),'Mineral',STONE)
-            self.graphic(b,'label'+str(4+p['index']%2),L/2,-.13,z,1.20,.23)
+            z=min(p['roof']+.22,top-.59);metal=p['cornice']=='metal'
+            b.box((L/2,-.17 if metal else -.025,z),(1.43,.08 if metal else .20,.34),'Mineral',STONE)
+            self.graphic(b,'label'+str(4+p['index']%2),L/2,-.215 if metal else -.13,z,1.20,.23)
     def rear(self,xf,L):
         p=self.p;b=self.batch('RearConstruction',xf);ops=self.upper_openings(L,True)
         ops += [dict(x0=.60,x1=1.68,z0=.012,z1=2.25),dict(x0=L-2.3,x1=L-.65,z0=1.2,z1=2.5)]
@@ -326,7 +331,7 @@ class Building:
         if p['stories']==3 or p['index']%3==0:equipment.append((w*.22,-d*.12))
         for x,y in equipment:
             zz=z-.03+.008*(-y+d/2)
-            b.box((x,y,zz+.18),(1.25,1.6,.32),'Finish',(.16,.18,.16))
+            b.box((x,y,zz+.16),(1.25,1.6,.32),'Finish',(.16,.18,.16))
             b.box((x,y,zz+.62),(1.10,1.40,.70),'Finish',(.32,.33,.29))
             for j in range(8):b.box((x-.48+j*.135,y-.708,zz+.62),(.021,.015,.50),'Finish',(.12,.14,.12))
             b.tube([(x-.06,y,zz+.981),(x-.06,y,zz+.99)],.38,color=IRON,n=16)
@@ -335,16 +340,21 @@ class Building:
             b.box((xx,yy,zb+.62),(.65,.82,1.24),'Masonry',tuple(c*.65 for c in p['brick']))
             b.box((xx,yy,zb+1.28),(.76,.93,.10),'Mineral',STONE)
             b.box((xx,yy,zb+1.345),(.40,.53,.03),'Finish',DARK)
-        zz=z+.008*(d*.15+d/2)
-        b.box((-w*.20,-d*.15,zz+.13),(1.40,2.0,.26),'Finish',(.19,.21,.19))
+        zz=z-.03+.008*(d*.15+d/2);sx=-w*.20;sy=-d*.15
+        # Hollow curb follows the falling roof at its foot and the inclined
+        # glazing at its head; all four rails support the pane continuously.
+        for xx in (sx-.70,sx+.60):
+            b.prism([(xx,sy-1,zz-.012),(xx,sy+1,zz-.028),(xx,sy+1,zz+.54),(xx,sy-1,zz+.28)],(.10,0,0),'Finish',(.19,.21,.19))
+        b.box((sx,sy-.95,zz+.134),(1.20,.10,.292),'Finish',(.19,.21,.19))
+        b.box((sx,sy+.95,zz+.256),(1.20,.10,.568),'Finish',(.19,.21,.19))
         b.prism([(-w*.20-.65,-d*.15-1,zz+.28),(-w*.20+.65,-d*.15-1,zz+.28),(-w*.20+.65,-d*.15+1,zz+.54),(-w*.20-.65,-d*.15+1,zz+.54)],(0,0,.012),'Glass')
     def gallery(self):
         p=self.p;w,d=p['width'],p['depth'];b=self.batch('CastIronGallery');col=IRON;z=p['floor_first']-.085
         # Cast columns and a supported deck; component sizes are authored.
         for x in (-w/2+.38,0,w/2-.38):
-            b.tube([(x,-d/2-2.55,.04),(x,-d/2-2.55,z+.06)],.060,color=col,n=10)
-            for zz in (.14,z-.22,z+.13):b.box((x,-d/2-2.55,zz),(.24,.24,.17),'Finish',col)
-            b.tube([(x,-d/2-2.55,z+.18),(x,-d/2-2.55,z+2.8)],.043,color=col,n=8)
+            b.tube([(x,-d/2-2.55,0),(x,-d/2-2.55,z+.06)],.060,color=col,n=10)
+            for zz in (.085,z-.22,z+.13):b.box((x,-d/2-2.55,zz),(.24,.24,.17),'Finish',col)
+            b.tube([(x,-d/2-2.55,z+.18),(x,-d/2-2.55,z+2.68)],.043,color=col,n=8)
         b.box((0,-d/2-1.35,z),(w,2.70,.17),'Finish',(.18,.18,.14))
         for zz in (z+.12,z+1.06):b.beam((-w/2,-d/2-2.6,zz),(w/2,-d/2-2.6,zz),.04,color=col)
         for j in range(round(w/.14)):
@@ -389,17 +399,21 @@ class Building:
                 # First 40 ft of return are public facade, back is plainer.
                 ops=self.upper_openings(L,True,4.2)
                 first=abs(a[1]+d/2)<abs(c[1]+d/2)
-                start=.55 if first else L-10.0
+                start=1.0 if first else L-10.0
                 lower=[dict(x0=start+j*2.35,x1=start+j*2.35+1.70,z0=.55,z1=3.12) for j in range(4)]
                 ops+=lower;wall(b,L,p['height'],ops,.34,p['brick'])
                 for j,o in enumerate(ops):self.window(b,o,j,True)
                 for zz in (p['floor_first']-.04,p['height']-.14):b.box((L/2,-.04,zz),(L,.42,.16),'Mineral',STONE)
                 if p['corner']=='left':
-                    self.graphic(b,'ghost',L*.57,-.012,p['floor_first']*.66,6.9,1.05)
+                    # Keep painted lettering on uninterrupted rear masonry,
+                    # clear of the first 40 ft of public-side display windows.
+                    gx=min(L*.50,L-14.0);gz=2.70
+                    assert not any(gx+3.45>o['x0'] and gx-3.45<o['x1'] and gz+.525>o['z0'] and gz-.525<o['z1']+o.get('rise',0) for o in ops)
+                    self.graphic(b,'ghost',gx,-.012,gz,6.9,1.05)
                     # Demolished gable-roof neighbor flashing scar; not a new roof.
-                    b.beam((L*.42,-.02,.7),(L*.42,-.02,3.2),.055,.018,role='Mineral',color=(.24,.22,.18))
-                    b.beam((L*.42,-.02,3.2),(L*.57,-.02,5.2),.055,.018,role='Mineral',color=(.24,.22,.18))
-                    b.beam((L*.57,-.02,5.2),(L*.72,-.02,3.2),.055,.018,role='Mineral',color=(.24,.22,.18))
+                    crest=min(4.35,p['floor_first']-.35)
+                    for a,c in (((gx-3.85,-.02,.7),(gx-3.85,-.02,3.2)),((gx-3.85,-.02,3.2),(gx,-.02,crest)),((gx,-.02,crest),(gx+3.85,-.02,3.2)),((gx+3.85,-.02,3.2),(gx+3.85,-.02,.7))):
+                        b.beam(a,c,.055,.018,role='Mineral',color=(.24,.22,.18))
             else:
                 # Party faces have no windows; half-wall thickness remains inside lot.
                 wall(b,L,p['height'],[],.22,tuple(c*.76 for c in p['brick']))
@@ -418,6 +432,6 @@ class Building:
         for x in (.70,math.dist(verts[0],verts[1])-.70):
             z=p['floor_first']+.15
             pts=[(x+(.14 if j%2==0 else .055)*math.cos(math.pi/2+j*math.tau/10),-.03,z+(.14 if j%2==0 else .055)*math.sin(math.pi/2+j*math.tau/10)) for j in range(10)]
-            b.prism(pts,(0,.015,0),'Finish',IRON)
+            b.prism(pts,(0,.030,0),'Finish',IRON)
         obs=[b.finish() for b in self.batches];obs=[o for o in obs if o]
         return self.root,obs,self.doors

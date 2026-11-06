@@ -31,7 +31,7 @@ MATCHES['mulberry']=dict(region='northeast',photo='refs/mulberry.jpg',crop=(13,2
   dict(world=(l+ch,0,b['floor_first']),pixel=(139,315)),dict(world=(r,0,b['floor_first']),pixel=(264,310)),
   dict(world=(r+18,0,0),pixel=(438,366)),dict(world=(r+18,0,h-.6),pixel=(440,243))])
 b,l,r=bounds('midwest',2)
-n=max(2,round((b['width']-.6)/1.95));x=l+b['width']/n/2;lo=b['floor_first']+.65;hi=lo+1.96
+n=max(2,round((b['width']-.6)/1.95));x=l+b['width']/n/2;lo=b['floor_first']+.65;hi=lo+b['window_height']
 MATCHES['madison']=dict(region='midwest',photo='refs/madison.jpg',crop=(82,150,171,376),title='Window reveal and sash / HABS IN-231 detail',
  location=(x-4,-5,6.2),target=(x,0,(lo+hi)/2),lens=50,lens_bounds_mm=(25,100),
  landmarks=[dict(world=(x-.51,0,lo),pixel=(105,329)),dict(world=(x+.51,0,lo),pixel=(137,350)),

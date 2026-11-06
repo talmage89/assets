@@ -52,17 +52,17 @@ def append_context(row,loc,yaw=0,scale=1):
  return list(obs)+[root]
 
 def views(p):
- W=p['width'];H=max(l['height'] for l in p['lots']);D=max(l['depth'] for l in p['lots']);l=p['lots'][1];x=l['x'];h=l['height'];d=l['depth']
+ W=p['width'];H=max(l['height'] for l in p['lots']);D=max(l['depth'] for l in p['lots']);l=p['lots'][1];x=l['x'];h=l['height'];d=l['depth'];cm=next((v for v in p['lots'] if v['cornice']=='metal'),l);side_length=p['lots'][0]['depth']-p['lots'][0]['chamfer'];gy=p['lots'][0]['depth']-min(side_length*.50,side_length-14.0)
  return dict(
- hero=dict(location=(-W/2+3,-p['walk']-p['road_width']-p['walk']*.60,1.68),target=(W*.16,0,3.2),lens=40,aspect=1.8,context=True),
+ hero=dict(location=(-W/2-11,-p['walk']-p['road_width']-p['walk']*.60,1.68),target=(-W/2+17,0,3.8),lens=35,aspect=1.8,context=True),
  across=dict(location=(0,-p['walk']-p['road_width']-p['walk']*.60,H/2),target=(0,0,H/2),lens=(p['walk']+p['road_width']+p['walk']*.60)*36/(W*1.14),aspect=3.5),
  above=dict(location=(-W*.85,-W*.82,48),target=(0,D*.35,1.8),lens=43,aspect=1.65),
  rear=dict(location=(W*.75,D+W*.80,32),target=(0,D*.67,4),lens=43,aspect=1.8),
  storefront=dict(location=(x+3.0,-8.0,2.15),target=(x,0,2.1),lens=42,aspect=1.4),
  window=dict(location=(x+.7,-5.0,l['floor_first']+1.5),target=(x-.3,0,l['floor_first']+1.7),lens=62,aspect=1.15),
- cornice=dict(location=(x+2,-4.8,h-.45),target=(x,0,h-.40),lens=52,aspect=1.5),
+ cornice=dict(location=(cm['x']+1.8,-5.4,cm['height']-.35),target=(cm['x'],0,cm['height']-.40),lens=50,aspect=1.5),
  corner=dict(location=(-W/2-5.5,-7.5,2.0),target=(-W/2+.9,1,2.5),lens=40,aspect=1.3),
- ghost=dict(location=(-W/2-12,13,4),target=(-W/2,16,4),lens=43,aspect=1.65),
+ ghost=dict(location=(-W/2-14,gy+2.0,3.8),target=(-W/2,gy,3.3),lens=43,aspect=1.65),
  escape=dict(location=(x+2,d+12,4.0),target=(x,d+1,3.0),lens=40,aspect=1.35),
  gallery=dict(location=(x+4,-9,3),target=(x,-1.2,3.4),lens=43,aspect=1.55))
 
@@ -82,8 +82,14 @@ def render_block(region,out,width,samples,selected=None,camera_file=None,engine=
   for i,pos in enumerate(street['pits']):
    context+=append_context(rows['maple'],pos,25*i,.55);context+=append_context(rows['light'],(pos[0]+2.2,pos[1]-.35,0))
  out=Path(out)/region;out.mkdir(parents=True,exist_ok=True);report={}
- for name in names:
+ for view_index,name in enumerate(names):
   shot=shots[name]
+  if context and not shot.get('context',False) and not any(shots[n].get('context',False) for n in names[view_index:]):
+   for ob in context:bpy.data.objects.remove(ob,do_unlink=True)
+   context=[]
+   for datablocks in (bpy.data.meshes,bpy.data.materials,bpy.data.images):
+    for item in list(datablocks):
+     if item.users==0:datablocks.remove(item)
   for o in context:o.hide_render=not shot.get('context',False)
   camera.location=shot['location'];camera.rotation_euler=(Vector(shot['target'])-camera.location).to_track_quat('-Z','Y').to_euler();camera.rotation_euler.rotate_axis('Z',shot.get('roll',0));camera.data.lens=shot.get('lens',45)
   sc=bpy.context.scene;sc.render.resolution_x=width;sc.render.resolution_y=round(width/shot.get('aspect',1.6));sc.render.resolution_percentage=100
@@ -115,3 +121,5 @@ if __name__=='__main__':
   for region in ('midwest','northeast'):render_block(region,Path('renders/matches'),a.width,a.samples,None,calibration,a.engine)
   compose(calibration,'renders/matches/raw','renders/matches')
   Path('renders/matches/.stamp').touch()
+
+ if not a.region and not a.shots and not a.camera_file:(a.out/'.stamp').touch()

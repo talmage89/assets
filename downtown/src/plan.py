@@ -57,6 +57,7 @@ def generate(seed=411, region='midwest', count=7, overrides=None):
         lots.append(dict(id=f'{region.title()}_{seed}_{i+1:02}', index=i,
             width=w, depth=d, x=cursor+w/2, y=d/2, stories=n, floor_first=h0,
             upper=upper, roof=roof, height=roof+parapet, parapet=parapet,
+            window_height={'italianate':2.20,'romanesque':2.14}.get(style,1.96),
             style=style, cornice=cornice, corner=corner, chamfer=1.45 if corner else 0,
             bays=bays, tenant=tenant, storefront=storefront, awning=not corner and tenant!='vacant' and (i%3!=2),
             transom='covered' if storefront=='aluminum' and i%2==0 else 'prism' if i%3==1 else 'clear',
