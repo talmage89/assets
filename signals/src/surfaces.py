@@ -72,8 +72,8 @@ def lenses(graphics):
   em=ns.new('ShaderNodeTexImage');em.image=bpy.data.images.load(str((folder/'T_Signals_Emissive.png').resolve()),check_existing=True)
   mix=ns.new('ShaderNodeMixRGB');mix.blend_type='MULTIPLY';mix.inputs[0].default_value=1;factor=.0007 if lit else .065;mix.inputs[2].default_value=(factor,factor,factor,1);ls.new(em.outputs['Color'],mix.inputs[1]);ls.new(mix.outputs[0],p.inputs['Base Color']);ls.new(em.outputs['Alpha'],p.inputs['Alpha']);m.surface_render_method='DITHERED'
   if lit:ls.new(em.outputs['Color'],p.inputs['Emission Color']);p.inputs['Emission Strength'].default_value=LIT_STRENGTH
-  p.inputs['Roughness'].default_value=.115
-  p.inputs['Coat Weight'].default_value=.7
+  p.inputs['Roughness'].default_value=.15
+  p.inputs['Coat Weight'].default_value=.35
   p.inputs['Coat Roughness'].default_value=.09
   mats.append(m)
  return mats

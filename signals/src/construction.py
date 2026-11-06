@@ -87,6 +87,30 @@ def run(seed):
   assert depth<=.0015,(seed,'Door',angle,depth)
  door.matrix_basis=rest;bpy.data.objects.remove(test,do_unlink=True)
  result['motion'].append(dict(part='Controller__Door',range_degrees=[-110,0],step_degrees=5,samples=23,peak_penetration_m=peak,tolerance_m=.0015,exception='Intended compressible rubber gasket excluded; closed leaf/jamb permits 1.5 mm fit tolerance'))
+ # Actual door construction and access aperture, not export equivalence.
+ contact(door,'Stiffened inner door panel','Folded aluminum door')
+ contact(door,'Inner door folded stiffener','Stiffened inner door panel')
+ contact(door,'Door document pocket','Stiffened inner door panel')
+ contact(door.parent,'Cabinet service light diffuser','Service lamp roof mounting channel')
+ police=bpy.data.objects['Controller__PoliceDoor'];rest_police=police.matrix_basis.copy()
+ policebody=next(o for o in police.children if o.type=='MESH')
+ proxy=policebody.copy();proxy.data=policebody.data.copy();bpy.context.collection.objects.link(proxy)
+ bm=bmesh.new();bm.from_mesh(proxy.data);layer=bm.faces.layers.int.get('Construction')
+ bmesh.ops.delete(bm,geom=[f for f in bm.faces if layer and reg.get(str(f[layer]),'').startswith('Police door hinge pin')],context='FACES');bm.to_mesh(proxy.data);bm.free()
+ frame=next(o for o in door.children if o.type=='MESH');framecopy=frame.copy();framecopy.data=frame.data.copy();bpy.context.collection.objects.link(framecopy)
+ bm=bmesh.new();bm.from_mesh(framecopy.data);layer=bm.faces.layers.int.get('Construction')
+ bmesh.ops.delete(bm,geom=[f for f in bm.faces if layer and reg.get(str(f[layer]),'').startswith('Police access door gasket')],context='FACES');bm.to_mesh(framecopy.data);bm.free()
+ frame_surface=motion.surface(framecopy);peak=0
+ for angle in range(0,96,5):
+  police.matrix_basis=rest_police@Matrix.Rotation(math.radians(-angle),4,'Z');bpy.context.view_layer.update()
+  depth,_=motion.penetration(motion.surface(proxy),frame_surface,.001);peak=max(peak,depth)
+  assert depth<=.001,(seed,'Police door',angle,depth)
+ police.matrix_basis=rest_police;bpy.context.view_layer.update()
+ inv=frame.matrix_world.inverted();start=inv@(door.matrix_world@Vector((.53,-.1,1.25)));direction=inv.to_3x3()@door.matrix_world.to_3x3()@Vector((0,1,0))
+ hit=frame.ray_cast(start,direction,distance=.2)[0];assert not hit,(seed,'Police aperture obstructed')
+ result['measurements'].append(dict(part='Police access aperture',ray_start_world_m=list(frame.matrix_world@start),unobstructed_through_leaf_and_inner_panel=True,ray_length_m=.2,scope='Actual fixed leaf mesh ray; moving police leaf tested separately'))
+ result['motion'].append(dict(part='Controller__PoliceDoor',axis='Z',range_degrees=[-95,0],step_degrees=5,samples=20,peak_penetration_m=peak,exception='Pin forms intentional hinge contact; compressible police-door gasket excluded'))
+ bpy.data.objects.remove(proxy,do_unlink=True);bpy.data.objects.remove(framecopy,do_unlink=True)
  # Check one of each head style against its own fixed support for both axes.
  # Only the indexed stem's intentional coupler contact is excluded.
  used=set()

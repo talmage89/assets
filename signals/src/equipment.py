@@ -341,16 +341,17 @@ def cabinet(name,p,yaw,parent=None):
  for z in (.50,.93,1.45):box('Harness restraint',(.32,.09,z),(.044,.03,.015),'white',rt,0)
  door=root(name+'__Door',(-.435,-.380,.23),rt,kind='CabinetDoor')
  door['pivot_axis']='Z';door['range_degrees']=[-110,0]
- box('Folded aluminum door',(.44375,-.012,.80075),(.8475,.040,1.5965),'cabinet',door,.007)
+ skin=G.box('Folded aluminum door',(.44375,-.012,.80075),(.8475,.040,1.5965),M['cabinet'],.007,1)
+ G.boolean(skin,G.box('Police access aperture',(.53,-.012,1.25),(.229,.12,.192),None,.002,1));own(skin,door)
  # Gasket is a perimeter extrusion, leaving the inner aluminum panel visible.
  for x in (.023,.847):box('Weather gasket',(x,.012,.81),(.012,.009,1.574),'rubber',door,0)
  for z in (.023,1.597):box('Weather gasket',(.435,.012,z),(.824,.009,.012),'rubber',door,0)
- box('Stiffened inner door panel',(.435,.018,.81),(.790,.008,1.535),'cabinet',door,0)
- for x in (.11,.76):box('Inner door folded stiffener',(x,.036,.89),(.028,.034,1.24),'cabinet',door,0)
+ inner=G.box('Stiffened inner door panel',(.435,.012,.81),(.790,.008,1.535),M['cabinet'],0)
+ G.boolean(inner,G.box('Police inner aperture',(.53,.012,1.25),(.229,.12,.192),None,0));own(inner,door)
+ for x in (.11,.76):box('Inner door folded stiffener',(x,.033,.89),(.028,.034,1.24),'cabinet',door,0)
  # Recessed police access door; its edge gasket, lock and folded skin.
- box('Police access door gasket',(.53,-.034,1.25),(.247,.004,.210),'rubber',door,0)
- box('Police access door',(.53,-.037,1.25),(.235,.006,.198),'cabinet',door,0)
- cyl('Police door cam lock',(.61,-.041,1.25),(.61,-.049,1.25),.009,'steel',door,8)
+ for xx in (.4105,.6495):box('Police access door gasket',(xx,-.034,1.25),(.008,.004,.210),'rubber',door,0)
+ for zz in (1.149,1.351):box('Police access door gasket',(.53,-.034,zz),(.247,.004,.008),'rubber',door,0)
  for z in (.20,.80,1.40):cyl('Continuous hinge segment',(-.003,-.005,z-.07),(-.003,-.005,z+.07),.011,'steel',door,8)
  box('Vent dark aperture',(.23,-.034,.30),(.31,.004,.28),'inside',door,0)
  for i in range(9):box('Pressed louver',(.23,-.048,.18+i*.03),(.33,.030,.020),'cabinet',door,.001)
@@ -359,10 +360,10 @@ def cabinet(name,p,yaw,parent=None):
  box('Padlock body',(.82,-.072,.83),(.040,.024,.040),'bronze',door,.003)
  box('Original Morrow Controls plate',(.48,-.034,1.42),(.125,.002,.032),'black',door,0)
  # Small service lock and maintenance sticker form, markings wait for look-dev.
- cyl('Door service lock',(.80,-.035,1.04),(.80,-.047,1.04),.012,'steel',door,12)
+ cyl('Door service lock',(.80,-.032,1.04),(.80,-.047,1.04),.012,'steel',door,12)
  box('Inspection sticker',(.55,-.034,1.08),(.071,.001,.10),'white',door,0)
- box('Door document pocket',(.43,.045,.48),(.56,.045,.29),'cabinet',door,0)
- quad('Maintenance record',(.43,.069,.51),.39,.22,'record',door)
+ box('Door document pocket',(.43,.0385,.48),(.56,.045,.29),'cabinet',door,0)
+ quad('Maintenance record',(.43,.0625,.51),.39,.22,'record',door)
  # Service pedestal / meter next to cabinet, conduits terminate at grade.
  cyl('Service riser',(1.02,.18,.0),(1.02,.18,1.72),.030,'zinc',rt,12)
  box('Electric disconnect',(1.02,.12,1.13),(.27,.18,.40),'cabinet',rt,.006)
@@ -381,7 +382,12 @@ def cabinet(name,p,yaw,parent=None):
    zz=.23+station+dz
    box('Welded hinge leaf',(-.438,-.348,zz),(.035,.065,.025),'cabinet',rt,0)
    cyl('Fixed hinge knuckle',(-.438,-.380,zz-.0125),(-.438,-.380,zz+.0125),.012,'steel',rt,8)
- join_fixed(door);join_fixed(rt);return rt
+ police=root(name+'__PoliceDoor',(.4125,-.004,1.25),door,kind='CabinetPoliceDoor')
+ police['pivot_axis']='Z';police['range_degrees']=[-95,0]
+ box('Police access door',(.1175,.003,0),(.235,.006,.198),'cabinet',police,0)
+ cyl('Police door cam lock',(.1975,0,0),(.1975,-.009,0),.009,'steel',police,8)
+ for zz in (-.067,.067):cyl('Police door hinge pin',(0,.004,zz-.012),(0,.004,zz+.012),.004,'steel',police,6)
+ join_fixed(police);join_fixed(door);join_fixed(rt);return rt
 
 def pullbox(name,p,rt):
  r=root(name,p,rt,kind='PullBox')

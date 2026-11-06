@@ -96,5 +96,5 @@ def finalize_meshes():
    # The angular reflection changes continuously without silhouette triangles.
    pts=[v.co for v in o.data.vertices];cx=(min(v.x for v in pts)+max(v.x for v in pts))/2;cz=(min(v.z for v in pts)+max(v.z for v in pts))/2
    for f in o.data.polygons:f.use_smooth=True
-   o.data.normals_split_custom_set_from_vertices([Vector(((v.co.x-cx)/.24,-1,(v.co.z-cz)/.24)).normalized() for v in o.data.vertices])
+   o.data.normals_split_custom_set_from_vertices([Vector(((v.co.x-cx)/.65,-1,(v.co.z-cz)/.65)).normalized() for v in o.data.vertices])
 def tri(rt):return sum(len(o.data.loop_triangles) for o in rt.children_recursive if o.type=='MESH')
