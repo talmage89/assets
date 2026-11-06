@@ -119,6 +119,8 @@ def main():
             raise RuntimeError('Checkpoint is not current/passing: '+str(config))
         status=f'Chain check: {checks["passed"]}; image check: {metrics["passed"]}; normal check: {normals["passed"]}.'
         text+=['## '+cfg['kind'],'',status,'',table(m),'',resident_text(m),'']
+        if checks.get('errors'):
+            text+=['Raw check errors:','']+['- '+error for error in checks['errors']]+['']
         failures=[r for r in metrics['comparisons'] if not r['passed']]
         if failures:
             text+=['Failed views (reference and preceding level use the same limits):','',
@@ -142,7 +144,7 @@ def main():
                 path=(doc.path.parent/rel).resolve();dependencies[path]=path.stat().st_size
         distinct_bytes=sum(dependencies.values())
         text+=[f'Distinct payload dependencies for the delivery, including optional alternatives: **{distinct_bytes:,} bytes**, excluding audit JSONs.','']
-        rows.append(dict(asset=root.name,resident=m['resident'],levels=m['levels'],chain_passed=checks['passed'],images_passed=metrics['passed'],normals_passed=normals['passed'],distinct_payload_bytes=distinct_bytes,
+        rows.append(dict(asset=root.name,resident=m['resident'],levels=m['levels'],chain_passed=checks['passed'],chain_errors=checks.get('errors',[]),images_passed=metrics['passed'],normals_passed=normals['passed'],distinct_payload_bytes=distinct_bytes,
                          maximum_image_mean=max(r[k]['mean'] for r in metrics['comparisons'] for k in ['reference','adjacent'])))
         if args.write_readmes:
             readme=root/'README.md';old=readme.read_text();start='<!-- LOD checkpoint: begin -->';end='<!-- LOD checkpoint: end -->'
