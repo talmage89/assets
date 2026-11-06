@@ -41,7 +41,7 @@ class Spec:
     def hanger_width(self):return self.width-.0662
     def dict(self):return asdict(self)
 def spec(seed=0,state='season'):
-    # Geometric variations first; age surface effects deliberately wait for look-dev.
+    # Seeded mold classes; build.py applies contact-driven age geometry.
     rows=[(8,32.125,14.375,6.875,6.625),(7.75,31.75,14,6.875,6.625),
           (8.25,32,14.25,7,6.5),(8.5,32.25,14.5,6.875,6.625)]
     w,l,wb,n,t=rows[seed%4]

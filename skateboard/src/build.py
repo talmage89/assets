@@ -122,9 +122,16 @@ def allen_high(name,x,y,z,mat):
     return G.mesh(name,vertices,faces,mat)
 
 def allen_head(name,x,y,z,mat):
-    # Eight-sided countersunk head. The six-sided drive is in the high source
-    # and normal map; the buried shank/head back add no game faces.
-    return G.lathe(name,[(z-.0012,.0025),(z+.0007,.0043),(z+.0007,0)],mat,8,center=(x,y))
+    # Twelve-sided visible head, six-sided buried cone, real six-sided drive.
+    # 56 triangles: keep the mouth shadow and spend no sides under the grip.
+    vs=[]
+    for count,radius,zz in ((6,.0022,z-.0017),(12,.0043,z+.0007),(6,.00145,z+.0007),(6,.00145,z-.0007)):
+        vs.extend((x+radius*math.cos(math.tau*i/count),y+radius*math.sin(math.tau*i/count),zz) for i in range(count))
+    fs=[tuple(reversed(range(6))),tuple(range(24,30))]
+    for k in range(6):
+        j=(k+1)%6;a=6+2*k;m=6+(2*k+1)%12;b=6+(2*k+2)%12
+        fs.extend([(k,a,m),(k,m,b,j),(a,m,18+k),(m,b,18+j,18+k),(18+k,18+j,24+j,24+k)])
+    return G.mesh(name,vs,fs,mat)
 
 def bored_ring(name,at,axis,profile,mat,n=20):
     o=G.lathe(name,profile,mat,n,closed=True)
@@ -135,7 +142,7 @@ def ring(name,at,axis,ro,ri,depth,mat,n=20):
     return bored_ring(name,at,axis,[(0,ri),(0,ro),(depth,ro),(depth,ri)],mat,n)
 
 def annulus(name,at,axis,ro,ri,mat,n=12):
-    o=G.mesh(name,[(r*math.cos(math.tau*i/n),r*math.sin(math.tau*i/n),0) for r in (ri,ro) for i in range(n)],[(i,(i+1)%n,(i+1)%n+n,i+n) for i in range(n)],mat)
+    o=G.mesh(name,[(r*math.cos(math.tau*i/n),r*math.sin(math.tau*i/n),0) for r in (ri,ro) for i in range(n)],[(i+n,(i+1)%n+n,(i+1)%n,i) for i in range(n)],mat)
     o.rotation_euler=Vector(axis).to_track_quat('Z','Y').to_euler();o.location=at;return o
 
 def nut(name,at,axis,r,depth,bore,mat,nylon,owner,part):
@@ -145,7 +152,8 @@ def nut(name,at,axis,r,depth,bore,mat,nylon,owner,part):
     bm=bmesh.new();bm.from_mesh(o.data);bm.faces.ensure_lookup_table();bmesh.ops.delete(bm,geom=list(bm.faces)[12:],context='FACES_ONLY');bm.to_mesh(o.data);bm.free()
     tag(o,part,owner)
     q=Vector(at)+Vector(axis)*(depth-.0005)
-    tag(annulus(name+' nylon insert',q,axis,r*.73,bore,nylon,6),part,owner)
+    internal=annulus(name+' nylon insert',q,axis,r*.73,bore,nylon,6)
+    tag(internal,part,owner);del internal['asset_set'];internal['source_only']=True;internal.hide_render=True;internal.hide_set(True)
     return o
 
 def build(s):
@@ -236,6 +244,19 @@ def build(s):
             cy0=ay+(yc.y-ay)*blend;cz0=az+(yc.z-az)*blend
             loops.append([(frac*hw,cy0+ry*math.cos(a),cz0+rz*math.sin(a)) for a in [math.tau*i/24 for i in range(24)]])
         pieces=[barrel,G.loft('Swept cast wing web seed',loops,al)]
+        # The outer face is a continuous triangular cast web from the axle
+        # housing to the pivot nose. Oval sections bow across both Y and Z;
+        # this is a compound casting surface, not an extruded side cutout.
+        web=[]
+        for fraction in (-1,-.94,-.72,-.46,-.22,0,.22,.46,.72,.94,1):
+            taper=max(0,1-abs(fraction))
+            upper=az+.0065+(pc.z-az-.003)*taper
+            lower=az-.0065
+            centerz=(upper+lower)/2
+            centery=ay+(pc.y-ay)*taper
+            radiusy=.0065+.0015*taper
+            web.append([(fraction*hw,centery+radiusy*math.cos(math.tau*i/32),centerz+(upper-lower)/2*math.sin(math.tau*i/32)) for i in range(32)])
+        pieces.append(G.loft('Triangular drafted outer hanger web',web,al))
         seat=bored_ring('Drafted annular kingpin seat',yc-kaxis*.0039,kaxis,[(0,.0065),(0,.0175),(.001,.018),(.0068,.018),(.0078,.0175),(.0078,.0065)],al,48);pieces.append(seat)
         arm=G.lathe('Tapered cast pivot arm seed',[(0,0),(0,.0045),(.010,.0045),(.025,.0055),(.040,.0065),((yc-pc).length,.0065),((yc-pc).length,0)],al,24);arm.location=pc-steer*.003;arm.rotation_euler=steer.to_track_quat('Z','Y').to_euler();pieces.append(arm)
         hanger=solidify_cast(pieces,label+' sculpted hanger',950)
@@ -279,7 +300,8 @@ def build(s):
                 tag(annulus('608 '+label+side_label+str(bs)+' shield',at+Vector(axis)*.00705,axis,.0096,.0069,shield,20),'bearings',wr)
             # The 10 mm tubular spacer is wholly enclosed by the axle/bearings
             # and wheel core. Its hidden faces are omitted from the game mesh.
-            for distance in (hw,hw+.0245):
+            # The outboard speed ring is completely covered by the nut.
+            for distance in (hw,):
                 tag(annulus('Axle speed ring '+label+side_label,(side*(distance+.0005),ay,az),(side,0,0),.006,.004,steel,10),'spacers',pivot)
             nut('Axle nut '+label+side_label,(side*(hw+.025),ay,az),(side,0,0),.0073,.0058,.004,steel,rubber,pivot,'axle_nuts')
     if s.state!='new':

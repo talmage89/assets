@@ -30,7 +30,7 @@ dense_counts={}
 for o in bpy.context.scene.objects:
     if o.type=='MESH' and o.get('source_only'):
         o.data.calc_loop_triangles();dense_counts[o.name]=len(o.data.loop_triangles)
-proof['dense_casting_triangles']=dense_counts;proof['triangles_per_part']=counts;proof['triangles']=sum(counts.values());require(6000<=proof['triangles']<=14000,'Whole board outside authorized 6k–14k budget')
+proof['retained_source_geometry_triangles']=dense_counts;proof['triangles_per_part']=counts;proof['triangles']=sum(counts.values());require(6000<=proof['triangles']<=14000,'Whole board outside authorized 6k–14k budget')
 proof['deck_bounds_m']=db;require(abs(db['size'][1]-s.length)<.0002,'Deck length drift');require(abs(db['size'][0]-s.width)<.001,'Deck width drift')
 # Vertical rays measure the actual top/bottom surfaces at the stance center and rails.
 ds=surface(deck)
@@ -60,6 +60,16 @@ for sign,label in ((-1,'nose'),(1,'tail')):
     if len(candidates)>1:
         first=Vector((0,sign*.32,rayheight(0,sign*.32)));last=Vector((0,sign*.38,rayheight(0,sign*.38)));angle=math.degrees(math.atan2(last.z-first.z,abs(last.y-first.y)));angles[label]=angle;require(17.4<angle<20.0,label+' measured curved kick tangent outside mold class')
 proof['measured_kick_angles_degrees']=angles
+# Open bearing face windings must face out of the wheel, not into the bore.
+# Unit-length normals alone cannot prove that manufacturing orientation.
+bearing_normals=[]
+for o in meshes:
+    if o.get('part')!='bearings':continue
+    axis=Vector((-1 if '-1' in o.name else 1,0,0))
+    normal=(o.matrix_world.to_3x3()@o.data.polygons[0].normal).normalized()
+    dot=normal.dot(axis);bearing_normals.append(dict(name=o.name,outward_dot=dot))
+    require(dot>.99,o.name+' face winding points into wheel bore')
+proof['bearing_face_windings']=bearing_normals
 # Wheel diameter, contact band and bearing seats are measured from exported
 # mesh-space vertex stations, not reprinted from the input spec.
 wheelproof=[]
