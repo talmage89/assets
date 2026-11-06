@@ -1,0 +1,105 @@
+"""Cycles form judgments from freshly imported external checkpoint glTF.
+
+All lighting is procedural. Native library geometry builds the neighborhood;
+it is presentation context and never enters the park exports.
+"""
+import argparse,json,math,hashlib,sys
+from pathlib import Path
+import bpy
+from mathutils import Vector
+HERE=Path(__file__).resolve().parent;sys.path[:0]=[str(HERE.parents[1]),str(HERE)]
+from kit import gpu
+import geometry as Q
+from park_site import load,remove
+
+def setup(samples,energy=4.5,direction=(-.7,.35,-.55),sky=.08):
+    sc=bpy.context.scene;sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=samples;sc.cycles.use_denoising=True
+    sc.world=bpy.data.worlds.new('Procedural late summer sky');sc.world.use_nodes=True
+    nt=sc.world.node_tree;nt.nodes.clear();n=nt.nodes.new('ShaderNodeTexSky');n.sky_type='MULTIPLE_SCATTERING';n.sun_disc=False;n.sun_elevation=math.radians(30);n.sun_rotation=math.radians(215);n.air_density=1;n.aerosol_density=.3
+    sat=nt.nodes.new('ShaderNodeHueSaturation');sat.name='Estimated sky chroma';nt.links.new(n.outputs[0],sat.inputs['Color'])
+    bg=nt.nodes.new('ShaderNodeBackground');bg.inputs['Strength'].default_value=sky;out=nt.nodes.new('ShaderNodeOutputWorld');nt.links.new(sat.outputs[0],bg.inputs[0]);nt.links.new(bg.outputs[0],out.inputs[0])
+    sun=bpy.data.objects.new('Raking sun',bpy.data.lights.new('Raking sun','SUN'));sc.collection.objects.link(sun);sun.data.energy=energy;sun.data.angle=math.radians(.6);sun.rotation_euler=Vector(direction).to_track_quat('-Z','Y').to_euler()
+    sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=-.2
+    sc.render.image_settings.file_format='PNG';sc.render.image_settings.color_mode='RGB'
+    cam=bpy.data.objects.new('Form camera',bpy.data.cameras.new('Form camera'));sc.collection.objects.link(cam);sc.camera=cam
+    cam.data.sensor_fit='HORIZONTAL';cam.data.sensor_width=36;cam.data.clip_end=1500;cam.data.clip_start=.02;return cam
+
+def context(p):
+    W,D=p['skating'];Q.palette();rt=Q.root('Presentation only context','context')
+    # Four disjoint lawn regions leave the park's actual bowl void uncovered.
+    SW,SD=p['site']
+    for x0,x1,y0,y1 in ((-700,-SW/2,-700,700),(SW/2,700,-700,700),(-SW/2,SW/2,SD/2,700),(-SW/2,SW/2,-700,-SD/2)):
+        Q.mesh('Surrounding city park',[(x0,y0,-.08),(x1,y0,-.08),(x1,y1,-.08),(x0,y1,-.08)],[(0,1,2,3)],rt,'Lawn')
+    f=load('ground')
+    # Continuous native road/curb/walk on both front and rear park streets.
+    for cy in (-D/2-20.7264,D/2+22.86):
+        for i in range(-15,16):
+            x=i*6.096;Q.instance(f['Road_Straight_A'],'Context road',(x,cy,-.17),90,rt)
+            for side in (-1,1):
+                for dx in (-1.524,1.524):Q.instance(f['Curb_Straight'],'Context curb',(x+dx,cy+side*4.1148,-.17),90 if side>0 else -90,rt)
+                for dx in (-2.286,-.762,.762,2.286):Q.instance(f['Sidewalk_A'],'Context sidewalk',(x+dx,cy+side*6.096,-.17),90 if side>0 else -90,rt)
+    cx=W/2+22.86
+    for i in range(-12,13):
+        y=i*6.096;Q.instance(f['Road_Straight_A'],'Context east street',(cx,y,-.17),0,rt)
+        for side in (-1,1):
+            for dy in (-1.524,1.524):Q.instance(f['Curb_Straight'],'Context east curb',(cx+side*4.1148,y+dy,-.17),0 if side>0 else 180,rt)
+            for dy in (-2.286,-.762,.762,2.286):Q.instance(f['Sidewalk_A'],'Context east sidewalk',(cx+side*6.096,y+dy,-.17),0 if side>0 else 180,rt)
+    remove(f)
+    f=load('houses');house=next(iter(f.values()))
+    for i in range(-3,4):
+        Q.instance(house,'Context town house',(i*23.0,D/2+39.624,-.1),0,rt)
+    for i in range(-2,3):Q.instance(house,'Context east town house',(W/2+37.0,i*24.0,-.1),-90,rt)
+    remove(f)
+    f=load('tree');tree=next(iter(f.values()))
+    for i in range(-6,7):
+        Q.instance(tree,'Context street maple',(i*13.5+5,D/2+31.0,-.1),(i*43)%360,rt)
+    for i in range(7):
+        Q.instance(tree,'Context park maple',(W/2+16+(i%2)*10,-20+i*12,-.1),i*71,rt)
+    remove(f)
+    return rt
+
+def views(p):
+    W,D=p['skating']
+    shots=dict(above=dict(location=(-W*1.10,-D*1.70,57),target=(0,-3,0),lens=40,aspect=1.5),
+               ground=dict(location=(-W*.68,-D*.77,1.65),target=(1,2,1.0),lens=40,aspect=1.9))
+    if p['seed']==202:shots['ground']=dict(location=(18.7,-9,1.65),target=(-8,1,.8),lens=40,aspect=1.9)
+    if p['seed']==101:
+        shots.update(hero=dict(location=(-19.0,-7.0,1.65),target=(4,1,1.0),lens=35,aspect=1.85),
+                     bowl=dict(location=(-11.3,-3.65,.75),target=(-10.968,-5.18,-.07),lens=55,aspect=1.5),
+                     ledge=dict(location=(12.0,-10.0,1.25),target=(9.449,-6.6,.39),lens=55,aspect=1.5),
+                     stairs=dict(location=(17,-4.2,1.70),target=(13.1064,.3,.61),lens=45,aspect=1.5))
+    if p['seed']==303:
+        shots['prefab']=dict(location=(2.25,4.95,1.4),target=(0,7.5,.65),lens=40,aspect=1.5)
+    return shots
+
+def render(seed,folder,out,width,samples,names=None,custom=None,with_context=True):
+    source=Path(folder)/('Park_'+str(seed)+'.gltf');info=json.loads(Path('build/park-'+str(seed)+'.json').read_text());p=info['plan']
+    bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source.resolve()));assets=list(bpy.context.scene.objects)
+    if with_context:context(p)
+    cam=setup(samples);sc=bpy.context.scene;shots=custom or views(p);records={};out=Path(out);out.mkdir(parents=True,exist_ok=True)
+    for name,v in shots.items():
+        if names and name not in names:continue
+        if v.get('isolate'):
+            for ob in assets:
+                owner=ob
+                while owner.parent:owner=owner.parent
+                ob.hide_render=owner.name not in v['isolate']
+        cam.location=v['location'];cam.rotation_euler=(Vector(v['target'])-cam.location).to_track_quat('-Z','Y').to_euler()
+        if v.get('roll'):cam.rotation_euler.rotate_axis('Z',v['roll'])
+        cam.data.lens=v.get('lens',40);cam.data.shift_y=v.get('shift_y',0)
+        sc.view_settings.exposure=v.get('exposure',-.2)
+        sc.render.resolution_x=width;sc.render.resolution_y=round(width/v.get('aspect',1.5));sc.render.resolution_percentage=100
+        sun=bpy.data.objects['Raking sun'];sun.rotation_euler=Vector(v.get('sun_direction',(-.7,.35,-.55))).to_track_quat('-Z','Y').to_euler();sun.data.energy=v.get('sun_energy',4.5)
+        if 'sky_strength' in v:sc.world.node_tree.nodes.get('Background').inputs['Strength'].default_value=v['sky_strength']
+        sc.world.node_tree.nodes['Estimated sky chroma'].inputs['Saturation'].default_value=v.get('sky_saturation',1)
+        sun.data.angle=math.radians(v.get('sun_angle_degrees',.6))
+        bpy.context.view_layer.update();sc.render.filepath=str((out/(name+'.png')).resolve());bpy.ops.render.render(write_still=True)
+        records[name]=dict(seed=seed,source=str(source),geometry_sha256=info['delivery']['sha256'],camera=v,engine='Cycles',samples=samples,width=width)
+        (out/(name+'.json')).write_text(json.dumps(records[name],indent=2))
+    return records
+
+def main():
+    p=argparse.ArgumentParser();p.add_argument('--source');p.add_argument('--out',type=Path,default=Path('renders/checkpoint'));p.add_argument('--width',type=int,default=1440);p.add_argument('--samples',type=int,default=32);p.add_argument('--seed',type=int);p.add_argument('--shots',nargs='+');a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
+    for seed in ([a.seed] if a.seed else (101,202,303)):render(seed,'export/checkpoint',a.out/str(seed),a.width,a.samples,a.shots)
+
+if __name__=='__main__':main()
