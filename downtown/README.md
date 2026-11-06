@@ -41,7 +41,7 @@ a building or a manufacturer's ornament.
 | Display bulkhead | 510 mm original, 320 mm replacement aluminum |
 | Retail entry | 1.04 m return depth; leaf 70 mm behind returns, 900 mm nominal leaf |
 | Main transom band | 620 mm high, separate from sign-band girder |
-| Upper front / rear openings | Up to 1.02 × 1.96 / 1.02 × 1.63 m |
+| Upper front / rear openings | Up to 1.02 × 1.96–2.20 / 1.02 × 1.63 m |
 | Sash inset | 105 mm Italianate front, 190 mm masonry/rear |
 | Segmental arch rise / sill | 220 / 120 mm |
 | Corner chamfer | 1.45 m back on both outer edges, actual diagonal wall |
@@ -78,7 +78,7 @@ with shallow visible rooms, not playable complete floor plans.
 `src/plan.py` is pure Python. Inputs are integer `seed`, one of `midwest`,
 `western`, `northeast`, `southern`, and a bounded lot count of 4–12. `load()`
 also accepts an authored JSON plan. Regional constants describe permitted lot
-widths/depths, story/style distributions, masonry palette, walk width and
+widths/depths, story/style distributions, style-specific sash height, masonry palette, walk width and
 parking type. First and last lots are wider corners; one infill is reserved
 in the Midwestern/western grammar. The same seed gives identical geometry
 and sign pixels; budgets are measured on actual generated meshes.
@@ -109,8 +109,11 @@ are applied. Front placement aligns the `FrontLine` socket to the sidewalk.
 
 All door pivots rotate about local Blender +Z (glTF +Y) through 0–100° inward.
 The upper gallery doors meet the deck. No armature or animation clip is needed.
-The sampled sweep checks every actual leaf against the fixed triangles at 5°
-increments, not a constant clearance claim or just serialization.
+The sampled sweep checks every actual leaf against the fixed triangles at 1°
+increments, not a constant clearance claim or just serialization. The kit still computes
+BVH crossings, edge intervals and distances; the downtown audit uses oriented
+solid-angle membership because coplanar assembly faces can confuse ray parity.
+Fixtures check both hollow room air and a genuinely contained collision.
 
 ## Geometry and resource budget
 
@@ -122,44 +125,45 @@ faces would not improve their silhouette.
 
 | Block / seed | Frontage | Building triangles | Checkpoint GLB bytes |
 | --- | ---: | ---: | ---: |
-| Midwest / 411 | 60.655 m | 67,814 | 8,859,048 |
-| Western / 512 | 58.826 m | 48,686 | 6,469,164 |
-| Northeast / 613 | 56.083 m | 104,680 | 13,590,240 |
-| Southern / 714 | 65.227 m | 80,856 | 10,521,920 |
+| Midwest / 411 | 60.655 m | 67,822 | 8,861,312 |
+| Western / 512 | 58.826 m | 48,938 | 6,501,092 |
+| Northeast / 613 | 56.083 m | 104,692 | 13,585,564 |
+| Southern / 714 | 65.227 m | 80,920 | 10,530,516 |
 
 Actual individual geometry (gltf + bin MiB excludes the shared image):
 
-| Building | Lot | Stories | Parapet height m | Triangles | Geometry MiB |
+| Building | Lot | Stories | Top of parapet m | Triangles | Geometry MiB |
 | --- | --- | ---: | ---: | ---: | ---: |
-| Midwest_411_01 | 32 × 100 ft | 2 | 8.687 | 11,518 | 1.417 |
-| Midwest_411_02 | 27 × 110 ft | 2 | 8.992 | 11,650 | 1.440 |
-| Midwest_411_03 | 22 × 90 ft | 2 | 9.296 | 7,422 | 0.914 |
-| Midwest_411_04 | 27 × 90 ft | 1 | 4.877 | 3,256 | 0.415 |
-| Midwest_411_05 | 25 × 90 ft | 2 | 8.534 | 11,026 | 1.353 |
-| Midwest_411_06 | 30 × 90 ft | 2 | 8.382 | 8,738 | 1.068 |
-| Midwest_411_07 | 36 × 90 ft | 2 | 9.296 | 14,204 | 1.741 |
-| Western_512_01 | 36 × 100 ft | 2 | 8.382 | 15,636 | 1.915 |
-| Western_512_02 | 25 × 100 ft | 1 | 5.029 | 4,636 | 0.593 |
-| Western_512_03 | 28 × 100 ft | 1 | 5.334 | 3,314 | 0.422 |
-| Western_512_04 | 24 × 100 ft | 1 | 4.724 | 3,196 | 0.409 |
-| Western_512_05 | 24 × 90 ft | 1 | 5.944 | 4,550 | 0.581 |
-| Western_512_06 | 20 × 80 ft | 1 | 5.639 | 3,508 | 0.446 |
-| Western_512_07 | 36 × 80 ft | 2 | 8.992 | 13,846 | 1.697 |
-| Northeast_613_01 | 36 × 120 ft | 3 | 12.497 | 23,528 | 2.895 |
-| Northeast_613_02 | 20 × 120 ft | 2 | 8.839 | 10,602 | 1.307 |
-| Northeast_613_03 | 20 × 120 ft | 3 | 13.259 | 9,362 | 1.156 |
-| Northeast_613_04 | 26 × 100 ft | 3 | 12.497 | 13,278 | 1.629 |
-| Northeast_613_05 | 20 × 100 ft | 3 | 12.497 | 12,344 | 1.516 |
-| Northeast_613_06 | 26 × 140 ft | 3 | 13.259 | 11,990 | 1.485 |
-| Northeast_613_07 | 36 × 140 ft | 3 | 12.649 | 23,576 | 2.868 |
-| Southern_714_01 | 36 × 120 ft | 2 | 8.992 | 15,934 | 1.955 |
-| Southern_714_02 | 30 × 90 ft | 2 | 8.992 | 13,374 | 1.639 |
-| Southern_714_03 | 25 × 120 ft | 2 | 9.296 | 9,284 | 1.140 |
-| Southern_714_04 | 23 × 120 ft | 2 | 8.992 | 6,018 | 0.750 |
-| Southern_714_05 | 30 × 90 ft | 2 | 8.687 | 9,028 | 1.123 |
-| Southern_714_06 | 30 × 100 ft | 3 | 11.735 | 9,166 | 1.130 |
-| Southern_714_07 | 40 × 90 ft | 2 | 8.992 | 18,052 | 2.201 |
+| Midwest_411_01 | 32 × 100 ft | 2 | 8.687 | 11,566 | 1.423 |
+| Midwest_411_02 | 27 × 110 ft | 2 | 8.992 | 11,662 | 1.440 |
+| Midwest_411_03 | 22 × 90 ft | 2 | 9.296 | 7,338 | 0.906 |
+| Midwest_411_04 | 27 × 90 ft | 1 | 4.877 | 3,316 | 0.423 |
+| Midwest_411_05 | 25 × 90 ft | 2 | 8.534 | 10,954 | 1.345 |
+| Midwest_411_06 | 30 × 90 ft | 2 | 8.382 | 8,746 | 1.069 |
+| Midwest_411_07 | 36 × 90 ft | 2 | 9.296 | 14,240 | 1.745 |
+| Western_512_01 | 36 × 100 ft | 2 | 8.382 | 15,600 | 1.910 |
+| Western_512_02 | 25 × 100 ft | 1 | 5.029 | 4,696 | 0.601 |
+| Western_512_03 | 28 × 100 ft | 1 | 5.334 | 3,350 | 0.427 |
+| Western_512_04 | 24 × 100 ft | 1 | 4.724 | 3,256 | 0.416 |
+| Western_512_05 | 24 × 90 ft | 1 | 5.944 | 4,586 | 0.586 |
+| Western_512_06 | 20 × 80 ft | 1 | 5.639 | 3,568 | 0.454 |
+| Western_512_07 | 36 × 80 ft | 2 | 8.992 | 13,882 | 1.701 |
+| Northeast_613_01 | 36 × 120 ft | 3 | 12.497 | 23,576 | 2.897 |
+| Northeast_613_02 | 20 × 120 ft | 2 | 8.839 | 10,542 | 1.302 |
+| Northeast_613_03 | 20 × 120 ft | 3 | 13.259 | 9,302 | 1.150 |
+| Northeast_613_04 | 26 × 100 ft | 3 | 12.497 | 13,254 | 1.627 |
+| Northeast_613_05 | 20 × 100 ft | 3 | 12.497 | 12,380 | 1.521 |
+| Northeast_613_06 | 26 × 140 ft | 3 | 13.259 | 12,026 | 1.485 |
+| Northeast_613_07 | 36 × 140 ft | 3 | 12.649 | 23,612 | 2.871 |
+| Southern_714_01 | 36 × 120 ft | 2 | 8.992 | 15,898 | 1.950 |
+| Southern_714_02 | 30 × 90 ft | 2 | 8.992 | 13,382 | 1.640 |
+| Southern_714_03 | 25 × 120 ft | 2 | 9.296 | 9,224 | 1.134 |
+| Southern_714_04 | 23 × 120 ft | 2 | 8.992 | 6,078 | 0.757 |
+| Southern_714_05 | 30 × 90 ft | 2 | 8.687 | 9,064 | 1.128 |
+| Southern_714_06 | 30 × 100 ft | 3 | 11.735 | 9,226 | 1.137 |
+| Southern_714_07 | 40 × 90 ft | 2 | 8.992 | 18,048 | 2.199 |
 
+The 28 individual glTF/bin pairs total 39,050,233 disk bytes.
 The shared checkpoint sign image is 2048² / 174,836 disk bytes, about 5⅓ MiB
 with BC7 and mipmaps. It is loaded once for the family. The proposed final
 allocation is **42⅔ MiB** across three shared PBR sets plus sign and interior
@@ -177,7 +181,16 @@ aprons for different building depths. They use the ground family's 152.4 mm
 curb datum. `export/DowntownStreet_<region>.glb` is separate from the building
 assets; no ground delivery or shared kit file changes.
 
-The hero is an eye-height 1.68 m view from the opposite sidewalk at 40 mm on
+| Block | Street triangles | Buildings + street | Street GLB bytes |
+| --- | ---: | ---: | ---: |
+| Midwest | 5,368 | 73,190 | 681,336 |
+| Western | 5,140 | 54,078 | 655,840 |
+| Northeast | 5,380 | 110,072 | 682,848 |
+| Southern | 6,376 | 87,296 | 812,132 |
+
+These totals exclude the presentation-only cars, trees and lights.
+
+The hero is an eye-height 1.68 m view from the opposite sidewalk at 35 mm on
 a 36 mm sensor, under a procedural raking sun. Context uses the existing
 library's pickup, crossover, hatchback, maple and street-light generators.
 Their source forms are generated inside `downtown/build/context/`, imported
@@ -207,11 +220,15 @@ make -C downtown WIDTH=1000 SAMPLES=16 render
 
 `build/check.json` separates raw accessor serialization, fresh-import
 preservation, physical ray measurements, party interfaces and motion.
-`build/motion/*.json` records 89 doors × 21 sampled positions with no
+`build/motion/*.json` records 89 doors × 101 sampled positions with no
 exemptions. Independent steel-surface rays also measure feet at grade and
-3.328–3.605 m minimum sampled vertical clearance between stacked escape flights. `build/plan-check.json` records 4,000 deterministic plan checks;
+3.328–3.605 m minimum sampled vertical clearance between stacked escape flights. Additional exported-surface
+rays verify gallery feet at grade, 20 mm curb flashing overlap into the roof,
+and skylight glazing seated on its inclined side rails within 1 µm. `build/plan-check.json` records 4,000 deterministic plan checks;
 this is not a claim that 4,000 full buildings were rendered. Additional mesh
-sweep and repeat reports live beside it. Staging UVs are checked for finite,
+sweep and repeat reports live beside it. `build/render-check.json` verifies all
+20 Cycles views and three pairs against current export hashes, the hero camera,
+context hashes and display highlight clipping. Staging UVs are checked for finite,
 nondegenerate triangles; final trim density and overlap proof are deferred.
 
 Remaining limitations: quick/unworn surfaces; repeated sash and rear equipment

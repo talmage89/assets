@@ -82,3 +82,112 @@ an open stair lane. This preserves headroom over the flight, joins each flight e
 to an actual lower landing, and gives the first flight feet on grade. Wall
 braces now reach their anchor plates. The earlier attractive overview was
 not sufficient evidence that the stairs could be used.
+
+## Fine motion verification while the GPU queue was occupied
+
+One-degree sampling found a 2.3 mm corner-leaf collision at 24° that five-degree
+sampling missed. Moving the first side display opening farther from the
+chamfer preserves a clear lobby. A separate 58° result was a ray-parity false
+positive: oriented-triangle winding was −.004 in air, versus about 1 inside
+the actual masonry. The downtown audit now uses that membership test while
+retaining the kit's BVH/edge intervals, nearest distances and 1 mm tolerance.
+Positive and negative fixtures cover abutting/overlapping members, hollow
+frame air and a fully contained collision. All 89 doors pass at 101 positions
+each with zero measured penetration. No shared kit behavior changes.
+
+## Pass 4 — Cycles form review of exported quick-material blocks
+
+Evidence: `renders/pass1/contact.jpg`, the 35 mm hero review and all twenty
+first complete Cycles gallery views. Color/value first: untextured brick is
+much more even than the photographs, as expected at this gate. The pale trim
+is separated from red/buff masonry, storefront cavities stay deep, and the
+hero's highlights do not clip. The photo's pale sash/sidewalk are the color
+comparison neutrals; no photographic pixel has become an asset texture.
+Final material/albedo and wear calibration is expressly deferred.
+
+The full row and parked pickup/crossover/hatchback read at eye height. The
+first 40 mm composition lost too much of the near row; the 35 mm camera stays
+on the opposite walk and shows the corner and the row beyond. The four
+skyline rhythms remain distinct; the southern gallery's deck, posts and rails
+read as supported construction. The new fire escape has real end landings and
+readable flights. Rear shots retain deep shade rather than a pale wash.
+
+The close-ups caught two presentation/construction mistakes: a date stone was
+behind brick corbels, and the ghost-sign view cropped its lettering. Reserve a central frieze field
+for the date panel, clear of brackets/corbels and aim the side view at the actual sign center.
+Show the profiled metal cornice in its close-up, with the brick cornices still
+visible in the block elevations. A support pass also corrects furniture feet,
+chair columns and roof curbs after the shop floor was lowered to grade.
+
+Remaining form limits are deliberate but visible: the sashes and rear service
+layout share too much vocabulary, cornice ornament is coarse, room dressing is
+boxy, and the street ends use simple right-angle curbs. The sign is a form
+placeholder, not a convincing painted-brick ghost yet. The source vehicle
+forms are context, not the accepted baked car deliveries. The final texture,
+weather, window vinyl and night-light work belongs to the next gate.
+
+
+## Pass 5 — taller sash proportions and construction contacts
+
+Evidence: all twenty window-revision Cycles views and all three matched pairs
+inspected. Value first: the archival pale sash and sidewalk remain the stated
+color neutral; the monochrome pairs constrain value and proportions only.
+The quick masonry is still much more uniform than the photographed brick.
+Material approval is deferred; the render does preserve dark entrances,
+shaded undersides and separated light trim.
+
+The Foster pair exposed overly short upper windows. Increase Italianate
+openings to 2.20 m and Romanesque to 2.14 m; keep plain commercial openings at
+1.96 m. These fit the existing 11–12 ft floor modules and distinguish styles
+without adding window silhouette segments. Re-rendered pairs show a better
+tall-sash rhythm. The surveyed facade still has more elaborate hoods and
+cornice relief; those differences remain visible and belong in the shared
+ornament source rather than extra repeated game-mesh faces.
+
+The corrected side camera exposed a more serious mistake: the old ghost-sign
+rectangle crossed a display-window opening. Move it and the demolished-neighbor
+outline onto uninterrupted masonry, and assert the sign field clears every
+opening. The new close-up verifies the placement. Its opaque painted rectangle
+still reads as a printed panel; this is a quick-material placeholder that must
+become worn paint integrated with brick at look-dev.
+
+A contact review also found gallery feet above grade, a flat skylight curb
+below sloping glazing, and missing short blade-sign hangers. Correct the feet
+and canopy column caps, build a four-sided inclined hollow curb whose flashing
+intersects the falling roof, add the hangers and seat the masonry tie plates.
+Independent rays on the actual exported surfaces now measure gallery feet at
+grade, 20 mm curb-base overlap into the roof, and glazing-to-side-rail gaps
+below 1 micrometer of mesh precision. Those numbers establish geometric
+contact; they do not certify structural capacity or field construction tolerances.
+
+
+## Pass 6 — final exported checkpoint, Cycles
+
+Evidence: every view in `renders/checkpoint/contact.jpg`, all three pairs in
+`renders/matches/contact.jpg`, and the full-resolution final hero inspected.
+The audit confirms all 23 views use the current exported GLB hashes, the
+Cycles engine and the recorded camera/context. The 35 mm hero is at 1.68 m on
+the opposite sidewalk with the pickup, crossover, hatchback, trees and lights.
+
+Value first: the final hero has deep storefront/awning cavities and bright
+trim with smooth highlight roll-off. No RGB channel reaches 255; display-luma
+5th/50th/95th percentiles are 4.93/68.19/192.90 on the 0–255 PNG scale. These
+are display diagnostics, not measured albedo or a final material approval.
+The photographic neutral remains the pale sash/sidewalk; monochrome pairs
+remain form/value evidence only.
+
+The Midwest infill interrupts an otherwise two-story cadence, the western
+row stays low, the northeast has a denser three-story street wall and a bay,
+and the southern gallery reads as a supported continuous sidewalk frontage.
+Store entries, transoms, separate stair doors, upper openings and cornices
+read clearly in their close-ups. The ghost field clears the display windows;
+the revised date panel is legible. Rear service volumes and usable escape
+landings are visible, though the shaded rear close-up remains deliberately dark.
+
+The remaining CG tells are the flat/unworn masonry, simplified cornice relief,
+repeated rear equipment and sash detailing, simple room furniture, and the
+printed-looking ghost sign. Source vehicle forms are presentation context.
+Archival matches are approximate original-family comparisons: RMS residuals
+are 6.85/10.56/5.46 pixels, and the grazing window crop reaches its 100 mm lens
+bound. They are not exact reproductions of the pictured facades. Stop here,
+before brick/trim look-dev, wear, final UV/bakes and night lighting.

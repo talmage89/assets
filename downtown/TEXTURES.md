@@ -12,9 +12,9 @@ Do not allocate one atlas per building.
 | --- | --- | --- | ---: |
 | Masonry | 2048² BaseColor / Normal / ORM | Original common/running bond, measured brick/mortar module; guarded kiln-color and painted-brick variants. Mortar remains neutral in baked texels | 16 |
 | Mineral + roofing | 1024² BaseColor / Normal / ORM | Guarded tiling regions for limestone, terra cotta and falling membrane roof. Copings/stone returns use the mineral region, roofs use the membrane region | 4 |
-| Finish + trim/ornament | 2048² BaseColor / Normal / ORM | Painted wood grain, painted iron, aluminum/bronze, galvanized metal, dentil/frieze relief, flutes and small ornament. Broad finishes tile in U within guarded strips; formed silhouette remains geometry | 16 |
+| Finish + trim/ornament | 2048² BaseColor / Normal / ORM | Painted wood grain, painted iron, aluminum/bronze, galvanized metal, woven canvas/awning stripes, dentil/frieze relief, flutes and small ornament. Broad finishes tile in U within guarded strips; formed silhouette remains geometry | 16 |
 | Signs | 2048² RGBA BaseColor | Fictional sign-band, blade and glass lettering, old ghost-paint variants. Swap names using atlas UV rectangles; no new lettering geometry | 5.333 |
-| Interior | 1024² RGBA BaseColor | Original drawn shelf/office/apartment backings and light masks. Depth comes from the existing shallow geometry; alpha supports curtain/light coverage | 1.333 |
+| Interior | 1024² RGBA BaseColor | Original drawn shelf/office/apartment backings plus guarded black/emissive light regions. Depth comes from the existing shallow geometry; alpha supports curtain/light coverage | 1.333 |
 | Glass | Reuses finish/trim clear region | Uniform IOR/transmission state, with authored pane thickness and ordinary glTF material extensions | 0 |
 | **All towns, loaded once** | **11 canonical images** | **Six material states maximum: masonry, mineral/roof, finish/trim, signs, interior, glass** | **42.667** |
 
@@ -37,7 +37,10 @@ patches need subdivided weather vertices or UV-addressed regions; a global noise
 wash or broad uniform dirt band is unacceptable. A used reference, white-balanced
 on a stated neutral, must calibrate those effects on exported textured geometry.
 
-Night response remains a next-gate feature. Interior lights should occupy
+Night response remains a next-gate feature. Reserve separate day-color and
+black/light rectangles in the one interior image; standard glTF base-color and
+emissive texture slots can address that same canonical URI through different
+UV sets. This needs verification at look-dev and is not a custom shader claim. Interior lights should occupy
 selected apartment/office cells and supported shop fixtures. The form checkpoint
 contains the room geometry, curtains, blinds, window air conditioners, diner
 booths/counter/stools, shelves, barber chairs and vacant paper; no night-light
