@@ -18,7 +18,8 @@ def stats(rgb,mask):
 def run(folder="renders/matches",hero_path="renders/checkpoint/midwest/hero.png"):
  folder=Path(folder)
  cameras=json.loads(Path('build/cameras.json').read_text());rows=[];out=Path('renders/values');out.mkdir(parents=True,exist_ok=True)
- definitions=[('louisiana_upper',(1006,1490,1050,1770),'Painted brick pier / overcast',3)]
+ # Stop above the wall anchor: the earlier taller rectangle crossed hardware.
+ definitions=[('louisiana_upper',(1006,1490,1050,1590),'Painted brick pier / overcast',3)]
  for name,box,label,index in definitions:
   c=cameras[name];im=Image.open(c['photo']).convert('RGB');mask=Image.new('1',im.size);ImageDraw.Draw(mask).rectangle(box,fill=1);photo=stats(np.asarray(im),np.asarray(mask).astype(bool));d=ImageDraw.Draw(im);d.rectangle(box,outline='magenta',width=2);im.save(out/(name+'-photo.jpg'),quality=94)
   path=folder/'raw'/(name+'.png')
