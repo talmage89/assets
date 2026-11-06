@@ -5,7 +5,10 @@
 shader_type spatial;
 render_mode unshaded, cull_disabled, skip_vertex_transform, depth_draw_never;
 
-uniform vec4 wire_color : source_color = vec4(0.025, 0.028, 0.030, 1.0);
+// Linear radiance colors, matching the Cycles inspection numeric inputs.
+// Bare default; use (0.0015, 0.0017, 0.0015, 1) for jacketed routes.
+// Deliberately no source_color hint: these values are already linear.
+uniform vec4 wire_color = vec4(0.012, 0.013, 0.012, 1.0);
 uniform float minimum_pixels = 0.85;
 // Calibrated optical compensation; 1.0 is strict integrated coverage.
 uniform float coverage_exponent = 0.55;

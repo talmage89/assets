@@ -1,7 +1,7 @@
 """Independent raw-GLB/import measurements and physical construction gates.
 
-Checks are intentionally form-stage: there are no final UV, bake or texture
-claims. Source constants are compared to measured surfaces, never reported
+This is the physical geometry audit; UV, bake and texture gates live in
+check_delivery.py. Source constants are compared to measured surfaces, never reported
 as if they were measurements.
 """
 import json,math,sys,hashlib
@@ -78,7 +78,7 @@ def road_height(ob):
 def roof_surfaces(homes):
     result=[]
     for row in homes:
-        with bpy.data.libraries.load(str(Path('build/context',row['type']+'.blend').resolve()),link=False) as (src,dst):
+        with bpy.data.libraries.load(str(Path('build/context',row['type']+'-look.blend').resolve()),link=False) as (src,dst):
             dst.objects=[n for n in src.objects if 'Roof' in n or 'roof' in n]
         transform=Matrix.Translation(row['location'])@Matrix.Rotation(math.radians(row['yaw']),4,'Z');vs=[];fs=[]
         for ob in dst.objects:
@@ -89,6 +89,40 @@ def roof_surfaces(homes):
         for o in dst.objects:
             if o:bpy.data.objects.remove(o,do_unlink=True)
     return result
+
+
+def communication_sections(ob,meta):
+    """Slice actual imported triangles at 21 planes per pole interval.
+
+    Group the jacket/strand envelope of each separately hung route. An 80 mm
+    grouping gap is larger than a cable+strand but smaller than the required
+    120 mm free gap. Intersecting or bunched routes therefore fail the count
+    as well as the measured gap gate. These are sampled vertical clearances,
+    not a substitute for a full wind/load calculation.
+    """
+    if ob is None:return None
+    vertices=np.array([tuple(ob.matrix_world@v.co) for v in ob.data.vertices])
+    ob.data.calc_loop_triangles();faces=np.array([tuple(t.vertices) for t in ob.data.loop_triangles]);tri=vertices[faces]
+    lo=tri[:,:,1].min(axis=1);hi=tri[:,:,1].max(axis=1);sections=[]
+    expected=meta['plan']['profile']['comm_count']
+    for a,b in zip(meta['plan']['poles'],meta['plan']['poles'][1:]):
+        for f in np.linspace(.03,.97,21):
+            y=a['location'][1]*(1-f)+b['location'][1]*f;values=[]
+            for t in tri[(lo<=y)&(hi>=y)]:
+                for i in range(3):
+                    p,q=t[i],t[(i+1)%3];dp=p[1]-y;dq=q[1]-y
+                    if dp*dq<=0 and abs(dp-dq)>1e-10:values.append(float(p[2]+(q[2]-p[2])*dp/(dp-dq)))
+            bands=[]
+            for z in sorted(values):
+                if not bands or z-bands[-1][1]>.08:bands.append([z,z])
+                else:bands[-1][1]=z
+            assert len(bands)==expected,('Actual communication bands merge',meta['plan']['seed'],y,bands,expected)
+            gap=min(upper[0]-lower[1] for lower,upper in zip(bands,bands[1:]))
+            assert gap>=.12,('Actual communication gap',meta['plan']['seed'],y,gap,bands)
+            sections.append(dict(y_m=y,bands_z_m=bands,minimum_free_vertical_gap_m=gap))
+    return dict(section_count=len(sections),observed_route_counts=sorted({len(s['bands_z_m']) for s in sections}),
+        minimum_free_vertical_gap_m=min(s['minimum_free_vertical_gap_m'] for s in sections),sections=sections,
+        scope='Actual imported tube triangles intersected with 84 horizontal-distance station planes; each band includes jacket and strand. Gate 120 mm.')
 
 
 def check():
@@ -130,6 +164,7 @@ def check():
                 road_min=road_height(ob);road_gate=5.4864 if kind=='service' else 4.7244
                 assert road_min is None or road_min>=road_gate,(seed,kind,road_min,road_gate)
                 clearance[kind].update(actual_road_minimum_m=road_min,road_gate_m=road_gate)
+        route_clearance=communication_sections(by_name.get('Conductors_communication'),meta)
         gaps=[];curve_error=0.;spans=meta['spans']
         for i in range(4):
             neutral=next(s for s in spans if s['name']==f'Span_{i}_Neutral')
@@ -159,7 +194,7 @@ def check():
                     if hit is not None:overflights.append(dict(span=span['name'],house=home,clearance_m=p.z-hit.z))
         if overflights:assert min(r['clearance_m'] for r in overflights)>=2.4384,(seed,sorted(overflights,key=lambda r:r['clearance_m'])[:3])
         report.update(poles=measurements,ground_clearance=clearance,
-          supply_comm_surface_gaps_m=gaps,curve_chord_error_m=curve_error,
+          supply_comm_surface_gaps_m=gaps,communication_route_clearance=route_clearance,curve_chord_error_m=curve_error,
           roof_overflight_samples=len(overflights),minimum_roof_clearance_m=min((r['clearance_m'] for r in overflights),default=None),spans=len(spans),
           span_triangles=[s['triangles'] for s in spans],scope='Raw GLB counts/normals, fresh import geometry/sockets; surface minima, measured pole sections, analytic interspace samples and actual roof rays')
         all_rows[str(seed)]=report
@@ -167,7 +202,7 @@ def check():
     preservation=json.loads(Path('build/context.json').read_text())
     for path,digest in preservation['preserved_files'].items():assert hashlib.sha256((HERE.parents[1]/path).read_bytes()).hexdigest()==digest
     out=dict(streets=all_rows,parts=part_check,existing_delivery_files=len(preservation['preserved_files']),preserved=True,
-      stage='Form checkpoint only: final texture/UV/bake gates intentionally deferred')
+      stage='Baked utility checkpoint. This file proves physical geometry and serialization; delivery-check.json separately proves the external maps, UV chart allocation, tangents and shared image reuse.')
     Path('build/checks.json').write_text(json.dumps(out,indent=2));print('UTILITY CHECK PASS',json.dumps({k:{'triangles':v['triangles'],'bytes':v['bytes'],'minimum_gap':min(v['supply_comm_surface_gaps_m'],default=None)} for k,v in all_rows.items()}))
 
 

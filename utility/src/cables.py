@@ -23,10 +23,14 @@ def communications(count=3):
     remains a separate tube. Coax also has a real strand, rather than a
     fictional enlarged cable. The fourth route is retained copper plant.
     """
-    rows = [dict(key='Telephone', diameter=PHONE, offset=-.36, mass=1.771, tension=4500),
-            dict(key='CATV', diameter=CATV, offset=-.64, mass=.43, tension=1500)]
+    rows = [dict(key='Telephone', diameter=PHONE, offset=-.36, mass=1.771),
+            dict(key='CATV', diameter=CATV, offset=-.64, mass=.43)]
     if count >= 3:
-        rows.insert(0,dict(key='LashedFiber',diameter=FIBER,offset=-.035,mass=.36,tension=1350,bundle=2))
+        rows.insert(0,dict(key='LashedFiber',diameter=FIBER,offset=-.035,mass=.36,bundle=2))
     if count >= 4:
         rows.append(dict(key='LegacyCopper',diameter=.028,offset=-.90,mass=1.135,tension=4300))
+    # Preserve the accepted .24 kg/m / 900 N communication catenary.
+    # Different cable masses require different horizontal forces; unequal
+    # sag on a shared vertical corridor can otherwise cross adjacent routes.
+    for row in rows:row['tension']=row['mass']*(900/.24)
     return rows

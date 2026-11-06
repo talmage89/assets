@@ -46,6 +46,21 @@ class CatenaryTests(unittest.TestCase):
                 for k in range(1,100):
                     f=k/100;y=a[1]+(b[1]-a[1])*f;z=a[2]+(b[2]-a[2])*f
                     self.assertLess(abs(z-truth(y/length)[2]),.00801)
+    def test_separate_telecom_routes(self):
+        import cables
+        for count in (2,3,4):
+            routes=[]
+            for row in cables.communications(count):
+                z=7+row['offset'];p,q=(0,0,z),(0,60,z)
+                sag=sag_from_tension(p,q,row['mass'],row['tension'])
+                curve=catenary(p,q,sag)['point']
+                routes.append((curve,row['diameter']))
+            for (upper,du),(lower,dl) in zip(routes,routes[1:]):
+                for i in range(201):
+                    # Upper jacket bottom, lower messenger top.
+                    free=upper(i/200)[2]-du/2-lower(i/200)[2]-dl/2-cables.STRAND-.001
+                    self.assertGreater(free,.15)
+
     def test_far_coverage(self):
         for depth in (20,50,100,200):
             w=screen_width(.01,depth)

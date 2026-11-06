@@ -1,7 +1,8 @@
 """Original low-poly pole hardware, built as manufactured assemblies in metres.
 
-Quick diagnostic materials only. Fine grain, threads, markings and corrosion
-are reserved for the later single-family atlas, not extra geometry.
+Semantic source surfaces select one baked family atlas before consolidation;
+long conductors retain two shared scalar materials. Fine relief is texture
+detail rather than an increased hardware triangle budget.
 """
 import math,random
 from pathlib import Path
@@ -10,21 +11,24 @@ from mathutils import Vector
 from kit import model as G
 from plan import FT,IN
 from span import sample
+import cables
 
 M={}
 
 
 def palette():
     colors={'Wood':((.105,.081,.058),.9,0),'Endgrain':((.17,.13,.085),.9,0),
-      'Steel':((.25,.28,.27),.56,.8),'Porcelain':((.11,.052,.025),.24,0),
+      'Steel':((.25,.28,.27),.56,.8),'Porcelain':((.36,.375,.35),.28,0),
       'Polymer':((.31,.33,.32),.72,0),'Paint':((.28,.32,.30),.73,0),
-      'Cable':((.009,.012,.013),.7,0),'Aluminum':((.24,.26,.25),.48,.85),
+      'Cable':((.004,.0045,.004),.84,0),'Aluminum':((.032,.034,.032),.82,.72),
       'Guard':((.55,.36,.028),.82,0),'Recess':((.021,.016,.011),.95,0),'Vine':((.045,.075,.019),.88,0)}
     for name,(color,rough,metal) in colors.items():
         m=bpy.data.materials.new('Utility_'+name);m.use_nodes=True
         p=m.node_tree.nodes.get('Principled BSDF');p.inputs['Base Color'].default_value=(*color,1)
         p.inputs['Roughness'].default_value=rough;p.inputs['Metallic'].default_value=metal
-        m['checkpoint_material']=True;M[name]=m
+        m['original_procedural_source']=True;M[name]=m
+    from surfaces import material
+    material()
 
 
 class Assembly:
@@ -58,7 +62,11 @@ class Assembly:
     def finish(self):
         bpy.ops.object.select_all(action='DESELECT')
         for ob in self.objects:
-            G.apply(ob);ob.select_set(True)
+            G.apply(ob)
+            from surfaces import uv_object
+            spec=__import__('json').loads(self.root.get('pole_spec','{}'))
+            uv_object(ob,spec.get('seed',1),spec.get('height',12),spec or None)
+            ob.select_set(True)
         if self.objects:
             bpy.context.view_layer.objects.active=self.objects[0];bpy.ops.object.join()
             ob=self.objects[0];ob.name=self.root.name+'__Mesh'
@@ -146,16 +154,20 @@ def wood(a,s):
     for j in range(7):
         z=.8+j*.19;x=rng.uniform(-.05,.05);y=-math.sqrt(radius(z)**2-x*x)-.002
         a.tube('Old fence/sign staple',[(x-.008,y,z-.01),(x-.008,y-.006,z),(x+.008,y-.006,z),(x+.008,y,z-.01)],.0012,'Steel',4,'staples')
+    marking_start=len(a.objects)
     a.box('Utility number tag',(0,-radius(1.8)-.004,1.8),(.065,.003,.22),'Polymer',0,'markings')
     # Simple printed original fictional numbers and brand, deferred final relief.
     from markings import label
     a.add(label('Number tag',f'RV\n{s["seed"]:04d}',(0,-radius(1.8)-.006,1.8),.055,.19),'markings')
-    a.add(label('Birth brand',f'RILL TIMBER\nSP  CCA  1992\n4 / {s["length_ft"]}',(0,-radius(1.05)-.002,1.05),.12,.15),'markings')
+    a.add(label('Birth brand',f'RILL TIMBER\nSP  CCA  1992\n4 / {s["length_ft"]}',(0,-radius(1.05)-.002,1.05),.12,.15,surface=(0,0,radius,20)),'markings')
+    # A two-facet turn clears the continuous protective ground molding.
+    turn=__import__('mathutils').Matrix.Rotation(math.radians(-36),4,'Z')
+    for ob in a.objects[marking_start:]:ob.matrix_world=turn@ob.matrix_world
     if s['seed']%3==0 and s['kind'] in ('riser','transformer'):
         for j in range(2):
             pts=[]
             for k in range(9):
-                z=.02+k*.075;t=j*1.4+k*.16;r=radius(z)+.005
+                z=.02+k*.075;t=-2.0+j*1.4+k*.16;r=radius(z)+.005
                 pts.append((r*math.cos(t),r*math.sin(t),z))
             a.tube('Sparse ground-rooted vine',pts,.0015,'Vine',4,'vine')
             for k in (2,4,6,8):
@@ -170,14 +182,26 @@ def communication(a,s):
     a.bolt((-.02,0,z),axis=(1,0,0),length=.39)
     a.rod('Messenger suspension shoe',(-.17,0,z),(-.28,0,z),.016,n=8)
     a.socket('CommStrand',(x,0,z),diameter=.00635)
-    a.socket('LashedFiber',(x-.014,0,z-.038),diameter=.020)
-    a.socket('Telephone',(x,0,z-.36),diameter=.028)
+    for row in cables.communications(s.get('comm_count',3)):
+        key=row['key'];zz=z+row['offset']
+        a.socket(key,(x,0,zz),diameter=row['diameter'])
+        strand_z=zz+row['diameter']/2+cables.STRAND/2+.001
+        a.socket(key+'Strand',(x,0,strand_z),diameter=cables.STRAND)
+        for j in range(row.get('bundle',1)):
+            if row.get('bundle'):
+                a.socket(key+'_'+str(j),(x+(j-.5)*row['diameter'],0,zz),diameter=row['diameter'])
+        if key!='LashedFiber':
+            a.rod('Communication cable suspension',(-.14,0,zz+.03),(x,0,zz+.03),.010,'Steel',6,'communications')
+            a.box('Strand shoe',(x,0,zz+.025),(.024,.055,.020),'Steel',0,'communications')
+    highest=cables.communications(s.get('comm_count',3))[0]
+    a.sockets['CommStrand'].location=(x,0,z+highest['offset']+highest['diameter']/2+cables.STRAND/2+.001)
     a.box('Splice hanger',(x,0,z-.17),(.025,.38,.035),'Steel')
-    a.rod('Sealed inline splice case',(x-.025,-.34,z-.21),(x-.025,.34,z-.21),.072,'Cable',12,'communications')
+    case=G.lathe('Sealed inline splice case',[(-.34,0),(-.34,.065),(-.332,.072),(.34,.072),(.34,0)],M['Cable'],12,axis='Y',center=(x-.025,z-.21))
+    a.add(G.smooth(case,60),'communications')
     for yy in (-.24,.24):a.rod('Case circumferential clamp',(x-.025,yy-.012,z-.21),(x-.025,yy+.012,z-.21),.077,'Steel',12,'communications')
     for sign in (-1,1):
-        pts=G.bezier((x-.014,sign*.45,z-.038),(x-.18,sign*.85,z-.5),(x-.20,sign*.35,z-.84),(x-.025,sign*.25,z-.21),18)
-        a.tube('Fiber slack loop',pts,.010,'Cable',6,'communications')
+        pts=G.bezier((x-.014,sign*.45,z-.038),(x-.18,sign*.85,z-.5),(x-.20,sign*.35,z-.84),(x-.025,sign*.25,z-.21),15)
+        a.tube('Fiber slack loop',pts,cables.FIBER/2,'Cable',6,'communications')
     a.socket('CommDrop',(x,-.05,z-.39),diameter=.006)
 
 
@@ -235,7 +259,7 @@ def transformer(a,s,index=0):
     a.tube('Bushing arrester connection',G.bezier((x,y,bz),(x-.2,y,bz+.1),(ax,cy,top+.5),(ax,cy,top+.32),10),.003,'Aluminum',6,'transformer')
     a.tube('Tank bonding lead',[(ax,cy,top+.12),(ax,-.22,bottom+.12),(.02,-.14,bottom)],.00206,'Aluminum',6,'transformer')
     from markings import label
-    a.add(label('Transformer rating','RILL ELECTRIC\n50 kVA',(x,y-.256,bottom+.36),.18,.15),'transformer')
+    a.add(label('Transformer rating','RILL ELECTRIC\n50 kVA',(x,y-.256,bottom+.36),.18,.15,surface=(x,y,lambda zz:.254,14 if bank else 24)),'transformer')
     a.bank_lod=False
 
 
@@ -261,13 +285,13 @@ def pole(name,s):
             else:p=(p[0],direction[1]*.15,p[2])
             p=strain(a,p,direction)
         else:pin(a,*p,polymer=s['framing']=='armless' and s['phases']==3)
-        a.socket('Primary_'+phase,p,diameter=.0101)
+        a.socket('Primary_'+phase,p,diameter=cables.PRIMARY)
     a.box('Secondary clevis pole bracket',(.16,-.02,neutral),(.17,.06,.065),'Steel',.002)
     a.box('Secondary vertical rack',(.25,0,neutral),(.035,.04,.22),'Steel',0)
     # Two insulated hots and a bare neutral terminate at a porcelain service rack.
     for j,zz in enumerate((neutral-.06,neutral,neutral+.06)):
         a.rod('Secondary spool',(.25,0,zz-.023),(.25,0,zz+.023),.025,'Porcelain',10)
-    a.socket('Neutral',(.275,0,neutral),diameter=.008)
+    a.socket('Neutral',(.275,0,neutral),diameter=cables.NEUTRAL)
     a.rod('Service messenger strain clamp',(.28,-.02,neutral),(.28,-.18,neutral),.009,'Aluminum',6)
     a.socket('Service',(.28,-.18,neutral),diameter=.022)
     a.bolt((0,0,h-.17),axis=(1,0,0),length=.25)
@@ -301,7 +325,8 @@ def pole(name,s):
         a.box('Riser pothead support bar',(0,.23,neutral+.67),(.94,.055,.04),'Steel',0,'riser')
         for j,key in enumerate(keys):
             x=(j-(len(keys)-1)/2)*.38
-            a.tube('Conduit breakout to sealed pothead',G.bezier((0,.23,neutral+.62),(x,.23,neutral+.53),(x,.23,neutral+.60),(x,.23,neutral+.70),6),.014,'Cable',6,'riser')
+            breakout=([(0,.23,neutral+.62),(0,.23,neutral+.70)] if abs(x)<.001 else G.bezier((0,.23,neutral+.62),(x,.23,neutral+.53),(x,.23,neutral+.60),(x,.23,neutral+.70),6))
+            a.tube('Conduit breakout to sealed pothead',breakout,.014,'Cable',6,'riser')
             profile=[(neutral+.67,.024)]
             for k in range(3):
                 zz=neutral+.70+k*.055;profile.extend([(zz,.021),(zz+.01,.0475),(zz+.02,.020)])

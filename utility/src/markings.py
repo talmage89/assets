@@ -1,28 +1,46 @@
-"""Original temporary diagnostic labels; no photographic pixels."""
-from pathlib import Path
-import bpy
-from kit.fonts import find_font
+"""Fictional lettering quads select the single family atlas."""
 from kit import model as G
 
 
-def label(name,text,position,w,h):
-    # A single quad carries generated text; fine text never costs mesh triangles.
-    import subprocess,sys
-    key=text.replace('\n','_').replace(' ','_').replace('/','-')
-    path=Path('build/labels')/(key+'.png');path.parent.mkdir(parents=True,exist_ok=True)
-    if not path.exists():
-        subprocess.run(['python3',str(Path(__file__).with_name('label_image.py').resolve()),'--text',text,'--out',str(path)],check=True)
-    m=bpy.data.materials.new(name+' diagnostic ink');m.use_nodes=True
-    p=m.node_tree.nodes.get('Principled BSDF');p.inputs['Roughness'].default_value=.9
-    im=m.node_tree.nodes.new('ShaderNodeTexImage');im.image=bpy.data.images.load(str(path.resolve()),check_existing=True)
-    m.node_tree.links.new(im.outputs['Color'],p.inputs['Base Color'])
-    m.node_tree.links.new(im.outputs['Alpha'],p.inputs['Alpha']);m.surface_render_method='DITHERED'
-    x,y,z=position;ob=G.mesh(name,[(x-w/2,y,z-h/2),(x+w/2,y,z-h/2),(x+w/2,y,z+h/2),(x-w/2,y,z+h/2)],[(0,1,2,3)],m)
-    uv=ob.data.uv_layers.new()
-    for i,p in enumerate(((0,0),(1,0),(1,1),(0,1))):uv.data[i].uv=p
+def label(name,text,position,w,h,surface=None):
+    from construction import M
+    x,y,z=position
+    if name=='Number tag':
+        from atlas import point
+        import re
+        digits=re.search(r'\d{4}',text).group(0)
+        glyphs='RV0123456789';vs=[];faces=[];coords=[]
+        # Six glyph quads share one atlas/material and retain each pole's ID.
+        # Their physical letter aspect is authored here, independent of the
+        # atlas rectangle's otherwise anisotropic pixel allocation.
+        placements=[('R',x-.012,z+h*.39),('V',x+.012,z+h*.39)]
+        placements += [(char,x,z+h*(.17-i*.20)) for i,char in enumerate(digits)]
+        for char,xx,zz in placements:
+            cw=w*.36;ch=h*.16;k=len(vs)
+            vs += [(xx-cw/2,y,zz-ch/2),(xx+cw/2,y,zz-ch/2),(xx+cw/2,y,zz+ch/2),(xx-cw/2,y,zz+ch/2)]
+            faces.append((k,k+1,k+2,k+3));index=glyphs.index(char)
+            coords.extend(point('Tag',(index+u)/len(glyphs),v) for u,v in ((0,0),(1,0),(1,1),(0,1)))
+        ob=G.mesh(name,vs,faces,M['Polymer']);uv=ob.data.uv_layers.new(name='UVMap')
+        for poly in ob.data.polygons:
+            for li in poly.loop_indices:uv.data[li].uv=coords[ob.data.loops[li].vertex_index]
+        ob['atlas_role']='Tag';ob['authored_tag_uv']=True;return ob
+    if surface:
+        import math
+        cx,cy,radius,sides=surface;r=radius(z)
+        xs=sorted({-w/2,0,w/2,*[round(r*math.cos(t*math.tau/sides),9) for t in range(sides)
+            if math.sin(t*math.tau/sides)<0 and abs(r*math.cos(t*math.tau/sides))<w/2]})
+        vs=[]
+        for zz in (z-h/2,z+h/2):
+            rr=radius(zz);ring=[(rr*math.cos(k*math.tau/sides),rr*math.sin(k*math.tau/sides)) for k in range(sides)]
+            for xx in xs:
+                hits=[]
+                for a,b in zip(ring,ring[1:]+ring[:1]):
+                    if min(a[0],b[0])-1e-9<=xx<=max(a[0],b[0])+1e-9 and abs(b[0]-a[0])>1e-9:
+                        hits.append(a[1]+(b[1]-a[1])*(xx-a[0])/(b[0]-a[0]))
+                vs.append((cx+xx,cy+min(hits)-.0004,zz))
+        n=len(xs);faces=[(i,i+1,n+i+1,n+i) for i in range(n-1)]
+    else:
+        vs=[(x-w/2,y,z-h/2),(x+w/2,y,z-h/2),(x+w/2,y,z+h/2),(x-w/2,y,z+h/2)];faces=[(0,1,2,3)]
+    ob=G.mesh(name,vs,faces,M['Polymer'])
+    ob['atlas_role']='Brand' if name=='Birth brand' else 'Rating'
     return ob
-
-
-if __name__=='__main__':
-    # Invoked with system Python; Blender's own Python need not have Pillow.
-    pass

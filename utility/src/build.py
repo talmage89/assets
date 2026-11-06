@@ -1,4 +1,4 @@
-"""Build reusable utility parts and four runs. Stop at the form checkpoint."""
+"""Build reusable utility parts and four runs using the baked family atlas."""
 import argparse,json,math,sys
 from pathlib import Path
 import bpy
@@ -9,6 +9,7 @@ from kit.tiling import export
 from plan import SEEDS,pole_spec,street
 from construction import Assembly,palette,pole,guy,crossarm,transformer,conductor,pin,M
 from span import sag_from_tension,catenary
+import cables
 
 
 def mesh_report(objects):
@@ -56,7 +57,7 @@ def parts(out):
         else:ob.location.z-=s['neutral']+.23
     a.root.location=(6,8,0)
     a=guy('GuyAssembly',(0,0,8.8),(0,-6.3,.1));a.root.location=(12,8,0)
-    save(out,dict(stage='FORM CHECKPOINT / quick materials / unbaked',parts=rows))
+    save(out,dict(stage='Baked Utility shared atlas / original procedural fields',parts=rows))
 
 
 def house_attachment(row,source_pole,source_comm=None):
@@ -76,7 +77,7 @@ def house_attachment(row,source_pole,source_comm=None):
     wall_y=block['y0'];yy=wall_y-.80
     x=xx
     from mathutils.bvhtree import BVHTree
-    with bpy.data.libraries.load(str(Path('build/context',row['type']+'.blend').resolve()),link=False) as (src,dst):
+    with bpy.data.libraries.load(str(Path('build/context',row['type']+'-look.blend').resolve()),link=False) as (src,dst):
         dst.objects=[n for n in src.objects if 'Roof' in n or 'roof' in n]
     roof_objects=[o for o in dst.objects if o and o.type=='MESH'];vs=[];fs=[]
     for o in roof_objects:
@@ -96,7 +97,7 @@ def house_attachment(row,source_pole,source_comm=None):
     # the general 16-ft Type-A driveway criterion; comm yards retain 12 ft.
     for _ in range(60):
         valid=True
-        for source,dz,mass,H,kind in [(source_pole,0,.153,300,'service')]+([(source_comm,-.8,.045,160,'comm_drop')] if source_comm is not None else []):
+        for source,dz,mass,H,kind in [(source_pole,0,cables.SERVICE_MASS,cables.SERVICE_TENSION,'service')]+([(source_comm,-.8,.045,160,'comm_drop')] if source_comm is not None else []):
             end=rot@Vector((x,yy-.32,top+dz))+Vector(row['location'])
             curve=catenary(source,end,sag_from_tension(source,end,mass,H))['point']
             for k in range(201):
@@ -108,8 +109,8 @@ def house_attachment(row,source_pole,source_comm=None):
         top+=.05
     else:raise ValueError('No valid service attachment height')
     a=Assembly(row['name']+'_ServiceMast')
-    a.rod('2 inch rigid service mast',(x,yy,2.30),(x,yy,top+.23),.03015,'Steel',10,'house_service')
-    a.tube('Service entrance wall elbow',G.bezier((x,yy,2.4),(x,yy,2.12),(x,wall_y-.25,2.15),(x,wall_y+.03,2.15),12),.03015,'Steel',8,'house_service')
+    a.rod('2 inch rigid service mast',(x,yy,2.30),(x,yy,top+.23),.03015,'Steel',8,'house_service')
+    a.tube('Service entrance wall elbow',G.bezier((x,yy,2.4),(x,yy,2.12),(x,wall_y-.25,2.15),(x,wall_y+.03,2.15),10),.03015,'Steel',8,'house_service')
     for z in (2.1,2.65):
         a.rod('Mast wall standoff',(xx,wall_y,z),(x,yy,z),.018,'Steel',8,'house_service')
         a.rod('Mast diagonal wall brace',(xx,wall_y,z-.45),(x,yy,z),.012,'Steel',6,'house_service')
@@ -118,13 +119,13 @@ def house_attachment(row,source_pole,source_comm=None):
     a.tube('Weatherhead entrance',G.bezier((x,yy,top+.23),(x,yy,top+.38),(x,yy-.12,top+.35),(x,yy-.14,top+.24),10),.034,'Paint',8,'house_service')
     for j in range(3):
         off=(j-1)*.027
-        a.tube('Service weatherhead drip loop',G.bezier((x+off,yy-.13,top+.24),(x+off,yy-.4,top-.46),(x+off,yy-.58,top-.32),(x+off,yy-.32,top),14),.0045,'Cable',6,'house_service')
+        a.tube('Service weatherhead drip loop',G.bezier((x+off,yy-.13,top+.24),(x+off,yy-.4,top-.46),(x+off,yy-.58,top-.32),(x+off,yy-.32,top),12),.0045,'Cable',6,'house_service')
     a.rod('Porcelain service attachment',(x,yy,top),(x,yy-.32,top),.024,'Porcelain',10,'house_service')
     # Roof guys attach to actual source roof triangles, rather than guessed
     # roof constants. This supports the tall service mast above the low eave.
     for anchor in anchor_records:
         hit=Vector(anchor)
-        a.rod('Mast roof guy',(x,yy,top-.55),hit+Vector((0,0,.035)),.0024,'Steel',6,'house_service')
+        a.rod('Mast roof guy',(x,yy,top-.55),hit+Vector((0,0,.035)),.0024,'Steel',4,'house_service')
         a.box('Roof guy flashed anchor',hit+Vector((0,0,.016)),(.10,.08,.027),'Steel',0,'house_service')
     a.socket('ServiceDrop',(x,yy-.32,top),'house_service',.022)
     a.socket('CommunicationDrop',(x,yy-.27,top-.8),'house_communications',.006)
@@ -144,7 +145,8 @@ def run(seed,out):
     def point(a,key):return a.sockets[key].matrix_world.translation.copy()
     def wire(name,p,q,sag,dia,kind,mat='Aluminum',**extra):
         mass,H={'primary':(.2158,550),'neutral':(.1354,450),'communication':(.24,900),
-                'service':(.153,300),'comm_drop':(.045,160)}[kind]
+                'service':(cables.SERVICE_MASS,cables.SERVICE_TENSION),'comm_drop':(.045,160)}[kind]
+        mass=extra.pop('mass',mass);H=extra.pop('tension',H)
         sag=sag_from_tension(p,q,mass,H)
         ob,report=conductor(name,p,q,sag,dia,mat)
         report.update(kind=kind,mass_kg_m=mass,horizontal_tension_n=H,**extra);spans.append(report);return ob
@@ -152,12 +154,19 @@ def run(seed,out):
         L=(a.root.location-b.root.location).length;psag=L/44;nsag=L/51;csag=L/63
         for key in a.sockets:
             if key.startswith('Primary_'):
-                wire(f'Span_{i}_{key}',point(a,key),point(b,key),psag,.0101,'primary',source_socket=a.sockets[key].name,end_socket=b.sockets[key].name)
-        wire(f'Span_{i}_Neutral',point(a,'Neutral'),point(b,'Neutral'),nsag,.008,'neutral')
+                wire(f'Span_{i}_{key}',point(a,key),point(b,key),psag,cables.PRIMARY,'primary',source_socket=a.sockets[key].name,end_socket=b.sockets[key].name)
+        wire(f'Span_{i}_Neutral',point(a,'Neutral'),point(b,'Neutral'),nsag,cables.NEUTRAL,'neutral')
         if plan['profile']['comm']:
-            for key,dia,offset in [('CommStrand',.00635,0),('LashedFiber',.020,0),('Telephone',.028,.03)]:
-                wire(f'Span_{i}_{key}',point(a,key),point(b,key),csag+offset,dia,'communication','Cable')
-            # Wide-pitch lashing is omitted from long-span geometry; planned normal detail.
+            # Each cable has its own strand at its real offset. The upper
+            # fiber pair is two true jackets, rather than a fat substitute.
+            for ri,row in enumerate(cables.communications(plan['profile']['comm_count'])):
+                key=row['key'];p=point(a,key);q=point(b,key)
+                for j in range(row.get('bundle',1)):
+                    off=Vector(((j-(row.get('bundle',1)-1)/2)*row['diameter'],0,0))
+                    name=f'Span_{i}_{key}'+(f'_{j}' if row.get('bundle') else '')
+                    wire(name,p+off,q+off,csag,row['diameter'],'communication','Cable',mass=row['mass'],tension=row['tension'],route=key)
+                off=Vector((0,0,row['diameter']/2+cables.STRAND/2+.001))
+                wire(f'Span_{i}_'+('CommStrand' if ri==0 else key+'Strand'),p+off,q+off,csag,cables.STRAND,'communication','Aluminum',mass=row['mass'],tension=row['tension'],route=key)
     for i in (0,2,4):
         a=poles[i];p=point(a,'GuyUpper')
         q=a.root.location+Vector((0,-6.5 if i==0 else 6.5,.1)) if i!=2 else a.root.location+Vector((-6.5,0,.1))
@@ -171,8 +180,10 @@ def run(seed,out):
         # Three true conductors, smooth central axes; the lay is a normal-map
         # detail except in the detachable close-up demonstrator.
         for j in range(3):
-            off=Vector(((j-1)*.009,0,.006 if j==1 else -.003))
-            wire(f'Drop_{row["name"]}_{j}',p+off,q+off,sag,.0062 if j==1 else .0085,'service','Aluminum' if j==1 else 'Cable',house=row['name'],source_pole=index)
+            # Close triangular packing of the published #4 constituents;
+            # the old diagnostic arrangement left visible gaps between them.
+            off=Vector(((j-1)*.0041,0,.00305 if j==1 else -.00305))
+            wire(f'Drop_{row["name"]}_{j}',p+off,q+off,sag,cables.SERVICE_MESSENGER if j==1 else cables.SERVICE_HOT,'service','Aluminum' if j==1 else 'Cable',house=row['name'],source_pole=index)
         if plan['profile']['comm']:
             wire(f'PhoneDrop_{row["name"]}',point(a,'CommDrop'),sockets['CommunicationDrop'],min(.26,length*.005),.006,'comm_drop','Cable',house=row['name'])
         homes.append(dict(**row,sockets=sockets,attachment=sidecar,transformer=index))
@@ -183,7 +194,7 @@ def run(seed,out):
             bpy.ops.object.select_all(action='DESELECT')
             for ob in obs:ob.select_set(True)
             bpy.context.view_layer.objects.active=obs[0];bpy.ops.object.join();obs[0].name='Conductors_'+system
-    report=dict(stage='FORM CHECKPOINT / quick materials / unbaked',plan=plan,spans=spans,houses=homes,
+    report=dict(stage='Baked Utility shared atlas / original procedural fields',plan=plan,spans=spans,houses=homes,
       sockets={a.root.name:{k:list(o.matrix_world.translation) for k,o in a.sockets.items()} for a in poles})
     save(out,report)
     Path('build/house-attachments-'+str(seed)+'.json').write_text(json.dumps(homes,indent=2))

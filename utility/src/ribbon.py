@@ -54,5 +54,5 @@ def inspection(meta,camera,width,height):
     for d,v in zip(a.data,alphas):d.value=v
     c=ob.data.color_attributes.new('LineColor','FLOAT_COLOR','POINT')
     for d,v in zip(c.data,colors):d.color=v
-    ob.visible_shadow=False
+    ob.pass_index=1;ob.visible_shadow=False
     return ob
