@@ -3,7 +3,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
-from PIL import Image,ImageDraw,ImageFont
+from PIL import Image,ImageDraw,ImageFont,ImageOps
 import numpy as np
 import sys
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
@@ -50,8 +50,28 @@ def sheet(paths,out,columns=3,cell=520):
   a=Image.open(p).convert('RGB');a.thumbnail((cell-16,round(cell*.72)-38));x=(i%columns)*cell;y=(i//columns)*round(cell*.72)
   im.paste(a,(x+(cell-a.width)//2,y+29));d.text((x+10,y+7),str(p).replace('renders/',''),font=font,fill=(30,35,30))
  out=Path(out);out.parent.mkdir(parents=True,exist_ok=True);im.save(out,quality=90,optimize=True);print('SHEET',out,len(paths));return out
+
+def storefront_detail(folder):
+ """An explicit storefront pair from the same Foster fit, with native render pixels."""
+ folder=Path(folder);raw=folder/'raw/foster.png'
+ if not raw.exists():return
+ c=json.loads(Path('build/cameras.json').read_text())['foster'];box=c['crop']
+ render=Image.open(raw).convert('RGB');cut=round(render.height*(240-box[1])/(box[3]-box[1]))
+ render=render.crop((0,cut,render.width,render.height))
+ photo=ImageOps.exif_transpose(Image.open(c['photo'])).convert('RGB').crop((box[0],240,box[2],box[3]))
+ photo=photo.resize(render.size,Image.Resampling.LANCZOS)
+ width,height=render.size;pair=Image.new('RGB',(2*width,height+104),(238,239,236));d=ImageDraw.Draw(pair)
+ font=ImageFont.truetype(str(find_font('DejaVu Sans','Book')),22)
+ pair.paste(render,(0,64));pair.paste(photo,(width,64))
+ d.text((18,14),'Foster storefront / native exported render pixels',font=font,fill=(22,38,29))
+ d.text((width+18,14),'HABS IN-86 / same fitted frame crop',font=font,fill=(22,38,29))
+ d.text((18,height+73),'Same Foster calibration; monochrome photograph checks form only.',font=font,fill=(49,64,52))
+ path=folder/'foster_storefront-pair.jpg';pair.save(path,quality=94,optimize=True)
+ print('STOREFRONT DETAIL',path,render.size,'native pixels per panel')
+
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--folder',default='renders/checkpoint');p.add_argument('--out');a=p.parse_args()
+ for folder in ('renders/matches','renders/source-matches'):storefront_detail(folder)
  if Path(a.folder)==Path('renders/checkpoint'):audit_checkpoint(Path(a.folder))
  files=sorted(Path(a.folder).glob('*/*.png'))
  if Path(a.folder)==Path('renders/checkpoint') and Path('renders/eevee/midwest/hero.png').exists():files.append(Path('renders/eevee/midwest/hero.png'))
