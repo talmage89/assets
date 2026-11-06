@@ -92,7 +92,28 @@ def planar_groups(attrs,faces,meters_per_pixel):
     return [(ids,counts[r]) for r,ids in packed.items()]
 
 
-def proxy(doc,target,meters_per_pixel):
+def clean_slivers(mesh,meters_per_pixel):
+    """Retriangulate nearly coplanar neighbors without deleting shell faces."""
+    bm=bmesh.new();bm.from_mesh(mesh);bm.normal_update()
+    for attempt in range(4):
+        bmesh.ops.triangulate(bm,faces=list(bm.faces));bm.normal_update();bad=[]
+        for face in bm.faces:
+            vv=[v.co for v in face.verts];area=(vv[1]-vv[0]).cross(vv[2]-vv[0]).length
+            longest=max(e.calc_length() for e in face.edges)
+            if area/max(longest*longest,1e-30)<1e-5:bad.append(face)
+        if not bad:break
+        edges=set()
+        for face in bad:
+            candidates=[e for e in face.edges if len(e.link_faces)==2 and e.link_faces[0].normal.dot(e.link_faces[1].normal)>.9999]
+            if candidates:edges.add(max(candidates,key=lambda e:e.calc_length()))
+        if edges:bmesh.ops.dissolve_edges(bm,edges=list(edges),use_verts=True,use_face_split=False)
+        else:bmesh.ops.dissolve_limit(bm,angle_limit=1e-4,use_dissolve_boundaries=False,verts=list(bm.verts),edges=list(bm.edges),delimit=set())
+        bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=meters_per_pixel*.002)
+    bmesh.ops.triangulate(bm,faces=list(bm.faces),quad_method='BEAUTY',ngon_method='BEAUTY')
+    bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(mesh);bm.free();mesh.update()
+
+
+def proxy(doc,target,meters_per_pixel,preserve_concavity=()):
     """Closed construction envelopes with concave tube/return preservation.
 
     Convex envelopes close open sheets without a high-resolution point volume.
@@ -102,6 +123,13 @@ def proxy(doc,target,meters_per_pixel):
     from kit.lod_mesh import world_geometry
     source_ids=[i for i,n in enumerate(doc.data['nodes']) if 'mesh' in n]
     attrs,faces=world_geometry(doc,source_ids);positions=attrs['POSITION']
+    protected=[];concave_nodes=[]
+    for ni in source_ids:
+        node=doc.data['nodes'][ni];keep='skin' in node or any(fnmatch.fnmatchcase(node.get('name',''),p) for p in preserve_concavity)
+        if keep:concave_nodes.append(node.get('name'))
+        for primitive in doc.data['meshes'][node['mesh']]['primitives']:
+            protected.extend([keep]*(len(doc.arrays(primitive)[1])))
+    protected=np.array(protected,bool)
     mpp=meters_per_pixel
     bpy.ops.wm.read_factory_settings(use_empty=True)
     from mathutils import Vector
@@ -118,7 +146,7 @@ def proxy(doc,target,meters_per_pixel):
             removed.append(dict(triangles=len(ff),diameter_pixels=diameter,reason='subpixel island'));continue
         centered=pp-pp.mean(axis=0);values,axes=np.linalg.eigh(centered.T@centered)
         extent=np.sort(np.ptp(centered@axes,axis=0)/mpp)
-        thin=(extent[1]<1.5 and extent[2]<48) or (extent[0]<.75 and extent[2]<8)
+        thin=extent[1]<1.5 and extent[2]<48
         if thin:
             own=set(map(int,ids));sample=pp[np.linspace(0,len(pp)-1,min(12,len(pp)),dtype=int)]
             area=float(extent[1]*extent[2]*mpp*mpp)
@@ -140,7 +168,7 @@ def proxy(doc,target,meters_per_pixel):
         hull_volume=abs(bm.calc_volume(signed=True))
         source_volume=abs(float(np.einsum('ij,ij->i',pp[ff[:,0]]-centroid,np.cross(pp[ff[:,1]]-centroid,pp[ff[:,2]]-centroid)).sum()/6))
         top,_=topology(dict(POSITION=pp),ff)
-        preserve=merged_count==1 and not top['boundary_edges'] and not top['nonmanifold_edges'] and source_volume<hull_volume*.6 and extent[0]<extent[2]*.12
+        preserve=merged_count==1 and not top['boundary_edges'] and not top['nonmanifold_edges'] and (protected[ids].any() or (source_volume<hull_volume*.6 and extent[0]<extent[2]*.12))
         planes=[(np.array(f.normal),np.array(f.verts[0].co)) for f in bm.faces]
         mesh=bpy.data.meshes.new('LOD construction envelope')
         if preserve:
@@ -176,6 +204,7 @@ def proxy(doc,target,meters_per_pixel):
     bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=mpp*1e-5)
     bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bmesh.ops.triangulate(bm,faces=list(bm.faces))
     bm.to_mesh(ob.data);bm.free();ob.data.update()
+    clean_slivers(ob.data,mpp)
     vertices=np.array([v.co[:] for v in ob.data.vertices],np.float32)
     faces=np.array([p.vertices[:] for p in ob.data.polygons],np.uint32)
     normals=np.array([p.normal[:] for p in ob.data.polygons],np.float32)
@@ -188,13 +217,13 @@ def proxy(doc,target,meters_per_pixel):
     ni=len(doc.data['nodes']);doc.data['nodes'].append(dict(name='LOD_Proxy',mesh=0,extras=dict(lod_sources=source_ids,lod_proxy=True,animation='merged rest pose')))
     doc.data['scenes'][doc.data.get('scene',0)].setdefault('nodes',[]).append(ni)
     doc.data.pop('skins',None);doc.data.pop('animations',None)
-    return dict(method='closed construction envelopes',envelopes=envelopes,concave_parts=concave,planar_merged_components=sum(n-1 for ids,n in groups),removed_enclosed_parts=enclosed,
+    return dict(method='closed construction envelopes',requested_budget_triangles=target,preserved_concave_nodes=concave_nodes,envelopes=envelopes,concave_parts=concave,planar_merged_components=sum(n-1 for ids,n in groups),removed_enclosed_parts=enclosed,
         removed_features=removed,input_envelope_triangles=pre,triangles=len(ff),topology=report,
         merged_parts=[doc.data['nodes'][i].get('name') for i in source_ids])
 
 
 def shell_static(doc,ratio,meters_per_pixel):
-    """Union distant static assemblies before reduction, retaining moving parts.
+    """Close distant static assemblies before reduction, retaining moving parts.
 
     Closed envelopes remove enclosed construction and collapse distant returns. Original material IDs are assigned by source correspondence;
     per-pixel PBR appearance is subsequently rebaked onto the new shell.

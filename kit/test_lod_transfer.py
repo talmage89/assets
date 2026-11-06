@@ -22,7 +22,12 @@ def main():
     color=nt.nodes.new('ShaderNodeCombineColor');nt.links.new(split.outputs[0],color.inputs[0]);color.inputs[1].default_value=.2
     nt.links.new(color.outputs[0],bsdf.inputs['Base Color'])
     def route(channel):
-        if channel=='Normal':nt.links.new(bsdf.outputs[0],out.inputs['Surface']);return
+        if channel=='NormalField':
+            geometry=nt.nodes.new('ShaderNodeNewGeometry');encode=nt.nodes.new('ShaderNodeVectorMath');encode.operation='MULTIPLY_ADD'
+            encode.inputs[1].default_value=(.5,.5,.5);encode.inputs[2].default_value=(.5,.5,.5)
+            socket=bsdf.inputs['Normal']
+            nt.links.new(socket.links[0].from_socket if socket.is_linked else geometry.outputs['Normal'],encode.inputs[0])
+            nt.links.new(encode.outputs[0],emit.inputs['Color']);nt.links.new(emit.outputs[0],out.inputs['Surface']);return
         for link in list(emit.inputs['Color'].links):nt.links.remove(link)
         if channel=='BaseColor':nt.links.new(color.outputs[0],emit.inputs['Color'])
         else:emit.inputs['Color'].default_value={'Alpha':(1,1,1,1),'ORM':(.6,.2,.1,1),'Emission':(0,0,0,1)}[channel]
@@ -38,6 +43,22 @@ def main():
     assert np.max(np.abs(arrays['BaseColor'][:,:,1]-.2))<1e-4
     assert np.max(np.abs(arrays['ORM']-np.array([.6,.2,.1])))<1e-4
     assert np.max(np.abs(arrays['Normal']-np.array([.5,.5,1])))<1e-4
+    # An oblique cage and a non-axis-aligned original shading normal must
+    # reconstruct the original world direction after its tangent-space bake.
+    # Unit length and blue-map variation alone do not prove this transport.
+    target.rotation_euler.y=.35;bpy.context.view_layer.update()
+    wanted=np.array([.24,.18,.95]);wanted/=np.linalg.norm(wanted)
+    direction=nt.nodes.new('ShaderNodeCombineXYZ')
+    for socket,value in zip(direction.inputs,wanted):socket.default_value=float(value)
+    nt.links.new(direction.outputs[0],bsdf.inputs['Normal'])
+    oblique={k:np.zeros_like(v) for k,v in arrays.items()}
+    result=repair(source,target,oblique,mask,size,.5,route)
+    assert result['repaired']==size*size,result
+    for yy,xx,p,n,t,b,footprint in raster(target,size):
+        tangent=oblique['Normal'][yy,xx]*2-1
+        world=t*tangent[:,0,None]+b*tangent[:,1,None]+n*tangent[:,2,None]
+        assert np.max(np.abs(world-wanted))<1e-4,(world.min(axis=0),world.max(axis=0),wanted)
+    target.rotation_euler.y=0;nt.nodes.remove(direction);bpy.context.view_layer.update()
     # A ray may hit an opaque neighbor: alpha alone cannot identify the wrong
     # surface. The baked source position makes that false hit measurable.
     arrays['Position']=np.full((size,size,3),-.2);arrays['BaseColor'][:]=1

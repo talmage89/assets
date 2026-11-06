@@ -10,7 +10,7 @@ import bpy
 import numpy as np
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from kit.lod_mesh import uv_budget,reduce_screen,topology
-from kit.lod_scene import merge_static,proxy,shell_static,planar_groups
+from kit.lod_scene import merge_static,proxy,shell_static,planar_groups,clean_slivers
 from kit.lod_atlas import bake
 from kit.lod_io import Document,digest
 from kit.detachable_verify import _image
@@ -39,6 +39,32 @@ def main():
     pieces=[a,tiny,long_bar,trim]
     aa,tf,r=reduce_screen({k:np.concatenate([v[k] for v in pieces]) for k in a},np.concatenate([ff+i*len(flat) for i in range(4)]),.9,.02,rebake=True)
     assert len(r['removed_features'])==2 and all(x['diameter_pixels']<48 for x in r['removed_features']),r
+    # A material patch is an open subset of a larger closed assembly. Its
+    # small size alone must not punch a hole through that assembly.
+    patch={k:v[:3].copy() for k,v in a.items()};patch['POSITION']=patch['POSITION']*.02+[.15,0,0]
+    combined={k:np.concatenate([a[k],patch[k]]) for k in a}
+    aa,tf,r=reduce_screen(combined,np.concatenate([ff,[[36,37,38]]]),.9,.02,rebake=True)
+    assert not r['removed_features'],'open material patch was discarded'
+    # Face-on panels can be very thin in depth while remaining many pixels
+    # wide. They are surfaces, rather than subpixel trim lines.
+    panel={k:v.copy() for k,v in a.items()};panel['POSITION']=panel['POSITION']*[.4,.4,.001]+[0,.2,0]
+    aa,tf,r=reduce_screen({k:np.concatenate([a[k],panel[k]]) for k in a},np.concatenate([ff,ff+36]),.9,.02,rebake=True)
+    assert not r['removed_features'],'visible thin panel was discarded'
+    # A near-coincident vertex along a closed box edge must be dissolved and
+    # retriangulated without opening the shell or retaining a zero-area sliver.
+    split=np.vstack([pos,pos[0]+(pos[1]-pos[0])*1e-6]);sf=[]
+    for face in faces:
+        cycle=list(map(int,face))
+        for j in range(3):
+            u,v,w=cycle[j],cycle[(j+1)%3],cycle[(j+2)%3]
+            if {u,v}=={0,1}:sf.extend([(u,8,w),(8,v,w)]);break
+        else:sf.append(cycle)
+    mesh=bpy.data.meshes.new('sliver fixture');mesh.from_pydata(split.tolist(),[],sf);mesh.update()
+    assert topology(dict(POSITION=split),np.array(sf,np.uint32))[0]['slivers']>0
+    clean_slivers(mesh,.02)
+    cleaned=topology(dict(POSITION=np.array([v.co[:] for v in mesh.vertices])),np.array([p.vertices[:] for p in mesh.polygons],np.uint32))[0]
+    assert all(cleaned[k]==0 for k in ('slivers','degenerate','boundary_edges','nonmanifold_edges')),cleaned
+    bpy.data.meshes.remove(mesh)
     # Separate adjacent siding boards must become one simplifiable surface;
     # coplanar geometry on another module must not bridge empty space.
     board=a['POSITION']*np.array([2,.1,.004])+[0,0,.3]
@@ -64,6 +90,21 @@ def main():
     assert np.max(np.abs(aa['WEIGHTS_0'].sum(axis=1)-1))<1e-6
     influence=(aa['WEIGHTS_0']*(aa['JOINTS_0']==3)).sum(axis=1)
     assert np.max(np.abs(influence-aa['POSITION'][:,0]))<1e-5
+    # The same curved structure may change by millimeters far away, while
+    # a near switch rejects that displacement. This specifically distinguishes
+    # switch-sized acceptance from the former LOD0-precision veto.
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=16,ring_count=8,radius=.125)
+    sphere=bpy.context.object;sm=sphere.data;sm.calc_loop_triangles()
+    sp=np.array([v.co[:] for v in sm.vertices],np.float32)
+    sn=sp/np.linalg.norm(sp,axis=1,keepdims=True)
+    sf=np.array([t.vertices[:] for t in sm.loop_triangles],np.uint32)
+    curved=dict(POSITION=sp,NORMAL=sn)
+    near,nf,nr=reduce_screen(curved,sf,.4,.00001,rebake=True)
+    far,farf,fr=reduce_screen(curved,sf,.4,.02,rebake=True)
+    assert len(farf)<len(nf),(len(sf),len(nf),len(farf))
+    accepted=[attempt for component in fr['component_trials']['components_tested'] for attempt in component['attempts'] if attempt['status']=='simplified' and attempt['surface_error_m']>3e-6]
+    assert accepted and all(r['surface_error_m']<=.02*2 for r in accepted),fr
+    bpy.data.objects.remove(sphere,do_unlink=True);bpy.data.meshes.remove(sm)
     b1=uv_budget(a,ff,.02,512)['TEXCOORD_0'];b2=uv_budget(a,ff,.04,512)['TEXCOORD_0']
     assert abs(b2['sampled_mip']-b1['sampled_mip']-1)<1e-6
     assert abs(b2['normalized_tolerance']/b1['normalized_tolerance']-2)<1e-6
@@ -108,6 +149,45 @@ def main():
     preserved=trial.arrays(trial.data['meshes'][trial.data['nodes'][2]['mesh']]['primitives'][0])
     assert np.array_equal(door[0]['POSITION'],preserved[0]['POSITION']) and np.array_equal(door[1],preserved[1])
     assert all(x['topology']['boundary_edges']==0 for x in shells)
+    # A nonplanar curved tube must keep its void, even though an outer convex
+    # envelope would be cheaper. Source rigs or explicit node patterns opt in.
+    theta=np.linspace(-.9*np.pi,.9*np.pi,16);tube=[]
+    for angle in theta:
+        center=np.array([.2*np.cos(angle),.2*np.sin(angle),.1*np.sin(2*angle)])
+        tangent=np.array([-.2*np.sin(angle),.2*np.cos(angle),.2*np.cos(2*angle)]);tangent/=np.linalg.norm(tangent)
+        first=np.cross(tangent,[0,0,1]);first/=np.linalg.norm(first);second=np.cross(tangent,first)
+        for turn in np.arange(6)*np.pi/3:tube.append(center+.008*(first*np.cos(turn)+second*np.sin(turn)))
+    tube=np.array(tube,np.float32);tf=[]
+    for ring in range(15):
+        for side in range(6):
+            a0=ring*6+side;b0=ring*6+(side+1)%6;c0=(ring+1)*6+side;d0=(ring+1)*6+(side+1)%6
+            tf.extend([(a0,b0,d0),(a0,d0,c0)])
+    for side in range(1,5):tf.extend([(0,side+1,side),(90,90+side,91+side)])
+    tf=np.array(tf,np.uint32);normal=np.cross(tube[tf[:,1]]-tube[tf[:,0]],tube[tf[:,2]]-tube[tf[:,0]]);normal/=np.linalg.norm(normal,axis=1,keepdims=True)
+    trial=Document(source)
+    for node in trial.data['nodes'][1:]:node.pop('mesh',None)
+    trial.data['nodes'][0]['name']='CurvedHose'
+    tube_uv=np.column_stack([np.tile(np.arange(6)/6,16),np.repeat(np.linspace(0,1,16),6)]).astype(np.float32)
+    trial.replace(trial.data['meshes'][0]['primitives'][0],dict(POSITION=tube[tf.ravel()],NORMAL=np.repeat(normal,3,axis=0),TEXCOORD_0=tube_uv[tf.ravel()]),np.arange(tf.size,dtype=np.uint32).reshape(-1,3))
+    kept=proxy(trial,220,.01,['CurvedHose'])
+    assert kept['concave_parts']==1 and kept['triangles']==len(tf),kept
+    # A thick annulus can contain >60% of its convex envelope's volume. An
+    # explicit wheel rule must still preserve the visible hole (Euler chi=0).
+    angle=np.arange(8)*np.pi/4;ring=np.array([(r*np.cos(t),r*np.sin(t),z) for z,r in [(-.03,.1),(.03,.1),(-.03,.05),(.03,.05)] for t in angle],np.float32)
+    rf=[]
+    for side in range(8):
+        j=(side+1)%8
+        for quad in [(side,j,8+j,8+side),(16+side,24+side,24+j,16+j),(side,16+side,16+j,j),(8+side,8+j,24+j,24+side)]:
+            rf.extend([(quad[0],quad[1],quad[2]),(quad[0],quad[2],quad[3])])
+    rf=np.array(rf,np.uint32);rn=np.cross(ring[rf[:,1]]-ring[rf[:,0]],ring[rf[:,2]]-ring[rf[:,0]]);rn/=np.linalg.norm(rn,axis=1,keepdims=True)
+    trial=Document(source)
+    for node in trial.data['nodes'][1:]:node.pop('mesh',None)
+    trial.data['nodes'][0]['name']='Wheel_Test'
+    trial.replace(trial.data['meshes'][0]['primitives'][0],dict(POSITION=ring[rf.ravel()],NORMAL=np.repeat(rn,3,axis=0),TEXCOORD_0=np.zeros((rf.size,2),np.float32)),np.arange(rf.size,dtype=np.uint32).reshape(-1,3))
+    kept=proxy(trial,100,.01,['Wheel*']);assert kept['concave_parts']==1,kept
+    ra,rr=trial.arrays(trial.data['meshes'][0]['primitives'][0]);vertices,inverse=np.unique(np.round(ra['POSITION'],6),axis=0,return_inverse=True);rr=inverse[rr]
+    edges={tuple(sorted((int(face[a]),int(face[b])))) for face in rr for a,b in [(0,1),(1,2),(2,0)]}
+    assert len(vertices)-len(edges)+len(rr)==0,'wheel hole was filled'
     d=Document(source);r=proxy(d,150,.075)
     assert r['triangles']<=150 and not r['topology']['boundary_edges'] and not r['topology']['nonmanifold_edges'],r
     path=out/'proxy.gltf';result=bake(d,source,path,128,proxy=True,projection_m=.08);d.save(path)
@@ -148,6 +228,13 @@ def main():
     assert Document(source).dependencies()==before,'proxy bake modified LOD0'
     # A real normal map must carry face changes; a constant blue stand-in fails.
     assert np.std(normal[:,:,:2])>.01
+    # Near HDR atlases must not make an originally non-emitting material
+    # emit. A bright neighboring label can otherwise bleed across chart mips.
+    near=Document(source);nearpath=out/'near.gltf'
+    bake(near,source,nearpath,128,projection_m=.08);near.save(nearpath)
+    assert near.data['materials'][0].get('emissiveFactor')==[0,0,0]
+    assert 'emissiveTexture' not in near.data['materials'][0]
+    assert near.data['materials'][1].get('emissiveTexture') is not None
     print('LOD PROXY FIXTURE PASS: projected pruning, mip-relative UV budget, silhouette IoU, material merge, pivot preservation, closed budgeted shell, real immutable-source PBR/normal bake')
 
 if __name__=='__main__':main()

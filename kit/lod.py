@@ -125,7 +125,7 @@ def build(config):
         from kit.lod_scene import merge_static,proxy,shell_static
         assembly=None
         if spec.get('proxy'):
-            assembly=proxy(doc,spec['target_triangles'],meters_per_pixel)
+            assembly=proxy(doc,spec.get('proxy_budget',spec['target_triangles']),meters_per_pixel,spec.get('preserve_concavity',[]))
         elif spec.get('leaf_cards'):
             from kit.lod_foliage import build as build_foliage
             reports=build_foliage(doc,round(manifest['levels'][0]['triangles']*spec['ratio']),meters_per_pixel,spec.get('leaf_scale_exponent',.4))
@@ -223,6 +223,7 @@ def check(config, require_renders=True):
                 if row.get('proxy'):n.pop('skin',None)
                 if 'extras' in n:
                     n['extras']={k:v for k,v in n['extras'].items() if not k.startswith('lod_')}
+                    if not n['extras']:n.pop('extras')
                 return n
             if [frame(n) for n in doc.data['nodes'][:len(base.data['nodes'])]]!=[frame(n) for n in base.data['nodes']]:errors.append('canonical names/pivots/extras/hierarchy changed')
         else:

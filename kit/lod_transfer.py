@@ -76,7 +76,7 @@ def repair(source,target,arrays,mask,size,tolerance,route,batch_size=8192):
                     compatible=[hit for hit in tree.find_nearest_range(Vector(point),tolerance) if np.dot(hit[1],nn)>.05]
                     if not compatible:continue
                     q,source_face_normal,fi,dist=min(compatible,key=lambda hit:hit[3])
-                if not missing[y,x] and np.linalg.norm(arrays['Position'][y,x]-np.array(q))<=tolerance*.05:continue
+                if not missing[y,x] and np.linalg.norm(arrays['Position'][y,x]-np.array(q))<=tolerance*.005:continue
                 tri=vertices[faces[fi]];e=tri[1:]-tri[0];gram=e@e.T
                 if abs(np.linalg.det(gram))<1e-24:continue
                 bw=np.linalg.solve(gram,e@(np.array(q)-tri[0]));bw=np.array([1-bw.sum(),*bw])
@@ -125,10 +125,10 @@ def repair(source,target,arrays,mask,size,tolerance,route,batch_size=8192):
         ob=bpy.data.objects.new('LOD nearest source patches',data);scene.collection.objects.link(ob);ob.select_set(True);ob.hide_render=False;bpy.context.view_layer.objects.active=ob
         result={}
         for channel in ['Alpha','BaseColor','ORM','Emission',*(['Transmission'] if 'Transmission' in arrays else []),*(['Clearcoat'] if 'Clearcoat' in arrays else []),'Normal']:
-            route(channel)
+            route('NormalField' if channel=='Normal' else channel)
             im=bpy.data.images.new('LOD nearest '+channel,width=patch_size,height=patch_size,alpha=True,float_buffer=True);im.colorspace_settings.name='Non-Color'
             for material,node,old in bake_nodes:node.image=im;material.node_tree.nodes.active=node
-            bpy.ops.object.bake(type='NORMAL',normal_space='OBJECT') if channel=='Normal' else bpy.ops.object.bake(type='EMIT')
+            bpy.ops.object.bake(type='EMIT')
             values=np.empty(patch_size*patch_size*4,np.float32);im.pixels.foreach_get(values);values=values.reshape(patch_size,patch_size,4)[::-1]
             result[channel]=values[py,px,:3].copy();bpy.data.images.remove(im)
         valid=result['Alpha'][:,0]>.001

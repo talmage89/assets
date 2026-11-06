@@ -143,7 +143,7 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
     bpy.context.view_layer.objects.active=high[0];bpy.ops.object.join();high=high[0]
     mats={m for m in high.data.materials if m}
     hm=np.array(high.matrix_world);hp=np.array([v.co[:] for v in high.data.vertices])@hm[:3,:3].T+hm[:3,3]
-    position_lo=hp.min(axis=0);position_span=np.maximum(np.ptp(hp,axis=0),.001);position_nodes={}
+    position_lo=hp.min(axis=0);position_span=np.maximum(np.ptp(hp,axis=0),.001);position_nodes={};normal_nodes={}
     routes=[]
     for m in mats:
         nt=m.node_tree;output=next(n for n in nt.nodes if n.type=='OUTPUT_MATERIAL')
@@ -170,7 +170,21 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
     def route(channel):
         for nt,output,bsdf,original_socket,emit,combine,ao in routes:
             if channel=='Normal':nt.links.new(original_socket,output.inputs['Surface']);continue
-            if channel=='Position':
+            if channel=='NormalField':
+                # NORMAL self-baking returns geometric normals in Blender 5.2.
+                # Evaluate the delivered BSDF normal input as a shader field,
+                # including its normal map, then encode world direction.
+                if nt not in normal_nodes:
+                    geometry=nt.nodes.new('ShaderNodeNewGeometry')
+                    normalize=nt.nodes.new('ShaderNodeVectorMath');normalize.operation='NORMALIZE'
+                    encode=nt.nodes.new('ShaderNodeVectorMath');encode.operation='MULTIPLY_ADD'
+                    encode.inputs[1].default_value=(.5,.5,.5);encode.inputs[2].default_value=(.5,.5,.5)
+                    nt.links.new(normalize.outputs[0],encode.inputs[0]);normal_nodes[nt]=(geometry,normalize,encode)
+                geometry,normalize,encode=normal_nodes[nt]
+                socket=bsdf.inputs['Normal']
+                nt.links.new(socket.links[0].from_socket if socket.is_linked else geometry.outputs['Normal'],normalize.inputs[0])
+                nt.links.new(encode.outputs[0],emit.inputs['Color'])
+            elif channel=='Position':
                 if nt not in position_nodes:
                     geometry=nt.nodes.new('ShaderNodeNewGeometry');subtract=nt.nodes.new('ShaderNodeVectorMath');subtract.operation='SUBTRACT';subtract.inputs[1].default_value=position_lo
                     divide=nt.nodes.new('ShaderNodeVectorMath');divide.operation='DIVIDE';divide.inputs[1].default_value=position_span
@@ -211,11 +225,10 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
             bm.to_mesh(under.data);bm.free()
             high.hide_render=True;high.select_set(False);under.select_set(True)
             bpy.context.view_layer.objects.active=target
-        route(channel)
+        route('NormalField' if channel=='Normal' else channel)
         im=bpy.data.images.new('LOD '+label,width=size,height=size,alpha=True,float_buffer=True)
         im.colorspace_settings.name='Non-Color';tex.image=im
-        opts=dict(type='NORMAL',normal_space='TANGENT',normal_r='POS_X',normal_g='POS_Y',normal_b='POS_Z') if channel=='Normal' else dict(type='EMIT')
-        bpy.ops.object.bake(**opts)
+        bpy.ops.object.bake(type='EMIT')
         a=np.empty(size*size*4,np.float32);im.pixels.foreach_get(a);a=a.reshape(size,size,4)[::-1].copy()
         arrays[label]=a[:,:,:1 if channel in ('Alpha','Transmission') else 3].copy()
         if channel=='Position':arrays[label]=(arrays[label]*position_span+position_lo).astype(np.float32)
@@ -228,7 +241,14 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
     # cannot become a hole or lose the emission/material of its own backing.
     from kit.lod_transfer import repair,raster
     exact=np.zeros((size,size),bool)
-    for yy,xx,*unused in raster(target,size):exact[yy,xx]=True
+    for yy,xx,point,nn,tt,bb,footprint in raster(target,size):
+        exact[yy,xx]=True
+        for label in ('Normal','NormalUnder'):
+            if label not in arrays:continue
+            world=arrays[label][yy,xx]*2-1
+            world/=np.maximum(np.linalg.norm(world,axis=1,keepdims=True),1e-20)
+            world*=np.where(np.sum(world*nn,axis=1)>=0,1,-1)[:,None]
+            arrays[label][yy,xx]=np.stack([np.sum(world*tt,axis=1),np.sum(world*bb,axis=1),np.sum(world*nn,axis=1)],axis=1)*.5+.5
     mask=exact;interior=np.asarray(Image.fromarray(mask.astype(np.uint8)*255).filter(ImageFilter.MinFilter(3)))>0
     primary={k:v for k,v in arrays.items() if not k.endswith('Under')}
     report['nearest_transfer']=repair(high,target,primary,mask,size,projection_m*4/3,route)
@@ -286,7 +306,12 @@ def bake(doc,source,path,size,*,proxy=False,projection_m=.02,composite_alpha=Fal
         if has_clearcoat:
             m.setdefault('extensions',{})['KHR_materials_clearcoat']=dict(clearcoatFactor=1,clearcoatRoughnessFactor=1,clearcoatTexture=dict(index=ids['Clearcoat']),clearcoatRoughnessTexture=dict(index=ids['Clearcoat']),clearcoatNormalTexture=dict(index=ids['Normal']))
             if 'KHR_materials_clearcoat' not in doc.data.setdefault('extensionsUsed',[]):doc.data['extensionsUsed'].append('KHR_materials_clearcoat')
-        if has_emission:
+        # Native near primitives retain their delivered emission membership.
+        # Giving an HDR atlas to a non-emitting material causes light to bleed
+        # into unrelated UV islands through trilinear mips. Reconstructed
+        # shells instead require spatial emission on their common material.
+        native_emits=any(v>0 for v in m.get('emissiveFactor',[0,0,0]))
+        if has_emission and (proxy or composite_alpha or native_emits):
             m['emissiveTexture']=dict(index=ids['Emission']);m['emissiveFactor']=[1,1,1]
             m.setdefault('extensions',{})['KHR_materials_emissive_strength']=dict(emissiveStrength=strength)
             if 'KHR_materials_emissive_strength' not in doc.data.setdefault('extensionsUsed',[]):doc.data['extensionsUsed'].append('KHR_materials_emissive_strength')

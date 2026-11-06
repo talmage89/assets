@@ -98,6 +98,7 @@ def simplify(attrs, faces, ratio, max_error, mode='COLLAPSE', max_uv_error=1/204
     # Collapse costs include a strong boundary penalty. This is only a hint;
     # exact boundary positions and edge coverage are independently checked below.
     locked={v.index for e in bm.edges if e.is_boundary for v in e.verts}
+    boundary_locked=locked.copy()
     # Protect discontinuous normals even when an exporter shared the vertices.
     for e in bm.edges:
         if len(e.link_faces)==2 and e.calc_face_angle(0)>math.radians(35):
@@ -116,6 +117,7 @@ def simplify(attrs, faces, ratio, max_error, mode='COLLAPSE', max_uv_error=1/204
                 signature.append((a,b) if vi<vj else (b,a))
             if key in edge_uv and edge_uv[key]!=signature:locked.update(key)
             edge_uv[key]=signature
+    if screen_space:locked=boundary_locked
     group=ob.vertex_groups.new(name='Protected')
     interior=[i for i in range(len(mesh.vertices)) if i not in locked]
     if interior:group.add(interior,1,'REPLACE')
@@ -124,7 +126,7 @@ def simplify(attrs, faces, ratio, max_error, mode='COLLAPSE', max_uv_error=1/204
         modifier.angle_limit=1e-4;modifier.delimit={'NORMAL','MATERIAL','SEAM','SHARP','UV'}
     else:
         modifier.ratio=ratio
-        if interior and not screen_space:
+        if interior:
             modifier.vertex_group=group.name;modifier.vertex_group_factor=1000
         modifier.use_collapse_triangulate=True
     evaluated=ob.evaluated_get(bpy.context.evaluated_depsgraph_get()); result=evaluated.to_mesh()
@@ -375,8 +377,10 @@ def reduce_screen(attrs,faces,ratio,meters_per_pixel,feature_pixels=1.5,rebake=F
         # A long narrow trim/fitting can have a large diameter yet contribute
         # only a subpixel line. Keep long structural bars; the render gate
         # judges shorter trim and wafer-like knob skirts after baking.
-        thin=(extent[1]<feature_pixels and extent[2]<48) or (extent[0]<.75 and extent[2]<8)
-        if len(groups)>1 and (diameter<feature_pixels or thin):removed.append(dict(triangles=len(ids),diameter_pixels=diameter,principal_extents_pixels=extent.tolist(),kind='thin detail' if thin else 'small island'))
+        thin=extent[1]<feature_pixels and extent[2]<48
+        local,remap=np.unique(faces[ids],return_inverse=True)
+        boundary=topology(dict(POSITION=attrs['POSITION'][local]),remap.reshape(-1,3))[0]['boundary_edges']
+        if len(groups)>1 and not boundary and (diameter<feature_pixels or thin):removed.append(dict(triangles=len(ids),diameter_pixels=diameter,principal_extents_pixels=extent.tolist(),kind='thin detail' if thin else 'small island'))
         else:keep.extend(ids)
     if not keep:keep=list(range(len(faces)));removed=[]
     ff=faces[sorted(keep)];vertices,indices=np.unique(ff,return_inverse=True)
