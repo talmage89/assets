@@ -20,3 +20,9 @@ renders/final/.stamp: build/context-props.json
 tile-render: lawn-tile
 lawn-tile: export/$(ASSEMBLY).glb
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source export/$(TILE_PROOF).glb --out renders/tiles --shots tile_lawn --width $(WIDTH) --samples $(SAMPLES)
+
+# Additive signal-intersection checkpoint; existing Ground targets stay unchanged.
+.PHONY: arterial
+arterial: export/ArterialCheckpoint.glb
+export/ArterialCheckpoint.glb: src/arterial.py
+	$(BP) --python src/arterial.py

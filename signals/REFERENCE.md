@@ -1,0 +1,114 @@
+# Period, dimensions and original design
+
+The time envelope is 1995–2015. The 2009 MUTCD supplies the federal conventions;
+FDOT's 2014 indices supply the chosen steel support construction. This is an
+original visual asset, not a certified traffic installation or structural design.
+
+[2009 MUTCD Part 4](https://mutcd.fhwa.dot.gov/pdfs/2009/part4.pdf):
+4D.07 specifies nominal 12 in vehicle indications; 4D.12 provides dull-black
+visor interiors/backplates, a 1–3 in yellow border option, and limits freely
+swinging visors to 12 in. 4D.13–16 cover face placement: two primary through
+faces, 40–180 ft beyond the stop line, at least 15 ft overhead clearance and
+at most 25.6 ft to housing top. 4E covers pedestrian indications, countdown,
+mounting and accessible button placement. We adopt FDOT's stricter 17 ft 6 in
+overhead clearance and a 42 in button axis above its actual standing surface.
+
+[FDOT 2014 mast tables, 17743](https://fdotwww.blob.core.windows.net/sitefinity/docs/default-source/content2/roadway/ds/14/idx/17743.pdf)
+and [mast details, 17745](https://fdotwww.blob.core.windows.net/sitefinity/docs/default-source/content2/roadway/ds/14/idx/17745.pdf):
+the S1/D1 construction informs a 25 ft plate-bottom-to-top datum, 16 in nominal base,
+six 1¾ in anchors, 30 in × 2½ in circular base plate, 4 ft drilled-shaft
+diameter, 14 in nominal arm root, 0.14 in/ft taper and 2° camber. We use
+separate round foundations and individual hollow nut covers. Buried cage,
+shaft depth, soil capacity and reinforcement are omitted.
+
+The shorter original arms borrow the same construction vocabulary; they are
+not claimed to be FDOT pre-engineered S1/D1 combinations. Reach is measured
+from pole center, not the flange face. The road grammar computes reach from actual lane stations. Primary arms
+range from about 20 to 36 ft; Cinderbrook's reverse arm reaches about 36 ft. Shafts use 16 → 12.53 in measured across flats. The actual shaft starts at 260.35 mm and ends at 7816.85 mm above the placement origin; its steel length is 7556.5 mm. The 44.45 mm gap between pier and plate equals one anchor diameter.
+The arm root is 14 in across flats; its corner envelope is larger by the 12-sided section's cosine factor. These distinctions matter when measuring a
+12-sided steel section and are not hidden as survey accuracy.
+
+[FDOT 17727](https://fdotwww.blob.core.windows.net/sitefinity/docs/default-source/content2/roadway/ds/14/idx/17727.pdf)
+informs separate catenary, messenger, lashed cable and lower tether; stainless
+clamps and service loops. The authored diagonal span is about 34 m, with
+0.66 m upper sag, 0.26 m messenger sag and 0.14 m tether sag. Messenger/tether
+diameters are 9.6/8 mm; multicore cable is 15–20 mm. These are visible
+construction choices, not tension/load calculations.
+
+[FDOT pedestrian detector 17784](https://fdotwww.blob.core.windows.net/sitefinity/docs/default-source/content2/roadway/ds/14/idx/17784.pdf)
+informs a 4 in pedestal, 3 ft 6 in button datum, instruction signs and
+30 × 48 in landing. Actual source vertices measure the button axis at 1.0668 m
+above its landing, with 0.1484 m between that standing rectangle and the main
+5 ft ramp. A separate 9 × 12 in R10-3 style graphic explains the symbols. It is
+an original font/shape approximation, not an exact highway-sign reproduction.
+The tactile arrow is 51 mm long, raised 3 mm, and points along the crossing.
+Pedestrian heads are authored 444.5 × 419.1 × 180 mm with a 150 mm hood;
+center is 2.65 m above the pedestal origin.
+
+[FDOT cabinet 17841](https://fdotwww.blob.core.windows.net/sitefinity/docs/default-source/content2/roadway/ds/14/idx/17841.pdf)
+informs slab, service standing space, conduit and separate power service.
+Morrow Controls is an original 910 × 720 × 1660 mm folded aluminum cabinet
+above a 200 mm plinth. The 3 mm shell, folded returns, gasket, drip lip,
+hinge leaves/knuckles, nine louvers, service lock and padlock are modeled.
+The service interior has a rack, controller, conflict monitor, four detector
+cards, load-switch bank, breaker/power panel and tied harness. The door carries
+a document pocket. These are original low-cost visual approximations, not a
+wiring diagram or a functional controller.
+
+The Waycroft sections are authored at 370 mm pitch, 354 mm front width,
+242 mm housing depth and 304.8 mm clear lens diameter. Housings have compound
+rounded shoulder stations and door/rim, hinged lugs and a captive latch.
+Visors have 1.6 mm gauge and 205/245 mm reach. Backplates add 127 mm nominal
+around a single-width face; optional yellow perimeter is 50.8 mm. The five
+section arrangement is an original doghouse layout; FYA is four vertical
+sections. LED arrays and all symbols are mathematical graphics.
+
+[2009 MUTCD Part 3](https://mutcd.fhwa.dot.gov/pdfs/2009/part3.pdf)
+informs the additive ground markings. The four plans use 11 ft lanes,
+18 in gutter, 6 in curb and 5 ft walk. Aldervale has five arterial lanes
+crossing two; Cinderbrook has two crossing two with diagonal supports;
+Wrenfield has four through lanes plus a 22 ft median that provides two
+11 ft left-turn bays; Morrow Glen is a two-lane T. Return radii are
+35, 15, 25 and 20 ft; the large arterial return has a raised channelizing
+island. Its rounded splitter vertices are measured against the circular gutter
+edge to leave at least one 11 ft carriageway. Road plans are authored
+demonstrations, not traffic studies.
+Paint is 4 in lines/dashes, 24 in stop bars and 18 in crosswalk bars over a
+6 ft band. Loop cuts are an original chamfered 6 ft square, sealed at 10 mm.
+The final version adds each loop's sealed lead-in to a roadside pull box,
+wheel-path paint abrasion, routed repair seals and a utility wearing patch.
+[FHWA Traffic Detector Handbook, volume II, 2006](https://www.fhwa.dot.gov/publications/research/operations/its/06139/06139.pdf),
+chapter 5/table 5-14 and appendix J inform the square loop, diagonally relieved
+corners, sealant and pull-box arrangement. Our 10 mm visible sealed strip is
+an authored visual width; the handbook includes 1/4 in slots and other agency
+choices. Buried conductors and conduit wiring are omitted.
+Arrow geometry is authored; no published drawing is traced.
+
+The photographs in refs/SOURCES.md establish construction and appearance, not
+surveyed plans. The curved New Jersey arm is rejected as a comparator. The
+replacement Oregon photograph matches the complete straight mast: one four-section
+FYA and two three-section through faces, with all ten lens centers and six
+actual red-lens diameter vertices fitted. The seed's suspended mounting lengths
+are 0.66 / 0.12 / 0.39 m, and its two through stations are 10.5 ft apart.
+Independent constrained cameras stand on the actual sidewalk (1.6 m eye) and
+approach pavement (1.18 m eye). Gadsden supplies a separate black-head value
+comparison. Maryland fits two heads on a diagonal span; the North Carolina
+close-up fits three 12-inch indications. All seven camera residuals and
+landmark overlays are recorded in build/cameras.json. A small residual proves
+projection agreement, separately from finish, optical response and street geography.
+
+Photo neutrals are sampled before measurements: the unlettered reverse of a
+roadside sign in Oregon, bare asphalt in Gadsden and Maryland, and a small
+stainless latch in the close head image. These are provisional field neutrals;
+the latch is shadowed and imperfect. Linear gains and annotated ROIs are
+retained in build/reference-balance.json and refs/.
+Sun direction is estimated from the visor/ground shadows, then the procedural
+sky uses the same direction. No HDRI or photograph contributes to any asset
+pixel. Source and exported-part comparisons use identical cameras and light.
+
+Span clamp, extension bar, balance adjuster, messenger lashing, head-entry
+slack and lower tether follow FDOT 17727. The service cable hangs in a single
+gravity loop at each pole and short slack at each head; it is never a ring.
+Mast wiring passes through the mounting saddle and internal arm; its detection
+camera lead is clipped to the riser. Engine aiming motion must update the
+flexible cable socket and tether termination.
