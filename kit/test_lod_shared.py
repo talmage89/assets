@@ -9,11 +9,55 @@ from kit.lod_io import residency
 
 
 def main():
+    from kit.lod_shells import exposed_backfaces,preserve,protect_powered
+    # Two closed constructions meet at one corner and cross farther inside.
+    # Their hidden source skins must not emerge after independent collapse.
+    p=np.array([[0,0,0],[2,0,0],[0,2,0],[0,0,2],[1.5,1.5,-.5],[1.5,-.5,1.5],[-.5,1.5,1.5]],np.float32)
+    tetra=np.array([[0,2,1],[0,1,3],[0,3,2],[1,2,3]],np.uint32)
+    compound=np.concatenate([tetra,np.array([[0,4,5],[0,6,4],[0,5,6],[4,6,5]],np.uint32)])
+    assert exposed_backfaces(dict(POSITION=p),tetra,dict(POSITION=p),tetra) is None
+    assert exposed_backfaces(dict(POSITION=p),compound,dict(POSITION=p),compound) is None
+    assert exposed_backfaces(dict(POSITION=p),compound,dict(POSITION=p),tetra[:,::-1]) is not None
+    restored,rf,receipt=preserve(dict(POSITION=p),compound,dict(POSITION=p),tetra[:,::-1],dict(components=[dict(triangles=4)]))
+    assert len(rf)==8 and len(receipt)==1 and len(restored['POSITION'])==7
+    # A separate covering construction still occludes an internal back face.
+    # Isolating the internal component would restore geometry unnecessarily.
+    cube=np.array([[-3,-3,-3],[3,-3,-3],[3,3,-3],[-3,3,-3],[-3,-3,3],[3,-3,3],[3,3,3],[-3,3,3]],np.float32)
+    cf=np.array([[0,2,1],[0,3,2],[4,5,6],[4,6,7],[0,1,5],[0,5,4],[1,2,6],[1,6,5],[2,3,7],[2,7,6],[3,0,4],[3,4,7]],np.uint32)
+    cover=dict(POSITION=np.concatenate([cube,p[:4]]));original=np.concatenate([cf,tetra+8]);inside_out=np.concatenate([cf,tetra[:,::-1]+8])
+    assert exposed_backfaces(cover,original,cover,inside_out,face_indices=np.arange(12,16)) is None
+    # A long subpixel strip has appreciable total area but cannot justify
+    # retaining a whole construction. Broad exposures still trigger the guard.
+    thin=dict(POSITION=np.array([[0,0,0],[10,0,0],[0,.02,0]],np.float32));one=np.array([[0,1,2]])
+    assert exposed_backfaces(thin,one,thin,one[:,::-1],.1) is None
+    broad=dict(POSITION=np.array([[0,0,0],[10,0,0],[0,1,0]],np.float32))
+    assert exposed_backfaces(broad,one,broad,one[:,::-1],.1) is not None
+    # A tiny dark shutter beside a powered lens still affects radiance. Keep
+    # that assembly while an unrelated fitting farther away can simplify.
+    tri=np.array([[0,0,0],[1,0,0],[0,1,0]],np.float32)
+    aa=dict(POSITION=np.concatenate([tri+[0,0,.01],tri,tri+10]),
+        _LOD_MATERIAL=np.array([[0]]*3+[[1]]*6,np.float32),_LOD_KEEP=np.array([[1]]*3+[[0]]*6,np.float32))
+    receipts=protect_powered(aa,np.arange(9).reshape(3,3),[dict(emissiveFactor=[1,1,1]),{}],.04)
+    assert aa['_LOD_KEEP'][:6].all() and not aa['_LOD_KEEP'][6:].any() and len(receipts)==1
     from kit.lod_shared import _uv_error
     limits={'TEXCOORD_0':.005,'TEXCOORD_1':.0002}
     source_uv={k:np.zeros((3,2)) for k in limits}
     point_uv={'TEXCOORD_0':np.array([.003,0]),'TEXCOORD_1':np.zeros(2)}
     assert abs(_uv_error(point_uv,source_uv,np.arange(3),np.array([1,0,0]),limits)-.6)<1e-8
+    # Vertex agreement alone misses broad shading errors inside a long face.
+    # A source triangle with exact UVs must still reject a 10-degree frame miss.
+    from kit.lod_shared import _field_error,_frame_limits
+    assert _frame_limits(thin['POSITION'],.1)==(45.,45.)
+    assert _frame_limits(broad['POSITION'],.1)==(3.,5.)
+    pp=np.array([[0,0,0],[1,0,0],[0,1,0]],float);fframe=np.array([[0,1,2]])
+    original=dict(POSITION=pp,NORMAL=np.tile([0,0,1.],(3,1)),TEXCOORD_0=pp[:,:2],TANGENT=np.tile([1.,0,0,1],(3,1)))
+    target=dict(NORMAL=np.array([0,0,1.]),TEXCOORD_0=np.array([.25,.25]),TANGENT=np.array([1.,0,0,1]))
+    gradients=np.linalg.pinv(pp[fframe[:,1:]]-pp[fframe[:,:1]]);hits=[(np.array([.25,.25,0]),None,0,0.)]
+    assert _field_error(target,original,fframe,pp,gradients,hits,dict(TEXCOORD_0=np.array([.01])))[0]<1
+    target['NORMAL']=np.array([0,np.sin(np.radians(10)),np.cos(np.radians(10))])
+    assert _field_error(target,original,fframe,pp,gradients,hits,dict(TEXCOORD_0=np.array([.01])))[0]>1
+    target['NORMAL']=np.array([0,0,1.]);target['TANGENT']=np.array([np.cos(np.radians(10)),np.sin(np.radians(10)),0,1])
+    assert _field_error(target,original,fframe,pp,gradients,hits,dict(TEXCOORD_0=np.array([.01])))[0]>1
     # Closed cylinder, split longitudinal UV seam and hard-normal cap wedges.
     points=[];uv=[];normals=[];faces=[];sides=32
     for j in range(5):

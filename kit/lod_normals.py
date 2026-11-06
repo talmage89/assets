@@ -195,7 +195,11 @@ def audit(config):
                 local_uv_ratio=max(local_uv_ratio,best_uv);max_uv_ratio=max(max_uv_ratio,best_uv)
                 raw=min(p[2] for p in pairs if p[0]<=best_uv+1e-6)
                 max_uv_error=max(max_uv_error,raw);local_uv_error=max(local_uv_error,raw)
-                angle=min(p[1] for p in pairs if p[0]<=best_uv+1e-6)
+                # A source atlas can legitimately reuse UVs on opposing skins.
+                # Choose the normal among all correspondences satisfying the
+                # unchanged half-mip-texel bound, not only the smallest UV
+                # residual, which can belong to a different physical side.
+                angle=min(p[1] for p in pairs if p[0]<=max(1.,best_uv)+1e-6)
                 angles.append(angle)
             if local_uv_ratio>1.:errors.append(f'LOD{row["level"]}: source UV field changed in {mi}/{pi} ({local_uv_ratio:.6f} times the half-mip-texel bound)')
         maximum=float(max(angles,default=0));p95=float(np.percentile(angles,95)) if angles else 0.

@@ -20,7 +20,7 @@ from kit.lod_io import Document, digest, distance, residency, shared_material_bi
 
 
 def tool_digests():
-    names=('lod_shared.py','lod.py','lod_io.py','lod_foliage.py','lod_mesh.py','lod_scene.py','lod_layout.py','lod_gpu.py','lod_atlas.py','lod_transfer.py','lod_impostor_fit.py','lod_impostor.py','lod_render.py','foliage.py',
+    names=('lod_shared.py','lod_shells.py','lod.py','lod_io.py','lod_foliage.py','lod_mesh.py','lod_scene.py','lod_layout.py','lod_gpu.py','lod_atlas.py','lod_transfer.py','lod_impostor_fit.py','lod_impostor.py','lod_render.py','foliage.py',
            'detachable_textures.py','image_io.py')
     return {name:digest(ROOT/'kit'/name) for name in names}
 

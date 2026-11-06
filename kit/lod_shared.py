@@ -34,7 +34,15 @@ def _uv_error(target,source,source_face,bary,limits,weights=None):
     return max((float(np.max(np.abs((v if weights is None else weights@v)-bary@source[k][source_face])))/_limit(limits,k,material) for k,v in target.items() if k.startswith('TEXCOORD_')),default=0.)
 
 
-def _field_error(target,source,faces,positions,gradients,hits,limits):
+def _frame_limits(points,meters_per_pixel):
+    """Tight on broad faces; subpixel faces can spend more angular error."""
+    edge=points[1:]-points[0];area=np.linalg.norm(np.cross(edge[0],edge[1]))
+    longest=max(np.linalg.norm(points[i]-points[j]) for i,j in ((0,1),(1,2),(2,0)))
+    width=area/max(longest*meters_per_pixel,1e-20)
+    return min(45.,max(3.,15/max(width,1e-8))),min(45.,max(5.,25/max(width,1e-8)))
+
+
+def _field_error(target,source,faces,positions,gradients,hits,limits,frame_limits=(3.,5.)):
     """Vectorized original-field correspondence on bounded BVH candidates."""
     if not hits:return 1e6,1e6
     ids=np.array([h[2] for h in hits],int);points=np.array([h[0][:] for h in hits],float)
@@ -45,7 +53,11 @@ def _field_error(target,source,faces,positions,gradients,hits,limits):
     edge=np.einsum('ni,nij->nj',points-positions[faces[ids,0]],gradients[ids])
     bary=np.column_stack([1-edge.sum(axis=1),edge]);ff=faces[ids]
     normal=np.einsum('ni,nij->nj',bary,source['NORMAL'][ff]);wanted=target['NORMAL']
-    valid=normal@wanted>=.5*np.maximum(np.linalg.norm(normal,axis=1)*np.linalg.norm(wanted),1e-20)
+    valid=normal@wanted>=np.cos(np.radians(frame_limits[0]))*np.maximum(np.linalg.norm(normal,axis=1)*np.linalg.norm(wanted),1e-20)
+    if 'TANGENT' in target and 'TANGENT' in source:
+        tangent=np.einsum('ni,nij->nj',bary,source['TANGENT'][ff,:3]);wanted_t=target['TANGENT'][:3]
+        valid &= tangent@wanted_t>=np.cos(np.radians(frame_limits[1]))*np.maximum(np.linalg.norm(tangent,axis=1)*np.linalg.norm(wanted_t),1e-20)
+        valid &= np.abs(np.einsum('ni,ni->n',bary,source['TANGENT'][ff,3])-target['TANGENT'][3])<1e-4
     if not valid.any():return 1e6,1e6
     bary=bary[valid];ff=ff[valid];ids=ids[valid];uv=np.zeros(len(ff));data=np.zeros(len(ff))
     for k,value in target.items():
@@ -56,7 +68,7 @@ def _field_error(target,source,faces,positions,gradients,hits,limits):
             error=np.max(np.abs(value-np.einsum('ni,nij->nj',bary,source[k][ff])),axis=1);data=np.maximum(data,error)
     best=float(uv.min());return best,float(data[uv<=best+1e-6].min())
 
-def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=None, uv_limit=None):
+def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=None, uv_limit=None,meters_per_pixel=None):
     """Reduce one construction component, retaining its source vertex records.
 
     Position is normalized by the component diameter. Attribute residual planes
@@ -151,14 +163,14 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
             if wb in pair and pair[wb]!=wa:return None
             pair[wb]=wa
         unmatched=wedges(b)-set(pair)
-        # A normal split is an attribute constraint, not a UV chart boundary.
-        # Recover the same UV wedge on the adjoining face before treating a
-        # seam junction as a separate transported corner. Never join UVs,
-        # material IDs, handedness or discontinuous vertex data.
+        # Join only redundant frame splits within a continuous UV chart.
+        # A real normal/tangent discontinuity remains a separate corner even
+        # when its UV is continuous: the old normal map was baked in that frame.
         for wb in list(unmatched):
             for other,wa in list(pair.items()):
                 keys=[k for k in current if k.startswith(('TEXCOORD_','COLOR_','_WIND','_LOD_'))]
                 if any(np.max(np.abs(current[k][wb]-current[k][other]))>1e-6 for k in keys):continue
+                if any(current[k][wb,:3]@current[k][other,:3]<np.cos(np.radians(1))*np.linalg.norm(current[k][wb,:3])*np.linalg.norm(current[k][other,:3]) for k in ('NORMAL','TANGENT') if k in current):continue
                 if 'TANGENT' in current and current['TANGENT'][wb,3]!=current['TANGENT'][other,3]:continue
                 pair[wb]=wa;unmatched.remove(wb);break
         if unmatched:
@@ -253,14 +265,15 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
             if not valid:break
             if tree is not None:
                 excess=0.
+                frame_limits=_frame_limits(p1,meters_per_pixel or max_error*.75/2)
                 for w in samples:
                     p=w@p1;hit=tree.find_nearest(Vector(p))
                     if hit[3]>max_error:valid=False;break
                     if hit[3]>structural:excess+=length/4
                     target_fields={k:w@v for k,v in cv.items()}
-                    best_uv,best_data=_field_error(target_fields,attrs,faces,reference_pos,source_gradients,[hit],uv_limit)
+                    best_uv,best_data=_field_error(target_fields,attrs,faces,reference_pos,source_gradients,[hit],uv_limit,frame_limits)
                     if best_uv>1. or best_data>.01:
-                        best_uv,best_data=_field_error(target_fields,attrs,faces,reference_pos,source_gradients,tree.find_nearest_range(Vector(p),max_error+1e-7),uv_limit)
+                        best_uv,best_data=_field_error(target_fields,attrs,faces,reference_pos,source_gradients,tree.find_nearest_range(Vector(p),max_error+1e-7),uv_limit,frame_limits)
                     if best_uv>1. or best_data>.01:valid=False;break
                 if not valid:break
             new_faces[fi]=new;new_geometry.extend(p1);new_areas[fi]=length;new_excess[fi]=excess if tree is not None else 0.
@@ -321,12 +334,12 @@ def _reduce(attrs,faces,ratio,meters_per_pixel,uv_limit,uv_weight=10.,normal_wei
         component_limits=_triangle_limits(aa,ff,meters_per_pixel,texture_size) if texture_size is not None else uv_limit
         best,bf=aa,ff;attempts=[]
         if len(ff)>2000:print('LOD SHARED component',len(ff),'target',round(len(ff)*ratio),flush=True)
-        if len(ff)>=12 and not any(k.startswith(('JOINTS_','WEIGHTS_')) for k in aa):
+        if len(ff)>=12 and not ('_LOD_KEEP' in aa and aa['_LOD_KEEP'].all()) and not any(k.startswith(('JOINTS_','WEIGHTS_')) for k in aa):
             tree=BVHTree.FromPolygons([Vector(p) for p in aa['POSITION']],ff.tolist(),all_triangles=True)
             before=topology(aa,ff)[0]
             source_positions=aa['POSITION'].astype(float);source_gradients=np.linalg.pinv(source_positions[ff[:,1:]]-source_positions[ff[:,:1]])
             for rr in [ratio,ratio+(1-ratio)*.4,ratio+(1-ratio)*.75]:
-                candidate,cf,row=collapse(aa,ff,rr,uv_weight,normal_weight,meters_per_pixel*surface_pixels*(2/.75),component_limits)
+                candidate,cf,row=collapse(aa,ff,rr,uv_weight,normal_weight,meters_per_pixel*surface_pixels*(2/.75),component_limits,meters_per_pixel)
                 uv_error=field_error=distance=0.;samples=[];sample_weights=[]
                 for w in [np.array([1/3]*3),np.array([.5,.5,0]),np.array([0,.5,.5]),np.array([.5,0,.5])]:
                     for f in cf:
@@ -334,7 +347,7 @@ def _reduce(attrs,faces,ratio,meters_per_pixel,uv_limit,uv_weight=10.,normal_wei
                         points=candidate['POSITION'][f];samples.append(d);sample_weights.append(float(np.linalg.norm(np.cross(points[1]-points[0],points[2]-points[0])))/4)
                         choices=tree.find_nearest_range(Vector(p),max(1e-6,d+1e-6,meters_per_pixel*surface_pixels*(2/.75)))
                         target_fields={k:w@v[f] for k,v in candidate.items() if k!='POSITION'}
-                        best_uv,best_field=_field_error(target_fields,aa,ff,source_positions,source_gradients,choices,component_limits)
+                        best_uv,best_field=_field_error(target_fields,aa,ff,source_positions,source_gradients,choices,component_limits,_frame_limits(points,meters_per_pixel))
                         uv_error=max(uv_error,min(best_uv,1e6));field_error=max(field_error,min(best_field,1e6))
                 target_tree=BVHTree.FromPolygons([Vector(p) for p in candidate['POSITION']],cf.tolist(),all_triangles=True)
                 reverse=[target_tree.find_nearest(Vector(p))[3] for p in aa['POSITION']]
@@ -346,7 +359,7 @@ def _reduce(attrs,faces,ratio,meters_per_pixel,uv_limit,uv_weight=10.,normal_wei
                 p95=float(np.array(samples)[order][min(len(order)-1,int(np.searchsorted(cumulative,cumulative[-1]*.95)))])
                 after=topology(candidate,cf)[0];reasons=[]
                 if distance>meters_per_pixel*surface_pixels*(2/.75) or p95>meters_per_pixel*surface_pixels:reasons.append('surface distance')
-                if uv_error>1.:reasons.append('UV interpolation')
+                if uv_error>1.:reasons.append('UV/normal/tangent correspondence')
                 if field_error>.01:reasons.append('color/Wind interpolation')
                 for k in ('boundary_edges','nonmanifold_edges','degenerate','slivers','winding_disagreements','degenerate_uv'):
                     if after[k]>before[k]:reasons.append(k)
@@ -358,16 +371,17 @@ def _reduce(attrs,faces,ratio,meters_per_pixel,uv_limit,uv_weight=10.,normal_wei
         for k in fields:fields[k].append(best[k])
         triangles.append(bf+offset);offset+=len(best['POSITION'])
     result={k:np.concatenate(v) for k,v in fields.items()};tri=np.concatenate(triangles)
-    return result,tri,dict(status='simplified',triangles=len(tri),components=reports,uv_weight=uv_weight,normal_weight=normal_weight)
+    return result,tri,dict(status='simplified',triangles=len(tri),components=reports,uv_weight=uv_weight,normal_weight=normal_weight,field_limits_degrees=dict(normal='clamp(15 / face width pixels, 3, 45)',tangent='clamp(25 / face width pixels, 5, 45)',vertex_normal=3,vertex_tangent=5))
 
 
 def reduce(attrs,faces,ratio,meters_per_pixel,uv_limit,uv_weight=10.,normal_weight=.5,surface_pixels=.75,texture_size=None):
     """Content-checked geometry cache; appearance and final checks still run."""
-    import hashlib,json
+    import hashlib,json,bpy
     from pathlib import Path
     from kit.lod_io import digest
     recipe=dict(ratio=ratio,meters_per_pixel=meters_per_pixel,uv_limit=uv_limit,uv_weight=uv_weight,normal_weight=normal_weight,surface_pixels=surface_pixels,texture_size=texture_size,
-                tool=hashlib.sha256(b''.join(__import__('marshal').dumps(f.__code__) for f in (collapse,_reduce,_limit,_uv_error,_field_error,_triangle_limits))).hexdigest(),mesh_tool=digest(Path(__file__).with_name('lod_mesh.py')))
+                runtime=dict(blender=list(bpy.app.version),numpy=np.__version__),
+                tool=hashlib.sha256(b''.join(__import__('marshal').dumps((f.__code__,f.__defaults__,f.__kwdefaults__)) for f in (collapse,_reduce,_limit,_uv_error,_field_error,_frame_limits,_triangle_limits))).hexdigest(),mesh_tool=digest(Path(__file__).with_name('lod_mesh.py')))
     h=hashlib.sha256(json.dumps(recipe,sort_keys=True).encode())
     for k,v in sorted({**attrs,'indices':faces}.items()):
         h.update(k.encode());h.update(str(v.dtype).encode());h.update(str(v.shape).encode());h.update(np.ascontiguousarray(v).tobytes())
@@ -409,6 +423,8 @@ def meshes(doc,ratio,meters_per_pixel,feature_pixels=1.5,surface_pixels=.75):
                     '_LOD_KEEP':np.full((len(attrs['POSITION']),1),retain,np.float32)}
                 chunks.append(aa);triangles.append(faces.astype(np.uint32)+offset);offset+=len(attrs['POSITION'])
             aa={k:np.concatenate([c[k] for c in chunks]) for k in chunks[0]};ff=np.concatenate(triangles)
+            from kit.lod_shells import preserve,protect_powered
+            powered_assemblies=protect_powered(aa,ff,doc.data.get('materials',[]),meters_per_pixel)
             # Remove complete tiny closed components only; source print sheets
             # and powered/glass constructions are protected regardless of size.
             keep=[];removed=[]
@@ -427,6 +443,7 @@ def meshes(doc,ratio,meters_per_pixel,feature_pixels=1.5,surface_pixels=.75):
                 for key,value in budget.items():uv_limit.setdefault(key,{})[material]=value['normalized_tolerance']
             target_ratio=min(.999,ratio*sum(len(f) for _,_,_,f in entries)/len(ff))
             out,tri,row=reduce(aa,ff,target_ratio,meters_per_pixel,uv_limit,surface_pixels=surface_pixels,texture_size=source_size)
+            out,tri,retained_skins=preserve(aa,ff,out,tri,row,meters_per_pixel)
             for pi,p,attrs,faces in entries:
                 material=p.get('material',0);ids=out['_LOD_MATERIAL'][tri,0]
                 if np.any(ids!=ids[:,:1]):raise ValueError('Collapse crossed a material boundary')
@@ -438,5 +455,5 @@ def meshes(doc,ratio,meters_per_pixel,feature_pixels=1.5,surface_pixels=.75):
                 else:
                     vv,ii=np.unique(selected,return_inverse=True);selected_attrs={k:v[vv] for k,v in out.items() if k not in ('_LOD_MATERIAL','_LOD_KEEP')};selected_faces=ii.reshape(-1,3).astype(np.uint32)
                 doc.replace(p,selected_attrs,selected_faces)
-            reports.append(dict(mesh=mesh.get('name',mi),primitives=[pi for pi,_,_,_ in entries],uv_budgets=budgets,removed_features=removed,component_trials=row))
+            reports.append(dict(mesh=mesh.get('name',mi),primitives=[pi for pi,_,_,_ in entries],uv_budgets=budgets,removed_features=removed,retained_source_skins=retained_skins,powered_assemblies=powered_assemblies,component_trials=row))
     return reports
