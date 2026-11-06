@@ -29,8 +29,45 @@ def clone(source,name,loc,yaw=0):
  r=cop[source];r.location=loc;r.rotation_mode='XYZ';r.rotation_euler=(0,0,math.radians(yaw));return r
 def ground(seed=201):
  from layout import SITES
- from ground.src.junction import build
- before=set(bpy.data.images);rt=build(SITES[seed].data(),ROOT);cap_images(set(bpy.data.images)-before,1024);return rt
+ before=set(bpy.data.images);roots,objects=load(ROOT/'ground/export/ArterialSites.glb')
+ rt=next(o for o in roots.values() if o.name=='Junction_'+str(seed))
+ keep={rt,*rt.children_recursive}
+ for ob in objects-keep:bpy.data.objects.remove(ob,do_unlink=True)
+ rt.location=(0,0,0);cap_images(set(bpy.data.images)-before,1024);extended_ground(seed);return rt
+def extended_ground(seed):
+ """Presentation continuation beyond the exported module's 100 m boundary.
+ Near wearing course always remains the imported delivery. Canonical materials
+ are reused on these distant strips; no neighboring library is rewritten.
+ """
+ from layout import SITES
+ from kit import model as G
+ site=SITES[seed];rt=G.pivot('DistantTownGround',(0,0,0));rt['presentation_only']=True
+ mats={key:next(m for m in bpy.data.materials if m.name.startswith(prefix)) for key,prefix in [('asphalt','Arterial dry asphalt'),('concrete','Concrete'),('lawn','Lawn'),('white','Arterial aged white'),('yellow','Arterial faded yellow')]}
+ def patch(name,points,z,role):
+  o=G.mesh(name,[(*p,z) for p in points],[(0,1,2,3)],mats[role]);o.parent=rt;world_uv(o,6.096 if role=='asphalt' else 3.048 if role=='lawn' else 1.524)
+  color=(.95,.95,.95,1) if role=='asphalt' else (.55,.55,.50,1) if role=='white' else (.52,.32,.012,1) if role=='yellow' else (1,1,1,1)
+  ca=o.data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='POINT')
+  for datum in ca.data:datum.color=color
+  return o
+ patch('Distant town underlay',[(-10000,-10000),(10000,-10000),(10000,10000),(-10000,10000)],-.02,'lawn')
+ for turn in site.approaches:
+  h=site.half(turn)
+  def strip(name,x0,x1,y0,y1,z,role):return patch(name,[xy(x,y,turn*90)[:2] for x,y in [(x0,y0),(x1,y0),(x1,y1),(x0,y1)]],z,role)
+  strip('Distant continuing asphalt',-h,h,100,350,.012,'asphalt')
+  for side in (-1,1):
+   strip('Distant gutter',side*h,side*(h+.4572),100,350,.008,'concrete')
+   strip('Distant curb top',side*(h+.4572),side*(h+.6096),100,350,.1524,'concrete')
+   strip('Distant planting verge',side*(h+.6096),side*(h+2.286),100,350,.151,'lawn')
+   strip('Distant sidewalk',side*(h+2.286),side*(h+3.81),100,350,.1524,'concrete')
+   strip('Distant parcels',side*(h+3.81),side*350,100,350,.149,'lawn')
+  if not(site.median and turn%2==0):
+   for x in (-.085,.085):strip('Distant center stripe',x-.05,x+.05,100,350,.017,'yellow')
+  if (site.ns if turn%2==0 else site.ew)>=4:
+   for side in (-1,1):
+    x=side*((LANE if site.median else LANE*1.5)+(site.median/2 if site.median else 0))
+    for y in range(103,350,9):strip('Distant lane dash',x-.05,x+.05,y,y+3.048,.017,'white')
+ return rt
+
 def context(seed):
  from layout import SITES
  import random
@@ -65,13 +102,17 @@ def context(seed):
     if any(overlaps(bounds,other) for other in occupied):continue
     occupied.append(bounds);name=f'House{turn}_{side}_{i}';clone(base,name,pos,yaw);placement.append(dict(name=name,bounds_xy_m=bounds))
    for i in range(11):
-    y=site.core(turn)+38+i*22
-    tree_pos=xy(side*(site.face(turn)+7.3),y,angle,.15)
+    if rng.random()<.26:continue
+    y=site.core(turn)+30+i*23+rng.uniform(-7,7)
+    tree_pos=xy(side*(site.face(turn)+rng.uniform(5.8,9.2)),y,angle,.15)
     if gas_bounds and all(gas_bounds[k][0]-.4<tree_pos[k]<gas_bounds[k][1]+.4 for k in (0,1)):continue
-    rel='trees/export/PinOak.glb' if (i+seed)%2 else 'trees/export/RedMaple.glb';base,_=library(rel)
-    clone(base,f'StreetTree{turn}_{side}_{i}',tree_pos,rng.randrange(360))
+    rel='trees/export/PinOak.glb' if rng.random()<.48 else 'trees/export/RedMaple.glb';base,_=library(rel)
+    tree=clone(base,f'StreetTree{turn}_{side}_{i}',tree_pos,rng.randrange(360));scale=rng.uniform(.62,1.16);tree.scale=(scale*rng.uniform(.88,1.10),scale*rng.uniform(.88,1.10),scale)
+    placement.append(dict(name=tree.name,species=rel,scale=list(tree.scale),position_m=list(tree.location),yaw_degrees=math.degrees(tree.rotation_euler.z)))
    base,_=library('street-light/export/StreetLight.glb')
-   for i in range(6):clone(base,f'StreetLamp{turn}_{side}_{i}',xy(side*(site.face(turn)+1.25),site.core(turn)+15+i*32,angle,.15),angle+(90 if side>0 else -90))
+   for i in range(6):
+    if seed==202 and turn==1 and i==0:continue
+    clone(base,f'StreetLamp{turn}_{side}_{i}',xy(side*(site.face(turn)+1.25),site.core(turn)+15+i*32,angle,.15),angle+(90 if side>0 else -90))
  if len(site.approaches)==3:
   base,_=library('houses/export/HearthfieldCape-31.gltf');clone(base,'ClosedT_House',(-site.hx-18,0,.15),90)
   base,_=library('trees/export/RedMaple.glb')

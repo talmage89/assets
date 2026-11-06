@@ -14,7 +14,7 @@ from layout import SITES
 
 def balance():
  rows=[]
- for name,rect,neutral in [('gadsden-2025',(1540,1960,1730,2050),'sunlit gray asphalt between vehicles'),('maryland-2006',(1350,1330,1450,1420),'bare asphalt patch, provisional neutral'),('span-2009',(1570,1042,1586,1070),'shadowed stainless latch at right of red module; small provisional neutral'),('oregon-fya-2005',(560,987,576,1040),'unlettered gray reverse of roadside sign; provisional neutral')]:
+ for name,rect,neutral in [('gadsden-2025',(1540,1960,1730,2050),'sunlit gray asphalt between vehicles'),('maryland-2006',(1640,1730,1660,1770),'bare concrete curb on near return, excluding leaves, joints and blue shadow; provisional neutral'),('span-2009',(1570,1042,1586,1070),'shadowed stainless latch at right of red module; small provisional neutral'),('oregon-fya-2005',(560,987,576,1040),'unlettered gray reverse of roadside sign; provisional neutral')]:
   im=Image.open('refs/'+name+'.jpg').convert('RGB');a=np.asarray(im).astype(float)/255
   lin=np.where(a<=.04045,a/12.92,((a+.055)/1.055)**2.4);x0,y0,x1,y1=rect;med=np.median(lin[y0:y1,x0:x1].reshape(-1,3),axis=0);target=float(np.exp(np.mean(np.log(np.maximum(med,1e-8)))));gain=target/np.maximum(med,1e-6)
   # The small latch is imperfect; retain/record actual gains for scrutiny.
