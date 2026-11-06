@@ -32,3 +32,36 @@ estimated same-view comparison, not recovered EXIF or exact photographic pose.
 The older scanned reference has a warm cast and perspective not copied into the
 new green residential blades. Two source critique passes plus the shipped-GLB
 comparison are sufficient for this repeated street prop.
+
+## Added set finish pass 1
+
+Color and value first: the form palette did not separate plain metal from
+sheeting. The independent added set now uses metallic aluminum/zinc and two
+daylight sheeting grades on its one shared image. Read SHS Appendix 6-10/6-58
+and opened the generated figures beside the book: replaced the generic figures
+with original grid primitives and curved torso contours. School has child left,
+adult right and distinct satchels. Exact federal lettering and headlamp return
+remain approximations. The earlier STOP/blade delivery is unchanged.
+
+## Added set finish pass 2
+
+Color and value first: opened the exported 1440 px R2-1 close-up and full
+warning lineup. Neutral white, dark black and separate yellow/FYG survive the
+shared sheet. Corrected pedestrian/school silhouettes read at lineup distance.
+The speed face still reveals substituted letter outlines and slightly faceted
+corners under macro inspection. Rejected the green-road presentation error;
+its ground-plane/tree-density corrections await the next exported street image.
+Full details and image paths are in [SET_REVIEW.md](SET_REVIEW.md).
+
+
+## Added set finish pass 3 — final audit
+
+Color and value first: reviewed the exported street hero, complete lineups,
+face/back/base/band details, Eevee and balanced shaded R2-1 pair at full size.
+The final white ROI is 0.434 versus the photograph's 0.436 display luminance;
+black print stays dark under raking sun. Concrete controls the photo balance.
+The detailed third pass and remaining limits are in SET_REVIEW.md: open-font
+outlines, softened minute sheeting detail, flat support-hole indications and
+no true headlamp retroreflection. The SHS appendix comparisons and all current
+exports are linked there. The accepted STOP/blade delivery and its three docs
+images remain byte-identical. Two new JPGs extend this family's docs to five.
