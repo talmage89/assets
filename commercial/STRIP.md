@@ -213,17 +213,17 @@ using the corrected generator.
 
 | Fix | Before / after proof |
 | --- | --- |
-| Four sites | [201](renders/strip/fixes/site-201-before-after.jpg), [202](renders/strip/fixes/site-202-before-after.jpg), [203](renders/strip/fixes/site-203-before-after.jpg), [204](renders/strip/fixes/site-204-before-after.jpg) |
-| Tenant window dressing and fitted rooms | [Window life](renders/strip/fixes/window-life-before-after.jpg) |
-| Detached letter shadows | [Sign face](renders/strip/fixes/sign-face-before-after.jpg) |
-| Operating rooms, OPEN signs and pole pools | [Dusk](renders/strip/fixes/night-light-before-after.jpg) |
-| Stall oils, tire paths, repairs and seals | [Asphalt](renders/strip/fixes/asphalt-before-after.jpg) |
-| Softer entry deposits, retained gum | [Walk](renders/strip/fixes/walk-before-after.jpg) |
-| Containers, gas runs, numbers and runoff | [Rear](renders/strip/fixes/rear-before-after.jpg) |
-| Warm sandstone instead of cool gray | [Palette](renders/strip/fixes/warm-palette-before-after.jpg) |
+| Four sites | 201 (`renders/strip/fixes/site-201-before-after.jpg`), 202 (`renders/strip/fixes/site-202-before-after.jpg`), 203 (`renders/strip/fixes/site-203-before-after.jpg`), 204 (`renders/strip/fixes/site-204-before-after.jpg`) |
+| Tenant window dressing and fitted rooms | Window life (`renders/strip/fixes/window-life-before-after.jpg`) |
+| Detached letter shadows | Sign face (`renders/strip/fixes/sign-face-before-after.jpg`) |
+| Operating rooms, OPEN signs and pole pools | Dusk (`renders/strip/fixes/night-light-before-after.jpg`) |
+| Stall oils, tire paths, repairs and seals | Asphalt (`renders/strip/fixes/asphalt-before-after.jpg`) |
+| Softer entry deposits, retained gum | Walk (`renders/strip/fixes/walk-before-after.jpg`) |
+| Containers, gas runs, numbers and runoff | Rear (`renders/strip/fixes/rear-before-after.jpg`) |
+| Warm sandstone instead of cool gray | Palette (`renders/strip/fixes/warm-palette-before-after.jpg`) |
 
-[All final views](renders/strip/checkpoint/contact.jpg) and
-[the six photographic pairs](renders/strip/matches/pairs.jpg) accompany these
+All final views (`renders/strip/checkpoint/contact.jpg`) and
+the six photographic pairs (`renders/strip/matches/pairs.jpg`) accompany these
 plates. The four palettes are sandstone/bronze, brick/sage, cream/burgundy and
 putty/teal. Roughly 26% of stalls are occupied by repeated pickup, crossover
 and hatchback instances with several stock colors, favoring the shops.
@@ -279,9 +279,9 @@ These are exposed image values, not measured real-world reflectance. The
 assumed photographic neutral is the sunlit concrete curb, excluding joints
 and blue shadow. The result is deliberately on the dark side: its measured
 sunlit patch is .033 below the darkest of the three photo-patch medians.
-See the [outlined photo patches](renders/strip/values/photo-sunlit-patches.jpg),
-[outlined render patches](renders/strip/values/render-sunlit-patches.jpg) and
-[1600 px native hero before/after](renders/strip/values/hero-lot-before-after.jpg).
+See the outlined photo patches (`renders/strip/values/photo-sunlit-patches.jpg`),
+outlined render patches (`renders/strip/values/render-sunlit-patches.jpg`) and
+1600 px native hero before/after (`renders/strip/values/hero-lot-before-after.jpg`).
 
 | Surface | Accepted coverage / contrast | Current coverage / contrast | Balanced photo |
 | --- | ---: | ---: | ---: |
@@ -294,16 +294,16 @@ retained. Contrast now approaches the asphalt photo; asphalt coverage is
 10.31 percentage points higher. The walk statistic under-covers its tiny
 photo patch even though broader traffic wear is visible beside the doors.
 The photo still has coarser exposed aggregate and less orderly repair history.
-[JSON receipts](renders/strip/values/value-round.json) retain the inherited
+JSON receipts (`renders/strip/values/value-round.json`) retain the inherited
 camera results separately from the common-camera comparison.
 
 Ground and gas are measured without modifying their deliveries: actual
 exported UV/vertex/PBR input median linear Y is .134 and .100, versus strip
 .0905 before / .0492 after. These are vertex samples, not area-weighted
-reflectance surveys. The [same-light swatches](renders/strip/values/same-light.jpg)
+reflectance surveys. The same-light swatches (`renders/strip/values/same-light.jpg`)
 isolate those median tints and native PBR settings from different site shadows;
 their display values are recorded in
-[control-values.json](renders/strip/values/control-values.json).
+control-values.json (`renders/strip/values/control-values.json`).
 
 The cold strip rebuild, checks, export repeat and repository check pass.
 All five docs JPGs were regenerated from the current export and inspected at
