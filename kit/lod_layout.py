@@ -48,21 +48,23 @@ def reference(sources, original):
 
 
 def charts(mesh):
-    """Connected UV charts, split wherever the cage normal frame is discontinuous."""
-    uv = mesh.uv_layers.active.data; normals=np.array([n.vector[:] for n in mesh.corner_normals]); parent = list(range(len(mesh.polygons))); edges = {}
+    """UV charts separated at meaningful discontinuities of the cage frame."""
+    uv=mesh.uv_layers.active.data;normals=np.array([n.vector[:] for n in mesh.corner_normals]);parent=list(range(len(mesh.polygons)));edges={}
     def root(i):
-        while parent[i] != i:parent[i] = parent[parent[i]]; i = parent[i]
+        while parent[i]!=i:parent[i]=parent[parent[i]];i=parent[i]
         return i
+    cosine=math.cos(math.radians(1))
     for face in mesh.polygons:
-        loops = list(face.loop_indices)
-        for j, a in enumerate(loops):
-            b = loops[(j+1) % len(loops)]
-            ends = [(mesh.loops[k].vertex_index, *np.round(uv[k].uv[:], 7), *np.round(normals[k],3)) for k in (a, b)]
-            key = tuple(sorted(ends))
-            if key in edges:parent[root(face.index)] = root(edges[key])
-            else:edges[key] = face.index
-    groups = {}
-    for face in mesh.polygons:groups.setdefault(root(face.index), []).append(face.index)
+        loops=list(face.loop_indices)
+        for j,a in enumerate(loops):
+            b=loops[(j+1)%len(loops)]
+            ends=sorted([(mesh.loops[k].vertex_index,tuple(np.round(uv[k].uv[:],7)),k) for k in (a,b)])
+            key=tuple((v,u) for v,u,li in ends);nn=normals[[v[2] for v in ends]]
+            for other,normal in edges.get(key,[]):
+                if np.all(np.sum(nn*normal,axis=1)>cosine):parent[root(face.index)]=root(other)
+            edges.setdefault(key,[]).append((face.index,nn))
+    groups={}
+    for face in mesh.polygons:groups.setdefault(root(face.index),[]).append(face.index)
     return list(groups.values())
 
 
@@ -117,7 +119,8 @@ def unwrap(targets, sources, original, size, meters_per_pixel):
             for li in loops:uv[li].uv = center + (np.array(uv[li].uv[:])-center)*scale + len(groups)*np.array([1e-4,3e-4])
             groups.append((ob, ids)); source_weights.append(math.sqrt(weight/max(area_sum, 1e-20)))
     print('LOD LAYOUT CHARTS',len(groups),flush=True)
-    guard = 4; cap = max(4, min(64, size//16)); footprint = 1.
+    guard = 4; budget_cap=size/max(16,4*math.sqrt(max(1,len(groups))))
+    cap=max(4,min(64,2**int(math.floor(math.log2(max(4,budget_cap)))))); footprint = 1.
     for attempt in range(3):
         print('LOD LAYOUT PACK',attempt,'gutter',guard,flush=True)
         bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT')

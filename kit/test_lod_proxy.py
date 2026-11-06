@@ -165,6 +165,22 @@ def main():
     assert layout['gutter_pixels']>=4 and layout['uv_area']>.1,layout
     for ob in src+dst:
         data=ob.data;bpy.data.objects.remove(ob,do_unlink=True);bpy.data.meshes.remove(data)
+    # Many small charts must retain positive texel area. An unconstrained
+    # mip gutter can otherwise consume the complete far atlas silently.
+    many=[];muv=[];mn=[];mf=[]
+    for i in range(128):
+        x=(i%16)*.1;y=(i//16)*.1;offset=len(many)
+        many.extend([[x,y,0],[x+.08,y,0],[x+.08,y+.08,0],[x,y+.08,0]])
+        muv.extend([[0,0],[1,0],[1,1],[0,1]]);mn.extend([[0,0,1]]*4);mf.extend([[offset,offset+1,offset+2],[offset,offset+2,offset+3]])
+    ma=dict(POSITION=np.array(many,np.float32),NORMAL=np.array(mn,np.float32));mf=np.array(mf,np.uint32)
+    ref=object_from_arrays('many source charts',ma,mf);ref.data.materials.append(material)
+    layer=ref.data.uv_layers.new(name='LOD_SourceUV0');layer.data.foreach_set('uv',np.array(muv,np.float32)[mf.ravel()].ravel())
+    target=object_from_arrays('many target charts',ma,mf)
+    dense_layout=unwrap([target],[ref],Document(source),256,.05)
+    assert dense_layout['gutter_pixels']==dense_layout['gutter_cap_pixels']==4,dense_layout
+    assert dense_layout['gutter_capped'] and dense_layout['uv_area']>.05,dense_layout
+    for ob in [ref,target]:
+        data=ob.data;bpy.data.objects.remove(ob,do_unlink=True);bpy.data.meshes.remove(data)
     bpy.data.materials.remove(material)
     animated=Document(source);animated.data['animations']=[dict(channels=[dict(target=dict(node=1,path='translation'))])]
     assert 'StaticB' in merge_static(animated)['separate_nodes'],'animation-only moving part was merged'

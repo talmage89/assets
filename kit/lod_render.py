@@ -23,7 +23,7 @@ from kit.lod import configuration
 from kit.lod_io import Document,digest
 
 
-def setup(source, bounds, azimuth, dist, size=(1920,1080), include=None,foliage=False,elevation=0):
+def setup(source, bounds, azimuth, dist, size=(1920,1080), include=None,foliage=False,elevation=0,samples=None):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=str(source),import_pack_images=False)
     mesh_names={n.get('name') for n in Document(source).data['nodes'] if 'mesh' in n}
@@ -42,7 +42,7 @@ def setup(source, bounds, azimuth, dist, size=(1920,1080), include=None,foliage=
             if o.type=='MESH' and o not in keep:o.hide_render=True
     sc=bpy.context.scene;sc.render.engine='CYCLES'
     from kit import gpu
-    gpu.enable();sc.cycles.samples=128 if foliage else 24;sc.cycles.seed=23
+    gpu.enable();sc.cycles.samples=samples if samples is not None else (128 if foliage else 24);sc.cycles.seed=23
     sc.cycles.use_denoising=False;sc.cycles.use_adaptive_sampling=False
     sc.cycles.max_bounces=6;sc.cycles.transparent_max_bounces=32
     # Powered canopy lenses produce rare indirect fireflies at checkpoint
@@ -88,8 +88,8 @@ def setup(source, bounds, azimuth, dist, size=(1920,1080), include=None,foliage=
     return sc
 
 
-def render(path, source, bounds, azimuth, dist, size=(1920,1080), include=None,foliage=False,elevation=0):
-    sc=setup(source,bounds,azimuth,dist,size,include,foliage,elevation)
+def render(path, source, bounds, azimuth, dist, size=(1920,1080), include=None,foliage=False,elevation=0,samples=None):
+    sc=setup(source,bounds,azimuth,dist,size,include,foliage,elevation,samples)
     sc.render.filepath=str(path);bpy.ops.render.render(write_still=True)
     return np.asarray(Image.open(path).convert('RGBA'),dtype=np.float32)/255
 
@@ -127,27 +127,30 @@ def main():
         depth=span[0]*math.sin(angle)+span[2]*math.cos(angle)
         return float(max(horizontal,span[1]*math.cos(tilt)+depth*math.sin(tilt)))
     close_extent=construction_extent(span)
+    from functools import partial
+    samples=cfg.get('render_samples',128 if foliage else 24)
+    draw=partial(render,samples=samples)
     items=m['levels']+[a for r in m['levels'] for a in r.get('alternatives',[])]
     for row in items:
         path=out/row['path'];li=row['level']
         label=f'LOD{li}'+('-camera-facing' if row.get('alternative') else '')
-        render(dest/f'close-{label}.png',path,bounds,35,distance(close_extent,.75),
+        draw(dest/f'close-{label}.png',path,bounds,35,distance(close_extent,.75),
                size=(960,960),include=cfg.get('include_nodes'),foliage=foliage,elevation=25)
         for name in cfg.get('detail_nodes',[]):
             db=Document(source).bounds([name]);ds=db[1]-db[0]
             extent=construction_extent(ds)
-            render(dest/f'close-LOD{li}-{name}.png',path,db,35,distance(extent,.75),
+            draw(dest/f'close-LOD{li}-{name}.png',path,db,35,distance(extent,.75),
                    size=(960,960),include=[name],foliage=foliage,elevation=25)
     for row in [r for r in items if r['level']]:
         li=row['level']
         label=f'LOD{li}'+('-camera-facing' if row.get('alternative') else '')
         for az in cfg.get('azimuths',[0,55,145]):
             prefix=f'{label}-{az}'
-            ref=render(dest/f'{prefix}-reference.png',source,bounds,az,row['distance_m'],include=cfg.get('include_nodes'),foliage=foliage)
-            lod=render(dest/f'{prefix}-level.png',out/row['path'],bounds,az,row['distance_m'],include=cfg.get('include_nodes'),foliage=foliage)
+            ref=draw(dest/f'{prefix}-reference.png',source,bounds,az,row['distance_m'],include=cfg.get('include_nodes'),foliage=foliage)
+            lod=draw(dest/f'{prefix}-level.png',out/row['path'],bounds,az,row['distance_m'],include=cfg.get('include_nodes'),foliage=foliage)
             previous=m['levels'][li-1]
             if li==1:prev=ref
-            else:prev=render(dest/f'{prefix}-previous.png',out/previous['path'],bounds,az,row['distance_m'],include=cfg.get('include_nodes'),foliage=foliage)
+            else:prev=draw(dest/f'{prefix}-previous.png',out/previous['path'],bounds,az,row['distance_m'],include=cfg.get('include_nodes'),foliage=foliage)
             metric,delta=compare(ref,lod);adjacent,_=compare(prev,lod)
             # Limits are asset-relative: empty background cannot dilute error.
             # 2% mean RGB, 8% p95 and 5% coverage change allow subpixel AA but
@@ -178,7 +181,7 @@ def main():
     for t in thumbs:contact.paste(t,(0,y));y+=t.height+5
     contact.save(dest/'contact.jpg',quality=90)
     files={p.name:digest(p) for p in dest.iterdir() if p.suffix in ('.png','.jpg')}
-    report=dict(manifest_sha256=digest(out/'manifest.json'),renderer_sha256=digest(Path(__file__)),renderer='Cycles GPU, procedural world/sun, 24 opaque / 128 foliage samples, fixed seed, no denoiser, indirect clamp 3',
+    report=dict(manifest_sha256=digest(out/'manifest.json'),renderer_sha256=digest(Path(__file__)),renderer=f'Cycles GPU, procedural world/sun, {samples} samples, fixed seed, no denoiser, indirect clamp 3',
                 passed=all(r['passed'] for r in rows),comparisons=rows,files=files)
     (dest/'metrics.json').write_text(json.dumps(report,indent=2)+'\n')
     print('LOD RENDER',report['passed'],[(r['level'],r['azimuth'],r['reference']['mean']) for r in rows])
