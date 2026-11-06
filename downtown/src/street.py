@@ -4,7 +4,7 @@ from geometry import Batch,pivot
 
 def build_street(p,mats):
  root=pivot('DowntownStreet_'+p['region'],(0,0,0),street=True,static_root=True)
- b=Batch(root.name,root,mats);W=p['width'];walk=p['walk'];road=p['road_width'];a=-W/2-6;c=W/2+6
+ b=Batch(root.name,root,mats);W=p['width'];walk=p['walk'];road=p['road_width'];a=-W/2-walk;c=W/2+walk
  curb=-walk;far=curb-road
  b.box((0,(curb+far)/2,-.20),(W+24,road,.095),'Roof',(.065,.067,.065))
  pits=[-W/2+6+i*13 for i in range(max(1,round((W-8)/13)))];pit=1.35;py=curb+1.05
@@ -26,6 +26,16 @@ def build_street(p,mats):
  for y in (curb,far):
   for i in range(math.ceil((c-a)/1.524)):
    b.box((a+(i+.5)*1.524,y-.08 if y==curb else y+.08,-.0762),(1.52,.16,.1524),'Mineral',(.34,.33,.29))
+ # Corner returns and the cut-off corner's triangular pedestrian apron.
+ D=max(l['depth'] for l in p['lots'])
+ for side,lot in ((-1,p['lots'][0]),(1,p['lots'][-1])):
+  edge=side*W/2;xx=edge+side*walk/2;n=math.ceil((D+1)/1.524);dy=(D+1)/n
+  for j in range(n):b.box((xx,(j+.5)*dy,-.065),(walk-.005,dy-.005,.13),'Mineral',(.37,.36,.32))
+  ch=lot['chamfer'];b.prism([(edge,0,0),(edge-side*ch,0,0),(edge,ch,0)],(0,0,-.13),'Mineral',(.37,.36,.32))
+  outer=edge+side*walk
+  for j in range(math.ceil((D+1-curb)/1.524)):
+   b.box((outer,curb+(j+.5)*1.524,-.0762),(.16,1.52,.1524),'Mineral',(.34,.33,.29))
+  b.box((outer+side*3.5,(curb+D+8)/2,-.20),(7.0,D+8-curb,.095),'Roof',(.065,.067,.065))
  marks=[]
  if p['parking']=='parallel':
   for x in [a+3+i*6.40 for i in range(int((c-a-6)/6.40))]:

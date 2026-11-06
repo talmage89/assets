@@ -47,19 +47,25 @@ class Building:
         b.tube([(w-.16,-.05,.94),(w-.16,-.08,.94),(w-.16,-.08,1.28),(w-.16,-.05,1.28)],.012,color=(.38,.34,.23))
         for zz in (.22,1.12,2.12):b.tube([(.004,0,zz),(.004,0,zz+.085)],.012,color=IRON)
         self.doors.append(o)
-        self.socket(name+'Threshold',xf((x,y,z)),'threshold',clear_width_m=w-.15)
+        self.socket(name+'Threshold',xf((x,y,z)),'threshold',nominal_leaf_width_m=w)
         return o
     def window(self,b,o,index=0,rear=False):
         x=(o['x0']+o['x1'])/2;w=o['x1']-o['x0'];lo,hi=o['z0'],o['z1'];h=hi-lo;y=.105 if self.p['style']=='italianate' and not rear else .19
         tint=CREAM if self.p['style']=='italianate' else (.18,.20,.17)
         if rear:tint=(.29,.28,.23)
         # Recessed box frame; two overlapping sash planes and a meeting rail.
-        self.trimframe(b,x,y,(lo+hi)/2,w-.08,h-.06,tint,.068,.12)
-        for k in range(2):
-            zh=lo+.07+(h-.14)*(k+.5)/2;yy=y+.018 if k==0 else y+.052
-            self.trimframe(b,x,yy,zh,w-.19,(h-.14)/2+.025,tint,.041,.037)
-            b.box((x,yy+.013,zh),(w-.28,.004,(h-.14)/2-.060),'Glass')
-            if self.p['style']=='italianate' and index%3==0:b.box((x,yy-.013,zh),(.022,.026,(h-.14)/2-.065),'Finish',tint)
+        filled=index==0 and self.p['index']==4 and not rear
+        if filled:
+            rise=o.get('rise',0)
+            poly=[(x-w/2,.065,lo),(x+w/2,.065,lo),(x+w/2,.065,hi)]+[(x+w/2-w*j/12,.065,hi+rise*4*j/12*(1-j/12)) for j in range(1,13)]
+            b.prism(poly,(0,.28,0),'Masonry',tuple(c*.73 for c in self.p['brick']))
+        else:
+            self.trimframe(b,x,y,(lo+hi)/2,w-.08,h-.06,tint,.068,.12)
+            for k in range(2):
+                zh=lo+.07+(h-.14)*(k+.5)/2;yy=y+.018 if k==0 else y+.052
+                self.trimframe(b,x,yy,zh,w-.19,(h-.14)/2+.025,tint,.041,.037)
+                b.box((x,yy+.013,zh),(w-.28,.004,(h-.14)/2-.060),'Glass')
+                if self.p['style']=='italianate' and index%3==0:b.box((x,yy-.013,zh),(.022,.026,(h-.14)/2-.065),'Finish',tint)
         b.box((x,-.045,lo-.055),(w+.23,.43,.12),'Mineral',STONE)
         b.box((x,.12,lo-.14),(w+.09,.27,.06),'Mineral',STONE)
         rise=o.get('rise',0)
@@ -70,8 +76,9 @@ class Building:
                 color=STONE if self.p['style']=='romanesque' else CREAM if self.p['style']=='italianate' else tuple(c*.78 for c in self.p['brick'])
                 b.prism([(xa,-.038,za),(xb,-.038,zb),(xb,-.038,zb+.22),(xa,-.038,za+.22)],(0,.16,0),'Mineral' if self.p['style']=='romanesque' else 'Finish' if self.p['style']=='italianate' else 'Masonry',color)
             # Arched head-light above square sash. The masonry hole follows it.
-            b.prism([(o['x0']+.04,y+.04,hi),(o['x1']-.04,y+.04,hi)]+[(o['x1']-.04-(w-.08)*j/12,y+.04,hi+rise*4*(j/12)*(1-j/12)) for j in range(1,12)],(0,.004,0),'Glass')
+            if not filled:b.prism([(o['x0']+.04,y+.04,hi),(o['x1']-.04,y+.04,hi)]+[(o['x1']-.04-(w-.08)*j/12,y+.04,hi+rise*4*(j/12)*(1-j/12)) for j in range(1,12)],(0,.004,0),'Glass')
         else:b.box((x,-.018,hi+.105),(w+.25,.25,.21),'Mineral',STONE)
+        if filled:return
         # Shallow room with individual blind/curtain depth, not painted glass.
         b.box((x,1.02,(lo+hi)/2),(w+.18,.035,h+.25),'Finish',(.028,.030,.025))
         b.box((x,.65,lo-.05),(w,.80,.035),'Finish',(.14,.11,.07))
@@ -172,7 +179,7 @@ class Building:
                 yy=1.6+j*.82;b.tube([(c-1.52,yy,.02),(c-1.52,yy,.62)],.037,color=IRON)
                 b.box((c-1.52,yy,.65),(.40,.4,.10),'Finish',(.24,.065,.035))
             for j in range(2):
-                yy=2.20+j*2.0;b.box((a+1.05,yy,.76),(1.25,.70,.08),'Mineral',(.45,.40,.30))
+                yy=3.0+j*1.6;b.box((a+1.05,yy,.76),(1.25,.70,.08),'Mineral',(.45,.40,.30))
                 b.box((a+1.05,yy,.39),(.10,.10,.70),'Finish',IRON)
                 for off in (-.66,.66):b.box((a+1.05,yy+off,.62),(1.20,.32,1.12),'Finish',(.25,.075,.035))
         elif p['tenant']=='barber':
@@ -230,14 +237,13 @@ class Building:
     def rear(self,xf,L):
         p=self.p;b=self.batch('RearConstruction',xf);ops=self.upper_openings(L,True)
         ops += [dict(x0=.60,x1=1.68,z0=.012,z1=2.25),dict(x0=L-2.3,x1=L-.65,z0=1.2,z1=2.5)]
-        wall(b,L,p['height'],ops,.34,tuple(c*.78 for c in p['brick']))
+        wall(b,L,p['height'],ops+[dict(x0=L-.51,x1=L-.25,z0=p['roof']-.02,z1=p['roof']+.12)],.34,tuple(c*.78 for c in p['brick']))
         for i,o in enumerate(ops[:-2]):self.window(b,o,i,True)
         self.door('ServiceDoor',xf,1.14,.36,.018,1.0,2.20,(.17,.18,.16),False)
         self.trimframe(b,L-1.475,.16,1.85,1.65,1.30,IRON,.07,.10)
         b.box((L-1.475,.20,1.85),(1.50,.004,1.15),'Glass')
         # Real scupper opening and downspout on standoff straps, not in midair.
         x=L-.38;rz=p['roof']
-        b.box((x,-.04,rz+.04),(.24,.20,.12),'Finish',DARK)
         b.prism([(x-.15,-.01,rz+.12),(x+.15,-.01,rz+.12),(x+.20,-.30,rz-.14),(x-.20,-.30,rz-.14)],(0,.015,0),'Finish',(.24,.25,.22))
         b.tube([(x,-.26,rz-.1),(x,-.28,rz-.4),(x,-.11,rz-.75),(x,-.11,.35),(x,-.26,.13)],.052,color=(.20,.23,.20))
         for z in (.65,3.0,5.8,8.5):
@@ -253,31 +259,46 @@ class Building:
             b.box((L*.65,-1.8,1.5),(L*.40,3.6,3.0),'Masonry',tuple(c*.70 for c in p['brick']))
             b.prism([(L*.45,-3.7,3.01),(L*.86,-3.7,3.01),(L*.86,.02,3.25),(L*.45,.02,3.25)],(0,0,.06),'Roof')
     def fire_escape(self,b,L):
-        p=self.p;x=L*.52;levels=[p['floor_first']+i*p['upper']+.02 for i in range(p['stories']-1)];col=(.035,.036,.030)
+        p=self.p;span=min(5.60,L-.55);cx=L/2;left=cx-span/2;right=cx+span/2;end=.95;col=(.035,.036,.030)
+        levels=[p['floor_first']+i*p['upper']+.02 for i in range(p['stories']-1)]
+        def guard(a,c,z):
+            distance=math.dist(a,c);n=max(2,round(distance/.15))
+            for i in range(n+1):
+                t=i/n;x=a[0]+t*(c[0]-a[0]);y=a[1]+t*(c[1]-a[1]);b.box((x,y,z+.53),(.020,.020,1.06),'Finish',col)
+            for zz in (.08,1.07):b.beam((*a,z+zz),(*c,z+zz),.035,color=col)
         for level,z in enumerate(levels):
-            # 4 ft landing, wall anchors, angle-iron perimeter, bar grating.
-            for yy in (-.12,-1.34):b.box((x,yy,z-.065),(3.0,.065,.13),'Finish',col)
-            for xx in (x-1.5,x+1.5):b.box((xx,-.73,z-.065),(.07,1.28,.13),'Finish',col)
-            for j in range(25):b.box((x-1.45+j*2.9/24,-.73,z-.014),(.025,1.18,.028),'Finish',col)
-            for xx in (x-1.4,x+1.4):
-                b.beam((xx,-.1,z-1.0),(xx,-1.30,z-.1),.065,.065,color=col)
-                b.box((xx,-.018,z-.80),(.18,.04,.50),'Finish',col)
-            # Front and return guard rails, 1.067 m, no floating posts.
-            for j in range(16):b.box((x-1.46+j*2.92/15,-1.31,z+.53),(.018,.018,1.06),'Finish',col)
-            for zz in (.08,1.07):b.beam((x-1.50,-1.31,z+zz),(x+1.50,-1.31,z+zz),.035,color=col)
-            for xx in (x-1.5,x+1.5):
-                for yy in (-.12,-.72,-1.31):b.box((xx,yy,z+.53),(.022,.022,1.06),'Finish',col)
-                b.beam((xx,-.1,z+1.07),(xx,-1.31,z+1.07),.035,color=col)
-            # Alternating exposed flight; risers reserve 18 cm rather than wires.
-            low=levels[level-1] if level else .22;run=(z-low)/.78;steps=math.ceil((z-low)/.185)
-            ax=x-1.15;ay=-1.46;bx=ax+2.4;by=ay-run
-            for s in (-.44,.44):b.beam((ax+s,ay,z),(bx+s,by,low),.065,.14,color=col)
+            # Main walk along the rear plus two deeper end landings. The outer
+            # stair lane stays OPEN above the flight, preserving headroom.
+            rectangles=[(left,right,-1.30,-.10),(left,left+end,-2.45,-1.30),(right-end,right,-2.45,-1.30)]
+            for xa,xc,ya,yc in rectangles:
+                for yy in (ya,yc):b.box(((xa+xc)/2,yy,z-.065),(xc-xa,.065,.13),'Finish',col)
+                for xx in (xa,xc):b.box((xx,(ya+yc)/2,z-.065),(.065,yc-ya,.13),'Finish',col)
+                n=max(3,round((xc-xa)/.12))
+                for j in range(n):b.box((xa+(j+.5)*(xc-xa)/n,(ya+yc)/2,z-.014),(.025,yc-ya-.05,.028),'Finish',col)
+            for xx in (left+.35,right-.35):
+                b.box((xx,-.018,z-.90),(.22,.04,1.6),'Finish',col)
+                b.beam((xx,-.018,z-1.55),(xx,-2.39,z-.10),.090,.090,color=col)
+            guard((left+end,-1.30),(right-end,-1.30),z)
+            for xa,xc in ((left,left+end),(right-end,right)):
+                guard((xa,-2.45),(xc,-2.45),z)
+            for xx in (left,right):guard((xx,-2.45),(xx,-.10),z)
+            # Stacked parallel flights end on the lower right landing. The rear
+            # walk connects that landing back to the next flight on the left.
+            # The first flight alone ends on grade, with real steel feet.
+            low=levels[level-1] if level else .18;rise=z-low;steps=math.ceil(rise/.185)
+            ax,bx=left+end,right-end;yy=-1.88
+            for side in (-.44,.44):b.beam((ax,yy+side,z),(bx,yy+side,low),.070,.14,color=col)
+            run=abs(bx-ax)
             for j in range(steps+1):
-                t=j/steps;xx=ax+(bx-ax)*t;yy=ay+(by-ay)*t;zz=z+(low-z)*t
-                b.box((xx,yy,zz),(.88,run/steps+.025,.035),'Finish',col)
+                t=j/steps;xx=ax+(bx-ax)*t;zz=z-rise*t
+                b.box((xx,yy,zz),(run/steps+.025,.88,.035),'Finish',col)
                 if j%3==0:
-                    for s in (-.43,.43):b.beam((xx+s,yy,zz),(xx+s,yy,zz+1.02),.022,color=col)
-            for s in (-.43,.43):b.beam((ax+s,ay,z+1.02),(bx+s,by,low+1.02),.035,color=col)
+                    for side in (-.44,.44):b.beam((xx,yy+side,zz),(xx,yy+side,zz+1.02),.022,color=col)
+            for side in (-.44,.44):
+                b.beam((ax,yy+side,z+1.02),(bx,yy+side,low+1.02),.035,color=col)
+                if level==0:
+                    b.box((bx,yy+side,.0125),(.22,.24,.025),'Finish',col)
+                    b.box((bx,yy+side,low/2),(.090,.090,low),'Finish',col)
     def bay_window(self,b,xf,o):
         x=(o['x0']+o['x1'])/2;lo=o['z0'];hi=o['z1'];col=CREAM
         poly=[(x-1.35,.0),(x-.86,-.70),(x+.86,-.70),(x+1.35,.0)]
@@ -296,7 +317,11 @@ class Building:
         # Falling membrane clipped to the real chamfer, with perimeter upstand.
         b.prism([(x,y,z-.03+.008*(-y+d/2)) for x,y in self.poly],(0,0,-.12),'Roof')
         for a,c in zip(self.poly,self.poly[1:]+self.poly[:1]):
-            b.beam((*a,z+.14),(*c,z+.14),.055,.28,role='Roof',color=(.12,.13,.12))
+            if abs(a[1]-d/2)<1e-6 and abs(c[1]-d/2)<1e-6:
+                hole=-w/2+.38
+                b.beam((*a,z+.14),(hole+.16,d/2,z+.14),.055,.28,role='Roof',color=(.12,.13,.12))
+                b.beam((hole-.16,d/2,z+.14),(*c,z+.14),.055,.28,role='Roof',color=(.12,.13,.12))
+            else:b.beam((*a,z+.14),(*c,z+.14),.055,.28,role='Roof',color=(.12,.13,.12))
         equipment=[(-w*.13,d*(.10+.035*(p['index']%4)))]
         if p['stories']==3 or p['index']%3==0:equipment.append((w*.22,-d*.12))
         for x,y in equipment:
@@ -357,6 +382,7 @@ class Building:
                 ops=[dict(x0=.22,x1=L-.22,z0=0,z1=2.85)]+self.upper_openings(L)
                 wall(b,L,p['height'],ops,.44,p['brick'])
                 self.door('CornerDoor',xf,L/2,.47,.018,L-.56,2.67,IRON)
+                b.box((L/2,.80,-.03),(L-.44,1.60,.06),'Mineral',(.36,.34,.28))
                 for j,o in enumerate(ops[1:]):self.window(b,o,j)
                 for zz in (2.96,p['floor_first']-.04,p['height']-.20):b.box((L/2,-.08,zz),(L+.10,.58,.15),'Mineral',STONE)
             elif exposed:
@@ -378,6 +404,12 @@ class Building:
                 # Party faces have no windows; half-wall thickness remains inside lot.
                 wall(b,L,p['height'],[],.22,tuple(c*.76 for c in p['brick']))
                 b.box((L/2,.07,p['height']+.035),(L,.36,.09),'Mineral',STONE)
+                side='right' if abs(a[0]-w/2)<1e-6 else 'left'
+                neighbor=p.get('neighbor_'+side)
+                if neighbor and p['height']-neighbor>1.7:
+                    z=(p['height']+neighbor)/2
+                    self.graphic(b,'ghost',L*.42,-.012,z,min(9.0,L*.60),1.12)
+                    b.beam((.12,-.018,neighbor-.12),(L*.72,-.018,neighbor-.12),.055,.016,role='Mineral',color=(.24,.22,.18))
             self.openings.extend([dict(edge=i,**o) for o in locals().get('ops',[])])
         self.roof()
         if p['gallery']:self.gallery()

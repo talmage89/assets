@@ -74,3 +74,11 @@ Further sweeps found a 4 mm threshold overlap, a dropped infill ceiling that
 hit the door head, and the corner leaf opening into an interior display-room
 partition. Thresholds, ceiling and corner-lobby partitions are corrected.
 No tolerance change or collision exemption was used.
+
+A further construction review of the rear found that the early diagonal
+flights did not meet the next landing on three-story buildings. Replaced them
+with stacked parallel flights along the rear wall, deeper end landings and a return walk and
+an open stair lane. This preserves headroom over the flight, joins each flight end
+to an actual lower landing, and gives the first flight feet on grade. Wall
+braces now reach their anchor plates. The earlier attractive overview was
+not sufficient evidence that the stairs could be used.

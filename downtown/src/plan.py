@@ -64,7 +64,12 @@ def generate(seed=411, region='midwest', count=7, overrides=None):
             bay_window=region=='northeast' and i==2, gallery=region=='southern' and i in (1,2,3),
             seed=rng.randrange(1000000), date=rng.randrange(1882,1925), infill=infill))
         cursor+=w
-    for lot in lots:lot['x']-=cursor/2
+    for lot in lots:
+        lot['x']-=cursor/2
+        lot['date']=1962 if lot['infill'] else 1898 if lot['index']%2==0 else 1906
+        i=lot['index']
+        lot['neighbor_left']=lots[i-1]['height'] if i else None
+        lot['neighbor_right']=lots[i+1]['height'] if i+1<len(lots) else None
     return dict(seed=seed,region=region,count=count,width=cursor,walk=r['walk']*FT,
                 parking=r['parking'],road_width=(48 if r['parking']=='angle' else 40)*FT,
                 lots=lots,stage='form and construction checkpoint; quick materials')

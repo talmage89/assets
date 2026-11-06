@@ -57,6 +57,31 @@ def audit(lot,row,do_motion=False):
  assert .98<recess<1.12,(lot['id'],'door recess',recess)
  wallhit=ray(masonry,(-w/2+lot['chamfer']+.12,front-1,lot['floor_first']+.20),(0,1,0));front_error=abs(wallhit.y-front);assert front_error<1e-4
  roofhit=ray(roof,(0,0,lot['height']+5),(0,0,-1));expected=lot['roof']-.03+.008*d/2;assert abs(roofhit.z-expected)<.001
+ # Actual rear scupper must be open through masonry AND membrane upstand.
+ scupper=Vector((-w/2+.38,d/2+.05,lot['roof']+.04))
+ for field in (masonry,roof):
+  h=field.ray_cast(scupper,Vector((0,-1,0)),.45);assert h[0] is None,('blocked scupper',lot['id'])
+ corner_floor=None
+ if lot['corner']:
+  mineral=tree(obs,'Mineral');pt=bpy.data.objects[lot['id']+'__Socket_CornerDoorThreshold'].matrix_world.translation
+  floorhit=ray(mineral,(pt.x,pt.y,.10),(0,0,-1));corner_floor=float(floorhit.z);assert abs(corner_floor)<1e-5
+ stairs=None
+ if lot['fire_escape']:
+  steel=tree(obs,'Finish');span=min(5.60,w-.55);left=w/2-span/2;right=w/2+span/2;ax=left+.95;bx=right-.95
+  levels=[lot['floor_first']+i*lot['upper']+.02 for i in range(lot['stories']-1)]
+  def rear_point(x,y,z):return Vector((w/2-x,d/2-y,z))
+  feet=[]
+  for side in (-.44,.44):
+   pt=rear_point(bx,-1.88+side,0);near=steel.find_nearest(pt);feet.append(near[3]);assert near[3]<1e-5
+  headrooms=[]
+  for level,z in enumerate(levels[:-1]):
+   low=levels[level-1] if level else .18;steps=math.ceil((z-low)/.185)
+   for j in range(2,steps-1):
+    t=j/steps;zz=z+(low-z)*t+.0175;pt=rear_point(ax+(bx-ax)*t,-1.88,zz+.05)
+    hit=steel.ray_cast(pt,Vector((0,0,1)),20)
+    if hit[0] is not None:headrooms.append(hit[3]+.05)
+  if headrooms:assert min(headrooms)>2.0,('fire-escape headroom',lot['id'],min(headrooms))
+  stairs=dict(foot_surface_max_distance_to_grade_m=max(feet),sampled_vertical_headroom_min_m=min(headrooms) if headrooms else None,headroom_samples=len(headrooms),scope='Independent rays on actual exported steel; no structural load certification')
  pivots=[]
  for o in bpy.context.scene.objects:
   if o.get('pivot_axis'):
@@ -70,7 +95,7 @@ def audit(lot,row,do_motion=False):
  return dict(id=lot['id'],passed=True,triangles=tris,materials=len(doc['materials']),gltf_bytes=path.stat().st_size,bin_bytes=len(g.binary),
   normal_length_error=normal,zero_area_triangles=zero,zero_area_uvs=uv0,reimport_error_m=err,
   construction=dict(measured_door_recess_m=recess,front_plane_error_m=front_error,measured_roof_center_z_m=roofhit.z),
-  motion=sweep,sha256=hashlib.sha256(path.read_bytes()+g.binary).hexdigest())
+  corner_lobby_floor_z_m=corner_floor,stairs=stairs,motion=sweep,sha256=hashlib.sha256(path.read_bytes()+g.binary).hexdigest())
 
 def main():
  rows=[];blocks=[]

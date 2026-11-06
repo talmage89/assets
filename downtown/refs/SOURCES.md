@@ -15,6 +15,9 @@ states no known restrictions. The three photographs precede or fall within our
 | windows.pdf | https://www.nps.gov/orgs/1739/upload/preservation-brief-09-wood-windows.pdf | John H. Myers, NPS Preservation Brief 9, 1981; US government | Box frame, stops, double hung sash, sill and repair |
 | masonry.pdf | https://www.nps.gov/orgs/1739/upload/preservation-brief-02-repointing.pdf | Robert C. Mack / John P. Speweik, NPS Preservation Brief 2, 1998; US government | Mortar joints and repointing; masonry weathering plan |
 | mesker.pdf | https://dnrhistoric.illinois.gov/content/dam/soi/en/web/dnrhistoric/preserve/documents/mesker-catalog.pdf | Mesker & Brother, 1904 trade catalog, Illinois SHPO scan; underlying publication public domain | Sheet-metal cornices, stock heights/projections, storefront columns and framing |
+| metal-cornices.pdf | https://www.nps.gov/orgs/1739/upload/tech-note-metals-02-cornices.pdf | Richard Pieper, NPS Preservation Tech Notes Metals 2, 1990; US government | Formed sheet-metal cornice assembly, anchorage, roof covering and corrosion causes |
+| cast-iron.pdf | https://www.nps.gov/orgs/1739/upload/preservation-brief-27-cast-iron.pdf | John G. Waite / Margot Gayle, NPS Brief 27, 1991; US government | Bolted storefront columns and iron support construction |
+| awnings.pdf | https://www.nps.gov/orgs/1739/upload/preservation-brief-44-awnings.pdf | Chad Randl, NPS Brief 44, 2004; US government | Canvas, head rods, front bars, braced frames and valances |
 | bank-nomination.pdf | https://mostateparks.com/sites/g/files/zuston361/files/media/pdf/2025/02/lawrence-county-bank-building.pdf | Shirley Elwing, NRHP nomination 2004/2005, Missouri SHPO / NPS; government archival reference | 25 × 100 ft masonry commercial footprint; Romanesque corner bank |
 
 Catalog records: [Madison row](https://www.loc.gov/item/in0335/),
@@ -23,7 +26,7 @@ Catalog records: [Madison row](https://www.loc.gov/item/in0335/),
 [Norwalk drawings](https://www.loc.gov/item/ct0326/).
 
 Additional reading: NPS [Preservation Brief 27, cast iron](https://www.nps.gov/orgs/1739/upload/preservation-brief-27-cast-iron.pdf),
-NPS [Metals 2: Restoring Metal Roof Cornices](https://www.nps.gov/orgs/1739/upload/tech-note-metals-02.pdf),
+NPS [Metals 2: Restoring Metal Roof Cornices](https://www.nps.gov/orgs/1739/upload/tech-note-metals-02-cornices.pdf),
 NPS [Brief 44, awnings](https://www.nps.gov/orgs/1739/upload/preservation-brief-44-awnings.pdf).
 Installed DejaVu Serif and Sans (Bitstream Vera / DejaVu open font license)
 render all original fictional names. No manufacturer's ornament or marks copied.

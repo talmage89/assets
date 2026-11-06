@@ -39,6 +39,11 @@ def append_context(row,loc,yaw=0,scale=1):
   if ob.parent is None:ob.parent=root
  root.location=loc;root.rotation_euler.z=math.radians(yaw);root.scale=(scale,)*3
  for ob in obs:
+  if row['name'] in ('pickup','crossover','hatchback') and ob.type=='MESH':
+   for m in ob.data.materials:
+    if m and m.use_nodes and m.name.startswith('Clay body'):
+     tint={'pickup':(.09,.16,.19),'crossover':(.23,.25,.21),'hatchback':(.28,.07,.035)}[row['name']]
+     m.node_tree.nodes.get('Principled BSDF').inputs['Base Color'].default_value=(*tint,1)
   if row['name']=='light' and ob.type=='MESH':
    for m in ob.data.materials:
     if m and m.use_nodes:
@@ -50,7 +55,7 @@ def views(p):
  W=p['width'];H=max(l['height'] for l in p['lots']);D=max(l['depth'] for l in p['lots']);l=p['lots'][1];x=l['x'];h=l['height'];d=l['depth']
  return dict(
  hero=dict(location=(-W/2+3,-p['walk']-p['road_width']-p['walk']*.60,1.68),target=(W*.16,0,3.2),lens=40,aspect=1.8,context=True),
- across=dict(location=(0,-W*1.50,7),target=(0,0,5.2),lens=42,aspect=2.5),
+ across=dict(location=(0,-p['walk']-p['road_width']-p['walk']*.60,H/2),target=(0,0,H/2),lens=(p['walk']+p['road_width']+p['walk']*.60)*36/(W*1.14),aspect=3.5),
  above=dict(location=(-W*.85,-W*.82,48),target=(0,D*.35,1.8),lens=43,aspect=1.65),
  rear=dict(location=(W*.75,D+W*.80,32),target=(0,D*.67,4),lens=43,aspect=1.8),
  storefront=dict(location=(x+3.0,-8.0,2.15),target=(x,0,2.1),lens=42,aspect=1.4),
@@ -58,7 +63,7 @@ def views(p):
  cornice=dict(location=(x+2,-4.8,h-.45),target=(x,0,h-.40),lens=52,aspect=1.5),
  corner=dict(location=(-W/2-5.5,-7.5,2.0),target=(-W/2+.9,1,2.5),lens=40,aspect=1.3),
  ghost=dict(location=(-W/2-12,13,4),target=(-W/2,16,4),lens=43,aspect=1.65),
- escape=dict(location=(x+7,d+10,5),target=(x,d+1,4),lens=43,aspect=1.35),
+ escape=dict(location=(x+2,d+12,4.0),target=(x,d+1,3.0),lens=40,aspect=1.35),
  gallery=dict(location=(x+4,-9,3),target=(x,-1.2,3.4),lens=43,aspect=1.55))
 
 def render_block(region,out,width,samples,selected=None,camera_file=None,engine='CYCLES'):
@@ -100,5 +105,13 @@ def render_block(region,out,width,samples,selected=None,camera_file=None,engine=
  old=json.loads((out/'provenance.json').read_text()) if (out/'provenance.json').exists() else {};old.update(report);(out/'provenance.json').write_text(json.dumps(old,indent=2)+'\n');assert hashlib.sha256(source.read_bytes()).hexdigest()==digest
  print('RENDERED',region,names,flush=True)
 if __name__=='__main__':
- p=argparse.ArgumentParser();p.add_argument('--source',type=Path);p.add_argument('--out',type=Path,default=Path('renders/checkpoint'));p.add_argument('--region');p.add_argument('--width',type=int,default=1440);p.add_argument('--samples',type=int,default=32);p.add_argument('--shots');p.add_argument('--camera-file',type=Path);p.add_argument('--engine',default='CYCLES');a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
+ p=argparse.ArgumentParser();p.add_argument('--source',type=Path);p.add_argument('--out',type=Path,default=Path('renders/checkpoint'));p.add_argument('--region');p.add_argument('--width',type=int,default=1440);p.add_argument('--samples',type=int,default=32);p.add_argument('--shots');p.add_argument('--camera-file',type=Path);p.add_argument('--engine',default='CYCLES');p.add_argument('--with-matches',action='store_true');a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
  for region in ([a.region] if a.region else ['midwest','western','northeast','southern']):render_block(region,a.out,a.width,a.samples,a.shots,a.camera_file,a.engine)
+
+ if a.with_matches:
+  assert not a.camera_file
+  from kit.photo_match import compose
+  calibration=Path('build/cameras.json')
+  for region in ('midwest','northeast'):render_block(region,Path('renders/matches'),a.width,a.samples,None,calibration,a.engine)
+  compose(calibration,'renders/matches/raw','renders/matches')
+  Path('renders/matches/.stamp').touch()

@@ -5,6 +5,7 @@ CHECKPOINT_BLEND := build/downtown.blend
 CHECKPOINT_OUTPUTS := build/downtown.blend build/downtown.json $(foreach r,midwest western northeast southern,build/blocks/$(r)/block.blend build/blocks/$(r)/block.glb build/blocks/$(r)/block.json)
 CHECKPOINT_DEPS := src/build.py src/plan.py src/building.py src/geometry.py src/graphics.py
 CHECKPOINT_CHECK = $(PYTHON) src/check_plan.py
+CHECKPOINT_RENDER_ARGS := --with-matches
 CHECKPOINT_REVIEW = $(PYTHON) src/review.py
 CHECKPOINT_RENDER_OUTPUTS := $(foreach r,midwest western northeast southern,export/DowntownStreet_$(r).glb) renders/checkpoint/.stamp $(foreach r,midwest western northeast southern,renders/checkpoint/$(r)/across.png renders/checkpoint/$(r)/above.png renders/checkpoint/$(r)/rear.png) renders/checkpoint/midwest/hero.png renders/checkpoint/midwest/storefront.png renders/checkpoint/midwest/window.png renders/checkpoint/midwest/cornice.png renders/checkpoint/midwest/corner.png renders/checkpoint/midwest/ghost.png renders/checkpoint/midwest/escape.png renders/checkpoint/southern/gallery.png
 include ../kit/checkpoint_rules.mk
@@ -12,7 +13,7 @@ include ../kit/checkpoint_rules.mk
 build/context/manifest.json: src/context.py src/context_build.py
 	$(PYTHON) src/context.py
 context: build/context/manifest.json
-$(CHECKPOINT_RENDER_OUTPUTS): build/context/manifest.json
+$(CHECKPOINT_RENDER_OUTPUTS): build/context/manifest.json build/cameras.json src/street.py src/geometry.py src/graphics.py
 check: check-mesh
 check-mesh: model
 	$(BP) --python src/check.py
@@ -28,3 +29,10 @@ review: matches
 
 check-repeat: model
 	$(PYTHON) src/repeat.py
+.PHONY: check-sweep
+check-sweep:
+	$(BP) --python src/sweep.py
+.PHONY: check-resources
+check-resources: model
+	$(BP) --python src/check_resources.py
+check: check-resources
