@@ -157,12 +157,14 @@ def context(meta):
             transform=Matrix.Translation(target)@Matrix.Rotation(math.pi/2,4,'Z')@Matrix.Translation(Vector((0,-D.BACK,-D.ARM_END)))
             cp.matrix_world=transform@o.matrix_world;all_context.append(cp)
     for o in light:bpy.data.objects.remove(o,do_unlink=True)
+    from setting import ground_age
+    ground_age(meta)
     bpy.context.view_layer.update()
     provenance.append(dict(scope='Actual posed visible house mesh / mast roof-guy anchor fits',house_fits=house_fits))
     return all_context,provenance
 
 
-def setup(samples,engine='CYCLES',overcast=False):
+def setup(samples,engine='CYCLES',overcast=False,wire_control=False):
     sc=bpy.context.scene;sc.render.engine=engine
     sc.render.threads_mode='FIXED';sc.render.threads=4;sc.render.use_persistent_data=False
     if engine=='CYCLES':
@@ -185,15 +187,36 @@ def setup(samples,engine='CYCLES',overcast=False):
         out=ns.new('NodeGroupOutput');ls.new(mix.outputs[2],out.inputs['Image'])
     world=bpy.data.worlds.new('Original procedural sky');world.use_nodes=True;sc.world=world
     ns,ls=world.node_tree.nodes,world.node_tree.links;ns.clear()
-    sky=ns.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(32);sky.sun_rotation=math.radians(210);sky.sun_disc=False;sky.aerosol_density=.5
-    bg=ns.new('ShaderNodeBackground');bg.inputs['Strength'].default_value=.09 if not overcast else .3
-    sat=ns.new('ShaderNodeHueSaturation');sat.name='Sky chroma';sat.inputs['Saturation'].default_value=1
+    sky=ns.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(32);sky.sun_rotation=math.radians(210);sky.sun_disc=False;sky.aerosol_density=.15
+    bg=ns.new('ShaderNodeBackground');bg.inputs['Strength'].default_value=.22 if not overcast else .3
+    sat=ns.new('ShaderNodeHueSaturation');sat.name='Sky chroma';sat.inputs['Saturation'].default_value=.45
     ls.new(sky.outputs[0],sat.inputs['Color'])
     out=ns.new('ShaderNodeOutputWorld');ls.new(sat.outputs[0],bg.inputs[0]);ls.new(bg.outputs[0],out.inputs[0])
+    # Camera sky is an original directional clear-day radiance field. Keep
+    # photographic sky exposure independent of hemispherical surface fill.
+    coord=ns.new('ShaderNodeTexCoord');sep=ns.new('ShaderNodeSeparateXYZ');ls.new(coord.outputs['Normal'],sep.inputs[0])
+    absolute=ns.new('ShaderNodeMath');absolute.operation='ABSOLUTE';ls.new(sep.outputs['Z'],absolute.inputs[0])
+    ramp=ns.new('ShaderNodeValToRGB');ramp.name='Clear sky radiance'
+    # Empty-world Cycles/AgX probes at exposure -.35 match balanced clear-day
+    # upper/horizon samples to 79/124/167 and 184/198/200 encoded bytes.
+    ramp.color_ramp.elements[0].position=0;ramp.color_ramp.elements[0].color=(.685,1.0,1.03,1)
+    ramp.color_ramp.elements[1].position=.6;ramp.color_ramp.elements[1].color=(.111525,.238774,.485833,1)
+    # Clear-day saturation develops well below the zenith. A linear ramp
+    # over 37 degrees made every horizontal street camera look overcast.
+    mid=ramp.color_ramp.elements.new(.15)
+    mid.color=tuple(.05*a+.95*b for a,b in zip(ramp.color_ramp.elements[0].color,ramp.color_ramp.elements[2].color))
+    ls.new(absolute.outputs[0],ramp.inputs[0]);camera_bg=ns.new('ShaderNodeBackground');camera_bg.name='Camera sky';camera_bg.inputs['Strength'].default_value=1
+    ls.new(ramp.outputs[0],camera_bg.inputs[0]);path=ns.new('ShaderNodeLightPath');mix=ns.new('ShaderNodeMixShader')
+    ls.new(path.outputs['Is Camera Ray'],mix.inputs[0]);ls.new(bg.outputs[0],mix.inputs[1]);ls.new(camera_bg.outputs[0],mix.inputs[2]);ls.new(mix.outputs[0],out.inputs[0])
     ld=bpy.data.lights.new('Afternoon sun','SUN');ob=bpy.data.objects.new(ld.name,ld);sc.collection.objects.link(ob)
     ld.energy=4.0 if not overcast else .7;ld.color=(1,.86,.69);ld.angle=math.radians(.8 if not overcast else 14)
     direction=Vector((-.90,.30,-.40));ob.rotation_euler=direction.to_track_quat('-Z','Y').to_euler()
     incoming=-direction.normalized();sky.sun_elevation=math.asin(incoming.z);sky.sun_rotation=math.atan2(incoming.y,incoming.x)
+    if wire_control:
+        # Retain the accepted neutral range-control illumination exactly;
+        # presentation skies do not alter the measured wire policy baseline.
+        sky.aerosol_density=.5;bg.inputs['Strength'].default_value=.09;sat.inputs['Saturation'].default_value=1
+        ls.new(bg.outputs[0],out.inputs[0])
     cam=bpy.data.objects.new('Utility review camera',bpy.data.cameras.new('Utility review camera'));sc.collection.objects.link(cam);sc.camera=cam
     cam.data.sensor_fit='HORIZONTAL';cam.data.sensor_width=36;cam.data.clip_end=2000;cam.data.clip_start=.02
     sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=-.35
@@ -211,14 +234,33 @@ def match_light(shot):
     sky.aerosol_density=shot.get('aerosol',.65)
     sc.world.node_tree.nodes['Sky chroma'].inputs['Saturation'].default_value=shot.get('sky_saturation',1)
     next(n for n in sc.world.node_tree.nodes if n.type=='BACKGROUND').inputs['Strength'].default_value=shot.get('sky_strength',.22)
+    ramp=sc.world.node_tree.nodes['Clear sky radiance'].color_ramp
+    ramp.elements[0].position=shot.get('sky_horizon_sine',0)
+    ramp.elements[2].position=shot.get('sky_transition',.6)
+    ramp.elements[0].color=shot.get('horizon_radiance',(.685,1,1.03,1))
+    ramp.elements[2].color=shot.get('zenith_radiance',(.111525,.238774,.485833,1))
+    # Keep each fitted photographic sky's existing linear gradient; the
+    # stronger low-elevation saturation applies to ordinary clear-day views.
+    ramp.elements[1].position=ramp.elements[0].position+.25*(ramp.elements[2].position-ramp.elements[0].position)
+    ramp.elements[1].color=tuple(.75*a+.25*b for a,b in zip(ramp.elements[0].color,ramp.elements[2].color))
+    sc.world.node_tree.nodes['Camera sky'].inputs['Strength'].default_value=2**(-.35-shot.get('exposure',-.35))
 
 
 def dusk(meta):
     sc=bpy.context.scene
     sun=next(o for o in sc.objects if o.type=='LIGHT' and o.data.type=='SUN');sun.data.energy=0
-    sky=next(n for n in sc.world.node_tree.nodes if n.type=='TEX_SKY');sky.sun_elevation=math.radians(-4);sky.sun_rotation=math.radians(245)
-    bg=next(n for n in sc.world.node_tree.nodes if n.type=='BACKGROUND');bg.inputs['Strength'].default_value=.65
-    sc.view_settings.exposure=1.1
+    sky=next(n for n in sc.world.node_tree.nodes if n.type=='TEX_SKY');sky.sun_elevation=math.radians(-4);sky.sun_rotation=math.radians(145)
+    bg=next(n for n in sc.world.node_tree.nodes if n.type=='BACKGROUND');bg.inputs['Strength'].default_value=.20
+    sc.view_settings.exposure=.35
+    ramp=sc.world.node_tree.nodes['Clear sky radiance'].color_ramp
+    ramp.elements[0].color=(.052,.070,.125,1);ramp.elements[2].color=(.004,.014,.048,1)
+    ramp.elements[1].color=tuple(.55*a+.45*b for a,b in zip(ramp.elements[0].color,ramp.elements[2].color))
+    # Warm dusk horizon toward the sunset azimuth, independent of elevation.
+    ns,ls=sc.world.node_tree.nodes,sc.world.node_tree.links
+    tex=next(n for n in ns if n.type=='TEX_COORD');dot=ns.new('ShaderNodeVectorMath');dot.operation='DOT_PRODUCT';dot.inputs[1].default_value=(.82,-.57,0);ls.new(tex.outputs['Normal'],dot.inputs[0])
+    warmth=ns.new('ShaderNodeMapRange');warmth.inputs['From Min'].default_value=.1;warmth.inputs['From Max'].default_value=1;warmth.inputs['To Max'].default_value=.65;ls.new(dot.outputs['Value'],warmth.inputs[0])
+    separate=ns.new('ShaderNodeSeparateXYZ');ls.new(tex.outputs['Normal'],separate.inputs[0]);absolute=ns.new('ShaderNodeMath');absolute.operation='ABSOLUTE';ls.new(separate.outputs['Z'],absolute.inputs[0]);low=ns.new('ShaderNodeMath');low.operation='SUBTRACT';low.inputs[0].default_value=1;ls.new(absolute.outputs[0],low.inputs[1]);amount=ns.new('ShaderNodeMath');amount.operation='MULTIPLY';ls.new(low.outputs[0],amount.inputs[0]);ls.new(warmth.outputs[0],amount.inputs[1])
+    mix=ns.new('ShaderNodeMixRGB');ls.new(amount.outputs[0],mix.inputs[0]);ls.new(ns['Clear sky radiance'].outputs[0],mix.inputs[1]);mix.inputs[2].default_value=(.14,.075,.055,1);ls.new(mix.outputs[0],ns['Camera sky'].inputs[0])
     for i,s in enumerate(meta['plan']['poles']):
         if not s.get('light'):continue
         q=Vector(meta['sockets'][s['name']]['LightHead'])+Vector((.18,0,-.08))
@@ -241,7 +283,7 @@ def shots(meta):
     house_rotation=Matrix.Rotation(math.radians(first['yaw']),3,'Z')
     service_camera=Vector(q)+house_rotation@Vector((-5,-5,1.0))
     return dict(
-      hero=dict(location=(-7.0,y-26,1.84764),target=(-2,y+25,7.4),lens=35,aspect=1.6),
+      hero=dict(location=(-6.8,y-8,1.84764),target=(4,y+22,11.8),lens=35,aspect=.85),
       street=dict(location=(6.8,3,1.84764),target=(-3,55,7),lens=40,aspect=1.6),
       above=dict(location=(60,-55,68),target=(0,plan['length']/2,3),lens=42,aspect=1.6),
       transformer=dict(location=(x-2.6,y-5.0,h-1.6),target=(x,y-.2,h-1.25),lens=62,aspect=1.25),
@@ -252,18 +294,32 @@ def shots(meta):
       service=dict(location=tuple(service_camera),target=(q[0],q[1],q[2]-1.4),lens=40,aspect=1.4),
       base=dict(location=(x+.9,y-1.6,.65),target=(x,y,.5),lens=55,aspect=1.2),
       tags=dict(location=(x-1.25,y-2.1,1.8+z),target=(x,y,1.50+z),lens=50,aspect=1.2),
+      wood_10m=dict(location=(x+4,y-math.sqrt(84),1.65+z),target=(x,y,1.65+z),lens=50,aspect=1.6),
       distance=dict(location=(-8,-55,1.85),target=(-5,90,7.9),lens=50,aspect=1.8),
       distance_filtered=dict(location=(-8,-55,1.85),target=(-5,90,7.9),lens=50,aspect=1.8),
-      dusk=dict(location=(-7.0,y-26,1.84764),target=(-2,y+25,7.4),lens=35,aspect=1.6),
+      dusk=dict(location=(-6.8,y-8,1.84764),target=(4,y+22,11.8),lens=35,aspect=.85),
       bank=dict(location=(x-3.6,plan['poles'][3]['location'][1]-6,h-.8),target=(-5.05,plan['poles'][3]['location'][1],h-1.3),lens=60,aspect=1.4),
       riser=dict(location=(x-3.5,plan['poles'][4]['location'][1]+4,4.5),target=(-5.05,plan['poles'][4]['location'][1],4.9),lens=28,aspect=1.1),
     )
 
 
 def render_run(seed,a,names):
-    bpy.ops.wm.read_factory_settings(use_empty=True);source=Path('export',f'UtilityStreet-{seed}.gltf')
+    source=Path('export',f'UtilityStreet-{seed}.gltf')
     from deliver import bundle
     source_hash=bundle(source)
+    output=a.out/str(seed) if not a.camera_file else a.out;output.mkdir(parents=True,exist_ok=True)
+    report_path=output/'provenance.json';reports=json.loads(report_path.read_text()) if report_path.exists() else {}
+    recipe=hashlib.sha256(b''.join((HERE/n).read_bytes() for n in ('render.py','ribbon.py','setting.py'))).hexdigest()
+    context_hash=file_sha(Path('build/context.json'))
+    if a.engine=='CYCLES' and not a.validate_only and not a.camera_file:
+        def current(name):
+            r=reports.get(name,{})
+            return ((output/(name+'.png')).is_file() and r.get('sha256')==source_hash and r.get('recipe_sha256')==recipe
+                    and r.get('context_sha256')==context_hash and r.get('requested_width')==a.width
+                    and r.get('requested_samples')==a.samples and r.get('engine')==a.engine)
+        names=[n for n in names if not current(n)]
+        if not names:print('CURRENT EXPORTED VIEWS',seed);return
+    bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=str(source.resolve()));meta=json.loads(source.with_suffix('.json').read_text())
     contexts,provenance=context(meta)
     if a.validate_only:
@@ -273,10 +329,10 @@ def render_run(seed,a,names):
     if a.camera_file:
         calibrated=json.loads(Path(a.camera_file).read_text());views={k:v['shot'] for k,v in calibrated.items() if v.get('seed',101)==seed}
         names=list(views)
-    output=a.out/str(seed) if not a.camera_file else a.out;output.mkdir(parents=True,exist_ok=True)
-    sc=bpy.context.scene;report_path=output/'provenance.json'
-    reports=json.loads(report_path.read_text()) if report_path.exists() else {}
-    recipe=hashlib.sha256(b''.join((HERE/n).read_bytes() for n in ('render.py','ribbon.py'))).hexdigest()
+        if 'nc_street' in names:
+            from setting import nc_corner
+            nc_corner(contexts)
+    sc=bpy.context.scene
     for name in names:
         shot=views[name];cam.location=shot['location'];cam.rotation_euler=(Vector(shot['target'])-cam.location).to_track_quat('-Z','Y').to_euler()
         if name in ('hero','street','dusk'):
@@ -292,6 +348,11 @@ def render_run(seed,a,names):
             if a.engine=='CYCLES':sc.cycles.samples=max(a.samples,128)
         elif a.camera_file:match_light(shot)
         sc.render.resolution_x=shot.get('width_px',a.width);sc.render.resolution_y=round(sc.render.resolution_x/shot.get('aspect',1.6));sc.render.resolution_percentage=100
+        if name=='wood_10m':
+            bpy.context.view_layer.update();axis=bpy.data.objects['P1'].matrix_world.translation.copy();axis.z=cam.location.z
+            hit=sc.ray_cast(bpy.context.evaluated_depsgraph_get(),cam.location,(axis-cam.location).normalized())
+            assert hit[0] and hit[4].name=='P1__Mesh',(name,hit[4].name if hit[0] else None)
+            shot={**shot,'observed_axis_range_m':(axis-cam.location).length,'measured_camera_to_surface_m':(hit[1]-cam.location).length,'surface_hit':list(hit[1])}
         temporary=None;hidden=[]
         if name=='distance_filtered':
             bpy.context.view_layer.update()
@@ -299,9 +360,11 @@ def render_run(seed,a,names):
             temporary=inspection(meta,cam,a.width,sc.render.resolution_y)
             for o in sc.objects:
                 if o.name.startswith('Conductors_'):o.visible_camera=False;hidden.append(o)
-        path=output/(name+'.png');sc.render.filepath=str(path.resolve());bpy.ops.render.render(write_still=True)
+        path=output/(name+'.png');sc.render.filepath=str(path.resolve());result=bpy.ops.render.render(write_still=True)
+        assert 'FINISHED' in result and path.is_file(),('Render cancelled or output absent',name,result)
         assert bundle(source)==source_hash,'Source changed during render'
-        reports[name]=dict(source=str(source),sha256=source_hash,recipe_sha256=recipe,camera=shot,engine=a.engine,context=provenance,
+        reports[name]=dict(source=str(source),sha256=source_hash,recipe_sha256=recipe,context_sha256=context_hash,
+            requested_width=a.width,requested_samples=a.samples,camera=shot,engine=a.engine,context=provenance,
             scope='Exported Utility external glTF / baked shared maps; original library source-look context, presentation only')
         if temporary:
             reports[name]['scope']+='; camera-evaluated .85px ribbons with compensated coverage replace tubes for this comparison only'
@@ -316,5 +379,5 @@ if __name__=='__main__':
     p.add_argument('--seeds',default='101,102,103,104');p.add_argument('--shots');p.add_argument('--camera-file');p.add_argument('--validate-only',action='store_true')
     a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
     for seed in map(int,a.seeds.split(',')):
-        names=a.shots.split(',') if a.shots else ([n for n in shots(json.loads(Path(f'build/street-{seed}.json').read_text())) if n not in ('bank','riser')] if seed==101 else ['street','above','bank','riser'] if seed==103 else ['street','above'])
+        names=a.shots.split(',') if a.shots else ([n for n in shots(json.loads(Path(f'build/street-{seed}.json').read_text())) if n not in ('bank','riser','wood_10m')] if seed==101 else ['street','above','bank','riser'] if seed==103 else ['street','above'])
         render_run(seed,a,names)

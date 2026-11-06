@@ -80,3 +80,13 @@ license plate, listing identifier or homeowner is recorded in tracked files.
 
 The manufacturer's former QR860 JCA PDF URL now returns HTTP 404. It is
 excluded from automatic fetching; the manufacturer's [current QR860 page](https://www.commscope.com/product-type/cables/coaxial-cables/hardline-cables/item5501302/) and [coaxial construction guide](https://www.commscope.com/globalassets/digizuite/3447-broadband-app-const-manual-ii-106549-en.pdf) supply the jacket/strand construction and bend radius.
+
+Additional local inspection candidates (not used in the asset or final pairs):
+`residential-straight.jpg`, direct image
+https://upload.wikimedia.org/wikipedia/commons/0/01/Revloc_Historic_District_625_Highland.jpg
+(Wikimedia Commons contributor; rights not verified here; rejected because
+its road slopes and curves). `straight-in.jpg`, direct image
+https://www.rxrsignals.com/Indiana/L-Q/Michigan_City/CSSM/Elston/10.JPG
+(Tommy McGowan, 5 December 2015; copyright retained; straight-street/light
+inspection, rejected as the replacement because its parallel double-arm
+feeder is different). No pixels from either enter generated content.

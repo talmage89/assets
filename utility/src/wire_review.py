@@ -39,7 +39,7 @@ def render(width,samples):
     bpy.ops.import_scene.gltf(filepath=str(source.resolve()));meta=json.loads(source.with_suffix('.json').read_text())
     for ob in list(bpy.context.scene.objects):
         if ob.type=='MESH' and not ob.name.startswith('Conductors_'):bpy.data.objects.remove(ob,do_unlink=True)
-    cam=setup(max(128,samples));sc=bpy.context.scene;sc.compositing_node_group=None;sc.cycles.use_adaptive_sampling=False
+    cam=setup(max(128,samples),wire_control=True);sc=bpy.context.scene;sc.compositing_node_group=None;sc.cycles.use_adaptive_sampling=False
     sc.view_layers[0].cycles.denoising_store_passes=False;sc.view_layers[0].use_pass_object_index=False
     sc.render.resolution_x=width;sc.render.resolution_y=width//2;sc.render.resolution_percentage=100
     cam.data.lens=50

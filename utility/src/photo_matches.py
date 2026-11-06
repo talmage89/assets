@@ -88,8 +88,8 @@ if __name__=='__main__':
         solve(__file__,out);results=json.loads(Path(out).read_text())
         for name,row in results.items():
             row['seed']=MATCHES[name]['seed']
-            lighting=dict(nc_street=dict(sun_direction=(-.8,.2,-.8),sun_energy=3.6,sky_strength=.15,exposure=-.2),
-                          md_top=dict(sun_direction=(-.4,-.6,-1),sun_energy=1.1,sky_strength=.17,sky_saturation=.3,sun_angle=7,aerosol=1.4,exposure=-.15),
-                          comm_space=dict(sun_direction=(.8,-.4,-1),sun_energy=3.5,sky_strength=.15,exposure=-.2,width_px=749))
+            lighting=dict(nc_street=dict(sun_direction=(-.8,.2,-.8),sun_energy=3.6,sky_strength=.22,sky_saturation=.45,sky_horizon_sine=.055,sky_transition=.18,exposure=-.2),
+                          md_top=dict(sun_direction=(-.4,-.6,-1),sun_energy=1.1,sky_strength=.21,sky_saturation=.45,sun_angle=7,aerosol=1.4,exposure=-.15,zenith_radiance=(.93,1.15,2.275,1),horizon_radiance=(1.36,1.465,1.845,1)),
+                          comm_space=dict(sun_direction=(.8,-.4,-1),sun_energy=3.5,sky_strength=.20,sky_saturation=.6,exposure=-.2,width_px=749,zenith_radiance=(.09,.28,.65,1)))
             row['shot'].update(lighting[name])
         Path(out).write_text(json.dumps(results,indent=2))
