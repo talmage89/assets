@@ -357,7 +357,20 @@ are independent of the ground family's original delivery and checks.
 
 Each new module covers 100 m out from its center and is separately rooted;
 markings and joints stop at that extent. Actual retained vertices are checked
-against it before export. The four road assemblies are 2,321 / 2,140 / 2,322 /
-1,390 triangles (201–204), including their walks, corners and markings. These
+against it before export. The four road assemblies are 6,243 / 4,050 / 6,448 /
+2,770 triangles (201–204), including their walks, corners and markings. These
 are assemblies, not single repeated road sections. Presentation can request
 a longer extent from the same grammar.
+
+The final signal presentation adds `src/junction_surfaces.py`: absorbed oil
+center bands at queues, dark tire tracks, separate .74 tire-polished/.96 dry
+roughness, wheel-abraded paint, unequal routed crack seals and one utility
+repair per site. The sparse approach grids carry this in stock glTF vertex
+colors; canonical Ground image bytes remain unchanged and no map is added.
+Each approach stays within the 2,000-triangle modular-piece budget; the totals
+above include several approaches plus corners, walks and medians. The export
+records actual triangle counts per piece before consolidating each placement
+assembly. `signals/src/check_arterial.py` independently ray-probes actual
+imported cuts, lead-ins, flush pull-box lids and repairs. FHWA-HRT-06-139 (2006),
+volume II chapter 5 and appendix J, supplies detector installation references;
+see [the signal reference register](../signals/refs/SOURCES.md).

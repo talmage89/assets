@@ -75,6 +75,13 @@ edge to leave at least one 11 ft carriageway. Road plans are authored
 demonstrations, not traffic studies.
 Paint is 4 in lines/dashes, 24 in stop bars and 18 in crosswalk bars over a
 6 ft band. Loop cuts are an original chamfered 6 ft square, sealed at 10 mm.
+The final version adds each loop's sealed lead-in to a roadside pull box,
+wheel-path paint abrasion, routed repair seals and a utility wearing patch.
+[FHWA Traffic Detector Handbook, volume II, 2006](https://www.fhwa.dot.gov/publications/research/operations/its/06139/06139.pdf),
+chapter 5/table 5-14 and appendix J inform the square loop, diagonally relieved
+corners, sealant and pull-box arrangement. Our 10 mm visible sealed strip is
+an authored visual width; the handbook includes 1/4 in slots and other agency
+choices. Buried conductors and conduit wiring are omitted.
 Arrow geometry is authored; no published drawing is traced.
 
 The photographs in refs/SOURCES.md establish construction and appearance, not

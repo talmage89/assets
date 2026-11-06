@@ -3,10 +3,11 @@
 Widths, corner returns, raised medians with bay tapers/noses, and channelizing
 islands. Only the canonical library's materials are read, never modified.
 """
-import math,sys,json,argparse
+import math,sys,json,argparse,random
 from pathlib import Path
 import bpy
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+from ground.src.junction_surfaces import lanes, value, road_grid
 from kit import model as G
 from kit.tiling import world_uv
 _GROUND_MATERIALS={}
@@ -28,9 +29,15 @@ def build(spec,rootpath):
    if m.users==0:bpy.data.materials.remove(m)
   for im in set(bpy.data.images)-before_images:
    if im.users==0:bpy.data.images.remove(im)
- mats=_GROUND_MATERIALS
+ mats=dict(_GROUND_MATERIALS)
+ mats['Asphalt']=mats['Asphalt'].copy();mats['Asphalt'].name='Arterial dry asphalt'
+ p=next(n for n in mats['Asphalt'].node_tree.nodes if n.type=='BSDF_PRINCIPLED')
+ for link in list(p.inputs['Roughness'].links):mats['Asphalt'].node_tree.links.remove(link)
+ p.inputs['Roughness'].default_value=.96
+ polished=mats['Asphalt'].copy();polished.name='Arterial tire-polished aggregate';next(n for n in polished.node_tree.nodes if n.type=='BSDF_PRINCIPLED').inputs['Roughness'].default_value=.74
  def material(n,c):
-  m=bpy.data.materials.new(n);m.use_nodes=True;p=m.node_tree.nodes.get('Principled BSDF');p.inputs['Base Color'].default_value=(*c,1);p.inputs['Roughness'].default_value=.88;return m
+  m=bpy.data.materials.new(n);m.use_nodes=True;p=m.node_tree.nodes.get('Principled BSDF');p.inputs['Base Color'].default_value=(*c,1);p.inputs['Roughness'].default_value=.88
+  m['arterial_base_color']=list(c);ns=m.node_tree.nodes;ls=m.node_tree.links;vc=ns.new('ShaderNodeVertexColor');vc.layer_name='Tint';ls.new(vc.outputs['Color'],p.inputs['Base Color']);return m
  white=material('Arterial aged white',(.55,.55,.50));yellow=material('Arterial faded yellow',(.52,.32,.012));seal=material('Arterial loop seal',(.012,.012,.011))
  L=3.3528;hx=spec['ns']*L/2+spec['median']/2;hy=spec['ew']*L/2;R=spec['radius'];extent=spec.get('extent',350)
  rt=G.pivot('ParametricJunction',(0,0,0));rt['presentation_only']=True
@@ -39,7 +46,35 @@ def build(spec,rootpath):
   for face in o.data.polygons:
    zz=[o.data.vertices[i].co.z for i in face.vertices]
    if max(zz)-min(zz)<1e-7 and face.normal.z<0:face.flip()
-  o.data.update();o.parent=rt;coverage=6.096 if ma==mats['Asphalt'] else 1.524 if ma==mats['Concrete'] else 3.048
+  o.data.update();o.parent=rt
+  if ma in (white,yellow):
+   # Only paint gets small fracture stations; wheel crossings abrade its edges.
+   import bmesh
+   bm=bmesh.new();bm.from_mesh(o.data)
+   for axis in (0,1):
+    lo=min(v.co[axis] for v in bm.verts);hi=max(v.co[axis] for v in bm.verts)
+    if hi-lo>.4 and hi-lo<25:
+     for index in range(math.floor(lo/.40)+1,math.ceil(hi/.40)):
+      co=[0,0,0];co[axis]=index*.40;no=[0,0,0];no[axis]=1
+      bmesh.ops.bisect_plane(bm,geom=[*bm.verts,*bm.edges,*bm.faces],dist=1e-7,plane_co=co,plane_no=no)
+   bm.to_mesh(o.data);bm.free()
+   ca=o.data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='POINT')
+   for vert,datum in zip(o.data.vertices,ca.data):
+    wheel=0
+    for turn in spec['approaches']:
+     aa=turn*math.pi/2;xx=vert.co.x*math.cos(aa)+vert.co.y*math.sin(aa);yy=-vert.co.x*math.sin(aa)+vert.co.y*math.cos(aa)
+     if yy<0:continue
+     for center in lanes(spec,turn):
+      wheel=max(wheel,math.exp(-((abs(xx-center)-.78)/.35)**2))
+    broken=.72+.28*math.sin(vert.co.x*31+vert.co.y*19)**2
+    factor=1-.72*wheel*broken
+    datum.color=(factor,factor,factor,1)
+  if ma.get('arterial_base_color'):
+   ca=o.data.color_attributes.get('Tint') or o.data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='POINT')
+   for datum in ca.data:
+    factor=datum.color[0] if ma in (white,yellow) else 1
+    datum.color=(*[v*factor for v in ma['arterial_base_color']],1)
+  coverage=6.096 if ma==mats['Asphalt'] else 1.524 if ma==mats['Concrete'] else 3.048
   world_uv(o,coverage)
   uv=o.data.uv_layers.active
   for f in o.data.polygons:
@@ -49,7 +84,17 @@ def build(spec,rootpath):
     v=o.data.vertices[o.data.loops[li].vertex_index].co;uv.data[li].uv=(v[axes[0]]/coverage,v[axes[1]]/coverage)
   if ma in mats.values():
    ca=o.data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='POINT')
-   for v in ca.data:v.color=(1,1,1,1)
+   for vert,datum in zip(o.data.vertices,ca.data):
+    f=value(vert.co.x,vert.co.y,spec) if ma==mats['Asphalt'] else 1
+    datum.color=(f,f,f,1)
+  if ma==mats['Asphalt'] and n.startswith('Continuing worn'):
+   o.data.materials.append(polished)
+   for face in o.data.polygons:
+    p=face.center
+    for turn in spec['approaches']:
+     aa=turn*math.pi/2;xx=p.x*math.cos(aa)+p.y*math.sin(aa);yy=-p.x*math.sin(aa)+p.y*math.cos(aa)
+     if yy<0:continue
+     if any(abs(abs(xx-c)-.78)<.30 for c in lanes(spec,turn)):face.material_index=1
   return o
  def poly(n,pts,z,ma):return mesh(n,[(x,y,z) for x,y in pts],[tuple(range(len(pts)))],ma)
  def slab(n,pts,ma=mats['Concrete'],z=.1524):
@@ -63,8 +108,10 @@ def build(spec,rootpath):
  rect('Town underlay',-extent,extent,-extent,extent,-.02,mats['Lawn'])
  rect('Intersection asphalt',-hx,hx,-hy,hy,.012,mats['Asphalt'])
  for t in spec['approaches']:
+  approach_before=set(bpy.context.scene.objects)
   h=hx if t%2==0 else hy;fh=hy if t%2==0 else hx;core=fh+.4572+R;stop=core+3.9624
-  strip('Continuing crowned road',-h,h,fh,extent,t,.012,mats['Asphalt'])
+  xx,yy=road_grid(h,fh,stop,extent,lanes(spec,t));vs=[(*xy(x,y,t),.012) for y in yy for x in xx];N=len(xx)
+  mesh('Continuing worn road',vs,[(j*N+i,j*N+i+1,(j+1)*N+i+1,(j+1)*N+i) for j in range(len(yy)-1) for i in range(N-1)],mats['Asphalt'])
   for side in (-1,1):
    # Gutter / full-width unscaled sidewalk / planting strip.
    strip('Concrete gutter',side*h,side*(h+.4572),core,extent,t,.008,mats['Concrete'])
@@ -87,13 +134,19 @@ def build(spec,rootpath):
   strip('Stop bar',-h,(L/2 if spec['ns']==5 and t%2==0 else -.1),stop-.3048,stop+.3048,t,.017,white)
   for i in range(math.floor(2*h/.76)):
    x=-h+.3+i*.76;strip('Crosswalk bar',x,x+.4572,core+.6,core+2.4288,t,.017,white)
-  for x in ([-L,-2*L,0] if spec['ns']==5 and t%2==0 else [-L/2]):
+  for x in lanes(spec,t):
    if abs(x)>h-.5:continue
    y=stop+3
    pts=[(x-.9144,y-.70),(x-.70,y-.9144),(x+.70,y-.9144),(x+.9144,y-.70),(x+.9144,y+.70),(x+.70,y+.9144),(x-.70,y+.9144),(x-.9144,y+.70)]
    for a,b in zip(pts,pts[1:]+pts[:1]):
     dx,dy=b[0]-a[0],b[1]-a[1];l=math.hypot(dx,dy);ox,oy=-dy/l*.005,dx/l*.005
     poly('Sealed detector sawcut',[xy(*p,t) for p in ((a[0]+ox,a[1]+oy),(b[0]+ox,b[1]+oy),(b[0]-ox,b[1]-oy),(a[0]-ox,a[1]-oy))],.018,seal)
+   lead=y+.24+x*.045
+   strip('Detector lead-in sealed slot',-h-.4572,x-.9144,lead-.005,lead+.005,t,.019,seal)
+  strip('Curbside detector lead collection slot',-h-.28,-h-.27,stop+2.55,stop+3.4,t,.020,seal)
+  # One flush pull box takes each approach's twisted lead-ins.
+  strip('Detector pull-box concrete surround',-h-.44,-h+.02,stop+2.2,stop+2.82,t,.021,mats['Concrete'])
+  strip('Detector pull-box cast lid',-h-.39,-h-.03,stop+2.25,stop+2.77,t,.023,seal)
   if spec['median'] and t%2==0:
    # Left-turn bay occupies half the median: tapered approach, rounded end.
    m=spec['median']/2;start=core+2.6;bay=stop+32
@@ -110,6 +163,22 @@ def build(spec,rootpath):
    x=-spec['median']/2+L/2 if spec['median'] else 0;y=stop+8
    pts=[(x-.1,y+1.5),(x+.1,y+1.5),(x+.1,y-.4),(x+.6,y-.4),(x+.6,y-.1),(x+1.4,y-.6),(x+.6,y-1.1),(x+.6,y-.8),(x-.1,y-.8)]
    poly('Left turn arrow',[xy(*p,t) for p in pts],.018,white)
+  # Routed cracks follow lane loading, with short branching seams.
+  rng=random.Random(spec['seed']*71+t*13)
+  for index in range(2):
+   start=stop+rng.uniform(9,39);startx=rng.uniform(-h+.4,-.5);reach=min(h-.4-startx,rng.uniform(2.2,5.5))
+   pts=[(startx+k*reach/6,start+k*.17+rng.uniform(-.27,.27)) for k in range(7)]
+   if index:pts=pts[:4]+[(pts[3][0]-.25,pts[3][1]+1.3)]
+   for a,b in zip(pts,pts[1:]):
+    dx,dy=b[0]-a[0],b[1]-a[1];length=math.hypot(dx,dy);ox,oy=-dy/length*.022,dx/length*.022
+    poly('Routed crack seal',[xy(*p,t) for p in ((a[0]+ox,a[1]+oy),(b[0]+ox,b[1]+oy),(b[0]-ox,b[1]-oy),(a[0]-ox,a[1]-oy))],.014,seal)
+  # Utility repair retains the same aggregate and darkens only its patch.
+  if t==spec['approaches'][spec['seed']%len(spec['approaches'])]:
+   patch=strip('Utility trench wearing patch',-h+.2,-h+2.4,stop+17.4,stop+18.65,t,.014,mats['Asphalt'])
+   for datum in patch.data.color_attributes['Tint'].data:datum.color=(.26,.26,.26,1)
+   for edge in (stop+17.4,stop+18.65):strip('Utility patch sealed edge',-h+.18,-h+2.42,edge-.018,edge+.018,t,.015,seal)
+  approach_meshes=[ob for ob in set(bpy.context.scene.objects)-approach_before if ob.type=='MESH']
+  for ob in approach_meshes:ob['arterial_approach']=t
  for sx in (-1,1):
   for sy in (-1,1):
    if 1 not in spec['approaches'] and sx<0:continue
@@ -153,6 +222,12 @@ def main():
  for i,spec in enumerate(rows):
   spec=dict(spec,extent=100);rt=build(spec,rootpath);rt.name='Junction_'+str(spec['seed']);rt.location.x=i*250
   bpy.context.view_layer.update();meshes=[o for o in rt.children_recursive if o.type=='MESH']
+  pieces={}
+  for ob in meshes:
+   ob.data.calc_loop_triangles();key=str(ob.get('arterial_approach','corners'))
+   pieces[key]=pieces.get(key,0)+len(ob.data.loop_triangles)
+  assert all(n<=2000 for key,n in pieces.items() if key!='corners'),('Approach piece budget',spec['seed'],pieces)
+  rt['measured_piece_triangles']=pieces;print('APPROACH PIECES',spec['seed'],pieces,flush=True)
   bpy.ops.object.select_all(action='DESELECT')
   for o in meshes:o.select_set(True)
   bpy.context.view_layer.objects.active=meshes[0];bpy.ops.object.join();ob=meshes[0];ob.name=rt.name+'__Surface'
