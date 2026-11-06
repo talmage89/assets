@@ -1,18 +1,22 @@
-# Form/construction checkpoint only; no look-dev or final bake is enabled.
+# External PBR checkpoint; presentation assets remain read-only dependencies.
 SEEDS := 301 302 303 304
 ROWS := 401 402 403 404
-STEMS := $(foreach s,$(SEEDS),Building-$(s) Complex-$(s)) $(foreach s,$(ROWS),Row-$(s))
+STEMS := $(foreach s,$(SEEDS),Building-$(s) Complex-$(s)) Building-305 $(foreach s,$(ROWS),Row-$(s))
 CHECKPOINT_BLEND := build/family.blend
 CHECKPOINT_OUTPUTS := $(CHECKPOINT_BLEND) build/family.json $(foreach s,$(STEMS),build/$(s).blend export/$(s).gltf export/$(s).bin export/$(s).json)
-CHECKPOINT_DEPS := $(addprefix src/,build.py buildings.py components.py geometry.py plans.py siteworks.py context.py occupancy.py garage_motion.py) ../houses/src/build.py ../houses/src/plan.py ../houses/src/additions.py ../houses/src/glb_budget.py ../houses/src/split_motion.py ../kit/model.py ../kit/tiling.py ../kit/fonts.py
+CHECKPOINT_DEPS := $(addprefix src/,build.py buildings.py components.py geometry.py plans.py siteworks.py context.py occupancy.py garage_motion.py surfaces.py) ../houses/src/build.py ../houses/src/plan.py ../houses/src/additions.py ../houses/src/glb_budget.py ../houses/src/split_motion.py ../kit/model.py ../kit/tiling.py ../kit/fonts.py build/dependencies.json
 CHECKPOINT_CHECK = $(BP) --python src/check.py
 CHECKPOINT_REVIEW = $(PYTHON) src/review.py
-CHECKPOINT_RENDER_OUTPUTS := $(foreach s,$(SEEDS),$(foreach v,hero above ground rear,renders/checkpoint/Complex-$(s)/$(v).png)) $(foreach s,$(ROWS),$(foreach v,hero above ground rear entry patios,renders/checkpoint/Row-$(s)/$(v).png)) $(foreach s,$(SEEDS),$(foreach v,stairs balcony meters,renders/checkpoint/Building-$(s)/$(v).png))
+CHECKPOINT_RENDER_OUTPUTS := $(foreach s,$(SEEDS),$(foreach v,hero above ground rear,renders/checkpoint/Complex-$(s)/$(v).png)) $(foreach s,$(ROWS),$(foreach v,hero above ground rear entry patios,renders/checkpoint/Row-$(s)/$(v).png)) $(foreach s,$(SEEDS) 305,$(foreach v,stairs balcony meters,renders/checkpoint/Building-$(s)/$(v).png)) renders/checkpoint/Building-302/mansard.png renders/checkpoint/Building-304/mansard.png renders/checkpoint/Building-305/mansard.png renders/checkpoint/Complex-301/dusk.png
 include ../kit/checkpoint_rules.mk
+BP += -t 4
 
 CONTEXT := car tree shrub fence ground
 CONTEXT_OUTPUTS := $(foreach c,car tree shrub fence,build/context/$(c)/source.blend) build/context/ground/source.glb
-$(CHECKPOINT_OUTPUTS): $(CONTEXT_OUTPUTS)
+DEPENDENCY_OUTPUTS := build/dependencies.json build/context/utility.glb $(foreach c,BaseColor Normal ORM,textures/ship/T_ApartmentsConcrete_$(c).png textures/ship/T_ApartmentsCedar_$(c).png)
+$(DEPENDENCY_OUTPUTS) &: src/dependencies.py src/derive_surfaces.py
+	$(PYTHON) src/dependencies.py
+$(CHECKPOINT_OUTPUTS): $(DEPENDENCY_OUTPUTS)
 build/context/car/source.blend: src/context_build.py $(wildcard ../cars/src/*.py)
 	@mkdir -p build $(TMPDIR)
 	$(BP) --python src/context_build.py -- car > build/context-car.log 2>&1
@@ -37,7 +41,8 @@ build/matched-cameras.json: src/photo_matches.py src/matches.py src/neutral_refs
 	$(PYTHON) src/matches.py
 check-camera: build/matched-cameras.json
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration $<
-renders/matches/.stamp: $(CHECKPOINT_OUTPUTS) build/matched-cameras.json src/render.py build/checkpoint-render-parameters.txt
+$(CHECKPOINT_RENDER_OUTPUTS): src/presentation.py
+renders/matches/.stamp: $(CHECKPOINT_OUTPUTS) build/matched-cameras.json src/render.py src/presentation.py build/checkpoint-render-parameters.txt
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --camera-file build/matched-cameras.json --out renders/matches --width $(WIDTH) --samples $(SAMPLES)
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/matched-cameras.json --renders renders/matches --out renders/matches
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source-pairs --camera-file build/matched-cameras.json --out renders/source-matches --width $(WIDTH) --samples $(SAMPLES)
@@ -45,6 +50,20 @@ renders/matches/.stamp: $(CHECKPOINT_OUTPUTS) build/matched-cameras.json src/ren
 	@touch $@
 matches: refs check-camera renders/matches/.stamp
 review: matches
+renders/eevee/Complex-301/hero.png: $(CHECKPOINT_OUTPUTS) src/render.py src/presentation.py build/checkpoint-render-parameters.txt
+	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --only Complex-301 --shots hero --engine BLENDER_EEVEE --out renders/eevee --width $(WIDTH) --samples $(SAMPLES)
+review: renders/eevee/Complex-301/hero.png
+
+.PHONY: repeat
+repeat: model
+	$(PYTHON) src/repeat.py
+
+.PHONY: bake export clean-delivery
+bake: $(DEPENDENCY_OUTPUTS)
+export: model
+clean: clean-delivery
+clean-delivery:
+	$(PYTHON) -c "import shutil; [shutil.rmtree(p,ignore_errors=True) for p in ('export','textures')]"
 
 build/preservation.json: src/preserve.py
 	$(PYTHON) src/preserve.py

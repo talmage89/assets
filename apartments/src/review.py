@@ -32,10 +32,10 @@ for folder in ('matches','source-matches'):
         assert p.stat().st_mtime>=src.stat().st_mtime,p
         audit[str(p)]=r
 (out/'evidence-audit.json').write_text(json.dumps(audit,indent=2))
-contact(paths,out/'contact-sheet.jpg',width=1600,title='Apartments / exported glTF / FORM CHECKPOINT',captions={str(p):p.parent.name+' / '+p.stem for p in paths})
+contact(paths,out/'contact-sheet.jpg',width=1600,title='Apartments / exported external PBR / look checkpoint',captions={str(p):p.parent.name+' / '+p.stem for p in paths})
 for stem in sorted(set(p.parent.name for p in paths)):
     selected=[p for p in paths if p.parent.name==stem]
-    contact(selected,out/(stem+'-inspection.jpg'),width=1600,title=stem+' / current exported form',captions={str(p):p.stem for p in selected})
+    contact(selected,out/(stem+'-inspection.jpg'),width=1600,title=stem+' / current exported PBR',captions={str(p):p.stem for p in selected})
 for kind in ('Complex','Row'):
     selected=[p for p in paths if p.parent.name.startswith(kind) and p.stem in ('above','ground','rear')]
     contact(selected,out/(kind.lower()+'-family.jpg'),width=1600,title=kind+' variants / above, eye height and rear',captions={str(p):p.parent.name+' / '+p.stem for p in selected})
@@ -43,7 +43,7 @@ details=[p for p in paths if p.stem in ('stairs','balcony','meters','entry','pat
 contact(details,out/'construction-details.jpg',width=1600,title='Stairs, balconies, entries, services and patios',captions={str(p):p.parent.name+' / '+p.stem for p in details})
 review_sheet([[base/'Complex-301/hero.png'],[base/'Row-403/hero.png']],out/'heroes.jpg',width=1600,title='Parking court and garage row / 40 mm / 1.68 m eyes')
 pairs=sorted(Path('renders/matches').glob('*-pair.jpg'));assert len(pairs)==3
-review_sheet([[p] for p in pairs],out/'photo-pairs.jpg',width=1600,title='Exported form comparisons / independently fitted photographic views')
+review_sheet([[p] for p in pairs],out/'photo-pairs.jpg',width=1600,title='Exported type and color comparisons / balanced photographs / matched light')
 # Exported image tonal facts; whole-frame statistics include ground and sky.
 report={}
 for p in (base/'Complex-301/hero.png',base/'Row-403/hero.png'):
@@ -64,3 +64,6 @@ for col,seed in enumerate((301,304)):
     draw.text((x0,y0+d*scale+20),'Schematic reservations / shallow window rooms in mesh',font=font,fill='#222d24')
 canvas.save(out/'unit-plans.jpg',quality=90,optimize=True)
 print('REVIEW',len(paths),'views, three pairs; contacts in',out)
+if Path('build/handoff').exists():
+    import subprocess
+    subprocess.run([sys.executable,'src/fixes.py'],check=True)

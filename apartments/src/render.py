@@ -18,20 +18,28 @@ def material(name,color):
     return m
 
 
-def setup(samples,width):
+def setup(samples,width,light=None):
     sc=bpy.context.scene;sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=samples;sc.cycles.use_denoising=True
-    sc.cycles.transparent_max_bounces=8;sc.cycles.max_bounces=6
+    sc.cycles.transparent_max_bounces=32;sc.cycles.max_bounces=6
     sc.world=bpy.data.worlds.new('Procedural daylight');sc.world.use_nodes=True
     ns,ls=sc.world.node_tree.nodes,sc.world.node_tree.links
-    sky=ns.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(26);sky.sun_rotation=math.radians(225);sky.sun_disc=False;sky.aerosol_density=.4
-    bg=ns.get('Background');bg.inputs['Strength'].default_value=.12;ls.new(sky.outputs[0],bg.inputs[0])
+    sky=ns.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(34);sky.sun_rotation=math.radians(225);sky.sun_disc=False;sky.aerosol_density=.4
+    bg=ns.get('Background');bg.inputs['Strength'].default_value=.075;ls.new(sky.outputs[0],bg.inputs[0])
     ld=bpy.data.lights.new('Raking afternoon sun','SUN');sun=bpy.data.objects.new(ld.name,ld);sc.collection.objects.link(sun)
-    ld.energy=3.2;ld.angle=math.radians(1.8);sun.rotation_euler=Vector((.65,.80,-.75)).to_track_quat('-Z','Y').to_euler()
+    ld.energy=3.7;ld.color=(1,.965,.91);ld.angle=math.radians(1.8);sun.rotation_euler=Vector((.65,.80,-.75)).to_track_quat('-Z','Y').to_euler()
     G.box('Presentation ground',(0,0,-.23),(1800,1800,.10),material('Presentation ground',(.10,.125,.065)),0)
     cam=bpy.data.objects.new('ReviewCamera',bpy.data.cameras.new('ReviewCamera'));sc.collection.objects.link(cam);sc.camera=cam
     cam.data.sensor_fit='HORIZONTAL';cam.data.sensor_width=36;cam.data.clip_end=2000;cam.data.clip_start=.05
     sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=-.45
     sc.render.resolution_percentage=100;sc.render.image_settings.file_format='PNG';sc.render.image_settings.color_mode='RGBA'
+    if light:
+        sky.sun_elevation=math.radians(light.get('elevation',26));sky.sun_rotation=math.radians(light.get('azimuth',225))
+        bg.inputs['Strength'].default_value=light.get('sky',.12);ld.energy=light.get('energy',3.2);ld.angle=math.radians(light.get('softness',1.8))
+        sun.rotation_euler=Vector(light.get('direction',(.65,.80,-.75))).to_track_quat('-Z','Y').to_euler()
+        sc.view_settings.exposure=light.get('exposure',-.45)
+        if light.get('overcast',0):
+            mix=ns.new('ShaderNodeMixRGB');mix.blend_type='MIX';mix.inputs[0].default_value=light['overcast']
+            mix.inputs[2].default_value=(1.2,1.2,1.2,1);ls.new(sky.outputs[0],mix.inputs[1]);ls.new(mix.outputs[0],bg.inputs[0])
     return cam
 
 
@@ -43,6 +51,7 @@ def views(stem,meta):
                above=dict(location=(W*1.02,-D*1.20,max(W,D)*1.12),target=(0,0,1.8),lens=43,aspect=1.55),
                ground=dict(location=(x-28,y-36,1.68),target=(x+5,y,3.6),lens=35,aspect=1.65),
                rear=dict(location=(W*.65,D*.76,15),target=(0,8,3.5),lens=40,aspect=1.65))
+        v['dusk']=dict(v['hero'])
     elif stem.startswith('Row'):
         w,d=p['width'],p['depth'];total=p['count']*w
         v=dict(hero=dict(location=(-total*.72,-d/2-14,1.68),target=(-total*.06,-d/2,3.1),lens=40,aspect=1.78),
@@ -72,14 +81,20 @@ def views(stem,meta):
         offset=Vector(p['modules'][0]['origin'])
         for key in ('stairs','balcony','meters'):
             for field in ('location','target'):v[key][field]=list(Vector(v[key][field])+offset)
+        if p['roof']=='mansard':v['mansard']=dict(location=(-w*.55+offset.x,-d/2-9+offset.y,7.2),target=(offset.x,-d/2+offset.y,4.0),lens=45,aspect=1.5)
     return v
 
 
-def render_file(path,out,width,samples,names=None,cameras=None):
+def render_file(path,out,width,samples,names=None,cameras=None,engine='CYCLES'):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     if path.suffix=='.blend':bpy.ops.wm.open_mainfile(filepath=str(path.resolve()))
     else:bpy.ops.import_scene.gltf(filepath=str(path.resolve()))
-    meta=json.loads(path.with_suffix('.json').read_text());cam=setup(samples,width)
+    meta=json.loads(path.with_suffix('.json').read_text())
+    light=next(iter(cameras.values())).get('light') if cameras else None
+    cam=setup(samples,width,light)
+    bpy.context.scene.render.engine=engine
+    from presentation import dress,match_context
+    dependencies=dress(meta,path.stem) if not cameras else match_context(meta,path.stem)
     shots=cameras or views(path.stem,meta);out.mkdir(parents=True,exist_ok=True)
     # Photo comparisons share a folder; retain the other fitted views when
     # this call renders one asset, and when a detail-only rerender is requested.
@@ -88,12 +103,29 @@ def render_file(path,out,width,samples,names=None,cameras=None):
     for name,shot in shots.items():
         if names and name not in names:continue
         sc=bpy.context.scene;shot=dict(shot)
+        if name=='dusk':
+            from presentation import dusk_lights
+            dusk_lights()
+            sky=next(n for n in sc.world.node_tree.nodes if n.type=='TEX_SKY');sky.sun_elevation=math.radians(-3)
+            sc.world.node_tree.nodes.get('Background').inputs['Strength'].default_value=.65
+            for ob in sc.objects:
+                if ob.type=='LIGHT' and ob.data.type=='SUN':ob.data.energy=0
+            for ma in bpy.data.materials:
+                if ma.name.startswith('Apartments_Trim') and ma.use_nodes:
+                    next(n for n in ma.node_tree.nodes if n.type=='BSDF_PRINCIPLED').inputs['Emission Strength'].default_value*=18
+            sc.view_settings.exposure=1.25
         if name in ('hero','ground') and not cameras:
             # Measure the ground under the clear camera station, then put the
             # eye 1.68 m above that actual surface rather than nominal grade.
             xy=shot['location'];bpy.context.view_layer.update()
-            hit,point,normal,face,obj,matrix=sc.ray_cast(bpy.context.evaluated_depsgraph_get(),Vector((xy[0],xy[1],100)),Vector((0,0,-1)))
-            assert hit and normal.z>.8,(path,name,'No ground under camera')
+            station=Vector((xy[0],xy[1],100));ground=None
+            for attempt in range(512):
+                hit,point,normal,face,obj,matrix=sc.ray_cast(bpy.context.evaluated_depsgraph_get(),station,Vector((0,0,-1)))
+                if not hit:break
+                if point.z<.5 and normal.z>.8:ground=point.copy();break
+                station=point-Vector((0,0,.004))
+            assert ground is not None,(path,name,'No walking surface under camera')
+            point=ground
             shot['location']=(xy[0],xy[1],point.z+1.68);shot['measured_ground_z_m']=point.z;shot['eye_height_m']=1.68
         cam.location=shot['location'];cam.rotation_euler=(Vector(shot['target'])-cam.location).to_track_quat('-Z','Y').to_euler()
         if shot.get('roll'):cam.rotation_euler.rotate_axis('Z',shot['roll'])
@@ -109,13 +141,13 @@ def render_file(path,out,width,samples,names=None,cameras=None):
             shot['inspection_fill_w']=120
         sc.render.filepath=str((out/(name+'.png')).resolve());bpy.context.view_layer.update();bpy.ops.render.render(write_still=True)
         if audit_light:bpy.data.objects.remove(audit_light,do_unlink=True)
-        records[name]=dict(source=str(path),source_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),camera=shot,engine='CYCLES',samples=samples)
+        records[name]=dict(source=str(path),source_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),camera=shot,light=light,context_dependencies=dependencies,engine=engine,samples=samples)
         provenance.write_text(json.dumps(records,indent=2))
     return records
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--source',type=Path);p.add_argument('--out',type=Path,default=Path('renders/checkpoint'));p.add_argument('--width',type=int,default=1200);p.add_argument('--samples',type=int,default=32);p.add_argument('--only',default='all');p.add_argument('--shots');p.add_argument('--camera-file',type=Path);p.add_argument('--source-pairs',action='store_true');a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
+    p=argparse.ArgumentParser();p.add_argument('--source',type=Path);p.add_argument('--out',type=Path,default=Path('renders/checkpoint'));p.add_argument('--width',type=int,default=1200);p.add_argument('--samples',type=int,default=32);p.add_argument('--only',default='all');p.add_argument('--shots');p.add_argument('--camera-file',type=Path);p.add_argument('--source-pairs',action='store_true');p.add_argument('--engine',default='CYCLES',choices=('CYCLES','BLENDER_EEVEE'));a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
     names=a.shots.split(',') if a.shots else None
     if a.camera_file:
         data=json.loads(a.camera_file.read_text())
@@ -127,7 +159,7 @@ def main():
     for path in paths:
         if a.only!='all' and path.stem!=a.only:continue
         allshots=views(path.stem,json.loads(path.with_suffix('.json').read_text()))
-        selected=names or ((['hero','above','ground','rear','entry','patios'] if path.stem.startswith('Row') else ['hero','above','ground','rear']) if not path.stem.startswith('Building') else ['stairs','balcony','meters'])
-        render_file(path,a.out/path.stem,a.width,a.samples,selected)
+        selected=names or ((['hero','above','ground','rear','entry','patios'] if path.stem.startswith('Row') else ['hero','above','ground','rear','dusk'] if path.stem=='Complex-301' else ['hero','above','ground','rear']) if not path.stem.startswith('Building') else ['stairs','balcony','meters','mansard'])
+        render_file(path,a.out/path.stem,a.width,a.samples,selected,engine=a.engine)
 
 if __name__=='__main__':main()

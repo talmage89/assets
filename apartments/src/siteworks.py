@@ -9,7 +9,17 @@ from context import instance
 
 
 def rectangle(m,x0,x1,y0,y1,z,role,col):
-    m.geom([(x0,y0,z),(x1,y0,z),(x1,y1,z),(x0,y1,z)],[(0,1,2,3)],role,col)
+    if x1<x0:x0,x1=x1,x0
+    if y1<y0:y0,y1=y1,y0
+    nx=max(1,math.ceil((x1-x0)/1.25));ny=max(1,math.ceil((y1-y0)/1.25))
+    # Shared vertices provide a continuous macro field; no patch edges or
+    # independent tile tints. Fine mineral relief stays in the Ground maps.
+    vs=[(x0+(x1-x0)*i/nx,y0+(y1-y0)*j/ny,z) for j in range(ny+1) for i in range(nx+1)]
+    fs=[]
+    for j in range(ny):
+        for i in range(nx):
+            a=j*(nx+1)+i;fs.append((a,a+1,a+nx+2,a+nx+1))
+    m.geom(vs,fs,role,col)
 
 
 def mailbox(a,p):
@@ -118,11 +128,7 @@ def make_complex(p):
         x,y=s['x'],s['y'];sy=1 if y>0 else -1
         for sx in (-1,1):ground.box((x+sx*4.5*FT,y, .007),(.09,18*FT,.008),'Trim',(.64,.62,.48),r=0)
         ground.box((x,y+sy*2.18,.09),(1.72,.15,.17),'Concrete',(.33,.32,.285),r=.016)
-        if rng.random()<.43:
-            # Oil remains under parked engine positions, never a uniform wash.
-            for k in range(3):
-                xx=x+rng.uniform(-.22,.22);yy=y+sy*.85+rng.uniform(-.18,.18)
-                ground.box((xx,yy,.004),(rng.uniform(.12,.32),rng.uniform(.22,.53),.003),'Trim',(.025,.027,.023),r=0)
+        rng.random()  # Preserve the deterministic placement sequence.
     # Main walk branches terminate on actual building walk sockets.
     for b in p['buildings']:
         for module in p['building']['modules']:
@@ -160,7 +166,7 @@ def make_complex(p):
         for yi,(y0,y1) in enumerate(zip(ys,ys[1:])):
             x,y=(x0+x1)/2,(y0+y1)/2
             if min(x1-x0,y1-y0)<.02 or any(l<x<r and b<y<t for l,r,b,t in excluded):continue
-            instance('ground',a.root,f'Native_lawn_{xi}_{yi}',(x0,y,-.185),select='Lawn_Field',scale=((x1-x0)/6.096,(y1-y0)/6.096,1))
+            rectangle(ground,x0,x1,y0,y1,-.008,'Siding',(.075,.115,.035))
     ground.finish()
     # Keep occupancy selective and leave sight lines to construction details.
     used=rng.sample(p['stalls'],min(16,len(p['stalls'])//3))
@@ -188,14 +194,17 @@ def make_complex(p):
 
 def row_site(p,a):
     width=p['count']*p['width']+12;d=p['depth'];m=a.mesh('Row_site',component='site')
-    rectangle(m,-width/2,width/2,-d/2-17,d/2+10,-.01,'Siding',(.075,.115,.035))
+    # Reserve the public street for the presentation's native Ground road.
+    # Turf must not cover its real crown; the row ships its private grounds.
+    road=-d/2-11.2
+    for lo,hi in ((-d/2-17,road-4.13),(road+4.13,d/2+10)):
+        rectangle(m,-width/2,width/2,lo,hi,-.01,'Siding',(.075,.115,.035))
     m.box((0,-d/2-6.3,.065),(width,1.524,.13),'Concrete',r=.002)
-    m.box((0,-d/2-11.2,-.02),(width,7.32,.12),'Shingles',(.065,.069,.064),r=0)
     for u in p['units']:
         x,y=u['x'],u['y'];dx=p['width']*.29 if p['garage'] else -p['width']*.29
         m.box((x+dx,-d/2-3+y/2,.066),(1.22,5+y,.13),'Concrete',r=.002)
         if p['garage']:
-            xx=x-p['width']*.16;front=-d/2-7.6;back=-d/2+y;top=p['base']+u['z']
+            xx=x-p['width']*.16;front=-d/2-7.6;back=-d/2+y-1;top=p['base']+u['z']
             m.prism([(xx-1.4,front,.03),(xx+1.4,front,.03),(xx+1.4,back,top),(xx-1.4,back,top)],(0,0,-1),.09,'Concrete')
         # Library privacy fences partition patios. Posts at true bay endpoints.
         if u['index']<p['count']-1:
@@ -208,7 +217,7 @@ def row_site(p,a):
         instance('tree',a.root,'Row_maple_'+str(j),(x,d/2+6,0),j*70)
     if p['garage']:
         for i in (1,4):
-            u=p['units'][i];slope=(p['base']+u['z']-.03)/(7.6+u['y']);zz=.03+slope*(7.6-3.25)
+            u=p['units'][i];slope=(p['base']+u['z']-.03)/(6.6+u['y']);zz=.03+slope*(7.6-3.25)
             rt=instance('car',a.root,'Driveway_vehicle_'+str(i),(u['x']-p['width']*.16,-d/2-3.25,zz),0)
             rt.rotation_euler.x=math.atan(slope)
     mailbox(a,(-width/2+2,-d/2-4,0))

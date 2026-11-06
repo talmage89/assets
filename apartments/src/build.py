@@ -1,4 +1,4 @@
-"""Build the complete form checkpoint, exporting stock external-image glTF."""
+"""Build the rental family with stock PBR and shared external-image glTF."""
 import argparse
 import json
 from pathlib import Path
@@ -62,8 +62,10 @@ def consolidate():
 
 def publish(stem,plan,root):
     clear_templates();bpy.context.view_layer.update()
+    from surfaces import apply
+    material_report=apply(plan)
     source=Path('build')/(stem+'.blend');source.parent.mkdir(parents=True,exist_ok=True)
-    summary=counts();summary['plan']=plan;summary['stage']='FORM CHECKPOINT / quick materials, not baked delivery'
+    summary=counts();summary['plan']=plan;summary['stage']='External PBR delivery / shared baked library maps';summary['surface_triangles']=material_report
     source.with_suffix('.json').write_text(json.dumps(summary,indent=2))
     bpy.ops.wm.save_as_mainfile(filepath=str(source.resolve()))
     consolidate();path=Path('export')/(stem+'.gltf');path.parent.mkdir(exist_ok=True)
@@ -74,6 +76,19 @@ def publish(stem,plan,root):
     d=json.loads(path.read_text());summary.update(gltf_bytes=path.stat().st_size,bin_bytes=sum((path.parent/b['uri']).stat().st_size for b in d['buffers']),
         images=[dict(uri=i['uri'],bytes=(path.parent/i['uri']).stat().st_size) for i in d.get('images',[])],
         pivots=sum('pivot_axis' in o or 'slide_axis' in o or 'motion_kind' in o for o in bpy.context.scene.objects),sockets=sum('socket_kind' in o for o in bpy.context.scene.objects))
+    # Keep original encoded image bytes, with canonical relative URIs. An
+    # engine can load each existing house/Ground/fence map once for the town.
+    import hashlib,os
+    repo=HERE.parents[1];known={}
+    for family in ('houses','ground','fences'):
+        for image in (repo/family/'textures').rglob('*.png'):
+            if any(q=='ship' or q.endswith('-ship') or q=='2k' for q in image.parts):known[hashlib.sha256(image.read_bytes()).hexdigest()]=image
+    for image in d.get('images',[]):
+        copied=path.parent/image['uri'];digest=hashlib.sha256(copied.read_bytes()).hexdigest()
+        if digest in known:image['uri']=Path(os.path.relpath(known[digest],path.parent)).as_posix()
+    path.write_text(json.dumps(d,separators=(',',':'))+'\n')
+    summary['gltf_bytes']=path.stat().st_size
+    summary['images']=[dict(uri=i['uri'],bytes=(path.parent/i['uri']).stat().st_size) for i in d.get('images',[])]
     summary['serialized_triangles']=sum(sum(d['accessors'][prim['indices']]['count']//3 for prim in d['meshes'][node['mesh']]['primitives']) for node in d['nodes'] if 'mesh' in node)
     assert summary['serialized_triangles']==summary['triangles'],(stem,summary['triangles'],summary['serialized_triangles'])
     path.with_suffix('.json').write_text(json.dumps(summary,indent=2));print('PUBLISHED',stem,summary['triangles'],flush=True)
@@ -86,10 +101,11 @@ def reset():
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--out',type=Path,default=Path('build/family.blend'));p.add_argument('--only',default='all');a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);report={}
-    garden_seeds=(int(a.only.rsplit('-',1)[1]),) if a.only.startswith(('Building-','Complex-')) else COMPLEX_SEEDS
+    garden_seeds=(int(a.only.rsplit('-',1)[1]),) if a.only.startswith(('Building-','Complex-')) else (*COMPLEX_SEEDS,305)
     row_seeds=(int(a.only.rsplit('-',1)[1]),) if a.only.startswith('Row-') else ROW_SEEDS
     for seed in garden_seeds:
         for mode in ('building','complex'):
+            if seed==305 and mode=='complex':continue
             stem=f'{mode.title()}-{seed}'
             if a.only!='all' and a.only!=stem:continue
             reset();plan=garden(seed) if mode=='building' else complex_plan(seed)
@@ -98,10 +114,15 @@ def main():
     for seed in row_seeds:
         stem='Row-'+str(seed)
         if a.only!='all' and a.only!=stem:continue
-        reset();plan=row(seed);obj=townhouse(plan);architecture=counts(obj.root);row_site(plan,obj);report[stem]=publish(stem,plan,obj.root)
-        report[stem]['architecture']=architecture
+        reset();plan=row(seed);obj=townhouse(plan);row_site(plan,obj);report[stem]=publish(stem,plan,obj.root)
+        architecture=[o for o in bpy.context.scene.objects if o.type=='MESH' and any('_Unit' in q.name for q in parent_chain(o))]
+        for ob in architecture:ob.data.calc_loop_triangles()
+        report[stem]['architecture']=dict(triangles=sum(len(o.data.loop_triangles) for o in architecture))
         Path('export',stem+'.json').write_text(json.dumps(report[stem],indent=2))
     a.out.parent.mkdir(parents=True,exist_ok=True);bpy.ops.wm.save_as_mainfile(filepath=str(a.out.resolve()))
     if a.only=='all':Path('build/family.json').write_text(json.dumps(report,indent=2))
+    used={(p.parent/i['uri']).resolve() for p in Path('export').glob('*.gltf') for i in json.loads(p.read_text()).get('images',[])}
+    for image in Path('export/shared').glob('*.png'):
+        if image.resolve() not in used:image.unlink()
 
 if __name__=='__main__':main()

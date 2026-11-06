@@ -6,6 +6,20 @@ import bpy
 from mathutils import Matrix
 from geometry import Assembly
 CACHE={}
+def ground_charts(ob):
+    """Rephase tiled minerals after placement/length changes; retain trim art."""
+    if ob.type!='MESH':return
+    if ob.data.users>1:ob.data=ob.data.copy()
+    uv=ob.data.uv_layers.active
+    if uv is None:return
+    for poly in ob.data.polygons:
+        name=ob.data.materials[poly.material_index].name
+        coverage=6.096 if name.startswith('Asphalt') else 3.048 if name.startswith(('Concrete','Lawn')) else None
+        if coverage is None:continue
+        n=ob.matrix_world.to_3x3()@poly.normal;axis=max(range(3),key=lambda k:abs(n[k]));axes=[k for k in range(3) if k!=axis]
+        for li in poly.loop_indices:
+            p=ob.matrix_world@ob.data.vertices[ob.data.loops[li].vertex_index].co
+            uv.data[li].uv=(p[axes[0]]/coverage,p[axes[1]]/coverage)
 def parent_chain(ob):
     out=[];p=ob.parent
     while p:out.append(p);p=p.parent
@@ -14,6 +28,13 @@ def parent_chain(ob):
 
 def load(kind):
     if kind in CACHE:return CACHE[kind]
+    canonical={'ground':'ground/export/Ground.glb','fence':'fences/export/WoodPrivacy.glb'}
+    if kind in canonical:
+        source=Path(__file__).resolve().parents[2]/canonical[kind]
+        before=set(bpy.context.scene.objects);bpy.ops.import_scene.gltf(filepath=str(source))
+        obs=sorted(set(bpy.context.scene.objects)-before,key=lambda o:o.name)
+        for ob in obs:ob.hide_render=True;ob.hide_set(True)
+        CACHE[kind]=obs;return obs
     p=Path('build/context')/kind/'source.blend'
     if kind=='ground':
         before=set(bpy.context.scene.objects);bpy.ops.import_scene.gltf(filepath=str(p.with_suffix('.glb').resolve()));obs=list(set(bpy.context.scene.objects)-before)
@@ -106,6 +127,11 @@ def load(kind):
 
 
 def instance(kind,parent,name,p,yaw=0,select=None,scale=(1,1,1)):
+    if kind in ('car','tree','shrub'):
+        # Presentation reservations are retained as empty placement frames.
+        # Cars and landscaping are imported only by the renderer, never ship.
+        rt=Assembly(name,parent=parent,loc=p,yaw=yaw).root;rt.scale=scale
+        rt['presentation_kind']=kind;return rt
     obs=load(kind)
     if select:
         roots=[o for o in obs if o.name.split('.')[0]==select]
@@ -134,6 +160,9 @@ def instance(kind,parent,name,p,yaw=0,select=None,scale=(1,1,1)):
             for child in ob.children:
                 child.matrix_basis=matrix@child.matrix_basis;apply_scale(child)
         apply_scale(rt)
+    if kind=='ground':
+        bpy.context.view_layer.update()
+        for ob in copies.values():ground_charts(ob)
     return rt
 
 

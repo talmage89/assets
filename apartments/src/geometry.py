@@ -53,7 +53,7 @@ class Assembly:
 def palette():
     # Quick materials, no look-dev. Same external diagnostic image for all roles.
     from PIL import Image
-    folder=Path('export/shared');folder.mkdir(parents=True,exist_ok=True)
+    folder=Path('build/diagnostic');folder.mkdir(parents=True,exist_ok=True)
     path=folder/'T_Apartments_FormWhite.png'
     if not path.exists():Image.new('RGB',(8,8),'white').save(path)
     image=bpy.data.images.load(str(path.resolve()),check_existing=True)

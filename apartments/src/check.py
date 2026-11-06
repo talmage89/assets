@@ -1,7 +1,7 @@
-"""Construction measurements, raw external glTF and fresh-import evidence.
+"""Construction, metric UV density, raw external PBR and fresh-import evidence.
 
-The form gate intentionally does not certify final texture density, bake loss,
-complete interiors, continuous collision safety or historical code compliance.
+Tiled/trim UV reuse is intentional. These checks do not certify full interiors,
+continuous whole-assembly collision safety or historical code compliance.
 """
 import hashlib
 import json
@@ -137,6 +137,29 @@ def source(path,stem):
         garage_open={o.name:np.array(o.matrix_world).tolist() for o in garage_nodes};pose(0)
         assert chord_error<1e-6 and ceiling_gap>.001
     obs=[o for o in bpy.context.scene.objects if o.type=='MESH']
+    form=[]
+    for wing in [o for o in bpy.context.scene.objects if o.get('access')]:
+        bays=sorted([o for o in wing.children if o.type=='MESH' and '__Facade_-1_bay' in o.name],key=lambda o:o.name)
+        planes=[min(v.co.y for v in ob.data.vertices) for ob in bays]
+        assert planes and np.ptp(planes)>=.60,(wing.name,planes)
+        row=dict(wing=wing.name,measured_front_planes_m=planes,measured_depth_range_m=float(np.ptp(planes)))
+        if wing.get('access')=='breezeway':
+            gallery=next(o for o in wing.children if o.type=='MESH' and o.get('component')=='gallery')
+            tree=BVHTree.FromPolygons([gallery.matrix_world@v.co for v in gallery.data.vertices],[f.vertices[:] for f in gallery.data.polygons])
+            probes=[]
+            for pivot in wing.children:
+                if pivot.get('pivot_axis')!='Z' or '__Unit_' not in pivot.name:continue
+                station=pivot.matrix_world@Vector((.4572,-.25,.1));hit=tree.ray_cast(station,Vector((0,0,-1)),.6)
+                assert hit[0] is not None,(pivot.name,'No gallery surface at the entry approach')
+                gap=pivot.matrix_world.translation.z-hit[0].z;assert -.002<=gap<=.05,(pivot.name,gap)
+                probes.append(dict(entry=pivot.name,gallery_surface_z_m=hit[0].z,hinge_to_surface_m=gap))
+            row['measured_gallery_entry_supports']=probes
+        roofs=[o for o in wing.children if o.type=='MESH' and o.get('component')=='roof' and o.name.endswith('__Roof')]
+        if roofs and max(v.co.z for v in roofs[0].data.vertices)-min(v.co.z for v in roofs[0].data.vertices)<4:
+            roof=roofs[0];height=max(v.co.z for v in roof.data.vertices)-min(v.co.z for v in roof.data.vertices)
+            assert height>2.7432,(roof.name,height)
+            row['measured_mansard_envelope_height_m']=height
+        form.append(row)
     siteparts={o.name:triangles([o]) for o in obs if o.get('component') in ('site','carport','gate') or 'Dumpster_lid_' in o.name or 'Welded dumpster skin' in o.name}
     for name,count in siteparts.items():
         if 'Cluster_mailbox' in name:assert count<=3000,(name,count)
@@ -147,7 +170,7 @@ def source(path,stem):
     if stem.startswith('Row'):
         architecture=[o for o in obs if any('_Unit' in a.name for a in parent_chain(o))]
     archtris=triangles(architecture)
-    report=dict(source_triangles=triangles(obs),architecture_triangles=archtris,stairs=stair_reports,
+    report=dict(source_triangles=triangles(obs),architecture_triangles=archtris,stairs=stair_reports,articulation=form,
                 service_passages=service_gaps,site_mesh_triangles=siteparts,sliding_panel_poses=slider_poses,garage_panel_poses=garage_poses,garage_chord_error_m=chord_error,garage_ceiling_gap_m=ceiling_gap if garage_nodes else None,garage_open_frames=garage_open,pivot_and_socket_count=len(pivots),leaf_casing_sampled_poses=motion_poses,motion_scope='Actual leaf/casing surfaces at 0–100 degrees in 10-degree increments, and slider/fixed sash surfaces at nine track positions; excludes other assemblies and continuous collision claims.',scope='Actual source mesh pan crowns; seven consecutive intervals per eight-riser flight. First-rise/landing/guard checks are separate design assertions, not inferred measurements.')
     return report,pivots,points()
 
@@ -158,9 +181,10 @@ def check(stem):
     d=external(path);doc=d.json
     assert len(d.binary)==doc['buffers'][0]['byteLength']
     allfiles=[path,path.with_suffix('.bin')]+[path.parent/i['uri'] for i in doc.get('images',[])]
+    allfiles=list({p.resolve():p for p in allfiles}.values())
     assert all(p.exists() and not p.is_symlink() for p in allfiles)
-    assert all(i['uri'].startswith('shared/') and 'bufferView' not in i for i in doc.get('images',[]))
-    runtime=0;normal_error=0;uv_zero=0;area_zero=0;rawrows=[];max_materials=0
+    assert all(not Path(i['uri']).is_absolute() and 'bufferView' not in i and (path.parent/i['uri']).resolve().is_relative_to(ROOT) for i in doc.get('images',[]))
+    runtime=0;normal_error=0;uv_zero=0;area_zero=0;rawrows=[];max_materials=0;density=[]
     # Count every mesh INSTANCE. Unique accessor counts alone hide instancing bugs.
     for ni,n in enumerate(doc['nodes']):
         if 'mesh' not in n:continue
@@ -173,6 +197,16 @@ def check(stem):
             xyz=v[ind];area=np.linalg.norm(np.cross(xyz[:,1]-xyz[:,0],xyz[:,2]-xyz[:,0]),axis=1)/2
             tc=uv[ind];du=tc[:,1]-tc[:,0];dv=tc[:,2]-tc[:,0];ua=abs(du[:,0]*dv[:,1]-du[:,1]*dv[:,0])/2
             area_zero+=int(np.sum(area<1e-12));uv_zero+=int(np.sum(ua<1e-14))
+            # Metric tiling/strip reuse intentionally overlaps UV space.
+            # Measure actual image dimensions and chart area, not a constant
+            # declared target. Glass has no map and is omitted.
+            ma=doc['materials'][q['material']];tex=ma.get('pbrMetallicRoughness',{}).get('baseColorTexture')
+            if tex:
+                from PIL import Image
+                im=doc['images'][doc['textures'][tex['index']]['source']]
+                iw,ih=Image.open(path.parent/im['uri']).size
+                ok=(area>1e-7)&(ua>1e-13)
+                density.extend(zip(np.sqrt(ua[ok]/area[ok]*iw*ih).tolist(),area[ok].tolist()))
             vv=v@xf[:3,:3].T+xf[:3,3];vv=vv[:,[0,2,1]]*np.array([1,-1,1]);rawrows.append(vv)
     assert runtime==physical['source_triangles']==meta['triangles'],(stem,runtime,physical['source_triangles'],meta['triangles'])
     assert normal_error<1e-4,(stem,normal_error)
@@ -214,12 +248,19 @@ def check(stem):
         for i,v in enumerate(source_xyz):reverse.insert(v,i)
         reverse.balance();import_error=max(import_error,max(reverse.find(v)[2] for v in imported_xyz))
         assert import_error<3e-5,(stem,import_error)
+    density.sort();dval=np.array([v for v,a in density]);da=np.cumsum([a for v,a in density]);da/=da[-1]
+    percentiles=np.interp([.05,.5,.95],da,dval).tolist()
+    assert percentiles[0]>40 and percentiles[2]<12000,(stem,percentiles)
+    from PIL import Image
+    images={str((path.parent/i['uri']).resolve()):Image.open(path.parent/i['uri']).size for i in doc.get('images',[])}
+    gpu_mib=sum(w*h*4/3/1024**2 for w,h in images.values())
     return dict(passed=True,physical=physical,runtime_triangles=runtime,unique_mesh_triangles=sum(doc['accessors'][q['indices']]['count']//3 for me in doc['meshes'] for q in me['primitives']),
                 materials=len(doc['materials']),images=len(doc.get('images',[])),normal_length_error=normal_error,
                 degenerate_triangles=area_zero,degenerate_metric_uvs=uv_zero,garage_open_import_frame_error=garage_pose_error if physical['garage_open_frames'] else None,pivot_frame_error=pivot_error,source_import_point_error_m=import_error if not stem.startswith('Complex') else None,
                 source_import_point_scope='Bidirectional nearest-vertex correspondence' if not stem.startswith('Complex') else 'Not measured for the whole site; forms are checked in standalone exports, with runtime counts and pivot/socket frames checked here.',
                 bytes=sum(p.stat().st_size for p in allfiles),files={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in allfiles},
-                uv_scope='Metric staging charts, intentional tiling; final trim strips and texel density await look-dev. Final trim charts/density await look-dev; staging charts must have positive area.')
+                density_area_weighted_p5_p50_p95_px_m=percentiles,gpu_mib_8bpp_full_mips=gpu_mib,draw_primitives=sum(len(doc['meshes'][n['mesh']]['primitives']) for n in doc['nodes'] if 'mesh' in n),
+                uv_scope='Intentional metric material tiling and trim-sheet reuse; UV0 areas and density measured on raw accessors. UV1 is the constant emission routing chart. Overlap across repeated tile/trim instances is intentional; no unique atlas packing is claimed.')
 
 
 def main():
@@ -231,7 +272,7 @@ def main():
         except (ValueError,AssertionError):bad+=1
     assert bad==4
     report=dict(plan_sweeps=1000,negative_controls=4,assets={})
-    for stem in [*[f'{kind}-{s}' for s in COMPLEX_SEEDS for kind in ('Building','Complex')],*[f'Row-{s}' for s in ROW_SEEDS]]:
+    for stem in [*[f'{kind}-{s}' for s in COMPLEX_SEEDS for kind in ('Building','Complex')],'Building-305',*[f'Row-{s}' for s in ROW_SEEDS]]:
         report['assets'][stem]=check(stem);print('PASS',stem,report['assets'][stem]['runtime_triangles'],flush=True)
         Path('build/check.json').write_text(json.dumps(report,indent=2))
     baseline=Path('build/preservation.json')
