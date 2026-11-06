@@ -8,15 +8,19 @@ import numpy as np
 import sys
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
 from kit.fonts import find_font
+sys.path.insert(0,str(Path(__file__).parent))
+from delivery import bundle_hash
 
 def audit_checkpoint(folder):
  """Verify the image evidence belongs to the current exported geometry."""
  expected={r:['across','above','rear'] for r in ('midwest','western','northeast','southern')}
- expected['midwest']+=['hero','storefront','window','cornice','corner','ghost','escape']
- expected['southern']+=['gallery'];views=[]
+ expected['midwest']+=['scale','dusk','awning','hero','storefront','window','cornice','corner','ghost','escape']
+ expected['southern']+=['gallery']
+ expected['northeast']+=['storefront'];views=[]
  def check(region,name,base):
   provenance=json.loads((base/region/'provenance.json').read_text())[name]
   source=Path(provenance['source']);assert provenance['sha256']==hashlib.sha256(source.read_bytes()).hexdigest(),(region,name,'stale export')
+  for bundle in provenance.get('bundles',[]):assert bundle_hash(Path(bundle['path']))==bundle['sha256'],(region,name,'stale image/buffer bundle')
   assert provenance['engine']=='CYCLES',(region,name,'checkpoint requires Cycles')
   path=base/region/(name+'.png')
   with Image.open(path) as im:im.verify()
@@ -30,12 +34,12 @@ def audit_checkpoint(folder):
   with Image.open(path) as im:im.verify()
   pairs.append(dict(path=str(path),residual_rms_pixels=camera['residual_rms_pixels'],lens_mm=camera['shot']['lens']))
  hero=check('midwest','hero',folder);cam=hero['camera'];plan=json.loads(Path('build/blocks/midwest/block.json').read_text())
- assert 35<=cam['lens']<=50 and abs(cam['location'][2]-1.68)<1e-6
+ assert 35<=cam['lens']<=50 and abs(cam['location'][2]-1.60)<1e-6
  assert -2*plan['walk']-plan['road_width']<=cam['location'][1]<=-plan['walk']-plan['road_width']
- assert {v['name'] for v in hero['context']}=={'pickup','crossover','hatchback','light','maple'}
+ assert {v['name'] for v in hero['context']}=={'pickup','crossover','hatchback','light','maple','house'}
  for item in hero['context']:assert hashlib.sha256(Path(item['path']).read_bytes()).hexdigest()==item['sha256']
  rgb=np.asarray(Image.open(folder/'midwest/hero.png').convert('RGB'));luma=rgb@np.asarray((.2126,.7152,.0722))
- report=dict(passed=True,views=views,pairs=pairs,hero_camera=cam,hero_display_luma_percentiles=dict(zip(('p01','p05','p50','p95','p99'),np.percentile(luma,[1,5,50,95,99]).tolist())),pixels_with_channel_255=int(np.any(rgb==255,axis=2).sum()),scope='Current exported quick-material geometry, camera and context provenance; PNG display values are not linear albedo measurements')
+ report=dict(passed=True,views=views,pairs=pairs,hero_camera=cam,hero_display_luma_percentiles=dict(zip(('p01','p05','p50','p95','p99'),np.percentile(luma,[1,5,50,95,99]).tolist())),pixels_with_channel_255=int(np.any(rgb==255,axis=2).sum()),scope='Current exported baked geometry, camera and context provenance; PNG display values are not linear albedo measurements')
  Path('build/render-check.json').write_text(json.dumps(report,indent=2)+'\n');print('RENDER AUDIT PASS',len(views),'Cycles views,',len(pairs),'photo pairs')
 
 def sheet(paths,out,columns=3,cell=520):
