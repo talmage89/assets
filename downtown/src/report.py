@@ -21,9 +21,9 @@ print('DELIVERY',json.dumps({k:v for k,v in report.items() if k not in ('buildin
 if a.readme:
  lines=['| Block / seed | Frontage m | Building triangles | glTF + bin bytes | Diagnostic GLB bytes |','| --- | ---: | ---: | ---: | ---: |']
  for r in blocks:lines.append(f"| {r['region']} / {r['seed']} | {r['width_m']:.3f} | {r['triangles']:,} | {r['geometry_bytes']:,} | {r['diagnostic_glb_bytes']:,} |")
- lines+=['','| Building | Lot ft | Stories | Parapet m | Triangles | Materials | glTF + bin bytes |','| --- | --- | ---: | ---: | ---: | ---: | ---: |']
+ lines+=['','| Building | Lot ft | Stories | Front datum m | Triangles | Materials | glTF + bin bytes |','| --- | --- | ---: | ---: | ---: | ---: | ---: |']
  for r in rows:lines.append(f"| {r['id']} | {r['lot_ft'][0]} × {r['lot_ft'][1]} | {r['stories']} | {r['height_m']:.3f} | {r['triangles']:,} | {r['materials']} | {r['gltf_bytes']+r['bin_bytes']:,} |")
  lines+=['','| Street piece | Triangles | glTF + bin bytes |','| --- | ---: | ---: |']
  for r in street:lines.append(f"| {r['region']} | {r['triangles']:,} | {r['geometry_bytes']:,} |")
- lines+=['',f"The 28 buildings total **{report['building_geometry_bytes']:,} bytes** of glTF/bin;",f"four street pieces total **{report['street_geometry_bytes']:,} bytes**. Eleven shared",f"images total **{report['shared_image_bytes']:,} bytes**. The deliverable family is",f"**{report['family_bytes']:,} bytes**, excluding diagnostic GLBs and presentation context."]
+ lines+=['','Front datums are authored parapet/cornice levels. Covers rise 45 mm above them;','seeded stepped rear parapets rise up to 480 mm farther. These are plan values,','not reported as independent height measurements.','',f"The 28 buildings total **{report['building_geometry_bytes']:,} bytes** of glTF/bin;",f"four street pieces total **{report['street_geometry_bytes']:,} bytes**. Eleven shared",f"images total **{report['shared_image_bytes']:,} bytes**. The deliverable family is",f"**{report['family_bytes']:,} bytes**, excluding diagnostic GLBs and presentation context."]
  path=Path('README.md');s=path.read_text();start=s.index('<!-- METRICS_START -->')+len('<!-- METRICS_START -->');end=s.index('<!-- METRICS_END -->');path.write_text(s[:start]+'\n'+'\n'.join(lines)+'\n'+s[end:])

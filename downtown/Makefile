@@ -13,9 +13,9 @@ BAKE_SIZE ?= 4096
 BAKE_SAMPLES ?= 8
 REGIONS := midwest western northeast southern
 MODEL := build/downtown.blend build/downtown.json $(foreach r,$(REGIONS),build/blocks/$(r)/block.blend build/blocks/$(r)/block.glb build/blocks/$(r)/block.json)
-SOURCE := $(addprefix src/,build.py plan.py building.py geometry.py graphics.py ornament.py surfaces.py age.py delivery.py)
+SOURCE := $(addprefix src/,build.py plan.py building.py geometry.py graphics.py ornament.py surfaces.py age.py delivery.py street.py)
 .PHONY: all refs bake model context check check-repo repeat check-repeat render matches review clean FORCE
-all: refs model context check render matches review
+all: refs model context check render matches
 build/parameters.txt: FORCE
 	@mkdir -p build $(TMPDIR)
 	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='size=$(BAKE_SIZE) samples=$(BAKE_SAMPLES)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
@@ -71,13 +71,15 @@ before:
 	$(KIT)/with_gpu.sh $(PYTHON) src/baseline.py --width $(WIDTH)
 crops: render matches before
 	$(PYTHON) src/proof_crops.py
-source-matches: model context build/cameras.json
+source-matches: renders/source-matches/.stamp
+renders/source-matches/.stamp: $(MODEL) build/cameras.json build/context/manifest.json build/context/blocks/.stamp src/render.py src/town.py build/render-parameters.txt
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source-look --camera-file build/cameras.json --out renders/source-matches --width $(WIDTH) --samples $(SAMPLES)
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/cameras.json --renders renders/source-matches/raw --out renders/source-matches
+	@touch $@
 all: crops source-matches
 .PHONY: eevee
 renders/eevee/.stamp: $(MODEL) build/context/manifest.json build/context/blocks/.stamp src/render.py src/town.py build/render-parameters.txt
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --region midwest --shots hero --out renders/eevee --engine BLENDER_EEVEE --width $(WIDTH)
 	@touch $@
 eevee: renders/eevee/.stamp
-all: eevee
+all: eevee review

@@ -53,7 +53,9 @@ def sheet(paths,out,columns=3,cell=520):
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--folder',default='renders/checkpoint');p.add_argument('--out');a=p.parse_args()
  if Path(a.folder)==Path('renders/checkpoint'):audit_checkpoint(Path(a.folder))
- files=sorted(Path(a.folder).glob('*/*.png'));sheet(files,a.out or a.folder+'/contact.jpg')
+ files=sorted(Path(a.folder).glob('*/*.png'))
+ if Path(a.folder)==Path('renders/checkpoint') and Path('renders/eevee/midwest/hero.png').exists():files.append(Path('renders/eevee/midwest/hero.png'))
+ sheet(files,a.out or a.folder+'/contact.jpg')
  if Path('renders/matches').exists():
   pairs=sorted(Path('renders/matches').glob('*-pair.jpg'))
   if pairs:sheet(pairs,'renders/matches/contact.jpg',1,1600)

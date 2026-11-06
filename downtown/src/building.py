@@ -73,7 +73,7 @@ class Building:
         if self.p['style']=='italianate' and not rear:
             O.hood(b,x,w,hi,rise,CREAM,pediment)
         elif rise:
-            # Wedge voussoirs; the UV follows the arch's rowlock axis.
+            # Wedge voussoirs with physically spaced mortar joints.
             n=13
             for j in range(n):
                 aa=j/n+.006;bb=(j+1)/n-.006

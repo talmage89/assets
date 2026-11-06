@@ -36,4 +36,4 @@ for path in sorted(Path('export').glob('*.gltf')):
     assert np.all(abs(ratios-expected)<.002),(path,ratios.min(),ratios.max())
  rows.append(dict(id=path.stem,triangles=ntri,density_px_m_p5_p50_p95=densities,minimum_region_guard_uv=minimum_guard))
 Path('build/chart-check.json').write_text(json.dumps(dict(passed=True,buildings=rows,brick_module_m=[.2032,.2032/3],scope='Actual raw areas/UVs, nondegenerate charts, guarded strip containment, vertical masonry phase. Repeated tile/trim charts are intentional, not a unique per-building unwrap.'),indent=2)+'\n')
-print('CHARTS PASS',len(rows),'buildings')
+print('CHARTS PASS',len(rows),'building/street deliveries')

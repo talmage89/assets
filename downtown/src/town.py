@@ -34,21 +34,29 @@ def setting(p,mats,append,rows,street):
  obs+=instance_block(src,(0,far,0),180,'Opposite block')
  obs+=instance_block(src,(W+road+2*walk,0,0),0,'Next block')
  obs+=instance_block(src,(W+road+2*walk,far,0),180,'Next opposite block')
+ # A second commercial street behind each alley closes the town's backdrop.
+ # Existing mesh data is instanced, so this adds no delivery geometry/maps.
+ for j,xx in enumerate((0,W+road+2*walk,-W-road-2*walk)):
+  obs+=instance_block(src,(xx,D+19,0),0,'Rear district '+str(j))
+  obs+=instance_block(src,(xx,far-D-19,0),180,'Far district '+str(j))
  root=pivot('Town setting',(0,0,0));b=Batch('Town streets',root,mats)
  b.box((80,-walk-road/2,-.203),(400,road,.095),'Roof',(.085,.086,.080))
  for lo,hi in ((-160,-W/2-2*walk-road),(W/2+2*walk+road,300)):
   for yy in (far+walk/2,-walk/2):b.box(((lo+hi)/2,yy,-.075),(hi-lo,walk,.15),'Mineral',(.43,.43,.41))
  for side in (-1,1):
   xx=side*(W/2+walk+road/2)
-  b.box((xx,25,-.206),(road,200,.095),'Roof',(.085,.086,.080))
-  for off in (-1,1):b.box((xx+off*(road/2+walk/2),25,-.077),(walk,200,.15),'Mineral',(.40,.40,.37))
+  b.box((xx,0,-.206),(road,420,.095),'Roof',(.085,.086,.080))
+  for off in (-1,1):b.box((xx+off*(road/2+walk/2),0,-.077),(walk,420,.15),'Mineral',(.40,.40,.37))
  # Neighborhood grades support the original house foundations at Z=0.
- for yy in (D+69.01,far-D-69.01):
-  b.box((45,yy,-.11),(360,100,.22),'Mineral',(.095,.13,.055))
- for yy in (D+12,far-D-12):
-  b.box((45,yy,-.203),(360,8,.095),'Roof',(.085,.086,.080))
- for yy in (D+17.5,far-D-17.5):
-  b.box((45,yy,-.075),(360,3,.15),'Mineral',(.43,.43,.41))
+ for yy in (D+156.01,far-D-156.01):
+  b.box((45,yy,-.11),(420,150,.22),'Mineral',(.095,.13,.055))
+ for yy in (D+74,far-D-74):
+  b.box((45,yy,-.203),(420,8,.095),'Roof',(.085,.086,.080))
+ for yy in (D+79.5,far-D-79.5):
+  b.box((45,yy,-.075),(420,3,.15),'Mineral',(.43,.43,.41))
+ for yy in (D+12,far-D-12):b.box((45,yy,-.203),(420,8,.095),'Roof',(.085,.086,.080))
+ for yy in (D+17.5,far-D-17.5):b.box((45,yy,-.075),(420,3,.15),'Mineral',(.43,.43,.41))
+ for yy in (D+65,far-D-65):b.box((45,yy,-.08),(420,7,.16),'Roof',(.083,.080,.071))
  # Things left by tenants: entry planters, crates and folding menu boards.
  for lot in p['lots']:
   if lot['index']%2:
@@ -77,10 +85,10 @@ def setting(p,mats,append,rows,street):
   obs+=append(rows['light'],(pos[0]+6,far+walk-.65,0),180)
  for i in range(11):
   xx=-W*1.4+i*26
-  obs+=append(rows['house'],(xx,D+28,0),0)
-  obs+=append(rows['maple'],(xx+11,D+19,0),i*31,.68)
-  obs+=append(rows['house'],(xx,far-D-28,0),180)
-  for yy in (D+52,far-D-52):obs+=append(rows['maple'],(xx+5,yy,0),i*53,.70+.04*(i%3))
+  obs+=append(rows['house'],(xx,D+90,0),0)
+  obs+=append(rows['maple'],(xx+11,D+82,0),i*31,.68)
+  obs+=append(rows['house'],(xx,far-D-90,0),180)
+  for yy in (D+114,far-D-114):obs+=append(rows['maple'],(xx+5,yy,0),i*53,.70+.04*(i%3))
  return obs
 
 

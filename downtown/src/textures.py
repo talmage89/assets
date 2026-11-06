@@ -62,7 +62,7 @@ def fields(role,n):
    elif strip==5:
     edge=np.minimum(y,.5-y);loss=(edge<.012)&(mid>.55);h+=.00006*(mid-.5)-.00018*loss;c*=1-.61*loss[:,:,None];rough[:]=.58;rough+=.20*loss
    elif strip==6:
-    cx=np.mod(x,.44)-.22;cy=y-.25;radius=np.sqrt((cx/.20)**2+(cy/.21)**2);theta=np.arctan2(cy,cx);relief=np.exp(-((radius-.67)/.10)**2)*(.75+.25*np.cos(theta*10));h+=.0018*relief;c*=.96+.04*relief[:,:,None]
+    cx=np.mod(x,.44)-.22;cy=y-.25;radius=np.sqrt((cx/.20)**2+(cy/.21)**2);theta=np.arctan2(cy,cx);relief=np.exp(-((radius-.67)/.10)**2)*(.75+.25*np.cos(theta*10));h+=.012*relief+.004*np.exp(-(radius/.23)**2);c*=.96+.04*relief[:,:,None]
    else:
     phase=np.mod(y,.025)/.025;groove=np.exp(-phase/.065);h=.0025*phase;c*=1-.25*groove[:,:,None];ao=1-.24*groove;rough[:]=.66
   for target,a in zip((color,height,orm),(c,h,np.stack((ao,rough,metal),2))):

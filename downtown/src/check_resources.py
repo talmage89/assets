@@ -6,6 +6,11 @@ ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
 bpy.ops.wm.read_factory_settings(use_empty=True);paths=sorted(Path('export').glob('*.gltf'));seen={};steps=[]
 assert len(paths)==32 and sum(p.stem.startswith('DowntownStreet_') for p in paths)==4
 for path in paths+[paths[0]]:
+ doc=json.loads(path.read_text())
+ for mat in doc['materials']:
+  if 'Downtown_Interior' in mat['name']:
+   assert mat['emissiveTexture'].get('texCoord',0)==1,'Lost independent room light chart'
+   assert mat['emissiveTexture']['index']==mat['pbrMetallicRoughness']['baseColorTexture']['index']
  bpy.ops.import_scene.gltf(filepath=str(path.resolve()));images=[im for im in bpy.data.images if im.source=='FILE' and im.filepath];lookup={}
  for im in images:
   key=str(Path(bpy.path.abspath(im.filepath)).resolve());assert key not in lookup,'Duplicate canonical image';lookup[key]=im
@@ -13,5 +18,5 @@ for path in paths+[paths[0]]:
   seen[key]=im.as_pointer()
  steps.append(dict(building=path.stem,image_datablocks=len(images)))
 assert len(seen)==11
-Path('build/resource-check.json').write_text(json.dumps(dict(passed=True,steps=steps,shared_images=11,rgba8_pixel_bytes=sum(im.size[0]*im.size[1]*4 for im in images),scope='Actual stock Blender import; engine compression/caching remains importer policy'),indent=2)+'\n')
+Path('build/resource-check.json').write_text(json.dumps(dict(passed=True,steps=steps,shared_images=11,rgba8_pixel_bytes=sum(im.size[0]*im.size[1]*4 for im in images),scope='Actual stock Blender import and serialized independent LightUV emission chart; engine compression/caching remains importer policy'),indent=2)+'\n')
 print('RESOURCE PASS',len(paths),'building/street deliveries plus repeat share exactly eleven canonical image datablocks')

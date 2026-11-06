@@ -18,6 +18,10 @@ def simple(name,col):
 def setup(samples,engine='CYCLES'):
  sc=bpy.context.scene;sc.render.engine=engine
  if engine=='BLENDER_WORKBENCH':sc.display.shading.color_type='VERTEX';sc.display.shading.light='STUDIO';sc.display.shading.show_shadows=True;sc.display.shading.show_cavity=True
+ if engine=='BLENDER_EEVEE':
+  sc.eevee.use_raytracing=True;sc.eevee.use_fast_gi=True;sc.eevee.taa_render_samples=64
+  for m in bpy.data.materials:
+   if m.use_nodes and any(n.type=='BSDF_PRINCIPLED' and (n.inputs['Transmission Weight'].is_linked or n.inputs['Transmission Weight'].default_value>0) for n in m.node_tree.nodes):m.use_raytrace_refraction=True;m.use_screen_refraction=True
  if engine=='CYCLES':gpu.enable();sc.cycles.samples=samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=8;sc.cycles.transparent_max_bounces=12
  sc.world=bpy.data.worlds.new('Procedural afternoon sky');sc.world.use_nodes=True;n=sc.world.node_tree.nodes;l=sc.world.node_tree.links;n.clear()
  sky=n.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_disc=False;sky.sun_elevation=math.radians(28);sky.sun_rotation=math.radians(235);sky.aerosol_density=.25
@@ -29,7 +33,7 @@ def setup(samples,engine='CYCLES'):
  camera.data.sensor_fit='HORIZONTAL';camera.data.sensor_width=36;camera.data.clip_end=2000;camera.data.clip_start=.03
  sc.render.image_settings.file_format='PNG';sc.render.image_settings.color_mode='RGB'
  from kit import model as G
- G.box('Presentation ground',(0,0,-.32),(2000,2000,.20),simple('Neutral grade',(.15,.16,.12)),0)
+ G.box('Presentation ground',(0,0,-.32),(2000,2000,.20),simple('Distant town ground',(.085,.12,.050)),0)
  return camera
 
 def source_materials():
@@ -186,7 +190,11 @@ def render_block(region,out,width,samples,selected=None,camera_file=None,engine=
  print('RENDERED',region,names,flush=True)
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--source',type=Path);p.add_argument('--out',type=Path,default=Path('renders/checkpoint'));p.add_argument('--region');p.add_argument('--width',type=int,default=1440);p.add_argument('--samples',type=int,default=32);p.add_argument('--shots');p.add_argument('--camera-file',type=Path);p.add_argument('--engine',default='CYCLES');p.add_argument('--source-look',action='store_true');p.add_argument('--with-matches',action='store_true');a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
- for region in ([a.region] if a.region else ['midwest','western','northeast','southern']):render_block(region,a.out,a.width,a.samples,a.shots,a.camera_file,a.engine,a.source_look)
+ regions=[a.region] if a.region else ['midwest','western','northeast','southern']
+ if a.camera_file:
+  requested={m['region'] for m in json.loads(a.camera_file.read_text()).values()}
+  regions=[r for r in regions if r in requested]
+ for region in regions:render_block(region,a.out,a.width,a.samples,a.shots,a.camera_file,a.engine,a.source_look)
 
  if a.with_matches:
   assert not a.camera_file

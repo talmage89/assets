@@ -1,4 +1,4 @@
-"""Serial fresh-process checks under one inherited shared lock."""
+"""Serial fresh-process checks; Make prevents overlapping local Blender jobs."""
 import subprocess,sys
 from pathlib import Path
 for script in ('check.py','check_resources.py','check_charts.py'):
