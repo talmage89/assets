@@ -3,19 +3,34 @@
   "source": "export/GasGrill.glb",
   "levels": [
     {
-      "ratio": 0.6,
-      "screen_height": 0.3
-    },
-    {
-      "ratio": 0.3,
-      "screen_height": 0.12,
-      "texture_size": 1024
+      "ratio": 0.4,
+      "screen_height": 0.3,
+      "rebake": true,
+      "texture_size": 2048
     },
     {
       "ratio": 0.15,
-      "screen_height": 0.045,
-      "texture_size": 512
+      "screen_height": 0.12,
+      "texture_size": 1024,
+      "rebake": true,
+      "static_shell": true
+    },
+    {
+      "ratio": 0.05,
+      "screen_height": 0.03,
+      "texture_size": 512,
+      "rebake": true,
+      "proxy": true,
+      "target_triangles": 1000,
+      "preserve_concavity": [
+        "Wheel*"
+      ],
+      "proxy_budget": 1800
     }
   ],
-  "drop_subpixel": true
+  "drop_subpixel": true,
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "render_samples": 128,
+  "silhouette_loss": 0.073
 }

@@ -247,23 +247,30 @@ quality reference. No additional tools or installations were required.
 <!-- LOD checkpoint: begin -->
 ## Additional LODs
 
-`make lod` builds additional glTF/BIN files under `export/lod/`; `make check-lod` independently checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
+`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/`; `make check-lod` checks them. The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.
 
-| Level | Triangles / target | Materials | Geometry bytes | PNG bytes | Total load bytes | GPU textures + mesh, MiB | Switch height / distance |
+| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU textures + mesh, MiB | Switch height / distance |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| LOD0 | 19,912 / — | 1 | 1,592,875 | 8,784,185 | 10,377,060 | 16.000 + 1.4974 | near |
-| LOD1 | 19,740 / 11,947 | 1 | 1,587,424 | 8,784,185 | 10,371,609 | 16.000 + 1.4933 | 30.0% / 3.26 m |
-| LOD2 | 19,714 / 5,974 | 1 | 1,585,156 | 2,674,965 | 4,260,121 | 4.000 + 1.4911 | 12.0% / 8.16 m |
-| LOD3 | 19,690 / 2,987 | 1 | 1,584,241 | 778,788 | 2,363,029 | 1.000 + 1.4903 | 4.5% / 21.75 m |
+| LOD0 | 19,912 / — | 1 / 12 | 1,592,875 | 8,784,185 | 10,377,060 | 16.000 + 1.4974 | near |
+| LOD1 | 8,462 / 7,965 | 1 / 9 | 622,257 | 3,399,619 | 4,021,876 | 16.000 + 0.5761 | 30.0% / 3.26 m |
+| LOD2 | 3,096 / 2,987 | 1 / 9 | 277,856 | 1,347,875 | 1,625,731 | 4.000 + 0.2476 | 12.0% / 8.16 m |
+| LOD3 | 1,796 / 1,000 | 1 / 1 | 125,465 | 316,843 | 442,308 | 1.000 + 0.1088 | 3.0% / 32.63 m |
 
-Distances are to the bound center at a 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. PNG storage is separate. Each row is a cold load; URI/content caching can share images across levels. Targets are aspirations: the achieved counts retain geometry when reduction fails seam, silhouette, shading or topology checks.
+Chain check: True; image check: True; normal check: True.
 
-Load the original and additional files as alternatives and explicitly configure Godot visibility ranges, Unity LODGroup renderers, or corresponding Unreal mesh/component LODs. A filename does not create an engine controller. Keep matching pivots in the same pose during switching. [Engine sources, thresholds, texture policy and limitations](../kit/LOD.md).
 
-All ordinary moving geometry, sockets, skins and their frames stay separate and retain their delivered data. No pilot merges moving parts into its body. Embedded original PNGs are extracted once for the additional near levels; the original GLB keeps its embedded copy. A distant texture set saves residency only when larger maps are unloaded or streamed.
+Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed textures with full mips plus raw accessor mesh bytes, before engine overhead. Each row is a cold load. Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.
 
-Native-pixel comparison strips, amplified differences and close views of every level: `renders/lod/`. The local `contact.jpg` indexes them; `metrics.json` records original/adjacent comparisons from three azimuths. Raw checks and immutable-input hashes: `export/lod/check.json` and `manifest.json`. Rejected component reductions: `build/lod/<source stem>/simplification.json`. [Two critique passes and the six-pilot sheet](../kit/LOD_REVIEW.md).
+Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. [Engine sources, pixel thresholds and texture policy](../kit/LOD.md).
+
+Near levels consolidate static parts by material and simplify moving parts while retaining names, pivots, sockets and animation data. LOD2 closes and simplifies static construction where configured. The final proxy merges all moving geometry in its rest pose: its retained transform names are placement/socket metadata, and cannot animate that shell. Keep an animatable level while an interaction pose differs from rest. New charts are baked from the immutable delivered maps and shaders. Larger maps must be released or streamed for distant residency savings.
+
+Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: `renders/lod/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/check.json` and `normals-vs-lod0.json`; per-level construction/pruning decisions: `build/lod/<source stem>/simplification.json` and manifest assembly receipts. [Critique, target misses and known failures](../kit/LOD_REVIEW.md).
 
 Shipped PNG dimensions: LOD0: 3 × 2048×2048; LOD1: 3 × 2048×2048; LOD2: 3 × 1024×1024; LOD3: 3 × 512×512.
+
+LOD1 separate moving meshes: `Knob_1Mesh`, `Knob_2Mesh`, `Knob_3Mesh`, `GreaseTrayMesh`, `HoseAssembly`, `LidMesh`, `Wheel_BackMesh`, `Wheel_FrontMesh`.
+
+LOD2 separate moving meshes: `Knob_1Mesh`, `Knob_2Mesh`, `Knob_3Mesh`, `GreaseTrayMesh`, `HoseAssembly`, `LidMesh`, `Wheel_BackMesh`, `Wheel_FrontMesh`.
 
 <!-- LOD checkpoint: end -->
