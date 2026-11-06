@@ -12,6 +12,8 @@ NAME_VARIANT ?= 0
 export NAME_VARIANT
 include ../kit/rules.mk
 MODEL_DEPS += $(KIT)/prop.py
+# Additional checkpoint scripts must not invalidate the approved STOP bake.
+MODEL_DEPS := $(filter-out src/set_%.py,$(MODEL_DEPS))
 .PHONY: variants
 build/name-variant.txt: FORCE
 	@python3 -c "from pathlib import Path; p=Path('$@'); s='$(NAME_VARIANT)'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
@@ -23,3 +25,17 @@ variants: build/finalized.blend build/textures.stamp
 check: check-assembly
 check-assembly: build/game-audit.blend
 	$(BP) --python $(KIT)/assembly.py -- --source $< --config $(CONFIG) --out build/assembly-check.json
+
+# Independent 2009-period expansion. The existing final targets above keep
+# their original dependencies and delivery bytes, STOP and blades included.
+.PHONY: set-model set-check set-checkpoint
+build/set/layout.json: src/set_graphics.py src/set_catalog.py
+	@mkdir -p build/set
+	$(PYTHON) src/set_graphics.py build/set
+export/set/RoadSigns.gltf build/set/Signs.blend build/set/manifest.json &: src/set_build.py src/set_catalog.py build/set/layout.json
+	$(BP) --python src/set_build.py -- --out build/set/Signs.blend
+set-model: export/set/RoadSigns.gltf
+set-check: set-model
+	$(BP) --python src/set_check.py
+set-checkpoint: set-check
+	$(MAKE) -C ../street-furniture render
