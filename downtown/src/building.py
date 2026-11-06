@@ -128,7 +128,7 @@ class Building:
         self.graphic(b,p['tenant'],(s0+s1)/2,-.105,h-.38,sw-.15,.47)
         # Slender iron/wood piers transmit the girder load to masonry plinths.
         for x in (.17,s0-.07,L-.17):
-            if p['storefront']=='iron':O.pilaster(b,x,.14,head,col)
+            if p['storefront']=='iron':O.pilaster(b,x,-.04,head,col)
             else:
                 b.box((x,.14,head/2),(.19,.34,head),'Finish',col)
                 b.box((x,.12,.21),(.30,.40,.42),'Mineral',STONE)
@@ -390,16 +390,17 @@ class Building:
     def old_neighbor(self,b,gx,crest):
         # Flush masonry charts: surviving lime parging, tar and softer interior
         # brick under the actual old gable. No new raised roof member.
+        from graphics import scar_rect
         col=self.p['brick'];b.surface='scar'
         for j in range(20):
             xa=gx-3.85+j*7.7/20;xc=xa+7.7/20
             za=3.2+(crest-3.2)*(1-abs(xa-gx)/3.85)
             zc=3.2+(crest-3.2)*(1-abs(xc-gx)/3.85)
             offset=.035*math.sin(j*2.71);drop=.16+.08*math.sin(j*1.9)**2
-            b.geom([(xa,-.003,za-drop),(xc,-.003,zc-drop),(xc,-.003,zc+.06+offset),(xa,-.003,za+.06-offset)],[(0,1,2,3)],'Mineral',(.26,.255,.22))
+            b.quad([(xa,-.003,za-drop),(xc,-.003,zc-drop),(xc,-.003,zc+.06+offset),(xa,-.003,za+.06-offset)],scar_rect('parging',j/20,(j+1)/20))
             width=.035+.035*(.5+.5*math.sin(j*2.8))
             if j%7!=4:
-                b.geom([(xa,-.005,za-width),(xc,-.005,zc-width*.6),(xc,-.005,zc+.015+offset*.3),(xa,-.005,za+.015)],[(0,1,2,3)],'Masonry',(.22+.03*(j%3),.26+.03*(j%3),.27+.03*(j%3)))
+                b.quad([(xa,-.005,za-width),(xc,-.005,zc-width*.6),(xc,-.005,zc+.015+offset*.3),(xa,-.005,za+.015)],scar_rect('tar',j/20,(j+1)/20))
         b.surface=None
 
     def roof(self):
@@ -495,8 +496,13 @@ class Building:
                 wall(b,L,p['height'],ops,.44,p['brick'])
                 landing=.30 if p['tenant']=='bank' else 0
                 self.door('CornerDoor',xf,L/2,.47,.018+landing,.96,2.35,IRON)
-                self.trimframe(b,L/2,.42,2.97,dw-.04,.45,IRON,.05,.085)
-                b.box((L/2,.46,2.97),(dw-.14,.004,.35),'Glass')
+                door_head=.018+landing+2.35;transom_low=door_head+.06
+                transom_h=3.20-transom_low;transom_z=(3.20+transom_low)/2
+                self.trimframe(b,L/2,.42,transom_z,dw,transom_h,IRON,.05,.085)
+                b.box((L/2,.46,transom_z),(dw-.10,.004,transom_h-.10),'Glass')
+                b.box((L/2,.43,door_head+.03),(dw,.12,.055),'Finish',IRON)
+                for xx in (lo+.03,hi-.03):
+                    b.box((xx,.40,landing+1.21),(.06,.08,2.40),'Finish',IRON)
                 for xx in (lo-.16,hi+.16):
                     O.molding(b,xx-.18,xx+.18,.05,.18,.16,'Mineral',STONE)
                     b.box((xx,.075,1.63),(.26,.47,2.92),'Mineral',STONE)

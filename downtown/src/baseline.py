@@ -28,7 +28,7 @@ if Path('build/context').exists():
  shutil.copytree('build/context',source/'build/context',dirs_exist_ok=True,ignore=shutil.ignore_patterns('blocks'))
 def run(cmd,label):
  with (out/(label+'.log')).open('w') as log:subprocess.run(cmd,cwd=source,stdout=log,stderr=subprocess.STDOUT,check=True)
-run(['make','model','context'],'build')
+run(['make','BLENDER='+str(ROOT/'downtown/src/blender.sh'),'model','context'],'build')
 for r,names in CASES.items():
  if r=='northeast':
   run([sys.executable,'src/matches.py'],'cameras')
@@ -38,4 +38,4 @@ for r,names in CASES.items():
  else:extra=[];folder='renders/checkpoint'
  run([str(ROOT/'kit/with_gpu.sh'),'blender','-b','--factory-startup','--python-exit-code','1','--python','src/render.py','--','--region',r,'--shots',','.join(names),'--out',folder,'--width',str(a.width),'--samples','32',*extra],r)
 assert all(f.exists() and Image.open(f).width==a.width for f in needed)
-print('BEFORE rebuilt accepted source, maps, exports and seven native views',REVISION)
+print('BEFORE rebuilt accepted source, maps, exports and eight native views',REVISION)

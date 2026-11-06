@@ -534,3 +534,79 @@ the horizontal crown profile. Expose both beneath and forward of the shelf.
 Keep the stamped acanthus in the existing finish normal strip. Regular brick,
 spare hood fields, dark simple iron capitals and repeated room goods still
 read as CG; these controls do not yet authorize docs.
+
+## Pass 17 — exposed scrolls and measurement-patch rejection
+
+Color and value first: inspected all seven native `renders/pass17/` exports,
+the dry Auburn paving crop with outlined measurement candidates, and the NPS
+sign photograph. The assumed neutrals remain the unpainted sunlit apron and
+the pale Louisiana hood fascia. A purported sunlit concrete measurement fell
+under a parked pickup; discard it. Clear ground candidates show that asphalt
+was too dark relative to concrete. Use the aged wearing-course value, retain
+darker fresh utility patches, and validate both camera and sun rays through
+the actual assembled town. Do not infer physical albedo from those display
+values or use the wet Louisiana pavement as a dry-road target.
+
+The newly exposed rolled modillions and bracket heads finally cast their own
+shadows under the crown. They are no longer just buried cages with a visible
+stem. Their economical profiles remain visibly faceted close up, and fine
+leaf detail is weaker than real cast ornament. Ghost paint has lost its field
+and most letters, with a broken flush flashing stain instead of a raised rod.
+Joist infill and protected interior-brick differences remain too weak. Add
+actual local infill tint and remnant lime parging along the scar, without the
+rejected regular isolated patches.
+
+## Pass 18 — iron close-up catches an embedded casting
+
+Color and value first: inspected all eight 1440 px `renders/pass18/` images,
+including the native full-height iron close-up. Lower-rail scuffing and the
+localized dark brick/sill weather are clearer; the maintained block still has
+more regular surfaces than the photographs. The paving calibration remains
+pending a current render: a SIGTERM stopped the Auburn run, so its old PNG
+must not be measured as the new surface. No stale measurement is accepted.
+
+The iron close-up is a rejection. It shows a maker plate and thin panel rails
+against masonry because the intended shaft is embedded behind the wall face.
+The original 140 mm placement put almost all of its oval section inside the
+brick. Move the casting forward to a real exposed pilaster; add an independent
+mid-shaft projection ray so a decorated masonry face cannot pass as iron.
+Retain the original replacement aluminum fronts. This fixes a construction
+mistake without adding triangles. The corner transom also needs a continuous
+head rail and jamb linings, with its height responding to the bank landing.
+
+The blue-hour pools now read on both road and walk, with deep intervals and
+blue ambient shadow between them. Glass shows warm goods and street/car
+reflections without the broad white presentation-light rectangles. The lower
+painted rails show localized abrasion, although the goods and their layout
+remain simplified. Roof patches, drains and copings must be judged again in
+the complete cold exported gallery. Docs remain withheld at this pass.
+
+## Pass 19 — exposed iron, eroded wall scar and clear pavement rays
+
+Color and value first: inspected the native `renders/gate/` iron, ghost and
+hero, `renders/gate2/midwest/ghost.png`, the current Auburn render, and both
+outlined paving images. The photographic neutrals remain the sunlit unpainted
+Auburn apron and Louisiana hood fascia. Clear sample centers pass camera rays
+bounded at the lens and unobstructed sun rays through the assembled scene.
+The earlier lamp-shadow concrete patch is discarded. Display Y′ is .479
+concrete versus .744 in the chosen sunlit photo slab, and .437 asphalt versus
+.553/.563/.557 in three photo patches. The render's used paving remains darker;
+these exposure diagnostics do not establish physical reflectance. Concrete
+actual base color stays mineral gray, with slab changes and located deposits.
+
+The exposed cast shaft now reads as a paneled pilaster over its molded base,
+with a cap carrying the beam and a foundry plate at the foot. It is still too
+dark in the awning's shade to show fine casting detail as well as the brightly
+painted Foster front, and the capital remains simplified. This is disclosed;
+the shaft is no longer masonry masquerading as an iron panel. The bank's
+actual 45-degree cut, separate transom, landing and return stone remain clear.
+
+The opaque parging control failed: its hard polygon boundary looked freshly
+applied. Replaced its coverage with original eroded alpha in a vacant band of
+the existing sign sheet, retaining material/image counts and triangles. The
+final ghost view now has a soft partial parging/tar remnant following the old
+slope, warmer protected interior brick, dark filled joist pockets and mostly
+lost field/letters. It reads as a wall's history rather than a new roof rod.
+The scroll/modillion silhouettes, glass depth layers, local paving repairs
+and dusk pools all show in the native controls. The full cold gallery and
+its roof/rear views still require review before any docs commit.

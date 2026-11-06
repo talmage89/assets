@@ -109,6 +109,13 @@ def audit(lot,row,do_motion=False):
  assert abs(measured_width-w)<.0001 and abs(measured_depth-d)<.0001 and abs(front_gauge-.44)<.0001,(lot['id'],measured_width,w,measured_depth,d,front_gauge)
  roofhit=ray(roof,(0,0,lot['height']+5),(0,0,-1));expected=lot['roof']-.03+.008*d/2;assert abs(roofhit.z-expected)<.001
  finish=tree(obs,'Finish');sx=-w*.20;sy=-d*.15;base_gaps=[];pane_gaps=[]
+ cast_projection=None
+ if lot['storefront']=='iron':
+  # A decorated front can still hide its entire shaft behind the masonry.
+  # Measure the casting at mid-height, clear of the base, sign and capital.
+  shaft=ray(finish,(w/2-.17,front-1,(lot['floor_first']-1.42)*.5),(0,1,0))
+  cast_projection=front-shaft.y
+  assert .14<cast_projection<.22,('cast shaft buried in masonry',lot['id'],cast_projection)
  for xx in (sx-.65,sx+.65):
   for yy in (sy-.8,sy,sy+.8):
    membrane=ray(roof,(xx,yy,lot['height']+2),(0,0,-1))
@@ -182,7 +189,7 @@ def audit(lot,row,do_motion=False):
  return dict(id=lot['id'],passed=True,triangles=tris,materials=len(doc['materials']),gltf_bytes=path.stat().st_size,bin_bytes=len(g.binary),
   normal_length_error=normal,zero_area_triangles=zero,zero_area_uvs=uv0,reimport_error_m=err,
   construction=dict(measured_masonry_width_m=measured_width,measured_masonry_depth_m=measured_depth,measured_front_gauge_m=front_gauge,measured_door_recess_m=recess,front_plane_error_m=front_error,measured_roof_center_z_m=roofhit.z),
-  corner_lobby_floor_z_m=corner_floor,corner_entry_steps=entry_steps,corner_chamfer=chamfer,roof_details=roof_details,stairs=stairs,motion=sweep,sha256=hashlib.sha256(path.read_bytes()+g.binary).hexdigest())
+  corner_lobby_floor_z_m=corner_floor,corner_entry_steps=entry_steps,corner_chamfer=chamfer,cast_shaft_projection_m=cast_projection,roof_details=roof_details,stairs=stairs,motion=sweep,sha256=hashlib.sha256(path.read_bytes()+g.binary).hexdigest())
 
 def main():
  rows=[];blocks=[];fixtures=membership_fixtures()

@@ -44,7 +44,16 @@ def generate(folder):
     alpha=surviving*np.where(letters,.43,.13)
     alpha[joints]*=.04;alpha[rr.random(xx.shape)<.32]=0
     alpha*=np.clip(np.minimum.reduce([xx,patch.shape[1]-1-xx,yy*4,(patch.shape[0]-1-yy)*4])/75,0,1)
-    patch[:,:,3]=(alpha*255).astype('uint8');im=Image.fromarray(arr)
+    patch[:,:,3]=(alpha*255).astype('uint8')
+    # Spare band below the tenant rows: eroded lime parging and tar residue.
+    # This is authored analytic coverage, never reference-photo pixels.
+    sy,sx=np.mgrid[:36,:2048];local=sx%1024
+    islands=np.clip((np.sin(local*.037+sy*.28)+np.sin(local*.093-sy*.17)+.35)*.55,0,1)
+    feather=np.exp(-((sy-18-3*np.sin(local*.021))/9)**2)
+    opacity=islands*feather*np.where(sx<1024,.42,.65)
+    opacity[rr.random(sx.shape)<.18]*=.12
+    arr[1056:1092,:,:3]=np.where((sx<1024)[:,:,None],np.array((157,150,132)),np.array((56,49,39)))
+    arr[1056:1092,:,3]=(opacity*255).astype('uint8');im=Image.fromarray(arr)
     layout['ghost']=(12/2048,1-2015/2048,2020/2048,1-y/2048)
     out=folder/'T_DowntownSigns_BaseColor.png';im.save(out)
     (folder/'layout.json').write_text(json.dumps(layout,indent=2)+'\n');return out,layout
@@ -52,3 +61,8 @@ def generate(folder):
 
 def maker_rect():
     return (12/2048,1-1800/2048,800/2048,1-1770/2048)
+
+
+def scar_rect(kind,u0,u1):
+    start=0 if kind=='parging' else .5
+    return (start+u0*.5,1-1092/2048,start+u1*.5,1-1056/2048)

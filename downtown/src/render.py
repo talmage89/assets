@@ -190,11 +190,25 @@ def render_block(region,out,width,samples,selected=None,camera_file=None,engine=
     camera.location=target+(camera.location-target)*1.035
    else:raise ValueError('Cannot frame the complete architecture')
    shot=dict(shot,location=list(camera.location),framing='actual imported bounds inside 5% horizontal / 7% vertical margins')
+  paving_rays={}
+  if name=='auburn_block':
+   from paving_values import QUADS
+   deps=bpy.context.evaluated_depsgraph_get()
+   sun=next(o for o in sc.objects if o.type=='LIGHT' and o.data.type=='SUN')
+   toward_sun=-(sun.rotation_euler.to_quaternion()@Vector((0,0,-1)))
+   for label,quad in QUADS.items():
+    pt=sum((Vector(v) for v in quad),Vector())/4+Vector((0,0,.003))
+    checks={}
+    for kind,direction in [('camera',(camera.location-pt).normalized()),('sun',toward_sun)]:
+     hit=sc.ray_cast(deps,pt,direction,distance=(camera.location-pt).length-.01 if kind=='camera' else 1000)
+     checks[kind]=dict(blocker=hit[4].name if hit[0] else None,distance_m=(hit[1]-pt).length if hit[0] else None)
+    paving_rays[label]=checks
   sc.render.filepath=str((out/(name+'.png')).resolve());bpy.ops.render.render(write_still=True)
   if camera_file:
    import shutil
    raw=out.parent/'raw';raw.mkdir(exist_ok=True);shutil.copyfile(out/(name+'.png'),raw/(name+'.png'))
   report[name]=dict(source=str(source),sha256=digest,source_look=source_look,stage=('Original 4096 material fields on exported mesh' if source_look else p['stage']),engine=engine,camera=shot,street_triangles=street['triangles'],street_bundle=dict(path=str(street_path),sha256=street_digest),bundles=[dict(path=r['source'],sha256=bundle_hash(Path(r['source']))) for r in p['buildings']],context=json.loads(manifest.read_text()) if context and manifest.exists() else [],context_visibility=dict(camera=shot.get('context',False),shadow=shot.get('context',False),glossy=True,opposite_foreground_cutaway=name=='across'),lighting=dict(exposure=sc.view_settings.exposure,sky_strength=next(n for n in sc.world.node_tree.nodes if n.type=='BACKGROUND').inputs[1].default_value,sun_energy=next(o for o in sc.objects if o.type=='LIGHT' and o.data.type=='SUN').data.energy))
+  if paving_rays:report[name]['paving_geometric_rays']=paving_rays
  old=json.loads((out/'provenance.json').read_text()) if (out/'provenance.json').exists() else {};old.update(report);(out/'provenance.json').write_text(json.dumps(old,indent=2)+'\n');assert hashlib.sha256(source.read_bytes()).hexdigest()==digest
  print('RENDERED',region,names,flush=True)
 if __name__=='__main__':

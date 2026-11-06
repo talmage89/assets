@@ -1,7 +1,7 @@
 # Shared-map PBR checkpoint; no docs images are published at this gate.
 .DEFAULT_GOAL := all
 .NOTPARALLEL:
-BLENDER ?= blender
+BLENDER ?= src/blender.sh
 PYTHON ?= python3
 KIT := $(abspath ../kit)
 BP := $(BLENDER) -b --factory-startup --python-exit-code 1
@@ -57,6 +57,7 @@ review: render matches
 	$(PYTHON) src/review.py
 	$(PYTHON) src/report.py
 	$(PYTHON) src/values.py
+	$(PYTHON) src/paving_values.py
 check-repo:
 	$(PYTHON) $(KIT)/repo_check.py
 check: model check-repo
@@ -85,3 +86,9 @@ renders/eevee/.stamp: $(MODEL) build/context/manifest.json build/context/blocks/
 	@touch $@
 eevee: renders/eevee/.stamp
 all: eevee review
+
+.PHONY: docs
+docs: review
+	$(PYTHON) src/docs.py
+
+all: docs

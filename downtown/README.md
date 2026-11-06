@@ -125,57 +125,57 @@ cache images by resolved URI so a town loads each map once.
 <!-- METRICS_START -->
 | Block / seed | Frontage m | Building triangles | glTF + bin bytes | Diagnostic GLB bytes |
 | --- | ---: | ---: | ---: | ---: |
-| midwest / 411 | 60.655 | 93,242 | 12,906,903 | 30,345,180 |
-| western / 512 | 58.826 | 69,034 | 9,575,892 | 27,023,716 |
-| northeast / 613 | 56.083 | 135,700 | 18,847,675 | 36,289,216 |
-| southern / 714 | 65.227 | 115,440 | 15,991,894 | 33,428,000 |
+| midwest / 411 | 60.655 | 95,278 | 13,217,831 | 30,345,532 |
+| western / 512 | 58.826 | 69,590 | 9,718,614 | 26,853,232 |
+| northeast / 613 | 56.083 | 135,168 | 18,828,210 | 35,956,544 |
+| southern / 714 | 65.227 | 121,620 | 16,942,431 | 34,065,328 |
 
 | Building | Lot ft | Stories | Front datum m | Triangles | Materials | glTF + bin bytes |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| Midwest_411_01 | 32 × 100 | 2 | 8.687 | 16,072 | 6 | 2,237,348 |
-| Midwest_411_02 | 27 × 110 | 2 | 8.992 | 14,362 | 6 | 1,971,662 |
-| Midwest_411_03 | 22 × 90 | 2 | 9.296 | 10,966 | 6 | 1,528,568 |
-| Midwest_411_04 | 27 × 90 | 1 | 4.877 | 4,800 | 5 | 662,256 |
-| Midwest_411_05 | 25 × 90 | 2 | 8.534 | 15,434 | 6 | 2,119,132 |
-| Midwest_411_06 | 30 × 90 | 2 | 8.382 | 13,502 | 6 | 1,869,701 |
-| Midwest_411_07 | 36 × 90 | 2 | 9.296 | 18,106 | 6 | 2,518,236 |
-| Western_512_01 | 36 × 100 | 2 | 8.382 | 23,926 | 6 | 3,361,693 |
-| Western_512_02 | 25 × 100 | 1 | 5.029 | 6,388 | 6 | 861,382 |
-| Western_512_03 | 28 × 100 | 1 | 5.334 | 5,026 | 6 | 687,402 |
-| Western_512_04 | 24 × 100 | 1 | 4.724 | 4,752 | 5 | 656,015 |
-| Western_512_05 | 24 × 90 | 1 | 5.944 | 6,142 | 6 | 830,410 |
-| Western_512_06 | 20 × 80 | 1 | 5.639 | 5,080 | 6 | 712,042 |
-| Western_512_07 | 36 × 80 | 2 | 8.992 | 17,720 | 6 | 2,466,948 |
-| Northeast_613_01 | 36 × 120 | 3 | 12.497 | 29,614 | 6 | 4,162,629 |
-| Northeast_613_02 | 20 × 120 | 2 | 8.839 | 14,466 | 6 | 1,985,302 |
-| Northeast_613_03 | 20 × 120 | 3 | 13.259 | 13,574 | 6 | 1,912,437 |
-| Northeast_613_04 | 26 × 100 | 3 | 12.497 | 18,050 | 6 | 2,468,644 |
-| Northeast_613_05 | 20 × 100 | 3 | 12.497 | 15,264 | 6 | 2,089,688 |
-| Northeast_613_06 | 26 × 140 | 3 | 13.259 | 15,398 | 6 | 2,145,931 |
-| Northeast_613_07 | 36 × 140 | 3 | 12.649 | 29,334 | 6 | 4,083,044 |
-| Southern_714_01 | 36 × 120 | 2 | 8.992 | 24,276 | 6 | 3,423,815 |
-| Southern_714_02 | 30 × 90 | 2 | 8.992 | 17,774 | 6 | 2,437,625 |
-| Southern_714_03 | 25 × 120 | 2 | 9.296 | 13,588 | 6 | 1,872,363 |
-| Southern_714_04 | 23 × 120 | 2 | 8.992 | 8,898 | 6 | 1,231,445 |
-| Southern_714_05 | 30 × 90 | 2 | 8.687 | 11,628 | 6 | 1,568,465 |
-| Southern_714_06 | 30 × 100 | 3 | 11.735 | 12,310 | 6 | 1,689,018 |
-| Southern_714_07 | 40 × 90 | 2 | 8.992 | 26,966 | 6 | 3,769,163 |
+| Midwest_411_01 | 32 × 100 | 2 | 8.687 | 15,980 | 6 | 2,237,398 |
+| Midwest_411_02 | 27 × 110 | 2 | 8.992 | 13,974 | 6 | 1,936,151 |
+| Midwest_411_03 | 22 × 90 | 2 | 9.296 | 11,878 | 6 | 1,646,309 |
+| Midwest_411_04 | 27 × 90 | 1 | 4.877 | 4,836 | 5 | 667,370 |
+| Midwest_411_05 | 25 × 90 | 2 | 8.534 | 16,322 | 6 | 2,245,499 |
+| Midwest_411_06 | 30 × 90 | 2 | 8.382 | 14,762 | 6 | 2,033,663 |
+| Midwest_411_07 | 36 × 90 | 2 | 9.296 | 17,526 | 6 | 2,451,441 |
+| Western_512_01 | 36 × 100 | 2 | 8.382 | 25,298 | 6 | 3,568,879 |
+| Western_512_02 | 25 × 100 | 1 | 5.029 | 6,144 | 6 | 843,873 |
+| Western_512_03 | 28 × 100 | 1 | 5.334 | 5,086 | 6 | 697,147 |
+| Western_512_04 | 24 × 100 | 1 | 4.724 | 4,788 | 5 | 661,129 |
+| Western_512_05 | 24 × 90 | 1 | 5.944 | 5,922 | 6 | 817,531 |
+| Western_512_06 | 20 × 80 | 1 | 5.639 | 5,140 | 6 | 721,380 |
+| Western_512_07 | 36 × 80 | 2 | 8.992 | 17,212 | 6 | 2,408,675 |
+| Northeast_613_01 | 36 × 120 | 3 | 12.497 | 27,978 | 6 | 3,943,152 |
+| Northeast_613_02 | 20 × 120 | 2 | 8.839 | 15,652 | 6 | 2,163,844 |
+| Northeast_613_03 | 20 × 120 | 3 | 13.259 | 14,354 | 6 | 2,015,854 |
+| Northeast_613_04 | 26 × 100 | 3 | 12.497 | 19,300 | 6 | 2,650,705 |
+| Northeast_613_05 | 20 × 100 | 3 | 12.497 | 14,944 | 6 | 2,061,249 |
+| Northeast_613_06 | 26 × 140 | 3 | 13.259 | 15,170 | 6 | 2,119,268 |
+| Northeast_613_07 | 36 × 140 | 3 | 12.649 | 27,770 | 6 | 3,874,138 |
+| Southern_714_01 | 36 × 120 | 2 | 8.992 | 25,512 | 6 | 3,621,889 |
+| Southern_714_02 | 30 × 90 | 2 | 8.992 | 18,714 | 6 | 2,574,096 |
+| Southern_714_03 | 25 × 120 | 2 | 9.296 | 15,238 | 6 | 2,106,825 |
+| Southern_714_04 | 23 × 120 | 2 | 8.992 | 9,360 | 6 | 1,303,581 |
+| Southern_714_05 | 30 × 90 | 2 | 8.687 | 11,212 | 6 | 1,532,242 |
+| Southern_714_06 | 30 × 100 | 3 | 11.735 | 12,058 | 6 | 1,658,946 |
+| Southern_714_07 | 40 × 90 | 2 | 8.992 | 29,526 | 6 | 4,144,852 |
 
 | Street piece | Triangles | glTF + bin bytes |
 | --- | ---: | ---: |
-| midwest | 5,368 | 768,448 |
-| western | 5,140 | 739,736 |
-| northeast | 5,380 | 770,151 |
-| southern | 6,376 | 915,877 |
+| midwest | 8,509 | 1,205,085 |
+| western | 8,230 | 1,169,061 |
+| northeast | 8,378 | 1,187,701 |
+| southern | 10,368 | 1,473,146 |
 
 Front datums are authored parapet/cornice levels. Covers rise 45 mm above them;
 seeded stepped rear parapets rise up to 480 mm farther. These are plan values,
 not reported as independent height measurements.
 
-The 28 buildings total **57,322,364 bytes** of glTF/bin;
-four street pieces total **3,194,212 bytes**. Eleven shared
-images total **17,475,265 bytes**. The deliverable family is
-**77,991,841 bytes**, excluding diagnostic GLBs and presentation context.
+The 28 buildings total **58,707,086 bytes** of glTF/bin;
+four street pieces total **5,034,993 bytes**. Eleven shared
+images total **17,162,063 bytes**. The deliverable family is
+**80,904,142 bytes**, excluding diagnostic GLBs and presentation context.
 <!-- METRICS_END -->
 
 There are five material states on small infills and six on the other buildings.
@@ -266,3 +266,17 @@ Remaining limitations and the final full-size verdict are recorded in
 still reveal the procedural construction. Eevee's approximate glass is less convincing than Cycles.
 There are no collision or LOD meshes,
 unique lightmap UVs, or complete interiors in this checkpoint.
+
+## Credits and scope
+
+[Reference credits](refs/SOURCES.md) identify the HABS/Library of Congress
+photographers, NPS authors, historic catalogs and district nominations, plus
+Michael Walter, Chris Light and Paul Sableman's color photographs. The new
+sign-weather reference is Michael J. Auer's NPS Brief 25, including Thomas C.
+Jester's photograph. References supply construction, dimensions and comparison;
+no photographed pixels enter a material or committed image.
+
+Installed DejaVu Serif/Sans use the open Bitstream Vera/DejaVu license. Tenant,
+bank, hotel and foundry names are fictional. Town context uses this library's
+original house, tree, street-light and parked-car generators for presentation.
+Every delivered vertex and texture pixel is generated by the family scripts.
