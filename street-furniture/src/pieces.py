@@ -211,13 +211,21 @@ def meter_head(rt,x,z,expired=False,name='Meter'):
     cutter=G.profile('Meter die arched opening',window,-.14,-.010,F.M,axis='Y');cutter.location=(x,0,z+.385);G.boolean(shell,cutter);G.apply(shell)
     cutter=G.box('Vault service opening',(x,-.085,z+.10),(.114,.11,.174),F.M,.048,4);G.apply(cutter);G.boolean(shell,cutter);G.apply(shell)
     # Booleans reset UVs; restore the quick palette swatch.
-    F.own(shell,rt,'Aluminum')
+    F.own(shell,rt,'Aluminum');G.smooth(shell,35)
     backing=profile(name+' instrument well',window,-.018,-.014,rt,'Inside','Y');backing.location=(x,0,z+.385)
     quad(name+' minutes dial','meter',x,-.021,z+.382,.170,.095,rt)
     if expired:quad(name+' expired flag','expired',x,-.024,z+.360,.145,.026,rt)
     else:
         o=box(name+' clock hand',(x+.013,-.026,z+.38),(.004,.003,.046),rt,'Red',.001);o.rotation_euler.y=-.5
-    pane=F.own(G.profile(name+' curved dome window',window,-.054,-.051,F.GLASS,axis='Y'),rt,'White');pane.location=(x,0,z+.385)
+    # Shallow compound dome: a raised center rather than a flat extruded pane.
+    # One fan retains the head's budget; a high source/normal will refine it.
+    n=len(window)
+    vertices=[(x+u,-.054,z+.385+v) for u,v in window]+[(x,-.061,z+.385)]
+    vertices += [(x+u,-.051,z+.385+v) for u,v in window]
+    faces=[(i,(i+1)%n,n) for i in range(n)]
+    faces += [(i,n+1+i,n+1+(i+1)%n,(i+1)%n) for i in range(n)]
+    faces += [tuple(reversed(range(n+1,2*n+1)))]
+    F.own(G.smooth(G.mesh(name+' compound dome window',vertices,faces,F.GLASS),45),rt,'White')
     # A die-cast retaining bezel seats the real dome and covers the cut edge.
     # Its inner/outer lips are explicit; this is not a painted outline.
     loops=[]

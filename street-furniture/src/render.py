@@ -21,7 +21,7 @@ def bundle(path):
 
 def load(path):
     before=set(bpy.context.scene.objects);bpy.ops.import_scene.gltf(filepath=str(path.resolve()));added=set(bpy.context.scene.objects)-before
-    return {o.name:o for o in added if o.parent not in added},added
+    return {o.name:o for o in sorted(added,key=lambda o:o.name) if o.parent not in added},added
 
 def material(n,c,rough=.8):
     m=bpy.data.materials.new(n);m.use_nodes=True;p=m.node_tree.nodes.get('Principled BSDF');p.inputs['Base Color'].default_value=(*c,1);p.inputs['Roughness'].default_value=rough;return m
@@ -78,18 +78,25 @@ def context(receipts):
         for k in range(3):
             # Three native sidewalk panels make a broad transit furnishing zone
             # and leave an uninterrupted 1.524m route behind the shelter.
-            tile('Sidewalk_A',(x, .1524+k*1.524,-.1524),90,scale=(1,2,1))
+            tile('Sidewalk_A',(x, .1524+k*1.524,-.1524+k*.01524),90,scale=(1,2,1))
         tile('Lawn_Strip',(x,-8.382,-.1524),270)
         tile('Sidewalk_A',(x,-10.2108,-.1524),270,scale=(1,2,1))
+    # Native lawn skins meet the full transit walk and support the neighborhood
+    # foundations; no world-background void is left beneath the houses.
+    for j in range(-3,14):
+        for k in range(5):
+            tile('Lawn_Field',(j*6.096,4.7244+k*6.096,-.12192+k*.024384),90)
+            tile('Lawn_Field',(j*6.096,-11.7348-k*6.096,-.1524+k*.024384),270)
     for ob in obs:bpy.data.objects.remove(ob,do_unlink=True)
     for rel,positions in [('houses/export/HearthfieldCape-31.gltf',[(-12,-22,0),(21,-22,0),(49,-22,0),(18,16,0)]),('houses/export/HearthfieldRanch-11.gltf',[(7,-23,0),(37,-23,0),(42,17,0)])]:
         path=ROOT/rel;receipt=bundle(path);lib,objs=load(path);receipts.append(receipt)
         for i,p in enumerate(positions):
-            carrier=G.pivot('Presentation house',p);carrier.rotation_euler.z=math.pi if p[1]<0 else 0
+            position=(p[0],p[1],.04572+.004*(p[1]-4.7244)) if p[1]>0 else p
+            carrier=G.pivot('Presentation house',position);carrier.rotation_euler.z=math.pi if p[1]<0 else 0
             for r in lib.values():
                 placed=place(lib,r.name,tuple(r.location),0,True);placed.parent=carrier
         for o in objs:bpy.data.objects.remove(o,do_unlink=True)
-    for rel,positions in [('cars/export/AlderC150.glb',[(10,-1.3,-.11),(24,-1.3,-.11),(-12,-6.7,-.11)]),('cars/export/AlderH120.glb',[(0,-6.7,-.11),(16,-6.7,-.11)])]:
+    for rel,positions in [('cars/export/AlderC150.glb',[(18,-1.3,-.11),(-12,-6.7,-.11)]),('cars/export/AlderH120.glb',[(28,-1.3,-.11),(0,-6.7,-.11),(16,-6.7,-.11)])]:
         path=ROOT/rel;lib,objs=load(path);receipts.append(bundle(path))
         for p in positions:
             carrier=G.pivot('Presentation parked car',p);carrier.rotation_euler.z=math.pi/2
@@ -106,6 +113,7 @@ SHOTS={
     'sign-face':dict(keys=['RoadSign_speed30large'],location=(.50,-1.7,2.8),target=(0,-.03,2.59),lens=58,aspect=1),
     'sign-back':dict(keys=['RoadSign_speed30large'],location=(.7,1.4,2.7),target=(0,0,2.57),lens=60,aspect=1),
     'post-base':dict(keys=['RoadSign_schoolSpeed'],location=(.24,-.37,.23),target=(0,0,.07),lens=48,aspect=1),
+    'pole-band':dict(keys=['RoadSign_PoleBandBracket'],location=(.65,-1.1,.75),target=(0,0,.35),lens=56,aspect=1),
     'shelter-frame':dict(keys=['Shelter'],location=(-4.4,-5.5,2.8),target=(0,0,1.45),lens=49,aspect=1.5),
     'bench':dict(keys=['Bench'],location=(2.1,-2.8,1.27),target=(0,0,.40),lens=58,aspect=1.5),
     'meter':dict(keys=['MeterSingle','MeterTwin'],location=(.8,-2.35,1.6),target=(.30,0,1.32),lens=62,aspect=1.3),
@@ -122,8 +130,10 @@ def build_shot(name,shot,match=False,source=Path('export/StreetFurniture.gltf'))
     if name=='hero':
         keep=['Shelter','BusStop','MeterSingle','MeterTwin','NewsDaily','NewsPedestal','NewsWeekly','BikeRackRow','Litter','Recycling','CollectionBox','RoadSign_noParkingL','RoadSign_speed30','RoadSign_pedestrian']
         visible(lib,keep)
-        placements=[('Shelter',(3,1.60,0),0),('BusStop',(.4,.75,0),0),('MeterSingle',(10,.65,0),180),('MeterTwin',(16,.65,0),180),('NewsDaily',(-.9,.55,0),-12),('NewsPedestal',(-1.55,.60,0),3),('NewsWeekly',(-2.2,.63,0),6),('BikeRackRow',(7,1.35,0),90),('Litter',(5.65,.65,0),0),('Recycling',(6.5,.65,0),0),('CollectionBox',(21,.75,0),0),('RoadSign_noParkingL',(12,.65,0),0),('RoadSign_speed30',(24,.65,0),270),('RoadSign_pedestrian',(31,.65,0),278)]
-        for k,p,y in placements:place(lib,k,p,y)
+        placements=[('Shelter',(3,1.60,0),0),('BusStop',(.4,.75,0),0),('MeterSingle',(10,.65,0),0),('MeterTwin',(16,.65,0),0),('NewsDaily',(-.9,.55,0),-12),('NewsPedestal',(-1.55,.60,0),3),('NewsWeekly',(-2.2,.63,0),6),('BikeRackRow',(7,1.35,0),90),('Litter',(5.65,.65,0),0),('Recycling',(6.5,.65,0),0),('CollectionBox',(21,.75,0),0),('RoadSign_noParkingL',(12,.65,0),0),('RoadSign_speed30',(24,.65,0),270),('RoadSign_pedestrian',(31,.65,0),278)]
+        for k,p,y in placements:
+            if k=='BikeRackRow':p=(9.5,1.35,0)
+            grade=.01*(p[1]-.1524);place(lib,k,(p[0],p[1],grade),y)
         place(lib,'MeterSingle',(22,.65,0),180,True);place(lib,'MeterTwin',(28,.65,0),180,True)
         context(receipts);setlight(True)
     elif name=='lineup':
@@ -143,6 +153,8 @@ def build_shot(name,shot,match=False,source=Path('export/StreetFurniture.gltf'))
     else:
         keys=shot['keys'];visible(lib,keys)
         for j,k in enumerate(keys):place(lib,k,(j*(.65 if name=='meter' else .75 if name=='boxes' else .90),0,0))
+        if name=='pole-band':
+            G.cylinder('Illustrative .320m host pole',(0,0,0),(0,0,.78),.16,material('Host pole',(.22,.23,.21)),32)
         setlight(shade=match)
     if name!='hero':G.box('Neutral review ground',(8,2,-.016),(140,140,.03),material('Review ground',(.25,.26,.235)),0)
     camera(shot['location'],shot['target'],shot.get('lens',45),shot.get('ortho'),shot.get('roll',0));bpy.context.view_layer.update()

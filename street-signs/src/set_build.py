@@ -129,10 +129,10 @@ def main():
         current['lowest_plate_m']=2.1336;current['face_keys']=spec['faces'];current['installation_offset_m']=.6096
     current=G.pivot('RoadSign_PoleBandBracket',(14.4,4.6,0));current['static_root']=True;roots.append(current)
     for z in (.15,.55):
-        pts=[(.16*math.sin(i*math.tau/24),.16*math.cos(i*math.tau/24),z) for i in range(25)]
-        # Rectangular stainless band, no pole is part of this reusable fitting.
-        for j in range(24):
-            p,q=Vector(pts[j]),Vector(pts[j+1]);ob=box('19mm stainless band',(p+q)/2,((p-q).length,.001,.019));ob.rotation_euler.z=math.atan2(q.y-p.y,q.x-p.x)
+        # Closed 1mm strip; independent short chords would sink into a host
+        # cylinder and appear as disconnected tabs. Inner clearance also
+        # accounts for the polygonal chord, not just vertex radii.
+        own(G.lathe('19mm continuous stainless band',[(z-.0095,.161),(z+.0095,.161),(z+.0095,.162),(z-.0095,.162)],mat,32,closed=True))
         box('Band sign rail',(0,-.169,z),(.070,.018,.060));bolt('Band tension screw',.028,-.180,z)
     for rt in roots:
         obs=[o for o in rt.children_recursive if o.type=='MESH']
@@ -142,9 +142,19 @@ def main():
         bpy.context.view_layer.objects.active=obs[0];bpy.ops.object.join();merged=obs[0];merged.name=rt.name+'_Mesh'
         tr=merged.modifiers.new('Triangle delivery','TRIANGULATE');G.apply(merged);merged.data.calc_loop_triangles()
         if rt.get('impact_bend_degrees'):
+            # Joining retains the active child's origin. Deform in the module
+            # footprint frame, not that arbitrary carriage-head/label frame.
+            bpy.context.view_layer.update()
+            to_root=rt.matrix_world.inverted()@merged.matrix_world;from_root=to_root.inverted()
             hinge=Vector((0,0,.35));rotation=Matrix.Rotation(math.radians(rt['impact_bend_degrees']),3,'Y')
+            displacements=[]
             for v in merged.data.vertices:
-                if v.co.z>.35:v.co=hinge+rotation@(v.co-hinge)
+                point=to_root@v.co
+                if point.z>.35:
+                    bent=hinge+rotation@(point-hinge);v.co=from_root@bent
+                    displacements.append((to_root@v.co-point).length)
+            rt['measured_max_bend_displacement_m']=max(displacements)
+            assert .12<max(displacements)<.15,displacements
             merged.data.update()
         bpy.context.view_layer.update();points=[rt.matrix_world.inverted()@merged.matrix_world@v.co for v in merged.data.vertices]
         records[rt.name]=dict(triangles=len(merged.data.loop_triangles),bounds_m=[[min(p[k] for p in points) for k in range(3)],[max(p[k] for p in points) for k in range(3)]],post=rt.get('post_type','band'),faces=list(rt.get('face_keys',[])))

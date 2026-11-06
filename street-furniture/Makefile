@@ -8,7 +8,7 @@ CHECKPOINT_CHECK = $(BP) --python src/check.py
 CHECKPOINT_REVIEW = $(PYTHON) src/review.py --folder renders/checkpoint
 CHECKPOINT_DEPS := $(wildcard src/*.py) build/graphics.json ../street-signs/export/set/RoadSigns.gltf
 CHECKPOINT_RENDER_ARGS := --source export/StreetFurniture.gltf
-CHECKPOINT_RENDER_OUTPUTS := renders/checkpoint/hero.png renders/checkpoint/lineup.png renders/checkpoint/signs-regulatory.png renders/checkpoint/signs-warning.png renders/checkpoint/sign-face.png renders/checkpoint/sign-back.png renders/checkpoint/post-base.png renders/checkpoint/shelter-frame.png renders/checkpoint/bench.png renders/checkpoint/meter.png renders/checkpoint/boxes.png renders/checkpoint/collection.png renders/checkpoint/receptacles.png
+CHECKPOINT_RENDER_OUTPUTS := $(addprefix renders/checkpoint/,$(addsuffix .png,hero lineup signs-regulatory signs-warning sign-face sign-back post-base pole-band shelter-frame bench meter boxes collection receptacles rack))
 include ../kit/checkpoint_rules.mk
 .PHONY: signs match repeat
 repeat: model
