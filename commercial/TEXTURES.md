@@ -84,3 +84,66 @@ traffic around the pad. Fixed sunlit-floor masks compare coverage and contrast
 against both used-paving photographs (`src/hero_review.py`). These are
 projected appearance measurements, with annotated exclusions and disclosed
 thresholds, rather than surveyed stain areas or recovered albedos.
+mpact scuffs and exposed-steel rust, coping/fascia runoff, low
+masonry salts, and south-facing paint fading. Broad low-frequency age uses
+stock COLOR_0; manufacture stays in the maps. No whole-station unique atlas,
+uniform noise wash or scattered wall peeling is introduced.
+
+Maintained beds instance **Boxwood** from `shrubs/export/Shrubs.glb`: two shared
+meshes, three existing 2048 maps (**16 MiB**, reused once). Public planting and
+neighboring presentation lawns also reuse Ground's existing lawn triple
+(**16 MiB**). These are existing stock families, not new commercial sets.
+A standalone fully landscaped station references 39⅔ + 48 ground + 16 shrubs
+= **103⅔ MiB** across all wall alternatives. A neighborhood already loading
+ground and shrubs still adds only **39⅔ MiB** for commercial. Neighboring
+houses/trees used only for presentation are excluded from the station export.
+
+
+## Strip-center delivery
+
+Strip manufacture uses the gas delivery's unchanged CMU, brick, EIFS, roof,
+concrete and equipment maps, plus canonical Ground asphalt/lawn, Boxwood
+and (for seed 202) HouseShingles. Seed palettes tint the delivered vertices;
+no shared image is repainted. Foreground products use equipment package
+cells. There is no new interior texture set.
+
+The only new allocation is **StripSigns: 2048² RGBA color + 1024² RGB
+emission, 6⅔ MiB** at 8 bpp with full mips. It replaces gas graphics for this
+type. The guarded sheet carries fascia/tower/pylon ink, south-facing faded
+panels, illustrated trade offers, glass vinyl, hours, OPEN tubing, vacancy
+paper, menu/cooler/product fronts, addresses, retained deposits and fixtures.
+All pixels come from original drawings, installed open fonts and the family's
+own generated deposit charts. UV0 selects color/coverage; UV1 selects radiance
+or a zero-emission swatch. The 16-bit normalized emission retains low sign
+outputs beside bright diffusers under one shared emissive-strength scalar.
+
+| Allocation | GPU memory, full mips |
+| --- | ---: |
+| All strip commercial wall alternatives, including StripSigns | 33 MiB |
+| Existing Ground asphalt + lawn | 32 MiB |
+| Existing Boxwood triple | 16 MiB |
+| Family with all wall alternatives, no mansard | 81 MiB |
+| Existing HouseShingles triple, only mansard | +16 MiB |
+| Actual seed 201 / 202 / 203 / 204 referenced maps | 79⅓ / 92⅓ / 76 / 79⅓ MiB |
+
+These are compressed GPU estimates, not PNG, decoded Blender, or geometry
+bytes. A neighborhood already loading the common families adds only
+6⅔ MiB for strip art. Canonical external URIs let four centers and a repeated
+default share the same **30 decoded image identities**, independently checked
+on fresh imports. Refer to STRIP.md for exact geometry/image bytes.
+
+There are nine material states, or ten for the mansard's additional existing
+shingle surface. The fixed building consolidates to six material primitives,
+or seven with shingles, with actual door leaves separate. Paving/deposits join
+by material; pylon, poles, yard and containers remain independently reusable.
+The source blend retains the individual bay/end/tower modules. Actual exported
+primitives per building and whole seed are reported in STRIP.md, rather than
+calling a material-state count the draw-call count.
+
+The strip value correction retains the exact Ground asphalt images but applies
+a darker COLOR_0 wearing course and **scalar roughness .96 / metallic 0**.
+The original ORM remains connected for occlusion; the strip overrides its
+roughness channel without generating a replacement image. Dry, dark sealant
+shares this asphalt material. All other families retain their original material
+responses and bytes. `renders/strip/values/` records measured exported inputs,
+same-light swatches, photo sunlit-value patches and native hero before/after.
