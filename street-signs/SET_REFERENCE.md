@@ -45,11 +45,11 @@ overall width. The channel wall outline is authored; its measured polygon
 area is sized for the weight class using 7850 kg/m³ steel, not presented as
 a certified structural section. Indicated post holes are 9.525 mm at 25.4 mm
 pitch; normal/color detail is planned at delivery. The 25 mph U-post has an
-authored 3° impact bend at .350 m. A separate pair of 19 mm steel bands grips
+authored 3° impact bend at .350 m. The fresh import measures 2.9996° by a fit to the exposed post perforations; its damaged lower sheet edge consequently dips below nominal. A separate pair of 19 mm steel bands grips
 a nominal .320 m host pole; the host pole is not included.
 
 2009 §2A.18 requires 7 ft in these pedestrian/commercial locations, measured
-from curb/sidewalk grade. Every assembly's lowest plate starts at **2.1336 m**;
+from curb/sidewalk grade. Every straight assembly's lowest plate starts at **2.1336 m**;
 the related lower plaque is not lowered into a pedestrian path. §2A.19 allows
 reduced urban offsets, including 1 ft where width is limited. The example
 uses a .650 m post-center curb offset (not a universal minimum), leaving
@@ -68,3 +68,44 @@ at 30 m, particularly oblique. These are projection estimates, not a game
 camera/antialiasing guarantee. A full mip chain at 8-bpp compression costs
 **5⅓ MiB**, shared once for the entire addition; the old 4 MiB atlas remains
 its own unchanged allocation.
+
+
+## Checkpoint export budgets
+
+All counts below include the support, blank(s) and mounting fasteners. One
+quick shared material and one external 2048² image per module. The bracket
+is the reusable band fitting alone. Counts are measured on fresh imports.
+
+| Module | Triangles | Materials |
+| --- | ---: | ---: |
+| speed20 | 446 | 1 |
+| speed25 | 628 | 1 |
+| speed30 | 648 | 1 |
+| speed35 | 446 | 1 |
+| speed45 | 604 | 1 |
+| speed30large | 658 | 1 |
+| speed45large | 446 | 1 |
+| yield | 614 | 1 |
+| onewayR | 618 | 1 |
+| onewayL | 446 | 1 |
+| onewayVertical | 604 | 1 |
+| doNotEnter | 648 | 1 |
+| noParkingL | 446 | 1 |
+| noParkingR | 584 | 1 |
+| noParkingBoth | 628 | 1 |
+| parkingTime | 446 | 1 |
+| noTurnRed | 446 | 1 |
+| curve | 446 | 1 |
+| stopAhead | 616 | 1 |
+| schoolSpeed | 1,400 | 1 |
+| parkingWithTimePlate | 796 | 1 |
+| pedestrian | 994 | 1 |
+| pedestrianYellow | 796 | 1 |
+| schoolCrossing | 1,000 | 1 |
+| PoleBandBracket | 712 | 1 |
+
+The inspection library contains 16,116 triangles. Individual modules range
+from 446 to 1,400, within the 1,500 ceiling. Its library glTF/BIN are
+52,746 / 1,210,272 bytes and its shared PNG is 506,267 bytes at this checkpoint.
+Individual glTFs sit beside `RoadSigns.gltf`, reuse its external image URI,
+and have their support-foot origin at zero. Disk bytes are not GPU memory.

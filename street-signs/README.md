@@ -64,3 +64,10 @@ standard-font substitute. Reference photos/PDFs are external, credited in
 Final delivery: **568 triangles**, **912,484 byte GLB**, **1 material**. Selected atlas coverage **34.67%**, zero measured UV overlap; all four variants pass re-import and contain identical texture bytes. `make`, `make check`, `make variants`, and the four independent variant checks pass. Physical support checks pass; saddle/blade sampled clearances are 0.10 mm.
 
 Standalone GLBs embed identical maps for portability. Reuse the shared material/textures across imported variants to retain the 4 MiB family memory cost.
+
+The independent **2009-period regulatory/warning form checkpoint** is documented
+in [SET_REFERENCE.md](SET_REFERENCE.md) and [SET_REVIEW.md](SET_REVIEW.md).
+`make set-model` / `make set-check` build its additional external-image glTFs
+under `export/set/`; the earlier final pipeline and deliveries above are unchanged.
+The full streetscape checkpoint is rebuilt in
+[street-furniture](../street-furniture/README.md).

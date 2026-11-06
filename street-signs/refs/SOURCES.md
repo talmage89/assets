@@ -19,7 +19,7 @@ never imported, converted or traced into asset geometry or textures.
 | shs-warning.pdf | https://mutcd.fhwa.dot.gov/SHSe/Warning.pdf | FHWA SHS 2004; US federal work | W1-2 pp. 2-3/4; W3-1 p. 2-20; W11-2 p. 2-92 / symbol p. 6-10; W16-7P p. 2-126. Standard colors, blank dimensions, border and symbol proportions. |
 | shs-school.pdf | https://mutcd.fhwa.dot.gov/SHSe/School.pdf | FHWA SHS 2004; US federal work | S1-1 p. 5-1, S4-1 p. 5-3, S4-3 p. 5-5. The 2009 MUTCD's required FYG supersedes older optional-color text. |
 | shs-standards.pdf | https://mutcd.fhwa.dot.gov/SHSe/Standards.pdf | FHWA SHS 2004; US federal work | Blank corner/edge and mounting conventions; actual .080 in gauge is a procurement choice, not a MUTCD-required alloy/gauge. |
-| shs-alphabets.pdf | https://mutcd.fhwa.dot.gov/SHSe/Alphabets.pdf | FHWA SHS 2004; US federal work | Series C/D/E cap-height/width comparison. Open DejaVu Sans Condensed Bold is independently rasterized and fitted to the published line widths, not an exact Highway Gothic reproduction. |
+| shs-alphabets.pdf | https://mutcd.fhwa.dot.gov/SHSe/Alphabets.pdf | FHWA SHS 2004; US federal work | Series C/D/E cap-height/width comparison. Open DejaVu Sans Condensed / Book is independently rasterized and fitted to the published line widths, not an exact Highway Gothic reproduction. |
 | shs-2012.pdf | https://mutcd.fhwa.dot.gov/SHSe/shs_2004_2012_sup.pdf | FHWA SHS 2012 Supplement; US federal work | Revised R2-1 sheet, 1 March 2012: 24 × 30 and 30 × 36 in, 4E/10E and 5E/12E legends, .375/.5 in border and 1.5/1.875 in corners. |
 
 Hardware/construction sources read online:
