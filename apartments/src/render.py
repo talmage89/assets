@@ -50,7 +50,7 @@ def views(stem,meta):
         v=dict(hero=dict(location=(x-21,-12,1.68),target=(x+2,y,4.1),lens=40,aspect=1.78),
                above=dict(location=(W*1.02,-D*1.20,max(W,D)*1.12),target=(0,0,1.8),lens=43,aspect=1.55),
                ground=dict(location=(x-28,y-36,1.68),target=(x+5,y,3.6),lens=35,aspect=1.65),
-               rear=dict(location=(W*.65,D*.76,15),target=(0,8,3.5),lens=40,aspect=1.65))
+               rear=dict(location=(W*.45,D*.42,12),target=(0,18,3.5),lens=35,aspect=1.65))
         v['dusk']=dict(v['hero'])
     elif stem.startswith('Row'):
         w,d=p['width'],p['depth'];total=p['count']*w
@@ -95,6 +95,18 @@ def render_file(path,out,width,samples,names=None,cameras=None,engine='CYCLES'):
     bpy.context.scene.render.engine=engine
     from presentation import dress,match_context
     dependencies=dress(meta,path.stem) if not cameras else match_context(meta,path.stem)
+    if engine=='BLENDER_EEVEE':
+        sc=bpy.context.scene;sc.eevee.use_raytracing=True
+        sc.eevee.ray_tracing_options.resolution_scale='1';sc.eevee.ray_tracing_options.screen_trace_quality=.75
+        for ma in bpy.data.materials:
+            pp=next((n for n in ma.node_tree.nodes if n.type=='BSDF_PRINCIPLED'),None) if ma.use_nodes else None
+            ma.use_raytrace_refraction=bool(pp and pp.inputs['Transmission Weight'].default_value>0);ma.thickness_mode='SLAB'
+            if ma.use_raytrace_refraction:
+                # Use the modeled 12 mm glazing pocket, rather than deriving
+                # thickness from the entire joined building's bounds.
+                gauge=ma.node_tree.nodes.new('ShaderNodeValue');gauge.outputs[0].default_value=.012
+                output=next(n for n in ma.node_tree.nodes if n.type=='OUTPUT_MATERIAL')
+                ma.node_tree.links.new(gauge.outputs[0],output.inputs['Thickness'])
     shots=cameras or views(path.stem,meta);out.mkdir(parents=True,exist_ok=True)
     # Photo comparisons share a folder; retain the other fitted views when
     # this call renders one asset, and when a detail-only rerender is requested.
@@ -103,6 +115,18 @@ def render_file(path,out,width,samples,names=None,cameras=None,engine='CYCLES'):
     for name,shot in shots.items():
         if names and name not in names:continue
         sc=bpy.context.scene;shot=dict(shot)
+        if not cameras:
+            for ob in sc.objects:
+                if ob.type=='LIGHT' and ob.data.type=='SUN':ob.rotation_euler=Vector((-.65,-.80,-.75) if name in ('rear','patios') else (.65,.80,-.75)).to_track_quat('-Z','Y').to_euler()
+            if name in ('rear','patios'):shot['inspection_sun_direction']=(-.65,-.80,-.75)
+        hidden=[]
+        if not cameras:
+            for rt in sc.objects:
+                if rt.get('presentation_family')!='trees':continue
+                if math.hypot(rt.location.x-shot['location'][0],rt.location.y-shot['location'][1])>=10:continue
+                for ob in rt.children_recursive:
+                    if not ob.hide_render:ob.hide_render=True;hidden.append(ob)
+            shot['camera_clearance_hidden_tree_objects']=[o.name for o in hidden]
         if name=='dusk':
             from presentation import dusk_lights
             dusk_lights()
@@ -134,13 +158,14 @@ def render_file(path,out,width,samples,names=None,cameras=None,engine='CYCLES'):
         if name=='meters' or name=='stairs' and meta['plan'].get('access') in ('enclosed','open'):
             # Temporary studio inspection fill makes dark covered construction
             # readable. It is not part of the asset, hero or photographic pairs.
-            ld=bpy.data.lights.new('Inspection softbox','AREA');ld.energy=120;ld.shape='DISK';ld.size=1.5
+            ld=bpy.data.lights.new('Inspection softbox','AREA');ld.energy=400 if name=='stairs' else 120;ld.shape='DISK';ld.size=1.5
             audit_light=bpy.data.objects.new(ld.name,ld);sc.collection.objects.link(audit_light)
             audit_light.location=cam.location+Vector((0,0,.45))
             audit_light.rotation_euler=(Vector(shot['target'])-audit_light.location).to_track_quat('-Z','Y').to_euler()
-            shot['inspection_fill_w']=120
+            shot['inspection_fill_w']=ld.energy
         sc.render.filepath=str((out/(name+'.png')).resolve());bpy.context.view_layer.update();bpy.ops.render.render(write_still=True)
         if audit_light:bpy.data.objects.remove(audit_light,do_unlink=True)
+        for ob in hidden:ob.hide_render=False
         records[name]=dict(source=str(path),source_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),camera=shot,light=light,context_dependencies=dependencies,engine=engine,samples=samples)
         provenance.write_text(json.dumps(records,indent=2))
     return records

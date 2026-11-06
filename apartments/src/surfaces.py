@@ -12,7 +12,7 @@ from geometry import ROLES
 from kit.tiling import material
 
 SPECS={'Siding':('HouseSiding',Path('../houses/textures/ship'),2.4384),
-       'Shingles':('HouseShingles',Path('../houses/textures/ship'),4.8768),
+       'Shingles':('RanchRoof',Path('../houses/textures/ranch-ship'),4.8768),
        'Veneer':('RanchBrick_red',Path('../houses/textures/ranch-ship'),1.2192),
        'Concrete':('ApartmentsConcrete',Path('textures/ship'),3.048),
        'Trim':('HouseTrim',Path('../houses/textures/ship'),4.)}
@@ -170,6 +170,10 @@ def apply(plan):
                     # its region rather than squeezing the whole object.
                     strip=4 if component in ('window','occupancy','label') else 0
                     if max(c)<.12:strip=0
+                    if component=='roof' and abs(n.z)>.9 and max(colors[vi][:3])<=.15:
+                        # Rough dark membrane on the flat top, rather than a
+                        # whole-roof specular reflection from painted trim.
+                        strip=3;c*=.55
                     u=p[axes[0]]/4;v=(strip+.08+.84*(p[axes[1]]-lo)/max(.5,hi-lo))/8
                     if max(abs(colors[vi][k]-q) for k,q in enumerate((.29,.30,.28)))<.008:
                         # Bare aluminum occupies the metallic tail of the

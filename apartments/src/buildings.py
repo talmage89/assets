@@ -307,8 +307,9 @@ def townhouse(p,name='Townhouses',parent=None,materials=None):
         if p['garage']:openings.append(dict(x=-w*.16,w=2.54,h=2.16,z=1.08))
         else:openings.append(dict(x=wx,w=2.1844,h=1.37,z=1.48))
         for xx in ((-w*.19,w*.29) if p['garage'] else (-w*.26,w*.22)):
-            openings.append(dict(x=xx,w=1.27,h=1.37,z=fh+1.43))
-            window(unit,f'Upper_{i}_{xx}',(xx,-d/2-.03-(1.0 if p['garage'] and xx<0 else 0),base+fh+1.43),1.22,1.32,seed=p['seed']+i,replacement=u['window_replaced'],vinyl=p['era']>=1995,reveal=.45 if p['roof']=='mansard' else 0)
+            wz=1.16 if p['garage'] and xx>0 else 1.43
+            openings.append(dict(x=xx,w=1.27,h=1.37,z=fh+wz))
+            window(unit,f'Upper_{i}_{xx}',(xx,-d/2-.03-(1.0 if p['garage'] and xx<0 else 0),base+fh+wz),1.22,1.32,seed=p['seed']+i,replacement=u['window_replaced'],vinyl=p['era']>=1995,reveal=.45 if p['roof']=='mansard' else 0)
             if p['garage']:
                 trim=unit.mesh('Shutters_'+str(xx),component='shutters')
                 if xx<0:
@@ -317,7 +318,7 @@ def townhouse(p,name='Townhouses',parent=None,materials=None):
                 else:
                     # Fanlight over the stair sash: authored curved extrusion
                     # and radial muntins, with a real half-round wall opening.
-                    cy=-d/2-.04;cz=base+fh+2.09
+                    cy=-d/2-.04;cz=base+fh+1.82
                     pts=[(xx+.61*math.cos(k*math.pi/16),cy,cz+.61*math.sin(k*math.pi/16)) for k in range(17)]
                     trim.tube(pts,.027,'Trim',unit.colors['Trim'],sides=6)
                     trim.prism([(xx,cy+.03,cz),*[(v[0],cy+.03,v[2]) for v in pts]],(0,1,0),.008,'Glass',(.94,.95,.94))
@@ -325,7 +326,7 @@ def townhouse(p,name='Townhouses',parent=None,materials=None):
                     for sx in (-1,1):
                         arc=[(xx+sx*.635*math.cos(k*math.pi/32),cy+.04,cz+.635*math.sin(k*math.pi/32)) for k in range(17)]
                         trim.prism([*arc,(xx,cy+.04,cz+.66),(xx+sx*.635,cy+.04,cz+.66)],(0,1,0),.254,'Siding')
-                    openings.append(dict(x=xx,w=1.27,h=.66,z=fh+2.42))
+                    openings.append(dict(x=xx,w=1.27,h=.66,z=fh+2.15))
                 trim.finish()
             upper.append(dict(x=xx,w=1.27,h=1.37,z=base+fh+1.43,side=-1))
         if p['garage']:

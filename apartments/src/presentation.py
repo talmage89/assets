@@ -11,6 +11,10 @@ class Library:
  def load(self,path):
   path=Path(path)
   if path in self.cache:return self.cache[path]
+  # Match the houses' source/context import accommodation: the source tile
+  # writer has a minimal AO group; the 5.2 importer needs its full interface.
+  group=bpy.data.node_groups.get('glTF Material Output')
+  if group and not any(q.name=='Iridescence Factor' for q in group.interface.items_tree):group.name='ApartmentsSource_Occlusion'
   before=set(bpy.context.scene.objects);bpy.ops.import_scene.gltf(filepath=str(path.resolve()))
   objects=list(set(bpy.context.scene.objects)-before);bpy.context.view_layer.update()
   if path.parent.parent.name=='cars':
@@ -37,7 +41,7 @@ class Library:
    if anchor is None:raise ValueError((str(path),select,[o.name for o in objects if o.parent not in objects]))
    selected=[anchor,*anchor.children_recursive];base=anchor.matrix_world.inverted()
   root=bpy.data.objects.new(name,None);bpy.context.collection.objects.link(root)
-  root.location=p;root.rotation_euler.z=math.radians(yaw);root.scale=scale;root['presentation_only']=True
+  root.location=p;root.rotation_euler.z=math.radians(yaw);root.scale=scale;root['presentation_only']=True;root['presentation_family']=path.parent.parent.name
   copies={o:o.copy() for o in selected}
   for ob,cp in copies.items():
    bpy.context.collection.objects.link(cp);cp.name=name+'__'+ob.name;cp.parent=copies.get(ob.parent,root)
@@ -104,6 +108,10 @@ def dress(meta,stem):
  if is_row:
   for sx in (-1,1):
    for j in range(3):lib.place(ROOT/'houses/export'/('Hearthfield-27.gltf' if j%2 else 'Hearthfield-2.gltf'),'Along-block neighbor',(sx*(W/2+18+j*29),0,0),0)
+ else:
+  for sx in (-1,1):
+   for j in range(-3,4):
+    lib.place(ROOT/'houses/export'/('Hearthfield-27.gltf' if j%2 else 'Hearthfield-2.gltf'),'Beyond side lawns',(sx*(W/2+33),j*24,0),sx*90)
  tree=ROOT/'trees/export/RedMaple.glb';shrub=ROOT/'shrubs/export/Shrubs.glb'
  # Fill authored site markers with actual atlas-bearing library assets.
  markers=[o for o in bpy.context.scene.objects if o.get('presentation_kind')]
