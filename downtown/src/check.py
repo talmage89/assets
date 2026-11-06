@@ -125,9 +125,21 @@ def audit(lot,row,do_motion=False):
  scupper=Vector((-w/2+.38,d/2+.05,lot['roof']+.04))
  for field in (masonry,roof):
   h=field.ray_cast(scupper,Vector((0,-1,0)),.45);assert h[0] is None,('blocked scupper',lot['id'])
- corner_floor=None;entry_steps=None
+ corner_floor=None;entry_steps=None;chamfer=None
  if lot['corner']:
   mineral=tree(obs,'Mineral');pt=bpy.data.objects[lot['id']+'__Socket_CornerDoorThreshold'].matrix_world.translation
+  # This establishes an actual cut plane, independently of the door/socket.
+  inward=Vector((1 if lot['corner']=='left' else -1,1,0)).normalized()
+  old=Vector((-w/2 if lot['corner']=='left' else w/2,front,lot['floor_first']-.30))
+  cut=ray(mineral,old-inward,inward)
+  setback=(cut-old).dot(inward)*math.sqrt(2)
+  assert 4*.3048<=setback<=6*.3048 and abs(setback-lot['chamfer'])<.0001,('actual corner chamfer',lot['id'],setback)
+  # Public return stone is measured below the window apertures and above the
+  # water-table molding, so this ray cannot mistake a sill for the facade.
+  side_x=-w/2 if lot['corner']=='left' else w/2;sign=1 if lot['corner']=='left' else -1
+  stone=ray(mineral,(side_x-sign,front+5.,.46),(sign,0,0))
+  assert abs(stone.x-side_x)<1e-5
+  chamfer=dict(measured_edge_setback_m=setback,measured_diagonal_normal=list(inward),stone_return_face_error_m=abs(stone.x-side_x),scope='Independent rays on exported diagonal ashlar and public return, not socket or manifest values')
   floorhit=ray(mineral,(pt.x,pt.y,pt.z+.10),(0,0,-1));corner_floor=float(floorhit.z);assert abs(corner_floor-(pt.z-.018))<1e-5
   if lot['tenant']=='bank':
    inward=Vector((1 if lot['corner']=='left' else -1,1,0)).normalized();treads=[]
@@ -170,7 +182,7 @@ def audit(lot,row,do_motion=False):
  return dict(id=lot['id'],passed=True,triangles=tris,materials=len(doc['materials']),gltf_bytes=path.stat().st_size,bin_bytes=len(g.binary),
   normal_length_error=normal,zero_area_triangles=zero,zero_area_uvs=uv0,reimport_error_m=err,
   construction=dict(measured_masonry_width_m=measured_width,measured_masonry_depth_m=measured_depth,measured_front_gauge_m=front_gauge,measured_door_recess_m=recess,front_plane_error_m=front_error,measured_roof_center_z_m=roofhit.z),
-  corner_lobby_floor_z_m=corner_floor,corner_entry_steps=entry_steps,roof_details=roof_details,stairs=stairs,motion=sweep,sha256=hashlib.sha256(path.read_bytes()+g.binary).hexdigest())
+  corner_lobby_floor_z_m=corner_floor,corner_entry_steps=entry_steps,corner_chamfer=chamfer,roof_details=roof_details,stairs=stairs,motion=sweep,sha256=hashlib.sha256(path.read_bytes()+g.binary).hexdigest())
 
 def main():
  rows=[];blocks=[];fixtures=membership_fixtures()

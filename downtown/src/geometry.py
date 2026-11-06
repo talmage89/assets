@@ -35,7 +35,7 @@ def palette(sheet):
 class Batch:
     def __init__(self,name,parent,materials,xf=None):
         self.name=name;self.parent=parent;self.materials=materials;self.xf=xf or (lambda v:Vector(v))
-        self.v=[];self.f=[];self.c=[];self.m=[];self.uv=[];self.smooth=[];self.n=[];self.surface=None;self.stone_ground=False
+        self.v=[];self.f=[];self.c=[];self.m=[];self.uv=[];self.smooth=[];self.n=[];self.surface=None;self.stone_ground=False;self.stone_range=None;self.color_at=None
         root=parent
         while root.parent:root=root.parent
         self.plan=__import__('json').loads(root.get('plan','{}'))
@@ -58,7 +58,7 @@ class Batch:
             tint=color
             if self.textured and role=='Masonry':
                 painted=p.get('painted',False) and self.name.split('__')[-1].startswith('Wall0')
-                variant=2 if painted else 3 if color[1]>color[0]*.63 else (p.get('index',0)%2)
+                variant=2 if painted else (p.get('index',0)%2) if self.surface=='scar' else 3 if color[1]>color[0]*.63 else (p.get('index',0)%2)
                 cuts=[]
                 if p.get('fire_escape') and '__RearConstruction' in self.name and min(self.xf(v).y for v in points)>p['depth']/2-.50:
                     span=min(5.60,p['width']-.55)
@@ -68,9 +68,16 @@ class Batch:
                 # yellow bias in this particular authored paint variant.
                 gains=(.97,.99,1.15) if p.get('brick') in ((.39,.38,.31),[.39,.38,.31]) else (1,1,1)
                 tint=tuple(v*g/.62 for v,g in zip(color,gains)) if painted else (1.,1.,1.)
+                if self.surface=='scar':tint=color
             elif self.textured and role in ('Mineral','Roof','Finish'):
-                strip,count=classify(role,color,self.surface);chunks=[(points,strip_uv(points,strip,count))]
-                if role=='Mineral' and self.stone_ground and color==(.43,.42,.37):chunks=masonry_faces(points,1,tile_height=1.0,coverage=4.0,ground_grid=False)
+                strip,count=classify(role,color,self.surface);chart=strip_uv(points,strip,count)
+                if self.surface in ('leaf','frieze'):
+                    u=[a for a,v in chart];low=min(u);span=max(u)-low
+                    if span>1e-8:
+                        start,width=(.55,.40) if self.surface=='leaf' else (0.,.11)
+                        chart=[(start+(a-low)/span*width,v) for a,v in chart]
+                chunks=[(points,chart)]
+                if role=='Mineral' and self.stone_ground and color==(.32,.305,.265):chunks=masonry_faces(points,1,tile_height=1.0,coverage=4.0,ground_grid=False)
                 # Shared fields are neutral manufacturing modulation.
                 tint=color
             elif self.textured and role=='Interior':
@@ -82,19 +89,29 @@ class Batch:
                 for j,v in enumerate(world):
                     key=tuple(round(q,8) for q in v)
                     if key not in vertex_lookup:
-                        vertex_lookup[key]=len(self.v);self.v.append(v);self.n.append(ns[j]);self.c.append((*weather(v,role,tint,self.plan,self.name),1))
+                        vertex_lookup[key]=len(self.v);self.v.append(v);self.n.append(ns[j]);self.c.append((*(self.color_at(v,role,tint) if self.color_at else weather(v,role,tint,self.plan,self.name)),1))
                     indices.append(vertex_lookup[key])
                 self.f.append(tuple(indices));self.m.append(ROLES.index(role));self.uv.append(coords);self.smooth.append(smooth)
     def box(self,p,s,role='Finish',color=None,r=0):
         if min(s)<1e-6:return
         x,y,z=p;a,b,c=(v/2 for v in s)
+        if role=='Masonry' and self.stone_ground and self.stone_range:
+            lo,hi=self.stone_range
+            for cut in (lo,hi):
+                if x-a+1e-7<cut<x+a-1e-7:
+                    self.box(((x-a+cut)/2,y,z),(cut-x+a,s[1],s[2]),role,color)
+                    self.box(((cut+x+a)/2,y,z),(x+a-cut,s[1],s[2]),role,color)
+                    return
+            if x<lo or x>hi:
+                active=self.stone_ground;self.stone_ground=False
+                self.box(p,s,role,color);self.stone_ground=active;return
         if role=='Masonry' and self.stone_ground:
             level=self.plan['floor_first']-.08
             if z-c<level-1e-8 and z+c>level+1e-8:
-                self.box((x,y,(z-c+level)/2),(s[0],s[1],level-z+c),'Mineral',(.43,.42,.37))
+                self.box((x,y,(z-c+level)/2),(s[0],s[1],level-z+c),'Mineral',(.32,.305,.265))
                 self.box((x,y,(level+z+c)/2),(s[0],s[1],z+c-level),'Masonry',color)
                 return
-            if z+c<=level+1e-8:role='Mineral';color=(.43,.42,.37)
+            if z+c<=level+1e-8:role='Mineral';color=(.32,.305,.265)
         vs=[(x+i*a,y+j*b,z+k*c) for i,j,k in ((-1,-1,-1),(1,-1,-1),(1,1,-1),(-1,1,-1),(-1,-1,1),(1,-1,1),(1,1,1),(-1,1,1))]
         self.geom(vs,[(0,3,2,1),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)],role,color)
     def prism(self,poly,delta,role='Finish',color=None):

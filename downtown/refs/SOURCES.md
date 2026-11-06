@@ -55,3 +55,7 @@ downloaded code or package is used.
 | louisiana-color.jpg | https://upload.wikimedia.org/wikipedia/commons/2/20/Cast_Iron_Storefront_and_Sheet_Metal_Cornice_in_Louisiana%2C_MO_%2817476845906%29.jpg | Paul Sableman, 8 May 2015; CC BY 2.0, Flickr license review on Commons (used under this license despite contradictory public-domain template) | Sharp used cast-iron storefront, painted brick, cornice profiles and weather; overcast color/value comparison only |
 
 Blender 5.2 manual: [Eevee material thickness](https://docs.blender.org/manual/en/5.2/render/eevee/material_settings.html) and [Material API](https://docs.blender.org/api/5.2/bpy.types.Material.html). Used for the engine-only 4 mm slab-thickness override on imported joined building meshes; no downloaded code is executed.
+
+| File | Direct image / PDF URL | Author / rights | Use |
+| --- | --- | --- | --- |
+| historic-signs.pdf | https://www.nps.gov/orgs/1739/upload/preservation-brief-25-signs.pdf | Michael J. Auer, NPS Preservation Brief 25, 1991; US federal work | Fading wall paint, surviving field and lettering, and photograph of a worn Baltimore wall sign; inspection only |

@@ -13,21 +13,24 @@ from delivery import bundle_hash
 
 def audit_checkpoint(folder):
  """Verify the image evidence belongs to the current exported geometry."""
- expected={r:['across','above','rear'] for r in ('midwest','western','northeast','southern')}
- expected['midwest']+=['cornice_profile','scale','dusk','awning','hero','storefront','window','cornice','corner','ghost','escape']
+ expected={r:['hero','dusk','across','above','rear'] for r in ('midwest','western','northeast','southern')}
+ expected['midwest']+=['cornice_profile','scale','awning','storefront','window','cornice','corner','ghost','escape']
  expected['southern']+=['gallery']
  expected['northeast']+=['storefront','hood'];views=[]
  def check(region,name,base):
   provenance=json.loads((base/region/'provenance.json').read_text())[name]
   source=Path(provenance['source']);assert provenance['sha256']==hashlib.sha256(source.read_bytes()).hexdigest(),(region,name,'stale export')
   for bundle in provenance.get('bundles',[]):assert bundle_hash(Path(bundle['path']))==bundle['sha256'],(region,name,'stale image/buffer bundle')
+  street=provenance['street_bundle'];assert bundle_hash(Path(street['path']))==street['sha256'],(region,name,'stale exported pavement')
   assert provenance['engine']=='CYCLES',(region,name,'checkpoint requires Cycles')
   path=base/region/(name+'.png')
   with Image.open(path) as im:im.verify()
   return provenance
  for region,names in expected.items():
   for name in names:
-   check(region,name,folder);views.append(str(folder/region/(name+'.png')))
+   item=check(region,name,folder);views.append(str(folder/region/(name+'.png')))
+   if name in ('hero','dusk'):
+    assert 35<=item['camera']['lens']<=50 and abs(item['camera']['location'][2]-1.60)<1e-6
  calibration=json.loads(Path('build/cameras.json').read_text());pairs=[]
  for name,camera in calibration.items():
   check(camera['region'],name,Path('renders/matches'));path=Path('renders/matches')/(name+'-pair.jpg')

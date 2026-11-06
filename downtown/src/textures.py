@@ -1,7 +1,7 @@
 """Original meter-scale fields, GPU flat bake and guarded shared PBR sheets.
 No photographic pixels enter generation. Strip numbers start at image bottom.
 """
-import argparse,json,subprocess,sys
+import argparse,json,subprocess,sys,math
 from pathlib import Path
 import numpy as np
 from PIL import Image,ImageDraw
@@ -60,9 +60,15 @@ def fields(role,n):
     weave=np.sin(x*3100)*np.sin(y*3100);h=.000028*weave;rough[:]=.92;c*=((.90+.07*mid+.035*weave))[:,:,None]
     c*=np.where(np.mod(x,.48)<.24,.96,.75)[:,:,None];h+=.00022*np.exp(-np.minimum(np.mod(x,.48),.48-np.mod(x,.48))/.002)
    elif strip==5:
-    edge=np.minimum(y,.5-y);loss=(edge<.012)&(mid>.55);h+=.00006*(mid-.5)-.00018*loss;c*=1-.61*loss[:,:,None];rough[:]=.58;rough+=.20*loss
+    edge=np.minimum(y,.5-y);loss=(edge<.022)&(mid>.48);h+=.00006*(mid-.5)-.00018*loss;c*=1-.61*loss[:,:,None];rough[:]=.58;rough+=.20*loss
    elif strip==6:
     cx=np.mod(x,.44)-.22;cy=y-.25;radius=np.sqrt((cx/.20)**2+(cy/.21)**2);theta=np.arctan2(cy,cx);relief=np.exp(-((radius-.67)/.10)**2)*(.75+.25*np.cos(theta*10));h+=.012*relief+.004*np.exp(-(radius/.23)**2);c*=.96+.04*relief[:,:,None]
+    # Right half of this same strip is an original acanthus leaf. The cage
+    # supplies the scroll; the central vein and alternate lobes bake here.
+    leaf_x=(x-3.)/.83;leaf_y=y/.5;body=np.clip(1-(leaf_x/(.18+.70*np.sin(np.pi*np.clip(leaf_y,0,1))))**2,0,1)
+    lobes=(.72+.28*np.cos(leaf_y*math.pi*9+abs(leaf_x)*3));leaf=.008*body*lobes*np.sin(np.pi*leaf_y)
+    vein=.0018*np.exp(-(leaf_x/.035)**2)*np.sin(np.pi*leaf_y)
+    h=np.where(x>2.,leaf+vein,h)
    else:
     phase=np.mod(y,.025)/.025;groove=np.exp(-phase/.065);h=.0025*phase;c*=1-.25*groove[:,:,None];ao=1-.24*groove;rough[:]=.66
   for target,a in zip((color,height,orm),(c,h,np.stack((ao,rough,metal),2))):

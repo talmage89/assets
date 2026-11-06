@@ -17,7 +17,7 @@ def palette(sheet):
     mineral=tiling.material('DowntownMineralRoof',folder,tint=True)
     finish=tiling.material('DowntownFinish',folder,tint=True);finish.use_backface_culling=False
     glass=bpy.data.materials.new('Downtown_Glass');glass.use_nodes=True;glass['tiling_vertex_tint']=False
-    p=glass.node_tree.nodes.get('Principled BSDF');p.inputs['Base Color'].default_value=(.96,.98,.97,1);p.inputs['Roughness'].default_value=.045;p.inputs['IOR'].default_value=1.50;p.inputs['Transmission Weight'].default_value=1
+    p=glass.node_tree.nodes.get('Principled BSDF');p.inputs['Base Color'].default_value=(.96,.98,.97,1);p.inputs['Roughness'].default_value=.014;p.inputs['IOR'].default_value=1.50;p.inputs['Transmission Weight'].default_value=1
     graphics=bpy.data.materials.new('Downtown_Graphics');graphics.use_nodes=True;graphics['tiling_vertex_tint']=False
     p=graphics.node_tree.nodes.get('Principled BSDF');p.inputs['Roughness'].default_value=.79
     n=graphics.node_tree.nodes.new('ShaderNodeTexImage');n.image=bpy.data.images.load(str(sheet.resolve()),check_existing=True)
@@ -45,10 +45,10 @@ def strip_uv(points,strip,count,coverage=4.,guard=8/2048):
 
 def classify(role,color,surface):
     if role=='Roof':return 2,4
-    if role=='Mineral':return (3 if max(color)-min(color)<.09 else 0),4
+    if role=='Mineral':return (1 if color==(.32,.305,.265) else 3 if max(color)-min(color)<.09 else 0),4
     if surface in ('canvas','curtain'):return 4,8
     if surface=='blind':return 7,8
-    if surface=='frieze':return 6,8
+    if surface in ('frieze','leaf'):return 6,8
     if role=='Finish':
         if max(abs(a-b) for a,b in zip(color,(.38,.34,.23)))<.001:return 3,8
         if max(abs(a-b) for a,b in zip(color,(.13,.19,.15)))<.001:return 0,8

@@ -1,22 +1,20 @@
-"""Native-resolution before/after panels; never committed as docs."""
+"""Native accepted/fixed comparisons. Camera equality is checked, not assumed."""
+import json
 from pathlib import Path
 from PIL import Image,ImageDraw
-CASES={
- 'cornice':('checkpoint/midwest/cornice.png','whole'),
- 'cast-hood':('matches/northeast/foster.png','top'),
- 'washed-sill':('checkpoint/midwest/window.png','whole'),
- 'iron-piers':('matches/northeast/foster.png','bottom'),
- 'canvas':('checkpoint/midwest/storefront.png','whole'),
- 'corner-entry':('checkpoint/midwest/corner.png','whole'),
- 'alley':('checkpoint/midwest/rear.png','whole')}
+CASES={'corner-entry':('midwest','corner'),'iron-piers':('northeast','iron_detail'),'scrolls':('midwest','cornice_profile'),'ghost-sign':('midwest','ghost'),'store-glass':('midwest','storefront'),'hero-wear':('midwest','hero'),'dusk-pools':('midwest','dusk')}
+
 def generate():
  out=Path('renders/fixes');out.mkdir(parents=True,exist_ok=True)
- for label,(shot,area) in CASES.items():
-  a=Image.open(Path('build/before/renders')/shot).convert('RGB');b=Image.open(Path('renders')/shot).convert('RGB')
-  width=min(a.width,b.width);height=min(a.height,b.height,1000 if area!='whole' else 100000)
-  assert width>=800
-  aa=(a.width-width)//2;bb=(b.width-width)//2
-  ay=a.height-height if area=='bottom' else 0;by=b.height-height if area=='bottom' else 0
-  a=a.crop((aa,ay,aa+width,ay+height));b=b.crop((bb,by,bb+width,by+height))
-  im=Image.new('RGB',(2*width,height+32),(235,233,227));im.paste(a,(0,32));im.paste(b,(width,32));d=ImageDraw.Draw(im);d.text((15,9),'Before / 889d811 / native pixels',fill=(30,30,30));d.text((width+15,9),'After / exported baked buildings / native pixels',fill=(30,30,30));im.save(out/(label+'.jpg'),quality=95,optimize=True)
+ for label,(region,name) in CASES.items():
+  before=Path('build/accepted-workspace/downtown/renders')/('matches' if region=='northeast' else 'checkpoint')/region
+  after=Path('renders/proof')/region
+  ca=json.loads((before/'provenance.json').read_text())[name]['camera'];cb=json.loads((after/'provenance.json').read_text())[name]['camera']
+  assert ca==cb,(label,'cameras differ')
+  a=Image.open(before/(name+'.png')).convert('RGB');b=Image.open(after/(name+'.png')).convert('RGB');assert a.size==b.size and a.width>=800
+  # Iron pier detail keeps at least 800 native pixels; no render resampling.
+  if name=='foster':
+   y=round(a.height*.57);a=a.crop((0,y,a.width,a.height));b=b.crop((0,y,b.width,b.height))
+  im=Image.new('RGB',(a.width*2,a.height+32),(235,233,227));im.paste(a,(0,32));im.paste(b,(a.width,32));d=ImageDraw.Draw(im)
+  d.text((15,9),'Accepted caf80a6 / native exported pixels',fill=(30,30,30));d.text((a.width+15,9),'Fixed / same camera / native exported pixels',fill=(30,30,30));im.save(out/(label+'.jpg'),quality=95,optimize=True)
 if __name__=='__main__':generate()

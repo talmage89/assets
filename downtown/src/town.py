@@ -5,6 +5,7 @@ import bpy
 from mathutils import Vector
 from geometry import Batch,pivot
 from plan import opposite_seed
+from pavement import CONCRETE,ASPHALT,tint
 from kit import model as G
 BLOCK_CACHE={}
 
@@ -39,23 +40,23 @@ def setting(p,mats,append,rows,street):
  for j,xx in enumerate((0,W+road+2*walk,-W-road-2*walk)):
   obs+=instance_block(src,(xx,D+19,0),0,'Rear district '+str(j))
   obs+=instance_block(src,(xx,far-D-19,0),180,'Far district '+str(j))
- root=pivot('Town setting',(0,0,0));b=Batch('Town streets',root,mats)
- b.box((80,-walk-road/2,-.203),(400,road,.095),'Roof',(.085,.086,.080))
+ root=pivot('Town setting',(0,0,0));b=Batch('Town streets',root,mats);b.color_at=lambda v,r,c:tint(v,r,c,p)
+ b.box((80,-walk-road/2,-.203),(400,road,.095),'Roof',ASPHALT)
  for lo,hi in ((-160,-W/2-2*walk-road),(W/2+2*walk+road,300)):
-  for yy in (far+walk/2,-walk/2):b.box(((lo+hi)/2,yy,-.075),(hi-lo,walk,.15),'Mineral',(.43,.43,.41))
+  for yy in (far+walk/2,-walk/2):b.box(((lo+hi)/2,yy,-.075),(hi-lo,walk,.15),'Mineral',CONCRETE)
  for side in (-1,1):
   xx=side*(W/2+walk+road/2)
-  b.box((xx,0,-.206),(road,420,.095),'Roof',(.085,.086,.080))
-  for off in (-1,1):b.box((xx+off*(road/2+walk/2),0,-.077),(walk,420,.15),'Mineral',(.40,.40,.37))
+  b.box((xx,0,-.206),(road,420,.095),'Roof',ASPHALT)
+  for off in (-1,1):b.box((xx+off*(road/2+walk/2),0,-.077),(walk,420,.15),'Mineral',CONCRETE)
  # Neighborhood grades support the original house foundations at Z=0.
  for yy in (D+156.01,far-D-156.01):
   b.box((45,yy,-.11),(420,150,.22),'Mineral',(.095,.13,.055))
  for yy in (D+74,far-D-74):
-  b.box((45,yy,-.203),(420,8,.095),'Roof',(.085,.086,.080))
+  b.box((45,yy,-.203),(420,8,.095),'Roof',ASPHALT)
  for yy in (D+79.5,far-D-79.5):
-  b.box((45,yy,-.075),(420,3,.15),'Mineral',(.43,.43,.41))
- for yy in (D+12,far-D-12):b.box((45,yy,-.203),(420,8,.095),'Roof',(.085,.086,.080))
- for yy in (D+17.5,far-D-17.5):b.box((45,yy,-.075),(420,3,.15),'Mineral',(.43,.43,.41))
+  b.box((45,yy,-.075),(420,3,.15),'Mineral',CONCRETE)
+ for yy in (D+12,far-D-12):b.box((45,yy,-.203),(420,8,.095),'Roof',ASPHALT)
+ for yy in (D+17.5,far-D-17.5):b.box((45,yy,-.075),(420,3,.15),'Mineral',CONCRETE)
  for yy in (D+65,far-D-65):b.box((45,yy,-.08),(420,7,.16),'Roof',(.083,.080,.071))
  # Things left by tenants: entry planters, crates and folding menu boards.
  for lot in p['lots']:
@@ -99,6 +100,6 @@ def light_rooms(p,dusk):
    m.node_tree.nodes.get('Principled BSDF').inputs['Emission Strength'].default_value=6.0 if dusk else .13
  for i,l in enumerate(p['lots']):
   if l['tenant']=='vacant':continue
-  light=bpy.data.lights.new('Shop fixture '+str(i),'AREA');light.energy=125 if dusk else 0;light.shape='RECTANGLE';light.size=3;light.size_y=1.8;light.color=(1,.68,.35)
-  ob=bpy.data.objects.new(light.name,light);bpy.context.collection.objects.link(ob);ob.location=(l['x'],2.6,l['floor_first']-1.5)
+  light=bpy.data.lights.new('Shop fixture '+str(i),'AREA');light.energy=210 if dusk else 170;light.shape='RECTANGLE';light.size=3;light.size_y=1.8;light.specular_factor=0;light.transmission_factor=0;light.color=(1,.68,.35)
+  ob=bpy.data.objects.new(light.name,light);bpy.context.collection.objects.link(ob);ob.visible_glossy=False;ob.visible_transmission=False;ob.visible_camera=False;ob.location=(l['x'],2.6,l['floor_first']-1.5)
   ob.rotation_euler=Vector((0,-.5,-1)).to_track_quat('-Z','Y').to_euler()

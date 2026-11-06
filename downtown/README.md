@@ -4,8 +4,8 @@ An original scripted family of 28 individually placeable commercial buildings,
 arranged as four seeded seven-lot block faces. Built about 1880–1930 and altered
 over time: recessed shops, separate stair entries, apartments and offices,
 party walls, deep lots and service alleys. Accepted dimensions, lot rhythm,
-regional grammars and storefront organization are retained. This checkpoint
-adds constructed ornament, shared baked surfaces and a town presentation.
+regional grammars and storefront organization are retained. The family uses shared baked surfaces, articulated cast and pressed ornament,
+and four town presentations.
 
 Generated evidence stays ignored; no docs images are published at this gate:
 [eye-height hero](renders/checkpoint/midwest/hero.png),
@@ -38,7 +38,7 @@ than surveyed copies of the references.
 | Transom | Separate 620 mm band above display sash |
 | Upper front / rear openings | Up to 1.02 × 1.96–2.20 / 1.02 × 1.63 m |
 | Sash inset | 105 mm Italianate front; 190 mm other masonry/rear |
-| Corner chamfer | 1.45 m setback on both outer edges |
+| Corner chamfer | 1.80 m setback on both outer edges |
 | Bank lobby | 300 mm landing, two measured 150 mm risers; retail entry at grade |
 | Metal cornice | 825 mm profile height; 610 mm standard / 708 mm heavy-corner projection |
 | Gallery | 2.70 m projection; 120 mm columns; 1.06 m guard |
@@ -56,7 +56,8 @@ central date panel. Other fronts have corbelled brick and belt profiles.
 Geometry carries the silhouette; tooling and pressed fine relief use normals.
 
 Canvas sags across frame bays and ends in a scalloped hanging valance. The
-bank/hotel corners have diagonal framed entries, heavier fronts and name
+bank/hotel corners have 45° cut entries with a separate transom,
+stone bearing piers, a base/water table and a 10 m stone public return, heavier fronts and name
 stones. Rear variation includes different-depth hollow ells, sloping additions,
 back porches/stairs, changing sash, stepped parapets and retained fire escapes.
 Downspouts are strapped to walls; conduit bends and loops follow their supports.
@@ -95,6 +96,29 @@ exemptions or armatures. The kit handles BVH crossings/edge distances; the
 building audit uses oriented solid-angle membership for joined solid members,
 with both hollow-room and contained-collision fixtures. This is a sampled
 geometric test, not structural or building-code certification.
+
+## Assemble a street
+
+Build the family, then load the seven stock glTFs listed in a region's
+`build/blocks/<region>/block.json`. Place each root at its `position` (Blender
+coordinates). For glTF/Godot coordinates convert `(x,y,z)` to `(x,z,-y)`.
+The manifest's different lot depths share one front line: Blender Y=0.
+Adjacent party-line planes share X; their socket midpoints differ in depth.
+The two 220 mm half-walls remain inside their respective lots.
+
+Load `DowntownStreet_<region>.gltf` at the street origin. It supplies the whole
+walk, curb, roadway, tree pits, parking and alley. The road lies 152.4 mm below
+the walk. Street-lamp bases and trees use the pit/walk datum; parked cars use
+the road datum. Join another block at either end with the requested cross
+street and walk widths; the frontage and corner cut are in the manifest.
+An opposite block faces the first after a 180° vertical-axis rotation, with
+its front line at Blender `Y = -2*walk-road_width`.
+
+The four seven-lot seeds are independent proof towns, not a rule to mix every
+style into one street. Choose a region and integer seed for another row.
+Individual buildings remain independently placeable, and signs/awnings use
+shared sheet regions. Keep the canonical texture directory beside the glTFs;
+cache images by resolved URI so a town loads each map once.
 
 ## Geometry and resources
 
@@ -193,8 +217,9 @@ final deliveries. Context mesh data is instanced. Close-ups retain the town in
 glossy rays so the glass reflects a street rather than a bare sky.
 
 The hero is a 1.60 m camera on the opposite sidewalk, 38 mm on a 36 mm sensor,
-under a raking procedural sun. Dusk has warm selected rooms/shops and lights
-at actual street-lamp emitter sockets. Day/dusk share the delivered interior
+under a raking procedural sun. Dusk has warm selected rooms/shops and downward soft pools
+from the actual street-lamp emitter sockets. Day shops retain their fixtures;
+clearer panes show goods behind the street reflections. Day/dusk share the delivered interior
 image and `LightUV`; presentation light objects are not exported.
 
 ## Rebuild and proof
@@ -237,8 +262,7 @@ material correctness. `renders/values/` shows measured patches; display values
 are exposure diagnostics, not inferred physical albedos.
 
 Remaining limitations and the final full-size verdict are recorded in
-[REVIEW.md](REVIEW.md). Faceted brackets, simplified relief, regular pavement,
-repeated roof equipment and shallow room backings still reveal the procedural
-construction. Eevee's approximate glass is less convincing than Cycles.
+[REVIEW.md](REVIEW.md). Simplified cast relief, repeated roof equipment and shallow room backings
+still reveal the procedural construction. Eevee's approximate glass is less convincing than Cycles.
 There are no collision or LOD meshes,
 unique lightmap UVs, or complete interiors in this checkpoint.

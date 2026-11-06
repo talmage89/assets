@@ -64,7 +64,20 @@ def bracket(b,x,z,color,width=.085):
              (-.34,-.15),(-.37,-.18),(-.40,-.17),(-.41,-.14),
              (-.44,-.15),(-.44,-.19),(-.40,-.23),(-.33,-.26),
              (-.23,-.26),(-.15,-.21),(-.10,-.16),(.015,-.16)]
-    sweep(b,x-width/2,x+width/2,profile,z,'Finish',color)
+    # The rolled head sits below and forward of the crown molding. Burying
+    # that head inside the horizontal profile leaves only an angular stem.
+    profile=[(y-.06 if y<-.33 else y,zz-.12 if y<-.33 else zz) for y,zz in profile]
+    # Periodic cubic corner rounding gives a continuous cast scroll, with the
+    # original cage's extrema retained. Two samples per corner stay economical.
+    rounded=[]
+    for i,q in enumerate(profile):
+        a=profile[i-1];c=profile[(i+1)%len(profile)]
+        for t in (.25,.75):
+            start=tuple(q[k]*.78+a[k]*.22 for k in range(2))
+            end=tuple(q[k]*.78+c[k]*.22 for k in range(2))
+            rounded.append(tuple((1-t)**2*start[k]+2*t*(1-t)*q[k]+t*t*end[k] for k in range(2)))
+    rounded=[rounded[round(j*len(rounded)/40)%len(rounded)] for j in range(40)]
+    sweep(b,x-width/2,x+width/2,rounded,z,'Finish',color)
     # Front rib, rounded lower boss. Side small curls are baked into strip 5.
     b.tube([(x,-.17,z-.60),(x,-.19,z-.60)],.048,color=color,n=8)
 
@@ -96,7 +109,12 @@ def cornice(b,L,top,color,heavy=False,reserve_date=False):
         b.box((xx,-.29,top-.235),(.065,.16,.092),'Finish',color)
     for j in range(round(L/.42)):
         xx=(j+.5)*L/round(L/.42)
-        b.box((xx,-.365,top-.14),(.075,.27,.065),'Finish',color)
+        # A rolled cyma block turns down at its nose. Acanthus veins belong
+        # to the original stamped-leaf normal field in the finish sheet.
+        profile=[(-.12,-.08),(-.12,-.20),(-.22,-.245),(-.35,-.25),
+                 (-.43,-.23),(-.47,-.195),(-.50,-.19),(-.52,-.225),
+                 (-.56,-.235),(-.59,-.21),(-.60,-.17),(-.58,-.12),(-.55,-.08)]
+        b.surface='leaf';sweep(b,xx-.047,xx+.047,profile,top,'Finish',color);b.surface=None
 
 
 def pilaster(b,x,y,head,col):
@@ -115,3 +133,16 @@ def pilaster(b,x,y,head,col):
     # Bolted capitals and base flange, heads 16 mm wide, no gratuitous spheres.
     for zz in (.13,head-.20):
         for dx in (-.095,.095):b.tube([(x+dx,y-.205,zz),(x+dx,y-.219,zz)],.010,color=col,n=6)
+    # Recessed long panel with raised stiles and a chamfered lower return.
+    # Its shaft still has a changing octagonal section, rather than a box.
+    for dx in (-.061,.061):
+        b.box((x+dx,y-.133,(head-.08)/2),(.013,.022,head-1.00),'Finish',tuple(v*1.35 for v in col))
+    for zz in (.47,head-.53):
+        b.box((x,y-.133,zz),(.13,.023,.035),'Finish',col)
+    molding(b,x-.16,x+.16,.16,.19,.10,color=col)
+    molding(b,x-.175,x+.175,head-.22,.23,.16,color=col)
+    # Foundry plate on the base, modeled mounting and original raised type.
+    b.box((x,y-.174,.32),(.145,.012,.061),'Finish',(.13,.12,.085))
+    for dx in (-.054,.054):b.tube([(x+dx,y-.182,.32),(x+dx,y-.187,.32)],.004,color=col,n=6)
+    from graphics import maker_rect
+    b.quad([(x-.061,y-.181,.30),(x+.061,y-.181,.30),(x+.061,y-.181,.34),(x-.061,y-.181,.34)],maker_rect())

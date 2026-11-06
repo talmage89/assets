@@ -13,7 +13,7 @@ BAKE_SIZE ?= 4096
 BAKE_SAMPLES ?= 1
 REGIONS := midwest western northeast southern
 MODEL := build/downtown.blend build/downtown.json $(foreach r,$(REGIONS),build/blocks/$(r)/block.blend build/blocks/$(r)/block.glb build/blocks/$(r)/block.json)
-SOURCE := $(addprefix src/,build.py plan.py building.py geometry.py graphics.py ornament.py surfaces.py age.py delivery.py street.py)
+SOURCE := $(addprefix src/,build.py plan.py building.py geometry.py graphics.py ornament.py surfaces.py age.py delivery.py street.py pavement.py)
 .PHONY: all refs bake model context check check-repo repeat check-repeat render matches review clean FORCE
 all: refs model context check render matches
 build/parameters.txt: FORCE
@@ -68,8 +68,10 @@ clean:
 	$(PYTHON) -c "import shutil; [shutil.rmtree(p,ignore_errors=True) for p in ('build','renders','textures','export')]"
 .PHONY: before crops source-matches
 before:
-	$(KIT)/with_gpu.sh $(PYTHON) src/baseline.py --width $(WIDTH)
-crops: render matches before
+	$(PYTHON) src/baseline.py --width $(WIDTH)
+crops: before model
+	$(PYTHON) src/proof_cameras.py
+	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --camera-file build/proof-cameras.json --out renders/proof --width $(WIDTH) --samples $(SAMPLES)
 	$(PYTHON) src/proof_crops.py
 source-matches: renders/source-matches/.stamp
 renders/source-matches/.stamp: $(MODEL) build/cameras.json build/context/manifest.json build/context/blocks/.stamp src/render.py src/town.py build/render-parameters.txt

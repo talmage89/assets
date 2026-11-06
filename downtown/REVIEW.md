@@ -452,3 +452,85 @@ zero errors**. Logs and exit receipts are under the worktree's ignored `build/`.
 Family delivery is 77,991,841 bytes, including 17,475,265 shared-image bytes;
 the compressed mip allocation remains 42⅔ MiB. All class budgets pass.
 No kit changes, docs-image commits, or changes to other families' deliveries.
+
+## Pass 14 — accepted look reopened; first exported corrections
+
+Color and value first: inspected the seven handoff images at native resolution,
+Foster's larger HABS photograph, both original color photographs, and all six
+1440 px `renders/pass14/midwest/` exports. The assumed color neutrals remain
+Auburn's sunlit concrete apron and Louisiana's pale hood fascia; the HABS and
+NPS ghost-sign photographs constrain form/value only. The sidewalk is darker
+and has joints on the opposite side too, but its broad regularity still reads
+as CG. The brick's runoff is still insufficient in the hero. No quantitative
+color acceptance is claimed for this pass.
+
+The corner bay is now 1.80 m on each street edge, with a narrower hinged leaf,
+a real separate transom and stone piers within the diagonal, plus ashlar on the
+public return and a continuous base/water table. Its actual corner planes still
+need independent measurements. The new scrolled modillion profiles are visible
+under the crown, although the leaf normal must be finished. The pier's paneled
+shaft, molded base/capital and original maker plate need their focused crop.
+
+Rejected: the ghost wall's remaining parging appeared as evenly distributed
+polygon patches, with an unintended buff chart and an ashlar boundary crossing
+the old roof scar. Remove the isolated patches, retain the softer old interior
+brick and flush slope stains, force the original red chart, and stop the stone
+return before this former neighbor. The shop light's broad area appeared as a
+white rectangle in specular rays; hide that presentation emitter from glossy
+rays while retaining the actual fixture. Reduce pane roughness to recover a
+legible street reflection. The raised street-light power was too broad and
+washed out dusk. Move emitters clear of their housings and use a downward spot
+with a soft pool. These are failed controls, not final evidence.
+
+All edits remain in downtown. Main was not actually an ancestor at handoff;
+merged its utility/signal deliveries without conflict. No other family's
+export existed in this worktree, and none has been generated or edited here.
+
+## Pass 15 — same-camera export controls, form still short of the gate
+
+Color and value first: inspected every native `renders/proof/` image, including
+Foster's full-height iron front, against the same original photographs. The
+brick and pale trim remain too even beside Louisiana's handled, repainted
+surface. The stated photographic neutrals have not changed. The corrected
+ghost sign's contrast is now much closer to the barely surviving paint in
+NPS Brief 25, page 7 (Thomas C. Jester's Baltimore photograph); this monochrome
+comparison does not calibrate hue. The new lower sidewalk value avoids the
+near-white slab, but must be measured under Auburn's matched sun.
+
+The filled old openings were still effectively invisible because the standard
+masonry path discarded their intended tint. Explicitly preserve the old-wall
+chart/tint, break the flashing stain and darken the filled joist pockets. The
+paneled iron shafts now have rails, molded bases/capitals, flange bolts and
+original foundry plates. They remain dark in the Foster camera's awning shade;
+a close view will be needed to judge their construction honestly. The stock
+aluminum replacements keep their plain sections.
+
+The lower glass roughness restores cars and the opposite facade in reflections,
+with actual shelves visible behind. A broad presentation light still appeared
+through the panes: camera/glossy flags alone were insufficient. Disable its
+transmission visibility and transmission/specular contribution. The first
+118-degree lamp spots spread their energy over too much ground. Narrow to
+84 degrees and judge the actual pools; do not brighten the entire dusk world.
+
+## Pass 16 — native Cycles controls and independent corner construction
+
+Color and value first: inspected all six 1440 px `renders/pass16/midwest/`
+views. The neutral references remain Auburn's sunlit apron and Louisiana's
+hood fascia. The glass now carries two legible depth layers: muted street/car
+reflections and warm shelves/room light. The oversized white light rectangles
+are gone. Dusk retains a blue ambient shadow with local warm pools; its road
+and walks are no longer uniformly lit. The hero still needs a stronger visible
+maintenance history: add small mortar-only bed-joint repairs, lower-rail
+abrasion and roof membrane repair overlaps, keeping each material's color.
+
+The model audit independently measures the actual diagonal ashlar cut plane,
+the return stone face, landing and risers; it does not simply echo the plan.
+The 1.80 m edge setbacks fit the requested 4–6 ft range. All door sweeps and
+resource/chart checks pass. This proves assembly/serialization, not appearance.
+
+The three-quarter cornice view caught a substantive construction miss: the
+modillion's rolled outline and the large bracket's head were buried inside
+the horizontal crown profile. Expose both beneath and forward of the shelf.
+Keep the stamped acanthus in the existing finish normal strip. Regular brick,
+spare hood fields, dark simple iron capitals and repeated room goods still
+read as CG; these controls do not yet authorize docs.

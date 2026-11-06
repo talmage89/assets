@@ -9,10 +9,10 @@ state; storefront glass uses uniform IOR/transmission and allocates no image.
 | --- | --- | --- | ---: |
 | DowntownMasonry | 2048² BaseColor / Normal / ORM | Common-bond red, running-bond red, painted brick and buff common-bond guarded regions | 16 |
 | DowntownMineralRoof | 1024² BaseColor / Normal / ORM | Tooled limestone, terra cotta, mineral roof and poured mineral regions | 4 |
-| DowntownFinish | 2048² BaseColor / Normal / ORM | Painted wood, painted iron, aluminum, bronze, woven canvas, cornice paint, pressed relief, blind slats | 16 |
+| DowntownFinish | 2048² BaseColor / Normal / ORM | Painted wood, painted iron, aluminum, bronze, woven canvas, cornice paint, pressed relief/acanthus, blind slats | 16 |
 | DowntownSigns | 2048² RGBA BaseColor | Original tenant signs, date/name stones, weathered ghost paint | 5.333 |
 | DowntownInterior | 1024² RGBA BaseColor | Drawn room/shelf backing plus black and warm fixture regions | 1.333 |
-| Glass | No new image | 4 mm panes, transmission 1, IOR 1.50, roughness .045 | 0 |
+| Glass | No new image | 4 mm panes, transmission 1, IOR 1.50, roughness .014 | 0 |
 | **All four towns** | **11 canonical images** | **Six states** | **42.667** |
 
 These are allocations assuming BC7 color/ORM, BC5 normal, 8 bpp per image
@@ -83,3 +83,13 @@ context never enter a delivered building.
 Disk bytes, image-normal checks, actual URI reuse and measured chart-density
 percentiles are recorded in `build/texture-check.json`, `build/resource-check.json`
 and `build/chart-check.json` after `make check`.
+
+The final form pass keeps these eleven allocations. Modillion acanthus occupies
+the right half of the existing pressed-relief strip; frieze rosettes retain
+the left portion. Original maker plates reuse a narrow vacant sign-sheet band.
+The ghost's field paint is mostly transparent, with surviving letters losing
+more paint at coursing and downward water runs. Flush parging/tar stains and
+filled joist pockets are local surface geometry, not a projecting roof rod.
+Dry concrete uses slab variation and edge deposits, gum and local stains;
+asphalt has differently aged repair patches and routed joint sealant. These
+use the existing mineral/roof state and vertex colors, adding no allocation.
