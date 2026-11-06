@@ -29,8 +29,7 @@ def garden(seed=301,**overrides):
     d.update(overrides)
     d['recessed']=overrides.get('recessed',seed==305)
     if seed==305:
-        d.update(era=1976,floors=2,access='enclosed',skin='mixed',roof='mansard',shape='straight')
-        d['unit_width_ft']=38
+        d.update({k:v for k,v in dict(era=1976,floors=2,access='enclosed',skin='mixed',roof='mansard',shape='straight',unit_width_ft=38).items() if k not in overrides})
     d['articulation']=overrides.get('articulation',random.Random(seed+811).choice((.6096,.9144,1.2192)))
     d.update(seed=seed,color=copy.deepcopy(overrides.get('color',PALETTES[i])),floor_height=9*FT,wall=.254)
     if i==3:d['color']['siding']=(.16,.29,.23)
@@ -75,6 +74,7 @@ def row(seed=401,**overrides):
     if seed not in ROW_SEEDS:
         d['count']=r.choice((4,5,6,7,8));d['width_ft']=r.choice((22,24)) if d['garage'] else r.choice((18,20,22))
     d.update(overrides);d.update(seed=seed,color=copy.deepcopy(PALETTES[(i+1)%4]),floor_height=9*FT,base=.3048)
+    if d['garage']:d['color']['siding']=(.41,.365,.285)
     d['width']=d['width_ft']*FT;d['depth']=d['depth_ft']*FT
     d['period']=2015 if d['era']>=2000 else 2005
     d['units']=[dict(index=j,x=(j-(d['count']-1)/2)*d['width'],y=(0,1.2192,0,.9144)[j%4]-.6096,z=(j//2%2)*.1524,

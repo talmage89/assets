@@ -3,10 +3,10 @@ import math
 from components import STEEL,ALUM
 
 
-def add(a,w,d,base,fh,seed):
+def add(a,w,d,base,fh,seed,grill_patio=None,bike_patio=None):
     m=a.mesh('Tenant_belongings',component='occupancy')
     # A locked bicycle leans beside the rear wall, a slack cable follows frame.
-    x=-w*.38;y=d/2+.48;z=.34
+    x,y=bike_patio or (-w*.38,d/2+.48);z=.34
     for dx in (-.52,.52):
         pts=[(x+dx+.32*math.cos(k*math.tau/20),y,z+.32*math.sin(k*math.tau/20)) for k in range(21)]
         m.tube(pts,.025,'Trim',(.020,.024,.019),sides=6)
@@ -19,7 +19,7 @@ def add(a,w,d,base,fh,seed):
     m.v=[(xx,yy,zz+base) for xx,yy,zz in m.v]
     grill_start=len(m.v)
     # Small kettle grill sits on three legs at a ground-floor patio.
-    x=w*.27;y=-d/2-.85
+    x,y=grill_patio or (w*.27,-d/2-.85)
     for t in (0,2.1,4.2):m.beam((x+.27*math.cos(t),y+.27*math.sin(t),0),(x+.16*math.cos(t),y+.16*math.sin(t),.54),.024,.024,'Trim',ALUM,r=.001)
     loops=[]
     for zz,rr in ((.43,.05),(.51,.22),(.65,.28),(.68,.28),(.80,.20),(.86,.035)):

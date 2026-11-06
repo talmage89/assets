@@ -14,8 +14,17 @@ def oriented(m,origin,yaw):
     return m
 
 
-def panel_wall(a,name,width,height,origin,yaw,openings,skin='mixed',band=2.7432,thick=.254):
+def panel_wall(a,name,width,height,origin,yaw,openings,skin='mixed',band=2.7432,thick=.254,inset_upper=0,edge_insets=(0,0)):
     """Disjoint wall rectangles with true rough openings and gauged reveals."""
+    if inset_upper:
+        split=height-2.7432;shift=(edge_insets[0]-edge_insets[1])/2
+        lo=[q for q in openings if q['z']-q['h']/2<split]
+        hi=[dict(q,x=q['x']-shift,z=q['z']-split,w=q['w']+(.40 if q.get('kind')=='door' else 0)) for q in openings if q['z']+q['h']/2>split]
+        panel_wall(a,name+'_lower',width,split,origin,yaw,lo,skin,band,thick)
+        panel_wall(a,name+'_upper',width-sum(edge_insets),height-split,oriented_point((shift,inset_upper,split),origin,yaw),yaw,hi,'siding' if skin=='mixed' else skin,0,thick)
+        cap=a.mesh(name+'_base_flashing',component='flashing')
+        cap.box((0,(inset_upper+thick)/2,split-.0125),(width,inset_upper+thick,.025),'Trim',(.10,.095,.08),r=0)
+        oriented(cap,origin,yaw).finish();return cap
     m=a.mesh(name,component='wall')
     xs=sorted({-width/2,width/2,*[max(-width/2,min(width/2,o['x']+side*o['w']/2)) for o in openings for side in (-1,1)]})
     zs=sorted({0,height,min(height,band),*[max(0,min(height,o['z']+side*o['h']/2)) for o in openings for side in (-1,1)]})
@@ -50,14 +59,17 @@ def panel_wall(a,name,width,height,origin,yaw,openings,skin='mixed',band=2.7432,
     oriented(m,origin,yaw).finish();return m
 
 
-def window(a,name,p,w=1.524,h=1.2192,yaw=0,seed=1,replacement=False,slider=False,masonry=False):
+def window(a,name,p,w=1.524,h=1.2192,yaw=0,seed=1,replacement=False,slider=False,masonry=False,vinyl=False,reveal=0):
     rng=random.Random(seed);x,y,z=p
-    m=a.mesh(name,component='window');frame=a.colors['Trim'] if replacement else ALUM
+    m=a.mesh(name,component='window');frame=a.colors['Trim'] if replacement or vinyl else ALUM
     # Perimeter aluminum extrusion with a recessed glazing pocket and deep sill.
     for xx in (-w/2,w/2):m.box((xx,0,0),(.038,.10,h+.06),'Trim',frame,r=.001)
     for zz in (-h/2,h/2):m.box((0,0,zz),(w,.10,.035),'Trim',frame,r=.001)
     m.box((0,-.035,-h/2-.03),(w+.11,.18,.035),'Trim',frame,r=.001)
     m.box((0,-.013,0),(.035,.075,h),'Trim',frame,r=.001)
+    if reveal:
+        for sx in (-1,1):m.box((sx*(w/2+.05),reveal/2+.025,0),(.05,reveal,h+.08),'Trim',a.colors['Trim'],r=0)
+        for sz in (-1,1):m.box((0,reveal/2+.025,sz*(h/2+.04)),(w+.15,reveal,.05),'Trim',a.colors['Trim'],r=0)
     # Four panes on replacement double-hungs, paired horizontal sliders originally.
     if replacement and not slider:m.box((0,-.022,.04),(w,.060,.030),'Trim',frame,r=.001)
     m.box((w*.25 if slider else 0,.026,0),(w*(.5 if slider else 1)-.052,.012,h-.045),'Glass',(.86,.88,.85),r=0)
@@ -68,7 +80,11 @@ def window(a,name,p,w=1.524,h=1.2192,yaw=0,seed=1,replacement=False,slider=False
     for side in (-1,1):
         for j in range(5):
             xx=side*(w*.5-w*closed*.24)+side*j*w*closed*.09
-            m.box((xx,.12+.015*math.sin(j*2),0),(w*closed*.10,.018,h-.07),'Trim',curtain,r=0)
+            ww=w*closed*.10;yl=.12+.022*math.sin(j*2);yr=.12+.022*math.sin((j+1)*2)
+            # Thin folded fabric, with a slightly uneven hanging hem. Solid
+            # rectangular curtain blocks wasted hidden faces inside the room.
+            m.geom([(xx-ww/2,yl,-h/2+.04+.015*math.sin(j)),(xx+ww/2,yr,-h/2+.04+.015*math.sin(j+1)),
+                    (xx+ww/2,yr,h/2-.04),(xx-ww/2,yl,h/2-.04)],[(0,1,2,3)],'Trim',curtain)
     # Slatted blinds differ by tenant; horizontal rails remain low-cost.
     if seed%3==0:
         for j in range(int(h/.032)):
@@ -83,13 +99,21 @@ def window(a,name,p,w=1.524,h=1.2192,yaw=0,seed=1,replacement=False,slider=False
     return m
 
 
-def door(a,name,p,yaw=0,width=.9144,glass=False,number='',replaced=False):
+def door(a,name,p,yaw=0,width=.9144,glass=False,number='',replaced=False,reveal=0):
     """Inward hinged leaf, origin at its vertical hinge; no wall behind leaf."""
     h=2.032
     frame=a.mesh(name+'_casing',component='entry')
     for side in (-1,1):frame.box((side*(width/2+.028),.03,h/2),(.055,.14,h+.06),'Trim',r=.002)
     frame.box((0,.03,h+.035),(width+.11,.14,.07),'Trim',r=.002)
     frame.box((0,-.025,.009),(width+.04,.16,.018),'Concrete',r=.001)
+    if reveal:
+        for sx in (-1,1):
+            start=len(frame.v)
+            frame.box((sx*(width/2+.06),.275,h/2),(.06,.55,h+.06),'Trim',r=0)
+            # A splayed jamb clears the accepted inward 100 degree swing.
+            for index in range(start,len(frame.v)):
+                xx,yy,zz=frame.v[index];frame.v[index]=(xx+sx*.25*yy,yy,zz)
+        frame.box((0,.275,h+.045),(width+.18,.55,.09),'Trim',r=0)
     frame.box((width/2+.18,-.075,1.78),(.13,.11,.25),'Trim',STEEL,r=.006)
     frame.box((width/2+.18,-.137,1.78),(.09,.017,.16),'Trim',(.66,.57,.35),r=.002)
     oriented(frame,p,yaw).finish()

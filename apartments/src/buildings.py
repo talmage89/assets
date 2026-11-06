@@ -6,7 +6,7 @@ from components import panel_wall,window,door,sliding,balcony,stairs,meters,rail
 from plans import FT,transform
 
 
-def roof(a,name,w,d,eave,kind,upper_openings=(),base=0,endcaps=(True,True),gallery=False):
+def roof(a,name,w,d,eave,kind,upper_openings=(),base=0,endcaps=(True,True),gallery=False,close_steps=False):
     m=a.mesh(name,component='roof');o=.30;ox=.30 if all(endcaps) else 0
     if kind=='mansard':
         bottom=eave-2.7432+.04;top=eave+.25
@@ -67,7 +67,9 @@ def roof(a,name,w,d,eave,kind,upper_openings=(),base=0,endcaps=(True,True),galle
             for q in H.roof_faces([main,cross]):
                 aa,bb,cc=q['plane'];m.prism([(x,y,aa*x+bb*y+cc) for x,y in q['polygon']],(0,0,-1),.09,'Shingles')
         for sx in (-1,1):
-            if not endcaps[0 if sx<0 else 1]:continue
+            if not endcaps[0 if sx<0 else 1]:
+                if close_steps:m.prism([(sx*w/2,-d/2,eave),(sx*w/2,d/2,eave),(sx*w/2,0,ridge)],(-sx,0,0),.16,'Siding')
+                continue
             m.prism([(sx*w/2,-d/2,eave),(sx*w/2,d/2,eave),(sx*w/2,0,ridge)],(-sx,0,0),.16,'Siding')
             for sy in (-1,1):m.beam((sx*(w/2+ox),sy*(d/2+o),eave-.04),(sx*(w/2+ox),0,ridge+.06),.12,.16,'Trim',r=.002)
             # Attic louver sits in the gable plane.
@@ -117,7 +119,8 @@ def garden_module(p,parent,name,loc=(0,0,0),yaw=0,materials=None):
     # Floor plates in unit zones only: common stairwell stays physically open.
     for f in range(1,floors):
         z=base+f*fh
-        if p['access']=='breezeway':m.box((0,0,z-.13),(w-.508,d-2*p['articulation']-.508,.254),'Concrete',r=0)
+        if p['access']=='breezeway':
+            for l,r,off in segments:m.box(((l+r)/2,0,z-.13),(r-l-.254,d+2*off-.508,.254),'Concrete',r=0)
         else:
             for sx in (-1,1):m.box((sx*(core/4+w/4),0,z-.127),((w-core)/2-.254,d+2*offset(sx*(core/4+w/4))-.508,.254),'Concrete',r=0)
             # A 1.4 m bypass on the right connects both pairs of unit doors.
@@ -140,17 +143,17 @@ def garden_module(p,parent,name,loc=(0,0,0),yaw=0,materials=None):
                 # Breezeway entry and kitchen window; opposite living slider.
                 if front:
                     q=dict(x=x-unitwidth*.28,w=.9652,h=2.09,z=z+1.045-base,kind='door');openings.append(q)
-                    door(a,'Unit_'+number,(q['x'],face-.014,z+.02),number=number,replaced=(f+j+p['seed'])%5==0)
+                    door(a,'Unit_'+number,(q['x'],face-.014,z+.02),number=number,replaced=(f+j+p['seed'])%5==0,reveal=.45 if p['roof']=='mansard' and f==floors-1 else 0)
                     wx=x+unitwidth*.22
                     openings.append(dict(x=wx,w=1.27,h=1.08,z=z+1.53-base,kind='window'))
-                    window(a,'Kitchen_'+number,(wx,face-.025,z+1.53),1.27,1.08,seed=p['seed']+f*7+j,masonry=p['skin']=='brick' or p['skin']=='mixed' and f==0)
+                    window(a,'Kitchen_'+number,(wx,face-.025,z+1.53),1.27,1.08,seed=p['seed']+f*7+j,masonry=p['skin']=='brick' or p['skin']=='mixed' and f==0,reveal=.45 if p['roof']=='mansard' and f==floors-1 else 0)
                 else:
                     bx=x-unitwidth*.22;wx=x+unitwidth*.25;sw=1.8288
                     openings.extend([dict(x=bx,w=sw+.05,h=2.10,z=z+1.05-base,kind='slider'),dict(x=wx,w=1.5748,h=1.27,z=z+1.50-base,kind='window')])
                     balcony_back=face-sy*1.524 if recessed else face
                     pos=(bx,balcony_back+sy*.025,z+1.016)
                     sliding(a,'Patio_'+number,pos,0 if sy<0 else 180,seed=p['seed']+f*9+j)
-                    window(a,'Bedroom_'+number,(wx,face+sy*.025,z+1.50),1.524,1.2192,0 if sy<0 else 180,seed=p['seed']+f*3+j,replacement=(j+f+p['seed'])%4==0,masonry=p['skin']=='brick' or p['skin']=='mixed' and f==0)
+                    window(a,'Bedroom_'+number,(wx,face+sy*.025,z+1.50),1.524,1.2192,0 if sy<0 else 180,seed=p['seed']+f*3+j,replacement=(j+f+p['seed'])%4==0,masonry=p['skin']=='brick' or p['skin']=='mixed' and f==0,reveal=.45 if p['roof']=='mansard' and f==floors-1 else 0)
                     if recessed:
                         openings[-2].update(w=3.35,h=2.36,z=z+1.18-base)
                         panel_wall(a,'Balcony_back_'+number,3.35,2.40,(bx,balcony_back,z),0 if sy<0 else 180,[dict(x=0,w=sw+.05,h=2.10,z=1.05)],p['skin'],band=fh if f==0 else 0)
@@ -171,7 +174,7 @@ def garden_module(p,parent,name,loc=(0,0,0),yaw=0,materials=None):
                     openings.append(dict(x=0,w=1.27,h=2.14 if f==0 else 1.80,z=(1.07 if f==0 else f*fh+1.45),kind='hall'))
                     if f==0:
                         door(a,'Hall_entry_'+str(sy),(0,sy*(d/2+offset(0)+.025),max(.02,base)),0 if sy<0 else 180,width=1.2192,number='A')
-                    else:window(a,'Hall_window_'+str(sy)+str(f),(0,sy*(d/2+offset(0)+.025),base+f*fh+1.45),1.22,1.75,0 if sy<0 else 180,seed=1)
+                    else:window(a,'Hall_window_'+str(sy)+str(f),(0,sy*(d/2+offset(0)+.025),base+f*fh+1.45),1.22,1.75,0 if sy<0 else 180,seed=1,reveal=.45 if p['roof']=='mansard' and f==floors-1 else 0)
                 else:openings.append(dict(x=0,w=core-.20,h=fh-.18,z=f*fh+fh/2,kind='open_hall'))
         upper.extend(dict(x=q['x'],w=q['w'],h=q['h'],z=q['z']+base,side=sy) for q in openings if q['z']>(floors-1)*fh and q['kind']!='ac')
         # Back facade coordinates reverse X under its 180 degree rotation.
@@ -179,11 +182,15 @@ def garden_module(p,parent,name,loc=(0,0,0),yaw=0,materials=None):
         for j,(l,r,off) in enumerate(segments):
             mid=(l+r)/2
             local=[dict(q,x=(q['x']-mid)*(1 if sy<0 else -1)) for q in openings if l+1e-5<q['x']<r-1e-5]
-            panel_wall(a,f'Facade_{sy}_bay{j}',r-l,floors*fh,(mid,sy*(d/2+off),base),0 if sy<0 else 180,local,p['skin'])
+            edges=(.35 if j==0 else 0,.35 if j==len(segments)-1 else 0)
+            if sy>0:edges=edges[::-1]
+            panel_wall(a,f'Facade_{sy}_bay{j}',r-l,floors*fh,(mid,sy*(d/2+off),base),0 if sy<0 else 180,local,p['skin'],inset_upper=.45 if p['roof']=='mansard' else 0,edge_insets=edges)
         returns=a.mesh('Articulated_returns_'+str(sy),component='wall')
         for left,right in zip(segments,segments[1:]):
             x=left[1];v0,v1=sy*(d/2+left[2]),sy*(d/2+right[2])
-            returns.box((x,(v0+v1)/2,base+floors*fh/2),(.254,abs(v1-v0),floors*fh),'Veneer' if p['skin']=='brick' else 'Siding',r=0)
+            lower=(floors-1)*fh if p['roof']=='mansard' else floors*fh
+            returns.box((x,(v0+v1)/2,base+lower/2),(.254,abs(v1-v0),lower),'Veneer' if p['skin']=='brick' else 'Siding',r=0)
+            if p['roof']=='mansard':returns.box((x,(v0+v1)/2-sy*.45,base+lower+fh/2),(.254,abs(v1-v0),fh),'Siding',r=0)
         returns.finish()
     # End-wall bedrooms and service bank, not blank slabs.
     for sx in (-1,1):
@@ -191,16 +198,18 @@ def garden_module(p,parent,name,loc=(0,0,0),yaw=0,materials=None):
         for f in range(floors):
             for j,yy in enumerate((-d*.29,d*.29)):
                 os.append(dict(x=yy,w=1.27,h=1.27,z=f*fh+1.50))
-                window(a,f'End_{sx}_{f}_{j}',(sx*(w/2+.025),yy,base+f*fh+1.50),1.22,1.2192,90 if sx>0 else -90,seed=p['seed']+j+f)
+                window(a,f'End_{sx}_{f}_{j}',(sx*(w/2+.025),yy,base+f*fh+1.50),1.22,1.2192,90 if sx>0 else -90,seed=p['seed']+j+f,reveal=.35 if p['roof']=='mansard' and f==floors-1 else 0)
                 if f==floors-1:upper.append(dict(x=yy,w=1.27,h=1.27,z=base+f*fh+1.5,side=sx*2))
         end_depth=d+(2*segments[-1][2] if sx>0 else 2*segments[0][2])
-        panel_wall(a,'End_wall_'+str(sx),end_depth,floors*fh,(sx*w/2,0,base),90 if sx>0 else -90,os,p['skin'])
+        panel_wall(a,'End_wall_'+str(sx),end_depth,floors*fh,(sx*w/2,0,base),90 if sx>0 else -90,os,p['skin'],inset_upper=.35 if p['roof']=='mansard' else 0,edge_insets=(.45,.45))
     if p['access']=='breezeway':
         # Continuous front access gallery with two separated exit stairs.
         m=a.mesh('Gallery',component='gallery')
         for f in range(floors):
             z=base+f*fh
-            m.box((0,-d/2-.88,z-.09),(w,1.76,.18),'Concrete',r=.005)
+            m.box((0,-d/2-.753,z-.09),(w,2.014,.18),'Concrete',r=.005)
+            for l,r,off in segments:
+                if off<0:m.box(((l+r)/2,-d/2+(-off+.254)/2,z-.09),(r-l,-off+.254,.18),'Concrete',r=.003)
             if f:
                 # Exit stair landings interrupt the gallery guard, as built.
                 left=-w/2+.90-width if False else -w/2+.90-.5588
@@ -236,7 +245,17 @@ def garden_module(p,parent,name,loc=(0,0,0),yaw=0,materials=None):
             roof(part,'Roof',r-l,d+2*off,eave,'gable',base=base,endcaps=(True,True))
     services(a,w,d,base,p['units_per_module']-wall_ac_count,p['seed'],p['units_per_module'])
     from occupancy import add
-    add(a,w,d,base,fh,p['seed'])
+    if p['access']=='breezeway':
+        center=.5*unitwidth
+        grill_patio=(center-.22*unitwidth,d/2+offset(center)+.762)
+        center=-1.5*unitwidth
+        bike_patio=(center-.22*unitwidth,d/2+offset(center)+.762)
+    else:
+        center=core/2+unitwidth/2
+        grill_patio=(center-.22*unitwidth,-d/2-offset(center)+(.762 if recessed else -.762))
+        center=-core/2-unitwidth/2
+        bike_patio=(center-.22*unitwidth,d/2+offset(center)+(-.762 if recessed else .762))
+    add(a,w,d,base,fh,p['seed'],grill_patio,bike_patio)
     # Partly sunken units get real areaways outside low sliding doors.
     if base<0:
         m=a.mesh('Sunken_areaways',component='foundation')
@@ -289,13 +308,12 @@ def townhouse(p,name='Townhouses',parent=None,materials=None):
         else:openings.append(dict(x=wx,w=2.1844,h=1.37,z=1.48))
         for xx in ((-w*.19,w*.29) if p['garage'] else (-w*.26,w*.22)):
             openings.append(dict(x=xx,w=1.27,h=1.37,z=fh+1.43))
-            window(unit,f'Upper_{i}_{xx}',(xx,-d/2-.03-(1.0 if p['garage'] and xx<0 else 0),base+fh+1.43),1.22,1.32,seed=p['seed']+i,replacement=u['window_replaced'])
+            window(unit,f'Upper_{i}_{xx}',(xx,-d/2-.03-(1.0 if p['garage'] and xx<0 else 0),base+fh+1.43),1.22,1.32,seed=p['seed']+i,replacement=u['window_replaced'],vinyl=p['era']>=1995,reveal=.45 if p['roof']=='mansard' else 0)
             if p['garage']:
                 trim=unit.mesh('Shutters_'+str(xx),component='shutters')
                 if xx<0:
                     for sx in (-1,1):
-                        tx=xx+sx*.80;trim.box((tx,-d/2-1.065,base+fh+1.43),(.32,.035,1.36),'Trim',(.085,.075,.055),r=.003)
-                        for jj in range(12):trim.box((tx,-d/2-1.09,base+fh+.85+jj*.10),(.28,.025,.025),'Trim',(.10,.09,.07),r=0)
+                        tx=xx+sx*.80;trim.box((tx,-d/2-1.065,base+fh+1.43),(.32,.035,1.36),'Trim',(.085,.075,.055),r=0)
                 else:
                     # Fanlight over the stair sash: authored curved extrusion
                     # and radial muntins, with a real half-round wall opening.
@@ -319,7 +337,7 @@ def townhouse(p,name='Townhouses',parent=None,materials=None):
             ret=unit.mesh('Garage_bay_returns',component='wall')
             for xx in (-w/2,split):ret.box((xx,-d/2-.5,base+h/2),(.20,1.0,h),'Veneer' if i%2==0 else 'Siding',r=0)
             ret.finish()
-        else:panel_wall(unit,'Front',w,h,(0,-d/2,base),0,openings,'brick' if p['skin']=='brick' else 'mixed' if p['skin']=='mixed' else 'siding')
+        else:panel_wall(unit,'Front',w,h,(0,-d/2,base),0,openings,'brick' if p['skin']=='brick' else 'mixed' if p['skin']=='mixed' else 'siding',inset_upper=.45 if p['roof']=='mansard' else 0,edge_insets=(.35 if i==0 else 0,.35 if i==p['count']-1 else 0))
         door(unit,'Entry',(dx,-d/2-.025,base+.02),number=num,replaced=u['door_replaced'])
         if p['garage']:
             group=unit.root.name+'_Garage';hpanel=2.11/4
@@ -335,8 +353,8 @@ def townhouse(p,name='Townhouses',parent=None,materials=None):
                 cy=-d/2-.45;lo=top[2]-hpanel;hi=top[2];xx=-w*.16-1.25
                 profile=[(cy-.020,lo+.035),(cy-.003,lo+.005),(cy+.003,lo+.005),(cy+.020,lo+.035),
                          (cy+.020,hi-.035),(cy+.003,hi-.005),(cy-.003,hi-.005),(cy-.020,hi-.035)]
-                m.prism([(xx,yy,zz) for yy,zz in profile],(1,0,0),2.50,'Trim',(.55,.55,.50))
-                for xx in (-w*.16-.78,-w*.16,-w*.16+.78):m.box((xx,-d/2-.473,top[2]-hpanel/2),(.70,.012,.39),'Trim',(.49,.49,.45),r=.004)
+                m.prism([(xx,yy,zz) for yy,zz in profile],(1,0,0),2.50,'Trim',(.74,.73,.69))
+                for xx in (-w*.16-.78,-w*.16,-w*.16+.78):m.box((xx,-d/2-.473,top[2]-hpanel/2),(.70,.012,.39),'Trim',(.69,.68,.64),r=.004)
                 finish_local(m)
             m=unit.mesh('Garage_tracks_and_reveals',component='garage_frame')
             # Deep return jambs leave the curved guide entirely behind framing.
@@ -355,23 +373,28 @@ def townhouse(p,name='Townhouses',parent=None,materials=None):
         # Rear living slider and kitchen; upper two bedrooms.
         rear=[dict(x=-w*.20,w=1.89,h=2.10,z=1.05),dict(x=w*.29,w=1.02,h=1.10,z=1.55)]
         for xx in (-w*.26,w*.22):rear.append(dict(x=xx,w=1.27,h=1.37,z=fh+1.43))
-        panel_wall(unit,'Rear',w,h,(0,d/2,base),180,[dict(q,x=-q['x']) for q in rear],'siding')
+        panel_wall(unit,'Rear',w,h,(0,d/2,base),180,[dict(q,x=-q['x']) for q in rear],'siding',inset_upper=.45 if p['roof']=='mansard' else 0,edge_insets=(.35 if i==p['count']-1 else 0,.35 if i==0 else 0))
         sliding(unit,'Rear_slider',(-w*.20,d/2+.025,base+1.016),180,seed=p['seed']+i)
         for j,q in enumerate(rear[1:]):
-            window(unit,'Rear_window_'+str(j),(q['x'],d/2+.025,base+q['z']),q['w']-.05,q['h']-.05,180,seed=i+j*3)
+            window(unit,'Rear_window_'+str(j),(q['x'],d/2+.025,base+q['z']),q['w']-.05,q['h']-.05,180,seed=i+j*3,reveal=.45 if p['roof']=='mansard' and q['z']>fh else 0)
             if q['z']>fh:upper.append(dict(x=q['x'],w=q['w'],h=q['h'],z=base+q['z'],side=1))
         # Stepped units expose actual narrow wall returns; interior party-wall
         # portions are skipped, with only the end units carrying full side walls.
         for sx in (-1,1):
             neighbor=i+sx
-            if neighbor<0 or neighbor>=p['count']:panel_wall(unit,'Side_'+str(sx),d,h,(sx*w/2,0,base),90 if sx>0 else -90,[],'siding')
+            if neighbor<0 or neighbor>=p['count']:panel_wall(unit,'Side_'+str(sx),d,h,(sx*w/2,0,base),90 if sx>0 else -90,[],'siding',inset_upper=.35 if p['roof']=='mansard' else 0,edge_insets=(.45,.45))
             else:
                 other=p['units'][neighbor];off=other['y']-y
                 if abs(off)>.001:
                     # Only uncovered front/rear strips, never a hidden full plate.
                     yy=-d/2+off/2 if off>0 else d/2+off/2
-                    mm=unit.mesh('Exposed_party_return_'+str(sx),component='wall');mm.box((sx*w/2,yy,base+h/2),(.20,abs(off),h),'Siding',r=0);mm.finish()
-        roof(unit,'Roof',w,d,base+h,p['roof'],upper,-u['z'],(i==0,i==p['count']-1))
+                    mm=unit.mesh('Exposed_party_return_'+str(sx),component='wall')
+                    if p['roof']=='mansard':
+                        mm.box((sx*w/2,yy,base+fh/2),(.20,abs(off),fh),'Siding',r=0)
+                        mm.box((sx*(w/2-.35),yy+(.45 if off>0 else -.45),base+1.5*fh),(.20,abs(off),fh),'Siding',r=0)
+                    else:mm.box((sx*w/2,yy,base+h/2),(.20,abs(off),h),'Siding',r=0)
+                    mm.finish()
+        roof(unit,'Roof',w,d,base+h,p['roof'],upper,-u['z'],(True,True) if p['roof']=='mansard' else (i==0,i==p['count']-1),close_steps=True)
         if p['roof']=='cross_gable':
             m=unit.mesh('Front_gable',component='roof');ridge=base+h+1.50
             m.prism([(-w/2,-d/2-1.18,base+h-.03),(w*.12,-d/2-1.18,base+h-.03),(-w*.19,-d/2-1.18,ridge)],(0,1,0),.13,'Siding')
