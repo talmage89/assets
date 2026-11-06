@@ -23,7 +23,7 @@ def tree(obs,role):
  vs=[];fs=[]
  for ob in obs:
   ob.data.calc_loop_triangles();offset=len(vs);vs += [ob.matrix_world@v.co for v in ob.data.vertices]
-  fs += [tuple(offset+i for i in t.vertices) for t in ob.data.loop_triangles if role in ob.data.materials[t.material_index].name]
+  fs += [tuple(offset+i for i in t.vertices) for t in ob.data.loop_triangles if role in ob.data.materials[t.material_index].name or (role=='Masonry' and 'MineralRoof' in ob.data.materials[t.material_index].name)]
  return BVHTree.FromPolygons(vs,fs,all_triangles=True)
 
 def ray(t,point,direction):
@@ -78,7 +78,7 @@ class AssemblyMembership:
 def audit(lot,row,do_motion=False):
  path=Path(row['source']);g=read(path);doc=g.json;tris=0;points=[];normal=0;uv0=0;zero=0
  assert len(doc['materials'])<=6
- assert len(doc.get('images',[]))==1 and all(im['uri'].startswith('textures/') for im in doc['images'])
+ assert 10<=len(doc.get('images',[]))<=11 and all(im['uri'].startswith('textures/') for im in doc['images'])
  for im in doc['images']:assert (path.parent/im['uri']).exists()
  for i,n in enumerate(doc['nodes']):
   if 'mesh' not in n:continue
@@ -125,10 +125,16 @@ def audit(lot,row,do_motion=False):
  scupper=Vector((-w/2+.38,d/2+.05,lot['roof']+.04))
  for field in (masonry,roof):
   h=field.ray_cast(scupper,Vector((0,-1,0)),.45);assert h[0] is None,('blocked scupper',lot['id'])
- corner_floor=None
+ corner_floor=None;entry_steps=None
  if lot['corner']:
   mineral=tree(obs,'Mineral');pt=bpy.data.objects[lot['id']+'__Socket_CornerDoorThreshold'].matrix_world.translation
-  floorhit=ray(mineral,(pt.x,pt.y,.10),(0,0,-1));corner_floor=float(floorhit.z);assert abs(corner_floor)<1e-5
+  floorhit=ray(mineral,(pt.x,pt.y,pt.z+.10),(0,0,-1));corner_floor=float(floorhit.z);assert abs(corner_floor-(pt.z-.018))<1e-5
+  if lot['tenant']=='bank':
+   inward=Vector((1 if lot['corner']=='left' else -1,1,0)).normalized();treads=[]
+   for setback in (.48,.17):
+    q=pt-inward*(.47+setback);hit=ray(mineral,(q.x,q.y,1),(0,0,-1));treads.append(float(hit.z))
+   assert abs(treads[0]-.15)<1e-5 and abs(treads[1]-.30)<1e-5
+   entry_steps=dict(tread_z_m=treads,riser_heights_m=[treads[0],treads[1]-treads[0]],landing_z_m=corner_floor,scope='Rays on actual exported treads and lobby; the retail leaf remains at grade')
  stairs=None
  if lot['fire_escape']:
   steel=finish;span=min(5.60,w-.55);left=w/2-span/2;right=w/2+span/2;ax=left+.95;bx=right-.95
@@ -164,7 +170,7 @@ def audit(lot,row,do_motion=False):
  return dict(id=lot['id'],passed=True,triangles=tris,materials=len(doc['materials']),gltf_bytes=path.stat().st_size,bin_bytes=len(g.binary),
   normal_length_error=normal,zero_area_triangles=zero,zero_area_uvs=uv0,reimport_error_m=err,
   construction=dict(measured_masonry_width_m=measured_width,measured_masonry_depth_m=measured_depth,measured_front_gauge_m=front_gauge,measured_door_recess_m=recess,front_plane_error_m=front_error,measured_roof_center_z_m=roofhit.z),
-  corner_lobby_floor_z_m=corner_floor,roof_details=roof_details,stairs=stairs,motion=sweep,sha256=hashlib.sha256(path.read_bytes()+g.binary).hexdigest())
+  corner_lobby_floor_z_m=corner_floor,corner_entry_steps=entry_steps,roof_details=roof_details,stairs=stairs,motion=sweep,sha256=hashlib.sha256(path.read_bytes()+g.binary).hexdigest())
 
 def main():
  rows=[];blocks=[];fixtures=membership_fixtures()
@@ -178,7 +184,7 @@ def main():
    gaps.append(abs(aa.x-bb.x))
   assert max(gaps)<2e-5
   blocks.append(dict(region=region,triangles=sum(r['triangles'] for r in meta['buildings']),party_line_max_gap_m=max(gaps),glb_bytes=source.stat().st_size))
- report=dict(passed=True,stage='form checkpoint; no baked material or final UV claims',buildings=rows,blocks=blocks,membership_fixtures=fixtures,
+ report=dict(passed=True,stage='shared baked PBR; raw accessors and actual imported construction',buildings=rows,blocks=blocks,membership_fixtures=fixtures,
    scopes=dict(raw='Serialization, triangles, normals, staging UVs and canonical image URI',imported='Raw-to-imported surface preservation',physical='Rays on imported doors, masonry and roof; imported party line sockets',motion='All imported leaves, 1 degree sampled sweep against actual triangles'))
  Path('build/check.json').write_text(json.dumps(report,indent=2)+'\n');print('CHECK PASS',len(rows),'buildings',blocks,flush=True)
 if __name__=='__main__':main()

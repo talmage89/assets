@@ -12,14 +12,15 @@ from plan import PROOF,load
 from graphics import generate
 from geometry import palette
 from building import Building
+from delivery import externalize,bundle_hash
 
 
 def count(obs):
     return sum(len(o.data.loop_triangles) for o in obs)
 
 
-def build_block(seed,region,count_lots=7,path=None):
-    p=load(seed,region,count_lots,path);out=Path('build/blocks')/region;out.mkdir(parents=True,exist_ok=True)
+def build_block(seed,region,count_lots=7,path=None,context=False):
+    p=load(seed,region,count_lots,path);out=Path('build/context/blocks')/(region+'-'+str(seed)) if context else Path('build/blocks')/region;out.mkdir(parents=True,exist_ok=True)
     bpy.ops.wm.read_factory_settings(use_empty=True)
     sheet,layout=generate(Path('build/signs'));mats=palette(sheet);rows=[]
     for lot in p['lots']:
@@ -34,18 +35,18 @@ def build_block(seed,region,count_lots=7,path=None):
         for o in obs:o.data.calc_loop_triangles()
         objects=[root]+list(root.children_recursive)
         # Same shared signs URI for every building; other materials are quick factors.
-        export=Path('export')/(lot['id']+'.gltf');export.parent.mkdir(exist_ok=True)
+        export=(out if context else Path('export'))/(lot['id']+'.gltf');export.parent.mkdir(exist_ok=True)
         bpy.ops.object.select_all(action='DESELECT')
         for o in objects:o.select_set(True)
-        bpy.ops.export_scene.gltf(filepath=str(export.resolve()),export_format='GLTF_SEPARATE',use_selection=True,
-            export_texture_dir='textures',export_yup=True,export_extras=True,export_animations=False,
-            export_tangents=True,export_attributes=True,export_all_vertex_colors=False)
+        embedded=Path('build/delivery')/(lot['id']+'.glb');embedded.parent.mkdir(parents=True,exist_ok=True)
+        tiling.export(embedded,objects)
+        externalize(embedded,export)
         doc=json.loads(export.read_text());budget=30000 if lot['stories']==3 or lot['corner'] else 20000
         tris=count(obs)
         if tris>budget:raise ValueError(f"{lot['id']}: {tris} > {budget}")
         row=dict(id=lot['id'],triangles=tris,budget=budget,materials=len(doc.get('materials',[])),
                  gltf_bytes=export.stat().st_size,bin_bytes=export.with_suffix('.bin').stat().st_size,
-                 position=[lot['x'],lot['y'],0],doors=[o.name for o in doors],source=str(export))
+                 bundle_sha256=bundle_hash(export),position=[lot['x'],lot['y'],0],doors=[o.name for o in doors],source=str(export))
         rows.append(row);root.location=(lot['x'],lot['y'],0)
     bpy.context.view_layer.update();sc=bpy.context.scene;sc.unit_settings.system='METRIC';sc['stage']=p['stage']
     blend=out/'block.blend';bpy.ops.wm.save_as_mainfile(filepath=str(blend.resolve()))
@@ -57,12 +58,12 @@ def build_block(seed,region,count_lots=7,path=None):
 
 def main():
     a=argparse.ArgumentParser();a.add_argument('--out',type=Path,default=Path('build/downtown.blend'))
-    a.add_argument('--seed',type=int);a.add_argument('--region',default='midwest');a.add_argument('--count',type=int,default=7);a.add_argument('--plan',type=Path)
-    args=a.parse_args(sys.argv[sys.argv.index('--')+1:]);args.out.parent.mkdir(parents=True,exist_ok=True)
+    a.add_argument('--wear',type=float,default=1.0);a.add_argument('--seed',type=int);a.add_argument('--region',default='midwest');a.add_argument('--count',type=int,default=7);a.add_argument('--plan',type=Path)
+    args=a.parse_args(sys.argv[sys.argv.index('--')+1:]);__import__('age').AMOUNT=args.wear;args.out.parent.mkdir(parents=True,exist_ok=True)
     cases=[(args.seed,args.region)] if args.seed is not None else PROOF
     rows=[build_block(seed,region,args.count,args.plan) for seed,region in cases]
     # The main sentinel is a deterministic manifest; all four group outputs are declared in Make.
     bpy.ops.wm.save_as_mainfile(filepath=str(args.out.resolve()))
-    (args.out.with_suffix('.json')).write_text(json.dumps(dict(stage='construction checkpoint',blocks=rows),indent=2)+'\n')
+    (args.out.with_suffix('.json')).write_text(json.dumps(dict(stage='baked shared external delivery',blocks=rows),indent=2)+'\n')
     print('DOWNTOWN',[(r['region'],r['triangles']) for r in rows],flush=True)
 if __name__=='__main__':main()

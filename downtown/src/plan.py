@@ -73,7 +73,7 @@ def generate(seed=411, region='midwest', count=7, overrides=None):
         lot['neighbor_right']=lots[i+1]['height'] if i+1<len(lots) else None
     return dict(seed=seed,region=region,count=count,width=cursor,walk=r['walk']*FT,
                 parking=r['parking'],road_width=(48 if r['parking']=='angle' else 40)*FT,
-                lots=lots,stage='form and construction checkpoint; quick materials')
+                lots=lots,stage='shared baked PBR; original used Main Street family')
 
 
 def validate(p):
@@ -91,3 +91,11 @@ def load(seed,region,count=7,path=None):
     if path:
         p=json.loads(Path(path).read_text());return validate(p)
     return validate(generate(seed,region,count))
+
+
+def opposite_seed(seed,region):
+    """A different authored row with the same block frontage for a real grid."""
+    width=generate(seed,region)['width']
+    for other in range(seed+17,seed+4113):
+        if abs(generate(other,region)['width']-width)<1e-6:return other
+    raise ValueError('No matching opposite-block frontage in bounded seed search')

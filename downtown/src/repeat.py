@@ -11,6 +11,7 @@ def snapshot(root):
  return {str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(paths)}
 before=snapshot(Path('.'));assert before
 workspace=Path('build/repeat-workspace');shutil.rmtree(workspace,ignore_errors=True);workspace.mkdir(parents=True)
+shutil.copytree('textures/ship',workspace/'textures/ship')
 with Path('build/repeat-build.log').open('w') as log:
  subprocess.run(['blender','-b','--factory-startup','--python-exit-code','1','--python',str(HERE/'build.py'),'--','--out','build/downtown.blend'],stdout=log,stderr=subprocess.STDOUT,check=True,cwd=workspace)
 after=snapshot(workspace);changed=[p for p in set(before)|set(after) if before.get(p)!=after.get(p)]

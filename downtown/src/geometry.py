@@ -8,11 +8,14 @@ import bpy
 import bmesh
 from mathutils import Vector, Matrix
 from kit import model as G
-ROLES=('Masonry','Mineral','Finish','Roof','Glass','Graphics')
-COLORS={'Masonry':(.27,.10,.05),'Mineral':(.43,.39,.30),'Finish':(.055,.075,.065),'Roof':(.075,.08,.075),'Glass':(.92,.96,.97),'Graphics':(1,1,1)}
+ROLES=('Masonry','Mineral','Finish','Roof','Glass','Graphics','Interior')
+COLORS={'Masonry':(.27,.10,.05),'Mineral':(.43,.39,.30),'Finish':(.055,.075,.065),'Roof':(.075,.08,.075),'Glass':(.92,.96,.97),'Graphics':(1,1,1),'Interior':(.5,.3,.1)}
 
 
 def palette(sheet):
+    from surfaces import palette as final_palette
+    final=final_palette(sheet)
+    if final:return final
     mats=[]
     for role in ROLES:
         m=bpy.data.materials.new('Downtown_'+role);m.use_nodes=True;m['checkpoint_placeholder']=True
@@ -32,15 +35,54 @@ def palette(sheet):
 class Batch:
     def __init__(self,name,parent,materials,xf=None):
         self.name=name;self.parent=parent;self.materials=materials;self.xf=xf or (lambda v:Vector(v))
-        self.v=[];self.f=[];self.c=[];self.m=[];self.uv=[]
+        self.v=[];self.f=[];self.c=[];self.m=[];self.uv=[];self.smooth=[];self.n=[];self.surface=None;self.stone_ground=False
+        root=parent
+        while root.parent:root=root.parent
+        self.plan=__import__('json').loads(root.get('plan','{}'))
+        self.textured=not materials[0].get('checkpoint_placeholder',False)
     def geom(self,vs,fs,role='Finish',color=None,uv=None):
-        base=len(self.v);self.v.extend(tuple(self.xf(v)) for v in vs)
-        self.f.extend(tuple(base+i for i in face) for face in fs)
-        self.c.extend([(*(color or COLORS[role]),1)]*len(vs));self.m.extend([ROLES.index(role)]*len(fs))
-        self.uv.extend([uv for f in fs])
+        from surfaces import masonry_faces,strip_uv,classify
+        color=color or COLORS[role]
+        p=self.plan
+        smooth=self.surface in ('canvas','cast_shaft')
+        normals=[Vector((0,0,0)) for v in vs]
+        if smooth:
+            for f in fs:
+                nn=(Vector(vs[f[1]])-Vector(vs[f[0]])).cross(Vector(vs[f[2]])-Vector(vs[f[0]]))
+                for i in f:normals[i]+=nn
+            normals=[v.normalized() for v in normals]
+        for face in fs:
+            points=[vs[i] for i in face];coords=uv
+            chunks=[(points,coords)]
+            tint=color
+            if self.textured and role=='Masonry':
+                painted=p.get('painted',False) and self.name.split('__')[-1].startswith('Wall0')
+                variant=2 if painted else 3 if color[1]>color[0]*.63 else (p.get('index',0)%2)
+                chunks=masonry_faces(points,variant)
+                tint=tuple(v/.62 for v in color) if painted else (1.,1.,1.)
+            elif self.textured and role in ('Mineral','Roof','Finish'):
+                strip,count=classify(role,color,self.surface);chunks=[(points,strip_uv(points,strip,count))]
+                # Shared fields are neutral manufacturing modulation.
+                tint=color
+            elif self.textured and role=='Interior':
+                chunks=[(points,strip_uv(points,3 if self.surface=='fixture' else 1 if max(color)>.2 else 0,4,1))]
+            for points,coords in chunks:
+                base=len(self.v);world=[tuple(self.xf(v)) for v in points]
+                self.v.extend(world)
+                self.n.extend([tuple((self.xf(Vector(vs[i])+normals[i])-self.xf(vs[i])).normalized()) for i in face] if smooth else [None]*len(world))
+                self.f.append(tuple(range(base,base+len(world))))
+                from age import tint as weather
+                self.c.extend([(*weather(v,role,tint,self.plan,self.name),1) for v in world]);self.m.append(ROLES.index(role));self.uv.append(coords);self.smooth.append(smooth)
     def box(self,p,s,role='Finish',color=None,r=0):
         if min(s)<1e-6:return
         x,y,z=p;a,b,c=(v/2 for v in s)
+        if role=='Masonry' and self.stone_ground:
+            level=self.plan['floor_first']-.08
+            if z-c<level-1e-8 and z+c>level+1e-8:
+                self.box((x,y,(z-c+level)/2),(s[0],s[1],level-z+c),'Mineral',(.43,.42,.37))
+                self.box((x,y,(level+z+c)/2),(s[0],s[1],z+c-level),'Masonry',color)
+                return
+            if z+c<=level+1e-8:role='Mineral';color=(.43,.42,.37)
         vs=[(x+i*a,y+j*b,z+k*c) for i,j,k in ((-1,-1,-1),(1,-1,-1),(1,1,-1),(-1,1,-1),(-1,-1,1),(1,-1,1),(1,1,1),(-1,1,1))]
         self.geom(vs,[(0,3,2,1),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)],role,color)
     def prism(self,poly,delta,role='Finish',color=None):
@@ -76,7 +118,7 @@ class Batch:
         me=bpy.data.meshes.new(self.name);me.from_pydata(self.v,[],self.f);me.update()
         for m in self.materials:me.materials.append(m)
         ob=bpy.data.objects.new(self.name,me);bpy.context.collection.objects.link(ob);ob.parent=self.parent
-        for p,i in zip(me.polygons,self.m):p.material_index=i
+        for p,i,sm in zip(me.polygons,self.m,self.smooth):p.material_index=i;p.use_smooth=sm
         attr=me.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='POINT');attr.data.foreach_set('color',[v for c in self.c for v in c]);me.color_attributes.active_color=attr
         uv=me.uv_layers.new(name='UVMap')
         for p,coords in zip(me.polygons,self.uv):
@@ -84,7 +126,12 @@ class Batch:
             for j,li in enumerate(p.loop_indices):
                 v=me.vertices[me.loops[li].vertex_index].co
                 uv.data[li].uv=coords[j] if coords else (v[axes[0]],v[axes[1]])
-        bm=bmesh.new();bm.from_mesh(me);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bmesh.ops.triangulate(bm,faces=list(bm.faces),quad_method='FIXED',ngon_method='EAR_CLIP');bm.to_mesh(me);bm.free()
+        light=me.uv_layers.new(name='LightUV')
+        for p in me.polygons:
+            bright=ROLES[self.m[p.index]]=='Interior' and max(self.c[p.vertices[0]][:3])>.20
+            for li in p.loop_indices:light.data[li].uv=(.5,.875 if bright else .125)
+        bm=bmesh.new();bm.from_mesh(me);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bmesh.ops.triangulate(bm,faces=list(bm.faces),quad_method='FIXED',ngon_method='EAR_CLIP');bm.to_mesh(me);bm.free();me.update()
+        if any(v is not None for v in self.n):me.normals_split_custom_set_from_vertices([n if n is not None else tuple(v.normal) for n,v in zip(self.n,me.vertices)])
         ob['asset_set']='Downtown';ob['construction_component']=self.name
         return ob
 

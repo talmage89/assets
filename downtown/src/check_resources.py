@@ -12,6 +12,6 @@ for path in paths+[paths[0]]:
   if key in seen:assert seen[key]==im.as_pointer(),'Image identity changed'
   seen[key]=im.as_pointer()
  steps.append(dict(building=path.stem,image_datablocks=len(images)))
-assert len(seen)==1
-Path('build/resource-check.json').write_text(json.dumps(dict(passed=True,steps=steps,shared_images=1,rgba8_pixel_bytes=sum(im.size[0]*im.size[1]*4 for im in images),scope='Actual stock Blender import; engine compression/caching remains importer policy'),indent=2)+'\n')
-print('RESOURCE PASS',len(paths),'buildings plus repeat share exactly one image datablock')
+assert len(seen)==11
+Path('build/resource-check.json').write_text(json.dumps(dict(passed=True,steps=steps,shared_images=11,rgba8_pixel_bytes=sum(im.size[0]*im.size[1]*4 for im in images),scope='Actual stock Blender import; engine compression/caching remains importer policy'),indent=2)+'\n')
+print('RESOURCE PASS',len(paths),'buildings plus repeat share exactly eleven canonical image datablocks')
