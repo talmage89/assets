@@ -75,7 +75,20 @@ def amenity(a,kind,p):
         for sx in (-1,1):m.box((x+sx*5.0,y,-.50),(.20,6.2,1.2),'Concrete',(.40,.55,.55),r=.01)
         for sy in (-1,1):m.box((x,y+sy*3.,-.5),(10.0,.20,1.2),'Concrete',(.40,.55,.55),r=.01)
         rectangle(m,x-4.9,x+4.9,y-2.9,y+2.9,-.09,'Glass',(.12,.33,.34))
-        for sy in (-1,1):rail(m,(x-6.6,y+sy*4.6,.16),(x+6.6,y+sy*4.6,.16),1.22)
+        rail(m,(x-6.6,y-4.6,.16),(x+6.6,y-4.6,.16),1.22)
+        # Pool access opens away from the water onto its connected site walk.
+        for lo,hi in ((-6.6,-.74),(.74,6.6)):
+            rail(m,(x+lo,y+4.6,.16),(x+hi,y+4.6,.16),1.22)
+        hinge=a.pivot('Pool_gate',(x-.64,y+4.6,.16));hinge['range_degrees']=(0,100)
+        gate=a.mesh('Pool_gate_leaf',part=hinge.name,component='gate')
+        for zz in (.23,1.365):gate.beam((x-.64,y+4.6,zz),(x+.64,y+4.6,zz),.035,.028,'Trim',STEEL,r=.001)
+        for dx in (-.64,.64):gate.beam((x+dx,y+4.6,.23),(x+dx,y+4.6,1.38),.035,.028,'Trim',STEEL,r=.001)
+        for j in range(1,13):
+            xx=x-.64+j*1.28/13;gate.beam((xx,y+4.6,.23),(xx,y+4.6,1.365),.0127,.0127,'Trim',STEEL,r=0)
+        from geometry import finish_local
+        finish_local(gate)
+        for zz in (.42,1.15):m.box((x-.69,y+4.6,zz),(.10,.035,.045),'Trim',STEEL,r=.002)
+        m.box((x+.70,y+4.6,1.30),(.08,.045,.07),'Trim',STEEL,r=.002)
         for sx in (-1,1):rail(m,(x+sx*6.6,y-4.6,.16),(x+sx*6.6,y+4.6,.16),1.22)
     elif kind=='playground':
         rectangle(m,x-6,x+6,y-4,y+4,.01,'Siding',(.16,.115,.065))
@@ -125,6 +138,9 @@ def make_complex(p):
             ground.box((xx,yy,.06),(3.30,5.48,.12),'Concrete',(.29,.28,.24),r=.12)
             ground.box((xx,yy,.123),(3.0,5.18,.015),'Siding',(.075,.12,.035),r=0)
             instance('shrub',a.root,'Island_shrub_'+str(sx)+str(sy),(xx,yy,.13),sx*31+sy*12)
+    if p['amenity']!='none':
+        ax=W/2-12;ay=-D/2+11+(4.6 if p['amenity']=='pool' else 4)
+        ground.box((ax,(ay-11.18)/2,.065),(1.524,-11.18-ay,.13),'Concrete',r=.002)
     # Disjoint native lawn regions omit buildings, slabs, walks and the pool.
     # This keeps turf out of sunken bowls and avoids whole-site buried faces.
     excluded=[(-W/2,W/2,-11.2,11.2),(-W/2,-W/2+8,-D/2,0)]
@@ -136,6 +152,7 @@ def make_complex(p):
             q=transform(transform((0,-d0/2-1.5,0),module['origin'],module['yaw']),bb['origin'],bb['yaw']);end=11.2 if q[1]>0 else -11.2
             excluded.append((q[0]-.77,q[0]+.77,min(q[1],end),max(q[1],end)))
     if p['amenity']=='pool':excluded.append((W/2-19,W/2-5,-D/2+6,-D/2+16))
+    if p['amenity']!='none':excluded.append((W/2-12-.77,W/2-12+.77,-D/2+15,-11.18))
     excluded.append((W/2-11,W/2-5,D/2-10,D/2-4))
     xs=sorted({-W/2,W/2,*[max(-W/2,min(W/2,q)) for e in excluded for q in e[:2]]})
     ys=sorted({-D/2,D/2,*[max(-D/2,min(D/2,q)) for e in excluded for q in e[2:]]})

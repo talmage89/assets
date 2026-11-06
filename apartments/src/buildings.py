@@ -210,11 +210,13 @@ def garden_building(p,name='Garden',parent=None,loc=(0,0,0),yaw=0,materials=None
     if len(p['modules'])>1:
         # A covered, open circulation link joins separate fire compartments.
         # It is intentionally a low canopy, below both independent wing roofs.
-        m=b.mesh('Covered_wing_link',component='link');x=p['width']/2+.762-p['module_recenter_m'][0];y=p['depth']*.18-p['module_recenter_m'][1]
-        m.box((x,y,.0762),(1.524,2.4384,.1524),'Concrete',r=.003)
-        m.box((x,y,2.62),(1.80,2.70,.12),'Shingles',r=.003)
-        for sx in (-1,1):
-            for sy in (-1,1):m.box((x+sx*.67,y+sy*1.12,1.30),(.089,.089,2.60),'Trim',r=.002)
+        m=b.mesh('Covered_wing_link',component='link');gap=p['wing_gap_m'];x=p['width']/2+gap/2-p['module_recenter_m'][0];y=p['depth']*.18-p['module_recenter_m'][1]
+        m.box((x,y,.0762),(gap,2.4384,.1524),'Concrete',r=.003)
+        m.box((x,y,2.62),(gap+.30,2.70,.12),'Shingles',r=.003)
+        # Ledgers bear against both framed walls; no support post obstructs
+        # the meter working space or the shared walking route.
+        for sx in (-1,1):m.box((x+sx*(gap/2-.04),y,2.54),(.08,2.60,.15),'Trim',r=.002)
+        for sy in (-.9,0,.9):m.box((x,y+sy,2.53),(gap,.089,.14),'Trim',r=.002)
         m.finish();b.socket('Wing_link',(x,y,0),'walk')
     b.root['footprint_polygons_m']=__import__('json').dumps(p['footprint_polygons'])
     for j,poly in enumerate(p['footprint_polygons']):

@@ -32,14 +32,15 @@ def garden(seed=301,**overrides):
     d['unit_width']=d.get('unit_width_ft',28 if d['access']!='breezeway' else 24)*FT
     d['unit_depth']=overrides.get('unit_depth_ft',25 if d['access']!='breezeway' else 32)*FT
     d['core_width']=16*FT
+    d['wing_gap_m']=10*FT
     d['base']=.1524 if not d['sunken'] else -.9144
     d['width']=2*d['unit_width']+d['core_width'] if d['access']!='breezeway' else 4*d['unit_width']
     d['depth']=2*d['unit_depth'] if d['access']!='breezeway' else d['unit_depth']
     # Wings connect through a supported open link; roof envelopes never overlap.
     w,dep=d['width'],d['depth']
     modules=[dict(origin=(0,0,0),yaw=0)]
-    if d['shape']=='L':modules.append(dict(origin=(w/2+dep/2+1.524,w/2-dep/2,0),yaw=90))
-    elif d['shape']=='offset':modules.append(dict(origin=(w+1.524,dep*.30,0),yaw=0))
+    if d['shape']=='L':modules.append(dict(origin=(w/2+dep/2+d['wing_gap_m'],w/2-dep/2,0),yaw=90))
+    elif d['shape']=='offset':modules.append(dict(origin=(w+d['wing_gap_m'],dep*.30,0),yaw=0))
     d['modules']=copy.deepcopy(overrides.get('modules',modules))
     corners=[transform((x,y,0),q['origin'],q['yaw']) for q in d['modules'] for x in (-w/2,w/2) for y in (-dep/2,dep/2)]
     cx=(min(q[0] for q in corners)+max(q[0] for q in corners))/2;cy=(min(q[1] for q in corners)+max(q[1] for q in corners))/2

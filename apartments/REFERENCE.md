@@ -67,3 +67,22 @@ Internal unit rooms are shallow window backings at this stage. Shared stair
 circulation is actual geometry; apartment floor areas are gross plan modules,
 not independently habitable interior layouts. Do not infer full interiors,
 fire ratings, accessibility certification or permitted occupant loads.
+
+Generated wall-footprint bounds, before stairs, balconies, services and site
+pieces (calculated from the authored plan polygons, not surveyed photos):
+
+| Building | Overall wall-footprint bounds, m | Nominal module(s) |
+| --- | --- | --- |
+| 301 | 21.9456 × 15.2400 | 72 × 50 ft central-core block |
+| 302 | 42.0624 × 29.2608 | Two 96 × 32 ft wings, 10 ft connecting gap, L arrangement |
+| 303 | 46.9392 × 19.8120 | Two 72 × 50 ft wings, 10 ft gap, 15 ft offset |
+| 304 | 29.2608 × 9.7536 | 96 × 32 ft gallery block |
+
+The link gap is 3.048 m, widened after measuring opposing balcony/service
+projections. Conservative mesh component bounds leave 1.295 / 1.564 m opposite
+the linked buildings’ meter banks through 2.1 m height. This is a geometric
+working-space reservation, not electrical-code certification. Rows 401/402/403/404 are 36.576 / 36.576 / 43.8912 /
+21.9456 m long along their party-wall grid; stepped fronts add .6096 m to the
+bounding depth. Full built envelopes, including stairs, roofs and services,
+are independently computed from mesh coordinates in each exported metadata file.
+The source/import check separately proves that those surfaces survived export.
