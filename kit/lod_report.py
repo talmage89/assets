@@ -13,7 +13,7 @@ from PIL import Image,ImageDraw,ImageFont
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from kit.lod import configuration,tool_digests
-from kit.lod_io import Document,digest
+from kit.lod_io import Document,digest,residency
 from kit.fonts import find_font
 
 
@@ -29,24 +29,41 @@ def table(manifest):
     return '\n'.join(lines)
 
 
+def resident_text(m):
+    r=m['resident'];unit=2**20
+    result=('Whole-chain resident GPU estimate: **'+f"{r['total_gpu_bytes']/unit:.3f} MiB"+'**, versus LOD0 alone **'+f"{r['lod0_total_gpu_bytes']/unit:.3f} MiB"+
+      '**. Unique textures '+f"{r['texture_gpu_bytes']/unit:.3f} MiB = {r['lod0_texture_gpu_bytes']/unit:.3f} MiB original + {r['proxy_texture_gpu_bytes']/unit:.3f} MiB proxy/impostor"+
+      '; all meshes '+f"{r['mesh_gpu_bytes']/unit:.4f} MiB"+'. Intermediate new images: '+str(len(r['unexpected_intermediate_images']))+
+      '. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. '+
+      'Identical embedded/external PNG bytes require this resource binding to share GPU allocations. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.')
+    for index,row in enumerate(m['levels']):
+        for alternative in row.get('alternatives',[]):
+            choice=list(m['levels']);choice[index]=alternative
+            cost=residency(choice)
+            result+=(' Replacing the fixed far level with '+alternative['alternative']+' gives **'+
+                     f"{cost['total_gpu_bytes']/unit:.3f} MiB"+'** for that complete alternative chain ('+
+                     f"{cost['proxy_texture_gpu_bytes']/unit:.3f} MiB"+' new far maps).')
+    return result
+
+
 def block(cfg,m,status=None):
     if cfg.get('foliage_shader'):
         assembly_text=('Intermediate levels reduce branches and retain fewer, enlarged source leaf cards. '
                        'Their source UVs, bent normals and Wind fields remain; the last impostor freezes wind and lighting.')
     else:
         assembly_text=('Near levels consolidate static parts by material and simplify moving parts while retaining names, '
-          'pivots, sockets and animation data. LOD2 closes and simplifies static construction where configured. ')
+          'pivots, sockets and animation data. Both intermediate levels preserve original charts, attributes and LOD0 materials. ')
         if any(row.get('proxy') for row in m['levels']):
             assembly_text+=('The final proxy merges all moving geometry in its rest pose: its retained transform names are '
               'placement/socket metadata, and cannot animate that shell. Keep an animatable level while an interaction pose differs from rest. ')
-        assembly_text+=('New charts are baked from the immutable delivered maps and shaders. '
-                        'Larger maps must be released or streamed for distant residency savings.')
+        assembly_text+=('Only the proxy receives new charts baked from the immutable delivered maps and shaders. '
+                        'LOD1/2 allocate no additional images.')
     lines=['<!-- LOD checkpoint: begin -->','#'*cfg.get('readme_level',2)+' Additional LODs','',
       '`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/`; '
       '`make check-lod` checks them. The existing delivery is immutable LOD0. '
-      'Default `make` and `make check` retain their original build graph.','',table(m),'',
+      'Default `make` and `make check` retain their original build graph.','',table(m),'',resident_text(m),'',
       'Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed '
-      'textures with full mips plus raw accessor mesh bytes, before engine overhead. Each row is a cold load. '
+      'textures with full mips plus raw accessor mesh bytes, before engine overhead. Per-level map bytes describe dependencies, including reused originals. The whole-chain estimate deduplicates canonical image resources. '
       'Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.','',
       'Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, '
       'or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. '
@@ -98,7 +115,7 @@ def main():
         if m.get('config_sha256')!=digest(config) or m.get('tools')!=tool_digests() or metrics.get('manifest_sha256')!=digest(out/'manifest.json') or checks.get('manifest_sha256')!=digest(out/'manifest.json') or (not args.allow_failed and not (checks['passed'] and metrics['passed'] and normals['passed'])) or normals['manifest_sha256']!=digest(out/'manifest.json') or normals.get('auditor_sha256')!=digest(ROOT/'kit/lod_normals.py') or metrics.get('renderer_sha256')!=digest(ROOT/'kit/lod_render.py') or Document(source).dependencies()!=m['baseline']:
             raise RuntimeError('Checkpoint is not current/passing: '+str(config))
         status=f'Chain check: {checks["passed"]}; image check: {metrics["passed"]}; normal check: {normals["passed"]}.'
-        text+=['## '+cfg['kind'],'',status,'',table(m),'']
+        text+=['## '+cfg['kind'],'',status,'',table(m),'',resident_text(m),'']
         failures=[r for r in metrics['comparisons'] if not r['passed']]
         if failures:
             text+=['Failed views (reference and preceding level use the same limits):','',
@@ -121,8 +138,8 @@ def main():
             for rel in doc.dependencies():
                 path=(doc.path.parent/rel).resolve();dependencies[path]=path.stat().st_size
         distinct_bytes=sum(dependencies.values())
-        text+=[f'Distinct payload dependencies for the whole chain: **{distinct_bytes:,} bytes**, excluding optional audit JSONs.','']
-        rows.append(dict(asset=root.name,levels=m['levels'],chain_passed=checks['passed'],images_passed=metrics['passed'],normals_passed=normals['passed'],distinct_payload_bytes=distinct_bytes,
+        text+=[f'Distinct payload dependencies for the delivery, including optional alternatives: **{distinct_bytes:,} bytes**, excluding audit JSONs.','']
+        rows.append(dict(asset=root.name,resident=m['resident'],levels=m['levels'],chain_passed=checks['passed'],images_passed=metrics['passed'],normals_passed=normals['passed'],distinct_payload_bytes=distinct_bytes,
                          maximum_image_mean=max(r[k]['mean'] for r in metrics['comparisons'] for k in ['reference','adjacent'])))
         if args.write_readmes:
             readme=root/'README.md';old=readme.read_text();start='<!-- LOD checkpoint: begin -->';end='<!-- LOD checkpoint: end -->'

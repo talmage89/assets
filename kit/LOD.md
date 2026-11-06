@@ -37,9 +37,19 @@ The production basis (consulted 2026-11-05) is:
   suggests roughly 1 for normalized normals/colors, and density-dependent UV
   weights around 10–100. Position and attribute error share the resulting metric.
   Blindly copying those weights would miscalibrate differently tiled assets: the
-  kit instead checks world displacement and mip-relative UV drift separately,
-  then rebakes fields on new charts when chart preservation prevents reduction. This toolkit uses Blender's native
-  simplifier, not downloaded meshoptimizer code.
+  kit uses its own split-wedge, attribute-weighted QEM for shared-map
+  intermediate levels, with UV weight 10 and normal weight .5. Position is
+  normalized by each construction component's diameter. UV seams are boundaries;
+  corresponding wedges on both sides collapse together along the seam. Original chart fields interpolate within their own wedges, with
+  normalized normals/tangents. Weighted vertex updates and endpoint alternatives
+  share one geometric position across every UV/material side. Normal splits
+  within a continuous UV chart retain separate corners when their normal or
+  tangent direction differs by more than one degree; redundant numerical splits
+  can join. This preserves the frame in which the original normal map was baked.
+  Open boundaries,
+  alpha graphics, glass and powered source surfaces stay fixed. Independent world/mip bounds and rendered appearance still gate the
+  result. No meshoptimizer code is downloaded or used. Blender's native
+  simplifier remains the proxy construction tool.
 - [Godot mesh LOD](https://docs.godotengine.org/en/stable/tutorials/3d/mesh_lod.html#configuring-mesh-lod-performance-and-quality)
   uses a screen-space error threshold, with a one-pixel default. Its metric
   accounts for FOV/resolution; fixed world-space micrometer constraints do not.
@@ -78,36 +88,47 @@ on this path. Boundaries use the level's structural tolerance. Full component
 bounds are never used to measure the distance to an intentionally omitted bolt.
 
 For unchanged charts, UV tolerance is **half a texel of the estimated sampled
-mip**. Average UV/world triangle area gives texels per meter; multiply by meters
+mip**. Each source triangle's UV/world area ratio gives texels per meter; multiply by meters
 per pixel to estimate the footprint and `log2(max(1,footprint))` for the mip.
-The normalized limit is `.5*max(1,footprint)/texture_size`. Reports retain the
+The normalized limit is `.5*max(1,footprint)/texture_size`. Bounds remain separate
+for each material, UV layer and source triangle; a large low-density part cannot
+constrain a small part's finer source charts. Reports retain the
 density, mip and normalized bound per UV layer. This is an isotropic estimate;
 grazing angles and anisotropic filtering still need rendered inspection.
 
-When a reduction removes a chart or changes a non-affine vertex-color field,
-its old UVs are not represented as preserved. The level gets a new packed atlas
-baked **from the immutable delivered asset**, with vertex tint evaluated once.
-PBR BaseColor/alpha, roughness, metallic, existing occlusion and tangent normals
-are transferred; emission, spatial transmission and clearcoat and an independent coat normal add maps only when needed.
-Charts retain relative source UV/image density, with mip-derived gutters and cuts at cage-normal changes above one degree. A chart-count/size cap prevents gutters consuming the atlas; capped requests are reported and still require the same image gates. The linked source shading-normal field is evaluated as world direction and converted into the exported cage's actual tangent frame; a geometric self bake is insufficient. Original UV0/UV1 routing is explicit, and transparent graphics composite over
-their real backing. For cage-ray misses, bounded nearest-surface patches evaluate
-the original shader on the GPU; they never invent a replacement color. The
-local two-pixel geometric allowance bounds that repair. Baked source positions
-identify opaque neighboring hits as well as empty rays; hits differing from nearest compatible surface by more than .1 switch pixel are re-evaluated, within the same two-pixel distance allowance; correspondence uses
-the target outward hemisphere. Records stream through small patch atlases,
-and unresolved misses remain reported. Outward visibility is checked before nearest-surface fallback so a hidden lining cannot displace exterior paint. Evaluation patches stay inside their source triangle rather than extrapolating UVs into adjacent atlas charts; their geometry is centered locally to retain floating-point precision. Exact texel-center coverage separates chart padding from surface. Near-level uniform
-clearcoat/transmission settings remain per material. Each independently moving
-source/target pair is translated together during projection. This prevents a
-door from baking its neighbor. The skin rest frame is handled explicitly.
+LOD1 and LOD2 always sample LOD0's unchanged maps and unchanged material
+settings. No chart replacement, downsampling or rebake is permitted on these
+levels. Component-local field checks reject individual invalid collapses;
+UV/normal weighting prioritizes harmless changes. Vertex frame correspondence
+uses 3-degree normal / 5-degree tangent limits. Face centers and edge midpoints
+use screen-relative limits: normal `clamp(15 / width_pixels, 3, 45)` degrees,
+tangent `clamp(25 / width_pixels, 5, 45)` degrees. Width is the triangle's shortest
+altitude divided by meters per switch pixel. Broad faces retain tight frame
+agreement; tiny faces may simplify. Checking only vertices missed 23-degree normal
+errors inside long cone faces; those errors changed the response of its unchanged
+normal map. These angular field bounds supplement the pixel/UV bounds and do
+not replace the final image checks. If chart preservation stalls
+above the target, retain the higher count and report the measured miss beside
+its native comparison. Never replace a target miss with a new intermediate atlas.
+The source normal field, UV routing, independent BaseColor alpha data and
+emission therefore keep their original meaning, including the pickup's custom
+lamp-power field. Interactive names, source materials and moving membership stay.
 
-The rebake evaluates glTF-defined shader fields. Custom meanings stored in an
-opaque texture's alpha are not shader opacity and need a separate adapter.
-The pickup's original lamp-power alpha is one such field: its metadata survives,
-but the current rebaked opacity does not reproduce that controller's data.
-Its rest checks use core glTF emission. Keep LOD0 for that custom lamp controller
-until its power field is explicitly transferred and its light states are checked.
+Only the last closed proxy gets new charts, baked **from the immutable delivered
+asset**. PBR BaseColor, ORM and source shading normals transfer to its new cage;
+spatial emission, transmission and clearcoat get additional small maps when
+required. Transparent print layers composite onto their actual backing. A closed
+opaque shell owns its geometric coverage: a missed projection ray never cuts a
+hole in it. Glass is represented by its transferred transmission field.
+Every atlas dimension is at most 512 (the accepted tree impostor is separate).
+Misses, bounded repairs, chart coverage and field-normal tests remain reported.
+No high-detail modeling scene or external image enters the transfer.
 
 Transmissive lenses receive an additional emitted-color projection from the original geometry behind them, tinted by the front surface. This preserves powered lenses when their internal emitters merge into a shell; opaque near materials retain their original non-emitting membership.
+Emission keeps the antialiased direct-ray coverage, without nearest-surface
+extrapolation or bake margins that could grow a bright lamp into its surroundings.
+Patch repair validates shader coverage independently of alpha, so transparent
+lettering pixels can correctly reveal their real backing.
 
 Normal conversion visits each covered texel once, including shared UV diagonals,
 and solves the interpolated tangent frame rather than using orthogonal-frame
@@ -145,33 +166,40 @@ build/check dependency graph is unchanged. Paths resolve against the asset root.
   "screen_space": true,
   "feature_pixels": 1.5,
   "levels": [
-    {"ratio": 0.4, "screen_height": 0.30, "rebake": true, "texture_size": 2048},
-    {"ratio": 0.15, "screen_height": 0.12, "rebake": true, "texture_size": 1024},
+    {"ratio": 0.4, "screen_height": 0.30},
+    {"ratio": 0.15, "screen_height": 0.12},
     {"ratio": 0.05, "screen_height": 0.045, "proxy": true,
      "target_triangles": 900, "texture_size": 512}
   ]
 }
 ```
 
-Each level starts from delivered LOD0, avoiding accumulated simplification error.
-Ordinary near atlases isolate each source material within each moving group
-before projection. A retained transparent graphic cannot replace its opaque
-backing, and a retained lamp emitter cannot sample the lens in front of it.
-These temporary partitions are removed after baking; node names, pivots, skins
-and clips remain. Shells and proxies use complete-source projection and alpha
-compositing instead. Clearcoat gets its own transferred normal direction at
-near levels too, because a new cage changes the otherwise implicit coat normal.
-If module selection compacts material indices, ordinary near baking requires
-unique original material names to recover their correspondence; ambiguous names
-fail explicitly rather than sampling another material.
-Original named transform nodes, metadata, sockets and pivot frames remain.
-Static nodes consolidate by material into a shared mesh before decimation;
-complete corner signatures weld, while geometric topology retains chart/hard
-normal discontinuities as corner data. Seams may collapse along their line;
-charts that cannot survive a useful reduction are rebaked. Interactive nodes
-stay separate and simplify too, including normalized barycentric skin weights
-on the grill's hose. Original bind matrices and clips remain. This proves data
-transport; rest-view renders do not prove swept animation clearance.
+Each level starts from delivered LOD0, avoiding accumulated error. Static parts
+merge by material, while moving roots keep separate meshes and original frames.
+Original named transform nodes, extras, sockets, skins and clips survive. Complete
+attribute wedges preserve UV and normal discontinuities; only redundant numerical
+tangent splits are canonicalized to an original representative. Compatible
+material primitives simplify jointly with discrete material IDs; they split
+back into their original materials afterwards. Open boundaries stay fixed.
+A progressive area-error ledger enforces the same 95% structural pixel budget
+throughout collapse, before the independent final surface measurement. UV error
+uses each source material and UV layer's own sampled-mip bound: an unused
+constant UV1 cannot impose its mip-zero bound on a minified UV0.
+Small closed construction islands may disappear under the accepted pixel policy.
+Powered surfaces also protect neighboring components whose bounds overlap the
+powered assembly's bounds expanded by half a switch pixel. This conservative
+selection keeps tiny shutters and housings from exposing an entire bright lens
+after pruning; it is not a surface-contact measurement. A source-skin guard
+casts rays to candidate face centers from six axes and eight corner directions.
+If a formerly hidden back face wider than three switch pixels becomes
+visible where the source had an outward-facing surface, the original connected
+construction is retained. Its measured ray direction, facing cosines and retained
+triangle cost are recorded. Visibility includes the other components in the
+compatible rigid group; a separate base can cover a body's internal skin.
+Thin exposures still face all original image gates. These samples guard visible layer ordering; they
+are not an exhaustive self-intersection or swept-clearance certificate.
+Skinned near meshes retain their source vertices/weights; foliage uses its own
+larger-card path. These are rest/data checks, not swept motion certification.
 
 At the proxy level, all geometry merges in its rest pose. Original transform
 nodes remain for placement/socket lookup but no longer animate the proxy. Hold an animatable level while a door, lid or
@@ -209,31 +237,45 @@ describe the selected modules. Extraction savings are distinct from reduction.
 
 ## Targets, switches and texture residency
 
-| Kind | LOD1 | LOD2 | Last level | Map dimensions |
+| Kind | LOD1 | LOD2 | Last level | Intermediate / far maps |
 | --- | --- | --- | --- | --- |
-| Cone | 40% @ .25 (270px) | 15% @ .09 (97px) | none | 512 / 256 |
-| Grill | 40% @ .30 (324px) | 15% @ .12 (130px) | 400-1,000 goal @ .03 (32px) | 2048 / 1024 / 512 |
-| C150 | 40% @ .25 | 15% @ .10 | 1,500-3,000 @ .04 (43px) | 2048 / 1024 / 512 |
-| House / canopy | 40% @ .30 | 15% @ .12 | 500-2,000 @ .045 | 2048 / 2048 / 512 |
-| Maple | 50% @ .08, larger cards | 20% @ .032, larger cards | crossed cards, 8 tris @ .015 | original near atlas; new far RGBA |
+| Small prop | 40% @ .25 (270px) | 15% @ .09 (97px) | none | LOD0 / none |
+| Hero prop | 40% @ .30 (324px) | 15% @ .12 (130px) | 400–1,000 @ .03 (32px) | LOD0 / <=512 |
+| Car | 40% @ .25 | 15% @ .10 | 1,500–3,000 @ .04 (43px) | LOD0 / <=512 |
+| Building | 40% @ .30 | 15% @ .12 | 500–2,000 @ .045 (49px) | LOD0 tiles/trim / <=512 |
+| Tree | 50% @ .08, larger cards | 20% @ .032, larger cards | 8 fixed-card tris @ .015 | LOD0 / fitted RGBA |
+| Modular piece | 40% @ .25 | 15% @ .09 | normally none | shared family maps / none |
+| Many small props on one set | 40% @ .25 | 15% @ .09 | normally none | shared family maps / none |
 
-Ratios refer to LOD0. Targets and achieved counts are separate fields. Existing
-opaque switch sizes stay fixed unless failed rendered evidence justifies a
-change. The cone's far .10 switch failed its image gate and moves to .09;
-the grill's original far .045 switch moves to .03 after even the farther .035
-trial failed. The fixed maple impostor's
-original .02 switch fails neighboring-level alpha (.0543 > .05), so it uses
-.015. The previously absent maple intermediate levels get their own switches.
+Ratios refer to selected LOD0 triangles. Target and achieved counts remain
+separate fields. The accepted cone's 268-triangle fallback remains the reference
+for its far-level appearance. Do not lower the image gates to hit a target.
+Switches above are calibrated starting points. A changed switch needs a failed
+old-distance comparison and a passing new-distance comparison, both retained.
 
-New near/far sets are external PNGs, never repeated embedded copies. Original
-LOD0 retains every original embedded/external byte. New atlases intentionally
-cost additional storage; loading an original embedded GLB plus every alternative
-at startup also costs additional residency. The C150 near emission and independent coat-normal atlases add two maps (26.7 MiB versus LOD0's 16 MiB); its middle/far sets still save memory. Reports retain that near cost rather than claiming every row saves texture memory. Lazy loading, resource release and
-engine mip streaming are necessary for savings. Canonical building tile maps
-remain untouched; rebaked level atlases can be loaded without them when distant.
-A three-map 8bpp set with full mips is about 16 / 4 / 1 / .25 MiB at
-2048 / 1024 / 512 / 256. Emission, transmission and clearcoat each add a map where required. Reports count exact 4x4
-block allocations per mip, distinct from PNG bytes and RGBA8 engine residency.
+`manifest.json:resident` reports the complete fixed chain: unique original maps
+**once**, only new proxy/impostor maps, and **all** levels' vertex/index bytes.
+It lists LOD0 alone alongside this total, the proxy texture increment and the
+additional mesh increment. Any new intermediate image hash fails `check-lod`.
+Thus allowable texture residency is exactly LOD0 plus the proxy atlas; mesh
+residency necessarily grows by the explicitly reported additional buffers.
+These are 8-bpp 4x4-block estimates including every mip, before engine overhead,
+not measured driver allocations. A three-map set costs about 16/4/1 MiB at
+2048/1024/512. Additional PBR fields count as additional maps.
+
+External building/family maps keep their canonical URIs. Embedded GLB maps are
+externalized byte-for-byte once, using content-addressed filenames for the new
+standalone core glTF files. This creates no new **image content**. To make GPU
+sharing real, the importer must bind intermediate primitives to LOD0's material
+resources. `canonical_material_bindings` maps each near material to the original material
+index; `resident.canonical_image_bindings` maps each intermediate image to
+its original image index and complete SHA-256. A loader that separately allocates
+an embedded image and its identical external copy violates this resource policy;
+filename equality or identical bytes alone does not establish shared allocation.
+For selected modules, map materials by unique source name after compaction.
+Keep LOD0's original container intact; extraction savings are reported separately.
+Optional camera-facing foliage is an alternative to the fixed impostor, so its
+cost is reported separately rather than silently loading both.
 
 ## Foliage
 
@@ -291,3 +333,232 @@ high-aspect-ratio assembly.
 
 Primitive draw counts are measured glTF submissions for one color pass; they
 are not GPU captures of an engine's depth, shadow or refraction passes.
+
+## Family adoption recipe
+
+Adopt LODs only after the family's original delivery and original `make check`
+are finished. Work on the family branch, merge current `main`, and keep LOD work
+opt-in. Do not edit an accepted source GLB, BIN, material or image to make an LOD
+pass. The six-pilot checkpoint and its remaining failures are recorded in
+[LOD_REVIEW.md](LOD_REVIEW.md). This recipe is provisional while that checkpoint
+has failures; a family is not approved by another family's result.
+
+1. Add `src/lod.json` using the applicable complete example below, replacing the
+   source filename and kind label. Paths resolve from the **asset folder**, not
+   from `src/`. A family with several kinds adds one config per delivered kind or
+   coherent module. Cosmetic variants may share a config only after their node,
+   material, UV and image routing has been checked.
+2. Add `include ../kit/lod_rules.mk` after the existing rules in its Makefile.
+   For a single kind, `make -C family lod` and `make -C family check-lod` suffice.
+   To select another config, use `make -C family lod LOD_CONFIG=src/lod-kind.json`
+   and the identical override for `check-lod`. The hooks never depend on the
+   original model/bake/export targets. Set `LOD_THREADS=4` or less; run one chain
+   at a time. The kit handles the shared GPU lock for bake and render work.
+3. Build each config, inspect the exported comparisons and close views, correct
+   the config/tool as necessary, then run `check-lod`. Do not bypass a failed
+   image/normal/topology/memory check. An above-target level may pass its visual
+   checks, but must keep `target_met: false` and the achieved/goal counts in the
+   report. Keep the established switches until failed evidence justifies a move.
+4. After the final build, rerun the original family's `make check`, verify the
+   immutable-source receipt, and run `python3 kit/repo_check.py`. When original
+   build targets are newer than an immutable delivery, freeze the already
+   accepted generated inputs with explicit `make -o path` arguments; record the
+   complete command. Never let validation silently regenerate accepted LOD0.
+5. Generate measured tables with `python3 kit/lod_report.py family/src/lod.json
+   --write-readmes`. Supply several configs to report several kinds. A failed
+   checkpoint can be documented with `--allow-failed`; that flag only reports
+   failures and never changes any acceptance result. Keep full evidence ignored
+   under `renders/` and `build/`; commit scripts/config/README/review only. Existing
+   original docs JPGs remain byte-identical.
+
+A car retains doors, hood, tailgate and wheels through LOD2. Authored pivot/slide
+extras and animation targets are detected automatically. Add `protected_nodes`
+patterns for undocumented moving roots. Each pattern protects the canonical
+frame and separate near mesh, while allowing its geometry to reduce. List the
+actual moving mesh names and ranges in the family README. Hold LOD0–2 while an
+interaction differs from rest; the closed proxy cannot animate those surfaces.
+
+```json
+{
+  "kind": "car",
+  "source": "export/Car.glb",
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "levels": [
+    {"ratio": 0.4, "screen_height": 0.25},
+    {"ratio": 0.15, "screen_height": 0.10},
+    {"ratio": 0.05, "screen_height": 0.04, "proxy": true,
+     "target_triangles": 2500, "texture_size": 512,
+     "proxy_remesh": {"voxel_pixels": 0.5, "inflation_pixels": 0.3}}
+  ]
+}
+```
+
+A building keeps all original tiling sets, vertex tint, glass and trim-sheet
+UVs near. Choose a coherent delivered building; do not merge neighboring
+buildings across a placement boundary. The same example covers commercial
+buildings. A module selection adds e.g. `"include_nodes": ["Canopy", "Dispenser_1"]`
+and `"protected_nodes": ["*Nozzle*"]`. Selection preserves the original full
+container as LOD0; its disk/mesh/map cost must still include that full container.
+
+```json
+{
+  "kind": "building",
+  "source": "export/Building.gltf",
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "levels": [
+    {"ratio": 0.4, "screen_height": 0.30},
+    {"ratio": 0.15, "screen_height": 0.12},
+    {"ratio": 0.05, "screen_height": 0.045, "proxy": true,
+     "target_triangles": 1800, "texture_size": 512,
+     "proxy_remesh": {"voxel_pixels": 0.5, "inflation_pixels": 0.3}}
+  ]
+}
+```
+
+A hero prop retains lids, knobs, wheels, sockets and any skin near. Open frames,
+loops and concave castings need special inspection at the last switch. Start
+with native closed envelopes; union/remesh only if the native shell's overlap or
+construction actually fails. `preserve_concavity` protects named source pieces
+such as wheels. Do not add a larger `proxy_budget` without reporting its target
+miss and the failed lower-budget comparison.
+
+```json
+{
+  "kind": "hero prop",
+  "source": "export/Prop.glb",
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "levels": [
+    {"ratio": 0.4, "screen_height": 0.30},
+    {"ratio": 0.15, "screen_height": 0.12},
+    {"ratio": 0.05, "screen_height": 0.03, "proxy": true,
+     "target_triangles": 1000, "texture_size": 512,
+     "preserve_concavity": ["Wheel*"]}
+  ]
+}
+```
+
+A small prop normally stops after LOD2. Keep the source atlas at both levels;
+there is no benefit in adding a private texture set to every repeated item.
+Do not force an already tiny object to have four rows.
+
+```json
+{
+  "kind": "small prop",
+  "source": "export/SmallProp.glb",
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "levels": [
+    {"ratio": 0.4, "screen_height": 0.25},
+    {"ratio": 0.15, "screen_height": 0.09}
+  ]
+}
+```
+
+A tree uses whole leaf cards, source bent normals and Wind data. Review each
+species' coverage; the maple's enlargement exponents are starting values, not
+universal leaf rules. `foliage_shader: "maple"` restores the existing published
+maple shader from delivered maps during comparison; use it only for a compatible
+source. A new shader/card convention needs an adapter and its own regression.
+The fixed eight-triangle impostor is the default far choice; its separately
+reported camera-facing alternative is optional and needs the supplied controller.
+
+```json
+{
+  "kind": "tree",
+  "source": "export/Tree.glb",
+  "foliage_shader": "maple",
+  "silhouette_loss": 0.09,
+  "render_samples": 512,
+  "levels": [
+    {"ratio": 0.5, "screen_height": 0.08, "leaf_cards": true,
+     "leaf_scale_exponent": 0.39},
+    {"ratio": 0.2, "screen_height": 0.032, "leaf_cards": true,
+     "leaf_scale_exponent": 0.4, "leaf_selection": "density"},
+    {"ratio": 0.0004, "screen_height": 0.015, "impostor": "crossed"}
+  ]
+}
+```
+
+A modular piece preserves connectors and placement frames. Use the same endpoint
+coordinates across neighboring pieces and review their joint at every level.
+A whole-family shared source can be selected without copying its atlas. Give
+**every config selecting the same container** a unique `name`, `output` and
+`renders`; otherwise one module would overwrite another module's checkpoint.
+No proxy is prescribed for a 300–2,000-triangle section. If a large assembly later
+needs an HLOD, treat it as a separately reviewed building/hero proxy.
+
+```json
+{
+  "kind": "modular piece",
+  "name": "FenceSection",
+  "source": "export/FenceFamily.glb",
+  "include_nodes": ["Section"],
+  "output": "export/lod/section",
+  "renders": "renders/lod/section",
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "levels": [
+    {"ratio": 0.4, "screen_height": 0.25},
+    {"ratio": 0.15, "screen_height": 0.09}
+  ]
+}
+```
+
+For many small props sharing one set, use one config per **independently placed
+kind**, all referencing the same delivered family container and canonical maps.
+Copy the following for each kind, changing all four kind-specific names/paths.
+Do not place the whole family on one LOD controller: a nearby can and a distant
+can must select independently. If each original kind already has its own GLB
+with byte-identical shared images, use that file as its source instead.
+
+```json
+{
+  "kind": "shared-set small prop: can",
+  "name": "Can",
+  "source": "export/SmallProps.glb",
+  "include_nodes": ["Can"],
+  "output": "export/lod/can",
+  "renders": "renders/lod/can",
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "levels": [
+    {"ratio": 0.4, "screen_height": 0.25},
+    {"ratio": 0.15, "screen_height": 0.09}
+  ]
+}
+```
+
+Every adoption owes at least **two logged LOD critique passes**. Open every
+native three-azimuth strip, its original and preceding-level comparison, every
+difference, and every construction/detail view. Begin with color/value, then
+check silhouette, holes, hard-edge shading/tangents, normal-map phase, labels,
+glass/emission and moving membership. A logo or label larger than a few pixels
+must retain its shape; subpixel lettering may disappear without turning into
+bright blocks. Trees additionally owe coverage/wind-field inspection; modules
+owe endpoint/joint inspection. Record concrete failures, changes and final
+measured results in the family's review. A contact sheet is an index, not the
+scale for judgment. Keep raw checks distinct from animation clearance and
+engine performance claims.
+
+Report this cost table from the actual serialized manifest, not source constants:
+
+| Row | Required measurements |
+| --- | --- |
+| Each level | Achieved/target triangles; materials; color-pass draws; geometry bytes; referenced PNG bytes and dimensions; total dependency bytes; estimated texture and mesh GPU bytes; switch fraction/pixels/distance; separate moving meshes; visual/raw check result |
+| LOD0 alone | Original container bytes; unique original image allocation; original mesh allocation; sum |
+| Whole fixed chain | Unique original images once + only proxy/impostor images; every level's mesh; sum; increment over LOD0 split into proxy maps and additional meshes; number of new intermediate images (must be zero) |
+| Optional impostor | Replacement far texture/mesh cost and its resulting chain total, separately from the fixed choice |
+| Entire shared-map family | Union original/proxy image hashes across kinds once; each distinct original container mesh once and every additional level mesh; per-instance draw/triangle costs kept separate |
+
+For the family union, deduplicate complete `images[].sha256` values and sum their
+`compressed_mip_bytes`. Deduplicate a repeated LOD0 container by its resolved
+source path and delivery hash before summing `mesh_gpu_bytes`; sum the new mesh
+allocations for every kind. Do not sum the per-chain texture totals blindly.
+Bind every kind's near materials to the canonical family resources in the engine.
+Repeated placements should instance the same selected meshes/materials, rather
+than load another copy of the chain. These estimates exclude engine metadata,
+shadow/refraction passes and controller cost; measure those in the target game
+before making a frame-rate claim.

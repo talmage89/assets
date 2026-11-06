@@ -931,6 +931,15 @@ files and a manifest; `lod_rules.mk` adds opt-in `make lod` / `make check-lod`
 without changing any default build/check dependency graph. See [LOD.md](LOD.md)
 for switch conventions, engine integration, acceptance policy and sources.
 
+`lod_shared.py` reduces intermediate meshes with original materials/maps:
+weighted split-wedge QEM, synchronized UV/material seams, weighted vertex
+updates, per-material/per-layer mip bounds and a progressive area-error budget.
+It protects graphics, glass and powered surfaces. Intermediate images must match
+LOD0 by full hash; canonical material/image bindings make engine resource reuse
+explicit. The manifest/report count unique maps and every mesh for the entire
+resident chain beside LOD0 alone. Only proxies/impostors add image content.
+`lod_shells.py` guards source layer ordering with measured visibility rays and
+keeps construction beside powered surfaces, including small occluding shutters.
 `lod_mesh.py` measures screen/mip-relative error, prunes tiny islands and
 transports normalized skin weights. `lod_scene.py` consolidates static material
 groups while preserving interactive frames; a projected-coverage check guards
@@ -950,7 +959,7 @@ re-import, skin binds/clips and all source/package/recipe/evidence hashes remain
 checked. Rest renders do not establish swept animation clearance or engine
 performance.
 
-Run `test_lod.py` in fresh Blender and `test_lod_proxy.py` through `with_gpu.sh`.
+Run `test_lod.py` and `test_lod_shared.py` in fresh Blender and `test_lod_proxy.py` through `with_gpu.sh`.
 The latter exercises pixel/mip budgets, pruning, merge/pivots, closed budgeted
 shells and a real immutable-source PBR/normal bake with UV1 emission and alpha
 backing. A retained sign/backing fixture checks temporary material isolation and compacted module material indices. A varying-normal cage checks the actual re-imported base/coat shader
@@ -961,3 +970,13 @@ Builds/bakes run in one Blender process, with four threads and shared GPU lockin
 `build/lod-test` and `build/lod-proxy-test`. [The pilot review](LOD_REVIEW.md)
 records the checkpoint. `lod_report.py` writes checked tables and the overview;
 README updates require its explicit `--write-readmes` option.
+
+Shared-map fixtures use `build/lod-shared-test`; content-checked CPU reduction
+caches live in `build/lod-shared-cache`. Clear both for a clean regression run.
+Proxy transfers can independently verify shader patch coverage, preserving real
+zero-alpha lettering pixels during backing composition. Near transfer defaults
+remain compatible; closed opaque proxies take coverage from their shell.
+Emitted-color projection retains direct antialiased coverage without nearest
+extrapolation or bake margins, avoiding additional expansion by padding or repair.
+This does not reproduce all the optics of nested glass lenses; switch renders
+still determine whether a powered proxy is acceptable.
