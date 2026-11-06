@@ -49,29 +49,69 @@ def exposed_backfaces(source,faces,reduced,triangles,meters_per_pixel=0.,face_in
     return None
 
 
+def _edges(attrs,faces,labels):
+    """Same one-micrometer incidence convention as lod_mesh.topology."""
+    keys=[tuple(v) for v in np.round(attrs['POSITION'],6)];result={}
+    for fi,face in enumerate(faces):
+        for a,b in zip(face,np.roll(face,-1)):
+            key=tuple(sorted((keys[a],keys[b])))
+            if key[0]==key[1]:continue
+            row=result.setdefault(key,[0,set()]);row[0]+=1;row[1].add(int(labels[fi]))
+    return result
+
+
 def preserve(source,faces,reduced,triangles,report,meters_per_pixel=0.):
-    """Restore risky source components after the cached independent reduction."""
+    """Restore changed skin ordering and new contacts between reduced parts.
+
+    Component-local topology is insufficient: two individually closed sheets
+    may meet after reduction and create a new assembled nonmanifold edge.
+    Restore only implicated constructions, keeping the original tolerance.
+    """
     from kit.lod_mesh import components
-    chunks=[];output=[];offset=cursor=0;retained=[]
+    cursor=0;retained={};candidates=[]
     groups=components(source,faces)
     if len(groups)!=len(report['components']):raise ValueError('Component receipt changed')
     context=_visibility_context(source,faces,reduced,triangles)
-    for ids,row in zip(groups,report['components']):
+    for index,(ids,row) in enumerate(zip(groups,report['components'])):
         count=row['triangles'];candidate=triangles[cursor:cursor+count];cursor+=count
+        candidates.append(candidate)
         exposure=None
         if len(ids)>count:
             # Judge assembled visibility. A cone's base, for example, covers
             # internal surfaces that would appear exposed in an isolated body.
             exposure=exposed_backfaces(source,faces,reduced,triangles,meters_per_pixel,np.arange(cursor-count,cursor),context)
-        use_source=exposure is not None
-        attrs=source if use_source else reduced;ff=faces[ids] if use_source else candidate
-        vertices,indices=np.unique(ff,return_inverse=True)
-        chunks.append({k:v[vertices] for k,v in attrs.items()})
-        output.append(indices.reshape(-1,3).astype(np.uint32)+offset);offset+=len(vertices)
-        if use_source:retained.append(dict(source_triangles=len(ids),rejected_triangles=count,
-            reason='reduction exposes previously hidden back faces',exposure=exposure))
+        if exposure is not None:retained[index]=dict(source_triangles=len(ids),rejected_triangles=count,
+            reason='reduction exposes previously hidden back faces',exposure=exposure)
     if cursor!=len(triangles):raise ValueError('Component triangle receipt changed')
-    return {k:np.concatenate([c[k] for c in chunks]) for k in source},np.concatenate(output),retained
+    def assemble():
+        chunks=[];output=[];labels=[];offset=0
+        for index,ids in enumerate(groups):
+            attrs=source if index in retained else reduced
+            ff=faces[ids] if index in retained else candidates[index]
+            vertices,indices=np.unique(ff,return_inverse=True)
+            chunks.append({k:v[vertices] for k,v in attrs.items()})
+            output.append(indices.reshape(-1,3).astype(np.uint32)+offset);offset+=len(vertices)
+            labels.extend([index]*len(ff))
+        return {k:np.concatenate([c[k] for c in chunks]) for k in source},np.concatenate(output),labels
+    source_labels=np.empty(len(faces),int)
+    for index,ids in enumerate(groups):source_labels[ids]=index
+    original=_edges(source,faces,source_labels)
+    original_bad={kind:{edge for edge,(count,_) in original.items() if (count==1 if kind=='boundary' else count>2)} for kind in ('boundary','nonmanifold')}
+    while True:
+        attrs,ff,labels=assemble();current=_edges(attrs,ff,labels);violations={};implicated=set();samples=[]
+        for kind in ('boundary','nonmanifold'):
+            bad={edge for edge,(count,_) in current.items() if (count==1 if kind=='boundary' else count>2)}
+            if len(bad)<=len(original_bad[kind]):continue
+            violations[kind]=dict(source=len(original_bad[kind]),candidate=len(bad))
+            for edge in bad-original_bad[kind]:
+                implicated.update(current[edge][1]);implicated.update(original.get(edge,[0,set()])[1])
+                if len(samples)<8:samples.append([list(map(float,p)) for p in edge])
+        if not violations:return attrs,ff,list(retained.values())
+        implicated.difference_update(retained)
+        if not implicated:raise ValueError('Assembled topology cannot be repaired from its source components')
+        for index in sorted(implicated):
+            retained[index]=dict(source_triangles=len(groups[index]),rejected_triangles=len(candidates[index]),
+                reason='independent reductions create new assembled edge contacts',edge_counts=violations,edge_samples_m=samples)
 
 
 def protect_powered(attrs,faces,materials,meters_per_pixel):

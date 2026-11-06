@@ -32,6 +32,31 @@ def main():
     assert exposed_backfaces(thin,one,thin,one[:,::-1],.1) is None
     broad=dict(POSITION=np.array([[0,0,0],[10,0,0],[0,1,0]],np.float32))
     assert exposed_backfaces(broad,one,broad,one[:,::-1],.1) is not None
+    # Individually closed components can acquire a nonmanifold shared edge.
+    # The combined check must restore their source positions, even though
+    # neither component gains a local topology defect.
+    from kit.lod_mesh import topology
+    first=p[:4].copy();second=first.copy()
+    second[:2,2]=.000002;second[2]=[0,-2,.1];second[3]=[0,0,-2]
+    assembled=dict(POSITION=np.concatenate([first,second]))
+    faces=np.concatenate([tetra,tetra+4]);moved={k:v.copy() for k,v in assembled.items()}
+    moved['POSITION'][4:6,2]=0
+    assert topology(assembled,faces)[0]['nonmanifold_edges']==0
+    assert topology(moved,faces)[0]['nonmanifold_edges']==1
+    fixed,tf,receipt=preserve(assembled,faces,moved,faces,dict(components=[dict(triangles=4)]*2))
+    assert topology(fixed,tf)[0]['nonmanifold_edges']==0 and receipt
+    inherited,tf,receipt=preserve(moved,faces,moved,faces,dict(components=[dict(triangles=8)]))
+    assert topology(inherited,tf)[0]['nonmanifold_edges']==1 and not receipt
+    # A contact within the existing geometric tolerance must not open when
+    # separate reductions move its two sides apart.
+    quad=np.array([[0,0,0],[1,0,0],[1,1,0],[0,1,0]],np.float32)
+    panels=dict(POSITION=np.concatenate([quad,quad+[1.0000002,0,0]]).astype(np.float32))
+    qf=np.array([[0,1,2],[0,2,3],[4,5,6],[4,6,7]],np.uint32)
+    separated={k:v.copy() for k,v in panels.items()};separated['POSITION'][4:,0]+=.00002
+    assert topology(panels,qf)[0]['boundary_edges']==6
+    assert topology(separated,qf)[0]['boundary_edges']==8
+    fixed,tf,receipt=preserve(panels,qf,separated,qf,dict(components=[dict(triangles=2)]*2))
+    assert topology(fixed,tf)[0]['boundary_edges']==6 and receipt
     # A tiny dark shutter beside a powered lens still affects radiance. Keep
     # that assembly while an unrelated fitting farther away can simplify.
     tri=np.array([[0,0,0],[1,0,0],[0,1,0]],np.float32)

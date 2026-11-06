@@ -198,6 +198,14 @@ triangle cost are recorded. Visibility includes the other components in the
 compatible rigid group; a separate base can cover a body's internal skin.
 Thin exposures still face all original image gates. These samples guard visible layer ordering; they
 are not an exhaustive self-intersection or swept-clearance certificate.
+An additional assembled-edge check compares the combined candidate with its
+combined source. Independently valid components can move into a shared edge,
+creating a new nonmanifold contact, or separate a previously matched boundary.
+Only implicated components return to their original geometry; the check repeats
+until edge counts no longer increase. Receipts record the measured counts and
+edge coordinates. It uses the existing one-micrometer edge-incidence convention,
+not a micrometer surface-displacement budget. Geometric acceptance remains in
+switch pixels. Inherited source defects remain distinguishable from new defects.
 Skinned near meshes retain their source vertices/weights; foliage uses its own
 larger-card path. These are rest/data checks, not swept motion certification.
 
