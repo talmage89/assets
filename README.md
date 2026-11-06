@@ -44,6 +44,10 @@ Street
 - [Fire hydrant](fire-hydrant/README.md): three-way dry-barrel hydrant, installed at grade.
 - [Street signs](street-signs/README.md): stop sign with crossed street-name blades.
 - [Street light](street-light/README.md): LED cobra head on a tapered steel pole.
+- [Traffic signals](signals/README.md): LED signal heads with a flashing yellow arrow, pedestrian heads and buttons, mast
+  arms, a span-wire installation and a controller cabinet, at four seeded intersections with worn pavement and loops.
+- [Utility poles](utility/README.md): silvered wood distribution poles with crossarms, transformers, a three-pot bank,
+  risers, guys, a street-light bracket and communication cables, wired along four seeded streets.
 - [Traffic cone](traffic-cone/README.md): 28-inch PVC cone with a weighted base.
 - [Mailbox](mailbox/README.md): curbside mailbox on a wooden post; door and flag move.
 - [Trash cart](trash-cart/README.md): 96-gallon wheeled cart in trash and recycling variants.
@@ -65,9 +69,12 @@ Houses
   - [Split-level](houses/README.md#fourth-type-split-level): five side-splits and a raised ranch.
 
 Commercial
-- [Corner gas station](commercial/README.md): seeded 1995–2010 corner station and convenience store in two original
-  fuel brands, with a lit canopy, dispensers with slack hoses and holstered nozzles, a stocked store behind its
-  storefront, a price sign, services and causal wear, on shared tiled sets and one equipment atlas.
+- [Commercial buildings](commercial/README.md): seeded roadside commercial buildings, 1985–2010, on shared tiled sets
+  and one equipment and trim atlas.
+  - [Corner gas station](commercial/README.md#corner-gas-station): station and convenience store in two original
+    fuel brands, with a lit canopy, dispensers with slack hoses, a stocked store, a price sign and causal wear.
+  - [Neighborhood strip center](commercial/README.md#neighborhood-strip-center): four small-shop centers on
+    different parcels, with tenants' signs and dressed windows, fitted rooms, rear services and a worn parking lot.
 
 Vehicles
 - [Cars](cars/README.md): late-2010s vehicles in five factory colors on one baked atlas each; doors, closures,

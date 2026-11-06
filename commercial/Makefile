@@ -81,3 +81,4 @@ $(CHECKPOINT_RENDER_OUTPUTS) renders/final-eevee/hero.png: $(RENDER_DEPS)
 
 # Additional LODs never enter the existing default/check delivery graph.
 include ../kit/lod_rules.mk
+include src/strip_rules.mk
