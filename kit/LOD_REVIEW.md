@@ -6,6 +6,10 @@ their original documentation images. [LOD.md](LOD.md) records the production
 sources, engine integration and pixel-based acceptance. A triangle target does
 not waive the original RGB/alpha/local image limits.
 
+Passes 1–23 and their measurement tables record the earlier `f6b0cf9`
+checkpoint. The shared-map revision begins at pass 24 below; its final measured
+checkpoint supersedes those earlier costs and failure descriptions.
+
 ## Input receipt
 
 The starting commit is `3c7140a`. Its previous chains were 59,838→59,238 for the
@@ -699,3 +703,412 @@ The house's original shared images total 38 MiB under this estimate. For scale,
 40 independent 1.33 MiB proxy sets would total about 53 MiB before any near
 maps. That is a planning example, not a measured library scene: it shows why a
 per-variant cold-load saving cannot establish a family-wide memory improvement.
+
+## Critique pass 24 — shared-map handoff, native baseline review
+
+Merged current main (`4964db8`) in `52f7f72`, preserving both the strip-mall
+rules/docs and station LOD hooks. Opened all 27 failed pickup, colonial and
+station native strips, including the two named 55-degree near/middle failures.
+Color/value first: the pickup's middle lamps are broader and brighter than the
+original lens/reflector; rear roof edges open. The colonial's garage relief turns
+into triangular highlights and side siding loses its original value/phase.
+The station's lettering is replaced by white blocks and its gold fascia spreads;
+the far canopy grows thick while losing coverage. These are real visible transfer
+failures. The accepted reductions/proxy construction, switches and image gates
+remain the starting basis, not evidence of visual approval for those three.
+
+The original near atlases add image content and resident memory. The new path
+keeps original map bytes/material settings, with paired UV/material-seam
+collapses and original alpha/emission routing. Whole-chain accounting includes
+unique original maps, only far proxy/impostor maps, and every mesh. Actual GPU
+sharing requires binding near primitives to the original material resources;
+content equality across private importer caches is insufficient. A preservation
+ledger covers 408 existing delivery/map/docs files before work.
+
+## Critique pass 25 — reject shortcut UV transfer and insufficient reductions
+
+Tested the accepted cone's 268-triangle pre-atlas cage directly on the original
+maps. Opened all six 1080p control renders as native, unscaled source/control
+crops at `build/lod-v3/cone-map-control/native-crops.png`. The original orange and
+white bands become stretched black/orange ribbons on the cage. Front mean .1000,
+p95 .4824 and local .3654 fail; side/rear fail too. This rejects simply removing
+the atlas bake from the existing geometry recipe. It does not reject the accepted
+268-triangle baked fallback's previous appearance.
+
+Early endpoint-QEM trials preserve source maps but retain too much geometry:
+the pickup first held 50,806 near triangles, then 46,776, and the cone retained
+722/680. These are rejected reduction trials, not deliveries. Component-local
+checks, normalized normal correspondence, paired material wedges and small
+seam-junction transport improve the next cone to 578/476, still above its
+accepted basis. The shared-map public fixture passes actual build/re-import,
+material/image identity, geometry/pivot checks and the independent normal audit.
+No passing six-chain checkpoint is claimed yet. Diagnostic build/check logs are
+under `build/lod-v3/`; cancelled superseded CPU trials are explicitly recorded.
+
+## Critique pass 26 — distinguish source glare from transferred lamp growth
+
+Opened the native far pickup probes and independent source/material controls at
+original resolution (`build/lod-v3/far-probe/cars/` and
+`build/lod-v3/glass-control/`). Color/value first: the bright windshield is
+already present in the delivered source under this sun, so flattening glass or
+removing its normal map would change the accepted look. Disabling emission
+removes the broad lamp brightness but leaves the bumper patches. The probe
+still fails: front mean .0307, p95 .1458 and local .2585; side local .2351;
+rear local .1086. Coverage and outline pass. These probes precede the final
+antialiased-emission change and are diagnostic evidence, not the final chain.
+
+Found two transfer defects: repair had treated zero alpha as a failed shader
+sample, discarding real transparent print pixels; and point/nearest repairs
+could replace filtered emission coverage with full bright source samples.
+Independent constant shader coverage now validates transparent patches. Emission
+keeps direct antialiased rays without nearest extrapolation or bake margins.
+A footprint-aware position guard preserves valid filtered source samples.
+Closed opaque proxies derive coverage from their closed shell, rather than
+turning projection misses into alpha holes. Regression fixtures for transparent
+patches, bounded emitters and actual shader-normal transport pass. Final
+switch-distance evidence below must still determine whether the changes suffice.
+
+## Critique pass 27 — shared maps expose construction-order failures
+
+The first complete shared-map pickup was 29,472 / 18,498 / 2,800 triangles.
+The completed LOD2 55-degree strip restores the gray internal lens/reflector
+instead of the previous white blob and keeps the rear cab roof closed. One early
+view opened the previous LOD2 strip while its replacement was still rendering;
+only the completed, manifest-matched evidence is used here.
+
+Color/value first: new triangular dark patches appear across the cab roof in the
+construction view. They persist with base and coat normal inputs disconnected,
+and with a constant gray diffuse paint replacing every paint texture. This rules
+out a rebake, a changed map or tangent-space decoding as the cause of that roof
+pattern. The source roof construction has intersecting internal skins. Independent
+simplification changes their visibility ordering. A broad source-component guard
+removes the roof artifacts, but retains too much unrelated construction: 37,400 /
+28,854 triangles. Native strips of all nine views and all four close views were
+opened for that control. It still fails the local gate: LOD1 front .2797 and rear
+.2236; LOD2 rear .1377. Maximum-error crops at native scale locate these errors
+inside the headlamp and at the tail-lamp edges, not on the repaired roof.
+
+The narrower guard samples candidate face-center visibility from 14 directions
+and restores only constructions that expose a previously hidden back face.
+The source roof independently triggers it in `build/lod-v3/visibility-probe.log`.
+The lamp failures are caused by reducing/pruning neighboring opaque shutters and
+housings while retaining the powered surface. Powered assemblies now retain
+neighboring construction selected conservatively by bounds, before pruning.
+`build/lod-v3/near-frame-control/` preserves every normal/plain-material control;
+`max-patch-*.png` preserves the lamp diagnoses. The next complete checkpoint
+must judge these changes; source-normal thresholds and image gates are unchanged.
+
+The normal auditor also had a correspondence error: choosing the smallest UV
+residual alone can select an opposing skin when an atlas reuses UVs. It now
+chooses the normal among all source correspondences satisfying the same half-mip-
+texel bound, while retaining the original 45-degree maximum / 10-degree p95
+limits. Image acceptance remains independent of that ambiguity correction.
+
+## Critique pass 28 — face interiors and the unreplaced cone
+
+Color/value first: the original shared-map cone attempt kept its source images,
+but changed the light response of the orange and white bands. The independent
+vertex audit measured only 2.4 degrees of normal change while interior samples
+found about 23 degrees (area-weighted p95 about 18). Explicit tangent decoding
+was tested and rejected: it made negligible improvement. The failure was the
+interpolated frame inside long triangles, not an image transfer. Face-center and
+edge-midpoint frame checks now preserve broad faces tightly and use a bounded
+screen-relative allowance on smaller faces. Redundant normal splits can join;
+real frame discontinuities retain separate corners.
+
+The completed current cone is 872 / 626 / 436 triangles. All six native strips
+and all three construction views were opened at original resolution. Both
+levels preserve the original hue, band values and source maps; the far neck and
+base remain mildly faceted in the close view, but the switch comparisons pass.
+The unchanged six RGB/alpha/local/silhouette gates, normal audit and fresh
+re-import check pass (`build/lod-v3/cone-adaptive.log`). This **does not retain
+the previously accepted 268-triangle count**: putting those old vertices back
+on the original maps corrupts stripe phase. The 436-triangle result is reported
+as an unresolved count regression, not as the accepted 268 fallback.
+
+The pickup far-atlas supersampling control rendered a 1024 bake downsampled to
+512, preserving linear color, normalized normals and RMS roughness. All three
+native strips and its construction view were opened. Front mean improves from
+.0315 to .0278 and the worst local patch from .2526 to .1988, still above .02 /
+.08. Side and rear local patches also fail. This control is rejected; no
+production bake or limit is changed. Evidence: `build/lod-v3/car-ssaa-probe/`.
+The powered lens transfer remains weaker than the original multi-layer optics.
+
+## Critique pass 29 — current shared-map exports, first review
+
+Color/value comparisons below use immutable LOD0 under identical procedural
+illumination. No photographic white balance is inferred for this transfer test.
+Native strips include the original, preceding level, new level and amplified
+difference; construction views are judged separately from switch-distance views.
+
+- **Pickup:** all nine current native strips and all four construction views
+  opened at original resolution. The near blue paint and deep grille values
+  remain consistent. LOD2 retains the actual lamp/lens structure instead of a
+  new white patch, and the rear cab roof is closed without the prior dark roof
+  triangles. The source windshield already has the large white reflection seen
+  in the close view. This is still a failed chain: LOD1 front local RGB is
+  .19391 > .08; LOD2 rear .09825 > .08. Native crops locate these on the polished
+  grille surround and rear bumper lip, rather than the lamps. Source maps are
+  identical, but the remaining geometry/frame change moves a sharp reflection.
+  The far proxy retains its shell silhouette but brightens/simplifies the lamps
+  and distorts bumper reflections: front mean .03146 / p95 .14863 / local .25261;
+  side and rear local .23024 / .10878. All three far views fail. The normal audit
+  passes; the raw chain's only error is the failed image gate. Evidence:
+  `cars/renders/lod/`, `build/lod-v3/final-patches/cars/`.
+- **Cone:** all six current native strips re-opened at original resolution,
+  along with the far construction view. Orange/white band values and phase
+  match; near errors are effectively invisible, and the far maximum mean is
+  .00624. The lower lip and neck show minor faceting in the close view, within
+  the switch gates. Image, normal and raw checks pass. The 626 / 436 counts
+  remain above their 349 / 131 targets, and 436 does not meet the owner's
+  requirement to keep the accepted 268-triangle far level. This count regression
+  is unresolved, even though the new shared-map appearance passes.
+- **Colonial:** all nine current native strips and all four construction views
+  opened at original resolution. Color/value first: LOD1/2 retain the siding
+  tone and roof value; the garage panel relief no longer shades as large flat
+  triangles. All six intermediate comparisons pass (largest mean .00856).
+  Sharing original charts/maps and preserving their frame fixes the reported
+  near defect; no intermediate rebake remains to introduce another transfer.
+  The far proxy still flattens/changes the garage pattern, softens window trim
+  and makes the eave shading irregular. At the actual switch, front mean
+  .03006 / p95 .10980 and three-quarter mean .02388 / p95 .09804 fail. The rear
+  far view passes. The normal audit passes; the raw chain reports only image failure.
+  Coverage is not the limiting metric on this chain. The 31,774 / 21,092 intermediate counts exceed 23,293 / 8,735; the proxy is 1,798.
+  Evidence: `houses/renders/lod/`, particularly `LOD1-55-strip.jpg` and
+  `LOD3-0-strip.jpg`.
+- **Canopy/dispenser:** all nine current native strips, all four full
+  construction views and all four dispenser detail views opened at original
+  resolution. Color/value first: near purple fascia, gold edge, white print,
+  gray soffit and deep dispenser recess retain LOD0's values. RILLWAY remains
+  legible in LOD1 and LOD2; all six near comparisons pass (maximum mean about
+  .0020 on the final guarded export). The full overviews confirm coverage beyond
+  the clipped near cameras.
+  The closed/shrunk proxy fixes coverage: alpha MAE .00639 / .00700 / .00979 and
+  silhouette loss .00748 / .00898 / .01237 all pass their .05 limits. This does
+  not fix the entire far appearance. Its lettering blurs and its small powered
+  panels lose/shift bright coverage; all three far RGB views fail (means .02956
+  / .02253 / .02356, p95 .16863 / .12941 / .11373, local .13679 / .10809 / .14769).
+  The dispenser proxy also looks coarse in close-up; that is not the scale at
+  which its acceptance is measured. One merged rest shell cannot isolate the
+  dispenser from adjacent supports for a detail shot, so nearby column/island
+  geometry appears in that proxy close view. After the assembled-edge guard, counts 9,928 / 7,510 exceed
+  7,303 / 2,739; far shell 1,798. Evidence: `commercial/renders/lod/`.
+- **Maple:** all twelve native strips (including the camera-facing alternative)
+  and all five construction views opened at original resolution. Color/value
+  first: the crown stays dark green with the source's shadow depth; its leaf
+  mass changes slightly as cards enlarge, rather than washing out. LOD2 front
+  mean .0195 is close to .02, but passes at the accepted .032 switch. All image,
+  normal and raw checks pass. Both impostors are visibly flat/soft in close-up,
+  as expected; the fixed eight-triangle choice is judged at its sixteen-pixel
+  switch. The camera-facing choice matches those views more closely and has a
+  larger atlas/controller requirement. Foliage construction, switches and source
+  maps are unchanged from the accepted basis. Evidence: `trees/renders/lod/`.
+
+### Controlled colonial diagnosis
+
+The retained 25,386-triangle pre-atlas LOD1 cage reproduces the garage diamonds
+with LOD0's original maps. Disconnecting base and coat normal maps does not
+remove them (local RGB .12069 with maps / .12104 without). Replacing all
+materials with constant-gray diffuse still shows the facets; clearing custom
+normals and using flat geometric normals also leaves them. Thus the garage
+failure is already in the collapsed geometry and its face orientations, before
+rebaking; tangent-space textures are not required to produce it. The old cage
+also changes the side wall's tone with the original maps, so its geometry/UV/
+attribute reduction cannot be treated as an accurate neutral carrier. The
+current UV/frame-preserving path keeps both areas consistent with LOD0. These
+controls do not isolate every possible contribution of the old wall transfer.
+
+Four native comparison strips (eight renders) were opened at original size.
+They use the same 55-degree camera and 25.11 m switch, 128 samples for diagnosis;
+they do not replace the final acceptance images. Input hashes prove
+that neither LOD0 nor the retained cage was modified. Evidence:
+`build/lod-v3/colonial-cause/` and `build/lod-v3/colonial-gray/`.
+
+The grill's 986-triangle trial was also opened in all nine native strips and all
+four construction views. Its near color/value and all six intermediate image
+comparisons pass. Far RGB passes, but coverage does not: front alpha .07374 /
+IoU loss .10852, side .05407 / .07538, rear .06396 / .09074. These exceed .05 /
+.073. The trial is retained under `build/lod-v3/grill-986/`; the accepted 1,796-
+triangle construction was restored for the final comparison below. No limit is
+relaxed to admit the smaller trial.
+
+### Final assembly correction and grill review
+
+The assembled-edge check found two new contacts that component-local tests had
+missed. The grill's LOD1 combined nonmanifold incidence increased from one to
+two; restoring three implicated thin components costs 24 triangles and returns
+that measured incidence to one. Station LOD2 similarly restores 228 triangles.
+These source defects remain distinguished from new defects: the grill source
+body already has four boundary incidences and one nonmanifold incidence. Its
+far proxy is closed, with zero of both. No original delivery was repaired or
+re-exported.
+
+All nine final grill strips/differences and all four construction views were
+opened at original resolution after this correction. Color/value first: near
+black enamel, gray fascia and deep frame shadows match LOD0. The larger frame
+keeps its negative spaces and hose loop at the last switch. LOD2 shows knob and
+wheel faceting in close-up; LOD3 blurs the badge and has rougher highlights, but
+at its 32-pixel switch all three views pass every RGB, alpha, local and IoU
+limit. Largest far reference mean is .0128. The completed chain is
+19,912 / 11,696 / 8,070 / 1,796; the 1,000-triangle proxy goal is still missed.
+The accepted fallback was kept because the 986-triangle trial fails coverage,
+not because its target was changed. Raw, normal and image checks now pass.
+
+The station's nine final strips and eight construction/detail views were also
+opened again after the 228-triangle correction. Its broad gray roof and soffit
+remain complete, near print stays crisp and dark fascia hue is consistent.
+Far native maximum-patch crops locate the remaining RGB failures at the fascia
+lettering: it becomes a bright soft smear while still spanning several pixels.
+The repaired shell therefore passes coverage but remains an appearance failure.
+Its final raw audit additionally reports ten new unmatched canopy edges in each
+near level: 442 source boundary incidences versus 452 candidate, under the same
+one-micrometer convention. Nonmanifold incidences fall from 130 to 100. The
+group-local guard is insufficient at contacts across differing attribute groups
+and does not include all interactions with pruned components. No broad coverage
+hole is apparent in the images, but the raw failure stands. The station is not
+an image-only failure and is not structurally approved.
+
+## Critique pass 30 — final switch review and cost decision
+
+Color/value first, again against the unchanged delivered LOD0 under the same
+lighting. Reopened the pickup LOD2 55/145-degree views, colonial LOD1 55-degree
+view, station LOD2 55-degree view and all three far maximum-patch crops, grill
+LOD1/2 55-degree and all three far views, cone LOD2 55-degree view, and maple
+LOD2 front / LOD3 55-degree views at original resolution. The previous complete
+image reviews remain the basis for the other views; the contact sheet is only
+an index.
+
+- **Pickup:** the LOD2 lamp retains its gray lens and actual bright emitter
+  shape; the rear cab roof stays closed. Those requested defects are corrected.
+  Two other near polished-metal reflection patches still fail, and the far
+  lamps/bumper transfer is still unacceptable. Shared maps alone do not preserve
+  a sharp reflection after its carrier changes.
+- **Colonial:** siding brightness and garage-panel shading stay consistent in
+  the current near path. The constant-gray controls establish that the old
+  garage fault preceded rebaking and involved collapsed face orientations.
+  The current far garage/eaves still change enough to fail two views.
+- **Station:** near letters remain readable, the canopy does not lose coverage,
+  and the far shell passes alpha/IoU. The far atlas still blurs its large fascia
+  text into a brighter patch; all three far RGB views fail. This is not accepted
+  as legitimate disappearance of subpixel lettering. The additional near
+  assembly-edge failures also remain open.
+- **Grill:** near black values and frame gaps remain stable. The 1,796-triangle
+  proxy passes at the switch; the 986-triangle proxy does not. Keep the larger
+  shell and report the goal miss.
+- **Cone:** band phase and orange/white values match. The new 436-triangle far
+  level passes appearance, but does not preserve the owner's accepted 268.
+- **Maple:** near crown mass and deep green values remain credible; LOD2 front
+  mean .0195 narrowly passes .02. The accepted eight-triangle fixed impostor and
+  optional camera-facing alternative both pass. Frozen light/wind and elevated
+  viewing remain the original impostor limitations.
+
+All intermediate images match LOD0 by complete hash and use its original
+materials. No intermediate atlas is referenced. The fixed-chain estimates below
+include **every** mesh level, full mip chains and deduplicated canonical images.
+They exclude engine metadata and assume the engine actually binds those shared
+resources; matching embedded/external PNG bytes does not prove driver reuse.
+
+| Chain | Triangles, LOD0 onward | LOD0 resident MiB | Whole chain MiB | New far maps MiB | Additional mesh MiB |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Pickup | 59,838 / 41,084 / 36,792 / 2,800 | 21.140 | 30.836 | 2.334 | 7.363 |
+| Colonial | 58,232 / 31,774 / 21,092 / 1,798 | 42.837 | 48.918 | 1.333 | 4.747 |
+| Station | 18,258 / 9,928 / 7,510 / 1,798 | 87.678 | 91.396 | 1.333 | 2.384 |
+| Grill | 19,912 / 11,696 / 8,070 / 1,796 | 17.497 | 20.238 | 1.000 | 1.740 |
+| Cone | 872 / 626 / 436 | 1.044 | 1.102 | 0 | .058 |
+| Maple | 23,680 / 11,840 / 4,736 / 8 | 18.550 | 21.204 | .333 | 2.321 |
+
+The station row retains the **complete immutable original container's** memory
+and byte costs, while triangle/material/draw rows describe the selected modules.
+Near extraction savings are not credited as simplification. Replacing the fixed
+tree impostor with the optional camera-facing one gives 23.537 MiB for that
+alternative chain; both alternatives are not assumed resident together.
+
+The texture residency requirement passes for all six: original images plus only
+far maps. If “LOD0 plus the proxy atlas” is read as a cap on the **entire** chain
+including additional vertex/index buffers, all six exceed it by the explicitly
+shown mesh increment. Those buffers are not hidden in the estimates.
+
+The higher near counts are substantial, not small target excursions:
+
+| Chain | LOD1 achieved / goal / excess | LOD2 achieved / goal / excess |
+| --- | --- | --- |
+| Pickup | 41,084 / 23,935 / +71.6% | 36,792 / 8,976 / +309.9% |
+| Colonial | 31,774 / 23,293 / +36.4% | 21,092 / 8,735 / +141.5% |
+| Station | 9,928 / 7,303 / +35.9% | 7,510 / 2,739 / +174.2% |
+| Grill | 11,696 / 7,965 / +46.8% | 8,070 / 2,987 / +170.2% |
+| Cone | 626 / 349 / +79.4% | 436 / 131 / +232.8% |
+| Maple | 11,840 / 11,840 / 0% | 4,736 / 4,736 / 0% |
+
+These counts retain chart/frame/construction agreement instead of spending new
+map memory. They do not retain the previous rebaked chains' reduction counts.
+The pickup's LOD2 is especially weak as a cost reduction. No image gate or goal
+was lowered to call this complete. The seven-kind adoption recipe in `LOD.md`
+is complete enough to follow, but remains **provisional** until this checkpoint
+has no failed chains. The next useful work is source-field-aware reduction of
+the retained near constructions, a whole-mesh guard covering pruning and
+incompatible attribute groups, and a sharper far transfer of print/lamp and
+garage surfaces, rather than another intermediate rebake.
+
+### Evidence integrity
+
+Final assembled-edge code changed no serialized geometry, maps or rendered
+pixels for pickup, colonial, cone or maple. Complete dependency sets and every
+rendered image hash were compared before reusing those images; metrics record
+the old and new manifest hashes and the full receipt. Station and grill were
+rerendered because their geometry changed. Evidence:
+`build/lod-v3/render-input-revalidation.json` and
+`build/lod-v3/before-aggregate-guard/`. This is input revalidation, not a relaxed
+render limit. Fresh final raw and normal checks were run on all six.
+
+The inherited strip-mall historical receipt had also captured the previous
+station/house LOD outputs. Its 49 authorized LOD entries were archived and
+removed from that original-delivery receipt; all 134 non-LOD digests were first
+verified unchanged. The LOD audits retain their own independent immutable-source
+baselines, and the session's 408 original delivery/map/doc files still match.
+Scope proof: `build/lod-v3/strip-receipt-scope.json`. No original-delivery digest
+was refreshed to conceal a change.
+
+Full measured per-level materials, draw calls, geometry/PNG/dependency bytes,
+map dimensions, checks and resident totals are generated in
+`build/lod-pilots/report.md` / `report.json`. All native images remain in each
+pilot's `renders/lod/`; the six-chain index is `build/lod-pilots/contact.jpg`.
+No original docs JPG was replaced and no failed checkpoint image is committed.
+
+### Final validation, 2026-11-06
+
+- Merged `main` at `4964db8` in `52f7f72`, retaining signals, utility poles and
+  the strip-mall delivery alongside the existing station and LOD hooks.
+- Rebuilt all six chains through `kit.lod.build`, serially with four threads:
+  five `make -C <pilot> lod-mesh LOD_THREADS=4` jobs and the grill's equivalent
+  `build/lod-v3/check-grill-aggregate.py` invocation. Source recipes/payloads
+  were frozen before final rendering and tests. Changed station/grill payloads
+  were rerendered; the other four chains have complete identical-input receipts.
+- Fresh `make -C <pilot> check-lod LOD_THREADS=4`: **grill, cone and maple pass**;
+  **pickup, colonial and station fail**, with exact errors above and in the
+  generated report. All six normal audits pass. Goal misses remain separate
+  from the image/raw results; neither the cone count nor grill proxy goal is met.
+- Every original pilot `make check` passes, including the commercial strip and
+  four station seeds. Accepted generated inputs were frozen with explicit
+  `make -o path` arguments to prevent regeneration. Complete commands and exit
+  codes are in `build/lod-v3/original-checks-final.json`; the successful commercial
+  rerun is `commercial-original-after-scope.log`. Its initial receipt-scope
+  conflict remains recorded, not erased.
+- All **30 `kit/test_*.py` files pass** from cleaned fixture/cache directories,
+  serially: Blender for bpy fixtures, `python3 -m unittest` for the seven pure
+  test files, and `kit/with_gpu.sh` for all five GPU fixtures. Driver:
+  `build/lod-v3/regressions.py --phase cpu` then `--phase gpu`. Per-file logs,
+  current source hashes and exits are in `build/lod-v3/regressions/`; final phase
+  logs are `regressions-final-cpu.log` / `regressions-final-gpu.log`.
+- `python3 build/lod-v3/preserve.py --check`: **408 files, zero changed**.
+  `python3 kit/repo_check.py`: **1,681 source files, zero errors**.
+  `git diff --check`: pass. Existing tracked docs images also match `f6b0cf9`;
+  the only docs-image additions are those brought by the main merge.
+- `python3 build/lod-v3/final-proof.py`: verifies all those receipts, current
+  tool/config/source hashes and every rendered-image hash. Machine-readable
+  result: `build/lod-v3/final-proof.json`. Peak child-process RSS across the final
+  serial jobs is **2,907,196 KiB (2.77 GiB)**; this is host-process memory, not an
+  engine/GPU allocation measurement. Every Cycles operation used the shared lock.
+
+The checkpoint remains **incomplete**. No failed chain or count regression is
+approved by the passing regression suite, and the provisional recipe does not
+authorize rolling these failures into other families.
