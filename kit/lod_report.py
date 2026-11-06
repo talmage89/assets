@@ -18,64 +18,69 @@ from kit.fonts import find_font
 
 
 def table(manifest):
-    lines=['| Level | Triangles / target | Materials | Geometry bytes | PNG bytes | Total load bytes | GPU textures + mesh, MiB | Switch height / distance |',
+    lines=['| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU textures + mesh, MiB | Switch height / distance |',
            '| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |']
-    for row in manifest['levels']:
+    for row in manifest['levels']+[a for r in manifest['levels'] for a in r.get('alternatives',[])]:
         target='—' if row['level']==0 else f'{row["target_triangles"]:,}'
         switch='near' if row['level']==0 else f'{row["screen_height"]:.1%} / {row["distance_m"]:.2f} m'
         png=sum(i['bytes'] for i in row['images'])
-        lines.append(f'| LOD{row["level"]} | {row["triangles"]:,} / {target} | {row["materials"]} | {row["geometry_bytes"]:,} | {png:,} | {row["package_bytes"]:,} | {row["texture_gpu_bytes"]/2**20:.3f} + {row["mesh_gpu_bytes"]/2**20:.4f} | {switch} |')
+        label=f'LOD{row["level"]}'+(' camera-facing' if row.get('alternative') else '')
+        lines.append(f'| {label} | {row["triangles"]:,} / {target} | {row["materials"]} / {row["draw_calls"]} | {row["geometry_bytes"]:,} | {png:,} | {row["package_bytes"]:,} | {row["texture_gpu_bytes"]/2**20:.3f} + {row["mesh_gpu_bytes"]/2**20:.4f} | {switch} |')
     return '\n'.join(lines)
 
 
-def block(cfg,m):
-    map_storage=('The far billboard adds its own render-derived atlas. ' if cfg.get('foliage_shader') else
-      'Embedded original PNGs are extracted once for the additional near levels; the original GLB keeps its embedded copy. '
-      if Path(cfg['source']).suffix=='.glb' else 'Canonical external PNGs stay shared among the additional levels and LOD0. ')
+def block(cfg,m,status=None):
+    if cfg.get('foliage_shader'):
+        assembly_text=('Intermediate levels reduce branches and retain fewer, enlarged source leaf cards. '
+                       'Their source UVs, bent normals and Wind fields remain; the last impostor freezes wind and lighting.')
+    else:
+        assembly_text=('Near levels consolidate static parts by material and simplify moving parts while retaining names, '
+          'pivots, sockets and animation data. LOD2 closes and simplifies static construction where configured. ')
+        if any(row.get('proxy') for row in m['levels']):
+            assembly_text+=('The final proxy merges all moving geometry in its rest pose: its retained transform names are '
+              'placement/socket metadata, and cannot animate that shell. Keep an animatable level while an interaction pose differs from rest. ')
+        assembly_text+=('New charts are baked from the immutable delivered maps and shaders. '
+                        'Larger maps must be released or streamed for distant residency savings.')
     lines=['<!-- LOD checkpoint: begin -->','#'*cfg.get('readme_level',2)+' Additional LODs','',
-      '`make lod` builds additional glTF/BIN files under `export/lod/`; `make check-lod` independently checks them. '
-      'The existing delivery is immutable LOD0. Default `make` and `make check` retain their original build graph.','',
-      table(m),'',
-      'Distances are to the bound center at a 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed '
-      'textures with full mips plus raw accessor mesh bytes, before engine overhead. PNG storage is separate. '
-      'Each row is a cold load; URI/content caching can share images across levels. Targets are aspirations: '
-      'the achieved counts retain geometry when reduction fails seam, silhouette, shading or topology checks.','',
-      'Load the original and additional files as alternatives and explicitly configure Godot visibility ranges, '
-      'Unity LODGroup renderers, or corresponding Unreal mesh/component LODs. A filename does not create an engine controller. '
-      'Keep matching pivots in the same pose during switching. '
-      '[Engine sources, thresholds, texture policy and limitations](../kit/LOD.md).','',
-      'All ordinary moving geometry, sockets, skins and their frames stay separate and retain their delivered data. '
-      'No pilot merges moving parts into its body. '
-      +map_storage+
-      'A distant texture set saves residency only when larger maps are unloaded or streamed.','',
-      'Native-pixel comparison strips, amplified differences and close views of every level: `renders/lod/`. '
-      'The local `contact.jpg` indexes them; `metrics.json` records original/adjacent comparisons from three azimuths. '
-      'Raw checks and immutable-input hashes: `export/lod/check.json` and `manifest.json`. '
-      'Rejected component reductions: `build/lod/<source stem>/simplification.json`. '
-      '[Two critique passes and the six-pilot sheet](../kit/LOD_REVIEW.md).']
+      '`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/`; '
+      '`make check-lod` checks them. The existing delivery is immutable LOD0. '
+      'Default `make` and `make check` retain their original build graph.','',table(m),'',
+      'Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed '
+      'textures with full mips plus raw accessor mesh bytes, before engine overhead. Each row is a cold load. '
+      'Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.','',
+      'Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, '
+      'or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. '
+      '[Engine sources, pixel thresholds and texture policy](../kit/LOD.md).','',
+      assembly_text,'',
+      'Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: '
+      '`renders/lod/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/check.json` and '
+      '`normals-vs-lod0.json`; per-level construction/pruning decisions: '
+      '`build/lod/<source stem>/simplification.json` and manifest assembly receipts. '
+      '[Critique, target misses and known failures](../kit/LOD_REVIEW.md).']
+    if status:lines[6:6]=['',status,'']
     from collections import Counter
     image_sizes=[]
-    for row in m['levels']:
+    for row in m['levels']+[a for r in m['levels'] for a in r.get('alternatives',[])]:
         sizes=Counter(tuple(i['size']) for i in row['images'])
-        image_sizes.append(f'LOD{row["level"]}: '+', '.join(f'{n} × {w}×{h}' for (w,h),n in sorted(sizes.items())))
+        label=f'LOD{row["level"]}'+(' camera-facing' if row.get('alternative') else '')
+        image_sizes.append(label+': '+', '.join(f'{n} × {w}×{h}' for (w,h),n in sorted(sizes.items())))
     lines+=['','Shipped PNG dimensions: '+'; '.join(image_sizes)+'.']
+    for row in m['levels'][1:]:
+        assembly=row.get('assembly') or {}
+        if assembly.get('separate_nodes'):
+            lines+=['',f'LOD{row["level"]} separate moving meshes: '+', '.join('`'+n+'`' for n in assembly['separate_nodes'])+'.']
     if cfg.get('include_nodes'):
-        lines+=['','This pilot selects `Canopy` (including islands) and `Dispenser_1` from the original station. '
-          'LOD0 triangle counts describe those modules, while its bytes/materials/maps describe the full unchanged station container. '
-          'The new levels carry only selected geometry and its four materials, in the original station coordinates. '
-          'Their canonical external maps remain shared. Separate dispenser close-ups accompany each level.']
-    elif cfg['kind'].startswith('colonial'):
-        lines+=['','The canonical tiling sets/trim remain shared at all levels; no parallel low-resolution building maps are added. '
-          'Use engine mip streaming for texture residency. Only seed 27 is piloted.']
-    elif cfg.get('foliage_shader'):
-        lines+=['','LOD0 retains all leaf cards, bent normals and `_WIND`. Two ordinary near-level reduction trials failed the preservation gates '
-          'and retained every triangle; those redundant levels are omitted from the accepted chain. '
-          'The final 2-triangle billboard has a 32-sector 2048×1024 prelit RGBA atlas rendered from this tree. '
-          'It needs a cylindrical camera-facing controller: rotate around glTF +Y; choose '
-          '`round(azimuth / 11.25) mod 32`, where azimuth is the asset-to-camera angle in the local glTF X/Z plane; '
-          'then select that tile of the 8×4 atlas. '
-          'The stock glTF fallback shows sector zero. `kit/lod_impostor.py:pose` is the reference controller. '
-          'Wind is frozen and lighting is baked at that level; overhead views, changing sun and continuous angular blending remain limitations.']
+        lines+=['','This pilot selects `Canopy` (including islands) and `Dispenser_1`. LOD0 triangles, '
+          'materials and draws describe those modules; its load bytes and maps still describe the complete '
+          'unchanged station container. Extraction savings are separate from reduction. '
+          'Dispenser close-ups accompany each level.']
+    if cfg.get('foliage_shader'):
+        lines+=['','LOD1/2 retain fewer, enlarged source leaf cards, their original UVs, bent normals and Wind fields; '
+          'wood simplifies separately. LOD3 is four fixed crossed planes / eight triangles, one material and '
+          'one draw, fitted jointly to 32 renders of this tree. It works without an engine controller. '
+          'The separate camera-facing alternative has two triangles and a 32-sector atlas. '
+          '`kit/lod_impostor.py:pose` is its reference controller. Both impostors freeze lighting and wind; '
+          'overhead views, changing sun and continuous angular blending remain limitations.']
     lines+=['','<!-- LOD checkpoint: end -->','']
     return '\n'.join(lines)
 
@@ -83,27 +88,45 @@ def block(cfg,m):
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('configs',nargs='+')
     p.add_argument('--write-readmes',action='store_true');p.add_argument('--docs',action='store_true')
+    p.add_argument('--allow-failed',action='store_true',help='Report current failed evidence explicitly; never waive checks')
     args=p.parse_args();rows=[];text=['# LOD pilot checkpoint',''];cells=[]
     font=ImageFont.truetype(find_font('Noto Sans'),17)
     for config in args.configs:
         cfg,root,source,out=configuration(config);m=json.loads((out/'manifest.json').read_text())
         checks=json.loads((out/'check.json').read_text());renders=root/cfg.get('renders','renders/lod')
         metrics=json.loads((renders/'metrics.json').read_text());normals=json.loads((out/'normals-vs-lod0.json').read_text())
-        if m.get('tools')!=tool_digests() or metrics.get('manifest_sha256')!=digest(out/'manifest.json') or checks.get('manifest_sha256')!=digest(out/'manifest.json') or not checks['passed'] or not metrics['passed'] or not normals['passed'] or normals['manifest_sha256']!=digest(out/'manifest.json') or normals.get('auditor_sha256')!=digest(ROOT/'kit/lod_normals.py') or metrics.get('renderer_sha256')!=digest(ROOT/'kit/lod_render.py') or Document(source).dependencies()!=m['baseline']:
+        if m.get('config_sha256')!=digest(config) or m.get('tools')!=tool_digests() or metrics.get('manifest_sha256')!=digest(out/'manifest.json') or checks.get('manifest_sha256')!=digest(out/'manifest.json') or (not args.allow_failed and not (checks['passed'] and metrics['passed'] and normals['passed'])) or normals['manifest_sha256']!=digest(out/'manifest.json') or normals.get('auditor_sha256')!=digest(ROOT/'kit/lod_normals.py') or metrics.get('renderer_sha256')!=digest(ROOT/'kit/lod_render.py') or Document(source).dependencies()!=m['baseline']:
             raise RuntimeError('Checkpoint is not current/passing: '+str(config))
-        text+=['## '+cfg['kind'],'',table(m),'']
+        status=f'Chain check: {checks["passed"]}; image check: {metrics["passed"]}; normal check: {normals["passed"]}.'
+        text+=['## '+cfg['kind'],'',status,'',table(m),'']
+        failures=[r for r in metrics['comparisons'] if not r['passed']]
+        if failures:
+            text+=['Failed views (reference and preceding level use the same limits):','',
+                   '| View | Exceeded limits | Native comparison |',
+                   '| --- | --- | --- |']
+            for r in failures:
+                label=f'LOD{r["level"]}'+('-camera-facing' if r.get('alternative') else '')
+                exceeded=[]
+                for comparison in ('reference','adjacent'):
+                    for metric,limit in r['limits'].items():
+                        value=r[comparison][metric]
+                        if value>limit:exceeded.append(f'{comparison} {metric} {value:.4f} > {limit:.4f}')
+                relative=(renders/f'{label}-{r["azimuth"]}-strip.jpg').relative_to(ROOT)
+                text.append(f'| {label} / {r["azimuth"]}° | '+ '; '.join(exceeded)+f' | [strip](../../{relative}) |')
+            text+=['']
+        text += [f'Construction views and all differences: `{root.name}/{cfg.get("renders","renders/lod")}/`. Renderer: {metrics["renderer"]}.','']
         dependencies={}
-        for row in m['levels']:
+        for row in m['levels']+[a for r in m['levels'] for a in r.get('alternatives',[])]:
             doc=Document(out/row['path'])
             for rel in doc.dependencies():
                 path=(doc.path.parent/rel).resolve();dependencies[path]=path.stat().st_size
         distinct_bytes=sum(dependencies.values())
         text+=[f'Distinct payload dependencies for the whole chain: **{distinct_bytes:,} bytes**, excluding optional audit JSONs.','']
-        rows.append(dict(asset=root.name,levels=m['levels'],distinct_payload_bytes=distinct_bytes,
-                         maximum_image_mean=max(r['reference']['mean'] for r in metrics['comparisons'])))
+        rows.append(dict(asset=root.name,levels=m['levels'],chain_passed=checks['passed'],images_passed=metrics['passed'],normals_passed=normals['passed'],distinct_payload_bytes=distinct_bytes,
+                         maximum_image_mean=max(r[k]['mean'] for r in metrics['comparisons'] for k in ['reference','adjacent'])))
         if args.write_readmes:
             readme=root/'README.md';old=readme.read_text();start='<!-- LOD checkpoint: begin -->';end='<!-- LOD checkpoint: end -->'
-            addition=block(cfg,m)
+            addition=block(cfg,m,status)
             if start in old:
                 a,b=old.split(start,1);_,c=b.split(end,1);new=a+addition.rstrip()+c
             elif cfg.get('readme_before') and cfg['readme_before'] in old:
@@ -111,7 +134,9 @@ def main():
             else:new=old.rstrip()+'\n\n'+addition
             readme.write_text(new)
         cell=Image.new('RGB',(800,610),(31,33,35));d=ImageDraw.Draw(cell)
-        d.text((16,12),cfg['kind'],font=font,fill='white')
+        target_miss=any(row.get('target_met') is False for row in m['levels'])
+        label=' — PASS'+('; target miss' if target_miss else '') if checks['passed'] and metrics['passed'] and normals['passed'] else ' — FAILED CHECKPOINT'
+        d.text((16,12),cfg['kind']+label,font=font,fill='white')
         for j,row in enumerate(m['levels']):
             s=f'LOD{row["level"]}: {row["triangles"]:,} tris, {row["package_bytes"]:,} B, texture {row["texture_gpu_bytes"]/2**20:.2f} MiB'
             d.text((16,42+j*23),s,font=font,fill=(210,215,220))
@@ -135,8 +160,8 @@ def main():
     if args.docs:
         docs=ROOT/'kit/docs';docs.mkdir(exist_ok=True)
         for quality in range(88,39,-4):
-            sheet.save(docs/'lod-pilots.jpg',quality=quality,optimize=True)
-            if (docs/'lod-pilots.jpg').stat().st_size<=200000:break
+            sheet.save(docs/'lod-reduced-pilots.jpg',quality=quality,optimize=True)
+            if (docs/'lod-reduced-pilots.jpg').stat().st_size<=200000:break
         else:raise RuntimeError('Contact cannot meet docs byte budget')
     print(dest/'report.md');print(dest/'contact.jpg')
 
