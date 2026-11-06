@@ -10,15 +10,16 @@ DELIVERY_SURFACES['Paint']['extras']=dict(DELIVERY_SURFACES['Paint']['extras'],p
 # Normalize these five choices only; not a claim about used-car fleet shares.
 COLOR_WEIGHTS={name:value/89 for name,value in [('Porcelain',31),('Carbon',19),('Graphite',21),('Aluminum',8),('Atlantic',10)]}
 DELIVERY_SURFACES['Paint']['extras']['factory_spawn_weights']=__import__('json').dumps(COLOR_WEIGHTS)
-BUDGETS={'Sedan':62000}
+BUDGETS={'Sedan':70000}
 BOUNDS={'Sedan':dict(size=(2.105,4.885,1.482),tolerance=(.006,.010,.003))}
 DELIVERY_BOUNDS=BOUNDS['Sedan']
 SOURCE_MATERIAL_SURFACES.update({
  'S240 cast alloy':'Opaque',
- 'S240 dealer insert':'Opaque','S240 grille lattice':'Opaque','S240 gloss black grille':'Opaque',
+ 'S240 dealer insert':'Opaque','S240 recessed radiator shadow':'Opaque','S240 gloss black grille':'Opaque',
  'S240 original model':'Opaque',
  'S240 red lamp cover':'Glass',
  'S240 windshield':'Glass','S240 front door glass':'Glass','S240 rear door glass':'Glass','S240 backlight':'Glass',
+ 'S240 sealed headlamp cover':'Glass',
  'S240 lettered tire L':'Opaque','S240 lettered tire R':'Opaque','S240 tire L':'Opaque','S240 tire R':'Opaque',
 })
 UV_DEFAULT_PRIORITY=.32

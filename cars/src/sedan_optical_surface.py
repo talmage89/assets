@@ -88,7 +88,7 @@ def guides(b,sign,mat,tree,front=True):
     return result
 
 
-def rebuild(ob,surface,high=False):
+def rebuild(ob,surface,high=False,*,crown=0,normal_angle_limit=None):
     raw=list(ob['aperture_samples']);guides=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)]
     nu,nv=ob['form_columns'],ob['form_rows'];sign=1 if guides[0].x>0 else -1
     front=ob.name.startswith('Headlamp');origin=ORIGIN if front else REAR_ORIGIN;end=-1 if front else 1
@@ -145,6 +145,12 @@ def rebuild(ob,surface,high=False):
             r=float(np.dot(basis(a,tm),coefficients))-recess+.0005*4*t*(1-t)
             ra=float(np.dot([u*v for u in da for v in [1-tm,tm]],coefficients))/span
             rt=.6*float(np.dot([u*v for u in ba for v in [-1,1]],coefficients))+.002*(1-2*t)
+            if crown:
+                s=(q+1)/2;k=max(0,min(1,min(s,1-s)/.12));w=k*k*(3-2*k)
+                dw=(6*k*(1-k)/(.24*span))*(1 if s<.12 else -1 if s>.88 else 0)
+                r+=crown*w*4*t*(1-t)
+                ra+=crown*dw*4*t*(1-t)
+                rt+=crown*w*4*(1-2*t)
         else:
             r=float(np.dot(basis(a,t),coefficients))-recess
             ra=float(np.dot([u*v for u in da for v in bt],coefficients))/span
@@ -180,7 +186,7 @@ def rebuild(ob,surface,high=False):
             faces += [(a,b,d),(a,d,c)] if (i+j)%2==0 else [(a,b,c),(b,d,c)]
     if sum((ps[f[1]]-ps[f[0]]).cross(ps[f[2]]-ps[f[0]]).dot(ns[f[0]]) for f in faces)<0:faces=[tuple(reversed(f)) for f in faces]
     grid_ps=list(ps);grid_ns=list(ns);refinement=[]
-    for iteration in range(7):
+    for iteration in range(7 if normal_angle_limit is None else 12):
         selected=set();minimum=1.
         for f in faces:
             a,b,c=[ps[i] for i in f];n=(b-a).cross(c-a).normalized()
@@ -188,7 +194,8 @@ def rebuild(ob,surface,high=False):
             longest=max(zip(f,f[1:]+f[:1]),key=lambda e:(ps[e[0]]-ps[e[1]]).length_squared)
             q=tuple(sum(coordinates[i][k] for i in f)/3 for k in [0,1]);true_p,true_n=mold(*q)
             sag=abs((true_p-a).dot(n));angular=true_n.dot(sum((ns[i] for i in f),Vector()).normalized())
-            if agreement<.50 or (ps[longest[0]]-ps[longest[1]]).length>.055 or (front and (sag>.00010 or angular<math.cos(math.radians(.35)))):selected.add(tuple(sorted(longest)))
+            limit=.50 if normal_angle_limit is None else math.cos(math.radians(normal_angle_limit))
+            if agreement<limit or (ps[longest[0]]-ps[longest[1]]).length>.055 or (front and (sag>.00010 or angular<math.cos(math.radians(.35)))):selected.add(tuple(sorted(longest)))
         refinement.append(dict(iteration=iteration,triangles=len(faces),minimum_chord_normal_agreement=minimum,split_edges=len(selected)))
         if not selected:break
         midpoint={}
@@ -206,6 +213,8 @@ def rebuild(ob,surface,high=False):
                 a,b,c=f;ab,bc,ca=mids;refined.extend([(a,ab,ca),(ab,b,bc),(ca,bc,c),(ab,bc,ca)])
         faces=refined
     if minimum<=0:raise ValueError(('Optical physical chords remain reversed',ob.name,refinement))
+    if normal_angle_limit is not None and minimum<math.cos(math.radians(normal_angle_limit+.05)):
+        raise ValueError(('Optical chord/normal agreement remains unresolved',ob.name,refinement))
     number=len(ps);count=len(faces);edges={}
     for f in faces:
         for a,b in zip(f,f[1:]+f[:1]):edges.setdefault(tuple(sorted((a,b))),[]).append((a,b))
@@ -228,11 +237,13 @@ def rebuild(ob,surface,high=False):
     ob['optical_fit_condition']=float(np.linalg.cond(A))
     ob['optical_chord_refinement']=str(refinement)
     ob['normal_basis']='Own smooth radial/height optical loft; paired laminate normals; common physical perspective cut'
-    seating=[]
-    for p in ps:
-        hit,n,_,_=surface['tree'].find_nearest(p)
-        seating.append((float((p-hit).dot(n)),list(p),list(hit)))
-    ob['measured_cover_steel_seating']=str(dict(signed_nearest_plane_distance_min_p50_p95_max_m=np.percentile([q[0] for q in seating],[0,50,95,100]).tolist(),maximum_example=max(seating),scope='Actual cover outer vertices against the uncut manufactured stamping; negative is seated inside'))
-    print('S240_COVER_STEEL_SEATING',ob.name,min(q[0] for q in seating),max(q[0] for q in seating),flush=True)
+    if surface is not None:
+        seating=[]
+        for p in ps:
+            hit,n,_,_=surface['tree'].find_nearest(p)
+            seating.append((float((p-hit).dot(n)),list(p),list(hit)))
+        ob['measured_cover_steel_seating']=str(dict(signed_nearest_plane_distance_min_p50_p95_max_m=np.percentile([q[0] for q in seating],[0,50,95,100]).tolist(),maximum_example=max(seating),scope='Actual cover outer vertices against the uncut manufactured stamping; negative is seated inside'))
+        print('S240_COVER_STEEL_SEATING',ob.name,min(q[0] for q in seating),max(q[0] for q in seating),flush=True)
+    elif 'measured_cover_steel_seating' in ob:del ob['measured_cover_steel_seating']
     if old.users==0:bpy.data.meshes.remove(old)
     print('S240_PHYSICAL_OPTIC',ob.name,count,'outer triangles; extra seating',recess,'fit',float(np.max(np.abs(residual))),'condition',float(np.linalg.cond(A)),flush=True)

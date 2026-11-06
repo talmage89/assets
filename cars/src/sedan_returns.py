@@ -27,7 +27,8 @@ def build(b):
     from sedan_fairness import field
     for cover in [o for o in bpy.context.scene.objects if o.name.startswith('Headlamp opening')]:
         nu=int(cover['form_columns']);nv=int(cover['form_rows']);raw=list(cover['aperture_samples'])
-        ps=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)];normal=field([cover]).nearest_normal
+        from sedan_exterior import optical_normal
+        ps=[Vector(raw[i:i+3]) for i in range(0,len(raw),3)];normal=optical_normal(cover)
         first=min(i for i in range(nu) if sum(abs(ps[j*nu+i].x) for j in range(nv))/nv>.815)
         cols=sorted(set(round(first+(nu-1-first)*i/4) for i in range(5)))
         rows=sorted(set(round((nv-1)*j/6) for j in range(7)));stride=len(cols)

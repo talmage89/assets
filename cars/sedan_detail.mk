@@ -2,6 +2,7 @@
 SEDAN_CONFIG := src/sedan_detail_config.py
 DDEPS := src/sedan_detail.py src/sedan_hardware.py src/sedan_exterior.py src/sedan_interior.py src/sedan_underbody.py src/sedan_finishes.py src/sedan_colors.py src/sedan_spec.py src/finishes.py src/wheels.py src/build.py src/detail_helpers.py $(KIT)/vehicle_materials.py $(KIT)/materials.py
 DDEPS += src/sedan_surface_allocation.py src/sedan_returns.py
+DDEPS += src/sedan_front.py
 DOUT := renders/sedan-detail
 DPAIRS := renders/sedan-used-pairs
 DSHOTS := front_three_quarter rear_three_quarter face lamp_unlit lamp_lit wheel mirror interior_glass underbody underbody_layout opened_front opened_rear side front rear top scale
@@ -55,6 +56,9 @@ build/sedan/arch-clearance.json: build/sedan/detail-game.blend src/sedan_arch_ch
 	$(BP) --python src/sedan_arch_check.py -- --source $< --out $@
 check-detail: build/sedan/arch-clearance.json
 check: build/sedan/surface-delivery.json
+build/sedan/front-delivery.json: export/AlderS240.glb build/sedan/finalized.blend src/sedan_front_check.py src/sedan_surface_proof.py src/sedan_surface_check.py
+	$(BP) --python src/sedan_front_check.py -- --source build/sedan/finalized.blend --glb export/AlderS240.glb --out $@
+check sedan-delivery: build/sedan/front-delivery.json
 build/sedan/motion-game.json: build/sedan/detail-game.blend $(SEDAN_CONFIG)
 	$(BP) --python $(KIT)/motion.py -- --source $< --config $(SEDAN_CONFIG) --out $@
 build/sedan/motion-high.json: build/sedan/detail-high.blend $(SEDAN_CONFIG)

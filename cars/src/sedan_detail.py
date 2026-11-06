@@ -70,7 +70,7 @@ def optimize_backs(ob):
             point=ob.data.vertices[ob.data.loops[li].vertex_index].co
             key=tuple(round(c,7) for c in point)
             if role==0 and key not in original:raise ValueError('Visible skin changed during hidden-back reduction')
-            custom.append(original[key] if role==0 else (0,0,0))
+            custom.append(original[key] if role==0 else face.normal.copy())
         face.material_index=0
     ob.data.materials.clear();ob.data.materials.append(mat);ob.data.normals_split_custom_set(custom)
 
@@ -222,6 +222,10 @@ def main():
     sedan_exterior.build(b);sedan_interior.build(b);sedan_underbody.build(b);sedan_hardware.door_hinges(b)
     import sedan_returns
     sedan_returns.build(b)
+    from sedan_front import seat_optical_backings
+    seat_optical_backings(b)
+    from sedan_front import hidden_normals
+    hidden_normals()
     bpy.context.view_layer.update()
     for ob in bpy.context.scene.objects:
         if ob.type!='MESH' or ob.get('asset_set')!='Sedan':continue
@@ -251,6 +255,19 @@ def main():
     from sedan_surface_normals import coalesce
     for ob in bpy.context.scene.objects:
         if ob.type=='MESH' and ob.get('part_category') in ['body','doors','fascia','pillars','glass']:coalesce(ob)
+        # Hidden sheet faces must carry their own winding normals. An automatic
+        # zero vector can average the reverse sheet into the outer skin's fan.
+        if ob.type=='MESH' and ob.get('part_category')=='fascia':
+            roles=ob.data.attributes.get('sheet_role')
+            if roles:
+                custom=[n.vector.copy() for n in ob.data.corner_normals]
+                for face in ob.data.polygons:
+                    if roles.data[face.index].value!=0:
+                        face.use_smooth=False
+                        for li in face.loop_indices:custom[li]=face.normal.copy()
+                ob.data.normals_split_custom_set(custom)
+    from sedan_front import fair_molding_normals
+    fair_molding_normals()
     for mat in list(bpy.data.materials):
         if mat.users==0:bpy.data.materials.remove(mat)
     sc=bpy.context.scene;sc['stage']='S240 detail and procedural look-dev';sc['form_source_sha256']=hashlib.sha256(source.read_bytes()).hexdigest();sc['wear']=a.wear

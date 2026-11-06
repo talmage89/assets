@@ -7,6 +7,45 @@ from sedan_check import mesh_tree
 import sedan_spec as S
 
 
+def rim(b,code,cx,y,sign,parent):
+    """128-chord exposed lips, graded concealed barrel; exact conical normals."""
+    old=bpy.data.objects['Wheel barrel_'+code];bpy.data.objects.remove(old,do_unlink=True)
+    r=S.RIM_INCHES*.0254/2
+    # Roll the exposed flange ahead of the tire bead. The old 6 mm flange
+    # let the accepted coarse concealed bead clip its bright circular edge.
+    profile=[(-.093,r-.020),(-.093,r+.005),(-.081,r+.005),(.084,r-.008),(.113,r+.012),(.115,r-.010)]
+    counts=[128]*6 if b.high else [24,32,32,64,128,128]
+    vertices=[];starts=[];rings=[];faces=[];segments=[]
+    for j,((x,radius),num) in enumerate(zip(profile,counts)):
+        starts.append(len(vertices));rings.extend([j]*num)
+        vertices.extend((cx+sign*x,y+radius*math.cos(math.tau*k/num),S.HUB_HEIGHT+radius*math.sin(math.tau*k/num)) for k in range(num))
+    for ring,a in enumerate(counts):
+        other=(ring+1)%len(counts);c=counts[other];i=j=0
+        while i<a or j<c:
+            va=starts[ring]+i%a;vc=starts[other]+j%c
+            if (i+1)*c==(j+1)*a:
+                faces.append((va,starts[ring]+(i+1)%a,starts[other]+(j+1)%c,vc));i+=1;j+=1
+            elif (i+1)*c<(j+1)*a:
+                faces.append((va,starts[ring]+(i+1)%a,vc));i+=1
+            else:
+                faces.append((va,starts[other]+(j+1)%c,vc));j+=1
+            segments.append(ring)
+    ob=G.mesh('Wheel barrel_'+code,vertices,faces,b.m['wheel']);me=ob.data
+    section=[Vector((-(profile[(i+1)%6][1]-p[1])*sign,profile[(i+1)%6][0]-p[0])).normalized() for i,p in enumerate(profile)]
+    custom=[]
+    for face,segment in zip(me.polygons,segments):
+        face.use_smooth=True
+        for li in face.loop_indices:
+            vi=me.loops[li].vertex_index;p=me.vertices[vi].co;ring=rings[vi];base=section[segment]
+            adjacent=section[(segment-1)%6 if ring==segment else (segment+1)%6]
+            n=(base+adjacent).normalized() if base.dot(adjacent)>math.cos(math.radians(35)) else base
+            radius=math.hypot(p.y-y,p.z-S.HUB_HEIGHT)
+            custom.append(Vector((n.x,n.y*(p.y-y)/radius,n.y*(p.z-S.HUB_HEIGHT)/radius)))
+    me.normals_split_custom_set(custom);b.add(ob,parent,'wheels')
+    ob['rim_ring_counts']=counts;ob['exposed_lip_chord_sag_m']=(S.RIM_INCHES*.0254/2+.012)*(1-math.cos(math.pi/128))
+    return ob
+
+
 def passenger_wheels(b):
     """Keep the six-fork casting; use a 5 x 114.3 mm stud circle.
 
@@ -17,6 +56,7 @@ def passenger_wheels(b):
         sign=-1 if code.endswith('L') else 1;track=S.FRONT_TRACK if code.startswith('F') else S.REAR_TRACK
         y=S.FRONT_AXLE if code.startswith('F') else S.REAR_AXLE;cx=sign*track/2;axial=1.0;parent=bpy.data.objects['Wheel_'+code]
         bpy.context.view_layer.update()
+        rim(b,code,cx,y,sign,parent)
         # Retain the actual 18 x 7.5 casting width. Its center and spoke roots
         # sit inboard of the lip, with sufficient room for the caliper behind.
         for ob in list(bpy.context.scene.objects):

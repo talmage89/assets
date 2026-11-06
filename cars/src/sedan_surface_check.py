@@ -64,6 +64,14 @@ def measure(ob):
 def grille_measure(obs):
     """Measure mirror pairs on the actual vanes, including imported delivery."""
     from mathutils.kdtree import KDTree
+    web=next((o for o in obs if o.name=='S240 upper hexagonal grille'),None)
+    if web is not None:
+        points=[web.matrix_world@v.co for v in web.data.vertices];tree=KDTree(len(points))
+        for i,p in enumerate(points):tree.insert(p,i)
+        tree.balance()
+        error=max(tree.find(Vector((-p.x,p.y,p.z)))[2] for p in points)
+        return dict(passed=error<1e-5,maximum_mirrored_vertex_error_m=error,
+            scope='Every actual perforated-web vertex reflected across the vehicle center plane; source/delivery measured independently')
     vanes={int(o.name.rsplit(' ',1)[-1]):o for o in obs if 'Low wide grille opening cascade vane ' in o.name}
     if len(vanes)!=17:raise ValueError('Missing manufactured grille vanes')
     pairs=[]

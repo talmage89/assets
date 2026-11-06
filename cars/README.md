@@ -250,7 +250,7 @@ The script source and shader behavior are available for engine integration.
 ## Alder S240 — midsize sedan
 
 An original 2018–2022 FWD midsize sedan on 235/45R18 touring tires. Its six-light
-greenhouse, continuous stamped surfaces, swept lamps and cascade grille are
+greenhouse, continuous stamped surfaces, swept lamps and hexagonal mesh grille are
 Alder's own design. Five factory colors share one sedan atlas. The C150's GLB
 and atlas remain independent and unchanged.
 
@@ -280,16 +280,16 @@ The table below measures our actual surfaces and pivot centers.
 
 | Measurement | Delivered asset |
 | --- | ---: |
-| Length × body width × body height | 4884.9 × 1849.4 × 1449.6 mm |
-| Including mirrors / antenna | 2104.6 mm wide / 1481.8 mm high |
+| Length × body width × body height | 4885.1 × 1849.6 × 1449.7 mm |
+| Including mirrors / antenna | 2104.6 mm wide / 1483.7 mm high |
 | Wheelbase / front and rear tracks | 2830 / 1590, 1600 mm |
 | Tires / mean rolling diameter / crown gap | 235/45R18 / 660.7 / 44 mm |
-| Rim bead width / overall metal width | 190.5 / 196.0 mm |
-| Studs / pitch circle / hub-cap recess | five / 114.3 / 12.0 mm |
+| Tire bead width / overall rim metal width | 190.5 / 208.0 mm |
+| Studs / pitch circle / hub-cap recess | five / 114.3 / 24.0 mm |
 | Lowest underbody point | 146.5 mm, engine sump |
 | Nominal door reveals | 4.5 mm, including the physical sill cut |
-| Hood front / nose's leading height / chin | about 770 / 500 / 174.9 mm |
-| Front lower tuck / rear lower tuck | 133.9 / 189.5 mm |
+| Hood front / nose's leading height / chin | 755.2 / 504.0 / 174.9 mm |
+| Front lower tuck / rear lower tuck | 133.7 / 189.5 mm |
 | Rear departure ground tangent | 18.04°, against the cited 17.5° class cross-check |
 
 The upper stamping is rebuilt as one C2 die through fair longitudinal
@@ -299,6 +299,8 @@ subdivision sheet. Steel gauge is nominally 0.9 mm, fascias 3 mm and glazing
 4.8 mm. The game mesh samples the nose/deck rolls and shoulder in physical
 coordinates aligned with their bends. Fine lower molding allocation preserves
 cut boundaries and bounds sampled deviation against the original sheet.
+Both sails and front pillars receive fresh physical rows on that die; the
+front pillar's old diagonal chords no longer step its macro reflection.
 
 The windshield has its accepted physical base/header outline, independent of
 cage column widths, and its own smooth optical crown. Both laminate faces
@@ -308,23 +310,53 @@ optical molds; glass and coated paint retain continuous mesh normals without
 a quantized tangent-normal texture binding. The material factors, road film,
 five paints and gallery lighting are unchanged.
 
-Lamps and their stamping use one physical perspective chart. Its cut
-intersections use perspective-correct weights on the original game edges.
+Lamp footprints use physical perspective charts. The front panels receive one
+constrained triangulation of the complete opening, with reflection rows and
+one shared C2 fender/fascia parting line. Their transverse crown is convex; the center
+and 800 mm draw datum are preserved. The transparent front covers have their
+own raked optical mold with a further 1.5 mm convex crown inside its held
+perimeter, rather than copying the steel's tight bend. Rear cut
+intersections on the quarters use perspective-correct weights on the original
+game edges. Trunk lamp lands use the same complete aperture triangulation as
+the front, retaining their deck-roll section edges.
 Molded lips and overlapping mounting lands seat the covers on the real cut
-steel; the cassette's back closes its actual rim. All vanes in the grille
-follow one mirror-symmetric die. Shared-corner normal continuity, actual
+steel; the cassette's black molded back closes its actual rim. The grille's
+connected perforated web follows one mirror-symmetric die. Shared-corner normal continuity, actual
 facet winding, gauge containment and measured grille mirror pairs are checked
 independently on source and imported delivery geometry. These measurements
 prove construction and serialization. Native before/after crops and evenly
 spaced gallery reflection lights separately judge the appearance.
 
-The 1211 / 1268 mm backlight, broad sails, integrated deck lip, convex bumper,
-153 mm class taillamps and 320 × 170 × 26 mm plate pocket retain the accepted
-construction. Seventeen bowed gloss-black grille vanes sit over original
-diamond relief, within a dark-chrome surround carrying an ALDER badge. The
+The 1214 / 1270 mm backlight, broad sails, integrated deck lip, convex bumper,
+tail lamps reaching 168 mm at the corner and 320 × 170 × 26 mm plate pocket
+retain the accepted construction. A gloss-black web of 23 × 4 open hexagons
+sits behind a narrow molded lip, with a 32-slot lower intake and an ALDER badge
+supported directly on the web. It uses the H120's recessed-bed construction
+with a separate pattern. The
 plate carries an original ALDER / WILLOW MOTOR CO. dealer insert with dark
 frame, without a registration format or serial. Its molded return contacts the
 insert within 0.25 µm numerical error and has 2.22 mm sampled pocket clearance.
+
+The reveal channels have 2 mm gauge, with their structural faces 35 mm behind
+the sheet. Actual aperture liners, jambs, sill closures, a short moving hood
+hem and a rear seam strip close the remaining grazing paths. The lower bumper
+die and a common post-cut nose mold fair the intake, lip and cheek as one
+profile. The mold holds the accepted upper sheets at Z ≥ 0.66 m. Concealed
+fascia backings stay 3 mm inside the actual painted profile. Molded
+returns are measured 3.61–4.50 mm inside their actual cut steel; the exhaust lip
+is 3.00 mm inside the painted rear profile. The accepted headlamp perimeter,
+its lower-rail rake and the surrounding painted steel stay fixed. The hidden
+hood/fascia returns fit behind that mold. Each front opening has its own fitted
+closure instead of a broad backing fan across the insert. Closed 1.5 mm bucket walls,
+an opaque rim, a fitted inner mask and actual projector returns stay behind the
+shell. A 3–6 mm black border follows the true lens perimeter. The projector
+aperture is fitted from its actual optic mesh. The corner lamps have molded
+front masks, fitted bonded gaskets and 2 mm side returns under their wrapped
+fascia lands. Area-weighted 70 mm neighborhoods fair the painted cut-land
+normals while holding every body vertex and triangle. An independent export
+audit checks full-face winding, individual corner normals, duplicates within
+and across parts, minimum area/altitude and exact lens-to-body/cassette/backing
+triangle intersections.
 
 The clear headlamp covers seat on molded bucket lips across their reveals.
 Projectors, reflector bowls, swept light guides, side markers, reverse windows,
@@ -340,33 +372,34 @@ material, texture, decal or HDRI enters the asset.
 
 | Manufactured group | Triangles |
 | --- | ---: |
-| Body skins / molded fascias | 13,574 / 11,230 |
-| Pillars / door skins | 1,404 / 2,836 |
-| Glass / mirrors | 2,248 / 660 |
+| Body skins / molded fascias | 12,060 / 6,880 |
+| Pillars / door skins | 2,856 / 2,934 |
+| Glass / mirrors | 5,636 / 660 |
 | Arch flanges / liners | 384 / 1,168 |
-| Recesses and grille / optical assemblies | 2,864 / 5,688 |
-| Tires / wheels / brakes | 3,136 / 4,072 / 1,120 |
-| Exterior trim / hinge hardware | 2,724 / 1,176 |
-| Interior / underbody | 3,886 / 1,760 |
-| **Delivered total** | **59,930** |
+| Recesses and grille / optical assemblies | 5,664 / 8,466 |
+| Tires / wheels / brakes | 4,096 / 5,800 / 1,120 |
+| Exterior trim / hinge hardware | 3,180 / 1,176 |
+| Interior / underbody | 5,818 / 1,760 |
+| **Delivered total** | **69,658** |
 
 | Moving parent, including attached detail | Triangles |
 | --- | ---: |
-| Front doors L / R | 1,680 / 1,680 |
-| Rear doors L / R | 1,612 / 1,628 |
-| Hood / trunk | 1,148 / 3,384 |
-| Each spinning wheel assembly | 1,982 |
+| Front doors L / R | 1,824 / 1,838 |
+| Rear doors L / R | 1,616 / 1,618 |
+| Hood / trunk | 1,258 / 3,940 |
+| Each spinning wheel assembly | 2,654 |
 | Each front steering carrier | 148 |
 | Hood support sleeves / rods, both sides | 128 / 64 |
-| Static assembly | 40,382 |
+| Static assembly | 46,460 |
 
-The high source is 174,212 triangles. Every mesh is itemized in
-`build/sedan/detail-game.counts.json`; independent source checks and GLB
-re-import reports separate construction from serialization. The repaired car is two triangles below the earlier delivery. Hidden gauge,
-redundant guide chords and the grille backs fund the fair skins, supported
-optical seats and rounder tires. Guide reduction measures every authored station
+Both source densities are itemized in `build/sedan/detail-game.counts.json`
+and `build/sedan/detail-high.counts.json`; independent source checks and GLB
+re-import reports separate construction from serialization. Delivery remains
+342 triangles below the 70,000 limit. Hidden web backs and protected bead rings
+fund sealed optical construction, 128-station outer rim lips and the accepted
+96-station tire shoulders. Guide reduction measures every authored station
 against its final chord; maximum error stays below 0.30 mm.
-The embedded-texture GLB is **9,152,316 bytes**.
+The embedded-texture GLB is **10,140,724 bytes**.
 
 Four delivery surfaces match the pickup: **Paint, Opaque, Glass and Lamps**.
 Separate recoloring/coat, transmission and switchable emission responses need
@@ -398,24 +431,25 @@ Wear defaults to `--wear .65` on the detail generator.
 ORM blue stores clean coverage before the factory metallic factor, so road
 deposits retain a dielectric response in every color. The pickup preparation
 and shader remain unchanged. Glazing is dark/transmissive with edge frit and
-lower residue. Continuous carcass normals and 56 circumferential stations keep
-the touring tires smooth; native-size molded type gets extra atlas space. Wheels
+lower residue. Continuous carcass normals and 96 circumferential stations on the visible shoulders keep
+the touring tires smooth; native-size molded type gets extra atlas space. The
+rim lips use 128 circumferential stations, with graded concealed rings. Wheels
 have a charcoal alloy response, caliper-centered brake dust and darker radial
 tire dust.
 
 BaseColor/ORM and shader normals bake directly on the prepared finalized skin.
 Original coordinates survive UV packing. High-source normals replace direct
 normals only where independent partwise rays pass; the bake report records the
-coverage and neutral tangent fallbacks: 256 parts, or 7.77% of the atlas,
+coverage and neutral tangent fallbacks: 305 parts, or 8.98% of the atlas,
 receive high-source normals. Grille vanes and arch returns use their direct
 normals. Paint and glass use their continuous exported corner normals, without
 an unresolved tangent-normal texture binding.
 
-The final UV pass logs 31 repairs for overlapping or subtexel fragments. Its
-direct bake has zero missing interior texels among 6,080,665 checked samples;
-six backward tangent samples are neutralized by the documented hemisphere
-fallback. UV coverage is **40.82%**, with zero overlap/outside/degenerate
-triangles; measured p5/median/p95 density is **59.6 / 264.3 / 506.0 px/m**.
+The final UV pass logs 17 chart splits for overlapping or subtexel fragments. Its
+direct bake has zero missing interior texels among 5,804,371 checked samples.
+The existing hemisphere fallback neutralizes 14,538 backward samples, including
+346 interior samples (0.0060%, within the unchanged 0.01% gate). The final layout has 5,206 islands and **39.37%** coverage, with zero overlap/outside/degenerate
+triangles; measured p5/median/p95 density is **57.0 / 253.0 / 398.5 px/m**.
 Hidden gauge receives less space; painted panels, tire sidewalls, plates and
 markings receive extra density. A square UV context prevents source-image
 aspect from stretching charts. The six planar marking charts have measured
@@ -448,10 +482,10 @@ The hollow hubs have minimum 70.4 mm bores around 70.0 mm journals, measured
 
 Eight concealed hinges have measured 8.0 mm pins, minimum 8.4 mm bores and
 approximately 0.20 mm radial clearance. Moving leaves contact their barrels
-and lie within 0.94 mm of the supporting sheet; fixed leaves meet their pins.
+and lie within 0.48 mm of the supporting sheet; fixed leaves meet their pins.
 Front jamb channels, inner B posts and sill reinforcements carry the loads.
 The hood uses two telescoping hollow gas supports. Measured member overlap
-stays **66.8–283.7 mm** through the range. Trunk goosenecks clear the backlight,
+stays **67.0–283.1 mm** through the range. Trunk goosenecks clear the backlight,
 rear shelf and tub. Their lid ends are measured within 0.30 mm of the actual
 inner sheet, and their fixed supports meet both bearing and tub. Tank straps,
 exhaust hangers and upper dampers are seated on measured supporting surfaces.
@@ -466,7 +500,7 @@ surface-collision tests; GLB re-import separately proves geometry and pivot
 serialization, not mechanical correctness between samples. Intended CV, lower
 ball-joint and coaxial strut/knuckle contacts use explicitly named composite
 joint proxies; they are not unrelated-panel collision exceptions.
-Across the measured grille mouth, 8,069 rays find zero painted obstructions
+Across the measured grille mouth, 8,070 rays find zero painted obstructions
 through its recessed well. This independently detects the old uncut triangles.
 Front-cover chart orientation and rays along the real cover normals check the wrapped
 optical seats. The open game arch returns have an additional 290-pose check of
@@ -481,8 +515,8 @@ The rigid members telescope; glTF does not serialize Blender tracking constraint
 
 ```sh
 make -C cars BODY=sedan WIDTH=1600 SAMPLES=256
-make -C cars BODY=sedan check
-make -C cars BODY=sedan panel-diagnostics
+make -C cars BODY=sedan WIDTH=1600 SAMPLES=256 check
+make -C cars BODY=sedan WIDTH=1600 SAMPLES=256 panel-diagnostics
 make -C cars BODY=sedan form       # archived clay/stripes/overlay presentation
 make -C cars                      # independent pickup delivery path
 ```
@@ -505,6 +539,9 @@ additional packages are needed. This round changes no kit or pickup source file.
 | `renders/sedan-used-pairs/` | Sun/sky-matched, white-balanced used-class pairs and measured patches |
 | `renders/sedan-panels/*-comparison.jpg` | Actual GLB curvature and both reflection directions, seven views including face and wheel |
 | `renders/sedan-panels/source/` | The same expanded measurements and views on the source |
+| `renders/sedan-face-repair/` | Native R10/R11 front, lamp, rim and badge pairs, each side at least 800 px; H120 face at the same framing |
+| `renders/sedan-final-tells/` | Native R9/R10 crops of the four final tells, camera and export hashes, and before/after magenta counts |
+| `renders/sedan-seethrough/` | Six saturated-magenta tests of the imported GLB; cabin glass excepted, optical covers transmit into the cassettes |
 | `renders/sedan-surface-repair/` | Native R8/R9 export comparisons, each crop at least 800 px wide, with camera/provenance records |
 | `renders/sedan-reflection-lines/` | Gallery-camera zebra lights on the actual source and exported surfaces |
 | `renders/sedan-eevee/` | Eevee export view |
@@ -534,9 +571,13 @@ different optical graphics and panel shapes. Broad door/quarter reflections do
 not match every photographic patch. The estimated procedural surroundings are
 simpler than the photographed building. Raw curvature/stripes expose remaining
 cut-cell and tire-section discretization under extreme inspection lighting.
-Hard mirror/wheel bevels, simple cabin/underbody forms and rear optics remain
-the main CG tells. Molded tire type stays faint and some small text is soft at
-macro distance. Eevee transmits less nested glass depth than Cycles.
+Hard mirror/wheel bevels, simple cabin/underbody forms, coarse opened-hood inner
+reflections, tight lower-fascia highlights and small reflector facets remain
+the main CG tells. Thin trim and
+the hood reveal retain small steps at macro distance. Molded tire type stays
+faint; the small rear model badge reads correctly but remains soft at 2048².
+Road film remains subtler than the used photographs. Eevee transmits less
+nested glass depth than Cycles.
 
 Reference photographs and manufacturer specifications: authors, URLs, licenses
 and exact uses in [refs/SOURCES.md](refs/SOURCES.md). Markings use installed Noto

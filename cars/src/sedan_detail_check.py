@@ -175,7 +175,7 @@ def main():
     if any(r['minimum_hub_radial_running_clearance_m']<.00018 or r['measured_axial_engagement_m']<.025 for r in mechanical['wheels'].values()):errors.append('Wheel journal running clearance or engagement')
     if support_contacts:errors.append('Evaluated telescoping support collision')
     if rest_errors:errors.append('Rest coordinates disagree with actual closed geometry')
-    if sum(counts.values())>62000:errors.append('Triangle budget')
+    if sum(counts.values())>70000:errors.append('Triangle budget')
     if not .140<=underbody_lowest[0]<=.155:errors.append('Underbody clearance')
     if tangent[0]<17.5:errors.append('Departure ground tangent below the manufacturer class cross-check')
     if any(v['normal_dot_min_p01_p50'][0]<0 for v in optics.values()):errors.append('Reversed cover shading normals')

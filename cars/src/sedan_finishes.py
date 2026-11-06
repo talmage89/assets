@@ -77,9 +77,22 @@ def dirty_lower_glass(mat,wear):
     return mat
 
 
+def headlamp_cover():
+    """Clear UV-coated polycarbonate with a real 3–6 mm perimeter mask."""
+    n=Nodes('S240 sealed headlamp cover')
+    edge=n.node('ShaderNodeAttribute');edge.attribute_name='S240LensEdgeDistance'
+    border=n.ramp(edge.outputs['Fac'],.006,.003)
+    mat=n.finish(n.mix(border,(.96,.98,.99),(.0015,.002,.0025),True),n.add(.04,n.mul(border,.14)),0)
+    bs=mat.node_tree.nodes['SURFACE'];n.feed(bs.inputs['Transmission Weight'],n.math('SUBTRACT',1,border))
+    bs.inputs['IOR'].default_value=1.49;bs.inputs['Specular IOR Level'].default_value=.5
+    mat['vehicle_glass']=True;mat.diffuse_color=(.96,.98,.99,1)
+    return mat
+
+
 def build(wear):
     from finishes import build as family_finishes
     m=family_finishes(0)
+    m['headlamp_cover']=headlamp_cover()
     # Reuse the family's responses with sedan axle locations for causal splash.
     for key,color,kind in [('rubber',(.009,.010,.011),'rubber'),('plastic',(.011,.013,.014),'plastic'),('bumper',(.016,.019,.021),'plastic'),('frame',(.008,.009,.010),'plastic')]:
         name=m[key].name;bpy.data.materials.remove(m[key])
@@ -107,15 +120,12 @@ def build(wear):
     x,y,z=n.split(uv.outputs['UV'])
     edge=n.maximum(n.ramp(x,.045,.025),n.ramp(x,.955,.975),n.ramp(y,.11,.08),n.ramp(y,.85,.90))
     m['dealer']=n.finish(tex.outputs['Color'],n.mix(edge,.36,.21),n.mul(edge,.35),n.mul(edge,.0012))
-    # Recessed diamond relief behind the vertical cascade vanes, gloss black.
-    n=Nodes('S240 grille lattice');tc=n.node('ShaderNodeTexCoord');u,v,_=n.split(tc.outputs['UV'])
-    lines=[]
-    for diagonal in [n.add(n.mul(u,44),n.mul(v,6)),n.add(n.mul(u,44),n.mul(v,-6))]:
-        wave=n.math('PINGPONG',diagonal,1);lines.append(n.ramp(wave,.84,.96))
-    bars=n.maximum(*lines)
-    m['grille']=n.finish(n.mix(bars,(.003,.004,.004),(.014,.018,.018),True),n.mix(bars,.35,.14),n.mul(bars,.35),n.mul(bars,.00018))
-    m['grille_bar']=V.manufactured('S240 gloss black grille',(.012,.015,.016),'chrome',0,refined=True)
-    n=Nodes.__new__(Nodes);n.mat=m['grille_bar'];n.nt=n.mat.node_tree;n.feed(n.nt.nodes['OUT_rough'].inputs[0],.14)
+    # The molded web has actual open cells. Behind it is a dark radiator bed,
+    # without a second drawn lattice competing with the geometry.
+    n=Nodes('S240 recessed radiator shadow')
+    m['grille']=n.finish((.003,.004,.004),.57,0)
+    m['grille_bar']=V.manufactured('S240 gloss black grille',(.012,.015,.016),'plastic',0,refined=True)
+    n=Nodes.__new__(Nodes);n.mat=m['grille_bar'];n.nt=n.mat.node_tree;n.feed(n.nt.nodes['OUT_rough'].inputs[0],n.math('ADD',.26,0))
     for side in ['L','R']:
         image=bpy.data.images.load(str(directory/'tire_relief.png'),check_existing=True)
         image.colorspace_settings.name='Non-Color'
