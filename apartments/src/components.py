@@ -31,7 +31,7 @@ def panel_wall(a,name,width,height,origin,yaw,openings,skin='mixed',band=2.7432,
     oriented(m,origin,yaw).finish();return m
 
 
-def window(a,name,p,w=1.524,h=1.2192,yaw=0,seed=1,replacement=False,slider=False):
+def window(a,name,p,w=1.524,h=1.2192,yaw=0,seed=1,replacement=False,slider=False,masonry=False):
     rng=random.Random(seed);x,y,z=p
     m=a.mesh(name,component='window');frame=a.colors['Trim'] if replacement else ALUM
     # Perimeter aluminum extrusion with a recessed glazing pocket and deep sill.
@@ -52,8 +52,16 @@ def window(a,name,p,w=1.524,h=1.2192,yaw=0,seed=1,replacement=False,slider=False
             m.box((xx,.12+.015*math.sin(j*2),0),(w*closed*.10,.018,h-.07),'Trim',curtain,r=0)
     # Slatted blinds differ by tenant; horizontal rails remain low-cost.
     if seed%3==0:
-        for j in range(9):m.box((0,.09,h*.45-j*h*.08),(w-.075,.014,.013),'Trim',curtain,r=0)
-    oriented(m,p,yaw).finish();return m
+        for j in range(int(h/.032)):
+            zz=h*.46-j*.032
+            m.geom([(-w/2+.04,.085,zz),(w/2-.04,.085,zz),(w/2-.04,.098,zz-.025),(-w/2+.04,.098,zz-.025)],[(0,1,2,3)],'Trim',curtain)
+    oriented(m,p,yaw).finish()
+    if masonry:
+        course=a.mesh(name+'_brick_courses',component='brick_courses')
+        course.box((0,.004,h/2+.136),(w+.15,.11,.2032),'Veneer',r=0)
+        course.box((0,-.025,-h/2-.068),(w+.15,.17,.0762),'Veneer',r=0)
+        oriented(course,p,yaw).finish()
+    return m
 
 
 def door(a,name,p,yaw=0,width=.9144,glass=False,number='',replaced=False):
@@ -112,14 +120,16 @@ def rail(m,a,b,height=1.0668,color=STEEL,balusters=True):
         m.box(q+Vector((0,0,.008)),(.10,.10,.016),'Trim',color,r=0)
 
 
-def balcony(a,name,x,y,z,w=3.3,depth=1.524,sign=-1,seed=0,support_base=0):
+def balcony(a,name,x,y,z,w=3.3,depth=1.524,sign=-1,seed=0,support_base=0,recessed=False):
     m=a.mesh(name,component='balcony');outer=y+sign*depth;cy=(y+outer)/2
     m.box((x,cy,z-.10),(w,depth,.20),'Concrete',r=.006)
     # Steel posts and beams bear at the slab edges; no floating decks.
     if z>1:
-        for sx in (-1,1):m.box((x+sx*(w/2-.13),outer-sign*.10,(z-.20+support_base)/2),(.10,.10,z-.20-support_base),'Trim',STEEL,r=.002)
+        if not recessed:
+            for sx in (-1,1):m.box((x+sx*(w/2-.13),outer-sign*.10,(z-.20+support_base)/2),(.10,.10,z-.20-support_base),'Trim',STEEL,r=.002)
         rail(m,(x-w/2+.04,outer-sign*.04,z),(x+w/2-.04,outer-sign*.04,z))
-        for sx in (-1,1):rail(m,(x+sx*(w/2-.04),y,z),(x+sx*(w/2-.04),outer,z))
+        if not recessed:
+            for sx in (-1,1):rail(m,(x+sx*(w/2-.04),y,z),(x+sx*(w/2-.04),outer,z))
     # Cause-located runoff at slab drips, represented by inset-colored hems.
     for j in range(4):m.box((x-w*.35+j*w*.23,outer+sign*.003,z-.13),(.075,.004,.11),'Concrete',(.18,.185,.16),r=0)
     if seed%3==0:
@@ -133,6 +143,22 @@ def balcony(a,name,x,y,z,w=3.3,depth=1.524,sign=-1,seed=0,support_base=0):
         m.tube([(x+w*.27,cy,z),(x+w*.27,cy,z+.24)],.16,'Veneer',(.21,.105,.055),sides=10)
         for j in range(6):
             t=j*math.tau/6;m.beam((x+w*.27,cy,z+.22),(x+w*.27+.12*math.cos(t),cy+.12*math.sin(t),z+.55),.025,.02,'Trim',(.10,.17,.055),r=0)
+    if z>1 and seed%4==0:
+        gx=x+w*.25;gy=cy
+        for t in (0,2.1,4.2):m.beam((gx+.22*math.cos(t),gy+.22*math.sin(t),z),(gx+.13*math.cos(t),gy+.13*math.sin(t),z+.48),.023,.023,'Trim',ALUM,r=0)
+        for lo,hi,r0,r1 in ((.43,.55,.04,.24),(.55,.65,.24,.24),(.65,.78,.24,.03)):
+            vs=[(gx+rr*math.cos(k*math.tau/12),gy+rr*math.sin(k*math.tau/12),z+zz) for zz,rr in ((lo,r0),(hi,r1)) for k in range(12)]
+            m.geom(vs,[(k,(k+1)%12,(k+1)%12+12,k+12) for k in range(12)],'Trim',(.022,.031,.026))
+        m.box((gx,gy,z+.81),(.16,.05,.035),'Trim',(.04,.045,.035),r=.003)
+    if z>1 and seed%5==2:
+        # Bicycle leans along the inside of the guard; real 32 mm tires,
+        # narrow steel tubing and spokes, rather than a painted silhouette.
+        by=outer-sign*.20;bx=x-.10;bz=z+.34
+        for dx in (-.5,.5):
+            m.tube([(bx+dx+.32*math.cos(k*math.tau/16),by,bz+.32*math.sin(k*math.tau/16)) for k in range(17)],.016,'Trim',(.018,.021,.018),sides=5)
+        for aa,bb in (((-.5,0),(-.2,.43)),((-.2,.43),(.05,0)),((.05,0),(-.5,0)),((-.2,.43),(.39,.40)),((.39,.40),(.05,0)),((.39,.40),(.5,0))):
+            m.beam((bx+aa[0],by,bz+aa[1]),(bx+bb[0],by,bz+bb[1]),.026,.026,'Trim',(.12,.045,.025),r=0)
+        m.box((bx-.18,by,bz+.46),(.23,.13,.035),'Trim',(.025,.027,.02),r=0)
     m.finish()
 
 

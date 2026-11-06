@@ -23,10 +23,15 @@ def garden(seed=301,**overrides):
         dict(era=1978,floors=2,access='breezeway',skin='mixed',roof='mansard',shape='L',sunken=False),
         dict(era=1986,floors=3,access='open',skin='mixed',roof='gable',shape='offset',sunken=False),
         dict(era=1973,floors=2,access='breezeway',skin='siding',roof='mansard',shape='straight',sunken=False))[i])
-    allowed=set(d)|{'unit_width_ft','unit_depth_ft','color','modules'}
+    allowed=set(d)|{'unit_width_ft','unit_depth_ft','color','modules','recessed','articulation'}
     if set(overrides)-allowed:raise ValueError('Unknown garden controls')
     if seed not in COMPLEX_SEEDS and 'unit_width_ft' not in overrides:d['unit_width_ft']=r.choice((24,26,28))
     d.update(overrides)
+    d['recessed']=overrides.get('recessed',seed==305)
+    if seed==305:
+        d.update(era=1976,floors=2,access='enclosed',skin='mixed',roof='mansard',shape='straight')
+        d['unit_width_ft']=38;d['unit_depth_ft']=16
+    d['articulation']=overrides.get('articulation',random.Random(seed+811).choice((.6096,.9144,1.2192)))
     d.update(seed=seed,color=copy.deepcopy(overrides.get('color',PALETTES[i])),floor_height=9*FT,wall=.254)
     if i==3:d['color']['siding']=(.16,.29,.23)
     d['unit_width']=d.get('unit_width_ft',28 if d['access']!='breezeway' else 24)*FT
@@ -46,7 +51,11 @@ def garden(seed=301,**overrides):
     cx=(min(q[0] for q in corners)+max(q[0] for q in corners))/2;cy=(min(q[1] for q in corners)+max(q[1] for q in corners))/2
     d['module_recenter_m']=(cx,cy)
     for q in d['modules']:q['origin']=(q['origin'][0]-cx,q['origin'][1]-cy,q['origin'][2])
-    d['footprint_polygons']=[[transform((x,y,0),q['origin'],q['yaw']) for x,y in ((-w/2,-dep/2),(w/2,-dep/2),(w/2,dep/2),(-w/2,dep/2))] for q in d['modules']]
+    art=d['articulation'];cw=d['core_width'];uw=d['unit_width']
+    bays=[(-w/2+j*uw,-w/2+(j+1)*uw,-art if j in (1,2) else 0) for j in range(4)] if d['access']=='breezeway' else [(-w/2,-cw/2,0),(-cw/2,cw/2,0 if d['recessed'] else art),(cw/2,w/2,-art if d['recessed'] else -art*.5)]
+    outline=[(x,-dep/2-off) for l,r,off in bays for x in (l,r)]+[(x,dep/2+off) for l,r,off in reversed(bays) for x in (r,l)]
+    outline=[q for i,q in enumerate(outline) if q!=outline[i-1]]
+    d['footprint_polygons']=[[transform((x,y,0),q['origin'],q['yaw']) for x,y in outline] for q in d['modules']]
     d['units_per_module']=4*d['floors'];d['units']=d['units_per_module']*len(d['modules'])
     if not 8<=d['units']<=24:raise ValueError('Garden building must have 8–24 units')
     d['stairs']=dict(risers=16,rise=d['floor_height']/16,going=11*FT/12,clear_width=44*FT/12,
@@ -68,7 +77,7 @@ def row(seed=401,**overrides):
     d.update(overrides);d.update(seed=seed,color=copy.deepcopy(PALETTES[(i+1)%4]),floor_height=9*FT,base=.3048)
     d['width']=d['width_ft']*FT;d['depth']=d['depth_ft']*FT
     d['period']=2015 if d['era']>=2000 else 2005
-    d['units']=[dict(index=j,x=(j-(d['count']-1)/2)*d['width'],y=(0,.6096,.3048,0)[j%4]-.3048,z=(j//2%2)*.1524,
+    d['units']=[dict(index=j,x=(j-(d['count']-1)/2)*d['width'],y=(0,1.2192,0,.9144)[j%4]-.6096,z=(j//2%2)*.1524,
                     door_replaced=r.random()<.23,window_replaced=r.random()<.32) for j in range(d['count'])]
     if not (4<=d['count']<=8 and 16<=d['width_ft']<=24):raise ValueError('Unsupported townhouse row dimensions')
     return d
