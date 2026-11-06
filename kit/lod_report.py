@@ -18,14 +18,15 @@ from kit.fonts import find_font
 
 
 def table(manifest):
-    lines=['| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU textures + mesh, MiB | Switch height / distance |',
+    lines=['| Level | Triangles / target | Materials / draw calls | Geometry bytes | PNG bytes | Total load bytes | GPU unique textures + mesh, MiB | Switch height / distance |',
            '| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |']
     for row in manifest['levels']+[a for r in manifest['levels'] for a in r.get('alternatives',[])]:
         target='—' if row['level']==0 else f'{row["target_triangles"]:,}'
         switch='near' if row['level']==0 else f'{row["screen_height"]:.1%} / {row["distance_m"]:.2f} m'
         png=sum(i['bytes'] for i in row['images'])
+        textures=sum(i['compressed_mip_bytes'] for i in {i['sha256']:i for i in row['images']}.values())
         label=f'LOD{row["level"]}'+(' camera-facing' if row.get('alternative') else '')
-        lines.append(f'| {label} | {row["triangles"]:,} / {target} | {row["materials"]} / {row["draw_calls"]} | {row["geometry_bytes"]:,} | {png:,} | {row["package_bytes"]:,} | {row["texture_gpu_bytes"]/2**20:.3f} + {row["mesh_gpu_bytes"]/2**20:.4f} | {switch} |')
+        lines.append(f'| {label} | {row["triangles"]:,} / {target} | {row["materials"]} / {row["draw_calls"]} | {row["geometry_bytes"]:,} | {png:,} | {row["package_bytes"]:,} | {textures/2**20:.3f} + {row["mesh_gpu_bytes"]/2**20:.4f} | {switch} |')
     return '\n'.join(lines)
 
 
@@ -33,9 +34,11 @@ def resident_text(m):
     r=m['resident'];unit=2**20
     result=('Whole-chain resident GPU estimate: **'+f"{r['total_gpu_bytes']/unit:.3f} MiB"+'**, versus LOD0 alone **'+f"{r['lod0_total_gpu_bytes']/unit:.3f} MiB"+
       '**. Unique textures '+f"{r['texture_gpu_bytes']/unit:.3f} MiB = {r['lod0_texture_gpu_bytes']/unit:.3f} MiB original + {r['proxy_texture_gpu_bytes']/unit:.3f} MiB proxy/impostor"+
-      '; all meshes '+f"{r['mesh_gpu_bytes']/unit:.4f} MiB"+'. Intermediate new images: '+str(len(r['unexpected_intermediate_images']))+
+      '; all meshes '+f"{r['mesh_gpu_bytes']/unit:.4f} MiB"+
+      '. Increase over LOD0 '+f"{(r['total_gpu_bytes']-r['lod0_total_gpu_bytes'])/unit:.3f} MiB = {r['proxy_texture_gpu_bytes']/unit:.3f} MiB far maps + {r['additional_mesh_gpu_bytes']/unit:.4f} MiB additional mesh buffers"+
+      '. Intermediate new images: '+str(len(r['unexpected_intermediate_images']))+
       '. Bind intermediate primitives to the canonical LOD0 material resources; the manifest records full image hashes and source image indices. '+
-      'Identical embedded/external PNG bytes require this resource binding to share GPU allocations. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.')
+      'Identical embedded/external PNG bytes require this resource binding to share GPU allocations, including duplicate original image entries. GPU columns deduplicate complete image hashes within each row; PNG/dependency bytes retain physical payload copies. Optional camera-facing impostor is a separate alternative; engine overhead is excluded.')
     for index,row in enumerate(m['levels']):
         for alternative in row.get('alternatives',[]):
             choice=list(m['levels']);choice[index]=alternative
@@ -155,8 +158,11 @@ def main():
         label=' — PASS'+('; target miss' if target_miss else '') if checks['passed'] and metrics['passed'] and normals['passed'] else ' — FAILED CHECKPOINT'
         d.text((16,12),cfg['kind']+label,font=font,fill='white')
         for j,row in enumerate(m['levels']):
-            s=f'LOD{row["level"]}: {row["triangles"]:,} tris, {row["package_bytes"]:,} B, texture {row["texture_gpu_bytes"]/2**20:.2f} MiB'
+            textures=sum(i['compressed_mip_bytes'] for i in {i['sha256']:i for i in row['images']}.values())
+            s=f'LOD{row["level"]}: {row["triangles"]:,} tris, {row["package_bytes"]:,} B, unique maps {textures/2**20:.2f} MiB'
             d.text((16,42+j*23),s,font=font,fill=(210,215,220))
+        resident=m['resident']
+        d.text((16,134),f'Resident LOD0 -> chain: {resident["lod0_total_gpu_bytes"]/2**20:.2f} -> {resident["total_gpu_bytes"]/2**20:.2f} MiB; new intermediate images: {len(resident["unexpected_intermediate_images"])}',font=font,fill=(210,215,220))
         # Near/far native comparisons retain aspect and are labeled as an index.
         first=m['levels'][1];last=m['levels'][-1]
         for j,row in enumerate([first,last]):
