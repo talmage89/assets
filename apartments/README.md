@@ -1,208 +1,245 @@
 # Rill Court / garden apartments and townhouse rows
 
-Original American rental housing for a town set around 2005, with the 2002
-garage row shown around 2015. **Form and construction checkpoint; look-dev is
-not started.** `make` builds four apartment complexes, their four standalone
-buildings, and four townhouse rows with quick materials and external-image glTF.
+Original American rental housing, maintained and occupied around 2005, with
+the 2002 garage row shown around 2015. Four complexes, their standalone
+buildings, an additional brick/mansard comparison seed, and four townhouse
+rows use the houses' baked PBR vocabulary and external-image glTF delivery.
+This is the requested form, setting and look checkpoint; local review images
+remain uncommitted.
 
-Local images are generated into `renders/`; no checkpoint images are committed
-as final `docs/` photographs. Open `renders/review/heroes.jpg`,
-`renders/review/complex-family.jpg`, `renders/review/row-family.jpg`,
-`renders/review/construction-details.jpg`, `renders/review/photo-pairs.jpg`,
-`renders/review/unit-plans.jpg` and `renders/review/contact-sheet.jpg` after building.
+Open `renders/review/heroes.jpg`, `complex-family.jpg`, `row-family.jpg`,
+`construction-details.jpg`, `photo-pairs.jpg` and `contact-sheet.jpg` under
+`renders/review/`. Full-size images are in `renders/checkpoint/` and the
+three neutral-balanced exported/source comparisons are in `renders/matches/`
+and `renders/source-matches/`. Five native-pixel before/after plates are in
+`renders/fixes/`; each side is at least 800 px wide, with no upsampling.
 
-## Buildings and generation
+## Plans and construction
 
-| Seed | Original plan / construction | Units |
+| Seed | Plan and period | Units per building / row |
 | --- | --- | ---: |
-| 301 | 12 | 71,957 | 1,114,215 | 9.97 / 37.46 |
-| 302 | 16 | 111,608 | 1,109,190 | 15.53 / 41.56 |
-| 303 | 24 | 141,138 | 1,157,365 | 19.47 / 48.10 |
-| 304 | 8 | 55,134 | 1,061,128 | 7.69 / 30.94 |
-| 401 | 6 | 44,246 | 163,732 | 8.85 |
-| 402 | 6 | 44,502 | 163,988 | 8.91 |
-| 403 | 6 | 51,462 | 247,472 | 13.07 |
-| 404 | 4 | 29,386 | 125,024 | 6.84 |
+| 301 | 1967 three-story brick, enclosed stair hall, gable | 12 |
+| 302 | 1978 two-story L, exterior galleries, brick lower story and continuous mansard | 16 |
+| 303 | 1986 three-story offset wings, open halls, brick/siding and gables | 24 |
+| 304 | 1973 two-story straight gallery, faded board siding and mansard | 8 |
+| 305 | Additional two-story buff brick/mansard with recessed balcony wells | 8 |
+| 401 | 1974 six-unit siding/mansard row | 6 |
+| 402 | 1985 six-unit brick/gable row | 6 |
+| 403 | 2002 six-unit garage row, projecting front gables, alternating brick/siding | 6 |
+| 404 | 1979 compact brick/siding/mansard row | 4 |
 
 `src/plans.py` supplies `garden(seed, **overrides)`, `row(seed, **overrides)`
-and `complex_plan(seed)`, without Blender. Profile selection is deterministic;
-other seeds vary bounded unit widths or row counts, replacement windows/doors,
-curtains, blinds and occupancy. Controls include era, floors, access, skin,
-roof, straight/L/offset shape, unit width/depth and palette for apartments;
-count, width/depth, roof, garage and fire-wall option for rows. Unsupported
-counts and unknown controls fail. This is a bounded grammar, not an arbitrary
-parcel solver or a complete interior-plan generator.
+and `complex_plan(seed)` without Blender. Controls retain era, floors, access,
+skin, roof, straight/L/offset form, unit dimensions and palette; garden seeds
+also select articulation and recessed balconies. Rows retain count, width,
+depth, garage and roof/fire-wall options. Unsupported parameters fail. This
+is a bounded grammar, not a full habitable interior or parcel solver.
 
-Every garden wing has four units per floor: two front/two rear off a common
-stair hall, or four along a gallery. Actual circulation slabs leave the
-stairwell open and provide landings and a side bypass. Schematic room
-reservations distinguish compact two-bedroom core units from one-bedroom
-gallery units. Window backings provide cheap interior depth; furnished,
-walkable interiors are outside this checkpoint.
+Expressed central halls project under their own broken roof. Gallery units
+recess in pairs; separate stepped roof envelopes follow the facade. Rows
+alternate 3/4 ft depth steps and retain six-inch floor changes. Garage bays
+project another meter, with their own front gables, shutters and arched stair
+fanlights. Accepted leaf/sash/section geometry and poses remain intact.
 
-The L and offset forms are separate framed fire compartments connected by
-supported low open links. Their independent roof envelopes clear one another. Ten-foot wall gaps leave
-measured conservative service-passage bounds of 1.295 m (L) and 1.564 m
-(offset) after adjacent balcony/HVAC projections and the meter banks.
-Townhouse fronts step in depth and finished-floor level; foundation fill,
-stoops and sloping garage approaches reach those levels. Front gables use the
-houses' analytic roof-plane clipping to meet the main roof.
+Mansards are a full shingled upper story on front, rear and exposed ends,
+including gallery fins, balcony openings and window wells. The upper framed
+body recedes behind the slope. Door reveals are splayed to clear the 100°
+opening. The earlier pale brick stripes were coplanar interior floor edges
+and wall ends; they are now concealed behind the veneer. Actual soldier and
+rowlock courses use the same brick manufacture as the wall.
 
-## Dimensions, parts and sockets
+The linked L/offset wings retain the accepted 3.048 m connecting gap and
+supported open canopy. Conservative measured service passages opposite their
+meter banks are 1.295 / 1.564 m through 2.1 m height. Those are geometric
+reservations, not code certification.
 
-[REFERENCE.md](REFERENCE.md) separates published dimensions from authored choices;
-[refs/SOURCES.md](refs/SOURCES.md) records image/PDF authors, rights and uses.
-The 1977 NBS study's 20 × 32 ft townhouse anchors the compact row. DAHP's
-c.1970–1978 photographs and Sacramento's 1960/1962 apartment survey establish
-the period forms. HUD/FHA publications establish regulatory context; no
-historical permit compliance is claimed.
+## Dimensions, moving parts and sockets
 
-Floors are 2.7432 m apart. Common stairs use sixteen 171.45 mm rises per story,
-279.4 mm goings, 1.1176 m flights and 1.2192 m landings. Guards are 1.0668 m;
-separate stair grasp rails are 914.4 mm high and 38.1 mm diameter. Typical
-windows are 1.524 × 1.2192 m; entry leaves nominally .9144 × 2.032 m; patio
-sliders 1.8288 × 2.032 m. Balconies project 1.524 m on concrete slabs with
-steel posts. Shared parking stalls are 2.7432 × 5.4864 m, beside an approximately
-8.2 m native crowned road; main walks are 1.524 m.
+[REFERENCE.md](REFERENCE.md) distinguishes cited dimensions from authored
+choices; [refs/SOURCES.md](refs/SOURCES.md) records authors, URLs, rights and
+uses. The NBS 1977 20 × 32 ft townhouse plan anchors row 401. Sacramento's
+garden-housing survey and DAHP's c.1970–1978 photographs establish construction
+types. Modern published Access Board criteria are stair/guard comparators;
+no historical permit compliance is claimed.
 
-Meters, split-system condensers/pads, through-wall AC sleeves, sash, sills,
-thresholds, gutters, downspouts, vents, lights, numbers, mailboxes and carts
-are modeled. Balcony/patio cues include chairs, plants, bicycles, a kettle
-grill, a dish and sparse left-up light strings. Trim and weather are quick
-color reservations; causal material aging, surface manufacture and dusk
-window emission await look-dev.
+| Element | Real-scale dimension |
+| --- | --- |
+| Core unit reservation | 8.5344 × 7.620 m / 28 × 25 ft gross |
+| Gallery unit reservation | 7.3152 × 9.7536 m / 24 × 32 ft gross |
+| Townhouse modules | 18/20/24 ft wide; 32/34/38 ft deep |
+| Floors / central hall | 2.7432 m / 4.8768 m |
+| Shared stairs | 16 × 171.45 mm rises, 279.4 mm going, 1.1176 m width |
+| Landings / guards | 1.2192 m / 1.0668 m |
+| Grasp rail | 914.4 mm high, 38.1 mm diameter |
+| Typical sash / entry leaf | 1.524 × 1.2192 m / .9144 × 2.032 m |
+| Slider / balcony depth | 1.8288 × 2.032 m / 1.524 m |
+| Stall / main walk | 2.7432 × 5.4864 m / 1.524 m |
 
-Blender is meters, +Z up, front −Y. Each building root is centered on its wall
-footprint; complex roots are at parcel centers. Footprint polygons and corner
-sockets, front/rear walk sockets and each townhouse party wall's center/end
-sockets survive export. The party-wall line runs between its two endpoint
-sockets. Native context scales are applied into mesh coordinates.
+Nominal townhouse party-wall lengths are 36.576 / 36.576 / 43.8912 / 21.9456 m.
+Measured authored garden wall-footprint bounds are 21.9456 × 17.0688 m (301),
+42.0624 × 29.2608 m (302), 46.9392 × 22.2504 m (303),
+29.2608 × 9.7536 m (304), and 28.0416 × 15.2400 m (305).
+Export metadata independently records the full mesh envelope, including roofs,
+services, stairs and balconies.
 
-Entry and stair-hall leaves have separate vertical hinge pivots, 0–100° about
-Blender Z (glTF Y). Sliders move along their own X track, 0–.7864 m for the
-six-foot opening. Garage leaves are four rigid sections per unit, with top
-hinge origins and `motion_kind=sectional_track`; `src/garage_motion.py:pose(t)`
-uses the existing houses' chord-constrained vertical/curved/horizontal guide,
-for normalized opening 0–1. No armature or animation clip is required.
-Dumpster lids retain their X hinges, −95–0°. An engine must drive these pivots.
+Meters, condensers/pads, AC sleeves, sills, thresholds, gutters, downspouts,
+vents, unit lights/numbers and tenant dressing are modeled. Window rooms are
+shallow backings behind actual glazing, with varying folded curtains and
+32 mm blind spacing. Furnished walkable unit interiors are outside this build.
 
-## Shared materials and site
+Meters, +Z up, front −Y. Roots sit at the wall-footprint/parcel center on grade;
+stepped wall-footprint, walk and party-wall sockets survive export. Entry and
+hall doors pivot 0–100° about Blender Z / glTF Y. Sliders travel 0–.7864 m on
+their own X tracks. Garage doors retain four separate sections and hinge
+origins per unit; `src/garage_motion.py:pose(t)` follows the houses' existing
+chord-constrained guide for t=0–1. Dumpster lids pivot −95–0° about X, and the
+pool gate opens outward 0–100° about Z. No armature is required.
 
-The six building roles match the houses: Siding, Shingles, Veneer, Concrete,
-Trim and Glass. **There is no finished baked apartment texture set yet.**
-The exported quick palette multiplies vertex colors by one generated 8² white
-image, shared by every seed. Source context uses simplified materials and two
-1024² original library branchlet color/alpha images, also shared externally.
-No photograph or downloaded asset supplies vertices or texels.
+## Baked materials, age and memory
 
-The look-dev allocation can reuse HouseSiding (4 MiB), RanchRoof (4 MiB),
-HouseVeneer (1 MiB), HouseConcrete (1 MiB), HouseTrim (16 MiB), CapeCedar
-(⅓ MiB) and SplitStone (⅔ MiB): **27 MiB of already existing maps**, with no
-new apartment set proposed. Roof/veneer alternatives select their applicable
-maps within the six roles. This is a plan, not a claim that those maps are
-already assigned or that final UV density has passed. Compression estimates
-assume 8 bpp/maps with full mips. Loading houses with all 49 MiB already resident
-would add no image allocation for that subset when canonical URIs are cached.
+Six building roles: Siding, Shingles, Veneer, Concrete, Trim, Glass. Gable
+shingles, siding, brick and the trim sheet retain the houses' original baked
+image bytes and canonical relative URIs. The trim sheet supplies painted
+steel, aluminum, plumbing and shutter relief. Glass is untextured dielectric
+transmission; curtains/blinds sit behind it. Repeated UV tile/strip overlap
+is intentional. Standard glTF PBR and COLOR_0 carry the result.
 
-`context_build.py` runs original ground, fences, shrubs, trees and pickup
-scripts into `apartments/build/context/`. It never rebuilds or writes their
-canonical deliveries. Scoped quick-material adapters retain their original
-geometry; botanical charts are normalized before static joining. Each native
-module is consolidated once and then instanced, avoiding geometry multiplication.
+| Shared source / apartment map | Shipped size | Assumed compressed GPU MiB, full mips |
+| --- | --- | ---: |
+| HouseSiding, three maps | 1024² | 4 |
+| RanchRoof, three maps on gables | 1024² | 4 |
+| HouseTrim, three maps | 2048² | 16 |
+| RanchBrick red/tan/buff/red-brown alternatives | 512² per applicable three-map set | 1 per set |
+| Mansard cedar color + canonical cedar normal | 512 × 256, scalar ORM | .3333 |
+| ApartmentsConcrete, three maps | 512² | 1 |
+| Apartment emission routing mask | 128² | .0208 |
 
-New site construction here comprises the private stalls/paint/stops/islands,
-walk branches, carports, cluster mailbox, tapered split-lid dumpster and its
-native-fence enclosure, fictional entrance signs, pool bowl/deck/guard and
-small swing playground. Amenity walks join the main path; the pool gate has a
-separate vertical hinge and opens outward 0–100°. Native lawn regions are clipped around structures,
-walks and the pool. Oil reservations follow engine positions. Final paving
-and wear should reuse the ground/commercial material conventions.
+The source families bake manufacture at 4096. Concrete filters Ground's own
+4K concrete bake, avoiding the house foundation's form-tie pattern and a
+16 MiB large concrete load. Mansard stain is an authored brown remapping of
+the houses' 4K cedar color, filtered in linear light; relief and scalar ORM
+are the exact existing cedar bytes. Only its 1/6 MiB color is new. Total new
+apartment image allocation is **1.1875 MiB**: concrete 1, stain color 1/6,
+emission 1/48. Steel requires no new set. No photographic pixel enters any map.
 
-## Measured checkpoint budgets
+Gable building image loads are 26.0208 MiB; brick/mansard buildings 22.3542;
+all-siding mansard 21.3542. Native parcel asphalt, lawn, ground trim and fence
+maps add 64 MiB to complexes, or 32 MiB lawn/fence to rows. These are cold
+loads, not incremental allocations when canonical images are already cached.
+The complete apartment export family references **35 unique images,
+63,166,694 encoded image bytes, 91.6875 MiB** at assumed 8 bpp with full mips.
+This estimate assumes engine block compression; PNG is the delivery encoding.
 
-Counts below are the current raw glTF **instance** totals. Geometry sizes include
-the glTF and BIN, excluding the one shared 808,759-byte PNG inventory. All building
-architectures use six materials. Rows include their own patios and entry fittings
-in the architecture count; their scene count additionally includes library/site context.
+Landlord upkeep is localized: rain splash at grade, runoff at exposed wall
+ends, sheltered deposits, south-face fade, dirt on slab undersides and risers,
+small rust at low steel cuts/bases, garage bottom splash, absorbed engine oil
+in selected stalls, tire paths and a narrow lawn desire line. Structural
+coordinates drive COLOR_0 fields, so dirt remains attached to its cause and
+materials retain their color. It is maintained housing, not blanket rust/noise.
 
-| Apartment seed | Units/building | Building triangles | Whole complex triangles | Building / complex geometry MiB |
-| --- | ---: | ---: | ---: | ---: |
-| 301 | 12 | 71,957 | 1,114,215 | 9.97 / 37.46 |
-| 302 | 16 | 111,608 | 1,109,190 | 15.53 / 41.56 |
-| 303 | 24 | 141,138 | 1,157,365 | 19.47 / 48.10 |
-| 304 | 8 | 55,134 | 1,061,128 | 7.69 / 30.94 |
+## Parcel and presentation
 
-| Row seed | Units | Architecture triangles | Row + site/context triangles | Geometry MiB |
-| --- | ---: | ---: | ---: | ---: |
-| 401 | 6 | 44,246 | 163,732 | 8.85 |
-| 402 | 6 | 44,502 | 163,988 | 8.91 |
-| 403 | 6 | 51,462 | 247,472 | 13.07 |
-| 404 | 4 | 29,386 | 125,024 | 6.84 |
+Private stalls/paint/stops/islands, branching walks, carports, cluster mailbox,
+dumpster and fence enclosure, fictional signs, pool/deck/gate and swing
+playground remain from the accepted construction checkpoint. Parcels use
+continuous lawn regions; stretched native mineral surfaces receive metric
+world-phase UVs rather than stretching the grain.
 
-The 16/24/8-unit garden buildings scale the twelve-unit triangle allowance
-proportionally; all remain inside it. Whole complexes have 22 quick materials;
-row scenes have 12 (18 with parked vehicles), shared across their instances.
-The largest scene is 1,157,365 triangles, including vehicles and vegetation.
-Context uses 38,226-triangle parked source pickups, 23,680-triangle mature maples
-and 5,588-triangle shrubs. Their static templates retain one geometry instance
-per placement, rather than accumulating joined copies.
+Cars, mature trees, full foundation shrubs and neighboring town geometry are
+**presentation only**. The renderer imports canonical exported Ground roads,
+curbs and walks, two seeded houses, utility poles and sagging conductors from
+their measured sockets, street/lot lights, maple/boxwood/hydrangea, and the
+pickup/crossover/hatchback. Factory colors use each car's baked paint coverage
+and published decoder metadata. Existing exports and maps are never rewritten.
+Cars and vegetation are placement markers in the apartment package, so their
+triangles and images do not silently inflate the delivered building budgets.
 
-New site geometry measures 1,200 triangles for the cluster mailbox, 720 per
-four-stall carport, 340 for the dumpster/body/lids/pad before its native fences,
-and 438 for the swing playground. The pool/deck/fixed fence is 8,150 triangles,
-with a separate 320-triangle gate; its long fence is an assembly of repeated
-rail spans. Sign bodies are 132 triangles. Lettering is excluded from these
-part figures and included in the complete scene totals.
+The two principal heroes use a 40 mm lens with eyes 1.68 m above an actual
+ray-measured surface, under raking procedural sun. Dusk uses a procedural
+blue-hour sky, selected warm room backings behind curtains, entry pools and
+street-light emitter sockets. The delivered emission route remains ordinary
+PBR; the night renderer raises its emission strength and adds real light
+sources. No downloaded environment/HDRI is used.
+Eevee enables ray-traced transmission with the modeled 12 mm pane gauge;
+that renderer setup prevents joined-building bounds from hiding the rooms.
 
-The current fifteen external images comprise two 1024² branchlet color/alpha
-images and thirteen 8² diagnostic color/normal/ORM images. Their assumed 8-bpp
-allocation with full mips is about **2.668 MiB** for the entire checkpoint family.
-They are temporary source-context/diagnostic images, not the future 27 MiB PBR subset.
+## Measured delivery budgets
 
-The check reports **zero** degenerate triangles and metric UV triangles across all twelve scenes; 197 existing delivery/docs files retain their pre-session SHA-256 hashes.
-Maximum source/import point error on the buildings and rows is 3.932 micrometers; the largest raw unit-normal error is 1.19e-07. These are serialization facts, separate from the physical checks.
+Counts are raw glTF instances. Geometry bytes are glTF + BIN; cold bytes also
+include referenced images, deduplicated within that asset. Materials include
+site roles on complexes/rows; standalone buildings use at most six.
 
-## Rebuild and evidence
+| Building | Units | Triangles | Materials | Geometry bytes | Cold bytes | GPU MiB |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 301 | 12 | 70,717 | 6 | 11,306,408 | 18,522,448 | 26.021 |
+| 302 | 16 | 118,556 | 6 | 18,440,541 | 22,984,776 | 22.354 |
+| 303 | 24 | 142,714 | 6 | 22,962,169 | 30,178,209 | 26.021 |
+| 304 | 8 | 58,106 | 5 | 9,040,924 | 12,868,700 | 21.354 |
+| 305 | 8 | 46,152 | 6 | 6,857,879 | 11,412,668 | 22.354 |
+
+| Complex | Triangles | Materials | Geometry bytes | Cold bytes | GPU MiB |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 301 | 232,497 | 10 | 35,096,785 | 97,339,159 | 90.021 |
+| 302 | 279,616 | 10 | 41,079,305 | 100,649,874 | 86.354 |
+| 303 | 318,297 | 10 | 48,691,417 | 110,933,791 | 90.021 |
+| 304 | 193,318 | 9 | 28,687,936 | 87,542,046 | 85.354 |
+
+| Row | Units | Architecture / whole row triangles | Materials | Geometry bytes | Cold bytes | GPU MiB |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 401 | 6 | 45,346 / 52,274 | 8 | 6,989,125 | 44,059,681 | 54.354 |
+| 402 | 6 | 42,494 / 49,422 | 8 | 6,626,762 | 46,376,299 | 58.021 |
+| 403 | 6 | 55,634 / 63,012 | 8 | 8,433,596 | 48,172,609 | 58.021 |
+| 404 | 4 | 30,208 / 35,112 | 8 | 4,753,795 | 41,824,351 | 54.354 |
+
+All forms stay within their proportional brief allowances. Whole-family cold
+storage is **312,133,336 bytes** across 26 glTF/BIN files and 35 shared images;
+metadata and editable source scenes are excluded. Presentation dependencies
+are separate library loads. Individual asset cold-byte rows cannot be summed
+as a family total because their image sets overlap.
+
+## Rebuild and verification
 
 ```sh
-make WIDTH=1200 SAMPLES=32  # entire form checkpoint, checks and Cycles views
-make check                 # construction, raw glTF, fresh imports, preservation
-make matches               # three fitted exported and source photo pairs
-# Another seed in a supported grammar:
-blender -b --factory-startup --python-exit-code 1 --python src/build.py -- \
-  --only Row-409 --out build/custom.blend
+make WIDTH=1400 SAMPLES=32  # missing library bakes/exports, models, checks, 66 frames and review
+make check                 # physical measurements, raw PBR/UVs, fresh imports, preservation
+make repeat                # independent geometry re-export, compare every external byte
+make check-repo            # repository rules
+make clean                 # removes this family's build, export, textures and renders
 ```
 
-Preserve each `.gltf`/`.bin` pair beside the common `export/shared/` directory.
-One building uses at most six materials. `export/*.json` records dimensions,
-plans, triangle counts, image references, pivots, sockets and file sizes;
-`build/family.json` summarizes the full build. Counts for complexes include
-every instance, not just unique mesh buffers. Row architecture is reported
-separately from its site and library context.
+`make bake` prepares missing baked dependencies and the small derived maps;
+`make export` builds the external packages. Dependencies build serially and
+only when missing. Preserve the repository-relative texture paths in each
+glTF, or package those exact shared images with a URI remap. The six-role
+layout follows the house delivery exception to the general one-atlas rule.
 
-`build/check.json` separates physical source measurements from serialization.
-It measures actual pan crowns, uniform riser/going intervals, door/casing
-surface intersections every 10°, nine slider positions, linked-wing meter
-passage bounds, and 21 garage positions per section with
-section/guide/ceiling checks. Raw glTF checks cover finite geometry/metric UVs,
-unit normals, instance counts, external resources and material budgets. Fresh
-imports check counts, complete pivot/socket frames and bidirectional source
-point correspondence for buildings/rows. Complexes reuse those checked forms.
-This is not continuous whole-assembly collision certification or final UV/bake
-verification. Zero-area geometry and staging UVs are rejected. Final texel density and trim-sheet mapping are deferred.
+`build/check.json` reports actual pan-crown intervals, leaf/casing surface
+intersections at eleven angles, nine slider positions, 21 garage poses per
+section, service bounds, facade depth planes, mansard height, and downward
+gallery support probes at entry approaches. Serialization is checked
+separately: raw counts, zero collapsed geometry/UV0 triangles, unit normals,
+actual image-weighted UV density, and fresh-import points/pivot/socket frames.
+These are sampled relationships, not continuous whole-building collision or
+historical-code certification. Tiling/trim UV overlap is intentional; no
+unique lightmap unwrap is claimed.
 
-All Cycles calls use the shared GPU lock. Heroes and family views import the
-external glTF; source photo pairs remain independent witnesses. Hero/ground
-eyes are placed 1.68 m above an actual downward-ray ground hit. Each image
-folder records source hashes and camera/light-stage provenance. The photo
-solver's residuals are type-fit errors, not survey accuracy; the garage-row
-photo has 38 mm-equivalent EXIF, while its fitted lens differs for this original
-plan. Neutral assumptions and critique passes are in [REVIEW.md](REVIEW.md).
+All 197 pre-existing delivery/docs hashes are preserved, with additional
+library-image snapshots in `build/dependencies.json`. `build/repeat.json`
+records byte identity; the accepted bakes are cached inputs to that repeat.
+All Cycles work uses the shared GPU lock. Image provenance names actual source
+hashes, cameras, lights and presentation dependencies. The source comparisons
+are separate from the exported comparisons. Reference neutral assumptions,
+critique passes, tonal facts and honest remaining differences are recorded in
+[REVIEW.md](REVIEW.md).
 
-Per-asset editable source scenes are `build/<stem>.blend`; `build/family.blend` is the last built scene, while `build/family.json` is the aggregate record.
+Editable per-asset scenes are `build/<stem>.blend`; the aggregate report is
+`build/family.json`. Generated deliveries, references, textures and review
+renders are ignored by Git. No kit file, accepted family source or top-level
+README is changed; no docs images are committed this round.
 
-The checkpoint stops here. The weakest areas are shallow repetitive room
-backings, sparse landscaping/tenant dressing, simplified context cars and
-unweathered quick surfaces. Unit interiors, fire ratings, local accessible
-routes, full motion sweeps, final material charts/bakes and game collision/LODs
-remain future work. No kit or existing family file is changed.
+The main remaining visual limits are repeated shrub silhouettes, tidy paving,
+simple meter faces, repetitive tenant props and shallow room backings. The
+photo pairs compare original buildings of the same construction type, not
+replicas; exact window rhythm, landscaping and roof proportions still differ.
+No LOD, game collision mesh, full unit interior, fire rating or accessibility
+certification is claimed.

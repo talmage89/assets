@@ -1,6 +1,10 @@
-# Form and construction review
+# Form and look review
 
-This gate stops before look-dev. The assets are original type studies; photo
+The form-only record below is retained from the accepted checkpoint at
+`46c0207`. The current material and presentation review starts at **Look gate,
+pass 1**; later observations supersede these historical limits.
+
+That original gate stopped before look-dev. The assets are original type studies; photo
 fits compare construction and rhythm, rather than claim a replica or a survey.
 No reference pixels enter the meshes, colors, diagnostic image or future maps.
 
@@ -21,7 +25,7 @@ shared procedural daylight stage uses AgX Medium High Contrast at −.45 EV.
 The camera solver’s generic light/exposure defaults are retained in its data
 but are not lighting recovery or applied stage settings.
 
-The final measured-landmark fits give 9.59 / 9.91 / 11.95 px RMS at
+The original form-only measured-landmark fits gave 9.59 / 9.91 / 11.95 px RMS at
 25.00 / 44.78 / 54.73 mm, respectively (`build/matched-cameras.json`).
 The used-garden fit reaches its lower lens bound; these corner fits do not
 establish equivalent plans, fenestration or a recovered photographic camera.
@@ -227,3 +231,304 @@ continuous ground treatment belongs with the site material pass.
 No kit or accepted family delivery was changed. This checkpoint's extra rigor
 went into openings, construction, circulation, mechanics and independent
 serialization checks; it did not add a new material atlas.
+
+## Look gate, pass 1 — exported brick and the exposed construction edges
+
+**Color and value first.** Opened `renders/look-pass1/Building-301/hero.png`
+at native 1200 px, alongside the three neutral-balanced reference photographs.
+Running bond and pale mortar now read at this distance; the roof and steel
+retain dark values. White room backings were too bright in daylight. Reduced
+the shared emission circuit and reserved its stronger setting for dusk.
+The source white-balance assumptions remain the replacement sash, painted
+roof edge and garage panel documented above; these are display comparisons,
+not recovered reflectance measurements.
+
+The formerly unexplained pale bands are **interior floor edges and wall ends
+coplanar with the exterior veneer**, not veneer control joints or a belt
+course. Texturing exposed them more clearly. Retracted floor plates and the
+ends of core fire separations behind the exterior shell. Added the real
+foundation outline under the stepped facades. The new stair-bay roof break
+also exposed an open gable end; closed that end with its framed gable wall.
+Both corrections require the next export/render as their visual proof.
+
+Shared cedar, rather than asphalt, is the material basis for the full-story
+mansards. Their gallery fronts retain the inner walking strip under the
+slope: the upper edge projects over that strip rather than pinching it down
+at each shingled pier. The additional brick/mansard seed 305 has recessed
+balcony wells and will replace the unrelated teal gallery in the 2004 pair.
+No photographic pixels are texture inputs.
+
+## Look gate, pass 2 — closure, six-role delivery, and remaining orderliness
+
+**Color and value first.** Opened `renders/look-pass2/Building-301/hero.png`
+at native 1200 px. Dark roofs and steel hold their values and the lit-room
+backings no longer turn whole panes white. The brick still looks too uniformly
+red/orange; use the houses' fired red/tan/buff ranch variants for the respective
+period profiles. The same three balanced photographs were opened again at
+native size, including the cedar fins and the garage row's projecting bays.
+Their material response must be judged in the next fitted comparisons.
+
+The wide pale floor/wall bands are gone in the actual export; the roof end is
+closed. The independent raw/fresh-import check of this intermediate export
+passes at 78,125 triangles, six materials, zero collapsed geometry/UV0
+triangles, and measured area-weighted UV density p5/p50/p95 of
+168/420/469 px/m. Those are this intermediate's counts, not the final family.
+
+Remaining tells: the brick's short repeat, the excessively orderly window
+backings, broad clean ground and the absence of the town in this isolated
+construction view. Added mapped soldier/rowlock courses, refined real-width
+blind blades, upper-balcony grills/bicycles and distinct painted replacement
+parts. Ground wear is an absorbed vertex field under engine positions and
+a narrow walking desire line; no glossy film or rectangular oil stickers.
+The full scene and matched-light pairs remain the next visual witnesses.
+
+## Look gate, pass 3 — fitted exported color pairs expose roof/body collisions
+
+**Color and value first.** Opened all three native 1400 px renders and their
+pairs in `renders/look-pass3/`. The old sky contribution makes concrete,
+white paint and steel blue; it is not matched neutral overcast in the 1978
+pair. The cedar reads as an extremely contrasting silver checker, and the
+garage row is blue-gray against beige siding. These comparisons are rejected
+as final color evidence. Reduced clear-sky fill, warmed the procedural sun,
+and mixed a neutral procedural cloud field for the overcast photograph.
+Changed the garage profile to faded beige. Existing reference neutral
+balances remain unchanged and do not come from fitting a rendered color.
+
+The accepted Cape cedar's exposed-wood color range does not serve these dark,
+maintained mansards. `derive_surfaces.py` applies an authored semi-solid brown
+stain to that family's **4K baked color**, then filters in linear light to
+512 × 256. It preserves dark key gaps, and retains the exact canonical cedar
+normal and roughness bytes. One new color image costs 1/6 MiB with assumed
+8-bpp compression and full mips. No source photograph enters this operation.
+
+**Construction failure visible only in the pairs:** the sloping mansard
+entered the unreduced upper wall box, so siding obscured its upper third.
+Recessed the upper body 450 mm behind the front/rear slope and 350 mm at the
+ends; retained window/dormer and balcony locations with actual wells. The
+mansard now needs to be judged around the whole upper story, rather than
+accepting a lower apron with a siding band above. Garage roof steps also
+exposed previously omitted interior gable closures; added plain framed
+closures without unnecessary outer-end vents and rake ornament.
+
+The new wall shell topology removed hidden grid faces. Thin folded curtains
+replace solid curtain boxes; shutter louvers use the houses' existing normal
+strip instead of hundreds of tiny boxes. These recover triangles for the
+requested articulation. Extended gallery floors to recessed thresholds and
+added actual downward surface probes at those entries. These changes await
+the next complete rebuild/check and exported images; the earlier passing
+serialization check did not prove these construction relationships.
+
+## Look gate, pass 4 — full-size town heroes and night routing
+
+**Color and value first.** Opened the three native 1400 px images in
+`renders/look-pass4/` and the complex hero/dusk plus row hero in
+`renders/look-town/`. The mansard is now a full brown story, without the
+exposed upper siding band or silver checker. Beige siding and warmer daylight
+better support the garage photograph. The gallery's neutral overcast is too
+dark, so its sky illumination is raised while retaining neutral cloud light;
+that correction must still be checked. Dark stained cedar is reduced slightly
+in reflectance. These are material/light corrections, not a new photo balance.
+
+The first town hero is rejected: a courtyard canopy and near pickup hide most
+of the accepted building. Move the canopy to the flank and leave the camera's
+nearest stalls vacant, retaining mixed occupied stalls beyond them. The row's
+street still ends against empty green at the right of its frame; add adjacent
+houses and trees along that visible frontage, with continuous PBR turf at grade.
+Presentation continues to use the canonical car, house, shrub, tree, utility
+and light exports, never altering their files.
+
+The first dusk is also rejected. A broad color-range test accidentally routes
+cream door casing through the lamp mask. Replace it with the exact authored
+lens-color test, and give room backings a dimmer mask region than fixtures.
+Use the street light's actual `LightEmitter` socket and local -Z spot axis;
+the former fallback point was inside the shaft and could not illuminate the
+lot correctly. Raise blue-hour sky fill, and keep light bases outside the
+accepted walking routes. Night uses a documented emission multiplier, not a
+changed delivered texture.
+
+Mineral UVs on length-scaled native roads/curbs are rephased in metric world
+coordinates; trim artwork retains its atlas cells. Native private-aisle
+asphalt shares the apartment lot's dry response and value, and native curb
+concrete uses the same small concrete set as the walks. This does not modify
+Ground's canonical materials or images. The row's public street is now
+presentation-only native Ground, with turf clipped out of its crowned road
+instead of a flat private road plate overlapping it. The next focus batch
+checks these corrections before the full cold delivery rebuild.
+
+
+## Look gate, pass 5 — readable town, restrained dusk, physical reveal correction
+
+**Color and value first.** Opened all six 1400 px focus frames, the three
+composed pairs, and all three balanced source photographs at native resolution.
+Brick holds a medium fired value, asphalt is dark, balcony cavities stay deep
+and the garage siding is beige rather than slate blue. The used 2004 pair still
+has direct-sun shadows and darker pavement than its softly lit photograph;
+changed only that comparison's procedural illumination to a largely neutral
+cloud sky with a weak broad sun. Corrected its left front ground/top landmark
+identification; photo residuals remain original-type differences, not survey
+accuracy. The 1978 gallery still has more regular fins/planting than its photo;
+this remains a declared type comparison.
+
+The complex now reads through the gap in mature trees, with factory-colored
+hatchback/pickup, neighboring houses and grounded curbs. The row's far right is
+filled by adjacent houses and mature canopies. The repeated low shrub forms,
+shallow room backings and very tidy site remain CG tells. Dusk now has dim warm
+rooms behind curtains, neutral door casings, and pools on actual pavement;
+there is no clipped white casing sheet. Night interior depth is still limited.
+
+The cold build exposed a real final-pose failure in the new deep mansard jamb:
+a rectangular return intersects the accepted door leaf at 100 degrees. Splayed
+the return and widened the concealed upper rough opening. The leaf, its hinge
+and its authored range stay unchanged. This correction is subject to the same
+sampled surface test, rather than a visual claim of clearance.
+
+Pre-clean iteration frames and logs for passes 1–5 are retained outside the
+family's clean outputs at `build/apartments-preclean/`; paths in those earlier
+passes are relative to its archived `renders/`. Current evidence will be in
+`apartments/renders/`. No image from these passes is committed to `docs/`.
+
+
+The family render exposed two additional checks in pass 5: the camera's
+first downward hit was a mature canopy, so the eye-height ray now continues
+through overhead geometry to the first upward walking surface below 0.5 m.
+This still measures the actual surface rather than substituting nominal grade.
+The overview of seed 305 showed a legacy grill beyond the newly recessed slab;
+the grill and rear bicycle placements now follow their actual respective
+patio centers in core/gallery and recessed/hung variants. Their geometry is
+unchanged. A second `make clean` removed all four generated apartment output
+folders before the corrected cold build; read-only references/library caches
+and original handoff witnesses were retained.
+
+
+## Look gate, pass 6 — complete family review and rejected inspection views
+
+**Color and value first.** Opened the complete 59-view family set at native
+1400 px, all three exported native comparisons and their composed pairs.
+The softened used-building comparison now has neutral gray paving and buff
+masonry rather than the earlier blue/dark direct-sun stage. Beige siding,
+brown mansards and black steel retain their hues. Still, the flat roof tops
+reflect a broad pale sheen in rear views, and rear patios are too dark/blue
+to inspect. The flat membrane now uses the existing rough trim region and
+a darker vertex value, with no new image or material. Rear/patio inspection
+frames get the raking sun from their own side, recorded in provenance; hero
+and matched-light stages are unchanged. Stair-hall inspection fill is raised
+locally, without raising the hero's shadow exposure.
+
+The main heroes, articulated fronts, continuous mansards and garage bays read
+clearly. The rear complex cameras are rejected: mature canopies fill their
+foreground. Move those stations inside the perimeter; omit only presentation
+trees within ten meters of each inspection camera and list their objects in
+that image's provenance. Add the own-house library beyond side lawns so the
+remaining sideways horizon is occupied as well as the opposite frontage.
+Native roads/curbs/slabs now repeat at their original lengths: the former
+stretched expansion joints are gone. Scene dressing stays outside delivery.
+
+The garage-row fanlight is modeled but partly hidden by the eave. Lower its
+unchanged 1.22 × 1.32 m stair sash and the curved fanlight 270 mm, moving its
+rough opening with it. This preserves the accepted sash form while giving
+the half-round head physical space below the eave. New raw checks pass at
+63,012 triangles for that row (55,634 architecture), within its allowance.
+
+The independent source-pair import failed on a Blender 5.2 settings interface:
+the source tiling's minimal `glTF Material Output` AO group shadows the
+importer's full group, which expects iridescence inputs. Applied the same
+source-group rename already used by the houses' renderers, only in the
+in-memory presentation importer. Source materials, files and deliveries are
+unchanged. Rejected native frames/pairs are retained under
+`build/apartments-pass6-rejected/`; the next complete batch supersedes them.
+
+Remaining visual weaknesses are repetitive shrub and tenant-prop shapes,
+very tidy lots, simple meter faces, shallow window rooms and non-identical
+photo fenestration/proportions. Low numerical camera residuals do not remove
+those differences and are not used as proof of photographic equivalence.
+
+
+The allocation audit also rejects the unnecessary 2048² colonial roof maps
+on the garden gables. The existing 1024² `RanchRoof` set supplies the correct
+asphalt-shingle manufacture over the same 4.8768 m coverage, reducing each
+gable building's compressed cold load by 12 MiB, with no new images. Its
+210 px/m density exceeds the principal hero's sampling rate. The complete
+export/render/check cycle is repeated with that actual shipped selection;
+the material reduction is not a paper-only estimate.
+
+
+## Look gate, pass 7 — final shipped maps, native inspection and repeat
+
+**Color and value first.** Opened all 66 final native 1400 px frames: 59
+exported family views, three exported comparisons, three independent source
+comparisons, and the Eevee hero. Also opened all five 1200-pixel-per-side
+before/after plates and the contact sheet. The 1024² ranch shingles hold a
+credible gray granular response; brick stays fired red/tan/buff, cedar stays
+brown, and the steel stays dark. The rough flat tops no longer turn into
+bright sheets. The rear/patio inspection sun now reveals the actual siding,
+concrete, curtains and fences without lifting the principal heroes.
+
+The two principal Cycles heroes' encoded display-luma p10 / median / p99 are
+.062 / .227 / .704 (complex) and .105 / .357 / .742 (garage row).
+Only two / three pixels exceed .99 in every display channel. These are
+whole-frame display statistics, including sky and paving, not recovered
+albedo measurements or a silhouette mask. Cavity shadows remain deep and
+highlights roll off; the scenes do not read pale overall.
+
+The three photo neutrals remain the white replacement sash, painted flat-roof
+edge and white garage panel documented above. Current camera RMS residuals
+are 18.57 / 11.19 / 11.79 px, with lenses 25.00 / 24.00 / 38.36 mm. The first
+two reach their lower lens bounds. Those are original-type fits; the exact
+end projection, window rhythm and roof proportions differ from the photos.
+The new used-building comparison is brick/mansard with recessed balconies,
+rather than the unrelated gallery type. Procedural illumination is soft and
+largely neutral for the first two photographs, direct for the garage row.
+Mean absolute source/export display RGB differences are .000745 / .000248 /
+.001561; that is evidence of retained render response after export, not proof
+of a correct photographic match.
+
+Eevee initially rendered white panes without refracted rooms. It now uses the
+houses' existing ray-tracing/refraction integration pattern, with a 12 mm
+slab gauge matching these modeled panes, instead of estimating thickness from
+the whole joined building. Opened the corrected Eevee image: white panes are
+gone and the window backings transmit, though its glass and bounce response
+still differs from Cycles. This is an in-memory renderer setting, not a
+modified canonical house material or a new shipped map.
+
+**Rebuild evidence.** `make clean` removed this family's build, export,
+textures and renders; the original handoff and 197-file preservation witness
+were restored as comparison inputs. `make WIDTH=1400 SAMPLES=32` regenerated
+all thirteen packages, checks and the full Cycles/exported-comparison set.
+That invocation was interrupted during a subsequent GPU-lock wait. Resumed
+with `make -o src/render.py WIDTH=1400 SAMPLES=32` to finish the independent
+source pairs, Eevee and review, without rerendering unaffected Cycles frames
+after the Eevee-only integration edit. It passed. Plain `make check repeat
+check-repo` then passed. `make repeat` independently regenerated geometry and
+compared all **61** glTF/BIN/referenced-image files: zero changed bytes. It
+retains the independent sources and restores reviewed witnesses/timestamps,
+so provenance remains valid. Accepted shared bakes are cached repeat inputs.
+Logs are in the repository's ignored `build/apartments-verified-clean-build.log`
+and `build/apartments-finish-{0,1}.log`.
+
+Raw checks report zero collapsed triangles/metric UV0 triangles in all 13
+assets, at most six building materials, measured density p5–p95 spanning
+86.6–671.9 px/m across the family, maximum bidirectional source/import point
+error 3.932 micrometers, and maximum normal-length error 1.19e-7. Physical
+stairs, 0–100° sampled leaf/casing sweeps, sliders, garage guide/section poses,
+gallery entry surfaces and meter passages pass separately. Existing 197
+delivery/docs hashes and 110 dependency export/map hashes remain unchanged.
+`kit/repo_check.py` reports 1,679 source files and zero errors. No kit or
+other family source changed, and no docs image is committed.
+
+The final unique image inventory is 35 files, 63,166,694 encoded bytes and
+91.6875 MiB at assumed 8-bpp compression/full mips. New apartment maps add
+1.1875 MiB; painted steel reuses the house trim. Complete geometry plus shared
+images is 312,133,336 bytes. Per-building, complex and row figures are in the
+README and generated `build/check.json`/`build/delivery-summary.json`.
+`build/native-inspection.json` records hashes/dimensions of the 66 opened
+frames. All five form plates retain 1200 native pixels on each side.
+
+**Remaining CG tells.** Plantings and tenant furnishings still repeat, the
+lots and flat membrane tops are unusually tidy, meter faces are simplified,
+and room backings have shallow, repetitive depth. Some shared siding/brick
+repeats are visible in close-ups. The reference pairs establish the same
+construction types and a disclosed color/light comparison; they do not make
+these original buildings photographic replicas. No new tool or approval is
+needed from the lead. A future general kit helper could centralize the AO
+settings-group accommodation and thin-glass Eevee setup already used by both
+this family and the houses; this round makes no kit change.

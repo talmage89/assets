@@ -1,6 +1,6 @@
 # Dimensions and construction basis
 
-This is the **form checkpoint**, set around 2005, for maintained original
+This is the **form and look checkpoint**, set around 2005, for maintained original
 American rental housing. It is neither a measured reproduction nor a building
 permit model. References are registered in [refs/SOURCES.md](refs/SOURCES.md).
 No downloaded art enters the meshes or material graphs.
@@ -56,7 +56,7 @@ are outside this art checkpoint.
 | Parking | 2.7432 × 5.4864 m | Original 9 × 18 ft stalls; 8.1 m clear central drive |
 | Front walks | 1.524 m | Original 5 ft paths |
 
-All apartment wings have four units per floor. The four buildings have
+All apartment wings have four units per floor. The four principal buildings have
 12 / 16 / 24 / 8 units: 1967 enclosed-core gable, 1978 L with breezeways,
 1986 offset open cores, and 1973 straight breezeway/mansard. The two larger
 forms have independently framed wings connected by a low supported open
@@ -73,16 +73,30 @@ pieces (calculated from the authored plan polygons, not surveyed photos):
 
 | Building | Overall wall-footprint bounds, m | Nominal module(s) |
 | --- | --- | --- |
-| 301 | 21.9456 × 15.2400 | 72 × 50 ft central-core block |
+| 301 | 21.9456 × 17.0688 | 72 × 50 ft nominal unit/core grid; projecting stair bay |
 | 302 | 42.0624 × 29.2608 | Two 96 × 32 ft wings, 10 ft connecting gap, L arrangement |
-| 303 | 46.9392 × 19.8120 | Two 72 × 50 ft wings, 10 ft gap, 15 ft offset |
+| 303 | 46.9392 × 22.2504 | Two nominal 72 × 50 ft wings, 10 ft gap, 15 ft offset, expressed cores |
 | 304 | 29.2608 × 9.7536 | 96 × 32 ft gallery block |
+| 305 | 28.0416 × 15.2400 | Additional 92 × 50 ft brick/mansard seed with recessed balconies |
 
 The link gap is 3.048 m, widened after measuring opposing balcony/service
 projections. Conservative mesh component bounds leave 1.295 / 1.564 m opposite
 the linked buildings’ meter banks through 2.1 m height. This is a geometric
 working-space reservation, not electrical-code certification. Rows 401/402/403/404 are 36.576 / 36.576 / 43.8912 /
-21.9456 m long along their party-wall grid; stepped fronts add .6096 m to the
+21.9456 m long along their party-wall grid; stepped fronts add 1.2192 m to the
 bounding depth. Full built envelopes, including stairs, roofs and services,
 are independently computed from mesh coordinates in each exported metadata file.
 The source/import check separately proves that those surfaces survived export.
+
+The look gate keeps the accepted 28 × 25 ft and 24 × 32 ft garden modules,
+nine-foot stories and stair geometry. Its facade/core offsets are authored
+2–4 ft construction choices, not a new dimensional claim about the photographs.
+The additional seed 305 has four 38 × 25 ft gross unit reservations per floor,
+two floors, a central enclosed stair, buff brick below a cedar mansard, and
+5 ft deep recessed balcony wells. It is a type comparator for the used 2004
+photograph; it does not claim that property's measured floor plan.
+
+Townhouse front steps now alternate 3 and 4 ft, retaining the accepted six-inch
+finished-floor changes. The garage bays project another 1 m, with their own
+front gables, alternating brick/siding and arched stair fanlights. The new
+wall-footprint polygons and walking sockets follow these physical steps.
