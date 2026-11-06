@@ -34,7 +34,7 @@ def build_block(seed,region,count_lots=7,path=None,context=False):
         obs=[fixed[0]]+moving
         for o in obs:o.data.calc_loop_triangles()
         objects=[root]+list(root.children_recursive)
-        # Same shared signs URI for every building; other materials are quick factors.
+        # External image URIs are canonical across the entire family.
         export=(out if context else Path('export'))/(lot['id']+'.gltf');export.parent.mkdir(exist_ok=True)
         bpy.ops.object.select_all(action='DESELECT')
         for o in objects:o.select_set(True)
@@ -51,6 +51,14 @@ def build_block(seed,region,count_lots=7,path=None,context=False):
     bpy.context.view_layer.update();sc=bpy.context.scene;sc.unit_settings.system='METRIC';sc['stage']=p['stage']
     blend=out/'block.blend';bpy.ops.wm.save_as_mainfile(filepath=str(blend.resolve()))
     tiling.export(out/'block.glb')
+    if not context:
+        from street import build_street
+        street_root,street_meta=build_street(p,mats)
+        street_glb=Path('build/street')/(region+'.glb');street_glb.parent.mkdir(exist_ok=True)
+        tiling.export(street_glb,[street_root]+list(street_root.children_recursive))
+        externalize(street_glb,Path('export')/('DowntownStreet_'+region+'.gltf'))
+        street_meta['source']='export/DowntownStreet_'+region+'.gltf'
+        (out/'street.json').write_text(json.dumps(street_meta,indent=2)+'\n')
     meta=dict(**p,buildings=rows,triangles=sum(r['triangles'] for r in rows))
     (out/'block.json').write_text(json.dumps(meta,indent=2)+'\n')
     return dict(region=region,seed=seed,triangles=meta['triangles'],buildings=rows,source=str(out/'block.glb'))

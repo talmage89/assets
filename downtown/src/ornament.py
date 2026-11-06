@@ -28,19 +28,19 @@ def sill(b,x,w,z,color):
     molding(b,x-w/2-.04,x+w/2+.04,z-.20,.12,.06,'Mineral',color)
 
 
-def hood(b,x,w,hi,rise,color):
+def hood(b,x,w,hi,rise,color,pediment=False):
     # Cast hood with shouldered ears, broken segmental pediment and keystone.
-    a=x-w/2-.14;c=x+w/2+.14;spring=hi+.05
+    a=x-w/2-.14;c=x+w/2+.14;spring=hi+(.21 if pediment else .05)
     for xx in (a+.05,c-.05):
-        b.box((xx,-.075,hi-.035),(.13,.19,.32),'Finish',color)
+        b.box((xx,-.075,hi+(.07 if pediment else -.035)),(.13,.19,.42 if pediment else .32),'Finish',color)
         # Small side consoles carry the hood ends, hooked return silhouette.
         profile=[(.012,-.27),(-.10,-.27),(-.135,-.20),(-.11,-.13),(-.17,-.07),(-.23,-.03),(-.23,.05),(.012,.05)]
         sweep(b,xx-.06,xx+.06,profile,hi,'Finish',color)
     # Multi-step hood section swept over a shallow peaked/segmental head.
     section=[(.03,0),(-.085,0),(-.11,.025),(-.10,.055),(-.17,.08),(-.19,.115),(-.18,.145),(.03,.145)]
-    n=10;vs=[]
+    n=2 if pediment else 10;vs=[]
     for j in range(n+1):
-        t=j/n;xx=a+(c-a)*t;zz=spring+rise*4*t*(1-t)
+        t=j/n;xx=a+(c-a)*t;zz=spring+rise*(2*min(t,1-t) if pediment else 4*t*(1-t))
         vs.extend((xx,y,zz+dz) for y,dz in section)
     k=len(section);fs=[]
     for j in range(n):
@@ -48,7 +48,9 @@ def hood(b,x,w,hi,rise,color):
     fs += [tuple(reversed(range(k))),tuple(range(n*k,(n+1)*k))]
     b.geom(vs,fs,'Finish',color)
     # Raised fan tympanum and a projecting tapered key; no flat arched strip.
-    b.prism([(a+.12,-.045,spring+.12),(c-.12,-.045,spring+.12),(x,-.045,spring+rise+.15)],(0,.05,0),'Finish',tuple(v*.90 for v in color))
+    if pediment:
+        b.prism([(a+.08,-.045,hi+.015),(c-.08,-.045,hi+.015),(c-.08,-.045,spring+.11),(x,-.045,spring+rise+.11),(a+.08,-.045,spring+.11)],(0,.07,0),'Finish',tuple(v*.94 for v in color))
+    else:b.prism([(a+.12,-.045,spring+.12),(c-.12,-.045,spring+.12),(x,-.045,spring+rise+.15)],(0,.05,0),'Finish',tuple(v*.90 for v in color))
     b.prism([(x-.075,-.215,spring+rise-.03),(x+.075,-.215,spring+rise-.03),
              (x+.12,-.215,spring+rise+.22),(x-.12,-.215,spring+rise+.22)],(0,.17,0),'Finish',color)
 
@@ -58,15 +60,16 @@ def bracket(b,x,z,color,width=.085):
     profile=[(.015,-.69),(-.11,-.69),(-.17,-.66),(-.19,-.61),
              (-.18,-.56),(-.145,-.52),(-.12,-.47),(-.15,-.41),
              (-.25,-.36),(-.37,-.31),(-.46,-.25),(-.49,-.18),
-             (-.47,-.11),(-.43,-.085),(-.37,-.10),(-.35,-.14),
-             (-.37,-.18),(-.40,-.18),(-.41,-.15),(-.39,-.13),
-             (-.34,-.10),(-.30,-.075),(.015,-.075)]
+             (-.48,-.12),(-.44,-.08),(-.39,-.08),(-.35,-.11),
+             (-.34,-.15),(-.37,-.18),(-.40,-.17),(-.41,-.14),
+             (-.44,-.15),(-.44,-.19),(-.40,-.23),(-.33,-.26),
+             (-.23,-.26),(-.15,-.21),(-.10,-.16),(.015,-.16)]
     sweep(b,x-width/2,x+width/2,profile,z,'Finish',color)
     # Front rib, rounded lower boss. Side small curls are baked into strip 5.
     b.tube([(x,-.17,z-.60),(x,-.19,z-.60)],.048,color=color,n=8)
 
 
-def cornice(b,L,top,color,heavy=False):
+def cornice(b,L,top,color,heavy=False,reserve_date=False):
     scale=1.16 if heavy else 1.0
     molding(b,0,L,top-.78,.20,.10,color=color)
     sweep(b,0,L,[(.035,-.69),(-.055,-.69),(-.055,-.22),(.035,-.22)],top,color=color)
@@ -77,6 +80,7 @@ def cornice(b,L,top,color,heavy=False):
     n=max(3,round(L/1.32));step=L/n
     for j in range(n+1):
         xx=.19+(L-.38)*j/n
+        if reserve_date and abs(xx-L/2)<.80:continue
         # Paired scrolls, separated sufficiently to throw individual shadows.
         for off in (-.085,.085):bracket(b,xx+off,top,color)
     for j in range(n):

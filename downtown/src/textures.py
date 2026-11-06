@@ -33,8 +33,8 @@ def fields(role,n):
    edge=np.minimum.reduce([lx,unit-lx,ly,ch-ly]);width=rng.uniform(.0032,.0050,(18,48))[row,ix]
    mask=np.clip((edge-width)/.0020,0,1);mask=mask*mask*(3-2*mask)
    tone=rng.uniform(.60,1.34,(18,48))[row,ix];flashed=rng.random((18,48))[row,ix]<.12;tone*=1-.24*flashed*np.exp(-lx/.05)
-   base=(.255,.071,.032) if strip<2 else (.62,.62,.60) if strip==2 else (.40,.285,.15)
-   brick=np.array(base)*(tone*(.90+.20*mid))[:,:,None];mortar=np.array((.255,.245,.216))*(.96+.08*mid)[:,:,None]
+   base=((.24,.105,.06) if strip==0 else (.22,.115,.077)) if strip<2 else (.62,.62,.60) if strip==2 else (.36,.27,.17)
+   brick=np.array(base)*(tone*(.90+.20*mid))[:,:,None];mortar=np.array((.18,.175,.158))*(.96+.08*mid)[:,:,None]
    if strip==2:brick=np.array(base)*(.96+.08*mid)[:,:,None];mortar=np.array(base)*.88
    c=brick*mask[:,:,None]+mortar*(1-mask[:,:,None]);h=.0045*mask+.00065*(mid-.5)*mask+.00015*(fine-.5)
    ao=.78+.22*mask;rough=.91+.055*(fine-.5)
@@ -44,7 +44,8 @@ def fields(role,n):
    h=.0004*(mid-.5)+.00010*(fine-.5);rough[:]=.83
    if strip==0:
     h+=.00017*np.sin(x*1200+mid*2)*np.sin(y*1600);pores=(fine<.018)&(mid<.44);h-=.0007*pores;c*=1-.12*pores[:,:,None]
-   elif strip==1:h*=.25;rough[:]=.61
+   elif strip==1:
+    course=1/3;row=np.floor(y/course);lx=np.mod(x+(row%2)*.4,.8);ly=np.mod(y,course);edge=np.minimum.reduce((lx,.8-lx,ly,course-ly));face=np.clip((edge-.002)/.003,0,1);h=.0018*face+.00007*(mid-.5);c*= (.82+.18*face)[:,:,None];ao=.86+.14*face;rough[:]=.83
    elif strip==2:
     seam=np.exp(-np.mod(x,.98)/.009);c*=((.82+.27*fine)*(1-.14*seam))[:,:,None];h=.0012*fine+.0015*seam;rough[:]=.96
    else:c*=((.91+.17*fine))[:,:,None];h+=.00018*np.sin(x*2100);rough[:]=.91
@@ -56,13 +57,14 @@ def fields(role,n):
     edge=np.minimum(y,.5-y);chips=(edge<.009)&(mid>.59);h+=.00007*(mid-.5)-.00016*chips;c*=1-.65*chips[:,:,None];rough[:]=.57;rough+=.21*chips
    elif strip in (2,3):h+=.000012*np.sin(x*2800);rough[:]=.38 if strip==2 else .43;metal[:]=.85
    elif strip==4:
-    weave=np.sin(x*4400)*np.sin(y*4400);h=.00014*weave;rough[:]=.92;c*=((.90+.07*mid+.035*weave))[:,:,None]
-    c*=np.where(np.mod(x,.48)<.24,.96,.44)[:,:,None];h+=.00022*np.exp(-np.minimum(np.mod(x,.48),.48-np.mod(x,.48))/.002)
+    weave=np.sin(x*3100)*np.sin(y*3100);h=.000028*weave;rough[:]=.92;c*=((.90+.07*mid+.035*weave))[:,:,None]
+    c*=np.where(np.mod(x,.48)<.24,.96,.75)[:,:,None];h+=.00022*np.exp(-np.minimum(np.mod(x,.48),.48-np.mod(x,.48))/.002)
    elif strip==5:
     edge=np.minimum(y,.5-y);loss=(edge<.012)&(mid>.55);h+=.00006*(mid-.5)-.00018*loss;c*=1-.61*loss[:,:,None];rough[:]=.58;rough+=.20*loss
    elif strip==6:
     cx=np.mod(x,.44)-.22;cy=y-.25;radius=np.sqrt((cx/.20)**2+(cy/.21)**2);theta=np.arctan2(cy,cx);relief=np.exp(-((radius-.67)/.10)**2)*(.75+.25*np.cos(theta*10));h+=.0018*relief;c*=.96+.04*relief[:,:,None]
-   else:c[:]=1;h[:]=0;rough[:]=.045
+   else:
+    phase=np.mod(y,.025)/.025;groove=np.exp(-phase/.065);h=.0025*phase;c*=1-.25*groove[:,:,None];ao=1-.24*groove;rough[:]=.66
   for target,a in zip((color,height,orm),(c,h,np.stack((ao,rough,metal),2))):
    padded=np.concatenate((a[-guard:],a,a[:guard]),axis=0);start=n-(strip+1)*rows;target[start:start+rows]=padded
  return color,height,orm

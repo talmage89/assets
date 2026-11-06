@@ -25,10 +25,10 @@ def tint(point,role,color,p,name):
    L=w-p['chamfer'];left=-w/2+(p['chamfer'] if p['corner']=='left' else 0);n=max(2,round((L-.6)/1.95))
    for level in range(1,p['stories']):
     sill=p['floor_first']+(level-1)*p['upper']+.65
-    if sill-1.25<z<sill:
+    if sill-1.25<=z<=sill+.00001:
      for j in range(n):
       xx=left+(j+.5)*L/n
-      for off in (-.41,.41):dirt+=.24*math.exp(-((x-xx-off)/.12)**2)*math.exp(-(sill-z)/.54)*(.7+.3*ripple)
+      for off in (-.46,.46):dirt+=.46*math.exp(-((x-xx-off)/.12)**2)*math.exp(-(sill-z)/.54)*(.7+.3*ripple)
    # Repointing replaces local mortar/body response over a stepped repair.
    patch=(w*.08<x<w*.36 and .5<z<2.1 and int(z/.2032)%3!=1)
    if patch:color=tuple(v*(1.04+.055*ripple) for v in color)

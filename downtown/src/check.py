@@ -19,11 +19,11 @@ from plan import PROOF
 def read(path):
  g=object.__new__(GLB);g.json=json.loads(path.read_text());g.binary=(path.parent/g.json['buffers'][0]['uri']).read_bytes();g.parents={c:i for i,n in enumerate(g.json['nodes']) for c in n.get('children',[])};return g
 
-def tree(obs,role):
+def tree(obs,role,mineral_below=None):
  vs=[];fs=[]
  for ob in obs:
   ob.data.calc_loop_triangles();offset=len(vs);vs += [ob.matrix_world@v.co for v in ob.data.vertices]
-  fs += [tuple(offset+i for i in t.vertices) for t in ob.data.loop_triangles if role in ob.data.materials[t.material_index].name or (role=='Masonry' and 'MineralRoof' in ob.data.materials[t.material_index].name)]
+  fs += [tuple(offset+i for i in t.vertices) for t in ob.data.loop_triangles if role in ob.data.materials[t.material_index].name or (role=='Masonry' and mineral_below is not None and 'MineralRoof' in ob.data.materials[t.material_index].name and max(vs[offset+i].z for i in t.vertices)<=mineral_below+1e-5)]
  return BVHTree.FromPolygons(vs,fs,all_triangles=True)
 
 def ray(t,point,direction):
@@ -94,7 +94,7 @@ def audit(lot,row,do_motion=False):
  kd=KDTree(len(fresh))
  for i,p in enumerate(fresh):kd.insert(p,i)
  kd.balance();err=max(kd.find(p)[2] for p in points);assert err<2e-5
- glass=tree(obs,'Glass');masonry=tree(obs,'Masonry');roof=tree(obs,'Roof');w,d=lot['width'],lot['depth'];front=-d/2
+ glass=tree(obs,'Glass');masonry=tree(obs,'Masonry',lot['floor_first']-.08 if lot['corner'] else None);roof=tree(obs,'Roof');w,d=lot['width'],lot['depth'];front=-d/2
  # The aperture and its glass plane are measured independently of serialization.
  socket=bpy.data.objects[lot['id']+'__Socket_StoreDoorThreshold'].matrix_world.translation
  hit=ray(glass,(socket.x,front-2,1.4),(0,1,0));recess=hit.y-front

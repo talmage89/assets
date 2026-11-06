@@ -44,13 +44,14 @@ class Batch:
         from surfaces import masonry_faces,strip_uv,classify
         color=color or COLORS[role]
         p=self.plan
-        smooth=self.surface in ('canvas','cast_shaft')
+        smooth=self.surface in ('canvas','curtain','cast_shaft')
         normals=[Vector((0,0,0)) for v in vs]
         if smooth:
             for f in fs:
                 nn=(Vector(vs[f[1]])-Vector(vs[f[0]])).cross(Vector(vs[f[2]])-Vector(vs[f[0]]))
                 for i in f:normals[i]+=nn
             normals=[v.normalized() for v in normals]
+        vertex_lookup={}
         for face in fs:
             points=[vs[i] for i in face];coords=uv
             chunks=[(points,coords)]
@@ -58,21 +59,25 @@ class Batch:
             if self.textured and role=='Masonry':
                 painted=p.get('painted',False) and self.name.split('__')[-1].startswith('Wall0')
                 variant=2 if painted else 3 if color[1]>color[0]*.63 else (p.get('index',0)%2)
-                chunks=masonry_faces(points,variant)
+                chunks=masonry_faces(points,variant,upper_grid="__Wall0" in self.name)
                 tint=tuple(v/.62 for v in color) if painted else (1.,1.,1.)
             elif self.textured and role in ('Mineral','Roof','Finish'):
                 strip,count=classify(role,color,self.surface);chunks=[(points,strip_uv(points,strip,count))]
+                if role=='Mineral' and self.stone_ground and color==(.43,.42,.37):chunks=masonry_faces(points,1,tile_height=1.0,coverage=4.0,ground_grid=False)
                 # Shared fields are neutral manufacturing modulation.
                 tint=color
             elif self.textured and role=='Interior':
                 chunks=[(points,strip_uv(points,3 if self.surface=='fixture' else 1 if max(color)>.2 else 0,4,1))]
             for points,coords in chunks:
-                base=len(self.v);world=[tuple(self.xf(v)) for v in points]
-                self.v.extend(world)
-                self.n.extend([tuple((self.xf(Vector(vs[i])+normals[i])-self.xf(vs[i])).normalized()) for i in face] if smooth else [None]*len(world))
-                self.f.append(tuple(range(base,base+len(world))))
+                world=[tuple(self.xf(v)) for v in points];indices=[]
                 from age import tint as weather
-                self.c.extend([(*weather(v,role,tint,self.plan,self.name),1) for v in world]);self.m.append(ROLES.index(role));self.uv.append(coords);self.smooth.append(smooth)
+                ns=[tuple((self.xf(Vector(vs[i])+normals[i])-self.xf(vs[i])).normalized()) for i in face] if smooth else [None]*len(world)
+                for j,v in enumerate(world):
+                    key=tuple(round(q,8) for q in v)
+                    if key not in vertex_lookup:
+                        vertex_lookup[key]=len(self.v);self.v.append(v);self.n.append(ns[j]);self.c.append((*weather(v,role,tint,self.plan,self.name),1))
+                    indices.append(vertex_lookup[key])
+                self.f.append(tuple(indices));self.m.append(ROLES.index(role));self.uv.append(coords);self.smooth.append(smooth)
     def box(self,p,s,role='Finish',color=None,r=0):
         if min(s)<1e-6:return
         x,y,z=p;a,b,c=(v/2 for v in s)
@@ -131,7 +136,14 @@ class Batch:
             bright=ROLES[self.m[p.index]]=='Interior' and max(self.c[p.vertices[0]][:3])>.20
             for li in p.loop_indices:light.data[li].uv=(.5,.875 if bright else .125)
         bm=bmesh.new();bm.from_mesh(me);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bmesh.ops.triangulate(bm,faces=list(bm.faces),quad_method='FIXED',ngon_method='EAR_CLIP');bm.to_mesh(me);bm.free();me.update()
-        if any(v is not None for v in self.n):me.normals_split_custom_set_from_vertices([n if n is not None else tuple(v.normal) for n,v in zip(self.n,me.vertices)])
+        if any(v is not None for v in self.n):
+            custom=[]
+            for p in me.polygons:
+                for li in p.loop_indices:
+                    n=Vector(self.n[me.loops[li].vertex_index]) if self.n[me.loops[li].vertex_index] is not None else p.normal.copy()
+                    if n.dot(p.normal)<0:n.negate()
+                    custom.append(tuple(n))
+            me.normals_split_custom_set(custom)
         ob['asset_set']='Downtown';ob['construction_component']=self.name
         return ob
 

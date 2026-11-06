@@ -4,7 +4,7 @@ from pathlib import Path
 import bpy
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
 bpy.ops.wm.read_factory_settings(use_empty=True);paths=sorted(Path('export').glob('*.gltf'));seen={};steps=[]
-assert len(paths)==28
+assert len(paths)==32 and sum(p.stem.startswith('DowntownStreet_') for p in paths)==4
 for path in paths+[paths[0]]:
  bpy.ops.import_scene.gltf(filepath=str(path.resolve()));images=[im for im in bpy.data.images if im.source=='FILE' and im.filepath];lookup={}
  for im in images:
@@ -14,4 +14,4 @@ for path in paths+[paths[0]]:
  steps.append(dict(building=path.stem,image_datablocks=len(images)))
 assert len(seen)==11
 Path('build/resource-check.json').write_text(json.dumps(dict(passed=True,steps=steps,shared_images=11,rgba8_pixel_bytes=sum(im.size[0]*im.size[1]*4 for im in images),scope='Actual stock Blender import; engine compression/caching remains importer policy'),indent=2)+'\n')
-print('RESOURCE PASS',len(paths),'buildings plus repeat share exactly eleven canonical image datablocks')
+print('RESOURCE PASS',len(paths),'building/street deliveries plus repeat share exactly eleven canonical image datablocks')

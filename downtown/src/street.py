@@ -16,25 +16,25 @@ def build_street(p,mats):
    spans=[(curb,py-pit/2),(py+pit/2,0)] if is_pit else [(curb,0)]
    for ya,yc in spans:
     nn=max(1,math.ceil((yc-ya)/1.524));dy=(yc-ya)/nn
-    for k in range(nn):b.box((xx,ya+(k+.5)*dy,-.065),(dx-.005,dy-.005,.13),'Mineral',(.37,.36,.32))
+    for k in range(nn):b.box((xx,ya+(k+.5)*dy,-.065),(dx-.005,dy-.005,.13),'Mineral',(.43,.43,.41))
  for xx in pits:
   b.box((xx,py,-.078),(pit,pit,.055),'Finish',(.075,.057,.033));pivot('Socket_TreePit_'+str(round(xx,3)),(xx,py,0),root,socket_kind='tree_pit')
   for side in (-1,1):
    for j in range(7):b.box((xx+side*(.26+j*.057),py,-.015),(.022,pit-.06,.025),'Finish',(.055,.055,.044))
   for yy in (py-pit/2,py+pit/2):b.box((xx,yy,-.014),(pit,.03,.028),'Finish',(.055,.055,.044))
- b.box((0,far-walk/2,-.075),(W+24,walk,.15),'Mineral',(.37,.36,.32))
+ b.box((0,far-walk/2,-.075),(W+24,walk,.15),'Mineral',(.43,.43,.41))
  for y in (curb,far):
   for i in range(math.ceil((c-a)/1.524)):
-   b.box((a+(i+.5)*1.524,y-.08 if y==curb else y+.08,-.0762),(1.52,.16,.1524),'Mineral',(.34,.33,.29))
+   b.box((a+(i+.5)*1.524,y-.08 if y==curb else y+.08,-.0762),(1.52,.16,.1524),'Mineral',(.40,.40,.38))
  # Corner returns and the cut-off corner's triangular pedestrian apron.
  D=max(l['depth'] for l in p['lots'])
  for side,lot in ((-1,p['lots'][0]),(1,p['lots'][-1])):
   edge=side*W/2;xx=edge+side*walk/2;n=math.ceil((D+1)/1.524);dy=(D+1)/n
-  for j in range(n):b.box((xx,(j+.5)*dy,-.065),(walk-.005,dy-.005,.13),'Mineral',(.37,.36,.32))
-  ch=lot['chamfer'];b.prism([(edge,0,0),(edge-side*ch,0,0),(edge,ch,0)],(0,0,-.13),'Mineral',(.37,.36,.32))
+  for j in range(n):b.box((xx,(j+.5)*dy,-.065),(walk-.005,dy-.005,.13),'Mineral',(.43,.43,.41))
+  ch=lot['chamfer'];b.prism([(edge,0,0),(edge-side*ch,0,0),(edge,ch,0)],(0,0,-.13),'Mineral',(.43,.43,.41))
   outer=edge+side*walk
   for j in range(math.ceil((D+1-curb)/1.524)):
-   b.box((outer,curb+(j+.5)*1.524,-.0762),(.16,1.52,.1524),'Mineral',(.34,.33,.29))
+   b.box((outer,curb+(j+.5)*1.524,-.0762),(.16,1.52,.1524),'Mineral',(.40,.40,.38))
   b.box((outer+side*3.5,(curb+D+8)/2,-.20),(7.0,D+8-curb,.095),'Roof',(.065,.067,.065))
  marks=[]
  if p['parking']=='parallel':

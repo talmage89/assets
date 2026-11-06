@@ -67,10 +67,11 @@ class Building:
                 self.trimframe(b,x,yy,zh,w-.19,(h-.14)/2+.025,tint,.041,.037)
                 b.box((x,yy+.013,zh),(w-.28,.004,(h-.14)/2-.060),'Glass')
                 if self.p['style']=='italianate' and index%3==0:b.box((x,yy-.013,zh),(.022,.026,(h-.14)/2-.065),'Finish',tint)
+        pediment=self.p['storefront']=='iron' and self.p['style']=='italianate' and not rear
         O.sill(b,x,w,lo,STONE)
         rise=o.get('rise',0)
         if self.p['style']=='italianate' and not rear:
-            O.hood(b,x,w,hi,rise,CREAM)
+            O.hood(b,x,w,hi,rise,CREAM,pediment)
         elif rise:
             # Wedge voussoirs; the UV follows the arch's rowlock axis.
             n=13
@@ -86,7 +87,7 @@ class Building:
                 (x+w/2+.14,-.105,hi+.18),(x+w/2+.10,-.105,hi+.23),
                 (x-w/2-.10,-.105,hi+.23),(x-w/2-.14,-.105,hi+.18)],(0,.29,0),'Mineral',STONE)
             if not rear:O.molding(b,x-w/2-.17,x+w/2+.17,hi+.225,.15,.065,'Mineral',STONE)
-        if rise and not filled:
+        if rise and not filled and not pediment:
             b.prism([(o['x0']+.04,y+.04,hi),(o['x1']-.04,y+.04,hi)]+[(o['x1']-.04-(w-.08)*j/12,y+.04,hi+rise*4*(j/12)*(1-j/12)) for j in range(1,12)],(0,.004,0),'Glass')
         if filled:return
         if rear and (index+self.p['index'])%3==0:
@@ -96,11 +97,17 @@ class Building:
         b.box((x,1.02,(lo+hi)/2),(w+.18,.035,h+.25),'Interior',(.028,.030,.025) if (index+self.p['index'])%3 else (.55,.32,.11))
         b.box((x,.65,lo-.05),(w,.80,.035),'Finish',(.14,.11,.07))
         if index%3==0:
-            drop=h*(.28+.11*(index%4));b.box((x,.34,hi-drop/2),(w-.19,.025,drop),'Finish',(.40,.37,.28))
-            for zz in range(max(1,int(drop/.095))):b.box((x,.316,hi-.03-zz*.095),(w-.2,.035,.018),'Finish',(.47,.43,.33))
+            drop=h*(.28+.11*(index%4));b.surface='blind'
+            b.box((x,.34,hi-drop/2),(w-.19,.025,drop),'Finish',(.40,.37,.28));b.surface=None
         else:
-            for s in (-1,1):
-                for j in range(3):b.box((x+s*(w*.35+j*.025),.35+j%2*.03,(lo+hi)/2),(w*.12,.035,h-.12),'Finish',(.37,.31,.23) if index%2 else (.52,.48,.39))
+            for sign in (-1,1):
+                vs=[]
+                for row in range(2):
+                    for j in range(5):
+                        t=j/4;xx=x+sign*(w*.28+w*.22*t);yy=.35+.027*math.sin(t*math.pi*4)
+                        zz=lo+.06-.024*math.sin(t*math.pi) if row==0 else hi-.06-.018*math.sin(t*math.pi)
+                        vs.append((xx,yy,zz))
+                b.surface='curtain';b.geom(vs,[(j,j+1,j+6,j+5) for j in range(4)],'Finish',(.37,.31,.23) if index%2 else (.52,.48,.39));b.surface=None
         if index==1 and not rear:
             b.box((x,.04,lo+.19),(w*.78,.60,.38),'Finish',(.34,.34,.30))
             for j in range(8):b.box((x-w*.30+j*w*.085,-.267,lo+.20),(.012,.015,.25),'Finish',(.12,.13,.12))
@@ -186,7 +193,9 @@ class Building:
         for side,x in (('left',a+.05),('right',c-.05)):
             if p['corner']!=side:b.box((x,2.8,head/2),(.10,5.5,head),'Finish',(.22,.20,.16))
         if p['tenant']!='vacant':
-            for xx in (a+w*.25,a+w*.70):b.box((xx,2.6,head-.045),(.85,.20,.025),'Interior',(.75,.60,.32))
+            b.surface='fixture'
+            for xx in (a+w*.25,a+w*.70):b.box((xx,2.6,head-.045),(.85,.20,.025),'Interior',(.93,.93,.88))
+            b.surface=None
         if p['tenant']=='vacant':
             for s in (-1,1):
                 x=entry+s*1.55;b.box((x,.09,1.18),(1.10,.005,1.45),'Finish',(.39,.31,.20))
@@ -223,15 +232,15 @@ class Building:
                 t=j/6
                 for k in range(7):
                     u=k/6;x=x0+(x1-x0)*u;y=.06-1.65*t
-                    zz=z-.48*t-.13*math.sin(math.pi*u)*math.sin(math.pi*t)-.035*math.sin(math.pi*t)
+                    zz=z-.48*t-.065*math.sin(math.pi*u)*math.sin(math.pi*t)
                     vs.append((x,y,zz))
-            fs=[(j*7+k,j*7+k+1,(j+1)*7+k+1,(j+1)*7+k) for j in range(6) for k in range(6)]
+            fs=[(j*7+k,(j+1)*7+k,(j+1)*7+k+1,j*7+k+1) for j in range(6) for k in range(6)]
             b.surface='canvas';b.geom(vs,fs,'Finish',cloth)
             # Weighted scalloped valance: hangs down, with the rolled hem in
             # its silhouette. Stitching and weave are baked into canvas strip.
             vs=[]
             for j in range(9):
-                t=j/8;xx=x0+(x1-x0)*t;bottom=z-.72-.065*math.sin(math.pi*t)**2
+                t=j/8;xx=x0+(x1-x0)*t;bottom=z-.72-.035*math.sin(math.pi*t)**2
                 vs += [(xx,-1.595,z-.49),(xx,-1.61-.012*math.sin(t*math.tau),bottom)]
             b.geom(vs,[(2*j,2*j+1,2*j+3,2*j+2) for j in range(8)],'Finish',cloth)
             b.surface=None
@@ -243,7 +252,7 @@ class Building:
         self.socket('AwningLeft',xf((a,.12,z)),'awning_attachment');self.socket('AwningRight',xf((c,.12,z)),'awning_attachment')
     def cornice(self,b,L):
         p=self.p;top=p['height'];col=CREAM if p['cornice']=='metal' else p['brick']
-        if p['cornice']=='metal':O.cornice(b,L,top,col,bool(p['corner']))
+        if p['cornice']=='metal':O.cornice(b,L,top,col,bool(p['corner']),reserve_date=p['stories']>1)
         else:
             # Each course steps outward by a fraction of a brick, with a
             # bed-joint shadow. Alternating brick headers form real corbels.
@@ -262,13 +271,18 @@ class Building:
             b.box((L/2,-.115,z),(1.43,.10,.26),'Mineral',STONE)
             self.graphic(b,'label'+str(4+p['index']%2),L/2,-.171,z,1.20,.20)
     def rear(self,xf,L):
-        p=self.p;b=self.batch('RearConstruction',xf);ops=self.upper_openings(L,True)
+        p=self.p;b=self.batch('RearConstruction',xf);ops=self.upper_openings(L,True);porch=p['index']%3==1 and not p['fire_escape']
         ops += [dict(x0=.60,x1=1.68,z0=.012,z1=2.25),dict(x0=L-2.3,x1=L-.65,z0=1.2,z1=2.5)]
+        if porch:ops[-1]=dict(x0=L-2.035,x1=L-.915,z0=.26,z1=2.50)
         wall(b,L,p['height'],ops+[dict(x0=L-.51,x1=L-.25,z0=p['roof']-.02,z1=p['roof']+.12)],.34,tuple(c*.78 for c in p['brick']))
         for i,o in enumerate(ops[:-2]):self.window(b,o,i,True)
         self.door('ServiceDoor',xf,1.14,.36,.018,1.0,2.20,(.17,.18,.16),False)
-        self.trimframe(b,L-1.475,.16,1.85,1.65,1.30,IRON,.07,.10)
-        b.box((L-1.475,.20,1.85),(1.50,.004,1.15),'Glass')
+        if porch:
+            self.trimframe(b,L-1.475,.16,1.38,1.12,2.24,IRON,.06,.10)
+            self.door('PorchDoor',xf,L-1.475,.36,.278,1.0,2.14,(.20,.21,.18),False)
+        else:
+            self.trimframe(b,L-1.475,.16,1.85,1.65,1.30,IRON,.07,.10)
+            b.box((L-1.475,.20,1.85),(1.50,.004,1.15),'Glass')
         # Real scupper opening and downspout on standoff straps, not in midair.
         x=L-.38;rz=p['roof']
         b.prism([(x-.15,-.01,rz+.12),(x+.15,-.01,rz+.12),(x+.20,-.30,rz-.14),(x-.20,-.30,rz-.14)],(0,.015,0),'Finish',(.24,.25,.22))
@@ -295,13 +309,13 @@ class Building:
                 b.box(((xa+xc)/2,-dep,h/2),(xc-xa,.18,h),'Masonry',col)
             b.box((mid,-dep,(h+2.1)/2),(opening,.18,h-2.1),'Masonry',col)
             self.trimframe(b,mid,-dep-.11,1.07,1.01,2.14,IRON,.06,.08)
-            b.box((mid,-dep-.05,1.05),(.88,.04,2.0),'Finish',(.20,.21,.18))
+            self.door('EllDoor',b.xf,mid,-dep+.12,.018,.80,2.06,(.20,.21,.18),False)
             b.prism([(x0-.12,-dep-.15,h),(x1+.12,-dep-.15,h),
                      (x1+.12,.02,h+.25),(x0-.12,.02,h+.25)],(0,0,.055),'Roof')
             for xx in (x0-.08,x1+.08):b.beam((xx,-dep-.15,h),(xx,.05,h+.25),.06,.11,color=IRON)
         elif not p['fire_escape']:
             # Timber service porch, no obstruction in the escape stair lane.
-            x=L-.95
+            x=L-1.475
             b.box((x,-.70,.20),(1.65,1.40,.12),'Finish',(.17,.13,.08))
             for xx in (x-.70,x+.70):
                 b.box((xx,-1.25,1.50),(.085,.085,3.0),'Finish',(.18,.17,.12))
@@ -419,7 +433,7 @@ class Building:
             rear=abs(a[1]-d/2)<1e-6 and abs(c[1]-d/2)<1e-6
             diagonal=abs(a[0]-c[0])>.1 and abs(a[1]-c[1])>.1
             exposed=(p['corner']=='left' and abs(a[0]+w/2)<1e-6 and abs(c[0]+w/2)<1e-6) or (p['corner']=='right' and abs(a[0]-w/2)<1e-6 and abs(c[0]-w/2)<1e-6)
-            b.stone_ground=bool(p['corner'] and (front or diagonal or exposed))
+            b.stone_ground=bool(p['corner'] and (front or diagonal))
             if rear:self.rear(xf,L);continue
             if front:
                 ops=self.upper_openings(L)
@@ -444,16 +458,21 @@ class Building:
             elif diagonal:
                 ops=[dict(x0=.22,x1=L-.22,z0=0,z1=2.85)]+self.upper_openings(L)
                 wall(b,L,p['height'],ops,.44,p['brick'])
-                self.door('CornerDoor',xf,L/2,.47,.018,L-.56,2.67,IRON)
-                b.box((L/2,.80,-.03),(L-.44,1.60,.06),'Mineral',(.36,.34,.28))
+                landing=.30 if p['tenant']=='bank' else 0
+                self.door('CornerDoor',xf,L/2,.47,.018+landing,L-.56,2.67-landing,IRON)
+                if landing:
+                    limit=(p['chamfer']+.15)*math.sqrt(2)
+                    b.prism([(.22,0,landing),(L-.22,0,landing),(L-.22,limit-(L-.22),landing),(limit-1.60,1.60,landing),(.22,1.60,landing)],(0,0,-.06),'Mineral',(.36,.34,.28))
+                else:b.box((L/2,.80,-.03),(L-.44,1.60,.06),'Mineral',(.36,.34,.28))
                 for j,o in enumerate(ops[1:]):self.window(b,o,j)
                 for xx in (.11,L-.11):
                     b.box((xx,.13,1.42),(.21,.47,2.84),'Mineral',STONE)
                     O.molding(b,xx-.15,xx+.15,2.72,.31,.16,'Mineral',STONE)
-                # Two broad nosings mark the recessed accessible landing, all
-                # below the accepted level door threshold.
-                for yy,zz in ((-.18,-.045),(-.32,-.095)):
-                    b.box((L/2,yy,zz),(L+.12,.30,.09),'Mineral',STONE)
+                # Banks retain a raised historic lobby. The separate retail
+                # door remains at grade; two 150 mm risers reach this entry.
+                if landing:
+                    b.box((L/2,-.48,.075),(L+.18,.30,.15),'Mineral',STONE)
+                    b.box((L/2,-.17,.15),(L+.12,.34,.30),'Mineral',STONE)
                 O.molding(b,-.12,L+.12,2.86,.34,.20,'Mineral',STONE)
                 self.graphic(b,'label0' if p['tenant']=='hotel' else 'label1',L/2,-.12,3.24,L-.28,.23)
                 if p['cornice']=='metal':O.cornice(b,L,p['height'],CREAM,True)

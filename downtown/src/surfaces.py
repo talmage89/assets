@@ -46,9 +46,12 @@ def strip_uv(points,strip,count,coverage=4.,guard=8/2048):
 def classify(role,color,surface):
     if role=='Roof':return 2,4
     if role=='Mineral':return (3 if max(color)-min(color)<.09 else 0),4
-    if surface=='canvas':return 4,8
+    if surface in ('canvas','curtain'):return 4,8
+    if surface=='blind':return 7,8
     if surface=='frieze':return 6,8
     if role=='Finish':
+        if max(abs(a-b) for a,b in zip(color,(.38,.34,.23)))<.001:return 3,8
+        if max(abs(a-b) for a,b in zip(color,(.13,.19,.15)))<.001:return 0,8
         if min(color)>.35:return 5,8
         if max(color)-min(color)<.07 and max(color)>.20:return 2,8
         if color[0]>color[2]*1.55 and max(color)<.4:return 0,8
@@ -71,24 +74,24 @@ def clip_height(poly,z,above,axis=2):
     return clean
 
 
-def masonry_faces(points,variant,painted=False):
+def masonry_faces(points,variant,painted=False,tile_height=BRICK_TILE_H,coverage=MASONRY_COVERAGE,ground_grid=True,upper_grid=False):
     lo=min(p[2] for p in points);hi=max(p[2] for p in points)
     normal=(Vector(points[1])-Vector(points[0])).cross(Vector(points[2])-Vector(points[0]))
     axis=0 if abs(normal[1])>abs(normal[0]) else 1
-    if hi-lo<1e-7:
+    if hi-lo<1e-5 or abs(normal.z)>.9999*normal.length:
         # Horizontal bearing/return charts: deliberately tiled within region.
-        return [(points,strip_uv(points,variant,4,MASONRY_COVERAGE))]
+        return [(points,strip_uv(points,variant,4,coverage))]
     out=[]
-    for k in range(math.floor(lo/BRICK_TILE_H),math.floor((hi-1e-7)/BRICK_TILE_H)+1):
-        poly=clip_height(clip_height(points,k*BRICK_TILE_H,True),(k+1)*BRICK_TILE_H,False)
+    for k in range(math.floor(lo/tile_height),math.floor((hi-1e-7)/tile_height)+1):
+        poly=clip_height(clip_height(points,k*tile_height,True),(k+1)*tile_height,False)
         if len(poly)<3:continue
         pieces=[poly]
-        if k==0 and max(p[axis] for p in poly)-min(p[axis] for p in poly)>.9:
+        if ground_grid and (k==0 or upper_grid) and max(p[axis] for p in poly)-min(p[axis] for p in poly)>.65:
             pieces=[];a=min(p[axis] for p in poly);b=max(p[axis] for p in poly)
             for j in range(math.floor(a/.65),math.floor((b-1e-7)/.65)+1):
                 chunk=clip_height(clip_height(poly,j*.65,True,axis),(j+1)*.65,False,axis)
                 if len(chunk)>=3:pieces.append(chunk)
         for poly in pieces:
-            uv=[(p[axis]/MASONRY_COVERAGE,variant/4+GUARD+(p[2]/BRICK_TILE_H-k)*(.25-2*GUARD)) for p in poly]
+            uv=[(p[axis]/coverage,variant/4+GUARD+(p[2]/tile_height-k)*(.25-2*GUARD)) for p in poly]
             out.append((poly,uv))
     return out
