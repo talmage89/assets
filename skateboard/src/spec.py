@@ -13,7 +13,7 @@ class Spec:
     tail:float=.168275
     pitch_x:float=.041275
     pitch_y:float=.053975
-    thickness:float=.007
+    thickness:float=.0105
     concave:float=.00762
     nose_angle:float=18.0
     tail_angle:float=18.0
