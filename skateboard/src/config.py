@@ -1,7 +1,7 @@
 """Skateboard look-dev delivery: one 2048 atlas and three response classes."""
 BUDGETS={'Skateboard':14000}
 REQUIRED_NODES=('Skateboard','Hanger_Front','Hanger_Rear','Wheel_Front_L','Wheel_Front_R','Wheel_Rear_L','Wheel_Rear_R','Socket_Foot_Front','Socket_Foot_Rear','Socket_Hand_Carry','Socket_Rest_Ground','Socket_Rest_Wall')
-UV_PRIORITY={'Deck /':1.65,'Urethane ':1.8,'608 ':1.8,'Flush Allen bolt head':2.8,'Axle nut':1.8,'Front kingpin locknut':1.4,'Rear kingpin locknut':1.4,'Front sculpted hanger':1.35,'Rear sculpted hanger':1.35,'Front cast baseplate':1.05,'Rear cast baseplate':1.05}
+UV_PRIORITY={'Deck /':1.65,'Urethane ':1.8,'608 ':1.8,'Flush Allen bolt head':2.8,'Axle nut':1.8,'Front kingpin locknut':1.4,'Rear kingpin locknut':1.4,'Front sculpted hanger':1.35,'Rear sculpted hanger':1.35,'Front cast baseplate':1.05,'Rear cast baseplate':1.05,'Front continuous axle':2.5,'Rear continuous axle':2.5}
 UV_DEFAULT_PRIORITY=.80
 UV_MIN_COVERAGE=.35
 UV_NORMALIZE_ISLAND_SCALE=True

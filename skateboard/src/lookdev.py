@@ -39,13 +39,13 @@ def source_material(name,col,rough,metal,kind,s,art):
         end=n.ramp(n.math('ABSOLUTE',ry),.335,.405)
         grime=n.mul(age,end,n.noise(p,160,2));base=n.mix(grime,base,(.22,.125,.055),True)
     elif kind=='aluminum':
-        base=n.mix(noise,(.40,.42,.415),(.53,.54,.52),True);rough=n.mix(noise,.47,.63)
+        base=n.mix(noise,(.40,.42,.415),(.53,.54,.52),True);rough=n.mix(noise,.56,.70)
         heightfield=n.mul(n.math('SUBTRACT',noise,.5),.000022)
         # Ground faces sit lowest on the hanger and become bright and scored.
         ground=n.mul(age,n.ramp(rz,.032,.020),n.ramp(n.noise(n.vec('MULTIPLY',rest,(3,28,1)),120),.32,.65))
         base=n.mix(ground,base,(.63,.65,.64),True);rough=n.mix(ground,rough,.26)
-        score=n.noise(n.vec('MULTIPLY',rest,(10,1,1)),1800,1)
-        heightfield=n.add(heightfield,n.mul(ground,score,-.00016))
+        score=n.noise(n.vec('MULTIPLY',rest,(7,1,1)),700,1)
+        heightfield=n.add(heightfield,n.mul(ground,score,-.000030))
         # Mold parting witness at the axle's equator; thin ridge, no geometry.
         seam=n.band(rz,s.axle_z,.00015,.00010);heightfield=n.add(heightfield,n.mul(seam,.00008))
         uv=n.combine(n.add(n.mul(x,1/.045),.5),n.add(n.mul(z,1/.009),.5),0)
@@ -54,12 +54,17 @@ def source_material(name,col,rough,metal,kind,s,art):
         base=n.mix(mark,base,ink,True);metal=n.mix(mark,metal,0)
         grime=n.mul(age,n.band(rz,s.underside-.007,.007,.004),n.noise(p,250,2),.45)
         base=n.mix(grime,base,(.12,.105,.075),True)
+        ao=n.node('ShaderNodeAmbientOcclusion',samples=8);ao.inputs['Distance'].default_value=.004
+        cavity=n.mul(age,n.math('SUBTRACT',1,ao.outputs['AO']),.65)
+        base=n.mix(cavity,base,(.12,.11,.09),True);rough=n.mix(cavity,rough,.72)
     elif kind=='wheel':
         radius=n.math('SQRT',n.add(n.mul(y,y),n.mul(z,z)))
         road=n.ramp(radius,s.wheel_diameter/2-.005,s.wheel_diameter/2-.001)
-        stain=n.mul(age,n.maximum(n.mul(road,.85),n.mul(noise,.55)))
+        stain=n.mul(math.sqrt(age),n.maximum(n.mul(road,.95),n.mul(noise,.55)))
         body={'new':(.73,.63,.405),'season':(.50,.39,.145),'beat':(.39,.28,.080)}[s.state]
         base=n.mix(stain,body,(.16,.10,.027),True);rough=n.mix(road,.40,.66)
+        grease=n.mul(age,n.band(radius,.0129,.0015,.0015),n.ramp(x,.0125,.015),n.ramp(n.noise(p,850,2),.35,.68),.6)
+        base=n.mix(grease,base,(.075,.051,.021),True)
         turn=n.math('ARCTAN2',y,z)
         lines=n.math('SINE',n.add(n.mul(radius,43000),n.mul(turn,2)))
         heightfield=n.add(n.mul(noise,.000012),n.mul(road,lines,.000009))
@@ -75,7 +80,7 @@ def source_material(name,col,rough,metal,kind,s,art):
         ends=n.ramp(n.math('ABSOLUTE',rx),s.width/2-.011,s.width/2-.008)
         thread=n.node('ShaderNodeAttribute',attribute_name='ThreadSurface').outputs['Fac']
         radius=n.math('SQRT',n.add(n.mul(y,y),n.mul(z,z)))
-        heightfield=n.add(heightfield,n.mul(thread,ends,n.ramp(radius,.0036,.00395),helix,.00011))
+        heightfield=n.add(heightfield,n.mul(thread,ends,n.ramp(radius,.0036,.00395),helix,.00018))
         base=n.mix(n.mul(age,noise,.22),col,(.19,.17,.115),True)
     elif kind=='blacksteel':
         geo=n.node('ShaderNodeNewGeometry');rounded=n.node('ShaderNodeBevel',samples=4);rounded.inputs['Radius'].default_value=.00022
@@ -83,7 +88,10 @@ def source_material(name,col,rough,metal,kind,s,art):
         tool=n.mul(age,edge,n.ramp(n.noise(p,1400,2),.40,.67),.9)
         base=n.mix(tool,col,(.32,.34,.33),True);rough=n.mix(tool,rough,.28);metal=n.mix(tool,metal,1)
     elif kind=='shield':
-        rough=n.mix(noise,.36,.46);base=n.mix(n.mul(age,noise,.6),col,(.046,.033,.017),True)
+        rough=n.mix(noise,.38,.48);base=n.mix(n.mul(age,noise,.6),col,(.025,.028,.021),True)
+        radius=n.math('SQRT',n.add(n.mul(y,y),n.mul(z,z)))
+        lip=n.maximum(n.band(radius,.0092,.00012,.00007),n.band(radius,.0072,.00008,.00008))
+        heightfield=n.add(heightfield,n.mul(lip,.00004))
     mat=n.finish(base,rough,metal,heightfield,coat=.18 if kind in ('bottom','maple') else 0)
     if kind=='wheel':mat.node_tree.nodes['SURFACE'].inputs['Transmission Weight'].default_value=.06
     PALETTE[name]='deck' if kind in ('bottom','maple') else 'wheel' if kind=='wheel' else 'common'

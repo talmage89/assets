@@ -228,3 +228,140 @@ bridge. A continuous compound triangular outer web now connects the axle
 housing to the pivot nose, while the annular bushing seat remains behind it.
 This is a new sculpted loft/union, not a side-profile extrusion. The casting
 still needs a same-light source/export comparison after this change.
+
+## Look pass 2 — full three-state bake, material and photo-light rejection
+
+Color and value first: neutral concrete in the 2006 flash photograph makes the
+rendered grip visibly too dark, including its shoe patches. The 2010 used
+board's exposed maple is lighter than the first warm scrape substrate. In the
+2005 loose-truck pair the rendered alloy is overexposed against the neutral
+zinc washer; that cannot be excused as silver metal. The full-frame sun heroes
+retain deep under-deck shadow, but old urethane is too uniform and mustard.
+
+Opened all eight views for each of the three ages in the preserved
+`build/look-pass2/renders/`, plus the three photographic comparisons. The real
+hex mouths now survive the bake, and the annular bushing stack is visible. The
+belly-slide loss is visible at full frame and has the right contact direction,
+but repeated narrow scratches still look authored. The rail grain, wheel
+lettering and smallest grip grains soften in the single 2048 atlas. Beat's
+lifted veneers read as simple flakes in macro rather than torn fibers.
+
+Rejected the bright, crumpled-foil grind normals and pillow-shaped outer web.
+The third pass makes the web thin with drafted broad faces and rounded corners,
+reduces grind relief, increases alloy roughness and puts grime into cavities.
+The four visible axle stubs replace buried steel, gain UV priority and carry
+stronger thread relief. A blue coated bearing shield and its two stamped rings
+separate it from the steel inner race. More localized wheel shoulder dirt and
+bearing grease break up the old urethane; torn rail losses are deeper.
+
+The loose-truck GLB presentation also clipped the fixed baseplate because its
+inverted transform had not updated before selection. This is a render bug,
+not missing exported geometry. The third pass isolates connected imported
+surfaces in root space, preserving their split normals, and seats the actual
+visible truck on a procedural wooden table. Source and GLB use the same indoor
+area light and exposure. This comparison remains a class/form/light estimate:
+the photograph has no recovered real-world truck measurements or calibrated
+photometry. Its full-size camera fit is 13.65 px RMS on the 600 px photograph.
+
+## Look pass 3 — improved bearing/threads, rejected boss slivers
+
+Color and value first: the neutral-balanced flash comparison is closer in grip
+value after raising the grit source and exposure. The warm indoor truck pair
+now has a warm bounce and visible alloy highlights rather than a white void.
+Old wheel shoulders are darker than their faces, with local bore grease; they
+still lack the strongly oxidized brown road band in the 2010 photograph.
+
+Opened all 24 state images at their native 1440 px width, all three GLB/photo
+pairs, and their three dense-source equivalents. Threads now resolve on the
+actual steel stubs, the blue coated shield separates from the inner race, and
+both amber bushings/cup washers are exposed. The thinner drafted outer web
+holds its broad triangular face. The source has finer grit, casting scratches,
+wood fibers and type than the atlas: these are real bake losses in macro.
+The full-size loose truck replaces the rejected miniature; a crop of the
+constrained 2010 full board provides the complete truck/wheel comparison.
+
+Rejected a construction defect exposed by the new loose-truck camera: vertex
+flattening around each nut land stretched the baseplate boss into thin slivers.
+They exist in the dense source and become black tears in the normal bake.
+Neither the motion checks nor serialization caught that appearance defect.
+The next correction replaces that deformation with actual cylindrical
+machining cuts, keeping the same 6 mm mounting bearing plane. Earlier pass
+images and GLBs are retained locally under `build/look-pass3/`.
+
+Remaining CG tells: scrape islands share a too-consistent substrate color,
+the rail's smallest wood fibers blur, extremely close grip resembles a rough
+sheet rather than individually resolved carbide grains, and the beat veneer
+flakes remain simple. These are not hidden by the numerical gates.
+
+## Look pass 4 — machined lands, final atlas and tone audit
+
+Color and value first: concrete remains the neutral in both used-board photos;
+the loose truck uses the zinc washer. On the horizontal crop, front-grip
+patch (200,70)…(280,105) measures median RGB 35/35/36 in the balanced photo
+and 42/42/40 in the render. Rear-grip patch (850,65)…(930,100) is 41/37/39
+versus 43/43/41. These display values include estimated flash/ambient light,
+not recovered material albedo. Neutralizing the flash fill removes the earlier
+blue grip. The sun heroes retain black cavities and dark ink. The upside-down
+heroes use the same lower exposure across all three ages: a first tone audit
+found 96 white-clipped pixels on beat's small tail/glue glints; the correction
+leaves 8 (about 0.0006% of the frame), still an honest minor limitation.
+New/season underside p1/p99 luma is 15.75/150.35 and 15.73/143.38; beat is
+15.66/151.52. Top-side hero p1 is 36.58…37.44 and p99 154.80…154.95, with no
+white-clipped pixels. Full-frame values include concrete and are not albedos.
+
+The real cylindrical nut-land cuts remove the source's stretched strips and
+the baked black tears. The final loose truck comparison shows the same clean
+boss, thin drafted web and open bushing stack in source and export. The small
+notches beside the boss are now actual machined wrench clearances. Independent
+construction and dense-source sweeps pass with no rigid-metal exceptions.
+The final panels preserve 1440 pixels per before/after image, including the
+kit's outer margins; the three-station sheet also retains 1440 per section.
+The 1140 px truck/wheel crops preserve the full-board camera and source pixels.
+
+Reviewed the final exported new, season and beat heroes, tail, both truck
+angles, wheel/bearing and grip views at full size, plus the source/export photo
+pairs and the correction panels. New has satin ivory urethane, fresh black grit
+and clear-coated ink. Season/beat retain distinct belly loss, foot dirt/polish,
+tail dragging/chips and brighter hanger contact faces at full frame. Coning
+preserves ground contact. Beat includes the compressed razor tail, two attached
+veneer flakes, torn nose grip and ribbed repair. The three original graphic
+panels are distinct and legible; only the default Ditchlight board has all
+three baked age-state reviews in this checkpoint.
+
+The delivered allocation is 13,888 triangles new/season and 13,928 beat.
+Relative to the original 11,662: deck +2,204; wheels +960; bushings +160;
+visible axle ends +80; baseplates +24; hangers +22; mounting assemblies −448;
+bearings −256; spacers/speed rings −304; kingpin/cup/washer hardware −72;
+axle nuts −144. All three alternate widths pass at 13,870 / 13,860 / 13,914.
+Three shared-image response materials form seven meshes and twelve primitives.
+Each age embeds one 2048 BaseColor/Normal/ORM set after a 4096 bake. Estimated
+BC-class memory with full mips is 16 MiB per resident state, 48 MiB for all
+three; this is a compression estimate, not measured engine residency. Actual
+GLBs are 7,960,356 / 8,815,616 / 9,130,536 bytes. PNG sets total
+7,016,261 / 7,880,744 / 8,205,419 bytes, respectively.
+
+All three final GLB audits pass: zero UV overlap/outside/degenerate triangles,
+valid normals, preserved sockets/pivots and three embedded 2048 images. UV
+coverage is 42.51 / 43.86 / 42.16%, median density 2,032 / 2,067 / 2,027 px/m.
+All bake channels report zero missed interior texels; BaseColor reports zero
+black interior texels. Raw form regeneration and final serialization from the
+accepted maps are byte-identical. Independent generation of all 24 source PNGs
+also matches byte-for-byte; no repeated independent GPU bake is claimed.
+`make all`, `make check`, `make check-variants`, `make repeat-form` and
+`make repeat` pass. Repository check reports 1,818 source files, zero errors.
+No kit file or top-level README was edited; all 780 other delivery hashes match.
+
+Remaining CG: the 2048 atlas softens individual carbide grains, small rail
+fibers, bearing stamping and thin wheel lettering. The two veneer flakes are
+simple in extreme macro. Scrape substrate is too even and scratch edges too
+similarly sharp, old wheel oxidation is weaker than the 2010 photograph's
+brown tread, and cast transitions retain some reduction shading. The indoor
+light/camera and unknown reference truck measurements limit exact matching.
+The eight residual hot glint pixels are recorded above. These are checkpoint
+limitations; no final docs/gallery or photorealism approval is claimed.
+
+Final local review: `renders/lookdev/contact.jpg`, `matched-pairs.jpg`,
+`graphics-sheet.jpg`, `pairs/fullsize-wheel-pair.jpg`, all correction panels
+under `renders/form-fixes/`, and the four `*-finished-before-after.jpg` panels
+under `renders/lookdev/`. All remain ignored rebuildable outputs. No lead tool
+or approval is needed; no shared-kit change was required.

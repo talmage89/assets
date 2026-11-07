@@ -13,6 +13,48 @@ from spec import spec
 def mat(name,col,rough=.8):
     m=bpy.data.materials.new(name);m.use_nodes=True;b=m.node_tree.nodes['Principled BSDF'];b.inputs['Base Color'].default_value=(*col,1);b.inputs['Roughness'].default_value=rough;return m
 
+def tabletop():
+    """Original procedural tabletop for the warm indoor reference's bounce."""
+    old=bpy.data.materials.get('Procedural reference tabletop')
+    if old:return old
+    m=mat('Procedural reference tabletop',(.38,.14,.025),.40);nt=m.node_tree
+    tc=nt.nodes.new('ShaderNodeTexCoord');scale=nt.nodes.new('ShaderNodeVectorMath');scale.operation='MULTIPLY';scale.inputs[1].default_value=(.15,25,3);nt.links.new(tc.outputs['Object'],scale.inputs[0])
+    grain=nt.nodes.new('ShaderNodeTexNoise');grain.inputs['Scale'].default_value=32;grain.inputs['Detail'].default_value=2;nt.links.new(scale.outputs[0],grain.inputs['Vector'])
+    ramp=nt.nodes.new('ShaderNodeValToRGB');ramp.color_ramp.elements[0].color=(.28,.088,.014,1);ramp.color_ramp.elements[1].color=(.46,.20,.035,1);nt.links.new(grain.outputs['Fac'],ramp.inputs[0]);nt.links.new(ramp.outputs[0],nt.nodes['Principled BSDF'].inputs['Base Color'])
+    bump=nt.nodes.new('ShaderNodeBump');bump.inputs['Distance'].default_value=.00006;bump.inputs['Strength'].default_value=.3;nt.links.new(grain.outputs['Fac'],bump.inputs['Height']);nt.links.new(bump.outputs[0],nt.nodes['Principled BSDF'].inputs['Normal'])
+    return m
+
+def loose_truck_copy(o,root,s):
+    """Keep imported GLB front-truck surfaces and their actual split normals."""
+    q=o.copy();q.data=o.data.copy();bpy.context.scene.collection.objects.link(q);q.hide_render=False;q['section_temp']=True
+    bpy.context.view_layer.update();saved=None
+    if q.data.has_custom_normals:
+        saved=q.data.attributes.new('Presentation normals','FLOAT_VECTOR','CORNER')
+        for row,n in zip(saved.data,q.data.corner_normals):row.vector=n.vector
+    bm=bmesh.new();bm.from_mesh(q.data);bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=1e-7)
+    original=root.matrix_world.inverted()@q.matrix_world
+    seen=set();doomed=[]
+    for first in bm.faces:
+        if first in seen:continue
+        stack=[first];faces=[];seen.add(first)
+        while stack:
+            f=stack.pop();faces.append(f)
+            for e in f.edges:
+                for other in e.link_faces:
+                    if other not in seen:seen.add(other);stack.append(other)
+        verts={v for f in faces for v in f.verts};points=[original@v.co for v in verts]
+        center=sum(points,Vector())/len(points)
+        size=[max(p[k] for p in points)-min(p[k] for p in points) for k in range(3)]
+        deck=size[1]>.6
+        rear=center.y>0
+        mount=min(math.hypot(center.x-x,center.y-y) for x in (-s.pitch_x/2,s.pitch_x/2) for y in (-s.plate_y-s.pitch_y/2,-s.plate_y+s.pitch_y/2))<.001 and max(size[:2])<.013
+        if deck or rear or mount:doomed.extend(faces)
+    bmesh.ops.delete(bm,geom=doomed,context='FACES');bm.to_mesh(q.data);bm.free()
+    assert len(q.data.polygons)>0,'Loose-truck isolation removed every GLB face'
+    if saved:
+        q.data.normals_split_custom_set([row.vector[:] for row in q.data.attributes['Presentation normals'].data]);q.data.attributes.remove(q.data.attributes['Presentation normals'])
+    return q
+
 def setup(engine):
     sc=bpy.context.scene;sc.render.engine=engine;
     if engine=='CYCLES':gpu.enable()
@@ -20,7 +62,8 @@ def setup(engine):
     sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=.85
     world=bpy.data.worlds.new('Procedural daylight');world.use_nodes=True;sc.world=world
     sky=world.node_tree.nodes.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_disc=False;sky.sun_elevation=math.radians(27);sky.sun_rotation=math.radians(135)
-    world.node_tree.links.new(sky.outputs['Color'],world.node_tree.nodes['Background'].inputs['Color']);world.node_tree.nodes['Background'].inputs['Strength'].default_value=.035
+    fill=world.node_tree.nodes.new('ShaderNodeHueSaturation');fill.name='Neutral-balanced photo fill'
+    world.node_tree.links.new(sky.outputs['Color'],fill.inputs['Color']);world.node_tree.links.new(fill.outputs['Color'],world.node_tree.nodes['Background'].inputs['Color']);world.node_tree.nodes['Background'].inputs['Strength'].default_value=.035
     sun=bpy.data.objects.new('Raking sun',bpy.data.lights.new('Raking sun','SUN'));sc.collection.objects.link(sun);sun.data.energy=2.6;sun.data.angle=math.radians(3)
     sun.rotation_euler=Vector((.7,.2,-.48)).to_track_quat('-Z','Y').to_euler()
     ground=G.mesh('Presentation concrete',[(-100,-100,0),(100,-100,0),(100,100,0),(-100,100,0)],[(0,1,2,3)],mat('Quick concrete',(.25,.26,.25)))
@@ -46,7 +89,7 @@ def shots(s):
       'section_stance':dict(location=(0,-.7,.16),target=(0,0,.089),ortho=.235,aspect=2.5,section=True,station=0),
       'section_truck':dict(location=(0,-.90,.16),target=(0,-.20,.089),ortho=.235,aspect=2.5,section=True,station=-.20),
       'section_kick':dict(location=(0,-1.02,.17),target=(0,-.32,.105),ortho=.235,aspect=2.5,section=True,station=-.32),
-      'hero_bottom':dict(location=(.80,-.9,.68),target=(0,0,.065),lens=54,aspect=1.45,invert=True),
+      'hero_bottom':dict(location=(.80,-.9,.68),target=(0,0,.065),lens=54,aspect=1.45,invert=True,exposure=.15),
       'grip_macro':dict(location=(.10,-.23,.21),target=(.014,-.17,.093),lens=80,aspect=1.35),
       'grip_edge':dict(location=(.23,-.10,.18),target=(.081,-.17,.096),lens=75,aspect=1.4),
       'lean_left':dict(location=(.22,-.55,.29),target=(0,-s.plate_y,.10),lens=62,aspect=1.5,invert=True,lean=-12),
@@ -63,7 +106,7 @@ def main():
     else:bpy.ops.import_scene.gltf(filepath=str(src))
     sc=bpy.context.scene
     root=bpy.data.objects['Skateboard'];s=spec(int(root.get('seed',0)),root.get('age_state','season'))
-    meshes=[o for o in sc.objects if o.type=='MESH' and not o.get('source_only')];rest={o:o.matrix_basis.copy() for o in sc.objects};cam,ground,silhouettes,sun,sky=setup(a.engine)
+    meshes=[o for o in sc.objects if o.type=='MESH' and not o.get('source_only')];rest={o:o.matrix_basis.copy() for o in sc.objects};cam,ground,silhouettes,sun,sky=setup(a.engine);concrete=ground.data.materials[0]
     definitions=shots(s)
     if a.cameras:
         verify(a.cameras);definitions={k:{**v['shot'],**v.get('presentation',{})} for k,v in json.loads(Path(a.cameras).read_text()).items()}
@@ -80,27 +123,21 @@ def main():
         temporary=None
         if d.get('invert'):
             root.matrix_world=Matrix.Rotation(math.pi,4,'X')@root.matrix_world;bpy.context.view_layer.update()
-            zmin=min((o.matrix_world@v.co).z for o in meshes for v in o.data.vertices);root.location.z-=zmin
+            zmin=min((o.matrix_world@v.co).z for o in meshes for v in o.data.vertices);root.location.z-=zmin;bpy.context.view_layer.update()
         if d.get('wall_rest'):
             socket=bpy.data.objects['Socket_Rest_Wall'];root.matrix_world=Matrix.Translation((0,0,float(socket['wall_alignment_height_m'])))@Matrix.Rotation(-math.pi/2,4,'X')@socket.matrix_world.inverted();bpy.context.view_layer.update()
             wall=G.mesh('Temporary wall',[(-2,-.0002,0),(2,-.0002,0),(2,-.0002,3),(-2,-.0002,3)],[(0,1,2,3)],mat('Wall concrete',(.28,.29,.28)));wall['section_temp']=True
         if 'lean' in d:
             for label in ('Front','Rear'):h=bpy.data.objects['Hanger_'+label];h.matrix_basis=h.matrix_basis@Matrix.Rotation(math.radians(d['lean'] if label=='Front' else -d['lean']),4,'Z')
-        ground.location.z=0
+        ground.location.z=0;ground.data.materials[0]=tabletop() if d.get('light')=='window' else concrete
         if d.get('isolate_truck'):
             for o in meshes:
                 o.hide_render='Front' not in o.name
                 if o.name=='SkateboardMesh':
-                    # Presentation-only face isolation from the imported GLB.
-                    # The actual delivered baseplate/hardware surfaces remain;
-                    # the deck and rear truck are omitted for the loose photo.
-                    q=o.copy();q.data=o.data.copy();sc.collection.objects.link(q);q.hide_render=False;q['section_temp']=True
-                    bm=bmesh.new();bm.from_mesh(q.data)
-                    doomed=[f for f in bm.faces if all((q.matrix_world@v.co).z<root.location.z-s.underside+.0001 for v in f.verts) or any((q.matrix_world@v.co).y<.10 for v in f.verts)]
-                    bmesh.ops.delete(bm,geom=doomed,context='FACES');bm.to_mesh(q.data);bm.free()
+                    loose_truck_copy(o,root,s)
         if d.get('hide_wheels'):
             for o in meshes:
-                if any(v in o.name for v in ('Urethane','Wheel_','608 ','Bearing spacer','Axle nut','Axle speed')):o.hide_render=True
+                if any(v in o.name for v in ('Urethane','Wheel_','608 ','Bearing spacer')):o.hide_render=True
         if d.get('isolate_truck'):
             visible=[o for o in sc.objects if o.type=='MESH' and o!=ground and o not in silhouettes and not o.hide_render]
             if visible:ground.location.z=min((o.matrix_world@v.co).z for o in visible for v in o.data.vertices)
@@ -130,12 +167,15 @@ def main():
         bpy.context.view_layer.update();cam.location=d['location'];cam.rotation_euler=(Vector(d['target'])-cam.location).to_track_quat('-Z','Y').to_euler();cam.rotation_euler.rotate_axis('Z',d.get('roll',0))
         cam.data.type='ORTHO' if 'ortho' in d else 'PERSP';cam.data.ortho_scale=d.get('ortho',1);cam.data.lens=d.get('lens',55);cam.data.sensor_fit='HORIZONTAL';cam.data.sensor_width=36
         sc.view_settings.exposure=d.get('exposure',.85)
+        # The flash reference was balanced on neutral concrete. Retain the
+        # sky's illumination pattern/energy but remove its blue cast there.
+        sc.world.node_tree.nodes['Neutral-balanced photo fill'].inputs['Saturation'].default_value=0 if d.get('light')=='flash' else 1
         if d.get('light')=='window':
             sun.data.energy=0;sc.world.node_tree.nodes['Background'].inputs['Strength'].default_value=.055
             light=bpy.data.objects.get('Camera flash')
             if not light:light=bpy.data.objects.new('Camera flash',bpy.data.lights.new('Camera flash','AREA'));sc.collection.objects.link(light)
             center=Vector((0,s.plate_y,.075));right=cam.rotation_euler.to_quaternion()@Vector((1,0,0))
-            light.location=center-right*.28+Vector((0,0,.45));light.rotation_euler=(center-light.location).to_track_quat('-Z','Y').to_euler();light.data.energy=65;light.data.size=.32;light.hide_render=False
+            light.location=center-right*.28+Vector((0,0,.45));light.rotation_euler=(center-light.location).to_track_quat('-Z','Y').to_euler();light.data.energy=35;light.data.size=.32;light.hide_render=False
         elif d.get('light')=='flash':
             sun.data.energy=0;sc.world.node_tree.nodes['Background'].inputs['Strength'].default_value=.08
             light=bpy.data.objects.get('Camera flash')

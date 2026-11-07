@@ -59,12 +59,14 @@ build/before/model.glb: src/baseline.py
 	$(BP) --python build/baseline-src/build.py -- --state new --out build/before/model.blend
 FORM_SHOTS := hero side truck truck_inner wheel_bearing tail_plies section_stance section_truck section_kick lean_left lean_center lean_right
 FORM_IMAGES := $(foreach stage,before after,$(foreach n,$(FORM_SHOTS),renders/form-fixes/$(stage)/$(n).png))
-renders/form-fixes/.stamp $(FORM_IMAGES) &: build/new/model.glb build/before/model.glb src/render.py src/crops.py
+renders/form-fixes/.stamp $(FORM_IMAGES) &: build/new/model.glb build/before/model.glb src/render.py
 	$(CYCLES_LOCK) $(BP) --python src/render.py -- --source build/new/model.glb --out renders/form-fixes/after --width $(WIDTH) --samples $(SAMPLES) --shots hero,side,truck,truck_inner,wheel_bearing,tail_plies,section_stance,section_truck,section_kick,lean_left,lean_center,lean_right
 	$(CYCLES_LOCK) $(BP) --python src/render.py -- --source build/before/model.glb --out renders/form-fixes/before --width $(WIDTH) --samples $(SAMPLES) --shots hero,side,truck,truck_inner,wheel_bearing,tail_plies,section_stance,section_truck,section_kick,lean_left,lean_center,lean_right
-	$(PYTHON) src/crops.py
 	@touch renders/form-fixes/.stamp
-form: renders/form-fixes/.stamp $(FORM_IMAGES)
+renders/form-fixes/.panels: renders/form-fixes/.stamp src/crops.py
+	$(PYTHON) src/crops.py
+	@touch $@
+form: renders/form-fixes/.stamp $(FORM_IMAGES) renders/form-fixes/.panels
 LOOK_SHOTS := hero hero_bottom tail_plies truck truck_inner wheel_bearing grip_edge grip_macro
 renders/lookdev/%/.stamp renders/lookdev/%/hero.png renders/lookdev/%/hero_bottom.png renders/lookdev/%/tail_plies.png renders/lookdev/%/truck.png renders/lookdev/%/truck_inner.png renders/lookdev/%/wheel_bearing.png renders/lookdev/%/grip_edge.png renders/lookdev/%/grip_macro.png &: export/%.glb src/render.py
 	$(CYCLES_LOCK) $(BP) --python src/render.py -- --source $< --out renders/lookdev/$* --width $(WIDTH) --samples $(SAMPLES) --shots hero,hero_bottom,tail_plies,truck,truck_inner,wheel_bearing,grip_edge,grip_macro
@@ -77,7 +79,7 @@ renders/lookdev/pairs/.stamp: export/season.glb build/cameras.json src/render.py
 	$(PYTHON) ../kit/photo_match.py compose --calibration build/cameras.json --renders renders/lookdev/pairs --out renders/lookdev/pairs
 	@touch $@
 match: renders/lookdev/pairs/.stamp
-review: render match
+review: render match form
 	$(PYTHON) src/look_review.py
 repeat: export
 	$(PYTHON) src/repeat_delivery.py

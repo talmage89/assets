@@ -77,7 +77,7 @@ def state_fields(out,panels,state,seed=0):
     # photograph. The crossed plies get their own shader coordinates.
     grain=np.sin(x*2800+3*np.sin(y*18)+np.sin(x*250+y*23))*.5+.5
     fibres=rng.random((H,W),dtype=np.float32)
-    wood=np.zeros((H,W,3),np.float32)+[190,155,103]
+    wood=np.zeros((H,W,3),np.float32)+[204,172,118]
     wood+=((grain-.5)*17+(fibres-.5)*8)[:,:,None]
     raw=Image.fromarray(np.uint8(np.clip(wood,0,255)));raw.save(out/f'{state}-maple.png')
     # Discrete longitudinal/oblique gouges: board slides across ledges in the
@@ -132,7 +132,7 @@ def state_fields(out,panels,state,seed=0):
     sole=np.exp(-((x+.010)/.075)**4-((y+.12)/.105)**4)+np.exp(-((x-.008)/.075)**4-((y-.277)/.072)**4)
     sole=np.clip(sole,0,1)*age
     streak=np.clip(.55+.25*np.sin(y*290+x*90)+.2*(fibres-.5),0,1)
-    grip=10+fibres*13+sole*(32+14*streak)
+    grip=18+fibres*17+sole*(32+14*streak)
     griprgb=np.stack([grip*1.02,grip,grip*.91],axis=2)
     gritrough=.90-.34*sole
     gripheight=(fibres-.5)*(.00027-.00017*sole)
