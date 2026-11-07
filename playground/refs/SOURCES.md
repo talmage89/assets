@@ -20,6 +20,8 @@ stay ignored. Period equipment is a type reference for original fictional equipm
 
 Read online (no downloaded source code, CAD or models):
 
+- [Canon PowerShot SD1000 specifications](https://global.canon/en/c-museum/product/dcc539.html), Canon Camera Museum, manufacturer specifications. Roswell's original EXIF is 5.8mm; Canon gives 35mm-film equivalent 35mm. Accounting for the 4:3 photo and our horizontal 36mm sensor gives about 36.4mm horizontal-equivalent for the full image, before the tight crop factor.
+
 - [Landscape Structures 2010 catalog](https://www.yumpu.com/en/document/view/38044071/landscape-structures-catalogue-2010-crawford-group/41), maker-authored catalog mirrored by Crawford Group/Yumpu, copyrighted. Period component range, connected events and inclusive programming; the available excerpt is not a dimensional source.
 - [ASTM F1487-11 scope](https://store.astm.org/f1487-11.html), ASTM International, copyrighted. Public-use equipment, access/egress, layout, installation, maintenance and labeling; only public scope consulted, not the paywalled full standard.
 - [ASTM F1292-09 scope](https://store.astm.org/f1292-09.html), ASTM International, copyrighted. Impact attenuation of installed surfacing; a rendered thickness is not a tested critical fall height.

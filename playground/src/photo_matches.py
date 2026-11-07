@@ -29,6 +29,10 @@ def main():
         if name=='used-stair-2005':d['lens']=20;d['location']=(-4,-4,1.65)
         d['lens']*=factor
         match=dict(**d,photo=photo,crop=crop,title=name.replace('-',' '),landmarks=[dict(world=w,pixel=(p[0]*scale,p[1]*scale)) for w,p in pts],lens_bounds_mm=((12 if name=='used-stair-2005' else 35)*factor,120*factor),camera_height_m=(1.65,3.),exposure=-.25)
+        if name=='used-deck-2009':
+            # Canon's 5.8mm / 35mm diagonal-equivalent specification on a
+            # 4:3 sensor becomes 36.4mm horizontal-equivalent on our 36mm sensor.
+            match['lens']=36.4*factor;match['lens_bounds_mm']=(36.0*factor,36.8*factor);match['location']=(6,-5,1.65)
         if name=='used-swings-2009':
             match['lens']=70*factor;match['lens_bounds_mm']=(69*factor,71*factor);match['location']=(45,-50,1.65);match['target']=(0,0,1.2)
             offset=(-11.1,1,0)
@@ -38,8 +42,10 @@ def main():
             def turn(p):return [-.6096+p[1],-p[0],p[2]]
             for lm in match['landmarks']:lm['world']=turn(lm['world'])
             for k in ('location','target'):match[k]=turn(match[k])
-        row=calibrate(match);row.update(source=source,white_balance=white,ground_z=-.01,full_photo_equivalent_lens_mm=row['shot']['lens']/factor,lens_note='Fitted lens is for a 36mm sensor covering the tight crop. Full-photo equivalent rescales by crop/full width.');out[name]=row;print(name,'lens',round(row['shot']['lens'],2),'RMS',round(row['residual_rms_pixels'],2),'pixels','height',round(row['shot']['location'][2],2))
+        row=calibrate(match);row.update(source=source,white_balance=white,ground_z=-.01,full_photo_equivalent_lens_mm=row['shot']['lens']/factor,lens_note='Fitted lens uses a 36mm sensor width covering the tight crop. Full-photo value is horizontal-equivalent, rescaled by crop/full width; a 4:3 sensor differs from diagonal 35mm-film equivalence.');out[name]=row;print(name,'lens',round(row['shot']['lens'],2),'RMS',round(row['residual_rms_pixels'],2),'pixels','height',round(row['shot']['location'][2],2))
+        row['rms_fraction_of_crop_width']=row['residual_rms_pixels']/(crop[2]-crop[0])
+        row['maximum_landmark_error_pixels']=float(np.asarray(row['residuals_pixels']).max())
     out['used-swings-2009']['lens_status']='Original EXIF: Canon EOS 5D, 70mm; full-frame equivalent fit constrained to 69–71mm. Original compatible frame, not a surveyed replica.'
-    out['used-deck-2009']['lens_status']='Original EXIF 5.8mm on PowerShot SD1000; fitted crop lens remains an estimate, not EXIF-equivalent calibration.'
+    out['used-deck-2009']['lens_status']='EXIF 5.8mm on PowerShot SD1000. Canon specifies 35mm diagonal-equivalent; its 4:3 frame corresponds to 36.4mm horizontal-equivalent. Fit constrained to 36.0–36.8mm; original equipment dimensions still differ.'
     Path('build/cameras.json').write_text(json.dumps(out,indent=2))
 if __name__=='__main__':main()
