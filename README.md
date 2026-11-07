@@ -70,6 +70,8 @@ Houses
     garage or carport.
   - [Postwar Cape Cod](houses/README.md#third-type-postwar-cape-cod): one and a half stories with dormers.
   - [Split-level](houses/README.md#fourth-type-split-level): five side-splits and a raised ranch.
+- [Apartments and townhouses](apartments/README.md): four garden-apartment complexes of 1967–1986, with stair halls,
+  exterior galleries and mansards, and four townhouse rows, on parking courts with plantings and lit entries.
 
 Commercial
 - [Commercial buildings](commercial/README.md): seeded roadside commercial buildings, 1985–2010, on shared tiled sets
@@ -91,6 +93,12 @@ Vehicles
     liftgate, diamond grille and projector lamps.
   - [Alder S240 sedan](cars/README.md#alder-s240--midsize-sedan): midsize four-door on 18-inch touring tires, with a
     hinged trunk, hexagonal mesh grille and swept lamps.
+
+Recreation
+- [Skateboard](skateboard/README.md): seven-ply street skateboard with cast trucks, urethane wheels and three original
+  graphics, new, a season old and beat.
+- [Skateparks](skatepark/README.md): modular poured bowls, transitions, banks, stairs and ledges, framed prefab ramps,
+  and three seeded parks of 1999, 2004 and 2011.
 
 Trees and shrubs
 - [Trees](trees/README.md): summer street trees with leaf cards and wind weights.
