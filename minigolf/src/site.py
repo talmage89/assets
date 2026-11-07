@@ -22,7 +22,24 @@ def mulch_skin(ob):
  tile=2.;atlas_repeat_cells(ob.data,tile,(0,1));ob['mulch_uv_m']=tile
  return ob
 
+def walking_level(h,t,x,y):
+ # Public circulation follows the retained grade and hole's overall rise;
+ # bumps and play ramps belong exclusively to the putting surface.
+ if h.get('crossing'):
+  cx,_=center(h,t);return level(h,cx,t)-.055
+ return .070+h['base_z']+h['rise']*t+.065*(max(0,y+7)-max(0,h['origin'][1]+7))
+
 def walk(rt,name,points,width=1.524,z=.065,span=False):
+ if GRADING and not span and len(points)>3:
+  # Remove redundant construction stations within 8 mm, retaining curves
+  # and grade changes instead of paying for collinear slab/berm triangles.
+  def simplify(line):
+   a,b=Vector(line[0]),Vector(line[-1]);d=b-a;length=d.length_squared
+   errors=[(Vector(q)-(a+d*max(0,min(1,(Vector(q)-a).dot(d)/max(length,1e-12))))).length for q in line]
+   index=max(range(len(line)),key=lambda i:errors[i])
+   if errors[index]>.008:return simplify(line[:index+1])[:-1]+simplify(line[index:])
+   return [line[0],line[-1]]
+  points=simplify(points)
  if span:
   # Additional stations retain contact through tight grade transitions.
   points=[q for a,b in zip(points,points[1:]) for q in (a,tuple((x+y)/2 for x,y in zip(a,b)))]+[points[-1]]
@@ -95,7 +112,7 @@ def pond_loops(adv):
  # Shared cut/liner outlines. Adventure's southern arc opens into a real
  # channel: one polygon, not an oval wall with a stream laid across it.
  cx,cy=0,5;rx,ry=(3.6,7.0) if adv else (1.1,2.7);loops=[]
- for k,(factor,width,z) in enumerate(((1.15,1.0,None),(1.02,.65,-.08),(.80,.50,-.57))):
+ for k,(factor,width,z) in enumerate(((1.15,1.0,None),(1.02,.65,-.08),(.80,.50,-.36))):
   if not adv:
    xy=[(rx*factor*math.cos(i*math.tau/64),cy+ry*factor*math.sin(i*math.tau/64)) for i in range(64)]
   else:
@@ -110,7 +127,7 @@ def pond_loops(adv):
    x*=1+.12*math.sin(y*.85)+.07*math.sin(y*1.95)
    y+=.30*math.sin(x*1.7+y*.65)
    zz=.015+grade(y) if k==0 else z
-   if adv and k==2 and i>=57:zz=-.31
+   if adv and k==2 and i>=57:zz=water_level(y)-.14
    loop.append((x if adv else x-1.7,y,zz))
   loops.append(loop)
  return loops
@@ -119,9 +136,9 @@ def froth(rt,p,size,seed):
  # Millimetre-scale entrained bubbles have no square lattice or large opaque
  # islands. Tiny irregular triangles resolve as glints at the player camera.
  rng=random.Random(seed);x,y,z=p;w,d=size;vs=[];fs=[]
- for i in range(80):
+ for i in range(55):
   angle=rng.random()*math.tau;radius=math.sqrt(rng.random());cx=x+w*.5*radius*math.cos(angle);cy=y+d*.5*radius*math.sin(angle)
-  r=rng.uniform(.0015,.0055);turn=rng.random()*math.tau;k=len(vs)
+  r=rng.uniform(.003,.014);turn=rng.random()*math.tau;k=len(vs)
   vs.extend((cx+r*math.cos(turn+j*math.tau/3),cy+r*math.sin(turn+j*math.tau/3),z+.0006*rng.random()) for j in range(3));fs.append((k,k+1,k+2))
  return water_airside(mesh('Broken receiving-pool froth',vs,fs,'foam',rt,False))
 
@@ -132,7 +149,7 @@ def basin(rt,adv):
  # Cast shoreline shelf shields the EPDM from feet and sunlight. The liner
  # remains continuous underneath; only the lowest folded toe is exposed.
  stone_loops=[[(x*.995,cy+(y-cy)*.995,z+.006) for x,y,z in loop] for loop in loops[:2]]
- own(G.loft('Carved shoreline shelves',stone_loops,M['rocklight'],caps=False),water)
+ own(G.loft('Carved shoreline shelves',stone_loops,M['liner'],caps=False),water)
  mesh('Pond liner floor',loops[-1],[tuple(range(len(loops[-1])))],'liner',water,False)
  surface=[]
  for mid,floor in zip(loops[1],loops[2]):
@@ -157,13 +174,25 @@ def basin(rt,adv):
   area=abs(sum(a[0]*b[1]-a[1]*b[0] for a,b in zip(clean,clean[1:]+clean[:1])))/2
   if area<1e-9:continue
   first=len(wet_vs);wet_vs.extend((x,y,water_level(y)) for x,y in clean);wet_fs.append(tuple(range(first,len(wet_vs))))
- water_airside(mesh('Continuous pond and stream water',wet_vs,wet_fs,'water',water,False))
+ skin=water_airside(mesh('Continuous pond and stream water',wet_vs,wet_fs,'water',water,False));skin['water_skin']=True
  rim=[(x,y,z-.10) for x,y,z in loops[0]]
- rockwall('Continuous mortared pond coping',rim,.48,.27,water,517,closed=True)
- for i in range(0,len(rim),7):
-  x,y,z=rim[i];rock('Embedded irregular fieldstone',(x,y,z-.08),(.75+.15*math.sin(i),.58,.38),water,118+i,'rocklight')
+ if adv:
+  rockwall('Continuous mortared pond coping',rim,.48,.27,water,517,closed=True)
+  for i in range(0,len(rim),7):
+   x,y,z=rim[i];rock('Embedded irregular fieldstone',(x,y,z-.08),(.75+.15*math.sin(i),.58,.38),water,118+i,'rocklight')
+ else:
+  # Cast painted concrete coping: continuous curved gauge, beveled crown,
+  # recessed radial expansion joints instead of a faceted faux-rock torus.
+  sections=[]
+  for i,q in enumerate(rim):
+   a=Vector(rim[i-1]);b=Vector(rim[(i+1)%len(rim)]);d=(b-a).normalized();n=Vector((-d.y,d.x,0))
+   sections.append([tuple(Vector(q)+n*off+Vector((0,0,dz))) for off,dz in ((-.20,-.07),(.20,-.07),(.22,.14),(.19,.18),(-.19,.18),(-.22,.14))])
+  own(G.smooth(G.loft('Painted concrete pond coping',sections+[sections[0]],M['white'],caps=False),35),water)
+  for i in range(0,len(rim),8):
+   q=Vector(rim[i]);a=Vector(rim[i-1]);b=Vector(rim[(i+1)%len(rim)]);n=Vector((-(b-a).y,(b-a).x,0)).normalized()
+   beam('Recessed coping expansion joint',q-n*.213+Vector((0,0,.181)),q+n*.213+Vector((0,0,.181)),.008,.001,'mortar',water,0)
  for i in range(5):
-  a=i*2.4;ball('Lost pond ball',((0 if adv else -1.7)+.9*math.sin(a),cy+.7*i,-.54865),.02135,'white' if i%2 else 'yellow',water)
+  a=i*2.4;ball('Lost pond ball',((0 if adv else -1.7)+.9*math.sin(a),cy+.7*i,-.33865),.02135,'white' if i%2 else 'yellow',water)
  if adv:
   # One continuous stratified mountain, with three independent spill shelves.
   mountain=rock('Quarry mountain',(3.5,11.1,-.10),(7.0,6.8,3.1),water,290,'rocklight')
@@ -172,8 +201,8 @@ def basin(rt,adv):
   # The public stair and ledge are carved into the faux-rock shell; the
   # mountain must not protrude through their walking surfaces.
   from plan_check import hull
-  ledge=hull([q for quad in paths.ribbon([(5.85,10.30),(6.3,12.2),(7.08,14.20)],1.70) for q in quad])
-  cutter=own(G.profile('Quarry ledge clearance tool',ledge,2.35,5,M['black'],axis='Z'),water)
+  ledge=hull([q for quad in paths.ribbon([q[:2] for q in paths.quarry_ledge()],1.70) for q in quad])
+  cutter=own(G.profile('Quarry ledge clearance tool',ledge,1.48,5,M['black'],axis='Z'),water)
   bpy.context.view_layer.update();G.boolean(mountain,cutter)
   floor=[]
   for j in range(10):
@@ -193,39 +222,40 @@ def basin(rt,adv):
    backing.append([(2-width/2,front+.035,z),(2-width*.22,front-.014,z+.006),(2+width*.24,front+.009,z-.004),(2+width/2,front+.028,z),(2+width/2+.13,10.91,z),(2-width/2-.12,10.91,z)])
   body=own(G.smooth(G.loft('Continuous cast waterfall stair body',backing,M['rocklight']),38),water);body['rock_seed']=329
   for j,(yy,zz,width) in enumerate(((10.20,2.48,1.15),(9.60,1.63,1.55),(8.95,.72,1.9))):
-   box('Recessed spill lip',(2.0,yy-.17,zz),(width,.025,.012),'metal',water,.002,1)
-   # Cast ledge with an undercut toe and a broad forward crown covers the
-   # weir body. Only its thin front lip remains visible beneath the flow.
-   top=[(2-width/2-.40,yy-.17),(2-width/2,yy-.175),(2+width/2,yy-.175),(2+width/2+.40,yy-.13),(2+width/2+.48,yy+.58),(2-width/2-.46,yy+.65)]
-   lower=[(x, y+(.19 if k<4 else 0),zz-.24-.014*math.sin(k*2+j)) for k,(x,y) in enumerate(top)]
-   crown=[(x,y,zz-.010+.004*math.sin(k*3+j)) for k,(x,y) in enumerate(top)]
-   shelf=own(G.smooth(G.loft('Undercut cast spill ledge',[lower,crown],M['rocklight']),40),water);shelf['rock_seed']=330+j
-   pool=[(2-width/2+.02,yy-.173,zz+.013),(2+width/2-.02,yy-.173,zz+.013),(2+width/2-.02,yy+.46,zz+.013),(2-width/2+.02,yy+.46,zz+.013)]
-   water_airside(mesh('Receiving spill pool',pool,[(0,1,2,3)],'fallwater',water,False))
-   drop=zz-(1.63,.72,-.17)[j]
-   # One continuous closed liquid film, with nonparallel travelling
-   # wrinkles. Regular separated bands looked like a radiator grille.
-   vs=[];fs=[];nx,ny=24,8;phase=j*2.13
-   def flow_point(q,t):
-    warp=(.004*math.sin(q*53+t*11+phase)+.0025*math.sin(q*121-t*17+phase*.7)+.0014*math.sin(q*231+t*31))*(.2+.8*t)
-    return (2+(q-.5)*width,yy-.18-.30*math.sin(t*math.pi/2)+warp,zz-drop*t+.0025*math.sin(q*83+t*31+phase)*t)
-   for v in range(ny+1):
-    for u in range(nx+1):vs.append(flow_point(u/nx,v/ny))
-   for v in range(ny):
-    for u in range(nx):
-     k=v*(nx+1)+u;fs.append((k,k+1,k+nx+2,k+nx+1))
-   flow=G.smooth(water_airside(mesh('Aerated water cascading sheet',vs,fs,'fallwater',water,False),1,-1),70);flow['flow_sheet']=True
-   film=flow.modifiers.new('Liquid film exit interface','SOLIDIFY');film.thickness=.0015;film.offset=-1
-   rng=random.Random(912+j)
-   for fragment in range(72):
-    q=rng.uniform(.015,.985);start=rng.uniform(.10,.95);end=min(.995,start+rng.uniform(.008,.045));strip=[]
-    half=rng.uniform(.00035,.0012)
-    for t in (start,end):
-     xx,yyflow,zzflow=flow_point(q,t)
-     for dx in (-half,half):strip.append((xx+dx,yyflow-.002,zzflow))
-    water_airside(mesh('Entrained cascade foam streak',strip,[(0,1,3,2)],'foam',water,False),1,-1)
-   for i in range(6):
-    a=i*2.1;froth(water,(2+width*.36*math.sin(a),yy-.48+.15*math.cos(a),zz-drop+.012),(.40,.23),710+j*17+i)
+   rng=random.Random(912+j);drop=zz-(1.63,.72,-.17)[j]
+   # An irregular rock crown conceals the buried pump plenum. The lip is
+   # carved into uneven notches, not a exposed stainless fountain weir.
+   nx=20;lip=[]
+   for u in range(nx+1):
+    q=u/nx;lip.append((2+(q-.5)*(width+.30),yy-.18+.065*math.sin(q*19+j)+.038*math.sin(q*43),zz+.03*math.sin(q*21+j)))
+   lower=[(x,y+.13,z-.20-.045*math.sin(k*2.1+j)) for k,(x,y,z) in enumerate(lip)]
+   shelf=own(G.smooth(G.loft('Fractured rock spill crown',[lower,lip],M['rocklight'],caps=False),48),water);shelf['rock_seed']=330+j
+   # Widening receiving pool follows the lip rather than a rectangular pane.
+   pool=lip+[(x,yy+.48,z) for x,_,z in reversed(lip)]
+   water_airside(mesh('Receiving spill pool',[(x,y,z+.008) for x,y,z in pool],[tuple(range(len(pool)))],'water',water,False))
+   for tongue in range(6):
+    mid=(tongue+.5)/6;tw=width/6*rng.uniform(.62,1.17);ny=10;vs=[];fs=[]
+    def flow_point(q,t):
+     center=2+(mid-.5)*width+.028*math.sin(t*11+tongue*3+j)*t
+     taper=1-.48*t;xx=center+(q-.5)*tw*taper
+     lipy=yy-.18+.065*math.sin(mid*19+j)+.038*math.sin(mid*43)
+     return (xx,lipy-.30*math.sin(t*math.pi/2)+.009*math.sin(q*7+t*15),zz+.03*math.sin(mid*21+j)-drop*t)
+    for v in range(ny+1):
+     for u in range(4):vs.append(flow_point(u/3,v/ny))
+    for v in range(ny):
+     for u in range(3):
+      # Air gaps and broken toes keep individual tongues visible.
+      if v>6 and rng.random()<.18:continue
+      k=v*4+u;fs.append((k,k+1,k+5,k+4))
+    flow=G.smooth(water_airside(mesh('Aerated water cascading sheet',vs,fs,'fallwater',water,False),1,-1),70);flow['flow_sheet']=True
+    for fragment in range(14):
+     start=rng.uniform(.05,.96);end=min(1,start+rng.uniform(.025,.16));q=rng.random();strip=[];half=rng.uniform(.002,.007)*(start+.3)
+     for t in (start,end):
+      xx,yf,zf=flow_point(q,t)
+      for dx in (-half,half):strip.append((xx+dx,yf-.004,zf))
+     water_airside(mesh('Entrained cascade foam streak',strip,[(0,1,3,2)],'foam',water,False),1,-1)
+    xx,yf,zf=flow_point(.5,1)
+    froth(water,(xx,yf,zf+.012),(.50,.38),710+j*17+tongue)
   # The continuous basin above already contains the protected stream.
   footbridge(rt)
   for j,yy in enumerate((-3.0,-5.6)):
@@ -240,7 +270,7 @@ def basin(rt,adv):
    points=[(x+size*(u*math.cos(angle)-v*math.sin(angle)),y+size*(u*math.sin(angle)+v*math.cos(angle)),-.165+.001*rng.random()) for u,v in ((-.025,0),(0,.045),(.025,0),(0,-.045))]
    water_airside(mesh('Sheltered water-edge fallen leaf',points,[(0,1,2,3)],'leaf',water,False))
   # Return pipe follows the buried bank; only service ends are exposed.
-  tube('63 mm return service pipe',[(4.1,8.8,.05),(4.1,9.5,.05),(3.9,10.5,1.90),(3.1,10.5,2.48),(2.0,10.30,2.48)],.0315,'black',water,10)
+  tube('63 mm return service pipe',[(4.1,8.8,.05),(4.1,9.5,.05),(3.9,10.5,1.90),(3.1,10.8,2.30),(2.0,10.70,2.30)],.0315,'black',water,10)
   box('Pump service vault',(4.9,8.8,grade(8.8)-.09),(.75,.85,.24),'concrete',water)
   box('Pump service lid',(4.9,8.8,grade(8.8)+.0425),(.78,.88,.025),'metal',water)
   box('Screened intake',(2.9,6.7,-.22),(.38,.38,.11),'black',water)
@@ -416,9 +446,12 @@ def build(p,parent):
  # A common landscaped enclosure sits inside lawn perimeter buffers. Its
  # pond excavation shares the liner outline, so neither layer blocks water.
  if p['water']:
-  outline=[(22.6*math.cos(j*math.tau/64)+.65*math.sin(j*3*math.tau/64),7+20.0*math.sin(j*math.tau/64)+.35*math.cos(j*4*math.tau/64)) for j in range(64)]
+  outline=[(-23.8,-12.6),(-14,-12.3),(-4,-12.6),(8,-12.4),(23.8,-12.5),(23.6,2),(23.9,16),(23.6,27.3),(8,27.5),(-9,27.3),(-23.7,27.4),(-23.9,9)]
  else:outline=paths.court(p)
  bed=own(G.profile('Shared mulched landscape bed',outline,-1,.020,M['soil'],axis='Z'),rt)
+ if p['water']:
+  bm=bmesh.new();bm.from_mesh(bed.data)
+  bmesh.ops.bisect_plane(bm,geom=list(bm.verts)+list(bm.edges)+list(bm.faces),dist=1e-7,plane_co=(0,-7,0),plane_no=(0,1,0));bm.to_mesh(bed.data);bm.free()
  for v in bed.data.vertices:v.co.z+=grade(v.co.y)
  cutter=own(G.profile('Bed pond opening',[(x,y) for x,y,z in pond_loops(p['water'])[0]],-3,5,M['grass'],axis='Z'),rt)
  bpy.context.view_layer.update();G.boolean(bed,cutter)
@@ -437,25 +470,23 @@ def build(p,parent):
   points=[]
   for i in range(27):
    t=i/26;cx,cy=center(h,t);side=paths.side(h)
-   q=local(h,cx+side*paths.offset(h,t),cy,level(h,cx,t)-.055)
-   if not h.get('crossing'):q=(q[0],q[1],.065+grade(q[1]))
+   q=local(h,cx+side*paths.offset(h,t),cy)
+   q=(q[0],q[1],walking_level(h,t,q[0],q[1]))
+   if not h.get('crossing') and not p['water']:q=(q[0],q[1],.065)
    points.append(q)
   walk(rt,'Curving lane-side walk',points,1.524,span=bool(h.get('crossing')))
   for tag,t in (('tee',.08),('cup',.88)):
    cx,cy=center(h,t);side=paths.side(h);edge=local(h,cx+side*(halfwidth(h,t)+.02),cy,level(h,cx,t)+.0048)
-   outer=local(h,cx+side*paths.offset(h,t),cy,level(h,cx,t)-.055)
-   if not h.get('crossing'):outer=(outer[0],outer[1],.065+grade(outer[1]))
+   outer=local(h,cx+side*paths.offset(h,t),cy)
+   outer=(outer[0],outer[1],walking_level(h,t,outer[0],outer[1]))
+   if not h.get('crossing') and not p['water']:outer=(outer[0],outer[1],.065)
    walk(rt,'Open '+tag+' landing',[outer,edge],.78)
  if p['water']:
-  pts=[]
-  for j in range(97):
-   a=j*math.tau/96;x=17.25*math.cos(a);y=7+14.85*math.sin(a);pts.append((x,y,.065+grade(y)))
-  walk(rt,'Continuous inner circuit',pts,1.524)
   for name,line,start,end,span in paths.adventure_links(p):
    def extra(station):
     if station is None:return 0
     number,t=station;h=p['holes'][number-1];cx,cy=center(h,t);q=paths.lane(h)[0 if t==0 else -1]
-    return (level(h,cx,t)-.055-(.065+grade(q[1]))) if h.get('crossing') else 0
+    return walking_level(h,t,q[0],q[1])-(.065+grade(q[1]))
    ea,eb=extra(start),extra(end);distances=[0]
    for a,b in zip(line,line[1:]):distances.append(distances[-1]+math.dist(a,b))
    route=[]
@@ -464,6 +495,10 @@ def build(p,parent):
    walk(rt,name,route,1.524,span=span)
  else:
   for line in paths.links(p):walk(rt,'Winding classic route connection',[(x,y,.065) for x,y in line],1.524)
+ if p['water']:
+  a=paths.lane(p['holes'][0])[0]
+  line=paths.curve((0,-10.6),(7,-12),(a[0]-3,a[1]-1),a)
+  walk(rt,'Winding admission approach',[(x,y,.065+grade(y)) for x,y in line],1.524)
  walk(rt,'Entrance path',[(0,p['clubhouse'][1]+2.3,.065),(0,-10.6 if p['water'] else -12,.065)],1.8)
  if p['water']:
   walk(rt,'Footbridge west landing',[(-5.0,-7.1,.065+grade(-7.1)),(-1.8,-7.1,.244)],1.524)
@@ -472,12 +507,15 @@ def build(p,parent):
   for j in range(10):
    y=7.1+j*.34;top=.95+(j+1)*.15
    tread=box('Quarry stair tread',(5.9,y,top/2),(1.45,.34,top),'rocklight',rt,.008);tread['walking_surface']=True
-  walk(rt,'Upper quarry ledge',[(5.9,10.5,2.45),(6.3,12.2,2.45),(7.0,14.0,2.45)],1.524)
+  walk(rt,'Upper quarry ledge',paths.quarry_ledge(),1.524)
   for side in (-1,1):
    beam('Quarry stair handrail',(5.9+side*.70,7.05,2.02),(5.9+side*.70,10.35,3.52),.038,.038,'wood',rt)
    for j in (0,4,9):
     y=7.1+j*.34;top=.95+(j+1)*.15;box('Quarry guard post',(5.9+side*.70,y,top+.48),(.07,.07,.96),'wood',rt)
  basin(rt,p['water']);clubhouse(p,rt)
+ if p['water']:
+  from terraces import build as terraces
+  terraces(p,rt)
  # A real parking row and two-way aisle enter off the road, separate from play.
  front=-D/2;py=front+6.4008
  box('Parking paved court',(4,py,.018),(W-10,12.8016,.035),'asphalt',rt,0)

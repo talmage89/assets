@@ -15,7 +15,7 @@ from textures import RECTS
 def main():
  report=[]
  for seed in (71,92):
-  path=Path(f'export/Minigolf-{seed}.glb');g=GLB(path);counts=0;density=[];colors=[];uv_bad=0
+  path=Path(f'export/Minigolf-{seed}.gltf');g=GLB(Path(f'build/embedded/Minigolf-{seed}.glb'));counts=0;density=[];colors=[];uv_bad=0
   for mesh in g.json['meshes']:
    for prim in mesh['primitives']:
     attr=prim['attributes'];p=g.accessor(attr['POSITION']);uv=g.accessor(attr['TEXCOORD_0']).copy();uv[:,1]=1-uv[:,1];idx=g.accessor(prim['indices']).reshape(-1,3);n=g.accessor(attr['NORMAL']);counts+=len(idx)
@@ -43,7 +43,7 @@ def main():
    allocation+=w*h*4/3 # one 8-bpp map plus mips
    images.append(dict(name=im.get('name'),size=[w,h],channels=c,bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest()))
   assert len(images)==16 and allocation/1024**2<=81+1/3+1e-6,('Unplanned image allocation',seed,len(images),allocation/1024**2)
-  report.append(dict(seed=seed,triangles=counts,materials=len(g.json['materials']),images=images,compressed_gpu_mib=allocation/1024**2,glb_bytes=path.stat().st_size,uv_escaped_triangles=int(uv_bad),course_uv_density_px_m_p5_p50_p95=np.percentile(density,[5,50,95]).tolist(),tint_minmax=[np.min(np.concatenate(colors),axis=0).tolist(),np.max(np.concatenate(colors),axis=0).tolist()]))
+  report.append(dict(seed=seed,triangles=counts,materials=len(g.json['materials']),images=images,compressed_gpu_mib=allocation/1024**2,gltf_bytes=path.stat().st_size,bin_bytes=path.with_suffix('.bin').stat().st_size,embedded_build_bytes=(Path('build/embedded')/path.with_suffix('.glb').name).stat().st_size,uv_escaped_triangles=int(uv_bad),course_uv_density_px_m_p5_p50_p95=np.percentile(density,[5,50,95]).tolist(),tint_minmax=[np.min(np.concatenate(colors),axis=0).tolist(),np.max(np.concatenate(colors),axis=0).tolist()]))
  normal=read_png('textures/ship/T_Minigolf_Normal.png')*2-1;error=np.abs(np.linalg.norm(normal,axis=-1)-1);assert error.max()<.012
  chart=json.loads(Path('build/fence-chart-reuse.json').read_text());wood=np.asarray(Image.open('../fences/textures/ship/T_WoodPrivacy_Normal.png'))
  for key,(x0,y0,x1,y1) in chart['pixel_rectangles'].items():assert wood[y0:y1,x0:x1,2].min()>=127,('Lumber normal points inward',key)

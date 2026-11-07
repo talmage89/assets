@@ -23,6 +23,7 @@ def finish():
   delta=np.abs(a-b);mean=float(delta.mean());bias=float(np.max(np.abs(a.mean((0,1),dtype=np.float64)-b.mean((0,1),dtype=np.float64))))
   assert mean<.02 and bias<.005,('GPU emission projection/color-space mismatch',channel,mean,bias)
   rows[channel]=dict(source_sha256=hashlib.sha256(original.read_bytes()).hexdigest(),gpu_emission_mean_code_error=mean,gpu_emission_max_code_error=float(delta.max()),gpu_emission_mean_code_bias=bias)
+  shutil.copyfile(baked,out/('T_Minigolf_'+channel+'_GPU.png'))
   shutil.copyfile(original,baked)
  report['delivery_color_fields']=dict(policy='Exact original 4096 color/ORM raster fields after GPU projection validation; CPU delivery filtering.',channels=rows)
  # Evaluate the same .018 m height range over the same eight-metre tile.

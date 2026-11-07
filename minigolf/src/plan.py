@@ -76,7 +76,7 @@ def generate(seed=71,kind=None):
     features=list(FEATURES)*2;rng.shuffle(features)
     # Each course always shows its signature fixture and all reusable types.
     fixtures={1:'windmill',4:'castle',7:'covered_bridge',11:'lighthouse'}
-    if adv:fixtures={1:'castle',4:'covered_bridge',6:'lighthouse',10:'windmill',16:'shipwreck'}
+    if adv:fixtures={1:'castle',4:'covered_bridge',9:'lighthouse',10:'windmill',16:'shipwreck'}
     elif seed%3==0:fixtures[16]='shipwreck'
     holes=[]
     for i,(c,r) in enumerate(cells):
@@ -95,14 +95,14 @@ def generate(seed=71,kind=None):
                carpet=i%3 if adv else i%2)
         if adv:
             if i<12:
-                angle=math.radians(-90+i*30)
-                h['origin']=(19.6*math.cos(angle),7+17.2*math.sin(angle))
-                h['yaw']=math.degrees(math.atan2(19.6*math.sin(angle),17.2*math.cos(angle)))
+                # Closely packed serpentine rows use the rectangular enclosure.
+                stations=[(19.4,-6,-2),(19.5,5,2),(19.5,16.8,-2),(13.5,17,178),(13.5,5.5,182),(13.5,-5.7,178),(-13.5,-5.7,182),(-19.5,-6,2),(-19.5,5,-2),(-19.5,16.8,2),(-13.5,17,182),(-13.5,5.5,178)]
+                x,y,yaw=stations[i];h['origin']=(x,y);h['yaw']=yaw
             else:
                 placement={12:((-7.8,13.9),180),13:((-7.8,3.8),180),14:((0,-4.5),-90),15:((7.8,2.7),0),16:((7.8,13.0),0),17:((0,6.1),90)}
                 h['origin'],h['yaw']=placement[i]
                 if i in (14,17):h.update(crossing=True,base_z=.58 if i==14 else 1.42,rise=-.16,feature='bank' if i==17 else 'plain')
-            if not h.get('crossing'):h['base_z']=.065*max(0,h['origin'][1]+7)
+            if not h.get('crossing'):h['base_z']=.065*max(0,h['origin'][1]+7)+(.55 if i in (12,13,15,16) else (.25 if i in (2,3,8,9) else 0))
         h['base_z']+=max(0,-h['rise'])
         tx,ty=center(h,.08);cx,cy=center(h,.88)
         h['tee']=local(h,tx,ty,level(h,tx,.08)+.0048)

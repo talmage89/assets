@@ -10,6 +10,9 @@ def check():
         receipt.write_text(json.dumps({str(p.relative_to(REPO)):sha(p) for p in files},indent=2))
     rows=json.loads(receipt.read_text())
     for p,digest in rows.items():assert sha(REPO/p)==digest,p
+    revision=REPO/'minigolf/build/revision-before/preserved.json'
+    if revision.exists():
+        for p,digest in json.loads(revision.read_text()).items():assert sha(REPO/p)==digest,p
     (receipt.parent/'preservation.json').write_text(json.dumps(dict(passed=True,files=len(rows)),indent=2))
     print('PRESERVATION',len(rows),'unchanged files')
 if __name__=='__main__':check()

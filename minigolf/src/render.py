@@ -7,6 +7,7 @@ from mathutils import Vector
 from kit.gpu import enable
 import context
 from plan import local,center,level,halfwidth,water_level
+from external import bundle
 from render_batch import recipe_hash
 
 def world(sun=(.8,.2,.60),energy=3.4,sky_strength=.18):
@@ -48,13 +49,17 @@ def views(p):
  'clubhouse':dict(location=(0,p['clubhouse'][1]+10.65,1.65),target=(0,p['clubhouse'][1]+2.35,1.55),lens=42,aspect=1.6),
  }
 
-def scene(seed):
+def scene(seed,source=None):
  bpy.ops.wm.read_factory_settings(use_empty=True)
- source=Path(f'export/Minigolf-{seed}.glb');p=json.loads(source.with_suffix('.json').read_text())['plan']
+ source=Path(source or f'export/Minigolf-{seed}.gltf');p=json.loads(source.with_suffix('.json').read_text())['plan']
  bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
  for ob in bpy.context.scene.objects:
   if 'Clubhouse__ServiceSash' in ob.name and ob.type=='EMPTY':ob.location.x=-1.4
- ctx=context.make(p);ctx['service_sash_pose_x_m']=-1.4
+ landscape=Path(f'export/Minigolf-{seed}-landscape.gltf')
+ if landscape.exists():bpy.ops.import_scene.gltf(filepath=str(landscape.resolve()))
+ ctx=context.make(p,omit_course_plants=landscape.exists());
+ if landscape.exists():ctx['landscape_export']=dict(source=str(landscape),sha256=bundle(landscape))
+ ctx['service_sash_pose_x_m']=-1.4
  # The presentation ground must leave the course's real excavation open.
  from mathutils.bvhtree import BVHTree
  vertices=[];faces=[]
@@ -74,7 +79,7 @@ def render_one(name,shot,source,p,ctx,args):
  if name.endswith('dusk'):shot=dict(shot,sun=(.8,.2,-.08),sun_energy=0,sky_strength=.65,exposure=.5)
  requested_camera=json.loads(json.dumps(shot))
  out=Path(args.out)/(name+'.png');receipt=out.with_suffix('.json')
- recipe=recipe_hash();digest=hashlib.sha256(source.read_bytes()).hexdigest()
+ recipe=recipe_hash();digest=bundle(source)
  if out.exists() and receipt.exists():
   old=json.loads(receipt.read_text())
   if old.get('recipe_sha256')==recipe and old.get('sha256')==digest and old.get('width')==args.width and old.get('samples',0)>=args.samples and old.get('requested_camera')==requested_camera and old.get('context')==json.loads(json.dumps(ctx)):
@@ -117,20 +122,22 @@ def render_one(name,shot,source,p,ctx,args):
  sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=shot.get('exposure',-.10)
  sc.render.resolution_x=args.width;sc.render.resolution_y=round(args.width/shot.get('aspect',1.6));sc.render.resolution_percentage=100
  sc.render.image_settings.file_format='PNG';out=Path(args.out)/(name+'.png');out.parent.mkdir(parents=True,exist_ok=True);sc.render.filepath=str(out.resolve());bpy.ops.render.render(write_still=True)
- meta=dict(source=str(source),sha256=hashlib.sha256(source.read_bytes()).hexdigest(),engine=sc.render.engine,camera=shot,requested_camera=requested_camera,context=ctx,samples=args.samples,width=args.width,recipe_sha256=recipe,scale_silhouette=human_proof,eye_height=eye_proof)
+ meta=dict(source=str(source),sha256=bundle(source),engine=sc.render.engine,camera=shot,requested_camera=requested_camera,context=ctx,samples=args.samples,width=args.width,recipe_sha256=recipe,scale_silhouette=human_proof,eye_height=eye_proof)
  out.with_suffix('.json').write_text(json.dumps(meta,indent=2));bpy.data.objects.remove(cam,do_unlink=True)
  for ob in human_objects:bpy.data.objects.remove(ob,do_unlink=True)
  for ob in list(sc.objects):
   if ob.type=='LIGHT':bpy.data.objects.remove(ob,do_unlink=True)
 
 def main(args):
- chosen=args.shots.split(',') if args.shots else None
+ chosen=args.shots.split(',') if args.shots else None;requested_engine=args.engine
  for seed,kind in ((71,'classic'),(92,'adventure')):
-  requested=['ground','above','hero','dusk']+(['tee','cup','border','waterfall','pond','fixture','bridge','clubhouse','lighthouse','castle','bank','planting','road','sign'] if kind=='adventure' else [])
+  requested=['ground','above','hero','dusk']+(['tee','cup','border','waterfall','pond','fixture','bridge','clubhouse','lighthouse','castle','bank','planting','road','sign','eevee'] if kind=='adventure' else ['tee','cup','border'])
   if chosen:requested=[n for n in requested if n in chosen or kind+'-'+n in chosen]
   if not requested:continue
   source,p,ctx=scene(seed)
-  for name in requested:render_one((kind+'-'+name) if name in ('ground','above','hero','dusk') else name,views(p)['hero' if name=='dusk' else name],source,p,ctx,args)
+  for name in requested:
+   args.engine='BLENDER_EEVEE' if name=='eevee' else requested_engine
+   render_one((kind+'-'+name) if name in ('ground','above','hero','dusk') or kind=='classic' else name,views(p)['hero' if name=='dusk' else 'ground' if name=='eevee' else name],source,p,ctx,args)
 
 if __name__=='__main__':
  parser=argparse.ArgumentParser();parser.add_argument('--source');parser.add_argument('--out',default='renders/lookdev');parser.add_argument('--width',type=int,default=1440);parser.add_argument('--samples',type=int,default=40);parser.add_argument('--shots');parser.add_argument('--engine',default='CYCLES');a=parser.parse_args(sys.argv[sys.argv.index('--')+1:]);main(a)

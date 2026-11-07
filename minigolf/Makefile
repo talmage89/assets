@@ -7,7 +7,7 @@ REPO := $(abspath ..)
 BP := $(BLENDER) -b --factory-startup -t 4 --python-exit-code 1
 # Serialize mesh evaluation/export as well as frame execution. GPU validation
 # and rendering retain their own bounded thread settings.
-MODEL := $(BLENDER) -b --factory-startup -t 1 --python-exit-code 1
+MODEL := $(KIT)/with_gpu.sh $(BLENDER) -b --factory-startup -t 1 --python-exit-code 1
 export TMPDIR := $(REPO)/build/tmp
 export ASSETS_GPU_LOCK ?= $(REPO)/build/locks/gpu.lock
 WIDTH ?= 1440
@@ -15,11 +15,11 @@ SAMPLES ?= 32
 MAPS := $(foreach c,BaseColor Normal ORM,textures/ship/T_Minigolf_$(c).png)
 FENCE_MAPS := $(foreach c,BaseColor Normal ORM,../fences/textures/ship/T_WoodPrivacy_$(c).png)
 CONTEXT_DEPS := ../cars/export/AlderC150.glb ../cars/export/AlderS240.glb ../trees/export/RedMaple.glb ../trees/export/PinOak.glb ../shrubs/export/Shrubs.glb ../street-light/export/StreetLight.glb
-SOURCES := $(addprefix src/,build.py plan.py plan_check.py geometry.py holes.py fixtures.py site.py look.py textures.py preserve.py tangents.py landscape.py paths.py)
-DELIVERIES := $(foreach s,71 92,export/Minigolf-$(s).gltf export/Minigolf-$(s).bin export/Minigolf-$(s).glb export/Minigolf-$(s).json)
+SOURCES := $(addprefix src/,build.py plan.py plan_check.py geometry.py holes.py fixtures.py site.py look.py textures.py terraces.py external.py pieces.py preserve.py tangents.py landscape.py paths.py)
+DELIVERIES := export/MinigolfPieces.gltf export/MinigolfPieces.bin $(foreach s,71 92,export/Minigolf-$(s).gltf export/Minigolf-$(s).bin build/embedded/Minigolf-$(s).glb export/Minigolf-$(s).json)
 .PHONY: source-match check-renders baseline all refs textures model export render check repeat match before-after context review clean FORCE
 .NOTPARALLEL:
-all: refs model check render match source-match before-after review
+all: refs model check before-after match review
 refs:
 	$(PYTHON) $(KIT)/fetch_refs.py refs
 build/procedural/fields.json: src/textures.py
@@ -55,30 +55,36 @@ context: ../ground/export/Ground.glb $(CONTEXT_DEPS)
 $(DELIVERIES) build/course.blend build/manifest.json &: $(SOURCES) $(MAPS) ../ground/export/Ground.glb $(FENCE_MAPS)
 	$(MODEL) --python src/build.py -- --out build/course.blend
 model export: $(DELIVERIES) build/course.blend
-check: model
+LANDSCAPES := $(foreach s,71 92,export/Minigolf-$(s)-landscape.gltf export/Minigolf-$(s)-landscape.bin)
+$(LANDSCAPES) &: src/plant_export.py src/context.py src/paths.py src/plan.py src/landscape.py src/external.py $(CONTEXT_DEPS) | context
+	$(KIT)/with_gpu.sh $(BP) --python src/plant_export.py
+plants: $(LANDSCAPES)
+check: model plants
 	$(PYTHON) src/preserve.py
 	$(PYTHON) src/test_tangents.py
 	$(PYTHON) src/test_periodic.py
 	$(PYTHON) src/routing.py
-	$(BP) --python src/check.py
-	$(BP) --python src/check_look.py
+	$(KIT)/with_gpu.sh $(BP) --python src/check_all.py
+	$(PYTHON) src/costs.py
 	$(PYTHON) $(KIT)/repo_check.py
-render: model context
+render: model plants context
 	$(PYTHON) src/render_batch.py --blender $(BLENDER) --out renders/lookdev --width $(WIDTH) --samples $(SAMPLES)
-match: model context refs
+match: model plants context refs
 	$(PYTHON) src/matches.py prepare
 	$(PYTHON) src/matches_batch.py --blender $(BLENDER) --width $(WIDTH) --samples $(SAMPLES)
-source-match: model context
+source-match: model plants context
 	$(PYTHON) src/matches_batch.py --blender $(BLENDER) --source-fields --width $(WIDTH) --samples $(SAMPLES)
 check-renders:
 	$(PYTHON) src/look_review.py
 baseline:
 	$(PYTHON) src/baseline.py
-before-after: model context baseline
-	$(PYTHON) src/comparison_batch.py --blender $(BLENDER) --width $(WIDTH) --samples $(SAMPLES)
+before-after: model context
+	$(PYTHON) src/fix_batch.py --samples $(SAMPLES)
 review:
 	$(PYTHON) src/look_review.py
 repeat: model
 	$(PYTHON) src/repeat.py
+check-texture-repeat: repeat
+	$(PYTHON) -c "import json; assert json.load(open('build/texture-repeat.json'))['passed']"
 clean:
 	$(PYTHON) -c "import shutil; [shutil.rmtree(p,ignore_errors=True) for p in ('build','renders','textures','export')]"

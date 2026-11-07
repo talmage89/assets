@@ -52,8 +52,15 @@ def source_measure(roots):
    for ob in obs:
     data=bpy.data.meshes.new_from_object(ob.evaluated_get(dg),depsgraph=dg);data.calc_loop_triangles();off=len(vs);vs.extend(ob.matrix_world@v.co for v in data.vertices);fs.extend(tuple(off+k for k in t.vertices) for t in data.loop_triangles if not top_only or t.normal.z>.5);bpy.data.meshes.remove(data)
    return BVHTree.FromPolygons(vs,fs,all_triangles=True)
+  ground_parts=[o for o in course.children_recursive if o.type=='MESH' and o.name.startswith(('Site planted grade','Shared mulched landscape bed'))]
+  ground=bvh(ground_parts,True);ground_gaps=[]
+  for playing in [o for o in course.children_recursive if o.type=='MESH' and o.name.startswith('Carpet playing face')]:
+   for face in playing.data.polygons:
+    q=playing.matrix_world@face.center;hit=ground.ray_cast(Vector((q.x,q.y,10)),Vector((0,0,-1)),20)
+    if hit[0] is not None:
+     gap=q.z-hit[0].z;assert gap>.03,('Landscape covers actual playing carpet',playing.name,list(q),list(hit[0]),gap);ground_gaps.append(gap)
   obstacle_checks=[]
-  rocks=[o for o in course.children_recursive if o.type=='MESH' and o.name.startswith(('Quarry mountain','Western terraced outcrop','Fractured fall'))]
+  rocks=[o for o in course.children_recursive if o.type=='MESH' and o.name.startswith(('Quarry mountain','Quarry terraced','Quarry upper','Western terraced outcrop','Fractured fall','Carved terrace'))]
   surfaces=[o for o in course.children_recursive if o.type=='MESH' and (o.get('walking_surface') or o.name.startswith('Carpet playing face'))]
   surface_trees={o:bvh([o],True) for o in surfaces}
   for rock in rocks:
@@ -116,24 +123,36 @@ def source_measure(roots):
    carpet=next(o for o in owner.children if o.name.startswith('Carpet playing face'))
    points=[carpet.matrix_world@v.co for v in carpet.data.vertices]
    assert all(fence[0]<q.x<fence[1] and fence[2]<q.y<fence[3] for q in points),('Playing face outside actual fence',owner.name)
-  rows[str(p['seed'])]=dict(holes=holes_data,fixtures=fixture_data,bridge_contacts=bridges,crossing_contacts=crossing_contacts,bench_contacts=bench_contacts,counter_contacts=counter_contacts,quarry_obstacle_checks=obstacle_checks,spill_sheet_normals=flow_normals,pool_airside_normals=pool_normals,fence_post_centerline_bounds_m=fence,fenced_play_enclosure_m2=(fence[1]-fence[0])*(fence[3]-fence[2]),fence_measure_scope='Extrema of actual source post-mesh centroids; rectangular paid-play enclosure, excluding hut and parking; all playing-face vertices lie inside')
+  rows[str(p['seed'])]=dict(landscape_to_carpet_minimum_gap_m=min(ground_gaps),holes=holes_data,fixtures=fixture_data,bridge_contacts=bridges,crossing_contacts=crossing_contacts,bench_contacts=bench_contacts,counter_contacts=counter_contacts,quarry_obstacle_checks=obstacle_checks,spill_sheet_normals=flow_normals,pool_airside_normals=pool_normals,fence_post_centerline_bounds_m=fence,fenced_play_enclosure_m2=(fence[1]-fence[0])*(fence[3]-fence[2]),fence_measure_scope='Extrema of actual source post-mesh centroids; rectangular paid-play enclosure, excluding hut and parking; all playing-face vertices lie inside')
  Path('build/source-construction.json').write_text(json.dumps(rows,indent=2))
 
 def build(args):
- preserve();bpy.ops.wm.read_factory_settings(use_empty=True);F.setup();roots=[]
- for seed,kind in ((args.classic_seed,'classic'),(args.adventure_seed,'adventure')):
-  p=generate(seed,kind);course=F.root('Course_'+str(seed),kind='course');course['seed']=seed;course['course_kind']=kind
-  for h in p['holes']:
-   rt,audit=holes.build(h,course)
-   if h['fixture']:
-    x,y=center(h,.49);z=level(h,x,.49)+.005
-    fixtures.build(h['fixture'],(x,y,z),0,rt,'Fixture_%02d_%s'%(h['number'],h['fixture']))
-  S.build(p,course);roots.append((course,p))
+ if args.resume_form:
+  preserve();bpy.ops.wm.open_mainfile(filepath=str(Path('build/source-form.blend').resolve()));roots=[]
+  for seed,kind in ((args.classic_seed,'classic'),(args.adventure_seed,'adventure')):roots.append((bpy.data.objects['Course_'+str(seed)],generate(seed,kind)))
+  F.M.update({name:bpy.data.materials['Quick_'+name] for name in F.COLORS});F.FONT=F.find_font('DejaVu Sans','Bold')
+  for ob in bpy.context.scene.objects:
+   key=ob.get('graphic')
+   if not key or key in F.PRINTS:continue
+   F.PRINTS[key]=len(F.PRINTS)
+   F.PRINT_LAYOUTS[key]=(key,1) if key.startswith('@pylon:') else (key.rsplit('|',1)[0],float(key.rsplit('|',1)[1]))
+ else:
+  preserve();bpy.ops.wm.read_factory_settings(use_empty=True);F.setup();roots=[]
+  for seed,kind in ((args.classic_seed,'classic'),(args.adventure_seed,'adventure')):
+   p=generate(seed,kind);course=F.root('Course_'+str(seed),kind='course');course['seed']=seed;course['course_kind']=kind
+   for h in p['holes']:
+    rt,audit=holes.build(h,course)
+    if h['fixture']:
+     x,y=center(h,.49);z=level(h,x,.49)+.005
+     fixtures.build(h['fixture'],(x,y,z),0,rt,'Fixture_%02d_%s'%(h['number'],h['fixture']))
+   S.build(p,course);roots.append((course,p));print('MODELED',kind,flush=True)
  bpy.ops.wm.save_as_mainfile(filepath=str(Path('build/source-form.blend').resolve()))
+ print('MEASURING CONSTRUCTION',flush=True)
  source_measure(roots)
  for ob in bpy.context.scene.objects:
   if ob.type=='MESH' and any(m.name=='Walk slab gauge' for m in ob.modifiers):assert min(p.normal.z for p in ob.data.polygons)>0,'Downward walk top: '+ob.name
  bpy.ops.wm.save_as_mainfile(filepath=str(Path('build/source-form.blend').resolve()))
+ print('FINALIZING',flush=True)
  F.finalize()
  # Set scale and retain authoring metadata as glTF extras.
  scene=bpy.context.scene;scene.unit_settings.system='METRIC';scene.unit_settings.scale_length=1
@@ -152,16 +171,25 @@ def build(args):
   fixture_counts={rt.name:sum(triangles(o) for o in rt.children_recursive if o.type=='MESH') for rt in owned if rt.get('fixture_kind')}
   bpy.ops.object.select_all(action='DESELECT');course.select_set(True)
   for ob in owned:ob.select_set(True)
+  Path('build/embedded').mkdir(parents=True,exist_ok=True)
   path=Path('export')/f'Minigolf-{p["seed"]}.gltf';path.parent.mkdir(parents=True,exist_ok=True)
   bpy.ops.export_scene.gltf(filepath=str(path.resolve()),export_format='GLTF_SEPARATE',use_selection=True,export_yup=True,export_apply=True,export_texcoords=True,export_normals=True,export_tangents=True,export_materials='EXPORT',export_extras=True,export_cameras=False,export_lights=False,export_animations=False,export_texture_dir='textures')
-  bpy.ops.export_scene.gltf(filepath=str(path.with_suffix('.glb').resolve()),export_format='GLB',use_selection=True,export_yup=True,export_apply=True,export_texcoords=True,export_normals=True,export_tangents=True,export_materials='EXPORT',export_extras=True,export_cameras=False,export_lights=False,export_animations=False)
+  bpy.ops.export_scene.gltf(filepath=str((Path('build/embedded')/path.with_suffix('.glb').name).resolve()),export_format='GLB',use_selection=True,export_yup=True,export_apply=True,export_texcoords=True,export_normals=True,export_tangents=True,export_materials='EXPORT',export_extras=True,export_cameras=False,export_lights=False,export_animations=False)
   from tangents import repair
-  repairs={ext:repair(path.with_suffix(ext)) for ext in ('.gltf','.glb')}
+  repairs={ext:repair(path.with_suffix(ext) if ext=='.gltf' else Path('build/embedded')/path.with_suffix(ext).name) for ext in ('.gltf','.glb')}
+  from external import share
+  share(path)
   Path('build',f'tangent-repair-{p["seed"]}.json').write_text(json.dumps(repairs,indent=2))
   doc=json.loads(path.read_text());images=[dict(uri=im['uri'],bytes=(path.parent/im['uri']).stat().st_size) for im in doc.get('images',[])]
   row=dict(seed=p['seed'],kind=p['kind'],plan=p,triangles=sum(triangles(o) for o in meshes),holes=hole_counts,fixtures=fixture_counts,modules=counts,materials=len(doc['materials']),meshes=len(doc['meshes']),primitives=sum(len(m['primitives']) for m in doc['meshes']),gltf_bytes=path.stat().st_size,bin_bytes=path.with_suffix('.bin').stat().st_size,images=images)
   manifest.append(row);path.with_suffix('.json').write_text(json.dumps(row,indent=2))
   print('COURSE',p['kind'],row['triangles'],'triangles; holes',min(hole_counts.values()),max(hole_counts.values()),'fixtures',fixture_counts,flush=True)
+ from pieces import export as export_pieces
+ export_pieces(roots)
+ # Exporter's image directory is transient; every URI now names its canonical source.
+ import shutil
+ shutil.rmtree('export/textures',ignore_errors=True)
+ for old in Path('export').glob('*.glb'):old.unlink()
  Path('build/manifest.json').write_text(json.dumps(manifest,indent=2))
  out=Path(args.out);out.parent.mkdir(parents=True,exist_ok=True);bpy.ops.wm.save_as_mainfile(filepath=str(out.resolve()))
  preserve()
@@ -171,4 +199,4 @@ def ancestors(ob,stop):
  while p and p!=stop:yield p;p=p.parent
 
 if __name__=='__main__':
- p=argparse.ArgumentParser();p.add_argument('--out',default='build/course.blend');p.add_argument('--classic-seed',type=int,default=71);p.add_argument('--adventure-seed',type=int,default=92);args=p.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else None);build(args)
+ p=argparse.ArgumentParser();p.add_argument('--out',default='build/course.blend');p.add_argument('--resume-form',action='store_true');p.add_argument('--classic-seed',type=int,default=71);p.add_argument('--adventure-seed',type=int,default=92);args=p.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else None);build(args)

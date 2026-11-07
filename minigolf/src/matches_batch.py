@@ -1,3 +1,4 @@
+from external import bundle
 """Fresh serial Blender processes for the three complete-course photo pairs."""
 import argparse,hashlib,json,subprocess,sys
 from pathlib import Path
@@ -9,7 +10,7 @@ def main(args):
  out='renders/source-matches' if args.source_fields else 'renders/look-matches';fits=json.loads(Path('build/photo-calibration.json').read_text());recipe=recipe_hash();fingerprint=hashlib.sha256((HERE/'matches.py').read_bytes()).hexdigest()
  fields={ch:Path('build/procedural' if ch!='Normal' else 'textures/bake')/f'T_Minigolf_{ch}.png' for ch in ('BaseColor','ORM','Normal')};field_hashes={ch:hashlib.sha256(path.read_bytes()).hexdigest() for ch,path in fields.items()}
  for key,fit in fits.items():
-  seed,_=SELECTION[key];source=Path(f'export/Minigolf-{seed}.glb');digest=hashlib.sha256(source.read_bytes()).hexdigest();png=Path(out)/(key+'.png');receipt=png.with_suffix('.json');shot=dict(fit['shot'],**LIGHTING[key]);shot['aspect']=(fit['crop'][2]-fit['crop'][0])/(fit['crop'][3]-fit['crop'][1]);shot=json.loads(json.dumps(shot))
+  seed,_=SELECTION[key];source=Path(f'export/Minigolf-{seed}.gltf');digest=bundle(source);png=Path(out)/(key+'.png');receipt=png.with_suffix('.json');shot=dict(fit['shot'],**LIGHTING[key]);shot['aspect']=(fit['crop'][2]-fit['crop'][0])/(fit['crop'][3]-fit['crop'][1]);shot=json.loads(json.dumps(shot))
   if png.exists() and receipt.exists():
    old=json.loads(receipt.read_text());ctx=old.get('context',{})
    if old.get('recipe_sha256')==recipe and old.get('sha256')==digest and old.get('width')==args.width and old.get('samples',0)>=args.samples and old.get('requested_camera')==shot and ctx.get('match_recipe_sha256')==fingerprint and (not args.source_fields or ctx.get('source_fields')==field_hashes):

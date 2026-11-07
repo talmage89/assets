@@ -80,43 +80,85 @@ def court(p):
  return hull(points)
 
 def adventure_links(p):
- """Connected inner sequence, with framed approaches to the upper crossing.
+ import json
+ return _adventure_links(json.dumps(p['holes'],sort_keys=True,separators=(',',':')))
 
- The outer twelve lanes already share the circuit. The upper lane branches
- join that circuit at both ends, rather than stopping in planted beds.
- Each tuple is (label, XY stations, start hole/t, end hole/t, framed deck).
+@functools.lru_cache(maxsize=512)
+def _adventure_links(key):
+ """Connected routes outside inflated construction envelopes, no ring circuit.
+
+ Cubic headland turns are preferred. An eight-neighbor plan-space search
+ handles the two cross-course connections, then removes unnecessary stations.
+ Each accepted ribbon is checked against the actual boundary strips.
  """
- from plan_check import strips,overlap
- h={q['number']:q for q in p['holes']};out=[];obstacles=[]
- for hole in h.values():
-  for poly in strips(hole):obstacles.append((poly,(min(q[0] for q in poly),max(q[0] for q in poly),min(q[1] for q in poly),max(q[1] for q in poly))))
- def clear(line):
-  for quad in ribbon(line):
+ import json,heapq
+ from PIL import Image,ImageDraw
+ from plan_check import strips,overlap,hull
+ holes=json.loads(key);obstacles=[q for h in holes for q in strips(h)];boxes=[(min(q[0] for q in poly),max(q[0] for q in poly),min(q[1] for q in poly),max(q[1] for q in poly)) for poly in obstacles]
+ def clear(line,width=1.524):
+  for quad in ribbon(line,width):
    lo,hi=min(q[0] for q in quad),max(q[0] for q in quad);bottom,top=min(q[1] for q in quad),max(q[1] for q in quad)
-   for poly,(x0,x1,y0,y1) in obstacles:
+   if lo<-23.8 or hi>23.8 or bottom<-12.8 or top>27.6:return False
+   for poly,(x0,x1,y0,y1) in zip(obstacles,boxes):
     if x1<lo or x0>hi or y1<bottom or y0>top:continue
     if overlap(quad,poly):return False
   return True
- def add(label,a,b,c,d,start,end,span=False):
-  for scale in (1,1.5,2,3,.7,4):
-   line=curve(a,tuple(a[k]+(b[k]-a[k])*scale for k in (0,1)),tuple(d[k]+(c[k]-d[k])*scale for k in (0,1)),d,17)
-   if clear(line):out.append((label,line,start,end,span));return
-  raise ValueError(('Adventure connection crosses a green',p['seed'],label))
- a=lane(h[13])[0];y=7+14.85*math.sqrt(max(0,1-(a[0]/17.25)**2));d=(a[0],y)
- add('Northwest circuit branch',d,(d[0],d[1]-.3),(a[0],a[1]+.3),a,None,(13,0))
- for na,nb in ((13,14),(14,15),(15,16),(16,17)):
-  a=lane(h[na])[-1];d=lane(h[nb])[0]
-  if na in (13,16):
-   fa,fb=forward(h[na]),forward(h[nb]);b=tuple(a[k]+fa[k]*.6 for k in (0,1));c=tuple(d[k]-fb[k]*.6 for k in (0,1))
-  else:
-   fa,fb=forward(h[na]),forward(h[nb]);b=tuple(a[k]+fa[k]*1.4 for k in (0,1));c=tuple(d[k]-fb[k]*1.4 for k in (0,1))
-  add(f'Inner course link {na} to {nb}',a,b,c,d,(na,1),(nb,0))
- a=lane(h[17])[-1];d=(a[0],7+14.85*math.sqrt(max(0,1-(a[0]/17.25)**2)))
- add('Northeast circuit branch',a,(a[0],a[1]+.3),(d[0],d[1]-.3),d,(17,1),None)
- # These rising decks branch clear of the greens and are supported over the
- # sloping stream bank; neither is a floating paving skin.
- for sign,station,label in ((-1,0,'west'),(1,1,'east')):
-  a=lane(h[15])[0 if station==0 else -1];d=lane(h[18])[-1 if station==0 else 0]
-  add('Upper crossing '+label+' bank approach',a,(sign*4.6,a[1]+1.5),(sign*4.6,d[1]-1.5),d,(15,station),(18,1-station),True)
- for name,line,*_ in out:assert clear(line),('Adventure walking ribbon crosses green/border',p['seed'],name)
+ step=.35;x0,y0=-23.0,-12.0;nx,ny=132,112
+ image=Image.new('1',(nx,ny));draw=ImageDraw.Draw(image)
+ for h in holes:
+  for quad in strips(h,1.17):draw.polygon([((x-x0)/step,(y-y0)/step) for x,y in quad],fill=1)
+  for t,direction in ((0,-1),(1,1)):
+   cx,cy=center(h,t);w=halfwidth(h,t)+1.15
+   cap=[local(h,cx+x,cy+y)[:2] for x,y in ((-w,0),(w,0),(w,direction*1.15),(-w,direction*1.15))]
+   draw.polygon([((x-x0)/step,(y-y0)/step) for x,y in cap],fill=1)
+ def grid(q):return (round((q[0]-x0)/step),round((q[1]-y0)/step))
+ def point(q):return (x0+q[0]*step,y0+q[1]*step)
+ def route(a,d):
+  start,goal=grid(a),grid(d);opened=[(0,start)];cost={start:0};came={};seen=set()
+  while opened:
+   _,q=heapq.heappop(opened)
+   if q in seen:continue
+   seen.add(q)
+   if q==goal:break
+   for dx,dy in ((1,0),(-1,0),(0,1),(0,-1),(1,1),(1,-1),(-1,1),(-1,-1)):
+    n=q[0]+dx,q[1]+dy
+    if not(0<=n[0]<nx and 0<=n[1]<ny) or (image.getpixel(n) and n not in (start,goal)):continue
+    c=cost[q]+math.hypot(dx,dy)
+    if c<cost.get(n,1e20):cost[n]=c;came[n]=q;heapq.heappush(opened,(c+math.dist(n,goal),n))
+  if goal not in came:raise ValueError(('No adventure walking route',a,d))
+  path=[goal]
+  while path[-1]!=start:path.append(came[path[-1]])
+  line=[a]+[point(q) for q in reversed(path[1:-1])]+[d]
+  simplified=[line[0]];i=0
+  while i<len(line)-1:
+   j=len(line)-1
+   while j>i+1 and not clear([line[i],line[j]],1.9):j-=1
+   simplified.append(line[j]);i=j
+
+  # Smooth each corner only when the actual finite-width ribbon stays clear.
+  dense=[]
+  for i,q in enumerate(simplified):
+   if i==0 or i==len(simplified)-1:dense.append(q);continue
+   prev,nxt=simplified[i-1],simplified[i+1];radius=min(.85,math.dist(prev,q)*.26,math.dist(q,nxt)*.26)
+   a1=tuple(q[k]+(prev[k]-q[k])*radius/math.dist(prev,q) for k in (0,1));b1=tuple(q[k]+(nxt[k]-q[k])*radius/math.dist(nxt,q) for k in (0,1))
+   bend=curve(a1,q,q,b1,7)
+   if clear([prev]+bend+[nxt]):dense.extend(bend)
+   else:dense.append(q)
+  if not clear(dense):
+   bad=[(i,j) for i,quad in enumerate(ribbon(dense)) for j,h in enumerate(holes) if any(overlap(quad,poly) for poly in strips(h))]
+   raise ValueError(('Adventure route ribbon clearance',a,d,bad[:8],[(dense[i],dense[i+1],j+1) for i,j in bad[:2]]))
+  return dense
+ out=[]
+ for prev,nxt in zip(holes,holes[1:]):
+  a,d=lane(prev)[-1],lane(nxt)[0];fa,fb=forward(prev),forward(nxt);line=None
+  for handle in (1.2,2.4,3.5,5,7):
+   trial=curve(a,tuple(a[k]+fa[k]*handle for k in (0,1)),tuple(d[k]-fb[k]*handle for k in (0,1)),d,25)
+   if clear(trial):line=trial;break
+  if line is None:line=route(a,d)
+  # Connections follow terraced fill. Actual stream spans retain framed decks.
+  out.append((f'Winding adventure link {prev["number"]} to {nxt["number"]}',line,(prev['number'],1),(nxt['number'],0),False))
  return out
+
+def quarry_ledge():
+ """Public stair return to the grade-backed central viewing ledge."""
+ return [(5.9,10.5,2.45),(5.35,12.3,2.35),(3.9,14.1,2.05),(1.2,15.3,1.62),(-1.7,15.4,1.521)]

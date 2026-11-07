@@ -9,7 +9,8 @@ from plan import center
 FENCE_CHARTS=None
 
 def wet_mask(world):
- return math.exp(-((world.x-2)/1.7)**2-((world.y-9.65)/2.3)**2)*max(0,min(1,(3.0-world.z)/.8))
+ flow=math.exp(-((world.x-2)/.95)**4-((world.y-9.65)/1.7)**4)
+ return flow*max(0,min(1,(2.8-world.z)/.9))
 
 def fence_charts():
  global FENCE_CHARTS
@@ -23,9 +24,7 @@ def fence_charts():
  return FENCE_CHARTS
 
 def materials():
- out=Path('export/textures');out.mkdir(parents=True,exist_ok=True)
- for ch in ('BaseColor','Normal','ORM'):shutil.copyfile(Path('textures/ship')/f'T_Minigolf_{ch}.png',out/f'T_Minigolf_{ch}.png')
- atlas=tiling.material('Minigolf',out,tint=True);states={}
+ atlas=tiling.material('Minigolf',Path('textures/ship'),tint=True);states={}
  for name in ('Concrete','Asphalt','Lawn'):
   states['grass' if name=='Lawn' else name.lower()]=tiling.material(name,Path('../ground/textures/ship'),tint=True)
  states['wood']=tiling.material('WoodPrivacy',Path('../fences/textures/ship'),tint=True)
@@ -41,6 +40,11 @@ def materials():
    b.inputs['Base Color'].default_value=(.95,.985,.98,1)
   states[name]=m
  states['fallwater']=states['water']
+ # Continuous, world-authored mineral paint is vertex color. Keep baked
+ # aggregate/roughness in the existing atlas, without planar color seams.
+ stone=atlas.copy();stone.name='Minigolf_Rock';shader=stone.node_tree.nodes.get('Principled BSDF');color=next(n for n in stone.node_tree.nodes if n.type=='VERTEX_COLOR')
+ stone.node_tree.links.new(color.outputs['Color'],shader.inputs['Base Color'])
+ for key in ('rock','rocklight','wetrock'):states[key]=stone
  return atlas,states
 
 def assign(ob,atlas,states):
@@ -75,13 +79,13 @@ def assign(ob,atlas,states):
    if key.startswith('carpet') and h and ob.name.startswith('Carpet playing face'):
     t=q.y/h['length']+.5;cx,_=center(h,t)
     u=.5+(q.x-cx)/3.66;v=t
-    traffic=math.exp(-((q.x-cx)/.34)**2)*math.sin(math.pi*max(0,min(1,t)))**.5
+    traffic=math.exp(-((q.x-cx+.12*math.sin(t*12+h['number']))/.43)**2)*math.sin(math.pi*max(0,min(1,t)))**.5
     cup=math.exp(-((q.x-cx)**2+((t-.88)*h['length'])**2)/.13)
     tee=math.exp(-((q.x-cx)**2+((t-.08)*h['length'])**2)/.18)
     worn=age*min(1,traffic*.67+cup*.8+tee*.7)
     shade=math.exp(-((q.x-cx)/.9)**4-(((t-.49)*h['length'])/1.4)**4) if h.get('fixture') else 0
     sunfade=age*(1-.8*shade)
-    tint=[.33+.52*worn+.10*sunfade,.72+.20*worn+.05*sunfade,.48+.10*worn+.06*sunfade]
+    tint=[.38+.95*worn+.18*sunfade,.64+.38*worn+.10*sunfade,.36+.32*worn+.10*sunfade]
    elif key in ('concrete','asphalt','grass','wood'):
     coverage={'concrete':3.048,'asphalt':6.096,'grass':3.048,'wood':2.4}[key]
     # Reused family maps retain their meter-based repeat and real response.
@@ -102,13 +106,22 @@ def assign(ob,atlas,states):
     # prevents collapse on thin vertical rails and cast faces. Atlas reuse
     # is intentional; no unique-atlas zero-overlap claim applies.
     u=(q[axes[0]]-bounds[axes[0]][0])/max(.0001,bounds[axes[0]][1]-bounds[axes[0]][0]);v=(q[axes[1]]-bounds[axes[1]][0])/max(.0001,bounds[axes[1]][1]-bounds[axes[1]][0])
+    if key=='water':
+     tile=2.;middle=ob.matrix_world@poly.center
+     u=(world.x-math.floor((middle.x+1e-7)/tile)*tile)/tile;v=(world.y-math.floor((middle.y+1e-7)/tile)*tile)/tile
     if key=='brick' and ob.name.startswith('Jointed brick border'):
      # One modeled brick samples clay within one atlas brick, not a miniature
      # seven-course wall printed on each individual edging unit.
      u=.02+.20*u;v=.015+.10*v
     if key in ('rock','rocklight','wetrock'):
-     wet=wet_mask(world);algae=min(1,wet*.90+(.28 if -.25<world.z<.06 else 0))
-     tint=[1-.85*algae,1-.73*algae,1-.88*algae]
+     wet=wet_mask(world);north=max(0,nw.y)**2;ground=.015+(.065*max(0,world.y+7) if course and course.get('course_kind')=='adventure' else 0)
+     damp_foot=math.exp(-((world.z-ground)/.38)**2);sheltered=north*damp_foot*max(0,math.sin(world.x*8+world.y*3))**6
+     algae=min(1,wet*.90+.48*sheltered+(.28 if -.25<world.z<.06 else 0))
+     variation=.88+.12*math.sin(world.x*1.4+world.z*2.8)*math.sin(world.y*1.1-world.z*1.9)
+     moss=algae*(.6+.4*math.sin(world.x*11+world.y*7)**2)
+     mineral=max(0,min(1,.5+.27*math.sin(world.x*.61+world.z*.37)*math.sin(world.y*.43-world.z*.28)+.18*math.sin(world.x*.93+world.y*.71+world.z*.49)))
+     tan=(.185,.140,.093);gray=(.235,.232,.214)
+     tint=[((1-mineral)*a+mineral*b)*variation*c for a,b,c in zip(tan,gray,(1-.78*moss,1-.59*moss,1-.83*moss))]
      if ob.get('stone_uv_m'):
       tile=ob['stone_uv_m'];middle=ob.matrix_world@poly.center
       u=(world[wa[0]]-math.floor((middle[wa[0]]+1e-7)/tile)*tile)/tile;v=(world[wa[1]]-math.floor((middle[wa[1]]+1e-7)/tile)*tile)/tile
@@ -116,7 +129,12 @@ def assign(ob,atlas,states):
      tile=ob['mulch_uv_m'];middle=ob.matrix_world@poly.center
      u=(world.x-math.floor((middle.x+1e-7)/tile)*tile)/tile;v=(world.y-math.floor((middle.y+1e-7)/tile)*tile)/tile
     elif key in ('red','ivory','navy','white','stonepaint'):
+     if key=='white' and age<.5:u=.12+.76*u;v=.12+.76*v
      exposure=max(0,-(ob.matrix_world.to_3x3()@poly.normal).y)*age
      tint=[.82+.18*exposure,.78+.22*exposure,.74+.26*exposure]
+     if h and ('border' in ob.name or 'curb' in ob.name):
+      # Localized top/edge chips reveal old green paint and concrete.
+      spans=[b-a for a,b in bounds];long=max(range(3),key=lambda k:spans[k]);station=(q[long]-bounds[long][0])/max(.001,spans[long]);top=(q.z-bounds[2][0])/max(.001,spans[2]);chip=age*max(0,math.sin(station*39+h['number']*3+q.z*63))**10*max(0,(top-.45)/.55)
+      tint=[v*(1-chip*.58) for v in tint];tint[1]+=chip*.08
    uv.data[li].uv=(u0+pad+max(0,min(1,u))*(u1-u0-2*pad),v0+pad+max(0,min(1,v))*(v1-v0-2*pad))
    vcol.data[li].color=(*tint,1)

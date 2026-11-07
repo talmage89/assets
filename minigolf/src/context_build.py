@@ -14,8 +14,8 @@ cases=[('houses','build.py',['--seed','27','--out',str(OUT/'house.blend')],'hous
 for family,script,args,target in cases:
  if (OUT/target).exists():continue
  with (OUT/(family+'-'+script+'.log')).open('w') as f:
-  # House construction/export performs no bake or render and needs no GPU.
-  prefix=[] if family=='houses' else [str(ROOT/'kit/with_gpu.sh')]
+  # All Blender work is serialized on the shared machine, including models.
+  prefix=[str(ROOT/'kit/with_gpu.sh')]
   subprocess.run([*prefix,'blender','-b','--factory-startup','-t','4','--python-exit-code','1','--python',str(ROOT/family/'src'/script),'--',*args],cwd=ROOT/family,stdout=f,stderr=subprocess.STDOUT,check=True)
 for seed in (811,829):
  target=OUT/f'boxwood-{seed}/variant.glb'

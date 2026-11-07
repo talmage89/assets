@@ -20,6 +20,7 @@ def balance():
 
 def render(args):
  import bpy
+ from external import bundle
  from mathutils import Matrix,Vector
  from mathutils.bvhtree import BVHTree
  from kit.photo_match import verify
@@ -48,7 +49,7 @@ def render(args):
    delta=Vector(point)-eye;hit=opaque.ray_cast(eye,delta.normalized(),delta.length)
    ahead=delta.length-hit[3] if hit[0] is not None else 0
    probes.append(dict(landmark_world_m=point,first_opaque_surface_before_anchor_m=ahead))
-  visibility[key]=dict(probes=probes,source=str(source),sha256=hashlib.sha256(source.read_bytes()).hexdigest(),scope='Core GLB opaque surfaces only; homologous anchors may lie inside their own fixture. Context foliage is judged in the image.')
+  visibility[key]=dict(probes=probes,source=str(source),sha256=bundle(source),scope='Core external-glTF opaque surfaces only; homologous anchors may lie inside their own fixture. Context foliage is judged in the image.')
   visibility_path.write_text(json.dumps(visibility,indent=2))
   assert max(p['first_opaque_surface_before_anchor_m'] for p in probes)<1.2,('Landmark hidden behind another course structure',key,probes)
   if getattr(args,'source_fields',False):

@@ -160,8 +160,11 @@ def utility(p,road_y):
    sys.modules.pop(key,None)
    if previous[key] is not None:sys.modules[key]=previous[key]
 
-def make(p):
- palette();road_y=native_ground(p);town_proof,utility_proof=town(p,road_y);W,D=p['lot'];rng=random.Random(981+p['seed'])
+def make(p,plants_only=False,omit_course_plants=False):
+ palette();road_y=-p['lot'][1]/2-7.62
+ if plants_only:town_proof,utility_proof=[],{}
+ else:road_y=native_ground(p);town_proof,utility_proof=town(p,road_y)
+ W,D=p['lot'];rng=random.Random(981+p['seed'])
  trees=[]
  for i in range(22):
   x=-100+i*9.5;y=road_y-32-rng.random()*15;trees.append(((x,y,0),rng.uniform(.70,1.2),rng.random()*math.tau))
@@ -170,8 +173,10 @@ def make(p):
  for i in range(23):trees.append(((-110+i*10,D/2+7+rng.uniform(-1,2),0),rng.uniform(.65,1.05),rng.random()*math.tau))
  # Younger native understory breaks the distant horizon beneath mature crowns.
  for i in range(29):trees.append(((-105+i*7.5,D/2+2+rng.uniform(0,3),0),rng.uniform(.32,.48),rng.random()*math.tau))
- tree_proof=planted_asset(REPO/'trees/export/RedMaple.glb','RedMaple',trees[::2])
- oak_proof=planted_asset(REPO/'trees/export/PinOak.glb','PinOak',trees[1::2])
+ course_trees=trees[22:28]
+ rendered_trees=course_trees if plants_only else trees[:22]+trees[28:] if omit_course_plants else trees
+ tree_proof=planted_asset(REPO/'trees/export/RedMaple.glb','RedMaple',rendered_trees[::2])
+ oak_proof=planted_asset(REPO/'trees/export/PinOak.glb','PinOak',rendered_trees[1::2])
  from plan import center,halfwidth,local
  from plan_check import envelope
  envelopes=[envelope(h) for h in p['holes']];walks=[];fixture_centers=[]
@@ -185,11 +190,10 @@ def make(p):
  def segment(q,a,b):
   dx,dy=b[0]-a[0],b[1]-a[1];t=max(0,min(1,((q[0]-a[0])*dx+(q[1]-a[1])*dy)/max(1e-9,dx*dx+dy*dy)));return math.dist(q,(a[0]+t*dx,a[1]+t*dy))
  def safe(x,y,radius=.60):
-  if p['water'] and abs(x)<5 and -8<y<16:return False
+  if p['water'] and ((abs(x)<5 and -8<y<16) or (abs(x)<9.8 and 13<y<27.5)):return False
   if any(any(inside(poly,(x+radius*math.cos(a),y+radius*math.sin(a))) for a in (j*math.tau/8 for j in range(8))) for poly in envelopes):return False
   if any(segment((x,y),a,b)<.762+radius for line in walks for a,b in zip(line,line[1:])):return False
   if any(math.dist((x,y),q)<r+radius for q,r in fixture_centers):return False
-  if p['water'] and abs(math.sqrt((x/17.25)**2+((y-7)/14.85)**2)-1)<.10:return False
   return True
  shrubs=[]
  def add(x,y,scale=None,radius=.60):
@@ -211,7 +215,7 @@ def make(p):
   for j in range(500):
    if len(shrubs)>=68:break
    x=rng.uniform(-21,21);y=rng.uniform(-10,25)
-   if (x/21)**2+((y-7)/19)**2>1 or (abs(x)<5 and -8<y<16):continue
+   if abs(x)>22.5 or y>26 or (abs(x)<5 and -8<y<22):continue
    if any(math.dist((x,y),q[0][:2])<1.0 for q in shrubs):continue
    add(x,y)
  else:
@@ -225,14 +229,16 @@ def make(p):
 
  dx,dy=(.45,.35) if p['water'] else (.3,.15)
  hydrangeas=[((q[0][0]+dx,q[0][1]+dy,q[0][2]),q[1]*.7,q[2]) for q in shrubs[::3] if safe(q[0][0]+dx,q[0][1]+dy,.45)]
+ if omit_course_plants:shrubs=[];hydrangeas=[]
  hydrangea_proof=planted_asset(REPO/'shrubs/export/Shrubs.glb','Hydrangea',hydrangeas)
  shrub_proof=[]
  for index,seed in enumerate((None,811,829)):
   path=REPO/'shrubs/export/Shrubs.glb' if seed is None else REPO/f'minigolf/build/context/boxwood-{seed}/variant.glb'
   shrub_proof.append(planted_asset(path,'Boxwood',shrubs[index::3]))
- proof=dict(road='ground/src/build.py: native road/curb/walk constructors and canonical PBR maps',town=town_proof,utility_geometry=utility_proof,hydrangea_geometry=hydrangea_proof,maple_instances=len(trees[::2]),oak_instances=len(trees[1::2]),boxwood_instances=len(shrubs),placement_seed=981+p['seed'],tree_geometry=tree_proof,oak_geometry=oak_proof,shrub_geometry=shrub_proof,included_in_course_gltf=False)
+ proof=dict(road='ground/src/build.py: native road/curb/walk constructors and canonical PBR maps',town=town_proof,utility_geometry=utility_proof,hydrangea_geometry=hydrangea_proof,maple_instances=len(rendered_trees[::2]),oak_instances=len(rendered_trees[1::2]),boxwood_instances=len(shrubs),placement_seed=981+p['seed'],tree_geometry=tree_proof,oak_geometry=oak_proof,shrub_geometry=shrub_proof,included_in_course_gltf=False)
  proof['assembled_texture_allocation']=texture_cost()
+ proof['plants_only']=plants_only;proof['course_plants_in_external_companion']=omit_course_plants
  # Preserve reusable native-instance placement, rather than baking the town
  # and every repeated plant into each core course GLB. Paths are clone-relative.
- Path(f'export/Minigolf-{p["seed"]}-context.json').write_text(json.dumps(dict(scope='Companion native-library instance recipe; source paths relative to clone root, positions in Blender meters/Z-up. Roads and utility construction remain in src/context.py.',**proof),indent=2))
+ Path(f'export/Minigolf-{p["seed"]}'+('-landscape.json' if plants_only else '-context.json')).write_text(json.dumps(dict(scope='Companion native-library instance recipe; source paths relative to clone root, positions in Blender meters/Z-up. Roads and utility construction remain in src/context.py.',**proof),indent=2))
  return proof

@@ -18,7 +18,7 @@ COLORS={
  'black':(.012,.017,.017),'metal':(.32,.34,.33),'rubber':(.012,.015,.014),
  'soil':(.065,.048,.025),'grass':(.12,.18,.045),'asphalt':(.065,.069,.070),
  'yellow':(.67,.37,.025),'leaf':(.22,.14,.035),'liner':(.017,.022,.018),
- 'water':(.025,.13,.12),'glass':(.08,.12,.13),'foam':(.65,.69,.61),'stonepaint':(.40,.41,.36),'fallwater':(.24,.32,.28),'clothred':(.32,.024,.016),'clothivory':(.58,.55,.43)}
+ 'water':(.94,.98,.99),'glass':(.08,.12,.13),'foam':(.65,.69,.61),'stonepaint':(.40,.41,.36),'fallwater':(.24,.32,.28),'clothred':(.32,.024,.016),'clothivory':(.58,.55,.43)}
 M={};PRINTS={};PRINT_LAYOUTS={};PRINT_OBJECTS=[];FONT=None
 
 def setup():
@@ -97,7 +97,7 @@ def rock(name,p,size,parent,seed=0,mat='rock'):
  ob['rock_seed']=seed
  if detailed:
   mod=ob.modifiers.new('Soft carved shotcrete transitions','SUBSURF');mod.levels=1;mod.render_levels=1
-  dec=ob.modifiers.new('Retain outcrop silhouette budget','DECIMATE');dec.ratio=.55
+  dec=ob.modifiers.new('Retain outcrop silhouette budget','DECIMATE');dec.ratio=.67
  return ob
 
 def rockwall(name,points,width,height,parent,seed=0,mat='rocklight',closed=False):
@@ -172,7 +172,7 @@ def finalize():
   d.line((x+24,y+102,x+488,y+102),fill=ink,width=2)
   d.text((x+256,y+128),'MINIATURE GOLF',font=ImageFont.truetype(FONT,35),anchor='mm',fill=ink)
   d.text((x+256,y+165),'18 HOLES  •  OPEN LATE',font=ImageFont.truetype(FONT,23),anchor='mm',fill=ink)
- path=Path('export/textures/T_Minigolf_Graphics_BaseColor.png');canvas.save(path)
+ path=Path('textures/ship/T_Minigolf_Graphics_BaseColor.png');canvas.save(path)
  from look import materials
  atlas,states=materials()
  graphics=image_material('Minigolf_Graphics',path)
@@ -182,12 +182,16 @@ def finalize():
  bpy.context.view_layer.update();dg=bpy.context.evaluated_depsgraph_get()
  for ob in list(bpy.context.scene.objects):
   if ob.type!='MESH':continue
+  if not ob.data.vertices:
+   bpy.data.objects.remove(ob,do_unlink=True);continue
   data=bpy.data.meshes.new_from_object(ob.evaluated_get(dg),depsgraph=dg,preserve_all_data_layers=True);ob.data=data;ob.modifiers.clear()
+  if ob.get('water_skin'):
+   atlas_repeat_cells(data,2.,(0,1))
   if ob.get('flow_sheet'):
    data.shade_smooth();data.set_sharp_from_angle(angle=math.radians(65))
   if 'rock_seed' in ob:
    atlas_repeat_cells(data,2.,(0,1,2));ob['stone_uv_m']=2.
-   data.shade_smooth();data.set_sharp_from_angle(angle=math.radians(44))
+   data.shade_smooth();data.set_sharp_from_angle(angle=math.radians(65))
   bm=bmesh.new();bm.from_mesh(data)
   if ob.get('buried_walk_bottom'):
    bm.normal_update();bmesh.ops.delete(bm,geom=[f for f in bm.faces if f.normal.z<-.2],context='FACES')

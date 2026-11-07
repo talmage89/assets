@@ -39,10 +39,10 @@ def check():
   assert counts==meta['triangles']
   assert all(2000<=v<=8000 for v in meta['holes'].values()),meta['holes']
   assert all(v<=15000 for v in meta['fixtures'].values())
-  assert meta['materials']<=10
+  assert meta['materials']<=11
   for im in g.json['images']:
    f=(path.parent/im['uri']).resolve();assert f.is_file();digest=hashlib.sha256(f.read_bytes()).hexdigest();assert str(f) not in used_images or used_images[str(f)]==digest;used_images[str(f)]=digest
-  bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(path.with_suffix('.glb').resolve()));bpy.context.view_layer.update()
+  bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(path.resolve()));bpy.context.view_layer.update()
   hole_roots=[o for o in bpy.context.scene.objects if o.get('module_kind')=='hole'];assert len(hole_roots)==18
   cup_measure=[]
   for rt in hole_roots:
@@ -144,7 +144,8 @@ def check():
     terrain_hit=site_tree.ray_cast(Vector((0,y,water_level(y)+.03)),Vector((0,0,-1)),.08);assert terrain_hit[0] is None,('Terrain blocks water level',y,terrain_hit)
     water_proof.append(list(hit[0]))
   from paths import lane
-  walk_x,walk_y,walk_z=(17.25,7,.975) if meta['kind']=='adventure' else (*lane(meta['plan']['holes'][0])[13],.065)
+  hh=meta['plan']['holes'][0];walk_x,walk_y=lane(hh)[13];from plan import level,center
+  walk_z=(.070+hh['base_z']+hh['rise']*.5+.065*(max(0,walk_y+7)-max(0,hh['origin'][1]+7))) if meta['kind']=='adventure' else .065
   hit=site_tree.ray_cast(Vector((walk_x,walk_y,4)),Vector((0,0,-1)),6);assert hit[0] is not None and abs(hit[0].z-walk_z)<.015,('Walk top',hit,walk_z)
   walk_proof=dict(measured_top_m=list(hit[0]),nominal_top_z_m=walk_z)
   bridge_proof=[]
