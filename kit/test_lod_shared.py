@@ -8,8 +8,101 @@ from kit.lod_mesh import topology
 from kit.lod_io import residency
 
 
+def refinement_fixtures():
+    """Repair an invalid coarse cube using the real bounded reducer."""
+    import json
+    from kit import lod_shells as shells
+    from kit.image_io import write_png
+
+    folder=Path('build/lod-shared')
+    folder.mkdir(parents=True,exist_ok=True)
+    points=[];normals=[];uv=[];faces=[];bad=[]
+    divisions=4
+    for side,normal in enumerate([[-1,0,0],[1,0,0],[0,-1,0],[0,1,0],[0,0,-1],[0,0,1]]):
+        nn=np.array(normal,float)
+        u=np.array([1,0,0] if abs(nn[2])>.5 else [0,0,1.])
+        v=np.cross(nn,u)
+        start=len(points)
+        for j in range(divisions+1):
+            for i in range(divisions+1):
+                points.append(nn+u*(2*i/divisions-1)+v*(2*j/divisions-1))
+                normals.append(nn)
+                uv.append([.02+(side%3)*.32+i/divisions*.28,
+                           .02+(side//3)*.48+j/divisions*.44])
+        for j in range(divisions):
+            for i in range(divisions):
+                k=start+j*(divisions+1)+i
+                faces.extend([[k,k+1,k+divisions+2],[k,k+divisions+2,k+divisions+1]])
+        corner=start+divisions*(divisions+1)
+        bad.extend([[start,corner+divisions,start+divisions],[start,corner,corner+divisions]])
+    attrs=dict(POSITION=np.array(points,np.float32),NORMAL=np.array(normals,np.float32),
+               TEXCOORD_0=np.array(uv,np.float32),_LOD_MATERIAL=np.zeros((len(points),1),np.float32),
+               _LOD_KEEP=np.zeros((len(points),1),np.float32))
+    faces=np.array(faces,np.uint32);bad=np.array(bad,np.uint32)
+    report=dict(components=[dict(triangles=len(bad))]);meters_per_pixel=.1
+    assert shells.exposed_backfaces(attrs,faces,attrs,bad,meters_per_pixel) is not None
+    _,restored,_=shells.preserve(attrs,faces,attrs,bad,report,meters_per_pixel)
+    assert len(restored)==len(faces)
+    with shells.refinement_policy(.06,.75,32):
+        refined,triangles,receipt=shells.preserve(attrs,faces,attrs,bad,report,meters_per_pixel)
+    assert len(bad)<len(triangles)<len(faces),(len(bad),len(triangles),len(faces))
+    assert shells.exposed_backfaces(attrs,faces,refined,triangles,meters_per_pixel) is None
+    assert topology(refined,triangles)[0]['boundary_edges']==0
+    (folder/'refinement.json').write_text(json.dumps(dict(source=len(faces),invalid_coarse=len(bad),
+        old_restoration=len(restored),finer_valid=len(triangles),retained=receipt,
+        refinement=report['source_surface_refinement']),indent=2)+'\n')
+
+    # ORM is linear data. The same original coordinates must follow each sampler.
+    image=folder/'refinement-orm.png'
+    pixels=np.ones((2,2,3),np.float32);pixels[:,:,1]=[[.1,.5],[.1,.5]]
+    write_png(image,pixels)
+    class MaterialSource:
+        def __init__(self,wrap=10497,filtering=9729,transform=None):
+            info=dict(index=0)
+            if transform is not None:info['extensions']=dict(KHR_texture_transform=transform)
+            self.data=dict(materials=[dict(pbrMetallicRoughness=dict(metallicRoughnessTexture=info))],
+                           textures=[dict(source=0,sampler=0)],samplers=[dict(wrapS=wrap,magFilter=filtering)])
+        def image(self,index):
+            return image.read_bytes()
+    sample_attrs=dict(POSITION=np.zeros((3,3),np.float32),TEXCOORD_0=np.tile([-.1,.25],(3,1)),
+                      _LOD_MATERIAL=np.zeros((3,1),np.float32))
+    sample_face=np.array([[0,1,2]])
+    for wrap,expected in [(10497,False),(33071,True),(33648,True)]:
+        with shells.refinement_policy(.2,.75,32,source=MaterialSource(wrap),reflective_surface_pixels=.125):
+            response=shells._reflective_surface(sample_attrs,sample_face,shells._REFINEMENT.get())
+            assert bool(response)==expected,(wrap,response)
+            if response:
+                assert abs(response['roughness_median']-26/255)<1e-6,response
+                assert response['surface_pixels']==.125
+    sample_attrs['TEXCOORD_0'][:]=[.49,.25]
+    for filtering,expected in [(9728,26/255),(9729,26/255+.48*(128-26)/255)]:
+        with shells.refinement_policy(.2,.75,32,source=MaterialSource(filtering=filtering),reflective_surface_pixels=.125):
+            response=shells._reflective_surface(sample_attrs,sample_face,shells._REFINEMENT.get())
+            assert abs(response['roughness_median']-expected)<1e-6,(filtering,response,expected)
+    sample_attrs['TEXCOORD_0'][:]=[.25,.25]
+    with shells.refinement_policy(.2,.75,32,source=MaterialSource(transform=dict(offset=[.5,0])),reflective_surface_pixels=.125):
+        assert shells._reflective_surface(sample_attrs,sample_face,shells._REFINEMENT.get()) is None
+    with shells.refinement_policy(.2,.75,32):
+        outer=shells._REFINEMENT.get()
+        with shells.refinement_policy(.2,.75,32,enabled=False):
+            assert shells._REFINEMENT.get() is None
+        assert shells._REFINEMENT.get() is outer
+        try:
+            with shells.refinement_policy(.2,.75,32):raise RuntimeError('fixture exit')
+        except RuntimeError:pass
+        assert shells._REFINEMENT.get() is outer
+    assert shells._REFINEMENT.get() is None
+    for ratio,pixels,size in [(True,.75,32),(.2,0,32),(.2,.75,False),(.2,float('nan'),32)]:
+        try:
+            with shells.refinement_policy(ratio,pixels,size):pass
+        except ValueError:pass
+        else:raise AssertionError('Invalid refinement policy accepted')
+    print('SOURCE REFINEMENT FIXTURES PASS',len(faces),'->',len(triangles),flush=True)
+
+
 def main():
-    from kit.lod_shells import exposed_backfaces,preserve,protect_powered,backface_policy
+    refinement_fixtures()
+    from kit.lod_shells import exposed_backfaces,preserve,protect_powered,backface_policy,refinement_policy
     # Two closed constructions meet at one corner and cross farther inside.
     # Their hidden source skins must not emerge after independent collapse.
     p=np.array([[0,0,0],[2,0,0],[0,2,0],[0,0,2],[1.5,1.5,-.5],[1.5,-.5,1.5],[-.5,1.5,1.5]],np.float32)
@@ -78,7 +171,7 @@ def main():
     assert topology(moved,faces)[0]['nonmanifold_edges']==1
     fixed,tf,receipt=preserve(assembled,faces,moved,faces,dict(components=[dict(triangles=4)]*2))
     assert topology(fixed,tf)[0]['nonmanifold_edges']==0 and receipt
-    with backface_policy(False,[{'doubleSided':True}]):
+    with backface_policy(False,[{'doubleSided':True}]),refinement_policy(.2,.75,32):
         fixed,tf,receipt=preserve(assembled,faces,moved,faces,dict(components=[dict(triangles=4)]*2))
         assert topology(fixed,tf)[0]['nonmanifold_edges']==0 and receipt
     inherited,tf,receipt=preserve(moved,faces,moved,faces,dict(components=[dict(triangles=8)]))

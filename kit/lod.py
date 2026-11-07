@@ -21,7 +21,7 @@ from kit.lod_io import Document, digest, distance, residency, shared_material_bi
 
 def tool_digests():
     names=('lod_shading.py','lod_constraints.py','lod_shared.py','lod_shells.py','lod.py','lod_io.py','lod_foliage.py','lod_mesh.py','lod_scene.py','lod_layout.py','lod_gpu.py','lod_atlas.py','lod_transfer.py','lod_impostor_fit.py','lod_impostor.py','lod_render.py','foliage.py',
-           'detachable_textures.py','image_io.py','downsample.py')
+           'detachable_textures.py','detachable_verify.py','image_io.py','downsample.py')
     return {name:digest(ROOT/'kit'/name) for name in names}
 
 
@@ -147,12 +147,18 @@ def build(config):
             assembly=merge_static(doc,cfg.get('protected_nodes',[]),cfg.get('include_nodes',[]))
             if not spec.get('rebake'):
                 from kit.lod_shared import meshes
-                from kit.lod_shells import backface_policy
+                from kit.lod_shells import backface_policy,refinement_policy
                 guard=spec.get('backface_guard',cfg.get('backface_guard',True))
+                pixels=spec.get('surface_pixels',cfg.get('max_surface_pixels',.75))
+                sliding=spec.get('seam_sliding',cfg.get('seam_sliding',True))
+                reflective=spec.get('reflective_surface_pixels',cfg.get('reflective_surface_pixels'))
+                size=max((max(image['size']) for image in doc.stats()['images']),default=2048)
                 materials=[doc.data['materials'][i] for i in sorted({p.get('material',0) for _,_,p in doc.primitives()})]
-                with backface_policy(guard,materials):
-                    reports=meshes(doc,spec['ratio'],meters_per_pixel,cfg.get('feature_pixels',1.5),spec.get('surface_pixels',cfg.get('max_surface_pixels',.75)),seam_sliding=spec.get('seam_sliding',cfg.get('seam_sliding',True)))
-                assembly['backface_guard']=guard
+                with backface_policy(guard,materials),refinement_policy(spec['ratio'],pixels,size,
+                        source=doc,reflective_surface_pixels=reflective,enabled=sliding):
+                    reports=meshes(doc,spec['ratio'],meters_per_pixel,cfg.get('feature_pixels',1.5),pixels,seam_sliding=sliding)
+                assembly.update(backface_guard=guard,source_skin_refinement=sliding and guard)
+                if reflective is not None:assembly['reflective_surface_pixels']=reflective
             else:
                 if spec.get('static_shell'):assembly['shells']=shell_static(doc,spec['ratio'],meters_per_pixel)
                 static_meshes={n['mesh'] for n in doc.data['nodes'] if 'mesh' in n and n.get('extras',{}).get('lod_static_shell')}

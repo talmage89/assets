@@ -945,6 +945,10 @@ explicit. The manifest/report count unique maps and every mesh for the entire
 resident chain beside LOD0 alone. Only proxies/impostors add image content.
 `lod_shells.py` guards source layer ordering with measured visibility rays and
 keeps construction beside powered surfaces, including small occluding shutters.
+Failed skins try finer source-map reductions before restoring a whole component;
+every trial keeps the original field/distance bounds and tests assembled visibility.
+Optional `reflective_surface_pixels` gives low-roughness metallic constructions a
+tighter geometric allowance, sampled from the original material and ORM map.
 An assembled-edge guard restores implicated components when their combined
 reduction introduces new boundary or nonmanifold edge incidences.
 `lod_shading.py` restores supplied glTF normals and tangents in temporary

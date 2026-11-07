@@ -269,8 +269,13 @@ selection keeps tiny shutters and housings from exposing an entire bright lens
 after pruning; it is not a surface-contact measurement. A source-skin guard
 casts rays to candidate face centers from six axes and eight corner directions.
 If a formerly hidden back face wider than three switch pixels becomes
-visible where the source had an outward-facing surface, the original connected
-construction is retained. Its measured ray direction, facing cosines and retained
+visible where the source had an outward-facing surface, split-wedge levels retry
+that construction at finer densities before retaining the original. Each retry
+runs the unchanged UV/frame/data and distance checks, then tests the assembled
+mesh. Fractions .15/.30/.45/.60/.75/.90 of the remaining source density are tried;
+components saving fewer than 64 triangles retain the original directly. Reports
+record every tested density, achieved triangles and visibility finding under
+`source_surface_refinement`. Its measured ray direction, facing cosines and retained
 triangle cost are recorded. Visibility includes the other components in the
 compatible rigid group; a separate base can cover a body's internal skin.
 Thin exposures still face all original image gates. These samples guard visible layer ordering; they
@@ -284,6 +289,17 @@ UV/frame/data bounds, skin preservation, assembled topology, independent
 auditing and all image gates stay active. The default remains true, including
 the accepted pickup/colonial fixes. Scoped policies reset between levels and
 on exceptions. Reports record the level's choice in its assembly receipt.
+
+A level may set `reflective_surface_pixels` to a positive cap no larger than its
+base `surface_pixels`. This recooks source components whose median metallic is
+at least .75 and median roughness is below .30 at their original corners. The
+source metallic/roughness factors, texture coordinates, texture transform and
+sampler wraps/filter are evaluated from the immutable delivery; ORM stays linear.
+The existing texture sampler is reused. Other constructions keep the base
+allowance. This option requires seam sliding and creates no image or material.
+It addresses cases where a displaced narrow metallic bevel moves a reflection
+despite bounded transported vertex normals. It is a geometric sampling priority;
+native comparisons still determine whether its cap is sufficient and worthwhile.
 
 An additional assembled-edge check compares the combined candidate with its
 combined source. Independently valid components can move into a shared edge,
