@@ -40,6 +40,7 @@ geometry, a shader or a texture. Paired comparison images remain ignored.
 | Local file | Direct image/PDF URL | Author / license / use |
 | --- | --- | --- |
 | sedan-camry-specs.pdf | https://cdn.dealereprocess.org/cdn/brochures/toyota/2019-camry.pdf | Toyota Motor Sales USA; copyrighted MY2019 manufacturer eBrochure, archived by Dealer eProcess; specification table, SE dimensions/track/clearance and 235/45R18. Reference only. |
+| sedan-mondeo-specs.pdf | https://www.ford.ie/content/dam/guxeu/uk/documents/feature-pdfs/FT-Mondeo.pdf | Ford Motor Company; copyrighted MY2020 manufacturer brochure, reference only. Dimensions figure, printed p.43 (PDF page 7): 2121 mm across mirrors. Cross-check for the original S240 mirror package; not a styling source. Retrieved 2026-10-31. |
 | sedan-camry-uk-2021.pdf | https://www.toyota.co.uk/content/dam/toyota/nmsc/united-kingdom/brochure-archive/camry/camry-jun-21.pdf | Toyota GB; copyrighted June 2021 manufacturer brochure; independent metric envelope/145 mm clearance cross-check. Different market, not substituted for US trim. |
 | sedan-toyota-2020.pdf | https://media.toyota.ca/content/dam/media-toyota/general/unassigned/20145/20-camry-brochure-en.pdf | Toyota Canada; copyrighted MY2020 manufacturer brochure; same-generation tire/package comparison only, not the US envelope source. |
 | sedan-accord-front.jpg | https://cdcssl.ibsrv.net/autodata/images/?img=CDC_2019HOC010107.jpg&width=1600 | CarsDirect / Autodata copyrighted stock photo, reference only; MY2019 LX front three-quarter, roof/hood/stance and calibration. Source page: https://www.carsdirect.com/honda/accord/2019/pictures . |
@@ -154,3 +155,18 @@ Photo source galleries: https://www.carsdirect.com/toyota/corolla-hatchback/2019
 | hatch-color-report.pdf | https://www.axalta.com/content/dam/New%20Axalta%20Corporate%20Website/Public/Documents/US/axalta-global-automotive-color-popularity_2025.pdf | Axalta Coating Systems, 2025 report; copyright retained, reference only | North American new-build color proportions; five selected colors normalized, not a used-fleet claim |
 
 Only visual comparison and camera measurements; never texture, lighting or geometry input.
+
+The Ford dimensions figure was inspected again for round 5: 2121 mm including
+mirrors, against the S240's measured 2104.6 mm. The housing dimensions and
+rounded wedge construction remain original estimates. Reference images/PDFs
+never enter the generator, aperture cutter or material graph.
+
+## Sedan detail and look references — accessed 2026-11-04
+
+| Local file | Direct image/PDF URL | Author / license / use |
+| --- | --- | --- |
+| sedan-used-front.jpg | https://upload.wikimedia.org/wikipedia/commons/5/5b/2020_Toyota_Camry_XSE_front.jpg | Throwawayacc222, CC0 1.0; MY2020 photographed 25 October 2025, five-year daily-driver paint values/reflections, road film and optical construction. Reference only. |
+| sedan-used-rear.jpg | https://upload.wikimedia.org/wikipedia/commons/1/19/2020_Toyota_Camry_XSE_rear.jpg | Throwawayacc222, CC0 1.0; same five-year vehicle/date, rear three-quarter paint/wear and glazing comparison. Reference only. |
+| sedan-color-popularity.pdf | https://www.axalta.com/content/dam/New%20Axalta%20Corporate%20Website/Public/Documents/US/axalta-global-automotive-color-popularity_2025.pdf | Axalta Coating Systems, 2025 Global Automotive Color Popularity Report; copyright Axalta, reference only, not redistributed. Page 3 North America shares (31 white, 21 gray, 19 black, 10 blue, 8 silver), normalized across the S240 five choices; no source pixels enter the asset. |
+
+Honda's manufacturer [Accord supplementary dimensions](https://www.honda.co.jp/customer/auto/accord/faq/qa015/) publishes a 17.5 degree departure angle for its current FF sedan. This is a later-generation class cross-check, not a MY2019 Camry claim. Used to set the original S240 lower-tail ground tangent; the delivered mesh angle is independently measured. Web-viewed specification; no web page is downloaded or used in modeling.

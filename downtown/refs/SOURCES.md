@@ -1,0 +1,61 @@
+# Main Street reference register
+
+Inspection and measurement only. No photograph or drawing enters an asset shader.
+Federal HABS material is public domain where created by the US government; LOC
+states no known restrictions. The three photographs precede or fall within our
+1995–2015 setting: use is construction, not replication of pictured businesses.
+
+| File | Direct image / PDF URL | Author / rights | Use |
+| --- | --- | --- | --- |
+| madison.jpg | https://tile.loc.gov/storage-services/service/pnp/habshaer/in/in0300/in0335/color/361579cr.jpg | HABS IN-231, Library of Congress; federal work, no known restrictions | Used row, street rhythm, upper-floor proportions; color transparency |
+| mulberry.jpg | https://tile.loc.gov/storage-services/service/pnp/habshaer/in/in0000/in0038/photos/064854pr.jpg | HABS IN-11, Jack E. Boucher, September 1971; federal work, no known restrictions | Three-story row, hoods, cornices, fire escape; monochrome |
+| foster.jpg | https://tile.loc.gov/storage-services/service/pnp/habshaer/in/in0000/in0019/photos/064669pr.jpg | HABS IN-86, Jack E. Boucher, September 1971; federal work, no known restrictions | Corner shop, display returns and cast-iron facade; monochrome |
+| norwalk-plan.jpg | https://tile.loc.gov/storage-services/service/pnp/habshaer/ct/ct0300/ct0326/sheet/00001v.jpg | HABS CT-349, Peter M. Leith, Richard Bergmann Architects, February 1977; LOC no known restrictions | Measured district plan, party-wall urban grain, scale bar |
+| storefronts.pdf | https://www.nps.gov/orgs/1739/upload/preservation-brief-11-storefronts.pdf | H. Ward Jandl, NPS Preservation Brief 11, 1982; US government | Storefront load path, bulkhead, transom, original and altered frames |
+| windows.pdf | https://www.nps.gov/orgs/1739/upload/preservation-brief-09-wood-windows.pdf | John H. Myers, NPS Preservation Brief 9, 1981; US government | Box frame, stops, double hung sash, sill and repair |
+| masonry.pdf | https://www.nps.gov/orgs/1739/upload/preservation-brief-02-repointing.pdf | Robert C. Mack / John P. Speweik, NPS Preservation Brief 2, 1998; US government | Mortar joints and repointing; masonry weathering plan |
+| mesker.pdf | https://dnrhistoric.illinois.gov/content/dam/soi/en/web/dnrhistoric/preserve/documents/mesker-catalog.pdf | Mesker & Brother, 1904 trade catalog, Illinois SHPO scan; underlying publication public domain | Sheet-metal cornices, stock heights/projections, storefront columns and framing |
+| metal-cornices.pdf | https://www.nps.gov/orgs/1739/upload/tech-note-metals-02-cornices.pdf | Richard Pieper, NPS Preservation Tech Notes Metals 2, 1990; US government | Formed sheet-metal cornice assembly, anchorage, roof covering and corrosion causes |
+| cast-iron.pdf | https://www.nps.gov/orgs/1739/upload/preservation-brief-27-cast-iron.pdf | John G. Waite / Margot Gayle, NPS Brief 27, 1991; US government | Bolted storefront columns and iron support construction |
+| awnings.pdf | https://www.nps.gov/orgs/1739/upload/preservation-brief-44-awnings.pdf | Chad Randl, NPS Brief 44, 2004; US government | Canvas, head rods, front bars, braced frames and valances |
+| ouray-district.pdf | https://npgallery.nps.gov/GetAsset/763c4bf3-1646-4712-95c5-2c0b12accfb7 | Martha Sullenberger / Roger Henn, Ouray Historic District nomination, 1981/1983; government archive, inspection only | Section 7: low western Main Street, one/two-story brick, varied historic styles and alterations; no copied plan |
+| gonzales-district.pdf | https://atlas.thc.texas.gov/NR/pdfs/96000935/96000935.pdf | Mary Dillman, Texas Historical Commission, April 1996; additional research Binnie Hoffman; government archive, inspection only | Section 7 pp. 6–7: party walls, full-depth lots, 1–3 stories, recessed entries, ghost signs and altered storefronts |
+| bank-nomination.pdf | https://mostateparks.com/sites/g/files/zuston361/files/media/pdf/2025/02/lawrence-county-bank-building.pdf | Shirley Elwing, NRHP nomination 2004/2005, Missouri SHPO / NPS; government archival reference | 25 × 100 ft masonry commercial footprint; Romanesque corner bank |
+
+Catalog records: [Madison row](https://www.loc.gov/item/in0335/),
+[Mulberry block](https://www.loc.gov/item/in0038/),
+[Foster](https://www.loc.gov/item/in0019/),
+[Norwalk drawings](https://www.loc.gov/item/ct0326/).
+
+Additional reading: NPS [Preservation Brief 27, cast iron](https://www.nps.gov/orgs/1739/upload/preservation-brief-27-cast-iron.pdf),
+NPS [Metals 2: Restoring Metal Roof Cornices](https://www.nps.gov/orgs/1739/upload/tech-note-metals-02-cornices.pdf),
+NPS [Brief 44, awnings](https://www.nps.gov/orgs/1739/upload/preservation-brief-44-awnings.pdf).
+Installed DejaVu Serif and Sans (Bitstream Vera / DejaVu open font license)
+render all original fictional names. No manufacturer's ornament or marks copied.
+
+District context: Ouray's section 7 supports the western block's predominantly
+low brick skyline; its specific landmark hotel and opera house are outside
+this grammar. Gonzales's section 7 describes full-depth adjoining masonry
+commercial rows, ordinary and ornate fronts, arched upper sashes, later
+plate-glass storefronts, ghost signs and restrained later ornament. Those
+features bound our southern grammar. The gallery geometry remains authored
+from general cast-iron/awning construction, not copied from a surveyed front.
+
+The motion audit's solid-angle mathematics follows Jacobson, Kavan and
+Sorkine-Hornung (2013), [author-hosted paper](https://users.cs.utah.edu/~ladislav/jacobson13robust/jacobson13robust.pdf).
+Used for the inside/outside formula only; implementation is original and no
+downloaded code or package is used.
+
+| File | Direct image / PDF URL | Author / rights | Use |
+| --- | --- | --- | --- |
+| foster-large.jpg | https://tile.loc.gov/storage-services/service/pnp/habshaer/in/in0000/in0019/photos/064669pv.jpg | Jack E. Boucher, HABS IN-86, September 1971; US federal work, no known restrictions | Larger inspection of cast hoods, ear consoles, paired cornice brackets and original iron storefront |
+| auburn-color.jpg | https://upload.wikimedia.org/wikipedia/commons/5/51/Auburn_IN_downtown_2012.JPG | Michael Walter / Cuppysfriend, 12 June 2012; CC BY-SA 3.0 | Used downtown street, sun/shadow, brick kiln range, limestone and cornice paint; photo pair only |
+| galena-color.jpg | https://upload.wikimedia.org/wikipedia/commons/e/e4/Main_Street_%28Galena%29.jpg | Chris Light, 8 August 2009; CC BY-SA 4.0 | Main Street storefronts, warm red masonry and painted metal, used fabric; photo pair only |
+| madison-color.jpg | https://upload.wikimedia.org/wikipedia/commons/f/f3/Madison_IN_Main_Street.JPG | Chris Light, September 2009; CC BY-SA 3.0 | Upper windows/cornice and street value cross-check; photo pair only |
+| louisiana-color.jpg | https://upload.wikimedia.org/wikipedia/commons/2/20/Cast_Iron_Storefront_and_Sheet_Metal_Cornice_in_Louisiana%2C_MO_%2817476845906%29.jpg | Paul Sableman, 8 May 2015; CC BY 2.0, Flickr license review on Commons (used under this license despite contradictory public-domain template) | Sharp used cast-iron storefront, painted brick, cornice profiles and weather; overcast color/value comparison only |
+
+Blender 5.2 manual: [Eevee material thickness](https://docs.blender.org/manual/en/5.2/render/eevee/material_settings.html) and [Material API](https://docs.blender.org/api/5.2/bpy.types.Material.html). Used for the engine-only 4 mm slab-thickness override on imported joined building meshes; no downloaded code is executed.
+
+| File | Direct image / PDF URL | Author / rights | Use |
+| --- | --- | --- | --- |
+| historic-signs.pdf | https://www.nps.gov/orgs/1739/upload/preservation-brief-25-signs.pdf | Michael J. Auer, NPS Preservation Brief 25, 1991; US federal work | Fading wall paint, surviving field and lettering, and photograph of a worn Baltimore wall sign; inspection only |
