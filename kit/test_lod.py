@@ -158,6 +158,21 @@ def main():
     config=asset/'src/lod.json';config.write_text(json.dumps(dict(kind='fixture',source='../fixture.gltf',
           output='lod',levels=[dict(ratio=.5,screen_height=.2),dict(ratio=.25,screen_height=.08)])))
     build(config);check(config,require_renders=False)
+    retained_config=asset/'src/retained.json'
+    retained_config.write_text(json.dumps(dict(kind='retained construction fixture',source='../fixture.gltf',
+          output='lod-retained',screen_space=True,source_geometry_nodes=['Static'],
+          levels=[dict(ratio=.25,screen_height=.2)])))
+    build(retained_config);check(retained_config,require_renders=False)
+    rm=json.loads((asset/'lod-retained/manifest.json').read_text())
+    kept=rm['levels'][1]['assembly']['retained_source_geometry']
+    assert kept[0]['node']=='Static' and kept[0]['source_triangles']==len(faces)
+    delivered=Document(asset/'lod-retained/fixture_LOD1.gltf')
+    for node in delivered.data['nodes']:
+        if node.get('name')=='Static':
+            ra,rf=delivered.arrays(delivered.data['meshes'][node['mesh']]['primitives'][0])
+            assert np.array_equal(rf,faces) and all(np.array_equal(ra[k],a) for k,a in attrs.items())
+        if node.get('name')=='Door':
+            assert sum(len(delivered.arrays(p)[1]) for p in delivered.data['meshes'][node['mesh']]['primitives'])<len(faces)
     from kit.lod_normals import audit as audit_normals
     audit_normals(config)
     # Closely spaced surfaces with different chart ownership: nearest geometry
