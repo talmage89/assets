@@ -138,6 +138,19 @@ def main():
     sampled,receipt=transport_frames(source,np.array([[0,1,2]]),candidate,np.zeros((0,3),int),{'TEXCOORD_0':np.array([.001])},.01)
     expected=np.array([.5,.25,.25])@source['NORMAL'];expected/=np.linalg.norm(expected)
     assert np.allclose(sampled['NORMAL'][0],expected,atol=1e-6),receipt
+    # Reprojecting legitimate corners can violate the field inside a broad
+    # face over a curved source normal field. Keep the already valid source
+    # interpolation on those corners instead of rejecting the lower mesh.
+    theta=np.radians(2.9)
+    curved=dict(POSITION=np.array([[-1,-1,0],[1,-1,0],[0,1,0],[0,-1/3,0]],np.float32),
+                NORMAL=np.array([[np.sin(theta),0,np.cos(theta)]]*3+[[-np.sin(theta),0,np.cos(theta)]],np.float32))
+    curved['TEXCOORD_0']=curved['POSITION'][:,:2].copy()
+    fan=np.array([[0,1,3],[1,2,3],[2,0,3]],np.uint32)
+    broad={k:v[:3].copy() for k,v in curved.items()};broad['NORMAL'][:]=(0,0,1)
+    kept,receipt=transport_frames(curved,fan,broad,np.array([[0,1,2]],np.uint32),
+                                  {'TEXCOORD_0':np.full(3,.001)},.02,meters_per_pixel=.01)
+    assert np.array_equal(kept['NORMAL'],broad['NORMAL']),receipt
+    assert receipt['deferred_vertices']==3 and receipt['unresolved_faces']==0,receipt
     # An open material boundary stays fixed while interior vertices reduce.
     original=attrs['POSITION'][ff[:256]];x,y,z=np.meshgrid(np.arange(6),np.arange(6),[0]);p=np.stack([x.ravel(),y.ravel(),z.ravel()],axis=1).astype(np.float32)
     tris=[]

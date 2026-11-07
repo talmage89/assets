@@ -415,7 +415,7 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
         triangles=remaining,constraints=constraints,collapses=accepted,vertex_updates=updated,progressive_area_error_fraction=total_excess/max(source_area+target_area,1e-30),rejected_orientation_or_field=rejected,seams='synchronized wedges, separate shader membership, bounded subpixel junction transport')
 
 
-def transport_frames(source,faces,candidate,triangles,limits,radius,data_tolerance=.01):
+def transport_frames(source,faces,candidate,triangles,limits,radius,data_tolerance=.01,*,meters_per_pixel=None):
     """Sample LOD0 shading normals/tangents on each reduced UV/material side.
 
     Exact source corners stay exact, including inherited tangent rounding. New
@@ -427,7 +427,7 @@ def transport_frames(source,faces,candidate,triangles,limits,radius,data_toleran
     p=source['POSITION'].astype(float);ff=np.asarray(faces)
     tree=BVHTree.FromPolygons([Vector(q) for q in p],ff.tolist(),all_triangles=True)
     gradients=np.linalg.pinv(p[ff[:,1:]]-p[ff[:,:1]])
-    output={k:v.copy() for k,v in candidate.items()};changes=[]
+    output={k:v.copy() for k,v in candidate.items()};changes=[];updated=set()
     known={}
     for i,point in enumerate(p):known.setdefault(tuple(point),[]).append(i)
     for i,point in enumerate(candidate['POSITION'].astype(float)):
@@ -451,12 +451,38 @@ def transport_frames(source,faces,candidate,triangles,limits,radius,data_toleran
             # coincident source sheets without jumping to another chart.
             options.append((distance+radius*(uv*.001+angle*.00001),fi,w,n,angle))
         if not options:continue
-        _,fi,w,n,angle=min(options,key=lambda x:x[0]);output['NORMAL'][i]=n;changes.append(angle)
+        _,fi,w,n,angle=min(options,key=lambda x:x[0]);output['NORMAL'][i]=n;changes.append(angle);updated.add(i)
         if 'TANGENT' in source:
             tangent=w@source['TANGENT'][ff[fi]];tangent[:3]-=n*(tangent[:3]@n)
             tangent[:3]/=max(np.linalg.norm(tangent[:3]),1e-20);tangent[3]=1 if tangent[3]>=0 else -1
             output['TANGENT'][i]=tangent
-    return output,dict(method='LOD0 UV/material-side shading-normal and tangent sampling',vertices=len(changes),max_correction_degrees=max(changes,default=0.))
+    # Individually legitimate vertex frames can disagree with the source field
+    # inside a reduced face spanning several original triangles. Transport is
+    # optional refinement of already interpolated LOD0 frames: never sacrifice
+    # a valid reduction because independently projected corners cross that
+    # face's normal/tangent bound. Revert only implicated transported corners;
+    # repeating is monotone and terminates at the original candidate if needed.
+    triangles=np.asarray(triangles);pending=set(updated);deferred=set();passes=0
+    touched=[fi for fi,f in enumerate(triangles) if updated.intersection(map(int,f))]
+    mpp=meters_per_pixel if meters_per_pixel is not None else radius*.5
+    unresolved=[]
+    while touched:
+        bad=[];passes+=1
+        for fi in touched:
+            f=triangles[fi];points=output['POSITION'][f];frame_limits=_frame_limits(points,mpp)
+            for w in (np.array([1/3]*3),np.array([.5,.5,0]),np.array([0,.5,.5]),np.array([.5,0,.5])):
+                point=w@points;hit=tree.find_nearest(Vector(point))
+                hits=tree.find_nearest_range(Vector(point),max(1e-6,hit[3]+1e-6,radius))
+                uv,data=_field_error({k:w@v[f] for k,v in output.items() if k!='POSITION'},source,ff,p,gradients,hits,limits,frame_limits,data_tolerance)
+                if uv>1. or data>data_tolerance:bad.append(fi);break
+        if not bad:break
+        revert={int(v) for fi in bad for v in triangles[fi]}&pending
+        if not revert:unresolved=bad;break
+        for i in revert:
+            for key in ('NORMAL','TANGENT'):
+                if key in candidate:output[key][i]=candidate[key][i]
+        pending-=revert;deferred|=revert
+    return output,dict(method='LOD0 UV/material-side shading-normal and tangent sampling',vertices=len(changes),retained_transport_vertices=len(updated)-len(deferred),deferred_vertices=len(deferred),face_bound_passes=passes,unresolved_faces=len(unresolved),max_correction_degrees=max(changes,default=0.))
 
 
 def _component(aa,ff,ratio,meters_per_pixel,uv_limit,uv_weight,normal_weight,surface_pixels,texture_size,seam_sliding):
@@ -475,7 +501,7 @@ def _component(aa,ff,ratio,meters_per_pixel,uv_limit,uv_weight,normal_weight,sur
         for rr in [ratio,ratio+(1-ratio)*.4,ratio+(1-ratio)*.75]:
             candidate,cf,row=collapse(aa,ff,rr,uv_weight,normal_weight,meters_per_pixel*surface_pixels*(2/.75),component_limits,meters_per_pixel,seam_sliding,data_tolerance)
             if seam_sliding and row['collapses']:
-                candidate,row['normal_transport']=transport_frames(aa,ff,candidate,cf,component_limits,meters_per_pixel*surface_pixels*(2/.75),data_tolerance)
+                candidate,row['normal_transport']=transport_frames(aa,ff,candidate,cf,component_limits,meters_per_pixel*surface_pixels*(2/.75),data_tolerance,meters_per_pixel=meters_per_pixel)
             uv_error=field_error=distance=0.;samples=[];sample_weights=[]
             for w in [np.array([1/3]*3),np.array([.5,.5,0]),np.array([0,.5,.5]),np.array([.5,0,.5])]:
                 for f in cf:
