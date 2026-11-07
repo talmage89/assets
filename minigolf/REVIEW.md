@@ -1,8 +1,9 @@
 # Miniature golf — construction and look-dev critique
 
-Passes 1–4 record the earlier form gate. Revision passes below continue through
-baked look development and judge the delivered GLBs. Final docs remain outside
-this checkpoint. Photographs never enter a material or supply a vertex.
+Passes 1–4 record the earlier form gate; later revision and finish passes
+retain rejected checkpoints for context. Finish passes 7–8 record acceptance
+of the final exported family and native-size inventory. Photographs never
+enter a material or supply a vertex.
 
 ## Pass 1 — imported glTF, `renders/pass1/`
 
@@ -1213,3 +1214,66 @@ adjacent route curves. The compact original castle is simpler than the photo.
 These are known flaws for this minor city asset; do not begin another aesthetic
 round. All six corrections pass their image gate. The final inventory, source-field
 comparisons and gallery still require native-size review before docs.
+
+## Finish pass 8 — final inventory and source-field loss
+
+Color and value: viewed every current pipeline PNG at original resolution,
+including all 27 final export frames, plus the three 4096-source-field/photo
+pairs. The two heroes retain deep shadows under rock, greens, fixtures and
+window recesses. Their screen-luma (encoded RGB) 1st / 50th / 99th percentiles
+are .0087 / .2989 / .8922 classic and .0095 / .4343 / .9748 adventure.
+All-channel clipped white occupies .000386% / 0% of those frames. Dusk has
+localized warm play lighting against dark surroundings; tiny lamp emitters
+clip, rather than broad painted surfaces. The source-field comparison keeps
+hue/value and the larger wear patterns in the ship maps. Fine carpet and mulch
+frequency soften after filtering; do not claim high-poly projection from this
+same-geometry field comparison.
+
+The accepted adventure hero is 35 mm at a measured 1.65 m above its imported
+support, with receiving water and the covered bridge visible. Three earlier
+hero attempts were rejected at native size: bridge rails, nearby rock and the
+quarry wall hid the fixture or dominated the frame. The final west-bank view
+was checked against actual water vertices and opaque surfaces before rendering.
+Classic is 40 mm at the same measured eye height. The fixture view contains an
+actual 1.8 m silhouette; the full adventure tee board and rubber pad are clear.
+Both cups remain open/dark; the clubhouse's service window, counter and stock
+are visible. The Eevee frame is from the actual delivered material set and has
+a flatter shadow/foliage response than Cycles.
+
+The first turnaround set is rejected: surrounding town/trees obscured the
+course and the orthographic rays exposed black below grade. Final turnarounds
+import only the construction glTF, keep its basins open inside a procedural
+outside-parcel surround, and use sufficiently high cameras. Optional plant
+companions are omitted only for these inspection views. The course geometry,
+accepted layout and contextual heroes are unchanged. All eight replacements
+were opened at native width and show the complete parcel without black bands.
+
+The catalogue contains five fixtures and nine unique hole kinds. Some hole
+modules preserve their authored vertical grade and initially floated over the
+flat display stage. The sheet now translates each whole module using its
+measured underside, without modifying delivered vertices or pivots. The README
+explicitly describes terrain/underside seating for individual module use.
+The two final sheets are unclipped and were inspected at native width.
+
+What still reads as CG: repeated crown mottling and carved creases, soft static
+foam, simplified carpet nap, repeated foliage/mulch and tidy beds, some fine
+facet shading/soil slivers at graded walking connections, and the compact
+castle's simpler original design. Landmark fits do not reconstruct the photos'
+surrounding layouts. These are disclosed limitations, not concealed by the
+technical checks. No further aesthetic round is warranted for this minor site.
+
+The staged clean reconstruction began with this family's build, textures,
+exports and renders absent; visual gates interrupted only presentation work.
+The final default `make` and explicit `make check` return 0. Exact replay
+passes 38 deterministic field/map/delivery files, including both landscapes;
+real GPU rebakes have maximum byte delta 1 and RMSE .000141 against the kit's
+2 / .02 limits. One native oak tangent needed the kit's exact-signature,
+one-rounding-step guard in both containers. Altered-position and excessive-
+tangent probes are rejected. These checks establish reproducibility and
+serialization, while the image reviews above establish the look. Kit and the
+238 pre-existing protected delivery files remain unchanged.
+
+Final contact sheets and all five compressed gallery JPGs were then opened at
+original dimensions. Gallery widths are at most 1600 pixels; file sizes range
+from 160,065 to 197,454 bytes. Only these final JPGs enter `docs/`, after all
+source/documentation commits, in their own last commit.

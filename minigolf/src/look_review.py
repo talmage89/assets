@@ -3,7 +3,7 @@
 This measures the files. Native-size artistic judgment is logged in REVIEW.md.
 Docs are an explicit later target, after that judgment.
 """
-import argparse,json
+import argparse,hashlib,json
 from pathlib import Path
 import numpy as np
 from PIL import Image,ImageDraw
@@ -26,6 +26,8 @@ def main():
   path=folder/(name+'.png');meta=json.loads(path.with_suffix('.json').read_text())
   assert meta['sha256']==bundle(meta['source']),(path,'stale delivery')
   assert meta['recipe_sha256']==recipe_hash(),(path,'stale render recipe')
+  if 'turnaround_recipe_sha256' in meta.get('context',{}):assert meta['context']['turnaround_recipe_sha256']==hashlib.sha256(Path('src/turnaround.py').read_bytes()).hexdigest(),(path,'stale isolated turnaround')
+  if 'catalog_recipe_sha256' in meta.get('context',{}):assert meta['context']['catalog_recipe_sha256']==hashlib.sha256(Path('src/catalog.py').read_bytes()).hexdigest(),(path,'stale catalog')
   assert meta['engine']==('BLENDER_EEVEE' if name=='eevee' else 'CYCLES')
   im=Image.open(path).convert('RGB');assert im.width>=800
   rgb=np.asarray(im,float)/255;y=rgb@np.array([.2126,.7152,.0722])

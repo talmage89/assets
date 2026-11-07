@@ -17,7 +17,7 @@ FENCE_MAPS := $(foreach c,BaseColor Normal ORM,../fences/textures/ship/T_WoodPri
 CONTEXT_DEPS := ../cars/export/AlderC150.glb ../cars/export/AlderS240.glb ../trees/export/RedMaple.glb ../trees/export/PinOak.glb ../shrubs/export/Shrubs.glb ../street-light/export/StreetLight.glb
 SOURCES := $(addprefix src/,build.py plan.py plan_check.py geometry.py holes.py fixtures.py site.py look.py textures.py terraces.py external.py pieces.py preserve.py tangents.py landscape.py paths.py walk_audit.py joins.py)
 DELIVERIES := export/MinigolfPieces.gltf export/MinigolfPieces.bin $(foreach s,71 92,export/Minigolf-$(s).gltf export/Minigolf-$(s).bin build/embedded/Minigolf-$(s).glb export/Minigolf-$(s).json)
-.PHONY: source-match check-renders baseline all refs textures model export render catalog docs check repeat check-texture-repeat match before-after context review clean FORCE plants
+.PHONY: source-match check-renders baseline all refs textures model export render turnaround catalog docs check repeat check-texture-repeat match before-after context review clean FORCE plants
 .NOTPARALLEL:
 all: refs model plants context check before-after match source-match render catalog review
 refs:
@@ -70,6 +70,10 @@ check: model plants
 render: model plants context
 	$(KIT)/with_gpu.sh $(PYTHON) src/render_batch.py --course classic --blender $(BLENDER) --out renders/final --width $(WIDTH) --samples $(SAMPLES)
 	$(KIT)/with_gpu.sh $(PYTHON) src/render_batch.py --course adventure --blender $(BLENDER) --out renders/final --width $(WIDTH) --samples $(SAMPLES)
+	$(MAKE) turnaround
+turnaround: model
+	$(KIT)/with_gpu.sh $(BP) --python src/turnaround.py -- --course classic --width $(WIDTH) --samples $(SAMPLES)
+	$(KIT)/with_gpu.sh $(BP) --python src/turnaround.py -- --course adventure --width $(WIDTH) --samples $(SAMPLES)
 catalog: model
 	$(KIT)/with_gpu.sh $(BP) --python src/catalog.py -- --kind fixtures --width $(WIDTH) --samples $(SAMPLES)
 	$(KIT)/with_gpu.sh $(BP) --python src/catalog.py -- --kind holes --width $(WIDTH) --samples $(SAMPLES)

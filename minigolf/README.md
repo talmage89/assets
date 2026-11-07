@@ -1,150 +1,189 @@
-# Roadside miniature golf — correction checkpoint
+# Roadside miniature golf
 
-**Not ready for delivery.** The latest exported crops still fail the rock,
-waterfall and adventure-landscape visual gate. No final gallery or `docs/`
-images have been generated. [REVIEW.md](REVIEW.md) records three additional
-native-size critiques, rejected candidates and the remaining faults.
+![Bramble Putt, the older classic course](docs/classic.jpg)
+![Cairn Creek, the terraced adventure course](docs/adventure.jpg)
+![Both courses operating at dusk](docs/dusk.jpg)
+![The two seeded layouts](docs/layouts.jpg)
+![Exported details, modules, scale figure and Eevee](docs/details.jpg)
 
-Two original seeded 18-hole courses: **Bramble Putt**, an older repainted
-classic, and **Cairn Creek**, a newer 1990s-style harbor/quarry adventure.
-The accepted classic routing, clubhouse, themed fixtures and roadside town
-remain. The correction replaces the black water with shallow painted basins,
-adds cast concrete coping to the classic pond, replaces the adventure ring
-with retained rows and winding links, and externalizes the shared images.
-The enlarged quarry is still too blocky, its rock too smooth/uniform, and
-its waterfall too regular. Passing the construction checks does not accept
-those surfaces as realistic.
+Two original seeded 18-hole courses for a 1995–2015 American roadside setting.
+**Bramble Putt** (seed 71) is an older repainted classic: shared winding walks,
+concrete/brick/timber borders, faded traffic lanes, seams and repairs.
+**Cairn Creek** (seed 92) is a newer 1990s-style adventure course: retained
+terraces, a buff faux-rock quarry, a shallow painted stream and pond, a pumped
+cascade, bridges and maritime fixtures. Both are in season and visibly used.
 
-[Dimensions and construction sources](REFERENCE.md),
-[reference credits](refs/SOURCES.md), [texture allocation](TEXTURES.md).
-All geometry, graphics and material fields are scripted originals. Reference
-pixels never enter the asset. Text uses installed open-license DejaVu Sans.
+Every vertex, marking and material field is scripted. Fictional markings use
+installed open-license DejaVu Sans, found through the kit font helper. Reference photographs
+supply measurements and visual comparison only. The surrounding commercial
+road, town buildings, cars, poles and distant trees are presentation context;
+they are excluded from the course exports and costs below.
 
-## Current exports and costs
+## Delivery and cost
 
-| Seed / kind | Construction triangles | glTF + BIN bytes | Materials | Core image memory |
-| --- | ---: | ---: | ---: | ---: |
-| 71 / classic | 122,214 | 14,113,011 | 11 | 81⅓ MiB |
-| 92 / adventure | 171,691 | 20,591,617 | 11 | 81⅓ MiB |
+| Course | Core triangles | Native plants, placed / unique | Complete triangles | glTF + BIN, core / complete bytes | Core / complete GPU images |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Classic 71 | 133,650 | 475,578 / 71,272 | 609,228 | 14,700,591 / 24,560,559 | 81⅓ / 129⅓ MiB |
+| Adventure 92 | 202,239 | 634,154 / 71,272 | 836,393 | 22,992,871 / 32,878,261 | 81⅓ / 129⅓ MiB |
 
-Hole construction remains **4,144–5,512 classic / 4,816–7,166 adventure**,
-including the carpet, slab edge, border, tee, sign, cup and flag; fixtures are
-counted separately. Both retain the accepted 2k–8k hole ceiling. Fixture
-triangles remain castle **3,524**, covered bridge **988**, lighthouse **3,084**,
-windmill **5,536**, shipwreck **6,428**, below the 15k ceiling.
+The cores use **10 classic / 11 adventure material states**; the separate
+native landscape uses ten. These are shared texture bindings and transparency
+states, not additional image sets.
 
-| Optional native landscape | Placed / unique mesh triangles | glTF + BIN bytes |
+Each construction scene references **16 canonical images / 81⅓ MiB**. With
+optional native landscape it references **25 images / 129⅓ MiB**, shared
+across both seeds by relative URI. Only **17⅓ MiB** is new: one 2048²
+BaseColor/OpenGL +Y Normal/ORM set and a 1024² graphics sheet. Ground,
+lumber and native vegetation reuse unchanged library maps. Memory assumes
+8-bpp block compression, full mip chains and URI-based engine caching;
+it is an allocation estimate, separate from PNG disk bytes. The 25 shared PNGs occupy 82,596,268 bytes on disk.
+[TEXTURES.md](TEXTURES.md) describes bindings and intentional tiled UV overlap.
+
+| Path | Contents |
+| --- | --- |
+| `export/Minigolf-{71,92}.gltf` + `.bin` | Complete construction, movable objects, Tee/Cup sockets and footprints |
+| `export/Minigolf-{71,92}-landscape.gltf` + `.bin` | Optional co-located native shrubs and six perimeter trees; linked mesh instances |
+| `export/MinigolfPieces.gltf` + `.bin` | 36 selectable hole modules and five standalone fixtures, coincident at the origin |
+| `textures/ship/T_Minigolf_*.png` | Shared original baked maps and fictional graphics |
+| `build/embedded/*.glb` | Self-contained verification mirrors; external images are the delivery format |
+
+The piece library occupies **23,545,048 glTF + BIN bytes** and references
+**65⅓ MiB** of shared images; these images are part of the allocation above.
+
+Keep relative image paths intact, including the sibling `ground/`, `fences/`,
+`trees/` and `shrubs/` folders. There is no duplicated `export/textures/` set.
+The piece library is an assembly catalogue: select roots rather than displaying
+all coincident modules as one scene. Hole modules retain their authored
+vertical grade: use `hole_spec` / footprint extras and seat their measured
+undersides in game terrain. The catalogue translates them to a flat stage;
+it does not normalize or rebuild the delivered geometry.
+
+## Dimensions and parts
+
+[REFERENCE.md](REFERENCE.md) gives dimensions, construction sources and photo
+landmark uncertainty; [refs/SOURCES.md](refs/SOURCES.md) gives credits and URLs.
+Harris's published sections establish the four-inch base; Wittek's commercial
+stock establishes tee-pad dimensions and carpet class. These are comparators,
+not copied builder layouts.
+
+| Part | Real-scale dimensions |
+| --- | --- |
+| Parcels including parking/hut | Classic 49 × 56 m; adventure 64 × 65 m |
+| Fenced play area, measured from post meshes | 1,948.55 / 2,033.50 m²; 9.24 / 8.85 holes per 1,000 m² |
+| Greens | 5.2–8.6 m long; 2.0–3.6576 m nominal width; .1016 m slab and .0048 m carpet offset |
+| Cup / rubber tee | .10795 m clear opening, .1016 m liner depth and open drain; .9144 × .6096 × .003175 m mat |
+| Walk / footbridge | 1.524 m circulation; 3.6 m span, .0381 × .1397 m joists and 1.067 m guards |
+| Water | Main painted floor -.36 m, water -.17 m; shallow stream, three irregular spill crowns and routed 63 mm pump return |
+| Clubhouse | 6.8 × 4.6 m; siding, service sash/counter, awning, prices, putters and ball stock |
+| Parking / fence | 7.3152 m aisle, 5.4864 m stalls at 2.7432 m pitch; 1.18 m fence |
+
+| Hole kind | Classic triangles | Adventure triangles |
 | --- | ---: | ---: |
-| 71 | 475,578 / 71,272 | 9,859,962 |
-| 92 | 634,154 / 71,272 | 9,885,384 |
+| Plain | 4,144–5,512 | 4,816–7,094 |
+| Bank | 4,232 | 4,888–7,166 |
+| Ramp | 4,232–5,512 | 4,888–5,992 |
+| Bump | 4,232 | 4,888–6,080 |
+| Tunnel | 4,376 | — |
+| Loop | 4,924 | 5,580 |
+| Drop | — | 5,552 |
+| Dogleg | 4,320 | — |
+| Split | 4,340 | 4,924–4,996 |
 
-The plants retain linked native mesh instances. Complete construction plus
-plants is **597,792 / 805,845 placed triangles**, and **23,972,973 /
-30,477,001 geometry/JSON bytes**. These totals include the optional plants;
-the construction totals above do not. The surrounding commercial road, town,
-cars, poles and distant trees are presentation only.
+| Standalone fixture | Triangles |
+| --- | ---: |
+| Windmill | 5,536 |
+| Castle | 3,524 |
+| Covered Bridge | 988 |
+| Lighthouse | 3,084 |
+| Shipwreck | 6,428 |
 
-Both complete scenes reference the same **25 canonical PNG files**:
-**129⅓ MiB** at 8-bpp block compression with full mip chains, assuming an engine
-caches images by normalized URI. This is one shared allocation across seeds.
-**17⅓ MiB is new**; Ground, lumber and native plants reuse their existing sets.
-PNG disk bytes and serialized geometry bytes are separate from GPU allocation.
-`build/costs.json` records individual image sizes, bytes and placed primitives.
+Hole kinds include plain, bank, ramp, bump, tunnel, loop, drop, dogleg and
+split. Carpet traffic follows tee-to-cup use; cup rims, exposed borders,
+outer coping noses, splash faces and the painted basin
+waterlines carry their own wear. Basins have smooth
+bowl transitions; rock has ledges, mineral mottling, damp crevices and moss
+at sheltered feet. Foam is a separate coverage-bearing mesh sharing the atlas.
+Walks meet at trimmed joints; landings start at the actual combined paving
+boundary, with level stair treads, equal risers and shaped timber bearing edges.
 
-| Generated path | Contents |
+## Generator, placement and motion
+
+`src/plan.py::generate(seed, kind=None)` selects dimensions, order, par, bends,
+rises, carpet and fixture assignment. Kind defaults to seed parity; the proof
+courses explicitly use `generate(71, 'classic')` and `generate(92, 'adventure')`.
+The bounded grammar is checked on 250 seeds per kind. It is not arbitrary
+parcel packing or a ball-physics simulation.
+
+Import a course and its landscape companion with the same transform. Units are
+meters, Blender +Z up / -Y front, exported as glTF `(x,z,-y)`. Origins are at
+the parcel center and low-grade datum. Reserve the imported bounds, including
+crowns beyond the fence. The course includes its ground: leave the pond and
+stream excavation open in surrounding game terrain.
+
+Fixed parts consolidate by owner/material; moving members keep their pivots.
+Hole roots carry their Tee/Cup sockets, dimensions, feature and number in extras.
+No armature or animation clips are included.
+
+| Moving part | Blender local axis and range |
 | --- | --- |
-| `export/Minigolf-{71,92}.gltf` + `.bin` | Complete construction, pivots and sockets |
-| `export/Minigolf-{71,92}-landscape.gltf` + `.bin` | Co-located optional native shrubs and six perimeter trees |
-| `export/MinigolfPieces.gltf` + `.bin` | 36 selectable hole roots and five standalone fixtures, coincident at the origin; 23,561,276 geometry/JSON bytes, 65⅓ MiB of shared maps |
-| `textures/ship/T_Minigolf_*.png` | Shared 2048² BaseColor, OpenGL +Y Normal, ORM; 1024² graphics |
-| `build/embedded/*.glb` | Embedded verification mirrors; not the delivery format |
-| `build/source-construction.json`, `check.json` | Measured source construction and independent fresh-import tests |
-| `build/look-check.json`, `external-check.json`, `costs.json` | UV/normal, image identity, indexed-corner equality and allocation receipts |
-| `renders/fixes/*-pair.jpg` | Before/after correction panels, 1440 px per panel |
-
-Preserve relative image URIs. They reference one copy in this family's
-`textures/ship/` and the canonical `ground/`, `fences/`, `trees/` and `shrubs/`
-image folders. There is no copied `export/textures/` delivery directory.
-External and embedded mirrors are compared by actual indexed corner attributes
-and image payloads, separately from the construction checks.
-
-## Dimensions and construction
-
-| Element | Dimensions / basis |
-| --- | --- |
-| Construction parcels | Classic 49 × 56 m; adventure 64 × 65 m, including parking and clubhouse |
-| Holes | 5.2–8.6 m centerline; 2.0–3.6576 m nominal width; original seeded necks, heads and bends |
-| Base / carpet | .1016 m slab edge and .0048 m nominal carpet offset; Harris sections / Wittek comparator |
-| Cup | .10795 m clear opening, .1016 m liner depth, 2 mm wall, open 20 mm drain; Wittek/TNT comparator |
-| Tee | .9144 × .6096 × .003175 m rubber pad with drilled start pocket, number/par, scorecard shelf and pencil; Wittek stock class |
-| Borders | .1524 m painted curb, brick, .0889/.1397 m timber, carved rock banks; original arrangement |
-| Water | Main surface -.17 m, main painted floor -.36 m; shallow stream with 35/45 mm downstream riffle drops |
-| Waterfall | Original three-level pumped cascade, irregular carved crowns, separate liquid tongues, impact fragments, service vault and routed 63 mm return; still visually rejected |
-| Footbridge | 3.6 m span, 1.524 m nominal path, 2×6 joists, .0381 m boards, 1.067 m guard |
-| Fixtures | Windmill 3.20 m, lighthouse 4.73 m, castle keep 6.00 m / front turrets 4.20 m, covered ball bridge 2.30 m, wreck 2.40 m |
-| Clubhouse | 6.8 × 4.6 m, sided walls, framed service sash/counter, awning, price/menu boards, stock and putter rack |
-| Parking | 7.3152 m aisle, 5.4864 m stalls, 2.7432 m pitch and two 6.096 m driveways |
-| Circulation | 1.524 m walks, retained grades, ten quarry risers, 1.18 m three-rail fence and twin-head night lights |
-
-The independently measured fenced play enclosures remain **1,948.55 /
-2,033.50 m²**: **9.24 / 8.85 holes per 1,000 m²**. Middletown's 22,000 sq ft
-and Oak Island's approximately 18,590 sq ft plans are density comparators,
-not copied layouts. The source now measures landscape-to-carpet clearance
-and rock intersections against actual playing/walking triangles. Contacts,
-serialization and sampled motion have separate scopes in their receipts.
-
-## Generator, placement and moving parts
-
-`src/plan.py::generate(seed, kind=None)` chooses dimensions, feature order,
-par, bend, rise, carpet and fixture assignment. An omitted kind uses seed
-parity. The documented proofs explicitly use `generate(71, 'classic')` and
-`generate(92, 'adventure')`. The grammar checks 250 seeds per kind. It is a
-bounded course grammar, not arbitrary parcel packing or a ball simulation.
-
-Import a construction scene and its optional landscape companion with the
-same root transform. Meters, Blender +Z up / -Y front; glTF coordinates are
-`(x,z,-y)`. Course origins use the parcel center and low-grade datum. Reserve
-the imported scene bounds, including native crowns beyond the construction
-parcel. The course includes its own ground; surrounding game terrain must
-leave its pond/stream excavation open.
-
-For assembly, select individual roots from `MinigolfPieces`; its coincident
-unplaced library is not one visible course. Each hole retains Tee/Cup sockets,
-number, feature and footprint extras. Fixed parts consolidate by owner;
-moving members retain independent origins. No armature or animation clips.
-
-| Part | Blender local axis / range |
-| --- | --- |
-| Windmill rotor | Y, 0–360°, bored hub on its shaft |
+| Windmill rotor | Y rotation, 0–360°; bored hub on the actual shaft |
 | Castle portcullis | Z translation, 0–.40 m from raised rest |
-| Clubhouse door | Z, -90–0°, hinge at the jamb |
-| Service sash | X translation, -2.04–0 m; inspection poses open it 1.40 m |
-| Cup-marker flags | Z, -30–30°, authored sagging cloth around the pole |
+| Clubhouse door | Z rotation, -90–0° at jamb hinge |
+| Service sash | X translation, -2.04–0 m; render inspection pose -1.40 m |
+| Cup-marker flags | Z rotation, -30–30°; modeled cloth sag |
 
-## Rebuild and inspect
+## Rebuild and proof
 
-Needs installed Blender 5.2, Python/NumPy/Pillow, fontconfig and flock. All
-Blender work is serialized through the shared kit lock; Cycles uses the GPU.
-Existing library deliveries remain read-only. No downloaded code, model,
-material, texture or HDRI is used.
+Installed Blender 5.2, Python/NumPy/Pillow, fontconfig and flock are required.
+Every Blender operation runs serially through the kit GPU lock. Lighting is
+procedural; no downloaded models, materials, textures, HDRIs or code are used.
 
 ```sh
-make -C minigolf model plants
+make -C minigolf
 make -C minigolf check
-make -C minigolf before-after
-make -C minigolf match
+make -C minigolf repeat check-texture-repeat
+# After viewing all final frames at native size:
+make -C minigolf docs
 ```
 
-The current correction's `make check` passes. The lighthouse photo comparison
-is rejected because the enlarged quarry obstructs its fitted landmarks;
-`make match` consequently fails that visibility gate. The classic-green
-comparison uses a course-facing refit, rather than the old lawn-dominated
-camera. The geometry checks do not override the visual rejection.
+`make` rebuilds exports, same-camera correction pairs, three photo matches and
+three 4096-source-field comparisons, both eye-height heroes, dusk/above and
+four-view turnarounds, detail/scale/Eevee frames, module sheets and contacts.
+Turnarounds show the exported construction alone on a procedural surround,
+with optional native plants and the presentation town omitted so nothing hides
+the asset. Heroes, above views and photo matches retain the full setting.
+`before-after` rebuilds the fe8acfc source in an isolated ignored directory.
+All correction panels are 1440 px wide. The green comparison applies the
+corrected photo fit to both exports; its photo pair separately proves framing.
+The classic fit's 38.43 native-pixel RMS over a 2,892 px crop uses actual curb
+corners within 5 mm of imported surfaces. The matched first green is at the rear right of both panels; the large
+foreground green is a different module. The fit estimates a 22.7 mm lens;
+different original green shapes and surrounding layouts remain visible.
 
-The initial before images and exports are saved under
-`build/revision-before/`; `before-after` uses that local accepted snapshot.
-Tee/border cameras follow the relocated hole in its own frame; site views keep
-exact world cameras. The framing correction intentionally refits its camera.
-A final clean `make`, exact replay/GPU-tolerance proof, complete final render
-inventory, final README gallery and docs commit remain outstanding. Prepared
-repeat checks are not claimed to have passed this correction.
+Construction checks measure source surfaces, joints, supports and stair planes;
+fresh-import checks measure cups, scale, normals, charts, density and motion.
+A separate indexed-corner/image comparison proves serialization, not construction.
+`build/{source-construction,check,look-check,external-check,costs}.json` retain
+those scopes. Exact replay covers deterministic maps, glTF/BIN/JSON, embedded verification mirrors, source
+construction receipts and procedural fields; real GPU rebakes have the kit's separate tolerance comparison.
+[REVIEW.md](REVIEW.md) records native-size critiques and rejected candidates.
+
+Final images are under `renders/final/`, with `contact.jpg`; correction pairs
+under `renders/finish-fixes/`; photo pairs under `renders/look-matches/` and
+`renders/source-matches/`. Only the five compressed gallery JPGs are tracked.
+
+## Known flaws
+
+The carved rock still repeats some creases at close range. Some short graded
+walk connections retain fine facet shading, and narrow soil slivers remain
+between adjacent curves. Water and soft foam
+are static approximations, with no animated flow or fluid simulation. Carpet
+fibers are below the delivered chart's sampling; traffic/seams/patches carry
+its game-distance appearance. Native foliage has repeated card crowns; the mulch repeat is visible and
+the beds remain tidier than many real courses. The compact original castle is less
+elaborate than the reference. Photo fits compare different original designs
+and layouts; their landmark errors do not imply a surveyed reconstruction.
+Hole modules retain authored vertical grade rather than normalized ground
+origins; individual placement needs terrain/underside seating as described
+above. A placed course has many owner/material draws before engine batching; quoted
+triangles and image allocations are not an engine performance guarantee.
