@@ -1,7 +1,8 @@
-# Coffee shop / form and construction critique
+# Coffee shop / form and look-dev critique
 
-This gate uses quick materials and exported external-image glTFs. No final
-manufactured-material bake, wear pass or docs gallery is approved here.
+The first three passes below record the accepted form gate with quick materials.
+The new look-dev passes use exported external-image glTFs, baked manufacture
+and placed wear. This round stops before the docs gallery.
 Every rendered image in passes 1–3 was opened, including failed views.
 The period photographs remain in ignored `refs/`; their credits are in SOURCES.
 
@@ -246,3 +247,83 @@ and requires **three** completed pairs. Repository and whitespace checks pass.
 hierarchy and reviewable furniture/layout construction. Stop here as requested.
 Material realism, causal age, finer food/upholstery forms, unique bake UVs,
 final batching and complete motion certification remain unfinished.
+
+## Look-dev pass 1 (pass4) — reject foreground obstructions and hidden wear
+
+**Color/value first.** The neutral-balanced Annie's and Fair Grinds pavement
+has bright lit areas, deep canopy shade and an irregular history of use.
+The first revised Folio remained almost entirely in shade; Morrow's walk
+looked new. Counter oak was too yellow/orange against the neutral plaster
+and older wood in Rose Nicaud. Rejected these looks: darkened/desaturated the
+oak input, added ground-tied wear samples beneath actual customer/table
+locations, and adjusted the daylight's balance without lifting black steel.
+
+Opened every newly rendered image in `renders/pass4`: the three heroes and
+overheads, each table/counter/awning and the pad walk-up (16 images). The
+folder also contains old chair/scale images from the previous gate; those
+are not evidence of this new pass. Native revised images are 1000 px wide.
+
+- Folio's fixed hero camera was inside the opposite awning. Increased Main
+  Street to 14 m and set the opposing front behind its public walk, leaving
+  the 40 mm / 1.65 m camera fixed. Party-wall neighbors are correctly joined
+  and their dressed rooms now render; their practical light needs review.
+- Switchyard's fixed camera was inside the east island tree. Moved that
+  island back on the lot; the new hip roof only read in the overhead.
+- Every car's canonical lamps were on, producing red streaks in glazing.
+  Parked instances now use zero lamp emission, with local scalar paint
+  variants. Canonical car files and geometry are unchanged.
+- Awning front creases left a small mismatch at the valance attachment;
+  closed that seam and made each cloth chart continuous across its rib bay.
+- Croissants stopped being boxes, but repeated crust charts read like
+  ridges on a molded chip. Corrected their section orientation, softened the
+  broad rolls and mapped one continuous crust chart around each roll.
+- Shared paving had too few samples for customer-local history. Added only
+  exposed-top samples; side gauges stay large faces and buried bottoms are
+  omitted. This adds no image, material family or per-seed map.
+- Removed vinyl is gone, and the three backed menu boards have single,
+  distinct coffee/espresso/bakery listings. The new wood grain reads, but
+  the room is still too orderly compared with the equipment photograph.
+
+The four photographic fits remain explicit estimates: 4.52 / 16.26 / 12.43 /
+25.83 px RMS. The last matches two actual canopy ribs, not an invented full
+roof reconstruction; the reference has a deep metal gallery and ours has
+fabric. It is a canopy-shade/use comparator, weaker as construction evidence.
+No person or photographic texture is reproduced.
+
+## Look-dev pass 2 (pass5) — connected sites, native material read
+
+**Color/value first.** The counter wood is now a deeper brown rather than
+yellow plastic; black steel stays black and the cream tops retain highlight
+headroom. Compared with neutral-balanced Fair Grinds, the walks still show
+too little accumulated contact history at the hero distance. Source fields
+and shipping pixels agree closely, so the remaining weakness is authored
+macro wear, not a bake/color-space correction. Added floor-owned queue
+darkening and retained localized outdoor spills/drag wear.
+
+Opened all 19 new 1000 px views in `renders/pass5`: hero, above, table, counter,
+awning and full site for each, plus the walk-up. The fixed Folio and pad
+cameras are clear. Dressed neighbors, foreground parking, the pad hip and
+the strip's other tenants are actual exported geometry. Canonical vehicles
+are now parked with lamps off and locally varied paint, removing red glass
+ghosts. The street/lot widths and door/table layout are distinct places.
+
+- Folio's curbside cars were just outside its fixed hero. Moved two into
+  the camera's edge while retaining the public walk and curb buffer.
+- The awning's rectangular dark tabs were its front frame showing through
+  the displaced cloth. Recessed the front carrier and rib noses behind the
+  valance. Cloth charts and normals now stay continuous across a rib bay.
+- The croissant was smooth like a small bread roll. Increased its crescent
+  and tapered horns, with broad rolled dough lobes, using the same triangles.
+- The pad's side wall was all shade and too blank. Chose its own raking sun
+  direction, added a cause-local repaint patch/cracks at that repair and
+  completed the side hip seams. The walk-up sill mark now sits 0.35 mm
+  above the actual shelf top.
+- The queue's five isolated dark stamps looked like dots. Removed them and
+  sampled continuous traffic/handoff darkening on the exposed floor. The
+  room's construction and arrangements are unchanged.
+
+Still weak: the block's repeating neighbors, orderly smallware and case
+contents, broad plain stucco, sparse planting, and similar clean umbrellas.
+The patio marks should remain restrained, but the ages must read without
+zooming into individual scratches. Final native-size views and photographic
+pairs are the next acceptance test, not these counts alone.

@@ -23,14 +23,14 @@ def camera(loc,target,lens=40,ortho=None):
     return o
 
 
-def lighting(elevation=18,azimuth=-146,exposure=-.65):
+def lighting(elevation=18,azimuth=-155,exposure=-.35):
     # Photo comparisons change the sun while reusing the imported scene.
     # Replace it so each fitted view has exactly one directional light.
     for ob in list(bpy.context.scene.objects):
         if ob.type=='LIGHT' and ob.data.type=='SUN':bpy.data.objects.remove(ob,do_unlink=True)
     sc=bpy.context.scene;world=bpy.data.worlds.new('ProceduralDaylight');world.use_nodes=True;sc.world=world
     n=world.node_tree.nodes;l=world.node_tree.links;sky=n.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(elevation);sky.sun_rotation=math.radians(azimuth);sky.sun_disc=False;sky.altitude=.12
-    hue=n.new('ShaderNodeHueSaturation');hue.inputs['Saturation'].default_value=.28;l.new(sky.outputs['Color'],hue.inputs['Color']);l.new(hue.outputs['Color'],n['Background'].inputs['Color']);n['Background'].inputs['Strength'].default_value=.085
+    hue=n.new('ShaderNodeHueSaturation');hue.inputs['Saturation'].default_value=.50;l.new(sky.outputs['Color'],hue.inputs['Color']);l.new(hue.outputs['Color'],n['Background'].inputs['Color']);n['Background'].inputs['Strength'].default_value=.10
     d=bpy.data.lights.new('RakingSun','SUN');o=bpy.data.objects.new('RakingSun',d);sc.collection.objects.link(o);a=math.radians(azimuth);e=math.radians(elevation);v=Vector((math.cos(e)*math.cos(a),math.cos(e)*math.sin(a),math.sin(e)));o.rotation_euler=(-v).to_track_quat('-Z','Y').to_euler();d.energy=5;d.angle=math.radians(.55)
     sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=exposure
 
@@ -84,7 +84,24 @@ def setup(seed,with_context=True):
         for x in (-8.23,8.84,-15.55,17.37):area('Neighbor tenant practical',(x,2.2,2.8),190,1.6)
     elif p['kind']=='strip':
         for x in (9.60,16,22.4,28.8):area('Other tenant practical',(x,2.8,2.8),180,1.4)
-    lighting();return p,path
+    lighting(azimuth={'downtown':-155,'strip':-145,'pad':-55}[p['kind']]);return p,path
+
+
+def source_finish():
+    """Compare original charts/height with their baked shipping response."""
+    for mat in bpy.data.materials:
+        if not mat.use_nodes:continue
+        nodes=mat.node_tree.nodes;links=mat.node_tree.links;bs=nodes.get('Principled BSDF')
+        if not bs:continue
+        own=False
+        for node in nodes:
+            if node.type!='TEX_IMAGE' or not node.image:continue
+            stem=Path(node.image.filepath).name
+            if stem=='T_CoffeeShop_BaseColor.png':node.image=bpy.data.images.load(str(Path('build/atlas/T_CoffeeShop_BaseColor.png').resolve()),check_existing=True);own=True
+            elif stem=='T_CoffeeShop_ORM.png':node.image=bpy.data.images.load(str(Path('build/procedural/T_CoffeeShop_ORM.png').resolve()),check_existing=True);node.image.colorspace_settings.name='Non-Color'
+        if own:
+            h=nodes.new('ShaderNodeTexImage');h.image=bpy.data.images.load(str(Path('build/procedural/T_CoffeeShop_Height.png').resolve()),check_existing=True);h.image.colorspace_settings.name='Non-Color'
+            bump=nodes.new('ShaderNodeBump');bump.inputs['Distance'].default_value=.004;links.new(h.outputs['Color'],bump.inputs['Height']);links.new(bump.outputs['Normal'],bs.inputs['Normal'])
 
 
 def shots(p):
@@ -117,7 +134,7 @@ def render(path,recipe,source,metadata=None):
 
 
 def main():
-    a=argparse.ArgumentParser();a.add_argument('--source');a.add_argument('--out',type=Path,default=Path('renders/checkpoint'));a.add_argument('--pass',dest='pass_name',default='checkpoint');a.add_argument('--width',type=int,default=1440);a.add_argument('--samples',type=int,default=32);a.add_argument('--seeds',default='117,228,339');a.add_argument('--shots',default='hero,above,table,counter,awning,chair,scale');a.add_argument('--matches',type=Path);a=a.parse_args(sys.argv[sys.argv.index('--')+1:])
+    a=argparse.ArgumentParser();a.add_argument('--source');a.add_argument('--out',type=Path,default=Path('renders/checkpoint'));a.add_argument('--pass',dest='pass_name',default='checkpoint');a.add_argument('--width',type=int,default=1440);a.add_argument('--samples',type=int,default=32);a.add_argument('--seeds',default='117,228,339');a.add_argument('--shots',default='hero,above,table,counter,awning,chair,scale');a.add_argument('--matches',type=Path);a.add_argument('--source-finish',action='store_true');a=a.parse_args(sys.argv[sys.argv.index('--')+1:])
     jobs=[]
     if a.matches:
         for key,row in json.loads(a.matches.read_text()).items():jobs.append((row['seed'],key,row))
@@ -129,7 +146,9 @@ def main():
     for seed,key,match in jobs:
         # Keep the same procedural street around fitted photographic views;
         # the finite exported paving must not float against a black horizon.
-        if seed!=previous:p,source=setup(seed);previous=seed
+        if seed!=previous:
+            p,source=setup(seed);previous=seed
+            if a.source_finish:source_finish()
         sc=bpy.context.scene;sc.render.engine='CYCLES';sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=10;sc.cycles.transmission_bounces=8;sc.cycles.transparent_max_bounces=12;gpu.enable()
         sc.render.resolution_x=a.width;sc.render.resolution_y=round(a.width*(.70 if key=='above' else 2/3));sc.render.resolution_percentage=100;sc.render.image_settings.file_format='PNG'
         human=[];hidden=[];isolation_floor=None
@@ -149,6 +168,7 @@ def main():
         camera(rec['location'],rec['target'],rec.get('lens',40),rec.get('ortho'))
         if match and rec.get('roll'):sc.camera.rotation_euler.rotate_axis('Z',rec['roll'])
         meta={'isolated_export_node':'Table_02_Chair_1'} if key=='chair' else {}
+        meta['finish_stage']='original charts + meter-valued height' if a.source_finish else 'exported baked PBR'
         if key=='above':
             meta['routes']=[dict(**route,screen=projection([(x,y,p['grade']+.02) for x,y in [(route['rect'][0],route['rect'][2]),(route['rect'][1],route['rect'][2]),(route['rect'][1],route['rect'][3]),(route['rect'][0],route['rect'][3])]],sc.camera)) for route in p['routes']]
             meta['tables']=[dict(id=t['id'],accessible=t['accessible'],screen=projection([(t['x'],t['y'],p['grade']+.80)],sc.camera)[0]) for t in p['tables']]

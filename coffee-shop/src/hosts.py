@@ -61,6 +61,7 @@ def commercial_finish(C,kind):
         role=ob.data.materials[0].name.removeprefix('Form_').split('.')[0]
         if role=='Glass' or ob.get('graphic'):continue
         old=ob.data.materials[0].node_tree.nodes.get('Principled BSDF');color=tuple(old.inputs['Base Color'].default_value[:3])
+        if ob.get('repaint'):color=(.47,.45,.37)
         material=wall if role=='Wall' else concrete if role=='Concrete' else roof if role=='Roof' else equipment
         ob.data.materials.clear();ob.data.materials.append(material)
         cell={'Trim':'Black','Metal':'Metal','White':'White','Primary':'Primary','Accent':'Primary','Black':'Black'}.get(role,'White')
@@ -144,6 +145,13 @@ def commercial(kind,out):
                 if abs(x)>ex:continue
                 frac=max(0,(abs(x)-1.1)/(ex-1.1));end_y=d/2*(1-frac) if side<0 else d-d/2*(1-frac)
                 C.beam('Standing roof seam',(x,-ey if side<0 else d+ey,eave+.013),(x,end_y,peak-(peak-eave)*frac+.013),.016,.019,'Primary',r)
+        for side in (-1,1):
+            for j in range(1,24):
+                yy=-ey+j*.4064
+                if yy>=d+ey:continue
+                t=min(yy+ey,d+ey-yy)/(d/2+ey)
+                C.beam('Standing hip panel seam',(side*ex,yy,eave+.013),(side*(ex-(ex-1.1)*t),yy,eave+(peak-eave)*t+.013),.016,.019,'Primary',r)
+        patch=C.mesh('Bank stucco local repaint',[(w/2+.001,5.1,.34),(w/2+.001,6.8,.34),(w/2+.001,6.84,1.65),(w/2+.001,6.55,1.77),(w/2+.001,5.15,1.71)],[(0,1,2,3,4)],'Wall',r,False);patch['repaint']=True
         # A cantilevered walk-up cover leaves the accepted side route clear.
         C.box('Walkup shelter soffit',(w/2+.48,2.8,2.66),(1.30,2.9,.11),'White',r,.005)
         for yy in (1.53,4.07):C.beam('Walkup cantilever bracket',(w/2-.04,yy,2.14),(w/2+.94,yy,2.61),.045,.045,'Trim',r)

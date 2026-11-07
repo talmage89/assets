@@ -90,7 +90,7 @@ No food scans or photographic texels are used.
 
 The seeded contexts reuse this repository's dressed Downtown storefronts,
 Commercial tenant bays, cars, house, lights, grates/fixtures and vegetation.
-The Main Street road is 10 m wide with a curbside parking lane; strip/pad
+The Main Street road is 14 m wide with a curbside parking lane; strip/pad
 stalls use a 2.74 m pitch and 5.4 m depth, with a nominal 6.096 m circulation
 aisle. Site layouts are original bounded compositions. The geometric café
 clearance proof still applies to the unchanged accepted seating routes; it

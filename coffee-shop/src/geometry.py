@@ -42,11 +42,12 @@ def socket(name,loc,parent,kind,**props):return root(name,loc,parent,socket_kind
 class Batch:
     def __init__(self,name,parent=None):
         self.name=name;self.parent=parent;self.v=[];self.f=[];self.uv=[];self.mat=[];self.smooth=[];self.roles=[]
-    def geom(self,vs,fs,role='black',uv=None,smooth=False):
+    def geom(self,vs,fs,role='black',uv=None,smooth=False,uv_faces=None):
         n=len(self.v);self.v.extend(tuple(v) for v in vs)
-        for f in fs:
+        for fi,f in enumerate(fs):
             self.f.append(tuple(n+i for i in f));self.mat.append(1 if role=='glass' else 2 if role in ALPHA else 0);self.smooth.append(smooth);self.roles.append(role)
-            if uv:self.uv.append(uv)
+            if uv_faces is not None:self.uv.append(uv_faces[fi])
+            elif uv:self.uv.append(uv)
             else:
                 a,b,c,d=LAYOUT.get(role,LAYOUT['black']);self.uv.append([(a,b),(c,b),(c,d),(a,d)][:len(f)] if len(f)<=4 else [((a+c)/2,(b+d)/2)]*len(f))
     def box(self,p,s,role='black'):

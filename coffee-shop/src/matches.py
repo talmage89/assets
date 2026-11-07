@@ -48,23 +48,24 @@ def prepare():
     Path('build/photo-calibration.json').write_text(json.dumps(results,indent=2)+'\n')
 
 
-def compose():
-    folder=Path('renders/lookdev-matches');font=ImageFont.truetype(str(find_font('DejaVu Sans','Book')),20)
+def compose(folder=Path('renders/lookdev-matches')):
+    folder=Path(folder);font=ImageFont.truetype(str(find_font('DejaVu Sans','Book')),20);source='source' in folder.name
     for name,r in json.loads(Path('build/photo-calibration.json').read_text()).items():
         photo=Image.open(r['photo']).convert('RGB').crop(r['crop']);render=Image.open(folder/(name+'.png')).convert('RGB');width=1000;height=round(width*photo.height/photo.width)
         out=Image.new('RGB',(width*2,height+118),'#e8e7df');d=ImageDraw.Draw(out)
         out.paste(render.resize((width,height),Image.Resampling.LANCZOS),(0,50));out.paste(photo.resize((width,height),Image.Resampling.LANCZOS),(width,50))
         d.text((14,14),r['title']+' / original export',font=font,fill='#21332c');d.text((width+14,14),'Neutral-balanced period photograph',font=font,fill='#21332c')
-        d.text((14,height+66),'Estimated %.1f mm; landmark RMS %.1f px. Original construction; baked shared PBR, matched sun.'%(r['shot']['lens'],r['residual_rms_pixels']),font=font,fill='#21332c')
+        finish='original manufacture fields + height' if source else 'exported baked PBR'
+        d.text((14,height+66),'Estimated %.1f mm; RMS %.1f px; %s.'%(r['shot']['lens'],r['residual_rms_pixels'],finish),font=font,fill='#21332c')
         out.save(folder/(name+'-pair.jpg'),quality=94)
         overlay=photo.copy();dd=ImageDraw.Draw(overlay)
         for target,pred in zip(r['measured_pixels'],r['projected_pixels']):
             x,y=target;dd.ellipse((x-5,y-5,x+5,y+5),outline='lime',width=2);dd.line((*target,*pred),fill='red',width=2)
         overlay.save(folder/(name+'-residuals.jpg'),quality=94)
     from kit.contact import contact
-    contact(sorted(folder.glob('*-pair.jpg')),folder/'matched-contact.jpg',width=1800,title='Period coffee shop comparisons — exported PBR sites, fitted framing')
+    contact(sorted(folder.glob('*-pair.jpg')),folder/'matched-contact.jpg',width=1800,title='Period coffee shop comparisons — '+('source finish' if source else 'exported PBR sites'))
 
 
 if __name__=='__main__':
-    a=argparse.ArgumentParser();a.add_argument('--prepare',action='store_true');a.add_argument('--compose',action='store_true');a=a.parse_args()
-    prepare() if a.prepare else compose()
+    a=argparse.ArgumentParser();a.add_argument('--prepare',action='store_true');a.add_argument('--compose',action='store_true');a.add_argument('--renders',type=Path,default=Path('renders/lookdev-matches'));a=a.parse_args()
+    prepare() if a.prepare else compose(a.renders)

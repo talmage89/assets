@@ -12,10 +12,10 @@ from kit.fonts import find_font
 from plan import IDENTITIES
 
 COLORS={'black':('#202322',.64,.0),'steel':('#959c9b',.30,1),'white':('#d4ccaf',.65,0),
- 'wood':('#63452d',.57,0),'oak':('#97724d',.65,0),'cream':('#c6bda5',.87,0),
+ 'wood':('#63452d',.57,0),'oak':('#795438',.65,0),'cream':('#c6bda5',.87,0),
  'forest':('#24483c',.60,0),'wine':('#632c37',.63,0),'teal':('#38666a',.69,0),
  'ochre':('#8d652a',.65,0),'ink':('#2c3b4a',.62,0),'rust':('#884332',.68,0),
- 'cork':('#987347',.95,0),'coffee':('#25140d',.30,0),'pastry':('#ac6e2d',.85,0),
+ 'cork':('#987347',.95,0),'coffee':('#25140d',.30,0),'pastry':('#aa8050',.85,0),
  'rubber':('#171a19',.9,0),'soil':('#3b3023',.98,0),'leaf':('#365535',.86,0),
  'copper':('#9a6744',.38,.8),'wall':('#a59a7d',.85,0),'floor':('#756659',.83,0)}
 
@@ -101,6 +101,9 @@ def generate(folder=Path('build/atlas')):
         factor=1+.025*(fine-.5);relief=.5+.008*(fine-.5);rr=np.full((h,w),rough)
         if key in ('wood','oak'):
             factor*=.88+.13*(grain*.5+.5)+.06*np.sin(u*43+v*4);relief+=.04*grain;rr+=.06*grain
+            if key=='oak':
+                hand=np.exp(-(1-v)/.025)*(.5+.5*np.sin(u*17)**2)
+                factor*=1-.24*hand;rr-=.12*hand
         elif key=='steel':
             grain=np.sin(v*510+fine*3);factor*=.92+.08*grain;relief+=.004*grain;rr+=.06*grain
         elif key in ('forest','wine','teal','ochre','ink'):

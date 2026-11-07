@@ -76,7 +76,10 @@ add_piece.cache={}
 
 def fixtures(p,front):
     grade=p['grade'];r=G.root('Room',parent=front,part='visible_room');b=G.Batch('Room__ShellAndDressing',r);w=p['width'];dep=p['room_depth'];ceiling=3.04 if p['kind']!='downtown' else 3.16
-    b.box((0,dep/2,grade+.008),(w-.5,dep,.016),'floor');b.box((0,dep/2,grade+ceiling),(w-.5,dep,.055),'cream')
+    nx=math.ceil((w-.5)/.45);ny=math.ceil(dep/.45)
+    vs=[(-(w-.5)/2+(w-.5)*i/nx,dep*j/ny,grade+.016) for j in range(ny+1) for i in range(nx+1)]
+    b.geom(vs,[(j*(nx+1)+i,j*(nx+1)+i+1,(j+1)*(nx+1)+i+1,(j+1)*(nx+1)+i) for j in range(ny) for i in range(nx)],'floor')
+    b.box((0,dep/2,grade+ceiling),(w-.5,dep,.055),'cream')
     b.box((0,dep,grade+ceiling/2),(w-.48,.085,ceiling),'wall')
     for s in (-1,1):
         if s>0 and p['kind']=='pad':
@@ -111,7 +114,9 @@ def fixtures(p,front):
         b.tube([(x,y,z+.12),(x,y,grade+ceiling-.04)],.003,'black',6)
         b.lathe([(z-.045,.19),(z,.18),(z+.10,.10),(z+.12,.025)],'copper',20,center=(x,y))
         b.cylinder((x,y,z-.035),.12,.012,'white',16);G.socket(f'Room_Pendant_{i}',(x,y,z-.06),r,'light',power_w=90)
-    b.finish()
+    shell=b.finish()
+    from finishes import room_floor_age
+    room_floor_age(shell,p)
     counter=add_piece('Counter','Room_Counter',(p['counter_x'],p['counter_y'],grade),r,p['counter_yaw'])
     # Scale the straight joinery along its own long axis, then apply geometry.
     if abs(p['counter_length']-3.65)>1e-6:
@@ -157,17 +162,24 @@ def exterior(p,front):
         for row in range(6):
             t=row/5
             for col in range(7):
-                u=col/6;vs.append((a+(c-a)*u,-dep*t-.018*math.sin(math.pi*u)*t,top-drop*t-.095*math.sin(math.pi*u)*math.sin(math.pi*t)-.012*math.sin(3*math.pi*u)*t*t))
-        ab.geom(vs,[(row*7+col,row*7+col+1,(row+1)*7+col+1,(row+1)*7+col) for row in range(5) for col in range(6)],pal,smooth=True)
+                u=col/6;vs.append((a+(c-a)*u,-dep*t-.018*math.sin(math.pi*u)*t,top-drop*t-.095*math.sin(math.pi*u)*math.sin(math.pi*t)-.012*math.sin(3*math.pi*u)*t*t*(1-t)))
+        aa,bb,cc,dd=G.LAYOUT[pal]
+        faces=[];uvs=[]
+        for row in range(5):
+            for col in range(6):
+                indices=(row*7+col,row*7+col+1,(row+1)*7+col+1,(row+1)*7+col)
+                coords=[(aa+(cc-aa)*k/6,bb+(dd-bb)*v/5) for k,v in ((col,row),(col+1,row),(col+1,row+1),(col,row+1))]
+                faces.append(indices);uvs.append(coords)
+        ab.geom(vs,faces,pal,smooth=True,uv_faces=uvs)
         for k in range(8):
             u=k/8;v=(k+1)/8;x0=a+(c-a)*u;x1=a+(c-a)*v
             def curtain(t,bottom=False):
                 return (a+(c-a)*t,-dep-.018*math.sin(math.pi*t)-(.022*math.sin(t*math.tau+j*.7) if bottom else 0),top-drop-(.20+.038*math.sin(math.pi*t)**2 if bottom else 0))
             ab.geom([curtain(u),curtain(v),curtain(v,True),curtain(u,True)],[(0,1,2,3)],pal,smooth=True)
-        ab.beam((a,.045,top-.025),(a,-dep,top-drop-.024),.020,role='black')
-    ab.beam((right,.045,top-.025),(right,-dep,top-drop-.024),.020,role='black');ab.beam((left,-dep,top-drop-.024),(right,-dep,top-drop-.024),.025,role='black')
+        ab.beam((a,.045,top-.025),(a,-dep+.030,top-drop-.024),.020,role='black')
+    ab.beam((right,.045,top-.025),(right,-dep+.030,top-drop-.024),.020,role='black');ab.beam((left,-dep+.030,top-drop-.024),(right,-dep+.030,top-drop-.024),.025,role='black')
     for x in (left,right):
-        ab.box((x,.025,top-.34),(.12,.045,.62),'black');ab.beam((x,.025,top-.65),(x,-dep,top-drop-.04),.025,role='black')
+        ab.box((x,.025,top-.34),(.12,.045,.62),'black');ab.beam((x,.025,top-.65),(x,-dep+.030,top-drop-.04),.025,role='black')
     cloth=ab.finish();cloth['awning_cloth']=True;cloth['fabric_panel_span_m']=(right-left)/n;cloth['sag_m']=.095
     signz=4.20 if kind=='strip' else 4.18 if kind=='downtown' else 3.36;signw=min(5.4,w-2);sy=-.40 if kind=='downtown' else -.105
     b.box((.3,sy,signz),(signw,.16,.65),pal);b.panel(.3,sy-.083,signz,signw-.04,.60,p['name'])
@@ -249,21 +261,29 @@ def paving(p,front):
         a=xmin+i*1.524;c=min(xmax,a+1.524)
         for j in range(math.ceil(dep/1.524)):
             y=-dep+j*1.524;d=min(1.524,-y)
-            b.box(((a+c)/2,y+d/2,z-.065),(c-a-.003,d-.003,.13),'cream')
+            x0=a+.0015;x1=c-.0015;y0=y+.0015;y1=y+d-.0015
+            # Local wear needs samples on the exposed top only. The side
+            # gauges remain single faces; no hidden bottom is exported.
+            vs=[(x0+(x1-x0)*u/4,y0+(y1-y0)*v/4,z) for v in range(5) for u in range(5)]
+            b.geom(vs,[(v*5+u,v*5+u+1,(v+1)*5+u+1,(v+1)*5+u) for v in range(4) for u in range(4)],'cream')
+            ring=[(x0,y0,z),(x1,y0,z),(x1,y1,z),(x0,y1,z)]
+            b.geom(ring+[(xx,yy,z-.13) for xx,yy,zz in ring],[(k,(k+1)%4,(k+1)%4+4,k+4) for k in range(4)],'cream')
     if kind=='pad':
         b.box((8.2,4.25,z-.07),(5.8,8.50,.14),'cream')
     b.box(((xmin+xmax)/2,-dep-.075,z-.0762),(xmax-xmin,.15,.1524),'cream')
     walk=b.finish()
     # Reuse Ground's actual concrete atlas with world-projected UVs.
-    con=tiling.material('Concrete',REPO/'ground/textures/ship');walk.data.materials.clear();walk.data.materials.append(con)
+    con=tiling.material('Concrete',REPO/'ground/textures/ship',tint=True);walk.data.materials.clear();walk.data.materials.append(con)
     bpy.context.view_layer.update();tiling.world_uv(walk,3.048)
+    from finishes import paving_age
+    paving_age(walk,p)
     return r
 
 
 def build(seed,kind):
     bpy.ops.wm.read_factory_settings(use_empty=True);add_piece.cache={};G.palette();p=generate(seed,kind)
     shop=G.root('CoffeeShop_'+str(seed),static_root=True,kind=kind,seed=seed)
-    front=G.root('FrontFrame',(0,-p['depth']/2,0),shop,frame='front-center, ground')
+    front=G.root('FrontFrame',(0,-p['depth']/2,0),shop,frame='front-center, ground',grade=p['grade'])
     roots,obs=import_piece(Path('build/hosts')/(kind+'.glb'),front,prefix='Host_')
     host_tri=sum(sum(len(f.vertices)-2 for f in o.data.polygons) for o in obs if o.type=='MESH')
     for o in obs:

@@ -110,11 +110,20 @@ def baked_good(b,x,y,z,kind='croissant',seed=1):
         # turns of dough, not extra parallel floating wire ribs.
         rings=[]
         for j in range(17):
-            t=j/16;a=(t-.5)*2.2;rad=.010+.018*math.sin(math.pi*t)**.7
-            rad*=1+.11*math.cos(t*math.pi*16)
-            cx=x+.052*math.sin(a);cy=y+.047*(1-math.cos(a))
-            rings.append([(cx+rad*.6*math.sin(a)*math.cos(k*math.tau/10),cy+rad*math.cos(a)*math.cos(k*math.tau/10),z+.022+rad*.75*math.sin(k*math.tau/10)) for k in range(10)])
-        b.loft(rings,'pastry',smooth=True)
+            t=j/16;a=(t-.5)*2.8;rad=.004+.028*math.sin(math.pi*t)**1.2
+            rad*=1+.13*math.cos(t*math.tau*5)
+            cx=x+.060*math.sin(a);cy=y+.070*(1-math.cos(a))
+            rings.append([(cx-rad*.6*math.sin(a)*math.cos(k*math.tau/10),cy+rad*math.cos(a)*math.cos(k*math.tau/10),z+.025+rad*.78*math.sin(k*math.tau/10)) for k in range(10)])
+        from geometry import LAYOUT
+        aa,bb,cc,dd=LAYOUT['pastry']
+        faces=[];uvs=[]
+        for j in range(16):
+            for k in range(10):
+                kk=(k+1)%10
+                uv=[(aa+(cc-aa)*u/16,bb+(dd-bb)*v/10) for u,v in ((j,k),(j,k+1),(j+1,k+1),(j+1,k))]
+                faces.append((j*10+k,j*10+kk,(j+1)*10+kk,(j+1)*10+k));uvs.append(uv)
+        b.geom([v for ring in rings for v in ring],faces,'pastry',smooth=True,uv_faces=uvs)
+        b.geom(rings[0],[tuple(reversed(range(10)))],'pastry');b.geom(rings[-1],[tuple(range(10))],'pastry')
     elif kind=='muffin':
         n=12;phase=rng.random()*math.tau;rings=[]
         for zz,rad in ((0,.022),(.006,.024),(.036,.028),(.041,.033),(.050,.034),(.064,.023),(.069,.006)):
