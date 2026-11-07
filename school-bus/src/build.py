@@ -57,8 +57,8 @@ def body(b):
     inner=[[(x*.983,y,z-.057) for x,y,z in roof_section(yy,d)] for yy,d in sections]
     ob=G.loft('Ceiling formed liner',inner,b.m['ceiling'],caps=False,closed=False);G.smooth(ob,50);b.add(ob,category='interior')
     # Floor leaves a genuine entrance stairwell. Skirt is a folded sheet with a cut arch.
-    b.box('Passenger floor',(0,1.52,1.157),(2.304,8.96,.046),'floor',category='interior',r=.002)
-    b.box('Driver floor',(.43,-3.36,1.157),(1.44,.88,.046),'floor',category='interior',r=.002)
+    b.box('Passenger floor',(0,1.52,1.157),(2.394,8.96,.046),'floor',category='interior',r=.002)
+    b.box('Driver floor',(.4535,-3.36,1.157),(1.487,.88,.046),'floor',category='interior',r=.002)
     b.box('Aisle tread',(0,1.52,1.184),(.310,8.96,.008),'floor',category='interior',r=.001)
     for sign in [-1,1]:
         x=sign*(S.WIDTH/2-.012)
@@ -103,7 +103,7 @@ def body(b):
             for level,z in [('lower',2.040),('upper',2.456)]:
                 b.glass_side(f'sash {sign} {i} {level}',sign*1.217,y,z,w-.068,.377)
             # Sash latches on actual middle rail; interior side.
-            for d in [-.19,.19]:b.box(f'Sash latch {sign} {i} {d}',(sign*1.198,y+d,2.251),(.014,.043,.022),'black',r=.002)
+            for d in [-.19,.19]:b.box(f'Sash latch {sign} {i} {d}',(sign*1.198,y+d,2.251),(.014,.043,.022),'black',r=0)
         b.box('Last corner post '+str(sign),(x,5.976,2.250),(.046,.060,.900))
         b.box('Forward window bay closure '+str(sign),(x,-2.827,2.248),(.032,.161,.870))
         # Vertical driver/door header regions fill the space ahead of passenger bays.
@@ -115,7 +115,7 @@ def body(b):
         # Real pressed rub rails, hat section, broken around entrance/side exit and wheel arch.
         for ri,z in enumerate([.795,1.222,1.624,1.778]):
             intervals=[(-3.89,5.94)] if sign>0 else [(-2.90,5.94)]
-            if sign>0:
+            if sign>0 and z>1.18:
                 ey=S.ROW_START+S.SIDE_EXIT_ROW*S.ROW_PITCH
                 intervals=[(-3.89,ey-.352),(ey+.352,5.94)]
             if z<1.25:
@@ -173,8 +173,9 @@ def body(b):
         b.print(('Front' if front else 'Rear')+' school legend',corners,'school')
     # Cowl and windshield on a smooth original two-piece laminate die.
     b.box('Front cowl',(0,-3.893,1.837),(2.36,.16,.12),r=.025)
-    b.box('Windshield header closure',(0,-3.710,2.705),(2.36,.067,.035),r=.008)
-    b.box('Firewall closed front body',(0,-3.892,1.320),(2.352,.035,1.030),r=.014)
+    b.box('Windshield header closure',(0,-3.710,2.705),(2.36,.067,.035),r=0)
+    b.box('Front cap under-header',(0,-3.8175,2.700),(2.36,.230,.020),r=0)
+    b.box('Firewall closed front body',(0,-3.892,1.320),(2.352,.035,1.030),r=0)
     for sign in [-1,1]:
         def glass(u,v,sign=sign):
             x=sign*(.025+1.113*u);z=1.900+.772*v
@@ -183,21 +184,24 @@ def body(b):
         b.tube('Windshield outer seal '+str(sign),[glass(0,0),glass(1,0),glass(1,1),glass(0,1),glass(0,0)],.022)
         b.tube('Windshield wiper '+str(sign),[(sign*.72,-3.994,2.020),(sign*.30,-3.988,2.30),(sign*.37,-3.970,2.47)],.009)
     for sign in [-1,1]:
-        b.box('Front corner structural post '+str(sign),(sign*1.174,-3.75,2.302),(.073,.20,.83),r=.016)
+        b.box('Front corner structural post '+str(sign),(sign*1.18025,-3.75,2.302),(.0855,.20,.83),r=.016)
         def wrap(u,v,sign=sign):
             # The raked laminate edge meets a side post; a formed corner skin
             # closes their genuine 3D wedge instead of a screen-space backing.
             yedge=-3.963+.273*v
             return (sign*(1.157+.054*u),(yedge+.010)*(1-u)-3.750*u,1.900+.772*v)
-        b.add(panel('Windshield corner wrap '+str(sign),wrap,[0,.5,1],[0,.25,.5,.75,1],b.m['yellow'],(sign,-.5,0),gauge=.0012,return_depth=.016))
+        # Both edges lap under the seal/post. Spend the former hidden return
+        # ribbons on vertical curvature samples, preserving the triangle count.
+        b.add(panel('Windshield corner wrap '+str(sign),wrap,[0,.5,1],[i/8 for i in range(9)],b.m['yellow'],(0,-1,0),gauge=.0012,return_depth=0))
     b.socket('Door',(-1.25,-3.37,.40),'entrance')
 
-def bearing(b,name,center,axis,parent,half=.028,extension=.017):
+def bearing(b,name,center,axis,parent,half=.028,extension=.017,sides=12):
     """A real pin inside a hollow sleeve; the caller supplies its structural feet."""
-    ob=G.lathe(name+' sleeve',[(-half,.013),(half,.013),(half,.0064),(-half,.0064)],b.m['black'],12,axis=axis,closed=True)
+    bore=.0064 if sides==12 else .0062/math.cos(math.pi/sides)
+    ob=G.lathe(name+' sleeve',[(-half,.013),(half,.013),(half,bore),(-half,bore)],b.m['black'],sides,axis=axis,closed=True)
     ob.location=center;b.add(ob,parent)
     v=Vector((1,0,0) if axis=='X' else (0,0,1));c=Vector(center)
-    b.add(G.cylinder(name+' fixed pin',c-v*(half+extension),c+v*(half+extension),.006,b.m['aluminum'],12))
+    b.add(G.cylinder(name+' fixed pin',c-v*(half+extension),c+v*(half+extension),.006,b.m['aluminum'],sides))
 
 def hatch(b,name,y):
     # Cut the source roof with a true hole and surround it with a bolted curb.
@@ -220,12 +224,20 @@ def doors(b):
     # Outward-opening entrance leaves: hinge axes at opposite jambs.
     ya,yc=-3.750,-2.940
     for label,y,hinge,limits in [('front',-3.549,ya,(0,98)),('rear',-3.141,yc,(-98,0))]:
-        p=pivot(b,'Entrance_'+label,(-1.241,hinge,.37),axis='Z',limits=limits)
+        direction=1 if label=='front' else -1
+        p=pivot(b,'Entrance_'+label,(-1.275,hinge,.37),axis='Z',limits=limits)
+        jy=hinge-.020 if label=='front' else hinge+.025
+        b.box('Entrance '+label+' fixed jamb',(-1.211,jy,1.535),(.028,.040 if label=='front' else .050,2.350),'yellow',r=0)
         b.frame_side('Entrance '+label,-1.241,y,1.535,.393,2.350,'black',p,rail=.038)
         b.box('Entrance '+label+' middle',(-1.245,y,1.61),(.038,.323,.075),'yellow',p)
         for level,z,h in [('lower',.965,1.12),('upper',2.146,.94)]:b.glass_side('entrance '+label+' '+level,-1.242,y,z,.310,h,p)
         for z in [.55,1.55,2.50]:
-            b.tube('Entrance '+label+' hinge barrel',[(-1.241,hinge,z-.035),(-1.241,hinge,z+.035)],.012,'black',p)
+            name='Entrance '+label+' hinge '+str(z)
+            bearing(b,name,(-1.275,hinge,z),'Z',p,half=.035,extension=.014,sides=8)
+            b.box(name+' moving leaf',(-1.251,hinge+direction*.018,z),(.050,.012,.045),'black',p,r=0)
+            for dz in [-.044,.044]:b.box(name+' fixed foot '+str(dz),(-1.249,hinge-direction*.013,z+dz),(.060,.018,.014),'black',r=0)
+    # Sheet stepwell walls tie both jambs into the real stair construction.
+    for label,y in [('front',-3.747),('rear',-2.947)]:b.box('Stepwell '+label+' wall',(-.810,y,.760),(.828,.026,.840),'yellow',category='interior',r=0)
     # Real stacked steps occupy the gap left by the raised floor.
     for i in range(4):
         x=-1.118+i*.205;z=.340+i*.210
@@ -255,6 +267,8 @@ def doors(b):
     y=S.ROW_START+S.SIDE_EXIT_ROW*S.ROW_PITCH
     p=pivot(b,'Emergency_side',(1.246,y-.332,1.18),axis='Z',limits=(-105,0))
     b.box('Side emergency forward jamb',(1.207,y-.332,2.247),(.045,.018,.876),'yellow',r=.002)
+    for edge in [-1,1]:b.box('Side emergency '+('forward' if edge<0 else 'aft')+' backed reveal',(1.202,y+edge*.305,1.9325),(.020,.100,1.505),'black',r=0)
+    b.box('Side exit fixed underfloor skirt',(1.2072,y,.967),(.022,.670,.424),'yellow',r=0)
     b.box('Side emergency lower',(1.229,y,1.504),(.032,.640,.648),'yellow',p)
     b.frame_side('Side emergency upper frame',1.242,y,2.252,.642,.850,'yellow',p,rail=.045)
     b.glass_side('side emergency',1.236,y,2.252,.540,.746,p)
@@ -285,11 +299,24 @@ def hood(b):
         loops.append([(x,y,z) for x,z in sec])
     ob=G.loft('Compound hood shell',loops,b.m['yellow'],caps=False,closed=False);G.smooth(ob,50)
     mod=ob.modifiers.new('Molded hood wall','SOLIDIFY');mod.thickness=.006;mod.offset=-1;b.add(ob)
-    # Sealed front wall around the recessed grille instead of an uncut box.
-    y=-5.922
-    for sign in [-1,1]:b.box('Front nose cheek '+str(sign),(sign*.622,y,1.303),(.245,.035,.439),r=.045)
-    b.box('Nose top land',(0,y,1.511),(1.025,.035,.066),r=.020)
-    b.box('Nose lower land',(0,y,1.071),(1.08,.035,.075),r=.018)
+    # One closed molded nose ring follows the actual hood section and grille
+    # opening. Merge both contours' radial stations so neither loses a corner.
+    y=-5.922;center=1.294
+    outer=[(x,z-center) for x,_,z in loops[0]]
+    outer[0]=(outer[0][0],1.0335-center);outer[-1]=(outer[-1][0],1.0335-center)
+    inner=G.rounded_rectangle(.994,.392,.065,5)
+    angles=sorted({round(math.atan2(z,x),10) for x,z in outer+inner})
+    def ray(poly,t):
+        dx,dz=math.cos(t),math.sin(t);hits=[]
+        for a,c in zip(poly,poly[1:]+poly[:1]):
+            vx,vz=c[0]-a[0],c[1]-a[1];den=dx*vz-dz*vx
+            if abs(den)<1e-12:continue
+            distance=(a[0]*vz-a[1]*vx)/den;u=(a[0]*dz-a[1]*dx)/den
+            if distance>0 and -1e-7<=u<=1+1e-7:hits.append(distance)
+        d=min(hits);return d*dx,d*dz+center
+    outline=[ray(outer,t) for t in angles];mouth=[ray(inner,t) for t in angles]
+    rings=[[(x,yy,z) for x,z in contour] for contour,yy in [(outline,y),(mouth,y+.004),(mouth,y+.010),(outline,y+.006)]]
+    ob=G.ring_loft('Unified molded nose',rings,b.m['yellow']);G.smooth(ob,35);b.add(ob)
     b.box('Front lower molded chin',(0,-5.871,.890),(1.65,.11,.27),'yellow',r=.055)
     b.box('Front recessed valance',(0,-5.960,.799),(2.05,.10,.10),'black',r=.027)
     # Narrow rounded grille molding, its back and cell webs all behind the nose lands.
@@ -339,7 +366,6 @@ def hood(b):
     # Broad pressed steel bumpers wrap the corners and carry the crossing-arm actuator.
     bumper(b,'Front pressed bumper',True,2.35,.204,.470,.790)
     bumper(b,'Rear pressed bumper',False,2.43,.180,.500,.800)
-    b.print('Front maker badge',[(-.23,-5.948,1.437),(.23,-5.948,1.437),(.23,-5.948,1.492),(-.23,-5.948,1.492)],'maker')
     for end,yy in [('Front',S.FRONT-.001),('Rear',S.REAR+.001)]:
         low=.4725 if end=='Front' else .57;high=low+.155
         corners=[(-.155,yy,low),(.155,yy,low),(.155,yy,high),(-.155,yy,high)]
@@ -494,15 +520,20 @@ def fittings(b):
             b.tube('Mirror triangular support '+str(sign)+str(z),[(sign*1.19,-3.80,z),(sign*1.55,-4.10,z+.08),(sign*1.52,-4.17,2.24)],.013,'black',sides=8)
             b.box('Mirror support foot '+str(sign)+str(z),(sign*1.19,-3.80,z),(.040,.10,.080),'black',r=.008)
         b.box('Side mirror backing '+str(sign),(sign*1.55,-4.17,2.286),(.25,.115,.65),'black',r=.045)
-        # Mirror faces forward slightly toward the driver rather than straight sideways.
-        b.box('Side mirror plane '+str(sign),(sign*1.55,-4.235,2.397),(.218,.007,.377),'mirror',r=.026)
-        b.box('Side convex mirror '+str(sign),(sign*1.55,-4.238,2.074),(.218,.008,.213),'mirror',r=.030)
+        # Reflective faces look rearward toward the driver; the front view sees
+        # the black housing. Keep the glass seated against its rear surface.
+        b.box('Side mirror plane '+str(sign),(sign*1.55,-4.110,2.397),(.218,.007,.377),'mirror',r=.026)
+        b.box('Side convex mirror '+str(sign),(sign*1.55,-4.109,2.074),(.218,.008,.213),'mirror',r=.030)
         # Crossover mirror has a true curved ellipsoidal face and two supports.
         b.tube('Crossview mirror bracket '+str(sign),[(sign*.780,-5.59,1.37),(sign*1.38,-5.90,1.69),(sign*1.36,-6.02,1.94)],.013,'black')
         b.tube('Crossview mirror brace '+str(sign),[(sign*.757,-5.80,1.43),(sign*1.38,-5.90,1.69)],.011,'black')
         b.box('Crossview primary foot '+str(sign),(sign*.783,-5.59,1.37),(.014,.075,.080),'black',r=.004)
         b.box('Crossview brace foot '+str(sign),(sign*.766,-5.80,1.43),(.014,.070,.070),'black',r=.004)
-        bpy.ops.mesh.primitive_uv_sphere_add(segments=24,ring_count=12,location=(sign*1.36,-6.04,1.985));ob=bpy.context.object;ob.name='Convex crossview '+str(sign);ob.scale=(.157,.059,.125);ob.data.materials.append(b.m['mirror']);G.smooth(ob);b.add(ob)
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=24,ring_count=12,location=(sign*1.36,-6.04,1.985));ob=bpy.context.object;ob.name='Convex crossview '+str(sign);ob.scale=(.157,1,.125)
+        ob.data.materials.append(b.m['black']);ob.data.materials.append(b.m['mirror'])
+        for face in ob.data.polygons:face.material_index=int(sum(ob.data.vertices[i].co.y for i in face.vertices)/len(face.vertices)>.28)
+        for v in ob.data.vertices:v.co.y*=.028 if v.co.y>0 else .025
+        G.smooth(ob);b.add(ob)
     # Stop arm folds flat rearwards on the driver's side, swings out 90 degrees.
     p=pivot(b,'Stop_arm',(1.302,-2.70,1.78),axis='Z',limits=(-90,0))
     b.box('Stop arm actuator',(1.252,-2.70,1.77),(.070,.17,.22),'black',r=.019)

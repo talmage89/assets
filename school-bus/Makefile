@@ -1,4 +1,5 @@
 # Form/construction checkpoint only. Final look development is deliberately deferred.
+.DELETE_ON_ERROR:
 CHECKPOINT_BLEND := build/bus-101.blend
 CHECKPOINT_ARGS := --seed 101
 CHECKPOINT_DEPS := src/build.py src/spec.py src/finishes.py src/markings.py build/markings/.stamp
@@ -24,7 +25,7 @@ build/markings/.stamp: src/markings.py src/spec.py
 build/prepared.blend: $(CHECKPOINT_BLEND) ../cars/src/prepare_bake.py
 	$(BP) --python ../cars/src/prepare_bake.py -- --source $< --out $@
 
-build/finalized.blend build/uv.json &: build/prepared.blend src/config.py src/finalize.py ../cars/src/sedan_finalize.py
+build/finalized.blend build/uv.json &: build/prepared.blend src/config.py src/finalize.py ../cars/src/sedan_finalize.py build/motion.json
 	$(BP) --python src/finalize.py -- --source $< --out build/finalized.blend --config src/config.py --report build/uv.json --size 2048 --target-density 300 --margin .0012
 
 textures/4k/T_SchoolBus_BaseColor.png textures/4k/T_SchoolBus_Normal.png textures/4k/T_SchoolBus_ORM.png &: build/finalized.blend src/bake.py
@@ -48,13 +49,14 @@ build/model-check.json: $(CHECKPOINT_BLEND) src/check.py
 build/delivery-%.json: export/C75-%.gltf export/C75-%.bin src/check.py
 	$(BP) --python src/check.py -- --gltf $< --parts build/finalized.blend --out $@
 
-build/motion.json: $(CHECKPOINT_BLEND) src/motion_config.py
-	$(BP) --python $(KIT)/motion.py -- --source $< --config src/motion_config.py --out $@
+build/motion.json: $(CHECKPOINT_BLEND) src/motion_config.py build/model-check.json
+	$(BP) --python $(KIT)/motion.py -- --source $< --config src/motion_config.py --out build/motion-report.json
+	cp build/motion-report.json $@
 
 renders/seethrough/counts.json: export/C75-101.gltf export/C75-101.bin build/finalized.blend src/seethrough.py
 	$(KIT)/with_gpu.sh $(BP) --python src/seethrough.py -- --source $< --parts build/finalized.blend --out renders/seethrough --width 1400
 
-build/calibration.json: refs/SOURCES.md src/photo_matches.py src/balance_refs.py
+build/calibration.json: refs/SOURCES.md src/photo_matches.py src/balance_refs.py src/spec.py
 	$(PYTHON) src/balance_refs.py
 	PYTHONPATH=src:.. $(PYTHON) $(KIT)/photo_match.py solve --config src/photo_matches.py --out $@
 
@@ -67,7 +69,7 @@ renders/source-matches/provenance.json: $(CHECKPOINT_BLEND) build/calibration.js
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source $< --out renders/source-matches --calibration build/calibration.json --width $(WIDTH) --samples $(SAMPLES)
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/calibration.json --renders renders/source-matches --out renders/source-matches
 
-renders/eevee/hero.png: export/C75-101.gltf export/C75-101.bin src/render.py
+renders/eevee/hero.png: export/C75-101.gltf export/C75-101.bin src/render.py src/views.py src/lamp_states.py
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source $< --out renders/eevee --shots hero --engine BLENDER_EEVEE --width $(WIDTH) --samples $(SAMPLES)
 
 build/school-fit.json: export/C75-101.gltf export/C75-101.bin build/model-check.json src/check_school_fit.py

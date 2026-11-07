@@ -2,7 +2,7 @@
 import argparse,hashlib,json,math,sys
 from pathlib import Path
 import bpy,numpy as np
-from mathutils import Vector
+from mathutils import Vector,Matrix
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1];sys.path[:0]=[str(HERE),str(ROOT),str(ROOT/'cars/src')]
 from kit import uv
 from kit.gltf import GLB
@@ -37,6 +37,10 @@ def model(path):
     for ob in sc.objects:
         if ob.get('pivot_axis'):pivots[ob.name]=dict(position=list(ob.matrix_world.translation),axis=ob['pivot_axis'],range=list(ob['range_degrees']))
     wb=abs(pivots['Wheel_FL']['position'][1]-pivots['Wheel_RL_outer']['position'][1]);tires={o.name:bounds([o]) for o in obs if o.name.startswith('Tire_')}
+    crossing=bpy.data.objects['Crossing_arm'];hinge=crossing.matrix_world.translation
+    deployed=Matrix.Translation(hinge)@Matrix.Rotation(math.radians(-90),4,'Z')@Matrix.Translation(-hinge)
+    deployed_points=[deployed@p for ob in crossing.children_recursive if ob.type=='MESH' for p in points(ob)]
+    crossing_extension=S.FRONT-min(p.y for p in deployed_points)
     steps={o.name:bounds([o]) for o in obs if o.name.startswith('Worn entrance tread')}
     roof=bounds([bpy.data.objects['Formed roof steel']]);shell=bounds([bpy.data.objects[n] for n in ['Formed roof steel','Front pressed bumper','Rear pressed bumper']])
     # Geometry checks use actual padded mesh bounds and actual pivot positions.
@@ -78,7 +82,15 @@ def model(path):
             driver=ob.name.endswith('-3.4')
             pairs.append((ob.name,'Driver floor' if driver else 'Passenger floor',.0005))
             for sign in ([1] if driver else [-1,1]):pairs.append((ob.name,'Chassis C rail '+str(sign),.0005))
+        if ob.name.startswith('Entrance ') and ' fixed foot ' in ob.name:
+            side=ob.name.split()[1];base=ob.name.split(' fixed foot ')[0]
+            pairs += [(ob.name,base+' fixed pin',.0005),(ob.name,'Entrance '+side+' fixed jamb',.0005)]
     pairs += [('Driver suspension pedestal','Driver floor',.0005),('Grab rail barrier flange','Front passenger barrier',.0005),('Entrance grab rail','Grab rail barrier flange',.0005),('Entrance grab rail','Worn entrance tread 0',.0005)]
+    pairs += [('Passenger floor','Lower folded side -1 1',.001),('Passenger floor','Lower folded side 1 0 -3.92',.001),('Driver floor','Driver lower side',.001),
+        ('Side emergency aft backed reveal','Body post 1 5',.001),('Front cap under-header','Front roof cap',.001),('Front cap under-header','Windshield header closure',.001),('Unified molded nose','Compound hood shell',.001)]
+    pairs += [('Side emergency forward backed reveal','Lower folded side 1 0 -3.92',.001),('Side exit fixed underfloor skirt','Passenger floor',.001)]
+    for side in ['front','rear']:
+        pairs += [('Entrance '+side+' fixed jamb','Stepwell '+side+' wall',.001),('Stepwell '+side+' wall','Worn entrance tread 0',.001)]
     for sign in [-1,1]:
         for end in ['Front','Rear']:
             bracket=end+' bumper frame bracket '+str(sign)
@@ -87,6 +99,9 @@ def model(path):
     for a,b,limit in pairs:
         value,method=distance(bpy.data.objects[a],bpy.data.objects[b]);contacts.append(dict(parts=[a,b],distance_m=value,method=method,limit_m=limit))
     error=[];total=sum(cats.values());exterior=total-cats['interior']
+    source_audits={ob.name:measure(ob) for ob in obs}
+    failed_meshes=[name for name,row in source_audits.items() if not row['passed']]
+    if failed_meshes:error.append('Source full-face mesh check')
     if total>90000 or exterior>70000:error.append('Triangle budget')
     if abs(wb-S.WHEELBASE)>1e-5:error.append('Wheelbase')
     if abs(shell['size'][1]-S.LENGTH)>.002 or abs(roof['size'][0]-S.WIDTH)>.002:error.append('Bumper length / steel body width')
@@ -94,13 +109,16 @@ def model(path):
     if capacity!=75 or aisle<.3048:error.append('Bench occupancy / aisle width')
     if min(r['minimum_clear_m'] for r in spacing)<.6096:error.append('24-inch actual seat/barrier spacing')
     if glyphs['school']<.2032 or glyphs['stop']<.150:error.append('Standard legend glyph height')
+    if crossing_extension<1.778:error.append('70-inch deployed crossing gate extension')
     if any(row['distance_m']>row['limit_m'] for row in contacts):error.append('Measured static support')
     if any(abs(t['min'][2])>1e-5 for t in tires.values()):error.append('Tire ground contact')
     if abs(roof['max'][2]-S.HEIGHT)>.002:error.append('Roof height')
     if max(v['max'][2] for v in steps.values())>1.19:error.append('Step envelope')
     return dict(passed=not error,errors=error,triangles=total,exterior_triangles=exterior,interior_triangles=cats['interior'],wheels_triangles=cats['wheels'],
+        mesh_audits=source_audits,failed_meshes=failed_meshes,
         categories=cats,triangles_per_mesh=parts,triangles_per_pivot={n:sum(parts.get(o.name,0) for o in bpy.data.objects[n].children_recursive) for n in pivots},
         roof_bounds_m=roof,body_bumper_bounds_m=shell,full_rest_bounds_m=bounds(obs),wheelbase_m=wb,tire_bounds_m=tires,step_bounds_m=steps,
+        measured_deployed_crossing_extension_m=crossing_extension,
         measured_bench_widths_m=seatwidths,measured_passenger_capacity=capacity,measured_clear_aisle_m=aisle,measured_glyph_heights_m=glyphs,static_support_contacts=contacts,
         measured_seat_spacing=spacing,
         bench_count=len(benchbacks),passenger_socket_count=sum('_Place' in n for n in sockets),sockets=sockets,pivots=pivots,
@@ -150,12 +168,15 @@ def delivery(path,parts_path):
     if failed:errors.append('Car-family full-face mesh check')
     if duplicates:errors.append('Duplicate faces across parts')
     if uvr['outside_triangles'] or uvr['degenerate_uv_triangles'] or uvr['overlap_fraction']>1e-5:errors.append('UV layout')
+    import runpy
+    policy=runpy.run_path(str(HERE/'config.py'));density={str(k):v for k,v in uvr['density_px_m'].items()};bands=policy['UV_DENSITY_BANDS']
+    if uvr['coverage']<policy['UV_MIN_COVERAGE'] or density['5']<bands['p5_min'] or not bands['median_min']<=density['50']<=bands['median_max'] or density['95']>bands['p95_max']:errors.append('Measured UV coverage / density bands')
     if len(sockets)<100:errors.append('Missing sockets')
     if max(differences)>2e-5 or max(pivot_errors.values())>2e-5:errors.append('Geometry/pivot serialization')
     report['errors']=errors;report['passed']=not errors;return report
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--model');p.add_argument('--gltf');p.add_argument('--parts');p.add_argument('--out',required=True);p.add_argument('--diagnose',action='store_true');a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
-    r=model(Path(a.model)) if a.model else delivery(Path(a.gltf),a.parts);Path(a.out).write_text(json.dumps(r,indent=2));print('BUS_CHECK',r['passed'],r.get('triangles'),r.get('errors'),flush=True)
+    r=model(Path(a.model)) if a.model else delivery(Path(a.gltf),a.parts);Path(a.out).write_text(json.dumps(r,indent=2));print('BUS_CHECK',r['passed'],r.get('triangles'),r.get('errors'),r.get('failed_meshes'),flush=True)
     if not r['passed'] and not a.diagnose:raise SystemExit(1)
 if __name__=='__main__':main()
