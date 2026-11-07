@@ -265,3 +265,175 @@ regenerated both sheets. The final isolated `make repeat` again passed all
 253,592; skating triangles remain 44,236 / 42,154 / 42,438. The sign and updated
 node transforms are included in the final delivery receipts. No further form,
 look-dev, baking or final-atlas work is performed in this checkpoint.
+
+## Follow-up pass 10 — first baked GLB views, rejected
+
+Color/value first: `renders/look-1/` was opened at its native 1000px width
+(all eleven views). Concrete is too uniformly cool under the saturated sky;
+the bowl has almost no service history away from its drain. Burnished quarter
+lanes are black cutouts, unlike the broad gray pumping wear in the Alondra
+and sunny Venice photographs. The drain deposit reads as rounded mud islands.
+These are failures, not an accepted wear treatment. The newer and middle-aged
+parks do not yet differ enough at full frame. Prefab composite is distinct but
+its galvanized plates look excessively rippled.
+
+The connected transition decks, graded connection, elevated street plaza,
+cheeks and concrete-topped armored hubba now read as construction. Both bowl
+plans have real pockets; the clover has three lobes and the kidney a waist.
+Coping ends are radial planes and the lawn meets concrete mow strips. The
+canonical maple/oak leaf masks remove the opaque-square foliage fault.
+
+Diagnosis: the generic solid mesh helper recalculated the winding of open
+curved wear skins while their authored shading normals stayed upward. Raw
+exported triangle/normal dots reached -0.99986. Open skins now preserve their
+authored winding; a separate exported audit requires agreement on every wear
+primitive. Wear albedo is raised toward concrete, cutout coverage is stippled
+at texel scale, sky chroma is reduced, and bowl pumping/contact wear is driven
+by physical surface chainage and distance below the lip. The sediment will
+use fine grit coverage instead of contiguous round blobs. The trim normal
+strength is reduced to stop flat gauge steel reading as crumpled foil.
+
+The first byte audit also found an unnecessary ORM copy caused by constant
+wax roughness. Wax now uses a roughness factor on the shared ORM. This is
+checked on embedded exported images, not assumed from the source allocation.
+
+## Follow-up pass 11 — corrected shading, photo comparisons still reject finish
+
+Color/value first: all eleven `renders/look-2/` views and the three native
+`renders/matches-2/*-pair.jpg` canvases were opened. The black curved-skin
+fault is gone. The common sunlit exported concrete probes measured .568 / .572 /
+.572 display Y, with actual concrete hits and clear sun/camera rays. The
+balanced sunny Venice deck measures about .797 / .777 / .859 in three verified
+sunlit rectangles. Two initial photo rectangles accidentally sampled shaded
+walls; they were rejected and relocated on the annotated photograph. These
+are exposed image comparisons, not a reflectance measurement or a claim that
+unknown photographic exposure has been recovered. Ground's accepted concrete
+pixels stay unchanged. The studio camera exposure is being calibrated upward;
+normal strength and local, darker use masks remain material decisions.
+
+The corrected gray quarter lanes are still too regular: repeated pairs look
+painted. Vary their count, spacing, path and taper, lighten the new park's
+contact material, and retain stronger wear in the middle-aged park. The bowl
+pumping paths need more value separation to survive a full-frame hero. The
+sediment remains blotchy in this pass because the revised grit mask had not
+yet been regenerated/baked. The next bake replaces it. Native plate detail is
+less rippled; the lifted fixing needs a dedicated toe-plate close-up.
+
+The pairs now compare a kidney with a kidney and six concrete hubba corners
+with the same six corners. Fit RMS is 11.11px at 866px photo width (kidney
+contour), 1.84px at 400px (hubba), and 6.78px at 580px (coping). The contour
+phases and coping scale remain inferred; the kidney's approximately 9.4-degree
+fitted roll makes it weaker than the rigid hubba fit. This is disclosed rather
+than calling the fit surveyed. The source full-frame equivalent is 27mm for
+Alondra and about 48.6mm for Burnham. The 372.9mm number is the narrow crop's
+projection lens, not the camera's taking lens; the new pair captions say both.
+
+The coping looks too clean beside Memorial's dark ground-in nose. Its UVs
+will follow tangent chainage and actual radial profile width, putting wax on
+the nose and top contact zone instead of an arbitrary projected face edge.
+Increase stained/chipped contrast and salts on the tile. The original section,
+block end planes and triangle budget remain unchanged. The newer park should
+retain less damage than the two older installations; matching a different
+park's entire material color/age is not claimed.
+
+## Follow-up pass 12 — value control passes; close-up and spacing corrections
+
+Color/value first: all 22 `renders/look-3/` views, all three `matches-3`
+pairs and the three `values-3` images were opened at native size. Verified
+sunlit concrete now measures .759 / .760 / .761 display Y against the balanced
+photo's .794 / .776 / .859. It remains .015 below the darkest photo sample.
+The unchanged Ground albedo is not relabeled as a measured reflectance: this
+corrects the studio exposure. The reference neutral is explicitly the sunlit
+unpainted concrete deck/coping; photographic processing remains unknown.
+
+The same views reject two finer tells. The large pumping mask has an angular
+join at the chainage wrap; it now uses continuous surface position for its
+phase, while retaining actual section arc height. The grit is finer but too
+round. Its actual-floor triangle footprint is now an upstream fan tapering
+toward the grate, and the leaves favor that arrival side. The zinc toe plate
+still looks rippled at close range. Its final source uses finer grain, higher
+roughness and micron-scale relief rather than sharing the coping chip height.
+A dedicated opposite-light coping view will show the bare contact crown.
+
+Missing tile assignments are now explicit and sparse, rather than trusting
+object-name hashing to land on the damaged atlas cells visible to a camera.
+The planter has four real walls and a recessed soil opening. A misplaced
+native plaque with no material and the rules print's mismatched UV-layer name
+were also found by export audits and corrected locally.
+
+Fresh-import section/contact checks pass. The expanded raw audit passes with
+UV area, density, normal-map tangent frames, trim image reuse, six alpha-cut
+trees with `_WIND`, and zero bowl plan overlaps above tolerance. Normal-mapped
+exporter zero tangents are repaired from incident UV triangles; valid frames,
+positions, UVs and every canonical delivery file remain unchanged. The pin
+oak canonical GLB itself contains eleven zero tangent vertices; re-import/
+export introduces one on maple. The new park copies also have small bevel-fan
+cases. These are serialized-frame corrections, not geometry detail.
+
+The output spacing audit, rather than the planned centers, found 7.95–8.09m
+from the large park's north toes to its bowl. Advance that row 2.4384m, retain
+and extend its continuous rear deck, and tighten the two street connections.
+The rebuilt actual gaps are 5.51–5.65m and 4.21 / 4.57m. Compact poured gaps
+are 1.78–4.57m; prefab north quarter to funbox is 5.30m. Published drawing reads
+span 2.04–6.83m, with ±.4m reading uncertainty. Major-feature envelopes and
+all raised terrain are reported separately: broad shared circulation decks
+must not be silently counted as obstacle envelopes. The prefab slab's flat
+underside was erroneously counted in an initial mask and is now excluded.
+
+The kidney fit is now upright, at the EXIF-informed 27mm equivalent. Its
+28.33px / 866px outline RMS (maximum 69.17px) is weaker than the rolled fit,
+but defensible as a different original kidney's contour comparator. It does
+not prove dimensional identity. The rigid hubba remains 1.84px / 400px; coping
+is 6.78px / 580px with inferred lip scale. This limitation stays on the pairs
+and in the final report.
+
+## Follow-up pass 13 — full-size form evidence and remaining look gap
+
+Color/value first: all 24 final `renders/lookdev/` PNGs, three native photo
+pairs and their three landmark overlays, both contact sheets, and all 17
+before/after canvases were opened. Each before/after canvas retains two native
+1000px panels. Whole-image hero display-Y p5/p50/p95 is .032/.755/.900 for
+2011, .022/.477/.892 for 2004 and .012/.524/.688 for 1999; white clipping is
+zero in each. These include sky and context and do not measure concrete albedo.
+The sunlit concrete control remains approximately .76 against the balanced
+photo's .776–.859. The neutral remains the unpainted sunlit concrete coping/deck.
+
+The comparison still rejects a photographic finish. Burnham's concrete has
+stronger irregular streaks below its armor; Memorial's nose carries more
+ground-in dark wax, and Alondra has much broader pumping abrasion. The rendered
+concrete is more uniform and its curved wear paths still repeat too neatly.
+The prefab's lighter riding paths, dark painted frame and bare plate make its
+hard use clear at full frame. The 2004/2011 difference is subtler than intended,
+particularly on their street terraces. These remain explicit checkpoint
+weaknesses; no README gallery or docs images are promoted from these renders.
+
+The overhead plans show distinct kidney pockets/waist and three clover lobes.
+The shared transition decks, closed wing returns, elevated street landings,
+stair cheek and concrete-topped hubba now read as connected construction.
+Radial coping caps no longer shear diagonally. Native-size review found four
+tiny rectangle-corner holes around each bowl deck: exact corner infills replace
+the chords, and fresh-import downward probes hit actual concrete at all eight
+locations. The refined zinc plate is satin instead of crumpled; fine leaf and
+grit silhouettes remain economical. Native alpha-cut maple/oak foliage removes
+the opaque squares. Flat lawn, constant-color fixture finishes and repeated
+housing still reveal the procedural presentation context.
+
+The first full byte repeat exposed one stale unused ORM image and MikkTSpace's
+four-decimal rounding boundary at one oak trunk corner. Generated images with
+no current glTF reference are now removed. The kit's guarded tangent stabilizer
+sets that single corner after checking exact position, normal and UV signatures
+and a maximum one-rounding-step change. The companion external BIN uses the
+same guards. Every other valid tangent, every position/normal/UV and all image
+pixels remain unchanged; canonical tree delivery bytes are never edited.
+
+Final receipts: fresh `make check` passes; `make repeat` compares all 40 files
+byte for byte successfully, with shared read-only baked/context inputs. All
+24 main and three matched render source hashes equal the final GLBs. The two
+reframed details were reopened: the wider end view exposes the actual wing
+bank, and corresponding old/new stair roots are isolated in the calibrated
+hubba pose. The old stair moves in the revised layout, so its narrow archived
+crop is truncated; the wide stair pair remains the complete form comparison.
+All 17 pairs pass projection/light/hash checks without altering placements.
+All three final value-control images were opened. Actual clear-ray concrete
+probes are .759384 / .760218 / .760501 display Y; balanced photo patches are
+.793573 / .775668 / .859118. No kit files, README gallery or docs images changed.
