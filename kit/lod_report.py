@@ -94,12 +94,12 @@ def block(cfg,m,status=None,kit_prefix="../kit"):
                        'Their source UVs, bent normals and Wind fields remain; the last impostor freezes wind and lighting.')
     else:
         assembly_text=('Near levels consolidate static parts by material and simplify moving parts while retaining names, '
-          'pivots, sockets and animation data. Both intermediate levels preserve original charts, attributes and LOD0 materials. ')
+          'pivots, sockets and animation data. Intermediate levels preserve original charts, attributes and LOD0 materials. ')
         if any(row.get('proxy') for row in m['levels']):
             assembly_text+=('The final proxy merges all moving geometry in its rest pose: its retained transform names are '
               'placement/socket metadata, and cannot animate that shell. Keep an animatable level while an interaction pose differs from rest. ')
         assembly_text+=('Only the proxy receives new charts baked from the immutable delivered maps and shaders. '
-                        'LOD1/2 allocate no additional images.')
+                        'Intermediate levels allocate no additional images.')
     lines=[start,'#'*cfg.get('readme_level',2)+' '+cfg.get('readme_title','Additional LODs'),'',
       f'`make lod` builds additional core glTF/BIN files and a manifest under `{output}/`; '
       '`make check-lod` checks them. The existing delivery is immutable LOD0. '
