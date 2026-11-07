@@ -1312,3 +1312,58 @@ remains closed. A smooth rounded-box control still reaches 194/972 triangles
 with both policies. The expanded public shared-map fixture passes (about 67
 seconds, under 0.5 GiB child RSS). No texture, material or image-acceptance limit
 changed in these corrections.
+
+## Pass 36 — measured pins, full station reduction and adoption start
+
+The complete station near build now yields **9,186 / 5,488 triangles**
+(50.31% / 30.06% of selected LOD0). LOD1 meets its cap; LOD2 still misses
+4,564. Both levels retain all ten previously failing junctions at their original
+three incidences, with **zero unmatched tracked segments**. This is a measured
+surface-incidence result, not an image-based inference. Fresh switch previews
+and a lower `.075` middle request remain pending; the first lower trial was
+canceled because it needlessly repeated LOD1. Its replacement builds just the
+middle candidate directly from LOD0 at the same `.12` switch.
+
+The exact initialization comparison below uses each implementation's actual
+corner deduplication and persistent-pin rule on the same original deliveries.
+Labels are **overlapping memberships of pinned vertices**, not independent
+causes to add together. UV/normal splits themselves do not imply a pin.
+
+| Persistent-pin membership | Pickup before → after | Colonial before → after |
+| --- | ---: | ---: |
+| Unique pinned vertices | 4,086 → 4,022 | 1,674 → 552 |
+| UV-seam members | 3,425 → 3,425 | 1,335 → 551 |
+| Hard-normal members | 3,226 → 3,226 | 1,380 → 552 |
+| Material-border members | 48 → 48 | 0 → 0 |
+| Open part-border members | 64 → 0 | 1,122 → 0 |
+| Moving-part members | 380 → 360 | 32 → 8 |
+| Protected-surface members | 4,022 → 4,022 | 552 → 552 |
+
+Geometric vertices after initialization are 30,975 → 30,971 for the pickup and
+31,491 → 31,379 for the colonial. These actual wedge-initialization counts
+supersede the earlier rough aggregate inventory where they differ. No original
+delivery bytes changed. The larger pickup obstacle was rejection of otherwise
+movable vertices by the attribute estimate and source-skin guard, not tens of
+thousands of literally fixed seam vertices. Receipt and executable comparison:
+`build/lod-v4/pin-comparison.json`, `compare-pins.py`.
+
+All six original pilot `make check` commands pass, with accepted generated inputs
+explicitly frozen. The colonial includes 1,000 generated plans and six negative
+controls; commercial includes the station and strip families. Original street
+light, privacy, picket and chain-link checks also pass. Full commands and exits:
+`build/lod-v4/original-checks.json` and `adopter-original-checks.json`. The fresh
+CPU suite passes all 26 files; six GPU files are in progress. The rebuilt cone
+keeps the accepted **626 / 436** counts; its new image/check pass is pending.
+
+Main was merged again as `29b5cc2` after the skateboard landed; there were no
+additional kit changes. Five new original gallery images extend the preservation
+receipt to **476 files**, all matching. The original fence inputs were absent
+and rebuilt before adoption; their newly generated maps/exports were then added
+to the receipt, without refreshing any existing hash.
+
+The recipe/tool freeze is `29b5cc2`, recorded with complete tool, rule, report,
+auditor and recipe hashes in `build/lod-v4/adoption-freeze.json`. Following the
+written examples produced street-light and WoodPrivacy configs plus opt-in
+Make hooks in `5f1bd0a`. Privacy covers Section_A, Section_B and Gate_Bay on
+one original atlas; its three 20-triangle posts deliberately stay LOD0. Builds
+and native review are pending, so this entry does not claim completed adoption.
