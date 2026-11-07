@@ -1664,3 +1664,67 @@ first successful run; it ran for 169 seconds before being stopped. The first
 successful receipt is preserved separately. It did not change source files or
 production caches. Every controlled cache entry used here has genuine reducer
 inputs and outputs; no stub result is stored under an original key.
+
+## Pass 44 — finer skin retries and projection-field diagnosis
+
+The exact reducer can keep useful reductions of failed skins. Isolated controls
+pass at door 194/432, hood 436/792, front fender 836/1520 and bumper 974/1500;
+the immediately cheaper tested densities fail the same three-pixel ordering
+guard. An assembled control starts from the conservatively restored mesh,
+retries only implicated components at finer densities, and tests the entire
+assembled mesh after each replacement. Every retry retains the original UV,
+normal/tangent, color, topology and surface bounds. Genuine component caches
+use the actual changed ratio. No modified geometry is stored under a raw key.
+
+The resulting scratch pickup is **33816 / 25166** triangles, **56.51% / 42.06%**
+of LOD0. Source-skin overhead falls from 6438/8312 to 2234/2090 triangles over
+the raw candidates. Build exit 0, 2963.44 s including queue, peak .633 GiB.
+This is a method control under `cars/build/lod-v6-skin-backoff/`, not a change
+to the production tool or an approved chain. Native three-angle proofs are
+queued. Both goals are still missed.
+
+Traced the actual near worst patches with independent double-precision native
+pixel rays and decoded the supplied material fields. The glass normals match
+to about .0000015 degrees. The front/three-quarter patches are mostly metallic
+opaque surround, with roughness about .16–.23. At the three-quarter patch,
+unfiltered decoded normal directions differ by 5.02 degrees median and 41.05
+degrees p95. These point samples describe the delivered fields, not a filtered
+pixel normal AOV. Moving a bevel changes which part of that field the camera
+sees, even when individual transported vertices meet their source bounds.
+A tighter-geometry metallic-surface control is queued, with a .25 base ratio
+to leave room for those bevels. The source-UV frame control also awaits review.
+
+Superseded the early Blender pixel probes with F64 analytic camera rays.
+Transforming a 1 mm near-clip point into a scene tens of meters away loses
+precision in float storage; rotate the ray direction before adding translation,
+or form the pinhole ray directly. New receipts are
+`build/lod-v4/car-near-material-probe-exact.json` and
+`car-proxy-material-probe-exact.json`. The older probes remain useful geometric
+counterexamples, but are not the exact pixel correspondence evidence.
+
+At the canonical pickup's front worst patch, source paint has mean base
+(.0123,.0372,.0713), zero emission and zero transmission. Proxy point samples
+on those source-paint pixels have base (.1084,.1313,.1571), emission roughly
+(5.08,5.68,6.11) and transmission .282. Rear paint samples keep their original
+color closely. That rules out a global color-space or palette correction.
+Surface-field association/coverage and the source-consistency of emission
+repair need testing: the existing position repair changes other channels while
+excluding emission. A same-geometry SS4 baseline and consistent-emission control
+are queued; no speculative emission tint/scale has been adopted.
+
+Rejected the new .25-pixel proxy deflation before baking it further. Independent
+first-hit orientation at every native pixel finds pickup reversed first hits
+120/260/261 versus canonical 0/16/9, and colonial 11/9/54 versus canonical
+0/0/1. One windshield ray exits before entering its thin layer, separated by
+only .675 mm. This is a measured ordering defect, despite clean edge counts
+and positive total volume. It is not a fix for color. Pending bake jobs on
+those trial geometries were cancelled before Blender launch. New SS4 controls
+reuse the existing non-deflated 2800/1798-triangle geometries. The sparse
+canonical reversed hits remain a limitation to inspect, not an intersection-free
+claim. An installed Cycles/glTF sidedness control is also queued.
+
+Clarified the adoption recipe's street-light paragraph: `.02` belonged to the
+rejected far-level control, which cost 2048 triangles. The delivered one-level
+1656-triangle config uses the default allowance. No production kit code changed
+in this pass. Preservation remains **486 files, zero changes**. Fresh frozen
+adoption proof will follow any eventual general tool fix.

@@ -602,8 +602,10 @@ noise to reduction; increase `render_samples` only from that measurement.
 Also compare the width and coverage of a subpixel shaft. Whole-object pixel
 displacement bounds can shrink a thin pole enough to fade it even when RGB
 errors pass. Tighten that level's existing `surface_pixels` parameter relative
-to the narrow feature's projected width (the street-light trial uses `.02`),
-then rerender all views. Keep the .05 alpha/IoU gates. If an additional level
+to the narrow feature's projected width, then rerender all views. The street
+light's rejected .09-level control used `.02` and rose to 2,048 triangles,
+more than the retained 1,656-triangle .25 level; its final config therefore
+keeps one level at the default allowance. Keep the .05 alpha/IoU gates. If an additional level
 cannot save useful geometry while preserving the shaft, omit it and document
 the failed cheaper strip.
 
