@@ -89,7 +89,7 @@ def exposed_backfaces(source,faces,reduced,triangles,meters_per_pixel=0.,face_in
 
 def _edges(attrs,faces,labels):
     """Same one-micrometer incidence convention as lod_mesh.topology."""
-    keys=[tuple(v) for v in np.round(attrs['POSITION'],6)];result={}
+    keys=[tuple(v) for v in np.round(attrs['POSITION'].astype(float),6)];result={}
     for fi,face in enumerate(faces):
         for a,b in zip(face,np.roll(face,-1)):
             key=tuple(sorted((keys[a],keys[b])))

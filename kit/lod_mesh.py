@@ -16,7 +16,10 @@ from mathutils.kdtree import KDTree
 
 def topology(attrs, faces):
     """Geometric edge incidence across coincident split vertices, local meters."""
-    v = attrs['POSITION']; keys = [tuple(np.round(p, 6)) for p in v]
+    # Decimal rounding in FLOAT storage can merge adjacent representable
+    # coordinates at large placements. Audit the actual stored values in
+    # double precision, matching world_geometry and the collapse graph.
+    v = attrs['POSITION'].astype(float); keys = [tuple(np.round(p, 6)) for p in v]
     edges = {}; degenerate = 0; slivers = 0; flipped = 0
     t = v[faces]; cross = np.cross(t[:,1]-t[:,0],t[:,2]-t[:,0])
     areas = np.linalg.norm(cross,axis=1)

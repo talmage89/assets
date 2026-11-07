@@ -15,8 +15,9 @@ def contact_points(primitives,*,split=False):
     """
     edges={}
     for attrs,faces in primitives:
-        group=tuple(sorted(attrs));keys=[tuple(p) for p in np.round(attrs['POSITION'],6)]
-        fine=[tuple(p) for p in np.round(attrs['POSITION'],7)]
+        positions=attrs['POSITION'].astype(float)
+        group=tuple(sorted(attrs));keys=[tuple(p) for p in np.round(positions,6)]
+        fine=[tuple(p) for p in np.round(positions,7)]
         for face in faces:
             for a,b in zip(face,np.roll(face,-1)):
                 edge=tuple(sorted((keys[a],keys[b])))
@@ -39,7 +40,7 @@ def inventory(attrs,faces,*,fixed=(),eligible=None,moving=False,geometry_remap=N
     later sampled field/geometry tests, or that every unoffered vertex stays
     locked after its neighbors change. `fixed` are actual persistent pins.
     """
-    if geometry_remap is None:_,geo=np.unique(np.round(attrs['POSITION'],8),axis=0,return_inverse=True)
+    if geometry_remap is None:_,geo=np.unique(np.round(attrs['POSITION'].astype(float),8),axis=0,return_inverse=True)
     else:geo=np.asarray(geometry_remap)
     total=int(geo.max(initial=-1)+1);records=[[] for _ in range(total)]
     for i,g in enumerate(geo):records[int(g)].append(i)

@@ -161,6 +161,15 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
         if not common or (not seam_sliding and len(common) not in (1,2)):return None
         opposite={int(g) for fi in common for g in geo[tri[fi]] if g not in (a,b)}
         if neighbors(a)&neighbors(b)!=opposite:return None
+        if seam_sliding:
+            # Preserve local incidence classes, not merely global edge totals.
+            # Removing two faces at a three-face junction must not expose the
+            # remaining face while unrelated open boundaries disappear.
+            for g in (neighbors(a)|neighbors(b))-{a,b}:
+                ca=len(incident[a]&incident[g]);cb=len(incident[b]&incident[g])
+                count=len(((incident[a]|incident[b])&incident[g])-common)
+                if count==1 and ca!=1 and cb!=1:return None
+                if count>2 and max(ca,cb)<=2:return None
         pair={}
         for fi in common:
             f=tri[fi];gg=geo[f];wa=int(f[np.flatnonzero(gg==a)[0]]);wb=int(f[np.flatnonzero(gg==b)[0]])
@@ -577,7 +586,7 @@ def meshes(doc,ratio,meters_per_pixel,feature_pixels=1.5,surface_pixels=.75,seam
                 retain=mat.get('alphaMode') in ('MASK','BLEND') or any(v>0 for v in mat.get('emissiveFactor',[0,0,0])) or mat.get('extensions',{}).get('KHR_materials_transmission',{}).get('transmissionFactor',0)>0
                 aa={**attrs,'_LOD_MATERIAL':np.full((len(attrs['POSITION']),1),material,np.float32),
                     '_LOD_KEEP':np.full((len(attrs['POSITION']),1),retain,np.float32)}
-                pins=np.array([tuple(v) in contacts for v in np.round(attrs['POSITION'],6)])
+                pins=np.array([tuple(v) in contacts for v in np.round(attrs['POSITION'].astype(float),6)])
                 aa['_LOD_KEEP'][pins]=1
                 chunks.append(aa);triangles.append(faces.astype(np.uint32)+offset);offset+=len(attrs['POSITION'])
             aa={k:np.concatenate([c[k] for c in chunks]) for k in chunks[0]};ff=np.concatenate(triangles)
@@ -589,7 +598,7 @@ def meshes(doc,ratio,meters_per_pixel,feature_pixels=1.5,surface_pixels=.75,seam
             for ids in components(aa,ff):
                 vertices=np.unique(ff[ids]);points=aa['POSITION'][vertices]
                 diameter=float(np.linalg.norm(np.ptp(points,axis=0))/meters_per_pixel)
-                if diameter<feature_pixels and not aa['_LOD_KEEP'][vertices].any() and not any(tuple(p) in protected_features for p in np.round(points,6)) and len(ids)<len(ff):
+                if diameter<feature_pixels and not aa['_LOD_KEEP'][vertices].any() and not any(tuple(p) in protected_features for p in np.round(points.astype(float),6)) and len(ids)<len(ff):
                     vv,ii=np.unique(ff[ids],return_inverse=True)
                     if topology(dict(POSITION=points),ii.reshape(-1,3))[0]['boundary_edges']==0:removed.append(dict(triangles=len(ids),diameter_pixels=diameter));continue
                 keep.extend(ids)

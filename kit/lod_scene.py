@@ -32,12 +32,23 @@ def merge_static(doc,protected_patterns=(),include_roots=()):
         else:groups.setdefault(module or 'Static',[]).append(ni)
     receipt=[]
     for label,ids in groups.items():
-        by_material={}
+        by_material={};canonical_points={};snapped=0;max_snap=0.
         for ni in ids:
             node=doc.data['nodes'][ni];matrix=doc.world(ni)
             for p in doc.data['meshes'][node['mesh']]['primitives']:
                 attrs,faces=doc.arrays(p);attrs={k:v.copy() for k,v in attrs.items()}
-                attrs['POSITION']=(attrs['POSITION']@matrix[:3,:3].T+matrix[:3,3]).astype(np.float32)
+                world=attrs['POSITION']@matrix[:3,:3].T+matrix[:3,3]
+                # Audit coincidence in double precision BEFORE FLOAT storage.
+                # Opposite sides of a source contact can straddle adjacent
+                # floats after a large placement translation. Independent casts
+                # would open a previously shared edge before reduction begins.
+                canonical=[]
+                for point,key in zip(world,np.round(world,6)):
+                    chosen=canonical_points.setdefault(tuple(key),point.copy())
+                    distance=float(np.linalg.norm(chosen-point))
+                    snapped+=distance>0;max_snap=max(max_snap,distance)
+                    canonical.append(chosen)
+                attrs['POSITION']=np.array(canonical,np.float32)
                 for key in ('NORMAL','TANGENT'):
                     if key in attrs:
                         xyz=attrs[key][:,:3]@np.linalg.inv(matrix[:3,:3]);xyz/=np.maximum(np.linalg.norm(xyz,axis=1,keepdims=True),1e-20);attrs[key][:,:3]=xyz
@@ -68,6 +79,7 @@ def merge_static(doc,protected_patterns=(),include_roots=()):
         else:doc.data['scenes'][doc.data.get('scene',0)].setdefault('nodes',[]).append(node_index)
         doc.data['nodes'].append(merged)
         receipt.append(dict(output_node='LOD_'+label,placement_root=label if placement is not None else None,
+                            canonicalized_contact_corners=snapped,max_contact_snap_m=max_snap,
                             source_nodes=[doc.data['nodes'][i].get('name') for i in ids]))
     # Compact mesh indices; retain original node indices, skins and animation.
     used=sorted({n['mesh'] for n in doc.data['nodes'] if 'mesh' in n});mapping={old:new for new,old in enumerate(used)}

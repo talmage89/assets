@@ -221,6 +221,39 @@ def main():
     assert np.allclose(reduced.world(4)[:3,3],[-.5,0,0])
     assert Document(modular_source).dependencies()==immutable
 
+    # World placements can straddle adjacent FLOAT coordinates although the
+    # independent source audit sees one shared edge. Canonicalize that contact
+    # before storage; simply casting each part independently would open it.
+    from kit.lod_scene import merge_static
+    from kit.lod_mesh import world_geometry
+    placed=Document(source)
+    placed.data['nodes']=[dict(name='Left',mesh=0,translation=[0,14.4293998,0]),
+                          dict(name='Right',mesh=1,translation=[1,14.4294002,0])]
+    placed.data['scenes']=[dict(nodes=[0,1])];placed.parents={}
+    panel=dict(POSITION=np.array([[0,0,0],[1,0,0],[1,1,0],[0,1,0]],np.float32),
+               NORMAL=np.tile([0,0,1],(4,1)).astype(np.float32),
+               TEXCOORD_0=np.array([[0,0],[1,0],[1,1],[0,1]],np.float32))
+    two=np.array([[0,1,2],[0,2,3]],np.uint32)
+    placed.data['meshes']=[dict(primitives=[dict(attributes={},indices=0,material=0)]) for i in range(2)]
+    for mesh in placed.data['meshes']:placed.replace(mesh['primitives'][0],panel,two)
+    before=topology(*world_geometry(placed,[0,1]))[0]
+    assert before['boundary_edges']==6,before
+    receipt=merge_static(placed)
+    after=topology(*world_geometry(placed,[2]))[0]
+    assert after['boundary_edges']==6,after
+    assert receipt['static_groups'][0]['canonicalized_contact_corners']>=2,receipt
+    assert receipt['static_groups'][0]['max_contact_snap_m']<1e-6,receipt
+
+    # A topology measurement cannot depend on the array storage dtype. These
+    # disjoint panels straddle adjacent decimal keys at a large placement;
+    # FLOAT arithmetic previously welded them and undercounted open edges.
+    left=panel['POSITION'].copy();left[:,1]+=np.float32(14.42939949)
+    right=panel['POSITION'].copy();right[:,0]+=1;right[:,1]+=np.float32(14.42940044)
+    separated=dict(POSITION=np.concatenate([left,right]));sf=np.concatenate([two,two+4])
+    exact=topology({**separated,'POSITION':separated['POSITION'].astype(float)},sf)[0]
+    stored=topology(separated,sf)[0]
+    assert stored==exact and stored['boundary_edges']==8,(stored,exact)
+
     print('LOD SHARED MAP FIXTURE PASS' ,len(ff),'->',len(f),flush=True)
 
 
