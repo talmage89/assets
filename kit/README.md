@@ -12,7 +12,7 @@ nodes and graphics. The read-only rifle project informed the workflow.
 | `rig.py` | Connected chains, normalized vertex binding, arc sampling, reset and parallel-transport free-hanging demonstration |
 | `finalize.py`, `uv.py` | Static modifier application, triangulation, priority-weighted atlas unwrap/pack; actual polygon-clipped overlaps, coverage and density percentiles |
 | `bake.py` | GPU Cycles selected-to-active BaseColor, roughness, metallic, AO and tangent +Y normal; joins only equal coordinate frames to preserve object-space materials |
-| `image_io.py`, `downsample.py` | Original 8/16-bit PNG codec; linear-light color filtering, vector-normal filtering/renormalization and roughness RMS filtering |
+| `image_io.py`, `downsample.py` | Original 8/16-bit PNG codec; reusable PBR filtering plus the existing three-map CLI: linear-light colors, vector normals, roughness RMS and independent/coverage alpha |
 | `export.py` | One embedded PBR atlas; static assembly consolidation; separate pivots, sockets and skin; expected geometry/weight/rest-transform report |
 | `detachable_textures.py`, `detachable_verify.py` | Opt-in lossless atlas subsets, mip-grid guards/fill, raw-GLB surface and tangent checks |
 | `gltf.py`, `verify.py` | Independent raw GLB accessors, normals, textures, weights and inverse-bind checks; fresh Blender import, geometry, pivots, UVs, rig and posed cross-sections |

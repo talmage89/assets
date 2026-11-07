@@ -189,7 +189,7 @@ dot products. Blender's [normal-map evaluation](https://github.com/blender/blend
 define the tested frame. A regression evaluates the actual re-imported base
 and coat shader outputs on a varying-normal cage, independently of that inverse.
 
-The final arbiter remains the unchanged image limits, for LOD0 and the preceding
+The final arbiter remains the default image limits, for LOD0 and the preceding
 level at each switch (24 opaque / 128 foliage samples by default, with a seed-noise-calibrated `render_samples` override for noisy powered/specular assets; same fixed seed): mean absolute display RGB <= .02; p95 max-channel change
 <= .08; alpha MAE <= .05; maximum mean RGB change in any 8x8 patch <= .08.
 An additional **soft silhouette IoU loss <= .05** for opaque assets measures
@@ -201,9 +201,21 @@ alpha .684/.720/.705 within its support at the three views, so the existing
 .05 alpha allowance corresponds to approximately .073/.069/.071 IoU loss.
 This source-only calibration follows the same opacity basis as foliage; every
 candidate must still pass the original .05 alpha MAE and all RGB/local gates.
-The original .05 alpha gate and all RGB/local gates remain unchanged. Three azimuths, amplified differences and independent
+The original .05 alpha gate remains unchanged. RGB/local exceptions require the
+source-only calibration below. Three azimuths, amplified differences and independent
 construction close-ups remain mandatory. Render failures are not waived to hit
 a triangle count, and a target miss remains a target miss in the report.
+
+A documented source-only control can justify a **per-level** limit, using
+`"image_limits": {"patch_mean_max": 0.21}` inside that level's configuration.
+Every omitted metric retains its complete default; the override cannot leak
+into later levels. For the station's near view, half-pixel translations of LOD0
+alone produce .097–.125 in the 8x8 metric, and a one-pixel vertical translation
+about .20. Native crops show the reduced result's .116/.160 maxima only along
+the bright lamp contours. The calibrated near local bound is .21; mean .02,
+p95 .08, alpha .05 and silhouette .05 remain. Far proxy local limits stay .08.
+Retain the native strips and source controls with every such exception. This
+is not permission to relax a broad color, missing-part or coverage failure.
 
 ## Configuration and assembly
 
@@ -295,6 +307,10 @@ Build, bake and impostor work use **one Blender process**, four CPU threads by
 default (`LOD_THREADS`), and the shared GPU flock only around GPU operations.
 Hashing streams in 1 MiB chunks. No nested Blender jobs or library-wide parallel
 builds are required. Test fixtures and per-pilot jobs should also run serially.
+Reduction cache versions capture the source-file receipt at module import;
+source compilation and bytecode reload therefore share a key. A source edit
+invalidates it. The independent ordinary-Python `test_lod_cache.py` launches
+three serial CPU Blender probes to test both reuse and invalidation.
 
 
 `protected_nodes` identifies undocumented moving/detachable roots; it keeps
@@ -560,11 +576,19 @@ Do not force an already tiny object to have four rows.
 }
 ```
 
-A standard prop such as a street light normally uses two shared-map levels,
-with no private far atlas. Its fixture can be only a few pixels wide even when
+A standard prop such as a street light starts with one shared-map level,
+with no private far atlas; add another only if it saves useful geometry while
+retaining coverage. Its fixture can be only a few pixels wide even when
 its whole pole is tall. Review the lit optics and pole coverage at the true
 switch size. A source-seed control must pass before attributing powered-surface
 noise to reduction; increase `render_samples` only from that measurement.
+Also compare the width and coverage of a subpixel shaft. Whole-object pixel
+displacement bounds can shrink a thin pole enough to fade it even when RGB
+errors pass. Tighten that level's existing `surface_pixels` parameter relative
+to the narrow feature's projected width (the street-light trial uses `.02`),
+then rerender all views. Keep the .05 alpha/IoU gates. If an additional level
+cannot save useful geometry while preserving the shaft, omit it and document
+the failed cheaper strip.
 
 ```json
 {
@@ -574,8 +598,7 @@ noise to reduction; increase `render_samples` only from that measurement.
   "feature_pixels": 1.5,
   "render_samples": 128,
   "levels": [
-    {"ratio": 0.4, "screen_height": 0.25},
-    {"ratio": 0.15, "screen_height": 0.09}
+    {"ratio": 0.4, "screen_height": 0.25}
   ]
 }
 ```

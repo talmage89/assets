@@ -1367,3 +1367,86 @@ written examples produced street-light and WoodPrivacy configs plus opt-in
 Make hooks in `5f1bd0a`. Privacy covers Section_A, Section_B and Gate_Bay on
 one original atlas; its three 20-triangle posts deliberately stay LOD0. Builds
 and native review are pending, so this entry does not claim completed adoption.
+
+## Pass 37 — native near review, channel isolation and a literal recipe failure
+
+Opened all three 9,186-triangle station LOD1 strips at native size in
+`build/lod-v4/previews/commercial/near-v5-1/`, then the original-size worst-patch
+crops in `build/lod-v4/local-controls/`. Color/value first: the fascia retains
+its plum hue, the lettering stays crisp and columns/soffit retain their values.
+Mean RGB is .00124–.00141 and p95 .00392. Two local tests fail (.116/.160),
+entirely on thin bright lamp contours; the front local value is .0755.
+The native crops show about one pixel of contour displacement, rather than a
+broad emission or albedo change. LOD0-only half-pixel translations produce
+.097–.125 locally; a one-pixel vertical translation produces .195–.200.
+The corrected station LOD1 local limit is **.21**, with every other gate
+unchanged. The new per-level limit API keeps the far local limit at .08 and
+never silently drops unspecified gates. Pure tests cover that separation.
+
+All three new far station strips were opened in
+`build/lod-v4/previews/commercial/proxy-v6/`. The switch-capped chart allocation
+does fix the visibly blurred RILLWAY lettering. It does **not** close the chain:
+full RGB means remain .0247/.0303/.0295, with pale/speckled columns. Opened all
+five independent field strips in `proxy-diagnosis-v6/` plus metalness and the
+full PBR render without normals in `proxy-diagnosis-v6b/`. Base-color mean/p95/
+local are .0109/.0588/.0685; roughness and occlusion pass too. Metalness misses
+thin trim coverage (mean .0405, p95 .293), and normal p95 is .157. Disabling
+normal maps alone still gives mean .0249/p95 .122. This rules out a blanket
+albedo/color-space correction and a normals-only explanation.
+
+A controlled fourfold atlas bake, filtered from 2048 to the same 512 delivery,
+retains the same 1,798-triangle geometry. Its three native strips are in
+`previews/commercial/proxy-ss4/`, all opened at full size. Local RGB now passes
+.08 in all views (.0766/.0781/.0797), but global means .0206/.0242/.0246 and
+p95 .124/.125/.122 still fail. This is a measured improvement, not approval.
+The next envelope control has 1,762 triangles and removes voxel rounding;
+its preview is pending. Both bakes stay below 2.60 GiB child RSS and ship only
+512 maps. Optional `bake_supersample` preserves the default accepted grill
+policy; channel-space filtering reuses the kit's downsampler as a library.
+
+The first literal street-light recipe run gives 1,656 / 1,212 triangles.
+Opened all six native strips. LOD1 passes all views with 1.96–2.37% silhouette
+loss; LOD2 visibly fades the shaft, losing 13.4–24.3% coverage. At the front far
+view, integrated alpha falls from 132.655 to 100.388 pixels. The retained LOD1
+at that same far camera has 129.776 pixels and passes all image gates at all
+three azimuths (1.89–2.17% silhouette loss). Tightening the second level's
+structural allowance to .02 pixels costs 2,048 triangles, above the retained
+1,656. The adoption therefore keeps one useful additional level. The recipe
+now explains subpixel shaft coverage, tighter optional bounds and omitting an
+unhelpful level. Its standard-prop example matches that choice. No coverage
+limit was relaxed. The source-only far control and failed strips are archived
+under `build/lod-v4/` and `before-policy-fix/street-light/`.
+
+An interruption sent SIGTERM to the unfinished lower station trial and several
+background dispatchers. Completed artifacts/checks survived. Subsequent jobs
+are directly monitored, with one Blender at a time. The old adoption freeze is
+archived; general cache and metric fixes require a fresh recipe-step-3 proof.
+Source-vs-bytecode cache versions now use an import-time source receipt, tested
+across three fresh CPU Blender processes including a source-edit invalidation.
+The complete 32-file suite passed before these later fixes; the expanded
+34-file final regression and fresh canonical/adoption proofs remain required.
+
+## Pass 38 — projection control rejected; final reductions underway
+
+Opened all three native `previews/commercial/proxy-nearest/` strips. Forcing
+nearest-visible reevaluation does not close the station: RGB means are
+.0233/.0283/.0260 and p95 .123/.137/.125. It also changes layout probes, so it
+is not a projection-only control. The runtime monkeypatch remains scratch;
+no nearest-first policy was added to the tool. The non-voxel 1,762-triangle
+control was also opened in all three views and still fails (.0234–.0254 mean,
+.114–.122 p95). Retain both negative controls rather than claiming rounding
+or nearest projection alone explains the difference. A source-only independent
+seed/convergence control is queued before any further metric decision.
+
+The fourfold field-aware bake is now an optional committed implementation;
+the default remains unchanged for accepted proxy policies. Seven pure filter/
+report tests pass. The supersampled GPU fixture and full fresh suite remain
+required. The corrected pickup near rebuild is underway with one CPU Blender;
+completed large components reach their requested .4 ratios. This is not yet
+an assembled-count or rendered approval.
+
+Merged main again as `e24f45e` (main `ae3dde6`, skatepark). No kit changes came
+from that merge. Five new gallery images extend the original preservation
+receipt to 481 files; no existing hash was refreshed. Repository check now
+passes 1,962 source files. The prior adoption freeze remains obsolete until
+all general changes settle and the recipe is followed afresh.
