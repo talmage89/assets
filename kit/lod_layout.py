@@ -24,7 +24,8 @@ def reference(sources, original):
                 sizes[index] = struct.unpack_from('>II', original.image(index), 16)
             width, height = sizes[index]
             specs[material.get('name')] = ('LOD_SourceUV' + str(info.get('texCoord', 0)), width * height)
-    points = []; faces = []; densities = []; offset = 0
+    graphic_names={m.get('name') for m in original.data.get('materials',[]) if m.get('alphaMode') in ('MASK','BLEND') or any(m.get('emissiveFactor',[0,0,0]))}
+    points = []; faces = []; densities = []; graphics = []; offset = 0
     for ob in sources:
         mesh = ob.data; mesh.calc_loop_triangles()
         matrix = np.array(ob.matrix_world)
@@ -33,7 +34,7 @@ def reference(sources, original):
         ff = np.array([t.vertices[:] for t in triangles], np.uint32)
         loops = np.array([t.loops[:] for t in triangles], np.uint32)
         area = np.linalg.norm(np.cross(pp[ff[:, 1]]-pp[ff[:, 0]], pp[ff[:, 2]]-pp[ff[:, 0]]), axis=1)
-        density = np.zeros(len(ff))
+        density = np.zeros(len(ff)); graphic = np.zeros(len(ff),bool)
         for slot, material in enumerate(mesh.materials):
             if not material or material.name not in specs:continue
             uvname, pixels = specs[material.name]
@@ -42,9 +43,10 @@ def reference(sources, original):
             edge = uv[:, 1:] - uv[:, :1]
             uvarea = np.abs(edge[:, 0, 0]*edge[:, 1, 1]-edge[:, 0, 1]*edge[:, 1, 0])
             take = np.array([t.material_index == slot for t in triangles])
+            if material.name in graphic_names:graphic[take]=True
             density[take] = pixels*uvarea[take]/np.maximum(area[take], 1e-20)
-        points.extend(pp); faces.extend(ff + offset); densities.extend(density); offset += len(pp)
-    return BVHTree.FromPolygons([Vector(p) for p in points], faces, all_triangles=True), np.array(densities)
+        points.extend(pp); faces.extend(ff + offset); densities.extend(density); graphics.extend(graphic); offset += len(pp)
+    return BVHTree.FromPolygons([Vector(p) for p in points], faces, all_triangles=True), np.array(densities), np.array(graphics)
 
 
 def charts(mesh,normal_angle=1):
@@ -80,7 +82,7 @@ def measures(ob, ids):
     return float(world_area), float(uv_area)
 
 
-def unwrap(targets, sources, original, size, meters_per_pixel, *, normal_angle=1):
+def unwrap(targets, sources, original, size, meters_per_pixel, *, normal_angle=1, sampling=None):
     """Preserve relative source sampling importance, then pack all parts once.
 
     Uniform world-area allocation loses the deliberately denser headlamps,
@@ -89,7 +91,7 @@ def unwrap(targets, sources, original, size, meters_per_pixel, *, normal_angle=1
     """
     print('LOD LAYOUT START',len(targets),'targets',size,'px',flush=True)
     bpy.context.view_layer.update()
-    tree, density = reference(sources, original)
+    tree, density, graphics = reference(sources, original)
     from kit.lod_transfer import source_hit
     bpy.ops.object.select_all(action='DESELECT')
     for ob in targets:ob.select_set(True)
@@ -106,8 +108,19 @@ def unwrap(targets, sources, original, size, meters_per_pixel, *, normal_angle=1
             for fi in ids:
                 p = pp[list(mesh.polygons[fi].vertices)]; area = np.linalg.norm(np.cross(p[1]-p[0], p[2]-p[0]))*.5
                 direction=np.cross(p[1]-p[0],p[2]-p[0]);direction/=max(np.linalg.norm(direction),1e-20)
-                hit=source_hit(tree,p.mean(axis=0),direction,2*meters_per_pixel)
-                value = density[hit[2]] if hit is not None else 0
+                probes=[p.mean(axis=0)]
+                if sampling:
+                    probes += [.9*q+.1*p.mean(axis=0) for q in p]+[(p[j]+p[(j+1)%len(p)])*.5 for j in range(len(p))]
+                values=[]
+                for probe in probes:
+                    hit=source_hit(tree,probe,direction,2*meters_per_pixel)
+                    value=density[hit[2]] if hit is not None else 0.
+                    if sampling and value>0:
+                        cap=sampling.get('graphic_texels_per_pixel',4.) if graphics[hit[2]] else sampling.get('surface_texels_per_pixel',1.)
+                        if not 0<cap<=8:raise ValueError('Atlas switch sampling cap must lie in (0,8]')
+                        value=min(value,(cap/maximum_pixel(meters_per_pixel))**2)
+                    values.append(value)
+                value=max(values)
                 # Constant/unmapped surfaces still need a finite chart for
                 # their normal/material response, without inventing detail.
                 if value <= 0:value = 1/maximum_pixel(meters_per_pixel)**2
@@ -140,7 +153,7 @@ def unwrap(targets, sources, original, size, meters_per_pixel, *, normal_angle=1
         guard = next_guard
     print('LOD LAYOUT PACKED','gutter',guard,'mip95',round(math.log2(footprint),3),flush=True)
     areas = [measures(ob, ids)[1] for ob, ids in groups]
-    return dict(method='source-density-weighted charts', normal_cut_degrees=normal_angle, charts=len(groups), uv_area=float(sum(areas)),
+    return dict(method='switch-capped multi-probe source density' if sampling else 'source-density-weighted charts',sampling=sampling,normal_cut_degrees=normal_angle, charts=len(groups), uv_area=float(sum(areas)),
                 gutter_pixels=guard, estimated_mip_p95=float(math.log2(footprint)),
                 gutter_cap_pixels=cap, gutter_capped=needed>cap,
                 source_density_min=float(min(source_weights)), source_density_max=float(max(source_weights)))

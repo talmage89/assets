@@ -129,6 +129,20 @@ def repair(source,target,arrays,mask,size,tolerance,route,batch_size=16384,*,cov
                 if abs(np.linalg.det(gram))<1e-24:continue
                 bw=np.linalg.solve(gram,e@(np.array(q)-tri[0]));bw=np.array([1-bw.sum(),*bw])
                 yield (int(y),int(x),np.array(q),fi,bw,nn,tt,bb,footprint,float(dist))
+    # Explicit delivered tangent frames are shader attributes. Nearest-source
+    # patches must carry those fields too, rather than falling back to Mikk
+    # solely because the tiny evaluation mesh has new topology.
+    from kit.lod_shading import TANGENT,SIGN,PRESENT
+    frame_attributes={}
+    for name in (TANGENT,SIGN,PRESENT):
+        attribute=mesh.attributes.get(name)
+        if attribute is None:continue
+        if attribute.domain!='CORNER':raise ValueError('Delivered shading frame must be corner data')
+        prop='vector' if attribute.data_type=='FLOAT_VECTOR' else 'value'
+        width=3 if prop=='vector' else 1
+        values=np.empty(len(mesh.loops)*width,np.float32)
+        attribute.data.foreach_get(prop,values)
+        frame_attributes[name]=(attribute.data_type,prop,values.reshape(-1,width))
     from itertools import islice
     pending=records();batch=list(islice(pending,batch_size))
     if not batch:return dict(candidates=0,repaired=0,max_distance_m=0.)
@@ -175,6 +189,10 @@ def repair(source,target,arrays,mask,size,tolerance,route,batch_size=16384,*,cov
         for name,values in colors.items():
             value=np.einsum('ni,nij->nj',bw,values[li]);layer=data.color_attributes.new(name=name,type='FLOAT_COLOR',domain='CORNER')
             layer.data.foreach_set('color',np.repeat(value,4,axis=0).astype(np.float32).ravel())
+        for name,(kind,prop,values) in frame_attributes.items():
+            value=np.einsum('ni,nij->nj',bw,values[li])
+            layer=data.attributes.new(name,kind,'CORNER')
+            layer.data.foreach_set(prop,np.repeat(value,4,axis=0).astype(np.float32).ravel())
         yy=np.array([r[0] for r in batch]);xx=np.array([r[1] for r in batch]);uv=np.empty((count,4,2))
         patch_size=2**int(np.ceil(np.log2(max(2,np.sqrt(count)))))
         py=np.arange(count)//patch_size;px=np.arange(count)%patch_size

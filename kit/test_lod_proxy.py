@@ -213,6 +213,16 @@ def main():
     frame += [a['POSITION']*[.2,1.6,.004]+[x,0,.3] for x in [-.475,.475]]
     framed=dict(POSITION=np.concatenate(frame));framed_faces=np.concatenate([ff+i*len(flat) for i in range(4)])
     assert len(planar_groups(framed,framed_faces,.02))==4,'frame rails filled their opening'
+    # A narrow window can occupy less than 20% of a wall: the tighter
+    # optional coverage policy must preserve it without changing legacy merges.
+    rectangles=[(0,10,0,4),(0,10,6,10),(0,4,4,6),(6,10,4,6)]
+    pts=[];tris=[]
+    for x0,x1,y0,y1 in rectangles:
+        offset=len(pts);pts.extend([(x0,y0,0),(x1,y0,0),(x1,y1,0),(x0,y1,0)])
+        tris.extend([(offset,offset+1,offset+2),(offset,offset+2,offset+3)])
+    window=dict(POSITION=np.array(pts,np.float32));wf=np.array(tris,np.uint32)
+    assert len(planar_groups(window,wf,.1))==1
+    assert len(planar_groups(window,wf,.1,.97))>1,'small real opening filled'
     # Closed construction shells touching at an edge remain distinct until
     # an explicit planar merge, rather than becoming one giant convex hull.
     touching=dict(POSITION=np.concatenate([a['POSITION'],a['POSITION']+[.25,.25,0]]))
@@ -301,6 +311,23 @@ def main():
         areas.append(total)
     assert 14<areas[1]/areas[0]<18,(areas,layout)
     assert layout['gutter_pixels']>=4 and layout['uv_area']>.1,layout
+    # Switch caps must release atlas area from heavily tiled surfaces.
+    # Alpha graphics get a separate sampling budget on the same atlas.
+    capped=unwrap(dst,src,Document(source),256,.05,sampling=dict(surface_texels_per_pixel=1,graphic_texels_per_pixel=4))
+    def chart_area(ob):
+        ob.data.calc_loop_triangles();uv=ob.data.uv_layers.active.data;total=0.
+        for triangle in ob.data.loop_triangles:
+            q=np.array([uv[i].uv[:] for i in triangle.loops]);e=q[1:]-q[:1]
+            total+=abs(np.linalg.det(e))*.5
+        return total
+    equal=[chart_area(ob) for ob in dst]
+    assert .9<equal[1]/equal[0]<1.1,(equal,capped)
+    graphics_doc=Document(source);graphic_spec=copy.deepcopy(next(m for m in graphics_doc.data['materials'] if m.get('name')=='Brown'))
+    graphic_spec.update(name='FinePrint',alphaMode='BLEND');graphics_doc.data['materials'].append(graphic_spec)
+    graphic=bpy.data.materials.new('FinePrint');src[1].data.materials[0]=graphic
+    prioritized=unwrap(dst,src,graphics_doc,256,.05,sampling=dict(surface_texels_per_pixel=1,graphic_texels_per_pixel=4))
+    area=[chart_area(ob) for ob in dst]
+    assert 14<area[1]/area[0]<18,(area,prioritized)
     for ob in src+dst:
         data=ob.data;bpy.data.objects.remove(ob,do_unlink=True);bpy.data.meshes.remove(data)
     # Many small charts must retain positive texel area. An unconstrained

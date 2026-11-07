@@ -45,7 +45,13 @@ def main():
         bpy.ops.object.select_all(action='DESELECT');ob.select_set(True);bpy.context.view_layer.objects.active=ob
         bpy.context.view_layer.update();bpy.ops.object.bake(type='EMIT')
         data=np.empty(32*32*4,np.float32);image.pixels.foreach_get(data);data=data.reshape(32,32,4)
-        mask=data[:,:,3]>.99;actual=data[:,:,:3][mask]*2-1;actual/=np.maximum(np.linalg.norm(actual,axis=1,keepdims=True),1e-20)
+        # EMIT leaves opaque black outside atlas charts; alpha alone is not a
+        # coverage mask. Measure only independently rasterized mesh UV texels.
+        from kit.lod_transfer import raster as uv_raster
+        mask=np.zeros((32,32),bool)
+        for yy,xx,*unused in uv_raster(ob,32):mask[31-yy,xx]=True
+        mask &= data[:,:,3]>.99
+        actual=data[:,:,:3][mask]*2-1;actual/=np.maximum(np.linalg.norm(actual,axis=1,keepdims=True),1e-20)
         write_png(out/(label+'-'+channel+'.png'),data[::-1]);return actual,receipt
     cases=[('aligned',[1,0,0],1,False),('rotated',[0,1,0],1,False),('mirrored',[0,1,0],-1,False),('placed',[0,1,0],1,True)]
     for label,tangent,hand,placed in cases:
@@ -60,6 +66,60 @@ def main():
                 native,_=bake(path,False,label+'-native',channel)
                 if label=='aligned':assert np.max(np.abs(native-actual))<2e-5
                 else:assert np.max(np.abs(native-actual))>.2
+    # The proxy baker must sample supplied source frames too, not only the
+    # final comparison renderer. Re-import its resulting tangent map natively.
+    from kit.lod_atlas import bake as bake_atlas
+    path=fixture('atlas-source',[0,1,0]);doc=Document(path)
+    doc.data['nodes'][0]['extras']=dict(lod_sources=[0])
+    delivered=out/'atlas-delivered.gltf'
+    transfer=bake_atlas(doc,path,delivered,64,projection_m=.02);doc.save(delivered)
+    for channel,value in vectors.items():
+        expected=np.array([-value[1],value[0],value[2]])@CONVERT.T
+        expected/=np.linalg.norm(expected)
+        actual,_=bake(delivered,False,'atlas-native',channel)
+        error=float(np.max(np.abs(actual-expected)))
+        assert error<.025,('atlas ignored supplied source tangent',channel,error)
+        records.append(dict(case='atlas-source',channel=channel,max_vector_error=error,receipt=transfer['source_shading_frame']))
+
+    # Force every texel through the bounded nearest-source patch route. The
+    # shader attributes carrying the supplied tangent must survive that route.
+    bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(path))
+    restore(Document(path));source=bpy.data.objects['FramePanel']
+    source.data.uv_layers.active.name='LOD_SourceUV0'
+    mat=source.data.materials[0];nt=mat.node_tree
+    for node in nt.nodes:
+        if node.type=='NORMAL_MAP':node.uv_map='LOD_SourceUV0'
+    bsdf=next(n for n in nt.nodes if n.type=='BSDF_PRINCIPLED')
+    output=next(n for n in nt.nodes if n.type=='OUTPUT_MATERIAL')
+    emission=nt.nodes.new('ShaderNodeEmission')
+    encode=nt.nodes.new('ShaderNodeVectorMath');encode.operation='MULTIPLY_ADD'
+    encode.inputs[1].default_value=(.5,.5,.5);encode.inputs[2].default_value=(.5,.5,.5)
+    def route(channel):
+        color=emission.inputs['Color']
+        for link in list(color.links):nt.links.remove(link)
+        if channel in ('NormalField','CoatNormalField'):
+            slot=bsdf.inputs['Normal' if channel=='NormalField' else 'Coat Normal']
+            nt.links.new(slot.links[0].from_socket,encode.inputs[0])
+            nt.links.new(encode.outputs[0],color)
+        else:color.default_value=(1,1,1,1)
+        nt.links.new(emission.outputs[0],output.inputs['Surface'])
+    target=source.copy();target.data=source.data.copy();bpy.context.scene.collection.objects.link(target)
+    target.location.y-=.02;bpy.context.view_layer.update()
+    sc=bpy.context.scene;sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=1
+    from kit.lod_transfer import repair,raster
+    arrays=dict(Alpha=np.zeros((16,16,1),np.float32),Normal=np.zeros((16,16,3),np.float32),CoatNormal=np.zeros((16,16,3),np.float32))
+    transfer=repair(source,target,arrays,np.ones((16,16),bool),16,.03,route,coverage=True)
+    assert transfer['repaired']==256,transfer
+    for channel,key in [('base','Normal'),('coat','CoatNormal')]:
+        value=vectors[channel];expected=np.array([-value[1],value[0],value[2]])@CONVERT.T;expected/=np.linalg.norm(expected)
+        error=0.
+        for yy,xx,p,n,t,b,foot in raster(target,16):
+            decoded=arrays[key][yy,xx]*2-1
+            actual=t*decoded[:,0,None]+b*decoded[:,1,None]+n*decoded[:,2,None]
+            actual/=np.linalg.norm(actual,axis=1,keepdims=True)
+            error=max(error,float(np.max(np.abs(actual-expected))))
+        assert error<2e-4,('nearest patch ignored supplied source tangent',channel,error)
+        records.append(dict(case='nearest-source',channel=channel,max_vector_error=error,receipt=transfer))
     (out/'report.json').write_text(json.dumps(records,indent=2)+'\n')
     print('LOD PROVIDED SHADING FRAME FIXTURE PASS',max(r['max_vector_error'] for r in records),flush=True)
 

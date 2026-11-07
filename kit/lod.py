@@ -125,7 +125,7 @@ def build(config):
         from kit.lod_scene import merge_static,proxy,shell_static
         assembly=None
         if spec.get('proxy'):
-            assembly=proxy(doc,spec.get('proxy_budget',spec['target_triangles']),meters_per_pixel,spec.get('preserve_concavity',[]),spec.get('proxy_remesh',False))
+            assembly=proxy(doc,spec.get('proxy_budget',spec['target_triangles']),meters_per_pixel,spec.get('preserve_concavity',[]),spec.get('proxy_remesh',False),spec.get('min_projected_coverage',.8))
         elif spec.get('leaf_cards'):
             from kit.lod_foliage import build as build_foliage
             reports=build_foliage(doc,round(manifest['levels'][0]['triangles']*spec['ratio']),meters_per_pixel,spec.get('leaf_scale_exponent',.4),spec.get('leaf_selection','balanced'))
@@ -168,8 +168,8 @@ def build(config):
             doc.save(temp,image_paths=textures(doc,temp.parent))
             cache=path.parent/(path.stem+'-maps')/'bake.json'
             recipe=dict(input_dependencies=Document(temp).dependencies(),source_dependencies=Document(source).dependencies(),
-                        baker_sha256=digest(ROOT/'kit/lod_atlas.py'),layout_sha256=digest(ROOT/'kit/lod_layout.py'),transfer_sha256=digest(ROOT/'kit/lod_transfer.py'),
-                        proxy=bool(spec.get('proxy')),composite_alpha=bool(spec.get('static_shell')),size=spec.get('texture_size',2048),projection_m=max_error*2)
+                        shading_sha256=digest(ROOT/'kit/lod_shading.py'),baker_sha256=digest(ROOT/'kit/lod_atlas.py'),layout_sha256=digest(ROOT/'kit/lod_layout.py'),transfer_sha256=digest(ROOT/'kit/lod_transfer.py'),
+                        proxy=bool(spec.get('proxy')),composite_alpha=bool(spec.get('static_shell')),size=spec.get('texture_size',2048),projection_m=max_error*2,atlas_sampling=spec.get('atlas_sampling'))
             valid=False
             if cache.exists() and path.exists():
                 old=json.loads(cache.read_text())
@@ -179,7 +179,7 @@ def build(config):
                 from kit.lod_atlas import bake as bake_atlas
                 baked=Document(temp)
                 with locked():bake_atlas(baked,source,path,spec.get('texture_size',2048),
-                    proxy=bool(spec.get('proxy')),projection_m=max_error*2,composite_alpha=bool(spec.get('static_shell')))
+                    proxy=bool(spec.get('proxy')),projection_m=max_error*2,composite_alpha=bool(spec.get('static_shell')),atlas_sampling=spec.get('atlas_sampling'))
                 baked.save(path)
                 report=json.loads(cache.read_text());report['recipe']=recipe;cache.write_text(json.dumps(report,indent=2)+'\n')
         else:doc.save(path,image_paths=textures(doc,out,spec.get('texture_size')))

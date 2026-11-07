@@ -111,7 +111,7 @@ def construction_components(attrs,faces):
     return list(groups.values())
 
 
-def planar_groups(attrs,faces,meters_per_pixel):
+def planar_groups(attrs,faces,meters_per_pixel,min_coverage=.8):
     """Merge neighboring coplanar construction, including separate siding boards.
 
     A half-pixel depth band can become one shell with new baked charts. Spatial
@@ -149,7 +149,7 @@ def planar_groups(attrs,faces,meters_per_pixel):
                 half.append(p)
             hull.extend(half[:-1])
         q=np.asarray(hull);envelope=abs(np.sum(q[:,0]*np.roll(q[:,1],-1)-q[:,1]*np.roll(q[:,0],-1)))*.5
-        return area>=envelope*.8 or envelope-area<=2*meters_per_pixel**2
+        return area>=envelope*min_coverage or envelope-area<=2*meters_per_pixel**2
     for index,(i,n,d,lo,hi) in enumerate(flat):
         for j,nn,dd,ll,hh in flat[:index]:
             if n@nn<.9999 or abs(d-dd)>meters_per_pixel*.5:continue
@@ -221,7 +221,7 @@ def orient_closed_shells(bm, volume_floor=0.):
     return dict(flipped=flipped,collapsed=collapsed)
 
 
-def proxy(doc,target,meters_per_pixel,preserve_concavity=(),remesh=False):
+def proxy(doc,target,meters_per_pixel,preserve_concavity=(),remesh=False,min_coverage=.8):
     """Closed construction envelopes with concave tube/return preservation.
 
     Convex envelopes close open sheets without a high-resolution point volume.
@@ -245,7 +245,8 @@ def proxy(doc,target,meters_per_pixel,preserve_concavity=(),remesh=False):
     reference=BVHTree.FromPolygons([Vector(p) for p in positions],faces.tolist(),all_triangles=True)
     tt=positions[faces];source_areas=np.linalg.norm(np.cross(tt[:,1]-tt[:,0],tt[:,2]-tt[:,0]),axis=1)*.5
     points=[];triangles=[];offset=0;removed=[];concave=0;envelopes=0;pieces=[]
-    groups=planar_groups(attrs,faces,mpp)
+    if not .8<=min_coverage<=1:raise ValueError('Proxy projected coverage must lie in [.8,1]')
+    groups=planar_groups(attrs,faces,mpp,min_coverage)
     component_index=np.empty(len(faces),np.int32)
     component_area=np.array([source_areas[ids].sum() for ids,count in groups])
     for gi,(ids,count) in enumerate(groups):component_index[ids]=gi
@@ -367,7 +368,7 @@ def proxy(doc,target,meters_per_pixel,preserve_concavity=(),remesh=False):
     ni=len(doc.data['nodes']);doc.data['nodes'].append(dict(name='LOD_Proxy',mesh=0,extras=dict(lod_sources=source_ids,lod_proxy=True,animation='merged rest pose')))
     doc.data['scenes'][doc.data.get('scene',0)].setdefault('nodes',[]).append(ni)
     doc.data.pop('skins',None);doc.data.pop('animations',None)
-    return dict(method='voxel union of construction envelopes' if remesh else 'closed construction envelopes',remeshing=remeshing,requested_budget_triangles=target,preserved_concave_nodes=concave_nodes,envelopes=envelopes,concave_parts=concave,planar_merged_components=sum(n-1 for ids,n in groups),removed_enclosed_parts=enclosed,
+    return dict(method='voxel union of construction envelopes' if remesh else 'closed construction envelopes',remeshing=remeshing,requested_budget_triangles=target,min_projected_coverage=min_coverage,preserved_concave_nodes=concave_nodes,envelopes=envelopes,concave_parts=concave,planar_merged_components=sum(n-1 for ids,n in groups),removed_enclosed_parts=enclosed,
         closed_source_boundary_edges=capped_edges,oriented_source_shells=oriented_source_shells,final_shell_orientation=orientation,removed_features=removed,input_envelope_triangles=envelope_triangles,input_reduction_triangles=pre,triangles=len(ff),topology=report,
         merged_parts=[doc.data['nodes'][i].get('name') for i in source_ids])
 
