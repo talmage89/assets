@@ -61,6 +61,48 @@ def family_residency(chains):
                 unexpected_intermediate_images=sorted(unexpected),passed=not unexpected)
 
 
+def stored_totals(chains):
+    """Measure all default resident payloads, including full source containers.
+
+    Entries are (source identity, manifest, output directory). Near material
+    bindings alias original resources. Stored primitive placements are summed
+    for accounting; they are not simultaneous runtime draw calls.
+    """
+    sources=set();materials=set();dependencies={};triangles=placements=0;draws=[]
+    for source_key,manifest,out in chains:
+        for row in manifest['levels']:
+            doc=Document(Path(out)/row['path']);stats=doc.stats()
+            for relative in doc.dependencies():
+                path=(doc.path.parent/relative).resolve();dependencies[path]=path.stat().st_size
+            used={p.get('material',0) for _,_,p in doc.primitives()}
+            draws.append(row['draw_calls'])
+            if row['level']==0:
+                if source_key in sources:continue
+                sources.add(source_key)
+                materials.update((source_key,'original',i) for i in used)
+            elif row.get('shared_maps'):
+                binding={r['material']:r['lod0_material'] for r in row['canonical_material_bindings']}
+                materials.update((source_key,'original',binding[i]) for i in used)
+            else:
+                materials.update((source_key,str(Path(out).resolve()),row['level'],i) for i in used)
+            triangles+=stats['triangles'];placements+=stats['draw_calls']
+    return dict(stored_mesh_triangles=triangles,material_resources=len(materials),
+                stored_primitive_placements=placements,distinct_payload_bytes=sum(dependencies.values()),
+                active_draw_calls_min=min(draws),active_draw_calls_max=max(draws))
+
+
+def stored_table(totals,resident):
+    return ('| Stored mesh triangles | Material resources | Stored primitive placements | Distinct payload bytes | Resident GPU, MiB |\n'
+            '| ---: | ---: | ---: | ---: | ---: |\n'
+            f'| {totals["stored_mesh_triangles"]:,} | {totals["material_resources"]:,} | '
+            f'{totals["stored_primitive_placements"]:,} | {totals["distinct_payload_bytes"]:,} | {resident/2**20:.4f} |\n\n'
+            'Stored counts include the full immutable source container once and every default level; '
+            'optional impostor alternatives are excluded. Near materials use their canonical source bindings. '
+            'Physical payload files are counted once by path. Only one level is drawn per instance: '
+            f'active draw calls range from {totals["active_draw_calls_min"]} to {totals["active_draw_calls_max"]} '
+            'across these kinds/levels. Stored primitive placements are not simultaneous runtime draw calls.')
+
+
 def checkpoint_markers(cfg):
     label='LOD checkpoint'+(' '+cfg['readme_key'] if cfg.get('readme_key') else '')
     return '<!-- '+label+': begin -->','<!-- '+label+': end -->'
@@ -154,7 +196,7 @@ def main():
     p.add_argument('--allow-failed',action='store_true',help='Report current failed evidence explicitly; never waive checks')
     p.add_argument('--out',default='build/lod-pilots',help='Report directory relative to the repository')
     p.add_argument('--family-root',help='Union all configs under this repository-relative family root')
-    args=p.parse_args();rows=[];text=['# LOD checkpoint',''];cells=[];families={}
+    args=p.parse_args();rows=[];text=['# LOD checkpoint',''];cells=[];families={};stored_families={}
     dest=(ROOT/args.out).resolve()
     family_root=(ROOT/args.family_root).resolve() if args.family_root else None
     font=ImageFont.truetype(find_font('Noto Sans'),17)
@@ -166,6 +208,9 @@ def main():
             raise RuntimeError('Checkpoint is not current/passing: '+str(config))
         status=f'Chain check: {checks["passed"]}; image check: {metrics["passed"]}; normal check: {normals["passed"]}.'
         text+=['## '+cfg['kind'],'',status,'',table(m),'',resident_text(m),'']
+        source_key=(str(source.resolve()),digest(source))
+        totals=stored_totals([(source_key,m,out)])
+        text+=['Whole default chain:','',stored_table(totals,m['resident']['total_gpu_bytes']),'']
         if checks.get('errors'):
             text+=['Raw check errors:','']+['- '+error for error in checks['errors']]+['']
         failures=[r for r in metrics['comparisons'] if not r['passed']]
@@ -193,11 +238,14 @@ def main():
         text+=[f'Distinct payload dependencies for the delivery, including optional alternatives: **{distinct_bytes:,} bytes**, excluding audit JSONs.','']
         if family_root and not root.is_relative_to(family_root):raise ValueError('Config is outside --family-root')
         families.setdefault(family_root or root,[]).append(((str(source.resolve()),digest(source)),m))
+        stored_families.setdefault(family_root or root,[]).append((source_key,m,out))
         rows.append(dict(asset=root.name,kind=cfg['kind'],config=str(Path(config)),resident=m['resident'],levels=m['levels'],chain_passed=checks['passed'],chain_errors=checks.get('errors',[]),images_passed=metrics['passed'],normals_passed=normals['passed'],distinct_payload_bytes=distinct_bytes,
+                         whole_chain=totals,
                          maximum_image_mean=max(r[k]['mean'] for r in metrics['comparisons'] for k in ['reference','adjacent'])))
         if args.write_readmes:
             readme=root/'README.md';old=readme.read_text();start,end=checkpoint_markers(cfg)
             addition=block(cfg,m,status,kit_prefix=Path(os.path.relpath(ROOT/"kit",root)).as_posix())
+            addition=addition.replace(end,'Whole default chain:\n\n'+stored_table(totals,m['resident']['total_gpu_bytes'])+'\n\n'+end)
             if start in old:
                 a,b=old.split(start,1);_,c=b.split(end,1);new=a+addition.rstrip()+c
             elif cfg.get('readme_before') and cfg['readme_before'] in old:
@@ -230,6 +278,8 @@ def main():
     for root,chains in families.items():
         if len(chains)<2:continue
         cost=family_costs[str(root.relative_to(ROOT))]
+        totals=stored_totals(stored_families[root]);cost['stored_totals']=totals
+        text+=['## '+root.name+' stored family union','',stored_table(totals,cost['total_gpu_bytes']),'']
         text+=['## '+root.name+' shared-resource union','',
             '| Allocation | MiB |','| --- | ---: |']
         for label,key in [('Original maps once','original_texture_gpu_bytes'),('Additional maps','additional_texture_gpu_bytes'),

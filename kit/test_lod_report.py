@@ -6,13 +6,42 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from kit.lod_report import family_residency,checkpoint_markers,block
+from kit.lod_report import family_residency,checkpoint_markers,block,stored_totals
 from kit.lod import image_limits
 
 ROOT=Path(__file__).resolve().parents[1]
 
 
 class LODFamilyReportTests(unittest.TestCase):
+    def test_stored_counts_measure_full_container_and_deduplicate_siblings(self):
+        import numpy as np
+        from kit.lod_io import Document,shared_material_bindings
+        (ROOT/'build').mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix='lod-stored-',dir=ROOT/'build') as folder:
+            root=Path(folder);stub=root/'stub.gltf'
+            stub.write_text(json.dumps(dict(asset=dict(version='2.0'),scene=0,scenes=[dict(nodes=[0,1,2])],
+                nodes=[dict(name='A',mesh=0),dict(name='B',mesh=1),dict(name='B2',mesh=1)],
+                meshes=[dict(primitives=[dict(attributes={},indices=0,material=i)]) for i in range(2)],
+                accessors=[],buffers=[],bufferViews=[],materials=[dict(name='one'),dict(name='two')],images=[])))
+            original=Document(stub)
+            attrs=dict(POSITION=np.array([[0,0,0],[1,0,0],[0,1,0]],np.float32),
+                       NORMAL=np.tile([0,0,1],(3,1)).astype(np.float32))
+            for mesh in original.data['meshes']:original.replace(mesh['primitives'][0],attrs,np.array([[0,1,2]],np.uint32))
+            source=root/'source.gltf';original.save(source);chains=[];payload={source,source.with_suffix('.bin')}
+            for name in ['A','B']:
+                doc=Document(source);doc.select([name]);path=root/(name+'.gltf');doc.save(path)
+                payload.update([path,path.with_suffix('.bin')])
+                manifest=dict(levels=[dict(level=0,path=source.name,triangles=1,draw_calls=1),
+                    dict(level=1,path=path.name,triangles=1,draw_calls=1,shared_maps=True,
+                         canonical_material_bindings=shared_material_bindings(Document(source),Document(path)))])
+                chains.append(('same full source',manifest,root))
+            totals=stored_totals(chains)
+            self.assertEqual(totals['stored_mesh_triangles'],4) # two in full source, one per new kind
+            self.assertEqual(totals['material_resources'],2)
+            self.assertEqual(totals['stored_primitive_placements'],5) # source has an instance
+            self.assertEqual(totals['distinct_payload_bytes'],sum(p.stat().st_size for p in payload))
+            self.assertEqual((totals['active_draw_calls_min'],totals['active_draw_calls_max']),(1,1))
+
     def test_calibrated_local_limit_cannot_leak_into_far_level(self):
         cfg=dict(silhouette_loss=.073,levels=[dict(image_limits=dict(patch_mean_max=.21)),{},{}])
         self.assertEqual(image_limits(cfg,1),dict(mean=.02,p95=.08,alpha_mae=.05,patch_mean_max=.21,silhouette_loss=.073))

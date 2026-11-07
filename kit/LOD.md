@@ -531,7 +531,12 @@ cannot approve it. The adoption proofs record the frozen tool before use.
    --write-readmes`. Supply every adopted config explicitly to report several
    kinds. Give sibling configs distinct `readme_key` / `readme_title` values so
    their tables coexist. The report also writes `families.json` and a union
-   table counting shared maps and the full original container only once. Use
+   table counting shared maps and the full original container only once. The
+   whole-chain table measures stored triangles, canonical material resources,
+   primitive placements, physical payload bytes and resident GPU bytes. Stored
+   placements sum the resident alternatives; only one level is drawn per instance,
+   so active draw calls are given separately. Optional impostor alternatives are
+   excluded from the default-chain total and reported separately. Use
    `--family-root fences --out build/lod-adoptions/fences` when reporting
    configs across nested subfamilies; each original set/container is counted
    once across all those kinds. A failed

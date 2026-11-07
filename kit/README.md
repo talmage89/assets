@@ -943,6 +943,10 @@ It protects graphics, glass and powered surfaces. Intermediate images must match
 LOD0 by full hash; canonical material/image bindings make engine resource reuse
 explicit. The manifest/report count unique maps and every mesh for the entire
 resident chain beside LOD0 alone. Only proxies/impostors add image content.
+Reports also measure whole-chain stored triangles, canonical material resources,
+primitive placements and distinct payload bytes from the actual files. They
+separate these stored counts from active draw calls and count a shared original
+container once across modular kinds.
 `lod_shells.py` guards source layer ordering with measured visibility rays and
 keeps construction beside powered surfaces, including small occluding shutters.
 Failed skins try finer source-map reductions before restoring a whole component;
