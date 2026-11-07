@@ -961,7 +961,10 @@ Selected modular roots keep their merged geometry as descendants, so replacing
 a root placement moves geometry and sockets together.
 `lod_mesh.py` measures screen/mip-relative error, prunes tiny islands and
 transports normalized skin weights. `lod_scene.py` consolidates static material
-groups while preserving interactive frames; a projected-coverage check guards
+groups while preserving interactive frames. Explicit `source_geometry_nodes`
+exceptions restore measured grazing-layer failures without changing maps,
+materials or other instances; assembly receipts expose their triangle cost.
+A projected-coverage check guards
 planar frame openings. Its far proxy uses closed
 construction envelopes, preserves concave footprints and optionally unions them with a pixel-sized voxel grid. Closed shells have independently checked positive volume. `lod_layout.py` keeps relative source texel density, cuts normal-frame seams and derives mip gutters. `lod_atlas.py` bakes original delivered PBR
 appearance onto new charts under the shared GPU lock, isolating moving pairs and retained near materials

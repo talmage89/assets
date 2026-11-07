@@ -1848,3 +1848,65 @@ intact. Switched remaining GPU work to direct, individually polled jobs and
 stopped the idle follow-up driver to avoid duplicates. Reused only completed,
 verified outputs, not interrupted partial builds. Latest preservation remains
 486 files/zero changes; repository check 1996 source files/zero errors.
+
+## Pass 48 — station quarter cap and pickup grazing-layer diagnosis
+
+Color and value: opened all three station `build/lod-v4/previews/commercial/mid002/`
+native strips. At the unchanged .12 switch, the 4542-triangle candidate retains
+the fascia value, lettering, roof, posts and dispenser coverage. Mean errors
+.008567/.007105/.005077, p95 .070588/.043137/.035294, local
+.056924/.053554/.036301; alpha and silhouette gates pass unchanged. This is
+24.88% of selected LOD0. Adopted the .02 request in the canonical config; the
+previous 5388-triangle middle level is superseded. LOD1 remains 9130 (50.01%).
+The ten-junction audit must also be repeated on this selected middle mesh.
+
+The pickup's reflective-cap control fixes the frontal grille reflection:
+local .058068, down from .185. Opened all three native `reflective-geometry`
+strips; az55 and az145 still fail at .124959/.112173. Exact double-precision
+pixel rays identify a grazing hood layer change at az55: the candidate's
+underside faces the camera where LOD0 exposes the top. Both faces are front
+facing, so the auxiliary back-face sampler cannot certify this case. Restoring
+only the original 792-triangle HoodMesh in place of 376 reduced triangles gives
+34398 total. All three `hood-source` strips were opened: local errors
+.058068/.050073/.112173. The first two pass; the remaining patch hits the
+opposite front rim, whose .30196 median roughness just misses the .30 optical
+classification. A .35 classification control is pending. No blanket wheel
+retention or normal-map gamma change was made.
+
+Added explicit `source_geometry_nodes` for measured exceptions of this kind.
+It retains selected construction geometry and its frame/materials/maps while
+letting other instances reduce. The real serialized fixture passes: one of
+two shared-mesh moving instances keeps all original arrays and topology;
+its twin remains reduced, with its own canonical frame. Unmatched patterns
+fail. This does not claim that a visibility sampler proves all thin-shell
+ordering, nor does it hide the added triangles in a seam-lock inventory.
+
+The unchanged grill hose measures 2468 triangles. Wider-surface and feature3
+controls are 6144/6214 versus standing 6300; native review is pending. The
+1796-triangle accepted proxy is retained. The colonial near chain measures
+24949/13218 (42.84%/22.70%); independent original UV/normal audits pass.
+
+## Pass 49 — native pixel-phase calibration and proxy field controls
+
+Opened all eighteen native strips under `build/lod-v4/source-pixel-controls/`.
+They compare immutable LOD0 with itself at the same switch, lights, maps and
+seed, moving the film horizontally by a measured half pixel only. At the house
+.045 switch, frontal mean/p95/local are .01713/.09020/.06549. Thus the generic
+.08 p95 rejects an unchanged house solely from subpixel trim alignment. Rear
+controls are .00630/.03529/.02731. The SS4 house proxy, also opened at all three
+native views, is .02593/.10980/.07079 front; coverage and local gates pass.
+A .75-pixel source-only control is queued before choosing a scoped correction.
+
+The pickup far source-only controls reach only .01059 mean and .05839 p95,
+with worst local .05580 across its views. Its SS4 proxy remains visibly brighter
+at the headlamps and differs around rear trim/windows: .03547/.02013/.02342
+mean and .21553/.23459/.15999 local. Pixel alignment does not explain this
+failure. Neither consistent primary emission repair nor a surface-density2
+atlas control improves it; both are rejected. One-field-at-a-time normal,
+coat, emission, transmission and occlusion controls are queued to isolate the
+transfer failure. No proxy color gate is waived.
+
+At the pickup near switch, a half-pixel unchanged-source shift reaches local
+.15051 front and .08789 rear, despite matching material response. Native
+appearance still distinguishes a harmless edge shift from the hood's wrong
+surface layer. No near limit has been changed on this evidence alone.
