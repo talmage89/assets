@@ -24,6 +24,11 @@ def site(seed):
         decks=[(0,0,.6096),(GRID,0,.6096),(2*GRID,0,.6096),(2*GRID,GRID,1.2192),(3*GRID,GRID,1.2192)]
         events=[('RampStart',(0,-HALF-1.8288,0),0),('Transfer24',(-HALF,0,0),-90),('SlideStraight24',(GRID,-HALF,0),0),('SlideTube48',(3*GRID+HALF,GRID,0),90),('RockWall48',(2*GRID,GRID+HALF,0),180),('Arch48',(3*GRID,GRID+HALF,0),180),('VerticalLadder48',(3*GRID,GRID-HALF,0),0)]
         swing=(14.85,-1.7,0);rider=(-6.1,-3.2,0);spin=(-6.6,4.5,0);surf=(-9.6,-13.4,20.55,8.8)
+    if seed not in SEEDS and rng.random()<.5:
+        # Close a loop in the post/deck graph, or add the inclusive side bay.
+        # Existing event interfaces and height changes remain on the same grid.
+        extra={1996:(0,GRID,1.2192),2005:(2*GRID,0,1.2192),2013:(GRID,GRID,.6096)}[era]
+        decks.append(extra)
     # The three review seeds pin the authored period examples. Other positive
     # seeds select compatible events on those connected installation scaffolds.
     # None of these substitutions increases the reserved use-zone envelope.
@@ -76,7 +81,8 @@ def site(seed):
             add(kind,(x+dx,y+dy,h),angle)
     for (x,y),h in posts.items():
         kind='Post'+str(round(h*1000));add(kind,(x,y,0))
-    roof_deck=decks[-1]
+    roof_deck=decks[-1] if era!=2005 else decks[1]
+    if seed not in SEEDS:roof_deck=rng.choice([d for d in decks if d[2]>=1.2192])
     roof='Shade' if inclusive else 'HipRoof'
     if seed not in SEEDS and era==2005:roof=rng.choice(('HipRoof','Shade'))
     add(roof,(roof_deck[0],roof_deck[1],roof_deck[2]+1.32))
@@ -84,11 +90,21 @@ def site(seed):
     for sx in (-1,1):
         for sy in (-1,1):
             add('RoofRiser',(roof_deck[0]+sx*HALF,roof_deck[1]+sy*HALF,roof_deck[2]+1.12))
-    add('SwingFrame',swing,0,'swing')
+    if era==1996 and roof_deck[:2]!=decks[0][:2] and (seed in SEEDS or rng.random()<.5):
+        low=decks[0]
+        add('HipRoof',(low[0],low[1],low[2]+1.32))
+        for sx in (-1,1):
+            for sy in (-1,1):add('RoofRiser',(low[0]+sx*HALF,low[1]+sy*HALF,low[2]+1.12))
+    add('SwingFrame' if era==1996 else 'SwingArchFrame',swing,0,'swing')
     for i,x in enumerate((-SWING_BAY/2-SWING_SEAT_OFFSET,-SWING_BAY/2+SWING_SEAT_OFFSET,SWING_BAY/2-SWING_SEAT_OFFSET,SWING_BAY/2+SWING_SEAT_OFFSET)):
         add('SwingBucket' if i>=2 else 'SwingBelt',(swing[0]+x,swing[1],SWING_H),0,'swing')
     add('SpringRider',rider,0,'rider');add('Roundabout',spin,0,'spinner')
     # Compact but explicit operational separation. Composite zone is generated
     # from actual placed geometry by build.py; separate swing/rider/spinner here.
     zones=[dict(name='Swing front/back 2H',group='swing',rect=[swing[0]-SWING_BAY-SWING_OVERHANG-USE,swing[1]-2*SWING_H,swing[0]+SWING_BAY+SWING_OVERHANG+USE,swing[1]+2*SWING_H],rule='CPSC 5.3.8.3.3'),dict(name='Spring rider 6ft',group='rider',rect=[rider[0]-.5-USE,rider[1]-.5-USE,rider[0]+.5+USE,rider[1]+.5+USE],rule='CPSC 5.3.7'),dict(name='Roundabout 6ft',group='spinner',rect=[spin[0]-.94-USE,spin[1]-.94-USE,spin[0]+.94+USE,spin[1]+.94+USE],rule='CPSC 5.3.4')]
-    return dict(seed=seed,year=era,age='sun faded / maintenance repaint' if era==1996 else 'middle years' if era==2005 else 'newer inclusive',modules=modules,decks=decks,zones=zones,surface=list(surf),walk_y=surf[1]-1.65,inclusive=inclusive,selection_policy='Period scaffold plus seeded compatible events; review seeds pin canonical choices')
+    if seed not in SEEDS and rng.random()<.5:
+        # Whole connected scaffold mirroring preserves every mating interface.
+        for m in modules:
+            if m['group']=='composite':m['pos'][0]*=-1;m['yaw']*=-1
+        decks=[(-x,y,h) for x,y,h in decks]
+    return dict(plan_source={1996:'Bradley International School 2009, L1.1/L1.2',2005:'Lively Park Master Plan, 7 October 2005, playground area and master-plan diagram',2013:'Simon Playground Renovation L1.0, 28 February 2013'}[era],palette={1996:'regal blue / chrome yellow / red',2005:'evergreen / coffee tan / burgundy',2013:'ocean teal / lime / tangerine / sand'}[era],seed=seed,year=era,age='sun faded / maintenance repaint' if era==1996 else 'middle years' if era==2005 else 'newer inclusive',modules=modules,decks=decks,zones=zones,surface=list(surf),walk_y=surf[1]-1.65,inclusive=inclusive,selection_policy='Seeded connected graph loop/side bay, roof deck/count, compatible events and mirroring; review seeds pin three period examples')

@@ -11,7 +11,16 @@ from kit import model as G
 M={}
 COLORS=dict(steel=(.026,.105,.062,1),rail=(.65,.35,.025,1),red=(.54,.029,.018,1),blue=(.018,.145,.36,1),green=(.023,.21,.13,1),yellow=(.84,.51,.035,1),deck=(.022,.026,.025,1),zinc=(.34,.38,.40,1),rubber=(.008,.010,.009,1),fiber=(.31,.18,.075,1),wood=(.12,.071,.034,1),rubberfloor=(.035,.13,.115,1),accent=(.41,.17,.065,1),concrete=(.33,.34,.32,1))
 
-def init():
+FINISHES=('steel','rail','red','green','blue','yellow','deck','zinc','rubber','fiber','wood','rubberfloor','accent','concrete','custom')
+
+LOOK=False
+
+def init(look=False):
+    global LOOK
+    LOOK=look
+    if look:
+        from uv_finish import init as finish_init
+        M.update(finish_init());return
     for key,rough,metal in [('Frame',.43,0),('Molded',.31,0),('Site',.86,0)]:
         mat=bpy.data.materials.new('Playground_Quick'+key);mat.use_nodes=True
         p=mat.node_tree.nodes.get('Principled BSDF');p.inputs['Roughness'].default_value=rough;p.inputs['Metallic'].default_value=metal
@@ -50,8 +59,10 @@ def empty(parent,name,pos,kind,axis=None,limits=None):
     o=G.pivot(name,pos,axis,limits);o.parent=parent;o['socket_kind']=kind if axis is None else 'motion_pivot';return o
 
 def own(ob,parent,finish='steel',material='Frame'):
-    ob.parent=parent;ob['solid']=True;ob['construction']=ob.name
+    ob.parent=parent;ob['solid']=True;ob['construction']=ob.name;ob['finish_key']=finish if isinstance(finish,str) else 'custom';ob['material_family']=material
     G.apply(ob)
+    fc=ob.data.attributes.new(name='FinishCode',type='INT',domain='FACE')
+    for d in fc.data:d.value=FINISHES.index(finish) if finish in FINISHES else 14
     c=COLORS.get(finish,finish)
     tint=ob.data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='CORNER')
     for d in tint.data:d.color=c
@@ -62,7 +73,11 @@ def own(ob,parent,finish='steel',material='Frame'):
         for li in f.loop_indices:
             v=ob.matrix_basis@ob.data.vertices[ob.data.loops[li].vertex_index].co
             uv.data[li].uv=(v[axes[0]]/.16,v[axes[1]]/.16)
-    ob.data.materials.clear();ob.data.materials.append(M[material]);return ob
+    ob.data.materials.clear();ob.data.materials.append(M[material])
+    if LOOK:
+        from uv_finish import assign
+        assign(ob,finish,material)
+    return ob
 
 def box(parent,n,p,s,finish='steel',r=.001,mat='Frame'):
     return own(G.box(n,p,s,M[mat],r,1),parent,finish,mat)
@@ -78,17 +93,23 @@ def bolt(parent,p,axis=(0,-1,0),r=.008):
     p=Vector(p);return cyl(parent,'Recessed M10 pin bolt',p,p+Vector(axis)*.007,r,'zinc',6)
 
 def clamp(parent,x,y,z,yaw=0):
-    # Two cast half-shells with a visible joint, mounting boss, through bolt.
-    for side in (-1,1):
-        angles=[side*math.pi/2+.012+i*(math.pi-.024)/6 for i in range(7)]
-        loops=[[(x+r*math.cos(t),y+r*math.sin(t),zz) for r,zz in [(.0638,z-.026),(.073,z-.026),(.073,z+.026),(.0638,z+.026)]] for t in angles]
-        own(G.smooth(G.loft('Split cast post collar',loops,M['Frame'],caps=True),45),parent)
-    for side in (-1,1):
-        xx=x+side*.079
-        box(parent,'Clamp paired ears',(xx,y,z),(.026,.042,.046),r=.003)
-        bolt(parent,(xx,y-.024,z))
-    b=box(parent,'Cast offset hanger lug',(x,y-.096,z),(.061,.075,.049),r=.006)
-    bolt(parent,(x,y-.138,z),r=.010)
+    # Smooth split cast collars, radiused rim and a recessed pin-socket boss.
+    before=set(bpy.context.scene.objects)
+    section=[(.0639,-.025),(.070,-.028),(.074,-.018),(.074,.018),(.0639,.025)]
+    for side in (0,1):
+        angles=[side*math.pi+.009+i*(math.pi-.018)/8 for i in range(9)]
+        loops=[[(x+r*math.cos(t),y+r*math.sin(t),z+h) for r,h in section] for t in angles]
+        own(G.smooth(G.loft('Radiused split cast collar',loops,M['Frame'],caps=True),55),parent)
+    lathe(parent,'Tapered cast mounting boss',[(y-.130,.020),(y-.122,.027),(y-.069,.029),(y-.063,.024)],s=8,axis='Y',center=(x,z),closed=True)
+    cyl(parent,'Recessed fastener counterbore',(x,y-.131,z),(x,y-.133,z),.013,'rubber',8)
+    bolt(parent,(x,y-.134,z),r=.007)
+    if yaw:
+        rot=Matrix.Rotation(math.radians(yaw),4,'Z');center=Vector((x,y,z))
+        for o in set(bpy.context.scene.objects)-before:
+            if o.type=='MESH':
+                for v in o.data.vertices:v.co=rot@(v.co+o.location-center)+center
+                o.location=(0,0,0)
+
 
 def join_owner(owner):
     obs=[o for o in owner.children if o.type=='MESH']
@@ -112,4 +133,9 @@ def finish(rt):
 def clone(source,name,pos=(0,0,0),yaw=0,tint=None):
     obs=[source,*source.children_recursive];cp={o:o.copy() for o in obs}
     for a,b in cp.items():bpy.context.collection.objects.link(b);b.name=name if a==source else name+'__'+a.name;b.parent=cp.get(a.parent);b.matrix_basis=a.matrix_basis.copy()
-    rt=cp[source];rt.location=pos;rt.rotation_euler.z=math.radians(yaw);return rt
+    rt=cp[source];rt.location=pos;rt.rotation_euler.z=math.radians(yaw)
+    if tint:
+        from finishes import placed
+        for o in cp.values():
+            if o.type=='MESH':o.data=o.data.copy();placed(o,tint)
+    return rt

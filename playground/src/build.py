@@ -16,7 +16,7 @@ from kit import model as G
 
 
 def jobs():
-    d=dict(RampHeadBridge=P.ramp_head_bridge,Deck72=lambda r:P.deck(r,1.8288),Barrier72=lambda r:P.barrier(r,False,1.8288),NeckGuard=P.neck_guard,Deck=P.deck,Barrier=P.barrier,InfillPanel=lambda r:P.barrier(r,True),HipRoof=P.roof,Shade=lambda r:P.roof(r,True),Stairs48=P.steps,Transfer24=P.transfer,RampSegment=P.ramp_segment,RampLanding=P.landing,InterdeckSteps=P.interdeck,RoofRiser=P.roof_riser,SlideStraight24=lambda r:P.slide(r,.6096),SlideStraight48=P.slide,SlideWave48=lambda r:P.slide(r,1.2192,'wave'),SlideWave72=lambda r:P.slide(r,1.8288,'wave'),SlideSpiral72=lambda r:P.slide(r,1.8288,'spiral'),SlideTube48=lambda r:P.slide(r,1.2192,'tube'),Arch48=P.arch,Ladder72=lambda r:P.ladder(r,1.8288),VerticalLadder48=P.ladder,ChainNet48=P.net,RockWall48=P.rock,FirePole=P.pole,OverheadLadder=P.overhead,OverheadRings=lambda r:P.overhead(r,True),PanelWheel=P.panel,PanelTic=lambda r:P.panel(r,'tic'),PanelPeriscope=lambda r:P.panel(r,'scope'),SwingFrame=P.swing_frame,SwingBelt=P.swing,SwingBucket=lambda r:P.swing(r,True),SpringRider=P.spring,Roundabout=P.spinner)
+    d=dict(RampHeadBridge=P.ramp_head_bridge,Deck72=lambda r:P.deck(r,1.8288),Barrier72=lambda r:P.barrier(r,False,1.8288),NeckGuard=P.neck_guard,Deck=P.deck,Barrier=P.barrier,InfillPanel=lambda r:P.barrier(r,True),HipRoof=P.roof,Shade=lambda r:P.roof(r,True),Stairs48=P.steps,Transfer24=P.transfer,RampSegment=P.ramp_segment,RampLanding=P.landing,InterdeckSteps=P.interdeck,RoofRiser=P.roof_riser,SlideStraight24=lambda r:P.slide(r,.6096),SlideStraight48=P.slide,SlideWave48=lambda r:P.slide(r,1.2192,'wave'),SlideWave72=lambda r:P.slide(r,1.8288,'wave'),SlideSpiral72=lambda r:P.slide(r,1.8288,'spiral'),SlideTube48=lambda r:P.slide(r,1.2192,'tube'),Arch48=P.arch,Ladder72=lambda r:P.ladder(r,1.8288),VerticalLadder48=P.ladder,ChainNet48=P.net,RockWall48=P.rock,FirePole=P.pole,OverheadLadder=P.overhead,OverheadRings=lambda r:P.overhead(r,True),PanelWheel=P.panel,PanelTic=lambda r:P.panel(r,'tic'),PanelPeriscope=lambda r:P.panel(r,'scope'),SwingArchFrame=lambda r:P.swing_frame(r,True),SwingFrame=P.swing_frame,SwingBelt=P.swing,SwingBucket=lambda r:P.swing(r,True),SpringRider=P.spring,Roundabout=P.spinner)
     for h in (.6096+1.12,1.2192+1.12,1.8288+1.12):d['Post'+str(round(h*1000))]=lambda r,h=h:P.post(r,h)
     return d
 
@@ -34,12 +34,12 @@ def export(path,obs):
     # Existing image bytes are identified by hash, never re-encoded or overwritten.
     doc=json.loads(path.read_text())
     for mat in doc.get('materials',[]):
-        if 'QuickChain' in mat.get('name',''):mat['alphaMode']='MASK';mat['alphaCutoff']=.45;mat['doubleSided']=True
+        if 'QuickChain' in mat.get('name','') or mat.get('name','') in ('Playground_Deck','Playground_Chain'):mat['alphaMode']='MASK';mat['alphaCutoff']=.45;mat['doubleSided']=True
     for mesh in doc.get('meshes',[]):
         for primitive in mesh['primitives']:
             name=doc['materials'][primitive['material']]['name']
-            if 'QuickChain' in name or 'QuickPerforated' in name:primitive['attributes'].pop('COLOR_0',None)
-    candidates=[p for folder in ('ground','trees','shrubs','fences','street-furniture') for p in (ROOT/folder).glob('**/textures/ship/*.png')]
+            if 'QuickChain' in name or 'QuickPerforated' in name or doc['materials'][primitive['material']].get('extras',{}).get('tiling_vertex_tint') is False:primitive['attributes'].pop('COLOR_0',None)
+    candidates=[p for folder in ('playground','ground','trees','shrubs','fences','street-furniture') for p in (ROOT/folder).glob('**/textures/ship/*.png')]
     known={hashlib.sha256(p.read_bytes()).hexdigest():p for p in candidates}
     for im in doc.get('images',[]):
         p=path.parent/im['uri'];digest=hashlib.sha256(p.read_bytes()).hexdigest()
@@ -85,41 +85,8 @@ def surface(rt,plan):
         for i in range(N):
             if (i,j) in occupied:
                 a=j*(N+1)+i;fs.append((a,a+1,a+N+2,a+N+1))
-    ob=F.own(G.mesh('Two color poured rubber' if plan['inclusive'] else 'Engineered fiber / kicked exit bowls',vs,fs,F.M['Site']),rt,'rubberfloor' if plan['inclusive'] else 'fiber','Site')
-    ob['role']='protective_surface';ob['depression_centers_m']=[list(p) for p in depress]
-    if plan['inclusive']:
-        # A clean curving two-color boundary for form review, before tiling/bake.
-        points=[(2,-1,.001)]+[(2+5.9*math.cos(i*math.tau/64),-1+4.7*math.sin(i*math.tau/64),.001) for i in range(64)]
-        faces=[(0,i+1,(i+1)%64+1) for i in range(64)]
-        F.own(G.mesh('Poured rubber second color inset',points,faces,F.M['Site']),rt,'accent','Site')
-    else:
-        # Trace the actual occupied-cell boundary, merge collinear spans and
-        # split into stock 2.4m pinned timbers. No black outline around the lawn.
-        edges={}
-        for i,j in sorted(occupied):
-            for neighbor,key,lo,hi in [((i-1,j),('V',xs[i]),ys[j],ys[j+1]),((i+1,j),('V',xs[i+1]),ys[j],ys[j+1]),((i,j-1),('H',ys[j]),xs[i],xs[i+1]),((i,j+1),('H',ys[j+1]),xs[i],xs[i+1])]:
-                if neighbor not in occupied:edges.setdefault(key,[]).append((lo,hi))
-        for (axis,coord),spans in sorted(edges.items()):
-            merged=[]
-            for lo,hi in sorted(spans):
-                if merged and abs(merged[-1][1]-lo)<1e-7:merged[-1][1]=hi
-                else:merged.append([lo,hi])
-            for lo,hi in merged:
-                count=math.ceil((hi-lo)/2.4)
-                for k in range(count):
-                    a=lo+(hi-lo)*k/count;b=lo+(hi-lo)*(k+1)/count;mid=(a+b)/2
-                    if axis=='H' and abs(coord-y0)<1e-6 and a<.9 and b>-.9:continue
-                    pos=(mid,coord,.055) if axis=='H' else (coord,mid,.055);size=(b-a-.01,.14,.15) if axis=='H' else (.14,b-a-.01,.15)
-                    F.box(rt,'Pinned perimeter timber / use-zone union',pos,size,'wood',.016,'Site')
-                    for v in (a+.10,b-.10):F.bolt(rt,(v,coord,.132) if axis=='H' else (coord,v,.132),(0,0,1),.008)
-    plan['surface_regions_m']=regions
-    plan['protected_surface_area_m2']=sum((xs[i+1]-xs[i])*(ys[j+1]-ys[j]) for i,j in sorted(occupied))
-    # A separate short beveled border access ramp meets the walk.
-    F.box(rt,'Border access apron',(0,y0-.54,-.04),(1.8,1.08,.08),'concrete',.009,'Site')
-    F.box(rt,'Public sidewalk',(0,plan['walk_y'],-.08),(x1-x0+5,1.8,.16),'concrete',.008,'Site')
-    for i in range(math.ceil((x1-x0+5)/1.8)):
-        x=-(x1-x0+5)/2+i*1.8;F.box(rt,'Walk expansion joint',(x,plan['walk_y'],.001),(.007,1.8,.002),'deck',0,'Site')
-    plan['depressions_m']=[list(p) for p in depress]
+    from site_surface import build as containment
+    containment(rt,plan,depress)
 
 
 def library():
@@ -179,8 +146,8 @@ def context(site_root,plan):
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,default=Path('build/Playground.blend'));p.add_argument('--seeds',default='101,202,303');p.add_argument('--no-context',action='store_true');a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
-    bpy.ops.wm.read_factory_settings(use_empty=True);bpy.context.scene.unit_settings.system='METRIC';F.init();roots,report=library();out=Path('export');out.mkdir(exist_ok=True)
+    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,default=Path('build/Playground.blend'));p.add_argument('--seeds',default='101,202,303');p.add_argument('--lookdev',action='store_true');p.add_argument('--no-context',action='store_true');a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
+    bpy.ops.wm.read_factory_settings(use_empty=True);bpy.context.scene.unit_settings.system='METRIC';F.init(a.lookdev);roots,report=library();out=Path('export');out.mkdir(exist_ok=True)
     # Standalone modules have ground-centered footprint origins, except explicit
     # mating interfaces (deck top / slide entrance / ramp high end / hanger axis).
     for name,rt in roots.items():export(out/(name+'.gltf'),members(rt))
@@ -199,13 +166,18 @@ def main():
     for seed in map(int,a.seeds.split(',')):
         plan=site(seed);rt=F.root('Playground'+str(seed));placed=[]
         for i,m in enumerate(plan['modules']):
-            c=F.clone(roots[m['kind']],f'{m["kind"]}_{i:03}',m['pos'],m['yaw']);c.parent=rt;c['zone_group']=m['group'];placed.append(c)
+            c=F.clone(roots[m['kind']],f'{m["kind"]}_{i:03}',m['pos'],m['yaw'],tint=plan);c.parent=rt;c['zone_group']=m['group'];placed.append(c)
         bpy.context.view_layer.update()
         composite=[o for o in placed if o['zone_group']=='composite'];pts=[o.matrix_world@v.co for r in composite for o in r.children_recursive if o.type=='MESH' for v in o.data.vertices]
         bb=[min(p.x for p in pts),min(p.y for p in pts),max(p.x for p in pts),max(p.y for p in pts)]
         plan['zones'].insert(0,dict(name='Connected composite 6ft envelope',group='composite',rect=[bb[0]-USE,bb[1]-USE,bb[2]+USE,bb[3]+USE],rule='CPSC 5.3.9; conservative bounding envelope'))
         ground=F.root('Siteworks');ground.parent=rt;surface(ground,plan);F.finish(ground)
+        if a.lookdev:
+            from labels import build as labels
+            labels(rt,plan)
         if not a.no_context:context(rt,plan)
+        if plan['year']==1996:
+            F.empty(rt,'SchoolBuildingEdgeSocket',(0,plan['surface'][3]+16,0),'school_building_edge')
         bpy.context.view_layer.update()
         # Export only each site, never offstage templates or prior seeds.
         doc=export(out/f'Playground-{seed}.gltf',members(rt));plan['equipment_triangles']=sum(report[m['kind']]['triangles'] for m in plan['modules']);plan['total_triangles']=sum(len(o.data.loop_triangles) for o in rt.children_recursive if o.type=='MESH' and not o.data.calc_loop_triangles())
@@ -216,6 +188,6 @@ def main():
     used={(p.parent/im['uri']).resolve() for p in out.glob('*.gltf') for im in json.loads(p.read_text()).get('images',[])}
     for p in (out/'images').glob('*.png'):
         if p.resolve() not in used:p.unlink()
-    (Path('build')/'manifest.json').write_text(json.dumps(dict(stage='form and construction checkpoint; no bake',pieces=report,sites=manifests),indent=2))
+    (Path('build')/'manifest.json').write_text(json.dumps(dict(stage='baked shared manufacture charts / look-dev checkpoint' if a.lookdev else 'form and construction checkpoint; no bake',pieces=report,sites=manifests),indent=2))
 
 if __name__=='__main__':main()

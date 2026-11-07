@@ -7,25 +7,43 @@ from geometry import box,cyl,tube,loft,lathe,bolt,empty
 from dimensions import *
 
 def post(rt,h=2.45):
-    lathe(rt,'127 mm galvanized post / .120 wall',[(0,.06045),(0,.0635),(h-.018,.0635),(h-.018,.06045)],s=16,closed=True)
+    lathe(rt,'127 mm galvanized post / .120 wall',[(0,.06045),(0,.0635),(.10,.0635),(.28,.0635),(h-.018,.0635),(h-.018,.06045)],s=16,closed=True)
     lathe(rt,'Riveted die-cast domed cap',[(h-.025,.0629),(h-.025,.067),(h-.007,.067),(h+.009,.053),(h+.016,0)],s=16)
     for a in (0,120,240):
         t=math.radians(a);cyl(rt,'Cap blind rivet',(.063*math.cos(t),.063*math.sin(t),h-.014),(.069*math.cos(t),.069*math.sin(t),h-.014),.003,'zinc',6)
     empty(rt,rt.name+'_Ground',(0,0,0),'post_center')
 
+def punched_tray(rt,name,pos,size):
+    # Real-gauge skin, divided only where the shared 0.4 x 0.2m tile repeats.
+    x,y,z=pos;w,d,g=size
+    xs=sorted({x-w/2,x+w/2,*[i*.4 for i in range(math.ceil((x-w/2)/.4),math.floor((x+w/2)/.4)+1)]})
+    ys=sorted({y-d/2,y+d/2,*[i*.2 for i in range(math.ceil((y-d/2)/.2),math.floor((y+d/2)/.2)+1)]})
+    vs=[];fs=[]
+    for j in range(len(ys)-1):
+        for i in range(len(xs)-1):
+            a=len(vs)
+            vs += [(xx,yy,zz) for zz in (z-g/2,z+g/2) for xx,yy in ((xs[i],ys[j]),(xs[i+1],ys[j]),(xs[i+1],ys[j+1]),(xs[i],ys[j+1]))]
+            fs += [tuple(a+k for k in (4,5,6,7)),tuple(a+k for k in (3,2,1,0))]
+            for neighbor,edge in [((i==0),(3,0)),((i==len(xs)-2),(1,2)),((j==0),(0,1)),((j==len(ys)-2),(2,3))]:
+                if neighbor:fs.append((a+edge[0],a+edge[1],a+edge[1]+4,a+edge[0]+4))
+    ob=F.own(F.G.mesh(name,vs,fs,F.M['Deck']),rt,'deck','Deck');ob['role']='deck_top';return ob
+
 def deck(rt,grid=GRID):
     side=grid-POST_OD;z=0;half=grid/2
     # Solid skin with actual gauge; hemmed downturned flange, open underside.
     p=G=None
-    ob=box(rt,'12 gauge punched plastisol deck',(0,0,-DECK_GAUGE/2),(side,side,DECK_GAUGE),'deck',.001,mat='Deck');ob['role']='deck_top'
+    ob=punched_tray(rt,'12 gauge punched plastisol deck',(0,0,-DECK_GAUGE/2),(side,side,DECK_GAUGE));ob['role']='deck_top'
     for s in (-1,1):
         box(rt,'Downturned deck flange',(s*(side-.009)/2,0,-TRAY_DEPTH/2),(.009,side,TRAY_DEPTH),'deck',.002)
         box(rt,'Downturned deck flange',(0,s*(side-.009)/2,-TRAY_DEPTH/2),(side-.018,.009,TRAY_DEPTH),'deck',.002)
         box(rt,'Returned lower tray hem',(0,s*(side-.018)/2,-TRAY_DEPTH),(side,.020,.008),'deck',.002)
     for x in (-half,half):
         for y in (-half,half):
-            F.clamp(rt,x,y,-.052)
-            box(rt,'Deck slotted corner hanger',(x*.88,y*.88,-.052),(.13,.13,.024),'deck',.002)
+            F.clamp(rt,x,y,-.052,math.degrees(math.atan2(-x,y)))
+            sx=1 if x>0 else -1;sy=1 if y>0 else -1
+            xy=[(x-.046*sx,y-.046*sy),(x-.16*sx,y-.06*sy),(x-.06*sx,y-.16*sy)]
+            vs=[(a,b,z) for z in (-.064,-.040) for a,b in xy]
+            F.own(F.G.mesh('Folded triangular deck corner seat',vs,[(0,2,1),(3,4,5),(0,1,4,3),(1,2,5,4),(2,0,3,5)],F.M['Frame']),rt,'deck')
             bolt(rt,(x*.83,y*.83,-.03),(0,0,1))
             empty(rt,rt.name+f'_Post_{x}_{y}',(x,y,0),'deck_post_center')
     box(rt,'Underside hat stiffener',(0,0,-.055),(side,.038,.06),'deck',.002)
@@ -42,7 +60,7 @@ def barrier(rt,panel=False,grid=GRID):
         for i in range(n):
             x=-(grid-.2792)/2+i*(grid-.2792)/(n-1);cyl(rt,'Vertical nonclimbable infill',(x,0,.065),(x,0,BARRIER_HEIGHT),BAR_OD/2,'rail',6)
     for x in (-half,half):
-        for z in (.065,BARRIER_HEIGHT):F.clamp(rt,x,0,z)
+        for z in (.065,BARRIER_HEIGHT):F.clamp(rt,x,0,z,90 if x<0 else -90)
     rt['barrier_height_m']=BARRIER_HEIGHT;rt['bottom_opening_m']=.065-GRIP_OD/2
 
 def roof(rt,shade=False):
@@ -72,30 +90,42 @@ def roof(rt,shade=False):
             for y in (-HALF,HALF):box(rt,'Roof bolted corner socket',(x,y,-.09),(.15,.15,.17),'steel',.006)
 
 def steps(rt,height=1.2192):
-    N=8;run=1.95;w=.90
-    for i in range(N):
-        z=height*(i+1)/N;y=-run+(i+.5)*run/N
-        box(rt,'Plastisol closed stair tread',(0,y,z-.022),(w,run/N+.014,.044),'deck',.003)
-        box(rt,'Closed riser / no trapped head opening',(0,y+run/N/2,z-height/N/2),(w,.025,height/N),'deck',.002)
-    for x in (-w/2,w/2):
-        tube(rt,'Stair stringer',[(x,-run,.03),(x,0,height-.10)],.036,'steel',8)
-        tube(rt,'Stair continuous returned handrail',[(x,-run-.08,.20),(x,-run-.08,.82),(x,-run,.88),(x,0,height+.88),(x,.10,height+.88)],GRIP_OD/2,'rail',8)
+    N=8;run=1.95;w=.90;rise=height/N
+    # Press-braked enclosed side stringers carry all punched tread trays.
+    for side in (-1,1):
+        x=side*(w/2+.008);outline=[(-run,.02),(-run,.20)]
+        outline += [(-run+(i+1)*run/N,(i+1)*rise+.055) for i in range(N)]
+        outline += [(0,height-.18)]
+        loops=[[(x+dx,y,z) for y,z in outline] for dx in (-.012,.012)]
+        loft(rt,'Continuous closed steel stair cheek',loops,'deck','Frame',caps=True)
+        # Child-height 28.6 mm continuous grip, returned into the cheek.
+        tube(rt,'Returned child grip / 594 to 724 mm above treads',[(x,-run,.18),(x,-run-.07,.18),(x,-run-.07,.76),(x,-run,.81),(x,0,height+.66),(x,.10,height+.66),(x,.10,height-.01)],GRIP_OD/2,'rail',8)
         for i in (0,3,7):
-            y=-run+(i+.5)*run/N;z=height*(i+1)/N
-            cyl(rt,'Handrail support',(x,y,z),(x,y,z+.82),.016,'rail',8)
-    for x in (-.45,.45):cyl(rt,'Stair foot into grade',(x,-run,.0),(x,-run,.22),.034,'steel',8)
+            y=-run+(i+.5)*run/N;z=(i+1)*rise
+            rail_height=.81+(y+run)/run*(height+.66-.81)
+            cyl(rt,'Handrail bolted side support',(x,y,z-.04),(x,y,rail_height),.0143,'rail',8)
+            bolt(rt,(x,y,z-.03),(side,0,0),.007)
+    for i in range(N):
+        z=(i+1)*rise;y=-run+(i+.5)*run/N
+        ob=punched_tray(rt,'Punched anti-slip tread tray',(0,y,z-.012),(w,run/N+.006,.024));ob['role']='deck_top'
+        box(rt,'Closed formed riser',(0,y+run/N/2,z-rise/2),(w,.014,rise),'deck',.002)
+    for x in (-.45,.45):box(rt,'Stair anchoring shoe',(x,-run,.028),(.15,.18,.05),'zinc',.005)
     interface_bridge(rt,height,w)
     empty(rt,rt.name+'_Top',(0,0,height),'deck_entry')
 
 def transfer(rt):
-    # Low platform at 16 inches, second at 24 with unobstructed transfer side.
+    # Broad sixteen-inch transfer seat, closed eight-inch step and side cheeks.
     for y,h in [(-.90,.4064),(-.30,.6096)]:
-        box(rt,'Transfer platform',(0,y,h-.035),(1.05,.60,.070),'deck',.012)
-        for x in (-.43,.43):
-            for yy in (y-.21,y+.21):cyl(rt,'Transfer legs',(x,yy,0),(x,yy,h-.04),.025,'steel',8)
-    for x in (-.48,.48):tube(rt,'Transfer grab loop',[(x,-.30,.61),(x,-.30,.97),(x,-.12,1.05),(x,.03,.97),(x,.03,.61)],GRIP_OD/2,'rail',8)
+        ob=punched_tray(rt,'Punched transfer platform',(0,y,h-.018),(1.05,.60,.036));ob['role']='deck_top'
+        box(rt,'Closed transfer riser',(0,y+.29,h/2),(1.05,.020,h),'deck',.002)
+        for x in (-.51,.51):
+            box(rt,'Closed transfer side cheek',(x,y,h/2),(.024,.60,h),'deck',.003)
+            box(rt,'Recessed transfer foot',(x,y,0),(.09,.48,.055),'steel',.006)
+    # One clear 24-inch transfer edge; grip loops are on the upper step.
+    for x in (-.48,.48):tube(rt,'Returned transfer grab loop',[(x,-.36,.61),(x,-.36,.94),(x,-.24,1.01),(x,-.08,1.01),(x,.03,.94),(x,.03,.61)],GRIP_OD/2,'rail',8)
     interface_bridge(rt,.6096,1.05)
     empty(rt,rt.name+'_Transfer',(0,-.9,.4064),'transfer_seat')
+
 
 def ramp(rt):
     # Rise 24 inches in 24 feet, 1:12; 1.22 m clear between edge rails.
@@ -183,6 +213,9 @@ def slide(rt,height=1.2192,kind='straight'):
         for p in pts[0:-3:2]:ls.append([(p[0]+.39*math.cos(j*math.tau/16),p[1],p[2]+.37+.39*math.sin(j*math.tau/16)) for j in range(16)])
         ob=loft(rt,'Enclosed tube barrel / 0.744 vertical bore',ls,'red',caps=False)
         mod=ob.modifiers.new('Rotomolded barrel gauge','SOLIDIFY');mod.thickness=.018;F.G.apply(ob)
+        if F.LOOK:
+            from uv_finish import assign
+            assign(ob,'red','Molded')
     hood(rt,height)
     for i in (len(pts)//2,len(pts)-3):
         p=Vector(pts[i]);cyl(rt,'Slide steel saddle support',(p.x,p.y,0),(p.x,p.y,p.z-.05),.030,'steel',10)
@@ -292,12 +325,19 @@ def panel(rt,kind='wheel'):
         tube(p,'Compound periscope body',[(0,0,0),(0,-.11,.08),(0,0,.16),(0,0,.80),(0,-.13,.89),(0,-.20,.89)],.07,'yellow',10,'Molded')
         cyl(p,'Recessed scope lens',(0,-.204,.89),(0,-.209,.89),.043,'rubber',12,'Molded')
 
-def swing_frame(rt):
-    for x in (-SWING_BAY,0,SWING_BAY):
-        for side in (-1,1):
-            cyl(rt,'A frame 89mm tube leg',(x,side*1.16,0),(x,0,SWING_H),.04445,'steel',12)
-        cyl(rt,'Cast A frame crown',(x-.13,0,SWING_H),(x+.13,0,SWING_H),.09,'steel',12)
-    cyl(rt,'Two bay 127mm swing beam',(-SWING_BAY-SWING_OVERHANG,0,SWING_H),(SWING_BAY+SWING_OVERHANG,0,SWING_H),.0635,'steel',16)
+def swing_frame(rt,arch=False):
+    if arch:
+        # 3.5 inch bent posts, tangent crown bends and 3.5 inch beam.
+        for x in (-SWING_BAY,0,SWING_BAY):
+            pts= [(x,-.64,0),(x,-.64,SWING_H-.40)] + [(x,-.24+.40*math.cos(math.pi-i*math.pi/16),SWING_H-.40+.40*math.sin(math.pi-i*math.pi/16)) for i in range(9)] + [(x,.24,SWING_H)] + [(x,.24+.40*math.cos(math.pi/2-i*math.pi/16),SWING_H-.40+.40*math.sin(math.pi/2-i*math.pi/16)) for i in range(1,9)] + [(x,.64,0)]
+            tube(rt,'Bent arch 89 mm support',pts,.04445,'steel',10)
+        cyl(rt,'Arch frame beam',(-SWING_BAY-SWING_OVERHANG,0,SWING_H),(SWING_BAY+SWING_OVERHANG,0,SWING_H),.0635,'steel',16)
+    else:
+        for x in (-SWING_BAY,0,SWING_BAY):
+            for side in (-1,1):cyl(rt,'A frame 89mm tube leg',(x,side*1.16,0),(x,0,SWING_H),.04445,'steel',12)
+            cyl(rt,'Cast A frame crown',(x-.13,0,SWING_H),(x+.13,0,SWING_H),.09,'steel',12)
+        cyl(rt,'Two bay 127mm swing beam',(-SWING_BAY-SWING_OVERHANG,0,SWING_H),(SWING_BAY+SWING_OVERHANG,0,SWING_H),.0635,'steel',16)
+
 
 def swing(rt,bucket=False):
     # Each seat is an independently reusable subassembly on its real beam axis.
@@ -320,25 +360,43 @@ def swing(rt,bucket=False):
                 a=k*math.tau/8;pts.append((x+(.009*math.cos(a) if i%2 else 0),(.009*math.cos(a) if not i%2 else 0),zz+.025*math.sin(a)))
             tube(p,'Connected 6mm swing chain link',pts,.003,'zinc',s=4)
         for axis in (0,1):
-            w=.018;top=-.205;bot=end
-            vs=[(x-w,0,bot),(x+w,0,bot),(x+w,0,top),(x-w,0,top)] if axis==0 else [(x,-w,bot),(x,w,bot),(x,w,top),(x,-w,top)]
-            ob=F.own(F.G.mesh('Plastisol long chain / crossed alpha',vs,[(0,1,2,3)],F.M['Chain']),p,'rubber','Chain');ob['solid']=False
-            uv=ob.data.uv_layers.active
-            for loop,coord in zip(uv.data,[(0,0),(1,0),(1,(top-bot)/.72),(0,(top-bot)/.72)]):loop.uv=coord
+            w=.018;top=-.205;bot=end;vs=[];fs=[]
+            n=math.ceil((top-bot)/.72)
+            for k in range(n):
+                a=top-k*.72;b=max(bot,a-.72);i=len(vs)
+                vs += [(x-w,0,b),(x+w,0,b),(x+w,0,a),(x-w,0,a)] if axis==0 else [(x,-w,b),(x,w,b),(x,w,a),(x,-w,a)]
+                fs.append((i,i+1,i+2,i+3))
+            ob=F.own(F.G.mesh('Plastisol long chain / crossed alpha',vs,fs,F.M['Chain']),p,'rubber','Chain');ob['solid']=False
+            if not F.LOOK:
+                uv=ob.data.uv_layers.active
+                for f in ob.data.polygons:
+                    for li in f.loop_indices:
+                        v=ob.data.vertices[ob.data.loops[li].vertex_index].co
+                        cross=(v.x-x+w)/(2*w) if axis==0 else (v.y+w)/(2*w)
+                        uv.data[li].uv=(cross,(top-v.z)/.72)
     if bucket:
         # Continuous flexible bucket with two leg apertures made as a lattice
         # of compound curved strips, not holes painted on a solid block.
         ls=[]
         for h,r1,r2 in [(z+.13,.23,.17),(z+.35,.26,.20),(z+.40,.265,.205)]:ls.append([(r1*math.cos(i*math.tau/16),r2*math.sin(i*math.tau/16),h) for i in range(16)])
         ob=loft(p,'Tot bucket enclosing upper belt',ls,'rubber',mat='Molded',caps=False);m=ob.modifiers.new('Bucket molded thickness','SOLIDIFY');m.thickness=.014;F.G.apply(ob)
-        box(p,'Bucket sitting saddle',(0,0,z+.13),(.42,.28,.035),'rubber',.016,'Molded')
+        if F.LOOK:
+            from uv_finish import assign
+            assign(ob,'rubber','Molded')
+        lathe(p,'Compound bucket sitting bowl',[(z+.06,0),(z+.07,.11),(z+.10,.20),(z+.14,.22),(z+.16,.18),(z+.14,.08),(z+.14,0)],'rubber',16,mat='Molded')
         for x in (-.20,0,.20):tube(p,'Bucket leg separator',[(x,-.18,z+.28),(x,-.17,z+.08),(x,.17,z+.08),(x,.18,z+.28)],.032,'rubber',8,'Molded')
     else:
         loops=[]
         for j in range(9):
-            x=-.27+.54*j/8;h=z+.13+.095*(abs(x)/.27)**2
-            loops.append([(x,-.105,h),(x,.105,h),(x,.108,h-.018),(x,-.108,h-.018)])
-        loft(p,'Flexible sagged belt seat',loops,'rubber')
+            x=-.285+.57*j/8;edge=abs(x)/.285;h=z+.13+.11*edge**2.6
+            width=.105-.024*edge**3
+            sec=[(-1,0),(-.91,.006),(-.4,.012),(.4,.012),(.91,.006),(1,0),(.93,-.018),(-.93,-.018)]
+            loops.append([(x,width*y,h+zz+.010*(1-edge)*y*y) for y,zz in sec])
+        loft(p,'Compound molded flexible belt / crowned saddle',loops,'rubber')
+        for side in (-1,1):
+            x=side*.255;h=z+.13+.11*(abs(x)/.285)**2.6
+            lathe(p,'Molded encapsulated chain insert',[(h-.013,.014),(h,.020),(h+.020,.017),(h+.025,.008)],'rubber',8,center=(x,0),mat='Molded')
+            tube(p,'Bright seat connection eye',[(x+.012*math.cos(k*math.tau/8),0,h+.03+.022*math.sin(k*math.tau/8)) for k in range(9)],.003,'zinc',4)
     empty(p,rt.name+'_SeatSocket',(0,0,z+.13),'child_seat')
 
 def spring(rt):
