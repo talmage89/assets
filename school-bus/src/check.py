@@ -24,7 +24,7 @@ def section_y(ob,z):
         elif min(a.z,b.z)-1e-7<=z<=max(a.z,b.z)+1e-7:
             values.append(a.y+(b.y-a.y)*(z-a.z)/(b.z-a.z))
     return [min(values),max(values)] if values else None
-def landing_check(obs):
+def landing_check(obs,steps):
     """Vertical probes across the upper landing, measured against actual floor."""
     vs=[];fs=[]
     for ob in obs:
@@ -35,8 +35,16 @@ def landing_check(obs):
         p=tree.ray_cast(Vector((x,y,1.25)),Vector((0,0,-1)),.4)[0]
         return p.z if p is not None else None
     reference=hit(0,-3.345);rows=[dict(x_m=x,y_m=y,hit_z_m=hit(x,y)) for x in [-.39,-.36,-.33,-.30] for y in [-3.60,-3.345,-3.10]]
+    treads=[]
+    for name,b in steps.items():
+        cx=(b['min'][0]+b['max'][0])/2;expected=b['max'][2]
+        for dx in [-.08,0,.08]:
+            for y in [-3.60,-3.345,-3.10]:
+                p=tree.ray_cast(Vector((cx+dx,y,expected+.03)),Vector((0,0,-1)),.06)[0]
+                treads.append(dict(tread=name,x_m=cx+dx,y_m=y,measured_tread_top_m=expected,first_surface_z_m=p.z if p is not None else None))
     passed=reference is not None and all(r['hit_z_m'] is not None and abs(r['hit_z_m']-reference)<.002 for r in rows)
-    return dict(passed=passed,reference_floor_z_m=reference,probes=rows,method='Actual mesh triangles, vertical rays below the dash/ceiling; continuity against actual cabin floor, not a design-height constant')
+    passed &= all(r['first_surface_z_m'] is not None and abs(r['first_surface_z_m']-r['measured_tread_top_m'])<.002 for r in treads)
+    return dict(passed=passed,reference_floor_z_m=reference,probes=rows,tread_probes=treads,method='Actual mesh union, vertical rays below dash/ceiling; landing continuity against actual floor and tread faces unobstructed by chassis, using measured part surfaces')
 def hash_inputs():
     # Existing deliveries are immutable inputs. If absent, record absence instead of rebuilding cars.
     files=list((ROOT/'cars').rglob('*.glb'))+list((ROOT/'school/export').rglob('*'))
@@ -117,7 +125,7 @@ def model(path):
     error=[];total=sum(cats.values());exterior=total-cats['interior']
     source_audits={ob.name:measure(ob) for ob in obs}
     failed_meshes=[name for name,row in source_audits.items() if not row['passed']]
-    landing=landing_check(obs)
+    landing=landing_check(obs,steps)
     if not landing['passed']:error.append('Entrance landing continuity')
     if failed_meshes:error.append('Source full-face mesh check')
     if total>90000 or exterior>70000:error.append('Triangle budget')
@@ -181,7 +189,8 @@ def delivery(path,parts_path):
         pivot_errors[name]=(ob.matrix_world.translation-expected_position).length
     report['serialization']=dict(bidirectional_vertex_samples=len(differences),maximum_vertex_distance_m=max(differences),maximum_pivot_distance_m=max(pivot_errors.values()))
     report['duplicate_faces_across_parts']=len(duplicates)
-    report['entrance_landing']=landing_check(obs)
+    step_bounds=json.loads((path.parent.parent/'build/model-check.json').read_text())['step_bounds_m']
+    report['entrance_landing']=landing_check(obs,step_bounds)
     errors=[]
     if count>90000:errors.append('Triangle budget')
     if len(materials)>4 or len(images)!=3:errors.append('Resource budget')

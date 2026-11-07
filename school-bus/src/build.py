@@ -420,13 +420,13 @@ def chassis(b):
     for sign in [-1,1]:
         # Open C-channel frame, actual gauge and flanges rather than massive bars.
         sec=[(-.041,-.129),(.041,-.129),(.041,-.121),(-.033,-.121),(-.033,.121),(.041,.121),(.041,.129),(-.041,.129)]
-        loops=[[(sign*.402+sign*x,y,.865+z) for x,z in sec] for y in [-5.79,5.90]]
+        loops=[[(sign*.402+sign*x,y,.845+z) for x,z in sec] for y in [-5.79,5.90]]
         b.add(G.loft('Chassis C rail '+str(sign),loops,b.m['frame']),category='chassis')
     for y in [-5.3,-3.7,-2.0,0,1.4,3.2,4.8,5.8]:b.box('Chassis crossmember '+str(y),(0,y,.889),(.80,.067,.146),'frame',category='chassis',r=.005)
     # Transverse body floor bearers seat the raised cabin on the chassis rails.
     # Their 2mm C section touches the actual floor underside and rail crowns.
     for y in [-3.4,-2.8,-1.5,0,1.4,3.2,4.8,5.8]:
-        sec=[(-.030,.990),(.030,.990),(.030,.992),(-.028,.992),(-.028,1.135),(.030,1.135),(.030,1.137),(-.030,1.137)]
+        sec=[(-.030,.970),(.030,.970),(.030,.972),(-.028,.972),(-.028,1.135),(.030,1.135),(.030,1.137),(-.030,1.137)]
         xa=-.29 if y==-3.4 else -1.15
         rings=[[(x,y+dy,z) for dy,z in sec] for x in [xa,1.15]]
         b.add(G.loft('Body floor bearer '+str(y),rings,b.m['frame']),category='chassis')
