@@ -348,6 +348,8 @@ def check(config, require_renders=True):
             renders=json.loads(render_path.read_text())
             if renders['manifest_sha256']!=digest(out/'manifest.json'):errors.append('stale rendered evidence')
             if renders.get('renderer_sha256')!=digest(ROOT/'kit/lod_render.py'):errors.append('stale renderer recipe')
+            adapter=None if cfg.get('foliage_shader')=='maple' else digest(ROOT/'kit/lod_shading.py')
+            if renders.get('shading_adapter_sha256')!=adapter:errors.append('stale shading adapter recipe')
             if not renders['passed']:errors.append('render differences exceed threshold')
             for file,h in renders['files'].items():
                 p=render_path.parent/file
