@@ -62,7 +62,21 @@ def cable(name='CableBay',length=6.096):
 def wall(name='SoundPanel',length=6.096,height=4.2672):
     rt=Q.root(name,module_kind='soundwall');b=Q.Batch(name+'__Mesh',rt)
     # Stacked precast panels seated in H-posts; horizontal joints are open 12 mm.
-    for j in range(3):b.box((0,0,(j+.5)*height/3),(.1524,length-.06,height/3-.012),'Barrier')
+    for j in range(3):
+        if j or not getattr(Q,'LOOKDEV',False):
+            b.box((0,0,(j+.5)*height/3),(.1524,length-.06,height/3-.012),'Barrier');continue
+        # A few low vertex stations keep splash within its real height instead
+        # of stretching a bottom tint across a whole 1.4m precast panel.
+        x=.0762;e=(length-.06)/2;lo=.006;hi=height/3-.006
+        levels=[lo,.10,.25,.50,hi]
+        for side in (-1,1):
+            for a,c in zip(levels,levels[1:]):
+                pts=[(side*x,-e,a),(side*x,e,a),(side*x,e,c),(side*x,-e,c)]
+                b.face(pts if side>0 else list(reversed(pts)),'Barrier')
+            pts=[(-x,side*e,lo),(x,side*e,lo),(x,side*e,hi),(-x,side*e,hi)]
+            b.face(pts if side<0 else list(reversed(pts)),'Barrier')
+        b.face([(-x,-e,lo),(-x,e,lo),(x,e,lo),(x,-e,lo)],'Barrier')
+        b.face([(-x,-e,hi),(x,-e,hi),(x,e,hi),(-x,e,hi)],'Barrier')
     for y in (-length/2,):
         b.box((0,y,height/2),(.14,.025,height+.12),'Steel')
         for x in (-.12,.12):b.box((x,y,height/2),(.028,.27,height+.12),'Steel')
@@ -169,7 +183,7 @@ def pier(name='PierBent'):
         b.tube([(0,y,seat-1.12),(0,y,seat-.98)],.67,'Bridge',24)
     # 50mm chamfered cap, with the accepted seat/bearing levels unchanged.
     lo=seat-1.24;hi=seat-.14;c=.05
-    b.extrude([(-1+c,lo),(1-c,lo),(1,lo+c),(1,hi-c),(1-c,hi),(-1+c,hi),(-1,hi-c),(-1,lo+c)],[-9.9,9.9],'Bridge')
+    b.extrude([(-1.15+c,lo),(1.15-c,lo),(1.15,lo+c),(1.15,hi-c),(1.15-c,hi),(-1.15+c,hi),(-1.15,hi-c),(-1.15,lo+c)],[-9.9,9.9],'Bridge')
     b.finish()
     Q.socket(rt,'BearingTop',(0,0,seat-.02),'bearing_top');return rt
 
@@ -187,7 +201,7 @@ def bridge(name='Overpass'):
     deck_bottom=7.10;gb=deck_bottom-1.3716;seat=gb-.15
     bent=pier(name+'__PierBent');bent.parent=rt
     for side in (-1,1):
-        b.box((side*24,0,seat-1.34),(1.35,21.34,2.40),'Bridge')
+        b.box((side*24,0,seat-1.34),(2.10,21.34,2.40),'Bridge')
         b.box((side*24.5,0,(seat+7.35)/2),(.40,21.34,7.35-seat),'Bridge')
         for yy in (-10.55,10.55):
             b.box((side*27.0,yy,6.0),(6.5,.40,2.4),'Bridge')
@@ -199,7 +213,7 @@ def bridge(name='Overpass'):
                 y0=-10.4+k*20.8/12;y1=y0+20.8/12
                 b.surface([(x0,y0,z0),(x1,y0,z1),(x1,y1,z1),(x0,y1,z0)],'Concrete')
     for side in (-1,1):
-        x0,x1=(.16,23.65) if side>0 else (-23.65,-.16)
+        x0,x1=(.16,23.98) if side>0 else (-23.98,-.16)
         for yi in range(7):
             y=(yi-3)*3.048
             beam=girder(name+'__Girder_%s_%s'%(side,yi),x1-x0);beam.parent=rt;beam.location=((x0+x1)/2,y,gb)
@@ -233,9 +247,14 @@ def bridge(name='Overpass'):
     # flanks and recessed soffit make a groove rather than a floating black line.
     for side in (-1,1):
         for a,c,z in [(8.382,9.4742,7.145),(9.4742,10.10,7.10),(10.10,10.1254,7.119),(10.1254,10.668,7.10)]:
-            b.face([(-24,side*c,z),(24,side*c,z),(24,side*a,z),(-24,side*a,z)],'Bridge')
-        b.face([(-24,side*9.4742,7.10),(24,side*9.4742,7.10),(24,side*9.4742,7.145),(-24,side*9.4742,7.145)],'Bridge')
-        for y in (10.10,10.1254):b.face([(-24,side*y,7.10),(24,side*y,7.10),(24,side*y,7.119),(-24,side*y,7.119)],'Bridge')
+            pts=[(-24,side*c,z),(24,side*c,z),(24,side*a,z),(-24,side*a,z)]
+            b.face(pts if side>0 else list(reversed(pts)),'Bridge')
+        pts=[(-24,side*9.4742,7.10),(24,side*9.4742,7.10),(24,side*9.4742,7.145),(-24,side*9.4742,7.145)]
+        b.face(pts if side>0 else list(reversed(pts)),'Bridge')
+        for y in (10.10,10.1254):
+            pts=[(-24,side*y,7.10),(24,side*y,7.10),(24,side*y,7.119),(-24,side*y,7.119)]
+            # Recess walls face into the open groove.
+            b.face(list(reversed(pts)) if side*(1 if y==10.10 else -1)>0 else pts,'Bridge')
     for side in (-1,1):
         # Pedestrian walk, F parapet, 8 ft safety fence on outer rail.
         base=BRIDGE_Z-.02*8.382

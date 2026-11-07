@@ -32,5 +32,16 @@ def tones(folder):
    box=y[round(h*y0):round(h*y1),round(w*x0):round(w*x1)];samples[name]=np.quantile(box,[.05,.5,.95]).tolist()
   result[str(seed)]=dict(p01_p50_p99=np.quantile(y,[.01,.5,.99]).tolist(),rgb_clipped_fraction=float((a>=.99).mean()),object_display_luma=samples,scope='Display luminance including scene illumination; no albedo/engineering calibration')
  Path('build/tones-look.json').write_text(json.dumps(result,indent=2));return result
+def albedos():
+ import sys
+ sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+ from kit.image_io import srgb_to_linear
+ files={'bridge_concrete':'textures/ship/T_FreewayConcrete_BaseColor.png','ground_concrete':'../ground/textures/ship/T_Concrete_BaseColor.png','asphalt':'../ground/textures/ship/T_Asphalt_BaseColor.png','zinc':'textures/ship/T_FreewayZinc_BaseColor.png'}
+ result={}
+ for name,path in files.items():
+  a=srgb_to_linear(np.asarray(Image.open(path).convert('RGB'),np.float32)/255);luma=a@np.array([.2126,.7152,.0722]);result[name]=dict(linear_RGB_median=np.median(a.reshape(-1,3),axis=0).tolist(),linear_luma_p05_p50_p95=np.quantile(luma,[.05,.5,.95]).tolist())
+ result['scope']='Actual BaseColor map values before vertex age and illumination. Zinc is metallic reflectance, not diffuse concrete albedo.'
+ Path('build/albedos.json').write_text(json.dumps(result,indent=2));return result
+
 if __name__=='__main__':
- p=argparse.ArgumentParser();p.add_argument('--folder',default='renders/lookdev');a=p.parse_args();print(traffic());print(tones(a.folder))
+ p=argparse.ArgumentParser();p.add_argument('--folder',default='renders/lookdev');a=p.parse_args();print(traffic());print(tones(a.folder));print(albedos())

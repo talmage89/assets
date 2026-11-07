@@ -71,18 +71,22 @@ The arterial is a five-lane 11 ft / 3.3528 m street. Two 24 m spans carry
 the **21.336 m / 70 ft** deck, with sidewalks, inner parapets and an outer
 safety fence. Deck crown is 2%; the center is +7.35 m and nominal soffit is
 +7.10 m. Seven girders per span sit at 3.048 m centers. The traditional
-54 in / 1.3716 m AASHTO IV envelope uses .6604 m flanges and a .2032 m web;
+54 in / 1.3716 m AASHTO IV section uses a .508 m top flange, .6604 m bottom flange and .2032 m web;
 this is not the newer Tx54 profile.
 
-Each 23.49 m girder is a reusable object with end sockets, modest 18 mm camber,
+The reusable example is 23.49 m; the assembled girders extend to 23.82 m so the
+complete bearing pad stays below the flange. Each has end sockets, modest 18 mm camber,
 and an elastomeric bearing at each end. Steel plates meet the bent/abutment
-seats. The three **1.2 m** round columns carry a **19.8 × 2 × 1.1 m** cap.
-End diaphragms brace the webs. Abutment backwalls rise behind the ends; wing
+seats. The three **1.2 m** round columns carry a **19.8 × 2.3 × 1.1 m** chamfered cap. Its width and the 2.10m abutment ledges fully support the new .88m pedestal bases; the accepted pad/girder vertical contacts remain.
+End and intermediate diaphragms brace the webs. Abutment backwalls rise behind the ends; wing
 walls retain approach fill and approximately 1:1.6 slope paving protects it.
 Six-meter approach slabs, expansion joints, scupper throats and connected
 downpipes complete the visible construction. Hidden piles, prestressing
-strands and reinforcing cages are omitted. Final bridge weather will originate
-at joints and drains, not random stains.
+strands and reinforcing cages are omitted. Bridge runoff/efflorescence originates at expansion joints, bearing plinths and
+scupper outlets; column repairs conform to their cylindrical surface. The
+corrected section comes from TxDOT report 0-4751-1 vol.2, Figure A.1.4.1
+(PDF page 18), recorded in SOURCES. The original generic profile had equal-width
+flanges and incorrect transition heights; it has been replaced.
 
 The independent audit samples actual road-to-girder rays and pad-top-to-girder
 gaps after fresh import. These prove geometry, not structural capacity. The

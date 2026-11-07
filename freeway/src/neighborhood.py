@@ -24,7 +24,12 @@ def town(p):
     def street(u,s0,s1):
         # Segmented curves preserve this town's grid offset from the right of way.
         n=max(1,math.ceil((s1-s0)/12));stations=[s0+(s1-s0)*i/n for i in range(n+1)]
+        # Reserve the strip center's complete parcel. The public street wraps
+        # behind it instead of passing through the native shop row.
+        if p.kind=='diamond' and abs(u+204)<.01:
+            stations=sorted(set(stations+[10.668,84.0]))
         for a,c in zip(stations,stations[1:]):
+            if p.kind=='diamond' and abs(u+204)<.01 and 10.668<(a+c)/2<84:continue
             strip(u-3.66,u+3.66,a,c,'Asphalt',.025)
             for side in (-1,1):
                 strip(u+side*3.66,u+side*3.8124,a,c,'Concrete',.16)
@@ -35,7 +40,7 @@ def town(p):
             b.surface([(a,-8.382,7.18236),(c,-8.382,7.18236),(c,8.382,7.18236),(a,8.382,7.18236)],'Asphalt')
             for y in (-9.50,9.50):b.surface([(a,y-.76,7.18),(c,y-.76,7.18),(c,y+.76,7.18),(a,y+.76,7.18)],'Concrete')
     cross=range(-640,641,128) if p.kind=='diamond' else range(-448,449,112)
-    streets=[122,204,286] if p.kind=='diamond' else [70,146,222]
+    streets=[122,204,286,368,450,532,614] if p.kind=='diamond' else [70,146,222]
     extent=700 if p.kind=='diamond' else 530
     for side in (-1,1):
         for u in streets:street(side*u,-extent,extent)
@@ -46,17 +51,20 @@ def town(p):
             strip(side*end,side*1200,s-3.66,s+3.66,'Asphalt',.026)
             strip(side*end,side*(end+7.32),s-7.0,s+7.0,'Asphalt',.027)
             for h in (-1,1):strip(side*end,side*1200,s+h*4.8,s+h*6.324,'Concrete',.16)
+    if p.kind=='diamond':
+        strip(-286,-122,84-3.66,84+3.66,'Asphalt',.025)
+        for yy in (78.8,89.2):strip(-286,-122,yy-.762,yy+.762,'Concrete',.16)
     houses=[load('build/context/Ranch.glb'),load('build/context/Cape.glb')]
     house_stations=range(-608,609,32) if p.kind=='diamond' else range(-480,481,32)
-    offsets=[146,180,228,262,310] if p.kind=='diamond' else [44,94,122,170,198,246]
+    offsets=[146,180,228,262,310,344,392,426,474,508,556,590,638] if p.kind=='diamond' else [52,94,122,170,198,246]
     idx=0
     for side in (-1,1):
         for row,u in enumerate(offsets):
             # More rows around the diamond; staggered roofs/backyards at Cedar Hollow.
             for s in house_stations:
-                if min(abs(s-c) for c in cross)<14:continue
+                if min(abs(s-c) for c in cross)<22:continue
                 if p.kind=='diamond' and abs(s)<90:continue
-                if row>2 and abs(s)>380:continue
+                if p.kind=='diamond' and side<0 and abs(s-84)<18:continue
                 s+=rng.uniform(-2,2);uu=side*(u+rng.uniform(-1.2,1.2))
                 # First Cedar Hollow row faces away from the sound wall.
                 street_u=min(streets,key=lambda a:abs(a-u));facing=side*(1 if street_u>u else -1)
@@ -75,11 +83,19 @@ def town(p):
                 idx+=1
     for lib in houses:delete(lib)
     if p.kind=='diamond':
-        for file,name,pos,yaw in [('Gas','TerminalGas',(135,35,7),0),('Strip','TerminalStrip',(-186,44,7),0),('Gas','WestGas',(-136,-36,7),180)]:
+        for file,name,pos,yaw in [('Gas','TerminalGas',(153,35,7),0),('Strip','TerminalStrip',(-186,44,7),0),('Gas','WestGas',(-153,-36,7),180)]:
             src=load('build/context/'+file+'.glb');clone(src,name,pos,yaw,rt);delete(src);rows.append(dict(kind=file,point=pos,yaw=yaw))
-        # Actual driveway links from original parcel mouths into the arterial.
-        for xa,xb,ya,yb in [(142.5,149.8,10.668,16),(-142.5,-135.2,-16,-10.668),(-231,-223,10.668,16),(-149,-141,10.668,16)]:
-            b.surface([(xa,ya,z+.028),(xb,ya,z+.028),(xb,yb,z+.028),(xa,yb,z+.028)],'Asphalt')
+            native=Path(__file__).resolve().parents[2]/'commercial/export'/('CommercialGas-101.json' if file=='Gas' else 'CommercialStrip-201.json')
+            metadata=json.loads(native.read_text());angle=math.radians(yaw)
+            for drive in metadata['driveways']:
+                if drive['edge']!='south':continue
+                dx,dy=drive['center'];cx=pos[0]+dx*math.cos(angle)-dy*math.sin(angle);cy=pos[1]+dx*math.sin(angle)+dy*math.cos(angle)
+                half=drive['width']/2;sign=1 if cy>0 else -1;near=sign*10.668;far=cy+sign*4
+                # The original native driveway aperture is the measured input;
+                # a short graded apron meets the elevated arterial's edge.
+                b.surface([(cx-half,near,7.18236),(cx+half,near,7.18236),(cx+half,far,7.028),(cx-half,far,7.028)],'Asphalt')
+                for xx in (cx-half,cx+half):
+                    b.surface([(xx,near,7.18236),(xx,far,7.028),(xx+sign*.3,far,7.0),(xx+sign*.3,near,7.0)],'Earth')
     trees=[load('build/context/TreeOak.glb'),load('build/context/TreeMaple.glb')]
     for side in (-1,1):
         for j,s in enumerate(range(-600 if p.kind=='diamond' else -480,601 if p.kind=='diamond' else 481,34 if p.kind=='diamond' else 32)):
@@ -92,6 +108,11 @@ def town(p):
         for j,s in enumerate(range(-510,511,76)):
             u=side*rng.choice([171,252,326] if p.kind=='diamond' else [110,182,262]);pt=point(u,s)
             ob=clone(trees[(j+1)%2],f'Garden_tree_{side}_{j}',pt,rng.uniform(0,360),rt);scale=rng.uniform(.65,1.05);ob.scale=(scale,)*3
+        if p.kind=='diamond':
+            for row,u in enumerate((383,465,547,629)):
+                for j,s in enumerate(range(-510,511,152)):
+                    ob=clone(trees[(row+j)%2],f'Outer_garden_tree_{side}_{row}_{j}',point(side*u,s+rng.uniform(-8,8)),rng.uniform(0,360),rt)
+                    scale=rng.uniform(.65,.95);ob.scale=(scale,)*3
     for lib in trees:delete(lib)
     utility=load('build/context/Utility.glb');bpy.context.view_layer.update()
     pins={o.name.split('__Socket_')[-1].split('.')[0]:utility.matrix_world.inverted()@o.matrix_world.translation for o in utility.children_recursive if '__Socket_' in o.name}
@@ -152,19 +173,29 @@ def traffic(p):
     from freeway_site import load,clone,delete,along
     rt=Q.root('Traffic',module_kind='traffic');rng=random.Random(p.seed*37);placements=[]
     bodies=[load('build/context/'+n+'.glb') for n in ('Hatch','SUV','Crossover')];full=[load('build/context/'+n+'.glb') for n in ('HeroHatch','HeroSUV','HeroCrossover')];hero=full[0]
-    variants=[factory_variants(t) for t in [*bodies,*full]];mesh_variants={}
-    def colorize(ob,kind,color):
-        replacements=variants[kind][color]
+    variants=[factory_variants(t) for t in [*bodies,*full]];mesh_variants={};lamp_off={}
+    def colorize(ob,kind,color,lights=False):
+        replacements=dict(variants[kind][color])
+        if not lights:
+            for mesh in ob.children_recursive:
+                if mesh.type!='MESH':continue
+                for mat in mesh.data.materials:
+                    if not mat or 'Lamps' not in mat.name:continue
+                    if mat not in lamp_off:
+                        m=mat.copy();m.name=mat.name+' / daylight off';bs=next(n for n in m.node_tree.nodes if n.type=='BSDF_PRINCIPLED')
+                        for link in list(bs.inputs['Emission Strength'].links):m.node_tree.links.remove(link)
+                        bs.inputs['Emission Strength'].default_value=0;lamp_off[mat]=m
+                    replacements[mat]=lamp_off[mat]
         for mesh in ob.children_recursive:
             if mesh.type!='MESH' or not any(m in replacements for m in mesh.data.materials):continue
-            key=(mesh.data.as_pointer(),color,kind)
+            key=(mesh.data.as_pointer(),color,kind,lights)
             if key not in mesh_variants:
                 data=mesh.data.copy()
                 for i,m in enumerate(data.materials):
                     if m in replacements:data.materials[i]=replacements[m]
                 mesh_variants[key]=data
             mesh.data=mesh_variants[key]
-    def actor(pos,yaw,where,speed=0,roll=0,nearest=False):
+    def actor(pos,yaw,where,speed=0,roll=0,nearest=False,pitch=0):
         heading=math.radians(yaw);forward=(math.sin(heading),-math.cos(heading));lateral=(math.cos(heading),math.sin(heading))
         for old in placements[:]:
             dx=pos[0]-old['location'][0];dy=pos[1]-old['location'][1]
@@ -176,7 +207,7 @@ def traffic(p):
         i=len(placements);kind=3 if nearest else rng.randrange(3)
         if not nearest and where in ('mainline','bridge','arterial_queue') and abs(pos[1])<120 and abs(pos[0])<110:kind+=3
         color=rng.choices(['Porcelain','Carbon','Graphite','Aluminum','Atlantic'],[34,22,24,10,10])[0]
-        ob=clone(full[kind-3] if kind>=3 else bodies[kind],f'Car_{i:03d}',pos,yaw,rt);ob.rotation_euler.y=roll;colorize(ob,kind,color)
+        ob=clone(full[kind-3] if kind>=3 else bodies[kind],f'Car_{i:03d}',pos,yaw,rt);ob.rotation_euler.y=roll;ob.rotation_euler.x=pitch;colorize(ob,kind,color,lights=speed<.5 and 'queue' in where)
         ob['speed_mps']=speed;ob['traffic_role']=where
         placements.append(dict(name=ob.name,body=('Hatch','SUV','Crossover','HeroHatch','HeroSUV','HeroCrossover')[kind],color=color,location=list(pos),yaw=yaw,speed_mps=speed,role=where))
         return ob
@@ -204,19 +235,19 @@ def traffic(p):
                 for j in indices:
                     v=pts[j];d=pts[j+1]-pts[j-1];yaw=math.degrees(math.atan2(d.x,-d.y))
                     # Forward is native -Y. Crossfall reverses with travel direction.
-                    actor(v,yaw,'entrance' if entry else ('terminal_queue' if j>=178 else 'exit'),13 if entry else (0 if j>=178 else 18),-.02)
+                    actor(v,yaw,'entrance' if entry else ('terminal_queue' if j>=178 else 'exit'),13 if entry else (0 if j>=178 else 18),-.02,pitch=-math.atan2(d.z,math.hypot(d.x,d.y)))
         for side in (-1,1):
             for lane,y in enumerate((side*3.3528,side*6.7056)):
                 for x in range(-350,351,39 if lane else 57):
                     # Signal reservation is kept clear; queuing occurs upstream.
                     if abs(abs(x)-78)<20:continue
-                    z=7.35-.02*abs(y);actor((x+rng.uniform(-4,4),y,z),90 if side<0 else -90,'arterial',12,side*.02)
+                    z=7.35-.02*abs(y);actor((x+rng.uniform(-4,4),y,z),90 if side<0 else -90,'arterial',12,-.02)
             for tx in (-78,78):
                 for j in range(3):
-                    x=tx+side*(23+j*6.3);y=side*6.7056;actor((x,y,7.35-.02*abs(y)),90 if side<0 else -90,'arterial_queue',0,side*.02)
+                    x=tx+side*(23+j*6.9);y=side*6.7056;actor((x,y,7.35-.02*abs(y)),90 if side<0 else -90,'arterial_queue',0,-.02)
         for x,y in ((-19,3.3528),(9,-6.7056),(17,6.7056)):
-            side=1 if y>0 else -1;actor((x,y,7.35-.02*abs(y)),90 if side<0 else -90,'bridge',12,side*.02)
-        for x,y,yaw in [(126,24,0),(139,23,180),(-207,27,0),(-190,27,0),(-162,27,0)]:actor((x,y,7.05),yaw,'commercial_parked')
+            side=1 if y>0 else -1;actor((x,y,7.35-.02*abs(y)),90 if side<0 else -90,'bridge',12,-.02)
+        for x,y,yaw in [(143.28,24.332,0),(155.10,24.332,180),(-143.28,-25.332,0),(-207,27,0),(-190,27,0),(-162,27,0)]:actor((x,y,7.05),yaw,'commercial_parked')
     else:
         for side in (-1,1):
             for j,s in enumerate(range(-430,431,76)):

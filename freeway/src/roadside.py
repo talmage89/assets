@@ -23,7 +23,7 @@ def seat(rt,soil):
         if ob.type!='MESH':continue
         for face in ob.data.polygons:
             role=ob.data.materials[face.material_index]
-            if role not in (Q.M['Asphalt'],Q.M['Concrete']):continue
+            if role not in (Q.M['Asphalt'],Q.M['Concrete'],Q.M.get('WheelPolish',Q.M['Concrete'])):continue
             pts=[ob.matrix_world@ob.data.vertices[i].co for i in face.vertices]
             if len(pts)<3 or (pts[1]-pts[0]).cross(pts[2]-pts[0]).z<=0:continue
             for a,c in zip(pts,pts[1:]+pts[:1]):
@@ -58,14 +58,16 @@ def seat(rt,soil):
 def terminal(p):
     import pieces
     rt=Q.root('TerminalControls',module_kind='terminal_controls');b=Q.Batch('Turn arrows and entrance controls',rt)
-    def arrow(x,y,yaw):
+    def arrow(x,y,yaw,turn=False):
         # 2009 MUTCD-inspired original straight/left pavement arrow.
         outline=[(-.10,-2),(.10,-2),(.10,.9),(.55,.30),(.72,.47),(0,1.5),(-.72,.47),(-.55,.30),(-.10,.9)]
+        if turn:outline=[(-.12,-2),(.12,-2),(.12,.9),(-.75,.9),(-.75,1.3),(-1.4,.65),(-.75,0),(-.75,.4),(-.12,.4)]
         ang=math.radians(yaw)
         points=[(x+u*math.cos(ang)-v*math.sin(ang),y+u*math.sin(ang)+v*math.cos(ang)) for u,v in outline]
         b.surface([(a,c,BRIDGE_Z-.02*abs(c)+.009) for a,c in points],'White')
     for side in (-1,1):
-        for y in (-6.7056,6.7056):arrow(side*78-25*(1 if y<0 else -1),y,90 if y<0 else -90)
+        for y in (-6.7056,6.7056):arrow(side*78-25*(1 if y<0 else -1),y,-90 if y<0 else 90)
+        for dx in (-28,28):arrow(side*78+dx,0,-90 if dx<0 else 90,True)
         # Entry path is on the same travel side of the arterial. Back-facing
         # WRONG WAY / DO NOT ENTER pairs discourage the opposite movement.
         for j,(dx,dy,legend,w,h,yaw) in enumerate([

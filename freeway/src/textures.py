@@ -47,10 +47,10 @@ def maintenance(size):
    tile=tile.filter(ImageFilter.GaussianBlur(w*.006))
   elif name in ('runoff','salts','rust'):
    for j in range(75):
-    x=w*.5+rng.normal(0,w*.12);length=rng.uniform(.12,.92);ww=rng.uniform(.003,.033)*w
+    x=w*.5+rng.normal(0,w*.19);length=rng.uniform(.12,.92);ww=rng.uniform(.005,.06)*w
     color=(59,53,40) if name=='runoff' else (206,202,177) if name=='salts' else (117,58,23)
     for k in range(35):
-     y=g+length*(w-2*g)*k/35;a=int((1-k/35)**1.5*rng.uniform(25,95));d.rectangle((x-ww,y,x+ww,y+w/35),fill=(*color,a))
+     y=g+length*(w-2*g)*k/35;a=int((1-k/35)**1.5*rng.uniform(45,170));d.rectangle((x-ww,y,x+ww,y+w/35),fill=(*color,a))
    tile=tile.filter(ImageFilter.GaussianBlur(w*.005))
   elif name in ('patch','repair'):
    pts=[(g+int(rng.integers(-g//3,g//3)),g),(w-g,g+7),(w-g-4,w-g),(g,w-g-8)]
@@ -67,6 +67,12 @@ def maintenance(size):
  a=np.asarray(im).astype(np.float32)/255;orm=np.dstack([np.ones((size,size)),np.full((size,size),.85),np.zeros((size,size))])
  return srgb_to_linear(a[:,:,:3]),orm,.5-.3*a[:,:,3],a[:,:,3]
 
+def save(path,array,bits=8):
+ scratch=Path('build/texture-fields')/path.name;scratch.parent.mkdir(parents=True,exist_ok=True);write_png(scratch,array,bits=bits)
+ data=scratch.read_bytes()
+ if not path.exists() or path.read_bytes()!=data:path.write_bytes(data)
+ path.touch();scratch.unlink()
+
 def source(size=4096):
  out=Path('textures/source');out.mkdir(parents=True,exist_ok=True)
  for name,spec in SETS.items():
@@ -77,8 +83,8 @@ def source(size=4096):
    orm=np.dstack([np.ones((size,size)),np.full((size,size),.56),np.zeros((size,size))])
   elif name=='FreewayMaintenance':rgb,orm,h,alpha=maintenance(size)
   else:rgb,orm,h=manufacture(name,size)
-  write_png(out/f'T_{name}_BaseColor.png',np.dstack([linear_to_srgb(rgb),alpha]) if alpha is not None else linear_to_srgb(rgb),bits=8);write_png(out/f'T_{name}_ORM.png',orm,bits=8);write_png(out/f'T_{name}_Height.png',np.repeat(h[:,:,None],3,axis=2),bits=16)
-  if alpha is not None:write_png(out/f'T_{name}_Alpha.png',np.repeat(alpha[:,:,None],3,axis=2),bits=8)
+  save(out/f'T_{name}_BaseColor.png',linear_to_srgb(rgb),bits=8);save(out/f'T_{name}_ORM.png',orm,bits=8);save(out/f'T_{name}_Height.png',np.repeat(h[:,:,None],3,axis=2),bits=16)
+  if alpha is not None:save(out/f'T_{name}_Alpha.png',np.repeat(alpha[:,:,None],3,axis=2),bits=8)
   print('SOURCE',name,size,flush=True)
  Path('build/texture-plan.json').write_text(json.dumps(SETS,indent=2))
 if __name__=='__main__':

@@ -1,5 +1,5 @@
 """Contact sheets and a measured checkpoint summary; no committed docs."""
-import json,sys,math
+import json,sys,math,hashlib
 from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
@@ -24,6 +24,8 @@ def main():
     for path in files:
         record=json.loads(path.with_suffix('.json').read_text());assert record['engine']=='CYCLES',path
         assert record['bundle_sha256']==bundle(record['source']),('Stale render',path)
+        if record.get('recipe_sha256'):assert record['recipe_sha256']==hashlib.sha256(Path('src/render.py').read_bytes()).hexdigest(),('Stale render recipe',path)
+        if record.get('frame_sha256'):assert record['frame_sha256']==hashlib.sha256(path.read_bytes()).hexdigest(),('Changed render pixels',path)
         for ctx in record.get('context',[]):assert ctx['bundle_sha256']==bundle(ctx['source']),('Stale context',path)
     sheet(files,'renders/lookdev/contact.jpg')
     pairs=sorted(Path('renders/look-matches').glob('*-pair.jpg'));assert len(pairs)>=3

@@ -8,9 +8,9 @@ from render import render
 from kit.fonts import find_font
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--width',type=int,default=3000);ap.add_argument('--out',default='renders/lookdev');ap.add_argument('--samples',type=int,default=24);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
-    data=json.loads(Path('build/modules.json').read_text());cols=3;cell=max(800,round(a.width/cols));height=round(cell*.82)
-    sheet=Image.new('RGB',(cell*cols,height*math.ceil(len(data)/cols)),(30,35,31));d=ImageDraw.Draw(sheet);font=ImageFont.truetype(find_font('DejaVu Sans','Book'),14)
+    ap=argparse.ArgumentParser();ap.add_argument('--width',type=int,default=2000);ap.add_argument('--out',default='renders/lookdev');ap.add_argument('--samples',type=int,default=24);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
+    data=json.loads(Path('build/modules.json').read_text());cols=2;cell=max(800,round(a.width/cols));height=round(cell*.82)
+    sheet=Image.new('RGB',(cell*cols,height*math.ceil(len(data)/cols)),(30,35,31));d=ImageDraw.Draw(sheet);font=ImageFont.truetype(find_font('DejaVu Sans','Book'),22)
     metadata={}
     for i,(name,row) in enumerate(data.items()):
         lo,hi=map(Vector,row['bounds']);center=(lo+hi)/2;extent=hi-lo;size=max(extent);direction=Vector((1.0,-1.5,1.05)).normalized()

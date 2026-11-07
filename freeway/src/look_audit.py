@@ -10,7 +10,7 @@ def raw(path):
     def accessor(i):
         a=doc['accessors'][i];v=doc['bufferViews'][a['bufferView']];dt=np.dtype({5126:'<f4',5125:'<u4',5123:'<u2',5121:'u1'}[a['componentType']]);n={'SCALAR':1,'VEC2':2,'VEC3':3,'VEC4':4}[a['type']]
         return np.ndarray((a['count'],n),dtype=dt,buffer=buffers[v['buffer']],offset=v.get('byteOffset',0)+a.get('byteOffset',0),strides=(v.get('byteStride',n*dt.itemsize),dt.itemsize))
-    geometry={};densities=[];degenerate=0;reused=0
+    geometry={};densities=[];degenerate=0;textured_degenerate=0
     for i,mesh in enumerate(doc.get('meshes',[])):
         count=0
         for p in mesh['primitives']:
@@ -20,10 +20,12 @@ def raw(path):
             tuv=uv[idx];duv=tuv[:,1]-tuv[:,0];euv=tuv[:,2]-tuv[:,0];ua=abs(duv[:,0]*euv[:,1]-duv[:,1]*euv[:,0])/2;degenerate+=int((ua<1e-14).sum())
             mat=doc['materials'][p['material']];base=mat.get('pbrMetallicRoughness',{}).get('baseColorTexture')
             if base:
+                textured_degenerate+=int((ua<1e-14).sum())
                 im=doc['images'][doc['textures'][base['index']]['source']];size=Image.open(path.parent/im['uri']).size
                 values=np.sqrt(ua/area*size[0]*size[1]);densities.extend(values[ua>1e-14].tolist())
             count+=len(idx)
         geometry[i]=count
+    assert textured_degenerate==0,(path,'Collapsed textured UVs',textured_degenerate)
     # Instance-expanded count, not just unique mesh triangles.
     count=sum(geometry[node['mesh']] for node in doc.get('nodes',[]) if 'mesh' in node)
     rows=[]
@@ -32,7 +34,7 @@ def raw(path):
         with Image.open(p) as image:w,h=image.size
         rows.append(dict(uri=im['uri'],sha256=hashlib.sha256(p.read_bytes()).hexdigest(),size=[w,h],bytes=p.stat().st_size,bc_full_mips_mib=w*h*4/3/2**20))
     unique={r['sha256']:r for r in rows}
-    return dict(triangles=count,unique_mesh_triangles=sum(geometry.values()),materials=len(doc.get('materials',[])),primitives=sum(len(m['primitives']) for m in doc.get('meshes',[])),gltf_bytes=path.stat().st_size,bin_bytes=sum(len(b) for b in buffers),images=list(unique.values()),image_bytes=sum(r['bytes'] for r in unique.values()),bc_full_mips_mib=sum(r['bc_full_mips_mib'] for r in unique.values()),degenerate_uv_triangles=degenerate,uv_density_px_m_percentiles=np.quantile(densities,[.05,.5,.95]).tolist() if densities else None,uv_scope='Meter-scaled tiling and guarded chart reuse deliberately overlap. Density percentiles are unweighted per triangle, not a unique lightmap atlas certificate.')
+    return dict(triangles=count,unique_mesh_triangles=sum(geometry.values()),materials=len(doc.get('materials',[])),primitives=sum(len(m['primitives']) for m in doc.get('meshes',[])),gltf_bytes=path.stat().st_size,bin_bytes=sum(len(b) for b in buffers),images=list(unique.values()),image_bytes=sum(r['bytes'] for r in unique.values()),bc_full_mips_mib=sum(r['bc_full_mips_mib'] for r in unique.values()),degenerate_uv_triangles=degenerate,textured_degenerate_uv_triangles=textured_degenerate,uv_density_px_m_percentiles=np.quantile(densities,[.05,.5,.95]).tolist() if densities else None,uv_scope='Meter-scaled tiling and guarded chart reuse deliberately overlap. Collapsed UVs only on untextured native scalar materials are counted but unused. Density percentiles are unweighted per triangle, not a unique lightmap atlas certificate.')
 
 
 def main():

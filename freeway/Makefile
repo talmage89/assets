@@ -17,13 +17,19 @@ CHECKPOINT_OUTPUTS := build/Freeway.blend build/modules.json $(foreach s,$(SEEDS
 CHECKPOINT_ARGS := --seeds $(SEEDS) --stage look
 CHECKPOINT_DEPS := $(addprefix src/,build.py geom.py plan.py pieces.py roads.py site.py roadside.py neighborhood.py weather.py materials.py look_materials.py textures.py external.py) $(CONTEXT) $(FORM_MAPS) $(SHIP_MAPS)
 CHECKPOINT_OUT := renders/lookdev
-SCENE_SHOTS_101 := hero above alignment barrier guardrail_end sign_structure south_sign pier_girders gore terminal
+SCENE_SHOTS_101 := hero above alignment barrier guardrail_end sign_structure south_sign pier_girders gore terminal terminal_controls rail_repair
 SCENE_SHOTS_202 := hero above alignment sound_wall cable_median
 CHECKPOINT_RENDER_OUTPUTS := renders/lookdev/.stamp $(foreach s,$(SEEDS),$(foreach v,$(SCENE_SHOTS_$(s)),renders/lookdev/$(s)/$(v).png))
 CHECKPOINT_RENDER_ARGS := --source export/Freeway-101.gltf --seeds $(SEEDS)
-CHECKPOINT_CHECK = $(BP) --python src/check.py
-CHECKPOINT_REVIEW = $(PYTHON) src/review.py
+CHECKPOINT_CHECK = $(BP) --python src/check.py && $(BP) --python src/edge_check.py && $(BP) --python src/bridge_check.py && $(BP) --python src/context_check.py
+CHECKPOINT_REVIEW = $(PYTHON) src/review.py && $(PYTHON) src/quality_receipts.py
 include ../kit/checkpoint_rules.mk
+
+# The kit still owns the grouped render graph and its single GPU lease. Limit
+# scene lifetime inside that lease rather than retaining twelve Cycles views.
+RBP = $(PYTHON) src/render_batch.py --blender '$(BLENDER)'
+$(CHECKPOINT_RENDER_OUTPUTS): private BP = $(RBP)
+$(CHECKPOINT_RENDER_OUTPUTS): src/render_batch.py
 
 .PHONY: preserve inputs context textures sheet scale matches preview repeat check-look evidence
 preserve:
@@ -53,9 +59,8 @@ textures: $(SHIP_MAPS)
 check-look: model
 	$(PYTHON) src/look_audit.py
 check: check-look
-	$(BP) --python src/edge_check.py
 renders/lookdev/modules.png: export/FreewayModules.gltf src/render.py src/module_sheet.py build/checkpoint-render-parameters.txt
-	$(KIT)/with_gpu.sh $(BP) --python src/module_sheet.py -- --out renders/lookdev --width 3000 --samples $(SAMPLES)
+	$(KIT)/with_gpu.sh $(BP) --python src/module_sheet.py -- --out renders/lookdev --width 2000 --samples $(SAMPLES)
 sheet: renders/lookdev/modules.png
 renders/lookdev/scale.png: export/modules/GuardrailEnd.gltf build/context/HeroHatch.glb src/render.py build/checkpoint-render-parameters.txt
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --scale --out renders/lookdev --width $(WIDTH) --samples $(SAMPLES)
@@ -64,12 +69,11 @@ build/cameras.json: src/matches.py | refs
 	$(PYTHON) src/matches.py
 renders/look-matches/.stamp: build/cameras.json $(CHECKPOINT_OUTPUTS) src/render.py build/checkpoint-render-parameters.txt
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration build/cameras.json
-	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --camera-file build/cameras.json --out renders/look-matches --width $(WIDTH) --samples $(SAMPLES)
+	$(KIT)/with_gpu.sh $(RBP) --python src/render.py -- --camera-file build/cameras.json --out renders/look-matches --width $(WIDTH) --samples $(SAMPLES)
 	$(PYTHON) src/matches.py --compose
 	@touch $@
 matches: renders/look-matches/.stamp
 review: sheet scale matches evidence source-pairs
-	$(PYTHON) src/quality_receipts.py
 preview: model
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --out renders/look-preview --engine BLENDER_EEVEE --shots hero above terminal pier_girders --width 1000 --samples 16
 repeat: model
@@ -80,7 +84,11 @@ evidence: render renders/lookdev/modules.png
 
 .PHONY: source-pairs
 renders/source-matches/.stamp: renders/look-matches/.stamp src/source_compare.py
-	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --camera-file build/cameras.json --source-fields --out renders/source-matches --width $(WIDTH) --samples $(SAMPLES)
+	$(KIT)/with_gpu.sh $(RBP) --python src/render.py -- --camera-file build/cameras.json --source-fields --out renders/source-matches --width $(WIDTH) --samples $(SAMPLES)
 	$(PYTHON) -c "import sys;sys.path.insert(0,'..');from kit.photo_match import compose;compose('build/cameras.json','renders/source-matches','renders/source-matches')"
 	@touch $@
 source-pairs: renders/source-matches/.stamp
+
+.PHONY: check-texture-repeat
+check-texture-repeat: textures
+	$(PYTHON) src/texture_repeat.py

@@ -1,0 +1,60 @@
+# Freeway look-dev materials
+
+This checkpoint uses stock external glTF PBR, shared images and ordinary vertex
+color. Every pixel is scripted. Reference photographs only inform the visual
+review; none is sampled by a material generator.
+
+Ground Asphalt, Concrete, Lawn and GroundTrim remain byte-identical inputs.
+World/meter tile UVs intentionally repeat. Existing manufacture remains in
+those maps; broad traffic causes belong to lane-space vertex colors and
+placement-owned maintenance charts. The wheel-polish material shares Ground
+Concrete's three images and reduces its roughness in the wheel paths.
+
+| New shared set | Shipped maps | Full-mip BC7/BC5-equivalent memory | Reason |
+| --- | --- | ---: | --- |
+| FreewayConcrete | 2048 BaseColor / Normal / ORM | 16 MiB | Cast bridge, barriers, wall panels and drainage; sand, pores and surface response at a physical 3.048m repeat |
+| FreewayZinc | 1024 BaseColor / Normal / ORM | 4 MiB | Large unpainted guide/rail/light structures need dulled zinc and hydroxide response absent from the paving atlas |
+| FreewaySigns | 2048 BaseColor / Normal / ORM | 16 MiB | Thirteen original guide/regulatory/trailblazer legends, guarded chart regions and aged sheeting; fictional state marker |
+| FreewayMaintenance | 1024 RGBA BaseColor / Normal / ORM | 4 MiB | Additional caused repairs, broken old paint, joint spalls, crack sealant, drips, drain salts, tire traces, silt and small trapped debris |
+
+The new allocation is **40 MiB**, shared across both scenes and all 17 pieces.
+The sign triple replaces the form gate's temporary single sign image. The
+small ROW fabric field is reused from the original fence recipe. Town and
+traffic load their own native library sets, outside the freeway-only cost.
+Disk PNG bytes and the actual unique-image union are measured in
+`build/look-audit.json`, rather than inferred from this allocation table.
+
+`textures.py` generates original 4096 fields; `bake.py` calls the kit's GPU
+flat-tile baker, with physical height ranges and color round-trip checks.
+`filter_textures.py` uses the kit's linear-light color, vector normal and
+roughness RMS reduction. BaseColor is sRGB, normals are OpenGL +Y, ORM is
+linear R occlusion / G roughness / B metallic. Coverage is independent of
+color during baking and is restored before premultiplied delivery filtering.
+
+The 4×4 maintenance atlas has eight shipped-pixel chart insets. Charts repeat
+only when their cause recurs; location, orientation, extent and phase belong
+to the seeded scene. This is deliberate atlas reuse, not a unique lightmap
+unwrap. Normal maps use the same chart orientation as their color. The source
+material comparison replaces shipped maps with the 4096 fields and evaluates
+the physical source height; its metadata explicitly labels that inspection.
+
+Pavement is divided at measured lane/wheel offsets. Smooth wheel contact and
+narrow engine-line darkening follow the driving direction, with interrupted
+station history rather than a uniform noise wash. Slab repairs stay between
+joints, spalls follow seals, shoulder crack sealants stay on asphalt, and the
+later overlay is confined to a maintained stretch. Old dashes are offset from
+the restripe and raised markers are omitted by a deterministic seed.
+
+Bridge deposits begin at joints, scuppers and bearing locations. Girder drips
+follow the actual flange/web profile and camber. Column repairs follow the
+cylinder; no flat patch floats in front of it. A few ramp-rail bays are bent,
+with neighboring replacements brighter than the older zinc. Litter and rooted
+volunteers accumulate at barrier drainage and fence traps.
+
+Traffic uses the three original native car bodies. The car family's own
+coverage-alpha/factory-color data produces ordinary local paint RGB variants;
+original bodies, maps and deliveries are unchanged. Native near bodies retain
+all geometry and maps; distant context bodies retain the prior coherent local
+LOD normals and omit the high-mesh normal bake. Brake emission is retained for
+queues and disabled for flowing daytime traffic. These static scene actors do
+not replace the working native vehicle deliveries.

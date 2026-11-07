@@ -21,7 +21,7 @@ def balance(name,roi):
 
 def cameras():
     highway,hw=balance('freeway-2008',[370,1460,470,1510])
-    bridge,br=balance('bridge-2008',[1800,1500,1950,1570])
+    bridge,br=balance('bridge-2008',[1100,1410,1140,1470])
     diamond,di=balance('diamond-2002',[430,42,455,60])
     traffic,tr=balance('traffic-2007',[1675,1490,1689,1510])
     p=plan(202)
@@ -32,7 +32,7 @@ def cameras():
             source='export/Freeway-101.gltf',limitations='Four coplanar panel corners, estimated dimensions and lens; six photographed lanes versus four modeled. Compare sign form and mounted scale, not roadway capacity.'),
         'bearing_2008':dict(title='Bearing-seat and cap plane / FHWA 2008 bridge',photo=bridge,crop=[0,0,2816,2112],
             location=(5,0,4.8),target=(0,-7,5.0),lens=45,lens_bounds_mm=(24,100),
-            landmarks=[dict(world=(1,y,z),pixel=px) for y,z,px in [(-9.9,5.4384,(1044,1345)),(-7.,5.4384,(1620,1255)),(-7.,4.3384,(1620,1695)),(-9.9,4.3384,(1044,1730))]],
+            landmarks=[dict(world=(1.15,y,z),pixel=px) for y,z,px in [(-9.9,5.4384,(1044,1345)),(-7.,5.4384,(1620,1255)),(-7.,4.3384,(1620,1695)),(-9.9,4.3384,(1044,1730))]],
             source='export/modules/Overpass.gltf',limitations='Cap-plane framing fit only. The photo has a pile bent and SCC beams; this family uses round columns and traditional I girders. No survey dimensions or one-to-one bridge reproduction claimed.'),
         'diamond_2002':dict(title='Diamond plan / USGS 2002 aerial photograph',photo=diamond,crop=[0,0,636,413],
             location=(-90,-40,1100),target=(0,0,0),lens=65,lens_bounds_mm=(24,200),
@@ -41,17 +41,18 @@ def cameras():
     }
     definitions['traffic_2007']=dict(title='Daily traffic, worn asphalt and median / 2007 freeway photograph',photo=traffic,crop=[800,770,2860,2240],
         location=(17,-100,9),target=(7,110,1),lens=120,lens_bounds_mm=(70,200),
-        landmarks=[dict(world=p.xyz(s,u),pixel=px) for s,u,px in [(-55,p.median/2+LEFT,(1664,2180)),(-55,p.edge-RIGHT,(2830,2180)),(160,p.median/2+LEFT,(1780,1060)),(160,p.edge-RIGHT,(2175,1060))]],
-        source='export/Freeway-202.gltf',limitations='Four carriageway-edge landmarks give a type/framing fit. The photograph has three lanes per direction and no sound-wall enclosure; this asset has two. Not a measured reconstruction or matched traffic sample.')
+        landmarks=[dict(world=p.xyz(s,u),pixel=px) for s,u,px in [(-55,p.median/2+LEFT,(1535,2180)),(-55,p.edge-RIGHT,(2400,2180)),(160,p.median/2+LEFT,(1770,1060)),(160,p.edge-RIGHT,(2007,1060))]],
+        source='export/Freeway-202.gltf',limitations='Four landmarks align the inside yellow edge and a two-lane span ending at the second white divider. The photograph adds outer/auxiliary lanes and has no sound-wall enclosure; this asset has two through lanes. Not a measured reconstruction or matched traffic sample.')
     rows={}
     for name,definition in definitions.items():
         rows[name]=calibrate(definition);rows[name]['source']=definition['source'];rows[name]['limitations']=definition['limitations']
         rows[name]['lens_status']='Feature-fit estimate; photographic EXIF may exist, but equivalent focal length and site dimensions are not calibrated'
         rows[name]['shot'].update(sun_direction=(.2,.2,-1),sun_energy=5,exposure=-.35)
+        if name=='traffic_2007':rows[name]['shot'].update(sun_energy=.8,sun_angle_degrees=15,sky_strength=.15,sky_saturation=.08)
         if name=='bearing_2008':
             # Side daylight plus a neutral procedural floor supplies the
             # bounce missing from an isolated bridge module over empty sky.
-            rows[name]['shot'].update(sun_direction=(-.5,2,-1),sun_energy=9,
+            rows[name]['shot'].update(sun_direction=(-.5,2,-1),sun_energy=4.5,sky_strength=.30,
                 stage_floor=dict(size=200,location=(0,0,-.06)))
         print(name,'RMS',round(rows[name]['residual_rms_pixels'],3),'lens',round(rows[name]['shot']['lens'],2))
     Path('build/cameras.json').write_text(json.dumps(rows,indent=2))

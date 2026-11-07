@@ -23,5 +23,8 @@ def install():
                     bump=nodes.new('ShaderNodeBump');bump.inputs['Distance'].default_value=spec['height'];links.new(h.outputs[0],bump.inputs['Height']);links.new(bump.outputs['Normal'],bs.inputs['Normal'])
                 else:
                     node.image=bpy.data.images.load(str((Path('textures/source')/f'T_{name}_{channel}.png').resolve()),check_existing=True);node.image.colorspace_settings.name='sRGB' if channel=='BaseColor' else 'Non-Color'
+                    if name=='FreewayMaintenance' and channel=='BaseColor':
+                        alpha=nodes.new('ShaderNodeTexImage');alpha.image=bpy.data.images.load(str(Path('textures/source/T_FreewayMaintenance_Alpha.png').resolve()),check_existing=True);alpha.image.colorspace_settings.name='Non-Color'
+                        bs=next(n for n in nodes if n.type=='BSDF_PRINCIPLED');links.new(alpha.outputs[0],bs.inputs['Alpha'])
                 changed.append((mat.name,name,channel))
     return changed

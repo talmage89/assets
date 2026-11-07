@@ -211,6 +211,12 @@ def scene(seed):
     stats['driving_paths']=paths;stats['bundle_sha256']=bundle(path)
     bpy.ops.import_scene.gltf(filepath=str(Path(f'export/Traffic-{seed}.gltf').resolve()))
     bpy.context.view_layer.update()
+    expected={r['name']:r for r in json.loads(Path(f'build/scene-{seed}.json').read_text())['traffic']['placements']}
+    actors=[o for o in bpy.context.scene.objects if o.get('traffic_role')]
+    assert {o.name for o in actors}==set(expected),('Missing traffic roots',seed)
+    pose_error=max((o.matrix_world.translation-Vector(expected[o.name]['location'])).length for o in actors)
+    assert pose_error<.0002,(seed,pose_error)
+    stats['traffic_root_serialization']=dict(actors=len(actors),maximum_position_error_m=pose_error,scope='Fresh imported actor roots versus the authored snapshot; physical tire contacts are checked separately.')
     stats['traffic_imported_triangles']=sum(len(o.data.loop_triangles) if o.data.loop_triangles else sum(len(f.vertices)-2 for f in o.data.polygons) for o in bpy.context.scene.objects if o.type=='MESH')-stats['triangles']
     # Traffic is checked against physical driving skins, including ramps/deck.
     paving=[o for o in bpy.context.scene.objects if o.type=='MESH' and not any(k in o.name for k in ('Wheel','Tire')) and any(m and m.name.split('.')[0] in {'Asphalt','Concrete','Freeway Wheel polish / Ground Concrete'} for m in o.data.materials)]

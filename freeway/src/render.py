@@ -1,5 +1,5 @@
 """Cycles inspection of freshly imported external glTF; no source render path."""
-import argparse,sys,json,math
+import argparse,sys,json,math,hashlib
 from pathlib import Path
 import bpy
 from mathutils import Vector
@@ -13,7 +13,7 @@ def setup(samples,engine):
     if engine=='CYCLES':gpu.enable();sc.cycles.samples=samples;sc.cycles.use_denoising=True
     sc.world=bpy.data.worlds.new('Procedural raking daylight');sc.world.use_nodes=True
     ns=sc.world.node_tree.nodes;ls=sc.world.node_tree.links
-    sky=ns.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_disc=False;sky.sun_elevation=math.radians(17);sky.sun_rotation=math.radians(235);sky.air_density=1;sky.aerosol_density=.5
+    sky=ns.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_disc=False;sky.sun_elevation=math.radians(17);sky.sun_rotation=math.atan2(-.65,.72);sky.air_density=1;sky.aerosol_density=.5
     sat=ns.new('ShaderNodeHueSaturation');sat.inputs['Saturation'].default_value=.85;ls.new(sky.outputs[0],sat.inputs['Color'])
     bg=ns.get('Background');ls.new(sat.outputs[0],bg.inputs[0]);bg.inputs['Strength'].default_value=.10
     sun=bpy.data.objects.new('Raking sun',bpy.data.lights.new('Raking sun','SUN'));sc.collection.objects.link(sun);sun.data.energy=7.0;sun.data.angle=math.radians(.53);sun.rotation_euler=Vector((-.72,.65,-.28)).to_track_quat('-Z','Y').to_euler()
@@ -34,6 +34,8 @@ def shots(seed):
         'south_sign':dict(location=(-6,405,2.8),target=(-6,360,7.6),lens=40,aspect=1.5),
         'pier_girders':dict(location=(8,-15,1.65),target=(0,1.5,5.65),lens=36,aspect=1.5),
         'gore':dict(location=(22,-251,1.65),target=(14.2,-221,.38),lens=45,aspect=1.5),
+        'terminal_controls':dict(location=(112,-58,17),target=(79,0,7.5),lens=40,aspect=1.5),
+        'rail_repair':dict(location=(29,-249,2.3),target=(22.5,-234,.3),lens=48,aspect=1.5),
         'terminal':dict(location=(55,-34,9.0),target=(78,0,9.5),lens=40,aspect=1.5)}
     return {
         'hero':dict(location=(15.,-75,2.45),target=(4,65,3.35),lens=40,aspect=1.78),
@@ -83,9 +85,14 @@ def render(source,out,width,samples,engine,names=None,custom=None,seed=101,sourc
         sc.render.resolution_x=width;sc.render.resolution_y=round(width/v.get('aspect',1.5));sc.render.resolution_percentage=100
         sc.view_settings.exposure=v.get('exposure',-.45)
         sun=bpy.data.objects['Raking sun'];sun.rotation_euler=Vector(v.get('sun_direction',(-.72,.65,-.28))).to_track_quat('-Z','Y').to_euler();sun.data.energy=v.get('sun_energy',7.)
+        direction=v.get('sun_direction',(-.72,.65,-.28));sun.data.angle=math.radians(v.get('sun_angle_degrees',.53))
+        sky=next(n for n in sc.world.node_tree.nodes if n.type=='TEX_SKY')
+        sky.sun_rotation=math.atan2(-direction[1],-direction[0]);sky.sun_elevation=math.atan2(-direction[2],math.hypot(direction[0],direction[1]))
+        sc.world.node_tree.nodes.get('Background').inputs['Strength'].default_value=v.get('sky_strength',.10)
+        next(n for n in sc.world.node_tree.nodes if n.type=='HUE_SAT').inputs['Saturation'].default_value=v.get('sky_saturation',.85)
         bpy.context.view_layer.update();path=out/(name+'.png');sc.render.filepath=str(path.resolve());bpy.ops.render.render(write_still=True)
         if v.get('overlay'):overlay(path,cam,width,sc.render.resolution_y)
-        result[name]=dict(material_stage='4096 source-field inspection' if source_fields else 'exported shipped PBR',source_field_changes=field_changes,context=context_sources,source=str(source),bundle_sha256=bundle(source),engine=engine,samples=samples,width=width,camera=v)
+        result[name]=dict(frame_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),recipe_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),lighting=dict(sun_direction=list(direction),sun_energy=sun.data.energy,sky_strength=sc.world.node_tree.nodes.get('Background').inputs['Strength'].default_value,sun_angle_degrees=v.get('sun_angle_degrees',.53)),material_stage='4096 source-field inspection' if source_fields else 'exported shipped PBR',source_field_changes=field_changes,context=context_sources,source=str(source),bundle_sha256=bundle(source),engine=engine,samples=samples,width=width,camera=v)
         path.with_suffix('.json').write_text(json.dumps(result[name],indent=2))
     return result
 
