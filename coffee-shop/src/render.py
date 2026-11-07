@@ -24,6 +24,10 @@ def camera(loc,target,lens=40,ortho=None):
 
 
 def lighting(elevation=26,azimuth=-117,exposure=-1.0):
+    # Photo comparisons change the sun while reusing the imported scene.
+    # Replace it so each fitted view has exactly one directional light.
+    for ob in list(bpy.context.scene.objects):
+        if ob.type=='LIGHT' and ob.data.type=='SUN':bpy.data.objects.remove(ob,do_unlink=True)
     sc=bpy.context.scene;world=bpy.data.worlds.new('ProceduralDaylight');world.use_nodes=True;sc.world=world
     n=world.node_tree.nodes;l=world.node_tree.links;sky=n.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(elevation);sky.sun_rotation=math.radians(azimuth);sky.sun_disc=False;sky.altitude=.12
     hue=n.new('ShaderNodeHueSaturation');hue.inputs['Saturation'].default_value=.28;l.new(sky.outputs['Color'],hue.inputs['Color']);l.new(hue.outputs['Color'],n['Background'].inputs['Color']);n['Background'].inputs['Strength'].default_value=.20
@@ -42,7 +46,7 @@ def imported(path):
 
 
 def context(p):
-    # Presentation only: the roadway, original library trees and a parked car.
+    # Presentation only: the roadway, original library trees and nearby hosts.
     sc=bpy.context.scene;z=p['grade'];walk=p['walk'];a=tiling.material('Asphalt',REPO/'ground/textures/ship')
     lm=tiling.material('Lawn',REPO/'ground/textures/ship');land=model.box('Context continuous ground',(0,15,z-.25),(220,190,.15),lm,0);tiling.world_uv(land,3.048)
     ob=model.box('Context road',(0,-walk-6,z-.23),(110,12,.15),a,0);tiling.world_uv(ob,6.096)

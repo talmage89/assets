@@ -38,6 +38,7 @@ build/hosts/%.glb: src/hosts.py
 review: match
 match: render
 	$(PYTHON) src/matches.py --prepare
+	$(BP) --python $(KIT)/photo_match.py -- verify --calibration build/photo-calibration.json
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --matches build/photo-calibration.json --out renders/matches --width $(WIDTH) --samples $(SAMPLES)
 	$(PYTHON) src/matches.py --compose
 

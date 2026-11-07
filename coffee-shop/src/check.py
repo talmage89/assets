@@ -100,6 +100,7 @@ def main():
     for seed,kind in PROOFS:
         bpy.ops.wm.read_factory_settings(use_empty=True);p=json.loads(Path(f'build/shops/{seed}.json').read_text());path=Path(f'export/CoffeeShop-{seed}.gltf');doc=json.loads(path.read_text());raw=GLB(Path(f'build/shops/{seed}.glb'))
         assert p['bundle_sha256']==bundle(path)
+        states=[json.dumps({k:v for k,v in m.items() if k!='name'},sort_keys=True) for m in doc['materials']];assert len(states)==len(set(states)),('Duplicate material states',seed)
         for im in doc.get('images',[]):
             assert 'uri' in im and not im['uri'].startswith(('data:','/'))
             ip=(path.parent/im['uri']).resolve();image_uris[str(ip)]=sha(ip)
@@ -152,7 +153,11 @@ def main():
     # Independent same-scene imports exercise decoded image identity reuse.
     bpy.ops.wm.read_factory_settings(use_empty=True)
     for seed,_ in PROOFS:bpy.ops.import_scene.gltf(filepath=str(Path(f'export/CoffeeShop-{seed}.gltf').resolve()))
-    before=len(bpy.data.images);bpy.ops.import_scene.gltf(filepath=str(Path('export/CoffeeShop-117.gltf').resolve()));after=len(bpy.data.images);assert before==after
+    before=len(bpy.data.images)
+    bpy.ops.import_scene.gltf(filepath=str(Path('export/CoffeeShop-117.gltf').resolve()))
+    bpy.ops.import_scene.gltf(filepath=str(Path('export/CoffeeShopPieces.gltf').resolve()))
+    bpy.ops.import_scene.gltf(filepath=str(Path('export/pieces/BistroChair.gltf').resolve()))
+    after=len(bpy.data.images);assert before==after
     if Path('build/photo-calibration.json').exists():
         from kit.photo_match import verify
         verify('build/photo-calibration.json')
