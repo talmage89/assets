@@ -36,6 +36,16 @@ def main():
         path=Path(f'export/sites/CoffeeSite-{seed}.gltf');assert bundle(path)==site['bundle_sha256'];doc=json.loads(path.read_text())
         context=GLB(Path(f'build/sites/{seed}.glb'));mesh_counts=[sum(context.json['accessors'][pr['indices']]['count']//3 for pr in me['primitives']) for me in context.json['meshes']]
         site_triangles=sum(mesh_counts[n['mesh']] for n in context.json['nodes'] if 'mesh' in n);assert site_triangles==site['triangles']
+        paving=[];terrain=None
+        for ni,node in enumerate(context.json['nodes']):
+            name=node.get('name','')
+            if 'mesh' not in node or name not in ('District ground','Public two-way street','Customer lot front'):continue
+            xf=context.world(ni);ys=[float((xf@np.r_[v,1])[1]) for pr in context.json['meshes'][node['mesh']]['primitives'] for v in context.accessor(pr['attributes']['POSITION'])]
+            if name=='District ground':terrain=max(ys)
+            else:paving.append(dict(name=name,bottom_m=min(ys),top_m=max(ys)))
+        assert terrain is not None and paving
+        for row in paving:assert row['bottom_m']-1e-4<=terrain<=row['top_m']+1e-4,('Unsupported/buried roadway',seed,terrain,row)
+        contact=dict(measured_terrain_top_m=terrain,measured_paving=paving,method='raw exported world-space heights; paving intersects supporting terrain and its top remains exposed')
         parking={}
         if seed!=117:
             intervals=set()
@@ -54,7 +64,7 @@ def main():
             with Image.open(ip) as image:w,h=image.size
             images[str(ip)]=dict(path=str(ip.relative_to(ROOT)),size=[w,h],bytes=ip.stat().st_size,gpu_mib=w*h*4/3/1048576,sha256=hashlib.sha256(ip.read_bytes()).hexdigest())
         order=np.argsort(areas);av=np.asarray(areas)[order];weight=np.cumsum(np.asarray(weights)[order]);weight/=weight[-1]
-        reports.append(dict(seed=seed,shop_triangles=shop['triangles'],room_triangles=shop['room_triangles'],site_triangles=site_triangles,parking=parking,shop_materials=shop['materials'],site_materials=site['materials'],site_bytes=site['gltf_bytes']+site['bin_bytes'],cafe_chart_triangles_checked=uv_count,density_px_m_percentiles_5_50_95=np.percentile(areas,[5,50,95]).tolist(),area_weighted_density_px_m_5_50_95=np.interp([.05,.50,.95],weight,av).tolist(),uv_policy='Intentional shared-chart reuse, cell bounds checked per triangle; no unique-island overlap claim. Both triangle- and area-weighted density include hardware and prints.'))
+        reports.append(dict(seed=seed,shop_triangles=shop['triangles'],room_triangles=shop['room_triangles'],site_triangles=site_triangles,parking=parking,terrain_contact=contact,shop_materials=shop['materials'],site_materials=site['materials'],site_bytes=site['gltf_bytes']+site['bin_bytes'],cafe_chart_triangles_checked=uv_count,density_px_m_percentiles_5_50_95=np.percentile(areas,[5,50,95]).tolist(),area_weighted_density_px_m_5_50_95=np.interp([.05,.50,.95],weight,av).tolist(),uv_policy='Intentional shared-chart reuse, cell bounds checked per triangle; no unique-island overlap claim. Both triangle- and area-weighted density include hardware and prints.'))
     maps=[]
     for channel in ('BaseColor','Normal','ORM'):
         path=Path(f'textures/ship/T_CoffeeShop_{channel}.png');im=Image.open(path);assert im.size==(2048,2048)

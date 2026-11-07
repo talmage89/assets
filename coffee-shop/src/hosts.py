@@ -164,7 +164,19 @@ def commercial(kind,out):
         for mod in list(ob.modifiers):
             if mod.type=='BEVEL' and mod.width<=.0041:ob.modifiers.remove(mod)
     C.M['Glass'].node_tree.nodes.get('Principled BSDF').inputs['Roughness'].default_value=.002
-    commercial_finish(C,kind);C.finalize();export(out);out.with_suffix('.json').write_text(json.dumps(p,indent=2)+'\n')
+    commercial_finish(C,kind);C.finalize()
+    # Bevel UV interpolation can differ by one float bit across fresh
+    # processes. Builds use one CPU worker; six decimal places are below a shipping texel and
+    # stabilize this private adapter without changing canonical deliveries.
+    uv_delta=0.0
+    for ob in bpy.context.scene.objects:
+        if ob.type!='MESH':continue
+        for layer in ob.data.uv_layers:
+            for loop in layer.data:
+                old=tuple(loop.uv);loop.uv=tuple(round(float(v),6) for v in old)
+                uv_delta=max(uv_delta,*[abs(a-b) for a,b in zip(old,loop.uv)])
+    print('PRIVATE HOST UV maximum change',uv_delta,flush=True)
+    export(out);out.with_suffix('.json').write_text(json.dumps(p,indent=2)+'\n')
 
 
 if __name__=='__main__':

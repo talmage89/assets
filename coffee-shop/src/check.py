@@ -36,8 +36,8 @@ def repeat():
     (folder/'build').mkdir(parents=True);shutil.copytree(base/'build/hosts',folder/'build/hosts')
     shutil.copytree(base/'textures/ship',folder/'textures/ship')
     log=base/'build/repeat.log'
-    with log.open('w') as f:subprocess.run(['blender','-b','--factory-startup','--python-exit-code','1','--python',str(HERE/'build.py'),'--','--out','build/coffee.blend'],cwd=folder,stdout=f,stderr=subprocess.STDOUT,check=True)
-    with log.open('a') as f:subprocess.run(['blender','-b','--factory-startup','--python-exit-code','1','--python',str(HERE/'sites.py')],cwd=folder,stdout=f,stderr=subprocess.STDOUT,check=True)
+    with log.open('w') as f:subprocess.run(['blender','-b','-t','1','--factory-startup','--python-exit-code','1','--python',str(HERE/'build.py'),'--','--out','build/coffee.blend'],cwd=folder,stdout=f,stderr=subprocess.STDOUT,check=True)
+    with log.open('a') as f:subprocess.run(['blender','-b','-t','1','--factory-startup','--python-exit-code','1','--python',str(HERE/'sites.py')],cwd=folder,stdout=f,stderr=subprocess.STDOUT,check=True)
     rows=[]
     for p in sorted((base/'export').rglob('*')):
         if not p.is_file() or p.suffix not in ('.gltf','.bin','.png'):continue
@@ -52,7 +52,7 @@ def repeat():
         rows.append(dict(path=str(p.relative_to(base)),bytes=p.stat().st_size,sha256=sha(p)))
     for p in sorted((base/'build/hosts').glob('*.glb')):
         dest=folder/'build/hosts'/p.name
-        with (base/'build/repeat-hosts.log').open('a') as f:subprocess.run(['blender','-b','--factory-startup','--python-exit-code','1','--python',str(HERE/'hosts.py'),'--','--kind',p.stem,'--out',str(dest)],cwd=folder,stdout=f,stderr=subprocess.STDOUT,check=True)
+        with (base/'build/repeat-hosts.log').open('a') as f:subprocess.run(['blender','-b','-t','1','--factory-startup','--python-exit-code','1','--python',str(HERE/'hosts.py'),'--','--kind',p.stem,'--out',str(dest)],cwd=folder,stdout=f,stderr=subprocess.STDOUT,check=True)
         if sha(p)!=sha(dest):raise AssertionError(('Host repeat differs',p.name))
     (base/'build/repeat.json').write_text(json.dumps(dict(files=rows,bytes=sum(r['bytes'] for r in rows),status='byte-identical deterministic geometry, original manufacture fields, graphics and canonical package URIs; accepted baked maps reused, GPU accumulation not claimed byte-exact'),indent=2)+'\n')
     print('REPEAT PASS',len(rows),'files',sum(r['bytes'] for r in rows),'bytes')

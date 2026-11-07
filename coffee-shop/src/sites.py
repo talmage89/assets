@@ -179,7 +179,10 @@ def build(seed,kind):
     before=set(bpy.context.scene.objects);bpy.ops.import_scene.gltf(filepath=str(Path(f'export/CoffeeShop-{seed}.gltf').resolve()));obs=set(bpy.context.scene.objects)-before
     for ob in obs:
         if ob.parent not in obs:ob.location.y+=p['depth']/2
-    slab('District ground',(-1000,1000,-1000,1000),-.24,'Lawn')
+    # Soil reaches the paving, rather than leaving a light/air gap beneath
+    # the finite road boxes. Main Street's roadway is 152.4 mm below its walk.
+    land_z=-.1574 if kind=='downtown' else -.005
+    slab('District ground',(-1000,1000,-1000,1000),land_z,'Lawn')
     info=downtown(p) if kind=='downtown' else parking(p,kind=='pad')
     for rt in CACHE.values():
         for ob in reversed(G.descendants(rt)):bpy.data.objects.remove(ob,do_unlink=True)
@@ -187,7 +190,13 @@ def build(seed,kind):
     root=G.root('CoffeeSite_'+str(seed),seed=seed,front_datum=True)
     for ob in list(bpy.context.scene.objects):
         if ob!=root and ob.parent is None:ob.parent=root
-    path=Path(f'build/sites/{seed}.glb');path.parent.mkdir(parents=True,exist_ok=True);tiling.export(path);meta=externalize(path,Path(f'export/sites/CoffeeSite-{seed}.gltf'))
+    path=Path(f'build/sites/{seed}.glb');path.parent.mkdir(parents=True,exist_ok=True);tiling.export(path)
+    # MikkTSpace can straddle the final four-decimal rounding boundary at
+    # three imported car corners. Preserve accepted values only after exact
+    # position/normal/UV guards and the kit's one-rounding-step limit.
+    from kit.gltf import stabilize_tangents
+    stabilize_tangents(path,json.loads((HERE/'context_tangents.json').read_text())[str(seed)])
+    meta=externalize(path,Path(f'export/sites/CoffeeSite-{seed}.gltf'))
     info.update(seed=seed,triangles=tri,shop_triangles=p['triangles'],**meta);info['bundle_sha256']=bundle(f'export/sites/CoffeeSite-{seed}.gltf');path.with_suffix('.json').write_text(json.dumps(info,indent=2)+'\n');print('SITE',seed,tri,flush=True)
 
 if __name__=='__main__':
