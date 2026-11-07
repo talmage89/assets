@@ -1,7 +1,7 @@
 """Independent exported geometry, layout, resource and sampled motion checks.
 
-This checkpoint certifies script construction/serialization, not a physical
-playground, surfacing impact attenuation, final UV atlases or baked look-dev.
+These checks measure construction/serialization and sampled motion. Manufacture
+UVs/maps are checked separately; photo comparisons judge the appearance.
 """
 import argparse,hashlib,itertools,json,math,sys
 from pathlib import Path
@@ -114,6 +114,9 @@ def main():
             row['nominal_infill_clear_m']=1.2192/12-.019;assert row['nominal_infill_clear_m']<.0889
     for source in manifest['sites']:
         seed=source['seed'];path=Path(f'export/Playground-{seed}.gltf');meshes,n,bb=imported(path);assert n<120000,(seed,n);assert n==source['total_triangles'],(seed,n,source['total_triangles']);row=dict(total_triangles=n,equipment_triangles=source['equipment_triangles'],**raw(path));zones=source['zones'];surface=source['surface'];gaps=[]
+        if source['year']==1996:
+            socket=next(o for o in bpy.context.scene.objects if o.get('socket_kind')=='school_building_edge')
+            row['school_playground_interface']=dict(name=socket.name,world_blender_m=list(socket.matrix_world.translation),scope='Measured exported attachment frame; no external school fit is claimed')
         for z in zones:
             a0,b0,a1,b1=z['rect'];assert surface[0]<=a0 and surface[1]<=b0 and surface[2]>=a1 and surface[3]>=b1,(seed,z,surface)
         for left,right in itertools.combinations(zones,2):

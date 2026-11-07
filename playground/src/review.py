@@ -1,4 +1,4 @@
-"""Ignored checkpoint contact sheets and measured budget table; never docs/."""
+"""Exported-view contact sheets, photo comparisons and tonal-range receipts."""
 import json,sys,argparse
 from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont,ImageOps
@@ -14,10 +14,10 @@ def main():
             x,y=row['pixel'];label=row['name'];w=d.textlength(label,font=font)
             d.rectangle((x-w/2-4,y-2,x+w/2+4,y+25),fill=(238,239,235));d.text((x-w/2,y),label,font=font,fill=(22,32,27))
         im.save(out/'pieces-labeled.jpg',quality=95)
-    paths=sorted(out.glob('[123]*/hero.png'))+sorted(out.glob('[123]*/above.png'))+sorted(out.glob('*.png'))
+    paths=sorted(out.glob('[123]*/*.png'))+sorted(out.glob('*.png'))
     years={str(s['seed']):s['year'] for s in json.loads(Path('build/manifest.json').read_text())['sites']}
     captions={str(p):str(years[p.parent.name])+' / seed '+p.parent.name+' / '+p.stem for p in paths if p.parent.name in years}
-    contact(paths,out/'contact.jpg',width=2000,title='Playground / look-dev checkpoint / exported glTF and shared baked maps',captions=captions)
+    contact(paths,out/'contact.jpg',width=2000,title='Playground / exported glTF and shared baked maps',captions=captions)
     # The kit footer reports the virtual lens for a tight crop. Retain that
     # value and also show the full-photo equivalent and native-pixel residual,
     # so a 70mm photograph is not mistaken for a 362mm original lens.
@@ -33,7 +33,9 @@ def main():
                   f"RMS {row['residual_rms_pixels']:.1f} native px ({100*row['rms_fraction_of_crop_width']:.1f}% of crop width)")
             draw.text((18,h-43),text,font=small,fill=(49,64,52));im.save(p,quality=94,optimize=True)
     pairs=sorted((out/'matches').glob('*-pair.jpg'))
-    if pairs:contact(pairs,out/'matched-contact.jpg',width=2000,title='Period photographs / construction comparisons / camera fit residuals retained')
+    if pairs:
+        contact(pairs,out/'matched-contact.jpg',width=2000,title='Period photographs / construction comparisons / camera fit residuals retained')
+        contact(paths+pairs,out/'contact.jpg',width=2000,title='Playground / final exported views and daily-use photo comparisons',captions=captions)
     source_pairs=sorted(Path('renders/source-matches').glob('*-pair.jpg'))
     if source_pairs:contact(source_pairs,Path('renders/source-matches/contact.jpg'),width=2000,title='Additional live scripted source / same calibrated photographs and lighting')
     # Technical sections are derived only from the fresh-import check data.

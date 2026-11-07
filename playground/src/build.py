@@ -28,7 +28,7 @@ def export(path,obs):
     for o in obs:o.select_set(True)
     # Derive tangent space on import. Blender's recalculation of one reused
     # tree tangent varies at its four-decimal rounding boundary between runs.
-    # The checkpoint preserves normals/UVs; final bake validation revisits this.
+    # All normals/UVs are preserved; engines derive tangent space on import.
     bpy.ops.export_scene.gltf(filepath=str(path.resolve()),export_format='GLTF_SEPARATE',use_selection=True,export_yup=True,export_extras=True,export_animations=False,export_tangents=False,export_attributes=True,export_all_vertex_colors=False,export_image_format='AUTO',export_texture_dir='images')
     # Canonicalize the generated quick image and any reused library images.
     # Existing image bytes are identified by hash, never re-encoded or overwritten.
@@ -39,7 +39,7 @@ def export(path,obs):
         for primitive in mesh['primitives']:
             name=doc['materials'][primitive['material']]['name']
             if 'QuickChain' in name or 'QuickPerforated' in name or doc['materials'][primitive['material']].get('extras',{}).get('tiling_vertex_tint') is False:primitive['attributes'].pop('COLOR_0',None)
-    candidates=[p for folder in ('playground','ground','trees','shrubs','fences','street-furniture') for p in (ROOT/folder).glob('**/textures/ship/*.png')]
+    candidates=[p for folder in ('playground','ground','trees','shrubs','fences','street-furniture') for p in (ROOT/folder/'textures/ship').glob('*.png')]
     known={hashlib.sha256(p.read_bytes()).hexdigest():p for p in candidates}
     for im in doc.get('images',[]):
         p=path.parent/im['uri'];digest=hashlib.sha256(p.read_bytes()).hexdigest()
@@ -188,6 +188,6 @@ def main():
     used={(p.parent/im['uri']).resolve() for p in out.glob('*.gltf') for im in json.loads(p.read_text()).get('images',[])}
     for p in (out/'images').glob('*.png'):
         if p.resolve() not in used:p.unlink()
-    (Path('build')/'manifest.json').write_text(json.dumps(dict(stage='baked shared manufacture charts / look-dev checkpoint' if a.lookdev else 'form and construction checkpoint; no bake',pieces=report,sites=manifests),indent=2))
+    (Path('build')/'manifest.json').write_text(json.dumps(dict(stage='shared baked manufacture charts / glTF delivery' if a.lookdev else 'form and construction checkpoint; no bake',pieces=report,sites=manifests),indent=2))
 
 if __name__=='__main__':main()

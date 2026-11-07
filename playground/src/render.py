@@ -1,4 +1,4 @@
-"""Cycles checkpoint views import only published glTF, never the source blend."""
+"""Site/studio views import only exported glTF and baked maps."""
 import argparse,hashlib,json,math,sys
 from pathlib import Path
 import bpy
@@ -23,9 +23,38 @@ def stage(source,width,samples,aspect=1.5):
     sc.render.image_settings.file_format='PNG';sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=-.25
     world=bpy.data.worlds.new('Procedural daylight');world.use_nodes=True;sc.world=world
     nodes=world.node_tree.nodes;sky=nodes.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(21);sky.sun_rotation=math.radians(220);sky.sun_disc=False
-    world.node_tree.links.new(sky.outputs[0],nodes['Background'].inputs[0]);nodes['Background'].inputs[1].default_value=.22
+    world.node_tree.links.new(sky.outputs[0],nodes['Background'].inputs[0]);nodes['Background'].inputs[1].default_value=.12
     sun=bpy.data.objects.new('Raking sun 21 degrees',bpy.data.lights.new('Raking sun','SUN'));sc.collection.objects.link(sun);sun.data.energy=3.0;sun.data.angle=math.radians(.8);sun.rotation_euler=Vector((.65,.73,-.40)).to_track_quat('-Z','Y').to_euler()
     return sc
+
+def raking_sun(sc,plan,subject=None,view_from=None):
+    """Choose a clear low sun between the unchanged surrounding shade trees.
+
+    Visibility is measured on actual imported scene triangles. This prevents
+    a distant grove from silently putting the entire hero into open shade.
+    """
+    bpy.context.view_layer.update();deps=bpy.context.evaluated_depsgraph_get()
+    cx,cy=(subject[0],subject[1]) if subject else (1,0)
+    desired=math.degrees(math.atan2(view_from[1]-cy,view_from[0]-cx))%360 if view_from else {1996:235,2005:300,2013:240}[plan['year']]
+    probes=[Vector((cx+x,cy+y,.045)) for x in (-1.5,-.5,.5,1.5) for y in (-1.5,-.5,.5,1.5)]
+    candidates=[]
+    for angle in range(0,360,15):
+        # A clear backlight can leave every front-facing aged surface black.
+        # Keep the key in the camera-side sector; real equipment shadows may
+        # occlude probes, but must not push the hero into a silhouette.
+        if abs(((angle-desired+180)%360)-180)>60:continue
+        a=math.radians(angle);v=Vector((math.cos(a),math.sin(a),math.tan(math.radians(18)))) .normalized()
+        clear=sum(not sc.ray_cast(deps,p,v,distance=160)[0] for p in probes)
+        if subject:
+            z=max(.045,subject[2])
+            primary=[Vector((cx+x,cy+y,z)) for x,y in ((0,0),(-.18,0),(.18,0),(0,-.18),(0,.18))]
+            clear+=5*sum(not sc.ray_cast(deps,p,v,distance=160)[0] for p in primary)
+        candidates.append((clear,-abs(((angle-desired+180)%360)-180),angle,v))
+    clear,_,angle,v=max(candidates,key=lambda row:row[:2])
+    sun=next(o for o in sc.objects if o.type=='LIGHT' and o.data.type=='SUN')
+    sun.rotation_euler=(-v).to_track_quat('-Z','Y').to_euler();sun.data.energy=3.5;sun.data.angle=math.radians(.53)
+    sky=next(n for n in sc.world.node_tree.nodes if n.type=='TEX_SKY');sky.sun_elevation=math.radians(18);sky.sun_rotation=math.radians(angle)
+    sc['sun_visibility']=json.dumps(dict(elevation_degrees=18,azimuth_degrees=angle,visibility_score=clear,maximum_score=len(probes)+(25 if subject else 0),source='Fresh imported scene ray casts, including equipment and surrounding trees; close-up subject probes have weight five'))
 
 
 def plane(z=0,size=22):
@@ -60,7 +89,7 @@ def zones(sc,plan):
 def save(sc,out,source,shot):
     out.parent.mkdir(parents=True,exist_ok=True);sc.render.filepath=str(out.resolve());bpy.ops.render.render(write_still=True)
     doc=json.loads(source.read_text());files=[source]+[source.parent/r['uri'] for k in ('buffers','images') for r in doc.get(k,[]) if r.get('uri')]
-    stage_name='look-dev / exported glTF / shared baked maps' if any('T_PlayMetal' in im.get('uri','') for im in doc.get('images',[])) else 'before / exported glTF / quick form materials'
+    stage_name='exported glTF / shared baked maps' if any('T_PlayMetal' in im.get('uri','') for im in doc.get('images',[])) else 'before / exported glTF / quick form materials'
     bundle=hashlib.sha256(b''.join(hashlib.sha256(p.read_bytes()).digest() for p in files)).hexdigest()
     labels=[]
     if shot=='pieces':
@@ -69,17 +98,24 @@ def save(sc,out,source,shot):
             if ob.type=='EMPTY' and ob.get('module'):
                 uv=world_to_camera_view(sc,sc.camera,ob.matrix_world.translation)
                 labels.append(dict(name=ob['module'],pixel=[uv.x*sc.render.resolution_x,(1-uv.y)*sc.render.resolution_y+18]))
-    out.with_suffix('.json').write_text(json.dumps(dict(piece_labels=labels,stage=stage_name,source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),resource_bundle_sha256=bundle,shot=shot,engine='CYCLES',width=sc.render.resolution_x,samples=sc.cycles.samples,camera_location=list(sc.camera.location),camera_matrix_world=[list(row) for row in sc.camera.matrix_world],camera_type=sc.camera.data.type,orthographic_scale=sc.camera.data.ortho_scale,lens_mm=sc.camera.data.lens,exposure=sc.view_settings.exposure),indent=2))
+    out.with_suffix('.json').write_text(json.dumps(dict(piece_labels=labels,stage=stage_name,source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),resource_bundle_sha256=bundle,shot=shot,engine=sc.render.engine,width=sc.render.resolution_x,samples=sc.cycles.samples,camera_location=list(sc.camera.location),camera_matrix_world=[list(row) for row in sc.camera.matrix_world],camera_type=sc.camera.data.type,orthographic_scale=sc.camera.data.ortho_scale,lens_mm=sc.camera.data.lens,exposure=sc.view_settings.exposure,sun_visibility=json.loads(sc.get('sun_visibility','null'))),indent=2))
 
 
 def match_lighting(sc,name):
     # Open-shade references need a larger sky contribution than the low-angle
     # hero sun. Keep material albedos and exposure unchanged in these pairs.
     sun=next(o for o in sc.objects if o.type=='LIGHT' and o.data.type=='SUN')
-    if 'swings' in name:sun.data.energy=.15;sky=.64
+    if 'swings' in name:sun.data.energy=.35;sky=.56
     elif 'stair' in name:sun.data.energy=.35;sky=.56
     else:sun.data.energy=2.2;sky=.22
     sc.world.node_tree.nodes['Background'].inputs[1].default_value=sky
+    # The source photos have already been balanced on their stated neutrals.
+    # Desaturate the open-shade sky fill rather than leaving its blue cast in
+    # the comparison and mistaking that cast for the material's color.
+    if 'swings' in name or 'stair' in name:
+        nodes=sc.world.node_tree.nodes;links=sc.world.node_tree.links
+        src=next(n for n in nodes if n.type=='TEX_SKY');balance=nodes.new('ShaderNodeHueSaturation');balance.inputs['Saturation'].default_value=.15
+        links.new(src.outputs[0],balance.inputs['Color']);links.new(balance.outputs[0],nodes['Background'].inputs[0])
 
 
 def main():
@@ -100,17 +136,18 @@ def main():
     def want(n):return 'all' in wanted or n in wanted
     for seed in map(int,a.seeds.split(',')):
         plan=json.loads((a.export_root/f'Playground-{seed}.json').read_text());source=a.export_root/f'Playground-{seed}.gltf';x0,y0,x1,y1=plan['surface'];cx=(x0+x1)/2;cy=(y0+y1)/2
-        for shot in ('hero','above'):
+        for shot in ('hero','above','front','side','back','eevee'):
             if not want(shot):continue
             if a.resume and (a.out/str(seed)/(shot+'.png')).exists():continue
             sc=stage(source,a.width,a.samples)
             if not a.no_setting:
                 from setting import context
                 context(plan)
-            if shot=='hero':
+            raking_sun(sc,plan)
+            if shot in ('hero','eevee'):
                 pos={1996:(-6,-11,1.65),2005:(7,-11,1.65),2013:(-8,-15.4,1.65)}[plan['year']]
                 camera(sc,pos,(1,.5,1.55),40)
-            else:
+            elif shot=='above':
                 # Hide canopy/trees only in measured plan, to reveal access and zones.
                 for o in sc.objects:
                     if ('Library_' in o.name and ('Maple' in o.name or 'Oak' in o.name)) or 'shade tree' in o.name or 'park grove' in o.name:o.hide_render=True
@@ -118,6 +155,11 @@ def main():
                 ax,ay,bx,by=bounds;cx=(ax+bx)/2;cy=(ay+by)/2
                 zones(sc,plan);camera(sc,(cx,cy,48),(cx,cy,0),40,ortho=max(bx-ax,by-ay)*1.13)
                 sc.render.resolution_y=round(a.width*.90)
+            else:
+                size=max(x1-x0,y1-y0)*1.12
+                direction={'front':(0,-size,5),'side':(size,0,5),'back':(0,size,5)}[shot]
+                camera(sc,(cx+direction[0],cy+direction[1],direction[2]),(cx,cy,1),40,ortho=size)
+            if shot=='eevee':sc.render.engine='BLENDER_EEVEE'
             save(sc,a.out/str(seed)/(shot+'.png'),source,shot)
     specs={
       'arch-swing':('Playground-202.gltf',(-6.5,-9,1.65),(-11.1,1,1.1),40,None,1.5),
@@ -125,6 +167,8 @@ def main():
       'bucket-seat':('Playground-202.gltf',(-9,-.4,1.05),(-10.01,1,.78),65,None,1.4),
       'tube-junction':('Playground-303.gltf',(8.6,-1.1,1.2),(6.90,1.2192,.55),55,None,1.4),
       'rubber-wear':('Playground-303.gltf',(6.8,-.2,.70),(7.32,1.2192,-.005),50,None,1.4),
+      'rubber-seams':('Playground-303.gltf',(8.8,-1.5,1.4),(7.25,1.2,-.005),48,None,1.4),
+      'fiber-carryout':('Playground-202.gltf',(1.2,-8.0,.75),(0,-6.45,0),50,None,1.4),
       'stairs':('Playground-101.gltf',(-4.3,-2.8,1.85),(-1.65,0,.85),48,None,1.4),
       'transfer':('Playground-202.gltf',(2,-3.4,1.5),(0,-1.15,.45),52,None,1.4),
       'swing-hollow':('Playground-202.gltf',(-10.5,-2.9,1.5),(-12.19,1,-.025),50,None,1.4),
@@ -145,6 +189,7 @@ def main():
         if filename.startswith('Playground-') and not a.no_setting:
             from setting import context
             context(json.loads(source.with_suffix('.json').read_text()))
+            raking_sun(sc,json.loads(source.with_suffix('.json').read_text()),target,pos)
         if not filename.startswith('Playground-') and shot!='pieces':plane(z=-2.1 if shot=='swing-hanger' else 0)
         if shot=='scale':scale_people((-2.5,-4.8,0))
         if shot=='pieces':plane(size=110);sc.render.resolution_x=a.width*2;sc.render.resolution_y=round(a.width*2/1.15)
