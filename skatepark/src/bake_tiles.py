@@ -8,6 +8,7 @@ import numpy as np
 from kit.image_io import read_png,write_png
 import shutil
 p=argparse.ArgumentParser();p.add_argument('--reuse-trim-bake',action='store_true',help='Recover a completed trim bake after an interrupted filtering step')
+p.add_argument('--filter-only',action='store_true',help='Preview unchanged baked RGB/normal/ORM with regenerated analytic alpha; cold builds always bake')
 a=p.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
 for name,coverage,size in [('SkateTrim',4.,2048),('Prefab',3.048,1024)]:
     source=Path('build/procedural')
@@ -17,7 +18,7 @@ for name,coverage,size in [('SkateTrim',4.,2048),('Prefab',3.048,1024)]:
         source=Path('build/flat-trim-source');source.mkdir(parents=True,exist_ok=True)
         Image.open('build/procedural/T_SkateTrim_BaseColor.png').convert('RGB').save(source/'T_SkateTrim_BaseColor.png')
         for channel in ('ORM','Height'):shutil.copyfile(Path('build/procedural')/f'T_SkateTrim_{channel}.png',source/f'T_SkateTrim_{channel}.png')
-    if not (name=='SkateTrim' and a.reuse_trim_bake):
+    if not a.filter_only and not (name=='SkateTrim' and a.reuse_trim_bake):
         bake(source,Path('textures/bake'),name,coverage,4096,8,height_distance=.004)
     if name=='SkateTrim':
         path=Path('textures/bake/T_SkateTrim_BaseColor.png');rgb=np.asarray(Image.open(path).convert('RGB'),dtype=np.float32)/255

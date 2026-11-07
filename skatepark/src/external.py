@@ -5,14 +5,15 @@ REPO=Path(__file__).resolve().parents[2]
 
 def share_images(path):
     path=Path(path);doc=json.loads(path.read_text())
-    folders=[REPO/'skatepark/textures/ship',REPO/'ground/textures/ship',REPO/'trees/textures/ship',REPO/'trees/textures/oak/ship',REPO/'fences/chain-link/textures/ship']
+    own=Path('textures/ship').resolve()
+    folders=[own,REPO/'ground/textures/ship',REPO/'trees/textures/ship',REPO/'trees/textures/oak/ship',REPO/'fences/chain-link/textures/ship']
     candidates=[p for folder in folders for p in folder.glob('*.png')]
     known={hashlib.sha256(p.read_bytes()).digest():p for p in candidates}
     rows=[]
     for row in doc.get('images',[]):
         source=path.parent/row['uri'];data=source.read_bytes();digest=hashlib.sha256(data).digest();target=known.get(digest)
         assert target is not None,('No canonical map for',row['uri'])
-        row['uri']=os.path.relpath(target,REPO/'skatepark/export/final');row.pop('mimeType',None)
+        row['uri']=('../../textures/ship/'+target.name) if target.parent==own else os.path.relpath(target,REPO/'skatepark/export/final');row.pop('mimeType',None)
         rows.append(dict(uri=row['uri'],sha256=digest.hex(),bytes=len(data)))
     path.write_text(json.dumps(doc,separators=(',',':'))+'\n')
     path.with_suffix('.images.json').write_text(json.dumps(rows,indent=2))
