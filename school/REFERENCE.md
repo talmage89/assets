@@ -58,7 +58,8 @@ circulation, enclosure, roof, glazing and door sections consulted. The archived
 Idaho 1996 rules additionally document 850 sq ft classrooms as a period minimum
 and outside access to the boiler room. The sources register also records the
 LAUSD 2007 district guide and its unavailable original URL; the original guide's
-web-indexed preserved copy was consulted for overhead shelter, durable doors,+chain-link and separate public/community access. No real district's finish
+web-indexed preserved copy was consulted for overhead shelter, durable doors,
+chain-link and separate public/community access. No real district's finish
 schedule is being reproduced.
 
 ## Construction and interpretation limits
@@ -84,11 +85,12 @@ finished materials.
 
 `walls.jpg` (2010) supplies the public loop and tall-gym/low-office relationship;
 `mcdowell.jpg` (1973 photograph of a 1960 school) supplies glazing, spandrels and
-deep eaves; `richards.jpg` (1973 photograph of a 1965 school) supplies masonry
-piers, recessed glazing and low-pitch roof relationships. These are original
+deep eaves; the Emerald Elementary 1958 archival photograph (National Register
+PDF p77 / Figure 7, Wheeler & Lewis collection, History Colorado) supplies the
+covered walk's slim steel columns and long fascia. These are original
 type comparisons rather than replicas. Neutral assumptions and camera-fit
 residuals are recorded in `build/reference-balance.json` and
 `build/matched-cameras.json`. The pair images remain ignored rebuild evidence.
 
-`schmitt.jpg` and the Richards interior provide supplementary research only.
+`schmitt.jpg`, `richards.jpg` and the Richards interior provide supplementary research only.
 They are not substituted for one of the three exterior-photo comparisons.

@@ -16,11 +16,18 @@ Reference images and PDFs are local measurement/comparison inputs only. No pixel
 
 | schmitt.jpg | https://upload.wikimedia.org/wikipedia/commons/e/e1/LILLIAN_SCHMITT_ELEMENTARY_SCHOOL._BUILT_IN_1957_-_NARA_-_546460.jpg | Declan Haun / US EPA DOCUMERICA, May 1973, NARA 546460; US government public domain | 1957 roof edge, ribbon sash and classroom scale. Neutral: painted pale fascia. |
 
+The third comparison extracts **Emerald Elementary, 1958**, Figure 7 / PDF p77
+of `colorado-schools.pdf`: archival photograph, photographer uncredited in the
+submission, Wheeler & Lewis collection / History Colorado. Underlying rights
+retained; research comparison only, no committed copy. Neutral: pale painted
+canopy fascia in the monochrome scan. Richards and Schmitt are supplementary
+photographs, not the third calibrated pair.
+
 
 ## Online standards and plan sources
 
 - California Department of Education, [Title 5 §14030](https://www.cde.ca.gov/ls/fa/title5regs.asp): 960 sq ft general classroom anchor. Current hosted wording is a comparator, not a claim that all 1950s schools complied.
-- CDE, [Guide to School Site Analysis and Development, 2000 edition](https://www.cde.ca.gov/ls/fa/guideschoolsite.asp): classrooms, separated play areas and large outdoor site allowance. Our 6–8 acre neighborhood sites are bounded original designs, not CDE approval.
+- CDE, [Guide to School Site Analysis and Development, 2000 edition](https://www.cde.ca.gov/ls/fa/guideschoolsite.asp): classrooms, separated play areas and large outdoor site allowance. Our 9.548 acre neighborhood sites are bounded original designs, not CDE approval.
 - Los Angeles Unified School District, January 2007 [School Design Guide](https://www.laschools.org/contractor/design/fs-design-guide/download/2007_Design_Guide.pdf): original district URL unavailable; the original district-authored guide is readable in a [preserved copy](https://www.scribd.com/document/127109905/2007-Design-Guide). Consulted for overhead shelter at access points, independent community access and durable exposed construction; no downloaded asset or code.
 - US Access Board, [2010 ADA Standards](https://www.access-board.gov/ada/): §§403/404/405: 36 in route/32 in door clear minimum, 1:12 maximum ramp slope, 60 in landing; §§505/609: handrail/guard distinction. Authored walks are at least 5 ft and doors 3 ft nominal. These are dimensional checks, not code certification.
 - ICC, [2009 IBC chapter 10](https://codes.iccsafe.org/content/IBC2009/chapter-10-means-of-egress): school corridor / door / exit context, 42 in guards at required edges. No drop in the school entry approaches requires a guard; portable ramps retain guards and rails.

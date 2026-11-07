@@ -41,7 +41,7 @@ def school(seed=101,plan_type=None,bays=None):
         entry=(3,-27);covered=[dict(rect=(-8,14,-30.0,-27),height=3.15),dict(rect=(-39,-36.477,-11.3424,end),height=2.95)]
         loop=dict(center=(0,-58),straight=28,radius=11.5,yaw=0)
         parent=dict(center=(-65,-31),straight=19,radius=9.5,yaw=90)
-        parking=(56,82,-51,-26);blacktop=(13,43,31,51);play=(-62,-38,29,47);field=(52,65)
+        parking=(56,86,-51,-26);blacktop=(13,43,37,57);play=(-62,-38,29,47);field=(52,65)
         portables=[(-56,15,0)]
     elif typ=='courtyard':
         era=1964;name='BRIAR COURT';accent=(.08,.19,.145);wall=(.29,.17,.073)
@@ -54,11 +54,11 @@ def school(seed=101,plan_type=None,bays=None):
         for j,x in enumerate((-36,3)):
             block('Cluster_'+chr(65+j),(x,x+pod_w,-8,-8+pod_d),'cluster',era,3.81,bays=2,axis='X',replacement=j==1,gable=True,corridor=8*FT)
         block('Addition_1988',(-27,-27+3*BAY+2*WALL-PART,23,23+DEPTH+2*WALL),'classrow',1988,4.15,skin='brick',bays=3,axis='X',replacement=True)
-        entry=(-15,-28);covered=[dict(rect=(-29,-1,-31,-28),height=3.08),dict(rect=(-17,-13,-16,23),height=2.92),dict(rect=(-13,4,-5,-1),height=2.92),dict(rect=(-30,-13,19,23),height=2.92)]
+        entry=(-15,-28);covered=[dict(rect=(-29,-1,-31,-28),height=3.08),dict(rect=(-17,-13,-16,23),height=2.92,wall_bearing_end=True),dict(rect=(-13,4,-5,-1),height=2.92),dict(rect=(-30,-13,19,23),height=2.92)]
         loop=dict(center=(-64,-25),straight=22,radius=12,yaw=90)
         parent=dict(center=(-3,-57),straight=22,radius=10.5,yaw=0)
         parking=(41,78,-65,-42);blacktop=(8,38,40,60);play=(45,69,9,27);field=(-40,58)
-        portables=[(43,20,90),(57,20,90)]
+        portables=[(79,42,0)]
     else:
         era=1976;name='NORTH VALE';accent=(.095,.12,.07);wall=(.34,.25,.135)
         block('Media_Core',(-20,12,-13,6),'media',era,4.88,skin='cmu')
@@ -66,7 +66,7 @@ def school(seed=101,plan_type=None,bays=None):
         block('Office',(-2,12,-13-DEPTH-2*WALL,-13),'office',era,4.12)
         block('West_Classrooms',(-20-DEPTH-2*WALL,-20,-13,-13+wing_d),'classrow',era,4.12,bays=n,axis='Y',replacement=True)
         block('North_Classrooms',(-20,-20+3*BAY+2*WALL-PART,6,6+DEPTH+2*WALL),'classrow',era,4.12,bays=3,axis='X',replacement=False)
-        block('Multipurpose',(12,34,-31,-13),'gym',era,7.01,skin='cmu')
+        block('Multipurpose',(12,34,-31,-13),'gym',era,7.01,skin='brick',wall_color=(.18,.10,.05))
         block('Kitchen',(34,44,-23,-13),'kitchen',era,4.12,skin='cmu')
         block('Boiler',(34,44,-13,-5),'boiler',era,4.27,skin='cmu')
         block('Addition_1991',(-5,-5+3*BAY+2*WALL-PART,6+DEPTH+2*WALL,6+2*DEPTH+4*WALL),'classrow',1991,4.27,bays=3,axis='X',replacement=True)
@@ -79,6 +79,9 @@ def school(seed=101,plan_type=None,bays=None):
     if seed not in SEEDS:
         accent=tuple(v*rng.uniform(.88,1.12) for v in accent)
         wall=tuple(v*rng.uniform(.94,1.06) for v in wall)
+        decade_shift=rng.choice((-2,0,2))
+        era+=decade_shift
+        for b in blocks:b['era']+=decade_shift
     x0=min(b['rect'][0] for b in blocks);x1=max(b['rect'][1] for b in blocks)
     y0=min(b['rect'][2] for b in blocks);y1=max(b['rect'][3] for b in blocks)
     cx,cy=(x0+x1)/2,(y0+y1)/2
@@ -88,8 +91,8 @@ def school(seed=101,plan_type=None,bays=None):
     for c in covered:c['rect']=[c['rect'][0]-cx,c['rect'][1]-cx,c['rect'][2]-cy,c['rect'][3]-cy]
     entry=(entry[0]-cx,entry[1]-cy)
     # Site fields stay in their independently designed ground-centered frame.
-    p=dict(seed=seed,type=typ,name=name+' ELEMENTARY',era=era,period=2005,blocks=blocks,entry=entry,covered=covered,
-           palette=dict(brick=wall,cmu=(.34,.325,.265),accent=accent),floor=.1524,wall=WALL,partition=PART,
+    p=dict(seed=seed,type=typ,name=name+' ELEMENTARY',era=era,period=2010,blocks=blocks,entry=entry,covered=covered,
+           palette=dict(brick=wall,cmu=(.255,.245,.205),accent=accent),floor=.1524,wall=WALL,partition=PART,
            classroom_clear=(30*FT,32*FT),ceiling=10*FT,bay=BAY,lot=(210.,184.),
            bus=loop,parent=parent,parking=parking,blacktop=blacktop,playground=play,field=field,portables=portables,
            footprint=(-((x1-x0)/2),(x1-x0)/2,-((y1-y0)/2),(y1-y0)/2),
@@ -127,7 +130,9 @@ def visible_intervals(b,face,blocks):
     for l,r in zip(cuts,cuts[1:]):
         x,y,_=world(((l+r)/2,-.01,0),o,yaw)
         occupied=any(q is not b and q['rect'][0]-.001<x<q['rect'][1]+.001 and q['rect'][2]-.001<y<q['rect'][3]+.001 for q in blocks)
-        if not occupied and r-l>.01:out.append((l,r))
+        if not occupied and r-l>.01:
+            if out and abs(out[-1][1]-l)<.00001:out[-1]=(out[-1][0],r)
+            else:out.append((l,r))
     return out
 
 
@@ -143,7 +148,9 @@ def wall_sections(b,face,blocks,floor=.1524):
         x,y,_=world(((l+r)/2,-.01,0),o,yaw)
         neighbor=next((q for q in blocks if q is not b and q['rect'][0]-.001<x<q['rect'][1]+.001 and q['rect'][2]-.001<y<q['rect'][3]+.001),None)
         z0=max(floor,neighbor['roof']-.18) if neighbor else floor
-        if r-l>.01 and b['roof']-.17>z0+.01:out.append((l,r,z0,neighbor))
+        if r-l>.01 and b['roof']-.17>z0+.01:
+            if out and abs(out[-1][1]-l)<.00001 and abs(out[-1][2]-z0)<.00001 and out[-1][3] is neighbor:out[-1]=(out[-1][0],r,z0,neighbor)
+            else:out.append((l,r,z0,neighbor))
     return out
 
 
@@ -170,11 +177,13 @@ def populate_openings(p):
                             if b['id'].startswith('Addition') and face=='south':
                                 opening(u+.60,6.60,1.17,1.67,replacement=True)
                                 opening(WALL+j*pitch+.50,1.0668,0,2.1844,'door',label='CLASSROOM')
+                            elif kind=='cluster':opening(u,8.60,.32,2.70,replacement=b.get('replacement',False))
                             else:opening(u,w,.92 if era<1970 else 1.17,2.10 if era<1970 else 1.67,replacement=b.get('replacement',False),infill=j==1 and era<1970 and b.get('replacement',False))
                     elif span>5:
                         opening((aa+bb)/2,1.0668,0,2.1844,'door',label='EXIT')
                         if span>10:opening(aa+2.3,2.0,1.05,1.85)
                 elif kind=='gym':
+                    if p['type']=='compact' and face=='south':continue
                     count=max(1,int(span/4.5))
                     for j in range(count):opening(aa+(j+.5)*span/count,2.3,b['roof']-1.55,.90)
                     if face in ('south','north') and span>9:opening((aa+bb)/2,2.0828,0,2.1844,'double',label='GYM')
@@ -214,4 +223,5 @@ def validate(p):
         for q in p['blocks'][i+1:]:
             a,c,d,e=q['rect'];assert min(r,c)-max(l,a)<.001 or min(k,e)-max(f,d)<.001,('Overlapping volumes',b['id'],q['id'])
         for o in b['openings']:assert o['z']+o['h']+.13<b['roof']
+    assert sum(o['type']=='entry' for b in p['blocks'] for o in b['openings'])==1,'Missing main entrance'
     return p
