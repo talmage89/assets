@@ -348,7 +348,10 @@ def hood(b):
         ob=panel('Compound fender cowl '+str(sign),quarter,[i/8 for i in range(9)],[0,.12,.3,.5,.72,.9,1],b.m['yellow'],(sign,0,0),gauge=.004,return_depth=.018);b.add(ob)
         loops=[]
         for x,r in [(sign*.785,.680),(sign*.91,.727),(sign*1.080,.733),(sign*1.174,.700),(sign*1.196,.648),(sign*1.170,.622)]:
-            loops.append([(x,S.FRONT_AXLE+r*math.cos(t),S.HUB+r*math.sin(t)) for t in [math.radians(-15+210*i/40) for i in range(41)]])
+            # Shared trim heights close a manufactured end. Equal angles on
+            # different radii previously staggered these ends into visible fins.
+            rear=math.asin((.430-S.HUB)/r);front=math.pi-math.asin((.750-S.HUB)/r)
+            loops.append([(x,S.FRONT_AXLE+r*math.cos(t),S.HUB+r*math.sin(t)) for t in [rear+(front-rear)*i/40 for i in range(41)]])
         n=len(loops[0]);m=len(loops);vs=[p for ring in loops for p in ring]
         fs=[(j*n+k,j*n+k+1,((j+1)%m)*n+k+1,((j+1)%m)*n+k) for j in range(m) for k in range(n-1)]
         fs += [tuple(j*n for j in reversed(range(m))),tuple(j*n+n-1 for j in range(m))]
