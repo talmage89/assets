@@ -11,6 +11,6 @@ parser=argparse.ArgumentParser();parser.add_argument('--seeds',default='101,102,
 old=snapshot()
 with Path('build/repeat.log').open('w') as log:subprocess.run(['./src/blender.sh','-b','-t','4','--factory-startup','--python-exit-code','1','--python','src/build.py','--','--seeds',args.seeds,'--out','build/family.blend'],check=True,stdout=log,stderr=subprocess.STDOUT)
 new=snapshot();changed=[p for p,h in old.items() if new.get(p)!=h]
-Path('build/repeat.json').write_text(json.dumps(dict(passed=not changed,changed=changed,files=new,scope='Independent geometry and provisional image re-export. Shared bakes are immutable inputs; no school bake at this checkpoint.'),indent=2))
+Path('build/repeat.json').write_text(json.dumps(dict(passed=not changed,changed=changed,files=new,scope='Independent deterministic geometry and external-image re-export. Canonical shared bakes are immutable inputs; the school adds no new texture recipe.'),indent=2))
 assert not changed,changed
 print('REPEAT PASS',len(old),'external geometry/image files')

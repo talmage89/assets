@@ -38,8 +38,30 @@ def main():
         # school-owned modules from the unchanged library sources.
         cmd=[os.environ.get('BLENDER','blender'),'-b','-t','4','--factory-startup','--python-exit-code','1','--python',str(ROOT/'skatepark/src/context_build.py'),'--',family,'--out',str(target)]
         with (out/f'context-{family}.log').open('w') as log:subprocess.run(cmd,cwd=LOCAL,stdout=log,stderr=subprocess.STDOUT,check=True)
-    # The car family supplies the vehicle shape. Its original source nodes are
-    # reduced to uniform form finishes in context_export, not baked here.
+    # Reuse the Commercial family bake, built by its unchanged original graph
+    # only if a required canonical map is missing.
+    if not all((ROOT/'commercial/textures/ship'/f'T_Commercial{r}_{c}.png').exists() for r in ('CMU','Brick','Concrete','Equipment') for c in ('BaseColor','Normal','ORM')):
+        with (out/'dependency-commercial.log').open('w') as log:
+            subprocess.run(['make','-C',str(ROOT/'commercial'),'textures','BLENDER=blender -t 4'],stdout=log,stderr=subprocess.STDOUT,check=True)
+    if not all((ROOT/'houses/textures/ranch-ship'/f'T_RanchBrick_{kind}_{channel}.png').exists() for kind in ('buff','tan') for channel in ('BaseColor','Normal','ORM')):
+        with (out/'dependency-buff-brick.log').open('w') as log:
+            subprocess.run(['python3','src/ranch_bake.py','source','--size','4096'],cwd=ROOT/'houses',stdout=log,stderr=subprocess.STDOUT,check=True)
+            subprocess.run([str(ROOT/'kit/with_gpu.sh'),os.environ.get('BLENDER','blender'),'-b','-t','4','--factory-startup','--python-exit-code','1','--python',str(LOCAL/'src/bake_shared.py')],cwd=ROOT/'houses',stdout=log,stderr=subprocess.STDOUT,check=True)
+            for kind in ('buff','tan'):
+                if all((ROOT/'houses/textures/ranch-ship'/f'T_RanchBrick_{kind}_{channel}.png').exists() for channel in ('BaseColor','Normal','ORM')):continue
+                subprocess.run(['python3',str(ROOT/'kit/downsample.py'),'--source','textures/ranch-bake','--out','textures/ranch-ship','--asset','RanchBrick_'+kind,'--size','512'],cwd=ROOT/'houses',stdout=log,stderr=subprocess.STDOUT,check=True)
+    for kind in ('houses','utility'):
+        target=out/'context'/f'{kind}.glb'
+        if not target.exists():
+            cmd=[os.environ.get('BLENDER','blender'),'-b','-t','4','--factory-startup','--python-exit-code','1','--python','src/neighborhood_build.py','--',kind,'--out',str(target)]
+            with (out/f'context-{kind}.log').open('w') as log:subprocess.run(cmd,cwd=LOCAL,stdout=log,stderr=subprocess.STDOUT,check=True)
+    for style,seed in (('ranch',41),('cape',53)):
+        target=out/'context'/f'houses-{style}.glb'
+        if not target.exists():
+            cmd=[os.environ.get('BLENDER','blender'),'-b','-t','4','--factory-startup','--python-exit-code','1','--python','src/neighborhood_build.py','--','houses','--house-type',style,'--seed',str(seed),'--out',str(target)]
+            with (out/f'context-houses-{style}.log').open('w') as log:subprocess.run(cmd,cwd=LOCAL,stdout=log,stderr=subprocess.STDOUT,check=True)
+    # Preserve the native source instance for presentation. The old form-only
+    # GLB adapter remains rebuildable but is no longer used in the look views.
     target=out/'context/car.blend'
     if not target.exists():
         cmd=[os.environ.get('BLENDER','blender'),'-b','-t','4','--factory-startup','--python-exit-code','1','--python',str(ROOT/'downtown/src/context_build.py'),'--','--kind','hatchback','--out',str(target)]

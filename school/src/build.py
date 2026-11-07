@@ -1,10 +1,10 @@
-"""Deterministic form checkpoint, six external-image glTF packages."""
-import argparse,hashlib,json,os,struct,sys
+"""Deterministic school look-dev, six external-image glTF packages."""
+import argparse,hashlib,json,os,struct,sys,math
 from pathlib import Path
 import bpy,numpy as np
 from mathutils import Vector
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1];sys.path[:0]=[str(HERE),str(ROOT)]
-from geometry import consolidate
+from geometry import consolidate,clean_surfaces
 from plans import school
 from buildings import build_school
 from siteworks import build_site,clear_templates,CACHE
@@ -65,7 +65,7 @@ def share_images(path):
         for primitive in mesh['primitives']:
             ma=d['materials'][primitive['material']]
             if ma.get('extras',{}).get('tiling_vertex_tint') is not True:primitive['attributes'].pop('COLOR_0',None)
-    for folder in (ROOT/'ground/textures/ship',ROOT/'trees/textures/ship',ROOT/'trees/textures/oak/ship',ROOT/'fences/chain-link/textures/ship',Path('textures/checkpoint')):
+    for folder in (ROOT/'ground/textures/ship',ROOT/'commercial/textures/ship',ROOT/'houses/textures/ranch-ship',ROOT/'trees/textures/ship',ROOT/'trees/textures/oak/ship',ROOT/'fences/chain-link/textures/ship',Path('textures/checkpoint')):
         candidates.extend(folder.resolve().glob('*.png'))
     hashes={hashlib.sha256(p.read_bytes()).digest():p for p in candidates};used=[]
     for row in d.get('images',[]):
@@ -105,9 +105,11 @@ def main():
     ap=argparse.ArgumentParser();ap.add_argument('--seeds',default='101,102,103');ap.add_argument('--out',type=Path,default=Path('build/family.blend'));args=ap.parse_args(sys.argv[sys.argv.index('--')+1:]);report={}
     for seed in map(int,args.seeds.split(',')):
         bpy.ops.wm.read_factory_settings(use_empty=True);CACHE.clear();bpy.context.scene.unit_settings.system='METRIC'
-        p=school(seed);a=build_school(p);bc=counts()
+        from surfaces import apply
+        p=school(seed);a=build_school(p);apply(p);p['source_zero_area_cleanup']=clean_surfaces();bc=counts()
         report[f'School-{seed}']=publish(f'School-{seed}',p,a.root)
-        site=build_site(p,a);report[f'Campus-{seed}']=publish(f'Campus-{seed}',p,site.root,bc)
+        site=build_site(p,a);apply(p);p['site_zero_area_cleanup']=clean_surfaces();site.root.rotation_euler.z=math.radians(p['site_yaw'])
+        report[f'Campus-{seed}']=publish(f'Campus-{seed}',p,site.root,bc)
     args.out.parent.mkdir(exist_ok=True);bpy.ops.wm.save_as_mainfile(filepath=str(args.out.resolve()))
     Path('build/family.json').write_text(json.dumps(report,indent=2))
     used={(f.parent/row['uri']).resolve() for f in Path('export').glob('*.gltf') for row in json.loads(f.read_text()).get('images',[])}

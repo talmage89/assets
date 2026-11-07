@@ -1,11 +1,11 @@
 """School-specific grounds plus immutable instances of the library families.
 
 No playground equipment: only its fenced reservation, approach and socket.
-The bus loop is a true swept-width stadium, with independent parent traffic.
+Open loading drives, curb-side walks and independent parent traffic replace the former stadium loops.
 """
 import math,json
 from pathlib import Path
-import bpy
+import bpy,bmesh
 from mathutils import Matrix,Vector
 from geometry import Assembly,orient,label,H
 from plans import world,FT
@@ -24,6 +24,16 @@ def library(path):
     if path in CACHE:return CACHE[path]
     before=set(bpy.context.scene.objects);bpy.ops.import_scene.gltf(filepath=str(path))
     obs=sorted(set(bpy.context.scene.objects)-before,key=lambda o:o.name);roots=[o for o in obs if o.parent not in obs]
+    if path.name=='chain.glb':
+        # Keep the library's exact native diamond charts. Repeated run pipes
+        # do not need six modeled wire ties per ten-foot bay at site distance.
+        source=next(o for o in obs if o.type=='MESH' and any(q.name=='Chain_Section' for q in chain(o)))
+        rt=bpy.data.objects.new('School_ChainFabric',None);bpy.context.collection.objects.link(rt)
+        cp=source.copy();cp.data=source.data.copy();bpy.context.collection.objects.link(cp);cp.parent=rt;cp.matrix_basis=Matrix.Identity(4)
+        bm=bmesh.new();bm.from_mesh(cp.data)
+        delete=[f for f in bm.faces if source.data.materials[f.material_index].name!='ChainLink']
+        bmesh.ops.delete(bm,geom=delete,context='FACES');bm.to_mesh(cp.data);bm.free();cp.name='Native chain fabric / run LOD'
+        obs += [rt,cp];roots.append(rt)
     for o in obs:o.hide_render=True;o.hide_set(True);o['library_template']=True
     CACHE[path]=(obs,roots);return obs,roots
 
@@ -60,21 +70,22 @@ def rectangle(m,rect,z,role='Concrete',color=None):
     m.geom([(l,f,z),(r,f,z),(r,k,z),(l,k,z)],[(0,1,2,3)],role,color)
 
 
+def entry_height(p,y):
+    return p['floor']+(.1704-p['floor'])*min(1,max(0,(p['entry'][1]-y)/(p['entry'][1]-p['bus_curb'][0][1])))
+
+
+def grounded_slab(m,points,depth=.18,role='Concrete'):
+    # Gauged sides meet buried fill. The invisible buried bottom is omitted.
+    start=len(m.f);m.prism(points,(0,0,-1),depth,role)
+    if len(m.f)>start+1:m.f.pop(start+1);m.mat.pop(start+1)
+
+
 def stadium(s,radius=None):
     R=s['radius'] if radius is None else radius;half=s['straight'];pts=[]
     for cx,start in ((half,-math.pi/2),(-half,math.pi/2)):
         for i in range(25):
             a=start+i*math.pi/24;pt=world((cx+R*math.cos(a),R*math.sin(a),0),s['center'],s['yaw']);pts.append(pt[:2])
     return pts
-
-
-def annulus(m,inner,outer,z,role,color=None,skip=None):
-    n=len(inner);faces=[]
-    for i in range(n):
-        ids=(i,(i+1)%n,(i+1)%n+n,i+n)
-        if skip and skip(tuple(sum((inner+outer)[k][axis] for k in ids)/4 for axis in (0,1))):continue
-        faces.append(ids)
-    m.geom([(x,y,z) for x,y in inner+outer],faces,role,color)
 
 
 def convex_cuts(poly):
@@ -113,51 +124,61 @@ def ground_finish(ob,role):
         for row in attr.data:row.color=(.48,.48,.47,1) if role=='Asphalt' else (.85,.85,.83,1) if role=='Concrete' else (.62,.68,.58,1)
 
 
-def loop(a,s,name,cuts):
-    road=a.mesh(name+'_Asphalt',component='site',solid=False)
-    inner=stadium(s,s['radius']-3.6576);outer=stadium(s,s['radius']+3.6576)
-    annulus(road,inner,outer,.018,'Concrete');ground_finish(road.finish(),'Asphalt')
-    curb=a.mesh(name+'_Curbs',component='site')
-    sx=s['center'][0] if s['yaw'] else s['center'][0]+s['straight']
-    sy=s['center'][1]-s['straight']-s['radius']-3.6576 if s['yaw'] else s['center'][1]-s['radius']-3.6576
-    def cut_drive(m,role):
-        # Preserve the triangles outside the exact drive rectangle. Removing
-        # whole arc segments leaves holes wider than the pavement beneath.
-        triangles=[tuple(Vector(m.v[face[j]]) for j in (0,i,i+1)) for face in m.f for i in range(1,len(face)-1)]
-        m.v=[];m.f=[];m.mat=[];m.col=[]
-        constraints=convex_cuts(rect_poly((sx-3.6576,sx+3.6576,-87,sy+2.5)))
-        for tri in triangles:
-            n=(tri[1]-tri[0]).cross(tri[2]-tri[0]);constant=n.dot(tri[0])
-            assert abs(n.z)>1e-10,'Drive clipping needs a surface with nonzero XY area'
-            for poly in H.subtract([(v.x,v.y) for v in tri],constraints):
-                lifted=[(x,y,(constant-n.x*x-n.y*y)/n.z) for x,y in poly]
-                m.geom(lifted,[tuple(range(len(lifted)))],role)
-    def walk_height(x,y,top=.1704):
-        # The two walk ends descend into the vehicle crossing; an open cut in
-        # a raised surface otherwise exposes a floating edge above the drive.
-        ramp=min(1,max(0,(abs(x-sx)-4.05)/2.7432)) if y<sy+3 else 1
-        return .018+(top-.018)*ramp
-    # Ground's municipal section: 18in gutter, 6in back, 6in rise.
-    for sign,rad in ((-1,s['radius']-3.6576),(1,s['radius']+3.6576)):
-        stations=[(rad,.018),(rad+sign*.4572,.018),(rad+sign*.4826,.1704),(rad+sign*.6096,.1704)]
-        loops=[[(x,y,walk_height(x,y,z)) for x,y in stadium(s,r)] for r,z in stations];n=len(loops[0]);v=[p for row in loops for p in row]
-        curb.geom(v,[(q*n+i,q*n+(i+1)%n,(q+1)*n+(i+1)%n,(q+1)*n+i) for q in range(3) for i in range(n)],'Concrete')
-    cut_drive(curb,'Concrete');ground_finish(curb.finish(),'Concrete')
-    walk=a.mesh(name+'_Walk',component='site',solid=False)
-    wi,wo=stadium(s,s['radius']+4.2672),stadium(s,s['radius']+5.7912)
-    annulus(walk,wi,wo,.1704,'Concrete')
-    walk.v=[(x,y,walk_height(x,y,z)) for x,y,z in walk.v]
-    cut_drive(walk,'Concrete');ground_finish(walk.finish(),'Concrete')
-    # Two-meter verge rises to the walk instead of leaving an unsupported
-    # black slot beneath its edge. This is landscape grading, not a black rim.
-    verge=a.mesh(name+'_Graded_verge',component='site',solid=False)
-    inn=stadium(s,s['radius']+5.7912);out=stadium(s,s['radius']+7.7912);nn=len(inn)
-    verge.geom([(x,y,walk_height(x,y,.1704)) for x,y in inn]+[(x,y,-.004) for x,y in out],[(i,(i+1)%nn,(i+1)%nn+nn,i+nn) for i in range(nn)],'Siding')
-    cut_drive(verge,'Siding');ground_finish(verge.finish(),'Siding');cuts.append(stadium(s,s['radius']+7.7912))
-    # Restore the open lawn island; no hidden lawn sits beneath pavement.
-    island=a.mesh(name+'_Island',component='site',solid=False)
-    pts=stadium(s,s['radius']-4.2672);island.geom([(x,y,.165) for x,y in pts],[tuple(range(len(pts)))],'Siding');ground_finish(island.finish(),'Siding')
-    return inner,outer
+def round_route(points,radius=10.5):
+    """Open driveway centerline with straight tangents and eased bends."""
+    pts=[Vector((*q,0)) for q in points];out=[pts[0]]
+    for a,b,c in zip(pts,pts[1:],pts[2:]):
+        incoming=(b-a).normalized();outgoing=(c-b).normalized()
+        angle=math.acos(max(-1,min(1,incoming.dot(outgoing))))
+        # A quadratic's minimum radius at its midpoint is d*cos²(h)/sin(h).
+        # Trim to the requested physical radius, bounded by adjacent runs.
+        half=angle/2;wanted=radius*math.sin(half)/max(.05,math.cos(half)**2)
+        d=min(wanted,(b-a).length*.45,(c-b).length*.45)
+        if d<.001:out.append(b);continue
+        u=b+(a-b).normalized()*d;v=b+(c-b).normalized()*d
+        out.append(u)
+        for i in range(1,9):
+            t=i/8;out.append((1-t)**2*u+2*t*(1-t)*b+t*t*v)
+    out.append(pts[-1]);return out
+
+
+def open_drive(a,points,name,cuts,width=7.3152,openings=()):
+    points=[list(q) for q in points]
+    for q in (points[0],points[-1]):
+        if abs(q[1]+89.7)<.1:q[1]+=3.6576
+        elif abs(q[0]-108)<.1:q[0]-=3.6576
+    pts=round_route(points,10.5 if name.startswith('Bus') else 5.5);left=[];right=[]
+    for j,q in enumerate(pts):
+        t=(pts[min(j+1,len(pts)-1)]-pts[max(0,j-1)]).normalized();n=Vector((-t.y,t.x,0))
+        left.append(q+n*width/2);right.append(q-n*width/2)
+    m=a.mesh(name+'_paving',component='site',solid=False)
+    for j in range(len(pts)-1):
+        poly=[tuple(v[:2]) for v in (right[j],right[j+1],left[j+1],left[j])]
+        m.geom([(x,y,.018) for x,y in poly],[(0,1,2,3)],'Concrete');cuts.append(poly)
+    ground_finish(m.finish(),'Asphalt')
+    curb=a.mesh(name+'_curb_gutter',component='site',solid=False)
+    for side in (-1,1):
+        edge=right if side<0 else left
+        for j in range(len(pts)-1):
+            mid=(edge[j]+edge[j+1])/2
+            if any(l<mid.x<r and f<mid.y<k for l,r,f,k in openings):continue
+            # Street intersections/aprons taper from grade without closing the
+            # roadway. The first/last four meters remain flush.
+            verts=[]
+            for k in (j,j+1):
+                tangent=(pts[min(k+1,len(pts)-1)]-pts[max(0,k-1)]).normalized();n=Vector((-tangent.y,tangent.x,0))*side
+                end=min((pts[k]-pts[0]).length,(pts[k]-pts[-1]).length)
+                z=.018+.1524*min(1,end/4)
+                verts += [(edge[k].x,edge[k].y,.018),tuple((edge[k]+n*.4572)[:2])+(z,),tuple((edge[k]+n*.6096)[:2])+(z,)]
+            curb.geom(verts,[(0,3,4,1),(1,4,5,2)],'Concrete')
+            poly=[tuple(v[:2]) for v in (edge[j],edge[j+1])]
+            # Turf cut accounts for the actual curb/gutter footprint.
+            nn=(edge[j]-pts[j]).normalized()*.6096;mm=(edge[j+1]-pts[j+1]).normalized()*.6096
+            q=[poly[0],poly[1],tuple((edge[j+1]+mm)[:2]),tuple((edge[j]+nn)[:2])]
+            if sum(x*yy-xx*y for (x,y),(xx,yy) in zip(q,q[1:]+q[:1]))<0:q.reverse()
+            cuts.append(q)
+    ground_finish(curb.finish(),'Concrete')
+    return pts
 
 
 def line(m,points,width=.075,color=(.48,.46,.35),role='Trim',z=.031):
@@ -190,8 +211,15 @@ def fence_run(a,start,end,name,height=1.8288):
     # Native fabric diamonds remain their true size. Custom-length runs use
     # native bays; end points are deliberately designed on the 10ft grid.
     assert abs(pitch-3.048)<.002,(name,pitch)
-    for i in range(n):place(path,name+'_Bay_'+str(i),(start[0]+dx*(i+.5)/n,start[1]+dy*(i+.5)/n,0),yaw,'Chain_Section',a.root)
-    for i in range(n+1):place(path,name+'_Post_'+str(i),(start[0]+dx*i/n,start[1]+dy*i/n,0),yaw,'Chain_Line',a.root)
+    for i in range(n):place(path,name+'_Bay_'+str(i),(start[0]+dx*(i+.5)/n,start[1]+dy*(i+.5)/n,0),yaw,'School_ChainFabric',a.root)
+    m=a.mesh(name+'_Run_pipes',component='fence')
+    m.tube([(*start,1.78),(*end,1.78)],.0211,'Trim',ALUM(),sides=8)
+    m.tube([(*start,.095),(*end,.095)],.002,'Trim',ALUM(),sides=4)
+    for i in range(n+1):
+        x,y=start[0]+dx*i/n,start[1]+dy*i/n
+        m.tube([(x,y,.018),(x,y,1.86)],.0302,'Trim',ALUM(),sides=8)
+        m.tube([(x,y,1.85),(x,y,1.88)],.034,'Trim',ALUM(),sides=8)
+    m.finish()
 
 
 def flagpole(a,p):
@@ -273,14 +301,48 @@ def portable(a,x,y,yaw,index):
 def build_site(p,building):
     a=Assembly('Campus_'+str(p['seed']));building.root.parent=a.root;a.root['seed']=p['seed'];a.root['lot_m']=p['lot']
     cuts=[]
-    bus_inner,bus_outer=loop(a,p['bus'],'Bus_loop',cuts);loop(a,p['parent'],'Parent_dropoff',cuts)
-    # Entry plaza ties into the loop walk. No elevated unsupported platform.
-    ex,ey=p['entry'];plaza=(ex-7,ex+7,ey-9,ey)
-    m=a.mesh('Entry_plaza',component='site');m.box(((plaza[0]+plaza[1])/2,(plaza[2]+plaza[3])/2,.0762),(14,9,.1524),'Concrete',r=.004);ground_finish(m.finish(),'Concrete');cuts.append(rect_poly(plaza))
-    # Front pedestrian connection from the closest loop side to the plaza.
-    target=p['bus'] if p['type']=='finger' else p['parent'];rear=target['center'][1]+target['radius']+5.7912
-    approach=(ex-1.524,ex+1.524,rear,ey-8.95)
-    m=a.mesh('Entry_connection',component='site');m.box((ex,(approach[2]+approach[3])/2,.0852),(3.048,max(.01,approach[3]-approach[2]),.1704),'Concrete',r=.003);ground_finish(m.finish(),'Concrete');cuts.append(rect_poly(approach))
+    open_drive(a,p['bus_route'],'Bus_loading_lane',cuts)
+    open_drive(a,p['parent_route'],'Parent_one_way',cuts,openings=[p['parking'],*p['parking_aprons']])
+    ex,ey=p['entry']
+    # Loading curb and sheltered entrance share one continuous paved forecourt.
+    # No lawn strip between a waiting child and the bus step.
+    c0,c1=p['bus_curb'];plaza=(min(c0[0],ex-7),max(c1[0],ex+7),c0[1],ey)
+    m=a.mesh('Entry_plaza',component='site',solid=False)
+    parts=[rect_poly(plaza)]
+    for b in p['blocks']:
+        parts=[q for poly in parts for q in H.subtract(poly,convex_cuts(rect_poly(b['rect'])))]
+    for poly in parts:grounded_slab(m,[(x,y,entry_height(p,y)) for x,y in poly]);cuts.append(poly)
+    ground_finish(m.finish(),'Concrete')
+    if p['type']=='finger':
+        rect=(-45.3424,-41.73,-8.5,19.8);m=a.mesh('Parent_curb_walk',component='site',solid=False)
+        grounded_slab(m,[(x,y,p['floor']+(.1704-p['floor'])*(rect[1]-x)/(rect[1]-rect[0])) for x,y in rect_poly(rect)]);ground_finish(m.finish(),'Concrete');cuts.append(rect_poly(rect))
+    if p['type']!='finger':
+        (x0,y0),(x1,y1)=p['parent_curb'];rect=(x0,x1,y0,y0+1.524)
+        m=a.mesh('Parent_loading_walk',component='site',solid=False);grounded_slab(m,[(x,y,.1704) for x,y in rect_poly(rect)]);ground_finish(m.finish(),'Concrete');cuts.append(rect_poly(rect))
+    # Bus sockets reserve empty 11m loading positions; no invented bus mesh.
+    for j in range(p['bus_bays']):
+        total=p['bus_bays']*11+(p['bus_bays']-1)
+        x=c0[0]+((c1[0]-c0[0])-total)/2+5.5+j*12;y=c0[1]-1.55
+        a.socket('Bus_loading_'+str(j),(x,y,.018),'school_bus_11m',-90)
+    text=floor_text(a,'BUS ONLY',(c0[0]+c1[0])/2,c0[1]-3.9,.55,(.31,.29,.20));text.rotation_euler.z=math.pi/2
+    sx,sy=p['bus_route'][-1]
+    if abs(sy+89.7)<1:
+        text=floor_text(a,'STOP',sx,-80,.60,(.37,.36,.30));text.rotation_euler.z=math.pi
+    # A reinstated underground-service trench crosses the loading pavement.
+    # Its dark wearing course and iron inspection lid explain the straight
+    # patch; this is not random dirt painted over the whole road.
+    rx=c0[0]+4;ry=c0[1]
+    patch=a.mesh('Loading_utility_reinstatement',component='site',solid=False)
+    patch.geom([(rx-.46,ry-7.10,.027),(rx+.57,ry-7.01,.027),(rx+.44,ry-.12,.027),(rx-.51,ry-.18,.027)],[(0,1,2,3)],'Concrete')
+    ob=patch.finish();ground_finish(ob,'Asphalt')
+    for row in ob.data.color_attributes['Tint'].data:row.color=(.29,.29,.28,1)
+    cover=a.mesh('Service_inspection_lid',component='site')
+    cover.tube([(rx,ry-1,.028),(rx,ry-1,.044)],.18,'Trim',(.065,.068,.062),sides=16)
+    for dx in (-.06,.06):cover.box((rx+dx,ry-1,.045),(.028,.075,.008),'Trim',(.022,.024,.021))
+    cover.finish()
+    if p['type']=='compact':a.socket('Bus_queue',(76,-75,.018),'school_bus_11m_waiting',180)
+    a.socket('Bus_entry',(*p['bus_route'][0],.018),'bus_entry')
+    a.socket('Parent_entry',(*p['parent_route'][0],.018),'parent_entry')
     # Staff lot: 9x18ft stalls, 24ft aisle, one reserved van bay/aisle.
     l,r,f,k=p['parking'];m=a.mesh('Staff_paving',component='site',solid=False);rectangle(m,p['parking'],.018);ground_finish(m.finish(),'Asphalt');cuts.append(rect_poly(p['parking']))
     m=a.mesh('Staff_markings',component='site',solid=False)
@@ -290,29 +352,24 @@ def build_site(p,building):
     for i in range(back_count+1):line(m,[(l+i*2.7432,k-5.4864),(l+i*2.7432,k)],.10,(.53,.52,.46))
     for j in range(6):line(m,[(l+3.3528+j*.20,f),(l+3.3528+j*.20+.35,f+5.4864)],.07,(.45,.45,.40))
     m.finish()
-    # Drives connect all traffic areas to the site's front street. Paving
-    # starts at the loop's end tangent and ends flush at the public street.
-    drives=[]
-    for s in (p['bus'],p['parent']):
-        sx=s['center'][0] if s['yaw'] else s['center'][0]+s['straight']
-        sy=s['center'][1]-s['straight']-s['radius']-3.6576 if s['yaw'] else s['center'][1]-s['radius']-3.6576
-        drives.append((sx-3.6576,sx+3.6576,-87,sy+2.5))
-    # A staff access joins its adjacent circulation lane rather than dead-ending.
-    ay=(f+k)/2;drives.append((r,r+7.3152,-87,ay+3.6576));drives.append((r-1,r+7.3152,ay-3.6576,ay+3.6576))
-    m=a.mesh('Access_drives',component='site',solid=False)
-    for rect in drives:
-        if rect[3]>rect[2]:rectangle(m,rect,.018);cuts.append(rect_poly(rect))
-    ground_finish(m.finish(),'Asphalt')
+    for rect in p['parking_aprons']:
+        m=a.mesh('Staff_driveway_apron',component='site',solid=False);rectangle(m,rect,.018);ground_finish(m.finish(),'Asphalt');cuts.append(rect_poly(rect))
+    # Staff parking joins the independent parent route; its curb is the
+    # second unloading frontage rather than a duplicate bus stadium.
     # Service yard at the kitchen's outside door. A straight side lane links
     # the public frontage without crossing the playground reservation.
     kitchen=next(b for b in p['blocks'] if b['kind']=='kitchen');kl,kr,kf,kk=kitchen['rect']
-    offset=3 if p['type']=='compact' else 9.5
-    yard=(kr,kr+offset+6.5,kf-2,kk+4);m=a.mesh('Service_yard',component='site',solid=False);rectangle(m,yard,.025);ground_finish(m.finish(),'Asphalt');cuts.append(rect_poly(yard))
-    service=(kr+offset,kr+offset+6,-87,kf-1.98);m=a.mesh('Service_drive',component='site',solid=False);rectangle(m,service,.019);ground_finish(m.finish(),'Asphalt');cuts.append(rect_poly(service))
-    m=a.mesh('Service_dock',component='service');m.box((kr+1,kk-2,.18),(2,3,.36),'Concrete',r=.006)
-    for yy in (kk-3.0,kk-1.0):m.box((kr+2.015,yy,.29),(.045,.25,.40),'Trim',DARK())
-    # District dumpster enclosure, masonry sides, steel gates on true hinges.
-    dx,dy=kr+7,kk+1
+    offset=7
+    side=-1 if p['type']=='courtyard' else 1
+    base=kl if side<0 else kr
+    outward=lambda d:base+side*d
+    yard=(min(base,outward(offset+6.5)),max(base,outward(offset+6.5)),kf-2,kk+4)
+    m=a.mesh('Service_yard',component='site',solid=False);rectangle(m,yard,.025);ground_finish(m.finish(),'Asphalt');cuts.append(rect_poly(yard))
+    service=(min(outward(offset),outward(offset+6)),max(outward(offset),outward(offset+6)),-52,kf-1.98)
+    m=a.mesh('Service_drive',component='site',solid=False);rectangle(m,service,.019);ground_finish(m.finish(),'Asphalt');cuts.append(rect_poly(service))
+    m=a.mesh('Service_dock',component='service');m.box((outward(1),kk-2,.18),(2,3,.36),'Concrete',r=.006)
+    for yy in (kk-3.0,kk-1.0):m.box((outward(2.015),yy,.29),(.045,.25,.40),'Trim',DARK())
+    dx,dy=outward(7),kk+1
     for sx in (-1,1):m.box((dx+sx*2.0,dy,1.0),(.20,3.4,2.0),'Siding')
     m.box((dx,dy+1.7,1.0),(4.2,.20,2.0),'Siding')
     m.box((dx,dy,.74),(2.7,1.45,1.48),'Trim',(.075,.13,.09),r=.04)
@@ -326,10 +383,18 @@ def build_site(p,building):
         m.finish()
     # A marked asphalt court / four square / hopscotch, with two hoops.
     l,r,f,k=p['blacktop'];m=a.mesh('Blacktop',component='site',solid=False);rectangle(m,p['blacktop'],.025);ground_finish(m.finish(),'Asphalt');cuts.append(rect_poly(p['blacktop']))
+    if p['type']=='finger':
+        # An L apron touches the original fingers and later cross wing. Clip
+        # its notch at actual walls; grass does not divide the exit from play.
+        parts=[rect_poly((-18.7,29,19.84,30.2))]
+        for b in p['blocks']:parts=[q for poly in parts for q in H.subtract(poly,convex_cuts(rect_poly(b['rect'])))]
+        m=a.mesh('Blacktop_classroom_apron',component='site',solid=False)
+        for q in parts:m.geom([(x,y,.025) for x,y in q],[tuple(range(len(q)))],'Concrete');cuts.append(q)
+        ground_finish(m.finish(),'Asphalt')
     m=a.mesh('Game_lines',component='site',solid=False);cx,cy=(l+r)/2,(f+k)/2
-    court=(cx-12.8016,cx+12.8016,cy-7.62,cy+7.62)
+    court_x=l+16;court=(court_x-12.8016,court_x+12.8016,cy-7.62,cy+7.62)
     aa,bb,cc,dd=court;line(m,[(aa,cc),(bb,cc),(bb,dd),(aa,dd),(aa,cc)],.07)
-    line(m,[(cx,cc),(cx,dd)],.07);line(m,[(cx+1.8*math.cos(t*math.tau/48),cy+1.8*math.sin(t*math.tau/48)) for t in range(49)],.065)
+    line(m,[(court_x,cc),(court_x,dd)],.07);line(m,[(court_x+1.8*math.cos(t*math.tau/48),cy+1.8*math.sin(t*math.tau/48)) for t in range(49)],.065)
     for xx,sign in ((aa,1),(bb,-1)):
         line(m,[(xx,cy-1.8),(xx+sign*4.57,cy-1.8),(xx+sign*4.57,cy+1.8),(xx,cy+1.8)],.065)
         hoop(a,xx-sign*1.25,cy,sign)
@@ -361,47 +426,41 @@ def build_site(p,building):
             x=s[0]+(e[0]-s[0])*j/2;y=s[1]+(e[1]-s[1])*j/2
             field.tube([(x,y,0),(x,y,3.70)],.0302,'Trim',ALUM(),sides=8)
     field.finish()
-    # Flag, racks and modest foundation planting: library instances, not new
-    # tree or shrub shapes. Two trees leave a useful triangle allowance.
-    flagpole(a,(ex-8,ey-7))
-    for j in range(2):place('build/context/furniture.glb','Bike_rack_'+str(j),(ex+8+j*1.0,ey-4,.1524),0,'BikeRack',a.root)
-    place('build/context/furniture.glb','Entry_bench',(ex-4,ey-5,.1524),0,'Bench',a.root)
-    tree_positions={'finger':((ex-26,ey-8),(48,2)), 'courtyard':((-45,-12),(37,5)), 'compact':((-43,-25),(36,8))}[p['type']]
-    for j,(x,y) in enumerate(tree_positions):place(ROOT/'trees/export'/('RedMaple.glb' if j==0 else 'PinOak.glb'),'Mature_tree_'+str(j),(x,y,0),p['seed']*17+j*73,parent=a.root)
-    for j in range(2):place('build/context/shrub.glb','Foundation_shrub_'+str(j),(ex-10-j*1.1,ey-1.2,0),j*43,parent=a.root)
-    # Two cars are counted as placed geometry in the whole-site budget.
-    for j in range(2):
-        s=target;x=s['center'][0]+(-12 if j==0 else 3);y=s['center'][1]+s['radius']
-        car=place('build/context/car.glb','Dropoff_car_'+str(j),(x,y,.020),90,parent=a.root)
-        if j==1:
-            paint=None
-            for ob in car.children_recursive:
-                if ob.type!='MESH':continue
-                for slot in ob.material_slots:
-                    if slot.material and 'paint' in slot.material.name.lower():
-                        if paint is None:
-                            paint=slot.material.copy();paint.name='School context blue hatch';paint.node_tree.nodes.get('Principled BSDF').inputs['Base Color'].default_value=(.035,.085,.12,1)
-                        slot.link='OBJECT';slot.material=paint
+    # Native mature species and foundation shrubs, with a different planted
+    # rhythm on each parcel. More native trees continue in presentation context.
+    flagpole(a,(ex-8,ey-4.3))
+    for j in range(3):place('build/context/furniture.glb','Bike_rack_'+str(j),(ex+8+j*1.05,ey-2,.1704),0,'BikeRack',a.root)
+    place('build/context/furniture.glb','Entry_bench',(ex-4,ey-2,.1704),0,'Bench',a.root)
+    for j,(x,y) in enumerate(p['trees'][:5]):place(ROOT/'trees/export'/('RedMaple.glb' if j%2==0 else 'PinOak.glb'),'Mature_tree_'+str(j),(x,y,0),p['seed']*17+j*73,parent=a.root)
+    for j,(x,y) in enumerate(p['shrubs'][:4]):place('build/context/shrub.glb','Foundation_shrub_'+str(j),(x,y,0),j*43,parent=a.root)
     for j,(x,y,yaw) in enumerate(p['portables']):portable(a,x,y,yaw,j)
     # One existing library pole serves the small staff lot. Period is 2010 for
     # this presentation, allowing the library's LED retrofit cobra head.
     l,r,f,k=p['parking'];place('build/context/light.glb','Staff_lot_light',(r+1.0,k-1.0,0),-90,parent=a.root)
     pedestrian_network(a,p,cuts)
+    amenities(a,p,cuts)
+    streets(a,p,cuts)
     # All lawn is clipped around the actual building and site slabs.
     cuts += [rect_poly(b['rect']) for b in p['blocks']]+[rect_poly(c['rect']) for c in p['covered']]
     W,D=p['lot'];parts=[rect_poly((-W/2,W/2,-D/2,D/2))]
     for poly in cuts:
         constraints=convex_cuts(poly)
-        parts=[q for piece in parts for q in H.subtract(piece,constraints)]
+        xl,xh=min(v[0] for v in poly),max(v[0] for v in poly);yl,yh=min(v[1] for v in poly),max(v[1] for v in poly)
+        result=[]
+        for piece in parts:
+            if max(v[0] for v in piece)<=xl+1e-7 or min(v[0] for v in piece)>=xh-1e-7 or max(v[1] for v in piece)<=yl+1e-7 or min(v[1] for v in piece)>=yh-1e-7:result.append(piece)
+            else:result.extend(H.subtract(piece,constraints))
+        parts=result
+    desire_paths(a,p,parts)
     turf=a.mesh('Site_lawn',component='site',solid=False)
     for poly in parts:
         if len(poly)>=3:turf.geom([(x,y,-.004) for x,y in poly],[tuple(range(len(poly)))],'Siding')
     ground_finish(turf.finish(),'Siding')
-    # Public approach is library Ground road construction, on its native pitch.
-    for j in range(34):place('build/context/ground.glb','Street_'+str(j),((j-16.5)*6.096,-89.7,0),90,'Road_Straight_A',a.root)
-    for name,point in [('Bus_entry',(p['bus']['center'][0],-87,.02)),('Parent_entry',(p['parent']['center'][0],-87,.02)),('Service',(kr+6,kf,.02)),('Blacktop',(cx,cy,.025)),('Ballfield',(fx,fy,.01))]:a.socket(name,point,name.lower())
+    # Public frontage has real driveway openings. Its continuous road remains
+    # library geometry, while curb/walk omissions follow each apron footprint.
+    for name,point in [('Service',(kr+6,kf,.02)),('Blacktop',(cx,cy,.025)),('Ballfield',(fx,fy,.01))]:a.socket(name,point,name.lower())
     # Stop / loading signs are school-specific fixtures absent from the library.
-    for text,x,y in [('BUSES ONLY',p['bus']['center'][0],-80),('DROP OFF',ex-11,ey-9)]:
+    for text,x,y in [('BUSES ONLY',p['bus_route'][0][0]-4,p['bus_route'][0][1]+10),('DROP OFF',p['parent_route'][0][0]+4,p['parent_route'][0][1]+10)]:
         m=a.mesh('Traffic_sign_'+text,component='sign');m.tube([(x,y,0),(x,y,2.4)],.0254,'Trim',ALUM(),sides=8);m.box((x,y,2.1),(.60,.04,.40),'Trim',(.56,.55,.46),r=.02);m.finish();label(a,text,(x,y-.025,2.06),.073,color=(.025,.032,.026))
     return a
 
@@ -420,11 +479,18 @@ def pedestrian_network(a,p,cuts):
         # a classroom and no hidden green/paving duplicates ship underneath it.
         parts=[rect_poly(rect)]
         for b in p['blocks']:parts=[q for poly in parts for q in H.subtract(poly,convex_cuts(rect_poly(b['rect'])))]
+        pl,pr,pf,pk=p['playground'];fx,fy=p['field']
+        obstacles=[p['blacktop'],(pl,pr,pf,pk),(fx,fx+24,fy,fy+24)]
+        obstacles += [(x-3.66,x+3.66,y-4.88,y+4.88) for x,y,yaw in p['portables']]
+        for rect in obstacles:parts=[q for poly in parts for q in H.subtract(poly,convex_cuts(rect_poly(rect)))]
         for poly in parts:
-            m.geom([(x,y,z) for x,y in poly],[tuple(range(len(poly)))],'Concrete');cuts.append(poly)
-    def path(points,width=1.524):
+            points=[(x,y,z(x,y) if callable(z) else z) for x,y in poly]
+            if max(q[2] for q in points)>.03:grounded_slab(m,points)
+            else:m.geom(points,[tuple(range(len(poly)))],'Concrete')
+            cuts.append(poly)
+    def path(points,width=1.524,z=.018):
         for (x,y),(xx,yy) in zip(points,points[1:]):
-            walk_rect((min(x,xx)-width/2,max(x,xx)+width/2,min(y,yy)-width/2,max(y,yy)+width/2))
+            walk_rect((min(x,xx)-width/2,max(x,xx)+width/2,min(y,yy)-width/2,max(y,yy)+width/2),z)
     def slope(points):
         lower=[(xx,yy,-.004) for xx,yy,zz in points]
         m.geom(points+lower,[(0,1,2,3)]+[(j,(j+1)%4,(j+1)%4+4,j+4) for j in range(4)],'Concrete')
@@ -464,6 +530,21 @@ def pedestrian_network(a,p,cuts):
         end=world((7.3152/2+.94,-9.7536/2-1.75-6.5712-1.524-2.7432,0),(x,y),yaw)
         join=x+7.3152/2+1.88+1.524 if x<0 else wrap
         path([(end[0],end[1]),(join,end[1]),(join,rear)],1.524)
+    if p['type']=='finger':
+        def level(x,y):
+            parent=p['floor']+(.1704-p['floor'])*min(1,max(0,(-41.73-x)/3.6124))
+            t=min(1,max(0,(-8.5-y)/18));return parent*(1-t)+entry_height(p,y)*t
+        path([(-42.8,-8.5),(-42.8,-26.5),(-40,-26.5)],1.524,level)
+    elif p['type']=='courtyard':
+        ym=.4196;yy=p['entry'][1];start=yy+3.048
+        slope([(55,ym-.762,.1704),(55,ym+.762,.1704),(51.952,ym+.762,.018),(51.952,ym-.762,.018)])
+        path([(51.952,ym),(48,ym),(48,-11),(23,-11),(23,start)],1.524)
+        slope([(22.238,start,.018),(23.762,start,.018),(23.762,yy,p['floor']),(22.238,yy,p['floor'])])
+    elif p['type']=='compact':
+        ym=-4.5804;c=p['covered'][1];edge=c['rect'][0]-.15;start=edge-3.048;row=(c['rect'][2]+c['rect'][3])/2+.10
+        slope([(-56,ym-.762,.1704),(-52.952,ym-.762,.018),(-52.952,ym+.762,.018),(-56,ym+.762,.1704)])
+        path([(-52.952,ym),(start,ym),(start,row)],1.524)
+        slope([(start,row-.762,.018),(edge,row-.762,p['floor']),(edge,row+.762,p['floor']),(start,row+.762,.018)])
     # Front exits meet the public entry via a route ahead of the longest mass.
     ex,ey=p['entry'];front=p['footprint'][2]-3.6
     for face,end,kind in endpoints:
@@ -477,3 +558,129 @@ def pedestrian_network(a,p,cuts):
                 path([end,(start,y)],1.524)
                 slope([(start,y-.762,.018),(start,y+.762,.018),(edge,y+.762,.1524),(edge,y-.762,.1524)])
     ground_finish(m.finish(),'Concrete')
+
+
+def streets(a,p,cuts):
+    """Native crowned street, 6in curb/gutter and tapered driveway aprons."""
+    for row in p['streets']:
+        horizontal=row['axis']=='X';at=row['at'];length=210 if horizontal else 184
+        cuts.append(rect_poly((-105,105,at-8.096,at+8.096) if horizontal else (at-8.096,at+8.096,-92,92)))
+        for i in range(-round(length/12.192),round(length/12.192)+1):
+            v=i*6.096
+            place('build/context/ground.glb','Public_road_'+str(at)+'_'+str(i),(v,at,.01165) if horizontal else (at,v,.01165),90 if horizontal else 0,'Road_Straight_A',a.root)
+        ends=[q for key in ('bus_route','parent_route') for q in (p[key][0],p[key][-1]) if abs(q[1 if horizontal else 0]-at)<1]
+        openings=[q[0 if horizontal else 1] for q in ends]
+        def point(v,d,z):return (v,at+d,z) if horizontal else (at+d,v,z)
+        for sign in (-1,1):
+            near=sign==(1 if horizontal else -1)
+            def top(v):
+                distance=min((abs(v-q) for q in openings),default=1e6)
+                return .019+.1514*min(1,max(0,(distance-3.6576)/2.14)) if near else .1704
+            c=a.mesh('Frontage_curb_'+str(at)+'_'+str(sign),component='site',solid=False)
+            walk=a.mesh('Public_walk_'+str(at)+'_'+str(sign),component='site',solid=False)
+            verge=a.mesh('Frontage_verge_'+str(at)+'_'+str(sign),component='site',solid=False)
+            for i in range(-int(length/2),int(length/2)):
+                verts=[]
+                for v in (i,i+1):
+                    for d,z in ((3.6576,.018),(4.1148,.018),(4.1402,top(v)),(4.2672,top(v))):verts.append(point(v,sign*d,z))
+                c.geom(verts,[(j,j+1,j+5,j+4) for j in range(3)],'Concrete')
+                walk.geom([point(i,sign*4.2672,top(i)),point(i+1,sign*4.2672,top(i+1)),point(i+1,sign*6.096,top(i+1)),point(i,sign*6.096,top(i))],[(0,1,2,3)],'Concrete')
+                verge.geom([point(i,sign*6.096,top(i)),point(i+1,sign*6.096,top(i+1)),point(i+1,sign*8.096,-.004),point(i,sign*8.096,-.004)],[(0,1,2,3)],'Siding')
+            ground_finish(c.finish(),'Concrete');ground_finish(walk.finish(),'Concrete');ground_finish(verge.finish(),'Siding')
+
+
+def floor_text(a,text,x,y,size=.35,color=(.42,.39,.25)):
+    ob=label(a,text,(x,y,.034),size,color);ob.rotation_euler=(0,0,0);return ob
+
+
+def amenities(a,p,cuts):
+    import random
+    rng=random.Random(p['seed']+991);l,r,f,k=p['blacktop'];cx,cy=(l+r)/2,(f+k)/2
+    # A mixed elementary yard: basketball, four-square, hopscotch, a states
+    # map, oval run and tetherball. None is a soccer goal-area marking.
+    m=a.mesh('Yard_games',component='site',solid=False)
+    for j in range(3):
+        x=l+3+j*5.4;y=k-6
+        line(m,[(x,y),(x+4.5,y),(x+4.5,y+4.5),(x,y+4.5),(x,y)],.065,(.38,.38,.30),z=.032)
+        line(m,[(x+2.25,y),(x+2.25,y+4.5)],.065,z=.032);line(m,[(x,y+2.25),(x+4.5,y+2.25)],.065,z=.032)
+        for q in range(4):floor_text(a,str(q+1),x+.9+(q%2)*2.25,y+.7+(q//2)*2.25,.34)
+    x=l+2;y=f+6
+    for j in range(8):
+        w=1.4 if j in (2,4,6) else .70;xx=x+(.35 if j in (1,5) else 0)
+        line(m,[(xx,y+j*.70),(xx+w,y+j*.70),(xx+w,y+(j+1)*.70),(xx,y+(j+1)*.70),(xx,y+j*.70)],.055,(.50,.44,.24),z=.032)
+        if w>1:line(m,[(xx+.7,y+j*.7),(xx+.7,y+(j+1)*.7)],.055,z=.032)
+    # The running oval occupies the perimeter of the asphalt yard, leaving
+    # the basketball keys and free-play games inside it.
+    s=dict(center=(cx,cy),straight=(r-l-(k-f))/2,radius=(k-f)/2-1.5,yaw=0)
+    for offset in (0,.85):
+        pts=stadium(s,s['radius']-offset);line(m,pts+[pts[0]],.06,(.32,.31,.235),z=.032)
+    m.finish()
+    for j in range(3):
+        x=r-3-j*4;y=k-6;tt=a.mesh('Tetherball_'+str(j),component='tetherball')
+        tt.tube([(x,y,.025),(x,y,3.05)],.0254,'Trim',(.28,.30,.28),sides=8)
+        # Rope hangs under gravity with a real slack bend beside the pole.
+        tt.tube([(x,y,3.03),(x+.08,y+.12,2.52),(x+.10,y+.14,1.90)],.004,'Trim',(.42,.39,.29),sides=4)
+        for zz,rad in ((1.88,.085),(1.78,.13),(1.68,.085)):
+            tt.tube([(x+.10,y+.14,zz-.04),(x+.10,y+.14,zz+.04)],rad,'Trim',(.48,.25,.025),sides=10)
+        tt.finish()
+    states_map(a,r-15,f+3)
+    # Street-side monument and maintained changeable-letter marquee. Fictional.
+    sx=p['bus_route'][0][0]+12 if p['type']!='courtyard' else 96;sy=-79 if p['type']!='courtyard' else -70
+    m=a.mesh('School_marquee',component='sign')
+    m.box((sx,sy,.42),(4.6,1.1,.84),'Veneer')
+    m.box((sx,sy,1.55),(4.25,.25,1.52),'Trim',p['palette']['accent'],r=.016)
+    m.box((sx,sy-.14,1.25),(3.94,.035,.67),'Concrete',(.46,.45,.39),r=.002)
+    for z in (1.04,1.24,1.44):m.box((sx,sy-.164,z),(3.94,.012,.012),'Trim',(.21,.22,.19))
+    m.finish();label(a,p['name'],(sx,sy-.17,1.91),.15,color=(.56,.55,.47));label(a,'FAMILY NIGHT   THURS 6 PM',(sx,sy-.171,1.26),.13,color=(.017,.025,.019));label(a,'RILL COUNTY   EST '+str(p['era']),(sx,sy-.17,.65),.12)
+    # Rear yard boundary on the native ten-foot grid, with the field beyond.
+    for name,s,e in [('North',(-91.44,82.296),(91.44,82.296)),('East',(91.44,15.24),(91.44,82.296))]:fence_run(a,s,e,'Yard_'+name)
+    # Place asphalt repairs where services cross/turn, with irregular cutbacks
+    # and crack seal along failed seams. Shared Ground map, no new image set.
+    repair=a.mesh('Asphalt_repairs',component='site',solid=False)
+    for j in range(7):
+        x=l+6+rng.random()*(r-l-12);y=f+3+rng.random()*(k-f-6);w=rng.uniform(.7,2.3);h=rng.uniform(.4,1.2)
+        q=[(x-w,y-h,.028),(x+w*.7,y-h*.8,.028),(x+w,y+h,.028),(x-w*.85,y+h*.9,.028)]
+        repair.geom(q,[(0,1,2,3)],'Concrete',(.34,.34,.33))
+    ob=repair.finish();ground_finish(ob,'Asphalt')
+    attr=ob.data.color_attributes['Tint']
+    for v in attr.data:v.color=(.28,.28,.27,1)
+    seams=a.mesh('Crack_seal',component='site',solid=False)
+    for j in range(9):
+        x=l+2+rng.random()*(r-l-4);y=f+2+rng.random()*(k-f-4)
+        line(seams,[(x+i*.8,y+math.sin(i*1.7+j)*.16) for i in range(5)],rng.uniform(.025,.055),(.017,.020,.018),z=.030)
+    seams.finish()
+
+
+def states_map(a,x,y):
+    """Original simplified geographic schoolyard map; no traced reference data.
+
+    The western rectilinear survey and irregular eastern borders are an
+    illustrative playground graphic, not a geographic survey or GIS dataset.
+    """
+    outline=[(0,3.8),(.7,5.2),(2,5.1),(3.1,5.5),(6.4,5.3),(7.4,5.65),(8.2,5.2),(9.4,5.1),(10.2,5.8),(10.4,5),(9.7,4.6),(9.4,3.7),(8.6,3.2),(8.4,2.4),(7.8,1.9),(8.5,.3),(8,.15),(7.3,1.6),(6.6,1.9),(5.8,1.6),(4.9,1.8),(4.4,.9),(3.8,1.6),(3.6,2.2),(2.5,2.2),(1.9,2.7),(.8,2.7),(.7,3.2),(0,3.8)]
+    m=a.mesh('States_map',component='site',solid=False)
+    line(m,[(x+xx,y+yy) for xx,yy in outline],.08,(.47,.42,.24),z=.033)
+    borders=[[(.6,4.4),(2,4.3),(2,5.1)],[(2,4.3),(2.3,3.7),(3.1,3.7),(3.1,5.5)],[(3.1,4.8),(4.4,4.8),(4.4,5.4)],[(3.1,4.1),(4.4,4.1),(4.4,4.8)],[(3.1,3.4),(4.4,3.4),(4.4,4.1)],[(2.3,3.7),(2.5,2.2)],[(3.1,3.7),(3.1,2.2)],[(3.1,2.9),(4.4,2.9),(4.4,3.4)],[(4.4,5.4),(4.4,1.8)],[(4.4,4.8),(5.5,4.8),(5.5,5.4)],[(4.4,4.1),(5.6,4.1),(5.5,4.8)],[(4.4,3.4),(5.6,3.4),(5.6,4.1)],[(4.4,2.9),(5.6,2.9),(5.6,3.4)],[(4.4,2.4),(5.6,2.4),(5.6,2.9)],[(5.6,1.7),(5.6,4.8),(6.2,4.9),(6.2,5.3)],[(5.6,4.1),(6.4,4.1),(6.4,4.9)],[(5.6,3.4),(6.5,3.4),(6.4,4.1)],[(5.6,2.9),(6.6,2.9),(6.5,3.4)],[(5.6,2.4),(6.6,2.4),(6.6,2.9)],[(6.4,4.1),(7,4.1),(7,5.3)],[(7,4.1),(7.6,4.3),(7.8,5.1)],[(6.5,3.4),(7.5,3.4),(7.6,4.3)],[(6.6,2.9),(8,2.9),(8.4,3.4),(7.5,3.4)],[(6.6,2.4),(7.3,2.4),(7.3,1.6)],[(7.3,2.4),(8.4,2.4)],[(7.5,3.4),(8.4,3.9),(9.1,4.0)],[(7.6,4.3),(8.7,4.5),(9.4,4.3)],[(8.7,4.5),(8.7,5.2)],[(9.1,4.0),(9.2,4.8),(9.7,4.6)],[(9.2,4.8),(9.6,5.2)],[(9.6,5.2),(9.8,5.6)]]
+    for pts in borders:line(m,[(x+xx,y+yy) for xx,yy in pts],.045,(.31,.37,.29),z=.033)
+    m.finish();floor_text(a,'U S A',x+3,y-.6,.50,(.40,.35,.18))
+
+
+def desire_paths(a,p,lawn):
+    """Narrow soil exposures where a shortcut cuts the maintained turf."""
+    def inside(q,poly):return all(aa*q[0]+bb*q[1]+cc>=-1e-6 for aa,bb,cc in convex_cuts(poly))
+    routes={'finger':[((-34,-51),(-17,-34)),((39,27),(45,36))],
+            'courtyard':[((-54,-61),(-32,-40)),((-36,30),(-44,40))],
+            'compact':[((-42,-52),(-30,-33)),((17,30),(45,25))]}[p['type']]
+    m=a.mesh('Childrens_desire_paths',component='site',solid=False,trim_cell=10)
+    for route in routes:
+        start,end=map(lambda q:Vector((*q,0)),route);tangent=(end-start).normalized();normal=Vector((-tangent.y,tangent.x,0))
+        n=round((end-start).length/.65)
+        for j in range(n):
+            for side in (-1,1):
+                pts=[];cols=[]
+                for k,d in ((j,0),(j,side),(j+1,side),(j+1,0)):
+                    t=k/n;center=start.lerp(end,t);width=.33+.08*math.sin(t*26+p['seed']);q=center+normal*d*width
+                    pts.append((q.x,q.y,-.002));cols.append((.085,.080,.035) if d else (.105,.068,.029))
+                if not all(any(inside(q,poly) for poly in lawn) for q in pts):continue
+                begin=len(m.col);m.geom(pts,[(0,1,2,3)],'Trim');m.col[begin:]=[(*c,1) for c in cols]
+    m.finish()

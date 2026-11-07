@@ -39,16 +39,12 @@ def school(seed=101,plan_type=None,bays=None):
         block('Boiler',(38,47,-15,-7),'boiler',era,4.15,skin='cmu')
         add=block('Addition_1984',(-36.5,-36.5+3*BAY+2*WALL-PART,end,end+DEPTH+2*WALL),'classrow',1984,4.12,skin='cmu',bays=3,axis='X',replacement=True)
         entry=(3,-27);covered=[dict(rect=(-8,14,-30.0,-27),height=3.15),dict(rect=(-39,-36.477,-11.3424,end),height=2.95)]
-        loop=dict(center=(0,-58),straight=28,radius=11.5,yaw=0)
-        parent=dict(center=(-65,-31),straight=19,radius=9.5,yaw=90)
-        parking=(56,86,-51,-26);blacktop=(13,43,37,57);play=(-62,-38,46,64);field=(52,65)
-        portables=[(-56,20,0)]
     elif typ=='courtyard':
-        era=1964;name='BRIAR COURT';accent=(.08,.19,.145);wall=(.29,.17,.073)
+        era=1964;name='BRIAR COURT';accent=(.08,.19,.145);wall=(.29,.225,.135)
         block('Office',(-30,0,-28,-16),'office',era,3.66)
-        block('Multipurpose',(0,24,-34,-16),'gym',era,6.7056)
-        block('Kitchen',(24,34,-27,-16),'kitchen',era,3.96,skin='cmu')
-        block('Boiler',(24,34,-16,-8),'boiler',era,4.12,skin='cmu')
+        block('Multipurpose',(-54,-30,-34,-16),'gym',era,6.7056)
+        block('Kitchen',(-64,-54,-27,-16),'kitchen',era,3.96,skin='cmu')
+        block('Boiler',(-64,-54,-16,-8),'boiler',era,4.12,skin='cmu')
         # Four classrooms around an eight-foot common link in each pod.
         pod_w=2*30*FT+PART+2*WALL;pod_d=2*DEPTH+8*FT+2*PART+2*WALL
         for j,x in enumerate((-36,3)):
@@ -56,26 +52,18 @@ def school(seed=101,plan_type=None,bays=None):
         block('Addition_1988',(-27,-27+3*BAY+2*WALL-PART,23,23+DEPTH+2*WALL),'classrow',1988,4.15,skin='brick',bays=3,axis='X',replacement=True)
         pod_hall=-8+pod_d/2
         entry=(-15,-28);covered=[dict(rect=(-29,-1,-31,-28),height=3.08),dict(rect=(-17,-13,-16,23),height=2.92,wall_bearing_end=True),dict(rect=(-13,3,pod_hall-2,pod_hall+2),height=2.92),dict(rect=(-30,-13,19,23),height=2.92)]
-        loop=dict(center=(-64,-25),straight=22,radius=12,yaw=90)
-        parent=dict(center=(-3,-57),straight=22,radius=10.5,yaw=0)
-        parking=(41,78,-65,-42);blacktop=(8,38,40,60);play=(45,69,9,27);field=(-40,58)
-        portables=[(79,42,0)]
     else:
-        era=1976;name='NORTH VALE';accent=(.095,.12,.07);wall=(.34,.25,.135)
+        era=1976;name='NORTH VALE';accent=(.095,.12,.07);wall=(.21,.18,.145)
         block('Media_Core',(-20,12,-13,6),'media',era,4.88,skin='cmu')
         block('South_Classrooms',(-2-(3*BAY+2*WALL-PART),-2,-13-DEPTH-2*WALL,-13),'classrow',era,4.12,bays=3,axis='X',replacement=True)
         block('Office',(-2,12,-13-DEPTH-2*WALL,-13),'office',era,4.12)
         block('West_Classrooms',(-20-DEPTH-2*WALL,-20,-13,-13+wing_d),'classrow',era,4.12,bays=n,axis='Y',replacement=True)
         block('North_Classrooms',(-20,-20+3*BAY+2*WALL-PART,6,6+DEPTH+2*WALL),'classrow',era,4.12,bays=3,axis='X',replacement=False)
-        block('Multipurpose',(12,34,-31,-13),'gym',era,7.01,skin='brick',wall_color=(.18,.10,.05))
+        block('Multipurpose',(12,34,-31,-13),'gym',era,7.01,skin='brick',wall_color=(.14,.09,.055))
         block('Kitchen',(34,44,-23,-13),'kitchen',era,4.12,skin='cmu')
         block('Boiler',(34,44,-13,-5),'boiler',era,4.27,skin='cmu')
         block('Addition_1991',(-5,-5+3*BAY+2*WALL-PART,6+DEPTH+2*WALL,6+2*DEPTH+4*WALL),'classrow',1991,4.27,bays=3,axis='X',replacement=True)
         entry=(5,-13-DEPTH-2*WALL);covered=[dict(rect=(-2,12,-27.3632,-23.3632),height=3.20),dict(rect=(-30.3464,-2,-25.3632,-23.3632),height=3.15)]
-        loop=dict(center=(65,-21),straight=22,radius=12,yaw=90)
-        parent=dict(center=(-12,-57),straight=22,radius=10.5,yaw=0)
-        parking=(-80,-47,-57,-30);blacktop=(-32,-2,35,55);play=(30,54,38,56);field=(43,63)
-        portables=[]
     # Seeded local variation preserves each graph and real bay dimensions.
     if seed not in SEEDS:
         accent=tuple(v*rng.uniform(.88,1.12) for v in accent)
@@ -95,9 +83,13 @@ def school(seed=101,plan_type=None,bays=None):
     p=dict(seed=seed,type=typ,name=name+' ELEMENTARY',era=era,period=2010,blocks=blocks,entry=entry,covered=covered,
            palette=dict(brick=wall,cmu=(.255,.245,.205),accent=accent),floor=.1524,wall=WALL,partition=PART,
            classroom_clear=(30*FT,32*FT),ceiling=10*FT,bay=BAY,lot=(210.,184.),
-           bus=loop,parent=parent,parking=parking,blacktop=blacktop,playground=play,field=field,portables=portables,
            footprint=(-((x1-x0)/2),(x1-x0)/2,-((y1-y0)/2),(y1-y0)/2),
            stage='form / construction checkpoint; quick materials, no look-dev approval')
+    from siteplan import configure
+    configure(p)
+    if typ=='finger':
+        blocks[1]['gable']=True
+        blocks[2]['monitor']=True
     populate_openings(p)
     for b in blocks:
         if not b['id'].startswith('Addition'):continue
@@ -155,6 +147,15 @@ def wall_sections(b,face,blocks,floor=.1524):
     return out
 
 
+def drain_station(b,face,start,end):
+    """Pick masonry beside the actual openings, with extra door-swing room."""
+    for u in (start+.48,start+1.75,start+.30,end-.48,(start+end)/2):
+        if not start+.15<u<end-.15:continue
+        if any(o['face']==face and abs(u-o['u'])<o['w']/2+(.30 if o['type'] in ('door','double','entry') else .12) for o in b['openings']):continue
+        return u
+    return None
+
+
 def populate_openings(p):
     for b in p['blocks']:
         l,r,f,k=b['rect'];kind=b['kind'];era=b['era'];b['rooms']=[]
@@ -169,17 +170,23 @@ def populate_openings(p):
                     if kind=='cluster':along=face in ('south','north')
                     if kind=='single' and face=='east':
                         # Exterior corridor gets high, smaller glazing.
-                        for i in range(b['bays']):opening(WALL+(i+.5)*BAY,2.4,1.55,1.15)
+                        for i in range(b['bays']):opening(WALL+(i+.5)*BAY,6.4,2.38,.62)
                     elif along:
                         n=b['bays'];pitch=BAY
                         for j in range(n):
-                            u=WALL+j*pitch+15*FT;w=7.15
-                            if era>=1970 and p['type']=='compact':w=4.85
+                            u=WALL+j*pitch+15*FT;w=8.35
+                            if era>=1970 and p['type']=='compact':w=1.80
                             if b['id'].startswith('Addition') and face=='south':
                                 opening(u+.60,6.60,1.17,1.67,replacement=True)
                                 opening(WALL+j*pitch+.50,1.0668,0,2.1844,'door',label='CLASSROOM')
-                            elif kind=='cluster':opening(u,8.60,.32,2.70,replacement=b.get('replacement',False))
-                            else:opening(u,w,.92 if era<1970 else 1.17,2.10 if era<1970 else 1.67,replacement=b.get('replacement',False),infill=j==1 and era<1970 and b.get('replacement',False))
+                            elif kind=='cluster':opening(u,8.60,.05,2.95,replacement=b.get('replacement',False))
+                            elif p['type']=='compact' and b['id']=='Addition_1991' and face=='north' and j==0:
+                                opening(u+.60,6.60,1.17,1.67,replacement=True)
+                                opening(WALL+j*pitch+.50,1.0668,0,2.1844,'door',label='CLASSROOM')
+                            else:opening(u,w,.48 if era<1970 else .98,2.54 if era<1970 else 1.86,replacement=b.get('replacement',False),infill=j==1 and era<1970 and b.get('replacement',False))
+                    elif kind=='single' and face=='north' and span>10:
+                        opening(length-WALL-DEPTH/2,8.65,.40,2.62,replacement=b.get('replacement',False),infill=b.get('replacement',False))
+                        opening(1.35,1.0668,0,2.1844,'door',label='EXIT')
                     elif span>5:
                         opening((aa+bb)/2,1.0668,0,2.1844,'door',label='EXIT')
                         if span>10:opening(aa+2.3,2.0,1.05,1.85)
@@ -198,7 +205,7 @@ def populate_openings(p):
                     n=max(1,int(span/8))
                     for j in range(n):opening(aa+(j+.5)*span/n,min(5.5,span/n-1),1.1,1.85)
                 elif kind in ('kitchen','boiler'):
-                    if face=='east':
+                    if face==('west' if p['type']=='courtyard' else 'east'):
                         opening((aa+bb)/2,1.2184,0,2.1844,'door',label='SERVICE')
                     elif span>4:opening((aa+bb)/2,1.5,1.2,1.2,'louver')
                 elif kind=='corridor' and span>4:

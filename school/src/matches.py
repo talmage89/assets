@@ -41,12 +41,14 @@ def main():
     # Tall gym / lower office and a visible right-side depth baseline.
     p=school(103);b=next(b for b in p['blocks'] if b['kind']=='gym');l,r,ff,k=b['rect'];z=b['roof']+.19;base=p['floor'];factor=2255/1200
     points=[((l,ff,z),(577,403)),((r,ff,z),(1138,386)),((l,ff,base),(579,598)),((r,ff,base),(1138,606)),((r,k,z),(1185,439)),((r,k,base),(1185,603))]
-    specs['gym']=dict(seed=103,photo=photos['gym'],title='1970s gym / lower office massing',crop=(400,650,2255,1450),location=(40,-85,1.68),target=((l+r)/2,ff,3.2),lens=40,lens_bounds_mm=(25,65),camera_height_m=(1.68,.45),landmarks=[dict(world=w,pixel=(px[0]*factor,px[1]*factor),weight=.3 if i==2 else 1) for i,(w,px) in enumerate(points)],light=dict(sky=.16,energy=3.0,direction=(-.3,.8,-.85),exposure=-.45))
+    specs['gym']=dict(seed=103,photo=photos['gym'],title='1970s gym / lower office massing',crop=(400,650,2255,1450),location=(40,-85,1.68),target=((l+r)/2,ff,3.2),lens=40,lens_bounds_mm=(25,65),camera_height_m=(1.68,.45),landmarks=[dict(world=w,pixel=(px[0]*factor,px[1]*factor),weight=.3 if i==2 else 1) for i,(w,px) in enumerate(points)],light=dict(sky=.08,energy=3.0,direction=(.7,-.3,-.85),exposure=-.45))
     # One full classroom ribbon, not the entire two-room pod facade.
-    p=school(102);b=next(b for b in p['blocks'] if b['id']=='Cluster_B');o=next(o for o in b['openings'] if o['face']=='north' and o['type']=='window');u,w,z,h=o['u'],o['w'],o['z']+.1524,o['h']
-    points=[((u-w/2,0,z+h),(350,408)),((u+w/2,0,z+h),(984,396)),((u-w/2,0,z),(350,586)),((u+w/2,0,z),(984,589)),((u,0,z+.39),(669,560))]
-    target=world((u,0,z+h/2),o['origin'],o['yaw']);location=world((u,-24,1.68),o['origin'],o['yaw'])
-    specs['ribbon']=dict(seed=102,photo=photos['ribbon'],title='1960s classroom ribbon / spandrel / eave',crop=(700,750,2650,1700),location=location,target=target,lens=45,lens_bounds_mm=(25,65),camera_height_m=(1.68,.6),landmarks=[dict(world=world(w,o['origin'],o['yaw']),pixel=(px[0]*2.5,px[1]*2.5),weight=.4 if i==4 else 1) for i,(w,px) in enumerate(points)],light=dict(sky=.22,energy=.85,direction=(.3,-.8,-.8),softness=6,exposure=-.45))
+    p=school(102);b=next(b for b in p['blocks'] if b['id']=='Cluster_A');o=next(o for o in b['openings'] if o['face']=='south' and o['type']=='window');u,w,z,h=o['u'],o['w'],o['z']+.1524,o['h']
+    points=[((u-w/2,0,z+h),(350,408)),((u+w/2,0,z+h),(984,396)),((u-w/2,0,z),(350,586)),((u+w/2,0,z),(984,589)),((u,0,z+.4775),(669,560))]
+    target=world((u,0,z+h/2),o['origin'],o['yaw']);location=world((u,-7,1.68),o['origin'],o['yaw'])
+    # Tight feature crop / short lens keeps the original sash view in the
+    # courtyard gap, rather than fitting through the later addition or gym.
+    specs['ribbon']=dict(seed=102,photo=photos['ribbon'],title='1960s classroom ribbon / spandrel / eave',crop=(820,950,2510,1550),location=location,target=target,lens=24,lens_bounds_mm=(22,25),camera_height_m=(1.68,.6),landmarks=[dict(world=world(w,o['origin'],o['yaw']),pixel=(px[0]*2.5,px[1]*2.5),weight=.4 if i==4 else 1) for i,(w,px) in enumerate(points)],light=dict(sky=.22,energy=.85,direction=(.3,.8,-.8),softness=6,exposure=-.45))
     # Three actual canopy-column top/bottom pairs provide a perspective-depth
     # baseline rather than fitting an unrelated telephoto view of a whole site.
     p=school(101);c=p['covered'][0];l,r,ff,k=c['rect'];steps=math.ceil((r-l)/4.5);factor=2039/1200;anchors=[]
@@ -57,6 +59,8 @@ def main():
     result={}
     for name,s in specs.items():
         row=calibrate(s);row.update(seed=s['seed'],light=s['light']);row['lens_status']='Estimated feature/type fit on an original design; not EXIF camera recovery or a building survey.';result[name]=row
+        x,y,z=row['shot']['location'];inside=[b['id'] for b in school(s['seed'])['blocks'] if b['rect'][0]<x<b['rect'][1] and b['rect'][2]<y<b['rect'][3] and .1524<z<b['roof']]
+        assert not inside,(name,'fitted camera is inside a building',inside,row['shot']['location'])
         print(name,'estimated lens',round(row['shot']['lens'],2),'RMS native pixels',round(row['residual_rms_pixels'],2))
     Path('build/matched-cameras.json').write_text(json.dumps(result,indent=2))
     Path('build/photo-definitions.json').write_text(json.dumps(specs,indent=2))

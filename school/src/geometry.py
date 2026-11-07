@@ -1,7 +1,7 @@
 """Use the houses' indexed construction mesh without changing its delivery.
 
-The six house roles are temporary semantic slots: CMU, roof, brick, mineral,
-equipment/paint, glazing. The shared image is explicitly a form placeholder.
+The six house roles route CMU, roof, brick, mineral, equipment/paint and glass
+to the shared PBR pass before export. Form colors remain useful source inputs.
 """
 import importlib.util
 from pathlib import Path
@@ -80,7 +80,7 @@ def orient(m,origin,yaw):
 
 def label(a,text,p,size=.24,color=(.68,.69,.64),yaw=0):
     from kit.fonts import find_font
-    curve=bpy.data.curves.new('School original lettering','FONT');curve.body=text;curve.size=size;curve.align_x='CENTER';curve.extrude=.004;curve.resolution_u=1
+    curve=bpy.data.curves.new('School original lettering','FONT');curve.body=text;curve.size=size;curve.align_x='CENTER';curve.extrude=0;curve.resolution_u=1
     curve.font=bpy.data.fonts.load(str(find_font('DejaVu Sans','Book')))
     ob=bpy.data.objects.new(a.root.name+'__Letters_'+text,curve);bpy.context.collection.objects.link(ob);ob.parent=a.root
     ob['asset_set']='School'
@@ -126,3 +126,24 @@ def consolidate(asset_set='School'):
                 for li in f.loop_indices:
                     v=ob.data.vertices[ob.data.loops[li].vertex_index].co;uv.data[li].uv=(v[axes[0]],v[axes[1]])
         bm=bmesh.new();bm.from_mesh(ob.data);bmesh.ops.triangulate(bm,faces=list(bm.faces));bm.to_mesh(ob.data);bm.free();ob.data.update();seen.add(ob.data)
+
+
+def clean_surfaces():
+    """Discard unresolved clipping remnants before budgets are measured.
+
+    Float32 mesh coordinates can coincide where analytic lawn cuts meet. Drop
+    zero-area faces and sub-micrometer edges only; imported canonical meshes
+    and all resolved construction, UV charts and normals stay intact.
+    """
+    report={}
+    for ob in bpy.context.scene.objects:
+        if ob.type!='MESH' or ob.get('asset_set')!='School':continue
+        # Apply static lettering's translation/rotation before the float32
+        # area audit, matching the final joined coordinate frame exactly.
+        ob.data.transform(ob.matrix_basis);ob.matrix_basis=Matrix.Identity(4)
+        bm=bmesh.new();bm.from_mesh(ob.data);bmesh.ops.triangulate(bm,faces=list(bm.faces))
+        bad=[f for f in bm.faces if f.calc_area()<1e-12 or min(e.calc_length() for e in f.edges)<1e-6]
+        if bad:
+            report[ob.name]=len(bad);bmesh.ops.delete(bm,geom=bad,context='FACES')
+        bm.to_mesh(ob.data);bm.free();ob.data.update()
+    return report

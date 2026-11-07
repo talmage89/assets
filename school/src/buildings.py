@@ -1,11 +1,11 @@
 """School construction: gauged masonry, sash pockets, bent roofs and leaves.
 
-Fine mortar, normal-map fabrication and causal aging belong to the next
-checkpoint. There are no decorative mesh bricks or modeled screw threads.
+Shared bakes carry mortar and fabrication. Placement-owned geometry and color
+carry aging; there are no decorative mesh bricks or modeled screw threads.
 """
 import math,random,json
 from geometry import Assembly,ROLES,orient,label
-from plans import WALL,PART,BAY,FT,sides,world,visible_intervals,wall_sections
+from plans import WALL,PART,BAY,FT,sides,world,visible_intervals,wall_sections,drain_station
 
 DARK=(.022,.027,.025)
 ALUM=(.34,.36,.34)
@@ -46,17 +46,17 @@ def glazing(a,b,o,index):
     for xx in (-w/2,w/2):m.box((u+xx,.085,z+h/2),(.050,.115,h+.05),'Trim',frame,r=.002)
     for zz in (z,z+h):m.box((u,.085,zz),(w,.115,.050),'Trim',frame,r=.002)
     panes=max(1,round(w/1.20));pitch=w/panes
-    for i in range(1,panes):m.box((u-w/2+i*pitch,.084,z+h/2),(.043,.105,h-.05),'Trim',frame,r=.001)
-    transom=.58 if b['era']<1970 else .46
+    for i in range(1,panes):m.box((u-w/2+i*pitch,.084,z+h/2),(.043,.105,h-.05),'Trim',frame,r=0)
+    transom=.48 if b['era']<1970 else .46
     zz=z+h-transom
-    m.box((u,.074,zz),(w,.12,.043),'Trim',frame,r=.001)
+    m.box((u,.074,zz),(w,.12,.043),'Trim',frame,r=0)
     for i in range(panes):
         x=u-w/2+(i+.5)*pitch
         for row,(lo,hi) in enumerate(((z+.026,zz-.0215),(zz+.0215,z+h-.026))):
             if b['kind']=='cluster' and row==0:
-                m.box((x,.102,lo+.175),(pitch-.05,.022,.35),'Trim',(.46,.46,.40))
-                m.box((x,.075,lo+.36),(pitch-.04,.08,.025),'Trim',frame)
-                lo+=.375
+                m.box((x,.102,lo+.225),(pitch-.05,.022,.45),'Trim',(.66,.65,.59))
+                m.box((x,.075,lo+.4625),(pitch-.04,.08,.025),'Trim',frame)
+                lo+=.4775
             if o.get('infill') and (row==1 or i in (0,panes-1)):
                 m.box((x,.109,(lo+hi)/2),(pitch-.05,.025,hi-lo),'Trim',(.36,.36,.285),r=0)
             else:
@@ -66,6 +66,14 @@ def glazing(a,b,o,index):
             if row==0 and i%2==0:
                 m.box((x,.052,lo+.16),(.10,.025,.018),'Trim',frame,r=.001)
                 m.box((x,.11,lo+.15),(pitch-.10,.027,.018),'Trim',frame,r=0)
+    if not replacement and b['era']<1970:
+        # Steel sash holds water at the sill/mullion junction. Local chips
+        # expose an earlier gray-green coat and rust at those joints; later
+        # aluminum replacement frames deliberately omit this history.
+        for j in range(panes+1):
+            xx=u-w/2+j*pitch;hh=.045+.065*((j*7+index*3)%5)/4
+            m.geom([(xx-.012,.0267,z+.012),(xx+.011,.0267,z+.025),(xx+.008,.0267,z+hh),(xx-.007,.0267,z+hh*.75)],[(0,1,2,3)],'Trim',(.19,.060,.019))
+            if j%2==0:m.geom([(xx-.018,.0266,z+hh),(xx+.014,.0266,z+hh+.004),(xx+.010,.0266,z+hh+.032)],[(0,1,2)],'Trim',(.24,.26,.22))
     # Steel lintel and precast sill project beyond actual rough opening.
     m.box((u,-.025,z+h+.07),(w+.20,.06,.052),'Trim',(.12,.13,.115),r=0)
     m.prism([(u-w/2-.10,-.145,z-.04),(u+w/2+.10,-.145,z-.04),(u+w/2+.10,.20,z-.015),(u-w/2-.10,.20,z-.015)],(0,0,-1),.065,'Concrete',(.34,.34,.30))
@@ -143,6 +151,14 @@ def door(a,b,o,index,glass=False,base=.1524):
         leaf.box((cx,.045,h-.13),(.28,.08,.065),'Trim',ALUM,r=.003)
         leaf.beam((cx,.09,h-.09),(cx+.13,.14,h-.06),.018,.012,'Trim',ALUM,r=0)
         leaf.beam((cx+.13,.14,h-.06),(cx+.32,.07,h-.04),.018,.012,'Trim',ALUM,r=0)
+        if not entry and not glass:
+            # Hand/carts expose the earlier coat and small oxidized chips at
+            # the leaf edge. These remain attached to the operating door.
+            rng=random.Random(b['era']*101+index*17+j)
+            for q in range(6):
+                xx=cx+(1 if q%2 else -1)*(door_w/2-.025);zz=.42+rng.random()*1.32
+                ww=rng.uniform(.007,.016);hh=rng.uniform(.020,.050)
+                leaf.geom([(xx-ww,-.0276,zz-hh),(xx+ww*.6,-.0276,zz-hh*.5),(xx+ww,-.0276,zz+hh*.6),(xx-ww*.4,-.0276,zz+hh)],[(0,1,2,3)],'Trim',(.18,.070,.025) if q%3 else (.12,.17,.14))
         leaf.v=[(x,y,z+base+.018) for x,y,z in leaf.v]
         orient(leaf,origin,yaw).finish()
         # Cylindrical knuckles stay fixed on the jamb axis. Their intended
@@ -167,19 +183,31 @@ def louver(a,b,o,index):
 
 
 def roof(a,b,p):
-    l,r,f,k=b['rect'];z=b['roof'];m=a.mesh(b['id']+'_Roof',component='roof')
-    if b.get('gable'):
+    l,r,f,k=b['rect'];z=b['roof'];m=a.mesh(b['id']+'_Roof',component='roof');contacts=[]
+    longitudinal=b.get('gable') and b.get('axis')=='Y' and b['kind']=='single'
+    def height(x,y):return z+max(0,min(x-l,r-x) if longitudinal else min(y-f,k-y))/12 if b.get('gable') else z
+    if longitudinal:
+        mid=(l+r)/2;rise=(r-l)/2/12;eave=z-.65/12
+        for xx in (l-.65,r+.65):
+            m.prism([(xx,f-.65,eave),(xx,k+.65,eave),(mid,k+.65,z+rise),(mid,f-.65,z+rise)],(0,0,-1),.16,'Shingles')
+            m.box((xx,(f+k)/2,eave-.12),(.05,k-f+1.30,.25),'Trim',(.18,.19,.145))
+        for yy in (f,k):m.prism([(l,yy,z-.17),(r,yy,z-.17),(mid,yy,z+rise-.16)],(0,1 if yy==f else -1,0),WALL,'Veneer')
+        m.box((mid,(f+k)/2,z+rise+.015),(.18,k-f+1.3,.035),'Trim',ALUM)
+    elif b.get('gable'):
         # Low-slope roof above each classroom pod, exposed deep fascia.
-        mid=(f+k)/2;rise=(k-f)/2/12
+        mid=(f+k)/2;rise=(k-f)/2/12;eave=z-.65/12
         for yy in (f-.65,k+.65):
-            m.prism([(l-.65,yy,z),(r+.65,yy,z),(r+.65,mid,z+rise),(l-.65,mid,z+rise)],(0,0,-1),.16,'Shingles')
-            for x in (l-.65,r+.65):m.prism([(x,yy,z-.20),(x,mid,z+rise-.20),(x,mid,z+rise),(x,yy,z)],(1,0,0),.045,'Trim',(.18,.19,.145))
-            m.box(((l+r)/2,yy,z-.12),(r-l+1.30,.05,.25),'Trim',(.18,.19,.145))
+            m.prism([(l-.65,yy,eave),(r+.65,yy,eave),(r+.65,mid,z+rise),(l-.65,mid,z+rise)],(0,0,-1),.16,'Shingles')
+            for x in (l-.65,r+.65):m.prism([(x,yy,eave-.20),(x,mid,z+rise-.20),(x,mid,z+rise),(x,yy,eave)],(1,0,0),.045,'Trim',(.18,.19,.145))
+            m.box(((l+r)/2,yy,eave-.12),(r-l+1.30,.05,.25),'Trim',(.18,.19,.145))
         m.box(((l+r)/2,mid,z+rise+.015),(r-l+1.3,.18,.035),'Trim',ALUM)
         # Solid triangular end infill below the pitched roof.
-        for x in (l,r):m.prism([(x,f,z-.01),(x,k,z-.01),(x,mid,z+rise-.16)],(1 if x==l else -1,0,0),WALL,'Veneer')
+        for x in (l,r):m.prism([(x,f,z-.17),(x,k,z-.17),(x,mid,z+rise-.16)],(1 if x==l else -1,0,0),WALL,'Veneer')
     else:
         m.box(((l+r)/2,(f+k)/2,z-.08),(r-l,k-f,.16),'Shingles')
+        if b['era']<1970 and b['kind'] in ('single','library'):
+            # Deep west sunshade bears back onto the actual wall/roof edge.
+            m.box((l-.45,(f+k)/2,z-.10),(.90,k-f,.20),'Trim',(.12,.14,.115))
         # Coping profile has a folded outside drip, horizontal cap, inside leg.
         for face,o,yaw,length in sides(b):
             for aa,bb,z0,neighbor in wall_sections(b,face,p['blocks']):
@@ -192,8 +220,8 @@ def roof(a,b,p):
                     cap.box((aa+j*3.048,.11,z+.191),(.018,.33,.005),'Trim',(.15,.16,.14))
                 orient(cap,(*o,0),yaw).finish()
                 # Scupper box, open mouth and downspout kept clear of openings.
-                if bb-aa>5 and face in ('north','east','west') and neighbor is None:
-                    u=aa+.48;dr=a.mesh(b['id']+'_Drain_'+face,component='drainage')
+                if bb-aa>5 and face in ('north','east','west') and neighbor is None and drain_station(b,face,aa,bb) is not None:
+                    u=drain_station(b,face,aa,bb);dr=a.mesh(b['id']+'_Drain_'+face,component='drainage')
                     dr.box((u,-.072,z-.10),(.22,.03,.13),'Trim',DARK)
                     for sx in (-1,1):dr.box((u+sx*.13,-.18,z-.19),(.025,.25,.20),'Trim',ALUM)
                     dr.box((u,-.18,z-.28),(.26,.25,.025),'Trim',ALUM)
@@ -203,10 +231,12 @@ def roof(a,b,p):
                     orient(dr,(*o,0),yaw).finish()
     # Equipment rests on actual raised curbs, with intake/exhaust and conduit.
     if b['kind'] not in ('corridor','boiler'):
-        count=2 if max(r-l,k-f)>22 else 1
+        count=(0 if b['era']<1970 and b['kind'] in ('single','cluster','library') and not b.get('replacement') else 1 if b['kind'] not in ('gym','media') else 2)
         for j in range(count):
-            x=l+(j+1)*(r-l)/(count+1);y=(f+k)/2+.8;zz=z+(k-f)/2/12 if b.get('gable') else z
-            m.box((x,y,zz+.12),(1.65,2.3,.24),'Trim',(.16,.17,.145))
+            x=l+(j+1)*(r-l)/(count+1);y=f+(k-f)*(.68 if b['era']<1970 else .52);zz=height(x,y)
+            start=len(m.v)
+            bottom=[(x+dx*.825,y+dy*1.15,height(x+dx*.825,y+dy*1.15)) for dx,dy in ((-1,-1),(1,-1),(1,1),(-1,1))]
+            m.geom(bottom+[(xx,yy,zz+.24) for xx,yy,hh in bottom],[(3,2,1,0),(4,5,6,7)]+[(q,(q+1)%4,(q+1)%4+4,q+4) for q in range(4)],'Trim',(.16,.17,.145))
             m.box((x,y,zz+.61),(1.55,2.2,.78),'Trim',(.35,.36,.32),r=.014)
             m.box((x,y,zz+1.02),(1.63,2.27,.055),'Trim',(.27,.28,.25),r=.005)
             for sx in (-1,1):
@@ -216,6 +246,28 @@ def roof(a,b,p):
                 for q in range(3):
                     ang=q*math.tau/3;m.beam((x+sx,y,zz+1.065),(x+sx+.22*math.cos(ang),y+.22*math.sin(ang),zz+1.065),.035,.018,'Trim',ALUM,r=0)
             m.tube([(x+.5,y+1.1,zz+.24),(x+.5,y+1.6,zz+.10),(x+.5,y+2.2,zz+.10)],.015,'Trim',ALUM,sides=6)
+            factor=1.40 if b['kind']=='gym' else 1.18 if b['kind']=='media' else .80 if b['kind']=='office' else .92
+            m.v[start:]=[(x+(xx-x)*factor,y+(yy-y)*factor,zz+(hh-zz)*(.85 if b['era']<1970 else 1)) for xx,yy,hh in m.v[start:]]
+            for index in range(start,start+4):
+                xx,yy,hh=m.v[index];m.v[index]=(xx,yy,height(xx,yy))
+            contacts.append(list(range(start,start+4)))
+        # Roof drains and vent risers follow the wing, not a repeated pair of
+        # large HVAC boxes on every small classroom. Gravel variation is baked.
+        for j in range(max(1,int((r-l)*(k-f)/170))):
+            xx=l+1.2+(j*.41)%(max(1,r-l-2.4));yy=k-1.2
+            level=height(xx,yy)
+            m.tube([(xx,yy,level),(xx,yy,level+.40)],.065,'Trim',ALUM,sides=8)
+            m.box((xx,yy,level+.42),(.22,.22,.035),'Trim',DARK)
+    if b.get('monitor'):
+        x=l+2.0;mid=(f+k)/2;length=k-f-2.0
+        for yy in (f+1.06,k-1.06):m.box((x,yy,z+.35),(2.15,.12,.70),'Siding')
+        for sy in (-1,1):
+            m.box((x+sy*1.06,mid,z+.06),(.07,length,.12),'Siding')
+            m.box((x+sy*1.06,mid,z+.655),(.07,length,.09),'Trim',ALUM)
+            m.box((x+sy*1.082,mid,z+.37),(.008,length-.2,.48),'Glass',(.83,.85,.81))
+            for q in range(int(length/1.2)):
+                m.box((x+sy*1.10,f+1.3+q*1.2,z+.37),(.045,.045,.55),'Trim',ALUM)
+        m.box((x,mid,z+.76),(2.60,length+.5,.12),'Trim',(.13,.15,.12))
     if b['kind']=='boiler':
         x,y=(l+r)/2,(f+k)/2
         m.box((x,y,z+1.8),(1.05,1.05,3.60),'Veneer')
@@ -225,12 +277,15 @@ def roof(a,b,p):
         for sx in (-1,1):m.box((x+sx*.42,y,z+3.9),(.03,.03,.25),'Trim',ALUM)
     if b['kind']=='media':
         x,y=(l+r)/2,(f+k)/2
-        m.box((x,y,z+.40),(8.0,3.8,.8),'Siding')
+        for sx in (-1,1):m.box((x+sx*3.94,y,z+.40),(.12,3.8,.8),'Siding')
         for sy in (-1,1):
+            m.box((x,y+sy*1.88,z+.075),(7.8,.08,.15),'Siding')
+            m.box((x,y+sy*1.88,z+.75),(7.8,.08,.10),'Trim',ALUM)
             m.box((x,y+sy*1.906,z+.45),(7.7,.008,.50),'Glass',(.70,.78,.74))
             for dx in range(-3,4):m.box((x+dx,y+sy*1.93,z+.45),(.04,.05,.56),'Trim',ALUM)
         m.box((x,y,z+.86),(8.45,4.25,.12),'Trim',(.16,.17,.135))
-    m.finish()
+    ob=m.finish()
+    if ob:ob['roof_curb_vertices']=json.dumps(contacts)
 
 
 def covered_walk(a,c,index):
@@ -250,7 +305,11 @@ def covered_walk(a,c,index):
             m.box((x,y,z-.07),(.24,.18,.14),'Trim',ALUM)
             m.beam((l+.10,y,z-.10),(r-.1,y,z-.10),.06,.14,'Trim',r=0)
             continue
-        m.box((x,y,.1524+(z-.1524)/2),(.1016,.1016,z-.1524),'Trim',r=.003)
+        # SHS post with a few real height stations for base corrosion. Only
+        # the column carries those samples; the whole roof deck is not cut.
+        vs=[(x+dx*.0508,y+dy*.0508,zz) for zz in (.1524,.30,.50,z) for dx,dy in ((-1,-1),(1,-1),(1,1),(-1,1))]
+        fs=[(j*4+i,j*4+(i+1)%4,(j+1)*4+(i+1)%4,(j+1)*4+i) for j in range(3) for i in range(4)]+[(3,2,1,0),(12,13,14,15)]
+        m.geom(vs,fs,'Trim')
         m.box((x,y,.1674),(.23,.23,.030),'Trim',(.17,.18,.14),r=.002)
         m.box((x,y,z-.035),(.18,.18,.07),'Trim',ALUM,r=.001)
         for sx in (-1,1):
@@ -275,7 +334,12 @@ def build_school(p,parent=None):
                 origin=world((aa,0,0),o,yaw)
                 openings=[dict(q,u=q['u']-aa) for q in holes if aa<q['u']<bb]
                 ob=wall_panel(a,b['id']+'_'+face,origin,yaw,bb-aa,z0,b['roof']-.17,openings,skin)
-                if ob:ob['block_id']=b['id'];ob['era']=b['era']
+                if ob:
+                    ob['block_id']=b['id'];ob['era']=b['era']
+                    station=drain_station(b,face,aa,bb) if neighbor is None and face in ('north','east','west') and bb-aa>5 else None
+                    if station is not None:
+                        axis=0 if face in ('south','north') else 1
+                        ob['runoff_axis']=axis;ob['runoff_station_m']=world((station,0,0),o,yaw)[axis]
                 # Vertical control joints and the exposed roof deck edge follow
                 # construction bays, independent from material tiling repetition.
                 m=a.mesh(b['id']+'_'+face+'_Joints',component='joints')
@@ -290,6 +354,17 @@ def build_school(p,parent=None):
                         x=aa+j*4.5
                         if any(abs(x-q['u'])<q['w']/2+.20 for q in holes):continue
                         m.box((x,-.045,(base+b['roof']-.3)/2),(.20,.12,b['roof']-.3-base),skin,r=.004)
+                station=drain_station(b,face,aa,bb) if neighbor is None and face in ('north','east','west') and bb-aa>5 else None
+                if station is not None:
+                    # Mineral bloom / newer pointing stays on the actual
+                    # mortar beds below the leaking scupper, not across the
+                    # brick as an unrelated pale noise wash.
+                    course=.2032 if skin=='Siding' else .2032/3
+                    for row in range(2):
+                        zz=round((b['roof']-1.05-row*.27)/course)*course
+                        ul,ur=station-.36,station+.14-row*.07
+                        if any(q['u']-q['w']/2<ur and q['u']+q['w']/2>ul and q['z']<zz<q['z']+q['h'] for q in holes):continue
+                        m.geom([(ul,-.0013,zz-.004),(ur,-.0013,zz-.004),(ur-.025,-.0013,zz+.004),(ul+.025,-.0013,zz+.004)],[(0,1,2,3)],'Concrete',(.36,.35,.31) if skin=='Veneer' else (.29,.28,.25))
                 orient(m,(*o,0),yaw).finish()
         for i,o in enumerate(b['openings']):
             if o['type']=='window':glazing(a,b,o,i)

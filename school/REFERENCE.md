@@ -95,3 +95,76 @@ residuals are recorded in `build/reference-balance.json` and
 
 `schmitt.jpg`, `richards.jpg` and the Richards interior provide supplementary research only.
 They are not substituted for one of the three exterior-photo comparisons.
+
+## Site and look revision — November 2026
+
+The loop and small-court rows above describe the superseded form checkpoint.
+The revised designs retain the room/circulation grammar and construction. They
+replace the site circulation and the decade-specific roof/window treatments.
+
+The actual published site evidence inspected for this revision is:
+
+- **CDE, Guide to School Site Analysis and Development (2000), printed p41 /
+  PDF p50.** The corner-site diagram puts a long bus loading curb directly at
+  the multipurpose/administration approach, independently from the parking
+  access on the second frontage. Hardcourts touch teaching areas and fields
+  lie beyond. Its printed pp28/32 show mixed elementary games rather than a
+  single small competition court. The 80 × 100 ft Unit F is 743.22 m²; the
+  younger grades' 60 × 75 ft Unit B is 418.06 m². These are program comparators,
+  not dimensions recovered from an undimensioned rendering.
+- **LAUSD / Sapphos historical survey (2018), Figures 34/36/39/41, PDF
+  pp35/36/38/40.** The 1956 and 1974 plans and the 1960/1977 aerials show
+  fingers beside a substantial attached blacktop, later administrative and
+  cafeteria buildings composing differently with the original wings, a side
+  parking area, portable growth and a surrounding residential street block.
+  This supplies the mid-block and incremental-growth relationships; our wider
+  turf sites are original, not copies of that urban school's elongated block.
+- **McDowell NHL nomination, pp4–5.** The description documents separate
+  teaching clusters, linked courtyards, mature plane trees and three street
+  frontages. The supplementary plan is not present in the downloaded scan.
+  It supports the planted, multi-frontage setting; the CDE diagram and LAUSD
+  plans provide the actual plan comparisons. McDowell's daily-use 1973 exterior
+  remains the low-sill steel-ribbon photograph, not a source texture.
+
+| Seed | Original arrangement and frontage | Loading and play relationships |
+| --- | --- | --- |
+| 101 | 1956 fingers, 1963 gym/service block, 1984 cross wing; mid-block, entry south | Bus curb at the front walk, parent curb along the west covered approach and staff lot; L-shaped blacktop at the fingers/cross wing; playground and practice field beyond |
+| 102 | 1964 courtyard pods, 1988 row; corner, entry east | Gym/kitchen/boiler move to the opposite side of the office; buses use separate corner aprons; parent traffic passes through the side staff lot; rear hardcourt abuts the addition, playground opposite the field |
+| 103 | 1976 compact/media school, 1991 addition; entry north, park behind | Parent route beside the west lot, separate front bus berth and waiting socket; large hardcourt across the rear addition’s north face, playground beside it, practice field opposite and park woodland beyond |
+
+The loading curbs face the buses' right-side doors. Open drive centerlines use
+quadratic corners sized from radius and available tangents, rather than two
+identical stadium annuli. Their actual pavement is independently intersected
+against other traffic and building footprints by `src/check.py`. This proves
+paving separation, not an 11 m vehicle's complete swept envelope. Driveway
+aprons taper the public sidewalk/curb to the lane and meet the native street's
+actual asphalt-edge datum; the six-inch curb and gutter remain real geometry.
+The compact school has one unloading berth plus a waiting socket on its
+straight approach; the other schools have two unloading berths.
+
+The retained 960 sq ft rooms have a different envelope by era: early fingers
+have broad low-sill sash and corridor clerestories, the 1960s pods have low
+spandrel window walls under deep eaves, and the 1970s wings have narrow slots.
+Some original openings retain painted steel, while replacement aluminum and
+insulated upper-sash infill remain cleaner. Earlier wings combine built-up
+low gables, deep sunshades and a clerestory monitor. Later wings retain low
+parapets/ballast and differently sized packages; original naturally ventilated
+wings do not all acquire the same pair of rooftop units.
+
+Baked manufacture comes from the unchanged Commercial CMU/brick/concrete/
+Equipment recipes and the houses' buff/tan brick recipes. The roof reuses
+the existing mineral aggregate maps at a coarser physical grain scale.
+Canonical maps are referenced by external URI, with no school atlas or new
+image recipe. Both existing brick palettes use their original 4096 Cycles
+bake and native 512 delivery; CMU and concrete are 1024, Equipment 2048.
+Macro-scale splash, scupper runoff, mineral bloom, column-base corrosion and
+handling damage belong to the placed school geometry. Native-alpha fence
+fabric retains its original diamond scale; long run rails/posts use a cheaper
+school-owned construction adapter. Native trees and shrubs remain unchanged.
+
+The practical limits still apply: this is an exterior game asset, not a full
+school program, engineering or occupancy submission. The practice fields are
+small neighborhood fields, not tournament outfields. The original simplified
+states-map graphic is illustrative rather than surveyed cartography. The
+surrounding houses, streets, poles/wires and intact car source instances are
+presentation context and are reported separately from the campus package.
