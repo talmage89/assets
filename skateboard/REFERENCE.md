@@ -52,9 +52,8 @@ modeled. Internal balls/cages and helical threads will not consume game triangle
 
 Seed 0 is the default; 1/2/3 cover 7.75/8.25/8.5 inch deck classes, 51/53/56 mm
 wheels, matching truck widths and a 3.175 mm riser on seed 3. These additional
-molds are original envelopes in the requested ranges. New/season/beat are
-registered as surface states; causal age, graphics and damage are deferred at
-this explicitly form-only checkpoint.
+molds are original envelopes in the requested ranges. New/season/beat are delivered surface states; [TEXTURES.md](TEXTURES.md)
+documents the causal finishes and [REVIEW.md](REVIEW.md) the image calibration.
 
 Reference dates, authors, licenses and local image names: [SOURCES](refs/SOURCES.md).
 

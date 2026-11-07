@@ -365,3 +365,122 @@ Final local review: `renders/lookdev/contact.jpg`, `matched-pairs.jpg`,
 under `renders/form-fixes/`, and the four `*-finished-before-after.jpg` panels
 under `renders/lookdev/`. All remain ignored rebuildable outputs. No lead tool
 or approval is needed; no shared-kit change was required.
+
+## Delivery pass 1 — causal masks, rejected trim and wheel strength
+
+Color and value first: reopened the neutral-balanced 2006 grip, 2010 used
+underside and 2005 loose-truck photographs at native size. Concrete remains
+the neutral for the used boards, the zinc washer for the indoor truck. The
+first revised season export keeps dark grip and teal ink with deep blue-gray
+sun shadows; the white exposed base is brighter than the wood and needs a
+less uniform transition. The wheel face is lighter than its previous olive
+stain, but the riding shoulder is too close in value to that face compared
+with the used photograph's brown outer band.
+
+Opened all eight 1440 px season export views at full size. The center tag and
+sinusoidal shoe bands are gone. Parallel transverse passes replace the old
+fan; tip contacts run lengthwise, and rail chips are separate. The cast grain
+no longer creates the broad lumpy reflection. A continuous bright region is
+on the original downward-facing axle housing, while the web and deck-facing
+alloy stay cast gray. The kingpin nut also takes contact wear.
+
+Rejected the edge and wheel proofs: the analytic toe-fray mask measured from
+the deck perimeter missed the inset grip border, so it did not show. The road
+mask stopped too far inboard, leaving the most visible shoulder too clean.
+The grip macro is rougher than before but still too softly mottled; distinct
+cellular grain values and facets should survive the atlas more clearly. These
+are appearance failures despite complete bake coverage. No docs were made.
+First-pass images are retained locally under `../build/fix-pass1/`.
+
+## Delivery pass 2 — all export views, grip value rejected
+
+Color and value first: measured the same balanced 2006 grip patches as look
+pass 4, after resizing the render to the photograph's native crop. Front
+(200,70)…(280,105) is photo RGB 35/35/36 versus export 54/54/53; rear
+(850,65)…(930,100) is 41/37/39 versus 54/55/54. The new grain makes the diffuse
+surface too light. Retain its tooth and specular glints, but darken the actual
+albedo before another bake. These are display samples under the same estimated
+flash, not recovered albedos. Concrete is still the balancing neutral.
+
+Opened all 30 Cycles/Eevee final candidates at native size: eight views per
+age, the four season turnaround views, scale and Eevee. Also opened all three
+3072 px export comparisons and all three dense-source equivalents. The grip
+now reads granular in the hero and sparkles at grazing angles; wear smooths
+its planted zones, the right trim is visibly frayed, and the tag is absent.
+The sidewalls stay lighter than the brown riding shoulders, and printed marks
+are progressively rubbed away. Transverse belly contacts and longitudinal
+end contacts expose white base and wood without the old fan. The alloy no
+longer has lumpy noise; the original underside is ground bright while the
+opposite web remains cast gray, with local dirt and nut contact wear.
+
+The 1.4 mm flat exists in the delivered front-left wheel, with no added
+triangles, but the angled bearing camera hides most of its silhouette. Add a
+straight axial export view and its identical-camera baseline before accepting
+that crop. No docs yet. Current candidates are retained under
+`../build/skateboard-pass2/`. Remaining CG tells include overly similar scrape
+endings, softened wheel lettering/wood fibers in macro and simple ply tabs.
+The dense source has finer grain and cleaner type than the 2048 bake; those
+losses are visible rather than assumed away.
+
+## Delivery pass 3 — final baked crops and complete gallery accepted
+
+Color and value first: concrete balances both used-board photographs; the
+zinc washer balances the loose truck. Repeating the same 1285 × 345 grip-crop
+samples gives front photo RGB 35/35/36 versus final GLB 40/40/40, and rear
+41/37/39 versus 40/40/40. Darkening only the remaining tape removes pass 2's
+light diffuse wash without staining the exposed maple. These are display
+samples under estimated flash/ambient illumination, not recovered albedos.
+The sun heroes retain charcoal grip, dark teal ink, lighter yellow sidewalls,
+brown riding shoulders and deep shadows beneath the deck and in hardware.
+All three top heroes have zero white-clipped pixels. Underside heroes have
+0 / 140 / 135 white pixels (new/season/beat), confined to small specular glints,
+at most 0.0068% of the frame. Their p1/p99 luma is 15.82/147.49,
+15.66/146.85 and 15.66/154.69. The tiny clipped glints remain a limitation;
+the bulk highlights roll off and the frames do not read pale.
+
+Opened all 31 final Cycles/Eevee images at native size before making docs:
+eight views per age, beat's additional axial wheel profile, season's top,
+bottom, side, front and 1.8 m scale, and the Eevee hero. Also opened the six
+3072 px source/export photo renders, final matched-pair sheet, native used
+truck/wheel pair, graphics sheet, turnaround and full contact. The accepted
+kicks, progressive concave, rounded rails and cast construction are retained.
+The photo-fit residuals remain 15.34 / 22.60 / 13.65 px for horizontal / used /
+truck; uncertain photo dimensions and illumination still limit exact matching.
+
+Opened all nine native before/after crop panels under `renders/fixes/`.
+`crops.json` checks identical cameras, framing/exposure and crop rectangles;
+each half is 920–1440 px wide, with no enlargement. Every requested fix shows:
+
+- `01-grip-tooth` and `01-grip-frayed-edge`: discrete coarse tooth and raking
+  glints survive the bake; planted regions are dirtier and smoother, the toe
+  drag breaks the filed trim, and exposed maple keeps its own lighter color.
+- `02-no-center-tag`: the cream tag and periodic cross-deck bands are gone.
+- `03-transverse-slides` and `03-beat-slides`: parallel widthwise belly passes
+  replace the radial fan, with separate lengthwise tip contacts and local rail
+  chips. Clear coat/ink loss reveals white base and then warmer dirty wood.
+- `04-hanger-grind-and-cast` and `04-cast-inner`: the broad lumpy cast noise is
+  gone. Bright contact follows the original downward-facing housing and lower
+  edge, plus the kingpin nut; opposite web/top surfaces retain cast gray/dirt.
+- `05-wheel-tread-sidewall` and `05-beat-flat`: road-darkened shoulders differ
+  from the lighter yellow faces and faded print. The identical axial camera
+  exposes the front-left beat wheel's straight chord at upper right. Actual
+  source measurement is 1.400 mm removed depth and ten coplanar vertices over
+  a 15.000 mm axial span, without added triangles.
+
+The GLB position/frame comparison against the accepted checkpoint finds no
+season form changes at 0.1 micrometer quantization. Beat changes only that
+wheel mesh; all node frames and triangle counts remain unchanged. Current
+counts are 13,888 / 13,888 / 13,928, three response materials sharing one
+three-map 2048 atlas per age. All three physical, dense-source and GLB checks
+pass, with zero UV overlap, outside or degenerate triangles, and zero missed
+bake interior texels. These checks prove construction/serialization, while
+the images above establish the appearance fixes.
+
+Remaining CG: scrape endings and substrate widths are still too regular;
+individual carbide facets, bearing stamps, wheel type and rail fibers soften
+at extreme macro after the 2048 bake. Reduced cast transitions show facets in
+the large truck comparison, and the two veneer tabs are simple. The reference
+truck and wheels have different histories and stronger oxidation than this
+season treatment; no identical-object or recovered-light claim is made.
+No new geometry or larger atlas is justified for these residuals. All five
+fixes now pass their crop gate; compact final docs may be generated.

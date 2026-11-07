@@ -186,7 +186,7 @@ def main():
             sun.rotation_euler=Vector(d.get('sun_direction',(.7,.2,-.48))).to_track_quat('-Z','Y').to_euler()
             if bpy.data.objects.get('Camera flash'):bpy.data.objects['Camera flash'].hide_render=True
         sc.render.resolution_x=a.width;sc.render.resolution_y=round(a.width/d.get('aspect',1.45));sc.render.filepath=str(out/(name+'.png'));bpy.ops.render.render(write_still=True)
-        metadata[name]=dict(source=str(src),sha256=digest,stage='source procedural look-dev' if src.suffix=='.blend' else 'exported GLB / baked atlas' if 'export' in src.parts else 'form checkpoint exported GLB',samples=a.samples,**d)
+        metadata[name]=dict(source=str(src),sha256=digest,engine=a.engine,stage='source procedural look-dev' if src.suffix=='.blend' else 'exported GLB / baked atlas' if 'export' in src.parts else 'form checkpoint exported GLB',samples=a.samples,**d)
         (out/'shots.json').write_text(json.dumps(metadata,indent=2))
         if temporary:bpy.data.objects.remove(temporary,do_unlink=True)
         for o in list(sc.objects):

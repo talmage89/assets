@@ -1,10 +1,19 @@
-# Ditchlight street skateboard — look-dev checkpoint
+# Ditchlight street skateboard
 
-An original scripted street skateboard for a 1995–2015 American town. This
-checkpoint includes the corrected form, three age states, original graphics,
-4096 bakes and 2048 textured GLBs. It stops before final docs and a README
-gallery. [LOOKDEV.md](LOOKDEV.md) describes the current pipeline and review paths;
-[REVIEW.md](REVIEW.md) records the actual image critiques and remaining limits.
+![Season board, Cycles render of the exported GLB](docs/hero.jpg)
+![New, season and beat, top and underside](docs/ages.jpg)
+
+| | |
+| --- | --- |
+| ![Grip, trucks, wheels and seven-ply edges](docs/details.jpg) | ![Turnaround, 1.8 m scale and Eevee](docs/inspection.jpg) |
+
+![Three original fictional graphics](docs/graphics.jpg)
+
+An original street skateboard for a 1995–2015 American town, generated entirely
+by Blender 5.2 scripts. The gallery uses exported GLBs with baked maps; the
+last graphic sheet is original script-drawn artwork. No reference pixels or
+external models enter the asset. [REVIEW.md](REVIEW.md) records the image critiques
+and remaining limits; [LOOKDEV.md](LOOKDEV.md) maps the full-size local evidence.
 
 `make` rebuilds the seven-ply pressed deck, eight through-holes and recessed
 Allen hardware, sculpted cast trucks, bushings and cup washers, profiled wheels
@@ -58,7 +67,7 @@ tire's flattened footprint.
 ## Counts and materials
 
 The new and season boards have **13,888 triangles**. Beat adds 40 triangles
-for two attached maple splinters: **13,928**, within this round's 14k allowance.
+for two attached maple splinters: **13,928**, within the accepted 14k allowance.
 The denser deck and 64-sided wheels take the silhouette budget; buried hardware
 and bearing faces pay for it. Each visible bolt head/drive is 56 triangles.
 
@@ -81,16 +90,32 @@ Each state has one **2048 BaseColor / OpenGL +Y Normal / ORM** set, baked at
 4096. Three response classes share its images: common opaque surfaces,
 clear-coated maple/ink, and satin urethane with modest transmission. There is
 no extra hardware atlas. One resident state costs about **16 MiB compressed
-with mip chains**; all three age atlases cost about **48 MiB**. Actual GLB/map
-bytes, material/primitive counts and UV densities are recorded in
-`renders/lookdev/budgets.json` and `build/<state>/verify.json`.
+with mip chains**; all three age atlases cost about **48 MiB**. Actual GLB/map bytes and UV densities are recorded in
+`renders/final/budgets.json` and `build/<state>/verify.json`.
+
+| Age | GLB bytes, including maps | Three PNGs, bytes | Triangles |
+| --- | ---: | ---: | ---: |
+| New | 8,587,240 | 7,643,164 | 13,888 |
+| Season | 9,412,400 | 8,477,544 | 13,888 |
+| Beat | 9,461,080 | 8,531,219 | 13,928 |
+
+Each GLB has seven mesh nodes and twelve material primitives. The three atlas
+images are embedded once per GLB and are also written separately for engine
+import; the two columns above are alternative packaging costs. Compressed
+memory is an estimate for engine block compression, not PNG disk size or a
+measured engine allocation. UV overlap, outside and degenerate triangles are
+zero; median density is 2,032 / 2,067 / 2,026 px/m for new / season / beat.
 
 [TEXTURES.md](TEXTURES.md) documents causal aging and the three original
 Ditchlight / Kilnline / Static Orchard sheet designs. Wheel marks are Kilnline;
 truck marks are Crossway. The default Ditchlight board is exported in all three
-ages. New is clean manufactured material; season has belly slides, kick/rail
-chips, foot dirt/polish, bright hanger grinds and yellowed coned wheels. Beat
-adds a razor tail, lifted veneers, shoe-goo repair and torn nose grip.
+ages. New has fresh carbide grip and clean ink. Season has transverse belly slides
+through clear coat and ink to white base and maple, tip/rail chips, front-bolt
+and tail-pocket shoe dirt, underside hanger grinds, and yellow sidewalls around
+dark coned tread. Beat adds a razor tail, lifted veneers, shoe-goo repair, torn
+nose grip, faded wheel print and one real flat spot on the front-left wheel.
+There is no center grip label. The flat is parked above ground; it causes a
+bump when rolled, as a damaged wheel does.
 
 Seed 0 is 8 in / 32.125 in, with 54 mm wheels. Seeds 1/2/3 use 7.75/8.25/8.5 in
 widths, matching axles, 51/53/56 mm wheels and original envelopes in the brief's
@@ -134,17 +159,17 @@ uses the same complete socket alignment. Moving the target carries the board.
 
 Installed Blender 5.2, Python/Pillow/NumPy, GNU make, DejaVu/Noto fonts and flock.
 Only cited photos/PDFs are fetched. Blender calls run serially in this worktree;
-all Cycles bakes/renders hold the shared kit GPU lock and use OptiX/CUDA.
-The before comparison reconstructs tracked scripts at `8cc0710`, requiring that
-commit in the local history. No other checkout or worktree is used.
+all Blender steps hold the shared kit lock; Cycles uses OptiX/CUDA.
+Appearance comparisons reconstruct our tracked scripts at `b0939d8`; the
+optional historical form comparison uses `8cc0710`. These commits must be
+available in this clone. No other checkout or worktree is accessed.
 
 ```sh
-make                         # complete look-dev checkpoint; no docs/gallery
+make                         # sources → 4096 bake → 2048 GLBs → finals/docs/checks
 make check                   # game/dense construction, GLB/UV/maps, repo rules
-make repeat                  # byte-identical export from accepted UVs/maps
+make repeat                  # byte-identical serialization and original image fields
 make repeat-form             # independent raw form rebuild and byte comparison
 make check-variants          # alternate dimensions, budgets and riser supports
-make WIDTH=1200 SAMPLES=32    # alternate presentation settings
 make clean                   # generated asset outputs; references stay cached
 ```
 
@@ -164,12 +189,14 @@ pivot/socket transforms; they prove serialization rather than construction.
 | `build/<state>/model.blend` | Game form and retained manufacturing sources |
 | `build/<state>/{high,finalized}.blend` | Dense finish source and UV-packed game assembly |
 | `build/<state>/{construction,high-check,verify}.json` | Separate physical and delivery audits |
-| `renders/form-fixes/` | Same-camera native-size before/after crops, three deck sections |
-| `renders/lookdev/<state>/` | Cycles heroes, tail/truck/bearing/grip close-ups |
-| `renders/lookdev/{pairs,source-pairs}/` | Three neutral-balanced photograph comparisons |
-| `renders/lookdev/contact.jpg` | All states and details |
-| `renders/lookdev/graphics-sheet.jpg` | The three original designs |
-| `renders/lookdev/{values,budgets}.json` | Measured tones and delivery costs |
+| `renders/fixes/` | Nine native-size appearance before/after crops, same cameras |
+| `renders/form-fixes/` | Optional historical form comparisons and three deck sections |
+| `renders/final/<state>/` | Cycles heroes, tail/truck/bearing/grip close-ups; season turnaround/scale |
+| `renders/final/{pairs,source-pairs}/` | Three neutral-balanced photograph comparisons |
+| `renders/final/contact.jpg` | All states, details, turnaround, scale and Eevee |
+| `renders/final/eevee/hero.png` | Eevee view of the same season GLB |
+| `renders/final/graphics-sheet.jpg` | The three original designs |
+| `renders/final/{values,budgets}.json` | Measured tones and delivery costs |
 
 The mini-board fit is retired. Current pairs use the 2006 horizontal used board,
 the 2010 used complete (including an exact close truck/wheel crop), and the
@@ -177,5 +204,13 @@ the 2010 used complete (including an exact close truck/wheel crop), and the
 limit what their residuals prove. Neutral patches and gains are recorded in
 `build/photo-balance.json`; reference pixels never enter a material.
 
-No final docs images or README gallery are added at this checkpoint. Credits
-and licenses are in [refs/SOURCES.md](refs/SOURCES.md).
+Five final JPGs are rebuilt by `make docs`; each is at most 1600 px wide and
+200,000 bytes. No animation clip or GIF is required: the separate pivots are
+ready for engine controls. `make repeat` checks deterministic serialization
+from existing maps and independently regenerates all original source images;
+it does not claim a repeated GPU bake.
+
+Credits and photograph licenses are in [refs/SOURCES.md](refs/SOURCES.md).
+Installed DejaVu Sans fonts use their open font license. Fictional Ditchlight,
+Kilnline, Static Orchard and Crossway graphics are authored here. Lighting is
+procedural sun/sky and area lights. No external model, texture or HDRI is used.

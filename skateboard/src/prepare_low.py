@@ -13,7 +13,7 @@ for o in list(bpy.context.scene.objects):
         fallback=o.data.materials[2] if o.get('part')=='deck' else next(m for m in o.data.materials if m)
         for i,m in enumerate(o.data.materials):
             if m is None:o.data.materials[i]=fallback
-bpy.data.objects['Skateboard']['checkpoint']='Look-dev checkpoint / baked atlas game assembly'
+bpy.data.objects['Skateboard']['checkpoint']='Game assembly / baked PBR atlas'
 # Temporary projection owners are deliberately not moving pivots. The kit
 # exporter consolidates their parts and removes these empty helpers.
 for o in list(bpy.context.scene.objects):

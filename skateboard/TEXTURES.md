@@ -1,4 +1,4 @@
-# Skateboard look-dev surfaces
+# Skateboard delivered surfaces
 
 One three-map set per age: 4096 Cycles source bake, 2048 delivery. BaseColor is
 sRGB; tangent Normal is OpenGL +Y; ORM is occlusion/roughness/metallic. At three
@@ -19,7 +19,7 @@ designs: **Ditchlight** orbital contours, **Kilnline** fired-brick/lightning, an
 **Static Orchard** interrupted growth/radio forms. No real logo, artwork or
 reference pixel is used. Seed selects a panel; the default Ditchlight design
 ships here in three ages. Wheel lettering is Kilnline; truck marking Crossway;
-a small DL orientation sticker sits on the grip.
+the grip carries no center label.
 
 `src/lookdev.py` uses stable rest-position attributes, so material masks remain
 attached to moving parts and survive projection isolation. The source retains
@@ -27,7 +27,7 @@ rounder drive machining, casting bores and 64-sided axles. Temporary per-part
 owners isolate thin washers/bushings and other close neighbors during baking;
 those owners disappear in export. The same packed images serve all rigid nodes.
 
-Manufacturing detail includes silicon-carbide grit at real submillimeter scale,
+Manufacturing detail includes silicon-carbide aggregates and fine facets at real submillimeter scale,
 a filed score line measured from the actual grip/wood border, seven maple
 bands with two cross-grain veneers, thin printed ink/clear coat, cast grain and
 parting witness, steel machining, and 24-TPI axle-end threads. Shipped texel
@@ -36,15 +36,18 @@ drive mouths preserve their own hard shadows.
 
 - **New:** dark fresh grip, clean original ink and lacquer, maple rails, cast
   aluminum, amber bushings and ivory satin wheels.
-- **Season:** connected transverse boardslide scars expose maple in the belly;
+- **Season:** parallel transverse boardslide passes abrade clear coat, expose the white ink base and then maple in the belly;
   rear-kick dragging abrades the tip; localized rail impacts chip upper veneers.
-  Front/rear planted-foot zones collect shoe dirt and polish the grit. Hanger
-  grind faces brighten and score; wrench/drive edges scuff. Urethane yellows,
-  the rolling shoulders stain, and biased turns cone the tread while one edge
-  remains grounded.
+  Front-bolt/rear-pocket planted-foot zones collect irregular shoe dirt and polish
+  the grit. Toe dragging frays the filed trim. Downward-facing hanger/axle-housing
+  surfaces brighten and score; the deck-facing alloy stays cast gray, with dirt
+  in its recesses. The kingpin nut also grinds. Urethane sidewalls yellow while
+  the axial riding band becomes brown with grime; the sidewall print abrades.
+  Biased turns cone the tread while one edge remains grounded.
 - **Beat:** stronger belly loss, a thinner razor tail, two attached lifted maple
   splinters, a ribbed shoe-goo patch, a torn nose-grip area and deeper wheel
-  staining/coning. These stay at the corresponding contact/repair locations.
+  staining/coning, plus a 1.4 mm planar skid flat on the front-left wheel using
+  existing vertices. These stay at the corresponding contact/repair locations.
 
 Reference colors are compared after balancing concrete, or the loose truck's
 zinc washer, toward neutral. Mixed light and unknown photographic exposure
