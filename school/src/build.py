@@ -1,5 +1,5 @@
 """Deterministic form checkpoint, six external-image glTF packages."""
-import argparse,hashlib,json,os,sys
+import argparse,hashlib,json,os,struct,sys
 from pathlib import Path
 import bpy,numpy as np
 from mathutils import Vector
@@ -8,6 +8,38 @@ from geometry import consolidate
 from plans import school
 from buildings import build_school
 from siteworks import build_site,clear_templates,CACHE
+
+
+def preserve_library_tangent(path):
+    """Retain the accepted oak's one four-decimal MikkTSpace boundary corner.
+
+    Exact position/normal/UV signatures and the kit's one-step bound guard the
+    repair. Geometry, UVs and normals are never rounded or changed. The source
+    of truth is the read-only canonical oak, never a previous school export.
+    """
+    if not path.stem.startswith('Campus'):return
+    from kit.gltf import GLB,stabilize_tangents
+    canonical=GLB(ROOT/'trees/export/PinOak.glb');cp=canonical.json['meshes'][1]['primitives'][0]
+    reference={key:canonical.accessor(cp['attributes'][semantic])[10180].tolist() for key,semantic in [('position','POSITION'),('normal','NORMAL'),('uv','TEXCOORD_0'),('tangent','TANGENT')]}
+    doc=json.loads(path.read_text());binary=(path.parent/doc['buffers'][0]['uri']).read_bytes()
+    raw=object.__new__(GLB);raw.json=doc;raw.binary=binary;anchors=[]
+    for mi,mesh in enumerate(doc['meshes']):
+        if not mesh['name'].startswith('Trunk and branches'):continue
+        for pi,primitive in enumerate(mesh['primitives']):
+            at=primitive['attributes'];mask=np.ones(doc['accessors'][at['POSITION']]['count'],dtype=bool)
+            for key,semantic in [('position','POSITION'),('normal','NORMAL'),('uv','TEXCOORD_0')]:mask &= np.all(raw.accessor(at[semantic])==np.asarray(reference[key],dtype=np.float32),axis=1)
+            for vertex in np.flatnonzero(mask):anchors.append(dict(mesh=mi,primitive=pi,vertex=int(vertex),**reference))
+    assert len(anchors)==1,('Canonical oak rounding signature changed',path,len(anchors))
+    # The existing guarded kit helper consumes GLB. Wrap the external payload
+    # temporarily; external image URIs need no conversion or image rewriting.
+    wrapped=json.loads(path.read_text());wrapped['buffers'][0].pop('uri')
+    js=json.dumps(wrapped,separators=(',',':')).encode();js+=b' '*((-len(js))%4)
+    payload=binary+b'\0'*((-len(binary))%4)
+    stage=Path('build/tangent-stage.glb')
+    stage.write_bytes(struct.pack('<III',0x46546c67,2,28+len(js)+len(payload))+struct.pack('<II',len(js),0x4e4f534a)+js+struct.pack('<II',len(payload),0x004e4942)+payload)
+    stabilize_tangents(stage,anchors)
+    (path.parent/doc['buffers'][0]['uri']).write_bytes(GLB(stage).binary[:len(binary)])
+    stage.unlink()
 
 
 def counts(objects=None):
@@ -61,7 +93,7 @@ def publish(stem,p,root,building_count=None):
     consolidate();out=Path('export')/(stem+'.gltf');out.parent.mkdir(exist_ok=True)
     bpy.ops.object.select_all(action='SELECT')
     bpy.ops.export_scene.gltf(filepath=str(out.resolve()),export_format='GLTF_SEPARATE',export_texture_dir='shared',use_selection=True,export_yup=True,export_extras=True,export_animations=False,export_tangents=True,export_attributes=True,export_vertex_color='NAME',export_vertex_color_name='Tint',export_all_vertex_colors=False)
-    meta['images']=share_images(out);doc=json.loads(out.read_text());meta['gltf_bytes']=out.stat().st_size;meta['bin_bytes']=sum((out.parent/r['uri']).stat().st_size for r in doc['buffers'])
+    meta['images']=share_images(out);preserve_library_tangent(out);doc=json.loads(out.read_text());meta['gltf_bytes']=out.stat().st_size;meta['bin_bytes']=sum((out.parent/r['uri']).stat().st_size for r in doc['buffers'])
     meta['serialized_triangles']=sum(sum(doc['accessors'][q['indices']]['count']//3 for q in doc['meshes'][n['mesh']]['primitives']) for n in doc['nodes'] if 'mesh' in n)
     meta['primitives']=sum(len(doc['meshes'][n['mesh']]['primitives']) for n in doc['nodes'] if 'mesh' in n)
     assert meta['serialized_triangles']==meta['triangles'],(stem,meta['serialized_triangles'],meta['triangles'])

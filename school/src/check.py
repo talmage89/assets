@@ -45,7 +45,13 @@ def door_sweeps(portable_only=False):
                 overlap=tree([ob]).overlap(neighbors)
                 if overlap:nearbad.append(dict(angle=float(angle),triangle_pairs=len(overlap)))
         pv.matrix_basis=rest;bpy.context.view_layer.update()
-        sweeps.append(dict(pivot=pv.name,sampled_poses=21,casing_intersections=bad,neighbor_intersections=nearbad))
+        # The kit adds solid-parity / edge-interval penetration to the strict
+        # crossing test. Scope it to the closed casing; the neighbor crossing
+        # test above also includes open building skins and room witness planes.
+        from kit.motion import sweep
+        excluded=[o.name for o in bpy.context.scene.objects if o.type=='MESH' and o is not frame and o not in moving]
+        volume=sweep(dict(MOTIONS=[dict(node=pv.name,axis='Z',range=list(pv['range_degrees']),step=4.5,tolerance_m=.0005,exclude_fixed=excluded)]))
+        sweeps.append(dict(pivot=pv.name,sampled_poses=21,casing_intersections=bad,neighbor_intersections=nearbad,kit_casing_volume=volume))
     return sweeps
 
 
@@ -158,8 +164,9 @@ def main():
             assert all(not q.get('missing_surface') and q['error_m']<.003 for q in measured['classrooms']),(stem,'classroom surfaces',measured['classrooms'])
             assert all(not q['casing_intersections'] for q in measured['door_casing_sweeps']),(stem,'door casing interference')
             assert all(not q['neighbor_intersections'] for q in measured['door_casing_sweeps']),(stem,'door neighbor interference')
+            assert all(q['kit_casing_volume']['passed'] for q in measured['door_casing_sweeps']),(stem,'kit casing penetration')
         if stem.startswith('Campus'):
-            assert all(not q['casing_intersections'] and not q['neighbor_intersections'] for q in measured['portable_door_sweeps']),(stem,'portable door interference')
+            assert all(not q['casing_intersections'] and not q['neighbor_intersections'] and q['kit_casing_volume']['passed'] for q in measured['portable_door_sweeps']),(stem,'portable door interference')
         r=raw_check(stem,meta);r['construction']=measured;r['fresh_import']=imported(stem,meta,pivots);report[stem]=r
     preserved=json.loads(Path('build/preservation.json').read_text());changed=[p for p,h in preserved.items() if not (ROOT/p).exists() or hashlib.sha256((ROOT/p).read_bytes()).hexdigest()!=h];assert not changed,changed
     report['preservation']=dict(files=len(preserved),changed=changed);report['plan_seeds_checked']=300

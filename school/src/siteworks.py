@@ -196,14 +196,14 @@ def flagpole(a,p):
     m.tube([(x-.07,y,7.95),(x-.10,y,4.0),(x-.08,y,1.2),(x-.15,y,1.05),(x-.22,y,1.20),(x-.11,y,4.0),(x-.07,y,7.95)],.003,'Trim',(.49,.47,.39),sides=5)
     m.box((x-.085,y,1.18),(.035,.12,.025),'Trim',ALUM(),r=.003)
     m.finish()
-    pivot=a.pivot('Flag_on_halyard',(x-.07,y,7.95),axis='Z',limits=(-180,180));pivot['motion_kind']='flag yaw; halyard lowering via socket'
-    pivot['slide_axis']='Z';pivot['range_m']=(-6.7,0)
+    pivot=a.pivot('Flag_on_halyard',(x-.07,y,7.95),axis='Z',limits=(-60,60));pivot['motion_kind']='flag yaw; halyard lowering via socket'
+    pivot['slide_axis']='Z';pivot['range_m']=(-6.2,0)
     fl=a.mesh('Fictional_district_flag',part=pivot.name,component='flag',solid=False)
     # Authored resting cloth: 1.83 x 1.22m, gravity sag between winded folds.
     nx,ny=20,12;verts=[]
     for j in range(ny+1):
         for i in range(nx+1):
-            u,v=i/nx,j/ny;verts.append((x-.07+u*1.83,y+.10*math.sin(u*11-v*2)*u,7.90-v*1.22-.21*u*u+.07*math.sin(u*8+v*3)*u))
+            u,v=i/nx,j/ny;verts.append((x-.07-u*1.83,y+.10*math.sin(u*11-v*2)*u,7.90-v*1.22-.21*u*u+.07*math.sin(u*8+v*3)*u))
     for j in range(ny):
         for i in range(nx):
             ids=(j*(nx+1)+i,j*(nx+1)+i+1,(j+1)*(nx+1)+i+1,(j+1)*(nx+1)+i)

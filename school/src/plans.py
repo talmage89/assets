@@ -54,7 +54,8 @@ def school(seed=101,plan_type=None,bays=None):
         for j,x in enumerate((-36,3)):
             block('Cluster_'+chr(65+j),(x,x+pod_w,-8,-8+pod_d),'cluster',era,3.81,bays=2,axis='X',replacement=j==1,gable=True,corridor=8*FT)
         block('Addition_1988',(-27,-27+3*BAY+2*WALL-PART,23,23+DEPTH+2*WALL),'classrow',1988,4.15,skin='brick',bays=3,axis='X',replacement=True)
-        entry=(-15,-28);covered=[dict(rect=(-29,-1,-31,-28),height=3.08),dict(rect=(-17,-13,-16,23),height=2.92,wall_bearing_end=True),dict(rect=(-13,4,-5,-1),height=2.92),dict(rect=(-30,-13,19,23),height=2.92)]
+        pod_hall=-8+pod_d/2
+        entry=(-15,-28);covered=[dict(rect=(-29,-1,-31,-28),height=3.08),dict(rect=(-17,-13,-16,23),height=2.92,wall_bearing_end=True),dict(rect=(-13,3,pod_hall-2,pod_hall+2),height=2.92),dict(rect=(-30,-13,19,23),height=2.92)]
         loop=dict(center=(-64,-25),straight=22,radius=12,yaw=90)
         parent=dict(center=(-3,-57),straight=22,radius=10.5,yaw=0)
         parking=(41,78,-65,-42);blacktop=(8,38,40,60);play=(45,69,9,27);field=(-40,58)
