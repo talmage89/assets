@@ -57,8 +57,8 @@ tire's flattened footprint.
 
 ## Counts and materials
 
-The new and season boards have **13,874 triangles**. Beat adds 40 triangles
-for two attached maple splinters: **13,914**, within this round's 14k allowance.
+The new and season boards have **13,888 triangles**. Beat adds 40 triangles
+for two attached maple splinters: **13,928**, within this round's 14k allowance.
 The denser deck and 64-sided wheels take the silhouette budget; buried hardware
 and bearing faces pay for it. Each visible bolt head/drive is 56 triangles.
 
@@ -66,16 +66,16 @@ and bearing faces pay for it. Each visible bolt head/drive is 56 triangles.
 | --- | ---: |
 | Deck and grip shell | 4,128 |
 | Eight mounting fastener assemblies | 768 |
-| Two cast baseplates | 1,066 |
-| Two sculpted hangers | 1,496 |
+| Two cast baseplates | 1,074 |
+| Two sculpted hangers | 1,422 |
 | Bushings | 640 |
 | Kingpins, pivot cups and washers | 800 |
-| Steel axles | 64 |
+| Exposed steel axle ends | 144 |
 | Four urethane wheels | 4,096 |
 | Eight visible bearing race/shield pairs | 640 |
 | Exposed inboard speed rings | 80 |
 | Axle nuts | 96 |
-| **Whole board** | **13,874** |
+| **Whole board** | **13,888** |
 
 Each state has one **2048 BaseColor / OpenGL +Y Normal / ORM** set, baked at
 4096. Three response classes share its images: common opaque surfaces,

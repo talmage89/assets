@@ -156,6 +156,21 @@ def nut(name,at,axis,r,depth,bore,mat,nylon,owner,part):
     tag(internal,part,owner);del internal['asset_set'];internal['source_only']=True;internal.hide_render=True;internal.hide_set(True)
     return o
 
+def exposed_axle(name,s,ay,az,mat):
+    """Twelve-sided exposed steel ends; buried center/caps stay in high source."""
+    vs=[];fs=[];n=12
+    for side in (-1,1):
+        first=len(vs)
+        for x in (side*(s.hanger_width/2-.001),side*s.axle_width/2):
+            vs.extend((x,ay+.004*math.cos(math.tau*i/n),az+.004*math.sin(math.tau*i/n)) for i in range(n))
+        c=len(vs);vs.append((side*s.axle_width/2,ay,az))
+        for i in range(n):
+            j=(i+1)%n
+            face=(first+i,first+j,first+n+j,first+n+i)
+            cap=(first+n+i,first+n+j,c)
+            fs.append(face if side>0 else tuple(reversed(face)));fs.append(cap if side>0 else tuple(reversed(cap)))
+    return G.smooth(G.mesh(name,vs,fs,mat),65)
+
 def build(s):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     mat=material('Checkpoint bottom / red oxide',(.23,.024,.012),0,.47)
@@ -167,7 +182,7 @@ def build(s):
     ure=material('Checkpoint urethane / amber',(.24,.080,.018),0,.43)
     rubber=material('Checkpoint rubber',(.009,.011,.012),0,.73)
     wheelmat=material('Checkpoint wheel / ivory urethane',(.55,.49,.34),0,.49)
-    shield=material('Checkpoint bearing shield',(.21,.24,.24),.82,.38)
+    shield=material('Checkpoint bearing shield',(.035,.075,.085),.20,.43)
     root=G.pivot('Skateboard',(0,0,0));root['static_root']=True;root['seed']=s.seed;root['age_state']=s.state;root['checkpoint']='form only; no baked texture'
     deck=deform_deck(s,mat,plies,grip)
     # Actual through bores with conical countersinks. Do not stop at bolt discs.
@@ -221,12 +236,13 @@ def build(s):
             for v in ob.data.vertices:
                 world=ob.matrix_world@v.co
                 if world.z>z-.0012:world.z=z
-                # Four machined nut lands beneath the mounting flange. Their
-                # bearing plane is 6 mm below the deck-side mounting plane.
-                near_bolt=min(math.hypot(world.x-bx,world.y-by) for bx in (-s.pitch_x/2,s.pitch_x/2) for by in (cy-s.pitch_y/2,cy+s.pitch_y/2))
-                if near_bolt<.008 and world.z<z-.006:world.z=z-.006
                 v.co=ob.matrix_world.inverted()@world
-        m=base.modifiers.new('Post-bore casting reduction','DECIMATE');m.ratio=.40;G.apply(base);G.smooth(base,65)
+        # Cut real cylindrical wrench/nut reliefs. Projecting nearby vertices
+        # onto the bearing plane stretched the boss into thin sliver faces.
+        for bx in (-s.pitch_x/2,s.pitch_x/2):
+            for by in (cy-s.pitch_y/2,cy+s.pitch_y/2):
+                cast_cut(base,G.cylinder('Machined nut land tool',(bx,by,z-.055),(bx,by,z-.006),.008,None,16))
+        m=base.modifiers.new('Post-bore casting reduction','DECIMATE');m.ratio=.35;G.apply(base);G.smooth(base,65)
         cast_normals(base)
         tag(base,'baseplates',root)
         tag(ring(label+' pivot cup',pc-steer*.005,steer,.0065,.0047,.009,rubber,16),'truck_hardware',root)
@@ -254,8 +270,9 @@ def build(s):
             lower=az-.0065
             centerz=(upper+lower)/2
             centery=ay+(pc.y+steer.y*.018-ay)*taper
-            radiusy=.0065+.0015*taper
-            web.append([(fraction*hw,centery+radiusy*math.cos(math.tau*i/32),centerz+(upper-lower)/2*math.sin(math.tau*i/32)) for i in range(32)])
+            radiusy=.0026+.0010*taper
+            section=G.rounded_rectangle(2*radiusy,upper-lower,min(.0015,radiusy*.6),4)
+            web.append([(fraction*hw,centery+u+.08*v,centerz+v) for u,v in section])
         pieces.append(G.loft('Triangular drafted outer hanger web',web,al))
         seat=bored_ring('Drafted annular kingpin seat',yc-kaxis*.0039,kaxis,[(0,.0065),(0,.0175),(.001,.018),(.0068,.018),(.0078,.0175),(.0078,.0065)],al,48);pieces.append(seat)
         arm=G.lathe('Tapered cast pivot arm seed',[(0,0),(0,.0045),(.010,.0045),(.025,.0055),(.040,.0065),((yc-pc).length,.0065),((yc-pc).length,0)],al,24);arm.location=pc-steer*.003;arm.rotation_euler=steer.to_track_quat('Z','Y').to_euler();pieces.append(arm)
@@ -266,12 +283,12 @@ def build(s):
         for direction,start,radius in [(1,.0055,.0123),(-1,.0023,.0124)]:
             tool=G.lathe('Bushing seat and hardware relief',[(0,0),(0,radius),(.020,.016),(.050,.022),(.050,0)],None,20)
             tool.location=yc+kaxis*direction*start;tool.rotation_euler=(kaxis*direction).to_track_quat('Z','Y').to_euler();cast_cut(hanger,tool)
-        m=hanger.modifiers.new('Post-seat casting reduction','DECIMATE');m.ratio=.52;G.apply(hanger);G.smooth(hanger,65)
+        m=hanger.modifiers.new('Post-seat casting reduction','DECIMATE');m.ratio=.50;G.apply(hanger);G.smooth(hanger,65)
         # Solid ring yoke carries bushings around its OPEN center, not through a block.
         # Cast ring is allowed to meet central barrel on its far side.
         cast_normals(hanger)
         tag(hanger,'hangers',pivot)
-        tag(G.cylinder(label+' continuous axle',(-s.axle_width/2,ay,az),(s.axle_width/2,ay,az),.004,steel,8),'axles',pivot)
+        tag(exposed_axle(label+' continuous axle',s,ay,az,steel),'axles',pivot)
         upper=kbase+kaxis*.0235
         tag(bored_ring(label+' cone bushing',upper,kaxis,[(0,.0049),(0,.0118),(.0102,.0088),(.0102,.0049)],ure,16),'bushings',root)
         tag(bored_ring(label+' top cupped washer',upper+kaxis*.0102,kaxis,[(0,.0049),(-.0008,.0109),(.0008,.0112),(.0015,.0049)],steel,12),'truck_hardware',root)
@@ -329,7 +346,7 @@ def build(s):
             for side,cy0,span in ((1,s.tail_end-.024,.009),(-1,s.nose_end+.035,.008)):
                 band=max(0,1-abs(y-cy0)/span)
                 edge=max(0,min(1,(side*x/max(.001,halfwidth(s,y))-.80)/.20))
-                v.co.x-=side*.0023*age*band*edge*tier
+                v.co.x-=side*.0040*age*band*edge*tier
         if s.state=='beat':
             for k,(cx,yy) in enumerate(((-.014,s.tail_end-.013),(.011,s.tail_end-.009))):
                 loops=[]
