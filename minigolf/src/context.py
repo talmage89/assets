@@ -123,24 +123,37 @@ def town(p,road_y):
  for name,positions in (('AlderC150',[(-11,road_y-2,road_z),(17,road_y+2,road_z),(-14,-p['lot'][1]/2+10,.0355)]),('AlderS240',[(42,road_y-2,road_z),(12,-p['lot'][1]/2+10,.0355)])):
   proof.append(planted_asset(REPO/'cars/export'/f'{name}.glb',name,[(q,1,-math.copysign(math.pi/2,q[1]-road_y) if q[2]<0 else math.pi,-math.atan(1/48) if q[2]<0 else 0) for q in positions]))
  proof.append(planted_asset(REPO/'street-light/export/StreetLight.glb','StreetLight',[((x,road_y-6.4,0),1,0) for x in (-72,-24,24,72)]))
- utility(p,road_y)
- return proof
+ return proof,utility(p,road_y)
 
 def utility(p,road_y):
  # Use library pole/hardware constructors in an isolated import namespace;
  # source scalar finish is adequate at background distance. No family bake.
  saved=list(sys.path);folder=REPO/'utility/src';names={q.stem for q in folder.glob('*.py')};previous={key:sys.modules.pop(key,None) for key in names}
  try:
-  sys.path.insert(0,str(folder));import construction,plan as utility_plan
+  sys.path.insert(0,str(folder));import construction,plan as utility_plan,span as utility_span,cables as utility_cables
   mapping=dict(Wood='wood',Endgrain='wood',Steel='metal',Porcelain='ivory',Polymer='navy',Paint='white',Cable='black',Aluminum='metal',Guard='yellow',Recess='black',Vine='grass')
   construction.M.update({k:F.M[v] for k,v in mapping.items()})
   construction.Assembly.finish=lambda self:self.root
-  rt=F.root('Context library utility')
+  rt=F.root('Context library utility');poles=[];spans=[]
   for i,x in enumerate(range(-90,91,30)):
    spec=utility_plan.pole_spec(kind='transformer' if i==3 else 'tangent',seed=100+i);spec['light']=False
-   part=construction.pole('Context library pole',spec);part.root.location=(x,road_y-8,0)
-   if x<90:
-    for yy in (-.85,0,.85):F.tube('Catenary roadside conductor',[(x+30*j/24,road_y-8+yy,10.4-1.15*math.sin(math.pi*j/24)) for j in range(25)],.009,'metal',rt,6)
+   part=construction.pole('Context library pole',spec);part.root.location=(x,road_y-8,0);part.root.rotation_euler.z=math.pi/2;poles.append(part)
+  bpy.context.view_layer.update()
+  for index,(a,b) in enumerate(zip(poles,poles[1:])):
+   for key in ('Primary_A','Primary_B','Primary_C','Neutral'):
+    start=a.sockets[key].matrix_world.translation.copy();end=b.sockets[key].matrix_world.translation.copy()
+    mass,tension=(.1354,450) if key=='Neutral' else (.2158,550)
+    diameter=utility_cables.NEUTRAL if key=='Neutral' else utility_cables.PRIMARY
+    sag=utility_span.sag_from_tension(start,end,mass,tension)
+    ob,row=construction.conductor('Context native span '+str(index)+' '+key,start,end,sag,diameter);F.own(ob,rt)
+    # Native conductors have four vertices per ring. Measure their actual
+    # end-ring centroids against the transformed hardware sockets.
+    vertices=ob.data.vertices;centers=[]
+    for ring in (list(vertices[:4]),list(vertices[-4:])):
+     world=[ob.matrix_world@v.co for v in ring];centers.append(tuple(math.fsum(v[k] for v in world)/4 for k in range(3)))
+    error=max(math.dist(centers[0],start),math.dist(centers[1],end));assert error<.0001,('Utility mesh misses socket',key,error)
+    row.update(source_socket=a.sockets[key].name,end_socket=b.sockets[key].name,mesh_endpoint_to_socket_error_m=error,mass_kg_m=mass,horizontal_tension_n=tension);spans.append(row)
+  return dict(poles=len(poles),spans=spans,max_mesh_endpoint_to_socket_error_m=max(row['mesh_endpoint_to_socket_error_m'] for row in spans),scope='Actual conductor end-ring centroids to native named hardware sockets; not a clearance certification. Native pole construction defines the seat surfaces.')
  finally:
   sys.path[:]=saved
   for key in names:
@@ -148,7 +161,7 @@ def utility(p,road_y):
    if previous[key] is not None:sys.modules[key]=previous[key]
 
 def make(p):
- palette();road_y=native_ground(p);town_proof=town(p,road_y);W,D=p['lot'];rng=random.Random(981+p['seed'])
+ palette();road_y=native_ground(p);town_proof,utility_proof=town(p,road_y);W,D=p['lot'];rng=random.Random(981+p['seed'])
  trees=[]
  for i in range(22):
   x=-100+i*9.5;y=road_y-32-rng.random()*15;trees.append(((x,y,0),rng.uniform(.70,1.2),rng.random()*math.tau))
@@ -217,7 +230,7 @@ def make(p):
  for index,seed in enumerate((None,811,829)):
   path=REPO/'shrubs/export/Shrubs.glb' if seed is None else REPO/f'minigolf/build/context/boxwood-{seed}/variant.glb'
   shrub_proof.append(planted_asset(path,'Boxwood',shrubs[index::3]))
- proof=dict(road='ground/src/build.py: native road/curb/walk constructors and canonical PBR maps',town=town_proof,hydrangea_geometry=hydrangea_proof,maple_instances=len(trees[::2]),oak_instances=len(trees[1::2]),boxwood_instances=len(shrubs),placement_seed=981+p['seed'],tree_geometry=tree_proof,oak_geometry=oak_proof,shrub_geometry=shrub_proof,included_in_course_gltf=False)
+ proof=dict(road='ground/src/build.py: native road/curb/walk constructors and canonical PBR maps',town=town_proof,utility_geometry=utility_proof,hydrangea_geometry=hydrangea_proof,maple_instances=len(trees[::2]),oak_instances=len(trees[1::2]),boxwood_instances=len(shrubs),placement_seed=981+p['seed'],tree_geometry=tree_proof,oak_geometry=oak_proof,shrub_geometry=shrub_proof,included_in_course_gltf=False)
  proof['assembled_texture_allocation']=texture_cost()
  # Preserve reusable native-instance placement, rather than baking the town
  # and every repeated plant into each core course GLB. Paths are clone-relative.
