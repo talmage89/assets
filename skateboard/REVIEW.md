@@ -434,7 +434,7 @@ The sun heroes retain charcoal grip, dark teal ink, lighter yellow sidewalls,
 brown riding shoulders and deep shadows beneath the deck and in hardware.
 All three top heroes have zero white-clipped pixels. Underside heroes have
 0 / 140 / 135 white pixels (new/season/beat), confined to small specular glints,
-at most 0.0068% of the frame. Their p1/p99 luma is 15.82/147.49,
+at most 0.0098% of the frame. Their p1/p99 luma is 15.82/147.49,
 15.66/146.85 and 15.66/154.69. The tiny clipped glints remain a limitation;
 the bulk highlights roll off and the frames do not read pale.
 
@@ -484,3 +484,55 @@ truck and wheels have different histories and stronger oxidation than this
 season treatment; no identical-object or recovered-light claim is made.
 No new geometry or larger atlas is justified for these residuals. All five
 fixes now pass their crop gate; compact final docs may be generated.
+
+## Delivery pass 4 — clean rebuild, final files and compact gallery
+
+Color and value first: the clean rebuild retains front-grip photo/export RGB
+35/35/36 versus 40/40/40 and rear 41/37/39 versus 40/40/40, with the same
+concrete neutral. All top heroes remain unclipped; the small underside glints
+remain 0 / 140 / 135 pixels, at most 0.0098% of a 1440 × 993 frame. The dark
+grip, ink and cavities retain their range. No further material change was made.
+
+Ran `make clean`, then one complete successful `make` with the finished
+scripts, including rebuilding the accepted comparison source from local Git
+history. Log: `../build/skateboard-clean-final.log`. All three size variants
+and all nine main construction/dense-source/import audits pass. The raw GLB
+position/frame comparison still preserves every season triangle and changes
+only beat's front-left wheel. The three original graphic PNGs also retain the
+accepted SHA-256 values, byte for byte.
+
+Reopened all 31 regenerated final images at native size, all six source/export
+photo renders, the nine fix panels, matched-pair/contact sheets and the four
+regenerated gallery JPGs. The fifth JPG, graphics, is byte-identical to the
+already viewed image. Comparing 39 native PNGs with the previous reviewed
+rebuild finds a maximum channel difference of 1/255 and a worst image-average
+absolute difference of 0.000103 in 8-bit units. Thus fresh GPU bakes/renders are
+visually repeatable but not byte-identical; this numerical limit is recorded
+rather than treating an export-only repeat as an independent bake test.
+
+`make check repeat` passes after that clean build; log:
+`../build/skateboard-clean-final-check-repeat.log`. All three GLBs serialize
+byte-identically from the finished maps, and all 30 independently regenerated
+source PNGs match exactly. `python3 ../kit/repo_check.py` reports 1,872 source
+files and zero errors. `python3 src/preserve.py` retains all 610 other delivery
+hashes. No shared-kit file or top-level README was changed by this work.
+
+Final GLB bytes are 8,587,240 / 9,412,400 / 9,461,080 for new / season / beat;
+separate PNG sets total 7,643,164 / 8,477,544 / 8,531,219 bytes. Counts stay
+13,888 / 13,888 / 13,928, with three shared-image materials, seven mesh nodes
+and twelve primitives. Three 2048 maps per age retain the approximately
+16 MiB compressed/mipped estimate per resident age, 48 MiB for all ages.
+The full proofs are `renders/final/{budgets,values,provenance}.json`.
+
+Five final docs JPGs total 901,480 bytes: hero 123,351; ages 179,043; details
+199,942; inspection 199,722; graphics 199,422. Widths are 1440, 1600, 1600,
+1600 and 1536 px. The detail/contact arrangements remain legible after JPEG
+compression; the gritty highlights, bright hanger contact, lighter wheel
+faces/dark tread and real skid chord remain visible. No GIF earns an extra
+committed artifact; the documented separate pivots serve engine controls.
+
+Remaining CG is unchanged: regular scrape termination, reduced casting facets,
+softened fine lettering/fibers/grains and simple lifted veneer tabs in extreme
+macro. Tiny underside glints still clip. Nothing further is needed from the
+lead. A future kit improvement could distinguish exact source/export repeats
+from tolerance-based independent GPU-bake comparisons. No kit change was made.
