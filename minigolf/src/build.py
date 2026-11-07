@@ -123,7 +123,9 @@ def source_measure(roots):
    carpet=next(o for o in owner.children if o.name.startswith('Carpet playing face'))
    points=[carpet.matrix_world@v.co for v in carpet.data.vertices]
    assert all(fence[0]<q.x<fence[1] and fence[2]<q.y<fence[3] for q in points),('Playing face outside actual fence',owner.name)
-  rows[str(p['seed'])]=dict(landscape_to_carpet_minimum_gap_m=min(ground_gaps),holes=holes_data,fixtures=fixture_data,bridge_contacts=bridges,crossing_contacts=crossing_contacts,bench_contacts=bench_contacts,counter_contacts=counter_contacts,quarry_obstacle_checks=obstacle_checks,spill_sheet_normals=flow_normals,pool_airside_normals=pool_normals,fence_post_centerline_bounds_m=fence,fenced_play_enclosure_m2=(fence[1]-fence[0])*(fence[3]-fence[2]),fence_measure_scope='Extrema of actual source post-mesh centroids; rectangular paid-play enclosure, excluding hut and parking; all playing-face vertices lie inside')
+  from walk_audit import measure as measure_walks
+  walking=measure_walks(course)
+  rows[str(p['seed'])]=dict(walk_junctions_and_steps=walking,landscape_to_carpet_minimum_gap_m=min(ground_gaps),holes=holes_data,fixtures=fixture_data,bridge_contacts=bridges,crossing_contacts=crossing_contacts,bench_contacts=bench_contacts,counter_contacts=counter_contacts,quarry_obstacle_checks=obstacle_checks,spill_sheet_normals=flow_normals,pool_airside_normals=pool_normals,fence_post_centerline_bounds_m=fence,fenced_play_enclosure_m2=(fence[1]-fence[0])*(fence[3]-fence[2]),fence_measure_scope='Extrema of actual source post-mesh centroids; rectangular paid-play enclosure, excluding hut and parking; all playing-face vertices lie inside')
  Path('build/source-construction.json').write_text(json.dumps(rows,indent=2))
 
 def build(args):

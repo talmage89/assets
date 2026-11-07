@@ -18,7 +18,7 @@ COLORS={
  'black':(.012,.017,.017),'metal':(.32,.34,.33),'rubber':(.012,.015,.014),
  'soil':(.065,.048,.025),'grass':(.12,.18,.045),'asphalt':(.065,.069,.070),
  'yellow':(.67,.37,.025),'leaf':(.22,.14,.035),'liner':(.017,.022,.018),
- 'water':(.94,.98,.99),'glass':(.08,.12,.13),'foam':(.65,.69,.61),'stonepaint':(.40,.41,.36),'fallwater':(.24,.32,.28),'clothred':(.32,.024,.016),'clothivory':(.58,.55,.43)}
+ 'coping':(.62,.65,.59),'water':(.94,.98,.99),'glass':(.08,.12,.13),'foam':(.65,.69,.61),'stonepaint':(.40,.41,.36),'fallwater':(.24,.32,.28),'clothred':(.32,.024,.016),'clothivory':(.58,.55,.43)}
 M={};PRINTS={};PRINT_LAYOUTS={};PRINT_OBJECTS=[];FONT=None
 
 def setup():
@@ -89,8 +89,8 @@ def rock(name,p,size,parent,seed=0,mat='rock'):
   for i in range(n):
    a=i*math.tau/n;ca,sa=math.cos(a),math.sin(a)
    xx=math.copysign(abs(ca)**.45,ca) if detailed else ca;yy=math.copysign(abs(sa)**.45,sa) if detailed else sa
-   radius=fac*fracture[i]*(1+(.07*math.sin(a*3+height*6+seed) if detailed else 0))
-   zz=height+(.026*math.sin(a*3+seed)+.017*math.sin(a*7+height*9+seed) if k else 0)
+   radius=fac*fracture[i]*(1+(.11*math.sin(a*3+height*11+seed)+.055*math.sin(a*7-height*14+seed*.4) if detailed else 0))
+   zz=height+(.045*math.sin(a*3+seed)+.024*math.sin(a*7+height*9+seed) if k else 0)
    ring.append((x+w*.5*(radius*xx+.065*math.sin(height*8+seed)*height),y+d*.5*(radius*yy+.045*math.cos(height*9+seed)*height),z+h*zz))
   loops.append(ring)
  ob=own(G.smooth(G.loft(name,loops,M[mat]),32),parent)
@@ -195,10 +195,19 @@ def finalize():
   bm=bmesh.new();bm.from_mesh(data)
   if ob.get('buried_walk_bottom'):
    bm.normal_update();bmesh.ops.delete(bm,geom=[f for f in bm.faces if f.normal.z<-.2],context='FACES')
-  bmesh.ops.triangulate(bm,faces=list(bm.faces));bm.to_mesh(data);bm.free()
+  if ob.get('walking_surface') or ob.get('walk_cleanup') or ob.get('water_skin'):
+   bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=1e-5);bmesh.ops.dissolve_degenerate(bm,edges=list(bm.edges),dist=1e-5)
+  bmesh.ops.triangulate(bm,faces=list(bm.faces))
+  if ob.get('walking_surface') or ob.get('walk_cleanup') or ob.get('water_skin'):
+   tiny=[f for f in bm.faces if f.calc_area()<1e-10 or 2*f.calc_area()/max(1e-12,max(e.calc_length() for e in f.edges))<1e-5]
+   bmesh.ops.delete(bm,geom=tiny,context='FACES');bm.normal_update()
+  bm.to_mesh(data);bm.free()
   uv=data.uv_layers.get('UVMap') or data.uv_layers.new(name='UVMap')
   graphic=ob.get('graphic')
   if graphic:
+   # Graphics retain white vertex modulation when joined with tinted skins.
+   color=data.color_attributes.get('Tint') or data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='CORNER')
+   for pixel in color.data:pixel.color=(1,1,1,1)
    gx,gy,gw,gh=charts[graphic];u=gx/1024;v=1-(gy+gh)/1024
    # Triangle vertices refer to authored plane coordinates.
    axis=2 if max(v.co.z for v in data.vertices)-min(v.co.z for v in data.vertices)>.001 else 1
@@ -218,10 +227,16 @@ def finalize():
  for parent in sorted(parents,key=lambda x:x.name if x else ''):
   obs=[o for o in bpy.context.scene.objects if o.type=='MESH' and o.parent==parent]
   if not obs:continue
-  bpy.ops.object.select_all(action='DESELECT')
-  for o in obs:o.select_set(True)
-  bpy.context.view_layer.objects.active=obs[0]
-  if len(obs)>1:bpy.ops.object.join()
-  ob=bpy.context.object;ob.name=(parent.name if parent else 'Course')+'__Mesh'
-  xf=ob.matrix_basis.copy();ob.data.transform(xf);ob.matrix_basis=Matrix.Identity(4)
+  # Blender chooses one COLOR_0 layout for each consolidated mesh. Keep
+  # coverage-bearing foam together so its RGBA survives, while the opaque
+  # RGB float masks keep their accepted brightness (no integer clamp).
+  groups=([o for o in obs if o.get('foam_alpha') is None],[o for o in obs if o.get('foam_alpha') is not None])
+  for group_index,group in enumerate(groups):
+   if not group:continue
+   bpy.ops.object.select_all(action='DESELECT')
+   for o in group:o.select_set(True)
+   bpy.context.view_layer.objects.active=group[0]
+   if len(group)>1:bpy.ops.object.join()
+   ob=bpy.context.object;ob.name=(parent.name if parent else 'Course')+('__Foam' if group_index else '__Mesh')
+   xf=ob.matrix_basis.copy();ob.data.transform(xf);ob.matrix_basis=Matrix.Identity(4)
  return atlas,graphics

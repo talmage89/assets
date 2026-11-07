@@ -40,10 +40,13 @@ def materials():
    b.inputs['Base Color'].default_value=(.95,.985,.98,1)
   states[name]=m
  states['fallwater']=states['water']
- # Continuous, world-authored mineral paint is vertex color. Keep baked
- # aggregate/roughness in the existing atlas, without planar color seams.
- stone=atlas.copy();stone.name='Minigolf_Rock';shader=stone.node_tree.nodes.get('Principled BSDF');color=next(n for n in stone.node_tree.nodes if n.type=='VERTEX_COLOR')
- stone.node_tree.links.new(color.outputs['Color'],shader.inputs['Base Color'])
+ # Entrained air is a softly covered surface, sharing the same white atlas
+ # region. COLOR_0 alpha fades the boundary and the transition into clear water.
+ foam=atlas.copy();foam.name='Minigolf_Foam';foam.surface_render_method='DITHERED'
+ bsdf=foam.node_tree.nodes.get('Principled BSDF');vc=next(n for n in foam.node_tree.nodes if n.type=='VERTEX_COLOR')
+ foam.node_tree.links.new(vc.outputs['Alpha'],bsdf.inputs['Alpha']);states['foam']=foam
+ # Baked mineral mottling with continuous vertex-authored exposure and stain.
+ stone=atlas
  for key in ('rock','rocklight','wetrock'):states[key]=stone
  return atlas,states
 
@@ -75,7 +78,7 @@ def assign(ob,atlas,states):
   nw=normal_matrix@poly.normal;wa=sorted(range(3),key=lambda k:round(abs(nw[k]),3))[:2];wa.sort()
   for li in poly.loop_indices:
    q=data.vertices[data.loops[li].vertex_index].co;world=ob.matrix_world@q
-   tint=[1.,1.,1.]
+   tint=[1.,1.,1.];alpha=ob['foam_alpha'][data.loops[li].vertex_index] if key=='foam' and ob.get('foam_alpha') is not None else 1.
    if key.startswith('carpet') and h and ob.name.startswith('Carpet playing face'):
     t=q.y/h['length']+.5;cx,_=center(h,t)
     u=.5+(q.x-cx)/3.66;v=t
@@ -100,7 +103,7 @@ def assign(ob,atlas,states):
      uv.data[li].uv=origin+du*(.04+.92*u)+dv*(.01+.98*v)
     tint=[.83,.82,.77] if key=='concrete' else [1,1,1]
     if ob.get('surface_tint'):tint=[a*b for a,b in zip(tint,ob['surface_tint'])]
-    vcol.data[li].color=(*tint,1);continue
+    vcol.data[li].color=(*tint,alpha);continue
    else:
     # Each construction part is an authored chart. Dominant-face projection
     # prevents collapse on thin vertical rails and cast faces. Atlas reuse
@@ -109,6 +112,10 @@ def assign(ob,atlas,states):
     if key=='water':
      tile=2.;middle=ob.matrix_world@poly.center
      u=(world.x-math.floor((middle.x+1e-7)/tile)*tile)/tile;v=(world.y-math.floor((middle.y+1e-7)/tile)*tile)/tile
+    if ob.get('coping'):
+     u=(q.y*.17+q.x*.11)%1
+     # cross section: outside edge at -.22, waterline on the inner wall.
+     v=ob['coping_v'][data.loops[li].vertex_index]
     if key=='brick' and ob.name.startswith('Jointed brick border'):
      # One modeled brick samples clay within one atlas brick, not a miniature
      # seven-course wall printed on each individual edging unit.
@@ -117,11 +124,10 @@ def assign(ob,atlas,states):
      wet=wet_mask(world);north=max(0,nw.y)**2;ground=.015+(.065*max(0,world.y+7) if course and course.get('course_kind')=='adventure' else 0)
      damp_foot=math.exp(-((world.z-ground)/.38)**2);sheltered=north*damp_foot*max(0,math.sin(world.x*8+world.y*3))**6
      algae=min(1,wet*.90+.48*sheltered+(.28 if -.25<world.z<.06 else 0))
-     variation=.88+.12*math.sin(world.x*1.4+world.z*2.8)*math.sin(world.y*1.1-world.z*1.9)
+     variation=.88+.10*math.sin(world.x*1.4+world.z*2.8)*math.sin(world.y*1.1-world.z*1.9)
      moss=algae*(.6+.4*math.sin(world.x*11+world.y*7)**2)
-     mineral=max(0,min(1,.5+.27*math.sin(world.x*.61+world.z*.37)*math.sin(world.y*.43-world.z*.28)+.18*math.sin(world.x*.93+world.y*.71+world.z*.49)))
-     tan=(.185,.140,.093);gray=(.235,.232,.214)
-     tint=[((1-mineral)*a+mineral*b)*variation*c for a,b,c in zip(tan,gray,(1-.78*moss,1-.59*moss,1-.83*moss))]
+     mineral=.5+.25*math.sin(world.x*2.1+world.z*1.7)*math.sin(world.y*1.3-world.z*2.8)
+     tint=[variation*(.86+.23*mineral)*c for c in (1-.78*moss,1-.59*moss,1-.83*moss)]
      if ob.get('stone_uv_m'):
       tile=ob['stone_uv_m'];middle=ob.matrix_world@poly.center
       u=(world[wa[0]]-math.floor((middle[wa[0]]+1e-7)/tile)*tile)/tile;v=(world[wa[1]]-math.floor((middle[wa[1]]+1e-7)/tile)*tile)/tile
@@ -137,4 +143,4 @@ def assign(ob,atlas,states):
       spans=[b-a for a,b in bounds];long=max(range(3),key=lambda k:spans[k]);station=(q[long]-bounds[long][0])/max(.001,spans[long]);top=(q.z-bounds[2][0])/max(.001,spans[2]);chip=age*max(0,math.sin(station*39+h['number']*3+q.z*63))**10*max(0,(top-.45)/.55)
       tint=[v*(1-chip*.58) for v in tint];tint[1]+=chip*.08
    uv.data[li].uv=(u0+pad+max(0,min(1,u))*(u1-u0-2*pad),v0+pad+max(0,min(1,v))*(v1-v0-2*pad))
-   vcol.data[li].color=(*tint,1)
+   vcol.data[li].color=(*tint,alpha)

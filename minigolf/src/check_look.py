@@ -27,6 +27,9 @@ def main():
      assert np.all(np.abs(tangent[:,3])==1)
     if 'COLOR_0' in attr:colors.append(g.accessor(attr['COLOR_0'])[:,:3])
     mat=g.json['materials'][prim['material']];name=mat.get('name','')
+    if name=='Minigolf_Foam':
+     rgba=g.accessor(attr['COLOR_0']);assert rgba.shape[1]==4 and mat.get('alphaMode')=='BLEND',('Foam lost vertex alpha',rgba.shape,mat)
+     assert rgba[:,3].min()<.01 and .2<rgba[:,3].max()<.95,('Foam became an opaque sheet',rgba[:,3].min(),rgba[:,3].max())
     if name.startswith('Minigolf') and 'Graphics' not in name:
      lo=uv[idx].min(axis=1);hi=uv[idx].max(axis=1);valid=np.zeros(len(idx),bool)
      for u0,v0,u1,v1 in RECTS.values():valid |= (lo[:,0]>=u0-1e-6)&(hi[:,0]<=u1+1e-6)&(lo[:,1]>=v0-1e-6)&(hi[:,1]<=v1+1e-6)

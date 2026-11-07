@@ -18,7 +18,7 @@ COLORS={
  'black':(.009,.013,.012),'metal':(.35,.37,.35),'rubber':(.009,.012,.011),
  'soil':(.040,.025,.012),'grass':(.065,.115,.027),'asphalt':(.035,.038,.038),
  'yellow':(.60,.32,.016),'leaf':(.18,.095,.018),'liner':(.16,.34,.38),
- 'water':(.94,.98,.99),'glass':(.055,.085,.085),'foam':(.72,.75,.69),'stonepaint':(.40,.41,.36),'fallwater':(.78,.88,.85),'wetrock':(.29,.23,.155),'clothred':(.32,.024,.016),'clothivory':(.58,.55,.43)}
+ 'coping':(.62,.65,.59),'water':(.94,.98,.99),'glass':(.055,.085,.085),'foam':(.72,.75,.69),'stonepaint':(.40,.41,.36),'fallwater':(.78,.88,.85),'wetrock':(.29,.23,.155),'clothred':(.32,.024,.016),'clothivory':(.58,.55,.43)}
 RECTS={name:(i*.25,0,(i+1)*.25,.5) for i,name in enumerate(list(COLORS)[:3])}
 slots=[(i/8,j/8,(i+1)/8,(j+1)/8) for j in range(4,8) for i in range(8)]
 RECTS.update(zip(list(COLORS)[3:],slots))
@@ -66,7 +66,7 @@ def source(n=4096):
    # Several octave scales, without evenly spaced horizontal bedding rules.
    cloud=periodic_noise(pu+.06*mid,pv+.04*broad,11,rng)
    stone=np.clip((cloud-.23)*1.6,0,1)
-   gray=np.array((.25,.255,.235));tan=np.array((.18,.125,.075) if key!='rock' else (.13,.105,.075))
+   gray=np.array((.46,.335,.18));tan=np.array((.265,.155,.066) if key!='rock' else (.20,.12,.055))
    col=gray[None,None,:]*(1-stone[:,:,None])+tan[None,None,:]*stone[:,:,None]
    col*=np.clip(.72+.58*broad+.32*(mid-.5),.5,1.4)[:,:,None]
    dist=[]
@@ -76,13 +76,23 @@ def source(n=4096):
    nearest=np.partition(np.stack(dist),1,axis=0)
    crack=np.exp(-((nearest[1]-nearest[0])/.004)**2)*np.clip((cloud-.49)*8,0,1)
    pores=np.clip((.38-fine)*5,0,1)*np.clip((mid-.28)*4,0,1)
-   relief=.53+.09*(mid-.5)+.035*(fine-.5)-.14*crack-.065*pores
+   relief=.53+.045*(mid-.5)+.005*(fine-.5)-.23*crack-.025*pores
    col*=1-(.48*crack+.22*pores)[:,:,None]
    rough[:]=.96 if key!='wetrock' else .82
   elif key=='wood':
    grain=np.sin(u*math_tau*48+mid*4+np.sin(v*8)*2)
    col*=1+(.19*grain+.15*(broad-.5))[:,:,None];relief=.5+.07*grain+.07*(fine-.5)
    check=np.exp(-((u-(.44+.006*np.sin(v*30)))/.003)**2)*np.clip((v-.15)*4,0,1);col*=1-.50*check[:,:,None];rough[:]=.93
+  elif key=='coping':
+   # UV V follows the cast section: abrasion is confined to the outer nose
+   # and the submerged inner face, never scattered across the crown.
+   fragment=np.clip((mid-.39)*5,0,1)
+   edge=np.exp(-((v-.10)/.047)**2)
+   waterline=np.exp(-((v-.88)/.07)**2)
+   chip=np.clip(edge*fragment*.85+waterline*fragment*.48,0,1)
+   col=col*(1-chip[:,:,None])+np.array((.22,.235,.18))*chip[:,:,None]
+   col*=1+.035*(mid-.5)[:,:,None]
+   relief=.5-.012*chip+.002*(fine-.5);rough[:]=.92
   elif key in ('red','ivory','white','navy','concrete','brick','stonepaint'):
    col*=1+.10*(mid-.5)[:,:,None]+.045*(fine-.5)[:,:,None]
    if key in ('concrete','brick','stonepaint'):
