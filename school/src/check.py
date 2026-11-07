@@ -104,7 +104,51 @@ def source(stem,meta):
         measurements['floor_and_ceiling_planes']=levels
     if stem.startswith('Campus'):
         measurements['portable_door_sweeps']=door_sweeps(portable_only=True)
+        measurements['site_placement']=site_placement(p)
     return pivots,measurements
+
+
+def site_placement(p):
+    """Actual trunk bases / walk surfaces against authored program bounds."""
+    from geometry import H
+    def area(poly):return abs(sum(x*yy-xx*y for (x,y),(xx,yy) in zip(poly,poly[1:]+poly[:1])))/2 if poly else 0
+    def constraints(rect):
+        l,r,f,k=rect;return [(1,0,-l),(-1,0,r),(0,1,-f),(0,-1,k)]
+    trunks=[]
+    for root in bpy.context.scene.objects:
+        if not root.name.startswith('Mature_tree_') or '__' in root.name:continue
+        points=[ob.matrix_world@v.co for ob in root.children_recursive if ob.type=='MESH' and ob.data.name.startswith('Trunk and branches') for v in ob.data.vertices if (ob.matrix_world@v.co).z<.30]
+        assert points,(root.name,'missing source trunk base')
+        bounds=(min(v.x for v in points),max(v.x for v in points),min(v.y for v in points),max(v.y for v in points))
+        collisions=[b['id'] for b in p['blocks'] if min(bounds[1],b['rect'][1])>max(bounds[0],b['rect'][0]) and min(bounds[3],b['rect'][3])>max(bounds[2],b['rect'][2])]
+        assert not collisions,(root.name,'tree base inside building',collisions)
+        trunks.append(dict(instance=root.name,actual_base_bounds_xy_m=bounds,building_overlaps=collisions))
+    pl,pr,pf,pk=p['playground'];gx=pl+3.5*3.048;reserve=(pl,pr,pf,pk)
+    obstacles=[('playground beyond gate apron',reserve,(gx-1,gx+1,pf,pf+1))]
+    for j in range(len(p['portables'])):
+        obs=[ob for ob in bpy.context.scene.objects if ob.type=='MESH' and ob.get('component')=='wall' and ('__Portable_'+str(j)+'_') in ob.name]
+        points=[ob.matrix_world@v.co for ob in obs for v in ob.data.vertices]
+        obstacles.append(('actual portable wall footprint '+str(j),(min(v.x for v in points),max(v.x for v in points),min(v.y for v in points),max(v.y for v in points)),None))
+    walk=bpy.data.objects['Campus_'+str(p['seed'])+'__School_walk_network'];intersections={name:0. for name,rect,allow in obstacles}
+    for face in walk.data.polygons:
+        poly=[tuple((walk.matrix_world@walk.data.vertices[i].co)[:2]) for i in face.vertices]
+        if area(poly)<1e-8:continue
+        for name,rect,allow in obstacles:
+            overlap=poly
+            for a,b,c in constraints(rect):overlap=H.clip(overlap,a,b,c)
+            pieces=H.subtract(overlap,constraints(allow)) if allow else [overlap]
+            intersections[name]+=sum(area(q) for q in pieces)
+    assert all(v<1e-4 for v in intersections.values()),('Walk consumes program reservation',intersections)
+    surfaces=tree([ob for ob in bpy.context.scene.objects if ob.type=='MESH']);missing=[];probes=0
+    for name in ('bus','parent'):
+        route=p[name];sx=route['center'][0] if route['yaw'] else route['center'][0]+route['straight']
+        sy=route['center'][1]-(route['straight'] if route['yaw'] else 0)-route['radius']-3.6576
+        for dx in np.linspace(-6,6,25):
+            for dy in np.linspace(-5,5,25):
+                probes+=1;origin=Vector((sx+float(dx),sy+float(dy),2));hit=surfaces.ray_cast(origin,Vector((0,0,-1)),3)
+                if hit[0] is None:missing.append((name,float(origin.x),float(origin.y)))
+    assert not missing,('Uncovered entrance surface probes',missing)
+    return dict(trunk_base_measurements=trunks,walk_intersection_area_m2=intersections,entrance_downward_surface_probes=probes,uncovered_probes=missing,reservation_scope='Authored playground bounds excluding its 2 x 1m gate apron; portable bounds measured on actual source walls. Entrance probes sample 12 x 10m around both drive/walk junctions, not complete site coverage.')
 
 
 def raw_check(stem,meta):

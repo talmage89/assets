@@ -120,7 +120,18 @@ def loop(a,s,name,cuts):
     curb=a.mesh(name+'_Curbs',component='site')
     sx=s['center'][0] if s['yaw'] else s['center'][0]+s['straight']
     sy=s['center'][1]-s['straight']-s['radius']-3.6576 if s['yaw'] else s['center'][1]-s['radius']-3.6576
-    gateway=lambda pt:abs(pt[0]-sx)<4.05 and pt[1]<sy+2.8
+    def cut_drive(m,role):
+        # Preserve the triangles outside the exact drive rectangle. Removing
+        # whole arc segments leaves holes wider than the pavement beneath.
+        triangles=[tuple(Vector(m.v[face[j]]) for j in (0,i,i+1)) for face in m.f for i in range(1,len(face)-1)]
+        m.v=[];m.f=[];m.mat=[];m.col=[]
+        constraints=convex_cuts(rect_poly((sx-3.6576,sx+3.6576,-87,sy+2.5)))
+        for tri in triangles:
+            n=(tri[1]-tri[0]).cross(tri[2]-tri[0]);constant=n.dot(tri[0])
+            assert abs(n.z)>1e-10,'Drive clipping needs a surface with nonzero XY area'
+            for poly in H.subtract([(v.x,v.y) for v in tri],constraints):
+                lifted=[(x,y,(constant-n.x*x-n.y*y)/n.z) for x,y in poly]
+                m.geom(lifted,[tuple(range(len(lifted)))],role)
     def walk_height(x,y,top=.1704):
         # The two walk ends descend into the vehicle crossing; an open cut in
         # a raised surface otherwise exposes a floating edge above the drive.
@@ -130,19 +141,19 @@ def loop(a,s,name,cuts):
     for sign,rad in ((-1,s['radius']-3.6576),(1,s['radius']+3.6576)):
         stations=[(rad,.018),(rad+sign*.4572,.018),(rad+sign*.4826,.1704),(rad+sign*.6096,.1704)]
         loops=[[(x,y,walk_height(x,y,z)) for x,y in stadium(s,r)] for r,z in stations];n=len(loops[0]);v=[p for row in loops for p in row]
-        curb.geom(v,[(q*n+i,q*n+(i+1)%n,(q+1)*n+(i+1)%n,(q+1)*n+i) for q in range(3) for i in range(n) if not gateway(((v[q*n+i][0]+v[q*n+(i+1)%n][0])/2,(v[q*n+i][1]+v[q*n+(i+1)%n][1])/2))],'Concrete')
-    ground_finish(curb.finish(),'Concrete')
+        curb.geom(v,[(q*n+i,q*n+(i+1)%n,(q+1)*n+(i+1)%n,(q+1)*n+i) for q in range(3) for i in range(n)],'Concrete')
+    cut_drive(curb,'Concrete');ground_finish(curb.finish(),'Concrete')
     walk=a.mesh(name+'_Walk',component='site',solid=False)
     wi,wo=stadium(s,s['radius']+4.2672),stadium(s,s['radius']+5.7912)
-    annulus(walk,wi,wo,.1704,'Concrete',skip=gateway)
+    annulus(walk,wi,wo,.1704,'Concrete')
     walk.v=[(x,y,walk_height(x,y,z)) for x,y,z in walk.v]
-    ground_finish(walk.finish(),'Concrete')
+    cut_drive(walk,'Concrete');ground_finish(walk.finish(),'Concrete')
     # Two-meter verge rises to the walk instead of leaving an unsupported
     # black slot beneath its edge. This is landscape grading, not a black rim.
     verge=a.mesh(name+'_Graded_verge',component='site',solid=False)
     inn=stadium(s,s['radius']+5.7912);out=stadium(s,s['radius']+7.7912);nn=len(inn)
-    verge.geom([(x,y,walk_height(x,y,.1704)) for x,y in inn]+[(x,y,-.004) for x,y in out],[(i,(i+1)%nn,(i+1)%nn+nn,i+nn) for i in range(nn) if not gateway(((inn[i][0]+out[(i+1)%nn][0])/2,(inn[i][1]+out[(i+1)%nn][1])/2))],'Siding')
-    ground_finish(verge.finish(),'Siding');cuts.append(stadium(s,s['radius']+7.7912))
+    verge.geom([(x,y,walk_height(x,y,.1704)) for x,y in inn]+[(x,y,-.004) for x,y in out],[(i,(i+1)%nn,(i+1)%nn+nn,i+nn) for i in range(nn)],'Siding')
+    cut_drive(verge,'Siding');ground_finish(verge.finish(),'Siding');cuts.append(stadium(s,s['radius']+7.7912))
     # Restore the open lawn island; no hidden lawn sits beneath pavement.
     island=a.mesh(name+'_Island',component='site',solid=False)
     pts=stadium(s,s['radius']-4.2672);island.geom([(x,y,.165) for x,y in pts],[tuple(range(len(pts)))],'Siding');ground_finish(island.finish(),'Siding')
@@ -234,6 +245,10 @@ def portable(a,x,y,yaw,index):
     top=.70;bottom=.1524;run=12*(top-bottom);start=-d/2-1.75;end=start-run
     m.box((w/2+.94,-d/2+.025,top/2),(1.88,3.55,top),'Concrete')
     m.box((w/2+.94,end-.762,bottom/2),(1.88,1.524,bottom),'Concrete')
+    # The lower landing stays at the school walk datum; a separate gentle
+    # approach meets actual site grade, avoiding a six-inch step at its end.
+    q=[(w/2,end-1.524,bottom),(w/2+1.88,end-1.524,bottom),(w/2+1.88,end-1.524-2.7432,.018),(w/2,end-1.524-2.7432,.018)]
+    m.geom(q+[(xx,yy,-.004) for xx,yy,zz in q],[(0,1,2,3)]+[(j,(j+1)%4,(j+1)%4+4,j+4) for j in range(4)],'Concrete')
     for xx in (w/2,w/2+1.88):
         m.beam((xx,start,top),(xx,end,bottom),.08,.12,'Trim',ALUM(),r=0)
         m.tube([(xx,start+.305,top+.9144),(xx,start,top+.9144),(xx,end,bottom+.9144),(xx,end-.305,bottom+.9144)],.021,'Trim',ALUM(),sides=8)
@@ -252,7 +267,7 @@ def portable(a,x,y,yaw,index):
     for j in range(35):
         yy=start+j*3.55/34;m.tube([(w/2+1.88,yy,top+.08),(w/2+1.88,yy,top+1.03)],.008,'Trim',ALUM(),sides=4)
     orient(m,(x,y,0),yaw).finish()
-    a.socket('Portable_'+str(index)+'_Ramp',world((w/2+.94,end-.762,bottom),(x,y),yaw),'portable_ramp',yaw)
+    a.socket('Portable_'+str(index)+'_Ramp',world((w/2+.94,end-1.524-2.7432,.018),(x,y),yaw),'portable_ramp',yaw)
 
 
 def build_site(p,building):
@@ -351,7 +366,7 @@ def build_site(p,building):
     flagpole(a,(ex-8,ey-7))
     for j in range(2):place('build/context/furniture.glb','Bike_rack_'+str(j),(ex+8+j*1.0,ey-4,.1524),0,'BikeRack',a.root)
     place('build/context/furniture.glb','Entry_bench',(ex-4,ey-5,.1524),0,'Bench',a.root)
-    tree_positions={'finger':((ex-26,ey-8),(ex+38,ey+5)), 'courtyard':((-45,-12),(37,5)), 'compact':((-43,-25),(36,8))}[p['type']]
+    tree_positions={'finger':((ex-26,ey-8),(48,2)), 'courtyard':((-45,-12),(37,5)), 'compact':((-43,-25),(36,8))}[p['type']]
     for j,(x,y) in enumerate(tree_positions):place(ROOT/'trees/export'/('RedMaple.glb' if j==0 else 'PinOak.glb'),'Mature_tree_'+str(j),(x,y,0),p['seed']*17+j*73,parent=a.root)
     for j in range(2):place('build/context/shrub.glb','Foundation_shrub_'+str(j),(ex-10-j*1.1,ey-1.2,0),j*43,parent=a.root)
     # Two cars are counted as placed geometry in the whole-site budget.
@@ -410,6 +425,12 @@ def pedestrian_network(a,p,cuts):
     def path(points,width=1.524):
         for (x,y),(xx,yy) in zip(points,points[1:]):
             walk_rect((min(x,xx)-width/2,max(x,xx)+width/2,min(y,yy)-width/2,max(y,yy)+width/2))
+    def slope(points):
+        lower=[(xx,yy,-.004) for xx,yy,zz in points]
+        m.geom(points+lower,[(0,1,2,3)]+[(j,(j+1)%4,(j+1)%4+4,j+4) for j in range(4)],'Concrete')
+        poly=[pt[:2] for pt in points]
+        area=sum(x*yy-xx*y for (x,y),(xx,yy) in zip(poly,poly[1:]+poly[:1]))
+        cuts.append(poly if area>0 else poly[::-1])
     # Outside door approaches descend to the general site grade at <1:20.
     endpoints=[]
     for b in p['blocks']:
@@ -421,9 +442,7 @@ def pedestrian_network(a,p,cuts):
             if not under_cover:
                 half=max(1.0,o['w']/2+.30)
                 points=[world((u-half,0,.1524),o['origin'],o['yaw']),world((u+half,0,.1524),o['origin'],o['yaw']),world((u+half,-2.7432,.018),o['origin'],o['yaw']),world((u-half,-2.7432,.018),o['origin'],o['yaw'])]
-                lower=[(xx,yy,-.004) for xx,yy,zz in points]
-                m.geom(points+lower,[(0,1,2,3)]+[(j,(j+1)%4,(j+1)%4+4,j+4) for j in range(4)],'Concrete')
-                cuts.append([pt[:2] for pt in points][::-1])
+                slope(points)
             endpoints.append((o['face'],endpoint,b['kind']))
     pl,pr,pf,pk=p['playground'];gx=pl+3.5*3.048;wrap=pl-1.524 if gx<0 else pr+1.524
     rear=p['footprint'][3]+2.4384;cl,cr,cf,ck=p['blacktop'];court=(cl+cr)/2
@@ -434,14 +453,24 @@ def pedestrian_network(a,p,cuts):
             if face in ('east','west','north'):path([end,(end[0],rear)],1.524)
     path([(court,rear),(court,cf+.03)],2.4384)
     path([(wrap,rear),(wrap,pf-2.7432),(gx,pf-2.7432),(gx,pf+.02)],1.524)
-    fx,fy=p['field'];path([(wrap,rear),(wrap,fy-4.5),(fx-4.5,fy-4.5),(fx-4.5,fy)],1.524)
+    fx,fy=p['field'];field_row=max(fy-4.5,pk+1.524,ck+1.524)
+    path([(wrap,rear),(wrap,field_row),(fx-4.5,field_row),(fx-4.5,fy)],1.524)
     for x,y,yaw in p['portables']:
         # Lower ramp landing meets a route which passes outside the entire
         # portable body and its guard, instead of following beneath the ramp.
-        end=world((7.3152/2+.94,-9.7536/2-1.75-6.5712-.762,0),(x,y),yaw)
-        path([(end[0],end[1]),(wrap,end[1]),(wrap,rear)],1.524)
+        end=world((7.3152/2+.94,-9.7536/2-1.75-6.5712-1.524-2.7432,0),(x,y),yaw)
+        join=x+7.3152/2+1.88+1.524 if x<0 else wrap
+        path([(end[0],end[1]),(join,end[1]),(join,rear)],1.524)
     # Front exits meet the public entry via a route ahead of the longest mass.
     ex,ey=p['entry'];front=p['footprint'][2]-3.6
     for face,end,kind in endpoints:
         if face=='south' and kind=='gym':path([end,(end[0],front),(ex,front),(ex,ey-8.9)],1.524)
+        if face=='north' and kind=='gym':
+            if p['type']=='compact':
+                addition=next(b for b in p['blocks'] if b['id'].startswith('Addition'))
+                lane=addition['rect'][1]+2.4384;path([end,(lane,end[1]),(lane,rear)],1.524)
+            elif p['type']=='courtyard':
+                edge=p['covered'][1]['rect'][1]+.15;start=edge+2.7432;y=end[1]
+                path([end,(start,y)],1.524)
+                slope([(start,y-.762,.018),(start,y+.762,.018),(edge,y+.762,.1524),(edge,y-.762,.1524)])
     ground_finish(m.finish(),'Concrete')

@@ -41,8 +41,8 @@ def school(seed=101,plan_type=None,bays=None):
         entry=(3,-27);covered=[dict(rect=(-8,14,-30.0,-27),height=3.15),dict(rect=(-39,-36.477,-11.3424,end),height=2.95)]
         loop=dict(center=(0,-58),straight=28,radius=11.5,yaw=0)
         parent=dict(center=(-65,-31),straight=19,radius=9.5,yaw=90)
-        parking=(56,86,-51,-26);blacktop=(13,43,37,57);play=(-62,-38,29,47);field=(52,65)
-        portables=[(-56,15,0)]
+        parking=(56,86,-51,-26);blacktop=(13,43,37,57);play=(-62,-38,46,64);field=(52,65)
+        portables=[(-56,20,0)]
     elif typ=='courtyard':
         era=1964;name='BRIAR COURT';accent=(.08,.19,.145);wall=(.29,.17,.073)
         block('Office',(-30,0,-28,-16),'office',era,3.66)
@@ -74,7 +74,7 @@ def school(seed=101,plan_type=None,bays=None):
         entry=(5,-13-DEPTH-2*WALL);covered=[dict(rect=(-2,12,-27.3632,-23.3632),height=3.20),dict(rect=(-30.3464,-2,-25.3632,-23.3632),height=3.15)]
         loop=dict(center=(65,-21),straight=22,radius=12,yaw=90)
         parent=dict(center=(-12,-57),straight=22,radius=10.5,yaw=0)
-        parking=(-80,-47,-57,-30);blacktop=(-32,-2,35,55);play=(30,54,18,36);field=(43,63)
+        parking=(-80,-47,-57,-30);blacktop=(-32,-2,35,55);play=(30,54,38,56);field=(43,63)
         portables=[]
     # Seeded local variation preserves each graph and real bay dimensions.
     if seed not in SEEDS:
