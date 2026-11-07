@@ -7,10 +7,13 @@ from kit.fonts import find_font
 from external import bundle
 
 def sheet(files,out,cols=3,width=480):
-    rows=math.ceil(len(files)/cols);h=round(width*.68)+30
-    im=Image.new('RGB',(width*cols,h*rows),(31,36,33));d=ImageDraw.Draw(im);font=ImageFont.truetype(find_font('DejaVu Sans','Book'),15)
+    rows=math.ceil(len(files)/cols);heights=[round(width*.68)+30]*rows
+    if cols==1:
+        heights=[round((width-12)*Image.open(p).height/Image.open(p).width)+40 for p in files]
+    im=Image.new('RGB',(width*cols,sum(heights)),(31,36,33));d=ImageDraw.Draw(im);font=ImageFont.truetype(find_font('DejaVu Sans','Book'),15)
     for i,path in enumerate(files):
-        image=Image.open(path).convert('RGB');image.thumbnail((width-12,h-40));x=(i%cols)*width+6;y=(i//cols)*h+6
+        row=i//cols;h=heights[row]
+        image=Image.open(path).convert('RGB');image.thumbnail((width-12,h-40));x=(i%cols)*width+6;y=sum(heights[:row])+6
         im.paste(image,(x+(width-12-image.width)//2,y));d.text((x,y+h-32),str(path.relative_to(Path('renders'))).replace('.png',''),font=font,fill=(228,235,222))
     Path(out).parent.mkdir(parents=True,exist_ok=True);im.save(out,quality=91,optimize=True)
 
