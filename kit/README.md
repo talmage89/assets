@@ -935,6 +935,10 @@ for switch conventions, engine integration, acceptance policy and sources.
 weighted split-wedge QEM, synchronized UV/material seams, weighted vertex
 updates, per-material/per-layer mip bounds and a progressive area-error budget.
 Sampled face interiors retain the shading frame as well as its vertex values.
+Edges slide at one shared geometric position while each UV/material side carries
+its own field. `lod_constraints.py` separates true pins from seam membership and
+records their overlapping causes. Exact component caches avoid repeating sibling
+construction trials when a separate part changes.
 It protects graphics, glass and powered surfaces. Intermediate images must match
 LOD0 by full hash; canonical material/image bindings make engine resource reuse
 explicit. The manifest/report count unique maps and every mesh for the entire
@@ -943,6 +947,11 @@ resident chain beside LOD0 alone. Only proxies/impostors add image content.
 keeps construction beside powered surfaces, including small occluding shutters.
 An assembled-edge guard restores implicated components when their combined
 reduction introduces new boundary or nonmanifold edge incidences.
+`lod_shading.py` restores supplied glTF normals and tangents in temporary
+Blender comparison shaders (the importer ignores supplied tangents), including
+independent base and coat normal maps. The original delivery remains untouched.
+Selected modular roots keep their merged geometry as descendants, so replacing
+a root placement moves geometry and sockets together.
 `lod_mesh.py` measures screen/mip-relative error, prunes tiny islands and
 transports normalized skin weights. `lod_scene.py` consolidates static material
 groups while preserving interactive frames; a projected-coverage check guards
@@ -972,7 +981,11 @@ directions, including shared UV diagonals and interpolated tangent lengths.
 Builds/bakes run in one Blender process, with four threads and shared GPU locking. Use fresh fixture folders
 `build/lod-test` and `build/lod-proxy-test`. [The pilot review](LOD_REVIEW.md)
 records the checkpoint. `lod_report.py` writes checked tables and the overview;
-README updates require its explicit `--write-readmes` option.
+README updates require its explicit `--write-readmes` option. Families can list
+`LOD_CONFIGS` for serial module builds and use distinct README keys; the report
+deduplicates original containers and image hashes across the family.
+`test_lod_report.py` tests those rules with ordinary Python;
+`test_lod_shading.py` evaluates supplied frames through Cycles under `with_gpu.sh`.
 
 Shared-map fixtures use `build/lod-shared-test`; content-checked CPU reduction
 caches live in `build/lod-shared-cache`. Clear both for a clean regression run.

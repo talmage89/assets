@@ -1112,3 +1112,203 @@ No original docs JPG was replaced and no failed checkpoint image is committed.
 The checkpoint remains **incomplete**. No failed chain or count regression is
 approved by the passing regression suite, and the provisional recipe does not
 authorize rolling these failures into other families.
+
+## Critique pass 31 — reduction handoff and constraint diagnosis
+
+The new brief accepts the shared maps, moving rules, existing lamp/roof/garage/
+siding/near-lettering fixes, the 1,796-triangle grill proxy, 436-triangle cone
+LOD2 and the maple chain. Those approvals supersede the unresolved cone-count
+wording in pass 30. Original deliveries remain the immutable color/value
+reference; this comparison does not infer photographic white balance.
+
+Opened every ten failing native strips linked by the handoff report, at full
+size: pickup LOD1 front, LOD2 rear and all three LOD3 views; colonial LOD3 front
+and three-quarter; station all three LOD3 views. The pickup's thin grille and
+rear-bumper reflections move while paint value remains consistent. Its proxy
+brightens/broadens the front lamps. The colonial proxy changes the garage/eave
+response and softens trim. The station proxy retains broad coverage but spreads
+its fascia lettering into a brighter soft patch. These are remaining faults,
+not approved merely because the silhouette or global mean passes.
+
+The source constraint inventory distinguishes constraints from persistent pins.
+Of the pickup's 30,971 geometric vertices, 26,151 touch UV seams, 23,112 touch
+hard-normal splits and 396 touch material borders; only 64 are on open part
+boundaries. There are 13,298 vertices in moving meshes. Powered/glass/alpha
+protection pins 4,022 vertices; the old boundary rule adds 64. The colonial has
+31,492 geometric vertices, 28,191 UV-seam vertices, 28,185 hard-normal vertices,
+12 material-border vertices, 1,074 open-border vertices and 452 moving vertices.
+Its protected surfaces pin 552 vertices. These categories overlap. Calling
+every seam a locked vertex would misdescribe the implementation; the separate
+initial-offer comparison records which vertices actually lack a mapping/weighted
+collapse offer, before later field and visibility tests.
+
+The pickup's old source-skin fallback restores 6,948 / 10,898 triangles at the
+two near levels. The auxiliary guard used the width of the containing triangle
+as the width of a newly visible patch. A broad triangle can appear through a
+subpixel slit. The replacement samples that actual patch at half-switch-pixel
+spacing and retains the existing three-pixel width criterion. Narrow-slit and
+broad-exposure fixtures pass; native switch renders must still approve its
+actual use. No RGB, alpha or local image threshold changed.
+
+The station's ten net new boundary edges are source junctions with three face
+incidences, reduced to one when a small closed construction disappears. Their
+measured coordinates are retained in `build/lod-v4/station-edges.json`. Pinning
+source junction endpoints before pruning addresses that cause; a fresh whole-
+assembly audit, rather than a constant or a rendered silhouette, must prove it.
+
+An initial edge-constrained colonial LOD1 trial reached 29,514 triangles; its
+middle build was canceled to incorporate per-side affine wedge transport and
+source-normal sampling. It is diagnostic evidence only. The subsequent full
+near trial and proxy material-field diagnoses are still pending at this entry.
+Evidence and original-image archives: `build/lod-v4/`; baseline report/strips:
+`build/lod-v4/baseline/`. The 443-file preservation check passes after the main
+merge `6e1f96a`.
+
+## Pass 32 — isolate projection causes and restore the delivered shading frame
+
+Reviewed the three native-size pickup strips in
+`build/lod-v4/frame-probe/` and all fifteen native proxy diagnostic strips in
+`build/lod-v4/proxy-diagnosis/`. These are controlled experiments on the handoff
+meshes, **not approval of the still-pending cheaper reductions**.
+
+Color/value first: the source-density station atlas spreads pale fascia text
+and loses contrast; its base-only local error is .0943, while plain gray
+geometry is .0463 locally. Coverage, roughness and source AO do not explain the
+broad label miss. The colonial remains visibly flat around windows and its
+porch even with the same gray material: gray-geometry mean .0319 versus .0195
+for unlit base color. The pickup mixes geometric recess loss with optical
+response; its gray-geometry mean is .0276. A blanket color correction would
+hide those different causes. These diagnostic projections deliberately disable
+lighting for the individual field views; their remaining differences cannot
+be attributed to the color bake containing studio illumination.
+
+The installed Blender 5.2 importer reads NORMAL but ignores TANGENT. A supplied
+normal map therefore receives a different basis after each retriangulation.
+The comparison renderer now reconstructs the supplied frame, including tangent
+handedness and independent coat normals. The GPU fixture independently evaluates
+aligned, rotated, mirrored and placed tangent fields: maximum component error
+1.4481e-5. Its twelve constant-field output images were reviewed together in
+`build/lod-v4/shading-fixture-contact.png`. The aligned native/restored pair
+agrees; rotated native/restored fields intentionally differ.
+
+The native pickup probe now shows the same broad grille reflection in original
+and restored near levels. LOD1/front mean .00161, p95 .00392; LOD2/rear mean
+.00405, p95 .02137. Remaining changes concentrate on chrome contour pixels and
+small rear edges. LOD3/front is still wrong (mean .03153, p95 .14294); it is not
+approved. LOD0 itself was not modified: the renderer correction changes only
+the temporary imported shader graph.
+
+The near front's 8x8 raw patch maximum .1936 fails the old .08 limit despite
+being a contour shift, not broad reflection movement. A separate same-image
+sampling calibration (`build/lod-v4/pixel-calibration.json`) shifts LOD0 by
+fractional native pixels without changing its colors: .5px horizontal yields
+.1304, 1px vertical .1973. This demonstrates that .08 is incompatible with the
+accepted subpixel structural policy on a bright chrome contour. Any revised
+local limit must remain limited to the calibrated near pickup case, retain
+mean/p95/coverage gates and be accompanied by its actual native strip. The
+proxy's broad front error has no such exemption.
+
+## Pass 33 — reject a misleading aggregate topology improvement
+
+The first station trial reached 9,890/18,258 triangles (54.17%) at LOD1, but its
+individual ten previously failing junctions still each had incidence **3 → 1**.
+The aggregate canopy boundary count improved 442 → 334 and therefore concealed
+them. This trial is rejected, not a passing checkpoint. Its LOD2 was stopped
+once the upstream defect was identified; the partial log and memory receipt
+remain `build/lod-v4/station-near-v2.*` (946 seconds, 583,496 KiB peak).
+
+The fault occurs before pruning: independently transformed source corners share
+a six-decimal world-space key, but straddle adjacent FLOAT values after the
+static merge. For example the top of a 0.55 m fascia edge becomes
+14.429400444 versus 14.429399490 m. The contact detector then sees different
+edges and cannot protect the junction. `merge_static` now chooses a shared
+double-precision representative for every original world-space coincidence
+**before** FLOAT storage. It reports measured corner counts and maximum movement.
+The regression uses two translated panels whose independent casts open their
+shared edge; the corrected merge retains the original six boundary edges with
+less than one micrometer of canonicalization. Full public shared-map fixture,
+including this case, passes (`shared-float-contact-fixture.log`, 16.67 seconds,
+466,896 KiB peak).
+
+The collapse also checks local edge incidence classes, so removal at an existing
+three-face junction cannot create a new one-face boundary while unrelated source
+boundaries disappear. Source seam membership remains movable; this does not pin
+all coincident corners. The rejected trial's lower totals are retained as an
+explicit example of why totals do not prove closure. The corrected component
+and complete station still require their own measured rebuilds.
+
+## Pass 34 — a storage-dependent audit was retaining unnecessary geometry
+
+The cheap station junction component was rejected as gaining boundaries.
+An independent comparison of the identical stored POSITION values found:
+FLOAT arithmetic measured 64 boundaries / 56 nonmanifold edges in the source;
+double arithmetic measured 74 / 46. The 140-triangle candidate measured 74 / 16
+with either storage dtype. It had no additional open edge under a consistent
+measurement. The false source weld came from decimal rounding performed in
+FLOAT at a large placement, not a visible hole in the candidate.
+
+The topology audit, contact keys, pin lookups and source-skin boundary keys now
+evaluate stored positions in double precision before applying the unchanged
+six-decimal coordinate convention. A regression compares disjoint translated
+panels under both array dtypes; both must report eight edges. The full public
+shared-map fixture passes (16.87 seconds, 493,376 KiB peak). This corrects the
+measurement, not the structural/pixel limit.
+
+The actual corrected junction component now keeps 480 triangles near and
+**140 middle**, versus 472 middle under the false veto. Both retain 74 true
+boundaries and expose zero inherited multi-face junctions. The measured inputs,
+raw cheap candidate and before/after dtype counts are retained in
+`build/lod-v4/station-contact-rounding.json`, `station-contact-raw-candidate.npz`,
+and `station-contact-component.json`. No source delivery was changed.
+
+The complete new station LOD1 is 9,500/18,258 (52.03%), under its 10,041 ceiling.
+Individually checking all ten original failures now gives **3 → 3 incidences**,
+rather than the handoff's 3 → 1. Tracking overlapping boundary segments also
+finds zero unmatched segments at those junctions. The canopy totals are
+442 → 318 boundaries / 130 → 95 nonmanifold edges; dispenser 128 → 128,
+both nozzles 0 → 0. Those totals describe inherited source constructions,
+not a claim that all source graphics are watertight. Actual-junction proof:
+`build/lod-v4/station-near-v4-junction-coverage.json`.
+Full LOD2 and native visual checks are still pending at this entry.
+
+The new physical shared-map-pool fixture also passes: two independently built
+kinds backed by one embedded original map resolve to one external PNG, preserve
+its bytes and original GLB, and add no texture allocation. This is additional
+package sharing; canonical material binding is still required in the engine.
+
+All three original fence sources were rebuilt from unchanged scripts as
+adoption prerequisites: privacy 2,100, picket 2,936, chain-link 8,588 triangles;
+each finalized UV audit passes with zero overlap. These are source preparations,
+not LOD adoption proofs. Original exports/bakes/checks and the frozen-tool
+adoptions remain pending. The 443-file pre-existing preservation receipt passes.
+
+## Pass 35 — distinguish true field bounds from the ranking estimate
+
+The saturated 1,740-triangle station fascia component had 188 UV-seam and 368
+hard-normal vertices, but **zero persistent pins and zero initially unavailable
+vertices**. Seam membership did not freeze it. Profiling the stalled 732-triangle
+result found 25,771 UV-quadric rejections after correcting an endpoint error.
+The accumulated affine UV-plane estimate extrapolates gradients beyond each
+incident triangle; it is a useful ranking cost, but not a valid hard UV bound
+on a curved/quantized chart.
+
+Removed that attribute-estimate veto on the seam-sliding path. Its weighted
+ranking, geometric quadric prefilter, source-side vertex/face samples, progressive
+95% area ledger, independent final UV/frame/color/surface audit and topology
+guards remain. The legacy cone path is unchanged. The real component now reaches
+260 triangles; independent validation reports UV error .83684 of its unchanged
+half-mip-texel allowance, color error .000673, maximum surface error .00800 m,
+p95 .00795 m and no rejection reasons. Raw and validated accessors are retained
+under `build/lod-v4/station-quadric-guard-*`. This is geometric/field evidence;
+full-chain native switch images still have to approve the result.
+
+Also corrected a stale closure endpoint in reverse/updated wedge offers. A
+closed thin-box regression now reaches six faces rather than eight while
+preserving its exact affine per-side UV fields and closed topology. A separate
+closed, hard-capped cylinder with a mildly varying monotonic UV chart reaches
+38 rather than 68 triangles through the complete component validator. Its
+sampled UV error is .23256 of the limit, all field/surface checks pass, and it
+remains closed. A smooth rounded-box control still reaches 194/972 triangles
+with both policies. The expanded public shared-map fixture passes (about 67
+seconds, under 0.5 GiB child RSS). No texture, material or image-acceptance limit
+changed in these corrections.

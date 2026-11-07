@@ -46,7 +46,13 @@ The production basis (consulted 2026-11-05) is:
   within a continuous UV chart retain separate corners when their normal or
   tangent direction differs by more than one degree; redundant numerical splits
   can join. This preserves the frame in which the original normal map was baked.
-  Open boundaries,
+  Existing multi-face contacts collapse synchronously only when both sides share
+  exact coordinates and compatible fields. Approximately touching constructions
+  and incompatible attribute groups remain pinned; attached parts cannot be
+  pruned away and expose their shared edges. The constraint inventory reports
+  seam membership, true pins and initially unavailable offers separately, with
+  overlapping UV/normal/material/part/motion causes.
+  Open boundaries may collapse along their own edges on the screen-aware path;
   alpha graphics, glass and powered source surfaces stay fixed. Independent world/mip bounds and rendered appearance still gate the
   result. No meshoptimizer code is downloaded or used. Blender's native
   simplifier remains the proxy construction tool.
@@ -99,7 +105,14 @@ grazing angles and anisotropic filtering still need rendered inspection.
 LOD1 and LOD2 always sample LOD0's unchanged maps and unchanged material
 settings. No chart replacement, downsampling or rebake is permitted on these
 levels. Component-local field checks reject individual invalid collapses;
-UV/normal weighting prioritizes harmless changes. Vertex frame correspondence
+UV/normal weighting prioritizes harmless changes. The seam-sliding path uses
+the accumulated attribute quadrics only for ranking: their extrapolated
+face gradients can overestimate error on a curved chart. Exact source-side
+vertex, center and edge-midpoint samples enforce the UV/frame/color bounds;
+the independent post-reduction audit must pass them again. Position quadrics
+retain their conservative geometric prefilter. Each updated or reverse offer
+receives both actual edge endpoints, so its two wedge fields share the same
+edge parameter rather than a stale neighboring endpoint. Vertex frame correspondence
 uses 3-degree normal / 5-degree tangent limits. Face centers and edge midpoints
 use screen-relative limits: normal `clamp(15 / width_pixels, 3, 45)` degrees,
 tangent `clamp(25 / width_pixels, 5, 45)` degrees. Width is the triangle's shortest
@@ -114,12 +127,33 @@ The source normal field, UV routing, independent BaseColor alpha data and
 emission therefore keep their original meaning, including the pickup's custom
 lamp-power field. Interactive names, source materials and moving membership stay.
 
+The shared-map path also bounds interpolated vertex color/Wind data to .02
+per channel (the accepted conservative cone path retains .01). It chooses a
+source side jointly by UV/frame and color error; selecting only the nearest UV
+side can incorrectly veto coincident differently tinted construction. These are
+linear attribute limits and still require the final rendered checks.
+
 Only the last closed proxy gets new charts, baked **from the immutable delivered
 asset**. PBR BaseColor, ORM and source shading normals transfer to its new cage;
 spatial emission, transmission and clearcoat get additional small maps when
 required. Transparent print layers composite onto their actual backing. A closed
 opaque shell owns its geometric coverage: a missed projection ray never cuts a
 hole in it. Glass is represented by its transferred transmission field.
+For a far atlas whose printed graphics are undersampled, optional
+`atlas_sampling` weights charts with a center, near-corner and edge-midpoint
+probe rather than only a face center. `surface_texels_per_pixel` caps ordinary
+source density at the switch and `graphic_texels_per_pixel` gives alpha/emissive
+graphics a separate cap (defaults 1 and 4 when enabled; each <=8). This prevents
+a heavily tiled roof from taking resolution away from readable lettering. It
+changes allocation, not colors or lighting. Omit it to retain the established
+source-density policy.
+
+`min_projected_coverage` optionally tightens the proxy envelope merge from .8
+to as much as 1. A .97 policy can preserve a window that occupies less than
+20% of its wall; the independent two-square-switch-pixel gap allowance remains.
+This preserves geometry before color transfer, rather than painting a false
+shadow over a filled recess. Defaults keep the accepted grill proxy policy.
+
 Every atlas dimension is at most 512 (the accepted tree impostor is separate).
 Misses, bounded repairs, chart coverage and field-normal tests remain reported.
 No high-detail modeling scene or external image enters the transfer.
@@ -129,6 +163,24 @@ Emission keeps the antialiased direct-ray coverage, without nearest-surface
 extrapolation or bake margins that could grow a bright lamp into its surroundings.
 Patch repair validates shader coverage independently of alpha, so transparent
 lettering pixels can correctly reveal their real backing.
+
+The comparison scene explicitly restores delivered shading normals and supplied
+tangents. Core [glTF defines the bitangent from NORMAL, TANGENT.xyz and
+TANGENT.w](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#meshes-overview);
+Mikk reconstruction is the fallback when tangents are absent. The installed
+[Blender 5.2 importer](https://github.com/blender/blender/blob/blender-v5.2-release/scripts/addons_core/io_scene_gltf2/blender/imp/mesh.py)
+does not import TANGENT. `lod_shading.restore` uses temporary corner attributes
+and evaluates each original normal/coat map in that supplied rest frame. It
+validates corner order and positions first; it never rewrites delivery data.
+The GPU fixture independently checks rotated and mirrored frames and placements.
+An engine must likewise retain supplied normals/tangents to reproduce this
+evidence; the adapter is not an animation controller.
+
+The atlas baker applies the same supplied-source frame before projection.
+Nearest-source shader patches carry its explicit tangent, handedness and presence
+attributes, so a repair cannot silently switch back to a reconstructed frame.
+The independent GPU proof checks base and coat directions through both direct
+atlas projection/native re-import and a fully forced repair route.
 
 Normal conversion visits each covered texel once, including shared UV diagonals,
 and solves the interpolated tangent frame rather than using orthogonal-frame
@@ -176,12 +228,18 @@ build/check dependency graph is unchanged. Paths resolve against the asset root.
 
 Each level starts from delivered LOD0, avoiding accumulated error. Static parts
 merge by material, while moving roots keep separate meshes and original frames.
-Original named transform nodes, extras, sockets, skins and clips survive. Complete
+Original named transform nodes, extras, sockets, skins and clips survive. Coincident
+source world coordinates are canonicalized in double precision before FLOAT
+storage, using the same six-decimal key as the topology audit; this prevents
+large placement translations from splitting an inherited contact. Receipts
+report measured canonicalized corners and maximum displacement. Local edge
+incidence classes also prevent a former multi-face junction becoming a new
+open edge, even when the aggregate boundary count decreases. Complete
 attribute wedges preserve UV and normal discontinuities; only redundant numerical
 tangent splits are canonicalized to an original representative. Compatible
 material primitives simplify jointly with discrete material IDs; they split
-back into their original materials afterwards. Open boundaries stay fixed.
-A progressive area-error ledger enforces the same 95% structural pixel budget
+back into their original materials afterwards. Open boundaries slide only along their own source edges, with independent
+surface, UV and frame checks. A progressive area-error ledger enforces the same 95% structural pixel budget
 throughout collapse, before the independent final surface measurement. UV error
 uses each source material and UV layer's own sampled-mip bound: an unused
 constant UV1 cannot impose its mip-zero bound on a minified UV0.
@@ -206,10 +264,10 @@ until edge counts no longer increase. Receipts record the measured counts and
 edge coordinates. It uses the existing one-micrometer edge-incidence convention,
 not a micrometer surface-displacement budget. Geometric acceptance remains in
 switch pixels. Inherited source defects remain distinguishable from new defects.
-This guard currently operates within each compatible attribute group after
-feature pruning. The independent whole-mesh audit still catches contacts lost
-across groups or during pruning; the station pilot has such a failure. That
-failure is not waived by passing rendered coverage.
+Before pruning, source edges with more than two incidences and contacts across
+incompatible attribute groups pin their endpoints. This retains small closed
+construction at a shared assembly edge. The independent whole-mesh audit still
+gates all groups together; a rendered pass cannot waive a new open edge.
 Skinned near meshes retain their source vertices/weights; foliage uses its own
 larger-card path. These are rest/data checks, not swept motion certification.
 
@@ -259,8 +317,12 @@ describe the selected modules. Extraction savings are distinct from reduction.
 | Modular piece | 40% @ .25 | 15% @ .09 | normally none | shared family maps / none |
 | Many small props on one set | 40% @ .25 | 15% @ .09 | normally none | shared family maps / none |
 
-Ratios refer to selected LOD0 triangles. Target and achieved counts remain
-separate fields. The accepted cone's 268-triangle fallback remains the reference
+Ratios refer to selected LOD0 triangles. The pickup, colonial, station and grill checkpoint
+requires LOD1 <=55% and LOD2 <=25%. Optimization requests of .4/.15 leave
+headroom for local protected construction. A target miss requires the lowest
+visually passing count plus a native strip of the next cheaper visible fault;
+simplifier saturation alone does not establish that exception. Target and achieved counts remain
+separate fields. The accepted cone's 436-triangle shared-map LOD2 remains the reference
 for its far-level appearance. Do not lower the image gates to hit a target.
 Switches above are calibrated starting points. A changed switch needs a failed
 old-distance comparison and a passing new-distance comparison, both retained.
@@ -286,6 +348,12 @@ an embedded image and its identical external copy violates this resource policy;
 filename equality or identical bytes alone does not establish shared allocation.
 For selected modules, map materials by unique source name after compaction.
 Keep LOD0's original container intact; extraction savings are reported separately.
+For several configs backed by the same embedded family atlas, set
+`"shared_textures": "export/lod"` in each config. Their content-addressed copies
+then occupy one physical `export/lod/textures/` directory across the configs,
+as well as one canonical runtime allocation. Output/manifest folders remain
+separate for each kind. External source images already keep their canonical URI.
+
 Optional camera-facing foliage is an alternative to the fixed impostor, so its
 cost is reported separately rather than silently loading both.
 
@@ -352,22 +420,39 @@ Adopt LODs only after the family's original delivery and original `make check`
 are finished. Work on the family branch, merge current `main`, and keep LOD work
 opt-in. Do not edit an accepted source GLB, BIN, material or image to make an LOD
 pass. The six-pilot checkpoint and its remaining failures are recorded in
-[LOD_REVIEW.md](LOD_REVIEW.md). This recipe is provisional while that checkpoint
-has failures; a family is not approved by another family's result.
+[LOD_REVIEW.md](LOD_REVIEW.md). Each adoption must pass its own checks and review; another family's result
+cannot approve it. The adoption proofs record the frozen tool before use.
 
 1. Add `src/lod.json` using the applicable complete example below, replacing the
-   source filename and kind label. Paths resolve from the **asset folder**, not
-   from `src/`. A family with several kinds adds one config per delivered kind or
+   source filename and kind label. Keep each config directly inside `src/`.
+   Paths resolve from the **asset folder**, not from `src/`. A family with several kinds adds one config per delivered kind or
    coherent module. Cosmetic variants may share a config only after their node,
    material, UV and image routing has been checked.
+   Omit an additional chain for already minimal pieces such as a 20-triangle
+   wooden post; document their LOD0-only choice and original cost. They retain
+   the original shared family material and remain in full-container accounting.
 2. Add `include ../kit/lod_rules.mk` after the existing rules in its Makefile.
    For a single kind, `make -C family lod` and `make -C family check-lod` suffice.
    To select another config, use `make -C family lod LOD_CONFIG=src/lod-kind.json`
-   and the identical override for `check-lod`. The hooks never depend on the
+   and the identical override for `check-lod`. For several independently placed
+   kinds, declare the list before the include:
+
+   ```make
+   LOD_CONFIGS := src/lod-section-a.json \
+                  src/lod-section-b.json \
+                  src/lod-gate.json
+   include ../kit/lod_rules.mk
+   ```
+
+   Plain `make lod` / `make check-lod`
+   then process every config serially; an explicit `LOD_CONFIG=...` selects one.
+   The hooks never depend on the
    original model/bake/export targets. Set `LOD_THREADS=4` or less; run one chain
    at a time. The kit handles the shared GPU lock for bake and render work.
-3. Build each config, inspect the exported comparisons and close views, correct
-   the config/tool as necessary, then run `check-lod`. Do not bypass a failed
+3. Record the tool revision before use. Build each config, inspect the exported
+   comparisons and close views, adjust configuration as necessary, then run
+   `check-lod`. Adoption uses the frozen tool. A tool defect needs a separate
+   general fix and a fresh adoption proof from this step. Do not bypass a failed
    image/normal/topology/memory check. An above-target level may pass its visual
    checks, but must keep `target_met: false` and the achieved/goal counts in the
    report. Keep the established switches until failed evidence justifies a move.
@@ -377,7 +462,13 @@ has failures; a family is not approved by another family's result.
    accepted generated inputs with explicit `make -o path` arguments; record the
    complete command. Never let validation silently regenerate accepted LOD0.
 5. Generate measured tables with `python3 kit/lod_report.py family/src/lod.json
-   --write-readmes`. Supply several configs to report several kinds. A failed
+   --write-readmes`. Supply every adopted config explicitly to report several
+   kinds. Give sibling configs distinct `readme_key` / `readme_title` values so
+   their tables coexist. The report also writes `families.json` and a union
+   table counting shared maps and the full original container only once. Use
+   `--family-root fences --out build/lod-adoptions/fences` when reporting
+   configs across nested subfamilies; each original set/container is counted
+   once across all those kinds. A failed
    checkpoint can be documented with `--allow-failed`; that flag only reports
    failures and never changes any acceptance result. Keep full evidence ignored
    under `renders/` and `build/`; commit scripts/config/README/review only. Existing
@@ -469,6 +560,26 @@ Do not force an already tiny object to have four rows.
 }
 ```
 
+A standard prop such as a street light normally uses two shared-map levels,
+with no private far atlas. Its fixture can be only a few pixels wide even when
+its whole pole is tall. Review the lit optics and pole coverage at the true
+switch size. A source-seed control must pass before attributing powered-surface
+noise to reduction; increase `render_samples` only from that measurement.
+
+```json
+{
+  "kind": "standard prop",
+  "source": "export/StreetLight.glb",
+  "screen_space": true,
+  "feature_pixels": 1.5,
+  "render_samples": 128,
+  "levels": [
+    {"ratio": 0.4, "screen_height": 0.25},
+    {"ratio": 0.15, "screen_height": 0.09}
+  ]
+}
+```
+
 A tree uses whole leaf cards, source bent normals and Wind data. Review each
 species' coverage; the maple's enlargement exponents are starting values, not
 universal leaf rules. `foliage_shader: "maple"` restores the existing published
@@ -494,12 +605,16 @@ reported camera-facing alternative is optional and needs the supplied controller
 }
 ```
 
-A modular piece preserves connectors and placement frames. Use the same endpoint
+A modular piece preserves connectors and placement frames. Its merged static
+geometry remains a child of its selected placement root. Replace that root
+transform and retain every child transform, just as with the original module. Use the same endpoint
 coordinates across neighboring pieces and review their joint at every level.
 A whole-family shared source can be selected without copying its atlas. Give
 **every config selecting the same container** a unique `name`, `output` and
 `renders`; otherwise one module would overwrite another module's checkpoint.
-No proxy is prescribed for a 300–2,000-triangle section. If a large assembly later
+No proxy is prescribed for a 300–2,000-triangle section. An already minimal
+post can remain LOD0-only; record its count and reason instead of allocating
+unchanged replacement buffers. If a large assembly later
 needs an HLOD, treat it as a separately reviewed building/hero proxy.
 
 ```json
@@ -510,6 +625,8 @@ needs an HLOD, treat it as a separately reviewed building/hero proxy.
   "include_nodes": ["Section"],
   "output": "export/lod/section",
   "renders": "renders/lod/section",
+  "readme_key": "section",
+  "readme_title": "Section LODs",
   "screen_space": true,
   "feature_pixels": 1.5,
   "levels": [
@@ -534,6 +651,8 @@ with byte-identical shared images, use that file as its source instead.
   "include_nodes": ["Can"],
   "output": "export/lod/can",
   "renders": "renders/lod/can",
+  "readme_key": "can",
+  "readme_title": "Can LODs",
   "screen_space": true,
   "feature_pixels": 1.5,
   "levels": [
