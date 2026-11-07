@@ -1811,3 +1811,40 @@ completed. Completed native images and exact component caches are intact.
 Restarted only unfinished work after checking processes and receipts; an
 interrupted partial build is not reported as a successful control. The shared
 GPU queue still governs all bake/render work and own Blender work stays serial.
+
+## Pass 47 — one-sided render correction and SS4 proxy comparison
+
+Color and value: the canonical-geometry pickup SS4 proxy still makes the front
+lamp area too bright and loses dark rear trim contrast at its .04 switch.
+Opened all three native `build/lod-v4/previews/cars/proxy-canonical-ss4/`
+strips. Mean errors .03547/.02013/.02342, p95 .13725/.08627/.10980,
+local .21553/.23459/.15999; coverage metrics pass. Higher sampling alone does
+not close this color failure. No palette, gamma or image-limit adjustment is
+adopted. A source-consistent emission repair is baked and awaiting native review.
+
+An original emissive-quad control measures imported one-sided front/back alpha
+as 1/1 in the installed Cycles renderer, despite its viewport culling flag.
+That violates [glTF one-sided visibility](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#double-sided).
+The temporary shading adapter now wraps one-sided material outputs with a
+transparent back-face branch; double-sided materials keep their response.
+The new actual Cycles fixture passes front/back/double-back alpha **1/0/1** and
+idempotent restoration. Opened all three original and all three fixed 64px
+renders. The first fixed-test attempt stopped on a PNG fixture-reader error,
+then passed after using PIL for Blender's filtered PNGs. Source/export bytes
+are untouched. This is a render-correctness fix, not the proxy color fix.
+Render receipts now include the shading-adapter hash. Full regression/adoption
+receipts must be refreshed after this general change.
+
+Station density .075 reaches 4750 (26.02%); .04 reaches **4614 (25.27%)**,
+50 above its 4564 cap. Both keep the .12 switch and original maps/bounds; neither
+has native appearance approval yet. The grill SP1 control remains 6144 pending
+its review, and the feature3 control is still processing. The accepted grill,
+cone and maple far constructions remain unchanged.
+
+The canonical-geometry pickup SS4 bake completed at 2800 triangles and 512 maps,
+peak child RSS 2554308 KiB, about 150 s of work after its GPU queue. Another
+queued parent driver received SIGTERM while its completed bake receipt remained
+intact. Switched remaining GPU work to direct, individually polled jobs and
+stopped the idle follow-up driver to avoid duplicates. Reused only completed,
+verified outputs, not interrupted partial builds. Latest preservation remains
+486 files/zero changes; repository check 1996 source files/zero errors.
