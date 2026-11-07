@@ -82,6 +82,7 @@ def assign(ob,finish,family):
             continue
         if family=='Deck':
             rect=METAL['Black'];chart.data[f.index].value=CELLS.index('Black')
+            for li in f.loop_indices:ob.data.color_attributes['Tint'].data[li].color=(1,1,1,1)
         axes=(0,1) if family=='Molded' and key=='Slide' and abs((ob.matrix_basis.to_3x3()@f.normal).z)>.001 else sorted(range(3),key=lambda k:abs((ob.matrix_basis.to_3x3()@f.normal)[k]))[:2]
         for li in f.loop_indices:
             p=ps[ob.data.loops[li].vertex_index]

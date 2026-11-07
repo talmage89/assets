@@ -40,6 +40,22 @@ def terrain(doc,path,material):
             out.extend(q[valid])
     return np.asarray(out)
 
+def black_coating_tints(doc,buffers):
+    """The dark Black chart already encodes charcoal: reject a second dark tint."""
+    checked=0
+    for mesh in doc.get('meshes',[]):
+        for pr in mesh['primitives']:
+            if doc['materials'][pr['material']]['name'] not in ('Playground_Frame','Playground_Deck'):continue
+            attrs=pr['attributes'];uv=accessor(doc,buffers,attrs['TEXCOORD_0']);idx=accessor(doc,buffers,pr['indices']).ravel().reshape(-1,3);p=uv[idx]
+            selected=(p[:,:,0]>.75).all(axis=1)&(p[:,:,1]<.25).all(axis=1)
+            if not selected.any():continue
+            if 'COLOR_0' in attrs:
+                a=doc['accessors'][attrs['COLOR_0']];color=accessor(doc,buffers,attrs['COLOR_0']).astype(float)
+                if a.get('normalized'):color/=255 if a['componentType']==5121 else 65535
+                assert color[idx[selected],:3].min()>.9,('Double charcoal tint',mesh['name'])
+            checked+=int(selected.sum())
+    return checked
+
 def main():
     report=dict(passed=True,sets={},sites={},pieces={});memory=0
     for name,n in [('PlayMetal',1024),('PlayPlastic',1024),('PlaySurface',2048)]:
@@ -54,7 +70,7 @@ def main():
     assert memory==24;report['family_MiB']=memory
     manifest=json.loads(Path('build/manifest.json').read_text())
     for name in manifest['pieces']:
-        p=Path('export')/(name+'.gltf');d=json.loads(p.read_text());bs=[(p.parent/x['uri']).read_bytes() for x in d['buffers']];dens=[];zero=0;triangles=0;tiles=set()
+        p=Path('export')/(name+'.gltf');d=json.loads(p.read_text());bs=[(p.parent/x['uri']).read_bytes() for x in d['buffers']];dens=[];zero=0;triangles=0;tiles=set();black=black_coating_tints(d,bs)
         for mesh in d.get('meshes',[]):
             for primitive in mesh['primitives']:
                 m=d['materials'][primitive['material']];attrs=primitive['attributes'];pos=accessor(d,bs,attrs['POSITION']);uv=accessor(d,bs,attrs['TEXCOORD_0']);ix=accessor(d,bs,primitive['indices']).ravel().reshape(-1,3)
@@ -68,7 +84,7 @@ def main():
                     assert Path(p.parent/im).exists()
         # Tiny closed-cylinder caps can be below a delivered texel. Their count
         # remains explicit; a meaningful surface with collapsed UVs fails.
-        report['pieces'][name]=dict(triangles=triangles,degenerate_uv_triangles=zero,density_px_m_p5_median_p95=np.percentile(dens,[5,50,95]).tolist(),images=sorted(tiles))
+        report['pieces'][name]=dict(triangles=triangles,degenerate_uv_triangles=zero,black_chart_triangles_without_double_tint=black,density_px_m_p5_median_p95=np.percentile(dens,[5,50,95]).tolist(),images=sorted(tiles))
         assert zero==0,(name,zero)
     for s in manifest['sites']:
         poly=s['containment_boundary_m'];corners=[]
@@ -89,6 +105,7 @@ def main():
         report['sites'][str(s['seed'])]=dict(triangles=s['total_triangles'],materials=s['materials'],files_bytes=p.stat().st_size+p.with_suffix('.bin').stat().st_size,zone_corners_inside=len(corners),actual_floor_samples_m=measured_corners,entry_floor_max_difference_m=max(entry),containment_area_m2=s['protected_surface_area_m2'],images=imgs)
         assert s['total_triangles']<120000
         costs=report['sites'][str(s['seed'])];costs['family_MiB']=sum(v for k,v in allocations.items() if k.name.startswith('T_Play'));costs['reused_library_MiB']=sum(v for k,v in allocations.items() if not k.name.startswith('T_Play'));costs['total_if_uncached_MiB']=sum(allocations.values());costs['texture_memory_scope']='Estimated 8bpp block compression with full mips, unique external images in this exported site; presentation imports are separate.'
+        costs['black_chart_triangles_without_double_tint']=black_coating_tints(d,[(p.parent/b['uri']).read_bytes() for b in d['buffers']])
     protected=ROOT/'build/playground-protected.json'
     if protected.exists():
         data=json.loads(protected.read_text());bad=[k for k,v in data.items() if not (ROOT/k).exists() or hashlib.sha256((ROOT/k).read_bytes()).hexdigest()!=v];assert not bad,bad;report['protected_delivery_files']=len(data)

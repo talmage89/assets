@@ -68,6 +68,7 @@ def placed(ob,plan):
                 rust=age*math.exp(-max(0,p.z)*14)*streak*(.25 if repainted else 1)
                 c=c*(1-rust)+np.array((.19,.062,.017))*rust
             if key=='zinc':c=np.ones(3)
+            if target=='Black':c=np.ones(3)
             if target=='Worn':c=np.ones(3)
             if target=='WornDeck':c=np.ones(3)*(.82 if age>.75 else .55)
             variation=1+.025*math.sin(p.x*13+p.y*9+plan['seed'])

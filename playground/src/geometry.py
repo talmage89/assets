@@ -63,7 +63,7 @@ def own(ob,parent,finish='steel',material='Frame'):
     G.apply(ob)
     fc=ob.data.attributes.new(name='FinishCode',type='INT',domain='FACE')
     for d in fc.data:d.value=FINISHES.index(finish) if finish in FINISHES else 14
-    c=(1,1,1,1) if LOOK and finish=='zinc' else COLORS.get(finish,finish)
+    c=(1,1,1,1) if LOOK and (finish=='zinc' or (finish=='deck' and material=='Frame')) else COLORS.get(finish,finish)
     tint=ob.data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='CORNER')
     for d in tint.data:d.color=c
     uv=ob.data.uv_layers.active or ob.data.uv_layers.new(name='UVMap')
