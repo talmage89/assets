@@ -71,7 +71,7 @@ transforms are converted to glTF's frame.
 | --- | --- |
 | Windmill rotor | Y, 0–360°, shaft at (0, −.79, 1.63) in fixture; actual bored hub |
 | Castle portcullis | Z translation, 0–.40 m from its raised rest position |
-| Clubhouse door | Z, −100–0°, left jamb at (2.29, 2.26, .13) in clubhouse |
+| Clubhouse door | Z, −90–0°, left jamb at (2.29, 2.26, .13) in clubhouse |
 | Cup-marker flags | Z, −30–30°, pole base beside cup; authored sagging fabric |
 
 The windmill's lowest swept points cross a 42.7 mm ball's envelope and clear
@@ -89,8 +89,31 @@ the themed fixture on the hole is counted separately. Both 2k–8k hole and
 
 | Seed / kind | Course triangles | Per hole | glTF + BIN bytes | Material primitives |
 | --- | ---: | ---: | ---: | ---: |
-| 71 / classic | 123,584 | 4,144–5,512 | 7,708,860 | 77 |
-| 92 / adventure | 174,572 | 5,640–7,108 | 9,666,582 | 79 |
+| 71 / classic | 123,712 | 4,144–5,512 | 7,712,267 | 77 |
+| 92 / adventure | 174,304 | 5,640–7,108 | 9,671,837 | 79 |
+
+Per-hole construction, excluding the separately budgeted themed fixture:
+
+| Hole | Classic 71 | Adventure 92 |
+| --- | ---: | ---: |
+| 1 | 4,144 | 5,992 |
+| 2 | 4,232 | 6,964 |
+| 3 | 4,320 | 6,384 |
+| 4 | 5,012 | 6,080 |
+| 5 | 4,232 | 6,964 |
+| 6 | 4,320 | 6,964 |
+| 7 | 5,512 | 5,992 |
+| 8 | 5,512 | 6,964 |
+| 9 | 5,512 | 6,968 |
+| 10 | 4,320 | 6,080 |
+| 11 | 4,340 | 6,964 |
+| 12 | 4,232 | 6,964 |
+| 13 | 4,464 | 5,904 |
+| 14 | 4,320 | 7,072 |
+| 15 | 4,320 | 7,108 |
+| 16 | 4,320 | 5,640 |
+| 17 | 4,924 | 6,276 |
+| 18 | 4,232 | 7,052 |
 
 | Fixture | Triangles |
 | --- | ---: |
@@ -126,6 +149,7 @@ kit GPU lock; scratch stays inside the clone.
 make -C minigolf WIDTH=1440 SAMPLES=32  # refs, model, check, Cycles, pairs, sheets
 make -C minigolf check                # 36 cups, scale, raw normals, budgets, motion, parking, repo
 make -C minigolf repeat               # rebuild and compare glTF/BIN/PNG bytes
+make -C minigolf check-renders        # all 15 Cycles frames, source/image byte receipt
 make -C minigolf match                # three neutral-balanced period-photo pairs
 ```
 
@@ -138,7 +162,7 @@ make/check/presentation recipes intentionally use those two documented seeds.
 | `export/Minigolf-{71,92}.gltf` + `.bin` | Separate courses, shared external quick images |
 | `build/course.blend` | Generated construction checkpoint, both courses |
 | `build/source-construction.json`, `check.json` | Actual gauges, cups, bridge contacts, parking, sockets, sampled motion, 250 seeds |
-| `build/repeat.json`, `preservation.json` | Byte repeat; every pre-existing delivery/doc remains unchanged |
+| `build/repeat.json`, `preservation.json`, `render-check.json` | Byte repeat; every pre-existing delivery/doc remains unchanged |
 | `renders/checkpoint/hero.png` | Eye 1.65 m above local grade, 40 mm, raking sun, pond/fixture/hut/road/town |
 | `renders/checkpoint/{classic,adventure}-{ground,above}.png` | Distinct places, full layouts and player viewpoints |
 | `renders/checkpoint/{tee,cup,border,waterfall,fixture,bridge,clubhouse}.png` | Construction close-ups; measured 1.8 m silhouette in fixture view |

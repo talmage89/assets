@@ -12,8 +12,9 @@ def walk(rt,name,points,width=1.524,z=.065):
  for i,p in enumerate(points):
   a=Vector(points[max(0,i-1)]);b=Vector(points[min(len(points)-1,i+1)]);d=(b-a).normalized();n=Vector((-d.y,d.x))
   for side in (-1,1):vs.append((p[0]+side*n.x*width/2,p[1]+side*n.y*width/2,(p[2] if len(p)>2 else z+(grade(p[1]) if z>=0 else 0))))
- ob=mesh(name,vs,[(2*i,2*i+1,2*i+3,2*i+2) for i in range(len(points)-1)],'concrete',rt,False)
+ ob=mesh(name,vs,[(2*i,2*i+2,2*i+3,2*i+1) for i in range(len(points)-1)],'concrete',rt,False)
  if z>=0:
+  bm=bmesh.new();bm.from_mesh(ob.data);bmesh.ops.reverse_faces(bm,faces=[f for f in bm.faces if f.normal.z<0]);bm.to_mesh(ob.data);bm.free();ob.data.update()
   mod=ob.modifiers.new('Walk slab gauge','SOLIDIFY');mod.thickness=.10;mod.offset=-1
  return ob
 
@@ -32,18 +33,41 @@ def footbridge(rt,p=(0,-4,0)):
  socket(sub,'DeckCenter',(0,0,.244),'footbridge')
  return sub
 
+def pond_loops(adv):
+ # Shared cut/liner outlines. Adventure's southern arc opens into a real
+ # channel: one polygon, not an oval wall with a stream laid across it.
+ cx,cy=0,5;rx,ry=(3.6,7.0) if adv else (1.1,2.7);loops=[]
+ for k,(factor,width,z) in enumerate(((1.15,1.0,None),(1.02,.65,-.08),(.80,.50,-.57))):
+  if not adv:
+   xy=[(rx*factor*math.cos(i*math.tau/64),cy+ry*factor*math.sin(i*math.tau/64)) for i in range(64)]
+  else:
+   delta=math.asin(width/(rx*factor));start=1.5*math.pi+delta;end=1.5*math.pi-delta+math.tau
+   xy=[(rx*factor*math.cos(start+(end-start)*i/56),cy+ry*factor*math.sin(start+(end-start)*i/56)) for i in range(57)]
+   centers=[(.08,-3.5),(.10,-4),(-.20,-6),(0,-7.3)]
+   xy += [(x-width,y) for x,y in centers]
+   xy += [(width*math.cos(math.pi+j*math.pi/8),-7.3+.35*math.sin(math.pi+j*math.pi/8)) for j in range(1,9)]
+   xy += [(x+width,y) for x,y in reversed(centers[:-1])]
+  loop=[]
+  for i,(x,y) in enumerate(xy):
+   zz=.015+grade(y) if k==0 else z
+   if adv and k==2 and i>=57:zz=-.31
+   loop.append((x,y,zz))
+  loops.append(loop)
+ return loops
+
 def basin(rt,adv):
  water=root('WaterSystem',parent=rt,kind='water_system')
- cx,cy=(0,5) if adv else (0,5);rx,ry=(3.6,7.0) if adv else (1.1,2.7);n=64
- loops=[]
- for z,f in ((.035,1.15),(-.08,1.02),(-.57,.80)):
-  loops.append([(cx+rx*f*(1+.035*math.sin(i*2.7))*math.cos(i*math.tau/n),cy+ry*f*(1+.025*math.sin(i*3.1))*math.sin(i*math.tau/n),z) for i in range(n)])
- own(G.loft('Folded protected EPDM basin',loops,M['liner'],caps=False),water)
- mesh('Pond liner floor',loops[-1],[tuple(range(n))],'liner',water,False)
- edge=loops[1];mesh('Pond still water',[(x*.97,cy+(y-cy)*.97,-.17) for x,y,z in edge],[tuple(range(n))],'water',water,False)
+ cx,cy=0,5;rx,ry=(3.6,7.0) if adv else (1.1,2.7);n=64;loops=pond_loops(adv)
+ own(G.loft('Protected continuous EPDM basin and channel',loops,M['liner'],caps=False),water)
+ mesh('Pond liner floor',loops[-1],[tuple(range(len(loops[-1])))],'liner',water,False)
+ surface=[]
+ for mid,floor in zip(loops[1],loops[2]):
+  t=(-.17-mid[2])/(floor[2]-mid[2]);surface.append((mid[0]*(1-t)+floor[0]*t,mid[1]*(1-t)+floor[1]*t,-.17))
+ mesh('Continuous pond and stream water',surface,[tuple(range(len(surface)))],'water',water,False)
  for i in range(n):
-  a=i*math.tau/n;x=cx+rx*1.09*math.cos(a);y=cy+ry*1.08*math.sin(a)
-  rock('Restrained pond-edge coping',(x,y,-.13),(.70,.75,.43),water,100+i,'rocklight')
+  a=i*math.tau/n;x=cx+rx*1.15*math.cos(a);y=cy+ry*1.15*math.sin(a)
+  if adv and y<-.8 and abs(x)<1.2:continue
+  rock('Restrained pond-edge coping',(x,y,.015+grade(y)-.13),(.70,.75,.43),water,100+i,'rocklight')
   if i%8==0:
    # Wet exposed liner folds, with a visibly restrained upper edge beneath rock.
    tube('Liner bank fold',[(x*.99,cy+(y-cy)*.99,-.06),(x*.95,cy+(y-cy)*.95,-.32),(x*.90,cy+(y-cy)*.90,-.54)],.012,'liner',water)
@@ -65,27 +89,23 @@ def basin(rt,adv):
   mesh('Falling water curtain',vs,fs,'water',water,False)
   for i in range(10):
    a=i*.71;rock('Water impact foam',(2.03+.70*math.sin(a),8.82+.18*math.cos(a),-.16),(.26,.14,.025),water,710+i,'foam')
-  # Stream from lower pond, bank protection continuing under the human bridge.
-  points=[(0,5-ry),(0,-2.7),(.10,-4),(-.20,-6.0),(0,-7.1)]
-  walk(water,'Stream liner',points,1.65,-.31);walk(water,'Stream flow',points,1.1,-.165)
-  for ob in water.children:
-   if ob.name.startswith('Stream liner'):ob.data.materials.clear();ob.data.materials.append(M['liner'])
-   if ob.name.startswith('Stream flow'):ob.data.materials.clear();ob.data.materials.append(M['water'])
-  for y in (-2.3,-3,-4,-5,-6.0,-6.8):
-   for x in (-.82,.82):rock('Stream bank stone',(x,y,-.15),(.5,.65,.37),water,int((y+9)*100+x*30))
+  # The continuous basin above already contains the protected stream.
+  for y in (-3.0,-4,-5,-6.0,-6.8,-7.3):
+   for x in (-1.0,1.0):rock('Stream bank stone',(x,y,.015+grade(y)-.15),(.5,.65,.37),water,int((y+9)*100+x*30))
   footbridge(rt)
   # Return pipe follows the buried bank; only service ends are exposed.
   tube('63 mm return service pipe',[(4.1,8.8,.05),(4.1,9.5,.05),(3.9,10.5,.66),(3.1,10.5,.85)],.0315,'black',water,10)
-  box('Pump service vault',(4.9,8.8,.12),(.75,.85,.24),'concrete',water)
-  box('Pump service lid',(4.9,8.8,.25),(.78,.88,.025),'metal',water)
+  box('Pump service vault',(4.9,8.8,grade(8.8)-.09),(.75,.85,.24),'concrete',water)
+  box('Pump service lid',(4.9,8.8,grade(8.8)+.0425),(.78,.88,.025),'metal',water)
   box('Screened intake',(2.9,6.7,-.22),(.38,.38,.11),'black',water)
+  tube('Intake bank connection',[(3.05,6.7,-.22),(3.5,6.7,-.22)],.0315,'black',water,10)
   for i in range(7):box('Intake screen bar',(2.75+i*.05,6.7,-.156),(.012,.35,.015),'metal',water)
  socket(water,'Pump',(4.9,8.8,.25),'water_pump');socket(water,'WaterLevel',(0,5,-.17),'water_level')
  return water
 
 def clubhouse(p,rt):
  x,y=p['clubhouse'];sub=root('Clubhouse',(x,y,.06),parent=rt,kind='clubhouse');w,d=6.8,4.6
- box('Hut slab',(0,0,.06),(w+.4,d+.4,.12),'concrete',sub)
+ box('Hut slab',(0,.6,.06),(w+.4,d+1.6,.12),'concrete',sub)
  # Open counter faces course +Y. Actual framed walls, recess, inside floor.
  box('Back wall',(0,-d/2,1.35),(w,.14,2.7),'ivory',sub)
  for s in (-1,1):box('Side wall',(s*w/2,0,1.35),(.14,d,2.7),'ivory',sub)
@@ -96,7 +116,7 @@ def clubhouse(p,rt):
  box('Sheltered counter ceiling',(0,0,2.66),(w,d,.10),'wood',sub)
  roof(sub,'Hut pitched roof',w+.65,d+.9,2.73,1.1)
  # Small operating entry in the side bay, physical hinge at jamb.
- door=root('Clubhouse__Door',(2.29,d/2-.04,.13),parent=sub);door['module']=False;door['pivot_axis']='Z';door['range_degrees']=[-100,0]
+ door=root('Clubhouse__Door',(2.29,d/2-.04,.13),parent=sub);door['module']=False;door['pivot_axis']='Z';door['range_degrees']=[-90,0]
  box('Entry leaf',(.369,0,1.025),(.690,.045,2.05),'red',door)
  cyl('Entry pull',(.63,-.05,.90),(.63,-.05,1.14),.012,'metal',door)
  for z in (.40,1.70):
@@ -107,19 +127,24 @@ def clubhouse(p,rt):
  # Counter-facing signs are flipped so their fronts face +Y.
  sign=root('Clubhouse sign',(0,d/2+.11,2.44),180,sub);sign['module']=False
  text(sign,p['name'].upper(),(0,0,0),3.5,.27)
+ # Actual interior stock sits on a supported worktop behind the opening.
+ box('Inner worktop',(0,1.55,1.0),(4.4,1.50,.06),'wood',sub)
+ for x in (-1.8,1.8):
+  box('Counter rear support',(x,.86,.545),(.10,.10,.85),'wood',sub)
  # Actual interior stock visible through the opening.
  for x in (-1.55,0,1.55):
   box('Ball sorting tray',(x,1.25,1.09),(.68,.48,.12),'navy',sub)
   for i in range(8):
    ball('Counter ball',(x-.23+(i%4)*.15,1.15+(i//4)*.15,1.17),.02135,('yellow','red','white')[i%3],sub)
- box('Rear stock shelf',(0,-1.8,1.4),(5.5,.38,.06),'wood',sub)
- box('Putter rack lower',(0,2.85,.25),(3.8,.32,.12),'wood',sub)
+ box('Rear stock shelf',(0,-2.05,1.4),(5.5,.38,.06),'wood',sub)
+ box('Putter rack lower',(0,2.85,.22),(3.8,.32,.05),'wood',sub)
  box('Putter rack upper',(0,2.85,.91),(3.8,.23,.10),'wood',sub)
+ for x in (-1.8,1.8):box('Rack upright',(x,2.85,.50),(.10,.12,.76),'wood',sub)
  for i in range(16):
   x=-1.72+i*.23;length=.63+(i%4)*.10
-  cyl('Racked putter shaft',(x,2.85,.30),(x,2.85,.30+length),.005,'metal',sub,8)
+  cyl('Racked putter shaft',(x,2.85,.288),(x,2.85,.30+length),.005,'metal',sub,8)
   cyl('Putter grip',(x,2.85,.30+length-.15),(x,2.85,.30+length),.011,'black',sub,8)
-  box('Putter blade',(x+.025,2.85,.27),(.10,.035,.045),'red',sub)
+  box('Putter blade',(x+.025,2.85,.2675),(.10,.035,.045),'red',sub)
  socket(sub,'Counter',(0,d/2+.5,1.03),'service_counter');socket(sub,'Entry',(2.65,d/2+.6,.12),'entry')
  return sub
 
@@ -146,29 +171,18 @@ def build(p,parent):
  global GRADING
  GRADING=p['water']
  W,D=p['lot'];rt=root('Site',parent=parent,kind='site')
- # Grade skin with a real basin/stream opening. Carpeted holes sit above it.
- xs=sorted(set([-W/2,W/2,-4.5,4.5,-1,1]));ys=sorted(set([-D/2,D/2,-7.5,-2,12.9]))
- vs=[];fs=[]
- for a,b in zip(xs,xs[1:]):
-  for c,d in zip(ys,ys[1:]):
-   if p['water'] and ((-4.5<(a+b)/2<4.5 and -2<(c+d)/2<12.9) or (-1<(a+b)/2<1 and -7.5<(c+d)/2<-2)):continue
-   # Both kinds have ponds; classic cut is generated separately below.
-   if not p['water'] and -4.5<(a+b)/2<4.5 and -2<(c+d)/2<12.9:continue
-   k=len(vs);vs.extend(((a,c,.015+grade(c)),(b,c,.015+grade(c)),(b,d,.015+grade(d)),(a,d,.015+grade(d))));fs.append((k,k+1,k+2,k+3))
- mesh('Site planted grade',vs,fs,'grass',rt,False)
- # Fill around the precise pond edge down to basin rim; ellipse skirt avoids
- # visible rectangular excavation corners in overhead and close views.
- rx,ry=(3.6,7) if p['water'] else (1.1,2.7);n=64;loops=[]
- for mode in (0,1):
-  loop=[]
-  for i in range(n):
-   a=i*math.tau/n;x=math.cos(a);y=math.sin(a)
-   if mode==0:
-    factor=min(4.5/max(abs(x),1e-9),(7.9 if y>0 else 7.0)/max(abs(y),1e-9));xx=x*factor;yy=y*factor+5
-   else:xx=x*rx*1.15;yy=5+y*ry*1.15
-   loop.append((xx,yy,.015+grade(yy) if mode==0 else .032))
-  loops.append(loop)
- own(G.loft('Pond planted bank',loops,M['grass'],caps=False),rt)
+ # Boolean the exact same original rim polygon out of the graded ground.
+ # Retain only its terrain skin: buried walls/bottom are construction helpers.
+ ys=sorted(set((-D/2,-9,D/2)));top=[(x,y,.015+grade(y)) for y in ys for x in (-W/2,W/2)];n=len(top);verts=top+[(x,y,z-1.5) for x,y,z in top]
+ faces=[]
+ for i in range(len(ys)-1):
+  j=2*i;faces.extend(((j,j+1,j+3,j+2),(n+j+2,n+j+3,n+j+1,n+j)))
+ boundary=[0,1,3,5,4,2]
+ faces.extend((boundary[i],boundary[(i+1)%6],n+boundary[(i+1)%6],n+boundary[i]) for i in range(6))
+ terrain=mesh('Site planted grade',verts,faces,'grass',rt)
+ cutter=own(G.profile('Basin excavation tool',[(x,y) for x,y,z in pond_loops(p['water'])[0]],-3,3,M['grass'],axis='Z'),rt)
+ bpy.context.view_layer.update();G.boolean(terrain,cutter)
+ bm=bmesh.new();bm.from_mesh(terrain.data);bmesh.ops.delete(bm,geom=[f for f in bm.faces if f.normal.z<.5],context='FACES');bm.to_mesh(terrain.data);bm.free();terrain.data.update()
  # Paved serpentine route outside each playing envelope, continuous headlands.
  xs=(-26.4,-19.4,-12.4,5.6,12.6,19.6) if p['water'] else (-21.4,-14.4,-7.4,.6,7.6,14.6)
  for x in xs:walk(rt,'Connected side walk',[(x,y) for y in (-12,-9,0,11,22)],1.524)
@@ -180,7 +194,7 @@ def build(p,parent):
  # Central entrance route to both lobes, using the human bridge at the stream.
  walk(rt,'Entrance path',[(0,p['clubhouse'][1]+2.3),(0,-12)],1.8)
  for x in (-5.5,5.5):walk(rt,'Water-side promenade',[(x,y) for y in (-12,-9,0,11,22)],1.524)
- if p['water']:walk(rt,'Footbridge west landing',[(-5.5,-4,.065),(-1.8,-4,.244)],1.524);walk(rt,'Footbridge east landing',[(1.8,-4,.244),(5.5,-4,.065)],1.524)
+ if p['water']:walk(rt,'Footbridge west landing',[(-5.5,-4,.065+grade(-4)),(-1.8,-4,.244)],1.524);walk(rt,'Footbridge east landing',[(1.8,-4,.244),(5.5,-4,.065+grade(-4))],1.524)
  basin(rt,p['water']);clubhouse(p,rt)
  # A real parking row and two-way aisle enter off the road, separate from play.
  front=-D/2;py=front+6.4008

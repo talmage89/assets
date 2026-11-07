@@ -64,7 +64,10 @@ def check():
    for d in (Vector((1,0,0)),Vector((0,1,0))):
     origin=q-Vector((0,0,.04));a=bvh.ray_cast(origin,d,.20);b=bvh.ray_cast(origin,-d,.20);assert a[0] is not None and b[0] is not None;spans.append((a[0]-b[0]).length)
    assert max(abs(s-.10795) for s in spans)<.001,spans
-   cup_measure.append(dict(hole=rt.name,opening_xy_m=spans,center_recess_m=q.z-hit[0].z,lip_offsets_m=lip))
+   aperture_recess=[]
+   for i in range(24):
+    a=i*math.tau/24;v=q+Vector((.049*math.cos(a),.049*math.sin(a),.10));r=bvh.ray_cast(v,Vector((0,0,-1)),1);assert r[0] is not None;depth=q.z-r[0].z;assert depth>.085,('Carpet occludes cup aperture',rt.name,i,depth);aperture_recess.append(depth)
+   cup_measure.append(dict(aperture_minimum_recess_m=min(aperture_recess),hole=rt.name,opening_xy_m=spans,center_recess_m=q.z-hit[0].z,lip_offsets_m=lip))
   motion=[]
   for rotor in [o for o in bpy.context.scene.objects if o.get('module_kind')=='moving rotor']:
    # Swept vertices against actual fixed fixture BVH; shaft/hub intended bearing
@@ -91,7 +94,7 @@ def check():
    moving=[o for o in node.children_recursive if o.type=='MESH'];fixed=[surface(o) for o in node.parent.children if o.type=='MESH'];slide=node.get('slide_axis');rot=node.rotation_euler.copy();loc=node.location.copy();depthmax=0.0
    for step in range(21):
     if slide:node.location.z=loc.z+.40*step/20
-    else:node.rotation_euler.z=math.radians(-100*step/20)
+    else:node.rotation_euler.z=math.radians(node['range_degrees'][0]*step/20)
     bpy.context.view_layer.update()
     for ob in moving:
      current=surface(ob)
@@ -114,7 +117,20 @@ def check():
   asphalt=palette_vertices('asphalt');stripes=palette_vertices('white');assert asphalt and stripes
   front=min(q.y for q in asphalt);aisle=min(q.y for q in stripes)-front;stall_depth=max(q.y for q in stripes)-min(q.y for q in stripes)
   assert abs(aisle-7.3152)<.00002 and abs(stall_depth-5.4864)<.00002,(aisle,stall_depth)
+  # An upward-extruded walk would end above the neighboring carpet.
+  concrete=palette_vertices('concrete');assert concrete
   parking=dict(aisle_clear_depth_m=aisle,stall_depth_m=stall_depth,court_width_m=max(q.x for q in asphalt)-min(q.x for q in asphalt),court_depth_m=max(q.y for q in asphalt)-front)
+  # Actual water/terrain surfaces prove the pond's open connection into its
+  # channel; a separately valid oval and strip could still have a wall between.
+  waterroot=next(o for o in bpy.context.scene.objects if o.get('module_kind')=='water_system');water_tree=tree([o for o in waterroot.children if o.type=='MESH']);site_tree=tree(site_meshes);water_proof=[]
+  if meta['kind']=='adventure':
+   for y in (-6.8,-4,-3,0,5,10):
+    origin=Vector((0,y,2));hit=water_tree.ray_cast(origin,Vector((0,0,-1)),4);assert hit[0] is not None and abs(hit[0].z+.17)<.00002,('Water connection',y,hit)
+    terrain_hit=site_tree.ray_cast(origin,Vector((0,0,-1)),4);assert terrain_hit[0] is None,('Terrain blocks water',y,terrain_hit)
+    water_proof.append(list(hit[0]))
+  walk_x=-26.4 if meta['kind']=='adventure' else -21.4;walk_z=.065+(.025*9.5 if meta['kind']=='adventure' else 0)
+  hit=site_tree.ray_cast(Vector((walk_x,.5,2)),Vector((0,0,-1)),4);assert hit[0] is not None and abs(hit[0].z-walk_z)<.006,('Walk extruded above intended top',hit,walk_z)
+  walk_proof=dict(measured_top_m=list(hit[0]),nominal_top_z_m=walk_z)
   bridge_proof=[]
   for rt in [o for o in bpy.context.scene.objects if o.get('module_kind')=='footbridge']:
    bvh=tree([o for o in rt.children if o.type=='MESH']);probes=[]
@@ -125,7 +141,7 @@ def check():
      q=rt.matrix_world@Vector((x,y,1.0));hit=bvh.ray_cast(q,Vector((0,0,-1)),2);assert hit[0] is not None
      probes.append(list(hit[0]))
    bridge_proof.append(dict(root=rt.name,deck_top_probes_m=probes))
-  rows.append(dict(seed=seed,passed=True,triangles=counts,cups=cup_measure,motion=motion,materials=meta['materials'],kind=meta['kind'],bridge=bridge_proof,parking=parking))
+  rows.append(dict(seed=seed,passed=True,triangles=counts,cups=cup_measure,motion=motion,materials=meta['materials'],kind=meta['kind'],bridge=bridge_proof,parking=parking,continuous_water_probes_m=water_proof,walk_top=walk_proof))
  # Pure generator determinism and distinct seeded dimensions/order.
  for seed in range(250):
   a=generate(seed);assert a==generate(seed);assert [h['number'] for h in a['holes']]==list(range(1,19));assert len({h['feature'] for h in a['holes']})>=5

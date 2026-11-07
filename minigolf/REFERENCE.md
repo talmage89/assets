@@ -14,7 +14,7 @@ course plan is reproduced.
 | Edging | Builder's brick paver, concrete border, and commercial timber systems | .1524 m concrete curb, .2032 × .1016 m brick units, .0889 × .1397 m treated timbers; original details |
 | Walk | US 5 ft walk size already used in ground family | 1.524 m connected route plus tee/cup approaches; geometry check, not accessibility certification |
 | Faux rock | Henderson's rebar framework / shotcrete / waterproofing / plaster | Original asymmetric ledged formations; closed exterior skins describe the shell envelope; hidden frame and inner wall omitted from game geometry |
-| Pond | Henderson and Winnipeg specification: protective geotextile, 45 mil EPDM, rock protection, concealed liner at banks | .001143 m liner reference gauge; sloped basin and restrained folds; water .40 m above local basin bottom; .205 m nominal bank freeboard; separate submerged rocks |
+| Pond | Henderson and Winnipeg specification: protective geotextile, 45 mil EPDM, rock protection, concealed liner at banks | .001143 m liner reference gauge; sloped basin and restrained folds; water .40 m above local basin bottom; .185 m freeboard at low grade, rising with the bank; separate submerged rocks |
 | Waterfall | Winnipeg stainless weir; builder pump / return practice | 1.3 m spill width, 1.05 m drop, screened intake, service cover and routed 63 mm return; animated flow deferred |
 | Footbridge | Harris plan details use 2 × 6 joists, 42 in guarding | Original 1.524 m clear deck, 3.6 m span, .0381 × .1397 joists and 1.067 m rails |
 | Fixtures | Period Commons photos show human-scale lighthouse, windmill and bridges | Original 3.20 m windmill, 4.7 m lighthouse, 2.8 m castle, 2.30 m covered bridge; complete ball routes and thickness |

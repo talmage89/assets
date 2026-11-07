@@ -59,7 +59,10 @@ def build(args):
     x,y=center(h,.49);z=level(h,x,.49)+.005
     fixtures.build(h['fixture'],(x,y,z),0,rt,'Fixture_%02d_%s'%(h['number'],h['fixture']))
   S.build(p,course);roots.append((course,p))
- source_measure(roots);F.finalize()
+ source_measure(roots)
+ for ob in bpy.context.scene.objects:
+  if ob.type=='MESH' and any(m.name=='Walk slab gauge' for m in ob.modifiers):assert min(p.normal.z for p in ob.data.polygons)>0,'Downward walk top: '+ob.name
+ F.finalize()
  # Set scale and retain authoring metadata as glTF extras.
  scene=bpy.context.scene;scene.unit_settings.system='METRIC';scene.unit_settings.scale_length=1
  bpy.context.view_layer.update()

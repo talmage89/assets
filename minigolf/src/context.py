@@ -48,7 +48,7 @@ def native_ground(p):
   rt=g.curb('Context native driveway curb',cut=True);rt.location=(x,y+4.1148,-.17);rt.rotation_euler.z=-math.pi/2
   apron=F.root('Context driveway apron',(x,y,0))
   F.mesh('Driveway approach',[(-3.048,4.1148,-.1441),(3.048,4.1148,-.1441),(3.048,7.62,.015),(-3.048,7.62,.015)],[(0,1,2,3)],'concrete',apron,False)
- rt=F.root('Context terrain');F.box('Town grade',(0,-20,-.23),(500,400,.1),'grass',rt,0)
+ rt=F.root('Context terrain');F.box('Town grade',(0,-20,-.23),(10000,10000,.1),'grass',rt,0)
  return y
 
 def planted_asset(path,rootname,placements):

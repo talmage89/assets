@@ -25,7 +25,7 @@ def playing_mesh(h,parent):
   while angles[i]<angles[i-1]:angles[i]+=math.tau
  ringids=[]
  for j in range(4):
-  a=angles[j];b=angles[j+1] if j<3 else angles[0]+math.tau
+  a=((angles[j-1] if j else angles[3]-math.tau)+angles[j])/2;b=(angles[j]+(angles[j+1] if j<3 else angles[0]+math.tau))/2
   for k in range(8):
    theta=a+(b-a)*k/8;ringids.append(len(vs));vs.append((cx+.055975*math.cos(theta),cy+.055975*math.sin(theta),z))
  for j in range(4):
