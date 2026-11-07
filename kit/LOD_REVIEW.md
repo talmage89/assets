@@ -1728,3 +1728,36 @@ rejected far-level control, which cost 2048 triangles. The delivered one-level
 1656-triangle config uses the default allowance. No production kit code changed
 in this pass. Preservation remains **486 files, zero changes**. Fresh frozen
 adoption proof will follow any eventual general tool fix.
+
+## Pass 45 — integrate bounded skin retries
+
+Integrated the finer-skin path in `lod_shells.py`, scoped from the shared-map
+builder. Failed construction skins try genuine denser component reductions
+before whole-source restoration. The UV, normal/tangent, color, distance and
+topology bounds remain unchanged; every trial checks assembled visibility.
+An optional `reflective_surface_pixels` cap selects source components using
+their original linear ORM fields and factors. The raw reducer is unchanged,
+so its exact content caches remain reusable. No near image or material is added.
+
+The integrated `test_lod_shared.py` run passes, including the actual bounded
+reducer fixture: source 192 triangles, invalid coarse candidate 12, valid refined
+candidate 38, rather than restoring all 192. ORM wrap/filter/transform and policy
+reset cases pass, as does topology repair with the backface guard disabled for
+explicitly double-sided materials. This is correctness evidence, not approval
+of the queued native appearance controls. The complete clean suite must still
+be repeated after the final tool changes.
+
+The old-module colonial baseline finished LOD1 at 24949/58232 (42.84%), then
+continued through LOD2's construction pieces. Stopped that process with SIGTERM
+so pending GPU controls could run; its completed exact component caches were
+preserved. A fresh-module build reused LOD1 immediately and resumed LOD2.
+Its runner yields this cache-backed CPU work when the shared GPU becomes
+available. Direct nonblocking lock checks show the GPU is occupied outside our
+process namespace; the local process listing alone does not prove it is free.
+No cancelled build is reported as a complete proof.
+
+Current preservation check: 486 original delivery/docs files, zero changes.
+Repository check: 1996 source files, zero errors. Proxy color, grille reflection,
+final budget selection, final chain rebuilds and frozen-tool adoption refresh
+remain pending; the earlier adoption and full-suite receipts are stale after
+this general tool change.
