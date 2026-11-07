@@ -60,6 +60,10 @@ def pairs():
 
 def main(args):
  base=None if args.after_only else prepare(args.blender)
+ if not args.after_only:
+  # Check the new required eye-level framing first. The final render target
+  # reuses this exact export frame; it adds no second render to the inventory.
+  gpu_run([args.blender,'-b','--factory-startup','-t','4','--python-exit-code','1','--python',str(HERE/'render.py'),'--','--out','renders/final','--width',str(args.width),'--samples',str(args.samples),'--shots','adventure-hero'],cwd=ASSET)
  # Use the current renderer for both so camera/light/context are identical.
  batches=[('after-',None)] if args.after_only else [('before-',str(base/'export/Minigolf-{seed}.gltf')),('after-',None)]
  for prefix,source in batches:

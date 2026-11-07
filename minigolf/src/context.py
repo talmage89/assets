@@ -85,7 +85,7 @@ def native_ground(p):
 def planted_asset(path,rootname,placements):
  before=set(bpy.data.objects);bpy.ops.import_scene.gltf(filepath=str(path));added=set(bpy.data.objects)-before
  # All native shrub growth seeds bind the same delivered three-map set.
- for material in {m for o in added if o.type=='MESH' for m in o.data.materials if m}:
+ for material in sorted({m for o in added if o.type=='MESH' for m in o.data.materials if m},key=lambda m:m.name):
   if not material.use_nodes:continue
   for node in material.node_tree.nodes:
    if node.type=='TEX_IMAGE' and node.image:
@@ -94,12 +94,12 @@ def planted_asset(path,rootname,placements):
      if node.image.name.startswith(name):
       shared=next((im for im in bpy.data.images if im.name==name or im.name==name+'.png'),None)
       if shared is not None:node.image=shared
- root=next(o for o in added if o.name==rootname or o.name.startswith(rootname+'.'))
+ root=min((o for o in added if o.name==rootname or o.name.startswith(rootname+'.')),key=lambda o:(o.name!=rootname,o.type!='EMPTY',o.name))
  geometry_seed=root.get('geometry_seed','canonical family seed')
  keep={root,*root.children_recursive}
- for ob in added-keep:bpy.data.objects.remove(ob,do_unlink=True)
+ for ob in sorted(added-keep,key=lambda o:o.name):bpy.data.objects.remove(ob,do_unlink=True)
  # Use one linked mesh population, preserving own library material maps.
- meshes=[o for o in keep if o.type=='MESH'];triangles=0
+ meshes=sorted((o for o in keep if o.type=='MESH'),key=lambda o:o.name);triangles=0
  for o in meshes:o.data.calc_loop_triangles();triangles+=len(o.data.loop_triangles)
  xf={o:root.matrix_world.inverted()@o.matrix_world for o in meshes}
  for index,placement in enumerate(placements):
@@ -107,7 +107,7 @@ def planted_asset(path,rootname,placements):
   frame=Matrix.Translation(Vector(p))@Matrix.Rotation(yaw,4,'Z')@Matrix.Rotation(roll,4,'Y')@Matrix.Scale(scale,4)
   for old in meshes:
    ob=old.copy();ob.data=old.data;bpy.context.collection.objects.link(ob);ob.parent=None;ob.matrix_world=frame@xf[old];ob.name='Context '+rootname
- for ob in keep:bpy.data.objects.remove(ob,do_unlink=True)
+ for ob in sorted(keep,key=lambda o:o.name):bpy.data.objects.remove(ob,do_unlink=True)
  return dict(instances=len(placements),unique_triangles=triangles,placed_triangles=len(placements)*triangles,source=str(path.relative_to(REPO)),source_root=rootname,geometry_seed=geometry_seed,placements=[dict(position_blender_m=list(q[0]),uniform_scale=q[1],yaw_blender_z_radians=q[2],roll_blender_y_radians=q[3] if len(q)>3 else 0) for q in placements])
 
 def town(p,road_y):
