@@ -68,23 +68,24 @@ check: model plants
 	$(PYTHON) src/costs.py
 	$(PYTHON) $(KIT)/repo_check.py
 render: model plants context
-	$(PYTHON) src/render_batch.py --blender $(BLENDER) --out renders/final --width $(WIDTH) --samples $(SAMPLES)
+	$(KIT)/with_gpu.sh $(PYTHON) src/render_batch.py --course classic --blender $(BLENDER) --out renders/final --width $(WIDTH) --samples $(SAMPLES)
+	$(KIT)/with_gpu.sh $(PYTHON) src/render_batch.py --course adventure --blender $(BLENDER) --out renders/final --width $(WIDTH) --samples $(SAMPLES)
 catalog: model
 	$(KIT)/with_gpu.sh $(BP) --python src/catalog.py -- --kind fixtures --width $(WIDTH) --samples $(SAMPLES)
 	$(KIT)/with_gpu.sh $(BP) --python src/catalog.py -- --kind holes --width $(WIDTH) --samples $(SAMPLES)
 match: model plants context refs
 	$(PYTHON) src/matches.py prepare
-	$(PYTHON) src/matches_batch.py --blender $(BLENDER) --width $(WIDTH) --samples $(SAMPLES)
+	$(KIT)/with_gpu.sh $(PYTHON) src/matches_batch.py --blender $(BLENDER) --width $(WIDTH) --samples $(SAMPLES)
 source-match: model plants context
-	$(PYTHON) src/matches_batch.py --blender $(BLENDER) --source-fields --width $(WIDTH) --samples $(SAMPLES)
+	$(KIT)/with_gpu.sh $(PYTHON) src/matches_batch.py --blender $(BLENDER) --source-fields --width $(WIDTH) --samples $(SAMPLES)
 check-renders:
 	$(PYTHON) src/look_review.py
 baseline:
-	$(PYTHON) src/baseline.py
-before-after: model plants context refs
+	$(PYTHON) src/finish_views.py --prepare-only --blender $(BLENDER)
+before-after: model plants context refs baseline
 	$(PYTHON) src/matches.py prepare
-	$(PYTHON) src/finish_views.py --blender $(BLENDER) --width $(WIDTH) --samples $(SAMPLES)
-	$(PYTHON) src/finish_views.py --after-only --blender $(BLENDER) --width $(WIDTH) --samples $(SAMPLES) --shots classic-tee,classic-walks,adventure-walks
+	$(KIT)/with_gpu.sh $(PYTHON) src/finish_views.py --blender $(BLENDER) --width $(WIDTH) --samples $(SAMPLES)
+	$(KIT)/with_gpu.sh $(PYTHON) src/finish_views.py --after-only --blender $(BLENDER) --width $(WIDTH) --samples $(SAMPLES) --shots classic-tee,classic-walks,adventure-walks
 review:
 	$(PYTHON) src/look_review.py
 docs: review

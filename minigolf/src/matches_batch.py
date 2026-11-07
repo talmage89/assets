@@ -2,7 +2,7 @@ from external import bundle
 """Fresh serial Blender processes for the three complete-course photo pairs."""
 import argparse,hashlib,json,subprocess,sys
 from pathlib import Path
-from render_batch import recipe_hash,HERE,gpu_command
+from render_batch import recipe_hash,HERE,gpu_run
 sys.path.insert(0,str(HERE.parents[1]))
 from kit.photo_match import compose
 from photo_matches import SELECTION,LIGHTING
@@ -17,7 +17,7 @@ def main(args):
     print('CURRENT PHOTO FRAME',png,flush=True);continue
   command=[args.blender,'-b','--factory-startup','-t','4','--python-exit-code','1','--python',str(HERE/'matches.py'),'--','render','--key',key,'--no-compose','--width',str(args.width),'--samples',str(args.samples)]
   if args.source_fields:command.append('--source-fields')
-  subprocess.run(gpu_command(command),check=True)
+  gpu_run(command)
  compose('build/photo-calibration.json',out,out)
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--blender',default='blender');p.add_argument('--width',type=int,default=1440);p.add_argument('--samples',type=int,default=32);p.add_argument('--source-fields',action='store_true');main(p.parse_args())

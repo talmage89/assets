@@ -7,7 +7,7 @@ import argparse,io,json,subprocess,sys,tarfile,shutil
 from pathlib import Path
 from PIL import Image,ImageDraw
 HERE=Path(__file__).resolve().parent;sys.path[:0]=[str(HERE),str(HERE.parents[1])]
-from render_batch import gpu_command
+from render_batch import gpu_run
 ROOT=HERE.parents[1];ASSET=HERE.parent;BASE=ROOT/'build/minigolf-gate-baseline';REV='fe8acfc'
 SHOTS=['classic-hero','adventure-above','waterfall','pond','tee','classic-green']
 
@@ -24,7 +24,7 @@ def prepare(blender):
  if not (source/'export/Minigolf-92.gltf').exists():
   subprocess.run(['make','model','BLENDER='+blender],cwd=source,check=True)
  context=source/'build/context'
- if not context.exists():context.symlink_to(ASSET/'build/context',target_is_directory=True)
+ if not context.exists() and not context.is_symlink():context.symlink_to(ASSET/'build/context',target_is_directory=True)
  # Native landscape placement is unchanged; import it from its real URI root.
  return source
 
@@ -67,10 +67,11 @@ def main(args):
   for name in chosen:
    command=[args.blender,'-b','--factory-startup','-t','4','--python-exit-code','1','--python',str(HERE/'finish_views.py'),'--','--worker','--out','renders/finish-fixes','--prefix',prefix,'--width',str(args.width),'--samples',str(args.samples),'--shots',name]
    if source:command+=['--source',source]
-   subprocess.run(gpu_command(command),cwd=ASSET,check=True)
+   gpu_run(command,cwd=ASSET)
 
  if not args.after_only:pairs()
 if __name__=='__main__':
- p=argparse.ArgumentParser();p.add_argument('--worker',action='store_true');p.add_argument('--after-only',action='store_true');p.add_argument('--source');p.add_argument('--prefix',default='after-');p.add_argument('--shots');p.add_argument('--blender',default='blender');p.add_argument('--out',default='renders/finish-fixes');p.add_argument('--width',type=int,default=1440);p.add_argument('--samples',type=int,default=32)
+ p=argparse.ArgumentParser();p.add_argument('--worker',action='store_true');p.add_argument('--after-only',action='store_true');p.add_argument('--prepare-only',action='store_true');p.add_argument('--source');p.add_argument('--prefix',default='after-');p.add_argument('--shots');p.add_argument('--blender',default='blender');p.add_argument('--out',default='renders/finish-fixes');p.add_argument('--width',type=int,default=1440);p.add_argument('--samples',type=int,default=32)
  a=p.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else None)
- render(a) if a.worker else main(a)
+ if a.prepare_only:prepare(a.blender)
+ else:render(a) if a.worker else main(a)
