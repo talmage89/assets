@@ -233,7 +233,8 @@ def garden_module(p,parent,name,loc=(0,0,0),yaw=0,materials=None):
             z=base+f*fh+2.25
             lamp=a.mesh('Stair_bulkhead_'+str(f),component='entry')
             lamp.box((core/2-.16,-1.75,z),(.10,.24,.27),'Trim',STEEL,r=.006)
-            lamp.box((core/2-.22,-1.75,z),(.018,.18,.21),'Trim',(.66,.57,.35),r=.002);lamp.finish()
+            xx=core/2-.221
+            lamp.geom([(xx,-1.84,z-.105),(xx,-1.84,z+.105),(xx,-1.66,z+.105),(xx,-1.66,z-.105)],[(0,1,2,3)],'Trim',(.66,.57,.35));lamp.finish()
             socket=a.socket('Stair_light_'+str(f),(core/2-.28,-1.75,z),'engine_light')
             socket['light_kind']='stair';socket['render_power_w']=95
         # Lateral unit entrances open into the full-depth common hall.

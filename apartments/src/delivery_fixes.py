@@ -47,7 +47,9 @@ def run(before,after,out):
                 photo_patches=[patch(photo,b) for b in photo_boxes],
                 hero_before=[patch(before/cases['asphalt'][0],b) for b in render_boxes],
                 hero_after=[patch(after/cases['asphalt'][1],b) for b in render_boxes])
-    for path,boxes,name in ((photo,photo_boxes,'photo-pavement-patches.jpg'),(after/cases['asphalt'][1],render_boxes,'hero-pavement-patches.jpg')):
+    street=after/'matches/garage-row.png';street_boxes=((1000,720,1350,820),)
+    values['public_street_match']=dict(image=str(street),sha256=digest(street),patches=[patch(street,b) for b in street_boxes])
+    for path,boxes,name in ((photo,photo_boxes,'photo-pavement-patches.jpg'),(after/cases['asphalt'][1],render_boxes,'hero-pavement-patches.jpg'),(street,street_boxes,'public-street-patch.jpg')):
         im=Image.open(path).convert('RGB');draw=ImageDraw.Draw(im)
         for i,box in enumerate(boxes):draw.rectangle(box,outline='#ed8b37',width=3);draw.text((box[0]+4,box[1]+4),str(i+1),fill='#ffe490')
         im.save(out/name,quality=96,optimize=True)
@@ -57,8 +59,13 @@ def run(before,after,out):
     for key in ('hero','dusk'):
         for prop in ('location','target','lens','aspect'):
             assert np.allclose(oldcam[key]['camera'][prop],newcam[key]['camera'][prop],atol=1e-6),(key,prop)
+    oldmatch=json.loads((before/'renders/matches/provenance.json').read_text())['used-garden']['camera']
+    newmatch=json.loads((after/'matches/provenance.json').read_text())['used-garden']['camera']
+    for prop in ('location','target','lens','aspect'):
+        assert np.allclose(oldmatch[prop],newmatch[prop],atol=1e-6),('dormer',prop)
     values['surface_probes']=newcam['hero']['camera'].get('paving_surface_probes',[])
     rows['same_hero_dusk_cameras_verified']=True
+    rows['same_dormer_camera_verified']=True
     (out/'crops.json').write_text(json.dumps(rows,indent=2)+'\n');(out/'asphalt-values.json').write_text(json.dumps(values,indent=2)+'\n')
     print('FIX CROPS',[(k,v['width_each_px']) for k,v in rows.items() if isinstance(v,dict)])
     print('PHOTO',[round(q['median_Yprime'],3) for q in values['photo_patches']],'HERO',[round(q['median_Yprime'],3) for q in values['hero_before']],'->',[round(q['median_Yprime'],3) for q in values['hero_after']])

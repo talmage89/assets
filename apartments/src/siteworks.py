@@ -130,8 +130,8 @@ def make_complex(p):
         # crossings, with long retained runs beside the parked vehicle.
         for sx in (-1,1):
             xx=x+sx*4.5*FT
-            for k in range(7):
-                lo=y-9*FT+k*18*FT/7;hi=lo+18*FT/7
+            for k in range(4):
+                lo=y-9*FT+k*18*FT/4;hi=lo+18*FT/4
                 gap=.03+(.17 if k in (0,1,5) else .015)*wear_rng.random()
                 if (j*7+k*3+int(sx))%31==0:continue
                 ground.geom([(xx-.043,lo+gap,.001),(xx+.043,lo+gap*.7,.001),(xx+.043,hi-.035,.001),(xx-.043,hi-.055,.001)],[(0,1,2,3)],'Trim',(.52,.51,.40))

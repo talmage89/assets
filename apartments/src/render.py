@@ -60,6 +60,10 @@ def views(stem,meta):
                rear=dict(location=(total*.53,d/2+27,7.5),target=(0,d/2,2.3),lens=42,aspect=1.65),
                entry=dict(location=(p['units'][1]['x']+(w*.29 if p['garage'] else -w*.29)+1.6,-d/2-4.5,1.68),target=(p['units'][1]['x']+(w*.29 if p['garage'] else -w*.29),-d/2+.4,1.4),lens=45,aspect=1.35),
                patios=dict(location=(-total*.42,d/2+10,3.3),target=(-total*.16,d/2+1.0,1.2),lens=42,aspect=1.6))
+        if p['garage']:
+            u=p['units'][1];gx=u['x']-w*.16;gy=-d/2+u['y']-1
+            v['garage']=dict(location=(gx+2.5,gy-7,1.68),target=(gx,gy,1.5),lens=45,aspect=1.4)
+        v['dusk']=dict(v['hero'])
     else:
         w,d=p['width'],p['depth'];fh=p['floor_height'];base=p['base']
         cx=(lo.x+hi.x)/2
@@ -82,13 +86,49 @@ def views(stem,meta):
         for key in ('stairs','balcony','meters'):
             for field in ('location','target'):v[key][field]=list(Vector(v[key][field])+offset)
         if p['roof']=='mansard':v['mansard']=dict(location=(-w*.55+offset.x,-d/2-9+offset.y,7.2),target=(offset.x,-d/2+offset.y,4.0),lens=45,aspect=1.5)
+        if p['access']=='breezeway':
+            v['gallery']=dict(location=(-w/2+3+offset.x,-d/2-8+offset.y,4.4),target=(offset.x,-d/2-.8+offset.y,3.9),lens=42,aspect=1.5)
+            v['gallery_dusk']=dict(v['gallery'],dusk=True)
+        v['scale']=dict(location=(-9,-d/2-20,2.6),target=(0,-d/2,4.7),lens=40,aspect=1.4,human_offset=(0,-d/2-1.2,.13))
+        for name,loc in (('front',(center.x,-size.y*3,center.z)),('side',(hi.x+size.x*2,center.y,center.z)),('back',(center.x,hi.y+size.y*3,center.z)),('top',(center.x,center.y-.001,hi.z+size.x*2))):
+            v[name]=dict(location=loc,target=tuple(center),ortho=max(size.x,size.y)*1.15,aspect=1.4)
+        v['dusk']=dict(v['hero'])
     return v
+
+
+def package_hash(path):
+    paths=[path]
+    if path.suffix=='.gltf':
+        doc=json.loads(path.read_text());paths += [path.parent/q['uri'] for q in doc.get('buffers',[])+doc.get('images',[])]
+    return hashlib.sha256(b''.join(hashlib.sha256(p.read_bytes()).digest() for p in sorted(set(paths)))).hexdigest()
+
+
+def recipe_hash():
+    return hashlib.sha256(b''.join((HERE/f).read_bytes() for f in ('render.py','presentation.py','landscaping.py','context.py'))).hexdigest()
+
+
+def paving_probes(sc,cam):
+    """Actual camera/ground and unobstructed-sun rays, independent of luma."""
+    from bpy_extras.object_utils import world_to_camera_view
+    frame=cam.data.view_frame(scene=sc);lo=[min(v[k] for v in frame) for k in (0,1)];hi=[max(v[k] for v in frame) for k in (0,1)]
+    sun=next(o for o in sc.objects if o.type=='LIGHT' and o.data.type=='SUN')
+    toward_sun=-(sun.matrix_world.to_3x3()@Vector((0,0,-1)));rows=[];dg=bpy.context.evaluated_depsgraph_get()
+    for x,y in ((.27,.92),(.35,.95),(.48,.91),(.78,.92),(.88,.96)):
+        local=Vector((lo[0]+x*(hi[0]-lo[0]),hi[1]-y*(hi[1]-lo[1]),frame[0].z))
+        direction=(cam.matrix_world.to_3x3()@local).normalized()
+        hit,p,n,face,ob,xf=sc.ray_cast(dg,cam.location,direction,distance=500)
+        if not hit:continue
+        poly=ob.data.polygons[face];ma=ob.data.materials[poly.material_index]
+        shadow,sp,sn,sf,so,sx=sc.ray_cast(dg,p+n*.012,toward_sun,distance=200)
+        rows.append(dict(pixel_fraction=(x,y),object=ob.name,material=ma.name,surface_m=list(p),normal=list(n),sun_unoccluded=not shadow,sun_blocker=so.name if shadow else None))
+    return rows
 
 
 def render_file(path,out,width,samples,names=None,cameras=None,engine='CYCLES'):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     if path.suffix=='.blend':bpy.ops.wm.open_mainfile(filepath=str(path.resolve()))
     else:bpy.ops.import_scene.gltf(filepath=str(path.resolve()))
+    asset_objects=set(bpy.context.scene.objects)
     meta=json.loads(path.with_suffix('.json').read_text())
     light=next(iter(cameras.values())).get('light') if cameras else None
     cam=setup(samples,width,light)
@@ -116,9 +156,10 @@ def render_file(path,out,width,samples,names=None,cameras=None,engine='CYCLES'):
         if names and name not in names:continue
         sc=bpy.context.scene;shot=dict(shot)
         if not cameras:
+            sun_direction=(-.65,-.80,-.75) if name in ('rear','patios','back') else (-.65,.80,-.75) if name=='side' else (.65,.80,-.75)
             for ob in sc.objects:
-                if ob.type=='LIGHT' and ob.data.type=='SUN':ob.rotation_euler=Vector((-.65,-.80,-.75) if name in ('rear','patios') else (.65,.80,-.75)).to_track_quat('-Z','Y').to_euler()
-            if name in ('rear','patios'):shot['inspection_sun_direction']=(-.65,-.80,-.75)
+                if ob.type=='LIGHT' and ob.data.type=='SUN':ob.rotation_euler=Vector(sun_direction).to_track_quat('-Z','Y').to_euler()
+            if name in ('rear','patios','back','side'):shot['inspection_sun_direction']=sun_direction
         hidden=[]
         if not cameras:
             for rt in sc.objects:
@@ -127,7 +168,7 @@ def render_file(path,out,width,samples,names=None,cameras=None,engine='CYCLES'):
                 for ob in rt.children_recursive:
                     if not ob.hide_render:ob.hide_render=True;hidden.append(ob)
             shot['camera_clearance_hidden_tree_objects']=[o.name for o in hidden]
-        if name=='dusk':
+        if name=='dusk' or shot.get('dusk'):
             from presentation import dusk_lights
             dusk_lights()
             sky=next(n for n in sc.world.node_tree.nodes if n.type=='TEX_SKY');sky.sun_elevation=math.radians(-3)
@@ -154,6 +195,25 @@ def render_file(path,out,width,samples,names=None,cameras=None,engine='CYCLES'):
         cam.location=shot['location'];cam.rotation_euler=(Vector(shot['target'])-cam.location).to_track_quat('-Z','Y').to_euler()
         if shot.get('roll'):cam.rotation_euler.rotate_axis('Z',shot['roll'])
         cam.data.lens=shot.get('lens',40);sc.render.resolution_x=width;sc.render.resolution_y=round(width/shot.get('aspect',1.6))
+        cam.data.type='ORTHO' if shot.get('ortho') else 'PERSP'
+        if shot.get('ortho'):cam.data.ortho_scale=shot['ortho']
+        humans=[]
+        inspection_floor=None
+        if shot.get('ortho'):
+            for ob in sc.objects:
+                if ob not in asset_objects and ob.type in ('MESH','CURVE','FONT') and not ob.hide_render:
+                    ob.hide_render=True;hidden.append(ob)
+            inspection_floor=G.box('Turnaround floor',(0,0,-.06),(1000,1000,.12),material('Turnaround neutral ground',(.12,.125,.115)),0)
+            shot['inspection_context']='Exported asset only, procedural neutral floor; surrounding presentation geometry hidden'
+            shot['context_objects_hidden']=len(hidden)
+        if shot.get('human_offset'):
+            from kit.studio import human
+            hpos=Vector(shot['human_offset']);bpy.context.view_layer.update()
+            hit,ground,normal,face,obj,xf=sc.ray_cast(bpy.context.evaluated_depsgraph_get(),Vector((hpos.x,hpos.y,.45)),Vector((0,0,-1)),distance=1.)
+            assert hit and normal.z>.8,('No human standing surface',path,name)
+            hpos.z=ground.z;shot['human_base_ground_z_m']=ground.z;shot['human_height_m']=1.8
+            humans=human()
+            for ob in humans:ob.location+=hpos-Vector((-1.03,.24,0))
         audit_light=None
         if name=='meters' or name=='stairs' and meta['plan'].get('access') in ('enclosed','open'):
             # Temporary studio inspection fill makes dark covered construction
@@ -164,9 +224,12 @@ def render_file(path,out,width,samples,names=None,cameras=None,engine='CYCLES'):
             audit_light.rotation_euler=(Vector(shot['target'])-audit_light.location).to_track_quat('-Z','Y').to_euler()
             shot['inspection_fill_w']=ld.energy
         sc.render.filepath=str((out/(name+'.png')).resolve());bpy.context.view_layer.update();bpy.ops.render.render(write_still=True)
+        if name=='hero' and path.stem=='Complex-301':shot['paving_surface_probes']=paving_probes(sc,cam)
+        if inspection_floor:bpy.data.objects.remove(inspection_floor,do_unlink=True)
+        for ob in humans:bpy.data.objects.remove(ob,do_unlink=True)
         if audit_light:bpy.data.objects.remove(audit_light,do_unlink=True)
         for ob in hidden:ob.hide_render=False
-        records[name]=dict(source=str(path),source_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),camera=shot,light=light,context_dependencies=dependencies,engine=engine,samples=samples)
+        records[name]=dict(source=str(path),source_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),package_sha256=package_hash(path),recipe_sha256=recipe_hash(),camera=shot,light=light,context_dependencies=dependencies,engine=engine,samples=samples)
         provenance.write_text(json.dumps(records,indent=2))
     return records
 
@@ -184,7 +247,12 @@ def main():
     for path in paths:
         if a.only!='all' and path.stem!=a.only:continue
         allshots=views(path.stem,json.loads(path.with_suffix('.json').read_text()))
-        selected=names or ((['hero','above','ground','rear','entry','patios'] if path.stem.startswith('Row') else ['hero','above','ground','rear','dusk'] if path.stem=='Complex-301' else ['hero','above','ground','rear']) if not path.stem.startswith('Building') else ['stairs','balcony','meters','mansard'])
+        selected=names or ((['hero','above','ground','rear','entry','patios'] if path.stem.startswith('Row') else ['hero','above','ground','rear','dusk'] if path.stem in ('Complex-301','Complex-304') else ['hero','above','ground','rear']) if not path.stem.startswith('Building') else ['stairs','balcony','meters','mansard'])
+        if not names:
+            selected += {'Building-301':['scale','front','side','back','top'],
+                         'Building-304':['gallery','gallery_dusk'],
+                         'Building-305':['hero','above','front','side','back','top','dusk'],
+                         'Row-403':['garage','dusk']}.get(path.stem,[])
         render_file(path,a.out/path.stem,a.width,a.samples,selected,engine=a.engine)
 
 if __name__=='__main__':main()

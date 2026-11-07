@@ -220,6 +220,8 @@ def check(stem):
         for q in doc['meshes'][n['mesh']]['primitives']:
             at=q['attributes'];v=d.accessor(at['POSITION']);norm=d.accessor(at['NORMAL']);uv=d.accessor(at['TEXCOORD_0'])
             assert np.isfinite(v).all() and np.isfinite(norm).all() and np.isfinite(uv).all()
+            if 'COLOR_0' in at:
+                color=d.accessor(at['COLOR_0']);assert np.isfinite(color).all() and color.min()>=0 and color.max()<=1,(stem,'COLOR_0 outside stock glTF range')
             normal_error=max(normal_error,float(abs(np.linalg.norm(norm,axis=1)-1).max()))
             ind=d.accessor(q['indices']).reshape(-1,3);runtime+=len(ind)
             xyz=v[ind];area=np.linalg.norm(np.cross(xyz[:,1]-xyz[:,0],xyz[:,2]-xyz[:,0]),axis=1)/2
@@ -249,6 +251,8 @@ def check(stem):
         units=meta['plan']['count'];arch=physical['architecture_triangles']
         assert 40000*units/6<=arch<=80000*units/6,(stem,arch,units)
         assert meta['architecture']['triangles']==arch
+    elif stem.startswith('Complex'):
+        assert runtime<=318297,(stem,runtime,'Accepted family complex ceiling')
     raw_xyz=np.concatenate(rawrows)
     bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(path.resolve()));bpy.context.view_layer.update()
     imported_xyz=points();import_tris=triangles([o for o in bpy.context.scene.objects if o.type=='MESH'])

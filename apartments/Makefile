@@ -1,4 +1,7 @@
-# External PBR checkpoint; presentation assets remain read-only dependencies.
+# Final external PBR delivery; presentation libraries remain read-only.
+WIDTH ?= 1600
+SAMPLES ?= 48
+CHECKPOINT_OUT := renders/final
 SEEDS := 301 302 303 304
 ROWS := 401 402 403 404
 STEMS := $(foreach s,$(SEEDS),Building-$(s) Complex-$(s)) Building-305 $(foreach s,$(ROWS),Row-$(s))
@@ -6,8 +9,9 @@ CHECKPOINT_BLEND := build/family.blend
 CHECKPOINT_OUTPUTS := $(CHECKPOINT_BLEND) build/family.json $(foreach s,$(STEMS),build/$(s).blend export/$(s).gltf export/$(s).bin export/$(s).json)
 CHECKPOINT_DEPS := $(addprefix src/,build.py buildings.py components.py geometry.py plans.py siteworks.py context.py occupancy.py garage_motion.py surfaces.py) ../houses/src/build.py ../houses/src/plan.py ../houses/src/additions.py ../houses/src/glb_budget.py ../houses/src/split_motion.py ../kit/model.py ../kit/tiling.py ../kit/fonts.py build/dependencies.json
 CHECKPOINT_CHECK = $(BP) --python src/check.py
-CHECKPOINT_REVIEW = $(PYTHON) src/review.py
-CHECKPOINT_RENDER_OUTPUTS := $(foreach s,$(SEEDS),$(foreach v,hero above ground rear,renders/checkpoint/Complex-$(s)/$(v).png)) $(foreach s,$(ROWS),$(foreach v,hero above ground rear entry patios,renders/checkpoint/Row-$(s)/$(v).png)) $(foreach s,$(SEEDS) 305,$(foreach v,stairs balcony meters,renders/checkpoint/Building-$(s)/$(v).png)) renders/checkpoint/Building-302/mansard.png renders/checkpoint/Building-304/mansard.png renders/checkpoint/Building-305/mansard.png renders/checkpoint/Complex-301/dusk.png
+CHECKPOINT_REVIEW = $(PYTHON) src/review.py && $(PYTHON) src/report.py
+CHECKPOINT_RENDER_OUTPUTS := $(foreach s,$(SEEDS),$(foreach v,hero above ground rear,renders/final/Complex-$(s)/$(v).png)) $(foreach s,$(ROWS),$(foreach v,hero above ground rear entry patios,renders/final/Row-$(s)/$(v).png)) $(foreach s,$(SEEDS) 305,$(foreach v,stairs balcony meters,renders/final/Building-$(s)/$(v).png)) renders/final/Building-302/mansard.png renders/final/Building-304/mansard.png renders/final/Building-305/mansard.png renders/final/Complex-301/dusk.png
+CHECKPOINT_RENDER_OUTPUTS += renders/final/Complex-304/dusk.png $(foreach v,scale front side back top,renders/final/Building-301/$(v).png) $(foreach v,gallery gallery_dusk,renders/final/Building-304/$(v).png) $(foreach v,hero above front side back top dusk,renders/final/Building-305/$(v).png) renders/final/Row-403/garage.png renders/final/Row-403/dusk.png
 include ../kit/checkpoint_rules.mk
 BP += -t 4
 
@@ -41,8 +45,8 @@ build/matched-cameras.json: src/photo_matches.py src/matches.py src/neutral_refs
 	$(PYTHON) src/matches.py
 check-camera: build/matched-cameras.json
 	$(BP) --python $(KIT)/photo_match.py -- verify --calibration $<
-$(CHECKPOINT_RENDER_OUTPUTS): src/presentation.py
-renders/matches/.stamp: $(CHECKPOINT_OUTPUTS) build/matched-cameras.json src/render.py src/presentation.py build/checkpoint-render-parameters.txt
+$(CHECKPOINT_RENDER_OUTPUTS): src/presentation.py src/landscaping.py
+renders/matches/.stamp: $(CHECKPOINT_OUTPUTS) build/matched-cameras.json src/render.py src/presentation.py src/landscaping.py build/checkpoint-render-parameters.txt
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --camera-file build/matched-cameras.json --out renders/matches --width $(WIDTH) --samples $(SAMPLES)
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/matched-cameras.json --renders renders/matches --out renders/matches
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source-pairs --camera-file build/matched-cameras.json --out renders/source-matches --width $(WIDTH) --samples $(SAMPLES)
@@ -50,7 +54,7 @@ renders/matches/.stamp: $(CHECKPOINT_OUTPUTS) build/matched-cameras.json src/ren
 	@touch $@
 matches: refs check-camera renders/matches/.stamp
 review: matches
-renders/eevee/Complex-301/hero.png: $(CHECKPOINT_OUTPUTS) src/render.py src/presentation.py build/checkpoint-render-parameters.txt
+renders/eevee/Complex-301/hero.png: $(CHECKPOINT_OUTPUTS) src/render.py src/presentation.py src/landscaping.py build/checkpoint-render-parameters.txt
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --only Complex-301 --shots hero --engine BLENDER_EEVEE --out renders/eevee --width $(WIDTH) --samples $(SAMPLES)
 review: renders/eevee/Complex-301/hero.png
 
@@ -67,4 +71,9 @@ clean-delivery:
 
 build/preservation.json: src/preserve.py
 	$(PYTHON) src/preserve.py
-$(CHECKPOINT_OUTPUTS): build/preservation.json
+$(CHECKPOINT_OUTPUTS): | build/preservation.json
+
+.PHONY: docs
+all: docs
+docs: review
+	$(PYTHON) src/docs.py

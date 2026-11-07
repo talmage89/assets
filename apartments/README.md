@@ -4,15 +4,32 @@ Original American rental housing, maintained and occupied around 2005, with
 the 2002 garage row shown around 2015. Four complexes, their standalone
 buildings, an additional brick/mansard comparison seed, and four townhouse
 rows use the houses' baked PBR vocabulary and external-image glTF delivery.
-This is the requested form, setting and look checkpoint; local review images
-remain uncommitted.
+The final images below are rendered from the exported glTF packages with
+baked textures. The first plate includes the parking-court dusk; the details
+include the gallery at dusk and human scale. A separate Eevee hero is in
+`renders/eevee/Complex-301/hero.png`.
 
-Open `renders/review/heroes.jpg`, `complex-family.jpg`, `row-family.jpg`,
-`construction-details.jpg`, `photo-pairs.jpg` and `contact-sheet.jpg` under
-`renders/review/`. Full-size images are in `renders/checkpoint/` and the
-three neutral-balanced exported/source comparisons are in `renders/matches/`
-and `renders/source-matches/`. Five native-pixel before/after plates are in
-`renders/fixes/`; each side is at least 800 px wide, with no upsampling.
+![Parking court by day and dusk](docs/court.jpg)
+![Garden-apartment types](docs/garden-types.jpg)
+![Four townhouse rows](docs/townhouses.jpg)
+![Stair, gallery, balcony, garage, entry and scale](docs/construction.jpg)
+![Original schematic floor and site plans](docs/plans.jpg)
+
+Full-size final images live in `renders/final/`: every complex and row has
+an eye-height hero, above, ground and rear view. Building 305 adds the
+brick/mansard hero; Building 301 has a 1.8 m human and four orthographic views.
+The gallery night close-up is `Building-304/gallery_dusk.png`, and the garage
+bay is `Row-403/garage.png`. The contact sheet, type sheets and three balanced
+color pairs are in `renders/review/`; native pairs are in `renders/matches/`.
+Source comparison witnesses remain separate in `renders/source-matches/`.
+Floor and parcel diagrams live in `renders/plans/`. These are schematic room
+reservations, consistent with the accepted plan grammar, not a full interior.
+
+The four native before/after plates are in `renders/delivery-fixes/`:
+`asphalt-before-after.jpg`, `dormer-before-after.jpg`,
+`planting-before-after.jpg`, and `dusk-before-after.jpg`. Each side is at
+least 900 native pixels wide. Review and value measurements are documented
+in [REVIEW.md](REVIEW.md); the plates and references stay local and ignored.
 
 ## Plans and construction
 
@@ -34,6 +51,11 @@ skin, roof, straight/L/offset form, unit dimensions and palette; garden seeds
 also select articulation and recessed balconies. Rows retain count, width,
 depth, garage and roof/fire-wall options. Unsupported parameters fail. This
 is a bounded grammar, not a full habitable interior or parcel solver.
+
+The four parcels contain **36 / 32 / 48 / 24 units** in 3 / 2 / 2 / 3 buildings.
+The row seeds produce 6 / 6 / 6 / 4 homes. A building's two linked wings are
+one independently placed building. Seed 305 is the additional eight-unit
+brick/mansard comparator; its unit reservation is an authored 38 × 25 ft.
 
 Expressed central halls project under their own broken roof. Gallery units
 recess in pairs; separate stepped roof envelopes follow the facade. Rows
@@ -145,7 +167,7 @@ playground remain from the accepted construction checkpoint. Parcels use
 continuous lawn regions; stretched native mineral surfaces receive metric
 world-phase UVs rather than stretching the grain.
 
-Cars, mature trees, full foundation shrubs and neighboring town geometry are
+Cars, mature trees, mixed foundation beds and neighboring town geometry are
 **presentation only**. The renderer imports canonical exported Ground roads,
 curbs and walks, two seeded houses, utility poles and sagging conductors from
 their measured sockets, street/lot lights, maple/boxwood/hydrangea, and the
@@ -154,12 +176,26 @@ and published decoder metadata. Existing exports and maps are never rewritten.
 Cars and vegetation are placement markers in the apartment package, so their
 triangles and images do not silently inflate the delivered building budgets.
 
-The two principal heroes use a 40 mm lens with eyes 1.68 m above an actual
+Foundation borders use the shrubs' native **Boxwood 419** and **Hydrangea 815**,
+grouped with varied size and yaw from the building/placement seed. Clipped and
+larger shrubs, empty mulch stations, aged bark beds, low steel edging and a
+small maple at a corner replace the identical evenly spaced spheres. The
+same shared shrub atlas serves every instance; these are two botanical
+species, not claimed new species or independently rebaked variants.
+
+The type heroes use a 40 mm lens with eyes 1.68 m above an actual
 ray-measured surface, under raking procedural sun. Dusk uses a procedural
 blue-hour sky, selected warm room backings behind curtains, entry pools and
 street-light emitter sockets. The delivered emission route remains ordinary
 PBR; the night renderer raises its emission strength and adds real light
 sources. No downloaded environment/HDRI is used.
+Each modeled entry light and stair bulkhead has an `engine_light` socket at
+its actual fixture, with `light_kind` and a presentation `render_power_w`.
+The renderer uses 65 W Blender points for entries, 95 W for stair bulkheads,
+and 950 W broad pole spots. These are presentation energies, not measured
+photometric watts/lux. Street/lot sockets retain their native local −Z axis.
+Gallery doors light the walking deck and adjacent exit flights. Dusk uses
+the unchanged blue-hour sky/exposure and selected warm room circuit.
 Eevee enables ray-traced transmission with the modeled 12 mm pane gauge;
 that renderer setup prevents joined-building bounds from hiding the rooms.
 
@@ -171,39 +207,52 @@ site roles on complexes/rows; standalone buildings use at most six.
 
 | Building | Units | Triangles | Materials | Geometry bytes | Cold bytes | GPU MiB |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 301 | 12 | 70,717 | 6 | 11,306,408 | 18,522,448 | 26.021 |
-| 302 | 16 | 118,556 | 6 | 18,440,541 | 22,984,776 | 22.354 |
-| 303 | 24 | 142,714 | 6 | 22,962,169 | 30,178,209 | 26.021 |
-| 304 | 8 | 58,106 | 5 | 9,040,924 | 12,868,700 | 21.354 |
-| 305 | 8 | 46,152 | 6 | 6,857,879 | 11,412,668 | 22.354 |
+| 301 | 12 | 70,855 | 6 | 11,333,344 | 18,549,384 | 26.021 |
+| 302 | 16 | 118,556 | 6 | 18,439,881 | 22,984,116 | 22.354 |
+| 303 | 24 | 142,990 | 6 | 23,015,173 | 30,231,213 | 26.021 |
+| 304 | 8 | 58,106 | 5 | 9,042,082 | 12,869,858 | 21.354 |
+| 305 | 8 | 46,244 | 6 | 6,873,260 | 11,428,049 | 22.354 |
 
 | Complex | Triangles | Materials | Geometry bytes | Cold bytes | GPU MiB |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| 301 | 232,497 | 10 | 35,096,785 | 97,339,159 | 90.021 |
-| 302 | 279,616 | 10 | 41,079,305 | 100,649,874 | 86.354 |
-| 303 | 318,297 | 10 | 48,691,417 | 110,933,791 | 90.021 |
-| 304 | 193,318 | 9 | 28,687,936 | 87,542,046 | 85.354 |
+| 301 | 232,567 | 10 | 35,126,884 | 97,369,258 | 90.021 |
+| 302 | 279,034 | 10 | 40,995,187 | 100,565,756 | 86.354 |
+| 303 | 318,267 | 10 | 48,714,487 | 110,956,861 | 90.021 |
+| 304 | 192,974 | 9 | 28,642,471 | 87,496,581 | 85.354 |
 
 | Row | Units | Architecture / whole row triangles | Materials | Geometry bytes | Cold bytes | GPU MiB |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 401 | 6 | 45,346 / 52,274 | 8 | 6,989,125 | 44,059,681 | 54.354 |
-| 402 | 6 | 42,494 / 49,422 | 8 | 6,626,762 | 46,376,299 | 58.021 |
-| 403 | 6 | 55,634 / 63,012 | 8 | 8,433,596 | 48,172,609 | 58.021 |
-| 404 | 4 | 30,208 / 35,112 | 8 | 4,753,795 | 41,824,351 | 54.354 |
+| 401 | 6 | 45,346 / 52,274 | 8 | 6,990,313 | 44,060,869 | 54.354 |
+| 402 | 6 | 42,494 / 49,422 | 8 | 6,627,944 | 46,377,481 | 58.021 |
+| 403 | 6 | 55,634 / 63,012 | 8 | 8,434,760 | 48,173,773 | 58.021 |
+| 404 | 4 | 30,208 / 35,112 | 8 | 4,754,587 | 41,825,143 | 54.354 |
 
 All forms stay within their proportional brief allowances. Whole-family cold
-storage is **312,133,336 bytes** across 26 glTF/BIN files and 35 shared images;
+storage is **312,157,067 bytes** across 26 glTF/BIN files and 35 shared images;
 metadata and editable source scenes are excluded. Presentation dependencies
 are separate library loads. Individual asset cold-byte rows cannot be summed
 as a family total because their image sets overlap.
 
 ## Rebuild and verification
 
+To place a parcel, import its `export/Complex-301.gltf` (or another complex)
+and move/rotate its single `Complex_301` root. Keep its scale at one. Native
+glTF coordinates are Y up; the frontage is +Z after export. A parcel's root
+is its ground-centered footprint; its ground and circulation move with it.
+Use the standalone `Building-*.gltf` roots for a custom site, align their
+`Footprint_*` and wing `Front_walk`/`Rear_walk` sockets to your paving, and use
+the townhouse unit `Party_wall_*` sockets to attach compatible seeded units.
+The supplied parcels are authored clear arrangements, not an arbitrary
+collision-solving parcel generator. Dress them with the library scenes in
+`src/presentation.py` if desired; those objects do not ship inside the parcel.
+
 ```sh
-make WIDTH=1400 SAMPLES=32  # missing library bakes/exports, models, checks, 66 frames and review
+make                       # dependencies, models, checks, finals, review and five docs JPGs
 make check                 # physical measurements, raw PBR/UVs, fresh imports, preservation
 make repeat                # independent geometry re-export, compare every external byte
 make check-repo            # repository rules
+make render                # regenerate the final Cycles set
+make matches               # three export pairs plus three source witnesses
 make clean                 # removes this family's build, export, textures and renders
 ```
 
@@ -223,7 +272,7 @@ These are sampled relationships, not continuous whole-building collision or
 historical-code certification. Tiling/trim UV overlap is intentional; no
 unique lightmap unwrap is claimed.
 
-All 197 pre-existing delivery/docs hashes are preserved, with additional
+Existing delivery, docs and texture hashes are preserved, with additional
 library-image snapshots in `build/dependencies.json`. `build/repeat.json`
 records byte identity; the accepted bakes are cached inputs to that repeat.
 All Cycles work uses the shared GPU lock. Image provenance names actual source
@@ -234,12 +283,24 @@ critique passes, tonal facts and honest remaining differences are recorded in
 
 Editable per-asset scenes are `build/<stem>.blend`; the aggregate report is
 `build/family.json`. Generated deliveries, references, textures and review
-renders are ignored by Git. No kit file, accepted family source or top-level
-README is changed; no docs images are committed this round.
+renders are ignored by Git. No kit file, other family source or top-level README is changed. Five final
+JPGs are committed separately after the native review; there is no GIF.
 
-The main remaining visual limits are repeated shrub silhouettes, tidy paving,
+The main remaining visual limits are shared botanical silhouettes, orderly repairs,
 simple meter faces, repetitive tenant props and shallow room backings. The
 photo pairs compare original buildings of the same construction type, not
 replicas; exact window rhythm, landscaping and roof proportions still differ.
 No LOD, game collision mesh, full unit interior, fire rating or accessibility
 certification is claimed.
+
+## Credits
+
+All geometry, procedural surfaces, masks and plan diagrams are authored by
+repository scripts. Canonical baked materials and presentation assets come
+from this library's houses, Ground, fences, shrubs, trees, utility poles,
+street light and car families; their existing exports are read-only inputs.
+The photo and dimensional authors, rights and source URLs are listed in
+[refs/SOURCES.md](refs/SOURCES.md). Reference pixels are used only for visual
+measurement and comparison. Installed open-license DejaVu/Noto/Liberation
+fonts are resolved with the shared font finder. No real brand or property
+identity is reproduced in the original apartment markings.

@@ -615,3 +615,116 @@ meshes, the brick/curtain rhythm is tidy, and the window rooms have shallow
 backs. The photo fits still compare original plans rather than replicas.
 The four requested changes are visible in their plates, so the family can
 proceed to the final export views and documentation. No docs image exists yet.
+
+## Delivery pass 10 — early final inspection and rejected turnarounds
+
+**Color and value first.** Opened the first eight 1600 px final Building-301
+frames: meters, stairs, balcony, scale, front, side, back and top. The brick
+remains fired brown/red with pale mortar; the rails stay dark and the glazed
+room retains deep shade. Inspection fill makes the stair construction legible,
+though its concrete still looks too smooth, and the plain meter caps remain
+a particularly obvious close-range simplification. The 1.8 m figure stands
+on an actual downward-ray ground hit, rather than an assumed .13 m walk.
+
+The first orthographic front/back frames are rejected: the surrounding
+presentation trees conceal bays. Turnaround views now hide surrounding
+presentation geometry and use a procedural neutral floor, preserving the
+exported building and its baked materials. Back and side receive disclosed
+inspection sun directions. These changes do not change the setting heroes.
+The render batch is restarted with the stable recipe so its metadata and
+frames agree. The rejected views were opened at full size before replacement.
+
+The first cold delivery also exposed a budget drift: bevelled fixture lenses
+and seven paint runs added unnecessary geometry. A lens is now a planar
+face in its retained housing, and four retained paint runs describe each
+worn stripe. Actual raw counts now put the largest complex at **318,267**,
+30 below the accepted **318,297** ceiling. Building 303 is **142,990**; the
+smallest row remains **35,112**. Texture bytes and allocation are unchanged.
+The family costs **312,157,067 bytes**, including **63,166,694 image bytes**;
+new apartment maps still allocate **1.1875 MiB**. This is measured delivery,
+not a constant substituted for a mesh count.
+
+Remaining tells: smooth stair pans, the brick/roof tile repetition, small
+angular tenant plants, shallow room backings and the unusually sharp apron
+seam. The budget recovery preserves construction and the four visible fixes;
+new final frames and the native comparison crops will certify that result.
+
+## Delivery pass 11 — complete native export judgment
+
+**Color and value first.** Opened all 76 final Cycles views at their native
+1600 px width, all three export match renders, all three source witnesses,
+the Eevee hero, the three composed photo pairs, both plan plates and the
+contact sheet. Brick stays red/buff, cedar stays brown, steel stays dark;
+there is deep shade behind balcony rails and under gallery landings. The
+nine hero frames have whole-frame median display luma .277–.368 and p99
+.700–.770; all-channel white clipping is at most .00188% of pixels. These
+whole-frame facts include sky/context and do not measure surface albedo.
+The sunlit garage-row photo is balanced on its white garage panel; the other
+two pairs retain the neutral assumptions recorded with their calibration.
+The used-garden photo remains substantially brighter than the exported match.
+
+The replacement front/back/side/top plates expose the complete exported
+building without tree occlusion. The gallery night close-up and Complex-304
+dusk now show actual light on the walking deck, stair landing and exit flight;
+the pole pools cross the parking aisle. Building-305 dusk has a lit room
+behind the repaired rightmost sash. The garage row's entry pools reach the
+approach and sidewalk. The scale figure's measured 1.8 m height and contact
+are legible. The Eevee image preserves the baked grain, dark cavities and
+curtains; it is visibly flatter than Cycles in indirect shade.
+
+**What still reads as CG.** The reverse-facing balcony views on 302 and 304
+are dark and provide weaker inspection evidence; the front recessed 305
+balcony and 304 gallery are the selected documentation details. The garage
+close-up includes a parked car partially covering the door. Meter caps,
+slab edges and stair pans are smooth, small tenant plants are angular, rooms
+are shallow, and the rear siding/prop cadence repeats. Photos have more
+irregular planting and maintenance. The orderly apron seam is conspicuous.
+These are retained limits of the accepted exterior construction, not hidden
+by new texture memory or a higher triangle ceiling.
+
+Refreshed all six 1400 px fix-witness frames from the final optimized export,
+opened each, then opened the four before/after plates and the two marked
+pavement controls. The four changes still show at native size: gray weathered
+wearing course and broken stripes, a complete sash in the rightmost well,
+mixed foundation borders, and pavement/entry pools. Final native pavement
+medians remain .318/.330 against balanced-photo .385/.393/.435. Every plate
+retains its original camera and at least 900 native pixels per side.
+
+## Delivery pass 12 — compressed plates and the public street
+
+**Color and value first.** Opened the five actual compressed docs JPGs at full
+size after native review. The day/night court plate retains gray asphalt and
+warm pools; the small type plates retain colored brick, brown cedar and dark
+steel without whitening the cavities. The construction sheet retains rail
+separation and the gallery's lit deck. The plans sheet initially gave an
+entire full-width row to the unit diagram and forced JPEG quality 34; placing
+the unit and parcel diagrams beside each other shortens it to 2259 px high
+at quality 50, still 1600 px wide and below 200,000 bytes. Opened that revision.
+All five are preflighted, uncommitted documentation pending the clean build.
+
+Added a separate public-street control in the 1400 px matched garage-row
+frame, rather than calling both parking-court rectangles a public road.
+The marked road rectangle (1000,720)–(1350,820) measures **.462** display luma,
+versus the balanced photograph's **.385/.393/.435**. The setting hero's public
+road rectangle (750,690)–(1000,750) measures **.314** under its different
+raking sun/exposure. These are explicitly different lighting recipes, not a
+calibrated reflectance estimate or an exact photographic match. Opened the
+marked road frame; it contains pavement, not lawn, apron or a vehicle. The
+native lot remains .318/.330. Both use the existing Ground image bytes with
+ordinary bounded glTF tint; neither changes a canonical delivery.
+
+**Remaining CG tells.** Compression softens the fine roof/grain and small
+planting leaves; native PNGs remain the review evidence. The simplified meters,
+shallow rooms, repeated repair/tenant rhythm and sharply defined apron remain.
+The diagrams describe reservations, not furnished habitable interiors. A car
+partly covers the garage close-up. No final image commit has been made.
+
+Build control: the first final render recipe was restarted after rejecting
+tree-obstructed orthographics. Later terminal jobs were terminated, including
+one after the cold models/checks and part of the render batch. No interrupted
+job is reported as an end-to-end pass. The preservation walker now prunes
+ignored scratch trees during traversal, and the final clean build runs under
+a monitored detached shell with an explicit exit-code receipt. Geometry and
+image hashes from the interrupted cold run matched all 61 reviewed package
+files. Pixel hashes differed, so the regenerated images are visually reopened;
+geometry repeatability does not promise identical GPU render pixels.
