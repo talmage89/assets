@@ -281,6 +281,15 @@ are separate from the exported comparisons. Reference neutral assumptions,
 critique passes, tonal facts and honest remaining differences are recorded in
 [REVIEW.md](REVIEW.md).
 
+The final cold `make clean` then `make` completed successfully, followed by
+`make check`, `make repeat` and `make check-repo`: 61 geometry/image files
+byte-identical on repeat, 452 existing delivery/docs/texture hashes preserved,
+and zero repository-rule errors. All 83 final evidence frames and five
+compressed JPGs were inspected at full size after that rebuild. The native
+fix crops retain separate 1400 px export witnesses and the accepted-session
+before images; `python3 src/delivery_fixes.py` recomposes those local witnesses
+and checks camera equality without rerendering or changing the delivery.
+
 Editable per-asset scenes are `build/<stem>.blend`; the aggregate report is
 `build/family.json`. Generated deliveries, references, textures and review
 renders are ignored by Git. No kit file, other family source or top-level README is changed. Five final

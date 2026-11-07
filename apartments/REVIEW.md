@@ -728,3 +728,59 @@ a monitored detached shell with an explicit exit-code receipt. Geometry and
 image hashes from the interrupted cold run matched all 61 reviewed package
 files. Pixel hashes differed, so the regenerated images are visually reopened;
 geometry repeatability does not promise identical GPU render pixels.
+
+## Delivery pass 13 — successful cold build and final sign-off
+
+**Color and value first.** Reopened all 76 current native Cycles finals,
+the three current exported photo matches, three source witnesses and Eevee
+hero after the successful clean build: 83 evidence frames. Also opened the
+three composed color pairs, contact sheet and all five actual compressed
+documentation JPGs at full size. Brown cedar, colored brick, gray pavement
+and dark steel survive compression; the court and gallery night views keep
+warm pools on real pavement and walking decks. Current hero whole-frame
+median display luma is .277–.368, p99 .700–.770, and all-channel white
+clipping is at most .00188%. Those are display-image statistics, including
+the sky and context, not material reflectance measurements.
+
+Reopened all four native fix plates. Their bytes match the reviewed final
+optimized witnesses, and independent camera comparisons pass. The lot's
+.186/.198 becomes .318/.330 against the white-garage-balanced photograph's
+.385/.393/.435. It remains .055–.067 below even the darkest photo patch.
+The separate matched public street measures .462; its setting-hero control
+is .314 under different light. Exposure and sealcoat differences remain
+disclosed. Dark engine stains, worn stripes, tar routes and patches retain
+their causes. The mansard void has a complete sash and a lit backing in the
+night view. Mixed boxwood/hydrangea beds, missing stations, edging and corner
+trees break the former identical row. Pole, entry, stair and gallery lights
+now reach their corresponding ground or walking surfaces.
+
+**What still reads as CG.** The same two botanical specimens recur despite
+placement and size variation. Meter caps, stair pans and slab edges remain
+smooth, window rooms shallow, tenant props angular/repeated and the apron
+seam sharply orderly. Reverse balcony views are dark, and the garage detail
+has a parked car partly in front. JPEG compression softens the smallest
+leaves and grain. The reference plans, window rhythm and maintenance are
+comparators for original construction, not exact replicas. These limits
+remain visible and are not grounds for claiming photographic equivalence.
+
+The detached final `make clean` then `make` completed with exit **0**,
+including exports, checks, all final/matched/source/Eevee views, review,
+report and docs. The subsequent `make check`, `make repeat` and
+`make check-repo` also completed with exit **0**. Repeat compared **61**
+geometry/image files with no changed byte; the repository check reported
+**1,833 source files, 0 errors**. The original post-merge **452** existing
+delivery/docs/texture hashes are unchanged. Receipts are the worktree's
+ignored `build/apartments-final-cold-make.log` and
+`build/apartments-delivery-verify.log`, with corresponding exit-code files.
+
+Final buildings are 46,244–142,990 triangles, rows 35,112–63,012 and complexes
+192,974–318,267. Largest complex stays 30 triangles below the accepted ceiling.
+The family has 248,990,373 geometry bytes and 63,166,694 encoded image bytes:
+312,157,067 cold bytes total, 35 shared images, 91.6875 MiB assumed compressed
+GPU allocation, including the unchanged 1.1875 MiB new-map allocation.
+
+The selected final JPGs are court 199,826; garden types 193,289; townhouses
+195,396; construction 198,613; plans 198,701 bytes. All are 1600 px wide,
+total 985,825 bytes, with no GIF. They are ready for the separate last image
+commit after this text record. No kit, other family source or top-level
+README changed; no additional tools or lead action are needed.
