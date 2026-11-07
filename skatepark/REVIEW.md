@@ -437,3 +437,222 @@ All 17 pairs pass projection/light/hash checks without altering placements.
 All three final value-control images were opened. Actual clear-ray concrete
 probes are .759384 / .760218 / .760501 display Y; balanced photo patches are
 .793573 / .775668 / .859118. No kit files, README gallery or docs images changed.
+
+## Delivery pass 14 — broad finish and value rejected
+
+Color/value first: the native 1000px exported frames in `renders/finish-1/101/`
+show excessive darkening with the fixed -.25 EV camera. The original +1.15 EV
+camera is removed, but simply lowering the sun without compensating its incident
+irradiance made every surface dark. Increase sun irradiance at the retained low
+angle, and restore plausible sky fill; keep exposure fixed. Burnham's balanced
+within-photo concrete/lawn linear-Y ratios are 4.03 over darker turf and 2.66 over
+dry turf, rather than treating its exposed cement pixel as an albedo.
+
+The mottling is visible but too broad. Wheel pairs resemble drawn dashed seams.
+Bowl sector batch tints and changing UV regions produce artificial vertical
+stripes. These are new CG tells, not acceptable replacements for the original
+clay finish. Reduce broad paste variation, soften/widen interrupted wheel contact,
+and make the bowl batch continuous across reusable sectors. Use the stained-wall
+chart throughout the transition rather than switching charts at a normal angle.
+The coping now has aggregate and a dark contact nose, but its shadow is too deep
+to judge the tile and wall honestly. Ledge wax is likewise lost in shadow.
+
+A fresh surface check also caught the site orientation variable being overwritten
+by the fence-row yaw loop. Keep a separate site angle, retain the original fence
+piece count by offsetting the side entry onto a native panel center, and rerun
+actual support checks. No docs promoted.
+
+## Delivery pass 15 — sun and grain improve; UV scale still betrays the finish
+
+Color/value first: every native `renders/finish-2/` frame was opened. Fixed
+-.25 EV with stronger low-angle direct sun restores the range without lifting
+exposure. The broom grain is now visible, and the coping nose is distinctly
+abraded. The age difference remains weaker than the required daily-use photos.
+The prefab plate is still blue-gray under a long tree shadow, so that light is
+not a fair bare-steel judgment; give its detail a clear southern sun, with the
+same camera and exposure.
+
+The wall chart stretches a square noise field across long retaining faces,
+producing wood-like horizontal waves. The tag's square nib becomes a thin
+flattened stroke on a 1.5 × .39m surface. Both fail. Make gravity streaks vertical
+in the wall chart, remove its stretched height noise, and compensate the
+raster nib for its physical aspect. Universal quarter-width concrete charts
+also lose useful texel density: give concrete the full existing 1024 tile,
+with low normal strength on steel-troweled rides and full bristle relief on
+broom walks. Move the composite and stained wall into existing trim regions;
+the same two triples still total 20 MiB. No new texture allocation is authorized
+or needed.
+
+The overhead proves a different bowl/run/plaza/lot arrangement, but the hero
+exposes a pole in the skating area. The site rotation read stale matrices on
+newly positioned fixture roots. Update the dependency graph before rotating
+those roots, and add physical low-mesh base tests for every tree/light. Fence,
+section, stair-support and bowl-corner checks pass on the external glTF; these
+checks alone did not catch the misplaced fixtures. Docs remain withheld.
+
+## Delivery pass 16 — construction passes; finish still needs the last correction
+
+Color/value first: all twelve native `renders/finish-3/` images were opened.
+The pool wall now has Memorial's warm family of hues after balancing on the
+unpainted coping. Tile/coping linear-Y ratios in that photograph are .159/.138;
+nose/coping is .0595 and wall/coping .234. These view ratios include unequal
+illumination, so they are not relabeled as reflectances. The common park's
+concrete/lawn ratio remains the separate albedo constraint. Exposure is fixed
+at -.25 EV; low-angle direct illumination, sky fill and surface values are
+independent controls.
+
+The darker contact nose, wall runoff, panel variation, deep-end litter and
+broom response now show. The stencil-like tag has rounded variable-width
+strokes and drips but still needs fine spray breakup. Broom ridges are too
+regular/coarse and the quarter's long wheel pairs read as drawn marks. Change
+the delivered concrete repeat to 1.524m, reduce walk normal strength, and
+confine the black wheel/tail contacts to the lips and toes, leaving a smoother
+subtle riding route between them. Prefab wheel contacts need narrower black
+segments, rather than broad brown lines. Its plate now reflects the composite
+and sky and exposes edge oxide; light the side panel in the same detail setup
+to make corner chips reviewable. The older park's three repairs need a clearly
+fresh cement value. No docs are promoted.
+
+All accepted counts are restored: 58 modules; skating/site triangles
+48,694/286,380, 45,451/271,757 and 44,367/271,069. The physical low-mesh probes
+now put all 24 tree/light bases outside the skating terrain; the pole no
+longer crosses the bowl. Actual section, support, UV-area, tangent, mask and
+bowl-overlap checks pass through the relevant raw audit stages. The remaining
+legacy preservation failure is the top README changed by the required main
+merge; it must equal the merged HEAD blob, while every protected delivery
+continues to require exact bytes. This exception applies only to that
+lead-authored tracked README, not to any asset or image.
+
+## Delivery pass 17 — native fixed-camera gate rejects coarse manufacture
+
+Color/value first: the exported revision-seven 1440px hero, ledge, stairs,
+coping, deep-end, above, transition, walk and tag frames were opened at native
+size. Its concrete's unique-mesh surface-area median linear Y was .311 (2011)
+and .267 (2004), compared with the unchanged lawn's .07246. Ratios 4.29/3.69
+put the newer concrete just above the balanced Burnham daily-use range
+2.66–4.03. Lower the concrete tile's sRGB paste from .70 to .67; retain the
+-.25 EV camera and the same sun. This is an albedo change, not an exposure
+compensation. These photo ratios remain bounded observations with unknown
+camera tone response and different turf conditions, not recovered reflectances.
+
+The new fine grain fixes the blurred Memorial wall, but its contrast is too
+strong across the stair risers and hubba: it now reads as uniform gravel/noise.
+Reduce its amplitude. Memorial's wall color and dirt below the tile are closer,
+but the bowl still lacks short wheel contacts at the pumping lines. Put those
+in the lower part of the existing wall chart; shallow retaining walls sample
+its upper part. Retain the same texture allocation and geometry counts.
+The broad transition routes remain too evident as drawn bands; reduce their
+coverage while keeping narrow lip/toe contacts. The walk's periodic broom
+spacing is approximately 6.8mm and reads corrugated close up; halve that pitch
+within the 1024 normal's sampling limit. The fictional tag has variable width,
+soft edges, runs and a gray buff patch, but repeated strokes and its tidy buff
+still read as authored art. The deep-end leaves remain low-poly flecks.
+
+The next bake is a further appearance candidate. No README gallery or docs
+images are approved by this pass. Numerical construction and export tests
+cannot approve these surfaces.
+
+## Delivery pass 18 — appearance gate failed; stop before final presentation/docs
+
+Color/value first: all fifteen current native 1440px exported comparison frames
+and all three current 1024px-per-panel photo pairs were opened. The concrete
+paste is .67 sRGB before manufacture variation, pour tints and use history.
+Actual exported texture × vertex-color × material-factor samples give median
+linear Y .283067 (2011) and .243102 (2004), or 3.9066/3.3550 times the unchanged
+Ground lawn's .072459. Burnham's balanced within-photo ratios are 4.0268/2.6618;
+the corresponding fixed-lawn albedo constraint is .192875–.291779. The newer
+and older riding concrete now sit inside it, with the camera fixed at -.25 EV.
+These are triangle-centroid, uninstanced mesh-area statistics, not rendered
+brightness or a recovered photo reflectance. The source and limits are in
+`build/albedo-ratios.json` and `build/external-check.json`.
+
+**Do not ship this appearance candidate.** The lower wall chart's short wheel
+contacts now repeat visibly around the reusable bowl sectors, making an array
+of matching curved stamps in the hero. The same chart also leaks those
+contacts onto ledge/retaining faces in the ledge frame. That is wear without
+its cause at those locations, and fails fixes 4/6. The formed-wall mottle still
+has a procedurally uniform character. The pool toe's warm-to-gray fade looks
+airbrushed against Alondra's more complicated worn surface. Native leaf
+flecks remain angular and the tag's buff patch too tidy. The concrete values,
+low sun, manufactured surface response and shared delivery improve; none of
+those overrides this gate failure.
+
+The prefab's toe plate now catches a real reflected highlight, with an edge
+oxide/scuff response. Its composite's narrow partial contacts improve on the
+previous dashed lines, but still resemble soft drawn streaks. Corner paint
+loss is localized now, though its smoothly shaped orange patches are weak.
+The 2004 value and extra repairs distinguish it from 2011, but the age contrast
+remains more modest than the daily-use photographs warrant. Fixes 7/8 therefore
+remain candidates, not appearance approvals.
+
+### Fix-by-fix evidence index
+
+All links below point to ignored local review artifacts. Each before/after
+panel is 1440px wide. Projection (including shift/roll), common material-light
+settings, and the current external export's full bundle hash are asserted by
+`src/delivery_fixes.py --compose`. Hero/above pairs intentionally retain the
+actual old washed exposure on the left as lighting evidence. Material detail
+pairs use the same new illumination on both exports.
+
+| Requested fix | Evidence | Judgment |
+| --- | --- | --- |
+| 1. Concrete manufacture | [Ledge](renders/delivery-fixes/101-ledge-before-after.jpg), [broom walk](renders/delivery-fixes/101-walk-before-after.jpg), [stairs](renders/delivery-fixes/101-stairs-before-after.jpg) | Pour/panel variation and grain show; wall mottle remains too uniform and gets misplaced contact marks. |
+| 2. Albedo instead of exposure | [Hero](renders/delivery-fixes/101-hero-before-after.jpg), [balanced ROI evidence](renders/ratios/photo-rois.jpg) | Ratios/albedos above; fixed -.25 EV. No .76 pixel-brightness target. |
+| 3. Raking sun | [101 hero](renders/delivery-fixes/101-hero-before-after.jpg), [202 hero](renders/delivery-fixes/202-hero-before-after.jpg) | Approximately 18° sun, long ledge shadows and shaded transitions show. |
+| 4. Cause-specific wear | [Transition](renders/delivery-fixes/101-transition-before-after.jpg), [ledge](renders/delivery-fixes/101-ledge-before-after.jpg) | FAIL: repeated/lost-scope wall contacts; route shapes still authored. Wax is darker/glossier. |
+| 5. Fictional sprayed tag | [Tag](renders/delivery-fixes/101-tag-before-after.jpg) | Variable nib, overspray, runs and buff visible; buff remains tidy. |
+| 6. Used pool | [Coping/tile](renders/delivery-fixes/101-bowl-before-after.jpg), [deep end](renders/delivery-fixes/101-deep_end-before-after.jpg), [Memorial pair](renders/final-matches/memorial_coping-pair.jpg) | FAIL: coping aggregate/nose wear, tile grime and drain deposits show, but wall contacts repeat and the toe fade is synthetic. |
+| 7. Prefab surfaces | [Plate](renders/delivery-fixes/303-plate-before-after.jpg), [surface](renders/delivery-fixes/303-prefab-before-after.jpg), [painted side](renders/delivery-fixes/303-prefab_side-before-after.jpg) | Bare-metal reflection and localized paint loss improve; composite streaks/oxide shapes remain weak. |
+| 8. Ages | [2011](renders/delivery-fixes/101-hero-before-after.jpg), [2004](renders/delivery-fixes/202-hero-before-after.jpg), [1999](renders/delivery-fixes/303-hero-before-after.jpg) | Distinct values/repairs, still modest wear contrast at full frame. |
+| 9. Seeded arrangements | [101 above](renders/delivery-fixes/101-above-before-after.jpg), [202 above](renders/delivery-fixes/202-above-before-after.jpg) | 202 moves terrain, entry and lot independently; accepted skating footprint/coverage/spacing and counts retained. |
+| 10. Shared external delivery | [Exported park crop](renders/delivery-fixes/101-hero-before-after.jpg), `build/external-check.json` | glTF/BIN references canonical own/Ground/tree/fence maps. Actual four-import test reuses 24 image allocations. Embedded copies remain build products. |
+
+[Current fifteen-view contact](renders/delivery-fixes/contact.jpg),
+[all fixed-camera pairs](renders/delivery-fixes/before-after-contact.jpg),
+[three photo pairs](renders/delivery-fixes/matched-contact.jpg).
+All three photo references show parks in use. Geometry calibration residuals
+remain 28.33/866px (Alondra), 1.84/400px (Burnham), 6.78/580px (Memorial);
+these quantify framing, not surface realism.
+
+### Engineering proof and separate reproducibility failure
+
+`make check` passes on the current candidate: measured construction and
+sections, 58 roots, exact counts, UV area/density and clipped bowl overlap,
+normal/tangent frames, external re-import/corner attributes/image payloads,
+fixture bases and measured layout spacing. The imported offset entry gate
+clears its actual fence/sign/rack/fountain/litter solids in 56 sampled poses,
+maximum measured penetration 0m (2° samples, .5mm tolerance; not a continuous
+collision guarantee). All 162 previously recorded delivery files retain their
+bytes. The top README only changed through the required main merge, and equals
+the merged tracked blob. No kit files changed.
+
+| Park | Skating / whole-site triangles | glTF + BIN bytes | Materials | Shared image bytes / full-mip compressed memory |
+| --- | ---: | ---: | ---: | ---: |
+| 101 | 48,694 / 286,380 | 10,810,116 | 19 including native site context | 71,874,151 / 104 MiB |
+| 202 | 45,451 / 271,757 | 9,676,272 | 19 | same 24 files / 104 MiB |
+| 303 | 44,367 / 271,069 | 11,616,992 | 19 | same 24 files / 104 MiB |
+
+The new sets remain 2048² + 1024² triples = 20 MiB; Ground reuses 48 MiB,
+trees/fence 36 MiB. The module library has three material states; its seven
+images cost 25⅓ MiB (new 20 plus Ground's existing concrete normal). Context
+constants and shared families explain the complete parks' larger state count.
+Embedded build GLBs are 82,774,332 / 81,638,252 / 83,517,104 bytes; they are
+not the delivery format.
+
+`make repeat` now genuinely regenerates fields, GPU-bakes and filters in an
+isolated folder instead of reusing the first baked textures. It FAILS strict
+byte identity: nine SkateTrim BaseColor channel values, two SkateTrim ORM
+values and one Prefab BaseColor value differ by one 8-bit step. All six
+procedural source PNGs and both shipped normal maps are byte-identical. The
+canonical-image assertion rejects that payload during the isolated export;
+the main export/image set is unchanged. `build/repeat-image-diff.json` records
+per-map hashes and counts; `build/repeat-check.json` is false, with the partial
+rebuild differences. No tolerance or cached map is substituted to make it pass.
+This exposes a flat color bake/quantization reproducibility weakness requiring
+a deliberate deterministic solution, separately from the appearance failure.
+
+`python3 kit/repo_check.py`: 1,872 source files, 0 errors. `git diff --check`
+and source compilation pass. The final from-nothing `make`, final render suite,
+README gallery and docs commit are intentionally not performed after this
+appearance gate failure. Presentation targets are prepared but unvalidated.
+No new docs images or top-level README edits are made.
