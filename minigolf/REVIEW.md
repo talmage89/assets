@@ -867,3 +867,141 @@ buildings. No docs image or README gallery is added. No kit code changes.
 A future general kit addition could make deterministic height-derived delivery
 normals and their independent GPU validation a documented shared operation;
 this family keeps that implementation local for this checkpoint.
+
+## Delivery correction pass 1 — reject (native 1440 px, exported external glTF)
+
+Color and value first: balanced the course photograph on its sunlit concrete
+walk, and the used-falls photograph on the unclipped white fence (the existing
+`build/reference-balance.json` records both sampled rectangles and gains).
+Opened all seven `renders/iteration-1/after-*.png` at original size. The basin
+now shows a blue painted bottom, submerged balls and sheltered leaves even in
+the bridge's shade; the previous black mirror and square ripple aliasing are
+gone. The classic coping reads as painted cast concrete with radial joints.
+The rock has lost its clay gloss, but its aggregate is too coarse, the crack
+network too continuous and the whole surface still too uniformly gray.
+Reduce the relief, break the cracks into fragments, and mix warmer mineral
+washes into the gray before judging fine detail.
+
+The waterfall fails: low transmission makes the tongues look like white vinyl
+strips. Restore clear transmission and retain white only in entrainment and
+impact fragments. The overhead also fails: rectangular coverage replaces the
+round target, but the north outcrops remain detached lumps beside parallel
+holes. Replace them with a connected quarry mass cut around the inner greens
+and walking reservations. Keep the accepted world camera in a real public
+viewing ledge, rather than allowing the new rock to enclose it.
+
+The tee shows a separate defect: the newly rectangular mulch outline did not
+have a vertex at the grade's -7 m break. Its triangulated plane crossed a
+ramped green. Split that actual construction mesh at the grade break before
+raising it, and independently ray-measure the landscape-to-carpet gap. The
+rubber now has molded ribs and a dusty abraded center, but its outline and the
+brick still look new. Classic painted borders need larger exposed old-coat
+fragments visible from the player camera. Nap remains an effective filtered
+response, not individually resolved fibers.
+
+No docs or gallery is accepted at this pass. Geometry/source measurements and
+250 clear plan-space routes are construction evidence, not visual approval.
+
+## Delivery correction pass 2 — reject (native 1440 px, external glTF)
+
+Color and value first: the same concrete-walk and white-fence neutrals remain
+in force. Opened all seven `renders/iteration-2/after-*.png` at original size.
+Clear water and the blue bottom survive in shade, with recognizable balls and
+leaves. The repainted classic curb now reads substantially older than the
+adventure brick. Rock gloss is gone, but the tan/gray paint changes at planar
+UV projections and makes geometric facets more obvious. A continuously
+world-authored mineral coat is needed; keep the baked pitting and roughness,
+without the broad color discontinuities. This needs no additional image.
+
+The waterfall is transparent now, but its three risers and long nearly straight
+white streaks still disclose an engineered cascade. The dark return-pipe end
+is also exposed over the top lip. Bury that end inside the plenum, retain the
+uneven tongues, and judge the result again. These are remaining visual faults,
+not a claim that clear transmission alone fixes the waterfall.
+
+The mountain now reaches the inner holes, but the overhead exposes black,
+rectangular cuts. Boolean tools carried diagnostic black pigment into the
+new cut faces. Reassign those faces to carved shotcrete. The circulation also
+follows the playing ramp/bump profile too closely. Separate its public grade
+from the ball's local features, while retaining the overall hole rise and
+real supported crossings. Source rays measure minimum landscape-to-carpet
+gaps of .109799 m classic and .080120 m adventure; the earlier mulch obstruction
+is corrected. The new connected mass still needs the widened rock/surface
+intersection gate, rather than relying on the older rock-name filter.
+
+The tee mat's ribbing remains soft and the carpet nap is unresolved at this
+allocation; the worn lane, seam and patch are stronger cues. The border crop
+tracks the same tee-relative camera through the whole-hole relocation and
+rotation; the site-wide comparisons keep their exact world cameras. It now
+shows the slab and berm more than the brick face, so it is a weak paint-wear
+proof. Add a classic concrete-border inspection for the age comparison.
+No final gallery or docs is accepted at this pass.
+
+## Delivery correction pass 3 — reject and stop before finals/docs
+
+Color and value first: opened the seven third-candidate PNGs in `renders/fixes/`
+at their original 1440 px width, against the same neutral-balanced course and
+used-water photographs. The continuous mineral coat removes planar color
+seams, but its hue/value variation is now too weak. The rock remains smooth,
+rounded clay with fine relief on top; the broad compound form, broken ledges,
+spalls, cracks and shaded mineral/moss variation still do not match the photos.
+This is a failed visual correction, despite the matte roughness and deeper
+cavities. The next useful work is a properly carved compound high source and
+its transfer to the budgeted rock mesh, rather than another small gloss tweak.
+
+The return-pipe bar is concealed, and the water tongues narrow and separate,
+but the three risers still look engineered. Foam reads as white lines and
+triangular confetti. The impact pool needs irregular aerated coverage and
+splash, not more regular streaks. The clear blue shallow basin, visible bottom,
+balls and leaves are an improvement; no square ripple blocks remain. Classic
+painted coping reads as cast construction, although the old-coat fragments
+are still too procedural. Classic borders show age at full frame. Carpet
+traffic, seams and patches are visible, but the nap remains too soft and the
+rubber still reads as a simple slab in the tee crop.
+
+The adventure round target is gone and the mountain is larger and connected.
+However, the overhead still exposes rows, thick path connections and a blocky
+mesa with rectangular cuts. It does not yet have the photographed course's
+natural retained terraces and intertwined water routing. Its stream still has
+only the two original playing crossings. The widened source gate now checks
+the joined mountain against 106 actual walking/playing surfaces, with zero
+intersection pairs; that proves clearance, not successful landscape design.
+The accepted classic routing and density are retained.
+
+Opened the new classic-green and castle photographs' exported render panels
+at original size. The classic refit shows the course rather than a foreground
+lawn, but is too close: one green and a cropped windmill dominate, whereas the
+photograph has several greens and more shared walks. Its native landmark RMS
+is 73.34 px across the 2,892 px photo crop, at the 50 mm bound; this remains a
+weak framing match. The castle comparison remains 4.39 px at 55.88 mm. The
+lighthouse's constrained circular-section fit reaches 6.59 px, but the actual
+quarry blocks several of its anchors by about 16–17 m along the rays. The
+visibility gate correctly rejects it before rendering. Do not count an old
+lighthouse PNG as a current third pair; that stale result was removed, with
+its accepted predecessor retained in `build/revision-before/look-matches/`.
+
+**Stop condition reached:** no final render set, gallery, docs JPGs or docs
+commit. The crops do not demonstrate every requested fix. The new technical
+outputs are a correction checkpoint, not a finished portfolio asset.
+
+Technical results for this candidate: source construction/export completes;
+`make check` exits zero, including 250 seeds per kind, cup apertures, pivots and
+sampled motion, raw normals/tangents/UV rectangles, five external-versus-embedded
+surface/image comparisons, canonical URI reuse and repository rules. Core
+construction is 122,214 / 171,691 triangles, 11 material states, 14,113,011 /
+20,591,617 glTF+BIN bytes and 81⅓ MiB of shared maps. Hole/fixture counts remain
+inside the accepted ceilings. With the optional native plants, placed totals
+are 597,792 / 805,845 triangles, 23,972,973 / 30,477,001 geometry/JSON bytes and
+129⅓ MiB / 25 canonical images. New image allocation remains 17⅓ MiB. The
+independent preservation snapshot includes 238 pre-existing delivery/docs files
+from merged main, all unchanged; the earlier 208-file preservation gate also
+passes. No kit or top-level README edit.
+
+The artifact/geometry checks above are not a final clean-build or replay proof.
+A complete final `make`, `make repeat`, GPU texture-repeat comparison, final
+inspection inventory and final documentation remain outstanding because the
+visual gate is rejected. Local command logs are `build/model-fix-3-resume.log`,
+`check-correction.log`, `matched-correction.log`, `matched-classic.log` and
+`matched-castle.log`. The technical source checks caught two real public-slab
+intersections during the enlarged-quarry work; cuts now use the authored slab
+footprints with fabrication clearance. All source edits are scripted.
