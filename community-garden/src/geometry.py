@@ -63,8 +63,15 @@ def beam(n,a,b,w,rt,mat='Wood',d=None):
     ob.rotation_euler=(b-a).to_track_quat('Z','Y').to_euler();return ob
 
 
-def mesh(n,v,f,rt,mat='Soil'):
-    return own(G.mesh(n,v,f,M[mat]),rt)
+def mesh(n,v,f,rt,mat='Soil',upward=False):
+    ob=G.mesh(n,v,f,M[mat])
+    # The shared closed-solid normal recalculation cannot infer the outside
+    # of an isolated ground/fabric patch. Its physical upper side is explicit.
+    if upward:
+        for face in ob.data.polygons:
+            if face.normal.z<0:face.flip()
+        ob.data.update()
+    return own(ob,rt)
 
 
 def sphere(n,p,r,rt,mat='Fruit',scale=(1,1,1),segments=10,rings=6):

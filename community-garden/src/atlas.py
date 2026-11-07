@@ -22,14 +22,23 @@ def generate(folder,size=1024):
         u0,v0,u1,v1=rect(sp);xa,xb=round(u0*size),round(u1*size);ya,yb=round((1-v1)*size),round((1-v0)*size)
         h,w=yb-ya,xb-xa;x,y=np.meshgrid(np.linspace(-1,1,w),np.linspace(1,0,h))
         t=np.clip((y-.025)/.95,0,1);width=np.sin(math.pi*t)**.78
-        if sp=='squash':width*=.78+.22*np.cos(t*math.pi*8);width*=1-.28*np.exp(-((t-.12)/.09)**2)
+        if sp=='squash':width*=.78+.22*np.cos(t*math.pi*8)
         elif sp=='kale':width*=.84+.16*np.sin(t*math.pi*22)
         elif sp=='tomato':width*=.88+.12*np.sin(t*math.pi*18)
         elif sp=='bean':width*=1-.48*t
         elif sp=='corn':width=np.sin(math.pi*t)**.38*(1-.30*t)
         elif sp=='lettuce':width=np.sin(math.pi*t)**.52*(.94+.06*np.sin(t*54))
         elif sp=='sunflower':width*=1-.28*t
+        elif sp=='marigold':width*=.90+.10*np.sin(t*math.pi*20)
         mask=(abs(x)<width*.94)&(y>.025)&(y<.975)
+        if sp=='squash':
+            # Five radial lobes around a broad palmate blade, rather than
+            # serrations repeated down an elongated pinnate-looking outline.
+            dy=(y-.50)*2;angle=np.arctan2(dy,x)
+            radius=.80*(1+.17*np.cos(5*(angle-math.pi/2)))
+            mask=np.hypot(x,dy)<radius
+            mask|=(abs(x)<.017)&(y>.025)&(y<.32)
+            mask&=(y>.025)&(y<.975)
         vein=np.exp(-(x/.016)**2)*.08
         c=np.array(COLORS[i])[None,None,:]*(1+vein[:,:,None])
         tile=bc[ya:yb,xa:xb];tile[:,:,:3]=np.clip(c,0,255);tile[:,:,3]=mask*255

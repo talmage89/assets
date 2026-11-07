@@ -28,9 +28,10 @@ The renders retain the accessible court and route to the shared facilities.
 
 Botanical scale choices are authored representative crop sizes, cross-checked
 against garden photographs and Extension's spacing guidance. Tomato blades
-are ~9–13cm, arranged in compound leaves on a 1.48m plant; peppers carry ~12cm
+are ~10–16cm before seeded variation, arranged in nine-leaflet compound leaves
+on three connected leaders of a 1.48m plant; peppers carry ~12cm
 entire blades on a .76m forked plant; squash has ~29–42cm blades and long
-petioles. Bean leaflets are ~14.5cm on a 1.95m twining axis. Corn is ~2m with
+petioles. Bean leaflets are ~17cm before seeded variation on a 1.95m twining axis. Corn is ~2m with
 ~48–61cm strap blades. Lettuce/kale leaves are ~16–32cm; herbs ~6.5cm.
 Stages scale and reduce the node population. These are neither species-level
 botanical diagnoses nor surveyed measurements of individual photo plants.

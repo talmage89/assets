@@ -1,5 +1,5 @@
 """Build the reusable family and three distinct seeded form-checkpoint gardens."""
-import argparse,sys,json,math,random,hashlib,os
+import argparse,sys,json,math,random,hashlib,os,shutil
 from pathlib import Path
 import bpy
 from mathutils import Vector
@@ -36,6 +36,7 @@ def export(path,roots):
         if target is None:raise ValueError('Unregistered image '+str(copied))
         row['uri']=os.path.relpath(target,path.parent.resolve());row.pop('mimeType',None)
     path.write_text(json.dumps(doc,separators=(',',':'))+'\n')
+    shutil.rmtree(path.parent/'cache',ignore_errors=True)
     return doc
 
 
@@ -44,6 +45,10 @@ def remove(rt):
 
 
 def place(key,name,pos,parent,yaw=0):return Q.instance(LIB[key],name,pos,yaw,parent)
+
+
+def walking_height(p,x,y):
+    return .014 if any(r['surface']!='Lawn' and abs(x-r['center'][0])<=r['size'][0]/2 and abs(y-r['center'][1])<=r['size'][1]/2 for r in p['paths']) else 0.0
 
 
 def planted(plot,bed,site):
@@ -57,20 +62,33 @@ def planted(plot,bed,site):
         plot['plants'].append(dict(species=species,local=[x,y,soil],prototype=key))
         return rt
     if plot['state']=='fallow':
+        # A thin settled straw layer has a visible bulk, rather than a few
+        # disconnected yellow lines on an otherwise freshly tilled black bed.
+        for ob in bed.children:
+            if ob.type!='MESH':continue
+            soilfaces=[f for f in ob.data.polygons if ob.data.materials[f.material_index]==Q.M['Soil']]
+            if soilfaces:
+                ob.data.materials.append(Q.M['Straw']);mat=len(ob.data.materials)-1
+                ids={i for f in soilfaces for i in f.vertices}
+                for i in ids:
+                    v=ob.data.vertices[i].co;v.z+=.018+.005*math.sin(v.x*7+v.y*9)
+                for face in soilfaces:face.material_index=mat
+                ob.data.update()
         # Straw is actual scattered short stalks at the soil surface, held off
         # the board edge. Local decomposition/wet patches remain quick values.
         for i in range(90 if w<2 else 160):
             x=rng.uniform(-w/2+.10,w/2-.10);y=rng.uniform(-d/2+.10,d/2-.10);a=rng.random()*math.tau;l=rng.uniform(.035,.09)
-            Q.beam('Fallow straw stalk',(x,y,soil+.006),(x+l*math.cos(a),y+l*math.sin(a),soil+.008),.002,bed,'Straw',.002)
+            z=soil+.018+.005*math.sin(x*7+y*9)
+            Q.beam('Fallow straw stalk',(x,y,z),(x+l*math.cos(a),y+l*math.sin(a),z+.002),.002,bed,'Straw',.002)
     else:
         # Crop-spacing choices intentionally sit at the generous home-garden
         # end of Extension's production ranges, rather than filling by noise.
         if sp=='tomato':
             xs=[0] if w<2 else [-.72,.72];ys=[-.76,0,.76] if d<3 else [-2.1,-.7,.7,2.1]
             for x in xs:
-                for y in ys:
+                for iy,y in enumerate(ys):
                     add(sp,x,y)
-                    if plot['id']%2:place('TomatoCage','Cage', (x,y,soil-.04),bed)
+                    if plot['id']%2 or iy==0:place('TomatoCage','Cage', (x,y,soil-.04),bed)
                     else:
                         Q.box('Tomato 1x2 wood stake',(x+.07,y,soil+.82),(.01905,.0381,1.72),bed,'Wood')
                         for z in (.45,.85,1.20):Q.ring('Loose cloth tomato tie',soil+z,.065,bed,'Straw',.003,center=(x+.025,y),segments=10)
@@ -107,13 +125,19 @@ def planted(plot,bed,site):
         add('marigold',-w/2+.16,-d/2+.15,2)
         if plot['id']%2==0:add('sunflower',w/2-.22,d/2-.22,2)
     if plot['id']==3:place('Pinwheel','Garden pinwheel',(-w/2+.1,d/2-.12,soil),bed)
-    # Damp, irregular soil around watered planting zones: geometry only at this
-    # checkpoint, no uncaused all-over grime or final painted wear.
+    # A quick dark value on the actual soil faces around watered root zones.
+    # Raised overlay polygons cast false shadows and read as floating stones.
     if plot['state'] in ('tidy','lush'):
-        for i in range(3):
-            cx=rng.uniform(-w*.25,w*.25);cy=rng.uniform(-d*.35,d*.35);rad=.18
-            v=[(cx,cy,soil+.012)]+[(cx+rad*rng.uniform(.65,1.15)*math.cos(j*math.tau/9),cy+rad*rng.uniform(.65,1.15)*math.sin(j*math.tau/9),soil+.012) for j in range(9)]
-            Q.mesh('Watered soil around roots',v,[(0,j+1,(j+1)%9+1) for j in range(9)],bed,'WetSoil')
+        roots=[p['local'] for p in plot['plants'] if p['species']==sp]
+        for ob in bed.children:
+            if ob.type!='MESH':continue
+            mats=list(ob.data.materials)
+            if Q.M['WetSoil'] not in mats:ob.data.materials.append(Q.M['WetSoil'])
+            wet=list(ob.data.materials).index(Q.M['WetSoil'])
+            for face in ob.data.polygons:
+                if ob.data.materials[face.material_index]!=Q.M['Soil']:continue
+                x,y=face.center.x,face.center.y
+                if any(math.hypot(x-r[0],y-r[1])<.19*(1+.14*math.sin(x*18+y*9)) for r in roots):face.material_index=wet
     Q.join(bed)
 
 
@@ -125,12 +149,26 @@ def garden(p):
     # park/newer plots. Compacted fines form the shared accessible route.
     ma='Chip' if p['archetype']=='city' else 'Lawn'
     Q.box('Garden base',(0,0,-.035),(W,D,.07),ground,ma)
-    for i,a in enumerate(p['paths']):
-        x,y=a['center'];w,d=a['size'];Q.box('Main route '+str(i),(x,y,.007),(w,d,.014),ground,a['surface'])
-        # Compacted path edges feather into grade rather than forming an
-        # inaccessible sharp lip. The measured flat clear width stays intact.
-        for side in (-1,1):
-            Q.mesh('Feathered path shoulder',[(x+side*w/2,y-d/2,.014),(x+side*(w/2+.10),y-d/2,0),(x+side*(w/2+.10),y+d/2,0),(x+side*w/2,y+d/2,.014)],[(0,1,2,3)],ground,a['surface'])
+    # Partition the union of firm routes once. Coplanar crossing rectangles
+    # previously z-fought and made the park's main route appear interrupted.
+    # Grass cross alleys are the native grade, never an overlay on the spine.
+    routes=[a for a in p['paths'] if a['surface']!='Lawn']
+    rects=[(a['center'][0]-a['size'][0]/2,a['center'][0]+a['size'][0]/2,
+            a['center'][1]-a['size'][1]/2,a['center'][1]+a['size'][1]/2,a['surface']) for a in routes]
+    xs=sorted({v for r in rects for v in r[:2]});ys=sorted({v for r in rects for v in r[2:4]})
+    def inside(x,y):return next((r[4] for r in rects if r[0]<x<r[1] and r[2]<y<r[3]),None)
+    for x0,x1 in zip(xs,xs[1:]):
+        for y0,y1 in zip(ys,ys[1:]):
+            mat=inside((x0+x1)/2,(y0+y1)/2)
+            if not mat:continue
+            corners=[(x0,y0,.014),(x1,y0,.014),(x1,y1,.014),(x0,y1,.014)]
+            Q.mesh('Continuous firm route surface',corners,[(0,1,2,3)],ground,mat,upward=True)
+            # Only exposed union edges receive a graded 100mm shoulder.
+            for j,(dx,dy) in enumerate(((0,-1),(1,0),(0,1),(-1,0))):
+                a,b=corners[j],corners[(j+1)%4]
+                if inside((a[0]+b[0])/2+dx*1e-6,(a[1]+b[1])/2+dy*1e-6):continue
+                c=(b[0]+dx*.10,b[1]+dy*.10,0);d=(a[0]+dx*.10,a[1]+dy*.10,0)
+                Q.mesh('Feathered outside path shoulder',[a,b,c,d],[(0,3,2,1)],ground,mat,upward=True)
     Q.join(ground)
     for plot in p['plots']:
         x,y=plot['center'];w,d=plot['width'],plot['depth']
@@ -141,7 +179,8 @@ def garden(p):
         Q.box('Number marker stake',(-w/2+.15,-d/2+.07,.37),(.020,.020,.58),bed,'Wood')
         Q.box('Plot number board',(-w/2+.15,-d/2+.05,.60),(.18,.018,.12),bed,'White')
         Q.text(bed,f'{plot["id"]:02}',(-w/2+.15,-d/2+.039,.566),.073,'Steel')
-        Q.socket(bed,f'Socket_Plot{plot["id"]:02}',(0,-d/2-.47,-.014))
+        walking_z=walking_height(p,x,y-d/2-.47)
+        sock=Q.socket(bed,f'Socket_Plot{plot["id"]:02}',(0,-d/2-.47,walking_z-bed.location.z));sock.rotation_euler.z=math.pi
         if plot['id']%4==0:
             # Weed cloth shows only in a narrow torn patch beside a bed.
             Q.mesh('Worn weed cloth edge',[(w/2,-.35,.009),(w/2+.12,-.28,.012),(w/2+.07,.14,.01),(w/2,.26,.009)],[(0,1,2,3)],bed,'Cloth')
@@ -149,16 +188,33 @@ def garden(p):
     infrastructure=[]
     sx,sy=p['service'];shed=place('NativeShed','ToolShed',(sx,sy,0),rt);infrastructure.append(shed)
     cx,cy=p['compost'];infrastructure.append(place('CompostThreeBay','Compost',(cx,cy,0),rt))
-    wx,wy=p['water'];infrastructure.append(place('Standpipe','Water',(wx,wy,0),rt,180 if wx<0 else 0))
-    bx,by=p['bench'];infrastructure.append(place('ShadeBench','Bench',(bx,by,0),rt,180))
+    wx,wy=p['water'];water=place('Standpipe','Water',(wx,wy,0),rt,180 if wx<0 else 0);infrastructure.append(water)
+    ws=next(o for o in water.children_recursive if o.get('socket_kind')=='gardener')
+    ws.location.z=walking_height(p,wx+(.36 if wx<0 else -.36),wy+(.46 if wx<0 else -.46))
+    ws.rotation_euler.z=math.atan2(.36,-.46)
+    bx,by=p['bench'];infrastructure.append(place('ShadeBench','Bench',(bx,by,0),rt))
     place('RainBarrel','Rain barrel',(sx-1.65,sy,0),rt)
-    # Continuous gutter/downpipe routes roof runoff into the barrel lid.
+    # A gauged open gutter, real outlet bore and hollow downpipe feed the
+    # barrel's receiving hole; closed cylinders cannot collect roof runoff.
     pipe=Q.root('RainCapture','infrastructure',rt)
-    Q.tube('Shed gutter and downpipe',[(sx-1.43,sy+1.5,2.30),(sx-1.43,sy,2.30),(sx-1.64,sy,2.27),(sx-1.65,sy,1.02),(sx-1.65,sy,.89)],.035,pipe,'Zinc',8);Q.join(pipe)
-    place('BulletinBoard','Noticeboard',(-2,-D/2+1.0,0),rt)
-    place('Bucket','Bucket',(wx-.6,wy+.25,0),rt)
-    place('WateringCan','Watering can',(wx+.5,wy+.4,0),rt,35)
-    place('Wheelbarrow','Wheelbarrow',(cx-1.0,cy-1.9,0),rt,-25)
+    gx=sx-1.40
+    profile=[(gx-.06,2.320),(gx-.06,2.269),(gx+.06,2.269),(gx+.06,2.320),
+             (gx+.059,2.320),(gx+.059,2.270),(gx-.059,2.270),(gx-.059,2.320)]
+    gutter=Q.G.profile('One millimetre open gutter',profile,sy-1.5,sy+1.5,Q.M['Zinc'],'Y')
+    hole=Q.G.cylinder('Gutter outlet tool',(gx,sy,2.25),(gx,sy,2.30),.036,Q.M['Zinc'],16)
+    Q.G.boolean(gutter,hole);Q.own(gutter,pipe)
+    for y in (sy-1.5,sy+1.5):Q.box('Gutter end cap',(gx,y,2.2945),(.12,.001,.051),pipe,'Zinc')
+    for y in (sy-1.2,sy,sy+1.2):Q.box('Gutter fascia hanger',(gx+.045,y,2.302),(.04,.025,.004),pipe,'Zinc')
+    pts=Q.G.bezier((gx,sy,2.269),(gx,sy,2.14),(sx-1.65,sy,2.14),(sx-1.65,sy,2.01),steps=10)
+    pts.append((sx-1.65,sy,.90))
+    outer=Q.G.tube('Open downpipe',pts,.035,Q.M['Zinc'],10,caps=False)
+    wall=outer.modifiers.new('Downpipe sheet gauge','SOLIDIFY');wall.thickness=.001;wall.offset=-1
+    Q.own(outer,pipe);Q.join(pipe)
+    place('BulletinBoard','Noticeboard',(-W/2+1.05,-D/2+1.0,0),rt)
+    place('Bucket','Bucket',(wx+(.75 if wx>0 else -.8),wy-.3,0),rt)
+    place('WateringCan','Watering can',(wx+(.5 if wx>0 else -.5),wy+(.4 if wx>0 else -.4),0),rt,35)
+    barrow=(-.60,7.5,0) if p['archetype']=='city' else (cx-1.0,cy-1.9,0)
+    place('Wheelbarrow','Wheelbarrow',barrow,rt,-25)
     # One short row-cover is over a freshly planted plot; it never crosses a route.
     fresh=next(q for q in p['plots'] if q['state']=='new' and min(q['width'],q['depth'])<2)
     x,y=fresh['center'];place('RowCover','Row cover',(x,y,fresh['soil_z_world']-.025),rt,90 if fresh['width']>fresh['depth'] else 0)
@@ -185,7 +241,7 @@ def garden(p):
         for li,(u,t) in zip(face.loop_indices,((0,0),(1,0),(1,1),(0,1))):layer.data[li].uv=(.003+u*(nw/6/.48)*.244,.753+t*(nd/8/.48)*.244)
     Q.join(net)
     fence.perimeter(p,rt)
-    Q.socket(rt,'Socket_StreetEntry',(0,-D/2,0),'site_entry')
+    entry=Q.socket(rt,'Socket_StreetEntry',(0,-D/2,.014),'site_entry');entry.rotation_euler.z=math.pi
     sign=Q.root('GardenSign','infrastructure',rt)
     compact=p['archetype']=='park';span=1.05 if compact else 2.35;height=.66 if compact else .58
     for x in (3.4-span*.42,3.4+span*.42):Q.box('Garden sign ground post',(x,-D/2+.25,.95),(.0889,.0889,1.90),sign,'OldWood')

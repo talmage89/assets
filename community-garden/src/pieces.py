@@ -28,21 +28,23 @@ def bed(name,w=1.2192,d=2.4384,h=.23495,edge='lumber',seed=10):
                     for z in (.060,h-.055):
                         sx=-1 if x<0 else 1
                         Q.cyl('Lag screw washer',(sx*(w/2-.001),y,z),(sx*(w/2+.003),y,z),.008,rt,'Zinc',8)
+                        sy=-1 if y<0 else 1
+                        Q.cyl('End board lag screw washer',(x,sy*(d/2-.001),z),(x,sy*(d/2+.003),z),.008,rt,'Zinc',8)
         # Open-topped volume; no wastefully modeled underside or buried wall.
         soilh=h-.025
     elif edge=='block':
-        bw,bl,bh=.1905,.390525,.1905
+        bw,bl,bh=.193675,.396875,.193675
         soilh=.17;h=bh
         # Each CMU has two open cells, 25mm webs, thin bed joint and staggered
         # orientation at corners. The apertures have walls and visible soil.
         for side in (-1,1):
             for j in range(max(1,round(d/.4064))):
                 y=-d/2+(j+.5)*d/round(d/.4064);x=side*(w/2-bw/2)
-                cmu(rt,x,y,bw,d/round(d/.4064)-.009,bh)
+                cmu(rt,x,y,bw,bl,bh)
             for j in range(max(1,round((w-2*bw)/.4064))):
                 x=-w/2+bw+(j+.5)*(w-2*bw)/max(1,round((w-2*bw)/.4064))
                 # Rotate one hollow block about its own center for the ends.
-                tmp=Q.root('End CMU');cmu(tmp,0,0,bw,(w-2*bw)/max(1,round((w-2*bw)/.4064))-.009,bh);Q.join(tmp)
+                tmp=Q.root('End CMU');cmu(tmp,0,0,bw,bl,bh);Q.join(tmp)
                 Q.instance(tmp,'Transverse hollow block',(x,side*(d/2-bw/2),0),90,rt)
                 for o in [*tmp.children_recursive,tmp]:Q.G.bpy.data.objects.remove(o,do_unlink=True)
     elif edge=='accessible':
@@ -52,9 +54,16 @@ def bed(name,w=1.2192,d=2.4384,h=.23495,edge='lumber',seed=10):
         for x in (-w/2+.04445,w/2-.04445):
             for y in (-d/2+.04445,d/2-.04445):
                 Q.box('Accessible bed 4x4 leg',(x,y,.36),(.0889,.0889,.72),rt,'Wood',.002)
-        Q.box('Supported 25mm tray floor',(0,0,.710),(w,d,.0254),rt,'Wood',.001)
-        for y in (-d/2+.01905,d/2-.01905):Q.box('Accessible long tray side',(0,y,.79375),(w,.0381,.1397),rt,'Wood',.0015)
-        for x in (-w/2+.01905,w/2-.01905):Q.box('Accessible tray end',(x,0,.79375),(.0381,d-.0762,.1397),rt,'Wood',.0015)
+        # Five 38x25mm galvanized bearers support the floor at 16in spacing.
+        # Their lower faces and the bolted timber aprons retain 27.45in clear.
+        for x in (-.8128,-.4064,0,.4064,.8128):
+            Q.box('Galvanized transverse tray bearer',(x,0,.7100),(.0381,d-.0762,.0254),rt,'Zinc',.001)
+        Q.box('Supported 19mm tray floor',(0,0,.732225),(w-.0762,d-.0762,.01905),rt,'Wood',.001)
+        for y in (-d/2+.01905,d/2-.01905):Q.box('Accessible bolted long apron',(0,y,.78045),(w,.0381,.1663),rt,'Wood',.0015)
+        for x in (-w/2+.01905,w/2-.01905):Q.box('Accessible tray end',(x,0,.78045),(.0381,d-.0762,.1663),rt,'Wood',.0015)
+        for x in (-w/2+.04445,w/2-.04445):
+            for sy in (-1,1):
+                for z in (.751,.825):Q.cyl('Tray apron carriage bolt',(x,sy*(d/2-.002),z),(x,sy*(d/2+.004),z),.008,rt,'Zinc',8)
         rt['working_height_m']=h;rt['undertray_clearance_m']=.6973
     else:soilh=.032;h=.05
     # Small undulations keep beds from reading as rigid featureless trays.
@@ -68,7 +77,7 @@ def bed(name,w=1.2192,d=2.4384,h=.23495,edge='lumber',seed=10):
     for j in range(ny):
         for i in range(nx):
             k=j*(nx+1)+i;faces.append((k,k+1,k+nx+2,k+nx+1))
-    Q.mesh('Cultivated soil actual surface',v,faces,rt,'Soil')
+    Q.mesh('Cultivated soil actual surface',v,faces,rt,'Soil',upward=True)
     rt['soil_surface_m']=soilh
     Q.join(rt);return rt
 
@@ -113,10 +122,18 @@ def compost():
         for j in range(7):Q.box('Back pallet slat',(x,.50,.08+j*.14),(1.02,.019,.09),rt,'OldWood')
         for j in range((3,5,2)[k]):Q.box('Removable front slat',(x,-.50,.08+j*.14),(.99,.025,.09),rt,'Wood')
         # Unequal mound crowns, one active bay, one brown-dry, one finished.
-        h=(.64,.83,.30)[k];verts=[(x,0,h)]
-        for q in range(12):
-            a=q*math.tau/12;verts.append((x+.48*math.cos(a),.46*math.sin(a),h*.44+.025*math.sin(q*4)))
-        Q.mesh('Compost mound',verts,[(0,j+1,(j+1)%12+1) for j in range(12)],rt,'Soil' if k!=1 else 'Chip')
+        h=(.64,.83,.30)[k];verts=[(x-.04,.02,h*.95)];faces=[];n=16
+        for row,(radius,height) in enumerate(((.55,.92),(.81,.72),(.97,.36),(1,.015/h))):
+            for q in range(n):
+                a=q*math.tau/n;rough=1+.025*math.sin(q*3.7+k)
+                z=h*height+(.018*math.sin(q*2.4+k+row) if row<3 else 0)
+                verts.append((x+.48*radius*rough*math.cos(a),.46*radius*rough*math.sin(a),z))
+        faces.extend((0,1+q,1+(q+1)%n) for q in range(n))
+        for row in range(3):
+            for q in range(n):
+                a=1+row*n+q;b=1+row*n+(q+1)%n;c=b+n;d=a+n;faces.append((a,d,c,b))
+        heap=Q.mesh('Settled irregular compost heap',verts,faces,rt,'Soil' if k!=1 else 'Chip')
+        Q.G.smooth(heap,80)
     Q.join(rt);return rt
 
 
@@ -127,17 +144,23 @@ def standpipe():
     Q.cyl('Twin bib header',(-.17,0,.88),(.17,0,.88),.018,rt,s=10)
     for x in (-.17,.17):
         Q.cyl('Brass bib casting',(x,0,.88),(x,-.10,.88),.018,rt,'Brass',10)
-        Q.cyl('Hose thread nipple',(x,-.09,.86),(x,-.13,.825),.013,rt,'Brass',10)
+        a=Vector((x,-.09,.86));b=Vector((x,-.13,.825));length=(b-a).length
+        nipple=Q.G.lathe('Bored hose thread nipple',[(0,.0083),(0,.013),(length,.013),(length,.0083)],Q.M['Brass'],10,closed=True)
+        nipple.location=a;nipple.rotation_euler=(b-a).to_track_quat('Z','Y').to_euler();Q.own(nipple,rt)
         Q.cyl('Valve stem',(x,-.04,.89),(x,-.04,.935),.004,rt,'Brass',8)
-        Q.ring('Hose bib hand wheel',.938,.033,rt,'Red',.004,center=(x,-.04),segments=12)
-        for a in (0,math.pi/2):Q.cyl('Valve wheel spoke',(x-.031*math.cos(a),-.04-.031*math.sin(a),.938),(x+.031*math.cos(a),-.04+.031*math.sin(a),.938),.003,rt,'Red',5)
+        knob=Q.root('BibWheel_Left' if x<0 else 'BibWheel_Right','pivot',rt);knob.location=(x,-.04,.938)
+        knob['pivot_axis']='Z';knob['range_degrees']=[0,720]
+        Q.ring('Hose bib hand wheel',0,.033,knob,'Red',.004,segments=12)
+        for a in (0,math.pi/2):Q.cyl('Valve wheel spoke',(-.031*math.cos(a),-.031*math.sin(a),0),(.031*math.cos(a),.031*math.sin(a),0),.003,knob,'Red',5)
+        Q.join(knob)
     # A 5/8in hose follows gravity to the ground, coils without floating,
     # then trails along the service margin. No taut suspended line.
-    pts=[(-.17,-.13,.825),(-.17,-.20,.70),(-.14,-.22,.40),(-.12,-.30,.08),(-.05,-.50,.022)]
-    for j in range(97):
-        a=j*math.tau*3/96;r=.38+.085*j/96
-        pts.append((.32+r*math.cos(a),-.62+r*math.sin(a),.021+.007*j/96))
-    pts.extend([(1.0,-.65,.023),(1.20,-.30,.021),(1.26,.20,.021)])
+    floor=.0092
+    pts=Q.G.bezier((-.17,-.13,.825),(-.18,-.24,.54),(.70,-.84,floor),(.70,-.62,floor),steps=18)
+    for j in range(1,75):
+        a=j*math.tau*3/74;r=.38+.085*j/74
+        pts.append((.32+r*math.cos(a),-.62+r*math.sin(a),floor))
+    pts+=Q.G.bezier(pts[-1],(.79,-.40,floor),(1.20,-.32,floor),(1.26,-.10,floor),steps=8)[1:]
     Q.tube('Slack 5/8in garden hose',pts,.0103,rt,'Hose',6)
     Q.socket(rt,'Socket_Standpipe',(-.36,-.46,0))
     Q.join(rt);return rt
@@ -149,10 +172,16 @@ def barrel():
     Q.own(Q.G.lathe('Molded rain barrel shell',profile,Q.M['Blue'],20,closed=True),rt)
     Q.cyl('Closed barrel floor',(0,0,.060),(0,0,.075),.235,rt,'Blue',20)
     for z in (.20,.70):Q.ring('Molded barrel reinforcement',z,.291,rt,'Blue',.010,segments=24)
-    Q.cyl('Removable barrel lid',(0,0,.872),(0,0,.89),.263,rt,'Roof',24)
-    Q.cyl('Barrel brass tap',(0,-.28,.17),(0,-.34,.17),.014,rt,'Brass',8)
+    lid=Q.root('BarrelLid','pivot',rt);lid.location=(0,0,.872);lid['slide_axis']='Z';lid['range_m']=[0,.30]
+    Q.own(Q.G.lathe('Rain inlet annular lid',[(0,.060),(0,.263),(.018,.263),(.018,.060)],Q.M['Roof'],24,closed=True),lid)
+    Q.own(Q.G.lathe('Lid seating gasket',[(-.003,.240),(-.003,.260),(.003,.260),(.003,.240)],Q.M['Roof'],20,closed=True),lid)
+    tap=Q.G.lathe('Bored barrel tap',[(0,.008),(0,.014),(.06,.014),(.06,.008)],Q.M['Brass'],10,closed=True)
+    tap.location=(0,-.28,.17);tap.rotation_euler=Vector((0,-1,0)).to_track_quat('Z','Y').to_euler();Q.own(tap,rt)
+    Q.cyl('Barrel tap valve spindle',(0,-.30,.177),(0,-.30,.193),.003,rt,'Brass',6)
+    handle=Q.root('BarrelTapLever','pivot',rt);handle.location=(0,-.30,.187);handle['pivot_axis']='Z';handle['range_degrees']=[0,90]
+    Q.box('Rain tap lever',(.018,0,.006),(.055,.012,.012),handle,'Steel',.002)
     for x in (-.18,.18):Q.box('Barrel masonry plinth',(x,0,.035),(.16,.5,.07),rt,'Block')
-    Q.join(rt);return rt
+    Q.join(handle);Q.join(lid);Q.join(rt);return rt
 
 
 def bench():
@@ -230,7 +259,7 @@ def rowcover():
             v.append((.495*math.cos(a),y,z+.008))
     for j in range(8):
         for k in range(12):i=j*13+k;f.append((i,i+1,i+14,i+13))
-    Q.mesh('Fabric sag between hoops',v,f,rt,'White');Q.join(rt);return rt
+    Q.mesh('Fabric sag between hoops',v,f,rt,'White',upward=True);Q.join(rt);return rt
 
 
 def pinwheel():
@@ -247,7 +276,7 @@ def pinwheel():
 
 def library():
     out={}
-    for name,edge,w,d,h in [('Raised4x8','lumber',1.2192,2.4384,.23495),('Raised4x8Tall','lumber',1.2192,2.4384,.28575),('Block4x8','block',1.2192,2.4384,.1905),('Accessible8x3','accessible',2.4384,.9144,.8636),('Ground10x20','board',3.048,6.096,.1397),('GroundBare10x20','none',3.048,6.096,.032)]:out[name]=bed(name,w,d,h,edge)
+    for name,edge,w,d,h in [('Raised4x8','lumber',1.2192,2.4384,.23495),('Raised4x8Tall','lumber',1.2192,2.4384,.28575),('Block4x8','block',1.2192,2.4384,.193675),('Accessible8x3','accessible',2.4384,.9144,.8636),('Ground10x20','board',3.048,6.096,.1397),('GroundBare10x20','none',3.048,6.096,.032)]:out[name]=bed(name,w,d,h,edge)
     for fn in (cage,trellis,compost,standpipe,barrel,bench,board,bucket,can,wheelbarrow,rowcover,pinwheel):
         r=fn();out[r.name]=r
     r=trellis(True);out[r.name]=r

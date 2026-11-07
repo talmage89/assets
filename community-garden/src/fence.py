@@ -15,11 +15,15 @@ def material(folder):
 
 
 def fabric(rt,w,h=1.2192):
-    v=[];f=[];uvs=[];nx=max(1,math.ceil(w/TILE));nz=4
+    # Endpoint vectors arrive at Blender float32 precision. Do not append a
+    # sub-micrometre last card when a nominal span is an exact tile multiple.
+    v=[];f=[];uvs=[];nx=max(1,math.ceil(w/TILE-1e-5));nz=4
     for j in range(nz):
         z0=.0508+j*TILE;z1=min(h+.0508,z0+TILE)
         for i in range(nx):
-            x0=-w/2+i*TILE;x1=min(w/2,x0+TILE);start=len(v)
+            x0=-w/2+i*TILE;x1=min(w/2,x0+TILE)
+            if x1-x0<1e-6:continue
+            start=len(v)
             for x,z in ((x0,z0),(x1,z0),(x1,z1),(x0,z1)):
                 sag=.024*math.sin(math.pi*(x+w/2)/w)*(z/h)
                 v.append((x,-.024,z-sag))

@@ -46,11 +46,13 @@ class Plant:
         base=Vector(base);axis=Vector(direction).normalized()
         # Continue the petiole into the retained-alpha margin. A transparent
         # card border must not leave the visible blade floating off its stalk.
-        self.stem([base,base+axis*(length*.065)],min(.0012,length*.014),4)
+        self.stem([base,base+axis*(length*.065)],min(.0012,length*.014),3)
         side=axis.cross(Vector((0,0,1)))
         if side.length<.01:side=Vector((1,0,0))
         side.normalize();normal=side.cross(axis).normalized()
         if normal.z<0:normal=-normal
+        roll=self.rng.uniform(-.65,.65) if self.sp not in ('corn','weed') else self.rng.uniform(-.18,.18)
+        side,normal=side*math.cos(roll)+normal*math.sin(roll),normal*math.cos(roll)-side*math.sin(roll)
         grid=[]
         # Texture outline begins 2.5% above grid base. Rooted petiole extends
         # into that margin, so retained alpha begins on the stalk surface.
@@ -73,33 +75,41 @@ class Plant:
         return end
 
     def tomato(self):
-        s=self.stage;h=1.48*s;axis=self.stem([(0,0,0),(.025*s,-.01*s,h*.3),(-.03*s,.025*s,h*.65),(.04*s,.01*s,h)],.009*s,7)
-        for j in range(max(3,round(10*s))):
-            t=.15+.76*j/max(1,round(10*s)-1);base=along(axis,t);az=j*2.399+.4
+        s=self.stage;h=1.48*s**1.25;axis=self.stem([(0,0,0),(.025*s,-.01*s,h*.3),(-.03*s,.025*s,h*.65),(.04*s,.01*s,h)],.009*s,7)
+        leaders=[axis]
+        if s>.7:
+            for j in range(2):
+                base=along(axis,.18);a=j*math.pi+.5;tip=Vector((math.cos(a)*.24*s,math.sin(a)*.24*s,h*.86))
+                leaders.append(self.stem([base,base.lerp(tip,.4)+Vector((0,0,.025)),tip],.006*s,6))
+        nodes=max(3,round(15*s))
+        for j in range(nodes):
+            axis=leaders[j%len(leaders)];n=math.ceil(nodes/len(leaders))
+            t=.15+.76*(j//len(leaders))/max(1,n-1)+self.rng.uniform(-.025,.025)*s;base=along(axis,t);az=j*2.399+.4+self.rng.uniform(-.25,.25)
             out=Vector((math.cos(az),math.sin(az),.30));reach=(.23+.13*math.sin(t*math.pi))*s
-            tip=base+out*reach;self.stem([base,base.lerp(tip,.5)+Vector((0,0,.025*s)),tip],.0035*s,5)
+            tip=base+out*reach;rachis=self.stem([base,base.lerp(tip,.5)+Vector((0,0,.025*s)),tip],.0035*s,4)
             side=Vector((-out.y,out.x,0))
-            for k in range(3):
-                tt=.23+k*.24;node=base.lerp(tip,tt)
+            for k in range(4):
+                tt=.16+k*.21;node=along(rachis,tt)
                 for sign in (-1,1):
-                    v=(out*.4+side*sign+Vector((0,0,.22))).normalized()
-                    end=node+v*.025*s;self.stem([node,end],.0015*s,4)
-                    self.leaf(end,v,(.12-.018*k)*s,.065*s,droop=.35)
-            self.leaf(tip,out,.13*s,.075*s,droop=.30)
+                    v=(out*.4+side*sign+Vector((0,0,self.rng.uniform(-.10,.9)))).normalized()
+                    end=node+v*.025*s;self.stem([node,end],.0015*s,3)
+                    self.leaf(end,v,(.16-.02*k)*s,.078*s,droop=.35,rows=3)
+            self.leaf(tip,out,.16*s,.09*s,droop=.30,rows=3)
             if s>.7 and j in (2,4,5,7):
                 fruitstem=base+out*.12*s-Vector((0,0,.07*s));self.stem([base,fruitstem],.002*s,4)
                 for k in range(2):
                     p=fruitstem+side*(k-.5)*.075*s-Vector((0,0,.045*s));self.stem([fruitstem,p],.0016,4)
                     Q.sphere('Hanging tomato berry',p,.037*s,self.root,'Fruit' if (j+k)%3 else 'Unripe',scale=(1,1,.85),segments=10,rings=5)
-        self.root['architecture']='alternate compound leaves; 7 serrated leaflets; hanging fruit trusses'
+        self.root['architecture']='three mature leaders; alternate compounds with 9 serrated leaflets; hanging fruit trusses'
 
     def pepper(self):
-        s=self.stage;h=.76*s;self.stem([(0,0,0),(0,0,h*.47)],.007*s,6)
-        for b in range(3):
+        s=self.stage;h=.76*s**1.25;self.stem([(0,0,0),(0,0,h*.47)],.007*s,6)
+        for b in range(max(1,round(3*s))):
             az=b*2.1;d=Vector((math.cos(az),math.sin(az),0));base=Vector((0,0,h*.38));tip=d*.22*s+Vector((0,0,h))
             self.stem([base,base.lerp(tip,.55),tip],.0045*s,5)
-            for j in range(4):
-                node=base.lerp(tip,.2+.23*j)
+            nodes=max(2,round(4*s))
+            for j in range(nodes):
+                node=base.lerp(tip,.2+.7*j/max(1,nodes-1))
                 for sign in (-1,1):self.stalk_leaf(node,az+sign*1.4,.025*s,.4,.12*s,.055*s,droop=.16)
                 if s>.7 and j==1:
                     p=node+d*.045-Vector((0,0,.07*s));self.stem([node,p],.002,4)
@@ -123,19 +133,19 @@ class Plant:
         self.root['architecture']='short basal crown; hollow long radial petioles; large lobed palmate blades; low fruit'
 
     def bean(self):
-        s=self.stage;h=1.95*s;pts=[]
+        s=self.stage;h=1.95*s**1.25;pts=[]
         for j in range(22):
             z=h*j/21;r=self.support_radius+.82*.0035*s*(1-.7*j/21)
             bow=.014*math.sin(math.pi*z/2.08) if self.support_radius<.003 else 0
             pts.append((r*math.cos(j*.7),bow+r*math.sin(j*.7),z))
         axis=self.stem(pts,.0035*s,5)
-        for j in range(max(4,round(14*s))):
-            z=.13*s+j*h/(max(4,round(14*s)));az=j*2.4
-            d=Vector((math.cos(az),math.sin(az),.2));base=along(axis,z/h);end=base+d*.10*s
+        for j in range(max(4,round(18*s))):
+            z=.13*s+j*(h-.20*s)/(max(4,round(18*s)))+self.rng.uniform(-.018,.018)*s;az=j*2.4+self.rng.uniform(-.3,.3)
+            d=Vector((math.cos(az),math.sin(az),.2));base=along(axis,z/h);end=base+d*self.rng.uniform(.08,.125)*s
             self.stem([base,end],.002*s,4)
             for k in (-1,0,1):
-                a=az+k*.95;v=Vector((math.cos(a),math.sin(a),.2));e=end+v*.016*s
-                self.stem([end,e],.0015*s,4);self.leaf(e,v,.145*s,.105*s,droop=.26)
+                a=az+k*.95;v=Vector((math.cos(a),math.sin(a),self.rng.uniform(.05,1.0)));e=end+v*.016*s
+                self.stem([end,e],.0015*s,4);self.leaf(e,v,.17*s,.12*s,droop=.26)
             if s>.7 and j%3==1:
                 for k in range(2):
                     p=end+Vector((k*.028,0,0));self.stem([p,p+Vector((.01,0,-.075)),p+Vector((.005,0,-.15))],.005,5)
@@ -143,7 +153,7 @@ class Plant:
         self.root['support_radius_m']=self.support_radius
 
     def corn(self):
-        s=self.stage;h=2.0*s;axis=self.stem([(0,0,0),(.012*s,0,h*.45),(0,.015*s,h)],.014*s,7)
+        s=self.stage;h=2.0*s**1.25;axis=self.stem([(0,0,0),(.012*s,0,h*.45),(0,.015*s,h)],.014*s,7)
         for j in range(max(4,round(10*s))):
             t=.13+.72*j/max(1,round(10*s)-1);az=(j%2)*math.pi+.18
             node=along(axis,t);Q.cyl('Corn sheathing node',node-Vector((0,0,.018*s)),node+Vector((0,0,.018*s)),.015*s,self.root,'Stem',7)
@@ -158,7 +168,7 @@ class Plant:
         self.root['architecture']='jointed culm; alternate distichous strap leaves; ears at upper axils; terminal tassel'
 
     def rosette(self):
-        s=self.stage;sp=self.sp;kale=sp=='kale';h=(.36 if kale else .11)*s
+        s=self.stage;sp=self.sp;kale=sp=='kale';h=(.36 if kale else .11)*s**1.25
         self.stem([(0,0,0),(0,0,h)],.012*s,6)
         n=max(6,round(15*s))
         for j in range(n):
@@ -169,19 +179,29 @@ class Plant:
     def herb(self):
         s=self.stage
         self.stem([(0,0,0),(0,0,.08*s)],.005*s,5)
-        for k in range(4):
+        for k in range(max(2,round(4*s))):
             a=k*2.4;base=Vector((0,0,.025*s));tip=Vector((math.cos(a)*.13*s,math.sin(a)*.13*s,.40*s))
             self.stem([base,tip],.003*s,5)
-            for j in range(4):
-                p=base.lerp(tip,.2+j*.22)
+            nodes=max(2,round(4*s))
+            for j in range(nodes):
+                p=base.lerp(tip,.2+j*.66/max(1,nodes-1))
                 for side in (-1,1):self.stalk_leaf(p,a+j*math.pi/2+side*math.pi/2,.012*s,.35,.065*s,.04*s,droop=.08,rows=3)
         self.root['architecture']='basil-like opposite decussate leaf pairs on branching stems'
 
     def flower(self):
-        s=self.stage;sun=self.sp=='sunflower';h=(1.85 if sun else .28)*s
+        s=self.stage;sun=self.sp=='sunflower';h=(1.85 if sun else .28)*s**1.25
         axis=self.stem([(0,0,0),(.018*s,0,h)],(.012 if sun else .003)*s,6)
-        for j in range(7 if sun else 9):
-            a=j*2.399;self.stalk_leaf(along(axis,.12+j*.105),a,.06*s,.5,(.22 if sun else .065)*s,(.17 if sun else .025)*s,rows=4)
+        nodes=max(3,round((7 if sun else 9)*s))
+        for j in range(nodes):
+            a=j*2.399;node=along(axis,.12+j*.75/max(1,nodes-1))
+            if sun:self.stalk_leaf(node,a,.06*s,.5,.22*s,.17*s,rows=4)
+            else:
+                d=Vector((math.cos(a),math.sin(a),.25));side=Vector((-d.y,d.x,0));tip=node+d*.09*s
+                rachis=self.stem([node,tip],.0015*s,4)
+                for k in range(3):
+                    at=along(rachis,.22+k*.27)
+                    for sign in (-1,1):self.leaf(at,d*.25+side*sign+Vector((0,0,.2)),(.029-.004*k)*s,.0085*s,rows=3,cols=2)
+                self.leaf(tip,d,.025*s,.0085*s,rows=3,cols=2)
         if s>.55:
             r=(.083 if sun else .018)*s;center=Vector((.018*s,-.035*s,h));self.stem([axis[-1],center],(.006 if sun else .002)*s,5)
             Q.sphere('Seed disc',center,r,self.root,'Soil' if sun else 'Flower',scale=(1,.35,1),segments=14,rings=4)
