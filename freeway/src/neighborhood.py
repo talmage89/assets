@@ -140,28 +140,18 @@ def factory_variants(template):
     This local derivative changes factory paint only; the native body, bake and
     deliveries stay immutable. Distant variants are 1024; original blue is shared.
     """
-    import numpy as np
-    from kit.image_io import write_png,linear_to_srgb
-    from PIL import Image
+    from context_colors import ensure
     paints={m for ob in template.children_recursive if ob.type=='MESH' for m in ob.data.materials if m and m.get('paint_decode')}
     result={};folder=Path('textures/context');folder.mkdir(parents=True,exist_ok=True)
     for name in ('Porcelain','Carbon','Aluminum','Graphite','Atlantic'):
         replacements={}
         for mat in paints:
-            m=mat.copy();colors=json.loads(mat['paint_colors']);color=colors[name];ref=mat['paint_reference_color']
+            m=mat.copy()
             texture=next(n for n in m.node_tree.nodes if n.type=='TEX_IMAGE' and 'BaseColor' in n.image.name)
             if name!='Atlantic':
-                key=mat.name.split('.')[0].replace(' ','')+'_'+name;path=folder/(key+'.png')
-                if not path.exists():
-                    # bpy pixels are linear scene values, exactly as the native decode.
-                    a=np.empty(len(texture.image.pixels),np.float32);texture.image.pixels.foreach_get(a);a=a.reshape(texture.image.size[1],texture.image.size[0],4)
-                    rgb=np.clip(a[:,:,:3]+a[:,:,3,None]*(np.asarray(color)-np.asarray(ref)),0,1)
-                    # Linear-light reduction, then sRGB encoding.
-                    out=np.stack([np.asarray(Image.fromarray(rgb[:,:,i]).resize((1024,1024),Image.Resampling.LANCZOS)) for i in range(3)],axis=2)
-                    write_png(path,linear_to_srgb(np.clip(out[::-1],0,1)),bits=8)
+                path=ensure(mat.name,name)
                 texture.image=bpy.data.images.load(str(path.resolve()),check_existing=True)
-            bs=next(n for n in m.node_tree.nodes if n.type=='BSDF_PRINCIPLED')
-            # Preserve native flakes/deposits in ORM; factor the factory metallic.
+            # Preserve the native static glTF fallback's ORM and coat response.
             m['factory_color']=name;m['native_paint_source']=mat.name
             for prop in ('paint_decode','paint_reference_color','paint_colors','paint_metallic'):
                 if prop in m:del m[prop];replacements[mat]=m

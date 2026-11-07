@@ -34,7 +34,7 @@ def main():
     q.add_argument('--out',required=True);q.add_argument('--width',type=int,default=1400)
     q.add_argument('--samples',type=int,default=32);q.add_argument('--engine',default='CYCLES')
     q.add_argument('--seeds',type=int,nargs='+',default=[101,202]);q.add_argument('--shots',nargs='+')
-    q.add_argument('--camera-file');q.add_argument('--source-fields',action='store_true');r=q.parse_args(raw)
+    q.add_argument('--camera-file');q.add_argument('--source-fields',action='store_true');q.add_argument('--all-inspections',action='store_true');r=q.parse_args(raw)
     shared=['--out',r.out,'--width',str(r.width),'--samples',str(r.samples),'--engine',r.engine]
     jobs=[]
     if r.camera_file:
@@ -52,5 +52,14 @@ def main():
     for i,job in enumerate(jobs):
         print(f'SERIAL RENDER CHUNK {i+1}/{len(jobs)}: {job}',flush=True)
         subprocess.run(shlex.split(a.blender)+['-b','--factory-startup','--python-exit-code','1','--python',a.python,'--']+job,check=True,pass_fds=fds)
+    if r.all_inspections:
+        subprocess.run([sys.executable,'src/presentation_batch.py','--blender',a.blender,'--width',str(r.width),'--samples',str(r.samples)],check=True,pass_fds=fds)
+        # Rendering is complete. Release the lease before CPU photo assembly.
+        if fds:os.close(9)
+        sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
+        from kit.photo_match import compose
+        for folder in ('look-matches','source-matches'):
+            compose('build/cameras.json','renders/'+folder,'renders/'+folder)
+            (Path('renders')/folder/'.stamp').touch()
     print('SERIAL RENDER SET COMPLETE',len(jobs),flush=True)
 if __name__=='__main__':main()

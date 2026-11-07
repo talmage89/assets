@@ -38,6 +38,8 @@ def raw(path):
 
 
 def main():
+    from context_colors import audit_exports
+    audit_exports()
     result=dict(modules={},scenes={},texture_sets={},preservation={},scope='Raw serialized geometry/PBR/image/UV data; geometry contact and fresh-import checks are separate.')
     for path in sorted(Path('export/modules').glob('*.gltf')):
         row=raw(path);cap=50000 if path.stem=='Overpass' else 8000 if path.stem in ('SignTruss','Cantilever') else 2000

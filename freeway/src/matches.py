@@ -48,11 +48,12 @@ def cameras():
         rows[name]=calibrate(definition);rows[name]['source']=definition['source'];rows[name]['limitations']=definition['limitations']
         rows[name]['lens_status']='Feature-fit estimate; photographic EXIF may exist, but equivalent focal length and site dimensions are not calibrated'
         rows[name]['shot'].update(sun_direction=(.2,.2,-1),sun_energy=5,exposure=-.35)
+        if name=='guide_2008':rows[name]['shot'].update(sun_direction=(.2,.45,-1),sun_energy=5.4)
         if name=='traffic_2007':rows[name]['shot'].update(sun_energy=.8,sun_angle_degrees=15,sky_strength=.15,sky_saturation=.08)
         if name=='bearing_2008':
             # Side daylight plus a neutral procedural floor supplies the
             # bounce missing from an isolated bridge module over empty sky.
-            rows[name]['shot'].update(sun_direction=(-.5,2,-1),sun_energy=4.5,sky_strength=.30,
+            rows[name]['shot'].update(sun_direction=(-.5,2,-1),sun_energy=4.5,sky_strength=.70,sky_saturation=.08,
                 stage_floor=dict(size=200,location=(0,0,-.06)))
         print(name,'RMS',round(rows[name]['residual_rms_pixels'],3),'lens',round(rows[name]['shot']['lens'],2))
     Path('build/cameras.json').write_text(json.dumps(rows,indent=2))
