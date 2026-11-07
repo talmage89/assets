@@ -36,7 +36,10 @@ def build(wear):
     sz=n.math('PINGPONG',z,.0375)
     radial=n.add(n.mul(sy,sy),n.mul(sz,sz))
     rivet=n.mul(side,n.ramp(z,1.79,1.77),n.ramp(z,.765,.800),n.ramp(radial,.006**2,.003**2))
-    h=n.nt.nodes['OUT_height'];old=h.inputs[0].links[0].from_socket;n.feed(h.inputs[0],n.add(old,n.mul(rivet,.0012)))
+    roof=n.ramp(z,2.68,2.75);ry=n.math('PINGPONG',n.add(y,3.38),.632)
+    lap=n.mul(roof,n.ramp(ry,.005,.0015))
+    rx=n.math('PINGPONG',x,.05);roof_rivets=n.mul(roof,n.ramp(n.add(n.mul(ry,ry),n.mul(rx,rx)),.006**2,.003**2))
+    h=n.nt.nodes['OUT_height'];old=h.inputs[0].links[0].from_socket;n.feed(h.inputs[0],n.add(old,n.mul(rivet,.0012),n.mul(lap,.0007),n.mul(roof_rivets,.0012)))
     # Sparse skirt corrosion belongs to the wet lower sheet edge; preliminary only.
     rust=n.mul(side,n.ramp(z,.870,.770),n.ramp(n.noise(n.vec('MULTIPLY',p,(1,2,5)),47,2),.61,.77),wear)
     base=n.nt.nodes['OUT_base'];old=base.inputs[0].links[0].from_socket;n.feed(base.inputs[0],n.mix(rust,old,(.13,.048,.012),True))
