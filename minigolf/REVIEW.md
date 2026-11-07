@@ -1172,3 +1172,44 @@ mass. Empty non-hero retaining skins are recorded as absent after clearance,
 not counted as evidence of retained construction. The large crown still shows
 repeated mineral mottling; retain that known flaw. Fresh final crops, all
 finals, the photo pairs and replay proof remain required before docs.
+
+## Finish pass 7 — six correction gates, actual exports
+
+Color and value: opened all twelve current correction PNGs at their original
+1440-pixel widths, the classic tee and both complete walking overviews, then
+all three delivered photo frames and full photo pairs. Dry rock is buff/tan,
+with darker wet feet and crevices, against the lighthouse photograph balanced
+on its sunlit concrete walk. The same-camera classic hero retains blue basin
+paint and deep tunnel/window shadows; broad gray camouflage is absent from the
+coping crown. Abrasion follows its nose/splash face and the blue wall's actual
+waterline. The strongest packed wall tint measures 17.53 mm above delivered
+water, while the deepest floor tint stays above .99998.
+
+The full quarry mass survives. Irregular crowns of differing heights replace
+the squared risers; soft connected aeration and receiving foam replace the
+detached rain marks. Painted basin walls and floors have smooth bowl transitions.
+The principal tee overlap, open gap and wedge are gone, and timber seats under
+the paving. Both complete networks were reviewed; source surface measurements
+separately cover 36 / 34 tagged route joints (maximum sampled gaps 1.001 /
+1.383 mm), 36 / 32 landing contacts, 72 / 74 timber bearing lines and the stair
+planes. These measure construction; the indexed export comparison instead
+proves serialization.
+
+The green comparison now contains greens, walks and borders. The matched
+first green is at the **rear right of both panels**; the large foreground
+module is different. Four actual curb corners give 38.43 native-pixel RMS over
+the 2,892-pixel reference crop, with a fitted 22.7 mm lens. Blender finds no
+opaque surface in front of those anchors and a maximum 2.311 mm distance to
+the imported bevel. This is defensible approximate framing between original
+designs, not a survey of the reference layout. Its sunlit concrete is the
+white-balance neutral. Lighthouse / castle residuals are 6.51 / 4.39 pixels;
+the castle neutral is its pale-gray wall, and its eave-center correspondences
+are explicitly inferred. All three pairs use complete placed courses.
+
+What still reads as CG: repeated mottling on the large rock crown, repeated
+carved creases, soft static foam, tidy repeated foliage, and fine facet shading
+on some short graded walk connections. Narrow soil slivers remain between
+adjacent route curves. The compact original castle is simpler than the photo.
+These are known flaws for this minor city asset; do not begin another aesthetic
+round. All six corrections pass their image gate. The final inventory, source-field
+comparisons and gallery still require native-size review before docs.
