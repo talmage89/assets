@@ -14,7 +14,7 @@ def refinement_fixtures():
     from kit import lod_shells as shells
     from kit.image_io import write_png
 
-    folder=Path('build/lod-shared')
+    folder=Path(__file__).resolve().parents[1]/'build/lod-shared-test/refinement'
     folder.mkdir(parents=True,exist_ok=True)
     points=[];normals=[];uv=[];faces=[];bad=[]
     divisions=4
