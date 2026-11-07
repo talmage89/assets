@@ -5,6 +5,7 @@ Full-size per-level evidence stays beside each asset; the sheet is an index.
 """
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -30,6 +31,41 @@ def table(manifest):
     return '\n'.join(lines)
 
 
+def family_residency(chains):
+    """Union canonical images and full original containers across module kinds.
+
+    Each entry is (immutable source key, manifest). A repeated source contributes
+    its original mesh allocation once; every additional kind/level contributes
+    its own buffers. Optional far alternatives are not resident together.
+    """
+    images={};original_images={};sources={};additional=0;unexpected=set()
+    for key,m in chains:
+        zero=m['levels'][0];size=zero['mesh_gpu_bytes']
+        if key in sources and sources[key]!=size:raise ValueError('Inconsistent full source-container allocation')
+        sources[key]=size
+        original={i['sha256'] for i in zero['images']}
+        for image in zero['images']:original_images[image['sha256']]=image['compressed_mip_bytes']
+        for row in m['levels']:
+            if row['level']:additional+=row['mesh_gpu_bytes']
+            for image in row['images']:
+                h=image['sha256'];value=image['compressed_mip_bytes']
+                if h in images and images[h]!=value:raise ValueError('Inconsistent canonical image allocation')
+                images[h]=value
+                if row['level'] and not (row.get('proxy') or row.get('impostor')) and h not in original:unexpected.add(h)
+    original_mesh=sum(sources.values());textures=sum(images.values());original_textures=sum(original_images.values())
+    return dict(original_containers=len(sources),original_texture_gpu_bytes=original_textures,
+                additional_texture_gpu_bytes=sum(v for k,v in images.items() if k not in original_images),
+                original_mesh_gpu_bytes=original_mesh,additional_mesh_gpu_bytes=additional,
+                texture_gpu_bytes=textures,mesh_gpu_bytes=original_mesh+additional,
+                lod0_total_gpu_bytes=original_textures+original_mesh,total_gpu_bytes=textures+original_mesh+additional,
+                unexpected_intermediate_images=sorted(unexpected),passed=not unexpected)
+
+
+def checkpoint_markers(cfg):
+    label='LOD checkpoint'+(' '+cfg['readme_key'] if cfg.get('readme_key') else '')
+    return '<!-- '+label+': begin -->','<!-- '+label+': end -->'
+
+
 def resident_text(m):
     r=m['resident'];unit=2**20
     result=('Whole-chain resident GPU estimate: **'+f"{r['total_gpu_bytes']/unit:.3f} MiB"+'**, versus LOD0 alone **'+f"{r['lod0_total_gpu_bytes']/unit:.3f} MiB"+
@@ -49,7 +85,10 @@ def resident_text(m):
     return result
 
 
-def block(cfg,m,status=None):
+def block(cfg,m,status=None,kit_prefix="../kit"):
+    start,end=checkpoint_markers(cfg)
+    renders=cfg.get("renders","renders/lod")
+    output=cfg.get("output","export/lod")
     if cfg.get('foliage_shader'):
         assembly_text=('Intermediate levels reduce branches and retain fewer, enlarged source leaf cards. '
                        'Their source UVs, bent normals and Wind fields remain; the last impostor freezes wind and lighting.')
@@ -61,8 +100,8 @@ def block(cfg,m,status=None):
               'placement/socket metadata, and cannot animate that shell. Keep an animatable level while an interaction pose differs from rest. ')
         assembly_text+=('Only the proxy receives new charts baked from the immutable delivered maps and shaders. '
                         'LOD1/2 allocate no additional images.')
-    lines=['<!-- LOD checkpoint: begin -->','#'*cfg.get('readme_level',2)+' Additional LODs','',
-      '`make lod` builds additional core glTF/BIN files and a manifest under `export/lod/`; '
+    lines=[start,'#'*cfg.get('readme_level',2)+' '+cfg.get('readme_title','Additional LODs'),'',
+      f'`make lod` builds additional core glTF/BIN files and a manifest under `{output}/`; '
       '`make check-lod` checks them. The existing delivery is immutable LOD0. '
       'Default `make` and `make check` retain their original build graph.','',table(m),'',resident_text(m),'',
       'Distances are to the bound center at 60° vertical FOV / 1080p. GPU figures estimate 8-bpp block-compressed '
@@ -70,13 +109,13 @@ def block(cfg,m,status=None):
       'Targets and achieved counts are reported separately; a count alone does not establish visual acceptance.','',
       'Load these files as alternatives and configure Godot visibility ranges, Unity LODGroup renderers, '
       'or Unreal mesh/component LODs. Keep matching near pivots in the same pose during switching. '
-      '[Engine sources, pixel thresholds and texture policy](../kit/LOD.md).','',
+      f'[Engine sources, pixel thresholds and texture policy]({kit_prefix}/LOD.md).','',
       assembly_text,'',
       'Native-pixel LOD0/adjacent strips, amplified differences, close views and measured image status: '
-      '`renders/lod/` (`contact.jpg`, `metrics.json`). Raw checks: `export/lod/check.json` and '
-      '`normals-vs-lod0.json`; per-level construction/pruning decisions: '
+      f'`{renders}/` (`contact.jpg`, `metrics.json`). Raw checks: `{output}/check.json` and '
+      f'`{output}/normals-vs-lod0.json`; per-level construction/pruning decisions: '
       '`build/lod/<source stem>/simplification.json` and manifest assembly receipts. '
-      '[Critique, target misses and known failures](../kit/LOD_REVIEW.md).']
+      f'[Critique, target misses and known failures]({kit_prefix}/LOD_REVIEW.md).']
     if status:lines[6:6]=['',status,'']
     from collections import Counter
     image_sizes=[]
@@ -90,10 +129,10 @@ def block(cfg,m,status=None):
         if assembly.get('separate_nodes'):
             lines+=['',f'LOD{row["level"]} separate moving meshes: '+', '.join('`'+n+'`' for n in assembly['separate_nodes'])+'.']
     if cfg.get('include_nodes'):
-        lines+=['','This pilot selects `Canopy` (including islands) and `Dispenser_1`. LOD0 triangles, '
+        lines+=['','Selected placement roots: '+', '.join('`'+n+'`' for n in cfg['include_nodes'])+'. LOD0 triangles, '
           'materials and draws describe those modules; its load bytes, maps and mesh allocation describe the complete '
-          'unchanged station container. Extraction savings are separate from reduction. '
-          'Dispenser close-ups accompany each level.']
+          'unchanged original container. Extraction savings are separate from reduction. '
+          'Retain child transforms when replacing a selected root placement.']
     if cfg.get('foliage_shader'):
         lines+=['','LOD1/2 retain fewer, enlarged source leaf cards, their original UVs, bent normals and Wind fields; '
           'wood simplifies separately. LOD3 is four fixed crossed planes / eight triangles, one material and '
@@ -101,7 +140,7 @@ def block(cfg,m,status=None):
           'The separate camera-facing alternative has two triangles and a 32-sector atlas. '
           '`kit/lod_impostor.py:pose` is its reference controller. Both impostors freeze lighting and wind; '
           'overhead views, changing sun and continuous angular blending remain limitations.']
-    lines+=['','<!-- LOD checkpoint: end -->','']
+    lines+=['',end,'']
     return '\n'.join(lines)
 
 
@@ -109,7 +148,11 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('configs',nargs='+')
     p.add_argument('--write-readmes',action='store_true');p.add_argument('--docs',action='store_true')
     p.add_argument('--allow-failed',action='store_true',help='Report current failed evidence explicitly; never waive checks')
-    args=p.parse_args();rows=[];text=['# LOD pilot checkpoint',''];cells=[]
+    p.add_argument('--out',default='build/lod-pilots',help='Report directory relative to the repository')
+    p.add_argument('--family-root',help='Union all configs under this repository-relative family root')
+    args=p.parse_args();rows=[];text=['# LOD checkpoint',''];cells=[];families={}
+    dest=(ROOT/args.out).resolve()
+    family_root=(ROOT/args.family_root).resolve() if args.family_root else None
     font=ImageFont.truetype(find_font('Noto Sans'),17)
     for config in args.configs:
         cfg,root,source,out=configuration(config);m=json.loads((out/'manifest.json').read_text())
@@ -133,8 +176,8 @@ def main():
                     for metric,limit in r['limits'].items():
                         value=r[comparison][metric]
                         if value>limit:exceeded.append(f'{comparison} {metric} {value:.4f} > {limit:.4f}')
-                relative=(renders/f'{label}-{r["azimuth"]}-strip.jpg').relative_to(ROOT)
-                text.append(f'| {label} / {r["azimuth"]}° | '+ '; '.join(exceeded)+f' | [strip](../../{relative}) |')
+                relative=Path(os.path.relpath(renders/f'{label}-{r["azimuth"]}-strip.jpg',dest)).as_posix()
+                text.append(f'| {label} / {r["azimuth"]}° | '+ '; '.join(exceeded)+f' | [strip]({relative}) |')
             text+=['']
         text += [f'Construction views and all differences: `{root.name}/{cfg.get("renders","renders/lod")}/`. Renderer: {metrics["renderer"]}.','']
         dependencies={}
@@ -144,11 +187,13 @@ def main():
                 path=(doc.path.parent/rel).resolve();dependencies[path]=path.stat().st_size
         distinct_bytes=sum(dependencies.values())
         text+=[f'Distinct payload dependencies for the delivery, including optional alternatives: **{distinct_bytes:,} bytes**, excluding audit JSONs.','']
-        rows.append(dict(asset=root.name,resident=m['resident'],levels=m['levels'],chain_passed=checks['passed'],chain_errors=checks.get('errors',[]),images_passed=metrics['passed'],normals_passed=normals['passed'],distinct_payload_bytes=distinct_bytes,
+        if family_root and not root.is_relative_to(family_root):raise ValueError('Config is outside --family-root')
+        families.setdefault(family_root or root,[]).append(((str(source.resolve()),digest(source)),m))
+        rows.append(dict(asset=root.name,kind=cfg['kind'],config=str(Path(config)),resident=m['resident'],levels=m['levels'],chain_passed=checks['passed'],chain_errors=checks.get('errors',[]),images_passed=metrics['passed'],normals_passed=normals['passed'],distinct_payload_bytes=distinct_bytes,
                          maximum_image_mean=max(r[k]['mean'] for r in metrics['comparisons'] for k in ['reference','adjacent'])))
         if args.write_readmes:
-            readme=root/'README.md';old=readme.read_text();start='<!-- LOD checkpoint: begin -->';end='<!-- LOD checkpoint: end -->'
-            addition=block(cfg,m,status)
+            readme=root/'README.md';old=readme.read_text();start,end=checkpoint_markers(cfg)
+            addition=block(cfg,m,status,kit_prefix=Path(os.path.relpath(ROOT/"kit",root)).as_posix())
             if start in old:
                 a,b=old.split(start,1);_,c=b.split(end,1);new=a+addition.rstrip()+c
             elif cfg.get('readme_before') and cfg['readme_before'] in old:
@@ -177,11 +222,23 @@ def main():
             strip=Image.open(renders/f'LOD{row["level"]}-55-strip.jpg').convert('RGB');strip.thumbnail((770,210))
             cell.paste(strip,(15,155+j*220))
         cells.append(cell)
+    family_costs={str(root.relative_to(ROOT)):family_residency(chains) for root,chains in families.items()}
+    for root,chains in families.items():
+        if len(chains)<2:continue
+        cost=family_costs[str(root.relative_to(ROOT))]
+        text+=['## '+root.name+' shared-resource union','',
+            '| Allocation | MiB |','| --- | ---: |']
+        for label,key in [('Original maps once','original_texture_gpu_bytes'),('Additional maps','additional_texture_gpu_bytes'),
+                          ('Original containers once','original_mesh_gpu_bytes'),('Every additional mesh','additional_mesh_gpu_bytes'),
+                          ('Whole family','total_gpu_bytes')]:
+            text.append(f'| {label} | {cost[key]/2**20:.4f} |')
+        text+=['','Canonical image hashes are deduplicated across kinds; each full immutable original container is counted once. Additional geometry for every kind/level remains resident. These estimates exclude engine overhead.','']
     sheet=Image.new('RGB',(1600,610*((len(cells)+1)//2)),(25,27,29))
     for i,cell in enumerate(cells):sheet.paste(cell,(i%2*800,i//2*610))
-    dest=ROOT/'build/lod-pilots';dest.mkdir(parents=True,exist_ok=True)
+    dest.mkdir(parents=True,exist_ok=True)
     sheet.save(dest/'contact.jpg',quality=92)
     (dest/'report.md').write_text('\n'.join(text));(dest/'report.json').write_text(json.dumps(rows,indent=2)+'\n')
+    (dest/'families.json').write_text(json.dumps(family_costs,indent=2)+'\n')
     if args.docs:
         docs=ROOT/'kit/docs';docs.mkdir(exist_ok=True)
         for quality in range(88,39,-4):
