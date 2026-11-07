@@ -15,6 +15,11 @@ def build(wear):
         m[key]=V.manufactured('Bus '+key,c,kind,wear,axles,refined=True)
     m['glass']=V.glazing('Bus glass',(.81,.86,.80),axes=(1,2))
     m['windshield']=V.glazing('Bus windshield',(.86,.89,.84))
+    n=Nodes('Bus tape');a=n.node('ShaderNodeAttribute',attribute_name='VehicleRest');p=a.outputs['Vector'];_,y,z=n.split(p)
+    phase=n.math('FRACT',n.math('DIVIDE',n.add(y,2.835),.470));black=n.math('GREATER_THAN',phase,.75)
+    base=n.mix(black,(.64,.65,.59),(.009,.010,.009),True)
+    edge=n.mul(n.ramp(z,1.024,1.011),wear,.10)
+    m['tape']=n.finish(n.mix(edge,base,(.13,.12,.09),True),.55,0)
     m['mirror']=V.manufactured('Bus mirror',(.69,.72,.72),'chrome',0,refined=True)
     m['mirror'].node_tree.nodes['SURFACE'].inputs['Roughness'].default_value=.045
     m['tire']=V.tire('Bus tire',None,1,wear)
@@ -40,6 +45,18 @@ def build(wear):
     lap=n.mul(roof,n.ramp(ry,.005,.0015))
     rx=n.math('PINGPONG',x,.05);roof_rivets=n.mul(roof,n.ramp(n.add(n.mul(ry,ry),n.mul(rx,rx)),.006**2,.003**2))
     h=n.nt.nodes['OUT_height'];old=h.inputs[0].links[0].from_socket;n.feed(h.inputs[0],n.add(old,n.mul(rivet,.0012),n.mul(lap,.0007),n.mul(roof_rivets,.0012)))
+    # Two real fastener rows on each pressed black rail. The spatial gate
+    # excludes black seals, brackets and underbody fittings sharing this shader.
+    rail=Nodes.__new__(Nodes);rail.mat=m['black'];rail.nt=rail.mat.node_tree
+    rp=rail.node('ShaderNodeAttribute',attribute_name='VehicleRest').outputs['Vector'];xx,yy,zz=rail.split(rp)
+    rows=[];dy=rail.math('PINGPONG',yy,.075)
+    for center in [.795,1.222,1.624,1.778]:
+        for dz in [-.032,.032]:
+            zdist=rail.math('SUBTRACT',zz,center+dz)
+            rows.append(rail.ramp(rail.add(rail.mul(dy,dy),rail.mul(zdist,zdist)),.006**2,.003**2))
+    gate=rail.mul(rail.ramp(rail.math('ABSOLUTE',xx),1.219,1.226),rail.ramp(rail.math('ABSOLUTE',xx),1.253,1.250))
+    h=rail.nt.nodes['OUT_height'];old=h.inputs[0].links[0].from_socket
+    rail.feed(h.inputs[0],rail.add(old,rail.mul(gate,rail.maximum(*rows),.0010)))
     # Sparse skirt corrosion belongs to the wet lower sheet edge; preliminary only.
     rust=n.mul(side,n.ramp(z,.870,.770),n.ramp(n.noise(n.vec('MULTIPLY',p,(1,2,5)),47,2),.61,.77),wear)
     base=n.nt.nodes['OUT_base'];old=base.inputs[0].links[0].from_socket;n.feed(base.inputs[0],n.mix(rust,old,(.13,.048,.012),True))

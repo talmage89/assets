@@ -104,8 +104,7 @@ def body(b):
                 b.glass_side(f'sash {sign} {i} {level}',sign*1.217,y,z,w-.068,.377)
             # Sash latches on actual middle rail; interior side.
             for d in [-.19,.19]:b.box(f'Sash latch {sign} {i} {d}',(sign*1.198,y+d,2.251),(.014,.043,.022),'black',r=.002)
-        b.box('Last corner post '+str(sign),(x,5.94,2.250),(.046,.132,.900))
-        b.box('Rear quarter window closure '+str(sign),(x,5.725,2.248),(.032,.555,.870))
+        b.box('Last corner post '+str(sign),(x,5.976,2.250),(.046,.060,.900))
         b.box('Forward window bay closure '+str(sign),(x,-2.827,2.248),(.032,.161,.870))
         # Vertical driver/door header regions fill the space ahead of passenger bays.
         if sign>0:
@@ -142,9 +141,9 @@ def body(b):
         for j in range(18):
             y=-2.60+j*.47
             if abs(y-S.REAR_AXLE)<.65:continue
-            b.box(f'Body reflective tape {sign} {j}',(sign*1.229,y,1.028),(.0018,.355,.034),'white',r=0)
+            b.box(f'Body reflective tape {sign} {j}',(sign*1.219,y,1.028),(.0018,.468,.034),'tape',r=0)
         # Lettering reads outward on each side; winding is deliberately independent.
-        y0,y1=-2.10,.88;z0,z1=1.405,1.567;x=sign*1.244
+        y0,y1=.95,3.93;z0,z1=1.405,1.567;x=sign*1.2192
         corners=[(x,y0,z0),(x,y1,z0),(x,y1,z1),(x,y0,z1)]
         if sign<0:corners=[corners[1],corners[0],corners[3],corners[2]]
         b.print('District lettering '+str(sign),corners,f'district-{b.seed}')
@@ -185,6 +184,12 @@ def body(b):
         b.tube('Windshield wiper '+str(sign),[(sign*.72,-3.994,2.020),(sign*.30,-3.988,2.30),(sign*.37,-3.970,2.47)],.009)
     for sign in [-1,1]:
         b.box('Front corner structural post '+str(sign),(sign*1.174,-3.75,2.302),(.073,.20,.83),r=.016)
+        def wrap(u,v,sign=sign):
+            # The raked laminate edge meets a side post; a formed corner skin
+            # closes their genuine 3D wedge instead of a screen-space backing.
+            yedge=-3.963+.273*v
+            return (sign*(1.157+.054*u),(yedge+.010)*(1-u)-3.750*u,1.900+.772*v)
+        b.add(panel('Windshield corner wrap '+str(sign),wrap,[0,.5,1],[0,.25,.5,.75,1],b.m['yellow'],(sign,-.5,0),gauge=.0012,return_depth=.016))
     b.socket('Door',(-1.25,-3.37,.40),'entrance')
 
 def bearing(b,name,center,axis,parent,half=.028,extension=.017):
@@ -227,8 +232,8 @@ def doors(b):
         b.box('Entrance step riser '+str(i),(x,-3.345,z-.098),(.207,.780,.196),'yellow',category='interior',r=.002)
         b.box('Worn entrance tread '+str(i),(x,-3.345,z+.006),(.207,.780,.016),'floor',category='interior',r=.002)
         b.box('Step safety nosing '+str(i),(x-.102,-3.345,z+.009),(.025,.778,.013),'white',category='interior',r=.002)
-    b.tube('Entrance grab rail',[(-1.10,-2.975,.354),(-1.10,-2.975,.65),(-.96,-2.975,1.42),(-.50,-2.975,1.72),(-.35,-2.975,1.72),(-.35,-2.878,1.72)],.016,'aluminum',category='interior',sides=10)
-    b.box('Grab rail barrier flange',(-.35,-2.874,1.72),(.065,.008,.065),'aluminum',category='interior',r=.002)
+    b.tube('Entrance grab rail',[(-1.10,-2.975,.354),(-1.10,-2.975,.65),(-.96,-2.975,1.42),(-.50,-2.975,1.72),(-.35,-2.975,1.72),(-.35,S.BARRIER_Y-.058,1.72)],.016,'aluminum',category='interior',sides=10)
+    b.box('Grab rail barrier flange',(-.35,S.BARRIER_Y-.054,1.72),(.065,.008,.065),'aluminum',category='interior',r=.002)
     # Rear emergency door occupies the physical 37 x 52-inch opening.
     p=pivot(b,'Emergency_rear',(-.485,6.060,1.198),axis='Z',limits=(0,105))
     b.box('Rear emergency lower leaf',(0,6.026,1.474),(.9398,.037,.535),'yellow',p,r=.005)
@@ -387,6 +392,13 @@ def chassis(b):
         loops=[[(sign*.402+sign*x,y,.865+z) for x,z in sec] for y in [-5.79,5.90]]
         b.add(G.loft('Chassis C rail '+str(sign),loops,b.m['frame']),category='chassis')
     for y in [-5.3,-3.7,-2.0,0,1.4,3.2,4.8,5.8]:b.box('Chassis crossmember '+str(y),(0,y,.889),(.80,.067,.146),'frame',category='chassis',r=.005)
+    # Transverse body floor bearers seat the raised cabin on the chassis rails.
+    # Their 2mm C section touches the actual floor underside and rail crowns.
+    for y in [-3.4,-2.8,-1.5,0,1.4,3.2,4.8,5.8]:
+        sec=[(-.030,.990),(.030,.990),(.030,.992),(-.028,.992),(-.028,1.135),(.030,1.135),(.030,1.137),(-.030,1.137)]
+        xa=-.29 if y==-3.4 else -1.15
+        rings=[[(x,y+dy,z) for dy,z in sec] for x in [xa,1.15]]
+        b.add(G.loft('Body floor bearer '+str(y),rings,b.m['frame']),category='chassis')
     for sign in [-1,1]:
         for label,y,z in [('Front',-5.87,.77),('Rear',5.91,.76)]:b.box(label+' bumper frame bracket '+str(sign),(sign*.402,y,z),(.085,.26,.11),'frame',category='chassis',r=0)
     for label,y in [('Front',S.FRONT_AXLE),('Rear',S.REAR_AXLE)]:
@@ -416,19 +428,23 @@ def chassis(b):
     b.tube('Exhaust tailpipe',exhaust,.044,'frame',category='chassis',sides=12)
     for y in [0,3.4,5.4]:
         a,c=next((a,c) for a,c in zip(exhaust,exhaust[1:]) if a[1]<=y<=c[1]);t=(y-a[1])/(c[1]-a[1]);x=a[0]+t*(c[0]-a[0]);z=a[2]+t*(c[2]-a[2])
-        b.tube('Exhaust hanger '+str(y),[(-.402,y,.740),(x+.05,y,z-.05),(x,y,z-.044)],.009,'black',category='chassis')
+        # A smooth hook supports the pipe from below. The previous three-point
+        # hairpin reversed direction and folded its shading fans through itself.
+        start=math.pi if x>-.402 else 0;direction=1 if x>-.402 else -1
+        hook=[(-.402,y,.740)]+[(x+.047*math.cos(start+direction*.75*math.pi*i/8),y,z+.047*math.sin(start+direction*.75*math.pi*i/8)) for i in range(9)]
+        b.tube('Exhaust hanger '+str(y),hook,.0035,'black',category='chassis')
 
 def interior(b):
     # Rows have molded curved backs with radiused corners and finite cushions.
     for i in range(S.ROWS):
-        y=S.ROW_START+i*S.ROW_PITCH
+        y=S.SEAT_START+i*S.ROW_PITCH
         for sign in [-1,1]:
             if sign>0 and i==S.SIDE_EXIT_ROW:continue
             x=sign*.657;name=f'Bench_{i:02d}_'+('L' if sign>0 else 'R')
             b.box(name+' cushion',(x,y-.07,1.590),(.9906,.452,.128),'vinyl',category='interior',r=.060)
             # Compound cross sections taper gently across and through the padded crown.
             rings=[]
-            for z,w,dy,depth in [(1.57,.455,.08,.040),(1.72,.475,.085,.063),(1.96,.475,.105,.069),(2.285,.465,.122,.065),(2.335,.425,.128,.025)]:
+            for z,w,dy,depth in [(1.57,.455,.08,.020),(1.72,.475,.085,.026),(1.96,.475,.105,.028),(2.285,.465,.122,.026),(2.335,.425,.128,.012)]:
                 contour=G.rounded_rectangle(w*2,depth*2,min(depth*.75,.035),3)
                 rings.append([(x+xx,y+dy+yy,z) for xx,yy in contour])
             ob=G.loft(name+' padded back',rings,b.m['vinyl']);G.smooth(ob,50);b.add(ob,category='interior')
@@ -439,7 +455,7 @@ def interior(b):
             b.socket(name,(x,y-.08,1.70))
             for j in range(3):b.socket(name+f'_Place{j}',(x+(j-1)*.310,y-.08,1.70))
     # Forward barrier and driver enclosure avoid a window over an empty hull.
-    b.box('Front passenger barrier',(-.685,-2.82,1.815),(.960,.100,1.04),'vinyl',category='interior',r=.045)
+    b.box('Front passenger barrier',(-.685,S.BARRIER_Y,1.815),(.960,.100,1.04),'vinyl',category='interior',r=.045)
     b.box('Driver seat cushion',(.695,-3.43,1.67),(.51,.48,.13),'black',category='interior',r=.055)
     back=b.box('Driver high back',(.695,-3.14,1.99),(.51,.14,.70),'black',category='interior',r=.055);back.rotation_euler.x=-.08
     b.box('Driver suspension pedestal',(.695,-3.39,1.41),(.30,.30,.46),'frame',category='interior',r=.025)
@@ -455,7 +471,7 @@ def interior(b):
         for sign in [-1,1]:b.box('Ceiling dome '+str(sign)+str(y),(sign*.56,y,3.119),(.23,.15,.022),'dome',category='interior',r=.030)
 
 def fittings(b):
-    # Eight warning lamps at each end, red outside and amber inboard, with black visors.
+    # Eight warning lamps total, red outside and amber inboard, with black visors.
     for front,y in [(True,-3.957),(False,6.035)]:
         outward=-1 if front else 1
         for sign in [-1,1]:
@@ -512,9 +528,9 @@ def fittings(b):
     b.tube('Crossing arm U loop',[(-1.005,S.FRONT-.060,.765),(.77,S.FRONT-.060,.765),(.83,S.FRONT-.060,.71),(.77,S.FRONT-.060,.655),(-1.005,S.FRONT-.060,.655)],.012,'yellow',p,sides=10)
     for sign in [-1,1]:
         for name,y,z,w,h in [('Battery service',-.99,.960,.88,.28),('Skirt service',3.31,.960,.76,.28),('Fuel door',4.82,1.12,.24,.27)]:
-            b.box(name+' seam '+str(sign),(sign*1.229,y,z),(.004,w+.012,h+.012),'black',r=.005)
-            b.box(name+' sheet '+str(sign),(sign*1.233,y,z),(.005,w,h),'yellow',r=.004)
-            b.box(name+' latch '+str(sign),(sign*1.244,y+w*.35,z),(.012,.040,.030),'aluminum',r=.003)
+            b.box(name+' seam '+str(sign),(sign*1.219,y,z),(.004,w+.012,h+.012),'black',r=.005)
+            b.box(name+' sheet '+str(sign),(sign*1.2215,y,z),(.005,w,h),'yellow',r=.004)
+            b.box(name+' latch '+str(sign),(sign*1.230,y+w*.35,z),(.012,.040,.030),'aluminum',r=.003)
 
 def finish_scene(b,out):
     bpy.context.view_layer.update();counts={};parts={}

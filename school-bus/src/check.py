@@ -13,6 +13,16 @@ def points(ob):return [ob.matrix_world@v.co for v in ob.data.vertices]
 def bounds(obs):
     ps=[p for ob in obs for p in points(ob)];lo=np.min(ps,axis=0);hi=np.max(ps,axis=0)
     return dict(min=lo.tolist(),max=hi.tolist(),size=(hi-lo).tolist())
+def section_y(ob,z):
+    """Actual polygon-edge intersections with a horizontal seat measurement plane."""
+    ps=points(ob);values=[]
+    for edge in ob.data.edges:
+        a,b=[ps[i] for i in edge.vertices]
+        if abs(a.z-b.z)<1e-8:
+            if abs(a.z-z)<1e-6:values.extend([a.y,b.y])
+        elif min(a.z,b.z)-1e-7<=z<=max(a.z,b.z)+1e-7:
+            values.append(a.y+(b.y-a.y)*(z-a.z)/(b.z-a.z))
+    return [min(values),max(values)] if values else None
 def hash_inputs():
     # Existing deliveries are immutable inputs. If absent, record absence instead of rebuilding cars.
     files=list((ROOT/'cars').rglob('*.glb'))+list((ROOT/'school/export').rglob('*'))
@@ -38,6 +48,18 @@ def model(path):
     left=[bounds([o]) for o in cushions if o.matrix_world.translation.x>0 or sum(p.x for p in points(o))>0]
     right=[bounds([o]) for o in cushions if sum(p.x for p in points(o))<0]
     aisle=min(r['min'][0] for r in left)-max(r['max'][0] for r in right)
+    spacing=[]
+    for side in ['L','R']:
+        backs=sorted([o for o in benchbacks if '_'+side+' padded' in o.name],key=lambda o:bounds([o])['min'][1])
+        for i,back in enumerate(backs):
+            ahead=backs[i-1] if i else bpy.data.objects.get('Front passenger barrier') if side=='R' else None
+            if ahead is None:continue
+            stations=sorted({p.z for o in [back,ahead] for p in points(o) if 1.654<=p.z<=2.335})
+            stations+=list(np.linspace(1.654,2.334,35));samples=[]
+            for z in stations:
+                current,previous=section_y(back,z),section_y(ahead,z)
+                if current and previous:samples.append(dict(z_m=float(z),gap_m=current[0]-previous[1]))
+            spacing.append(dict(parts=[ahead.name,back.name],minimum_clear_m=min(s['gap_m'] for s in samples),samples=samples))
     from PIL import Image
     glyphs={}
     for image_name,object_name,mask in [('school','Front school legend','black'),('stop','Stop legend 1','white')]:
@@ -52,6 +74,10 @@ def model(path):
         if ob.name.startswith('Ceiling dome'):pairs.append((ob.name,'Ceiling formed liner',.002))
         if ob.name.startswith(('Crossview primary foot','Crossview brace foot')):pairs.append((ob.name,'Compound hood shell',.002))
         if ob.name.startswith('Exhaust hanger'):pairs.append((ob.name,'Exhaust tailpipe',.001))
+        if ob.name.startswith('Body floor bearer'):
+            driver=ob.name.endswith('-3.4')
+            pairs.append((ob.name,'Driver floor' if driver else 'Passenger floor',.0005))
+            for sign in ([1] if driver else [-1,1]):pairs.append((ob.name,'Chassis C rail '+str(sign),.0005))
     pairs += [('Driver suspension pedestal','Driver floor',.0005),('Grab rail barrier flange','Front passenger barrier',.0005),('Entrance grab rail','Grab rail barrier flange',.0005),('Entrance grab rail','Worn entrance tread 0',.0005)]
     for sign in [-1,1]:
         for end in ['Front','Rear']:
@@ -66,6 +92,7 @@ def model(path):
     if abs(shell['size'][1]-S.LENGTH)>.002 or abs(roof['size'][0]-S.WIDTH)>.002:error.append('Bumper length / steel body width')
     if len(benchbacks)!=25:error.append('75-place bench layout')
     if capacity!=75 or aisle<.3048:error.append('Bench occupancy / aisle width')
+    if min(r['minimum_clear_m'] for r in spacing)<.6096:error.append('24-inch actual seat/barrier spacing')
     if glyphs['school']<.2032 or glyphs['stop']<.150:error.append('Standard legend glyph height')
     if any(row['distance_m']>row['limit_m'] for row in contacts):error.append('Measured static support')
     if any(abs(t['min'][2])>1e-5 for t in tires.values()):error.append('Tire ground contact')
@@ -75,6 +102,7 @@ def model(path):
         categories=cats,triangles_per_mesh=parts,triangles_per_pivot={n:sum(parts.get(o.name,0) for o in bpy.data.objects[n].children_recursive) for n in pivots},
         roof_bounds_m=roof,body_bumper_bounds_m=shell,full_rest_bounds_m=bounds(obs),wheelbase_m=wb,tire_bounds_m=tires,step_bounds_m=steps,
         measured_bench_widths_m=seatwidths,measured_passenger_capacity=capacity,measured_clear_aisle_m=aisle,measured_glyph_heights_m=glyphs,static_support_contacts=contacts,
+        measured_seat_spacing=spacing,
         bench_count=len(benchbacks),passenger_socket_count=sum('_Place' in n for n in sockets),sockets=sockets,pivots=pivots,
         scope='Measured source construction and allocation. Does not prove export serialization or collision clearance.')
 

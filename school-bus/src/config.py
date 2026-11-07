@@ -1,6 +1,6 @@
 """Checkpoint atlas and construction policy; not a final look-dev acceptance."""
 BUDGETS={'SchoolBus':90000}
-BOUNDS={'SchoolBus':dict(size=(3.35,12.265,3.330),tolerance=(.002,.003,.002))}
+BOUNDS={'SchoolBus':dict(size=(3.35,12.3005,3.330),tolerance=(.002,.003,.002))}
 MAX_MATERIALS=4
 SHIP_SIZE=2048
 UV_SMART_ASPECT=False
@@ -20,6 +20,7 @@ DELIVERY_SURFACES={
 SOURCE_MATERIAL_SURFACES={
     **{f'Bus {s}':'Opaque' for s in ['black','frame','aluminum','wheel','vinyl','floor','ceiling','dash','white','red','mirror','tire']},
     'Bus yellow':'Paint','Bus glass':'Glass','Bus windshield':'Glass',
+    'Bus tape':'Opaque',
     **{f'Bus {s}':'Lamps' for s in ['amber','warning_red','headlight','dome','strobe']},
     **{f'Bus print {s}':'Opaque' for s in ['school','emergency','maker','stop']+[f'{kind}-{seed}' for seed in [101,102,103] for kind in ['district','fleet','plate']]},
 }
