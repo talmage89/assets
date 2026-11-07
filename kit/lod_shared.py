@@ -195,7 +195,7 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
     source_incident=[[] for _ in pos]
     for fi,face in enumerate(faces):
         for v in face:source_incident[v].append(fi)
-    def values_for(a,pairs,t):
+    def values_for(a,b,pairs,t):
         if not seam_sliding:
             result={wa:{k:current[k][wa].copy() for k in attrs if k!='POSITION'} for wa in wedges(a)|set(pairs.values())}
             seen=set()
@@ -258,7 +258,7 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
         if m is None:return
         pairs,common=m;combined=quadrics(a,pairs)
         for t in ((0.,.5) if max_error is not None and a not in fixed else (0.,)):
-            fields=values_for(a,pairs,t)
+            fields=values_for(a,b,pairs,t)
             if fields is None:continue
             point=points[a].copy()
             if t:
@@ -289,7 +289,7 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
         # midpoint attributes introduced UV drift even on planar charts.
         parameters=[0.]
         if max_error is not None and a not in fixed and (a not in boundary or b in boundary):
-            f0=values_for(a,pairs,0.);f1=values_for(a,pairs,1.)
+            f0=values_for(a,b,pairs,0.);f1=values_for(a,b,pairs,1.)
             if f0 is not None and f1 is not None:
                 numerator=denominator=0.
                 for wa in f0:
@@ -298,13 +298,17 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
                 optimum=float(np.clip(-numerator/max(denominator,1e-30),0,1))
                 parameters=sorted(set([0.,optimum,.5]))
         for t in parameters:
-            fields=values_for(a,pairs,t)
+            fields=values_for(a,b,pairs,t)
             if fields is None:continue
             point=(1-t)*points[a]+t*points[b]
             cost=0.;valid=True
             for wa,field in fields.items():
                 h=frame(field,point);qq,gg,uu,cc,area=combined[wa];area=max(area,1e-30)
-                if max_error is not None and (h@gg@h>area*(max_error/scale)**2 or h@uu@h>area*uv_weight**2 or h@cc@h>area*data_tolerance**2):valid=False;break
+                # Attribute quadrics extrapolate the incident face gradients.
+                # On curved charts that estimate can exceed the true sampled
+                # error by orders of magnitude. Use it to rank candidates;
+                # source-side UV/frame/color samples below enforce the bounds.
+                if max_error is not None and h@gg@h>area*(max_error/scale)**2:valid=False;break
                 cost+=max(0.,float(h@qq@h))
             if valid:
                 serial+=1;heapq.heappush(heap,(cost,a,b,int(versions[a]),int(versions[b]),serial,t,*map(float,point)))
@@ -323,7 +327,7 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
         if m is None:continue
         pairs,common=m
         if remaining-len(common)<4:continue
-        affected=incident[a]|incident[b];fields=values_for(a,pairs,t)
+        affected=incident[a]|incident[b];fields=values_for(a,b,pairs,t)
         if fields is None:continue
         valid=True;new_faces={};new_geometry=[];new_areas={};new_excess={}
         if tree is not None and (t or any(wb==wa for wb,wa in pairs.items())):

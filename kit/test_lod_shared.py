@@ -160,6 +160,61 @@ def main():
         assert any(np.allclose(q,corner,atol=1e-7) for q in slid['POSITION'])
     assert receipt['constraints']['by_cause']['part_borders']['fixed']==0
     assert topology(slid,sf)[0]['nonmanifold_edges']==0
+
+    # A thin closed box needs midpoint moves on its hard-normal seams: moving
+    # an entire endpoint fails the area budget. Each face has its own affine
+    # UV field. A stale endpoint in reverse/updated offers retained eight faces
+    # instead of six, despite both UV sides admitting the midpoint.
+    from kit.lod_shared import _reduce
+    box_points=np.array([[-1,-.5,-.06],[1,-.5,-.06],[1,.5,-.06],[-1,.5,-.06],
+                         [-1,-.5,.06],[1,-.5,.06],[1,.5,.06],[-1,.5,.06]],np.float32)
+    box_tris=np.array([[0,2,1],[0,3,2],[4,5,6],[4,6,7],[0,1,5],[0,5,4],
+                       [1,2,6],[1,6,5],[2,3,7],[2,7,6],[3,0,4],[3,4,7]],np.uint32)
+    box_normal=np.cross(box_points[box_tris[:,1]]-box_points[box_tris[:,0]],
+                        box_points[box_tris[:,2]]-box_points[box_tris[:,0]])
+    box_normal/=np.linalg.norm(box_normal,axis=1,keepdims=True)
+    box_normal=np.repeat(box_normal,3,axis=0)
+    box_corners=box_points[box_tris].reshape(-1,3);box_uv=np.empty((36,2),np.float32)
+    for i,n in enumerate(box_normal):
+        axes=[j for j in range(3) if j!=int(np.argmax(abs(n)))];box_uv[i]=box_corners[i,axes]*.1
+    box_attrs=dict(POSITION=box_corners,NORMAL=box_normal,TEXCOORD_0=box_uv)
+    box_faces=np.arange(36,dtype=np.uint32).reshape(-1,3)
+    reduced_box,reduced_faces,receipt=_reduce(box_attrs,box_faces,.1,.085,{'TEXCOORD_0':.0002})
+    assert len(reduced_faces)<=6,receipt
+    checked=topology(reduced_box,reduced_faces)[0]
+    assert checked['boundary_edges']==checked['nonmanifold_edges']==checked['degenerate']==0,checked
+    for point,n,uv in zip(reduced_box['POSITION'],reduced_box['NORMAL'],reduced_box['TEXCOORD_0']):
+        axes=[j for j in range(3) if j!=int(np.argmax(abs(n)))]
+        assert np.max(np.abs(uv-point[axes]*.1))<1e-6,(point,n,uv)
+    # The attribute quadric is an extrapolated ranking estimate, not a UV
+    # bound. A small, monotonic variation of a curved chart inflated that
+    # estimate and stopped at 68 triangles although the independently sampled
+    # half-mip-texel/frame/topology bounds admit 38. Exercise the complete
+    # component validator, rather than merely counting raw collapses.
+    from kit.lod_shared import _component
+    points=[];normals=[];uv=[];tangents=[];faces=[];sides=96
+    for z in (0.,1.):
+        for i in range(sides+1):
+            angle=2*np.pi*i/sides;c=np.cos(angle);s=np.sin(angle)
+            points.append([c,s,z]);normals.append([c,s,0]);tangents.append([-s,c,0,1])
+            uv.append([i/sides+.004*np.sin(32*angle),z/(2*np.pi)])
+    for i in range(sides):
+        a=i;b=i+sides+1;faces.extend([[a,a+1,b+1],[a,b+1,b]])
+    for z,sign in [(0.,-1),(1.,1)]:
+        center=len(points);points.append([0,0,z]);normals.append([0,0,sign])
+        tangents.append([1,0,0,sign]);uv.append([.5,.5]);ring=[]
+        for i in range(sides):
+            angle=2*np.pi*i/sides;c=np.cos(angle);s=np.sin(angle);ring.append(len(points))
+            points.append([c,s,z]);normals.append([0,0,sign]);tangents.append([1,0,0,sign]);uv.append([.5+.4*c,.5+.4*s])
+        for i in range(sides):
+            face=[center,ring[i],ring[(i+1)%sides]];faces.append(face if sign>0 else face[::-1])
+    curved=dict(POSITION=np.array(points,np.float32),NORMAL=np.array(normals,np.float32),
+                TEXCOORD_0=np.array(uv,np.float32),TANGENT=np.array(tangents,np.float32))
+    reduced_curved,curved_faces,receipt=_component(curved,np.array(faces,np.uint32),.1,.18,1.,10.,.5,.75,1024,True)
+    assert len(curved_faces)<=40 and not receipt['attempts'][-1]['reasons'],receipt
+    assert receipt['attempts'][-1]['uv_error']<=1,receipt
+    checked=topology(reduced_curved,curved_faces)[0]
+    assert checked['boundary_edges']==checked['nonmanifold_edges']==0,checked
     image=dict(sha256='canonical',compressed_mip_bytes=1024)
     rows=[dict(level=0,images=[image],mesh_gpu_bytes=500),dict(level=1,images=[image],mesh_gpu_bytes=200),dict(level=2,proxy=True,images=[dict(sha256='proxy',compressed_mip_bytes=64)],mesh_gpu_bytes=50)]
     r=residency(rows);assert r['passed'] and r['total_gpu_bytes']==1838 and r['proxy_texture_gpu_bytes']==64,r
