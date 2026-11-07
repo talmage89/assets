@@ -642,6 +642,11 @@ coordinates across neighboring pieces and review their joint at every level.
 A whole-family shared source can be selected without copying its atlas. Give
 **every config selecting the same container** a unique `name`, `output` and
 `renders`; otherwise one module would overwrite another module's checkpoint.
+A near level that still keeps about two thirds of an already compact module
+is a poor extra switch. Inspect the farther candidate and keep one useful far
+reduction if it passes there; do not move its switch closer without new proof.
+The WoodPrivacy adoption keeps one .09 level after the initial .25 levels
+saved only 37–42% of triangles. This is a cost decision, not an image failure.
 No proxy is prescribed for a 300–2,000-triangle section. An already minimal
 post can remain LOD0-only; record its count and reason instead of allocating
 unchanged replacement buffers. If a large assembly later
@@ -653,14 +658,15 @@ needs an HLOD, treat it as a separately reviewed building/hero proxy.
   "name": "FenceSection",
   "source": "export/FenceFamily.glb",
   "include_nodes": ["Section"],
+  "shared_textures": "export/lod",
   "output": "export/lod/section",
   "renders": "renders/lod/section",
   "readme_key": "section",
   "readme_title": "Section LODs",
   "screen_space": true,
   "feature_pixels": 1.5,
+  "render_samples": 128,
   "levels": [
-    {"ratio": 0.4, "screen_height": 0.25},
     {"ratio": 0.15, "screen_height": 0.09}
   ]
 }
@@ -679,6 +685,7 @@ with byte-identical shared images, use that file as its source instead.
   "name": "Can",
   "source": "export/SmallProps.glb",
   "include_nodes": ["Can"],
+  "shared_textures": "export/lod",
   "output": "export/lod/can",
   "renders": "renders/lod/can",
   "readme_key": "can",

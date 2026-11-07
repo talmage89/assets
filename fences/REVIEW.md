@@ -367,3 +367,50 @@ Combined-library diagnostic limit: the unchanged chain-link frame bake retains
 zero). This predates polish; the frame and analytical alpha weave have no
 visible artifact in the reviewed final views. No texture fill or geometry
 change was introduced. It remains a small documented coverage diagnostic.
+
+## LOD adoption critique 1 — WoodPrivacy module cost and appearance
+
+Followed the family recipe with frozen tool `3b43bcd`: separate configs for
+Section_A, Section_B and Gate_Bay, selected placement roots, unique output and
+README keys, and one shared externalized copy of the original atlas. The
+20-triangle posts stay LOD0-only. All three initial two-level `make check-lod`
+checks pass. Opened all 18 native angle/level strips with their differences and
+all nine 960px construction views. Color/value and grain retain the original
+brown-gray material; the rear rails, gate braces and hardware remain in place.
+The far close views show squared board tops and wider cuts that are acceptable
+only at their actual 97px switch size. No broad color shift, detached hardware
+or lost brace appears in those native far strips.
+
+The initial counts are 664→416→248 for both sections and 712→414→230 for the
+gate bay. The near levels retain 58–63%, a marginal extra switch on these small
+pieces; the far levels retain 32–37% and pass comfortably (worst mean RGB
+.00593, worst source silhouette loss .03357). Keep one useful .09 reduction per
+kind and rebuild it as LOD1. The recipe now says to omit a marginal near level
+and explicitly includes the family texture-pool field in its complete example.
+The full first-pass evidence is archived under
+`../build/lod-v4/adoption-first-fence-pass/fences/`.
+
+## LOD adoption critique 2 — one useful far level, unchanged tool
+
+Rebuilt all three configs with only the .09 level and the same frozen tool;
+no kit source changed during either adoption. Opened all nine final native
+strips/differences and all six final construction images in `renders/lod/`.
+Color/value, board grain, rear rails, braces and gate hardware agree with the
+first reviewed far candidates. The squared board tops remain a close-view
+limitation and do not produce a visible pop at 97px. End/placement transforms
+and the gate/latch canonical nodes survive the independent re-import checks;
+this is rest/data validation, not a new swept-clearance certificate.
+
+Section_A/B now each deliver LOD1 **248/664 (37.35%)** at 17.62 m; Gate_Bay
+**230/712 (32.30%)** at 18.09 m. Every image, topology, independent normal and
+re-import check passes via plain family `make check-lod`. The whole family
+loads the full original container once: **16.2639 MiB**, only .0766 MiB of
+additional mesh allocation, no additional map allocation. One common physical
+pool contains the original image content for all configs. The report is
+`../build/lod-adoptions/fences/report.md` with its contact sheet alongside.
+
+Reran original privacy construction/UV/export checks plus both child libraries'
+original checks separately, with their accepted generated inputs frozen; all
+pass. The child checks are explicit because parent-relative `make -o` paths
+cannot be inherited as child-relative paths. Original receipt: 481 files,
+zero changes. Repository check: 1,962 source files, zero errors.

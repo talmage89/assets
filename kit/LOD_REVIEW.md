@@ -1486,3 +1486,49 @@ regression and the entire shared-map fixture pass. The full fresh kit suite
 and all rebuilt pilot images remain required. One interrupted control received
 SIGTERM; the directly monitored retry completed successfully. The long pickup
 build was stopped deliberately at a cache boundary to run these controls.
+
+## Pass 40 — frozen-tool adoptions complete, cost-driven recipe correction
+
+Fresh adoption freeze is `3b43bcd`, with complete tool/rule/report/auditor and
+recipe hashes in `build/lod-v4/adoption-freeze.json`. No kit source changed
+through these builds. The street light is 3180→1656 (52.08%), one .25 level;
+all three native strips, differences and both close views were opened. Color/
+value and pole coverage match; worst mean RGB .00375 and silhouette loss
+.02370. `make check-lod` passes. Resident chain **4.348 MiB**, including only
+.1233 MiB extra mesh allocation and no extra images. The family review records
+the rejected old shaft-fading level and this fresh proof as two critique passes.
+
+The first WoodPrivacy recipe run passes every check at 664→416→248 for A/B,
+712→414→230 for Gate_Bay. Opened all 18 strips and nine construction images.
+Values and grain match; far close views show squared tops/board cuts that do
+not read as a pop at the 97px switch. The near rows retain 58–63%, so they add
+little useful reduction. The recipe now explicitly permits omitting such a
+row, uses one useful .09 level in its modular example, and includes the
+`shared_textures` pool field in both complete shared-family examples.
+
+Rebuilt the three single-level configs without changing the tool. Opened all
+nine final native strips/differences and six close views. A/B each keep
+**37.35%**, Gate_Bay **32.30%**. All original image gates, topology, imported
+geometry/pivots and normal checks pass. Gate/latch moving nodes remain, so the
+bay still has three draws with one material. Twenty-triangle posts stay LOD0.
+Whole family resident estimate **16.2639 MiB** = original maps once + original
+container once + .0766 MiB extra meshes; no intermediate images. Both adoption
+reports/contact sheets are under `build/lod-adoptions/`. Original street-light,
+privacy, picket and chain-link checks were rerun and all pass. Preservation
+481/481; repository 1962 sources, zero errors. Family reviews each contain two
+concrete critique passes. These are rest/data and rendered proofs, not engine
+performance or new swept-motion claims.
+
+A scratch pickup diagnostic had stubbed component reduction while using the
+production group-cache wrapper. Those derived group entries were purged,
+along with the other group entries, before the fresh adoptions. Genuine
+component cache arrays were not written by that stub and remain valid. Scratch
+controls now bypass the group wrapper. No final pickup build uses those
+entries; cache provenance is not silently assumed from an output hash.
+
+The first new grill assembly is **11050 / 7544 / 1796**. Both near caps still
+miss. Its 2468-triangle HoseAssembly retains accepted skin weights/vertices.
+At LOD2, source-skin ordering restores 1204 triangles: measured exposed back
+patches are 7.5px on the grease tray, 3.5px on the lid and 4.5px on one static
+construction. This is not a visual exception yet: the lower .35/.05 request
+and native fault controls remain required. The accepted 1796 proxy stands.

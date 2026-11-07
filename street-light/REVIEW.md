@@ -90,3 +90,30 @@ game surfaces; maximum sampled vertex-to-triangle gap is
 4.76837158e-07 m (an upper bound, not an exact distance).
 Serialization checks prove delivery fidelity separately. No in-use motion.
 The three final JPGs are at most 1600 px wide and 67657 bytes.
+
+## LOD adoption critique 1 — literal two-level trial
+
+The original two-level recipe was run with the frozen kit at `29b5cc2`.
+Opened all six native strips, the differences and construction views. Color
+and value retain the original dark coated pole and lighter luminaire. The
+1,656-triangle .25 level passes all views. The 1,212-triangle .09 level visibly
+fades the shaft: 13.4–24.3% soft silhouette loss and front integrated alpha
+100.388 versus source 132.655. The retained first level at that same far camera
+has 129.776 alpha pixels and passes all three views. Tightening the second
+level to .02 structural pixels costs 2,048 triangles, above the retained first
+level. Reject the extra level; keep one useful reduction. Evidence is retained
+in `../build/lod-v4/before-policy-fix/street-light/` and the far control receipt.
+
+## LOD adoption critique 2 — fresh frozen-tool proof
+
+Repeated the written one-level recipe with tool freeze `3b43bcd`, after the
+general source-frame fixes. Opened every native three-angle strip/difference
+and both 960px construction images in `renders/lod/`. Color/value match the
+source; the narrow shaft keeps its width, the swept arm remains smooth at the
+switch and the fixture has no bright block or detached part. The enlarged
+views show only appropriate loss of small rim/fitting detail. LOD0 3,180 →
+LOD1 1,656 (52.08%) at .25 / 27.56 m. Worst mean RGB .00375 and soft silhouette
+loss .02370; all original image gates, data/topology/re-import and independent
+normal checks pass through `make check-lod`. Source maps remain byte-identical
+and add no intermediate image allocation. These prove rest geometry, resource
+routing and delivered appearance; they are not an engine or swept-motion test.
