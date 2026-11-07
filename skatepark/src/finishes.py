@@ -38,7 +38,10 @@ def materials():
             # a reflective transparent film laid above the concrete.
             nodes=mat.node_tree.nodes;links=mat.node_tree.links;bs=nodes.get('Principled BSDF')
             tex=next(n for n in nodes if n.bl_idname=='ShaderNodeTexImage' and 'BaseColor' in n.image.name)
-            links.new(tex.outputs['Alpha'],bs.inputs['Alpha']);mat.surface_render_method='DITHERED';mat.use_backface_culling=False
+            vc=next(n for n in nodes if n.bl_idname=='ShaderNodeVertexColor')
+            coverage=nodes.new('ShaderNodeMath');coverage.operation='MULTIPLY'
+            links.new(tex.outputs['Alpha'],coverage.inputs[0]);links.new(vc.outputs['Alpha'],coverage.inputs[1])
+            links.new(coverage.outputs[0],bs.inputs['Alpha']);mat.surface_render_method='DITHERED';mat.use_backface_culling=False
         Q.M[key]=mat
     Q.M['Wax']=Q.M['Burnish'].copy();Q.M['Wax'].name='Skate_AbsorbedWax'
     bs=Q.M['Wax'].node_tree.nodes.get('Principled BSDF')
@@ -221,13 +224,11 @@ def weather(rt,p):
                     value=old*(1.02-age*.26+.035*math.sin(v.x*.71+v.y*.37)+.018*math.sin(v.y*4.3+v.x*2.1))
                     if 'Bowl_Sector' in rt.name and v.z<-.03:
                         u,arc=ob.data.uv_layers.active.data[li].uv
-                        # Pumping lines circle the pockets, rising/falling as
-                        # riders exchange height for speed. Lip contact adds
-                        # a separate narrow abrasion zone beneath the coping.
-                        flow=math.exp(-((v.z+(.65+.24*math.sin(v.x*.7+v.y*.23)))/.42)**4)
+                        # Coping runoff follows gravity. Carving wear is
+                        # placement-owned geometry, never a broad height fade.
                         lip=math.exp(v.z/.13)*(.55+.45*math.sin(v.x*.8+v.y*.4)**2)
                         drip=(.5+.5*math.sin(v.x*9.7+v.y*6.3))**14*math.exp(v.z/1.2)
-                        value*=1-age*(.33*flow+.38*lip+.42*drip)
+                        value*=1-age*(.38*lip+.42*drip)
                     # Dark damp/grit on vertical retaining faces at grade.
                     if f.normal.z<.3:value*=1-age*.25*math.exp(-max(0,v.z)*5)
                     green,blue=.995,.975
@@ -342,11 +343,13 @@ def basin_deposits(roots,p):
     for k in range(6):
         t=(-.68+k*.24)+rng.uniform(-.08,.08);edge=bowl.station(t,0)
         center=edge-bowl.outward(t)*rng.uniform(.10,.38)
-        span=rng.uniform(.22,.52);wide=rng.uniform(.16,.32)
+        span=rng.uniform(.32,.68);wide=rng.uniform(.035,.075)
+        flow=Vector((4-center.x,-center.y,0)).normalized();cross=Vector((-flow.y,flow.x,0))
+        along=(flow.x,flow.y);across=(cross.x,cross.y);cu=center.dot(flow);cv=center.dot(cross)
         vertices=[];polygons=[]
         for face in faces:
             poly=[Vector(verts[i]) for i in face]
-            for axis,value,sign in [(0,center.x-span/2,1),(0,center.x+span/2,-1),(1,center.y-wide/2,1),(1,center.y+wide/2,-1)]:
+            for axis,value,sign in [(along,cu-span/2,1),(along,cu+span/2,-1),(across,cv-wide/2,1),(across,cv+wide/2,-1)]:
                 if poly:poly=clip(poly,axis,value,sign)
             if len(poly)<3 or (poly[1]-poly[0]).cross(poly[2]-poly[0]).length<1e-9:continue
             polygons.append(tuple(range(len(vertices),len(vertices)+len(poly))))
@@ -357,7 +360,7 @@ def basin_deposits(roots,p):
             for face in ob.data.polygons:
                 for li in face.loop_indices:
                     q=ob.data.vertices[ob.data.loops[li].vertex_index].co
-                    ob.data.uv_layers.active.data[li].uv=(u0+pad+(q.x-center.x+span/2)/span*(u1-u0-2*pad),v0+pad+(q.y-center.y+wide/2)/wide*(v1-v0-2*pad))
+                    ob.data.uv_layers.active.data[li].uv=(u0+pad+(q.dot(flow)-cu+span/2)/span*(u1-u0-2*pad),v0+pad+(q.dot(cross)-cv+wide/2)/wide*(v1-v0-2*pad))
     for k in range(round(24+age*85)):
         x=3.6+rng.gauss(0,.56);y=rng.gauss(0,.48)
         if k%3==0:

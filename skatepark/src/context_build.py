@@ -100,6 +100,9 @@ def main():
     for rt in roots:rt['library_source']=family
     bpy.ops.export_scene.gltf(filepath=str(a.out.resolve()),export_format='GLB',export_extras=True,export_animations=False,export_tangents=True,export_attributes=True,
         **(dict(export_vertex_color='NONE') if family=='tree' else {}))
+    if family=='tree':
+        from export_frames import repair
+        repair(a.out)  # Own context copy only; canonical trees remain read-only.
     a.out.with_suffix('.json').write_text(json.dumps(dict(family=family,source_geometry='canonical delivered GLBs, including alpha-cut cards and baked maps' if family=='tree' else 'repository scripts; local context adaptation',triangles=sum(Q.count(r) for r in roots)),indent=2))
 
 if __name__=='__main__':main()

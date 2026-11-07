@@ -32,8 +32,22 @@ def check(folder):
                     av=ext.accessor(accessor)[ia];bv=g.accessor(b['attributes'][semantic])[ib]
                     if semantic=='TANGENT' and 'normalTexture' not in doc['materials'][a['material']]:
                         unused_tangent_differences+=int(np.any(av!=bv,axis=1).sum());continue
+                    if semantic=='COLOR_0' and av.shape[1]!=bv.shape[1]:
+                        # RGB has implicit alpha one in glTF. Shared external
+                        # accessors may retain RGBA where split GLB ones use RGB.
+                        assert {av.shape[1],bv.shape[1]}=={3,4}
+                        if av.shape[1]==3:av=np.c_[av,np.ones(len(av))]
+                        if bv.shape[1]==3:bv=np.c_[bv,np.ones(len(bv))]
                     assert np.array_equal(av,bv),(name,node['name'],semantic,float(np.max(np.abs(av-bv))))
                 corners+=len(ia)
+        mark_alphas=[]
+        for mesh in doc['meshes']:
+            for prim in mesh['primitives']:
+                mat=doc['materials'][prim['material']]
+                if mat['name']=='Skate_Trim_Burnish':
+                    colors=ext.accessor(prim['attributes']['COLOR_0']);assert colors.shape[1]==4,('Dropped placement opacity',name)
+                    mark_alphas.extend(colors[:,3].tolist())
+        if name!='SkateparkPieces':assert min(mark_alphas)<.9 and max(mark_alphas)<=1,('Lost varying coverage',name)
         embedded_images={hashlib.sha256(g.image(i)).hexdigest() for i in range(len(g.json.get('images',[])))}
 
         images=[];seen=set();memory=0
@@ -52,7 +66,9 @@ def check(folder):
                 uv=ext.accessor(attr['TEXCOORD_0'])[idx].mean(axis=1)
                 texture=mat['pbrMetallicRoughness']['baseColorTexture']['index'];image=doc['textures'][texture]['source']
                 pixels=np.asarray(Image.open(path.parent/doc['images'][image]['uri']).convert('RGB'),float)/255
-                yy=np.clip(((1-(uv[:,1]%1))*pixels.shape[0]).astype(int),0,pixels.shape[0]-1);xx=np.clip(((uv[:,0]%1)*pixels.shape[1]).astype(int),0,pixels.shape[1]-1)
+                # Raw glTF V starts at the top of the PNG. Blender's imported
+                # UV layer flips it; these are raw accessor values.
+                yy=np.clip(((uv[:,1]%1)*pixels.shape[0]).astype(int),0,pixels.shape[0]-1);xx=np.clip(((uv[:,0]%1)*pixels.shape[1]).astype(int),0,pixels.shape[1]-1)
                 color=pixels[yy,xx];color=np.where(color<=.04045,color/12.92,((color+.055)/1.055)**2.4)
                 if 'COLOR_0' in attr:color*=ext.accessor(attr['COLOR_0'])[idx][...,:3].mean(axis=1)
                 color*=np.asarray(mat['pbrMetallicRoughness'].get('baseColorFactor',[1,1,1,1]))[:3]
@@ -63,7 +79,7 @@ def check(folder):
             order=np.argsort(albedos);values=np.array(albedos)[order];cum=np.cumsum(np.array(weights)[order]);cum/=cum[-1]
             albedo={str(p):float(values[np.searchsorted(cum,p/100)]) for p in (5,50,95)}
         assert seen==embedded_images,(name,'image payload set')
-        records.append(dict(indexed_corners_compared=corners,unconsumed_tangent_corner_differences=unused_tangent_differences,effective_concrete_linear_Y_area_percentiles=albedo,name=name,unique_mesh_triangles=sum(g.accessor(p['indices']).size//3 for m in doc['meshes'] for p in m['primitives']),gltf_bytes=path.stat().st_size,bin_bytes=len(ext.binary),embedded_build_bytes=embedded.stat().st_size,materials=len(doc['materials']),images=images,compressed_full_mip_MiB=memory))
+        records.append(dict(placement_alpha_range=[min(mark_alphas),max(mark_alphas)] if mark_alphas else None,indexed_corners_compared=corners,unconsumed_tangent_corner_differences=unused_tangent_differences,effective_concrete_linear_Y_area_percentiles=albedo,name=name,unique_mesh_triangles=sum(g.accessor(p['indices']).size//3 for m in doc['meshes'] for p in m['primitives']),gltf_bytes=path.stat().st_size,bin_bytes=len(ext.binary),embedded_build_bytes=embedded.stat().st_size,materials=len(doc['materials']),images=images,compressed_full_mip_MiB=memory))
     # Actual importer cache check: all three parks and repeat 101, in one scene.
     pointers={}
     for seed in (101,202,303,101):

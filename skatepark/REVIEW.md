@@ -656,3 +656,151 @@ and source compilation pass. The final from-nothing `make`, final render suite,
 README gallery and docs commit are intentionally not performed after this
 appearance gate failure. Presentation targets are prepared but unvalidated.
 No new docs images or top-level README edits are made.
+
+## Delivery pass 19 — gray concrete retained; first placed contacts rejected
+
+Color/value first: opened all three native 1440px exported frames in
+`renders/gate-pass19/101/` (hero, transition, ledge). The .67 sRGB paste and
+fixed -.25 EV exposure remain. Compared with Alondra, balanced on its unpainted
+concrete deck/coping, the kidney now belongs to the same gray concrete family
+as its deck. Memorial's warm wall is plaster on a different kind of pool;
+that photograph remains a coping/tile comparator, not a municipal-wall color
+specification. Neither shipped bowl is plastered.
+
+The ledge's vertical face no longer carries wheel arcs. The bowl no longer
+repeats a chart of stamps. Reject the new wheel traces as drawn pairs anyway:
+their dark cores are too narrow, their paired starts/ends too similar, and
+there are too many neatly paired contacts. Widen the soft envelopes to leave
+roughly 20–30mm dark contact cores, stagger/omit individual wheel contacts and
+vary pressure. The raw exporter also dropped Tint alpha because it was not
+connected in the shader; connect coverage × Tint alpha so placement opacity
+actually survives. Remove the remaining broad height-based bowl pumping mask;
+localized carves and real floor deposits must explain its toe instead.
+
+The first independent import passes counts, normals, sections and fixture
+bases, but the raw winding audit rejects one launch-ramp mark. Its nearest
+projection could select small nearby hardware. Restrict that projection to
+upward riding skins with sufficient actual triangle area; keep the check.
+The added grit patch previously bridged the curved floor by 5mm; clipping
+source floor triangles fixes that without relaxing the 4mm contact limit.
+
+White-patch diagnosis: full-scene rays hit `Prefab_Quarter_8_Mesh`, not a
+floating object. Native diagnostic images in `renders/blob-components/`
+show that the patch survives 128 samples without denoising, without the normal
+map, and with indirect bounces disabled. It disappears when dielectric
+specular is disabled; the small bare-metal glints remain. Correct the worn
+phenolic response through the existing opaque atlas alpha/specular idiom;
+leave metal charts at factor one. The rejected caustic-only explanation is
+not the fix. No diagnostic lighting override enters final rendering.
+
+What still reads as CG: overly tidy wheel pairs, uniform formed-wall mottle,
+angular leaf flecks, flat lawn and repeated neighborhood houses. No gallery
+or docs images are approved by this pass.
+
+## Delivery pass 20 — placement/gray finish pass; two appearance details rejected
+
+Color/value first: opened all eight native 1440px `renders/gate-fixes/`
+frames, archived as `renders/gate-pass20/`, and compared the bowl with the
+neutral-balanced Alondra photograph again. Concrete is gray from deck to
+wall; the coping/tile retains its own material. The broad warm toe gradient
+is gone. The fixed exposure and raking sun still preserve deep cavity shadows.
+The ledge's vertical face stays free of wheel arcs. Transition contact now
+has a soft, centimeter-scale core and differing starts/ends, rather than
+reusable black chart ticks. The original sprayed tags, repairs, plate scuffs
+and separated park ages remain.
+
+Reject the bowl paths in the hero/deep-end view: short circumferential marks
+cluster into a stack of black slashes. Give fewer paths a longer rising/falling
+carve across the pocket, with independently interrupted wheel contact. The
+new small oval grit deposits also read as smudges; make them narrow deposits
+following the actual fall toward the drain. The main clipped sediment fan
+and litter already explain the drain, without repainting a wall gradient.
+
+Reject fix 4 at this stage: reducing phenolic specular to .06 turns the white
+spot beige, but leaves an obvious spot. Set that atlas region's specular
+factor to zero. Opaque RGB stays intact through the kit filter's zero-alpha
+RGB fallback; the transparent mark regions keep their coverage filtering.
+Preview filtering is permitted only after proving all RGB and the other five
+source PNGs unchanged. The final cold build and repeat still perform real GPU
+bakes. Metal charts retain alpha/specular factor one and their reflective
+plates; no extra material, image or draw is introduced for this correction.
+
+Fresh import, physical supports/sections, mark winding, UV density/overlap,
+normal/tangent frames, canonical images, actual same-scene image reuse and the
+56-pose gate test pass. RGBA `Tint` is forced consistently on both exports;
+this fixes the exporter's material-order-dependent loss of alpha. Native trees
+retain `_WIND` without COLOR_0. All placement alpha ranges are measured in the
+raw files, not assumed from shader controls.
+
+What still reads as CG: those two rejected details, angular leaf silhouettes,
+uniform wall manufacture, flat turf and repeated background houses. No docs
+or README gallery yet. Geometry checks do not override either image rejection.
+
+## Delivery pass 21 — sun-patch cause proved; bowl ink outlines rejected
+
+Color/value first: opened all eight new 1440px exported frames and all three
+native sun-azimuth tests. Gray wall/deck color is retained against balanced
+Alondra. The toe now carries narrow grit deposits leading toward the actual
+drain, plus the main sediment fan and scattered leaves; no warm fade or small
+round dirt spots remains. The ledge face remains clear of wheel arcs.
+
+The longer black bowl paths still read as drawn arches. Reject those outlines.
+Repeated carving polishes a route without necessarily depositing a complete
+black wheel line. Give those routes the existing translucent burnish finish;
+keep sparse, interrupted rubber transfer at transition toes below actual placed
+`Approach` sockets. These retain true wheel separation and soft centimeter-scale
+contact cores. Quarter/bank/prefab slip marks already follow their actual
+approach, lip and toe and remain independently varied.
+
+Correcting the white-patch diagnosis matters: zero dielectric specular removes
+its white sheen, but leaves a beige patch with the same silhouette. The patch
+is sunlight through a gap in the canonical tree canopy. The -6/+6/+12 degree
+azimuth tests, on the untouched archived gate export/materials, move that
+sunlight with the foliage shadow. +12 degrees clears the isolated spot while
+retaining the same 18.2018-degree elevation, exposure, energy, sky and camera.
+Restore the accepted material response completely; no specular-alpha workaround
+ships. The 303 hero alone changes sun azimuth. Its comparison records that
+exception explicitly rather than claiming unchanged light. The exported site
+and its tree transforms remain unchanged by the lighting fix.
+
+All source/import/raw/gate checks pass. What still reads as CG in this rejected
+candidate: ink-like bowl arches, uniform wall grain, angular leaf fragments,
+flat lawn and repeated houses. Docs and gallery remain uncommitted.
+
+## Delivery pass 22 — fixed-camera appearance gate passes
+
+Color/value first: opened all eight native 1440px current exported frames,
+including the rebuilt hero and deep-end views. Compared with Alondra balanced
+on its unpainted deck/coping, the kidney is gray municipal concrete throughout;
+Memorial judges only coping/tile. Both shipped seeds are municipal concrete,
+not plastered pools. The fixed -.25 EV and low sun remain. Shadows inside the
+bowl and beneath ramps retain depth; concrete and metal highlights roll off.
+
+The black circumferential outlines are gone. Long pocket routes now carry
+faint polished wear; sparse rubber slides run up the lower transition below
+actual placed `Approach` sockets. They have measured wheel separation and
+soft contact cores. Quarter, bank and prefab marks likewise belong to their
+placed ride surfaces, with different starts, ends and pressure. There is no
+sector chart of wheel stamps and no wheel arc on a retaining or ledge face.
+Truck contact remains just under ledge armor. Narrow grit deposits follow the
+fall toward the drain; the fan, leaves and burnished toe explain use without
+an airbrushed color fade.
+
+The 303 hero's isolated patch is cleared by the documented +12-degree sun
+azimuth adjustment at the same low elevation. Original material response,
+plate reflection, camera, exposure, energy and sky are retained. No material
+specular-alpha experiment ships. All eight camera projections agree exactly
+with the archived gate frames; all illumination settings agree except that
+explicit 303-hero sun direction. Its extra artifact crop has native 800px panels.
+
+The fresh physical/import/raw checks pass after a second exact-signature oak
+rounding anchor: vertex 1703 beside the prior 10396. Both allow at most one
+fourth-decimal Mikk step on own serialized copies; positions, normals, UVs
+and canonical tree deliveries remain unchanged. Coverage alpha survives as
+RGBA Tint; native `_WIND` does not become albedo.
+
+What still reads as CG: uniform formed-wall manufacture, angular leaf fragments,
+flat turf and repeated neighborhood houses. Individual marks are still simpler
+than years of accumulated real skating, but their placement, scale and surface
+response now pass this gate. Proceed to the full cold-build final views and
+photo pairs. Docs/gallery wait for those reviews and the repeat proof.

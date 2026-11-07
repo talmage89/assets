@@ -2,7 +2,7 @@
 
 MikkTSpace can emit a zero tangent at small bevel/cap fan junctions, including
 a few vertices in the canonical trees. Keep geometry, UVs, images and valid
-frames unchanged except one explicitly guarded Mikk rounding corner. Derive
+frames unchanged except two explicitly guarded Mikk rounding corners. Derive
 missing frames from the largest incident UV triangle.
 Untextured context does not consume tangent attributes and is left alone.
 """
@@ -17,20 +17,27 @@ PIN_OAK_ROUNDING=dict(vertex=10396,
     uv=[.48928847908973694,.29691773653030396],
     tangent=[-.2372,.0031,-.9715,1.])
 
+PIN_OAK_ROUNDINGS=[PIN_OAK_ROUNDING,dict(vertex=1703,
+    position=[-.0946817547082901,4.496119976043701,.2046363651752472],
+    normal=[-.6127699613571167,.00019999020150862634,.7902612686157227],
+    uv=[.739832878112793,.22091996669769287],
+    tangent=[.7898,-.0359,.6124,1.])]
+
 def rounding_anchors(g):
-    """One native oak corner straddles Mikk's fourth-decimal boundary."""
+    """Native oak corners straddling Mikk's fourth-decimal boundaries."""
     anchors=[]
     for mi,mesh in enumerate(g.json['meshes']):
         if not mesh.get('name','').startswith('Trunk and branches'):continue
         for pi,prim in enumerate(mesh['primitives']):
             attr=prim['attributes']
             if g.json['accessors'][attr['POSITION']]['count']!=14746:continue
-            a=dict(PIN_OAK_ROUNDING,mesh=mi,primitive=pi)
-            for key,semantic in [('position','POSITION'),('normal','NORMAL'),('uv','TEXCOORD_0')]:
-                assert np.array_equal(g.accessor(attr[semantic])[a['vertex']],np.asarray(a[key],dtype=np.float32)),('Changed native rounding corner',key)
-            actual=g.accessor(attr['TANGENT'])[a['vertex']]
-            assert np.max(np.abs(actual-np.asarray(a['tangent'],dtype=np.float32)))<.00011,actual
-            anchors.append(a)
+            for accepted in PIN_OAK_ROUNDINGS:
+                a=dict(accepted,mesh=mi,primitive=pi)
+                for key,semantic in [('position','POSITION'),('normal','NORMAL'),('uv','TEXCOORD_0')]:
+                    assert np.array_equal(g.accessor(attr[semantic])[a['vertex']],np.asarray(a[key],dtype=np.float32)),('Changed native rounding corner',key)
+                actual=g.accessor(attr['TANGENT'])[a['vertex']]
+                assert np.max(np.abs(actual-np.asarray(a['tangent'],dtype=np.float32)))<.00011,actual
+                anchors.append(a)
     return anchors
 
 def repair(path):

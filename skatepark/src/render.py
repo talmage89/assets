@@ -88,7 +88,11 @@ def views(p):
         shots['prefab']=dict(sun_direction=(.5,.9,-.55),sun_energy=7,location=(2.25,4.95,1.4),target=(0,7.5,.65),lens=40,aspect=1.5)
         shots['prefab_side']=dict(sun_direction=(.5,.9,-.55),sun_energy=7,location=(2.6,5.6,1.0),target=(3.66,9.5,.60),lens=50,aspect=1.5)
         shots['plate']=dict(sun_direction=(-.7,-.7,-.40),sun_energy=7,location=(-.8,7.9,.43),target=(0,8.70,.02),lens=55,aspect=1.5)
-        shots['hero']=dict(location=(-10.97,-6.7056,1.65),target=(0,4,.7),lens=40,aspect=1.9)
+        # Turn the same low sun 12 degrees in azimuth. The previous tree-gap
+        # sun patch made an isolated white highlight on the far riding sheet.
+        yaw=math.radians(12)
+        shots['hero']=dict(location=(-10.97,-6.7056,1.65),target=(0,4,.7),lens=40,aspect=1.9,
+                           sun_direction=(-.82*math.cos(yaw)-.4*math.sin(yaw),-.82*math.sin(yaw)+.4*math.cos(yaw),-.3))
     if p.get('terrain_yaw'):
         from mathutils import Matrix
         turn=Matrix.Rotation(math.radians(p['terrain_yaw']),4,'Z')

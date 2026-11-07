@@ -19,10 +19,10 @@ def export(path,roots):
     for rt in roots:
         for o in [rt,*rt.children_recursive]:o.select_set(True)
     bpy.ops.export_scene.gltf(filepath=str(path.resolve()),export_format='GLTF_SEPARATE',use_selection=True,
-        export_yup=True,export_extras=True,export_animations=False,export_tangents=True,export_texture_dir='shared',export_image_format='AUTO',export_shared_accessors=True,export_all_vertex_colors=False,export_attributes=True,export_vertex_color='MATERIAL')
+        export_yup=True,export_extras=True,export_animations=False,export_tangents=True,export_texture_dir='shared',export_image_format='AUTO',export_shared_accessors=True,export_all_vertex_colors=False,export_attributes=True,export_vertex_color='NAME',export_vertex_color_name='Tint')
     embedded=Path('build/embedded')/path.with_suffix('.glb').name;embedded.parent.mkdir(parents=True,exist_ok=True)
     bpy.ops.export_scene.gltf(filepath=str(embedded.resolve()),export_format='GLB',use_selection=True,
-        export_yup=True,export_extras=True,export_animations=False,export_tangents=True,export_image_format='AUTO',export_all_vertex_colors=False,export_attributes=True,export_vertex_color='MATERIAL')
+        export_yup=True,export_extras=True,export_animations=False,export_tangents=True,export_image_format='AUTO',export_all_vertex_colors=False,export_attributes=True,export_vertex_color='NAME',export_vertex_color_name='Tint')
     from export_frames import repair
     repair(path);repair(embedded)
     from external import share_images
@@ -101,7 +101,7 @@ def main():
     # connections retain their exact analytic coordinates beside these ports;
     # a scene's flatwork fills the reservation, as it does in this generator.
     for rt in [*lib.values(),*bowl_lib,*steel_bowl]:
-        if a.look:rt['stage']='baked look-dev checkpoint'
+        if a.look:rt['stage']='baked shared-image delivery'
         bounds=record(rt)['bounds_m'];lo=[math.floor(bounds[0][k]/.1524)*.1524 for k in (0,1)];hi=[math.ceil(bounds[1][k]/.1524)*.1524 for k in (0,1)]
         rt['grid_bounds_json']=json.dumps([lo,hi])
         Q.socket(rt,'Grid_SW',(*lo,0),kind='layout_grid');Q.socket(rt,'Grid_NE',(*hi,0),kind='layout_grid')
@@ -126,7 +126,7 @@ def main():
         guard_check=terrain.guard_contacts(roots)
         mark_check=finishes.surface_mark_contacts(skating) if a.look else None
         if a.look:
-            for rt in roots:rt['stage']='baked look-dev checkpoint'
+            for rt in roots:rt['stage']='baked shared-image delivery'
         for rt in roots:Q.join(rt)
         if p.get('terrain_yaw'):
             from mathutils import Matrix
@@ -155,7 +155,12 @@ def main():
     for i,rt in enumerate(bowl_lib):rt.location=(0,62,0)
     for rt in steel_bowl:rt.location=(24,62,0)
     a.out.parent.mkdir(parents=True,exist_ok=True);bpy.ops.wm.save_as_mainfile(filepath=str(a.out.resolve()))
-    report=dict(stage='baked look-dev' if a.look else 'connected form checkpoint',pieces=records,parks=parks,library_delivery=delivery)
+    report=dict(stage='baked shared-image delivery' if a.look else 'connected form checkpoint',pieces=records,parks=parks,library_delivery=delivery)
+    # Source measurements are deterministic; image-dependent delivery sizes
+    # and hashes stay in the separate full report. Repeat compares these bytes
+    # as well as every delivered geometry/accessor byte.
+    geometry=dict(stage=report['stage'],pieces=records,parks={s:{k:v for k,v in row.items() if k!='delivery'} for s,row in parks.items()})
+    Path('build/source-geometry.json').write_text(json.dumps(geometry,indent=2,sort_keys=True))
     a.out.with_suffix('.json').write_text(json.dumps(report,indent=2));print('CHECKPOINT',json.dumps({s:{k:v for k,v in info.items() if k.endswith('triangles')} for s,info in parks.items()}))
 
 if __name__=='__main__':main()
