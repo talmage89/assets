@@ -85,7 +85,7 @@ def main():
             if not want(shot):continue
             sc=stage(source,a.width,a.samples)
             if shot=='hero':
-                pos={101:(-6,-11,1.65),202:(7,-11,1.65),303:(-8,-15.4,1.65)}[seed]
+                pos={1996:(-6,-11,1.65),2005:(7,-11,1.65),2013:(-8,-15.4,1.65)}[plan['year']]
                 camera(sc,pos,(1,.5,1.55),40)
             else:
                 # Hide canopy/trees only in measured plan, to reveal access and zones.

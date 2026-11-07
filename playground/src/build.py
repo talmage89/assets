@@ -1,6 +1,6 @@
 """Build the module library and three original installed sites; quick materials.
 
-Checkpoint exports are glTF with one shared original diagnostic image. Existing
+Checkpoint exports are glTF with two shared original diagnostic images. Existing
 library deliveries are read-only; their canonical external images are reused.
 """
 import argparse,hashlib,json,math,sys,os
@@ -16,7 +16,7 @@ from kit import model as G
 
 
 def jobs():
-    d=dict(Deck72=lambda r:P.deck(r,1.8288),Barrier72=lambda r:P.barrier(r,False,1.8288),NeckGuard=P.neck_guard,Deck=P.deck,Barrier=P.barrier,InfillPanel=lambda r:P.barrier(r,True),HipRoof=P.roof,Shade=lambda r:P.roof(r,True),Stairs48=P.steps,Transfer24=P.transfer,RampSegment=P.ramp_segment,RampLanding=P.landing,InterdeckSteps=P.interdeck,RoofRiser=P.roof_riser,SlideStraight24=lambda r:P.slide(r,.6096),SlideStraight48=P.slide,SlideWave48=lambda r:P.slide(r,1.2192,'wave'),SlideWave72=lambda r:P.slide(r,1.8288,'wave'),SlideSpiral72=lambda r:P.slide(r,1.8288,'spiral'),SlideTube48=lambda r:P.slide(r,1.2192,'tube'),Arch48=P.arch,Ladder72=lambda r:P.ladder(r,1.8288),VerticalLadder48=P.ladder,ChainNet48=P.net,RockWall48=P.rock,FirePole=P.pole,OverheadLadder=P.overhead,OverheadRings=lambda r:P.overhead(r,True),PanelWheel=P.panel,PanelTic=lambda r:P.panel(r,'tic'),PanelPeriscope=lambda r:P.panel(r,'scope'),SwingFrame=P.swing_frame,SwingBelt=P.swing,SwingBucket=lambda r:P.swing(r,True),SpringRider=P.spring,Roundabout=P.spinner)
+    d=dict(RampHeadBridge=P.ramp_head_bridge,Deck72=lambda r:P.deck(r,1.8288),Barrier72=lambda r:P.barrier(r,False,1.8288),NeckGuard=P.neck_guard,Deck=P.deck,Barrier=P.barrier,InfillPanel=lambda r:P.barrier(r,True),HipRoof=P.roof,Shade=lambda r:P.roof(r,True),Stairs48=P.steps,Transfer24=P.transfer,RampSegment=P.ramp_segment,RampLanding=P.landing,InterdeckSteps=P.interdeck,RoofRiser=P.roof_riser,SlideStraight24=lambda r:P.slide(r,.6096),SlideStraight48=P.slide,SlideWave48=lambda r:P.slide(r,1.2192,'wave'),SlideWave72=lambda r:P.slide(r,1.8288,'wave'),SlideSpiral72=lambda r:P.slide(r,1.8288,'spiral'),SlideTube48=lambda r:P.slide(r,1.2192,'tube'),Arch48=P.arch,Ladder72=lambda r:P.ladder(r,1.8288),VerticalLadder48=P.ladder,ChainNet48=P.net,RockWall48=P.rock,FirePole=P.pole,OverheadLadder=P.overhead,OverheadRings=lambda r:P.overhead(r,True),PanelWheel=P.panel,PanelTic=lambda r:P.panel(r,'tic'),PanelPeriscope=lambda r:P.panel(r,'scope'),SwingFrame=P.swing_frame,SwingBelt=P.swing,SwingBucket=lambda r:P.swing(r,True),SpringRider=P.spring,Roundabout=P.spinner)
     for h in (.6096+1.12,1.2192+1.12,1.8288+1.12):d['Post'+str(round(h*1000))]=lambda r,h=h:P.post(r,h)
     return d
 
@@ -26,7 +26,10 @@ def members(root):return [root,*root.children_recursive]
 def export(path,obs):
     path.parent.mkdir(parents=True,exist_ok=True);bpy.ops.object.select_all(action='DESELECT')
     for o in obs:o.select_set(True)
-    bpy.ops.export_scene.gltf(filepath=str(path.resolve()),export_format='GLTF_SEPARATE',use_selection=True,export_yup=True,export_extras=True,export_animations=False,export_tangents=True,export_attributes=True,export_all_vertex_colors=False,export_image_format='AUTO',export_texture_dir='images')
+    # Derive tangent space on import. Blender's recalculation of one reused
+    # tree tangent varies at its four-decimal rounding boundary between runs.
+    # The checkpoint preserves normals/UVs; final bake validation revisits this.
+    bpy.ops.export_scene.gltf(filepath=str(path.resolve()),export_format='GLTF_SEPARATE',use_selection=True,export_yup=True,export_extras=True,export_animations=False,export_tangents=False,export_attributes=True,export_all_vertex_colors=False,export_image_format='AUTO',export_texture_dir='images')
     # Canonicalize the generated quick image and any reused library images.
     # Existing image bytes are identified by hash, never re-encoded or overwritten.
     doc=json.loads(path.read_text())
@@ -181,7 +184,7 @@ def main():
     # Standalone modules have ground-centered footprint origins, except explicit
     # mating interfaces (deck top / slide entrance / ramp high end / hanger axis).
     for name,rt in roots.items():export(out/(name+'.gltf'),members(rt))
-    for label,names in [('ComparisonDeck',[('Deck',(0,0,.6096)),('Post1730',(-HALF,-HALF,0)),('Post1730',(HALF,-HALF,0)),('Post1730',(-HALF,HALF,0)),('Post1730',(HALF,HALF,0)),('Barrier',(0,-HALF,.6096))]),('ComparisonSwings',[('SwingFrame',(0,0,0)),('SwingBelt',(-2.355,0,SWING_H)),('SwingBelt',(-.995,0,SWING_H))])]:
+    for label,names in [('ComparisonDeck',[('Deck',(0,0,.6096)),('Post1730',(-HALF,-HALF,0)),('Post1730',(HALF,-HALF,0)),('Post1730',(-HALF,HALF,0)),('Post1730',(HALF,HALF,0)),('Barrier',(0,-HALF,.6096))]),('ComparisonSwings',[('SwingFrame',(0,0,0)),('SwingBelt',(-SWING_BAY/2-SWING_SEAT_OFFSET,0,SWING_H)),('SwingBelt',(-SWING_BAY/2+SWING_SEAT_OFFSET,0,SWING_H))])]:
         rr=F.root(label)
         for i,(name,pos) in enumerate(names):c=F.clone(roots[name],label+'_'+str(i),pos);c.parent=rr
         export(out/(label+'.gltf'),members(rr))
@@ -209,6 +212,10 @@ def main():
         plan['parts']=[dict(**m,triangles=report[m['kind']]['triangles']) for m in plan['modules']];plan['materials']=len(doc.get('materials',[]));plan['images']=[im['uri'] for im in doc.get('images',[])];plan['bounds_m']=measure(rt)
         manifests.append(plan);(out/f'Playground-{seed}.json').write_text(json.dumps(plan,indent=2));print('SITE',seed,plan['equipment_triangles'],plan['total_triangles'],flush=True)
         for o in members(rt):bpy.data.objects.remove(o,do_unlink=True)
+    # Remove exporter staging copies of maps whose URI is canonical elsewhere.
+    used={(p.parent/im['uri']).resolve() for p in out.glob('*.gltf') for im in json.loads(p.read_text()).get('images',[])}
+    for p in (out/'images').glob('*.png'):
+        if p.resolve() not in used:p.unlink()
     (Path('build')/'manifest.json').write_text(json.dumps(dict(stage='form and construction checkpoint; no bake',pieces=report,sites=manifests),indent=2))
 
 if __name__=='__main__':main()

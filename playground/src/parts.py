@@ -84,6 +84,7 @@ def steps(rt,height=1.2192):
             y=-run+(i+.5)*run/N;z=height*(i+1)/N
             cyl(rt,'Handrail support',(x,y,z),(x,y,z+.82),.016,'rail',8)
     for x in (-.45,.45):cyl(rt,'Stair foot into grade',(x,-run,.0),(x,-run,.22),.034,'steel',8)
+    interface_bridge(rt,height,w)
     empty(rt,rt.name+'_Top',(0,0,height),'deck_entry')
 
 def transfer(rt):
@@ -93,6 +94,7 @@ def transfer(rt):
         for x in (-.43,.43):
             for yy in (y-.21,y+.21):cyl(rt,'Transfer legs',(x,yy,0),(x,yy,h-.04),.025,'steel',8)
     for x in (-.48,.48):tube(rt,'Transfer grab loop',[(x,-.30,.61),(x,-.30,.97),(x,-.12,1.05),(x,.03,.97),(x,.03,.61)],GRIP_OD/2,'rail',8)
+    interface_bridge(rt,.6096,1.05)
     empty(rt,rt.name+'_Transfer',(0,-.9,.4064),'transfer_seat')
 
 def ramp(rt):
@@ -130,18 +132,23 @@ def hood(rt,height):
         for z in (.12,.77):cyl(rt,'Hood mounting shoulder',(x*.40,0,height+z),(x*.61,0,height+z),.025,'red',8,'Molded')
     for x in (-HALF,HALF):
         for dz in (.12,.77):F.clamp(rt,x,0,height+dz)
+    for side in (-1,1):
+        cheek=[]
+        for dz,w,d in [(.03,.18,.11),(.12,.20,.17),(.65,.18,.13),(.78,.14,.10)]:
+            cheek.append([(side*.445+x,y,height+dz) for x,y in F.G.rounded_rectangle(w,d,min(w,d)*.35,2)])
+        loft(rt,'Molded entrance cheek / closed side gap',cheek,'red')
     for x in (-.45,.45):cyl(rt,'Entrance grab rail',(x,-.03,height+.10),(x,-.03,height+.68),GRIP_OD/2,'rail',8)
 
 def slide_path(height,kind):
     if kind=='spiral':
         # Tangent entry begins along -Y; 270 degree descending helix then exit.
         pts=[];rad=1.05;turn=1.5*math.pi
-        for i in range(37):
-            t=i/36;ang=-turn*t
+        for i in range(33):
+            t=i/32;ang=-turn*t
             pts.append((rad-rad*math.cos(ang),rad*math.sin(ang),height-(height-.22)*(3*t*t-2*t*t*t)))
         end=Vector(pts[-1]);direction=(end-Vector(pts[-2]));direction.z=0;direction.normalize()
         pts += [tuple(end+direction*.40),tuple(end+direction*.80)]
-        return pts
+        return [(0,.18,height)]+pts
     L=(height-.22)/.43+.75;pts=[]
     for i in range(33):
         t=i/32;y=-L*t
@@ -150,7 +157,8 @@ def slide_path(height,kind):
         z=height-(height-.22)*f
         if kind=='wave':z+=.07*math.sin(4*math.pi*u)*math.sin(math.pi*u)**2
         pts.append((0,y,z))
-    return pts
+    if height<.7:pts.append((0,pts[-1][1]-.25,.22))
+    return [(0,.18,height)]+pts
 
 def slide(rt,height=1.2192,kind='straight'):
     pts=slide_path(height,kind);loops=[]
@@ -165,14 +173,15 @@ def slide(rt,height=1.2192,kind='straight'):
     lip=loops[-1][13:]+[loops[-1][0]]
     tube(rt,'Rolled rounded slide exit lip',lip,.018,'green' if kind=='wave' else 'red',5,'Molded')
     if kind=='tube':
+        interface_bridge(rt,height,.75)
         # Replace open top span with a hollow circular barrel above floor.
         for k in range(5,len(pts)-6,12):
-            center=Vector(pts[k])+Vector((0,0,.34));d=Vector(pts[k+1])-Vector(pts[k-1]);u=Vector((1,0,0));v=d.cross(u).normalized()
-            points=[center+u*.373*math.cos(j*math.tau/16)+v*.373*math.sin(j*math.tau/16) for j in range(17)]
+            center=Vector(pts[k])+Vector((0,0,.37));u=Vector((1,0,0));v=Vector((0,0,1))
+            points=[center+u*.414*math.cos(j*math.tau/16)+v*.414*math.sin(j*math.tau/16) for j in range(17)]
             tube(rt,'Bolted tube seam flange',points,.018,'red',4,'Molded')
         ls=[]
-        for p in pts[1:-3:2]:ls.append([(p[0]+.36*math.cos(j*math.tau/16),p[1],p[2]+.34+.36*math.sin(j*math.tau/16)) for j in range(16)])
-        ob=loft(rt,'Enclosed tube barrel / 0.70 bore',ls,'red',caps=False)
+        for p in pts[0:-3:2]:ls.append([(p[0]+.39*math.cos(j*math.tau/16),p[1],p[2]+.37+.39*math.sin(j*math.tau/16)) for j in range(16)])
+        ob=loft(rt,'Enclosed tube barrel / 0.744 vertical bore',ls,'red',caps=False)
         mod=ob.modifiers.new('Rotomolded barrel gauge','SOLIDIFY');mod.thickness=.018;F.G.apply(ob)
     hood(rt,height)
     for i in (len(pts)//2,len(pts)-3):
@@ -184,6 +193,7 @@ def slide(rt,height=1.2192,kind='straight'):
     empty(rt,rt.name+'_Exit',pts[-1],'slide_exit')
 
 def arch(rt,height=1.2192):
+    interface_bridge(rt,height,.90)
     n=15;run=2.05
     def path(x):return [(x,-run*math.cos(t*math.pi/2),height*math.sin(t*math.pi/2)) for t in [i/n for i in range(n+1)]]
     for x in (-.42,.42):tube(rt,'Bent arch ladder side',path(x),.024,'rail',10)
@@ -193,14 +203,17 @@ def arch(rt,height=1.2192):
         for s in (-1,1):empty(rt,rt.name+f'_HandFoot_{i}_{s}',(s*.27,y,z),'child_hand_foot')
 
 def ladder(rt,height=1.2192):
+    interface_bridge(rt,height,.75)
     for x in (-.36,.36):tube(rt,'Vertical ladder rail',[(x,0,0),(x,0,height+.65),(x,.12,height+.75),(x,.24,height+.65)],.019,'rail',8)
-    for i in range(1,6):
-        z=height*i/5;cyl(rt,'Ladder rung',(-.36,0,z),(.36,0,z),.0143,'rail',8)
+    count=math.ceil(height/.28)
+    for i in range(1,count+1):
+        z=height*i/count;cyl(rt,'Ladder rung',(-.36,0,z),(.36,0,z),.0143,'rail',8)
         for x in (-.22,.22):empty(rt,rt.name+f'_HandFoot_{i}_{x}',(x,0,z),'child_hand_foot')
 
 def net(rt):
     # Diagonal chained square mesh drapes, with actual supporting side rails.
     W=1.02;run=1.65;H=1.2192
+    interface_bridge(rt,H,1.02)
     for x in (-W/2,W/2):tube(rt,'Net perimeter rail',[(x,-run,0),(x,0,H),(x,.10,H+.38)],.024,'steel',10)
     def p(u,v):return ((u-.5)*W,-run*(1-v),H*v-.09*math.sin(math.pi*u)*math.sin(math.pi*v))
     for i in range(5):
@@ -212,6 +225,7 @@ def net(rt):
             empty(rt,rt.name+f'_HandFoot_{j}_{i}',q,'child_hand_foot')
 
 def rock(rt):
+    interface_bridge(rt,1.2192,.94)
     loops=[]
     for z,w,y in [(0,.93,-1.23),(.28,.99,-1.02),(.75,.91,-.65),(1.18,1.01,-.17),(1.29,.92,0)]:
         loops.append([(-w/2,y,z),(-w*.23,y-.045,z+.025),(w*.19,y-.02,z-.015),(w/2,y,z),(w/2,y+.07,z),(0,y+.095,z),(-w/2,y+.07,z)])
@@ -226,11 +240,11 @@ def rock(rt):
 def pole(rt):
     H=1.2192;top=H+1.60
     cyl(rt,'Fire pole dedicated anchored support',(.45,0,0),(.45,0,top),.0635,'steel',16)
-    tube(rt,'Bent fire pole / 42mm OD',[(0,-.49,0),(0,-.49,top-.13),(0,-.45,top-.025),(.08,-.35,top+.035),(.32,-.10,top+.035),(.45,0,top-.05)],.021,'zinc',12)
+    tube(rt,'Bent fire pole / 42mm OD',[(0,-.43,0),(0,-.43,top-.13),(0,-.39,top-.025),(.08,-.29,top+.035),(.32,-.10,top+.035),(.45,0,top-.05)],.021,'zinc',12)
     for z in (H+.12,H+.93):
         F.clamp(rt,.45,0,z)
-        cyl(rt,'Fire pole standoff',(.45,-.08,z),(0,-.49,z),.022,'steel',8)
-    empty(rt,rt.name+'_Hands',(0,-.49,H+.58),'child_hands')
+        cyl(rt,'Fire pole standoff',(.45,-.08,z),(0,-.43,z),.022,'steel',8)
+    empty(rt,rt.name+'_Hands',(0,-.43,H+.58),'child_hands')
     empty(rt,rt.name+'_DeckEntry',(0,0,H),'deck_entry')
 
 def overhead(rt,rings=False):
@@ -258,9 +272,9 @@ def panel(rt,kind='wheel'):
         tube(p,'Steering rim',[(.24*math.cos(i*math.tau/16),0,.24*math.sin(i*math.tau/16)) for i in range(17)],.028,'yellow',8,'Molded')
         for i in range(3):
             t=i*math.tau/3;cyl(p,'Steering spoke',(0,0,0),(.23*math.cos(t),0,.23*math.sin(t)),.021,'yellow',8,'Molded')
-        cyl(p,'Steering boss',(0,.08,0),(0,-.04,0),.06,'yellow',12,'Molded')
+        cyl(p,'Steering boss',(0,.14,0),(0,-.04,0),.06,'yellow',12,'Molded')
     elif kind=='tic':
-        box(rt,'Activity board lower closure',(0,0,.07),(1.05,.027,.14),'blue',0,'Molded')
+        box(rt,'Activity board lower closure',(0,0,.0475),(1.05,.027,.095),'blue',0,'Molded')
         for x in (-.46,.46):box(rt,'Activity board side closure',(x,0,.50),(.12,.027,.84),'blue',0,'Molded')
         for z in (.24,.51,.78):
             cyl(rt,'Tic-tac-toe spindle',(-.42,-.09,z),(.42,-.09,z),.009,'zinc',8)
@@ -272,6 +286,8 @@ def panel(rt,kind='wheel'):
                 else:
                     for s in (-1,1):cyl(p,'Cross symbol',(-.05,-.107,-s*.05),(.05,-.107,s*.05),.008,'blue',3,'Molded')
     else:
+        box(rt,'Periscope mounting shelf',(0,-.09,.07),(.18,.22,.035),'steel',.005)
+        cyl(rt,'Periscope swivel bearing',(0,-.15,.08),(0,-.15,.18),.082,'steel',12)
         p=empty(rt,rt.name+'_Periscope',(0,-.15,.16),'',axis='Z',limits=(-90,90))
         tube(p,'Compound periscope body',[(0,0,0),(0,-.11,.08),(0,0,.16),(0,0,.80),(0,-.13,.89),(0,-.20,.89)],.07,'yellow',10,'Molded')
         cyl(p,'Recessed scope lens',(0,-.204,.89),(0,-.209,.89),.043,'rubber',12,'Molded')
@@ -281,7 +297,7 @@ def swing_frame(rt):
         for side in (-1,1):
             cyl(rt,'A frame 89mm tube leg',(x,side*1.16,0),(x,0,SWING_H),.04445,'steel',12)
         cyl(rt,'Cast A frame crown',(x-.13,0,SWING_H),(x+.13,0,SWING_H),.09,'steel',12)
-    cyl(rt,'Two bay 127mm swing beam',(-SWING_BAY-.20,0,SWING_H),(SWING_BAY+.20,0,SWING_H),.0635,'steel',16)
+    cyl(rt,'Two bay 127mm swing beam',(-SWING_BAY-SWING_OVERHANG,0,SWING_H),(SWING_BAY+SWING_OVERHANG,0,SWING_H),.0635,'steel',16)
 
 def swing(rt,bucket=False):
     # Each seat is an independently reusable subassembly on its real beam axis.
@@ -387,3 +403,11 @@ def neck_guard(rt):
     box(rt,'Landing transition closed guard',(0,0,.49),(.29,.030,.96),'blue',.008,'Molded')
     for x in (-.115,.115):
         for z in (.11,.87):bolt(rt,(x,-.020,z))
+
+def interface_bridge(rt,height,width=.9):
+    """Bolted steel/plastisol tongue across the 63.5mm post-center setback."""
+    box(rt,'Bolted deck interface tongue',(0,.07,height-.009),(width,.16,.018),'deck',.003)
+    for x in (-width*.34,width*.34):bolt(rt,(x,.12,height),(0,0,1),.006)
+    empty(rt,rt.name+'_DeckInterface',(0,.12,height),'deck_interface')
+
+def ramp_head_bridge(rt):interface_bridge(rt,0,1.30)

@@ -99,6 +99,11 @@ Final visual inspection and measured results are recorded below after the
 checkpoint rebuild. Fine normal detail, real fiber/EPDM finishes and the three
 ages remain the next stage, by the brief's stop condition.
 
+## Pass 4 — mechanical export gate
+
+**Color and value first.** Keep the fixed provisional palette, exposure and sun;
+this pass changes contact and dimensions, not exposure or age appearance.
+
 Final mechanical addendum: the close chain view showed that changing repeat
 length alone stretched each coated oval. The two alternating silhouettes now
 have a 45 mm link pitch and roughly 24 × 56 mm outer link dimensions, matching
@@ -111,3 +116,88 @@ sized child behind the barrier was still useless evidence. The last scale view
 places both markers clear of the equipment. Standalone swing assemblies in the
 piece sheet are lifted by the beam height so their seats are not buried below
 the sheet's review ground; the exported mating origins remain unchanged.
+
+
+The independent deck-entry check also caught the 2005 chain net and 2013 ladder
+placed on empty neighboring grid bays, plus a 48-inch wall beside a 72-inch deck.
+Move them to their real matching deck edges. The narrowed check samples only
+the actual entry-tongue / chute-floor triangles around the exported interface
+socket, rather than allowing an unrelated collision elsewhere to count as
+support. Tube entry has its own bolted flange; its nominal barrel is 780 mm
+with at least 744 mm vertical bore, leaving room at the sloped section. All
+slides remain under 4k. These are real construction corrections caught before
+the checkpoint was frozen.
+
+The final color review caught a bad neutral sample in the 2005 photograph: the
+small first rectangle fell on yellow handrail (median sRGB 199/165/79), making
+the comparison blue. It is now on the gray stair cheek (184/174/179), with
+modest channel gains. Neither the model color nor its exposure was changed.
+The rotating drum window also gets a lower closure below the symbols' full
+rotation envelope, and the wheel/periscope have real rear shafts/bearings
+rather than a small air gap at their board mounts.
+
+
+The last dimensional audit also found the five-rung 72-inch ladder too widely
+spaced. It now has seven rungs, with imported rises of about 261 mm; the 48-inch
+unit retains five at 244 mm. Extend the 24-inch slide's level tail so its last
+flat region measures 354 mm rather than less than 11 inches. Move the fire-pole
+axis 60 mm toward the deck: actual imported reach is 494.5 mm, with 1.656 m
+above that platform. These are geometry corrections, not constants reported as
+measurements.
+
+Swing clearances now include the beam's 200 mm end overhang and the actual
+leg/seat surfaces. Seat-to-leg minimum is 775.5 mm; within-bay seat separation
+is 630.0 mm; lateral use-zone reserve is 1.8288 m from the real frame bounds.
+Each front/back reserve is 4.8768 m, exceeding twice the imported bearing height
+above the lowest nearby depressed surface (4.627–4.788 m). Shift the three frames
+250 mm outward and expand the surface accordingly. Composite-to-swing envelope
+gaps are now 254 / 191 / 283 mm. All three plans visibly retain contiguous
+protective surfacing rather than scattered equipment on an empty rectangle.
+
+### Final inspection and limits
+
+Opened the three final 40 mm / 1.65 m heroes, all three zone plans, the labeled
+piece sheet, every construction detail, scale image, actual-mesh sections and
+all three photo pairs. Whole-frame display luminance p1 / p50 / p99 is
+.006 / .478 / .915 (101), .022 / .475 / .895 (202), and .137 / .693 / .915
+(303), with zero fully clipped pixels in each. These describe framing and
+render values, not measured material albedos. The inclusive hero has more bright
+sky/rubber and still has a hard distant lawn horizon. Its cavities remain dark.
+
+The actual exported slide sections now show continuous trough floors at three
+stations; the tube preserves its inner/outer wall. They also expose the tube's
+overlapping exit sleeve/runout, which needs a unified high-detail junction.
+The entrance close-up still shows a small cheek intersection through a chute
+wall; the chain close-up exposes crossed-card transition fins and flat response.
+These are known weaknesses, not accepted final geometry/material polish.
+Smooth low-section highlights, identical clean coatings, the clay-like fiber and
+the sparse horizon also remain CG tells. Do not carry those into final look-dev.
+
+The comparison residuals are 17.0 px for Roswell's deck, 33.8 px for Adair's
+swings and 7.9 px for the 2005 stair, in each crop's native source pixels.
+Adair's arched uprights differ from the A frame, and its shaded exposure is not
+reproduced by the common daylight. The stair is the strongest camera fit;
+the deck pair establishes the post/collar/deck relationship but does not copy
+the source's decorative infill. Neither a small residual nor serialization
+agreement proves photographic realism.
+
+Imported-entry triangle tests confirm 5 / 5 / 7 fastened deck interfaces in the
+three sites. Sampled swing sweeps pass at -55…55 degrees in 11-degree increments;
+only the bearing articulation is an allowed contact. Other retained controls
+have not had a complete dynamic interaction/deformation audit. UVs are
+provisional tiled coordinates; final packing, density, bake and age treatment
+remain outside this checkpoint. No kit code or existing delivery was changed.
+
+The exact-repeat test initially found two differing bytes per older site, both
+in the same reused RedMaple trunk tangent component (-.9714 versus -.9715);
+positions, normals, UVs, indices and layout were identical. The checkpoint now
+omits explicit tangent accessors and lets importers derive tangent space from
+normal/UV data. This is recorded rather than weakening the byte-repeat check.
+Final normal-map validation must revisit explicit engine tangent conventions.
+
+The corrected export repeat passes: 104 glTF/BIN/image/site-manifest files
+are byte-identical in consecutive factory-startup builds. Imported checks pass
+for all 40 modules and three sites, including 17 actual entry contacts and 132
+sampled swing poses. Protected existing-delivery hashes are unchanged for all
+263 files. No final UV packing, normal bake, physical surfacing or standards
+certification is implied by these results.
