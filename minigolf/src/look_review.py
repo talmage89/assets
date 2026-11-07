@@ -52,6 +52,7 @@ def main():
      field=Path('textures/bake' if ch=='Normal' else 'build/procedural')/('T_Minigolf_'+ch+'.png')
      assert digest==hashlib.sha256(field.read_bytes()).hexdigest()
  if pairs:contact(pairs,'renders/look-matches/contact.jpg',800)
+ if source_pairs:contact(source_pairs,'renders/source-matches/contact.jpg',800)
  compare=Path('renders/comparison');rows=[]
  comparison_fingerprint=hashlib.sha256(Path('src/comparison.py').read_bytes()).hexdigest()
  for after in sorted(compare.glob('after-*.png')):
