@@ -5,7 +5,7 @@ import bpy
 from mathutils import Vector
 from kit import tiling
 from textures import RECTS
-from plan import center
+from plan import center,water_level
 FENCE_CHARTS=None
 
 def wet_mask(world):
@@ -114,7 +114,8 @@ def assign(ob,atlas,states):
      u=(world.x-math.floor((middle.x+1e-7)/tile)*tile)/tile;v=(world.y-math.floor((middle.y+1e-7)/tile)*tile)/tile
     if ob.get('coping'):
      u=(q.y*.17+q.x*.11)%1
-     # cross section: outside edge at -.22, waterline on the inner wall.
+     # Cast section: outside nose and inner splash face. The basin's actual
+     # tide line is measured separately below on its painted wall.
      v=ob['coping_v'][data.loops[li].vertex_index]
     if key=='brick' and ob.name.startswith('Jointed brick border'):
      # One modeled brick samples clay within one atlas brick, not a miniature
@@ -131,6 +132,14 @@ def assign(ob,atlas,states):
      if ob.get('stone_uv_m'):
       tile=ob['stone_uv_m'];middle=ob.matrix_world@poly.center
       u=(world[wa[0]]-math.floor((middle[wa[0]]+1e-7)/tile)*tile)/tile;v=(world[wa[1]]-math.floor((middle[wa[1]]+1e-7)/tile)*tile)/tile
+    elif key=='liner':
+     # The painted wall's tide line follows the actual shallow-water datum,
+     # including the stream drops. Local wet-film patches preserve blue paint
+     # and leave the floor clear; crown abrasion belongs to the coping chart.
+     tide=math.exp(-((world.z-water_level(world.y)-.003)/.055)**2)
+     patch=max(0,math.sin(world.x*2.7+world.y*1.3)*math.sin(world.y*3.8-world.x*.8))**2
+     damp=tide*age*(.10+.65*patch)
+     tint=[1-damp*.52,1-damp*.35,1-damp*.52]
     elif key=='soil' and ob.get('mulch_uv_m'):
      tile=ob['mulch_uv_m'];middle=ob.matrix_world@poly.center
      u=(world.x-math.floor((middle.x+1e-7)/tile)*tile)/tile;v=(world.y-math.floor((middle.y+1e-7)/tile)*tile)/tile

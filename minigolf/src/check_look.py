@@ -12,6 +12,29 @@ from kit.gltf import GLB
 from kit.image_io import read_png
 from textures import RECTS
 
+def paint_waterline(g):
+ """Measure packed paint tint against delivered water, without source masks."""
+ positions=[];colors=[];water=[]
+ for index,node in enumerate(g.json['nodes']):
+  if 'mesh' not in node:continue
+  for primitive in g.json['meshes'][node['mesh']]['primitives']:
+   name=g.json['materials'][primitive['material']]['name']
+   if name not in ('Minigolf','Minigolf_water'):continue
+   a=primitive['attributes'];uv=g.accessor(a['TEXCOORD_0']);uv[:,1]=1-uv[:,1]
+   p=g.accessor(a['POSITION']);p=(np.c_[p,np.ones(len(p))]@g.world(index).T)[:,:3]
+   key='liner' if name=='Minigolf' else 'water';u0,v0,u1,v1=RECTS[key]
+   mask=(uv[:,0]>u0+1e-6)&(uv[:,0]<u1-1e-6)&(uv[:,1]>v0+1e-6)&(uv[:,1]<v1-1e-6)
+   if key=='liner':positions.extend(p[mask]);colors.extend(g.accessor(a['COLOR_0'])[mask,:3])
+   else:water.extend(p[mask])
+ p=np.array(positions);c=np.array(colors);w=np.array(water);assert len(p) and len(w)
+ peak=p[np.argmin(c.min(axis=1))];tint=c[np.argmin(c.min(axis=1))]
+ nearest=w[np.argmin(np.sum((w[:,[0,2]]-peak[[0,2]])**2,axis=1))]
+ offset=float(peak[1]-nearest[1]);distance=float(np.linalg.norm(peak[[0,2]]-nearest[[0,2]]))
+ floor=c[p[:,1]<=p[:,1].min()+.0001]
+ assert tint.min()<.98 and abs(offset)<.075 and distance<.15,('Paint weather misses actual water',peak,nearest,tint)
+ assert floor.min()>.999,('Weather washes over painted floor',floor.min())
+ return dict(peak_tint_rgb=tint.tolist(),measured_peak_height_m=float(peak[1]),nearest_delivered_water_height_m=float(nearest[1]),measured_height_offset_m=offset,measured_plan_gap_m=distance,deepest_floor_minimum_tint=float(floor.min()),scope='Packed COLOR_0 versus nearest delivered pool/stream vertex, world glTF coordinates/Y up. No source weather or water-height function is called.')
+
 def main():
  report=[]
  for seed in (71,92):
@@ -46,7 +69,7 @@ def main():
    allocation+=w*h*4/3 # one 8-bpp map plus mips
    images.append(dict(name=im.get('name'),size=[w,h],channels=c,bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest()))
   assert len(images)==16 and allocation/1024**2<=81+1/3+1e-6,('Unplanned image allocation',seed,len(images),allocation/1024**2)
-  report.append(dict(seed=seed,triangles=counts,materials=len(g.json['materials']),images=images,compressed_gpu_mib=allocation/1024**2,gltf_bytes=path.stat().st_size,bin_bytes=path.with_suffix('.bin').stat().st_size,embedded_build_bytes=(Path('build/embedded')/path.with_suffix('.glb').name).stat().st_size,uv_escaped_triangles=int(uv_bad),course_uv_density_px_m_p5_p50_p95=np.percentile(density,[5,50,95]).tolist(),tint_minmax=[np.min(np.concatenate(colors),axis=0).tolist(),np.max(np.concatenate(colors),axis=0).tolist()]))
+  report.append(dict(seed=seed,triangles=counts,materials=len(g.json['materials']),images=images,compressed_gpu_mib=allocation/1024**2,gltf_bytes=path.stat().st_size,bin_bytes=path.with_suffix('.bin').stat().st_size,embedded_build_bytes=(Path('build/embedded')/path.with_suffix('.glb').name).stat().st_size,uv_escaped_triangles=int(uv_bad),course_uv_density_px_m_p5_p50_p95=np.percentile(density,[5,50,95]).tolist(),tint_minmax=[np.min(np.concatenate(colors),axis=0).tolist(),np.max(np.concatenate(colors),axis=0).tolist()],paint_waterline=paint_waterline(g)))
  normal=read_png('textures/ship/T_Minigolf_Normal.png')*2-1;error=np.abs(np.linalg.norm(normal,axis=-1)-1);assert error.max()<.012
  chart=json.loads(Path('build/fence-chart-reuse.json').read_text());wood=np.asarray(Image.open('../fences/textures/ship/T_WoodPrivacy_Normal.png'))
  for key,(x0,y0,x1,y1) in chart['pixel_rectangles'].items():assert wood[y0:y1,x0:x1,2].min()>=127,('Lumber normal points inward',key)

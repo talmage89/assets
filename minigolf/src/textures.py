@@ -85,7 +85,8 @@ def source(n=4096):
    check=np.exp(-((u-(.44+.006*np.sin(v*30)))/.003)**2)*np.clip((v-.15)*4,0,1);col*=1-.50*check[:,:,None];rough[:]=.93
   elif key=='coping':
    # UV V follows the cast section: abrasion is confined to the outer nose
-   # and the submerged inner face, never scattered across the crown.
+   # and inner splash face, never scattered across the crown. The painted
+   # basin's current tide line uses world-height vertex masks in look.py.
    fragment=np.clip((mid-.39)*5,0,1)
    edge=np.exp(-((v-.10)/.047)**2)
    waterline=np.exp(-((v-.88)/.07)**2)

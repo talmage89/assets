@@ -56,7 +56,7 @@ $(DELIVERIES) build/course.blend build/manifest.json &: $(SOURCES) $(MAPS) ../gr
 	$(MODEL) --python src/build.py -- --out build/course.blend
 model export: $(DELIVERIES) build/course.blend
 LANDSCAPES := $(foreach s,71 92,export/Minigolf-$(s)-landscape.gltf export/Minigolf-$(s)-landscape.bin)
-$(LANDSCAPES) &: src/plant_export.py src/context.py src/paths.py src/plan.py src/landscape.py src/external.py $(CONTEXT_DEPS) | context
+$(LANDSCAPES) &: src/plant_export.py src/native_rounding.py src/context.py src/paths.py src/plan.py src/landscape.py src/external.py $(CONTEXT_DEPS) | context
 	$(KIT)/with_gpu.sh $(BP) --python src/plant_export.py
 plants: $(LANDSCAPES)
 check: model plants
