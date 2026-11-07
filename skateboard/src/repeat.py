@@ -1,7 +1,7 @@
-"""Compare independent rebuilds; never infer determinism from input constants."""
-import hashlib,json
+"""Exact byte comparison of independent raw form exports."""
+import argparse,hashlib,json
 from pathlib import Path
-files=['build/skateboard.glb','build/repeat.glb'];hashes=[hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in files]
-a=json.loads(Path('build/skateboard.json').read_text());b=json.loads(Path('build/repeat.json').read_text())
-r=dict(passed=hashes[0]==hashes[1] and a['parts']==b['parts'],method='Independent factory-startup generation, exact GLB bytes and per-part counts',files=files,sha256=hashes)
-Path('build/repeat-check.json').write_text(json.dumps(r,indent=2));print(r);assert r['passed']
+p=argparse.ArgumentParser();p.add_argument('--expected',default='build/new/model.glb');p.add_argument('--actual',default='build/repeat-form.glb');p.add_argument('--out',default='build/repeat-form.json');a=p.parse_args()
+x=Path(a.expected).read_bytes();y=Path(a.actual).read_bytes();result=dict(byte_identical=x==y,sha256=hashlib.sha256(x).hexdigest(),actual_sha256=hashlib.sha256(y).hexdigest())
+Path(a.out).write_text(json.dumps(result,indent=2));print(result)
+if x!=y:raise SystemExit('Repeated form GLB differs')

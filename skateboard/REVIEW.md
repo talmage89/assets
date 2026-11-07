@@ -151,3 +151,80 @@ Local review paths: `renders/checkpoint/contact.jpg`, `matched-pairs.jpg`,
 `renders/seeds/`. All are ignored, rebuilt outputs. No final `docs/` image is
 committed. Stop here: surface aging, original marks, normal-map detail, bake,
 atlas and delivery consolidation remain the next gate.
+
+## Form correction / pass 6 — rounded press and visible construction
+
+Color and value: these comparison renders still use the accepted quick palette.
+They judge silhouette, rail section and hardware exposure. The pale ivory wheels
+and untextured black grip are not a look approval. Concrete in the photographs
+is the neutral assumption; the loose 2005 truck uses its zinc cup washer.
+
+The lead correctly rejected the straight knees, five-chord concave, square rail,
+faceted outlines and wheel rims, blobby yoke and hidden bushing stack. The new
+press integrates a smooth slope over an 80 mm transition, with slight continuing
+curvature in the kick. On `period-horizontal.jpg`, the visible rear transition
+occupies roughly X=980…1100 of a roughly 1210 px deck span: normalized to this
+815.975 mm class, about 81 mm. Perspective, concave and unknown photographic
+board dimensions limit this to roughly ±20 mm; it is not a recovered mold.
+The authored minimum transition radius is about 164 mm (6.45 in), rather than
+a hinge between two planes. Mesh rays independently measure the kick slope.
+
+The transverse curve is flatter in the center and rises progressively at the
+rails. The full 5.25 mm half-gauge roundover carries all seven veneer bands;
+there are no square veneer strips or buried stacked faces. Actual imported-mesh
+sections at Y=0, −200 and −320 mm are rendered with ray-derived inspection caps.
+The end contour has 64 arc samples; wheels have 64 radial sides. Mounting drive
+recesses move into the bake source, while the actual eight bores/countersinks
+remain. Entirely buried spacer bodies and bearing backs are omitted.
+
+A narrower, drafted annular hanger seat opens the bushing view; cup washers
+have raised lips. The baseplate now has side pockets and raised ribs beside the
+kingpin pedestal. Dense original voxel-fused sculpted sources retain all bores.
+The game castings still show reduction shading in quick-material macro views;
+their dense normal bake must be judged separately. The bearing shield starts
+outside the steel inner race, exposing a narrow race beside the nut flats.
+
+An actual modeling failure was caught before look-dev: Exact Boolean inverted
+the new curved deck shell and added cutter-shaped protrusions. The asset uses
+Manifold for those machined cuts. Positive volume, all eight open-hole rays,
+closed structural topology, actual bushing support and sampled metal clearance
+are independently checked. No generic kit Boolean behavior was changed.
+
+Same-camera native-resolution comparisons are rebuilt in
+`renders/form-fixes/`: `side-before-after.jpg`, `hero-before-after.jpg`,
+`tail_plies-before-after.jpg`, `truck-before-after.jpg`,
+`truck_inner-before-after.jpg`, `wheel_bearing-before-after.jpg`, and the three
+`section_*-before-after.jpg` panels. Each panel is 1440 px wide; these are local
+review images, not final docs. The preceding checkpoint is reconstructed from
+its tracked scripts at `8cc0710`, without another checkout or worktree.
+
+## Look pass 1 — first baked GLB, rejected macro response
+
+Color and value first: the new grip stays black at full frame and the fictional
+teal/orange print retains its dark ink. New urethane is a warm cream, not white.
+The exposed wood in the initial scrape source was too orange beside the
+neutral-balanced 2010 used board; its scratch substrate was shifted to lighter
+maple tan before the used-state review. These are material decisions, not a
+claim to recover albedo from a photograph.
+
+Opened all six 1200 px images in `renders/look-pass1/new/`, rendered from
+`build/new/pass1.glb` with the first baked maps. The bottom print is readable,
+but the truck has broken reflection patches at the washer/bushing interfaces.
+The bearing and wheel lettering blur in the macro, and the eight flat bolt
+heads lose their normal-only drive recesses. The first grip has useful broad
+value but reads too fine/smooth in macro. Clean/new is not an excuse for these
+projection and density defects.
+
+Corrections: per-part temporary projection owners prevent high rays crossing
+small adjacent washer/bushing/deck gaps. Those helpers are removed by final
+assembly consolidation; they are not additional engine controls or draw calls.
+Bolt heads, bearing faces and wheel prints receive more atlas area. The source
+keeps their hex drives and 64-sided axles; tiny manufacturing detail remains in
+normal maps. Source UV overlap is corrected through narrower projections and
+convex island packing, rather than accepting an overlap tolerance failure.
+
+The full-size crop of the 2010 truck also rejects the remaining rod-like pivot
+bridge. A continuous compound triangular outer web now connects the axle
+housing to the pivot nose, while the annular bushing seat remains behind it.
+This is a new sculpted loft/union, not a side-profile extrusion. The casting
+still needs a same-light source/export comparison after this change.

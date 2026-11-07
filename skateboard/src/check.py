@@ -24,7 +24,7 @@ for o in meshes:
     topology[o.name]=dict(boundary_or_nonmanifold=bad,zero_area_faces=zero);bm.free()
     # Thin bearing shields/insert annuli/speed rings are intentionally open,
     # seated faces; structural deck and all manufactured solid castings must close.
-    if o.get('part') in ('deck','hangers','baseplates','wheels'):require(bad==0,o.name+' structural topology is open')
+    if o.get('part') in ('deck','hangers','baseplates','wheels','delamination'):require(bad==0,o.name+' structural topology is open')
     require(zero==0,o.name+' degenerate faces')
 dense_counts={}
 for o in bpy.context.scene.objects:
@@ -112,6 +112,8 @@ for label,sign in (('Front',-1),('Rear',1)):
     measured=(high-low).dot(axis) if low is not None and high is not None else 0
     seat_gauges.append(dict(truck=label,actual_mesh_annular_web_thickness_m=measured,gauge_radial_offset_m=.0094));require(.0073<measured<.0083,'Measured bushing seat web thickness incorrect')
 proof['bushing_seat_gauges']=seat_gauges
+for flap in [o for o in meshes if o.get('part')=='delamination']:
+    gap,method=distance(flap,deck);contacts.append(dict(a=flap.name,b=deck.name,gap_m=gap,method=method));require(gap<.0002,'Delaminated ply has no attachment')
 proof['mount_contacts']=contacts
 # Kit surface sweep focuses on wheel-bite and mounting hardware clearance.
 # Bushings are deformable in reality, so they and the kingpin/cup interfaces

@@ -1,16 +1,17 @@
-# Ditchlight street skateboard — form checkpoint
+# Ditchlight street skateboard — look-dev checkpoint
 
-An original scripted street skateboard for a 1995–2015 American town. This is
-the **form and construction checkpoint, before look-dev**. The exported GLB
-uses temporary material factors. Graphics, age, UVs, baked maps and final docs
-are deliberately deferred. No existing delivery, toolkit file or top-level
-index is changed.
+An original scripted street skateboard for a 1995–2015 American town. This
+checkpoint includes the corrected form, three age states, original graphics,
+4096 bakes and 2048 textured GLBs. It stops before final docs and a README
+gallery. [LOOKDEV.md](LOOKDEV.md) describes the current pipeline and review paths;
+[REVIEW.md](REVIEW.md) records the actual image critiques and remaining limits.
 
-`make` generates a seven-ply popsicle deck, trimmed grip edge, actual eight-hole
-mounting pattern and countersunk Allen heads, two compound cast trucks, bushings,
-pivot cups, kingpins, washers, locknuts, four urethane wheels, eight shielded 608
-bearings, spacers and speed rings. Every vertex is authored by these scripts.
-The dense source castings remain separate and excluded from the GLB.
+`make` rebuilds the seven-ply pressed deck, eight through-holes and recessed
+Allen hardware, sculpted cast trucks, bushings and cup washers, profiled wheels
+and visible 608 race/shield faces. Entirely buried nylon inserts, spacer bodies
+and outboard speed rings remain in the manufacturing source and are omitted
+from the game mesh. Every vertex, material, graphic and texel comes from these
+scripts. Dense sculpts and temporary projection helpers do not ship.
 
 ## Dimensions and sources
 
@@ -28,8 +29,8 @@ glTF is +Y up, +Z forward. One Blender unit is one meter.
 | Hole pattern per truck | 1.625 × 2.125 in / 41.275 × 53.975 mm; 5 mm bores |
 | Veneers / finished maple | 7 nominal 1/16 in veneers; estimated 10.5 mm after pressing/sanding |
 | Layup / grip | L/L/C/L/C/L/L; estimated 0.55 mm grip sheet |
-| Mold concave | .30 in / 7.62 mm nominal rail rise at 8 in; actual near-edge gauge in `build/check.json` |
-| Nose / tail kick | 18° / 18°; measured from actual centerline ray hits |
+| Mold concave | .30 in / 7.62 mm nominal rail rise at 8 in; actual tangent-region gauge in `build/new/construction.json` |
+| Nose / tail kick | 18° mold class; continuous 80 mm transitions, slightly curved kicks |
 | Truck mounting face → axle | 55 mm; matched 203.2 mm axle width, 137 mm cast hanger |
 | Baseplate | Original estimated 58 × 80 mm casting; measured bounds/sections retained |
 | Wheels | 54 × 32 mm; 15 mm nominal cylindrical riding band, rounded shoulders |
@@ -48,46 +49,54 @@ The deck is a welded closed shell with seven exposed veneer bands and no buried
 stacked internal faces. Castings fuse curved lofts, rounded volumes and tapered
 arms, then retain dense sources and reduced game surfaces. Bores, flared bushing
 recesses, annular seats and machined nut lands are real geometry. Small edge
-bevels and surface grain wait for the normal bake. Actual triangle-plane sections
+bevels, drive machining, cast grain, wood fibers and axle threads transfer to
+the normal bake. Actual triangle-plane sections
 of the dense/game castings and the re-imported deck expose their construction.
 Hard urethane has a riding band and geometric ground line, rather than a car
 tire's flattened footprint.
 
-## Counts and texture plan
+## Counts and materials
 
-The default is **11,662 triangles**, below the 12,000 ceiling. The inspection GLB
-retains 95 named meshes and 16 temporary factor materials, **zero images**.
-It is **397,852 bytes**; its SHA-256 is in `build/skateboard.json` and `build/check.json`.
-The final atlas/consolidation will reduce this inspection split to rigid groups;
-these temporary draw calls are not claimed as a finished game delivery.
+The new and season boards have **13,874 triangles**. Beat adds 40 triangles
+for two attached maple splinters: **13,914**, within this round's 14k allowance.
+The denser deck and 64-sided wheels take the silhouette budget; buried hardware
+and bearing faces pay for it. Each visible bolt head/drive is 56 triangles.
 
-| Part group | Default triangles |
+| Part group | New / season triangles |
 | --- | ---: |
-| Deck and grip shell | 1,924 |
-| Eight mounting fastener assemblies | 1,216 |
-| Two cast baseplates | 1,050 |
-| Two sculpted hangers | 1,400 |
-| Bushings | 480 |
-| Kingpins, pivot cups and washers | 872 |
+| Deck and grip shell | 4,128 |
+| Eight mounting fastener assemblies | 768 |
+| Two cast baseplates | 1,066 |
+| Two sculpted hangers | 1,496 |
+| Bushings | 640 |
+| Kingpins, pivot cups and washers | 800 |
 | Steel axles | 64 |
-| Four urethane wheels | 3,136 |
-| Eight bearings and shields | 896 |
-| Bearing spacers and speed rings | 384 |
-| Axle nuts and nylon inserts | 240 |
-| **Whole board** | **11,662** |
+| Four urethane wheels | 4,096 |
+| Eight visible bearing race/shield pairs | 640 |
+| Exposed inboard speed rings | 80 |
+| Axle nuts | 96 |
+| **Whole board** | **13,874** |
 
-[TEXTURES.md](TEXTURES.md) plans one 4096 bake, shipped as one 2048 BaseColor /
-OpenGL +Y Normal / ORM set, about **16 MiB compressed with full mip chains**.
-One delivered material; no extra hardware atlas. Fictional deck/wheel/truck
-marks, three original graphic designs and grip stickers are planned there.
-`new`, `season` and `beat` are registered states but intentionally have no
-visual age effect yet; that next stage includes localized geometric damage.
+Each state has one **2048 BaseColor / OpenGL +Y Normal / ORM** set, baked at
+4096. Three response classes share its images: common opaque surfaces,
+clear-coated maple/ink, and satin urethane with modest transmission. There is
+no extra hardware atlas. One resident state costs about **16 MiB compressed
+with mip chains**; all three age atlases cost about **48 MiB**. Actual GLB/map
+bytes, material/primitive counts and UV densities are recorded in
+`renders/lookdev/budgets.json` and `build/<state>/verify.json`.
 
-Seed 0 is 8 in / 32.125 in, 54 mm wheels. Seeds 1/2/3 use 7.75/8.25/8.5 in
-widths, matching axles, 51/53/56 mm wheels and original deck envelopes in the
-brief's ranges. Seed 3 adds 3.175 mm risers. The alternate seeds measure **11,602 / 11,582 / 11,940 triangles**; their GLBs
-are **397,368 / 396,040 / 409,512 bytes**. `make check-variants` measures all
-three alternatives, including deck → pad → plate supports on the riser seed.
+[TEXTURES.md](TEXTURES.md) documents causal aging and the three original
+Ditchlight / Kilnline / Static Orchard sheet designs. Wheel marks are Kilnline;
+truck marks are Crossway. The default Ditchlight board is exported in all three
+ages. New is clean manufactured material; season has belly slides, kick/rail
+chips, foot dirt/polish, bright hanger grinds and yellowed coned wheels. Beat
+adds a razor tail, lifted veneers, shoe-goo repair and torn nose grip.
+
+Seed 0 is 8 in / 32.125 in, with 54 mm wheels. Seeds 1/2/3 use 7.75/8.25/8.5 in
+widths, matching axles, 51/53/56 mm wheels and original envelopes in the brief's
+ranges. Seed 3 adds 3.175 mm risers. The solid pad is retained in the source;
+the game omits its clamped top/bottom and hidden hole walls. Alternate sizes
+remain construction variants, not additional look-dev approvals.
 
 ## Moving parts and sockets
 
@@ -106,7 +115,8 @@ motion and separate inner-race motion are not simulated.
 | `Socket_Rest_Ground` | Footprint ground center, identity |
 | `Socket_Rest_Wall` | Surface-derived wall contact frame; see alignment below |
 
-Default cup centers are `(0, ±234.55, 73)` mm. World steering axes are approximately
+Axes above are Blender local axes. In glTF, local Z becomes local Y; the
+wheel axle remains local X. Default cup centers are `(0, ±234.55, 73)` mm. World steering axes are approximately
 `(0, +.80961, −.58697)` front and `(0, −.80961, −.58697)` rear: **35.94° to
 the deck plane**, measured from actual pivot matrices. The kingpin itself is
 20° from vertical toward its axle. To demonstrate a coordinated carve, apply
@@ -117,55 +127,55 @@ manufacturer stop specification.
 For a wall at world Y=0, outward normal +Y, align `Socket_Rest_Wall` to a target
 rotated −90° around X, at Z=`wall_alignment_height_m` from its extras. The whole
 board then leans 78° with its measured lowest surfaces on floor Z=0 and wall
-Y=0. `build/check.json` names the actual contact meshes; the dedicated render
+Y=0. `build/<state>/construction.json` names the actual contact meshes; the dedicated render
 uses the same complete socket alignment. Moving the target carries the board.
 
 ## Rebuild and verification
 
-Installed Blender 5.2, Python/Pillow/NumPy, GNU make, Noto Sans and flock.
-Only cited photos/PDFs are downloaded; no packages, models, materials or lighting.
-All Cycles work holds the kit GPU lock and uses OptiX/CUDA when available.
+Installed Blender 5.2, Python/Pillow/NumPy, GNU make, DejaVu/Noto fonts and flock.
+Only cited photos/PDFs are fetched. Blender calls run serially in this worktree;
+all Cycles bakes/renders hold the shared kit GPU lock and use OptiX/CUDA.
+The before comparison reconstructs tracked scripts at `8cc0710`, requiring that
+commit in the local history. No other checkout or worktree is used.
 
 ```sh
-make                         # refs, model/GLB, checks, Cycles, photo pairs, sheets
-make check                   # construction, normals, motion, fresh import, sections, repo rules
-make repeat                  # independent factory-startup rebuild; exact GLB bytes
-make check-variants           # all three alternate dimensions and riser supports
-make variant-renders         # alternate GLB heroes, plus widest seed's side
-make PASS=another WIDTH=1200 SAMPLES=32
-make clean                   # generated build/renders only; references stay cached
-make                         # rebuild from scripts
+make                         # complete look-dev checkpoint; no docs/gallery
+make check                   # game/dense construction, GLB/UV/maps, repo rules
+make repeat                  # byte-identical export from accepted UVs/maps
+make repeat-form             # independent raw form rebuild and byte comparison
+make check-variants          # alternate dimensions, budgets and riser supports
+make WIDTH=1200 SAMPLES=32    # alternate presentation settings
+make clean                   # generated asset outputs; references stay cached
 ```
 
-Checks separate **physical construction** from **serialization**. Actual surfaces
-measure thickness, concave, kick angles, through holes, bushing-seat thickness,
-static nut clearance, supports and wall/floor contacts. Kit BVH/solid-parity
-sweeps test both hangers every 1° and all four wheels every 15° through 360°.
-Only the two urethane bushings and retained rubber pivot interface are allowed
-compliant contacts; metal interference is rejected. Sweeps are sampled checks,
-not continuous collision detection. Fresh GLB import separately verifies all
-meshes, counts, bounds, normals and complete pivot/socket matrices.
+Construction checks measure actual surfaces: scale, deck gauge/concave/kicks,
+eight bores, bushing seats, metal clearance, ground/wall contacts, bearing
+winding, and attached delamination. Game hangers sweep every 1° over ±12°;
+wheels spin every 15°. Dense source hangers get their own sweep. Only the
+bushings and retained rubber pivot are compliant exceptions. These are sampled
+checks, not continuous collision guarantees. Fresh baked-GLB imports separately
+verify counts, normals, UV overlap/density, texture dimensions and complete
+pivot/socket transforms; they prove serialization rather than construction.
 
-| Generated local path | Contents |
+| Local output | Contents |
 | --- | --- |
-| `build/skateboard.glb` | Form-checkpoint glTF binary; temporary factors, no textures |
-| `build/skateboard.blend` | Original game parts and retained dense castings |
-| `build/check.json` | Measured construction, motion, normals, wall rest and GLB preservation |
-| `build/sections.json` | Actual dense/game triangle-plane intersections |
-| `build/cameras.json`, `build/photo-balance.json` | Fits, residuals and neutral assumptions |
-| `renders/checkpoint/hero.png` | Three-quarter Cycles hero on concrete in raking sun |
-| `renders/checkpoint/contact.jpg` | All requested Cycles views, wall rest and scale |
-| `renders/checkpoint/matched-pairs.jpg` | Three period complete-board comparisons |
-| `renders/checkpoint/cast-sections.jpg` | Three sections through each dense/game casting |
-| `renders/checkpoint/steering.jpg` | Coordinated −12 / 0 / +12° demonstration |
-| `renders/checkpoint/` | Top, bottom, side, front, concave, truck/inner truck, wheel/bearing, tail/grip edges, scale, wall rest |
-| `renders/checkpoint/values.json` | Display-value tonal ranges; not recovered albedo |
+| `export/{new,season,beat}.glb` | Embedded baked game assemblies |
+| `textures/<state>/` | One three-map 2048 set |
+| `build/<state>/model.blend` | Game form and retained manufacturing sources |
+| `build/<state>/{high,finalized}.blend` | Dense finish source and UV-packed game assembly |
+| `build/<state>/{construction,high-check,verify}.json` | Separate physical and delivery audits |
+| `renders/form-fixes/` | Same-camera native-size before/after crops, three deck sections |
+| `renders/lookdev/<state>/` | Cycles heroes, tail/truck/bearing/grip close-ups |
+| `renders/lookdev/{pairs,source-pairs}/` | Three neutral-balanced photograph comparisons |
+| `renders/lookdev/contact.jpg` | All states and details |
+| `renders/lookdev/graphics-sheet.jpg` | The three original designs |
+| `renders/lookdev/{values,budgets}.json` | Measured tones and delivery costs |
 
-[REVIEW.md](REVIEW.md) records the critique rounds and unresolved limits. The
-mini close-up fit is approximate; complete-board photo dimensions are unknown,
-so they are normalized to the default class. Macro views still expose 28-sided
-wheel silhouettes and some reduced-casting facets. These and the unchamfered
-small hardware need the next normal-map/finish stage. No photoreal final,
-causal wear, graphic or texture-delivery approval is implied by this checkpoint.
-Original scripts and quick materials are ours; photographic credits stay in the
-reference register. No docs images are committed before final approval.
+The mini-board fit is retired. Current pairs use the 2006 horizontal used board,
+the 2010 used complete (including an exact close truck/wheel crop), and the
+2005 full-size loose truck. The photographs' unrecorded dimensions and lenses
+limit what their residuals prove. Neutral patches and gains are recorded in
+`build/photo-balance.json`; reference pixels never enter a material.
+
+No final docs images or README gallery are added at this checkpoint. Credits
+and licenses are in [refs/SOURCES.md](refs/SOURCES.md).

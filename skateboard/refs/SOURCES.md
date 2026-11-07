@@ -28,3 +28,15 @@ Photos/PDFs are measurement and visual comparison only. No reference enters geom
 - [US20160023088A1](https://patents.google.com/patent/US20160023088A1/en), Evan Einbender Aamodt, 2016: the line from pivot center through bushing-seat center defines hanger rotation. Used only for this geometric definition; no adjustable or reverse-kingpin parts copied.
 
 - [Roarockit Street Deck Maple 7 Layer Sets](https://www.roarockit.com/skateboard-building/veneer/street-deck/street-deck-maple-7-layer-sets/), manufacturer, copyright retained: seven 1/16 inch veneers, bottom/top faces, three long-grain cores and two cross bands. Finished 10.5 mm pressing/sanding gauge is our estimate.
+
+## Look-dev comparison selection
+
+The mini-board remains only in the historical form review; it is retired from
+current calibration. Current comparisons use `period-horizontal.jpg` (used
+grip/profile), `period-side.jpg` (used underside and a full-size truck/wheel
+crop), and `period-truck.jpg` (loose full-size casting/bushing construction).
+The two first images are used boards. The loose truck uses a broad procedural
+window light; the side image uses a raking sun and the horizontal image a camera
+flash estimate. Concrete, or the loose truck's zinc cup washer, is the neutral
+white-balance assumption. Crop coordinates, landmarks, gains and camera errors
+are retained in the generated calibration files; no reference is a texture.

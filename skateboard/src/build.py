@@ -250,10 +250,10 @@ def build(s):
         web=[]
         for fraction in (-1,-.94,-.72,-.46,-.22,0,.22,.46,.72,.94,1):
             taper=max(0,1-abs(fraction))
-            upper=az+.0065+(pc.z-az-.003)*taper
+            upper=az+.0065+(pc.z-az-.018)*taper
             lower=az-.0065
             centerz=(upper+lower)/2
-            centery=ay+(pc.y-ay)*taper
+            centery=ay+(pc.y+steer.y*.018-ay)*taper
             radiusy=.0065+.0015*taper
             web.append([(fraction*hw,centery+radiusy*math.cos(math.tau*i/32),centerz+(upper-lower)/2*math.sin(math.tau*i/32)) for i in range(32)])
         pieces.append(G.loft('Triangular drafted outer hanger web',web,al))
@@ -280,6 +280,13 @@ def build(s):
             pad=G.profile(label+' riser pad',[(x,y+cy) for x,y in G.rounded_rectangle(.059,.081,.003,2)],s.underside-s.riser,s.underside,rubber,axis='Z')
             for x in (-s.pitch_x/2,s.pitch_x/2):
                 for y in (cy-s.pitch_y/2,cy+s.pitch_y/2):G.boolean(pad,G.cylinder('Riser bore',(x,y,z-.002),(x,y,z+.01),.0029,None,6))
+            # Retain the solid pad in the source. The game keeps its exposed
+            # perimeter; top/bottom and bolt bores are buried in the clamped stack.
+            G.apply(pad);solid=pad.copy();solid.data=pad.data.copy();solid.name=label+' riser pad__solid';bpy.context.collection.objects.link(solid)
+            solid['source_only']=True;solid.hide_render=True;solid.hide_set(True);pad['dense_source']=solid.name
+            bm=bmesh.new();bm.from_mesh(pad.data)
+            hidden=[f for f in bm.faces if abs(f.normal.z)>.2 or (abs(f.calc_center_median().x)<.026 and abs(f.calc_center_median().y-cy)<.037)]
+            bmesh.ops.delete(bm,geom=hidden,context='FACES_ONLY');bmesh.ops.delete(bm,geom=[v for v in bm.verts if not v.link_faces],context='VERTS');bm.to_mesh(pad.data);bm.free()
             tag(pad,'riser',root)
         for side,side_label in ((-1,'L'),(1,'R')):
             # Inner ring faces: hanger exit + .5 mm speed ring; 7 + 10 + 7 mm.
@@ -300,6 +307,10 @@ def build(s):
                 tag(annulus('608 '+label+side_label+str(bs)+' shield',at+Vector(axis)*.00705,axis,.0096,.0069,shield,20),'bearings',wr)
             # The 10 mm tubular spacer is wholly enclosed by the axle/bearings
             # and wheel core. Its hidden faces are omitted from the game mesh.
+            internal=ring('Bearing spacer '+label+side_label,(centerx-.005,ay,az),(1,0,0),.0055,.004,.010,steel,12)
+            tag(internal,'spacers',pivot);del internal['asset_set'];internal['source_only']=True;internal.hide_render=True;internal.hide_set(True)
+            internal=annulus('Buried outboard speed ring '+label+side_label,(side*(hw+.025),ay,az),(side,0,0),.006,.004,steel,12)
+            tag(internal,'spacers',pivot);del internal['asset_set'];internal['source_only']=True;internal.hide_render=True;internal.hide_set(True)
             # The outboard speed ring is completely covered by the nut.
             for distance in (hw,):
                 tag(annulus('Axle speed ring '+label+side_label,(side*(distance+.0005),ay,az),(side,0,0),.006,.004,steel,10),'spacers',pivot)
@@ -311,13 +322,15 @@ def build(s):
             y=v.co.y;u=max(0,min(1,(y-(s.tail_end-.042))/.042));u=u*u*(3-2*u)
             top=height(s,v.co.x,y)+s.thickness
             if v.co.z<top:v.co.z=top-(top-v.co.z)*(1-.62*age*u)
+        # Impact chips at the rear kick and opposite nose rail. Upper veneers
+        # lose more width; the lower bands remain visible under the fracture.
+        for v in deck.data.vertices:
+            x,y,z0=v.co;h=height(s,x,y);tier=max(0,min(1,((z0-h)/s.thickness-.30)/.70))
+            for side,cy0,span in ((1,s.tail_end-.024,.009),(-1,s.nose_end+.035,.008)):
+                band=max(0,1-abs(y-cy0)/span)
+                edge=max(0,min(1,(side*x/max(.001,halfwidth(s,y))-.80)/.20))
+                v.co.x-=side*.0023*age*band*edge*tier
         if s.state=='beat':
-            # A localized broken rail from rear-kick impacts. Shared shell
-            # vertices retain a closed deck, rather than overlapping decals.
-            for v in deck.data.vertices:
-                band=max(0,1-abs(v.co.y-(s.tail_end-.024))/.009)
-                edge=max(0,min(1,(v.co.x/max(.001,halfwidth(s,v.co.y))-.80)/.20))
-                v.co.x-=.0023*band*edge
             for k,(cx,yy) in enumerate(((-.014,s.tail_end-.013),(.011,s.tail_end-.009))):
                 loops=[]
                 for y0,width,drop in ((yy-.012,.014,0),(yy-.004,.013,-.0007),(yy+.002,.008,-.0015)):
@@ -332,7 +345,7 @@ def build(s):
             for v in o.data.vertices:
                 axial=v.co.x;rad=math.hypot(v.co.y,v.co.z)
                 if rad>.019:
-                    loss=age*.0012*max(0,min(1,(axial+.016)/.032))
+                    loss=age*.0012*max(0,min(1,(axial+s.contact_width/2)/s.contact_width))
                     v.co.y*=1-loss/rad;v.co.z*=1-loss/rad
     for name,xyz,kind,rot in [('Foot_Front',(0,-.12,s.underside+s.thickness+.00055),'foot',(0,0,90)),('Foot_Rear',(0,.255,height(s,0,.255)+s.thickness+.00055),'foot',(0,0,90)),('Hand_Carry',(-halfwidth(s,0),0,height(s,-halfwidth(s,0),0)+s.thickness/2),'hand',(0,90,0)),('Rest_Ground',(0,0,0),'ground',(0,0,0))]:
         o=G.pivot('Socket_'+name,xyz);o.parent=root;o['socket_kind']=kind;o.rotation_euler=tuple(math.radians(v) for v in rot)
@@ -349,7 +362,7 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--seed',type=int,default=0);p.add_argument('--state',choices=['new','season','beat'],default='season');p.add_argument('--out',default='build/skateboard.blend');a=p.parse_args(sys.argv[sys.argv.index('--')+1:]);s=spec(a.seed,a.state)
     build(s);out=Path(a.out).resolve();out.parent.mkdir(parents=True,exist_ok=True)
     # Keep dense sources in a hidden collection, never in the game export.
-    sources=bpy.data.collections.new('SOURCE / sculpted casting unions');bpy.context.scene.collection.children.link(sources)
+    sources=bpy.data.collections.new('SOURCE / retained manufacturing detail');bpy.context.scene.collection.children.link(sources)
     for o in list(bpy.context.scene.objects):
         if o.get('source_only'):
             for c in list(o.users_collection):c.objects.unlink(o)
