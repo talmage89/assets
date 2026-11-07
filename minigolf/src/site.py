@@ -5,7 +5,7 @@ from fixtures import roof
 from plan import center,halfwidth,level,local
 
 GRADING=False
-def grade(y):return .025*max(0,y+9) if GRADING else 0
+def grade(y):return .065*max(0,y+7) if GRADING else 0
 
 def walk(rt,name,points,width=1.524,z=.065):
  vs=[]
@@ -49,6 +49,8 @@ def pond_loops(adv):
    xy += [(x+width,y) for x,y in reversed(centers[:-1])]
   loop=[]
   for i,(x,y) in enumerate(xy):
+   x*=1+.12*math.sin(y*.85)+.07*math.sin(y*1.95)
+   y+=.30*math.sin(x*1.7+y*.65)
    zz=.015+grade(y) if k==0 else z
    if adv and k==2 and i>=57:zz=-.31
    loop.append((x,y,zz))
@@ -59,42 +61,54 @@ def basin(rt,adv):
  water=root('WaterSystem',parent=rt,kind='water_system')
  cx,cy=0,5;rx,ry=(3.6,7.0) if adv else (1.1,2.7);n=64;loops=pond_loops(adv)
  own(G.loft('Protected continuous EPDM basin and channel',loops,M['liner'],caps=False),water)
+ # Cast shoreline shelf shields the EPDM from feet and sunlight. The liner
+ # remains continuous underneath; only the lowest folded toe is exposed.
+ stone_loops=[[(x*.995,cy+(y-cy)*.995,z+.006) for x,y,z in loop] for loop in loops[:2]]
+ own(G.loft('Carved shoreline shelves',stone_loops,M['rocklight'],caps=False),water)
  mesh('Pond liner floor',loops[-1],[tuple(range(len(loops[-1])))],'liner',water,False)
  surface=[]
  for mid,floor in zip(loops[1],loops[2]):
   t=(-.17-mid[2])/(floor[2]-mid[2]);surface.append((mid[0]*(1-t)+floor[0]*t,mid[1]*(1-t)+floor[1]*t,-.17))
  mesh('Continuous pond and stream water',surface,[tuple(range(len(surface)))],'water',water,False)
- for i in range(n):
-  a=i*math.tau/n;x=cx+rx*1.15*math.cos(a);y=cy+ry*1.15*math.sin(a)
-  if adv and y<-.8 and abs(x)<1.2:continue
-  rock('Restrained pond-edge coping',(x,y,.015+grade(y)-.13),(.70,.75,.43),water,100+i,'rocklight')
-  if i%8==0:
-   # Wet exposed liner folds, with a visibly restrained upper edge beneath rock.
-   tube('Liner bank fold',[(x*.99,cy+(y-cy)*.99,-.06),(x*.95,cy+(y-cy)*.95,-.32),(x*.90,cy+(y-cy)*.90,-.54)],.012,'liner',water)
+ rim=[(x,y,z-.10) for x,y,z in loops[0]]
+ rockwall('Continuous mortared pond coping',rim,.48,.27,water,517,closed=True)
+ for i in range(0,len(rim),7):
+  x,y,z=rim[i];rock('Embedded irregular fieldstone',(x,y,z-.08),(.75+.15*math.sin(i),.58,.38),water,118+i,'rocklight')
  for i in range(5):
   a=i*2.4;ball('Lost pond ball',(.9*math.sin(a),cy+.7*i,-.54865),.02135,'white' if i%2 else 'yellow',water)
  if adv:
-  # Waterfall is a supported ledged shotcrete mass on the pond's east bank.
-  for i,(p,size) in enumerate((((3.0,9.8,-.10),(2.8,3.4,1.2)),((3.2,10.8,.65),(2.3,2.2,.70)),((2.5,9.2,.28),(1.6,1.5,.45)))):
-   rock('Sculpted shotcrete outcrop',p,size,water,290+i)
-  box('Waterfall stainless spill lip',(2.05,9.15,.88),(1.30,.19,.025),'metal',water,.003,2)
-  # Flow cross-section curls over lip and breaks in width; no rigid blue wall.
-  vs=[];fs=[]
-  for j in range(9):
-   t=j/8
-   for i in range(15):
-    u=i/14;vs.append((1.4+u*1.30,9.12-.25*math.sin(t*math.pi/2),.89-1.05*t+.035*math.sin(u*43+t*5)*t))
-  for j in range(8):
-   for i in range(14):k=j*15+i;fs.append((k,k+1,k+16,k+15))
-  mesh('Falling water curtain',vs,fs,'water',water,False)
-  for i in range(10):
-   a=i*.71;rock('Water impact foam',(2.03+.70*math.sin(a),8.82+.18*math.cos(a),-.16),(.26,.14,.025),water,710+i,'foam')
+  # One continuous stratified mountain, with three independent spill shelves.
+  mountain=rock('Quarry mountain',(3.5,11.1,-.10),(7.0,6.8,3.1),water,290,'rocklight')
+  cutter=box('Recessed fall channel tool',(2.0,8.1,1.6),(2.40,4.75,3.8),'black',water,0)
+  bpy.context.view_layer.update();G.boolean(mountain,cutter)
+  rock('Fractured fall west cheek',(.62,10.2,-.06),(1.10,2.1,2.45),water,300,'rocklight')
+  rock('Fractured fall east cheek',(3.40,10.3,-.05),(1.35,2.6,2.80),water,302,'rocklight')
+  rock('Western terraced outcrop',(-5.0,14.6,.4),(3.8,5.0,2.4),water,294,'rocklight')
+  for j,(yy,zz,width) in enumerate(((10.20,2.48,1.15),(9.60,1.63,1.55),(8.95,.72,1.9))):
+   box('Recessed spill lip',(2.0,yy,zz),(width,.36,.025),'metal',water,.004,1)
+   rock('Overhanging spill shelf',(2.0,yy+.40,zz-.22),(width+1.1,.85,.26),water,330+j,'rocklight')
+   vs=[];fs=[]
+   for v in range(9):
+    t=v/8
+    for u in range(17):
+     q=u/16;vs.append((2+(q-.5)*width,yy-.18-.30*math.sin(t*math.pi/2),zz-.88*t+.02*math.sin(q*46+t*7)*t))
+   for v in range(8):
+    for u in range(16):k=v*17+u;fs.append((k,k+1,k+18,k+17))
+   mesh('Aerated water cascading sheet',vs,fs,'water',water,False)
+   for i in range(6):
+    a=i*2.1;rock('Splash plume',(2+width*.36*math.sin(a),yy-.48+.15*math.cos(a),zz-.87),(.40,.23,.035),water,710+i,'foam')
   # The continuous basin above already contains the protected stream.
-  for y in (-3.0,-4,-5,-6.0,-6.8,-7.3):
-   for x in (-1.0,1.0):rock('Stream bank stone',(x,y,.015+grade(y)-.15),(.5,.65,.37),water,int((y+9)*100+x*30))
   footbridge(rt)
+  for j,yy in enumerate((-3.0,-5.6)):
+   rockwall('Stream bedrock riffle',[(-.70,yy,-.22),(-.25,yy+.12,-.20),(.2,yy-.1,-.21),(.68,yy+.05,-.22)],.32,.075,water,850+j,'rock')
+   for k in range(5):
+    rock('Riffle aeration',(-.52+k*.26,yy-.22,-.158),(.22,.31,.018),water,880+k,'foam')
+  # Gravity deposits collect at sheltered bends rather than across the pool.
+  for j in range(24):
+   a=j*2.4;x=-2.3+.45*math.sin(a);y=5.4+.9*math.cos(a)
+   mesh('Water-edge fallen leaf',[(x-.025,y,-.165),(x,y+.045,-.161),(x+.025,y,-.165),(x,y-.045,-.166)],[(0,1,2,3)],'leaf',water,False)
   # Return pipe follows the buried bank; only service ends are exposed.
-  tube('63 mm return service pipe',[(4.1,8.8,.05),(4.1,9.5,.05),(3.9,10.5,.66),(3.1,10.5,.85)],.0315,'black',water,10)
+  tube('63 mm return service pipe',[(4.1,8.8,.05),(4.1,9.5,.05),(3.9,10.5,1.90),(3.1,10.5,2.48),(2.0,10.30,2.48)],.0315,'black',water,10)
   box('Pump service vault',(4.9,8.8,grade(8.8)-.09),(.75,.85,.24),'concrete',water)
   box('Pump service lid',(4.9,8.8,grade(8.8)+.0425),(.78,.88,.025),'metal',water)
   box('Screened intake',(2.9,6.7,-.22),(.38,.38,.11),'black',water)
@@ -145,6 +159,49 @@ def clubhouse(p,rt):
   cyl('Racked putter shaft',(x,2.85,.288),(x,2.85,.30+length),.005,'metal',sub,8)
   cyl('Putter grip',(x,2.85,.30+length-.15),(x,2.85,.30+length),.011,'black',sub,8)
   box('Putter blade',(x+.025,2.85,.2675),(.10,.035,.045),'red',sub)
+ # Painted lap siding, separate corner casings and open framed windows.
+ for j in range(18):
+  z=.22+j*.135
+  box('Rear clapboard',(0,-d/2-.084,z),(w,.025,.14),'ivory',sub,0)
+  for side in (-1,1):
+   box('Side clapboard',(side*(w/2+.084),0,z),(.025,d,.14),'ivory',sub,0)
+ for side in (-1,1):
+  for yy in (-d/2,d/2):box('Corner casing',(side*(w/2+.10),yy,1.40),(.055,.16,2.65),'white',sub)
+ # Side windows: cut both wall and siding rather than lay glass on a wall.
+ for side in (-1,1):
+  wall=next(o for o in sub.children if o.name.startswith('Side wall') and o.location.x*side>0)
+  cutter=box('Window opening tool',(side*w/2,-.50,1.63),(.55,1.35,.94),'black',sub,0)
+  bpy.context.view_layer.update();G.boolean(wall,cutter)
+  for ob in list(sub.children):
+   if ob.name.startswith('Side clapboard') and ob.location.x*side>0 and 1.13<ob.location.z<2.13:
+    bpy.data.objects.remove(ob,do_unlink=True)
+  box('Side window glazing',(side*(w/2+.04),-.50,1.63),(.016,1.32,.90),'glass',sub,0)
+  for yy in (-1.22,.22):box('Window casing',(side*(w/2+.12),yy,1.63),(.08,.09,1.10),'white',sub)
+  for zz in (1.11,2.15):box('Window head and sill',(side*(w/2+.12),-.50,zz),(.11,1.52,.09),'white',sub)
+  box('Window center mullion',(side*(w/2+.14),-.50,1.63),(.06,.045,.96),'white',sub)
+ # Sliding service sash stows above the open counter. Its own track/pivot
+ # records a real translational range without filling the operating opening.
+ sash=root('Clubhouse__ServiceSash',(0,d/2-.18,1.86),parent=sub);sash['module']=False;sash['slide_axis']='X';sash['range_m']=[0,.82]
+ for xx in (-1.02,1.02):
+  box('Service sash glazing',(xx,0,.0),(1.92,.018,.55),'glass',sash,0)
+  for edge in (-.99,.99):box('Sash stile',(xx+edge,.025,0),(.035,.045,.61),'white',sash)
+  for zz in (-.30,.30):box('Sash rail',(xx,.025,zz),(2.02,.045,.035),'white',sash)
+ for zz in (1.49,2.22):box('Sliding sash track',(0,d/2-.09,zz),(4.30,.03,.045),'metal',sub)
+ # Canvas awning sags between four rafter supports.
+ for stripe in range(16):
+  vs=[]
+  for j in range(7):
+   q=j/6
+   for xx in (stripe/16,(stripe+1)/16):vs.append((-2.5+5*xx,d/2+.04+q*1.12,2.52-.38*q-.055*math.sin(q*math.pi)))
+  mesh('Striped service awning',vs,[(2*j,2*j+1,2*j+3,2*j+2) for j in range(6)],'red' if stripe%2 else 'ivory',sub,False)
+  box('Awning valance',(-2.5+(stripe+.5)*5/16,d/2+1.16,2.045),(5/16,.022,.19),'red' if stripe%2 else 'ivory',sub,0)
+ for xx in (-2.45,2.45):beam('Awning knee brace',(xx,d/2,1.85),(xx,d/2+1.10,2.14),.028,.028,'metal',sub)
+ board=root('Service boards',(0,d/2+.13,0),180,sub);board['module']=False
+ for xx in (-2.70,2.70):box('Menu backing',(xx,0,1.62),(.64,.025,1.1),'navy',board,.008)
+ for j,word in enumerate(('18 HOLES  $5','CHILDREN  $3','REPLAY  $2','OPEN 10 - 10')):text(board,word,(-2.70,-.02,1.95-j*.19),.58,.11)
+ for j,word in enumerate(('COLD DRINKS','SODA  $1','ICE CREAM $2','PLEASE RETURN')):text(board,word,(2.70,-.02,1.95-j*.19),.58,.11)
+ text(board,'RESTROOM',(-2.70,-.02,.86),.58,.11)
+ box('Service porch light',(2.45,d/2+.12,2.35),(.20,.14,.20),'yellow',sub,.014)
  socket(sub,'Counter',(0,d/2+.5,1.03),'service_counter');socket(sub,'Entry',(2.65,d/2+.6,.12),'entry')
  return sub
 
@@ -173,7 +230,7 @@ def build(p,parent):
  W,D=p['lot'];rt=root('Site',parent=parent,kind='site')
  # Boolean the exact same original rim polygon out of the graded ground.
  # Retain only its terrain skin: buried walls/bottom are construction helpers.
- ys=sorted(set((-D/2,-9,D/2)));top=[(x,y,.015+grade(y)) for y in ys for x in (-W/2,W/2)];n=len(top);verts=top+[(x,y,z-1.5) for x,y,z in top]
+ ys=sorted(set((-D/2,-7,D/2)));top=[(x,y,.015+grade(y)) for y in ys for x in (-W/2,W/2)];n=len(top);verts=top+[(x,y,z-1.5) for x,y,z in top]
  faces=[]
  for i in range(len(ys)-1):
   j=2*i;faces.extend(((j,j+1,j+3,j+2),(n+j+2,n+j+3,n+j+1,n+j)))
@@ -183,18 +240,51 @@ def build(p,parent):
  cutter=own(G.profile('Basin excavation tool',[(x,y) for x,y,z in pond_loops(p['water'])[0]],-3,3,M['grass'],axis='Z'),rt)
  bpy.context.view_layer.update();G.boolean(terrain,cutter)
  bm=bmesh.new();bm.from_mesh(terrain.data);bmesh.ops.delete(bm,geom=[f for f in bm.faces if f.normal.z<.5],context='FACES');bm.to_mesh(terrain.data);bm.free();terrain.data.update()
- # Paved serpentine route outside each playing envelope, continuous headlands.
- xs=(-26.4,-19.4,-12.4,5.6,12.6,19.6) if p['water'] else (-21.4,-14.4,-7.4,.6,7.6,14.6)
- for x in xs:walk(rt,'Connected side walk',[(x,y) for y in (-12,-9,0,11,22)],1.524)
- for y in (-12,22):walk(rt,'Connecting headland',[(-W/2+1.4,y),(W/2-1.4,y)],1.524)
+ # A common landscaped enclosure sits inside lawn perimeter buffers. Its
+ # pond excavation shares the liner outline, so neither layer blocks water.
+ if p['water']:
+  outline=[(22.6*math.cos(j*math.tau/64)+.65*math.sin(j*3*math.tau/64),7+20.0*math.sin(j*math.tau/64)+.35*math.cos(j*4*math.tau/64)) for j in range(64)]
+ else:outline=[(-21,-11.8),(18.7,-11.8),(19.7,20.8),(-21.8,20.8)]
+ bed=own(G.profile('Shared mulched landscape bed' if p['water'] else 'Classic shared concrete court',outline,-1,.020,M['soil' if p['water'] else 'concrete'],axis='Z'),rt)
+ for v in bed.data.vertices:v.co.z+=grade(v.co.y)
+ cutter=own(G.profile('Bed pond opening',[(x,y) for x,y,z in pond_loops(p['water'])[0]],-3,5,M['grass'],axis='Z'),rt)
+ bpy.context.view_layer.update();G.boolean(bed,cutter)
+ bm=bmesh.new();bm.from_mesh(bed.data);bmesh.ops.delete(bm,geom=[f for f in bm.faces if f.normal.z<.5],context='FACES');bm.to_mesh(bed.data);bm.free();bed.data.update()
+ # Continuous shared beds replace individual lawn plots. Curved edge paths
+ # follow each playing lane, with short crossovers only at the headlands.
  for h in p['holes']:
-  # Short approach from tee to its nearest route, plus separate exit from cup.
-  for tag in ('tee','cup'):
-   q=h[tag];x=min(xs,key=lambda x:abs(x-q[0]));t=.08 if tag=='tee' else .88;cx,cy=center(h,t);side=(-1 if x<q[0] else 1)*(1 if math.cos(math.radians(h['yaw']))>0 else -1);edge=local(h,cx+side*(halfwidth(h,t)+.015),cy,level(h,cx+side*halfwidth(h,t),t)+.0048);walk(rt,'Hole %d %s approach'%(h['number'],tag),[(x,edge[1],.070+grade(edge[1])),edge],1.0)
- # Central entrance route to both lobes, using the human bridge at the stream.
- walk(rt,'Entrance path',[(0,p['clubhouse'][1]+2.3),(0,-12)],1.8)
- for x in (-5.5,5.5):walk(rt,'Water-side promenade',[(x,y) for y in (-12,-9,0,11,22)],1.524)
- if p['water']:walk(rt,'Footbridge west landing',[(-5.5,-4,.065+grade(-4)),(-1.8,-4,.244)],1.524);walk(rt,'Footbridge east landing',[(1.8,-4,.244),(5.5,-4,.065+grade(-4))],1.524)
+  points=[]
+  for i in range(27):
+   t=i/26;cx,cy=center(h,t);side=-1
+   q=local(h,cx+side*(halfwidth(h,t)+1.05),cy,level(h,cx,t)-.055)
+   points.append(q)
+  walk(rt,'Curving lane-side walk',points,1.524)
+  for tag,t in (('tee',.08),('cup',.88)):
+   cx,cy=center(h,t);edge=local(h,cx-halfwidth(h,t)-.02,cy,level(h,cx,t)+.0048)
+   outer=local(h,cx-halfwidth(h,t)-1.05,cy,level(h,cx,t)-.055)
+   walk(rt,'Open '+tag+' landing',[outer,edge],.78)
+ if p['water']:
+  pts=[]
+  for j in range(97):
+   a=j*math.tau/96;x=17.25*math.cos(a);y=7+14.85*math.sin(a);pts.append((x,y,.065+grade(y)))
+  walk(rt,'Continuous inner circuit',pts,1.524)
+ else:
+  for y in (-10.6,20.6):
+   pts=[(-19+i*1.2,y+.36*math.sin(i*.7),.065) for i in range(31)]
+   walk(rt,'Shared paved headland',pts,1.524)
+ walk(rt,'Entrance path',[(0,p['clubhouse'][1]+2.3,.065),(0,-10.6,.065)],1.8)
+ if p['water']:
+  walk(rt,'Footbridge west landing',[(-5.0,-4,.065+grade(-4)),(-1.8,-4,.244)],1.524)
+  walk(rt,'Footbridge east landing',[(1.8,-4,.244),(5.0,-4,.065+grade(-4))],1.524)
+ if p['water']:
+  for j in range(10):
+   y=7.1+j*.34;top=.95+(j+1)*.15
+   box('Quarry stair tread',(5.9,y,top/2),(1.45,.345,top),'rocklight',rt,.008)
+  walk(rt,'Upper quarry ledge',[(5.9,10.5,2.45),(6.3,12.2,2.45),(7.0,14.0,2.45)],1.524)
+  for side in (-1,1):
+   beam('Quarry stair handrail',(5.9+side*.70,7.05,2.02),(5.9+side*.70,10.35,3.52),.038,.038,'wood',rt)
+   for j in (0,4,9):
+    y=7.1+j*.34;top=.95+(j+1)*.15;box('Quarry guard post',(5.9+side*.70,y,top+.48),(.07,.07,.96),'wood',rt)
  basin(rt,p['water']);clubhouse(p,rt)
  # A real parking row and two-way aisle enter off the road, separate from play.
  front=-D/2;py=front+6.4008
@@ -227,10 +317,25 @@ def build(p,parent):
  fence_run((left,back),(right,back),1)
  fence_run((left,fy),(-5,fy),-1);fence_run((5,fy),(right,fy),-1)
  for pos in ((-5,-12,.065),(5.5,22,.065),(-W/2+2,6,.065),(W/2-2,6,.065)):bench(rt,(pos[0],pos[1],pos[2]+grade(pos[1])),180 if pos[1]>0 else 0)
- for pos in ((-W/2+2,-12,0),(-W/2+2,21,0),(W/2-2,-12,0),(W/2-2,21,0),(5,0,0)):light(rt,(pos[0],pos[1],grade(pos[1])))
- # Fictional road sign on two steel supports; readable course, never real branding.
+ for pos in ((-W/2+2,-12,0),(-W/2+2,21,0),(W/2-2,-12,0),(W/2-2,21,0),(5,0,0),(-14,-4,0),(14,1,0),(-10,17,0),(11,18,0)):light(rt,(pos[0],pos[1],grade(pos[1])))
+ # Internally lit roadside pylon with a real steel column and cabinet returns.
  sign=root('RoadSign',(-W/2+4,-D/2+2,0),parent=rt,kind='sign')
- for x in (-1.3,1.3):box('Road sign post',(x,0,2.0),(.10,.10,4.0),'navy',sign)
- box('Road sign cabinet',(0,0,3.5),(4.4,.22,1.25),'red' if p['kind']=='classic' else 'navy',sign,.04,2)
- text(sign,p['name'].upper(),(0,-.12,3.76),4.10,.43);text(sign,'18 HOLES  •  MINI GOLF',(0,-.12,3.22),4.0,.25)
+ box('Pylon concrete plinth',(0,0,.22),(1.2,.85,.44),'concrete',sign,.025)
+ box('Pylon steel column',(0,0,2.8),(.35,.28,5.6),'navy',sign,.014)
+ box('Lit sign cabinet',(0,0,5.2),(5.0,.42,1.8),'navy',sign,.05,2)
+ box('Opal sign face',(0,-.222,5.2),(4.82,.025,1.61),'ivory',sign,.012)
+ text(sign,p['name'].upper(),(.33,-.240,5.57),3.7,.48)
+ text(sign,'@creek',(-2.02,-.240,5.57),.48,.48)
+ text(sign,'MINIATURE GOLF',(0,-.240,5.02),4.3,.30)
+ text(sign,'18 HOLES   •   OPEN LATE',(0,-.240,4.66),4.3,.20)
+ for x in (-.42,.42):
+  box('Sign service foot',(x,0,.47),(.14,.50,.05),'metal',sign)
+  for y in (-.17,.17):cyl('Pylon anchor bolt',(x,y,.47),(x,y,.53),.015,'metal',sign,8)
+ rear=root('Pylon reverse face',(0,.24,5.2),180,sign);rear['module']=False
+ box('Opal sign face',(0,.016,0),(4.82,.025,1.61),'ivory',rear,.012)
+ text(rear,p['name'].upper(),(.33,0,.37),3.7,.48)
+ text(rear,'@creek',(-2.02,0,.37),.48,.48)
+ text(rear,'MINIATURE GOLF',(0,0,-.18),4.3,.30)
+ text(rear,'18 HOLES   •   OPEN LATE',(0,0,-.54),4.3,.20)
+ socket(sign,'Light',(0,-.23,5.2),'sign_emitter')
  return rt

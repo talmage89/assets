@@ -39,7 +39,16 @@ def playing_mesh(h,parent):
  mesh('Four inch concrete slab edge',verts,[(i,(i+1)%n,(i+1)%n+n,i+n) for i in range(n)],'concrete',parent,False)
  filltop=[(x,y,z-.1064) for x,y,z in top]
  fillbase=[(x,y,.014) for x,y,z in top]
- own(G.loft('Compacted graded base with planted berm', [fillbase,filltop],M['grass'],caps=False),parent)
+ if not h.get('crossing'):
+  own(G.loft('Compacted graded base with planted berm', [fillbase,filltop],M['grass'],caps=False),parent)
+ else:
+  # The slab spans water on two real girders, seated at concrete abutments.
+  for x in (-.70,.70):
+   beam('Stream-crossing girder',(x,-h['length']/2,.02+h['base_z']),(x,h['length']/2,.02+h['base_z']+h['rise']),.14,.16,'wood',parent)
+  for t in (0,1):
+   cx,cy=center(h,t);zz=level(h,cx,t)-.1064
+   box('Stream-crossing abutment',(cx,cy,zz/2),(h['width'],.40,zz),'rocklight',parent,.012)
+
  ring('Cup aluminum liner',(cx,cy),.055975,.053975,z-.1016,z,'metal',parent)
  ring('Cup recessed drain floor',(cx,cy),.053975,.010,z-.1016,z-.0996,'black',parent)
  ring('Carpet cut edge',(cx,cy),.05599,.055975,z-.0048,z,'carpet',parent)
@@ -48,6 +57,16 @@ def playing_mesh(h,parent):
 def border(h,rt):
  rng=random.Random(h['number']+31)
  for side in (-1,1):
+  if h['border']=='rock':
+   run=[]
+   for i in range(53):
+    t=i/52;cx,cy=center(h,t);x=cx+side*(halfwidth(h,t)+.19)
+    if min(abs(t-.08),abs(t-.88))*h['length']<.42:
+     if len(run)>1:rockwall('Continuous carved rock bank',run,.28,.25,rt,h['number']*91+side)
+     run=[];continue
+    run.append((x,cy,level(h,x,t)-.025))
+   if len(run)>1:rockwall('Continuous carved rock bank',run,.28,.25,rt,h['number']*91+side)
+   continue
   n=25 if h['border']=='rock' else (int(h['length']/.215) if h['border']=='brick' else 14)
   for i in range(n):
    t0=i/n;t1=(i+1)/n
@@ -100,7 +119,7 @@ def play_feature(h,rt):
    beam('Loop support',(x+s*.35,y,z+.07),(x+s*.26,y,z+.62),.05,.05,'metal',rt)
 
 def build(h,parent):
- rt=root('Hole_%02d'%h['number'],(*h['origin'],0),h['yaw'],parent,kind='hole');rt['hole_number']=h['number'];rt['feature']=h['feature'];rt['footprint']=json.dumps(h['footprint'])
+ rt=root('Hole_%02d'%h['number'],(*h['origin'],0),h['yaw'],parent,kind='hole');rt['hole_number']=h['number'];rt['hole_spec']=json.dumps(h);rt['feature']=h['feature'];rt['footprint']=json.dumps(h['footprint'])
  audit=playing_mesh(h,rt);border(h,rt);play_feature(h,rt)
  tx,ty=center(h,.08);tz=level(h,tx,.08)+.0048
  # Real 36 × 24 in low rubber mat, recessed start disc, not a giant tee block.

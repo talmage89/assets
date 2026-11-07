@@ -62,6 +62,7 @@ def build(args):
  source_measure(roots)
  for ob in bpy.context.scene.objects:
   if ob.type=='MESH' and any(m.name=='Walk slab gauge' for m in ob.modifiers):assert min(p.normal.z for p in ob.data.polygons)>0,'Downward walk top: '+ob.name
+ bpy.ops.wm.save_as_mainfile(filepath=str(Path('build/source-form.blend').resolve()))
  F.finalize()
  # Set scale and retain authoring metadata as glTF extras.
  scene=bpy.context.scene;scene.unit_settings.system='METRIC';scene.unit_settings.scale_length=1
@@ -81,7 +82,8 @@ def build(args):
   bpy.ops.object.select_all(action='DESELECT');course.select_set(True)
   for ob in owned:ob.select_set(True)
   path=Path('export')/f'Minigolf-{p["seed"]}.gltf';path.parent.mkdir(parents=True,exist_ok=True)
-  bpy.ops.export_scene.gltf(filepath=str(path.resolve()),export_format='GLTF_SEPARATE',use_selection=True,export_yup=True,export_apply=True,export_texcoords=True,export_normals=True,export_tangents=False,export_materials='EXPORT',export_extras=True,export_cameras=False,export_lights=False,export_animations=False,export_texture_dir='textures')
+  bpy.ops.export_scene.gltf(filepath=str(path.resolve()),export_format='GLTF_SEPARATE',use_selection=True,export_yup=True,export_apply=True,export_texcoords=True,export_normals=True,export_tangents=True,export_materials='EXPORT',export_extras=True,export_cameras=False,export_lights=False,export_animations=False,export_texture_dir='textures')
+  bpy.ops.export_scene.gltf(filepath=str(path.with_suffix('.glb').resolve()),export_format='GLB',use_selection=True,export_yup=True,export_apply=True,export_texcoords=True,export_normals=True,export_tangents=True,export_materials='EXPORT',export_extras=True,export_cameras=False,export_lights=False,export_animations=False)
   doc=json.loads(path.read_text());images=[dict(uri=im['uri'],bytes=(path.parent/im['uri']).stat().st_size) for im in doc.get('images',[])]
   row=dict(seed=p['seed'],kind=p['kind'],plan=p,triangles=sum(triangles(o) for o in meshes),holes=hole_counts,fixtures=fixture_counts,modules=counts,materials=len(doc['materials']),meshes=len(doc['meshes']),primitives=sum(len(m['primitives']) for m in doc['meshes']),gltf_bytes=path.stat().st_size,bin_bytes=path.with_suffix('.bin').stat().st_size,images=images)
   manifest.append(row);path.with_suffix('.json').write_text(json.dumps(row,indent=2))

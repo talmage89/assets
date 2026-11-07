@@ -190,3 +190,57 @@ is economical massing and repeats. Carpet fiber, seams/patches, visible use,
 repainting, algae/mineral staining, final water response and shared finished
 UV/maps are deliberately deferred to look-dev. No final docs JPGs are committed.
 The assets stop here for the requested form/construction review.
+
+## Revision pass 5 — source form, broad photographs and two published plans
+
+**Color/value first.** The archived checkpoint's pale uniform rocks and clean,
+flat carpet remain rejected. The 2011/2007 course photographs are balanced on
+unclipped sunlit concrete (the existing `build/reference-balance.json` receipt).
+The new source palette targets buff rock, dark green polypropylene, gray
+weathered wood and repainted fixtures. Workbench does not certify those values,
+texture response, water, or wear: its gray foliage is a preview limitation.
+
+Opened all six requested archived frames at original resolution before design,
+then both 1200 px course overviews and every ground/detail Workbench diagnostic.
+Rejections and resulting construction changes:
+
+- The first compressed six-column arrangement was still visibly a grid. Reject
+  it. Adventure now has a perimeter circuit around the water and an inner
+  sequence; holes 15 and 18 span the stream/pond on girders and abutments. The
+  classic gets a common concrete court, rather than lawns between islands.
+- Middletown's layout/grading sheets show interlocking greens and roughly 66–73
+  ft contours. Oak Island's packet page 40 gives a second independent winding
+  water-crossing plan; its memo states 18,590 sq ft. The new adventure planning
+  enclosure is 1,840 m² (9.78 holes / 1000 m²), between the two published scale
+  comparators. This is an enclosure density, not a claim that green coverage
+  or every route length duplicates either site. `src/routing.py` samples the
+  actual authored outlines and levels; source/import tests remain separate.
+- Initial continuous rock had equally flat horizontal rings and still looked
+  like stacked discs. Reject it. Bed elevations now vary around each outcrop;
+  the mass is fractured and softly carved. The waterfall's first three sheets
+  were inside that mass: cut a spill channel and place three receiving ledges
+  behind exposed weirs. The new camera stays outside the crossing slab.
+- High greens must rise with their local grade, rather than use one height per
+  lane. Use actual station positions in the height function. The quarry stair
+  and ledge show the terrain change from the ground. Fine bumps/ramps retain
+  the accepted concrete/carpet/cup construction and topology density.
+- Windmill sails now have heavy stocks, leading boards, bars and diagonal
+  bracing; the tower has overlapping siding, windows and service door. The
+  lighthouse's real tunnel passes through masonry supporting its shaft. The
+  castle is a deep six-metre gatehouse with a keep, buttresses and corbels.
+- The clubhouse gains siding, open framed side windows, a sliding service sash,
+  canvas awning, price/menu boards, restroom marking, a porch light, stock and
+  putter racks. Sash bearings and slide clearance need the imported audit.
+- The new horizon uses actual library house, strip-mall, station, car, utility
+  pole and street-light construction. Native maple/oak and boxwood/hydrangea
+  replace massing substitutes; deterministic rotations/sizes and planted
+  masses replace the string of identical shrubs. This is presentation context,
+  accounted separately from the delivered lane/fixture geometry.
+
+The added Henderson photographs are visual references for buff shotcrete and
+wet/dry staining after use. Their gravel, irregular planted margins and broken
+water are substantially richer than the current source. Keep that difference
+visible in the next critique; a geometry audit cannot close it.
+
+Final material, matched-light and imported-GLB critique passes are still pending
+at this entry. No image here is represented as an approved look-dev result.

@@ -36,6 +36,14 @@ def windmill(rt):
   th=a*math.tau/8
   beam('Corner trim',(.70*math.cos(th),.70*math.sin(th),.74),(.45*math.cos(th),.45*math.sin(th),2.55),.045,.045,'red',rt)
  box('Motor service door',(0,.60,1.16),(.34,.035,.50),'navy',rt)
+ # Overlapping horizontal weatherboards follow the octagonal taper.
+ for j in range(19):
+  z=.76+j*.092;r=.72-(z-.72)*(.26/1.83)
+  cone('Painted tower lap siding',z,z+.097,r+.012,r-.014,'ivory',rt,8)
+ for side in (-1,1):
+  box('Tower recessed sash',(side*.38,-.54,2.13),(.22,.04,.30),'navy',rt)
+  for zz in (1.96,2.30):box('Tower window sill',(side*.38,-.57,zz),(.29,.07,.045),'red',rt)
+  box('Tower window mullion',(side*.38,-.57,2.13),(.024,.04,.30),'ivory',rt)
  cyl('Rotor shaft',(0,-.76,1.63),(0,.55,1.63),.035,'metal',rt,16)
  rotor=root(rt.name+'__Rotor',(0,-.79,1.63),parent=rt,kind='moving rotor');rotor['pivot_axis']='Y';rotor['range_degrees']=[0,360];rotor['module']=False
  hub=ring('Bored rotor hub',(0,0),.13,.0375,-.07,.07,'red',rotor,32);hub.rotation_euler.x=math.pi/2
@@ -46,6 +54,14 @@ def windmill(rt):
    beam('Sail longitudinal batten',(s*.07,0,.16),(s*.24,0,1.60),.035,.032,'red',blade)
   for j in range(9):
    z=.43+j*.142;w=.14+z*.20;box('Sail cross lath',(0,-.012,z),(w,.030,.052),'ivory',blade,.001,1)
+  beam('Heavy sail stock',(-.035,.023,.12),(-.035,.023,1.61),.065,.055,'red',blade)
+  # The leading third is closed with long pitched sail boards. The trailing
+  # lattice is left open; diagonal braces stop it reading as a ladder.
+  for j in range(3):
+   ob=box('Sail leading board',(-.065-j*.046,-.039,1.015),(.043,.024,1.17),'ivory',blade,.001)
+   ob.rotation_euler.z=.024
+  for off in (.065,.145):beam('Sail trailing lattice batten',(off,-.035,.42),(off*1.6,-.035,1.59),.018,.022,'ivory',blade)
+  beam('Sail diagonal brace',(-.15,-.048,.46),(.22,-.048,1.52),.022,.025,'red',blade)
  # Original door handle and base anchors read in fixture close-up.
  for x in (-.58,.58):
   box('Tower anchor shoe',(x,0,.025),(.22,.64,.05),'metal',rt)
@@ -54,8 +70,9 @@ def windmill(rt):
 
 def lighthouse(rt):
  # Four feet around a real through opening; no hole painted onto a solid cone.
- for s in (-1,1):box('Lighthouse tunnel cheek',(s*.39,0,.30),(.20,.84,.60),'ivory',rt,.014,2)
- arch(rt,'Lighthouse tunnel',-.43,0,.55,.57,.10,'ivory')
+ for s in (-1,1):box('Lighthouse masonry abutment',(s*.60,0,.30),(.62,1.60,.60),'rocklight',rt,.025,2)
+ arch(rt,'Lighthouse masonry tunnel',0,0,.55,.57,1.60,'rocklight')
+ ring('Lighthouse masonry base coping',(0,0),.94,.30,.57,.64,'concrete',rt,16)
  cone('Tapered lighthouse shaft',.59,3.58,.80,.50,'ivory',rt,32)
  for z in (1.28,2.32):cone('Painted tower band',z,z+.24,.80-(z-.59)*.10,.80-(z+.24-.59)*.10,'red',rt,32)
  ring('Gallery deck',(0,0),.85,.40,3.57,3.64,'navy',rt,32)
@@ -63,6 +80,8 @@ def lighthouse(rt):
   a=i*math.tau/16;cyl('Gallery stanchion',(.80*math.cos(a),.80*math.sin(a),3.64),(.80*math.cos(a),.80*math.sin(a),3.99),.012,'metal',rt,8)
  for z in (3.82,3.99):ring('Gallery handrail',(0,0),.814,.79,z-.008,z+.008,'metal',rt,32)
  cone('Lantern glazing',3.65,4.28,.40,.40,'glass',rt,12)
+ cyl('Lantern support',(0,0,3.64),(0,0,3.83),.022,'metal',rt,10)
+ cyl('Lantern reflector',(0,0,3.82),(0,0,4.12),.14,'metal',rt,12)
  for i in range(8):
   a=i*math.tau/8;cyl('Lantern mullion',(.41*math.cos(a),.41*math.sin(a),3.65),(.41*math.cos(a),.41*math.sin(a),4.30),.018,'navy',rt,8)
  cone('Lantern roof',4.28,4.61,.55,.025,'navy',rt,24)
@@ -83,16 +102,17 @@ def covered_bridge(rt):
  return dict(height=2.30,clear_width=1.07)
 
 def castle(rt):
- arch(rt,'Castle gateway',-.36,0,.72,.92,.48,'rocklight')
+ arch(rt,'Castle gateway',-.36,0,.72,.92,.48,'stonepaint')
  for x in (-.80,.80):
   sub=root('Castle turret',(x,0,0),parent=rt);sub['module']=False
-  cone('Turret barrel',0,1.89,.30,.30,'rocklight',sub,16)
+  cone('Turret barrel',0,1.89,.30,.30,'stonepaint',sub,16)
+  for z in (.18,.85,1.72):ring('Turret projecting stone course',(0,0),.327,.29,z,z+.06,'stonepaint',sub,16)
   ring('Turret parapet',(0,0),.36,.26,1.85,2.04,'ivory',sub,16)
   for j in range(8):
-   a=j*math.tau/8;box('Crenel',(.30*math.cos(a),.30*math.sin(a),2.13),(.16,.16,.22),'rocklight',sub)
+   a=j*math.tau/8;box('Crenel',(.30*math.cos(a),.30*math.sin(a),2.13),(.16,.16,.22),'stonepaint',sub)
   box('Arrow slit',(0,-.304,1.30),(.055,.014,.28),'black',sub)
   cone('Painted conical turret cap',2.02,2.80,.30,.015,'navy',sub,24)
- box('Gatehouse upper wall',(0,0,1.41),(1.1,.60,.70),'rocklight',rt)
+ box('Gatehouse upper wall',(0,0,1.41),(1.1,.60,.70),'stonepaint',rt)
  for x in (-.40,0,.40):box('Gatehouse merlon',(x,0,1.88),(.20,.63,.25),'ivory',rt)
  # Raised portcullis above the ball envelope, separate translation pivot.
  gate=root(rt.name+'__Portcullis',(0,-.66,.55),parent=rt);gate['module']=False;gate['slide_axis']='Z';gate['range_m']=[0,.40]
@@ -100,7 +120,18 @@ def castle(rt):
  for z in (.03,.25,.48):box('Portcullis crossbar',(0,0,z),(.55,.03,.025),'navy',gate)
  for x in (-.33,.33):
   box('Gate guide channel',(x,-.67,1.02),(.045,.045,1.16),'navy',rt)
- return dict(height=2.80,ball_portal=.72,gate_lowest=.55)
+ # A course-built gatehouse has depth, buttresses and a central keep.
+ for x in (-1.09,1.09):box('Battered castle buttress',(x,.13,.56),(.25,.88,1.12),'stonepaint',rt,.015)
+ keep=root('Castle rear keep',(0,.65,0),parent=rt);keep['module']=False
+ cone('Rear keep barrel',0,2.85,.40,.40,'stonepaint',keep,16)
+ cone('Rear keep spire',2.85,4.0,.48,.012,'navy',keep,20)
+ for z in (.65,1.45,2.30):box('Keep slit window',(0,-.405,z),(.08,.025,.28),'black',keep,.012)
+ # 1.5x construction scale, baked into meshes and pivot offsets, never an
+ # unapplied root transform. Overall 3.6m wide, 6m high; putt arch 1.08m.
+ for ob in list(rt.children_recursive):
+  ob.location*=1.5
+  if ob.type=='MESH':ob.data.transform(Matrix.Scale(1.5,4))
+ return dict(height=6.0,ball_portal=1.08,gate_lowest=.825)
 
 def shipwreck(rt):
  # Open wreck is a ribbed plank shell with a .56 m putt passage down its keel.

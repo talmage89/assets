@@ -21,24 +21,33 @@ def camera(shot):
  return o
 
 def views(p):
- W,D=p['lot'];adv=p['kind']=='adventure';h=p['holes'][0];tee=h['tee'];cup=h['cup'];fx=next(q for q in p['holes'] if q['fixture']=='windmill');fcx,fcy=center(fx,.49);fcz=level(fx,fcx,.49)+.005;c=local(fx,fcx,fcy,fcz)
+ W,D=p['lot'];adv=p['kind']=='adventure';bank_h=next(q for q in p['holes'] if q['feature']=='ramp');h=p['holes'][0];tee=h['tee'];cup=h['cup'];fx=next(q for q in p['holes'] if q['fixture']=='windmill');fcx,fcy=center(fx,.49);fcz=level(fx,fcx,.49)+.005;c=local(fx,fcx,fcy,fcz)
  def relative(pt,dx,dy,dz):return (pt[0]+dx,pt[1]+dy,pt[2]+dz)
+ def fixture_view(kind):
+  hh=next(q for q in p['holes'] if q['fixture']==kind);xx,yy=center(hh,.49);zz=level(hh,xx,.49)+.005
+  return dict(location=local(hh,xx-4,yy-(13 if kind=='castle' else 10),zz+1.65),target=local(hh,xx,yy,zz+(2.6 if kind=='castle' else 2.2)),lens=42,aspect=1.5)
+
  return {
  'ground':dict(location=(7.5,-12.5,1.65) if adv else (-15,-14,1.65),target=(0,9,1.65) if adv else (-4,9,1.65),lens=40,aspect=1.8,shift_y=-.035),
  'above':dict(location=(-58,-66,71) if adv else (-45,-55,61),target=(0,-2,0),lens=43,aspect=1.5),
- 'hero':dict(location=(-6.4,15.4,2.275),target=(-1.0,-14.0,1.65),lens=40,aspect=1.9,shift_y=-.06),
+ 'hero':dict(location=(-5.6,14.8,3.082) if adv else (-8,17,1.665),target=(-.2,-14,1.4) if adv else (-3,-10,1.50),lens=40,aspect=1.9,shift_y=-.04),
  'tee':dict(location=relative(tee,-2.1,-2.7,1.85),target=relative(tee,-.65,.0,.65),lens=46,aspect=1.45),
  'cup':dict(location=relative(cup,.33,-.45,.39),target=relative(cup,.04,.03,.04),lens=55,aspect=1.35),
  'border':dict(location=relative(tee,-2.1,.45,.56),target=relative(tee,-1.0,.75,.05),lens=55,aspect=1.55),
- 'waterfall':dict(location=(-1.2,5.4,1.65),target=(2.9,9.7,.62),lens=48,aspect=1.6),
+ 'waterfall':dict(location=(-3.8,7.2,2.60),target=(2.0,10.0,1.45),lens=43,aspect=1.6),
  'fixture':dict(location=local(fx,fcx-3.5,fcy-8.5,fcz+1.65),target=relative(c,0,0,1.65),lens=48,aspect=1.35,human=local(fx,fcx+2.1,fcy,fcz-.13)),
+ 'lighthouse':fixture_view('lighthouse'),
+ 'castle':fixture_view('castle'),
+ 'bank':dict(location=relative(bank_h['tee'],-3,-2,1.2),target=relative(bank_h['cup'],0,0,-.12),lens=42,aspect=1.6),
+ 'planting':dict(location=(2,-8,1.65),target=(5.2,-1,.7),lens=45,aspect=1.6),
+ 'road':dict(location=(-22,-16,1.65),target=(0,-48,2.4),lens=40,aspect=1.8),
  'bridge':dict(location=(-4.6,-7,1.65),target=(0,-4,.5),lens=42,aspect=1.6),
  'clubhouse':dict(location=(-7,-14,1.65),target=(0,p['clubhouse'][1],1.65),lens=45,aspect=1.6),
  }
 
 def scene(seed):
  bpy.ops.wm.read_factory_settings(use_empty=True)
- source=Path(f'export/Minigolf-{seed}.gltf');p=json.loads(source.with_suffix('.json').read_text())['plan']
+ source=Path(f'export/Minigolf-{seed}.glb');p=json.loads(source.with_suffix('.json').read_text())['plan']
  bpy.ops.import_scene.gltf(filepath=str(source.resolve()));ctx=context.make(p)
  return source,p,ctx
 
@@ -49,12 +58,18 @@ def render_one(name,shot,source,p,ctx,args):
   human_objects=human();offset=Vector(shot['human'])+Vector((1.03,-.24,0))
   for ob in human_objects:ob.location+=offset
   bpy.context.view_layer.update();q=[ob.matrix_world@v.co for ob in human_objects if ob.type=='MESH' for v in ob.data.vertices];height=max(v.z for v in q)-min(v.z for v in q);assert abs(height-1.8)<1e-5;human_proof=dict(measured_height_m=height,feet=shot['human'])
- sc.render.engine='CYCLES';enable();sc.cycles.samples=args.samples;sc.cycles.use_denoising=True;sc.cycles.seed=17
+ sc.render.engine=getattr(args,'engine','CYCLES');
+ if sc.render.engine=='CYCLES':enable();
+ sc.cycles.samples=args.samples;sc.cycles.use_denoising=True;sc.cycles.seed=17
+ if name.endswith('dusk'):
+  shot=dict(shot,sun=(.8,.2,-.08),sun_energy=0,sky_strength=.32,exposure=.3)
+  for socket in [o for o in sc.objects if o.get('socket_kind')=='light_emitter']:
+   data=bpy.data.lights.new('Night-play flood','AREA');data.energy=650;data.color=(1,.81,.58);data.shape='DISK';data.size=.65;ob=bpy.data.objects.new('Night-play flood',data);sc.collection.objects.link(ob);ob.location=socket.matrix_world.translation
  world(shot.get('sun',(.8,.2,.60)),shot.get('sun_energy',3.4),shot.get('sky_strength',.10));cam=camera(shot)
  sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=shot.get('exposure',-.45)
  sc.render.resolution_x=args.width;sc.render.resolution_y=round(args.width/shot.get('aspect',1.6));sc.render.resolution_percentage=100
  sc.render.image_settings.file_format='PNG';out=Path(args.out)/(name+'.png');out.parent.mkdir(parents=True,exist_ok=True);sc.render.filepath=str(out.resolve());bpy.ops.render.render(write_still=True)
- meta=dict(source=str(source),sha256=hashlib.sha256(source.read_bytes()).hexdigest(),engine='CYCLES',camera=shot,context=ctx,samples=args.samples,scale_silhouette=human_proof)
+ meta=dict(source=str(source),sha256=hashlib.sha256(source.read_bytes()).hexdigest(),engine=sc.render.engine,camera=shot,context=ctx,samples=args.samples,scale_silhouette=human_proof)
  out.with_suffix('.json').write_text(json.dumps(meta,indent=2));bpy.data.objects.remove(cam,do_unlink=True)
  for ob in human_objects:bpy.data.objects.remove(ob,do_unlink=True)
  for ob in list(sc.objects):
@@ -63,11 +78,11 @@ def render_one(name,shot,source,p,ctx,args):
 def main(args):
  chosen=args.shots.split(',') if args.shots else None
  for seed,kind in ((71,'classic'),(92,'adventure')):
-  requested=['ground','above']+(['hero','tee','cup','border','waterfall','fixture','bridge','clubhouse'] if kind=='adventure' else [])
+  requested=['ground','above','hero','dusk']+(['tee','cup','border','waterfall','fixture','bridge','clubhouse','lighthouse','castle','bank','planting','road'] if kind=='adventure' else [])
   if chosen:requested=[n for n in requested if n in chosen or kind+'-'+n in chosen]
   if not requested:continue
   source,p,ctx=scene(seed)
-  for name in requested:render_one((kind+'-'+name) if name in ('ground','above') else name,views(p)[name],source,p,ctx,args)
+  for name in requested:render_one((kind+'-'+name) if name in ('ground','above','hero','dusk') else name,views(p)['hero' if name=='dusk' else name],source,p,ctx,args)
 
 if __name__=='__main__':
- parser=argparse.ArgumentParser();parser.add_argument('--source');parser.add_argument('--out',default='renders/checkpoint');parser.add_argument('--width',type=int,default=1440);parser.add_argument('--samples',type=int,default=40);parser.add_argument('--shots');a=parser.parse_args(sys.argv[sys.argv.index('--')+1:]);main(a)
+ parser=argparse.ArgumentParser();parser.add_argument('--source');parser.add_argument('--out',default='renders/lookdev');parser.add_argument('--width',type=int,default=1440);parser.add_argument('--samples',type=int,default=40);parser.add_argument('--shots');parser.add_argument('--engine',default='CYCLES');a=parser.parse_args(sys.argv[sys.argv.index('--')+1:]);main(a)

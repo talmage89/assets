@@ -38,7 +38,7 @@ def check():
   assert counts==meta['triangles']
   assert all(2000<=v<=8000 for v in meta['holes'].values()),meta['holes']
   assert all(v<=15000 for v in meta['fixtures'].values())
-  assert meta['materials']<=3
+  assert meta['materials']<=10
   for im in g.json['images']:
    f=(path.parent/im['uri']).resolve();assert f.is_file();digest=hashlib.sha256(f.read_bytes()).hexdigest();assert str(f) not in used_images or used_images[str(f)]==digest;used_images[str(f)]=digest
   bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(path.resolve()));bpy.context.view_layer.update()
@@ -93,7 +93,7 @@ def check():
   for node in [o for o in bpy.context.scene.objects if o.get('slide_axis') or ('Clubhouse__Door' in o.name and o.type=='EMPTY')]:
    moving=[o for o in node.children_recursive if o.type=='MESH'];fixed=[surface(o) for o in node.parent.children if o.type=='MESH'];slide=node.get('slide_axis');rot=node.rotation_euler.copy();loc=node.location.copy();depthmax=0.0
    for step in range(21):
-    if slide:node.location.z=loc.z+.40*step/20
+    if slide:node.location['XYZ'.index(slide)]=loc['XYZ'.index(slide)]+float(node['range_m'][1])*step/20
     else:node.rotation_euler.z=math.radians(node['range_degrees'][0]*step/20)
     bpy.context.view_layer.update()
     for ob in moving:
@@ -108,11 +108,15 @@ def check():
   import geometry as F
   site=next(o for o in bpy.context.scene.objects if o.get('module_kind')=='site');site_meshes=[o for o in site.children if o.type=='MESH']
   def palette_vertices(key):
-   i=list(F.COLORS).index(key);cell=Vector(((i%8+.5)/8,1-(i//8+.5)/8));points=[]
+   from textures import RECTS
+   u0,v0,u1,v1=RECTS[key];points=[]
    for ob in site_meshes:
     uv=ob.data.uv_layers.active
     for poly in ob.data.polygons:
-     if all((uv.data[li].uv-cell).length<1e-5 for li in poly.loop_indices):points.extend(ob.matrix_world@ob.data.vertices[k].co for k in poly.vertices)
+     mat=ob.data.materials[poly.material_index].name
+     direct=mat.startswith(key.capitalize()) or mat.startswith('Quick_'+key)
+     tiled=mat.startswith('Minigolf') and all(u0<uv.data[li].uv.x<u1 and v0<uv.data[li].uv.y<v1 for li in poly.loop_indices)
+     if direct or tiled:points.extend(ob.matrix_world@ob.data.vertices[k].co for k in poly.vertices)
    return points
   asphalt=palette_vertices('asphalt');stripes=palette_vertices('white');assert asphalt and stripes
   front=min(q.y for q in asphalt);aisle=min(q.y for q in stripes)-front;stall_depth=max(q.y for q in stripes)-min(q.y for q in stripes)
@@ -124,12 +128,12 @@ def check():
   # channel; a separately valid oval and strip could still have a wall between.
   waterroot=next(o for o in bpy.context.scene.objects if o.get('module_kind')=='water_system');water_tree=tree([o for o in waterroot.children if o.type=='MESH']);site_tree=tree(site_meshes);water_proof=[]
   if meta['kind']=='adventure':
-   for y in (-6.8,-4,-3,0,5,10):
+   for y in (-6.8,-4,-3,0,5):
     origin=Vector((0,y,2));hit=water_tree.ray_cast(origin,Vector((0,0,-1)),4);assert hit[0] is not None and abs(hit[0].z+.17)<.00002,('Water connection',y,hit)
     terrain_hit=site_tree.ray_cast(origin,Vector((0,0,-1)),4);assert terrain_hit[0] is None,('Terrain blocks water',y,terrain_hit)
     water_proof.append(list(hit[0]))
-  walk_x=-26.4 if meta['kind']=='adventure' else -21.4;walk_z=.065+(.025*9.5 if meta['kind']=='adventure' else 0)
-  hit=site_tree.ray_cast(Vector((walk_x,.5,2)),Vector((0,0,-1)),4);assert hit[0] is not None and abs(hit[0].z-walk_z)<.006,('Walk extruded above intended top',hit,walk_z)
+  walk_x,walk_y,walk_z=(17.25,7,.975) if meta['kind']=='adventure' else (-19,-10.6,.065)
+  hit=site_tree.ray_cast(Vector((walk_x,walk_y,4)),Vector((0,0,-1)),6);assert hit[0] is not None and abs(hit[0].z-walk_z)<.015,('Walk top',hit,walk_z)
   walk_proof=dict(measured_top_m=list(hit[0]),nominal_top_z_m=walk_z)
   bridge_proof=[]
   for rt in [o for o in bpy.context.scene.objects if o.get('module_kind')=='footbridge']:

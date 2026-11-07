@@ -19,7 +19,8 @@ def halfwidth(h,t):
 
 def level(h,x,t):
     yworld=h['origin'][1]+math.sin(math.radians(h['yaw']))*x+math.cos(math.radians(h['yaw']))*((t-.5)*h['length'])
-    z=.125+h['rise']*t+h.get('terrain_slope',0)*max(0,yworld+9)
+    z=.125+h['rise']*t+h.get('base_z',0)
+    if h.get('organic') and not h.get('crossing'):z+=.065*(max(0,yworld+7)-max(0,h['origin'][1]+7))
     f=h['feature']
     if f=='bump':z+=.26*math.exp(-((t-.50)/.13)**2)*(1-.2*(x/2)**2)
     if f=='bank':z+=.16*math.sin(math.pi*t)**2*(x/h['width']+.5)
@@ -34,8 +35,8 @@ def generate(seed=71,kind=None):
     rng=random.Random(seed);kind=kind or KINDS[seed%2];assert kind in KINDS
     adv=kind=='adventure';W,D=(64,65) if adv else (49,56)
     # Six columns with a wider central water/landscape spine in the adventure.
-    xs=(-23,-16,-9,9,16,23) if adv else (-18,-11,-4,4,11,18)
-    ys=(-6,5,16) if adv else (-5,5,15)
+    xs=(-18,-12.5,-7.0,7.0,12.5,18) if adv else (-16,-10.8,-5.6,3.3,8.5,13.7)
+    ys=(-5.5,4.6,14.8) if adv else (-5,4.3,13.6)
     cells=[(c,r) for c in range(6) for r in (range(3) if c%2==0 else reversed(range(3)))]
     features=list(FEATURES)*2;rng.shuffle(features)
     # Each course always shows its signature fixture and all reusable types.
@@ -50,13 +51,24 @@ def generate(seed=71,kind=None):
         fixture=fixtures.get(i)
         feature='plain' if fixture else features[i]
         # The drop remains a playable steep carpet break; no unsupported sheet.
-        rise=rng.choice((0,.06,.12,.24)) if adv else rng.choice((0,0,.035))
-        yaw=rng.uniform(-16,16)+(180 if c%2 else 0) if adv else rng.uniform(-8,8)+(180 if c%2 else 0)
+        rise=rng.choice((.12,-.18,.35,-.45)) if adv else rng.choice((0,0,.035))
+        yaw=(7*math.sin(r*1.7+c)+(-6 if c<3 else 6))+(180 if c%2 else 0) if adv else 5*math.sin(c+r)+(180 if c%2 else 0)
         h=dict(number=i+1,par=3 if fixture or feature in ('loop','drop','ramp') else 2,
-               origin=(xs[c]+rng.uniform(-.42,.42),ys[r]+(rng.uniform(-.65,.65) if adv else 0)),yaw=yaw,length=length,width=width,organic=adv,terrain_slope=.025 if adv else 0,
-               bend=rng.uniform(-.40,.40),rise=rise,feature=feature,fixture=fixture,
+               origin=(xs[c]+rng.uniform(-.10,.10),ys[r]+(.55*math.sin(c*1.6) if adv else .35*math.sin(c))),yaw=yaw,length=length,width=width,organic=adv,terrain_slope=.025 if adv else 0,
+               base_z=(.07*max(0,ys[r]+6)+(.35 if c in (2,3) else 0)) if adv else 0,age=.42 if adv else .9,bend=rng.uniform(-.30,.30),rise=rise,feature=feature,fixture=fixture,
                border=('rock' if i%3 else 'brick') if adv else ('timber' if i in (6,7,8) else 'concrete'),
                carpet=i%3 if adv else i%2)
+        if adv:
+            if i<12:
+                angle=math.radians(-90+i*30)
+                h['origin']=(19.6*math.cos(angle),7+17.2*math.sin(angle))
+                h['yaw']=math.degrees(math.atan2(19.6*math.sin(angle),17.2*math.cos(angle)))
+            else:
+                placement={12:((-7.8,13.9),180),13:((-7.8,3.8),180),14:((0,-4.5),-90),15:((7.8,2.7),0),16:((7.8,13.0),0),17:((0,6.1),90)}
+                h['origin'],h['yaw']=placement[i]
+                if i in (14,17):h.update(crossing=True,base_z=.58 if i==14 else 1.42,rise=-.16,feature='bank' if i==17 else 'plain')
+            if not h.get('crossing'):h['base_z']=.065*max(0,h['origin'][1]+7)
+        h['base_z']+=max(0,-h['rise'])
         tx,ty=center(h,.08);cx,cy=center(h,.88)
         h['tee']=local(h,tx,ty,level(h,tx,.08)+.0048)
         h['cup']=local(h,cx,cy,level(h,cx,.88)+.0048)
@@ -65,4 +77,4 @@ def generate(seed=71,kind=None):
         holes.append(h)
     return dict(seed=seed,kind=kind,name='Cairn Creek' if adv else 'Bramble Putt',lot=(W,D),
                 holes=holes,pond=(0,4.5),clubhouse=(0,-D/2+10),parking_y=-D/2+3.6,
-                walk_width=1.524,driveways=(-W/2+12,W/2-4.5),parking_aisle=7.3152,parking_stall=(2.7432,5.4864),water=adv,style='harbor and quarry' if adv else 'painted Americana')
+                play_bounds=(-23,23,-13,27) if adv else (-20,18,-11,20),walk_width=1.524,driveways=(-W/2+12,W/2-4.5),parking_aisle=7.3152,parking_stall=(2.7432,5.4864),water=adv,style='harbor and quarry' if adv else 'painted Americana')

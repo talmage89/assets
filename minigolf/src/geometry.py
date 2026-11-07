@@ -18,7 +18,7 @@ COLORS={
  'black':(.012,.017,.017),'metal':(.32,.34,.33),'rubber':(.012,.015,.014),
  'soil':(.065,.048,.025),'grass':(.12,.18,.045),'asphalt':(.065,.069,.070),
  'yellow':(.67,.37,.025),'leaf':(.22,.14,.035),'liner':(.017,.022,.018),
- 'water':(.025,.13,.12),'glass':(.08,.12,.13),'foam':(.65,.69,.61)}
+ 'water':(.025,.13,.12),'glass':(.08,.12,.13),'foam':(.65,.69,.61),'stonepaint':(.40,.41,.36)}
 M={};PRINTS={};PRINT_OBJECTS=[];FONT=None
 
 def srgb(v):return 12.92*v if v<=.0031308 else 1.055*v**(1/2.4)-.055
@@ -66,11 +66,37 @@ def rock(name,p,size,parent,seed=0,mat='rock'):
  # Asymmetric stratified polyhedron, not stretched spheres. Flat bedding ledges
  # and offset crowns retain sedimentary construction under raking light.
  import random
- rng=random.Random(seed);x,y,z=p;w,d,h=size;n=9
+ rng=random.Random(seed);x,y,z=p;w,d,h=size;detailed=max(size)>1.3;n=32 if detailed else (10 if h>.12 else 6)
  loops=[]
- for k,(height,fac) in enumerate(((0,.88),(.18,1),(.54,.83),(.78,.74),(1,.38))):
-  loops.append([(x+w*.5*(fac*rng.uniform(.86,1.1)*math.cos(i*math.tau/n)+k*.025),y+d*.5*fac*rng.uniform(.88,1.1)*math.sin(i*math.tau/n),z+h*(height+rng.uniform(-.04,.04) if k else 0)) for i in range(n)])
- return own(G.smooth(G.loft(name,loops,M[mat]),48),parent)
+ fracture=[1+.08*math.sin(i*math.tau/n*3+seed)+.045*math.sin(i*math.tau/n*7+seed*.7)+rng.uniform(-.024,.024) for i in range(n)]
+ profile=((0,.91),(.12,1),(.20,.98),(.25,1.01),(.32,.87),(.43,.82),(.48,.84),(.54,.72),(.70,.63),(.78,.60),(.83,.50),(.94,.35),(1,.08)) if detailed else ((0,.88),(.22,1),(.62,.82),(1,.15))
+ for k,(height,fac) in enumerate(profile):
+  loops.append([(x+w*.5*(fac*fracture[i]*math.cos(i*math.tau/n)+.08*height),y+d*.5*fac*fracture[i]*math.sin(i*math.tau/n),z+h*(height+.065*math.sin(i*math.tau/n*3+seed)+.023*math.sin(i*math.tau/n*7+seed) if k else 0)) for i in range(n)])
+ ob=own(G.smooth(G.loft(name,loops,M[mat]),32),parent)
+ if detailed:
+  mod=ob.modifiers.new('Soft carved shotcrete transitions','SUBSURF');mod.levels=1;mod.render_levels=1
+  dec=ob.modifiers.new('Retain outcrop silhouette budget','DECIMATE');dec.ratio=.55
+ return ob
+
+def rockwall(name,points,width,height,parent,seed=0,mat='rocklight',closed=False):
+ """Continuous carved shell with recessed beds and irregular broken cap."""
+ import random
+ rng=random.Random(seed);n=len(points);vs=[]
+ jitter=[rng.uniform(-.035,.035) for _ in points]
+ for i,p in enumerate(points):
+  a=Vector(points[(i-1)%n] if closed or i else points[0]);b=Vector(points[(i+1)%n] if closed or i<n-1 else points[-1]);d=(b-a).normalized();normal=Vector((-d.y,d.x,0))
+  for side in (-1,1):
+   for j,(f,spread) in enumerate(((0,.88),(.38,1),(.44,.80),(.75,.85),(1,.58))):
+    off=width*.5*spread+jitter[i]+.018*math.sin(i*2.7+j)
+    q=Vector(p)+normal*side*off;vs.append((q.x,q.y,p[2]+height*f+(jitter[i] if j else 0)))
+ fs=[]
+ for i in range(n if closed else n-1):
+  a=i*10;b=((i+1)%n)*10
+  for side in (0,5):
+   for j in range(4):fs.append((a+side+j,b+side+j,b+side+j+1,a+side+j+1))
+  fs.append((a+4,b+4,b+9,a+9))
+ if not closed:fs.extend(((0,1,2,3,4,9,8,7,6,5),tuple((n-1)*10+j for j in (5,6,7,8,9,4,3,2,1,0))))
+ return G.smooth(mesh(name,vs,fs,mat,parent),34)
 
 def ball(name,p,r,mat,parent):
  profile=[(-r,0)]+[(r*math.sin(-math.pi/2+i*math.pi/6),r*math.cos(-math.pi/2+i*math.pi/6)) for i in range(1,6)]+[(r,0)]
@@ -100,9 +126,19 @@ def finalize():
   x,y=(i%4)*256,(i//4)*64
   font=ImageFont.truetype(FONT,37)
   while d.textbbox((0,0),s,font=font)[2]>242:font=ImageFont.truetype(FONT,font.size-1)
-  d.rectangle((x,y,x+255,y+63),fill=(227,217,180));d.text((x+128,y+31),s,font=font,anchor='mm',fill=(23,51,43))
- path=Path('export/textures/T_Minigolf_Quick_Graphics.png');canvas.save(path)
- atlas=image_material('Minigolf_Quick','export/textures/T_Minigolf_Quick_BaseColor.png','export/textures/T_Minigolf_Quick_ORM.png')
+  d.rectangle((x,y,x+255,y+63),fill=(227,217,180))
+  if s=='@creek':
+   d.ellipse((x+105,y+4,x+151,y+50),fill=(23,51,43),outline=(23,51,43),width=2)
+   d.arc((x+50,y+34,x+205,y+63),0,170,fill=(23,51,43),width=4)
+  elif s=='SCORE':
+   d.text((x+7,y+4),'BRAMBLE / CAIRN',font=ImageFont.truetype(FONT,10),fill=(23,51,43))
+   for j in range(19):d.line((x+5+j*13,y+23,x+5+j*13,y+58),fill=(23,51,43),width=1)
+   for yy in (23,38,58):d.line((x+5,y+yy,x+239,y+yy),fill=(23,51,43),width=1)
+   for j in range(18):d.text((x+7+j*13,y+25),str(j+1),font=ImageFont.truetype(FONT,8),fill=(23,51,43))
+  else:d.text((x+128,y+31),s,font=font,anchor='mm',fill=(23,51,43))
+ path=Path('export/textures/T_Minigolf_Graphics_BaseColor.png');canvas.save(path)
+ from look import materials
+ atlas,states=materials()
  graphics=image_material('Minigolf_Graphics',path)
  water=M['water'];p=water.node_tree.nodes['Principled BSDF'];p.inputs['Roughness'].default_value=.12;p.inputs['Transmission Weight'].default_value=.42;p.inputs['IOR'].default_value=1.333
  bpy.context.view_layer.update();dg=bpy.context.evaluated_depsgraph_get()
@@ -120,13 +156,10 @@ def finalize():
    for loop in data.loops:
     q=data.vertices[loop.vertex_index].co;uv.data[loop.index].uv=(u+.004+(q.x-a)/(b-a)*.242,v+.004+(q[axis]-c)/(dd-c)*(.0625-.008))
    data.materials.clear();data.materials.append(graphics)
-  elif data.materials and data.materials[0]==water:pass
+  elif False:pass
   else:
-   for poly in data.polygons:
-    key=data.materials[poly.material_index].name.removeprefix('Quick_');i=list(COLORS).index(key)
-    for li in poly.loop_indices:uv.data[li].uv=((i%8+.5)/8,1-(i//8+.5)/8)
-    poly.material_index=0
-   data.materials.clear();data.materials.append(atlas)
+   from look import assign
+   assign(ob,atlas,states)
  # Consolidate only static immediate children of module roots. Moving empties
  # are separate owners; contacts remain named in source-check report beforehand.
  bpy.context.view_layer.update()
