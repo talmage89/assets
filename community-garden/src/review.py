@@ -16,11 +16,13 @@ def bundle(path):
 
 def sites():
     """Raw glTF instance counts/image identities, independent of Blender count."""
-    report={};garden_check=json.loads(Path('build/check.json').read_text())
+    report={}
+    def count(doc):return sum(doc['accessors'][p['indices']]['count']//3 for n in doc['nodes'] if 'mesh' in n for p in doc['meshes'][n['mesh']]['primitives'])
     for seed in (117,229,341):
         path=Path(f'export/checkpoint/Site_{seed}.gltf');doc=json.loads(path.read_text());receipt=json.loads(Path(f'build/context/site-{seed}.json').read_text())
-        triangles=sum(doc['accessors'][p['indices']]['count']//3 for n in doc['nodes'] if 'mesh' in n for p in doc['meshes'][n['mesh']]['primitives'])
-        assert triangles==receipt['triangles']==garden_check['gardens'][str(seed)]['triangles']+receipt['context_triangles']
+        garden_path=Path(f'export/checkpoint/Garden_{seed}.gltf');garden_doc=json.loads(garden_path.read_text());garden_triangles=count(garden_doc)
+        triangles=count(doc)
+        assert triangles==receipt['triangles']==garden_triangles+receipt['context_triangles']
         assert receipt['garden_bundle']==bundle(f'export/checkpoint/Garden_{seed}.gltf')
         assert receipt['scene_bundle']==bundle(path)
         assert receipt['package_recipe']==hashlib.sha256((HERE/'neighborhood.py').read_bytes()).hexdigest()
@@ -28,14 +30,14 @@ def sites():
         for im in doc.get('images',[]):
             f=path.parent/im['uri'];sha=hashlib.sha256(f.read_bytes()).hexdigest();w,h=Image.open(f).size
             unique[sha]=dict(width=w,height=h,bytes=f.stat().st_size);uris.append(im['uri'])
-        garden_images={r['sha256'] for r in garden_check['gardens'][str(seed)]['images']}
+        garden_images={hashlib.sha256((garden_path.parent/r['uri']).read_bytes()).hexdigest() for r in garden_doc['images']}
         assert garden_images.issubset(unique),'Packaged scene lost/re-encoded a garden image'
         def descend(i):return [i]+[j for child in doc['nodes'][i].get('children',[]) for j in descend(child)]
         garden=next(i for i,n in enumerate(doc['nodes']) if n.get('name')=='Garden_'+str(seed));garden_nodes=descend(garden)
         assert not any('COLOR_0' in p['attributes'] for i in garden_nodes if 'mesh' in doc['nodes'][i] for p in doc['meshes'][doc['nodes'][i]['mesh']]['primitives']),'Wind leaked into garden base color'
         colors=sum('COLOR_0' in p['attributes'] for m in doc['meshes'] for p in m['primitives'])
         assert colors>0,'Native building material tints lost during scene packaging'
-        report[str(seed)]=dict(triangles=triangles,garden_triangles=garden_check['gardens'][str(seed)]['triangles'],context_triangles=receipt['context_triangles'],
+        report[str(seed)]=dict(triangles=triangles,garden_triangles=garden_triangles,context_triangles=receipt['context_triangles'],
             materials=len(doc.get('materials',[])),unique_images=len(unique),compressed_texture_mib=sum(r['width']*r['height']*4/3 for r in unique.values())/2**20,
             gltf_bytes=path.stat().st_size,bin_bytes=path.with_suffix('.bin').stat().st_size,external_png_bytes=sum(r['bytes'] for r in unique.values()),native_color_primitives=colors,uris=uris)
     Path('build/site-check.json').write_text(json.dumps(dict(passed=True,scenes=report,scope='raw glTF counts and shared external image bytes; renderer separately checks fresh Blender re-import count'),indent=2))

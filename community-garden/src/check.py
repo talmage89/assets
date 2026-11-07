@@ -85,6 +85,8 @@ def imported(seed,expected):
     lo=transform(expected['bounds_min']);hi=transform(expected['bounds_max']);lo[1],hi[1]=hi[1],lo[1]
     err=max(float(abs(points.min(axis=0)-lo).max()),float(abs(points.max(axis=0)-hi).max()));assert err<2e-4
     info=json.loads(Path(f'build/garden-{seed}.json').read_text());plan=info['plan']
+    care_states={o.get('care_state') for o in rt.children if o.get('plot_id')}
+    assert care_states=={'tidy','lush','weedy','fallow','new'},('Missing requested care state',care_states)
     ground=next(o for o in meshes if o.parent and o.parent.name.startswith('GardenGround'))
     spine=plan['paths'][0];start=spine['center'][1]-spine['size'][1]/2+.025;end=spine['center'][1]+spine['size'][1]/2-.025
     widths=[route_width(ground,float(y)) for y in np.linspace(start,end,math.ceil((end-start)/.1524)+1)]
@@ -169,7 +171,7 @@ def imported(seed,expected):
                 measured_bed_to_bed_min_gap_m=min(gaps) if gaps else None,mature_species=mature,
                 gardener_socket_ground_error_m=max(socket_errors),placed_infrastructure_triangles=modules,
                 bed_root_grade_error_m=max(bed_grade),rooted_plant_count=len(rooted),plant_root_penetration_range_m=[min(rooted),max(rooted)],
-                cage_foot_penetration_range_m=[min(anchors),max(anchors)])
+                cage_foot_penetration_range_m=[min(anchors),max(anchors)],care_states=sorted(care_states))
 
 
 def main():

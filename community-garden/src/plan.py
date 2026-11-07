@@ -33,7 +33,7 @@ def plan(seed,archetype=None):
         for y in (-5.334,2.286):
             for x in (-8.5344,-3.6576,3.6576,8.5344):plot(x,y,3.048,6.096,'board' if x<0 else 'none')
         # Two smaller donated raised beds turn across the shared front apron.
-        plot(-6.1,-10.15,2.4384,1.2192,'lumber','herb','tidy')
+        plot(-6.1,-10.15,2.4384,1.2192,'lumber','herb','fallow')
         plot(6.1,-10.15,2.4384,1.2192,'block','lettuce','new')
         p['paths']=[dict(center=[0,-1.524],size=[1.524,D-3.048],surface='Gravel'),
                     dict(center=[0,-1.524],size=[W-3.048,1.524],surface='Lawn')]
