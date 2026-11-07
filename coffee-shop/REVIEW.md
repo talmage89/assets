@@ -184,3 +184,65 @@ the geometric pass result.
 Possible kit follow-up: exact-state material compaction after image/texture
 index compaction would remove the need for this family's local final pass.
 It was kept local to preserve all existing deliveries.
+
+## Pass 6 — photographic pairs and final contact
+
+**Color/value first.** Inspected the three completed pairs, their residual
+overlays and the final matched contact. Annie's neutral is pale door trim;
+Coffea's is the unpainted table edge; Lakeview's is pale window/base trim.
+These assumed neutrals have unknown photographic processing. Coffea needs
+the largest balance correction (linear RGB gains **1.391 / 1.008 / .775**),
+so its shaded blue fabric is particularly unsuitable as an albedo sample.
+The final heroes retain medians **.303 / .373 / .394**, 99th percentiles
+**.713 / .837 / .825**, and zero sampled white clipping. Deep cavities remain.
+
+- **Annie's / storefront:** the framing reads the projecting cover, recessed
+  entry, pane depth and shaded room. Our fresh dark-green shopfront differs
+  deliberately from its pale old construction. The photograph's irregular
+  signage, layered hardware and lived-in walk make our parallel rails, clean
+  pavement and sparse window dressing look overly manufactured. The awning
+  still lacks the reference's varied edge folds and attachment character.
+- **Coffea / furniture:** frame gauges, compact chair/table scale, pole,
+  canopy span, ribs and weighted support read as construction. The stock
+  canopy's scalloped sag and vent differ from the photographed type; its
+  cloth is too regular. Our dark paint differs from the photo's silver frame.
+  The expanded steel needs baked thickness/wear cues; chair drag/contact
+  wear and tabletop use are still absent. These finishes remain the next gate.
+- **Lakeview / pad:** the original flat-roof pad is not a reconstruction of
+  the large former service-station canopy. The fitted comparison uses its
+  long glazed plane; it cannot establish the return wall or overall roof
+  proportions. Our blank return and plain roof are particularly weak in this
+  angle. More credible infill/repair material transitions and visible age will
+  be needed for the converted-building story.
+
+Landmark RMS is **4.52 / 16.26 / 12.43 px** in the 1000 px photographic studies;
+estimated lenses **35.69 / 70 / 70 mm**. The latter two reach the lens bound.
+Independent Blender projection disagreement is **.00024 / .00022 / .00115 px**.
+That verifies the camera math, while the larger residuals and different
+construction limit photographic comparison. It does not prove form identity.
+
+The low pad view exposed a **presentation** subgrade gap below the finite
+exported slab. A first correction raised the whole terrain and covered the
+road; that gallery was rejected (`renders/checkpoint-grade-rejected/`).
+Restricted raised fill to the parcel behind the curb and rerendered all
+23 views and all three pairs through the shared GPU lock. Actual imported
+triangle rays versus terrain vertices measure **4 mm** overlap beneath the
+front pours and **14 mm** beneath the pad side court (`build/context-contact.json`).
+The street stays visible. No exported asset geometry or other delivery changed.
+
+Inspected every final view in six review grids, the corrected hero/pad pair,
+the drawn layouts, the piece sheet and the final contacts; earlier passes
+also inspected the close-ups at native resolution. No additional form change
+is hidden behind the final material critique.
+
+Proof commands completed: the empty coffee `build/` + `export/` build via
+`make WIDTH=1600 SAMPLES=48`; `make check`; `make repeat`; independent kit camera
+verification; the final two `src/render.py` invocations at **1600 px / 48 samples**
+inside one `kit/with_gpu.sh` lock, followed by pair composition and `src/review.py`.
+The latter validates **23** current gallery PNG receipts plus the matched PNGs
+and requires **three** completed pairs. Repository and whitespace checks pass.
+
+**Checkpoint verdict:** three distinct businesses, working visible-room
+hierarchy and reviewable furniture/layout construction. Stop here as requested.
+Material realism, causal age, finer food/upholstery forms, unique bake UVs,
+final batching and complete motion certification remain unfinished.

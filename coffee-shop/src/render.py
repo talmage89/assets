@@ -48,7 +48,11 @@ def imported(path):
 def context(p):
     # Presentation only: the roadway, original library trees and nearby hosts.
     sc=bpy.context.scene;z=p['grade'];walk=p['walk'];a=tiling.material('Asphalt',REPO/'ground/textures/ship')
-    lm=tiling.material('Lawn',REPO/'ground/textures/ship');land=model.box('Context continuous ground',(0,15,z-.25),(220,190,.15),lm,0);tiling.world_uv(land,3.048)
+    # The lowest sidewalk pour ends at grade-.14. Raise only the parcel's
+    # subgrade, ending at the curb face, so the road remains above its base.
+    lm=tiling.material('Lawn',REPO/'ground/textures/ship')
+    land=model.box('Context distant ground',(0,15,z-.25),(220,190,.15),lm,0);tiling.world_uv(land,3.048)
+    land=model.box('Context continuous ground',(0,95-walk/2-.075,z-.201),(220,190+walk+.15,.15),lm,0);tiling.world_uv(land,3.048)
     ob=model.box('Context road',(0,-walk-6,z-.23),(110,12,.15),a,0);tiling.world_uv(ob,6.096)
     con=tiling.material('Concrete',REPO/'ground/textures/ship')
     ob=model.box('Context opposite walk',(0,-walk-13.1,z-.10),(110,2.2,.18),con,0);tiling.world_uv(ob,3.048)
@@ -119,7 +123,9 @@ def main():
             for key in a.shots.split(',')+(['walkup'] if p['kind']=='pad' else []):jobs.append((seed,key,None))
     previous=None
     for seed,key,match in jobs:
-        if seed!=previous:p,source=setup(seed,with_context=not bool(match));previous=seed
+        # Keep the same procedural street around fitted photographic views;
+        # the finite exported paving must not float against a black horizon.
+        if seed!=previous:p,source=setup(seed);previous=seed
         sc=bpy.context.scene;sc.render.engine='CYCLES';sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=10;sc.cycles.transmission_bounces=8;sc.cycles.transparent_max_bounces=12;gpu.enable()
         sc.render.resolution_x=a.width;sc.render.resolution_y=round(a.width*(.70 if key=='above' else 2/3));sc.render.resolution_percentage=100;sc.render.image_settings.file_format='PNG'
         human=[];hidden=[];isolation_floor=None
