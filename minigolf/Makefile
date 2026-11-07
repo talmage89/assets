@@ -5,6 +5,9 @@ PYTHON ?= python3
 KIT := $(abspath ../kit)
 REPO := $(abspath ..)
 BP := $(BLENDER) -b --factory-startup -t 4 --python-exit-code 1
+# Serialize mesh evaluation/export as well as frame execution. GPU validation
+# and rendering retain their own bounded thread settings.
+MODEL := $(BLENDER) -b --factory-startup -t 1 --python-exit-code 1
 export TMPDIR := $(REPO)/build/tmp
 export ASSETS_GPU_LOCK ?= $(REPO)/build/locks/gpu.lock
 WIDTH ?= 1440
@@ -22,9 +25,11 @@ refs:
 build/procedural/fields.json: src/textures.py
 	@mkdir -p build $(TMPDIR)
 	$(PYTHON) src/textures.py --size 4096
-textures/bake/T_Minigolf_BaseColor.png textures/bake/T_Minigolf_Normal.png textures/bake/T_Minigolf_ORM.png &: build/procedural/fields.json
+textures/bake/T_Minigolf_BaseColor.png textures/bake/T_Minigolf_Normal.png textures/bake/T_Minigolf_ORM.png textures/bake/Minigolf-ready.json &: build/procedural/fields.json src/finish_bake.py
+	$(PYTHON) -c "from pathlib import Path; Path('textures/bake/Minigolf-ready.json').unlink(missing_ok=True)"
 	$(KIT)/with_gpu.sh $(BP) --python $(KIT)/flat_bake.py -- --source build/procedural --out textures/bake --name Minigolf --coverage 8 --size 4096 --samples 4 --height-distance .018
-$(MAPS) &: textures/bake/T_Minigolf_BaseColor.png textures/bake/T_Minigolf_Normal.png textures/bake/T_Minigolf_ORM.png
+	$(PYTHON) src/finish_bake.py
+$(MAPS) &: textures/bake/T_Minigolf_BaseColor.png textures/bake/T_Minigolf_Normal.png textures/bake/T_Minigolf_ORM.png textures/bake/Minigolf-ready.json
 	$(PYTHON) $(KIT)/downsample.py --source textures/bake --out textures/ship --asset Minigolf --size 2048
 textures: $(MAPS)
 ../ground/export/Ground.glb:
@@ -48,7 +53,7 @@ $(FENCE_MAPS) &:
 context: ../ground/export/Ground.glb $(CONTEXT_DEPS)
 	$(PYTHON) src/context_build.py
 $(DELIVERIES) build/course.blend build/manifest.json &: $(SOURCES) $(MAPS) ../ground/export/Ground.glb $(FENCE_MAPS)
-	$(BP) --python src/build.py -- --out build/course.blend
+	$(MODEL) --python src/build.py -- --out build/course.blend
 model export: $(DELIVERIES) build/course.blend
 check: model
 	$(PYTHON) src/preserve.py

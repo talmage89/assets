@@ -68,7 +68,7 @@ def render(args):
      sizes[ch]=dict(pixels=list(replacement.size),shader_nodes=users)
    assert set(sizes)==set(fields),('Missing source-field replacement',sizes)
    ctx['source_field_sizes']=sizes
-   ctx['source_field_scope']='Original 4096 source BaseColor/ORM fields and 4096 baked field normal on identical imported geometry; compare delivery filtering, not high-poly geometry projection.'
+   ctx['source_field_scope']='Original 4096 source BaseColor/ORM and physical height-field normal on identical imported geometry; GPU-validated deterministic fields compare delivery filtering, not high-poly geometry projection.'
    ctx['source_fields']={ch:hashlib.sha256(path.read_bytes()).hexdigest() for ch,path in fields.items()}
 
   shot=data['shot'];shot.update(LIGHTING[key]);shot['aspect']=(data['crop'][2]-data['crop'][0])/(data['crop'][3]-data['crop'][1]);args.out='renders/source-matches' if getattr(args,'source_fields',False) else 'renders/look-matches'

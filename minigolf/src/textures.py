@@ -1,7 +1,7 @@
 """Original carpet loops, painted masonry, strata and metal. Never reads refs.
 
-One 4K source field is Cycles baked, then filtered to the accepted 2K course
-atlas. UV rectangles have 8 delivered texels of protective inset. Large-scale
+One 4K source field is GPU-validated and deterministically evaluated, then
+filtered to the accepted 2K course atlas. UV rectangles have 8 delivered texels of protective inset. Large-scale
 traffic/exposure/water masks live on the actual surface as linear Tint data.
 """
 import argparse,json,sys
