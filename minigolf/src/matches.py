@@ -48,7 +48,9 @@ def render(args):
   for point in data['landmarks_world_m']:
    delta=Vector(point)-eye;hit=opaque.ray_cast(eye,delta.normalized(),delta.length)
    ahead=delta.length-hit[3] if hit[0] is not None else 0
-   probes.append(dict(landmark_world_m=point,first_opaque_surface_before_anchor_m=ahead))
+   nearest=opaque.find_nearest(Vector(point))
+   if key=='period_classic_green':assert nearest[3]<.005,('Green anchor is not on its curb',point,nearest[3])
+   probes.append(dict(landmark_world_m=point,first_opaque_surface_before_anchor_m=ahead,nearest_imported_surface_m=nearest[3]))
   visibility[key]=dict(probes=probes,source=str(source),sha256=bundle(source),scope='Core external-glTF opaque surfaces only; homologous anchors may lie inside their own fixture. Context foliage is judged in the image.')
   visibility_path.write_text(json.dumps(visibility,indent=2))
   assert max(p['first_opaque_surface_before_anchor_m'] for p in probes)<1.2,('Landmark hidden behind another course structure',key,probes)

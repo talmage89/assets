@@ -1,4 +1,4 @@
-"""Cycles checkpoint judgment from freshly imported self-contained GLBs."""
+"""Final judgments from freshly imported external-image glTF deliveries."""
 import argparse,hashlib,json,math,sys
 from pathlib import Path
 HERE=Path(__file__).resolve().parent;REPO=HERE.parents[1];sys.path[:0]=[str(REPO),str(HERE)]
@@ -30,9 +30,13 @@ def views(p):
   return dict(location=local(hh,xx-4,yy-(13 if kind=='castle' else 10),zz+1.65),target=local(hh,xx,yy,zz+(2.6 if kind=='castle' else 2.2)),lens=42,aspect=1.5)
 
  return {
+ 'front':dict(location=(0,-D*1.5,D*.30),target=(0,0,1),ortho=W*1.14,lens=45,aspect=1.5),
+ 'side':dict(location=(W*1.5,0,D*.30),target=(0,0,1),ortho=D*1.14,lens=45,aspect=1.5),
+ 'back':dict(location=(0,D*1.5,D*.30),target=(0,0,1),ortho=W*1.14,lens=45,aspect=1.5),
+ 'top':dict(location=(0,-2,90),target=(0,-2,0),ortho=max(W,D)*1.08,lens=45,aspect=1.05),
  'ground':dict(location=(7.5,-12.5,1.65) if adv else (-15,-14,1.65),target=(0,9,1.65) if adv else (-4,9,1.65),lens=40,aspect=1.8,shift_y=-.035),
  'above':dict(location=(-58,-66,71) if adv else (-45,-55,61),target=(0,-2,0),lens=43,aspect=1.5),
- 'hero':dict(location=(-1.7,15.4,3.13) if adv else (-6,12.5,1.665),target=(1,2,.9) if adv else (0,2,1.2),lens=35 if adv else 40,aspect=1.6,shift_y=0 if adv else -.04,**(dict(sun=(-.65,.65,.40)) if adv else {})),
+ 'hero':dict(location=(0,-7.1,1.894) if adv else (-6,12.5,1.665),target=(3,10.5,2.0) if adv else (0,2,1.2),lens=35 if adv else 40,aspect=1.6,shift_y=0 if adv else -.04,**(dict(sun=(-.65,-.65,.40)) if adv else {})),
  'tee':dict(location=relative(tee,-2.1,-2.7,1.85),target=relative(tee,-.65,.0,.65),lens=46,aspect=1.45),
  'cup':dict(location=relative(cup,-.38,-.42,.40),target=relative(cup,0,0,.015),lens=55,aspect=1.35),
  'border':dict(location=relative(tee,-2.1,.45,.56),target=relative(tee,-1.0,.75,.05),lens=55,aspect=1.55),
@@ -131,13 +135,13 @@ def render_one(name,shot,source,p,ctx,args):
 def main(args):
  chosen=args.shots.split(',') if args.shots else None;requested_engine=args.engine
  for seed,kind in ((71,'classic'),(92,'adventure')):
-  requested=['ground','above','hero','dusk']+(['tee','cup','border','waterfall','pond','fixture','bridge','clubhouse','lighthouse','castle','bank','planting','road','sign','eevee'] if kind=='adventure' else ['tee','cup','border'])
+  requested=['ground','above','hero','dusk','front','side','back','top']+(['tee','cup','border','waterfall','pond','fixture','bridge','clubhouse','lighthouse','castle','bank','planting','road','sign','eevee'] if kind=='adventure' else ['tee','cup','border'])
   if chosen:requested=[n for n in requested if n in chosen or kind+'-'+n in chosen]
   if not requested:continue
   source,p,ctx=scene(seed)
   for name in requested:
    args.engine='BLENDER_EEVEE' if name=='eevee' else requested_engine
-   render_one((kind+'-'+name) if name in ('ground','above','hero','dusk') or kind=='classic' else name,views(p)['hero' if name=='dusk' else 'ground' if name=='eevee' else name],source,p,ctx,args)
+   render_one((kind+'-'+name) if name in ('ground','above','hero','dusk','front','side','back','top') or kind=='classic' else name,views(p)['hero' if name=='dusk' else 'ground' if name=='eevee' else name],source,p,ctx,args)
 
 if __name__=='__main__':
  parser=argparse.ArgumentParser();parser.add_argument('--source');parser.add_argument('--out',default='renders/lookdev');parser.add_argument('--width',type=int,default=1440);parser.add_argument('--samples',type=int,default=40);parser.add_argument('--shots');parser.add_argument('--engine',default='CYCLES');a=parser.parse_args(sys.argv[sys.argv.index('--')+1:]);main(a)

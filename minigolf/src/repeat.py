@@ -12,7 +12,12 @@ def gpu_snapshot(folder):
   source=Path('textures/bake')/f'T_Minigolf_{channel}_GPU.png';assert source.exists(),source
   shutil.copyfile(source,folder/f'T_Minigolf_{channel}.png')
 
-files=sorted([p for p in Path('export').glob('*') if p.suffix in ('.gltf','.bin')]+list(Path('textures/ship').glob('*.png'))+list(Path('build/procedural').glob('*')))
+files=sorted(set(
+ [p for p in Path('export').glob('*') if p.suffix in ('.gltf','.bin','.json')]
+ +list(Path('textures/ship').glob('*.png'))+list(Path('build/procedural').glob('*'))
+ +list(Path('build/embedded').glob('*.glb'))
+ +[Path('textures/bake')/f'T_Minigolf_{ch}.png' for ch in ('BaseColor','Normal','ORM')]
+ +[Path('build')/name for name in ('manifest.json','pieces.json','source-construction.json')]))
 assert files
 before={str(p):sha(p) for p in files};gpu_snapshot(Path('build/repeat-gpu/before'))
 Path('build/repeat.json').unlink(missing_ok=True)
@@ -22,7 +27,8 @@ commands=[
  gpu_command(['blender','-b','--factory-startup','-t','4','--python-exit-code','1','--python',str(kit/'flat_bake.py'),'--','--source','build/procedural','--out','textures/bake','--name','Minigolf','--coverage','8','--size','4096','--samples','4','--height-distance','.018']),
  [sys.executable,'src/finish_bake.py'],
  [sys.executable,str(kit/'downsample.py'),'--source','textures/bake','--out','textures/ship','--asset','Minigolf','--size','2048'],
- gpu_command(['blender','-b','--factory-startup','-t','1','--python-exit-code','1','--python','src/build.py','--','--out','build/course.blend'])]
+ gpu_command(['blender','-b','--factory-startup','-t','1','--python-exit-code','1','--python','src/build.py','--','--out','build/course.blend']),
+ gpu_command(['blender','-b','--factory-startup','-t','4','--python-exit-code','1','--python','src/plant_export.py'])]
 with Path('build/repeat.log').open('w') as log:
  for command in commands:subprocess.run(command,stdout=log,stderr=subprocess.STDOUT,check=True)
 after={p:sha(p) for p in before};changed={p:(v,after[p]) for p,v in before.items() if v!=after[p]};assert not changed,changed

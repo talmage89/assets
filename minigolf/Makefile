@@ -1,4 +1,4 @@
-# Look-dev checkpoint. No README gallery or docs images are generated here.
+# Exported-course finals. Docs are generated explicitly after native-size review.
 .DEFAULT_GOAL := all
 BLENDER ?= blender
 PYTHON ?= python3
@@ -15,11 +15,11 @@ SAMPLES ?= 32
 MAPS := $(foreach c,BaseColor Normal ORM,textures/ship/T_Minigolf_$(c).png)
 FENCE_MAPS := $(foreach c,BaseColor Normal ORM,../fences/textures/ship/T_WoodPrivacy_$(c).png)
 CONTEXT_DEPS := ../cars/export/AlderC150.glb ../cars/export/AlderS240.glb ../trees/export/RedMaple.glb ../trees/export/PinOak.glb ../shrubs/export/Shrubs.glb ../street-light/export/StreetLight.glb
-SOURCES := $(addprefix src/,build.py plan.py plan_check.py geometry.py holes.py fixtures.py site.py look.py textures.py terraces.py external.py pieces.py preserve.py tangents.py landscape.py paths.py)
+SOURCES := $(addprefix src/,build.py plan.py plan_check.py geometry.py holes.py fixtures.py site.py look.py textures.py terraces.py external.py pieces.py preserve.py tangents.py landscape.py paths.py walk_audit.py joins.py)
 DELIVERIES := export/MinigolfPieces.gltf export/MinigolfPieces.bin $(foreach s,71 92,export/Minigolf-$(s).gltf export/Minigolf-$(s).bin build/embedded/Minigolf-$(s).glb export/Minigolf-$(s).json)
-.PHONY: source-match check-renders baseline all refs textures model export render check repeat match before-after context review clean FORCE
+.PHONY: source-match check-renders baseline all refs textures model export render catalog docs check repeat check-texture-repeat match before-after context review clean FORCE plants
 .NOTPARALLEL:
-all: refs model check before-after match review
+all: refs model plants context check before-after match source-match render catalog review
 refs:
 	$(PYTHON) $(KIT)/fetch_refs.py refs
 build/procedural/fields.json: src/textures.py
@@ -68,7 +68,10 @@ check: model plants
 	$(PYTHON) src/costs.py
 	$(PYTHON) $(KIT)/repo_check.py
 render: model plants context
-	$(PYTHON) src/render_batch.py --blender $(BLENDER) --out renders/lookdev --width $(WIDTH) --samples $(SAMPLES)
+	$(PYTHON) src/render_batch.py --blender $(BLENDER) --out renders/final --width $(WIDTH) --samples $(SAMPLES)
+catalog: model
+	$(KIT)/with_gpu.sh $(BP) --python src/catalog.py -- --kind fixtures --width $(WIDTH) --samples $(SAMPLES)
+	$(KIT)/with_gpu.sh $(BP) --python src/catalog.py -- --kind holes --width $(WIDTH) --samples $(SAMPLES)
 match: model plants context refs
 	$(PYTHON) src/matches.py prepare
 	$(PYTHON) src/matches_batch.py --blender $(BLENDER) --width $(WIDTH) --samples $(SAMPLES)
@@ -78,10 +81,14 @@ check-renders:
 	$(PYTHON) src/look_review.py
 baseline:
 	$(PYTHON) src/baseline.py
-before-after: model context
-	$(PYTHON) src/fix_batch.py --samples $(SAMPLES)
+before-after: model plants context refs
+	$(PYTHON) src/matches.py prepare
+	$(PYTHON) src/finish_views.py --blender $(BLENDER) --width $(WIDTH) --samples $(SAMPLES)
+	$(PYTHON) src/finish_views.py --after-only --blender $(BLENDER) --width $(WIDTH) --samples $(SAMPLES) --shots classic-tee,classic-walks,adventure-walks
 review:
 	$(PYTHON) src/look_review.py
+docs: review
+	$(PYTHON) src/look_review.py --docs
 repeat: model
 	$(PYTHON) src/repeat.py
 check-texture-repeat: repeat
