@@ -1566,3 +1566,31 @@ CPU suite stopped after six passing files; its saved genuine reduction cache
 was restored. A fresh full suite and fresh frozen-tool adopter proof are now
 required after this general fix. The grill's canonical 6300 build, stronger
 budget attempt and native review remain pending.
+
+## Pass 42 — clean full suite and repeated frozen-tool adoptions
+
+At `ab9d354`, all 34 kit test files pass from clean fixtures: 28 CPU files
+(298.13 s, peak 2.74 GiB) followed by six GPU files (1731.15 s including fair
+shared-GPU queues, peak .941 GiB). Source hashes and every exit code are in
+`build/lod-v4/regressions/`. The actual supersampled proxy fixture and supplied
+shading-frame import/bake/repair/re-import fixture pass; the latter's maximum
+vector error is .00001453. Interrupted earlier attempts are superseded by this
+complete run.
+
+Repeated both adoptions against the frozen `ab9d354` tool, without tool changes:
+street light and all three WoodPrivacy configs rebuilt, rendered, and passed
+plain `make check-lod`. All four delivered glTF payload hashes match their
+previously reviewed builds. Raw PNG hashes differ because Blender includes
+render metadata; decoded reference/level pixels for all 18 fence far-view
+images are exactly identical (zero changed pixels), recorded separately in
+`adoption-refresh-pixels.json`. Opened all eight refreshed construction views:
+unchanged light shaft/fixture; unchanged wood value/grain, with the previously
+recorded squared tops and simplified hinge bevels only apparent close up.
+The native switch evidence and costs remain those of pass 40. All four original
+adopter checks pass again after this refresh (41.21 s, peak .789 GiB).
+
+The new canonical grill mesh is 10620 / 6300 / 1796; its prior renders still
+belong to the 7504-triangle middle level. Fresh canonical render/check and the
+stronger budget/fault control are required before treating it as a final chain.
+Pickup and colonial proxy/near work is still in progress. No incomplete pilot
+is approved by the completed suite or adopter results.

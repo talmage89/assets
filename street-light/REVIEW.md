@@ -117,3 +117,10 @@ loss .02370; all original image gates, data/topology/re-import and independent
 normal checks pass through `make check-lod`. Source maps remain byte-identical
 and add no intermediate image allocation. These prove rest geometry, resource
 routing and delivered appearance; they are not an engine or swept-motion test.
+
+Repeated the frozen-tool proof at `ab9d354` after the general double-sided
+back-face policy fix. Fresh build/render/check-lod pass; delivered glTF payload
+is unchanged. Opened both refreshed construction views: shaft, arm, fixture
+and dark material response match the prior review. Original make check passes
+again after this refresh. Current receipts: `../build/lod-v4/adoption-freeze.json`
+and `../build/lod-v4/adoption-stages.json`.

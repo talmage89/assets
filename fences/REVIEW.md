@@ -414,3 +414,12 @@ original checks separately, with their accepted generated inputs frozen; all
 pass. The child checks are explicit because parent-relative `make -o` paths
 cannot be inherited as child-relative paths. Original receipt: 481 files,
 zero changes. Repository check: 1,962 source files, zero errors.
+
+Repeated every adopted config at frozen tool `ab9d354`: fresh build/render and
+plain family check-lod all pass. The three glTF payloads are unchanged. All 18
+far-view reference/level images decode to exactly the previously reviewed
+pixels; PNG metadata changes file hashes. Opened all six refreshed construction
+views; squared board tops and simpler hinge bevels remain close-view losses,
+with the same grain/value and separate gate/latch. All three original privacy,
+picket and chain-link checks pass again after this refresh. Current tool/stage
+receipts are under `../build/lod-v4/`.
