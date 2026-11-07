@@ -27,22 +27,27 @@ def references():
 
 def fixture(name):
     """Assemble comparison from exported library parts without changing vertices."""
+    if name=='wise_bed':
+        # Use a complete delivered planting, including supports and mulch.
+        # A four-prototype display was too sparse to represent a planted bed.
+        from mathutils import Matrix
+        source=Path('export/checkpoint/Garden_117.gltf');bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
+        bed=next(o for o in bpy.context.scene.objects if o.get('plot_id')==10);keep={bed,*bed.children_recursive}
+        bed.parent=None;bed.matrix_world=Matrix.Identity(4)
+        for ob in list(bpy.context.scene.objects):
+            if ob not in keep:bpy.data.objects.remove(ob,do_unlink=True)
+        ctx=context(dict(size=[18.288,21.336],archetype='city',bench=[-3.6,7]))
+        next(o for o in ctx.children if o.name=='Neighborhood ground').location.z+=.04
+        return source
     source=Path('export/checkpoint/CommunityGardenPieces.gltf');bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
     roots={o.name:o for o in bpy.context.scene.objects if not o.parent};Q.palette();bed=roots['Raised4x8']
     keep=[bed]
-    if name=='wise_bed':
-        for sp,x,y,key in [('squash',-.22,-.74,'squash_2_0'),('herb',.15,-.1,'herb_2_0'),('tomato',0,.48,'tomato_2_0'),('pepper',.15,.91,'pepper_2_0')]:
-            rt=Q.instance(roots[key],'Comparison '+sp,(x,y,.212),45,bed)
-    else:
-        for i in range(6):Q.instance(roots['lettuce_0_0'],'Young transplant',((i%2-.5)*.42,(i//2-1)*.65,.212),i*71,bed)
+    for i in range(6):Q.instance(roots['lettuce_0_0'],'Young transplant',((i%2-.5)*.42,(i//2-1)*.65,.198),i*71,bed)
     for n,rt in roots.items():
         if rt not in keep:
             for ob in [*rt.children_recursive,rt]:bpy.data.objects.remove(ob,do_unlink=True)
     # Context geometry is original script-built library, not photographic data.
-    if name=='wise_bed':
-        p=dict(size=[18.288,21.336],archetype='city',bench=[-3.6,7]);context(p)
-    else:
-        rt=Q.root('Ground context');Q.box('Installation-day grass',(0,0,-.035),(80,80,.07),rt,'Lawn')
+    rt=Q.root('Ground context');Q.box('Installation-day grass',(0,0,-.035),(80,80,.07),rt,'Lawn')
     return source
 
 
@@ -53,13 +58,13 @@ def main():
     if a.calibrate_only:return
     for name,row in data.items():
         v=dict(row['shot']);v['engine']='CYCLES';v['aspect']=1024/768
-        if name=='wise_bed':v.update(sun_energy=2.0,sun_angle=6.0,sky_strength=.18)
+        if name=='wise_bed':v.update(sun_energy=6.5,sun_angle=6.0,sky_strength=.30,exposure=.15)
         if name=='martin_place':render(229,out,a.width,a.samples,custom={name:v},with_context=True)
         else:
             source=fixture(name);cam=setup(a.samples);shot(cam,v,out/(name+'.png'),a.width)
-            (out/(name+'.json')).write_text(json.dumps(dict(source=str(source),bundle_sha256=bundle(source),camera=v,engine='CYCLES',comparison='unmodified exported prototype assembly; photograph never an asset input'),indent=2))
+            (out/(name+'.json')).write_text(json.dumps(dict(source=str(source),bundle_sha256=bundle(source),camera=v,engine='CYCLES',comparison='unmodified delivered Plot10 relocated for framing' if name=='wise_bed' else 'unmodified exported prototype assembly; photograph never an asset input'),indent=2))
     photo_match.compose(cal,out,out)
-    notes=dict(bed_corners='WiseWords far-left/back corner is vegetation-occluded and weighted down; bed dimensions are inferred from a common 4x8 module, not surveyed.',
+    notes=dict(bed_corners='WiseWords far-left/back corner is vegetation-occluded and weighted down; 4x8 dimensions are inferred, not surveyed. Compare delivered tomato Plot10 with a mature mixed-crop bed: crop identities and surrounding architecture differ.',
                construction='Oliver has people obscuring corners; along-edge phases are inferred and weighted down. This is a weaker construction/framing comparison, not a precision survey.',
                entrance='Martin sign/post rectangular corners are directly visible. Fictional sign text and site composition intentionally differ.')
     (out/'limitations.json').write_text(json.dumps(notes,indent=2))
