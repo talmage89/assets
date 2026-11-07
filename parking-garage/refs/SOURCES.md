@@ -1,0 +1,23 @@
+# Parking garage reference register
+
+Downloaded files are ignored, used only for looking and measuring. No reference pixels enter any material. All names and graphics in the asset are fictional.
+
+| File | URL | Author / date / rights | Use |
+| --- | --- | --- | --- |
+| precast-interior.jpg | https://upload.wikimedia.org/wikipedia/commons/0/00/Precast_parking_structure.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original | Z22, 2 June 2014; CC BY-SA 3.0. [Description](https://commons.wikimedia.org/wiki/File:Precast_parking_structure.jpg) | Interior double-tee, inverted tee girder and column corbels; camera pair |
+| pleasant-hill.jpg | https://upload.wikimedia.org/wikipedia/commons/e/e0/Pleasant_Hill_BART_Parking_Structure.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original | Jon ShakataGaNai Davis, 1 December 2007; CC BY-SA 3.0 / CC BY 3.0 / GFDL. [Description](https://commons.wikimedia.org/wiki/File:Pleasant_Hill_BART_Parking_Structure.jpg) | Open facade, openings, spandrels and parking-deck proportions; camera pair |
+| chicago.jpg | https://upload.wikimedia.org/wikipedia/commons/f/fc/Parking_Garage_-_Flickr_-_jmcmichael.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original | jmcmichael, 15 September 2004; CC BY-SA 2.0. [Description](https://commons.wikimedia.org/wiki/File:Parking_Garage_-_Flickr_-_jmcmichael.jpg) | Metal screening, maintenance staining; secondary reference only, not a form pair |
+| alewife-roof.jpg | https://upload.wikimedia.org/wikipedia/commons/4/4a/Roof_level_of_Alewife_parking_garage%2C_April_2006.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original | redjar, April 2006; CC BY-SA 2.0 | Period roof parking and weekday occupancy; secondary reference only |
+| alewife-interior.jpg | https://upload.wikimedia.org/wikipedia/commons/3/35/Alewife_garage_interior_and_bench%2C_August_2006.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original | Dan4th Nicholas (photograph), William Keyser Jr. (artwork), August 2006; CC BY 2.0 | Garage atrium and public access; secondary reference, different architectural type |
+| harmon.jpg | https://upload.wikimedia.org/wikipedia/commons/5/54/Harmon_Avenue_Garage%2C_University_of_Arkansas%2C_Fayetteville%2C_Arkansas.jpg?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original | Brandonrush; 9 November 2012; CC BY-SA 3.0 | 2005 American garage, exterior horizontal openings, PT/flat-deck type comparison |
+| pci-1997.pdf | https://www.clarkpacific.com/wp-content/uploads/2017/06/PCI-Parking-Structures-Recommended-Practice-for-Design-and-Construction.pdf | PCI committees, 1997, MNL-129; copyright PCI; reference only | Ch 2 geometry; precast construction sections, connections, joints and drainage |
+| ccdc-2016.pdf | https://ccdcboise.com/wp-content/uploads/2014/11/CCDC-Boise-Parking-Structure-Design-Guidelines_2016-Final-Draft-08-04-2016.pdf | Kimley-Horn for CCDC, 2016, updating Carl Walker 2008; copyright authors | Consultant geometry, 90 degree stalls, aisle, ramps, transitions; explicitly one year after town window |
+| aci-362-preview.pdf | https://www.concrete.org/Portals/0/Files/PDF/Previews/362.1R-12web.pdf | ACI Committee 362, 2012; copyright ACI; publicly available preview only | Durability scope, salt/water exposure and maintenance; no claim to full paid guide |
+| ibc-2009.pdf | https://natchez.ms.us/DocumentCenter/View/1046/2009-International-Building-Code | ICC, 2009; public municipal code copy; copyright ICC | Sections 406.2 and 406.3: clearance, ramp slopes and natural-ventilation opening geometry |
+| va-2014.pdf | https://www.wbdg.org/FFC/VA/VADEMAN/dmparking.pdf | US Department of Veterans Affairs, 2013/rev 2014; US government | Period parking geometry, circulation and floors |
+
+Online primary sources (read, not downloaded):
+
+- [US Access Board ADA Chapter 5](https://www.access-board.gov/ada/guides/chapter-5-parking/): 502 stalls, aisles, routes, 98 inch van clearance, 1:48 accessible slope; table 208 stall counts. US government.
+- [PCI parking FAQ](https://www.pci.org/GCPCI/GCPCI/Technical_Resources/FAQs/Parking-Structures.aspx): 12 ft tees and 36/48 ft bays; minimum 1% drainage. Copyright PCI.
+- [PCI MNL-129-15 catalog](https://www.pci.org/PCINE/PCI/Bookstore/Item_Detail.aspx?Category=FREE&iProductCode=MNL-129-15E): edition identification; primary dimensional reading is the public 1997 manual above.

@@ -1,0 +1,134 @@
+"""Original bounded garage grammar. All coordinates are Blender meters.
+
+No Blender dependency: a game may use this manifest without modeling software.
+The precast variant has a sloped 60ft parking bay and a flat 60ft bay; the PT
+variant replaces the sloped parking bay with a narrow external speed ramp.
+"""
+import math
+import random
+
+FT = .3048
+TEE = 12*FT
+SPAN = 60*FT
+STALL = 8.5*FT
+DEPTH = 18*FT
+AISLE = 24*FT
+FLOOR = 11*FT
+SEEDS = (101, 202)
+
+
+def ramp_fraction(x, p):
+    a, b = p['ramp_limits']
+    if x <= a: return 0.
+    if x >= b: return 1.
+    if p['system'] == 'precast': return (x-a)/(b-a)
+    t = p['transition']
+    run = b-a
+    # Half-gradient transitions: continuous elevation, deliberate grade breaks.
+    distance = x-a
+    effective = distance*.5 if distance < t else distance-t*.5 if distance < run-t else run-t-(run-distance)*.5
+    return effective/(run-t)
+
+
+def deck_z(p, level, x, y, ramp=False):
+    # One percent crossfall toward paired edge drains. Accessible ground bays
+    # receive the same 1% plane, safely below the 1:48 maximum.
+    center = p['ramp_y'] if ramp else p['flat_y']
+    width = p['ramp_width'] if ramp else SPAN
+    return level*FLOOR + (FLOOR*ramp_fraction(x, p) if ramp else 0) + .01*(width/2-abs(y-center))
+
+
+def garage(seed=101, system=None, levels=None, tee_count=None, occupancy=None):
+    rng = random.Random(seed)
+    system = system or ('precast' if seed % 2 else 'pt')
+    if system not in ('precast', 'pt'): raise ValueError(system)
+    municipal = system == 'precast'
+    count = tee_count or ((22 if municipal else 16) if seed in SEEDS else rng.choice((20,21,22,24) if municipal else (16,17,18)))
+    levels = levels or ((4 if municipal else 3) if seed in SEEDS else rng.choice((4,5) if municipal else (3,4)))
+    if not 3 <= levels <= 5 or not 12 <= count <= 24: raise ValueError('3–5 levels, 12–24 tee stations')
+    length = count*TEE
+    end = 3*TEE
+    rw = SPAN if municipal else AISLE
+    width = SPAN+rw
+    fy = -width/2+SPAN/2
+    ry = width/2-rw/2
+    p = dict(seed=seed, system=system, name='ALDER QUAY / MUNICIPAL PARKING' if municipal else 'BELLWETHER / COMMONS PARKING',
+             year=1988 if municipal else 1996, levels=levels, tee_count=count,
+             length=length, width=width, floor_to_floor=FLOOR, flat_y=fy,
+             ramp_y=ry, ramp_width=rw, ramp_limits=[-length/2+end, length/2-end],
+             end_length=end, transition=0 if municipal else 10*FT,
+             occupancy=occupancy if occupancy is not None else (.67 if municipal else .74),
+             structural_grid=3*TEE, stalls=[], paths=[], pedestrian_paths=[],
+             towers=[[-length/2-2.5,-width/2+2.8,0], [length/2+2.5,-width/2+2.8,0]],
+             joint_y=(SPAN-rw)/2)
+    p['ramp_slope'] = FLOOR/(p['ramp_limits'][1]-p['ramp_limits'][0]-p['transition'])
+    if municipal and p['ramp_slope'] > 1/15+1e-9: raise ValueError('Parking slope exceeds 1:15')
+    if not municipal and p['ramp_slope'] > .125: raise ValueError('Speed ramp exceeds 12.5%')
+    # Avoid end turning bays and column envelopes; stall lines are independent
+    # of tee joints. Accessible block is reserved on the ground south row.
+    n = int((length-2*end-6*FT)//STALL)
+    x0 = -n*STALL/2
+    pairs=4 if municipal else 2
+    reserved_width=sum((11 if j<(2 if municipal else 1) else 8)*FT+5*FT+8*FT for j in range(pairs))
+    reserved_normal=math.ceil(reserved_width/STALL)
+    index = 0
+    for level in range(levels):
+        for ramp in (False, True):
+            if ramp and (not municipal or level == levels-1): continue
+            cy = ry if ramp else fy
+            for row in (-1, 1):
+                for i in range(n):
+                    x = x0+(i+.5)*STALL
+                    if level == 0 and not ramp and row == -1 and i < reserved_normal: continue
+                    y = cy+row*(AISLE/2+DEPTH/2)
+                    index += 1
+                    compact = not ramp and level == levels-1 and row == 1 and i in (n-3,n-2,n-1)
+                    p['stalls'].append(dict(id=f'L{level+1}-{index:03d}', x=x, y=y, z=deck_z(p,level,x,y,ramp),
+                         level=level, ramp=ramp, yaw=180 if row==-1 else 0, width=STALL, depth=DEPTH,
+                         slope_x=p['ramp_slope'] if ramp else 0, crossfall=-.01*row,
+                         occupied=rng.random()<p['occupancy'], car=rng.randrange(6), compact=compact, accessible=False))
+    # Count-dependent paired spaces: eight at the municipal garage, four at
+    # the smaller garage. Two / one vans respectively (one in every six).
+    x = x0
+    for pair in range(pairs):
+        is_van=pair<(2 if municipal else 1)
+        w = 11*FT if is_van else 8*FT
+        aisle = 5*FT
+        for side in (0,1):
+            xx = x+w/2 if side==0 else x+w+aisle+8*FT/2
+            ww = w if side==0 else 8*FT
+            yy = fy-AISLE/2-DEPTH/2
+            p['stalls'].append(dict(id=f'ACCESS-{pair*2+side+1}',x=xx,y=yy,z=deck_z(p,0,xx,yy),level=0,ramp=False,
+                yaw=180,width=ww,depth=DEPTH,slope_x=0,crossfall=.01,occupied=False,car=1,compact=False,accessible=True,
+                van=is_van and side==0,access_aisle=[x+w,x+w+aisle]))
+        x+=w+aisle+8*FT
+    # Two-way drive centerlines: one up circuit per floor, duplicated with
+    # reversed points for descent. End turns use 9.144m centerline diameter.
+    a,b=p['ramp_limits'];radius=22*FT
+    for level in range(levels-1):
+        pts=[]
+        # Main ramp center follows actual modeled elevations.
+        for j in range(33):
+            xx=a+(b-a)*j/32
+            pts.append([xx,ry,deck_z(p,level,xx,ry,True)])
+        # End bays are crossfall-warped connection slabs between ramp and flat.
+        arc=[]
+        # Two true quarter circles with a tangent straight between. At the
+        # smaller garage their radii share a short tangent at the center.
+        r=min(radius,(ry-fy)/2)
+        for j in range(1,9):
+            th=j*math.pi/16;arc.append((b+r*math.sin(th),ry-r*(1-math.cos(th))))
+        if ry-fy>2*r+1e-6:arc.append((b+r,fy+r))
+        for j in range(1,9):
+            th=j*math.pi/16;arc.append((b+r*math.cos(th),fy+r-r*math.sin(th)))
+        for xx,yy in arc:pts.append([xx,yy,deck_z(p,level+1,xx,yy,yy>p['joint_y'])-FLOOR*ramp_fraction(xx,p)*(yy>p['joint_y'])])
+        for j in range(1,33):
+            xx=b-(b-a)*j/32;pts.append([xx,fy,deck_z(p,level+1,xx,fy)])
+        if level<levels-2:
+            for xx,yy in arc: # mirror across both plan center axes
+                xx=-xx;yy=fy+ry-yy
+                pts.append([xx,yy,deck_z(p,level+1,xx,yy,yy>p['joint_y'])-FLOOR*ramp_fraction(xx,p)*(yy>p['joint_y'])])
+        p['paths'].append(dict(name=f'Drive_Up_{level+1}_{level+2}',points=pts,width=AISLE,two_way=True))
+        p['paths'].append(dict(name=f'Drive_Down_{level+2}_{level+1}',points=list(reversed(pts)),width=AISLE,two_way=True))
+    p['pedestrian_paths']=[dict(name='Accessible_to_street',width=1.524,points=[[x0,-width/2-.8,.01],[-length/2-2.5,-width/2-.8,.01],[-length/2-2.5,-width/2-4.0,0]])]
+    return p
