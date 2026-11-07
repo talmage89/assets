@@ -1774,3 +1774,40 @@ inputs frozen. The clean **28-file CPU kit phase passes**, peak child RSS
 restored. Its shared-map fixture includes the new clean refinement directory.
 The six GPU files and final frozen-tool adoptions still need fresh runs.
 Station LOD1 has reached 9130/18258 (50.01%), below its cap; LOD2 is pending.
+
+## Pass 46 — native UV-frame control and measured canopy closure
+
+Color and value: the pickup UV-frame control keeps the original dark paint and
+lamp values at the .25 switch. The visible residual is a localized bright
+reflection around the grille, rather than a general color shift. Opened all
+three native `build/lod-v4/previews/cars/uv-exact/1-{0,55,145}-strip.jpg` files.
+The corrected source-UV frame control still has local errors
+.18538/.18619/.11219, with means .00189/.00202/.00173. It does not close the
+reflection failure and is not adopted. The tighter reflective-geometry control
+still needs its native review; no image limit is changed here.
+
+The fresh station near build is 9130/5388 triangles, 50.01%/29.51% of selected
+LOD0. The first cap passes; the second misses by 824. A .075-density control at
+the same .12 switch is in progress. The exact junction audit tracks all ten
+previously unmatched canopy junctions by both incidence and spatial overlap.
+Each has three incident faces again at both near levels; **zero of ten remain
+unmatched**. This closes the reported ten-edge failure without claiming that
+all of the source's construction boundaries are watertight. Receipts:
+`build/lod-v4/station-near-v5-junctions.json` and
+`station-near-v5-junction-coverage.json`.
+
+The colonial's independent serialized normal/UV audit passes on both new near
+meshes. Maximum normal difference is .019783 degrees at both levels, p95 zero;
+maximum UV error is .99593/.99798 of each applicable half-texel allowance. These
+are source-field measurements, not native appearance approval.
+
+The grill's wider-surface control completes at 6144 triangles (30.86%), still
+above 4978, versus the current 6300. It has no new maps. Its native review and
+the separate feature-pruning control remain pending. The accepted 1796-triangle
+proxy is unchanged.
+
+Several queued control drivers received SIGTERM while the first GPU control
+completed. Completed native images and exact component caches are intact.
+Restarted only unfinished work after checking processes and receipts; an
+interrupted partial build is not reported as a successful control. The shared
+GPU queue still governs all bake/render work and own Blender work stays serial.
