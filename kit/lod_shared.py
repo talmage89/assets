@@ -6,7 +6,14 @@ along seams are synchronized across both sides, including curved seams. Continuo
 source UV interpolation and synchronize every corner at a geometric vertex. No unwrap, texture resampling or shader change.
 """
 import heapq
+import hashlib
+from pathlib import Path
 import numpy as np
+
+# Capture the implementation at import, rather than hashing live source during
+# a build. marshal's object/reference encoding differs between freshly compiled
+# code and .pyc loading, although their operations are identical.
+_CACHE_IMPLEMENTATION=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 
 
 def _limit(limits,key,material=0):
@@ -501,13 +508,12 @@ def _component(aa,ff,ratio,meters_per_pixel,uv_limit,uv_weight,normal_weight,sur
 
 def _cached_component(aa,ff,ratio,meters_per_pixel,uv_limit,uv_weight,normal_weight,surface_pixels,texture_size,seam_sliding):
     """Exact content cache; no surface or appearance gate is skipped."""
-    import hashlib,json,marshal,bpy
+    import hashlib,json,bpy
     from pathlib import Path
     from kit.lod_io import digest
     args=(ratio,meters_per_pixel,uv_limit,uv_weight,normal_weight,surface_pixels,texture_size,seam_sliding)
     h=hashlib.sha256(json.dumps(dict(args=args,runtime=(list(bpy.app.version),np.__version__)),sort_keys=True).encode())
-    for fn in (_component,collapse,_limit,_uv_error,_field_error,_frame_limits,_triangle_limits,transport_frames):
-        h.update(marshal.dumps((fn.__code__,fn.__defaults__,fn.__kwdefaults__)))
+    h.update(_CACHE_IMPLEMENTATION.encode())
     for name in ('lod_mesh.py','lod_constraints.py'):h.update(digest(Path(__file__).with_name(name)).encode())
     for k,v in sorted({**aa,'indices':ff}.items()):
         h.update(k.encode());h.update(str(v.dtype).encode());h.update(str(v.shape).encode());h.update(np.ascontiguousarray(v).tobytes())
@@ -548,7 +554,7 @@ def reduce(attrs,faces,ratio,meters_per_pixel,uv_limit,uv_weight=10.,normal_weig
     from kit.lod_io import digest
     recipe=dict(ratio=ratio,meters_per_pixel=meters_per_pixel,uv_limit=uv_limit,uv_weight=uv_weight,normal_weight=normal_weight,surface_pixels=surface_pixels,texture_size=texture_size,seam_sliding=seam_sliding,
                 runtime=dict(blender=list(bpy.app.version),numpy=np.__version__),
-                tool=hashlib.sha256(b''.join(__import__('marshal').dumps((f.__code__,f.__defaults__,f.__kwdefaults__)) for f in (collapse,_component,_cached_component,_reduce,_limit,_uv_error,_field_error,_frame_limits,_triangle_limits,transport_frames))).hexdigest(),mesh_tool=digest(Path(__file__).with_name('lod_mesh.py')),constraints_tool=digest(Path(__file__).with_name('lod_constraints.py')))
+                tool=_CACHE_IMPLEMENTATION,mesh_tool=digest(Path(__file__).with_name('lod_mesh.py')),constraints_tool=digest(Path(__file__).with_name('lod_constraints.py')))
     h=hashlib.sha256(json.dumps(recipe,sort_keys=True).encode())
     for k,v in sorted({**attrs,'indices':faces}.items()):
         h.update(k.encode());h.update(str(v.dtype).encode());h.update(str(v.shape).encode());h.update(np.ascontiguousarray(v).tobytes())
