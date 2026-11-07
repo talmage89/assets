@@ -237,13 +237,15 @@ def doors(b):
             b.box(name+' moving leaf',(-1.251,hinge+direction*.018,z),(.050,.012,.045),'black',p,r=0)
             for dz in [-.044,.044]:b.box(name+' fixed foot '+str(dz),(-1.249,hinge-direction*.013,z+dz),(.060,.018,.014),'black',r=0)
     # Sheet stepwell walls tie both jambs into the real stair construction.
-    for label,y in [('front',-3.747),('rear',-2.947)]:b.box('Stepwell '+label+' wall',(-.810,y,.760),(.828,.026,.840),'yellow',category='interior',r=0)
+    for label,y in [('front',-3.747),('rear',-2.947)]:b.box('Stepwell '+label+' wall',(-.756,y,.760),(.936,.026,.840),'yellow',category='interior',r=0)
     # Real stacked steps occupy the gap left by the raised floor.
     for i in range(4):
         x=-1.118+i*.205;z=.340+i*.210
         b.box('Entrance step riser '+str(i),(x,-3.345,z-.098),(.207,.780,.196),'yellow',category='interior',r=.002)
         b.box('Worn entrance tread '+str(i),(x,-3.345,z+.006),(.207,.780,.016),'floor',category='interior',r=.002)
         b.box('Step safety nosing '+str(i),(x-.102,-3.345,z+.009),(.025,.778,.013),'white',category='interior',r=.002)
+    b.box('Entrance top landing',(-.345,-3.345,1.157),(.114,.780,.046),'floor',category='interior',r=0)
+    b.box('Entrance landing riser',(-.400,-3.345,1.059),(.004,.780,.150),'yellow',category='interior',r=0)
     b.tube('Entrance grab rail',[(-1.10,-2.975,.354),(-1.10,-2.975,.65),(-.96,-2.975,1.42),(-.50,-2.975,1.72),(-.35,-2.975,1.72),(-.35,S.BARRIER_Y-.058,1.72)],.016,'aluminum',category='interior',sides=10)
     b.box('Grab rail barrier flange',(-.35,S.BARRIER_Y-.054,1.72),(.065,.008,.065),'aluminum',category='interior',r=.002)
     # Rear emergency door occupies the physical 37 x 52-inch opening.

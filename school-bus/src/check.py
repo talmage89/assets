@@ -3,6 +3,7 @@ import argparse,hashlib,json,math,sys
 from pathlib import Path
 import bpy,numpy as np
 from mathutils import Vector,Matrix
+from mathutils.bvhtree import BVHTree
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1];sys.path[:0]=[str(HERE),str(ROOT),str(ROOT/'cars/src')]
 from kit import uv
 from kit.gltf import GLB
@@ -23,6 +24,19 @@ def section_y(ob,z):
         elif min(a.z,b.z)-1e-7<=z<=max(a.z,b.z)+1e-7:
             values.append(a.y+(b.y-a.y)*(z-a.z)/(b.z-a.z))
     return [min(values),max(values)] if values else None
+def landing_check(obs):
+    """Vertical probes across the upper landing, measured against actual floor."""
+    vs=[];fs=[]
+    for ob in obs:
+        ob.data.calc_loop_triangles();offset=len(vs);vs.extend(points(ob))
+        fs.extend(tuple(offset+i for i in tri.vertices) for tri in ob.data.loop_triangles)
+    tree=BVHTree.FromPolygons(vs,fs,all_triangles=True)
+    def hit(x,y):
+        p=tree.ray_cast(Vector((x,y,1.25)),Vector((0,0,-1)),.4)[0]
+        return p.z if p is not None else None
+    reference=hit(0,-3.345);rows=[dict(x_m=x,y_m=y,hit_z_m=hit(x,y)) for x in [-.39,-.36,-.33,-.30] for y in [-3.60,-3.345,-3.10]]
+    passed=reference is not None and all(r['hit_z_m'] is not None and abs(r['hit_z_m']-reference)<.002 for r in rows)
+    return dict(passed=passed,reference_floor_z_m=reference,probes=rows,method='Actual mesh triangles, vertical rays below the dash/ceiling; continuity against actual cabin floor, not a design-height constant')
 def hash_inputs():
     # Existing deliveries are immutable inputs. If absent, record absence instead of rebuilding cars.
     files=list((ROOT/'cars').rglob('*.glb'))+list((ROOT/'school/export').rglob('*'))
@@ -91,6 +105,8 @@ def model(path):
     pairs += [('Side emergency forward backed reveal','Lower folded side 1 0 -3.92',.001),('Side exit fixed underfloor skirt','Passenger floor',.001)]
     for side in ['front','rear']:
         pairs += [('Entrance '+side+' fixed jamb','Stepwell '+side+' wall',.001),('Stepwell '+side+' wall','Worn entrance tread 0',.001)]
+        pairs += [('Stepwell '+side+' wall','Entrance top landing',.001),('Stepwell '+side+' wall','Driver floor',.001)]
+    pairs += [('Entrance top landing','Driver floor',.001),('Entrance landing riser','Entrance top landing',.001),('Entrance landing riser','Worn entrance tread 3',.001)]
     for sign in [-1,1]:
         for end in ['Front','Rear']:
             bracket=end+' bumper frame bracket '+str(sign)
@@ -101,6 +117,8 @@ def model(path):
     error=[];total=sum(cats.values());exterior=total-cats['interior']
     source_audits={ob.name:measure(ob) for ob in obs}
     failed_meshes=[name for name,row in source_audits.items() if not row['passed']]
+    landing=landing_check(obs)
+    if not landing['passed']:error.append('Entrance landing continuity')
     if failed_meshes:error.append('Source full-face mesh check')
     if total>90000 or exterior>70000:error.append('Triangle budget')
     if abs(wb-S.WHEELBASE)>1e-5:error.append('Wheelbase')
@@ -116,6 +134,7 @@ def model(path):
     if max(v['max'][2] for v in steps.values())>1.19:error.append('Step envelope')
     return dict(passed=not error,errors=error,triangles=total,exterior_triangles=exterior,interior_triangles=cats['interior'],wheels_triangles=cats['wheels'],
         mesh_audits=source_audits,failed_meshes=failed_meshes,
+        entrance_landing=landing,
         categories=cats,triangles_per_mesh=parts,triangles_per_pivot={n:sum(parts.get(o.name,0) for o in bpy.data.objects[n].children_recursive) for n in pivots},
         roof_bounds_m=roof,body_bumper_bounds_m=shell,full_rest_bounds_m=bounds(obs),wheelbase_m=wb,tire_bounds_m=tires,step_bounds_m=steps,
         measured_deployed_crossing_extension_m=crossing_extension,
@@ -162,11 +181,13 @@ def delivery(path,parts_path):
         pivot_errors[name]=(ob.matrix_world.translation-expected_position).length
     report['serialization']=dict(bidirectional_vertex_samples=len(differences),maximum_vertex_distance_m=max(differences),maximum_pivot_distance_m=max(pivot_errors.values()))
     report['duplicate_faces_across_parts']=len(duplicates)
+    report['entrance_landing']=landing_check(obs)
     errors=[]
     if count>90000:errors.append('Triangle budget')
     if len(materials)>4 or len(images)!=3:errors.append('Resource budget')
     if failed:errors.append('Car-family full-face mesh check')
     if duplicates:errors.append('Duplicate faces across parts')
+    if not report['entrance_landing']['passed']:errors.append('Entrance landing continuity')
     if uvr['outside_triangles'] or uvr['degenerate_uv_triangles'] or uvr['overlap_fraction']>1e-5:errors.append('UV layout')
     import runpy
     policy=runpy.run_path(str(HERE/'config.py'));density={str(k):v for k,v in uvr['density_px_m'].items()};bands=policy['UV_DENSITY_BANDS']
