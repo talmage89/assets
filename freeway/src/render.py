@@ -13,10 +13,10 @@ def setup(samples,engine):
     if engine=='CYCLES':gpu.enable();sc.cycles.samples=samples;sc.cycles.use_denoising=True
     sc.world=bpy.data.worlds.new('Procedural raking daylight');sc.world.use_nodes=True
     ns=sc.world.node_tree.nodes;ls=sc.world.node_tree.links
-    sky=ns.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_disc=False;sky.sun_elevation=math.radians(24);sky.sun_rotation=math.radians(200);sky.air_density=1;sky.aerosol_density=.5
-    sat=ns.new('ShaderNodeHueSaturation');sat.inputs['Saturation'].default_value=.4;ls.new(sky.outputs[0],sat.inputs['Color'])
-    bg=ns.get('Background');ls.new(sat.outputs[0],bg.inputs[0]);bg.inputs['Strength'].default_value=.06
-    sun=bpy.data.objects.new('Raking sun',bpy.data.lights.new('Raking sun','SUN'));sc.collection.objects.link(sun);sun.data.energy=7.0;sun.data.angle=math.radians(.53);sun.rotation_euler=Vector((-.8,.4,-.42)).to_track_quat('-Z','Y').to_euler()
+    sky=ns.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_disc=False;sky.sun_elevation=math.radians(17);sky.sun_rotation=math.radians(235);sky.air_density=1;sky.aerosol_density=.5
+    sat=ns.new('ShaderNodeHueSaturation');sat.inputs['Saturation'].default_value=.85;ls.new(sky.outputs[0],sat.inputs['Color'])
+    bg=ns.get('Background');ls.new(sat.outputs[0],bg.inputs[0]);bg.inputs['Strength'].default_value=.10
+    sun=bpy.data.objects.new('Raking sun',bpy.data.lights.new('Raking sun','SUN'));sc.collection.objects.link(sun);sun.data.energy=7.0;sun.data.angle=math.radians(.53);sun.rotation_euler=Vector((-.72,.65,-.28)).to_track_quat('-Z','Y').to_euler()
     sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=-.45
     sc.render.image_settings.file_format='PNG';sc.render.image_settings.color_mode='RGB'
     cam=bpy.data.objects.new('Inspection camera',bpy.data.cameras.new('Inspection camera'));sc.collection.objects.link(cam);sc.camera=cam
@@ -59,8 +59,18 @@ def overlay(path,cam,width,height):
     d.rectangle((10,10,width-10,43),fill=(22,28,26));d.text((20,16),'CYAN: lane paths   /   ORANGE: ramp paths   /   exported driving sockets',font=font,fill=(230,236,225))
     im.save(path)
 
-def render(source,out,width,samples,engine,names=None,custom=None,seed=101):
+def render(source,out,width,samples,engine,names=None,custom=None,seed=101,source_fields=False):
     source=Path(source);bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
+    context_sources=[]
+    if source.stem.startswith('Freeway-'):
+        sid=source.stem.split('-')[-1]
+        for category in ('Town','Traffic'):
+            path=source.parent/(category+'-'+sid+'.gltf')
+            bpy.ops.import_scene.gltf(filepath=str(path.resolve()));context_sources.append(dict(source=str(path),bundle_sha256=bundle(path)))
+    field_changes=[]
+    if source_fields:
+        from source_compare import install
+        field_changes=install()
     cam=setup(samples,engine);sc=bpy.context.scene;views=custom or shots(seed);out=Path(out);out.mkdir(parents=True,exist_ok=True)
     result={}
     for name,v in views.items():
@@ -72,10 +82,10 @@ def render(source,out,width,samples,engine,names=None,custom=None,seed=101):
         if v.get('roll'):cam.rotation_euler.rotate_axis('Z',v['roll'])
         sc.render.resolution_x=width;sc.render.resolution_y=round(width/v.get('aspect',1.5));sc.render.resolution_percentage=100
         sc.view_settings.exposure=v.get('exposure',-.45)
-        sun=bpy.data.objects['Raking sun'];sun.rotation_euler=Vector(v.get('sun_direction',(-.8,.4,-.42))).to_track_quat('-Z','Y').to_euler();sun.data.energy=v.get('sun_energy',7.)
+        sun=bpy.data.objects['Raking sun'];sun.rotation_euler=Vector(v.get('sun_direction',(-.72,.65,-.28))).to_track_quat('-Z','Y').to_euler();sun.data.energy=v.get('sun_energy',7.)
         bpy.context.view_layer.update();path=out/(name+'.png');sc.render.filepath=str(path.resolve());bpy.ops.render.render(write_still=True)
         if v.get('overlay'):overlay(path,cam,width,sc.render.resolution_y)
-        result[name]=dict(source=str(source),bundle_sha256=bundle(source),engine=engine,samples=samples,width=width,camera=v)
+        result[name]=dict(material_stage='4096 source-field inspection' if source_fields else 'exported shipped PBR',source_field_changes=field_changes,context=context_sources,source=str(source),bundle_sha256=bundle(source),engine=engine,samples=samples,width=width,camera=v)
         path.with_suffix('.json').write_text(json.dumps(result[name],indent=2))
     return result
 
@@ -99,13 +109,13 @@ def scale(out,width,samples,engine):
     (out/'scale.json').write_text(json.dumps(dict(source=str(source),bundle_sha256=bundle(source),human_height_m=1.8,car='Original full-resolution Alder H120, unchanged geometry',engine=engine),indent=2))
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--source',default='export/Freeway-101.gltf');ap.add_argument('--out',default='renders/checkpoint/101');ap.add_argument('--width',type=int,default=1200);ap.add_argument('--samples',type=int,default=32);ap.add_argument('--engine',default='CYCLES');ap.add_argument('--shots',nargs='+');ap.add_argument('--seeds',nargs='+',type=int,default=[101,202]);ap.add_argument('--scale',action='store_true');ap.add_argument('--camera-file');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
+    ap=argparse.ArgumentParser();ap.add_argument('--source',default='export/Freeway-101.gltf');ap.add_argument('--out',default='renders/checkpoint/101');ap.add_argument('--width',type=int,default=1200);ap.add_argument('--samples',type=int,default=32);ap.add_argument('--engine',default='CYCLES');ap.add_argument('--shots',nargs='+');ap.add_argument('--seeds',nargs='+',type=int,default=[101,202]);ap.add_argument('--scale',action='store_true');ap.add_argument('--camera-file');ap.add_argument('--source-fields',action='store_true');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
     if a.scale:scale(a.out,a.width,a.samples,a.engine);return
     if a.camera_file:
         data=json.loads(Path(a.camera_file).read_text())
         for name,row in data.items():
             if a.shots and name not in a.shots:continue
-            render(row.get('source',a.source),a.out,a.width,a.samples,a.engine,custom={name:row['shot']})
+            render(row.get('source',a.source),a.out,a.width,a.samples,a.engine,custom={name:row['shot']},source_fields=a.source_fields)
         return
     if Path(a.source).stem=='FreewayModules':inspection(a.source,a.out,a.width,a.samples,a.engine);return
     for seed in a.seeds:

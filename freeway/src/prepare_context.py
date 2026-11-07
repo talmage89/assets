@@ -25,7 +25,6 @@ def native(name,path,target):
     rt=bpy.data.objects.new(name,None);bpy.context.scene.collection.objects.link(rt);parts=[]
     for ob in obs:
         if ob.type!='MESH':continue
-        if name=='Gas' and not ob.name.startswith(('Store__Mesh','Entry_Left__Mesh','Entry_Right__Mesh','ServiceDoor__Mesh')):continue
         me=bpy.data.meshes.new_from_object(ob.evaluated_get(dg),depsgraph=dg,preserve_all_data_layers=True)
         me.transform(ob.matrix_world);copy=bpy.data.objects.new(name+'__'+ob.name,me);bpy.context.scene.collection.objects.link(copy);copy.parent=rt;parts.append(copy)
     for ob in obs:bpy.data.objects.remove(ob,do_unlink=True)
@@ -39,6 +38,14 @@ def native(name,path,target):
         for ob in parts:bpy.data.objects.remove(ob,do_unlink=True)
         parts=house_context.skins(rt,metadata,*envelope)
         parts.extend(house_context.fixtures(rt,metadata))
+        # A distance house is one static mesh, not hundreds of one-quad objects.
+        # Native UVs, materials and corner normals survive the join.
+        bpy.ops.object.select_all(action='DESELECT')
+        for ob in parts:ob.select_set(True)
+        bpy.context.view_layer.objects.active=parts[0];bpy.ops.object.join();parts=[bpy.context.object]
+        parts[0].name=name+'__NativeEnvelope'
+        for key in ('context_surface_kind','context_expected_local_normal'):
+            if key in parts[0]:del parts[0][key]
         export(Path('build/context')/(name+'.glb'),[rt,*parts])
         return dict(source=path,source_triangles=total,context_triangles=sum(sum(len(p.vertices)-2 for p in ob.data.polygons) for ob in parts),target='native plan envelope',scope='Exact native roof/wall/opening plans and canonical tiles; simple distance casings, doors and porch supports. No generic triangle collapse.')
     for ob in parts:
@@ -79,7 +86,7 @@ def native(name,path,target):
     if envelope:
         metadata=json.loads((ROOT/Path(path).with_suffix('.json')).read_text())
         parts.extend(house_context.skins(rt,metadata,*envelope))
-    if name in ('Hatch','SUV'):
+    if name in ('Hatch','SUV','Crossover'):
         # The native normal bake targets the full mesh's tangent field. A
         # distant context LOD keeps BaseColor/ORM, using its coherent geometric
         # normals until a dedicated LOD normal bake is authorized.
@@ -134,10 +141,13 @@ def main():
     rows={}
     for name,path,n in [
         ('Hatch','cars/export/AlderH120.glb',5500),('SUV','cars/export/AlderX220.glb',5500),
-        ('HeroHatch','cars/export/AlderH120.glb',None),
+        ('Crossover','cars/export/AlderC150.glb',5500),
+        ('HeroHatch','cars/export/AlderH120.glb',None),('HeroSUV','cars/export/AlderX220.glb',None),('HeroCrossover','cars/export/AlderC150.glb',None),
         ('Ranch','houses/export/HearthfieldRanch-11.gltf',5000),('Cape','houses/export/HearthfieldCape-31.gltf',5000),
         ('TreeOak','trees/export/PinOak.glb',3200),('TreeMaple','trees/export/RedMaple.glb',3200),
-        ('Ground','ground/export/Ground.glb',None),('Gas','commercial/export/CommercialGas-101.gltf',None)]:
+        ('Ground','ground/export/Ground.glb',None),('Gas','commercial/export/CommercialGas-101.gltf',None),
+        ('Strip','commercial/export/CommercialStrip-201.gltf',None),
+        ('StreetLight','street-light/export/StreetLight.glb',None)]:
         rows[name]=native(name,path,n)
     Path('build/context/report.json').write_text(json.dumps(rows,indent=2))
 if __name__=='__main__':main()

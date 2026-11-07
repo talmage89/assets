@@ -5,6 +5,9 @@ ROOT=Path(__file__).resolve().parents[2]
 INPUTS=[
     ('ground/export/Ground.glb','ground',['export']),
     ('cars/export/AlderH120.glb','cars',['BODY=hatch','export']),
+    ('cars/export/AlderC150.glb','cars',['BODY=crossover','export']),
+    ('street-light/export/StreetLight.glb','street-light',['export']),
+    ('commercial/export/CommercialStrip-201.gltf','commercial',['SEEDS=201','export']),
     ('cars/export/AlderX220.glb','cars',['BODY=suv','export']),
     ('houses/export/HearthfieldRanch-11.gltf','houses',['TYPE=ranch','SEEDS=11','export']),
     ('houses/export/HearthfieldCape-31.gltf','houses',['TYPE=cape','SEEDS=31','export']),

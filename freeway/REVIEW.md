@@ -189,3 +189,48 @@ partial bank-transition module for chaining. Context proxies are intentionally
 simple at street distance. Guardrail splices/bolts, pavement edge distress,
 bridge repairs and drain staining, shoulder debris, weeds and wear remain for
 look-dev. No random weather wash has been substituted for that work.
+
+
+## Revision pass 1 — form, town and the first lighting rejection
+
+**Color/value first:** the retained checkpoint had pale, uniform concrete and a
+neutral sky. The first revised sun lit the pavement but put the bridge fascia
+and near cap into excessive shade. Rejected that direction after opening the
+1200px hero and underside at native size; moved the low sun to the visible
+fascia side and increased physical sky fill. The resumed curved/terminal views
+show long shadows and retain dark wall bases without clipping the concrete.
+This is a form review; it does not certify the later baked finish.
+
+Opened all nine `renders/form-corrected/` images at native resolution: 101 hero,
+aerial, sign, underside, gore and terminal; 202 hero, aerial and sound wall.
+Compared the aerial to the 2002 USGS photo, the underside to FHWA's 2008 image,
+and traffic to the 2008 and newly retrieved 2007 road photographs. The two
+unchanged civil alignments now have towns: commercial parcels at the diamond,
+residential grids either side, and backyards/dead-end cross streets beyond the
+curved corridor's sound walls. Original house-plan distance shells remain
+recognizable and repeated; this is context, not a new house family.
+
+Rejected the old open black ramp-terminal edge. Added measured-to-soil shoulder
+returns and curb backs. The first revised image exposed small unclosed corner
+wedges; added triangular corner closures. Extended the context arterial beyond
+the civil excerpt rather than leaving its cut end visible in the aerial.
+
+Verified the girder profile against TxDOT report 0-4751-1 vol.2, Figure A.1.4.1
+(page 18 of the PDF): 54in depth, 20/26in top/bottom flanges and 8in web, with
+8/9/23/6/8in vertical divisions. Added haunches, intermediate/end diaphragms,
+a 50mm cap chamfer and the deck drip groove. The first plinths were buried in
+the cap; lowered the cap body/abutment seats while preserving pad and girder
+contacts, so actual bearing pedestals can read. Closed a missing underside
+strip beside the outer girder. These corrections are judged again in look-dev.
+
+The 5k traffic derivatives look too angular close to the shoulder. Restored
+full native bodies in the near zone, keeping the native hatchback at its
+accepted anchor. All three original bodies and five native factory colors are
+seeded. The color derivatives decode the cars' own baked coverage into ordinary
+local RGB maps; no reference image enters a shader. Added queue priority and
+lane-space reservations to prevent a flowing car occupying a queued position.
+
+Form exports measured 223,232 and 127,170 freeway triangles before the final
+edge/plinth corrections and age geometry. Context and actors are separate
+external glTF packages, so the 400k freeway ceiling is checked independently.
+No existing library delivery was regenerated in place.

@@ -6,8 +6,12 @@ from plan import FT,LANE,LEFT,RIGHT,LINE,JOINT,DASH,CYCLE,BRIDGE_Z
 from graphics import rect
 
 F_SHAPE=[(-.3048,0),(.3048,0),(.3048,.0762),(.127,.254),(.0762,.8128),(-.0762,.8128),(-.127,.254),(-.3048,.0762)]
-# Traditional AASHTO IV, 54 in deep, nominal 26 in flanges / 8 in web.
-GIRDER=[(-.3302,0),(.3302,0),(.3302,.2032),(.1016,.4064),(.1016,1.1176),(.3302,1.2446),(.3302,1.3716),(-.3302,1.3716),(-.3302,1.2446),(-.1016,1.1176),(-.1016,.4064),(-.3302,.2032)]
+# Period AASHTO IV: 54 in depth, 20 in top, 26 in bottom, 8 in web.
+# TxDOT 0-4751-1 vol.2: 8/9/23/6/8 in vertical divisions.
+GIRDER=[(-.3175,0),(.3175,0),(.3302,.0127),(.3302,.2032),
+        (.1016,.4318),(.1016,1.016),(.254,1.1684),(.254,1.3589),
+        (.2413,1.3716),(-.2413,1.3716),(-.254,1.3589),(-.254,1.1684),
+        (-.1016,1.016),(-.1016,.4318),(-.3302,.2032),(-.3302,.0127)]
 
 def barrier(name='MedianF',length=6.096,scupper=True):
     rt=Q.root(name,module_kind='barrier');b=Q.Batch(name+'__Mesh',rt)
@@ -163,7 +167,10 @@ def pier(name='PierBent'):
     for y in (-7.,0,7.):
         b.tube([(0,y,-.05),(0,y,seat-1.12)],.60,'Bridge',32)
         b.tube([(0,y,seat-1.12),(0,y,seat-.98)],.67,'Bridge',24)
-    b.box((0,0,seat-.57),(2.,19.8,1.10),'Bridge');b.finish()
+    # 50mm chamfered cap, with the accepted seat/bearing levels unchanged.
+    lo=seat-1.24;hi=seat-.14;c=.05
+    b.extrude([(-1+c,lo),(1-c,lo),(1,lo+c),(1,hi-c),(1-c,hi),(-1+c,hi),(-1,hi-c),(-1,lo+c)],[-9.9,9.9],'Bridge')
+    b.finish()
     Q.socket(rt,'BearingTop',(0,0,seat-.02),'bearing_top');return rt
 
 def gore(name='GorePaving36'):
@@ -180,7 +187,7 @@ def bridge(name='Overpass'):
     deck_bottom=7.10;gb=deck_bottom-1.3716;seat=gb-.15
     bent=pier(name+'__PierBent');bent.parent=rt
     for side in (-1,1):
-        b.box((side*24,0,seat-1.22),(1.35,21.34,2.40),'Bridge')
+        b.box((side*24,0,seat-1.34),(1.35,21.34,2.40),'Bridge')
         b.box((side*24.5,0,(seat+7.35)/2),(.40,21.34,7.35-seat),'Bridge')
         for yy in (-10.55,10.55):
             b.box((side*27.0,yy,6.0),(6.5,.40,2.4),'Bridge')
@@ -200,7 +207,17 @@ def bridge(name='Overpass'):
                 camber=.018*math.sin(math.pi*(x-x0)/(x1-x0))
                 b.box((x,y,gb-.075+camber/2),(.68,.58,.15+camber),'Rubber')
                 b.box((x,y,gb-.16),(.78,.68,.02),'Steel')
-        for x in (side*1.55,side*22.7):
+                # Cast bearing plinths sit between plate and the existing cap.
+                b.box((x,y,gb-.23),(.88,.78,.12),'Bridge')
+            # Haunch follows the cambered top; deck elevation stays fixed.
+            for j in range(12):
+                a=x0+(x1-x0)*j/12;c=x0+(x1-x0)*(j+1)/12
+                za=deck_bottom+.018*math.sin(math.pi*j/12)
+                zc=deck_bottom+.018*math.sin(math.pi*(j+1)/12)
+                b.face([(a,y-.254,za),(c,y-.254,zc),(c,y-.254,7.145),(a,y-.254,7.145)],'Bridge')
+                b.face([(c,y+.254,zc),(a,y+.254,za),(a,y+.254,7.145),(c,y+.254,7.145)],'Bridge')
+                b.face([(a,y-.254,7.145),(c,y-.254,7.145),(c,y+.254,7.145),(a,y+.254,7.145)],'Bridge')
+        for x in (side*1.55,side*12.0,side*22.7):
             # End diaphragms between webs, above bearing/seat level.
             for j in range(6):b.box((x,(j-2.5)*3.048,6.42),(.22,2.8448,.90),'Bridge')
     # Deck segments have real top crown and thickened sidewalk strips.
@@ -209,7 +226,16 @@ def bridge(name='Overpass'):
         for ya,yb in [(-10.668,-8.382),(-8.382,0),(0,8.382),(8.382,10.668)]:
             z0=BRIDGE_Z-.02*min(abs(ya),8.382);z1=BRIDGE_Z-.02*min(abs(yb),8.382)
             b.face([(xa,ya,z0),(xb,ya,z0),(xb,yb,z1),(xa,yb,z1)],'Asphalt' if abs(ya+yb)<16.7 else 'Concrete')
-            b.face([(xa,yb,deck_bottom),(xb,yb,deck_bottom),(xb,ya,deck_bottom),(xa,ya,deck_bottom)],'Bridge')
+            # Underside sits on haunches; 45mm drop in the outer cantilever.
+            underside=7.145 if abs(ya+yb)<16.7 else 7.10
+            if abs(ya+yb)<16.7:b.face([(xa,yb,underside),(xb,yb,underside),(xb,ya,underside),(xa,ya,underside)],'Bridge')
+    # Cast drip groove, cut into the underside of each overhang. Continuous
+    # flanks and recessed soffit make a groove rather than a floating black line.
+    for side in (-1,1):
+        for a,c,z in [(8.382,9.4742,7.145),(9.4742,10.10,7.10),(10.10,10.1254,7.119),(10.1254,10.668,7.10)]:
+            b.face([(-24,side*c,z),(24,side*c,z),(24,side*a,z),(-24,side*a,z)],'Bridge')
+        b.face([(-24,side*9.4742,7.10),(24,side*9.4742,7.10),(24,side*9.4742,7.145),(-24,side*9.4742,7.145)],'Bridge')
+        for y in (10.10,10.1254):b.face([(-24,side*y,7.10),(24,side*y,7.10),(24,side*y,7.119),(-24,side*y,7.119)],'Bridge')
     for side in (-1,1):
         # Pedestrian walk, F parapet, 8 ft safety fence on outer rail.
         base=BRIDGE_Z-.02*8.382

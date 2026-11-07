@@ -5,9 +5,9 @@ from pathlib import Path
 import bpy
 from mathutils import Vector
 HERE=Path(__file__).resolve().parent;sys.path[:0]=[str(HERE.parents[1]),str(HERE)]
-import geom as Q,pieces,roads,site as builtin_site
+import geom as Q,pieces,roads,roadside,weather,site as builtin_site
 import importlib.util
-spec=importlib.util.spec_from_file_location('freeway_site',HERE/'site.py');site=importlib.util.module_from_spec(spec);spec.loader.exec_module(site)
+spec=importlib.util.spec_from_file_location('freeway_site',HERE/'site.py');site=importlib.util.module_from_spec(spec);sys.modules['freeway_site']=site;spec.loader.exec_module(site)
 from plan import *
 from materials import palette
 from external import share,bundle
@@ -52,7 +52,7 @@ def scene(p,lib):
                 for side in (-1,1):roots.append(site.along(lib['MedianF'],'PierProtection_%s_%03d'%(side,i),p,s,side*.85))
             else:roots.append(site.along(lib['MedianF'],'Median_%03d'%i,p,s,0))
         roots.append(site.clone(lib['Overpass'],'JuniperOverpass'))
-        roots.append(roads.arterial(p));roots.append(site.terminal_signals(p))
+        roots.append(roads.arterial(p));roots.append(site.terminal_signals(p));roots.append(roadside.terminal(p))
         for side in (-1,1):
             for entry in (False,True):
                 roots.append(roads.ramp(p,'Ramp_%s_%s'%(side,'On' if entry else 'Off'),side,entry))
@@ -137,16 +137,28 @@ def scene(p,lib):
             for x in (-.50,.50):bb.beam((x,0,-.10),(x,0,3.0),.065,'Steel',.065)
             bb.finish();pieces.sign_face(rr.name+'__Panel',1.524,1.2192,'gore_exit',rr,(0,-.04,2.5));rr.rotation_euler.z=0 if side>0 else math.pi
     b.finish();roots.append(furniture)
-    roots.extend([site.town(p),site.traffic(p)])
+    bpy.context.view_layer.update()
+    soil=roadside.soil_tree();support=[]
+    for rt in roots:
+        if rt.get('module_kind') in ('roadway','ramp','arterial'):support.extend(roadside.seat(rt,soil))
+    Path('build/edge-support-'+str(p.seed)+'.json').write_text(json.dumps(support,indent=2))
+    roots.append(roadside.landscape(p))
+    if getattr(Q,'LOOKDEV',False):
+        roots.append(weather.paving(p))
+        for rt in roots:weather.construction(rt)
+    # Context and actors are delivered separately so civil cost is independently
+    # measurable. Every review still imports all three exported packages.
     return roots
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--seeds',nargs='+',type=int,default=[101,202]);ap.add_argument('--out',default='build/Freeway.blend');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
-    bpy.ops.wm.read_factory_settings(use_empty=True);palette();lib={r.name:r for r in pieces.library()}
+    ap=argparse.ArgumentParser();ap.add_argument('--seeds',nargs='+',type=int,default=[101,202]);ap.add_argument('--out',default='build/Freeway.blend');ap.add_argument('--stage',choices=('form','look'),default='look');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
+    bpy.ops.wm.read_factory_settings(use_empty=True);palette(a.stage);lib={r.name:r for r in pieces.library()}
     # Standalone road modules demonstrate straight, curve and bank transition.
     for name,p in [('RoadStraight',plan(101)),('RoadCurve',replace(plan(202),grade=0.))]:lib[name]=roads.road(p,name,-18.288,18.288)
     lib['RoadBankTransition']=roads.road(replace(plan(202),grade=0.),'RoadBankTransition',-18.288,18.288,bank=(-.02,-.025))
     lib['RampBranch']=roads.ramp(plan(101),'RampBranch',1,False)
+    if Q.LOOKDEV:
+        for r in lib.values():weather.construction(r)
     rows={n:describe(r) for n,r in lib.items()}
     for n,r in lib.items():export('export/modules/'+n+'.gltf',[r])
     for i,r in enumerate(lib.values()):r.location=(i%4*65,i//4*70,0)
@@ -157,6 +169,11 @@ def main():
     for seed in a.seeds:
         p=plan(seed);roots=scene(p,lib);report=export('export/Freeway-'+str(seed)+'.gltf',roots)
         report.update(plan=p.data(),parts={r.name:describe(r) for r in roots})
+        context=site.town(p);traffic=site.traffic(p)
+        report['context']=export('export/Town-'+str(seed)+'.gltf',[context])
+        report['traffic']=export('export/Traffic-'+str(seed)+'.gltf',[traffic])
+        report['traffic']['placements']=json.loads(traffic['placements_json'])
+        report['context']['placements']=json.loads(context['placements_json'])
         Path('build/scene-'+str(seed)+'.json').write_text(json.dumps(report,indent=2))
         # Native Blender curves survive in a rebuildable per-scene source.
         # Only the reusable construction library is hidden in that source.
@@ -165,7 +182,7 @@ def main():
         bpy.ops.wm.save_as_mainfile(filepath=str(Path('build/Freeway-'+str(seed)+'.blend').resolve()))
         for ob,(render_hidden,viewport_hidden) in templates.items():ob.hide_render=render_hidden;ob.hide_viewport=viewport_hidden
         print('FREEWAY SCENE',seed,report['triangles'],'triangles',flush=True)
-        for r in roots:site.delete(r)
+        for r in [*roots,context,traffic]:site.delete(r)
     Path('build/modules.json').write_text(json.dumps(rows,indent=2))
     print('FREEWAY MODULES',len(lib),sum(r['triangles'] for r in rows.values()))
 if __name__=='__main__':main()

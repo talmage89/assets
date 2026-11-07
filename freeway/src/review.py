@@ -18,21 +18,22 @@ def sheet(files,out,cols=3,width=480):
     Path(out).parent.mkdir(parents=True,exist_ok=True);im.save(out,quality=91,optimize=True)
 
 def main():
-    files=[*sorted(Path('renders/checkpoint/101').glob('*.png')),*sorted(Path('renders/checkpoint/202').glob('*.png'))]
-    files += [p for p in (Path('renders/checkpoint/modules.png'),Path('renders/checkpoint/scale.png')) if p.exists()]
+    files=[*sorted(Path('renders/lookdev/101').glob('*.png')),*sorted(Path('renders/lookdev/202').glob('*.png'))]
+    files += [p for p in (Path('renders/lookdev/modules.png'),Path('renders/lookdev/scale.png')) if p.exists()]
     assert len(files)>=16,('Incomplete checkpoint views',len(files))
     for path in files:
         record=json.loads(path.with_suffix('.json').read_text());assert record['engine']=='CYCLES',path
         assert record['bundle_sha256']==bundle(record['source']),('Stale render',path)
-    sheet(files,'renders/checkpoint/contact.jpg')
-    pairs=sorted(Path('renders/matches').glob('*-pair.jpg'));assert len(pairs)==3
-    sheet(pairs,'renders/matches/contact.jpg',cols=1,width=1400)
+        for ctx in record.get('context',[]):assert ctx['bundle_sha256']==bundle(ctx['source']),('Stale context',path)
+    sheet(files,'renders/lookdev/contact.jpg')
+    pairs=sorted(Path('renders/look-matches').glob('*-pair.jpg'));assert len(pairs)>=3
+    sheet(pairs,'renders/look-matches/contact.jpg',cols=1,width=1400)
     measurements=json.loads(Path('build/check.json').read_text())
     tone={}
     import numpy as np
     for seed in (101,202):
-        a=np.asarray(Image.open(f'renders/checkpoint/{seed}/hero.png').convert('RGB'),float)/255;y=a@np.array([.2126,.7152,.0722])
+        a=np.asarray(Image.open(f'renders/lookdev/{seed}/hero.png').convert('RGB'),float)/255;y=a@np.array([.2126,.7152,.0722])
         tone[str(seed)]=dict(display_luma_p01_p50_p99=np.quantile(y,[.01,.5,.99]).tolist(),rgb_clipped_fraction=float((a>=.99).mean()),scope='Whole image includes sky; display-value range, not albedo measurement')
-    Path('build/tones.json').write_text(json.dumps(tone,indent=2))
+    Path('build/tones-overall.json').write_text(json.dumps(tone,indent=2))
     print('REVIEW',len(files),'Cycles views,',len(pairs),'period pairs; contact sheets written')
 if __name__=='__main__':main()

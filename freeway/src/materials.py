@@ -9,7 +9,7 @@ import geom as Q
 from kit.tiling import material
 ROOT=Path(__file__).resolve().parents[2]
 
-def palette():
+def palette(stage='form'):
     from io_scene_gltf2.blender.imp.pbrMetallicRoughness import get_settings_group
     get_settings_group()
     for name in ('Asphalt','Concrete','Lawn'):
@@ -30,4 +30,8 @@ def palette():
     tx=m.node_tree.nodes.new('ShaderNodeTexImage');tx.image=bpy.data.images.load(str(Path('textures/checkpoint/T_Freeway_Signs.png').resolve()))
     m.node_tree.links.new(tx.outputs['Color'],m.node_tree.nodes.get('Principled BSDF').inputs['Base Color'])
     Q.M['Signs']=m
+    Q.LOOKDEV=stage=='look'
+    if Q.LOOKDEV:
+        from look_materials import install
+        install()
 

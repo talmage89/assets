@@ -10,6 +10,8 @@ import numpy as np
 from PIL import Image
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
 from kit.photo_match import calibrate,compose
+sys.path.insert(0,str(Path(__file__).resolve().parent))
+from plan import plan,LEFT,RIGHT
 
 def balance(name,roi):
     im=np.asarray(Image.open('refs/'+name+'.jpg').convert('RGB'),dtype=float)/255
@@ -21,6 +23,8 @@ def cameras():
     highway,hw=balance('freeway-2008',[370,1460,470,1510])
     bridge,br=balance('bridge-2008',[1800,1500,1950,1570])
     diamond,di=balance('diamond-2002',[430,42,455,60])
+    traffic,tr=balance('traffic-2007',[1675,1490,1689,1510])
+    p=plan(202)
     definitions={
         'guide_2008':dict(title='Guide panel proportions / 2008 freeway photograph',photo=highway,crop=[0,350,2726,1785],
             location=(13.1,-395,1.8),target=(10.1,-360,7),lens=45,camera_height_m=(1.8,.6),lens_bounds_mm=(24,70),
@@ -28,13 +32,17 @@ def cameras():
             source='export/Freeway-101.gltf',limitations='Four coplanar panel corners, estimated dimensions and lens; six photographed lanes versus four modeled. Compare sign form and mounted scale, not roadway capacity.'),
         'bearing_2008':dict(title='Bearing-seat and cap plane / FHWA 2008 bridge',photo=bridge,crop=[0,0,2816,2112],
             location=(5,0,4.8),target=(0,-7,5.0),lens=45,lens_bounds_mm=(24,100),
-            landmarks=[dict(world=(1,y,z),pixel=px) for y,z,px in [(-9.9,5.5584,(1044,1345)),(-7.,5.5584,(1620,1255)),(-7.,4.4584,(1620,1695)),(-9.9,4.4584,(1044,1730))]],
+            landmarks=[dict(world=(1,y,z),pixel=px) for y,z,px in [(-9.9,5.4384,(1044,1345)),(-7.,5.4384,(1620,1255)),(-7.,4.3384,(1620,1695)),(-9.9,4.3384,(1044,1730))]],
             source='export/modules/Overpass.gltf',limitations='Cap-plane framing fit only. The photo has a pile bent and SCC beams; this family uses round columns and traditional I girders. No survey dimensions or one-to-one bridge reproduction claimed.'),
         'diamond_2002':dict(title='Diamond plan / USGS 2002 aerial photograph',photo=diamond,crop=[0,0,636,413],
             location=(-90,-40,1100),target=(0,0,0),lens=65,lens_bounds_mm=(24,200),
             landmarks=[dict(world=p,pixel=px) for p,px in [((78,0,7.35),(355,162)),((-78,0,7.35),(318,248)),((0,40,0),(310,195)),((0,-40,0),(357,213)),((0,0,7.35),(335,204))]],
             source='export/Freeway-101.gltf',limitations='Central five-point layout fit. Orthographic USGS photography is approximated with a long pinhole view. The real west approach curves and has a different right of way and terminal spacing.'),
     }
+    definitions['traffic_2007']=dict(title='Daily traffic, worn asphalt and median / 2007 freeway photograph',photo=traffic,crop=[800,770,2860,2240],
+        location=(17,-100,9),target=(7,110,1),lens=120,lens_bounds_mm=(70,200),
+        landmarks=[dict(world=p.xyz(s,u),pixel=px) for s,u,px in [(-55,p.median/2+LEFT,(1664,2180)),(-55,p.edge-RIGHT,(2830,2180)),(160,p.median/2+LEFT,(1780,1060)),(160,p.edge-RIGHT,(2175,1060))]],
+        source='export/Freeway-202.gltf',limitations='Four carriageway-edge landmarks give a type/framing fit. The photograph has three lanes per direction and no sound-wall enclosure; this asset has two. Not a measured reconstruction or matched traffic sample.')
     rows={}
     for name,definition in definitions.items():
         rows[name]=calibrate(definition);rows[name]['source']=definition['source'];rows[name]['limitations']=definition['limitations']
@@ -47,8 +55,8 @@ def cameras():
                 stage_floor=dict(size=200,location=(0,0,-.06)))
         print(name,'RMS',round(rows[name]['residual_rms_pixels'],3),'lens',round(rows[name]['shot']['lens'],2))
     Path('build/cameras.json').write_text(json.dumps(rows,indent=2))
-    Path('build/reference-balance.json').write_text(json.dumps(dict(guide_2008=hw,bearing_2008=br,diamond_2002=di),indent=2))
+    Path('build/reference-balance.json').write_text(json.dumps(dict(guide_2008=hw,bearing_2008=br,diamond_2002=di,traffic_2007=tr),indent=2))
 
 if __name__=='__main__':
-    if '--compose' in sys.argv:compose('build/cameras.json','renders/matches','renders/matches')
+    if '--compose' in sys.argv:compose('build/cameras.json','renders/look-matches','renders/look-matches')
     else:cameras()

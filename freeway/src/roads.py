@@ -37,7 +37,24 @@ def road(p,name,s0,s1,mark=True,bank=None):
                 # Concrete joints are sealed visible lines laid over the base
                 # at 15 ft intervals; top-level skins remain continuous.
                 color=1 if p.pavement=='Asphalt' else rng.uniform(.89,1.015)
-                b.surface([p.xyz(a,side*ua),p.xyz(a,side*ub),p.xyz(c,side*ub),p.xyz(c,side*ua)],p.pavement,tint=(color,color,color,1))
+                splits=[ua,ub]
+                if getattr(Q,'LOOKDEV',False) and k>0:
+                    middle=(ua+ub)/2
+                    splits=sorted(set([ua,ub,*[middle+v for v in (-1.25,-1.08,-.82,-.56,-.35,-.16,.16,.35,.56,.82,1.08,1.25)]]))
+                for lo,hi in zip(splits,splits[1:]):
+                    pts=[p.xyz(a,side*lo),p.xyz(a,side*hi),p.xyz(c,side*hi),p.xyz(c,side*lo)]
+                    role=p.pavement
+                    if getattr(Q,'LOOKDEV',False) and k>0 and p.pavement=='Concrete' and abs(abs((lo+hi)/2-middle)-.82)<.3:role='WheelPolish'
+                    start=len(b.colors);b.surface(pts,role,tint=(color,color,color,1))
+                    if getattr(Q,'LOOKDEV',False) and k>0:
+                        from weather import road_tint
+                        # Tint is corner data: the field follows lane causes and
+                        # survives stock glTF, with no runtime procedural shader.
+                        for index in range(start,len(b.colors)):
+                            xx,yy,zz=b.v[index]
+                            sta=math.atan2(yy,p.radius-xx)*p.radius if p.radius else yy
+                            u=p.radius-math.hypot(p.radius-xx,yy) if p.radius else xx
+                            b.colors[index]=tuple(v*color for v in road_tint(p,sta,u)[:3])+(1,)
             edge=edges[-1];aa=auxiliary(p,a);ac=auxiliary(p,c)
             b.surface([p.xyz(a,side*edge),p.xyz(a,side*(edge+aa+RIGHT)),p.xyz(c,side*(edge+ac+RIGHT)),p.xyz(c,side*edge)],'Asphalt')
             if p.pavement=='Concrete' and abs(a/JOINT-round(a/JOINT))<1e-5:
@@ -62,7 +79,7 @@ def road(p,name,s0,s1,mark=True,bank=None):
                 if c>a:patch(b,p,a,c,u-LINE/2,u+LINE/2)
                 # Raised marker after the dash, outside marking paint.
                 s=j*CYCLE+DASH+.5
-                if s0<=s<s1:
+                if s0<=s<s1 and (not getattr(Q,'LOOKDEV',False) or random.Random(p.seed*3701+j).random()>.10):
                     pt=p.xyz(s,u,.012);b.box(pt,(.10,.10,.018),'White')
             # Wide dotted line separates an added lane from through traffic.
             for j in range(math.floor(s0/(12*FT)),math.ceil(s1/(12*FT))):
