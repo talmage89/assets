@@ -917,3 +917,11 @@ No new appearance blocker appears in the gallery. `hero.jpg` is 1440×778 /
 the width and byte limits. The README gallery and measured cost tables are
 complete. The remaining CG cues are unchanged from pass 24. No kit changes,
 no top-level README changes, and nothing needed from the lead.
+
+`make -C skatepark docs WIDTH=1440 SAMPLES=40` also completed. All 20 native
+frame receipts match the current external export bundles. Regenerated JPGs
+are byte-identical to the five opened and reviewed images. A redundant
+follow-up default make was cancelled while waiting for the shared GPU lock,
+before its duplicate validation started; the completed cold build and explicit
+normal check/repeat above use the same final geometry. The final repository
+check includes the five staged JPGs: 1,881 source files, zero errors.
