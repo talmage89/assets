@@ -128,6 +128,10 @@ def block(cfg,m,status=None,kit_prefix="../kit"):
         assembly=row.get('assembly') or {}
         if assembly.get('separate_nodes'):
             lines+=['',f'LOD{row["level"]} separate moving meshes: '+', '.join('`'+n+'`' for n in assembly['separate_nodes'])+'.']
+        for part in assembly.get('retained_source_geometry',[]):
+            lines+=['',f'LOD{row["level"]} retains original geometry for `{part["node"]}`: '
+                    f'{part["source_triangles"]:,} triangles instead of {part["reduced_triangles"]:,} reduced triangles '
+                    '(measured grazing-layer exception; original frame, materials and maps).']
     if cfg.get('include_nodes'):
         lines+=['','Selected placement roots: '+', '.join('`'+n+'`' for n in cfg['include_nodes'])+'. LOD0 triangles, '
           'materials and draws describe those modules; its load bytes, maps and mesh allocation describe the complete '
