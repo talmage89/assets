@@ -36,7 +36,7 @@ def views(p):
  'top':dict(location=(0,-2,90),target=(0,-2,0),ortho=max(W,D)*1.08,lens=45,aspect=1.05),
  'ground':dict(location=(7.5,-12.5,1.65) if adv else (-15,-14,1.65),target=(0,9,1.65) if adv else (-4,9,1.65),lens=40,aspect=1.8,shift_y=-.035),
  'above':dict(location=(-58,-66,71) if adv else (-45,-55,61),target=(0,-2,0),lens=43,aspect=1.5),
- 'hero':dict(location=(0,-7.1,1.894) if adv else (-6,12.5,1.665),target=(3,10.5,2.0) if adv else (0,2,1.2),lens=35 if adv else 40,aspect=1.6,shift_y=0 if adv else -.04,**(dict(sun=(-.65,-.65,.40)) if adv else {})),
+ 'hero':dict(location=(-4.8,10,2.78) if adv else (-6,12.5,1.665),target=(5,3.5,1.0) if adv else (0,2,1.2),lens=35 if adv else 40,aspect=1.45 if adv else 1.6,shift_y=0 if adv else -.04,**(dict(sun=(-.65,.65,.40)) if adv else {})),
  'tee':dict(location=relative(tee,-2.1,-2.7,1.85),target=relative(tee,-.65,.0,.65),lens=46,aspect=1.45),
  'cup':dict(location=relative(cup,-.38,-.42,.40),target=relative(cup,0,0,.015),lens=55,aspect=1.35),
  'border':dict(location=relative(tee,-2.1,.45,.56),target=relative(tee,-1.0,.75,.05),lens=55,aspect=1.55),
