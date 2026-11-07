@@ -571,3 +571,43 @@ maps; these are provisional until the surviving-shred refinement is rebuilt.
 No docs or gallery is accepted at this pass. Remaining CG tells include flat
 fiber relief away from the hollows, regular bed scratches, simple mat edges,
 repeated foliage cards, and an overly cool shadow fill in the comparison views.
+
+## Delivery continuation — pass 10, six-fix visual gate
+
+**Color and value first.** Opened the renewed three 1200px heroes and every
+native comparison crop, including the 870–1200px-wide age crops, beside the
+preserved renders. The fiber is brown shredded wood with distinct pale and
+silvered chips, not the previous uniform tan needles. The hollows now show
+black wear mats below displaced wood rims, not shadow smudges. The same Adair
+neutral and 2005 EWF installation remain in the swing pair; the tight crop
+ends at its footings, with warm brown fiber beneath them. Neutralized shade
+fill avoids the earlier blue cast. Roswell's and the stair photograph's
+recorded neutrals remain unchanged. These are comparisons under inferred
+lighting, not recovered absolute albedos.
+
+The first 18-degree hero selection was rejected: it maximized clear ground
+rays by choosing a backlight and hid the front-facing wear. Constraining the
+sun to the camera side fixes that. The school hero now carries long deck/post/
+roof shadows, faded roof planes, a dull pink-red bed, chipped collars and rusty
+post feet at full frame. 2005 retains darker green/burgundy and intermediate
+fade; 2013 retains teal/orange/lime and limited contact wear. Exposure remains
+-.25. The palette/layout/module counts are preserved.
+
+Opened all fourteen fixed-camera crop pairs. The 12/24-inch step-up trays are
+thin, punched, supported on posts and open beneath, with side infill and grips;
+the interdeck connectors have the same construction language. Rubber grain,
+light contact wear, exposure fade and the two-color pour joint are visible.
+The first repair placement was too far beneath the tube to prove its edge.
+Moving the newer repair forward into the landing area and giving it a narrow
+joint makes it visible in `5-patch-and-seam.jpg`. Its dark binder stays less
+worn than the surrounding floor. Walk/border carryout is broader original
+wood; the final build also gives these visible chips small 3–4mm split crowns.
+
+`renders/fix-crops/receipts.json` checks equal full camera matrices/lenses and
+native panel widths for all fourteen pairs. Each requested correction has
+visible evidence. Proceed to final exported views, clean rebuild and repeat;
+no docs have been committed. This is a visual gate, not a claim of photographic
+parity. Remaining CG cues: repeated collar-chip charts and long bed grooves,
+flat fiber relief away from the dug regions, simplified mat/repair edges,
+low-sided small hardware, alpha chain parallax and repeated context foliage.
+The camera/design residuals and forest-green/photo-blue difference remain.

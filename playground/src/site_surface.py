@@ -113,15 +113,22 @@ def split_inset(poly):
 
 def split_patch(poly):
     """One original local repair at the tube exit, clipped into the floor."""
-    ring=G.fillet_polygon([(6.75,.90),(7.55,.67),(7.97,1.30),(7.50,1.72),(6.88,1.66)],.12,4)
-    if max(p[0] for p in poly)<6.7 or min(p[0] for p in poly)>8 or max(p[1] for p in poly)<.6 or min(p[1] for p in poly)>1.8:return [(poly,False)]
+    ring=G.fillet_polygon([(7.45,.90),(8.25,.67),(8.67,1.30),(8.20,1.72),(7.58,1.66)],.12,4)
+    if max(p[0] for p in poly)<7.4 or min(p[0] for p in poly)>8.7 or max(p[1] for p in poly)<.6 or min(p[1] for p in poly)>1.8:return [(poly,0)]
     rest=poly;out=[]
     for i,a in enumerate(ring):
         if not rest:break
         b=ring[(i+1)%len(ring)];q=halfplane(rest,a,b,False)
-        if len(q)>=3:out.append((q,False))
+        if len(q)>=3:out.append((q,0))
         rest=halfplane(rest,a,b,True)
-    if len(rest)>=3:out.append((rest,True))
+    if len(rest)>=3:
+        inner=[(8.04+(x-8.04)*.965,1.24+(y-1.24)*.965) for x,y in ring]
+        for i,a in enumerate(inner):
+            if not rest:break
+            b=inner[(i+1)%len(inner)];q=halfplane(rest,a,b,False)
+            if len(q)>=3:out.append((q,3))
+            rest=halfplane(rest,a,b,True)
+        if len(rest)>=3:out.append((rest,2))
     return out
 
 def split_hollow(poly,depressions):
@@ -161,7 +168,7 @@ def build(rt,plan,depressions):
         for piece,color in ([(part,c) for sq in sub for part,c in split_inset(sq)] if plan['inclusive'] else [(sq,0) for sq in sub]):
             for part,patch in split_patch(piece) if plan['inclusive'] else [(piece,False)]:
                 for shape,mat in ([(part,False)] if plan['inclusive'] else split_hollow(part,depressions)):
-                    n=len(vs);vs.extend((x,y,level(x,y)) for x,y in shape);fs.append(tuple(range(n,len(vs))));colors.append(2 if patch else color);roles.append(int(mat))
+                    n=len(vs);vs.extend((x,y,level(x,y)) for x,y in shape);fs.append(tuple(range(n,len(vs))));colors.append(patch if patch else color);roles.append(int(mat))
     ob=upward_sheet('Continuous protective containment / no internal borders',vs,fs,F.M['Site'])
     attribute=ob.data.attributes.new(name='SurfaceInset',type='INT',domain='FACE')
     for d,c in zip(attribute.data,colors):d.value=c
@@ -200,10 +207,18 @@ def build(rt,plan,depressions):
 
 def scatter(rt,plan,perimeter,level):
     rng=random.Random(plan['seed']+173);vs=[];fs=[]
-    def add(x,y,z):
+    def add(x,y,z,raised=False):
         L=rng.uniform(.025,.090);W=rng.uniform(.006,.019);t=rng.random()*math.tau;u=Vector((math.cos(t),math.sin(t)));v=Vector((-u.y,u.x))
         xy=Vector((x,y));points=[xy-u*L/2,xy+u*L/2-v*W*.3,xy+u*L*.35+v*W,xy-u*L*.45+v*W*.7]
-        n=len(vs);vs.extend((q.x,q.y,z+(rng.random()*.003)) for q in points);fs.append(tuple(range(n,n+4)))
+        n=len(vs)
+        if raised:
+            # Visible carryout has a real 3–4mm split crown. Its hidden bottom
+            # is omitted; the four tips rest on the walk or border top.
+            vs.extend((q.x,q.y,z) for q in points);mid=sum(points,Vector((0,0)))/4
+            vs.append((mid.x,mid.y,z+rng.uniform(.003,.0045)))
+            fs.extend((n+i,n+(i+1)%4,n+4) for i in range(4))
+        else:
+            vs.extend((q.x,q.y,z+(rng.random()*.003)) for q in points);fs.append(tuple(range(n,n+4)))
     # Foot strokes eject fibers to the edge of the actual seat/exit depressions.
     for x,y,w,h,d in plan['depressions_m']:
         for j in range(65):
@@ -216,9 +231,9 @@ def scatter(rt,plan,perimeter,level):
     for j in range(100):
         x=rng.uniform(-1.15,1.15);y=y0+rng.uniform(-1.3,.45)
         z=-.004 if y<y0-1 else -.008*(y-y0+1)/1.3+.001
-        add(x,y,z)
+        add(x,y,z,True)
     for j in range(70):
-        i=rng.randrange(len(perimeter));a=Vector(perimeter[i]);b=Vector(perimeter[(i+1)%len(perimeter)]);q=a.lerp(b,rng.random());add(q.x,q.y,.116)
+        i=rng.randrange(len(perimeter));a=Vector(perimeter[i]);b=Vector(perimeter[(i+1)%len(perimeter)]);q=a.lerp(b,rng.random());add(q.x,q.y,.116,True)
     ob=F.own(upward_sheet('Loose kicked fibers / exit banks and walk carryout',vs,fs,F.M['Site']),rt,'fiber','Site')
     from uv_finish import floor
     floor(ob,plan);ob['solid']=False

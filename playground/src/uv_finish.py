@@ -112,10 +112,11 @@ def floor(ob,plan):
             if plan['inclusive']:
                 wear=min(1,sum(math.exp(-(((p.x-x)/(.58 if w<.55 else .85))**2+((p.y-y)/1.2)**2)**1.6) for x,y,w,h,d in plan['depressions_m']))
                 if inset==2:wear*=.28  # newer local repair, less worn binder
+                if inset==3:wear*=.10
                 # Pale binder/color loss under feet, with intact darker pores.
                 for k in range(3):color[k]=color[k]*(1-.42*wear)+(.24,.29,.27)[k]*.42*wear
                 exposure=max(.12,1-sum(.78*math.exp(-((p.x-x)/1.2)**4-((p.y-y)/1.2)**4) for x,y,h in plan['decks']))
-                fade=(.13+.035*math.sin(p.x*.37+p.y*.24))*exposure*(.25 if inset==2 else 1)
+                fade=(.13+.035*math.sin(p.x*.37+p.y*.24))*exposure*(.25 if inset in (2,3) else 1)
                 for k in range(3):color[k]=color[k]*(1-fade)+(.26,.28,.25)[k]*fade
                 # Cold pour joint, and the two-color pour boundary. Narrow
                 # enough to read as construction rather than an outlined motif.
