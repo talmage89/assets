@@ -54,40 +54,63 @@ def measure(rt):
 
 def surface(rt,plan):
     x0,y0,x1,y1=plan['surface'];N,M=44,36;vs=[];fs=[]
+    # Install the border around the connected union of use zones, avoiding a
+    # large empty rectangular pad. Small margins connect the neighboring zones.
+    regions=[[max(x0,z['rect'][0]-.18),max(y0,z['rect'][1]-.18),min(x1,z['rect'][2]+.18),min(y1,z['rect'][3]+.18)] for z in plan['zones']]
+    regions.append([-.95,y0,.95,plan['zones'][0]['rect'][1]+.2])
+    xs=sorted(set([x0+(x1-x0)*i/N for i in range(N+1)]+[v for r in regions for v in (r[0],r[2])]))
+    ys=sorted(set([y0+(y1-y0)*i/M for i in range(M+1)]+[v for r in regions for v in (r[1],r[3])]))
+    N=len(xs)-1;M=len(ys)-1;occupied=set()
+    for j in range(M):
+        for i in range(N):
+            x=(xs[i]+xs[i+1])/2;y=(ys[j]+ys[j+1])/2
+            if any(a<=x<=c and b<=y<=d for a,b,c,d in regions):occupied.add((i,j))
     depress=[]
     for m in plan['modules']:
         if m['kind'].startswith('SwingB'):depress.append((m['pos'][0],m['pos'][1],.50,1.05,.075))
         if m['kind'].startswith('Slide'):
             h=1.8288 if '72' in m['kind'] else .6096 if '24' in m['kind'] else 1.2192;kind='spiral' if 'Spiral' in m['kind'] else 'wave' if 'Wave' in m['kind'] else 'straight';p=Vector(P.slide_path(h,kind)[-1]);t=math.radians(m['yaw']);xx=m['pos'][0]+math.cos(t)*p.x-math.sin(t)*p.y;yy=m['pos'][1]+math.sin(t)*p.x+math.cos(t)*p.y;depress.append((xx,yy,.61,.75,.065))
     for j in range(M+1):
-        y=y0+(y1-y0)*j/M
+        y=ys[j]
         for i in range(N+1):
-            x=x0+(x1-x0)*i/N;z=-.005
+            x=xs[i];z=-.005
             if not plan['inclusive']:
                 z-=sum(d*math.exp(-((x-a)/w)**2-((y-b)/h)**2) for a,b,w,h,d in depress)
                 z+=.006*math.sin(2.1*x+plan['seed'])*math.cos(2.8*y)
             vs.append((x,y,z))
     for j in range(M):
-        for i in range(N):a=j*(N+1)+i;fs.append((a,a+1,a+N+2,a+N+1))
+        for i in range(N):
+            if (i,j) in occupied:
+                a=j*(N+1)+i;fs.append((a,a+1,a+N+2,a+N+1))
     ob=F.own(G.mesh('Two color poured rubber' if plan['inclusive'] else 'Engineered fiber / kicked exit bowls',vs,fs,F.M['Site']),rt,'rubberfloor' if plan['inclusive'] else 'fiber','Site')
     ob['role']='protective_surface';ob['depression_centers_m']=[list(p) for p in depress]
     if plan['inclusive']:
-        attr=ob.data.color_attributes['Tint']
-        for poly in ob.data.polygons:
-            center=sum((ob.data.vertices[ob.data.loops[k].vertex_index].co for k in poly.loop_indices),Vector())/len(poly.loop_indices)
-            c=F.COLORS['accent'] if (center.x-2)**2/35+(center.y+1)**2/22<1 else F.COLORS['rubberfloor']
-            for li in poly.loop_indices:attr.data[li].color=c
+        # A clean curving two-color boundary for form review, before tiling/bake.
+        points=[(2,-1,.001)]+[(2+5.9*math.cos(i*math.tau/64),-1+4.7*math.sin(i*math.tau/64),.001) for i in range(64)]
+        faces=[(0,i+1,(i+1)%64+1) for i in range(64)]
+        F.own(G.mesh('Poured rubber second color inset',points,faces,F.M['Site']),rt,'accent','Site')
     else:
-        # Individual structural landscape timbers, real staggered splices and pins.
-        for y in (y0,y1):
-            for i in range(math.ceil((x1-x0)/2.4)):
-                a=x0+i*2.4;b=min(x1,a+2.4)
-                if y==y0 and a<-.85 and b>.85:continue
-                box=F.box(rt,'Border timber / pinned joint',((a+b)/2,y,.055),(b-a-.012,.14,.15),'wood',.016,'Site')
-                for x in (a+.12,b-.12):F.bolt(rt,(x,y,.132),(0,0,1),.008)
-        for x in (x0,x1):
-            for i in range(math.ceil((y1-y0)/2.4)):
-                a=y0+i*2.4;b=min(y1,a+2.4);F.box(rt,'Border timber', (x,(a+b)/2,.055),(.14,b-a-.012,.15),'wood',.016,'Site')
+        # Trace the actual occupied-cell boundary, merge collinear spans and
+        # split into stock 2.4m pinned timbers. No black outline around the lawn.
+        edges={}
+        for i,j in sorted(occupied):
+            for neighbor,key,lo,hi in [((i-1,j),('V',xs[i]),ys[j],ys[j+1]),((i+1,j),('V',xs[i+1]),ys[j],ys[j+1]),((i,j-1),('H',ys[j]),xs[i],xs[i+1]),((i,j+1),('H',ys[j+1]),xs[i],xs[i+1])]:
+                if neighbor not in occupied:edges.setdefault(key,[]).append((lo,hi))
+        for (axis,coord),spans in sorted(edges.items()):
+            merged=[]
+            for lo,hi in sorted(spans):
+                if merged and abs(merged[-1][1]-lo)<1e-7:merged[-1][1]=hi
+                else:merged.append([lo,hi])
+            for lo,hi in merged:
+                count=math.ceil((hi-lo)/2.4)
+                for k in range(count):
+                    a=lo+(hi-lo)*k/count;b=lo+(hi-lo)*(k+1)/count;mid=(a+b)/2
+                    if axis=='H' and abs(coord-y0)<1e-6 and a<.9 and b>-.9:continue
+                    pos=(mid,coord,.055) if axis=='H' else (coord,mid,.055);size=(b-a-.01,.14,.15) if axis=='H' else (.14,b-a-.01,.15)
+                    F.box(rt,'Pinned perimeter timber / use-zone union',pos,size,'wood',.016,'Site')
+                    for v in (a+.10,b-.10):F.bolt(rt,(v,coord,.132) if axis=='H' else (coord,v,.132),(0,0,1),.008)
+    plan['surface_regions_m']=regions
+    plan['protected_surface_area_m2']=sum((xs[i+1]-xs[i])*(ys[j+1]-ys[j]) for i,j in sorted(occupied))
     # A separate short beveled border access ramp meets the walk.
     F.box(rt,'Border access apron',(0,y0-.54,-.04),(1.8,1.08,.08),'concrete',.009,'Site')
     F.box(rt,'Public sidewalk',(0,plan['walk_y'],-.08),(x1-x0+5,1.8,.16),'concrete',.008,'Site')
@@ -144,7 +167,7 @@ def context(site_root,plan):
     if grass:
         key=grass.stem[2:-10];mat=material(key,folder)
     if mat is None:mat=F.M['Site']
-    o=G.box('Library Ground lawn',(2,1,-.20),(240,240,.20),mat,0);o.parent=site_root
+    o=G.box('Library Ground lawn',(2,1,-.115 if plan['inclusive'] else -.20),(240,240,.20),mat,0);o.parent=site_root
     if grass:world_uv(o,4)
     else:F.own(o,site_root,(.07,.12,.027,1),'Site')
     import context as library_context
@@ -163,7 +186,9 @@ def main():
         for i,(name,pos) in enumerate(names):c=F.clone(roots[name],label+'_'+str(i),pos);c.parent=rr
         export(out/(label+'.gltf'),members(rr))
         for o in members(rr):bpy.data.objects.remove(o,do_unlink=True)
-    for i,(name,rt) in enumerate(roots.items()):rt.location=((i%7)*7,(i//7)*7,0)
+    for i,(name,rt) in enumerate(roots.items()):
+        z=SWING_H if name in ('SwingBelt','SwingBucket') else .6 if name.startswith('Deck') or name=='RampSegment' else 1.0 if name in ('HipRoof','Shade') else 0
+        rt.location=((i%7)*7,(i//7)*7,z)
     export(out/'PlaygroundPieces.gltf',[o for rt in roots.values() for o in members(rt)])
     a.out.parent.mkdir(parents=True,exist_ok=True);bpy.ops.wm.save_as_mainfile(filepath=str(a.out.resolve()))
     # Templates stay offstage; each site is independently selected for export.

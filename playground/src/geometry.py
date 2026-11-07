@@ -22,9 +22,9 @@ def init():
     values=[]
     for y in range(512):
         for x in range(64):
-            xx=(x-31.5)/21;yy=((y+16)%64-32)/25
-            ellipse=abs((xx*xx+yy*yy)**.5-1)<.15
-            edge=abs(x-31.5)<3 and abs((y+48)%64-32)<26
+            xx=(x-31.5)/17.4;yy=((y+16)%64-32)/16.2
+            ellipse=abs((xx*xx+yy*yy)**.5-1)<.23
+            edge=abs(x-31.5)<5.3 and abs((y+48)%64-32)<20
             a=1 if ellipse or edge else 0
             values.extend([.18,.19,.18,a])
     im.pixels[:]=values;im.filepath_raw=str(Path('build/T_Playground_CheckpointChain.png').resolve());im.file_format='PNG';im.save()

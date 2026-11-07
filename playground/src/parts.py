@@ -67,7 +67,7 @@ def roof(rt,shade=False):
         loft(rt,'Rotomolded hip roof closed shell',loops,'red')
         for x in (-1,1):
             for y in (-1,1):
-                tube(rt,'Roof reinforcing ridge',[(x*.84,y*.84,.045),(x*.44,y*.44,.42),(x*.14,y*.14,.68)],.018,'red',6,'Molded')
+                tube(rt,'Roof reinforcing ridge',[(x*.84,y*.84,.045),(x*.44,y*.44,.42),(x*.10,y*.10,.685)],.018,'red',6,'Molded')
         for x in (-HALF,HALF):
             for y in (-HALF,HALF):box(rt,'Roof bolted corner socket',(x,y,-.09),(.15,.15,.17),'steel',.006)
 
@@ -224,9 +224,14 @@ def rock(rt):
     for x in (-.39,.39):cyl(rt,'Rock wall support',(x,-1.23,0),(x,-1.15,.25),.022,'steel',8)
 
 def pole(rt):
-    tube(rt,'Bent fire pole / 42mm OD',[(.61,-.80,0),(.61,-.80,2.72),(.61,-.76,2.83),(.61,-.60,2.90),(.61,0,2.90)],.021,'zinc',12)
-    for z in (1.22,2.70):F.clamp(rt,.61,0,z)
-    empty(rt,rt.name+'_Hands',(.61,-.8,1.8),'child_hands')
+    H=1.2192;top=H+1.60
+    cyl(rt,'Fire pole dedicated anchored support',(.45,0,0),(.45,0,top),.0635,'steel',16)
+    tube(rt,'Bent fire pole / 42mm OD',[(0,-.49,0),(0,-.49,top-.13),(0,-.45,top-.025),(.08,-.35,top+.035),(.32,-.10,top+.035),(.45,0,top-.05)],.021,'zinc',12)
+    for z in (H+.12,H+.93):
+        F.clamp(rt,.45,0,z)
+        cyl(rt,'Fire pole standoff',(.45,-.08,z),(0,-.49,z),.022,'steel',8)
+    empty(rt,rt.name+'_Hands',(0,-.49,H+.58),'child_hands')
+    empty(rt,rt.name+'_DeckEntry',(0,0,H),'deck_entry')
 
 def overhead(rt,rings=False):
     H=2.05;L=2.44
@@ -289,7 +294,9 @@ def swing(rt,bucket=False):
     for side in (-1,1):
         x=side*.255
         # 6mm welded long-link steel; alternating elliptical open-center links.
-        end=z+.13
+        # End at each actual suspension attachment: raised belt end / bucket
+        # upper rim, rather than the center sitting surface.
+        end=z+.40 if bucket else z+.13+.095*(.255/.27)**2
         # True links at the hanger, crossed alpha strips down the long run.
         for i in range(5):
             zz=-(i+.5)*.045;pts=[]

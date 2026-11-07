@@ -12,11 +12,11 @@ def site(seed):
     era={101:1996,202:2005,303:2013}[seed];inclusive=era==2013
     if era==1996:
         decks=[(0,0,1.2192),(GRID,0,1.2192),(GRID,GRID,1.8288)]
-        events=[('SlideStraight48',(0,-HALF,0),0),('SlideWave72',(GRID+HALF,GRID,0),90),('Stairs48',(-HALF,0,0),-90),('Arch48',(GRID+HALF,0,0),90),('Ladder72',(GRID,GRID+HALF,0),180),('OverheadLadder',(-HALF,GRID,0),-90),('FirePole',(GRID,GRID,0),180)]
+        events=[('SlideStraight48',(0,-HALF,0),0),('SlideWave72',(GRID+HALF,GRID,0),90),('Stairs48',(-HALF,0,0),-90),('Arch48',(GRID+HALF,0,0),90),('Ladder72',(GRID,GRID+HALF,0),180),('OverheadLadder',(-HALF,GRID,0),-90)]
         swing=(13.55,1.1,0);rider=(-7.5,-4.6,0);spin=(3.1,6.85,0);surf=(-10.1,-7.6,19.05,10.0)
     elif era==2005:
         decks=[(0,0,.6096),(0,GRID,1.2192),(GRID,GRID,1.2192),(2*GRID,GRID,1.8288)]
-        events=[('Transfer24',(0,-HALF,0),0),('SlideWave48',(-HALF,GRID,0),-90),('SlideSpiral72',(2*GRID+HALF,GRID,0),90),('Stairs48',(GRID,GRID+HALF,0),180),('ChainNet48',(GRID,-HALF,0),0),('RockWall48',(GRID*2,GRID+HALF,0),180),('OverheadRings',(-HALF,0,0),-90)]
+        events=[('Transfer24',(0,-HALF,0),0),('SlideWave48',(-HALF,GRID,0),-90),('SlideSpiral72',(2*GRID+HALF,GRID,0),90),('Stairs48',(GRID,GRID+HALF,0),180),('ChainNet48',(GRID,-HALF,0),0),('RockWall48',(GRID*2,GRID+HALF,0),180),('OverheadRings',(-HALF,0,0),-90),('FirePole',(GRID,GRID-HALF,0),0)]
         swing=(-10.85,1.0,0);rider=(9.3,-3.1,0);spin=(9.3,4.8,0);surf=(-16.3,-6.0,12.35,8.0)
     else:
         # Low broad accessible deck spine and separate older-child upper tower.
