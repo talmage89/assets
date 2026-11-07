@@ -9,7 +9,7 @@ CHECKPOINT_OUT := renders/lookdev
 CHECKPOINT_RENDER_ARGS := --folder export/lookdev
 include ../kit/checkpoint_rules.mk
 
-.PHONY: context textures form match repeat before-after
+.PHONY: context textures form match repeat before-after values
 context: build/context/ground.glb build/context/furniture.glb build/context/chain.glb build/context/tree.glb build/context/houses.glb build/context/light.glb
 model: context
 $(CHECKPOINT_OUTPUTS): | context
@@ -51,3 +51,5 @@ before-after: model
 	$(KIT)/with_gpu.sh $(BP) --python src/before_after.py -- --stage before --width $(WIDTH) --samples $(SAMPLES)
 	$(KIT)/with_gpu.sh $(BP) --python src/before_after.py -- --stage after --width $(WIDTH) --samples $(SAMPLES)
 	$(PYTHON) src/compare_views.py
+values: refs model
+	$(KIT)/with_gpu.sh $(BP) --python src/value_probe.py -- --out renders/values-final --samples $(SAMPLES)
