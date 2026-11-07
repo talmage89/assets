@@ -10,7 +10,7 @@ course plan is reproduced.
 | Course scale | Harris published 18-hole example: 22,000 sq ft / 2044 m² course area | Classic 49 × 56 m parcel including lot/hut; adventure 64 × 65 m including lot/hut; original holes 5.2–8.6 m long, 2.0–3.6576 m wide; the short welcome bowl uses the published 12 ft width comparator |
 | Carpet | Wittek: high UV olefin, 3/16 in pile, 12 ft roll; Verde alternative: UV-stabilized 9.5 mm polypropylene loop | 4.8 mm top skin; roll/repair seams planned for look-dev; no modeled individual fibers at this gate |
 | Tee mat | Wittek commercial jumbo 24 × 36 in, 1/8 in thick (2018 catalogue; some later PDF OCR incorrectly reads 1⅛) | .9144 × .6096 × .003175, recessed ball-start pocket |
-| Cup | Commercial 4¼ in golf opening, aluminum liner, Harris cup/drain detail | .10795 m clear opening; .1016 m deep, .002 m wall; open carpet/slab cut, recessed bottom, drain opening |
+| Cup | TNT Turf builder: standard 4¼ in golf opening; Wittek aluminum liner class; Harris cup/drain detail | .10795 m clear opening; .1016 m deep, .002 m wall; open carpet/slab cut, recessed bottom, drain opening |
 | Edging | Builder's brick paver, concrete border, and commercial timber systems | .1524 m concrete curb, .2032 × .1016 m brick units, .0889 × .1397 m treated timbers; original details |
 | Walk | US 5 ft walk size already used in ground family | 1.524 m connected route plus tee/cup approaches; geometry check, not accessibility certification |
 | Faux rock | Henderson's rebar framework / shotcrete / waterproofing / plaster | Original asymmetric ledged formations; closed exterior skins describe the shell envelope; hidden frame and inner wall omitted from game geometry |

@@ -16,6 +16,7 @@ Additional primary reading (no local download):
 - https://miniaturegolfconstruction.com/miniature-golf-course-design/ — Amusement Construction, course builder; original routing, terrain and customer flow. Copyrighted.
 - https://www.wittekgolf.com/mini-golf/mini-golf-tee-pads — Wittek: commercial rubber pads, 24 × 36 in jumbo size. Copyrighted.
 - https://www.wittekgolf.com/mini-golf/mini-golf-cups — Wittek: commercial aluminum/plastic cups. Copyrighted.
+- https://tntturf.com/commercial-turf/golf-putting-greens/mini-golf-courses/ — TNT Turf, course builder: concrete/compacted bases, curbing, seams, and standard 4.25-inch cup opening. Copyrighted.
 - https://minigolfsport.be/wp-content/uploads/2024/05/Reglement-2.8-homologations-01-04-2020.pdf — sporting construction comparator only, not US roadside lane standard. Copyrighted.
 - https://www.daverhenderson.com/blog/2018/7/14/how-to-build-a-water-feature-or-pond-with-real-fake-rock — Dave R. Henderson, builder: rebar frame, shotcrete, waterproofing, plaster rockwork; underlayment and 45 mil EPDM. Copyrighted.
 - https://legacy.winnipeg.ca/finance/findata/matmgt/documents/2017/736-2017/736-2017_Bid_Opportunity%20.pdf — City of Winnipeg waterfall specification: 45 mil EPDM, needle-punched underlayment, stainless weir, rounded channel stone. Copyrighted.
