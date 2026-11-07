@@ -21,6 +21,7 @@ def main(args):
  shots.update(terrain=dict(location=(-10,15,3.0),target=(1,4,1.0),lens=40,aspect=1.7),planting=dict(location=(2,-8,1.65),target=(5.2,-1,.7),lens=45,aspect=1.6),road=dict(location=(-67,-27,1.65),target=(-42,-55,3.5),lens=24,aspect=1.8))
  # A fixed wider view contains both the original and relocated waterfall.
  p=json.loads(Path('export/Minigolf-92.json').read_text())['plan'];shots['waterfall']=dict(location=(-2,4.5,3.2),target=(2.75,9.1,1.25),lens=32,aspect=1.6,sun=(-.65,-.65,.48))
+ shots['sign']=views(p)['sign']
  shots.pop('fixture',None);shots.pop('lighthouse',None);shots.pop('castle',None)
  wanted=set(args.keys.split(',')) if args.keys else None
  if wanted:shots={key:value for key,value in shots.items() if key in wanted}

@@ -53,16 +53,21 @@ def main():
      assert digest==hashlib.sha256(field.read_bytes()).hexdigest()
  if pairs:contact(pairs,'renders/look-matches/contact.jpg',800)
  compare=Path('renders/comparison');rows=[]
+ comparison_fingerprint=hashlib.sha256(Path('src/comparison.py').read_bytes()).hexdigest()
  for after in sorted(compare.glob('after-*.png')):
   before=after.with_name(after.name.replace('after-','before-',1))
   if not before.exists():continue
   a=Image.open(before).convert('RGB');b=Image.open(after).convert('RGB');assert a.size==b.size and a.width>=800
   before_meta=json.loads(before.with_suffix('.json').read_text());after_meta=json.loads(after.with_suffix('.json').read_text());assert before_meta['camera']==after_meta['camera'],('Comparison camera mismatch',after)
   assert before_meta['recipe_sha256']==after_meta['recipe_sha256']==recipe_hash()
+  for meta in (before_meta,after_meta):
+   assert meta['sha256']==hashlib.sha256(Path(meta['source']).read_bytes()).hexdigest(),('Stale comparison source',after)
+   assert meta['context']['comparison_recipe_sha256']==comparison_fingerprint,('Stale comparison recipe',after)
   staged='staged' in before_meta.get('context',{}).get('comparison_scope','')
   label='BEFORE FIXTURE GEOMETRY / REVISED PLACEMENT' if staged else 'ACCEPTED CHECKPOINT / BEFORE'
   sheet=Image.new('RGB',(a.width*2,a.height+40),(230,230,220));sheet.paste(a,(0,40));sheet.paste(b,(a.width,40));d=ImageDraw.Draw(sheet);d.text((12,10),label,fill='black');d.text((a.width+12,10),'FORM + LOOK REVISION / AFTER',fill='black');sheet.save(compare/(after.stem.removeprefix('after-')+'-pair.jpg'),quality=93);rows.append(compare/(after.stem.removeprefix('after-')+'-pair.jpg'))
- assert len(rows)>=10,('Missing same-camera comparisons',len(rows))
+ from comparison_batch import KEYS
+ assert {p.stem.removesuffix('-pair') for p in rows}==set(KEYS),('Missing same-camera comparisons',len(rows))
  if rows:contact(rows,compare/'contact.jpg',800)
  Path('build/render-check.json').write_text(json.dumps(dict(passed=True,glb_frames=len(files),photo_pairs=len(pairs),source_field_pairs=len(source_pairs),same_camera_pairs=len(rows),minimum_width=800,frames=values),indent=2))
  print('Review receipt',len(files),'GLB frames;',len(pairs),'photo pairs;',len(rows),'same-camera comparisons')
