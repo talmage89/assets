@@ -446,15 +446,18 @@ def pedestrian_network(a,p,cuts):
             endpoints.append((o['face'],endpoint,b['kind']))
     pl,pr,pf,pk=p['playground'];gx=pl+3.5*3.048;wrap=pl-1.524 if gx<0 else pr+1.524
     rear=p['footprint'][3]+2.4384;cl,cr,cf,ck=p['blacktop'];court=(cl+cr)/2
-    left=min(wrap,court,p['footprint'][0]-2);right=max(wrap,court,p['footprint'][1]+2)
+    fx,fy=p['field']
+    left=min(wrap,court,p['footprint'][0]-2,fx-4.5 if p['type']=='courtyard' else p['footprint'][0]-2);right=max(wrap,court,p['footprint'][1]+2)
     path([(left,rear),(right,rear)],2.4384)
     for face,end,kind in endpoints:
         if end[1]>0 and kind in ('single','cluster','classrow'):
             if face in ('east','west','north'):path([end,(end[0],rear)],1.524)
     path([(court,rear),(court,cf+.03)],2.4384)
     path([(wrap,rear),(wrap,pf-2.7432),(gx,pf-2.7432),(gx,pf+.02)],1.524)
-    fx,fy=p['field'];field_row=max(fy-4.5,pk+1.524,ck+1.524)
-    path([(wrap,rear),(wrap,field_row),(fx-4.5,field_row),(fx-4.5,fy)],1.524)
+    if p['type']=='courtyard':path([(fx-4.5,rear),(fx-4.5,fy)],1.524)
+    else:
+        field_row=max(fy-4.5,pk+1.524,ck+1.524)
+        path([(wrap,rear),(wrap,field_row),(fx-4.5,field_row),(fx-4.5,fy)],1.524)
     for x,y,yaw in p['portables']:
         # Lower ramp landing meets a route which passes outside the entire
         # portable body and its guard, instead of following beneath the ramp.

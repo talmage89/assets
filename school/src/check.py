@@ -125,6 +125,8 @@ def site_placement(p):
         trunks.append(dict(instance=root.name,actual_base_bounds_xy_m=bounds,building_overlaps=collisions))
     pl,pr,pf,pk=p['playground'];gx=pl+3.5*3.048;reserve=(pl,pr,pf,pk)
     obstacles=[('playground beyond gate apron',reserve,(gx-1,gx+1,pf,pf+1))]
+    fx,fy=p['field'];obstacles.append(('ballfield dirt envelope',(fx,fx+24,fy,fy+24),None))
+    cl,cr,cf,ck=p['blacktop'];obstacles.append(('blacktop beyond entry apron',(cl,cr,cf,ck),(cl,cr,cf,cf+1.3)))
     for j in range(len(p['portables'])):
         obs=[ob for ob in bpy.context.scene.objects if ob.type=='MESH' and ob.get('component')=='wall' and ('__Portable_'+str(j)+'_') in ob.name]
         points=[ob.matrix_world@v.co for ob in obs for v in ob.data.vertices]
