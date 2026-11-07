@@ -53,13 +53,18 @@ def walking_height(p,x,y):
 
 def planted(plot,bed,site):
     rng=random.Random(plot['seed']);w,d=plot['width'],plot['depth'];sp=plot['crop'];soil=bed['soil_surface_m']+.003
+    transverse=w>d
+    if transverse:w,d=d,w
+    grow=Q.root('Cultivation','planting',bed);grow.rotation_euler.z=math.pi/2 if transverse else 0
+    inset=.205 if plot['edge']=='block' else .045 if plot['edge'] in ('lumber','accessible') else .025
     stage=0 if plot['state']=='new' else 2
     plot['soil_z_world']=float(bed.location.z+bed['soil_surface_m'])
     plot['plants']=[]
     def add(species,x,y,st=None,yaw=None,variant=None):
+        x=max(-w/2+inset+.015,min(w/2-inset-.015,x));y=max(-d/2+inset+.015,min(d/2-inset-.015,y))
         j=stage if st is None else st;v=(rng.randrange(2) if variant is None else variant) if j==2 else 0;key=f'{species}_{j}_{v}'
-        rt=Q.instance(PLANTS[key],f'Plot{plot["id"]:02}_{species}',(x,y,soil),rng.random()*360 if yaw is None else yaw,bed)
-        plot['plants'].append(dict(species=species,local=[x,y,soil],prototype=key))
+        rt=Q.instance(PLANTS[key],f'Plot{plot["id"]:02}_{species}',(x,y,soil-.015),rng.random()*360 if yaw is None else yaw,grow)
+        plot['plants'].append(dict(species=species,local=[-y,x,soil-.015] if transverse else [x,y,soil-.015],prototype=key))
         return rt
     if plot['state']=='fallow':
         # A thin settled straw layer has a visible bulk, rather than a few
@@ -79,7 +84,7 @@ def planted(plot,bed,site):
         for i in range(90 if w<2 else 160):
             x=rng.uniform(-w/2+.10,w/2-.10);y=rng.uniform(-d/2+.10,d/2-.10);a=rng.random()*math.tau;l=rng.uniform(.035,.09)
             z=soil+.018+.005*math.sin(x*7+y*9)
-            Q.beam('Fallow straw stalk',(x,y,z),(x+l*math.cos(a),y+l*math.sin(a),z+.002),.002,bed,'Straw',.002)
+            Q.beam('Fallow straw stalk',(x,y,z),(x+l*math.cos(a),y+l*math.sin(a),z+.002),.002,grow,'Straw',.002)
     else:
         # Crop-spacing choices intentionally sit at the generous home-garden
         # end of Extension's production ranges, rather than filling by noise.
@@ -88,19 +93,22 @@ def planted(plot,bed,site):
             for x in xs:
                 for iy,y in enumerate(ys):
                     add(sp,x,y)
-                    if plot['id']%2 or iy==0:place('TomatoCage','Cage', (x,y,soil-.04),bed)
+                    if plot['id']%2 or iy==0:place('TomatoCage','Cage', (x,y,soil-.20),grow)
                     else:
-                        Q.box('Tomato 1x2 wood stake',(x+.07,y,soil+.82),(.01905,.0381,1.72),bed,'Wood')
-                        for z in (.45,.85,1.20):Q.ring('Loose cloth tomato tie',soil+z,.065,bed,'Straw',.003,center=(x+.025,y),segments=10)
+                        Q.box('Tomato 1x2 driven wood stake',(x+.07,y,soil+.575),(.01905,.0381,1.75),grow,'Wood')
+                        for z in (.45,.85,1.20):Q.ring('Loose cloth tomato tie',soil+z,.065,grow,'Straw',.003,center=(x+.025,y),segments=10)
         elif sp=='bean':
             if plot['id']%2:
-                support=place('BeanTeepee','Bean teepee',(0,0,soil),bed)
+                radius=min(.52,w/2-inset-.025)
+                if radius<.519:
+                    support=pieces.trellis(True,radius);support.parent=grow;support.location=(0,0,soil)
+                else:support=place('BeanTeepee','Bean teepee',(0,0,soil),grow)
                 for k in range(5):
-                    a=k*math.tau/5;rt=add(sp,.52*math.cos(a),.52*math.sin(a),yaw=0,variant=0)
+                    a=k*math.tau/5;rt=add(sp,radius*math.cos(a),radius*math.sin(a),yaw=0,variant=0)
                     # Vine follows the pole from planted foot to its apex.
-                    rt.rotation_euler=Vector((-.52*math.cos(a),-.52*math.sin(a),2.12)).to_track_quat('Z','Y').to_euler()
+                    rt.rotation_euler=Vector((-radius*math.cos(a),-radius*math.sin(a),2.12)).to_track_quat('Z','Y').to_euler()
             else:
-                yaw=90 if w<2 else 0;place('BeanTrellis','Bean trellis',(0,0,soil),bed,yaw)
+                yaw=90 if w<2 else 0;place('BeanTrellis','Bean trellis',(0,0,soil),grow,yaw)
                 for j in range(6):
                     t=-.75+j*.30;add(sp,0 if yaw else t,t if yaw else 0,yaw=yaw,variant=1)
         else:
@@ -117,14 +125,14 @@ def planted(plot,bed,site):
         # Straw stays concentrated beneath vegetables, never a whole-site wash.
         for i in range(24 if w<2 else 50):
             x=rng.uniform(-w/2+.13,w/2-.13);y=rng.uniform(-d/2+.13,d/2-.13);a=rng.random()*6.28
-            Q.beam('Plant straw mulch',(x,y,soil+.008),(x+.055*math.cos(a),y+.055*math.sin(a),soil+.009),.002,bed,'Straw',.002)
+            Q.beam('Plant straw mulch',(x,y,soil+.008),(x+.055*math.cos(a),y+.055*math.sin(a),soil+.009),.002,grow,'Straw',.002)
     if plot['state']=='weedy':
         for i in range(12):add('weed',rng.uniform(-w*.48,w*.48),rng.uniform(-d*.48,d*.48),2)
     # Edge flowers, with sparse sunflowers on north ends rather than every bed.
     if plot['id']%3==0 and plot['state']!='fallow':
         add('marigold',-w/2+.16,-d/2+.15,2)
         if plot['id']%2==0:add('sunflower',w/2-.22,d/2-.22,2)
-    if plot['id']==3:place('Pinwheel','Garden pinwheel',(-w/2+.1,d/2-.12,soil),bed)
+    if plot['id']==3:place('Pinwheel','Garden pinwheel',(-w/2+.1,d/2-.12,soil),grow)
     # A quick dark value on the actual soil faces around watered root zones.
     # Raised overlay polygons cast false shadows and read as floating stones.
     if plot['state'] in ('tidy','lush'):
@@ -138,7 +146,7 @@ def planted(plot,bed,site):
                 if ob.data.materials[face.material_index]!=Q.M['Soil']:continue
                 x,y=face.center.x,face.center.y
                 if any(math.hypot(x-r[0],y-r[1])<.19*(1+.14*math.sin(x*18+y*9)) for r in roots):face.material_index=wet
-    Q.join(bed)
+    Q.join(grow);Q.join(bed)
 
 
 def garden(p):
@@ -172,7 +180,7 @@ def garden(p):
     Q.join(ground)
     for plot in p['plots']:
         x,y=plot['center'];w,d=plot['width'],plot['depth']
-        bed=pieces.bed(f'Plot{plot["id"]:02}',w,d,plot['board_height'],plot['edge'],plot['seed']);bed.parent=rt;bed.location=(x,y,.014)
+        bed=pieces.bed(f'Plot{plot["id"]:02}',w,d,plot['board_height'],plot['edge'],plot['seed']);bed.parent=rt;bed.location=(x,y,walking_height(p,x,y))
         bed['plot_id']=plot['id'];bed['care_state']=plot['state'];bed['crop']=plot['crop']
         planted(plot,bed,rt)
         # A reachable marker, with real stake, at the front end of each plot.

@@ -116,6 +116,29 @@ def imported(seed,expected):
     gate.rotation_euler.z=math.radians(-110);bpy.context.view_layer.update();b=[child.matrix_world@v.co for v in child.data.vertices]
     radius_error=max(abs((v-hinge).length-(w-hinge).length) for v,w in zip(a,b));assert radius_error<2e-5
     beds=[o for o in rt.children if o.get('plot_id')]
+    rooted=[];anchors=[];bed_grade=[]
+    for bed in beds:
+        origin=bed.matrix_world.translation;grade=gt.ray_cast(Vector((origin.x,origin.y,3)),Vector((0,0,-1)),5)[0]
+        assert grade is not None;bed_grade.append(abs(origin.z-grade.z))
+        sv=[];sf=[]
+        for ob in bed.children:
+            if ob.type!='MESH':continue
+            start=len(sv);sv.extend(ob.matrix_world@v.co for v in ob.data.vertices)
+            sf.extend(tuple(start+i for i in f.vertices) for f in ob.data.polygons if 'Soil' in ob.data.materials[f.material_index].name and f.normal.z>.5)
+        if not sf:continue
+        soil=BVHTree.FromPolygons(sv,sf)
+        for plant in bed.children_recursive:
+            if plant.get('kind')!='plant':continue
+            v=plant.matrix_world.translation;hit=soil.ray_cast(Vector((v.x,v.y,3)),Vector((0,0,-1)),5)[0]
+            assert hit is not None;penetration=hit.z-v.z;rooted.append(penetration)
+            assert .001<penetration<.035,('Plant root floats above or buries too far into soil',plant.name,penetration)
+        for cage in [o for o in bed.children_recursive if o.name.startswith('Cage') and o.type=='EMPTY']:
+            vertices=[ob.matrix_world@vv.co for ob in cage.children_recursive if ob.type=='MESH' for vv in ob.data.vertices]
+            lowest=min(v.z for v in vertices)
+            for foot in [v for v in vertices if v.z<lowest+.001]:
+                hit=soil.ray_cast(Vector((foot.x,foot.y,3)),Vector((0,0,-1)),5)[0]
+                assert hit is not None;anchors.append(hit.z-foot.z);assert .18<hit.z-foot.z<.23
+    assert max(bed_grade)<.001,'Bed root is above its receiving ground'
     modules={o.name:count(o) for o in rt.children if o.get('kind') in ('fence','gate') or o.name.startswith('RainCapture')}
     assert all(n<=2000 for n in modules.values()),('Infrastructure module over budget',modules)
     # Footprint and neighbour gaps are measured from bed top edges, selecting
@@ -144,7 +167,9 @@ def imported(seed,expected):
     return dict(import_triangle_count=count(rt),raw_import_bounds_error_m=err,measured_main_route_widths_m=widths,
                 measured_gate_clear_width_m=clear,plot_sockets=len(sockets)-1,gate_radius_error_m=radius_error,
                 measured_bed_to_bed_min_gap_m=min(gaps) if gaps else None,mature_species=mature,
-                gardener_socket_ground_error_m=max(socket_errors),placed_infrastructure_triangles=modules)
+                gardener_socket_ground_error_m=max(socket_errors),placed_infrastructure_triangles=modules,
+                bed_root_grade_error_m=max(bed_grade),rooted_plant_count=len(rooted),plant_root_penetration_range_m=[min(rooted),max(rooted)],
+                cage_foot_penetration_range_m=[min(anchors),max(anchors)])
 
 
 def main():
@@ -185,6 +210,8 @@ def main():
     gauge=max(p.x for p in side)-min(p.x for p in side)
     assert abs(w-1.2192)<1e-5 and abs(depth-2.4384)<1e-5 and abs(gauge-.0381)<1e-5,dict(width=w,depth=depth,gauge=gauge)
     accessible=tree('Accessible8x3');clear_tests=[]
+    pail_floor=tree('Bucket').ray_cast(Vector((0,0,.30)),Vector((0,0,-1)),.4)[0]
+    assert pail_floor is not None and .007<pail_floor.z<.02,'Pail has no sealed floor'
     for x in (-.37,0,.37):
         for z in (.23,.50,.6858):
             hit=accessible.ray_cast(Vector((x,-1,z)),Vector((0,1,0)),2.0);clear_tests.append(hit[0] is None)
@@ -200,6 +227,7 @@ def main():
     report['construction']=dict(raised_width_m=w,raised_depth_m=depth,side_board_gauge_m=gauge,
         knee_clearance_rays=len(clear_tests),knee_clearance_passed=all(clear_tests),tray_underside_m=underside,
         soil_top_m=top,cmu_core_ray_open=True,cmu_web_top_m=web[0].z,
+        pail_floor_top_m=pail_floor.z,
         scope='actual imported surfaces, separate from raw/import serialization comparison')
     # Shared external leaf/mesh/lawn images must have identical identities.
     identity=[{i['sha256'] for i in row['images']} for row in report['gardens'].values()]

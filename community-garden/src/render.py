@@ -131,8 +131,8 @@ def views(p):
             if sp=='tomato':
                 # The front specimen is caged in every plan, including beds
                 # that demonstrate stakes on their remaining plants.
-                x+=0 if q['width']<2 else -.72
-                y+=-.76 if q['depth']<3 else -2.1
+                specimen=next(p for p in q['plants'] if p['species']=='tomato')
+                x+=specimen['local'][0];y+=specimen['local'][1]
             out[sp]=dict(location=(x-1.6,y-2.0,1.30),target=(x,y,.9),lens=52,aspect=1.3)
     return out
 
@@ -156,17 +156,8 @@ def render(seed,out,width,samples,names=None,custom=None,with_context=True):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     if with_context:
         import neighborhood as package
-        package_recipe=hashlib.sha256((HERE/'neighborhood.py').read_bytes()).hexdigest()
-        scene=Path(f'export/checkpoint/Site_{seed}.gltf');receipt=Path(f'build/context/site-{seed}.json')
-        valid=scene.exists() and receipt.exists()
-        old=json.loads(receipt.read_text()) if valid else {}
-        if not valid or old.get('garden_bundle')!=bundle(source) or old.get('render_recipe')!=RECIPE_SHA256 or old.get('package_recipe')!=package_recipe:
-            bpy.ops.import_scene.gltf(filepath=str(source.resolve()));rt=context(p)
-            expected=sum(Q.count(o) for o in bpy.context.scene.objects if not o.parent)
-            maps=package.export(scene,REPO)
-            receipt.write_text(json.dumps(dict(garden_bundle=bundle(source),render_recipe=RECIPE_SHA256,package_recipe=package_recipe,
-                scene_bundle=bundle(scene),triangles=expected,context_triangles=Q.count(rt),images=maps),indent=2))
-        source=scene;bpy.ops.wm.read_factory_settings(use_empty=True)
+        source,receipt=package.prepare(seed,REPO,RECIPE_SHA256,context)
+        bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
     if with_context:
         measured=sum(Q.count(o) for o in bpy.context.scene.objects if not o.parent)

@@ -97,14 +97,15 @@ def cage():
     Q.join(rt);return rt
 
 
-def trellis(teepee=False):
+def trellis(teepee=False,foot_radius=.52):
     rt=Q.root('BeanTeepee' if teepee else 'BeanTrellis','support')
     if teepee:
         for j in range(5):
-            a=j*math.tau/5;Q.cyl('Bamboo pole',(math.cos(a)*.52,math.sin(a)*.52,0),(0,0,2.12),.0125,rt,'Wood',7)
-        for z in (.55,1,1.5):Q.ring('Slack lashing ring',z,.52*(1-z/2.12),rt,'Straw',.0015,segments=18)
+            a=j*math.tau/5;foot=Vector((math.cos(a)*foot_radius,math.sin(a)*foot_radius,0));top=Vector((0,0,2.12))
+            Q.cyl('Bamboo pole with driven foot',foot+(foot-top).normalized()*.20,top,.0125,rt,'Wood',7)
+        for z in (.55,1,1.5):Q.ring('Slack lashing ring',z,foot_radius*(1-z/2.12),rt,'Straw',.0015,segments=18)
     else:
-        for x in (-.95,.95):Q.box('Trellis 2x2 stake',(x,0,1.06),(.0381,.0381,2.12),rt,'Wood')
+        for x in (-.95,.95):Q.box('Trellis 2x2 driven stake',(x,0,.96),(.0381,.0381,2.32),rt,'Wood')
         Q.box('Trellis top crossbar',(0,0,2.08),(2.04,.0381,.0381),rt,'Wood')
         for j in range(13):
             x=-.9+j*.15;Q.tube('Tensioned vertical garden twine',[(x,0,.08),(x,.014,1.10),(x,0,2.08)],.00125,rt,'Straw',3)
@@ -211,6 +212,7 @@ def board():
 def bucket():
     rt=Q.root('Bucket','tool')
     Q.own(Q.G.lathe('Open 5 gallon pail',[(0,.117),(.008,.12),(.35,.151),(.36,.153),(.36,.147),(.016,.113)],Q.M['White'],16,closed=True),rt)
+    Q.cyl('Sealed pail floor',(0,0,.008),(0,0,.016),.115,rt,'White',16)
     Q.ring('Rolled pail lip',.351,.151,rt,'White',.008,segments=20)
     Q.tube('Wire bail',[(-.15,0,.28),(-.155,0,.43),(-.10,0,.51),(.10,0,.51),(.155,0,.43),(.15,0,.28)],.0025,rt,'Steel',5)
     Q.join(rt);return rt
@@ -263,7 +265,7 @@ def rowcover():
 
 
 def pinwheel():
-    rt=Q.root('Pinwheel','tool');Q.box('Pinwheel stake',(0,0,.42),(.019,.019,.84),rt,'Wood')
+    rt=Q.root('Pinwheel','tool');Q.box('Pinwheel stake',(0,0,.45),(.019,.019,.90),rt,'Wood')
     pivot=Q.root('PinwheelRotor','pivot',rt);pivot.location=(0,-.022,.85);pivot['pivot_axis']='Y';pivot['range_degrees']=[-360,360]
     for j in range(4):
         a=j*math.pi/2;v=[]

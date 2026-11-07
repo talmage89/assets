@@ -23,15 +23,21 @@ def sites():
         assert triangles==receipt['triangles']==garden_check['gardens'][str(seed)]['triangles']+receipt['context_triangles']
         assert receipt['garden_bundle']==bundle(f'export/checkpoint/Garden_{seed}.gltf')
         assert receipt['scene_bundle']==bundle(path)
+        assert receipt['package_recipe']==hashlib.sha256((HERE/'neighborhood.py').read_bytes()).hexdigest()
         unique={};uris=[]
         for im in doc.get('images',[]):
             f=path.parent/im['uri'];sha=hashlib.sha256(f.read_bytes()).hexdigest();w,h=Image.open(f).size
             unique[sha]=dict(width=w,height=h,bytes=f.stat().st_size);uris.append(im['uri'])
         garden_images={r['sha256'] for r in garden_check['gardens'][str(seed)]['images']}
         assert garden_images.issubset(unique),'Packaged scene lost/re-encoded a garden image'
+        def descend(i):return [i]+[j for child in doc['nodes'][i].get('children',[]) for j in descend(child)]
+        garden=next(i for i,n in enumerate(doc['nodes']) if n.get('name')=='Garden_'+str(seed));garden_nodes=descend(garden)
+        assert not any('COLOR_0' in p['attributes'] for i in garden_nodes if 'mesh' in doc['nodes'][i] for p in doc['meshes'][doc['nodes'][i]['mesh']]['primitives']),'Wind leaked into garden base color'
+        colors=sum('COLOR_0' in p['attributes'] for m in doc['meshes'] for p in m['primitives'])
+        assert colors>0,'Native building material tints lost during scene packaging'
         report[str(seed)]=dict(triangles=triangles,garden_triangles=garden_check['gardens'][str(seed)]['triangles'],context_triangles=receipt['context_triangles'],
             materials=len(doc.get('materials',[])),unique_images=len(unique),compressed_texture_mib=sum(r['width']*r['height']*4/3 for r in unique.values())/2**20,
-            gltf_bytes=path.stat().st_size,bin_bytes=path.with_suffix('.bin').stat().st_size,external_png_bytes=sum(r['bytes'] for r in unique.values()),uris=uris)
+            gltf_bytes=path.stat().st_size,bin_bytes=path.with_suffix('.bin').stat().st_size,external_png_bytes=sum(r['bytes'] for r in unique.values()),native_color_primitives=colors,uris=uris)
     Path('build/site-check.json').write_text(json.dumps(dict(passed=True,scenes=report,scope='raw glTF counts and shared external image bytes; renderer separately checks fresh Blender re-import count'),indent=2))
 
 
@@ -58,7 +64,8 @@ def above(seed,folder):
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--out',default='renders/checkpoint');p.add_argument('--archive',action='store_true');a=p.parse_args();folder=Path(a.out)
+    p=argparse.ArgumentParser();p.add_argument('--out',default='renders/checkpoint');p.add_argument('--archive',action='store_true');p.add_argument('--sites-only',action='store_true');a=p.parse_args();folder=Path(a.out)
+    if a.sites_only:sites();print('SCENE CHECK PASSED');return
     if not a.archive:
         sites()
         checked=[];recipe=hashlib.sha256((HERE/'render.py').read_bytes()).hexdigest()

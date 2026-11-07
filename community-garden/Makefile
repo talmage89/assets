@@ -11,7 +11,7 @@ CHECKPOINT_RENDER_ARGS := --seeds $(SEEDS)
 VIEWS_117 := hero above corner compost water scale eevee tomato bean
 VIEWS_229 := hero above corner compost water tomato bean
 VIEWS_341 := hero above corner compost water accessible tomato bean
-CHECKPOINT_RENDER_OUTPUTS := $(foreach s,$(SEEDS),$(foreach v,$(VIEWS_$(s)),$(CHECKPOINT_OUT)/$(s)/$(v).png)) $(CHECKPOINT_OUT)/pieces.png $(CHECKPOINT_OUT)/plants.png $(foreach s,$(SEEDS),export/checkpoint/Site_$(s).gltf)
+CHECKPOINT_RENDER_OUTPUTS := $(foreach s,$(SEEDS),$(foreach v,$(VIEWS_$(s)),$(CHECKPOINT_OUT)/$(s)/$(v).png)) $(CHECKPOINT_OUT)/pieces.png $(CHECKPOINT_OUT)/plants.png
 include ../kit/checkpoint_rules.mk
 BP += -t 4
 $(CHECKPOINT_RENDER_OUTPUTS): src/neighborhood.py
@@ -20,7 +20,7 @@ $(CHECKPOINT_RENDER_OUTPUTS): src/neighborhood.py
 # Build missing native prerequisites only. Existing accepted deliveries are
 # read-only inputs and never invalidated by this family's source changes.
 NATIVE_CONTEXT := ../trees/export/RedMaple.glb ../houses/export/Hearthfield-27.gltf ../apartments/export/Building-301.gltf ../cars/export/AlderH120.glb ../utility/export/UtilityParts.gltf ../ground/textures/ship/T_Lawn_BaseColor.png
-render match: $(NATIVE_CONTEXT)
+render match scenes: $(NATIVE_CONTEXT)
 ../trees/export/RedMaple.glb:
 	$(MAKE) -C ../trees export
 ../houses/export/Hearthfield-27.gltf:
@@ -43,7 +43,19 @@ build/context/chain/T_ChainLink_BaseColor.png: ../fences/chain-link/src/mesh_til
 textures/checkpoint/T_GardenPlants_BaseColor.png: src/atlas.py
 	$(PYTHON) src/atlas.py
 
-.PHONY: repeat match
+.PHONY: repeat match scenes check-scenes
+SCENES := $(foreach s,$(SEEDS),export/checkpoint/Site_$(s).gltf)
+$(SCENES) &: $(CHECKPOINT_OUTPUTS) $(NATIVE_CONTEXT) src/neighborhood.py src/package.py src/render.py
+	$(BP) --python src/package.py -- --seeds $(SEEDS)
+scenes: model $(SCENES)
+define seed_scene_dependency
+$(foreach v,$(VIEWS_$(1)),$(CHECKPOINT_OUT)/$(1)/$(v).png): export/checkpoint/Site_$(1).gltf
+endef
+$(foreach s,$(SEEDS),$(eval $(call seed_scene_dependency,$(s))))
+check-scenes: scenes
+	$(PYTHON) src/review.py --sites-only
+check: check-scenes
+$(CHECKPOINT_RENDER_OUTPUTS): | check-scenes
 repeat: model
 	$(PYTHON) src/repeat.py
 check: check-motion
@@ -54,4 +66,5 @@ MATCH_OUTPUTS := $(foreach m,wise_bed oliver_construction martin_place,$(CHECKPO
 $(MATCH_OUTPUTS) &: $(CHECKPOINT_OUTPUTS) src/match.py src/photo_matches.py src/render.py src/neighborhood.py build/checkpoint-render-parameters.txt
 	$(KIT)/with_gpu.sh $(BP) --python src/match.py -- --out $(CHECKPOINT_OUT)/matches --width $(WIDTH) --samples $(SAMPLES)
 match: model refs $(MATCH_OUTPUTS)
+$(MATCH_OUTPUTS): $(SCENES) | check-scenes
 review: match
