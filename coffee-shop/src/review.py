@@ -11,7 +11,7 @@ from kit.contact import contact,review_sheet
 
 
 def main():
-    folder=Path('renders/checkpoint');font=ImageFont.truetype(str(find_font('DejaVu Sans','Book')),19);small=ImageFont.truetype(str(find_font('DejaVu Sans','Book')),16);receipts=[]
+    folder=Path('renders/lookdev');font=ImageFont.truetype(str(find_font('DejaVu Sans','Book')),19);small=ImageFont.truetype(str(find_font('DejaVu Sans','Book')),16);receipts=[]
     check=json.loads(Path('build/check.json').read_text());shops={s['seed']:s for s in check['shops']}
     for seed in (117,228,339):
         p=folder/str(seed)/'above.png';im=Image.open(p).convert('RGBA');meta=json.loads(p.with_suffix('.json').read_text());layer=Image.new('RGBA',im.size);d=ImageDraw.Draw(layer)
@@ -44,15 +44,15 @@ def main():
             p=folder/str(seed)/(shot+('.jpg' if shot=='layout' else '.png'))
             if p.exists():all_images.append(p);captions[str(p)]=str(seed)+' / '+shot
     all_images.append(folder/'piece-sheet.jpg')
-    pairs=sorted(Path('renders/matches').glob('*-pair.jpg'));assert len(pairs)>=3,'Three completed photographic pairs are required';all_images.extend(pairs)
-    contact(all_images,folder/'contact.jpg',width=1800,title='Coffee shop family — form & construction checkpoint',captions=captions)
+    pairs=sorted(Path('renders/lookdev-matches').glob('*-pair.jpg'));assert len(pairs)>=3,'Three completed photographic pairs are required';all_images.extend(pairs)
+    contact(all_images,folder/'contact.jpg',width=1800,title='Coffee shop family — look-dev checkpoint',captions=captions)
     review_sheet([[folder/str(s)/'hero.png'] for s in (117,228,339)],folder/'heroes.jpg',width=1600,title='Three original businesses — exports in Cycles')
     review_sheet([[folder/str(s)/'layout.jpg'] for s in (117,228,339)],folder/'layouts.jpg',width=1600,title='Seating and tested pedestrian corridors')
     # Reject stale images by their recorded external bundle and actual pixels.
     from package import bundle
-    for p in list(folder.rglob('*.png'))+list(Path('renders/matches').glob('*.png')):
+    for p in list(folder.rglob('*.png'))+list(Path('renders/lookdev-matches').glob('*.png')):
         record=json.loads(p.with_suffix('.json').read_text());assert record['bundle_sha256']==bundle(record['source']),('stale export',str(p));assert record['image_sha256']==hashlib.sha256(p.read_bytes()).hexdigest()
-    Path('build/presentation-check.json').write_text(json.dumps(dict(shops=receipts,images=len(list(folder.rglob('*.png'))),pairs=len(pairs),status='current exported bundles; quick materials; no final docs'),indent=2)+'\n');print('PRESENTATION PASS')
+    Path('build/presentation-check.json').write_text(json.dumps(dict(shops=receipts,images=len(list(folder.rglob('*.png'))),pairs=len(pairs),status='current exported bundles; baked shared PBR; no docs at this checkpoint'),indent=2)+'\n');print('PRESENTATION PASS')
     # Keep the asset README's costs tied to measured imports, not hand-entered
     # generator constants. The top-level library README is never touched.
     lines=['| Seed | Shop triangles | Visible room | Materials / mesh primitives | glTF + BIN bytes |',

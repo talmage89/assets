@@ -6,6 +6,8 @@ modules and globals intact; no source monkey patch survives this invocation.
 import argparse
 import json
 import sys
+import os
+import math
 from pathlib import Path
 import bpy
 
@@ -13,7 +15,8 @@ HERE=Path(__file__).resolve().parent
 REPO=HERE.parents[1]
 
 
-def downtown(out):
+def downtown(out,variant='downtown'):
+    out=out.resolve();os.chdir(REPO/'downtown')
     sys.path[:0]=[str(REPO),str(REPO/'downtown/src')]
     from plan import generate
     from graphics import generate as signs
@@ -32,7 +35,11 @@ def downtown(out):
         def graphic(self,b,key,*args):
             if key==self.p['tenant']:return
             super().graphic(b,key,*args)
-    sheet,layout=signs(Path('build/host-signs'));b=CafeHost(p,palette(sheet),layout)
+    cafe=variant=='downtown'
+    if not cafe:
+        i={'downtown-left':1,'downtown-right':2,'downtown-opposite':3}[variant]
+        p.update(id='CoffeeContext_'+variant,index=i,width=7.3152 if i==1 else 8.5344,tenant=('barber','antiques','pharmacy')[i-1],brick=((.23,.11,.060),(.30,.15,.075),(.25,.23,.18))[i-1],stories=2,awning=i==3)
+    sheet,layout=signs(out.parent.parent/'host-signs');b=(CafeHost if cafe else Building)(p,palette(sheet),layout)
     root,obs,doors=b.build();root.location.y=p['depth']/2
     for m in bpy.data.materials:
         if m.use_nodes:
@@ -43,6 +50,24 @@ def downtown(out):
     out.with_suffix('.json').write_text(json.dumps(p,indent=2)+'\n')
 
 
+def commercial_finish(C,kind):
+    """Bind original Commercial charts in this private host cache only."""
+    from surfaces import pbr,charts,tint_layer
+    folder=REPO/'commercial/textures/ship'
+    wall=pbr('CommercialEIFS',folder,pair=True);equipment=pbr('CommercialEquipment',folder)
+    concrete=pbr('CommercialConcrete',folder);roof=pbr('CommercialRoof',folder,pair=True)
+    bpy.context.view_layer.update()
+    for ob in [o for o in bpy.context.scene.objects if o.type=='MESH']:
+        role=ob.data.materials[0].name.removeprefix('Form_').split('.')[0]
+        if role=='Glass' or ob.get('graphic'):continue
+        old=ob.data.materials[0].node_tree.nodes.get('Principled BSDF');color=tuple(old.inputs['Base Color'].default_value[:3])
+        material=wall if role=='Wall' else concrete if role=='Concrete' else roof if role=='Roof' else equipment
+        ob.data.materials.clear();ob.data.materials.append(material)
+        cell={'Trim':'Black','Metal':'Metal','White':'White','Primary':'Primary','Accent':'Primary','Black':'Black'}.get(role,'White')
+        charts(ob,role,cell=None if role in ('Wall','Concrete','Roof') else cell,coverage=2.4384 if role=='Wall' else 2)
+        tint_layer(ob,[color if role not in ('Concrete','Roof') else (1,1,1) for v in ob.data.vertices])
+
+
 def commercial(kind,out):
     sys.path[:0]=[str(REPO),str(REPO/'commercial/src')]
     import geometry as C
@@ -51,18 +76,24 @@ def commercial(kind,out):
     from kit.tiling import export
     bpy.ops.wm.read_factory_settings(use_empty=True)
     C.palette(dict(primary=(.055,.09,.085),accent=(.32,.16,.08),light=(.65,.62,.52)),(.34,.30,.22) if kind=='strip' else (.42,.40,.32))
-    if kind=='strip':
+    if kind in ('strip','strip-neighbors'):
         w=12.8016;d=19.5072
         p=dict(building=dict(width=w,depth=d,front=0,roof=4.2672,parapet=5.1816),
             style='flat',walk=3.048,endcaps=['wrap','plain'],look=False,modules=[])
-        S.interior=lambda *args:None;S.quad=lambda *args,**kwargs:None
-        for i in range(2):
+        neighbors=kind=='strip-neighbors'
+        ink=None;layout={}
+        if neighbors:
+            from strip_graphics import generate as tenant_graphics,install
+            tenant_graphics(Path('build/strip-signs'));ink,layout=install(Path('build/strip-signs'))
+        else:S.interior=lambda *args:None;S.quad=lambda *args,**kwargs:None
+        for i in range(4 if neighbors else 2):
             m=dict(id=f'CoffeeHost_Bay_{i+1}',width=w/2,depth=d,origin=[(-.25+i*.5)*w,0],
-                yaw=0,tenant='vacant',lease_group='cafe',partition=False,open_left=i>0,
-                address='16',end_column=i==1,hosted_sign=True)
-            p['modules'].append(m);S.bay(m,p,None,{})
-        S.endcap('CoffeeHost_Endcap',-w/2+.1016,p,outward=-1)
-        S.endcap('CoffeeHost_PartyClosure',w/2-.1016,p,outward=1)
+                yaw=0,tenant=('cleaner','hair','pizza','tax')[i] if neighbors else 'vacant',lease_group='other' if neighbors else 'cafe',partition=neighbors,open_left=i>0 and not neighbors,
+                address=str(110+2*i) if neighbors else '16',end_column=i==(3 if neighbors else 1),hosted_sign=not neighbors)
+            if neighbors:m['origin'][0]+=w
+            p['modules'].append(m);S.bay(m,p,ink,layout)
+        if not neighbors:S.endcap('CoffeeHost_Endcap',-w/2+.1016,p,outward=-1)
+        S.endcap('CoffeeHost_PartyClosure',w/2+(2*w if neighbors else 0)-.1016,p,outward=1)
     else:
         w=10.9728;d=9.144;h=3.66
         p=dict(width=w,depth=d,roof=3.10,parapet=h,construction='commercial wall/storefront helpers, original pad envelope')
@@ -95,7 +126,27 @@ def commercial(kind,out):
         for yy in (.1016,d-.1016):S.coping('Pad coping',w,yy,h,r)
         for s in (-1,1):
             cc=C.root('Pad side coping',(s*(w/2-.1016),d/2,0),90,parent=r);S.coping('Pad side cap',d,0,h,cc)
-        B.rooftop_unit('Pad roof unit',(0,d*.64,3.1225),r,(1.60,1.10,.85))
+        # 1997 bank-branch conversion: a broad standing-seam hip with deep
+        # eaves, rather than an unexplained flat-parapet cube. Roof panels
+        # carry 19 mm standing locks at 406 mm pitch and folded hip caps.
+        eave=3.70;peak=5.16;ex=w/2+.46;ey=.46
+        corners=[(-ex,-ey,eave),(ex,-ey,eave),(ex,d+ey,eave),(-ex,d+ey,eave)]
+        ridge=[(-1.1,d/2,peak),(1.1,d/2,peak)]
+        C.mesh('Converted bank hip roof',corners+ridge,[(0,1,5,4),(1,2,5),(2,3,4,5),(3,0,4)],'Primary',r,False)
+        for a,b in ((0,1),(1,2),(2,3),(3,0)):
+            C.beam('Folded eave fascia',corners[a],corners[b],.055,.17,'Primary',r)
+            C.beam('Bank roof soffit',tuple(v-.10 if j==2 else v for j,v in enumerate(corners[a])),tuple(v-.10 if j==2 else v for j,v in enumerate(corners[b])),.32,.035,'White',r)
+        for corner,rp in zip(corners,(ridge[0],ridge[1],ridge[1],ridge[0])):C.beam('Folded hip lock',corner,rp,.035,.035,'Primary',r)
+        C.beam('Folded ridge cap',ridge[0],ridge[1],.09,.04,'Primary',r)
+        for side in (-1,1):
+            for j in range(-13,14):
+                x=j*.4064
+                if abs(x)>ex:continue
+                frac=max(0,(abs(x)-1.1)/(ex-1.1));end_y=d/2*(1-frac) if side<0 else d-d/2*(1-frac)
+                C.beam('Standing roof seam',(x,-ey if side<0 else d+ey,eave+.013),(x,end_y,peak-(peak-eave)*frac+.013),.016,.019,'Primary',r)
+        # A cantilevered walk-up cover leaves the accepted side route clear.
+        C.box('Walkup shelter soffit',(w/2+.48,2.8,2.66),(1.30,2.9,.11),'White',r,.005)
+        for yy in (1.53,4.07):C.beam('Walkup cantilever bracket',(w/2-.04,yy,2.14),(w/2+.94,yy,2.61),.045,.045,'Trim',r)
         C.box('Pad patched infill',(-3.8,-.005,.91),(1.03,.018,1.16),'Concrete',r,0)
         C.box('Pad replaced window sill',(-3.8,-.05,.31),(1.10,.15,.055),'Trim',r,0)
     world=C.root('Host_'+kind,kind='Host');world['reusable_module']=True
@@ -105,9 +156,9 @@ def commercial(kind,out):
         for mod in list(ob.modifiers):
             if mod.type=='BEVEL' and mod.width<=.0041:ob.modifiers.remove(mod)
     C.M['Glass'].node_tree.nodes.get('Principled BSDF').inputs['Roughness'].default_value=.002
-    C.finalize();export(out);out.with_suffix('.json').write_text(json.dumps(p,indent=2)+'\n')
+    commercial_finish(C,kind);C.finalize();export(out);out.with_suffix('.json').write_text(json.dumps(p,indent=2)+'\n')
 
 
 if __name__=='__main__':
-    a=argparse.ArgumentParser();a.add_argument('--kind',choices=['downtown','strip','pad'],required=True);a.add_argument('--out',type=Path,required=True);a=a.parse_args(sys.argv[sys.argv.index('--')+1:]);a.out.parent.mkdir(parents=True,exist_ok=True)
-    downtown(a.out) if a.kind=='downtown' else commercial(a.kind,a.out)
+    a=argparse.ArgumentParser();a.add_argument('--kind',choices=['downtown','downtown-left','downtown-right','downtown-opposite','strip','strip-neighbors','pad'],required=True);a.add_argument('--out',type=Path,required=True);a=a.parse_args(sys.argv[sys.argv.index('--')+1:]);a.out.parent.mkdir(parents=True,exist_ok=True)
+    downtown(a.out,a.kind) if a.kind.startswith('downtown') else commercial(a.kind,a.out)

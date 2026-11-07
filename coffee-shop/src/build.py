@@ -37,6 +37,8 @@ def library():
     defs={}
     for key,fn in [('BistroChair',P.chair),('BistroTable',P.table),('UmbrellaTable',lambda name,parent:P.table(name,parent=parent,umbrella=True)),('AccessibleTable',lambda name,parent:P.table(name,True,parent)),('Counter',P.counter),('EspressoMachine',P.espresso),('Grinder',P.grinder),('Brewer',P.brewer),('PastryCase',P.pastry),('SoftChair',P.armchair),('AFrame',P.aframe),('Planter',P.planter)]:
         defs[key]=fn(key,parent=lib)
+        from finishes import stock
+        stock(defs[key],key)
     for i,state in enumerate(('Open','Closed')):
         roots,obs=import_piece(REPO/'patio-set/export/PatioSet.glb',lib,select='Umbrella_'+state)
         r=roots[0];r.name='Umbrella_'+state;r['piece']='Umbrella_'+state;defs[r.name]=r
@@ -155,16 +157,18 @@ def exterior(p,front):
         for row in range(6):
             t=row/5
             for col in range(7):
-                u=col/6;vs.append((a+(c-a)*u,-dep*t,top-drop*t-.045*math.sin(math.pi*u)*math.sin(math.pi*t)))
+                u=col/6;vs.append((a+(c-a)*u,-dep*t-.018*math.sin(math.pi*u)*t,top-drop*t-.095*math.sin(math.pi*u)*math.sin(math.pi*t)-.012*math.sin(3*math.pi*u)*t*t))
         ab.geom(vs,[(row*7+col,row*7+col+1,(row+1)*7+col+1,(row+1)*7+col) for row in range(5) for col in range(6)],pal,smooth=True)
         for k in range(8):
             u=k/8;v=(k+1)/8;x0=a+(c-a)*u;x1=a+(c-a)*v
-            ab.geom([(x0,-dep,top-drop),(x1,-dep,top-drop),(x1,-dep-.012,top-drop-.19-.035*math.sin(math.pi*v)**2),(x0,-dep-.012,top-drop-.19-.035*math.sin(math.pi*u)**2)],[(0,1,2,3)],pal,smooth=True)
+            def curtain(t,bottom=False):
+                return (a+(c-a)*t,-dep-.018*math.sin(math.pi*t)-(.022*math.sin(t*math.tau+j*.7) if bottom else 0),top-drop-(.20+.038*math.sin(math.pi*t)**2 if bottom else 0))
+            ab.geom([curtain(u),curtain(v),curtain(v,True),curtain(u,True)],[(0,1,2,3)],pal,smooth=True)
         ab.beam((a,.045,top-.025),(a,-dep,top-drop-.024),.020,role='black')
     ab.beam((right,.045,top-.025),(right,-dep,top-drop-.024),.020,role='black');ab.beam((left,-dep,top-drop-.024),(right,-dep,top-drop-.024),.025,role='black')
     for x in (left,right):
         ab.box((x,.025,top-.34),(.12,.045,.62),'black');ab.beam((x,.025,top-.65),(x,-dep,top-drop-.04),.025,role='black')
-    ab.finish()
+    cloth=ab.finish();cloth['awning_cloth']=True;cloth['fabric_panel_span_m']=(right-left)/n;cloth['sag_m']=.095
     signz=4.20 if kind=='strip' else 4.18 if kind=='downtown' else 3.36;signw=min(5.4,w-2);sy=-.40 if kind=='downtown' else -.105
     b.box((.3,sy,signz),(signw,.16,.65),pal);b.panel(.3,sy-.083,signz,signw-.04,.60,p['name'])
     # Two goosenecks fastened to the real carrier.
@@ -183,11 +187,15 @@ def exterior(p,front):
     b.panel(wx,.125,grade+1.82,.57,.27,'hours')
     # Applied vinyl, on the actual front pane, with open coverage around ink.
     vx=2.85 if kind=='downtown' else .55 if kind=='strip' else 3.5
-    b.panel(vx,.030,grade+2.04,.90,.155,'vinyl');b.finish()
+    # Omit the redundant promotional vinyl. It cast a second readable word
+    # onto the room behind it. Hours and menu holders remain single prints.
+    b.finish()
     # Door-mounted panic bar and hydraulic closer follow actual host pivots.
     for door in [o for o in front.children_recursive if o.get('pivot_axis') and ('StoreDoor' in o.name or 'Entry' in o.name)]:
         db=G.Batch(door.name+'__PanicAndCloser',door)
         db.box((.46,.064,1.04),(.63,.040,.045),'steel')
+        db.box((.46,-.026,.19),(.73,.008,.24),'steel')
+        if kind!='downtown':db.panel(.46,-.0305,.19,.64,.17,'scuff')
         for x in (.17,.75):db.box((x,.037,1.04),(.055,.08,.08),'black')
         h=2.48 if kind=='downtown' else 2.03;db.box((.19,.036,h-.10),(.25,.07,.065),'steel');db.beam((.19,.073,h-.075),(.40,.16,h-.04),.014,role='steel');db.beam((.40,.16,h-.04),(.08,.12,h+.005),.014,role='steel');db.finish()
     return r
@@ -261,6 +269,8 @@ def build(seed,kind):
     for o in obs:
         if o.type=='MESH':o['part']='host'
     fixtures(p,front);exterior(p,front);outside(p,front);paving(p,front)
+    from finishes import placed
+    placed(p,front)
     # Remove source templates; every instance retains its shared mesh data.
     for template in list(add_piece.cache.values()):
         for o in reversed(G.descendants(template)):bpy.data.objects.remove(o,do_unlink=True)

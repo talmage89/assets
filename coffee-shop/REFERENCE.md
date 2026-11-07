@@ -64,3 +64,34 @@ projection test addresses camera implementation, not photographic accuracy.
 `build/presentation-check.json` addresses current export/image provenance and
 display tonal range. None of these proves final material realism, unique bake
 UV quality, whole-site ADA/permit compliance, or continuous swept-door clearance.
+
+## Look-dev construction additions
+
+The converted pad now has a low standing-seam hip, taking its broad metal
+roof/eave vocabulary from the June 2008 Lakeview Brew photograph in SOURCES.
+The bank-branch conversion story is an original design choice; that photo is
+not claimed to document a bank. The original roof is 3.70 m at the eave and
+5.16 m at the short ridge, with 460 mm eaves, 406.4 mm seam pitch and 19 mm
+locks. A cantilevered 1.30 × 2.90 m walk-up cover uses wall brackets and keeps
+the accepted side route unobstructed. These are authored construction sizes,
+not dimensions surveyed from the photograph.
+
+Awning ribs retain the original spacing (approximately 880 mm). The cloth
+now drops 95 mm between ribs, with corner draw-in and a loose 200–238 mm
+valance; welded carriers remain beneath it. This is an original tensioned
+canvas surface, compared with the hanging/scalloped fabric in the period
+references, not a cloth simulation or a traced photographic surface.
+
+Pastries are original hand-sized forms: croissant roughly 110 × 65 × 45 mm,
+muffin about 68 mm diameter × 70 mm, scone about 80 mm across × 36 mm, cookie
+76 mm diameter × 12 mm. Their size is an authored culinary estimate, checked
+against the case shelves and 148 mm saucer, not a manufacturer specification.
+No food scans or photographic texels are used.
+
+The seeded contexts reuse this repository's dressed Downtown storefronts,
+Commercial tenant bays, cars, house, lights, grates/fixtures and vegetation.
+The Main Street road is 10 m wide with a curbside parking lane; strip/pad
+stalls use a 2.74 m pitch and 5.4 m depth, with a nominal 6.096 m circulation
+aisle. Site layouts are original bounded compositions. The geometric café
+clearance proof still applies to the unchanged accepted seating routes; it
+is not extended into a whole-site parking/permit certification.

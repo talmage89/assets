@@ -23,15 +23,15 @@ def camera(loc,target,lens=40,ortho=None):
     return o
 
 
-def lighting(elevation=26,azimuth=-117,exposure=-1.0):
+def lighting(elevation=18,azimuth=-146,exposure=-.65):
     # Photo comparisons change the sun while reusing the imported scene.
     # Replace it so each fitted view has exactly one directional light.
     for ob in list(bpy.context.scene.objects):
         if ob.type=='LIGHT' and ob.data.type=='SUN':bpy.data.objects.remove(ob,do_unlink=True)
     sc=bpy.context.scene;world=bpy.data.worlds.new('ProceduralDaylight');world.use_nodes=True;sc.world=world
     n=world.node_tree.nodes;l=world.node_tree.links;sky=n.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(elevation);sky.sun_rotation=math.radians(azimuth);sky.sun_disc=False;sky.altitude=.12
-    hue=n.new('ShaderNodeHueSaturation');hue.inputs['Saturation'].default_value=.28;l.new(sky.outputs['Color'],hue.inputs['Color']);l.new(hue.outputs['Color'],n['Background'].inputs['Color']);n['Background'].inputs['Strength'].default_value=.20
-    d=bpy.data.lights.new('RakingSun','SUN');o=bpy.data.objects.new('RakingSun',d);sc.collection.objects.link(o);a=math.radians(azimuth);e=math.radians(elevation);v=Vector((math.cos(e)*math.cos(a),math.cos(e)*math.sin(a),math.sin(e)));o.rotation_euler=(-v).to_track_quat('-Z','Y').to_euler();d.energy=3.5;d.angle=math.radians(.55)
+    hue=n.new('ShaderNodeHueSaturation');hue.inputs['Saturation'].default_value=.28;l.new(sky.outputs['Color'],hue.inputs['Color']);l.new(hue.outputs['Color'],n['Background'].inputs['Color']);n['Background'].inputs['Strength'].default_value=.085
+    d=bpy.data.lights.new('RakingSun','SUN');o=bpy.data.objects.new('RakingSun',d);sc.collection.objects.link(o);a=math.radians(azimuth);e=math.radians(elevation);v=Vector((math.cos(e)*math.cos(a),math.cos(e)*math.sin(a),math.sin(e)));o.rotation_euler=(-v).to_track_quat('-Z','Y').to_euler();d.energy=5;d.angle=math.radians(.55)
     sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=exposure
 
 
@@ -68,10 +68,10 @@ def context(p):
 
 
 def setup(seed,with_context=True):
-    bpy.ops.wm.read_factory_settings(use_empty=True);p=json.loads(Path(f'build/shops/{seed}.json').read_text());path=Path(f'export/CoffeeShop-{seed}.gltf')
+    bpy.ops.wm.read_factory_settings(use_empty=True);p=json.loads(Path(f'build/shops/{seed}.json').read_text());path=Path(f'export/sites/CoffeeSite-{seed}.gltf') if with_context else Path(f'export/CoffeeShop-{seed}.gltf')
     obs=imported(path)
     for o in obs:
-        if o.parent not in obs:o.location.y+=p['depth']/2
+        if o.parent not in obs and not with_context:o.location.y+=p['depth']/2
     bpy.context.view_layer.update()
     for o in obs:
         if o.get('socket_kind')=='light' and o.name.startswith('Room_Pendant'):
@@ -79,8 +79,11 @@ def setup(seed,with_context=True):
     # Ambient interior bounce supplement at the actual ceiling, included in
     # presentation only. No unexported room geometry is loaded.
     for x,y in ((p['counter_x'],p['counter_y']),(0,5.5)):
-        area('Room ceiling practical',(x,y,p['grade']+2.88),160,1.25)
-    if with_context:context(p)
+        area('Room ceiling practical',(x,y,p['grade']+2.88),240,1.25)
+    if p['kind']=='downtown':
+        for x in (-8.23,8.84,-15.55,17.37):area('Neighbor tenant practical',(x,2.2,2.8),190,1.6)
+    elif p['kind']=='strip':
+        for x in (9.60,16,22.4,28.8):area('Other tenant practical',(x,2.8,2.8),180,1.4)
     lighting();return p,path
 
 
@@ -91,6 +94,7 @@ def shots(p):
     hero= dict(location=(7,-21.0,1.65+z),target=(0,0,3.58),lens=40) if kind=='downtown' else dict(location=(-10,-23.8,1.65+z),target=(0,-.3,2.18),lens=45) if kind=='strip' else dict(location=(16,-18.5,1.65+z),target=(2.0,.0,1.56),lens=42)
     ctr=(2.25,-1.8,1.72+z) if kind=='downtown' else (.80,-1.7,1.72+z) if kind=='strip' else (3,-1.7,1.72+z)
     return dict(hero=hero,above=dict(location=(12,-17,30),target=(1,-.4,0),lens=45,ortho=25 if kind!='pad' else 29),
+        site=dict(location=(44,-51,62),target=(6,-2,0),lens=45,ortho=70 if kind!='downtown' else 85),
         table=dict(location=(t['x']+1.25,t['y']-1.65,1.48+z),target=(t['x'],t['y'],.73+z),lens=50),
         counter=dict(location=(-.65,-1.0,1.72+z),target=(p['counter_x']-1.65,p['counter_y'],1.37+z),lens=34) if kind=='strip' else dict(location=ctr,target=(p['counter_x'],p['counter_y'],1.37+z),lens=34),
         awning=dict(location=(.5,-8.2,4.85+z),target=(.4,-.45,3.62),lens=46) if kind=='strip' else dict(location=(3.3,-6.3,2.20+z),target=(.7,-.25,3.50 if kind=='downtown' else 3.20),lens=48),
@@ -155,7 +159,7 @@ def main():
         for o in human:bpy.data.objects.remove(o,do_unlink=True)
         for o in hidden:o.hide_render=False
         if isolation_floor:bpy.data.objects.remove(isolation_floor,do_unlink=True)
-    if not a.matches:
+    if not a.matches and 'scale' in a.shots.split(','):
         bpy.ops.wm.read_factory_settings(use_empty=True);imported('export/CoffeeShopPieces.gltf');lighting();sc=bpy.context.scene;sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.render.resolution_x=a.width;sc.render.resolution_y=round(a.width*.72);sc.render.resolution_percentage=100;sc.render.image_settings.file_format='PNG'
         model.box('Piece sheet floor',(4.3,4.5,-.04),(17,18,.08),studio.studio_mat('Sheet neutral floor',(.22,.22,.21),.9),0)
         rec=dict(location=(14,-19,17),target=(4.3,4.8,.9),lens=44,ortho=18);cam=camera(rec['location'],rec['target'],44,18)

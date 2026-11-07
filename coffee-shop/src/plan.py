@@ -23,7 +23,7 @@ def generate(seed, kind, overrides=None):
     rng = random.Random(seed)
     name, subtitle, palette = IDENTITIES[kind][rng.randrange(2)]
     p = dict(seed=seed, kind=kind, name=name, subtitle=subtitle, palette=palette,
-             stage='form and construction checkpoint; quick materials',
+             stage='look-dev checkpoint; baked shared PBR and placed causal age',
              year={'downtown':2011,'strip':2004,'pad':1997}[kind],
              age={'downtown':'old shell, fresh fit-out','strip':'worn door and patio','pad':'faded and patched'}[kind],
              width={'downtown':30*FT,'strip':42*FT,'pad':36*FT}[kind],

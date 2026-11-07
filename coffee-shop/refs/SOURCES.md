@@ -39,3 +39,19 @@ Street Furniture rack/litter/recycling, and presentation RedMaple/AlderH120.
 Their original credits remain in their own reference registers. No existing
 delivery is modified. Fonts: installed DejaVu Serif/Sans, open Bitstream
 Vera/DejaVu license, resolved with kit/fonts.py.
+
+Additional look-dev photographs, metadata checked through Commons imageinfo:
+
+| File | Direct image URL | Author / rights | Exact use |
+| --- | --- | --- | --- |
+| luna-table-2008.jpg | https://upload.wikimedia.org/wikipedia/commons/7/7b/EatNGeekCafeLuna3July2008.jpg | Infrogmation of New Orleans, 3 July 2008, CC BY-SA 3.0 | Table in use: real scone, cup, plate and laptop scale, worn wood rim; inspection comparator only |
+| fair-2008.jpg | https://upload.wikimedia.org/wikipedia/commons/b/b6/FairGrindsOutside2June2008.jpg | Infrogmation of New Orleans, June 2008, CC BY-SA 3.0 | Occupied sidewalk cafe, canopy shade versus sunlit pavement, customer wear; additional calibrated pair |
+| fair-deck-2015.jpg | https://upload.wikimedia.org/wikipedia/commons/1/11/Faubourg_S_Jean_Bastille_Party_2015_Fair_Grinds_Deck.jpg | Infrogmation, 11 July 2015, CC BY-SA 4.0 | Installed expanded-steel chair, rail and used concrete under low raking light; inspection comparator |
+| satsuma-2010.jpg | https://upload.wikimedia.org/wikipedia/commons/9/96/Relaxing_at_Satsuma_Cafe_New_Orleans.jpg | jauretsi, 8 May 2010, CC BY-SA 2.0 | Occupied warm interior, window highlights versus deep values, wood edge wear; inspection comparator. No person is identified or reproduced |
+
+The pad's new roof uses the broad folded-metal eave vocabulary in brew-2008.
+Its bank-branch conversion story and hip proportions are original choices,
+not claims about that photographed cafe's history. Existing canonical
+Downtown, Commercial, Ground, Street Furniture, Street Light, Patio Set,
+Trees, Cars and Houses deliveries are reused read-only. No new reference
+image is used in any material or exported file.

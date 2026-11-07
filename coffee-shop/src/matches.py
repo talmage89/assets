@@ -24,7 +24,7 @@ def balance(name,rect):
 
 def prepare():
     study=Path('build/photo-study');study.mkdir(parents=True,exist_ok=True)
-    for name in ('downtown-2008','coffea-2008','brew-2008','counter-2008'):
+    for name in ('downtown-2008','coffea-2008','brew-2008','counter-2008','fair-2008'):
         im=Image.open(Path('refs')/(name+'.jpg'));im.resize((1000,round(im.height*1000/im.width)),Image.Resampling.LANCZOS).save(study/(name+'.jpg'),quality=98)
     p=json.loads(Path('build/shops/117.json').read_text());w=p['width'];left=-w/2+1.65;right=w/2-.4
     configs={
@@ -34,11 +34,13 @@ def prepare():
         landmarks=[('canopy left',[-1.3822,-3.66,1.94],[150,704]),('canopy right',[1.3822,-3.66,1.94],[900,748]),('canopy crown',[0,-3.66,2.565],[544,584]),('front rim',[0,-5.0422,1.94],[539,721]),('pole at ground',[0,-3.66,0],[505,1210])],sun_elevation=46,sun_azimuth=-135),
       'pad':dict(seed=339,title='Lakeview Brew, 2008 / converted pad and patio',photo='brew-2008',neutral=[373,551,400,562],location=[-18,-24,1.65],target=[0,1,1.7],lens=40,
         landmarks=[('front glazing left head',[-4.93,0,2.75],[427,468]),('front glazing right head',[4.93,0,2.75],[624,494]),('front glazing left sill',[-4.93,0,.27],[426,577]),('front glazing right sill',[4.93,0,.27],[629,587]),('left roof front',[-5.4864,0,3.66],[411,434]),('right roof front',[5.4864,0,3.66],[675,465])],sun_elevation=54,sun_azimuth=-126),
+      'daily-use':dict(seed=117,title='Fair Grinds, June 2008 / occupied sidewalk and canopy shade',photo='fair-2008',neutral=[274,1030,298,1050],location=[-7,-5,1.65],target=[1,-.5,2],lens=35,
+        landmarks=[('near canopy rib at wall',[left,0,3.52],[341,480]),('near canopy rib at eave',[left,-1.42,3.14],[764,480]),('middle canopy rib at wall',[(left+right)/2,0,3.52],[455,647]),('middle canopy rib at eave',[(left+right)/2,-1.42,3.14],[704,648])],sun_elevation=52,sun_azimuth=-125),
     }
     results={}
     for name,c in configs.items():
         photo,wb=balance(c['photo'],c['neutral']);im=Image.open(photo)
-        crop=[300,125,930,675] if name=='downtown' else [95,505,965,1333] if name=='umbrella' else [115,345,855,650]
+        crop=[300,125,930,675] if name=='downtown' else [95,505,965,1333] if name=='umbrella' else [280,460,840,1180] if name=='daily-use' else [115,345,855,650]
         m=dict(title=c['title'],photo=photo,crop=crop,location=c['location'],target=c['target'],lens=c['lens'],exposure=-1,
             lens_bounds_mm=[22,70],camera_height_m=[1.65,.75],landmarks=[dict(name=n,world=xyz,pixel=uv) for n,xyz,uv in c['landmarks']])
         result=calibrate(m);result.update(seed=c['seed'],white_balance=wb,sun_elevation=c['sun_elevation'],sun_azimuth=c['sun_azimuth'],feature_names=[r[0] for r in c['landmarks']],limits='Authored original design differs from photograph; positions and dimensions of photographed objects are estimated. Framing is not proof of matching albedo or construction.')
@@ -47,20 +49,20 @@ def prepare():
 
 
 def compose():
-    folder=Path('renders/matches');font=ImageFont.truetype(str(find_font('DejaVu Sans','Book')),20)
+    folder=Path('renders/lookdev-matches');font=ImageFont.truetype(str(find_font('DejaVu Sans','Book')),20)
     for name,r in json.loads(Path('build/photo-calibration.json').read_text()).items():
         photo=Image.open(r['photo']).convert('RGB').crop(r['crop']);render=Image.open(folder/(name+'.png')).convert('RGB');width=1000;height=round(width*photo.height/photo.width)
         out=Image.new('RGB',(width*2,height+118),'#e8e7df');d=ImageDraw.Draw(out)
         out.paste(render.resize((width,height),Image.Resampling.LANCZOS),(0,50));out.paste(photo.resize((width,height),Image.Resampling.LANCZOS),(width,50))
         d.text((14,14),r['title']+' / original export',font=font,fill='#21332c');d.text((width+14,14),'Neutral-balanced period photograph',font=font,fill='#21332c')
-        d.text((14,height+66),'Estimated %.1f mm; landmark RMS %.1f px. Different original construction; form checkpoint, quick materials.'%(r['shot']['lens'],r['residual_rms_pixels']),font=font,fill='#21332c')
+        d.text((14,height+66),'Estimated %.1f mm; landmark RMS %.1f px. Original construction; baked shared PBR, matched sun.'%(r['shot']['lens'],r['residual_rms_pixels']),font=font,fill='#21332c')
         out.save(folder/(name+'-pair.jpg'),quality=94)
         overlay=photo.copy();dd=ImageDraw.Draw(overlay)
         for target,pred in zip(r['measured_pixels'],r['projected_pixels']):
             x,y=target;dd.ellipse((x-5,y-5,x+5,y+5),outline='lime',width=2);dd.line((*target,*pred),fill='red',width=2)
         overlay.save(folder/(name+'-residuals.jpg'),quality=94)
     from kit.contact import contact
-    contact(sorted(folder.glob('*-pair.jpg')),folder/'matched-contact.jpg',width=1600,title='Period coffee shop comparisons — quick materials, fitted framing')
+    contact(sorted(folder.glob('*-pair.jpg')),folder/'matched-contact.jpg',width=1800,title='Period coffee shop comparisons — exported PBR sites, fitted framing')
 
 
 if __name__=='__main__':

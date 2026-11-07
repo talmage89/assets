@@ -102,6 +102,37 @@ def cup(b,x,y,z):
     b.lathe([(z+.111,.046),(z+.117,.046),(z+.121,.038),(z+.124,.038)],'black',16,center=(x,y))
 
 
+def baked_good(b,x,y,z,kind='croissant',seed=1):
+    """Small original crust forms, meters; no rectangular pastry proxies."""
+    rng=random.Random(seed)
+    if kind=='croissant':
+        # Tapered laminated roll, bent into a crescent. The ridges are broad
+        # turns of dough, not extra parallel floating wire ribs.
+        rings=[]
+        for j in range(17):
+            t=j/16;a=(t-.5)*2.2;rad=.010+.018*math.sin(math.pi*t)**.7
+            rad*=1+.11*math.cos(t*math.pi*16)
+            cx=x+.052*math.sin(a);cy=y+.047*(1-math.cos(a))
+            rings.append([(cx+rad*.6*math.sin(a)*math.cos(k*math.tau/10),cy+rad*math.cos(a)*math.cos(k*math.tau/10),z+.022+rad*.75*math.sin(k*math.tau/10)) for k in range(10)])
+        b.loft(rings,'pastry',smooth=True)
+    elif kind=='muffin':
+        n=12;phase=rng.random()*math.tau;rings=[]
+        for zz,rad in ((0,.022),(.006,.024),(.036,.028),(.041,.033),(.050,.034),(.064,.023),(.069,.006)):
+            rings.append([(x+rad*(1+.055*math.sin(k*5+phase))*math.cos(k*math.tau/n),y+rad*(1+.055*math.sin(k*5+phase))*math.sin(k*math.tau/n),z+zz+.001*math.sin(k*3)) for k in range(n)])
+        b.loft(rings,'pastry',smooth=True)
+        for j in range(4):
+            a=rng.random()*math.tau;rr=rng.uniform(.006,.022);b.cylinder((x+rr*math.cos(a),y+rr*math.sin(a),z+.061),.003,.003,'coffee',6)
+    elif kind=='scone':
+        angles=[.1,2.05,4.3];rings=[]
+        for zz,scale in ((0,.88),(.006,1),(.029,.91),(.036,.65)):
+            rings.append([(x+.046*scale*math.cos(a),y+.042*scale*math.sin(a),z+zz+rng.uniform(-.001,.001)) for a in angles])
+        b.loft(rings,'pastry',smooth=False)
+    else:
+        b.lathe([(z,.001),(z,.034),(z+.004,.038),(z+.010,.032),(z+.012,.002)],'pastry',16,center=(x,y))
+        for j in range(7):
+            a=rng.random()*math.tau;rr=rng.uniform(.004,.030);b.cylinder((x+rr*math.cos(a),y+rr*math.sin(a),z+.010),.0025,.0025,'coffee',5)
+
+
 def setting(name='TableSetting',kind='cup',seed=1,parent=None):
     r=root(name,parent=parent,piece='TableSetting');b=Batch(name+'__Objects',r);rng=random.Random(seed)
     cup(b,-.20,-.11,0)
@@ -117,7 +148,7 @@ def setting(name='TableSetting',kind='cup',seed=1,parent=None):
         b.box((-.03,-.07,.001),(.301,.223,.002),'cream')
     else:
         b.cylinder((.10,-.10,.008),.074,.008,'white',24)
-        b.rounded((.10,-.10,.026),(.095,.059,.035),.015,'pastry',3)
+        baked_good(b,.10,-.10,.013,'croissant',seed)
     b.finish();return r
 
 
@@ -188,9 +219,11 @@ def pastry(name='PastryCase',parent=None):
         t0=j/8;t1=(j+1)/8
         b.geom([(-.53,-.36+.24*(1-math.cos(t0*math.pi/2)),.81+.57*math.sin(t0*math.pi/2)),(.53,-.36+.24*(1-math.cos(t0*math.pi/2)),.81+.57*math.sin(t0*math.pi/2)),(.53,-.36+.24*(1-math.cos(t1*math.pi/2)),.81+.57*math.sin(t1*math.pi/2)),(-.53,-.36+.24*(1-math.cos(t1*math.pi/2)),.81+.57*math.sin(t1*math.pi/2))],[(0,1,2,3)],'glass',smooth=True)
     b.box((0,.10,1.39),(1.12,.46,.035),'steel')
-    for z in (.80,1.02,1.24):
+    for row,z in enumerate((.80,1.02,1.24)):
         b.box((0,.02,z),(1.03,.46,.012),'steel')
-        for j in range(5):b.rounded((-.40+j*.20,.0,z+.027),(.13,.10,.045),.018,'pastry',2)
+        for j in range(4):
+            # Real 70–110 mm portions; differing stocks, small tray offsets.
+            baked_good(b,-.36+j*.24,.0+.022*math.sin(j*3+row),z+.008,('croissant','muffin','scone','cookie')[(j+row)%4],row*71+j)
     b.finish();return r
 
 

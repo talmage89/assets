@@ -20,7 +20,7 @@ COLORS={'black':('#202322',.64,.0),'steel':('#959c9b',.30,1),'white':('#d4ccaf',
  'copper':('#9a6744',.38,.8),'wall':('#a59a7d',.85,0),'floor':('#756659',.83,0)}
 
 
-def generate(folder=Path('build/atlas')):
+def quick(folder=Path('build/atlas')):
     folder=Path(folder);folder.mkdir(parents=True,exist_ok=True);N=2048
     bc=Image.new('RGBA',(N,N),'#e5dfce');orm=Image.new('RGB',(N,N),(255,190,0));normal=Image.new('RGB',(N,N),(128,128,255))
     d=ImageDraw.Draw(bc);od=ImageDraw.Draw(orm);layout={}
@@ -40,7 +40,7 @@ def generate(folder=Path('build/atlas')):
     for i,title in enumerate(('COFFEE','ESPRESSO','FROM THE OVEN')):
         x=10+i*680;y=652;cell('menu'+str(i),(x,y,x+660,y+440),'#242b26')
         text(title,(x+18,y+8,x+642,y+78),46)
-        rows=[('House drip','1.65'),('Americano','2.00'),('Cappuccino','2.75'),('Cafe latte','3.00'),('Mocha','3.25'),('Tea / cocoa','2.25')] if i<2 else [('Butter croissant','1.85'),('Morning bun','2.00'),('Blueberry scone','1.75'),('Bagel + cheese','2.25'),('Coffee cake','2.50'),('Ask for today’s soup','')]
+        rows=([('House drip','1.65'),('Cold brew','2.25'),('Cafe au lait','2.50'),('Hot chocolate','2.50'),('Tea','1.75'),('Local cider','2.25')] if i==0 else [('Espresso','1.85'),('Americano','2.00'),('Cappuccino','2.75'),('Cafe latte','3.00'),('Mocha','3.25'),('Macchiato','2.25')] if i==1 else [('Butter croissant','1.85'),('Morning bun','2.00'),('Blueberry scone','1.75'),('Bagel + cheese','2.25'),('Coffee cake','2.50'),('Ask for today’s soup','')])
         for j,(s,price) in enumerate(rows):
             f=ImageFont.truetype(sans,27);d.text((x+24,y+96+j*50),s,font=f,fill='#b8c0a6');d.text((x+554,y+96+j*50),price,font=f,fill='#ded7b9')
     cell('hours',(12,1120,490,1420),'#d4ccaf');text('COME ON IN',(20,1132,480,1192),44,color='#2a3d34',font=serif)
@@ -68,6 +68,75 @@ def generate(folder=Path('build/atlas')):
     cell('vinyl',(1685,1880,2030,1940),(0,0,0,0));text('FRESH COFFEE',(1685,1880,2030,1940),38,color='#e5d7b4')
     for k,im in (('BaseColor',bc),('Normal',normal),('ORM',orm)):im.save(folder/f'T_CoffeeShop_{k}.png')
     (folder/'layout.json').write_text(json.dumps(layout,indent=2)+'\n');return layout
+
+
+def generate(folder=Path('build/atlas')):
+    """Guarded shared charts; manufactured channels are baked separately.
+
+    Reuse our own scripted lettering compositor, then repack its charts to
+    reserve meaningful area for wood, brushed steel, cloth and causal marks.
+    """
+    import numpy as np
+    folder=Path(folder);folder.mkdir(parents=True,exist_ok=True)
+    old=quick(folder/'lettering');src=Image.open(folder/'lettering/T_CoffeeShop_BaseColor.png')
+    n=2048;bc=Image.new('RGBA',(n,n),'#30332f');orm=Image.new('RGB',(n,n),(255,200,0));height=np.full((n,n),.5,np.float32);layout={};rects={}
+    def chart(key,rect):
+        x,y,xx,yy=rect;a,b,c,d=old[key];crop=src.crop((round(a*n),round((1-d)*n),round(c*n),round((1-b)*n)))
+        bc.paste(crop.resize((xx-x,yy-y),Image.Resampling.LANCZOS),(x,y));rects[key]=rect;layout[key]=[x/n,1-yy/n,xx/n,1-y/n]
+    names=[v[0] for values in IDENTITIES.values() for v in values]
+    for i,key in enumerate(names):chart(key,(8+i%2*1024,8+i//2*138,1016+i%2*1024,138+i//2*138))
+    for i in range(3):chart('menu'+str(i),(8+i*408,430,408+i*408,710))
+    for key,rect in dict(hours=(8,730,400,990),chalk=(420,730,800,1210),news=(820,730,1300,1050),community=(820,1070,1300,1410),art=(1320,730,1580,1150),screen=(1320,1170,1580,1410),mesh=(1600,730,2032,1230),vinyl=(8,1010,400,1080)).items():chart(key,rect)
+    # Wiped chalk ghosts stay on this written substrate, without adding
+    # geometry to the accepted 220-triangle A-frame.
+    sd=ImageDraw.Draw(bc)
+    for j in range(18):
+        yy=955+j*6;sd.line((445+(j%4)*6,yy,760-(j%5)*11,yy-3),fill=(91,110,95,255),width=2)
+    # Every cell has an eight-pixel gutter; coverage spans its useful interior.
+    rng=np.random.default_rng(73591)
+    for i,(key,(color,rough,metal)) in enumerate(COLORS.items()):
+        x=8+i%7*292;y=1448+i//7*200;w=272;h=180
+        if key=='oak':x=1240;y=430;w=792;h=280
+        yy,xx=np.mgrid[:h,:w];u=xx/w;v=yy/h;fine=rng.random((h,w));grain=np.sin(u*160+2*np.sin(v*7)+np.sin(u*37+v*3))
+        factor=1+.025*(fine-.5);relief=.5+.008*(fine-.5);rr=np.full((h,w),rough)
+        if key in ('wood','oak'):
+            factor*=.88+.13*(grain*.5+.5)+.06*np.sin(u*43+v*4);relief+=.04*grain;rr+=.06*grain
+        elif key=='steel':
+            grain=np.sin(v*510+fine*3);factor*=.92+.08*grain;relief+=.004*grain;rr+=.06*grain
+        elif key in ('forest','wine','teal','ochre','ink'):
+            weave=np.sin(xx*2.2)*np.sin(yy*2.2);factor*=.93+.025*weave;relief+=.012*weave;rr[:]=.85
+        elif key=='pastry':
+            factor*=.76+.32*np.sin(u*8+v*6)**2;relief+=.07*(fine-.5)
+        elif key=='black':rr+=.025*(fine-.5)
+        rgb=np.array(Image.new('RGB',(1,1),color))[0,0];patch=np.uint8(np.clip(rgb*factor[:,:,None],0,255))
+        bc.paste(Image.fromarray(patch),(x,y));orm.paste(Image.fromarray(np.uint8(np.stack((np.ones((h,w)),np.clip(rr,0,1),np.full((h,w),metal)),2)*255)),(x,y));height[y:y+h,x:x+w]=relief
+        layout[key]=[(x+8)/n,1-(y+h-8)/n,(x+w-8)/n,1-(y+8)/n];rects[key]=(x,y,x+w,y+h)
+    # Causal coverage charts: rims, runoff, chips and swept chalk. Their
+    # placements, sizes and seeds are chosen by the actual assembled object.
+    draw=ImageDraw.Draw(bc)
+    for i,key in enumerate(('ring','spill','scuff','drip','crack','chalk_smear')):
+        x=8+i*256;y=1240 if i<3 else 1340;x=(i%3)*256+8
+        draw.rectangle((x,y,x+240,y+85),fill=(0,0,0,0));layout[key]=[x/n,1-(y+85)/n,(x+240)/n,1-y/n]
+        yy,xx=np.mgrid[:85,:240];u=xx/239;v=yy/84;noise=rng.random((85,240))
+        if key=='ring':mask=np.exp(-((np.sqrt(((u-.5)/.43)**2+((v-.5)/.39)**2)-1)/.045)**2)*(.40+.60*noise);color=(77,48,27)
+        elif key=='spill':mask=np.exp(-(((u-.45)/(.30+.06*np.sin(v*24)))**2+((v-.5)/.38)**2)**2)*(.20+.45*noise);color=(66,49,33)
+        elif key=='scuff':mask=(np.sin(v*110+u*8)>.86)*np.sin(np.pi*u)**2*(noise>.45);color=(144,143,126)
+        elif key=='drip':mask=np.exp(-((u-.50-.025*np.sin(v*18))/.15)**2)*(.2+.8*v)*(.15+.55*noise);color=(51,46,34)
+        elif key=='crack':mask=np.exp(-((v-.48-.17*np.sin(u*10)-.06*np.sin(u*33))/.018)**2)*(.50+.50*noise);color=(66,62,53)
+        else:mask=(np.sin(v*45+u*10)>.5)*np.sin(np.pi*u)*(.1+.3*noise);color=(176,175,152)
+        tile=np.empty((85,240,4),np.uint8);tile[:,:,:3]=color;tile[:,:,3]=np.uint8(np.clip(mask,0,1)*255);bc.paste(Image.fromarray(tile),(x,y))
+    for i,key in enumerate(('forest','wine','teal')):
+        x=1600+i*144;y=1250;w=136;h=168
+        source=np.asarray(bc.crop(rects[key])).astype(np.float32)
+        patch=Image.fromarray(np.uint8(source)).resize((w,h),Image.Resampling.BICUBIC)
+        arr=np.asarray(patch).copy();rgb=arr[:,:,:3].astype(float)
+        # Oxidized exposed yarn retains the pigment's hue as it lightens.
+        arr[:,:,:3]=np.uint8(rgb*.72+np.array((173,165,139))*.28)
+        bc.paste(Image.fromarray(arr),(x,y));ImageDraw.Draw(orm).rectangle((x,y,x+w,y+h),fill=(255,232,0));layout[key+'_faded']=[(x+8)/n,1-(y+h-8)/n,(x+w-8)/n,1-(y+8)/n]
+    for key,im in [('BaseColor',bc),('ORM',orm)]:im.save(folder/f'T_CoffeeShop_{key}.png')
+    Image.fromarray(np.uint16(np.clip(height,0,1)*65535)).save(folder/'T_CoffeeShop_Height.png')
+    (folder/'layout.json').write_text(json.dumps(layout,indent=2)+'\n')
+    return layout
 
 
 if __name__=='__main__':generate()
