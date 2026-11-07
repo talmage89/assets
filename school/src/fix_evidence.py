@@ -33,7 +33,7 @@ def main():
         s=str(seed)
         for shot in ('hero','above','entry','windows','door'):
             out=dest/(s+'-'+shot+'.jpg');rows[out.name]=pair(before/s/(shot+'.png'),final/s/(shot+'.png'),out,'school '+s+' / '+shot)
-        out=dest/(s+'-wear-crop.jpg');rows[out.name]=pair(before/s/'hero.png',final/s/'hero.png',out,'school '+s+' / maintained facade and drain',crop=(500,180,1400,650))
+        out=dest/(s+'-wear-crop.jpg');rows[out.name]=pair(before/s/'hero.png',final/s/'hero.png',out,'school '+s+' / maintained facade and drain',crop=(0,180,900,650) if seed==102 else (500,180,1400,650))
         # The 103 slit and the vehicle-body changes retain the old hero camera.
         out=dest/(s+'-accepted-camera.jpg');rows[out.name]=pair(Path('renders/accepted-lookdev')/s/'hero.png',final/s/'accepted_hero.png',out,'school '+s+' / curb, planting, cars',right_name='accepted_hero')
         old=Image.open(Path('renders/accepted-lookdev')/s/'hero.png').convert('RGB');new=Image.open(final/s/'hero.png').convert('RGB')

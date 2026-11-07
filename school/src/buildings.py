@@ -121,14 +121,14 @@ def classroom(a,b,rect,index,ceiling):
             m.box((x,y,.77),(1.24,.60,.045),'Trim',(.40,.29,.14))
             # Two folded U-end panels rather than four modeled tubular legs.
             for sx in (-.53,.53):
-                m.geom([(x+sx,y-.25,.19),(x+sx,y+.25,.19),(x+sx,y+.25,.75),(x+sx,y-.25,.75)],[(0,1,2,3)],'Trim',(.19,.21,.20))
+                m.geom([(x+sx,y-.25,.154),(x+sx,y+.25,.154),(x+sx,y+.25,.75),(x+sx,y-.25,.75)],[(0,1,2,3)],'Trim',(.19,.21,.20))
             for sx in (-.31,.31):
                 xx=x+sx;yy=y-.48
                 seat=[(xx-.18,yy-.18,.46),(xx+.18,yy-.18,.46),(xx+.18,yy+.18,.46),(xx-.18,yy+.18,.46)]
-                back=[(xx-.18,yy-.17,.56),(xx+.18,yy-.17,.56),(xx+.18,yy-.17,.84),(xx-.18,yy-.17,.84)]
+                back=[(xx-.18,yy-.17,.46),(xx+.18,yy-.17,.46),(xx+.18,yy-.17,.84),(xx-.18,yy-.17,.84)]
                 for panel in (seat,back):m.geom(panel,[(0,1,2,3),(3,2,1,0)],'Trim',(.08,.14,.13))
                 for side in (-1,1):
-                    m.geom([(xx+side*.14,yy-.15,.18),(xx+side*.14,yy+.15,.18),(xx+side*.14,yy+.15,.45),(xx+side*.14,yy-.15,.45)],[(0,1,2,3)],'Trim',(.18,.20,.19))
+                    m.geom([(xx+side*.14,yy-.15,.154),(xx+side*.14,yy+.15,.154),(xx+side*.14,yy+.15,.46),(xx+side*.14,yy-.15,.46)],[(0,1,2,3)],'Trim',(.18,.20,.19))
             if rng.random()>.45:m.box((x+.19,y,.802),(.29,.22,.018),'Trim',rng.choice(((.58,.58,.48),(.17,.28,.40),(.48,.13,.07))))
     # Ceiling grid and physically present luminaire diffusers. Emission uses
     # a tiny deterministic auxiliary mask, on the same Equipment material.

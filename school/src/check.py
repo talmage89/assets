@@ -115,6 +115,7 @@ def source(stem,meta):
                     rooms.append(dict(block=b['id'],room=j,measured_clear_m=dims,design_clear_m=(r-l,k-f),error_m=err,probe_height_m=probe_z,source_wall_ray_spans_m=spans))
                 else:rooms.append(dict(block=b['id'],room=j,missing_surface=True))
         measurements['classrooms']=rooms
+        measurements['room_furniture_footing']=furniture_footing()
         # Sweep the actual leaf against its casing and nearby wall assembly.
         # Full leaf and hardware surfaces are tested. Stationary cylindrical
         # jamb knuckles have intentional attachment contact and are excluded.
@@ -154,6 +155,38 @@ def source(stem,meta):
         measurements['site_placement']=site_placement(p)
         measurements['exposed_flatwork_orientation']=flatwork_orientation(p)
     return pivots,measurements
+
+
+def furniture_footing():
+    """Measure each low furniture support against its room's actual floor."""
+    rows=[]
+    for ob in bpy.context.scene.objects:
+        if ob.type!='MESH' or ob.get('component')!='classroom_interior':continue
+        points=[ob.matrix_world@v.co for v in ob.data.vertices]
+        floors=[tuple(f.vertices) for f in ob.data.polygons if max(points[i].z for i in f.vertices)<.30 and f.area>1 and abs(f.normal.z)>.9]
+        assert floors,(ob.name,'missing room floor surface')
+        floor=BVHTree.FromPolygons(points,floors,all_triangles=True)
+        links={i:set() for i in range(len(points))}
+        for edge in ob.data.edges:
+            aa,bb=edge.vertices;links[aa].add(bb);links[bb].add(aa)
+        unseen=set(links);gaps=[];supports=0
+        while unseen:
+            pending=[min(unseen)];island=set()
+            while pending:
+                i=pending.pop()
+                if i in island:continue
+                island.add(i);pending.extend(links[i]-island)
+            unseen-=island;lo=min(points[i].z for i in island);hi=max(points[i].z for i in island)
+            if not lo<.30<hi:continue
+            supports+=1
+            for i in island:
+                if points[i].z>lo+.00001:continue
+                hit=floor.ray_cast(points[i]+Vector((0,0,.05)),Vector((0,0,-1)),.5)[0]
+                assert hit is not None,(ob.name,'support outside actual floor')
+                gaps.append(float(points[i].z-hit.z))
+        assert supports and max(abs(v) for v in gaps)<.0001,(ob.name,'floating furniture',gaps)
+        rows.append(dict(source=ob.name,actual_support_islands=supports,bottom_surface_samples=len(gaps),minimum_floor_gap_m=min(gaps),maximum_floor_gap_m=max(gaps)))
+    return rows
 
 
 def flatwork_orientation(p):
