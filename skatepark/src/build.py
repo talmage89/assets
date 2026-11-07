@@ -120,6 +120,8 @@ def main():
         if a.look:
             finishes.prepare(connections+[skating[len(connections)] ]+site_roots)
             for rt in skating:finishes.weather(rt,p)
+            import placed_wear
+            placed_wear.bowl_contacts(skating,p)
             finishes.basin_deposits(skating,p)
         guard_check=terrain.guard_contacts(roots)
         mark_check=finishes.surface_mark_contacts(skating) if a.look else None
@@ -131,8 +133,12 @@ def main():
             transform=Matrix.Rotation(math.radians(p['terrain_yaw']),4,'Z')
             for rt in skating:rt.matrix_world=transform@rt.matrix_world
         bpy.context.view_layer.update()
-        info=dict(plan=p,guard_contacts=guard_check,surface_mark_contacts=mark_check,skating_triangles=sum(Q.count(r) for r in skating),whole_site_triangles=sum(Q.count(r) for r in roots),
+        info=dict(plan=p,placed_wear=placed_wear.report(skating) if a.look else None,guard_contacts=guard_check,surface_mark_contacts=mark_check,skating_triangles=sum(Q.count(r) for r in skating),whole_site_triangles=sum(Q.count(r) for r in roots),
                   parts={r.name:record(r) for r in roots})
+        # Detailed wear receipts belong in the build report, rather than in
+        # every runtime node's extras. Keep construction sockets/pivots.
+        for rt in roots:
+            if 'placed_wear_json' in rt:del rt['placed_wear_json']
         path=ex/('Park_'+str(seed)+'.gltf');info['delivery']=export(path,roots);parks[str(seed)]=info
         Path('build/park-'+str(seed)+'.json').write_text(json.dumps(info,indent=2))
         for rt in roots:

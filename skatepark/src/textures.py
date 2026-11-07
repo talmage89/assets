@@ -55,30 +55,11 @@ def source(out,n):
             g=.70+.09*(grain-.5)+.020*(column-.5)
             color=np.stack((g,g*.986,g*.955),axis=-1)*np.ones((h,1,1))
             color*=1-.35*runoff[:,:,None]-.12*foot[:,:,None]
-            # Short paired urethane contacts below the pumping lines. These
-            # occupy the lower part of the chart: shallow retaining walls
-            # sample only its top, while bowl transitions use its full height.
-            wheel=np.zeros((h,w),np.float32)
-            for cx,start,end,bend in ((.18,.32,.46,.030),(.59,.52,.72,-.045),(.79,.70,.90,.025)):
-                t=(v-start)/(end-start);tt=np.clip(t,0,1)
-                center=cx+bend*np.sin(tt*np.pi)
-                pair=np.maximum(np.exp(-((u-center-.035)/.0045)**4),np.exp(-((u-center+.035)/.0045)**4))
-                envelope=np.maximum(np.sin(np.pi*tt),0)**.45*((t>0)&(t<1))
-                wheel=np.maximum(wheel,pair*envelope*np.clip((field(w,h,110,421+int(cx*100))-.30)*2,0,1))
-            color*=1-.52*wheel[:,:,None]
-            color[:,:,2]*=1-.18*runoff;rough=.82-.06*runoff-.08*wheel;relief=np.full((h,w),.5)
+            color[:,:,2]*=1-.18*runoff;rough=.82-.06*runoff;relief=np.full((h,w),.5)
         elif name=='Composite':
             lane=np.maximum(np.exp(-((u-.28-.025*np.sin(v*8))/.12)**4),np.exp(-((u-.70-.04*np.sin(v*9))/.10)**4))
             edge=np.exp(-np.minimum(u,1-u)*38)
             g=.31+.13*lane+.035*(broad-.5)-.065*edge
-            wheel=np.zeros((h,w),np.float32)
-            for cx,start,end,phase in ((.25,.06,.31,.2),(.32,.42,.67,1.1),(.68,.20,.44,2.3),(.74,.64,.91,3.5)):
-                t=np.clip((v-start)/(end-start),0,1)
-                center=cx+.022*np.sin(v*9+phase)
-                contact=np.exp(-((u-center)/(.0025+.0015*mid))**2)*np.maximum(np.sin(np.pi*t),0)**.6
-                contact*=.30+.70*field(w,h,150,1440+int(cx*100))
-                wheel=np.maximum(wheel,contact)
-            g*=1-.65*wheel
             color=np.stack((g*1.12,g*.91,g*.71),axis=-1);rough=.83-.22*lane;relief=.5+.015*(fine-.5)-.018*edge
         elif name=='Tile':
             gx=u*8%1;gy=v*8%1;grout=(np.minimum.reduce([gx,1-gx,gy,1-gy])<.032).astype(float)
@@ -111,20 +92,19 @@ def source(out,n):
             # Smoother, slightly darker riding route, interrupted at grain scale.
             broad_route=np.sin(np.pi*u)**1.8*np.sin(np.pi*v)**.55
             coverage=np.clip((mid-.25)*1.8,0,1)*broad_route*.12
-            pair=np.maximum(np.exp(-((u-.34-.035*np.sin(v*19))/(.035+.010*mid))**4),np.exp(-((u-.67-.035*np.sin(v*19))/(.037+.012*mid))**4))
-            ends=np.maximum(np.exp(-((v-.11)/.14)**4),np.exp(-((v-.88)/.15)**4))
-            contact=pair*np.clip((field(w,h,44,187)-.43)*4,0,1)*ends
-            tail=np.exp(-((v-.78)/.017)**4)*np.exp(-((u-.52)/.30)**4)
-            black=np.clip(contact*.78+tail*.40,0,.88)
-            a=np.maximum(coverage,black)
-            color[:]=(.59,.585,.565)
-            color=color*(1-black[:,:,None])+np.array((.10,.105,.10))*black[:,:,None]
-            rough=.40+.22*black;relief[:]=.5
+            a=coverage
+            color[:]=(.44,.445,.43)
+            rough[:]=.42;relief[:]=.5
         elif name=='Scrape':
-            # Centimeter board contacts at the lip, no continuous painted band.
-            line=np.clip((np.sin(u*390+mid*7)-.55)*3,0,1)
-            a=line*np.sin(np.pi*v)**1.6*np.clip((broad-.35)*3,0,1)*.82
-            color[:]=(.105,.11,.105);rough[:]=.45;relief=.5-line*.006
+            # Four soft urethane/rubber smears in the existing atlas region.
+            # Geometry owns placement, scale, curvature and travel direction.
+            cell=np.minimum((u*4).astype(int),3);x=(u*4)%1
+            wobble=.045*np.sin(v*11+cell*1.9)+.025*(mid-.5)
+            edge=np.exp(-((x-.5-wobble)/(.21+.025*cell))**4)
+            ends=np.maximum(np.sin(np.pi*v),0)**.65
+            striae=.65+.35*np.sin(x*135+cell*3+v*4)**2
+            a=edge*ends*striae*(.68+.30*mid)
+            color[:]=(.065,.072,.070);rough[:]=.57;relief[:]=.5
         elif name=='Tag':
             a[:]=0;color[:]=(.19,.25,.24);rough[:]=.83
         elif name=='Dirt':

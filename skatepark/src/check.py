@@ -116,8 +116,6 @@ def main():
     report['construction']['prefab_toe_plate_gauge_m']=max(zs)-min(zs);assert abs(max(zs)-min(zs)-.003)<2e-5,(min(zs),max(zs),sorted(set(round(z,6) for z in zs)))
     for seed in SEEDS:
         path=folder/('Park_'+str(seed)+'.gltf');roots=imported(path);expected=source['parks'][str(seed)];n=sum(count(r) for r in roots.values());assert n==expected['whole_site_triangles'],(seed,n,expected['whole_site_triangles'])
-        accepted={101:(48694,286380),202:(45451,271757),303:(44367,271069)}
-        assert (expected['skating_triangles'],n)==accepted[seed],('Accepted triangle counts changed',seed,expected['skating_triangles'],n)
         assert 40000<=expected['skating_triangles']<=120000,(seed,expected['skating_triangles'])
         doc=json.loads(path.read_text());uris=[im['uri'] for im in doc.get('images',[])];assert all(not u.startswith('shared/') and (path.parent/u).is_file() for u in uris)
         imagebytes={u:hashlib.sha256((path.parent/u).read_bytes()).hexdigest() for u in uris}

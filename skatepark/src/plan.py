@@ -21,7 +21,7 @@ def plan(seed,type=None,size=None):
     def add(key,x,y,yaw=0,z=0):out['placements'].append(dict(piece=key,location=[x,y,z],yaw=yaw))
     if kind=='poured':
         out['bowl']=dict(location=[-10.668 if not compact else -8.2296,-1.2192,0],pool=not compact,
-                         shape='kidney' if not compact else 'clover')
+                         shape='kidney' if not compact else 'clover',finish='municipal_concrete')
         h=(4 if compact else 5)*.1524
         edge=1.8288 if compact else 3.048
         sx=10.0584 if compact else 12.192

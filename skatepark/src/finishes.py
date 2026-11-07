@@ -120,7 +120,7 @@ def surface_uv(ob,key,rt):
     lo=[min(p[k] for p in points) for k in range(3)];hi=[max(p[k] for p in points) for k in range(3)]
     for face in ob.data.polygons:
         normal=ob.matrix_basis.to_3x3().inverted().transposed()@face.normal
-        kind='Composite' if key=='Composite' else 'Walk' if key=='Walk' else 'Wall' if normal.z<.25 or ob.get('role')=='bowl_transition' else 'Ride'
+        kind='Ride' if ob.get('role')=='bowl_transition' else 'Composite' if key=='Composite' else 'Walk' if key=='Walk' else 'Wall' if normal.z<.25 else 'Ride'
         axes=sorted(range(3),key=lambda k:abs(normal[k]))[:2];axes.sort()
         if kind=='Wall':
             wall=Q.M['Wall'];slot=next((i for i,m in enumerate(ob.data.materials) if m==wall),None)
@@ -133,6 +133,8 @@ def surface_uv(ob,key,rt):
                 original=uv.data[li].uv.copy();metric.data[li].uv=original*2
             if kind in ('Ride','Walk'):
 
+                if ob.get('role')=='bowl_transition':
+                    uv.data[li].uv=metric.data[li].uv;continue
                 u=p[axes[0]]/1.524;v=p[axes[1]]/1.524
                 if 'profile_run_m' in rt and abs(normal.x)<.1:
                     r=rt['transition_radius_m'];run=rt['profile_run_m'];angle=math.acos(1-rt['height_m']/r)
@@ -229,11 +231,6 @@ def weather(rt,p):
                     # Dark damp/grit on vertical retaining faces at grade.
                     if f.normal.z<.3:value*=1-age*.25*math.exp(-max(0,v.z)*5)
                     green,blue=.995,.975
-                    if rt.name.startswith('Bowl_Sector') and m.name=='Skate_ConcreteWall' and v.z<-.03:
-                        fraction=max(0,min(1,(ob.data.uv_layers.active.data[li].uv.y-(.75+8/2048))/(.25-16/2048)))
-                        fraction=max(0,min(1,(fraction-.10)/.90))
-                        fade=max(0,min(1,(fraction-.12)/.68));fade=fade*fade*(3-2*fade)
-                        green=1-.33*fade;blue=1-.46*fade
                     attr.data[li].color=(value,value*green,value*blue,1)
         if any(m and m.name.startswith('Skate_Trim_Steel') for m in ob.data.materials):
             if not copied:ob.data=ob.data.copy()
@@ -256,14 +253,6 @@ def weather(rt,p):
                 stations.append([Vector((cx+s*width/2,y,z))+normal*.0012 for s in (-1,1)])
                 lane_normals.extend([normal,normal])
             if p['type']=='poured':ribbon(rt,'Burnished wheel approach lane',stations,.65,'Burnish',age,lane_normals)
-        stations=[];scrape_normals=[]
-        for j in range(20):
-            x=-w/2+j*w/19;pair=[]
-            for theta in (a-.24/r,a-(.24-.22/3)/r,a-(.24-.44/3)/r,a-.02/r):
-                normal=Vector((0,-math.sin(theta),math.cos(theta)))
-                pair.append(Vector((x,-L/2+r*math.sin(theta),r*(1-math.cos(theta))))+normal*.0013);scrape_normals.append(normal)
-            stations.append(pair)
-        ribbon(rt,'Board slide and urethane scars below coping',stations,.2,'Scrape',age,scrape_normals)
     if 'bank_angle_degrees' in rt and 'deck_m' in rt and p['type']=='poured':
         h=rt['height_m'];angle=math.radians(rt['bank_angle_degrees']);run=h/math.tan(angle)+.18*math.tan(angle/2);w=rt['footprint_m'][0]
         for s in (-1,1):
@@ -272,6 +261,8 @@ def weather(rt,p):
                 y=-run/2+.10+(run-.16)*j/20;z=h-(run/2-y)*math.tan(angle);n=Vector((0,-math.sin(angle),math.cos(angle)))
                 stations.append([Vector((x+side*width/2,y,z))+n*.0011 for side in (-1,1)])
             ribbon(rt,'Worn approach on the bank ride line',stations,width,'Burnish',age)
+    import placed_wear
+    placed_wear.feature_contacts(rt,p,age,rng)
     if rt.name.startswith(('Ledge_18in','ManualPad','Prefab_GrindBox')):
         # Grind contact is blackened wax along the top edges, concrete stays open.
         w,length=rt['footprint_m'];h=rt['height_m']
@@ -343,8 +334,35 @@ def basin_deposits(roots,p):
     rng=random.Random(p['seed']+701);age=p['age']
     # Fallen leaf blades are original polygon silhouettes, gathered where
     # water carries them. They are litter, not a newly modeled tree family.
+    # Local sediment catches on the deep pocket's low flat, rather than a
+    # warm gradient painted up every wall. Leaves and grit share the actual
+    # floor projection and leave the rideable toe mostly clear.
+    import bowl
+    bowl.SHAPE=p['bowl']['shape']
+    for k in range(6):
+        t=(-.68+k*.24)+rng.uniform(-.08,.08);edge=bowl.station(t,0)
+        center=edge-bowl.outward(t)*rng.uniform(.10,.38)
+        span=rng.uniform(.22,.52);wide=rng.uniform(.16,.32)
+        vertices=[];polygons=[]
+        for face in faces:
+            poly=[Vector(verts[i]) for i in face]
+            for axis,value,sign in [(0,center.x-span/2,1),(0,center.x+span/2,-1),(1,center.y-wide/2,1),(1,center.y+wide/2,-1)]:
+                if poly:poly=clip(poly,axis,value,sign)
+            if len(poly)<3 or (poly[1]-poly[0]).cross(poly[2]-poly[0]).length<1e-9:continue
+            polygons.append(tuple(range(len(vertices),len(vertices)+len(poly))))
+            vertices += [v+Vector((0,0,.0018)) for v in poly]
+        if polygons:
+            ob=Q.mesh('Grit caught on the deep pocket flat',vertices,polygons,owner,'Dirt');ob['surface_mark']=True
+            u0,v0,u1,v1=RECTS['Dirt'];pad=8/2048
+            for face in ob.data.polygons:
+                for li in face.loop_indices:
+                    q=ob.data.vertices[ob.data.loops[li].vertex_index].co
+                    ob.data.uv_layers.active.data[li].uv=(u0+pad+(q.x-center.x+span/2)/span*(u1-u0-2*pad),v0+pad+(q.y-center.y+wide/2)/wide*(v1-v0-2*pad))
     for k in range(round(24+age*85)):
         x=3.6+rng.gauss(0,.56);y=rng.gauss(0,.48)
+        if k%3==0:
+            t=rng.uniform(-.7,.7);q=bowl.station(t,0)-bowl.outward(t)*rng.uniform(.10,.45)
+            x,y=q.x,q.y
         if 3.80<x<4.20 and abs(y)<.20:continue
         c=surface(x,y)
         if c is None:continue
