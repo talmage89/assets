@@ -20,7 +20,7 @@ from kit.lod_io import Document, digest, distance, residency, shared_material_bi
 
 
 def tool_digests():
-    names=('lod_constraints.py','lod_shared.py','lod_shells.py','lod.py','lod_io.py','lod_foliage.py','lod_mesh.py','lod_scene.py','lod_layout.py','lod_gpu.py','lod_atlas.py','lod_transfer.py','lod_impostor_fit.py','lod_impostor.py','lod_render.py','foliage.py',
+    names=('lod_shading.py','lod_constraints.py','lod_shared.py','lod_shells.py','lod.py','lod_io.py','lod_foliage.py','lod_mesh.py','lod_scene.py','lod_layout.py','lod_gpu.py','lod_atlas.py','lod_transfer.py','lod_impostor_fit.py','lod_impostor.py','lod_render.py','foliage.py',
            'detachable_textures.py','image_io.py')
     return {name:digest(ROOT/'kit'/name) for name in names}
 
@@ -229,6 +229,9 @@ def check(config, require_renders=True):
         elif row.get('rebaked') or row.get('proxy') or row.get('assembly'):
             def frame(node):
                 n=copy.deepcopy(node);n.pop('mesh',None)
+                children=[c for c in n.get('children',[]) if c<len(base.data['nodes'])]
+                if children:n['children']=children
+                else:n.pop('children',None)
                 if row.get('proxy'):n.pop('skin',None)
                 if 'extras' in n:
                     n['extras']={k:v for k,v in n['extras'].items() if not k.startswith('lod_')}

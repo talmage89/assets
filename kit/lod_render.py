@@ -40,7 +40,11 @@ def setup(source, bounds, azimuth, dist, size=(1920,1080), include=None,foliage=
                 if bpy.data.objects.get(n.get('name','')):keep.add(bpy.data.objects[n['name']])
         for o in bpy.context.scene.objects:
             if o.type=='MESH' and o not in keep:o.hide_render=True
+    if not foliage:
+        from kit.lod_shading import restore
+        shading_receipt=restore(Document(source))
     sc=bpy.context.scene;sc.render.engine='CYCLES'
+    if not foliage:sc['lod_delivered_frame']=json.dumps(shading_receipt)
     from kit import gpu
     gpu.enable();sc.cycles.samples=samples if samples is not None else (128 if foliage else 24);sc.cycles.seed=23
     sc.cycles.use_denoising=False;sc.cycles.use_adaptive_sampling=False
@@ -181,7 +185,7 @@ def main():
     for t in thumbs:contact.paste(t,(0,y));y+=t.height+5
     contact.save(dest/'contact.jpg',quality=90)
     files={p.name:digest(p) for p in dest.iterdir() if p.suffix in ('.png','.jpg')}
-    report=dict(manifest_sha256=digest(out/'manifest.json'),renderer_sha256=digest(Path(__file__)),renderer=f'Cycles GPU, procedural world/sun, {samples} samples, fixed seed, no denoiser, indirect clamp 3',
+    report=dict(manifest_sha256=digest(out/'manifest.json'),renderer_sha256=digest(Path(__file__)),renderer=f'Cycles GPU, procedural world/sun, {samples} samples, fixed seed, no denoiser, indirect clamp 3; supplied glTF normals/tangents (published foliage shader unchanged)',
                 passed=all(r['passed'] for r in rows),comparisons=rows,files=files)
     (dest/'metrics.json').write_text(json.dumps(report,indent=2)+'\n')
     print('LOD RENDER',report['passed'],[(r['level'],r['azimuth'],r['reference']['mean']) for r in rows])

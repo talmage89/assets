@@ -55,9 +55,20 @@ def merge_static(doc,protected_patterns=(),include_roots=()):
             attrs={k:v[first] for k,v in attrs.items()};faces=remap[np.concatenate(triangles)].astype(np.uint32)
             p=dict(attributes={},indices=0,material=material);doc.replace(p,attrs,faces);primitives.append(p)
         mesh_index=len(doc.data['meshes']);doc.data['meshes'].append(dict(name='LOD_'+label,primitives=primitives))
-        node_index=len(doc.data['nodes']);doc.data['nodes'].append(dict(name='LOD_'+label,mesh=mesh_index,extras=dict(lod_sources=ids,lod_static_merge=True)))
-        doc.data['scenes'][doc.data.get('scene',0)].setdefault('nodes',[]).append(node_index)
-        receipt.append(dict(output_node='LOD_'+label,source_nodes=[doc.data['nodes'][i].get('name') for i in ids]))
+        node_index=len(doc.data['nodes'])
+        merged=dict(name='LOD_'+label,mesh=mesh_index,extras=dict(lod_sources=ids,lod_static_merge=True))
+        placement=next((i for i,n in enumerate(doc.data['nodes']) if n.get('name')==label and label in include_roots),None)
+        if placement is not None:
+            # Geometry remains in the same world frame used by reduction and
+            # the source audit. This rest compensation keeps it under the
+            # selected canonical placement root, including nested/scaled roots.
+            merged['matrix']=np.linalg.inv(doc.world(placement)).T.ravel().tolist()
+            doc.data['nodes'][placement].setdefault('children',[]).append(node_index)
+            doc.parents[node_index]=placement
+        else:doc.data['scenes'][doc.data.get('scene',0)].setdefault('nodes',[]).append(node_index)
+        doc.data['nodes'].append(merged)
+        receipt.append(dict(output_node='LOD_'+label,placement_root=label if placement is not None else None,
+                            source_nodes=[doc.data['nodes'][i].get('name') for i in ids]))
     # Compact mesh indices; retain original node indices, skins and animation.
     used=sorted({n['mesh'] for n in doc.data['nodes'] if 'mesh' in n});mapping={old:new for new,old in enumerate(used)}
     doc.data['meshes']=[doc.data['meshes'][i] for i in used]

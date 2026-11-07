@@ -194,6 +194,33 @@ def main():
     assert m['resident']['passed'] and m['resident']['proxy_texture_gpu_bytes']==0
     assert Document(source).dependencies()==before
     assert m['levels'][1]['triangles']<m['levels'][0]['triangles']
+    # A reusable module must move with its selected placement root. Static
+    # consolidation cannot leave geometry behind at the scene's inspection pose.
+    import copy
+    modules=Document(source);original_node=copy.deepcopy(modules.data['nodes'][0])
+    modules.data['nodes']=[original_node,
+        dict(name='Section_A',translation=[9,0,3],children=[0,4]),
+        dict(name='Section_B',translation=[20,0,3],children=[3]),
+        {**copy.deepcopy(original_node),'name':'Panel_B'},
+        dict(name='Section_A__L',translation=[-.5,0,0],extras=dict(socket_kind='connector'))]
+    modules.data['scenes']=[dict(nodes=[1,2])];modules.data['scene']=0
+    modular_source=root/'modules.gltf';modules.save(modular_source)
+    modular_config=root/'src/lod-module.json'
+    modular_config.write_text(json.dumps(dict(kind='module frame fixture',name='SectionA',source=modular_source.name,
+        include_nodes=['Section_A'],output='export/lod/module',screen_space=True,levels=[dict(ratio=.5,screen_height=.2)])))
+    immutable=Document(modular_source).dependencies()
+    build(modular_config);check(modular_config,False);audit(modular_config)
+    reduced=Document(root/'export/lod/module/SectionA_LOD1.gltf')
+    generated=next(i for i,n in enumerate(reduced.data['nodes']) if n.get('name')=='LOD_Section_A')
+    assert reduced.parents[generated]==1
+    assert np.allclose(reduced.world(generated),np.eye(4),atol=1e-12)
+    reduced.data['nodes'][1].pop('translation')
+    bounds=reduced.bounds(['Section_A'])
+    assert bounds[0][0]>=-1e-6 and bounds[1][0]<=5+1e-6,bounds
+    assert bounds[0][2]>=-1e-6 and bounds[1][2]<=1e-6,bounds
+    assert np.allclose(reduced.world(4)[:3,3],[-.5,0,0])
+    assert Document(modular_source).dependencies()==immutable
+
     print('LOD SHARED MAP FIXTURE PASS' ,len(ff),'->',len(f),flush=True)
 
 
