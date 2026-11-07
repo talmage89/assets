@@ -16,7 +16,8 @@ def setup(width,samples,engine):
     if engine=='CYCLES':gpu.enable();sc.cycles.samples=samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=10;sc.cycles.transmission_bounces=8;sc.cycles.transparent_max_bounces=16
     sc.world=bpy.data.worlds.new('Procedural low school sun');sc.world.use_nodes=True;nt=sc.world.node_tree
     sky=nt.nodes.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_disc=False;sky.sun_elevation=math.radians(18);sky.sun_rotation=math.radians(225)
-    nt.links.new(sky.outputs[0],nt.nodes['Background'].inputs['Color']);nt.nodes['Background'].inputs['Strength'].default_value=.18
+    cloud=nt.nodes.new('ShaderNodeMixRGB');cloud.name='Reference cloud';cloud.inputs[0].default_value=0;cloud.inputs[2].default_value=(.60,.63,.64,1)
+    nt.links.new(sky.outputs[0],cloud.inputs[1]);nt.links.new(cloud.outputs[0],nt.nodes['Background'].inputs['Color']);nt.nodes['Background'].inputs['Strength'].default_value=.18
     ld=bpy.data.lights.new('Low raking sun','SUN');ld.energy=3.0;ld.angle=math.radians(.8);ld.color=(1,.94,.84)
     sun=bpy.data.objects.new(ld.name,ld);sc.collection.objects.link(sun);sun.rotation_euler=Vector((.60,.80,-.33)).to_track_quat('-Z','Y').to_euler()
     G.box('Checkpoint asphalt',(0,0,-.035),(1000,1000,.06),material('Asphalt',(.047,.052,.052)),0)
@@ -68,6 +69,14 @@ def render(a):
     if a.calibration:shots={n:d['shot'] for n,d in json.loads(Path(a.calibration).read_text()).items()}
     for name,s in shots.items():
         temp=[];vals=pose(s)
+        bpy.data.objects['Checkpoint asphalt'].hide_render=bool(name=='hero' and a.school)
+        sun=bpy.data.objects['Low raking sun'];cloud=sc.world.node_tree.nodes['Reference cloud'];bg=sc.world.node_tree.nodes['Background']
+        sun.data.energy=3.0;cloud.inputs[0].default_value=0;bg.inputs[1].default_value=.18;sc.view_settings.exposure=-.25
+        sun.rotation_euler=Vector((.60,.80,-.33)).to_track_quat('-Z','Y').to_euler()
+        if name in ['service_front','service_rear']:
+            sun.data.energy=0;cloud.inputs[0].default_value=.85;bg.inputs[1].default_value=.60;sc.view_settings.exposure=-.30
+        if name=='service_side':
+            sun.data.energy=3.5;bg.inputs[1].default_value=.14;sun.rotation_euler=Vector((-.75,.15,-.95)).to_track_quat('-Z','Y').to_euler()
         if s.get('fleet'):
             for seed,dx in [(102,-4.1),(103,4.1)]:
                 obs=imported(path.parent/f'C75-{seed}.gltf')
@@ -92,8 +101,10 @@ def render(a):
         cam.location=s['location'];cam.rotation_euler=(Vector(s['target'])-cam.location).to_track_quat('-Z','Y').to_euler();cam.rotation_euler.rotate_axis('Z',s.get('roll',0))
         cam.data.type='ORTHO' if 'ortho' in s else 'PERSP';cam.data.ortho_scale=s.get('ortho',14);cam.data.lens=s['lens']
         sc.render.resolution_y=round(a.width/s.get('aspect',1.78));sc.render.filepath=str((out/f'{name}.png').resolve())
+        sc.render.film_transparent=s.get('background')=='transparent'
         bpy.context.view_layer.update();bpy.ops.render.render(write_still=True)
-        receipts[name]=dict(camera=s,source=str(path.relative_to(ROOT)),sha256=digest(path),stage='source' if path.suffix=='.blend' else 'export',engine=a.engine,width=a.width,samples=a.samples)
+        receipts[name]=dict(camera=s,source=str(path.relative_to(ROOT)),sha256=digest(path),stage='source' if path.suffix=='.blend' else 'export',engine=a.engine,width=a.width,samples=a.samples,
+            lighting=dict(sun_energy=sun.data.energy,sun_rotation=list(sun.rotation_euler),sky=bg.inputs[1].default_value,cloud_mix=cloud.inputs[0].default_value,exposure=sc.view_settings.exposure))
         (out/'provenance.json').write_text(json.dumps(receipts,indent=2))
         for ob,r in vals.items():ob.rotation_euler=r
         for ob in temp:bpy.data.objects.remove(ob,do_unlink=True)

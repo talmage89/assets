@@ -17,10 +17,13 @@ def main():
         if 'Lamps' in mat['name']:mat.setdefault('extras',{}).update(alpha_semantic='emission power divided by 80',states={'red':14,'amber':10,'headlight':5,'dome':2,'strobe':20},default='off')
     d['asset']['extras']=dict(checkpoint='form and construction; preliminary baked materials',seed=a.variant)
     shared=path.parent/'shared';shared.mkdir(exist_ok=True);image_views=[];image_hashes={}
+    source_hash=hashlib.sha256(b''.join((path.parent.parent/'textures/2k'/f'T_SchoolBus_{c}.png').read_bytes() for c in ['BaseColor','Normal','ORM'])).hexdigest()
+    stamp=shared/'atlas-source.json';new_generation=not stamp.exists() or json.loads(stamp.read_text())['source_hash']!=source_hash
     for i,im in enumerate(d['images']):
         name=im.get('name','image-'+str(i));filename=name if name.endswith('.png') else name+'.png';payload=glb.image(i);target=shared/filename
-        if target.exists() and target.read_bytes()!=payload:raise ValueError('Shared atlas changed across seeds: '+filename)
+        if target.exists() and target.read_bytes()!=payload and not new_generation:raise ValueError('Shared atlas changed across seeds: '+filename)
         target.write_bytes(payload);image_views.append(im.pop('bufferView'));im.pop('mimeType',None);im['uri']='shared/'+filename;image_hashes[filename]=hashlib.sha256(payload).hexdigest()
+    stamp.write_text(json.dumps(dict(source_hash=source_hash,images=image_hashes),indent=2))
     # Remove image views and their bytes; geometry stays byte-exact.
     used=[i for i in range(len(d['bufferViews'])) if i not in image_views];remap={old:new for new,old in enumerate(used)};payload=bytearray();views=[]
     for old in used:

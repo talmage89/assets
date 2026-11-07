@@ -70,8 +70,11 @@ renders/source-matches/provenance.json: $(CHECKPOINT_BLEND) build/calibration.js
 renders/eevee/hero.png: export/C75-101.gltf export/C75-101.bin src/render.py
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --source $< --out renders/eevee --shots hero --engine BLENDER_EEVEE --width $(WIDTH) --samples $(SAMPLES)
 
+build/school-fit.json: export/C75-101.gltf export/C75-101.bin build/model-check.json src/check_school_fit.py
+	$(BP) --python src/check_school_fit.py
+
 $(CHECKPOINT_RENDER_OUTPUTS): $(DELIVERIES) src/views.py src/lamp_states.py
-check: build/model-check.json $(foreach s,$(SEEDS),build/delivery-$(s).json) build/motion.json renders/seethrough/counts.json
+check: build/model-check.json $(foreach s,$(SEEDS),build/delivery-$(s).json) build/motion.json renders/seethrough/counts.json build/school-fit.json
 render: renders/matches/provenance.json renders/source-matches/provenance.json renders/eevee/hero.png
 .PHONY: export matches
 export: $(DELIVERIES)

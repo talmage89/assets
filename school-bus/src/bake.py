@@ -6,6 +6,7 @@ retains quick channels; fine look development is intentionally deferred.
 import argparse,json,sys,time
 from pathlib import Path
 import bpy,numpy as np
+from PIL import Image,ImageDraw,ImageFilter
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
 from kit import gpu
 from kit.bake import require_attribute_coordinates
@@ -22,6 +23,9 @@ def main():
     for ob in list(sc.objects):
         if ob!=target:bpy.data.objects.remove(ob,do_unlink=True)
     uv=target.data.uv_layers['BakeUV'];target.data.uv_layers.active=uv;uv.active_render=True
+    target.data.calc_loop_triangles();mask=Image.new('L',(a.size,a.size),0);draw=ImageDraw.Draw(mask)
+    for tri in target.data.loop_triangles:draw.polygon([(uv.data[i].uv.x*a.size,(1-uv.data[i].uv.y)*a.size) for i in tri.loops],fill=255)
+    interior=np.asarray(mask.filter(ImageFilter.MinFilter(5)))>0
     nodes={}
     for m in mats:n=m.node_tree.nodes.new('ShaderNodeTexImage');m.node_tree.nodes.active=n;nodes[m]=n
     sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=a.samples;sc.cycles.use_denoising=False
@@ -41,11 +45,15 @@ def main():
             else:nt.links.new(nt.nodes['SURFACE'].outputs[0],nt.nodes['OUT'].inputs['Surface'])
         started=time.time();bpy.ops.object.bake(type=kind,**(dict(normal_space='TANGENT',normal_r='POS_X',normal_g='POS_Y',normal_b='POS_Z') if kind=='NORMAL' else {}))
         values=np.empty(a.size*a.size*4,np.float32);im.pixels.foreach_get(values);values=np.flipud(values.reshape(a.size,a.size,4)).copy();channels[name]=values
-        stats[name]=dict(seconds=time.time()-started,covered_texels=int((values[:,:,3]>.5).sum()));bpy.data.images.remove(im);print('BUS_BAKE',name,stats[name],flush=True)
+        stats[name]=dict(seconds=time.time()-started,checked_interior_texels=int(interior.sum()),missing_alpha_interior=int(np.count_nonzero(interior&(values[:,:,3]<.5))))
+        if name=='base':stats[name]['unfilled_black_interior']=int(np.count_nonzero(interior&(np.max(values[:,:,:3],axis=2)<1e-8)))
+        if name=='normal':stats[name]['backward_interior']=int(np.count_nonzero(interior&(values[:,:,2]<.499)))
+        bpy.data.images.remove(im);print('BUS_BAKE',name,stats[name],flush=True)
     bake('base','EMIT','base');bake('alpha','EMIT','paint_coverage');bake('rough','EMIT','rough');bake('metal','EMIT','metal');bake('ao','AO');bake('normal','NORMAL')
     write_png(out/'T_SchoolBus_BaseColor.png',np.concatenate([linear_to_srgb(channels['base'][:,:,:3]),channels['alpha'][:,:,:1]],axis=2))
     write_png(out/'T_SchoolBus_ORM.png',np.stack([channels['ao'][:,:,0],channels['rough'][:,:,0],channels['metal'][:,:,0]],axis=2))
     nm=channels['normal'];invalid=(nm[:,:,3]<.5)|(nm[:,:,2]<.5);nm[invalid,:3]=(.5,.5,1)
     write_png(out/'T_SchoolBus_Normal.png',nm[:,:,:3],16)
     (out/'bake-report.json').write_text(json.dumps(dict(channels=stats,size=a.size,samples=a.samples,device=sc.cycles.device,method='Car-family frozen-attribute finalized-surface channels; direct tangent-normal bake'),indent=2))
+    if stats['base']['unfilled_black_interior'] or any(row['missing_alpha_interior'] for row in stats.values()):raise ValueError('Unfilled interior bake texels')
 if __name__=='__main__':main()

@@ -44,10 +44,19 @@ def main():
     # Envelope is constructed before all body openings from independent package sections.
     before=set(bpy.context.scene.objects)
     rr=.630;cy=S.REAR_AXLE
-    profile=[(-3.92,2.71),(6.006,2.71),(6.006,.755),(cy+rr,.755),(cy+rr,S.HUB)]
-    profile += [(cy+rr*np.cos(np.pi*k/32),S.HUB+rr*np.sin(np.pi*k/32)) for k in range(33)]+[(cy-rr,.755),(-3.92,.755)]
+    theta=np.arcsin((.755-S.HUB)/rr)
+    profile=[(-3.92,2.71),(6.006,2.71),(6.006,.755)]
+    profile += [(cy+rr*np.cos(theta+(np.pi-2*theta)*k/32),S.HUB+rr*np.sin(theta+(np.pi-2*theta)*k/32)) for k in range(33)]+[(-3.92,.755)]
     G.profile('Uncut body envelope',profile,-S.WIDTH/2,S.WIDTH/2,white,axis='X')
     G.loft('Uncut roof envelope',[roof_section(y,d) for y,d in [(-3.92,.20),(-3.78,.085),(-3.56,.015),(-3.38,0),(5.60,0),(5.80,.025),(5.96,.075),(6.006,.115)]],white)
+    hood=[]
+    for y,w,top,bottom in [(-5.916,.725,1.520,1.060),(-5.87,.755,1.565,1.035),(-5.55,.780,1.642,1.015),(-4.95,.800,1.765,1.045),(-4.38,.825,1.860,1.145),(-3.96,.858,1.888,1.240)]:
+        sec=[(-w,bottom),(-w,top-.145),(-w*.98,top-.078),(-w*.91,top-.026),(-w*.76,top),(-w*.42,top+.017),(0,top+.025),(w*.42,top+.017),(w*.76,top),(w*.91,top-.026),(w*.98,top-.078),(w,top-.145),(w,bottom)]
+        hood.append([(x,y,z) for x,z in sec])
+    G.loft('Uncut hood envelope',hood,white)
+    G.box('Uncut front bumper envelope',(0,S.FRONT+.102,.630),(2.35,.204,.320),white,0)
+    G.box('Uncut rear bumper envelope',(0,S.REAR-.090,.650),(2.43,.180,.300),white,0)
+    for sign in [-1,1]:G.box('Uncut optical molding',(sign*.948,-5.688,1.052),(.400,.185,.365),white,.070,3)
     envelope=list(set(bpy.context.scene.objects)-before)
     for ob in envelope:ob.hide_render=True
     sc=bpy.context.scene;sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=16;sc.cycles.use_denoising=False;sc.cycles.use_adaptive_sampling=False;sc.cycles.max_bounces=0;sc.cycles.transparent_max_bounces=32
@@ -71,7 +80,7 @@ def main():
         for ob in envelope:ob.hide_render=True
     result=dict(passed=all(r['magenta_pixels']==0 for r in results.values()),views=results,optical_faces_transmitting=optic_faces,
         method='Car family filled_silhouette and 2px contour guard intersect independent uncut bus body/roof die; actual imported delivery is the blocker',
-        scope='Body and roof seams. Cabin glass emits white; sealed headlamp covers transmit to their actual opaque inserts. Nose outside the body die is assessed by mesh audits and crops.')
+        scope='Body, roof, hood, bumpers and optical molding. Cabin glass emits white; sealed headlamp covers transmit to their actual opaque inserts. Exterior gaps around mirrors and wheel arches remain negative space.')
     (out/'counts.json').write_text(json.dumps(result,indent=2));print('BUS_SEETHROUGH',result,flush=True)
     if not result['passed']:raise SystemExit(1)
 if __name__=='__main__':main()
