@@ -47,6 +47,7 @@ massing. The original districts' budgets, climates and programs differed.
 | Exterior walk | 2.4384–4 m covered; 1.524 m outer loop walk | Original generous school circulation; ADA §403 comparison minimum is 915 mm |
 | Portable | 7.3152 × 9.7536 m / 24 × 32 ft; .70 m floor | Original transportable classroom, not a reproduction of a vendor product |
 | Portable ramp | 1.88 m gross; 6.5712 m run for .5476 m rise / 1:12; 1.524 m bottom landing | ADA §§405/505 dimension comparator; floor edge guards 1.0668 m / 42 in and handrails .9144 m / 36 in |
+| Portable lower approach | 2.7432 m long for .1344 m drop from the lower landing to .018 m site walk grade / about 1:20.4 | Original gentle approach; avoids a step between the ramp landing and the general site route |
 | Traffic loop | 7.3152 m / 24 ft paved width; centerline radii 10.5–12 m, 11.5–12 m for bus routes | Authored geometry; BIA 2007 §4030 separation of buses, parents and service. Full vehicle turning certification is outside this gate |
 | Playground reservation | Native chain-link 10 ft pitch; 70 × 50 ft fenced footprint | No equipment; reserved for the playground family, with entry socket and separate approach |
 | Blacktop | 30 × 20 m; 84 × 50 ft basketball outline | Original school recreation layout, not a competition court certification |

@@ -4,7 +4,7 @@ Reference images and PDFs are local measurement/comparison inputs only. No pixel
 
 | File | Direct image/PDF URL | Author / rights | Use |
 | --- | --- | --- | --- |
-| colorado-schools.pdf | https://npgallery.nps.gov/GetAsset/9ec89ff6-366e-4efd-8045-dbc5683d86d0 | Abigail Christman / CU Denver, October 2016, National Register public research submission; underlying illustrations retain their stated rights | pp E19–28: finger, cluster and open-plan evolution, published plan diagrams, masonry/steel and window construction. Read-only reference. |
+| colorado-schools.pdf | https://npgallery.nps.gov/GetAsset/9ec89ff6-366e-4efd-8045-dbc5683d86d0 | Abigail Christman / CU Denver, October 2016, National Register public research submission; underlying illustrations retain their stated rights | Section E pp33–37: finger, cluster and open-plan evolution; Figures 2/13/19 published plans and Figure 7 archival covered-walk photograph. Read-only reference. |
 | bia-2007.pdf | https://www.bia.gov/sites/bia.gov/files/assets/as-ia/raca/pdf/idc008030.pdf | US Bureau of Indian Affairs, March 30 2007; US government | Sections 4030/4050/8040: separated buses, cars and service; eight-foot elementary primary corridors. |
 | idaho-1996.pdf | https://proddfmmainsa.blob.core.windows.net/dfm-admin-website/rules/1996/08/0204.pdf | State of Idaho, archived August 1996 school construction rules; public regulatory document | §100: eight-foot single-loaded, ten-foot double-loaded corridors, outside boiler access, classroom minimum 850 sq ft. |
 | wheatley-habs.pdf | https://tile.loc.gov/storage-services/master/pnp/habshaer/la/la0600/la0648/data/la0648data.pdf | HABS LA-368, Library of Congress / National Park Service, US government survey | 1955 steel school construction, structural grid and glazing context. Elevated school is not used as the school massing. |
@@ -18,7 +18,7 @@ Reference images and PDFs are local measurement/comparison inputs only. No pixel
 
 The third comparison extracts **Emerald Elementary, 1958**, Figure 7 / PDF p77
 of `colorado-schools.pdf`: archival photograph, photographer uncredited in the
-submission, Wheeler & Lewis collection / History Colorado. Underlying rights
+submission, Wheeler & Lewis collection, Stephen Hart Library / History Colorado. Underlying rights
 retained; research comparison only, no committed copy. Neutral: pale painted
 canopy fascia in the monochrome scan. Richards and Schmitt are supplementary
 photographs, not the third calibrated pair.
