@@ -74,6 +74,10 @@ def render(source,out,width,samples,engine,names=None,custom=None,seed=101,sourc
         from source_compare import install
         field_changes=install()
     cam=setup(samples,engine);sc=bpy.context.scene;views=custom or shots(seed);out=Path(out);out.mkdir(parents=True,exist_ok=True)
+    if 'above' in views:
+        # Preserve the accepted annotated camera, and show the same place
+        # unobstructed so traffic, paving age and parcels can be judged.
+        views=dict(views);views['above_clean']=dict(views['above'],overlay=False)
     result={}
     for name,v in views.items():
         if names and name not in names:continue

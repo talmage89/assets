@@ -8,10 +8,10 @@ import argparse,hashlib,json,os,shlex,subprocess,sys
 from pathlib import Path
 from external import bundle
 
-SCENES={101:['terminal','hero','above','alignment','barrier','guardrail_end',
+SCENES={101:['terminal','hero','above','above_clean','alignment','barrier','guardrail_end',
              'sign_structure','south_sign','pier_girders','gore',
              'terminal_controls','rail_repair'],
-        202:['hero','above','alignment','sound_wall','cable_median']}
+        202:['hero','above','above_clean','alignment','sound_wall','cable_median']}
 
 def fresh(path,source,args):
     try:
