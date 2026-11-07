@@ -99,6 +99,8 @@ Recreation
   graphics, new, a season old and beat.
 - [Skateparks](skatepark/README.md): modular poured bowls, transitions, banks, stairs and ledges, framed prefab ramps,
   and three seeded parks of 1999, 2004 and 2011.
+- [Playgrounds](playground/README.md): modular municipal play structures with slides, swings, climbers and spring
+  riders, and three seeded playgrounds of 1996, 2005 and 2013 on wood fiber and poured rubber.
 
 Trees and shrubs
 - [Trees](trees/README.md): summer street trees with leaf cards and wind weights.
