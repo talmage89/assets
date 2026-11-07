@@ -40,7 +40,7 @@ def placed(ob,plan):
                     eh=1.8288 if '72' in event['kind'] else .6096 if '24' in event['kind'] else 1.2192
                     if abs(world.z-eh)<.08 and math.hypot(world.x-x,world.y-y)<.43:target='WornDeck'
             if chart=='Deck' and module in ('Stairs48','Transfer24') and q.z>.38 and abs(q.x)<.25:target='WornDeck'
-            if chart=='Coat' and age>.75 and not repainted and q.z>.28 and max(0,.7*face.normal.x-.5*face.normal.y+.5*face.normal.z)>.4:target='ChalkCoat'
+            if chart=='Coat' and age>.35 and not repainted and q.z>.28 and max(0,.7*face.normal.x-.5*face.normal.y+.5*face.normal.z)>.4:target='ChalkCoat'
             if chart=='Slide' and age>.75:target='OldSlide'
             if chart=='Clean' and age>.75:target='Chalk'
         if target and target!=chart:
@@ -56,17 +56,25 @@ def placed(ob,plan):
             charts.data[face.index].value=CELLS.index(target)
         for li in face.loop_indices:
             p=mat@ob.data.vertices[ob.data.loops[li].vertex_index].co
-            n=ob.data.loops[li].normal
+            n=ob.parent.matrix_basis.to_3x3()@ob.data.loops[li].normal if ob.parent else ob.data.loops[li].normal
             sun=max(0,.7*n.x-.5*n.y+.5*n.z)
-            fade=age*(.035+.14*sun) if key in palette else 0
-            if key in ('red','green','blue','yellow') and age>.75:fade=age*(.06+.35*sun)
+            fade=age*(.08+.40*sun) if key in palette else 0
+            if key in ('red','green','blue','yellow'):
+                fade=age*(.15+.62*sun)
+                if module in ('HipRoof','Shade'):fade=min(.85,fade+age*.18)
             if repainted and key=='steel':fade*=.25
-            c=np.array(color[:3]);c=c*(1-fade)+np.array((.34,.32,.28))*fade
+            c=np.array(color[:3]);c=c*(1-fade)+np.array((.38,.32,.25))*fade
+            # Sun-aged plastic loses pigment; dull broad bed contact survives
+            # at site distance, while fine directional scars stay in the maps.
+            if key in ('red','green','blue','yellow') and module.startswith('Slide'):
+                lane=math.exp(-(abs(p.x)/.28)**4) if 'Spiral' not in module else .5
+                contact=age*.22*lane*max(0,n.z)
+                c=c*(1-contact)+np.array((.46,.37,.27))*contact
             # Low splashed bases remain local; do not paint a uniform dirt band.
-            if key=='steel' and ob.parent and str(ob.parent.get('module','')).startswith('Post'):
+            if age>.35 and key=='steel' and ob.parent and str(ob.parent.get('module','')).startswith('Post'):
                 streak=max(0,math.sin(math.atan2(p.y,p.x)*7+plan['seed']+ob.parent.location.x*3+ob.parent.location.y*7)*.6+.25)
-                rust=age*math.exp(-max(0,p.z)*14)*streak*(.25 if repainted else 1)
-                c=c*(1-rust)+np.array((.19,.062,.017))*rust
+                rust=min(.95,age*2.3*math.exp(-max(0,p.z)*6)*max(.20,streak)*(.25 if repainted else 1))
+                c=c*(1-rust)+np.array((.16,.045,.010))*rust
             if key=='zinc':c=np.ones(3)
             if target=='Black':c=np.ones(3)
             if target=='Worn':c=np.ones(3)

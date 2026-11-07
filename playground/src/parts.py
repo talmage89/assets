@@ -118,17 +118,25 @@ def steps(rt,height=1.2192):
     empty(rt,rt.name+'_Top',(0,0,height),'deck_entry')
 
 def transfer(rt):
-    # Broad sixteen-inch transfer seat, closed eight-inch step and side cheeks.
-    for y,h in [(-.90,.4064),(-.30,.6096)]:
-        ob=punched_tray(rt,'Punched transfer platform',(0,y,h-DECK_GAUGE/2),(1.05,.60,DECK_GAUGE));ob['role']='deck_top'
-        box(rt,'Closed transfer riser',(0,y-.30+DECK_GAUGE/2,h/2),(1.05,DECK_GAUGE,h),'deck',.0007)
+    # Catalog-style step-up decks: twelve-inch rises, thin hemmed punched
+    # plastisol trays on posts. There is open air, never a filled plinth below.
+    for y,h in [(-.90,.3048),(-.30,.6096)]:
+        punched_tray(rt,'Punched step-up deck',(0,y,h-DECK_GAUGE/2),(1.05,.60,DECK_GAUGE))
         for x in (-.51,.51):
-            box(rt,'Closed transfer side cheek',(x,y,h/2),(DECK_GAUGE,.60,h),'deck',.0007)
-            box(rt,'Recessed transfer foot',(x,y,0),(.09,.48,.055),'steel',.006)
-    # One clear 24-inch transfer edge; grip loops are on the upper step.
-    for x in (-.48,.48):tube(rt,'Returned transfer grab loop',[(x,-.36,.61),(x,-.36,.94),(x,-.24,1.01),(x,-.08,1.01),(x,.03,.94),(x,.03,.61)],GRIP_OD/2,'rail',8)
+            box(rt,'Step deck downturned side',(x,y,h-.036),(DECK_GAUGE,.60,.072),'deck',0)
+        for yy in (y-.295,y+.295):
+            box(rt,'Step deck folded end',(0,yy,h-.036),(1.05,DECK_GAUGE,.072),'deck',0)
+        box(rt,'Step deck underside hat stiffener',(0,y,h-.040),(.99,.035,.06),'deck',0)
+    for x in (-.51,.51):
+        for y,h in ((-1.14,.3048),(-.60,.6096),(-.06,.6096)):
+            cyl(rt,'Step-up deck support post',(x,y,-.015),(x,y,h-.008),.0635,'steel',10)
+        tube(rt,'Continuous step-up child grip',[(x,-1.17,.31),(x,-1.17,.92),(x,-1.05,1.02),(x,-.45,1.32),(x,.04,1.32),(x,.04,.61)],GRIP_OD/2,'rail',8)
+        for y in (-1.08+j*.085 for j in range(13)):
+            z=.3048 if y<-.60 else .6096
+            top=1.02+min(.6,max(0,y+1.05))*.5
+            cyl(rt,'Step-up side barrier infill',(x,y,z+.04),(x,y,top),.0095,'rail',6)
     interface_bridge(rt,.6096,1.05)
-    empty(rt,rt.name+'_Transfer',(0,-.9,.4064),'transfer_seat')
+    empty(rt,rt.name+'_Transfer',(0,-.9,.3048),'transfer_seat')
 
 
 def ramp(rt):
@@ -496,12 +504,17 @@ def landing(rt):
     box(rt,'Accessible 60 inch turning landing',(0,0,-.04),(1.524,1.524,.08),'deck',.004,mat='Deck')
 
 def interdeck(rt):
-    # Compact original 24 inch connector, 3 closed eight-inch risers.
-    for i in range(3):
-        y=-.36+i*.24;z=(i+1)*.2032
-        box(rt,'Interdeck closed riser',(0,y+.115,z-.1016),(1.05,.025,.2032),'deck',.002)
-        if i<2:box(rt,'Interdeck stair tread',(0,y,z-.018),(1.05,.24,.036),'deck',.003)
-    for x in (-.51,.51):tube(rt,'Interdeck grip',[(x,-.46,.65),(x,.40,1.27)],.0143,'rail',8)
+    # Two twelve-inch supported tray rises connecting the accepted deck grid.
+    for y,z in ((-.30,.3048),(.06,.6096)):
+        punched_tray(rt,'Interdeck punched step tray',(0,y,z-DECK_GAUGE/2),(1.05,.36,DECK_GAUGE))
+        for x in (-.51,.51):
+            box(rt,'Interdeck downturned tray edge',(x,y,z-.035),(DECK_GAUGE,.36,.070),'deck',0)
+            cyl(rt,'Interdeck support leg',(x,y,-.07),(x,y,z-.01),.032,'steel',8)
+    for x in (-.51,.51):
+        tube(rt,'Interdeck grip',[(x,-.46,.65),(x,-.46,.95),(x,.30,1.32),(x,.40,1.27)],.0143,'rail',8)
+        for j in range(9):
+            y=-.44+j*.085;z=.3048 if y<-.12 else .6096;top=.95+(y+.46)/.76*.37
+            cyl(rt,'Interdeck side barrier infill',(x,y,z+.02),(x,y,top),.0095,'rail',6)
 
 def roof_riser(rt):
     cyl(rt,'Roof supported post extension',(0,0,-.02),(0,0,.36),.0635,'steel',16)

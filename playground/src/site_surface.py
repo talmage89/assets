@@ -101,7 +101,14 @@ def split_inset(poly):
         b=ring[(i+1)%len(ring)];q=halfplane(rest,a,b,False)
         if len(q)>=3:out.append((q,0))
         rest=halfplane(rest,a,b,True)
-    if len(rest)>=3:out.append((rest,1))
+    if len(rest)>=3:
+        inner=[(2+5.88*math.cos(i*math.tau/80),-1+4.68*math.sin(i*math.tau/80)) for i in range(80)]
+        for i,a in enumerate(inner):
+            if not rest:break
+            b=inner[(i+1)%len(inner)];q=halfplane(rest,a,b,False)
+            if len(q)>=3:out.append((q,3))
+            rest=halfplane(rest,a,b,True)
+        if len(rest)>=3:out.append((rest,1))
     return out
 
 def split_patch(poly):
@@ -117,21 +124,49 @@ def split_patch(poly):
     if len(rest)>=3:out.append((rest,True))
     return out
 
+def split_hollow(poly,depressions):
+    """Clip a ragged exposed wear-mat footprint into the actual surface."""
+    for x,y,w,h,d in depressions:
+        if max(p[0] for p in poly)<x-w or min(p[0] for p in poly)>x+w or max(p[1] for p in poly)<y-h or min(p[1] for p in poly)>y+h:continue
+        ring=[]
+        for i in range(16):
+            a=i*math.tau/16;r=.68*(1+.10*math.sin(i*2.7+x))
+            ring.append((x+w*r*math.cos(a),y+h*r*math.sin(a)))
+        rest=poly;out=[]
+        for i,a in enumerate(ring):
+            if not rest:break
+            b=ring[(i+1)%len(ring)];q=halfplane(rest,a,b,False)
+            if len(q)>=3:out.append((q,False))
+            rest=halfplane(rest,a,b,True)
+        if len(rest)>=3:out.append((rest,True))
+        return out
+    return [(poly,False)]
+
 
 def build(rt,plan,depressions):
     p=boundary(plan);plan['containment_boundary_m']=[list(q) for q in p]
     plan['surface']=[min(x for x,y in p),min(y for x,y in p),max(x for x,y in p),max(y for x,y in p)]
-    vs=[];fs=[];colors=[]
+    vs=[];fs=[];colors=[];roles=[]
     def level(x,y):
         if plan['inclusive']:return -.005
-        return -.008-sum(d*math.exp(-((x-a)/w)**2-((y-b)/h)**2) for a,b,w,h,d in depressions)+.004*math.sin(2.1*x+plan['seed'])*math.cos(2.8*y)
+        z=-.008+.004*math.sin(2.1*x+plan['seed'])*math.cos(2.8*y)
+        for a,b,w,h,d in depressions:
+            r=math.hypot((x-a)/w,(y-b)/h)
+            z-=.085*math.exp(-(r/.87)**4)
+            z+=.045*math.exp(-((r-1.27)/.24)**2)
+        return z
     for q in cells(p,.5):
-        for piece,color in split_inset(q) if plan['inclusive'] else [(q,0)]:
+        near=not plan['inclusive'] and any(min(((x-a)/w)**2+((y-b)/h)**2 for x,y in q)<3 for a,b,w,h,d in depressions)
+        sub=list(cells(q,.25)) if near else [q]
+        for piece,color in ([(part,c) for sq in sub for part,c in split_inset(sq)] if plan['inclusive'] else [(sq,0) for sq in sub]):
             for part,patch in split_patch(piece) if plan['inclusive'] else [(piece,False)]:
-                n=len(vs);vs.extend((x,y,level(x,y)) for x,y in part);fs.append(tuple(range(n,len(vs))));colors.append(2 if patch else color)
+                for shape,mat in ([(part,False)] if plan['inclusive'] else split_hollow(part,depressions)):
+                    n=len(vs);vs.extend((x,y,level(x,y)) for x,y in shape);fs.append(tuple(range(n,len(vs))));colors.append(2 if patch else color);roles.append(int(mat))
     ob=upward_sheet('Continuous protective containment / no internal borders',vs,fs,F.M['Site'])
     attribute=ob.data.attributes.new(name='SurfaceInset',type='INT',domain='FACE')
     for d,c in zip(attribute.data,colors):d.value=c
+    attribute=ob.data.attributes.new(name='ExposedMat',type='INT',domain='FACE')
+    for d,c in zip(attribute.data,roles):d.value=c
     ob=F.own(ob,rt,'rubberfloor' if plan['inclusive'] else 'fiber','Site');ob['role']='protective_surface';ob['depression_centers_m']=[list(v) for v in depressions]
     plan['protected_surface_area_m2']=abs(sum(p[i][0]*p[(i+1)%len(p)][1]-p[(i+1)%len(p)][0]*p[i][1] for i in range(len(p)))/2)
     plan['depressions_m']=[list(v) for v in depressions]
@@ -166,19 +201,24 @@ def build(rt,plan,depressions):
 def scatter(rt,plan,perimeter,level):
     rng=random.Random(plan['seed']+173);vs=[];fs=[]
     def add(x,y,z):
-        L=rng.uniform(.018,.045);W=rng.uniform(.003,.008);t=rng.random()*math.tau;u=Vector((math.cos(t),math.sin(t)));v=Vector((-u.y,u.x))
+        L=rng.uniform(.025,.090);W=rng.uniform(.006,.019);t=rng.random()*math.tau;u=Vector((math.cos(t),math.sin(t)));v=Vector((-u.y,u.x))
         xy=Vector((x,y));points=[xy-u*L/2,xy+u*L/2-v*W*.3,xy+u*L*.35+v*W,xy-u*L*.45+v*W*.7]
         n=len(vs);vs.extend((q.x,q.y,z+(rng.random()*.003)) for q in points);fs.append(tuple(range(n,n+4)))
     # Foot strokes eject fibers to the edge of the actual seat/exit depressions.
     for x,y,w,h,d in plan['depressions_m']:
-        for j in range(32):
-            a=rng.random()*math.tau;r=rng.uniform(.75,1.7);xx=x+math.cos(a)*w*r;yy=y+math.sin(a)*h*r;add(xx,yy,level(xx,yy)+.010)
+        for j in range(65):
+            a=rng.random()*math.tau;r=rng.triangular(.85,1.75,1.25);xx=x+math.cos(a)*w*r;yy=y+math.sin(a)*h*r;add(xx,yy,level(xx,yy)+.001)
+        # A few surviving shreds rest on the exposed mat, chiefly at its edge.
+        for j in range(12):
+            a=rng.random()*math.tau;r=rng.uniform(.40,.76);xx=x+math.cos(a)*w*r;yy=y+math.sin(a)*h*r;add(xx,yy,level(xx,yy)+.001)
     # Chips carry out through the entry; a few lodge on the border's upper face.
     y0=plan['surface'][1]
     for j in range(100):
-        x=rng.uniform(-1.15,1.15);y=y0+rng.uniform(-1.3,.45);add(x,y,.008)
+        x=rng.uniform(-1.15,1.15);y=y0+rng.uniform(-1.3,.45)
+        z=-.004 if y<y0-1 else -.008*(y-y0+1)/1.3+.001
+        add(x,y,z)
     for j in range(70):
-        i=rng.randrange(len(perimeter));a=Vector(perimeter[i]);b=Vector(perimeter[(i+1)%len(perimeter)]);q=a.lerp(b,rng.random());add(q.x,q.y,.127)
+        i=rng.randrange(len(perimeter));a=Vector(perimeter[i]);b=Vector(perimeter[(i+1)%len(perimeter)]);q=a.lerp(b,rng.random());add(q.x,q.y,.116)
     ob=F.own(upward_sheet('Loose kicked fibers / exit banks and walk carryout',vs,fs,F.M['Site']),rt,'fiber','Site')
     from uv_finish import floor
     floor(ob,plan);ob['solid']=False

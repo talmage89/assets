@@ -36,7 +36,7 @@ def terrain(doc,path,material):
             pos=accessor(doc,bs,pr['attributes']['POSITION']);idx=accessor(doc,bs,pr['indices']).ravel().reshape(-1,3);p=pos[idx]
             # Siteworks has identity root transforms. Convert glTF +Y-up to
             # the authored Blender footprint before sampling actual triangles.
-            q=np.stack((p[:,:,0],-p[:,:,2],p[:,:,1]),axis=-1);n=np.cross(q[:,1]-q[:,0],q[:,2]-q[:,0]);valid=(n[:,2]>1e-8)&(q[:,:,2].max(axis=1)<.03)&(q[:,:,2].min(axis=1)>-.3)
+            q=np.stack((p[:,:,0],-p[:,:,2],p[:,:,1]),axis=-1);n=np.cross(q[:,1]-q[:,0],q[:,2]-q[:,0]);valid=(n[:,2]>1e-8)&(q[:,:,2].max(axis=1)<.10)&(q[:,:,2].min(axis=1)>-.3)
             out.extend(q[valid])
     return np.asarray(out)
 
@@ -105,6 +105,14 @@ def main():
         report['sites'][str(s['seed'])]=dict(triangles=s['total_triangles'],materials=s['materials'],files_bytes=p.stat().st_size+p.with_suffix('.bin').stat().st_size,zone_corners_inside=len(corners),actual_floor_samples_m=measured_corners,entry_floor_max_difference_m=max(entry),containment_area_m2=s['protected_surface_area_m2'],images=imgs)
         assert s['total_triangles']<120000
         costs=report['sites'][str(s['seed'])];costs['family_MiB']=sum(v for k,v in allocations.items() if k.name.startswith('T_Play'));costs['reused_library_MiB']=sum(v for k,v in allocations.items() if not k.name.startswith('T_Play'));costs['total_if_uncached_MiB']=sum(allocations.values());costs['texture_memory_scope']='Estimated 8bpp block compression with full mips, unique external images in this exported site; presentation imports are separate.'
+        if not s['inclusive']:
+            hollows=[]
+            for x,y,w,h,depth in s['depressions_m']:
+                center=heights(floor,(x,y));rims=[heights(floor,(x+w*1.27*math.cos(a),y+h*1.27*math.sin(a))) for a in np.linspace(0,math.tau,12,endpoint=False)]
+                assert len(center) and all(len(r) for r in rims)
+                low=float(center.min());high=float(np.median([r.max() for r in rims]));assert low<-.065 and high>.012,(s['seed'],'No dug hollow/rim',low,high)
+                hollows.append(dict(center_xy_m=[x,y],actual_bottom_m=low,actual_median_rim_m=high,measured_relief_m=high-low))
+            costs['measured_exported_hollows']=hollows
         costs['black_chart_triangles_without_double_tint']=black_coating_tints(d,[(p.parent/b['uri']).read_bytes() for b in d['buffers']])
     protected=ROOT/'build/playground-protected.json'
     if protected.exists():

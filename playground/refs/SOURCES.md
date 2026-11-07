@@ -29,3 +29,23 @@ Read online (no downloaded source code, CAD or models):
 - [2013 inclusive design guidance](https://www.gametime.com/news/gametime-offers-a-blueprint-for-play), GameTime, 31 January 2013, copyrighted. Period relevance of inclusive planning.
 
 Photo source pages: [Roswell](https://commons.wikimedia.org/wiki/File:RoswellAreaParkPlaygroundJun17_2009.jpg), [Adair](https://commons.wikimedia.org/wiki/File:Adair_park_playground.jpg), [2005 composite](https://commons.wikimedia.org/wiki/File:Playground.jpg). Reference pairs remain ignored.
+
+### Surfacing / delivery continuation
+
+The 2009 Adair daily-use photograph is also the fiber color/size comparator:
+brown shredded wood, silvered old pieces and intermittent pale fresh cuts.
+The original field uses 14–95mm chips, 3–25mm across; these are authored visual
+ranges, not a recovered manufacturer's grading test. The source photograph is
+balanced on the small white cap already recorded in `build/cameras.json`.
+Only its viewing crop changes: it ends just below the frame footings so the
+comparison shows the actual EWF installation rather than foreground lawn/walk.
+All nine calibration landmarks and the original 69–71mm full-photo lens bound
+remain. No photographic pixel enters any material.
+
+The owner's delivery correction specifies 12-inch step-up rises. The retained
+`Transfer24` module name now identifies open steel/plastisol step-up decks at
+12/24 inches; it no longer denotes the earlier 16/24-inch closed transfer box.
+Catalog PDF page 9 describes plastic-coated steel decks; page 32 lists a
+12-inch deck level. The current 12/24-inch arrangement is original, specified
+by the brief, rather than a claim that CPSC's transfer-seat dimensions changed.
+The inclusive approach remains the separate 1:12 ramp.

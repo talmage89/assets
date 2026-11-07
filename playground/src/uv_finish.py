@@ -96,15 +96,35 @@ def floor(ob,plan):
     for f in ob.data.polygons:
         center=f.center;tx=math.floor((center.x+1e-5)/2);ty=math.floor((center.y+1e-5)/2)
         if plan['inclusive']:
-            key='WornEPDM' if any(((center.x-x)/.7)**2+((center.y-y)/1.1)**2<1.4 for x,y,w,h,d in plan['depressions_m']) else 'EPDM'
+            key='EPDM'
             # Two joined poured colors, with no coplanar overlay.
             inset=ob.data.attributes['SurfaceInset'].data[f.index].value if 'SurfaceInset' in ob.data.attributes else int(((center.x-2)/5.9)**2+((center.y+1)/4.7)**2<1)
-            c=(.021,.13,.12,1) if inset==2 else (.43,.21,.072,1) if inset else (.030,.17,.16,1)
+            c=(.040,.048,.039,1) if inset==3 else (.023,.09,.075,1) if inset==2 else (.38,.21,.09,1) if inset else (.035,.18,.20,1)
         else:
             key='OldFiber' if plan['year']==1996 else 'Fiber'
-            compact=min(.35,sum(.32*math.exp(-((center.x-x)/(w*.72))**2-((center.y-y)/(h*.82))**2) for x,y,w,h,d in plan['depressions_m']))
-            c=(1-compact,1-compact*.93,1-compact*.82,1)
+            exposed=ob.data.attributes.get('ExposedMat')
+            if exposed and exposed.data[f.index].value:key='WornEPDM'
+            c=(.028,.025,.021,1) if key=='WornEPDM' else (1,1,1,1)
         for li in f.loop_indices:
             p=ob.data.vertices[ob.data.loops[li].vertex_index].co
             rect_uv(uv.data[li],SURFACE[key],p.x/2-tx,p.y/2-ty,2048)
-            tint.data[li].color=c
+            color=list(c)
+            if plan['inclusive']:
+                wear=min(1,sum(math.exp(-(((p.x-x)/(.58 if w<.55 else .85))**2+((p.y-y)/1.2)**2)**1.6) for x,y,w,h,d in plan['depressions_m']))
+                if inset==2:wear*=.28  # newer local repair, less worn binder
+                # Pale binder/color loss under feet, with intact darker pores.
+                for k in range(3):color[k]=color[k]*(1-.42*wear)+(.24,.29,.27)[k]*.42*wear
+                exposure=max(.12,1-sum(.78*math.exp(-((p.x-x)/1.2)**4-((p.y-y)/1.2)**4) for x,y,h in plan['decks']))
+                fade=(.13+.035*math.sin(p.x*.37+p.y*.24))*exposure*(.25 if inset==2 else 1)
+                for k in range(3):color[k]=color[k]*(1-fade)+(.26,.28,.25)[k]*fade
+                # Cold pour joint, and the two-color pour boundary. Narrow
+                # enough to read as construction rather than an outlined motif.
+                # The 20mm two-pour joint is explicit clipped geometry, so
+                # vertex interpolation cannot turn it into a half-meter wash.
+            elif key!='WornEPDM':
+                damp=min(.48,sum(.38*math.exp(-((p.x-x)/(w*1.1))**2-((p.y-y)/(h*1.1))**2) for x,y,w,h,d in plan['depressions_m']))
+                # Shaded deck drip areas and variable damp wood at low rims.
+                shade=sum(.13*math.exp(-((p.x-x)/.9)**4-((p.y-y)/.9)**4) for x,y,h in plan['decks'])
+                variation=1+.06*math.sin(p.x*1.7+p.y*.8)*math.cos(p.y*2.1)
+                for k in range(3):color[k]*=max(.42,1-damp-shade)*variation
+            tint.data[li].color=color

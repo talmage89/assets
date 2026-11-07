@@ -100,22 +100,30 @@ def build_set(name,rects,n,out):
             if key=='Rock':rough=.68+.10*mid;height=.5+.09*(mid-.5)
         else:
             if key in ('Fiber','OldFiber'):
-                old=key=='OldFiber';rgb=Image.new('RGB',(w,h),(125,105,68));hm=Image.new('L',(w,h),45);draw=ImageDraw.Draw(rgb);dh=ImageDraw.Draw(hm);randomizer=random.Random(847+index)
-                # A 2m tile: individual split fibers 12-45mm long, 2-7mm wide.
-                for i in range(round(52000*(n/4096)**2)):
+                old=key=='OldFiber';rgb=Image.new('RGB',(w,h),(58,42,28));hm=Image.new('L',(w,h),35);draw=ImageDraw.Draw(rgb);dh=ImageDraw.Draw(hm);randomizer=random.Random(847+index)
+                # Shredded wood, not uniform straw: broad broken chips among
+                # splinters, bark, silvered old wood and occasional fresh cuts.
+                # This cell covers two real meters at 512 delivered pixels/m.
+                for i in range(round(24000*(n/4096)**2)):
                     x=randomizer.uniform(-.02,1.02)*w;y=randomizer.uniform(-.02,1.02)*h;t=randomizer.random()*math.tau
-                    L=randomizer.uniform(.012,.045)*w/2;W=randomizer.uniform(.002,.007)*w/2
+                    L=randomizer.triangular(.014,.095,.035)*w/2;W=randomizer.triangular(.003,.025,.011)*w/2
                     a=(math.cos(t)*L/2,math.sin(t)*L/2);b=(-math.sin(t)*W/2,math.cos(t)*W/2)
-                    poly=[(x-a[0],y-a[1]),(x+a[0]-.3*b[0],y+a[1]-.3*b[1]),(x+a[0]+b[0],y+a[1]+b[1]),(x-a[0]+b[0],y-a[1]+b[1])]
-                    g=randomizer.uniform(.52,.82) if old else randomizer.uniform(.54,.84);c=(int(g*255),int(g*255*(.82 if old else .78)),int(g*255*(.50 if old else .48)))
-                    draw.polygon(poly,fill=c);dh.polygon(poly,fill=randomizer.randint(105,225))
-                    if i%3==0:draw.line((poly[0],poly[1]),fill=tuple(min(255,int(c1*1.13)) for c1 in c),width=1)
+                    poly=[(x-a[0],y-a[1]),(x+a[0]-.3*b[0],y+a[1]-.3*b[1]),(x+a[0]*.65+b[0],y+a[1]*.65+b[1]),(x-a[0]*.7+b[0]*.8,y-a[1]*.7+b[1]*.8)]
+                    pick=randomizer.random();palette=((105,76,49),(133,95,59),(76,53,35),(119,112,99),(184,155,115))
+                    k=3 if pick<(.32 if old else .20) else 4 if pick>.91 else randomizer.randrange(3)
+                    gain=randomizer.uniform(.78,1.17);c=tuple(round(v*gain) for v in palette[k])
+                    draw.polygon(poly,fill=c);dh.polygon(poly,fill=randomizer.randint(85,205))
+                    if i%2==0:draw.line((poly[0],poly[1]),fill=tuple(min(255,int(c1*1.16)) for c1 in c),width=max(1,round(w/1500)))
                 color=np.asarray(rgb,dtype=np.float32)/255;raw=np.asarray(hm,dtype=np.float32)/255
                 height=.15+.70*raw;rough=.90+.05*mid
             else:
-                color[:]=.83;g=np.clip((fine-.3)*1.6,0,1);color*=.65+.35*g[:,:,None]
-                black=fine<.20;color[black]=(.10,.105,.10);rough=.86+.06*mid;height=.5+.040*(fine-.5)
-                if key=='WornEPDM':rough-=.14;color*=.88;height=.5+.025*(fine-.5)
+                # EPDM grains are 1–4 mm, resolved in the shipped 2m cell.
+                grain=noise(w,h,780,index+291);color[:]=.80
+                color*=.53+.47*np.clip((grain-.23)*1.9,0,1)[:,:,None]
+                black=grain<.34;color[black]=(.12,.13,.12)
+                pale=grain>.73;color[pale]=(.94,.93,.89)
+                rough=.87+.06*mid;height=.5+.18*(grain-.5)
+                if key=='WornEPDM':rough-=.10;color=np.minimum(.98,color*1.18);height=.5+.11*(grain-.5)
         if name=='PlayMetal' and key not in ('Chain','Fastener'):height=.5+(height-.5)*.1
         arr=np.uint8(np.clip(np.dstack((color,alpha)),0,1)*255+.5);patch=Image.fromarray(arr)
         if key=='Label':

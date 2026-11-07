@@ -49,7 +49,7 @@ def main():
         path=Path('export')/(name+'.gltf');meshes,n,bb=imported(path);cap=3916 if name.startswith('Slide') else 1954
         assert n<=cap,(name,n,cap);assert n==source['triangles'],(name,n,source['triangles']);assert np.max(abs(np.array(bb)-source['bounds_m']))<3e-5,(name,bb,source['bounds_m'])
         row=dict(triangles=n,bounds_m=bb,**raw(path));result['pieces'][name]=row
-        if name in ('Stairs48','Transfer24'):
+        if name=='Stairs48':
             tree=motion_surface(next(o for o in meshes if o.type=='MESH'))['tree'];rays=[]
             points=[(0,-1.95+i*1.95/8-.04,(i+.5)*1.2192/8) for i in range(8)] if name=='Stairs48' else [(0,-1.24,.20),(0,-.64,.50)]
             for origin in points:
@@ -57,6 +57,16 @@ def main():
                 assert hit is not None,(name,'open riser',origin)
                 rays.append(dict(origin_m=list(origin),first_surface_distance_m=distance,normal=list(normal)))
             row['actual_closed_riser_rays']=rays
+        if name=='Transfer24':
+            tree=motion_surface(next(o for o in meshes if o.type=='MESH'))['tree'];levels=[];openings=[]
+            for y,expected in ((-.90,.3048),(-.30,.6096)):
+                hit,normal,index,distance=tree.ray_cast(Vector((0,y,1)),Vector((0,0,-1)),1)
+                assert hit is not None and abs(hit.z-expected)<1e-5,('Step deck height',y,hit)
+                levels.append(float(hit.z))
+                hit,normal,index,distance=tree.ray_cast(Vector((0,y-.34,.12)),Vector((0,1,0)),.68)
+                assert hit is None,('Filled step-deck underside',y,hit)
+                openings.append(dict(origin_m=[0,y-.34,.12],direction=[0,1,0],clear_length_m=.68))
+            row['measured_step_deck_levels_m']=levels;row['open_underside_rays']=openings
         if name=='Post2339':
             coords=[o.matrix_world@v.co for o in meshes for v in o.data.vertices];ring=[p for p in coords if abs(p.z)<1e-5];r=sorted(set(round(math.hypot(p.x,p.y),7) for p in ring));row['measured_post_od_m']=2*max(r);row['measured_wall_m']=max(r)-min(r);assert abs(2*max(r)-.127)<1e-5
         if name=='Deck':

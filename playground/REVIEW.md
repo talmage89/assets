@@ -526,3 +526,48 @@ No additional tool, permission or lead action is needed. Useful later kit work
 would be explicit fixed-roll constraints in the photo solver and an upward
 normal convention for disconnected open surfacing sheets. Neither requires a
 kit change in this checkpoint.
+
+## Delivery continuation — pass 9, reject shaded surfacing evidence
+
+**Color and value first.** Opened the preserved three heroes, hollow and matched
+sheet at native size, then the first exported transfer, hollow, slide-exit,
+rubber and deck/stair photo comparisons. The old fiber has median linear Y
+.232; the regenerated, baked fiber is .087 (manufacture-chart values, not
+photographic reflectance recovery). Its brown substrate, gray weathered wood
+and pale fresh chips read separately in the sunlit transfer/slide views. The
+swing close-up is too blue and dark to judge against Adair's brown EWF: the
+low sun was selected for the composite instead of this remote swing bay.
+Reject that close-up as color proof. The reference neutrals remain Roswell's
+concrete path, Adair's small white cap and the stair's galvanized cheek; their
+recorded gains are in `build/cameras.json`. Open-shade source illumination must
+also be neutralized after balancing the reference, instead of accepting a
+blue sky cast as the fiber's hue.
+
+The step-up assembly now has thin punched/hemmed trays at measured .3048 and
+.6096m, six support posts and child grips/barriers; its underside is visibly
+open. Exported vertical/underdeck rays prove those levels/openings, separately
+from serialization. The mat openings and displaced rims are real surfaces:
+raw-export sampling measured 114–128mm relief. Their nearly smooth black oval
+edges still read artificial; add a few surviving shreds across those edges.
+The slide is visibly less saturated and its bed is dull, but the long scars
+are too even. Post-base oxide remains weaker than its age warrants, so raise
+its causal low-height mask without adding triangles. Newer colors retain their
+pigment and do not receive the old base-rust layer.
+
+Rubber grain is visible at native size; this tight exit camera fails to show
+both the patch boundary and the pour joint. Add a wider view and render the
+same camera on the preserved export. The former swing comparison's blue
+foreground is lawn/walk beyond the fiber enclosure, rather than a rubber
+installation. Tighten the photographic comparison to the frame footings and
+immediate EWF, retaining all nine measured landmarks, full-photo 69–71mm lens
+constraint and the original 2005 EWF site. Its residual remains about 20.5
+native pixels, not a surveyed replica. The source's palette stays forest green
+against the photograph's blue: this comparison tests construction/surfacing,
+not a claim of matching paint color.
+
+The first fresh-import construction audit and raw UV/map audit pass. Current
+whole sites are 112,385 / 117,165 / 108,290 triangles and 24MiB of new shared
+maps; these are provisional until the surviving-shred refinement is rebuilt.
+No docs or gallery is accepted at this pass. Remaining CG tells include flat
+fiber relief away from the hollows, regular bed scratches, simple mat edges,
+repeated foliage cards, and an overly cool shadow fill in the comparison views.
