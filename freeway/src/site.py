@@ -35,6 +35,23 @@ def along(src,name,p,s,u,zoff=0,yaw=0,parent=None):
     point=p.xyz(s,u,zoff);a=math.degrees(math.atan2(p.frame(s)[1][0],p.frame(s)[1][1]))
     return clone(src,name,point,-a+yaw,parent)
 
+def planted_truss(name,p,s,yaw=0):
+    """Keep the truss level; found each unequal leg on actual graded earth."""
+    from mathutils import Matrix
+    from mathutils.bvhtree import BVHTree
+    import pieces
+    bpy.context.view_layer.update()
+    earth=next(o for o in bpy.context.scene.objects if o.type=='MESH' and o.name.startswith('Cut slopes and drainage'))
+    tree=BVHTree.FromObject(earth,bpy.context.evaluated_depsgraph_get())
+    point=Vector(p.xyz(s,0));angle=-(s/p.radius if p.radius else 0)+math.radians(yaw)
+    rotation=Matrix.Rotation(angle,4,'Z');feet=[]
+    for x in (-17.,17.):
+        q=point+rotation@Vector((x,0,0));hit=tree.ray_cast(Vector((q.x,q.y,100)),Vector((0,0,-1)),200)[0]
+        assert hit is not None
+        feet.append(hit.z-point.z-.30)
+    rt=pieces.truss(name,foot_bases=feet,foot_depth=.56);rt.location=point;rt.rotation_euler.z=angle
+    return rt
+
 def rail_run(lib,name,points):
     """Continuous 12 ft 6 in post-pitch panels with lap joints and vertical posts.
 

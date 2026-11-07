@@ -8,7 +8,7 @@ from PIL import Image,ImageDraw,ImageFont
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
 from kit.fonts import find_font
 FONT=find_font('DejaVu Sans','Condensed Bold')
-PANELS=['advance','exit','through','gore_exit','speed','mile','chevron','wrong','mile_south','exitSmall']
+PANELS=['through_south','exit','through','gore_exit','speed','mile','chevron','wrong','mile_south','exitSmall']
 
 def generate():
     size=2048;im=Image.new('RGB',(size,size),(8,77,46));d=ImageDraw.Draw(im)
@@ -20,10 +20,11 @@ def generate():
             text(x+512,y+72,'EXIT 14' if name!='hollow' else 'EXIT 28',56)
             text(x+512,y+173,'Juniper Avenue' if name!='hollow' else 'Cedar Hollow',81)
             text(x+512,y+285,'1 MILE' if name=='advance' else 'EXIT  '+chr(8599),65)
-        elif name=='through':
+        elif name in ('through','through_south'):
             d.rounded_rectangle((x+72,y+55,x+252,y+255),18,fill=(232,236,222))
             text(x+162,y+90,'LARK',25,(16,22,20));text(x+162,y+178,'47',107,(16,22,20))
-            text(x+618,y+117,'NORTH',58);text(x+610,y+231,'Alder Junction',68)
+            text(x+618,y+117,'SOUTH' if name=='through_south' else 'NORTH',58)
+            text(x+610,y+231,'Cedar Hollow' if name=='through_south' else 'Alder Junction',68)
             # 2009 through lane arrow: down-pointing block arrow, original points.
             for ax in (244,779):d.polygon([(x+ax-20,y+291),(x+ax+20,y+291),(x+ax+20,y+328),(x+ax+55,y+328),(x+ax,y+377),(x+ax-55,y+328),(x+ax-20,y+328)],fill=(232,236,222))
         elif name=='speed':

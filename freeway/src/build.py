@@ -80,12 +80,13 @@ def scene(p,lib):
                     b.box((side*14.2,-side*224,-.12),(1.2,6.,.10),'Bridge')
                     b.finish();roots.append(rt)
         for side in (-1,1):
-            guide=site.clone(lib['SignTruss'],'GuideTruss_'+str(side),(0,-side*360,0),0 if side>0 else 180)
+            guide=site.planted_truss('GuideTruss_'+str(side),p,-side*360,0 if side>0 else 180)
             # Both panels face the same-direction carriageway. The advance
             # structure stands upstream of the gore, within the added lane.
             for panel in guide.children:
                 if panel.get('replaceable_panel'):
                     panel.location.x=6.1 if panel.get('legend')=='through' else 14.0 if panel.get('legend')=='exitSmall' else 12.5
+                    if side<0 and panel.get('legend')=='through':pieces.change_legend(panel,'through_south')
             roots.append(guide)
         roots.append(site.row_fence(p))
     else:
@@ -101,7 +102,12 @@ def scene(p,lib):
                 point=list(p.xyz(s,side*31));point[2]=0
                 a=math.degrees(math.atan2(p.frame(s)[1][0],p.frame(s)[1][1]))
                 roots.append(site.clone(lib['SoundPanel'],'SoundWall_%s_%03d'%(side,i),point,-a))
-        roots.append(site.clone(lib['SignTruss'],'CedarGuide',p.xyz(75,0),-math.degrees(75/p.radius)))
+        guide=site.planted_truss('CedarGuide',p,75)
+        for panel in list(guide.children):
+            if not panel.get('replaceable_panel'):continue
+            if panel.get('legend')=='through':panel.location.x=(p.lane(1,0)+p.lane(1,1))/2
+            else:site.delete(panel)
+        roots.append(guide)
         roots.append(site.row_fence(p))
     # Davits, drainage inlets, delineators, mile and speed signs.
     furniture=Q.root('RoadFurniture',module_kind='roadside');b=Q.Batch('Drainage and delineators',furniture)

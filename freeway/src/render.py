@@ -31,6 +31,7 @@ def shots(seed):
         'barrier':dict(location=(3.3,-53,1.23),target=(0,-49,.40),lens=50,aspect=1.5),
         'guardrail_end':dict(location=(10,-291,1.25),target=(16.6,-275,.35),lens=48,aspect=1.5),
         'sign_structure':dict(location=(6,-405,2.8),target=(6,-360,7.6),lens=40,aspect=1.5),
+        'south_sign':dict(location=(-6,405,2.8),target=(-6,360,7.6),lens=40,aspect=1.5),
         'pier_girders':dict(location=(8,-15,1.65),target=(0,1.5,5.65),lens=36,aspect=1.5),
         'gore':dict(location=(22,-251,1.65),target=(14.2,-221,.38),lens=45,aspect=1.5),
         'terminal':dict(location=(55,-34,9.0),target=(78,0,9.5),lens=40,aspect=1.5)}

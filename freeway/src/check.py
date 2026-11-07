@@ -54,6 +54,9 @@ def base_checks():
         assert all(math.isfinite(v) for vert in ob.data.vertices for v in vert.co)
         assert max(abs(v-1) for v in ob.scale)<1e-5,(ob.name,ob.scale)
         ob.data.calc_loop_triangles();triangles+=len(ob.data.loop_triangles)
+        if ob.name.startswith(('SUV__','Hatch__')):
+            for f in ob.data.loop_triangles:
+                assert all(ob.data.corner_normals[i].vector.dot(f.normal)>-.01 for i in f.loops),('Opposed context car normals',ob.name)
         if ob.get('context_surface_kind'):
             expected=Vector(ob['context_expected_local_normal'])
             for f in ob.data.loop_triangles:
@@ -170,6 +173,32 @@ def scene(seed):
             gaps.append(float(hit.z-a.z))
         stats['measured_bridge_clearance_m']=dict(min=min(gaps),max=max(gaps),samples=len(gaps))
         assert min(gaps)>5.18
+        earth=[o for o in bpy.context.scene.objects if o.type=='MESH' and o.name.startswith('Cut slopes and drainage')]
+        paving=[o for o in bpy.context.scene.objects if o.type=='MESH' and o.name.startswith('Five lane arterial and approaches')]
+        soil=bvh(earth)
+        if not any(o for o in paving):raise AssertionError('Missing arterial pavement section')
+        base=bvh(paving)
+        support=[]
+        for x in (-36.,-31.,31.,36.):
+            for y in (-5.,5.):
+                top=ray(soil,x,y,7.1)
+                hit=base.ray_cast(Vector((x,y,7.0)),Vector((0,0,1)),1)[0]
+                assert hit is not None
+                support.append(float(hit.z-top.z))
+        assert max(abs(v) for v in support)<.00002,('Unsupported arterial approach',support)
+        stats['approach_base_to_soil_gap_m']=dict(min=min(support),max=max(support),samples=len(support))
+    soil=bvh([o for o in bpy.context.scene.objects if o.type=='MESH' and o.name.startswith('Cut slopes and drainage')])
+    burial=[]
+    for truss in [o for o in bpy.context.scene.objects if o.get('module_kind')=='sign_structure']:
+        concrete=bvh(truss.children_recursive,{'Freeway_Form_Bridge'})
+        for x in (-17.,17.):
+            point=truss.matrix_world@Vector((x,0,0));surface=ray(soil,point.x,point.y)
+            hit=concrete.ray_cast(surface-Vector((0,0,1)),Vector((0,0,1)),2)[0]
+            assert hit is not None,('Missing sign foundation',truss.name,x)
+            burial.append(float(surface.z-hit.z))
+    assert len(burial)==(4 if seed==101 else 2)
+    assert max(abs(v-.30) for v in burial)<.00002,('Floating sign foundations',burial)
+    stats['sign_foundation_embedment_m']=dict(min=min(burial),max=max(burial),samples=len(burial))
     paths=[]
     for ob in bpy.context.scene.objects:
         if ob.get('socket_kind')!='drive_path':continue

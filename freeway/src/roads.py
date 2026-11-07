@@ -126,7 +126,9 @@ def terrain(p):
                     q=min(rows,key=lambda v:abs(v[1]-s));u=abs(q[0]);h=q[2]
                     inside=max(edge+3.05,u-4.4);outside=max(inside+.05,u+4.9)
                     crest=max(outside+max(1.,4*(ground-h+.10)),edge+max(12.,abs(ground-base)*4))
-                    return inner+[(side*inside,h-.10),(side*outside,h-.10),(side*crest,ground),(side*220,ground),(side*2400,ground)]
+                    extra=min(24.,inside-.025)
+                    hz=inner[-1][1]+(h-.10-inner[-1][1])*(extra-(edge+3))/(inside-(edge+3))
+                    return inner+[(side*extra,hz),(side*inside,h-.10),(side*outside,h-.10),(side*crest,ground),(side*220,ground),(side*2400,ground)]
                 crest=edge+max(12.,abs(ground-base)*4)
                 # Identical semantic breaks at every station: ditch, inner
                 # branch edge, outer edge, slope crest, near field, horizon.
@@ -134,15 +136,22 @@ def terrain(p):
                 # at the throat, folding large field triangles into blades.
                 far=2400 if p.kind=='diamond' else 220
                 near=220 if p.kind=='diamond' else 160
+                if p.kind=='diamond':
+                    def height(u):return base-.36+(ground-base+.36)*(u-edge-3)/(crest-edge-3)
+                    return inner+[(side*u,height(u)) for u in (24.,24.05,24.10)]+[(side*crest,ground),(side*near,ground),(side*far,ground)]
                 return inner+[(side*(edge+3.05),base-.36),(side*(edge+3.10),base-.36),(side*crest,ground),(side*near,ground),(side*far,ground)]
             aa,cc=section(a),section(c)
-            for j in range(7):
+            for j in range(len(aa)-1):
                 # Leave a real corridor for the branch paving. The narrow
                 # earth shoulder is closed below the ramp, not across its top.
-                if p.kind=='diamond' and 16<=abs((a+c)/2)<=280 and j==3:continue
+                if p.kind=='diamond' and 16<=abs((a+c)/2)<=280 and j==4:continue
                 u0,z0=aa[j];u1,z1=aa[j+1];v0,h0=cc[j];v1,h1=cc[j+1]
                 def pos(s,u,z):
-                    v=list(p.xyz(s,u));v[2]=z;return v
+                    v=list(p.xyz(s,u))
+                    if p.kind=='diamond' and abs(u)>=24:
+                        verge=10.668+11.832*max(0,min(1,(abs(u)-30)/20))
+                        z=max(z,7.03-max(0,abs(s)-verge)/4)
+                    v[2]=z;return v
                 ma='Drain' if j==1 else 'Lawn'
                 b.surface([pos(a,u0,z0),pos(a,u1,z1),pos(c,v1,h1),pos(c,v0,h0)],ma,tint=(.83,.87,.76,1))
     # End extensions use the same grade and width. They create real horizon
@@ -165,6 +174,12 @@ def arterial(p):
     # Bridge owns -30..30. The approaches are full skins; terminal branch
     # paving reaches the edge rather than ending behind an arbitrary curb.
     for xa,xb in [(-420,-30),(30,420)]:
+        # Compacted base/asphalt section meets the raised approach fill.
+        # Its upper crown is the following paving skin, not a second overlay.
+        b.face([(xa,-8.382,7.03),(xa,8.382,7.03),(xb,8.382,7.03),(xb,-8.382,7.03)],'Asphalt')
+        for y in (-8.382,8.382):
+            points=[(xa,y,7.03),(xb,y,7.03),(xb,y,7.18236),(xa,y,7.18236)]
+            b.face(list(reversed(points)) if y>0 else points,'Asphalt')
         for ya,yb in [(-10.668,-8.382),(-8.382,0),(0,8.382),(8.382,10.668)]:
             z0=BRIDGE_Z-.02*min(abs(ya),8.382);z1=BRIDGE_Z-.02*min(abs(yb),8.382)
             walk=abs(ya+yb)>=16.7;segments=[(xa,xb)]

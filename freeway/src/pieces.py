@@ -79,15 +79,29 @@ def sign_face(name,w,h,legend,rt,p):
     for zz in (-h*.32,h*.32):b.box((0,.06,zz),(w-.12,.11,.06),'Steel')
     b.finish();Q.socket(r,'Replace',(0,0,0),'sign_face');return r
 
-def truss(name='SignTruss',span=34.,cantilever=False,legend='exit'):
+def change_legend(panel,legend):
+    old=rect(panel['legend']);new=rect(legend)
+    for ob in panel.children_recursive:
+        if ob.type!='MESH':continue
+        ob.data=ob.data.copy();uv=ob.data.uv_layers.active
+        for face in ob.data.polygons:
+            if ob.data.materials[face.material_index]!=Q.M['Signs']:continue
+            for i in face.loop_indices:
+                u,v=uv.data[i].uv
+                uv.data[i].uv=(new[0]+(u-old[0])/(old[2]-old[0])*(new[2]-new[0]),new[1]+(v-old[1])/(old[3]-old[1])*(new[3]-new[1]))
+    panel['legend']=legend
+
+def truss(name='SignTruss',span=34.,cantilever=False,legend='exit',foot_bases=None,foot_depth=.26):
     rt=Q.root(name,module_kind='sign_structure');b=Q.Batch(name+'__Frame',rt)
     low=6.35;top=7.87
-    for x in ((-span/2,) if cantilever else (-span/2,span/2)):
-        b.box((x,0,.13),(1.35,1.35,.26),'Bridge')
-        b.box((x,0,.30),(.75,.75,.08),'Steel')
-        b.tube([(x,0,.34),(x,0,top+.20)],.23,'Steel',12)
+    xs=(-span/2,) if cantilever else (-span/2,span/2)
+    for x,foot in zip(xs,foot_bases or [0]*len(xs)):
+        b.box((x,0,foot+foot_depth/2),(1.35,1.35,foot_depth),'Bridge')
+        b.box((x,0,foot+foot_depth+.04),(.75,.75,.08),'Steel')
+        b.tube([(x,0,foot+foot_depth+.08),(x,0,top+.20)],.23,'Steel',12)
         for sx in (-.28,.28):
-            for sy in (-.28,.28):b.tube([(x+sx,sy,.34),(x+sx,sy,.48)],.028,'DarkSteel',6)
+            for sy in (-.28,.28):b.tube([(x+sx,sy,foot+foot_depth+.08),(x+sx,sy,foot+foot_depth+.22)],.028,'DarkSteel',6)
+        Q.socket(rt,'Foundation_'+str(x),(x,0,foot),'foundation_base')
     for y in (-.72,.72):
         for z in (low,top):b.tube([(-span/2,y,z),(span/2,y,z)],.085,'Steel',8)
     n=round(span/2.2)

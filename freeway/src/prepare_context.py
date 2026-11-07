@@ -46,8 +46,6 @@ def native(name,path,target):
         # keep their topology at this modest distance-preview reduction.
         alpha=any(m and (m.surface_render_method=='DITHERED') and any(n.type=='TEX_IMAGE' and n.image and n.image.channels==4 for n in m.node_tree.nodes) for m in ob.data.materials if m.use_nodes)
         if target and total>target and not (name.startswith('Tree') and alpha):
-            reference=bpy.data.objects.new('Freeway local normal reference',ob.data.copy());bpy.context.collection.objects.link(reference)
-            reference.matrix_world=ob.matrix_world.copy()
             # Delivered weather/atlas boundaries duplicate vertices. Collapse
             # on that triangle soup deletes isolated roof patches. Weld the
             # coincident geometry first; loop UV seams remain independent.
@@ -57,13 +55,18 @@ def native(name,path,target):
             bm.normal_update();bm.to_mesh(ob.data);bm.free()
             mod=ob.modifiers.new('Freeway context simplification','DECIMATE');mod.ratio=target/total
             G.apply(ob)
-            # Keep the original library's compound surface shading rather than
-            # displaying the collapse triangles as wrinkled body panels.
+            # Nearest-surface normal transfer can pick the opposite side of a
+            # thin car panel. Recompute a coherent field on the local LOD.
             for f in ob.data.polygons:f.use_smooth=True
-            mod=ob.modifiers.new('Preserve native surface normals','DATA_TRANSFER');mod.object=reference
-            mod.use_loop_data=True;mod.data_types_loops={'CUSTOM_NORMAL'};mod.loop_mapping='POLYINTERP_NEAREST'
-            G.apply(ob);old=reference.data;bpy.data.objects.remove(reference,do_unlink=True)
-            if old.users==0:bpy.data.meshes.remove(old)
+            ob.data.normals_split_custom_set([(0,0,0)]*len(ob.data.loops))
+            ob.data.set_sharp_from_angle(angle=math.radians(42))
+            mod=ob.modifiers.new('Coherent local surface normals','WEIGHTED_NORMAL');mod.keep_sharp=True
+            G.apply(ob)
+            normals=[n.vector.copy() for n in ob.data.corner_normals]
+            for face in ob.data.polygons:
+                for index in face.loop_indices:
+                    if normals[index].dot(face.normal)<.5:normals[index]=face.normal.copy()
+            ob.data.normals_split_custom_set(normals)
     # The family sources contain some zero-area bevel caps at pole hardware;
     # omit those in this local derivative, preserving every valid surface.
     import bmesh
@@ -76,6 +79,14 @@ def native(name,path,target):
     if envelope:
         metadata=json.loads((ROOT/Path(path).with_suffix('.json')).read_text())
         parts.extend(house_context.skins(rt,metadata,*envelope))
+    if name in ('Hatch','SUV'):
+        # The native normal bake targets the full mesh's tangent field. A
+        # distant context LOD keeps BaseColor/ORM, using its coherent geometric
+        # normals until a dedicated LOD normal bake is authorized.
+        for material in {m for ob in parts for m in ob.data.materials if m and m.use_nodes}:
+            for node in material.node_tree.nodes:
+                if node.type=='BSDF_PRINCIPLED':
+                    for link in list(node.inputs['Normal'].links):material.node_tree.links.remove(link)
     export(Path('build/context')/(name+'.glb'),[rt,*parts])
     return dict(source=path,source_triangles=total,context_triangles=sum(sum(len(p.vertices)-2 for p in ob.data.polygons) for ob in parts),target=target,scope='Local derivative for distant checkpoint context; original untouched')
 
