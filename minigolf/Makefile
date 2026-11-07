@@ -10,11 +10,13 @@ export ASSETS_GPU_LOCK ?= $(REPO)/build/locks/gpu.lock
 WIDTH ?= 1440
 SAMPLES ?= 32
 MAPS := $(foreach c,BaseColor Normal ORM,textures/ship/T_Minigolf_$(c).png)
-SOURCES := $(wildcard src/*.py)
+FENCE_MAPS := $(foreach c,BaseColor Normal ORM,../fences/textures/ship/T_WoodPrivacy_$(c).png)
+CONTEXT_DEPS := ../cars/export/AlderC150.glb ../cars/export/AlderS240.glb ../trees/export/RedMaple.glb ../trees/export/PinOak.glb ../shrubs/export/Shrubs.glb ../street-light/export/StreetLight.glb
+SOURCES := $(addprefix src/,build.py plan.py plan_check.py geometry.py holes.py fixtures.py site.py look.py textures.py preserve.py tangents.py landscape.py paths.py)
 DELIVERIES := $(foreach s,71 92,export/Minigolf-$(s).gltf export/Minigolf-$(s).bin export/Minigolf-$(s).glb export/Minigolf-$(s).json)
-.PHONY: baseline all refs textures model export render check repeat match before-after context review clean FORCE
+.PHONY: source-match check-renders baseline all refs textures model export render check repeat match before-after context review clean FORCE
 .NOTPARALLEL:
-all: refs model check render match before-after review
+all: refs model check render match source-match before-after review
 refs:
 	$(PYTHON) $(KIT)/fetch_refs.py refs
 build/procedural/fields.json: src/textures.py
@@ -27,27 +29,48 @@ $(MAPS) &: textures/bake/T_Minigolf_BaseColor.png textures/bake/T_Minigolf_Norma
 textures: $(MAPS)
 ../ground/export/Ground.glb:
 	$(MAKE) -C ../ground export
-context: ../ground/export/Ground.glb
+# Existing library deliveries have no source prerequisites here: keep them
+# byte-identical. Only an absent dependency invokes its family's exporter.
+$(FENCE_MAPS) &:
+	$(MAKE) -C ../fences export/WoodPrivacy.glb
+../cars/export/AlderC150.glb:
+	$(MAKE) -C ../cars BODY=pickup export/AlderC150.glb
+../cars/export/AlderS240.glb:
+	$(MAKE) -C ../cars BODY=sedan export/AlderS240.glb
+../trees/export/RedMaple.glb:
+	$(MAKE) -C ../trees SPECIES=maple export/RedMaple.glb
+../trees/export/PinOak.glb:
+	$(MAKE) -C ../trees SPECIES=oak export/PinOak.glb
+../shrubs/export/Shrubs.glb:
+	$(MAKE) -C ../shrubs export/Shrubs.glb
+../street-light/export/StreetLight.glb:
+	$(MAKE) -C ../street-light export/StreetLight.glb
+context: ../ground/export/Ground.glb $(CONTEXT_DEPS)
 	$(PYTHON) src/context_build.py
-$(DELIVERIES) build/course.blend build/manifest.json &: $(SOURCES) $(MAPS) ../ground/export/Ground.glb ../fences/textures/ship/T_WoodPrivacy_BaseColor.png
+$(DELIVERIES) build/course.blend build/manifest.json &: $(SOURCES) $(MAPS) ../ground/export/Ground.glb $(FENCE_MAPS)
 	$(BP) --python src/build.py -- --out build/course.blend
 model export: $(DELIVERIES) build/course.blend
 check: model
 	$(PYTHON) src/preserve.py
-	$(PYTHON) src/plan_check.py
+	$(PYTHON) src/test_tangents.py
+	$(PYTHON) src/test_periodic.py
 	$(PYTHON) src/routing.py
 	$(BP) --python src/check.py
 	$(BP) --python src/check_look.py
 	$(PYTHON) $(KIT)/repo_check.py
 render: model context
-	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --out renders/lookdev --width $(WIDTH) --samples $(SAMPLES)
+	$(PYTHON) src/render_batch.py --blender $(BLENDER) --out renders/lookdev --width $(WIDTH) --samples $(SAMPLES)
 match: model context refs
 	$(PYTHON) src/matches.py prepare
-	$(KIT)/with_gpu.sh $(BP) --python src/matches.py -- render --width $(WIDTH) --samples $(SAMPLES)
+	$(PYTHON) src/matches_batch.py --blender $(BLENDER) --width $(WIDTH) --samples $(SAMPLES)
+source-match: model context
+	$(PYTHON) src/matches_batch.py --blender $(BLENDER) --source-fields --width $(WIDTH) --samples $(SAMPLES)
+check-renders:
+	$(PYTHON) src/look_review.py
 baseline:
 	$(PYTHON) src/baseline.py
 before-after: model context baseline
-	$(KIT)/with_gpu.sh $(BP) --python src/comparison.py -- --width $(WIDTH) --samples $(SAMPLES)
+	$(PYTHON) src/comparison_batch.py --blender $(BLENDER) --width $(WIDTH) --samples $(SAMPLES)
 review:
 	$(PYTHON) src/look_review.py
 repeat: model
