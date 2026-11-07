@@ -20,6 +20,8 @@ def main():
     contact(paths,out/'contact.jpg',width=2000,title='Playground / look-dev checkpoint / exported glTF and shared baked maps',captions=captions)
     pairs=sorted((out/'matches').glob('*-pair.jpg'))
     if pairs:contact(pairs,out/'matched-contact.jpg',width=2000,title='Period photographs / construction comparisons / camera fit residuals retained')
+    source_pairs=sorted(Path('renders/source-matches').glob('*-pair.jpg'))
+    if source_pairs:contact(source_pairs,Path('renders/source-matches/contact.jpg'),width=2000,title='Additional live scripted source / same calibrated photographs and lighting')
     # Technical sections are derived only from the fresh-import check data.
     import os
     os.environ['MPLCONFIGDIR']=str(Path('build/matplotlib').resolve())

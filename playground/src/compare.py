@@ -8,11 +8,13 @@ from kit.fonts import find_font
 from kit.contact import contact
 p=argparse.ArgumentParser();p.add_argument('--before',type=Path,default=Path('renders/before'));p.add_argument('--after',type=Path,default=Path('renders/lookdev'));p.add_argument('--out',type=Path,default=Path('renders/comparisons'));a=p.parse_args();a.out.mkdir(parents=True,exist_ok=True)
 shots=[f'{s}/{name}' for s in (101,202,303) for name in ('hero','above')]+['stairs','transfer','clamp-deck','arch-swing','swing-seat','bucket-seat','swing-hanger','swing-hollow']
+shots += ['matches/'+n for n in ('used-deck-2009','used-swings-2009','used-stair-2005') if (a.before/'matches'/(n+'.png')).exists()]
 report={};paths=[]
 for name in shots:
     old=a.before/(name+'.png');new=a.after/(name+'.png');im0=Image.open(old).convert('RGB');im1=Image.open(new).convert('RGB');j0=json.loads(old.with_suffix('.json').read_text());j1=json.loads(new.with_suffix('.json').read_text())
     assert im0.size==im1.size,(name,im0.size,im1.size)
     difference=float(np.max(np.abs(np.array(j0['camera_location'])-j1['camera_location'])));lens=abs(j0['lens_mm']-j1['lens_mm']);assert difference<1e-6 and lens<1e-6,(name,difference,lens)
+    if 'camera_matrix_world' in j0 and 'camera_matrix_world' in j1:assert np.max(abs(np.array(j0['camera_matrix_world'])-np.array(j1['camera_matrix_world'])))<1e-6,name
     w,h=im0.size;assert w>=800
     out=Image.new('RGB',(w*2,h+60),(237,238,234));out.paste(im0,(0,60));out.paste(im1,(w,60));d=ImageDraw.Draw(out);font=ImageFont.truetype(find_font('Noto Sans'),24)
     d.text((18,14),'Before / '+name,font=font,fill=(24,36,31));d.text((w+18,14),'After / same authored camera',font=font,fill=(24,36,31))

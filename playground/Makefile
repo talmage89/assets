@@ -16,11 +16,11 @@ MAPS := $(foreach s,$(SETS),$(foreach c,BaseColor Normal ORM,textures/ship/T_$(s
 MODELS := build/Playground.blend build/manifest.json $(foreach m,$(MODULES) PlaygroundPieces ComparisonDeck ComparisonSwings $(addprefix Playground-,$(SEED_LIST)),export/$(m).gltf export/$(m).bin)
 VIEWS := $(foreach s,$(SEED_LIST),renders/lookdev/$(s)/hero.png renders/lookdev/$(s)/above.png) $(addprefix renders/lookdev/,clamp-deck.png stairs.png transfer.png slide-entrance.png slide-exit.png swing-hanger.png swing-hollow.png arch-swing.png swing-seat.png bucket-seat.png climber.png tube-junction.png rubber-wear.png scale.png pieces.png)
 .NOTPARALLEL:
-.PHONY: all compare refs textures model check render match review repeat check-repo FORCE
-all: refs textures model check render match review
+.PHONY: all compare before-match refs textures model check render match source-match review repeat check-repo FORCE
+all: refs textures model check render match source-match review
 refs:
 	$(PYTHON) $(KIT)/fetch_refs.py refs
-build/procedural/.stamp: src/textures.py
+build/procedural/.stamp: src/textures.py src/finishes.py
 	@mkdir -p build/procedural $(TMPDIR)
 	$(PYTHON) src/textures.py
 	@touch $@
@@ -30,7 +30,7 @@ textures: $(MAPS)
 build/model-parameters.txt: FORCE
 	@mkdir -p build $(TMPDIR)
 	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='$(SEEDS)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
-$(MODELS) &: $(MAPS) build/model-parameters.txt $(filter-out src/render.py src/review.py src/check.py src/check_lookdev.py src/compare.py src/setting.py src/render_batch.py src/repeat.py src/photo_matches.py,$(wildcard src/*.py))
+$(MODELS) &: $(MAPS) build/model-parameters.txt $(filter-out src/render.py src/review.py src/check.py src/check_lookdev.py src/compare.py src/setting.py src/render_batch.py src/repeat.py src/photo_matches.py src/source_pairs.py,$(wildcard src/*.py))
 	$(BP) --python src/build.py -- --lookdev --seeds $(SEEDS) --out build/Playground.blend
 model: $(MODELS)
 check-repo:
@@ -50,8 +50,16 @@ match: model refs
 	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/cameras.json --renders renders/lookdev/matches --out renders/lookdev/matches
 review:
 	$(PYTHON) src/review.py --out renders/lookdev
+source-match: model refs
+	$(PYTHON) src/photo_matches.py
+	$(BP) --python src/source_pairs.py -- --width $(WIDTH) --samples $(SAMPLES)
+	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/cameras.json --renders renders/source-matches --out renders/source-matches
 repeat: model
 	$(PYTHON) src/repeat.py
 
 compare:
 	$(PYTHON) src/compare.py
+
+before-match:
+	$(BP) --python src/render.py -- --matches --export-root build/before-export --no-setting --out renders/before --width $(WIDTH) --samples $(SAMPLES)
+	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/cameras.json --renders renders/before/matches --out renders/before/matches

@@ -16,6 +16,11 @@ SURFACE={'Fiber':(0,.5,.5,1),'OldFiber':(.5,.5,1,1),'EPDM':(0,0,.5,.5),'WornEPDM
 COVERAGE={'PlayMetal':.8,'PlayPlastic':1.6,'PlaySurface':4.}
 HEIGHT={'PlayMetal':.012,'PlayPlastic':.0008,'PlaySurface':.015}
 
+def worn_rect(year,rail=False):
+    """Colored coating plus neutral exposed steel in the existing Worn cell."""
+    row=(1996,2005,2013).index(year);column=int(rail)
+    return (.25+column*.125,.75+(2-row)/12,.25+(column+1)*.125,.75+(3-row)/12)
+
 def noise(w,h,n,seed):
     a=np.random.default_rng(seed).random((n,n),dtype=np.float32)
     return np.asarray(Image.fromarray(a).resize((w,h),Image.Resampling.BICUBIC),dtype=np.float32)
@@ -32,8 +37,15 @@ def build_set(name,rects,n,out):
                 rough=.34+.10*mid;orange=noise(w,h,280,index+14);height=.5+.018*(orange-.5)
                 if key=='Cast':height+=.018*(mid-.5);rough+=.06
                 if key=='Worn':
-                    edge=np.minimum.reduce([u,v,1-u,1-v]);chip=np.clip((mid-.57)*9,0,1)*np.exp(-edge*35)
-                    color*=1-.45*chip[:,:,None];rough+=.22*chip;metal=.65*chip;height-=.12*chip
+                    from finishes import PALETTES
+                    col=np.minimum(1,(u*2).astype(int));row=np.minimum(2,(v*3).astype(int));uu=u*2-col;vv=v*3-row
+                    paints=[]
+                    for year,age in ((1996,1.),(2005,.55),(2013,.13)):
+                        fade=age*.10
+                        paints.append([.73*(np.array(PALETTES[year][k][:3])*(1-fade)+np.array((.34,.32,.28))*fade) for k in ('steel','rail')])
+                    linear=np.array(paints)[row,col];color=np.where(linear<=.0031308,linear*12.92,1.055*linear**(1/2.4)-.055)
+                    edge=np.minimum.reduce([uu,vv,1-uu,1-vv]);chip=np.clip((mid-.50)*8,0,1)*np.clip((.23-edge)*14,0,1)*np.take(np.array((1.,.55,.13)),row)
+                    color=color*(1-chip[:,:,None])+np.array((.61,.63,.62))*chip[:,:,None];rough+=.12*chip;metal=.92*chip;height-=.12*chip
                 if key=='Weld':height+=.24*np.exp(-((v-.5)/.06)**2)*(.8+.2*np.sin(u*170))
             elif key=='Zinc':
                 color[:]=(.63,.66,.67);color*=.93+.12*mid[:,:,None];metal[:]=.95;rough=.29+.10*mid;height=.5+.004*(fine-.5)
@@ -74,6 +86,12 @@ def build_set(name,rects,n,out):
                 lane=np.exp(-((u-.5)/.31)**4);streak=np.clip((np.sin(u*1600+mid*.9)-.87)*7,0,1)*lane
                 streak*=np.clip(np.sin(v*9+u*40)+.5,0,1)
                 color*=1-.13*streak[:,:,None];rough=.47-.16*lane+.17*streak;height-=.09*streak
+                scars=np.zeros((h,w),np.float32);scar_rng=random.Random(index+908)
+                for j in range(19 if key=='OldSlide' else 11):
+                    x=scar_rng.uniform(.22,.78);width=scar_rng.uniform(.0018,.0045);begin=scar_rng.uniform(.06,.65);end=min(.97,begin+scar_rng.uniform(.15,.60));phase=scar_rng.random()*math.tau
+                    trace=np.exp(-((u-x-.001* np.sin(v*29+phase))/width)**2)*np.clip((v-begin)*50,0,1)*np.clip((end-v)*50,0,1)
+                    scars=np.maximum(scars,trace)
+                color=np.minimum(.99,color*(1+.22*scars[:,:,None]));rough+=.29*scars;height-=.15*scars
                 if key=='OldSlide':rough+=.20; color*=.96+.04*mid[:,:,None]
                 if key in ('Slide','OldSlide'):height+=.16*(np.exp(-((u-.065)/.004)**2)+np.exp(-((u-.935)/.004)**2))
                 if key=='Seat':rough+=.12

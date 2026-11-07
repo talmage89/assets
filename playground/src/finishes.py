@@ -18,6 +18,7 @@ def placed(ob,plan):
     palette=PALETTES[plan['year']]
     # Parent-local positions are retained until the installed hierarchy updates.
     from uv_finish import CELLS,METAL,PLASTIC,rect_uv
+    from textures import worn_rect
     charts=ob.data.attributes.get('ChartKind');uv=ob.data.uv_layers.active
     module=str(ob.parent.get('module','')) if ob.parent else ''
     repainted=module.startswith('Post') and age>.75 and (plan['seed']+round(ob.parent.location.x*100)+round(ob.parent.location.y*100))%5==0
@@ -30,7 +31,6 @@ def placed(ob,plan):
         q=mat@face.center
         if F.LOOK and age>.35:
             if chart=='Cast':target='Worn'
-            if chart=='Coat' and module.startswith('Post') and q.z<.12:target='Worn'
             if chart=='Coat' and key=='rail' and q.z>.60 and face.normal.z>.25:target='Worn'
             if chart=='Deck' and module in ('Deck','Deck72') and face.normal.z>.9:
                 root=ob.parent;world=root.matrix_basis@q
@@ -45,8 +45,14 @@ def placed(ob,plan):
             if chart=='Clean' and age>.75:target='Chalk'
         if target and target!=chart:
             old=METAL.get(chart,PLASTIC.get(chart));new=METAL.get(target,PLASTIC.get(target))
+            if target=='Worn':new=worn_rect(plan['year'],key=='rail')
             for li in face.loop_indices:
-                u,v=uv.data[li].uv;u=(u-old[0])/(old[2]-old[0]);v=(v-old[1])/(old[3]-old[1]);rect_uv(uv.data[li],new,u,v)
+                u,v=uv.data[li].uv;u=(u-old[0])/(old[2]-old[0]);v=(v-old[1])/(old[3]-old[1])
+                if target=='Worn':
+                    variation=plan['seed']+round(ob.parent.location.x*83+ob.parent.location.y*41)
+                    if variation%2:u=1-u
+                    if variation%3:v=1-v
+                rect_uv(uv.data[li],new,u,v)
             charts.data[face.index].value=CELLS.index(target)
         for li in face.loop_indices:
             p=mat@ob.data.vertices[ob.data.loops[li].vertex_index].co
@@ -62,6 +68,7 @@ def placed(ob,plan):
                 rust=age*math.exp(-max(0,p.z)*14)*streak*(.25 if repainted else 1)
                 c=c*(1-rust)+np.array((.19,.062,.017))*rust
             if key=='zinc':c=np.ones(3)
+            if target=='Worn':c=np.ones(3)
             if target=='WornDeck':c=np.ones(3)*(.82 if age>.75 else .55)
             variation=1+.025*math.sin(p.x*13+p.y*9+plan['seed'])
             tint.data[li].color=(*np.clip(c*variation,0,1),1)

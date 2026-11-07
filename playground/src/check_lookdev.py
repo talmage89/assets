@@ -75,7 +75,7 @@ def main():
         for z in s['zones']:
             a,b,c,d=z['rect']
             for p in ((a,b),(c,b),(c,d),(a,d)):assert inside(p,poly),(s['seed'],'zone beyond containment',z['group'],p);corners.append(p)
-        p=Path('export')/f'Playground-{s["seed"]}.gltf';d=json.loads(p.read_text());imgs=[]
+        p=Path('export')/f'Playground-{s["seed"]}.gltf';d=json.loads(p.read_text());imgs=[];allocations={}
         floor=terrain(d,p,'Playground_Site');concrete=terrain(d,p,'Concrete');measured_corners=[]
         for point in corners:
             values=heights(floor,point);assert len(values),(s['seed'],'no actual protective surface',point);measured_corners.append(float(values.min()))
@@ -84,9 +84,11 @@ def main():
             point=(x,y0+.299);a=heights(floor,point);b=heights(concrete,point);assert len(a) and len(b),(s['seed'],'entry surface absent',point)
             difference=float(min(abs(v-w) for v in a for w in b));assert difference<.012,(s['seed'],'entry lip',difference);entry.append(difference)
         for im in d.get('images',[]):
-            ip=(p.parent/im['uri']).resolve();assert ip.exists();assert 'data:' not in im['uri'];imgs.append(dict(uri=im['uri'],sha256=hashlib.sha256(ip.read_bytes()).hexdigest()))
+            ip=(p.parent/im['uri']).resolve();assert ip.exists();assert 'data:' not in im['uri'];size=Image.open(ip).size;allocations[ip]=size[0]*size[1]*4/3/1024**2
+            imgs.append(dict(uri=im['uri'],sha256=hashlib.sha256(ip.read_bytes()).hexdigest(),size=list(size)))
         report['sites'][str(s['seed'])]=dict(triangles=s['total_triangles'],materials=s['materials'],files_bytes=p.stat().st_size+p.with_suffix('.bin').stat().st_size,zone_corners_inside=len(corners),actual_floor_samples_m=measured_corners,entry_floor_max_difference_m=max(entry),containment_area_m2=s['protected_surface_area_m2'],images=imgs)
         assert s['total_triangles']<120000
+        costs=report['sites'][str(s['seed'])];costs['family_MiB']=sum(v for k,v in allocations.items() if k.name.startswith('T_Play'));costs['reused_library_MiB']=sum(v for k,v in allocations.items() if not k.name.startswith('T_Play'));costs['total_if_uncached_MiB']=sum(allocations.values());costs['texture_memory_scope']='Estimated 8bpp block compression with full mips, unique external images in this exported site; presentation imports are separate.'
     protected=ROOT/'build/playground-protected.json'
     if protected.exists():
         data=json.loads(protected.read_text());bad=[k for k,v in data.items() if not (ROOT/k).exists() or hashlib.sha256((ROOT/k).read_bytes()).hexdigest()!=v];assert not bad,bad;report['protected_delivery_files']=len(data)
