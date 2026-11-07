@@ -85,6 +85,11 @@ def fixtures(p,front):
         if s>0 and p['kind']=='pad':
             for ya,yb in ((0,1.885),(3.715,dep)):b.box((s*(w/2-.29),(ya+yb)/2,grade+ceiling/2),(.035,yb-ya,ceiling),'cream')
             for za,zb in ((grade,.9652),(2.0652,grade+ceiling)):b.box((s*(w/2-.29),2.8,(za+zb)/2),(.035,1.83,zb-za),'cream')
+        elif s<0 and p['kind']=='downtown':
+            # Short lining recess at the host's separate stair entry clears
+            # the accepted 100-degree leaf, without moving cafe tables.
+            b.box((-w/2+.20,.65,grade+ceiling/2),(.035,1.30,ceiling),'cream')
+            b.box((-w/2+.29,(1.3+dep)/2,grade+ceiling/2),(.035,dep-1.30,ceiling),'cream')
         else:b.box((s*(w/2-.29),dep/2,grade+ceiling/2),(.035,dep,ceiling),'cream')
     # Tables and the soft seating corner occupy different sides in each room.
     seats=([(-2.12,2.5),(-2.12,4.6)] if p['kind']=='downtown' else [(2.2,2.0),(4.25,4.2),(1.7,5.7)] if p['kind']=='strip' else [(-3.15,2.4),(-2.8,5.2)])
@@ -100,7 +105,7 @@ def fixtures(p,front):
     b.box((softx,dep-.05,grade+1.81),(1.42,.055,.94),'wood');b.panel(softx,dep-.081,grade+1.81,1.33,.85,'community')
     artx=-w*.32 if p['kind']=='strip' else w*.34;b.box((artx,dep-.05,grade+1.9),(.80,.06,1.06),'wood');b.panel(artx,dep-.082,grade+1.9,.71,.97,'art')
     # Condiment bar with return, urns, lids, napkins and small waste aperture.
-    cx=-w/2+.84 if p['kind']!='strip' else w/2-.84;cy=1.12
+    cx=-w/2+.84 if p['kind']!='strip' else w/2-.84;cy=1.54 if p['kind']=='downtown' else 1.12
     b.box((cx,cy,grade+.46),(1.05,.45,.92),'wood');b.rounded((cx,cy,grade+.94),(1.13,.53,.04),.009,'cream')
     for dx in (-.30,0):
         b.lathe([(grade+.96,.045),(grade+1.15,.045),(grade+1.20,.024),(grade+1.22,.024)],'steel',12,center=(cx+dx,cy))
@@ -206,10 +211,14 @@ def exterior(p,front):
     for door in [o for o in front.children_recursive if o.get('pivot_axis') and ('StoreDoor' in o.name or 'Entry' in o.name)]:
         db=G.Batch(door.name+'__PanicAndCloser',door)
         db.box((.46,.064,1.04),(.63,.040,.045),'steel')
+        db.box((.46,-.026,1.04),(.085,.008,.27),'steel')
+        if kind!='downtown':db.panel(.46,-.0305,1.04,.067,.22,'scuff')
         db.box((.46,-.026,.19),(.73,.008,.24),'steel')
         if kind!='downtown':db.panel(.46,-.0305,.19,.64,.17,'scuff')
         for x in (.17,.75):db.box((x,.037,1.04),(.055,.08,.08),'black')
-        h=2.48 if kind=='downtown' else 2.03;db.box((.19,.036,h-.10),(.25,.07,.065),'steel');db.beam((.19,.073,h-.075),(.40,.16,h-.04),.014,role='steel');db.beam((.40,.16,h-.04),(.08,.12,h+.005),.014,role='steel');db.finish()
+        bpy.context.view_layer.update();inv=door.matrix_world.inverted()
+        h=max((inv@o.matrix_world@v.co).z for o in door.children_recursive if o.type=='MESH' for v in o.data.vertices)-.05
+        db.box((.30,.036,h-.10),(.25,.07,.065),'steel');db.beam((.30,.073,h-.075),(.50,.10,h-.04),.014,role='steel');db.beam((.50,.10,h-.04),(.19,.08,h+.005),.014,role='steel');db.finish()
     return r
 
 
@@ -227,20 +236,25 @@ def outside(p,front):
     for i,t in enumerate(p['tables']):
         umbrella=next((u for u in p['umbrellas'] if abs(u['x']-t['x'])<.05 and abs(u['y']-t['y'])<.05),None)
         tab=add_piece('AccessibleTable' if t['accessible'] else 'UmbrellaTable' if umbrella else 'BistroTable',t['id'],(t['x'],t['y'],z),r,t['rotation'])
-        G.socket(t['id']+'__Placement',(t['x'],t['y'],z),r,'furniture_placement',clear_radius_m=t['occupied_radius'])
+        place=G.socket(t['id']+'__Placement',(t['x'],t['y'],z),r,'furniture_placement',clear_radius_m=t['occupied_radius']);place.rotation_euler.z=math.radians(t['rotation'])
         # Accessible bay has only one opposing chair; keep the approach open.
-        angles=[0] if t['accessible'] else [0,180]
-        for j,a in enumerate(angles):
-            a+=t['rotation'];rad=math.radians(a);x=t['x']+.58*math.cos(rad);y=t['y']+.58*math.sin(rad)
-            ch=add_piece('BistroChair',f'{t["id"]}_Chair_{j+1}',(x,y,z),r,a-90)
+        for j,pose in enumerate(t['chairs']):
+            a=pose['angle'];rad=math.radians(a);x=t['x']+pose['radius']*math.cos(rad);y=t['y']+pose['radius']*math.sin(rad)
+            ch=add_piece('BistroChair',f'{t["id"]}_Chair_{j+1}',(x,y,z),r,a-90+pose['turn'])
             ch['placeable']=True
-        settings=P.setting(t['id']+'_Setting',t['setting'],t['placement_seed'],tab);settings.location=(0,-.12,.762 if t['accessible'] else .742)
+            if i==1 and j==0:
+                from daily_use import bag
+                bag(r,(x,y+.04,z))
+        settings=P.setting(t['id']+'_Setting',t['setting'],t['placement_seed'],tab);settings.location=(0,-.10 if t['setting']=='laptop' else -.12,tab['setting_height_m'])
+        settings.rotation_euler.z=math.radians(t['setting_turn'])
     for i,u in enumerate(p['umbrellas']):
         # Stock 38.1mm pole passes through a 52mm guide in the new four-leg
         # table. Its original weighted base remains on grade underneath.
         table=next(t for t in p['tables'] if abs(t['x']-u['x'])<.05 and abs(t['y']-u['y'])<.05)
         pos=(table['x'],table['y'],z)
-        add_piece('Umbrella_'+u['state'].title(),'Outdoor_Umbrella_'+str(i+1),pos,r)
+        # Customers face the crank away from the notebook, clearing both its
+        # lid and the distracting hardware/screen merger in the table view.
+        add_piece('Umbrella_'+u['state'].title(),'Outdoor_Umbrella_'+str(i+1),pos,r,180 if table['setting']=='laptop' else 0)
     # A-frame and pots stay in the furnishing zone, outside the through route.
     af=(-1.80,-4.50) if kind=='downtown' else (-4.35,-4.0) if kind=='strip' else (3.7,-3.0)
     add_piece('AFrame','Outdoor_AFrame',(*af,z),r,12 if kind!='pad' else -10)
@@ -250,6 +264,9 @@ def outside(p,front):
     xx=p['width']/2+1.0 if kind!='pad' else 8.65;yy=-4.0 if kind!='pad' else -3.20
     for i,key in enumerate(('Litter','Recycling')):add_piece(key,'Outdoor_'+key,(xx+i*.85,yy,z),r)
     add_piece('BikeRack','Outdoor_BikeRack',(-p['width']/2-1.0,-3.75,z),r,90)
+    from daily_use import bicycle,bowl
+    bike=bicycle(r,-p['width']/2-1.35,-3.75,z);bike.rotation_euler.z=math.radians(90)
+    bowl(r,p['entry'][0]+1.06,-.13,z)
     return r
 
 
@@ -269,7 +286,10 @@ def paving(p,front):
             ring=[(x0,y0,z),(x1,y0,z),(x1,y1,z),(x0,y1,z)]
             b.geom(ring+[(xx,yy,z-.13) for xx,yy,zz in ring],[(k,(k+1)%4,(k+1)%4+4,k+4) for k in range(4)],'cream')
     if kind=='pad':
-        b.box((8.2,4.25,z-.07),(5.8,8.50,.14),'cream')
+        nx,ny=16,24;vs=[(5.30+5.8*i/nx,8.50*j/ny,z) for j in range(ny+1) for i in range(nx+1)]
+        b.geom(vs,[(j*(nx+1)+i,j*(nx+1)+i+1,(j+1)*(nx+1)+i+1,(j+1)*(nx+1)+i) for j in range(ny) for i in range(nx)],'cream')
+        ring=[(5.3,0,z),(11.1,0,z),(11.1,8.5,z),(5.3,8.5,z)]
+        b.geom(ring+[(x,y,z-.14) for x,y,z in ring],[(k,(k+1)%4,(k+1)%4+4,k+4) for k in range(4)],'cream')
     b.box(((xmin+xmax)/2,-dep-.075,z-.0762),(xmax-xmin,.15,.1524),'cream')
     walk=b.finish()
     # Reuse Ground's actual concrete atlas with world-projected UVs.

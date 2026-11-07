@@ -163,6 +163,17 @@ def parking(p,pad=False):
     for i in range(6):
         filename='HearthfieldRanch-11.gltf' if i%2 else 'HearthfieldCape-34.gltf'
         instance(REPO/'houses/export'/filename,'Rear neighborhood house '+str(i),(-44+i*19,back+16,0))
+    if pad:
+        # The oblique east hero looks northwest past the west drive. Close
+        # that sightline with a real side street, walks and facing neighbors.
+        slab('West neighborhood street',(-38,-30,-120,150),0,'Asphalt')
+        slab('West street near walk',(-30,-27.5,-120,150),.1524)
+        slab('West street far walk',(-40.5,-38,-120,150),.1524)
+        for yy in range(-100,130,6):paint((-34,yy,.003),(-34,yy+2.8,.003),.09,True)
+        for i,yy in enumerate(range(-75,140,18)):
+            filename='HearthfieldRanch-11.gltf' if i%2 else 'HearthfieldCape-34.gltf'
+            instance(REPO/'houses/export'/filename,'West street neighbor '+str(i),(-49,yy,0),90)
+            instance(REPO/'trees/export/RedMaple.glb','West street tree '+str(i),(-42,yy+6,0),i*43,.49)
     return dict(type='converted bank pad / walk-up' if pad else 'strip-center end cap',lot_bounds_m=lot,stall_count=len(stalls),minimum_design_aisle_m=6.096,drive_through=False)
 
 def build(seed,kind):
@@ -194,8 +205,19 @@ def build(seed,kind):
     # MikkTSpace can straddle the final four-decimal rounding boundary at
     # three imported car corners. Preserve accepted values only after exact
     # position/normal/UV guards and the kit's one-rounding-step limit.
-    from kit.gltf import stabilize_tangents
-    stabilize_tangents(path,json.loads((HERE/'context_tangents.json').read_text())[str(seed)])
+    from kit.gltf import stabilize_tangents,GLB
+    import numpy as np
+    raw=GLB(path);anchors=[]
+    for old in json.loads((HERE/'context_tangents.json').read_text())[str(seed)]:
+        found=[]
+        for mi,mesh in enumerate(raw.json['meshes']):
+            if old['primitive']>=len(mesh['primitives']):continue
+            pr=mesh['primitives'][old['primitive']];attrs=pr['attributes'];vi=old['vertex']
+            if raw.json['accessors'][attrs['POSITION']]['count']<=vi:continue
+            if all(np.array_equal(raw.accessor(attrs[key])[vi],np.asarray(old[field],dtype=np.float32)) for field,key in (('position','POSITION'),('normal','NORMAL'),('uv','TEXCOORD_0'))):found.append(dict(old,mesh=mi))
+        assert found,('Missing unchanged context tangent signature',seed,old)
+        anchors.extend(found)
+    stabilize_tangents(path,anchors)
     meta=externalize(path,Path(f'export/sites/CoffeeSite-{seed}.gltf'))
     info.update(seed=seed,triangles=tri,shop_triangles=p['triangles'],**meta);info['bundle_sha256']=bundle(f'export/sites/CoffeeSite-{seed}.gltf');path.with_suffix('.json').write_text(json.dumps(info,indent=2)+'\n');print('SITE',seed,tri,flush=True)
 

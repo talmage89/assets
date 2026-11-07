@@ -44,14 +44,14 @@ def flat_mark(batch,x,y,z,w,d,key,angle=0):
 def paving_age(ob,p):
     rng=random.Random(p['seed']+817);sites=[]
     for t in p['tables']:
-        for j in range(3):sites.append((t['x']+rng.uniform(-.52,.52),t['y']+rng.uniform(-.44,.44),rng.uniform(.34,.56),rng.uniform(.28,.46),rng.uniform(.24,.40)))
-    sites.extend((p['entry'][0]+rng.uniform(-.32,.32),-.35-j*.30,.28,.43,.13) for j in range(4))
+        for j in range(4):sites.append((t['x']+rng.uniform(-.52,.52),t['y']+rng.uniform(-.44,.44),rng.uniform(.30,.57),rng.uniform(.22,.43),rng.uniform(.37,.60)))
+    sites.extend((p['entry'][0]+rng.uniform(-.25,.25),-.30-j*.27,.26,.32,.24) for j in range(8))
     attr=ob.data.color_attributes['Tint'];age={'downtown':.9,'strip':1.0,'pad':.85}[p['kind']]
     for face in ob.data.polygons:
         for li in face.loop_indices:
             q=ob.data.vertices[ob.data.loops[li].vertex_index].co
             stain=sum(s*math.exp(-(((q.x-x)/w)**2+((q.y-y)/d)**2)**1.3) for x,y,w,d,s in sites)
-            stain=min(.50,stain*age)*(.85+.15*math.sin(q.x*27+q.y*18)**2)
+            stain=min(.68,stain*age)*(.72+.28*math.sin(q.x*27+q.y*18)**2)
             edge=.09*math.exp(-abs(q.y)/.13) if p['kind']=='downtown' else 0
             shade=1-stain-edge;attr.data[li].color=(shade,shade*(1-.018*stain),shade*(1-.05*stain),1)
 
@@ -93,23 +93,26 @@ def placed(p,front):
     seed=p['seed'];rng=random.Random(seed+295);z=p['grade'];kind=p['kind'];age={'downtown':.30,'strip':.85,'pad':1.0}[kind]
     marks=G.root('PlacedUseHistory',parent=front,part='site_wear');b=G.Batch('Placed coffee rings and customer spills',marks)
     for t in p['tables']:
-        for j in range(2):
-            table_mark(b,front,t,t['x']+rng.uniform(-.24,.24),t['y']+rng.uniform(-.21,.21),.083,.082,'ring',rng.uniform(0,360))
-        table_mark(b,front,t,t['x']-.15,t['y']-.18,.08,.035,'scuff',rng.uniform(-35,35))
+        for j in range(4 if kind!='downtown' else 3):
+            table_mark(b,front,t,t['x']+rng.uniform(-.24,.24),t['y']+rng.uniform(-.21,.21),.092,.091,'ring',rng.uniform(0,360))
+        for j in range(3):table_mark(b,front,t,t['x']+rng.uniform(-.20,.20),t['y']+rng.uniform(-.23,.23),.14,.055,'scuff',rng.uniform(-65,65))
         # Spills are below customers' seats and table rims, not a continuous
         # dirty band around the entire patio or every furniture footprint.
-        flat_mark(b,t['x']+rng.uniform(-.6,.6),t['y']-.42,z+.0012,.20+.22*age,.14+.13*age,'spill',rng.uniform(0,360))
-        for j in range(3 if kind!='downtown' else 1):
+        for j in range(2):flat_mark(b,t['x']+rng.uniform(-.6,.6),t['y']-.42+rng.uniform(-.2,.2),z+.0012,.26+.27*age,.18+.17*age,'spill',rng.uniform(0,360))
+        for j in range(8 if kind!='downtown' else 5):
             x=t['x']+rng.uniform(-.9,.9);y=t['y']+rng.uniform(-.62,.62)
             # Flattened gum has an irregular angular edge, 12–23 mm across.
-            rad=rng.uniform(.006,.012);n=7;vs=[(x+rad*rng.uniform(.6,1.1)*math.cos(k*math.tau/n),y+rad*rng.uniform(.6,1.1)*math.sin(k*math.tau/n),z+.0015) for k in range(n)]
-            b.geom(vs,[tuple(range(n))],'rubber')
+            rad=rng.uniform(.009,.019);n=7;vs=[(x+rad*rng.uniform(.6,1.1)*math.cos(k*math.tau/n),y+rad*rng.uniform(.6,1.1)*math.sin(k*math.tau/n),z+.0015) for k in range(n)]
+            b.geom(vs,[tuple(range(n))],'rubber' if j%3 else 'cream')
     # Sidewalk history stays on the old downtown slabs even with fresh paint.
     if kind=='downtown':
         for j in range(9):flat_mark(b,rng.uniform(-4.2,4.2),rng.uniform(-5.8,-.4),z+.001,.25,.12,'spill',rng.uniform(0,360))
     if kind!='downtown':
         entry=p['entry'][0]
         for j in range(7):flat_mark(b,entry+rng.uniform(-.3,.3),rng.uniform(-1.7,-.3),z+.001,.22,.09,'scuff',rng.uniform(-20,20))
+        for j in range(12):
+            x=entry+rng.uniform(-.45,.45);y=rng.uniform(-1.5,-.25);rad=rng.uniform(.009,.017)
+            b.geom([(x+rad*math.cos(k*math.tau/7),y+rad*.8*math.sin(k*math.tau/7),z+.0014) for k in range(7)],[tuple(range(7))],'rubber')
     b.finish()
     # The customer queue is a continuous floor-owned field, not repeated dots.
     for ob in front.children_recursive:
@@ -125,29 +128,45 @@ def placed(p,front):
                     for li in f.loop_indices:
                         q=ob.data.vertices[ob.data.loops[li].vertex_index].co
                         fade=.13*age*(.6+.4*math.sin(q.x*.6+seed)) if q.z>top-.39 else 0
-                        grime=.32*age*math.exp(-((q.z-(top-.60))/.10)**2)*(.65+.35*math.sin(q.x*21)**2)
+                        grime=.62*age*math.exp(-((q.z-(top-.60))/.15)**2)*(.55+.45*math.sin(q.x*21)**2)
                         colors.data[li].color=(1-grime,1-grime*.94,1-grime*.88,1)
                 # Fabric upper chart: a sun-bleached edge rather than turning
                 # the entire fixture the same pale tone.
                 uv=ob.data.uv_layers.active
+                faded=G.LAYOUT.get(p['palette']+'_faded');fade_tint=(1,.94,.88)
+                if faded is None:
+                    # Alternate business palettes retain their own hue using
+                    # the existing neutral substrate; no extra seed atlas.
+                    from graphics import COLORS
+                    def linear(rgb):return tuple(v/12.92 if v<=.04045 else ((v+.055)/1.055)**2.4 for v in rgb)
+                    color=COLORS[p['palette']][0];base=[int(color[i:i+2],16) for i in (1,3,5)]
+                    wanted=linear([(v*.72+n*.28)/255 for v,n in zip(base,(173,165,139))]);neutral=linear([198/255,189/255,165/255])
+                    fade_tint=tuple(min(1,a/b) for a,b in zip(wanted,neutral));faded=G.LAYOUT['cream']
                 for f in ob.data.polygons:
                     if att and roles[att.data[f.index].value]==p['palette'] and sum(ob.data.vertices[i].co.z for i in f.vertices)/len(f.vertices)>top-.39 and age>.7:
-                        old=G.LAYOUT[p['palette']];new=G.LAYOUT[p['palette']+'_faded']
+                        old=G.LAYOUT[p['palette']];new=faded
                         for li in f.loop_indices:
                             # Fading is encoded in its own existing swatch;
                             # keep hue, lift only the worn exposed yarn color.
-                            colors.data[li].color=(1,.94,.88,1)
+                            colors.data[li].color=(*fade_tint,1)
                             u,v=uv.data[li].uv;uv.data[li].uv=(new[0]+(u-old[0])/(old[2]-old[0])*(new[2]-new[0]),new[1]+(v-old[1])/(old[3]-old[1])*(new[3]-new[1]))
-        if 'Outdoor__Boundary' in ob.name and kind=='strip':
-            # Narrow pale hits where chair backs meet the rail, using the
-            # existing material's steel cell on actual face surfaces.
-            uv=ob.data.uv_layers.active
-            if uv:
-                a,bv,c,d=G.LAYOUT['steel']
-                for f in ob.data.polygons:
-                    q=f.center
-                    if .80<q.z-z<1.04 and any(abs(q.x-t['x'])<.22 for t in p['tables']) and f.index%4==0:
-                        for li in f.loop_indices:uv.data[li].uv=((a+c)/2,(bv+d)/2)
+    if kind=='strip':
+        b=G.Batch('Coping rain tracks',marks)
+        # Commercial's 8 ft coping seams, repeated in each 21 ft bay.
+        seams=[start+.20+j*2.4384 for start in (-6.4008,0) for j in range(3)]
+        for x in seams:
+            length=rng.uniform(.55,1.05)
+            b.panel(x,-.013,5.115-length/2,rng.uniform(.22,.38),length,'drip')
+        for j in range(8):
+            yy=.20+j*2.4384;length=rng.uniform(.5,1.1)
+            b.print([(-6.412,yy-.12,5.115-length),(-6.412,yy+.12,5.115-length),(-6.412,yy+.12,5.115),(-6.412,yy-.12,5.115)],'drip')
+        # Small irregular coating losses on the actual horizontal rail faces,
+        # where customers have scraped chair backs while rearranging the bay.
+        for t in p['tables']:
+            for j in range(5):
+                x=t['x']+rng.uniform(-.55,.55);w=rng.uniform(.018,.065);h=rng.uniform(.004,.012);yy=-5.713
+                b.geom([(x-w/2,yy,z+1.016-h/2),(x+w*.28,yy,z+1.016-h*.65),(x+w/2,yy,z+1.016+h*.10),(x-w*.32,yy,z+1.016+h/2)],[(0,1,2,3)],'steel')
+        b.finish()
     if kind=='pad':
         # Sparse cracks and repaint patches on the exposed original stucco.
         b=G.Batch('Pad local stucco repairs',marks)

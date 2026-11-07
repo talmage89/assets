@@ -23,7 +23,7 @@ def generate(seed, kind, overrides=None):
     rng = random.Random(seed)
     name, subtitle, palette = IDENTITIES[kind][rng.randrange(2)]
     p = dict(seed=seed, kind=kind, name=name, subtitle=subtitle, palette=palette,
-             stage='look-dev checkpoint; baked shared PBR and placed causal age',
+             stage='final exported PBR; seeded daily use and causal age',
              year={'downtown':2011,'strip':2004,'pad':1997}[kind],
              age={'downtown':'old shell, fresh fit-out','strip':'worn door and patio','pad':'faded and patched'}[kind],
              width={'downtown':30*FT,'strip':42*FT,'pad':36*FT}[kind],
@@ -84,6 +84,13 @@ def generate(seed, kind, overrides=None):
         p['tables'].append(dict(id=f'Table_{i+1:02}',x=x+rng.uniform(-.025,.025),
             y=y,accessible=i==0,occupied_radius=.79,setting=setting_order[i%3],
             rotation=0 if kind!='pad' or i>=3 else 90,placement_seed=rng.randrange(2**24)))
+    use=random.Random(seed+19371)
+    for t in p['tables']:
+        t['chairs']=[dict(radius=.58 if t['accessible'] else use.uniform(.59,.70),
+                          angle=a+t['rotation']+use.uniform(-5,5),turn=use.uniform(-16,16))
+                     for a in ([0] if t['accessible'] else [0,180])]
+        t['setting_turn']=use.uniform(-9,9)
+        t['occupied_radius']=max(.79,max(ch['radius']+.35 for ch in t['chairs']))
     p.update(overrides or {})
     p['plan_sha256']=hashlib.sha256(json.dumps(p,sort_keys=True).encode()).hexdigest()
     return p

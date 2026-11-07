@@ -56,12 +56,20 @@ def commercial_finish(C,kind):
     folder=REPO/'commercial/textures/ship'
     wall=pbr('CommercialEIFS',folder,pair=True);equipment=pbr('CommercialEquipment',folder)
     concrete=pbr('CommercialConcrete',folder);roof=pbr('CommercialRoof',folder,pair=True)
+    # The old MixRGB form did not serialize its vertex tint in Blender 5.2.
+    # Use the kit's supported RGBA multiply shape. Normalize ordinary wall
+    # tints to one to retain the accepted exported base; repairs carry a ratio.
+    nodes=wall.node_tree.nodes;links=wall.node_tree.links;bs=nodes.get('Principled BSDF')
+    old=next(n for n in nodes if n.type=='MIX_RGB');mix=nodes.new('ShaderNodeMix');mix.data_type='RGBA';mix.blend_type='MULTIPLY';mix.inputs[0].default_value=1
+    links.new(old.inputs[1].links[0].from_socket,mix.inputs[6]);links.new(old.inputs[2].links[0].from_socket,mix.inputs[7]);links.new(mix.outputs[2],bs.inputs['Base Color'])
+    wall_base=tuple(C.M['Wall'].node_tree.nodes.get('Principled BSDF').inputs['Base Color'].default_value[:3])
     bpy.context.view_layer.update()
     for ob in [o for o in bpy.context.scene.objects if o.type=='MESH']:
         role=ob.data.materials[0].name.removeprefix('Form_').split('.')[0]
         if role=='Glass' or ob.get('graphic'):continue
         old=ob.data.materials[0].node_tree.nodes.get('Principled BSDF');color=tuple(old.inputs['Base Color'].default_value[:3])
-        if ob.get('repaint'):color=(.47,.45,.37)
+        if ob.get('repaint'):color=(.27,.265,.22)
+        if role=='Wall':color=tuple(a/b for a,b in zip(color,wall_base))
         material=wall if role=='Wall' else concrete if role=='Concrete' else roof if role=='Roof' else equipment
         ob.data.materials.clear();ob.data.materials.append(material)
         cell={'Trim':'Black','Metal':'Metal','White':'White','Primary':'Primary','Accent':'Primary','Black':'Black'}.get(role,'White')
@@ -112,9 +120,17 @@ def commercial(kind,out):
             rr=C.root('Pad side '+str(side),(side*(w/2-.1016),d/2,0),90 if side>0 else -90,parent=r)
             B.wall_with_openings('Pad side masonry',d,h,[(2.8-d/2,1.83,.9652,1.10)] if side>0 else [],rr)
             if side>0:
-                x=2.8-d/2;C.frame('Walkup window frame',x,-.12,1.5152,1.83,1.10,'Trim',rr,.055,.12)
+                x=2.8-d/2
+                # Hollow jamb channels retain the original outside envelope;
+                # glass slides between fore/aft lips, not through solid bars.
+                for s in (-1,1):
+                    xx=x+s*(1.83-.055)/2
+                    for yy in (-.165,-.075):C.box('Walkup channel lip',(xx,yy,1.5152),(.055,.030,1.10),'Trim',rr,.002)
+                    C.box('Walkup channel web',(x+s*(1.83/2-.004),-.12,1.5152),(.008,.12,1.10),'Trim',rr,0)
+                    C.box('Walkup channel rail',(x,-.12,1.5152+s*(1.10-.055)/2),(1.72,.12,.055),'Trim',rr,.002)
+                C.box('Walkup meeting stile',(x,-.15,1.5152),(.08,.020,.99),'Trim',rr,.002)
                 C.panel('Walkup fixed pane',x-.46,-.12,1.5152,.86,.98,'Glass',rr,.006)
-                slide=C.root('Walkup_SlidingPane',(x+.46,-.12,1.5152),parent=rr);slide['slide_axis']='X';slide['range_m']=[-.86,0]
+                slide=C.root('Walkup_SlidingPane',(x+.46,-.105,1.5152),parent=rr);slide['slide_axis']='X';slide['range_m']=[-.86,0];slide['reusable_module']=True
                 C.panel('Walkup sliding pane',0,0,0,.86,.98,'Glass',slide,.006)
                 C.box('Walkup serving shelf',(x,-.26,.9652),(2.05,.55,.045),'Metal',rr,.004)
                 for s in (-1,1):C.beam('Walkup shelf bracket',(x+s*.65,-.02,.64),(x+s*.65,-.44,.94),.035,.035,'Trim',rr)
@@ -151,7 +167,8 @@ def commercial(kind,out):
                 if yy>=d+ey:continue
                 t=min(yy+ey,d+ey-yy)/(d/2+ey)
                 C.beam('Standing hip panel seam',(side*ex,yy,eave+.013),(side*(ex-(ex-1.1)*t),yy,eave+(peak-eave)*t+.013),.016,.019,'Primary',r)
-        patch=C.mesh('Bank stucco local repaint',[(w/2+.001,5.1,.34),(w/2+.001,6.8,.34),(w/2+.001,6.84,1.65),(w/2+.001,6.55,1.77),(w/2+.001,5.15,1.71)],[(0,1,2,3,4)],'Wall',r,False);patch['repaint']=True
+        patch=C.mesh('Bank stucco local repaint',[(w/2+.001,.25,.34),(w/2+.001,1.60,.34),(w/2+.001,1.64,1.65),(w/2+.001,1.35,1.77),(w/2+.001,.30,1.71)],[(0,1,2,3,4)],'Wall',r,False);patch['repaint']=True
+        if patch.data.polygons[0].normal.x<0:patch.data.polygons[0].flip();patch.data.update()
         # A cantilevered walk-up cover leaves the accepted side route clear.
         C.box('Walkup shelter soffit',(w/2+.48,2.8,2.66),(1.30,2.9,.11),'White',r,.005)
         for yy in (1.53,4.07):C.beam('Walkup cantilever bracket',(w/2-.04,yy,2.14),(w/2+.94,yy,2.61),.045,.045,'Trim',r)

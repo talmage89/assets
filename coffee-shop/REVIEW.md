@@ -507,3 +507,158 @@ of all context images is 262.17 MiB. Shared-chart reuse remains explicit.
 No tool installation or other lead action is needed. A gravity/roll bound
 for poorly constrained photographic fits would be a useful future kit
 option; no shared helper changed in this round.
+
+## Delivery critique 6 — reject the first clear-sky candidate
+
+**Color and value first.** Opened all eleven native 1280px images written
+under `renders/delivery-pass6/`: Folio hero/retained, table, awning, use,
+wear, door, site and above; Morrow hero/retained. The sky is now visibly
+clear and the sign lamps have hard shadows. Brick is earthy and cavities
+are deep, but Folio's street-tree shadow still suppresses its patio. The
+new setup is too dark to sell the wear at full frame. Reference balance
+remains Annie's pale painted trim, Fair Grinds' unpainted concrete and
+Lakeview's pale window/base trim; these are assumed neutrals, not gray cards.
+The Fair Grinds deck/table photographs were also opened at native size.
+
+What still reads as CG: Morrow's coping deposits look like evenly spaced
+black nails, rather than runoff; the spill coverage has an overly hard dark
+edge; the notebook's dense dark keys and lit desktop are a substantial
+improvement, but its lid visually merges with the umbrella hardware. Its
+tabletop remains too uniformly dark. The counter and pastries retain their
+accepted forms, with smooth crusts still a visible simplification. Neighbor
+facades and vegetation repeat. The tighter Morrow hero replaces the bare
+asphalt with a leading parked car, though the car still obscures part of
+the accessible table. No docs are made from this candidate.
+
+Corrections for the next pass: rotate Folio's raking sun away from the tree
+shadow; modestly raise direct light and sky fill while retaining the clear
+sky and .526° solar disk; reverse the runoff fade, lighten it and place it
+under the host's actual 8ft coping seams; break up/lower spill contrast;
+open the laptop 100° to clear the pole. Furniture stock counts and table
+positions stay unchanged. Pulled-chair socket reservations now include
+their seeded offsets.
+
+### Physical correction before delivery images
+
+The new motion audit measures actual modeled and freshly imported triangles,
+using the kit sweep and Downtown's established solid-angle membership for
+abutting building members. It initially exposed the stair leaf meeting the
+condiment cabinet/lining, Morrow's closer arm meeting the jamb, and an empty
+sliding-pane node whose glass had been joined into the host. Those were real
+construction faults, separate from export serialization.
+
+The Folio condiment unit moves 420mm farther into its existing wall bay and
+the first 1.3m of lining recesses 90mm, without moving cafe tables. Closers
+are mounted at the measured leaf head and their arms clear the jamb. The
+walk-up keeps its accepted aperture/cover and now has hollow jamb channels,
+a meeting stile, 15mm staggered pane tracks and a separately owned slider.
+All ten door leaves and the slider pass on source and export: 21 samples
+each, 5° angular or 43mm linear steps, 1mm penetration tolerance, measured
+maximum penetration **0m**, with no collision exceptions. Native umbrella
+and receptacle mechanisms retain their original separate pivots. The closer
+links still depict a closed rest form, rather than an articulated linkage.
+
+## Delivery critique 7 — clear-sky heroes, wear still provisional
+
+**Color and value first.** Opened the three native 1280px heroes and the
+Switchyard walk-up under `renders/delivery-pass7/`. Folio's new −168° sun
+direction clears the worst tree shade; brighter procedural sky fill opens
+the walk without flattening the cavities. Morrow's stucco is neutral warm
+gray rather than pale cream, with a burgundy awning and green umbrella.
+Switchyard's roof/awning retain their teal pigments. Raking sign-lamp,
+window-trim, rail and shelter shadows have hard edges; the rooms remain warm.
+`build/pass7-values.json` records the architectural display-range samples:
+Morrow and Switchyard have no near-white pixels; Folio has fourteen pixels
+with at least one channel above .995 (0.002522% of its measured crop), not a
+claim of clipped brick/stucco or all-channel clipping. Photograph neutrals remain the
+same explicit trim/concrete assumptions as pass 6, not their shaded hue.
+
+Switchyard's left sightline now terminates in facing houses and the side
+street. Its tighter hero and Morrow's replace most bare foreground asphalt
+with the shop, patio, parked cars and leading stripes. The walk-up cover
+casts an especially clear long bracket shadow. The slider's real channel
+frame is visible without changing the accepted aperture/cover.
+
+What still reads as CG: the paving looks too even at hero distance; the
+pad's repair is too inconspicuous at the rear of the side wall; Morrow's
+old black nail-like deposits are gone but their remaining faint coverage
+does not yet sell runoff. Repeated neighbors/trees and smooth pastry crusts
+remain. The leading Morrow car obscures a portion of the first table. These
+heroes accept the light, context and composition; they do not approve docs
+or certify the wear/use fixes.
+
+The raw shop and site paving both retain COLOR_0, with minima near .327
+and maxima 1, so the broad stains survive export. The hard MASK was discarding
+fractional deposits. The next pass keeps the chair's accepted MASK and uses
+one site-only BLEND state for rings, spills, scuffs and runoff, sharing the
+same three maps and 16MiB. Entry tracking extends along the actual approach,
+and the existing pad repair moves to the exposed front part of its side
+wall. The original furniture counts and table positions are unchanged.
+
+## Delivery critique 8 — deposits and use, two pipeline faults found
+
+**Color and value first.** Opened all 28 native images in
+`renders/delivery-pass8/`, including every hero/retained, table, awning,
+use, wear, door, site and above, plus Switchyard's walk-up. The sunny strip
+and pad maintain broad tonal range and deep canopy shade. The new BLEND
+runoff reads as brown-gray deposits under coping seams at full hero size,
+with soft tapering tails rather than black cutout nails. Push/kick plate
+abrasion is visible in both older shops; gum and uneven tracking are local
+to the entry and dining positions. Original manufacture/neutral-balance
+assumptions remain the same as the preceding passes.
+
+What still reads as CG: Folio's wooden table is still caught in tree shade,
+and its notebook/crank silhouettes merge. More seriously, large rounded cap
+faces sample one atlas point, erasing the baked wood grain; the bag inherited
+that wood chart and reads as a wooden pouch. The pad's repair remains absent
+even though its source color differs. Native accessor inspection finds that
+the open patch was flipped inward and its source .27/.265/.22 tint became
+white on export through the older MixRGB material graph. Those are actual
+pipeline losses, not an excuse to increase dirt until something shows.
+The repeated houses/trees, flat slab pour edges and smooth pastries remain
+visible simplifications. No docs are approved from this pass.
+
+Corrections: planar cap UVs consume the existing manufacture chart without
+adding triangles; the satchel uses the existing woven ochre cloth; notebook
+umbrellas face their crank away. The private Commercial wall adapter uses
+the kit-compatible RGBA multiply, preserving accepted ordinary wall values
+and exporting the repair as a measured relative tint. Its normal faces out.
+Settings now use the measured central table skin rather than the higher
+rolled rim, and the plate/pastry and bag/bowl are grounded. These changes
+retain the accepted stock counts, room/table graph and texture allocation.
+
+## Delivery critique 9 — original cap grain restored, support corrected
+
+**Color and value first.** Opened every native image in
+`renders/delivery-pass9/`: all three heroes, table/use views, and Switchyard's
+walk-up. The clear blue sky, warm room and hard long furniture, lamp and
+bracket shadows survive the external export. Brick and stucco retain color
+in sunlight; the awning undersides stay deep. The repaired pad wall now
+shows its darker, outward-facing repaint beside the walk-up, and houses
+close the former left horizon. The photo balance assumptions remain the
+trim/concrete neutrals recorded in the calibration, not a sampled blue shade.
+
+What still reads as CG: restoring the cap UVs reveals overly periodic wood
+grain, so that candidate is rejected for its stripe-like manufacture field.
+The bag still appears wooden in this render (the cloth correction was not
+yet rebuilt), and the laptop floats at the rolled rim rather than resting on
+the lattice. These are corrected in the next build: irregular longitudinal
+pores/growth variation, woven cloth, measured central skin support, actual
+plate/pastry contact and grounded bowl/bag. The notebook already reads as a
+period machine with small dark keys, hinges, trackpad and lit screen.
+Its crank is turned away; actual lid clearance still needs the triangle check. No furniture
+counts, table positions or room arrangements are changed.
+
+Also reopened the preceding native wear/door/awning and overhead/site views.
+Gum and localized tracking, soft coping runoff, dirty valance and exposed
+push/kick metal are visible. All shown overheads terminate in streets,
+landscape or neighboring construction rather than an unsupported scene edge.
+Regular slab joints, repeated neighbors/trees and smooth pastry crusts remain
+simplifications. No docs are approved until the corrected build and its
+native fixed-camera crops are reviewed.
+
+The new fresh-import contact test then rejected the 100° lid: it crossed
+the crank housing in thirteen triangle pairs, despite the apparent gap in
+the table render. The corrected 95° lid keeps the deck fully on the table
+and moves its upper edge away from the housing. This is checked on actual
+triangles, rather than accepted from the picture alone.

@@ -9,6 +9,7 @@ from kit import model as G,tiling
 LAYOUT={};MATS=[]
 ROLES=[]
 ALPHA=('mesh','vinyl','ring','spill','scuff','drip','crack','chalk_smear')
+STAINS=('ring','spill','scuff','drip','crack','chalk_smear')
 
 
 def palette(folder=Path('build/atlas')):
@@ -21,13 +22,20 @@ def palette(folder=Path('build/atlas')):
     if not bpy.data.node_groups.get('glTF Material Output'):create_settings_group('glTF Material Output')
     folder=Path('textures/ship') if Path('textures/ship/T_CoffeeShop_Normal.png').exists() else folder
     opaque=tiling.material('CoffeeShop',folder,tint=True);opaque.use_backface_culling=False
+    bs=opaque.node_tree.nodes.get('Principled BSDF');nodes=opaque.node_tree.nodes;links=opaque.node_tree.links
+    uv=nodes.new('ShaderNodeUVMap');uv.uv_map='LightUV'
+    tex=nodes.new('ShaderNodeTexImage');tex.image=bpy.data.images.load(str((folder/'T_CoffeeShop_BaseColor.png').resolve()),check_existing=True)
+    links.new(uv.outputs['UV'],tex.inputs['Vector']);links.new(tex.outputs['Color'],bs.inputs['Emission Color']);bs.inputs['Emission Strength'].default_value=1.4
     glass=bpy.data.materials.new('CoffeeShop_Glass');glass.use_nodes=True
     p=glass.node_tree.nodes.get('Principled BSDF');p.inputs['Base Color'].default_value=(.96,.98,.97,1);p.inputs['Transmission Weight'].default_value=1;p.inputs['Roughness'].default_value=.003;p.inputs['IOR'].default_value=1.5
     glass['tiling_vertex_tint']=False
     perforated=tiling.material('CoffeeShop',folder,alpha=True,tint=True);perforated.name='CoffeeShop_Cutout';perforated.use_backface_culling=False
     pbs=perforated.node_tree.nodes.get('Principled BSDF');links=perforated.node_tree.links;alpha_source=pbs.inputs['Alpha'].links[0].from_socket
     cutoff=perforated.node_tree.nodes.new('ShaderNodeMath');cutoff.operation='GREATER_THAN';cutoff.inputs[1].default_value=.45;links.new(alpha_source,cutoff.inputs[0]);links.new(cutoff.outputs[0],pbs.inputs['Alpha'])
-    MATS=[opaque,glass,perforated];return MATS
+    stains=tiling.material('CoffeeShop',folder,alpha=True,tint=True);stains.name='CoffeeShop_Stains';stains.use_backface_culling=False
+    # Fractional dry deposits must retain their soft edge/tail. The accepted
+    # expanded steel still has its independent hard MASK; all share three maps.
+    MATS=[opaque,glass,perforated,stains];return MATS
 
 
 def root(name,loc=(0,0,0),parent=None,**props):
@@ -43,13 +51,21 @@ class Batch:
     def __init__(self,name,parent=None):
         self.name=name;self.parent=parent;self.v=[];self.f=[];self.uv=[];self.mat=[];self.smooth=[];self.roles=[]
     def geom(self,vs,fs,role='black',uv=None,smooth=False,uv_faces=None):
+        vs=list(vs)
         n=len(self.v);self.v.extend(tuple(v) for v in vs)
         for fi,f in enumerate(fs):
-            self.f.append(tuple(n+i for i in f));self.mat.append(1 if role=='glass' else 2 if role in ALPHA else 0);self.smooth.append(smooth);self.roles.append(role)
+            self.f.append(tuple(n+i for i in f));self.mat.append(1 if role=='glass' else 3 if role in STAINS else 2 if role in ALPHA else 0);self.smooth.append(smooth);self.roles.append(role)
             if uv_faces is not None:self.uv.append(uv_faces[fi])
             elif uv:self.uv.append(uv)
             else:
-                a,b,c,d=LAYOUT.get(role,LAYOUT['black']);self.uv.append([(a,b),(c,b),(c,d),(a,d)][:len(f)] if len(f)<=4 else [((a+c)/2,(b+d)/2)]*len(f))
+                a,b,c,d=LAYOUT.get(role,LAYOUT['black'])
+                if len(f)<=4:self.uv.append([(a,b),(c,b),(c,d),(a,d)][:len(f)])
+                else:
+                    # Manufactured caps need actual planar UV area: sampling
+                    # one point erased grain on the accepted wooden tabletops.
+                    ps=[Vector(vs[i]) for i in f];normal=sum(((ps[j]-ps[0]).cross(ps[j+1]-ps[0]) for j in range(1,len(ps)-1)),Vector())
+                    axes=sorted(range(3),key=lambda k:abs(normal[k]))[:2];lo=[min(p[k] for p in ps) for k in axes];hi=[max(p[k] for p in ps) for k in axes]
+                    self.uv.append([(a+(p[axes[0]]-lo[0])/max(hi[0]-lo[0],1e-12)*(c-a),b+(p[axes[1]]-lo[1])/max(hi[1]-lo[1],1e-12)*(d-b)) for p in ps])
     def box(self,p,s,role='black'):
         x,y,z=p;a,b,c=(v/2 for v in s)
         vs=[(x+i*a,y+j*b,z+k*c) for i,j,k in ((-1,-1,-1),(1,-1,-1),(1,1,-1),(-1,1,-1),(-1,-1,1),(1,-1,1),(1,1,1),(-1,1,1))]
@@ -86,12 +102,14 @@ class Batch:
     def finish(self):
         me=bpy.data.meshes.new(self.name);me.from_pydata(self.v,[],self.f);me.update()
         for m in MATS:me.materials.append(m)
-        uv=me.uv_layers.new(name='UVMap');tint=me.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='CORNER');semantic=me.attributes.new(name='CafeRole',type='INT',domain='FACE')
+        uv=me.uv_layers.new(name='UVMap');light=me.uv_layers.new(name='LightUV');tint=me.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='CORNER');semantic=me.attributes.new(name='CafeRole',type='INT',domain='FACE')
         for p,mi,sm,coords,role in zip(me.polygons,self.mat,self.smooth,self.uv,self.roles):
             if role not in ROLES:ROLES.append(role)
             semantic.data[p.index].value=ROLES.index(role)
             p.material_index=mi;p.use_smooth=sm
-            for j,li in enumerate(p.loop_indices):uv.data[li].uv=coords[j];tint.data[li].color=(1,1,1,1)
+            for j,li in enumerate(p.loop_indices):
+                uv.data[li].uv=coords[j];light.data[li].uv=coords[j] if role=='screen' else (2044/2048,1-2044/2048);tint.data[li].color=(1,1,1,1)
+        me.uv_layers.active=uv;uv.active_render=True
         bm=bmesh.new();bm.from_mesh(me);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bmesh.ops.triangulate(bm,faces=list(bm.faces),quad_method='FIXED',ngon_method='EAR_CLIP');bm.to_mesh(me);bm.free();me.update()
         o=bpy.data.objects.new(self.name,me);bpy.context.collection.objects.link(o);o.parent=self.parent;o['asset_set']='CoffeeShop';o['cafe_roles']=__import__('json').dumps(ROLES);return o
 

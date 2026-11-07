@@ -23,16 +23,18 @@ def camera(loc,target,lens=40,ortho=None):
     return o
 
 
-def lighting(elevation=18,azimuth=-155,exposure=-.35):
+def lighting(elevation=16,azimuth=-168,exposure=.15):
     # Photo comparisons change the sun while reusing the imported scene.
     # Replace it so each fitted view has exactly one directional light.
     for ob in list(bpy.context.scene.objects):
         if ob.type=='LIGHT' and ob.data.type=='SUN':bpy.data.objects.remove(ob,do_unlink=True)
     sc=bpy.context.scene;world=bpy.data.worlds.new('ProceduralDaylight');world.use_nodes=True;sc.world=world
     n=world.node_tree.nodes;l=world.node_tree.links;sky=n.new('ShaderNodeTexSky');sky.sky_type='MULTIPLE_SCATTERING';sky.sun_elevation=math.radians(elevation);sky.sun_rotation=math.radians(azimuth);sky.sun_disc=False;sky.altitude=.12
-    hue=n.new('ShaderNodeHueSaturation');hue.inputs['Saturation'].default_value=.50;l.new(sky.outputs['Color'],hue.inputs['Color']);l.new(hue.outputs['Color'],n['Background'].inputs['Color']);n['Background'].inputs['Strength'].default_value=.10
-    d=bpy.data.lights.new('RakingSun','SUN');o=bpy.data.objects.new('RakingSun',d);sc.collection.objects.link(o);a=math.radians(azimuth);e=math.radians(elevation);v=Vector((math.cos(e)*math.cos(a),math.cos(e)*math.sin(a),math.sin(e)));o.rotation_euler=(-v).to_track_quat('-Z','Y').to_euler();d.energy=5;d.angle=math.radians(.55)
+    sky.air_density=1;sky.aerosol_density=.35;sky.ozone_density=1
+    l.new(sky.outputs['Color'],n['Background'].inputs['Color']);n['Background'].inputs['Strength'].default_value=.06
+    d=bpy.data.lights.new('RakingSun','SUN');o=bpy.data.objects.new('RakingSun',d);sc.collection.objects.link(o);a=math.radians(azimuth);e=math.radians(elevation);v=Vector((math.cos(e)*math.cos(a),math.cos(e)*math.sin(a),math.sin(e)));o.rotation_euler=(-v).to_track_quat('-Z','Y').to_euler();d.energy=4.5;d.angle=math.radians(.526);d.color=(1,.97,.91) if elevation>30 else (1,.90,.78)
     sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=exposure
+    sc['daylight']=json.dumps(dict(elevation=elevation,azimuth=azimuth,sun_energy=d.energy,sun_angle_degrees=.526,sky_strength=.06,exposure=exposure))
 
 
 def area(name,pos,power,size=1,target=None,color=(1,.81,.61)):
@@ -84,7 +86,7 @@ def setup(seed,with_context=True):
         for x in (-8.23,8.84,-15.55,17.37):area('Neighbor tenant practical',(x,2.2,2.8),190,1.6)
     elif p['kind']=='strip':
         for x in (9.60,16,22.4,28.8):area('Other tenant practical',(x,2.8,2.8),180,1.4)
-    lighting(azimuth={'downtown':-155,'strip':-145,'pad':-55}[p['kind']]);return p,path
+    lighting(azimuth={'downtown':-160,'strip':-145,'pad':-35}[p['kind']]);return p,path
 
 
 def source_finish():
@@ -106,11 +108,20 @@ def source_finish():
 
 def shots(p):
     z=p['grade'];t=p['tables'][1];kind=p['kind'];w=p['width']
+    worn=p['tables'][-1] if kind=='pad' else p['tables'][0]
     a=math.radians(t['rotation']);radial=Vector((math.cos(a),math.sin(a),0));tangent=Vector((-math.sin(a),math.cos(a),0));chair=Vector((t['x'],t['y'],z))+.58*radial
     cc=chair+.8*radial-1.6*tangent+Vector((0,0,.98))
-    hero= dict(location=(7,-21.0,1.65+z),target=(0,0,3.58),lens=40) if kind=='downtown' else dict(location=(-10,-23.8,1.65+z),target=(0,-.3,2.18),lens=45) if kind=='strip' else dict(location=(16,-18.5,1.65+z),target=(2.0,.0,1.56),lens=42)
+    old_hero= dict(location=(7,-21.0,1.65+z),target=(0,0,3.58),lens=40) if kind=='downtown' else dict(location=(-10,-23.8,1.65+z),target=(0,-.3,2.18),lens=45) if kind=='strip' else dict(location=(16,-18.5,1.65+z),target=(2.0,.0,1.56),lens=42)
+    hero=old_hero if kind=='downtown' else dict(location=(-8.3,-19.2,1.65+z),target=(.6,-.15,2.80),lens=45) if kind=='strip' else dict(location=(14.8,-15.6,1.65+z),target=(2.1,1.0,2.80),lens=42)
     ctr=(2.25,-1.8,1.72+z) if kind=='downtown' else (.80,-1.7,1.72+z) if kind=='strip' else (3,-1.7,1.72+z)
-    return dict(hero=hero,above=dict(location=(12,-17,30),target=(1,-.4,0),lens=45,ortho=25 if kind!='pad' else 29),
+    return dict(hero=hero,retained=old_hero,eevee=hero,above=dict(location=(12,-17,30),target=(1,-.4,0),lens=45,ortho=25 if kind!='pad' else 29),
+        front=dict(location=(0,-26,5.0+z),target=(0,1,3.5),ortho=23 if kind=='downtown' else 22),
+        side=dict(location=(28,4,8),target=(0,5,2.7),ortho=32),
+        back=dict(location=(-17,p['depth']+23,12),target=(0,p['depth']/2,3),lens=44),
+        top=dict(location=(0,p['depth']/2,65),target=(0,p['depth']/2,0),ortho=p['depth']+15),
+        use=dict(location=(p['tables'][0]['x']+.95,p['tables'][0]['y']-1.30,1.48+z),target=(p['tables'][0]['x'],p['tables'][0]['y'],.72+z),lens=48),
+        wear=dict(location=(worn['x']+.45,-6.15,1.28+z),target=(worn['x'],worn['y'],.13+z),lens=46),
+        door=dict(location=(p['entry'][0]+1.2,-2.0,1.35+z),target=(p['entry'][0]+.4,-.05,.70+z),lens=46) if kind=='pad' else dict(location=(p['entry'][0]+1.35,-3.3,1.30+z),target=(p['entry'][0]+.4,-.05,.65+z),lens=46),
         site=dict(location=(44,-51,62),target=(6,-2,0),lens=45,ortho=70 if kind!='downtown' else 85),
         table=dict(location=(t['x']+1.25,t['y']-1.65,1.48+z),target=(t['x'],t['y'],.73+z),lens=50),
         counter=dict(location=(-.65,-1.0,1.72+z),target=(p['counter_x']-1.65,p['counter_y'],1.37+z),lens=34) if kind=='strip' else dict(location=ctr,target=(p['counter_x'],p['counter_y'],1.37+z),lens=34),
@@ -129,7 +140,7 @@ def render(path,recipe,source,metadata=None):
     sc=bpy.context.scene;cam=camera(recipe['location'],recipe['target'],recipe.get('lens',40),recipe.get('ortho'));path=Path(path);path.parent.mkdir(parents=True,exist_ok=True)
     if recipe.get('roll'):cam.rotation_euler.rotate_axis('Z',recipe['roll'])
     sc.render.filepath=str(path.resolve());bpy.ops.render.render(write_still=True)
-    doc=dict(source=str(source),bundle_sha256=bundle(source),image_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),engine=sc.render.engine,recipe=recipe,width=sc.render.resolution_x,height=sc.render.resolution_y)
+    doc=dict(source=str(source),bundle_sha256=bundle(source),image_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),engine=sc.render.engine,recipe=recipe,width=sc.render.resolution_x,height=sc.render.resolution_y,daylight=json.loads(sc.get('daylight','{}')))
     doc.update(metadata or {});path.with_suffix('.json').write_text(json.dumps(doc,indent=2)+'\n')
 
 
@@ -149,7 +160,18 @@ def main():
         if seed!=previous:
             p,source=setup(seed);previous=seed
             if a.source_finish:source_finish()
-        sc=bpy.context.scene;sc.render.engine='CYCLES';sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=10;sc.cycles.transmission_bounces=8;sc.cycles.transparent_max_bounces=12;gpu.enable()
+        sc=bpy.context.scene;sc.render.engine='BLENDER_EEVEE' if key=='eevee' else 'CYCLES';sc.render.use_persistent_data=True;sc.cycles.samples=a.samples;sc.cycles.use_denoising=True;sc.cycles.max_bounces=10;sc.cycles.transmission_bounces=8;sc.cycles.transparent_max_bounces=12;gpu.enable()
+        if key=='eevee':
+            sc.eevee.use_raytracing=True;sc.eevee.ray_tracing_options.resolution_scale='1';sc.eevee.taa_render_samples=a.samples
+            for ma in bpy.data.materials:
+                bs=ma.node_tree.nodes.get('Principled BSDF') if ma.use_nodes else None
+                if bs and bs.inputs['Transmission Weight'].default_value>0:
+                    ma.use_raytrace_refraction=True;ma.thickness_mode='SLAB'
+                    value=ma.node_tree.nodes.new('ShaderNodeValue');value.outputs[0].default_value=.006
+                    output=next(n for n in ma.node_tree.nodes if n.type=='OUTPUT_MATERIAL');ma.node_tree.links.new(value.outputs[0],output.inputs['Thickness'])
+            bpy.ops.object.lightprobe_add(type='VOLUME',location=(0,3,1.6+p['grade']));probe=bpy.context.object;probe.scale=(p['width']/2,6,2)
+            probe.data.resolution_x=10;probe.data.resolution_y=8;probe.data.resolution_z=4;probe.data.bake_samples=24
+            bpy.ops.object.lightprobe_cache_bake(subset='ALL')
         sc.render.resolution_x=a.width;sc.render.resolution_y=round(a.width*(.70 if key=='above' else 2/3));sc.render.resolution_percentage=100;sc.render.image_settings.file_format='PNG'
         human=[];hidden=[];isolation_floor=None
         if key=='chair':

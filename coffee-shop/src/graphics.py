@@ -89,6 +89,18 @@ def generate(folder=Path('build/atlas')):
     for i,key in enumerate(names):chart(key,(8+i%2*1024,8+i//2*138,1016+i%2*1024,138+i//2*138))
     for i in range(3):chart('menu'+str(i),(8+i*408,430,408+i*408,710))
     for key,rect in dict(hours=(8,730,400,990),chalk=(420,730,800,1210),news=(820,730,1300,1050),community=(820,1070,1300,1410),art=(1320,730,1580,1150),screen=(1320,1170,1580,1410),mesh=(1600,730,2032,1230),vinyl=(8,1010,400,1080)).items():chart(key,rect)
+    # Fictional 2000s browser/word-processor desktop. This screen is also
+    # sampled for emission through UV1, reusing BaseColor, not a fourth map.
+    ui=ImageDraw.Draw(bc);ui.rectangle((1320,1170,1580,1410),fill='#315f82')
+    ui.rectangle((1334,1191,1566,1386),fill='#c4cdcb');ui.rectangle((1334,1191,1566,1206),fill='#425677')
+    ui.rectangle((1340,1218,1560,1231),fill='#a0b1b7');ui.rectangle((1373,1240,1538,1377),fill='#e0ddcc')
+    f=ImageFont.truetype(str(find_font('DejaVu Sans','Book')),9)
+    ui.text((1341,1194),'Untitled - Field Notes',font=f,fill='#e3e3d9')
+    ui.text((1385,1252),'Saturday notes',font=f,fill='#253b46')
+    for j in range(13):ui.line((1385,1273+j*6,1515-(j%4)*11,1273+j*6),fill='#607276',width=1)
+    ui.rectangle((1320,1398,1580,1410),fill='#384c61')
+    # An exact black emission stop in otherwise unused atlas padding.
+    ui.rectangle((2040,2040,2047,2047),fill=(0,0,0,255))
     # Wiped chalk ghosts stay on this written substrate, without adding
     # geometry to the accepted 220-triangle A-frame.
     sd=ImageDraw.Draw(bc)
@@ -102,7 +114,14 @@ def generate(folder=Path('build/atlas')):
         yy,xx=np.mgrid[:h,:w];u=xx/w;v=yy/h;fine=rng.random((h,w));grain=np.sin(u*160+2*np.sin(v*7)+np.sin(u*37+v*3))
         factor=1+.025*(fine-.5);relief=.5+.008*(fine-.5);rr=np.full((h,w),rough)
         if key in ('wood','oak'):
-            factor*=.88+.13*(grain*.5+.5)+.06*np.sin(u*43+v*4);relief+=.04*grain;rr+=.06*grain
+            # Irregular longitudinal pores and slow growth variation, rather
+            # than evenly spaced sine bands that read as printed stripes.
+            def field(cols,rows):
+                patch=Image.fromarray(np.float32(rng.random((rows,cols))))
+                return np.asarray(patch.resize((w,h),Image.Resampling.BICUBIC))-.5
+            broad=field(13,3);fibers=field(max(40,w//3),5);pores=field(w,12)
+            grain=.55*broad+.30*fibers+.15*pores
+            factor*=.96+.17*grain;relief+=.018*fibers+.008*pores;rr+=.055*grain
             if key=='oak':
                 hand=np.exp(-(1-v)/.025)*(.5+.5*np.sin(u*17)**2)
                 factor*=1-.24*hand;rr-=.12*hand
@@ -123,10 +142,15 @@ def generate(folder=Path('build/atlas')):
         x=8+i*256;y=1240 if i<3 else 1340;x=(i%3)*256+8
         draw.rectangle((x,y,x+240,y+85),fill=(0,0,0,0));layout[key]=[x/n,1-(y+85)/n,(x+240)/n,1-y/n]
         yy,xx=np.mgrid[:85,:240];u=xx/239;v=yy/84;noise=rng.random((85,240))
-        if key=='ring':mask=np.exp(-((np.sqrt(((u-.5)/.43)**2+((v-.5)/.39)**2)-1)/.045)**2)*(.40+.60*noise);color=(77,48,27)
-        elif key=='spill':mask=np.exp(-(((u-.45)/(.30+.06*np.sin(v*24)))**2+((v-.5)/.38)**2)**2)*(.20+.45*noise);color=(66,49,33)
-        elif key=='scuff':mask=(np.sin(v*110+u*8)>.86)*np.sin(np.pi*u)**2*(noise>.45);color=(144,143,126)
-        elif key=='drip':mask=np.exp(-((u-.50-.025*np.sin(v*18))/.15)**2)*(.2+.8*v)*(.15+.55*noise);color=(51,46,34)
+        if key=='ring':mask=np.exp(-((np.sqrt(((u-.5)/.43)**2+((v-.5)/.39)**2)-1)/.075)**2)*(.70+.30*noise);color=(87,57,33)
+        elif key=='spill':
+            core=np.exp(-(((u-.43)/(.26+.07*np.sin(v*18)+.04*np.cos(v*39)))**2+((v-.50)/(.26+.07*np.cos(u*17)))**2)**2)
+            tail=np.exp(-((v-(.43+.08*np.sin(u*9)))/(.035+.045*(1-u)))**2)*np.exp(-((u-.66)/.28)**4)
+            mask=np.clip(core*.82+tail*.65,0,1)*(.26+.74*noise);color=(99,90,74)
+        elif key=='scuff':mask=(np.sin(v*110+u*8)>.74)*np.sin(np.pi*u)**2*(noise>.23);color=(146,143,126)
+        elif key=='drip':
+            profile=np.exp(-((u-.5-.035*np.sin(v*18))/(.28-.14*v))**2)*np.exp(-v*1.7)
+            mask=profile*(.35+.65*noise);color=(106,100,86)
         elif key=='crack':mask=np.exp(-((v-.48-.17*np.sin(u*10)-.06*np.sin(u*33))/.018)**2)*(.50+.50*noise);color=(66,62,53)
         else:mask=(np.sin(v*45+u*10)>.5)*np.sin(np.pi*u)*(.1+.3*noise);color=(176,175,152)
         tile=np.empty((85,240,4),np.uint8);tile[:,:,:3]=color;tile[:,:,3]=np.uint8(np.clip(mask,0,1)*255);bc.paste(Image.fromarray(tile),(x,y))
@@ -138,6 +162,19 @@ def generate(folder=Path('build/atlas')):
         # Oxidized exposed yarn retains the pigment's hue as it lightens.
         arr[:,:,:3]=np.uint8(rgb*.72+np.array((173,165,139))*.28)
         bc.paste(Image.fromarray(arr),(x,y));ImageDraw.Draw(orm).rectangle((x,y,x+w,y+h),fill=(255,232,0));layout[key+'_faded']=[(x+8)/n,1-(y+h-8)/n,(x+w-8)/n,1-(y+8)/n]
+    # Key legends occupy the unused chalk-smear chart. They are print, not
+    # raised geometry; one swatch per physical key top, no additional map.
+    x,y,w,h=520,1340,240,84;kd=ImageDraw.Draw(bc);kd.rectangle((x,y,x+w,y+h),fill='#202322')
+    keyrows=[['Ctl','Fn','Alt','','','','','','','','','Alt','Ctl','>'],
+             ['Sh','Z','X','C','V','B','N','M',',','.','/','Sh','^','<'],
+             ['Cap','A','S','D','F','G','H','J','K','L',';','\'','Ent','v'],
+             ['Tab','Q','W','E','R','T','Y','U','I','O','P','[',']','\\'],
+             ['`','1','2','3','4','5','6','7','8','9','0','-','=','Bk'],
+             ['Esc','F1','F2','F3','F4','F5','F6','F7','F8','F9','F10','F11','F12','Del']]
+    kf=ImageFont.truetype(str(find_font('DejaVu Sans','Book')),7)
+    for j,row in enumerate(keyrows):
+        for k,label in enumerate(row):kd.text((x+k*w/14+3,y+j*h/6+2),label,font=kf,fill='#a4aaa5')
+    layout['keyboard']=[x/n,1-(y+h)/n,(x+w)/n,1-y/n]
     # The large oak chart freed its original cell. Use it for foot-zone
     # abrasion: steel revealed only in the lowest 30–40 mm of a chair leg.
     x,y,w,h=1176,1448,272,180;yy,xx=np.mgrid[:h,:w];u=xx/(w-1);v=1-yy/(h-1)
@@ -149,6 +186,16 @@ def generate(folder=Path('build/atlas')):
     Image.fromarray(np.uint16(np.clip(height,0,1)*65535)).save(folder/'T_CoffeeShop_Height.png')
     (folder/'layout.json').write_text(json.dumps(layout,indent=2)+'\n')
     return layout
+
+
+def bake_fields():
+    """Deterministic original 4096 fields, shared by production and repeat."""
+    generate();folder=Path('build/procedural');folder.mkdir(parents=True,exist_ok=True)
+    for channel in ('BaseColor','ORM','Height'):
+        im=Image.open(Path('build/atlas')/f'T_CoffeeShop_{channel}.png')
+        if channel=='BaseColor':im=im.convert('RGB')
+        im.resize((4096,4096),Image.Resampling.BICUBIC).save(folder/f'T_CoffeeShop_{channel}.png')
+    return folder
 
 
 if __name__=='__main__':generate()

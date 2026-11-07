@@ -51,8 +51,10 @@ painted door trim, Coffea's unpainted metal table edge, and Lakeview's pale
 window/base trim; Fair Grinds uses exposed unpainted concrete. These are assumptions, not gray-card captures. White balance
 uses linear-channel gains and preserves exposure. The dark steel is not dyed
 blue to match shaded photographic pixels. Final checkpoint heroes retain a
-fixed −.35 exposure, an 18° procedural sun and desaturated procedural sky; there
-is no image environment or exposure-based concrete calibration.
+fixed exposure at that checkpoint. Delivery heroes use the clear procedural
+sky, a low 16° sun and a physical .526° solar disk; actual light settings and
+display-range measurements accompany each exported render. There is no image
+environment or exposure-based concrete calibration.
 
 ## Checks and their limits
 
@@ -96,3 +98,23 @@ separate from the independently measured 7.90 m gap between the marked rows.
 Site layouts are original bounded compositions. The geometric café
 clearance proof still applies to the unchanged accepted seating routes; it
 is not extended into a whole-site parking/permit certification.
+
+## Customer items and delivery light
+
+`luna-table-2008.jpg` supplies the period comparison for an actual notebook,
+drinkware, folded napkins and pastry plate in use. The original generic laptop
+uses a **325 × 227 × 29 mm** closed body, a **287 × 179 mm** lit screen
+(13.32-inch diagonal), 14 mm keycaps on roughly 18 mm pitch, a trackpad,
+hinges and side ports. These are authored period size choices, rather than a
+surveyed reconstruction or a claim about the pictured computer's model.
+The open lid is 95° from the deck. Fictional desktop graphics and the
+screen emission reuse BaseColor through a second UV channel; no image is added.
+
+The original commuter bicycle uses 674 mm tire diameter, 35 mm tire gauge,
+1.06 m wheelbase and 28 mm frame tubes, with rims, spokes, crank, chain,
+slack brake cable and a closed U-lock around the rack/frame. Its dimensions
+are authored common commuter proportions. The spun dog bowl is 250 mm across
+and 75 mm high. Neither is adapted from a downloaded product or mesh.
+Seeded chair yaw/pull-out stays in the accepted furniture bays; actual route
+checks include the bag, bicycle and bowl. The original table positions,
+furniture counts and clear-width rectangles remain the accepted layout.

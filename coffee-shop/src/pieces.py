@@ -93,7 +93,15 @@ def table(name='BistroTable',accessible=False,parent=None,umbrella=False):
                 b.tube(pts,.017,sides=8);b.cylinder((.30*math.cos(a),.30*math.sin(a),.012),.025,.024,'rubber',8)
             for j in range(3):
                 a=j*math.tau/3;b.beam((0,0,.66),(.22*math.cos(a),.22*math.sin(a),.717),.022,.018)
-    b.finish();socket(name+'__Top',(0,0,.762 if accessible else .742),r,'table_setting');return r
+    ob=b.finish()
+    # The rolled rim stands above the lattice. Measure the actual central
+    # upward surfaces so settings rest on steel/wood rather than rim height.
+    central=[]
+    for f in ob.data.polygons:
+        radius=(sum((ob.data.vertices[i].co for i in f.vertices),Vector())/len(f.vertices)).to_2d().length
+        if f.normal.z>.98 and radius<.31 and (not umbrella or radius>.08):central.append(f)
+    support=max(ob.data.vertices[i].co.z for f in central for i in f.vertices);r['setting_height_m']=support
+    socket(name+'__Top',(0,0,support),r,'table_setting');return r
 
 
 def cup(b,x,y,z):
@@ -144,21 +152,29 @@ def baked_good(b,x,y,z,kind='croissant',seed=1):
 
 def setting(name='TableSetting',kind='cup',seed=1,parent=None):
     r=root(name,parent=parent,piece='TableSetting');b=Batch(name+'__Objects',r);rng=random.Random(seed)
-    cup(b,-.20,-.11,0)
+    from daily_use import laptop,napkin
+    if rng.random()<.83:cup(b,(-.245+rng.uniform(-.012,.012)) if kind=='laptop' else (-.19+rng.uniform(-.015,.015)),(.04+rng.uniform(-.015,.015)) if kind=='laptop' else (-.04+rng.uniform(-.025,.025)),0)
     if kind=='laptop':
-        b.rounded((.035,-.075,.010),(.30,.21,.018),.007,'steel',2)
-        b.box((.035,-.085,.021),(.258,.12,.002),'black')
-        for j in range(4):
-            for k in range(9):b.box((-.075+k*.026,-.134+j*.025,.023),(.018,.017,.002),'cream')
-        b.beam((-.115,.020,.02),(-.115,.075,.20),.012,.012,'steel');b.beam((.185,.020,.02),(.185,.075,.20),.012,.012,'steel')
-        b.geom([(-.11,.019,.020),(.18,.019,.020),(.18,.075,.20),(-.11,.075,.20)],[(0,1,2,3)],'black')
+        notebook=Batch(name+'__Notebook',r);laptop(notebook);notebook.finish().location.x=-.025
+        r['laptop_period']='generic 2000s business notebook, original design'
     elif kind=='paper':
-        b.print([(-.18,-.18,.003),(.12,-.18,.003),(.12,.045,.007),(-.18,.045,.007)],'news')
-        b.box((-.03,-.07,.001),(.301,.223,.002),'cream')
+        from geometry import LAYOUT
+        a,bb,c,d=LAYOUT['news'];mid=(a+c)/2
+        for left,right,ua,ub in ((-.18,-.03,a,mid),(-.03,.12,mid,c)):
+            vs=[(left,-.18,.012 if left==-.03 else .002),(right,-.18,.012 if right==-.03 else .002),(right,.045,.013 if right==-.03 else .004),(left,.045,.013 if left==-.03 else .004)]
+            b.geom(vs,[(0,1,2,3)],'news',[(ua,bb),(ub,bb),(ub,d),(ua,d)])
+        b.box((-.03,-.07,.0005),(.301,.223,.001),'cream')
     else:
-        b.cylinder((.10,-.10,.008),.074,.008,'white',24)
-        baked_good(b,.10,-.10,.013,'croissant',seed)
-    b.finish();return r
+        start=len(b.v);b.cylinder((.10,-.10,.004),.074,.008,'white',24);plate_top=max(v[2] for v in b.v[start:])
+        start=len(b.v);baked_good(b,.10,-.10,.013,'croissant',seed);bottom=min(v[2] for v in b.v[start:])
+        for i in range(start,len(b.v)):
+            x,y,z=b.v[i];b.v[i]=(x,y,z+plate_top-bottom)
+    if kind!='laptop' or rng.random()<.4:napkin(b,.13,.08,.003)
+    if kind=='cup':
+        # A lid set down after drinking, with a straw-sized drinking slot.
+        b.lathe([(.001,.041),(.008,.043),(.012,.035),(.014,.035)],'black',16,center=(-.12,.13))
+    if b.v:b.finish()
+    return r
 
 
 def counter(name='Counter',length=3.65,parent=None):
