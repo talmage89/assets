@@ -611,3 +611,98 @@ parity. Remaining CG cues: repeated collar-chip charts and long bed grooves,
 flat fiber relief away from the dug regions, simplified mat/repair edges,
 low-sided small hardware, alpha chain parallax and repeated context foliage.
 The camera/design residuals and forest-green/photo-blue difference remain.
+
+## Delivery continuation — pass 11, native final audit
+
+**Color and value first.** Opened all three clean-build heroes, plans and
+Eevee views, every construction/surface detail, the 2400px piece sheet, scale
+markers, three exported photographic pairs, three 4096-field source views and
+the five proposed gallery JPGs at native size. The stated reference neutrals
+remain Roswell concrete, Adair's white cap and the galvanized stair cheek.
+Their white balance is retained; the renders use inferred illumination and
+original palettes. The deck comparison is visibly darker/less saturated than
+the photograph's Kelly green, and its background is a different installation.
+Do not call that photographic parity. The comparison does show thin supported
+trays and open undersides instead of the former two solid blocks.
+
+The heroes have brown/gray mixed wood, deep underdeck shade and long crisp
+post/roof shadows. The 1996 roof and slide bed are chalky pink-red rather than
+new saturated red; the 2005 burgundy/green is intermediate; newer teal/orange
+remains stronger. Whole-frame display median luminance is .227 / .214 / .190;
+99th percentiles .795 / .936 / .800. Fractions with any nearly clipped channel
+are .0011 / .0008 / .0013 percent. These include sky/context and are descriptive,
+not albedo or object-exposure measurements. Very dark cavities remain visible
+as such, rather than a pale global lift.
+
+The hollow close-up resolves actual depressions with wood heaped at their
+rims and exposed black mats. Native carryout is broader and raised; however
+the simple split crowns remain angular and the flat field between hollows
+loses parallax close to grade. Rubber granules, the two-color pour joint,
+contact lightening and a darker outlined repair all survive the bake. In the
+source/ship pairs the smallest chip grain and punched coverage soften after
+filtering; the broad construction and age masks survive.
+
+Reject the nine wide inspection elevations: foreground town trees hide the
+equipment and much of the frame is below the ground. The accepted heroes and
+site layouts stay fixed; inspection elevations will omit the presentation
+town/canopies and use a closer-height panoramic frame. Also reject the 2005
+Eevee spiral's patchy shadow tiles; increase the virtual-shadow pool and
+sampling, then inspect again. No gallery JPG is committed at this pass.
+Remaining CG cues are repeated collar chips, regular bed scars, simple mat
+and repair boundaries, low-sided small hardware, alpha-chain parallax and
+repeated foliage cards. The clean build and checks pass; independent repeat
+verification is still in progress and is not claimed complete here.
+
+## Delivery continuation — pass 12, accept the final evidence
+
+**Color and value first.** Reopened the refreshed heroes, plans, all changed
+native details and the three photographic cameras, plus the live source
+views, piece sheet, scale markers, contact sheets and five final JPGs. The
+same Roswell/Adair/stair neutrals and palette differences remain explicit.
+Brown fiber, silvered/fresh shreds and dark exposed mats survive the 2048 bake;
+the school roof/bed stay faded, the middle site stays intermediate and the
+newer colors retain pigment. The hero value statistics are unchanged from
+pass 11. The comparison lighting is an estimate; forest green remains darker
+than the Kelly-green reference. Do not describe the pairs as identical
+materials or surveyed replicas.
+
+The revised panoramic elevations reveal the complete containment, supports,
+swings and access instead of foreground town trees. Their neutral staging
+plane was first too high and clipped the fiber; it now sits below every
+delivered surface. The 2005 Eevee spiral no longer has the rejected patchy
+shadow tiles after raising shadow allocation and sampling. Native hollows,
+mat remnants, heaped rims, walk carryout, open 12-inch step trays, rubber
+granules/pour seam/repair and age differences remain visible in all fourteen
+camera-identical crop pairs. Raw exported hollow relief measures
+113.49–129.49mm; this measures construction, separately from serialization.
+
+Accepted evidence is `renders/final/`, its `contact.jpg` and
+`matched-contact.jpg`, `renders/source-matches/contact.jpg` and
+`renders/fix-crops/` with individual native panels and camera receipts.
+The final provenance audit verifies 38 exported-resource views. Every gallery
+JPG was inspected at native size before its commit: five images, widths
+1200–1600px, 152,423–196,053 bytes each. No photo pixels are in their materials.
+
+Proof: `make clean` removed own build/export/textures/final renders; `make`
+rebuilt them. After the inspection-render corrections, `make` and
+`make check` pass again. The first isolated repeat exposed a missing reused
+street-light source link; fixing that fixture gives
+`make repeat check-texture-repeat` **118 byte-identical deterministic files**,
+exact coverage alpha and nine passing independent GPU maps (maximum 1/255,
+worst byte RMSE .001667798; kit limits 2/255 and .02). Original output files
+are unchanged by repeat. Repository check: 1,954 source files, zero errors.
+The resource audit verifies 347 protected existing files without a change.
+
+Final site triangles are 113,301 / 118,513 / 108,736; equipment triangles
+35,668 / 42,636 / 58,590; material states 14 / 14 / 12. Mesh JSON+BIN bytes
+are 9,533,953 / 9,746,104 / 8,270,164. The three new shared sets remain
+24MiB (1024/1024/2048); their nine PNGs total 23,830,199 disk bytes. Complete
+uncached sites including reused landscape are 108 / 108 / 92MiB.
+
+Remaining CG cues are regular long bed scars and repeated collar-chip charts,
+flat fiber parallax away from hollows, angular carried-out chips, simple mat/
+repair edges, small hardware facets, alpha-chain parallax and repeated foliage
+cards. These are recorded limits, not hidden by the measurements. The school's
+socket is measured on this export; no absent external school fit is claimed.
+No lead action or kit modification is required. A future fixed-roll option
+in the photo solver would simplify calibration without changing this asset.
