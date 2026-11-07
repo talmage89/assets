@@ -36,6 +36,7 @@ def views(p):
  'cup':dict(location=relative(cup,-.38,-.42,.40),target=relative(cup,0,0,.015),lens=55,aspect=1.35),
  'border':dict(location=relative(tee,-2.1,.45,.56),target=relative(tee,-1.0,.75,.05),lens=55,aspect=1.55),
  'waterfall':dict(location=(-.5,7.2,3.25),target=(2.0,9.65,1.35),lens=32,aspect=1.25,sun=(-.65,-.65,.48)),
+ 'pond':dict(location=(-7,-4,13.5),target=(0,3,0),lens=32,aspect=1.2,sun=(-.65,-.65,1.4),sky_strength=.24),
  'fixture':dict(location=local(fx,fcx-3.5,fcy-8.5,fcz+1.65),target=relative(c,0,0,1.65),lens=48,aspect=1.35,human=local(fx,fcx-halfwidth(fx,.49)-1.05,fcy,fcz-.13)),
  'lighthouse':fixture_view('lighthouse'),
  'castle':fixture_view('castle'),
@@ -125,7 +126,7 @@ def render_one(name,shot,source,p,ctx,args):
 def main(args):
  chosen=args.shots.split(',') if args.shots else None
  for seed,kind in ((71,'classic'),(92,'adventure')):
-  requested=['ground','above','hero','dusk']+(['tee','cup','border','waterfall','fixture','bridge','clubhouse','lighthouse','castle','bank','planting','road','sign'] if kind=='adventure' else [])
+  requested=['ground','above','hero','dusk']+(['tee','cup','border','waterfall','pond','fixture','bridge','clubhouse','lighthouse','castle','bank','planting','road','sign'] if kind=='adventure' else [])
   if chosen:requested=[n for n in requested if n in chosen or kind+'-'+n in chosen]
   if not requested:continue
   source,p,ctx=scene(seed)

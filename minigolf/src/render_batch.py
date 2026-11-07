@@ -6,7 +6,7 @@ reused only when its GLB, recipe, width and sample receipts are current.
 import argparse,hashlib,json,os,subprocess
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-EXTRAS='tee cup border waterfall fixture bridge clubhouse lighthouse castle bank planting road sign'.split()
+EXTRAS='tee cup border waterfall pond fixture bridge clubhouse lighthouse castle bank planting road sign'.split()
 
 def gpu_command(command):
  # Standalone and externally locked preview invocations both work. Normal

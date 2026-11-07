@@ -22,6 +22,7 @@ def main(args):
  # A fixed wider view contains both the original and relocated waterfall.
  p=json.loads(Path('export/Minigolf-92.json').read_text())['plan'];shots['waterfall']=dict(location=(-2,4.5,3.2),target=(2.75,9.1,1.25),lens=32,aspect=1.6,sun=(-.65,-.65,.48))
  shots['sign']=views(p)['sign']
+ shots['pond']=views(p)['pond']
  shots.pop('fixture',None);shots.pop('lighthouse',None);shots.pop('castle',None)
  wanted=set(args.keys.split(',')) if args.keys else None
  if wanted:shots={key:value for key,value in shots.items() if key in wanted}

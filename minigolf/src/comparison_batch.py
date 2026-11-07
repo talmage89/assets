@@ -2,7 +2,7 @@
 import argparse,hashlib,json,subprocess
 from pathlib import Path
 from render_batch import recipe_hash,HERE,gpu_command
-KEYS='classic-above adventure-above hero clubhouse terrain planting road sign waterfall fixture lighthouse castle'.split()
+KEYS='classic-above adventure-above hero clubhouse terrain planting road sign waterfall pond fixture lighthouse castle'.split()
 def main(args):
  fingerprint=hashlib.sha256((HERE/'comparison.py').read_bytes()).hexdigest();recipe=recipe_hash()
  for key in KEYS:

@@ -13,7 +13,7 @@ def contact(paths,dest,tile=600):
 
 def main():
  files=sorted(Path('renders/lookdev').glob('*.png'));assert files,'No GLB renders'
- expected={k+'-'+v for k in ('classic','adventure') for v in ('ground','above','hero','dusk')}|set('tee cup border waterfall fixture bridge clubhouse lighthouse castle bank planting road sign'.split())
+ expected={k+'-'+v for k in ('classic','adventure') for v in ('ground','above','hero','dusk')}|set('tee cup border waterfall pond fixture bridge clubhouse lighthouse castle bank planting road sign'.split())
  assert {p.stem for p in files}==expected,('Incomplete frame inventory',expected-{p.stem for p in files})
  contact(files,'renders/lookdev/contact.jpg');values={}
  for p in files:
