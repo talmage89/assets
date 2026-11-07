@@ -73,6 +73,17 @@ def plan(seed,type=None,size=None):
     out['trees']=[[-W/2-4.572,-D/2+6.096,0],[-W/2-4.572,4.572,0],[-W/2-3.048,D/2+4.572,0],
                   [0,D/2+6.096,0],[W/2+4.572,D/2+3.048,0],[W/2+4.572,0,0]]
     out['benches']=[[-W/2-1.524,-D/2+2.4384,0],[W/2+1.524,-D/2+2.4384,0],[0,D/2+1.524,0]]
-    out['entry']=[0,-D/2-2.4384,0]
+    out['terrain_yaw']=180 if compact and kind=='poured' else 0
+    out['site_yaw']=90 if compact and kind=='poured' else 0
+    out['entry']=[W/2+2.4384,1.524,0] if out['site_yaw']==90 else [0,-D/2-2.4384,0]
+    if out['site_yaw']==90:
+        sw,sd=D,W
+        out['site']=[sd+30.48,sw+24.384]
+        local_trees=[[-sw/2-4.572,-sd/2+6.096,0],[-sw/2-4.572,4.572,0],[-sw/2-3.048,sd/2+4.572,0],[0,sd/2+6.096,0],[sw/2+4.572,sd/2+3.048,0],[sw/2+4.572,0,0]]
+        local_benches=[[-sw/2-1.524,-sd/2+2.4384,0],[sw/2+1.524,-sd/2+2.4384,0],[0,sd/2+1.524,0]]
+        out['trees']=[[-y,x,z] for x,y,z in local_trees]
+        out['benches']=[[-y,x,z] for x,y,z in local_benches]
+    out['coordinate_frames']='Skating placements/bowl/cuts use terrain_yaw; site fixtures and entry above are world positions.'
+
     out['variation']=rng.random()
     return out

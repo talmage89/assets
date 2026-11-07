@@ -20,11 +20,14 @@ def export(path,roots):
         for o in [rt,*rt.children_recursive]:o.select_set(True)
     bpy.ops.export_scene.gltf(filepath=str(path.resolve()),export_format='GLTF_SEPARATE',use_selection=True,
         export_yup=True,export_extras=True,export_animations=False,export_tangents=True,export_texture_dir='shared',export_image_format='AUTO',export_shared_accessors=True,export_all_vertex_colors=False,export_attributes=True,export_vertex_color='MATERIAL')
-    bpy.ops.export_scene.gltf(filepath=str(path.with_suffix('.glb').resolve()),export_format='GLB',use_selection=True,
+    embedded=Path('build/embedded')/path.with_suffix('.glb').name;embedded.parent.mkdir(parents=True,exist_ok=True)
+    bpy.ops.export_scene.gltf(filepath=str(embedded.resolve()),export_format='GLB',use_selection=True,
         export_yup=True,export_extras=True,export_animations=False,export_tangents=True,export_image_format='AUTO',export_all_vertex_colors=False,export_attributes=True,export_vertex_color='MATERIAL')
     from export_frames import repair
-    repair(path);repair(path.with_suffix('.glb'))
-    return dict(gltf_bytes=path.stat().st_size,bin_bytes=path.with_suffix('.bin').stat().st_size,
+    repair(path);repair(embedded)
+    from external import share_images
+    share_images(path)
+    return dict(embedded_build_bytes=embedded.stat().st_size,gltf_bytes=path.stat().st_size,bin_bytes=path.with_suffix('.bin').stat().st_size,
                 sha256=hashlib.sha256(path.read_bytes()+path.with_suffix('.bin').read_bytes()).hexdigest())
 
 def paving(p,lib):
@@ -70,13 +73,14 @@ def paving(p,lib):
                 # Only strips beneath saw cuts, with no duplicate hidden floor.
                 for rect in ((xa,xb,ya,ya+.0015),(xa,xa+.0015,ya,yb)):
                     for x0,x1,y0,y1 in remaining(rect):Q.mesh('Recessed joint backing',[(x0,y0,-.006),(x1,y0,-.006),(x1,y1,-.006),(x0,y1,-.006)],[(0,1,2,3)],rt,'Joint')
+    edge_mat='GroundConcrete' if 'GroundConcrete' in Q.M else 'Concrete'
     # Concrete-valued thickened slab edge meets a narrow mow strip, then lawn.
     for x in (-W/2,W/2):
-        Q.box('Thickened slab edge',(x+(.045 if x>0 else -.045),0,-.09),(.09,D,.18),rt,'Concrete',.004)
-        Q.box('Concrete mow strip',(x+(.27 if x>0 else -.27),0,-.05),(.36,D+.90,.10),rt,'Concrete',.004)
+        Q.box('Thickened slab edge',(x+(.045 if x>0 else -.045),0,-.09),(.09,D,.18),rt,edge_mat,.004)
+        Q.box('Concrete mow strip',(x+(.27 if x>0 else -.27),0,-.05),(.36,D+.90,.10),rt,edge_mat,.004)
     for y in (-D/2,D/2):
-        Q.box('Thickened slab edge',(0,y+(.045 if y>0 else -.045),-.09),(W+.18,.09,.18),rt,'Concrete',.004)
-        Q.box('Concrete mow strip',(0,y+(.27 if y>0 else -.27),-.05),(W+.18,.36,.10),rt,'Concrete',.004)
+        Q.box('Thickened slab edge',(0,y+(.045 if y>0 else -.045),-.09),(W+.18,.09,.18),rt,edge_mat,.004)
+        Q.box('Concrete mow strip',(0,y+(.27 if y>0 else -.27),-.05),(W+.18,.36,.10),rt,edge_mat,.004)
     return rt
 
 def main():
@@ -102,7 +106,7 @@ def main():
         rt['grid_bounds_json']=json.dumps([lo,hi])
         Q.socket(rt,'Grid_SW',(*lo,0),kind='layout_grid');Q.socket(rt,'Grid_NE',(*hi,0),kind='layout_grid')
     records={o.name:record(o) for o in [*lib.values(),*bowl_lib,*steel_bowl]}
-    ex=Path('export/lookdev' if a.look else 'export/connected-form');delivery=export(ex/'SkateparkPieces.gltf',[*lib.values(),*bowl_lib,*steel_bowl]);parks={}
+    ex=Path('export/final' if a.look else 'export/connected-form');delivery=export(ex/'SkateparkPieces.gltf',[*lib.values(),*bowl_lib,*steel_bowl]);parks={}
     for seed in a.seeds:
         p=plan(seed);connections,cuts=terrain.build(p,lib);p['terrain_cuts']=cuts
         roots=list(connections);skating=list(connections)+[paving(p,lib)];roots.append(skating[-1])
@@ -122,6 +126,10 @@ def main():
         if a.look:
             for rt in roots:rt['stage']='baked look-dev checkpoint'
         for rt in roots:Q.join(rt)
+        if p.get('terrain_yaw'):
+            from mathutils import Matrix
+            transform=Matrix.Rotation(math.radians(p['terrain_yaw']),4,'Z')
+            for rt in skating:rt.matrix_world=transform@rt.matrix_world
         bpy.context.view_layer.update()
         info=dict(plan=p,guard_contacts=guard_check,surface_mark_contacts=mark_check,skating_triangles=sum(Q.count(r) for r in skating),whole_site_triangles=sum(Q.count(r) for r in roots),
                   parts={r.name:record(r) for r in roots})
@@ -133,6 +141,7 @@ def main():
     # Only current external glTF references own the generated shared images.
     # Remove stale iteration images so a clean rebuild has the same file set.
     used={image['uri'] for path in ex.glob('*.gltf') for image in json.loads(path.read_text()).get('images',[]) if 'uri' in image}
+    for old in ex.glob('*.glb'):old.unlink()
     for image in (ex/'shared').glob('*.png'):
         if image.relative_to(ex).as_posix() not in used:image.unlink()
     # Source module inspection layout, independent from placed exports.

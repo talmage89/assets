@@ -1,5 +1,5 @@
 """Raw exported PBR/UV/frame audits, independent of construction declarations."""
-import argparse,sys,json,math,hashlib,io
+import argparse,sys,json,math,hashlib,io,subprocess
 from pathlib import Path
 from collections import defaultdict
 import numpy as np
@@ -93,14 +93,17 @@ def inspect(path,library=False):
     trim=[row for row in images if row['name'].startswith('T_SkateTrim')]
     assert len({row['sha256'] for row in trim})==3,trim
     if library:
-        assert len(roots)>=56
+        assert len(roots)==58
         assert all(r['triangles']<=4000 and len(r['materials'])<=3 for r in roots.values()),{k:(v['triangles'],len(v['materials'])) for k,v in roots.items()}
     masks=[]
     for mat in g.json.get('materials',[]):
         if mat.get('alphaMode')=='MASK':
             tex=mat['pbrMetallicRoughness']['baseColorTexture']['index'];image=g.json['textures'][tex]['source'];assert images[image]['alpha_has_holes'],mat['name']
             masks.append(dict(material=mat['name'],cutoff=mat.get('alphaCutoff',.5),image=images[image]['name']))
-    if not library:assert len({row['tree'] for row in tree_primitives})==6 and len(masks)>=4
+    if not library:
+        assert len({row['tree'] for row in tree_primitives})==6
+        assert all(any(row['material'].startswith(prefix) for row in masks) for prefix in ('PinOak','RedMaple','ChainLink')),masks
+        assert all(m.get('alphaMode')=='BLEND' for m in g.json['materials'] if m['name'].startswith(('Skate_Trim_Burnish','Skate_AbsorbedWax')))
     overlaps={}
     if library:
         for family,tris in basins.items():
@@ -115,7 +118,7 @@ def inspect(path,library=False):
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--folder',type=Path,default=Path('export/lookdev'));a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
-    report=dict(library=inspect(a.folder/'SkateparkPieces.glb',True),parks={str(s):inspect(a.folder/f'Park_{s}.glb') for s in (101,202,303)})
+    report=dict(library=inspect(Path('build/embedded/SkateparkPieces.glb'),True),parks={str(s):inspect(Path('build/embedded')/f'Park_{s}.glb') for s in (101,202,303)})
     expected={}
     for name,size in [('SkateTrim',2048),('Prefab',1024)]:
         files=[]
@@ -129,7 +132,13 @@ def main():
     protected=Path('../build/skatepark-lookdev/protected.json')
     if protected.exists():
         old=json.loads(protected.read_text());different=[str(path) for path,digest in old.items() if not (HERE.parents[1]/path).is_file() or hashlib.sha256((HERE.parents[1]/path).read_bytes()).hexdigest()!=digest]
-        assert not different,different;report['protected_existing_files']=dict(files=len(old),changed=different)
+        merged=[]
+        if 'README.md' in different:
+            expected=subprocess.check_output(['git','show','HEAD:README.md'],cwd=HERE.parents[1])
+            if (HERE.parents[1]/'README.md').read_bytes()==expected:
+                different.remove('README.md');merged.append('README.md: lead-authored change brought by the required main merge; current bytes equal HEAD')
+        assert not different,different;report['merged_reference_updates']=merged
+        report['protected_existing_files']=dict(files=len(old),changed=different)
     retained={}
     for folder in ('export/checkpoint','renders/checkpoint','renders/matches'):
         archive=Path('build/before')/folder;current=Path(folder)

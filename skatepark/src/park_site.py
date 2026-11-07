@@ -96,6 +96,15 @@ def bleacher():
     return rt
 
 def site(p):
+    import copy
+    from mathutils import Matrix
+    site_angle=p.get('site_yaw',0);p=copy.deepcopy(p)
+    if site_angle:
+        W,D=p['skating'][::-1];p['skating']=[W,D];p['site']=[W+24.384,D+30.48]
+        from terrain import world_rect
+        p['landscape_cuts']=[world_rect(r,dict(yaw=p.get('terrain_yaw',0)-site_angle,location=[0,0,0])) for r in p.get('landscape_cuts',[])]
+        p['benches']=[[-W/2-1.524,-D/2+2.4384,0],[W/2+1.524,-D/2+2.4384,0],[0,D/2+1.524,0]]
+        p['trees']=[[-W/2-4.572,-D/2+6.096,0],[-W/2-4.572,4.572,0],[-W/2-3.048,D/2+4.572,0],[0,D/2+6.096,0],[W/2+4.572,D/2+3.048,0],[W/2+4.572,0,0]]
     W,D=p['skating'];SW,SD=p['site'];roots=[]
     rt=root('SitePaving','site');roots.append(rt)
     # Site turf excludes skating and parking footprints; bowl does not have a
@@ -128,11 +137,12 @@ def site(p):
     f=load('chain');fence=root('PerimeterFence','site');roots.append(fence)
     nx=math.ceil((W+2.4384)/3.048);ny=math.ceil((D+2.4384)/3.048)
     fx=nx*3.048/2;fy=ny*3.048/2
-    entry_opening=6.096 if nx%2==0 else 3.048
+    gate_x=1.524 if site_angle and nx%2==0 else 0
+    entry_opening=3.048 if gate_x else 6.096 if nx%2==0 else 3.048
     for y,yaw in ((-fy,0),(fy,0)):
         for i in range(nx):
             x=(i-(nx-1)/2)*3.048
-            if y<0 and abs(x)<1.6:continue
+            if y<0 and abs(x-gate_x)<1.6:continue
             panel=instance(f['Chain_Section'],'Chain section',(x,y,0),yaw,fence)
             if y<0 and i==nx-3:
                 for ob in panel.children_recursive:
@@ -144,20 +154,20 @@ def site(p):
                         if .06<v.z<.62:v.y+=.045*math.exp(-(v.x/.48)**4)*math.sin(math.pi*(v.z-.06)/.56)**2
         for i in range(nx+1):
             x=(i-nx/2)*3.048
-            if y<0 and abs(x)<entry_opening/2-.001:continue
+            if y<0 and abs(x-gate_x)<entry_opening/2-.001:continue
             instance(f['Chain_Line'],'Chain post',(x,y,0),yaw,fence)
     # Two trimmed side runs fit the chosen park pad exactly at native pitch.
     for x in (-fx,fx):
         N=ny
         for i in range(N):instance(f['Chain_Section'],'Chain side',(x,(i-(N-1)/2)*3.048,0),90,fence)
         for i in range(1,N):instance(f['Chain_Line'],'Chain side post',(x,(i-N/2)*3.048,0),90,fence)
-    gate=instance(f['Chain_GateBay'],'ParkGate',(0,-fy,0),0,fence)
+    gate=instance(f['Chain_GateBay'],'ParkGate',(gate_x,-fy,0),0,fence)
     for s in (-1,1):
         # Low infill to the wider 10ft entry bay around the native pedestrian gate.
         # Horizontal library bays straddle the origin: a 6.096m opening was
         # reserved by the two omitted bays. Infill meets gate-post centers.
         gate_pitch=1.069975;length=(entry_opening-gate_pitch)/2
-        ob=instance(f['Chain_InfillWide' if entry_opening>4 else 'Chain_InfillShort'],'Gate infill',(s*(gate_pitch/2+length/2),-fy,0),0,fence)
+        ob=instance(f['Chain_InfillWide' if entry_opening>4 else 'Chain_InfillShort'],'Gate infill',(gate_x+s*(gate_pitch/2+length/2),-fy,0),0,fence)
     remove(f)
     sign=root('RulesSign','site');sign.location=(1.20,-D/2-2.0,0);roots.append(sign)
     cyl('Rules post',(0,0,0),(0,0,2.2),.03016,sign,'Zinc',12)
@@ -171,4 +181,14 @@ def site(p):
     f=load('light')
     for i,loc in enumerate(((-W/2-3,-D/2+3,0),(W/2+3,D/2-3,0))):roots.append(instance(next(iter(f.values())),'ParkLight_'+str(i),loc,i*180))
     remove(f)
+    if site_angle:
+        bpy.context.view_layer.update()
+        paving=roots[0]
+        for ob in paving.children:
+            if ob.name.startswith(('Street to gate','Gate approach')):ob.location.x+=gate_x
+        for rt in roots:
+            if rt.name.startswith(('RulesSign','BikeRack','DrinkingFountain','Litter')):rt.location.x+=gate_x
+        bpy.context.view_layer.update()
+        transform=Matrix.Rotation(math.radians(site_angle),4,'Z')
+        for rt in roots:rt.matrix_world=transform@rt.matrix_world
     return roots

@@ -21,7 +21,7 @@ unsurveyed form/age comparators. Sources and rights are in [refs/SOURCES.md](ref
 | Flat bar | 50.8 × 76.2mm tube; 3.6576m length; .4572m center height | Original 2 × 3in fabricated grind tube, capped ends, stanchions, anchored feet. |
 | Prefab quarter | Same 4ft/7ft section; 50.8mm frame tubes; separate 6mm phenolic curve and deck sheets; 3mm inclined toe plate | Rhino and Rockville specify ventilated enclosures, flush steel plates, protected edges and recessed fasteners. Techramps documents a comparable 1.2m high public quarter. No real maker's markings appear. |
 | Prefab launch | .762m high, 2.4384m radius, 2.4384m wide, .6096m deck | Original lower launch configuration using the same framed construction. |
-| Site interfaces | 2.4384m entry walk, native .9144m gate leaf; 3.048m fence pitch; library's 1.2192m fence fabric height | Ground/fences/furniture retain their own construction dimensions. Access Board park-feature guidance informs clear approaches; this asset is not a site-engineering compliance analysis. |
+| Site interfaces | 2.4384m entry walk, native .9144m gate leaf; 3.048m fence pitch; municipal 1.8288m fence fabric height | Ground/fences/furniture retain their own construction dimensions. Access Board park-feature guidance informs clear approaches; this asset is not a site-engineering compliance analysis. |
 | New site pieces | 6.096 × 4.8768m steel pavilion, 2.70m eaves / 3.57m ridge; 4.8768m three-row bleacher; two-height drinking fountain, basin tops .865/1.015m | Original park fixtures. Fountain basin, cantilever, pedestal and feet; pavilion seams, rafters, base shoes; bleacher seats, footboards and braces are modeled. |
 
 The skating slab is a terrain skin. Only exposed skins and recessed saw-cut
@@ -29,7 +29,7 @@ strips are retained around poured features; no flat floor spans the bowl.
 Poured features represent reinforced concrete over prepared fill: internal
 rebar and buried foundations are not exported. Smooth riding concrete and
 the broom-finished pedestrian walk must use different finish responses in
-look-dev, even when sharing the ground concrete images.
+look-dev, while sharing the new concrete manufacture tile.
 
 The photo matches fit an original asset to selected construction landmarks,
 not every detail of a photographed park. The bowl phases are inferred contour

@@ -48,12 +48,12 @@ def repair(path):
         for pi,prim in enumerate(mesh['primitives']):
             mat=g.json['materials'][prim['material']]
             if 'normalTexture' not in mat:continue
-            attr=prim['attributes'];ai=attr['TANGENT']
-            if ai in visited:continue
-            visited.add(ai);n=g.accessor(attr['NORMAL']);t=g.accessor(ai);v=g.accessor(attr['POSITION']);uv=g.accessor(attr['TEXCOORD_0'])
-            ids=np.concatenate([g.accessor(p['indices']).reshape(-1,3) for p in mesh['primitives'] if p['attributes'].get('TANGENT')==ai])
+            attr=prim['attributes'];ai=attr['TANGENT'];channel=mat['normalTexture'].get('texCoord',0)
+            if (ai,channel) in visited:continue
+            visited.add((ai,channel));n=g.accessor(attr['NORMAL']);t=g.accessor(ai);v=g.accessor(attr['POSITION']);uv=g.accessor(attr['TEXCOORD_'+str(channel)])
+            ids=np.concatenate([g.accessor(p['indices']).reshape(-1,3) for p in mesh['primitives'] if p['attributes'].get('TANGENT')==ai and g.json['materials'][p['material']].get('normalTexture',{}).get('texCoord',0)==channel and 'normalTexture' in g.json['materials'][p['material']]])
             lengths=np.linalg.norm(t[:,:3],axis=1);dots=(n*t[:,:3]).sum(axis=1)
-            bad=np.flatnonzero((np.abs(lengths-1)>.002)|(np.abs(dots)>.003))
+            bad=np.intersect1d(np.flatnonzero((np.abs(lengths-1)>.002)|(np.abs(dots)>.003)),np.unique(ids))
             if not len(bad):continue
             accessor=g.json['accessors'][ai];view=g.json['bufferViews'][accessor['bufferView']]
             assert accessor['componentType']==5126 and accessor['type']=='VEC4'

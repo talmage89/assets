@@ -87,7 +87,11 @@ def mesh_groups(path):
 
 def layout_measurement(seed,folder):
     info=json.loads(Path('build/park-'+str(seed)+'.json').read_text());p=info['plan'];W,D=p['skating'];scale=40
-    groups=mesh_groups(folder/f'Park_{seed}.glb');size=(round(W*scale)+1,round(D*scale)+1)
+    groups=mesh_groups(Path('build/embedded')/f'Park_{seed}.glb')
+    if p.get('terrain_yaw'):
+        angle=math.radians(-p['terrain_yaw']);rotation=np.array([[math.cos(angle),-math.sin(angle),0],[math.sin(angle),math.cos(angle),0],[0,0,1]])
+        groups={name:[(v@rotation.T,i,m) for v,i,m in rows] for name,rows in groups.items()}
+    size=(round(W*scale)+1,round(D*scale)+1)
     active=Image.new('1',size,1);d=ImageDraw.Draw(active)
     def pixel(x,y):return ((x+W/2)*scale,(D/2-y)*scale)
     for x0,x1,y0,y1 in p.get('landscape_cuts',[]):d.rectangle((*pixel(x0,y1),*pixel(x1,y0)),fill=0)

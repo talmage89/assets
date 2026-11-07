@@ -49,6 +49,9 @@ def context(p):
     for i in range(-3,4):
         Q.instance(house,'Context town house',(i*23.0,D/2+39.624,-.1),0,rt)
     for i in range(-2,3):Q.instance(house,'Context east town house',(W/2+37.0,i*24.0,-.1),-90,rt)
+    if p.get('terrain_yaw'):
+        for i in range(-3,4):Q.instance(house,'Context south town house',(i*23.0,-D/2-39.624,-.1),180,rt)
+        for i in range(-2,3):Q.instance(house,'Context west town house',(-W/2-37.0,i*24.0,-.1),90,rt)
     remove(f)
     f=load('tree');species=sorted(f.values(),key=lambda o:o.name)
     for i in range(-6,7):
@@ -69,6 +72,10 @@ def views(p):
     if p['seed']==202:shots['hero']=dict(location=(-15.6,-7.5,1.65),target=(4,3,.4),lens=35,aspect=1.85)
     if p['seed']==202:shots['steel_coping']=dict(location=(-13.6,10.8,2.32),target=(-12.2,10.1,1.22),lens=65,aspect=1.5)
     if p['seed']==101:
+        shots['scale']=dict(location=(-24,-14,3.4),target=(-12,-1,-.3),lens=40,aspect=1.5,human_offset=(-13,-7.5,0))
+        shots['transition']=dict(location=(-14.8,4.3,1.6),target=(-10,9,1),lens=45,aspect=1.5)
+        shots['tag']=dict(location=(16,-1.5,.72),target=(15.392,3.045,.35),lens=65,aspect=1.5)
+        shots['walk']=dict(location=(2,-20.5,.70),target=(.6,-19.4,0),lens=45,aspect=1.5)
         shots.update(hero=dict(location=(-19.0,-7.0,1.65),target=(4,1,1.0),lens=35,aspect=1.85),
                      bowl=dict(location=(-13,-3,1.4),target=(-13,-5.1,-.03),lens=50,aspect=1.5),
                      ledge=dict(location=(12.0,-10.0,1.25),target=(9.449,-6.6,.39),lens=55,aspect=1.5),
@@ -78,17 +85,33 @@ def views(p):
                      edge=dict(location=(-22.6,-17.9,1.0),target=(-21,-16.75,-.01),lens=45,aspect=1.5),
                      trees=dict(location=(-38,-19,7),target=(-27.4,-10.6,6),lens=38,aspect=.9))
     if p['seed']==303:
-        shots['prefab']=dict(location=(2.25,4.95,1.4),target=(0,7.5,.65),lens=40,aspect=1.5)
-        shots['plate']=dict(location=(-.8,7.9,.43),target=(0,8.70,.02),lens=55,aspect=1.5)
+        shots['prefab']=dict(sun_direction=(.5,.9,-.55),sun_energy=7,location=(2.25,4.95,1.4),target=(0,7.5,.65),lens=40,aspect=1.5)
+        shots['prefab_side']=dict(sun_direction=(.5,.9,-.55),sun_energy=7,location=(2.6,5.6,1.0),target=(3.66,9.5,.60),lens=50,aspect=1.5)
+        shots['plate']=dict(sun_direction=(-.7,-.7,-.40),sun_energy=7,location=(-.8,7.9,.43),target=(0,8.70,.02),lens=55,aspect=1.5)
         shots['hero']=dict(location=(-10.97,-6.7056,1.65),target=(0,4,.7),lens=40,aspect=1.9)
+    if p.get('terrain_yaw'):
+        from mathutils import Matrix
+        turn=Matrix.Rotation(math.radians(p['terrain_yaw']),4,'Z')
+        for name,v in shots.items():
+            if name in ('above','plan'):continue
+            for key in ('location','target'):v[key]=list(turn@Vector(v[key]))
     return shots
 
+def recipe_hash():
+    h=hashlib.sha256()
+    for name in ('render.py','geometry.py','park_site.py'):
+        h.update((HERE/name).read_bytes())
+    for path in sorted(Path('build/context').glob('*.glb')):h.update(path.read_bytes())
+    return h.hexdigest()
+
 def render(seed,folder,out,width,samples,names=None,custom=None,with_context=True,engine='CYCLES',manifest=None):
-    source=Path(folder)/('Park_'+str(seed)+'.glb')
-    if not source.exists():source=source.with_suffix('.gltf')
+    source=Path(folder)/('Park_'+str(seed)+'.gltf')
+    if not source.exists():source=source.with_suffix('.glb')
     info=json.loads(Path(manifest or ('build/park-'+str(seed)+'.json')).read_text());p=info['plan']
     bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source.resolve()));assets=list(bpy.context.scene.objects)
     if with_context:context(p)
+    from kit.studio import human
+    silhouettes=human();human_rest={o:o.location.copy() for o in silhouettes}
     cam=setup(samples);sc=bpy.context.scene;sc.render.engine=engine;shots=custom or views(p);records={};out=Path(out);out.mkdir(parents=True,exist_ok=True)
     for name,v in shots.items():
         if names and name not in names:continue
@@ -97,18 +120,22 @@ def render(seed,folder,out,width,samples,names=None,custom=None,with_context=Tru
                 owner=ob
                 while owner.parent:owner=owner.parent
                 ob.hide_render=owner.name not in v['isolate']
+        for ob in silhouettes:
+            ob.hide_render='human_offset' not in v
+            ob.location=human_rest[ob]+Vector(v.get('human_offset',(0,0,0)))
         cam.location=v['location'];cam.rotation_euler=(Vector(v['target'])-cam.location).to_track_quat('-Z','Y').to_euler()
         if v.get('roll'):cam.rotation_euler.rotate_axis('Z',v['roll'])
         cam.data.lens=v.get('lens',40);cam.data.shift_y=v.get('shift_y',0)
-        sc.view_settings.exposure=v.get('exposure',1.15)
+        sc.view_settings.exposure=v.get('exposure',-.25)
         sc.render.resolution_x=width;sc.render.resolution_y=round(width/v.get('aspect',1.5));sc.render.resolution_percentage=100
-        sun=bpy.data.objects['Raking sun'];sun.rotation_euler=Vector(v.get('sun_direction',(-.7,.35,-.55))).to_track_quat('-Z','Y').to_euler();sun.data.energy=v.get('sun_energy',4.5)
-        if 'sky_strength' in v:sc.world.node_tree.nodes.get('Background').inputs['Strength'].default_value=v['sky_strength']
+        sun=bpy.data.objects['Raking sun'];sun.rotation_euler=Vector(v.get('sun_direction',(-.82,.4,-.30))).to_track_quat('-Z','Y').to_euler();sun.data.energy=v.get('sun_energy',12.0)
+        sc.world.node_tree.nodes.get('Background').inputs['Strength'].default_value=v.get('sky_strength',.08)
         sc.world.node_tree.nodes['Estimated sky chroma'].inputs['Saturation'].default_value=v.get('sky_saturation',.45)
         sun.data.angle=math.radians(v.get('sun_angle_degrees',.6))
         bpy.context.view_layer.update();sc.render.filepath=str((out/(name+'.png')).resolve());bpy.ops.render.render(write_still=True)
-        records[name]=dict(seed=seed,source=str(source),sha256=hashlib.sha256(source.read_bytes()).hexdigest(),camera=v,engine=engine,samples=samples,width=width,
-            effective_lighting=dict(exposure=sc.view_settings.exposure,sun_energy=sun.data.energy,sky_strength=sc.world.node_tree.nodes.get('Background').inputs['Strength'].default_value,sky_saturation=sc.world.node_tree.nodes['Estimated sky chroma'].inputs['Saturation'].default_value,view_transform=sc.view_settings.view_transform,look=sc.view_settings.look))
+        from external import bundle
+        records[name]=dict(recipe_sha256=recipe_hash(),bundle_sha256=bundle(source) if source.suffix=='.gltf' else None,seed=seed,source=str(source),sha256=hashlib.sha256(source.read_bytes()).hexdigest(),camera=v,engine=engine,samples=samples,width=width,
+            effective_lighting=dict(sun_direction_world=list(Vector(v.get('sun_direction',(-.82,.4,-.30))).normalized()),sun_elevation_degrees=math.degrees(math.asin(-Vector(v.get('sun_direction',(-.82,.4,-.30))).normalized().z)),exposure=sc.view_settings.exposure,sun_energy=sun.data.energy,sky_strength=sc.world.node_tree.nodes.get('Background').inputs['Strength'].default_value,sky_saturation=sc.world.node_tree.nodes['Estimated sky chroma'].inputs['Saturation'].default_value,view_transform=sc.view_settings.view_transform,look=sc.view_settings.look))
         (out/(name+'.json')).write_text(json.dumps(records[name],indent=2))
     return records
 

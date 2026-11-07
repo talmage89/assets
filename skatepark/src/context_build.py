@@ -44,8 +44,8 @@ def main():
         from kit.export import atlas_material
         def init(self,high,wear):
             Builder.__init__(self,'ChainLink',False,wear);self.zinc=Q.M['Zinc']
-            B.mesh_tile.apply(a.out.parent/'fabric-source')
-            self.fabric_mat=atlas_material('ChainLink',(a.out.parent/'fabric-source').resolve(),.5,True)
+            # Canonical fence atlas is built by its own unchanged pipeline.
+            self.fabric_mat=atlas_material('ChainLink',(REPO/'fences/chain-link/textures/ship').resolve(),.5,True)
             for n in self.fabric_mat.node_tree.nodes:
                 if hasattr(n,'uv_map'):n.uv_map='BakeUV'
         B.Chain.__init__=init;b=B.Chain(False,.4)

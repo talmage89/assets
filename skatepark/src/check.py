@@ -37,8 +37,8 @@ def circle(points):
     return dict(center_m=x[:2].tolist(),radius_m=r,max_radial_error_m=float(err.max()),stations=len(q))
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--folder',type=Path,default=Path('export/checkpoint'));args=ap.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else []);folder=args.folder
-    source=json.loads(Path('build/Skatepark.json').read_text());lib=imported(folder/'SkateparkPieces.glb');report=dict(stage=source['stage'],pieces={},construction={},parks={},limitations=['Terrain UV reuse is intentional; density and accidental surface intersections are checked separately.','Contour phase matches are inferred, not surveyed correspondences.'])
+    ap=argparse.ArgumentParser();ap.add_argument('--folder',type=Path,default=Path('export/final'));args=ap.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else []);folder=args.folder
+    source=json.loads(Path('build/Skatepark.json').read_text());lib=imported(Path('build/embedded/SkateparkPieces.glb'));report=dict(stage=source['stage'],pieces={},construction={},parks={},limitations=['Terrain UV reuse is intentional; density and accidental surface intersections are checked separately.','Contour phase matches are inferred, not surveyed correspondences.'])
     for name,expected in source['pieces'].items():
         n=count(lib[name]);assert n==expected['triangles'],(name,n,expected['triangles']);assert 0<n<=4000,(name,n)
         report['pieces'][name]=n
@@ -115,9 +115,11 @@ def main():
     zinc=material_vertices(lib['Prefab_Quarter'],'Zinc');front=min(p.y for p in zinc);zs=[p.z for p in zinc if abs(p.y-front)<1e-5]
     report['construction']['prefab_toe_plate_gauge_m']=max(zs)-min(zs);assert abs(max(zs)-min(zs)-.003)<2e-5,(min(zs),max(zs),sorted(set(round(z,6) for z in zs)))
     for seed in SEEDS:
-        path=folder/('Park_'+str(seed)+'.gltf');roots=imported(path.with_suffix('.glb'));expected=source['parks'][str(seed)];n=sum(count(r) for r in roots.values());assert n==expected['whole_site_triangles'],(seed,n,expected['whole_site_triangles'])
+        path=folder/('Park_'+str(seed)+'.gltf');roots=imported(path);expected=source['parks'][str(seed)];n=sum(count(r) for r in roots.values());assert n==expected['whole_site_triangles'],(seed,n,expected['whole_site_triangles'])
+        accepted={101:(48694,286380),202:(45451,271757),303:(44367,271069)}
+        assert (expected['skating_triangles'],n)==accepted[seed],('Accepted triangle counts changed',seed,expected['skating_triangles'],n)
         assert 40000<=expected['skating_triangles']<=120000,(seed,expected['skating_triangles'])
-        doc=json.loads(path.read_text());uris=[im['uri'] for im in doc.get('images',[])];assert all(u.startswith('shared/') for u in uris)
+        doc=json.loads(path.read_text());uris=[im['uri'] for im in doc.get('images',[])];assert all(not u.startswith('shared/') and (path.parent/u).is_file() for u in uris)
         imagebytes={u:hashlib.sha256((path.parent/u).read_bytes()).hexdigest() for u in uris}
         maximum=0;degenerate=0
         for ob in bpy.context.scene.objects:
@@ -133,6 +135,28 @@ def main():
         # Inspect actual fabric planes and post-bottom rings in world space.
         # Quaternion-mode imports previously ignored Euler placement yaw,
         # leaving crosswise panels and unsupported fabric at the corners.
+        # Construction checks operate in each assembly's authored frame; this
+        # isolates orientation from its physical support/spacing measurements.
+        from mathutils import Matrix
+        sf=Matrix.Rotation(math.radians(-expected['plan'].get('site_yaw',0)),4,'Z')
+        for rt in roots.values():
+            if rt.get('module_kind')=='site':rt.matrix_world=sf@rt.matrix_world
+        bpy.context.view_layer.update()
+        # Physical fixture bases must remain outside the skating footprint.
+        # These actual low mesh bounds catch stale root matrices independently
+        # of exported transform equality.
+        SW,SD=expected['plan']['skating']
+        if expected['plan'].get('site_yaw',0)%180:SW,SD=SD,SW
+        bases=[]
+        for name,rt in roots.items():
+            if not name.startswith(('ParkTree_','ParkLight_')):continue
+            pts=[ob.matrix_world@v.co for ob in rt.children_recursive if ob.type=='MESH' for v in ob.data.vertices]
+            low=min(p.z for p in pts);foot=[p for p in pts if p.z<low+.05]
+            x=(min(p.x for p in foot)+max(p.x for p in foot))/2;y=(min(p.y for p in foot)+max(p.y for p in foot))/2
+            assert abs(x)>SW/2+.5 or abs(y)>SD/2+.5,('Fixture base intrudes into skating terrain',seed,name,x,y)
+            bases.append(dict(root=name,actual_low_mesh_center_XY_m=[x,y],actual_minimum_Z_m=low))
+        assert len(bases)==8
+        checks['actual_tree_and_light_bases']=bases
         fence=roots['PerimeterFence'];post_centers=[];panels=[]
         for rt in fence.children:
             if rt.name.startswith(('Chain post','Chain side post')):
@@ -152,6 +176,10 @@ def main():
         assert len(panels)>=20 and endpoint_error<.001,(seed,len(panels),endpoint_error)
         checks['side_fence_surface_check']=dict(panels=len(panels),maximum_post_endpoint_error_m=endpoint_error)
         if seed in (101,202):
+            turn=Matrix.Rotation(math.radians(-expected['plan'].get('terrain_yaw',0)),4,'Z')
+            for rt in roots.values():
+                if rt.get('module_kind')=='skating':rt.matrix_world=turn@rt.matrix_world
+            bpy.context.view_layer.update()
             tree=bvh(list(roots.values()));stair=next(m for m in expected['plan']['placements'] if m['piece'].startswith('Stairs'))
             x,y,_=stair['location'];nstep=5 if seed==101 else 4;toe=-nstep*.3048/2
             probes=[]
