@@ -1,8 +1,8 @@
-# Form and construction review
+# Form, construction and look-dev review
 
-This is the requested stop before look-dev. Every review render imports the
-published glTF. Quick color, neutral roughness and two original diagnostic
-images are deliberately provisional. No final gallery or docs image is committed.
+The first four passes record the preceding form checkpoint. The continuation
+below records the current baked look-dev checkpoint. Review renders import the
+published glTF. No final gallery or docs image is committed.
 The period photo credits, dates and licenses are in `refs/SOURCES.md`.
 
 ## Pass 1 — source drawings, then exported construction
@@ -201,3 +201,328 @@ for all 40 modules and three sites, including 17 actual entry contacts and 132
 sampled swing poses. Protected existing-delivery hashes are unchanged for all
 263 files. No final UV packing, normal bake, physical surfacing or standards
 certification is implied by these results.
+
+## Look-dev continuation — pass 1, form before finish
+
+**Color and value first.** Opened the three 1000px `renders/form-1/*/hero.png`
+and plans, the clamp/deck and swing views, and the native reference crops.
+The blue/yellow/red 1996 and evergreen/tan/burgundy 2005 now separate in the
+whole frame. The provisional fade is too pastel on the blue posts; the material
+pass must preserve a dark blue substrate and localize chalking to exposed faces.
+The fiber remains an intentionally untextured brown surface in this pass.
+
+One continuous containment replaces the four individual borders. The first
+convex version still reads too angular in the later sites, so revise it to the
+rounded union of expanded use zones, with a true entrance neck. The 1996 double
+pyramids and the 2005 lower roof bay change the tower silhouette. The later arch
+frame has actual bent 89mm supports. Closed stringers now carry the stair trays;
+transfer cheeks close the open sides. The collar silhouette is rounded, but the
+barrier lugs pointed out of the rail plane: rotate them toward the rail ends.
+
+The form pass measures 108203 / 115060 / 104294 site triangles before further
+UV splitting and material work. Source construction is not a texture or final
+look approval. The old checkpoint views are preserved in `build/before-lookdev`
+and the old exported scenes in `build/before-export` for fixed-camera views.
+
+## Look-dev continuation — pass 2, first baked site views
+
+**Color and value first.** Opened all six native 1200px `renders/look-1/`
+heroes/plans and `stairs.png`, beside the balanced daily-use references. The
+fiber fails: too much dark substrate between the chips makes it read as gray
+asphalt. Increase actual chip coverage and raise the wood's tan reflectance;
+keep the cavity shadows, rather than raising exposure. The aged blue paint now
+stays blue, the 2005 burgundy stays dark, and the newer teal/orange is distinct.
+
+The post-base oxide tiles make repeated square slots at a fixed height. Remove
+that binary tile assignment and vary the height/side mask per installed post.
+The old tread wear covers almost every upper tread with flat gray. Restrict the
+exposure to the nosing/center foot track, retaining dark plastisol at the sides.
+The stair close-up exposes support tubes ending short of the diagonal rail:
+compute their ends on the actual rail line, and return both rail ends into real
+steel. The continuous rounded 2005/2013 boundary now reads as one installation.
+
+The world has houses, native streets/curbs, parking, cars and trees. The rows of
+identical distant trees and cars are too regimented; vary spacing, species and
+orientation and avoid placing the same blue car three times in each frame.
+No tone-map or exposure change is justified by these material misses.
+
+The UV audit also found collapsed charts on vertical tray edges and on the
+slide's cut ends. These are not harmless overlaps: give them surface-aligned
+charts, and rerun chart assignment after the tube/bucket thickness operation.
+The larger landing initially reached 2004 triangles after physical perforation
+splits; replace the square corner blocks with folded triangular seats so it
+returns below the unchanged 2k cap. No budget exception is taken.
+
+The tube's old sleeve/runout overlap is also corrected at source: the barrel's
+lower semicircle now continues into a matching circular runout section before
+flattening into the open U. The first runout cap is omitted at that interface.
+Twenty-four radial barrel sides replace sixteen, with fewer axial rings to keep
+the original slide budget. Narrow the hood cheeks so they close the post gap
+without poking through the chute wall. These need the next imported close view;
+code intent alone is not an appearance approval.
+
+## Look-dev continuation — pass 3, second imported surface review
+
+**Color and value first.** Opened all six 1200px `renders/look-2/` site views,
+and its clamp, stair, exit, hanger and swing-hollow details at native resolution.
+Reference neutrals remain the Roswell concrete path, Adair white cap and 2005
+galvanized stair cheek, with their gains recorded in `build/cameras.json`.
+The denser fiber is a substantial improvement over pass 2 but still goes too
+gray in the cool fill. Warm the wood itself, with deeper compacted hollows;
+do not brighten the whole lighting rig. The old plastisol's large gray wear
+blobs still look procedural. Narrow those to the entry/nosing foot lanes.
+
+The 2013 view fails because a newly imported presentation maple template was
+left at the origin. Delete that template after its distant instances are made.
+The hanger has real upper links, but the long crossed-card chain still looks
+flat. Calibrate its baked tangent slopes to the actual 36mm-wide, 720mm repeat,
+instead of the flat bake plane's generic coverage. Keep the six-millimeter wire.
+The clamp fastener still stands proud. Replace the closed boss with an actual
+open counterbore and recess the pin-drive head behind its mouth.
+
+Fresh checks also caught two independent construction defects before the final
+renders: widening the belt left only 760.5mm to its leg, short of the 762mm
+target. A 560mm molded belt preserves the form and restores the gap. Several
+disconnected surfacing cells had inward normals because the shared closed-solid
+normal helper has no reliable up side on an open sheet. Author the up side
+explicitly; keep the actual exported surface-sampling check intact. Serialization
+checks would not have caught either construction issue.
+
+The newly inspected Eastview construction plan is dated 10 July 1995. Its
+connected composite/swing containment, ramp, walk, edge seating and planting
+provide a contemporary anchor for the oldest installation. Its curved curb and
+play sand are not reproduced: this original school variant uses timber and EWF.
+Bradley's 2009 drawing remains the later school-context reference, not a claim
+that a 2009 drawing documents a 1996 installation.
+
+## Look-dev continuation — pass 4, native construction catches
+
+**Color and value first.** Opened all six native 1200px `renders/look-3/`
+site views, plus its clamp and stair. Fiber now reads as tan wood rather than
+asphalt; 1996 chalked red/blue/yellow, 2005 dark burgundy/green/tan and 2013
+strong teal/orange/lime separate at full frame. Deep underdeck shadows remain.
+The 2013 source maple no longer occludes the structure, and the EPDM inset now
+survives triangulation as a single smooth joined color region.
+
+The stair view fails despite closed named objects: each riser was one tread
+pitch too far back, leaving the gaps open. Move the plates to each upper tread's
+front edge, and the transfer closures to the front of their platforms. Add rays
+through all eight riser fronts and both transfer fronts on the fresh import;
+the earlier contact tests never tested closure. The collar view also reveals
+loose zinc shanks. The collar yaw had added location but omitted the cylinder's
+own rotation. Apply the full object matrix before rotating around the post,
+clear that matrix, and measure every resulting component against the collar's
+local extent. Index-based label UVs also become position-based so triangulation
+cannot scramble the print. Do not call this gate finished on the passed budget
+and UV checks: these images expose construction the previous tests missed.
+
+Remaining visual risks to judge in the next native details are chain-card
+flatness, repeated small wear charts and the tube's circular/open junction.
+Library foliage still has recognizable card clusters; its canonical delivery
+is preserved, and that limits the photographic quality of the setting.
+
+## Look-dev continuation — pass 5, finish response and saddle fit
+
+**Color and value first.** Opened the native `renders/look-4/` construction,
+slide, swing, climber, rubber and scale details, inventory, and renewed 1996
+site views. Closed stair/transfer fronts and corrected collar shanks now read
+properly. The collar still looks too pristine: multiplying gray chip pixels by
+blue corner tint makes the exposed steel blue. Allocate six small color-aware
+wear subcharts inside the existing metal Worn region, with neutral exposed
+steel, age-scaled chips, and per-instance mirrors. Texture dimensions and the
+24MiB allocation stay unchanged. Keep base rust driven by actual post height.
+
+Slide bed scratches disappear after filtering: the old frequency sits near a
+delivered texel. Add a small number of causal longitudinal scars at a resolvable
+width, with separate roughness and shallow groove relief. Matte the fabric
+shade rather than giving it the clean plastic response. The maker plate's four
+curved strips chord through the post; eight strips give clearance. Add an
+actual fresh-import plate/post triangle-intersection check.
+
+A white streak in the slide bed was not a scratch. A ray cast against the raw
+exported triangles identified zinc saddle geometry ahead of the molded bed.
+The horizontal bracket cuts a sloping chute. Form the saddle around the trough
+and its tangent, including the tube's different underside; reject source
+saddle/skin crossings. The circular tube-to-open-runout transition itself is
+continuous now, with no overlapping sleeve or cheek penetration in its close-up.
+
+The chain cards put the same front-facing ring on both planes, causing fins.
+Offset the perpendicular card by one 45mm link pitch, splitting at actual UV
+repeat boundaries. Keep the bright true upper links. The bucket's thick round
+leg bars read as a grille; replace them with thin molded rounded straps with
+curved returns. The belt saddle and its embedded inserts already read correctly.
+The EWF hollows and carryout now show in the native swing-ground view. EPDM's
+joined pour colors, darker contact wear and local repair are visible without
+an overall noise wash. The library foliage and repeated fine charts remain
+the main context/detail limits; these do not justify extra exposure.
+
+## Look-dev continuation — pass 6, albedo and camera audit
+
+**Color and value first.** Opened all 21 native `renders/look-5/` exported
+views and the three live-source photo pairs. The vertical charcoal chart was
+multiplied by charcoal tint again, producing roughly .0003 linear reflectance.
+That explains the unnaturally black stair/transfer sides. Retain the chart's
+approximately .010 linear reflectance with white tint, and verify that from
+the actual exported color stream. Lighting and exposure remain fixed. The
+powder-coat chips now expose neutral metal, and the plate is continuous.
+
+The source pairs reveal camera failures that a small pixel residual concealed.
+Roswell EXIF says 5.8mm on a PowerShot SD1000. Canon's own specification gives
+35mm diagonal equivalent; our 36mm horizontal sensor and the 4:3 photograph
+require about 36.4mm horizontal equivalent before cropping. Constrain that
+range instead of letting the fit reach 120mm. RMS rises from 17.0 to 29.2 native
+pixels. This is an honest original-design mismatch, not an improved score.
+
+The stair fit had reached the kit's 20-degree roll limit. Re-read the head,
+foot and grip points on the native photograph, keep the camera level with its
+vertical posts, and bound the unknown full-image lens to a plausible wide
+12–40mm range. It now has zero roll and 12.7px RMS rather than an attractive
+8.5px score on a visibly tilted scene. The swing fit remains 20.4px with nine
+arch landmarks and its 70mm full-frame EXIF constraint. Source/crop equivalents
+and per-landmark errors stay visible; these original designs are not replicas.
+
+The stair reference also looks away from the street, exposing the setting's empty
+lawn horizon. Extend the read-only library grove around the south and west,
+beyond the installation and its use zones. The regular heroes still use their
+fixed cameras. These additional presentation trees do not alter the delivered
+site geometry or allocate new texture sets. The 2005 forest-green selection
+remains darker than Roswell's Kelly-green equipment; the catalog palette is
+an original variant, so that pair does not establish an exact hue match.
+
+At close range, trim chipping still has stretched/repeated patches, long bed
+scuffs look more regular than real random abrasions, and the chain cards can be
+identified. EPDM's contact-wear transitions inherit some half-meter cell edges.
+These are remaining look-dev weaknesses, not claims of photographic parity.
+
+## Look-dev continuation — pass 7, final site and comparison audit
+
+**Color and value first.** Reopened all 21 final native exported views, the
+three plan/layout comparisons, the fixed-camera site/stair/collar comparisons,
+and the renewed photo pairs. The oldest primary palette has a matte faded red
+roof, darker repainted posts, worn entry/nosing lanes and kicked EWF; the middle
+installation has evergreen/burgundy/tan with moderate contact wear; the newer
+one retains teal/orange/lime and EPDM. The full frames distinguish the ages,
+although palette and surfacing do more of that work than the small handling
+marks. The final hero display-luminance medians are .375 / .294 / .261, and
+99th percentiles .900 / .879 / .905. Only 3 / 1 / 3 of 960,000 pixels reach
+a channel above .995. Deep cavity/underdeck shadows remain. These whole-frame
+values describe the display image, not measured material reflectance.
+
+The final pair inspection still caught an empty gap in the east-southeast
+stair background, between the existing east and south planting. Add a grove
+outside the use zones for that extra camera. The shaded swing/stair pairs also
+underlit the same surface relative to the balanced references. Double their
+procedural sky contribution, retaining the hero rig, exposure and albedos.
+Rerender exported, live-source and earlier-export comparison views together.
+The resulting stair background has the planted park edge and its closed risers
+read clearly. The swing frame's forest green remains a palette variant from
+the photographed blue one. The deck photograph is Kelly green, so neither that
+hue mismatch nor its higher gloss should be described as matched appearance.
+
+The fixed-camera comparison set contains 17 pairs, each with 1200px panels;
+recorded origins/lenses agree, and full matrices agree where retained in the
+earlier sidecars. The three plan comparisons show the actual differences:
+Eastview's connected enclosure/access/edge seating informs 1996 but its sand
+and curved concrete curb are replaced by timber/EWF; Lively supplies the grouped
+play/picnic/parking/path relationship; Simon supplies the curved soft-surface
+area, approach and loop. These are original layouts, not plan reproductions.
+
+The collar is a split cast form with a real counterbore and recessed drive;
+the bent deck edge sits on it. The stair has actual 2.667mm folded sheet,
+closed fronts and returned child grips. The transfer platform has closed cheeks
+and fronts. The later swing frames have bent 89mm supports/heavy hangers, the
+belt has compound crown and embedded inserts, and the bucket has a full belt,
+bowl and thin molded leg straps. Close-ups show the construction; exported
+cross-sections show the trough and tube compound curvature. Saddles now follow
+the actual molded underside rather than protruding through the slide bed.
+
+The remaining CG tells are specific: collar chips repeat and stretch around
+the trim; bed scars are regular long grooves; crossed chain cards remain visible
+near the seat/hanger; EPDM contact wear retains some half-meter cell edges;
+EWF reads flatter and cooler in the shaded pairs than the reference's loose
+warm fibers. Small base/handling wear weakens at full-site distance. The preserved
+library foliage exposes repeated alpha clusters. Forest green versus Kelly
+green is an intentional palette difference, but it limits the deck pair's use
+as color proof. The original designs also leave landmark errors, especially
+the stair's 7.05% of native crop width. None of this is photographic parity.
+
+Final geometry and texture evidence: 41 module imports; ordinary maximum 1,940
+and slide maximum 3,908 triangles; 109,931 / 113,874 / 107,126 whole-site
+triangles. Actual exported contacts pass for 17 event/deck interfaces, closed
+front rays pass for eight stair and two transfer risers, maker-plate/post
+crossings and overlapping roof pairs are zero, and 132 sampled swing poses
+have no clearance violation. UV reuse is intentional manufacture-chart tiling;
+collapsed UV triangles are zero. Nine shipped maps are 1024² / 1024² / 2048²
+for metal/plastic/surface, 24MiB estimated with block compression/full mips,
+21,295,675 actual PNG bytes. Existing library sets bring the actual exported
+uncached site estimates to 108 / 108 / 92MiB; presentation context is separate.
+
+`make WIDTH=1200 SAMPLES=24` completed successfully, including fresh import,
+raw-resource checks, all exported Cycles views, three live-source pairs and
+review sheets. `make before-match compare repeat WIDTH=1200 SAMPLES=24`
+passed: 113 repeated export/manifest/shared-map files are byte-identical.
+That repeat checks existing baked bytes, not a second GPU bake. The subsequent
+photo-light/context refinement reruns match/source-match/before-match/compare/
+review without changing the exported geometry or maps. The resource audit
+preserves 398 preexisting delivery files byte-identically. No kit change,
+top-level index change, gallery or docs image is included at this checkpoint.
+
+The source-pair audit then found a scope mistake: live source geometry was still
+shaded with shipped maps, so those images established serialization agreement
+but could not reveal texture filtering loss. Correct the live comparison to
+original 4096 generated color/ORM fields and calibrated 4096 normals before
+filtering, recording each actual map path, hash and size. The analytic source
+and game mesh share geometry here; no high-poly projection step is claimed.
+
+### Native evidence for the seven requested corrections
+
+All paths below are local review artifacts, intentionally outside `docs/` and
+git history. Every before/after panel is at least 1200px wide per side.
+
+| Correction | Fixed-camera evidence |
+| --- | --- |
+| One containment, entrance, edge seating and shade | `renders/comparisons/{101,202,303}-above.jpg`; named reference plans beside actual zones in `layout-{101,202,303}.jpg`. |
+| Different seeded structure/period palette | `renders/comparisons/{101,202,303}-hero.jpg`; native hero and above PNGs in `renders/lookdev/{101,202,303}/`. |
+| Closed manufactured stairs and transfer | `renders/comparisons/stairs.jpg`, `transfer.jpg`; same installed stairs in `matches-used-stair-2005.jpg`. |
+| Cast post collars, seated deck edge and recessed fasteners | `renders/comparisons/clamp-deck.jpg`; `renders/lookdev/clamp-deck.png`. |
+| Later arch frame, molded belt and bucket | `renders/comparisons/arch-swing.jpg`, `swing-seat.jpg`, `bucket-seat.jpg`, `swing-hanger.jpg`, `swing-hollow.jpg`. |
+| School/park/town setting beyond fence | Three hero comparisons, plus the whole-site photo-comparison frames; school building remains an explicit edge socket. |
+| Defensible whole-site photo fits | `renders/comparisons/matches-used-{deck-2009,swings-2009,stair-2005}.jpg`; current balanced reference pairs/landmark overlays in `renders/lookdev/matches/`; full fit data in `build/cameras.json`. |
+
+`renders/lookdev/contact.jpg` collects all 21 exported views;
+`renders/comparisons/contact.jpg` collects the 17 fixed-camera pairs;
+`renders/lookdev/matched-contact.jpg` and `renders/source-matches/contact.jpg`
+collect the photo evidence. The budget, map, repeat and protected-file receipts
+remain in `build/check.json`, `lookdev-check.json`, `repeat.json` and
+`render-provenance.json`.
+
+## Look-dev continuation — pass 8, source fields against filtered export
+
+**Color and value first.** Opened all three renewed 4096-field live-source
+pairs beside their exported counterparts. The broad hue/value relationships
+and major contact wear survive filtering. The source carries finer powder-coat,
+deck and fiber response; the shipped views retain less microdetail, while their
+principal seams, scratches, holes and foot lanes remain legible. Both sets still
+show the catalog-green/reference-green difference and the flatter, cooler EWF
+in shade. Higher source resolution does not remove the repeated wear patterns
+or turn the pair into a photographic match.
+
+The first source-map resolution assertion caught Blender retaining its packed
+1024 image after a filepath reload. Load separate 4096 image datablocks and wire
+those into the live material nodes; all nine actual image sizes now assert 4096,
+and each input hash is recorded in the render sidecar. Source rendering and
+review composition pass after that correction. This tests original color/ORM
+fields and prefilter normals against filtered maps on live analytic geometry.
+
+The final provenance audit checks 44 render sidecars, with matching resource
+bundle hashes for 41. Three older before-view sidecars lack bundle hashes and
+are explicitly listed as historical metadata; no hash was invented for them.
+All 17 before/after pairs retain their fixed camera origin/lens and native
+1200px panel width. Fresh source/export/before photo cameras also agree in
+their full matrices. The 113-file repeat and 398 protected-delivery checks
+remain passed. Repository check reports 1,947 source files and zero errors.
+
+No additional tool, permission or lead action is needed. Useful later kit work
+would be explicit fixed-roll constraints in the photo solver and an upward
+normal convention for disconnected open surfacing sheets. Neither requires a
+kit change in this checkpoint.

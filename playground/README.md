@@ -1,147 +1,171 @@
-# Rill playground / form and construction checkpoint
+# Rill playground / baked look-dev checkpoint
 
-Original American municipal/school equipment for 1995–2015, generated in Blender
-5.2. This delivery stops before UV atlases, high-to-low baking, material wear,
-final look-dev and README gallery approval. No final docs images are committed.
+Original American municipal and school equipment for 1995–2015, generated in
+Blender 5.2. This checkpoint includes UVs, three shared baked texture sets and
+three installed sites. It stops before a final gallery or `docs/` images.
 
-The family has 40 independently exported modules, a connected 48-inch post grid,
-a wider accessible turning platform, and three installed sites. Every vertex and
-the two small diagnostic images are original script output. The library's own
-Ground, trees, shrub, fence, street light, bench and litter construction is reused.
-Existing deliveries are read-only. `REVIEW.md` records four construction passes;
-`refs/SOURCES.md` records period photographs, drawings and standards consulted.
+The family retains the accepted 48-inch connected post grid, 127mm posts,
+2/4/6ft decks, 1:12 ramp, pivots and sockets. Its 40 modules remain, with an
+additional arch swing frame for the later installations. Every new vertex and
+texel is script-generated; photos and published plans are viewing references.
+The library's existing Ground, trees, shrubs, houses, streets, cars and poles
+provide context. Their canonical deliveries remain byte-identical.
 
-## Dimensions and source anchors
+## Dimensions and construction
 
-| Construction | Realized dimension / source |
+| Part | Realized dimension / reference |
 | --- | --- |
-| Round posts | **127 mm OD**, **3.05 mm wall measured after fresh import**, galvanized steel, capped and riveted. Maker installation packet's 5 inch / .120 inch specification (the nominal .120 is 3.048 mm). |
-| Post/deck grid | Original **1.2192 m / 48 inch** module; **1.0922 m** steel deck between post centers. This is an original wider module, not a replica of the cited manufacturer's 42-inch grid. |
-| Platforms | **.6096 / 1.2192 / 1.8288 m** (2/4/6 ft); **2.667 mm** 12-gauge standing skin, open underside, 89 mm downturned tray, return hems, stiffener and corner clamp hangers. Maker's .105 inch steel and 5/16 inch perforation anchors; diagnostic pits are temporary texture, not claimed physical holes. |
-| Barriers | **965.2 mm / 38 inch** rail center above deck; lower clear gap **50.7 mm nominal**, infill at less than 88.9 mm clear. CPSC 2010 Table 4: school-age barrier at platforms above 48 inches, top at least 38 inches. Original kit uses barriers on lower exposed edges too. |
-| Steps | Eight **152.4 mm** rises, **243.75 mm** runs, **900 mm** width, closed risers, stringers and returned 28.6 mm grip rails. CPSC Table 6 access ranges; proportions are original estimates within that guidance. |
-| Slides | .6096/1.2192/1.8288 m entries; **.22 m** exits, integral side walls, compound transverse trough and longitudinal run, sitting hood, saddle/exit supports. Flat runout exceeds **279.4 mm / 11 inch**. Straight, wave, 270° spiral and **780 mm** nominal barrel / **744 mm** vertical bore tube. CPSC §§5.3.6.2–6; dated 2011 manufacturer wave-slide sheet supplies construction reference. |
-| Climbing | Arch, 5-rung (48-inch) and 7-rung (72-inch) vertical ladders, sloped chain net, compound rock panel; **28.6–32 mm** gripping rungs. Rings and horizontal ladder at **2.05 m**. Hand/foot sockets on actual rung/hold coordinates. |
-| Fire pole | **42 mm OD**, a dedicated supported 48-inch entry, at least **1.60 m** above that interface; **494.5 mm** measured horizontal entry distance. CPSC §5.3.2.6 anchors. |
-| Swings | Independent two-bay A frame, **2.4384 m** beam center, **2.3084 m** bearing axis, **3.35 m per bay**, 89 mm legs, 127 mm beam, .51 m hanger pitch, two seats per bay; belt and bucket in separate bays. 6 mm true upper chain links plus original alpha strips on the long run. CPSC Table 7 and §5.3.8. |
-| Accessible route | Six **1.2192 m** ramp sections rise **.6096 m** in **7.3152 m**, actual imported slope **1:12**; 1.2714 m nominal clear width. **1.8288 m** head platform gives **1.7018 m** between posts; dual 660/900 mm rails and edge curb. Ground and head landings are separate modules. The narrower downstream deck spine does not claim every event is wheelchair accessible. |
-| Surfacing | EWF geometry with localized 65–75 mm kicked depressions; 150 mm timber borders and access neck. 2013 uses two-color poured-rubber geometry. F2075-10 covers fiber characteristics; F1292-09 covers impact attenuation. Rendered surfaces have no physical impact-test claim. |
+| Posts | 127mm OD, nominal .120in wall; fresh-import wall measurement in `build/check.json`. Manufacturer installation packet's 5in steel posts. |
+| Grid and decks | 1.2192m post centers; 1.0922m deck skin between them. Original wider module, rather than the cited maker's 42in grid. Deck heights .6096 / 1.2192 / 1.8288m. |
+| Deck manufacture | .105in / 2.667mm standing skin, 89mm downturned tray, return hems, underside stiffener and folded corner seats on smooth split cast collars. Perforations use shared alpha coverage; risers and cheeks are closed geometry. |
+| Barriers | 965.2mm / 38in top rail above the deck. Clear infill gaps below 88.9mm. CPSC 2010 Table 4; exposed lower decks also receive barriers. |
+| Stairs | Eight 152.4mm rises, 243.75mm runs, 900mm width; closed press-braked sides and risers, punched trays, returned 28.6mm grip rails supported on the actual rail line. CPSC Table 6. |
+| Transfer | 16/24in platforms, closed cheeks, punched stepping surfaces and child grip rail. Original compatible assembly based on catalog construction. |
+| Slides | 2/4/6ft entries; .22m exit, at least 279.4mm flat runout, compound transverse troughs and supported entry/exit. Straight, wave, spiral and nominal 780mm barrel / 744mm vertical bore tube. CPSC §5.3.6 and dated 2011 maker sheet. |
+| Climbers | Arch, 5/7-rung ladders, sloped chain net, compound rock panel; 28.6–32mm gripping rungs. Rings and horizontal ladder at 2.05m; actual hand/foot sockets. |
+| Fire pole | 42mm OD, supported 48in entry; measured 494.5mm horizontal reach to the actual deck edge and at least 1.60m above it. CPSC §5.3.2.6. |
+| Swings | Two 3.35m bays; 2.4384m beam center, 2.3084m bearing axis, 127mm beam, 89mm legs. A frame in 1996, bent arch supports in 2005/2013. Molded 560mm belt with encapsulated chain inserts; full bucket belt/bowl and leg openings. |
+| Chains | 6mm wire, alternating 45mm pitch; true links near hangers, crossed alpha cards below. Shared metal normal chart calibrated to the actual 36mm × 720mm card repeat. |
+| Ramp | Six 1.2192m segments rise .6096m in 7.3152m; actual imported 1:12 slope. 1.2714m nominal clear width; 1.8288m turning deck gives 1.7018m between posts. Dual 660/900mm rails and edge curb. The downstream narrower spine does not make every event accessible. |
+| Surfacing | One continuous containment per site, holding every reserved zone; later boundaries curve around their union. Local 65–75mm kicked EWF depressions; two-color EPDM in 2013. Actual entrance/floor continuity is sampled in the raw export. |
 
-CPSC 2010 supplies the numerical layout/access guidance. Only the public scopes
-of ASTM F1487-11, F1292-09 and F2075-10 were read; the full paywalled texts were
-not obtained. These original visual assets are not an installation design or a
-certified safety product.
+Numerical anchors come from CPSC Publication 325 (2010), the manufacturer's dated
+component sheets and period catalogs. [The source register](refs/SOURCES.md)
+records authors, dates and direct URLs. Only the public scopes of ASTM F1487-11,
+F1292-09 and F2075-10 were available. These visual assets have no tested impact
+attenuation or installation certification.
 
-## Installed sites and measured costs
+## Layouts, periods and age
 
-| Seed / installation | Equipment triangles | Entire site triangles¹ | Protected surface m² | glTF + BIN bytes² |
-| --- | ---: | ---: | ---: | ---: |
-| 101 / 1996 | 32,632 | 107,662 | 306.7 | 8,217,687 |
-| 202 / 2005 | 38,484 | 114,338 | 291.2 | 8,837,083 |
-| 303 / 2013 | 54,770 | 101,766 | 423.1 | 5,957,824 |
+| Seed | Published plan relationship | Original installation |
+| --- | --- | --- |
+| 101 / 1996 | Eastview Tot Lot Renovation, construction sheet 2, 10 July 1995: connected composite/swing containment, ramp, walk, edge seating and shade. Bradley's 2009 school plan additionally informs blacktop/building edges. | L-shaped three-deck structure, two red pyramid roofs, blue posts and yellow rails/events; adjoining swing bay within one timber enclosure. School blacktop and a building-edge socket beyond. |
+| 202 / 2005 | Lively Park master-plan diagram, August 2005 in the plan approved 7 October: playground beside picnic space, parking, circulation and retained trees. | Four-deck stepped structure, lower roof bay, spiral/wave events; evergreen, tan and burgundy; arch swings and one rounded flexible border. |
+| 303 / 2013 | Simon Playground Renovation L1.0, 28 February 2013: curved soft-surface play area, accessible approach, looping circulation, lawn and shade. | Low inclusive spine with broad turning bay and ramp, upper tube event and shade; teal, lime, orange and sand; arch swings and continuous EPDM. |
 
-¹ Includes the local surface/walk, reused furniture/fence/light, shrub and trees;
-101/202 have two tree species, 303 one large tree to fund its accessible platform.
-The large lawn plane is included in counts, but its bounds are presentation
-context, not the installed pad's dimensions. All sites stay below 120k.
-² Shared external image bytes are separate and loaded once with a resource cache:
-41,643,171 bytes / 17 unique maps for 101 and 202; 36,445,093 bytes / 14 maps
-for 303. The two new diagnostic images together are 6,785 bytes; the rest are
-reused library data, not new per-seed texture allocations.
+These are original compact compositions using plan relationships, not traced
+sites. The Eastview plan specifies curved curb/play sand; this school variant
+uses straight timber/EWF. Lively's recreation center and pool are omitted.
+The 2005 Miracle catalog's printed page 145 explicitly groups Hunter Green,
+Sand and Burgundy together and shows the primary and brighter alternatives.
+The 2009 Columbia Cascade catalog supplies the additional named color range. Selection of
+primary colors for 1996 is a period-compatible inference, not a located 1996
+catalog. Native plan/layout evidence is in `renders/comparisons/layout-*.jpg`.
 
-The composite is a connected installation, not independent towers parked apart.
-The hundreds select one of three period scaffolds (1996/2005/2013, repeating
-every 300); other seed digits select compatible climbers, slides and overhead
-events. Review seeds 101/202/303 pin the authored examples. These are explicit
-connected scaffolds, not an unconstrained random park designer. `SEEDS=104,205,307`
-builds alternate event selections. Grounded posts are shared
-between adjacent decks; height transitions use closed steps. Swing front/back
-zones conservatively reserve twice the beam height and do not overlap any other
-envelope. The
-conservative composite envelope extends 1.8288 m around its actual placed mesh;
-its gap to the swing envelope is **254 / 191 / 283 mm** for 101/202/303. This gap
-is between protective envelopes, not the equipment surfaces. Timber/rubber
-footprints follow their connected union with 180 mm construction margins, removing
-unused corners. Slide exits remain inside the protected composite envelope.
+The hundreds select a period scaffold, repeating every 300. Other seed digits
+select a connected loop/side bay, roof location/count, compatible events and
+mirroring. Review seeds pin the three authored examples. Alternate plan choices
+are deterministic; only the three review installations receive the full exported
+construction, motion and rendering checks at this checkpoint.
 
-1996 is designated faded/repainted with thin kicked fiber, 2005 middle years,
-2013 newer/inclusive on rubber. Only the geometry and surfacing type distinguish
-these at this gate. Fading, repaint edges, age-specific dirt and polish remain
-look-dev work; the quick colors are not evidence that those ages are finished.
+1996 has sun-side chalking/fade, selected maintenance repaints, exposed plastisol
+at entry/nosing foot lanes, chipped collars, base oxide, chalky scratched plastic
+and compacted fiber. 2005 retains darker evergreen/burgundy, moderate contact wear
+and used EWF. 2013 keeps stronger newer colors, limited contact wear and EPDM.
+Age is carried by shared charts and causal per-instance tint/chart masks; it
+does not allocate another texture set per installation. Fictional MEADOWWORKS
+plates and carved initials are original artwork.
+
+## Measured exported costs
+
+| Seed / installation | Equipment triangles | Entire site triangles¹ | Protective area m² | Material states | glTF + BIN bytes |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 101 / 1996 | 35,064 | 109,931 | 404.8 | 14 | 9,115,556 |
+| 202 / 2005 | 40,884 | 113,874 | 359.6 | 14 | 9,232,364 |
+| 303 / 2013 | 57,442 | 107,126 | 501.3 | 12 | 8,166,003 |
+
+¹ Includes the local surfacing/walk, furniture, fence/light, shrub and trees.
+All three remain below 120k. The additional residential streets, houses, parked
+cars and distant grove are presentation-only imports and are excluded from that
+installed-site budget. Native zone plans show the actual containment. Protective
+envelopes conservatively reserve 6ft beyond equipment and twice the swing beam
+height fore/aft; checks measure real surface contact and swing clearance.
 
 ## Modules / measured exported triangles
 
 | Module | Triangles |
 | --- | ---: |
 | RampHeadBridge | 92 |
-| Deck72 | 1,856 |
-| Barrier72 | 1,792 |
+| Deck72 | 1,940 |
+| Barrier72 | 1,760 |
 | NeckGuard | 140 |
-| Deck | 1,856 |
-| Barrier | 1,624 |
-| InfillPanel | 1,452 |
+| Deck | 1,772 |
+| Barrier | 1,592 |
+| InfillPanel | 1,420 |
 | HipRoof | 460 |
 | Shade | 440 |
-| Stairs48 | 1,260 |
-| Transfer24 | 588 |
+| Stairs48 | 1,700 |
+| Transfer24 | 868 |
 | RampSegment | 852 |
 | RampLanding | 44 |
 | InterdeckSteps | 276 |
 | RoofRiser | 64 |
-| SlideStraight24 | 3,868 |
-| SlideStraight48 | 3,820 |
-| SlideWave48 | 3,820 |
-| SlideWave72 | 3,820 |
-| SlideSpiral72 | 3,916 |
-| SlideTube48 | 3,856 |
+| SlideStraight24 | 3,860 |
+| SlideStraight48 | 3,812 |
+| SlideWave48 | 3,812 |
+| SlideWave72 | 3,812 |
+| SlideSpiral72 | 3,908 |
+| SlideTube48 | 3,880 |
 | Arch48 | 1,012 |
 | Ladder72 | 436 |
 | VerticalLadder48 | 372 |
 | ChainNet48 | 1,664 |
 | RockWall48 | 966 |
-| FirePole | 884 |
+| FirePole | 868 |
 | OverheadLadder | 680 |
 | OverheadRings | 1,688 |
-| PanelWheel | 1,864 |
-| PanelTic | 1,954 |
-| PanelPeriscope | 1,708 |
+| PanelWheel | 1,832 |
+| PanelTic | 1,922 |
+| PanelPeriscope | 1,676 |
+| SwingArchFrame | 1,312 |
 | SwingFrame | 496 |
-| SwingBelt | 1,084 |
-| SwingBucket | 1,432 |
+| SwingBelt | 1,428 |
+| SwingBucket | 1,652 |
 | SpringRider | 1,300 |
 | Roundabout | 736 |
-| Post1730 | 326 |
-| Post2339 | 326 |
-| Post2949 | 326 |
+| Post1730 | 390 |
+| Post2339 | 390 |
+| Post2949 | 390 |
 
-Small mating/support pieces below 300 triangles are intentional; adding hidden
-faces to reach a lower budget would waste geometry. Deck72 and Barrier72 make
-the wider accessible turning bay. Slide/roof limits are 4k; every other module
-is under 2k. Source stays parameterized in `src/parts.py` and `src/dimensions.py`.
+Every retained piece stays at or below the accepted 1,954-triangle maximum;
+slides stay at or below 3,916. Small mating pieces intentionally remain below
+300. Independent pieces use one to three material states. Installed equipment
+uses separate opaque and masked states sharing the same images; context adds
+its own library states. The state count is not a count of unique texture sets.
 
-## Texture allocation and resource sharing
+## Baked textures and memory
 
-Planned final shared sets, each three maps with full mip chains at 8 bpp per map:
+Original 4096² manufacture fields pass through locked Cycles flat baking and
+kit filtering. Nine shipped PNGs form three shared stock glTF PBR sets:
 
-| Set | Shipped size | GPU MiB | Purpose |
+| Set | Shipped size | GPU MiB with full mips at 8bpp/map | Contents |
 | --- | --- | ---: | --- |
-| Coated metal / plastisol | 1024² | 4 | Common coating, deck perforation and chain coverage, cast clamps, zinc and rubber; reserve alpha cells instead of a separate chain atlas. |
-| Molded plastic | 1024² | 4 | Shared molded finish and contact response; several colors through vertex tint. |
-| Protective surfacing | 2048² | 16 | EWF and two EPDM colors, original periodic grain; placed depressions and causal instance variation. |
-| **New family total** | | **24** | Excludes existing library sets; allocations do not multiply per seed. |
+| PlayMetal | 1024² | 4 | Powder coat/orange peel, cast collars, zinc, plastisol perforation/wear, chain coverage, recessed pin drive, fictional plate and timber. |
+| PlayPlastic | 1024² | 4 | Rotomolded chalk, directional bed scratches, mold seams/flashing, scuffed seats and carved initials; era tint through corner colors. |
+| PlaySurface | 2048² | 16 | Loose 12–45mm fibers, aged fiber, EPDM and contact-worn EPDM; actual depressions and separate carryout chips. |
+| **Family total** | | **24** | Shared across every piece and seed. |
 
-These are planned allocations, not baked delivery claims. Current quick family
-has Frame/Molded/Site/Perforated/Chain review states and only a 128² deck image
-plus 64×512 chain image (about **.0625 MiB** compressed with mips). Individual
-modules use 1–3 materials; installed contexts use 13 states (101/202) or 11 (303).
-They share existing Ground Lawn, tree and shrub 2048² sets (16 MiB each) and
-fence's own 1024² analytic checkpoint fabric sheet (4 MiB). Its final GLB
-is absent in this checkout, so the unchanged fence script regenerates that
-review sheet inside this family's build; it is not claimed as the final fence bake. That is 68 MiB of reused sets for 101/202, 52 MiB for
-303, before final playground sets. The tree's existing geometry/engine overhead
-is additional. Pin oak images exist embedded in its canonical GLB and are
-externalized once here; other available image paths reference canonical family
-files. Do not load each glTF into a separate uncached texture allocation.
+Each has sRGB BaseColor, OpenGL +Y Normal and linear ORM (R occlusion,
+G roughness, B metallic). Deck/chain alpha occupies the metal BaseColor.
+`textures/bake/*-bake.json` records 4096 bakes; shipped reports record map bytes.
+The nine family PNGs total 21,295,675 bytes on disk; that compressed file size
+is separate from the estimated GPU allocation.
+
+Manufacture charts intentionally repeat and overlap within assigned cells,
+with eight delivered-pixel gutters and splits at physical repeat boundaries.
+This is a trim/tiling allocation, not a unique zero-overlap unwrap. The UV audit
+reports density percentiles and rejects collapsed UV triangles. Large molded
+parts have lower density than fine fasteners. Normal unit lengths, external
+image resolution and references are checked from the actual shipped buffers.
+
+Reused Ground, tree and shrub 2048² sets cost 16MiB each; the 1024² fence
+set costs 4MiB. Ground Concrete adds another shared 16MiB. The actual exported
+sites reference 84MiB (101/202) or 68MiB (303) of library sets in addition to the
+new 24MiB: 108 / 108 / 92MiB if every referenced set is uncached. All three
+installations together share the same 108MiB resource union. Presentation streets/houses/cars have their own
+existing resources. These are separate from the approved new family allocation.
+Canonical images are referenced or externalized once, never duplicated per seed
+as new family sets. An engine should cache resources across the glTFs.
 
 ## Pivots, sockets and engine use
 
@@ -172,59 +196,85 @@ boundary in Blender's recalculated reused-tree tangent.
 The kit's surface-based motion sweep samples swing rotations at 11° steps against
 the actual imported frame/neighbor seats, with only their own hanger articulation
 excepted. This is sampled clearance, not a continuous physics proof. Other motion
-pivots are retained and inspected; a full spring deformation/interaction pass is
-still required before final delivery.
+pivots are retained and inspected; spring deformation remains the documented
+rigid gameplay approximation.
 
 ## Rebuild and review
 
 ```sh
-make -C playground                    # refs, model, glTF, checks, Cycles, contact
-make -C playground check              # imported geometry/resources/layout/motion
-make -C playground match              # balanced period pairs and fit diagnostics
-make -C playground repeat             # byte comparison of deterministic exports
-make -C playground WIDTH=900 SAMPLES=16 render
+make -C playground                       # refs, textures, model, check, render, match, review
+make -C playground check                 # fresh import, dimensions, UVs, maps, actual contacts
+make -C playground match                 # three white-balanced daily-use photo pairs
+make -C playground source-match          # additional live-source photo comparisons
+make -C playground before-match          # preserved prior export, same calibrated cameras
+make -C playground compare               # 1200px fixed-camera panels and plan evidence
+make -C playground repeat                # byte-identical model/export repeat; no bake rerun
+make -C playground WIDTH=1200 SAMPLES=24 render
 ```
 
-The section diagnostic additionally needs Matplotlib.
-No source `.blend` enters a review render. All Cycles commands use the kit GPU
-lock. Scratch stays in `build/`. Missing tree/shrub/Ground prerequisites can be
-built by their own Makefiles.
-Already present library deliveries are read-only and are never rebuilt here.
-No kit changes and no top-level index changes.
+Blender runs serially through `src/serial_blender.sh` and the kit's shared GPU
+lock, including modeling and import checks. Rendering imports exported glTF
+and baked PNGs. Scratch stays in `build/`. Python requires the repository's
+existing NumPy/Pillow/Matplotlib; plan evidence uses installed Poppler.
+Existing library deliveries are read-only and are not rebuilt here.
+No kit code or top-level index is changed.
 
-Local verification passed all 40 fresh module imports, three whole-site budgets,
-17 actual deck-interface contact tests and 132 sampled swing poses. The exact
-repeat check compared 104 export/manifest files with zero differences. All 263
-protected existing deliveries remained byte-identical. These checks establish
-the stated geometry and resource properties, not a final appearance approval.
+Review products remain ignored local files:
 
-Local rebuilt review products:
+- `renders/lookdev/{101,202,303}/{hero,above}.png`: 40mm, 1.65m heroes in raking
+  sun; above views with use zones and access.
+- `renders/lookdev/`: clamp/deck, stair and transfer; slide bed/exit/tube junction;
+  hanger/hollow, belt/bucket, arch frame, net climber, rubber wear and scale.
+- `contact.jpg`, `matched-contact.jpg`, `pieces-labeled.jpg` and actual imported
+  `molded-cross-sections.jpg` within that folder.
+- `renders/comparisons/`: native same-camera before/after panels and plan evidence.
+- `build/check.json`, `lookdev-check.json`, `hero-values.json`, `cameras.json`
+  and `repeat.json`: independently reproducible measurements.
 
-- `renders/checkpoint/{101,202,303}/hero.png` and `above.png`: 40 mm, 1.65 m
-  eye-height close heroes; plans show all events with colored use-zone envelopes.
-- `renders/checkpoint/pieces.png` and `pieces-labeled.jpg`: reusable family sheet.
-- `clamp-deck.png`, `slide-entrance.png`, `slide-exit.png`, `swing-hanger.png`,
-  `climber.png`, `molded-sections.png` (three-quarter form), `swing.png` and
-  `scale.png`; `molded-cross-sections.jpg` cuts actual imported surfaces at
-  three perpendicular stations, independent of the generating profiles.
-- `renders/checkpoint/matches/*-pair.jpg`, `matched-contact.jpg` and `contact.jpg`.
-- `build/check.json`, `manifest.json`, `cameras.json`, `hero-values.json` and
-  `repeat.json`: reproducible measurements, not committed generated claims.
+The photo fits retain original design differences. Roswell's deck and the 2005
+stair are matched on whole installed sites, not on pieces floating in a void.
+Adair's frame is now compared with the arch variant; its original full-frame
+70mm EXIF constrains the fit. Roswell's compact-camera EXIF constrains the
+horizontal equivalent to 36.0–36.8mm. The stair photograph has no available EXIF;
+its camera stays level, with a bounded 12–40mm full-image horizontal lens.
 
-The pairs retain construction differences: Adair uses an arched frame, the
-original kit an A frame. Refitting an original compatible design cannot remove
-that residual. Cropped focal lengths and full-photo equivalents are both
-reported. The source photographs remain outside git and never enter a shader.
+| Pair | RMS / maximum error in native crop pixels | RMS / crop width | Fitted full-photo horizontal equivalent |
+| --- | ---: | ---: | ---: |
+| Used deck, 2009 | 29.23 / 57.41 | 4.48% | 36.8mm |
+| Used swings, 2009 | 20.42 / 32.98 | 2.39% | 71.0mm |
+| Used stair, 2005 | 12.69 / 18.04 | 7.05% | 12.0mm; zero roll |
 
-## Checkpoint limits
+The virtual lenses for the tight crops are longer; both values appear on the
+pair footers. Fits sit near lens bounds and retain original construction
+differences, so these are useful comparisons, not surveyed replicas. The deck
+variant's catalog forest green remains darker than the photograph's Kelly green.
+The shaded pairs use stronger procedural sky fill than the raking-sun heroes,
+with unchanged exposure and material albedos. Additional live-source pairs use
+the same cameras and lighting as the exported comparisons. Their live analytic
+assemblies use original 4096 color/ORM fields and the calibrated 4096 normals
+before filtering; they isolate filtering/serialization loss. There is no
+separate high-poly projection step in this manufacture-field pipeline.
+Residuals and neutral
+white-balance controls remain explicit in `build/cameras.json`: shaded concrete,
+a small white cap and a galvanized stair cheek; none is a calibrated gray card.
+Photos never enter mesh generation or a shader.
 
-The close chain view still exposes the crossed-card transition and flat link
-response. The molded hood/chute junction shows a small intersecting cheek, and
-the tube's exit sleeve overlaps its open runout shell; both need a clean joined
-high-detail source before the normal bake. The pieces sheet is an inventory:
-small hanging seats need the separate swing close view to judge. The new quick
-materials, sparse context and hard distant horizon remain visibly synthetic.
-Period wear and fiber/EPDM response are intentionally unfinished at this stop.
-Photo fits compare compatible construction, not exact replicas; their lighting
-and architectural residuals are recorded in the review. No final atlas overlap,
-texel-density or bake validation is claimed yet.
+Remaining look-dev limits are identifiable chain cards close up, repeated collar
+chipping, regular slide-bed scars, some half-meter edges in EPDM contact wear,
+and recognizable library foliage cards. EWF is flatter and cooler in the shaded
+pairs than the loose warm chips in the photographs. Age reads most strongly
+through roof fade, contact lanes, the installation palette and its surfacing;
+small base and handling marks remain less evident in the full-site views.
+
+Lettering uses installed DejaVu Sans; review captions use Noto Sans, located
+through `kit.fonts`. No downloaded visual asset enters a shader.
+
+## Limits at this gate
+
+[REVIEW.md](REVIEW.md) records the native image critiques and remaining CG tells.
+Crossed chain cards remain a game compromise; distant small chips use normal and
+color relief rather than loose geometry everywhere. Repeated manufacture charts
+and library context can still be recognized in close inspection. Photo fits
+compare compatible original construction, not surveyed replicas, and do not
+prove absolute reflectance. Sampled swing clearance is not continuous dynamics.
+No final README gallery or `docs/` images are produced in this round.
