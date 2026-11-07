@@ -494,6 +494,12 @@ cannot approve it. The adoption proofs record the frozen tool before use.
    Paths resolve from the **asset folder**, not from `src/`. A family with several kinds adds one config per delivered kind or
    coherent module. Cosmetic variants may share a config only after their node,
    material, UV and image routing has been checked.
+   Keep requested `ratio` values nonincreasing and `screen_height` values
+   strictly decreasing. After tuning a near request below the example proxy's
+   `.05`, lower the proxy's request too (for example, `.01` after `.02`). Its
+   actual geometry uses `target_triangles` / `proxy_budget`; the request still
+   participates in configuration ordering. Validate the complete chain after
+   tuning, including its unchanged absolute proxy budget.
    Omit an additional chain for already minimal pieces such as a 20-triangle
    wooden post; document their LOD0-only choice and original cost. They retain
    the original shared family material and remain in full-container accounting.
