@@ -50,7 +50,10 @@ def source(n=4096):
    # tuft pitch 5.2mm, sampled at 4K before normal/filtering.
    loops=(np.sin(u*math_tau*344+.35*np.sin(v*math_tau*130))*np.sin(v*math_tau*860))*.5+.5
    traffic=np.clip(np.exp(-((u-.5)/.095)**2)*np.sin(np.pi*v)**.5+np.exp(-((u-.5)/.10)**2-((v-.88)/.035)**2),0,1)
-   relief=.35+(.23*loops+.15*(fine-.5))*(1-.65*traffic)
+   # The delivered lane chart cannot resolve individual 5.2 mm tufts.
+   # Preserve a small effective nap response: full pile-height relief aliases
+   # into centimetre-scale lumps after filtering, especially beside the cup.
+   relief=.35+(.035*loops+.018*(fine-.5))*(1-.65*traffic)
    col*=1+.14*(mid-.5)[:,:,None]+.16*(fine-.5)[:,:,None]
    rough[:]=.94-.09*traffic
    # Glue line, lengthwise roll join, and a rectangular repaired patch.
