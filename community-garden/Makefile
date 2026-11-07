@@ -1,4 +1,5 @@
 CHECKPOINT_BLEND := build/gardens.blend
+CHECKPOINT_OUT ?= renders/checkpoint
 SEEDS ?= 117 229 341
 ARCHETYPE ?=
 CHECKPOINT_ARGS := --seeds $(SEEDS) $(if $(ARCHETYPE),--archetype $(ARCHETYPE))
@@ -7,8 +8,14 @@ CHECKPOINT_DEPS := src/build.py src/geometry.py src/plants.py src/pieces.py src/
 CHECKPOINT_CHECK = $(BP) --python src/check.py
 CHECKPOINT_REVIEW = $(PYTHON) src/review.py --out $(CHECKPOINT_OUT)
 CHECKPOINT_RENDER_ARGS := --seeds $(SEEDS)
+VIEWS_117 := hero above corner compost water scale eevee tomato bean
+VIEWS_229 := hero above corner compost water tomato bean
+VIEWS_341 := hero above corner compost water accessible tomato bean
+CHECKPOINT_RENDER_OUTPUTS := $(foreach s,$(SEEDS),$(foreach v,$(VIEWS_$(s)),$(CHECKPOINT_OUT)/$(s)/$(v).png)) $(CHECKPOINT_OUT)/pieces.png $(CHECKPOINT_OUT)/plants.png $(foreach s,$(SEEDS),export/checkpoint/Site_$(s).gltf)
 include ../kit/checkpoint_rules.mk
 BP += -t 4
+$(CHECKPOINT_RENDER_OUTPUTS): src/neighborhood.py
+.PRECIOUS: $(CHECKPOINT_RENDER_OUTPUTS)
 
 # Build missing native prerequisites only. Existing accepted deliveries are
 # read-only inputs and never invalidated by this family's source changes.
@@ -43,5 +50,8 @@ check: check-motion
 .PHONY: check-motion
 check-motion: model
 	$(BP) --python src/motion.py
-match: model refs
+MATCH_OUTPUTS := $(foreach m,wise_bed oliver_construction martin_place,$(CHECKPOINT_OUT)/matches/$(m)-pair.jpg $(CHECKPOINT_OUT)/matches/$(m).png)
+$(MATCH_OUTPUTS) &: $(CHECKPOINT_OUTPUTS) src/match.py src/photo_matches.py src/render.py src/neighborhood.py build/checkpoint-render-parameters.txt
 	$(KIT)/with_gpu.sh $(BP) --python src/match.py -- --out $(CHECKPOINT_OUT)/matches --width $(WIDTH) --samples $(SAMPLES)
+match: model refs $(MATCH_OUTPUTS)
+review: match
