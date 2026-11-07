@@ -364,6 +364,16 @@ def build(s):
                 if rad>.019:
                     loss=age*.0012*max(0,min(1,(axial+s.contact_width/2)/s.contact_width))
                     v.co.y*=1-loss/rad;v.co.z*=1-loss/rad
+            if s.state=='beat' and o.name=='Urethane Front L':
+                # One locked-wheel skid leaves an actual planar 1.4 mm flat,
+                # parked at 135 degrees so the board still rests on round tread.
+                direction=Vector((0,-math.sqrt(.5),math.sqrt(.5)))
+                plane=s.wheel_diameter/2-.0014
+                for v in o.data.vertices:
+                    cut=v.co.dot(direction)-plane
+                    if cut>0:v.co-=direction*cut
+                o['flat_spot_depth_m']=.0014
+                o['flat_spot_normal_local']=list(direction)
     for name,xyz,kind,rot in [('Foot_Front',(0,-.12,s.underside+s.thickness+.00055),'foot',(0,0,90)),('Foot_Rear',(0,.255,height(s,0,.255)+s.thickness+.00055),'foot',(0,0,90)),('Hand_Carry',(-halfwidth(s,0),0,height(s,-halfwidth(s,0),0)+s.thickness/2),'hand',(0,90,0)),('Rest_Ground',(0,0,0),'ground',(0,0,0))]:
         o=G.pivot('Socket_'+name,xyz);o.parent=root;o['socket_kind']=kind;o.rotation_euler=tuple(math.radians(v) for v in rot)
     # A real wall-rest alignment frame, derived from all evaluated surfaces.

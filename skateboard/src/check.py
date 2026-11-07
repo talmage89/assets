@@ -78,6 +78,15 @@ for o in meshes:
     ps=meshpoints(o);b=bounds(ps);wheelproof.append(dict(name=o.name,bounds=b,min_ground_z=b['min'][2]))
     require(abs(b['size'][0]-.032)<1e-5,'Wheel width incorrect');require(abs(b['size'][2]-s.wheel_diameter)<1e-5,'Wheel diameter incorrect');require(abs(b['min'][2])<1e-5,'Rest wheel not grounded')
 proof['wheels']=wheelproof
+if s.state=='beat':
+    # Measure the delivered-source plane, rather than echoing its depth tag.
+    wheel=bpy.data.objects['Urethane Front L'];direction=Vector((0,-math.sqrt(.5),math.sqrt(.5)))
+    maximum=max(v.co.dot(direction) for v in wheel.data.vertices)
+    plane=[v.co for v in wheel.data.vertices if abs(v.co.dot(direction)-maximum)<1e-7]
+    span=max(p.x for p in plane)-min(p.x for p in plane)
+    flat_area=sum(f.area for f in wheel.data.polygons if all(abs(wheel.data.vertices[i].co.dot(direction)-maximum)<1e-7 for i in f.vertices))
+    proof['flat_spot']=dict(wheel=wheel.name,measured_plane_radius_m=maximum,measured_depth_m=s.wheel_diameter/2-maximum,coplanar_vertices=len(plane),axial_span_m=span,planar_area_m2=flat_area)
+    require(.0013<s.wheel_diameter/2-maximum<.0015 and flat_area>.00002 and span>.014,'Beat wheel has no measurable skid flat')
 # Measured plate/deck support and pivot-cup geometry. Source sculpt normals and
 # serialization checks cannot substitute for these physical surface checks.
 contacts=[]

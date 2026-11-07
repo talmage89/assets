@@ -27,7 +27,24 @@ def source_material(name,col,rough,metal,kind,s,art):
         h,_=image(n,art/f'{s.state}-{kind}-height.png',uv,True)
         heightfield=n.mul(n.math('SUBTRACT',h,.5),.004)
         if kind=='grip':
-            grit=n.voronoi(p,5300);heightfield=n.add(heightfield,n.mul(grit,.00010))
+            foot,_=image(n,art/f'{s.state}-foot-contact.png',uv,True)
+            coverage,_=image(n,art/f'{s.state}-grip-coverage.png',uv,True)
+            substrate=base
+            tooth=n.math('SUBTRACT',1,n.mul(foot,.78))
+            # 0.35–0.7 mm aggregates survive the shipped texel footprint;
+            # finer individual facets supply the glints in close views.
+            cells=n.node('ShaderNodeTexVoronoi');n.feed(cells.inputs['Vector'],p);cells.inputs['Scale'].default_value=1450
+            facets=n.split(cells.outputs['Color'])[0]
+            grit=n.math('SUBTRACT',1,cells.outputs['Distance']);fine=n.voronoi(p,4500)
+            heightfield=n.add(heightfield,n.mul(tooth,coverage,n.add(n.mul(grit,.00032),n.mul(fine,.000045))))
+            graincolor=n.mix(facets,(.0045,.005,.0045),(.048,.050,.048),True)
+            base=n.mix(n.mul(tooth,.62),base,graincolor,True)
+            # Neutral-balanced used-grip calibration; facet sparkle is a
+            # specular response, not a raised diffuse charcoal albedo.
+            base=n.vec('MULTIPLY',base,(.38,.38,.38))
+            base=n.mix(coverage,substrate,base,True)
+            sparkle=n.ramp(facets,.78,.96)
+            rough=n.mix(n.mul(sparkle,tooth,coverage),rough,.22)
             # A filed/score line just inside the actual curved rail.
             score=n.band(n.node('ShaderNodeAttribute',attribute_name='TrimDistance').outputs['Fac'],.0015,.00018,.00018)
             heightfield=n.math('SUBTRACT',heightfield,n.mul(score,.00022))
@@ -39,13 +56,16 @@ def source_material(name,col,rough,metal,kind,s,art):
         end=n.ramp(n.math('ABSOLUTE',ry),.335,.405)
         grime=n.mul(age,end,n.noise(p,160,2));base=n.mix(grime,base,(.22,.125,.055),True)
     elif kind=='aluminum':
-        base=n.mix(noise,(.40,.42,.415),(.53,.54,.52),True);rough=n.mix(noise,.56,.70)
-        heightfield=n.mul(n.math('SUBTRACT',noise,.5),.000022)
-        # Ground faces sit lowest on the hanger and become bright and scored.
-        ground=n.mul(age,n.ramp(rz,.032,.020),n.ramp(n.noise(n.vec('MULTIPLY',rest,(3,28,1)),120),.32,.65))
-        base=n.mix(ground,base,(.63,.65,.64),True);rough=n.mix(ground,rough,.26)
-        score=n.noise(n.vec('MULTIPLY',rest,(7,1,1)),700,1)
-        heightfield=n.add(heightfield,n.mul(ground,score,-.000030))
+        base=n.mix(noise,(.40,.415,.405),(.435,.447,.435),True);rough=n.mix(noise,.55,.61)
+        heightfield=n.mul(n.math('SUBTRACT',noise,.5),.000006)
+        # A rail contacts the original DOWNWARD-facing axle housing, never
+        # the casting's deck-facing top. Attribute normals stay in rest space.
+        nz=n.split(pos(n,'RestNormal'))[2]
+        hanger=n.node('ShaderNodeAttribute',attribute_name='HangerSurface').outputs['Fac']
+        ground=n.mul(min(1,age*1.45),hanger,n.ramp(rz,s.axle_z+.001,s.axle_z-.004),n.ramp(nz,-.05,-.65))
+        base=n.mix(ground,base,(.66,.68,.665),True);rough=n.mix(ground,rough,.23)
+        score=n.noise(n.vec('MULTIPLY',rest,(.025,1,1)),2600,1)
+        heightfield=n.add(heightfield,n.mul(ground,score,-.000018))
         # Mold parting witness at the axle's equator; thin ridge, no geometry.
         seam=n.band(rz,s.axle_z,.00015,.00010);heightfield=n.add(heightfield,n.mul(seam,.00008))
         uv=n.combine(n.add(n.mul(x,1/.045),.5),n.add(n.mul(z,1/.009),.5),0)
@@ -59,10 +79,11 @@ def source_material(name,col,rough,metal,kind,s,art):
         base=n.mix(cavity,base,(.12,.11,.09),True);rough=n.mix(cavity,rough,.72)
     elif kind=='wheel':
         radius=n.math('SQRT',n.add(n.mul(y,y),n.mul(z,z)))
-        road=n.ramp(radius,s.wheel_diameter/2-.005,s.wheel_diameter/2-.001)
-        stain=n.mul(math.sqrt(age),n.maximum(n.mul(road,.95),n.mul(noise,.55)))
-        body={'new':(.73,.63,.405),'season':(.50,.39,.145),'beat':(.39,.28,.080)}[s.state]
-        base=n.mix(stain,body,(.16,.10,.027),True);rough=n.mix(road,.40,.66)
+        road=n.mul(n.band(x,0,.0133,.0025),n.ramp(radius,.020,.024))
+        body={'new':(.73,.63,.405),'season':(.65,.48,.205),'beat':(.53,.36,.115)}[s.state]
+        body=n.mix(noise,tuple(c*.94 for c in body),tuple(c*1.04 for c in body),True)
+        stain=n.mul(min(1,age*1.9),road,n.mix(n.noise(p,650,2),.88,1))
+        base=n.mix(stain,body,(.10,.060,.022),True);rough=n.mix(road,.43,.72)
         grease=n.mul(age,n.band(radius,.0129,.0015,.0015),n.ramp(x,.0125,.015),n.ramp(n.noise(p,850,2),.35,.68),.6)
         base=n.mix(grease,base,(.075,.051,.021),True)
         turn=n.math('ARCTAN2',y,z)
@@ -70,8 +91,8 @@ def source_material(name,col,rough,metal,kind,s,art):
         heightfield=n.add(n.mul(noise,.000012),n.mul(road,lines,.000009))
         uv=n.combine(n.add(n.mul(y,1/.060),.5),n.add(n.mul(z,1/.060),.5),0)
         ink,alpha=image(n,art/'wheel-print.png',uv)
-        curb=n.mul(age,n.ramp(radius,.017,.024),n.ramp(n.noise(p,700,2),.38,.62))
-        mask=n.mul(alpha,n.ramp(x,.0135,.0157),n.math('SUBTRACT',1,n.mul(curb,.95)))
+        curb=n.mul(min(1,age*1.65),n.ramp(n.noise(p,1000,2),.29,.64))
+        mask=n.mul(alpha,n.ramp(x,.0135,.0157),n.math('SUBTRACT',1,n.mul(curb,.98)))
         base=n.mix(mask,base,ink,True)
     elif kind=='steel':
         rough=n.mix(noise,.25,.36)
@@ -82,6 +103,10 @@ def source_material(name,col,rough,metal,kind,s,art):
         radius=n.math('SQRT',n.add(n.mul(y,y),n.mul(z,z)))
         heightfield=n.add(heightfield,n.mul(thread,ends,n.ramp(radius,.0036,.00395),helix,.00018))
         base=n.mix(n.mul(age,noise,.22),col,(.19,.17,.115),True)
+        nut=n.node('ShaderNodeAttribute',attribute_name='KingpinNut').outputs['Fac']
+        grind=n.mul(age,nut,n.ramp(rz,.029,.022))
+        base=n.mix(grind,base,(.63,.65,.63),True);rough=n.mix(grind,rough,.20)
+        heightfield=n.add(heightfield,n.mul(grind,n.noise(n.vec('MULTIPLY',rest,(.06,1,1)),2400,1),-.000025))
     elif kind=='blacksteel':
         geo=n.node('ShaderNodeNewGeometry');rounded=n.node('ShaderNodeBevel',samples=4);rounded.inputs['Radius'].default_value=.00022
         edge=n.ramp(n.math('SUBTRACT',1,n.vec('DOT_PRODUCT',geo.outputs['Normal'],rounded.outputs['Normal'])),.005,.08)
@@ -122,6 +147,15 @@ def assign(s,art):
 
 def attributes(o,s):
     world=o.matrix_world
+    # Cache before writing custom data: interleaving vertex-normal reads and
+    # attribute writes repeatedly invalidates Blender's evaluated normal cache.
+    normal_matrix=world.to_3x3().inverted().transposed()
+    normals=[tuple((normal_matrix@v.normal).normalized()) for v in o.data.vertices]
+    normal=o.data.attributes.new('RestNormal','FLOAT_VECTOR','POINT')
+    normal.data.foreach_set('vector',[c for v in normals for c in v])
+    for key,enabled in (('HangerSurface',o.get('part')=='hangers'),('KingpinNut','kingpin locknut' in o.name)):
+        attr=o.data.attributes.new(key,'FLOAT','POINT')
+        for row in attr.data:row.value=float(enabled)
     thread=o.data.attributes.new('ThreadSurface','FLOAT','POINT')
     for row in thread.data:row.value=1 if o.get('part')=='axles' else 0
     if o.get('part')=='deck':
