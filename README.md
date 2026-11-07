@@ -97,6 +97,8 @@ Vehicles
 Recreation
 - [Skateboard](skateboard/README.md): seven-ply street skateboard with cast trucks, urethane wheels and three original
   graphics, new, a season old and beat.
+- [Skateparks](skatepark/README.md): modular poured bowls, transitions, banks, stairs and ledges, framed prefab ramps,
+  and three seeded parks of 1999, 2004 and 2011.
 
 Trees and shrubs
 - [Trees](trees/README.md): summer street trees with leaf cards and wind weights.
