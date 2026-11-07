@@ -82,6 +82,12 @@ def context(plan):
         ob=clone(tree if i%3 else maple,'Library distant shade tree',(i*12.1+rng.uniform(-3,3),back+rng.uniform(8,16),-.10),rng.uniform(0,360));ob.scale*=rng.uniform(.82,1.10)
     for i in range(4):
         ob=clone(tree if i%2 else maple,'Library park grove',(x1+7+(i%2)*9,-4+i*11,-.10),i*113);ob.scale*=rng.uniform(.83,1.10)
+    # Complete the setting around the other camera directions too. In
+    # particular the stair reference looks back across the park's south edge.
+    for i in range(8):
+        ob=clone(tree if i%3 else maple,'Library distant shade tree / south',(-43+i*12+rng.uniform(-3,3),y0-25+rng.uniform(-3,3),-.10),rng.uniform(0,360));ob.scale*=rng.uniform(.80,1.08)
+    for i in range(4):
+        ob=clone(tree if i%2 else maple,'Library distant shade tree / west',(x0-22+rng.uniform(-3,3),-18+i*13,-.10),rng.uniform(0,360));ob.scale*=rng.uniform(.82,1.10)
     if new_maple:
         for o in [*maple.children_recursive,maple]:bpy.data.objects.remove(o,do_unlink=True)
     for i,filename in enumerate(('AlderH120.glb','AlderC150.glb')):
