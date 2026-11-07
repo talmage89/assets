@@ -42,7 +42,7 @@ def _frame_limits(points,meters_per_pixel):
     return min(45.,max(3.,15/max(width,1e-8))),min(45.,max(5.,25/max(width,1e-8)))
 
 
-def _field_error(target,source,faces,positions,gradients,hits,limits,frame_limits=(3.,5.)):
+def _field_error(target,source,faces,positions,gradients,hits,limits,frame_limits=(3.,5.),data_tolerance=.01):
     """Vectorized original-field correspondence on bounded BVH candidates."""
     if not hits:return 1e6,1e6
     ids=np.array([h[2] for h in hits],int);points=np.array([h[0][:] for h in hits],float)
@@ -66,9 +66,9 @@ def _field_error(target,source,faces,positions,gradients,hits,limits,frame_limit
             uv=np.maximum(uv,error)
         elif k.startswith(('COLOR_','_WIND')):
             error=np.max(np.abs(value-np.einsum('ni,nij->nj',bary,source[k][ff])),axis=1);data=np.maximum(data,error)
-    best=int(np.argmin(np.maximum(uv,data/.01)));return float(uv[best]),float(data[best])
+    best=int(np.argmin(np.maximum(uv,data/data_tolerance)));return float(uv[best]),float(data[best])
 
-def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=None, uv_limit=None,meters_per_pixel=None,seam_sliding=True):
+def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=None, uv_limit=None,meters_per_pixel=None,seam_sliding=True,data_tolerance=None):
     """Reduce one construction component, retaining its source vertex records.
 
     Position is normalized by the component diameter. Attribute residual planes
@@ -76,6 +76,7 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
     link test and local orientation/quality tests guard every accepted collapse.
     Endpoints avoid independently optimized seams drifting apart.
     """
+    data_tolerance=(.02 if seam_sliding else .01) if data_tolerance is None else data_tolerance
     # Exported Mikk tangents can differ at otherwise continuous corners.
     # Those numerical splits are not UV seams; retain one original record.
     signature=np.column_stack([np.round(v,3 if k=='TANGENT' else 6) for k,v in attrs.items()])
@@ -88,7 +89,7 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
         from kit.lod_mesh import barycentric
         tree=BVHTree.FromPolygons([Vector(p) for p in attrs['POSITION']],faces.tolist(),all_triangles=True)
     pos=attrs['POSITION'].astype(float)
-    _,first,geo=np.unique(np.round(pos,8),axis=0,return_index=True,return_inverse=True)
+    _,first,geo=np.unique(np.round(pos,6 if seam_sliding else 8),axis=0,return_index=True,return_inverse=True)
     reference_pos=pos.copy()
     points=pos[first];clusters=[{i} for i in range(len(points))];scale=max(float(np.linalg.norm(np.ptp(pos,axis=0))),1e-8)
     center=points.mean(axis=0)
@@ -157,7 +158,7 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
     def mapping(a,b):
         if b in fixed:return None
         common=incident[a]&incident[b]
-        if len(common) not in (1,2):return None
+        if not common or (not seam_sliding and len(common) not in (1,2)):return None
         opposite={int(g) for fi in common for g in geo[tri[fi]] if g not in (a,b)}
         if neighbors(a)&neighbors(b)!=opposite:return None
         pair={}
@@ -263,7 +264,7 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
             cost=0.;valid=True
             for wa,field in fields.items():
                 h=frame(field,point);qq,gg,uu,cc,area=combined[wa];area=max(area,1e-30)
-                if max_error is not None and (h@gg@h>area*(max_error/scale)**2 or h@uu@h>area*uv_weight**2 or h@cc@h>area*.01**2):valid=False;break
+                if max_error is not None and (h@gg@h>area*(max_error/scale)**2 or h@uu@h>area*uv_weight**2 or h@cc@h>area*data_tolerance**2):valid=False;break
                 cost+=max(0.,float(h@qq@h))
             if valid:
                 serial+=1;heapq.heappush(heap,(cost,a,b,int(versions[a]),int(versions[b]),serial,t,*map(float,point)))
@@ -294,7 +295,7 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
             cost=0.;valid=True
             for wa,field in fields.items():
                 h=frame(field,point);qq,gg,uu,cc,area=combined[wa];area=max(area,1e-30)
-                if max_error is not None and (h@gg@h>area*(max_error/scale)**2 or h@uu@h>area*uv_weight**2 or h@cc@h>area*.01**2):valid=False;break
+                if max_error is not None and (h@gg@h>area*(max_error/scale)**2 or h@uu@h>area*uv_weight**2 or h@cc@h>area*data_tolerance**2):valid=False;break
                 cost+=max(0.,float(h@qq@h))
             if valid:
                 serial+=1;heapq.heappush(heap,(cost,a,b,int(versions[a]),int(versions[b]),serial,t,*map(float,point)))
@@ -303,7 +304,7 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
         for a,b in ((face[0],face[1]),(face[1],face[2]),(face[2],face[0])):edges.add(tuple(sorted((int(a),int(b)))))
     for a,b in sorted(edges):offer(a,b);offer(b,a)
     from kit.lod_constraints import inventory
-    constraints=inventory(attrs,faces,fixed=fixed,eligible={entry[2] for entry in heap})
+    constraints=inventory(attrs,faces,fixed=fixed,eligible={entry[2] for entry in heap},geometry_remap=geo)
     target=max(4,round(len(faces)*ratio));accepted=0
     samples=(np.array([1/3]*3),np.array([.5,.5,0]),np.array([0,.5,.5]),np.array([.5,0,.5]))
     while heap and remaining>target:
@@ -311,14 +312,16 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
         if va!=versions[a] or vb!=versions[b] or not incident[a] or not incident[b]:continue
         m=mapping(a,b)
         if m is None:continue
-        pairs,common=m;affected=incident[a]|incident[b];fields=values_for(a,pairs,t)
+        pairs,common=m
+        if remaining-len(common)<4:continue
+        affected=incident[a]|incident[b];fields=values_for(a,pairs,t)
         if fields is None:continue
         valid=True;new_faces={};new_geometry=[];new_areas={};new_excess={}
         if tree is not None and (t or any(wb==wa for wb,wa in pairs.items())):
             hits=tree.find_nearest_range(Vector(point),max_error+1e-7)
             for field in fields.values():
-                best_uv,best_data=_field_error(field,attrs,faces,reference_pos,source_gradients,hits,uv_limit)
-                if best_uv>.999 or best_data>.01:valid=False;break
+                best_uv,best_data=_field_error(field,attrs,faces,reference_pos,source_gradients,hits,uv_limit,data_tolerance=data_tolerance)
+                if best_uv>.999 or best_data>data_tolerance:valid=False;break
         if not valid:rejected+=1;continue
         for fi in affected-common:
             old=tri[fi];new=np.array([pairs.get(int(v),int(v)) for v in old],np.uint32)
@@ -341,10 +344,10 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
                     if hit[3]>max_error:valid=False;break
                     if hit[3]>structural:excess+=length/4
                     target_fields={k:w@v for k,v in cv.items()}
-                    best_uv,best_data=_field_error(target_fields,attrs,faces,reference_pos,source_gradients,[hit],uv_limit,frame_limits)
-                    if best_uv>1. or best_data>.01:
-                        best_uv,best_data=_field_error(target_fields,attrs,faces,reference_pos,source_gradients,tree.find_nearest_range(Vector(p),max_error+1e-7),uv_limit,frame_limits)
-                    if best_uv>1. or best_data>.01:valid=False;break
+                    best_uv,best_data=_field_error(target_fields,attrs,faces,reference_pos,source_gradients,[hit],uv_limit,frame_limits,data_tolerance)
+                    if best_uv>1. or best_data>data_tolerance:
+                        best_uv,best_data=_field_error(target_fields,attrs,faces,reference_pos,source_gradients,tree.find_nearest_range(Vector(p),max_error+1e-7),uv_limit,frame_limits,data_tolerance)
+                    if best_uv>1. or best_data>data_tolerance:valid=False;break
                 if not valid:break
             new_faces[fi]=new;new_geometry.extend(p1);new_areas[fi]=length;new_excess[fi]=excess if tree is not None else 0.
         touched=neighbors(a)|neighbors(b)|{a,b};next_excess=total_excess;next_area=target_area;new_reverse={}
@@ -388,11 +391,11 @@ def collapse(attrs, faces, ratio, uv_weight=10., normal_weight=.5, max_error=Non
         for x,y in sorted(update):offer(x,y);offer(y,x)
     used,remap=np.unique(tri[alive],return_inverse=True)
     output={k:v[used].astype(attrs[k].dtype) for k,v in current.items()};output['POSITION']=pos[used].astype(np.float32)
-    return output,remap.reshape(-1,3).astype(np.uint32),dict(method='split-wedge attribute QEM',uv_weight=uv_weight,normal_weight=normal_weight,
+    return output,remap.reshape(-1,3).astype(np.uint32),dict(method='split-wedge attribute QEM',uv_weight=uv_weight,normal_weight=normal_weight,color_wind_tolerance=data_tolerance,
         triangles=remaining,constraints=constraints,collapses=accepted,vertex_updates=updated,progressive_area_error_fraction=total_excess/max(source_area+target_area,1e-30),rejected_orientation_or_field=rejected,seams='synchronized wedges, separate shader membership, bounded subpixel junction transport')
 
 
-def transport_frames(source,faces,candidate,triangles,limits,radius):
+def transport_frames(source,faces,candidate,triangles,limits,radius,data_tolerance=.01):
     """Sample LOD0 shading normals/tangents on each reduced UV/material side.
 
     Exact source corners stay exact, including inherited tangent rounding. New
@@ -423,7 +426,7 @@ def transport_frames(source,faces,candidate,triangles,limits,radius):
                 if k.startswith('TEXCOORD_'):
                     limit=limits[k][fi] if isinstance(limits[k],np.ndarray) else _limit(limits,k,candidate.get('_LOD_MATERIAL',np.zeros((len(candidate['POSITION']),1)))[i,0])
                     uv=max(uv,float(np.max(np.abs(candidate[k][i]-w@source[k][face])))/limit)
-            if uv>1. or any(np.max(np.abs(candidate[k][i]-w@source[k][face]))>.01 for k in source if k.startswith(('COLOR_','_WIND'))):continue
+            if uv>1. or any(np.max(np.abs(candidate[k][i]-w@source[k][face]))>data_tolerance for k in source if k.startswith(('COLOR_','_WIND'))):continue
             # Distance dominates ties; UV and frame alternatives disambiguate
             # coincident source sheets without jumping to another chart.
             options.append((distance+radius*(uv*.001+angle*.00001),fi,w,n,angle))
@@ -436,54 +439,89 @@ def transport_frames(source,faces,candidate,triangles,limits,radius):
     return output,dict(method='LOD0 UV/material-side shading-normal and tangent sampling',vertices=len(changes),max_correction_degrees=max(changes,default=0.))
 
 
+def _component(aa,ff,ratio,meters_per_pixel,uv_limit,uv_weight,normal_weight,surface_pixels,texture_size,seam_sliding):
+    """One connected chart assembly, independent of sibling construction."""
+    from kit.lod_mesh import topology
+    from mathutils import Vector
+    from mathutils.bvhtree import BVHTree
+    data_tolerance=.02 if seam_sliding else .01
+    component_limits=_triangle_limits(aa,ff,meters_per_pixel,texture_size) if texture_size is not None else uv_limit
+    best,bf=aa,ff;attempts=[]
+    if len(ff)>500:print('LOD SHARED component',len(ff),'target',round(len(ff)*ratio),flush=True)
+    if len(ff)>=12 and not ('_LOD_KEEP' in aa and aa['_LOD_KEEP'].all()) and not any(k.startswith(('JOINTS_','WEIGHTS_')) for k in aa):
+        tree=BVHTree.FromPolygons([Vector(p) for p in aa['POSITION']],ff.tolist(),all_triangles=True)
+        before=topology(aa,ff)[0]
+        source_positions=aa['POSITION'].astype(float);source_gradients=np.linalg.pinv(source_positions[ff[:,1:]]-source_positions[ff[:,:1]])
+        for rr in [ratio,ratio+(1-ratio)*.4,ratio+(1-ratio)*.75]:
+            candidate,cf,row=collapse(aa,ff,rr,uv_weight,normal_weight,meters_per_pixel*surface_pixels*(2/.75),component_limits,meters_per_pixel,seam_sliding,data_tolerance)
+            if seam_sliding and row['collapses']:
+                candidate,row['normal_transport']=transport_frames(aa,ff,candidate,cf,component_limits,meters_per_pixel*surface_pixels*(2/.75),data_tolerance)
+            uv_error=field_error=distance=0.;samples=[];sample_weights=[]
+            for w in [np.array([1/3]*3),np.array([.5,.5,0]),np.array([0,.5,.5]),np.array([.5,0,.5])]:
+                for f in cf:
+                    p=w@candidate['POSITION'][f];q,n,fi,d=tree.find_nearest(Vector(p));distance=max(distance,d)
+                    points=candidate['POSITION'][f];samples.append(d);sample_weights.append(float(np.linalg.norm(np.cross(points[1]-points[0],points[2]-points[0])))/4)
+                    choices=tree.find_nearest_range(Vector(p),max(1e-6,d+1e-6,meters_per_pixel*surface_pixels*(2/.75)))
+                    target_fields={k:w@v[f] for k,v in candidate.items() if k!='POSITION'}
+                    best_uv,best_field=_field_error(target_fields,aa,ff,source_positions,source_gradients,choices,component_limits,_frame_limits(points,meters_per_pixel),data_tolerance)
+                    uv_error=max(uv_error,min(best_uv,1e6));field_error=max(field_error,min(best_field,1e6))
+            target_tree=BVHTree.FromPolygons([Vector(p) for p in candidate['POSITION']],cf.tolist(),all_triangles=True)
+            reverse=[target_tree.find_nearest(Vector(p))[3] for p in aa['POSITION']]
+            distance=max(distance,max(reverse,default=0.))
+            points=aa['POSITION'][ff];areas=np.linalg.norm(np.cross(points[:,1]-points[:,0],points[:,2]-points[:,0]),axis=1)
+            weights=np.bincount(ff.ravel(),weights=np.repeat(areas/3,3),minlength=len(aa['POSITION']))
+            samples.extend(reverse);sample_weights.extend(weights)
+            order=np.argsort(samples);cumulative=np.array(sample_weights)[order].cumsum()
+            p95=float(np.array(samples)[order][min(len(order)-1,int(np.searchsorted(cumulative,cumulative[-1]*.95)))])
+            after=topology(candidate,cf)[0];reasons=[]
+            if distance>meters_per_pixel*surface_pixels*(2/.75) or p95>meters_per_pixel*surface_pixels:reasons.append('surface distance')
+            if uv_error>1.:reasons.append('UV/normal/tangent correspondence')
+            if field_error>data_tolerance:reasons.append('color/Wind interpolation')
+            for k in ('boundary_edges','nonmanifold_edges','degenerate','slivers','winding_disagreements','degenerate_uv'):
+                if after[k]>before[k]:reasons.append(k)
+            row.update(uv_error=uv_error,uv_error_units='fraction of each material/layer half-mip-texel limit; max 1',field_error=field_error,surface_error_m=distance,surface_area_p95_m=p95,reasons=reasons)
+            attempts.append(row)
+            if not reasons:best,bf=candidate,cf;break
+    if len(ff)>500:print('LOD SHARED result',len(bf),flush=True)
+    return best,bf,dict(source_triangles=len(ff),triangles=len(bf),attempts=attempts)
+
+
+def _cached_component(aa,ff,ratio,meters_per_pixel,uv_limit,uv_weight,normal_weight,surface_pixels,texture_size,seam_sliding):
+    """Exact content cache; no surface or appearance gate is skipped."""
+    import hashlib,json,marshal,bpy
+    from pathlib import Path
+    from kit.lod_io import digest
+    args=(ratio,meters_per_pixel,uv_limit,uv_weight,normal_weight,surface_pixels,texture_size,seam_sliding)
+    h=hashlib.sha256(json.dumps(dict(args=args,runtime=(list(bpy.app.version),np.__version__)),sort_keys=True).encode())
+    for fn in (_component,collapse,_limit,_uv_error,_field_error,_frame_limits,_triangle_limits,transport_frames):
+        h.update(marshal.dumps((fn.__code__,fn.__defaults__,fn.__kwdefaults__)))
+    for name in ('lod_mesh.py','lod_constraints.py'):h.update(digest(Path(__file__).with_name(name)).encode())
+    for k,v in sorted({**aa,'indices':ff}.items()):
+        h.update(k.encode());h.update(str(v.dtype).encode());h.update(str(v.shape).encode());h.update(np.ascontiguousarray(v).tobytes())
+    folder=Path(__file__).resolve().parents[1]/'build/lod-shared-cache/components';folder.mkdir(parents=True,exist_ok=True)
+    path=folder/(h.hexdigest()+'.npz');report=path.with_suffix('.json')
+    if path.exists() and report.exists():
+        meta=json.loads(report.read_text())
+        if meta.get('sha256')==digest(path):
+            with np.load(path,allow_pickle=False) as data:return {k:data[k].copy() for k in aa},data['indices'].copy(),meta['report']
+    out,tri,row=_component(aa,ff,*args)
+    np.savez_compressed(path,indices=tri,**out)
+    report.write_text(json.dumps(dict(sha256=digest(path),report=row),allow_nan=False)+'\n')
+    return out,tri,row
+
+
 def _reduce(attrs,faces,ratio,meters_per_pixel,uv_limit,uv_weight=10.,normal_weight=.5,surface_pixels=.75,texture_size=None,seam_sliding=True):
     """Component-local measured acceptance; failed charts keep their source mesh."""
     from kit.lod_mesh import components,topology,barycentric
     from mathutils import Vector
     from mathutils.bvhtree import BVHTree
+    data_tolerance=.02 if seam_sliding else .01
     fields={k:[] for k in attrs};triangles=[];offset=0;reports=[]
     for ids in components(attrs,faces):
         vertices,indices=np.unique(faces[ids],return_inverse=True)
         aa={k:a[vertices] for k,a in attrs.items()};ff=indices.reshape(-1,3).astype(np.uint32)
-        component_limits=_triangle_limits(aa,ff,meters_per_pixel,texture_size) if texture_size is not None else uv_limit
-        best,bf=aa,ff;attempts=[]
-        if len(ff)>500:print('LOD SHARED component',len(ff),'target',round(len(ff)*ratio),flush=True)
-        if len(ff)>=12 and not ('_LOD_KEEP' in aa and aa['_LOD_KEEP'].all()) and not any(k.startswith(('JOINTS_','WEIGHTS_')) for k in aa):
-            tree=BVHTree.FromPolygons([Vector(p) for p in aa['POSITION']],ff.tolist(),all_triangles=True)
-            before=topology(aa,ff)[0]
-            source_positions=aa['POSITION'].astype(float);source_gradients=np.linalg.pinv(source_positions[ff[:,1:]]-source_positions[ff[:,:1]])
-            for rr in [ratio,ratio+(1-ratio)*.4,ratio+(1-ratio)*.75]:
-                candidate,cf,row=collapse(aa,ff,rr,uv_weight,normal_weight,meters_per_pixel*surface_pixels*(2/.75),component_limits,meters_per_pixel,seam_sliding)
-                if seam_sliding and row['collapses']:
-                    candidate,row['normal_transport']=transport_frames(aa,ff,candidate,cf,component_limits,meters_per_pixel*surface_pixels*(2/.75))
-                uv_error=field_error=distance=0.;samples=[];sample_weights=[]
-                for w in [np.array([1/3]*3),np.array([.5,.5,0]),np.array([0,.5,.5]),np.array([.5,0,.5])]:
-                    for f in cf:
-                        p=w@candidate['POSITION'][f];q,n,fi,d=tree.find_nearest(Vector(p));distance=max(distance,d)
-                        points=candidate['POSITION'][f];samples.append(d);sample_weights.append(float(np.linalg.norm(np.cross(points[1]-points[0],points[2]-points[0])))/4)
-                        choices=tree.find_nearest_range(Vector(p),max(1e-6,d+1e-6,meters_per_pixel*surface_pixels*(2/.75)))
-                        target_fields={k:w@v[f] for k,v in candidate.items() if k!='POSITION'}
-                        best_uv,best_field=_field_error(target_fields,aa,ff,source_positions,source_gradients,choices,component_limits,_frame_limits(points,meters_per_pixel))
-                        uv_error=max(uv_error,min(best_uv,1e6));field_error=max(field_error,min(best_field,1e6))
-                target_tree=BVHTree.FromPolygons([Vector(p) for p in candidate['POSITION']],cf.tolist(),all_triangles=True)
-                reverse=[target_tree.find_nearest(Vector(p))[3] for p in aa['POSITION']]
-                distance=max(distance,max(reverse,default=0.))
-                points=aa['POSITION'][ff];areas=np.linalg.norm(np.cross(points[:,1]-points[:,0],points[:,2]-points[:,0]),axis=1)
-                weights=np.bincount(ff.ravel(),weights=np.repeat(areas/3,3),minlength=len(aa['POSITION']))
-                samples.extend(reverse);sample_weights.extend(weights)
-                order=np.argsort(samples);cumulative=np.array(sample_weights)[order].cumsum()
-                p95=float(np.array(samples)[order][min(len(order)-1,int(np.searchsorted(cumulative,cumulative[-1]*.95)))])
-                after=topology(candidate,cf)[0];reasons=[]
-                if distance>meters_per_pixel*surface_pixels*(2/.75) or p95>meters_per_pixel*surface_pixels:reasons.append('surface distance')
-                if uv_error>1.:reasons.append('UV/normal/tangent correspondence')
-                if field_error>.01:reasons.append('color/Wind interpolation')
-                for k in ('boundary_edges','nonmanifold_edges','degenerate','slivers','winding_disagreements','degenerate_uv'):
-                    if after[k]>before[k]:reasons.append(k)
-                row.update(uv_error=uv_error,uv_error_units='fraction of each material/layer half-mip-texel limit; max 1',field_error=field_error,surface_error_m=distance,surface_area_p95_m=p95,reasons=reasons)
-                attempts.append(row)
-                if not reasons:best,bf=candidate,cf;break
-        if len(ff)>500:print('LOD SHARED result',len(bf),flush=True)
-        reports.append(dict(source_triangles=len(ff),triangles=len(bf),attempts=attempts))
+        best,bf,row=_cached_component(aa,ff,ratio,meters_per_pixel,uv_limit,uv_weight,normal_weight,surface_pixels,texture_size,seam_sliding)
+        reports.append(row)
         for k in fields:fields[k].append(best[k])
         triangles.append(bf+offset);offset+=len(best['POSITION'])
     result={k:np.concatenate(v) for k,v in fields.items()};tri=np.concatenate(triangles)
@@ -497,7 +535,7 @@ def reduce(attrs,faces,ratio,meters_per_pixel,uv_limit,uv_weight=10.,normal_weig
     from kit.lod_io import digest
     recipe=dict(ratio=ratio,meters_per_pixel=meters_per_pixel,uv_limit=uv_limit,uv_weight=uv_weight,normal_weight=normal_weight,surface_pixels=surface_pixels,texture_size=texture_size,seam_sliding=seam_sliding,
                 runtime=dict(blender=list(bpy.app.version),numpy=np.__version__),
-                tool=hashlib.sha256(b''.join(__import__('marshal').dumps((f.__code__,f.__defaults__,f.__kwdefaults__)) for f in (collapse,_reduce,_limit,_uv_error,_field_error,_frame_limits,_triangle_limits,transport_frames))).hexdigest(),mesh_tool=digest(Path(__file__).with_name('lod_mesh.py')),constraints_tool=digest(Path(__file__).with_name('lod_constraints.py')))
+                tool=hashlib.sha256(b''.join(__import__('marshal').dumps((f.__code__,f.__defaults__,f.__kwdefaults__)) for f in (collapse,_component,_cached_component,_reduce,_limit,_uv_error,_field_error,_frame_limits,_triangle_limits,transport_frames))).hexdigest(),mesh_tool=digest(Path(__file__).with_name('lod_mesh.py')),constraints_tool=digest(Path(__file__).with_name('lod_constraints.py')))
     h=hashlib.sha256(json.dumps(recipe,sort_keys=True).encode())
     for k,v in sorted({**attrs,'indices':faces}.items()):
         h.update(k.encode());h.update(str(v.dtype).encode());h.update(str(v.shape).encode());h.update(np.ascontiguousarray(v).tobytes())
@@ -524,7 +562,7 @@ def meshes(doc,ratio,meters_per_pixel,feature_pixels=1.5,surface_pixels=.75,seam
     reports=[];source_size=max((max(im['size']) for im in doc.stats()['images']),default=2048)
     for mi,mesh in enumerate(doc.data['meshes']):
         from kit.lod_constraints import contact_points
-        contacts,contact_edges=contact_points([doc.arrays(p) for p in mesh['primitives']]) if seam_sliding else (set(),0)
+        contacts,protected_features,contact_edges=contact_points([doc.arrays(p) for p in mesh['primitives']],split=True) if seam_sliding else (set(),set(),0)
         groups={}
         for pi,p in enumerate(mesh['primitives']):
             attrs,faces=doc.arrays(p)
@@ -551,7 +589,7 @@ def meshes(doc,ratio,meters_per_pixel,feature_pixels=1.5,surface_pixels=.75,seam
             for ids in components(aa,ff):
                 vertices=np.unique(ff[ids]);points=aa['POSITION'][vertices]
                 diameter=float(np.linalg.norm(np.ptp(points,axis=0))/meters_per_pixel)
-                if diameter<feature_pixels and not aa['_LOD_KEEP'][vertices].any() and len(ids)<len(ff):
+                if diameter<feature_pixels and not aa['_LOD_KEEP'][vertices].any() and not any(tuple(p) in protected_features for p in np.round(points,6)) and len(ids)<len(ff):
                     vv,ii=np.unique(ff[ids],return_inverse=True)
                     if topology(dict(POSITION=points),ii.reshape(-1,3))[0]['boundary_edges']==0:removed.append(dict(triangles=len(ids),diameter_pixels=diameter));continue
                 keep.extend(ids)
@@ -575,5 +613,5 @@ def meshes(doc,ratio,meters_per_pixel,feature_pixels=1.5,surface_pixels=.75,seam
                 else:
                     vv,ii=np.unique(selected,return_inverse=True);selected_attrs={k:v[vv] for k,v in out.items() if k not in ('_LOD_MATERIAL','_LOD_KEEP')};selected_faces=ii.reshape(-1,3).astype(np.uint32)
                 doc.replace(p,selected_attrs,selected_faces)
-            reports.append(dict(mesh=mesh.get('name',mi),source_contact_edges=contact_edges,source_contact_vertices=len(contacts),primitives=[pi for pi,_,_,_ in entries],uv_budgets=budgets,removed_features=removed,retained_source_skins=retained_skins,powered_assemblies=powered_assemblies,component_trials=row))
+            reports.append(dict(mesh=mesh.get('name',mi),source_contact_edges=contact_edges,source_contact_vertices=len(protected_features),hard_contact_vertices=len(contacts),primitives=[pi for pi,_,_,_ in entries],uv_budgets=budgets,removed_features=removed,retained_source_skins=retained_skins,powered_assemblies=powered_assemblies,component_trials=row))
     return reports

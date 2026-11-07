@@ -7,7 +7,7 @@ Counts overlap and are reported separately from the initial collapse eligibility
 import numpy as np
 
 
-def contact_points(primitives):
+def contact_points(primitives,*,split=False):
     """Source junctions across attribute groups, and existing >2-face edges.
 
     Pin only their endpoints before pruning. The same one-micrometer coordinate
@@ -16,16 +16,22 @@ def contact_points(primitives):
     edges={}
     for attrs,faces in primitives:
         group=tuple(sorted(attrs));keys=[tuple(p) for p in np.round(attrs['POSITION'],6)]
+        fine=[tuple(p) for p in np.round(attrs['POSITION'],7)]
         for face in faces:
             for a,b in zip(face,np.roll(face,-1)):
                 edge=tuple(sorted((keys[a],keys[b])))
                 if edge[0]==edge[1]:continue
-                row=edges.setdefault(edge,[0,set()]);row[0]+=1;row[1].add(group)
-    junctions={edge for edge,(count,groups) in edges.items() if count>2 or len(groups)>1}
-    return {point for edge in junctions for point in edge},len(junctions)
+                row=edges.setdefault(edge,[0,set(),set()]);row[0]+=1;row[1].add(group);row[2].add(tuple(sorted((fine[a],fine[b]))))
+    junctions={edge for edge,(count,groups,fine) in edges.items() if count>2 or len(groups)>1 or len(fine)>1}
+    protected={point for edge in junctions for point in edge}
+    if not split:return protected,len(junctions)
+    # Exact multi-face seams can collapse synchronously. Different attribute
+    # groups and only approximately coincident parts cannot share that collapse.
+    pinned={point for edge in junctions if len(edges[edge][1])>1 or len(edges[edge][2])>1 for point in edge}
+    return pinned,protected,len(junctions)
 
 
-def inventory(attrs,faces,*,fixed=(),eligible=None,moving=False):
+def inventory(attrs,faces,*,fixed=(),eligible=None,moving=False,geometry_remap=None):
     """Inventory geometric vertices and their overlapping constraint causes.
 
     `initial_unoffered` means no initial mapping/weighted-error offer could
@@ -33,7 +39,8 @@ def inventory(attrs,faces,*,fixed=(),eligible=None,moving=False):
     later sampled field/geometry tests, or that every unoffered vertex stays
     locked after its neighbors change. `fixed` are actual persistent pins.
     """
-    _,geo=np.unique(np.round(attrs['POSITION'],8),axis=0,return_inverse=True)
+    if geometry_remap is None:_,geo=np.unique(np.round(attrs['POSITION'],8),axis=0,return_inverse=True)
+    else:geo=np.asarray(geometry_remap)
     total=int(geo.max(initial=-1)+1);records=[[] for _ in range(total)]
     for i,g in enumerate(geo):records[int(g)].append(i)
     edges={}
