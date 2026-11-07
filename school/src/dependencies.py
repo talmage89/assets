@@ -66,6 +66,11 @@ def main():
     if not target.exists():
         cmd=[os.environ.get('BLENDER','blender'),'-b','-t','4','--factory-startup','--python-exit-code','1','--python',str(ROOT/'downtown/src/context_build.py'),'--','--kind','hatchback','--out',str(target)]
         with (out/'context-car.log').open('w') as log:subprocess.run(cmd,cwd=LOCAL,stdout=log,stderr=subprocess.STDOUT,check=True)
+    for kind in ('pickup','crossover'):
+        target=out/'context'/('car-'+kind+'.blend')
+        if not target.exists():
+            cmd=[os.environ.get('BLENDER','blender'),'-b','-t','4','--factory-startup','--python-exit-code','1','--python',str(ROOT/'downtown/src/context_build.py'),'--','--kind',kind,'--out',str(target)]
+            with (out/('context-'+kind+'.log')).open('w') as log:subprocess.run(cmd,cwd=LOCAL,stdout=log,stderr=subprocess.STDOUT,check=True)
     target=out/'context/shrub/source.blend'
     if not target.exists():
         cmd=[os.environ.get('BLENDER','blender'),'-b','-t','4','--factory-startup','--python-exit-code','1','--python',str(ROOT/'apartments/src/context_build.py'),'--','shrub']

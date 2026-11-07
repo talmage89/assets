@@ -1,4 +1,4 @@
-"""Independent construction and serialization checks for the look-dev gate.
+"""Independent construction and serialization checks for external glTF.
 
 Physical tile UVs and shared bakes are audited separately. Accessibility,
 engineering, complete interiors and a lightmap unwrap are outside this gate.
@@ -152,7 +152,56 @@ def source(stem,meta):
         measurements['portable_door_sweeps']=door_sweeps(portable_only=True)
         measurements['completed_ground_door_clearance']=ground_clearance()
         measurements['site_placement']=site_placement(p)
+        measurements['exposed_flatwork_orientation']=flatwork_orientation(p)
     return pivots,measurements
+
+
+def flatwork_orientation(p):
+    """Physical outward winding against actual associated source surfaces."""
+    prefix='Campus_'+str(p['seed'])+'__';rows=[]
+    for label in ('Bus_loading_lane','Parent_one_way'):
+        paving=bpy.data.objects[prefix+label+'_paving'];segments=paving.data.attributes['RouteSegment']
+        verts=[paving.matrix_world@v.co for v in paving.data.vertices]
+        surfaces={i:BVHTree.FromPolygons(verts,[tuple(f.vertices) for f in paving.data.polygons if segments.data[f.index].value==i],all_triangles=True) for i in {d.value for d in segments.data}}
+        curb=bpy.data.objects[prefix+label+'_curb_gutter'];dots=[];bottoms=[];caps=[]
+        for face in curb.data.polygons:
+            kind=curb.data.attributes['CurbFaceKind'].data[face.index].value
+            if not kind:continue
+            pts=[curb.matrix_world@curb.data.vertices[i].co for i in face.vertices]
+            normal=curb.matrix_world.to_3x3()@face.normal
+            if abs(normal.z)>.05:continue
+            center=sum(pts,Vector())/len(pts)
+            segment=curb.data.attributes['RouteSegment'].data[face.index].value;surface=surfaces[segment]
+            if kind==2:
+                road_faces=[f for f in paving.data.polygons if segments.data[f.index].value==segment]
+                road_center=sum((paving.matrix_world@f.center for f in road_faces),Vector())/len(road_faces)
+                caps.append(float(normal.dot(center-road_center)));continue
+            nearest=surface.find_nearest(center)[0]
+            direction=center-nearest;direction.z=0
+            if direction.length<.1:continue
+            dots.append(float(normal.dot(direction.normalized())));bottoms.append(min(v.z for v in pts))
+        assert dots and min(dots)>.70,(label,'inward curb back',min(dots) if dots else None)
+        assert caps and min(caps)>0,(label,'inward end cap',min(caps) if caps else None)
+        rows.append(dict(source=curb.name,actual_vertical_back_faces=len(dots),minimum_outward_normal_dot=min(dots),actual_back_bottom_z_m=[min(bottoms),max(bottoms)],actual_end_cap_triangles=len(caps),minimum_cap_plane_outside_paving_center_m=min(caps)))
+    for ob in bpy.context.scene.objects:
+        if ob.type!='MESH' or not ob.name.startswith(prefix):continue
+        if not any(ma and ma.name.startswith('SchoolGround_') for ma in ob.data.materials):continue
+        # All school-owned ground meshes omit buried bottoms. Negative top
+        # normals are therefore a physical construction error, not an underside.
+        down=[f.index for f in ob.data.polygons if f.normal.z<-.01]
+        assert not down,(ob.name,'exposed flatwork faces down',down[:12])
+        if ob.name[len(prefix):] not in ('Staff_paving','Service_yard','Service_drive','Blacktop'):continue
+        points=[ob.matrix_world@v.co for v in ob.data.vertices]
+        center=Vector(tuple((min(v[k] for v in points)+max(v[k] for v in points))/2 for k in range(3)));dots=[]
+        for face in ob.data.polygons:
+            normal=ob.matrix_world.to_3x3()@face.normal
+            if abs(normal.z)>.05:continue
+            mid=ob.matrix_world@face.center;direction=mid-center;direction.z=0
+            dots.append(float(normal.dot(direction.normalized())))
+        if dots:
+            assert min(dots)>.1,(ob.name,'inward slab edge',min(dots))
+            rows.append(dict(source=ob.name,actual_slab_edge_faces=len(dots),minimum_outward_normal_dot=min(dots)))
+    return rows
 
 
 def site_placement(p):
@@ -182,6 +231,8 @@ def site_placement(p):
         bounds=(min(v.x for v in points),max(v.x for v in points),min(v.y for v in points),max(v.y for v in points))
         collisions=[b['id'] for b in p['blocks'] if min(bounds[1],b['rect'][1])>max(bounds[0],b['rect'][0]) and min(bounds[3],b['rect'][3])>max(bounds[2],b['rect'][2])]
         assert not collisions,(root.name,'tree base inside building',collisions)
+        drive_overlap={name:sum(overlap(poly,constraints(bounds)) for poly in polys) for name,polys in routes.items()}
+        assert max(drive_overlap.values())<.0001,(root.name,'trunk base on drive',drive_overlap)
         trunks.append(dict(instance=root.name,actual_base_bounds_xy_m=bounds,building_overlaps=collisions))
     pl,pr,pf,pk=p['playground'];gx=pl+3.5*3.048;reserve=(pl,pr,pf,pk)
     obstacles=[('playground beyond gate apron',reserve,(gx-1,gx+1,pf,pf+1))]
@@ -295,6 +346,6 @@ def main():
         r=raw_check(stem,meta);r['construction']=measured;r['fresh_import']=imported(stem,meta,pivots);report[stem]=r
     preserved=json.loads(Path('build/preservation.json').read_text());changed=[p for p,h in preserved.items() if not (ROOT/p).exists() or hashlib.sha256((ROOT/p).read_bytes()).hexdigest()!=h];assert not changed,changed
     report['preservation']=dict(files=len(preserved),changed=changed);report['plan_seeds_checked']=300
-    Path('build/check.json').write_text(json.dumps(report,indent=2));print('SCHOOL LOOK-DEV CHECK PASS',flush=True)
+    Path('build/check.json').write_text(json.dumps(report,indent=2));print('SCHOOL DELIVERY CHECK PASS',flush=True)
 
 if __name__=='__main__':main()

@@ -25,12 +25,15 @@ def wall_panel(a,name,origin,yaw,width,z0,z1,openings,skin='Veneer',thick=WALL):
     def vertex(q):
         if q not in vertices:vertices[q]=len(m.v);m.v.append(q);m.col.append((*a.colors[skin],1))
         return vertices[q]
-    def face(points):m.f.append(tuple(vertex(v) for v in points));m.mat.append(ROLES.index(skin))
+    def face(points,inside=False):
+        ids=tuple(vertex(v) for v in points);m.f.append(ids);m.mat.append(ROLES.index('Concrete' if inside else skin))
+        if inside:
+            for i in ids:m.col[i]=(.55,.53,.44,1)
     for i,j in sorted(filled):
         l,r=xs[i:i+2];b,t=zs[j:j+2]
         if min(r-l,t-b)<1e-6:continue
         f=[(l,0,b),(r,0,b),(r,0,t),(l,0,t)];back=[(x,y+thick,z) for x,y,z in f]
-        face(f);face(back[::-1])
+        face(f);face(back[::-1],inside=True)
         for k,neighbor in enumerate(((i,j-1),(i+1,j),(i,j+1),(i-1,j))):
             if neighbor not in filled:face([f[k],back[k],back[(k+1)%4],f[(k+1)%4]])
     ob=orient(m,origin,yaw).finish()
@@ -79,18 +82,65 @@ def glazing(a,b,o,index):
     m.prism([(u-w/2-.10,-.145,z-.04),(u+w/2+.10,-.145,z-.04),(u+w/2+.10,.20,z-.015),(u-w/2-.10,.20,z-.015)],(0,0,-1),.065,'Concrete',(.34,.34,.30))
     # Interior reveals expose the separate 4in brick / cavity / block build-up.
     for xx in (-w/2-.025,w/2+.025):m.box((u+xx,.225,z+h/2),(.045,.16,h+.05),'Concrete',(.42,.42,.35),r=0)
-    # A recessed room end, floor/ceiling returns and selectively lowered blinds
-    # give different window responses without final material randomness.
-    depth=1.45
-    m.box((u,depth,z+h/2),(w+.15,.08,h+.20),'Concrete',(.105,.115,.095),r=0)
-    for sz in (z-.04,z+h+.06):m.box((u,(depth+.28)/2,sz),(w+.12,depth-.28,.04),'Concrete',(.31,.30,.25),r=0)
+    # The real classroom volume remains open behind the glass. A shallow dark
+    # backing used at the form gate prevented daylight entering these rooms.
     rng=random.Random(index+b['era']*17)
-    if index%3==1:
-        closed=rng.choice((.24,.45,.71))
-        for j in range(int(h*closed/.045)):
-            zh=z+h-.06-j*.045
-            m.geom([(u-w/2+.04,.26,zh),(u+w/2-.04,.26,zh),(u+w/2-.04,.28,zh-.032),(u-w/2+.04,.28,zh-.032)],[(0,1,2,3)],'Trim',(.43,.42,.34))
+    for group in range(max(1,round(w/2.4))):
+        groups=max(1,round(w/2.4));gw=w/groups
+        closed=rng.choice((.08,.15,.24,.39,.58))
+        for j in range(int(h*closed/.06)):
+            zh=z+h-.06-j*.06;xx=u-w/2+(group+.5)*gw
+            m.geom([(xx-gw/2+.04,.26,zh),(xx+gw/2-.04,.26,zh),(xx+gw/2-.04,.29,zh-.043),(xx-gw/2+.04,.29,zh-.043)],[(0,1,2,3)],'Trim',(.56,.54,.44))
     orient(m,origin,o['yaw']).finish()
+
+
+def classroom(a,b,rect,index,ceiling):
+    """Economical furniture in actual room coordinates; no photographic cards.
+
+    Eight two-pupil tables furnish the visible room area. Open sheet legs and
+    chairs carry silhouettes through glazing without hidden undersides.
+    """
+    x0,x1,y0,y1=rect;rng=random.Random(b['era']*201+index*37)
+    # Teaching board faces a partition, never an exterior window wall.
+    if y1<b['rect'][3]-.41:origin=(x0,y0,0);yaw=0;l,r,f,k=0,x1-x0,0,y1-y0
+    elif y0>b['rect'][2]+.41:origin=(x1,y1,0);yaw=180;l,r,f,k=0,x1-x0,0,y1-y0
+    elif x1<b['rect'][1]-.41:origin=(x0,y1,0);yaw=270;l,r,f,k=0,y1-y0,0,x1-x0
+    else:origin=(x1,y0,0);yaw=90;l,r,f,k=0,y1-y0,0,x1-x0
+    m=a.mesh(b['id']+'_Furnished_'+str(index),component='classroom_interior',trim_cell=4)
+    # Waxed resilient floor, with a painted teaching wall and display boards.
+    m.geom([(l,f,.154),(r,f,.154),(r,k,.154),(l,k,.154)],[(0,1,2,3)],'Trim',(.29,.25,.17))
+    m.box(((l+r)/2,k-.11,1.64),(4.1,.04,1.15),'Trim',(.045,.078,.058))
+    m.box((l+.07,(f+k)/2,1.63),(.05,3.1,1.15),'Trim',(.30,.17,.065))
+    for j in range(12):
+        y=(f+k)/2-1.36+j*.235
+        m.geom([(l+.101,y,1.25),(l+.101,y+.18,1.25),(l+.101,y+.18,1.94),(l+.101,y,1.94)],[(0,1,2,3)],'Trim',rng.choice(((.65,.58,.25),(.46,.56,.59),(.62,.41,.27),(.64,.61,.50))))
+    for row in range(4):
+        for col in range(2):
+            x=l+2.0+col*3.05;y=f+1.45+row*1.75
+            if x+.68>r-.5 or y+.7>k-1:continue
+            m.box((x,y,.77),(1.24,.60,.045),'Trim',(.40,.29,.14))
+            # Two folded U-end panels rather than four modeled tubular legs.
+            for sx in (-.53,.53):
+                m.geom([(x+sx,y-.25,.19),(x+sx,y+.25,.19),(x+sx,y+.25,.75),(x+sx,y-.25,.75)],[(0,1,2,3)],'Trim',(.19,.21,.20))
+            for sx in (-.31,.31):
+                xx=x+sx;yy=y-.48
+                seat=[(xx-.18,yy-.18,.46),(xx+.18,yy-.18,.46),(xx+.18,yy+.18,.46),(xx-.18,yy+.18,.46)]
+                back=[(xx-.18,yy-.17,.56),(xx+.18,yy-.17,.56),(xx+.18,yy-.17,.84),(xx-.18,yy-.17,.84)]
+                for panel in (seat,back):m.geom(panel,[(0,1,2,3),(3,2,1,0)],'Trim',(.08,.14,.13))
+                for side in (-1,1):
+                    m.geom([(xx+side*.14,yy-.15,.18),(xx+side*.14,yy+.15,.18),(xx+side*.14,yy+.15,.45),(xx+side*.14,yy-.15,.45)],[(0,1,2,3)],'Trim',(.18,.20,.19))
+            if rng.random()>.45:m.box((x+.19,y,.802),(.29,.22,.018),'Trim',rng.choice(((.58,.58,.48),(.17,.28,.40),(.48,.13,.07))))
+    # Ceiling grid and physically present luminaire diffusers. Emission uses
+    # a tiny deterministic auxiliary mask, on the same Equipment material.
+    for x in (l+2.2,r-2.2):
+        for y in (f+2.3,k-2.3):
+            m.box((x,y,ceiling-.04),(.40,1.25,.07),'Trim',(.52,.52,.46))
+    orient(m,origin,yaw).finish()
+    light=a.mesh(b['id']+'_Lights_'+str(index),component='classroom_light',trim_cell=0,interior_lamp=True)
+    for x in (l+2.2,r-2.2):
+        for y in (f+2.3,k-2.3):
+            light.geom([(x-.17,y-.58,ceiling-.078),(x+.17,y-.58,ceiling-.078),(x+.17,y+.58,ceiling-.078),(x-.17,y+.58,ceiling-.078)],[(3,2,1,0)],'Trim',(.69,.69,.64))
+    orient(light,origin,yaw).finish()
 
 
 def door(a,b,o,index,glass=False,base=.1524):
@@ -220,7 +270,7 @@ def roof(a,b,p):
                     cap.box((aa+j*3.048,.11,z+.191),(.018,.33,.005),'Trim',(.15,.16,.14))
                 orient(cap,(*o,0),yaw).finish()
                 # Scupper box, open mouth and downspout kept clear of openings.
-                if bb-aa>5 and face in ('north','east','west') and neighbor is None and drain_station(b,face,aa,bb) is not None:
+                if bb-aa>5 and (face in ('north','east','west') or face=='south' and b['kind']=='gym') and neighbor is None and drain_station(b,face,aa,bb) is not None:
                     u=drain_station(b,face,aa,bb);dr=a.mesh(b['id']+'_Drain_'+face,component='drainage')
                     dr.box((u,-.072,z-.10),(.22,.03,.13),'Trim',DARK)
                     for sx in (-1,1):dr.box((u+sx*.13,-.18,z-.19),(.025,.25,.20),'Trim',ALUM)
@@ -291,9 +341,14 @@ def roof(a,b,p):
 def covered_walk(a,c,index):
     l,r,f,k=c['rect'];z=c['height'];m=a.mesh('Covered_walk_'+str(index),component='covered_walk')
     # Galvanized folded steel deck, fascia, longitudinal channels and joists.
-    m.box(((l+r)/2,(f+k)/2,z+.15),(r-l,k-f,.30),'Trim',(.17,.19,.16),r=.005)
+    m.box(((l+r)/2,(f+k)/2,z+.15),(r-l,k-f,.30),'Trim',tuple(v*1.3 for v in a.colors['Trim']),r=.005)
     m.box(((l+r)/2,(f+k)/2,z-.018),(r-l-.08,k-f-.08,.035),'Concrete',(.40,.40,.34))
     along_x=r-l>k-f;length=r-l if along_x else k-f
+    # A shorter, less faded maintenance coat surrounds a repaired deck seam.
+    # It follows the fascia panel rather than covering arbitrary wall areas.
+    if along_x:
+        xx=l+(r-l)*.72
+        m.geom([(xx-.85,f-.001,z+.02),(xx+.85,f-.001,z+.02),(xx+.85,f-.001,z+.285),(xx-.85,f-.001,z+.285)],[(0,1,2,3)],'Trim',tuple(v*.92 for v in a.colors['Trim']))
     steps=max(1,math.ceil(length/4.5));narrow=(k-f if along_x else r-l)
     for j in range(steps+1):
         if along_x:x=l+j*(r-l)/steps;y=f+.18
@@ -336,7 +391,7 @@ def build_school(p,parent=None):
                 ob=wall_panel(a,b['id']+'_'+face,origin,yaw,bb-aa,z0,b['roof']-.17,openings,skin)
                 if ob:
                     ob['block_id']=b['id'];ob['era']=b['era']
-                    station=drain_station(b,face,aa,bb) if neighbor is None and face in ('north','east','west') and bb-aa>5 else None
+                    station=drain_station(b,face,aa,bb) if neighbor is None and (face in ('north','east','west') or face=='south' and b['kind']=='gym') and bb-aa>5 else None
                     if station is not None:
                         axis=0 if face in ('south','north') else 1
                         ob['runoff_axis']=axis;ob['runoff_station_m']=world((station,0,0),o,yaw)[axis]
@@ -354,7 +409,7 @@ def build_school(p,parent=None):
                         x=aa+j*4.5
                         if any(abs(x-q['u'])<q['w']/2+.20 for q in holes):continue
                         m.box((x,-.045,(base+b['roof']-.3)/2),(.20,.12,b['roof']-.3-base),skin,r=.004)
-                station=drain_station(b,face,aa,bb) if neighbor is None and face in ('north','east','west') and bb-aa>5 else None
+                station=drain_station(b,face,aa,bb) if neighbor is None and (face in ('north','east','west') or face=='south' and b['kind']=='gym') and bb-aa>5 else None
                 if station is not None:
                     # Mineral bloom / newer pointing stays on the actual
                     # mortar beds below the leaking scupper, not across the
@@ -365,6 +420,26 @@ def build_school(p,parent=None):
                         ul,ur=station-.36,station+.14-row*.07
                         if any(q['u']-q['w']/2<ur and q['u']+q['w']/2>ul and q['z']<zz<q['z']+q['h'] for q in holes):continue
                         m.geom([(ul,-.0013,zz-.004),(ur,-.0013,zz-.004),(ur-.025,-.0013,zz+.004),(ul+.025,-.0013,zz+.004)],[(0,1,2,3)],'Concrete',(.36,.35,.31) if skin=='Veneer' else (.29,.28,.25))
+                    # Mineral residue has its own pale albedo. Multiplying a
+                    # red brick's vertex tint cannot produce white salts: it
+                    # only produces a brighter red brick. Thin broken rills
+                    # therefore use the existing mineral material, with edges
+                    # blended toward the local masonry's mean color.
+                    for j in range(5):
+                        center=station+.09+j*.065
+                        top=b['roof']-.55-j*.13;bottom=top-(1.35+(j%3)*.31)
+                        half=.045+(j%2)*.018
+                        if any(q['u']-q['w']/2<center+half and q['u']+q['w']/2>center-half and q['z']<top and q['z']+q['h']>bottom for q in holes):continue
+                        levels=[(top,.10),(top-.28,1),(bottom+.25,.65),(bottom,.03)]
+                        begin=len(m.col)
+                        pts=[(center+d*half*scale,-.0018,zz) for zz,scale in levels for d in (-1,0,1)]
+                        faces=[(rr*3+cc,(rr+1)*3+cc,(rr+1)*3+cc+1,rr*3+cc+1) for rr in range(3) for cc in range(2)]
+                        m.geom(pts,faces,'Concrete')
+                        edge=a.colors[skin]
+                        for rr,(_,strength) in enumerate(levels):
+                            for cc in range(3):
+                                mix=(.65 if cc==1 else .12)*strength
+                                m.col[begin+rr*3+cc]=tuple(edge[k]*(1-mix)+(.50,.48,.40)[k]*mix for k in range(3))+(1,)
                 orient(m,(*o,0),yaw).finish()
         for i,o in enumerate(b['openings']):
             if o['type']=='window':glazing(a,b,o,i)
@@ -379,6 +454,7 @@ def build_school(p,parent=None):
             partitions=set()
             for j,(x0,x1,y0,y1) in enumerate(b['rooms']):
                 m.geom([(x0,y0,ceiling),(x1,y0,ceiling),(x1,y1,ceiling),(x0,y1,ceiling)],[(3,2,1,0)],'Concrete',(.46,.46,.40))
+                classroom(a,b,(x0,x1,y0,y1),j,ceiling)
                 entries=[('west',(x0,y0),90,y1-y0,(x0-PART,x0,y0,y1),abs(x0-(l+WALL))<.002),
                          ('east',(x1,y1),270,y1-y0,(x1,x1+PART,y0,y1),abs(x1-(r-WALL))<.002),
                          ('south',(x1,y0),180,x1-x0,(x0,x1,y0-PART,y0),abs(y0-(f+WALL))<.002),

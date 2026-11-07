@@ -62,26 +62,20 @@ def context(p):
             start=inverse@pa.matrix_world.translation;end=inverse@pb.matrix_world.translation
             pts=[tuple(start.lerp(end,t)-Vector((0,0,1.15*4*t*(1-t)))) for t in [i/24 for i in range(25)]]
             ob=tube('Neighborhood conductor on native pin sockets',pts,float(pa.get('diameter_m',.0101))/2,wire,4);ob.parent=rt
-    # The library car source is used intact for presentation: no further
-    # body LOD, reshaping or period conversion is performed for this round.
-    path=Path('build/context/car.blend').resolve()
-    with bpy.data.libraries.load(str(path),link=False) as (src,dst):dst.objects=list(src.objects)
-    obs=[ob for ob in dst.objects if ob]
-    for ob in obs:bpy.context.collection.objects.link(ob)
-    roots=[o for o in obs if o.parent not in obs]
-    ex,ey=p['entry'];base=roots[0] if len(roots)==1 else bpy.data.objects.new('Native car',None)
-    if len(roots)>1:
-        bpy.context.collection.objects.link(base)
-        for ob in roots:ob.parent=base
+    # Two different native library bodies, with their original paint shaders.
+    # Cars remain presentation actors, outside the static campus package.
     placements={'finger':[((-56,-28),127),((-49,-15),180)],'courtyard':[((52,-20),32),((62,-36),29)],'compact':[((-54,-54),168),((-49,-26),195)]}[p['type']]
-    base.parent=rt;base.location=(*placements[0][0],.018);base.rotation_euler.z=math.radians(placements[0][1])
-    # A second intact instance waits on the parent route; source material
-    # colors remain the library's. Its manufacturing period is lead-owned.
-    copies={o:o.copy() for o in [base,*base.children_recursive]}
-    for ob,cp in copies.items():
-        bpy.context.collection.objects.link(cp);cp.parent=copies.get(ob.parent,rt)
-        cp.matrix_basis=ob.matrix_basis.copy()
-    q,yaw=placements[1];copies[base].location=(*q,.018);copies[base].rotation_euler.z=math.radians(yaw)
+    kinds={'finger':('pickup','crossover'),'courtyard':('crossover','hatchback'),'compact':('hatchback','pickup')}[p['type']]
+    cars=[]
+    for kind,(q,yaw) in zip(kinds,placements):
+        path=Path('build/context')/('car.blend' if kind=='hatchback' else 'car-'+kind+'.blend')
+        with bpy.data.libraries.load(str(path.resolve()),link=False) as (src,dst):dst.objects=list(src.objects)
+        obs=[ob for ob in dst.objects if ob]
+        for ob in obs:bpy.context.collection.objects.link(ob)
+        base=bpy.data.objects.new('Native '+kind,None);bpy.context.collection.objects.link(base)
+        for ob in obs:
+            if ob.parent not in obs:ob.parent=base
+        base.parent=rt;base.location=(*q,.018);base.rotation_euler.z=math.radians(yaw);cars.extend(obs)
     clear_templates();bpy.context.view_layer.update()
     def triangles(objects):
         count=0
@@ -89,5 +83,5 @@ def context(p):
             if ob.type=='MESH':ob.data.calc_loop_triangles();count+=len(ob.data.loop_triangles)
         return count
     rt['placed_presentation_triangles']=triangles(rt.children_recursive)
-    rt['two_native_cars_triangles']=triangles([base,*base.children_recursive,copies[base],*copies[base].children_recursive])
+    rt['two_native_cars_triangles']=triangles(cars)
     return rt

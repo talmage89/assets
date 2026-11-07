@@ -31,6 +31,20 @@ def palette(p):
             # Painted smooth block: retain the 8x16in joints through paint,
             # suppress the commercial split-face's exaggerated aggregate.
             next(n for n in ma.node_tree.nodes if n.type=='NORMAL_MAP').inputs['Strength'].default_value=.23
+        if role=='Trim' and not ma.get('school_light_mask'):
+            # One 8px mask supplies all classroom lights without adding a
+            # material or duplicating the existing manufacture atlas.
+            from PIL import Image
+            from io import BytesIO
+            path=Path('textures/ship/T_School_Light_Emission.png');path.parent.mkdir(parents=True,exist_ok=True)
+            mask=Image.new('RGB',(8,8));mask.putpixel((6,1),(255,246,224))
+            encoded=BytesIO();mask.save(encoded,format='PNG');payload=encoded.getvalue()
+            if not path.exists() or path.read_bytes()!=payload:path.write_bytes(payload)
+            ns,ls=ma.node_tree.nodes,ma.node_tree.links
+            tx=ns.new('ShaderNodeTexImage');tx.image=bpy.data.images.load(str(path.resolve()),check_existing=True);tx.interpolation='Closest'
+            uv=ns.new('ShaderNodeUVMap');uv.uv_map='LightUV';ls.new(uv.outputs['UV'],tx.inputs['Vector'])
+            bs=ns.get('Principled BSDF');ls.new(tx.outputs['Color'],bs.inputs['Emission Color']);bs.inputs['Emission Strength'].default_value=12
+            ma['school_light_mask']=True
         out[role]=ma
     ma=bpy.data.materials.get('SchoolPBR_Shingles')
     if not ma:
@@ -44,7 +58,7 @@ def palette(p):
     if not glass:
         glass=bpy.data.materials.new('SchoolPBR_Glass');glass.use_nodes=True;glass['tiling_vertex_tint']=False
         pp=glass.node_tree.nodes.get('Principled BSDF');pp.inputs['Base Color'].default_value=(.94,.97,.96,1)
-        pp.inputs['Transmission Weight'].default_value=1;pp.inputs['Roughness'].default_value=.055;pp.inputs['IOR'].default_value=1.52
+        pp.inputs['Transmission Weight'].default_value=1;pp.inputs['Roughness'].default_value=.018;pp.inputs['IOR'].default_value=1.52
     out['Glass']=glass;return out
 
 
@@ -53,10 +67,10 @@ def cut_age(ob):
     if '_Room_' in ob.name:return
     bm=bmesh.new();bm.from_mesh(ob.data)
     lo=[min(v.co[k] for v in bm.verts) for k in range(3)];hi=[max(v.co[k] for v in bm.verts) for k in range(3)]
-    levels=[lo[2]+.08,lo[2]+.20,lo[2]+.42,lo[2]+.68,hi[2]-.25,hi[2]-.7]
+    levels=[lo[2]+.08,lo[2]+.20,lo[2]+.42,lo[2]+.68,hi[2]-.25,hi[2]-.7,hi[2]-1.4,hi[2]-2.2]
     for axis in (2,0,1):
         cuts=levels if axis==2 else [lo[axis]+i*4.5 for i in range(1,math.ceil((hi[axis]-lo[axis])/4.5))]
-        if axis==ob.get('runoff_axis',-1):cuts += [ob['runoff_station_m']+v for v in (-.22,0,.22)]
+        if axis==ob.get('runoff_axis',-1):cuts += [ob['runoff_station_m']+v for v in (-.65,-.33,-.12,0,.14,.35,.65)]
         for q in cuts:
             if not lo[axis]+.005<q<hi[axis]-.005:continue
             co=[0,0,0];co[axis]=q;n=[0,0,0];n[axis]=1
@@ -67,13 +81,22 @@ def cut_age(ob):
 def wall_weather(q,ob,p,role):
     x,y,z=q;name=ob.name;f=1.;salt=0.
     if ob.get('component')=='wall' and role in ('Veneer','Siding'):
-        reach=.34+.085*math.sin(x*3.7+y*2.4)+.035*math.sin(x*14+y*9)
+        reach=.52+.10*math.sin(x*3.7+y*2.4)+.035*math.sin(x*14+y*9)
         splash=.48*max(0,1-max(0,z-.15)/reach)
         f-=splash
         b=next((b for b in p['blocks'] if '__'+b['id']+'_' in name),None)
         if b:
+            # Damp mortar and sill-end tracks stay below the actual openings.
+            for o in b['openings']:
+                if o['type']!='window':continue
+                rad=math.radians(o['yaw']);u=(x-o['origin'][0])*math.cos(rad)+(y-o['origin'][1])*math.sin(rad)
+                inward=-(x-o['origin'][0])*math.sin(rad)+(y-o['origin'][1])*math.cos(rad)
+                fall=o['z']+.1524-z
+                if abs(inward)<.035 and 0<fall<1.1:
+                    ends=min(abs(u-o['u']-o['w']/2),abs(u-o['u']+o['w']/2))
+                    f-=.22*math.exp(-(ends/.24)**2)*math.exp(-fall/.75)
             for face,org,yaw,length in __import__('plans').sides(b):
-                if '_'+face not in name or face=='south':continue
+                if '_'+face not in name:continue
                 rad=math.radians(yaw);u=(x-org[0])*math.cos(rad)+(y-org[1])*math.sin(rad)
                 top=b['roof'];fall=max(0,top-z)
                 for aa,bb in __import__('plans').visible_intervals(b,face,p['blocks']):
@@ -81,8 +104,8 @@ def wall_weather(q,ob,p,role):
                     station=__import__('plans').drain_station(b,face,aa,bb)
                     if station is None:continue
                     d=abs(u-station);broken=.65+.35*math.sin(z*7+u*19)**2
-                    f-=.38*math.exp(-(d/(.18+.07*fall))**2)*math.exp(-fall/2.6)*broken
-                    salt+=.16*math.exp(-((u-station-.20)/.4)**2)*math.exp(-((fall-1.5)/.95)**2)*broken
+                    f-=.58*math.exp(-(d/(.20+.08*fall))**2)*math.exp(-fall/3.8)*broken
+                    salt+=.30*math.exp(-((u-station-.24)/.52)**2)*math.exp(-((fall-1.6)/1.1)**2)*broken
                 seam=abs((u+.25)%3.048-.25)
                 f-=.12*math.exp(-(seam/.10)**2)*math.exp(-fall/.5)
     if ob.get('component')=='covered_walk' and role=='Trim' and z<.46:
@@ -105,6 +128,8 @@ def apply(p):
         # geometric vertex without borrowing each other's material color.
         me.color_attributes.remove(old);attr=me.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='CORNER');me.color_attributes.active_color=attr
         uv=me.uv_layers.active or me.uv_layers.new(name='UVMap')
+        light_uv=me.uv_layers.get('LightUV') or me.uv_layers.new(name='LightUV')
+        for row in light_uv.data:row.uv=(.8125,.8125) if ob.get('interior_lamp') else (.0625,.0625)
         coords=[ob.matrix_world@v.co for v in me.vertices]
         ma_roles=[]
         for face in me.polygons:

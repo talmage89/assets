@@ -66,8 +66,14 @@ def clear_templates():
 
 
 def rectangle(m,rect,z,role='Concrete',color=None):
+    m.props['authored_winding']=True
     l,r,f,k=rect
-    m.geom([(l,f,z),(r,f,z),(r,k,z),(l,k,z)],[(0,1,2,3)],role,color)
+    pts=[(l,f,z),(r,f,z),(r,k,z),(l,k,z)]
+    m.geom(pts,[(0,1,2,3)],role,color)
+    if z>.011:
+        for j in range(4):
+            aa,bb=pts[j],pts[(j+1)%4]
+            m.geom([aa,bb,(bb[0],bb[1],-.025),(aa[0],aa[1],-.025)],[(3,2,1,0)],role,color)
 
 
 def entry_height(p,y):
@@ -109,6 +115,11 @@ def ground_material(role):
 def ground_finish(ob,role):
     from kit.tiling import world_uv
     if not ob:return
+    # These are exposed ground skins, with buried bottoms deliberately absent.
+    # Independent route ribbons must face up on both sides of a centerline.
+    bm=bmesh.new();bm.from_mesh(ob.data)
+    bmesh.ops.reverse_faces(bm,faces=[f for f in bm.faces if f.normal.z<-.01])
+    bm.to_mesh(ob.data);bm.free();ob.data.update()
     ma=ground_material(role);ob.data.materials.clear();ob.data.materials.append(ma)
     for f in ob.data.polygons:f.material_index=0
     world_uv(ob,6.096 if role=='Asphalt' else 3.048)
@@ -155,13 +166,16 @@ def open_drive(a,points,name,cuts,width=7.3152,openings=()):
     for j in range(len(pts)-1):
         poly=[tuple(v[:2]) for v in (right[j],right[j+1],left[j+1],left[j])]
         m.geom([(x,y,.018) for x,y in poly],[(0,1,2,3)],'Concrete');cuts.append(poly)
-    ground_finish(m.finish(),'Asphalt')
-    curb=a.mesh(name+'_curb_gutter',component='site',solid=False)
+    paving=m.finish();segment=paving.data.attributes.new('RouteSegment','INT','FACE')
+    segment.data.foreach_set('value',list(range(len(pts)-1)));ground_finish(paving,'Asphalt')
+    curb=a.mesh(name+'_curb_gutter',component='site',solid=False,authored_winding=True)
+    segments=[];face_kinds=[]
     for side in (-1,1):
         edge=right if side<0 else left
+        included=[not any(l<((edge[j]+edge[j+1])/2).x<r and f<((edge[j]+edge[j+1])/2).y<k for l,r,f,k in openings) for j in range(len(pts)-1)]
         for j in range(len(pts)-1):
-            mid=(edge[j]+edge[j+1])/2
-            if any(l<mid.x<r and f<mid.y<k for l,r,f,k in openings):continue
+            if not included[j]:continue
+            first_face=len(curb.f)
             # Street intersections/aprons taper from grade without closing the
             # roadway. The first/last four meters remain flush.
             verts=[]
@@ -170,14 +184,31 @@ def open_drive(a,points,name,cuts,width=7.3152,openings=()):
                 end=min((pts[k]-pts[0]).length,(pts[k]-pts[-1]).length)
                 z=.018+.1524*min(1,end/4)
                 verts += [(edge[k].x,edge[k].y,.018),tuple((edge[k]+n*.4572)[:2])+(z,),tuple((edge[k]+n*.6096)[:2])+(z,)]
-            curb.geom(verts,[(0,3,4,1),(1,4,5,2)],'Concrete')
+            faces=[(0,3,4,1),(1,4,5,2)]
+            curb.geom(verts,[q if side>0 else tuple(reversed(q)) for q in faces],'Concrete')
+            # The curb's back is a real vertical face down to soil. The old
+            # two-face ribbon left a 174 mm open slit all along its outer edge.
+            curb.geom([verts[2],verts[5],(verts[5][0],verts[5][1],-.025),(verts[2][0],verts[2][1],-.025)],[(0,1,2,3) if side>0 else (3,2,1,0)],'Concrete')
+            for at,sign,exposed in ((0,-1,j==0 or not included[j-1]),(3,1,j==len(pts)-2 or not included[j+1])):
+                if not exposed:continue
+                aa,bb,cc=verts[at:at+3]
+                cap=[aa,bb,cc,(cc[0],cc[1],-.025),(aa[0],aa[1],-.025)]
+                normal=sum((Vector(u).cross(Vector(v)) for u,v in zip(cap,cap[1:]+cap[:1])),Vector())
+                outward=(pts[j+1]-pts[j])*sign
+                ids=tuple(range(5))
+                curb.geom(cap,[ids if normal.dot(outward)>0 else tuple(reversed(ids))],'Concrete')
             poly=[tuple(v[:2]) for v in (edge[j],edge[j+1])]
             # Turf cut accounts for the actual curb/gutter footprint.
             nn=(edge[j]-pts[j]).normalized()*.6096;mm=(edge[j+1]-pts[j+1]).normalized()*.6096
             q=[poly[0],poly[1],tuple((edge[j+1]+mm)[:2]),tuple((edge[j]+nn)[:2])]
             if sum(x*yy-xx*y for (x,y),(xx,yy) in zip(q,q[1:]+q[:1]))<0:q.reverse()
             cuts.append(q)
-    ground_finish(curb.finish(),'Concrete')
+            segments.extend([j]*(len(curb.f)-first_face))
+            face_kinds.extend([0,0,1]+[2]*(len(curb.f)-first_face-3))
+    curb_ob=curb.finish();segment=curb_ob.data.attributes.new('RouteSegment','INT','FACE')
+    segment.data.foreach_set('value',segments)
+    kind=curb_ob.data.attributes.new('CurbFaceKind','INT','FACE');kind.data.foreach_set('value',face_kinds)
+    ground_finish(curb_ob,'Concrete')
     return pts
 
 
@@ -311,8 +342,20 @@ def build_site(p,building):
     parts=[rect_poly(plaza)]
     for b in p['blocks']:
         parts=[q for poly in parts for q in H.subtract(poly,convex_cuts(rect_poly(b['rect'])))]
+    for x,y,radius in p['tree_wells']:
+        hole=[(x+radius*math.cos(j*math.tau/16),y+radius*math.sin(j*math.tau/16)) for j in range(16)]
+        parts=[q for poly in parts for q in H.subtract(poly,convex_cuts(hole))]
+        mulch=a.mesh('Entry_tree_well',component='site',solid=False,trim_cell=10)
+        mulch.geom([(xx,yy,.003) for xx,yy in hole],[tuple(range(16))],'Trim',(.050,.028,.012));mulch.finish();cuts.append(hole)
     for poly in parts:grounded_slab(m,[(x,y,entry_height(p,y)) for x,y in poly]);cuts.append(poly)
     ground_finish(m.finish(),'Concrete')
+    joints=a.mesh('Entry_plaza_pour_joints',component='site',solid=False,trim_cell=4)
+    for station in range(math.floor(plaza[0]/1.524),math.ceil(plaza[1]/1.524)):
+        x=station*1.524
+        for poly in parts:
+            q=H.clip(H.clip(poly,1,0,-x+.005),-1,0,x+.005)
+            if len(q)>=3:joints.geom([(xx,yy,entry_height(p,yy)+.0007) for xx,yy in q],[tuple(range(len(q)))],'Trim',(.12,.12,.105))
+    joints.finish()
     if p['type']=='finger':
         rect=(-45.3424,-41.73,-8.5,19.8);m=a.mesh('Parent_curb_walk',component='site',solid=False)
         grounded_slab(m,[(x,y,p['floor']+(.1704-p['floor'])*(rect[1]-x)/(rect[1]-rect[0])) for x,y in rect_poly(rect)]);ground_finish(m.finish(),'Concrete');cuts.append(rect_poly(rect))
@@ -433,6 +476,7 @@ def build_site(p,building):
     place('build/context/furniture.glb','Entry_bench',(ex-4,ey-2,.1704),0,'Bench',a.root)
     for j,(x,y) in enumerate(p['trees'][:5]):place(ROOT/'trees/export'/('RedMaple.glb' if j%2==0 else 'PinOak.glb'),'Mature_tree_'+str(j),(x,y,0),p['seed']*17+j*73,parent=a.root)
     for j,(x,y) in enumerate(p['shrubs'][:4]):place('build/context/shrub.glb','Foundation_shrub_'+str(j),(x,y,0),j*43,parent=a.root)
+    planting_beds(a,p,cuts)
     for j,(x,y,yaw) in enumerate(p['portables']):portable(a,x,y,yaw,j)
     # One existing library pole serves the small staff lot. Period is 2010 for
     # this presentation, allowing the library's LED retrofit cobra head.
@@ -454,8 +498,20 @@ def build_site(p,building):
     desire_paths(a,p,parts)
     turf=a.mesh('Site_lawn',component='site',solid=False)
     for poly in parts:
-        if len(poly)>=3:turf.geom([(x,y,-.004) for x,y in poly],[tuple(range(len(poly)))],'Siding')
-    ground_finish(turf.finish(),'Siding')
+        if len(poly)<3:continue
+        # Coarse color stations follow shade, roots and shortcut traffic.
+        # They do not allocate a campus-sized texture or extra plant meshes.
+        for ix in range(math.floor(min(x for x,y in poly)/10),math.ceil(max(x for x,y in poly)/10)):
+            for iy in range(math.floor(min(y for x,y in poly)/10),math.ceil(max(y for x,y in poly)/10)):
+                q=poly
+                for aa,bb,cc in convex_cuts(rect_poly((ix*10,(ix+1)*10,iy*10,(iy+1)*10))):q=H.clip(q,aa,bb,cc)
+                if len(q)>=3:turf.geom([(x,y,-.004) for x,y in q],[tuple(range(len(q)))],'Siding')
+    ob=turf.finish();ground_finish(ob,'Siding')
+    for i,v in enumerate(ob.data.vertices):
+        x,y=v.co[:2];dry=0.
+        for tx,ty in p['trees'][:5]:dry+=.28*math.exp(-((x-tx)**2+(y-ty)**2)/20)
+        varied=.94+.05*math.sin(x*.18+math.sin(y*.16))+.025*math.sin(y*.73+x*.31)
+        ob.data.color_attributes['Tint'].data[i].color=(.62*varied*(1+.22*dry),.68*varied*(1-.18*dry),.58*varied*(1-.22*dry),1)
     # Public frontage has real driveway openings. Its continuous road remains
     # library geometry, while curb/walk omissions follow each apron footprint.
     for name,point in [('Service',(kr+6,kf,.02)),('Blacktop',(cx,cy,.025)),('Ballfield',(fx,fy,.01))]:a.socket(name,point,name.lower())
@@ -466,6 +522,44 @@ def build_site(p,building):
 
 
 def DARK():return (.023,.028,.024)
+
+
+def planting_beds(a,p,cuts):
+    """Maintained foundation beds, low clipped evergreens and a marquee bed.
+
+    Small shrubs use original leaf cards with the library's alpha material;
+    fine leaves remain in that map. Native mature trees remain intact.
+    """
+    import random
+    rng=random.Random(p['seed']+491)
+    src,_=library('build/context/shrub.glb')
+    ma=next(ma for ob in src if ob.type=='MESH' for ma in ob.data.materials if ma and 'Shrubs' in ma.name)
+    foliage=a.mesh('Low_foundation_planting',component='site',solid=False)
+    beds=list(p['beds'])
+    sx=p['bus_route'][0][0]+12 if p['type']!='courtyard' else 96;sy=-79 if p['type']!='courtyard' else -70
+    beds.append((sx-3.8,sx+3.8,sy-1.9,sy+1.5))
+    mulch=a.mesh('Maintained_planting_beds',component='site',solid=False,trim_cell=10)
+    for j,(l,r,f,k) in enumerate(beds):
+        poly=[(l+.45,f),(r-.45,f),(r,f+.45),(r,k-.3),(r-.4,k),(l+.3,k),(l,k-.3),(l,f+.4)]
+        mulch.geom([(x,y,.002) for x,y in poly],[tuple(range(len(poly)))],'Trim',(.065,.035,.014));cuts.append(poly)
+        count=max(2,round((r-l)/1.6))
+        for q in range(count):
+            x=l+.75+(r-l-1.5)*(q/max(1,count-1));y=(f+k)/2+rng.uniform(-.12,.12)
+            if j==len(beds)-1:y=f+.45
+            height=rng.uniform(.42,.68);rad=rng.uniform(.40,.58)
+            for n in range(45):
+                theta=rng.uniform(0,math.tau);h=rng.uniform(.1,.95);rr=rad*math.sqrt(max(0,1-h*h))
+                xx=x+rr*math.cos(theta);yy=y+rr*math.sin(theta);zz=.07+h*height
+                ang=rng.uniform(0,math.tau);w=.14;dx,dy=math.cos(ang)*w,math.sin(ang)*w
+                foliage.geom([(xx-dx,yy-dy,zz-.13),(xx+dx,yy+dy,zz-.13),(xx+dx,yy+dy,zz+.13),(xx-dx,yy-dy,zz+.13)],[(0,1,2,3)],'Trim')
+    mulch.finish();ob=foliage.finish();ob.data.materials.clear();ob.data.materials.append(ma)
+    uv=ob.data.uv_layers.active
+    for j,face in enumerate(ob.data.polygons):
+        face.material_index=0
+        u=(j%4)*.25;v=((j//4)%2)*.25
+        for li,co in zip(face.loop_indices,((u,v),(u+.25,v),(u+.25,v+.25),(u,v+.25))):uv.data[li].uv=co
+    # This material ignores Tint; the exporter removes COLOR_0 for it.
+    ob['school_pbr']=True
 def rect_poly(r):
     l,rr,f,k=r;return [(l,f),(rr,f),(rr,k),(l,k)]
 

@@ -65,7 +65,7 @@ def share_images(path):
         for primitive in mesh['primitives']:
             ma=d['materials'][primitive['material']]
             if ma.get('extras',{}).get('tiling_vertex_tint') is not True:primitive['attributes'].pop('COLOR_0',None)
-    for folder in (ROOT/'ground/textures/ship',ROOT/'commercial/textures/ship',ROOT/'houses/textures/ranch-ship',ROOT/'trees/textures/ship',ROOT/'trees/textures/oak/ship',ROOT/'fences/chain-link/textures/ship',Path('textures/checkpoint')):
+    for folder in (ROOT/'ground/textures/ship',ROOT/'commercial/textures/ship',ROOT/'houses/textures/ranch-ship',ROOT/'trees/textures/ship',ROOT/'trees/textures/oak/ship',ROOT/'fences/chain-link/textures/ship',Path('textures/checkpoint'),Path('textures/ship')):
         candidates.extend(folder.resolve().glob('*.png'))
     hashes={hashlib.sha256(p.read_bytes()).digest():p for p in candidates};used=[]
     for row in d.get('images',[]):

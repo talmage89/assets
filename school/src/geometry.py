@@ -49,7 +49,17 @@ class Mesh(H.Mesh):
     def box(self,p,s,role='Trim',color=None,r=0,xf=None):return super().box(p,s,role,color,r,xf)
     def finish(self):
         ob=super().finish()
-        if ob:ob['asset_set']='School';ob['solid']=self.props.get('solid',True)
+        if ob:
+            ob['asset_set']='School';ob['solid']=self.props.get('solid',True)
+            if self.props.get('authored_winding'):
+                # The inherited solid helper recalculates disconnected skins
+                # independently. Restore explicit construction winding for
+                # gauged ground strips, whose buried bottoms are omitted.
+                for face,indices in zip(ob.data.polygons,self.f):
+                    pts=[Vector(self.v[i]) for i in indices];normal=Vector()
+                    for aa,bb in zip(pts,pts[1:]+pts[:1]):normal+=aa.cross(bb)
+                    if face.normal.dot(normal)<0:face.flip()
+                ob.data.update()
         return ob
 
 
@@ -142,6 +152,11 @@ def clean_surfaces():
         # area audit, matching the final joined coordinate frame exactly.
         ob.data.transform(ob.matrix_basis);ob.matrix_basis=Matrix.Identity(4)
         bm=bmesh.new();bm.from_mesh(ob.data);bmesh.ops.triangulate(bm,faces=list(bm.faces))
+        if any(ma and ma.name.startswith('SchoolGround_') for ma in ob.data.materials):
+            # Clipped turf polygons can acquire a reversed sliver when Blender
+            # triangulates float32 boundary stations. Ground skins have no
+            # buried bottoms; orient their final triangles after triangulation.
+            bmesh.ops.reverse_faces(bm,faces=[f for f in bm.faces if f.normal.z<-.01])
         bad=[f for f in bm.faces if f.calc_area()<1e-12 or min(e.calc_length() for e in f.edges)<1e-6]
         if bad:
             report[ob.name]=len(bad);bmesh.ops.delete(bm,geom=bad,context='FACES')

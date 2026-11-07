@@ -30,7 +30,8 @@ def main():
             for row in d.get('images',[]):
                 f=(path.parent/row['uri']).resolve();im=Image.open(f)
                 native_shrub=f.parent==Path('textures/checkpoint').resolve() and f.name.startswith('T_Shrubs_')
-                assert f.parent in shared_folders or native_shrub,(path,'unexpected school-owned image',row['uri'])
+                school_light=f==Path('textures/ship/T_School_Light_Emission.png').resolve()
+                assert f.parent in shared_folders or native_shrub or school_light,(path,'unexpected school-owned image',row['uri'])
                 r=dict(uri=row['uri'],pixels=im.size,bytes=f.stat().st_size,gpu_mib_8bpp_mips=im.width*im.height*4/3/1048576,sha256=hashlib.sha256(f.read_bytes()).hexdigest())
                 images.append(r);unique[str(f)]=r
             for mesh in d['meshes']:
