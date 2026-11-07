@@ -327,3 +327,183 @@ contents, broad plain stucco, sparse planting, and similar clean umbrellas.
 The patio marks should remain restrained, but the ages must read without
 zooming into individual scratches. Final native-size views and photographic
 pairs are the next acceptance test, not these counts alone.
+
+## Look-dev pass 3 — native PBR, reject obstructed photo comparisons
+
+**Color/value first.** Opened all 26 first full-size 1280 px views and the
+four newly composed photographic pairs. Compared with the assumed-neutral
+Annie's pavement, our sidewalk is too even, especially under customers' feet;
+the black steel is suitably dark but remains too uniformly coated at the
+glides. Broadened the customer-local concrete stains, keeping their centers
+at seats and handoff/entry locations. Remapped existing lower leg faces to a
+height-driven coating-loss chart; chair geometry remains exactly 2,156 tris.
+
+The warm rooms retain ceiling/pendant gradients and shadow under the counter.
+The three business signs used too similar a serif treatment; Morrow now uses
+its own titlecase sans, Switchyard a heavier sans, and
+Folio keeps its bookish serif. They use the same atlas allocation.
+
+Rejected two photo comparisons: Lakeview's landmarks had been assigned to
+the receding side instead of the front, putting an island tree in the
+comparison. Reidentified front glazing/eave landmarks and moved only the pad's
+east landscape island toward the walk approach, away from that sight line.
+Fair Grinds' shallow canopy-only fit invented a 13.8 degree camera roll. Added
+explicitly estimated wall/ground junctions behind the gate/patrons; the new
+fit is near level, but has a larger, honestly reported residual. Its deeper
+metal gallery is not proof of matching our fabric construction.
+
+Scale silhouettes were hidden by foreground parked cars; dedicated scale
+views now omit only those context vehicles and record that omission. Enlarged
+the isolated-piece studio ground to remove its black edge. The underlying
+site exports retain all vehicles. Fixed the independent parking checker to
+apply homogeneous raw glTF matrices, then convert measured NumPy scalars for
+its JSON receipt. These are checker corrections, not geometry changes.
+
+The final rerun must verify these fixes on the export, all new photo framing,
+and the actual atlas bake. Remaining tells are orderly smallware, smooth
+pastry crusts, repeated block architecture/trees and broad plain wall areas.
+
+## Look-dev pass 4 — reject the dark gap at the town edge
+
+**Color/value first.** Native PBR heroes retain neutral gray concrete, dark
+steel/canopy cavities and warm rooms, without lifting the whole façade to
+make its shaded furniture readable. Against the balanced used-café photos,
+the broad walks remain cleaner than the strongest photographed mildew; our
+stains stay tied to customer locations rather than copying that entire age.
+
+Opened the complete second native set through Morrow and the pad's hero,
+overhead, table, counter and awning. The pad's distant black horizontal slit
+is not acceptable as an artistic shadow: the district soil was 240 mm below
+the road top, leaving an air gap below the finite paving boxes. Interrupted
+only our queued photo-match job, raised the context terrain to 5 mm below
+the actual roadway surface (including Main Street's lower road grade), and
+reran all sites/views. The new independent receipt measures raw exported
+terrain/paving heights, requiring support intersection while leaving the
+paving surface exposed. No café/furniture/layout dimension changes.
+
+The scale views now expose the 1.8 m figure; opaque cars remain in actual
+site exports and normal views. Morrow's titlecase sans and Switchyard's bold
+sans distinguish them from Folio's serif without another texture set.
+Smooth pastry crusts and orderly room contents are still weaker than the
+period counter photograph; they no longer have box silhouettes. Fine rail
+chips and foot abrasion need the detail views more than the widest hero.
+
+## Correction evidence index
+
+All paths are local rebuildable evidence, outside `docs/`. The 16 before/after
+pairs assert identical saved camera recipes; each side is 1,024 px wide.
+
+| Requested correction | Exported evidence |
+| --- | --- |
+| Shops connected to streets/lots | `renders/fixes/117-hero.jpg`, `228-hero.jpg`, `339-hero.jpg`; all three `renders/lookdev/<seed>/site.png` |
+| Dressed Main Street neighbors | `renders/lookdev/117/hero.png`, `117/scale.png`, `117/site.png` |
+| Pad silhouette and walk-up | `renders/fixes/339-hero.jpg`, `339-above.jpg`, `339-walkup.jpg` |
+| Fabric frame, sag and valance | `renders/fixes/117-awning.jpg`, `228-awning.jpg`, `339-awning.jpg`; overheads expose cloth bays |
+| Offset duplicate lettering | `renders/fixes/117-counter.jpg`; the reflective promotional vinyl was removed; hours, signs and menus reviewed in all counter/awning views |
+| Pastry forms and real size | `renders/fixes/228-table.jpg`, `339-table.jpg`, each counter; `export/pieces/PastryCase.gltf` |
+| Raking sunlight, warm room, cars | Three `renders/lookdev/<seed>/hero.png` at 40 / 45 / 42 mm and eye height |
+| Cause-local age and baked response | Table, chair, counter, awning and walk-up details; baked/source period photo pairs |
+
+`renders/fixes/contact.jpg` indexes every fixed-camera pair. Full normal
+presentation is `renders/lookdev/contact.jpg`; layout annotations remain in
+`renders/lookdev/layouts.jpg`. Shared-chart audit and photographic judgment
+are separate receipts, as are serialization, route geometry and physical
+terrain support.
+
+## Look-dev pass 5 — final exported PBR and source comparison
+
+**Color/value first.** Compared all four assumed-neutral period photos with
+both the source-finish and baked exports. Cream trim and tops retain highlight
+headroom; painted steel remains dark, with deep canopy/under-counter shade.
+Folio's fitted wood stays brown instead of the first pass's orange/yellow.
+Switchyard's older canvas is lighter on its exposed roof than its shaded
+valance, while the window sill's abrasion remains on its contact surface.
+The photographic sidewalks have more irregular accumulated use than ours,
+especially the damp/mildewed Annie's walk: our used pavement remains a
+weaker match, even after broadening the seat-local stains.
+
+Opened every final 1280 px presentation render (26), all eight native
+source/baked matched renders, all eight composed pairs, and the three native
+fixed-camera hero comparisons. The terrain correction removes the distant
+road slit; actual exported heights establish support separately from the
+images. Front glazing, all three identities/menus, cloth bays, table settings,
+scale silhouettes, the walk-up and the whole sites were inspected.
+
+Display-space luminance in the architectural framing rectangle, including
+glazing and reflections (not an albedo measurement):
+
+| Seed | p1 | p50 | p95 | p99 | Any-channel clipped pixels |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 117 | 0.0000 | 0.2312 | 0.5876 | 0.6969 | 0.000000% |
+| 228 | 0.0081 | 0.3390 | 0.7877 | 0.7953 | 0.000000% |
+| 339 | 0.0429 | 0.3891 | 0.9202 | 0.9529 | 0.000540% |
+
+The source-finish pairs use the same game geometry with original manufacture
+charts and meter-valued height, before normal-map baking/filtering; they do
+not claim a high-sculpt projection comparison. The 4096-to-2048 bake slightly
+softens fine grain/print edges but preserves the broad hue/value and menu
+legibility. The remaining plainness is mostly authored detail/use history.
+
+Final landmark fits are **4.52 / 16.26 / 17.04 / 58.49 px RMS**. The pad
+comparison now uses the correct front glazing/eave plane; an island still
+partially overlaps the side patio, but the front and hip are readable. The
+Fair Grinds view is close to level and includes seating, but its 45.7 mm fit
+is the weakest: the reference has a deeper gallery, denser planting and
+people using a narrower shaded walk. The two hidden ground junctions are
+estimates. Neither that fit nor the camera implementation check proves
+matching photographed architecture or albedo. The umbrella/pad estimates
+reach their 70 mm bound; no original EXIF or surveyed photo footprint exists.
+
+Remaining CG tells, recorded for the lead: repeated neighboring façades and
+trees; an orderly room/case and sparse smallware; smooth pastry crusts;
+broad stucco/concrete age that is cleaner and less irregular than the used
+photographs. Glass reflections veil some menus; fine rail chips and chair
+foot abrasion mostly need the detail views. No final docs/gallery is made.
+
+## Reproducibility corrections
+
+Strict byte tests exposed MikkTSpace rounding at three imported car corners
+and one-bit UV interpolation on the private Commercial neighbor slabs. No
+position, normal, index or layout discrepancy was accepted. Production and
+repeat now both use one CPU worker, as the vehicle pipelines do. Private
+Commercial-host UVs round to six decimals after evaluated bevels; measured
+maximum change is 9.536744e-7, below 0.002 shipping texel. Original canonical
+family files remain unchanged. Three asset-owned tangent anchors per proof
+site use `kit.gltf.stabilize_tangents`: exact position/normal/UV signatures
+and at most one 0.0001 rounding step are required; this cannot conceal a
+changed source corner. The source anchors are in `src/context_tangents.json`.
+
+The clean rebuild subsequently passed all 53 delivery files (121,942,723
+bytes) and all seven private host GLBs byte for byte. New final views are
+rendered after that reproducible source path; the GPU rebake is checked
+separately with the kit's RGB pixel tolerances and exact coverage alpha.
+
+## Final checkpoint receipts
+
+- `make check repeat WIDTH=1280 SAMPLES=40`: PASS. Fresh scene imports,
+  counts/scale/normals/chart bounds/density, actual route surfaces and knee
+  rays, measured parking gaps and terrain support; 53 delivery files /
+  121,942,723 bytes plus seven private host GLBs reproduced byte for byte.
+- `make all texture-repeat WIDTH=1280 SAMPLES=40`: the complete `all` goal
+  finished (26 presentation renders, eight matched renders, four photo pairs
+  in each finish stage, and 16 fixed-camera comparisons). The additional
+  rebake check initially rejected its alpha reader because Pillow-generated
+  BaseColor uses legal PNG filters unsupported by `kit.image_io.read_png`.
+  Switched only that coverage reader to Pillow; kept kit RGB comparison.
+- `make texture-repeat check-repo`: PASS. Independent real 4096 GPU rebake
+  filtered to 2048: BaseColor / Normal / ORM each have maximum byte delta 0
+  and RGB byte RMSE 0; coverage alpha is exact and accepted maps unchanged.
+  Repository: 1,979 source files, zero errors.
+- Final CPU receipt audit: all 34 native PNGs identify the current actual
+  exported bundle and match their recorded pixel-file hash. All 53 current
+  export files still match the repeat receipt. Existing delivery hashes:
+  140 / 140 unchanged. No kit, top-level README, docs or gallery authored.
+
+Opened the regenerated native views and matched renders after the numerical
+reproducibility changes; the visual conclusions of pass 5 hold. The final
+new set is 3,447,041 PNG bytes / 16 MiB with 8-bpp compression and full mips.
+The three complete shop allocations are 108 / 86.67 / 86.67 MiB; the union
+of all context images is 262.17 MiB. Shared-chart reuse remains explicit.
+No tool installation or other lead action is needed. A gravity/roll bound
+for poorly constrained photographic fits would be a useful future kit
+option; no shared helper changed in this round.
