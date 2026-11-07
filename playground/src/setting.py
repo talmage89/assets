@@ -24,7 +24,7 @@ def clone(rt,name,loc,yaw=0):
     import geometry as F
     o=F.clone(rt,name,loc,yaw);o['presentation_only']=True;return o
 
-def context(plan):
+def context(plan,photo_view=None):
     from kit import model as G
     from kit.tiling import material,world_uv
     x0,y0,x1,y1=plan['surface'];back=y1+15
@@ -88,6 +88,12 @@ def context(plan):
         ob=clone(tree if i%3 else maple,'Library distant shade tree / south',(-43+i*12+rng.uniform(-3,3),y0-25+rng.uniform(-3,3),-.10),rng.uniform(0,360));ob.scale*=rng.uniform(.80,1.08)
     for i in range(4):
         ob=clone(tree if i%2 else maple,'Library distant shade tree / west',(x0-22+rng.uniform(-3,3),-18+i*13,-.10),rng.uniform(0,360));ob.scale*=rng.uniform(.82,1.10)
+    if photo_view and 'stair' in photo_view:
+        # This reference looks east-southeast, through the gap between the
+        # ordinary east park grove and the distant south planting. Complete
+        # that park edge for this additional camera, outside every use zone.
+        for i in range(7):
+            ob=clone(tree if i%3 else maple,'Library photo-view east grove',(x1+13+rng.uniform(-2,2),y0-23+i*7+rng.uniform(-1,1),-.10),rng.uniform(0,360));ob.scale*=rng.uniform(.90,1.15)
     if new_maple:
         for o in [*maple.children_recursive,maple]:bpy.data.objects.remove(o,do_unlink=True)
     for i,filename in enumerate(('AlderH120.glb','AlderC150.glb')):

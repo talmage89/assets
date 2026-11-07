@@ -3,12 +3,12 @@
 Reconstruct the live scripted assembly before serialization under the same
 calibrated cameras/light. No source blend or photographic texture is loaded.
 """
-import sys,json,argparse
+import sys,json,argparse,hashlib
 from pathlib import Path
 import bpy
 HERE=Path(__file__).resolve().parent;sys.path.insert(0,str(HERE))
 import build as B,geometry as F
-from render import stage,camera,save
+from render import stage,camera,save,match_lighting
 from setting import context
 from labels import build as labels
 
@@ -27,11 +27,30 @@ for name,row in json.loads(Path('build/cameras.json').read_text()).items():
     ground=F.root('Siteworks');ground.parent=rt;B.surface(ground,plan);F.finish(ground);labels(rt,plan);B.context(rt,plan)
     for root in roots.values():
         for ob in B.members(root):bpy.data.objects.remove(ob,do_unlink=True)
-    context(plan)
-    sun=next(o for o in sc.objects if o.type=='LIGHT' and o.data.type=='SUN')
-    if 'swings' in name:sun.data.energy=.15;sc.world.node_tree.nodes['Background'].inputs[1].default_value=.32
-    elif 'stair' in name:sun.data.energy=.35;sc.world.node_tree.nodes['Background'].inputs[1].default_value=.28
-    else:sun.data.energy=2.2
+    context(plan,photo_view=name)
+    # Compare source manufacture fields against the shipped filtered maps.
+    # The analytic source and game geometry are the same here. Color/ORM use
+    # the original generated 4096 fields; normals use the calibrated 4096
+    # bake before filtering, so this exposes filtering/serialization loss,
+    # rather than pretending there was a high-poly projection step.
+    source_maps={}
+    for mat in bpy.data.materials:
+        if not mat.use_nodes:continue
+        for node in mat.node_tree.nodes:
+            if node.type!='TEX_IMAGE' or node.image is None:continue
+            im=node.image;filename=Path(im.filepath).name
+            if not filename.startswith('T_Play') or not filename.endswith('.png'):continue
+            folder=Path('textures/bake') if '_Normal' in filename else Path('build/procedural')
+            path=folder/filename
+            if not path.exists():continue
+            # glTF's importer can retain a packed copy. Load a distinct source
+            # image rather than reloading that packed 1024/2048 datablock.
+            high=bpy.data.images.load(str(path.resolve()),check_existing=True)
+            high.colorspace_settings.name=im.colorspace_settings.name;node.image=high
+            assert tuple(high.size)==(4096,4096),(filename,tuple(high.size))
+            source_maps[str(path)]=dict(path=str(path),sha256=hashlib.sha256(path.read_bytes()).hexdigest(),size=list(high.size))
+    assert len(source_maps)==9,list(source_maps)
+    match_lighting(sc,name)
     camera(sc,shot['location'],shot['target'],shot['lens'],roll=shot['roll'])
     output=Path('renders/source-matches')/(name+'.png');save(sc,output,source,name)
-    meta=json.loads(output.with_suffix('.json').read_text());meta['stage']='LIVE script-generated source before glTF serialization';meta['scope']='Reference source URI identifies matching export/maps, not the rendered equipment meshes';output.with_suffix('.json').write_text(json.dumps(meta,indent=2))
+    meta=json.loads(output.with_suffix('.json').read_text());meta['stage']='LIVE scripted source / original 4096 fields and prefilter normals';meta['scope']='Source URI identifies matching export; rendered equipment is generated live, color/ORM are original fields, normals are the 4096 bake before filtering. Analytic geometry is shared, with no high-poly projection step.';meta['source_map_inputs']=list(source_maps.values());output.with_suffix('.json').write_text(json.dumps(meta,indent=2))

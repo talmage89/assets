@@ -72,6 +72,16 @@ def save(sc,out,source,shot):
     out.with_suffix('.json').write_text(json.dumps(dict(piece_labels=labels,stage=stage_name,source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),resource_bundle_sha256=bundle,shot=shot,engine='CYCLES',width=sc.render.resolution_x,samples=sc.cycles.samples,camera_location=list(sc.camera.location),camera_matrix_world=[list(row) for row in sc.camera.matrix_world],camera_type=sc.camera.data.type,orthographic_scale=sc.camera.data.ortho_scale,lens_mm=sc.camera.data.lens,exposure=sc.view_settings.exposure),indent=2))
 
 
+def match_lighting(sc,name):
+    # Open-shade references need a larger sky contribution than the low-angle
+    # hero sun. Keep material albedos and exposure unchanged in these pairs.
+    sun=next(o for o in sc.objects if o.type=='LIGHT' and o.data.type=='SUN')
+    if 'swings' in name:sun.data.energy=.15;sky=.64
+    elif 'stair' in name:sun.data.energy=.35;sky=.56
+    else:sun.data.energy=2.2;sky=.22
+    sc.world.node_tree.nodes['Background'].inputs[1].default_value=sky
+
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--source');p.add_argument('--out',type=Path,default=Path('renders/checkpoint'));p.add_argument('--width',type=int,default=1200);p.add_argument('--samples',type=int,default=24);p.add_argument('--seeds',default='101,202,303');p.add_argument('--shots',default='all');p.add_argument('--matches',action='store_true');p.add_argument('--export-root',type=Path,default=Path('export'));p.add_argument('--no-setting',action='store_true');p.add_argument('--resume',action='store_true');a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
     if a.matches:
@@ -81,11 +91,8 @@ def main():
             source=a.export_root/row['source'];shot=row['shot'];sc=stage(source,a.width,a.samples,shot['aspect']);sc.view_settings.exposure=shot.get('exposure',-.25)
             if not a.no_setting:
                 from setting import context
-                context(json.loads(source.with_suffix('.json').read_text()))
-            sun=next(o for o in sc.objects if o.type=='LIGHT' and o.data.type=='SUN')
-            if 'swings' in name:sun.data.energy=.15;sc.world.node_tree.nodes['Background'].inputs[1].default_value=.32
-            elif 'stair' in name:sun.data.energy=.35;sc.world.node_tree.nodes['Background'].inputs[1].default_value=.28
-            else:sun.data.energy=2.2
+                context(json.loads(source.with_suffix('.json').read_text()),photo_view=name)
+            match_lighting(sc,name)
             camera(sc,shot['location'],shot['target'],shot['lens'],roll=shot['roll']);save(sc,a.out/'matches'/f'{name}.png',source,name)
 
         return

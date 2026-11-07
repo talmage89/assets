@@ -18,6 +18,20 @@ def main():
     years={str(s['seed']):s['year'] for s in json.loads(Path('build/manifest.json').read_text())['sites']}
     captions={str(p):str(years[p.parent.name])+' / seed '+p.parent.name+' / '+p.stem for p in paths if p.parent.name in years}
     contact(paths,out/'contact.jpg',width=2000,title='Playground / look-dev checkpoint / exported glTF and shared baked maps',captions=captions)
+    # The kit footer reports the virtual lens for a tight crop. Retain that
+    # value and also show the full-photo equivalent and native-pixel residual,
+    # so a 70mm photograph is not mistaken for a 362mm original lens.
+    calibration=json.loads(Path('build/cameras.json').read_text())
+    small=ImageFont.truetype(find_font('Noto Sans'),18)
+    for folder,label in ((out/'matches','Exported glTF'),(Path('renders/source-matches'),'Live source / 4096 fields'),(Path('renders/before/matches'),'Preserved earlier export')):
+        for name,row in calibration.items():
+            p=folder/(name+'-pair.jpg')
+            if not p.exists():continue
+            im=Image.open(p).convert('RGB');draw=ImageDraw.Draw(im);w,h=im.size
+            draw.rectangle((0,h-56,w,h),fill=(238,239,236))
+            text=(f"{label} | full photo {row['full_photo_equivalent_lens_mm']:.1f}mm horizontal equivalent; cropped render {row['shot']['lens']:.1f}mm | "
+                  f"RMS {row['residual_rms_pixels']:.1f} native px ({100*row['rms_fraction_of_crop_width']:.1f}% of crop width)")
+            draw.text((18,h-43),text,font=small,fill=(49,64,52));im.save(p,quality=94,optimize=True)
     pairs=sorted((out/'matches').glob('*-pair.jpg'))
     if pairs:contact(pairs,out/'matched-contact.jpg',width=2000,title='Period photographs / construction comparisons / camera fit residuals retained')
     source_pairs=sorted(Path('renders/source-matches').glob('*-pair.jpg'))
