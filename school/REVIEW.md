@@ -284,3 +284,242 @@ the checks nor the photographs certify a complete school program, structural
 design, continuous collisions, vehicle swept paths or occupancy/egress code
 compliance. The form/construction evidence is ready for the lead's checkpoint
 review. Work stops here, before school look-dev.
+
+## Pass 7 — first look export rejected: value, camera and site cost
+
+**Color and value first.** Opened all six 1000 px native Cycles views in
+`renders/look-pass1/`. Ground and brick now have readable manufacture, but
+using the red commercial brick for all three districts clipped the intended
+buff/tan channel multipliers. The result was three red schools. Rejected that
+binding: 102/103 now use the houses' already-authored buff/tan bricks, baked at
+4096 and shipped at their native 512. No new school texture set. Exposure is
+fixed; albedo changes, rather than exposure raises, distinguish the palettes.
+Walls' concrete curb and McDowell's white spandrel remain the balancing
+neutrals; Emerald's monochrome fascia is the third comparison neutral.
+
+The large tree trunk hides 101's entry. Planting moves off that camera ray and
+the hero moves to its actual loading approach. The compact hero gives too much
+of the gym's near wall: the next view approaches from the parent lane instead.
+102's communal/service block moves to the other side of its office; the
+four-room pods and exact room reservations stay intact. The entry headings
+are south, east and north in the campus frame. In the first above views the
+new neighborhood houses still floated on lawn: continuing streets, curb/walks
+and native utility-pole sockets now connect them. The park-backed site keeps
+its rear woodland instead of another row of houses.
+
+The first full sites were 381–409k, rejected. Native fence alpha charts stay
+unchanged, but continuous run rails and eight-sided posts replace repeatedly
+modeled bay ties. Weather samples are restricted to the wall runoff locations
+and short column-base stations, rather than cutting the whole canopy deck.
+Lettering is painted, so it has no invisible extruded sidewalls. These changes
+bring the subsequent 101/102 buildings back to about 72k; whole-site budgets
+are checked on serialized placed instances, not unique mesh data.
+
+The open bus and parent routes also receive a physical review. Bus direction
+is westbound along the school-side north curb so the actual right-side doors
+would face the walk. Two preliminary drive crossings are removed; subsequent
+checks intersect the actual exported-source paving polygons. Staff accesses
+have curb openings. The loading positions are empty sockets, not cars used as
+bus substitutes. Native cars are unmodified source instances in presentation.
+
+Still CG in this pass: blank surrounding ground, regular small glass backings,
+sparse foundation planting, identical red palettes, and site color wear too
+subtle at full frame. Those are rejected issues, not acceptance claims.
+
+## Pass 8 — second aerial and loading-lane review
+
+**Color and value first.** Opened all six 1200 px native views in
+`renders/look-pass2/`. The neutral-balanced McDowell spandrel and Walls curb
+remain the comparison neutrals. The buff court school was too light under
+the same exposure; its brick tint is reduced from (.36,.285,.19) to
+(.29,.225,.135) in linear RGB. The compact school's brown brick and narrow
+original slots now separate it from the earlier schools at full frame.
+Window shadows, dark door recesses and deep canopy shadows survive the bake.
+
+The mid-block loading curb now reaches the entry walk and the two drives
+have separate street aprons. The corner school's gym is on the opposite
+side of its office from 101; the park-backed compact school has its staff
+lot and bus loading on opposite approaches. Above views show three distinct
+parcels rather than two identical rings. Blacktop paint reads as school
+games, with the playground reservation and practice field beyond.
+
+Rejected four remaining visible issues: the compact school's entry tree
+still blocked its canopy, the compact blacktop touched too little classroom
+wall, the courtyard glazing retained an unnecessarily high sill, and the
+east horizon was empty. Move the tree out of the approach ray, extend the
+yard across the 1991 addition, lower the original courtyard window wall and
+add the missing native house/street row and distant trees. The replacement
+upper panels remain distinguishable from the original steel sash.
+
+Construction review also found an incorrectly oriented finger-wing ridge
+and HVAC curbs whose flat bottoms did not seat on pitched roofs. The ridge
+now follows the long wing; curbs have four independently checked sloping
+bottom corners. Eave and monitor end closures are actual surfaces. A new
+classroom yard door exposes a downspout conflict: choose a clear masonry
+pier from the actual opening intervals, then align its weather mask to the
+same station. Entry paving now grades from the loading curb down to the
+floor instead of touching the operating leaves. These changes require a
+fresh export and independent clearance checks, not just another picture.
+
+Still weak: grass is a broad shared tiling surface, roof ballast is coarse,
+the native houses and vehicles have a different level of finish, and the
+small mineral repairs need the close-up photo pairs to judge their scale.
+
+## Pass 9 — exported detail review, before photographic acceptance
+
+**Color and value first.** Opened all 27 native 1200 px Cycles views in
+`renders/look-pass3/`: nine per school, including the heroes, aerials, rear,
+window, canopy, gym, hardware, roof and blacktop. The reduced buff brick
+retains a warmer light value without the previous pale facade. Deep canopy
+and glass shadows remain, but the west-facing finger window view is too
+dark to assess sash paint. Give each detail its exposed-side sun direction;
+do not lift the whole scene's exposure. The gym-door view of 103 also needs
+its own face-facing sun. The balance assumptions remain the concrete curb,
+painted spandrel and monochrome fascia recorded in `reference-balance.json`.
+
+The lowered court glazing now reads as a window wall, and the 1970s slots
+read as a different design. The compact entry is clear after the tree move,
+but the hero is too distant: move farther along its actual parent approach
+to put more of the building in frame. The separate bus curb, pedestrian
+plaza, staff connections and real street aprons read in all three aerials.
+The compact blacktop now abuts its later classroom wing. Games, tetherballs,
+hoops and the neighboring playground reservation replace the former small
+futsal enclosure.
+
+Rejected the roof's broad repeating checker: the shared asphalt's four-cell
+low-frequency manufacture is too large at the provisional .8m roof repeat.
+Use a .2032m repeat for its fine roof aggregate and reduce the normal strength
+to .65. This changes physical scale, not the canonical maps. Roof vent bases
+also now follow the actual pitched plane. The rear cameras formerly hid the
+kitchen behind the gym: move to the service side and raise the eye so both
+the yard and service compound can be inspected together. The repeated single
+colonial house is a distracting tell; vary the context with the unchanged
+native ranch and cape generators and setbacks. Keep native cars intact.
+
+Remaining CG tells: regular interior blinds/backings, very even lawns, crisp
+door-paint chips, repeated native foliage, simple HVAC forms and a shared
+brick tile whose repetition is visible in long close-up walls. These are
+look limitations to judge against the forthcoming photo pairs, not facts
+which a serialization check can approve. No final documentation image is
+written or committed in this pass.
+
+## Pass 10 — full-size roof rejection and final binding change
+
+**Color and value first.** Opened all fifteen 1400 px views produced for 101
+in the interrupted `renders/lookdev/` run. The red brick retains its color
+in raking light; the canopy cavities stay dark, and the front concrete and
+steel highlights roll off without a white wash. The same-camera views also
+show why that older, cooler light is unsuitable as the new hero lighting.
+The human scale view seats its feet on the plaza slope.
+
+The .2032m roof repeat still produces a visible grid at full size. Rejected
+it and stopped the render batch. Roof cover now uses the already-baked
+CommercialConcrete mineral grain at a coarser 4.8768m repeat and stronger
+normal response, rather than Ground's four-cell binder clouds. Roof and
+sill materials share their images. A building now loads twelve images / 25
+MiB instead of fifteen / 41 MiB; the campus already loads the Ground maps,
+so its shared allocation remains unchanged. This is a material-scale reuse,
+not a new school bake or a claim that cement and roofing are the same finish.
+
+The raised rear camera reveals the kitchen but clips part of its enclosure
+at the left edge. Widen the lens to 35mm and aim toward the service side.
+The new window-side light makes the steel sash and its small lower chips
+read; the glass remains too uniformly reflective and the simple room
+backings are visible. Roof refinement must be inspected again before the
+full batch resumes. No image from this interrupted run is final evidence.
+
+## Pass 11 — photographic visibility and color/value corrections
+
+**Color and value first.** Opened the three native exported views and all
+three 2200 px pairs in `renders/pairs-pass5/`, then both corrected pairs in
+`renders/pairs-pass6/`. Walls' neutral-balanced curb exposes a gym wall too
+warm/light in direct front sun. Match the photograph's shaded front instead
+of raising exposure, then reduce the compact gym's red component and albedo
+to (.14,.09,.055). McDowell's balanced white spandrel exposes our panel at
+roughly half its relative height. Keep the low rough opening, increase the
+panel from .22 to .45m, and give it maintained warm-white paint. The glazing
+still occupies most of the facade, nearly to the ceiling. Emerald's neutral
+monochrome fascia comparison keeps the column/deck heights credible; its
+different district paint and massing are not reproduced as a replica.
+
+The first new original-sash ribbon fit rendered black. Its mathematically
+projected landmarks passed the kit solver, but the camera lay inside the
+later row. Reject it. Fit the unobstructed original south window in the
+courtyard gap with a tighter reference crop and a bounded 22–25mm lens.
+The new independent plan check rejects cameras inside any building block.
+This is a feature/type fit with explicit residuals, not lens recovery.
+The corrected pair is readable and shows the remaining lack of interior
+activity and varied glass response. The gym's foreground tree also moves
+out of that comparison ray while remaining a real planted parcel tree.
+
+Opened the two `renders/look-pass5/101/` views: the mineral roof binding has
+lost the rejected regular grid and the widened rear includes both the
+service compound and blacktop. Its aggregate is still subdued; it does not
+yet provide a convincing macro photograph of loose ballast. Do not spend
+thousands of geometry pebbles to conceal that shared-map limitation.
+
+The original checkpoint is now rebuildable in an isolated archive from
+`1fd7b37`, without another worktree. Its six original binaries reproduce
+byte for byte and all original counts/bounds agree. This makes the literal
+before/after evidence reproducible after a clean, rather than relying only
+on copied PNGs. No reference pixels enter either material pipeline.
+
+## Pass 12 — final exported batch and source/export loss check
+
+**Color and value first.** Opened all 45 final 1400px Cycles views, the three
+exported photo pairs and the three source pairs at native size. Hero display
+luminance p1/p50/p99 is .006/.420/.793 (101), .056/.487/.762 (102) and
+.000/.408/.796 (103). No hero clips all three highlight channels. These
+whole-frame image statistics describe exposure, not measured surface albedo.
+Walls' concrete curb, McDowell's painted spandrel and Emerald's monochrome
+fascia remain the balancing neutrals. The gym comparison's front is shaded:
+reducing sky fill from .16 to .08 brings it nearer the photograph without
+changing hero exposure or raising the masonry albedo.
+
+The final pairs have landmark RMS 18.19 / 35.73 / 8.15 native pixels for
+gym / ribbon / walk. The 25mm ribbon lens sits on its explicit bound; it
+is an estimated planar feature fit, not a recovered photographic lens.
+Projection agreement below .005px verifies the solver-to-Blender transfer,
+not photographic likeness. Comparing source/export image RGB gives mean
+absolute display differences .029% / .064% / .531%. These include sampling
+and representation differences and are diagnostics, not a physical accuracy
+score. Neither pair has the earlier black/occluded sash failure.
+
+The three aerials read as distinct parcels with entry loading attached to
+the walks, different frontage counts, gyms, yards and fields. The wider
+rear views retain both service compounds and school games. Opened the
+literal old-camera hero/aerial pairs as well: the unchanged camera now
+looks at a different facade after 102/103 turn. Those are honest world-camera
+comparisons; the new targeted windows and heroes are the useful look views.
+Twelve before/after pairs each retain 1400px panels and zero camera residual.
+
+The rotated scale views initially carried the kit figure's offset in world
+space, placing it against the wall. Parent the complete silhouette under
+the campus heading, then rerender 102/103. Opened both corrected views; the
+figure stands on the graded plaza beside the entry. The first Eevee preview
+had opaque white glass: apply the library renderer's ray-traced slab
+refraction and sky/bounce cache. Opened the corrected preview. Glass now
+reads correctly; foliage and its shadows remain less faithful than Cycles.
+
+Remaining CG: overly even lawn, abrupt shortcut edges, repeated native
+context/foliage, sparse room backings and regular blinds, crisp paint chips,
+repeating brick in close-ups, simple HVAC and subdued loose-grain roof detail.
+The small mineral repairs remain too weak in distant hero framing to claim
+photographic aging. This is review evidence, not portfolio-photograph
+acceptance. No gallery or `docs/` images are produced.
+
+The occupied-parcel cost must remain explicit: static campuses are
+275,916 / 281,641 / 258,005 triangles, but two unmodified native car actors
+add 116,064. Including those actors gives 391,980 / 397,705 / 374,069,
+above 300k if moving vehicles are charged to the site ceiling. That is a
+budget exception for review, not an assertion that a different mesh count
+made the same scene cheaper. No car reshaping or school-specific LOD is used.
+
+`make` completes the full graph; `make repeat` passes all 49 external
+geometry/image files; `make check` and the shared-image audit pass. The
+final render audit finds 45 current exported views and three current export
+pairs, plus source pairs, all with the expected package hashes. Physical
+checks measure 35 rooms, 43 exterior leaves through 903 sampled poses and
+22 equipment-curb seats; serialization checks preserve counts, bounds and
+pivots independently. All 772 prior non-school delivery files are unchanged.
+The report is `LOOKDEV.md`; work stops at the requested look-dev checkpoint.

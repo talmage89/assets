@@ -13,12 +13,13 @@ def sheet(paths,out,columns=3,thumb=480):
     h=350;rows=math.ceil(len(paths)/columns);im=Image.new('RGB',(columns*thumb,rows*h),(25,29,26));d=ImageDraw.Draw(im);font=ImageFont.truetype(find_font('DejaVu Sans','Book'),15)
     for i,p in enumerate(paths):
         src=Image.open(p).convert('RGB');src.thumbnail((thumb,h-28));x=(i%columns)*thumb;y=(i//columns)*h
-        im.paste(src,(x+(thumb-src.width)//2,y+26));d.text((x+8,y+5),p.parent.name+' / '+p.stem,font=font,fill=(224,224,213))
+        label=('Eevee / ' if p.parent.parent.name=='eevee' else '')+p.parent.name+' / '+p.stem
+        im.paste(src,(x+(thumb-src.width)//2,y+26));d.text((x+8,y+5),label,font=font,fill=(224,224,213))
     out.parent.mkdir(parents=True,exist_ok=True);im.save(out,quality=91,optimize=True)
 
 
 def main():
-    folder=Path('renders/lookdev');paths=sorted(folder.glob('*/*.png'));sheet(paths,folder/'contact.jpg')
+    folder=Path('renders/lookdev');paths=sorted(folder.glob('*/*.png'))+sorted(Path('renders/eevee').glob('*/*.png'));sheet(paths,folder/'contact.jpg')
     stats={}
     for p in folder.glob('*/hero.png'):
         a=np.array(Image.open(p).convert('RGB'))/255;y=a@np.array([.2126,.7152,.0722]);stats[p.parent.name]=dict(display_luma_p1_p50_p99=np.percentile(y,[1,50,99]).tolist(),all_channel_clipped_fraction=float((a.min(2)>.99).mean()),camera=json.loads((p.parent/'provenance.json').read_text())['hero']['camera'])
@@ -56,6 +57,6 @@ def comparisons(folder):
             out=dest/f'{seed}-{name}.jpg';pair.save(out,quality=93,optimize=True)
             report[out.as_posix()]=dict(baseline_camera=bc,revised_camera=ac,campus_yaw_degrees=p['site_yaw'],max_camera_residual_m=error,panel_width=width,before_image_sha256=hashlib.sha256(first.read_bytes()).hexdigest(),after_image_sha256=hashlib.sha256(last.read_bytes()).hexdigest(),after_package_sha256=after['legacy_'+name]['package_sha256'])
     Path('build/before-after.json').write_text(json.dumps(report,indent=2))
-    sheet(sorted(dest.glob('*.jpg')),dest/'contact.jpg',columns=1,thumb=1600)
+    sheet(sorted(p for p in dest.glob('*.jpg') if p.name!='contact.jpg'),dest/'contact.jpg',columns=1,thumb=1600)
 
 if __name__=='__main__':main()
