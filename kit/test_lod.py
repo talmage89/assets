@@ -104,6 +104,35 @@ def main():
     doc=Document(stub)
     for mesh in doc.data['meshes']:doc.replace(mesh['primitives'][0],attrs,faces)
     source=out/'fixture.gltf';doc.save(source)
+    # A grazing-layer exception retains one exact instance, while its moving
+    # twin still reduces. No material, texture, attribute or pivot is changed.
+    from kit.lod_scene import capture_geometry,restore_geometry
+    trial=Document(source)
+    twin=copy.deepcopy(trial.data['nodes'][0]);twin.update(name='Critical',translation=[3,.4,.1]);twin.pop('children',None)
+    trial.data['nodes'].append(twin)
+    trial.data['scenes'][0]['nodes'].append(len(trial.data['nodes'])-1)
+    original_frame=trial.world(len(trial.data['nodes'])-1).copy()
+    saved=capture_geometry(trial,['Critical'])
+    prim=trial.data['meshes'][0]['primitives'][0]
+    aa,ff=trial.arrays(prim);small,faces_small,_=simplify_parts(aa,ff,.4,.0001,.0001)
+    assert len(faces_small)<len(ff)
+    trial.replace(prim,small,faces_small)
+    receipt=restore_geometry(trial,saved)
+    assert receipt[0]['source_triangles']==len(ff) and receipt[0]['reduced_triangles']==len(faces_small)
+    assert trial.data['nodes'][-1]['mesh']!=trial.data['nodes'][0]['mesh']
+    restored=trial.data['meshes'][trial.data['nodes'][-1]['mesh']]['primitives'][0]
+    ar,fr=trial.arrays(restored)
+    assert np.array_equal(fr,ff) and all(np.array_equal(ar[k],a) for k,a in aa.items())
+    assert len(trial.arrays(prim)[1])==len(faces_small)
+    assert np.array_equal(trial.world(len(trial.data['nodes'])-1),original_frame)
+    assert restored['material']==prim['material']
+    retained_path=out/'retained-instance.gltf';trial.save(retained_path)
+    reread=Document(retained_path);assert reread.data['nodes'][-1]['mesh']!=reread.data['nodes'][0]['mesh']
+    rr,rf=reread.arrays(reread.data['meshes'][reread.data['nodes'][-1]['mesh']]['primitives'][0])
+    assert np.array_equal(rf,ff) and all(np.array_equal(rr[k],a) for k,a in aa.items())
+    try:capture_geometry(trial,['Missing'])
+    except ValueError:pass
+    else:raise AssertionError('Unmatched retained geometry silently accepted')
     before=Document(source).dependencies()
     embedded=Document(source);embedded.buffers.append(texture.read_bytes())
     embedded.data['bufferViews'].append(dict(buffer=len(embedded.buffers)-1,byteOffset=0,byteLength=texture.stat().st_size))

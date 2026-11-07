@@ -255,6 +255,15 @@ build/check dependency graph is unchanged. Paths resolve against the asset root.
 
 Each level starts from delivered LOD0, avoiding accumulated error. Static parts
 merge by material, while moving roots keep separate meshes and original frames.
+For a measured layer-ordering defect, `source_geometry_nodes` can retain an
+exceptional part's original geometry as well. Use node-name patterns at config
+or level scope; descendants are included and every pattern must match a mesh
+or its ancestor. This keeps that part separate before merging, then restores
+its original arrays/material membership without changing its frame or maps.
+Other instances of a shared mesh still reduce independently. Assembly receipts
+list the measured source/reduced triangle counts and source corner records.
+This is a costly, explicit exception after a failed native comparison, not a
+default moving-part rule or a claim that the visibility sampler is exhaustive.
 Original named transform nodes, extras, sockets, skins and clips survive. Coincident
 source world coordinates are canonicalized in double precision before FLOAT
 storage, using the same six-decimal key as the topology audit; this prevents

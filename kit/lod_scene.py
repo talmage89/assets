@@ -10,6 +10,45 @@ import numpy as np
 from kit.lod_mesh import topology,components
 
 
+def capture_geometry(doc,patterns):
+    """Snapshot selected original construction meshes after assembly merging.
+
+    Selection includes descendants of matched frames. It is independent of
+    moving-frame protection: this exceptional option retains geometry too.
+    Arrays are copied before reduction; original materials and frames stay put.
+    """
+    selected=[];matched=set()
+    for ni,node in enumerate(doc.data['nodes']):
+        if 'mesh' not in node:continue
+        current=ni;keep=False
+        while True:
+            name=doc.data['nodes'][current].get('name','')
+            hits={p for p in patterns if fnmatch.fnmatchcase(name,p)}
+            matched.update(hits);keep|=bool(hits)
+            if current not in doc.parents:break
+            current=doc.parents[current]
+        if keep:
+            mesh=doc.data['meshes'][node['mesh']]
+            selected.append((ni,copy.deepcopy(mesh),[doc.arrays(p) for p in mesh['primitives']]))
+    if set(patterns)-matched:raise ValueError('Unmatched source_geometry_nodes: '+str(sorted(set(patterns)-matched)))
+    return selected
+
+
+def restore_geometry(doc,selected):
+    """Restore only selected instances; report measured cost of the exception."""
+    reports=[]
+    for ni,mesh,arrays in selected:
+        node=doc.data['nodes'][ni];mi=node['mesh']
+        reduced=sum(len(doc.arrays(p)[1]) for p in doc.data['meshes'][mi]['primitives'])
+        if any(i!=ni and n.get('mesh')==mi for i,n in enumerate(doc.data['nodes'])):
+            mi=len(doc.data['meshes']);doc.data['meshes'].append(mesh);node['mesh']=mi
+        else:doc.data['meshes'][mi]=mesh
+        for p,(attrs,faces) in zip(mesh['primitives'],arrays):doc.replace(p,attrs,faces)
+        reports.append(dict(node=node.get('name',str(ni)),source_triangles=sum(len(f) for a,f in arrays),
+                            reduced_triangles=reduced,source_corner_records=sum(len(a['POSITION']) for a,f in arrays)))
+    return reports
+
+
 def merge_static(doc,protected_patterns=(),include_roots=()):
     """Weldable material groups share a mesh; moving frames remain canonical.
 

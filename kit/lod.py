@@ -144,8 +144,14 @@ def build(config):
             reports=build_foliage(doc,round(manifest['levels'][0]['triangles']*spec['ratio']),meters_per_pixel,spec.get('leaf_scale_exponent',.4),spec.get('leaf_selection','balanced'))
         elif cfg.get('screen_space'):
             from kit.lod_mesh import reduce_screen,uv_budget
-            assembly=merge_static(doc,cfg.get('protected_nodes',[]),cfg.get('include_nodes',[]))
+            retain=spec.get('source_geometry_nodes',cfg.get('source_geometry_nodes',[]))
+            if not isinstance(retain,list) or any(not isinstance(p,str) or not p for p in retain):
+                raise ValueError('source_geometry_nodes must be a list of nonempty name patterns')
+            if retain and spec.get('rebake'):raise ValueError('Source geometry retention is for shared-map levels')
+            assembly=merge_static(doc,cfg.get('protected_nodes',[])+retain,cfg.get('include_nodes',[]))
             if not spec.get('rebake'):
+                from kit.lod_scene import capture_geometry,restore_geometry
+                retained=capture_geometry(doc,retain)
                 from kit.lod_shared import meshes
                 from kit.lod_shells import backface_policy,refinement_policy
                 guard=spec.get('backface_guard',cfg.get('backface_guard',True))
@@ -158,6 +164,7 @@ def build(config):
                         source=doc,reflective_surface_pixels=reflective,enabled=sliding):
                     reports=meshes(doc,spec['ratio'],meters_per_pixel,cfg.get('feature_pixels',1.5),pixels,seam_sliding=sliding)
                 assembly.update(backface_guard=guard,source_skin_refinement=sliding and guard)
+                if retained:assembly['retained_source_geometry']=restore_geometry(doc,retained)
                 if reflective is not None:assembly['reflective_surface_pixels']=reflective
             else:
                 if spec.get('static_shell'):assembly['shells']=shell_static(doc,spec['ratio'],meters_per_pixel)
