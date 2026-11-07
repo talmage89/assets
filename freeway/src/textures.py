@@ -18,9 +18,12 @@ def manufacture(name,size):
   rgb=np.stack([.28+v,.269+v,.243+v],axis=2);height=np.clip(.55+.08*grain+.13*sand+pores*.25,0,1)
   orm=np.dstack([np.clip(1+pores*.08,0,1),np.clip(.87+.025*grain,0,1),np.zeros_like(grain)])
  else:
-  crystals=field(180);white=np.maximum(0,field(95)-.19)*1.4;v=.39+.11*crystals+.007*grain
-  rgb=np.stack([v+white*.25,v+.012+white*.26,v+.015+white*.25],axis=2);height=np.clip(.5+crystals*.11+grain*.02+white*.06,0,1)
-  orm=np.dstack([np.ones_like(grain),np.clip(.53+white*.9+crystals*.1,0,1),np.clip(.95-white*1.9,0,1)])
+  # Weathered zinc is a subdued crystalline coating. Strong roughness/metal
+  # changes between adjacent oxide islands falsely read as dented foil even
+  # with nearly flat normals. Keep the deposit response close to the old metal.
+  crystals=field(180);white=np.maximum(0,field(95)-.19)*1.4;v=.31+.025*crystals+.002*grain
+  rgb=np.stack([v+white*.045,v+.006+white*.05,v+.008+white*.05],axis=2);height=np.clip(.5+crystals*.025+grain*.003+white*.015,0,1)
+  orm=np.dstack([np.ones_like(grain),np.clip(.72+white*.30+crystals*.04,0,1),np.clip(.88-white*.65,0,1)])
  return np.clip(rgb,0,1),orm,height
 
 def maintenance(size):
