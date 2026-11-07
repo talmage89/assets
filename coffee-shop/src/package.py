@@ -4,7 +4,6 @@ import hashlib
 import json
 import os
 from pathlib import Path
-from kit.gltf import GLB
 
 REPO=Path(__file__).resolve().parents[2]
 
@@ -13,6 +12,7 @@ def sha(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
 def externalize(source,dest):
+    from kit.gltf import GLB
     g=GLB(Path(source));d=g.json;dest=Path(dest);dest.parent.mkdir(parents=True,exist_ok=True)
     # Reused delivered maps keep their canonical family path. Only our new
     # quick sheet/host lettering is extracted locally, once across all seeds.
