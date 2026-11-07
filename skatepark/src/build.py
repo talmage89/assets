@@ -130,6 +130,11 @@ def main():
         for rt in roots:
             for o in [*rt.children_recursive,rt]:
                 if o.name in bpy.data.objects:bpy.data.objects.remove(o,do_unlink=True)
+    # Only current external glTF references own the generated shared images.
+    # Remove stale iteration images so a clean rebuild has the same file set.
+    used={image['uri'] for path in ex.glob('*.gltf') for image in json.loads(path.read_text()).get('images',[]) if 'uri' in image}
+    for image in (ex/'shared').glob('*.png'):
+        if image.relative_to(ex).as_posix() not in used:image.unlink()
     # Source module inspection layout, independent from placed exports.
     for i,rt in enumerate(lib.values()):rt.location=(i%4*12,i//4*12,0)
     for i,rt in enumerate(bowl_lib):rt.location=(0,62,0)

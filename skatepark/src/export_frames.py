@@ -2,13 +2,36 @@
 
 MikkTSpace can emit a zero tangent at small bevel/cap fan junctions, including
 a few vertices in the canonical trees. Keep geometry, UVs, images and valid
-frames unchanged. Derive missing frames from the largest incident UV triangle.
+frames unchanged except one explicitly guarded Mikk rounding corner. Derive
+missing frames from the largest incident UV triangle.
 Untextured context does not consume tangent attributes and is left alone.
 """
 import json,struct
 from pathlib import Path
 import numpy as np
-from kit.gltf import GLB
+from kit.gltf import GLB,stabilize_tangents
+
+PIN_OAK_ROUNDING=dict(vertex=10396,
+    position=[.1928449273109436,3.4985604286193848,-.0159536711871624],
+    normal=[.9714162945747375,.00920015387237072,-.23720398545265198],
+    uv=[.48928847908973694,.29691773653030396],
+    tangent=[-.2372,.0031,-.9715,1.])
+
+def rounding_anchors(g):
+    """One native oak corner straddles Mikk's fourth-decimal boundary."""
+    anchors=[]
+    for mi,mesh in enumerate(g.json['meshes']):
+        if not mesh.get('name','').startswith('Trunk and branches'):continue
+        for pi,prim in enumerate(mesh['primitives']):
+            attr=prim['attributes']
+            if g.json['accessors'][attr['POSITION']]['count']!=14746:continue
+            a=dict(PIN_OAK_ROUNDING,mesh=mi,primitive=pi)
+            for key,semantic in [('position','POSITION'),('normal','NORMAL'),('uv','TEXCOORD_0')]:
+                assert np.array_equal(g.accessor(attr[semantic])[a['vertex']],np.asarray(a[key],dtype=np.float32)),('Changed native rounding corner',key)
+            actual=g.accessor(attr['TANGENT'])[a['vertex']]
+            assert np.max(np.abs(actual-np.asarray(a['tangent'],dtype=np.float32)))<.00011,actual
+            anchors.append(a)
+    return anchors
 
 def repair(path):
     path=Path(path);raw=bytearray(path.read_bytes());embedded=path.suffix=='.glb'
@@ -52,8 +75,17 @@ def repair(path):
                 start=view.get('byteOffset',0)+accessor.get('byteOffset',0)+int(vertex)*view.get('byteStride',16)
                 struct.pack_into('<4f',binary,start,*tangent,hand)
             receipts.append(dict(mesh=mesh.get('name',str(mi)),primitive=pi,vertices=len(bad),method='UV-derived unit tangent orthogonal to exported normal; axis fallback only at collapsed native cap charts'))
+    anchors=rounding_anchors(g)
     if embedded:
         raw[bin_start:bin_start+len(binary)]=binary;path.write_bytes(raw)
-    else:(path.parent/g.json['buffers'][0]['uri']).write_bytes(binary)
-    path.with_suffix('.frames.json').write_text(json.dumps(dict(repaired_vertices=sum(r['vertices'] for r in receipts),normal_mapped_primitives_only=True,geometry_and_UV_unchanged=True,repairs=receipts),indent=2))
+        stabilize_tangents(path,anchors)
+    else:
+        # The kit helper consumes GLB. Apply its same exact-signature and
+        # one-rounding-step guard to the companion external BIN as well.
+        for a in anchors:
+            attr=g.json['meshes'][a['mesh']]['primitives'][a['primitive']]['attributes'];accessor=g.json['accessors'][attr['TANGENT']];view=g.json['bufferViews'][accessor['bufferView']]
+            start=view.get('byteOffset',0)+accessor.get('byteOffset',0)+a['vertex']*view.get('byteStride',16)
+            struct.pack_into('<4f',binary,start,*a['tangent'])
+        (path.parent/g.json['buffers'][0]['uri']).write_bytes(binary)
+    path.with_suffix('.frames.json').write_text(json.dumps(dict(repaired_vertices=sum(r['vertices'] for r in receipts),guarded_rounding_corners=len(anchors),normal_mapped_primitives_only=True,geometry_and_UV_unchanged=True,repairs=receipts),indent=2))
     return receipts
