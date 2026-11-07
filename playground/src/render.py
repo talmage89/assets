@@ -140,7 +140,7 @@ def main():
             if not want(shot):continue
             if a.resume and (a.out/str(seed)/(shot+'.png')).exists():continue
             sc=stage(source,a.width,a.samples)
-            if not a.no_setting:
+            if not a.no_setting and shot not in ('front','side','back'):
                 from setting import context
                 context(plan)
             raking_sun(sc,plan)
@@ -156,10 +156,28 @@ def main():
                 zones(sc,plan);camera(sc,(cx,cy,48),(cx,cy,0),40,ortho=max(bx-ax,by-ay)*1.13)
                 sc.render.resolution_y=round(a.width*.90)
             else:
+                # Inspection elevations show the whole delivered site without
+                # presentation-only town objects in front of it. Its planted
+                # trees remain in the export and in the hero; omit their
+                # canopies here just as in the measured overhead view.
+                for ob in list(sc.objects):
+                    if ob.get('module') in ('Library_PinOak','Library_RedMaple'):
+                        for child in [ob,*ob.children_recursive]:child.hide_render=True
+                plane(z=-.30)
                 size=max(x1-x0,y1-y0)*1.12
                 direction={'front':(0,-size,5),'side':(size,0,5),'back':(0,size,5)}[shot]
-                camera(sc,(cx+direction[0],cy+direction[1],direction[2]),(cx,cy,1),40,ortho=size)
-            if shot=='eevee':sc.render.engine='BLENDER_EEVEE'
+                camera(sc,(cx+direction[0],cy+direction[1],direction[2]+1.5),(cx,cy,2.5),40,ortho=size)
+                sc.render.resolution_y=round(a.width*.38)
+            if shot=='eevee':
+                sc.render.engine='BLENDER_EEVEE'
+                # More shadow pages and jittered sampling remove the patchy
+                # self-shadow tiles seen on the spiral with the full town,
+                # without changing the shipped material.
+                sc.eevee.shadow_pool_size='1024';sc.eevee.shadow_resolution_scale=2
+                sc.eevee.shadow_ray_count=4;sc.eevee.shadow_step_count=8
+                for light in sc.objects:
+                    if light.type=='LIGHT' and light.data.type=='SUN':
+                        light.data.use_shadow_jitter=True;light.data.shadow_filter_radius=2
             save(sc,a.out/str(seed)/(shot+'.png'),source,shot)
     specs={
       'arch-swing':('Playground-202.gltf',(-6.5,-9,1.65),(-11.1,1,1.1),40,None,1.5),

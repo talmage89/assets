@@ -21,7 +21,7 @@ base=Path('.').resolve();workspace=base/'build/repeat-work';package=workspace/'p
 shutil.rmtree(workspace,ignore_errors=True);package.mkdir(parents=True)
 shutil.copytree(base/'src',package/'src',ignore=shutil.ignore_patterns('__pycache__'))
 (package/'refs').symlink_to(base/'refs',target_is_directory=True)
-for name in ('kit','ground','trees','shrubs','fences','street-furniture'):
+for name in ('kit','ground','trees','shrubs','fences','street-furniture','street-light'):
     (workspace/name).symlink_to(ROOT/name,target_is_directory=True)
 (package/'build').mkdir();(package/'textures').mkdir()
 seeds=','.join(str(s['seed']) for s in json.loads(Path('build/manifest.json').read_text())['sites'])

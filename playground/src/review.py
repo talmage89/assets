@@ -3,7 +3,7 @@ import json,sys,argparse
 from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont,ImageOps
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
-from kit.contact import contact
+from kit.contact import contact,review_sheet
 from kit.fonts import find_font
 
 def main():
@@ -34,10 +34,10 @@ def main():
             draw.text((18,h-43),text,font=small,fill=(49,64,52));im.save(p,quality=94,optimize=True)
     pairs=sorted((out/'matches').glob('*-pair.jpg'))
     if pairs:
-        contact(pairs,out/'matched-contact.jpg',width=2000,title='Period photographs / construction comparisons / camera fit residuals retained')
+        review_sheet([[p] for p in pairs],out/'matched-contact.jpg',width=2000,title='Period photographs / construction comparisons / camera fit residuals retained')
         contact(paths+pairs,out/'contact.jpg',width=2000,title='Playground / final exported views and daily-use photo comparisons',captions=captions)
     source_pairs=sorted(Path('renders/source-matches').glob('*-pair.jpg'))
-    if source_pairs:contact(source_pairs,Path('renders/source-matches/contact.jpg'),width=2000,title='Additional live scripted source / same calibrated photographs and lighting')
+    if source_pairs:review_sheet([[p] for p in source_pairs],Path('renders/source-matches/contact.jpg'),width=2000,title='Additional live scripted source / same calibrated photographs and lighting')
     # Technical sections are derived only from the fresh-import check data.
     import os
     os.environ['MPLCONFIGDIR']=str(Path('build/matplotlib').resolve())
