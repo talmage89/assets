@@ -83,6 +83,10 @@ Commercial
 - [Main Street](downtown/README.md): 28 brick commercial buildings of about 1880–1930 in four seeded block faces, with
   cast-iron storefronts, bracketed cornices, a stone corner bank, upper apartments, fire escapes and service alleys.
 
+Schools
+- [Elementary schools](school/README.md): three neighborhood public schools of 1956, 1964 and 1976 on their own
+  parcels, with furnished classrooms behind window walls, gyms, covered walks, bus lanes, blacktops and ball fields.
+
 Vehicles
 - [Cars](cars/README.md): late-2010s vehicles in five factory colors on one baked atlas each; doors, closures,
   steering and wheels move.
