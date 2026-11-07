@@ -19,7 +19,7 @@ def setup(samples):
     sc=bpy.context.scene;sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=samples;sc.cycles.use_denoising=True
     sc.world=bpy.data.worlds.new('Procedural midsummer sky');sc.world.use_nodes=True;nt=sc.world.node_tree
     n=nt.nodes.new('ShaderNodeTexSky');n.sky_type='MULTIPLE_SCATTERING';n.sun_disc=False;n.sun_elevation=math.radians(24);n.sun_rotation=math.radians(215)
-    bg=nt.nodes.get('Background');nt.links.new(n.outputs[0],bg.inputs['Color']);bg.inputs['Strength'].default_value=.08
+    bg=nt.nodes.get('Background');nt.links.new(n.outputs[0],bg.inputs['Color']);bg.inputs['Strength'].default_value=.16
     sun=bpy.data.objects.new('Raking sun',bpy.data.lights.new('Raking sun','SUN'));sc.collection.objects.link(sun)
     sun.data.energy=7.5;sun.data.angle=math.radians(.75);sun.rotation_euler=Vector((-.15,.9,-.40)).to_track_quat('-Z','Y').to_euler()
     sc.view_settings.view_transform='AgX';sc.view_settings.look='AgX - Medium High Contrast';sc.view_settings.exposure=-.35
@@ -57,18 +57,22 @@ def context(p):
         for x,yaw in ((-W/2-10.8,90),(W/2+10.8,-90)):
             Q.instance(house,'Adjacent apartment',(x,2,-.02),yaw,rt)
         Q.instance(house,'Across street apartment',(35,road_y-16,-.02),180,rt)
+        # Close the urban block across the rear service alley. Leaving this
+        # gap open exposed the presentation ground's featureless horizon.
+        Q.instance(house,'Across alley apartment',(0,D/2+15.5,-.02),0,rt)
     else:
         house=load(REPO/'houses/export/Hearthfield-27.gltf','NativeHouse')
         for j,x in enumerate((-36,-14,14,36,58)):
             Q.instance(house,'Neighborhood house',(x,road_y-22,-.03),180,rt)
-        for x in (-W/2-17,W/2+17):Q.instance(house,'Side street house',(x,15,-.03),90 if x<0 else -90,rt)
+        for x in (-W/2-11,W/2+17):Q.instance(house,'Side street house',(x,8 if x<0 else 15,-.03),90 if x<0 else -90,rt)
     for o in [*house.children_recursive,house]:bpy.data.objects.remove(o,do_unlink=True)
     rear=load(REPO/'houses/export/Hearthfield-27.gltf','NativeRearNeighbor')
-    for j,x in enumerate((-24,0,24)):Q.instance(rear,'Rear block neighbor',(x,D/2+18,-.03),j*180,rt)
+    rear_positions={'city':[(-27,D/2+18),(25,D/2+23)],'park':[(-W/2-16,3),(W/2+16,17)],'accessible':[(-23,D/2+20),(25,D/2+24)]}[p['archetype']]
+    for j,(x,y) in enumerate(rear_positions):Q.instance(rear,'Rear block neighbor',(x,y,-.03),j*90,rt)
     for o in [*rear.children_recursive,rear]:bpy.data.objects.remove(o,do_unlink=True)
     Q.box('Rear service alley',(0,D/2+3.5,-.052),(160,4.0,.08),rt,'Asphalt')
     tree=load(REPO/'trees/export/RedMaple.glb','NativeMaple')
-    for i,(x,y) in enumerate([(-W/2-5,D/2+2),(W/2+6,D/2+4),(-W/2-5,-2),(W/2+7,-1),(-22,road_y-5.8),(23,road_y-5.8),(0,D/2+14)]):
+    for i,(x,y) in enumerate(([(-8,D/2+8),(2,D/2+12),(11,D/2+10)] if p['archetype']=='park' else [])+[(-W/2-5,D/2+2),(W/2+6,D/2+4),(-W/2-5,-2),(W/2+7,-1),(-22,road_y-5.8),(23,road_y-5.8),(-W/2-2,D/2+12)]):
         Q.instance(tree,'Neighborhood tree',(x,y,-.035),i*67,rt)
     # Shade bench, with a native tree rooted outside the cultivated plot area.
     bx,by=p['bench'];Q.instance(tree,'Bench shade tree',(-W/2-1.5,by+1.8,-.04),39,rt)
@@ -121,10 +125,14 @@ def views(p):
     if p['archetype']=='accessible':
         out['hero'].update(location=(-2.8,-D/2-4.4,1.65),target=(.7,1,.7),lens=38)
         out['accessible']=dict(location=(-5.1,-8.3,1.3),target=(-3.048,-7.01,.55),lens=42,aspect=1.5)
+    out['before-camera']=dict(out['hero'])
+    # View through the physical open gate: no near wire plane crosses the frame.
+    out['hero'].update(location=(0,-D/2+.55,1.65),target=({'city':(-.3,4,1.0),'park':(-6,3,1.0),'accessible':(-.2,3,.85)}[p['archetype']]),lens=35)
+    if p['archetype']=='accessible':out['hero'].update(location=(.6,-D/2+.15,1.65),target=(-3.4,-5.2,.55),lens=35)
     if p['seed']==117:
         out['scale']=dict(location=(-.30,-9.0,1.65),target=(-2.13,-4.5,.85),lens=40,aspect=1.5,human=(-1.10,-4.74,0))
         out['eevee']=dict(out['hero'],engine='BLENDER_EEVEE')
-    for sp in ('tomato','bean'):
+    for sp in ('tomato','bean','squash'):
         options=[b for b in p['plots'] if b['crop']==sp and b['state'] not in ('fallow','new')]
         if options:
             q=options[0];x,y=q['center']
@@ -134,6 +142,8 @@ def views(p):
                 specimen=next(p for p in q['plants'] if p['species']=='tomato')
                 x+=specimen['local'][0];y+=specimen['local'][1]
             out[sp]=dict(location=(x-1.6,y-2.0,1.30),target=(x,y,.9),lens=52,aspect=1.3)
+            if sp=='squash':out[sp]=dict(location=(x-1.2,y-1.8,1.55),target=(x,y,.45),lens=40,aspect=1.5)
+            if sp=='bean':out[sp]=dict(location=(x-2.3,y-3.5,1.55),target=(x,y,1.25),lens=45,aspect=1.2)
     return out
 
 
@@ -147,7 +157,7 @@ def shot(cam,v,path,width):
     if sun:
         sun.data.energy=v.get('sun_energy',7.5);sun.data.angle=math.radians(v.get('sun_angle',.75))
         sun.rotation_euler=Vector(v.get('sun_direction',(-.15,.9,-.40))).to_track_quat('-Z','Y').to_euler()
-        sc.world.node_tree.nodes['Background'].inputs['Strength'].default_value=v.get('sky_strength',.08)
+        sc.world.node_tree.nodes['Background'].inputs['Strength'].default_value=v.get('sky_strength',.16)
     sc.render.image_settings.file_format='PNG';sc.render.filepath=str(Path(path).resolve());bpy.context.view_layer.update();bpy.ops.render.render(write_still=True)
 
 
@@ -169,7 +179,7 @@ def render(seed,out,width,samples,names=None,custom=None,with_context=True):
         if names and n not in names:continue
         for o in humans:o.hide_render='human' not in v;o.location=rest[o]+Vector(v.get('human',(0,0,0)))
         shot(cam,v,out/(n+'.png'),width)
-        (out/(n+'.json')).write_text(json.dumps(dict(source=str(source),bundle_sha256=bundle(source),render_script_sha256=RECIPE_SHA256,camera=v,plan=p,engine=bpy.context.scene.render.engine,samples=samples,width=width,context=with_context,stage='quick form materials'),indent=2))
+        (out/(n+'.json')).write_text(json.dumps(dict(source=str(source),bundle_sha256=bundle(source),render_script_sha256=RECIPE_SHA256,camera=v,plan=p,engine=bpy.context.scene.render.engine,samples=samples,width=width,context=with_context,stage='lookdev exported PBR'),indent=2))
 
 
 def sheet(out,width,samples):
@@ -178,7 +188,7 @@ def sheet(out,width,samples):
     Q.palette();out=Path(out);out.mkdir(parents=True,exist_ok=True);cam=setup(min(samples,32))
     def points(rt):return [ob.matrix_world@v.co for ob in [rt,*rt.children_recursive] if ob.type=='MESH' for v in ob.data.vertices]
     for group in ('pieces','plants'):
-        selected=sorted([r for r in roots if (r.get('kind')=='plant')==(group=='plants')],key=lambda o:o.name)
+        selected=sorted([r for r in roots if (r.get('kind')=='plant')==(group=='plants') and not r.name.endswith('_field')],key=lambda o:o.name)
         for r in roots:
             for ob in [r,*r.children_recursive]:ob.hide_render=r not in selected
         labels=[];x=y=depth=0
@@ -214,10 +224,17 @@ def sheet(out,width,samples):
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--source');p.add_argument('--out',default='renders/checkpoint');p.add_argument('--width',type=int,default=1440);p.add_argument('--samples',type=int,default=40);p.add_argument('--seeds',type=int,nargs='+',default=list(SEEDS));p.add_argument('--shots',nargs='+');p.add_argument('--sheet',action='store_true');p.add_argument('--no-context',action='store_true');a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
+    p=argparse.ArgumentParser();p.add_argument('--source');p.add_argument('--out',default='renders/checkpoint');p.add_argument('--width',type=int,default=1440);p.add_argument('--samples',type=int,default=40);p.add_argument('--seeds',type=int,nargs='+',default=list(SEEDS));p.add_argument('--shots',nargs='+');p.add_argument('--sheet',action='store_true');p.add_argument('--lookdev',action='store_true');p.add_argument('--no-context',action='store_true');a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
     if a.sheet:sheet(a.out,a.width,a.samples);return
     for seed in a.seeds:render(seed,Path(a.out)/str(seed),a.width,a.samples,a.shots,with_context=not a.no_context)
-    if not a.shots:sheet(a.out,a.width,a.samples)
+    if not a.shots:
+        sheet(a.out,a.width,a.samples)
+        if a.lookdev:
+            from look_batch import specimens
+            specimens(a.out,a.width,a.samples)
+            import match
+            sys.argv=['match.py','--','--out',str(Path(a.out)/'matches'),'--width',str(a.width),'--samples',str(a.samples)]
+            match.main()
 
 
 if __name__=='__main__':main()

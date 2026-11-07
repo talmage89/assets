@@ -26,7 +26,7 @@ def plan(seed,archetype=None):
         # Narrow city parcel, central north/south accessible spine; 4 x 8 beds.
         for row,y in enumerate((-6.096,-2.7432,.6096,3.9624)):
             for x in (-3.5052,-1.3716,1.3716,3.5052):plot(x,y,1.2192,2.4384,'block' if row==2 and x>0 else 'lumber')
-        p['paths']=[dict(center=[0,-1.524],size=[p['main_width'],D-3.048],surface='Gravel')]
+        p['paths']=[dict(center=[0,-1.524],size=[p['main_width'],D-3.048],surface='Chip')]
         p['service']=[3.2,7.62];p['compost']=[-3.1,8.6];p['water']=[1.02,6.02];p['bench']=[-3.0,6.6]
     elif kind=='park':
         # Larger tenant plots (10 x 20 ft) contain rows separated by walk strips.
@@ -35,7 +35,7 @@ def plan(seed,archetype=None):
         # Two smaller donated raised beds turn across the shared front apron.
         plot(-6.1,-10.15,2.4384,1.2192,'lumber','herb','fallow')
         plot(6.1,-10.15,2.4384,1.2192,'block','lettuce','new')
-        p['paths']=[dict(center=[0,-1.524],size=[1.524,D-3.048],surface='Gravel'),
+        p['paths']=[dict(center=[0,-1.524],size=[1.524,D-3.048],surface='Lawn'),
                     dict(center=[0,-1.524],size=[W-3.048,1.524],surface='Lawn')]
         p['service']=[9.5,9.2];p['compost']=[3.5,10.3];p['water']=[-1.3,8.6];p['bench']=[-8.5,9.0]
     else:

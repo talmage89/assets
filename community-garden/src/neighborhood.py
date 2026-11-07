@@ -51,6 +51,18 @@ def export(path,repo):
         export_vertex_color='MATERIAL',export_all_vertex_colors=False,
         export_image_format='AUTO',export_texture_dir='site-cache')
     doc=json.loads(path.read_text());rows=[]
+    # Semantic source swatches share exactly one stock PBR material in glTF.
+    atlas=[i for i,m in enumerate(doc.get('materials',[])) if m.get('name','').startswith('Garden_') and m.get('extras',{}).get('garden_finish')]
+    if atlas:
+        chosen=atlas[0];doc['materials'][chosen]['name']='GardenSurfaces'
+        doc['materials'][chosen].get('extras',{}).pop('garden_finish',None)
+        for mesh in doc['meshes']:
+            for primitive in mesh['primitives']:
+                if primitive.get('material') in atlas:primitive['material']=chosen
+        used={p.get('material') for m in doc['meshes'] for p in m['primitives']};remap={old:new for new,old in enumerate(sorted(used))}
+        doc['materials']=[doc['materials'][i] for i in sorted(used)]
+        for mesh in doc['meshes']:
+            for primitive in mesh['primitives']:primitive['material']=remap[primitive['material']]
     for row in doc.get('images',[]):
         copied=path.parent/row['uri'];data=copied.read_bytes();sha=hashlib.sha256(data).hexdigest();target=canonical.get(sha)
         if target is None:

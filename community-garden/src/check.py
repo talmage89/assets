@@ -59,11 +59,22 @@ def merge(intervals):
     return out
 
 
-def route_width(ground,y):
+def face_kind(ob,face,kind):
+    ma=ob.data.materials[face.material_index]
+    if kind in ma.name:return True
+    if not ma.name.startswith('GardenSurfaces'):return False
+    from surfaces import rect,NAMES
+    names=[n for n in NAMES if kind in n]
+    uv=ob.data.uv_layers.active
+    if not uv:return False
+    points=[uv.data[i].uv for i in face.loop_indices]
+    return any(all(u0-1e-5<=v.x<=u1+1e-5 and v0-1e-5<=v.y<=v1+1e-5 for v in points) for u0,v0,u1,v1 in map(rect,names))
+
+def route_width(ground,y,surface):
     intervals=[]
     for face in ground.data.polygons:
         ma=ground.data.materials[face.material_index]
-        if 'Gravel' not in ma.name or face.normal.z<.9999:continue
+        if not face_kind(ground,face,surface) or face.normal.z<.9999 or any(abs(ground.data.vertices[i].co.z-(0 if surface=='Lawn' else .014))>.001 for i in face.vertices):continue
         v=[ground.matrix_world@ground.data.vertices[i].co for i in face.vertices];xs=[]
         for a,b in zip(v,v[1:]+v[:1]):
             if abs(a.y-y)<1e-6:xs.append(a.x)
@@ -89,7 +100,19 @@ def imported(seed,expected):
     assert care_states=={'tidy','lush','weedy','fallow','new'},('Missing requested care state',care_states)
     ground=next(o for o in meshes if o.parent and o.parent.name.startswith('GardenGround'))
     spine=plan['paths'][0];start=spine['center'][1]-spine['size'][1]/2+.025;end=spine['center'][1]+spine['size'][1]/2-.025
-    widths=[route_width(ground,float(y)) for y in np.linspace(start,end,math.ceil((end-start)/.1524)+1)]
+    obstacles=[]
+    if spine['surface']=='Lawn':
+        for bed in [o for o in rt.children if o.get('plot_id')]:
+            pts=[ob.matrix_world@ob.data.vertices[i].co for ob in bed.children if ob.type=='MESH' for f in ob.data.polygons if face_kind(ob,f,'Wood') or face_kind(ob,f,'Soil') or face_kind(ob,f,'Block') for i in f.vertices]
+            if pts:obstacles.append((min(v.x for v in pts),max(v.x for v in pts),min(v.y for v in pts),max(v.y for v in pts)))
+    widths=[]
+    for y in np.linspace(start,end,math.ceil((end-start)/.1524)+1):
+        width=route_width(ground,float(y),spine['surface'])
+        if obstacles:
+            left=[b[1] for b in obstacles if b[1]<0 and b[2]<=y<=b[3]];right=[b[0] for b in obstacles if b[0]>0 and b[2]<=y<=b[3]]
+            if left and right:width=min(width,min(right)-max(left))
+        widths.append(width)
+
     assert min(widths)>=plan['main_width']-1e-5
     sockets=[o for o in rt.children_recursive if o.get('socket_kind')=='gardener'];assert len(sockets)==len(plan['plots'])+1
     ground.data.calc_loop_triangles();gv=[ground.matrix_world@v.co for v in ground.data.vertices]
@@ -118,7 +141,7 @@ def imported(seed,expected):
     gate.rotation_euler.z=math.radians(-110);bpy.context.view_layer.update();b=[child.matrix_world@v.co for v in child.data.vertices]
     radius_error=max(abs((v-hinge).length-(w-hinge).length) for v,w in zip(a,b));assert radius_error<2e-5
     beds=[o for o in rt.children if o.get('plot_id')]
-    rooted=[];anchors=[];bed_grade=[]
+    rooted=[];surface_roots=[];anchors=[];bed_grade=[]
     for bed in beds:
         origin=bed.matrix_world.translation;grade=gt.ray_cast(Vector((origin.x,origin.y,3)),Vector((0,0,-1)),5)[0]
         assert grade is not None;bed_grade.append(abs(origin.z-grade.z))
@@ -126,7 +149,7 @@ def imported(seed,expected):
         for ob in bed.children:
             if ob.type!='MESH':continue
             start=len(sv);sv.extend(ob.matrix_world@v.co for v in ob.data.vertices)
-            sf.extend(tuple(start+i for i in f.vertices) for f in ob.data.polygons if 'Soil' in ob.data.materials[f.material_index].name and f.normal.z>.5)
+            sf.extend(tuple(start+i for i in f.vertices) for f in ob.data.polygons if face_kind(ob,f,'Soil') and f.normal.z>.5)
         if not sf:continue
         soil=BVHTree.FromPolygons(sv,sf)
         for plant in bed.children_recursive:
@@ -134,6 +157,12 @@ def imported(seed,expected):
             v=plant.matrix_world.translation;hit=soil.ray_cast(Vector((v.x,v.y,3)),Vector((0,0,-1)),5)[0]
             assert hit is not None;penetration=hit.z-v.z;rooted.append(penetration)
             assert .001<penetration<.035,('Plant root floats above or buries too far into soil',plant.name,penetration)
+            foot=[ob.matrix_world@vv.co for ob in plant.children_recursive if ob.type=='MESH' for vv in ob.data.vertices]
+            foot=[p for p in foot if math.hypot(p.x-v.x,p.y-v.y)<.026]
+            assert foot,('No actual plant geometry at root',plant.name)
+            low=min(foot,key=lambda p:p.z);hit=soil.ray_cast(Vector((low.x,low.y,3)),Vector((0,0,-1)),5)[0]
+            assert hit is not None;depth=hit.z-low.z;surface_roots.append(depth)
+            assert .003<depth<.05,('Actual plant foot fails soil contact',plant.name,depth)
         for cage in [o for o in bed.children_recursive if o.name.startswith('Cage') and o.type=='EMPTY']:
             vertices=[ob.matrix_world@vv.co for ob in cage.children_recursive if ob.type=='MESH' for vv in ob.data.vertices]
             lowest=min(v.z for v in vertices)
@@ -152,7 +181,7 @@ def imported(seed,expected):
             if ob.type!='MESH':continue
             for f in ob.data.polygons:
                 mat=ob.data.materials[f.material_index].name
-                if any(s in mat for s in ('Wood','Block')):
+                if face_kind(ob,f,'Wood') or face_kind(ob,f,'Block'):
                     for i in f.vertices:
                         v=ob.matrix_world@ob.data.vertices[i].co
                         if .10<v.z<.34:vv.append(v)
@@ -170,19 +199,19 @@ def imported(seed,expected):
                 measured_gate_clear_width_m=clear,plot_sockets=len(sockets)-1,gate_radius_error_m=radius_error,
                 measured_bed_to_bed_min_gap_m=min(gaps) if gaps else None,mature_species=mature,
                 gardener_socket_ground_error_m=max(socket_errors),placed_infrastructure_triangles=modules,
-                bed_root_grade_error_m=max(bed_grade),rooted_plant_count=len(rooted),plant_root_penetration_range_m=[min(rooted),max(rooted)],
+                bed_root_grade_error_m=max(bed_grade),rooted_plant_count=len(rooted),plant_root_penetration_range_m=[min(rooted),max(rooted)],actual_plant_foot_soil_penetration_range_m=[min(surface_roots),max(surface_roots)],
                 cage_foot_penetration_range_m=[min(anchors),max(anchors)],care_states=sorted(care_states))
 
 
 def main():
-    report=dict(stage='form checkpoint; final UV/bake/texture delivery not claimed',gardens={},pieces={})
+    report=dict(stage='look-dev checkpoint; shared baked opaque atlas and analytic plant atlas',gardens={},pieces={})
     counts=json.loads(Path('build/pieces.json').read_text())
     for n,row in counts.items():
-        cap=5000 if row['kind']=='plant' else 8000 if n=='NativeShed' else 2000
+        cap=4608 if row['kind']=='plant' else 8000 if n=='NativeShed' else 2000
         assert row['triangles']<=cap,(n,row['triangles'],cap)
     report['pieces']=counts
     for s in SEEDS:
-        row=raw(Path(f'export/checkpoint/Garden_{s}.gltf'));assert row['triangles']<250000
+        row=raw(Path(f'export/checkpoint/Garden_{s}.gltf'));assert row['triangles']<=215000
         info=json.loads(Path(f'build/garden-{s}.json').read_text());assert row['triangles']==info['triangles']
         row['import']=imported(s,row);report['gardens'][str(s)]=row
     library=raw('export/checkpoint/CommunityGardenPieces.gltf');report['library']=library
@@ -192,7 +221,7 @@ def main():
         result=[]
         for ob in roots[n].children_recursive:
             if ob.type!='MESH':continue
-            ids={i for f in ob.data.polygons if not wood_only or 'Wood' in ob.data.materials[f.material_index].name for i in f.vertices}
+            ids={i for f in ob.data.polygons if not wood_only or face_kind(ob,f,'Wood') for i in f.vertices}
             result.extend(ob.matrix_world@ob.data.vertices[i].co for i in ids)
         return result
     def tree(n):
@@ -207,7 +236,7 @@ def main():
     for ob in roots['Raised4x8'].children_recursive:
         if ob.type!='MESH':continue
         for f in ob.data.polygons:
-            if 'Wood' not in ob.data.materials[f.material_index].name or abs((ob.matrix_world.to_3x3()@f.normal).x)<.999:continue
+            if not face_kind(ob,f,'Wood') or abs((ob.matrix_world.to_3x3()@f.normal).x)<.999:continue
             side.extend(ob.matrix_world@ob.data.vertices[i].co for i in f.vertices if ob.data.vertices[i].co.x>.55)
     gauge=max(p.x for p in side)-min(p.x for p in side)
     assert abs(w-1.2192)<1e-5 and abs(depth-2.4384)<1e-5 and abs(gauge-.0381)<1e-5,dict(width=w,depth=depth,gauge=gauge)

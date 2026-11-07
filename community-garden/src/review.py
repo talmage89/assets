@@ -86,13 +86,13 @@ def main():
     for name in ('pieces.png','plants.png'):
         if (folder/name).exists():files.append(folder/name)
     files+=sorted((folder/'matches').glob('*-pair.jpg'))
-    captions={str(p):p.parent.name+' / '+p.stem for p in files};contact(files,folder/'contact.jpg',width=1600,title='Community gardens / exported form checkpoint',captions=captions)
+    captions={str(p):p.parent.name+' / '+p.stem for p in files};contact(files,folder/'contact.jpg',width=1600,title='Community gardens / exported PBR look-dev',captions=captions)
     heroes=[folder/str(s)/'hero.png' for s in (117,229,341)]
     if all(p.exists() for p in heroes):review_sheet([[p] for p in heroes],folder/'heroes.jpg',width=1600,title='Eye height / 35–50mm / raking sun')
     pairs=sorted((folder/'matches').glob('*-pair.jpg'))
     if pairs:review_sheet([[p] for p in pairs],folder/'matched-contact.jpg',width=2200,title='Three period garden comparisons / calibrated framing')
     details=[p for p in files if p.stem in ('tomato','bean','corner','compost','water','accessible','scale')]
-    if details:contact(details,folder/'details.jpg',width=1600,title='Construction and crop form / exported checkpoint')
+    if details:contact(details,folder/'details.jpg',width=1600,title='Construction and crops / baked look-dev')
     values={}
     for p in heroes:
         if not p.exists():continue

@@ -15,7 +15,7 @@ def palette():
                   Brass=(.27,.16,.045), Hose=(.018,.060,.026), Red=(.32,.025,.012),
                   Green=(.045,.095,.045), Blue=(.025,.07,.13), White=(.62,.60,.52),
                   Roof=(.045,.048,.042), Stem=(.065,.15,.024), Fruit=(.42,.026,.008),
-                  Unripe=(.13,.21,.018), Yellow=(.65,.36,.018), Flower=(.48,.13,.012),
+                  Unripe=(.13,.21,.018), Turning=(.45,.18,.012), Spent=(.12,.065,.018), Yellow=(.65,.36,.018), Flower=(.48,.13,.012),
                   Lawn=(.055,.09,.025), Bark=(.095,.075,.049), Glass=(.14,.20,.22))
     for name,color in colors.items():
         ma=bpy.data.materials.new('Garden_Form_'+name);ma.use_nodes=True
@@ -24,6 +24,47 @@ def palette():
         bs.inputs['Metallic'].default_value=.8 if name in ('Zinc','Brass','Steel') else 0
         bs.inputs['Specular IOR Level'].default_value=.24
         ma.diffuse_color=(*color,1);ma['checkpoint']=True;M[name]=ma
+
+
+def finishes():
+    """Shared baked swatches. Keep semantic names for construction audits."""
+    from kit import tiling
+    from surfaces import NAMES,PALETTE
+    for name in dict.fromkeys([*NAMES,*PALETTE]):
+        ma=tiling.material('GardenSurfaces','textures/checkpoint');ma.name='Garden_'+name;ma['garden_finish']=name
+        ma.node_tree.nodes.get('Principled BSDF').inputs['Specular IOR Level'].default_value=.23
+        M[name]=ma
+
+
+def finish_uv(o,only=None):
+    """Per-component metric charts before joining; no overlapping unique bake."""
+    from surfaces import rect
+    if o.type!='MESH':return
+    uv=o.data.uv_layers.active or o.data.uv_layers.new(name='UVMap')
+    pp=[o.matrix_basis@v.co for v in o.data.vertices]
+    if not pp:return
+    lo=[min(p[a] for p in pp) for a in range(3)];hi=[max(p[a] for p in pp) for a in range(3)];span=[max(.001,hi[a]-lo[a]) for a in range(3)]
+    for f in o.data.polygons:
+        ma=o.data.materials[f.material_index];name=ma.get('garden_finish')
+        if not name or only is not None and name not in only:continue
+        u0,v0,u1,v1=rect(name);normal=o.matrix_basis.to_3x3()@f.normal;axes=sorted(range(3),key=lambda a:abs(normal[a]))[:2]
+        # Long boards carry their grain lengthwise. Soil uses the whole opening.
+        horizontal=name in ('Wood','OldWood','EndWood') and max(span[:2])>span[2]
+        long=0 if span[0]>span[1] else 1
+        if horizontal and abs(normal[long])<.5:axes=[long,2 if abs(normal.z)<.5 else 1-long]
+        elif name in ('Wood','OldWood','EndWood') and not horizontal and abs(normal.z)<.5:axes=[2,0 if abs(normal.x)<.5 else 1]
+        for li in f.loop_indices:
+            p=pp[o.data.loops[li].vertex_index];a,b=axes
+            u=(p[a]-lo[a])/span[a];v=(p[b]-lo[b])/span[b]
+            if horizontal and b==2:v=max(0,min(1,p.z/.38))
+            uv.data[li].uv=(u0+(u1-u0)*u,v0+(v1-v0)*v)
+        chart=[uv.data[li].uv.copy() for li in f.loop_indices]
+        area=abs(sum(a.x*b.y-b.x*a.y for a,b in zip(chart,chart[1:]+chart[:1])))
+        if area<1e-12 and len(chart)>=3:
+            ppface=[pp[o.data.loops[li].vertex_index] for li in f.loop_indices]
+            nn=(ppface[1]-ppface[0]).cross(ppface[2]-ppface[0]);aa=sorted(range(3),key=lambda a:abs(nn[a]))[:2]
+            mins=[min(p[a] for p in ppface) for a in aa];sizes=[max(1e-9,max(p[a] for p in ppface)-mins[j]) for j,a in enumerate(aa)]
+            for li,p in zip(f.loop_indices,ppface):uv.data[li].uv=(u0+(u1-u0)*(p[aa[0]]-mins[0])/sizes[0],v0+(v1-v0)*(p[aa[1]]-mins[1])/sizes[1])
 
 
 def root(name,kind='piece',parent=None):
@@ -43,6 +84,7 @@ def own(o,rt,mat=None):
             for li in f.loop_indices:
                 p=o.matrix_basis@o.data.vertices[o.data.loops[li].vertex_index].co
                 uv.data[li].uv=(p[axes[0]],p[axes[1]])
+    finish_uv(o)
     return o
 
 

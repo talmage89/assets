@@ -32,10 +32,17 @@ def main():
     # The new atlas is analytic CPU output, so unlike GPU bakes it is promised
     # byte-identical. Regenerate it, do not compare a copied cache with itself.
     subprocess.run([sys.executable,str(HERE/'atlas.py')],cwd=target,check=True)
+    subprocess.run([sys.executable,str(ROOT/'kit/downsample.py'),'--source','textures/4k-plants','--out','textures/checkpoint','--asset','GardenPlants','--size','1024'],cwd=target,check=True)
     images=[]
-    for p in (ASSET/'textures/checkpoint').glob('*.png'):
+    for p in (ASSET/'textures/checkpoint').glob('T_GardenPlants_*.png'):
         q=target/'textures/checkpoint'/p.name;assert p.read_bytes()==q.read_bytes();images.append(dict(file=p.name,sha256=hashlib.sha256(p.read_bytes()).hexdigest()))
-    result=dict(passed=True,geometry=rows,analytic_images=images,scope='fresh-scene garden/native-neighborhood geometry and analytic CPU textures; native inputs retained, no GPU rebake at form checkpoint')
+    subprocess.run([sys.executable,str(HERE/'surfaces.py')],cwd=target,check=True)
+    fields=[]
+    for channel in ('BaseColor','ORM','Height'):
+        p=ASSET/f'textures/source-surfaces/T_GardenSurfaces_{channel}.png';q=target/'textures/source-surfaces'/p.name
+        assert p.read_bytes()==q.read_bytes(),('Authored surface field differs',p.name)
+        fields.append(dict(file=p.name,sha256=hashlib.sha256(p.read_bytes()).hexdigest()))
+    result=dict(source_fields=fields,passed=True,geometry=rows,analytic_images=images,scope='fresh-scene garden/native-neighborhood geometry and analytic CPU textures; native inputs and baked swatches retained; analytic leaves and source surface fields regenerated independently; GPU bytes excluded from exact-repeat promise')
     (ASSET/'build/repeat.json').write_text(json.dumps(result,indent=2));print('REPEAT PASSED',len(rows),'glTF/BIN files and',len(images),'analytic maps')
 
 

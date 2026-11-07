@@ -35,3 +35,22 @@ MATCHES={
             dict(world=[3.4+.441,-12.192+.25,1.90],pixel=[619,346],weight=.5)],
         exposure=-.35)
 }
+
+# Third in-season photograph. Board ends leave frame and are inferred: low
+# weights keep this a habit/value comparison rather than a surveyed bed fit.
+MATCHES['cityhall_mature']=dict(title='Overlapping summer crops / July 2010',photo=str(P/'cityhall.jpg'),crop=(0,0,1024,1365),
+    location=(-.12,-3.8,1.65),target=(0,0,.65),lens=38,lens_bounds_mm=(28,65),camera_height_m=(1.65,.25),
+    landmarks=[dict(world=[-1.2192,-.6096,.28575],pixel=[0,1040],weight=.3),
+               dict(world=[1.2192,-.6096,.28575],pixel=[1024,1025],weight=.3),
+               dict(world=[-1.2192,.6096,.28575],pixel=[0,690],weight=.3),
+               dict(world=[1.2192,.6096,.28575],pixel=[1024,680],weight=.3)],exposure=-.35)
+# The installation photograph remains in the archived form review only.
+MATCHES.pop('oliver_construction')
+
+# Out-of-frame board ends do not constrain pose reliably. The visible hoop's
+# ellipse supplies an inferred comparison scale, not a survey of the real cage.
+MATCHES['cityhall_mature'].update(location=(.76,-4.5,1.65),target=(.76,0,.75),
+    landmarks=[dict(world=[.76-.296,0,1.40375],pixel=[400,483]),
+               dict(world=[.76+.296,0,1.40375],pixel=[585,468]),
+               dict(world=[.76,-.296,1.40375],pixel=[494,492]),
+               dict(world=[.76,.296,1.40375],pixel=[497,465])])

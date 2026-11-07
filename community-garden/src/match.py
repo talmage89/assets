@@ -14,26 +14,26 @@ def references():
     folder=Path('build/photo-references');folder.mkdir(parents=True,exist_ok=True);rows={}
     # Frame neutrals: white cap, neutral gray apartment stucco,
     # light house siding. No clipping sky is used as a white point.
-    regions={'oliver':(402,23,418,36),'wise':(790,275,804,284),'martin':(10,140,26,158)}
+    regions={'oliver':(402,23,418,36),'wise':(790,275,804,284),'martin':(10,140,26,158),'cityhall':(878,1018,910,1026)}
     for n,rect in regions.items():
         im=ImageOps.exif_transpose(Image.open(Path('refs')/(n+'.jpg'))).convert('RGB');im=im.resize((1024,round(im.height*1024/im.width)),Image.Resampling.LANCZOS)
         a=np.array(im,dtype=float)/255;lin=np.where(a<=.04045,a/12.92,((a+.055)/1.055)**2.4)
         x0,y0,x1,y1=rect;neutral=np.median(lin[y0:y1,x0:x1],axis=(0,1));gains=neutral.mean()/np.maximum(neutral,1e-5)
         balanced=lin*gains;srgb=np.where(balanced<=.0031308,balanced*12.92,1.055*np.maximum(balanced,0)**(1/2.4)-.055)
         Image.fromarray(np.uint8(np.clip(srgb,0,1)*255)).save(folder/(n+'.jpg'),quality=97)
-        rows[n]=dict(neutral_rect_1024px=rect,linear_rgb_median=neutral.tolist(),linear_gains=gains.tolist(),description={'oliver':'white cap at upper centre; avoid clipped specular pixels','wise':'gray apartment stucco below window; assumed neutral, not a gray card','martin':'house siding at left; small JPEG-compressed neutral'}[n])
+        rows[n]=dict(neutral_rect_1024px=rect,linear_rgb_median=neutral.tolist(),linear_gains=gains.tolist(),description={'oliver':'white cap at upper centre; avoid clipped specular pixels','wise':'gray apartment stucco below window; assumed neutral, not a gray card','martin':'house siding at left; small JPEG-compressed neutral','cityhall':'gray weathered board cap on near bed, assumed neutral in shade'}[n])
     (folder/'balance.json').write_text(json.dumps(rows,indent=2));return rows
 
 
 def fixture(name):
     """Assemble comparison from exported library parts without changing vertices."""
-    if name=='wise_bed':
+    if name in ('wise_bed','cityhall_mature'):
         # Use a complete delivered planting, including supports and mulch.
         # A four-prototype display was too sparse to represent a planted bed.
         from mathutils import Matrix
         source=Path('export/checkpoint/Garden_117.gltf');bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source.resolve()))
         bed=next(o for o in bpy.context.scene.objects if o.get('plot_id')==10);keep={bed,*bed.children_recursive}
-        bed.parent=None;bed.matrix_world=Matrix.Identity(4)
+        bed.parent=None;bed.matrix_world=Matrix.Rotation(math.pi/2,4,'Z') if name=='cityhall_mature' else Matrix.Identity(4)
         for ob in list(bpy.context.scene.objects):
             if ob not in keep:bpy.data.objects.remove(ob,do_unlink=True)
         ctx=context(dict(size=[18.288,21.336],archetype='city',bench=[-3.6,7]))
@@ -57,8 +57,10 @@ def main():
     data=json.loads(cal.read_text());photo_match.verify(cal)
     if a.calibrate_only:return
     for name,row in data.items():
-        v=dict(row['shot']);v['engine']='CYCLES';v['aspect']=1024/768
-        if name=='wise_bed':v.update(sun_energy=6.5,sun_angle=6.0,sky_strength=.30,exposure=.15)
+        if name=='oliver_construction':continue
+        v=dict(row['shot']);v['engine']='CYCLES';v['aspect']=1024/1365 if name=='cityhall_mature' else 1024/768
+        if name in ('wise_bed','cityhall_mature'):v.update(sun_energy=6.5,sun_angle=6.0,sky_strength=.30,exposure=-.15)
+        if name=='cityhall_mature':v.update(sun_energy=7.5,sun_angle=2,sky_strength=.13,sun_direction=(-.6,.5,-.75),exposure=-.35)
         if name=='martin_place':render(229,out,a.width,a.samples,custom={name:v},with_context=True)
         else:
             source=fixture(name);cam=setup(a.samples);shot(cam,v,out/(name+'.png'),a.width)

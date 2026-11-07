@@ -67,7 +67,7 @@ def bed(name,w=1.2192,d=2.4384,h=.23495,edge='lumber',seed=10):
         rt['working_height_m']=h;rt['undertray_clearance_m']=.6973
     else:soilh=.032;h=.05
     # Small undulations keep beds from reading as rigid featureless trays.
-    v=[];faces=[];nx,ny=6,12
+    v=[];faces=[];nx,ny=12,24
     inset=.205 if edge=='block' else .045 if edge in ('lumber','accessible') else .025
     for j in range(ny+1):
         for i in range(nx+1):
@@ -90,7 +90,7 @@ def cmu(rt,x,y,w,l,h):
 
 def cage():
     rt=Q.root('TomatoCage','support')
-    for j,z in enumerate((.35,.68,1.01,1.34)):Q.ring('Resistance welded cage hoop',z,.20+j*.032,rt,wire=.0025,segments=24)
+    for j,z in enumerate((.35,.68,1.01,1.34)):Q.ring('Resistance welded cage hoop',z,.20+j*.032,rt,wire=.0025,segments=16)
     for k in range(4):
         a=k*math.pi/2
         Q.tube('5mm cage leg',[(.18*math.cos(a),.18*math.sin(a),0),(.20*math.cos(a),.20*math.sin(a),.35),(.296*math.cos(a),.296*math.sin(a),1.34)],.0025,rt,s=4)
@@ -135,6 +135,31 @@ def compost():
                 a=1+row*n+q;b=1+row*n+(q+1)%n;c=b+n;d=a+n;faces.append((a,d,c,b))
         heap=Q.mesh('Settled irregular compost heap',verts,faces,rt,'Soil' if k!=1 else 'Chip')
         Q.G.smooth(heap,80)
+        # Settled crop waste conforms to the actual heap, rather than floating
+        # over it. Fine clippings use the original older-leaf alpha swatches.
+        from mathutils.bvhtree import BVHTree
+        from kit import botany
+        from plants import LEAF
+        from atlas import rect
+        tree=BVHTree.FromPolygons([v.co[:] for v in heap.data.vertices],[f.vertices[:] for f in heap.data.polygons])
+        rng=random.Random(518+k);cards=botany.Cards()
+        if k==0:
+            for q in range(24):
+                px=x+rng.uniform(-.32,.32);py=rng.uniform(-.30,.30);a=rng.random()*math.tau;L=rng.uniform(.075,.16);W=rng.uniform(.04,.09);grid=[]
+                for j in range(3):
+                    row=[]
+                    for i in range(3):
+                        u=(i-1)*W/2;v=(j-1)*L/2;xx=px+u*math.cos(a)-v*math.sin(a);yy=py+u*math.sin(a)+v*math.cos(a)
+                        hit=tree.ray_cast(Vector((xx,yy,1.3)),Vector((0,0,-1)),2)[0]
+                        row.append(Vector((xx,yy,(hit.z if hit is not None else .015)+.001)))
+                    grid.append(row)
+                cards.add_grid(grid,rect('lettuce' if q%3 else 'kale',old=True),(0,0,0,0))
+            leaf=cards.mesh('Wilted garden clippings in active compost',LEAF);leaf.data.uv_layers.active.name='UVMap';leaf.parent=rt
+        if k==1:
+            for q in range(30):
+                px=x+rng.uniform(-.32,.32);py=rng.uniform(-.30,.30);a=rng.random()*math.tau;end=Vector((px+.09*math.cos(a),py+.09*math.sin(a),0));hit=tree.ray_cast(Vector((px,py,1.3)),Vector((0,0,-1)),2)[0];hit2=tree.ray_cast(end+Vector((0,0,1.3)),Vector((0,0,-1)),2)[0]
+                if hit is not None and hit2 is not None:Q.mesh('Dry compost fiber',[hit+Vector((-.001,0,.001)),hit+Vector((.001,0,.001)),hit2+Vector((0,0,.002))],[(0,1,2)],rt,'Straw',upward=True)
+
     Q.join(rt);return rt
 
 
