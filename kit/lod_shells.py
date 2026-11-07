@@ -20,6 +20,42 @@ def _visibility_context(source,faces,reduced,triangles):
     return original,target,normal,area,centers,radius
 
 
+def visible_patch(original,target,points,face,direction,radius,meters_per_pixel):
+    """Measure the newly visible region, rather than its containing triangle.
+
+    A broad triangle can emerge only through a subpixel slit. Its full projected
+    altitude is not the width of that slit. Sample half-switch-pixel cells and
+    require an exposed patch more than three pixels wide in both directions.
+    Final camera/image gates remain independent of these auxiliary rays.
+    """
+    from mathutils import Vector
+    direction=np.asarray(direction,float)
+    axis=np.eye(3)[np.argmin(np.abs(direction))];u=np.cross(direction,axis);u/=np.linalg.norm(u);v=np.cross(direction,u)
+    anchor=points.mean(0);flat=np.column_stack([(points-anchor)@u,(points-anchor)@v])
+    lo=flat.min(0);span=flat.max(0)-lo
+    step=max(meters_per_pixel*.5,float(span.max())/256,1e-8)
+    shape=np.maximum(1,np.ceil(span/step).astype(int));mask=np.zeros((shape[1],shape[0]),bool)
+    for y in range(shape[1]):
+        for x in range(shape[0]):
+            point=anchor+u*(lo[0]+(x+.5)*step)+v*(lo[1]+(y+.5)*step)
+            origin=Vector(point+direction*radius);ray=Vector(-direction)
+            hit=target.ray_cast(origin,ray,radius*2)
+            if hit[2]!=face:continue
+            ref=original.ray_cast(origin,ray,radius*2)
+            if ref[2] is not None and np.dot(ref[1],direction)>.1:mask[y,x]=True
+    count=int(mask.sum());interior=mask;erosions=0
+    while interior.any():
+        padded=np.pad(interior,1)
+        eroded=np.logical_and.reduce([padded[dy:dy+mask.shape[0],dx:dx+mask.shape[1]] for dy in range(3) for dx in range(3)])
+        if not eroded.any():break
+        erosions+=1;interior=eroded
+    width=(2*erosions+1)*step/meters_per_pixel if count else 0.
+    return dict(newly_exposed_area_pixels=count*(step/meters_per_pixel)**2,
+                exposed_patch_width_pixels=width,grid_step_pixels=step/meters_per_pixel,
+                grid_samples=int(mask.size),exceeds_three_pixels=bool(width>3.))
+
+
+
 def exposed_backfaces(source,faces,reduced,triangles,meters_per_pixel=0.,face_indices=None,context=None):
     """Measure newly exposed back faces at face centers from 14 directions."""
     from mathutils import Vector
@@ -41,7 +77,9 @@ def exposed_backfaces(source,faces,reduced,triangles,meters_per_pixel=0.,face_in
             if hit[2]!=fi:continue
             reference=original.ray_cast(origin,ray,radius*2)
             if reference[2] is not None and np.dot(reference[1],direction)>.1:
-                return dict(face=int(fi),direction=direction.tolist(),face_area_m2=float(area[fi]*.5),
+                patch=visible_patch(original,target,points[offset],int(fi),direction,radius,meters_per_pixel) if meters_per_pixel else {}
+                if patch and not patch['exceeds_three_pixels']:continue
+                return dict(**patch,face=int(fi),direction=direction.tolist(),face_area_m2=float(area[fi]*.5),
                             projected_width_pixels=float(width[offset]/meters_per_pixel) if meters_per_pixel else None,
                             source_face=int(reference[2]),
                             source_facing_cosine=float(np.dot(reference[1],direction)),

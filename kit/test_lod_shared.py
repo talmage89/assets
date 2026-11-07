@@ -32,6 +32,21 @@ def main():
     assert exposed_backfaces(thin,one,thin,one[:,::-1],.1) is None
     broad=dict(POSITION=np.array([[0,0,0],[10,0,0],[0,1,0]],np.float32))
     assert exposed_backfaces(broad,one,broad,one[:,::-1],.1) is not None
+    # A broad containing triangle can be visible only through a subpixel
+    # slit. Measure the visible patch before restoring a whole construction.
+    panel=np.array([[-1,-1,0],[1,-1,0],[1,1,0],[-1,1,0]],np.float32)
+    pf=np.array([[0,1,2],[0,2,3]],np.uint32)
+    def slit(width):
+        points=list(panel);faces=list(pf[:,::-1])
+        for left,right in [(-1,1/3-width/2),(1/3+width/2,1)]:
+            offset=len(points);points.extend([[left,-1,.01],[right,-1,.01],[right,1,.01],[left,1,.01]])
+            faces.extend(pf+offset)
+        return dict(POSITION=np.array(points,np.float32)),np.array(faces,np.uint32)
+    narrow,nf=slit(.025)
+    assert exposed_backfaces(dict(POSITION=panel),pf,narrow,nf,.05) is None
+    wide,wf=slit(.6)
+    measured=exposed_backfaces(dict(POSITION=panel),pf,wide,wf,.05)
+    assert measured and measured['exposed_patch_width_pixels']>3,measured
     # Individually closed components can acquire a nonmanifold shared edge.
     # The combined check must restore their source positions, even though
     # neither component gains a local topology defect.
@@ -104,6 +119,25 @@ def main():
     for k,v in a.items():
         old={tuple(x) for x in attrs[k]};assert all(tuple(x) in old for x in v),k
     t=topology(a,f)[0];assert t['boundary_edges']==t['nonmanifold_edges']==t['winding_disagreements']==0,t
+    # Screen-aware reduction must still reduce a closed split-chart cylinder
+    # with hard cap normals, without opening either side of its UV seam.
+    from kit.lod_shared import _triangle_limits,transport_frames
+    budget=_triangle_limits(attrs,ff,.025,1024)
+    reduced,rf,receipt=collapse(attrs,ff,.3,max_error=.05,uv_limit=budget,meters_per_pixel=.025)
+    assert len(rf)<=len(ff)*.55,receipt
+    reduced_topology=topology(reduced,rf)[0]
+    assert reduced_topology['boundary_edges']==reduced_topology['nonmanifold_edges']==0,reduced_topology
+    # A new vertex receives the source's interpolated shading normal, rather
+    # than a freshly averaged normal from the coarser geometric faces.
+    source=dict(POSITION=np.array([[0,0,0],[1,0,0],[0,1,0]],np.float32),
+                NORMAL=np.array([[0,0,1],[0,.1,1],[0,0,1]],np.float32),
+                TEXCOORD_0=np.array([[0,0],[1,0],[0,1]],np.float32))
+    source['NORMAL']/=np.linalg.norm(source['NORMAL'],axis=1,keepdims=True)
+    candidate=dict(POSITION=np.array([[.25,.25,0]],np.float32),NORMAL=np.array([[0,.02,1]],np.float32),TEXCOORD_0=np.array([[.25,.25]],np.float32))
+    candidate['NORMAL']/=np.linalg.norm(candidate['NORMAL'],axis=1,keepdims=True)
+    sampled,receipt=transport_frames(source,np.array([[0,1,2]]),candidate,np.zeros((0,3),int),{'TEXCOORD_0':np.array([.001])},.01)
+    expected=np.array([.5,.25,.25])@source['NORMAL'];expected/=np.linalg.norm(expected)
+    assert np.allclose(sampled['NORMAL'][0],expected,atol=1e-6),receipt
     # An open material boundary stays fixed while interior vertices reduce.
     original=attrs['POSITION'][ff[:256]];x,y,z=np.meshgrid(np.arange(6),np.arange(6),[0]);p=np.stack([x.ravel(),y.ravel(),z.ravel()],axis=1).astype(np.float32)
     tris=[]
@@ -114,6 +148,18 @@ def main():
     out,tf,_=collapse(aa,np.array(tris,np.uint32),.5)
     border=p[(p[:,0]==0)|(p[:,0]==5)|(p[:,1]==0)|(p[:,1]==5)]
     assert all(any(np.array_equal(v,q) for q in out['POSITION']) for v in border)
+    # On the screen-aware path, collinear boundary vertices may slide while
+    # corners, the affine UV field and the source shading direction survive.
+    from kit.lod_shared import _triangle_limits
+    tf_source=np.array(tris,np.uint32)
+    budgets=_triangle_limits(aa,tf_source,.05,1024)
+    slid,sf,receipt=collapse(aa,tf_source,.3,max_error=.1,uv_limit=budgets,meters_per_pixel=.05)
+    assert len(sf)<=len(tf_source)*.55,receipt
+    assert np.allclose(slid['TEXCOORD_0'],slid['POSITION'][:,:2]/5,atol=1e-6)
+    for corner in [[0,0,0],[5,0,0],[5,5,0],[0,5,0]]:
+        assert any(np.allclose(q,corner,atol=1e-7) for q in slid['POSITION'])
+    assert receipt['constraints']['by_cause']['part_borders']['fixed']==0
+    assert topology(slid,sf)[0]['nonmanifold_edges']==0
     image=dict(sha256='canonical',compressed_mip_bytes=1024)
     rows=[dict(level=0,images=[image],mesh_gpu_bytes=500),dict(level=1,images=[image],mesh_gpu_bytes=200),dict(level=2,proxy=True,images=[dict(sha256='proxy',compressed_mip_bytes=64)],mesh_gpu_bytes=50)]
     r=residency(rows);assert r['passed'] and r['total_gpu_bytes']==1838 and r['proxy_texture_gpu_bytes']==64,r
