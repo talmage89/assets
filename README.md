@@ -83,6 +83,10 @@ Commercial
 - [Main Street](downtown/README.md): 28 brick commercial buildings of about 1880–1930 in four seeded block faces, with
   cast-iron storefronts, bracketed cornices, a stone corner bank, upper apartments, fire escapes and service alleys.
 
+Schools
+- [Elementary schools](school/README.md): three neighborhood public schools of 1956, 1964 and 1976 on their own
+  parcels, with furnished classrooms behind window walls, gyms, covered walks, bus lanes, blacktops and ball fields.
+
 Vehicles
 - [Cars](cars/README.md): late-2010s vehicles in five factory colors on one baked atlas each; doors, closures,
   steering and wheels move.
@@ -101,6 +105,8 @@ Recreation
   and three seeded parks of 1999, 2004 and 2011.
 - [Playgrounds](playground/README.md): modular municipal play structures with slides, swings, climbers and spring
   riders, and three seeded playgrounds of 1996, 2005 and 2013 on wood fiber and poured rubber.
+- [Miniature golf](minigolf/README.md): two seeded 18-hole roadside courses, an older repainted classic with its
+  lighthouse and a terraced 1990s adventure course with rockwork, a waterfall and ponds, each with its clubhouse.
 
 Trees and shrubs
 - [Trees](trees/README.md): summer street trees with leaf cards and wind weights.
