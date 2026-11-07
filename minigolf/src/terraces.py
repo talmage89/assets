@@ -4,6 +4,17 @@ from geometry import *
 from plan import local,center,level,halfwidth
 import paths
 
+def clearance(ob,cutter):
+ # A spatially disjoint reservation cannot remove rock. Passing it to Exact
+ # on the fused concave shell can discard an exterior component instead.
+ # Cull using evaluated world bounds, and remove the unused fabrication tool.
+ a=[ob.matrix_world@Vector(q) for q in ob.bound_box];b=[cutter.matrix_world@Vector(q) for q in cutter.bound_box]
+ if any(max(q[k] for q in a)<min(q[k] for q in b)-1e-5 or max(q[k] for q in b)<min(q[k] for q in a)-1e-5 for k in range(3)):
+  bpy.data.objects.remove(cutter,do_unlink=True);return ob
+ before=len(ob.data.polygons);name=cutter.name;G.boolean(ob,cutter)
+ if ob.get('rock_seed')==1291:print('QUARRY CLEARANCE',name,before,'->',len(ob.data.polygons),flush=True)
+ return ob
+
 def build(p,rt):
  # Retaining construction follows the actual slab, with returns. Its crest
  # stays below the playing skin and never projects into the stance walk.
@@ -30,7 +41,7 @@ def build(p,rt):
    poly=hull([q for quad in paths.ribbon(line,1.60) for q in quad]);bb=(min(q[0] for q in poly),max(q[0] for q in poly),min(q[1] for q in poly),max(q[1] for q in poly))
    if wb[1]<bb[0] or wb[0]>bb[1] or wb[3]<bb[2] or wb[2]>bb[3]:continue
    cutter=own(G.profile('Retaining crosswalk opening tool',poly,-1,9,M['black'],axis='Z'),rt)
-   bpy.context.view_layer.update();G.boolean(wall,cutter)
+   bpy.context.view_layer.update();clearance(wall,cutter)
  # Omit buried wall soles after all solid cuts; their shape is retained
  # in the construction source until the openings have been fabricated.
  for wall in [o for o in rt.children if o.name.startswith('Carved terrace retaining wall')]:
@@ -54,7 +65,7 @@ def build(p,rt):
  from plan_check import hull
  pocket=hull([(x+dx,y+dy) for x,y in walkline for dx in (-1.10,1.10) for dy in (-.50,.50)])
  cutter=own(G.profile('Mountain viewing ledge clearance',pocket,-.5,9,M['black'],axis='Z'),rt)
- bpy.context.view_layer.update();G.boolean(shell,cutter)
+ bpy.context.view_layer.update();clearance(shell,cutter)
  points=[(x,y,.065+.065*max(0,y+7)) for x,y in walkline]
  # Grade-backed 100 mm walk, open at the stream-bank end.
  vs=[]
@@ -67,17 +78,17 @@ def build(p,rt):
   for h in p['holes']:
    poly=hull([q for quad in strips(h,.48) for q in quad])
    cutter=own(G.profile('Terrace playing clearance tool',poly,-.5,9,M['black'],axis='Z'),rt)
-   bpy.context.view_layer.update();G.boolean(shell,cutter)
+   bpy.context.view_layer.update();clearance(shell,cutter)
   for h in p['holes']:
    line=paths.lane(h)
    poly=hull([q for quad in paths.ribbon(line,1.75) for q in quad])
    cutter=own(G.profile('Terrace walking clearance tool',poly,-.5,9,M['black'],axis='Z'),rt)
-   bpy.context.view_layer.update();G.boolean(shell,cutter)
+   bpy.context.view_layer.update();clearance(shell,cutter)
   routes=[line for _,line,*_ in paths.adventure_links(p)]+[[q[:2] for q in paths.quarry_ledge()]]
   for line in routes:
    poly=hull([q for quad in paths.ribbon(line,1.75) for q in quad])
    cutter=own(G.profile('Terrace connection clearance tool',poly,-.5,9,M['black'],axis='Z'),rt)
-   bpy.context.view_layer.update();G.boolean(shell,cutter)
+   bpy.context.view_layer.update();clearance(shell,cutter)
 
  # The plan reservations are conservative, but the end caps of a graded
  # slab differ from a planar routing ribbon. Clear the actual authored top
@@ -88,7 +99,7 @@ def build(p,rt):
   if not xy or max(x for x,y in xy)<-11 or min(x for x,y in xy)>11 or max(y for x,y in xy)<12 or min(y for x,y in xy)>28:continue
   profile=hull([(x+dx,y+dy) for x,y in xy for dx in (-.13,.13) for dy in (-.13,.13)])
   cutter=own(G.profile('Actual public surface clearance tool',profile,-1,9,M['black'],axis='Z'),rt)
-  bpy.context.view_layer.update();G.boolean(shell,cutter)
+  bpy.context.view_layer.update();clearance(shell,cutter)
  # Boolean tools carry a diagnostic black material. Cut quarry faces are
  # the same carved shotcrete as the outside; never export the tool pigment.
  for rockpart in [o for o in rt.children if o.get('rock_seed')==1291]:

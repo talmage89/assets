@@ -89,8 +89,12 @@ def rock(name,p,size,parent,seed=0,mat='rock'):
   for i in range(n):
    a=i*math.tau/n;ca,sa=math.cos(a),math.sin(a)
    xx=math.copysign(abs(ca)**.45,ca) if detailed else ca;yy=math.copysign(abs(sa)**.45,sa) if detailed else sa
-   radius=fac*fracture[i]*(1+(.11*math.sin(a*3+height*11+seed)+.055*math.sin(a*7-height*14+seed*.4) if detailed else 0))
-   zz=height+(.045*math.sin(a*3+seed)+.024*math.sin(a*7+height*9+seed) if k else 0)
+   # Retain the accepted quarry assembly's cage at its fused Boolean joins.
+   # New small carved cheeks/banks carry the stronger broken silhouettes.
+   assembly=seed in (1291,290,294)
+   ripple=.07*math.sin(a*3+height*6+seed) if assembly else .11*math.sin(a*3+height*11+seed)+.055*math.sin(a*7-height*14+seed*.4)
+   radius=fac*fracture[i]*(1+(ripple if detailed else 0))
+   zz=height+((.026 if assembly else .045)*math.sin(a*3+seed)+(.017 if assembly else .024)*math.sin(a*7+height*9+seed) if k else 0)
    ring.append((x+w*.5*(radius*xx+.065*math.sin(height*8+seed)*height),y+d*.5*(radius*yy+.045*math.cos(height*9+seed)*height),z+h*zz))
   loops.append(ring)
  ob=own(G.smooth(G.loft(name,loops,M[mat]),32),parent)

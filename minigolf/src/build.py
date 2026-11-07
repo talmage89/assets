@@ -64,10 +64,22 @@ def source_measure(roots):
   surfaces=[o for o in course.children_recursive if o.type=='MESH' and (o.get('walking_surface') or o.name.startswith('Carpet playing face'))]
   surface_trees={o:bvh([o],True) for o in surfaces}
   for rock in rocks:
+   points=[rock.matrix_world@v.co for v in rock.data.vertices]
+   if not points or not rock.data.polygons:
+    assert rock.get('rock_seed')!=1291,('Lost accepted quarry mass',rock.name)
+    obstacle_checks.append(dict(rock=rock.name,source_faces=0,surfaces_checked=0,scope='No exposed source skin remains after reservations; this is not evidence of a retained rock mass.'))
+    continue
+   bounds=[[min(q[k] for q in points) for k in range(3)],[max(q[k] for q in points) for k in range(3)]]
+   extent=[b-a for a,b in zip(*bounds)]
+   if rock.get('rock_seed')==1291:
+    # Presence of a tiny Boolean remnant is insufficient. This is a
+    # conservative extent gate relative to the authored 18 x 12.2 x 4.1m
+    # envelope; native same-camera images judge its retained silhouette.
+    assert all(a>b*.55 for a,b in zip(extent,(18,12.2,4.1))),('Accepted quarry mass collapsed',rock.name,extent)
    tree=bvh([rock])
    for ob,surface in surface_trees.items():
     hits=tree.overlap(surface);assert not hits,('Quarry obstructs actual playing/walking surface',rock.name,ob.name,len(hits))
-   obstacle_checks.append(dict(rock=rock.name,surfaces_checked=len(surfaces),triangle_intersection_pairs=0,scope='Evaluated source rock surfaces against actual top triangles, within this course only; separate from plan-space envelopes'))
+   obstacle_checks.append(dict(rock=rock.name,measured_world_bounds_m=bounds,measured_extent_m=extent,source_faces=len(rock.data.polygons),surfaces_checked=len(surfaces),triangle_intersection_pairs=0,scope='Actual source extents plus evaluated rock surfaces against actual top triangles, within this course only; separate from plan-space envelopes'))
   crossing_contacts=[]
   for owner in [o for o in course.children_recursive if o.get('module_kind') in ('hole','walk_span')]:
    girders=[o for o in owner.children if o.name.startswith(('Continuous bridge-slab girder','Continuous crossing-walk girder'))]

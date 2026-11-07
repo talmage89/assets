@@ -1005,3 +1005,170 @@ visual gate is rejected. Local command logs are `build/model-fix-3-resume.log`,
 `matched-castle.log`. The technical source checks caught two real public-slab
 intersections during the enlarged-quarry work; cuts now use the authored slab
 footprints with fabrication clearance. All source edits are scripted.
+
+## Finish pass 1 — accepted gate images, color and value first
+
+Color and value: opened all five supplied gate pairs at their original sizes.
+The waterfall and mountain are pale blue-gray; their original warm raster
+palette was bypassed by the direct vertex-color connection in `look.py`.
+The candidate restores the raster's buff/ochre mineral variation, reduces
+fine stipple relief, retains matte roughness, and keeps damp staining beside
+flow and in sheltered feet. Photo comparison uses the existing neutral-balanced
+references (sunlit concrete for Sunnyvale, gray walk for Michigan; the
+Henderson used-waterfall white fence for the close construction comparison).
+No photo supplies asset pixels.
+
+What reads as CG in the gate: uniformly rounded rock cheeks, three squared
+waterfall risers, rain-like detached white lines, top-wide camouflage chips
+on the classic coping, polygon bands in the blue bowl, and intersecting
+walks with a sloping wedge at the tee. The source candidate breaks the rock
+profile, makes each spill lip vary in height and depth, clusters short
+entrained-air flecks and impact foam, confines coping abrasion to its outer
+nose/waterline, and adds smooth bowl transitions. Tee/cup landings butt to the
+main walk's actual edge; substantial height changes use horizontal treads
+with equal risers and seated timber skirts. All route endpoints reuse their
+lane's exact cross section. The accepted course grammar and placements stay.
+These are implementation decisions, pending exported-image judgment.
+
+The classic green comparison previously assigned a long narrow hole to a
+photographed broad green. The candidate fits the existing wide first hole's
+four curb corners to those same measured photo corners, retaining the
+photographic crop. Its error is reported in native photograph pixels; the
+original designs and different surrounding course layouts cannot coincide.
+
+## Finish pass 2 — native exported crops, one targeted correction
+
+Color and value: opened the new classic hero, waterfall, tee and pond PNGs
+at their original 1440-pixel widths. Buff/tan mineral color now survives the
+export, damp crevices stay dark, and the dry rock is matte. The exported
+classic coping crown is clean; its abrasion follows the outside nose and
+inner waterline. The large polygon bands in both blue basins are removed.
+The reference rock still has less regular creases; retain that finer miss
+in the final known flaws rather than redesigning the accepted landscape.
+
+What still reads as CG: opaque white flakes on the cascade look pasted on,
+despite the broken rock lips being substantially better than the old square
+risers. This candidate is rejected for water. Replace those individual white
+polygons with a continuous, softly covered aeration layer whose coverage
+increases down the fall. Impact foam follows the actual receiving shelf's
+height and thins at its broken perimeter. It reuses the existing white atlas
+region and uses vertex alpha, with no new image allocation. The now-identical
+rock material shares the ordinary atlas state, offsetting the added foam
+state. Camera validation also caught the tee renderer using its nominal view
+rather than the original correction view; frozen world cameras now preserve
+the supplied tee framing and the original classic hero height exactly.
+The incorrect tee frame is not proof of the requested walk correction.
+
+Technical evidence for the inspected candidate is in `finish-model-3.log`.
+The first crop process stopped with signal 143 while loading its second
+course; the remaining three images completed in a fresh process. Subsequent
+comparison batches use one course per process. No final gallery or docs has
+been generated at this point.
+
+## Finish pass 3 — full-course checks and export alpha failure
+
+Color and value: opened all six model-4 adventure exports at native 1440-pixel
+width, including the hero, oblique course view and full walk overview. The
+rock is buff/tan at hero distance, and the blue basins retain deep shadow
+under the bridge while showing their painted bottoms. The soft-foam export
+is rejected: it turned into solid white ribbons and pools, clearly CG even
+from above. The raw file proves why: its blended material had RGB `COLOR_0`
+without the authored coverage channel. A forced RGBA export preserves alpha
+0–0.861, but also quantizes/clamps the accepted opaque tint masks. The final
+implementation keeps coverage-bearing foam in a separate consolidated mesh;
+opaque skins keep their existing float RGB colors. Images and material/draw
+allocation remain shared. Raw delivery checks now reject a foam primitive
+without RGBA, BLEND, transparent edges and a partly covered interior.
+
+The exact original tee camera now shows level treads and seated timber in
+place of the former wedge and overlapping landing. The overhead review also
+found the admission approach crossing a return slab. This is a construction
+miss, not a reason to change the accepted routing. `joins.py` trims later
+approaches against actual earlier slab triangles, projects their joint to a
+common grade, and rebuilds the supporting fill. An initial unpublished run
+was stopped because it repeated local clipping/projection work excessively;
+spatial lookup, unique neighboring triangles and cached projections bound
+that work. Its visual and construction proof is still pending. No docs or
+final gallery has been generated.
+
+## Finish pass 4 — native junction overview and visible photo landmarks
+
+Color and value: opened the model-11 tee and full adventure walking overview
+at their original widths, plus the 1440 × 2250 lighthouse match and the
+neutral-balanced Sunnyvale photograph. Buff/tan rock now carries dark joints
+and water-shadowed feet instead of the former lavender stipple. The photo's
+sunlit concrete walk is the stated white-balance neutral. The rendered rock
+still has repeated carved creases and the small mulch repeat remains evident;
+these are finer known flaws. The lighthouse match now has visible silhouette
+anchors from a supported south approach, at 6.51 native-photo-pixel RMS.
+Different surrounding holes and original tower designs remain visible.
+
+What still reads as CG: narrow triangular strips cross the main walk at
+several tee/cup landings. Conforming the route triangulation removed internal
+T-junctions but did not remove these overlays. The original landing started
+at its lane's former private edge, even where a joined route extended past
+that edge. Model 12 starts each branch at the last actual boundary of the
+combined paving. Its timber skirts follow the new underside. The audit now
+also checks landing face centers against the actual route surface; endpoint
+contact alone did not prove the absence of an overlapping top. This gate is
+still closed pending the rebuilt crop. No docs have been generated.
+
+## Finish pass 5 — corrected native tee crop and clean reconstruction
+
+Color and value: opened the model-12 tee at its original 1440-pixel width.
+The warm buff border, green traffic wear and neutral concrete retain the
+reviewed material range. The triangular overlays across the walk are gone;
+the landing now meets the paving at a clean boundary, and the shaped timber
+edges meet its underside. Remaining CG tells here are the repeated mulch
+pattern and the fine-scale simplicity of carpet fibers. Keep these as known
+flaws for this minor site asset.
+
+The clean reconstruction started with this family's build, render, texture
+and export folders absent. Its three shipped material maps and all six core /
+pieces glTF and BIN files exactly match model 12. Actual source measurements
+find zero landing face centers over existing paving, 36 / 34 sampled route
+joints with maximum gaps 1.001 / 1.383 mm, 36 / 32 landing contacts within
+.005 mm, and timber bearing-line samples within .0005 mm. These are source
+surface measurements, not proof from serialization. Full-course walk images,
+photo framing and the final render inventory are still to be judged.
+
+The rejected north-facing classic-green fit had 26.04 native-pixel RMS but
+its anchors were hidden by the windmill and another green. It is not final
+evidence. The east-side fit uses the same actual first-hole curb corners,
+rotated in correspondence, and reports 38.43 px over the unchanged 2,892 px
+photo crop, with a fitted 22.7 mm lens. An independent raw-export ray preflight
+finds those four sight lines clear; the Blender visibility gate and rendered
+pair still have to pass. No layout, hole scale or fixture is moved for it.
+
+## Finish pass 6 — preserved quarry mass, rejected regression and repair
+
+Color and value: opened all twelve clean-build comparison PNGs at original
+size. Buff/tan rock, dark wet crevices, the clean coping crown and smooth blue
+basins show their corrections. Soft aeration replaces detached white rain
+streaks; the lips are irregular carved shelves. The restored tee boundary
+removes the large overlapping slabs, open gap and wedge. Fine grade shading
+at a short rear approach and repeated mineral mottling still read as CG.
+These finer misses do not justify another aesthetic round on this minor site.
+
+The full-course pair exposed a serious regression that earlier walk-focused
+review missed: the accepted large quarry mass had been reduced to a tiny
+Boolean fragment. The earlier collision checks passed because a tiny fragment
+has few opportunities to intersect a walk. They proved neither presence nor
+correctness of the intended landscape. The delivery pipeline stopped before
+docs and final renders. A source-only Boolean trace found the loss during
+playing-surface reservations. Culling spatially disjoint reservations helped
+avoid invalid operations, but did not alone repair the fused cage. Restoring
+the accepted cages for the three fused quarry bodies preserves their original
+shape and stable cuts; the smaller cheeks/banks retain their stronger irregular
+silhouettes. This is a preservation repair, not a layout redesign.
+
+Opened the repaired exported adventure overview at original 1440-pixel width.
+The large quarry is restored, now buff/tan and matte, with the accepted paths,
+terraces and waterfall in place. The source measures an 18.332 × 18.823 ×
+4.656 m combined envelope and 1,615 surviving source faces, with zero triangle
+intersections against 106 playing/walking surfaces. A conservative source
+extent gate now rejects a tiny remnant instead of treating it as a retained
+mass. Empty non-hero retaining skins are recorded as absent after clearance,
+not counted as evidence of retained construction. The large crown still shows
+repeated mineral mottling; retain that known flaw. Fresh final crops, all
+finals, the photo pairs and replay proof remain required before docs.
