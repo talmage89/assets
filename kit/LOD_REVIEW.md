@@ -1450,3 +1450,39 @@ from that merge. Five new gallery images extend the original preservation
 receipt to 481 files; no existing hash was refreshed. Repository check now
 passes 1,962 source files. The prior adoption freeze remains obsolete until
 all general changes settle and the recipe is followed afresh.
+
+## Pass 39 — converged station proxy passes; a second reduction blocker closes
+
+Opened all four native strips in `build/lod-v4/convergence/`. Two unchanged
+LOD0 renders at 128 samples differ by .0152 mean / .0784 p95; at 2048 samples
+the independent-seed difference is .00330 / .0182. The original final station
+policy already used 2048; the low-sample diagnostics had exaggerated the
+remaining error. The new atlas still needs comparison at that final policy.
+
+Opened all three `previews/commercial/proxy-converged/` strips at full size.
+They hold source and candidate at the same 2048 samples, supplied frames and
+camera. The old proxy still gives mean .0296/.0225/.0236, p95 .169/.129/.114
+and local .137/.108/.148. The new 1798-triangle atlas gives mean
+**.0105/.0122/.0138**, p95 **.0481/.0519/.0627**, local **.0348/.0397/.0568**,
+alpha MAE .0064–.0098 and silhouette loss .0075–.0124: every original far gate
+passes against LOD0. Lettering remains crisp and column values now agree at
+native size. `controlled-improvement.json` measures both from the same source
+render. The cause-specific fix is switch-capped chart allocation plus a
+fourfold antialiased field bake downfiltered to the same 512 maps; no palette,
+lighting, AO or acceptance-limit adjustment was made. The full chain still
+needs a canonical rebuild and comparison with its actual preceding level.
+
+The pickup's 1616-triangle source component exposes a second avoidable stall.
+Its 646-triangle collapse passes all source-field samples; unconstrained normal
+transport then breaks two edge-midpoint samples and forces a 1034-triangle
+fallback. Saved source and pre-transport arrays are in `car-frame-control/`.
+The bounded transport defers only **2 of 471** independently projected frames,
+retains 469 and keeps **646** triangles with zero failed samples (worst UV
+fraction .91450, unchanged). These deferred corners retain their interpolated
+LOD0 frames, never normals recomputed from the reduced geometry. Neighboring
+face checks repeat after each local reversion, with unchanged UV/frame/data
+limits; final independent auditing still runs. The new analytic curved-normal
+regression and the entire shared-map fixture pass. The full fresh kit suite
+and all rebuilt pilot images remain required. One interrupted control received
+SIGTERM; the directly monitored retry completed successfully. The long pickup
+build was stopped deliberately at a cache boundary to run these controls.

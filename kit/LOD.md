@@ -176,6 +176,13 @@ The GPU fixture independently checks rotated and mirrored frames and placements.
 An engine must likewise retain supplied normals/tangents to reproduce this
 evidence; the adapter is not an animation controller.
 
+Source-frame transport is also bounded across the reduced faces it touches.
+Independently projected corners can each be legitimate but disagree with the
+original field inside their shared triangle. Only implicated corners then retain
+their already bounded, interpolated LOD0 frames; neighboring faces are checked
+again. This avoids forcing a higher triangle count after an otherwise valid
+collapse. No reduced-geometry averaged normal replaces the original field.
+
 The atlas baker applies the same supplied-source frame before projection.
 Nearest-source shader patches carry its explicit tangent, handedness and presence
 attributes, so a repair cannot silently switch back to a reconstructed frame.
