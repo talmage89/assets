@@ -7,12 +7,14 @@
   ],
   "levels": [
     {
-      "ratio": 0.4,
-      "screen_height": 0.3
+      "ratio": 0.35,
+      "screen_height": 0.3,
+      "target_triangles": 10041
     },
     {
       "ratio": 0.15,
-      "screen_height": 0.12
+      "screen_height": 0.12,
+      "target_triangles": 4564
     },
     {
       "ratio": 0.05,
