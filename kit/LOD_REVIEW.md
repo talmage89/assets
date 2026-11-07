@@ -1761,3 +1761,16 @@ Repository check: 1996 source files, zero errors. Proxy color, grille reflection
 final budget selection, final chain rebuilds and frozen-tool adoption refresh
 remain pending; the earlier adoption and full-suite receipts are stale after
 this general tool change.
+
+The fresh colonial near build now completes: **24949 / 13218** triangles,
+**42.84% / 22.70%** of LOD0, meeting both caps. Six inherited materials and ten
+draw calls per near level; zero new intermediate image hashes. Peak child RSS
+656236 KiB. This scratch near-only manifest excludes the final proxy and is
+not the final whole-chain cost or render proof.
+
+All ten original `make check` commands pass with their accepted generated
+inputs frozen. The clean **28-file CPU kit phase passes**, peak child RSS
+2848364 KiB; source hashes remained unchanged and the production cache was
+restored. Its shared-map fixture includes the new clean refinement directory.
+The six GPU files and final frozen-tool adoptions still need fresh runs.
+Station LOD1 has reached 9130/18258 (50.01%), below its cap; LOD2 is pending.
