@@ -384,6 +384,13 @@ in the corresponding `wear-pass3-source` folder. The 19.45 px fit compares
 aging on different board profiles; the specified French Gothic construction
 and all module geometry, sockets, UVs and texture dimensions are preserved.
 
+The WoodPrivacy LOD adoption keeps one useful far reduction per section or gate
+bay, at 9% screen height. The tested near reductions retained 58–63% and were
+omitted. `Post_End`, `Post_Line` and `Post_Corner` are already 20 triangles each
+and stay LOD0-only on the original shared material. All three adopted kinds
+share one physical map pool and one canonical runtime texture set; the whole
+family resident estimate is **16.264 MiB**. [Two adoption critiques](REVIEW.md).
+
 <!-- LOD checkpoint section-a: begin -->
 ## Section_A levels of detail
 

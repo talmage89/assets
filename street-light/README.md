@@ -90,6 +90,11 @@ and threads, and the simplified original reflector/casting layout. The sparse
 photo anchors constrain the camera imperfectly; the pair compares construction
 and material realism rather than reproducing the reference product exactly.
 
+The LOD adoption keeps one 1,656-triangle reduction at 25% screen height. The
+tested cheaper far level visibly thinned the shaft; it was omitted rather than
+adding a switch with inadequate coverage. [Two adoption critiques and the
+rejected comparison](REVIEW.md).
+
 <!-- LOD checkpoint: begin -->
 ## Additional LODs
 
