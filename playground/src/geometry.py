@@ -1,7 +1,7 @@
 """Small asset-specific construction vocabulary; meters, footprint roots, -Y entry.
 
 Only original analytic sections. kit supplies sweeps, manufactured edges and mesh
-normal recalculation. Quick vertex tints are deliberately not final look-dev.
+normal recalculation. Optional baked manufacture charts retain period vertex tints.
 """
 import math
 from pathlib import Path
@@ -63,7 +63,7 @@ def own(ob,parent,finish='steel',material='Frame'):
     G.apply(ob)
     fc=ob.data.attributes.new(name='FinishCode',type='INT',domain='FACE')
     for d in fc.data:d.value=FINISHES.index(finish) if finish in FINISHES else 14
-    c=COLORS.get(finish,finish)
+    c=(1,1,1,1) if LOOK and finish=='zinc' else COLORS.get(finish,finish)
     tint=ob.data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='CORNER')
     for d in tint.data:d.color=c
     uv=ob.data.uv_layers.active or ob.data.uv_layers.new(name='UVMap')
@@ -100,9 +100,9 @@ def clamp(parent,x,y,z,yaw=0):
         angles=[side*math.pi+.009+i*(math.pi-.018)/8 for i in range(9)]
         loops=[[(x+r*math.cos(t),y+r*math.sin(t),z+h) for r,h in section] for t in angles]
         own(G.smooth(G.loft('Radiused split cast collar',loops,M['Frame'],caps=True),55),parent)
-    lathe(parent,'Tapered cast mounting boss',[(y-.130,.020),(y-.122,.027),(y-.069,.029),(y-.063,.024)],s=8,axis='Y',center=(x,z),closed=True)
-    cyl(parent,'Recessed fastener counterbore',(x,y-.131,z),(x,y-.133,z),.013,'rubber',8)
-    bolt(parent,(x,y-.134,z),r=.007)
+    lathe(parent,'Open counterbored cast mounting boss',[(y-.130,.013),(y-.130,.022),(y-.123,.027),(y-.063,.029),(y-.063,.0048)],s=8,axis='Y',center=(x,z),closed=True)
+    own(G.smooth(G.cylinder('Socket cap / pin drive',(x,y-.122,z),(x,y-.129,z),.008,M['Frame'],8),65),parent,'zinc')
+    cyl(parent,'M10 minor-diameter shank into casting',(x,y-.122,z),(x,y-.061,z),.0045,'zinc',4)
     if yaw:
         rot=Matrix.Rotation(math.radians(yaw),4,'Z');center=Vector((x,y,z))
         for o in set(bpy.context.scene.objects)-before:

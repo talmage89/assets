@@ -1,7 +1,7 @@
-"""Build the module library and three original installed sites; quick materials.
+"""Build the module library and three original installed sites.
 
-Checkpoint exports are glTF with two shared original diagnostic images. Existing
-library deliveries are read-only; their canonical external images are reused.
+Look-dev exports use shared original baked manufacture charts. Quick material
+mode remains available for form work. Existing library deliveries are read-only.
 """
 import argparse,hashlib,json,math,sys,os
 from pathlib import Path

@@ -10,11 +10,11 @@ from PIL import Image,ImageDraw,ImageFont,ImageFilter
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
 from kit.fonts import find_font
 from kit.image_io import write_png
-METAL={'Coat':(0,.75,.25,1),'Worn':(.25,.75,.5,1),'Cast':(.5,.75,.75,1),'Zinc':(.75,.75,1,1),'Deck':(0,.5,.5,.75),'Rust':(.5,.5,.75,.75),'Rubber':(.75,.5,1,.75),'WornDeck':(0,.25,.5,.5),'Chain':(.5,.25,.75,.5),'Contact':(.75,.25,1,.5),'Label':(0,0,.5,.25),'Wood':(.5,0,.75,.25),'Black':(.75,0,1,.25)}
+METAL={'Coat':(0,.75,.25,1),'Worn':(.25,.75,.5,1),'Cast':(.5,.75,.75,1),'Zinc':(.75,.75,1,1),'Deck':(0,.5,.5,.75),'ChalkCoat':(.5,.5,.75,.75),'Rubber':(.75,.5,1,.75),'WornDeck':(0,.25,.5,.5),'Chain':(.5,.25,.75,.5),'Fastener':(.75,.25,1,.5),'Label':(0,0,.5,.25),'Wood':(.5,0,.75,.25),'Black':(.75,0,1,.25)}
 PLASTIC={k:(i%4/4,(1-i//4)/2,(i%4+1)/4,(2-i//4)/2) for i,k in enumerate(('Clean','Chalk','Slide','Seam','Seat','Rock','Initials','OldSlide'))}
 SURFACE={'Fiber':(0,.5,.5,1),'OldFiber':(.5,.5,1,1),'EPDM':(0,0,.5,.5),'WornEPDM':(.5,0,1,.5)}
 COVERAGE={'PlayMetal':.8,'PlayPlastic':1.6,'PlaySurface':4.}
-HEIGHT={'PlayMetal':.0012,'PlayPlastic':.0008,'PlaySurface':.015}
+HEIGHT={'PlayMetal':.012,'PlayPlastic':.0008,'PlaySurface':.015}
 
 def noise(w,h,n,seed):
     a=np.random.default_rng(seed).random((n,n),dtype=np.float32)
@@ -41,22 +41,30 @@ def build_set(name,rects,n,out):
                 qx=u*16%1-.5;qy=v*8%1-.5;hole=np.hypot(qx,qy)<.15
                 color[:]=.72;color[hole]=.04;rough=.65+.08*mid;height=.5-.42*hole+.015*(fine-.5);alpha[hole]=0
                 if key=='WornDeck':
-                    wear=np.exp(-((u-.5)/.38)**4)*np.clip((mid-.36)*3.5,0,1)
+                    lane=np.exp(-((u-.5-.025*np.sin(v*7))/.24)**6)
+                    nosing=.20+.80*np.exp(-((v-.82)/.19)**4)
+                    wear=lane*nosing*(.74+.26*mid)
                     color[:]=.11;color=color*(1-wear[:,:,None])+np.array((.62,.64,.63))*wear[:,:,None];color[hole]=.025;rough-=.28*wear;metal=.92*wear;height-=.025*wear
-            elif key=='Rust':
-                color[:]=(.43,.21,.085);color*=.64+.6*mid[:,:,None];rough=.85+.10*mid;metal[:]=.05;height=.5+.08*(mid-.5)
+            elif key=='ChalkCoat':
+                color[:]=.87;color*=.97+.03*mid[:,:,None];rough=.62+.10*mid;height=.5+.018*(mid-.5)
             elif key in ('Rubber','Black'):
                 color[:]=.65 if key=='Rubber' else .10;rough=.70+.12*mid;height=.5+.04*(fine-.5)
-            elif key=='Contact':
-                color[:]=(.58,.60,.59);rough=.26+.14*mid;metal[:]=.83;height=.5+.002*(fine-.5)
+            elif key=='Fastener':
+                x=u-.5;y=v-.5;hexagon=np.maximum.reduce([abs(x),abs(x*.5+y*.866),abs(x*.5-y*.866)])<.19;pin=np.hypot(x,y)<.032
+                color[:]=(.70,.72,.71);color[hexagon]=(.15,.16,.16);color[pin]=(.74,.75,.74);rough=.32+.04*mid;metal[:]=.95;height=.5-.25*hexagon+.23*pin
             elif key=='Wood':
                 line=np.sin(v*600+mid*4)+.5*np.sin(v*1700+mid*9);g=.42+.055*line
                 color=np.stack((g*1.18,g,g*.76),axis=-1);rough[:]=.89;height=.5+.055*line
             elif key=='Chain':
                 # Two alternating 6 mm wire links / actual 45 mm pitch.
-                qx=(u-.5)/.29;qy=(v*8%1-.5)/.28
-                link=(abs(np.hypot(qx,qy)-1)<.23)|((abs(u-.5)<.083)&(abs((v*8+.5)%1-.5)<.32))
-                color[:]=(.14,.15,.14);rough[:]=.61;alpha=link.astype(np.float32);height=.5+.25*link
+                active=1-16/256
+                x=(u-.5)*(.036/active);physical_y=(v-8/256)*(.72/active);y=(physical_y%.09)-.045;rx=.0105;ry=.025;r=.003
+                phi=np.hypot(x/rx,y/ry)-1;gradient=np.sqrt((x/rx**2)**2+(y/ry**2)**2)
+                distance=phi/np.maximum(gradient,1e-8);front=np.abs(distance)<r
+                ey=((physical_y+.045)%.09)-.045;edge=(np.abs(x)<r)&(np.abs(ey)<.028)
+                front_h=np.sqrt(np.maximum(0,r*r-distance*distance))*front
+                edge_h=np.sqrt(np.maximum(0,r*r-x*x))*edge
+                color[:]=(.14,.15,.14);rough[:]=.61;alpha=(front|edge).astype(np.float32);height=.5+np.maximum(front_h,edge_h)/.012
             elif key=='Label':color[:]=(.77,.75,.65);rough[:]=.66;height[:]=.5
         elif name=='PlayPlastic':
             rough=.34+.07*mid;height=.5+.012*(fine-.5)
@@ -90,6 +98,7 @@ def build_set(name,rects,n,out):
                 color[:]=.83;g=np.clip((fine-.3)*1.6,0,1);color*=.65+.35*g[:,:,None]
                 black=fine<.20;color[black]=(.10,.105,.10);rough=.86+.06*mid;height=.5+.040*(fine-.5)
                 if key=='WornEPDM':rough-=.14;color*=.88;height=.5+.025*(fine-.5)
+        if name=='PlayMetal' and key not in ('Chain','Fastener'):height=.5+(height-.5)*.1
         arr=np.uint8(np.clip(np.dstack((color,alpha)),0,1)*255+.5);patch=Image.fromarray(arr)
         if key=='Label':
             d=ImageDraw.Draw(patch);font=ImageFont.truetype(find_font('DejaVu Sans','Bold'),max(14,w//23))
@@ -98,6 +107,7 @@ def build_set(name,rects,n,out):
         if key=='Initials':
             hh=Image.fromarray(np.uint8(np.clip(height,0,1)*255));d=ImageDraw.Draw(hh);d.text((w*.53,h*.70),'J + M',font=ImageFont.truetype(find_font('DejaVu Sans','Book'),max(18,w//13)),fill=74,stroke_width=0);height=np.asarray(hh,dtype=np.float32)/255
         base.paste(patch,(x0,y0));ao=np.clip(.70+.30*(height*2).clip(0,1),0,1) if name=='PlaySurface' else np.ones((h,w))
+        if name=='PlayMetal' and key=='Fastener':ao=np.where(hexagon & ~pin,.4,1)
         orm.paste(Image.fromarray(np.uint8(np.clip(np.dstack((ao,rough,metal)),0,1)*255+.5)),(x0,y0));hei.paste(Image.fromarray(np.uint16(np.clip(height,0,1)*65535)),(x0,y0))
     out.mkdir(parents=True,exist_ok=True)
     if name=='PlaySurface':base=base.filter(ImageFilter.GaussianBlur(.65))

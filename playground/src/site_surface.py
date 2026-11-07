@@ -9,6 +9,16 @@ from mathutils import Vector
 from kit import model as G
 import geometry as F
 
+def upward_sheet(name,vertices,faces,material):
+    """Disconnected open cells need an authored up side, not solid-volume normals."""
+    import bmesh
+    ob=G.mesh(name,vertices,faces,material)
+    bm=bmesh.new();bm.from_mesh(ob.data)
+    for face in bm.faces:
+        if face.normal.z<0:face.normal_flip()
+    bm.to_mesh(ob.data);bm.free();ob.data.update()
+    return ob
+
 def hull(points):
     p=sorted(set(tuple(x) for x in points))
     def cross(o,a,b):return (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0])
@@ -34,7 +44,7 @@ def boundary(plan):
     m=.90;regions=[]
     for z in plan['zones']:
         a,b,c,d=z['rect'];regions.append((a-m,b-m,c+m,d+m))
-    comp=plan['zones'][0]['rect'];regions.append((-.98,plan['surface'][1],.98,comp[1]+.9))
+    comp=plan['zones'][0]['rect'];entry_y=min(plan['surface'][1],min(r[1] for r in regions));regions.append((-.98,entry_y,.98,comp[1]+.9))
     xs=sorted({v for a,b,c,d in regions for v in (a,c)});ys=sorted({v for a,b,c,d in regions for v in (b,d)})
     occ={(i,j) for i in range(len(xs)-1) for j in range(len(ys)-1) if any(a<(xs[i]+xs[i+1])/2<c and b<(ys[j]+ys[j+1])/2<d for a,b,c,d in regions)}
     edges={}
@@ -49,7 +59,7 @@ def boundary(plan):
     for i,v in enumerate(p):
         a=p[i-1];b=p[(i+1)%len(p)]
         if abs((v[0]-a[0])*(b[1]-v[1])-(v[1]-a[1])*(b[0]-v[0]))>1e-8:clean.append(v)
-    return G.fillet_polygon(clean,1.65,7)
+    return G.fillet_polygon(clean,[0 if abs(y-entry_y)<1e-7 and abs(x)<1.1 else 1.65 for x,y in clean],7)
 
 def clip(poly,axis,edge,sign):
     out=[]
@@ -94,6 +104,19 @@ def split_inset(poly):
     if len(rest)>=3:out.append((rest,1))
     return out
 
+def split_patch(poly):
+    """One original local repair at the tube exit, clipped into the floor."""
+    ring=G.fillet_polygon([(6.75,.90),(7.55,.67),(7.97,1.30),(7.50,1.72),(6.88,1.66)],.12,4)
+    if max(p[0] for p in poly)<6.7 or min(p[0] for p in poly)>8 or max(p[1] for p in poly)<.6 or min(p[1] for p in poly)>1.8:return [(poly,False)]
+    rest=poly;out=[]
+    for i,a in enumerate(ring):
+        if not rest:break
+        b=ring[(i+1)%len(ring)];q=halfplane(rest,a,b,False)
+        if len(q)>=3:out.append((q,False))
+        rest=halfplane(rest,a,b,True)
+    if len(rest)>=3:out.append((rest,True))
+    return out
+
 
 def build(rt,plan,depressions):
     p=boundary(plan);plan['containment_boundary_m']=[list(q) for q in p]
@@ -104,10 +127,12 @@ def build(rt,plan,depressions):
         return -.008-sum(d*math.exp(-((x-a)/w)**2-((y-b)/h)**2) for a,b,w,h,d in depressions)+.004*math.sin(2.1*x+plan['seed'])*math.cos(2.8*y)
     for q in cells(p,.5):
         for piece,color in split_inset(q) if plan['inclusive'] else [(q,0)]:
-            n=len(vs);vs.extend((x,y,level(x,y)) for x,y in piece);fs.append(tuple(range(n,len(vs))));colors.append(color)
-    ob=F.own(G.mesh('Continuous protective containment / no internal borders',vs,fs,F.M['Site']),rt,'rubberfloor' if plan['inclusive'] else 'fiber','Site');ob['role']='protective_surface';ob['depression_centers_m']=[list(v) for v in depressions]
+            for part,patch in split_patch(piece) if plan['inclusive'] else [(piece,False)]:
+                n=len(vs);vs.extend((x,y,level(x,y)) for x,y in part);fs.append(tuple(range(n,len(vs))));colors.append(2 if patch else color)
+    ob=upward_sheet('Continuous protective containment / no internal borders',vs,fs,F.M['Site'])
     attribute=ob.data.attributes.new(name='SurfaceInset',type='INT',domain='FACE')
     for d,c in zip(attribute.data,colors):d.value=c
+    ob=F.own(ob,rt,'rubberfloor' if plan['inclusive'] else 'fiber','Site');ob['role']='protective_surface';ob['depression_centers_m']=[list(v) for v in depressions]
     plan['protected_surface_area_m2']=abs(sum(p[i][0]*p[(i+1)%len(p)][1]-p[(i+1)%len(p)][0]*p[i][1] for i in range(len(p)))/2)
     plan['depressions_m']=[list(v) for v in depressions]
     if F.LOOK:
@@ -123,7 +148,7 @@ def build(rt,plan,depressions):
                 u=Vector(a).lerp(Vector(b),j/n);v=Vector(a).lerp(Vector(b),(j+1)/n);mid=(u+v)/2
                 # The walk passes through a real opening at the low boundary.
                 if abs(mid.x)<1.10 and mid.y<plan['surface'][1]+.2:continue
-                o=F.box(rt,'Pinned timber containment' if plan['year']==1996 else 'Flexible recycled border / recessed pins',(*mid,.044),(L/n-.012,.14,.14),'wood' if plan['year']==1996 else 'rubber',.012,'Site')
+                o=F.box(rt,'Pinned timber containment' if plan['year']==1996 else 'Flexible recycled border / recessed pins',(*mid,-.015),(L/n-.012,.14,.26),'wood' if plan['year']==1996 else 'rubber',.012,'Site')
                 o.rotation_euler.z=math.atan2(v.y-u.y,v.x-u.x)
                 if L/n>.40:
                     for w in (u.lerp(v,.12),u.lerp(v,.88)):F.bolt(rt,(*w,.12),(0,0,1),.006)
@@ -131,9 +156,9 @@ def build(rt,plan,depressions):
         scatter(rt,plan,p,level)
     # Flat accessible walk and low tapered entry into the fiber enclosure.
     y0=plan['surface'][1];plan['walk_y']=y0-1.65
-    ramp=[(-.95,y0-1,.0),(.95,y0-1,.0),(.95,y0+.30,.105),(-.95,y0+.30,.105)]
+    ramp=[(-.95,y0-1,.0),(.95,y0-1,.0),(.95,y0+.30,level(.95,y0+.30)),(-.95,y0+.30,level(-.95,y0+.30))]
     if plan['inclusive']:ramp=[(x,y,-.007) for x,y,z in ramp]
-    F.own(G.mesh('Accessible containment entry',ramp,[(0,1,2,3)],F.M['Site']),rt,'concrete','Site')
+    F.own(upward_sheet('Accessible containment entry',ramp,[(0,1,2,3)],F.M['Site']),rt,'concrete','Site')
     F.box(rt,'Public sidewalk',(0,plan['walk_y'],-.065),(plan['surface'][2]-plan['surface'][0]+5,1.8,.12),'concrete',.005,'Site')
     plan['depressions_m']=[list(v) for v in depressions]
 
@@ -154,7 +179,7 @@ def scatter(rt,plan,perimeter,level):
         x=rng.uniform(-1.15,1.15);y=y0+rng.uniform(-1.3,.45);add(x,y,.008)
     for j in range(70):
         i=rng.randrange(len(perimeter));a=Vector(perimeter[i]);b=Vector(perimeter[(i+1)%len(perimeter)]);q=a.lerp(b,rng.random());add(q.x,q.y,.127)
-    ob=F.own(G.mesh('Loose kicked fibers / exit banks and walk carryout',vs,fs,F.M['Site']),rt,'fiber','Site')
+    ob=F.own(upward_sheet('Loose kicked fibers / exit banks and walk carryout',vs,fs,F.M['Site']),rt,'fiber','Site')
     from uv_finish import floor
     floor(ob,plan);ob['solid']=False
 
@@ -163,7 +188,7 @@ def flexible_border(rt,plan,p):
     vs=[];fs=[]
     for i,q in enumerate(p):
         a=Vector(p[i-1]);b=Vector(p[(i+1)%len(p)]);t=(b-a).normalized();n=Vector((t.y,-t.x))
-        for s,z in ((-1,-.025),(1,-.025),(1,.115),(-1,.115)):
+        for s,z in ((-1,-.14),(1,-.14),(1,.115),(-1,.115)):
             r=Vector(q)+n*(s*.07);vs.append((*r,z))
     distance=0
     for i,q in enumerate(p):

@@ -164,8 +164,8 @@ def hood(rt,height):
         for dz in (.12,.77):F.clamp(rt,x,0,height+dz)
     for side in (-1,1):
         cheek=[]
-        for dz,w,d in [(.03,.18,.11),(.12,.20,.17),(.65,.18,.13),(.78,.14,.10)]:
-            cheek.append([(side*.445+x,y,height+dz) for x,y in F.G.rounded_rectangle(w,d,min(w,d)*.35,2)])
+        for dz,w,d in [(.03,.12,.11),(.12,.12,.14),(.65,.115,.13),(.78,.11,.10)]:
+            cheek.append([(side*.490+x,y,height+dz) for x,y in F.G.rounded_rectangle(w,d,min(w,d)*.35,2)])
         loft(rt,'Molded entrance cheek / closed side gap',cheek,'red')
     for x in (-.45,.45):cyl(rt,'Entrance grab rail',(x,-.03,height+.10),(x,-.03,height+.68),GRIP_OD/2,'rail',8)
 
@@ -191,6 +191,7 @@ def slide_path(height,kind):
     return [(0,.18,height)]+pts
 
 def slide(rt,height=1.2192,kind='straight'):
+    if kind!='tube':interface_bridge(rt,height,.75,low=True)
     pts=slide_path(height,kind);loops=[]
     # Broad compound U, rolled shoulder and thick return; width flares at toe.
     profile=[(-.32,.30),(-.39,.29),(-.415,.25),(-.41,.10),(-.36,.01),(-.28,-.035),(0,-.050),(.28,-.035),(.36,.01),(.41,.10),(.415,.25),(.39,.29),(.32,.30),(.315,.27),(.345,.245),(.35,.13),(.30,.055),(.23,.018),(0,0),(-.23,.018),(-.30,.055),(-.35,.13),(-.345,.245),(-.315,.27)]
@@ -199,7 +200,25 @@ def slide(rt,height=1.2192,kind='straight'):
         d=Vector(pts[min(i+1,len(pts)-1)])-Vector(pts[max(0,i-1)]);d.z=0;d.normalize();cross=Vector((-d.y,d.x,0))
         flare=1+.12*max(0,(i/(len(pts)-1)-.82)/.18)
         loops.append([tuple(Vector(p)+cross*x*flare+Vector((0,0,z*(1-.40*max(0,(i/(len(pts)-1)-.88)/.12))))) for x,z in profile])
-    loft(rt,'Compound rotomolded '+kind+' chute / closed return',loops[-6:] if kind=='tube' else loops,'green' if kind=='wave' else 'red')
+    if kind=='tube':
+        # The lower half of the barrel continues into the open toe with a
+        # matching circular cross-section, then flattens into the molded U.
+        # No chute wall passes through a separately overlapping round sleeve.
+        def resample(points,n):
+            lengths=[0.]
+            for a,b in zip(points,points[1:]):lengths.append(lengths[-1]+math.dist(a,b))
+            out=[]
+            for i in range(n):
+                d=lengths[-1]*i/(n-1);j=next((j for j in range(len(lengths)-1) if lengths[j+1]>=d),len(lengths)-2);t=(d-lengths[j])/max(1e-10,lengths[j+1]-lengths[j]);out.append(tuple(points[j][k]*(1-t)+points[j+1][k]*t for k in range(2)))
+            return out
+        desired=resample(profile[:13],13)+resample(profile[13:],13)
+        circular=[(.39*math.cos(math.pi+i*math.pi/12),.37+.39*math.sin(math.pi+i*math.pi/12)) for i in range(13)]+[(.372*math.cos(math.tau-i*math.pi/12),.37+.372*math.sin(math.tau-i*math.pi/12)) for i in range(13)]
+        runout=[]
+        for j,p in enumerate(pts[-6:]):
+            t=j/5;t=t*t*(3-2*t);runout.append([(p[0]+a[0]*(1-t)+b[0]*t,p[1],p[2]+a[1]*(1-t)+b[1]*t) for a,b in zip(circular,desired)])
+        vs=[v for loop in runout for v in loop];n=26;faces=[(j*n+i,j*n+(i+1)%n,(j+1)*n+(i+1)%n,(j+1)*n+i) for j in range(5) for i in range(n)]+[tuple(range(len(vs)-n,len(vs)))]
+        F.own(F.G.smooth(F.G.mesh('Circular barrel to open molded runout',vs,faces,F.M['Molded']),65),rt,'red','Molded');loops=runout
+    else:loft(rt,'Compound rotomolded '+kind+' chute / closed return',loops,'green' if kind=='wave' else 'red')
     lip=loops[-1][13:]+[loops[-1][0]]
     tube(rt,'Rolled rounded slide exit lip',lip,.018,'green' if kind=='wave' else 'red',5,'Molded')
     if kind=='tube':
@@ -210,7 +229,8 @@ def slide(rt,height=1.2192,kind='straight'):
             points=[center+u*.414*math.cos(j*math.tau/16)+v*.414*math.sin(j*math.tau/16) for j in range(17)]
             tube(rt,'Bolted tube seam flange',points,.018,'red',4,'Molded')
         ls=[]
-        for p in pts[0:-3:2]:ls.append([(p[0]+.39*math.cos(j*math.tau/16),p[1],p[2]+.37+.39*math.sin(j*math.tau/16)) for j in range(16)])
+        for index in (0,3,6,9,12,15,18,21,24,27,len(pts)-6):
+            p=pts[index];ls.append([(p[0]+.39*math.cos(j*math.tau/24),p[1],p[2]+.37+.39*math.sin(j*math.tau/24)) for j in range(24)])
         ob=loft(rt,'Enclosed tube barrel / 0.744 vertical bore',ls,'red',caps=False)
         mod=ob.modifiers.new('Rotomolded barrel gauge','SOLIDIFY');mod.thickness=.018;F.G.apply(ob)
         if F.LOOK:
@@ -388,13 +408,13 @@ def swing(rt,bucket=False):
     else:
         loops=[]
         for j in range(9):
-            x=-.285+.57*j/8;edge=abs(x)/.285;h=z+.13+.11*edge**2.6
+            x=-.28+.56*j/8;edge=abs(x)/.28;h=z+.13+.11*edge**2.6
             width=.105-.024*edge**3
             sec=[(-1,0),(-.91,.006),(-.4,.012),(.4,.012),(.91,.006),(1,0),(.93,-.018),(-.93,-.018)]
             loops.append([(x,width*y,h+zz+.010*(1-edge)*y*y) for y,zz in sec])
         loft(p,'Compound molded flexible belt / crowned saddle',loops,'rubber')
         for side in (-1,1):
-            x=side*.255;h=z+.13+.11*(abs(x)/.285)**2.6
+            x=side*.255;h=z+.13+.11*(abs(x)/.28)**2.6
             lathe(p,'Molded encapsulated chain insert',[(h-.013,.014),(h,.020),(h+.020,.017),(h+.025,.008)],'rubber',8,center=(x,0),mat='Molded')
             tube(p,'Bright seat connection eye',[(x+.012*math.cos(k*math.tau/8),0,h+.03+.022*math.sin(k*math.tau/8)) for k in range(9)],.003,'zinc',4)
     empty(p,rt.name+'_SeatSocket',(0,0,z+.13),'child_seat')
@@ -462,10 +482,16 @@ def neck_guard(rt):
     for x in (-.115,.115):
         for z in (.11,.87):bolt(rt,(x,-.020,z))
 
-def interface_bridge(rt,height,width=.9):
+def interface_bridge(rt,height,width=.9,low=False):
     """Bolted steel/plastisol tongue across the 63.5mm post-center setback."""
-    box(rt,'Bolted deck interface tongue',(0,.07,height-.009),(width,.16,.018),'deck',.003)
-    for x in (-width*.34,width*.34):bolt(rt,(x,.12,height),(0,0,1),.006)
+    box(rt,'Bolted deck interface tongue',(0,.07,height-.009),(width,.16,.018),'deck',0 if low else .003)
+    for x in (-width*.34,width*.34):
+        if low:
+            # Flush pin-drive heads use the existing baked recess; their thin
+            # edge is below a pixel. Retain the real plate gauge and contact.
+            verts=[(x+.006*math.cos(i*math.tau/6),.12+.006*math.sin(i*math.tau/6),height+.0002) for i in range(6)]
+            ob=F.own(F.G.mesh('Socket cap / flush tongue fastening',verts,[tuple(range(6))],F.M['Frame']),rt,'zinc');ob['solid']=False
+        else:bolt(rt,(x,.12,height),(0,0,1),.006)
     empty(rt,rt.name+'_DeckInterface',(0,.12,height),'deck_interface')
 
 def ramp_head_bridge(rt):interface_bridge(rt,0,1.30)

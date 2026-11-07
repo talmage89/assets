@@ -53,6 +53,7 @@ def assign(ob,finish,family):
         key={'zinc':'Zinc','rubber':'Rubber','wood':'Wood','deck':'Deck' if family=='Deck' else 'Black'}.get(finish,'Coat')
         if 'cast' in name.lower() or 'collar' in name.lower():key='Cast'
         if family=='Chain':key='Chain'
+        if name.startswith('Socket cap'):key='Fastener'
         rect=METAL[key]
     else:
         key='Fiber' if finish=='fiber' else 'EPDM';rect=SURFACE[key]
@@ -95,8 +96,8 @@ def floor(ob,plan):
         if plan['inclusive']:
             key='WornEPDM' if any(((center.x-x)/.7)**2+((center.y-y)/1.1)**2<1.4 for x,y,w,h,d in plan['depressions_m']) else 'EPDM'
             # Two joined poured colors, with no coplanar overlay.
-            inset=bool(ob.data.attributes['SurfaceInset'].data[f.index].value) if 'SurfaceInset' in ob.data.attributes else ((center.x-2)/5.9)**2+((center.y+1)/4.7)**2<1
-            c=(.43,.21,.072,1) if inset else (.030,.17,.16,1)
+            inset=ob.data.attributes['SurfaceInset'].data[f.index].value if 'SurfaceInset' in ob.data.attributes else int(((center.x-2)/5.9)**2+((center.y+1)/4.7)**2<1)
+            c=(.021,.13,.12,1) if inset==2 else (.43,.21,.072,1) if inset else (.030,.17,.16,1)
         else:
             key='OldFiber' if plan['year']==1996 else 'Fiber'
             compact=min(.35,sum(.32*math.exp(-((center.x-x)/(w*.72))**2-((center.y-y)/(h*.82))**2) for x,y,w,h,d in plan['depressions_m']))

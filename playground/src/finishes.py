@@ -20,6 +20,8 @@ def placed(ob,plan):
     from uv_finish import CELLS,METAL,PLASTIC,rect_uv
     charts=ob.data.attributes.get('ChartKind');uv=ob.data.uv_layers.active
     module=str(ob.parent.get('module','')) if ob.parent else ''
+    repainted=module.startswith('Post') and age>.75 and (plan['seed']+round(ob.parent.location.x*100)+round(ob.parent.location.y*100))%5==0
+    if repainted:ob.parent['maintenance_repaint']=True
     mat=ob.matrix_basis
     for face in ob.data.polygons:
         key=F.FINISHES[codes.data[face.index].value];color=palette.get(key,F.COLORS.get(key,(.3,.3,.3,1)))
@@ -29,6 +31,7 @@ def placed(ob,plan):
         if F.LOOK and age>.35:
             if chart=='Cast':target='Worn'
             if chart=='Coat' and module.startswith('Post') and q.z<.12:target='Worn'
+            if chart=='Coat' and key=='rail' and q.z>.60 and face.normal.z>.25:target='Worn'
             if chart=='Deck' and module in ('Deck','Deck72') and face.normal.z>.9:
                 root=ob.parent;world=root.matrix_basis@q
                 for event in plan['modules']:
@@ -37,6 +40,7 @@ def placed(ob,plan):
                     eh=1.8288 if '72' in event['kind'] else .6096 if '24' in event['kind'] else 1.2192
                     if abs(world.z-eh)<.08 and math.hypot(world.x-x,world.y-y)<.43:target='WornDeck'
             if chart=='Deck' and module in ('Stairs48','Transfer24') and q.z>.38 and abs(q.x)<.25:target='WornDeck'
+            if chart=='Coat' and age>.75 and not repainted and q.z>.28 and max(0,.7*face.normal.x-.5*face.normal.y+.5*face.normal.z)>.4:target='ChalkCoat'
             if chart=='Slide' and age>.75:target='OldSlide'
             if chart=='Clean' and age>.75:target='Chalk'
         if target and target!=chart:
@@ -50,13 +54,14 @@ def placed(ob,plan):
             sun=max(0,.7*n.x-.5*n.y+.5*n.z)
             fade=age*(.035+.14*sun) if key in palette else 0
             if key in ('red','green','blue','yellow') and age>.75:fade=age*(.06+.35*sun)
+            if repainted and key=='steel':fade*=.25
             c=np.array(color[:3]);c=c*(1-fade)+np.array((.34,.32,.28))*fade
             # Low splashed bases remain local; do not paint a uniform dirt band.
             if key=='steel' and ob.parent and str(ob.parent.get('module','')).startswith('Post'):
                 streak=max(0,math.sin(math.atan2(p.y,p.x)*7+plan['seed']+ob.parent.location.x*3+ob.parent.location.y*7)*.6+.25)
-                rust=age*math.exp(-max(0,p.z)*14)*streak
+                rust=age*math.exp(-max(0,p.z)*14)*streak*(.25 if repainted else 1)
                 c=c*(1-rust)+np.array((.19,.062,.017))*rust
-            if target=='Rust':c=np.ones(3)
+            if key=='zinc':c=np.ones(3)
             if target=='WornDeck':c=np.ones(3)*(.82 if age>.75 else .55)
             variation=1+.025*math.sin(p.x*13+p.y*9+plan['seed'])
             tint.data[li].color=(*np.clip(c*variation,0,1),1)

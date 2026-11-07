@@ -1,34 +1,57 @@
+.DEFAULT_GOAL := all
 SEEDS ?= 101,202,303
-comma := ,
-SEED_LIST := $(subst $(comma), ,$(SEEDS))
-MODULES := RampHeadBridge Deck72 Barrier72 NeckGuard Deck Barrier InfillPanel HipRoof Shade Stairs48 Transfer24 RampSegment RampLanding InterdeckSteps RoofRiser SlideStraight24 SlideStraight48 SlideWave48 SlideWave72 SlideSpiral72 SlideTube48 Arch48 Ladder72 VerticalLadder48 ChainNet48 RockWall48 FirePole OverheadLadder OverheadRings PanelWheel PanelTic PanelPeriscope SwingFrame SwingBelt SwingBucket SpringRider Roundabout Post1730 Post2339 Post2949
-LIBRARIES := PlaygroundPieces ComparisonDeck ComparisonSwings $(addprefix Playground-,$(SEED_LIST))
-CHECKPOINT_BLEND := build/Playground.blend
-CHECKPOINT_OUTPUTS := build/Playground.blend build/manifest.json $(foreach n,$(MODULES) $(LIBRARIES),export/$(n).gltf export/$(n).bin) $(foreach n,ChainLink PinOak,$(foreach c,BaseColor Normal ORM,export/images/T_$(n)_$(c).png)) export/images/T_Playground_CheckpointChain.png export/images/T_Playground_CheckpointDeck.png
-CHECKPOINT_DEPS := $(addprefix src/,build.py context.py geometry.py parts.py plan.py dimensions.py) ../kit/model.py ../street-furniture/src/pieces.py ../street-furniture/src/forms.py ../fences/chain-link/src/build.py ../fences/chain-link/src/mesh_tile.py ../fences/chain-link/src/dimensions.py ../fences/src/modular.py ../street-light/src/build.py ../street-light/src/dimensions.py ../trees/export/PinOak.glb ../trees/export/RedMaple.glb ../shrubs/export/Shrubs.glb ../ground/textures/ship/T_Lawn_BaseColor.png
-CHECKPOINT_ARGS := --seeds $(SEEDS)
-CHECKPOINT_CHECK = $(BP) --python src/check.py -- --out build/check.json
-CHECKPOINT_REVIEW = $(PYTHON) src/review.py
-CHECKPOINT_RENDER_ARGS := --source export/Playground-101.gltf --seeds $(SEEDS)
 WIDTH ?= 1200
 SAMPLES ?= 24
-include ../kit/checkpoint_rules.mk
-.PHONY: match repeat
-all: match
+PYTHON ?= python3
+BLENDER ?= src/serial_blender.sh
+KIT := ../kit
+BP = $(BLENDER) -b --factory-startup --python-exit-code 1
+export TMPDIR := $(abspath ../build/tmp)
+export ASSETS_GPU_LOCK ?= $(abspath ../build/locks/gpu.lock)
+MODULES := RampHeadBridge Deck72 Barrier72 NeckGuard Deck Barrier InfillPanel HipRoof Shade Stairs48 Transfer24 RampSegment RampLanding InterdeckSteps RoofRiser SlideStraight24 SlideStraight48 SlideWave48 SlideWave72 SlideSpiral72 SlideTube48 Arch48 Ladder72 VerticalLadder48 ChainNet48 RockWall48 FirePole OverheadLadder OverheadRings PanelWheel PanelTic PanelPeriscope SwingFrame SwingArchFrame SwingBelt SwingBucket SpringRider Roundabout Post1730 Post2339 Post2949
+comma := ,
+SEED_LIST := $(subst $(comma), ,$(SEEDS))
+SETS := PlayMetal PlayPlastic PlaySurface
+MAPS := $(foreach s,$(SETS),$(foreach c,BaseColor Normal ORM,textures/ship/T_$(s)_$(c).png))
+MODELS := build/Playground.blend build/manifest.json $(foreach m,$(MODULES) PlaygroundPieces ComparisonDeck ComparisonSwings $(addprefix Playground-,$(SEED_LIST)),export/$(m).gltf export/$(m).bin)
+VIEWS := $(foreach s,$(SEED_LIST),renders/lookdev/$(s)/hero.png renders/lookdev/$(s)/above.png) $(addprefix renders/lookdev/,clamp-deck.png stairs.png transfer.png slide-entrance.png slide-exit.png swing-hanger.png swing-hollow.png arch-swing.png swing-seat.png bucket-seat.png climber.png tube-junction.png rubber-wear.png scale.png pieces.png)
+.NOTPARALLEL:
+.PHONY: all compare refs textures model check render match review repeat check-repo FORCE
+all: refs textures model check render match review
+refs:
+	$(PYTHON) $(KIT)/fetch_refs.py refs
+build/procedural/.stamp: src/textures.py
+	@mkdir -p build/procedural $(TMPDIR)
+	$(PYTHON) src/textures.py
+	@touch $@
+$(MAPS) &: build/procedural/.stamp src/bake_tiles.py $(KIT)/flat_bake.py $(KIT)/downsample.py
+	$(BP) --python src/bake_tiles.py
+textures: $(MAPS)
+build/model-parameters.txt: FORCE
+	@mkdir -p build $(TMPDIR)
+	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='$(SEEDS)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
+$(MODELS) &: $(MAPS) build/model-parameters.txt $(filter-out src/render.py src/review.py src/check.py src/check_lookdev.py src/compare.py src/setting.py src/render_batch.py src/repeat.py src/photo_matches.py,$(wildcard src/*.py))
+	$(BP) --python src/build.py -- --lookdev --seeds $(SEEDS) --out build/Playground.blend
+model: $(MODELS)
+check-repo:
+	$(PYTHON) $(KIT)/repo_check.py
+check: model check-repo
+	$(BP) --python src/check.py -- --out build/check.json
+	$(PYTHON) src/check_lookdev.py
+build/render-parameters.txt: FORCE
+	@mkdir -p build
+	@$(PYTHON) -c "from pathlib import Path; p=Path('$@'); s='$(WIDTH) $(SAMPLES)\n'; p.write_text(s) if not p.exists() or p.read_text()!=s else None"
+$(VIEWS) &: $(MODELS) build/render-parameters.txt src/render.py src/setting.py
+	$(PYTHON) src/render_batch.py --seeds $(SEEDS) --out renders/lookdev --width $(WIDTH) --samples $(SAMPLES)
+render: $(VIEWS)
 match: model refs
 	$(PYTHON) src/photo_matches.py
-	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --matches --out renders/checkpoint --width $(WIDTH) --samples $(SAMPLES)
-	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/cameras.json --renders renders/checkpoint/matches --out renders/checkpoint/matches
-	$(CHECKPOINT_REVIEW)
+	$(BP) --python src/render.py -- --matches --out renders/lookdev --width $(WIDTH) --samples $(SAMPLES)
+	$(PYTHON) $(KIT)/photo_match.py compose --calibration build/cameras.json --renders renders/lookdev/matches --out renders/lookdev/matches
+review:
+	$(PYTHON) src/review.py --out renders/lookdev
 repeat: model
 	$(PYTHON) src/repeat.py
 
-# Read-only reuse when present; a clean clone can build only the missing libraries.
-../trees/export/PinOak.glb:
-	$(MAKE) -C ../trees SPECIES=oak export/PinOak.glb
-../trees/export/RedMaple.glb:
-	$(MAKE) -C ../trees export/RedMaple.glb
-../shrubs/export/Shrubs.glb:
-	$(MAKE) -C ../shrubs export/Shrubs.glb
-../ground/textures/ship/T_Lawn_BaseColor.png:
-	$(MAKE) -C ../ground textures/ship/.stamp
+compare:
+	$(PYTHON) src/compare.py

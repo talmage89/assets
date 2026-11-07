@@ -59,6 +59,9 @@ def zones(sc,plan):
 
 def save(sc,out,source,shot):
     out.parent.mkdir(parents=True,exist_ok=True);sc.render.filepath=str(out.resolve());bpy.ops.render.render(write_still=True)
+    doc=json.loads(source.read_text());files=[source]+[source.parent/r['uri'] for k in ('buffers','images') for r in doc.get(k,[]) if r.get('uri')]
+    stage_name='look-dev / exported glTF / shared baked maps' if any('T_PlayMetal' in im.get('uri','') for im in doc.get('images',[])) else 'before / exported glTF / quick form materials'
+    bundle=hashlib.sha256(b''.join(hashlib.sha256(p.read_bytes()).digest() for p in files)).hexdigest()
     labels=[]
     if shot=='pieces':
         from bpy_extras.object_utils import world_to_camera_view
@@ -66,49 +69,76 @@ def save(sc,out,source,shot):
             if ob.type=='EMPTY' and ob.get('module'):
                 uv=world_to_camera_view(sc,sc.camera,ob.matrix_world.translation)
                 labels.append(dict(name=ob['module'],pixel=[uv.x*sc.render.resolution_x,(1-uv.y)*sc.render.resolution_y+18]))
-    out.with_suffix('.json').write_text(json.dumps(dict(piece_labels=labels,stage='construction checkpoint / exported glTF / quick materials',source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),shot=shot,engine='CYCLES',camera_location=list(sc.camera.location),lens_mm=sc.camera.data.lens,exposure=sc.view_settings.exposure),indent=2))
+    out.with_suffix('.json').write_text(json.dumps(dict(piece_labels=labels,stage=stage_name,source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),resource_bundle_sha256=bundle,shot=shot,engine='CYCLES',width=sc.render.resolution_x,samples=sc.cycles.samples,camera_location=list(sc.camera.location),camera_matrix_world=[list(row) for row in sc.camera.matrix_world],camera_type=sc.camera.data.type,orthographic_scale=sc.camera.data.ortho_scale,lens_mm=sc.camera.data.lens,exposure=sc.view_settings.exposure),indent=2))
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--source');p.add_argument('--out',type=Path,default=Path('renders/checkpoint'));p.add_argument('--width',type=int,default=1200);p.add_argument('--samples',type=int,default=24);p.add_argument('--seeds',default='101,202,303');p.add_argument('--shots',default='all');p.add_argument('--matches',action='store_true');a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
+    p=argparse.ArgumentParser();p.add_argument('--source');p.add_argument('--out',type=Path,default=Path('renders/checkpoint'));p.add_argument('--width',type=int,default=1200);p.add_argument('--samples',type=int,default=24);p.add_argument('--seeds',default='101,202,303');p.add_argument('--shots',default='all');p.add_argument('--matches',action='store_true');p.add_argument('--export-root',type=Path,default=Path('export'));p.add_argument('--no-setting',action='store_true');p.add_argument('--resume',action='store_true');a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
     if a.matches:
         from kit.photo_match import verify
         verify('build/cameras.json')
         for name,row in json.loads(Path('build/cameras.json').read_text()).items():
-            source=Path('export')/row['source'];shot=row['shot'];sc=stage(source,a.width,a.samples,shot['aspect']);sc.view_settings.exposure=shot.get('exposure',-.7);plane(z=row.get('ground_z',0),size=45);camera(sc,shot['location'],shot['target'],shot['lens'],roll=shot['roll']);save(sc,a.out/'matches'/f'{name}.png',source,name)
+            source=a.export_root/row['source'];shot=row['shot'];sc=stage(source,a.width,a.samples,shot['aspect']);sc.view_settings.exposure=shot.get('exposure',-.25)
+            if not a.no_setting:
+                from setting import context
+                context(json.loads(source.with_suffix('.json').read_text()))
+            sun=next(o for o in sc.objects if o.type=='LIGHT' and o.data.type=='SUN')
+            if 'swings' in name:sun.data.energy=.15;sc.world.node_tree.nodes['Background'].inputs[1].default_value=.32
+            elif 'stair' in name:sun.data.energy=.35;sc.world.node_tree.nodes['Background'].inputs[1].default_value=.28
+            else:sun.data.energy=2.2
+            camera(sc,shot['location'],shot['target'],shot['lens'],roll=shot['roll']);save(sc,a.out/'matches'/f'{name}.png',source,name)
+
         return
     wanted=set(a.shots.split(','))
     def want(n):return 'all' in wanted or n in wanted
     for seed in map(int,a.seeds.split(',')):
-        plan=json.loads(Path(f'export/Playground-{seed}.json').read_text());source=Path(f'export/Playground-{seed}.gltf');x0,y0,x1,y1=plan['surface'];cx=(x0+x1)/2;cy=(y0+y1)/2
+        plan=json.loads((a.export_root/f'Playground-{seed}.json').read_text());source=a.export_root/f'Playground-{seed}.gltf';x0,y0,x1,y1=plan['surface'];cx=(x0+x1)/2;cy=(y0+y1)/2
         for shot in ('hero','above'):
             if not want(shot):continue
+            if a.resume and (a.out/str(seed)/(shot+'.png')).exists():continue
             sc=stage(source,a.width,a.samples)
+            if not a.no_setting:
+                from setting import context
+                context(plan)
             if shot=='hero':
                 pos={1996:(-6,-11,1.65),2005:(7,-11,1.65),2013:(-8,-15.4,1.65)}[plan['year']]
                 camera(sc,pos,(1,.5,1.55),40)
             else:
                 # Hide canopy/trees only in measured plan, to reveal access and zones.
                 for o in sc.objects:
-                    if 'Library_' in o.name and ('Maple' in o.name or 'Oak' in o.name):o.hide_render=True
-                zones(sc,plan);camera(sc,(cx,cy,48),(cx,cy,0),40,ortho=max(x1-x0,y1-y0)*1.13)
+                    if ('Library_' in o.name and ('Maple' in o.name or 'Oak' in o.name)) or 'shade tree' in o.name or 'park grove' in o.name:o.hide_render=True
+                bounds={1996:(-10.1,-7.6,19.5,10.0),2005:(-16.8,-6.0,12.35,8.0),2013:(-9.6,-13.4,20.55,8.8)}[plan['year']]
+                ax,ay,bx,by=bounds;cx=(ax+bx)/2;cy=(ay+by)/2
+                zones(sc,plan);camera(sc,(cx,cy,48),(cx,cy,0),40,ortho=max(bx-ax,by-ay)*1.13)
                 sc.render.resolution_y=round(a.width*.90)
             save(sc,a.out/str(seed)/(shot+'.png'),source,shot)
     specs={
+      'arch-swing':('Playground-202.gltf',(-6.5,-9,1.65),(-11.1,1,1.1),40,None,1.5),
+      'swing-seat':('Playground-202.gltf',(-11.2,-.3,.73),(-12.19,1,.43),65,None,1.4),
+      'bucket-seat':('Playground-202.gltf',(-9,-.4,1.05),(-10.01,1,.78),65,None,1.4),
+      'tube-junction':('Playground-303.gltf',(8.6,-1.1,1.2),(6.90,1.2192,.55),55,None,1.4),
+      'rubber-wear':('Playground-303.gltf',(6.8,-.2,.70),(7.32,1.2192,-.005),50,None,1.4),
+      'stairs':('Playground-101.gltf',(-4.3,-2.8,1.85),(-1.65,0,.85),48,None,1.4),
+      'transfer':('Playground-202.gltf',(2,-3.4,1.5),(0,-1.15,.45),52,None,1.4),
+      'swing-hollow':('Playground-202.gltf',(-10.5,-2.9,1.5),(-12.19,1,-.025),50,None,1.4),
       'pieces':('PlaygroundPieces.gltf',(21,-20,45),(21,15,0),45,53,1.15),
       'clamp-deck':('Playground-101.gltf',(-1.56,-1.75,1.87),(-.50,-.49,1.22),65,None,1.4),
-      'slide-entrance':('SlideWave72.gltf',(1.65,-2.65,2.50),(0,-.12,2.15),55,None,1.4),
-      'slide-exit':('SlideWave72.gltf',(1.6,-5.7,.9),(0,-4.15,.3),55,None,1.4),
-      'swing-hanger':('SwingBelt.gltf',(.73,-1.25,-.32),(.20,0,-.30),65,None,1.4),
-      'climber':('Arch48.gltf',(2.6,-4,2.1),(0,-.95,.65),48,None,1.4),
+      'slide-entrance':('Playground-101.gltf',(1.35,-3,1.75),(0,-1.5,1.16),55,None,1.4),
+      'slide-exit':('Playground-101.gltf',(1.5,-5.8,.85),(0,-3.55,.21),55,None,1.4),
+      'swing-hanger':('Playground-202.gltf',(-12.2,-.35,2.17),(-12.52,1,2.18),65,None,1.4),
+      'climber':('Playground-202.gltf',(3.7,-2.5,1.55),(1.219,-.2,.82),50,None,1.4),
       'molded-sections':('SlideSpiral72.gltf',(4,-5,2.5),(1,-.2,1),45,None,1.4),
       'scale':('Playground-303.gltf',(-7,-14,1.65),(0,-.3,1.1),40,None,1.5),
       'swing':('Playground-101.gltf',(11,-6,2.5),(9,1,1.2),45,None,1.5),
     }
     for shot,(filename,pos,target,lens,ortho,aspect) in specs.items():
         if not want(shot):continue
-        source=Path('export')/filename;sc=stage(source,a.width,a.samples,aspect)
-        if shot not in ('pieces','clamp-deck','scale','swing'):plane(z=-2.1 if shot=='swing-hanger' else 0)
+        if a.resume and (a.out/(shot+'.png')).exists():continue
+        source=a.export_root/filename;sc=stage(source,a.width,a.samples,aspect)
+        if filename.startswith('Playground-') and not a.no_setting:
+            from setting import context
+            context(json.loads(source.with_suffix('.json').read_text()))
+        if not filename.startswith('Playground-') and shot!='pieces':plane(z=-2.1 if shot=='swing-hanger' else 0)
         if shot=='scale':scale_people((-2.5,-4.8,0))
         if shot=='pieces':plane(size=110);sc.render.resolution_x=a.width*2;sc.render.resolution_y=round(a.width*2/1.15)
         camera(sc,pos,target,lens,ortho);save(sc,a.out/(shot+'.png'),source,shot)

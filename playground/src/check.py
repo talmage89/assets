@@ -44,9 +44,9 @@ def raw(path):
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,default=Path('build/check.json'));args=p.parse_args(sys.argv[sys.argv.index('--')+1:]);args.out.unlink(missing_ok=True);manifest=json.loads(Path('build/manifest.json').read_text());result=dict(stage='form checkpoint only',pieces={},sites={},scope='Measured imported meshes and resources; tiling UV repetition intentional; no final unique-atlas UV or texture-bake claim')
+    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,default=Path('build/check.json'));args=p.parse_args(sys.argv[sys.argv.index('--')+1:]);args.out.unlink(missing_ok=True);manifest=json.loads(Path('build/manifest.json').read_text());result=dict(stage=manifest['stage'],pieces={},sites={},scope='Measured imported meshes/resources and sampled motion; authored shared manufacture UV repetition is intentional. Bake/UV checks are separate.')
     for name,source in manifest['pieces'].items():
-        path=Path('export')/(name+'.gltf');meshes,n,bb=imported(path);cap=4000 if name.startswith('Slide') or name in ('HipRoof','Shade') else 2000
+        path=Path('export')/(name+'.gltf');meshes,n,bb=imported(path);cap=3916 if name.startswith('Slide') else 1954
         assert n<=cap,(name,n,cap);assert n==source['triangles'],(name,n,source['triangles']);assert np.max(abs(np.array(bb)-source['bounds_m']))<3e-5,(name,bb,source['bounds_m'])
         row=dict(triangles=n,bounds_m=bb,**raw(path));result['pieces'][name]=row
         if name=='Post2339':
@@ -64,7 +64,7 @@ def main():
                 for ob in meshes:
                     ob.data.calc_loop_triangles()
                     for tri in ob.data.loop_triangles:
-                        if 'QuickMolded' not in ob.data.materials[tri.material_index].name:continue
+                        if not any(k in ob.data.materials[tri.material_index].name for k in ('QuickMolded','Playground_Molded')):continue
                         vv=[ob.matrix_world@ob.data.vertices[i].co for i in tri.vertices];signed=[(p-origin).dot(normal) for p in vv];cross=[]
                         for i in range(3):
                             j=(i+1)%3
@@ -89,7 +89,7 @@ def main():
             points=[]
             for o in meshes:
                 for poly in o.data.polygons:
-                    if 'QuickPerforated' in o.data.materials[poly.material_index].name and poly.normal.z>.8:
+                    if any(k in o.data.materials[poly.material_index].name for k in ('QuickPerforated','Playground_Deck')) and (o.matrix_world.to_3x3().inverted().transposed()@poly.normal).normalized().z>.8:
                         points.extend(o.matrix_world@o.data.vertices[v].co for v in poly.vertices)
             lo=min(p.y for p in points);hi=max(p.y for p in points);z0=max(p.z for p in points if abs(p.y-lo)<1e-5);z1=max(p.z for p in points if abs(p.y-hi)<1e-5)
             row['measured_slope']=(z1-z0)/(hi-lo);assert abs(row['measured_slope']-1/12)<1e-5
@@ -103,6 +103,13 @@ def main():
             overlap=max(0,min(c,g)-max(a,e))*max(0,min(d,h)-max(b,f));assert overlap<1e-7,(seed,left['name'],right['name'],overlap)
             gaps.append(dict(groups=[left['group'],right['group']],envelope_gap_m=math.hypot(max(a-g,e-c,0),max(b-h,f-d,0))))
         row['zone_gaps']=gaps
+        roofs=[o for o in bpy.context.scene.objects if o.type=='EMPTY' and o.get('module') in ('HipRoof','Shade') and o.get('zone_group')=='composite']
+        roof_pairs=[]
+        for a,b in itertools.combinations(roofs,2):
+            sa=motion_surface(next(o for o in a.children_recursive if o.type=='MESH'));sb=motion_surface(next(o for o in b.children_recursive if o.type=='MESH'))
+            crossings=len(sa['tree'].overlap(sb['tree']));assert crossings==0,(seed,'intersecting roofs',a.name,b.name,crossings)
+            roof_pairs.append(dict(roofs=[a.name,b.name],actual_triangle_crossings=crossings))
+        row['roof_pairs']=roof_pairs
         # Independent real-surface contacts, separate from serialization.
         decks=[o for o in bpy.context.scene.objects if o.type=='EMPTY' and o.get('module') in ('Deck','Deck72') and o.get('zone_group')=='composite']
         ds={r.name:motion_surface(next(o for o in r.children_recursive if o.type=='MESH')) for r in decks};contacts=[]
@@ -125,13 +132,13 @@ def main():
             for root in decks:
                 ob=next(o for o in root.children_recursive if o.type=='MESH')
                 for poly in ob.data.polygons:
-                    if 'QuickPerforated' in ob.data.materials[poly.material_index].name and poly.normal.z>.9:
+                    if any(k in ob.data.materials[poly.material_index].name for k in ('QuickPerforated','Playground_Deck')) and (ob.matrix_world.to_3x3().inverted().transposed()@poly.normal).normalized().z>.9:
                         edge.extend(inv@ob.matrix_world@ob.data.vertices[v].co for v in poly.vertices)
             edge=[p for p in edge if abs(p.z-height)<1e-4 and abs(p.x)<.60 and 0<=p.y<1.3];reach=min(p.y for p in edge)-axis_y
             assert .4572<=reach<=.508,(seed,'pole reach',reach)
             row['fire_pole_measured_reach_m']=reach;row['fire_pole_above_deck_m']=max(p.z for p in pv)-height;assert row['fire_pole_above_deck_m']>=1.524
         # Actual seat-to-leg and seat-to-seat transverse clearances at rest.
-        frame=next(o for o in bpy.context.scene.objects if o.get('module')=='SwingFrame' and o.get('zone_group')=='swing');fm=next(o for o in frame.children_recursive if o.type=='MESH');fp=[fm.matrix_world@v.co for v in fm.data.vertices]
+        frame=next(o for o in bpy.context.scene.objects if o.get('module') in ('SwingFrame','SwingArchFrame') and o.get('zone_group')=='swing');fm=next(o for o in frame.children_recursive if o.type=='MESH');fp=[fm.matrix_world@v.co for v in fm.data.vertices]
         groups=[]
         for x in sorted(p.x for p in fp if abs(p.z)<.06):
             if groups and x-groups[-1][-1]<.2:groups[-1].append(x)
@@ -142,12 +149,12 @@ def main():
             for ob in root.children_recursive:
                 if ob.type!='MESH':continue
                 for poly in ob.data.polygons:
-                    if 'QuickMolded' in ob.data.materials[poly.material_index].name:ss.extend(ob.matrix_world@ob.data.vertices[v].co for v in poly.vertices)
+                    if any(k in ob.data.materials[poly.material_index].name for k in ('QuickMolded','Playground_Molded')):ss.extend(ob.matrix_world@ob.data.vertices[v].co for v in poly.vertices)
             seats.append((min(p.x for p in ss),max(p.x for p in ss)))
         seats.sort();sides=[]
         for left,right in seats:
             bay=next(i for i in range(2) if supports[i][1]<left and right<supports[i+1][0]);sides.append(min(left-supports[bay][1],supports[bay+1][0]-right))
-        gaps_between=[seats[i+1][0]-seats[i][1] for i in (0,2)];assert min(sides)>=.762;assert min(gaps_between)>=.6096
+        gaps_between=[seats[i+1][0]-seats[i][1] for i in (0,2)];assert min(sides)>=.762,(seed,'seat to leg',sides);assert min(gaps_between)>=.6096,(seed,'seat separation',gaps_between)
         swing_zone=next(z['rect'] for z in zones if z['group']=='swing');lateral=[min(p.x for p in fp)-swing_zone[0],swing_zone[2]-max(p.x for p in fp)];assert min(lateral)>=1.8287
         row['measured_swing_clearances_m']=dict(seat_to_leg=min(sides),between_seats=min(gaps_between),lateral_use_zone=lateral)
         ground=next(o for o in bpy.context.scene.objects if o.get('module')=='Siteworks');gm=next(o for o in ground.children_recursive if o.type=='MESH');gp=[gm.matrix_world@v.co for v in gm.data.vertices];cy=frame.matrix_world.translation.y
