@@ -64,7 +64,7 @@ def restore(doc):
             attribute.data.foreach_set(property_name,np.asarray(values,np.float32).ravel())
         mesh.update()
         materials.update(m for m in mesh.materials if m);meshes+=1
-    nodes=0
+    nodes=0;culled=0
     for material in materials:
         if not material.use_nodes or material.get('_lod_delivered_frame'):continue
         nt=material.node_tree
@@ -107,5 +107,20 @@ def restore(doc):
             nt.links.new(present.outputs['Fac'],mix.inputs[0]);nt.links.new(original.outputs['Normal'],mix.inputs[4]);nt.links.new(field,mix.inputs[5])
             for link in consumers:nt.links.new(mix.outputs[1],link.to_socket)
             nodes+=1
+        if material.use_backface_culling:
+            # Cycles ignores the importer's viewport culling flag. Core glTF
+            # single-sided materials must also disappear from back-side rays.
+            transparent=nt.nodes.new('ShaderNodeBsdfTransparent')
+            for output in [n for n in nt.nodes if n.type=='OUTPUT_MATERIAL']:
+                surface=output.inputs['Surface']
+                if not surface.is_linked:continue
+                original=surface.links[0].from_socket
+                mix=nt.nodes.new('ShaderNodeMixShader')
+                nt.links.new(geometry.outputs['Backfacing'],mix.inputs[0])
+                nt.links.new(original,mix.inputs[1])
+                nt.links.new(transparent.outputs[0],mix.inputs[2])
+                nt.links.new(mix.outputs[0],surface)
+            culled+=1
         material['_lod_delivered_frame']=True
-    return dict(meshes=meshes,provided_tangent_corners=provided,normal_map_nodes=nodes,max_position_error_m=max_position_error)
+    return dict(meshes=meshes,provided_tangent_corners=provided,normal_map_nodes=nodes,
+                one_sided_materials=culled,max_position_error_m=max_position_error)

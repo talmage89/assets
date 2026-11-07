@@ -176,6 +176,14 @@ The GPU fixture independently checks rotated and mirrored frames and placements.
 An engine must likewise retain supplied normals/tangents to reproduce this
 evidence; the adapter is not an animation controller.
 
+The adapter also enforces [glTF one-sided visibility](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#double-sided).
+The installed Cycles renderer ignores the importer's viewport culling flag.
+For one-sided materials, temporary shader outputs therefore make back-facing
+rays transparent. Double-sided materials keep their existing shader response.
+The GPU fixture measures front/back alpha and repeated restoration; exported
+materials, geometry and images remain untouched. Render receipts identify the
+shading-adapter source hash as well as the main renderer.
+
 Source-frame transport is also bounded across the reduced faces it touches.
 Independently projected corners can each be legitimate but disagree with the
 original field inside their shared triangle. Only implicated corners then retain

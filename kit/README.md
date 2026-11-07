@@ -953,7 +953,10 @@ An assembled-edge guard restores implicated components when their combined
 reduction introduces new boundary or nonmanifold edge incidences.
 `lod_shading.py` restores supplied glTF normals and tangents in temporary
 Blender comparison shaders (the importer ignores supplied tangents), including
-independent base and coat normal maps. The original delivery remains untouched.
+independent base and coat normal maps. It also enforces one-sided glTF visibility
+through a temporary transparent-back shader branch, because Cycles ignores the
+imported viewport culling flag. Its GPU fixture measures actual front/back alpha.
+The original delivery remains untouched.
 Selected modular roots keep their merged geometry as descendants, so replacing
 a root placement moves geometry and sockets together.
 `lod_mesh.py` measures screen/mip-relative error, prunes tiny islands and

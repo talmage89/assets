@@ -184,7 +184,10 @@ def main():
     for t in thumbs:contact.paste(t,(0,y));y+=t.height+5
     contact.save(dest/'contact.jpg',quality=90)
     files={p.name:digest(p) for p in dest.iterdir() if p.suffix in ('.png','.jpg')}
-    report=dict(manifest_sha256=digest(out/'manifest.json'),renderer_sha256=digest(Path(__file__)),renderer=f'Cycles GPU, procedural world/sun, {samples} samples, fixed seed, no denoiser, indirect clamp 3; supplied glTF normals/tangents (published foliage shader unchanged)',
+    frame='published foliage shader unchanged' if foliage else 'supplied glTF normals/tangents and one-sided visibility'
+    report=dict(manifest_sha256=digest(out/'manifest.json'),renderer_sha256=digest(Path(__file__)),
+                shading_adapter_sha256=None if foliage else digest(Path(__file__).with_name('lod_shading.py')),
+                renderer=f'Cycles GPU, procedural world/sun, {samples} samples, fixed seed, no denoiser, indirect clamp 3; {frame}',
                 passed=all(r['passed'] for r in rows),comparisons=rows,files=files)
     (dest/'metrics.json').write_text(json.dumps(report,indent=2)+'\n')
     print('LOD RENDER',report['passed'],[(r['level'],r['azimuth'],r['reference']['mean']) for r in rows])

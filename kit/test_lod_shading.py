@@ -10,6 +10,43 @@ from kit.lod_shading import restore,CONVERT
 from kit.image_io import write_png,read_png
 
 
+def sidedness_fixture(out):
+    """Measure actual front/back visibility, rather than importer flags."""
+    from kit import gpu
+    from mathutils import Vector
+    from PIL import Image
+    stub=out/'sidedness-stub.gltf'
+    stub.write_text(json.dumps(dict(asset=dict(version='2.0'),scene=0,scenes=[dict(nodes=[0])],
+        nodes=[dict(name='SidedPanel',mesh=0)],meshes=[dict(primitives=[dict(attributes={},indices=0,material=0)])],
+        accessors=[],buffers=[],bufferViews=[],materials=[dict(name='SidedMaterial',emissiveFactor=[.2,.4,.6],
+        pbrMetallicRoughness=dict(baseColorFactor=[0,0,0,1],metallicFactor=0,roughnessFactor=1))])))
+    attrs=dict(POSITION=np.array([[-1,-1,0],[1,-1,0],[1,1,0],[-1,1,0]],np.float32),
+               NORMAL=np.tile([0,0,1],(4,1)).astype(np.float32))
+    faces=np.array([[0,1,2],[0,2,3]],np.uint32);records=[]
+    for label,double,y,expected in [('single-front',False,-3,1),('single-back',False,3,0),('double-back',True,3,1)]:
+        doc=Document(stub);doc.data['materials'][0]['doubleSided']=double
+        doc.replace(doc.data['meshes'][0]['primitives'][0],attrs,faces)
+        path=out/(label+'.gltf');doc.save(path)
+        bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(path))
+        receipt=restore(Document(path));assert receipt['one_sided_materials']==int(not double),receipt
+        material=bpy.data.objects['SidedPanel'].data.materials[0];count=len(material.node_tree.nodes)
+        restore(Document(path));assert len(material.node_tree.nodes)==count,'Repeated restoration wrapped material twice'
+        sc=bpy.context.scene;sc.render.engine='CYCLES';gpu.enable();sc.cycles.samples=1
+        sc.cycles.use_denoising=False;sc.render.resolution_x=64;sc.render.resolution_y=64
+        sc.render.resolution_percentage=100;sc.render.film_transparent=True
+        sc.render.image_settings.file_format='PNG';sc.render.image_settings.color_mode='RGBA'
+        sc.render.threads_mode='FIXED';sc.render.threads=4
+        camera=bpy.data.objects.new('Sidedness camera',bpy.data.cameras.new('Sidedness camera'))
+        sc.collection.objects.link(camera);sc.camera=camera;camera.data.type='ORTHO';camera.data.ortho_scale=3
+        camera.location=(0,y,0);camera.rotation_euler=(-Vector(camera.location)).to_track_quat('-Z','Y').to_euler()
+        image=out/(label+'.png');sc.render.filepath=str(image);bpy.ops.render.render(write_still=True)
+        alpha=float(np.asarray(Image.open(image).convert('RGBA'),np.float32)[24:40,24:40,3].mean()/255)
+        assert abs(alpha-expected)<1e-6,(label,alpha,expected)
+        records.append(dict(case=label,center_alpha=alpha,expected_alpha=expected,receipt=receipt))
+    (out/'sidedness.json').write_text(json.dumps(records,indent=2)+'\n')
+    print('LOD GLTF SIDEDNESS PASS',records,flush=True)
+
+
 def main():
     from kit import gpu
     out=Path(__file__).resolve().parents[1]/'build/lod-shading-test';out.mkdir(parents=True,exist_ok=True)
@@ -122,6 +159,7 @@ def main():
         records.append(dict(case='nearest-source',channel=channel,max_vector_error=error,receipt=transfer))
     (out/'report.json').write_text(json.dumps(records,indent=2)+'\n')
     print('LOD PROVIDED SHADING FRAME FIXTURE PASS',max(r['max_vector_error'] for r in records),flush=True)
+    sidedness_fixture(out)
 
 
 if __name__=='__main__':main()
