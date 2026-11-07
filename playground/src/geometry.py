@@ -107,8 +107,11 @@ def clamp(parent,x,y,z,yaw=0):
         rot=Matrix.Rotation(math.radians(yaw),4,'Z');center=Vector((x,y,z))
         for o in set(bpy.context.scene.objects)-before:
             if o.type=='MESH':
-                for v in o.data.vertices:v.co=rot@(v.co+o.location-center)+center
-                o.location=(0,0,0)
+                transform=Matrix.Translation(center)@rot@Matrix.Translation(-center)@o.matrix_basis
+                o.data.transform(transform);o.matrix_basis=Matrix.Identity(4);o.data.update()
+    extent=max((o.matrix_basis@v.co-Vector((x,y,z))).length for o in set(bpy.context.scene.objects)-before if o.type=='MESH' for v in o.data.vertices)
+    assert extent<.17,('Displaced collar component',extent)
+    parent['measured_source_clamp_max_radius_m']=max(float(parent.get('measured_source_clamp_max_radius_m',0)),extent)
 
 
 def join_owner(owner):

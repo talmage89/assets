@@ -96,8 +96,12 @@ def steps(rt,height=1.2192):
         x=side*(w/2+.008);outline=[(-run,.02),(-run,.20)]
         outline += [(-run+(i+1)*run/N,(i+1)*rise+.055) for i in range(N)]
         outline += [(0,height-.18)]
-        loops=[[(x+dx,y,z) for y,z in outline] for dx in (-.012,.012)]
+        loops=[[(x+dx,y,z) for y,z in outline] for dx in (-DECK_GAUGE/2,DECK_GAUGE/2)]
         loft(rt,'Continuous closed steel stair cheek',loops,'deck','Frame',caps=True)
+        for a,b in (((-run,.20),(0,height+.055)),((-run,.02),(0,height-.18))):
+            mid=((a[0]+b[0])/2,(a[1]+b[1])/2);length=math.dist(a,b)
+            ob=box(rt,'Stair cheek folded return',(x-side*.008,mid[0],mid[1]),(.016,length,DECK_GAUGE),'deck',0)
+            ob.rotation_euler.x=math.atan2(b[1]-a[1],b[0]-a[0])
         # Child-height 28.6 mm continuous grip, returned into the cheek.
         tube(rt,'Returned child grip / 594 to 724 mm above treads',[(x,-run,.18),(x,-run-.07,.18),(x,-run-.07,.76),(x,-run,.81),(x,0,height+.66),(x,.10,height+.66),(x,.10,height-.01)],GRIP_OD/2,'rail',8)
         for i in (0,3,7):
@@ -107,8 +111,8 @@ def steps(rt,height=1.2192):
             bolt(rt,(x,y,z-.03),(side,0,0),.007)
     for i in range(N):
         z=(i+1)*rise;y=-run+(i+.5)*run/N
-        ob=punched_tray(rt,'Punched anti-slip tread tray',(0,y,z-.012),(w,run/N+.006,.024));ob['role']='deck_top'
-        box(rt,'Closed formed riser',(0,y+run/N/2,z-rise/2),(w,.014,rise),'deck',.002)
+        ob=punched_tray(rt,'Punched anti-slip tread tray',(0,y,z-DECK_GAUGE/2),(w,run/N+.006,DECK_GAUGE));ob['role']='deck_top'
+        box(rt,'Closed formed riser',(0,y-run/N/2,z-rise/2),(w,DECK_GAUGE,rise),'deck',.0007)
     for x in (-.45,.45):box(rt,'Stair anchoring shoe',(x,-run,.028),(.15,.18,.05),'zinc',.005)
     interface_bridge(rt,height,w)
     empty(rt,rt.name+'_Top',(0,0,height),'deck_entry')
@@ -116,10 +120,10 @@ def steps(rt,height=1.2192):
 def transfer(rt):
     # Broad sixteen-inch transfer seat, closed eight-inch step and side cheeks.
     for y,h in [(-.90,.4064),(-.30,.6096)]:
-        ob=punched_tray(rt,'Punched transfer platform',(0,y,h-.018),(1.05,.60,.036));ob['role']='deck_top'
-        box(rt,'Closed transfer riser',(0,y+.29,h/2),(1.05,.020,h),'deck',.002)
+        ob=punched_tray(rt,'Punched transfer platform',(0,y,h-DECK_GAUGE/2),(1.05,.60,DECK_GAUGE));ob['role']='deck_top'
+        box(rt,'Closed transfer riser',(0,y-.30+DECK_GAUGE/2,h/2),(1.05,DECK_GAUGE,h),'deck',.0007)
         for x in (-.51,.51):
-            box(rt,'Closed transfer side cheek',(x,y,h/2),(.024,.60,h),'deck',.003)
+            box(rt,'Closed transfer side cheek',(x,y,h/2),(DECK_GAUGE,.60,h),'deck',.0007)
             box(rt,'Recessed transfer foot',(x,y,0),(.09,.48,.055),'steel',.006)
     # One clear 24-inch transfer edge; grip loops are on the upper step.
     for x in (-.48,.48):tube(rt,'Returned transfer grab loop',[(x,-.36,.61),(x,-.36,.94),(x,-.24,1.01),(x,-.08,1.01),(x,.03,.94),(x,.03,.61)],GRIP_OD/2,'rail',8)
@@ -192,7 +196,7 @@ def slide_path(height,kind):
 
 def slide(rt,height=1.2192,kind='straight'):
     if kind!='tube':interface_bridge(rt,height,.75,low=True)
-    pts=slide_path(height,kind);loops=[]
+    pts=slide_path(height,kind);loops=[];skins=[]
     # Broad compound U, rolled shoulder and thick return; width flares at toe.
     profile=[(-.32,.30),(-.39,.29),(-.415,.25),(-.41,.10),(-.36,.01),(-.28,-.035),(0,-.050),(.28,-.035),(.36,.01),(.41,.10),(.415,.25),(.39,.29),(.32,.30),(.315,.27),(.345,.245),(.35,.13),(.30,.055),(.23,.018),(0,0),(-.23,.018),(-.30,.055),(-.35,.13),(-.345,.245),(-.315,.27)]
     # Sweep profile is horizontal in transverse section, floor follows centerline.
@@ -217,8 +221,8 @@ def slide(rt,height=1.2192,kind='straight'):
         for j,p in enumerate(pts[-6:]):
             t=j/5;t=t*t*(3-2*t);runout.append([(p[0]+a[0]*(1-t)+b[0]*t,p[1],p[2]+a[1]*(1-t)+b[1]*t) for a,b in zip(circular,desired)])
         vs=[v for loop in runout for v in loop];n=26;faces=[(j*n+i,j*n+(i+1)%n,(j+1)*n+(i+1)%n,(j+1)*n+i) for j in range(5) for i in range(n)]+[tuple(range(len(vs)-n,len(vs)))]
-        F.own(F.G.smooth(F.G.mesh('Circular barrel to open molded runout',vs,faces,F.M['Molded']),65),rt,'red','Molded');loops=runout
-    else:loft(rt,'Compound rotomolded '+kind+' chute / closed return',loops,'green' if kind=='wave' else 'red')
+        skins.append(F.own(F.G.smooth(F.G.mesh('Circular barrel to open molded runout',vs,faces,F.M['Molded']),65),rt,'red','Molded'));loops=runout
+    else:skins.append(loft(rt,'Compound rotomolded '+kind+' chute / closed return',loops,'green' if kind=='wave' else 'red'))
     lip=loops[-1][13:]+[loops[-1][0]]
     tube(rt,'Rolled rounded slide exit lip',lip,.018,'green' if kind=='wave' else 'red',5,'Molded')
     if kind=='tube':
@@ -233,13 +237,34 @@ def slide(rt,height=1.2192,kind='straight'):
             p=pts[index];ls.append([(p[0]+.39*math.cos(j*math.tau/24),p[1],p[2]+.37+.39*math.sin(j*math.tau/24)) for j in range(24)])
         ob=loft(rt,'Enclosed tube barrel / 0.744 vertical bore',ls,'red',caps=False)
         mod=ob.modifiers.new('Rotomolded barrel gauge','SOLIDIFY');mod.thickness=.018;F.G.apply(ob)
+        skins.append(ob)
         if F.LOOK:
             from uv_finish import assign
             assign(ob,'red','Molded')
     hood(rt,height)
+    from kit.motion import surface
+    bpy.context.view_layer.update();skin_surfaces=[surface(s)['tree'] for s in skins]
+    def underside(point):
+        hits=[tree.ray_cast(point-Vector((0,0,.18)),Vector((0,0,1)),.36)[0] for tree in skin_surfaces]
+        hits=[hit for hit in hits if hit is not None]
+        assert hits,(rt.name,'Saddle ray missed molded underside',list(point))
+        return min(hits,key=lambda hit:abs(hit.z-point.z))
     for i in (len(pts)//2,len(pts)-3):
-        p=Vector(pts[i]);cyl(rt,'Slide steel saddle support',(p.x,p.y,0),(p.x,p.y,p.z-.05),.030,'steel',10)
-        box(rt,'Slide saddle bracket',(p.x,p.y,p.z-.052),(.38,.15,.025),'zinc',.003)
+        p=Vector(pts[i]);tangent=(Vector(pts[min(i+1,len(pts)-1)])-Vector(pts[max(0,i-1)])).normalized();side=Vector((tangent.y,-tangent.x,0)).normalized();loops=[];samples=[]
+        for y in ((-.075,0,.075) if i==len(pts)//2 else (-.075,.075)):
+            top=[underside(p+side*x+tangent*y)-Vector((0,0,.001)) for x in (-.19,-.095,0,.095,.19)]
+            loops.append(top+[point-Vector((0,0,.012)) for point in reversed(top)]);samples.extend(top)
+        bracket=loft(rt,'Pressed curved saddle / fitted to actual bed',loops,'zinc','Frame')
+        for step in range(9):
+            bpy.context.view_layer.update();tree=surface(bracket)['tree'];crossings=sum(len(tree.overlap(skin)) for skin in skin_surfaces)
+            if not crossings:break
+            bracket.location.z-=.001
+        assert crossings==0,(rt.name,'Saddle fit exceeds 8mm forming tolerance',i,crossings)
+        measured=min(skin.find_nearest(point+bracket.location)[3] for skin in skin_surfaces for point in samples)
+        rt['measured_source_saddle_min_sample_clearance_m']=min(float(rt.get('measured_source_saddle_min_sample_clearance_m',1)),measured)
+        rt['source_saddle_skin_triangle_crossings']=crossings
+        bottom=underside(p).z-.007+bracket.location.z
+        cyl(rt,'Slide steel saddle support',(p.x,p.y,0),(p.x,p.y,bottom),.030,'steel',10)
     rt['height_m']=height;rt['slide_kind']=kind
     rt['path_m']=[list(p) for p in pts]
     empty(rt,rt.name+'_Entry',(0,.15,height),'slide_entry')
@@ -380,13 +405,14 @@ def swing(rt,bucket=False):
                 a=k*math.tau/8;pts.append((x+(.009*math.cos(a) if i%2 else 0),(.009*math.cos(a) if not i%2 else 0),zz+.025*math.sin(a)))
             tube(p,'Connected 6mm swing chain link',pts,.003,'zinc',s=4)
         for axis in (0,1):
-            w=.018;top=-.205;bot=end;vs=[];fs=[]
-            n=math.ceil((top-bot)/.72)
-            for k in range(n):
-                a=top-k*.72;b=max(bot,a-.72);i=len(vs)
+            w=.018;top=-.205;bot=end;phase=axis*.045;vs=[];fs=[]
+            cuts=[top]+[top+phase-k*.72 for k in range(1,math.ceil((top-bot+phase)/.72))]+[bot]
+            for a,b in zip(cuts,cuts[1:]):
+                i=len(vs)
                 vs += [(x-w,0,b),(x+w,0,b),(x+w,0,a),(x-w,0,a)] if axis==0 else [(x,-w,b),(x,w,b),(x,w,a),(x,-w,a)]
                 fs.append((i,i+1,i+2,i+3))
-            ob=F.own(F.G.mesh('Plastisol long chain / crossed alpha',vs,fs,F.M['Chain']),p,'rubber','Chain');ob['solid']=False
+            ob=F.G.mesh('Plastisol long chain / crossed alpha',vs,fs,F.M['Chain']);ob['chain_phase_m']=phase
+            ob=F.own(ob,p,'rubber','Chain');ob['solid']=False
             if not F.LOOK:
                 uv=ob.data.uv_layers.active
                 for f in ob.data.polygons:
@@ -404,7 +430,12 @@ def swing(rt,bucket=False):
             from uv_finish import assign
             assign(ob,'rubber','Molded')
         lathe(p,'Compound bucket sitting bowl',[(z+.06,0),(z+.07,.11),(z+.10,.20),(z+.14,.22),(z+.16,.18),(z+.14,.08),(z+.14,0)],'rubber',16,mat='Molded')
-        for x in (-.20,0,.20):tube(p,'Bucket leg separator',[(x,-.18,z+.28),(x,-.17,z+.08),(x,.17,z+.08),(x,.18,z+.28)],.032,'rubber',8,'Molded')
+        for x in (-.20,0,.20):
+            path=[Vector((x,y,z+h)) for y,h in ((-.18,.28),(-.17,.13),(-.13,.08),(.13,.08),(.17,.13),(.18,.28))];loops=[]
+            for i,point in enumerate(path):
+                tangent=(path[min(i+1,len(path)-1)]-path[max(0,i-1)]).normalized();normal=tangent.cross(Vector((1,0,0))).normalized()
+                loops.append([point+Vector((a,0,0))+normal*b for a,b in F.G.rounded_rectangle(.052,.018,.006,1)])
+            loft(p,'Compound bucket molded leg strap',loops,'rubber','Molded')
     else:
         loops=[]
         for j in range(9):

@@ -44,7 +44,7 @@ def assign(ob,finish,family):
     if family=='Molded':
         key='Clean'
         if 'chute' in name.lower() or 'barrel' in name.lower():key='Slide'
-        elif 'hip roof' in name.lower():key='Chalk'
+        elif 'hip roof' in name.lower() or 'shade membrane' in name.lower():key='Chalk'
         elif 'bucket' in name.lower() or 'belt' in name.lower():key='Seat'
         elif 'molded infill' in name.lower():key='Initials'
         elif 'seam' in name.lower() or 'flange' in name.lower():key='Seam'
@@ -62,12 +62,13 @@ def assign(ob,finish,family):
     for d in chart.data:d.value=CELLS.index(key)
     # Preserve explicit physical repeated chain coverage, remapped to its cell.
     if family=='Chain':
+        phase=float(ob.get('chain_phase_m',0))
         for f in ob.data.polygons:
             for li in f.loop_indices:
                 p=ps[ob.data.loops[li].vertex_index];top=bb[1][2];bottom=bb[0][2]
                 u=(p[0]-bb[0][0])/max(1e-8,bb[1][0]-bb[0][0]) if bb[1][0]-bb[0][0]>.001 else (p[1]-bb[0][1])/max(1e-8,bb[1][1]-bb[0][1])
-                tile=math.floor((top-f.center.z+1e-7)/.72)
-                rect_uv(uv.data[li],rect,u,1-((top-p.z)/.72-tile))
+                tile=math.floor((top-f.center.z+phase+1e-7)/.72)
+                rect_uv(uv.data[li],rect,u,1-((top-p.z+phase)/.72-tile))
         return
     for f in ob.data.polygons:
         # Slide charts follow the bed, allowing long longitudinal scratches.

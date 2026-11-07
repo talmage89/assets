@@ -49,6 +49,14 @@ def main():
         path=Path('export')/(name+'.gltf');meshes,n,bb=imported(path);cap=3916 if name.startswith('Slide') else 1954
         assert n<=cap,(name,n,cap);assert n==source['triangles'],(name,n,source['triangles']);assert np.max(abs(np.array(bb)-source['bounds_m']))<3e-5,(name,bb,source['bounds_m'])
         row=dict(triangles=n,bounds_m=bb,**raw(path));result['pieces'][name]=row
+        if name in ('Stairs48','Transfer24'):
+            tree=motion_surface(next(o for o in meshes if o.type=='MESH'))['tree'];rays=[]
+            points=[(0,-1.95+i*1.95/8-.04,(i+.5)*1.2192/8) for i in range(8)] if name=='Stairs48' else [(0,-1.24,.20),(0,-.64,.50)]
+            for origin in points:
+                hit,normal,index,distance=tree.ray_cast(Vector(origin),Vector((0,1,0)),.09)
+                assert hit is not None,(name,'open riser',origin)
+                rays.append(dict(origin_m=list(origin),first_surface_distance_m=distance,normal=list(normal)))
+            row['actual_closed_riser_rays']=rays
         if name=='Post2339':
             coords=[o.matrix_world@v.co for o in meshes for v in o.data.vertices];ring=[p for p in coords if abs(p.z)<1e-5];r=sorted(set(round(math.hypot(p.x,p.y),7) for p in ring));row['measured_post_od_m']=2*max(r);row['measured_wall_m']=max(r)-min(r);assert abs(2*max(r)-.127)<1e-5
         if name=='Deck':
@@ -110,6 +118,12 @@ def main():
             crossings=len(sa['tree'].overlap(sb['tree']));assert crossings==0,(seed,'intersecting roofs',a.name,b.name,crossings)
             roof_pairs.append(dict(roofs=[a.name,b.name],actual_triangle_crossings=crossings))
         row['roof_pairs']=roof_pairs
+        label=next(o for o in bpy.context.scene.objects if o.type=='EMPTY' and o.get('module')=='Meadowworks identification')
+        label_mesh=next(o for o in label.children_recursive if o.type=='MESH');label_surface=motion_surface(label_mesh)
+        posts=[o for o in bpy.context.scene.objects if o.type=='EMPTY' and str(o.get('module','')).startswith('Post') and o.get('zone_group')=='composite']
+        label_crossings=sum(len(label_surface['tree'].overlap(motion_surface(next(o for o in post.children_recursive if o.type=='MESH'))['tree'])) for post in posts)
+        assert label_crossings==0,(seed,'Maker plate intersects post',label_crossings)
+        row['maker_plate_post_triangle_crossings']=label_crossings
         # Independent real-surface contacts, separate from serialization.
         decks=[o for o in bpy.context.scene.objects if o.type=='EMPTY' and o.get('module') in ('Deck','Deck72') and o.get('zone_group')=='composite']
         ds={r.name:motion_surface(next(o for o in r.children_recursive if o.type=='MESH')) for r in decks};contacts=[]
