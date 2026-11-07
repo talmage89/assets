@@ -1532,3 +1532,37 @@ At LOD2, source-skin ordering restores 1204 triangles: measured exposed back
 patches are 7.5px on the grease tray, 3.5px on the lid and 4.5px on one static
 construction. This is not a visual exception yet: the lower .35/.05 request
 and native fault controls remain required. The accepted 1796 proxy stands.
+
+## Pass 41 — a converged control rejects the grill's guard as proof of a fault
+
+The .35/.05 grill build is 10620 / 7504 / 1796. Opened all nine native closed
+strips and all four construction views at 128 samples. One near local patch
+is .08128 versus .08. A 512-sample preview passes all three near views, with
+worst local .07959. Opened independent-seed LOD0 controls at both counts:
+mean noise .00252→.00113, local .02555→.01107. The final closed 512-sample
+chain passes every image gate and `make check-lod`; resident estimate 20.081
+MiB. Every final image still needs to be opened after its regenerated evidence.
+No image limit was changed; the 128-sample failure remains archived.
+
+The more important negative control bypasses only source-skin restoration,
+leaving genuine QEM/field cache outputs intact: **6300** triangles. At -75°
+lid opening, cameras use the actual posed height at the same .12 switch,
+11.48 m. Opened every 128- and 512-sample native strip. The initial rear local
+.0850 drops to .07756 at 512; every image gate now passes, including the open
+pose. There is a small reflection-band difference, not a sufficient visible
+failure to justify retaining all 1204 restored triangles. The exported grill
+material is explicitly `doubleSided: true`. The auxiliary back-face ordering
+rays were therefore over-conservative here; they are not proof of a hole.
+Do not report 7504 as the lowest visually passing count or claim the cheaper
+control fails at final sampling.
+
+Added a scoped `backface_guard: false` policy for a reviewed all-double-sided
+source. Other sources retain the conservative default; one-sided materials
+cannot disable it. Only the auxiliary ordering rays are scoped; assembled
+contacts/topology and all other checks remain active. The shared-map fixture
+passes new validation, nested/exception reset and still-active topology cases.
+No geometric reduction code/cache fingerprint changed. The interrupted clean
+CPU suite stopped after six passing files; its saved genuine reduction cache
+was restored. A fresh full suite and fresh frozen-tool adopter proof are now
+required after this general fix. The grill's canonical 6300 build, stronger
+budget attempt and native review remain pending.

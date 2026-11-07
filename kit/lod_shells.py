@@ -6,6 +6,27 @@ tests pass. Retain constructions whose sampled visibility ordering changes.
 This is not a claim that the source is intersection-free.
 """
 import numpy as np
+from contextlib import contextmanager
+from contextvars import ContextVar
+
+_BACKFACE_GUARD=ContextVar('lod_source_backface_guard',default=True)
+
+
+@contextmanager
+def backface_policy(enabled,materials):
+    """Scope an auxiliary ordering guard; assembly topology always stays on.
+
+    A double-sided source may legitimately expose a back face without a hole.
+    Only a measured image/pose comparison can approve disabling this guard;
+    the builder also requires every used source material to be double-sided.
+    Context-local state avoids changing the geometric reduction/cache itself.
+    """
+    if type(enabled) is not bool:raise ValueError('backface_guard must be a boolean')
+    if not enabled and (not materials or not all(m.get('doubleSided',False) is True for m in materials)):
+        raise ValueError('Disabling backface_guard requires every used source material to be double-sided')
+    token=_BACKFACE_GUARD.set(enabled)
+    try:yield
+    finally:_BACKFACE_GUARD.reset(token)
 
 
 def _visibility_context(source,faces,reduced,triangles):
@@ -114,7 +135,7 @@ def preserve(source,faces,reduced,triangles,report,meters_per_pixel=0.):
         count=row['triangles'];candidate=triangles[cursor:cursor+count];cursor+=count
         candidates.append(candidate)
         exposure=None
-        if len(ids)>count:
+        if _BACKFACE_GUARD.get() and len(ids)>count:
             # Judge assembled visibility. A cone's base, for example, covers
             # internal surfaces that would appear exposed in an isolated body.
             exposure=exposed_backfaces(source,faces,reduced,triangles,meters_per_pixel,np.arange(cursor-count,cursor),context)

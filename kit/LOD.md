@@ -275,6 +275,16 @@ triangle cost are recorded. Visibility includes the other components in the
 compatible rigid group; a separate base can cover a body's internal skin.
 Thin exposures still face all original image gates. These samples guard visible layer ordering; they
 are not an exhaustive self-intersection or swept-clearance certificate.
+The ordering rays are conservative. A double-sided source can expose a back
+face and still render correctly; the ray finding alone does not prove a visible
+fault. A reviewed level may set `"backface_guard": false` only when every used
+source material is explicitly double-sided. Retain native LOD0 and posed
+comparisons first. This scopes only that auxiliary back-face test: source
+UV/frame/data bounds, skin preservation, assembled topology, independent
+auditing and all image gates stay active. The default remains true, including
+the accepted pickup/colonial fixes. Scoped policies reset between levels and
+on exceptions. Reports record the level's choice in its assembly receipt.
+
 An additional assembled-edge check compares the combined candidate with its
 combined source. Independently valid components can move into a shared edge,
 creating a new nonmanifold contact, or separate a previously matched boundary.

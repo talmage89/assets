@@ -147,7 +147,12 @@ def build(config):
             assembly=merge_static(doc,cfg.get('protected_nodes',[]),cfg.get('include_nodes',[]))
             if not spec.get('rebake'):
                 from kit.lod_shared import meshes
-                reports=meshes(doc,spec['ratio'],meters_per_pixel,cfg.get('feature_pixels',1.5),spec.get('surface_pixels',cfg.get('max_surface_pixels',.75)),seam_sliding=spec.get('seam_sliding',cfg.get('seam_sliding',True)))
+                from kit.lod_shells import backface_policy
+                guard=spec.get('backface_guard',cfg.get('backface_guard',True))
+                materials=[doc.data['materials'][i] for i in sorted({p.get('material',0) for _,_,p in doc.primitives()})]
+                with backface_policy(guard,materials):
+                    reports=meshes(doc,spec['ratio'],meters_per_pixel,cfg.get('feature_pixels',1.5),spec.get('surface_pixels',cfg.get('max_surface_pixels',.75)),seam_sliding=spec.get('seam_sliding',cfg.get('seam_sliding',True)))
+                assembly['backface_guard']=guard
             else:
                 if spec.get('static_shell'):assembly['shells']=shell_static(doc,spec['ratio'],meters_per_pixel)
                 static_meshes={n['mesh'] for n in doc.data['nodes'] if 'mesh' in n and n.get('extras',{}).get('lod_static_shell')}

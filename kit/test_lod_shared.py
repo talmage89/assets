@@ -9,7 +9,7 @@ from kit.lod_io import residency
 
 
 def main():
-    from kit.lod_shells import exposed_backfaces,preserve,protect_powered
+    from kit.lod_shells import exposed_backfaces,preserve,protect_powered,backface_policy
     # Two closed constructions meet at one corner and cross farther inside.
     # Their hidden source skins must not emerge after independent collapse.
     p=np.array([[0,0,0],[2,0,0],[0,2,0],[0,0,2],[1.5,1.5,-.5],[1.5,-.5,1.5],[-.5,1.5,1.5]],np.float32)
@@ -20,6 +20,24 @@ def main():
     assert exposed_backfaces(dict(POSITION=p),compound,dict(POSITION=p),tetra[:,::-1]) is not None
     restored,rf,receipt=preserve(dict(POSITION=p),compound,dict(POSITION=p),tetra[:,::-1],dict(components=[dict(triangles=4)]))
     assert len(rf)==8 and len(receipt)==1 and len(restored['POSITION'])==7
+    # A material-checked exception changes only the auxiliary back-face test.
+    # Nested policies and exceptional exits must restore the conservative default.
+    for enabled,materials in [(False,[{}]),(False,[]),(0,[{'doubleSided':True}])]:
+        try:
+            with backface_policy(enabled,materials):pass
+        except ValueError:pass
+        else:raise AssertionError('Invalid back-face policy accepted')
+    with backface_policy(False,[{'doubleSided':True}]):
+        raw,rf,receipt=preserve(dict(POSITION=p),compound,dict(POSITION=p),tetra[:,::-1],dict(components=[dict(triangles=4)]))
+        assert len(rf)==4 and not receipt
+        with backface_policy(True,[{}]):
+            restored,rf,receipt=preserve(dict(POSITION=p),compound,dict(POSITION=p),tetra[:,::-1],dict(components=[dict(triangles=4)]))
+            assert len(rf)==8 and receipt
+    try:
+        with backface_policy(False,[{'doubleSided':True}]):raise RuntimeError('fixture exit')
+    except RuntimeError:pass
+    restored,rf,receipt=preserve(dict(POSITION=p),compound,dict(POSITION=p),tetra[:,::-1],dict(components=[dict(triangles=4)]))
+    assert len(rf)==8 and receipt
     # A separate covering construction still occludes an internal back face.
     # Isolating the internal component would restore geometry unnecessarily.
     cube=np.array([[-3,-3,-3],[3,-3,-3],[3,3,-3],[-3,3,-3],[-3,-3,3],[3,-3,3],[3,3,3],[-3,3,3]],np.float32)
@@ -60,6 +78,9 @@ def main():
     assert topology(moved,faces)[0]['nonmanifold_edges']==1
     fixed,tf,receipt=preserve(assembled,faces,moved,faces,dict(components=[dict(triangles=4)]*2))
     assert topology(fixed,tf)[0]['nonmanifold_edges']==0 and receipt
+    with backface_policy(False,[{'doubleSided':True}]):
+        fixed,tf,receipt=preserve(assembled,faces,moved,faces,dict(components=[dict(triangles=4)]*2))
+        assert topology(fixed,tf)[0]['nonmanifold_edges']==0 and receipt
     inherited,tf,receipt=preserve(moved,faces,moved,faces,dict(components=[dict(triangles=8)]))
     assert topology(inherited,tf)[0]['nonmanifold_edges']==1 and not receipt
     # A contact within the existing geometric tolerance must not open when
