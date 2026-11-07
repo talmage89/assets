@@ -30,7 +30,12 @@
         "voxel_pixels": 0.5,
         "inflation_pixels": 0.3,
         "deflation_pixels": 0.25
-      }
+      },
+      "atlas_sampling": {
+        "surface_texels_per_pixel": 1,
+        "graphic_texels_per_pixel": 4
+      },
+      "bake_supersample": 4
     }
   ],
   "drop_subpixel": true,
