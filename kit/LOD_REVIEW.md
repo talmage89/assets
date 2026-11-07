@@ -1594,3 +1594,73 @@ belong to the 7504-triangle middle level. Fresh canonical render/check and the
 stronger budget/fault control are required before treating it as a final chain.
 Pickup and colonial proxy/near work is still in progress. No incomplete pilot
 is approved by the completed suite or adopter results.
+
+## Pass 43 — exact lock inventory and rejected pickup controls
+
+Merged the later playground main, `4714b3a`, as `a882a31`; no kit code changed
+in that merge. The original 481-file preservation receipt still passes, then
+appended the five newly merged playground gallery files: 486 protected files.
+The complete pass-42 suite and frozen adopter code remain current.
+
+Completed the handoff/current inventories using identical source components.
+The persistent-pin comparison stops immediately after pin initialization; the
+offer comparison builds the exact initial heap with ratio 1, without reducing.
+It now includes every small unskinned component and the correct geometric
+remap for retained skins. Receipts: `build/lod-v4/pin-comparison.json` and
+`lock-comparison.json`. Counts below overlap across causes; they cannot be
+summed. A UV seam or hard normal is a field constraint, not automatically a pin.
+
+| Cause | Pickup persistent before → after | Colonial persistent before → after | Pickup L1 unavailable initial offers | Pickup L2 unavailable initial offers | Colonial L1 unavailable initial offers | Colonial L2 unavailable initial offers |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| UV seams | 3425 → 3425 | 1335 → 551 | 7220 → 3622 | 4979 → 3465 | 3767 → 973 | 2733 → 555 |
+| Hard normals | 3226 → 3226 | 1380 → 552 | 6719 → 3327 | 4591 → 3266 | 3816 → 974 | 2781 → 556 |
+| Material borders | 48 → 48 | 0 → 0 | 48 → 48 | 48 → 48 | 8 → 4 | 8 → 0 |
+| Part borders | 64 → 0 | 1122 → 0 | 64 → 0 | 64 → 0 | 1122 → 144 | 1122 → 0 |
+| Moving parts | 380 → 360 | 32 → 8 | 2143 → 360 | 1028 → 360 | 80 → 24 | 32 → 8 |
+| Protected shader surfaces | 4022 → 4022 | 552 → 552 | 4022 → 4022 | 4022 → 4022 | 552 → 552 | 552 → 552 |
+| Unique total | 4086 → 4022 | 1674 → 552 | 8584 → 4232 | 6164 → 4062 | 4871 → 974 | 3812 → 556 |
+
+Fresh pickup near meshes with the current reducer are 38020 / 31388. Opened
+every `build/lod-v4/previews/cars/guarded{1,2}/` native strip. Body coverage is
+intact, but the grille reflection moves; L1 local errors .1854/.1862/.1122
+and L2 rear .0827 remain failures. This is not final acceptance.
+
+The whole-source skin fallback is another substantial restriction beyond pins:
+it adds 6438 / 8312 triangles to raw 31582 / 23076 candidates. Opened all six
+`unguarded-near{1,2}` strips: disabling the auxiliary guard creates black body
+triangles, visible even at the .10 switch. All source materials being double
+sided is insufficient to approve that control. Removing shader protection from
+a scratch source, then restoring the exact source shaders/maps before rendering,
+reaches 26576 / 16712. Opened all six `protection-near{1,2}` strips: it also
+damages body coverage and the powered lamps. Rejected both controls.
+
+CPU pixel-ray probes identify a front-fender coverage miss of 2.554 pixels,
+beyond the nominal two-pixel maximum. The existing reverse surface audit samples
+source vertices; source face interiors can escape it. A control adding face
+centers/edge samples increases one fender from 532 to 612 or 784 triangles,
+but isolated skin ordering still fails. The full-vehicle fender-only control
+looks correct at all three native angles because other original parts occlude
+it. That closed rest pose does not prove an isolated moving assembly safe.
+Restoring the reference occluder before the exposed component gives exactly the
+same 38020 / 31388 totals; it is not an improvement. A local-anchor experiment
+also failed to converge in its four completed iterations and was stopped.
+
+Opened all nine proxy channel-control strips. Removing emission worsens the
+front mean from .0350 to .0403; removing transmission gives .0955, and removing
+both .0910. The latter two visibly whiten the windshield. These controls reject
+a blind emission scale or transmission removal as the color fix. The unmodified
+SS2 proxy remains a failure, with the front worst patch too bright and a rear
+patch too dark. Material/coverage probes are pending.
+
+The 4950-triangle forced grill control retains the original maps, pivots and
+skin, but forcing its rigid geometry down with ordinary collapse makes missing
+panels and diagonal shards visible at the .12 switch. Opened all three native
+strips in `build/lod-v4/previews/gas-grill/forced4950/`; mean errors are
+.0764/.0657/.0501 and silhouette losses .1602/.2200/.2180. This is a rejected
+target-count control, not proof that no valid reduction can reach 4978.
+
+One duplicate reverse-coverage control was inadvertently launched after its
+first successful run; it ran for 169 seconds before being stopped. The first
+successful receipt is preserved separately. It did not change source files or
+production caches. Every controlled cache entry used here has genuine reducer
+inputs and outputs; no stub result is stored under an original key.
