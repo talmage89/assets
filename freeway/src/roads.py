@@ -112,7 +112,8 @@ def ramp(p,name,side,entry=False):
 
 def terrain(p):
     rt=Q.root('Earthwork',module_kind='terrain');b=Q.Batch('Cut slopes and drainage',rt)
-    stations=seq(-p.length/2,p.length/2,8.)
+    half=p.length/2
+    stations=sorted(set(seq(-half,half,8.)+seq(-half-1800,-half,48.)+seq(half,half+1800,48.)))
     for side in (-1,1):
         for a,c in zip(stations,stations[1:]):
             def section(s):
@@ -123,11 +124,19 @@ def terrain(p):
                 if p.kind=='diamond' and 16<=abs(s)<=280:
                     entry=(s*side)>0;rows=ramp_points(p,side,entry,192)
                     q=min(rows,key=lambda v:abs(v[1]-s));u=abs(q[0]);h=q[2]
-                    inside=max(edge+3.05,u-4.4);outside=u+4.9
-                    return inner+[(side*inside,h-.10),(side*outside,h-.10),(side*max(outside+1,110),ground),(side*2400,ground)]
-                return inner+[(side*(edge+max(12.,abs(ground-base)*4)),ground),(side*110,ground),(side*220,ground),(side*2400,ground)]
+                    inside=max(edge+3.05,u-4.4);outside=max(inside+.05,u+4.9)
+                    crest=max(outside+max(1.,4*(ground-h+.10)),edge+max(12.,abs(ground-base)*4))
+                    return inner+[(side*inside,h-.10),(side*outside,h-.10),(side*crest,ground),(side*220,ground),(side*2400,ground)]
+                crest=edge+max(12.,abs(ground-base)*4)
+                # Identical semantic breaks at every station: ditch, inner
+                # branch edge, outer edge, slope crest, near field, horizon.
+                # The old six-interval profiles joined different break orders
+                # at the throat, folding large field triangles into blades.
+                far=2400 if p.kind=='diamond' else 220
+                near=220 if p.kind=='diamond' else 160
+                return inner+[(side*(edge+3.05),base-.36),(side*(edge+3.10),base-.36),(side*crest,ground),(side*near,ground),(side*far,ground)]
             aa,cc=section(a),section(c)
-            for j in range(6):
+            for j in range(7):
                 # Leave a real corridor for the branch paving. The narrow
                 # earth shoulder is closed below the ramp, not across its top.
                 if p.kind=='diamond' and 16<=abs((a+c)/2)<=280 and j==3:continue
@@ -138,16 +147,17 @@ def terrain(p):
                 b.surface([pos(a,u0,z0),pos(a,u1,z1),pos(c,v1,h1),pos(c,v0,h0)],ma,tint=(.83,.87,.76,1))
     # End extensions use the same grade and width. They create real horizon
     # continuity in the two eye-height heroes, rather than a backdrop at fence.
-    for a,c in [(-p.length/2-1800,-p.length/2),(p.length/2,p.length/2+1800)]:
-        for side in (-1,1):
-            b.surface([p.xyz(a,side*p.median/2),p.xyz(a,side*p.edge),p.xyz(c,side*p.edge),p.xyz(c,side*p.median/2)],p.pavement)
-        for side in (-1,1):
-            lift=-.50 if p.kind=='soundwall' else -.006
-            b.surface([p.xyz(a,side*p.median/2,-.02),p.xyz(a,0,lift),p.xyz(c,0,lift),p.xyz(c,side*p.median/2,-.02)],'Lawn' if p.kind=='soundwall' else 'Concrete')
-        for u0,u1 in [(-2400,-p.edge),(p.edge,2400)]:
-            ground=7.0 if p.kind=='diamond' else 0
-            points=[p.xyz(a,u0),p.xyz(a,u1),p.xyz(c,u1),p.xyz(c,u0)]
-            b.surface([(x,y,ground) for x,y,z in points],'Lawn',tint=(.8,.84,.73,1))
+    for begin,end in [(-half-1800,-half),(half,half+1800)]:
+        far_stations=seq(begin,end,48.)
+        for a,c in zip(far_stations,far_stations[1:]):
+            for side in (-1,1):
+                b.surface([p.xyz(a,side*p.median/2),p.xyz(a,side*p.edge),p.xyz(c,side*p.edge),p.xyz(c,side*p.median/2)],p.pavement)
+                lift=-.50 if p.kind=='soundwall' else -.006
+                b.surface([p.xyz(a,side*p.median/2,-.02),p.xyz(a,0,lift),p.xyz(c,0,lift),p.xyz(c,side*p.median/2,-.02)],'Lawn' if p.kind=='soundwall' else 'Concrete')
+    if p.kind=='soundwall':
+        # A planar far field avoids folding offset coordinates through the
+        # circle's center when lateral distance exceeds the curve radius.
+        b.surface([(-2400,-2400,-.03),(2400,-2400,-.03),(2400,2400,-.03),(-2400,2400,-.03)],'Lawn',tint=(.83,.87,.76,1))
     b.finish();return rt
 
 def arterial(p):

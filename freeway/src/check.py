@@ -63,6 +63,9 @@ def base_checks():
                 if ob['context_surface_kind']=='roof':assert n.z>.05
         for f in ob.data.loop_triangles:
             if f.area<1e-12:world_area_degenerate+=1
+            if ob.name.startswith('Cut slopes and drainage'):
+                a,b,c=[ob.matrix_world@ob.data.vertices[v].co for v in f.vertices]
+                assert (b-a).cross(c-a).z>0,('Folded earthwork surface',ob.name,f.index)
         if ob.data.uv_layers:
             uv=ob.data.uv_layers.active
             for f in ob.data.loop_triangles:
