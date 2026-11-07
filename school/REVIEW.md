@@ -523,3 +523,246 @@ checks measure 35 rooms, 43 exterior leaves through 903 sampled poses and
 22 equipment-curb seats; serialization checks preserve counts, bounds and
 pivots independently. All 772 prior non-school delivery files are unchanged.
 The report is `LOOKDEV.md`; work stops at the requested look-dev checkpoint.
+
+## Pass 7 — delivery fixes, first export review
+
+Color and value first: inspected all three `renders/pass-7/<seed>/hero.png`
+at native 1200px, and the native 1400px ribbon render against the photograph,
+neutralized on its painted spandrel. Brick remains its accepted red/buff/tan
+range, canopy shade is deep and sunlit mortar retains headroom. The default
+sky still reads too gray-blue, and the ribbon's reflections are cooler than
+the neutral-balanced daily-use photograph. The furnished classroom now has
+visible tables, chair backs, display papers, ceiling lamps and independently
+lowered blinds. It no longer terminates at a black panel 1.45m behind glass.
+The first room still exposes the envelope's unpainted interior brick; paint
+the interior faces without changing the exterior brick, and rerender.
+
+The closer 42mm heroes make the entry, shelter and adjoining wing the subject.
+However, the flag tops are clipped, the planted entry trees fall outside those
+cameras, and the low-plant cards visibly sample the whole multi-species atlas:
+purple blocks and opaque stem squares betray the procedural construction.
+Reject these for docs. Raise the hero targets; place the existing entry trees
+in explicit tree wells where the plaza needs them; select individual native
+Boxwood sprig charts for the low planting. Keep the frontage tree count and
+accepted circulation. The exterior curb slit is gone in 103, but thin rear
+slabs also need side returns to grade. Weather remains weak on the shaded
+front, especially the blank gym face. Add a real front gym scupper/downspout
+and its associated runoff instead of spreading unrelated dirt across masonry.
+
+The north ribbon camera clears the neighboring addition and fits at 38.37mm,
+35.64 native-pixel RMS. This is still a visibly imperfect type fit (the photo
+bay is proportionally wider); a lower residual is not claimed. The material
+and interior comparison is useful independently of that geometric mismatch.
+
+## Pass 8 — planted drop-off and room-depth review
+
+Color and value first: opened all three 1400px `renders/pass-8` heroes. The
+accepted brick still carries the facade color; the clearer procedural sky
+and tree shadows make the canopy recess substantially darker than the lit
+masonry. The buff school's sunny wall retains brick/mortar separation.
+The new low Boxwood planting no longer exposes the flower/stem atlas cells.
+Entry shade trees are now rooted in cut planting wells, and the long front
+beds read in the heroes. Curb backs meet the turf with a real concrete face.
+The remaining CG tells are the completely even fascia coat, an undivided
+entry-plaza surface, simple office windows and excessively regular room
+furniture. The roof/coping lines remain unnaturally pristine at this scale.
+
+Reject 103's tree placement: its trunk and crown cover too much gym and
+entry, and the nearer flag still clips despite the raised target. Shift that
+existing tree toward the frame edge while retaining its grass-island footing;
+raise the camera targets again. Keep 101/102's wells and the frontage rows.
+For the next pass, give the gym a physically present front scupper, runoff
+and mineral trace; distinguish the repaired fascia section from its faded
+coat and add actual pour joints on the graded entry slab. Replace invisible
+chair panel thickness with two-sided sheets to pay for those visible changes,
+keeping six building materials and every static campus under 300k.
+
+## Pass 9 — reject the remaining hero-distance aging
+
+Color and value first: opened all three native 1400px `renders/pass-9` heroes
+and 101's retained accepted camera. Brick remains saturated, sunny buff
+masonry retains headroom, and shade under the shelters stays deep. 103's
+shifted tree now frames the left edge instead of hiding the entry/gym, and
+the near flag fits the frame. The contrasting fascia maintenance section is
+readable on the olive/green trim; 101's blue-grey fascia is less distinct.
+The retained world camera shows the new pickup/crossover bodies and paints,
+instead of duplicate orange hatchbacks. Its wide framing is comparison only.
+
+The runoff is still too weak to satisfy the full-frame age requirement.
+Diagnosis: the vertex-color salt formula multiplies the existing red brick
+map; even a neutral brighter tint cannot make a pale mineral deposit. It
+only raises the red. Reject that as proof of efflorescence. The next build
+uses the already shared mineral material on thin broken rills below the
+actual scupper station, blended at their edges toward the masonry's mean
+albedo. This adds no material or image set. Keep it localized and inspect
+for pasted-on stripes or lost brick response before any documentation image.
+
+Other remaining CG tells: very even paving, repetitive furnishings, ordinary
+stock-tree alpha silhouettes at the near edge and schematic office interiors.
+The RGB values alone do not certify photographic realism. Core construction
+and export checks pass, but that is separate from this visual rejection.
+
+## Pass 10 — first clean-replay finals rejected before docs
+
+Color and value first: the native 1400px heroes retain the accepted brick
+palettes, clear raking light and deep shelter shade. The actual pale mineral
+rills are now visible below the scuppers, without lifting the entire wall.
+Opened all fourteen 101 views from the first clean replay. The direct roof,
+blacktop and rear views expose an unacceptable blue horizon strip: the small
+presentation ground ends 1.2km away, revealing the procedural sky below the
+horizon. Extend that procedural ground; do not alter site geometry or hide the
+problem behind a photographic background.
+
+The furnished window view still reads too frosted relative to the balanced
+McDowell photograph. The uniform .055 glass roughness blurs desks and wall
+displays despite the new open rooms. Reduce it to .018 and judge the actual
+export again. The repeat tile and regular chair layouts remain visible tells.
+The newly added front/side studies mistakenly frame neighboring houses because
+the cameras sit beyond their row. Move those cameras ahead of that row and
+use 28mm study views; heroes retain 42mm. Move the 1.8m figure forward onto the
+graded entry plaza, into direct light, instead of losing its value against the
+shaded entry glass. These rejected views are not documentation candidates.
+
+The first clean replay passed all physical, UV, raw-accessor, import, budget
+and immutable-input checks. Those passes do not override the visual rejection.
+No docs images are generated or committed. A second clean replay will judge
+the corrected glass and presentation before the final review receipt.
+
+The two corrective probes in `renders/glass-review/101/` were opened at native
+resolution: the extended procedural ground removes the blue horizon strip,
+and .018 roughness resolves chair backs, worktops and wall displays through
+sharper, physically present reflections. The simple room furniture remains
+obvious at this close distance. Proceed to the second clean replay, keeping
+those presentation and material corrections in the scripts.
+
+
+## Pass 11 — second clean replay: edge winding and light direction
+
+Color and value first: opened all fourteen views of each school at native
+resolution. The sharper glass keeps real room depth and reflections, the
+extended ground removes the blue horizon strip, and sunlit brick retains
+mortar/color separation without clipping. However, the west-facing gym in
+103's hero is too shaded for its runoff and repair history to read. Turn
+its low sun toward that visible face; retain deep shade below the canopy.
+The front study of 102 also needs to move ahead of the utility pole row.
+
+A dark underside prompted an independent winding audit. It found that the
+inherited solid helper recalculates disconnected ground skins independently,
+turning some authored backs inward. Restore authored winding for those open
+gauged skins, add exposed end caps, and test backs against their actual
+adjoining drive segment. Using the closest surface of the entire loop is
+ambiguous where its two carriageways approach one another. Slab returns
+also need an outward test; unit-length normals and successful serialization
+never established their physical direction. Reject this replay before docs.
+
+Remaining visual tells are repeated furniture, polygonal door-paint losses,
+regular mineral rills, tiled brick and simple roof equipment. The landscape
+is arranged now, but the distant context and repeated leaf silhouettes still
+read as a library scene. Those limitations must remain explicit in delivery.
+
+
+## Pass 12 — revised sun and completed edge construction
+
+Color and value first: opened the three native 1400px, 16-sample hero probes
+in `renders/pass-12/`. Warm red 101, buff 102 and tan 103 remain distinct;
+sunlit mortar and brick retain headroom, while the eaves and tree shade stay
+deep. Turning the low sun toward each hero's visible facades resolves 103's
+previously dark gym. Against the neutral-balanced daily-use references, the
+rooms now expose worktops, chairs, wall displays and diffusers through clear
+reflections. The canopy, entry and a classroom wing remain in each frame.
+
+The actual scupper/mineral rills and darker maintenance fascia read at full
+frame. Rills are still more regular than the photographed weathering; retain
+that as a limitation rather than spreading a uniform dirt wash over the wall.
+Entry trees frame the school and their actual wells/grass islands ground them.
+The plant cards and repeated furniture remain visible CG tells close up.
+
+The completed source checks independently measure outward curb backs against
+their adjoining paving segments, exposed end-cap planes outside the paving
+center, outward slab returns and upward ground skins. They pass on all three
+campuses, along with room dimensions, motion clearance, UV/budgets, re-import
+and unchanged-library checks. A final empty-folder replay will now render
+the exported packages, matched pairs and native before/after evidence. Docs
+remain gated until every final and all six visible fixes are reviewed.
+
+
+## Pass 13 — all 46 delivery views and source/export photographic pairs
+
+Color and value first: opened all 42 campus frames, all three export-match
+frames and the Eevee frame at native 1400px, then both source/export sets
+of photographic pairs. The red/buff/tan brick palettes remain distinct,
+sunlit mortar retains headroom, and canopy/tree shade stays deep. The photo
+neutrals remain the recorded concrete curb, painted spandrel and archival
+fascia; no brick color is inferred from an unbalanced photograph. Gym light
+now falls on the facade rather than putting the entire comparison in shade.
+
+The three 42mm drop-off heroes show their entry, canopy and classroom wing.
+The repaired fascia and real drain/mineral traces read at full frame.
+Classroom views resolve furniture, displays, ceilings and varied blinds
+through reflections; source and exported responses agree visually. The
+ribbon remains a visibly imperfect original-type fit at 35.6px RMS. It is
+not a survey or a recovered photographic replica. The fine shared maps
+retain their existing texture detail; broad age comes from placed geometry.
+
+Front/side studies now clear the neighboring house row, and the front of
+102 clears the foreground utility pole. Scale figures stand visibly at
+the entries; rear, roof and blacktop views no longer expose the finite
+ground's former blue strip. The curb/slab closure is physically outward.
+Furniture footing independently measures 1,680 support islands against
+actual room-floor surfaces, maximum absolute gap about 0.000015mm.
+
+CG tells remain: repeated furniture and foliage silhouettes, simple roof
+equipment, very regular mineral rills, polygonal paint chips and a flat
+distant neighborhood. Aerials retain long, dark late-day shadows; they
+show the parcel/program but are not neutral-light material comparisons.
+Eevee gives flatter glass and less room depth than Cycles despite the
+local probe/refraction setup. Keep that renderer limitation in the README.
+The remaining before/after crops must pass before any docs are generated.
+
+Interrupted evidence runs received SIGTERM before a school completed.
+The completed final views/pairs remained intact. Split the before views
+into one-school batches with completion stamps; retain the GPU lock and
+resume only unfinished evidence. No rejected or incomplete image is a doc.
+
+
+## Pass 14 — native crops accepted; documentation released
+
+Color and value first: reviewed all 24 native same-camera pairs and the three
+separately labeled hero-composition pairs. Sunlit brick retains red/buff/tan
+color and readable mortar, and the canopy recesses stay deep. Whole-frame
+display-luma p99 is .686/.740/.711; all-channel near-clipping is 0%, .00041%,
+0%. These are display-image diagnostics, not measured physical albedos.
+The photographed neutrals and photographic-fit limitations remain as above.
+
+Each requested fix is visible: the 42mm drop-off heroes replace the remote
+asphalt compositions; the ribbon and classroom pairs show rooms, diffusers,
+desks, displays and varied blinds; frontage/entry trees, planting wells,
+foundation/marquee beds and root/shortcut turf wear replace the random lawn
+arrangement. The wear crops show actual drain/mineral traces and darker
+fascia maintenance at full frame. 103's 1200px curb crop replaces the open
+black strip with a concrete back. 102's 800px car crop replaces the second
+orange hatchback with the native gray crossover; 101 also shows native
+pickup/crossover bodies. Each comparison panel remains at native resolution.
+Composition changes use different cameras and are explicitly labeled; the
+24 other pairs independently enforce identical camera fields.
+
+Opened the full final contact, three-plan sheet and photographic contact.
+All 46 delivery images were already opened individually at native size in
+pass 13. No additional visual rejection remains for the six fixes. Retain
+the stated CG limitations: regular room furniture/mineral rills, tiled
+manufacture, simple machinery, repeated vegetation/context and flatter
+Eevee glazing. This is an exterior family with schematic supporting rooms.
+
+The empty-output rebuild completed through resumed evidence stages after
+SIGTERM, with one-school completion stamps. `make check` passes construction,
+UV/budgets, fresh re-import and immutable-input preservation. `make repeat`
+passes 64 deterministic geometry/metadata/image files byte for byte.
+`make check-texture-repeat` regenerates the school mask with zero difference;
+37 canonical GPU-baked images remain immutable, rather than being rebaked.
+The final render audit passes 46 current-package/current-presentation views.
+All 772 original delivery files remain byte-identical; the fresh preservation
+set contains 832 files and also passes. No kit or root README changed.
+
+The visual-review receipt names the current three campus packages and the
+46 inspected image hashes. Documentation may now be generated, inspected
+at full size, byte/width checked and committed last in its own commit.

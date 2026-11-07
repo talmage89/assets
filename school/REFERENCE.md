@@ -1,7 +1,7 @@
 # School / measured references and original design choices
 
-This is a **form and construction checkpoint**, before school look-dev. All
-dimensions below are authored, checked against the cited comparators; none is
+This is an original exterior school family. All dimensions below are
+authored, checked against the cited comparators; none is
 presented as a survey of a photographed school. Photographs never become maps.
 
 ## Planning evidence
@@ -67,8 +67,9 @@ schedule is being reproduced.
 
 Steel/aluminum ribbon sash is set into real openings, with gauged reveals,
 lintels, precast sills, transom bars, mullions and selective replacement infill.
-Recessed backings and some blinds are visual room witnesses; they are not
-furnished classrooms. Interior partitions reserve the 30 × 32 ft clear cells.
+The final glazing looks into the actual 30 × 32 ft partitioned room cells,
+with inexpensive furniture, display sheets, ceiling diffusers and varied blinds.
+This supports exterior parallax rather than a complete playable interior.
 The tall gym retains exposed wall above adjoining lower roofs. Flat roofs have
 coping folds, joints, scuppers, downspouts and equipment curbs. Original 1960s
 pods also have low-slope gables. Main doors have separate hinge frames,
@@ -168,3 +169,22 @@ small neighborhood fields, not tournament outfields. The original simplified
 states-map graphic is illustrative rather than surveyed cartography. The
 surrounding houses, streets, poles/wires and intact car source instances are
 presentation context and are reported separately from the campus package.
+
+## Final delivery revision
+
+The accepted parcels, classroom/window dimensions, roofs and canonical brick
+remain. Entry-tree wells and maintained foundation/marquee beds refine their
+planting; exterior curb/slab returns close exposed edges. A physically present
+front gym scupper supplies the head of the added runoff, and repaired fascia
+sections retain a darker maintenance coat. School-specific broad age remains
+corner color on the placed geometry.
+
+The final rooms have ceilings, tables, chairs, displays and varied blinds. A
+single original 8px emission mask selects their ceiling diffusers through UV1
+on the existing Equipment material; it is the only new image, 76 bytes, not a
+new PBR set. All canonical library bakes retain their original bytes.
+
+The north-facing ribbon fit avoids the adjacent addition while preserving the
+accepted window geometry. Its approximately 35.6px residual reflects the
+different bay proportions in this original design; the furnished-room and
+material comparison is not presented as a photographic replica.

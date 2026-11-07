@@ -7,13 +7,14 @@ comma := ,
 SEED_LIST := $(subst $(comma), ,$(SEEDS))
 CHECKPOINT_BLEND := build/family.blend
 CHECKPOINT_OUTPUTS := build/family.blend build/family.json $(foreach s,$(SEED_LIST),export/School-$(s).gltf export/Campus-$(s).gltf)
-CHECKPOINT_DEPS := $(wildcard src/*.py) build/dependencies.json
+CHECKPOINT_DEPS := $(addprefix src/,build.py buildings.py geometry.py plans.py siteplan.py siteworks.py surfaces.py) build/dependencies.json
 CHECKPOINT_ARGS := --seeds $(SEEDS)
 CHECKPOINT_CHECK = $(BP) --python src/check.py && $(PYTHON) src/delivery_audit.py
 CHECKPOINT_OUT := renders/final
 CHECKPOINT_RENDER_ARGS := --seeds $(SEEDS) --shots hero,above,plan,rear,windows,entry,gym,door,roof,scale,blacktop,front,side,accepted_hero
 CHECKPOINT_REVIEW = $(PYTHON) src/review.py
 include ../kit/checkpoint_rules.mk
+$(CHECKPOINT_RENDER_OUTPUTS): src/neighborhood.py src/siteplan.py src/plans.py
 # Cycles recipes use the kit's shared GPU lock; construction/checks use CPU.
 BP := $(BLENDER) -b -t 4 --factory-startup --python-exit-code 1
 build/dependencies.json: src/dependencies.py src/context_export.py src/neighborhood_build.py src/bake_shared.py
@@ -36,9 +37,14 @@ review: matches eevee fixes
 repeat: model
 	$(PYTHON) src/repeat.py --seeds $(SEEDS)
 .PHONY: fixes docs check-texture-repeat
-fixes: model render
-	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --package-dir build/accepted-lookdev/export --seeds $(SEEDS) --shots hero,above,entry,windows,door --out renders/fix-before --width $(WIDTH) --samples $(SAMPLES)
+BEFORE_STAMPS := $(foreach s,$(SEED_LIST),renders/fix-before/$(s)/.stamp)
+renders/fix-before/%/.stamp: $(CHECKPOINT_OUTPUTS) src/render.py src/neighborhood.py build/checkpoint-render-parameters.txt | baseline
+	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --package-dir build/accepted-lookdev/export --seeds $* --shots hero,above,entry,windows,door --out renders/fix-before --width $(WIDTH) --samples $(SAMPLES)
+	@touch $@
+renders/fix-before-matches/.stamp: $(CHECKPOINT_OUTPUTS) src/render.py src/neighborhood.py build/matched-cameras.json build/checkpoint-render-parameters.txt
 	$(KIT)/with_gpu.sh $(BP) --python src/render.py -- --package-dir build/accepted-lookdev/export --matches --shots ribbon --out renders/fix-before-matches --width $(WIDTH) --samples $(SAMPLES)
+	@touch $@
+fixes: model render $(BEFORE_STAMPS) renders/fix-before-matches/.stamp
 	$(PYTHON) src/fix_evidence.py
 docs:
 	$(PYTHON) src/review.py --final
