@@ -1,6 +1,6 @@
 """Checkpoint atlas and construction policy; not a final look-dev acceptance."""
 BUDGETS={'SchoolBus':90000}
-BOUNDS={'SchoolBus':((-.01,0,0),(3.6,12.7,3.5))}
+BOUNDS={'SchoolBus':dict(size=(3.35,12.265,3.330),tolerance=(.002,.003,.002))}
 MAX_MATERIALS=4
 SHIP_SIZE=2048
 UV_SMART_ASPECT=False

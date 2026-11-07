@@ -44,8 +44,8 @@ lower-body vertex-color layer; they do not allocate extra textures.
 | Seed | Fleet | District | Age / preliminary wear |
 | --- | --- | --- | --- |
 | 101 | 218 | Cedar Vale Schools | 3 years / .46 |
-| 102 | 307 | North Creek District | 5 years / .67 |
-| 103 | 164 | Oak Hollow Schools | 7 years / .84 |
+| 102 | 307 | North Creek District | 4 years / .67 |
+| 103 | 164 | Oak Hollow Schools | 5 years / .84 |
 
 Meters, Blender +Z up and −Y front; glTF +Y up and +Z front. The origin is the
 center of the bumper footprint at grade. Retain the hierarchy and material

@@ -22,5 +22,5 @@ ROW_PITCH=.632
 ROWS=13
 SIDE_EXIT_ROW=4
 SEEDS={101:dict(fleet='218',district='CEDAR VALE SCHOOLS',wear=.46,age=3),
-       102:dict(fleet='307',district='NORTH CREEK DISTRICT',wear=.67,age=5),
-       103:dict(fleet='164',district='OAK HOLLOW SCHOOLS',wear=.84,age=7)}
+       102:dict(fleet='307',district='NORTH CREEK DISTRICT',wear=.67,age=4),
+       103:dict(fleet='164',district='OAK HOLLOW SCHOOLS',wear=.84,age=5)}

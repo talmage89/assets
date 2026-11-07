@@ -66,11 +66,9 @@ def body(b):
         for j,(ya,yb) in enumerate(spans):
             # Lower edge rises around rear tire; no panel spans the wheel opening.
             profile=[(ya,1.830),(yb,1.830),(yb,.755)]
-            rr=.630;cy=S.REAR_AXLE
+            rr=.630;cy=S.REAR_AXLE;theta=math.asin((.755-S.HUB)/rr);dx=rr*math.cos(theta)
             if ya<cy-rr and yb>cy+rr:
-                profile += [(cy+rr,.755),(cy+rr,S.HUB)]
-                profile += [(cy+rr*math.cos(t),S.HUB+rr*math.sin(t)) for t in [math.pi*k/32 for k in range(33)]]
-                profile += [(cy-rr,.755)]
+                profile += [(cy+rr*math.cos(t),S.HUB+rr*math.sin(t)) for t in [theta+(math.pi-2*theta)*k/32 for k in range(33)]]
             profile += [(ya,.755)]
             if sign>0:
                 # Side emergency door interrupts two lower rail segments and the steel.
@@ -80,7 +78,7 @@ def body(b):
                     for a,c in [(ya,ey-.335),(ey+.335,yb)]:
                         pp=[(a,1.830),(c,1.830),(c,.755)]
                         if a<cy-.630 and c>cy+.630:
-                            pp += [(cy+.630,.755),(cy+.630,S.HUB)]+[(cy+.630*math.cos(math.pi*k/32),S.HUB+.630*math.sin(math.pi*k/32)) for k in range(33)]+[(cy-.630,.755)]
+                            pp += [(cy+rr*math.cos(theta+(math.pi-2*theta)*k/32),S.HUB+rr*math.sin(theta+(math.pi-2*theta)*k/32)) for k in range(33)]
                         pp += [(a,.755)]
                         b.add(G.profile(f'Lower folded side {sign} {j} {a}',pp,x-.011,x+.011,b.m['yellow'],axis='X'))
                     b.box('Side exit lintel',(x,ey,2.702),(.026,.67,.030))
@@ -88,11 +86,16 @@ def body(b):
             else:b.add(G.profile(f'Lower folded side {sign} {j}',profile,x-.011,x+.011,b.m['yellow'],axis='X'))
         # Passenger greenhouse: separate sheet posts, real openings, closed sill/header.
         b.box('Window header '+str(sign),(x,1.37,2.704),(.027,9.272,.048))
-        b.box('Window sill '+str(sign),(x,1.37,1.823),(.032,9.272,.034))
+        if sign>0:
+            ey=S.ROW_START+S.SIDE_EXIT_ROW*S.ROW_PITCH
+            for a,c in [(-3.266,ey-.335),(ey+.335,6.006)]:b.box('Window sill '+str(sign),(x,(a+c)/2,1.823),(.032,c-a,.034))
+        else:b.box('Window sill '+str(sign),(x,1.37,1.823),(.032,9.272,.034))
         for i in range(S.ROWS):
             y=S.ROW_START+i*S.ROW_PITCH
             if sign>0 and i==S.SIDE_EXIT_ROW:continue
-            b.box(f'Body post {sign} {i}',(x,y-S.ROW_PITCH/2,2.245),(.045,.044,.870))
+            posty=y-S.ROW_PITCH/2;postwidth=.044
+            if sign>0 and i==S.SIDE_EXIT_ROW+1:posty+=.016;postwidth=.020
+            b.box(f'Body post {sign} {i}',(x,posty,2.245),(.045,postwidth,.870))
             w=S.ROW_PITCH-.052
             b.frame_side(f'Passenger sash {sign} {i}',sign*1.222,y,2.251,w,.850,'black',rail=.024)
             b.frame_side(f'Aluminum sash {sign} {i}',sign*1.224,y,2.253,w-.036,.814,'aluminum',rail=.014)
@@ -111,7 +114,7 @@ def body(b):
             b.glass_side('driver',sign*1.211,-3.36,2.245,.83,.755)
             b.box('Driver slider join',(sign*1.224,-3.36,2.245),(.024,.023,.78),'aluminum')
         # Real pressed rub rails, hat section, broken around entrance/side exit and wheel arch.
-        for ri,z in enumerate([.795,1.222,1.682,1.822]):
+        for ri,z in enumerate([.795,1.222,1.624,1.778]):
             intervals=[(-3.89,5.94)] if sign>0 else [(-2.90,5.94)]
             if sign>0:
                 ey=S.ROW_START+S.SIDE_EXIT_ROW*S.ROW_PITCH
@@ -153,10 +156,10 @@ def body(b):
         b.box('Rear lower field '+str(sign),(sign*.855,6.006,1.260),(.729,.032,1.010),r=.010)
         b.box('Rear upper field '+str(sign),(sign*.855,6.006,2.702),(.729,.032,.157),r=.010)
         for xx in [sign*.516,sign*1.184]:b.box('Rear window jamb '+str(sign)+str(xx),(xx,6.006,2.195),(.048,.032,.86),r=.004)
-        b.box('Glass rear corner '+str(sign),(sign*.855,6.013,2.195),(.602,.0048,.788),'windshield',category='glass',r=0)
-        b.tube('Rear corner glass seal '+str(sign),[(sign*.540,6.027,1.785),(sign*1.169,6.027,1.785),(sign*1.169,6.027,2.605),(sign*.540,6.027,2.605),(sign*.540,6.027,1.785)],.018)
-        for z in [1.682,1.222,.795]:b.box('Rear rail return '+str(sign)+str(z),(sign*.858,6.035,z),(.69,.040,.104),'black',r=.010)
-    b.box('Rear lower sill',(0,6.006,.987),(1.0,.038,.465))
+        b.box('Glass rear corner '+str(sign),(sign*.855,6.013,2.220),(.602,.0048,.738),'windshield',category='glass',r=0)
+        b.tube('Rear corner glass seal '+str(sign),[(sign*.540,6.027,1.835),(sign*1.169,6.027,1.835),(sign*1.169,6.027,2.605),(sign*.540,6.027,2.605),(sign*.540,6.027,1.835)],.018)
+        for z in [1.624,1.222,.795]:b.box('Rear rail return '+str(sign)+str(z),(sign*.858,6.035,z),(.69,.040,.104),'black',r=.010)
+    b.box('Rear lower sill',(0,6.006,.965),(1.0,.038,.420))
     b.box('Rear exit header',(0,6.006,2.690),(1.02,.038,.080))
     # Front roof cap, flattened warning-light lands and black SCHOOL BUS band.
     for front,y in [(True,-3.92),(False,6.006)]:
@@ -184,6 +187,13 @@ def body(b):
         b.box('Front corner structural post '+str(sign),(sign*1.174,-3.75,2.302),(.073,.20,.83),r=.016)
     b.socket('Door',(-1.25,-3.37,.40),'entrance')
 
+def bearing(b,name,center,axis,parent,half=.028,extension=.017):
+    """A real pin inside a hollow sleeve; the caller supplies its structural feet."""
+    ob=G.lathe(name+' sleeve',[(-half,.013),(half,.013),(half,.0064),(-half,.0064)],b.m['black'],12,axis=axis,closed=True)
+    ob.location=center;b.add(ob,parent)
+    v=Vector((1,0,0) if axis=='X' else (0,0,1));c=Vector(center)
+    b.add(G.cylinder(name+' fixed pin',c-v*(half+extension),c+v*(half+extension),.006,b.m['aluminum'],12))
+
 def hatch(b,name,y):
     # Cut the source roof with a true hole and surround it with a bolted curb.
     roof=bpy.data.objects['Formed roof steel'];liner=bpy.data.objects['Ceiling formed liner']
@@ -192,10 +202,14 @@ def hatch(b,name,y):
     b.box(name+' curb',(0,y,3.192),(.62,.70,.020),'black',r=.020)
     # Curb frame is hollow: remove center before the lid is added.
     curb=bpy.data.objects[name+' curb'];G.boolean(curb,G.box('Curb hole',(0,y,3.192),(.54,.62,.10),None,0))
-    p=pivot(b,name,(0,y+.34,3.207),axis='X',limits=(-80,0))
+    p=pivot(b,name,(0,y+.35,3.220),axis='X',limits=(-80,0))
     b.box(name+' lid',(0,y,3.215),(.595,.675,.026),'white',p,r=.025)
     b.box(name+' interior release',(0,y,3.175),(.15,.07,.025),'red',p,category='interior',r=.006)
-    for x in [-.23,.23]:b.tube(name+' hinge',[(x,y+.29,3.205),(x,y+.39,3.205)],.012,'aluminum',p)
+    bearing(b,name+' hinge',(0,y+.35,3.220),'X',p,half=.280,extension=.057)
+    b.box(name+' hinge moving leaf',(0,y+.33,3.2305),(.50,.080,.005),'aluminum',p,r=.001)
+    for sign in [-1,1]:
+        b.box(name+' hinge foot',(sign*.317,y+.364,3.212),(.014,.022,.033),'aluminum',r=.001)
+        b.box(name+' curb hinge flange',(sign*.306,y+.349,3.195),(.044,.050,.010),'aluminum',r=.001)
 
 def doors(b):
     # Outward-opening entrance leaves: hinge axes at opposite jambs.
@@ -212,10 +226,11 @@ def doors(b):
         x=-1.118+i*.205;z=.340+i*.210
         b.box('Entrance step riser '+str(i),(x,-3.345,z-.098),(.207,.780,.196),'yellow',category='interior',r=.002)
         b.box('Worn entrance tread '+str(i),(x,-3.345,z+.006),(.207,.780,.016),'floor',category='interior',r=.002)
-        b.box('Step safety nosing '+str(i),(x-.102,-3.345,z+.014),(.025,.778,.013),'white',category='interior',r=.002)
-    b.tube('Entrance grab rail',[(-1.10,-2.934,.65),(-.96,-2.934,1.42),(-.50,-2.934,1.72),(-.35,-2.934,1.72)],.016,'aluminum',category='interior',sides=10)
+        b.box('Step safety nosing '+str(i),(x-.102,-3.345,z+.009),(.025,.778,.013),'white',category='interior',r=.002)
+    b.tube('Entrance grab rail',[(-1.10,-2.975,.354),(-1.10,-2.975,.65),(-.96,-2.975,1.42),(-.50,-2.975,1.72),(-.35,-2.975,1.72),(-.35,-2.878,1.72)],.016,'aluminum',category='interior',sides=10)
+    b.box('Grab rail barrier flange',(-.35,-2.874,1.72),(.065,.008,.065),'aluminum',category='interior',r=.002)
     # Rear emergency door occupies the physical 37 x 52-inch opening.
-    p=pivot(b,'Emergency_rear',(-.485,6.034,1.198),axis='Z',limits=(0,105))
+    p=pivot(b,'Emergency_rear',(-.485,6.060,1.198),axis='Z',limits=(0,105))
     b.box('Rear emergency lower leaf',(0,6.026,1.474),(.9398,.037,.535),'yellow',p,r=.005)
     b.box('Rear emergency upper leaf',(0,6.026,2.499),(.9398,.037,.259),'yellow',p,r=.004)
     b.box('Rear emergency top sash',(0,6.026,2.330),(.9398,.037,.090),'yellow',p,r=.004)
@@ -225,18 +240,35 @@ def doors(b):
     b.box('Glass rear emergency',(0,6.035,2.002),(.845,.0048,.570),'windshield',p,category='glass',r=0)
     for x in [-.477,.477]:b.box('Rear jamb backed reveal '+str(x),(x,5.987,1.920),(.047,.014,1.480),'black',r=.002)
     for z in [1.193,2.638]:b.box('Rear header backed reveal '+str(z),(0,5.987,z),(.98,.014,.044),'black',r=.002)
-    for z in [1.26,2.47]:b.tube('Rear door hinge',[(-.485,6.038,z-.055),(-.485,6.038,z+.055)],.015,'black',p)
+    for z in [1.29,2.47]:
+        bearing(b,'Rear door hinge '+str(z),(-.485,6.060,z),'Z',p)
+        b.box('Rear hinge moving leaf',(-.462,6.047,z),(.047,.008,.045),'aluminum',p,r=.001)
+        for dz in [-.039,.039]:b.box('Rear hinge fixed foot',(-.505,6.042,z+dz),(.060,.055,.014),'aluminum',r=.001)
     b.tube('Rear exit handle',[(.36,6.065,1.72),(.24,6.090,1.72),(.24,6.090,1.66)],.012,'red',p)
     b.print('Rear emergency label',[(.44,6.052,2.51),(-.44,6.052,2.51),(-.44,6.052,2.59),(.44,6.052,2.59)],'emergency',p)
     # Left side exit removes one three-place bench, leaving 75 passenger places.
     y=S.ROW_START+S.SIDE_EXIT_ROW*S.ROW_PITCH
     p=pivot(b,'Emergency_side',(1.246,y-.332,1.18),axis='Z',limits=(-105,0))
+    b.box('Side emergency forward jamb',(1.207,y-.332,2.247),(.045,.018,.876),'yellow',r=.002)
     b.box('Side emergency lower',(1.229,y,1.504),(.032,.640,.648),'yellow',p)
     b.frame_side('Side emergency upper frame',1.242,y,2.252,.642,.850,'yellow',p,rail=.045)
     b.glass_side('side emergency',1.236,y,2.252,.540,.746,p)
     b.tube('Side exit latch',[(1.268,y-.23,1.71),(1.292,y-.08,1.71)],.012,'red',p)
+    for z in [1.40,1.95,2.50]:
+        bearing(b,'Side door hinge '+str(z),(1.246,y-.332,z),'Z',p)
+        for dz in [-.039,.039]:b.box('Side hinge fixed foot',(1.232,y-.341,z+dz),(.036,.036,.014),'aluminum',r=.001)
     b.print('Side exit label',[(1.268,y-.29,1.722),(1.268,y+.29,1.722),(1.268,y+.29,1.795),(1.268,y-.29,1.795)],'emergency',p)
     for name,yy in [('Roof_hatch_front',-1.4),('Roof_hatch_rear',3.9)]:hatch(b,name,yy)
+
+def bumper(b,name,front,width,depth,z0,z1):
+    """Six-millimeter pressed steel C section, swept back around both corners."""
+    end=S.FRONT if front else S.REAR;direction=1 if front else -1;g=.006
+    rings=[]
+    for x,wrap in [(-width/2,.09),(-width/2+.12,.02),(-width/2+.20,0),(width/2-.20,0),(width/2-.12,.02),(width/2,.09)]:
+        y=end+direction*wrap
+        section=[(y,z0),(y,z1),(y+direction*depth,z1),(y+direction*depth,z1-g),(y+direction*g,z1-g),(y+direction*g,z0+g),(y+direction*depth,z0+g),(y+direction*depth,z0)]
+        rings.append([(x,yy,zz) for yy,zz in section])
+    ob=G.loft(name,rings,b.m['black']);G.bevel(ob,.0015,1);b.add(ob)
 
 def hood(b):
     # Compound molded hood: each section is independently rounded across width and down both cheeks.
@@ -283,7 +315,10 @@ def hood(b):
         loops=[]
         for x,r in [(sign*.785,.680),(sign*.91,.727),(sign*1.080,.733),(sign*1.174,.700),(sign*1.196,.648),(sign*1.170,.622)]:
             loops.append([(x,S.FRONT_AXLE+r*math.cos(t),S.HUB+r*math.sin(t)) for t in [math.radians(-15+210*i/40) for i in range(41)]])
-        ob=G.loft('Molded front fender '+str(sign),loops,b.m['yellow'],caps=True,closed=False);G.smooth(ob,45);b.add(ob)
+        n=len(loops[0]);m=len(loops);vs=[p for ring in loops for p in ring]
+        fs=[(j*n+k,j*n+k+1,((j+1)%m)*n+k+1,((j+1)%m)*n+k) for j in range(m) for k in range(n-1)]
+        fs += [tuple(j*n for j in reversed(range(m))),tuple(j*n+n-1 for j in range(m))]
+        ob=G.mesh('Molded front fender '+str(sign),vs,fs,b.m['yellow']);G.smooth(ob,45);b.add(ob)
         # Corner lamp enclosure: closed yellow molded fairing, sealed lens on its face.
         b.box('Front optical housing '+str(sign),(sign*.948,-5.688,1.052),(.400,.185,.365),r=.070)
         b.box('Headlamp gasket '+str(sign),(sign*.948,-5.791,1.066),(.325,.015,.203),'black',r=.034)
@@ -297,11 +332,12 @@ def hood(b):
         b.box('Hood rubber latch '+str(sign),(sign*.855,-4.18,1.476),(.030,.060,.155),'black',r=.008)
         b.tube('Hood latch loop '+str(sign),[(sign*.865,-4.20,1.54),(sign*.875,-4.20,1.62),(sign*.866,-4.16,1.65)],.007,'aluminum')
     # Broad pressed steel bumpers wrap the corners and carry the crossing-arm actuator.
-    b.box('Front pressed bumper',(0,S.FRONT+.102,.623),(2.35,.204,.278),'black',r=.038)
-    b.box('Rear pressed bumper',(0,S.REAR-.090,.650),(2.43,.180,.270),'black',r=.026)
+    bumper(b,'Front pressed bumper',True,2.35,.204,.470,.790)
+    bumper(b,'Rear pressed bumper',False,2.43,.180,.500,.800)
     b.print('Front maker badge',[(-.23,-5.948,1.437),(.23,-5.948,1.437),(.23,-5.948,1.492),(-.23,-5.948,1.492)],'maker')
     for end,yy in [('Front',S.FRONT-.001),('Rear',S.REAR+.001)]:
-        corners=[(-.155,yy,.57),(.155,yy,.57),(.155,yy,.725),(-.155,yy,.725)]
+        low=.4725 if end=='Front' else .57;high=low+.155
+        corners=[(-.155,yy,low),(.155,yy,low),(.155,yy,high),(-.155,yy,high)]
         if end=='Rear':corners=[corners[1],corners[0],corners[3],corners[2]]
         b.print(end+' fictional license',corners,f'plate-{b.seed}')
 
@@ -316,7 +352,7 @@ def wheel(b,code,x,y,sign,steer=False):
     # Car-family lathe method, sized as a deep 22.5-inch truck steel disc.
     pr=[(-.100,r-.017),(-.100,r+.004),(-.085,r+.004),(.088,r-.008),(.109,r+.009),(.117,r-.004),(.112,r-.025),(.083,r-.027)]
     # The car's graded-ring method retains 128 stations only at exposed rolled lips.
-    counts=[32,32,32,64,128,128,64,32];vs=[];starts=[];fs=[]
+    counts=[16,16,16,32,64,64,32,16] if code.endswith('inner') else [32,32,32,64,128,128,64,32];vs=[];starts=[];fs=[]
     for (ax,rr),num in zip(pr,counts):
         starts.append(len(vs));vs.extend((x+sign*ax,y+rr*math.cos(math.tau*k/num),S.HUB+rr*math.sin(math.tau*k/num)) for k in range(num))
     for j,num in enumerate(counts):
@@ -351,6 +387,8 @@ def chassis(b):
         loops=[[(sign*.402+sign*x,y,.865+z) for x,z in sec] for y in [-5.79,5.90]]
         b.add(G.loft('Chassis C rail '+str(sign),loops,b.m['frame']),category='chassis')
     for y in [-5.3,-3.7,-2.0,0,1.4,3.2,4.8,5.8]:b.box('Chassis crossmember '+str(y),(0,y,.889),(.80,.067,.146),'frame',category='chassis',r=.005)
+    for sign in [-1,1]:
+        for label,y,z in [('Front',-5.87,.77),('Rear',5.91,.76)]:b.box(label+' bumper frame bracket '+str(sign),(sign*.402,y,z),(.085,.26,.11),'frame',category='chassis',r=0)
     for label,y in [('Front',S.FRONT_AXLE),('Rear',S.REAR_AXLE)]:
         span=.95 if label=='Front' else 1.20
         b.tube(label+' axle',[(-span,y,S.HUB),(span,y,S.HUB)],.077,'frame',category='chassis',sides=24)
@@ -367,12 +405,18 @@ def chassis(b):
     wheel(b,'FL',1.015,S.FRONT_AXLE,1,True);wheel(b,'FR',-1.015,S.FRONT_AXLE,-1,True)
     for sign,side in [(-1,'R'),(1,'L')]:
         for label,x in [('outer',1.057),('inner',.748)]:wheel(b,'R'+side+'_'+label,sign*x,S.REAR_AXLE,sign)
-        for y in [S.FRONT_AXLE+.75,S.REAR_AXLE+.68]:b.box('Mud flap '+side+str(y),(sign*.985,y,.465),(.40,.018,.48),'black',category='chassis',r=.008)
+        for y in [S.FRONT_AXLE+.75,S.REAR_AXLE+.68]:
+            b.box('Mud flap '+side+str(y),(sign*.985,y,.465),(.40,.018,.48),'black',category='chassis',r=.008)
+            width=.44 if y<0 else .48
+            b.box('Mud flap mounting clamp '+side+str(y),(sign*.985,y,.7275),(width,.04,.055),'frame',category='chassis',r=.002)
     b.box('Fuel tank',(0,4.52,.743),(.69,1.40,.40),'frame',category='chassis',r=.065)
     for yy in [4.05,4.98]:b.box('Fuel tank strap '+str(yy),(0,yy,.751),(.72,.045,.427),'aluminum',category='chassis',r=.02)
     b.tube('Propeller shaft',[(0,-3.9,.60),(0,S.REAR_AXLE,.523)],.044,'frame',category='chassis',sides=10)
-    b.tube('Exhaust tailpipe',[(-.32,-3.5,.65),(-.32,.8,.60),(-.70,3.0,.54),(-.91,5.5,.54),(-1.30,5.67,.50)],.044,'frame',category='chassis',sides=12)
-    for y in [0,3.4,5.4]:b.tube('Exhaust hanger '+str(y),[(-.4,y,.74),(-.7,y,.53),(-.92,y,.53)],.009,'black',category='chassis')
+    exhaust=[(-.32,-3.5,.65),(-.32,.8,.60),(-.32,2.70,.55),(-.70,3.2,.54),(-.91,5.5,.54),(-1.30,5.67,.50)]
+    b.tube('Exhaust tailpipe',exhaust,.044,'frame',category='chassis',sides=12)
+    for y in [0,3.4,5.4]:
+        a,c=next((a,c) for a,c in zip(exhaust,exhaust[1:]) if a[1]<=y<=c[1]);t=(y-a[1])/(c[1]-a[1]);x=a[0]+t*(c[0]-a[0]);z=a[2]+t*(c[2]-a[2])
+        b.tube('Exhaust hanger '+str(y),[(-.402,y,.740),(x+.05,y,z-.05),(x,y,z-.044)],.009,'black',category='chassis')
 
 def interior(b):
     # Rows have molded curved backs with radiused corners and finite cushions.
@@ -384,12 +428,13 @@ def interior(b):
             b.box(name+' cushion',(x,y-.07,1.590),(.9906,.452,.128),'vinyl',category='interior',r=.060)
             # Compound cross sections taper gently across and through the padded crown.
             rings=[]
-            for z,w,dy,depth in [(1.57,.455,.08,.040),(1.72,.475,.085,.063),(1.96,.475,.105,.069),(2.235,.465,.122,.065),(2.285,.425,.128,.025)]:
+            for z,w,dy,depth in [(1.57,.455,.08,.040),(1.72,.475,.085,.063),(1.96,.475,.105,.069),(2.285,.465,.122,.065),(2.335,.425,.128,.025)]:
                 contour=G.rounded_rectangle(w*2,depth*2,min(depth*.75,.035),3)
                 rings.append([(x+xx,y+dy+yy,z) for xx,yy in contour])
             ob=G.loft(name+' padded back',rings,b.m['vinyl']);G.smooth(ob,50);b.add(ob,category='interior')
             for dx in [-.345,.345]:
-                b.tube(name+' support '+str(dx),[(x+dx,y-.17,1.197),(x+dx,y-.17,1.52),(x+dx,y+.11,1.58),(x+dx,y+.13,1.92)],.015,'frame',category='interior',sides=6)
+                b.box(name+' foot plate '+str(dx),(x+dx,y-.17,1.183),(.055,.065,.006),'frame',category='interior',r=0)
+                b.tube(name+' support '+str(dx),[(x+dx,y-.17,1.185),(x+dx,y-.17,1.52),(x+dx,y+.11,1.58),(x+dx,y+.13,1.92)],.015,'frame',category='interior',sides=6)
             # One socket for the bench and individual passenger locations.
             b.socket(name,(x,y-.08,1.70))
             for j in range(3):b.socket(name+f'_Place{j}',(x+(j-1)*.310,y-.08,1.70))
@@ -397,17 +442,17 @@ def interior(b):
     b.box('Front passenger barrier',(-.685,-2.82,1.815),(.960,.100,1.04),'vinyl',category='interior',r=.045)
     b.box('Driver seat cushion',(.695,-3.43,1.67),(.51,.48,.13),'black',category='interior',r=.055)
     back=b.box('Driver high back',(.695,-3.14,1.99),(.51,.14,.70),'black',category='interior',r=.055);back.rotation_euler.x=-.08
-    b.box('Driver suspension pedestal',(.695,-3.39,1.41),(.30,.30,.38),'frame',category='interior',r=.025)
+    b.box('Driver suspension pedestal',(.695,-3.39,1.41),(.30,.30,.46),'frame',category='interior',r=.025)
     b.socket('Driver',(.695,-3.40,1.76),'driver')
     b.box('Molded dash',(0,-3.825,1.849),(2.17,.37,.28),'dash',category='interior',r=.065)
     b.box('Driver instrument binnacle',(.68,-3.70,1.99),(.60,.24,.20),'dash',category='interior',r=.045)
-    b.tube('Steering column',[(.695,-3.66,1.46),(.695,-3.43,1.935)],.034,'black',category='interior',sides=10)
+    b.tube('Steering column',[(.695,-3.78,1.180),(.695,-3.43,1.935)],.034,'black',category='interior',sides=10)
     loop(b,'Steering wheel',(.695,-3.43,1.935),(1,0,0),(0,.82,.57),(.227,.227),.016,b.m['black'],'interior',segments=40,sides=8)
     for dx,dy in [(-.20,0),(.20,0),(0,-.17)]:b.tube('Steering spoke '+str(dx),[(.695,-3.43,1.935),(.695+dx,-3.43+dy*.82,1.935+dy*.57)],.014,'black',category='interior')
     b.box('Driver switch console',(1.02,-3.31,1.71),(.21,.70,.15),'dash',category='interior',r=.020)
     for i in range(7):b.box('Rocker door control '+str(i),(.975,-3.54+i*.063,1.793),(.025,.035,.012),'red' if i==0 else 'black',category='interior',r=.003)
     for y in [-2.4,-.7,1,2.7,4.4]:
-        for sign in [-1,1]:b.box('Ceiling dome '+str(sign)+str(y),(sign*.56,y,3.108),(.23,.15,.022),'dome',category='interior',r=.030)
+        for sign in [-1,1]:b.box('Ceiling dome '+str(sign)+str(y),(sign*.56,y,3.119),(.23,.15,.022),'dome',category='interior',r=.030)
 
 def fittings(b):
     # Eight warning lamps at each end, red outside and amber inboard, with black visors.
@@ -421,7 +466,7 @@ def fittings(b):
                 b.box('Lamp visor '+str(front)+label+str(sign),(sign*x,y+outward*.03,3.000),(.243,.135,.020),'black',r=.008)
         for x in [-.10,0,.10]:b.box('Roof clearance marker '+str(front)+str(x),(x,y,3.065),(.06,.025,.034),'amber' if front else 'warning_red',category='lamps',r=.009)
     for sign in [-1,1]:
-        for y in [-3.5,5.7]:b.box('Side marker '+str(sign)+str(y),(sign*1.237,y,1.115),(.023,.10,.055),'amber' if y<0 else 'warning_red',category='lamps',r=.01)
+        for y in [-2.82,5.7]:b.box('Side marker '+str(sign)+str(y),(sign*1.237,y,1.115),(.023,.10,.055),'amber' if y<0 else 'warning_red',category='lamps',r=.01)
         for z in [1.05,1.41]:
             ob=G.cylinder('Rear round tail '+str(sign)+str(z),(sign*.88,6.032,z),(sign*.88,6.050,z),.086,b.m['warning_red'],32);b.add(ob,category='lamps')
         b.box('Rear reverse '+str(sign),(sign*.87,6.043,.886),(.12,.018,.07),'headlight',category='lamps',r=.015)
@@ -437,13 +482,16 @@ def fittings(b):
         b.box('Side mirror plane '+str(sign),(sign*1.55,-4.235,2.397),(.218,.007,.377),'mirror',r=.026)
         b.box('Side convex mirror '+str(sign),(sign*1.55,-4.238,2.074),(.218,.008,.213),'mirror',r=.030)
         # Crossover mirror has a true curved ellipsoidal face and two supports.
-        b.tube('Crossview mirror bracket '+str(sign),[(sign*1.04,-5.59,1.37),(sign*1.38,-5.90,1.69),(sign*1.36,-6.02,1.94)],.013,'black')
-        b.tube('Crossview mirror brace '+str(sign),[(sign*.80,-5.80,1.43),(sign*1.38,-5.90,1.69)],.011,'black')
+        b.tube('Crossview mirror bracket '+str(sign),[(sign*.780,-5.59,1.37),(sign*1.38,-5.90,1.69),(sign*1.36,-6.02,1.94)],.013,'black')
+        b.tube('Crossview mirror brace '+str(sign),[(sign*.757,-5.80,1.43),(sign*1.38,-5.90,1.69)],.011,'black')
+        b.box('Crossview primary foot '+str(sign),(sign*.783,-5.59,1.37),(.014,.075,.080),'black',r=.004)
+        b.box('Crossview brace foot '+str(sign),(sign*.766,-5.80,1.43),(.014,.070,.070),'black',r=.004)
         bpy.ops.mesh.primitive_uv_sphere_add(segments=24,ring_count=12,location=(sign*1.36,-6.04,1.985));ob=bpy.context.object;ob.name='Convex crossview '+str(sign);ob.scale=(.157,.059,.125);ob.data.materials.append(b.m['mirror']);G.smooth(ob);b.add(ob)
     # Stop arm folds flat rearwards on the driver's side, swings out 90 degrees.
-    p=pivot(b,'Stop_arm',(1.273,-2.70,1.78),axis='Z',limits=(-90,0))
+    p=pivot(b,'Stop_arm',(1.302,-2.70,1.78),axis='Z',limits=(-90,0))
     b.box('Stop arm actuator',(1.252,-2.70,1.77),(.070,.17,.22),'black',r=.019)
-    for z in [1.59,1.97]:b.tube('Stop arm hinge '+str(z),[(1.273,-2.70,z-.03),(1.273,-2.70,z+.03)],.015,'black',p)
+    for z in [1.59,1.97]:b.tube('Stop arm hinge '+str(z),[(1.302,-2.70,z-.03),(1.302,-2.70,z+.03)],.015,'black',p)
+    for z in [1.63,1.93]:b.box('Stop arm mounting strap',(1.295,-2.615,z),(.012,.180,.040),'aluminum',p,r=.002)
     cy=-2.36;cz=1.78;across=.500;radius=across/(2*math.cos(math.pi/8))
     poly=[(cy+radius*math.cos(math.pi/8+k*math.tau/8),cz+radius*math.sin(math.pi/8+k*math.tau/8)) for k in range(8)]
     b.add(G.profile('Stop octagon white border',poly,1.286,1.297,b.m['white'],axis='X'),p)
@@ -457,8 +505,11 @@ def fittings(b):
             ob=G.cylinder('Stop red lamp '+str(sign)+str(z),(x,cy,z),(x+sign*.014,cy,z),.038,b.m['warning_red'],24);b.add(ob,p,'lamps')
     # Crossing gate: long yellow U-loop, rests along front bumper then swings forward.
     p=pivot(b,'Crossing_arm',(-1.01,S.FRONT-.043,.71),axis='Z',limits=(-90,0))
-    b.box('Crossing arm actuator',(-1.01,S.FRONT-.017,.71),(.22,.13,.20),'black',r=.020)
-    b.tube('Crossing arm U loop',[(-.97,S.FRONT-.060,.765),(.77,S.FRONT-.060,.765),(.83,S.FRONT-.060,.71),(.77,S.FRONT-.060,.655),(-.97,S.FRONT-.060,.655)],.012,'yellow',p,sides=10)
+    b.box('Crossing arm actuator',(-1.01,S.FRONT+.035,.71),(.22,.090,.20),'black',r=.020)
+    ob=G.lathe('Crossing gate bearing',[(-.038,.024),(.038,.024),(.038,.0129),(-.038,.0129)],b.m['black'],16,closed=True);ob.location=(-1.01,S.FRONT-.043,.71);b.add(ob)
+    b.tube('Crossing gate spindle',[(-1.01,S.FRONT-.043,.63),(-1.01,S.FRONT-.043,.79)],.012,'aluminum',p,sides=16)
+    b.box('Crossing gate mounting tab',(-1.01,S.FRONT+.0045,.71),(.070,.051,.070),'frame',r=.002)
+    b.tube('Crossing arm U loop',[(-1.005,S.FRONT-.060,.765),(.77,S.FRONT-.060,.765),(.83,S.FRONT-.060,.71),(.77,S.FRONT-.060,.655),(-1.005,S.FRONT-.060,.655)],.012,'yellow',p,sides=10)
     for sign in [-1,1]:
         for name,y,z,w,h in [('Battery service',-.99,.960,.88,.28),('Skirt service',3.31,.960,.76,.28),('Fuel door',4.82,1.12,.24,.27)]:
             b.box(name+' seam '+str(sign),(sign*1.229,y,z),(.004,w+.012,h+.012),'black',r=.005)
