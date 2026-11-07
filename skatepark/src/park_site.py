@@ -23,6 +23,15 @@ def rules_print(rt,town):
     from PIL import Image,ImageDraw,ImageFont
     path=Path('build/T_Skatepark_FormRules.png')
     towns=('ALDER GLEN','CEDAR JUNCTION','MILL CREEK')
+    if 'Rules' in M:
+        o=G.plane_uv('Rules baked trim print',[(-.371,-.0476,1.153),(.371,-.0476,1.153),(.371,-.0476,2.147),(-.371,-.0476,2.147)],M['Rules']);o.parent=rt
+        own(o,rt);o.data.uv_layers.active.name='UVMap';o['finish_key']='Rules'
+        i=towns.index(town)
+        for f in o.data.polygons:
+            for li in f.loop_indices:
+                p=o.data.vertices[o.data.loops[li].vertex_index].co
+                o.data.uv_layers.active.data[li].uv=((i+(p.x+.371)/.742)/3,(p.z-1.153)/.994*.25)
+        return o
     if bpy.data.materials.get('Skate_Form_Rules') is None:
         im=Image.new('RGB',(1024,1024),(44,66,61));draw=ImageDraw.Draw(im)
         for i,label in enumerate(towns):
@@ -91,13 +100,16 @@ def site(p):
     rt=root('SitePaving','site');roots.append(rt)
     # Site turf excludes skating and parking footprints; bowl does not have a
     # hidden green plane running through it.
-    for x0,x1,y0,y1 in [(-SW/2,-W/2-1,-SD/2,SD/2),(W/2+1,SW/2,-SD/2,SD/2),(-W/2-1,W/2+1,D/2+1,SD/2)]:
+    for x0,x1,y0,y1 in [(-SW/2,-W/2-.45,-SD/2,SD/2),(W/2+.45,SW/2,-SD/2,SD/2),(-W/2-.45,W/2+.45,D/2+.45,SD/2)]+p.get('landscape_cuts',[]):
         box('Park lawn',((x0+x1)/2,(y0+y1)/2,-.04),(x1-x0,y1-y0,.06),rt,'Lawn',0)
+    for s in (-1,1):
+        box('Turf between walk and mow strip',(s*(W/4+.6096),-D/2-.8346,-.04),(W/2-1.2192,.7692,.06),rt,'Lawn',0)
     # Front parking lot, perpendicular stalls and a separate entry walkway.
     py=-D/2-8.5344
     box('Asphalt parking',(0,py,-.06),(W+12.192,12.192,.10),rt,'Asphalt',0)
-    box('Level public walk',(0,-D/2-2.4384,-.05),(W+12.192,2.4384,.10),rt,'Concrete',.003)
-    box('Street to gate walk',(0,-D/2-8.5344,-.025),(2.4384,14.6304,.05),rt,'Concrete',.002)
+    box('Level public walk',(0,-D/2-2.4384,-.05),(W+12.192,2.4384,.10),rt,'Walk' if 'Walk' in M else 'Concrete',.003)
+    box('Street to gate walk',(0,-D/2-8.5344,-.025),(2.4384,14.6304,.05),rt,'Walk' if 'Walk' in M else 'Concrete',.002)
+    box('Gate approach meets skating grade',(0,-D/2-.6096,-.05),(2.4384,1.2192,.10),rt,'Walk' if 'Walk' in M else 'Concrete',.002)
     for s in (-1,1):
         for i in range(5):
             x=s*(3.9624+i*2.7432)
@@ -121,7 +133,15 @@ def site(p):
         for i in range(nx):
             x=(i-(nx-1)/2)*3.048
             if y<0 and abs(x)<1.6:continue
-            instance(f['Chain_Section'],'Chain section',(x,y,0),yaw,fence)
+            panel=instance(f['Chain_Section'],'Chain section',(x,y,0),yaw,fence)
+            if y<0 and i==nx-3:
+                for ob in panel.children_recursive:
+                    if ob.type!='MESH':continue
+                    ob.data=ob.data.copy()
+                    ids={vi for face in ob.data.polygons if 'ChainLink' in ob.data.materials[face.material_index].name for vi in face.vertices}
+                    for vi in ids:
+                        v=ob.data.vertices[vi].co
+                        if .06<v.z<.62:v.y+=.045*math.exp(-(v.x/.48)**4)*math.sin(math.pi*(v.z-.06)/.56)**2
         for i in range(nx+1):
             x=(i-nx/2)*3.048
             if y<0 and abs(x)<entry_opening/2-.001:continue
@@ -137,7 +157,7 @@ def site(p):
         # Horizontal library bays straddle the origin: a 6.096m opening was
         # reserved by the two omitted bays. Infill meets gate-post centers.
         gate_pitch=1.069975;length=(entry_opening-gate_pitch)/2
-        ob=instance(f['Chain_Section'],'Gate infill',(s*(gate_pitch/2+length/2),-fy,0),0,fence);ob.scale.x=length/3.048
+        ob=instance(f['Chain_InfillWide' if entry_opening>4 else 'Chain_InfillShort'],'Gate infill',(s*(gate_pitch/2+length/2),-fy,0),0,fence)
     remove(f)
     sign=root('RulesSign','site');sign.location=(1.20,-D/2-2.0,0);roots.append(sign)
     cyl('Rules post',(0,0,0),(0,0,2.2),.03016,sign,'Zinc',12)
@@ -145,7 +165,8 @@ def site(p):
     rules_print(sign,p['town'])
     for z in (1.30,2.0):cyl('Rules sign fixing',(0,-.047,z),(0,-.052,z),.004,sign,'Zinc',6)
     f=load('tree')
-    for i,loc in enumerate(p['trees']):roots.append(instance(next(iter(f.values())),'ParkMaple_'+str(i),loc,(i*71+p['seed'])%360))
+    species=sorted(f.values(),key=lambda o:o.name)
+    for i,loc in enumerate(p['trees']):roots.append(instance(species[i%len(species)],'ParkTree_'+str(i),loc,(i*71+p['seed'])%360))
     remove(f)
     f=load('light')
     for i,loc in enumerate(((-W/2-3,-D/2+3,0),(W/2+3,D/2-3,0))):roots.append(instance(next(iter(f.values())),'ParkLight_'+str(i),loc,i*180))

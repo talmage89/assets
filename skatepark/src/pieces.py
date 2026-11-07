@@ -50,6 +50,7 @@ def quarter(name='Quarter_4ft',h=4*FT,r=7*FT,w=16*FT,deck=5*FT,prefab=False):
                 y,z=curve[j];t=a*j/N;normal=Vector((0,-math.sin(t),math.cos(t)))
                 for x in (xa+.04,xb-.04):
                     p=Vector((x,y,z))+normal*.0002
+                    if j==29 and k==1 and x<0:p+=normal*.0018
                     cyl('Recessed riding screw',p-normal*.001,p,.0048,rt,'Zinc',6)
         for x in (-w/2,w/2):
             profile('Galvanized side enclosure',curve+[(run/2+deck,h),(run/2+deck,.015),(-run/2,.015)],x-.0015,x+.0015,rt,'Paint')
@@ -62,7 +63,7 @@ def quarter(name='Quarter_4ft',h=4*FT,r=7*FT,w=16*FT,deck=5*FT,prefab=False):
         for z in (.10,.35,.60,.85,1.10):
             if z<h:box('Rear ventilated enclosure',(0,run/2+deck,z),(w,.003,.20),rt,'Paint',0)
         back_y,back_z=curve[4];front_y=-run/2-.15
-        profile('3mm flush bottom transition plate',[(front_y,.0003),(back_y,back_z),(back_y,back_z-.003),(front_y,-.0027)],-w/2,w/2,rt,'Zinc')
+        profile('3mm flush bottom transition plate',[(front_y,.0003),(back_y,back_z),(back_y,back_z-.003),(front_y,-.0027)],-w/2,w/2,rt,'ToePlate' if 'ToePlate' in M else 'Zinc')
         for x in (-w/2+.05,w/2-.05):
             for y in (-run/2-.10,run/2+.10):cyl('Base anchor',(x,y,.002),(x,y,.012),.008,rt,'Zinc',6)
         # Rear deck guard: vertical pickets, measured 42-inch height.
@@ -110,7 +111,9 @@ def ledge(name='Ledge_18in',h=1.5*FT,w=2*FT,length=12*FT,prefab=False):
 def manual():
     rt=root('ManualPad');w,l,h=6*FT,12*FT,FT
     box('Manual pad monolithic pour',(0,0,h/2),(w,l,h),rt,r=.006)
-    for s in (-1,1):angle_edge(rt,'Pad edge armor',s*w/2,0,h,l)
+    for s in (-1,1):
+        ob=angle_edge(rt,'Pad edge armor',s*w/2,0,h,l)
+        if s<0:ob.rotation_euler.z=math.pi
     socket(rt,'Line_In',(0,-l/2-3,0));socket(rt,'Line_Out',(0,l/2+3,0))
     return describe(rt,[w,l],height_m=h,ground_cut_json=json.dumps([[-w/2,w/2,-l/2,l/2]]))
 
@@ -129,13 +132,23 @@ def stairs(n=4):
         z=z0+(z1-z0)*(y-y0)/(y1-y0)
         cyl('Embedded stair rail post',(0,y,base),(0,y,z),.022225,rt,s=14)
     # Hubba is at stair side, rises with the slope, and continues on the landing.
-    x=w/2+.20;hl=.42
-    profile('Hubba cast body',[(-run/2,0),(-run/2,hl),(run/2,h+hl),(run/2+1.0,h+hl),(run/2+1.0,0)],x-.20,x+.20,rt)
-    beam('Hubba steel top armor',(x,-run/2,hl),(x,run/2,h+hl),.4064,rt,'Steel',.00635)
-    box('Hubba landing armor',(x,run/2+.5,h+hl),(.4064,1,.00635),rt,'Steel',0)
+    x=w/2+.2794;hl=.42
+    profile('Hubba cast body',[(-run/2,0),(-run/2,hl),(run/2,h+hl),(run/2+2.0,h+hl),(run/2+2.0,0)],x-.2794,x+.2794,rt)
+    # Concrete remains visible between two 2in angle irons. Their horizontal
+    # legs follow the slope and their vertical legs protect the outside arris.
+    for s in (-1,1):
+        xx=x+s*.2794;inner=xx-s*.0508;g=.0047625
+        for y0,y1,z0,z1 in ((-run/2,run/2,hl,h+hl),(run/2,run/2+2,h+hl,h+hl)):
+            section=[(0,0),(-s*.0508,0),(-s*.0508,-g),(-s*g,-g),(-s*g,-.0508),(0,-.0508)]
+            verts=[(xx+dx,y,z+dz+.001) for y,z in ((y0,z0),(y1,z1)) for dx,dz in section]
+            faces=[tuple(reversed(range(6))),tuple(range(6,12))]+[(i,(i+1)%6,(i+1)%6+6,i+6) for i in range(6)]
+            mesh('Hubba closed-gauge bent 2in edge angle',verts,faces,rt,'Steel')
+    # Opposite cheek ledge closes the stair side and supports the upper plaza.
+    xleft=-w/2-.16
+    profile('Stair cheek wall',[(-run/2,0),(-run/2,.20),(run/2,h+.20),(run/2+landing,h+.20),(run/2+landing,0)],xleft-.16,xleft+.16,rt)
     for y in (-run/2,run/2):socket(rt,'Ride_'+str(y),(w*.25,y+(-3 if y<0 else 3),0 if y<0 else h))
     socket(rt,'Landing',(0,run/2+landing,h),kind='grid_connection')
-    return describe(rt,[w+.4,run+landing],riser_m=rise,tread_m=tread,height_m=h,steps=n,rail_od_m=.0508,ground_cut_json=json.dumps([[-w/2,w/2,-run/2,run/2+landing],[x-.2,x+.2,-run/2,run/2+1.0],[-w/2,w/2,run/2+landing,run/2+landing+h/math.tan(math.radians(20))]]))
+    return describe(rt,[w+.8788,run+landing],riser_m=rise,tread_m=tread,height_m=h,steps=n,rail_od_m=.0508,ground_cut_json=json.dumps([[-w/2-.32,w/2,-run/2,run/2+landing],[x-.2794,x+.2794,-run/2,run/2+2.0]]))
 
 def flatrail(name='FlatBar',length=12*FT,h=1.5*FT):
     rt=root(name);box('Rectangular 2x3 inch grind tube',(0,0,h),(.0508,length,.0762),rt,'Steel',.004)

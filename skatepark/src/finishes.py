@@ -78,7 +78,8 @@ def trim_uv(ob,key):
             elif key=='Tile':
                 # One authored 51mm tile face samples one cell, not 64 tiny tiles.
                 ids=list(f.vertices);ii=ids.index(ob.data.loops[li].vertex_index)
-                cell=(sum(ord(c) for c in ob.name)%64);u=(cell%8+(1 if ii in (1,2) else 0)) /8
+                cells=[c for c in range(64) if (((c%8)*17+(c//8)*13)%19==8)==bool(ob.get('missing_tile'))]
+                cell=cells[sum(ord(c) for c in ob.name)%len(cells)];u=(cell%8+(1 if ii in (1,2) else 0)) /8
                 v=(cell//8+(1 if ii in (2,3) else 0))/8
             else:
                 normal=ob.matrix_basis.to_3x3().inverted().transposed()@f.normal
@@ -180,8 +181,8 @@ def weather(rt,p):
                         # Pumping lines circle the pockets, rising/falling as
                         # riders exchange height for speed. Lip contact adds
                         # a separate narrow abrasion zone beneath the coping.
-                        flow=math.exp(-((arc-(.28+.11*math.sin(u*2.7)))/.18)**4)
-                        lip=math.exp(v.z/.13)*(.55+.45*math.sin(u*3.1)**2)
+                        flow=math.exp(-((arc-(.28+.11*math.sin(v.x*.7+v.y*.23)))/.18)**4)
+                        lip=math.exp(v.z/.13)*(.55+.45*math.sin(v.x*.8+v.y*.4)**2)
                         value*=1-age*(.55*flow+.32*lip)
                     # Dark damp/grit on vertical retaining faces at grade.
                     if f.normal.z<.3:value*=1-age*.13*math.exp(-max(0,v.z)*5)
@@ -266,11 +267,12 @@ def basin_deposits(roots,p):
     # Clip the actual floor triangles into the deposit footprint. This keeps
     # every interior sample on its source plane, including the warped clover
     # sump, without a second independently tessellated floating surface.
-    x0,x1=4-spread/2,4+spread/2;y0,y1=-spread*.60,spread*.60
+    x0,x1=4-spread*.90,4+spread*.20;y0,y1=-spread*.70,spread*.70
     def clip(poly,axis,value,sign):
-        out=[];previous=poly[-1];a=sign*(previous[axis]-value)
+        def coordinate(v):return v[axis] if isinstance(axis,int) else v.x*axis[0]+v.y*axis[1]
+        out=[];previous=poly[-1];a=sign*(coordinate(previous)-value)
         for current in poly:
-            b=sign*(current[axis]-value)
+            b=sign*(coordinate(current)-value)
             if (a>=0)!=(b>=0):out.append(previous+(current-previous)*(a/(a-b)))
             if b>=0:out.append(current)
             previous=current;a=b
@@ -278,7 +280,7 @@ def basin_deposits(roots,p):
     vertices=[];polygons=[]
     for face in faces:
         poly=[Vector(verts[i]) for i in face]
-        for axis,value,sign in [(0,x0,1),(0,x1,-1),(1,y0,1),(1,y1,-1)]:
+        for axis,value,sign in [(0,x0,1),(0,x1,-1),(1,y0,1),(1,y1,-1),((.4,1),1.86,-1),((.4,-1),1.86,-1)]:
             if poly:poly=clip(poly,axis,value,sign)
         if len(poly)<3 or (poly[1]-poly[0]).cross(poly[2]-poly[0]).length<1e-9:continue
         polygons.append(tuple(range(len(vertices),len(vertices)+len(poly))));vertices += [v+Vector((0,0,.0018)) for v in poly]
@@ -287,12 +289,13 @@ def basin_deposits(roots,p):
     for face in dirt.data.polygons:
         for li in face.loop_indices:
             point=dirt.data.vertices[dirt.data.loops[li].vertex_index].co
-            dirt.data.uv_layers.active.data[li].uv=(u0+pad+(point.x-x0)/(x1-x0)*(u1-u0-2*pad),v0+pad+(point.y-y0)/(y1-y0)*(v1-v0-2*pad))
+            halfwidth=.18+.4*(4.2-point.x)
+            dirt.data.uv_layers.active.data[li].uv=(u0+pad+(point.x-x0)/(x1-x0)*(u1-u0-2*pad),v0+pad+(.5+point.y/(2*halfwidth))*(v1-v0-2*pad))
     rng=random.Random(p['seed']+701);age=p['age']
     # Fallen leaf blades are original polygon silhouettes, gathered where
     # water carries them. They are litter, not a newly modeled tree family.
     for k in range(round(24+age*85)):
-        x=4+rng.gauss(0,.56);y=rng.gauss(0,.48)
+        x=3.6+rng.gauss(0,.56);y=rng.gauss(0,.48)
         if 3.80<x<4.20 and abs(y)<.20:continue
         c=surface(x,y)
         if c is None:continue

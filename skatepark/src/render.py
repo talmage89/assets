@@ -50,11 +50,11 @@ def context(p):
         Q.instance(house,'Context town house',(i*23.0,D/2+39.624,-.1),0,rt)
     for i in range(-2,3):Q.instance(house,'Context east town house',(W/2+37.0,i*24.0,-.1),-90,rt)
     remove(f)
-    f=load('tree');tree=next(iter(f.values()))
+    f=load('tree');species=sorted(f.values(),key=lambda o:o.name)
     for i in range(-6,7):
-        Q.instance(tree,'Context street maple',(i*13.5+5,D/2+31.0,-.1),(i*43)%360,rt)
+        Q.instance(species[i%len(species)],'Context street tree',(i*13.5+5,D/2+31.0,-.1),(i*43)%360,rt)
     for i in range(7):
-        Q.instance(tree,'Context park maple',(W/2+16+(i%2)*10,-20+i*12,-.1),i*71,rt)
+        Q.instance(species[i%len(species)],'Context park tree',(W/2+16+(i%2)*10,-20+i*12,-.1),i*71,rt)
     remove(f)
     return rt
 
@@ -63,20 +63,33 @@ def views(p):
     shots=dict(above=dict(location=(-W*1.10,-D*1.70,57),target=(0,-3,0),lens=40,aspect=1.5),
                ground=dict(location=(-W*.68,-D*.77,1.65),target=(1,2,1.0),lens=40,aspect=1.9))
     if p['seed']==202:shots['ground']=dict(location=(18.7,-9,1.65),target=(-8,1,.8),lens=40,aspect=1.9)
+    shots['plan']=dict(location=(0,0,65),target=(0,0,0),lens=40,aspect=1.5)
+    if p['bowl']:
+        x,y,z=p['bowl']['location'];shots['bowl_plan']=dict(location=(x,y,25),target=(x,y,z),lens=40,aspect=1.35)
+    if p['seed']==202:shots['hero']=dict(location=(-15.6,-7.5,1.65),target=(4,3,.4),lens=35,aspect=1.85)
+    if p['seed']==202:shots['steel_coping']=dict(location=(-13.6,10.8,2.32),target=(-12.2,10.1,1.22),lens=65,aspect=1.5)
     if p['seed']==101:
         shots.update(hero=dict(location=(-19.0,-7.0,1.65),target=(4,1,1.0),lens=35,aspect=1.85),
-                     bowl=dict(location=(-11.3,-3.65,.75),target=(-10.968,-5.18,-.07),lens=55,aspect=1.5),
+                     bowl=dict(location=(-13,-3,1.4),target=(-13,-5.1,-.03),lens=50,aspect=1.5),
                      ledge=dict(location=(12.0,-10.0,1.25),target=(9.449,-6.6,.39),lens=55,aspect=1.5),
-                     stairs=dict(location=(17,-4.2,1.70),target=(13.1064,.3,.61),lens=45,aspect=1.5))
+                     stairs=dict(location=(17,-4.2,1.70),target=(12.8,2,.61),lens=45,aspect=1.5),
+                     deep_end=dict(location=(-8.25,-3.5,-.5),target=(-6.668,-1.2192,-2.14),lens=45,aspect=1.5),
+                     fence=dict(location=(16,-20,1.5),target=(20,-18.288,1.3),lens=45,aspect=1.5),
+                     edge=dict(location=(-22.6,-17.9,1.0),target=(-21,-16.75,-.01),lens=45,aspect=1.5),
+                     trees=dict(location=(-38,-19,7),target=(-27.4,-10.6,6),lens=38,aspect=.9))
     if p['seed']==303:
         shots['prefab']=dict(location=(2.25,4.95,1.4),target=(0,7.5,.65),lens=40,aspect=1.5)
+        shots['plate']=dict(location=(-.8,7.9,.43),target=(0,8.70,.02),lens=55,aspect=1.5)
+        shots['hero']=dict(location=(-10.97,-6.7056,1.65),target=(0,4,.7),lens=40,aspect=1.9)
     return shots
 
-def render(seed,folder,out,width,samples,names=None,custom=None,with_context=True):
-    source=Path(folder)/('Park_'+str(seed)+'.gltf');info=json.loads(Path('build/park-'+str(seed)+'.json').read_text());p=info['plan']
+def render(seed,folder,out,width,samples,names=None,custom=None,with_context=True,engine='CYCLES',manifest=None):
+    source=Path(folder)/('Park_'+str(seed)+'.glb')
+    if not source.exists():source=source.with_suffix('.gltf')
+    info=json.loads(Path(manifest or ('build/park-'+str(seed)+'.json')).read_text());p=info['plan']
     bpy.ops.wm.read_factory_settings(use_empty=True);bpy.ops.import_scene.gltf(filepath=str(source.resolve()));assets=list(bpy.context.scene.objects)
     if with_context:context(p)
-    cam=setup(samples);sc=bpy.context.scene;shots=custom or views(p);records={};out=Path(out);out.mkdir(parents=True,exist_ok=True)
+    cam=setup(samples);sc=bpy.context.scene;sc.render.engine=engine;shots=custom or views(p);records={};out=Path(out);out.mkdir(parents=True,exist_ok=True)
     for name,v in shots.items():
         if names and name not in names:continue
         if v.get('isolate'):
@@ -87,19 +100,20 @@ def render(seed,folder,out,width,samples,names=None,custom=None,with_context=Tru
         cam.location=v['location'];cam.rotation_euler=(Vector(v['target'])-cam.location).to_track_quat('-Z','Y').to_euler()
         if v.get('roll'):cam.rotation_euler.rotate_axis('Z',v['roll'])
         cam.data.lens=v.get('lens',40);cam.data.shift_y=v.get('shift_y',0)
-        sc.view_settings.exposure=v.get('exposure',-.2)
+        sc.view_settings.exposure=v.get('exposure',1.15)
         sc.render.resolution_x=width;sc.render.resolution_y=round(width/v.get('aspect',1.5));sc.render.resolution_percentage=100
         sun=bpy.data.objects['Raking sun'];sun.rotation_euler=Vector(v.get('sun_direction',(-.7,.35,-.55))).to_track_quat('-Z','Y').to_euler();sun.data.energy=v.get('sun_energy',4.5)
         if 'sky_strength' in v:sc.world.node_tree.nodes.get('Background').inputs['Strength'].default_value=v['sky_strength']
-        sc.world.node_tree.nodes['Estimated sky chroma'].inputs['Saturation'].default_value=v.get('sky_saturation',1)
+        sc.world.node_tree.nodes['Estimated sky chroma'].inputs['Saturation'].default_value=v.get('sky_saturation',.45)
         sun.data.angle=math.radians(v.get('sun_angle_degrees',.6))
         bpy.context.view_layer.update();sc.render.filepath=str((out/(name+'.png')).resolve());bpy.ops.render.render(write_still=True)
-        records[name]=dict(seed=seed,source=str(source),geometry_sha256=info['delivery']['sha256'],camera=v,engine='Cycles',samples=samples,width=width)
+        records[name]=dict(seed=seed,source=str(source),sha256=hashlib.sha256(source.read_bytes()).hexdigest(),camera=v,engine=engine,samples=samples,width=width,
+            effective_lighting=dict(exposure=sc.view_settings.exposure,sun_energy=sun.data.energy,sky_strength=sc.world.node_tree.nodes.get('Background').inputs['Strength'].default_value,sky_saturation=sc.world.node_tree.nodes['Estimated sky chroma'].inputs['Saturation'].default_value,view_transform=sc.view_settings.view_transform,look=sc.view_settings.look))
         (out/(name+'.json')).write_text(json.dumps(records[name],indent=2))
     return records
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--source');p.add_argument('--out',type=Path,default=Path('renders/checkpoint'));p.add_argument('--width',type=int,default=1440);p.add_argument('--samples',type=int,default=32);p.add_argument('--seed',type=int);p.add_argument('--shots',nargs='+');a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
-    for seed in ([a.seed] if a.seed else (101,202,303)):render(seed,'export/checkpoint',a.out/str(seed),a.width,a.samples,a.shots)
+    p=argparse.ArgumentParser();p.add_argument('--source');p.add_argument('--folder',default='export/checkpoint');p.add_argument('--engine',default='CYCLES');p.add_argument('--out',type=Path,default=Path('renders/checkpoint'));p.add_argument('--width',type=int,default=1440);p.add_argument('--samples',type=int,default=32);p.add_argument('--seed',type=int);p.add_argument('--shots',nargs='+');a=p.parse_args(sys.argv[sys.argv.index('--')+1:])
+    for seed in ([a.seed] if a.seed else (101,202,303)):render(seed,a.folder,a.out/str(seed),a.width,a.samples,a.shots,engine=a.engine)
 
 if __name__=='__main__':main()

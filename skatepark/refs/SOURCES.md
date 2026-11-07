@@ -30,3 +30,28 @@ Additional primary specifications consulted (HTML, not downloaded):
 Also viewed: `Applegate_Park_Skate_Park.JPG`, Ron Johnson, Commons media-by-author category;
 license not independently confirmed, therefore excluded from matched evidence and redistribution.
 Image-only URL: https://upload.wikimedia.org/wikipedia/commons/e/e6/Applegate_Park_Skate_Park.JPG .
+
+## Connected-terrain and look-dev follow-up
+
+| File | URL | Author / rights | Use |
+| --- | --- | --- | --- |
+| ann-arbor.pdf | https://www.a2gov.org/media/4i0ftreq/rfp_19-39_document.pdf | City of Ann Arbor; Wally Holliday / Charles H. Strawter Design, Inc., 2013 as-built drawing in municipal 2019 RFP; copyright retained, comparison only | Attachment A: complete bowl/street plan, true clover and amoeba pockets, grades, connected terrain and shared decks. |
+| rfk-2011.pdf | https://www.ncpc.gov/docs/actions/2011July/RFK_Stadium_Grounds_Skatepark_Delegated_7248_July2011_.pdf | National Capital Planning Commission, 30 June 2011; US federal publication | pp. 1–2: concrete plateaus, stairs and ramps spanning elevations; six- to eight-foot chain-link around the landscape perimeter. Six-foot fabric is built at its native wire pitch here. |
+| coping-profile.jpg | https://static.wixstatic.com/media/0b15c4_efee7a0b33684535ad1b7353d46fdfdd~mv2.jpg | Federal Stone; copyright retained; comparison only | Manufacturer's 12in SBN profile and the radial/reverse-radius product options. Nominal 24in length / 2.5in bullnose; square radial end planes and recessed mortar, never a texture input. |
+| venice.jpg | https://upload.wikimedia.org/wikipedia/commons/3/3f/Venice_bowl.jpg | Dipsey, 3 August 2011, CC BY-SA 3.0; Commons original | Sunlit concrete value and service-wear comparator, neutral balanced in a review copy only. No photographic pixels enter the asset. |
+
+The original Columbia book is a **1998–1999** construction publication: its
+master plan is PDF page 10, not a contemporary conceptual layout. Los Altos
+L2 is the **2014** record construction plan (drawing issued October 2013).
+Their feature footprints and clear toe-to-feature gaps are measured in
+`build/plan-measurements.json`, with annotated review copies in
+`renders/research/`. Those polygons are measurement masks only; the generator
+uses its own grid composition and none of the plan linework is imported.
+
+Retained EXIF was read from the downloaded original photographs. Alondra
+contains 18mm / 27mm 35mm-equivalent and Nikon D7000 metadata. Burnham contains
+9.565mm and Canon PowerShot A620 metadata. Memorial has no retained EXIF.
+Comparison receipts distinguish crop-equivalent rendering focal lengths from
+full-photo equivalents. Smooth lip correspondences remain inferred contour
+phases; rigid hubba corners are identified separately. Balancing neutrals and
+all residuals are recorded, including the weaker bowl-contour fit.

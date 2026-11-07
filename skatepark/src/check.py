@@ -1,5 +1,5 @@
 """Independent fresh-import form checks. No claim of final UV/bake readiness."""
-import sys,json,math,hashlib,subprocess
+import sys,json,math,hashlib,subprocess,argparse
 from collections import defaultdict
 from pathlib import Path
 import bpy,numpy as np
@@ -17,7 +17,7 @@ def material_vertices(rt,kind):
     out=[]
     for o in [rt,*rt.children_recursive]:
         if o.type!='MESH':continue
-        ids={i for p in o.data.polygons if kind in o.data.materials[p.material_index].name for i in p.vertices}
+        ids={i for p in o.data.polygons if kind in o.data.materials[p.material_index].name or (kind=='Zinc' and o.data.materials[p.material_index].name.startswith('Skate_Trim_Steel')) for i in p.vertices}
         out += [rt.matrix_world.inverted()@o.matrix_world@o.data.vertices[i].co for i in ids]
     return out
 
@@ -37,7 +37,8 @@ def circle(points):
     return dict(center_m=x[:2].tolist(),radius_m=r,max_radial_error_m=float(err.max()),stations=len(q))
 
 def main():
-    source=json.loads(Path('build/Skatepark.json').read_text());lib=imported(Path('export/checkpoint/SkateparkPieces.gltf'));report=dict(stage='form only',pieces={},construction={},parks={},limitations=['No baked textures or unique-atlas overlap/texel-density proof at this checkpoint.','Photo fits use inferred, unsurveyed geometry; residuals are reported separately.'])
+    ap=argparse.ArgumentParser();ap.add_argument('--folder',type=Path,default=Path('export/checkpoint'));args=ap.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else []);folder=args.folder
+    source=json.loads(Path('build/Skatepark.json').read_text());lib=imported(folder/'SkateparkPieces.glb');report=dict(stage=source['stage'],pieces={},construction={},parks={},limitations=['Terrain UV reuse is intentional; density and accidental surface intersections are checked separately.','Contour phase matches are inferred, not surveyed correspondences.'])
     for name,expected in source['pieces'].items():
         n=count(lib[name]);assert n==expected['triangles'],(name,n,expected['triangles']);assert 0<n<=4000,(name,n)
         report['pieces'][name]=n
@@ -64,14 +65,26 @@ def main():
                 if k!=j:smallest=min(smallest,n.dot(m));pairs+=1
     assert pairs>1000 and smallest>.99998,(pairs,smallest)
     report['construction']['bowl_seams']=dict(shared_corner_comparisons=pairs,minimum_normal_dot=smallest,max_normal_angle_degrees=math.degrees(math.acos(min(1,smallest))),downward_triangles=down)
-    # The actual exported seam socket defines the slicing plane; fit the real
-    # vertices independently, rather than reporting a declared radius as data.
-    y0=next(o for o in lib['Bowl_Sector_00'].children_recursive if o.get('socket_kind')=='bowl_sector').location.y
-    for label,sign,height in [('deep',1,2.1336),('shallow',-1,1.2192)]:
-        pts=[(p.x,p.z) for p in sections if abs(p.y-y0)<1e-5 and p.x*sign>0 and p.z<-.0001]
-        data=circle(pts);assert abs(data['radius_m']-2.4384)<3e-5,data
-        measured=-min(p[1] for p in pts);assert abs(measured-height)<2e-5
-        data['measured_depth_m']=measured;report['construction']['bowl_'+label]=data
+    for prefix in ('Bowl_Floor','SteelBowl_Floor'):
+        floors=[rt for name,rt in lib.items() if name.startswith(prefix)]
+        points=[v for rt in floors for v in material_vertices(rt,'Concrete')]
+        drain=next(o for rt in floors for o in rt.children_recursive if o.get('socket_kind')=='drain')
+        minimum=min(v.z for v in points);assert minimum>=drain.location.z-.00003,(prefix,minimum,drain.location.z)
+        report['construction'][prefix+'_drain_grade']=dict(actual_minimum_floor_Z_m=minimum,actual_drain_socket_Z_m=drain.location.z,minimum_floor_above_drain_m=minimum-drain.location.z)
+    # An actual mouth point and its nearest submerged section station define
+    # the slicing plane. Fit exported vertices in that plane, independently of
+    # the authored analytic radius and without using a declared circle center.
+    for family,prefix,shallow_sector in [('kidney','Bowl_Sector_',8),('clover','SteelBowl_Sector_',6)]:
+        for label,k,height in [('deep',0,2.1336),('shallow',shallow_sector,1.2192)]:
+            rt=lib[prefix+'%02d'%k]
+            mouth=next(o for o in rt.children_recursive if o.get('socket_kind')=='bowl_sector' and o.name.split('__')[-1]=='Seam_A').location.copy()
+            v=material_vertices(rt,'Concrete');below=[p for p in v if p.z<-.01]
+            near=min(below,key=lambda p:(p-mouth).length)
+            radial=Vector((mouth.x-near.x,mouth.y-near.y,0)).normalized();tangent=Vector((-radial.y,radial.x,0))
+            pts=[((p-mouth).dot(radial),p.z) for p in v if p.z<-.0001 and abs((p-mouth).dot(tangent))<1e-5]
+            data=circle(pts);assert abs(data['radius_m']-2.4384)<3e-5,data
+            measured=-min(p[1] for p in pts);assert abs(measured-height)<2e-5,(family,label,measured)
+            data['measured_depth_m']=measured;data['actual_mouth_m']=list(mouth);report['construction'][family+'_'+label]=data
     rt=lib['Bank_3ft'];ob=next(o for o in rt.children_recursive if o.type=='MESH');slopes=[]
     for f in ob.data.polygons:
         if .8<f.normal.z<.99 and abs(f.normal.x)<.01:
@@ -84,7 +97,7 @@ def main():
     for ob in rt.children_recursive:
         if ob.type!='MESH':continue
         for face in ob.data.polygons:
-            if face.area>.10 and 'Steel' in ob.data.materials[face.material_index].name:
+            if face.area>.025 and 'Steel' in ob.data.materials[face.material_index].name:
                 dots += [face.normal.dot(ob.data.corner_normals[li].vector) for li in face.loop_indices]
     assert dots and min(dots)>.999,('Armor normal transformed into wrong frame',dots)
     report['construction']['hubba_armor_minimum_normal_dot']=min(dots)
@@ -102,7 +115,7 @@ def main():
     zinc=material_vertices(lib['Prefab_Quarter'],'Zinc');front=min(p.y for p in zinc);zs=[p.z for p in zinc if abs(p.y-front)<1e-5]
     report['construction']['prefab_toe_plate_gauge_m']=max(zs)-min(zs);assert abs(max(zs)-min(zs)-.003)<2e-5,(min(zs),max(zs),sorted(set(round(z,6) for z in zs)))
     for seed in SEEDS:
-        path=Path('export/checkpoint/Park_'+str(seed)+'.gltf');roots=imported(path);expected=source['parks'][str(seed)];n=sum(count(r) for r in roots.values());assert n==expected['whole_site_triangles'],(seed,n,expected['whole_site_triangles'])
+        path=folder/('Park_'+str(seed)+'.gltf');roots=imported(path.with_suffix('.glb'));expected=source['parks'][str(seed)];n=sum(count(r) for r in roots.values());assert n==expected['whole_site_triangles'],(seed,n,expected['whole_site_triangles'])
         assert 40000<=expected['skating_triangles']<=120000,(seed,expected['skating_triangles'])
         doc=json.loads(path.read_text());uris=[im['uri'] for im in doc.get('images',[])];assert all(u.startswith('shared/') for u in uris)
         imagebytes={u:hashlib.sha256((path.parent/u).read_bytes()).hexdigest() for u in uris}
@@ -142,11 +155,19 @@ def main():
             tree=bvh(list(roots.values()));stair=next(m for m in expected['plan']['placements'] if m['piece'].startswith('Stairs'))
             x,y,_=stair['location'];nstep=5 if seed==101 else 4;toe=-nstep*.3048/2
             probes=[]
-            for px,py in ((x+.45,y+toe-.3),(x+1.75,y+nstep*.3048/2+1.4)):
-                hit=tree.ray_cast(Vector((px,py,.10)),Vector((0,0,-1)))[0]
-                assert hit is not None and abs(hit.z)<.0001,('Missing stair approach paving',seed,px,py,hit)
+            for px,py,z in ((x+.45,y+toe-.3,0),(x+2.5,y+nstep*.3048/2+1.4,expected['plan']['plaza']['height'])):
+                hit=tree.ray_cast(Vector((px,py,z+.10)),Vector((0,0,-1)))[0]
+                assert hit is not None and abs(hit.z-z)<.0001,('Missing stair approach paving',seed,px,py,hit)
                 probes.append(list(hit))
             checks['actual_stair_approach_floor_hits_m']=probes
+            bx,by,_=expected['plan']['bowl']['location'];corners=[]
+            for sx in (-1,1):
+                for sy in (-1,1):
+                    px=bx+sx*(9.144-.01);py=by+sy*(7.3152-.01)
+                    hit=tree.ray_cast(Vector((px,py,.04)),Vector((0,0,-1)),.1)[0]
+                    assert hit is not None and abs(hit.z)<.0001,('Open bowl deck corner',seed,px,py,hit)
+                    corners.append(list(hit))
+            checks['actual_bowl_deck_corner_floor_hits_m']=corners
         if seed==303:
             tree=bvh(list(roots.values()));maxheight=-1
             for x in (-14.6304,14.6304):

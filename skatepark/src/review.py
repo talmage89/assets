@@ -27,7 +27,7 @@ def comparison_sheet(files,path,width=1600):
 def main():
     p=argparse.ArgumentParser();p.add_argument('--folder',type=Path,default=Path('renders/checkpoint'));a=p.parse_args()
     files=sorted(a.folder.glob('*/*.png'));sheet(files,a.folder/'contact.jpg')
-    pairs=sorted(Path('renders/matches').glob('*-pair.jpg'));comparison_sheet(pairs,a.folder/'matched-contact.jpg')
+    pairs=sorted(Path('renders/lookdev-matches').glob('*-pair.jpg'));comparison_sheet(pairs,a.folder/'matched-contact.jpg')
     values={}
     for f in files:
         rgb=np.asarray(Image.open(f).convert('RGB'),float)/255;y=rgb@np.array([.2126,.7152,.0722])

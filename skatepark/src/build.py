@@ -4,7 +4,7 @@ from pathlib import Path
 import bpy
 from mathutils import Vector
 HERE=Path(__file__).resolve().parent;sys.path[:0]=[str(HERE.parents[1]),str(HERE)]
-import geometry as Q, pieces, bowl
+import geometry as Q, pieces, bowl, terrain
 from plan import plan,SEEDS
 from park_site import site
 
@@ -19,7 +19,11 @@ def export(path,roots):
     for rt in roots:
         for o in [rt,*rt.children_recursive]:o.select_set(True)
     bpy.ops.export_scene.gltf(filepath=str(path.resolve()),export_format='GLTF_SEPARATE',use_selection=True,
-        export_yup=True,export_extras=True,export_animations=False,export_tangents=True,export_texture_dir='shared',export_image_format='AUTO',export_shared_accessors=True)
+        export_yup=True,export_extras=True,export_animations=False,export_tangents=True,export_texture_dir='shared',export_image_format='AUTO',export_shared_accessors=True,export_all_vertex_colors=False,export_attributes=True,export_vertex_color='MATERIAL')
+    bpy.ops.export_scene.gltf(filepath=str(path.with_suffix('.glb').resolve()),export_format='GLB',use_selection=True,
+        export_yup=True,export_extras=True,export_animations=False,export_tangents=True,export_image_format='AUTO',export_all_vertex_colors=False,export_attributes=True,export_vertex_color='MATERIAL')
+    from export_frames import repair
+    repair(path);repair(path.with_suffix('.glb'))
     return dict(gltf_bytes=path.stat().st_size,bin_bytes=path.with_suffix('.bin').stat().st_size,
                 sha256=hashlib.sha256(path.read_bytes()+path.with_suffix('.bin').read_bytes()).hexdigest())
 
@@ -30,7 +34,7 @@ def paving(p,lib):
     xs=sorted(set([-W/2,W/2]+[i*3.048 for i in range(-round(W/6.096),round(W/6.096)+1) if -W/2<i*3.048<W/2]+(hole[:2] if hole else [])))
     ys=sorted(set([-D/2,D/2]+[i*3.048 for i in range(-round(D/6.096),round(D/6.096)+1) if -D/2<i*3.048<D/2]+(hole[2:] if hole else [])))
     mat='Asphalt' if p['type']=='prefab' else 'Concrete'
-    cuts=[hole] if hole else []
+    cuts=([hole] if hole else [])+p.get('terrain_cuts',[])+p.get('landscape_cuts',[])
     if p['type']=='poured':
         for item in p['placements']:
             if item['piece']=='FlatBar':continue
@@ -66,38 +70,60 @@ def paving(p,lib):
                 # Only strips beneath saw cuts, with no duplicate hidden floor.
                 for rect in ((xa,xb,ya,ya+.0015),(xa,xa+.0015,ya,yb)):
                     for x0,x1,y0,y1 in remaining(rect):Q.mesh('Recessed joint backing',[(x0,y0,-.006),(x1,y0,-.006),(x1,y1,-.006),(x0,y1,-.006)],[(0,1,2,3)],rt,'Joint')
+    # Concrete-valued thickened slab edge meets a narrow mow strip, then lawn.
+    for x in (-W/2,W/2):
+        Q.box('Thickened slab edge',(x+(.045 if x>0 else -.045),0,-.09),(.09,D,.18),rt,'Concrete',.004)
+        Q.box('Concrete mow strip',(x+(.27 if x>0 else -.27),0,-.05),(.36,D+.90,.10),rt,'Concrete',.004)
+    for y in (-D/2,D/2):
+        Q.box('Thickened slab edge',(0,y+(.045 if y>0 else -.045),-.09),(W+.18,.09,.18),rt,'Concrete',.004)
+        Q.box('Concrete mow strip',(0,y+(.27 if y>0 else -.27),-.05),(W+.18,.36,.10),rt,'Concrete',.004)
     return rt
 
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('--out',type=Path,default=Path('build/Skatepark.blend'));ap.add_argument('--seeds',type=int,nargs='+',default=SEEDS);a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
+    ap=argparse.ArgumentParser();ap.add_argument('--out',type=Path,default=Path('build/Skatepark.blend'));ap.add_argument('--seeds',type=int,nargs='+',default=SEEDS);ap.add_argument('--look',action='store_true');a=ap.parse_args(sys.argv[sys.argv.index('--')+1:])
     bpy.ops.wm.read_factory_settings(use_empty=True);Q.palette();bpy.context.scene.unit_settings.system='METRIC'
-    lib={o.name:o for o in pieces.library()};bowl_lib=bowl.build(True);steel_bowl=bowl.build(False)
+    if a.look:
+        import finishes
+        finishes.materials()
+    lib={o.name:o for o in pieces.library()}
+    for n in (4,5):
+        ob=pieces.bank('PlazaBank_'+str(n),h=n*.1524,rail=True);lib[ob.name]=ob
+    bowl_lib=bowl.build(True);steel_bowl=bowl.build(False)
     # Blender's automatic suffixes must not become the public module identifiers.
     for i,rt in enumerate(steel_bowl):rt.name='SteelBowl_Sector_%02d'%i if i<16 else 'SteelBowl_Floor_'+str(i-16)
+    if a.look:finishes.prepare([*lib.values(),*bowl_lib,*steel_bowl])
     for rt in [*lib.values(),*bowl_lib,*steel_bowl]:Q.join(rt)
     # A grid reservation surrounds each physical footprint. Curved profile
     # connections retain their exact analytic coordinates beside these ports;
     # a scene's flatwork fills the reservation, as it does in this generator.
     for rt in [*lib.values(),*bowl_lib,*steel_bowl]:
+        if a.look:rt['stage']='baked look-dev checkpoint'
         bounds=record(rt)['bounds_m'];lo=[math.floor(bounds[0][k]/.1524)*.1524 for k in (0,1)];hi=[math.ceil(bounds[1][k]/.1524)*.1524 for k in (0,1)]
         rt['grid_bounds_json']=json.dumps([lo,hi])
         Q.socket(rt,'Grid_SW',(*lo,0),kind='layout_grid');Q.socket(rt,'Grid_NE',(*hi,0),kind='layout_grid')
     records={o.name:record(o) for o in [*lib.values(),*bowl_lib,*steel_bowl]}
-    ex=Path('export/checkpoint');delivery=export(ex/'SkateparkPieces.gltf',[*lib.values(),*bowl_lib,*steel_bowl]);parks={}
+    ex=Path('export/lookdev' if a.look else 'export/connected-form');delivery=export(ex/'SkateparkPieces.gltf',[*lib.values(),*bowl_lib,*steel_bowl]);parks={}
     for seed in a.seeds:
-        p=plan(seed);roots=[];skating=[paving(p,lib)];roots+=skating
+        p=plan(seed);connections,cuts=terrain.build(p,lib);p['terrain_cuts']=cuts
+        roots=list(connections);skating=list(connections)+[paving(p,lib)];roots.append(skating[-1])
         if p['bowl']:
             for source in bowl_lib if p['bowl']['pool'] else steel_bowl:
                 rt=Q.instance(source,source.name+'_placed',p['bowl']['location']);skating.append(rt);roots.append(rt)
         for i,item in enumerate(p['placements']):
             rt=Q.instance(lib[item['piece']],item['piece']+'_'+str(i),item['location'],item['yaw']);roots.append(rt);skating.append(rt)
-            if item['piece'].startswith('Stairs'):
-                x,y,z=item['location'];h=rt['height_m'];n=rt['steps'];start=n*.3048/2+2.4384;run=h/math.tan(math.radians(20))
-                back=Q.root('StairReturnBank_'+str(i));Q.profile('Return bank shares upper landing',[(start,h),(start+run,0),(start+run,-.15),(start,-.15)],-1.524,1.524,back);back.location=(x,y,z);roots.append(back);skating.append(back)
+            terrain.bury_seams(rt,item,p)
         site_roots=site(p);roots+=site_roots
+        if a.look:
+            finishes.prepare(connections+[skating[len(connections)] ]+site_roots)
+            for rt in skating:finishes.weather(rt,p)
+            finishes.basin_deposits(skating,p)
+        guard_check=terrain.guard_contacts(roots)
+        mark_check=finishes.surface_mark_contacts(skating) if a.look else None
+        if a.look:
+            for rt in roots:rt['stage']='baked look-dev checkpoint'
         for rt in roots:Q.join(rt)
         bpy.context.view_layer.update()
-        info=dict(plan=p,skating_triangles=sum(Q.count(r) for r in skating),whole_site_triangles=sum(Q.count(r) for r in roots),
+        info=dict(plan=p,guard_contacts=guard_check,surface_mark_contacts=mark_check,skating_triangles=sum(Q.count(r) for r in skating),whole_site_triangles=sum(Q.count(r) for r in roots),
                   parts={r.name:record(r) for r in roots})
         path=ex/('Park_'+str(seed)+'.gltf');info['delivery']=export(path,roots);parks[str(seed)]=info
         Path('build/park-'+str(seed)+'.json').write_text(json.dumps(info,indent=2))
@@ -109,7 +135,7 @@ def main():
     for i,rt in enumerate(bowl_lib):rt.location=(0,62,0)
     for rt in steel_bowl:rt.location=(24,62,0)
     a.out.parent.mkdir(parents=True,exist_ok=True);bpy.ops.wm.save_as_mainfile(filepath=str(a.out.resolve()))
-    report=dict(stage='form/construction checkpoint; quick materials, provisional UVs; no baked look-dev',pieces=records,parks=parks,library_delivery=delivery)
+    report=dict(stage='baked look-dev' if a.look else 'connected form checkpoint',pieces=records,parks=parks,library_delivery=delivery)
     a.out.with_suffix('.json').write_text(json.dumps(report,indent=2));print('CHECKPOINT',json.dumps({s:{k:v for k,v in info.items() if k.endswith('triangles')} for s,info in parks.items()}))
 
 if __name__=='__main__':main()

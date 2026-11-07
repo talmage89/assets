@@ -58,10 +58,14 @@ def source(out,n):
             exposed=np.clip((mid-.60)*4,0,1)*np.exp(-v*4)
             color[:]=(.09,.18,.155);color=color*(1-exposed[:,:,None])+np.array((.37,.28,.17))*exposed[:,:,None];rough=.72+.12*exposed;metal=.15+.45*exposed
         elif name in ('Zinc','ToePlate'):
-            color[:]=(.52,.55,.55);color*=.8+.32*mid[:,:,None];metal[:]=.86;rough=.52+.14*(broad-.5)
+            # Millimeter-scale zinc grain, not stretched centimeter ripples.
+            # Its physical relief is microns; the adjacent coping chips are
+            # tenths of millimeters and deliberately retain their own height.
+            grain=field(w,h,512,1720+index)
+            color[:]=(.52,.55,.55);color*=.92+.12*grain[:,:,None];metal[:]=.86;rough=.66+.05*(broad-.5);relief=.5+.0015*(fine-.5)
             if name=='ToePlate':
                 scuff=np.clip((np.sin(u*330+mid*4)-.83)*5,0,1)*np.exp(-((v-.4)/.36)**4)
-                color+=scuff[:,:,None]*.16;rough-=scuff*.22;relief=.5-.025*scuff+.012*(fine-.5)
+                color+=scuff[:,:,None]*.16;rough-=scuff*.22;relief=.5-.004*scuff+.002*(fine-.5)
         elif name=='Burnish':
             edge=np.sin(np.pi*u)**1.1*np.sin(np.pi*v)**.5
             coverage=edge*np.clip(.18+.70*broad,0,.9)

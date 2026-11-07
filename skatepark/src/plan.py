@@ -18,25 +18,36 @@ def plan(seed,type=None,size=None):
              skating=[W,D],site=[W+24.384,D+30.48],grid_m=GRID,
              shade=kind=='poured' and not compact,bleachers=kind=='prefab',pool_coping=not compact,
              bowl=None,placements=[])
-    def add(key,x,y,yaw=0):out['placements'].append(dict(piece=key,location=[x,y,0],yaw=yaw))
+    def add(key,x,y,yaw=0,z=0):out['placements'].append(dict(piece=key,location=[x,y,z],yaw=yaw))
     if kind=='poured':
-        out['bowl']=dict(location=[-10.668 if not compact else -7.62,0,0],pool=not compact)
-        # End decks join banks/quarters, a long clear flat in the street lane.
-        x=10.668 if not compact else 9.144
-        add('Quarter_5ft' if not compact else 'Quarter_4ft',x,D/2-4.572,0)
-        add('Quarter_4ft',x+(-4.8768 if not compact else -4.8768),D/2-4.572,0)
-        add('Bank_Rail',x,-D/2+3.048,180)
-        add('Stairs_4' if compact else 'Stairs_5',x+2.4384,0)
-        add('ManualPad',x-5.4864,-4.8768)
-        add('Ledge_18in',x-1.2192,-6.7056)
-        add('FlatBar',x-3.048,5.4864)
-        if not compact:
-            add('Pyramid',-1.2192,-10.668,90)
-            add('Spine_5ft',-3.048,10.668,90)
-        else:add('Ledge_18in',-9.144,9.144,90)
+        out['bowl']=dict(location=[-10.668 if not compact else -8.2296,-1.2192,0],pool=not compact,
+                         shape='kidney' if not compact else 'clover')
+        h=(4 if compact else 5)*.1524
+        edge=1.8288 if compact else 3.048
+        sx=10.0584 if compact else 12.192
+        out['plaza']=dict(bounds=[2.4384,W/2-1.524,edge,D/2-1.524],height=h,stair_x=sx)
+        add('Stairs_4' if compact else 'Stairs_5',sx,edge-(4 if compact else 5)*.3048/2)
+        add('PlazaBank_4' if compact else 'PlazaBank_5',4.8768,edge-h/math.tan(math.radians(20))/2)
+        # Native-width adjacent pours become a continuous north transition run.
+        out['transition_runs']=[dict(name='plaza_entry',indices=[1],shared_deck=False)]
+        out['landscape_cuts']=[[-W/2,-1.524,-D/2,-9.144 if compact else -10.668]]
+        for row,xs,y,z,key in [
+            ('north_west',[-12.192,-7.3152] if compact else [-14.6304,-9.7536,-4.8768],D/2-4.572-(0 if compact else 2.4384),0,'Quarter_4ft'),
+            ('north_east',[9.7536] if compact else [9.144,14.0208],D/2-4.572-(0 if compact else 2.4384),h,'Quarter_4ft'),
+            ('south',[7.3152,12.192] if compact else [9.7536,14.6304],-D/2+3.048+(0 if compact else 1.524),0,'Bank_3ft')]:
+            ids=[]
+            for x in xs:
+                ids.append(len(out['placements']));add(key,x,y,180 if row=='south' else 0,z)
+            out['transition_runs'].append(dict(name=row,indices=ids))
+        add('ManualPad',4.8768,-5.4864+(0 if compact else 1.524))
+        add('Ledge_18in',10.668,-5.7912+(0 if compact else .9144))
+        add('FlatBar',15.24 if compact else 18.288,-3.048)
+        add('Ledge_18in',W/2-3.6576,edge+3.048,0,h)
+        out['fence_height_m']=1.8288
+        out['age']=.38 if not compact else .68
     else:
-        for x in (-7.3152,0,7.3152):add('Prefab_Quarter',x,10.668)
-        for x in (-7.3152,0,7.3152):add('Prefab_Quarter',x,-10.668,180)
+        for x in (-6.096,0,6.096):add('Prefab_Quarter',x,9.7536)
+        for x in (-6.096,0,6.096):add('Prefab_Quarter',x,-9.7536,180)
         # Two separate beginner mini-ramp lanes: paired opposed quarters,
         # eight meters of clear native pad between their tangent toes.
         for x in (-14.6304,14.6304):
@@ -49,10 +60,15 @@ def plan(seed,type=None,size=None):
         add('Prefab_GrindBox',8.5344,-4.2672,90)
         add('FlatBar',3.6576,4.8768,90)
         add('FlatBar',0,-5.4864,90)
+        out['fence_height_m']=1.8288
+        out['age']=1.0
     out['layout_mirror']=bool(seed%5 in (0,4) and seed not in SEEDS)
     if out['layout_mirror']:
         if out['bowl']:out['bowl']['location'][0]*=-1
         for item in out['placements']:item['location'][0]*=-1;item['yaw']=-item['yaw']
+        if 'plaza' in out:
+            x0,x1,y0,y1=out['plaza']['bounds'];out['plaza']['bounds']=[-x1,-x0,y0,y1];out['plaza']['stair_x']*=-1
+            out['landscape_cuts']=[[-x1,-x0,y0,y1] for x0,x1,y0,y1 in out['landscape_cuts']]
     out['parameters']=dict(type_override=type,size_override=size,archetype='street+bowl' if kind=='poured' else 'end ramps + two mini lanes',mirror=out['layout_mirror'])
     out['trees']=[[-W/2-4.572,-D/2+6.096,0],[-W/2-4.572,4.572,0],[-W/2-3.048,D/2+4.572,0],
                   [0,D/2+6.096,0],[W/2+4.572,D/2+3.048,0],[W/2+4.572,0,0]]

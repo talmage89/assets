@@ -40,17 +40,29 @@ def own(o,rt,kind=None):
             for li in f.loop_indices:
                 p=o.matrix_basis@o.data.vertices[o.data.loops[li].vertex_index].co
                 uv.data[li].uv=(p[axes[0]]/3.048,p[axes[1]]/3.048)
+    if o.type=='MESH' and 'Walk' in M and not o.data.color_attributes.get('Tint'):
+        c=o.data.color_attributes.new(name='Tint',type='FLOAT_COLOR',domain='CORNER')
+        for row in c.data:row.color=(1,1,1,1)
     return o
 
 def mesh(n,v,f,rt,mat='Concrete',smooth=False):
-    o=G.mesh(n,v,f,M[mat]);own(o,rt)
+    from collections import Counter
+    edges=Counter(tuple(sorted((a,b))) for face in f for a,b in zip(face,face[1:]+face[:1]))
+    o=G.mesh(n,v,f,M[mat])
+    if any(count==1 for count in edges.values()):
+        # An open riding/retaining skin has no enclosed volume from which to
+        # infer "outside". Preserve its explicitly authored face winding.
+        o.data.clear_geometry();o.data.from_pydata(v,[],f);o.data.update()
+    own(o,rt);o['finish_key']=mat
     if smooth:G.smooth(o,35)
     return o
 
-def box(n,p,s,rt,mat='Concrete',r=.002):return own(G.box(n,p,s,M[mat],r,1),rt)
-def cyl(n,a,b,r,rt,mat='Steel',s=12):return own(G.smooth(G.cylinder(n,a,b,r,M[mat],s),40),rt)
-def tube(n,pts,r,rt,mat='Steel',s=12):return own(G.smooth(G.tube(n,pts,r,M[mat],s),40),rt)
-def profile(n,pts,lo,hi,rt,mat='Concrete',axis='X'):return own(G.profile(n,pts,lo,hi,M[mat],axis=axis),rt)
+def marked(o,rt,mat):
+    own(o,rt);o['finish_key']=mat;return o
+def box(n,p,s,rt,mat='Concrete',r=.002):return marked(G.box(n,p,s,M[mat],r,1),rt,mat)
+def cyl(n,a,b,r,rt,mat='Steel',s=12):return marked(G.smooth(G.cylinder(n,a,b,r,M[mat],s),40),rt,mat)
+def tube(n,pts,r,rt,mat='Steel',s=12):return marked(G.smooth(G.tube(n,pts,r,M[mat],s),40),rt,mat)
+def profile(n,pts,lo,hi,rt,mat='Concrete',axis='X'):return marked(G.profile(n,pts,lo,hi,M[mat],axis=axis),rt,mat)
 
 def beam(n,a,b,w,rt,mat='Zinc',d=None):
     a,b=Vector(a),Vector(b);o=box(n,(a+b)/2,(w,d or w,(b-a).length),rt,mat,0)

@@ -1,0 +1,59 @@
+"""Guarded normal-map frame repair on this family's serialized copies.
+
+MikkTSpace can emit a zero tangent at small bevel/cap fan junctions, including
+a few vertices in the canonical trees. Keep geometry, UVs, images and valid
+frames unchanged. Derive missing frames from the largest incident UV triangle.
+Untextured context does not consume tangent attributes and is left alone.
+"""
+import json,struct
+from pathlib import Path
+import numpy as np
+from kit.gltf import GLB
+
+def repair(path):
+    path=Path(path);raw=bytearray(path.read_bytes());embedded=path.suffix=='.glb'
+    if embedded:
+        g=GLB(path);offset=12
+        while True:
+            length,kind=struct.unpack_from('<II',raw,offset)
+            if kind==0x004e4942:bin_start=offset+8;break
+            offset+=length+8
+    else:
+        g=object.__new__(GLB);g.json=json.loads(raw);g.binary=(path.parent/g.json['buffers'][0]['uri']).read_bytes();bin_start=0
+    binary=bytearray(g.binary);receipts=[];visited=set()
+    for mi,mesh in enumerate(g.json['meshes']):
+        for pi,prim in enumerate(mesh['primitives']):
+            mat=g.json['materials'][prim['material']]
+            if 'normalTexture' not in mat:continue
+            attr=prim['attributes'];ai=attr['TANGENT']
+            if ai in visited:continue
+            visited.add(ai);n=g.accessor(attr['NORMAL']);t=g.accessor(ai);v=g.accessor(attr['POSITION']);uv=g.accessor(attr['TEXCOORD_0'])
+            ids=np.concatenate([g.accessor(p['indices']).reshape(-1,3) for p in mesh['primitives'] if p['attributes'].get('TANGENT')==ai])
+            lengths=np.linalg.norm(t[:,:3],axis=1);dots=(n*t[:,:3]).sum(axis=1)
+            bad=np.flatnonzero((np.abs(lengths-1)>.002)|(np.abs(dots)>.003))
+            if not len(bad):continue
+            accessor=g.json['accessors'][ai];view=g.json['bufferViews'][accessor['bufferView']]
+            assert accessor['componentType']==5126 and accessor['type']=='VEC4'
+            for vertex in bad:
+                normal=n[vertex].astype(float);normal/=np.linalg.norm(normal)
+                incident=ids[np.any(ids==vertex,axis=1)];best=None
+                for tri in incident:
+                    p=v[tri].astype(float);q=uv[tri].astype(float);e1,e2=p[1]-p[0],p[2]-p[0];d1,d2=q[1]-q[0],q[2]-q[0];det=d1[0]*d2[1]-d1[1]*d2[0]
+                    if abs(det)<1e-18:continue
+                    tangent=(e1*d2[1]-e2*d1[1])/det;bitangent=(e2*d1[0]-e1*d2[0])/det
+                    tangent-=normal*np.dot(normal,tangent);length=np.linalg.norm(tangent)
+                    if length<1e-12:continue
+                    score=np.linalg.norm(np.cross(e1,e2))
+                    if best is None or score>best[0]:best=(score,tangent/length,bitangent)
+                if best is None:
+                    axis=np.eye(3)[np.argmin(abs(normal))];tangent=axis-normal*np.dot(normal,axis);tangent/=np.linalg.norm(tangent);hand=1.
+                else:
+                    tangent=best[1];hand=1. if np.dot(np.cross(normal,tangent),best[2])>=0 else -1.
+                start=view.get('byteOffset',0)+accessor.get('byteOffset',0)+int(vertex)*view.get('byteStride',16)
+                struct.pack_into('<4f',binary,start,*tangent,hand)
+            receipts.append(dict(mesh=mesh.get('name',str(mi)),primitive=pi,vertices=len(bad),method='UV-derived unit tangent orthogonal to exported normal; axis fallback only at collapsed native cap charts'))
+    if embedded:
+        raw[bin_start:bin_start+len(binary)]=binary;path.write_bytes(raw)
+    else:(path.parent/g.json['buffers'][0]['uri']).write_bytes(binary)
+    path.with_suffix('.frames.json').write_text(json.dumps(dict(repaired_vertices=sum(r['vertices'] for r in receipts),normal_mapped_primitives_only=True,geometry_and_UV_unchanged=True,repairs=receipts),indent=2))
+    return receipts
