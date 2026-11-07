@@ -174,6 +174,12 @@ def traffic(p):
     rt=Q.root('Traffic',module_kind='traffic');rng=random.Random(p.seed*37);placements=[]
     bodies=[load('build/context/'+n+'.glb') for n in ('Hatch','SUV','Crossover')];full=[load('build/context/'+n+'.glb') for n in ('HeroHatch','HeroSUV','HeroCrossover')];hero=full[0]
     variants=[factory_variants(t) for t in [*bodies,*full]];mesh_variants={};lamp_off={}
+    # Stock close-up cameras also need native bodies nearby. The town origin
+    # alone is not a distance test for a 1.6km excerpt. This changes actor LOD,
+    # never the civil plan, actor positions, speeds, spacing or seeded colors.
+    inspection_zones=([(6,-405),(-6,405),(10,-291),(22,-251),
+                       (29,-249),(55,-34),(112,-58)] if p.kind=='diamond'
+                      else [(15,-75),(24,-5),(3,-26)])
     def colorize(ob,kind,color,lights=False):
         replacements=dict(variants[kind][color])
         if not lights:
@@ -205,7 +211,9 @@ def traffic(p):
                 delete(bpy.data.objects[old['name']]);placements.remove(old)
             else:return None
         i=len(placements);kind=3 if nearest else rng.randrange(3)
-        if not nearest and where in ('mainline','bridge','arterial_queue') and abs(pos[1])<120 and abs(pos[0])<110:kind+=3
+        near_origin=where in ('mainline','bridge','arterial_queue') and abs(pos[1])<120 and abs(pos[0])<110
+        near_inspection=any(math.hypot(pos[0]-x,pos[1]-y)<36 for x,y in inspection_zones)
+        if not nearest and (near_origin or near_inspection):kind+=3
         color=rng.choices(['Porcelain','Carbon','Graphite','Aluminum','Atlantic'],[34,22,24,10,10])[0]
         ob=clone(full[kind-3] if kind>=3 else bodies[kind],f'Car_{i:03d}',pos,yaw,rt);ob.rotation_euler.y=roll;ob.rotation_euler.x=pitch;colorize(ob,kind,color,lights=speed<.5 and 'queue' in where)
         ob['speed_mps']=speed;ob['traffic_role']=where
