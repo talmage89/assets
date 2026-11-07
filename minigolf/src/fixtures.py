@@ -54,7 +54,7 @@ def windmill(rt):
    beam('Sail longitudinal batten',(s*.07,0,.16),(s*.24,0,1.60),.035,.032,'red',blade)
   for j in range(9):
    z=.43+j*.142;w=.14+z*.20;box('Sail cross lath',(0,-.012,z),(w,.030,.052),'ivory',blade,.001,1)
-  beam('Heavy sail stock',(-.035,.023,.12),(-.035,.023,1.61),.065,.055,'red',blade)
+  beam('Heavy sail stock',(-.035,-.03,.12),(-.035,-.03,1.61),.065,.055,'red',blade)
   # The leading third is closed with long pitched sail boards. The trailing
   # lattice is left open; diagonal braces stop it reading as a ladder.
   for j in range(3):
@@ -69,24 +69,26 @@ def windmill(rt):
  return dict(height=3.2,blade_radius=1.60,hub_height=1.63,rotor_plane=-.79)
 
 def lighthouse(rt):
- # Four feet around a real through opening; no hole painted onto a solid cone.
+ # Masonry tunnel and coping support a tapered shell. The small gallery is
+ # ornamental course construction, not a visitor-accessible platform.
  for s in (-1,1):box('Lighthouse masonry abutment',(s*.60,0,.30),(.62,1.60,.60),'rocklight',rt,.025,2)
  arch(rt,'Lighthouse masonry tunnel',0,0,.55,.57,1.60,'rocklight')
  ring('Lighthouse masonry base coping',(0,0),.94,.30,.57,.64,'concrete',rt,16)
- cone('Tapered lighthouse shaft',.59,3.58,.80,.50,'ivory',rt,32)
- for z in (1.28,2.32):cone('Painted tower band',z,z+.24,.80-(z-.59)*.10,.80-(z+.24-.59)*.10,'red',rt,32)
- ring('Gallery deck',(0,0),.85,.40,3.57,3.64,'navy',rt,32)
+ def radius(z):return .85-.35*(z-.64)/(3.23-.64)
+ cone('Tapered lighthouse shaft',.64,3.23,.85,.50,'ivory',rt,32)
+ for z in (1.15,2.15):cone('Painted tower band',z,z+.24,radius(z)+.001,radius(z+.24)+.001,'red',rt,32)
+ ring('Gallery deck',(0,0),.52,.35,3.22,3.29,'navy',rt,32)
  for i in range(16):
-  a=i*math.tau/16;cyl('Gallery stanchion',(.80*math.cos(a),.80*math.sin(a),3.64),(.80*math.cos(a),.80*math.sin(a),3.99),.012,'metal',rt,8)
- for z in (3.82,3.99):ring('Gallery handrail',(0,0),.814,.79,z-.008,z+.008,'metal',rt,32)
- cone('Lantern glazing',3.65,4.28,.40,.40,'glass',rt,12)
- cyl('Lantern support',(0,0,3.64),(0,0,3.83),.022,'metal',rt,10)
- cyl('Lantern reflector',(0,0,3.82),(0,0,4.12),.14,'metal',rt,12)
+  a=i*math.tau/16;cyl('Gallery stanchion',(.49*math.cos(a),.49*math.sin(a),3.29),(.49*math.cos(a),.49*math.sin(a),3.64),.012,'metal',rt,8)
+ for z in (3.47,3.64):ring('Gallery handrail',(0,0),.504,.48,z-.008,z+.008,'metal',rt,32)
+ ring('Lantern glazing',(0,0),.35,.347,3.30,4.20,'glass',rt,8)
+ cyl('Lantern support',(0,0,3.29),(0,0,3.48),.022,'metal',rt,10)
+ cyl('Lantern reflector',(0,0,3.47),(0,0,3.77),.14,'metal',rt,12)
  for i in range(8):
-  a=i*math.tau/8;cyl('Lantern mullion',(.41*math.cos(a),.41*math.sin(a),3.65),(.41*math.cos(a),.41*math.sin(a),4.30),.018,'navy',rt,8)
- cone('Lantern roof',4.28,4.61,.55,.025,'navy',rt,24)
+  a=i*math.tau/8;cyl('Lantern mullion',(.36*math.cos(a),.36*math.sin(a),3.30),(.36*math.cos(a),.36*math.sin(a),4.22),.018,'navy',rt,8)
+ cone('Lantern roof',4.20,4.61,.48,.025,'navy',rt,24)
  cyl('Finial',(0,0,4.56),(0,0,4.73),.025,'metal',rt)
- for z in (1.05,1.92,2.92):box('Small recessed tower window',(0,-(.82-(z-.59)*.10),z),(.14,.025,.25),'navy',rt,.015,2)
+ for z in (.97,1.78,2.70):box('Small recessed tower window',(0,-(radius(z)+.006),z),(.14,.025,.25),'navy',rt,.015,2)
  return dict(height=4.73,ball_portal=.55)
 
 def covered_bridge(rt):
@@ -123,9 +125,10 @@ def castle(rt):
  # A course-built gatehouse has depth, buttresses and a central keep.
  for x in (-1.09,1.09):box('Battered castle buttress',(x,.13,.56),(.25,.88,1.12),'stonepaint',rt,.015)
  keep=root('Castle rear keep',(0,.65,0),parent=rt);keep['module']=False
- cone('Rear keep barrel',0,2.85,.40,.40,'stonepaint',keep,16)
+ arch(keep,'Rear keep through portal',0,0,.72,.80,.80,'stonepaint')
+ cone('Rear keep barrel',.90,2.85,.40,.40,'stonepaint',keep,16)
  cone('Rear keep spire',2.85,4.0,.48,.012,'navy',keep,20)
- for z in (.65,1.45,2.30):box('Keep slit window',(0,-.405,z),(.08,.025,.28),'black',keep,.012)
+ for z in (1.10,1.75,2.30):box('Keep slit window',(0,-.405,z),(.08,.025,.28),'black',keep,.012)
  # 1.5x construction scale, baked into meshes and pivot offsets, never an
  # unapplied root transform. Overall 3.6m wide, 6m high; putt arch 1.08m.
  for ob in list(rt.children_recursive):

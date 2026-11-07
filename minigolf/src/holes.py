@@ -1,7 +1,8 @@
 """Carpeted concrete lanes, measured cup voids, real edging and play features."""
 import math,random
+from mathutils.bvhtree import BVHTree
 from geometry import *
-from plan import center,halfwidth,level
+from plan import center,halfwidth,level,local
 
 def playing_mesh(h,parent):
  nx=13;ts=sorted(set([i/52 for i in range(53) if abs(i/52-.88)>.021]+[.859,.901]))
@@ -38,18 +39,45 @@ def playing_mesh(h,parent):
  top=[vs[k] for k in boundary];verts=[(x,y,z-.0048) for x,y,z in top]+[(x,y,z-.1064) for x,y,z in top];n=len(top)
  mesh('Four inch concrete slab edge',verts,[(i,(i+1)%n,(i+1)%n+n,i+n) for i in range(n)],'concrete',parent,False)
  filltop=[(x,y,z-.1064) for x,y,z in top]
- fillbase=[(x,y,.014) for x,y,z in top]
+ fillbase=[]
+ for i,(x,y,z) in enumerate(top):
+  world=local(h,x,y);ground=.015+(.065*max(0,world[1]+7) if h.get('organic') else 0)
+  before=Vector(top[i-1]);after=Vector(top[(i+1)%len(top)]);direction=(after-before).normalized();outward=Vector((-direction.y,direction.x,0))
+  run=max(0,z-.1064-ground)*1.4;q=Vector((x,y,ground-.001))+outward*run
+  fillbase.append(tuple(q))
  if not h.get('crossing'):
   own(G.loft('Compacted graded base with planted berm', [fillbase,filltop],M['grass'],caps=False),parent)
  else:
-  # The slab spans water on two real girders, seated at concrete abutments.
-  for x in (-.70,.70):
-   beam('Stream-crossing girder',(x,-h['length']/2,.02+h['base_z']),(x,h['length']/2,.02+h['base_z']+h['rise']),.14,.16,'wood',parent)
-  for t in (0,1):
-   cx,cy=center(h,t);zz=level(h,cx,t)-.1064
-   box('Stream-crossing abutment',(cx,cy,zz/2),(h['width'],.40,zz),'rocklight',parent,.012)
+  # Its underside is visible above water. Keep the same real cup opening.
+  underside=mesh('Bridge slab underside',[(x,y,z-.1064) for x,y,z in vs],[tuple(reversed(f)) for f in fs],'concrete',parent,False)
+  bm=bmesh.new();bm.from_mesh(underside.data);bmesh.ops.reverse_faces(bm,faces=[f for f in bm.faces if f.normal.z>0]);bm.to_mesh(underside.data);bm.free();underside.data.update()
+  underside.data.calc_loop_triangles();skin=BVHTree.FromPolygons([v.co for v in underside.data.vertices],[tuple(t.vertices) for t in underside.data.loop_triangles],all_triangles=True)
+  ceiling=max(v.co.z for v in underside.data.vertices)+1;edge_y=[min(v.co.y for v in underside.data.vertices)+.00002,max(v.co.y for v in underside.data.vertices)-.00002]
+  def bearing_height(x,y):
+   hit=skin.ray_cast(Vector((x,max(edge_y[0],min(edge_y[1],y)),ceiling)),Vector((0,0,-1)),10)
+   assert hit[0] is not None,('Missing crossing slab above girder',h['number'],x,y)
+   return hit[0].z
+  for side in (-1,1):
+   sections=[]
+   for i in range(53):
+    t=i/52;cx,cy=center(h,t);offset=min(.70,max(.20,halfwidth(h,t)-.14));x=cx+side*offset
+    sections.append([(xx,cy,bearing_height(xx,cy)-dz) for xx,dz in ((x-.07,.16),(x+.07,.16),(x+.07,0),(x-.07,0))])
+   own(G.loft('Continuous bridge-slab girder',sections,M['wood']),parent)
+   for t in (.28,.72):
+    cx,cy=center(h,t);x=cx+side*min(.70,max(.20,halfwidth(h,t)-.14));top_z=bearing_height(x,cy)-.16
+    box('Bridge intermediate bearing pier',(x,cy,(top_z-.57)/2),(.35,.50,top_z+.57),'rocklight',parent,.012)
 
- ring('Cup aluminum liner',(cx,cy),.055975,.053975,z-.1016,z,'metal',parent)
+  for t in (0,1):
+   cx,cy=center(h,t);offset=min(.70,max(.20,halfwidth(h,t)-.14))
+   zz=min(bearing_height(cx+side*offset+dx,cy)-.16 for side in (-1,1) for dx in (-.08,.08))-.010
+   box('Stream-crossing abutment',(cx,cy,zz/2),(h['width'],.40,zz),'rocklight',parent,.008)
+   for side in (-1,1):
+    x=cx+side*offset;corners=[(x+dx,cy+dy) for dx,dy in ((-.08,-.18),(.08,-.18),(.08,.18),(-.08,.18))]
+    bottom=[(xx,yy,zz) for xx,yy in corners];top_pad=[(xx,yy,bearing_height(xx,cy)-.16) for xx,yy in corners]
+    own(G.loft('Bridge elastomer bearing',[bottom,top_pad],M['rubber']),parent)
+ # Support construction uses its own stations; restore the actual cup station.
+ cx,cy=center(h,.88);z=level(h,cx,.88)+.0048
+ G.smooth(ring('Cup aluminum liner',(cx,cy),.055975,.053975,z-.1016,z,'metal',parent),30)
  ring('Cup recessed drain floor',(cx,cy),.053975,.010,z-.1016,z-.0996,'black',parent)
  ring('Carpet cut edge',(cx,cy),.05599,.055975,z-.0048,z,'carpet',parent)
  return dict(opening_diameter=.10795,slab_thickness=.1016,cup_center=(cx,cy,z),tee_surface_z=level(h,*[center(h,.08)[0],.08])+.0048)
@@ -77,7 +105,7 @@ def border(h,rt):
    if h['border']=='rock':
     rock('Set stone bank',((x0+x1)/2,(y0+y1)/2,(z0+z1)/2-.06),(.34,.40,.28),rt,i+side*39+h['number']*71)
    else:
-    mat={'concrete':'concrete','brick':'brick','timber':'wood'}[h['border']]
+    mat={'concrete':'white','brick':'brick','timber':'wood'}[h['border']]
     height=.1397 if mat=='wood' else (.1016 if mat=='brick' else .1524)
     stock_width=.0889 if mat=='wood' else (.05715 if mat=='brick' else .1524)
     beam('Jointed '+h['border']+' border',(x0,y0,z0+height/2),(x1,y1,z1+height/2),stock_width,height,mat,rt)
@@ -86,7 +114,7 @@ def border(h,rt):
  # Low tee entrance and cup backstop carry actual crosswise closure.
  for t in (0,1):
   x,y=center(h,t);w=halfwidth(h,t)*(.82 if t in (0,1) else 1)
-  box('End curb',(x,y,level(h,x,t)+(.0127 if t==0 else .0762)),(w*2+.30,.15,.0254 if t==0 else .1524),'concrete' if h['border']=='concrete' else 'wood',rt)
+  box('End curb',(x,y,level(h,x,t)+(.0127 if t==0 else .0762)),(w*2+.30,.15,.0254 if t==0 else .1524),'white' if h['border']=='concrete' else 'wood',rt)
 
 def play_feature(h,rt):
  f=h['feature'];x,y=center(h,.48);z=level(h,x,.48)+.006
