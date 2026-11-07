@@ -70,6 +70,8 @@ Houses
     garage or carport.
   - [Postwar Cape Cod](houses/README.md#third-type-postwar-cape-cod): one and a half stories with dormers.
   - [Split-level](houses/README.md#fourth-type-split-level): five side-splits and a raised ranch.
+- [Apartments and townhouses](apartments/README.md): four garden-apartment complexes of 1967–1986, with stair halls,
+  exterior galleries and mansards, and four townhouse rows, on parking courts with plantings and lit entries.
 
 Commercial
 - [Commercial buildings](commercial/README.md): seeded roadside commercial buildings, 1985–2010, on shared tiled sets
