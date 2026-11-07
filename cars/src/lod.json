@@ -3,12 +3,12 @@
   "source": "export/AlderC150.glb",
   "levels": [
     {
-      "ratio": 0.4,
+      "ratio": 0.35,
       "screen_height": 0.25,
       "target_triangles": 32910
     },
     {
-      "ratio": 0.15,
+      "ratio": 0.12,
       "screen_height": 0.1,
       "target_triangles": 14959
     },
