@@ -1,8 +1,9 @@
 # Shared manufactured finishes
 
-This is an unapproved appearance candidate. See `REVIEW.md`, delivery pass 18:
-wall contact masks and fresh-bake byte repeat still fail. The `export/final/`
-directory is staging, not an appearance approval.
+The final external-image delivery uses placement-owned contact wear and gray
+municipal bowls. Fixed-camera corrections are in `renders/gate-fixes/`;
+native exported-scene critiques and the repeat proof are recorded in
+`REVIEW.md` and `build/repeat-check.json`.
 
 All pixels are original scripted fields, Cycles flat-baked at 4096 and filtered
 in linear color, coverage alpha, vector normal and RMS roughness space.
@@ -32,16 +33,23 @@ range become a .002m physical range at that repeat; riding/walk normal factors
 reduce it further. Vertical retaining faces use their own trim chart, so a
 square noise field does not stretch into horizontal waves. Their metric second
 UV set reuses Ground's concrete normal at 1.524m independently of that color
-chart. The pool shares
-one batch across its reusable sectors. Its warmer wall pigment follows the
-balanced Memorial reference; its concrete floor and surrounding deck remain
-separate finishes.
+chart. A bowl shares one pour batch across its reusable sectors. Both shipped
+bowls are municipal concrete, using the deck's gray manufacture set. `pool` selects block coping
+and a tile band; it does not imply warm backyard-pool plaster. No shipped
+seed has plaster. Memorial is a coping/tile comparator only.
 
-Sawn joints have real recessed backing and dark dirt/sealant tint. Narrow
-urethane/tail contacts belong at transition lips/toes; pumping wear follows
-bowl surface position. Riding routes are smoother, ledge wax darker/glossier,
-and steel crowns ground bare. Toe plates retain steel reflectance with bright
-scuffs and oxidation at their edges. Paint chips belong at corners. Composite
+Sawn joints have real recessed backing and dark dirt/sealant tint. Urethane
+contacts have nominal 45–70mm soft envelopes with approximately 20–30mm dark
+cores at transition lips/toes. Four soft-edged smears share the existing atlas.
+Paths vary by seed and placed piece, project onto actual game triangles,
+and merge into that piece before export. Reusable sectors and vertical
+retaining charts contain no wheel marks. Ledge-face contact is confined to
+22mm-high truck scrapes just below its armored edge. Long pocket routes carry
+faint polish, with sparse rubber slides below actual placed Approach sockets.
+Riding routes are smoother, ledge wax darker/glossier, and steel crowns ground
+bare. Grit follows the floor's fall toward its drain, with leaves on the low
+flat and toe; no warm wall-to-floor fade supplies the dirt. Toe plates retain
+steel reflectance with bright scuffs and oxidation at their edges. Paint chips belong at corners. Composite
 lanes fade lighter, with separate black wheel contacts. Fresh joint repairs
 contrast with the older park. Rasterized hand strokes have variable pressure,
 overspray, drips and a buff patch; no font makes the tags.
@@ -50,8 +58,11 @@ Terrain/trim UV reuse is intentional. Audits report actual density, reject
 collapsed charts and escaped atlas sampling, measure unit normal/tangent
 frames, and independently clip bowl triangles to reject unintended overlaps.
 They do not call repeated UVs a successful unique-atlas overlap test. Physical
-fixture-base, support and section probes are separate from serialization and
-exact-byte repeat checks.
+fixture-base, support and section probes are separate from serialization.
+`make repeat` checks deterministic procedural fields and external geometry
+byte for byte, including rebuilt context GLBs and source measurements; its
+independent GPU rebake uses the kit's maximum 2/255 channel delta and 0.02
+byte-domain RMSE per map. Coverage alpha remains exact.
 
 Opaque trim, transparent contact/tag layers and wax share three image payloads.
 Wax changes roughness and metallic factors without another ORM. Native fixture

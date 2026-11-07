@@ -1,5 +1,9 @@
 # Skatepark — connected terrain and baked look-dev checkpoint
 
+Historical checkpoint: counts, embedded delivery sizes and repeat scope below
+describe that review candidate. The current external-image delivery, placement
+wear and independent GPU-rebake proof are documented in [README.md](README.md).
+
 The connected-form and baked look-dev checkpoint is verified. This is a review checkpoint; the remaining photographic finish gap is recorded below.
 
 The 56 accepted modules remain, with two additional banks matching the four- and five-riser plaza heights. The accepted transition sections, coping diameter, construction grid, sockets, ride-line spawns and seeded grammar remain. The parks now use connected pours, continuous decks and an upper street terrace. No kit files, top-level README, README gallery or docs images changed. Existing checkpoint exports and renders are retained byte for byte.

@@ -804,3 +804,116 @@ flat turf and repeated neighborhood houses. Individual marks are still simpler
 than years of accumulated real skating, but their placement, scale and surface
 response now pass this gate. Proceed to the full cold-build final views and
 photo pairs. Docs/gallery wait for those reviews and the repeat proof.
+
+## Delivery pass 23 — cold exports, complete native-size final review
+
+Color/value first: rebuilt from empty family context, procedural/bake, texture,
+export and final-render folders, then opened all 20 native scene images: the
+three heroes and aerials; 101 scale, transition, bowl, ledge, stairs and drain;
+303 prefab, side and plate; module sheet, Eevee and three matched-photo views.
+Also opened all three pairs and calibration overlays at their native size.
+Alondra is balanced on unpainted concrete, Burnham on sunlit unpainted concrete,
+and Memorial on its coping top; review copies preserve exposure. Against
+Alondra, wall and deck now share gray municipal concrete. Memorial's warm wall
+is deliberately excluded from pigment calibration. Neither shipped bowl is
+plastered. Burnham's concrete/lawn ratios remain 2.6618–4.0268, bounding concrete
+linear Y at .192875–.291779 with the unchanged lawn. Actual exported riding
+concrete medians are .283318 (101) and .241893 (202); paste remains .67 sRGB.
+
+The cold heroes retain the low sun and -.25 EV. Whole-frame display-Y p5/p99
+are .00673/.82076 (101), .00925/.86245 (202), .00280/.79641 (303); all have zero
+fully white-clipped pixels. These include sky, trees and context and are not
+surface reflectance measurements. Bowl shade, underside shadows and steel
+highlights are visibly retained. Eevee has harder foliage shadows and less
+bounce than Cycles, but preserves the gray bowl and contact placement.
+
+The final fixed-camera 101 comparisons show the chart ticks replaced by soft,
+longer travel-direction contacts and a ledge face free of wheel arcs. The
+hero shows the pink wall and broad warm toe fade replaced by gray concrete,
+faint carved polish, sparse toe slides and floor deposits. The native drain
+view shows the sediment fan, narrow deposits toward the opening and leaves
+on the low flat. The 303 hero has no isolated white patch. Its accepted
+materials are intact; only its sun azimuth changes by 12 degrees. The final
+202 hero follows the accepted rotated terrain, while its before/after must
+use the archived camera without that rotation. Re-render that comparison;
+do not relax the projection check.
+
+What still reads as CG: the formed-wall mottle is too uniform in close view,
+the leaves are angular, and skating history is simpler and more sparse than
+Alondra's accumulated use. Lawn and repeated background houses remain the
+weakest context. These do not justify changing the accepted forms or adding
+texture allocation. The module sheet also wastes too much space; tighten its
+orthographic layout and label the groups before the gallery is approved.
+The cold build and all normal checks pass; docs still wait for the revised
+sheet, exact-camera comparison and independent repeat.
+
+## Delivery pass 24 — final comparison and presentation gate
+
+Color/value first: re-opened the final contact and matched-photo sheets, the
+revised native 1600px module sheet and every correction pair, including the
+1200px-per-panel toe crop and 800px-per-panel white-patch crop. The neutral
+choices and albedo constraints in pass 23 remain unchanged. The module sheet
+now uses a fitted orthographic camera, common physical scale, charcoal camera
+background and labels; exported geometry and procedural sky illumination are
+unchanged. Its assembled bowls expose the gray deck/wall relationship clearly.
+
+All eight correction comparisons now have exactly equal camera projection
+metadata and current export-bundle hashes. 202 was rendered separately from
+its archived, unrotated camera. All illumination metadata agree except the
+explicit 303-hero sun azimuth; its elevation remains 18.2018 degrees. No mark
+chart repeats over the bowl sectors or onto ledge/retaining faces. The ledge
+edge, transition toe/lip, gray bowl, grit/drain/leaves and cleared hero patch
+are visible in their respective pairs. The final 303 prefab close-up still
+has a small physically lit canopy-gap patch in the distant background; the
+requested hero patch is cleared. No background geometry was deleted to hide it.
+
+The remaining CG cues are the uniform wall mottle, simplified accumulated
+skating wear, angular leaf fragments, flat lawn and repeated presentation
+houses. The Alondra outline comparison remains an inferred-contour fit with
+28.33px RMS at 866px, rather than surveyed identical geometry. These limitations
+are disclosed. The appearance gate passes; gallery generation waits only for
+the independent rebuild proof, then the JPGs themselves get a native-size check.
+
+### Build and delivery receipts
+
+The cold start moved only this family's `build/`, `textures/`, `export/final/`
+and final-render folders into the ignored worktree build archive; the original
+checkpoint, look-dev and delivery-fixes images stayed in place. The historical
+read-only validation snapshots were linked back, while all current contexts,
+fields, bakes, geometry and final views were regenerated. No preview/reuse bake
+flag was used. `make -C skatepark WIDTH=1440 SAMPLES=40` completed; its normal
+checks passed from those empty family output folders. The module presentation
+was then refined and rendered again from the same export.
+
+`make -C skatepark check repeat check-texture-repeat` passed. The independent
+factory-startup rebuild regenerated all six context families and procedural
+fields, performed the actual GPU bakes/filtering, and rebuilt the library and
+three parks. All **56 deterministic files** matched byte for byte; the original
+33 final/embedded/ship files remained unchanged. All six rebaked maps met the
+kit limits (maximum channel delta 2/255, byte-domain RMSE .02): measured maximum
+**1/255**, maximum RMSE **.000845728**. Trim coverage alpha was byte-identical.
+Full map results and exact SHA-256 values are in `build/repeat-check.json` and
+`texture-repeat-check.json`. Embedded container bytes and image-dependent
+size/hash receipts are explicitly outside the byte promise; delivered external
+geometry, procedural fields and source measurements are inside it.
+
+Normal checks prove actual imported supports/sections/mark contact, normals,
+UV use, budgets and gate clearance, plus serialized corner/texture equivalence
+as a separate check. The gate sweep has 56 measured poses at 2-degree intervals,
+zero measured penetration within .5mm tolerance, not a continuous-motion proof.
+The audit retains 1,041 protected historical files, 162 current other-family
+delivery files and the original skatepark checkpoint outputs without changes.
+The cost comparison recovers the viewing archive's original relative image
+URIs in memory and verifies its original geometry-package SHA-256; rebased
+archive URI length is not charged as original geometry bytes.
+
+After the image and repeat gates passed, generated and opened all five final
+JPGs at native size. Their color/value remains that of the reviewed exported
+frames: gray municipal bowls, deep shade and unclipped highlights. Compression
+is weakest in the aerial foliage; the native frames remain the judgment source.
+No new appearance blocker appears in the gallery. `hero.jpg` is 1440×778 /
+179,313 bytes; `parks.jpg` 1600×1088 / 189,931; `details.jpg` 1569×1600 / 195,514;
+`modules.jpg` 1600×1420 / 138,494; `scale-eevee.jpg` 1600×544 / 160,062. All meet
+the width and byte limits. The README gallery and measured cost tables are
+complete. The remaining CG cues are unchanged from pass 24. No kit changes,
+no top-level README changes, and nothing needed from the lead.
